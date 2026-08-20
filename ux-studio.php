@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       UX Studio
- * Plugin URI:        https://github.com/TODO-org/ux-studio
+ * Plugin URI:        https://github.com/sturmjan/ux-studio
  * Description:       Modular WordPress admin platform: one consistent SPA for all site tools.
  * Version:           0.1.0
  * Requires at least: 6.5
@@ -11,7 +11,7 @@
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       ux-studio
  * Domain Path:       /languages
- * Update URI:        https://github.com/TODO-org/ux-studio
+ * Update URI:        https://github.com/sturmjan/ux-studio
  *
  * @package UxStudio
  */

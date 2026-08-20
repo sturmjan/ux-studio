@@ -16,15 +16,16 @@ defined( 'ABSPATH' ) || exit;
  */
 final class GithubUpdater {
 
-	// TODO: set once the GitHub repo exists.
-	private const REPO_URL = 'https://github.com/TODO-org/ux-studio/';
+	// Repo je privátní - plugin-update-checker bez access tokenu update nestáhne.
+	// Token doplnit přes buildUpdateChecker()/setAuthentication() při nasazení.
+	private const REPO_URL = 'https://github.com/sturmjan/ux-studio/';
 
 	/**
-	 * Register the update checker (no-op until the library + repo exist).
+	 * Register the update checker (no-op until the library exists).
 	 */
 	public static function register(): void {
 		$puc = UXSTUDIO_PATH . 'vendor/plugin-update-checker/plugin-update-checker.php';
-		if ( ! is_readable( $puc ) || str_contains( self::REPO_URL, 'TODO-org' ) ) {
+		if ( ! is_readable( $puc ) ) {
 			return;
 		}
 		require_once $puc;
