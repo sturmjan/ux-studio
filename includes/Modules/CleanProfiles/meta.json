@@ -1,0 +1,8 @@
+{
+	"id": "clean-profiles",
+	"name": "Clean Profiles",
+	"description": "Hide selected sections and fields on the user profile screen to simplify it.",
+	"group": "admin",
+	"icon": "user-cog",
+	"settings": true
+}

@@ -1,0 +1,8 @@
+{
+	"id": "email-health",
+	"name": "Email Health",
+	"description": "Send a test email to verify outgoing mail works and record the last result.",
+	"group": "admin",
+	"icon": "mail-check",
+	"settings": true
+}

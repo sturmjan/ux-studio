@@ -1,0 +1,8 @@
+{
+	"id": "ai-markdown",
+	"name": "AI Markdown",
+	"description": "Serve a markdown version of your content for AI bots via /llms.txt and ?format=markdown, with a local (non-AI) conversion and access log.",
+	"group": "content",
+	"icon": "file-text",
+	"settings": true
+}

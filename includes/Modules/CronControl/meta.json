@@ -1,0 +1,8 @@
+{
+	"id": "cron-control",
+	"name": "Cron Control",
+	"description": "Inspect and manage WP-Cron scheduled events.",
+	"group": "performance",
+	"icon": "clock",
+	"settings": true
+}

@@ -1,0 +1,8 @@
+{
+	"id": "quick-image",
+	"name": "Quick Image",
+	"description": "Change the featured image straight from the posts and pages list tables via a thumbnail column.",
+	"group": "content",
+	"icon": "image",
+	"settings": true
+}

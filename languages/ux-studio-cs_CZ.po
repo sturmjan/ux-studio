@@ -1,0 +1,5722 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: UX Studio\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: UX Studio\n"
+"Language-Team: Czech\n"
+"Language: cs_CZ\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+"X-Domain: ux-studio\n"
+
+
+msgid "UX Studio"
+msgstr "UX Studio"
+
+msgid "https://github.com/TODO-org/ux-studio"
+msgstr "https://github.com/TODO-org/ux-studio"
+
+msgid "Modular WordPress admin platform: one consistent SPA for all site tools."
+msgstr "Modulární administrační platforma pro WordPress: jedno konzistentní SPA pro všechny nástroje webu."
+
+msgid "UX One"
+msgstr "UX One"
+
+msgid "Content Sync is not configured."
+msgstr "Synchronizace obsahu není nakonfigurována."
+
+msgid "Central app returned HTTP %d."
+msgstr "Centrální aplikace vrátila HTTP %d."
+
+msgid "Central app response failed signature verification."
+msgstr "Ověření podpisu odpovědi centrální aplikace se nezdařilo."
+
+msgid "UX Studio is inactive: the legacy plugin \"UX One - Wordpress customizer\" is still active. Deactivate it to let UX Studio take over."
+msgstr "UX Studio je neaktivní: starší plugin „UX One - Wordpress customizer“ je stále aktivní. Deaktivujte jej, aby mohlo UX Studio převzít řízení."
+
+msgid "Unknown module."
+msgstr "Neznámý modul."
+
+msgid "You are not allowed to manage this module."
+msgstr "Nemáte oprávnění spravovat tento modul."
+
+msgid "Retention (days)"
+msgstr "Doba uchování (dny)"
+
+msgid "Entries older than this are removed by the \"Purge old entries\" action."
+msgstr "Záznamy starší než tato hodnota jsou odstraněny akcí „Vyčistit staré záznamy“."
+
+msgid "Alert on new IP login"
+msgstr "Upozornit na přihlášení z nové IP"
+
+msgid "Send an email when a user logs in from an IP address not seen for them before."
+msgstr "Odeslat e-mail, když se uživatel přihlásí z IP adresy, která u něj dosud nebyla zaznamenána."
+
+msgid "Alert email"
+msgstr "E-mail pro upozornění"
+
+msgid "Recipient for new-IP alerts. Defaults to the site admin email."
+msgstr "Příjemce upozornění na novou IP. Výchozí je e-mail administrátora webu."
+
+msgid "[%1$s] New IP login for %2$s"
+msgstr "[%1$s] Přihlášení z nové IP pro %2$s"
+
+msgid "User %1$s just logged in from a new IP address: %2$s\nTime: %3$s"
+msgstr "Uživatel %1$s se právě přihlásil z nové IP adresy: %2$s\nČas: %3$s"
+
+msgid "unknown"
+msgstr "neznámé"
+
+msgid "Unknown content type."
+msgstr "Neznámý typ obsahu."
+
+msgid "Quick actions"
+msgstr "Rychlé akce"
+
+msgid "Open %s in a new tab"
+msgstr "Otevřít %s na nové kartě"
+
+msgid "New post"
+msgstr "Nový příspěvek"
+
+msgid "New page"
+msgstr "Nová stránka"
+
+msgid "Upload media"
+msgstr "Nahrát média"
+
+msgid "New user"
+msgstr "Nový uživatel"
+
+msgid "Manage plugins"
+msgstr "Spravovat pluginy"
+
+msgid "Customize theme"
+msgstr "Přizpůsobit šablonu"
+
+msgid "Notifications"
+msgstr "Oznámení"
+
+msgid "Dashboard"
+msgstr "Nástěnka"
+
+msgid "Content"
+msgstr "Obsah"
+
+msgid "Media"
+msgstr "Média"
+
+msgid "Appearance"
+msgstr "Vzhled"
+
+msgid "Commerce"
+msgstr "Obchod"
+
+msgid "Marketing"
+msgstr "Marketing"
+
+msgid "Users"
+msgstr "Uživatelé"
+
+msgid "System"
+msgstr "Systém"
+
+msgid "Other"
+msgstr "Ostatní"
+
+msgid "This plugin rewrites the admin menu order via the parent_file filter. Its hooks are automatically removed while the menu organizer is active."
+msgstr "Tento plugin přepisuje pořadí administračního menu pomocí filtru parent_file. Jeho háčky jsou automaticky odebrány, dokud je aktivní organizátor menu."
+
+msgid "This plugin rewrites the global $menu at render time on the submenu_file filter. The organizer reorganizes after it, but running both menu editors together is not recommended."
+msgstr "Tento plugin přepisuje globální proměnnou $menu při vykreslování pomocí filtru submenu_file. Organizátor jej po něm znovu uspořádá, ale spouštět oba editory menu zároveň se nedoporučuje."
+
+msgid "Other menu modifiers"
+msgstr "Další úpravy menu"
+
+msgid "Detected other callbacks with high priority on the admin_menu, parent_file or submenu_file hooks. If reorganization misbehaves, this is likely the culprit:"
+msgstr "Byly zjištěny další callbacky s vysokou prioritou na háčcích admin_menu, parent_file nebo submenu_file. Pokud se reorganizace chová nesprávně, je to pravděpodobně příčina:"
+
+msgid "Primary color"
+msgstr "Primární barva"
+
+msgid "Login screen logo"
+msgstr "Logo přihlašovací obrazovky"
+
+msgid "Login screen background color"
+msgstr "Barva pozadí přihlašovací obrazovky"
+
+msgid "Admin footer text"
+msgstr "Text patičky administrace"
+
+msgid "Hide \"Screen Options\" tab"
+msgstr "Skrýt záložku „Nastavení zobrazení“"
+
+msgid "Hide \"Help\" tab"
+msgstr "Skrýt záložku „Nápověda“"
+
+msgid "Enable menu organizer"
+msgstr "Zapnout organizátor menu"
+
+msgid "Reorganizes the WordPress admin menu into custom categories. Configure categories, item order and overrides in the Menu Organizer tab."
+msgstr "Reorganizuje administrační menu WordPressu do vlastních kategorií. Kategorie, pořadí položek a přepisy nastavte na záložce Organizátor menu."
+
+msgid "Enable admin bar customization"
+msgstr "Zapnout přizpůsobení panelu administrace"
+
+msgid "Enable quick search"
+msgstr "Zapnout rychlé hledání"
+
+msgid "Quick search post types"
+msgstr "Typy obsahu pro rychlé hledání"
+
+msgid "Enable icon replacer"
+msgstr "Zapnout náhradu ikon"
+
+msgid "Hide admin notices"
+msgstr "Skrýt administrační upozornění"
+
+msgid "Relocate instead of hiding"
+msgstr "Přemístit místo skrytí"
+
+msgid "Move notices to a tray instead of hiding them completely"
+msgstr "Přesunout upozornění do zásuvky místo jejich úplného skrytí"
+
+msgid "Enable server clock"
+msgstr "Zapnout serverové hodiny"
+
+msgid "Server clock position"
+msgstr "Pozice serverových hodin"
+
+msgid "Admin bar pill"
+msgstr "Odznak v panelu administrace"
+
+msgid "Plus menu"
+msgstr "Menu Plus"
+
+msgid "Enable login screen customization"
+msgstr "Zapnout přizpůsobení přihlašovací obrazovky"
+
+msgid "Search..."
+msgstr "Hledat…"
+
+msgid "Edit"
+msgstr "Upravit"
+
+msgid "View"
+msgstr "Zobrazit"
+
+msgid "Open"
+msgstr "Otevřít"
+
+msgid "WooCommerce"
+msgstr "WooCommerce"
+
+msgid "Products"
+msgstr "Produkty"
+
+msgid "Categories"
+msgstr "Kategorie"
+
+msgid "Advanced Custom Fields"
+msgstr "Advanced Custom Fields"
+
+msgid "Field Groups"
+msgstr "Skupiny polí"
+
+msgid "Post Types"
+msgstr "Typy obsahu"
+
+msgid "Taxonomies"
+msgstr "Taxonomie"
+
+msgid "Server time"
+msgstr "Serverový čas"
+
+msgid "The AI returned an invalid response. Please try again."
+msgstr "AI vrátila neplatnou odpověď. Zkuste to prosím znovu."
+
+msgid "Error creating the post: %s"
+msgstr "Chyba při vytváření příspěvku: %s"
+
+msgid "Weekly (UX Studio)"
+msgstr "Týdně (UX Studio)"
+
+msgid "Monthly (UX Studio)"
+msgstr "Měsíčně (UX Studio)"
+
+msgid "Generator not found."
+msgstr "Generátor nenalezen."
+
+msgid "General article"
+msgstr "Obecný článek"
+
+msgid "Title is required."
+msgstr "Název je povinný."
+
+msgid "Add at least one topic."
+msgstr "Přidejte alespoň jedno téma."
+
+msgid "Could not create the generator."
+msgstr "Generátor se nepodařilo vytvořit."
+
+msgid "Generator created and scheduled."
+msgstr "Generátor vytvořen a naplánován."
+
+msgid "Generator updated."
+msgstr "Generátor aktualizován."
+
+msgid "Generator deleted."
+msgstr "Generátor smazán."
+
+msgid "Generation failed."
+msgstr "Generování se nezdařilo."
+
+msgid "Generator activated."
+msgstr "Generátor aktivován."
+
+msgid "Generator paused."
+msgstr "Generátor pozastaven."
+
+msgid "Missing action or posts."
+msgstr "Chybí akce nebo příspěvky."
+
+msgid "Action '%1$s' applied to %2$d post(s)."
+msgstr "Akce „%1$s“ byla použita na %2$d příspěvek(ů)."
+
+msgid "New conversation"
+msgstr "Nová konverzace"
+
+msgid "Message or session id is missing."
+msgstr "Chybí zpráva nebo ID relace."
+
+msgid "Too many requests. Please try again shortly."
+msgstr "Příliš mnoho požadavků. Zkuste to prosím za chvíli znovu."
+
+msgid "We are currently at capacity. Please contact us by email instead."
+msgstr "Momentálně jsme vytíženi na maximum. Kontaktujte nás prosím raději e-mailem."
+
+msgid "Session id is missing."
+msgstr "Chybí ID relace."
+
+msgid "Please fill in all fields."
+msgstr "Vyplňte prosím všechna pole."
+
+msgid "Invalid email address."
+msgstr "Neplatná e-mailová adresa."
+
+msgid "You have reached the maximum number of messages. Please try again later."
+msgstr "Dosáhli jste maximálního počtu zpráv. Zkuste to prosím později."
+
+msgid "[%1$s] Message from the AI chat by %2$s"
+msgstr "[%1$s] Zpráva z AI chatu od %2$s"
+
+msgid "New message from the AI Assistant chat"
+msgstr "Nová zpráva z chatu AI asistenta"
+
+msgid "Name"
+msgstr "Jméno"
+
+msgid "Email"
+msgstr "E-mail"
+
+msgid "Phone"
+msgstr "Telefon"
+
+msgid "Page"
+msgstr "Stránka"
+
+msgid "Message"
+msgstr "Zpráva"
+
+msgid "Could not send the email. Please try again."
+msgstr "E-mail se nepodařilo odeslat. Zkuste to prosím znovu."
+
+msgid "Please enter a phone number."
+msgstr "Zadejte prosím telefonní číslo."
+
+msgid "Invalid phone number."
+msgstr "Neplatné telefonní číslo."
+
+msgid "You have reached the maximum number of requests."
+msgstr "Dosáhli jste maximálního počtu požadavků."
+
+msgid "[%s] New callback request"
+msgstr "[%s] Nová žádost o zpětné zavolání"
+
+msgid "New callback request from the AI chat"
+msgstr "Nová žádost o zpětné zavolání z AI chatu"
+
+msgid "Note"
+msgstr "Poznámka"
+
+msgid "Invalid rating."
+msgstr "Neplatné hodnocení."
+
+msgid "You have reached the maximum number of ratings."
+msgstr "Dosáhli jste maximálního počtu hodnocení."
+
+msgid "Could not save the rating."
+msgstr "Hodnocení se nepodařilo uložit."
+
+msgid "WooCommerce is not active."
+msgstr "WooCommerce není aktivní."
+
+msgid "Product not found."
+msgstr "Produkt nenalezen."
+
+msgid "Conversation not found."
+msgstr "Konverzace nenalezena."
+
+msgid "Search the internal knowledge base (manual entries and uploaded documents) for information relevant to the visitor's question."
+msgstr "Prohledat interní znalostní databázi (ruční záznamy a nahrané dokumenty) a najít informace relevantní k dotazu návštěvníka."
+
+msgid "Search query, in the visitor's own words."
+msgstr "Vyhledávací dotaz, vlastními slovy návštěvníka."
+
+msgid "Search frequently asked questions for a matching question/answer pair."
+msgstr "Prohledat často kladené otázky a najít odpovídající dvojici otázka/odpověď."
+
+msgid "Search query."
+msgstr "Vyhledávací dotaz."
+
+msgid "Search the site's pages and posts for information relevant to the visitor's question."
+msgstr "Prohledat stránky a příspěvky webu a najít informace relevantní k dotazu návštěvníka."
+
+msgid "Search the shop's product catalog. Returns product id, name, price and stock status. Reference a result in your reply with a [product:ID] tag."
+msgstr "Prohledat katalog produktů obchodu. Vrací ID produktu, název, cenu a stav skladu. Na výsledek ve své odpovědi odkažte značkou [product:ID]."
+
+msgid "Search query describing what the visitor is looking for."
+msgstr "Vyhledávací dotaz popisující, co návštěvník hledá."
+
+msgid "Fetch full details for one specific product by its numeric id."
+msgstr "Načíst úplné podrobnosti o jednom konkrétním produktu podle jeho číselného ID."
+
+msgid "Product id."
+msgstr "ID produktu."
+
+msgid "Unknown tool."
+msgstr "Neznámý nástroj."
+
+msgid "Knowledge base search"
+msgstr "Hledání ve znalostní databázi"
+
+msgid "FAQ search"
+msgstr "Hledání v FAQ"
+
+msgid "Site content search"
+msgstr "Hledání v obsahu webu"
+
+msgid "Product search"
+msgstr "Hledání produktů"
+
+msgid "Product details"
+msgstr "Podrobnosti o produktu"
+
+msgid "The content description must be at least 10 characters long."
+msgstr "Popis obsahu musí mít alespoň 10 znaků."
+
+msgid "Create content on the following topic: %s"
+msgstr "Vytvořit obsah na téma: %s"
+
+msgid "SEO focus keywords: %s"
+msgstr "Klíčová slova pro SEO: %s"
+
+msgid "The product description must be at least 10 characters long."
+msgstr "Popis produktu musí mít alespoň 10 znaků."
+
+msgid "Create a product description for: %s"
+msgstr "Vytvořit popis produktu pro: %s"
+
+msgid "Content:"
+msgstr "Obsah:"
+
+msgid "The AI returned an invalid JSON response: %s"
+msgstr "AI vrátila neplatnou odpověď ve formátu JSON: %s"
+
+msgid "Publishing failed."
+msgstr "Publikování se nezdařilo."
+
+msgid "The content to analyse for SEO is empty."
+msgstr "Obsah k analýze pro SEO je prázdný."
+
+msgid "Elementor is not active."
+msgstr "Elementor není aktivní."
+
+msgid "The html_content parameter is required."
+msgstr "Parametr html_content je povinný."
+
+msgid "Could not convert the HTML into Elementor widgets."
+msgstr "HTML se nepodařilo převést na widgety Elementoru."
+
+msgid "Elementor page"
+msgstr "Stránka Elementoru"
+
+msgid "The url parameter must be a valid, publicly reachable URL."
+msgstr "Parametr url musí být platná, veřejně dostupná URL."
+
+msgid "Could not extract content from the page."
+msgstr "Ze stránky se nepodařilo extrahovat obsah."
+
+msgid "Import from URL"
+msgstr "Import z URL"
+
+msgid "Page not found."
+msgstr "Stránka nenalezena."
+
+msgid "The file does not exist or is not readable."
+msgstr "Soubor neexistuje nebo jej nelze číst."
+
+msgid "Unsupported file type."
+msgstr "Nepodporovaný typ souboru."
+
+msgid "ZipArchive is unavailable. Install the php-zip extension."
+msgstr "ZipArchive není k dispozici. Nainstalujte rozšíření php-zip."
+
+msgid "Could not open the DOCX file."
+msgstr "Soubor DOCX se nepodařilo otevřít."
+
+msgid "The DOCX file does not contain word/document.xml."
+msgstr "Soubor DOCX neobsahuje word/document.xml."
+
+msgid "Could not extract text from the PDF. Install pdftotext (poppler-utils) for reliable extraction."
+msgstr "Nepodařilo se extrahovat text z PDF. Pro spolehlivou extrakci nainstalujte pdftotext (poppler-utils)."
+
+msgid "Could not read the file."
+msgstr "Soubor se nepodařilo přečíst."
+
+msgid "There are no conversations to analyze yet."
+msgstr "Zatím nejsou k dispozici žádné konverzace k analýze."
+
+msgid "No customer questions found in the conversations."
+msgstr "V konverzacích nebyly nalezeny žádné dotazy zákazníků."
+
+msgid "A topic or instruction is required."
+msgstr "Je vyžadováno téma nebo pokyn."
+
+msgid "The customer requested a human operator. Waiting to connect."
+msgstr "Zákazník požádal o živého operátora. Čeká se na spojení."
+
+msgid "The customer cancelled the operator request."
+msgstr "Zákazník zrušil požadavek na operátora."
+
+msgid "%s has joined the conversation."
+msgstr "%s se připojil(a) ke konverzaci."
+
+msgid "The operator ended the conversation. The chatbot is available again."
+msgstr "Operátor ukončil konverzaci. Chatbot je opět dostupný."
+
+msgid "The operator closed the conversation."
+msgstr "Operátor uzavřel konverzaci."
+
+msgid "[%s] A customer is requesting a human operator"
+msgstr "[%s] Zákazník žádá o živého operátora"
+
+msgid "A customer is requesting to be connected with a human operator in the AI chat."
+msgstr "Zákazník v AI chatu žádá o spojení s živým operátorem."
+
+msgid "Reason: %s"
+msgstr "Důvod: %s"
+
+msgid "Open the inbox: %s"
+msgstr "Otevřít doručenou poštu: %s"
+
+msgid "Operator"
+msgstr "Operátor"
+
+msgid "session_id is required."
+msgstr "Je vyžadováno session_id."
+
+msgid "Your request has been recorded. Please wait for an operator to join."
+msgstr "Váš požadavek byl zaznamenán. Vyčkejte prosím, než se připojí operátor."
+
+msgid "session_id and message are required."
+msgstr "Je vyžadováno session_id a zpráva."
+
+msgid "Too many messages."
+msgstr "Příliš mnoho zpráv."
+
+msgid "This conversation is not currently handled by an operator."
+msgstr "Tuto konverzaci aktuálně neobsluhuje operátor."
+
+msgid "Could not take over the conversation."
+msgstr "Konverzaci se nepodařilo převzít."
+
+msgid "Message is required."
+msgstr "Zpráva je vyžadována."
+
+msgid "Could not send the message."
+msgstr "Zprávu se nepodařilo odeslat."
+
+msgid "Could not close the conversation."
+msgstr "Konverzaci se nepodařilo uzavřít."
+
+msgid "Message list is empty."
+msgstr "Seznam zpráv je prázdný."
+
+msgid "Entry not found."
+msgstr "Záznam nebyl nalezen."
+
+msgid "No file was uploaded."
+msgstr "Nebyl nahrán žádný soubor."
+
+msgid "Document not found."
+msgstr "Dokument nebyl nalezen."
+
+msgid "FAQ not found."
+msgstr "FAQ nebylo nalezeno."
+
+msgid "Could not update the FAQ."
+msgstr "FAQ se nepodařilo aktualizovat."
+
+msgid "Invalid source type."
+msgstr "Neplatný typ zdroje."
+
+msgid "A URL is required."
+msgstr "URL je vyžadována."
+
+msgid "A sitemap URL is required."
+msgstr "URL mapy webu je vyžadována."
+
+msgid "Text is required."
+msgstr "Text je vyžadován."
+
+msgid "Source not found."
+msgstr "Zdroj nebyl nalezen."
+
+msgid "Reindexing failed."
+msgstr "Reindexace selhala."
+
+msgid "Upload failed."
+msgstr "Nahrání selhalo."
+
+msgid "The file is too large. Maximum size is 10 MB."
+msgstr "Soubor je příliš velký. Maximální velikost je 10 MB."
+
+msgid "Unsupported file type. Allowed types: %s"
+msgstr "Nepodporovaný typ souboru. Povolené typy: %s"
+
+msgid "Could not register the file in the media library."
+msgstr "Soubor se nepodařilo zaregistrovat do knihovny médií."
+
+msgid "Could not create the document record."
+msgstr "Záznam dokumentu se nepodařilo vytvořit."
+
+msgid "No text could be extracted from the file."
+msgstr "Ze souboru se nepodařilo extrahovat žádný text."
+
+msgid "The document contains no usable text."
+msgstr "Dokument neobsahuje žádný použitelný text."
+
+msgid "Token not found."
+msgstr "Token nebyl nalezen."
+
+msgid "Unknown"
+msgstr "Neznámé"
+
+msgid "AI Assistant"
+msgstr "AI asistent"
+
+msgid "WordPress management tools provided by AI Assistant"
+msgstr "Nástroje pro správu WordPressu poskytované AI asistentem"
+
+msgid "Plugins Information"
+msgstr "Informace o pluginech"
+
+msgid "Provides detailed information about active and available WordPress plugins"
+msgstr "Poskytuje podrobné informace o aktivních a dostupných pluginech WordPressu"
+
+msgid "Site Information"
+msgstr "Informace o webu"
+
+msgid "Provides general information about the WordPress site including site details, plugins, themes, and users"
+msgstr "Poskytuje obecné informace o webu WordPress včetně podrobností o webu, pluginů, šablon a uživatelů"
+
+msgid "Site Settings"
+msgstr "Nastavení webu"
+
+msgid "Provides detailed information about WordPress site settings including general, reading, discussion, media, permalink, privacy, and writing settings"
+msgstr "Poskytuje podrobné informace o nastavení webu WordPress včetně obecného nastavení, čtení, diskuze, médií, trvalých odkazů, soukromí a psaní"
+
+msgid "Theme Information"
+msgstr "Informace o šabloně"
+
+msgid "Provides detailed information about the active WordPress theme and its parent theme if applicable"
+msgstr "Poskytuje podrobné informace o aktivní šabloně WordPressu a její nadřazené šabloně, pokud existuje"
+
+msgid "Users Information"
+msgstr "Informace o uživatelích"
+
+msgid "Provides detailed information about registered WordPress users and their roles"
+msgstr "Poskytuje podrobné informace o registrovaných uživatelích WordPressu a jejich rolích"
+
+msgid "List Categories"
+msgstr "Vypsat kategorie"
+
+msgid "List all categories"
+msgstr "Vypsat všechny kategorie"
+
+msgid "Get Category"
+msgstr "Získat kategorii"
+
+msgid "Get a category by ID"
+msgstr "Získat kategorii podle ID"
+
+msgid "Create Category"
+msgstr "Vytvořit kategorii"
+
+msgid "Create a new category"
+msgstr "Vytvořit novou kategorii"
+
+msgid "Update Category"
+msgstr "Aktualizovat kategorii"
+
+msgid "Update a category"
+msgstr "Aktualizovat kategorii"
+
+msgid "Delete Category"
+msgstr "Smazat kategorii"
+
+msgid "Delete a category"
+msgstr "Smazat kategorii"
+
+msgid "List Post Types"
+msgstr "Vypsat typy obsahu"
+
+msgid "List all registered post types"
+msgstr "Vypsat všechny registrované typy obsahu"
+
+msgid "Get Post Type"
+msgstr "Získat typ obsahu"
+
+msgid "Get details about a post type"
+msgstr "Získat podrobnosti o typu obsahu"
+
+msgid "List Taxonomies"
+msgstr "Vypsat taxonomie"
+
+msgid "List all registered taxonomies"
+msgstr "Vypsat všechny registrované taxonomie"
+
+msgid "Get Taxonomy"
+msgstr "Získat taxonomii"
+
+msgid "Get details about a taxonomy"
+msgstr "Získat podrobnosti o taxonomii"
+
+msgid "List Elementor Pages"
+msgstr "Vypsat stránky Elementoru"
+
+msgid "List all pages built with Elementor"
+msgstr "Vypsat všechny stránky vytvořené v Elementoru"
+
+msgid "Get Page Structure"
+msgstr "Získat strukturu stránky"
+
+msgid "Get the Elementor widget structure of a page"
+msgstr "Získat strukturu widgetů Elementoru na stránce"
+
+msgid "Page/Post ID"
+msgstr "ID stránky/příspěvku"
+
+msgid "Find Widgets"
+msgstr "Najít widgety"
+
+msgid "Search for specific widget types in a page"
+msgstr "Vyhledat konkrétní typy widgetů na stránce"
+
+msgid "Widget type to search for (e.g. heading, text-editor, image)"
+msgstr "Typ widgetu, který se má vyhledat (např. heading, text-editor, image)"
+
+msgid "Update Widget Content"
+msgstr "Aktualizovat obsah widgetu"
+
+msgid "Update the content of an Elementor widget"
+msgstr "Aktualizovat obsah widgetu Elementoru"
+
+msgid "Widget ID"
+msgstr "ID widgetu"
+
+msgid "JSON string of settings to update"
+msgstr "JSON řetězec nastavení k aktualizaci"
+
+msgid "List Media"
+msgstr "Vypsat média"
+
+msgid "List media items"
+msgstr "Vypsat položky médií"
+
+msgid "Get Media"
+msgstr "Získat médium"
+
+msgid "Get a media item by ID"
+msgstr "Získat položku média podle ID"
+
+msgid "Delete Media"
+msgstr "Smazat médium"
+
+msgid "Delete a media item"
+msgstr "Smazat položku média"
+
+msgid "Search Pages"
+msgstr "Vyhledat stránky"
+
+msgid "Search and list pages with filters"
+msgstr "Vyhledat a vypsat stránky s filtry"
+
+msgid "Get Page"
+msgstr "Získat stránku"
+
+msgid "Get a single page by ID"
+msgstr "Získat jednu stránku podle ID"
+
+msgid "Create Page"
+msgstr "Vytvořit stránku"
+
+msgid "Create a new page"
+msgstr "Vytvořit novou stránku"
+
+msgid "Update Page"
+msgstr "Aktualizovat stránku"
+
+msgid "Update an existing page"
+msgstr "Aktualizovat existující stránku"
+
+msgid "Delete Page"
+msgstr "Smazat stránku"
+
+msgid "Delete a page"
+msgstr "Smazat stránku"
+
+msgid "Search Posts"
+msgstr "Vyhledat příspěvky"
+
+msgid "Search and list posts with filters"
+msgstr "Vyhledat a vypsat příspěvky s filtry"
+
+msgid "Get Post"
+msgstr "Získat příspěvek"
+
+msgid "Get a single post by ID"
+msgstr "Získat jeden příspěvek podle ID"
+
+msgid "Create Post"
+msgstr "Vytvořit příspěvek"
+
+msgid "Create a new post"
+msgstr "Vytvořit nový příspěvek"
+
+msgid "Update Post"
+msgstr "Aktualizovat příspěvek"
+
+msgid "Update an existing post"
+msgstr "Aktualizovat existující příspěvek"
+
+msgid "Delete Post"
+msgstr "Smazat příspěvek"
+
+msgid "Delete a post"
+msgstr "Smazat příspěvek"
+
+msgid "URL parameter: %s"
+msgstr "Parametr URL: %s"
+
+msgid "Get Settings"
+msgstr "Získat nastavení"
+
+msgid "Get all WordPress settings"
+msgstr "Získat všechna nastavení WordPressu"
+
+msgid "Update Settings"
+msgstr "Aktualizovat nastavení"
+
+msgid "Update WordPress settings"
+msgstr "Aktualizovat nastavení WordPressu"
+
+msgid "Get Site Stats"
+msgstr "Získat statistiky webu"
+
+msgid "Get comprehensive information about this WordPress site"
+msgstr "Získat souhrnné informace o tomto webu WordPress"
+
+msgid "List Tags"
+msgstr "Vypsat štítky"
+
+msgid "List all tags"
+msgstr "Vypsat všechny štítky"
+
+msgid "Get Tag"
+msgstr "Získat štítek"
+
+msgid "Get a tag by ID"
+msgstr "Získat štítek podle ID"
+
+msgid "Create Tag"
+msgstr "Vytvořit štítek"
+
+msgid "Create a new tag"
+msgstr "Vytvořit nový štítek"
+
+msgid "Update Tag"
+msgstr "Aktualizovat štítek"
+
+msgid "Update a tag"
+msgstr "Aktualizovat štítek"
+
+msgid "Delete Tag"
+msgstr "Smazat štítek"
+
+msgid "Delete a tag"
+msgstr "Smazat štítek"
+
+msgid "List Users"
+msgstr "Vypsat uživatele"
+
+msgid "List all users"
+msgstr "Vypsat všechny uživatele"
+
+msgid "Get User"
+msgstr "Získat uživatele"
+
+msgid "Get a user by ID"
+msgstr "Získat uživatele podle ID"
+
+msgid "Create User"
+msgstr "Vytvořit uživatele"
+
+msgid "Create a new user"
+msgstr "Vytvořit nového uživatele"
+
+msgid "Update User"
+msgstr "Aktualizovat uživatele"
+
+msgid "Update a user"
+msgstr "Aktualizovat uživatele"
+
+msgid "Delete User"
+msgstr "Smazat uživatele"
+
+msgid "Delete a user"
+msgstr "Smazat uživatele"
+
+msgid "List Orders"
+msgstr "Vypsat objednávky"
+
+msgid "List WooCommerce orders"
+msgstr "Vypsat objednávky WooCommerce"
+
+msgid "Get Order"
+msgstr "Získat objednávku"
+
+msgid "Get an order by ID"
+msgstr "Získat objednávku podle ID"
+
+msgid "Create Order"
+msgstr "Vytvořit objednávku"
+
+msgid "Create a new order"
+msgstr "Vytvořit novou objednávku"
+
+msgid "List Products"
+msgstr "Vypsat produkty"
+
+msgid "List WooCommerce products"
+msgstr "Vypsat produkty WooCommerce"
+
+msgid "Get Product"
+msgstr "Získat produkt"
+
+msgid "Get a product by ID"
+msgstr "Získat produkt podle ID"
+
+msgid "Create Product"
+msgstr "Vytvořit produkt"
+
+msgid "Create a new product"
+msgstr "Vytvořit nový produkt"
+
+msgid "Update Product"
+msgstr "Aktualizovat produkt"
+
+msgid "Update a product"
+msgstr "Aktualizovat produkt"
+
+msgid "Delete Product"
+msgstr "Smazat produkt"
+
+msgid "Delete a product"
+msgstr "Smazat produkt"
+
+msgid "Default AI provider"
+msgstr "Výchozí poskytovatel AI"
+
+msgid "Claude API key"
+msgstr "API klíč Claude"
+
+msgid "Stored encrypted. Leave blank to keep the current key."
+msgstr "Uloženo šifrovaně. Ponechte prázdné pro zachování stávajícího klíče."
+
+msgid "Claude model"
+msgstr "Model Claude"
+
+msgid "OpenAI API key"
+msgstr "API klíč OpenAI"
+
+msgid "OpenAI model"
+msgstr "Model OpenAI"
+
+msgid "DeepSeek API key"
+msgstr "API klíč DeepSeek"
+
+msgid "DeepSeek model"
+msgstr "Model DeepSeek"
+
+msgid "Monthly token limit"
+msgstr "Měsíční limit tokenů"
+
+msgid "0 = unlimited. Resets on the 1st of each month."
+msgstr "0 = neomezeno. Resetuje se 1. dne každého měsíce."
+
+msgid "Daily request limit (site-wide)"
+msgstr "Denní limit požadavků (pro celý web)"
+
+msgid "0 = unlimited."
+msgstr "0 = neomezeno."
+
+msgid "Daily request limit (per user)"
+msgstr "Denní limit požadavků (na uživatele)"
+
+msgid "Enable MCP (tool calling)"
+msgstr "Zapnout MCP (volání nástrojů)"
+
+msgid "Chat language"
+msgstr "Jazyk chatu"
+
+msgid "Czech"
+msgstr "Čeština"
+
+msgid "English"
+msgstr "Angličtina"
+
+msgid "Show chat widget on the frontend"
+msgstr "Zobrazit widget chatu na frontendu"
+
+msgid "Dobrý den! Jak vám mohu pomoci?"
+msgstr "Dobrý den! Jak vám mohu pomoci?"
+
+msgid "Hello! How can I help you?"
+msgstr "Hello! How can I help you?"
+
+msgid "Tento chat využívá AI. Odesláním zprávy souhlasíte se zpracováním vašeho dotazu. Vaše konverzace může být uložena pro zlepšení kvality služeb."
+msgstr "Tento chat využívá AI. Odesláním zprávy souhlasíte se zpracováním vašeho dotazu. Vaše konverzace může být uložena pro zlepšení kvality služeb."
+
+msgid "This chat uses AI. By sending a message you agree to your query being processed. Your conversation may be stored to improve service quality."
+msgstr "This chat uses AI. By sending a message you agree to your query being processed. Your conversation may be stored to improve service quality."
+
+msgid "Napište svůj dotaz..."
+msgstr "Napište svůj dotaz..."
+
+msgid "Type your question..."
+msgstr "Type your question..."
+
+msgid "AI Podpora"
+msgstr "AI Podpora"
+
+msgid "AI Support"
+msgstr "AI Support"
+
+msgid "Crawling failed."
+msgstr "Procházení (crawling) selhalo."
+
+msgid "The sitemap contains no URLs."
+msgstr "Sitemap neobsahuje žádné URL."
+
+msgid "Unknown source type."
+msgstr "Neznámý typ zdroje."
+
+msgid "Empty content."
+msgstr "Prázdný obsah."
+
+msgid "Embedding count does not match chunk count."
+msgstr "Počet embeddingů neodpovídá počtu chunků."
+
+msgid "Empty response."
+msgstr "Prázdná odpověď."
+
+msgid "PDF URLs are not supported here; upload the PDF as a document instead."
+msgstr "PDF URL zde nejsou podporovány; nahrajte PDF jako dokument."
+
+msgid "Could not extract text from the page."
+msgstr "Ze stránky se nepodařilo extrahovat text."
+
+msgid "The monthly token limit has been reached (%1$s / %2$s). It resets on the 1st of next month."
+msgstr "Byl dosažen měsíční limit tokenů (%1$s / %2$s). Resetuje se 1. dne příštího měsíce."
+
+msgid "The daily request limit has been reached (%1$d / %2$d). Please try again tomorrow."
+msgstr "Byl dosažen denní limit požadavků (%1$d / %2$d). Zkuste to prosím zítra znovu."
+
+msgid "Your daily request limit has been reached (%1$d / %2$d). Please try again tomorrow."
+msgstr "Byl dosažen váš denní limit požadavků (%1$d / %2$d). Zkuste to prosím zítra znovu."
+
+msgid "Auto-regenerate on save"
+msgstr "Automaticky regenerovat při uložení"
+
+msgid "Regenerate the cached markdown whenever a post is updated."
+msgstr "Regenerovat uložený markdown při každé aktualizaci příspěvku."
+
+msgid "Excluded post types"
+msgstr "Vyloučené typy obsahu"
+
+msgid "These post types never get a markdown version."
+msgstr "Tyto typy obsahu nikdy nedostanou verzi v markdownu."
+
+msgid "(deleted)"
+msgstr "(smazáno)"
+
+msgid "Post not found."
+msgstr "Příspěvek nebyl nalezen."
+
+msgid "AI Panel"
+msgstr "AI Panel"
+
+msgid "Uploading images to the server..."
+msgstr "Nahrávání obrázků na server..."
+
+msgid "Images were added to the media library."
+msgstr "Obrázky byly přidány do knihovny médií."
+
+msgid "Some images could not be downloaded."
+msgstr "Některé obrázky se nepodařilo stáhnout."
+
+msgid "Maximum image size (MB)"
+msgstr "Maximální velikost obrázku (MB)"
+
+msgid "Images larger than this will not be downloaded."
+msgstr "Obrázky větší než tato hodnota nebudou staženy."
+
+msgid "Show editor notices"
+msgstr "Zobrazovat upozornění v editoru"
+
+msgid "Show a message in the editor when pasted external images are downloaded."
+msgstr "Zobrazit v editoru zprávu, když jsou vložené externí obrázky staženy."
+
+msgid "Server-side safety net on save"
+msgstr "Pojistka na straně serveru při uložení"
+
+msgid "On save, automatically replace external images (works with Elementor, ACF, direct edits, etc.). Recommended."
+msgstr "Při uložení automaticky nahradit externí obrázky (funguje s Elementorem, ACF, přímými úpravami atd.). Doporučeno."
+
+msgid "Maximum images per save"
+msgstr "Maximální počet obrázků na jedno uložení"
+
+msgid "How many images to download at most during a single post save. Prevents slow saves on bulk imports."
+msgstr "Kolik obrázků nejvýše stáhnout během jednoho uložení příspěvku. Zabraňuje pomalému ukládání při hromadných importech."
+
+msgid "The file is not an allowed image format."
+msgstr "Soubor není v povoleném formátu obrázku."
+
+msgid "Invalid data: URL."
+msgstr "Neplatná data: URL."
+
+msgid "The image could not be decoded."
+msgstr "Obrázek se nepodařilo dekódovat."
+
+msgid "The image exceeds the maximum allowed size."
+msgstr "Obrázek překračuje maximální povolenou velikost."
+
+msgid "Unsupported image type."
+msgstr "Nepodporovaný typ obrázku."
+
+msgid "Could not create a temporary file."
+msgstr "Nepodařilo se vytvořit dočasný soubor."
+
+msgid "Could not write the temporary file."
+msgstr "Nepodařilo se zapsat dočasný soubor."
+
+msgid "Unsupported URL scheme."
+msgstr "Nepodporované schéma URL."
+
+msgid "This target is not allowed."
+msgstr "Tento cíl není povolen."
+
+msgid "Downloading the image failed."
+msgstr "Stažení obrázku selhalo."
+
+msgid "The image is empty or exceeds the maximum allowed size."
+msgstr "Obrázek je prázdný nebo překračuje maximální povolenou velikost."
+
+msgid "Unpublish on:"
+msgstr "Zrušit publikování dne:"
+
+msgid "Leave empty to keep the post published indefinitely."
+msgstr "Ponechte prázdné, aby příspěvek zůstal publikovaný natrvalo."
+
+msgid "Unpublish: %s"
+msgstr "Zrušit publikování: %s"
+
+msgid "Enable bot throttling"
+msgstr "Zapnout omezování botů"
+
+msgid "Requests per minute per IP"
+msgstr "Počet požadavků za minutu na jednu IP"
+
+msgid "Blocked User-Agent patterns (one per line)"
+msgstr "Blokované vzory User-Agent (jeden na řádek)"
+
+msgid "Case-insensitive substring or regex match against the request's User-Agent header."
+msgstr "Shoda podřetězce nebo regulárního výrazu (bez ohledu na velikost písmen) proti hlavičce User-Agent požadavku."
+
+msgid "Block response code"
+msgstr "Kód blokovací odpovědi"
+
+msgid "403 Forbidden"
+msgstr "403 Forbidden"
+
+msgid "429 Too Many Requests"
+msgstr "429 Too Many Requests"
+
+msgid "Post types"
+msgstr "Typy obsahu"
+
+msgid "Select the post types to enable the classic editor for. Leave empty to enable it for all post types."
+msgstr "Vyberte typy obsahu, pro které se má zapnout klasický editor. Ponechte prázdné pro zapnutí u všech typů obsahu."
+
+msgid "Visual Editor"
+msgstr "Vizuální editor"
+
+msgid "Syntax Highlighting"
+msgstr "Zvýrazňování syntaxe"
+
+msgid "Admin Color Scheme"
+msgstr "Barevné schéma administrace"
+
+msgid "Keyboard Shortcuts"
+msgstr "Klávesové zkratky"
+
+msgid "Toolbar"
+msgstr "Panel nástrojů"
+
+msgid "Biographical Info"
+msgstr "Biografické údaje"
+
+msgid "Role"
+msgstr "Role"
+
+msgid "Website"
+msgstr "Web"
+
+msgid "New Password"
+msgstr "Nové heslo"
+
+msgid "Password Reset"
+msgstr "Obnovení hesla"
+
+msgid "Sessions"
+msgstr "Relace"
+
+msgid "Personal Options"
+msgstr "Osobní nastavení"
+
+msgid "Contact Info"
+msgstr "Kontaktní údaje"
+
+msgid "About the user"
+msgstr "O uživateli"
+
+msgid "Account Management"
+msgstr "Správa účtu"
+
+msgid "Application Passwords"
+msgstr "Aplikační hesla"
+
+msgid "[WooCommerce] Billing Address"
+msgstr "[WooCommerce] Fakturační adresa"
+
+msgid "[WooCommerce] Shipping Address"
+msgstr "[WooCommerce] Dodací adresa"
+
+msgid "Profile sections"
+msgstr "Sekce profilu"
+
+msgid "Select the profile sections to hide."
+msgstr "Vyberte sekce profilu, které chcete skrýt."
+
+msgid "Profile fields"
+msgstr "Pole profilu"
+
+msgid "Select the individual profile fields to hide."
+msgstr "Vyberte jednotlivá pole profilu, která chcete skrýt."
+
+msgid "Safe mode"
+msgstr "Nouzový režim"
+
+msgid "When enabled, no code snippets are executed on the site. Use this to recover from a broken snippet."
+msgstr "Když je zapnuto, na webu se nespouští žádné kódové úryvky. Použijte k obnově z vadného úryvku."
+
+msgid "Parse error: syntax error, unexpected end of snippet."
+msgstr "Chyba analýzy: syntaktická chyba, neočekávaný konec úryvku."
+
+msgid "Cannot redeclare function %s."
+msgstr "Nelze znovu deklarovat funkci %s."
+
+msgid "Cannot redeclare class %s."
+msgstr "Nelze znovu deklarovat třídu %s."
+
+msgid "Cannot redeclare interface %s."
+msgstr "Nelze znovu deklarovat rozhraní %s."
+
+msgid "Cannot redeclare %s."
+msgstr "Nelze znovu deklarovat %s."
+
+msgid "Parse error: syntax error, unexpected end of snippet"
+msgstr "Chyba analýzy: syntaktická chyba, neočekávaný konec úryvku"
+
+msgid "Snippet not found"
+msgstr "Úryvek nebyl nalezen"
+
+msgid "Failed to update snippet status"
+msgstr "Nepodařilo se aktualizovat stav úryvku"
+
+msgid "Snippet code cannot be empty"
+msgstr "Kód úryvku nemůže být prázdný"
+
+msgid "Invalid snippet type"
+msgstr "Neplatný typ úryvku"
+
+msgid "PHP code is valid"
+msgstr "Kód PHP je platný"
+
+msgid "JavaScript code contains PHP tags"
+msgstr "Kód JavaScript obsahuje PHP tagy"
+
+msgid "JavaScript code has unmatched braces"
+msgstr "Kód JavaScript má nespárované závorky"
+
+msgid "JavaScript code is valid"
+msgstr "Kód JavaScript je platný"
+
+msgid "CSS code contains PHP tags"
+msgstr "Kód CSS obsahuje PHP tagy"
+
+msgid "CSS code has unmatched braces"
+msgstr "Kód CSS má nespárované závorky"
+
+msgid "CSS code is valid"
+msgstr "Kód CSS je platný"
+
+msgid "HTML code is valid"
+msgstr "Kód HTML je platný"
+
+msgid "UX Studio is running in safe mode. Code snippets are disabled. <a href=\"%s\">Disable Safe Mode</a>"
+msgstr "UX Studio běží v nouzovém režimu. Kódové úryvky jsou zakázány. <a href=\"%s\">Vypnout nouzový režim</a>"
+
+msgid "Snippet name is required"
+msgstr "Název úryvku je povinný"
+
+msgid "Snippet code is required"
+msgstr "Kód úryvku je povinný"
+
+msgid "You do not have sufficient permissions to create snippets."
+msgstr "Nemáte dostatečná oprávnění k vytváření úryvků."
+
+msgid "Snippets directory is not writable"
+msgstr "Do adresáře úryvků nelze zapisovat"
+
+msgid "A snippet with this name already exists"
+msgstr "Úryvek s tímto názvem již existuje"
+
+msgid "Failed to create snippet record"
+msgstr "Nepodařilo se vytvořit záznam úryvku"
+
+msgid "Failed to generate secure file path"
+msgstr "Nepodařilo se vygenerovat bezpečnou cestu k souboru"
+
+msgid "Failed to create snippet file"
+msgstr "Nepodařilo se vytvořit soubor úryvku"
+
+msgid "Snippet created successfully"
+msgstr "Úryvek byl úspěšně vytvořen"
+
+msgid "You do not have sufficient permissions to update snippets."
+msgstr "Nemáte dostatečná oprávnění k aktualizaci úryvků."
+
+msgid "Snippet file path is invalid"
+msgstr "Cesta k souboru úryvku je neplatná"
+
+msgid "Failed to update snippet file"
+msgstr "Nepodařilo se aktualizovat soubor úryvku"
+
+msgid "Snippet updated successfully"
+msgstr "Úryvek byl úspěšně aktualizován"
+
+msgid "You do not have sufficient permissions to delete snippets."
+msgstr "Nemáte dostatečná oprávnění k mazání úryvků."
+
+msgid "Snippet deleted successfully"
+msgstr "Úryvek byl úspěšně smazán"
+
+msgid "Central app URL"
+msgstr "URL centrální aplikace"
+
+msgid "Base URL of the central application acting as the broker for connected sites."
+msgstr "Základní URL centrální aplikace, která funguje jako broker pro připojené weby."
+
+msgid "HMAC secret"
+msgstr "Tajný klíč HMAC"
+
+msgid "Shared secret used to sign/verify every request to and from the central app. Stored encrypted. Leave blank to keep the current secret."
+msgstr "Sdílený tajný klíč používaný k podepisování/ověřování každého požadavku do a z centrální aplikace. Uloženo šifrovaně. Ponechte prázdné pro zachování stávajícího klíče."
+
+msgid "That scheduled event could not be found."
+msgstr "Tuto naplánovanou událost se nepodařilo najít."
+
+msgid "Event executed."
+msgstr "Událost byla provedena."
+
+msgid "Failed to delete the event."
+msgstr "Nepodařilo se smazat událost."
+
+msgid "Event deleted."
+msgstr "Událost byla smazána."
+
+msgid "in %s"
+msgstr "za %s"
+
+msgid "%s ago"
+msgstr "před %s"
+
+msgid "Google PageSpeed API key"
+msgstr "API klíč Google PageSpeed"
+
+msgid "Google Analytics service-account JSON"
+msgstr "JSON servisního účtu Google Analytics"
+
+msgid "Paste the full service-account JSON. Stored encrypted. Leave blank to keep the current value."
+msgstr "Vložte celý JSON servisního účtu. Uloženo šifrovaně. Ponechte prázdné pro zachování stávající hodnoty."
+
+msgid "PageSpeed API returned HTTP %d."
+msgstr "API PageSpeed vrátilo HTTP %d."
+
+msgid "Unexpected PageSpeed API response."
+msgstr "Neočekávaná odpověď API PageSpeed."
+
+msgid "Disable core updates"
+msgstr "Vypnout aktualizace jádra"
+
+msgid "Disable automatic updates for WordPress core."
+msgstr "Vypnout automatické aktualizace jádra WordPressu."
+
+msgid "Core update type"
+msgstr "Typ aktualizací jádra"
+
+msgid "Select which type of core updates to disable."
+msgstr "Vyberte, který typ aktualizací jádra se má vypnout."
+
+msgid "Disable all updates"
+msgstr "Vypnout všechny aktualizace"
+
+msgid "Disable major updates only"
+msgstr "Zakázat pouze hlavní aktualizace"
+
+msgid "Disable minor updates only"
+msgstr "Zakázat pouze menší aktualizace"
+
+msgid "Disable plugin updates"
+msgstr "Zakázat aktualizace pluginů"
+
+msgid "Disable automatic updates for plugins."
+msgstr "Zakázat automatické aktualizace pluginů."
+
+msgid "Plugin update type"
+msgstr "Typ aktualizace pluginů"
+
+msgid "Select how to handle plugin updates."
+msgstr "Zvolte, jak zacházet s aktualizacemi pluginů."
+
+msgid "Disable for all plugins"
+msgstr "Zakázat pro všechny pluginy"
+
+msgid "Disable for specific plugins only"
+msgstr "Zakázat pouze pro vybrané pluginy"
+
+msgid "Plugins"
+msgstr "Pluginy"
+
+msgid "Choose which plugins to disable auto-updates for."
+msgstr "Zvolte, u kterých pluginů zakázat automatické aktualizace."
+
+msgid "Disable theme updates"
+msgstr "Zakázat aktualizace šablon"
+
+msgid "Disable automatic updates for themes."
+msgstr "Zakázat automatické aktualizace šablon."
+
+msgid "Theme update type"
+msgstr "Typ aktualizace šablon"
+
+msgid "Select how to handle theme updates."
+msgstr "Zvolte, jak zacházet s aktualizacemi šablon."
+
+msgid "Disable for all themes"
+msgstr "Zakázat pro všechny šablony"
+
+msgid "Disable for specific themes only"
+msgstr "Zakázat pouze pro vybrané šablony"
+
+msgid "Themes"
+msgstr "Šablony"
+
+msgid "Choose which themes to disable auto-updates for."
+msgstr "Zvolte, u kterých šablon zakázat automatické aktualizace."
+
+msgid "Disable translation updates"
+msgstr "Zakázat aktualizace překladů"
+
+msgid "Disable automatic updates for translations."
+msgstr "Zakázat automatické aktualizace překladů."
+
+msgid "Require login by default"
+msgstr "Ve výchozím nastavení vyžadovat přihlášení"
+
+msgid "Default value of \"require login\" for newly added files."
+msgstr "Výchozí hodnota volby „vyžadovat přihlášení“ pro nově přidané soubory."
+
+msgid "File not found."
+msgstr "Soubor nebyl nalezen."
+
+msgid "Invalid or missing download token."
+msgstr "Neplatný nebo chybějící token pro stažení."
+
+msgid "You must be logged in to download this file."
+msgstr "Pro stažení tohoto souboru musíte být přihlášeni."
+
+msgid "The underlying media attachment is missing."
+msgstr "Podkladová mediální příloha chybí."
+
+msgid "The file is missing on disk."
+msgstr "Soubor na disku chybí."
+
+msgid "Refused to serve a file outside the uploads directory."
+msgstr "Odmítnuto zpřístupnit soubor mimo adresář uploads."
+
+msgid "Please select a valid media library file."
+msgstr "Vyberte prosím platný soubor z knihovny médií."
+
+msgid "Unable to serve the file."
+msgstr "Soubor se nepodařilo zpřístupnit."
+
+msgid "Failed to duplicate menu. The menu name may already exist."
+msgstr "Nepodařilo se duplikovat menu. Název menu možná již existuje."
+
+msgid "Invalid post ID."
+msgstr "Neplatné ID příspěvku."
+
+msgid "Duplicate %s"
+msgstr "Duplikovat %s"
+
+msgid "Duplicate"
+msgstr "Duplikovat"
+
+msgid "Security check failed."
+msgstr "Bezpečnostní kontrola selhala."
+
+msgid "Sorry, you are not allowed to duplicate this post."
+msgstr "Je nám líto, nemáte oprávnění duplikovat tento příspěvek."
+
+msgid "[Duplicate] {post_title}"
+msgstr "[Kopie] {post_title}"
+
+msgid "Post Content"
+msgstr "Obsah příspěvku"
+
+msgid "Post Excerpt"
+msgstr "Zkrácený obsah příspěvku"
+
+msgid "Featured Image"
+msgstr "Náhledový obrázek"
+
+msgid "Custom Fields"
+msgstr "Vlastní pole"
+
+msgid "Menu Order"
+msgstr "Pořadí v menu"
+
+msgid "Post Parent"
+msgstr "Nadřazený příspěvek"
+
+msgid "Product Gallery"
+msgstr "Galerie produktu"
+
+msgid "Select the post types that can be duplicated."
+msgstr "Vyberte typy obsahu, které lze duplikovat."
+
+msgid "Redirect to post"
+msgstr "Přesměrovat na příspěvek"
+
+msgid "Redirect to the post edit screen after duplication."
+msgstr "Po duplikaci přesměrovat na obrazovku úprav příspěvku."
+
+msgid "Post status"
+msgstr "Stav příspěvku"
+
+msgid "Select the status of the duplicated post."
+msgstr "Vyberte stav duplikovaného příspěvku."
+
+msgid "Elements to duplicate"
+msgstr "Prvky k duplikaci"
+
+msgid "Select which elements are copied when duplicating a post."
+msgstr "Vyberte, které prvky se při duplikaci příspěvku zkopírují."
+
+msgid "Customise post title"
+msgstr "Přizpůsobit název příspěvku"
+
+msgid "Enable this to use a custom format for the duplicated post title."
+msgstr "Zapnutím této volby použijete vlastní formát názvu duplikovaného příspěvku."
+
+msgid "Post title format"
+msgstr "Formát názvu příspěvku"
+
+msgid "Use {post_title} to insert the original post title."
+msgstr "Pomocí {post_title} vložíte původní název příspěvku."
+
+msgid "Invalid template file. The \"content\" array with Elementor data is missing."
+msgstr "Neplatný soubor šablony. Chybí pole „content“ s daty Elementoru."
+
+msgid "Imported template"
+msgstr "Importovaná šablona"
+
+msgid "Only .json and .zip files are allowed."
+msgstr "Povoleny jsou pouze soubory .json a .zip."
+
+msgid "ZIP support is not available on this server."
+msgstr "Podpora ZIP není na tomto serveru dostupná."
+
+msgid "The ZIP archive could not be opened."
+msgstr "Archiv ZIP se nepodařilo otevřít."
+
+msgid "The ZIP archive does not contain a JSON template."
+msgstr "Archiv ZIP neobsahuje šablonu ve formátu JSON."
+
+msgid "The file does not contain valid JSON."
+msgstr "Soubor neobsahuje platný JSON."
+
+msgid "Elementor must be installed and active to import templates."
+msgstr "Pro import šablon musí být Elementor nainstalován a aktivní."
+
+msgid "Upload a .json or .zip template file in the \"file\" field."
+msgstr "Nahrajte soubor šablony .json nebo .zip do pole „file“."
+
+msgid "Invalid recipient email address."
+msgstr "Neplatná e-mailová adresa příjemce."
+
+msgid "[%1$s] Email Health Check - %2$s"
+msgstr "[%1$s] Kontrola stavu e-mailu – %2$s"
+
+msgid "This is an automated test email from %1$s.\nTime: %2$s\n\nIf you can read this, outgoing email is working correctly."
+msgstr "Toto je automatický testovací e-mail z %1$s.\nČas: %2$s\n\nPokud toto čtete, odchozí e-maily fungují správně."
+
+msgid "Test recipient"
+msgstr "Testovací příjemce"
+
+msgid "Email address that receives the test message. Defaults to the site admin email."
+msgstr "E-mailová adresa, která obdrží testovací zprávu. Výchozí je e-mail administrátora webu."
+
+msgid "Scheduled test"
+msgstr "Naplánovaný test"
+
+msgid "Automatically send a test email on a fixed interval."
+msgstr "Automaticky odesílat testovací e-mail v pevném intervalu."
+
+msgid "Test interval"
+msgstr "Interval testu"
+
+msgid "How often the scheduled test email is sent."
+msgstr "Jak často se odesílá naplánovaný testovací e-mail."
+
+msgid "Every hour"
+msgstr "Každou hodinu"
+
+msgid "Every 3 hours"
+msgstr "Každé 3 hodiny"
+
+msgid "Every 6 hours"
+msgstr "Každých 6 hodin"
+
+msgid "Every 12 hours"
+msgstr "Každých 12 hodin"
+
+msgid "Once a day"
+msgstr "Jednou denně"
+
+msgid "Log entries older than this are pruned automatically."
+msgstr "Záznamy starší než tato hodnota se automaticky odstraňují."
+
+msgid "Could not delete this entry."
+msgstr "Tento záznam se nepodařilo smazat."
+
+msgid "Show on"
+msgstr "Zobrazit na"
+
+msgid "Post types on which the exit popup can appear."
+msgstr "Typy obsahu, na kterých se může zobrazit vyskakovací okno při odchodu."
+
+msgid "Headline"
+msgstr "Nadpis"
+
+msgid "Wait, don't go!"
+msgstr "Počkejte, neodcházejte!"
+
+msgid "Body"
+msgstr "Text"
+
+msgid "Delay before enabling exit-intent detection (seconds)"
+msgstr "Prodleva před zapnutím detekce odchodu (v sekundách)"
+
+msgid "Show only once per session"
+msgstr "Zobrazit pouze jednou za relaci"
+
+msgid "Email address"
+msgstr "E-mailová adresa"
+
+msgid "Subscribe"
+msgstr "Odebírat"
+
+msgid "Close"
+msgstr "Zavřít"
+
+msgid "Thanks! Check your inbox soon."
+msgstr "Děkujeme! Brzy zkontrolujte svou schránku."
+
+msgid "Something went wrong, please try again."
+msgstr "Něco se pokazilo, zkuste to prosím znovu."
+
+msgid "You are not allowed to do this."
+msgstr "K tomuto úkonu nemáte oprávnění."
+
+msgid "Too many requests, please try again later."
+msgstr "Příliš mnoho požadavků, zkuste to prosím později."
+
+msgid "Download as %s"
+msgstr "Stáhnout jako %s"
+
+msgid "Export to %s"
+msgstr "Exportovat do %s"
+
+msgid "Sorry, you are not allowed to export posts."
+msgstr "Je nám líto, nemáte oprávnění exportovat příspěvky."
+
+msgid "Invalid export type."
+msgstr "Neplatný typ exportu."
+
+msgid "No valid post IDs provided."
+msgstr "Nebyla zadána žádná platná ID příspěvků."
+
+msgid "No fields selected for export."
+msgstr "Pro export nebyla vybrána žádná pole."
+
+msgid "Post ID"
+msgstr "ID příspěvku"
+
+msgid "Title"
+msgstr "Název"
+
+msgid "Slug"
+msgstr "Slug"
+
+msgid "Excerpt"
+msgstr "Zkrácený obsah"
+
+msgid "Status"
+msgstr "Stav"
+
+msgid "Post Type"
+msgstr "Typ obsahu"
+
+msgid "Date"
+msgstr "Datum"
+
+msgid "Modified Date"
+msgstr "Datum úpravy"
+
+msgid "Author"
+msgstr "Autor"
+
+msgid "Comment Count"
+msgstr "Počet komentářů"
+
+msgid "GUID"
+msgstr "GUID"
+
+msgid "Parent Post"
+msgstr "Nadřazený příspěvek"
+
+msgid "Password"
+msgstr "Heslo"
+
+msgid "Date (GMT)"
+msgstr "Datum (GMT)"
+
+msgid "Modified Date (GMT)"
+msgstr "Datum úpravy (GMT)"
+
+msgid "Filtered Content"
+msgstr "Filtrovaný obsah"
+
+msgid "Tags"
+msgstr "Štítky"
+
+msgid "Comment Status"
+msgstr "Stav komentářů"
+
+msgid "Ping Status"
+msgstr "Stav pingů"
+
+msgid "MIME Type"
+msgstr "Typ MIME"
+
+msgid "Export types"
+msgstr "Typy exportu"
+
+msgid "Formats offered in the row and bulk export actions."
+msgstr "Formáty nabízené v řádkových a hromadných akcích exportu."
+
+msgid "CSV"
+msgstr "CSV"
+
+msgid "JSON"
+msgstr "JSON"
+
+msgid "TXT"
+msgstr "TXT"
+
+msgid "Fields"
+msgstr "Pole"
+
+msgid "Post fields included in the export."
+msgstr "Pole příspěvku zahrnutá do exportu."
+
+msgid "Meta fields"
+msgstr "Meta pole"
+
+msgid "Custom fields (post meta) to include in the export."
+msgstr "Vlastní pole (meta příspěvku), která zahrnout do exportu."
+
+msgid "No posts selected for export."
+msgstr "Pro export nebyly vybrány žádné příspěvky."
+
+msgid "Export User Data"
+msgstr "Export uživatelských dat"
+
+msgid "Export as %s"
+msgstr "Exportovat jako %s"
+
+msgid "Export user data in different formats."
+msgstr "Exportovat uživatelská data v různých formátech."
+
+msgid "No valid user IDs provided."
+msgstr "Nebyla zadána žádná platná ID uživatelů."
+
+msgid "User ID"
+msgstr "ID uživatele"
+
+msgid "Username"
+msgstr "Uživatelské jméno"
+
+msgid "Nicename"
+msgstr "Nicename"
+
+msgid "First Name"
+msgstr "Jméno"
+
+msgid "Last Name"
+msgstr "Příjmení"
+
+msgid "Nickname"
+msgstr "Přezdívka"
+
+msgid "Email Address"
+msgstr "E-mailová adresa"
+
+msgid "Website URL"
+msgstr "URL webu"
+
+msgid "Description"
+msgstr "Popis"
+
+msgid "Avatar"
+msgstr "Avatar"
+
+msgid "Registration Date"
+msgstr "Datum registrace"
+
+msgid "Display Name"
+msgstr "Zobrazované jméno"
+
+msgid "Roles"
+msgstr "Role"
+
+msgid "Capabilities"
+msgstr "Oprávnění"
+
+msgid "Formats offered in the row, bulk and profile export actions."
+msgstr "Formáty nabízené v řádkových, hromadných a profilových akcích exportu."
+
+msgid "User fields included in the export."
+msgstr "Pole uživatele zahrnutá do exportu."
+
+msgid "Custom fields (user meta) to include in the export."
+msgstr "Vlastní pole (meta uživatele), která zahrnout do exportu."
+
+msgid "No users selected for export."
+msgstr "Pro export nebyli vybráni žádní uživatelé."
+
+msgid "You are not allowed to export these users."
+msgstr "Nemáte oprávnění exportovat tyto uživatele."
+
+msgid "External Permalink"
+msgstr "Externí trvalý odkaz"
+
+msgid "Enter URL"
+msgstr "Zadejte URL"
+
+msgid "Leave empty to use the default WordPress permalink. An external permalink overrides the default slug."
+msgstr "Ponechte prázdné pro použití výchozího trvalého odkazu WordPressu. Externí trvalý odkaz přepíše výchozí slug."
+
+msgid "Select the post types that can use external permalinks."
+msgstr "Vyberte typy obsahu, které mohou používat externí trvalé odkazy."
+
+msgid "File Manager"
+msgstr "Správce souborů"
+
+msgid "You do not have permission to access this page."
+msgstr "Nemáte oprávnění k přístupu na tuto stránku."
+
+msgid "Open File Manager"
+msgstr "Otevřít Správce souborů"
+
+msgid "You do not have access to the File Manager. Add your account to the allowed users list below."
+msgstr "Nemáte přístup ke Správci souborů. Přidejte svůj účet do seznamu povolených uživatelů níže."
+
+msgid "Settings"
+msgstr "Nastavení"
+
+msgid "Allowed users"
+msgstr "Povolení uživatelé"
+
+msgid "Choose which administrators can access the File Manager."
+msgstr "Zvolte, kteří administrátoři mají přístup ke Správci souborů."
+
+msgid "No administrators found."
+msgstr "Nebyli nalezeni žádní administrátoři."
+
+msgid "Root directory"
+msgstr "Kořenový adresář"
+
+msgid "Default:"
+msgstr "Výchozí:"
+
+msgid "This directory does not exist!"
+msgstr "Tento adresář neexistuje!"
+
+msgid "Read-only"
+msgstr "Pouze pro čtení"
+
+msgid "Disable editing, deleting and uploading files"
+msgstr "Zakázat úpravy, mazání a nahrávání souborů"
+
+msgid "Save settings"
+msgstr "Uložit nastavení"
+
+msgid "Settings saved."
+msgstr "Nastavení bylo uloženo."
+
+msgid "Login failed:"
+msgstr "Přihlášení se nezdařilo:"
+
+msgid "Error"
+msgstr "Chyba"
+
+msgid "You do not have access to the File Manager. Ask an administrator to add you to the allowed users list."
+msgstr "Nemáte přístup ke Správci souborů. Požádejte administrátora, aby vás přidal do seznamu povolených uživatelů."
+
+msgid "Access denied"
+msgstr "Přístup odepřen"
+
+msgid "Invalid credentials."
+msgstr "Neplatné přihlašovací údaje."
+
+msgid "File Manager — Login"
+msgstr "Správce souborů — Přihlášení"
+
+msgid "Log in"
+msgstr "Přihlásit se"
+
+msgid "Folders"
+msgstr "Složky"
+
+msgid "Folder"
+msgstr "Složka"
+
+msgid "Search Folders"
+msgstr "Hledat složky"
+
+msgid "All Folders"
+msgstr "Všechny složky"
+
+msgid "Parent Folder"
+msgstr "Nadřazená složka"
+
+msgid "Parent Folder:"
+msgstr "Nadřazená složka:"
+
+msgid "Edit Folder"
+msgstr "Upravit složku"
+
+msgid "Update Folder"
+msgstr "Aktualizovat složku"
+
+msgid "Add New Folder"
+msgstr "Přidat novou složku"
+
+msgid "New Folder Name"
+msgstr "Název nové složky"
+
+msgid "No folders found"
+msgstr "Nebyly nalezeny žádné složky"
+
+msgid "Folder name is required."
+msgstr "Název složky je povinný."
+
+msgid "Parent folder does not exist."
+msgstr "Nadřazená složka neexistuje."
+
+msgid "Folder was created but could not be reloaded."
+msgstr "Složka byla vytvořena, ale nepodařilo se ji znovu načíst."
+
+msgid "Folder not found."
+msgstr "Složka nebyla nalezena."
+
+msgid "Could not delete folder."
+msgstr "Nepodařilo se smazat složku."
+
+msgid "Attachment not found."
+msgstr "Příloha nebyla nalezena."
+
+msgid "Google review URL"
+msgstr "URL Google recenze"
+
+msgid "Link customers use to leave a review, inserted into the email via {review_url}."
+msgstr "Odkaz, který zákazníci použijí k zanechání recenze, vkládá se do e-mailu pomocí {review_url}."
+
+msgid "Email subject"
+msgstr "Předmět e-mailu"
+
+msgid "How was your experience?"
+msgstr "Jak jste byli spokojeni?"
+
+msgid "Email body"
+msgstr "Tělo e-mailu"
+
+msgid "Use {review_url} as a placeholder for the review link."
+msgstr "Jako zástupný symbol pro odkaz na recenzi použijte {review_url}."
+
+msgid "Hi,<br><br>Thank you for your recent order! We would really appreciate it if you could take a moment to leave us a review: <a href=\"{review_url}\">{review_url}</a><br><br>Thank you!"
+msgstr "Dobrý den,<br><br>děkujeme za vaši nedávnou objednávku! Velmi bychom ocenili, kdybyste si našli chvíli a zanechali nám recenzi: <a href=\"{review_url}\">{review_url}</a><br><br>Děkujeme!"
+
+msgid "Send automatically when a WooCommerce order completes"
+msgstr "Odeslat automaticky po dokončení objednávky ve WooCommerce"
+
+msgid "Only takes effect if WooCommerce is active."
+msgstr "Projeví se pouze v případě, že je WooCommerce aktivní."
+
+msgid "Set your site identity"
+msgstr "Nastavte identitu svého webu"
+
+msgid "Add your site title, tagline and logo under Settings and Customizer."
+msgstr "Přidejte název webu, podtitul a logo v sekci Nastavení a Přizpůsobení."
+
+msgid "Configure permalinks"
+msgstr "Nastavte trvalé odkazy"
+
+msgid "Choose an SEO-friendly permalink structure under Settings → Permalinks."
+msgstr "Zvolte strukturu trvalých odkazů vhodnou pro SEO v sekci Nastavení → Trvalé odkazy."
+
+msgid "Choose your homepage"
+msgstr "Zvolte svou úvodní stránku"
+
+msgid "Decide between a static page or your latest posts under Settings → Reading."
+msgstr "Rozhodněte se mezi statickou stránkou a nejnovějšími příspěvky v sekci Nastavení → Čtení."
+
+msgid "Build your navigation"
+msgstr "Vytvořte navigaci"
+
+msgid "Create the primary menu and assign it to a theme location."
+msgstr "Vytvořte hlavní menu a přiřaďte jej k umístění v šabloně."
+
+msgid "Enable the modules you need"
+msgstr "Zapněte moduly, které potřebujete"
+
+msgid "Turn on the UX Studio modules that fit your workflow."
+msgstr "Zapněte moduly UX Studio, které se hodí pro váš postup práce."
+
+msgid "Hide for roles"
+msgstr "Skrýt pro role"
+
+msgid "Leave empty to hide the admin bar for all users."
+msgstr "Ponechte prázdné, chcete-li skrýt panel administrátora pro všechny uživatele."
+
+msgid "Quality"
+msgstr "Kvalita"
+
+msgid "JPEG/WebP compression quality, 1-100."
+msgstr "Kvalita komprese JPEG/WebP, 1–100."
+
+msgid "Also generate WebP"
+msgstr "Také generovat WebP"
+
+msgid "Max width (px)"
+msgstr "Maximální šířka (px)"
+
+msgid "Images wider than this are downscaled. 0 disables resizing."
+msgstr "Obrázky širší než tato hodnota budou zmenšeny. 0 vypne změnu velikosti."
+
+msgid "Not a media library attachment."
+msgstr "Není to příloha z knihovny médií."
+
+msgid "Only JPEG, PNG and GIF images are supported."
+msgstr "Podporovány jsou pouze obrázky JPEG, PNG a GIF."
+
+msgid "Could not create a backup of the original image."
+msgstr "Nepodařilo se vytvořit zálohu původního obrázku."
+
+msgid "Neither the Imagick nor the GD PHP extension is available."
+msgstr "Není dostupné rozšíření PHP Imagick ani GD."
+
+msgid "No backup exists for this image."
+msgstr "Pro tento obrázek neexistuje žádná záloha."
+
+msgid "Could not restore the original image."
+msgstr "Nepodařilo se obnovit původní obrázek."
+
+msgid "Refused to operate on a file outside the uploads directory."
+msgstr "Operace se souborem mimo adresář uploads byla odmítnuta."
+
+msgid "Could not decode the image."
+msgstr "Nepodařilo se dekódovat obrázek."
+
+msgid "Search Engines Discouraged"
+msgstr "Vyhledávače odrazovány"
+
+msgid "Sync interval (hours)"
+msgstr "Interval synchronizace (hodiny)"
+
+msgid "How often the feed is refreshed from the central app."
+msgstr "Jak často se feed obnovuje z centrální aplikace."
+
+msgid "Number of posts to display"
+msgstr "Počet zobrazených příspěvků"
+
+msgid " opens in a new tab"
+msgstr " otevře se v nové kartě"
+
+msgid "Exclude classes"
+msgstr "Vyloučit třídy"
+
+msgid "Comma-separated list of CSS classes to exclude from external link processing. Built-in per-link classes: wpe-exclude--link, wpe-exclude--arrow, wpe-exclude--rel, wpe-exclude--new-tab, wpe-exclude--aria-label."
+msgstr "Seznam CSS tříd oddělených čárkami, které se mají vyloučit ze zpracování externích odkazů. Vestavěné třídy pro jednotlivé odkazy: wpe-exclude--link, wpe-exclude--arrow, wpe-exclude--rel, wpe-exclude--new-tab, wpe-exclude--aria-label."
+
+msgid "Disable external link arrow"
+msgstr "Zakázat šipku u externích odkazů"
+
+msgid "Not recommended as it may cause accessibility issues."
+msgstr "Nedoporučuje se, může to způsobit problémy s přístupností."
+
+msgid "Disable speculative loading"
+msgstr "Zakázat spekulativní načítání"
+
+msgid "Completely disable the WordPress 6.8+ speculative loading feature."
+msgstr "Zcela zakázat funkci spekulativního načítání ve WordPressu 6.8+."
+
+msgid "Loading mode"
+msgstr "Režim načítání"
+
+msgid "Choose how aggressively to preload links."
+msgstr "Zvolte, jak agresivně přednačítat odkazy."
+
+msgid "Auto (WordPress default)"
+msgstr "Automaticky (výchozí WordPress)"
+
+msgid "Prefetch"
+msgstr "Prefetch"
+
+msgid "Prerender"
+msgstr "Prerender"
+
+msgid "Loading eagerness"
+msgstr "Dychtivost načítání"
+
+msgid "Choose how early to start preloading links."
+msgstr "Zvolte, jak brzy začít přednačítat odkazy."
+
+msgid "Conservative"
+msgstr "Konzervativní"
+
+msgid "Moderate"
+msgstr "Mírná"
+
+msgid "Eager"
+msgstr "Dychtivá"
+
+msgid "Exclude paths"
+msgstr "Vyloučit cesty"
+
+msgid "URL patterns to exclude from speculative loading, one per line (e.g. /cart/*, /checkout/*)."
+msgstr "Vzory URL, které se mají vyloučit ze spekulativního načítání, jeden na řádek (např. /cart/*, /checkout/*)."
+
+msgid "Exclude from prerender"
+msgstr "Vyloučit z prerenderingu"
+
+msgid "URL patterns to exclude only from prerendering, one per line (e.g. /personalized-area/*)."
+msgstr "Vzory URL, které se mají vyloučit pouze z prerenderingu, jeden na řádek (např. /personalized-area/*)."
+
+msgid "Logo"
+msgstr "Logo"
+
+msgid "Maintenance Mode"
+msgstr "Režim údržby"
+
+msgid "Site will be available soon. Thank you for your patience!"
+msgstr "Web bude brzy dostupný. Děkujeme za trpělivost!"
+
+msgid "We are currently performing scheduled maintenance. Please check back soon."
+msgstr "Momentálně provádíme plánovanou údržbu. Zkuste to prosím brzy znovu."
+
+msgid "Coming Soon Active"
+msgstr "Připravujeme aktivní"
+
+msgid "Maintenance Mode Active"
+msgstr "Režim údržby aktivní"
+
+msgid "Open preview"
+msgstr "Otevřít náhled"
+
+msgid "Preview"
+msgstr "Náhled"
+
+msgid "Mode"
+msgstr "Režim"
+
+msgid "Select the maintenance mode type."
+msgstr "Vyberte typ režimu údržby."
+
+msgid "Disabled"
+msgstr "Vypnuto"
+
+msgid "Maintenance Mode (503)"
+msgstr "Režim údržby (503)"
+
+msgid "Coming Soon (200)"
+msgstr "Připravujeme (200)"
+
+msgid "Layout type"
+msgstr "Typ rozvržení"
+
+msgid "Choose how to display the maintenance page."
+msgstr "Zvolte, jak zobrazit stránku údržby."
+
+msgid "Custom Layout"
+msgstr "Vlastní rozvržení"
+
+msgid "Existing Page"
+msgstr "Existující stránka"
+
+msgid "Choose layout"
+msgstr "Zvolte rozvržení"
+
+msgid "Which built-in layout to use for the maintenance page."
+msgstr "Které vestavěné rozvržení použít pro stránku údržby."
+
+msgid "Layout 1 (centered card)"
+msgstr "Rozvržení 1 (vycentrovaná karta)"
+
+msgid "Layout 2 (split, image right)"
+msgstr "Rozvržení 2 (rozdělené, obrázek vpravo)"
+
+msgid "Layout 3 (split, image left)"
+msgstr "Rozvržení 3 (rozdělené, obrázek vlevo)"
+
+msgid "Existing page"
+msgstr "Existující stránka"
+
+msgid "Page displayed when the layout type is \"Existing Page\"."
+msgstr "Stránka zobrazená, když je typ rozvržení nastaven na „Existující stránka“."
+
+msgid "Authentication type"
+msgstr "Typ ověření"
+
+msgid "Who is allowed to access the site while maintenance mode is active. Administrators always have access."
+msgstr "Kdo má povolen přístup na web, když je aktivní režim údržby. Administrátoři mají přístup vždy."
+
+msgid "Logged In Users"
+msgstr "Přihlášení uživatelé"
+
+msgid "By User Role"
+msgstr "Podle role uživatele"
+
+msgid "Allowed roles"
+msgstr "Povolené role"
+
+msgid "Roles allowed to access the site when authentication is by role."
+msgstr "Role s povoleným přístupem na web, když je ověření podle role."
+
+msgid "Headline text"
+msgstr "Text nadpisu"
+
+msgid "Headline colour"
+msgstr "Barva nadpisu"
+
+msgid "Body text"
+msgstr "Text těla"
+
+msgid "Body colour"
+msgstr "Barva těla"
+
+msgid "Footer text"
+msgstr "Text zápatí"
+
+msgid "Footer colour"
+msgstr "Barva zápatí"
+
+msgid "Enable logo"
+msgstr "Zapnout logo"
+
+msgid "No"
+msgstr "Ne"
+
+msgid "Yes"
+msgstr "Ano"
+
+msgid "Logo image"
+msgstr "Obrázek loga"
+
+msgid "Logo image shown on the maintenance page."
+msgstr "Obrázek loga zobrazený na stránce údržby."
+
+msgid "Logo width (px)"
+msgstr "Šířka loga (px)"
+
+msgid "Background colour"
+msgstr "Barva pozadí"
+
+msgid "Enable background image"
+msgstr "Zapnout obrázek pozadí"
+
+msgid "Background image"
+msgstr "Obrázek pozadí"
+
+msgid "Custom CSS"
+msgstr "Vlastní CSS"
+
+msgid "Custom CSS for the maintenance page. Useful classes: .uxstudio__card, .uxstudio__headline, .uxstudio__description, .uxstudio__footer, .uxstudio__logo."
+msgstr "Vlastní CSS pro stránku údržby. Užitečné třídy: .uxstudio__card, .uxstudio__headline, .uxstudio__description, .uxstudio__footer, .uxstudio__logo."
+
+msgid "Media Replace"
+msgstr "Nahrazení média"
+
+msgid "Replace this media item with a new file by clicking the button below."
+msgstr "Nahraďte tuto položku média novým souborem kliknutím na tlačítko níže."
+
+msgid "Upload New File"
+msgstr "Nahrát nový soubor"
+
+msgid "Replace Media"
+msgstr "Nahradit médium"
+
+msgid "Replace this media item with a new file."
+msgstr "Nahraďte tuto položku média novým souborem."
+
+msgid "Select a replacement file"
+msgstr "Vyberte náhradní soubor"
+
+msgid "Replace File"
+msgstr "Nahradit soubor"
+
+msgid "An error occurred. Please try again."
+msgstr "Došlo k chybě. Zkuste to prosím znovu."
+
+msgid "The new file must be the same type as the original."
+msgstr "Nový soubor musí být stejného typu jako původní."
+
+msgid "You are not allowed to edit this media item."
+msgstr "Nemáte oprávnění upravovat tuto položku média."
+
+msgid "One or both media items could not be found."
+msgstr "Jednu nebo obě mediální položky se nepodařilo najít."
+
+msgid "The file for one of the media items could not be found."
+msgstr "Soubor jedné z mediálních položek se nepodařilo najít."
+
+msgid "File type mismatch. The original file is %1$s, but you uploaded %2$s. Please upload a file with the same type."
+msgstr "Nesouhlasí typ souboru. Původní soubor je %1$s, ale nahráli jste %2$s. Nahrajte prosím soubor stejného typu."
+
+msgid "The uploaded file does not exist."
+msgstr "Nahraný soubor neexistuje."
+
+msgid "Failed to copy the new file to the destination."
+msgstr "Nepodařilo se zkopírovat nový soubor do cílového umístění."
+
+msgid "Media content has been successfully replaced."
+msgstr "Obsah média byl úspěšně nahrazen."
+
+msgid "Logged In"
+msgstr "Přihlášení"
+
+msgid "Logged Out"
+msgstr "Odhlášení"
+
+msgid "Everyone"
+msgstr "Všichni"
+
+msgid "Menu Item Visibility For"
+msgstr "Viditelnost položky menu pro"
+
+msgid "Set visibility to %s"
+msgstr "Nastavit viditelnost na %s"
+
+msgid "Informational only: how long documents are intended to stay published. No automatic deletion is performed."
+msgstr "Pouze informativní: jak dlouho mají dokumenty zůstat zveřejněné. Žádné automatické mazání se neprovádí."
+
+msgid "From email"
+msgstr "Adresa odesílatele"
+
+msgid "Sender address used for subscription confirmation emails. Defaults to the site admin email."
+msgstr "Adresa odesílatele použitá pro e-maily s potvrzením odběru. Výchozí je e-mail administrátora webu."
+
+msgid "[%s] Confirm your notice board subscription"
+msgstr "[%s] Potvrďte svůj odběr nástěnky"
+
+msgid "Please confirm your subscription to the notice board by visiting:\n\n%s"
+msgstr "Potvrďte prosím svůj odběr nástěnky na následující adrese:\n\n%s"
+
+msgid "A category with this name already exists."
+msgstr "Kategorie s tímto názvem již existuje."
+
+msgid "Category not found."
+msgstr "Kategorie nenalezena."
+
+msgid "Opening Hours Locations"
+msgstr "Umístění otevírací doby"
+
+msgid "Google Maps API key"
+msgstr "API klíč Google Maps"
+
+msgid "Stored encrypted. Leave blank to keep the current key. Used for geocoding addresses."
+msgstr "Uloženo šifrovaně. Ponechte prázdné pro zachování stávajícího klíče. Používá se pro geokódování adres."
+
+msgid "Mapy.cz API key"
+msgstr "API klíč Mapy.cz"
+
+msgid "Stored encrypted. Leave blank to keep the current key. Used as a fallback geocoder when no Google Maps key is set."
+msgstr "Uloženo šifrovaně. Ponechte prázdné pro zachování stávajícího klíče. Používá se jako záložní geokodér, pokud není nastaven klíč Google Maps."
+
+msgid "A location name is required."
+msgstr "Je vyžadován název umístění."
+
+msgid "Location not found."
+msgstr "Umístění nenalezeno."
+
+msgid "An address is required."
+msgstr "Je vyžadována adresa."
+
+msgid "No geocoding provider is configured. Add a Google Maps or Mapy.cz API key in Settings."
+msgstr "Není nakonfigurován žádný poskytovatel geokódování. Přidejte v Nastavení API klíč Google Maps nebo Mapy.cz."
+
+msgid "Google Maps could not resolve this address."
+msgstr "Google Maps nedokázaly tuto adresu rozpoznat."
+
+msgid "Mapy.cz could not resolve this address."
+msgstr "Mapy.cz nedokázaly tuto adresu rozpoznat."
+
+msgid "Sample rate (%)"
+msgstr "Vzorkovací frekvence (%)"
+
+msgid "Percentage of frontend GET requests to time and record (0-100)."
+msgstr "Procento GET požadavků z frontendu, které se měří a zaznamenávají (0–100)."
+
+msgid "Log rows older than this are pruned automatically."
+msgstr "Řádky logu starší než tato hodnota jsou automaticky mazány."
+
+msgid "Unknown or unsupported fix."
+msgstr "Neznámá nebo nepodporovaná oprava."
+
+msgid "Google Analytics"
+msgstr "Google Analytics"
+
+msgid "Enter a Google tracking ID, e.g. G-XXXXXXXXXX."
+msgstr "Zadejte měřicí ID Google, např. G-XXXXXXXXXX."
+
+msgid "Facebook Pixel"
+msgstr "Facebook Pixel"
+
+msgid "Enter the numeric Facebook Pixel ID."
+msgstr "Zadejte číselné ID Facebook Pixelu."
+
+msgid "Pinterest Tag"
+msgstr "Pinterest Tag"
+
+msgid "Enter the numeric Pinterest Tag ID."
+msgstr "Zadejte číselné ID Pinterest Tagu."
+
+msgid "Popups"
+msgstr "Vyskakovací okna"
+
+msgid "Could not create the popup."
+msgstr "Vyskakovací okno se nepodařilo vytvořit."
+
+msgid "Popup not found."
+msgstr "Vyskakovací okno nenalezeno."
+
+msgid "Gallery"
+msgstr "Galerie"
+
+msgid "Remove"
+msgstr "Odebrat"
+
+msgid "Add images"
+msgstr "Přidat obrázky"
+
+msgid "Show gallery in the post"
+msgstr "Zobrazit galerii v příspěvku"
+
+msgid "Or insert the shortcode %s"
+msgstr "Nebo vložte shortcode %s"
+
+msgid "Columns"
+msgstr "Sloupce"
+
+msgid "Number of columns in the gallery grid."
+msgstr "Počet sloupců v mřížce galerie."
+
+msgid "Thumbnail size"
+msgstr "Velikost náhledu"
+
+msgid "Image size used in the gallery grid."
+msgstr "Velikost obrázku použitá v mřížce galerie."
+
+msgid "Thumbnail"
+msgstr "Náhled"
+
+msgid "Medium"
+msgstr "Střední"
+
+msgid "Medium large"
+msgstr "Střední velký"
+
+msgid "Large"
+msgstr "Velký"
+
+msgid "Open in lightbox"
+msgstr "Otevřít v lightboxu"
+
+msgid "Clicking an image opens it in an enlarged lightbox."
+msgstr "Kliknutí na obrázek jej otevře ve zvětšeném lightboxu."
+
+msgid "Lightbox size"
+msgstr "Velikost lightboxu"
+
+msgid "Image size shown in the lightbox."
+msgstr "Velikost obrázku zobrazeného v lightboxu."
+
+msgid "Full size"
+msgstr "Plná velikost"
+
+msgid "Auto append to the end of the post"
+msgstr "Automaticky připojit na konec příspěvku"
+
+msgid "The gallery is shown automatically at the end of the content. Can be overridden per post."
+msgstr "Galerie se automaticky zobrazí na konci obsahu. Lze přepsat pro jednotlivé příspěvky."
+
+msgid "Select which post types can use the gallery."
+msgstr "Vyberte, které typy obsahu mohou používat galerii."
+
+msgid "ID: %d"
+msgstr "ID: %d"
+
+msgid "Select the post types to display the post ID for."
+msgstr "Vyberte typy obsahu, pro které se má zobrazovat ID příspěvku."
+
+msgid "%s order updated"
+msgstr "Pořadí %s aktualizováno"
+
+msgid "Error updating post %s: %s"
+msgstr "Chyba při aktualizaci příspěvku %s: %s"
+
+msgid "Failed to prepare items for reordering. No valid items found."
+msgstr "Nepodařilo se připravit položky k přeřazení. Nebyly nalezeny žádné platné položky."
+
+msgid "Failed to update post order. Please try again."
+msgstr "Nepodařilo se aktualizovat pořadí příspěvků. Zkuste to prosím znovu."
+
+msgid "Items"
+msgstr "Položky"
+
+msgid "Updating order..."
+msgstr "Aktualizuji pořadí…"
+
+msgid "An error occurred."
+msgstr "Došlo k chybě."
+
+msgid "Post %d not found."
+msgstr "Příspěvek %d nenalezen."
+
+msgid "Post type not supported."
+msgstr "Typ obsahu není podporován."
+
+msgid "You are not allowed to edit one of these posts."
+msgstr "Nemáte oprávnění upravovat jeden z těchto příspěvků."
+
+msgid "Cannot reorder posts of different types together."
+msgstr "Nelze společně přeřadit příspěvky různých typů."
+
+msgid "Database update failed."
+msgstr "Aktualizace databáze selhala."
+
+msgid "Invalid hierarchy: child items cannot appear before their parent items."
+msgstr "Neplatná hierarchie: podřízené položky se nemohou nacházet před svými nadřízenými položkami."
+
+msgid "Enable drag-and-drop ordering for these post types."
+msgstr "Zapnout řazení přetažením pro tyto typy obsahu."
+
+msgid "Items must be a non-empty array."
+msgstr "Položky musí být neprázdné pole."
+
+msgid "Each item must have an id and order."
+msgstr "Každá položka musí mít id a pořadí."
+
+msgid "ID and order must be numeric."
+msgstr "ID a pořadí musí být číselné."
+
+msgid "Enable the post type switcher for these post types."
+msgstr "Zapnout přepínač typu obsahu pro tyto typy obsahu."
+
+msgid "The post type switcher is not enabled for this post type."
+msgstr "Přepínač typu obsahu není pro tento typ obsahu povolen."
+
+msgid "Invalid target post type."
+msgstr "Neplatný cílový typ obsahu."
+
+msgid "Sorry, you are not allowed to switch this post type."
+msgstr "Je nám líto, ale nemáte oprávnění přepnout tento typ obsahu."
+
+msgid "Failed to update post type."
+msgstr "Nepodařilo se aktualizovat typ obsahu."
+
+msgid "Post Type Switcher"
+msgstr "Přepínač typu obsahu"
+
+msgid "No alternative post types available."
+msgstr "Nejsou k dispozici žádné alternativní typy obsahu."
+
+msgid "— No change —"
+msgstr "— Beze změny —"
+
+msgid "VAPID contact (mailto: or URL)"
+msgstr "VAPID kontakt (mailto: nebo URL)"
+
+msgid "Used as the \"sub\" claim of the VAPID JWT once real delivery is implemented."
+msgstr "Použije se jako claim „sub“ ve VAPID JWT, jakmile bude implementováno skutečné doručování."
+
+msgid "Notification not found."
+msgstr "Oznámení nenalezeno."
+
+msgid "Could not generate a VAPID keypair (is the openssl PHP extension with EC support available?)."
+msgstr "Nepodařilo se vygenerovat pár VAPID klíčů (je k dispozici PHP rozšíření openssl s podporou EC?)."
+
+msgid "New"
+msgstr "Nový"
+
+msgid "New %s"
+msgstr "Nový %s"
+
+msgid "Select the post types that show the quick add button."
+msgstr "Vyberte typy obsahu, u kterých se zobrazuje tlačítko rychlého přidání."
+
+msgid "Select featured image"
+msgstr "Vybrat náhledový obrázek"
+
+msgid "Set featured image"
+msgstr "Nastavit náhledový obrázek"
+
+msgid "Remove image"
+msgstr "Odebrat obrázek"
+
+msgid "An error occurred while updating the image."
+msgstr "Při aktualizaci obrázku došlo k chybě."
+
+msgid "Featured image"
+msgstr "Náhledový obrázek"
+
+msgid "Featured image thumbnail"
+msgstr "Náhled náhledového obrázku"
+
+msgid "Change featured image"
+msgstr "Změnit náhledový obrázek"
+
+msgid "Show the featured image column for these post types."
+msgstr "Zobrazit sloupec náhledového obrázku pro tyto typy obsahu."
+
+msgid "You are not allowed to edit this post."
+msgstr "Nemáte oprávnění upravovat tento příspěvek."
+
+msgid "Featured image removed."
+msgstr "Náhledový obrázek odebrán."
+
+msgid "Invalid attachment."
+msgstr "Neplatná příloha."
+
+msgid "Failed to update the featured image."
+msgstr "Nepodařilo se aktualizovat náhledový obrázek."
+
+msgid "Featured image updated."
+msgstr "Náhledový obrázek aktualizován."
+
+msgid "Minimum rating to display"
+msgstr "Minimální hodnocení k zobrazení"
+
+msgid "Reviews below this rating are still stored but hidden from the shortcode output."
+msgstr "Recenze s nižším hodnocením jsou stále uloženy, ale skryty z výstupu shortcodu."
+
+msgid "Auto-fetch new reviews"
+msgstr "Automaticky načítat nové recenze"
+
+msgid "Central app profile ID"
+msgstr "ID profilu v centrální aplikaci"
+
+msgid "Identifies which review profile the central app should fetch for this site."
+msgstr "Určuje, který profil recenzí má centrální aplikace pro tento web načítat."
+
+msgid "Review not found."
+msgstr "Recenze nenalezena."
+
+msgid "The requested version is not available from WordPress.org."
+msgstr "Požadovaná verze není na WordPress.org k dispozici."
+
+msgid "Plugin not found."
+msgstr "Plugin nenalezen."
+
+msgid "The rollback could not be completed."
+msgstr "Vrácení změn se nepodařilo dokončit."
+
+msgid "Theme not found."
+msgstr "Šablona nenalezena."
+
+msgid "Too many failed login attempts from this IP. Please try again in %d minutes."
+msgstr "Příliš mnoho neúspěšných pokusů o přihlášení z této IP. Zkuste to prosím znovu za %d minut."
+
+msgid "Too many failed login attempts for this username. Please try again in %d minutes."
+msgstr "Příliš mnoho neúspěšných pokusů o přihlášení pro toto uživatelské jméno. Zkuste to prosím znovu za %d minut."
+
+msgid "Too many failed login attempts. Please try again in %d minutes."
+msgstr "Příliš mnoho neúspěšných pokusů o přihlášení. Zkuste to prosím znovu za %d minut."
+
+msgid "[%s] IP Address Blocked"
+msgstr "[%s] IP adresa zablokována"
+
+msgid "An IP address has been blocked due to too many failed login attempts:"
+msgstr "IP adresa byla zablokována kvůli příliš mnoha neúspěšným pokusům o přihlášení:"
+
+msgid "IP Address: %s"
+msgstr "IP adresa: %s"
+
+msgid "Username: %s"
+msgstr "Uživatelské jméno: %s"
+
+msgid "Block Duration: %d minutes"
+msgstr "Doba blokování: %d minut"
+
+msgid "You can unblock this IP address from the plugin admin screen."
+msgstr "Tuto IP adresu můžete odblokovat na administrační obrazovce pluginu."
+
+msgid "CAPTCHA verification failed. Please try again."
+msgstr "Ověření CAPTCHA selhalo. Zkuste to prosím znovu."
+
+msgid "<strong>Error:</strong> CAPTCHA verification failed. Please try again."
+msgstr "<strong>Chyba:</strong> Ověření CAPTCHA selhalo. Zkuste to prosím znovu."
+
+msgid "Invalid country code."
+msgstr "Neplatný kód země."
+
+msgid "Could not download country ranges: %s"
+msgstr "Nepodařilo se stáhnout rozsahy zemí: %s"
+
+msgid "Server returned error %d while downloading country ranges."
+msgstr "Server při stahování rozsahů zemí vrátil chybu %d."
+
+msgid "No ranges found for this country."
+msgstr "Pro tuto zemi nebyly nalezeny žádné rozsahy."
+
+msgid "Violation not found."
+msgstr "Porušení nenalezeno."
+
+msgid ".htaccess is not writable."
+msgstr "Soubor .htaccess není zapisovatelný."
+
+msgid "Ban not found."
+msgstr "Blokování nenalezeno."
+
+msgid "Ban value is empty."
+msgstr "Hodnota blokování je prázdná."
+
+msgid "No valid IP range could be derived from this ban."
+msgstr "Z tohoto blokování nelze odvodit žádný platný rozsah IP."
+
+msgid "This ban includes your current IP address (%s) - blocked to avoid locking you out. Add it to the allowlist if needed."
+msgstr "Toto blokování zahrnuje vaši aktuální IP adresu (%s) – blokováno, aby nedošlo k vašemu vlastnímu zamknutí. V případě potřeby ji přidejte na seznam povolených."
+
+msgid "Could not save the ban."
+msgstr "Blokování se nepodařilo uložit."
+
+msgid "Invalid IP address: %s"
+msgstr "Neplatná IP adresa: %s"
+
+msgid "Invalid CIDR range: %s"
+msgstr "Neplatný CIDR rozsah: %s"
+
+msgid "Enable IP firewall"
+msgstr "Zapnout IP firewall"
+
+msgid "Blocks every request (frontend, login, admin, REST) from banned IPs/ranges/countries. Logged-in administrators and allowlisted IPs are never blocked."
+msgstr "Blokuje každý požadavek (frontend, přihlášení, administrace, REST) z blokovaných IP/rozsahů/zemí. Přihlášení administrátoři a IP na seznamu povolených nejsou nikdy blokováni."
+
+msgid "Client IP source"
+msgstr "Zdroj IP klienta"
+
+msgid "Forwarded headers are only trusted in the selected mode (otherwise spoofable). Choose Cloudflare if the site is behind Cloudflare."
+msgstr "Přeposílaným hlavičkám se důvěřuje pouze ve vybraném režimu (jinak je lze podvrhnout). Pokud je web za Cloudflare, zvolte Cloudflare."
+
+msgid "Direct connection (REMOTE_ADDR) - safe default"
+msgstr "Přímé připojení (REMOTE_ADDR) – bezpečné výchozí nastavení"
+
+msgid "Behind Cloudflare (CF-Connecting-IP)"
+msgstr "Za Cloudflare (CF-Connecting-IP)"
+
+msgid "Behind a reverse proxy (X-Forwarded-For)"
+msgstr "Za reverzní proxy (X-Forwarded-For)"
+
+msgid "Allowlist (never block)"
+msgstr "Seznam povolených (nikdy neblokovat)"
+
+msgid "IP addresses or CIDR ranges that are never blocked, one per line. Loopback is always allowed."
+msgstr "IP adresy nebo CIDR rozsahy, které nejsou nikdy blokovány, jedna na řádek. Loopback je vždy povolen."
+
+msgid "Block page message"
+msgstr "Zpráva stránky s blokováním"
+
+msgid "Optional message shown to a blocked visitor (403)."
+msgstr "Volitelná zpráva zobrazená zablokovanému návštěvníkovi (403)."
+
+msgid "Enable country blocklist"
+msgstr "Zapnout seznam blokovaných zemí"
+
+msgid "Blocks visitors from the selected countries via the IP firewall (downloads aggregated IP ranges per country)."
+msgstr "Blokuje návštěvníky z vybraných zemí prostřednictvím IP firewallu (stahuje agregované rozsahy IP adres podle zemí)."
+
+msgid "Blocked countries"
+msgstr "Blokované země"
+
+msgid "Selecting a country here creates/refreshes a country-type IP ban the next time settings are saved."
+msgstr "Výběr země zde vytvoří/obnoví IP blokaci typu země při příštím uložení nastavení."
+
+msgid "Force canonical URL redirect"
+msgstr "Vynutit přesměrování na kanonickou URL"
+
+msgid "Writes .htaccess rules that redirect every request to a single canonical version of the site, based on Settings -> General -> Site Address."
+msgstr "Zapisuje pravidla do .htaccess, která přesměrují každý požadavek na jedinou kanonickou verzi webu, podle Nastavení -> Obecné -> Adresa webu."
+
+msgid "Force HTTPS"
+msgstr "Vynutit HTTPS"
+
+msgid "Redirects all HTTP requests to HTTPS. Only enable with a working SSL certificate on the whole site. Ignored when canonical URL redirect is on (it already covers this)."
+msgstr "Přesměruje všechny HTTP požadavky na HTTPS. Zapínejte pouze s funkčním SSL certifikátem na celém webu. Ignorováno, když je zapnuté přesměrování na kanonickou URL (to už toto pokrývá)."
+
+msgid "Security headers"
+msgstr "Bezpečnostní hlavičky"
+
+msgid "Sends X-Frame-Options, X-Content-Type-Options and Referrer-Policy, both via .htaccess and as a PHP fallback."
+msgstr "Odesílá X-Frame-Options, X-Content-Type-Options a Referrer-Policy, a to jak přes .htaccess, tak jako záložní řešení v PHP."
+
+msgid "HSTS (Strict-Transport-Security)"
+msgstr "HSTS (Strict-Transport-Security)"
+
+msgid "Tells browsers to only ever connect over HTTPS for a year. Only enable with a valid SSL certificate everywhere on the site."
+msgstr "Řekne prohlížečům, aby se po dobu jednoho roku připojovaly výhradně přes HTTPS. Zapínejte pouze s platným SSL certifikátem všude na webu."
+
+msgid "Permissions-Policy"
+msgstr "Permissions-Policy"
+
+msgid "Disables browser access to camera, microphone, geolocation, payment and USB APIs by default."
+msgstr "Ve výchozím nastavení zakáže prohlížeči přístup k API kamery, mikrofonu, geolokace, plateb a USB."
+
+msgid "Protect wp-config.php"
+msgstr "Chránit wp-config.php"
+
+msgid "Disable directory listing"
+msgstr "Zakázat výpis obsahu adresářů"
+
+msgid "Block readme.html / license.txt"
+msgstr "Blokovat readme.html / license.txt"
+
+msgid "Enable custom login URL"
+msgstr "Zapnout vlastní URL přihlášení"
+
+msgid "Rescue switch: define UXSTUDIO_DISABLE_LOGIN_LOCK in wp-config.php to bypass this feature entirely if you get locked out."
+msgstr "Záchranný přepínač: definujte UXSTUDIO_DISABLE_LOGIN_LOCK ve wp-config.php, abyste tuto funkci zcela obešli v případě, že se sami zamknete."
+
+msgid "Custom login slug"
+msgstr "Vlastní slug přihlášení"
+
+msgid "New slug for the login page. wp-login.php will 404 for direct visitors. If the slug collides with an existing page/rewrite rule, the redirect is automatically NOT activated (fail-open) and a warning is logged."
+msgstr "Nový slug pro přihlašovací stránku. wp-login.php vrátí přímým návštěvníkům 404. Pokud slug koliduje s existující stránkou/pravidlem přepisu, přesměrování se automaticky NEaktivuje (fail-open) a zaznamená se varování."
+
+msgid "Direct wp-login.php behavior"
+msgstr "Chování přímého přístupu na wp-login.php"
+
+msgid "404 page"
+msgstr "Stránka 404"
+
+msgid "Homepage"
+msgstr "Domovská stránka"
+
+msgid "Limit login attempts"
+msgstr "Omezit počet pokusů o přihlášení"
+
+msgid "Blocks an IP/username after too many failed login attempts (brute-force protection)."
+msgstr "Zablokuje IP adresu/uživatelské jméno po příliš mnoha neúspěšných pokusech o přihlášení (ochrana proti útoku hrubou silou)."
+
+msgid "Max attempts"
+msgstr "Maximální počet pokusů"
+
+msgid "Lockout time (minutes)"
+msgstr "Doba zablokování (minuty)"
+
+msgid "Email admin on lockout"
+msgstr "Upozornit administrátora e-mailem při zablokování"
+
+msgid "Block reserved usernames"
+msgstr "Blokovat rezervovaná uživatelská jména"
+
+msgid "Prevents registering/renaming to reserved names such as admin, administrator, root, test."
+msgstr "Zabraňuje registraci/přejmenování na rezervovaná jména jako admin, administrator, root, test."
+
+msgid "Additional blocked usernames"
+msgstr "Další blokovaná uživatelská jména"
+
+msgid "One per line, added on top of the built-in reserved list (admin, administrator, root, test)."
+msgstr "Jedno na řádek, přidává se navíc k vestavěnému seznamu rezervovaných jmen (admin, administrator, root, test)."
+
+msgid "Enable CAPTCHA"
+msgstr "Zapnout CAPTCHA"
+
+msgid "Adds CAPTCHA verification to login, registration and lost-password forms. Without both keys set, nothing is enforced."
+msgstr "Přidá ověření CAPTCHA k formulářům přihlášení, registrace a zapomenutého hesla. Bez nastavení obou klíčů se nic nevynucuje."
+
+msgid "CAPTCHA provider"
+msgstr "Poskytovatel CAPTCHA"
+
+msgid "Cloudflare Turnstile"
+msgstr "Cloudflare Turnstile"
+
+msgid "Google reCAPTCHA v2 (checkbox)"
+msgstr "Google reCAPTCHA v2 (zaškrtávací políčko)"
+
+msgid "Google reCAPTCHA v3 (score)"
+msgstr "Google reCAPTCHA v3 (skóre)"
+
+msgid "Enforcement mode"
+msgstr "Režim vynucování"
+
+msgid "Always"
+msgstr "Vždy"
+
+msgid "Adaptive (after repeated failures)"
+msgstr "Adaptivní (po opakovaných selháních)"
+
+msgid "Site key"
+msgstr "Klíč webu"
+
+msgid "Public key, safe to expose in the page markup."
+msgstr "Veřejný klíč, který lze bezpečně zveřejnit v kódu stránky."
+
+msgid "Secret key"
+msgstr "Tajný klíč"
+
+msgid "Stored encrypted server-side. Leave blank to keep the current key."
+msgstr "Uloženo zašifrovaně na serveru. Ponechte prázdné pro zachování stávajícího klíče."
+
+msgid "Disable XML-RPC"
+msgstr "Zakázat XML-RPC"
+
+msgid "Hide WordPress version"
+msgstr "Skrýt verzi WordPressu"
+
+msgid "Disable emoji scripts"
+msgstr "Zakázat skripty emoji"
+
+msgid "Disable embeds script"
+msgstr "Zakázat skript embeds"
+
+msgid "Disable RSS feeds"
+msgstr "Zakázat RSS kanály"
+
+msgid "Restrict REST API to logged-in users"
+msgstr "Omezit REST API pouze na přihlášené uživatele"
+
+msgid "Your IP address has been blocked."
+msgstr "Vaše IP adresa byla zablokována."
+
+msgid "XML-RPC is disabled."
+msgstr "XML-RPC je zakázáno."
+
+msgid "Not found."
+msgstr "Nenalezeno."
+
+msgid "This username is not allowed for security reasons. Please choose another."
+msgstr "Toto uživatelské jméno není z bezpečnostních důvodů povoleno. Zvolte prosím jiné."
+
+msgid "This username is not allowed for security reasons."
+msgstr "Toto uživatelské jméno není z bezpečnostních důvodů povoleno."
+
+msgid "RSS feeds are disabled on this site."
+msgstr "RSS kanály jsou na tomto webu zakázány."
+
+msgid "REST API access is restricted to logged-in users."
+msgstr "Přístup k REST API je omezen pouze na přihlášené uživatele."
+
+msgid "Could not unlock this account."
+msgstr "Tento účet se nepodařilo odemknout."
+
+msgid "Ban not found or cannot be deleted."
+msgstr "Blokace nebyla nalezena nebo ji nelze smazat."
+
+msgid "[%s] Upload Guard: suspicious files detected"
+msgstr "[%s] Upload Guard: zjištěny podezřelé soubory"
+
+msgid "Upload Guard - suspicious files"
+msgstr "Upload Guard - podezřelé soubory"
+
+msgid "%d suspicious file(s) found on your site. Review and resolve them in the UX Studio admin."
+msgstr "Na vašem webu byl nalezen %d podezřelý soubor. Zkontrolujte a vyřešte je v administraci UX Studio."
+
+msgid "File"
+msgstr "Soubor"
+
+msgid "Severity"
+msgstr "Závažnost"
+
+msgid "Finding not found."
+msgstr "Nález nebyl nalezen."
+
+msgid "Could not restore the file from quarantine."
+msgstr "Soubor se nepodařilo obnovit z karantény."
+
+msgid "Notification email"
+msgstr "Notifikační e-mail"
+
+msgid "Where notifications about new service requests are sent. Defaults to the site admin email if left blank."
+msgstr "Kam se odesílají upozornění na nové servisní požadavky. Pokud je ponecháno prázdné, použije se e-mail administrátora webu."
+
+msgid "Invalid status."
+msgstr "Neplatný stav."
+
+msgid "Service request not found."
+msgstr "Servisní požadavek nebyl nalezen."
+
+msgid "New service request: %s"
+msgstr "Nový servisní požadavek: %s"
+
+msgid "A new service request was submitted.\n\nTitle: %1$s\nDescription: %2$s\nRequester: %3$s"
+msgstr "Byl odeslán nový servisní požadavek.\n\nNázev: %1$s\nPopis: %2$s\nŽadatel: %3$s"
+
+msgid "Mailer"
+msgstr "Odesílatel pošty"
+
+msgid "How outgoing mail is sent."
+msgstr "Jak se odesílá odchozí pošta."
+
+msgid "SMTP"
+msgstr "SMTP"
+
+msgid "Brevo API"
+msgstr "Brevo API"
+
+msgid "SMTP host"
+msgstr "SMTP hostitel"
+
+msgid "SMTP port"
+msgstr "SMTP port"
+
+msgid "Encryption"
+msgstr "Šifrování"
+
+msgid "TLS"
+msgstr "TLS"
+
+msgid "SSL"
+msgstr "SSL"
+
+msgid "None"
+msgstr "Žádné"
+
+msgid "SMTP username"
+msgstr "SMTP uživatelské jméno"
+
+msgid "SMTP password"
+msgstr "SMTP heslo"
+
+msgid "Stored encrypted. Leave blank to keep the current password."
+msgstr "Uloženo zašifrovaně. Ponechte prázdné pro zachování stávajícího hesla."
+
+msgid "Brevo API key"
+msgstr "Brevo API klíč"
+
+msgid "[%s] SMTP test email"
+msgstr "[%s] Testovací SMTP e-mail"
+
+msgid "This is a test email sent from the UX Studio SMTP Email module."
+msgstr "Toto je testovací e-mail odeslaný z modulu SMTP Email v UX Studio."
+
+msgid "%s API key"
+msgstr "%s API klíč"
+
+msgid "Please enter a search term."
+msgstr "Zadejte prosím hledaný výraz."
+
+msgid "Unknown provider."
+msgstr "Neznámý poskytovatel."
+
+msgid "The provider returned an error (HTTP %d)."
+msgstr "Poskytovatel vrátil chybu (HTTP %d)."
+
+msgid "The provider returned an invalid response."
+msgstr "Poskytovatel vrátil neplatnou odpověď."
+
+msgid "No %s API key is configured yet."
+msgstr "Zatím není nastaven žádný %s API klíč."
+
+msgid "No image URL was provided."
+msgstr "Nebyla zadána žádná URL obrázku."
+
+msgid "You do not have permission to upload SVG files."
+msgstr "Nemáte oprávnění nahrávat soubory SVG."
+
+msgid "SVG file size must be less than 1MB."
+msgstr "Velikost souboru SVG musí být menší než 1 MB."
+
+msgid "Invalid SVG file."
+msgstr "Neplatný soubor SVG."
+
+msgid "The SVG file could not be sanitized safely."
+msgstr "Soubor SVG nebylo možné bezpečně ošetřit."
+
+msgid "Only users with one of these roles may upload SVG files. Defaults to administrators only."
+msgstr "Soubory SVG mohou nahrávat pouze uživatelé s jednou z těchto rolí. Ve výchozím nastavení pouze administrátoři."
+
+msgid "Base URL of the central app that performs the OAuth handshake."
+msgstr "Základní URL centrální aplikace, která provádí OAuth handshake."
+
+msgid "Shared secret used to verify signed callbacks from the central app. Stored encrypted. Leave blank to keep the current secret."
+msgstr "Sdílený tajný klíč používaný k ověření podepsaných zpětných volání z centrální aplikace. Uloženo zašifrovaně. Ponechte prázdné pro zachování stávajícího klíče."
+
+msgid "Enabled providers"
+msgstr "Zapnutí poskytovatelé"
+
+msgid "Google"
+msgstr "Google"
+
+msgid "Facebook"
+msgstr "Facebook"
+
+msgid "Apple"
+msgstr "Apple"
+
+msgid "Sign in with Google"
+msgstr "Přihlásit se přes Google"
+
+msgid "Sign in with Facebook"
+msgstr "Přihlásit se přes Facebook"
+
+msgid "Sign in with Apple"
+msgstr "Přihlásit se přes Apple"
+
+msgid "Invalid request."
+msgstr "Neplatný požadavek."
+
+msgid "Bar text"
+msgstr "Text lišty"
+
+msgid "Text shown in the top bar. If it is wider than the screen it scrolls automatically."
+msgstr "Text zobrazený v horní liště. Pokud je širší než obrazovka, automaticky se posouvá."
+
+msgid "Background colour of the bar."
+msgstr "Barva pozadí lišty."
+
+msgid "Text colour"
+msgstr "Barva textu"
+
+msgid "Colour of the text and links in the bar."
+msgstr "Barva textu a odkazů v liště."
+
+msgid "Auto publish"
+msgstr "Automatické zveřejnění"
+
+msgid "Show the bar from this date/time. Leave empty to show immediately. Format: YYYY-MM-DDTHH:MM."
+msgstr "Zobrazit lištu od tohoto data/času. Ponechte prázdné pro okamžité zobrazení. Formát: YYYY-MM-DDTHH:MM."
+
+msgid "Auto deactivate"
+msgstr "Automatická deaktivace"
+
+msgid "Hide the bar after this date/time. Leave empty to show permanently. Format: YYYY-MM-DDTHH:MM."
+msgstr "Skrýt lištu po tomto datu/čase. Ponechte prázdné pro trvalé zobrazení. Formát: YYYY-MM-DDTHH:MM."
+
+msgid "Last Login"
+msgstr "Poslední přihlášení"
+
+msgid "Never"
+msgstr "Nikdy"
+
+msgid "Just now"
+msgstr "Právě teď"
+
+msgid "Format"
+msgstr "Formát"
+
+msgid "How the last login time is displayed in the Users column."
+msgstr "Jak se čas posledního přihlášení zobrazuje ve sloupci Uživatelé."
+
+msgid "Date and time"
+msgstr "Datum a čas"
+
+msgid "Date only"
+msgstr "Pouze datum"
+
+msgid "Relative time"
+msgstr "Relativní čas"
+
+msgid "Custom format"
+msgstr "Vlastní formát"
+
+msgid "PHP date format used when \"Custom format\" is selected (e.g. Y-m-d H:i:s)."
+msgstr "Formát data PHP použitý při zvolení možnosti \"Vlastní formát\" (např. Y-m-d H:i:s)."
+
+msgid "Switch&nbsp;To"
+msgstr "Přepnout&nbsp;na"
+
+msgid "Switched to %1$s (%2$s)."
+msgstr "Přepnuto na %1$s (%2$s)."
+
+msgid "Switch back to %s"
+msgstr "Přepnout zpět na %s"
+
+msgid "Switched back to %s."
+msgstr "Přepnuto zpět na %s."
+
+msgid "Could not switch users."
+msgstr "Nepodařilo se přepnout uživatele."
+
+msgid "Could not temporarily log out."
+msgstr "Nepodařilo se dočasně odhlásit."
+
+msgid "User Switching"
+msgstr "Přepínání uživatelů"
+
+msgid "Switch to this user"
+msgstr "Přepnout na tohoto uživatele"
+
+msgid "Instantly switch to this user account."
+msgstr "Okamžitě přepnout na tento uživatelský účet."
+
+msgid "Switch to %s"
+msgstr "Přepnout na %s"
+
+msgid "Switch User"
+msgstr "Přepnout uživatele"
+
+msgid "Select a user to add a default switch option in your admin bar."
+msgstr "Vyberte uživatele pro přidání výchozí možnosti přepnutí do administrační lišty."
+
+msgid "Every %d hours (UX Studio vulnerability scan)"
+msgstr "Každých %d hodin (kontrola zranitelností UX Studio)"
+
+msgid "WPScan API key"
+msgstr "WPScan API klíč"
+
+msgid "Optional. Stored encrypted. Leave blank to keep the current key. Free registration at wpscan.com/api. Enables real CVE data in addition to the always-on WordPress.org outdated-version check."
+msgstr "Volitelné. Uloženo zašifrovaně. Ponechte prázdné pro zachování stávajícího klíče. Bezplatná registrace na wpscan.com/api. Umožňuje reálná data o CVE navíc k vždy zapnuté kontrole zastaralé verze z WordPress.org."
+
+msgid "Scan interval (hours)"
+msgstr "Interval kontroly (hodiny)"
+
+msgid "How often the background scan runs automatically via WP-Cron."
+msgstr "Jak často se automaticky spouští kontrola na pozadí přes WP-Cron."
+
+msgid "This WordPress version is marked insecure by WordPress.org (a security release is available)"
+msgstr "Tato verze WordPressu je označena jako nezabezpečená ze strany WordPress.org (je k dispozici bezpečnostní aktualizace)"
+
+msgid "This WordPress version is outdated"
+msgstr "Tato verze WordPressu je zastaralá"
+
+msgid "%s has a newer version available on WordPress.org"
+msgstr "%s má na WordPress.org k dispozici novější verzi"
+
+msgid "Too many requests, slow down."
+msgstr "Příliš mnoho požadavků, zpomalte."
+
+msgid "Compresses JPEG/PNG/GIF images already in the media library and optionally generates WebP siblings. Originals are always kept as a backup file before the first optimization."
+msgstr "Komprimuje obrázky JPEG/PNG/GIF, které jsou již v knihovně médií, a volitelně generuje jejich WebP protějšky. Originály se před první optimalizací vždy uchovávají jako záložní soubor."
+
+msgid "Start bulk optimization"
+msgstr "Spustit hromadnou optimalizaci"
+
+msgid "Running…"
+msgstr "Probíhá…"
+
+msgid "Idle."
+msgstr "Nečinné."
+
+msgid "Restore original by attachment ID"
+msgstr "Obnovit originál podle ID přílohy"
+
+msgid "Restore"
+msgstr "Obnovit"
+
+msgid "Restored."
+msgstr "Obnoveno."
+
+msgid "Back to modules"
+msgstr "Zpět na moduly"
+
+msgid "Image Optimizer"
+msgstr "Optimalizace obrázků"
+
+msgid "Bulk Optimize"
+msgstr "Hromadná optimalizace"
+
+msgid "Loading…"
+msgstr "Načítání…"
+
+msgid "Saved"
+msgstr "Uloženo"
+
+msgid "Save changes"
+msgstr "Uložit změny"
+
+msgid "IP hash"
+msgstr "Hash IP"
+
+msgid "User-Agent"
+msgstr "User-Agent"
+
+msgid "Action"
+msgstr "Akce"
+
+msgid "Allowed"
+msgstr "Povoleno"
+
+msgid "Blocked"
+msgstr "Blokováno"
+
+msgid "No blocked requests yet."
+msgstr "Zatím žádné blokované požadavky."
+
+msgid "Bot Throttle"
+msgstr "Omezení botů"
+
+msgid "Log"
+msgstr "Protokol"
+
+msgid "Not rated"
+msgstr "Nehodnoceno"
+
+msgid "%d out of 5 stars"
+msgstr "%d z 5 hvězdiček"
+
+msgid "Conversation"
+msgstr "Konverzace"
+
+msgid "Page:"
+msgstr "Stránka:"
+
+msgid "Rating:"
+msgstr "Hodnocení:"
+
+msgid "Feedback:"
+msgstr "Zpětná vazba:"
+
+msgid "No messages."
+msgstr "Žádné zprávy."
+
+msgid "Filter by rating"
+msgstr "Filtrovat podle hodnocení"
+
+msgid "All"
+msgstr "Vše"
+
+msgid "stars"
+msgstr "hvězdiček"
+
+msgid "Delete selected (%d)"
+msgstr "Smazat vybrané (%d)"
+
+msgid "Session"
+msgstr "Relace"
+
+msgid "Messages"
+msgstr "Zprávy"
+
+msgid "Rating"
+msgstr "Hodnocení"
+
+msgid "Updated"
+msgstr "Aktualizováno"
+
+msgid "Select conversation"
+msgstr "Vybrat konverzaci"
+
+msgid "Delete conversation"
+msgstr "Smazat konverzaci"
+
+msgid "No conversations yet."
+msgstr "Zatím žádné konverzace."
+
+msgid "Previous"
+msgstr "Předchozí"
+
+msgid "Next"
+msgstr "Další"
+
+msgid "Public"
+msgstr "Veřejné"
+
+msgid "Internal"
+msgstr "Interní"
+
+msgid "Choose a file first."
+msgstr "Nejprve vyberte soubor."
+
+msgid "Document (PDF, DOCX, TXT, MD)"
+msgstr "Dokument (PDF, DOCX, TXT, MD)"
+
+msgid "Public chat"
+msgstr "Veřejný chat"
+
+msgid "Internal chat"
+msgstr "Interní chat"
+
+msgid "Upload document"
+msgstr "Nahrát dokument"
+
+msgid "Add entry"
+msgstr "Přidat záznam"
+
+msgid "Documents"
+msgstr "Dokumenty"
+
+msgid "No documents uploaded yet."
+msgstr "Zatím nebyly nahrány žádné dokumenty."
+
+msgid "Type"
+msgstr "Typ"
+
+msgid "Chunks"
+msgstr "Části"
+
+msgid "Targets"
+msgstr "Cíle"
+
+msgid "Actions"
+msgstr "Akce"
+
+msgid "Delete this document and its knowledge chunks?"
+msgstr "Smazat tento dokument a jeho části znalostní báze?"
+
+msgid "Delete"
+msgstr "Smazat"
+
+msgid "Manual entries"
+msgstr "Ruční záznamy"
+
+msgid "No manual entries yet."
+msgstr "Zatím žádné ruční záznamy."
+
+msgid "Delete this entry?"
+msgstr "Smazat tento záznam?"
+
+msgid "Question"
+msgstr "Otázka"
+
+msgid "Answer"
+msgstr "Odpověď"
+
+msgid "Category"
+msgstr "Kategorie"
+
+msgid "Add FAQ"
+msgstr "Přidat FAQ"
+
+msgid "Generate from topic (optional)"
+msgstr "Vygenerovat z tématu (volitelné)"
+
+msgid "e.g. cancellation policy"
+msgstr "např. storno podmínky"
+
+msgid "Suggest from past chats"
+msgstr "Navrhnout z minulých chatů"
+
+msgid "Suggest from topic"
+msgstr "Navrhnout z tématu"
+
+msgid "Add"
+msgstr "Přidat"
+
+msgid "No new suggestions."
+msgstr "Žádné nové návrhy."
+
+msgid "FAQ"
+msgstr "FAQ"
+
+msgid "No FAQs yet."
+msgstr "Zatím žádné FAQ."
+
+msgid "Active"
+msgstr "Aktivní"
+
+msgid "Views"
+msgstr "Zobrazení"
+
+msgid "Delete this FAQ?"
+msgstr "Smazat toto FAQ?"
+
+msgid "Source type"
+msgstr "Typ zdroje"
+
+msgid "Web page URL"
+msgstr "URL webové stránky"
+
+msgid "Sitemap URL"
+msgstr "URL mapy webu"
+
+msgid "Raw text"
+msgstr "Neformátovaný text"
+
+msgid "Title (optional)"
+msgstr "Název (volitelné)"
+
+msgid "Text"
+msgstr "Text"
+
+msgid "URL"
+msgstr "URL"
+
+msgid "Add source"
+msgstr "Přidat zdroj"
+
+msgid "No training sources yet."
+msgstr "Zatím žádné trénovací zdroje."
+
+msgid "Title / URL"
+msgstr "Název / URL"
+
+msgid "Vectors"
+msgstr "Vektory"
+
+msgid "Reindex"
+msgstr "Přeindexovat"
+
+msgid "Delete this source and its vectors?"
+msgstr "Smazat tento zdroj a jeho vektory?"
+
+msgid "Indexed items:"
+msgstr "Indexované položky:"
+
+msgid "Vectorize existing data"
+msgstr "Vektorizovat existující data"
+
+msgid "Index knowledge base, FAQ, products & content"
+msgstr "Indexovat znalostní bázi, FAQ, produkty a obsah"
+
+msgid "Computes embeddings for the current knowledge base entries, FAQ, product index and content index."
+msgstr "Vypočítá embeddingy pro aktuální záznamy znalostní báze, FAQ, index produktů a index obsahu."
+
+msgid "Embedding provider:"
+msgstr "Poskytovatel embeddingů:"
+
+msgid "dims"
+msgstr "dim."
+
+msgid "Total vectors:"
+msgstr "Vektorů celkem:"
+
+msgid "Training sources:"
+msgstr "Trénovací zdroje:"
+
+msgid "pending"
+msgstr "čeká"
+
+msgid "RAG status"
+msgstr "Stav RAG"
+
+msgid "Products (WooCommerce)"
+msgstr "Produkty (WooCommerce)"
+
+msgid "Content (posts/pages)"
+msgstr "Obsah (příspěvky/stránky)"
+
+msgid "Training sources"
+msgstr "Trénovací zdroje"
+
+msgid "AI"
+msgstr "AI"
+
+msgid "Waiting"
+msgstr "Čeká"
+
+msgid "With operator"
+msgstr "S operátorem"
+
+msgid "Closed"
+msgstr "Uzavřeno"
+
+msgid "Visitor"
+msgstr "Návštěvník"
+
+msgid "Waiting for pickup"
+msgstr "Čeká na převzetí"
+
+msgid "Active handoffs"
+msgstr "Aktivní předání"
+
+msgid "No handoff requests right now."
+msgstr "Žádné požadavky na předání."
+
+msgid "Take over"
+msgstr "Převzít"
+
+msgid "Return to AI"
+msgstr "Vrátit AI"
+
+msgid "No messages yet."
+msgstr "Zatím žádné zprávy."
+
+msgid "Reply to the customer…"
+msgstr "Odpovědět zákazníkovi…"
+
+msgid "Send"
+msgstr "Odeslat"
+
+msgid "Select a conversation from the list on the left."
+msgstr "Vyberte konverzaci ze seznamu vlevo."
+
+msgid "Post"
+msgstr "Příspěvek"
+
+msgid "Neutral"
+msgstr "Neutrální"
+
+msgid "Professional"
+msgstr "Profesionální"
+
+msgid "Friendly"
+msgstr "Přátelský"
+
+msgid "Persuasive"
+msgstr "Přesvědčivý"
+
+msgid "Enthusiastic"
+msgstr "Nadšený"
+
+msgid "Short"
+msgstr "Krátký"
+
+msgid "Long"
+msgstr "Dlouhý"
+
+msgid "Generate a post/page"
+msgstr "Vygenerovat příspěvek/stránku"
+
+msgid "Content type"
+msgstr "Typ obsahu"
+
+msgid "Tone"
+msgstr "Tón"
+
+msgid "Length"
+msgstr "Délka"
+
+msgid "What should this content be about?"
+msgstr "O čem má tento obsah být?"
+
+msgid "SEO focus keyword (optional)"
+msgstr "Klíčové slovo pro SEO (volitelné)"
+
+msgid "Generate"
+msgstr "Vygenerovat"
+
+msgid "Category:"
+msgstr "Kategorie:"
+
+msgid "Tags:"
+msgstr "Štítky:"
+
+msgid "Edit draft"
+msgstr "Upravit koncept"
+
+msgid "View published post"
+msgstr "Zobrazit publikovaný příspěvek"
+
+msgid "Publish"
+msgstr "Publikovat"
+
+msgid "Create draft"
+msgstr "Vytvořit koncept"
+
+msgid "Generate a WooCommerce product description"
+msgstr "Vygenerovat popis produktu WooCommerce"
+
+msgid "Product description (rough input)"
+msgstr "Popis produktu (hrubý vstup)"
+
+msgid "Copy the text above into the product description field."
+msgstr "Zkopírujte text výše do pole popisu produktu."
+
+msgid "Generate SEO meta"
+msgstr "Vygenerovat SEO meta"
+
+msgid "Save to post ID (optional)"
+msgstr "Uložit k příspěvku s ID (volitelné)"
+
+msgid "Detected SEO plugin: %s. Copy these values into its fields if needed."
+msgstr "Zjištěný SEO plugin: %s. V případě potřeby zkopírujte tyto hodnoty do jeho polí."
+
+msgid "Title:"
+msgstr "Titulek:"
+
+msgid "Description:"
+msgstr "Popis:"
+
+msgid "Keywords:"
+msgstr "Klíčová slova:"
+
+msgid "Import HTML/URL into Elementor"
+msgstr "Importovat HTML/URL do Elementoru"
+
+msgid "Source"
+msgstr "Zdroj"
+
+msgid "Paste HTML"
+msgstr "Vložit HTML"
+
+msgid "HTML"
+msgstr "HTML"
+
+msgid "Page URL"
+msgstr "URL stránky"
+
+msgid "Content CSS selector (optional)"
+msgstr "CSS selektor obsahu (volitelné)"
+
+msgid "Post type"
+msgstr "Typ příspěvku"
+
+msgid "Draft"
+msgstr "Koncept"
+
+msgid "Published"
+msgstr "Publikováno"
+
+msgid "Pending review"
+msgstr "Čeká na kontrolu"
+
+msgid "Import into Elementor"
+msgstr "Importovat do Elementoru"
+
+msgid "Created \"%s\" with the widgets below."
+msgstr "Vytvořeno „%s“ s widgety níže."
+
+msgid "widgets."
+msgstr "widgetů."
+
+msgid "Edit in Elementor"
+msgstr "Upravit v Elementoru"
+
+msgid "Daily"
+msgstr "Denně"
+
+msgid "Weekly"
+msgstr "Týdně"
+
+msgid "Monthly"
+msgstr "Měsíčně"
+
+msgid "Generators:"
+msgstr "Generátory:"
+
+msgid "active"
+msgstr "aktivní"
+
+msgid "Posts generated:"
+msgstr "Vygenerované příspěvky:"
+
+msgid "in the last 7 days"
+msgstr "za posledních 7 dní"
+
+msgid "Tokens used:"
+msgstr "Využité tokeny:"
+
+msgid "Generator name"
+msgstr "Název generátoru"
+
+msgid "Topics (one per line)"
+msgstr "Témata (jedno na řádek)"
+
+msgid "Article types"
+msgstr "Typy článků"
+
+msgid "Leave empty to rotate through every article type."
+msgstr "Ponechte prázdné pro střídání všech typů článků."
+
+msgid "AI provider"
+msgstr "Poskytovatel AI"
+
+msgid "Default provider"
+msgstr "Výchozí poskytovatel"
+
+msgid "Model"
+msgstr "Model"
+
+msgid "Default model"
+msgstr "Výchozí model"
+
+msgid "Extra long"
+msgstr "Extra dlouhý"
+
+msgid "Schedule"
+msgstr "Plánování"
+
+msgid "Publish time window"
+msgstr "Časové okno publikování"
+
+msgid "to"
+msgstr "do"
+
+msgid "Posts per run"
+msgstr "Příspěvků na běh"
+
+msgid "Create generator"
+msgstr "Vytvořit generátor"
+
+msgid "Cancel"
+msgstr "Zrušit"
+
+msgid "Generators"
+msgstr "Generátory"
+
+msgid "New generator"
+msgstr "Nový generátor"
+
+msgid "No generators yet."
+msgstr "Zatím žádné generátory."
+
+msgid "Posts"
+msgstr "Příspěvky"
+
+msgid "Next run"
+msgstr "Další běh"
+
+msgid "Generated:"
+msgstr "Vygenerováno:"
+
+msgid "Run now"
+msgstr "Spustit nyní"
+
+msgid "Pause"
+msgstr "Pozastavit"
+
+msgid "Activate"
+msgstr "Aktivovat"
+
+msgid "Delete this generator?"
+msgstr "Smazat tento generátor?"
+
+msgid "Generated posts"
+msgstr "Vygenerované příspěvky"
+
+msgid "No posts generated yet."
+msgstr "Zatím nebyly vygenerovány žádné příspěvky."
+
+msgid "Bulk action"
+msgstr "Hromadná akce"
+
+msgid "Set to draft"
+msgstr "Nastavit jako koncept"
+
+msgid "Move to trash"
+msgstr "Přesunout do koše"
+
+msgid "Apply"
+msgstr "Použít"
+
+msgid "Generator"
+msgstr "Generátor"
+
+msgid "Article type"
+msgstr "Typ článku"
+
+msgid "Tokens"
+msgstr "Tokeny"
+
+msgid "Created"
+msgstr "Vytvořeno"
+
+msgid "Monthly tokens"
+msgstr "Měsíční tokeny"
+
+msgid "Daily requests (site-wide)"
+msgstr "Denní požadavky (celý web)"
+
+msgid "Your daily requests"
+msgstr "Vaše denní požadavky"
+
+msgid "Failed to reach the AI assistant."
+msgstr "Nepodařilo se spojit s AI asistentem."
+
+msgid "Ask the internal AI assistant about editing content, site settings, or how to use UX Studio."
+msgstr "Zeptejte se interního AI asistenta na úpravy obsahu, nastavení webu nebo na to, jak používat UX Studio."
+
+msgid "Thinking…"
+msgstr "Přemýšlím…"
+
+msgid "Type your message…"
+msgstr "Napište svou zprávu…"
+
+msgid "1 hour"
+msgstr "1 hodina"
+
+msgid "4 hours"
+msgstr "4 hodiny"
+
+msgid "8 hours"
+msgstr "8 hodin"
+
+msgid "12 hours"
+msgstr "12 hodin"
+
+msgid "24 hours"
+msgstr "24 hodin"
+
+msgid "List, Get, Create, Update, Delete"
+msgstr "Seznam, Získat, Vytvořit, Aktualizovat, Smazat"
+
+msgid "Pages"
+msgstr "Stránky"
+
+msgid "List, Get, Delete"
+msgstr "Seznam, Získat, Smazat"
+
+msgid "Custom Post Types"
+msgstr "Vlastní typy obsahu"
+
+msgid "List Types, List Taxonomies, Get Items"
+msgstr "Seznam typů, Seznam taxonomií, Získat položky"
+
+msgid "Get, Update"
+msgstr "Získat, Aktualizovat"
+
+msgid "Site Stats"
+msgstr "Statistiky webu"
+
+msgid "Get"
+msgstr "Získat"
+
+msgid "WooCommerce Products"
+msgstr "Produkty WooCommerce"
+
+msgid "List, Get, Create, Update, Delete (if WooCommerce is active)"
+msgstr "Seznam, Získat, Vytvořit, Aktualizovat, Smazat (pokud je WooCommerce aktivní)"
+
+msgid "WooCommerce Orders"
+msgstr "Objednávky WooCommerce"
+
+msgid "List, Get, Create (if WooCommerce is active)"
+msgstr "Seznam, Získat, Vytvořit (pokud je WooCommerce aktivní)"
+
+msgid "Elementor"
+msgstr "Elementor"
+
+msgid "List Pages, Get Structure, Find Widgets, Update Widget (if Elementor is active)"
+msgstr "Seznam stránek, Získat strukturu, Najít widgety, Aktualizovat widget (pokud je Elementor aktivní)"
+
+msgid "Plugins Info"
+msgstr "Informace o pluginech"
+
+msgid "Theme Info"
+msgstr "Informace o šabloně"
+
+msgid "Users Info"
+msgstr "Informace o uživatelích"
+
+msgid "Validity"
+msgstr "Platnost"
+
+msgid "Generate token"
+msgstr "Vygenerovat token"
+
+msgid "New JWT token"
+msgstr "Nový JWT token"
+
+msgid "Copied!"
+msgstr "Zkopírováno!"
+
+msgid "Copy"
+msgstr "Kopírovat"
+
+msgid "This token is shown only once. Copy it now - once you leave this page it cannot be displayed again."
+msgstr "Tento token se zobrazí pouze jednou. Zkopírujte jej nyní - jakmile tuto stránku opustíte, nebude jej již možné znovu zobrazit."
+
+msgid "No active tokens yet."
+msgstr "Zatím žádné aktivní tokeny."
+
+msgid "Token ID"
+msgstr "ID tokenu"
+
+msgid "User"
+msgstr "Uživatel"
+
+msgid "Expires"
+msgstr "Vyprší"
+
+msgid "Revoke"
+msgstr "Zrušit platnost"
+
+msgid "MCP Server"
+msgstr "MCP Server"
+
+msgid "MCP (Model Context Protocol) is an open standard that lets external AI tools talk to this WordPress site. Once enabled, Claude Desktop, Cursor, Windsurf or another MCP client can manage posts, pages, products, media and settings directly. Clients authenticate with a JWT token (see below) and only ever get the operations you allow."
+msgstr "MCP (Model Context Protocol) je otevřený standard, který umožňuje externím AI nástrojům komunikovat s tímto webem WordPress. Po zapnutí mohou Claude Desktop, Cursor, Windsurf nebo jiný MCP klient přímo spravovat příspěvky, stránky, produkty, média a nastavení. Klienti se ověřují pomocí JWT tokenu (viz níže) a získají vždy jen operace, které povolíte."
+
+msgid "Status:"
+msgstr "Stav:"
+
+msgid "Enabled"
+msgstr "Zapnuto"
+
+msgid "This toggle lives in the Settings tab (\"Enable MCP (tool calling)\") - it is shown here for reference only."
+msgstr "Tento přepínač se nachází na kartě Nastavení („Zapnout MCP (volání nástrojů)“) - zde je zobrazen pouze pro informaci."
+
+msgid "Registered tools & resources"
+msgstr "Registrované nástroje a zdroje"
+
+msgid "These WordPress REST API endpoints are automatically exposed as MCP tools and resources. Tools let the AI perform actions (CRUD operations). Resources provide read-only context about the site."
+msgstr "Tyto endpointy WordPress REST API jsou automaticky zpřístupněny jako MCP nástroje a zdroje. Nástroje umožňují AI provádět akce (operace CRUD). Zdroje poskytují kontext o webu pouze pro čtení."
+
+msgid "Tools"
+msgstr "Nástroje"
+
+msgid "Tool"
+msgstr "Nástroj"
+
+msgid "Operations"
+msgstr "Operace"
+
+msgid "Resources"
+msgstr "Zdroje"
+
+msgid "Resource"
+msgstr "Zdroj"
+
+msgid "URI"
+msgstr "URI"
+
+msgid "Resources are read-only - the AI can read them but cannot use them to change data."
+msgstr "Zdroje jsou pouze pro čtení - AI je může číst, ale nemůže je použít ke změně dat."
+
+msgid "JWT access tokens"
+msgstr "Přístupové JWT tokeny"
+
+msgid "To connect an external AI client to the MCP server, generate a JWT (JSON Web Token). Paste it into the AI client's configuration (e.g. the Claude Desktop config). Each token has a limited lifetime and can be revoked at any time."
+msgstr "Chcete-li k MCP serveru připojit externího AI klienta, vygenerujte JWT (JSON Web Token). Vložte jej do konfigurace AI klienta (např. konfigurace Claude Desktop). Každý token má omezenou životnost a lze jej kdykoli zrušit."
+
+msgid "Usage"
+msgstr "Využití"
+
+msgid "Conversations"
+msgstr "Konverzace"
+
+msgid "Handoff"
+msgstr "Předání"
+
+msgid "Knowledge Hub"
+msgstr "Knowledge Hub"
+
+msgid "RAG Training"
+msgstr "Trénování RAG"
+
+msgid "Content Creator"
+msgstr "Content Creator"
+
+msgid "Blog Pilot"
+msgstr "Blog Pilot"
+
+msgid "Internal Chat"
+msgstr "Interní chat"
+
+msgid "MCP"
+msgstr "MCP"
+
+msgid "Daily requests (per user)"
+msgstr "Denní požadavky (na uživatele)"
+
+msgid "A Claude API key is currently set."
+msgstr "Klíč Claude API je momentálně nastaven."
+
+msgid "No Claude API key set yet."
+msgstr "Klíč Claude API zatím nebyl nastaven."
+
+msgid "An OpenAI API key is currently set."
+msgstr "Klíč OpenAI API je momentálně nastaven."
+
+msgid "No OpenAI API key set yet."
+msgstr "Klíč OpenAI API zatím nebyl nastaven."
+
+msgid "A DeepSeek API key is currently set."
+msgstr "Klíč DeepSeek API je momentálně nastaven."
+
+msgid "No DeepSeek API key set yet."
+msgstr "Klíč DeepSeek API zatím nebyl nastaven."
+
+msgid "Period (days)"
+msgstr "Období (dny)"
+
+msgid "Requests:"
+msgstr "Požadavky:"
+
+msgid "Input tokens:"
+msgstr "Vstupní tokeny:"
+
+msgid "Output tokens:"
+msgstr "Výstupní tokeny:"
+
+msgid "Sessions:"
+msgstr "Relace:"
+
+msgid "No usage recorded for this period."
+msgstr "Za toto období nebylo zaznamenáno žádné využití."
+
+msgid "Provider"
+msgstr "Poskytovatel"
+
+msgid "Feature"
+msgstr "Funkce"
+
+msgid "Requests"
+msgstr "Požadavky"
+
+msgid "Input tokens"
+msgstr "Vstupní tokeny"
+
+msgid "Output tokens"
+msgstr "Výstupní tokeny"
+
+msgid "Shown"
+msgstr "Zobrazeno"
+
+msgid "Clicked"
+msgstr "Kliknuto"
+
+msgid "Popup Manager"
+msgstr "Správce vyskakovacích oken"
+
+msgid "New popup title"
+msgstr "Název nového vyskakovacího okna"
+
+msgid "Add popup"
+msgstr "Přidat vyskakovací okno"
+
+msgid "Stats"
+msgstr "Statistiky"
+
+msgid "Delete popup"
+msgstr "Smazat vyskakovací okno"
+
+msgid "No popups yet."
+msgstr "Zatím žádná vyskakovací okna."
+
+msgid "Everywhere (frontend & admin)"
+msgstr "Všude (frontend i administrace)"
+
+msgid "Admin only"
+msgstr "Pouze administrace"
+
+msgid "Frontend only"
+msgstr "Pouze frontend"
+
+msgid "Frontend header"
+msgstr "Hlavička frontendu"
+
+msgid "Frontend footer"
+msgstr "Patička frontendu"
+
+msgid "Admin header"
+msgstr "Hlavička administrace"
+
+msgid "Admin footer"
+msgstr "Patička administrace"
+
+msgid "Frontend body open"
+msgstr "Otevření těla frontendu"
+
+msgid "Add snippet"
+msgstr "Přidat úryvek"
+
+msgid "No snippets have been created yet."
+msgstr "Zatím nebyly vytvořeny žádné úryvky."
+
+msgid "Integrity check failed"
+msgstr "Kontrola integrity selhala"
+
+msgid "Invalid"
+msgstr "Neplatné"
+
+msgid "Toggle enabled"
+msgstr "Přepnout aktivaci"
+
+msgid "Edit snippet"
+msgstr "Upravit úryvek"
+
+msgid "Delete snippet"
+msgstr "Smazat úryvek"
+
+msgid "Delete this snippet? This cannot be undone."
+msgstr "Smazat tento úryvek? Tuto akci nelze vrátit zpět."
+
+msgid "Failed to save snippet."
+msgstr "Nepodařilo se uložit úryvek."
+
+msgid "Snippet name"
+msgstr "Název úryvku"
+
+msgid "Snippet type"
+msgstr "Typ úryvku"
+
+msgid "PHP"
+msgstr "PHP"
+
+msgid "CSS"
+msgstr "CSS"
+
+msgid "JavaScript"
+msgstr "JavaScript"
+
+msgid "Snippet code"
+msgstr "Kód úryvku"
+
+msgid "PHP code only - do not include the opening <?php tag. Code is validated (syntax + duplicate declarations) before it is saved."
+msgstr "Pouze PHP kód - nezahrnujte úvodní tag <?php. Kód je před uložením ověřen (syntaxe + duplicitní deklarace)."
+
+msgid "Where to run"
+msgstr "Kde spustit"
+
+msgid "Enable snippet"
+msgstr "Zapnout snippet"
+
+msgid "Update snippet"
+msgstr "Aktualizovat snippet"
+
+msgid "Save snippet"
+msgstr "Uložit snippet"
+
+msgid "Back to list"
+msgstr "Zpět na seznam"
+
+msgid "Code Snippets"
+msgstr "Snippety kódu"
+
+msgid "Snippets"
+msgstr "Snippety"
+
+msgid "Third-Party Login"
+msgstr "Přihlášení přes třetí stranu"
+
+msgid "Connected accounts"
+msgstr "Propojené účty"
+
+msgid "An HMAC secret is currently set."
+msgstr "Tajný klíč HMAC je momentálně nastaven."
+
+msgid "No HMAC secret set yet."
+msgstr "Zatím není nastaven žádný tajný klíč HMAC."
+
+msgid "Visitors sign in through the central app, which handles the OAuth handshake with Google, Facebook or Apple and posts a signed result back to this site."
+msgstr "Návštěvníci se přihlašují přes centrální aplikaci, která zajišťuje OAuth handshake s Google, Facebook nebo Apple a odesílá podepsaný výsledek zpět na tento web."
+
+msgid "Account linking happens automatically on first login: if a WordPress user already exists with the matching email address, the provider account is linked to it. Otherwise a new WordPress user is created."
+msgstr "Propojení účtu proběhne automaticky při prvním přihlášení: pokud už existuje uživatel WordPress se shodnou e-mailovou adresou, účet poskytovatele se k němu propojí. Jinak se vytvoří nový uživatel WordPress."
+
+msgid "No separate list of connected accounts is stored by this module beyond WordPress’s own users — each linked provider is recorded as user meta on the corresponding WordPress user."
+msgstr "Tento modul neukládá žádný samostatný seznam propojených účtů nad rámec vlastních uživatelů WordPress — každý propojený poskytovatel je zaznamenán jako user meta u odpovídajícího uživatele WordPress."
+
+msgid "Cached posts"
+msgstr "Uložené příspěvky v cache"
+
+msgid "Bot requests (24h)"
+msgstr "Požadavky botů (24 h)"
+
+msgid "Regenerate all"
+msgstr "Znovu vygenerovat vše"
+
+msgid "Generated"
+msgstr "Vygenerováno"
+
+msgid "Regenerate"
+msgstr "Znovu vygenerovat"
+
+msgid "Nothing cached yet."
+msgstr "Zatím není nic uloženo v cache."
+
+msgid "AI Markdown"
+msgstr "AI Markdown"
+
+msgid "Cache"
+msgstr "Cache"
+
+msgid "Sync now"
+msgstr "Synchronizovat nyní"
+
+msgid "Synced"
+msgstr "Synchronizováno"
+
+msgid "items"
+msgstr "položek"
+
+msgid "No media synced yet. Configure Content Sync and click \"Sync now\"."
+msgstr "Zatím nejsou synchronizována žádná média. Nakonfigurujte Content Sync a klikněte na „Synchronizovat nyní“."
+
+msgid "Instagram Feed"
+msgstr "Instagram Feed"
+
+msgid "Shortcode: [uxstudio_instagram]"
+msgstr "Shortcode: [uxstudio_instagram]"
+
+msgid "Export CSV"
+msgstr "Exportovat CSV"
+
+msgid "No subscribers captured yet."
+msgstr "Zatím nebyli zaznamenáni žádní odběratelé."
+
+msgid "Exit Popup"
+msgstr "Exit Popup"
+
+msgid "Subscribers"
+msgstr "Odběratelé"
+
+msgid "Failed to analyze."
+msgstr "Analýza se nezdařila."
+
+msgid "Score"
+msgstr "Skóre"
+
+msgid "Re-run analysis"
+msgstr "Spustit analýzu znovu"
+
+msgid "Check"
+msgstr "Kontrola"
+
+msgid "Value"
+msgstr "Hodnota"
+
+msgid "Fix"
+msgstr "Opravit"
+
+msgid "Post revisions"
+msgstr "Revize příspěvků"
+
+msgid "Delete revisions"
+msgstr "Smazat revize"
+
+msgid "Spam comments"
+msgstr "Spam komentáře"
+
+msgid "Delete spam comments"
+msgstr "Smazat spam komentáře"
+
+msgid "Auto-draft posts"
+msgstr "Automaticky uložené koncepty"
+
+msgid "Transients"
+msgstr "Transienty"
+
+msgid "Delete expired transients"
+msgstr "Smazat expirované transienty"
+
+msgid "Fix applied."
+msgstr "Oprava aplikována."
+
+msgid "No history yet - run an analysis first."
+msgstr "Zatím žádná historie – nejprve spusťte analýzu."
+
+msgid "Performance Optimization"
+msgstr "Optimalizace výkonu"
+
+msgid "Analyze"
+msgstr "Analyzovat"
+
+msgid "History"
+msgstr "Historie"
+
+msgid "Last 24 hours"
+msgstr "Posledních 24 hodin"
+
+msgid "Average"
+msgstr "Průměr"
+
+msgid "Min"
+msgstr "Min"
+
+msgid "Max"
+msgstr "Max"
+
+msgid "Samples"
+msgstr "Vzorky"
+
+msgid "Hour"
+msgstr "Hodina"
+
+msgid "Avg (ms)"
+msgstr "Průměr (ms)"
+
+msgid "No data yet."
+msgstr "Zatím žádná data."
+
+msgid "Recent requests"
+msgstr "Nedávné požadavky"
+
+msgid "Time"
+msgstr "Čas"
+
+msgid "Load time (ms)"
+msgstr "Doba načítání (ms)"
+
+msgid "No requests logged yet."
+msgstr "Zatím nebyly zaznamenány žádné požadavky."
+
+msgid "Page Load"
+msgstr "Načtení stránky"
+
+msgid "Overview"
+msgstr "Přehled"
+
+msgid "Real CSP violations reported by visitor browsers. Resolve entries once you have allowed or fixed the source."
+msgstr "Skutečná porušení CSP hlášená prohlížeči návštěvníků. Vyřešte položky, jakmile zdroj povolíte nebo opravíte."
+
+msgid "Resolved"
+msgstr "Vyřešeno"
+
+msgid "Blocked source"
+msgstr "Blokovaný zdroj"
+
+msgid "Directive"
+msgstr "Direktiva"
+
+msgid "Hits"
+msgstr "Zásahy"
+
+msgid "Last seen"
+msgstr "Naposledy viděno"
+
+msgid "(unknown)"
+msgstr "(neznámé)"
+
+msgid "Mark resolved"
+msgstr "Označit jako vyřešené"
+
+msgid "No CSP violations reported."
+msgstr "Nebyla nahlášena žádná porušení CSP."
+
+msgid "Uploaded files and wp-content are scanned for injected/malicious code. Critical findings are automatically moved to a protected quarantine folder."
+msgstr "Nahrané soubory a wp-content jsou kontrolovány na vložený/škodlivý kód. Kritické nálezy jsou automaticky přesunuty do chráněné karanténní složky."
+
+msgid "Scan running…"
+msgstr "Probíhá kontrola…"
+
+msgid "Scan now"
+msgstr "Zkontrolovat nyní"
+
+msgid "Scanning in batches…"
+msgstr "Kontrola po dávkách…"
+
+msgid "Last scan:"
+msgstr "Poslední kontrola:"
+
+msgid "files scanned:"
+msgstr "zkontrolováno souborů:"
+
+msgid "detections:"
+msgstr "detekce:"
+
+msgid "No scan has run yet."
+msgstr "Zatím neproběhla žádná kontrola."
+
+msgid "Detected"
+msgstr "Detekováno"
+
+msgid "Quarantined"
+msgstr "V karanténě"
+
+msgid "Approved"
+msgstr "Schváleno"
+
+msgid "Queued"
+msgstr "Ve frontě"
+
+msgid "Approve"
+msgstr "Schválit"
+
+msgid "Delete permanently"
+msgstr "Smazat trvale"
+
+msgid "No findings in this category."
+msgstr "V této kategorii nejsou žádné nálezy."
+
+msgid "Login Attempts"
+msgstr "Pokusy o přihlášení"
+
+msgid "IP Bans"
+msgstr "Blokované IP"
+
+msgid "CSP Violations"
+msgstr "Porušení CSP"
+
+msgid "Upload Guard"
+msgstr "Ochrana nahrávání"
+
+msgid "A CAPTCHA secret key is currently set."
+msgstr "Tajný klíč CAPTCHA je momentálně nastaven."
+
+msgid "No CAPTCHA secret key set yet."
+msgstr "Zatím není nastaven žádný tajný klíč CAPTCHA."
+
+msgid ".htaccess rules"
+msgstr "Pravidla .htaccess"
+
+msgid "Applied and up to date"
+msgstr "Aplikováno a aktuální"
+
+msgid "Out of date - re-apply to write current settings"
+msgstr "Neaktuální – znovu aplikujte pro zapsání aktuálního nastavení"
+
+msgid "Apply .htaccess rules"
+msgstr "Aplikovat pravidla .htaccess"
+
+msgid "Clear all attempts"
+msgstr "Vymazat všechny pokusy"
+
+msgid "IP"
+msgstr "IP"
+
+msgid "Lockout (min)"
+msgstr "Uzamčení (min)"
+
+msgid "Locked"
+msgstr "Uzamčeno"
+
+msgid "Cleared"
+msgstr "Vymazáno"
+
+msgid "Unlock"
+msgstr "Odemknout"
+
+msgid "No failed login attempts recorded."
+msgstr "Nebyly zaznamenány žádné neúspěšné pokusy o přihlášení."
+
+msgid "Single IP address"
+msgstr "Jedna IP adresa"
+
+msgid "IP range (CIDR)"
+msgstr "Rozsah IP (CIDR)"
+
+msgid "Country code (ISO 3166-1 alpha-2)"
+msgstr "Kód země (ISO 3166-1 alpha-2)"
+
+msgid "Add ban"
+msgstr "Přidat blokaci"
+
+msgid "Target"
+msgstr "Cíl"
+
+msgid "Central"
+msgstr "Centrální"
+
+msgid "Disable"
+msgstr "Vypnout"
+
+msgid "Enable"
+msgstr "Zapnout"
+
+msgid "No IP bans yet."
+msgstr "Zatím žádné blokované IP."
+
+msgid "Security - Access Control"
+msgstr "Zabezpečení – řízení přístupu"
+
+msgid "Open now"
+msgstr "Nyní otevřeno"
+
+msgid "Address"
+msgstr "Adresa"
+
+msgid "Add location"
+msgstr "Přidat lokalitu"
+
+msgid "Delete location"
+msgstr "Smazat lokalitu"
+
+msgid "No address set."
+msgstr "Není nastavena žádná adresa."
+
+msgid "Weekly hours (JSON)"
+msgstr "Týdenní otevírací doba (JSON)"
+
+msgid "Example"
+msgstr "Příklad"
+
+msgid "Save hours"
+msgstr "Uložit otevírací dobu"
+
+msgid "No locations yet."
+msgstr "Zatím žádné lokality."
+
+msgid "Opening Hours"
+msgstr "Otevírací doba"
+
+msgid "Locations"
+msgstr "Lokality"
+
+msgid "Select a file to protect"
+msgstr "Vyberte soubor k ochraně"
+
+msgid "Change file"
+msgstr "Změnit soubor"
+
+msgid "Select file"
+msgstr "Vybrat soubor"
+
+msgid "e.g. Price list 2026"
+msgstr "např. Ceník 2026"
+
+msgid "Require login to download"
+msgstr "Vyžadovat přihlášení ke stažení"
+
+msgid "Add file"
+msgstr "Přidat soubor"
+
+msgid "No protected files yet."
+msgstr "Zatím žádné chráněné soubory."
+
+msgid "Downloads"
+msgstr "Stažení"
+
+msgid "Login required"
+msgstr "Vyžadováno přihlášení"
+
+msgid "Copied"
+msgstr "Zkopírováno"
+
+msgid "Copy link"
+msgstr "Kopírovat odkaz"
+
+msgid "Delete this file entry? The media library file itself is kept."
+msgstr "Smazat tuto položku souboru? Samotný soubor v knihovně médií zůstane zachován."
+
+msgid "Download Files"
+msgstr "Soubory ke stažení"
+
+msgid "Files"
+msgstr "Soubory"
+
+msgid "Site name"
+msgstr "Název webu"
+
+msgid "e.g. Main hotel site"
+msgstr "např. Hlavní web hotelu"
+
+msgid "Site URL"
+msgstr "URL webu"
+
+msgid "Add site"
+msgstr "Přidat web"
+
+msgid "No sites registered yet."
+msgstr "Zatím nejsou registrovány žádné weby."
+
+msgid "Last sync"
+msgstr "Poslední synchronizace"
+
+msgid "No sync activity yet."
+msgstr "Zatím žádná aktivita synchronizace."
+
+msgid "Content Sync"
+msgstr "Content Sync"
+
+msgid "Sites"
+msgstr "Weby"
+
+msgid "Clear all"
+msgstr "Vymazat vše"
+
+msgid "To"
+msgstr "Komu"
+
+msgid "Subject"
+msgstr "Předmět"
+
+msgid "Sent"
+msgstr "Odesláno"
+
+msgid "Failed"
+msgstr "Nezdařilo se"
+
+msgid "Delete entry"
+msgstr "Smazat položku"
+
+msgid "No mail has been sent yet."
+msgstr "Zatím nebyl odeslán žádný e-mail."
+
+msgid "Email Log"
+msgstr "Protokol e-mailů"
+
+msgid "File Manager grants browser access to the entire server filesystem, restricted to an explicit whitelist of administrators. It manages its own access and settings through a dedicated admin screen."
+msgstr "File Manager umožňuje přístup k celému souborovému systému serveru přes prohlížeč, omezený na výslovný seznam povolených administrátorů. Vlastní přístup a nastavení spravuje prostřednictvím vyhrazené administrátorské obrazovky."
+
+msgid "Recipient email"
+msgstr "E-mail příjemce"
+
+msgid "Order ID (optional)"
+msgstr "ID objednávky (nepovinné)"
+
+msgid "Sent to"
+msgstr "Odesláno na"
+
+msgid "Failed to send"
+msgstr "Odeslání se nezdařilo"
+
+msgid "Recipient"
+msgstr "Příjemce"
+
+msgid "Order ID"
+msgstr "ID objednávky"
+
+msgid "No review requests have been sent yet."
+msgstr "Zatím nebyly odeslány žádné žádosti o recenzi."
+
+msgid "Google Review Request"
+msgstr "Žádost o recenzi na Google"
+
+msgid "Critical"
+msgstr "Kritická"
+
+msgid "High"
+msgstr "Vysoká"
+
+msgid "Low"
+msgstr "Nízká"
+
+msgid "WPScan CVE"
+msgstr "WPScan CVE"
+
+msgid "Outdated (WordPress.org)"
+msgstr "Zastaralé (WordPress.org)"
+
+msgid "Last scanned:"
+msgstr "Naposledy kontrolováno:"
+
+msgid "WordPress.org publishes no free CVE feed - the \"Outdated\" signal only means a newer version exists, not that the installed one is confirmed vulnerable. Add a WPScan API key in Settings for real CVE data."
+msgstr "WordPress.org nezveřejňuje žádný bezplatný CVE feed – signál „Zastaralé“ znamená pouze to, že existuje novější verze, nikoli že je nainstalovaná verze potvrzeně zranitelná. Pro reálná CVE data přidejte v Nastavení klíč WPScan API."
+
+msgid "Item"
+msgstr "Položka"
+
+msgid "Issue"
+msgstr "Problém"
+
+msgid "Installed"
+msgstr "Nainstalováno"
+
+msgid "Fixed in"
+msgstr "Opraveno ve verzi"
+
+msgid "(reference)"
+msgstr "(reference)"
+
+msgid "Dismiss"
+msgstr "Zavřít"
+
+msgid "No known issues found. Run a scan if you have not yet, or check back later."
+msgstr "Nebyly nalezeny žádné známé problémy. Pokud jste ještě neprovedli kontrolu, spusťte ji, nebo se vraťte později."
+
+msgid "Vulnerability Scanner"
+msgstr "Skener zranitelností"
+
+msgid "Results"
+msgstr "Výsledky"
+
+msgid "A WPScan API key is currently set."
+msgstr "Klíč WPScan API je aktuálně nastaven."
+
+msgid "No WPScan API key set yet - only the free WordPress.org outdated-version check runs."
+msgstr "Zatím není nastaven žádný klíč WPScan API – spouští se pouze bezplatná kontrola zastaralých verzí z WordPress.org."
+
+msgid "In progress"
+msgstr "Probíhá"
+
+msgid "Done"
+msgstr "Hotovo"
+
+msgid "Attach a file"
+msgstr "Připojit soubor"
+
+msgid "Change attachment"
+msgstr "Změnit přílohu"
+
+msgid "Requester email"
+msgstr "E-mail žadatele"
+
+msgid "Attachment"
+msgstr "Příloha"
+
+msgid "Create request"
+msgstr "Vytvořit žádost"
+
+msgid "No service requests yet."
+msgstr "Zatím žádné servisní žádosti."
+
+msgid "Requester"
+msgstr "Žadatel"
+
+msgid "Delete this service request?"
+msgstr "Smazat tuto servisní žádost?"
+
+msgid "Service Requests"
+msgstr "Servisní žádosti"
+
+msgid "Select an attachment"
+msgstr "Vyberte přílohu"
+
+msgid "Select attachment"
+msgstr "Vybrat přílohu"
+
+msgid "e.g. Public notice 4/2026"
+msgstr "např. Veřejná vyhláška 4/2026"
+
+msgid "— None —"
+msgstr "— Žádná —"
+
+msgid "New category name"
+msgstr "Název nové kategorie"
+
+msgid "Add document"
+msgstr "Přidat dokument"
+
+msgid "No documents yet."
+msgstr "Zatím žádné dokumenty."
+
+msgid "Download"
+msgstr "Stáhnout"
+
+msgid "Delete this document?"
+msgstr "Smazat tento dokument?"
+
+msgid "Confirmed"
+msgstr "Potvrzeno"
+
+msgid "Pending"
+msgstr "Čeká na potvrzení"
+
+msgid "No subscribers yet."
+msgstr "Zatím žádní odběratelé."
+
+msgid "Notice Board"
+msgstr "Nástěnka"
+
+msgid "Administrator"
+msgstr "Administrátor"
+
+msgid "Editor"
+msgstr "Editor"
+
+msgid "Contributor"
+msgstr "Přispěvatel"
+
+msgid "Subscriber"
+msgstr "Odběratel"
+
+msgid "Layout"
+msgstr "Rozvržení"
+
+msgid "Vertical sidebar (default)"
+msgstr "Svislý postranní panel (výchozí)"
+
+msgid "Horizontal top bar"
+msgstr "Vodorovný horní panel"
+
+msgid "Export configuration"
+msgstr "Exportovat konfiguraci"
+
+msgid "Import configuration"
+msgstr "Importovat konfiguraci"
+
+msgid "Add category"
+msgstr "Přidat kategorii"
+
+msgid "e.g. Reports"
+msgstr "např. Reporty"
+
+msgid "Order"
+msgstr "Pořadí"
+
+msgid "Custom title"
+msgstr "Vlastní název"
+
+msgid "Custom icon"
+msgstr "Vlastní ikona"
+
+msgid "Custom URL"
+msgstr "Vlastní URL"
+
+msgid "Visible to roles"
+msgstr "Viditelné pro role"
+
+msgid "Hide"
+msgstr "Skrýt"
+
+msgid "None checked = visible to everyone."
+msgstr "Nic zaškrtnuto = viditelné pro všechny."
+
+msgid "Custom links"
+msgstr "Vlastní odkazy"
+
+msgid "Add link"
+msgstr "Přidat odkaz"
+
+msgid "— category —"
+msgstr "— kategorie —"
+
+msgid "Separators"
+msgstr "Oddělovače"
+
+msgid "Add separator"
+msgstr "Přidat oddělovač"
+
+msgid "Label (optional)"
+msgstr "Popisek (nepovinné)"
+
+msgid "Label"
+msgstr "Popisek"
+
+msgid "(no label)"
+msgstr "(bez popisku)"
+
+msgid "Menu Organizer"
+msgstr "Organizátor menu"
+
+msgid "Admin Customiser"
+msgstr "Přizpůsobení administrace"
+
+msgid "Fetch reviews"
+msgstr "Načíst recenze"
+
+msgid "Fetched"
+msgstr "Načteno"
+
+msgid "reviews"
+msgstr "recenzí"
+
+msgid "No reviews yet."
+msgstr "Zatím žádné recenze."
+
+msgid "Visible"
+msgstr "Viditelné"
+
+msgid "Show"
+msgstr "Zobrazit"
+
+msgid "Total reviews:"
+msgstr "Celkem recenzí:"
+
+msgid "Average rating:"
+msgstr "Průměrné hodnocení:"
+
+msgid "Count"
+msgstr "Počet"
+
+msgid "No data."
+msgstr "Žádná data."
+
+msgid "Review Aggregator"
+msgstr "Agregátor recenzí"
+
+msgid "Reviews"
+msgstr "Recenze"
+
+msgid "Shortcode: [uxstudio_reviews]"
+msgstr "Shortcode: [uxstudio_reviews]"
+
+msgid "No versions found"
+msgstr "Nebyly nalezeny žádné verze"
+
+msgid "Select a version…"
+msgstr "Vyberte verzi…"
+
+msgid "current"
+msgstr "aktuální"
+
+msgid "No installed plugins from WordPress.org were found."
+msgstr "Nebyly nalezeny žádné nainstalované pluginy z WordPress.org."
+
+msgid "No installed themes from WordPress.org were found."
+msgstr "Nebyly nalezeny žádné nainstalované šablony z WordPress.org."
+
+msgid "Current version"
+msgstr "Aktuální verze"
+
+msgid "Roll back to"
+msgstr "Vrátit zpět na"
+
+msgid "Rolled back to %s"
+msgstr "Vráceno zpět na %s"
+
+msgid "Unknown error"
+msgstr "Neznámá chyba"
+
+msgid "Rollback"
+msgstr "Vrácení zpět"
+
+msgid "Rollback Manager"
+msgstr "Správce vrácení verzí"
+
+msgid "no API key"
+msgstr "bez klíče API"
+
+msgid "Search"
+msgstr "Hledat"
+
+msgid "Imported"
+msgstr "Importováno"
+
+msgid "Import"
+msgstr "Importovat"
+
+msgid "No results."
+msgstr "Žádné výsledky."
+
+msgid "Stock Photos"
+msgstr "Fotobanky"
+
+msgid "Hook"
+msgstr "Hook"
+
+msgid "Args"
+msgstr "Argumenty"
+
+msgid "Non-repeating"
+msgstr "Neopakující se"
+
+msgid "Delete this scheduled event?"
+msgstr "Smazat tuto naplánovanou událost?"
+
+msgid "No events are currently scheduled."
+msgstr "Aktuálně nejsou naplánovány žádné události."
+
+msgid "DISABLE_WP_CRON"
+msgstr "DISABLE_WP_CRON"
+
+msgid "ALTERNATE_WP_CRON"
+msgstr "ALTERNATE_WP_CRON"
+
+msgid "Next scheduled event"
+msgstr "Další naplánovaná událost"
+
+msgid "Total scheduled events"
+msgstr "Celkem naplánovaných událostí"
+
+msgid "Cron running late"
+msgstr "Cron má zpoždění"
+
+msgid "Late"
+msgstr "Zpožděno"
+
+msgid "On time"
+msgstr "Včas"
+
+msgid "Cron Control"
+msgstr "Ovládání cronu"
+
+msgid "Events"
+msgstr "Události"
+
+msgid "No notifications yet."
+msgstr "Zatím žádná oznámení."
+
+msgid "Queued (delivery not yet implemented)"
+msgstr "Ve frontě (doručování zatím není implementováno)"
+
+msgid "User agent"
+msgstr "User agent"
+
+msgid "Push Notifications"
+msgstr "Push oznámení"
+
+msgid "A VAPID keypair is currently configured."
+msgstr "Pár klíčů VAPID je aktuálně nastaven."
+
+msgid "No VAPID keypair yet - one will be generated automatically."
+msgstr "Zatím není nastaven žádný pár klíčů VAPID – bude vygenerován automaticky."
+
+msgid "Regenerate VAPID keys"
+msgstr "Znovu vygenerovat klíče VAPID"
+
+msgid "SMTP Email"
+msgstr "SMTP e-mail"
+
+msgid "A SMTP password is currently set."
+msgstr "Heslo SMTP je aktuálně nastaveno."
+
+msgid "No SMTP password set yet."
+msgstr "Zatím není nastaveno žádné heslo SMTP."
+
+msgid "A Brevo API key is currently set."
+msgstr "Klíč Brevo API je aktuálně nastaven."
+
+msgid "No Brevo API key set yet."
+msgstr "Zatím není nastaven žádný klíč Brevo API."
+
+msgid "Send a test email to"
+msgstr "Odeslat testovací e-mail na"
+
+msgid "Defaults to the site admin email"
+msgstr "Výchozí je e-mail administrátora webu"
+
+msgid "Send test email"
+msgstr "Odeslat testovací e-mail"
+
+msgid "Failed:"
+msgstr "Nezdařilo se:"
+
+msgid "Module"
+msgstr "Modul"
+
+msgid "Purge old entries"
+msgstr "Vymazat staré záznamy"
+
+msgid "Object"
+msgstr "Objekt"
+
+msgid "No matching activity found."
+msgstr "Nebyla nalezena žádná odpovídající aktivita."
+
+msgid "Activity Log"
+msgstr "Protokol aktivit"
+
+msgid "No folders yet. Create one below, then open the standard WordPress media library, bulk-select attachments and assign them to a folder from this screen (or the \"Assign attachment\" panel below)."
+msgstr "Zatím žádné složky. Vytvořte jednu níže, poté otevřete standardní knihovnu médií WordPressu, hromadně vyberte přílohy a přiřaďte je ke složce z této obrazovky (nebo z panelu „Přiřadit přílohu“ níže)."
+
+msgid "Attachments"
+msgstr "Přílohy"
+
+msgid "Delete this folder? Attachments in it will become unassigned."
+msgstr "Smazat tuto složku? Přílohy v ní se stanou nepřiřazenými."
+
+msgid "Folder Manager"
+msgstr "Správce složek"
+
+msgid "Add folder"
+msgstr "Přidat složku"
+
+msgid "Parent folder"
+msgstr "Nadřazená složka"
+
+msgid "— None (top level) —"
+msgstr "— Žádná (nejvyšší úroveň) —"
+
+msgid "Could not create folder."
+msgstr "Složku se nepodařilo vytvořit."
+
+msgid "Assign attachment to a folder"
+msgstr "Přiřadit přílohu ke složce"
+
+msgid "Folders are assigned to media via the standard WordPress media library - select attachments there and use this taxonomy, or assign a single attachment by id here."
+msgstr "Složky se přiřazují k médiím prostřednictvím standardní knihovny médií WordPressu – vyberte tam přílohy a použijte tuto taxonomii, nebo zde přiřaďte jednotlivou přílohu podle id."
+
+msgid "Attachment ID"
+msgstr "ID přílohy"
+
+msgid "— Unassigned —"
+msgstr "— Nepřiřazeno —"
+
+msgid "Assign"
+msgstr "Přiřadit"
+
+msgid "Assigned."
+msgstr "Přiřazeno."
+
+msgid "Could not assign attachment."
+msgstr "Přílohu se nepodařilo přiřadit."
+
+msgid "Performance score:"
+msgstr "Skóre výkonu:"
+
+msgid "First Contentful Paint:"
+msgstr "First Contentful Paint:"
+
+msgid "Largest Contentful Paint:"
+msgstr "Largest Contentful Paint:"
+
+msgid "Not configured"
+msgstr "Nenakonfigurováno"
+
+msgid "Add a Google PageSpeed API key in Settings to see a score here."
+msgstr "Přidejte v Nastavení klíč Google PageSpeed API, abyste zde viděli skóre."
+
+msgid "No recent activity."
+msgstr "Žádná nedávná aktivita."
+
+msgid "Quick tasks"
+msgstr "Rychlé úkoly"
+
+msgid "Delete task"
+msgstr "Smazat úkol"
+
+msgid "New task…"
+msgstr "Nový úkol…"
+
+msgid "Notes"
+msgstr "Poznámky"
+
+msgid "Dashboard Widgets"
+msgstr "Widgety nástěnky"
+
+msgid "Tasks"
+msgstr "Úkoly"
+
+msgid "PageSpeed score"
+msgstr "Skóre PageSpeed"
+
+msgid "Recent activity"
+msgstr "Nedávná aktivita"
+
+msgid "Tasks & notes"
+msgstr "Úkoly a poznámky"
+
+msgid "A PageSpeed API key is currently set."
+msgstr "Klíč PageSpeed API je aktuálně nastaven."
+
+msgid "No PageSpeed API key set yet."
+msgstr "Zatím není nastaven žádný klíč PageSpeed API."
+
+msgid "A GA service-account JSON is currently set."
+msgstr "JSON servisního účtu GA je aktuálně nastaven."
+
+msgid "No GA service-account JSON set yet."
+msgstr "Zatím není nastaven žádný JSON servisního účtu GA."
+
+msgid "AI Panel manages temporary remote access grants through its own dedicated admin screen, unchanged from before the rewrite."
+msgstr "AI Panel spravuje dočasná oprávnění pro vzdálený přístup prostřednictvím vlastní vyhrazené administrační obrazovky, beze změny oproti stavu před přepisem."
+
+msgid "Open AI Panel"
+msgstr "Otevřít AI Panel"
+
+msgid "Select image"
+msgstr "Vybrat obrázek"
+
+msgid "Change image"
+msgstr "Změnit obrázek"
+
+msgid "— Select —"
+msgstr "— Vybrat —"
+
+msgid "Failed to load modules."
+msgstr "Nepodařilo se načíst moduly."
+
+msgid "Modules"
+msgstr "Moduly"
+
+msgid "Deactivate %d active module?"
+msgid_plural "Deactivate all %d active modules?"
+msgstr[0] "Deaktivovat %d aktivní modul?"
+msgstr[1] "Deaktivovat všechny %d aktivní moduly?"
+msgstr[2] "Deaktivovat všech %d aktivních modulů?"
+
+msgid "Deactivate all modules"
+msgstr "Deaktivovat všechny moduly"
+
+msgid "Disable module"
+msgstr "Vypnout modul"
+
+msgid "Enable module"
+msgstr "Zapnout modul"
+
+msgid "Theme"
+msgstr "Vzhled"
+
+msgid "Switch to light mode"
+msgstr "Přepnout na světlý režim"
+
+msgid "Switch to dark mode"
+msgstr "Přepnout na tmavý režim"
+
+msgid "About"
+msgstr "O aplikaci"
+
+msgid "Plugin version"
+msgstr "Verze pluginu"
+
+msgid "API version"
+msgstr "Verze API"
+
+msgid "Language"
+msgstr "Jazyk"
+
+msgid "Toggle dark mode"
+msgstr "Přepnout tmavý režim"
+
+msgid "Light mode"
+msgstr "Světlý režim"
+
+msgid "Dark mode"
+msgstr "Tmavý režim"
+
+msgid "UX Studio navigation"
+msgstr "Navigace UX Studio"
+
+msgid "Select gallery images"
+msgstr "Vybrat obrázky galerie"
+
+msgid "Add to gallery"
+msgstr "Přidat do galerie"
+
+msgid "Browse, filter and prune the site-wide activity/audit log."
+msgstr "Procházejte, filtrujte a čistěte celostránkový protokol aktivit / auditu."
+
+msgid "Admin Columns"
+msgstr "Sloupce administrace"
+
+msgid "Customize the columns shown in admin list tables for posts, pages, media, comments and users."
+msgstr "Přizpůsobte sloupce zobrazené v seznamech administrace pro příspěvky, stránky, média, komentáře a uživatele."
+
+msgid "Customize the WordPress admin menu, admin bar, login screen and more."
+msgstr "Přizpůsobte administrační menu WordPressu, admin lištu, přihlašovací obrazovku a další."
+
+msgid "AI chat widget with knowledge base (RAG), FAQ, human handoff, blog auto-generation and multi-provider support (Claude, OpenAI, DeepSeek)."
+msgstr "AI chatovací widget se znalostní bází (RAG), FAQ, předáním člověku, automatickým generováním blogu a podporou více poskytovatelů (Claude, OpenAI, DeepSeek)."
+
+msgid "Serve a markdown version of your content for AI bots via /llms.txt and ?format=markdown, with a local (non-AI) conversion and access log."
+msgstr "Poskytujte verzi obsahu v markdownu pro AI boty přes /llms.txt a ?format=markdown, s lokálním (ne-AI) převodem a protokolem přístupů."
+
+msgid "Temporary controlled access to files, database and shell for a remote AI agent (Claude Code, Codex, or similar). Access is granted once from the dashboard for a limited time, generates a URL + strong password, and is auto-revoked on expiry."
+msgstr "Dočasný řízený přístup k souborům, databázi a shellu pro vzdáleného AI agenta (Claude Code, Codex nebo podobný). Přístup se z nástěnky udělí jednorázově na omezenou dobu, vygeneruje URL + silné heslo a po vypršení se automaticky odvolá."
+
+msgid "Auto Image Upload"
+msgstr "Automatické nahrávání obrázků"
+
+msgid "Automatically sideload external images pasted into the editor (from another site or data: URLs) into the media library."
+msgstr "Automaticky stahujte externí obrázky vložené do editoru (z jiného webu nebo z data: URL) do knihovny médií."
+
+msgid "Auto Unpublish"
+msgstr "Automatické zrušení publikace"
+
+msgid "Schedule posts to be automatically switched back to draft at a chosen date and time."
+msgstr "Naplánujte automatické přepnutí příspěvků zpět na koncept ve zvolený datum a čas."
+
+msgid "Detect bots by User-Agent pattern and rate-limit frontend requests."
+msgstr "Detekujte boty podle vzoru User-Agent a omezujte rychlost frontendových požadavků."
+
+msgid "Classic Editor"
+msgstr "Klasický editor"
+
+msgid "Replace the block editor with the classic editor for selected post types."
+msgstr "Nahraďte blokový editor klasickým editorem pro vybrané typy obsahu."
+
+msgid "Classic Widgets"
+msgstr "Klasické widgety"
+
+msgid "Restore the classic widgets screen by disabling the block-based widgets editor."
+msgstr "Obnovte klasickou obrazovku widgetů vypnutím blokového editoru widgetů."
+
+msgid "Clean Profiles"
+msgstr "Vyčištění profilů"
+
+msgid "Hide selected sections and fields on the user profile screen to simplify it."
+msgstr "Skryjte vybrané sekce a pole na obrazovce profilu uživatele pro zjednodušení."
+
+msgid "Run PHP, HTML, CSS or JS snippets in the header or footer of your site."
+msgstr "Spouštějte úryvky kódu PHP, HTML, CSS nebo JS v hlavičce nebo patičce vašeho webu."
+
+msgid "Central broker connection to the central app: registered sites, SSO tokens and a synchronization log."
+msgstr "Připojení k centrálnímu brokeru centrální aplikace: registrované weby, SSO tokeny a synchronizační protokol."
+
+msgid "Inspect and manage WP-Cron scheduled events."
+msgstr "Prohlížejte a spravujte naplánované události WP-Cron."
+
+msgid "PageSpeed score, recent activity and quick tasks/notes."
+msgstr "Skóre PageSpeed, nedávná aktivita a rychlé úkoly / poznámky."
+
+msgid "Debug Mode"
+msgstr "Režim ladění"
+
+msgid "Inspect the status of WordPress debug constants and read the debug log."
+msgstr "Zjistěte stav ladicích konstant WordPressu a čtěte ladicí protokol."
+
+msgid "Disable Auto Updates"
+msgstr "Vypnout automatické aktualizace"
+
+msgid "Disable automatic updates for WordPress core, plugins, themes and translations."
+msgstr "Vypněte automatické aktualizace jádra WordPressu, pluginů, šablon a překladů."
+
+msgid "Disable Video Uploads"
+msgstr "Zakázat nahrávání videí"
+
+msgid "Prevent video files from being uploaded to the media library."
+msgstr "Zabraňte nahrávání video souborů do knihovny médií."
+
+msgid "Manage protected downloadable files (e.g. PDFs) served via a tokenized link, backed by the standard WordPress media library."
+msgstr "Spravujte chráněné soubory ke stažení (např. PDF) poskytované přes odkaz s tokenem, postavené na standardní knihovně médií WordPressu."
+
+msgid "Duplicate Menu"
+msgstr "Duplikovat menu"
+
+msgid "Duplicate an existing navigation menu including all of its items."
+msgstr "Duplikujte existující navigační menu včetně všech jeho položek."
+
+msgid "Duplicate Post"
+msgstr "Duplikovat příspěvek"
+
+msgid "Duplicate posts, pages and custom post types with one click from the post list."
+msgstr "Duplikujte příspěvky, stránky a vlastní typy obsahu jedním kliknutím ze seznamu příspěvků."
+
+msgid "Elementor Import"
+msgstr "Import Elementoru"
+
+msgid "Import an Elementor template from a JSON or ZIP upload as a new draft page."
+msgstr "Importujte šablonu Elementoru z nahraného souboru JSON nebo ZIP jako novou stránku v konceptu."
+
+msgid "Email Health"
+msgstr "Stav e-mailů"
+
+msgid "Send a test email to verify outgoing mail works and record the last result."
+msgstr "Odešlete testovací e-mail pro ověření funkčnosti odchozí pošty a zaznamenejte poslední výsledek."
+
+msgid "Record every outgoing wp_mail() send, successful or failed."
+msgstr "Zaznamenávejte každé odchozí odeslání wp_mail(), úspěšné i neúspěšné."
+
+msgid "Show a popup with an email capture form when a visitor is about to leave the page."
+msgstr "Zobrazte vyskakovací okno s formulářem pro sběr e-mailů, když se návštěvník chystá opustit stránku."
+
+msgid "Export Posts"
+msgstr "Export příspěvků"
+
+msgid "Export post data to CSV, JSON or TXT from row actions and bulk actions."
+msgstr "Exportujte data příspěvků do CSV, JSON nebo TXT z akcí řádku a hromadných akcí."
+
+msgid "Export Users"
+msgstr "Export uživatelů"
+
+msgid "Export user data to CSV, JSON or TXT from row actions, bulk actions and profiles."
+msgstr "Exportujte data uživatelů do CSV, JSON nebo TXT z akcí řádku, hromadných akcí a profilů."
+
+msgid "External Permalinks"
+msgstr "Externí trvalé odkazy"
+
+msgid "Point posts, pages or custom post types to an external URL instead of the default permalink."
+msgstr "Nasměrujte příspěvky, stránky nebo vlastní typy obsahu na externí URL místo výchozího trvalého odkazu."
+
+msgid "Browse and manage server files through the embedded Tiny File Manager. Access is restricted to an explicit whitelist of administrators."
+msgstr "Procházejte a spravujte soubory na serveru přes vestavěný Tiny File Manager. Přístup je omezen na explicitní seznam povolených administrátorů."
+
+msgid "Organize media library attachments into folders using a taxonomy - no filesystem changes."
+msgstr "Uspořádejte přílohy knihovny médií do složek pomocí taxonomie – bez změn v souborovém systému."
+
+msgid "Send Google review request emails after orders or reservations and track delivery stats."
+msgstr "Odesílejte e-maily s žádostí o Google recenzi po objednávkách nebo rezervacích a sledujte statistiky doručení."
+
+msgid "Guide"
+msgstr "Průvodce"
+
+msgid "A getting-started checklist that tracks setup progress for the site."
+msgstr "Kontrolní seznam pro začátek, který sleduje průběh nastavení webu."
+
+msgid "Hide Admin Bar"
+msgstr "Skrýt admin lištu"
+
+msgid "Hide the WordPress admin bar on the frontend for selected roles."
+msgstr "Skryjte admin lištu WordPressu na frontendu pro vybrané role."
+
+msgid "Compress media library images and generate WebP copies, with originals always kept as backups."
+msgstr "Komprimujte obrázky v knihovně médií a generujte kopie ve formátu WebP, přičemž originály se vždy uchovávají jako zálohy."
+
+msgid "Indexing Notice"
+msgstr "Upozornění na indexaci"
+
+msgid "Show an admin bar warning when search engines are discouraged from indexing the site."
+msgstr "Zobrazte v admin liště varování, když je vyhledávačům odrazováno od indexace webu."
+
+msgid "Display an Instagram feed on the frontend, synchronized through the Content Sync broker (no Meta API credentials on this site)."
+msgstr "Zobrazte na frontendu Instagram feed synchronizovaný přes broker Content Sync (bez přihlašovacích údajů Meta API na tomto webu)."
+
+msgid "Link Manager"
+msgstr "Správce odkazů"
+
+msgid "Control how external links behave: add rel attributes, open in new tab, arrow icon and speculative loading."
+msgstr "Ovládejte chování externích odkazů: přidání rel atributů, otevírání v novém panelu, ikonu šipky a spekulativní načítání."
+
+msgid "Put the site into maintenance or coming soon mode with a customisable page while you work."
+msgstr "Přepněte web do režimu údržby nebo brzy spustíme s přizpůsobitelnou stránkou, zatímco pracujete."
+
+msgid "Replace an image or file in the media library by uploading a new one, keeping the same URL."
+msgstr "Nahraďte obrázek nebo soubor v knihovně médií nahráním nového se zachováním stejné URL."
+
+msgid "Media Trash"
+msgstr "Koš médií"
+
+msgid "Send deleted media files to the trash instead of deleting them permanently."
+msgstr "Přesouvejte smazané soubory médií do koše místo jejich trvalého odstranění."
+
+msgid "Menu Visibility"
+msgstr "Viditelnost menu"
+
+msgid "Show or hide individual navigation menu items based on the visitor's login status."
+msgstr "Zobrazujte nebo skrývejte jednotlivé položky navigačního menu podle stavu přihlášení návštěvníka."
+
+msgid "Public notice board with downloadable documents, categories and email subscriptions."
+msgstr "Veřejná nástěnka se stahovatelnými dokumenty, kategoriemi a e-mailovými odběry."
+
+msgid "Manage branch locations, weekly opening hours and exceptions, with a live open/closed status API. (Scope note: legacy shortcodes/map widgets are intentionally not ported yet - CRUD + status API only.)"
+msgstr "Spravujte pobočky, týdenní otevírací dobu a výjimky s živým API stavu otevřeno/zavřeno. (Poznámka k rozsahu: starší shortcody / widgety map záměrně zatím nejsou přeneseny – pouze CRUD + API stavu.)"
+
+msgid "Sample and report server-side page response times."
+msgstr "Vzorkujte a reportujte doby odezvy stránek na straně serveru."
+
+msgid "Read-only database/content health checks with a small whitelist of safe cleanup actions and score history."
+msgstr "Kontroly stavu databáze / obsahu jen pro čtení s malým seznamem povolených bezpečných čisticích akcí a historií skóre."
+
+msgid "Pixel & Tag Manager"
+msgstr "Správce pixelů a tagů"
+
+msgid "Add tracking pixels and tags for Google Analytics, Facebook Pixel and Pinterest to the site head."
+msgstr "Přidejte do hlavičky webu sledovací pixely a tagy pro Google Analytics, Facebook Pixel a Pinterest."
+
+msgid "Create and target on-site popups with delay, scroll or page-load triggers and track impressions/clicks."
+msgstr "Vytvářejte a cílete vyskakovací okna na webu se spouštěči podle prodlevy, scrollování nebo načtení stránky a sledujte zobrazení/kliknutí."
+
+msgid "Post Gallery"
+msgstr "Galerie příspěvku"
+
+msgid "Attach an image gallery to any post or page with a grid layout and lightbox."
+msgstr "Připojte k libovolnému příspěvku nebo stránce galerii obrázků s mřížkovým rozvržením a lightboxem."
+
+msgid "Post ID Display"
+msgstr "Zobrazení ID příspěvku"
+
+msgid "Show the post ID in the row actions of post list tables."
+msgstr "Zobrazte ID příspěvku v akcích řádku v seznamech příspěvků."
+
+msgid "Post Type Order"
+msgstr "Řazení typů obsahu"
+
+msgid "Reorder posts, pages and custom post types with drag and drop in the admin list tables."
+msgstr "Přeuspořádejte příspěvky, stránky a vlastní typy obsahu přetažením v administračních seznamech."
+
+msgid "Switch the post type of your content to reorganise and reuse existing posts and pages."
+msgstr "Přepněte typ obsahu, abyste reorganizovali a znovu využili existující příspěvky a stránky."
+
+msgid "Web push (VAPID) subscriptions and notifications, with delivery/click event tracking."
+msgstr "Odběry a oznámení web push (VAPID) se sledováním událostí doručení/kliknutí."
+
+msgid "Quick Add Post"
+msgstr "Rychlé přidání příspěvku"
+
+msgid "Add a New button to the block editor toolbar for quickly creating another post."
+msgstr "Přidejte do panelu nástrojů blokového editoru tlačítko Nový pro rychlé vytvoření dalšího příspěvku."
+
+msgid "Quick Image"
+msgstr "Rychlý obrázek"
+
+msgid "Change the featured image straight from the posts and pages list tables via a thumbnail column."
+msgstr "Měňte náhledový obrázek přímo ze seznamů příspěvků a stránek přes sloupec s náhledem."
+
+msgid "Redirect 404 to Homepage"
+msgstr "Přesměrování 404 na domovskou stránku"
+
+msgid "Redirect 404 error pages to the homepage with a 301 redirect."
+msgstr "Přesměrujte stránky s chybou 404 na domovskou stránku pomocí přesměrování 301."
+
+msgid "Aggregate Google, Facebook and Mapy.cz reviews through the Content Sync broker - no local scraping or API keys on this site."
+msgstr "Agregujte recenze z Google, Facebooku a Mapy.cz přes broker Content Sync – žádné lokální scrapování ani API klíče na tomto webu."
+
+msgid "Roll back an installed plugin or theme to an older version pulled from WordPress.org."
+msgstr "Vraťte nainstalovaný plugin nebo šablonu na starší verzi staženou z WordPress.org."
+
+msgid "Login protection, IP bans, country blocklist, custom login URL, .htaccess hardening and security headers."
+msgstr "Ochrana přihlášení, blokování IP, blokování zemí, vlastní přihlašovací URL, zabezpečení .htaccess a bezpečnostní hlavičky."
+
+msgid "Internal system for tracking service/change requests for the site, with media library attachments."
+msgstr "Interní systém pro sledování požadavků na služby / změny webu s přílohami z knihovny médií."
+
+msgid "Route outgoing mail through SMTP or the Brevo API and keep a delivery log."
+msgstr "Směrujte odchozí poštu přes SMTP nebo Brevo API a veďte protokol o doručení."
+
+msgid "Search and import images from Pexels, Pixabay, Unsplash, Flickr, Mapillary, Giphy and Openverse straight into the media library."
+msgstr "Vyhledávejte a importujte obrázky z Pexels, Pixabay, Unsplash, Flickr, Mapillary, Giphy a Openverse přímo do knihovny médií."
+
+msgid "SVG Upload"
+msgstr "Nahrávání SVG"
+
+msgid "Allow SVG files to be uploaded to the media library, sanitized on the way in for selected roles."
+msgstr "Povolte nahrávání souborů SVG do knihovny médií, sanitizovaných při nahrávání, pro vybrané role."
+
+msgid "Sign in via Google, Facebook or Apple through the central app as an OAuth proxy."
+msgstr "Přihlaste se přes Google, Facebook nebo Apple prostřednictvím centrální aplikace jako OAuth proxy."
+
+msgid "Top Bar"
+msgstr "Horní lišta"
+
+msgid "Show a scheduled announcement bar at the top of the site with custom colours."
+msgstr "Zobrazte v horní části webu naplánovanou oznamovací lištu s vlastními barvami."
+
+msgid "User Last Login"
+msgstr "Poslední přihlášení uživatele"
+
+msgid "Record each user's last login time and show it as a column on the Users screen."
+msgstr "Zaznamenávejte čas posledního přihlášení každého uživatele a zobrazte jej jako sloupec na obrazovce Uživatelé."
+
+msgid "Instantly switch between user accounts to test roles and troubleshoot, then switch straight back."
+msgstr "Okamžitě přepínejte mezi uživatelskými účty pro testování rolí a řešení problémů a poté se rovnou přepněte zpět."
+
+msgid "Check installed plugins, themes and WordPress core for known vulnerabilities and outdated versions using WordPress.org, plus real CVE data from WPScan when an API key is provided."
+msgstr "Zkontrolujte nainstalované pluginy, šablony a jádro WordPressu na známé zranitelnosti a zastaralé verze pomocí WordPress.org, plus reálná data CVE z WPScan, pokud je poskytnut API klíč."
+
+msgid "Grid view"
+msgstr "Zobrazení mřížky"
+
+msgid "List view"
+msgstr "Zobrazení seznamu"
+
+msgid "Comments"
+msgstr "Komentáře"
+
+msgid "Default (native column)"
+msgstr "Výchozí (nativní sloupec)"
+
+msgid "Custom field (meta)"
+msgstr "Vlastní pole (meta)"
+
+msgid "Taxonomy"
+msgstr "Taxonomie"
+
+msgid "ID"
+msgstr "ID"
+
+msgid "Key of an existing column, e.g. title, author, date, categories."
+msgstr "Klíč existujícího sloupce, např. title, author, date, categories."
+
+msgid "Custom field (post/user/comment meta) key."
+msgstr "Klíč vlastního pole (meta příspěvku/uživatele/komentáře)."
+
+msgid "Taxonomy slug, e.g. category, post_tag."
+msgstr "Identifikátor (slug) taxonomie, např. category, post_tag."
+
+msgid "Any unique column key."
+msgstr "Libovolný unikátní klíč sloupce."
+
+msgid "Move up"
+msgstr "Posunout nahoru"
+
+msgid "Move down"
+msgstr "Posunout dolů"
+
+msgid "Column title"
+msgstr "Název sloupce"
+
+msgid "e.g. 80px"
+msgstr "např. 80px"
+
+msgid "Disable column"
+msgstr "Vypnout sloupec"
+
+msgid "Enable column"
+msgstr "Zapnout sloupec"
+
+msgid "Delete column"
+msgstr "Smazat sloupec"
+
+msgid "No custom columns configured yet for this content type — the native columns are shown unchanged. Add a column below to relabel, reorder, hide or add one."
+msgstr "Pro tento typ obsahu zatím nejsou nastaveny žádné vlastní sloupce - zobrazují se nezměněné výchozí sloupce. Přidáním sloupce níže je můžete přejmenovat, přeuspořádat, skrýt nebo přidat nový."
+
+msgid "Key"
+msgstr "Klíč"
+
+msgid "Width"
+msgstr "Šířka"
+
+msgid "Add column"
+msgstr "Přidat sloupec"
+
+msgid "Configure"
+msgstr "Nastavit"
+
+msgid "Save changes for %s"
+msgstr "Uložit změny pro %s"
+
+msgid "Required — a column with no key is discarded when you save."
+msgstr "Povinné - sloupec bez klíče se při uložení zahodí."
+
+msgid "Remove section"
+msgstr "Odebrat sekci"
+
+msgid "No custom columns yet — the native columns are shown unchanged. Add one below to relabel, reorder, hide or add a column."
+msgstr "Zatím žádné vlastní sloupce - zobrazují se nezměněné výchozí sloupce. Přidejte níže sloupec, který chcete přejmenovat, přeuspořádat, skrýt nebo přidat."
+
+msgid "No content type has custom columns yet. Pick one below to start configuring it."
+msgstr "Žádný typ obsahu zatím nemá vlastní sloupce. Vyberte níže typ, u kterého chcete začít."
+
+msgid "— Select content type —"
+msgstr "— Vyberte typ obsahu —"
+
+msgid "Add content type"
+msgstr "Přidat typ obsahu"
+
+msgid "Key of an existing column — start typing to see suggestions."
+msgstr "Klíč existujícího sloupce - začněte psát pro zobrazení nápovědy."
+
+msgid "Custom field (meta) key — start typing to see suggestions."
+msgstr "Klíč vlastního pole (meta) - začněte psát pro zobrazení nápovědy."
+
+msgid "Taxonomy slug — start typing to see suggestions."
+msgstr "Identifikátor (slug) taxonomie - začněte psát pro zobrazení nápovědy."
+
+msgid "UX Studio quick navigation"
+msgstr "Rychlá navigace UX Studio"
+
+msgid "All modules"
+msgstr "Všechny moduly"
+
+msgid "Admin Tools"
+msgstr "Nástroje administrace"
+
+msgid "Security"
+msgstr "Zabezpečení"
+
+msgid "Performance"
+msgstr "Výkon"
+
+msgid "Developer"
+msgstr "Vývojářské nástroje"

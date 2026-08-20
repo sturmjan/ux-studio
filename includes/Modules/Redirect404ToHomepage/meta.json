@@ -1,0 +1,8 @@
+{
+	"id": "redirect-404-to-homepage",
+	"name": "Redirect 404 to Homepage",
+	"description": "Redirect 404 error pages to the homepage with a 301 redirect.",
+	"group": "performance",
+	"icon": "corner-up-left",
+	"settings": false
+}

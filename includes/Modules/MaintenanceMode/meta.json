@@ -1,0 +1,8 @@
+{
+	"id": "maintenance-mode",
+	"name": "Maintenance Mode",
+	"description": "Put the site into maintenance or coming soon mode with a customisable page while you work.",
+	"group": "performance",
+	"icon": "construction",
+	"settings": true
+}

@@ -1,0 +1,18 @@
+# Závislosti
+node_modules/
+vendor/
+
+# Build (generuje se z src/ přes @wordpress/scripts)
+build/
+
+# Tajné
+.env
+.env.*
+
+# Smetí
+*.log
+*.bak
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

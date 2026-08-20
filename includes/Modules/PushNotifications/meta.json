@@ -1,0 +1,8 @@
+{
+	"id": "push-notifications",
+	"name": "Push Notifications",
+	"description": "Web push (VAPID) subscriptions and notifications, with delivery/click event tracking.",
+	"group": "content",
+	"icon": "bell-ring",
+	"settings": true
+}

@@ -1,0 +1,8 @@
+{
+	"id": "debug-mode",
+	"name": "Debug Mode",
+	"description": "Inspect the status of WordPress debug constants and read the debug log.",
+	"group": "developer",
+	"icon": "bug",
+	"settings": false
+}

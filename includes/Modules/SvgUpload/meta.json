@@ -1,0 +1,8 @@
+{
+	"id": "svg-upload",
+	"name": "SVG Upload",
+	"description": "Allow SVG files to be uploaded to the media library, sanitized on the way in for selected roles.",
+	"group": "media",
+	"icon": "file-code",
+	"settings": true
+}

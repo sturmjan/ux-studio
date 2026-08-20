@@ -1,0 +1,8 @@
+{
+	"id": "elementor-import",
+	"name": "Elementor Import",
+	"description": "Import an Elementor template from a JSON or ZIP upload as a new draft page.",
+	"group": "content",
+	"icon": "import",
+	"settings": false
+}

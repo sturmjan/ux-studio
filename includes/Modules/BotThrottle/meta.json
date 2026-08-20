@@ -1,0 +1,8 @@
+{
+	"id": "bot-throttle",
+	"name": "Bot Throttle",
+	"description": "Detect bots by User-Agent pattern and rate-limit frontend requests.",
+	"group": "security",
+	"icon": "shield",
+	"settings": true
+}

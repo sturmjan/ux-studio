@@ -1,0 +1,8 @@
+{
+	"id": "activity-log",
+	"name": "Activity Log",
+	"description": "Browse, filter and prune the site-wide activity/audit log.",
+	"group": "security",
+	"icon": "history",
+	"settings": true
+}

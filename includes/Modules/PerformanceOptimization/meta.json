@@ -1,0 +1,8 @@
+{
+	"id": "performance-optimization",
+	"name": "Performance Optimization",
+	"description": "Read-only database/content health checks with a small whitelist of safe cleanup actions and score history.",
+	"group": "performance",
+	"icon": "zap",
+	"settings": true
+}

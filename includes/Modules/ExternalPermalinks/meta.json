@@ -1,0 +1,8 @@
+{
+	"id": "external-permalinks",
+	"name": "External Permalinks",
+	"description": "Point posts, pages or custom post types to an external URL instead of the default permalink.",
+	"group": "content",
+	"icon": "external-link",
+	"settings": true
+}

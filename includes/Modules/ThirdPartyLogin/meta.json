@@ -1,0 +1,8 @@
+{
+	"id": "third-party-login",
+	"name": "Third-Party Login",
+	"description": "Sign in via Google, Facebook or Apple through the central app as an OAuth proxy.",
+	"group": "security",
+	"icon": "log-in",
+	"settings": true
+}

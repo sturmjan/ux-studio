@@ -1,0 +1,8 @@
+{
+	"id": "disable-auto-updates",
+	"name": "Disable Auto Updates",
+	"description": "Disable automatic updates for WordPress core, plugins, themes and translations.",
+	"group": "admin",
+	"icon": "refresh-cw-off",
+	"settings": true
+}

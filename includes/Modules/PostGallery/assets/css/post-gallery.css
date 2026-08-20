@@ -1,0 +1,252 @@
+/* Post Gallery - Frontend Grid + Lightbox */
+
+/* Grid */
+
+.uxstudio-gallery {
+	display: grid;
+	grid-template-columns: repeat(var(--uxstudio-gallery-cols, 3), 1fr);
+	gap: 8px;
+	margin: 24px 0;
+}
+
+.uxstudio-gallery__item {
+	overflow: hidden;
+	border-radius: 4px;
+	line-height: 0;
+}
+
+.uxstudio-gallery__item img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	aspect-ratio: 1;
+	display: block;
+	transition: transform .2s ease;
+}
+
+.uxstudio-gallery__item a {
+	display: block;
+	cursor: zoom-in;
+}
+
+.uxstudio-gallery__item a:hover img {
+	transform: scale(1.05);
+}
+
+@media (max-width: 600px) {
+	.uxstudio-gallery {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+@media (max-width: 400px) {
+	.uxstudio-gallery {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* Lightbox Overlay */
+
+.uxstudio-lightbox {
+	position: fixed !important;
+	top: 0 !important;
+	left: 0 !important;
+	right: 0 !important;
+	bottom: 0 !important;
+	width: 100% !important;
+	height: 100% !important;
+	z-index: 999999 !important;
+	background: rgba(0, 0, 0, .92) !important;
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity .3s ease, visibility .3s ease;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	margin: 0 !important;
+	padding: 0 !important;
+	border: none !important;
+	display: block !important;
+}
+
+.uxstudio-lightbox--open {
+	opacity: 1 !important;
+	visibility: visible !important;
+}
+
+/* Toolbar (top bar) */
+
+.uxstudio-lightbox .uxstudio-lightbox__toolbar {
+	position: absolute !important;
+	top: 0 !important;
+	left: 0 !important;
+	right: 0 !important;
+	height: 56px !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: space-between !important;
+	padding: 0 16px !important;
+	margin: 0 !important;
+	background: linear-gradient(to bottom, rgba(0,0,0,.5) 0%, transparent 100%) !important;
+	z-index: 3 !important;
+	border: none !important;
+}
+
+.uxstudio-lightbox .uxstudio-lightbox__counter {
+	color: rgba(255, 255, 255, .85) !important;
+	font-size: 15px !important;
+	font-weight: 500 !important;
+	letter-spacing: .5px;
+	user-select: none;
+}
+
+.uxstudio-lightbox .uxstudio-lightbox__btn {
+	width: 40px !important;
+	height: 40px !important;
+	min-width: 0 !important;
+	min-height: 0 !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	border: none !important;
+	border-radius: 50% !important;
+	background: rgba(255, 255, 255, .1) !important;
+	color: #fff !important;
+	cursor: pointer !important;
+	transition: background .2s, transform .15s;
+	padding: 0 !important;
+	margin: 0 !important;
+	line-height: 1 !important;
+	box-shadow: none !important;
+	outline: none !important;
+}
+
+.uxstudio-lightbox .uxstudio-lightbox__btn:hover {
+	background: rgba(255, 255, 255, .25) !important;
+	transform: scale(1.1);
+}
+
+/* Stage (image area) */
+
+.uxstudio-lightbox .uxstudio-lightbox__stage {
+	position: absolute !important;
+	top: 56px !important;
+	left: 72px !important;
+	right: 72px !important;
+	bottom: 0 !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+.uxstudio-lightbox .uxstudio-lightbox__img {
+	max-width: 100% !important;
+	max-height: 100% !important;
+	width: auto !important;
+	height: auto !important;
+	object-fit: contain !important;
+	border-radius: 4px !important;
+	user-select: none;
+	transition: opacity .2s ease;
+	border: none !important;
+	box-shadow: none !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+.uxstudio-lightbox .uxstudio-lightbox__img--loading {
+	opacity: .4;
+}
+
+/* Navigation Arrows */
+
+.uxstudio-lightbox .uxstudio-lightbox__nav {
+	position: absolute !important;
+	top: 50% !important;
+	transform: translateY(-50%) !important;
+	width: 56px !important;
+	height: 56px !important;
+	min-width: 0 !important;
+	min-height: 0 !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	border: none !important;
+	border-radius: 50% !important;
+	background: rgba(255, 255, 255, .15) !important;
+	color: #fff !important;
+	cursor: pointer !important;
+	transition: background .2s, transform .2s;
+	z-index: 4 !important;
+	-webkit-backdrop-filter: blur(8px);
+	backdrop-filter: blur(8px);
+	padding: 0 !important;
+	margin: 0 !important;
+	line-height: 1 !important;
+	box-shadow: none !important;
+	outline: none !important;
+	float: none !important;
+}
+
+.uxstudio-lightbox .uxstudio-lightbox__nav:hover {
+	background: rgba(255, 255, 255, .35) !important;
+	transform: translateY(-50%) scale(1.1) !important;
+}
+
+.uxstudio-lightbox .uxstudio-lightbox__nav:active {
+	transform: translateY(-50%) scale(.95) !important;
+}
+
+.uxstudio-lightbox .uxstudio-lightbox__nav svg {
+	width: 28px !important;
+	height: 28px !important;
+	flex-shrink: 0;
+	display: block !important;
+	fill: none !important;
+	stroke: currentColor !important;
+}
+
+.uxstudio-lightbox .uxstudio-lightbox__prev {
+	left: 12px !important;
+	right: auto !important;
+}
+
+.uxstudio-lightbox .uxstudio-lightbox__next {
+	right: 12px !important;
+	left: auto !important;
+}
+
+/* Mobile */
+
+@media (max-width: 768px) {
+	.uxstudio-lightbox .uxstudio-lightbox__stage {
+		top: 48px !important;
+		left: 8px !important;
+		right: 8px !important;
+	}
+
+	.uxstudio-lightbox .uxstudio-lightbox__nav {
+		width: 44px !important;
+		height: 44px !important;
+		top: auto !important;
+		bottom: 24px !important;
+		transform: none !important;
+	}
+
+	.uxstudio-lightbox .uxstudio-lightbox__nav:hover {
+		transform: scale(1.1) !important;
+	}
+
+	.uxstudio-lightbox .uxstudio-lightbox__prev {
+		left: 24px !important;
+	}
+
+	.uxstudio-lightbox .uxstudio-lightbox__next {
+		right: 24px !important;
+	}
+
+	.uxstudio-lightbox .uxstudio-lightbox__nav svg {
+		width: 22px !important;
+		height: 22px !important;
+	}
+}

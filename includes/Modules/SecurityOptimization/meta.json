@@ -1,0 +1,8 @@
+{
+	"id": "security-optimization",
+	"name": "Security - Access Control",
+	"description": "Login protection, IP bans, country blocklist, custom login URL, .htaccess hardening and security headers.",
+	"group": "security",
+	"icon": "shield",
+	"settings": true
+}

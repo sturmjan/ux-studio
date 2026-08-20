@@ -1,0 +1,8 @@
+{
+	"id": "post-gallery",
+	"name": "Post Gallery",
+	"description": "Attach an image gallery to any post or page with a grid layout and lightbox.",
+	"group": "media",
+	"icon": "images",
+	"settings": true
+}

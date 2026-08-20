@@ -1,0 +1,8 @@
+{
+	"id": "auto-unpublish",
+	"name": "Auto Unpublish",
+	"description": "Schedule posts to be automatically switched back to draft at a chosen date and time.",
+	"group": "content",
+	"icon": "calendar-off",
+	"settings": false
+}

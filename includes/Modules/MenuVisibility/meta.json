@@ -1,0 +1,8 @@
+{
+	"id": "menu-visibility",
+	"name": "Menu Visibility",
+	"description": "Show or hide individual navigation menu items based on the visitor's login status.",
+	"group": "content",
+	"icon": "eye",
+	"settings": false
+}

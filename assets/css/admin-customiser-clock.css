@@ -1,0 +1,53 @@
+/* Server clock - standalone "pill" placement (top-secondary). The plus-menu
+   row placement is styled inline by AdminBar::print_styles() instead, since
+   it only exists together with the "+" dropdown markup. */
+
+#wpadminbar .uxstudio-clock {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 0 8px;
+	height: 32px;
+	color: #fff;
+	font-size: 12px;
+	font-variant-numeric: tabular-nums;
+}
+
+#wpadminbar .uxstudio-clock__icon {
+	display: inline-flex;
+	width: 14px;
+	height: 14px;
+	opacity: 0.8;
+}
+
+#wpadminbar .uxstudio-clock-dropdown {
+	display: block;
+	min-width: 180px;
+	padding: 10px 14px;
+	color: #fff;
+}
+
+#wpadminbar .uxstudio-clock-dropdown__label {
+	display: block;
+	font-size: 10px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: rgba(255, 255, 255, 0.55);
+	margin-bottom: 4px;
+}
+
+#wpadminbar .uxstudio-clock-dropdown__date,
+#wpadminbar .uxstudio-clock-dropdown__tz {
+	display: block;
+	font-size: 11px;
+	color: rgba(255, 255, 255, 0.6);
+}
+
+#wpadminbar .uxstudio-clock-dropdown__time {
+	display: block;
+	font-size: 20px;
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+	margin: 2px 0;
+}

@@ -1,0 +1,248 @@
+/**
+ * UX Studio megamenu overlay - standalone stylesheet (loaded on every admin
+ * page, not part of the SPA build). Tokens duplicated from src/style.scss's
+ * #ux-studio-root block, since this element lives outside that scope on
+ * pages other than the SPA itself. Keep both in sync if the palette changes.
+ */
+#uxstudio-megamenu {
+	--uxs-brand: #4f46e5;
+	--uxs-bg: #f6f7f9;
+	--uxs-surface: #ffffff;
+	--uxs-surface-2: #f1f3f6;
+	--uxs-border: #e3e6ea;
+	--uxs-text: #1c2430;
+	--uxs-text-soft: #5b6674;
+	--uxs-radius-s: 6px;
+	--uxs-radius: 10px;
+	--uxs-shadow-2: 0 4px 16px rgb(16 24 40 / 10%);
+	--uxs-sp-2: 8px;
+	--uxs-sp-3: 12px;
+	--uxs-sp-4: 16px;
+	--uxs-sp-5: 24px;
+	--uxs-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	--uxs-fs-s: 12px;
+	--uxs-fs: 13px;
+	--uxs-fs-m: 15px;
+	--uxs-fs-l: 20px;
+
+	font-family: var(--uxs-font);
+}
+
+#uxstudio-megamenu[data-theme="dark"] {
+	--uxs-bg: #0f1420;
+	--uxs-surface: #171e2c;
+	--uxs-surface-2: #1e2637;
+	--uxs-border: #2a3447;
+	--uxs-text: #e6eaf0;
+	--uxs-text-soft: #97a2b3;
+	--uxs-shadow-2: 0 4px 16px rgb(0 0 0 / 50%);
+}
+
+/* Overlay container */
+.uxstudio-megamenu {
+	position: fixed;
+	inset: 0;
+	z-index: 99999;
+	pointer-events: none;
+	visibility: hidden;
+}
+
+.uxstudio-megamenu[aria-hidden="false"] {
+	pointer-events: auto;
+	visibility: visible;
+}
+
+.uxstudio-megamenu__backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(0, 0, 0, 0);
+	transition: background 0.3s ease;
+}
+
+.uxstudio-megamenu[aria-hidden="false"] .uxstudio-megamenu__backdrop {
+	background: rgba(0, 0, 0, 0.3);
+}
+
+/* Panel: fills the space right of the WP admin sidebar, slides in from the left */
+.uxstudio-megamenu__panel {
+	position: absolute;
+	top: 32px;
+	left: 160px;
+	right: 0;
+	height: calc(100% - 32px);
+	background: var(--uxs-bg);
+	box-shadow: var(--uxs-shadow-2);
+	display: flex;
+	flex-direction: column;
+	transform: translateX(-24px);
+	opacity: 0;
+	transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1), opacity 0.25s ease;
+	overflow: hidden;
+}
+
+.uxstudio-megamenu[aria-hidden="false"] .uxstudio-megamenu__panel {
+	transform: translateX(0);
+	opacity: 1;
+}
+
+body.folded .uxstudio-megamenu__panel,
+body.auto-fold .uxstudio-megamenu__panel {
+	left: 36px;
+}
+
+@media screen and (max-width: 782px) {
+	.uxstudio-megamenu__panel {
+		left: 0;
+		top: 46px;
+		height: calc(100% - 46px);
+	}
+}
+
+/* Header */
+.uxstudio-megamenu__header {
+	display: flex;
+	align-items: center;
+	gap: var(--uxs-sp-4);
+	padding: var(--uxs-sp-4) var(--uxs-sp-5);
+	border-bottom: 1px solid var(--uxs-border);
+	background: var(--uxs-surface);
+	flex-shrink: 0;
+}
+
+.uxstudio-megamenu__title {
+	font-size: var(--uxs-fs-l);
+	font-weight: 700;
+	color: var(--uxs-text);
+}
+
+.uxstudio-megamenu__all-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	margin-left: auto;
+	padding: var(--uxs-sp-2) var(--uxs-sp-4);
+	border-radius: var(--uxs-radius);
+	text-decoration: none;
+	font-size: var(--uxs-fs);
+	font-weight: 600;
+	color: var(--uxs-text-soft);
+	background: var(--uxs-surface-2);
+	transition: background 0.2s, color 0.2s;
+}
+
+.uxstudio-megamenu__all-link:hover,
+.uxstudio-megamenu__all-link:focus {
+	background: var(--uxs-border);
+	color: var(--uxs-text);
+	text-decoration: none;
+}
+
+.uxstudio-megamenu__all-link .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	line-height: 16px;
+}
+
+.uxstudio-megamenu__close {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	border: none;
+	border-radius: var(--uxs-radius);
+	background: transparent;
+	color: var(--uxs-text-soft);
+	cursor: pointer;
+	transition: background 0.2s, color 0.2s;
+	flex-shrink: 0;
+}
+
+.uxstudio-megamenu__close:hover,
+.uxstudio-megamenu__close:focus {
+	background: var(--uxs-surface-2);
+	color: var(--uxs-text);
+}
+
+.uxstudio-megamenu__close .dashicons {
+	font-size: 22px;
+	width: 22px;
+	height: 22px;
+}
+
+/* Body */
+.uxstudio-megamenu__body {
+	flex: 1;
+	overflow-y: auto;
+	padding: var(--uxs-sp-5);
+	display: flex;
+	flex-direction: column;
+	gap: var(--uxs-sp-5);
+}
+
+/* Categories */
+.uxstudio-megamenu__category-title {
+	display: flex;
+	align-items: center;
+	gap: var(--uxs-sp-2);
+	font-size: var(--uxs-fs-s);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--uxs-text-soft);
+	margin: 0 0 var(--uxs-sp-3);
+	padding-bottom: var(--uxs-sp-2);
+	border-bottom: 1px solid var(--uxs-border);
+}
+
+.uxstudio-megamenu__category-title .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	color: var(--uxs-text-soft);
+}
+
+/* Card grid */
+.uxstudio-megamenu__grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+	gap: var(--uxs-sp-3);
+}
+
+.uxstudio-megamenu__card {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding: var(--uxs-sp-3) var(--uxs-sp-4);
+	border-radius: var(--uxs-radius);
+	background: var(--uxs-surface);
+	border: 1px solid var(--uxs-border);
+	text-decoration: none;
+	transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+
+.uxstudio-megamenu__card:hover,
+.uxstudio-megamenu__card:focus {
+	border-color: var(--uxs-brand);
+	box-shadow: var(--uxs-shadow-2);
+	transform: translateY(-1px);
+	text-decoration: none;
+	outline: none;
+}
+
+.uxstudio-megamenu__card-name {
+	font-size: var(--uxs-fs-m);
+	font-weight: 600;
+	color: var(--uxs-text);
+}
+
+.uxstudio-megamenu__card-desc {
+	font-size: var(--uxs-fs-s);
+	color: var(--uxs-text-soft);
+	line-height: 1.4;
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}

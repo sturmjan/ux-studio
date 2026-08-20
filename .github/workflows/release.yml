@@ -1,0 +1,53 @@
+name: Release
+
+# On tag v* : build the SPA, generate i18n files, assemble a distribution zip
+# (with build/, without node_modules/src) and attach it to the GitHub Release.
+# Client sites auto-update from these release assets via plugin-update-checker.
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Guard - forbidden strings
+        run: |
+          # Migrator.php legitimately references legacy option names it imports from.
+          ! grep -ri --include="*.php" --include="*.ts" --include="*.tsx" --include="*.scss" \
+              --exclude="Migrator.php" "wpextended" includes src ux-studio.php
+          ! grep -r --include="*.tsx" --include="*.ts" "dashicons" src
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: i18n
+        run: |
+          npm install -g @wordpress/env >/dev/null 2>&1 || true
+          curl -sL https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -o /usr/local/bin/wp && chmod +x /usr/local/bin/wp
+          wp i18n make-pot . languages/ux-studio.pot --exclude=node_modules,build,vendor --allow-root
+          wp i18n make-json languages --no-purge --allow-root
+
+      - name: Assemble distribution zip
+        run: |
+          mkdir -p dist/ux-studio
+          rsync -a --exclude node_modules --exclude .git --exclude .github \
+                --exclude src --exclude dist --exclude "*.zip" ./ dist/ux-studio/
+          cd dist && zip -rq ux-studio.zip ux-studio
+
+      - name: Attach to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/ux-studio.zip
+          generate_release_notes: true

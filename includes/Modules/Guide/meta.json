@@ -1,0 +1,8 @@
+{
+	"id": "guide",
+	"name": "Guide",
+	"description": "A getting-started checklist that tracks setup progress for the site.",
+	"group": "admin",
+	"icon": "book-open",
+	"settings": false
+}

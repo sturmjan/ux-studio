@@ -1,0 +1,8 @@
+{
+	"id": "exit-popup",
+	"name": "Exit Popup",
+	"description": "Show a popup with an email capture form when a visitor is about to leave the page.",
+	"group": "content",
+	"icon": "mail-open",
+	"settings": true
+}

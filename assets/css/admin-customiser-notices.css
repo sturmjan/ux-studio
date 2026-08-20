@@ -1,0 +1,118 @@
+/* Hide Admin Notices - "hidden tray" mode: notices are moved into a panel
+   reachable via a bell button in the admin bar instead of the page body. */
+
+#wp-admin-bar-uxstudio-notifications {
+	position: relative;
+	display: none;
+}
+
+#wp-admin-bar-uxstudio-notifications.has-notices,
+body.uxstudio-notices-active #wp-admin-bar-uxstudio-notifications {
+	display: block;
+}
+
+#wp-admin-bar-uxstudio-notifications > .ab-item {
+	position: relative;
+	cursor: pointer;
+}
+
+#wp-admin-bar-uxstudio-notifications .uxstudio-bell-icon {
+	display: inline-flex !important;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	margin: 0 !important;
+}
+
+#wp-admin-bar-uxstudio-notifications .uxstudio-bell {
+	width: 18px;
+	height: 18px;
+}
+
+#wp-admin-bar-uxstudio-notifications .uxstudio-notif-count {
+	display: none;
+	position: absolute;
+	top: 3px;
+	right: -2px;
+	min-width: 16px;
+	height: 16px;
+	padding: 0 4px;
+	border-radius: 10px;
+	background-color: #d63638;
+	color: #fff;
+	font-size: 10px;
+	font-weight: 700;
+	line-height: 16px;
+	text-align: center;
+	box-sizing: border-box;
+	pointer-events: none;
+}
+
+#wp-admin-bar-uxstudio-notifications.has-notices .uxstudio-notif-count {
+	display: inline-block;
+}
+
+#uxstudio-notices__panel-wrap {
+	display: none;
+	position: absolute;
+	top: calc(100% + 8px);
+	right: -8px;
+	width: min(540px, 96vw);
+	max-height: 75vh;
+	overflow: hidden;
+	margin: 0;
+	background: #fff;
+	border: 1px solid #e0e0e3;
+	border-radius: 14px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 16px 40px rgba(0, 0, 0, 0.18);
+	box-sizing: border-box;
+	z-index: 99998;
+	text-align: left;
+}
+
+#uxstudio-notices__panel-wrap.is-open {
+	display: block;
+}
+
+#uxstudio-notices__panel {
+	margin: 0;
+	padding: 10px;
+	max-height: calc(75vh - 4px);
+	overflow-y: auto;
+	color: #1d2327;
+	font-size: 13px;
+	line-height: 1.45;
+	box-sizing: border-box;
+}
+
+#uxstudio-notices__panel > * {
+	display: block !important;
+	position: relative;
+	margin: 0 0 6px 0 !important;
+	padding: 8px 32px 8px 12px !important;
+	background: #f6f7f7 !important;
+	border: 1px solid #e0e0e3;
+	border-left: 3px solid #8c8f94;
+	border-radius: 8px !important;
+	box-shadow: none !important;
+	box-sizing: border-box;
+}
+
+#uxstudio-notices__panel > .notice-error,
+#uxstudio-notices__panel > .error {
+	border-left-color: #d63638;
+}
+#uxstudio-notices__panel > .notice-warning,
+#uxstudio-notices__panel > .update-nag {
+	border-left-color: #dba617;
+}
+#uxstudio-notices__panel > .notice-success,
+#uxstudio-notices__panel > .updated {
+	border-left-color: #00a32a;
+}
+
+#uxstudio-notices__panel:empty {
+	padding: 32px 18px;
+	text-align: center;
+	color: #8c8f94;
+}

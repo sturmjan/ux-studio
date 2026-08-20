@@ -1,0 +1,8 @@
+{
+	"id": "post-id-display",
+	"name": "Post ID Display",
+	"description": "Show the post ID in the row actions of post list tables.",
+	"group": "content",
+	"icon": "hash",
+	"settings": true
+}

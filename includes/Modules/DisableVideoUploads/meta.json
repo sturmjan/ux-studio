@@ -1,0 +1,8 @@
+{
+	"id": "disable-video-uploads",
+	"name": "Disable Video Uploads",
+	"description": "Prevent video files from being uploaded to the media library.",
+	"group": "media",
+	"icon": "video-off",
+	"settings": false
+}

@@ -1,0 +1,8 @@
+{
+	"id": "service-requests",
+	"name": "Service Requests",
+	"description": "Internal system for tracking service/change requests for the site, with media library attachments.",
+	"group": "admin",
+	"icon": "wrench",
+	"settings": true
+}

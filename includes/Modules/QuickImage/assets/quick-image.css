@@ -1,0 +1,36 @@
+#uxstudio_quick_image.manage-column { width: 60px; }
+
+.uxstudio-quick-image__button,
+.uxstudio-quick-image__image {
+	width: 50px !important;
+	height: 50px !important;
+}
+
+.uxstudio-quick-image__button {
+	position: relative;
+	display: flex;
+	padding: 0;
+	border: none;
+	background: transparent;
+	cursor: pointer;
+	transition: 0.2s ease-in-out;
+}
+
+.uxstudio-quick-image__button::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	z-index: 5;
+	background: rgba(255, 255, 255, 0.5);
+	opacity: 0;
+	transition: 0.2s ease-in-out;
+}
+
+.uxstudio-quick-image__button:is(:hover, :focus)::after {
+	opacity: 1;
+}
+
+.uxstudio-quick-image__image {
+	object-fit: cover;
+	text-align: center;
+}

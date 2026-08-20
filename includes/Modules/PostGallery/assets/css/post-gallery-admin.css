@@ -1,0 +1,89 @@
+/* Post Gallery - Admin Meta Box */
+
+.uxstudio-gallery-metabox__grid {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 4px;
+	margin-bottom: 8px;
+}
+
+.uxstudio-gallery-metabox__grid:empty {
+	display: none;
+}
+
+.uxstudio-gallery-metabox__item {
+	position: relative;
+	aspect-ratio: 1;
+	border-radius: 3px;
+	overflow: hidden;
+	cursor: grab;
+	border: 2px solid transparent;
+	transition: opacity .15s;
+}
+
+.uxstudio-gallery-metabox__item:hover {
+	border-color: #2271b1;
+}
+
+.uxstudio-gallery-metabox__item--dragging {
+	opacity: .3;
+}
+
+.uxstudio-gallery-metabox__item img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.uxstudio-gallery-metabox__remove {
+	position: absolute;
+	top: 2px;
+	right: 2px;
+	width: 18px;
+	height: 18px;
+	padding: 0;
+	border: none;
+	border-radius: 50%;
+	background: rgba(0, 0, 0, .6);
+	color: #fff;
+	font-size: 14px;
+	line-height: 16px;
+	text-align: center;
+	cursor: pointer;
+	opacity: 0;
+	transition: opacity .15s;
+}
+
+.uxstudio-gallery-metabox__item:hover .uxstudio-gallery-metabox__remove {
+	opacity: 1;
+}
+
+.uxstudio-gallery-metabox__remove:hover {
+	background: #b91c1c;
+}
+
+.uxstudio-gallery-metabox__add {
+	width: 100%;
+	margin-bottom: 8px;
+}
+
+.uxstudio-gallery-metabox__options {
+	margin-bottom: 6px;
+}
+
+.uxstudio-gallery-metabox__options label {
+	font-size: 12px;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.uxstudio-gallery-metabox__shortcode {
+	font-size: 11px;
+	margin: 0;
+}
+
+.uxstudio-gallery-metabox__shortcode code {
+	font-size: 11px;
+}

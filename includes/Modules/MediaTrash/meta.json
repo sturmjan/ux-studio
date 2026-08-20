@@ -1,0 +1,8 @@
+{
+	"id": "media-trash",
+	"name": "Media Trash",
+	"description": "Send deleted media files to the trash instead of deleting them permanently.",
+	"group": "media",
+	"icon": "trash-2",
+	"settings": false
+}

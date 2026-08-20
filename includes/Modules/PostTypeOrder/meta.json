@@ -1,0 +1,8 @@
+{
+	"id": "post-type-order",
+	"name": "Post Type Order",
+	"description": "Reorder posts, pages and custom post types with drag and drop in the admin list tables.",
+	"group": "content",
+	"icon": "arrow-up-down",
+	"settings": true
+}

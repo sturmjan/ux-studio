@@ -1,0 +1,7901 @@
+# Copyright (C) 2026 UX One
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: UX Studio 0.1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/ux-studio\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-08-17T11:45:29+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: ux-studio\n"
+
+#. Plugin Name of the plugin
+#: ux-studio.php
+#: includes/Core/Admin.php:44
+#: includes/Core/Admin.php:45
+#: includes/Core/Megamenu.php:90
+#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:291
+msgid "UX Studio"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: ux-studio.php
+msgid "https://github.com/TODO-org/ux-studio"
+msgstr ""
+
+#. Description of the plugin
+#: ux-studio.php
+msgid "Modular WordPress admin platform: one consistent SPA for all site tools."
+msgstr ""
+
+#. Author of the plugin
+#: ux-studio.php
+msgid "UX One"
+msgstr ""
+
+#: includes/Core/Broker.php:45
+msgid "Content Sync is not configured."
+msgstr ""
+
+#. translators: %d: HTTP status code
+#: includes/Core/Broker.php:80
+#, php-format
+msgid "Central app returned HTTP %d."
+msgstr ""
+
+#: includes/Core/Broker.php:92
+msgid "Central app response failed signature verification."
+msgstr ""
+
+#: includes/Core/ConflictGuard.php:39
+msgid "UX Studio is inactive: the legacy plugin \"UX One - Wordpress customizer\" is still active. Deactivate it to let UX Studio take over."
+msgstr ""
+
+#: includes/Core/Megamenu.php:86
+msgid "UX Studio quick navigation"
+msgstr ""
+
+#: includes/Core/Megamenu.php:93
+msgid "All modules"
+msgstr ""
+
+#: includes/Core/Megamenu.php:95
+#: includes/Modules/ExitPopup/Module.php:147
+#: includes/Modules/FileManager/Module.php:128
+#: includes/Modules/PopupManager/Module.php:398
+#: build/78.js:1
+msgid "Close"
+msgstr ""
+
+#: includes/Core/Megamenu.php:166
+#: includes/Modules/AdminCustomiser/MenuOrganizer.php:74
+#: includes/Modules/ExportPosts/Module.php:356
+#: build/78.js:1
+msgid "Content"
+msgstr ""
+
+#: includes/Core/Megamenu.php:168
+msgid "Admin Tools"
+msgstr ""
+
+#: includes/Core/Megamenu.php:170
+#: includes/Modules/AdminColumns/RestController.php:97
+#: includes/Modules/AdminCustomiser/MenuOrganizer.php:75
+#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:253
+#: build/78.js:1
+#: build/149.js:1
+msgid "Media"
+msgstr ""
+
+#: includes/Core/Megamenu.php:172
+msgid "Security"
+msgstr ""
+
+#: includes/Core/Megamenu.php:174
+msgid "Performance"
+msgstr ""
+
+#: includes/Core/Megamenu.php:176
+msgid "Developer"
+msgstr ""
+
+#: includes/Core/Megamenu.php:178
+#: includes/Modules/AdminCustomiser/MenuOrganizer.php:81
+#: includes/Modules/AdminCustomiser/MenuOrganizer.php:321
+msgid "Other"
+msgstr ""
+
+#: includes/Core/Rest.php:69
+#: includes/Core/Rest.php:90
+#: includes/Core/Rest.php:151
+msgid "Unknown module."
+msgstr ""
+
+#: includes/Core/Rest.php:72
+#: includes/Core/Rest.php:93
+msgid "You are not allowed to manage this module."
+msgstr ""
+
+#: includes/Modules/ActivityLog/Module.php:53
+#: includes/Modules/EmailLog/Module.php:77
+#: includes/Modules/NoticeBoard/Module.php:100
+#: includes/Modules/PageLoad/Module.php:90
+msgid "Retention (days)"
+msgstr ""
+
+#: includes/Modules/ActivityLog/Module.php:54
+msgid "Entries older than this are removed by the \"Purge old entries\" action."
+msgstr ""
+
+#: includes/Modules/ActivityLog/Module.php:60
+msgid "Alert on new IP login"
+msgstr ""
+
+#: includes/Modules/ActivityLog/Module.php:61
+msgid "Send an email when a user logs in from an IP address not seen for them before."
+msgstr ""
+
+#: includes/Modules/ActivityLog/Module.php:67
+msgid "Alert email"
+msgstr ""
+
+#: includes/Modules/ActivityLog/Module.php:68
+msgid "Recipient for new-IP alerts. Defaults to the site admin email."
+msgstr ""
+
+#. translators: 1: site name, 2: user login
+#: includes/Modules/ActivityLog/Module.php:130
+#, php-format
+msgid "[%1$s] New IP login for %2$s"
+msgstr ""
+
+#. translators: 1: user login, 2: IP address, 3: date/time
+#: includes/Modules/ActivityLog/Module.php:136
+#, php-format
+msgid ""
+"User %1$s just logged in from a new IP address: %2$s\n"
+"Time: %3$s"
+msgstr ""
+
+#: includes/Modules/ActivityLog/Module.php:138
+#: includes/Modules/MediaReplace/RestController.php:131
+#: includes/Modules/MediaReplace/RestController.php:132
+msgid "unknown"
+msgstr ""
+
+#: includes/Modules/AdminColumns/RestController.php:98
+#: includes/Modules/AdminCustomiser/MenuOrganizer.php:79
+#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:207
+#: build/78.js:1
+msgid "Users"
+msgstr ""
+
+#: includes/Modules/AdminColumns/RestController.php:99
+msgid "Comments"
+msgstr ""
+
+#: includes/Modules/AdminColumns/RestController.php:315
+msgid "Unknown content type."
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/AdminBar.php:119
+#: includes/Modules/AdminCustomiser/AdminBar.php:148
+msgid "Quick actions"
+msgstr ""
+
+#. translators: %s is the site title.
+#: includes/Modules/AdminCustomiser/AdminBar.php:182
+#, php-format
+msgid "Open %s in a new tab"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/AdminBar.php:279
+msgid "New post"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/AdminBar.php:285
+msgid "New page"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/AdminBar.php:291
+msgid "Upload media"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/AdminBar.php:297
+msgid "New user"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/AdminBar.php:303
+msgid "Manage plugins"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/AdminBar.php:309
+msgid "Customize theme"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/HideAdminNotices.php:64
+#: includes/Modules/AdminCustomiser/HideAdminNotices.php:68
+#: includes/Modules/AdminCustomiser/HideAdminNotices.php:119
+msgid "Notifications"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/MenuOrganizer.php:73
+msgid "Dashboard"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/MenuOrganizer.php:76
+#: build/index.js:2
+msgid "Appearance"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/MenuOrganizer.php:77
+msgid "Commerce"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/MenuOrganizer.php:78
+msgid "Marketing"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/MenuOrganizer.php:80
+msgid "System"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/MenuOrganizer.php:1407
+msgid "This plugin rewrites the admin menu order via the parent_file filter. Its hooks are automatically removed while the menu organizer is active."
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/MenuOrganizer.php:1416
+msgid "This plugin rewrites the global $menu at render time on the submenu_file filter. The organizer reorganizes after it, but running both menu editors together is not recommended."
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/MenuOrganizer.php:1466
+msgid "Other menu modifiers"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/MenuOrganizer.php:1468
+msgid "Detected other callbacks with high priority on the admin_menu, parent_file or submenu_file hooks. If reorganization misbehaves, this is likely the culprit:"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/Module.php:75
+msgid "Primary color"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/Module.php:81
+msgid "Login screen logo"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/Module.php:87
+msgid "Login screen background color"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/Module.php:93
+msgid "Admin footer text"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/Module.php:99
+msgid "Hide \"Screen Options\" tab"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/Module.php:105
+msgid "Hide \"Help\" tab"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/Module.php:111
+msgid "Enable menu organizer"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/Module.php:112
+msgid "Reorganizes the WordPress admin menu into custom categories. Configure categories, item order and overrides in the Menu Organizer tab."
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/Module.php:118
+msgid "Enable admin bar customization"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/Module.php:124
+msgid "Enable quick search"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/Module.php:130
+msgid "Quick search post types"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/Module.php:137
+msgid "Enable icon replacer"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/Module.php:143
+msgid "Hide admin notices"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/Module.php:149
+msgid "Relocate instead of hiding"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/Module.php:150
+msgid "Move notices to a tray instead of hiding them completely"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/Module.php:156
+msgid "Enable server clock"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/Module.php:162
+msgid "Server clock position"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/Module.php:164
+msgid "Admin bar pill"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/Module.php:165
+msgid "Plus menu"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/Module.php:172
+msgid "Enable login screen customization"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/QuickSearch.php:55
+msgid "Search..."
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:101
+#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:154
+#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:193
+#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:237
+#: build/78.js:1
+msgid "Edit"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:104
+#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:152
+#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:195
+#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:240
+#: build/78.js:1
+msgid "View"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:284
+#: includes/Modules/AdminCustomiser/QuickSearch/ThirdPartyIntegrations.php:49
+#: includes/Modules/AdminCustomiser/QuickSearch/ThirdPartyIntegrations.php:50
+#: includes/Modules/AdminCustomiser/QuickSearch/ThirdPartyIntegrations.php:67
+#: includes/Modules/AdminCustomiser/QuickSearch/ThirdPartyIntegrations.php:68
+#: includes/Modules/AdminCustomiser/QuickSearch/ThirdPartyIntegrations.php:69
+#: build/190.js:1
+#: build/474.js:1
+msgid "Open"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/QuickSearch/ThirdPartyIntegrations.php:48
+msgid "WooCommerce"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/QuickSearch/ThirdPartyIntegrations.php:49
+msgid "Products"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/QuickSearch/ThirdPartyIntegrations.php:50
+#: includes/Modules/ExportPosts/Module.php:372
+#: build/78.js:1
+#: build/930.js:1
+msgid "Categories"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/QuickSearch/ThirdPartyIntegrations.php:66
+msgid "Advanced Custom Fields"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/QuickSearch/ThirdPartyIntegrations.php:67
+msgid "Field Groups"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/QuickSearch/ThirdPartyIntegrations.php:68
+msgid "Post Types"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/QuickSearch/ThirdPartyIntegrations.php:69
+#: includes/Modules/DuplicatePost/Module.php:197
+msgid "Taxonomies"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/ServerClock.php:68
+#: includes/Modules/AdminCustomiser/ServerClock.php:108
+msgid "Server time"
+msgstr ""
+
+#: includes/Modules/AiAssistant/BlogPilot/PostCreator.php:59
+msgid "The AI returned an invalid response. Please try again."
+msgstr ""
+
+#. translators: %s: WP_Error message
+#: includes/Modules/AiAssistant/BlogPilot/PostCreator.php:107
+#, php-format
+msgid "Error creating the post: %s"
+msgstr ""
+
+#: includes/Modules/AiAssistant/BlogPilot/Scheduler.php:36
+msgid "Weekly (UX Studio)"
+msgstr ""
+
+#: includes/Modules/AiAssistant/BlogPilot/Scheduler.php:43
+msgid "Monthly (UX Studio)"
+msgstr ""
+
+#: includes/Modules/AiAssistant/BlogPilot/Scheduler.php:146
+#: includes/Modules/AiAssistant/BlogPilotRestController.php:145
+#: includes/Modules/AiAssistant/BlogPilotRestController.php:159
+#: includes/Modules/AiAssistant/BlogPilotRestController.php:173
+#: includes/Modules/AiAssistant/BlogPilotRestController.php:198
+msgid "Generator not found."
+msgstr ""
+
+#: includes/Modules/AiAssistant/BlogPilot/Scheduler.php:209
+msgid "General article"
+msgstr ""
+
+#: includes/Modules/AiAssistant/BlogPilotRestController.php:119
+msgid "Title is required."
+msgstr ""
+
+#: includes/Modules/AiAssistant/BlogPilotRestController.php:122
+msgid "Add at least one topic."
+msgstr ""
+
+#: includes/Modules/AiAssistant/BlogPilotRestController.php:127
+msgid "Could not create the generator."
+msgstr ""
+
+#: includes/Modules/AiAssistant/BlogPilotRestController.php:135
+msgid "Generator created and scheduled."
+msgstr ""
+
+#: includes/Modules/AiAssistant/BlogPilotRestController.php:165
+msgid "Generator updated."
+msgstr ""
+
+#: includes/Modules/AiAssistant/BlogPilotRestController.php:179
+msgid "Generator deleted."
+msgstr ""
+
+#: includes/Modules/AiAssistant/BlogPilotRestController.php:186
+msgid "Generation failed."
+msgstr ""
+
+#: includes/Modules/AiAssistant/BlogPilotRestController.php:214
+msgid "Generator activated."
+msgstr ""
+
+#: includes/Modules/AiAssistant/BlogPilotRestController.php:214
+msgid "Generator paused."
+msgstr ""
+
+#: includes/Modules/AiAssistant/BlogPilotRestController.php:236
+msgid "Missing action or posts."
+msgstr ""
+
+#. translators: 1: action name, 2: number of affected posts
+#: includes/Modules/AiAssistant/BlogPilotRestController.php:265
+#, php-format
+msgid "Action '%1$s' applied to %2$d post(s)."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatHistory.php:134
+#: includes/Modules/AiAssistant/ChatHistory.php:137
+#: build/78.js:1
+msgid "New conversation"
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatRestController.php:205
+msgid "Message or session id is missing."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatRestController.php:219
+#: includes/Modules/AiAssistant/HandoffRestController.php:157
+msgid "Too many requests. Please try again shortly."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatRestController.php:291
+msgid "We are currently at capacity. Please contact us by email instead."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatRestController.php:304
+msgid "Session id is missing."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatRestController.php:332
+msgid "Please fill in all fields."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatRestController.php:335
+msgid "Invalid email address."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatRestController.php:338
+msgid "You have reached the maximum number of messages. Please try again later."
+msgstr ""
+
+#. translators: 1: site name, 2: sender name
+#: includes/Modules/AiAssistant/ChatRestController.php:345
+#, php-format
+msgid "[%1$s] Message from the AI chat by %2$s"
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatRestController.php:352
+msgid "New message from the AI Assistant chat"
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatRestController.php:353
+#: includes/Modules/CleanProfiles/Module.php:58
+#: build/78.js:1
+#: build/136.js:1
+#: build/230.js:1
+#: build/309.js:1
+#: build/755.js:1
+#: build/968.js:1
+msgid "Name"
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatRestController.php:355
+#: includes/Modules/CleanProfiles/Module.php:42
+#: build/157.js:1
+#: build/475.js:1
+msgid "Email"
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatRestController.php:357
+#: includes/Modules/AiAssistant/ChatRestController.php:442
+msgid "Phone"
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatRestController.php:359
+#: includes/Modules/AiAssistant/ChatRestController.php:444
+#: build/78.js:1
+#: build/157.js:1
+msgid "Page"
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatRestController.php:361
+msgid "Message"
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatRestController.php:376
+msgid "Could not send the email. Please try again."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatRestController.php:405
+msgid "Please enter a phone number."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatRestController.php:410
+msgid "Invalid phone number."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatRestController.php:413
+msgid "You have reached the maximum number of requests."
+msgstr ""
+
+#. translators: %s: site name
+#: includes/Modules/AiAssistant/ChatRestController.php:436
+#, php-format
+msgid "[%s] New callback request"
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatRestController.php:441
+msgid "New callback request from the AI chat"
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatRestController.php:446
+#: build/190.js:1
+msgid "Note"
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatRestController.php:460
+msgid "Invalid rating."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatRestController.php:463
+msgid "You have reached the maximum number of ratings."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatRestController.php:478
+msgid "Could not save the rating."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatRestController.php:504
+msgid "WooCommerce is not active."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatRestController.php:509
+msgid "Product not found."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatRestController.php:541
+#: includes/Modules/AiAssistant/ChatRestController.php:552
+#: includes/Modules/AiAssistant/HandoffRestController.php:312
+#: includes/Modules/AiAssistant/InternalChatRestController.php:103
+#: includes/Modules/AiAssistant/InternalChatRestController.php:182
+#: includes/Modules/AiAssistant/InternalChatRestController.php:196
+#: includes/Modules/AiAssistant/InternalChatRestController.php:203
+msgid "Conversation not found."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatTools.php:30
+msgid "Search the internal knowledge base (manual entries and uploaded documents) for information relevant to the visitor's question."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatTools.php:36
+msgid "Search query, in the visitor's own words."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatTools.php:44
+msgid "Search frequently asked questions for a matching question/answer pair."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatTools.php:50
+#: includes/Modules/AiAssistant/ChatTools.php:64
+msgid "Search query."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatTools.php:58
+msgid "Search the site's pages and posts for information relevant to the visitor's question."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatTools.php:75
+msgid "Search the shop's product catalog. Returns product id, name, price and stock status. Reference a result in your reply with a [product:ID] tag."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatTools.php:81
+msgid "Search query describing what the visitor is looking for."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatTools.php:89
+msgid "Fetch full details for one specific product by its numeric id."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatTools.php:95
+msgid "Product id."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatTools.php:139
+msgid "Unknown tool."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatTools.php:148
+msgid "Knowledge base search"
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatTools.php:149
+msgid "FAQ search"
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatTools.php:150
+msgid "Site content search"
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatTools.php:151
+msgid "Product search"
+msgstr ""
+
+#: includes/Modules/AiAssistant/ChatTools.php:152
+msgid "Product details"
+msgstr ""
+
+#: includes/Modules/AiAssistant/ContentGenerator.php:43
+msgid "The content description must be at least 10 characters long."
+msgstr ""
+
+#. translators: %s: content description provided by the admin
+#: includes/Modules/AiAssistant/ContentGenerator.php:49
+#, php-format
+msgid "Create content on the following topic: %s"
+msgstr ""
+
+#. translators: %s: comma-separated SEO keywords
+#: includes/Modules/AiAssistant/ContentGenerator.php:55
+#, php-format
+msgid "SEO focus keywords: %s"
+msgstr ""
+
+#: includes/Modules/AiAssistant/ContentGenerator.php:90
+msgid "The product description must be at least 10 characters long."
+msgstr ""
+
+#. translators: %s: product description provided by the admin
+#: includes/Modules/AiAssistant/ContentGenerator.php:96
+#, php-format
+msgid "Create a product description for: %s"
+msgstr ""
+
+#: includes/Modules/AiAssistant/ContentGenerator.php:124
+msgid "Content:"
+msgstr ""
+
+#. translators: %s: json_last_error_msg() text
+#: includes/Modules/AiAssistant/ContentGenerator.php:166
+#, php-format
+msgid "The AI returned an invalid JSON response: %s"
+msgstr ""
+
+#: includes/Modules/AiAssistant/ContentRestController.php:164
+msgid "Publishing failed."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ContentRestController.php:205
+msgid "The content to analyse for SEO is empty."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ContentRestController.php:228
+#: includes/Modules/AiAssistant/ContentRestController.php:250
+msgid "Elementor is not active."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ContentRestController.php:233
+msgid "The html_content parameter is required."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ContentRestController.php:238
+msgid "Could not convert the HTML into Elementor widgets."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ContentRestController.php:244
+msgid "Elementor page"
+msgstr ""
+
+#: includes/Modules/AiAssistant/ContentRestController.php:259
+msgid "The url parameter must be a valid, publicly reachable URL."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ContentRestController.php:275
+msgid "Could not extract content from the page."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ContentRestController.php:278
+#: build/78.js:1
+msgid "Import from URL"
+msgstr ""
+
+#: includes/Modules/AiAssistant/ContentRestController.php:305
+msgid "Page not found."
+msgstr ""
+
+#: includes/Modules/AiAssistant/DocumentParser.php:30
+msgid "The file does not exist or is not readable."
+msgstr ""
+
+#: includes/Modules/AiAssistant/DocumentParser.php:42
+msgid "Unsupported file type."
+msgstr ""
+
+#: includes/Modules/AiAssistant/DocumentParser.php:122
+msgid "ZipArchive is unavailable. Install the php-zip extension."
+msgstr ""
+
+#: includes/Modules/AiAssistant/DocumentParser.php:128
+msgid "Could not open the DOCX file."
+msgstr ""
+
+#: includes/Modules/AiAssistant/DocumentParser.php:135
+msgid "The DOCX file does not contain word/document.xml."
+msgstr ""
+
+#: includes/Modules/AiAssistant/DocumentParser.php:163
+msgid "Could not extract text from the PDF. Install pdftotext (poppler-utils) for reliable extraction."
+msgstr ""
+
+#: includes/Modules/AiAssistant/DocumentParser.php:284
+msgid "Could not read the file."
+msgstr ""
+
+#: includes/Modules/AiAssistant/FaqAnalyzer.php:47
+msgid "There are no conversations to analyze yet."
+msgstr ""
+
+#: includes/Modules/AiAssistant/FaqAnalyzer.php:71
+msgid "No customer questions found in the conversations."
+msgstr ""
+
+#: includes/Modules/AiAssistant/FaqAnalyzer.php:108
+msgid "A topic or instruction is required."
+msgstr ""
+
+#: includes/Modules/AiAssistant/HandoffManager.php:90
+msgid "The customer requested a human operator. Waiting to connect."
+msgstr ""
+
+#: includes/Modules/AiAssistant/HandoffManager.php:121
+msgid "The customer cancelled the operator request."
+msgstr ""
+
+#. translators: %s: operator display name.
+#: includes/Modules/AiAssistant/HandoffManager.php:152
+#, php-format
+msgid "%s has joined the conversation."
+msgstr ""
+
+#: includes/Modules/AiAssistant/HandoffManager.php:177
+msgid "The operator ended the conversation. The chatbot is available again."
+msgstr ""
+
+#: includes/Modules/AiAssistant/HandoffManager.php:203
+msgid "The operator closed the conversation."
+msgstr ""
+
+#. translators: %s: site name.
+#: includes/Modules/AiAssistant/HandoffManager.php:544
+#, php-format
+msgid "[%s] A customer is requesting a human operator"
+msgstr ""
+
+#: includes/Modules/AiAssistant/HandoffManager.php:546
+msgid "A customer is requesting to be connected with a human operator in the AI chat."
+msgstr ""
+
+#. translators: %s: reason given by the customer.
+#: includes/Modules/AiAssistant/HandoffManager.php:549
+#, php-format
+msgid "Reason: %s"
+msgstr ""
+
+#. translators: %s: URL to the handoff inbox.
+#: includes/Modules/AiAssistant/HandoffManager.php:552
+#, php-format
+msgid "Open the inbox: %s"
+msgstr ""
+
+#: includes/Modules/AiAssistant/HandoffManager.php:604
+msgid "Operator"
+msgstr ""
+
+#: includes/Modules/AiAssistant/HandoffRestController.php:153
+#: includes/Modules/AiAssistant/HandoffRestController.php:177
+#: includes/Modules/AiAssistant/HandoffRestController.php:227
+msgid "session_id is required."
+msgstr ""
+
+#: includes/Modules/AiAssistant/HandoffRestController.php:168
+msgid "Your request has been recorded. Please wait for an operator to join."
+msgstr ""
+
+#: includes/Modules/AiAssistant/HandoffRestController.php:198
+msgid "session_id and message are required."
+msgstr ""
+
+#: includes/Modules/AiAssistant/HandoffRestController.php:202
+msgid "Too many messages."
+msgstr ""
+
+#: includes/Modules/AiAssistant/HandoffRestController.php:208
+msgid "This conversation is not currently handled by an operator."
+msgstr ""
+
+#: includes/Modules/AiAssistant/HandoffRestController.php:254
+msgid "Could not take over the conversation."
+msgstr ""
+
+#: includes/Modules/AiAssistant/HandoffRestController.php:265
+msgid "Message is required."
+msgstr ""
+
+#: includes/Modules/AiAssistant/HandoffRestController.php:278
+msgid "Could not send the message."
+msgstr ""
+
+#: includes/Modules/AiAssistant/HandoffRestController.php:301
+msgid "Could not close the conversation."
+msgstr ""
+
+#: includes/Modules/AiAssistant/InternalChatRestController.php:93
+msgid "Message list is empty."
+msgstr ""
+
+#: includes/Modules/AiAssistant/KnowledgeHubRestController.php:187
+#: includes/Modules/AiAssistant/KnowledgeHubRestController.php:226
+msgid "Entry not found."
+msgstr ""
+
+#: includes/Modules/AiAssistant/KnowledgeHubRestController.php:234
+#: includes/Modules/ElementorImport/Module.php:117
+msgid "No file was uploaded."
+msgstr ""
+
+#: includes/Modules/AiAssistant/KnowledgeHubRestController.php:258
+#: includes/Modules/NoticeBoard/RestController.php:153
+msgid "Document not found."
+msgstr ""
+
+#: includes/Modules/AiAssistant/KnowledgeHubRestController.php:294
+#: includes/Modules/AiAssistant/KnowledgeHubRestController.php:327
+msgid "FAQ not found."
+msgstr ""
+
+#: includes/Modules/AiAssistant/KnowledgeHubRestController.php:315
+msgid "Could not update the FAQ."
+msgstr ""
+
+#: includes/Modules/AiAssistant/KnowledgeHubRestController.php:386
+msgid "Invalid source type."
+msgstr ""
+
+#: includes/Modules/AiAssistant/KnowledgeHubRestController.php:396
+msgid "A URL is required."
+msgstr ""
+
+#: includes/Modules/AiAssistant/KnowledgeHubRestController.php:404
+msgid "A sitemap URL is required."
+msgstr ""
+
+#: includes/Modules/AiAssistant/KnowledgeHubRestController.php:412
+msgid "Text is required."
+msgstr ""
+
+#: includes/Modules/AiAssistant/KnowledgeHubRestController.php:427
+#: includes/Modules/AiAssistant/Rag/TrainingSourceManager.php:179
+msgid "Source not found."
+msgstr ""
+
+#: includes/Modules/AiAssistant/KnowledgeHubRestController.php:442
+msgid "Reindexing failed."
+msgstr ""
+
+#: includes/Modules/AiAssistant/KnowledgeManager.php:192
+msgid "Upload failed."
+msgstr ""
+
+#: includes/Modules/AiAssistant/KnowledgeManager.php:196
+msgid "The file is too large. Maximum size is 10 MB."
+msgstr ""
+
+#. translators: %s: comma-separated list of allowed extensions.
+#: includes/Modules/AiAssistant/KnowledgeManager.php:206
+#, php-format
+msgid "Unsupported file type. Allowed types: %s"
+msgstr ""
+
+#: includes/Modules/AiAssistant/KnowledgeManager.php:237
+msgid "Could not register the file in the media library."
+msgstr ""
+
+#: includes/Modules/AiAssistant/KnowledgeManager.php:263
+msgid "Could not create the document record."
+msgstr ""
+
+#: includes/Modules/AiAssistant/KnowledgeManager.php:269
+msgid "No text could be extracted from the file."
+msgstr ""
+
+#: includes/Modules/AiAssistant/KnowledgeManager.php:274
+msgid "The document contains no usable text."
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/JwtAuth.php:112
+msgid "Token not found."
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/JwtAuth.php:135
+msgid "Unknown"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/McpBootstrap.php:48
+#: build/78.js:1
+msgid "AI Assistant"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/McpBootstrap.php:49
+msgid "WordPress management tools provided by AI Assistant"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Resources/PluginsInfoResource.php:24
+#: includes/Modules/AiAssistant/Mcp/Resources/PluginsInfoResource.php:39
+msgid "Plugins Information"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Resources/PluginsInfoResource.php:25
+msgid "Provides detailed information about active and available WordPress plugins"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Resources/SiteInfoResource.php:25
+#: includes/Modules/AiAssistant/Mcp/Resources/SiteInfoResource.php:40
+#: build/78.js:1
+msgid "Site Information"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Resources/SiteInfoResource.php:26
+msgid "Provides general information about the WordPress site including site details, plugins, themes, and users"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Resources/SiteSettingsResource.php:25
+#: includes/Modules/AiAssistant/Mcp/Resources/SiteSettingsResource.php:40
+#: build/78.js:1
+msgid "Site Settings"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Resources/SiteSettingsResource.php:26
+msgid "Provides detailed information about WordPress site settings including general, reading, discussion, media, permalink, privacy, and writing settings"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Resources/ThemeInfoResource.php:25
+#: includes/Modules/AiAssistant/Mcp/Resources/ThemeInfoResource.php:40
+msgid "Theme Information"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Resources/ThemeInfoResource.php:26
+msgid "Provides detailed information about the active WordPress theme and its parent theme if applicable"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Resources/UsersInfoResource.php:24
+#: includes/Modules/AiAssistant/Mcp/Resources/UsersInfoResource.php:39
+msgid "Users Information"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Resources/UsersInfoResource.php:25
+msgid "Provides detailed information about registered WordPress users and their roles"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/CategoriesTools.php:18
+msgid "List Categories"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/CategoriesTools.php:18
+msgid "List all categories"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/CategoriesTools.php:19
+msgid "Get Category"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/CategoriesTools.php:19
+msgid "Get a category by ID"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/CategoriesTools.php:20
+msgid "Create Category"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/CategoriesTools.php:20
+msgid "Create a new category"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/CategoriesTools.php:21
+msgid "Update Category"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/CategoriesTools.php:21
+msgid "Update a category"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/CategoriesTools.php:22
+msgid "Delete Category"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/CategoriesTools.php:22
+msgid "Delete a category"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/CustomPostTypesTools.php:18
+msgid "List Post Types"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/CustomPostTypesTools.php:18
+msgid "List all registered post types"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/CustomPostTypesTools.php:19
+msgid "Get Post Type"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/CustomPostTypesTools.php:19
+msgid "Get details about a post type"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/CustomPostTypesTools.php:20
+msgid "List Taxonomies"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/CustomPostTypesTools.php:20
+msgid "List all registered taxonomies"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/CustomPostTypesTools.php:21
+msgid "Get Taxonomy"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/CustomPostTypesTools.php:21
+msgid "Get details about a taxonomy"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/ElementorTools.php:23
+#: includes/Modules/AiAssistant/Mcp/Tools/ElementorTools.php:41
+msgid "List Elementor Pages"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/ElementorTools.php:24
+msgid "List all pages built with Elementor"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/ElementorTools.php:51
+#: includes/Modules/AiAssistant/Mcp/Tools/ElementorTools.php:75
+msgid "Get Page Structure"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/ElementorTools.php:52
+msgid "Get the Elementor widget structure of a page"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/ElementorTools.php:63
+#: includes/Modules/AiAssistant/Mcp/Tools/ElementorTools.php:97
+#: includes/Modules/AiAssistant/Mcp/Tools/ElementorTools.php:135
+msgid "Page/Post ID"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/ElementorTools.php:85
+#: includes/Modules/AiAssistant/Mcp/Tools/ElementorTools.php:113
+msgid "Find Widgets"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/ElementorTools.php:86
+msgid "Search for specific widget types in a page"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/ElementorTools.php:102
+msgid "Widget type to search for (e.g. heading, text-editor, image)"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/ElementorTools.php:123
+#: includes/Modules/AiAssistant/Mcp/Tools/ElementorTools.php:157
+msgid "Update Widget Content"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/ElementorTools.php:124
+msgid "Update the content of an Elementor widget"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/ElementorTools.php:140
+msgid "Widget ID"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/ElementorTools.php:145
+msgid "JSON string of settings to update"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/MediaTools.php:18
+msgid "List Media"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/MediaTools.php:18
+msgid "List media items"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/MediaTools.php:19
+msgid "Get Media"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/MediaTools.php:19
+msgid "Get a media item by ID"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/MediaTools.php:20
+msgid "Delete Media"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/MediaTools.php:20
+msgid "Delete a media item"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/PagesTools.php:18
+msgid "Search Pages"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/PagesTools.php:18
+msgid "Search and list pages with filters"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/PagesTools.php:19
+msgid "Get Page"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/PagesTools.php:19
+msgid "Get a single page by ID"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/PagesTools.php:20
+msgid "Create Page"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/PagesTools.php:20
+msgid "Create a new page"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/PagesTools.php:21
+msgid "Update Page"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/PagesTools.php:21
+msgid "Update an existing page"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/PagesTools.php:22
+msgid "Delete Page"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/PagesTools.php:22
+msgid "Delete a page"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/PostsTools.php:18
+msgid "Search Posts"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/PostsTools.php:18
+msgid "Search and list posts with filters"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/PostsTools.php:19
+msgid "Get Post"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/PostsTools.php:19
+msgid "Get a single post by ID"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/PostsTools.php:20
+msgid "Create Post"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/PostsTools.php:20
+msgid "Create a new post"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/PostsTools.php:21
+msgid "Update Post"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/PostsTools.php:21
+msgid "Update an existing post"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/PostsTools.php:22
+msgid "Delete Post"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/PostsTools.php:22
+msgid "Delete a post"
+msgstr ""
+
+#. translators: %s: URL parameter name.
+#: includes/Modules/AiAssistant/Mcp/Tools/RestEndpointTool.php:94
+#, php-format
+msgid "URL parameter: %s"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/SettingsTools.php:18
+msgid "Get Settings"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/SettingsTools.php:18
+msgid "Get all WordPress settings"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/SettingsTools.php:19
+msgid "Update Settings"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/SettingsTools.php:19
+msgid "Update WordPress settings"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/SiteInfoTools.php:30
+#: includes/Modules/AiAssistant/Mcp/Tools/SiteInfoTools.php:48
+msgid "Get Site Stats"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/SiteInfoTools.php:31
+msgid "Get comprehensive information about this WordPress site"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/TagsTools.php:18
+msgid "List Tags"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/TagsTools.php:18
+msgid "List all tags"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/TagsTools.php:19
+msgid "Get Tag"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/TagsTools.php:19
+msgid "Get a tag by ID"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/TagsTools.php:20
+msgid "Create Tag"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/TagsTools.php:20
+msgid "Create a new tag"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/TagsTools.php:21
+msgid "Update Tag"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/TagsTools.php:21
+msgid "Update a tag"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/TagsTools.php:22
+msgid "Delete Tag"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/TagsTools.php:22
+msgid "Delete a tag"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/UsersTools.php:18
+msgid "List Users"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/UsersTools.php:18
+msgid "List all users"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/UsersTools.php:19
+msgid "Get User"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/UsersTools.php:19
+msgid "Get a user by ID"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/UsersTools.php:20
+msgid "Create User"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/UsersTools.php:20
+msgid "Create a new user"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/UsersTools.php:21
+msgid "Update User"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/UsersTools.php:21
+msgid "Update a user"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/UsersTools.php:22
+msgid "Delete User"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/UsersTools.php:22
+msgid "Delete a user"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/WooOrdersTools.php:18
+msgid "List Orders"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/WooOrdersTools.php:18
+msgid "List WooCommerce orders"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/WooOrdersTools.php:19
+msgid "Get Order"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/WooOrdersTools.php:19
+msgid "Get an order by ID"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/WooOrdersTools.php:20
+msgid "Create Order"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/WooOrdersTools.php:20
+msgid "Create a new order"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/WooProductsTools.php:18
+msgid "List Products"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/WooProductsTools.php:18
+msgid "List WooCommerce products"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/WooProductsTools.php:19
+msgid "Get Product"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/WooProductsTools.php:19
+msgid "Get a product by ID"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/WooProductsTools.php:20
+msgid "Create Product"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/WooProductsTools.php:20
+msgid "Create a new product"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/WooProductsTools.php:21
+msgid "Update Product"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/WooProductsTools.php:21
+msgid "Update a product"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/WooProductsTools.php:22
+msgid "Delete Product"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Mcp/Tools/WooProductsTools.php:22
+msgid "Delete a product"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Module.php:348
+msgid "Default AI provider"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Module.php:355
+msgid "Claude API key"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Module.php:356
+#: includes/Modules/AiAssistant/Module.php:370
+#: includes/Modules/AiAssistant/Module.php:384
+#: includes/Modules/DashboardWidgets/Module.php:64
+#: includes/Modules/SmtpEmail/Module.php:139
+#: includes/Modules/StockPhotos/Module.php:116
+msgid "Stored encrypted. Leave blank to keep the current key."
+msgstr ""
+
+#: includes/Modules/AiAssistant/Module.php:362
+msgid "Claude model"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Module.php:369
+msgid "OpenAI API key"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Module.php:376
+msgid "OpenAI model"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Module.php:383
+msgid "DeepSeek API key"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Module.php:390
+msgid "DeepSeek model"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Module.php:397
+msgid "Monthly token limit"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Module.php:398
+msgid "0 = unlimited. Resets on the 1st of each month."
+msgstr ""
+
+#: includes/Modules/AiAssistant/Module.php:404
+msgid "Daily request limit (site-wide)"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Module.php:405
+#: includes/Modules/AiAssistant/Module.php:412
+msgid "0 = unlimited."
+msgstr ""
+
+#: includes/Modules/AiAssistant/Module.php:411
+msgid "Daily request limit (per user)"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Module.php:418
+msgid "Enable MCP (tool calling)"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Module.php:424
+msgid "Chat language"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Module.php:426
+msgid "Czech"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Module.php:427
+msgid "English"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Module.php:434
+msgid "Show chat widget on the frontend"
+msgstr ""
+
+#: includes/Modules/AiAssistant/PromptTemplates.php:93
+msgid "Dobrý den! Jak vám mohu pomoci?"
+msgstr ""
+
+#: includes/Modules/AiAssistant/PromptTemplates.php:94
+msgid "Hello! How can I help you?"
+msgstr ""
+
+#: includes/Modules/AiAssistant/PromptTemplates.php:99
+msgid "Tento chat využívá AI. Odesláním zprávy souhlasíte se zpracováním vašeho dotazu. Vaše konverzace může být uložena pro zlepšení kvality služeb."
+msgstr ""
+
+#: includes/Modules/AiAssistant/PromptTemplates.php:100
+msgid "This chat uses AI. By sending a message you agree to your query being processed. Your conversation may be stored to improve service quality."
+msgstr ""
+
+#: includes/Modules/AiAssistant/PromptTemplates.php:105
+msgid "Napište svůj dotaz..."
+msgstr ""
+
+#: includes/Modules/AiAssistant/PromptTemplates.php:106
+msgid "Type your question..."
+msgstr ""
+
+#: includes/Modules/AiAssistant/PromptTemplates.php:111
+msgid "AI Podpora"
+msgstr ""
+
+#: includes/Modules/AiAssistant/PromptTemplates.php:112
+msgid "AI Support"
+msgstr ""
+
+#: includes/Modules/AiAssistant/Rag/TrainingSourceManager.php:196
+msgid "Crawling failed."
+msgstr ""
+
+#: includes/Modules/AiAssistant/Rag/TrainingSourceManager.php:208
+msgid "The sitemap contains no URLs."
+msgstr ""
+
+#: includes/Modules/AiAssistant/Rag/TrainingSourceManager.php:233
+msgid "Unknown source type."
+msgstr ""
+
+#: includes/Modules/AiAssistant/Rag/TrainingSourceManager.php:237
+msgid "Empty content."
+msgstr ""
+
+#: includes/Modules/AiAssistant/Rag/TrainingSourceManager.php:471
+msgid "Embedding count does not match chunk count."
+msgstr ""
+
+#: includes/Modules/AiAssistant/Rag/WebCrawler.php:50
+msgid "Empty response."
+msgstr ""
+
+#: includes/Modules/AiAssistant/Rag/WebCrawler.php:55
+msgid "PDF URLs are not supported here; upload the PDF as a document instead."
+msgstr ""
+
+#: includes/Modules/AiAssistant/Rag/WebCrawler.php:64
+msgid "Could not extract text from the page."
+msgstr ""
+
+#. translators: 1: tokens used, 2: monthly token limit
+#: includes/Modules/AiAssistant/UsageLimiter.php:39
+#, php-format
+msgid "The monthly token limit has been reached (%1$s / %2$s). It resets on the 1st of next month."
+msgstr ""
+
+#. translators: 1: requests made today, 2: daily request limit
+#: includes/Modules/AiAssistant/UsageLimiter.php:53
+#, php-format
+msgid "The daily request limit has been reached (%1$d / %2$d). Please try again tomorrow."
+msgstr ""
+
+#. translators: 1: requests made today by this user, 2: per-user daily request limit
+#: includes/Modules/AiAssistant/UsageLimiter.php:67
+#, php-format
+msgid "Your daily request limit has been reached (%1$d / %2$d). Please try again tomorrow."
+msgstr ""
+
+#: includes/Modules/AiMarkdown/Module.php:84
+msgid "Auto-regenerate on save"
+msgstr ""
+
+#: includes/Modules/AiMarkdown/Module.php:85
+msgid "Regenerate the cached markdown whenever a post is updated."
+msgstr ""
+
+#: includes/Modules/AiMarkdown/Module.php:91
+msgid "Excluded post types"
+msgstr ""
+
+#: includes/Modules/AiMarkdown/Module.php:92
+msgid "These post types never get a markdown version."
+msgstr ""
+
+#: includes/Modules/AiMarkdown/Module.php:245
+msgid "(deleted)"
+msgstr ""
+
+#: includes/Modules/AiMarkdown/RestController.php:63
+#: includes/Modules/AiMarkdown/RestController.php:76
+msgid "Post not found."
+msgstr ""
+
+#: includes/Modules/AiPanel/Module.php:72
+#: includes/Modules/AiPanel/Module.php:73
+#: build/999.js:1
+msgid "AI Panel"
+msgstr ""
+
+#: includes/Modules/AutoImageUpload/Module.php:100
+msgid "Uploading images to the server..."
+msgstr ""
+
+#: includes/Modules/AutoImageUpload/Module.php:101
+msgid "Images were added to the media library."
+msgstr ""
+
+#: includes/Modules/AutoImageUpload/Module.php:102
+msgid "Some images could not be downloaded."
+msgstr ""
+
+#: includes/Modules/AutoImageUpload/Module.php:250
+msgid "Maximum image size (MB)"
+msgstr ""
+
+#: includes/Modules/AutoImageUpload/Module.php:251
+msgid "Images larger than this will not be downloaded."
+msgstr ""
+
+#: includes/Modules/AutoImageUpload/Module.php:257
+msgid "Show editor notices"
+msgstr ""
+
+#: includes/Modules/AutoImageUpload/Module.php:258
+msgid "Show a message in the editor when pasted external images are downloaded."
+msgstr ""
+
+#: includes/Modules/AutoImageUpload/Module.php:264
+msgid "Server-side safety net on save"
+msgstr ""
+
+#: includes/Modules/AutoImageUpload/Module.php:265
+msgid "On save, automatically replace external images (works with Elementor, ACF, direct edits, etc.). Recommended."
+msgstr ""
+
+#: includes/Modules/AutoImageUpload/Module.php:271
+msgid "Maximum images per save"
+msgstr ""
+
+#: includes/Modules/AutoImageUpload/Module.php:272
+msgid "How many images to download at most during a single post save. Prevents slow saves on bulk imports."
+msgstr ""
+
+#: includes/Modules/AutoImageUpload/Processor.php:164
+#: includes/Modules/StockPhotos/Module.php:721
+#: includes/Modules/StockPhotos/Module.php:729
+msgid "The file is not an allowed image format."
+msgstr ""
+
+#: includes/Modules/AutoImageUpload/Processor.php:192
+msgid "Invalid data: URL."
+msgstr ""
+
+#: includes/Modules/AutoImageUpload/Processor.php:198
+msgid "The image could not be decoded."
+msgstr ""
+
+#: includes/Modules/AutoImageUpload/Processor.php:201
+msgid "The image exceeds the maximum allowed size."
+msgstr ""
+
+#: includes/Modules/AutoImageUpload/Processor.php:206
+msgid "Unsupported image type."
+msgstr ""
+
+#: includes/Modules/AutoImageUpload/Processor.php:211
+msgid "Could not create a temporary file."
+msgstr ""
+
+#: includes/Modules/AutoImageUpload/Processor.php:215
+#: includes/Modules/AutoImageUpload/Processor.php:262
+#: includes/Modules/StockPhotos/Module.php:709
+msgid "Could not write the temporary file."
+msgstr ""
+
+#: includes/Modules/AutoImageUpload/Processor.php:226
+#: includes/Modules/StockPhotos/Module.php:671
+msgid "Unsupported URL scheme."
+msgstr ""
+
+#: includes/Modules/AutoImageUpload/Processor.php:231
+#: includes/Modules/StockPhotos/Module.php:676
+msgid "This target is not allowed."
+msgstr ""
+
+#: includes/Modules/AutoImageUpload/Processor.php:249
+#: includes/Modules/StockPhotos/Module.php:692
+msgid "Downloading the image failed."
+msgstr ""
+
+#: includes/Modules/AutoImageUpload/Processor.php:254
+#: includes/Modules/StockPhotos/Module.php:697
+msgid "The image is empty or exceeds the maximum allowed size."
+msgstr ""
+
+#: includes/Modules/AutoUnpublish/Module.php:66
+msgid "Unpublish on:"
+msgstr ""
+
+#: includes/Modules/AutoUnpublish/Module.php:73
+msgid "Leave empty to keep the post published indefinitely."
+msgstr ""
+
+#. translators: %s: formatted date and time.
+#: includes/Modules/AutoUnpublish/Module.php:216
+#, php-format
+msgid "Unpublish: %s"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Module.php:91
+msgid "Enable bot throttling"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Module.php:97
+msgid "Requests per minute per IP"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Module.php:103
+msgid "Blocked User-Agent patterns (one per line)"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Module.php:104
+msgid "Case-insensitive substring or regex match against the request's User-Agent header."
+msgstr ""
+
+#: includes/Modules/BotThrottle/Module.php:110
+msgid "Block response code"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Module.php:112
+#: includes/Modules/SecurityOptimization/Module.php:619
+#: includes/Modules/SecurityOptimization/Module.php:885
+msgid "403 Forbidden"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Module.php:113
+msgid "429 Too Many Requests"
+msgstr ""
+
+#: includes/Modules/ClassicEditor/Module.php:87
+#: includes/Modules/DuplicatePost/Module.php:232
+#: includes/Modules/ExternalPermalinks/Module.php:354
+#: includes/Modules/PostGallery/Module.php:491
+#: includes/Modules/PostIdDisplay/Module.php:65
+#: includes/Modules/PostTypeOrder/Module.php:414
+#: includes/Modules/PostTypeSwitcher/Module.php:57
+#: includes/Modules/QuickAddPost/Module.php:153
+#: includes/Modules/QuickImage/Module.php:226
+msgid "Post types"
+msgstr ""
+
+#: includes/Modules/ClassicEditor/Module.php:88
+msgid "Select the post types to enable the classic editor for. Leave empty to enable it for all post types."
+msgstr ""
+
+#: includes/Modules/CleanProfiles/Module.php:35
+msgid "Visual Editor"
+msgstr ""
+
+#: includes/Modules/CleanProfiles/Module.php:36
+msgid "Syntax Highlighting"
+msgstr ""
+
+#: includes/Modules/CleanProfiles/Module.php:37
+msgid "Admin Color Scheme"
+msgstr ""
+
+#: includes/Modules/CleanProfiles/Module.php:38
+msgid "Keyboard Shortcuts"
+msgstr ""
+
+#: includes/Modules/CleanProfiles/Module.php:39
+msgid "Toolbar"
+msgstr ""
+
+#: includes/Modules/CleanProfiles/Module.php:40
+msgid "Biographical Info"
+msgstr ""
+
+#: includes/Modules/CleanProfiles/Module.php:41
+msgid "Role"
+msgstr ""
+
+#: includes/Modules/CleanProfiles/Module.php:43
+msgid "Website"
+msgstr ""
+
+#: includes/Modules/CleanProfiles/Module.php:44
+msgid "New Password"
+msgstr ""
+
+#: includes/Modules/CleanProfiles/Module.php:45
+msgid "Password Reset"
+msgstr ""
+
+#: includes/Modules/CleanProfiles/Module.php:46
+msgid "Sessions"
+msgstr ""
+
+#: includes/Modules/CleanProfiles/Module.php:57
+msgid "Personal Options"
+msgstr ""
+
+#: includes/Modules/CleanProfiles/Module.php:59
+msgid "Contact Info"
+msgstr ""
+
+#: includes/Modules/CleanProfiles/Module.php:60
+msgid "About the user"
+msgstr ""
+
+#: includes/Modules/CleanProfiles/Module.php:61
+msgid "Account Management"
+msgstr ""
+
+#: includes/Modules/CleanProfiles/Module.php:62
+msgid "Application Passwords"
+msgstr ""
+
+#: includes/Modules/CleanProfiles/Module.php:66
+msgid "[WooCommerce] Billing Address"
+msgstr ""
+
+#: includes/Modules/CleanProfiles/Module.php:67
+msgid "[WooCommerce] Shipping Address"
+msgstr ""
+
+#: includes/Modules/CleanProfiles/Module.php:156
+msgid "Profile sections"
+msgstr ""
+
+#: includes/Modules/CleanProfiles/Module.php:157
+msgid "Select the profile sections to hide."
+msgstr ""
+
+#: includes/Modules/CleanProfiles/Module.php:164
+msgid "Profile fields"
+msgstr ""
+
+#: includes/Modules/CleanProfiles/Module.php:165
+msgid "Select the individual profile fields to hide."
+msgstr ""
+
+#: includes/Modules/CodeSnippets/Module.php:106
+msgid "Safe mode"
+msgstr ""
+
+#: includes/Modules/CodeSnippets/Module.php:107
+msgid "When enabled, no code snippets are executed on the site. Use this to recover from a broken snippet."
+msgstr ""
+
+#: includes/Modules/CodeSnippets/PhpValidator.php:169
+msgid "Parse error: syntax error, unexpected end of snippet."
+msgstr ""
+
+#. translators: %s: PHP function name
+#: includes/Modules/CodeSnippets/PhpValidator.php:180
+#, php-format
+msgid "Cannot redeclare function %s."
+msgstr ""
+
+#. translators: %s: PHP class name
+#: includes/Modules/CodeSnippets/PhpValidator.php:184
+#, php-format
+msgid "Cannot redeclare class %s."
+msgstr ""
+
+#. translators: %s: PHP interface name
+#: includes/Modules/CodeSnippets/PhpValidator.php:188
+#, php-format
+msgid "Cannot redeclare interface %s."
+msgstr ""
+
+#. translators: %s: PHP identifier name
+#: includes/Modules/CodeSnippets/PhpValidator.php:192
+#, php-format
+msgid "Cannot redeclare %s."
+msgstr ""
+
+#: includes/Modules/CodeSnippets/PhpValidator.php:228
+msgid "Parse error: syntax error, unexpected end of snippet"
+msgstr ""
+
+#: includes/Modules/CodeSnippets/RestController.php:132
+#: includes/Modules/CodeSnippets/RestController.php:167
+#: includes/Modules/CodeSnippets/RestController.php:185
+#: includes/Modules/CodeSnippets/SnippetManager.php:452
+#: includes/Modules/CodeSnippets/SnippetManager.php:593
+msgid "Snippet not found"
+msgstr ""
+
+#: includes/Modules/CodeSnippets/RestController.php:171
+msgid "Failed to update snippet status"
+msgstr ""
+
+#: includes/Modules/CodeSnippets/Snippet.php:115
+msgid "Snippet code cannot be empty"
+msgstr ""
+
+#: includes/Modules/CodeSnippets/Snippet.php:131
+#: includes/Modules/CodeSnippets/SnippetManager.php:173
+msgid "Invalid snippet type"
+msgstr ""
+
+#: includes/Modules/CodeSnippets/Snippet.php:162
+#: includes/Modules/CodeSnippets/SnippetManager.php:235
+msgid "PHP code is valid"
+msgstr ""
+
+#: includes/Modules/CodeSnippets/Snippet.php:173
+msgid "JavaScript code contains PHP tags"
+msgstr ""
+
+#: includes/Modules/CodeSnippets/Snippet.php:181
+msgid "JavaScript code has unmatched braces"
+msgstr ""
+
+#: includes/Modules/CodeSnippets/Snippet.php:187
+msgid "JavaScript code is valid"
+msgstr ""
+
+#: includes/Modules/CodeSnippets/Snippet.php:198
+msgid "CSS code contains PHP tags"
+msgstr ""
+
+#: includes/Modules/CodeSnippets/Snippet.php:206
+msgid "CSS code has unmatched braces"
+msgstr ""
+
+#: includes/Modules/CodeSnippets/Snippet.php:212
+msgid "CSS code is valid"
+msgstr ""
+
+#: includes/Modules/CodeSnippets/Snippet.php:222
+msgid "HTML code is valid"
+msgstr ""
+
+#. translators: %s: disable safe mode URL
+#: includes/Modules/CodeSnippets/SnippetExecutor.php:386
+#, php-format
+msgid "UX Studio is running in safe mode. Code snippets are disabled. <a href=\"%s\">Disable Safe Mode</a>"
+msgstr ""
+
+#: includes/Modules/CodeSnippets/SnippetManager.php:155
+msgid "Snippet name is required"
+msgstr ""
+
+#: includes/Modules/CodeSnippets/SnippetManager.php:164
+msgid "Snippet code is required"
+msgstr ""
+
+#: includes/Modules/CodeSnippets/SnippetManager.php:326
+msgid "You do not have sufficient permissions to create snippets."
+msgstr ""
+
+#: includes/Modules/CodeSnippets/SnippetManager.php:334
+msgid "Snippets directory is not writable"
+msgstr ""
+
+#: includes/Modules/CodeSnippets/SnippetManager.php:352
+#: includes/Modules/CodeSnippets/SnippetManager.php:470
+msgid "A snippet with this name already exists"
+msgstr ""
+
+#: includes/Modules/CodeSnippets/SnippetManager.php:378
+msgid "Failed to create snippet record"
+msgstr ""
+
+#: includes/Modules/CodeSnippets/SnippetManager.php:390
+msgid "Failed to generate secure file path"
+msgstr ""
+
+#: includes/Modules/CodeSnippets/SnippetManager.php:411
+msgid "Failed to create snippet file"
+msgstr ""
+
+#: includes/Modules/CodeSnippets/SnippetManager.php:422
+msgid "Snippet created successfully"
+msgstr ""
+
+#: includes/Modules/CodeSnippets/SnippetManager.php:440
+msgid "You do not have sufficient permissions to update snippets."
+msgstr ""
+
+#: includes/Modules/CodeSnippets/SnippetManager.php:478
+msgid "Snippet file path is invalid"
+msgstr ""
+
+#: includes/Modules/CodeSnippets/SnippetManager.php:498
+msgid "Failed to update snippet file"
+msgstr ""
+
+#: includes/Modules/CodeSnippets/SnippetManager.php:521
+msgid "Snippet updated successfully"
+msgstr ""
+
+#: includes/Modules/CodeSnippets/SnippetManager.php:585
+msgid "You do not have sufficient permissions to delete snippets."
+msgstr ""
+
+#: includes/Modules/CodeSnippets/SnippetManager.php:606
+msgid "Snippet deleted successfully"
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:107
+#: includes/Modules/ThirdPartyLogin/Module.php:70
+msgid "Central app URL"
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:108
+msgid "Base URL of the central application acting as the broker for connected sites."
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:114
+#: includes/Modules/ThirdPartyLogin/Module.php:77
+msgid "HMAC secret"
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:115
+msgid "Shared secret used to sign/verify every request to and from the central app. Stored encrypted. Leave blank to keep the current secret."
+msgstr ""
+
+#: includes/Modules/CronControl/Module.php:146
+#: includes/Modules/CronControl/Module.php:172
+msgid "That scheduled event could not be found."
+msgstr ""
+
+#: includes/Modules/CronControl/Module.php:156
+msgid "Event executed."
+msgstr ""
+
+#: includes/Modules/CronControl/Module.php:181
+msgid "Failed to delete the event."
+msgstr ""
+
+#: includes/Modules/CronControl/Module.php:189
+msgid "Event deleted."
+msgstr ""
+
+#. translators: %s: human-readable time difference
+#. translators: %s: human-readable time difference, e.g. "3 days"
+#: includes/Modules/CronControl/Module.php:234
+#: includes/Modules/UserLastLogin/Module.php:162
+#, php-format
+msgid "in %s"
+msgstr ""
+
+#. translators: %s: human-readable time difference
+#. translators: %s: human-readable time difference, e.g. "3 days"
+#: includes/Modules/CronControl/Module.php:237
+#: includes/Modules/UserLastLogin/Module.php:160
+#, php-format
+msgid "%s ago"
+msgstr ""
+
+#: includes/Modules/DashboardWidgets/Module.php:63
+msgid "Google PageSpeed API key"
+msgstr ""
+
+#: includes/Modules/DashboardWidgets/Module.php:70
+msgid "Google Analytics service-account JSON"
+msgstr ""
+
+#: includes/Modules/DashboardWidgets/Module.php:71
+msgid "Paste the full service-account JSON. Stored encrypted. Leave blank to keep the current value."
+msgstr ""
+
+#. translators: %d: HTTP status code
+#: includes/Modules/DashboardWidgets/Module.php:228
+#, php-format
+msgid "PageSpeed API returned HTTP %d."
+msgstr ""
+
+#: includes/Modules/DashboardWidgets/Module.php:239
+msgid "Unexpected PageSpeed API response."
+msgstr ""
+
+#: includes/Modules/DisableAutoUpdates/Module.php:127
+msgid "Disable core updates"
+msgstr ""
+
+#: includes/Modules/DisableAutoUpdates/Module.php:128
+msgid "Disable automatic updates for WordPress core."
+msgstr ""
+
+#: includes/Modules/DisableAutoUpdates/Module.php:134
+msgid "Core update type"
+msgstr ""
+
+#: includes/Modules/DisableAutoUpdates/Module.php:135
+msgid "Select which type of core updates to disable."
+msgstr ""
+
+#: includes/Modules/DisableAutoUpdates/Module.php:137
+msgid "Disable all updates"
+msgstr ""
+
+#: includes/Modules/DisableAutoUpdates/Module.php:138
+msgid "Disable major updates only"
+msgstr ""
+
+#: includes/Modules/DisableAutoUpdates/Module.php:139
+msgid "Disable minor updates only"
+msgstr ""
+
+#: includes/Modules/DisableAutoUpdates/Module.php:146
+msgid "Disable plugin updates"
+msgstr ""
+
+#: includes/Modules/DisableAutoUpdates/Module.php:147
+msgid "Disable automatic updates for plugins."
+msgstr ""
+
+#: includes/Modules/DisableAutoUpdates/Module.php:153
+msgid "Plugin update type"
+msgstr ""
+
+#: includes/Modules/DisableAutoUpdates/Module.php:154
+msgid "Select how to handle plugin updates."
+msgstr ""
+
+#: includes/Modules/DisableAutoUpdates/Module.php:156
+msgid "Disable for all plugins"
+msgstr ""
+
+#: includes/Modules/DisableAutoUpdates/Module.php:157
+msgid "Disable for specific plugins only"
+msgstr ""
+
+#: includes/Modules/DisableAutoUpdates/Module.php:164
+#: build/755.js:2
+msgid "Plugins"
+msgstr ""
+
+#: includes/Modules/DisableAutoUpdates/Module.php:165
+msgid "Choose which plugins to disable auto-updates for."
+msgstr ""
+
+#: includes/Modules/DisableAutoUpdates/Module.php:172
+msgid "Disable theme updates"
+msgstr ""
+
+#: includes/Modules/DisableAutoUpdates/Module.php:173
+msgid "Disable automatic updates for themes."
+msgstr ""
+
+#: includes/Modules/DisableAutoUpdates/Module.php:179
+msgid "Theme update type"
+msgstr ""
+
+#: includes/Modules/DisableAutoUpdates/Module.php:180
+msgid "Select how to handle theme updates."
+msgstr ""
+
+#: includes/Modules/DisableAutoUpdates/Module.php:182
+msgid "Disable for all themes"
+msgstr ""
+
+#: includes/Modules/DisableAutoUpdates/Module.php:183
+msgid "Disable for specific themes only"
+msgstr ""
+
+#: includes/Modules/DisableAutoUpdates/Module.php:190
+#: build/755.js:2
+msgid "Themes"
+msgstr ""
+
+#: includes/Modules/DisableAutoUpdates/Module.php:191
+msgid "Choose which themes to disable auto-updates for."
+msgstr ""
+
+#: includes/Modules/DisableAutoUpdates/Module.php:198
+msgid "Disable translation updates"
+msgstr ""
+
+#: includes/Modules/DisableAutoUpdates/Module.php:199
+msgid "Disable automatic updates for translations."
+msgstr ""
+
+#: includes/Modules/DownloadFiles/Module.php:78
+msgid "Require login by default"
+msgstr ""
+
+#: includes/Modules/DownloadFiles/Module.php:79
+msgid "Default value of \"require login\" for newly added files."
+msgstr ""
+
+#: includes/Modules/DownloadFiles/Module.php:161
+#: includes/Modules/DownloadFiles/Module.php:248
+#: includes/Modules/DownloadFiles/RestController.php:140
+msgid "File not found."
+msgstr ""
+
+#: includes/Modules/DownloadFiles/Module.php:252
+msgid "Invalid or missing download token."
+msgstr ""
+
+#: includes/Modules/DownloadFiles/Module.php:256
+msgid "You must be logged in to download this file."
+msgstr ""
+
+#: includes/Modules/DownloadFiles/Module.php:261
+msgid "The underlying media attachment is missing."
+msgstr ""
+
+#: includes/Modules/DownloadFiles/Module.php:266
+#: includes/Modules/ImageOptimizer/Optimizer.php:140
+msgid "The file is missing on disk."
+msgstr ""
+
+#: includes/Modules/DownloadFiles/Module.php:275
+msgid "Refused to serve a file outside the uploads directory."
+msgstr ""
+
+#: includes/Modules/DownloadFiles/RestController.php:116
+msgid "Please select a valid media library file."
+msgstr ""
+
+#: includes/Modules/DownloadFiles/RestController.php:161
+msgid "Unable to serve the file."
+msgstr ""
+
+#: includes/Modules/DuplicateMenu/RestController.php:88
+msgid "Failed to duplicate menu. The menu name may already exist."
+msgstr ""
+
+#: includes/Modules/DuplicatePost/Duplicator.php:46
+#: includes/Modules/DuplicatePost/Module.php:114
+#: includes/Modules/PostTypeSwitcher/Module.php:120
+#: includes/Modules/QuickImage/RestController.php:60
+msgid "Invalid post ID."
+msgstr ""
+
+#. translators: %s: post title
+#: includes/Modules/DuplicatePost/Module.php:88
+#, php-format
+msgid "Duplicate %s"
+msgstr ""
+
+#: includes/Modules/DuplicatePost/Module.php:92
+msgid "Duplicate"
+msgstr ""
+
+#: includes/Modules/DuplicatePost/Module.php:105
+#: includes/Modules/ExportPosts/Module.php:193
+#: includes/Modules/ExportUsers/Module.php:209
+msgid "Security check failed."
+msgstr ""
+
+#: includes/Modules/DuplicatePost/Module.php:109
+msgid "Sorry, you are not allowed to duplicate this post."
+msgstr ""
+
+#: includes/Modules/DuplicatePost/Module.php:168
+#: includes/Modules/DuplicatePost/Module.php:272
+msgid "[Duplicate] {post_title}"
+msgstr ""
+
+#: includes/Modules/DuplicatePost/Module.php:194
+msgid "Post Content"
+msgstr ""
+
+#: includes/Modules/DuplicatePost/Module.php:195
+msgid "Post Excerpt"
+msgstr ""
+
+#: includes/Modules/DuplicatePost/Module.php:196
+#: includes/Modules/ExportPosts/Module.php:363
+msgid "Featured Image"
+msgstr ""
+
+#: includes/Modules/DuplicatePost/Module.php:198
+msgid "Custom Fields"
+msgstr ""
+
+#: includes/Modules/DuplicatePost/Module.php:199
+#: includes/Modules/ExportPosts/Module.php:365
+msgid "Menu Order"
+msgstr ""
+
+#: includes/Modules/DuplicatePost/Module.php:200
+msgid "Post Parent"
+msgstr ""
+
+#: includes/Modules/DuplicatePost/Module.php:204
+msgid "Product Gallery"
+msgstr ""
+
+#: includes/Modules/DuplicatePost/Module.php:233
+msgid "Select the post types that can be duplicated."
+msgstr ""
+
+#: includes/Modules/DuplicatePost/Module.php:240
+msgid "Redirect to post"
+msgstr ""
+
+#: includes/Modules/DuplicatePost/Module.php:241
+msgid "Redirect to the post edit screen after duplication."
+msgstr ""
+
+#: includes/Modules/DuplicatePost/Module.php:247
+#: build/78.js:1
+msgid "Post status"
+msgstr ""
+
+#: includes/Modules/DuplicatePost/Module.php:248
+msgid "Select the status of the duplicated post."
+msgstr ""
+
+#: includes/Modules/DuplicatePost/Module.php:255
+msgid "Elements to duplicate"
+msgstr ""
+
+#: includes/Modules/DuplicatePost/Module.php:256
+msgid "Select which elements are copied when duplicating a post."
+msgstr ""
+
+#: includes/Modules/DuplicatePost/Module.php:263
+msgid "Customise post title"
+msgstr ""
+
+#: includes/Modules/DuplicatePost/Module.php:264
+msgid "Enable this to use a custom format for the duplicated post title."
+msgstr ""
+
+#: includes/Modules/DuplicatePost/Module.php:270
+msgid "Post title format"
+msgstr ""
+
+#: includes/Modules/DuplicatePost/Module.php:271
+msgid "Use {post_title} to insert the original post title."
+msgstr ""
+
+#: includes/Modules/ElementorImport/Module.php:60
+msgid "Invalid template file. The \"content\" array with Elementor data is missing."
+msgstr ""
+
+#: includes/Modules/ElementorImport/Module.php:65
+msgid "Imported template"
+msgstr ""
+
+#: includes/Modules/ElementorImport/Module.php:134
+msgid "Only .json and .zip files are allowed."
+msgstr ""
+
+#: includes/Modules/ElementorImport/Module.php:147
+msgid "ZIP support is not available on this server."
+msgstr ""
+
+#: includes/Modules/ElementorImport/Module.php:152
+msgid "The ZIP archive could not be opened."
+msgstr ""
+
+#: includes/Modules/ElementorImport/Module.php:166
+msgid "The ZIP archive does not contain a JSON template."
+msgstr ""
+
+#: includes/Modules/ElementorImport/Module.php:181
+msgid "The file does not contain valid JSON."
+msgstr ""
+
+#: includes/Modules/ElementorImport/RestController.php:48
+msgid "Elementor must be installed and active to import templates."
+msgstr ""
+
+#: includes/Modules/ElementorImport/RestController.php:57
+msgid "Upload a .json or .zip template file in the \"file\" field."
+msgstr ""
+
+#: includes/Modules/EmailHealth/Module.php:123
+msgid "Invalid recipient email address."
+msgstr ""
+
+#. translators: 1: site name, 2: date/time
+#: includes/Modules/EmailHealth/Module.php:143
+#, php-format
+msgid "[%1$s] Email Health Check - %2$s"
+msgstr ""
+
+#. translators: 1: site name, 2: date/time
+#: includes/Modules/EmailHealth/Module.php:150
+#, php-format
+msgid ""
+"This is an automated test email from %1$s.\n"
+"Time: %2$s\n"
+"\n"
+"If you can read this, outgoing email is working correctly."
+msgstr ""
+
+#: includes/Modules/EmailHealth/Module.php:205
+msgid "Test recipient"
+msgstr ""
+
+#: includes/Modules/EmailHealth/Module.php:206
+msgid "Email address that receives the test message. Defaults to the site admin email."
+msgstr ""
+
+#: includes/Modules/EmailHealth/Module.php:212
+msgid "Scheduled test"
+msgstr ""
+
+#: includes/Modules/EmailHealth/Module.php:213
+msgid "Automatically send a test email on a fixed interval."
+msgstr ""
+
+#: includes/Modules/EmailHealth/Module.php:219
+msgid "Test interval"
+msgstr ""
+
+#: includes/Modules/EmailHealth/Module.php:220
+msgid "How often the scheduled test email is sent."
+msgstr ""
+
+#: includes/Modules/EmailHealth/Module.php:222
+msgid "Every hour"
+msgstr ""
+
+#: includes/Modules/EmailHealth/Module.php:223
+msgid "Every 3 hours"
+msgstr ""
+
+#: includes/Modules/EmailHealth/Module.php:224
+msgid "Every 6 hours"
+msgstr ""
+
+#: includes/Modules/EmailHealth/Module.php:225
+msgid "Every 12 hours"
+msgstr ""
+
+#: includes/Modules/EmailHealth/Module.php:226
+msgid "Once a day"
+msgstr ""
+
+#: includes/Modules/EmailLog/Module.php:78
+msgid "Log entries older than this are pruned automatically."
+msgstr ""
+
+#: includes/Modules/EmailLog/RestController.php:89
+msgid "Could not delete this entry."
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:83
+msgid "Show on"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:84
+msgid "Post types on which the exit popup can appear."
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:91
+msgid "Headline"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:92
+#: includes/Modules/ExitPopup/Module.php:139
+msgid "Wait, don't go!"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:97
+#: build/819.js:1
+msgid "Body"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:103
+msgid "Delay before enabling exit-intent detection (seconds)"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:109
+msgid "Show only once per session"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:145
+msgid "Email address"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:146
+msgid "Subscribe"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:148
+msgid "Thanks! Check your inbox soon."
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:149
+msgid "Something went wrong, please try again."
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:173
+msgid "You are not allowed to do this."
+msgstr ""
+
+#: includes/Modules/ExitPopup/RestController.php:106
+msgid "Too many requests, please try again later."
+msgstr ""
+
+#. translators: %s: export format
+#: includes/Modules/ExportPosts/Module.php:142
+#: includes/Modules/ExportUsers/Module.php:129
+#, php-format
+msgid "Download as %s"
+msgstr ""
+
+#. translators: %s: export format
+#: includes/Modules/ExportPosts/Module.php:159
+#: includes/Modules/ExportUsers/Module.php:146
+#, php-format
+msgid "Export to %s"
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:197
+msgid "Sorry, you are not allowed to export posts."
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:202
+#: includes/Modules/ExportPosts/RestController.php:63
+#: includes/Modules/ExportUsers/Module.php:214
+#: includes/Modules/ExportUsers/RestController.php:63
+msgid "Invalid export type."
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:217
+msgid "No valid post IDs provided."
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:240
+#: includes/Modules/ExportUsers/Module.php:252
+msgid "No fields selected for export."
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:353
+msgid "Post ID"
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:354
+#: build/78.js:1
+#: build/84.js:1
+#: build/213.js:1
+#: build/244.js:1
+#: build/474.js:1
+#: build/475.js:1
+#: build/819.js:1
+#: build/930.js:1
+msgid "Title"
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:355
+msgid "Slug"
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:357
+msgid "Excerpt"
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:358
+#: build/78.js:1
+#: build/84.js:1
+#: build/136.js:1
+#: build/190.js:1
+#: build/309.js:1
+#: build/367.js:1
+#: build/402.js:1
+#: build/474.js:1
+#: build/809.js:1
+#: build/819.js:1
+#: build/831.js:1
+msgid "Status"
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:359
+#: includes/Modules/PostTypeSwitcher/Module.php:212
+msgid "Post Type"
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:360
+#: build/50.js:1
+#: build/157.js:1
+#: build/158.js:1
+#: build/190.js:1
+#: build/309.js:1
+#: build/367.js:1
+#: build/402.js:1
+#: build/475.js:1
+#: build/718.js:1
+#: build/819.js:1
+#: build/831.js:1
+#: build/860.js:1
+#: build/976.js:1
+msgid "Date"
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:361
+msgid "Modified Date"
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:362
+#: build/718.js:1
+#: build/930.js:1
+msgid "Author"
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:364
+msgid "Comment Count"
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:366
+msgid "GUID"
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:367
+msgid "Parent Post"
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:368
+#: includes/Modules/FileManager/Module.php:436
+msgid "Password"
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:369
+msgid "Date (GMT)"
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:370
+msgid "Modified Date (GMT)"
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:371
+msgid "Filtered Content"
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:373
+#: build/78.js:1
+msgid "Tags"
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:374
+msgid "Comment Status"
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:375
+msgid "Ping Status"
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:376
+msgid "MIME Type"
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:432
+#: includes/Modules/ExportUsers/Module.php:429
+msgid "Export types"
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:433
+msgid "Formats offered in the row and bulk export actions."
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:435
+#: includes/Modules/ExportUsers/Module.php:432
+msgid "CSV"
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:436
+#: includes/Modules/ExportUsers/Module.php:433
+msgid "JSON"
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:437
+#: includes/Modules/ExportUsers/Module.php:434
+msgid "TXT"
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:444
+#: includes/Modules/ExportUsers/Module.php:441
+msgid "Fields"
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:445
+msgid "Post fields included in the export."
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:452
+#: includes/Modules/ExportUsers/Module.php:449
+msgid "Meta fields"
+msgstr ""
+
+#: includes/Modules/ExportPosts/Module.php:453
+msgid "Custom fields (post meta) to include in the export."
+msgstr ""
+
+#: includes/Modules/ExportPosts/RestController.php:68
+msgid "No posts selected for export."
+msgstr ""
+
+#: includes/Modules/ExportUsers/Module.php:170
+msgid "Export User Data"
+msgstr ""
+
+#. translators: %s: export format
+#: includes/Modules/ExportUsers/Module.php:174
+#, php-format
+msgid "Export as %s"
+msgstr ""
+
+#: includes/Modules/ExportUsers/Module.php:177
+msgid "Export user data in different formats."
+msgstr ""
+
+#: includes/Modules/ExportUsers/Module.php:229
+msgid "No valid user IDs provided."
+msgstr ""
+
+#: includes/Modules/ExportUsers/Module.php:351
+msgid "User ID"
+msgstr ""
+
+#: includes/Modules/ExportUsers/Module.php:352
+#: includes/Modules/FileManager/Module.php:434
+#: build/190.js:1
+msgid "Username"
+msgstr ""
+
+#: includes/Modules/ExportUsers/Module.php:353
+msgid "Nicename"
+msgstr ""
+
+#: includes/Modules/ExportUsers/Module.php:354
+msgid "First Name"
+msgstr ""
+
+#: includes/Modules/ExportUsers/Module.php:355
+msgid "Last Name"
+msgstr ""
+
+#: includes/Modules/ExportUsers/Module.php:356
+msgid "Nickname"
+msgstr ""
+
+#: includes/Modules/ExportUsers/Module.php:357
+msgid "Email Address"
+msgstr ""
+
+#: includes/Modules/ExportUsers/Module.php:358
+msgid "Website URL"
+msgstr ""
+
+#: includes/Modules/ExportUsers/Module.php:359
+#: build/78.js:1
+#: build/136.js:1
+#: build/474.js:1
+msgid "Description"
+msgstr ""
+
+#: includes/Modules/ExportUsers/Module.php:360
+msgid "Avatar"
+msgstr ""
+
+#: includes/Modules/ExportUsers/Module.php:361
+msgid "Registration Date"
+msgstr ""
+
+#: includes/Modules/ExportUsers/Module.php:362
+msgid "Display Name"
+msgstr ""
+
+#: includes/Modules/ExportUsers/Module.php:363
+msgid "Roles"
+msgstr ""
+
+#: includes/Modules/ExportUsers/Module.php:364
+msgid "Capabilities"
+msgstr ""
+
+#: includes/Modules/ExportUsers/Module.php:430
+msgid "Formats offered in the row, bulk and profile export actions."
+msgstr ""
+
+#: includes/Modules/ExportUsers/Module.php:442
+msgid "User fields included in the export."
+msgstr ""
+
+#: includes/Modules/ExportUsers/Module.php:450
+msgid "Custom fields (user meta) to include in the export."
+msgstr ""
+
+#: includes/Modules/ExportUsers/RestController.php:68
+msgid "No users selected for export."
+msgstr ""
+
+#: includes/Modules/ExportUsers/RestController.php:73
+msgid "You are not allowed to export these users."
+msgstr ""
+
+#: includes/Modules/ExternalPermalinks/Module.php:134
+#: includes/Modules/ExternalPermalinks/Module.php:285
+msgid "External Permalink"
+msgstr ""
+
+#: includes/Modules/ExternalPermalinks/Module.php:286
+msgid "Enter URL"
+msgstr ""
+
+#: includes/Modules/ExternalPermalinks/Module.php:287
+msgid "Leave empty to use the default WordPress permalink. An external permalink overrides the default slug."
+msgstr ""
+
+#: includes/Modules/ExternalPermalinks/Module.php:355
+msgid "Select the post types that can use external permalinks."
+msgstr ""
+
+#: includes/Modules/FileManager/Module.php:70
+#: includes/Modules/FileManager/Module.php:71
+#: includes/Modules/FileManager/Module.php:89
+#: includes/Modules/FileManager/Module.php:126
+#: includes/Modules/FileManager/Module.php:130
+#: includes/Modules/FileManager/Module.php:430
+#: build/386.js:1
+msgid "File Manager"
+msgstr ""
+
+#: includes/Modules/FileManager/Module.php:83
+msgid "You do not have permission to access this page."
+msgstr ""
+
+#: includes/Modules/FileManager/Module.php:107
+#: includes/Modules/FileManager/Module.php:112
+#: build/386.js:1
+msgid "Open File Manager"
+msgstr ""
+
+#: includes/Modules/FileManager/Module.php:115
+msgid "You do not have access to the File Manager. Add your account to the allowed users list below."
+msgstr ""
+
+#: includes/Modules/FileManager/Module.php:162
+#: build/31.js:1
+#: build/50.js:1
+#: build/78.js:1
+#: build/136.js:1
+#: build/144.js:1
+#: build/148.js:1
+#: build/149.js:1
+#: build/157.js:1
+#: build/178.js:1
+#: build/190.js:1
+#: build/230.js:1
+#: build/244.js:1
+#: build/309.js:1
+#: build/367.js:1
+#: build/402.js:1
+#: build/457.js:1
+#: build/474.js:1
+#: build/475.js:1
+#: build/718.js:1
+#: build/792.js:1
+#: build/819.js:1
+#: build/831.js:1
+#: build/860.js:1
+#: build/930.js:1
+#: build/976.js:1
+#: build/index.js:2
+msgid "Settings"
+msgstr ""
+
+#: includes/Modules/FileManager/Module.php:194
+msgid "Allowed users"
+msgstr ""
+
+#: includes/Modules/FileManager/Module.php:196
+msgid "Choose which administrators can access the File Manager."
+msgstr ""
+
+#: includes/Modules/FileManager/Module.php:201
+msgid "No administrators found."
+msgstr ""
+
+#: includes/Modules/FileManager/Module.php:218
+msgid "Root directory"
+msgstr ""
+
+#: includes/Modules/FileManager/Module.php:224
+msgid "Default:"
+msgstr ""
+
+#: includes/Modules/FileManager/Module.php:228
+msgid "This directory does not exist!"
+msgstr ""
+
+#: includes/Modules/FileManager/Module.php:235
+msgid "Read-only"
+msgstr ""
+
+#: includes/Modules/FileManager/Module.php:241
+msgid "Disable editing, deleting and uploading files"
+msgstr ""
+
+#: includes/Modules/FileManager/Module.php:246
+msgid "Save settings"
+msgstr ""
+
+#: includes/Modules/FileManager/Module.php:288
+msgid "Settings saved."
+msgstr ""
+
+#: includes/Modules/FileManager/Module.php:336
+msgid "Login failed:"
+msgstr ""
+
+#: includes/Modules/FileManager/Module.php:337
+#: build/367.js:1
+#: build/831.js:1
+#: build/976.js:1
+msgid "Error"
+msgstr ""
+
+#: includes/Modules/FileManager/Module.php:357
+msgid "You do not have access to the File Manager. Ask an administrator to add you to the allowed users list."
+msgstr ""
+
+#: includes/Modules/FileManager/Module.php:358
+msgid "Access denied"
+msgstr ""
+
+#: includes/Modules/FileManager/Module.php:403
+msgid "Invalid credentials."
+msgstr ""
+
+#: includes/Modules/FileManager/Module.php:411
+msgid "File Manager — Login"
+msgstr ""
+
+#: includes/Modules/FileManager/Module.php:438
+msgid "Log in"
+msgstr ""
+
+#: includes/Modules/FolderManager/Module.php:56
+#: build/968.js:1
+msgid "Folders"
+msgstr ""
+
+#: includes/Modules/FolderManager/Module.php:57
+#: build/968.js:1
+msgid "Folder"
+msgstr ""
+
+#: includes/Modules/FolderManager/Module.php:58
+msgid "Search Folders"
+msgstr ""
+
+#: includes/Modules/FolderManager/Module.php:59
+msgid "All Folders"
+msgstr ""
+
+#: includes/Modules/FolderManager/Module.php:60
+msgid "Parent Folder"
+msgstr ""
+
+#: includes/Modules/FolderManager/Module.php:61
+msgid "Parent Folder:"
+msgstr ""
+
+#: includes/Modules/FolderManager/Module.php:62
+msgid "Edit Folder"
+msgstr ""
+
+#: includes/Modules/FolderManager/Module.php:63
+msgid "Update Folder"
+msgstr ""
+
+#: includes/Modules/FolderManager/Module.php:64
+msgid "Add New Folder"
+msgstr ""
+
+#: includes/Modules/FolderManager/Module.php:65
+msgid "New Folder Name"
+msgstr ""
+
+#: includes/Modules/FolderManager/Module.php:66
+msgid "No folders found"
+msgstr ""
+
+#: includes/Modules/FolderManager/Module.php:129
+msgid "Folder name is required."
+msgstr ""
+
+#: includes/Modules/FolderManager/Module.php:133
+msgid "Parent folder does not exist."
+msgstr ""
+
+#: includes/Modules/FolderManager/Module.php:146
+msgid "Folder was created but could not be reloaded."
+msgstr ""
+
+#: includes/Modules/FolderManager/Module.php:167
+#: includes/Modules/FolderManager/Module.php:195
+msgid "Folder not found."
+msgstr ""
+
+#: includes/Modules/FolderManager/Module.php:172
+msgid "Could not delete folder."
+msgstr ""
+
+#: includes/Modules/FolderManager/Module.php:189
+msgid "Attachment not found."
+msgstr ""
+
+#: includes/Modules/GoogleReviewRequest/Module.php:89
+msgid "Google review URL"
+msgstr ""
+
+#: includes/Modules/GoogleReviewRequest/Module.php:90
+msgid "Link customers use to leave a review, inserted into the email via {review_url}."
+msgstr ""
+
+#: includes/Modules/GoogleReviewRequest/Module.php:96
+msgid "Email subject"
+msgstr ""
+
+#: includes/Modules/GoogleReviewRequest/Module.php:97
+msgid "How was your experience?"
+msgstr ""
+
+#: includes/Modules/GoogleReviewRequest/Module.php:102
+msgid "Email body"
+msgstr ""
+
+#: includes/Modules/GoogleReviewRequest/Module.php:103
+msgid "Use {review_url} as a placeholder for the review link."
+msgstr ""
+
+#: includes/Modules/GoogleReviewRequest/Module.php:104
+msgid "Hi,<br><br>Thank you for your recent order! We would really appreciate it if you could take a moment to leave us a review: <a href=\"{review_url}\">{review_url}</a><br><br>Thank you!"
+msgstr ""
+
+#: includes/Modules/GoogleReviewRequest/Module.php:109
+msgid "Send automatically when a WooCommerce order completes"
+msgstr ""
+
+#: includes/Modules/GoogleReviewRequest/Module.php:110
+msgid "Only takes effect if WooCommerce is active."
+msgstr ""
+
+#: includes/Modules/Guide/Module.php:105
+msgid "Set your site identity"
+msgstr ""
+
+#: includes/Modules/Guide/Module.php:106
+msgid "Add your site title, tagline and logo under Settings and Customizer."
+msgstr ""
+
+#: includes/Modules/Guide/Module.php:110
+msgid "Configure permalinks"
+msgstr ""
+
+#: includes/Modules/Guide/Module.php:111
+msgid "Choose an SEO-friendly permalink structure under Settings → Permalinks."
+msgstr ""
+
+#: includes/Modules/Guide/Module.php:115
+msgid "Choose your homepage"
+msgstr ""
+
+#: includes/Modules/Guide/Module.php:116
+msgid "Decide between a static page or your latest posts under Settings → Reading."
+msgstr ""
+
+#: includes/Modules/Guide/Module.php:120
+msgid "Build your navigation"
+msgstr ""
+
+#: includes/Modules/Guide/Module.php:121
+msgid "Create the primary menu and assign it to a theme location."
+msgstr ""
+
+#: includes/Modules/Guide/Module.php:125
+msgid "Enable the modules you need"
+msgstr ""
+
+#: includes/Modules/Guide/Module.php:126
+msgid "Turn on the UX Studio modules that fit your workflow."
+msgstr ""
+
+#: includes/Modules/HideAdminBar/Module.php:51
+msgid "Hide for roles"
+msgstr ""
+
+#: includes/Modules/HideAdminBar/Module.php:52
+msgid "Leave empty to hide the admin bar for all users."
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/Module.php:71
+msgid "Quality"
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/Module.php:72
+msgid "JPEG/WebP compression quality, 1-100."
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/Module.php:78
+msgid "Also generate WebP"
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/Module.php:84
+msgid "Max width (px)"
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/Module.php:85
+msgid "Images wider than this are downscaled. 0 disables resizing."
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/Optimizer.php:45
+#: includes/Modules/ImageOptimizer/Optimizer.php:102
+msgid "Not a media library attachment."
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/Optimizer.php:55
+msgid "Only JPEG, PNG and GIF images are supported."
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/Optimizer.php:64
+msgid "Could not create a backup of the original image."
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/Optimizer.php:74
+msgid "Neither the Imagick nor the GD PHP extension is available."
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/Optimizer.php:112
+msgid "No backup exists for this image."
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/Optimizer.php:116
+msgid "Could not restore the original image."
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/Optimizer.php:146
+msgid "Refused to operate on a file outside the uploads directory."
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/Optimizer.php:179
+msgid "Could not decode the image."
+msgstr ""
+
+#: includes/Modules/IndexingNotice/Module.php:57
+msgid "Search Engines Discouraged"
+msgstr ""
+
+#: includes/Modules/InstagramFeed/Module.php:90
+msgid "Sync interval (hours)"
+msgstr ""
+
+#: includes/Modules/InstagramFeed/Module.php:91
+msgid "How often the feed is refreshed from the central app."
+msgstr ""
+
+#: includes/Modules/InstagramFeed/Module.php:97
+msgid "Number of posts to display"
+msgstr ""
+
+#. translators: appended to the aria-label of external links opening in a new tab.
+#: includes/Modules/LinkManager/Module.php:257
+msgid " opens in a new tab"
+msgstr ""
+
+#: includes/Modules/LinkManager/Module.php:432
+msgid "Exclude classes"
+msgstr ""
+
+#: includes/Modules/LinkManager/Module.php:433
+msgid "Comma-separated list of CSS classes to exclude from external link processing. Built-in per-link classes: wpe-exclude--link, wpe-exclude--arrow, wpe-exclude--rel, wpe-exclude--new-tab, wpe-exclude--aria-label."
+msgstr ""
+
+#: includes/Modules/LinkManager/Module.php:439
+msgid "Disable external link arrow"
+msgstr ""
+
+#: includes/Modules/LinkManager/Module.php:440
+msgid "Not recommended as it may cause accessibility issues."
+msgstr ""
+
+#: includes/Modules/LinkManager/Module.php:449
+msgid "Disable speculative loading"
+msgstr ""
+
+#: includes/Modules/LinkManager/Module.php:450
+msgid "Completely disable the WordPress 6.8+ speculative loading feature."
+msgstr ""
+
+#: includes/Modules/LinkManager/Module.php:456
+msgid "Loading mode"
+msgstr ""
+
+#: includes/Modules/LinkManager/Module.php:457
+msgid "Choose how aggressively to preload links."
+msgstr ""
+
+#: includes/Modules/LinkManager/Module.php:459
+#: includes/Modules/LinkManager/Module.php:471
+msgid "Auto (WordPress default)"
+msgstr ""
+
+#: includes/Modules/LinkManager/Module.php:460
+msgid "Prefetch"
+msgstr ""
+
+#: includes/Modules/LinkManager/Module.php:461
+msgid "Prerender"
+msgstr ""
+
+#: includes/Modules/LinkManager/Module.php:468
+msgid "Loading eagerness"
+msgstr ""
+
+#: includes/Modules/LinkManager/Module.php:469
+msgid "Choose how early to start preloading links."
+msgstr ""
+
+#: includes/Modules/LinkManager/Module.php:472
+msgid "Conservative"
+msgstr ""
+
+#: includes/Modules/LinkManager/Module.php:473
+msgid "Moderate"
+msgstr ""
+
+#: includes/Modules/LinkManager/Module.php:474
+msgid "Eager"
+msgstr ""
+
+#: includes/Modules/LinkManager/Module.php:481
+msgid "Exclude paths"
+msgstr ""
+
+#: includes/Modules/LinkManager/Module.php:482
+msgid "URL patterns to exclude from speculative loading, one per line (e.g. /cart/*, /checkout/*)."
+msgstr ""
+
+#: includes/Modules/LinkManager/Module.php:488
+msgid "Exclude from prerender"
+msgstr ""
+
+#: includes/Modules/LinkManager/Module.php:489
+msgid "URL patterns to exclude only from prerendering, one per line (e.g. /personalized-area/*)."
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:218
+msgid "Logo"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:223
+#: includes/Modules/MaintenanceMode/Module.php:242
+#: includes/Modules/MaintenanceMode/Module.php:428
+msgid "Maintenance Mode"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:227
+#: includes/Modules/MaintenanceMode/Module.php:440
+msgid "Site will be available soon. Thank you for your patience!"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:243
+msgid "We are currently performing scheduled maintenance. Please check back soon."
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:301
+msgid "Coming Soon Active"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:302
+msgid "Maintenance Mode Active"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:311
+msgid "Open preview"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:320
+msgid "Preview"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:365
+msgid "Mode"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:366
+msgid "Select the maintenance mode type."
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:368
+#: build/78.js:1
+#: build/136.js:1
+#: build/190.js:1
+#: build/809.js:1
+msgid "Disabled"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:369
+msgid "Maintenance Mode (503)"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:370
+msgid "Coming Soon (200)"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:377
+msgid "Layout type"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:378
+msgid "Choose how to display the maintenance page."
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:380
+msgid "Custom Layout"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:381
+msgid "Existing Page"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:388
+msgid "Choose layout"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:389
+msgid "Which built-in layout to use for the maintenance page."
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:391
+msgid "Layout 1 (centered card)"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:392
+msgid "Layout 2 (split, image right)"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:393
+msgid "Layout 3 (split, image left)"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:400
+msgid "Existing page"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:401
+msgid "Page displayed when the layout type is \"Existing Page\"."
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:408
+msgid "Authentication type"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:409
+msgid "Who is allowed to access the site while maintenance mode is active. Administrators always have access."
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:411
+msgid "Logged In Users"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:412
+msgid "By User Role"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:419
+#: includes/Modules/SvgUpload/Module.php:174
+msgid "Allowed roles"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:420
+msgid "Roles allowed to access the site when authentication is by role."
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:427
+msgid "Headline text"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:433
+msgid "Headline colour"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:439
+msgid "Body text"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:445
+msgid "Body colour"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:451
+msgid "Footer text"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:457
+msgid "Footer colour"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:463
+msgid "Enable logo"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:465
+#: build/244.js:1
+#: build/718.js:1
+msgid "No"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:466
+#: build/244.js:1
+#: build/475.js:1
+#: build/718.js:1
+msgid "Yes"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:473
+msgid "Logo image"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:474
+msgid "Logo image shown on the maintenance page."
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:480
+msgid "Logo width (px)"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:486
+#: includes/Modules/TopBar/Module.php:133
+msgid "Background colour"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:492
+msgid "Enable background image"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:498
+msgid "Background image"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:504
+msgid "Custom CSS"
+msgstr ""
+
+#: includes/Modules/MaintenanceMode/Module.php:505
+msgid "Custom CSS for the maintenance page. Useful classes: .uxstudio__card, .uxstudio__headline, .uxstudio__description, .uxstudio__footer, .uxstudio__logo."
+msgstr ""
+
+#: includes/Modules/MediaReplace/Module.php:76
+#: includes/Modules/MediaReplace/Module.php:94
+msgid "Media Replace"
+msgstr ""
+
+#: includes/Modules/MediaReplace/Module.php:110
+msgid "Replace this media item with a new file by clicking the button below."
+msgstr ""
+
+#: includes/Modules/MediaReplace/Module.php:112
+#: includes/Modules/MediaReplace/Module.php:134
+msgid "Upload New File"
+msgstr ""
+
+#: includes/Modules/MediaReplace/Module.php:129
+msgid "Replace Media"
+msgstr ""
+
+#: includes/Modules/MediaReplace/Module.php:136
+msgid "Replace this media item with a new file."
+msgstr ""
+
+#: includes/Modules/MediaReplace/Module.php:171
+msgid "Select a replacement file"
+msgstr ""
+
+#: includes/Modules/MediaReplace/Module.php:172
+msgid "Replace File"
+msgstr ""
+
+#: includes/Modules/MediaReplace/Module.php:173
+msgid "An error occurred. Please try again."
+msgstr ""
+
+#: includes/Modules/MediaReplace/Module.php:174
+msgid "The new file must be the same type as the original."
+msgstr ""
+
+#: includes/Modules/MediaReplace/RestController.php:58
+msgid "You are not allowed to edit this media item."
+msgstr ""
+
+#: includes/Modules/MediaReplace/RestController.php:68
+msgid "One or both media items could not be found."
+msgstr ""
+
+#: includes/Modules/MediaReplace/RestController.php:114
+msgid "The file for one of the media items could not be found."
+msgstr ""
+
+#. translators: 1: original file type, 2: new file type
+#: includes/Modules/MediaReplace/RestController.php:130
+#, php-format
+msgid "File type mismatch. The original file is %1$s, but you uploaded %2$s. Please upload a file with the same type."
+msgstr ""
+
+#: includes/Modules/MediaReplace/RestController.php:157
+msgid "The uploaded file does not exist."
+msgstr ""
+
+#: includes/Modules/MediaReplace/RestController.php:175
+msgid "Failed to copy the new file to the destination."
+msgstr ""
+
+#: includes/Modules/MediaReplace/RestController.php:187
+msgid "Media content has been successfully replaced."
+msgstr ""
+
+#: includes/Modules/MenuVisibility/Module.php:56
+msgid "Logged In"
+msgstr ""
+
+#: includes/Modules/MenuVisibility/Module.php:57
+msgid "Logged Out"
+msgstr ""
+
+#: includes/Modules/MenuVisibility/Module.php:58
+msgid "Everyone"
+msgstr ""
+
+#: includes/Modules/MenuVisibility/Module.php:79
+msgid "Menu Item Visibility For"
+msgstr ""
+
+#. translators: %s: visibility option label
+#: includes/Modules/MenuVisibility/Module.php:90
+#, php-format
+msgid "Set visibility to %s"
+msgstr ""
+
+#: includes/Modules/NoticeBoard/Module.php:101
+msgid "Informational only: how long documents are intended to stay published. No automatic deletion is performed."
+msgstr ""
+
+#: includes/Modules/NoticeBoard/Module.php:107
+msgid "From email"
+msgstr ""
+
+#: includes/Modules/NoticeBoard/Module.php:108
+msgid "Sender address used for subscription confirmation emails. Defaults to the site admin email."
+msgstr ""
+
+#. translators: %s: site name
+#: includes/Modules/NoticeBoard/Module.php:427
+#, php-format
+msgid "[%s] Confirm your notice board subscription"
+msgstr ""
+
+#. translators: %s: confirmation URL
+#: includes/Modules/NoticeBoard/Module.php:432
+#, php-format
+msgid ""
+"Please confirm your subscription to the notice board by visiting:\n"
+"\n"
+"%s"
+msgstr ""
+
+#: includes/Modules/NoticeBoard/RestController.php:175
+msgid "A category with this name already exists."
+msgstr ""
+
+#: includes/Modules/NoticeBoard/RestController.php:186
+msgid "Category not found."
+msgstr ""
+
+#: includes/Modules/OpeningHours/Module.php:58
+msgid "Opening Hours Locations"
+msgstr ""
+
+#: includes/Modules/OpeningHours/Module.php:105
+msgid "Google Maps API key"
+msgstr ""
+
+#: includes/Modules/OpeningHours/Module.php:106
+msgid "Stored encrypted. Leave blank to keep the current key. Used for geocoding addresses."
+msgstr ""
+
+#: includes/Modules/OpeningHours/Module.php:112
+msgid "Mapy.cz API key"
+msgstr ""
+
+#: includes/Modules/OpeningHours/Module.php:113
+msgid "Stored encrypted. Leave blank to keep the current key. Used as a fallback geocoder when no Google Maps key is set."
+msgstr ""
+
+#: includes/Modules/OpeningHours/Module.php:197
+#: includes/Modules/OpeningHours/Module.php:234
+msgid "A location name is required."
+msgstr ""
+
+#: includes/Modules/OpeningHours/Module.php:228
+#: includes/Modules/OpeningHours/Module.php:461
+#: includes/Modules/OpeningHours/RestController.php:120
+msgid "Location not found."
+msgstr ""
+
+#: includes/Modules/OpeningHours/Module.php:597
+msgid "An address is required."
+msgstr ""
+
+#: includes/Modules/OpeningHours/Module.php:612
+msgid "No geocoding provider is configured. Add a Google Maps or Mapy.cz API key in Settings."
+msgstr ""
+
+#: includes/Modules/OpeningHours/Module.php:638
+msgid "Google Maps could not resolve this address."
+msgstr ""
+
+#: includes/Modules/OpeningHours/Module.php:677
+msgid "Mapy.cz could not resolve this address."
+msgstr ""
+
+#: includes/Modules/PageLoad/Module.php:83
+msgid "Sample rate (%)"
+msgstr ""
+
+#: includes/Modules/PageLoad/Module.php:84
+msgid "Percentage of frontend GET requests to time and record (0-100)."
+msgstr ""
+
+#: includes/Modules/PageLoad/Module.php:91
+msgid "Log rows older than this are pruned automatically."
+msgstr ""
+
+#: includes/Modules/PerformanceOptimization/Module.php:162
+msgid "Unknown or unsupported fix."
+msgstr ""
+
+#: includes/Modules/PixelTagManager/Module.php:162
+msgid "Google Analytics"
+msgstr ""
+
+#: includes/Modules/PixelTagManager/Module.php:163
+msgid "Enter a Google tracking ID, e.g. G-XXXXXXXXXX."
+msgstr ""
+
+#: includes/Modules/PixelTagManager/Module.php:169
+msgid "Facebook Pixel"
+msgstr ""
+
+#: includes/Modules/PixelTagManager/Module.php:170
+msgid "Enter the numeric Facebook Pixel ID."
+msgstr ""
+
+#: includes/Modules/PixelTagManager/Module.php:176
+msgid "Pinterest Tag"
+msgstr ""
+
+#: includes/Modules/PixelTagManager/Module.php:177
+msgid "Enter the numeric Pinterest Tag ID."
+msgstr ""
+
+#: includes/Modules/PopupManager/Module.php:74
+msgid "Popups"
+msgstr ""
+
+#: includes/Modules/PopupManager/RestController.php:123
+msgid "Could not create the popup."
+msgstr ""
+
+#: includes/Modules/PopupManager/RestController.php:138
+#: includes/Modules/PopupManager/RestController.php:152
+#: includes/Modules/PopupManager/RestController.php:165
+msgid "Popup not found."
+msgstr ""
+
+#: includes/Modules/PostGallery/Module.php:62
+msgid "Gallery"
+msgstr ""
+
+#: includes/Modules/PostGallery/Module.php:96
+#: build/index.js:1
+#: includes/Modules/PostGallery/assets/js/post-gallery-admin.js:48
+msgid "Remove"
+msgstr ""
+
+#: includes/Modules/PostGallery/Module.php:102
+msgid "Add images"
+msgstr ""
+
+#: includes/Modules/PostGallery/Module.php:110
+msgid "Show gallery in the post"
+msgstr ""
+
+#. translators: %s: shortcode example.
+#: includes/Modules/PostGallery/Module.php:118
+#, php-format
+msgid "Or insert the shortcode %s"
+msgstr ""
+
+#: includes/Modules/PostGallery/Module.php:439
+msgid "Columns"
+msgstr ""
+
+#: includes/Modules/PostGallery/Module.php:440
+msgid "Number of columns in the gallery grid."
+msgstr ""
+
+#: includes/Modules/PostGallery/Module.php:453
+msgid "Thumbnail size"
+msgstr ""
+
+#: includes/Modules/PostGallery/Module.php:454
+msgid "Image size used in the gallery grid."
+msgstr ""
+
+#: includes/Modules/PostGallery/Module.php:456
+#: build/213.js:1
+msgid "Thumbnail"
+msgstr ""
+
+#: includes/Modules/PostGallery/Module.php:457
+#: build/78.js:1
+#: build/457.js:1
+msgid "Medium"
+msgstr ""
+
+#: includes/Modules/PostGallery/Module.php:458
+msgid "Medium large"
+msgstr ""
+
+#: includes/Modules/PostGallery/Module.php:459
+#: includes/Modules/PostGallery/Module.php:476
+msgid "Large"
+msgstr ""
+
+#: includes/Modules/PostGallery/Module.php:466
+msgid "Open in lightbox"
+msgstr ""
+
+#: includes/Modules/PostGallery/Module.php:467
+msgid "Clicking an image opens it in an enlarged lightbox."
+msgstr ""
+
+#: includes/Modules/PostGallery/Module.php:473
+msgid "Lightbox size"
+msgstr ""
+
+#: includes/Modules/PostGallery/Module.php:474
+msgid "Image size shown in the lightbox."
+msgstr ""
+
+#: includes/Modules/PostGallery/Module.php:477
+msgid "Full size"
+msgstr ""
+
+#: includes/Modules/PostGallery/Module.php:484
+msgid "Auto append to the end of the post"
+msgstr ""
+
+#: includes/Modules/PostGallery/Module.php:485
+msgid "The gallery is shown automatically at the end of the content. Can be overridden per post."
+msgstr ""
+
+#: includes/Modules/PostGallery/Module.php:492
+msgid "Select which post types can use the gallery."
+msgstr ""
+
+#. translators: %d: post ID
+#: includes/Modules/PostIdDisplay/Module.php:49
+#, php-format
+msgid "ID: %d"
+msgstr ""
+
+#: includes/Modules/PostIdDisplay/Module.php:66
+msgid "Select the post types to display the post ID for."
+msgstr ""
+
+#: includes/Modules/PostTypeOrder/Module.php:94
+#, php-format
+msgid "%s order updated"
+msgstr ""
+
+#: includes/Modules/PostTypeOrder/Module.php:95
+#, php-format
+msgid "Error updating post %s: %s"
+msgstr ""
+
+#: includes/Modules/PostTypeOrder/Module.php:96
+msgid "Failed to prepare items for reordering. No valid items found."
+msgstr ""
+
+#: includes/Modules/PostTypeOrder/Module.php:97
+msgid "Failed to update post order. Please try again."
+msgstr ""
+
+#: includes/Modules/PostTypeOrder/Module.php:98
+msgid "Items"
+msgstr ""
+
+#: includes/Modules/PostTypeOrder/Module.php:99
+msgid "Updating order..."
+msgstr ""
+
+#: includes/Modules/PostTypeOrder/Module.php:100
+msgid "An error occurred."
+msgstr ""
+
+#. translators: %d: post id
+#: includes/Modules/PostTypeOrder/Module.php:296
+#, php-format
+msgid "Post %d not found."
+msgstr ""
+
+#: includes/Modules/PostTypeOrder/Module.php:299
+msgid "Post type not supported."
+msgstr ""
+
+#: includes/Modules/PostTypeOrder/Module.php:302
+msgid "You are not allowed to edit one of these posts."
+msgstr ""
+
+#: includes/Modules/PostTypeOrder/Module.php:311
+msgid "Cannot reorder posts of different types together."
+msgstr ""
+
+#: includes/Modules/PostTypeOrder/Module.php:348
+msgid "Database update failed."
+msgstr ""
+
+#: includes/Modules/PostTypeOrder/Module.php:380
+msgid "Invalid hierarchy: child items cannot appear before their parent items."
+msgstr ""
+
+#: includes/Modules/PostTypeOrder/Module.php:415
+msgid "Enable drag-and-drop ordering for these post types."
+msgstr ""
+
+#: includes/Modules/PostTypeOrder/RestController.php:57
+msgid "Items must be a non-empty array."
+msgstr ""
+
+#: includes/Modules/PostTypeOrder/RestController.php:61
+msgid "Each item must have an id and order."
+msgstr ""
+
+#: includes/Modules/PostTypeOrder/RestController.php:64
+msgid "ID and order must be numeric."
+msgstr ""
+
+#: includes/Modules/PostTypeSwitcher/Module.php:58
+msgid "Enable the post type switcher for these post types."
+msgstr ""
+
+#: includes/Modules/PostTypeSwitcher/Module.php:124
+msgid "The post type switcher is not enabled for this post type."
+msgstr ""
+
+#: includes/Modules/PostTypeSwitcher/Module.php:129
+msgid "Invalid target post type."
+msgstr ""
+
+#: includes/Modules/PostTypeSwitcher/Module.php:133
+msgid "Sorry, you are not allowed to switch this post type."
+msgstr ""
+
+#: includes/Modules/PostTypeSwitcher/Module.php:141
+msgid "Failed to update post type."
+msgstr ""
+
+#: includes/Modules/PostTypeSwitcher/Module.php:159
+msgid "Post Type Switcher"
+msgstr ""
+
+#: includes/Modules/PostTypeSwitcher/Module.php:175
+msgid "No alternative post types available."
+msgstr ""
+
+#: includes/Modules/PostTypeSwitcher/Module.php:182
+#: includes/Modules/PostTypeSwitcher/Module.php:214
+msgid "— No change —"
+msgstr ""
+
+#: includes/Modules/PushNotifications/Module.php:118
+msgid "VAPID contact (mailto: or URL)"
+msgstr ""
+
+#: includes/Modules/PushNotifications/Module.php:119
+msgid "Used as the \"sub\" claim of the VAPID JWT once real delivery is implemented."
+msgstr ""
+
+#: includes/Modules/PushNotifications/Module.php:328
+msgid "Notification not found."
+msgstr ""
+
+#: includes/Modules/PushNotifications/RestController.php:174
+msgid "Could not generate a VAPID keypair (is the openssl PHP extension with EC support available?)."
+msgstr ""
+
+#: includes/Modules/QuickAddPost/Module.php:59
+msgid "New"
+msgstr ""
+
+#. translators: %s: post type singular name
+#: includes/Modules/QuickAddPost/Module.php:62
+#, php-format
+msgid "New %s"
+msgstr ""
+
+#: includes/Modules/QuickAddPost/Module.php:154
+msgid "Select the post types that show the quick add button."
+msgstr ""
+
+#: includes/Modules/QuickImage/Module.php:113
+msgid "Select featured image"
+msgstr ""
+
+#: includes/Modules/QuickImage/Module.php:114
+msgid "Set featured image"
+msgstr ""
+
+#: includes/Modules/QuickImage/Module.php:115
+msgid "Remove image"
+msgstr ""
+
+#: includes/Modules/QuickImage/Module.php:116
+msgid "An error occurred while updating the image."
+msgstr ""
+
+#: includes/Modules/QuickImage/Module.php:130
+msgid "Featured image"
+msgstr ""
+
+#: includes/Modules/QuickImage/Module.php:163
+msgid "Featured image thumbnail"
+msgstr ""
+
+#: includes/Modules/QuickImage/Module.php:171
+msgid "Change featured image"
+msgstr ""
+
+#: includes/Modules/QuickImage/Module.php:227
+msgid "Show the featured image column for these post types."
+msgstr ""
+
+#: includes/Modules/QuickImage/RestController.php:65
+msgid "You are not allowed to edit this post."
+msgstr ""
+
+#: includes/Modules/QuickImage/RestController.php:70
+msgid "Featured image removed."
+msgstr ""
+
+#: includes/Modules/QuickImage/RestController.php:75
+msgid "Invalid attachment."
+msgstr ""
+
+#: includes/Modules/QuickImage/RestController.php:79
+msgid "Failed to update the featured image."
+msgstr ""
+
+#: includes/Modules/QuickImage/RestController.php:84
+msgid "Featured image updated."
+msgstr ""
+
+#: includes/Modules/ReviewAggregator/Module.php:88
+msgid "Minimum rating to display"
+msgstr ""
+
+#: includes/Modules/ReviewAggregator/Module.php:89
+msgid "Reviews below this rating are still stored but hidden from the shortcode output."
+msgstr ""
+
+#: includes/Modules/ReviewAggregator/Module.php:95
+msgid "Auto-fetch new reviews"
+msgstr ""
+
+#: includes/Modules/ReviewAggregator/Module.php:101
+msgid "Central app profile ID"
+msgstr ""
+
+#: includes/Modules/ReviewAggregator/Module.php:102
+msgid "Identifies which review profile the central app should fetch for this site."
+msgstr ""
+
+#: includes/Modules/ReviewAggregator/Module.php:171
+msgid "Review not found."
+msgstr ""
+
+#: includes/Modules/RollbackManager/RestController.php:122
+msgid "The requested version is not available from WordPress.org."
+msgstr ""
+
+#: includes/Modules/RollbackManager/RestController.php:162
+msgid "Plugin not found."
+msgstr ""
+
+#: includes/Modules/RollbackManager/RestController.php:180
+#: includes/Modules/RollbackManager/RestController.php:216
+msgid "The rollback could not be completed."
+msgstr ""
+
+#: includes/Modules/RollbackManager/RestController.php:200
+msgid "Theme not found."
+msgstr ""
+
+#. translators: %d: minutes
+#: includes/Modules/SecurityOptimization/AttemptsHandler.php:68
+#, php-format
+msgid "Too many failed login attempts from this IP. Please try again in %d minutes."
+msgstr ""
+
+#. translators: %d: minutes
+#: includes/Modules/SecurityOptimization/AttemptsHandler.php:79
+#, php-format
+msgid "Too many failed login attempts for this username. Please try again in %d minutes."
+msgstr ""
+
+#. translators: %d: minutes
+#: includes/Modules/SecurityOptimization/AttemptsHandler.php:90
+#, php-format
+msgid "Too many failed login attempts. Please try again in %d minutes."
+msgstr ""
+
+#. translators: %s: site name
+#: includes/Modules/SecurityOptimization/AttemptsHandler.php:261
+#, php-format
+msgid "[%s] IP Address Blocked"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/AttemptsHandler.php:266
+msgid "An IP address has been blocked due to too many failed login attempts:"
+msgstr ""
+
+#. translators: %s: IP address
+#: includes/Modules/SecurityOptimization/AttemptsHandler.php:268
+#, php-format
+msgid "IP Address: %s"
+msgstr ""
+
+#. translators: %s: username
+#: includes/Modules/SecurityOptimization/AttemptsHandler.php:270
+#, php-format
+msgid "Username: %s"
+msgstr ""
+
+#. translators: %d: minutes
+#: includes/Modules/SecurityOptimization/AttemptsHandler.php:272
+#, php-format
+msgid "Block Duration: %d minutes"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/AttemptsHandler.php:274
+msgid "You can unblock this IP address from the plugin admin screen."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/CaptchaHandler.php:209
+msgid "CAPTCHA verification failed. Please try again."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/CaptchaHandler.php:222
+#: includes/Modules/SecurityOptimization/CaptchaHandler.php:235
+msgid "<strong>Error:</strong> CAPTCHA verification failed. Please try again."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/CountryBlocklist.php:38
+msgid "Invalid country code."
+msgstr ""
+
+#. translators: %s: error message
+#: includes/Modules/SecurityOptimization/CountryBlocklist.php:64
+#, php-format
+msgid "Could not download country ranges: %s"
+msgstr ""
+
+#. translators: %d: HTTP status code
+#: includes/Modules/SecurityOptimization/CountryBlocklist.php:76
+#, php-format
+msgid "Server returned error %d while downloading country ranges."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/CountryBlocklist.php:92
+msgid "No ranges found for this country."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/CspRestController.php:143
+#: includes/Modules/SecurityOptimization/CspRestController.php:155
+msgid "Violation not found."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/HtaccessWriter.php:130
+msgid ".htaccess is not writable."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/IpBanManager.php:108
+msgid "Ban not found."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/IpBanStore.php:59
+msgid "Ban value is empty."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/IpBanStore.php:67
+msgid "No valid IP range could be derived from this ban."
+msgstr ""
+
+#. translators: %s: current IP address
+#: includes/Modules/SecurityOptimization/IpBanStore.php:77
+#, php-format
+msgid "This ban includes your current IP address (%s) - blocked to avoid locking you out. Add it to the allowlist if needed."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/IpBanStore.php:113
+msgid "Could not save the ban."
+msgstr ""
+
+#. translators: %s: invalid IP address
+#: includes/Modules/SecurityOptimization/IpBanStore.php:343
+#, php-format
+msgid "Invalid IP address: %s"
+msgstr ""
+
+#. translators: %s: invalid CIDR range
+#: includes/Modules/SecurityOptimization/IpBanStore.php:355
+#, php-format
+msgid "Invalid CIDR range: %s"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:254
+msgid "Enable IP firewall"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:255
+msgid "Blocks every request (frontend, login, admin, REST) from banned IPs/ranges/countries. Logged-in administrators and allowlisted IPs are never blocked."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:261
+msgid "Client IP source"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:262
+msgid "Forwarded headers are only trusted in the selected mode (otherwise spoofable). Choose Cloudflare if the site is behind Cloudflare."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:264
+msgid "Direct connection (REMOTE_ADDR) - safe default"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:265
+msgid "Behind Cloudflare (CF-Connecting-IP)"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:266
+msgid "Behind a reverse proxy (X-Forwarded-For)"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:273
+msgid "Allowlist (never block)"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:274
+msgid "IP addresses or CIDR ranges that are never blocked, one per line. Loopback is always allowed."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:280
+msgid "Block page message"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:281
+msgid "Optional message shown to a blocked visitor (403)."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:289
+msgid "Enable country blocklist"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:290
+msgid "Blocks visitors from the selected countries via the IP firewall (downloads aggregated IP ranges per country)."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:296
+msgid "Blocked countries"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:297
+msgid "Selecting a country here creates/refreshes a country-type IP ban the next time settings are saved."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:306
+msgid "Force canonical URL redirect"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:307
+msgid "Writes .htaccess rules that redirect every request to a single canonical version of the site, based on Settings -> General -> Site Address."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:313
+msgid "Force HTTPS"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:314
+msgid "Redirects all HTTP requests to HTTPS. Only enable with a working SSL certificate on the whole site. Ignored when canonical URL redirect is on (it already covers this)."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:322
+msgid "Security headers"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:323
+msgid "Sends X-Frame-Options, X-Content-Type-Options and Referrer-Policy, both via .htaccess and as a PHP fallback."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:329
+msgid "HSTS (Strict-Transport-Security)"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:330
+msgid "Tells browsers to only ever connect over HTTPS for a year. Only enable with a valid SSL certificate everywhere on the site."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:336
+msgid "Permissions-Policy"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:337
+msgid "Disables browser access to camera, microphone, geolocation, payment and USB APIs by default."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:345
+msgid "Protect wp-config.php"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:351
+msgid "Disable directory listing"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:357
+msgid "Block readme.html / license.txt"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:365
+msgid "Enable custom login URL"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:366
+msgid "Rescue switch: define UXSTUDIO_DISABLE_LOGIN_LOCK in wp-config.php to bypass this feature entirely if you get locked out."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:372
+msgid "Custom login slug"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:373
+msgid "New slug for the login page. wp-login.php will 404 for direct visitors. If the slug collides with an existing page/rewrite rule, the redirect is automatically NOT activated (fail-open) and a warning is logged."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:379
+msgid "Direct wp-login.php behavior"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:381
+msgid "404 page"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:382
+msgid "Homepage"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:391
+msgid "Limit login attempts"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:392
+msgid "Blocks an IP/username after too many failed login attempts (brute-force protection)."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:398
+msgid "Max attempts"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:404
+msgid "Lockout time (minutes)"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:410
+msgid "Email admin on lockout"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:418
+msgid "Block reserved usernames"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:419
+msgid "Prevents registering/renaming to reserved names such as admin, administrator, root, test."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:425
+msgid "Additional blocked usernames"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:426
+msgid "One per line, added on top of the built-in reserved list (admin, administrator, root, test)."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:434
+msgid "Enable CAPTCHA"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:435
+msgid "Adds CAPTCHA verification to login, registration and lost-password forms. Without both keys set, nothing is enforced."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:441
+msgid "CAPTCHA provider"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:443
+msgid "Cloudflare Turnstile"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:444
+msgid "Google reCAPTCHA v2 (checkbox)"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:445
+msgid "Google reCAPTCHA v3 (score)"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:452
+msgid "Enforcement mode"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:454
+msgid "Always"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:455
+msgid "Adaptive (after repeated failures)"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:462
+msgid "Site key"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:463
+msgid "Public key, safe to expose in the page markup."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:469
+msgid "Secret key"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:470
+msgid "Stored encrypted server-side. Leave blank to keep the current key."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:478
+msgid "Disable XML-RPC"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:484
+msgid "Hide WordPress version"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:490
+msgid "Disable emoji scripts"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:496
+msgid "Disable embeds script"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:502
+msgid "Disable RSS feeds"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:508
+msgid "Restrict REST API to logged-in users"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:618
+msgid "Your IP address has been blocked."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:678
+msgid "XML-RPC is disabled."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:768
+msgid "Not found."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:807
+msgid "This username is not allowed for security reasons. Please choose another."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:822
+#: includes/Modules/SecurityOptimization/Module.php:835
+msgid "This username is not allowed for security reasons."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:884
+msgid "RSS feeds are disabled on this site."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:901
+msgid "REST API access is restricted to logged-in users."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/RestController.php:117
+msgid "Could not unlock this account."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/RestController.php:171
+msgid "Ban not found or cannot be deleted."
+msgstr ""
+
+#. translators: %s: site name
+#: includes/Modules/SecurityOptimization/UploadGuardNotifier.php:64
+#, php-format
+msgid "[%s] Upload Guard: suspicious files detected"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/UploadGuardNotifier.php:80
+msgid "Upload Guard - suspicious files"
+msgstr ""
+
+#. translators: %d: number of findings
+#: includes/Modules/SecurityOptimization/UploadGuardNotifier.php:83
+#, php-format
+msgid "%d suspicious file(s) found on your site. Review and resolve them in the UX Studio admin."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/UploadGuardNotifier.php:87
+#: build/190.js:1
+#: build/244.js:1
+#: build/475.js:1
+msgid "File"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/UploadGuardNotifier.php:88
+#: build/190.js:1
+#: build/457.js:1
+msgid "Severity"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/UploadGuardRestController.php:118
+#: includes/Modules/SecurityOptimization/UploadGuardRestController.php:157
+msgid "Finding not found."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/UploadGuardRestController.php:133
+msgid "Could not restore the file from quarantine."
+msgstr ""
+
+#: includes/Modules/ServiceRequests/Module.php:81
+msgid "Notification email"
+msgstr ""
+
+#: includes/Modules/ServiceRequests/Module.php:82
+msgid "Where notifications about new service requests are sent. Defaults to the site admin email if left blank."
+msgstr ""
+
+#: includes/Modules/ServiceRequests/Module.php:179
+msgid "Invalid status."
+msgstr ""
+
+#: includes/Modules/ServiceRequests/Module.php:184
+#: includes/Modules/ServiceRequests/RestController.php:133
+msgid "Service request not found."
+msgstr ""
+
+#. translators: %s: request title
+#: includes/Modules/ServiceRequests/Module.php:237
+#, php-format
+msgid "New service request: %s"
+msgstr ""
+
+#. translators: 1: title, 2: description, 3: requester email
+#: includes/Modules/ServiceRequests/Module.php:242
+#, php-format
+msgid ""
+"A new service request was submitted.\n"
+"\n"
+"Title: %1$s\n"
+"Description: %2$s\n"
+"Requester: %3$s"
+msgstr ""
+
+#: includes/Modules/SmtpEmail/Module.php:91
+msgid "Mailer"
+msgstr ""
+
+#: includes/Modules/SmtpEmail/Module.php:92
+msgid "How outgoing mail is sent."
+msgstr ""
+
+#: includes/Modules/SmtpEmail/Module.php:94
+msgid "SMTP"
+msgstr ""
+
+#: includes/Modules/SmtpEmail/Module.php:95
+msgid "Brevo API"
+msgstr ""
+
+#: includes/Modules/SmtpEmail/Module.php:102
+msgid "SMTP host"
+msgstr ""
+
+#: includes/Modules/SmtpEmail/Module.php:108
+msgid "SMTP port"
+msgstr ""
+
+#: includes/Modules/SmtpEmail/Module.php:114
+msgid "Encryption"
+msgstr ""
+
+#: includes/Modules/SmtpEmail/Module.php:116
+msgid "TLS"
+msgstr ""
+
+#: includes/Modules/SmtpEmail/Module.php:117
+msgid "SSL"
+msgstr ""
+
+#: includes/Modules/SmtpEmail/Module.php:118
+#: includes/Modules/UserSwitching/Module.php:849
+#: build/809.js:1
+msgid "None"
+msgstr ""
+
+#: includes/Modules/SmtpEmail/Module.php:125
+msgid "SMTP username"
+msgstr ""
+
+#: includes/Modules/SmtpEmail/Module.php:131
+msgid "SMTP password"
+msgstr ""
+
+#: includes/Modules/SmtpEmail/Module.php:132
+msgid "Stored encrypted. Leave blank to keep the current password."
+msgstr ""
+
+#: includes/Modules/SmtpEmail/Module.php:138
+msgid "Brevo API key"
+msgstr ""
+
+#. translators: %s: site name
+#: includes/Modules/SmtpEmail/Module.php:339
+#, php-format
+msgid "[%s] SMTP test email"
+msgstr ""
+
+#: includes/Modules/SmtpEmail/Module.php:342
+msgid "This is a test email sent from the UX Studio SMTP Email module."
+msgstr ""
+
+#. translators: %s: provider name, e.g. Pexels
+#: includes/Modules/StockPhotos/Module.php:115
+#, php-format
+msgid "%s API key"
+msgstr ""
+
+#: includes/Modules/StockPhotos/Module.php:190
+msgid "Please enter a search term."
+msgstr ""
+
+#: includes/Modules/StockPhotos/Module.php:209
+msgid "Unknown provider."
+msgstr ""
+
+#. translators: 1: HTTP status code
+#: includes/Modules/StockPhotos/Module.php:625
+#, php-format
+msgid "The provider returned an error (HTTP %d)."
+msgstr ""
+
+#: includes/Modules/StockPhotos/Module.php:634
+msgid "The provider returned an invalid response."
+msgstr ""
+
+#. translators: %s: provider name
+#: includes/Modules/StockPhotos/Module.php:647
+#, php-format
+msgid "No %s API key is configured yet."
+msgstr ""
+
+#: includes/Modules/StockPhotos/Module.php:666
+msgid "No image URL was provided."
+msgstr ""
+
+#: includes/Modules/SvgUpload/Module.php:76
+#: includes/Modules/SvgUpload/Module.php:98
+msgid "You do not have permission to upload SVG files."
+msgstr ""
+
+#: includes/Modules/SvgUpload/Module.php:103
+msgid "SVG file size must be less than 1MB."
+msgstr ""
+
+#: includes/Modules/SvgUpload/Module.php:110
+msgid "Invalid SVG file."
+msgstr ""
+
+#: includes/Modules/SvgUpload/Module.php:135
+msgid "The SVG file could not be sanitized safely."
+msgstr ""
+
+#: includes/Modules/SvgUpload/Module.php:175
+msgid "Only users with one of these roles may upload SVG files. Defaults to administrators only."
+msgstr ""
+
+#: includes/Modules/ThirdPartyLogin/Module.php:71
+msgid "Base URL of the central app that performs the OAuth handshake."
+msgstr ""
+
+#: includes/Modules/ThirdPartyLogin/Module.php:78
+msgid "Shared secret used to verify signed callbacks from the central app. Stored encrypted. Leave blank to keep the current secret."
+msgstr ""
+
+#: includes/Modules/ThirdPartyLogin/Module.php:84
+msgid "Enabled providers"
+msgstr ""
+
+#: includes/Modules/ThirdPartyLogin/Module.php:86
+msgid "Google"
+msgstr ""
+
+#: includes/Modules/ThirdPartyLogin/Module.php:87
+msgid "Facebook"
+msgstr ""
+
+#: includes/Modules/ThirdPartyLogin/Module.php:88
+msgid "Apple"
+msgstr ""
+
+#: includes/Modules/ThirdPartyLogin/Module.php:146
+msgid "Sign in with Google"
+msgstr ""
+
+#: includes/Modules/ThirdPartyLogin/Module.php:147
+msgid "Sign in with Facebook"
+msgstr ""
+
+#: includes/Modules/ThirdPartyLogin/Module.php:148
+msgid "Sign in with Apple"
+msgstr ""
+
+#: includes/Modules/ThirdPartyLogin/RestController.php:74
+msgid "Invalid request."
+msgstr ""
+
+#: includes/Modules/TopBar/Module.php:126
+msgid "Bar text"
+msgstr ""
+
+#: includes/Modules/TopBar/Module.php:127
+msgid "Text shown in the top bar. If it is wider than the screen it scrolls automatically."
+msgstr ""
+
+#: includes/Modules/TopBar/Module.php:134
+msgid "Background colour of the bar."
+msgstr ""
+
+#: includes/Modules/TopBar/Module.php:140
+msgid "Text colour"
+msgstr ""
+
+#: includes/Modules/TopBar/Module.php:141
+msgid "Colour of the text and links in the bar."
+msgstr ""
+
+#: includes/Modules/TopBar/Module.php:147
+msgid "Auto publish"
+msgstr ""
+
+#: includes/Modules/TopBar/Module.php:148
+msgid "Show the bar from this date/time. Leave empty to show immediately. Format: YYYY-MM-DDTHH:MM."
+msgstr ""
+
+#: includes/Modules/TopBar/Module.php:154
+msgid "Auto deactivate"
+msgstr ""
+
+#: includes/Modules/TopBar/Module.php:155
+msgid "Hide the bar after this date/time. Leave empty to show permanently. Format: YYYY-MM-DDTHH:MM."
+msgstr ""
+
+#: includes/Modules/UserLastLogin/Module.php:68
+msgid "Last Login"
+msgstr ""
+
+#: includes/Modules/UserLastLogin/Module.php:87
+#: build/309.js:1
+msgid "Never"
+msgstr ""
+
+#: includes/Modules/UserLastLogin/Module.php:153
+msgid "Just now"
+msgstr ""
+
+#: includes/Modules/UserLastLogin/Module.php:173
+msgid "Format"
+msgstr ""
+
+#: includes/Modules/UserLastLogin/Module.php:174
+msgid "How the last login time is displayed in the Users column."
+msgstr ""
+
+#: includes/Modules/UserLastLogin/Module.php:176
+msgid "Date and time"
+msgstr ""
+
+#: includes/Modules/UserLastLogin/Module.php:177
+msgid "Date only"
+msgstr ""
+
+#: includes/Modules/UserLastLogin/Module.php:178
+msgid "Relative time"
+msgstr ""
+
+#: includes/Modules/UserLastLogin/Module.php:179
+#: includes/Modules/UserLastLogin/Module.php:186
+msgid "Custom format"
+msgstr ""
+
+#: includes/Modules/UserLastLogin/Module.php:187
+msgid "PHP date format used when \"Custom format\" is selected (e.g. Y-m-d H:i:s)."
+msgstr ""
+
+#: includes/Modules/UserSwitching/Module.php:293
+msgid "Switch&nbsp;To"
+msgstr ""
+
+#. translators: 1: user display name; 2: username
+#: includes/Modules/UserSwitching/Module.php:392
+#, php-format
+msgid "Switched to %1$s (%2$s)."
+msgstr ""
+
+#. translators: %s: user display name
+#: includes/Modules/UserSwitching/Module.php:409
+#, php-format
+msgid "Switch back to %s"
+msgstr ""
+
+#. translators: %s: user display name
+#: includes/Modules/UserSwitching/Module.php:423
+#, php-format
+msgid "Switched back to %s."
+msgstr ""
+
+#: includes/Modules/UserSwitching/Module.php:506
+#: includes/Modules/UserSwitching/Module.php:514
+#: includes/Modules/UserSwitching/Module.php:532
+#: includes/Modules/UserSwitching/Module.php:537
+#: includes/Modules/UserSwitching/Module.php:544
+msgid "Could not switch users."
+msgstr ""
+
+#: includes/Modules/UserSwitching/Module.php:569
+#: includes/Modules/UserSwitching/Module.php:585
+msgid "Could not temporarily log out."
+msgstr ""
+
+#: includes/Modules/UserSwitching/Module.php:722
+msgid "User Switching"
+msgstr ""
+
+#: includes/Modules/UserSwitching/Module.php:725
+msgid "Switch to this user"
+msgstr ""
+
+#: includes/Modules/UserSwitching/Module.php:728
+msgid "Instantly switch to this user account."
+msgstr ""
+
+#. translators: %s: user display name
+#: includes/Modules/UserSwitching/Module.php:817
+#, php-format
+msgid "Switch to %s"
+msgstr ""
+
+#: includes/Modules/UserSwitching/Module.php:846
+msgid "Switch User"
+msgstr ""
+
+#: includes/Modules/UserSwitching/Module.php:863
+msgid "Select a user to add a default switch option in your admin bar."
+msgstr ""
+
+#. translators: %d: interval in hours
+#: includes/Modules/VulnerabilityScanner/Module.php:90
+#, php-format
+msgid "Every %d hours (UX Studio vulnerability scan)"
+msgstr ""
+
+#: includes/Modules/VulnerabilityScanner/Module.php:104
+msgid "WPScan API key"
+msgstr ""
+
+#: includes/Modules/VulnerabilityScanner/Module.php:105
+msgid "Optional. Stored encrypted. Leave blank to keep the current key. Free registration at wpscan.com/api. Enables real CVE data in addition to the always-on WordPress.org outdated-version check."
+msgstr ""
+
+#: includes/Modules/VulnerabilityScanner/Module.php:111
+msgid "Scan interval (hours)"
+msgstr ""
+
+#: includes/Modules/VulnerabilityScanner/Module.php:112
+msgid "How often the background scan runs automatically via WP-Cron."
+msgstr ""
+
+#: includes/Modules/VulnerabilityScanner/Module.php:281
+msgid "This WordPress version is marked insecure by WordPress.org (a security release is available)"
+msgstr ""
+
+#: includes/Modules/VulnerabilityScanner/Module.php:282
+msgid "This WordPress version is outdated"
+msgstr ""
+
+#. translators: %s: plugin name
+#. translators: %s: theme name
+#: includes/Modules/VulnerabilityScanner/Module.php:332
+#: includes/Modules/VulnerabilityScanner/Module.php:355
+#, php-format
+msgid "%s has a newer version available on WordPress.org"
+msgstr ""
+
+#: includes/Rest/Controller.php:46
+msgid "Too many requests, slow down."
+msgstr ""
+
+#: build/31.js:1
+msgid "Compresses JPEG/PNG/GIF images already in the media library and optionally generates WebP siblings. Originals are always kept as a backup file before the first optimization."
+msgstr ""
+
+#: build/31.js:1
+msgid "Start bulk optimization"
+msgstr ""
+
+#: build/31.js:1
+#: build/78.js:1
+msgid "Running…"
+msgstr ""
+
+#: build/31.js:1
+msgid "Idle."
+msgstr ""
+
+#: build/31.js:1
+msgid "Restore original by attachment ID"
+msgstr ""
+
+#: build/31.js:1
+msgid "Restore"
+msgstr ""
+
+#: build/31.js:1
+msgid "Restored."
+msgstr ""
+
+#: build/31.js:1
+#: build/50.js:1
+#: build/78.js:1
+#: build/84.js:1
+#: build/136.js:1
+#: build/144.js:1
+#: build/148.js:1
+#: build/149.js:1
+#: build/157.js:1
+#: build/158.js:1
+#: build/178.js:1
+#: build/190.js:1
+#: build/213.js:2
+#: build/230.js:1
+#: build/244.js:1
+#: build/309.js:1
+#: build/367.js:1
+#: build/386.js:1
+#: build/402.js:1
+#: build/457.js:1
+#: build/474.js:1
+#: build/475.js:1
+#: build/718.js:1
+#: build/755.js:2
+#: build/792.js:1
+#: build/809.js:1
+#: build/819.js:1
+#: build/831.js:1
+#: build/860.js:1
+#: build/930.js:1
+#: build/968.js:1
+#: build/976.js:1
+#: build/999.js:1
+#: build/index.js:2
+msgid "Back to modules"
+msgstr ""
+
+#: build/31.js:1
+msgid "Image Optimizer"
+msgstr ""
+
+#: build/31.js:1
+msgid "Bulk Optimize"
+msgstr ""
+
+#: build/31.js:1
+#: build/50.js:1
+#: build/78.js:1
+#: build/84.js:1
+#: build/136.js:1
+#: build/144.js:1
+#: build/148.js:1
+#: build/149.js:1
+#: build/157.js:1
+#: build/158.js:1
+#: build/178.js:1
+#: build/190.js:1
+#: build/213.js:2
+#: build/230.js:1
+#: build/244.js:1
+#: build/309.js:1
+#: build/367.js:1
+#: build/402.js:1
+#: build/457.js:1
+#: build/474.js:1
+#: build/475.js:1
+#: build/718.js:1
+#: build/755.js:2
+#: build/792.js:1
+#: build/809.js:1
+#: build/819.js:1
+#: build/831.js:1
+#: build/860.js:1
+#: build/930.js:1
+#: build/968.js:1
+#: build/976.js:1
+#: build/index.js:1
+#: build/index.js:2
+msgid "Loading…"
+msgstr ""
+
+#: build/31.js:1
+#: build/50.js:1
+#: build/78.js:1
+#: build/136.js:1
+#: build/144.js:1
+#: build/148.js:1
+#: build/149.js:1
+#: build/157.js:1
+#: build/178.js:1
+#: build/190.js:1
+#: build/213.js:1
+#: build/230.js:1
+#: build/244.js:1
+#: build/309.js:1
+#: build/367.js:1
+#: build/402.js:1
+#: build/457.js:1
+#: build/474.js:1
+#: build/475.js:1
+#: build/718.js:1
+#: build/792.js:1
+#: build/819.js:1
+#: build/831.js:1
+#: build/860.js:1
+#: build/930.js:1
+#: build/976.js:1
+#: build/index.js:2
+msgid "Saved"
+msgstr ""
+
+#: build/31.js:1
+#: build/50.js:1
+#: build/78.js:1
+#: build/136.js:1
+#: build/144.js:1
+#: build/148.js:1
+#: build/149.js:1
+#: build/157.js:1
+#: build/178.js:1
+#: build/190.js:1
+#: build/230.js:1
+#: build/244.js:1
+#: build/309.js:1
+#: build/367.js:1
+#: build/402.js:1
+#: build/457.js:1
+#: build/474.js:1
+#: build/475.js:1
+#: build/718.js:1
+#: build/792.js:1
+#: build/819.js:1
+#: build/831.js:1
+#: build/860.js:1
+#: build/930.js:1
+#: build/976.js:1
+#: build/index.js:2
+msgid "Save changes"
+msgstr ""
+
+#: build/50.js:1
+msgid "IP hash"
+msgstr ""
+
+#: build/50.js:1
+msgid "User-Agent"
+msgstr ""
+
+#: build/50.js:1
+#: build/309.js:1
+#: build/755.js:1
+#: build/860.js:1
+#: build/976.js:1
+msgid "Action"
+msgstr ""
+
+#: build/50.js:1
+msgid "Allowed"
+msgstr ""
+
+#: build/50.js:1
+msgid "Blocked"
+msgstr ""
+
+#: build/50.js:1
+msgid "No blocked requests yet."
+msgstr ""
+
+#: build/50.js:1
+msgid "Bot Throttle"
+msgstr ""
+
+#: build/50.js:1
+#: build/309.js:1
+#: build/367.js:1
+#: build/831.js:1
+#: build/860.js:1
+msgid "Log"
+msgstr ""
+
+#: build/78.js:1
+msgid "Not rated"
+msgstr ""
+
+#: build/78.js:1
+#, js-format
+msgid "%d out of 5 stars"
+msgstr ""
+
+#: build/78.js:1
+msgid "Conversation"
+msgstr ""
+
+#: build/78.js:1
+msgid "Page:"
+msgstr ""
+
+#: build/78.js:1
+msgid "Rating:"
+msgstr ""
+
+#: build/78.js:1
+msgid "Feedback:"
+msgstr ""
+
+#: build/78.js:1
+msgid "No messages."
+msgstr ""
+
+#: build/78.js:1
+msgid "Filter by rating"
+msgstr ""
+
+#: build/78.js:1
+#: build/190.js:1
+msgid "All"
+msgstr ""
+
+#: build/78.js:1
+msgid "stars"
+msgstr ""
+
+#: build/78.js:1
+#, js-format
+msgid "Delete selected (%d)"
+msgstr ""
+
+#: build/78.js:1
+msgid "Session"
+msgstr ""
+
+#: build/78.js:1
+msgid "Messages"
+msgstr ""
+
+#: build/78.js:1
+#: build/718.js:1
+msgid "Rating"
+msgstr ""
+
+#: build/78.js:1
+msgid "Updated"
+msgstr ""
+
+#: build/78.js:1
+msgid "Select conversation"
+msgstr ""
+
+#: build/78.js:1
+msgid "Delete conversation"
+msgstr ""
+
+#: build/78.js:1
+msgid "No conversations yet."
+msgstr ""
+
+#: build/78.js:1
+#: build/367.js:1
+#: build/860.js:1
+msgid "Previous"
+msgstr ""
+
+#: build/78.js:1
+#: build/367.js:1
+#: build/860.js:1
+msgid "Next"
+msgstr ""
+
+#: build/78.js:1
+msgid "Public"
+msgstr ""
+
+#: build/78.js:1
+msgid "Internal"
+msgstr ""
+
+#: build/78.js:1
+msgid "Choose a file first."
+msgstr ""
+
+#: build/78.js:1
+msgid "Document (PDF, DOCX, TXT, MD)"
+msgstr ""
+
+#: build/78.js:1
+msgid "Public chat"
+msgstr ""
+
+#: build/78.js:1
+msgid "Internal chat"
+msgstr ""
+
+#: build/78.js:1
+msgid "Upload document"
+msgstr ""
+
+#: build/78.js:1
+msgid "Add entry"
+msgstr ""
+
+#: build/78.js:1
+#: build/475.js:1
+msgid "Documents"
+msgstr ""
+
+#: build/78.js:1
+msgid "No documents uploaded yet."
+msgstr ""
+
+#: build/78.js:1
+#: build/136.js:1
+#: build/190.js:1
+#: build/213.js:1
+msgid "Type"
+msgstr ""
+
+#: build/78.js:1
+msgid "Chunks"
+msgstr ""
+
+#: build/78.js:1
+msgid "Targets"
+msgstr ""
+
+#: build/78.js:1
+#: build/244.js:1
+#: build/474.js:1
+#: build/475.js:1
+#: build/718.js:1
+#: build/809.js:1
+#: build/819.js:1
+msgid "Actions"
+msgstr ""
+
+#: build/78.js:1
+msgid "Delete this document and its knowledge chunks?"
+msgstr ""
+
+#: build/78.js:1
+#: build/190.js:1
+#: build/244.js:1
+#: build/474.js:1
+#: build/475.js:1
+#: build/809.js:1
+#: build/930.js:1
+#: build/968.js:1
+msgid "Delete"
+msgstr ""
+
+#: build/78.js:1
+msgid "Manual entries"
+msgstr ""
+
+#: build/78.js:1
+msgid "No manual entries yet."
+msgstr ""
+
+#: build/78.js:1
+msgid "Delete this entry?"
+msgstr ""
+
+#: build/78.js:1
+msgid "Question"
+msgstr ""
+
+#: build/78.js:1
+msgid "Answer"
+msgstr ""
+
+#: build/78.js:1
+#: build/475.js:1
+#: build/930.js:1
+msgid "Category"
+msgstr ""
+
+#: build/78.js:1
+msgid "Add FAQ"
+msgstr ""
+
+#: build/78.js:1
+msgid "Generate from topic (optional)"
+msgstr ""
+
+#: build/78.js:1
+msgid "e.g. cancellation policy"
+msgstr ""
+
+#: build/78.js:1
+msgid "Suggest from past chats"
+msgstr ""
+
+#: build/78.js:1
+msgid "Suggest from topic"
+msgstr ""
+
+#: build/78.js:1
+#: build/475.js:1
+#: build/930.js:1
+#: build/976.js:1
+msgid "Add"
+msgstr ""
+
+#: build/78.js:1
+msgid "No new suggestions."
+msgstr ""
+
+#: build/78.js:1
+msgid "FAQ"
+msgstr ""
+
+#: build/78.js:1
+msgid "No FAQs yet."
+msgstr ""
+
+#: build/78.js:1
+#: build/190.js:1
+msgid "Active"
+msgstr ""
+
+#: build/78.js:1
+msgid "Views"
+msgstr ""
+
+#: build/78.js:1
+msgid "Delete this FAQ?"
+msgstr ""
+
+#: build/78.js:1
+msgid "Source type"
+msgstr ""
+
+#: build/78.js:1
+msgid "Web page URL"
+msgstr ""
+
+#: build/78.js:1
+msgid "Sitemap URL"
+msgstr ""
+
+#: build/78.js:1
+msgid "Raw text"
+msgstr ""
+
+#: build/78.js:1
+msgid "Title (optional)"
+msgstr ""
+
+#: build/78.js:1
+#: build/718.js:1
+msgid "Text"
+msgstr ""
+
+#: build/78.js:1
+#: build/178.js:1
+#: build/309.js:1
+#: build/930.js:1
+msgid "URL"
+msgstr ""
+
+#: build/78.js:1
+msgid "Add source"
+msgstr ""
+
+#: build/78.js:1
+msgid "No training sources yet."
+msgstr ""
+
+#: build/78.js:1
+msgid "Title / URL"
+msgstr ""
+
+#: build/78.js:1
+msgid "Vectors"
+msgstr ""
+
+#: build/78.js:1
+msgid "Reindex"
+msgstr ""
+
+#: build/78.js:1
+msgid "Delete this source and its vectors?"
+msgstr ""
+
+#: build/78.js:1
+msgid "Indexed items:"
+msgstr ""
+
+#: build/78.js:1
+msgid "Vectorize existing data"
+msgstr ""
+
+#: build/78.js:1
+msgid "Index knowledge base, FAQ, products & content"
+msgstr ""
+
+#: build/78.js:1
+msgid "Computes embeddings for the current knowledge base entries, FAQ, product index and content index."
+msgstr ""
+
+#: build/78.js:1
+msgid "Embedding provider:"
+msgstr ""
+
+#: build/78.js:1
+msgid "dims"
+msgstr ""
+
+#: build/78.js:1
+msgid "Total vectors:"
+msgstr ""
+
+#: build/78.js:1
+msgid "Training sources:"
+msgstr ""
+
+#: build/78.js:1
+msgid "pending"
+msgstr ""
+
+#: build/78.js:1
+msgid "RAG status"
+msgstr ""
+
+#: build/78.js:1
+msgid "Products (WooCommerce)"
+msgstr ""
+
+#: build/78.js:1
+msgid "Content (posts/pages)"
+msgstr ""
+
+#: build/78.js:1
+msgid "Training sources"
+msgstr ""
+
+#: build/78.js:1
+msgid "AI"
+msgstr ""
+
+#: build/78.js:1
+msgid "Waiting"
+msgstr ""
+
+#: build/78.js:1
+msgid "With operator"
+msgstr ""
+
+#: build/78.js:1
+#: build/84.js:1
+#: build/230.js:1
+msgid "Closed"
+msgstr ""
+
+#: build/78.js:1
+msgid "Visitor"
+msgstr ""
+
+#: build/78.js:1
+msgid "Waiting for pickup"
+msgstr ""
+
+#: build/78.js:1
+msgid "Active handoffs"
+msgstr ""
+
+#: build/78.js:1
+msgid "No handoff requests right now."
+msgstr ""
+
+#: build/78.js:1
+msgid "Take over"
+msgstr ""
+
+#: build/78.js:1
+msgid "Return to AI"
+msgstr ""
+
+#: build/78.js:1
+msgid "No messages yet."
+msgstr ""
+
+#: build/78.js:1
+msgid "Reply to the customer…"
+msgstr ""
+
+#: build/78.js:1
+#: build/402.js:1
+#: build/819.js:1
+msgid "Send"
+msgstr ""
+
+#: build/78.js:1
+msgid "Select a conversation from the list on the left."
+msgstr ""
+
+#: build/78.js:1
+#: build/148.js:1
+msgid "Post"
+msgstr ""
+
+#: build/78.js:1
+msgid "Neutral"
+msgstr ""
+
+#: build/78.js:1
+msgid "Professional"
+msgstr ""
+
+#: build/78.js:1
+msgid "Friendly"
+msgstr ""
+
+#: build/78.js:1
+msgid "Persuasive"
+msgstr ""
+
+#: build/78.js:1
+msgid "Enthusiastic"
+msgstr ""
+
+#: build/78.js:1
+msgid "Short"
+msgstr ""
+
+#: build/78.js:1
+msgid "Long"
+msgstr ""
+
+#: build/78.js:1
+msgid "Generate a post/page"
+msgstr ""
+
+#: build/78.js:1
+msgid "Content type"
+msgstr ""
+
+#: build/78.js:1
+msgid "Tone"
+msgstr ""
+
+#: build/78.js:1
+msgid "Length"
+msgstr ""
+
+#: build/78.js:1
+msgid "What should this content be about?"
+msgstr ""
+
+#: build/78.js:1
+msgid "SEO focus keyword (optional)"
+msgstr ""
+
+#: build/78.js:1
+msgid "Generate"
+msgstr ""
+
+#: build/78.js:1
+msgid "Category:"
+msgstr ""
+
+#: build/78.js:1
+msgid "Tags:"
+msgstr ""
+
+#: build/78.js:1
+msgid "Edit draft"
+msgstr ""
+
+#: build/78.js:1
+msgid "View published post"
+msgstr ""
+
+#: build/78.js:1
+msgid "Publish"
+msgstr ""
+
+#: build/78.js:1
+#: build/819.js:1
+msgid "Create draft"
+msgstr ""
+
+#: build/78.js:1
+msgid "Generate a WooCommerce product description"
+msgstr ""
+
+#: build/78.js:1
+msgid "Product description (rough input)"
+msgstr ""
+
+#: build/78.js:1
+msgid "Copy the text above into the product description field."
+msgstr ""
+
+#: build/78.js:1
+msgid "Generate SEO meta"
+msgstr ""
+
+#: build/78.js:1
+msgid "Save to post ID (optional)"
+msgstr ""
+
+#: build/78.js:1
+#, js-format
+msgid "Detected SEO plugin: %s. Copy these values into its fields if needed."
+msgstr ""
+
+#: build/78.js:1
+msgid "Title:"
+msgstr ""
+
+#: build/78.js:1
+msgid "Description:"
+msgstr ""
+
+#: build/78.js:1
+msgid "Keywords:"
+msgstr ""
+
+#: build/78.js:1
+msgid "Import HTML/URL into Elementor"
+msgstr ""
+
+#: build/78.js:1
+#: build/457.js:1
+#: build/718.js:1
+msgid "Source"
+msgstr ""
+
+#: build/78.js:1
+msgid "Paste HTML"
+msgstr ""
+
+#: build/78.js:1
+#: build/136.js:1
+msgid "HTML"
+msgstr ""
+
+#: build/78.js:1
+msgid "Page URL"
+msgstr ""
+
+#: build/78.js:1
+msgid "Content CSS selector (optional)"
+msgstr ""
+
+#: build/78.js:1
+msgid "Post type"
+msgstr ""
+
+#: build/78.js:1
+#: build/819.js:1
+msgid "Draft"
+msgstr ""
+
+#: build/78.js:1
+msgid "Published"
+msgstr ""
+
+#: build/78.js:1
+msgid "Pending review"
+msgstr ""
+
+#: build/78.js:1
+msgid "Import into Elementor"
+msgstr ""
+
+#: build/78.js:1
+#, js-format
+msgid "Created \"%s\" with the widgets below."
+msgstr ""
+
+#: build/78.js:1
+msgid "widgets."
+msgstr ""
+
+#: build/78.js:1
+msgid "Edit in Elementor"
+msgstr ""
+
+#: build/78.js:1
+msgid "Daily"
+msgstr ""
+
+#: build/78.js:1
+msgid "Weekly"
+msgstr ""
+
+#: build/78.js:1
+msgid "Monthly"
+msgstr ""
+
+#: build/78.js:1
+msgid "Generators:"
+msgstr ""
+
+#: build/78.js:1
+msgid "active"
+msgstr ""
+
+#: build/78.js:1
+msgid "Posts generated:"
+msgstr ""
+
+#: build/78.js:1
+msgid "in the last 7 days"
+msgstr ""
+
+#: build/78.js:1
+msgid "Tokens used:"
+msgstr ""
+
+#: build/78.js:1
+msgid "Generator name"
+msgstr ""
+
+#: build/78.js:1
+msgid "Topics (one per line)"
+msgstr ""
+
+#: build/78.js:1
+msgid "Article types"
+msgstr ""
+
+#: build/78.js:1
+msgid "Leave empty to rotate through every article type."
+msgstr ""
+
+#: build/78.js:1
+msgid "AI provider"
+msgstr ""
+
+#: build/78.js:1
+msgid "Default provider"
+msgstr ""
+
+#: build/78.js:1
+msgid "Model"
+msgstr ""
+
+#: build/78.js:1
+msgid "Default model"
+msgstr ""
+
+#: build/78.js:1
+msgid "Extra long"
+msgstr ""
+
+#: build/78.js:1
+#: build/809.js:1
+msgid "Schedule"
+msgstr ""
+
+#: build/78.js:1
+msgid "Publish time window"
+msgstr ""
+
+#: build/78.js:1
+msgid "to"
+msgstr ""
+
+#: build/78.js:1
+msgid "Posts per run"
+msgstr ""
+
+#: build/78.js:1
+msgid "Create generator"
+msgstr ""
+
+#: build/78.js:1
+msgid "Cancel"
+msgstr ""
+
+#: build/78.js:1
+msgid "Generators"
+msgstr ""
+
+#: build/78.js:1
+msgid "New generator"
+msgstr ""
+
+#: build/78.js:1
+msgid "No generators yet."
+msgstr ""
+
+#: build/78.js:1
+msgid "Posts"
+msgstr ""
+
+#: build/78.js:1
+#: build/809.js:1
+msgid "Next run"
+msgstr ""
+
+#: build/78.js:1
+msgid "Generated:"
+msgstr ""
+
+#: build/78.js:1
+#: build/809.js:1
+msgid "Run now"
+msgstr ""
+
+#: build/78.js:1
+msgid "Pause"
+msgstr ""
+
+#: build/78.js:1
+msgid "Activate"
+msgstr ""
+
+#: build/78.js:1
+msgid "Delete this generator?"
+msgstr ""
+
+#: build/78.js:1
+msgid "Generated posts"
+msgstr ""
+
+#: build/78.js:1
+msgid "No posts generated yet."
+msgstr ""
+
+#: build/78.js:1
+msgid "Bulk action"
+msgstr ""
+
+#: build/78.js:1
+msgid "Set to draft"
+msgstr ""
+
+#: build/78.js:1
+msgid "Move to trash"
+msgstr ""
+
+#: build/78.js:1
+msgid "Apply"
+msgstr ""
+
+#: build/78.js:1
+msgid "Generator"
+msgstr ""
+
+#: build/78.js:1
+msgid "Article type"
+msgstr ""
+
+#: build/78.js:1
+msgid "Tokens"
+msgstr ""
+
+#: build/78.js:1
+#: build/474.js:1
+msgid "Created"
+msgstr ""
+
+#: build/78.js:1
+msgid "Monthly tokens"
+msgstr ""
+
+#: build/78.js:1
+msgid "Daily requests (site-wide)"
+msgstr ""
+
+#: build/78.js:1
+msgid "Your daily requests"
+msgstr ""
+
+#: build/78.js:1
+msgid "Failed to reach the AI assistant."
+msgstr ""
+
+#: build/78.js:1
+msgid "Ask the internal AI assistant about editing content, site settings, or how to use UX Studio."
+msgstr ""
+
+#: build/78.js:1
+msgid "Thinking…"
+msgstr ""
+
+#: build/78.js:1
+msgid "Type your message…"
+msgstr ""
+
+#: build/78.js:1
+msgid "1 hour"
+msgstr ""
+
+#: build/78.js:1
+msgid "4 hours"
+msgstr ""
+
+#: build/78.js:1
+msgid "8 hours"
+msgstr ""
+
+#: build/78.js:1
+msgid "12 hours"
+msgstr ""
+
+#: build/78.js:1
+msgid "24 hours"
+msgstr ""
+
+#: build/78.js:1
+msgid "List, Get, Create, Update, Delete"
+msgstr ""
+
+#: build/78.js:1
+msgid "Pages"
+msgstr ""
+
+#: build/78.js:1
+msgid "List, Get, Delete"
+msgstr ""
+
+#: build/78.js:1
+msgid "Custom Post Types"
+msgstr ""
+
+#: build/78.js:1
+msgid "List Types, List Taxonomies, Get Items"
+msgstr ""
+
+#: build/78.js:1
+msgid "Get, Update"
+msgstr ""
+
+#: build/78.js:1
+msgid "Site Stats"
+msgstr ""
+
+#: build/78.js:1
+msgid "Get"
+msgstr ""
+
+#: build/78.js:1
+msgid "WooCommerce Products"
+msgstr ""
+
+#: build/78.js:1
+msgid "List, Get, Create, Update, Delete (if WooCommerce is active)"
+msgstr ""
+
+#: build/78.js:1
+msgid "WooCommerce Orders"
+msgstr ""
+
+#: build/78.js:1
+msgid "List, Get, Create (if WooCommerce is active)"
+msgstr ""
+
+#: build/78.js:1
+msgid "Elementor"
+msgstr ""
+
+#: build/78.js:1
+msgid "List Pages, Get Structure, Find Widgets, Update Widget (if Elementor is active)"
+msgstr ""
+
+#: build/78.js:1
+msgid "Plugins Info"
+msgstr ""
+
+#: build/78.js:1
+msgid "Theme Info"
+msgstr ""
+
+#: build/78.js:1
+msgid "Users Info"
+msgstr ""
+
+#: build/78.js:1
+msgid "Validity"
+msgstr ""
+
+#: build/78.js:1
+msgid "Generate token"
+msgstr ""
+
+#: build/78.js:1
+msgid "New JWT token"
+msgstr ""
+
+#: build/78.js:1
+msgid "Copied!"
+msgstr ""
+
+#: build/78.js:1
+msgid "Copy"
+msgstr ""
+
+#: build/78.js:1
+msgid "This token is shown only once. Copy it now - once you leave this page it cannot be displayed again."
+msgstr ""
+
+#: build/78.js:1
+msgid "No active tokens yet."
+msgstr ""
+
+#: build/78.js:1
+msgid "Token ID"
+msgstr ""
+
+#: build/78.js:1
+#: build/860.js:1
+msgid "User"
+msgstr ""
+
+#: build/78.js:1
+msgid "Expires"
+msgstr ""
+
+#: build/78.js:1
+msgid "Revoke"
+msgstr ""
+
+#: build/78.js:1
+msgid "MCP Server"
+msgstr ""
+
+#: build/78.js:1
+msgid "MCP (Model Context Protocol) is an open standard that lets external AI tools talk to this WordPress site. Once enabled, Claude Desktop, Cursor, Windsurf or another MCP client can manage posts, pages, products, media and settings directly. Clients authenticate with a JWT token (see below) and only ever get the operations you allow."
+msgstr ""
+
+#: build/78.js:1
+msgid "Status:"
+msgstr ""
+
+#: build/78.js:1
+#: build/136.js:1
+#: build/213.js:1
+#: build/809.js:1
+msgid "Enabled"
+msgstr ""
+
+#: build/78.js:1
+msgid "This toggle lives in the Settings tab (\"Enable MCP (tool calling)\") - it is shown here for reference only."
+msgstr ""
+
+#: build/78.js:1
+msgid "Registered tools & resources"
+msgstr ""
+
+#: build/78.js:1
+msgid "These WordPress REST API endpoints are automatically exposed as MCP tools and resources. Tools let the AI perform actions (CRUD operations). Resources provide read-only context about the site."
+msgstr ""
+
+#: build/78.js:1
+msgid "Tools"
+msgstr ""
+
+#: build/78.js:1
+msgid "Tool"
+msgstr ""
+
+#: build/78.js:1
+msgid "Operations"
+msgstr ""
+
+#: build/78.js:1
+msgid "Resources"
+msgstr ""
+
+#: build/78.js:1
+msgid "Resource"
+msgstr ""
+
+#: build/78.js:1
+msgid "URI"
+msgstr ""
+
+#: build/78.js:1
+msgid "Resources are read-only - the AI can read them but cannot use them to change data."
+msgstr ""
+
+#: build/78.js:1
+msgid "JWT access tokens"
+msgstr ""
+
+#: build/78.js:1
+msgid "To connect an external AI client to the MCP server, generate a JWT (JSON Web Token). Paste it into the AI client's configuration (e.g. the Claude Desktop config). Each token has a limited lifetime and can be revoked at any time."
+msgstr ""
+
+#: build/78.js:1
+msgid "Usage"
+msgstr ""
+
+#: build/78.js:1
+msgid "Conversations"
+msgstr ""
+
+#: build/78.js:1
+msgid "Handoff"
+msgstr ""
+
+#: build/78.js:1
+msgid "Knowledge Hub"
+msgstr ""
+
+#: build/78.js:1
+msgid "RAG Training"
+msgstr ""
+
+#: build/78.js:1
+msgid "Content Creator"
+msgstr ""
+
+#: build/78.js:1
+msgid "Blog Pilot"
+msgstr ""
+
+#: build/78.js:1
+msgid "Internal Chat"
+msgstr ""
+
+#: build/78.js:1
+msgid "MCP"
+msgstr ""
+
+#: build/78.js:1
+msgid "Daily requests (per user)"
+msgstr ""
+
+#: build/78.js:1
+msgid "A Claude API key is currently set."
+msgstr ""
+
+#: build/78.js:1
+msgid "No Claude API key set yet."
+msgstr ""
+
+#: build/78.js:1
+msgid "An OpenAI API key is currently set."
+msgstr ""
+
+#: build/78.js:1
+msgid "No OpenAI API key set yet."
+msgstr ""
+
+#: build/78.js:1
+msgid "A DeepSeek API key is currently set."
+msgstr ""
+
+#: build/78.js:1
+msgid "No DeepSeek API key set yet."
+msgstr ""
+
+#: build/78.js:1
+msgid "Period (days)"
+msgstr ""
+
+#: build/78.js:1
+msgid "Requests:"
+msgstr ""
+
+#: build/78.js:1
+msgid "Input tokens:"
+msgstr ""
+
+#: build/78.js:1
+msgid "Output tokens:"
+msgstr ""
+
+#: build/78.js:1
+msgid "Sessions:"
+msgstr ""
+
+#: build/78.js:1
+msgid "No usage recorded for this period."
+msgstr ""
+
+#: build/78.js:1
+#: build/792.js:1
+msgid "Provider"
+msgstr ""
+
+#: build/78.js:1
+msgid "Feature"
+msgstr ""
+
+#: build/78.js:1
+#: build/474.js:1
+msgid "Requests"
+msgstr ""
+
+#: build/78.js:1
+msgid "Input tokens"
+msgstr ""
+
+#: build/78.js:1
+msgid "Output tokens"
+msgstr ""
+
+#: build/84.js:1
+msgid "Shown"
+msgstr ""
+
+#: build/84.js:1
+msgid "Clicked"
+msgstr ""
+
+#: build/84.js:1
+msgid "Popup Manager"
+msgstr ""
+
+#: build/84.js:1
+msgid "New popup title"
+msgstr ""
+
+#: build/84.js:1
+msgid "Add popup"
+msgstr ""
+
+#: build/84.js:1
+#: build/402.js:1
+#: build/718.js:1
+msgid "Stats"
+msgstr ""
+
+#: build/84.js:1
+msgid "Delete popup"
+msgstr ""
+
+#: build/84.js:1
+msgid "No popups yet."
+msgstr ""
+
+#: build/136.js:1
+msgid "Everywhere (frontend & admin)"
+msgstr ""
+
+#: build/136.js:1
+msgid "Admin only"
+msgstr ""
+
+#: build/136.js:1
+msgid "Frontend only"
+msgstr ""
+
+#: build/136.js:1
+msgid "Frontend header"
+msgstr ""
+
+#: build/136.js:1
+msgid "Frontend footer"
+msgstr ""
+
+#: build/136.js:1
+msgid "Admin header"
+msgstr ""
+
+#: build/136.js:1
+msgid "Admin footer"
+msgstr ""
+
+#: build/136.js:1
+msgid "Frontend body open"
+msgstr ""
+
+#: build/136.js:1
+msgid "Add snippet"
+msgstr ""
+
+#: build/136.js:1
+msgid "No snippets have been created yet."
+msgstr ""
+
+#: build/136.js:1
+msgid "Integrity check failed"
+msgstr ""
+
+#: build/136.js:1
+msgid "Invalid"
+msgstr ""
+
+#: build/136.js:1
+msgid "Toggle enabled"
+msgstr ""
+
+#: build/136.js:1
+msgid "Edit snippet"
+msgstr ""
+
+#: build/136.js:1
+msgid "Delete snippet"
+msgstr ""
+
+#: build/136.js:1
+msgid "Delete this snippet? This cannot be undone."
+msgstr ""
+
+#: build/136.js:1
+msgid "Failed to save snippet."
+msgstr ""
+
+#: build/136.js:1
+msgid "Snippet name"
+msgstr ""
+
+#: build/136.js:1
+msgid "Snippet type"
+msgstr ""
+
+#: build/136.js:1
+msgid "PHP"
+msgstr ""
+
+#: build/136.js:1
+msgid "CSS"
+msgstr ""
+
+#: build/136.js:1
+msgid "JavaScript"
+msgstr ""
+
+#: build/136.js:1
+msgid "Snippet code"
+msgstr ""
+
+#: build/136.js:1
+msgid "PHP code only - do not include the opening <?php tag. Code is validated (syntax + duplicate declarations) before it is saved."
+msgstr ""
+
+#: build/136.js:1
+msgid "Where to run"
+msgstr ""
+
+#: build/136.js:1
+msgid "Enable snippet"
+msgstr ""
+
+#: build/136.js:1
+msgid "Update snippet"
+msgstr ""
+
+#: build/136.js:1
+msgid "Save snippet"
+msgstr ""
+
+#: build/136.js:1
+msgid "Back to list"
+msgstr ""
+
+#: build/136.js:1
+msgid "Code Snippets"
+msgstr ""
+
+#: build/136.js:1
+msgid "Snippets"
+msgstr ""
+
+#: build/144.js:1
+msgid "Third-Party Login"
+msgstr ""
+
+#: build/144.js:1
+msgid "Connected accounts"
+msgstr ""
+
+#: build/144.js:1
+#: build/309.js:1
+msgid "An HMAC secret is currently set."
+msgstr ""
+
+#: build/144.js:1
+#: build/309.js:1
+msgid "No HMAC secret set yet."
+msgstr ""
+
+#: build/144.js:1
+msgid "Visitors sign in through the central app, which handles the OAuth handshake with Google, Facebook or Apple and posts a signed result back to this site."
+msgstr ""
+
+#: build/144.js:1
+msgid "Account linking happens automatically on first login: if a WordPress user already exists with the matching email address, the provider account is linked to it. Otherwise a new WordPress user is created."
+msgstr ""
+
+#: build/144.js:1
+msgid "No separate list of connected accounts is stored by this module beyond WordPress’s own users — each linked provider is recorded as user meta on the corresponding WordPress user."
+msgstr ""
+
+#: build/148.js:1
+msgid "Cached posts"
+msgstr ""
+
+#: build/148.js:1
+msgid "Bot requests (24h)"
+msgstr ""
+
+#: build/148.js:1
+msgid "Regenerate all"
+msgstr ""
+
+#: build/148.js:1
+msgid "Generated"
+msgstr ""
+
+#: build/148.js:1
+msgid "Regenerate"
+msgstr ""
+
+#: build/148.js:1
+msgid "Nothing cached yet."
+msgstr ""
+
+#: build/148.js:1
+msgid "AI Markdown"
+msgstr ""
+
+#: build/148.js:1
+msgid "Cache"
+msgstr ""
+
+#: build/149.js:1
+msgid "Sync now"
+msgstr ""
+
+#: build/149.js:1
+msgid "Synced"
+msgstr ""
+
+#: build/149.js:1
+msgid "items"
+msgstr ""
+
+#: build/149.js:1
+msgid "No media synced yet. Configure Content Sync and click \"Sync now\"."
+msgstr ""
+
+#: build/149.js:1
+msgid "Instagram Feed"
+msgstr ""
+
+#: build/149.js:1
+msgid "Shortcode: [uxstudio_instagram]"
+msgstr ""
+
+#: build/157.js:1
+msgid "Export CSV"
+msgstr ""
+
+#: build/157.js:1
+msgid "No subscribers captured yet."
+msgstr ""
+
+#: build/157.js:1
+msgid "Exit Popup"
+msgstr ""
+
+#: build/157.js:1
+#: build/475.js:1
+#: build/819.js:1
+msgid "Subscribers"
+msgstr ""
+
+#: build/158.js:1
+msgid "Failed to analyze."
+msgstr ""
+
+#: build/158.js:1
+msgid "Score"
+msgstr ""
+
+#: build/158.js:1
+msgid "Re-run analysis"
+msgstr ""
+
+#: build/158.js:1
+msgid "Check"
+msgstr ""
+
+#: build/158.js:1
+#: build/190.js:1
+msgid "Value"
+msgstr ""
+
+#: build/158.js:1
+msgid "Fix"
+msgstr ""
+
+#: build/158.js:1
+msgid "Post revisions"
+msgstr ""
+
+#: build/158.js:1
+msgid "Delete revisions"
+msgstr ""
+
+#: build/158.js:1
+msgid "Spam comments"
+msgstr ""
+
+#: build/158.js:1
+msgid "Delete spam comments"
+msgstr ""
+
+#: build/158.js:1
+msgid "Auto-draft posts"
+msgstr ""
+
+#: build/158.js:1
+msgid "Transients"
+msgstr ""
+
+#: build/158.js:1
+msgid "Delete expired transients"
+msgstr ""
+
+#: build/158.js:1
+msgid "Fix applied."
+msgstr ""
+
+#: build/158.js:1
+msgid "No history yet - run an analysis first."
+msgstr ""
+
+#: build/158.js:1
+msgid "Performance Optimization"
+msgstr ""
+
+#: build/158.js:1
+msgid "Analyze"
+msgstr ""
+
+#: build/158.js:1
+msgid "History"
+msgstr ""
+
+#: build/178.js:1
+msgid "Last 24 hours"
+msgstr ""
+
+#: build/178.js:1
+#: build/718.js:1
+msgid "Average"
+msgstr ""
+
+#: build/178.js:1
+msgid "Min"
+msgstr ""
+
+#: build/178.js:1
+msgid "Max"
+msgstr ""
+
+#: build/178.js:1
+msgid "Samples"
+msgstr ""
+
+#: build/178.js:1
+msgid "Hour"
+msgstr ""
+
+#: build/178.js:1
+msgid "Avg (ms)"
+msgstr ""
+
+#: build/178.js:1
+msgid "No data yet."
+msgstr ""
+
+#: build/178.js:1
+msgid "Recent requests"
+msgstr ""
+
+#: build/178.js:1
+msgid "Time"
+msgstr ""
+
+#: build/178.js:1
+msgid "Load time (ms)"
+msgstr ""
+
+#: build/178.js:1
+msgid "No requests logged yet."
+msgstr ""
+
+#: build/178.js:1
+msgid "Page Load"
+msgstr ""
+
+#: build/178.js:1
+msgid "Overview"
+msgstr ""
+
+#: build/190.js:1
+msgid "Real CSP violations reported by visitor browsers. Resolve entries once you have allowed or fixed the source."
+msgstr ""
+
+#: build/190.js:1
+msgid "Resolved"
+msgstr ""
+
+#: build/190.js:1
+msgid "Blocked source"
+msgstr ""
+
+#: build/190.js:1
+msgid "Directive"
+msgstr ""
+
+#: build/190.js:1
+msgid "Hits"
+msgstr ""
+
+#: build/190.js:1
+msgid "Last seen"
+msgstr ""
+
+#: build/190.js:1
+msgid "(unknown)"
+msgstr ""
+
+#: build/190.js:1
+msgid "Mark resolved"
+msgstr ""
+
+#: build/190.js:1
+msgid "No CSP violations reported."
+msgstr ""
+
+#: build/190.js:1
+msgid "Uploaded files and wp-content are scanned for injected/malicious code. Critical findings are automatically moved to a protected quarantine folder."
+msgstr ""
+
+#: build/190.js:1
+msgid "Scan running…"
+msgstr ""
+
+#: build/190.js:1
+#: build/457.js:1
+msgid "Scan now"
+msgstr ""
+
+#: build/190.js:1
+msgid "Scanning in batches…"
+msgstr ""
+
+#: build/190.js:1
+msgid "Last scan:"
+msgstr ""
+
+#: build/190.js:1
+msgid "files scanned:"
+msgstr ""
+
+#: build/190.js:1
+msgid "detections:"
+msgstr ""
+
+#: build/190.js:1
+msgid "No scan has run yet."
+msgstr ""
+
+#: build/190.js:1
+msgid "Detected"
+msgstr ""
+
+#: build/190.js:1
+msgid "Quarantined"
+msgstr ""
+
+#: build/190.js:1
+msgid "Approved"
+msgstr ""
+
+#: build/190.js:1
+msgid "Queued"
+msgstr ""
+
+#: build/190.js:1
+msgid "Approve"
+msgstr ""
+
+#: build/190.js:1
+msgid "Delete permanently"
+msgstr ""
+
+#: build/190.js:1
+msgid "No findings in this category."
+msgstr ""
+
+#: build/190.js:1
+msgid "Login Attempts"
+msgstr ""
+
+#: build/190.js:1
+msgid "IP Bans"
+msgstr ""
+
+#: build/190.js:1
+msgid "CSP Violations"
+msgstr ""
+
+#: build/190.js:1
+msgid "Upload Guard"
+msgstr ""
+
+#: build/190.js:1
+msgid "A CAPTCHA secret key is currently set."
+msgstr ""
+
+#: build/190.js:1
+msgid "No CAPTCHA secret key set yet."
+msgstr ""
+
+#: build/190.js:1
+msgid ".htaccess rules"
+msgstr ""
+
+#: build/190.js:1
+msgid "Applied and up to date"
+msgstr ""
+
+#: build/190.js:1
+msgid "Out of date - re-apply to write current settings"
+msgstr ""
+
+#: build/190.js:1
+msgid "Apply .htaccess rules"
+msgstr ""
+
+#: build/190.js:1
+msgid "Clear all attempts"
+msgstr ""
+
+#: build/190.js:1
+msgid "IP"
+msgstr ""
+
+#: build/190.js:1
+msgid "Lockout (min)"
+msgstr ""
+
+#: build/190.js:1
+msgid "Locked"
+msgstr ""
+
+#: build/190.js:1
+msgid "Cleared"
+msgstr ""
+
+#: build/190.js:1
+msgid "Unlock"
+msgstr ""
+
+#: build/190.js:1
+msgid "No failed login attempts recorded."
+msgstr ""
+
+#: build/190.js:1
+msgid "Single IP address"
+msgstr ""
+
+#: build/190.js:1
+msgid "IP range (CIDR)"
+msgstr ""
+
+#: build/190.js:1
+msgid "Country code (ISO 3166-1 alpha-2)"
+msgstr ""
+
+#: build/190.js:1
+msgid "Add ban"
+msgstr ""
+
+#: build/190.js:1
+msgid "Target"
+msgstr ""
+
+#: build/190.js:1
+msgid "Central"
+msgstr ""
+
+#: build/190.js:1
+msgid "Disable"
+msgstr ""
+
+#: build/190.js:1
+msgid "Enable"
+msgstr ""
+
+#: build/190.js:1
+msgid "No IP bans yet."
+msgstr ""
+
+#: build/190.js:1
+msgid "Security - Access Control"
+msgstr ""
+
+#: build/213.js:1
+msgid "Default (native column)"
+msgstr ""
+
+#: build/213.js:1
+msgid "Custom field (meta)"
+msgstr ""
+
+#: build/213.js:1
+msgid "Taxonomy"
+msgstr ""
+
+#: build/213.js:1
+msgid "ID"
+msgstr ""
+
+#: build/213.js:1
+msgid "Key of an existing column — start typing to see suggestions."
+msgstr ""
+
+#: build/213.js:1
+msgid "Custom field (meta) key — start typing to see suggestions."
+msgstr ""
+
+#: build/213.js:1
+msgid "Taxonomy slug — start typing to see suggestions."
+msgstr ""
+
+#: build/213.js:1
+msgid "Any unique column key."
+msgstr ""
+
+#: build/213.js:1
+msgid "Move up"
+msgstr ""
+
+#: build/213.js:1
+msgid "Move down"
+msgstr ""
+
+#: build/213.js:1
+msgid "Column title"
+msgstr ""
+
+#: build/213.js:1
+msgid "Required — a column with no key is discarded when you save."
+msgstr ""
+
+#: build/213.js:1
+msgid "e.g. 80px"
+msgstr ""
+
+#: build/213.js:1
+msgid "Disable column"
+msgstr ""
+
+#: build/213.js:1
+msgid "Enable column"
+msgstr ""
+
+#: build/213.js:1
+msgid "Delete column"
+msgstr ""
+
+#: build/213.js:1
+msgid "Remove section"
+msgstr ""
+
+#: build/213.js:1
+msgid "No custom columns yet — the native columns are shown unchanged. Add one below to relabel, reorder, hide or add a column."
+msgstr ""
+
+#: build/213.js:1
+msgid "Key"
+msgstr ""
+
+#: build/213.js:1
+msgid "Width"
+msgstr ""
+
+#: build/213.js:1
+msgid "Add column"
+msgstr ""
+
+#. translators: %s: content type label, e.g. "Posts".
+#: build/213.js:2
+#, js-format
+msgid "Save changes for %s"
+msgstr ""
+
+#: build/213.js:2
+msgid "Admin Columns"
+msgstr ""
+
+#: build/213.js:2
+msgid "No content type has custom columns yet. Pick one below to start configuring it."
+msgstr ""
+
+#: build/213.js:2
+msgid "— Select content type —"
+msgstr ""
+
+#: build/213.js:2
+msgid "Add content type"
+msgstr ""
+
+#: build/230.js:1
+msgid "Open now"
+msgstr ""
+
+#: build/230.js:1
+msgid "Address"
+msgstr ""
+
+#: build/230.js:1
+msgid "Add location"
+msgstr ""
+
+#: build/230.js:1
+msgid "Delete location"
+msgstr ""
+
+#: build/230.js:1
+msgid "No address set."
+msgstr ""
+
+#: build/230.js:1
+msgid "Weekly hours (JSON)"
+msgstr ""
+
+#: build/230.js:1
+msgid "Example"
+msgstr ""
+
+#: build/230.js:1
+msgid "Save hours"
+msgstr ""
+
+#: build/230.js:1
+msgid "No locations yet."
+msgstr ""
+
+#: build/230.js:1
+msgid "Opening Hours"
+msgstr ""
+
+#: build/230.js:1
+msgid "Locations"
+msgstr ""
+
+#: build/244.js:1
+msgid "Select a file to protect"
+msgstr ""
+
+#: build/244.js:1
+msgid "Change file"
+msgstr ""
+
+#: build/244.js:1
+msgid "Select file"
+msgstr ""
+
+#: build/244.js:1
+msgid "e.g. Price list 2026"
+msgstr ""
+
+#: build/244.js:1
+msgid "Require login to download"
+msgstr ""
+
+#: build/244.js:1
+msgid "Add file"
+msgstr ""
+
+#: build/244.js:1
+msgid "No protected files yet."
+msgstr ""
+
+#: build/244.js:1
+msgid "Downloads"
+msgstr ""
+
+#: build/244.js:1
+msgid "Login required"
+msgstr ""
+
+#: build/244.js:1
+msgid "Copied"
+msgstr ""
+
+#: build/244.js:1
+msgid "Copy link"
+msgstr ""
+
+#: build/244.js:1
+msgid "Delete this file entry? The media library file itself is kept."
+msgstr ""
+
+#: build/244.js:1
+msgid "Download Files"
+msgstr ""
+
+#: build/244.js:1
+msgid "Files"
+msgstr ""
+
+#: build/309.js:1
+msgid "Site name"
+msgstr ""
+
+#: build/309.js:1
+msgid "e.g. Main hotel site"
+msgstr ""
+
+#: build/309.js:1
+msgid "Site URL"
+msgstr ""
+
+#: build/309.js:1
+msgid "Add site"
+msgstr ""
+
+#: build/309.js:1
+msgid "No sites registered yet."
+msgstr ""
+
+#: build/309.js:1
+msgid "Last sync"
+msgstr ""
+
+#: build/309.js:1
+msgid "No sync activity yet."
+msgstr ""
+
+#: build/309.js:1
+msgid "Content Sync"
+msgstr ""
+
+#: build/309.js:1
+msgid "Sites"
+msgstr ""
+
+#: build/367.js:1
+msgid "Clear all"
+msgstr ""
+
+#: build/367.js:1
+#: build/831.js:1
+msgid "To"
+msgstr ""
+
+#: build/367.js:1
+#: build/831.js:1
+msgid "Subject"
+msgstr ""
+
+#: build/367.js:1
+#: build/402.js:1
+#: build/819.js:1
+#: build/831.js:1
+msgid "Sent"
+msgstr ""
+
+#: build/367.js:1
+#: build/402.js:1
+#: build/831.js:1
+msgid "Failed"
+msgstr ""
+
+#: build/367.js:1
+msgid "Delete entry"
+msgstr ""
+
+#: build/367.js:1
+#: build/831.js:1
+msgid "No mail has been sent yet."
+msgstr ""
+
+#: build/367.js:1
+msgid "Email Log"
+msgstr ""
+
+#: build/386.js:1
+msgid "File Manager grants browser access to the entire server filesystem, restricted to an explicit whitelist of administrators. It manages its own access and settings through a dedicated admin screen."
+msgstr ""
+
+#: build/402.js:1
+msgid "Recipient email"
+msgstr ""
+
+#: build/402.js:1
+msgid "Order ID (optional)"
+msgstr ""
+
+#: build/402.js:1
+#: build/831.js:1
+msgid "Sent to"
+msgstr ""
+
+#: build/402.js:1
+msgid "Failed to send"
+msgstr ""
+
+#: build/402.js:1
+msgid "Recipient"
+msgstr ""
+
+#: build/402.js:1
+msgid "Order ID"
+msgstr ""
+
+#: build/402.js:1
+msgid "No review requests have been sent yet."
+msgstr ""
+
+#: build/402.js:1
+msgid "Google Review Request"
+msgstr ""
+
+#: build/457.js:1
+msgid "Critical"
+msgstr ""
+
+#: build/457.js:1
+msgid "High"
+msgstr ""
+
+#: build/457.js:1
+msgid "Low"
+msgstr ""
+
+#: build/457.js:1
+msgid "WPScan CVE"
+msgstr ""
+
+#: build/457.js:1
+msgid "Outdated (WordPress.org)"
+msgstr ""
+
+#: build/457.js:1
+msgid "Last scanned:"
+msgstr ""
+
+#: build/457.js:1
+msgid "WordPress.org publishes no free CVE feed - the \"Outdated\" signal only means a newer version exists, not that the installed one is confirmed vulnerable. Add a WPScan API key in Settings for real CVE data."
+msgstr ""
+
+#: build/457.js:1
+#: build/930.js:1
+msgid "Item"
+msgstr ""
+
+#: build/457.js:1
+msgid "Issue"
+msgstr ""
+
+#: build/457.js:1
+msgid "Installed"
+msgstr ""
+
+#: build/457.js:1
+msgid "Fixed in"
+msgstr ""
+
+#: build/457.js:1
+msgid "(reference)"
+msgstr ""
+
+#: build/457.js:1
+msgid "Dismiss"
+msgstr ""
+
+#: build/457.js:1
+msgid "No known issues found. Run a scan if you have not yet, or check back later."
+msgstr ""
+
+#: build/457.js:1
+msgid "Vulnerability Scanner"
+msgstr ""
+
+#: build/457.js:1
+msgid "Results"
+msgstr ""
+
+#: build/457.js:1
+msgid "A WPScan API key is currently set."
+msgstr ""
+
+#: build/457.js:1
+msgid "No WPScan API key set yet - only the free WordPress.org outdated-version check runs."
+msgstr ""
+
+#: build/474.js:1
+msgid "In progress"
+msgstr ""
+
+#: build/474.js:1
+msgid "Done"
+msgstr ""
+
+#: build/474.js:1
+msgid "Attach a file"
+msgstr ""
+
+#: build/474.js:1
+#: build/475.js:1
+msgid "Change attachment"
+msgstr ""
+
+#: build/474.js:1
+msgid "Requester email"
+msgstr ""
+
+#: build/474.js:1
+#: build/475.js:1
+msgid "Attachment"
+msgstr ""
+
+#: build/474.js:1
+msgid "Create request"
+msgstr ""
+
+#: build/474.js:1
+msgid "No service requests yet."
+msgstr ""
+
+#: build/474.js:1
+msgid "Requester"
+msgstr ""
+
+#: build/474.js:1
+msgid "Delete this service request?"
+msgstr ""
+
+#: build/474.js:1
+msgid "Service Requests"
+msgstr ""
+
+#: build/475.js:1
+msgid "Select an attachment"
+msgstr ""
+
+#: build/475.js:1
+msgid "Select attachment"
+msgstr ""
+
+#: build/475.js:1
+msgid "e.g. Public notice 4/2026"
+msgstr ""
+
+#: build/475.js:1
+msgid "— None —"
+msgstr ""
+
+#: build/475.js:1
+msgid "New category name"
+msgstr ""
+
+#: build/475.js:1
+msgid "Add document"
+msgstr ""
+
+#: build/475.js:1
+msgid "No documents yet."
+msgstr ""
+
+#: build/475.js:1
+msgid "Download"
+msgstr ""
+
+#: build/475.js:1
+msgid "Delete this document?"
+msgstr ""
+
+#: build/475.js:1
+msgid "Confirmed"
+msgstr ""
+
+#: build/475.js:1
+msgid "Pending"
+msgstr ""
+
+#: build/475.js:1
+#: build/819.js:1
+msgid "No subscribers yet."
+msgstr ""
+
+#: build/475.js:1
+msgid "Notice Board"
+msgstr ""
+
+#: build/718.js:1
+msgid "Fetch reviews"
+msgstr ""
+
+#: build/718.js:1
+msgid "Fetched"
+msgstr ""
+
+#: build/718.js:1
+msgid "reviews"
+msgstr ""
+
+#: build/718.js:1
+msgid "No reviews yet."
+msgstr ""
+
+#: build/718.js:1
+msgid "Visible"
+msgstr ""
+
+#: build/718.js:1
+#: build/930.js:1
+msgid "Hide"
+msgstr ""
+
+#: build/718.js:1
+msgid "Show"
+msgstr ""
+
+#: build/718.js:1
+msgid "Total reviews:"
+msgstr ""
+
+#: build/718.js:1
+msgid "Average rating:"
+msgstr ""
+
+#: build/718.js:1
+msgid "Count"
+msgstr ""
+
+#: build/718.js:1
+msgid "No data."
+msgstr ""
+
+#: build/718.js:1
+msgid "Review Aggregator"
+msgstr ""
+
+#: build/718.js:1
+msgid "Reviews"
+msgstr ""
+
+#: build/718.js:1
+msgid "Shortcode: [uxstudio_reviews]"
+msgstr ""
+
+#: build/755.js:1
+msgid "No versions found"
+msgstr ""
+
+#: build/755.js:1
+msgid "Select a version…"
+msgstr ""
+
+#: build/755.js:1
+msgid "current"
+msgstr ""
+
+#: build/755.js:1
+msgid "No installed plugins from WordPress.org were found."
+msgstr ""
+
+#: build/755.js:1
+msgid "No installed themes from WordPress.org were found."
+msgstr ""
+
+#: build/755.js:1
+msgid "Current version"
+msgstr ""
+
+#: build/755.js:1
+msgid "Roll back to"
+msgstr ""
+
+#. translators: %s: version number
+#: build/755.js:2
+#, js-format
+msgid "Rolled back to %s"
+msgstr ""
+
+#: build/755.js:2
+#: build/831.js:1
+msgid "Unknown error"
+msgstr ""
+
+#: build/755.js:2
+msgid "Rollback"
+msgstr ""
+
+#: build/755.js:2
+msgid "Rollback Manager"
+msgstr ""
+
+#: build/792.js:1
+msgid "no API key"
+msgstr ""
+
+#: build/792.js:1
+msgid "Search"
+msgstr ""
+
+#: build/792.js:1
+msgid "Imported"
+msgstr ""
+
+#: build/792.js:1
+msgid "Import"
+msgstr ""
+
+#: build/792.js:1
+msgid "No results."
+msgstr ""
+
+#: build/792.js:1
+msgid "Stock Photos"
+msgstr ""
+
+#: build/809.js:1
+msgid "Hook"
+msgstr ""
+
+#: build/809.js:1
+msgid "Args"
+msgstr ""
+
+#: build/809.js:1
+msgid "Non-repeating"
+msgstr ""
+
+#: build/809.js:1
+msgid "Delete this scheduled event?"
+msgstr ""
+
+#: build/809.js:1
+msgid "No events are currently scheduled."
+msgstr ""
+
+#: build/809.js:1
+msgid "DISABLE_WP_CRON"
+msgstr ""
+
+#: build/809.js:1
+msgid "ALTERNATE_WP_CRON"
+msgstr ""
+
+#: build/809.js:1
+msgid "Next scheduled event"
+msgstr ""
+
+#: build/809.js:1
+msgid "Total scheduled events"
+msgstr ""
+
+#: build/809.js:1
+msgid "Cron running late"
+msgstr ""
+
+#: build/809.js:1
+msgid "Late"
+msgstr ""
+
+#: build/809.js:1
+msgid "On time"
+msgstr ""
+
+#: build/809.js:1
+msgid "Cron Control"
+msgstr ""
+
+#: build/809.js:1
+msgid "Events"
+msgstr ""
+
+#: build/819.js:1
+msgid "No notifications yet."
+msgstr ""
+
+#: build/819.js:1
+msgid "Queued (delivery not yet implemented)"
+msgstr ""
+
+#: build/819.js:1
+msgid "User agent"
+msgstr ""
+
+#: build/819.js:1
+msgid "Push Notifications"
+msgstr ""
+
+#: build/819.js:1
+msgid "A VAPID keypair is currently configured."
+msgstr ""
+
+#: build/819.js:1
+msgid "No VAPID keypair yet - one will be generated automatically."
+msgstr ""
+
+#: build/819.js:1
+msgid "Regenerate VAPID keys"
+msgstr ""
+
+#: build/831.js:1
+msgid "SMTP Email"
+msgstr ""
+
+#: build/831.js:1
+msgid "A SMTP password is currently set."
+msgstr ""
+
+#: build/831.js:1
+msgid "No SMTP password set yet."
+msgstr ""
+
+#: build/831.js:1
+msgid "A Brevo API key is currently set."
+msgstr ""
+
+#: build/831.js:1
+msgid "No Brevo API key set yet."
+msgstr ""
+
+#: build/831.js:1
+msgid "Send a test email to"
+msgstr ""
+
+#: build/831.js:1
+msgid "Defaults to the site admin email"
+msgstr ""
+
+#: build/831.js:1
+msgid "Send test email"
+msgstr ""
+
+#: build/831.js:1
+msgid "Failed:"
+msgstr ""
+
+#: build/860.js:1
+#: build/976.js:1
+msgid "Module"
+msgstr ""
+
+#: build/860.js:1
+msgid "Purge old entries"
+msgstr ""
+
+#: build/860.js:1
+#: build/976.js:1
+msgid "Object"
+msgstr ""
+
+#: build/860.js:1
+msgid "No matching activity found."
+msgstr ""
+
+#: build/860.js:1
+msgid "Activity Log"
+msgstr ""
+
+#: build/930.js:1
+msgid "Administrator"
+msgstr ""
+
+#: build/930.js:1
+msgid "Editor"
+msgstr ""
+
+#: build/930.js:1
+msgid "Contributor"
+msgstr ""
+
+#: build/930.js:1
+msgid "Subscriber"
+msgstr ""
+
+#: build/930.js:1
+#: build/index.js:1
+msgid "Layout"
+msgstr ""
+
+#: build/930.js:1
+msgid "Vertical sidebar (default)"
+msgstr ""
+
+#: build/930.js:1
+msgid "Horizontal top bar"
+msgstr ""
+
+#: build/930.js:1
+msgid "Export configuration"
+msgstr ""
+
+#: build/930.js:1
+msgid "Import configuration"
+msgstr ""
+
+#: build/930.js:1
+msgid "Add category"
+msgstr ""
+
+#: build/930.js:1
+msgid "e.g. Reports"
+msgstr ""
+
+#: build/930.js:1
+msgid "Order"
+msgstr ""
+
+#: build/930.js:1
+msgid "Custom title"
+msgstr ""
+
+#: build/930.js:1
+msgid "Custom icon"
+msgstr ""
+
+#: build/930.js:1
+msgid "Custom URL"
+msgstr ""
+
+#: build/930.js:1
+msgid "Visible to roles"
+msgstr ""
+
+#: build/930.js:1
+msgid "None checked = visible to everyone."
+msgstr ""
+
+#: build/930.js:1
+msgid "Custom links"
+msgstr ""
+
+#: build/930.js:1
+msgid "Add link"
+msgstr ""
+
+#: build/930.js:1
+msgid "— category —"
+msgstr ""
+
+#: build/930.js:1
+msgid "Separators"
+msgstr ""
+
+#: build/930.js:1
+msgid "Add separator"
+msgstr ""
+
+#: build/930.js:1
+msgid "Label (optional)"
+msgstr ""
+
+#: build/930.js:1
+msgid "Label"
+msgstr ""
+
+#: build/930.js:1
+msgid "(no label)"
+msgstr ""
+
+#: build/930.js:1
+msgid "Menu Organizer"
+msgstr ""
+
+#: build/930.js:1
+msgid "Admin Customiser"
+msgstr ""
+
+#: build/968.js:1
+msgid "No folders yet. Create one below, then open the standard WordPress media library, bulk-select attachments and assign them to a folder from this screen (or the \"Assign attachment\" panel below)."
+msgstr ""
+
+#: build/968.js:1
+msgid "Attachments"
+msgstr ""
+
+#: build/968.js:1
+msgid "Delete this folder? Attachments in it will become unassigned."
+msgstr ""
+
+#: build/968.js:1
+msgid "Folder Manager"
+msgstr ""
+
+#: build/968.js:1
+msgid "Add folder"
+msgstr ""
+
+#: build/968.js:1
+msgid "Parent folder"
+msgstr ""
+
+#: build/968.js:1
+msgid "— None (top level) —"
+msgstr ""
+
+#: build/968.js:1
+msgid "Could not create folder."
+msgstr ""
+
+#: build/968.js:1
+msgid "Assign attachment to a folder"
+msgstr ""
+
+#: build/968.js:1
+msgid "Folders are assigned to media via the standard WordPress media library - select attachments there and use this taxonomy, or assign a single attachment by id here."
+msgstr ""
+
+#: build/968.js:1
+msgid "Attachment ID"
+msgstr ""
+
+#: build/968.js:1
+msgid "— Unassigned —"
+msgstr ""
+
+#: build/968.js:1
+msgid "Assign"
+msgstr ""
+
+#: build/968.js:1
+msgid "Assigned."
+msgstr ""
+
+#: build/968.js:1
+msgid "Could not assign attachment."
+msgstr ""
+
+#: build/976.js:1
+msgid "Performance score:"
+msgstr ""
+
+#: build/976.js:1
+msgid "First Contentful Paint:"
+msgstr ""
+
+#: build/976.js:1
+msgid "Largest Contentful Paint:"
+msgstr ""
+
+#: build/976.js:1
+msgid "Not configured"
+msgstr ""
+
+#: build/976.js:1
+msgid "Add a Google PageSpeed API key in Settings to see a score here."
+msgstr ""
+
+#: build/976.js:1
+msgid "No recent activity."
+msgstr ""
+
+#: build/976.js:1
+msgid "Quick tasks"
+msgstr ""
+
+#: build/976.js:1
+msgid "Delete task"
+msgstr ""
+
+#: build/976.js:1
+msgid "New task…"
+msgstr ""
+
+#: build/976.js:1
+msgid "Notes"
+msgstr ""
+
+#: build/976.js:1
+msgid "Dashboard Widgets"
+msgstr ""
+
+#: build/976.js:1
+msgid "Tasks"
+msgstr ""
+
+#: build/976.js:1
+msgid "PageSpeed score"
+msgstr ""
+
+#: build/976.js:1
+msgid "Recent activity"
+msgstr ""
+
+#: build/976.js:1
+msgid "Tasks & notes"
+msgstr ""
+
+#: build/976.js:1
+msgid "A PageSpeed API key is currently set."
+msgstr ""
+
+#: build/976.js:1
+msgid "No PageSpeed API key set yet."
+msgstr ""
+
+#: build/976.js:1
+msgid "A GA service-account JSON is currently set."
+msgstr ""
+
+#: build/976.js:1
+msgid "No GA service-account JSON set yet."
+msgstr ""
+
+#: build/999.js:1
+msgid "AI Panel manages temporary remote access grants through its own dedicated admin screen, unchanged from before the rewrite."
+msgstr ""
+
+#: build/999.js:1
+msgid "Open AI Panel"
+msgstr ""
+
+#: build/index.js:1
+msgid "Select image"
+msgstr ""
+
+#: build/index.js:1
+msgid "Change image"
+msgstr ""
+
+#: build/index.js:1
+msgid "— Select —"
+msgstr ""
+
+#: build/index.js:1
+msgid "Failed to load modules."
+msgstr ""
+
+#: build/index.js:1
+#: build/index.js:2
+msgid "Modules"
+msgstr ""
+
+#: build/index.js:1
+msgid "Grid view"
+msgstr ""
+
+#: build/index.js:1
+msgid "List view"
+msgstr ""
+
+#. translators: %d: number of currently active modules.
+#: build/index.js:2
+#, js-format
+msgid "Deactivate %d active module?"
+msgid_plural "Deactivate all %d active modules?"
+msgstr[0] ""
+msgstr[1] ""
+
+#: build/index.js:2
+msgid "Deactivate all modules"
+msgstr ""
+
+#: build/index.js:2
+msgid "Disable module"
+msgstr ""
+
+#: build/index.js:2
+msgid "Enable module"
+msgstr ""
+
+#: build/index.js:2
+msgid "Configure"
+msgstr ""
+
+#: build/index.js:2
+msgid "Theme"
+msgstr ""
+
+#: build/index.js:2
+msgid "Switch to light mode"
+msgstr ""
+
+#: build/index.js:2
+msgid "Switch to dark mode"
+msgstr ""
+
+#: build/index.js:2
+msgid "About"
+msgstr ""
+
+#: build/index.js:2
+msgid "Plugin version"
+msgstr ""
+
+#: build/index.js:2
+msgid "API version"
+msgstr ""
+
+#: build/index.js:2
+msgid "Language"
+msgstr ""
+
+#: build/index.js:2
+msgid "Toggle dark mode"
+msgstr ""
+
+#: build/index.js:2
+msgid "Light mode"
+msgstr ""
+
+#: build/index.js:2
+msgid "Dark mode"
+msgstr ""
+
+#: build/index.js:2
+msgid "UX Studio navigation"
+msgstr ""
+
+#: includes/Modules/PostGallery/assets/js/post-gallery-admin.js:26
+msgid "Select gallery images"
+msgstr ""
+
+#: includes/Modules/PostGallery/assets/js/post-gallery-admin.js:27
+msgid "Add to gallery"
+msgstr ""

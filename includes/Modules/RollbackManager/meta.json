@@ -1,0 +1,8 @@
+{
+	"id": "rollback-manager",
+	"name": "Rollback Manager",
+	"description": "Roll back an installed plugin or theme to an older version pulled from WordPress.org.",
+	"group": "performance",
+	"icon": "history",
+	"settings": true
+}

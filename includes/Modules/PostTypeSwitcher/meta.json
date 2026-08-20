@@ -1,0 +1,8 @@
+{
+	"id": "post-type-switcher",
+	"name": "Post Type Switcher",
+	"description": "Switch the post type of your content to reorganise and reuse existing posts and pages.",
+	"group": "content",
+	"icon": "replace",
+	"settings": true
+}

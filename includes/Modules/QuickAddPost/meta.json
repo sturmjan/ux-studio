@@ -1,0 +1,8 @@
+{
+	"id": "quick-add-post",
+	"name": "Quick Add Post",
+	"description": "Add a New button to the block editor toolbar for quickly creating another post.",
+	"group": "content",
+	"icon": "square-plus",
+	"settings": true
+}

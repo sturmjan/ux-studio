@@ -1,0 +1,8 @@
+{
+	"id": "folder-manager",
+	"name": "Folder Manager",
+	"description": "Organize media library attachments into folders using a taxonomy - no filesystem changes.",
+	"group": "content",
+	"icon": "folder",
+	"settings": true
+}

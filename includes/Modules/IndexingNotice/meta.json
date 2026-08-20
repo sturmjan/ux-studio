@@ -1,0 +1,8 @@
+{
+	"id": "indexing-notice",
+	"name": "Indexing Notice",
+	"description": "Show an admin bar warning when search engines are discouraged from indexing the site.",
+	"group": "admin",
+	"icon": "search-x",
+	"settings": false
+}

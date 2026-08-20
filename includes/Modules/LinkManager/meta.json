@@ -1,0 +1,8 @@
+{
+	"id": "link-manager",
+	"name": "Link Manager",
+	"description": "Control how external links behave: add rel attributes, open in new tab, arrow icon and speculative loading.",
+	"group": "performance",
+	"icon": "link",
+	"settings": true
+}

@@ -1,0 +1,8 @@
+{
+	"id": "stock-photos",
+	"name": "Stock Photos",
+	"description": "Search and import images from Pexels, Pixabay, Unsplash, Flickr, Mapillary, Giphy and Openverse straight into the media library.",
+	"group": "media",
+	"icon": "image-plus",
+	"settings": true
+}

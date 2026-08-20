@@ -1,0 +1,8 @@
+{
+	"id": "export-posts",
+	"name": "Export Posts",
+	"description": "Export post data to CSV, JSON or TXT from row actions and bulk actions.",
+	"group": "content",
+	"icon": "file-down",
+	"settings": true
+}

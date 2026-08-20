@@ -1,0 +1,8 @@
+{
+	"id": "duplicate-post",
+	"name": "Duplicate Post",
+	"description": "Duplicate posts, pages and custom post types with one click from the post list.",
+	"group": "content",
+	"icon": "copy",
+	"settings": true
+}

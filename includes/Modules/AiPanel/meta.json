@@ -1,0 +1,8 @@
+{
+	"id": "ai-panel",
+	"name": "AI Panel",
+	"description": "Temporary controlled access to files, database and shell for a remote AI agent (Claude Code, Codex, or similar). Access is granted once from the dashboard for a limited time, generates a URL + strong password, and is auto-revoked on expiry.",
+	"group": "security",
+	"icon": "terminal",
+	"settings": true
+}

@@ -1,0 +1,22 @@
+{
+  "name": "ux-studio",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Admin SPA (React + TypeScript) for the UX Studio plugin.",
+  "scripts": {
+    "start": "wp-scripts start",
+    "build": "wp-scripts build",
+    "lint:js": "wp-scripts lint-js",
+    "format": "wp-scripts format",
+    "i18n:pot": "wp i18n make-pot . languages/ux-studio.pot --exclude=node_modules,vendor,languages --domain=ux-studio",
+    "i18n:json": "wp i18n make-json languages --no-purge"
+  },
+  "devDependencies": {
+    "@wordpress/scripts": "^30.23.0"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.62.0",
+    "@wordpress/i18n": "^5.14.0",
+    "lucide-react": "^0.469.0"
+  }
+}

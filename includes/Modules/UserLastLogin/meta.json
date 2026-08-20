@@ -1,0 +1,8 @@
+{
+	"id": "user-last-login",
+	"name": "User Last Login",
+	"description": "Record each user's last login time and show it as a column on the Users screen.",
+	"group": "admin",
+	"icon": "log-in",
+	"settings": true
+}

@@ -1,0 +1,8 @@
+{
+	"id": "classic-widgets",
+	"name": "Classic Widgets",
+	"description": "Restore the classic widgets screen by disabling the block-based widgets editor.",
+	"group": "admin",
+	"icon": "layout-grid",
+	"settings": false
+}

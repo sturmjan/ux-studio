@@ -1,0 +1,8 @@
+{
+	"id": "classic-editor",
+	"name": "Classic Editor",
+	"description": "Replace the block editor with the classic editor for selected post types.",
+	"group": "content",
+	"icon": "square-pen",
+	"settings": true
+}

@@ -1,0 +1,8 @@
+{
+	"id": "admin-customiser",
+	"name": "Admin Customiser",
+	"description": "Customize the WordPress admin menu, admin bar, login screen and more.",
+	"group": "admin",
+	"icon": "layout-dashboard",
+	"settings": true
+}

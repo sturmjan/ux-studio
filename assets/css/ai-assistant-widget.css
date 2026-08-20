@@ -1,0 +1,1833 @@
+/**
+ * UX1 AI Asistent Widget - Frontend Chat Widget
+ *
+ * Floating bubble + sidebar panel modes.
+ * Theming via CSS custom properties set from JavaScript.
+ */
+
+/* =========================================================================
+   0. CSS Custom Properties (defaults)
+   ========================================================================= */
+
+#uxstudio-ai-assistant-widget-root {
+    --uxstudio-ais-color: #4f46e5;
+    --uxstudio-ais-text: #ffffff;
+
+    /* Internal helpers */
+    --_uxstudio-ais-radius-panel: 16px;
+    --_uxstudio-ais-radius-bubble: 24px;
+    --_uxstudio-ais-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    --_uxstudio-ais-transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+    all: initial;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+        Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #1e1e1e;
+    box-sizing: border-box;
+    z-index: 99999;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    pointer-events: none;
+}
+
+#uxstudio-ai-assistant-widget-root *,
+#uxstudio-ai-assistant-widget-root *::before,
+#uxstudio-ai-assistant-widget-root *::after {
+    box-sizing: border-box;
+}
+
+/* =========================================================================
+   1. Bubble Trigger Button
+   ========================================================================= */
+
+.uxstudio-ais-trigger {
+    pointer-events: auto;
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: var(--uxstudio-ais-color);
+    color: var(--uxstudio-ais-text);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+    transition: transform var(--_uxstudio-ais-transition),
+        box-shadow var(--_uxstudio-ais-transition);
+    z-index: 99999;
+    animation: uxstudioAisPulse 2s ease-in-out 0.5s 3;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+}
+
+.uxstudio-ais-trigger:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.uxstudio-ais-trigger:active {
+    transform: scale(0.95);
+}
+
+.uxstudio-ais-trigger--left {
+    right: auto;
+    left: 24px;
+}
+
+.uxstudio-ais-trigger svg {
+    width: 26px;
+    height: 26px;
+    fill: currentColor;
+    flex-shrink: 0;
+}
+
+/* Hide trigger when panel open in sidebar mode */
+.uxstudio-ais-trigger--hidden {
+    display: none;
+}
+
+/* =========================================================================
+   2. Chat Panel (Bubble mode - default)
+   ========================================================================= */
+
+.uxstudio-ais-panel {
+    pointer-events: auto;
+    position: fixed;
+    bottom: 96px;
+    right: 24px;
+    width: 400px;
+    max-width: calc(100vw - 32px);
+    min-height: min(560px, calc(100vh - 120px));
+    max-height: min(640px, calc(100vh - 120px));
+    border-radius: var(--_uxstudio-ais-radius-panel);
+    background: #ffffff;
+    box-shadow: var(--_uxstudio-ais-shadow);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 99999;
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+    visibility: hidden;
+    transition: opacity var(--_uxstudio-ais-transition),
+        transform var(--_uxstudio-ais-transition),
+        visibility 0s linear 0.25s;
+}
+
+.uxstudio-ais-panel--open {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    visibility: visible;
+    transition: opacity var(--_uxstudio-ais-transition),
+        transform var(--_uxstudio-ais-transition),
+        visibility 0s linear 0s,
+        width var(--_uxstudio-ais-transition),
+        max-height var(--_uxstudio-ais-transition),
+        max-width var(--_uxstudio-ais-transition),
+        bottom var(--_uxstudio-ais-transition),
+        right var(--_uxstudio-ais-transition),
+        left var(--_uxstudio-ais-transition);
+}
+
+.uxstudio-ais-panel--left {
+    right: auto;
+    left: 24px;
+}
+
+/* Maximized mode */
+.uxstudio-ais-panel--maximized {
+    width: 75vw;
+    max-width: 900px;
+    min-height: 0;
+    max-height: 75vh;
+    bottom: 12.5vh;
+    right: 12.5vw;
+    border-radius: 12px;
+}
+
+.uxstudio-ais-panel--maximized.uxstudio-ais-panel--left {
+    right: auto;
+    left: 12.5vw;
+}
+
+@media (max-width: 768px) {
+    .uxstudio-ais-panel--maximized {
+        width: 100%;
+        max-width: 100%;
+        max-height: 100vh;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        top: 0;
+        border-radius: 0;
+    }
+}
+
+/* =========================================================================
+   3. Sidebar Panel mode
+   ========================================================================= */
+
+.uxstudio-ais-panel--sidebar {
+    bottom: 0;
+    right: 0;
+    top: 0;
+    width: 400px;
+    max-height: 100vh;
+    height: 100vh;
+    border-radius: 0;
+    transform: translateX(100%);
+    opacity: 1;
+}
+
+.uxstudio-ais-panel--sidebar.uxstudio-ais-panel--open {
+    transform: translateX(0);
+    animation: uxstudioAisSlideRight var(--_uxstudio-ais-transition) forwards;
+}
+
+.uxstudio-ais-panel--sidebar.uxstudio-ais-panel--left {
+    right: auto;
+    left: 0;
+    transform: translateX(-100%);
+}
+
+.uxstudio-ais-panel--sidebar.uxstudio-ais-panel--left.uxstudio-ais-panel--open {
+    transform: translateX(0);
+    animation: uxstudioAisSlideLeft var(--_uxstudio-ais-transition) forwards;
+}
+
+/* =========================================================================
+   4. Panel Header
+   ========================================================================= */
+
+.uxstudio-ais-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 16px 14px;
+    background-color: var(--uxstudio-ais-color);
+    color: var(--uxstudio-ais-text);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 20;
+}
+
+.uxstudio-ais-header-title {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.uxstudio-ais-header-title svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+    flex-shrink: 0;
+}
+
+.uxstudio-ais-header-close {
+    background: transparent;
+    border: none;
+    color: var(--uxstudio-ais-text);
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color var(--_uxstudio-ais-transition);
+    flex-shrink: 0;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.uxstudio-ais-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+.uxstudio-ais-header-email {
+    background: transparent;
+    border: none;
+    color: var(--uxstudio-ais-text);
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+    padding: 0;
+    opacity: 0.75;
+    flex-shrink: 0;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.uxstudio-ais-header-email:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    opacity: 1;
+}
+
+.uxstudio-ais-header-email svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    display: block;
+}
+
+.uxstudio-ais-header-close:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.uxstudio-ais-header-close svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+}
+
+/* =========================================================================
+   5. GDPR Consent Screen
+   ========================================================================= */
+
+.uxstudio-ais-gdpr {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+    text-align: center;
+    flex-grow: 1;
+    gap: 16px;
+}
+
+.uxstudio-ais-gdpr-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: var(--uxstudio-ais-color);
+    color: var(--uxstudio-ais-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.uxstudio-ais-gdpr-icon svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+}
+
+.uxstudio-ais-gdpr-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e1e1e;
+    margin: 0;
+}
+
+.uxstudio-ais-gdpr-text {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #50575e;
+    margin: 0;
+}
+
+.uxstudio-ais-gdpr-accept {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 28px;
+    background-color: var(--uxstudio-ais-color);
+    color: var(--uxstudio-ais-text);
+    border: none;
+    border-radius: var(--_uxstudio-ais-radius-bubble);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity var(--_uxstudio-ais-transition),
+        transform var(--_uxstudio-ais-transition);
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.uxstudio-ais-gdpr-accept:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.uxstudio-ais-gdpr-accept:active {
+    transform: translateY(0);
+}
+
+/* =========================================================================
+   5b. GDPR Notice Bar (non-blocking, above input)
+   ========================================================================= */
+
+.uxstudio-ais-gdpr-bar {
+    display: flex;
+    align-items: center;
+    padding: 6px 16px;
+    background: #f0f0f1;
+    border-top: 1px solid #e0e0e0;
+    flex-shrink: 0;
+}
+
+.uxstudio-ais-gdpr-bar-text {
+    font-size: 11px;
+    line-height: 1.4;
+    color: #50575e;
+}
+
+/* =========================================================================
+   5c. Chat Body (messages + input container)
+   ========================================================================= */
+
+.uxstudio-ais-body {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* =========================================================================
+   6. Messages Area
+   ========================================================================= */
+
+.uxstudio-ais-messages {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 16px;
+    gap: 10px;
+    scroll-behavior: smooth;
+    overscroll-behavior: contain;
+}
+
+/* Custom scrollbar */
+.uxstudio-ais-messages::-webkit-scrollbar {
+    width: 5px;
+}
+
+.uxstudio-ais-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.uxstudio-ais-messages::-webkit-scrollbar-thumb {
+    background: #c4c4c4;
+    border-radius: 3px;
+}
+
+.uxstudio-ais-messages::-webkit-scrollbar-thumb:hover {
+    background: #a0a0a0;
+}
+
+/* Message bubble */
+.uxstudio-ais-msg {
+    display: flex;
+    flex-direction: column;
+    max-width: 80%;
+    animation: uxstudioAisFadeIn 0.2s ease-out;
+}
+
+.uxstudio-ais-msg--bot {
+    align-self: flex-start;
+}
+
+.uxstudio-ais-msg--user {
+    align-self: flex-end;
+}
+
+.uxstudio-ais-msg-text {
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.5;
+    word-break: break-word;
+    white-space: pre-wrap;
+}
+
+.uxstudio-ais-msg--bot .uxstudio-ais-msg-text {
+    background-color: #f0f0f1;
+    color: #1e1e1e;
+    border-bottom-left-radius: 4px;
+}
+
+.uxstudio-ais-msg--user .uxstudio-ais-msg-text {
+    background-color: var(--uxstudio-ais-color);
+    color: var(--uxstudio-ais-text);
+    border-bottom-right-radius: 4px;
+}
+
+/* Links inside messages */
+.uxstudio-ais-msg-text a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.uxstudio-ais-msg-text a:hover {
+    opacity: 0.85;
+}
+
+/* Message timestamp */
+.uxstudio-ais-msg-time {
+    font-size: 11px;
+    color: #8c8f94;
+    margin-top: 4px;
+    padding: 0 4px;
+}
+
+.uxstudio-ais-msg--user .uxstudio-ais-msg-time {
+    text-align: right;
+}
+
+/* =========================================================================
+   7. Typing Indicator
+   ========================================================================= */
+
+.uxstudio-ais-typing {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 16px;
+    background-color: #f0f0f1;
+    border-radius: 16px;
+    border-bottom-left-radius: 4px;
+    align-self: flex-start;
+    max-width: 60px;
+}
+
+.uxstudio-ais-typing-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: #8c8f94;
+    animation: uxstudioAisBounce 1.4s infinite ease-in-out;
+}
+
+.uxstudio-ais-typing-dot:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.uxstudio-ais-typing-dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.uxstudio-ais-typing-dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+/* =========================================================================
+   8. Product Carousel & Cards (in chat)
+   ========================================================================= */
+
+.uxstudio-ais-product-wrapper,
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-product-wrapper {
+    position: relative !important;
+    padding-right: 28px;
+}
+
+.uxstudio-ais-product-carousel,
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-product-carousel {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding: 8px 2px 12px;
+    margin: 4px -2px 0;
+    scrollbar-width: thin;
+    scrollbar-color: #c0c0c0 transparent;
+}
+
+.uxstudio-ais-product-carousel::-webkit-scrollbar {
+    height: 4px;
+}
+
+.uxstudio-ais-product-carousel::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.uxstudio-ais-product-carousel::-webkit-scrollbar-thumb {
+    background: #c0c0c0;
+    border-radius: 2px;
+}
+
+.uxstudio-ais-product-card {
+    flex: 0 0 170px;
+    width: 170px;
+    min-width: 0;
+    scroll-snap-align: start;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #ffffff;
+    text-decoration: none;
+    color: #1e1e1e;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow var(--_uxstudio-ais-transition), transform var(--_uxstudio-ais-transition);
+}
+
+.uxstudio-ais-product-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+    text-decoration: none;
+    color: #1e1e1e;
+}
+
+.uxstudio-ais-product-card-img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    display: block;
+    flex-shrink: 0;
+}
+
+.uxstudio-ais-product-card-body {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.uxstudio-ais-product-card-name {
+    font-weight: 600;
+    font-size: 12px;
+    color: #1e1e1e;
+    margin: 0 0 4px;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.uxstudio-ais-product-card-price {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e1e1e;
+    margin: 0 0 6px;
+}
+
+.uxstudio-ais-product-card-link {
+    display: inline-block;
+    margin-top: auto;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--uxstudio-ais-color);
+    text-decoration: none;
+}
+
+.uxstudio-ais-product-card:hover .uxstudio-ais-product-card-link {
+    text-decoration: underline;
+}
+
+/* =========================================================================
+   9. FAQ Suggestions
+   ========================================================================= */
+
+.uxstudio-ais-faqs {
+    display: flex;
+    flex-direction: column;
+    margin: 0 16px 12px;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.uxstudio-ais-faqs-title {
+    padding: 0 2px 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #86868b;
+}
+
+.uxstudio-ais-faqs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.uxstudio-ais-faqs-list--hidden {
+    display: none;
+}
+
+.uxstudio-ais-faqs-list + .uxstudio-ais-faqs-list {
+    margin-top: 6px;
+}
+
+.uxstudio-ais-faq-chip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 13px;
+    line-height: 1.35;
+    text-align: left;
+    color: #1e1e1e;
+    background: #f0f0f2;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color var(--_uxstudio-ais-transition), color var(--_uxstudio-ais-transition);
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.uxstudio-ais-faq-chip-text {
+    flex: 1;
+}
+
+.uxstudio-ais-faq-chip-icon {
+    display: flex;
+    flex-shrink: 0;
+    color: #9c9ca3;
+    transition: transform var(--_uxstudio-ais-transition), color var(--_uxstudio-ais-transition);
+}
+
+.uxstudio-ais-faq-chip:hover {
+    background-color: #e6e6ea;
+    color: var(--uxstudio-ais-color);
+}
+
+.uxstudio-ais-faq-chip:hover .uxstudio-ais-faq-chip-icon {
+    color: var(--uxstudio-ais-color);
+    transform: translateX(2px);
+}
+
+.uxstudio-ais-faq-chip:active {
+    background-color: #dcdce1;
+}
+
+.uxstudio-ais-faq-more {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    margin-top: 6px;
+    padding: 9px 14px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--uxstudio-ais-color);
+    background: transparent;
+    border: 1px dashed #d4d4d8;
+    border-radius: 10px;
+    cursor: pointer;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color var(--_uxstudio-ais-transition), border-color var(--_uxstudio-ais-transition);
+}
+
+.uxstudio-ais-faq-more:hover {
+    background-color: rgba(0, 0, 0, 0.035);
+    border-color: #c4c4ca;
+}
+
+.uxstudio-ais-faq-more-icon {
+    display: flex;
+    transition: transform var(--_uxstudio-ais-transition);
+}
+
+.uxstudio-ais-faq-more--expanded .uxstudio-ais-faq-more-icon {
+    transform: rotate(180deg);
+}
+
+/* =========================================================================
+   10. Input Area
+   ========================================================================= */
+
+.uxstudio-ais-input-area {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 12px 12px 16px;
+    border-top: 1px solid #e0e0e0;
+    background: #ffffff;
+    flex-shrink: 0;
+}
+
+.uxstudio-ais-input {
+    flex-grow: 1;
+    border: 1px solid #dcdcde;
+    border-radius: 24px;
+    padding: 9px 16px;
+    font-size: 14px;
+    font-family: inherit;
+    line-height: 1.4;
+    color: #1e1e1e;
+    background: #f6f7f7;
+    outline: none;
+    transition: border-color var(--_uxstudio-ais-transition),
+        background-color var(--_uxstudio-ais-transition);
+    resize: none;
+    min-height: 0;
+}
+
+.uxstudio-ais-input::placeholder {
+    color: #8c8f94;
+}
+
+.uxstudio-ais-input:focus {
+    border-color: var(--uxstudio-ais-color);
+    background: #ffffff;
+}
+
+.uxstudio-ais-send {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: none;
+    background-color: var(--uxstudio-ais-color);
+    color: var(--uxstudio-ais-text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: opacity var(--_uxstudio-ais-transition),
+        transform var(--_uxstudio-ais-transition);
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.uxstudio-ais-send:hover {
+    opacity: 0.9;
+    transform: scale(1.05);
+}
+
+.uxstudio-ais-send:active {
+    transform: scale(0.95);
+}
+
+.uxstudio-ais-send:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.uxstudio-ais-send svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+}
+
+/* =========================================================================
+   11. Powered By (optional footer)
+   ========================================================================= */
+
+.uxstudio-ais-powered {
+    text-align: center;
+    padding: 6px 16px 10px;
+    font-size: 11px;
+    color: #8c8f94;
+    flex-shrink: 0;
+}
+
+.uxstudio-ais-powered a {
+    color: #50575e;
+    text-decoration: none;
+}
+
+.uxstudio-ais-powered a:hover {
+    text-decoration: underline;
+}
+
+/* =========================================================================
+   12. Animations
+   ========================================================================= */
+
+@keyframes uxstudioAisFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes uxstudioAisSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes uxstudioAisSlideRight {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes uxstudioAisSlideLeft {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes uxstudioAisBounce {
+    0%,
+    80%,
+    100% {
+        transform: scale(0);
+    }
+    40% {
+        transform: scale(1);
+    }
+}
+
+@keyframes uxstudioAisPulse {
+    0% {
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+    }
+    50% {
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2),
+            0 0 0 10px rgba(79, 70, 229, 0.15);
+    }
+    100% {
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2),
+            0 0 0 20px rgba(79, 70, 229, 0);
+    }
+}
+
+/* =========================================================================
+   13. Mobile Responsive (max-width: 768px)
+   ========================================================================= */
+
+@media (max-width: 768px) {
+    .uxstudio-ais-panel {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        max-width: none;
+        min-height: 100%;
+        max-height: 100%;
+        height: 100%;
+        border-radius: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        top: 0;
+    }
+
+    .uxstudio-ais-panel--left {
+        left: 0;
+        right: 0;
+    }
+
+    .uxstudio-ais-panel--sidebar {
+        width: 100%;
+    }
+
+    .uxstudio-ais-trigger {
+        bottom: 16px;
+        right: 16px;
+    }
+
+    .uxstudio-ais-trigger--left {
+        right: auto;
+        left: 16px;
+    }
+
+    .uxstudio-ais-product-carousel {
+        gap: 8px;
+    }
+
+    .uxstudio-ais-product-card {
+        flex: 0 0 150px;
+        width: 150px;
+    }
+}
+
+/* =========================================================================
+   14. Reduced Motion
+   ========================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    .uxstudio-ais-trigger {
+        animation: none;
+    }
+
+    .uxstudio-ais-trigger:hover {
+        transform: none;
+    }
+
+    .uxstudio-ais-panel {
+        transition: opacity 0.1s ease;
+    }
+
+    .uxstudio-ais-panel--sidebar.uxstudio-ais-panel--open {
+        animation: none;
+    }
+
+    .uxstudio-ais-panel--sidebar.uxstudio-ais-panel--left.uxstudio-ais-panel--open {
+        animation: none;
+    }
+
+    .uxstudio-ais-msg {
+        animation: none;
+    }
+
+    .uxstudio-ais-typing-dot {
+        animation: none;
+        opacity: 0.6;
+    }
+
+    .uxstudio-ais-typing-dot:nth-child(2) {
+        opacity: 0.8;
+    }
+
+    .uxstudio-ais-typing-dot:nth-child(3) {
+        opacity: 1;
+    }
+}
+
+/* =========================================================================
+   15. Theme Isolation (Woodmart / Elementor global button & form overrides)
+   ========================================================================= */
+
+/* Reset ALL buttons inside widget - beats Woodmart :is(button) specificity */
+#uxstudio-ai-assistant-widget-root button,
+#uxstudio-ai-assistant-widget-root button[type="button"] {
+    padding: 0;
+    min-height: 0;
+    font-size: inherit;
+    font-weight: inherit;
+    font-family: inherit;
+    font-style: normal;
+    text-transform: none;
+    text-shadow: none;
+    text-decoration: none;
+    line-height: inherit;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    color: inherit;
+    background-color: transparent;
+    position: static;
+    vertical-align: baseline;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* Trigger button */
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-trigger {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: var(--uxstudio-ais-color);
+    color: var(--uxstudio-ais-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+    transition: transform var(--_uxstudio-ais-transition), box-shadow var(--_uxstudio-ais-transition);
+    z-index: 99999;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-trigger:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* Header actions */
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+/* Email button */
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-header-email {
+    background: transparent;
+    border: none;
+    color: var(--uxstudio-ais-text);
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    opacity: 0.75;
+    transition: background-color var(--_uxstudio-ais-transition), opacity var(--_uxstudio-ais-transition);
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-header-email:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    opacity: 1;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-header-email svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    display: block;
+}
+
+/* Close button */
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-header-close {
+    background: transparent;
+    color: var(--uxstudio-ais-text);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color var(--_uxstudio-ais-transition);
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-header-close:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Send button */
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-send {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background-color: var(--uxstudio-ais-color);
+    color: var(--uxstudio-ais-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity var(--_uxstudio-ais-transition), transform var(--_uxstudio-ais-transition);
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-send:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* FAQ chips */
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-faqs {
+    display: flex;
+    flex-direction: column;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-faqs-title {
+    padding: 0 2px 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #86868b;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-faqs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-faqs-list--hidden {
+    display: none;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-faqs-list + .uxstudio-ais-faqs-list {
+    margin-top: 6px;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-faq-chip {
+    color: #1e1e1e;
+    background: #f0f0f2;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    line-height: 1.35;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    text-align: left;
+    transition: background-color var(--_uxstudio-ais-transition), color var(--_uxstudio-ais-transition);
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-faq-chip-icon {
+    display: flex;
+    flex-shrink: 0;
+    color: #9c9ca3;
+    transition: transform var(--_uxstudio-ais-transition), color var(--_uxstudio-ais-transition);
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-faq-chip:hover {
+    background-color: #e6e6ea;
+    color: var(--uxstudio-ais-color);
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-faq-chip:hover .uxstudio-ais-faq-chip-icon {
+    color: var(--uxstudio-ais-color);
+    transform: translateX(2px);
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-faq-more {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    margin-top: 6px;
+    padding: 9px 14px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--uxstudio-ais-color);
+    background: transparent;
+    border: 1px dashed #d4d4d8;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-faq-more:hover {
+    background-color: rgba(0, 0, 0, 0.035);
+    border-color: #c4c4ca;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-faq-more-icon {
+    display: flex;
+    transition: transform var(--_uxstudio-ais-transition);
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-faq-more--expanded .uxstudio-ais-faq-more-icon {
+    transform: rotate(180deg);
+}
+
+/* Textarea reset */
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-input {
+    -webkit-appearance: none;
+    appearance: none;
+    box-shadow: none;
+    height: auto;
+    min-height: 0;
+    max-width: none;
+    width: auto;
+    flex-grow: 1;
+    padding: 9px 16px;
+    border: 1px solid #dcdcde;
+    border-radius: 24px;
+    background: #f6f7f7;
+    color: #1e1e1e;
+    font-size: 14px;
+    font-family: inherit;
+    line-height: 1.4;
+    resize: none;
+    overflow: hidden;
+    overflow-wrap: break-word;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-input:focus {
+    border-color: var(--uxstudio-ais-color);
+    background: #ffffff;
+}
+
+/* SVG isolation - ensure correct fill/stroke on all icons */
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-trigger svg {
+    width: 26px;
+    height: 26px;
+    fill: currentColor;
+    flex-shrink: 0;
+    display: block;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-trigger svg path {
+    fill: currentColor;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-header-title svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+    flex-shrink: 0;
+    display: inline-block;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-header-title svg path {
+    fill: currentColor;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-header-close svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    display: block;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-header-close svg line {
+    stroke: currentColor;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-send svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    display: block;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-send svg line,
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-send svg polygon {
+    stroke: currentColor;
+    fill: none;
+}
+
+/* Product arrow */
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-product-arrow,
+#uxstudio-ai-assistant-widget-root button.uxstudio-ais-product-arrow {
+    all: unset !important;
+    position: absolute !important;
+    right: 0 !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 28px !important;
+    height: 40px !important;
+    border-radius: 6px !important;
+    background: rgba(255,255,255,0.9) !important;
+    box-shadow: -2px 0 8px rgba(0,0,0,0.08) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #555 !important;
+    z-index: 2 !important;
+    cursor: pointer !important;
+    transition: color 0.15s, background 0.15s !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-product-arrow:hover,
+#uxstudio-ai-assistant-widget-root button.uxstudio-ais-product-arrow:hover {
+    color: #1e1e1e !important;
+    background: #fff !important;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-product-arrow svg {
+    width: 16px !important;
+    height: 16px !important;
+    stroke: currentColor !important;
+    fill: none !important;
+    display: block !important;
+}
+
+/* Product card links isolation */
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-product-card {
+    text-decoration: none;
+    color: #1e1e1e;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-product-card:hover,
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-product-card:focus,
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-product-card:visited {
+    text-decoration: none;
+    color: #1e1e1e;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-product-card-link {
+    color: var(--uxstudio-ais-color);
+    text-decoration: none;
+}
+
+/* =========================================================================
+   16. Contact form overlay
+   ========================================================================= */
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-contact-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #fff;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 56px 16px 16px; /* header height + side/bottom padding */
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-contact-back,
+#uxstudio-ai-assistant-widget-root button.uxstudio-ais-contact-back {
+    all: unset !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 8px 0 4px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    font-family: inherit !important;
+    line-height: 1.4 !important;
+    color: var(--uxstudio-ais-color) !important;
+    background: transparent !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: opacity 0.15s !important;
+    margin: 0 !important;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-contact-back:hover,
+#uxstudio-ai-assistant-widget-root button.uxstudio-ais-contact-back:hover {
+    opacity: 0.7 !important;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-contact-back svg {
+    width: 16px !important;
+    height: 16px !important;
+    stroke: currentColor !important;
+    fill: none !important;
+    display: block !important;
+    flex-shrink: 0 !important;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-contact-title {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: #1e1e1e;
+    padding: 8px 0 4px;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-contact-form {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-contact-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    display: block;
+    line-height: 1.3;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-contact-input,
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-contact-textarea {
+    all: unset;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    line-height: 1.4;
+    color: #1e1e1e;
+    background: #f6f7f7;
+    border: 1px solid #d0d0d0;
+    border-radius: 8px;
+    transition: border-color 0.2s;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-contact-input:focus,
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-contact-textarea:focus {
+    border-color: var(--uxstudio-ais-color);
+    background: #fff;
+    outline: none;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-contact-textarea {
+    resize: vertical;
+    min-height: 56px;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-contact-note {
+    font-size: 11px;
+    font-weight: 400;
+    color: #8c8f94;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-contact-submit,
+#uxstudio-ai-assistant-widget-root button.uxstudio-ais-contact-submit {
+    all: unset !important;
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 12px 16px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    font-family: inherit !important;
+    line-height: 1.4 !important;
+    color: #fff !important;
+    background: var(--uxstudio-ais-color) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    text-align: center !important;
+    transition: opacity 0.2s !important;
+    margin-top: 8px !important;
+    letter-spacing: 0.01em !important;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-contact-submit:hover,
+#uxstudio-ai-assistant-widget-root button.uxstudio-ais-contact-submit:hover {
+    opacity: 0.9 !important;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-contact-submit:disabled,
+#uxstudio-ai-assistant-widget-root button.uxstudio-ais-contact-submit:disabled {
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-contact-status {
+    font-size: 12px;
+    color: #666;
+    text-align: center;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-contact-status--error {
+    color: #d63638;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-contact-success {
+    padding: 24px 10px;
+    font-size: 14px;
+    color: #00a32a;
+    font-weight: 500;
+    text-align: center;
+}
+
+/* =========================================================================
+   17. Star rating
+   ========================================================================= */
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-rating {
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 8px 16px 8px 40px;
+    text-align: center;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-rating-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-rating-stars {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-rating-star {
+    all: unset;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: #c0c0c0;
+    transition: color 0.15s, transform 0.15s;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-rating-star:hover {
+    transform: scale(1.15);
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-rating-star--active {
+    color: #f0b429;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-rating-star:disabled {
+    cursor: default;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-rating-star:disabled:hover {
+    transform: none;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-rating-feedback {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-rating-submit {
+    all: unset;
+    display: inline-block;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--uxstudio-ais-text);
+    background: var(--uxstudio-ais-color);
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: opacity 0.2s;
+    align-self: center;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-rating-submit:hover {
+    opacity: 0.9;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-rating-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-rating-thanks {
+    font-size: 13px;
+    font-weight: 500;
+    color: #00a32a;
+    text-align: center;
+    padding: 8px;
+}
+
+@media (max-width: 768px) {
+    #uxstudio-ai-assistant-widget-root .uxstudio-ais-rating {
+        margin: 8px;
+    }
+}
+
+/* =========================================================================
+   18. Inactivity prompt buttons
+   ========================================================================= */
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-inactivity-btns {
+    display: flex;
+    gap: 8px;
+    margin: 8px 16px 8px 40px;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-inactivity-btn,
+#uxstudio-ai-assistant-widget-root button.uxstudio-ais-inactivity-btn {
+    all: unset !important;
+    display: inline-block !important;
+    padding: 7px 18px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    font-family: inherit !important;
+    line-height: 1.4 !important;
+    border-radius: 20px !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: opacity 0.15s, transform 0.15s !important;
+    margin: 0 !important;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-inactivity-btn:hover,
+#uxstudio-ai-assistant-widget-root button.uxstudio-ais-inactivity-btn:hover {
+    opacity: 0.85 !important;
+    transform: scale(1.03) !important;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-inactivity-btn--yes,
+#uxstudio-ai-assistant-widget-root button.uxstudio-ais-inactivity-btn--yes {
+    color: #fff !important;
+    background: var(--uxstudio-ais-color) !important;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-inactivity-btn--no,
+#uxstudio-ai-assistant-widget-root button.uxstudio-ais-inactivity-btn--no {
+    color: #555 !important;
+    background: #e0e0e0 !important;
+}
+
+@media (max-width: 768px) {
+    #uxstudio-ai-assistant-widget-root .uxstudio-ais-inactivity-btns {
+        margin: 8px;
+    }
+}
+
+/* =========================================================================
+   19. Print
+   ========================================================================= */
+
+@media print {
+    #uxstudio-ai-assistant-widget-root {
+        display: none !important;
+    }
+}
+
+/* =========================================================================
+   Handoff (live operator)
+   ========================================================================= */
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-handoff-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 14px;
+    background: linear-gradient(90deg, #fff7e6 0%, #ffe8b3 100%);
+    border-bottom: 1px solid #ffcf7a;
+    font-size: 12px;
+    color: #5a3c00;
+    font-weight: 500;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-handoff-banner-text {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-handoff-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ff8c00;
+    animation: uxstudio-ais-pulse 1.6s infinite;
+    flex-shrink: 0;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-handoff-dot--live {
+    background: #22c55e;
+    animation: none;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+}
+
+@keyframes uxstudio-ais-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-handoff-cancel {
+    background: transparent;
+    border: 1px solid #c29c5a;
+    color: #5a3c00;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-handoff-cancel:hover {
+    background: rgba(194, 156, 90, 0.15);
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-handoff-system {
+    align-self: center;
+    margin: 8px auto;
+    padding: 4px 12px;
+    background: rgba(0, 0, 0, 0.04);
+    color: #666;
+    font-size: 11px;
+    font-style: italic;
+    border-radius: 10px;
+    text-align: center;
+    max-width: 85%;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-msg-agent-name {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.75;
+    margin-bottom: 4px;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-handoff-timeout {
+    align-self: stretch;
+    margin: 12px 8px;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, #fff7f5 0%, #fff0eb 100%);
+    border: 1px solid #ffd4c5;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(255, 140, 90, 0.08);
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-handoff-timeout-text {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #5a2a10;
+    margin-bottom: 12px;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-handoff-timeout-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-handoff-timeout-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    color: #d2691e;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(210, 105, 30, 0.25);
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.05s;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-handoff-timeout-link:hover {
+    background: #d2691e;
+    color: #fff;
+    border-color: #d2691e;
+    text-decoration: none;
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-handoff-timeout-link:active {
+    transform: translateY(1px);
+}
+
+#uxstudio-ai-assistant-widget-root .uxstudio-ais-handoff-timeout-link svg {
+    flex-shrink: 0;
+}

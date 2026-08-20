@@ -1,0 +1,8 @@
+{
+	"id": "notice-board",
+	"name": "Notice Board",
+	"description": "Public notice board with downloadable documents, categories and email subscriptions.",
+	"group": "content",
+	"icon": "bell",
+	"settings": true
+}

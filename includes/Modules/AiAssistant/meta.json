@@ -1,0 +1,8 @@
+{
+	"id": "ai-assistant",
+	"name": "AI Assistant",
+	"description": "AI chat widget with knowledge base (RAG), FAQ, human handoff, blog auto-generation and multi-provider support (Claude, OpenAI, DeepSeek).",
+	"group": "content",
+	"icon": "bot",
+	"settings": true
+}

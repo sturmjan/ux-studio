@@ -1,0 +1,8 @@
+{
+	"id": "file-manager",
+	"name": "File Manager",
+	"description": "Browse and manage server files through the embedded Tiny File Manager. Access is restricted to an explicit whitelist of administrators.",
+	"group": "developer",
+	"icon": "folder-open",
+	"settings": true
+}

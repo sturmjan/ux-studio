@@ -1,0 +1,8 @@
+{
+	"id": "export-users",
+	"name": "Export Users",
+	"description": "Export user data to CSV, JSON or TXT from row actions, bulk actions and profiles.",
+	"group": "admin",
+	"icon": "users",
+	"settings": true
+}

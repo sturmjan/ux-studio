@@ -1,0 +1,8 @@
+{
+	"id": "code-snippets",
+	"name": "Code Snippets",
+	"description": "Run PHP, HTML, CSS or JS snippets in the header or footer of your site.",
+	"group": "developer",
+	"icon": "code",
+	"settings": true
+}

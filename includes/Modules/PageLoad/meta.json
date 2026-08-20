@@ -1,0 +1,8 @@
+{
+	"id": "page-load",
+	"name": "Page Load",
+	"description": "Sample and report server-side page response times.",
+	"group": "performance",
+	"icon": "gauge",
+	"settings": true
+}

@@ -1,0 +1,8 @@
+{
+	"id": "admin-columns",
+	"name": "Admin Columns",
+	"description": "Customize the columns shown in admin list tables for posts, pages, media, comments and users.",
+	"group": "admin",
+	"icon": "table",
+	"settings": true
+}

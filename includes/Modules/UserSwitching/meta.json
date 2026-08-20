@@ -1,0 +1,8 @@
+{
+	"id": "user-switching",
+	"name": "User Switching",
+	"description": "Instantly switch between user accounts to test roles and troubleshoot, then switch straight back.",
+	"group": "developer",
+	"icon": "user-cog",
+	"settings": false
+}

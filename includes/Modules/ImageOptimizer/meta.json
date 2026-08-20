@@ -1,0 +1,8 @@
+{
+	"id": "image-optimizer",
+	"name": "Image Optimizer",
+	"description": "Compress media library images and generate WebP copies, with originals always kept as backups.",
+	"group": "media",
+	"icon": "image-minus",
+	"settings": true
+}

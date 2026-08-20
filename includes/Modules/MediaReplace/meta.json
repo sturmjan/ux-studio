@@ -1,0 +1,8 @@
+{
+	"id": "media-replace",
+	"name": "Media Replace",
+	"description": "Replace an image or file in the media library by uploading a new one, keeping the same URL.",
+	"group": "media",
+	"icon": "replace",
+	"settings": false
+}

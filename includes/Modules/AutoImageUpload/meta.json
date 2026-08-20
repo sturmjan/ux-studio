@@ -1,0 +1,8 @@
+{
+	"id": "auto-image-upload",
+	"name": "Auto Image Upload",
+	"description": "Automatically sideload external images pasted into the editor (from another site or data: URLs) into the media library.",
+	"group": "media",
+	"icon": "image-down",
+	"settings": true
+}

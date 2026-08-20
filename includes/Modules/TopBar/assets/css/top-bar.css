@@ -1,0 +1,61 @@
+/* Top Bar: Base */
+#uxstudio-top-bar {
+	position: relative;
+	width: 100%;
+	overflow: hidden;
+	white-space: nowrap;
+	z-index: 99999;
+	font-size: 14px;
+	line-height: 1.4;
+	padding: 8px 0;
+	text-align: center;
+}
+
+/* Track (flex container) */
+.uxstudio-top-bar__track {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+}
+
+/* Content */
+.uxstudio-top-bar__content {
+	display: inline-block;
+	white-space: nowrap;
+	padding: 0 20px;
+}
+
+/* Strip block-level margins from editor output */
+.uxstudio-top-bar__content p,
+.uxstudio-top-bar__content ul,
+.uxstudio-top-bar__content ol {
+	display: inline;
+	margin: 0;
+	padding: 0;
+}
+
+/* Marquee state */
+.uxstudio-top-bar--marquee .uxstudio-top-bar__track {
+	justify-content: flex-start;
+	animation: uxstudio-top-bar-scroll var(--uxstudio-tb-duration, 20s) linear infinite;
+	width: max-content;
+}
+
+.uxstudio-top-bar--marquee .uxstudio-top-bar__content {
+	flex-shrink: 0;
+}
+
+@keyframes uxstudio-top-bar-scroll {
+	0% {
+		transform: translateX(0);
+	}
+	100% {
+		transform: translateX(-50%);
+	}
+}
+
+/* Pause on hover */
+.uxstudio-top-bar--marquee:hover .uxstudio-top-bar__track {
+	animation-play-state: paused;
+}

@@ -1,0 +1,8 @@
+{
+	"id": "dashboard-widgets",
+	"name": "Dashboard Widgets",
+	"description": "PageSpeed score, recent activity and quick tasks/notes.",
+	"group": "content",
+	"icon": "layout-dashboard",
+	"settings": true
+}

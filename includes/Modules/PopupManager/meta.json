@@ -1,0 +1,8 @@
+{
+	"id": "popup-manager",
+	"name": "Popup Manager",
+	"description": "Create and target on-site popups with delay, scroll or page-load triggers and track impressions/clicks.",
+	"group": "content",
+	"icon": "message-square",
+	"settings": true
+}
