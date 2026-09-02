@@ -40,23 +40,23 @@ final class HtaccessWriter {
 			if ( $canonical['uses_https'] ) {
 				$rules[] = '';
 				$rules[] = 'RewriteCond %{HTTPS} off';
-				$rules[] = 'RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]';
+				$rules[] = 'RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [L,R=301]';
 			}
 
 			if ( $canonical['uses_www'] ) {
 				$rules[] = '';
 				$rules[] = 'RewriteCond %{HTTP_HOST} !^www\. [NC]';
-				$rules[] = 'RewriteRule ^(.*)$ ' . ( $canonical['uses_https'] ? 'https' : 'http' ) . '://www.%{HTTP_HOST}%{REQUEST_URI} [L,R=301]';
+				$rules[] = 'RewriteRule ^(.*)$ ' . ( $canonical['uses_https'] ? 'https' : 'http' ) . '://www.%{HTTP_HOST}/$1 [L,R=301]';
 			} else {
 				$rules[] = '';
 				$rules[] = 'RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]';
-				$rules[] = 'RewriteRule ^(.*)$ ' . ( $canonical['uses_https'] ? 'https' : 'http' ) . '://%1%{REQUEST_URI} [L,R=301]';
+				$rules[] = 'RewriteRule ^(.*)$ ' . ( $canonical['uses_https'] ? 'https' : 'http' ) . '://%1/$1 [L,R=301]';
 			}
 		} elseif ( ! empty( $settings['force_https'] ) ) {
 			$rules[] = '# Force HTTPS';
 			$rules[] = 'RewriteEngine On';
 			$rules[] = 'RewriteCond %{HTTPS} off';
-			$rules[] = 'RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]';
+			$rules[] = 'RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [L,R=301]';
 		}
 
 		if ( ! empty( $settings['disable_directory_listing'] ) ) {
