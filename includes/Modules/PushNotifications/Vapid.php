@@ -24,6 +24,21 @@ final class Vapid {
 	private const OPTION_PUBLIC  = 'uxstudio_push_vapid_public';
 
 	/**
+	 * openssl.cnf hint so openssl_pkey_new can find its config on Windows/XAMPP
+	 * (on Linux the default config is used and this returns an empty array).
+	 *
+	 * @return array<string,string>
+	 */
+	private static function openssl_config(): array {
+		foreach ( array( 'D:/xampp/apache/conf/openssl.cnf', 'D:/xampp/php/extras/ssl/openssl.cnf', 'D:/xampp/apache/bin/openssl.cnf' ) as $path ) {
+			if ( file_exists( $path ) ) {
+				return array( 'config' => $path );
+			}
+		}
+		return array();
+	}
+
+	/**
 	 * The current public key (base64url, uncompressed EC point), generating
 	 * a fresh keypair on first access if none exists yet.
 	 */
@@ -53,16 +68,19 @@ final class Vapid {
 		}
 
 		$resource = openssl_pkey_new(
-			array(
-				'private_key_type' => OPENSSL_KEYTYPE_EC,
-				'curve_name'       => 'prime256v1',
+			array_merge(
+				array(
+					'private_key_type' => OPENSSL_KEYTYPE_EC,
+					'curve_name'       => 'prime256v1',
+				),
+				self::openssl_config()
 			)
 		);
 		if ( false === $resource ) {
 			return false;
 		}
 
-		$exported = openssl_pkey_export( $resource, $private_pem );
+		$exported = openssl_pkey_export( $resource, $private_pem, null, self::openssl_config() );
 		$details  = openssl_pkey_get_details( $resource );
 		if ( ! $exported || false === $details || empty( $details['ec']['x'] ) || empty( $details['ec']['y'] ) ) {
 			return false;

@@ -16,19 +16,16 @@ use WP_Error;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Ported/redesigned from the legacy push-notifications module.
- *
- * DEVIATION (documented, see project report): actually delivering a Web Push
- * message (encrypting the payload per-subscriber and POSTing to each
- * endpoint with a signed VAPID JWT) is a substantial standalone feature. This
- * pass implements the full subscribe/track/manage pipeline and VAPID keypair
- * generation, but Module::send_notification() only records the notification
- * as "queued" (sent_count = -1) and logs the action - actual delivery is a
- * TODO for a follow-up change.
+ * Ported/redesigned from the legacy push-notifications module. Delivers real
+ * Web Push messages: the payload is encrypted per subscriber (RFC 8291,
+ * aes128gcm) and POSTed to each endpoint with a VAPID-signed request
+ * (RFC 8292). Supports immediate or scheduled sending, a basic audience
+ * segment and delivery/click analytics.
  */
 final class Module extends BaseModule {
 
-	private const SENT_QUEUED = -1;
+	/** Cron hook for scheduled sends. */
+	public const CRON_SEND = 'uxstudio_push_send';
 
 	private Vapid $vapid;
 
@@ -46,10 +43,11 @@ final class Module extends BaseModule {
 	 */
 	public function boot(): void {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+		add_action( self::CRON_SEND, array( $this, 'cron_send' ) );
 
 		DB::ensure_module_tables(
 			'push-notifications',
-			1,
+			2,
 			function ( int $from ): void {
 				global $wpdb;
 				$charset = $wpdb->get_charset_collate();
@@ -72,7 +70,12 @@ final class Module extends BaseModule {
 						created_at DATETIME NOT NULL,
 						title VARCHAR(255) NOT NULL DEFAULT '',
 						body TEXT NULL,
+						url VARCHAR(500) NOT NULL DEFAULT '',
+						icon VARCHAR(500) NOT NULL DEFAULT '',
+						segment VARCHAR(40) NOT NULL DEFAULT 'all',
+						scheduled_at DATETIME NULL,
 						sent_count BIGINT NOT NULL DEFAULT 0,
+						delivered_count BIGINT NOT NULL DEFAULT 0,
 						PRIMARY KEY  (id),
 						KEY created_at (created_at)
 					) {$charset};"
@@ -116,7 +119,7 @@ final class Module extends BaseModule {
 				'key'     => 'vapid_subject',
 				'type'    => 'text',
 				'label'   => __( 'VAPID contact (mailto: or URL)', 'ux-studio' ),
-				'help'    => __( 'Used as the "sub" claim of the VAPID JWT once real delivery is implemented.', 'ux-studio' ),
+				'help'    => __( 'Used as the "sub" claim of the VAPID JWT sent with each push. Defaults to the site admin email.', 'ux-studio' ),
 				'default' => '',
 			),
 		);
@@ -256,6 +259,9 @@ final class Module extends BaseModule {
 	// Notifications
 	// =====================================================================
 
+	/** Column list shared by list/get. */
+	private const NOTIFICATION_COLS = 'id, created_at, title, body, url, icon, segment, scheduled_at, sent_count, delivered_count';
+
 	/**
 	 * All notifications, newest first.
 	 *
@@ -264,7 +270,7 @@ final class Module extends BaseModule {
 	public function list_notifications(): array {
 		global $wpdb;
 		$rows = $wpdb->get_results(
-			"SELECT id, created_at, title, body, sent_count FROM {$wpdb->prefix}uxstudio_push_notifications ORDER BY id DESC",
+			'SELECT ' . self::NOTIFICATION_COLS . " FROM {$wpdb->prefix}uxstudio_push_notifications ORDER BY id DESC",
 			ARRAY_A
 		);
 		$rows = is_array( $rows ) ? $rows : array();
@@ -278,7 +284,7 @@ final class Module extends BaseModule {
 		global $wpdb;
 		$row = $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT id, created_at, title, body, sent_count FROM {$wpdb->prefix}uxstudio_push_notifications WHERE id = %d",
+				'SELECT ' . self::NOTIFICATION_COLS . " FROM {$wpdb->prefix}uxstudio_push_notifications WHERE id = %d",
 				$id
 			),
 			ARRAY_A
@@ -289,7 +295,7 @@ final class Module extends BaseModule {
 	/**
 	 * Create a draft notification (not sent).
 	 *
-	 * @param array $data { title, body }.
+	 * @param array $data { title, body, url?, icon?, segment? }.
 	 */
 	public function create_notification( array $data ): array {
 		global $wpdb;
@@ -300,9 +306,12 @@ final class Module extends BaseModule {
 				'created_at' => current_time( 'mysql' ),
 				'title'      => mb_substr( sanitize_text_field( (string) ( $data['title'] ?? '' ) ), 0, 255 ),
 				'body'       => sanitize_textarea_field( (string) ( $data['body'] ?? '' ) ),
+				'url'        => esc_url_raw( (string) ( $data['url'] ?? '' ) ),
+				'icon'       => esc_url_raw( (string) ( $data['icon'] ?? '' ) ),
+				'segment'    => $this->sanitize_segment( (string) ( $data['segment'] ?? 'all' ) ),
 				'sent_count' => 0,
 			),
-			array( '%s', '%s', '%s', '%d' )
+			array( '%s', '%s', '%s', '%s', '%s', '%s', '%d' )
 		);
 
 		$id = (int) $wpdb->insert_id;
@@ -313,36 +322,162 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Mark a notification as queued for sending. Actual Web Push delivery
-	 * (payload encryption + VAPID-signed POST to each subscriber endpoint)
-	 * is NOT implemented in this pass - see the class docblock. This only
-	 * flips sent_count to the "queued" sentinel (-1) and logs the intent.
+	 * Send a notification now, or schedule it for a future time. When
+	 * $scheduled_at is a future timestamp the delivery is deferred to WP-Cron
+	 * (self::CRON_SEND); otherwise it is delivered immediately.
 	 *
-	 * @param int $id Notification id.
+	 * @param int    $id           Notification id.
+	 * @param string $scheduled_at Optional 'Y-m-d H:i:s' (site time) in the future.
 	 */
-	public function queue_send( int $id ) {
-		global $wpdb;
-
+	public function send_notification( int $id, string $scheduled_at = '' ) {
 		$existing = $this->get_notification( $id );
 		if ( null === $existing ) {
 			return new WP_Error( 'uxstudio_not_found', __( 'Notification not found.', 'ux-studio' ), array( 'status' => 404 ) );
 		}
+		if ( ! $this->vapid->has_keys() ) {
+			return new WP_Error( 'uxstudio_no_vapid', __( 'Generate VAPID keys first.', 'ux-studio' ), array( 'status' => 409 ) );
+		}
+
+		$when = '' !== $scheduled_at ? strtotime( get_gmt_from_date( $scheduled_at ) . ' UTC' ) : 0;
+		if ( $when && $when > time() ) {
+			global $wpdb;
+			$wpdb->update(
+				"{$wpdb->prefix}uxstudio_push_notifications",
+				array( 'scheduled_at' => gmdate( 'Y-m-d H:i:s', $when + ( (int) ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) ) ) ),
+				array( 'id' => $id ),
+				array( '%s' ),
+				array( '%d' )
+			);
+			wp_schedule_single_event( $when, self::CRON_SEND, array( $id ) );
+			ActivityLog::log( 'push-notifications', 'schedule', 'notification', $id, array( 'at' => $scheduled_at ) );
+			return (array) $this->get_notification( $id );
+		}
+
+		return $this->deliver( $id );
+	}
+
+	/**
+	 * WP-Cron callback for scheduled sends.
+	 *
+	 * @param int $id Notification id.
+	 */
+	public function cron_send( int $id ): void {
+		$this->deliver( $id );
+	}
+
+	/**
+	 * Encrypt + POST the notification to every targeted subscriber, recording
+	 * per-subscriber delivery events and pruning expired subscriptions.
+	 *
+	 * @param int $id Notification id.
+	 * @return array Updated notification row.
+	 */
+	private function deliver( int $id ): array {
+		global $wpdb;
+
+		$notification = $this->get_notification( $id );
+		if ( null === $notification ) {
+			return array();
+		}
+
+		$subject = (string) $this->settings->get( 'vapid_subject', '' );
+		if ( '' === $subject ) {
+			$subject = 'mailto:' . get_option( 'admin_email' );
+		}
+
+		$sender = new Sender( $this->vapid );
+		$result = $sender->send(
+			$notification,
+			$subject,
+			function ( int $subscriber_id, string $event ) use ( $id ): void {
+				$this->insert_event( $subscriber_id, $id, $event );
+			},
+			function ( int $subscriber_id ): void {
+				$this->delete_subscriber( $subscriber_id );
+			}
+		);
 
 		$wpdb->update(
 			"{$wpdb->prefix}uxstudio_push_notifications",
-			array( 'sent_count' => self::SENT_QUEUED ),
+			array(
+				'sent_count'      => (int) $result['targeted'],
+				'delivered_count' => (int) $result['delivered'],
+				'scheduled_at'    => null,
+			),
 			array( 'id' => $id ),
-			array( '%d' ),
+			array( '%d', '%d', '%s' ),
 			array( '%d' )
 		);
 
-		// TODO: real delivery. For each row in uxstudio_push_subscribers, build
-		// an encrypted Web Push payload (RFC 8291) and POST it to `endpoint`
-		// with a VAPID JWT (RFC 8292) signed with Vapid::private_key_pem(),
-		// then update sent_count to the number of successful deliveries.
-		ActivityLog::log( 'push-notifications', 'queue_send', 'notification', $id, array( 'note' => 'delivery not implemented, TODO' ) );
+		ActivityLog::log( 'push-notifications', 'send', 'notification', $id, $result );
 
 		return (array) $this->get_notification( $id );
+	}
+
+	/**
+	 * Analytics summary: subscribers, notifications and per-event counts.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public function analytics(): array {
+		global $wpdb;
+		$subscribers   = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}uxstudio_push_subscribers" );
+		$notifications = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}uxstudio_push_notifications" );
+		$events        = $wpdb->get_results(
+			"SELECT event, COUNT(*) AS c FROM {$wpdb->prefix}uxstudio_push_events GROUP BY event",
+			ARRAY_A
+		);
+		$by_event = array();
+		foreach ( is_array( $events ) ? $events : array() as $row ) {
+			$by_event[ (string) $row['event'] ] = (int) $row['c'];
+		}
+		return array(
+			'subscribers'   => $subscribers,
+			'notifications' => $notifications,
+			'delivered'     => $by_event['delivered'] ?? 0,
+			'failed'        => $by_event['failed'] ?? 0,
+			'clicked'       => $by_event['clicked'] ?? 0,
+		);
+	}
+
+	/**
+	 * Insert a raw analytics event (subscriber_id already resolved).
+	 *
+	 * @param int    $subscriber_id   Subscriber id.
+	 * @param int    $notification_id Notification id.
+	 * @param string $event           delivered|failed|clicked.
+	 */
+	private function insert_event( int $subscriber_id, int $notification_id, string $event ): void {
+		global $wpdb;
+		$wpdb->insert(
+			"{$wpdb->prefix}uxstudio_push_events",
+			array(
+				'created_at'      => current_time( 'mysql' ),
+				'subscriber_id'   => $subscriber_id,
+				'notification_id' => $notification_id,
+				'event'           => substr( $event, 0, 20 ),
+			),
+			array( '%s', '%d', '%d', '%s' )
+		);
+	}
+
+	/**
+	 * Remove a subscriber whose subscription the push service reported expired.
+	 *
+	 * @param int $subscriber_id Subscriber id.
+	 */
+	private function delete_subscriber( int $subscriber_id ): void {
+		global $wpdb;
+		$wpdb->delete( "{$wpdb->prefix}uxstudio_push_subscribers", array( 'id' => $subscriber_id ), array( '%d' ) );
+	}
+
+	/**
+	 * Whitelist the segment value.
+	 *
+	 * @param string $segment Raw segment.
+	 */
+	private function sanitize_segment( string $segment ): string {
+		return in_array( $segment, array( 'all', 'recent_30d' ), true ) ? $segment : 'all';
 	}
 
 	/**
@@ -351,14 +486,30 @@ final class Module extends BaseModule {
 	 * @param array $row Raw row.
 	 */
 	private function format_notification( array $row ): array {
-		$sent_count = (int) $row['sent_count'];
+		$sent_count   = (int) $row['sent_count'];
+		$scheduled_at = $row['scheduled_at'] ?? null;
+		$scheduled    = $scheduled_at && strtotime( (string) $scheduled_at ) > time();
+
+		if ( $scheduled && 0 === $sent_count ) {
+			$status = 'scheduled';
+		} elseif ( $sent_count > 0 ) {
+			$status = 'sent';
+		} else {
+			$status = 'draft';
+		}
+
 		return array(
-			'id'         => (int) $row['id'],
-			'created_at' => $row['created_at'],
-			'title'      => $row['title'],
-			'body'       => $row['body'],
-			'sent_count' => $sent_count,
-			'status'     => self::SENT_QUEUED === $sent_count ? 'queued' : ( $sent_count > 0 ? 'sent' : 'draft' ),
+			'id'              => (int) $row['id'],
+			'created_at'      => $row['created_at'],
+			'title'           => $row['title'],
+			'body'            => $row['body'],
+			'url'             => $row['url'] ?? '',
+			'icon'            => $row['icon'] ?? '',
+			'segment'         => $row['segment'] ?? 'all',
+			'scheduled_at'    => $scheduled_at,
+			'sent_count'      => $sent_count,
+			'delivered_count' => (int) ( $row['delivered_count'] ?? 0 ),
+			'status'          => $status,
 		);
 	}
 }

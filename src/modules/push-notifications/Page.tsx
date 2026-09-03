@@ -6,15 +6,20 @@ import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
 
-type Tab = 'send' | 'subscribers' | 'settings';
+type Tab = 'send' | 'subscribers' | 'analytics' | 'settings';
 
 interface Notification {
 	id: number;
 	created_at: string;
 	title: string;
 	body: string;
+	url: string;
+	icon: string;
+	segment: string;
+	scheduled_at: string | null;
 	sent_count: number;
-	status: 'draft' | 'queued' | 'sent';
+	delivered_count: number;
+	status: 'draft' | 'scheduled' | 'sent';
 }
 
 interface Subscriber {
@@ -24,9 +29,17 @@ interface Subscriber {
 	user_agent: string;
 }
 
+interface Analytics {
+	subscribers: number;
+	notifications: number;
+	delivered: number;
+	failed: number;
+	clicked: number;
+}
+
 function statusLabel( status: Notification[ 'status' ] ): string {
-	if ( status === 'queued' ) {
-		return __( 'Queued (delivery not yet implemented)', 'ux-studio' );
+	if ( status === 'scheduled' ) {
+		return __( 'Scheduled', 'ux-studio' );
 	}
 	if ( status === 'sent' ) {
 		return __( 'Sent', 'ux-studio' );
@@ -34,9 +47,20 @@ function statusLabel( status: Notification[ 'status' ] ): string {
 	return __( 'Draft', 'ux-studio' );
 }
 
+function Loading(): JSX.Element {
+	return (
+		<div className="uxs-loading">
+			<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />
+		</div>
+	);
+}
+
 function SendTab(): JSX.Element {
 	const [ title, setTitle ] = useState( '' );
 	const [ body, setBody ] = useState( '' );
+	const [ url, setUrl ] = useState( '' );
+	const [ segment, setSegment ] = useState( 'all' );
+	const [ schedule, setSchedule ] = useState< Record< number, string > >( {} );
 
 	const { data, isLoading } = useQuery( {
 		queryKey: [ 'push-notifications', 'notifications' ],
@@ -47,18 +71,26 @@ function SendTab(): JSX.Element {
 		mutationFn: () =>
 			api< Notification >( 'push-notifications/notifications', {
 				method: 'POST',
-				body: JSON.stringify( { title, body } ),
+				body: JSON.stringify( { title, body, url, segment } ),
 			} ),
 		onSuccess: () => {
 			void queryClient.invalidateQueries( { queryKey: [ 'push-notifications', 'notifications' ] } );
 			setTitle( '' );
 			setBody( '' );
+			setUrl( '' );
 		},
 	} );
 
 	const send = useMutation( {
-		mutationFn: ( id: number ) => api( `push-notifications/notifications/${ id }/send`, { method: 'POST' } ),
-		onSuccess: () => void queryClient.invalidateQueries( { queryKey: [ 'push-notifications', 'notifications' ] } ),
+		mutationFn: ( { id, scheduledAt }: { id: number; scheduledAt?: string } ) =>
+			api( `push-notifications/notifications/${ id }/send`, {
+				method: 'POST',
+				body: JSON.stringify( scheduledAt ? { scheduled_at: scheduledAt } : {} ),
+			} ),
+		onSuccess: () => {
+			void queryClient.invalidateQueries( { queryKey: [ 'push-notifications', 'notifications' ] } );
+			void queryClient.invalidateQueries( { queryKey: [ 'push-notifications', 'analytics' ] } );
+		},
 	} );
 
 	return (
@@ -72,6 +104,17 @@ function SendTab(): JSX.Element {
 					<label htmlFor="uxs-pn-body">{ __( 'Body', 'ux-studio' ) }</label>
 					<textarea id="uxs-pn-body" rows={ 3 } value={ body } onChange={ ( e ) => setBody( e.target.value ) } />
 				</div>
+				<div className="uxs-form__row">
+					<label htmlFor="uxs-pn-url">{ __( 'Click URL', 'ux-studio' ) }</label>
+					<input id="uxs-pn-url" type="url" placeholder="https://…" value={ url } onChange={ ( e ) => setUrl( e.target.value ) } />
+				</div>
+				<div className="uxs-form__row">
+					<label htmlFor="uxs-pn-segment">{ __( 'Audience', 'ux-studio' ) }</label>
+					<select id="uxs-pn-segment" value={ segment } onChange={ ( e ) => setSegment( e.target.value ) }>
+						<option value="all">{ __( 'All subscribers', 'ux-studio' ) }</option>
+						<option value="recent_30d">{ __( 'Subscribed in last 30 days', 'ux-studio' ) }</option>
+					</select>
+				</div>
 				<button
 					type="button"
 					className="button button-primary"
@@ -82,11 +125,7 @@ function SendTab(): JSX.Element {
 				</button>
 			</div>
 
-			{ isLoading ? (
-				<div className="uxs-loading">
-					<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />
-				</div>
-			) : null }
+			{ isLoading ? <Loading /> : null }
 			{ ! isLoading && ( ! data || data.length === 0 ) ? <p>{ __( 'No notifications yet.', 'ux-studio' ) }</p> : null }
 			{ ! isLoading && data && data.length > 0 ? (
 				<table className="uxs-table">
@@ -94,7 +133,8 @@ function SendTab(): JSX.Element {
 						<tr>
 							<th>{ __( 'Title', 'ux-studio' ) }</th>
 							<th>{ __( 'Status', 'ux-studio' ) }</th>
-							<th>{ __( 'Actions', 'ux-studio' ) }</th>
+							<th>{ __( 'Delivered', 'ux-studio' ) }</th>
+							<th>{ __( 'Send', 'ux-studio' ) }</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -103,16 +143,34 @@ function SendTab(): JSX.Element {
 								<td>{ n.title }</td>
 								<td>
 									<span className={ `uxs-badge ${ n.status === 'sent' ? 'is-success' : '' }` }>{ statusLabel( n.status ) }</span>
+									{ n.status === 'scheduled' && n.scheduled_at ? <div style={ { fontSize: 12 } }>{ n.scheduled_at }</div> : null }
 								</td>
+								<td>{ n.status === 'sent' ? `${ n.delivered_count } / ${ n.sent_count }` : '—' }</td>
 								<td>
-									<button
-										type="button"
-										className="button"
-										disabled={ n.status !== 'draft' || send.isPending }
-										onClick={ () => send.mutate( n.id ) }
-									>
-										<Send size={ 14 } /> { __( 'Send', 'ux-studio' ) }
-									</button>
+									{ n.status !== 'sent' ? (
+										<>
+											<input
+												type="datetime-local"
+												value={ schedule[ n.id ] ?? '' }
+												onChange={ ( e ) => setSchedule( ( s ) => ( { ...s, [ n.id ]: e.target.value } ) ) }
+												style={ { marginRight: 6 } }
+											/>
+											<button
+												type="button"
+												className="button"
+												disabled={ send.isPending }
+												onClick={ () => {
+													const raw = schedule[ n.id ];
+													const scheduledAt = raw ? raw.replace( 'T', ' ' ) + ':00' : undefined;
+													send.mutate( { id: n.id, scheduledAt } );
+												} }
+											>
+												<Send size={ 14 } /> { schedule[ n.id ] ? __( 'Schedule', 'ux-studio' ) : __( 'Send now', 'ux-studio' ) }
+											</button>
+										</>
+									) : (
+										'—'
+									) }
 								</td>
 							</tr>
 						) ) }
@@ -130,11 +188,7 @@ function SubscribersTab(): JSX.Element {
 	} );
 
 	if ( isLoading ) {
-		return (
-			<div className="uxs-loading">
-				<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />
-			</div>
-		);
+		return <Loading />;
 	}
 	if ( ! data || data.length === 0 ) {
 		return <p>{ __( 'No subscribers yet.', 'ux-studio' ) }</p>;
@@ -160,6 +214,27 @@ function SubscribersTab(): JSX.Element {
 	);
 }
 
+function AnalyticsTab(): JSX.Element {
+	const { data, isLoading } = useQuery( {
+		queryKey: [ 'push-notifications', 'analytics' ],
+		queryFn: () => api< Analytics >( 'push-notifications/analytics' ),
+	} );
+
+	if ( isLoading || ! data ) {
+		return <Loading />;
+	}
+
+	return (
+		<div className="uxs-cards">
+			<div className="uxs-card"><div className="uxs-card__num">{ data.subscribers }</div><div className="uxs-card__label">{ __( 'Subscribers', 'ux-studio' ) }</div></div>
+			<div className="uxs-card"><div className="uxs-card__num">{ data.notifications }</div><div className="uxs-card__label">{ __( 'Notifications', 'ux-studio' ) }</div></div>
+			<div className="uxs-card"><div className="uxs-card__num">{ data.delivered }</div><div className="uxs-card__label">{ __( 'Delivered', 'ux-studio' ) }</div></div>
+			<div className="uxs-card"><div className="uxs-card__num">{ data.clicked }</div><div className="uxs-card__label">{ __( 'Clicked', 'ux-studio' ) }</div></div>
+			<div className="uxs-card"><div className="uxs-card__num">{ data.failed }</div><div className="uxs-card__label">{ __( 'Failed', 'ux-studio' ) }</div></div>
+		</div>
+	);
+}
+
 export default function Page(): JSX.Element {
 	const [ tab, setTab ] = useState< Tab >( 'send' );
 	const { data, isLoading, draft, setDraft, save, saved } = useModuleSettings( 'push-notifications' );
@@ -168,6 +243,13 @@ export default function Page(): JSX.Element {
 		mutationFn: () => api( 'push-notifications/vapid/generate', { method: 'POST' } ),
 		onSuccess: () => void queryClient.invalidateQueries( { queryKey: [ 'settings', 'push-notifications' ] } ),
 	} );
+
+	const tabs: Array< [ Tab, string ] > = [
+		[ 'send', __( 'Send', 'ux-studio' ) ],
+		[ 'subscribers', __( 'Subscribers', 'ux-studio' ) ],
+		[ 'analytics', __( 'Analytics', 'ux-studio' ) ],
+		[ 'settings', __( 'Settings', 'ux-studio' ) ],
+	];
 
 	return (
 		<>
@@ -185,23 +267,16 @@ export default function Page(): JSX.Element {
 				</h1>
 			</header>
 			<div className="uxs-tabs">
-				<button className={ tab === 'send' ? 'is-active' : '' } onClick={ () => setTab( 'send' ) }>
-					{ __( 'Send', 'ux-studio' ) }
-				</button>
-				<button className={ tab === 'subscribers' ? 'is-active' : '' } onClick={ () => setTab( 'subscribers' ) }>
-					{ __( 'Subscribers', 'ux-studio' ) }
-				</button>
-				<button className={ tab === 'settings' ? 'is-active' : '' } onClick={ () => setTab( 'settings' ) }>
-					{ __( 'Settings', 'ux-studio' ) }
-				</button>
+				{ tabs.map( ( [ id, label ] ) => (
+					<button key={ id } className={ tab === id ? 'is-active' : '' } onClick={ () => setTab( id ) }>
+						{ label }
+					</button>
+				) ) }
 			</div>
 			{ tab === 'send' && <SendTab /> }
 			{ tab === 'subscribers' && <SubscribersTab /> }
-			{ tab === 'settings' && ( isLoading || ! data ) && (
-				<div className="uxs-loading">
-					<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />
-				</div>
-			) }
+			{ tab === 'analytics' && <AnalyticsTab /> }
+			{ tab === 'settings' && ( isLoading || ! data ) && <Loading /> }
 			{ tab === 'settings' && data && (
 				<>
 					<SettingsFields schema={ data.schema } draft={ draft } setDraft={ setDraft } />

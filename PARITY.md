@@ -96,7 +96,7 @@ hyphen→underscore bez migrace), obecně moduly s vlastní tabulkou a přeznač
 | 50 | `post-id-display` | ✅ | ⬜ | ⬜ | Řádková akce ID shodná; legacy měl jako pro, studio v core. |
 | 51 | `post-type-order` | ✅ | ⬜ | ⬜ | Free+pro, REST /post-order/reorder shodný, navíc per-post edit_post kontrola. |
 | 52 | `post-type-switcher` | ⚠️ | ⬜ | ⬜ | Single+bulk přes REST + metabox/Quick Edit; chybí jen nativní bulk akce v list table. |
-| 53 | `push-notifications` | ❌ | ❌ | ⬜ | **Reálné odeslání web push je jen TODO stub (sent_count=-1)**; vypuštěna segmentace, A/B, plánování, analytika. |
+| 53 | `push-notifications` | ✅ | ✅ | ✅ | NAPRAVENO 2026-09-03: reálné odeslání (WebPushCrypto RFC 8291/8292 + Sender) + plánování (WP-Cron) + segmentace (all/recent_30d) + analytika. Kryptografie ověřena round-tripem a ověřením JWT podpisu; wiring ověřen. Data-migrace subscribers 6→6 (Fáze 2). Opraven Windows openssl-config bug ve Vapid. |
 | 54 | `quick-add-post` | ✅ | ⬜ | ⬜ | Tlačítko New v block-editor toolbaru + post_types z pro do core; shoda. |
 | 55 | `quick-image` | ✅ | ⬜ | ⬜ | Sloupec náhledu + media modal + REST set/remove s per-post autorizací; shoda. |
 | 56 | `redirect-404-to-homepage` | ✅ | ⬜ | ⬜ | 404→home (301) + detekce 6 cizích redirect pluginů 1:1; chybí jen varovná admin notice. |

@@ -22,7 +22,8 @@ defined( 'ABSPATH' ) || exit;
  * GET  uxstudio/v1/push-notifications/subscribers               - manage_options
  * GET  uxstudio/v1/push-notifications/notifications              - manage_options
  * POST uxstudio/v1/push-notifications/notifications              - manage_options
- * POST uxstudio/v1/push-notifications/notifications/{id}/send    - manage_options, queues (no real delivery yet)
+ * GET  uxstudio/v1/push-notifications/analytics                  - manage_options, delivery/click totals
+ * POST uxstudio/v1/push-notifications/notifications/{id}/send    - manage_options, real delivery (immediate or scheduled)
  */
 final class RestController extends Controller {
 
@@ -84,24 +85,50 @@ final class RestController extends Controller {
 
 		$this->route( '/push-notifications/vapid/generate', 'POST', array( $this, 'generate_vapid' ) );
 		$this->route( '/push-notifications/subscribers', 'GET', array( $this, 'list_subscribers' ) );
+		$this->route( '/push-notifications/analytics', 'GET', array( $this, 'analytics' ) );
 		$this->route( '/push-notifications/notifications', 'GET', array( $this, 'list_notifications' ) );
 		$this->route(
 			'/push-notifications/notifications',
 			'POST',
 			array( $this, 'create_notification' ),
 			array(
-				'title' => array(
+				'title'   => array(
 					'required'          => true,
 					'type'              => 'string',
 					'sanitize_callback' => 'sanitize_text_field',
 				),
-				'body'  => array(
+				'body'    => array(
+					'required' => false,
+					'type'     => 'string',
+				),
+				'url'     => array(
+					'required'          => false,
+					'type'              => 'string',
+					'sanitize_callback' => 'esc_url_raw',
+				),
+				'icon'    => array(
+					'required'          => false,
+					'type'              => 'string',
+					'sanitize_callback' => 'esc_url_raw',
+				),
+				'segment' => array(
 					'required' => false,
 					'type'     => 'string',
 				),
 			)
 		);
-		$this->route( '/push-notifications/notifications/(?P<id>\d+)/send', 'POST', array( $this, 'send' ) );
+		$this->route(
+			'/push-notifications/notifications/(?P<id>\d+)/send',
+			'POST',
+			array( $this, 'send' ),
+			array(
+				'scheduled_at' => array(
+					'required'          => false,
+					'type'              => 'string',
+					'sanitize_callback' => 'sanitize_text_field',
+				),
+			)
+		);
 	}
 
 	// =====================================================================
@@ -193,12 +220,22 @@ final class RestController extends Controller {
 	/**
 	 * @param WP_REST_Request $request Request.
 	 */
+	public function analytics( WP_REST_Request $request ) {
+		return $this->ok( $this->module->analytics() );
+	}
+
+	/**
+	 * @param WP_REST_Request $request Request.
+	 */
 	public function create_notification( WP_REST_Request $request ) {
 		return $this->ok(
 			$this->module->create_notification(
 				array(
-					'title' => (string) $request->get_param( 'title' ),
-					'body'  => (string) $request->get_param( 'body' ),
+					'title'   => (string) $request->get_param( 'title' ),
+					'body'    => (string) $request->get_param( 'body' ),
+					'url'     => (string) $request->get_param( 'url' ),
+					'icon'    => (string) $request->get_param( 'icon' ),
+					'segment' => (string) $request->get_param( 'segment' ),
 				)
 			)
 		);
@@ -209,7 +246,7 @@ final class RestController extends Controller {
 	 */
 	public function send( WP_REST_Request $request ) {
 		$id     = absint( $request->get_param( 'id' ) );
-		$result = $this->module->queue_send( $id );
+		$result = $this->module->send_notification( $id, (string) $request->get_param( 'scheduled_at' ) );
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
