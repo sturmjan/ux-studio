@@ -720,3 +720,50 @@
 		min-height: 60px;
 	}
 }
+
+/* ---- Bot Throttle dashboard ---- */
+.uxs-bt-tier {
+	display: flex;
+	align-items: center;
+	gap: var(--uxs-sp-3);
+	padding: var(--uxs-sp-3) var(--uxs-sp-4);
+	background: var(--uxs-surface-2);
+	border-radius: var(--uxs-radius-s);
+	margin-bottom: var(--uxs-sp-4);
+
+	strong {
+		letter-spacing: 0.5px;
+	}
+}
+
+.uxs-bt-tier__score {
+	margin-left: auto;
+	font-size: var(--uxs-fs-l);
+	font-weight: 600;
+}
+
+.uxs-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+	gap: var(--uxs-sp-3);
+	margin-bottom: var(--uxs-sp-5);
+}
+
+.uxs-card {
+	background: var(--uxs-surface);
+	border: 1px solid var(--uxs-border);
+	border-radius: var(--uxs-radius-s);
+	padding: var(--uxs-sp-3);
+	text-align: center;
+}
+
+.uxs-card__num {
+	font-size: var(--uxs-fs-l);
+	font-weight: 600;
+}
+
+.uxs-card__label {
+	font-size: var(--uxs-fs-s);
+	color: var(--uxs-text-soft);
+	margin-top: 2px;
+}

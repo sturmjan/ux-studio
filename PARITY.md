@@ -52,7 +52,7 @@ hyphen→underscore bez migrace), obecně moduly s vlastní tabulkou a přeznač
 | 6 | `ai-panel` | ✅ | ⬜ | ⬜ | Byte-for-byte lift-and-shift claude-panel, jen rebranding a přejmenovaný kill-switch. |
 | 7 | `auto-image-upload` | ✅ | ⬜ | ⬜ | Sideload REST + editor assety + save-filtr + bulk + SSRF guard, ekvivalentní. |
 | 8 | `auto-unpublish` | ⚠️ | ⬜ | ⬜ | Logika 1:1, jen publish-box UI zjednodušené (bez JS panelu). |
-| 9 | `bot-throttle` | ❌ | ⬜ | ⬜ | Jen základní IP rate-limiter + UA blocklist; chybí adaptivní load-tier, microcache, dashboard. |
+| 9 | `bot-throttle` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-03: přenesena adaptivní logika (Detector/LoadSampler/Throttler/Microcache/Log + dashboard widget + Test tab). A/B ověřeno: block/microcache/delay/search-engine-protection sedí s legacy. Migrace historie ➖ (efemérní log). |
 | 10 | `classic-editor` | ✅ | ⬜ | ⬜ | 1:1 přes use_block_editor_for_post_type. |
 | 11 | `classic-widgets` | ✅ | ⬜ | ⬜ | Doslovná shoda dvou filtrů. |
 | 12 | `clean-profiles` | ✅ | ⬜ | ⬜ | Free+pro vč. WooCommerce; vypuštěny jen triviální rozšiřující filtry. |
