@@ -31,17 +31,21 @@ define( 'UXSTUDIO_URL', plugin_dir_url( __FILE__ ) );
 require_once UXSTUDIO_PATH . 'includes/Autoloader.php';
 \UxStudio\Autoloader::register();
 
-// Conflict guard: never run alongside the legacy ux1 plugin.
+// Activation: hand over from the legacy ux1 plugin (install DB + migrate data +
+// deactivate ux1 + offer to delete it). Registered BEFORE the conflict guard so
+// it always runs on activation, even while ux1 is still active.
+register_activation_hook( __FILE__, array( '\UxStudio\Core\Handoff', 'on_activation' ) );
+
+// Conflict guard: never run alongside the legacy ux1 plugin (the handoff above
+// deactivates it; this is the fallback if both are somehow active).
 if ( ! \UxStudio\Core\ConflictGuard::can_boot() ) {
 	return;
 }
-
-// Install / upgrade DB tables on activation.
-register_activation_hook( __FILE__, array( '\UxStudio\Core\DB', 'activate' ) );
 
 add_action(
 	'plugins_loaded',
 	static function () {
 		\UxStudio\Plugin::instance()->boot();
+		\UxStudio\Core\Handoff::register();
 	}
 );

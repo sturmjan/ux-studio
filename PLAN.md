@@ -329,3 +329,89 @@ WordPress update systém (žádný extra plugin u klienta).
 
 ### Zbývá dodat později (neblokuje F0):
 - GitHub org/repo název (pro `Update URI` a CI) - dodáš, až založíme repo.
+
+---
+
+## 15. Plán nápravy po parity auditu (2026-09-03)
+
+Audit `PARITY.md` (statická parita 68 modulů + migrace + smoke + A/B dat) ukázal, že
+předpoklad „69 modulů 1:1" (bod 4) **neplatí**: funkčně 1:1 je jen 33 modulů, 20 má drobný
+rozdíl, **15 má zásadní funkční mezeru**. Navíc `Migrator` migruje nastavení, ale **NE
+historická data** modulů s vlastní tabulkou. Tento oddíl je konkrétní seznam nápravy před
+přepnutím (F5). Detaily a čísla: `PARITY.md`, `../../../parity-test-pobyty/static/*.md`.
+
+Priorita = závažnost × reálné použití na TOMTO webu (signál: legacy data/aktivní modul).
+Po dokončení KAŽDÉ položky ji znovu ověřit A/B přes harness (`parity-test-pobyty`).
+
+### 15.0 Aktivační handoff flow (POTVRZENO 2026-09-03 - mění kap. 10)
+
+Migrace se spustí **automaticky při aktivaci** ux-studio, pokud je přítomen ux1. Cílový flow:
+
+HOTOVO+OVĚŘENO 2026-09-03 (`Core/Handoff.php`, `ux-studio.php`). Test na kopii: ux1 ON + aktivace ux-studio → ux1 OFF, ux-studio ON, migrace (activity 227, options 27), offer flag set, admin 200.
+- [x] při aktivaci ux-studio detekovat aktivní `ux1-wordpress-customizer` (aktivační hook registrován PŘED conflict guardem, takže běží i s aktivním ux1)
+- [x] migrace + deaktivace ux1: ODCHYLKA od doslovného zadání - migrujeme PŘED deaktivací (bezpečnější: legacy deactivation hook nemůže smazat data před kopií; výsledek stejný), ux-studio zůstává aktivní
+- [x] admin notice s nabídkou smazání ux1 (`delete_plugins`), `delete_plugins` capability + nonce (`admin-post`)
+- [x] nabídku zobrazit jen když ux1 soubory existují (jinak flag vyčistit)
+- [x] čistá instalace (ux1 není): deaktivace/nabídka se přeskočí, běžný start
+- [x] idempotentní (DONE_OPTION guard + offer flag). OVĚŘENO: delete_plugins smaže soubory, ux1_* DB tabulky ZŮSTANOU (ux1 nemá uninstall) → moduly se domigrují i po smazání. Pozn.: na Windows lokálu delete hlásí "nešlo zcela smazat" (zamčené soubory) - prostředí, ne kód; na produkci OK.
+
+### 15.1 Migrace historických dat (KRITICKÉ - jinak tichá ztráta při přepnutí)
+
+Naměřená ztráta (legacy → Studio po čisté migraci): dopiš `Migrator` data-migraci
+(mapování sloupců, ne blind copy) + verzování; přidat do „dry-run" logu počet přenesených řádků.
+Toto běží uvnitř flow 15.0 (po deaktivaci ux1, před tím než cokoli data smaže).
+
+- [x] `activity-log` - `ux1_activity_log` → `uxstudio_activity_log` (sloupcové mapování user_name/object_name/ip_address → meta JSON). HOTOVO+OVĚŘENO 2026-09-03: 227→227 na kopii.
+- [x] `push-notifications` - `ux1_push_subscribers` + `ux1_push_notifications` → uxstudio (napojeno na `ensure_module_tables` hook, endpoint_hash dopočítán). HOTOVO+OVĚŘENO 2026-09-03: 6→6 obojí, mapování i idempotence OK.
+- [x] `service-requests` - `ux1_service_requests` → uxstudio (subject→title, user_email→requester_email, status `new`→`open`). HOTOVO+OVĚŘENO 2026-09-03: 2→2.
+- [x] `popup-manager` - `ux1_popup_stats` VĚDOMĚ NEMIGROVAT: legacy = denní agregace, Studio = surové události, popup_id odkazuje na jiné CPT. Bez mapování popupů bezcenné. Zdokumentováno v Migrator.php.
+- [x] `performance-optimization` - `ux1_performance_history` VĚDOMĚ NEMIGROVAT: jiný datový model + modul vědomě zúžen (potvrzeno). Zdokumentováno.
+- [x] `email-log` / `smtp-email` - `wpext_logs` → `uxstudio_email_log` (status odvozen z error). Implementováno; na tomto webu 0 řádků (neověřitelné daty, ale mapování hotové pro produkci).
+- [x] `ai-assistant` - `ux1_ai_assistant_conversations` → uxstudio (identické schéma, přímá kopie). HOTOVO+OVĚŘENO 2026-09-03: 2→2. Indexy (product/content) vědomě nemigrovány = regenerovatelné.
+- [x] `ai-markdown` - `ux1_ai_markdown_cache` (56) = regenerovatelná cache, VĚDOMĚ NEMIGROVAT (naplní se sama za běhu).
+- [x] `query-log` OVĚŘENO 2026-09-03: legacy 65 = studio 65, max(created_at) shodné - žádná ztráta (dřívějších "68" bylo časové měření).
+- [x] finální re-run OVĚŘENO 2026-09-03: čistá migrace + zapnutí modulů + boot → shoda u VŠECH migrovaných (activity 227, push 6+6, service 2, ai-konverzace 2, query 65), nemigrované správně 0. **15.1 KOMPLETNÍ.**
+
+### 15.2 Dodělání funkčních mezer (15 ❌)
+
+**P1 - kritické (web to používá a/nebo bezpečnost):**
+- [ ] `push-notifications` - reálné odeslání web push je jen `// TODO` stub (`sent_count=-1`); doimplementovat skutečné odeslání (VAPID/WebPush), pak segmentace/plánování/analytika
+- [x] `activity-log` - doplněno ~20 sledovaných událostí (posty/status-transition, users/role/register/delete, plugins, themes, terms, media, comments, WC objednávky, logout) + `alert_role_escalation` (email při povýšení na admin, toggle). HOTOVO+OVĚŘENO 2026-09-03: post_publish/draft/delete, user_register, role_change, delete-user zalogovány správně.
+- [ ] `bot-throttle` - chybí adaptivní load-tier throttle, kategorie botů, microcache, dashboard widget (dnes jen základní IP rate-limiter + UA blocklist)
+
+**P2 - důležité (osekané, pravděpodobně používané):**
+- [ ] `content-sync` - doplnit plnou Hub↔Node správu (CRUD příspěvků/kategorií/médií/ACF, SSO, media transfer); dnes jen uložení URL+HMAC + log
+- [ ] `dashboard-widgets` - doplnit skrývání/registraci reálných dashboard widgetů a layoutu (dnes jen SPA s PageSpeed + úkoly)
+- [ ] `exit-popup` - doplnit appearance/CTA/image, autoresponder, cookie frekvenci, 4 z 5 detekčních režimů, URL cílení (dnes jen sběr e-mailů)
+- [ ] `opening-hours` - doplnit zobrazovací vrstvu: shortcode, widgety, mapa, Schema.org JSON-LD, bannery, svátky, sezóny (dnes jen CRUD + „open now")
+- [ ] `notice-board` - doplnit description, data/archivaci, více příloh, RSS, per-kategorie odběry, notifikační e-maily, frontend shortcode
+- [ ] `instagram-feed` - doplnit OAuth/connections, témata, per-feed nastavení, sideload, cron, hashtag filtry, admin UI (dnes jen `<img>` mřížka)
+
+**P3 - nižší (osekané, web spíš nepoužívá):**
+- [ ] `cron-control` - doplnit řízení režimu WP-Cronu (disable/local/hosting/central) + watcher/whitelist
+- [ ] `download-files` - rozhodnout koncept: legacy = přílohy k příspěvkům + shortcode + frontend vs Studio = tokenovaná knihovna; sjednotit nebo doplnit
+- [ ] `elementor-import` - doplnit URL/HTML import, export, režimy replace/append (dnes jen JSON/ZIP → draft)
+- [ ] `page-load` - doplnit benchmark dopadu plugin/modul, admin-bar indikátor, metriky query/paměť
+
+**Vědomá rozhodnutí (POTVRZENO 2026-09-03 uživatelem - záměr, NEdodělávat, jen doplnit do dokumentace parity jako „by design"):**
+- `performance-optimization` - vědomě zúženo z bezpečnostních důvodů (read-only + 3 fixy). Ponecháno.
+- `google-review-request` - přeznačeno (on-site popup → review-request e-mail). Nová funkce je záměr.
+- `guide` - přeznačeno (editor Návodu → onboarding checklist). Záměr.
+
+### 15.3 Drobné rozdíly / regrese s reálným dopadem (⚠️)
+
+- [x] `hide-admin-bar` - regrese OPRAVENA 2026-09-03: prázdné role → `return $show` (neskryje nikomu, jak legacy) místo `return false`; help text sladěn. Ověřeno logicky (3 případy).
+- [x] `pixel-tag-manager` - migrace vnitřních klíčů settings blobu (google-analytics→google_analytics atd.) doplněna do Migratoru (krok 4c, idempotentní). HOTOVO+OVĚŘENO 2026-09-03 syntetickými daty: hyphen→underscore, hodnoty zachovány. (Drobnost: validace formátu ID při uložení zbývá - nízká priorita, nejde o ztrátu dat.)
+- [ ] `smtp-email` - doplnit Gmail API transport + From/Force-From volby + resend (dnes SMTP+Brevo)
+- [ ] `image-optimizer` - doplnit AVIF, WebP delivery (.htaccess), auto-optimalizaci při uploadu, scanner nepoužitých obrázků
+- [ ] `security-optimization` - doplnit CSP enforcing (dnes jen reporting) + UI pro Upload Guard + ~8 hardening přepínačů
+- [ ] `third-party-login` - doplnit role gating, opt-in auto-create+role, link/unlink UI
+- [ ] `email-log` - doplnit ukládání těla/hlaviček/příloh + detekci zdroje + resend
+- [ ] `folder-manager` - doplnit rename/reparent složky, bulk move
+- [ ] `admin-columns` - doplnit bohaté field-type renderery a data-source konfigurace
+- [ ] projít zbylé ⚠️ z `PARITY.md` a rozhodnout, co je bug a co přijatelný rozdíl
+
+### 15.4 Uzavření (F5 gate)
+
+- [ ] po dokončení 15.1-15.3 spustit celý parity audit znovu (harness stojí) - cíl: 0 ❌, migrace bez ztráty
+- [ ] teprve pak přepnout (deaktivace ux1, aktivace ux-studio) dle kap. 10

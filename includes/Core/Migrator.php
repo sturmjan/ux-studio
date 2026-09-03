@@ -223,6 +223,16 @@ final class Migrator {
 			}
 		}
 
+		// 4b) Data tables whose new schema DIFFERS from legacy - column-mapped copy
+		// (a blind INSERT SELECT would fail on the mismatched columns). Each runs
+		// only when its target table is empty, so re-running never duplicates.
+		self::migrate_activity_log( $log, $dry_run );
+
+		// 4c) Fix up settings blobs whose inner keys were renamed in the port
+		// (the framework migration copies the blob verbatim, so renamed inner
+		// keys would silently lose their values).
+		self::remap_pixel_tag_keys( $log, $dry_run );
+
 		// 5) Files outside DB (snippets dir etc.) - handled by their modules
 		// during their own port (see AUDIT.md section D); logged here for visibility.
 		$log[] = 'note: file-based data (ux1-snippets/, mu-plugin cron-control, .htaccess blocks) migrates with its module';
@@ -231,5 +241,181 @@ final class Migrator {
 			update_option( self::DONE_OPTION, gmdate( 'c' ), false );
 		}
 		return $log;
+	}
+
+	/**
+	 * Migrate the legacy activity-log table into the new shared table. The new
+	 * schema replaced legacy user_name/object_name/ip_address columns with a
+	 * single meta JSON blob, so this is a column-mapped copy - NOT a blind copy.
+	 * The target (uxstudio_activity_log) is a core table created by DB::migrate_1()
+	 * before Migrator::run(), so it always exists here.
+	 *
+	 * Idempotent: copies only when the target is empty, so re-running is a no-op.
+	 *
+	 * @param string[] $log     Log lines (by reference).
+	 * @param bool     $dry_run When true, only log what would happen.
+	 */
+	private static function migrate_activity_log( array &$log, bool $dry_run ): void {
+		global $wpdb;
+		$old = $wpdb->prefix . 'ux1_activity_log';
+		$new = $wpdb->prefix . 'uxstudio_activity_log';
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- fixed table names, one-off migration.
+		if ( ! $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $old ) ) ) {
+			return;
+		}
+		$target_rows = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$new}" );
+		if ( $target_rows > 0 ) {
+			$log[] = "data activity-log: skipped (target not empty: {$target_rows} rows)";
+			return;
+		}
+		$source_rows = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$old}" );
+		if ( 0 === $source_rows ) {
+			return;
+		}
+		$log[] = "data activity-log: {$source_rows} rows {$old} -> {$new}";
+		if ( ! $dry_run ) {
+			$wpdb->query(
+				"INSERT INTO {$new} (created_at, user_id, module, action, object_type, object_id, meta)
+				 SELECT created_at, user_id, '', action, object_type, object_id,
+				        JSON_OBJECT('user_name', user_name, 'object_name', object_name, 'ip_address', ip_address)
+				 FROM {$old}"
+			);
+		}
+		// phpcs:enable
+	}
+
+	/**
+	 * pixel-tag-manager renamed its setting keys hyphen->underscore in the port
+	 * (google-analytics -> google_analytics etc.). The framework migration copies
+	 * the settings blob verbatim, so without this fixup the migrated values would
+	 * sit under keys the new module never reads. Idempotent: only remaps a legacy
+	 * key when its new counterpart is not already set.
+	 *
+	 * @param string[] $log     Log lines (by reference).
+	 * @param bool     $dry_run When true, only log what would happen.
+	 */
+	private static function remap_pixel_tag_keys( array &$log, bool $dry_run ): void {
+		$option = 'uxstudio_pixel_tag_manager';
+		$value  = get_option( $option, null );
+		if ( ! is_array( $value ) ) {
+			return;
+		}
+		$map     = array(
+			'google-analytics' => 'google_analytics',
+			'facebook-pixel'   => 'facebook_pixel',
+			'pinterest-tag'    => 'pinterest_tag',
+		);
+		$changed = false;
+		foreach ( $map as $old => $new ) {
+			if ( array_key_exists( $old, $value ) && ! array_key_exists( $new, $value ) ) {
+				$value[ $new ] = $value[ $old ];
+				unset( $value[ $old ] );
+				$changed = true;
+			}
+		}
+		if ( $changed ) {
+			$log[] = 'settings pixel-tag-manager: remapped hyphen keys -> underscore';
+			if ( ! $dry_run ) {
+				update_option( $option, $value, false );
+			}
+		}
+	}
+
+	/**
+	 * Data-migration dispatcher for a module whose own tables were just created
+	 * (called from DB::ensure_module_tables). Each case is idempotent - it only
+	 * copies when the legacy source exists and the new target is still empty, so
+	 * this is safe to fire on every first-boot of a module. Legacy tables are
+	 * never modified (ux1 stays as fallback until the handoff deletes it).
+	 *
+	 * @param string $module_id Module id (kebab-case).
+	 */
+	public static function maybe_migrate_module_data( string $module_id ): void {
+		global $wpdb;
+		switch ( $module_id ) {
+			case 'push-notifications':
+				// endpoint_hash is derived (legacy had none); user_agent trimmed to new width.
+				self::copy_when_empty(
+					$wpdb->prefix . 'ux1_push_subscribers',
+					$wpdb->prefix . 'uxstudio_push_subscribers',
+					'INSERT INTO %NEW% (created_at, endpoint, p256dh_key, auth_key, user_agent, endpoint_hash)
+					 SELECT created_at, endpoint, p256dh, auth_key, LEFT(user_agent,255), SHA2(endpoint,256) FROM %OLD%'
+				);
+				self::copy_when_empty(
+					$wpdb->prefix . 'ux1_push_notifications',
+					$wpdb->prefix . 'uxstudio_push_notifications',
+					'INSERT INTO %NEW% (created_at, title, body, sent_count)
+					 SELECT created_at, LEFT(title,255), body, total_sent FROM %OLD%'
+				);
+				break;
+
+			case 'service-requests':
+				// subject->title, user_email->requester_email; legacy multi-file
+				// attachments / budget / phone / admin_note have no new column.
+				self::copy_when_empty(
+					$wpdb->prefix . 'ux1_service_requests',
+					$wpdb->prefix . 'uxstudio_service_requests',
+					"INSERT INTO %NEW% (created_at, title, description, status, requester_email, attachment_id)
+					 SELECT created_at, LEFT(subject,255), description,
+					        IF(status IN ('open','in_progress','done'), status, 'open'),
+					        user_email, 0 FROM %OLD%"
+				);
+				break;
+
+			case 'ai-assistant':
+				// Conversations were ported 1:1 (identical schema) - direct copy.
+				// The product/content index tables are rebuildable from content
+				// and are intentionally not migrated.
+				self::copy_when_empty(
+					$wpdb->prefix . 'ux1_ai_assistant_conversations',
+					$wpdb->prefix . 'uxstudio_ai_assistant_conversations',
+					'INSERT INTO %NEW% SELECT * FROM %OLD%'
+				);
+				break;
+
+			case 'email-log':
+				// legacy split error/error_reason; new schema has status + error_message.
+				self::copy_when_empty(
+					$wpdb->prefix . 'wpext_logs',
+					$wpdb->prefix . 'uxstudio_email_log',
+					"INSERT INTO %NEW% (created_at, to_email, subject, status, error_message)
+					 SELECT `timestamp`, `to`, subject,
+					        IF(error IS NULL OR error = '', 'sent', 'failed'), error FROM %OLD%"
+				);
+				break;
+
+			// popup-manager (ux1_popup_stats): NOT migrated - legacy is daily
+			// aggregates (impressions/closes/conversions per day), the new schema
+			// is raw per-event rows, and popup_id points at a different CPT. No
+			// meaningful mapping. performance-optimization (ux1_performance_history):
+			// NOT migrated - different model + the module was intentionally narrowed
+			// (see PLAN.md 15.2). Both documented as by-design skips.
+		}
+	}
+
+	/**
+	 * Column-mapped copy that runs only when the source table exists and the
+	 * target table exists but is empty (idempotent - never duplicates). The SQL
+	 * template uses %OLD% / %NEW% placeholders for the fully-qualified table names.
+	 *
+	 * @param string $old            Legacy table (with prefix).
+	 * @param string $new            New table (with prefix).
+	 * @param string $insert_select  INSERT INTO %NEW% ... SELECT ... FROM %OLD% template.
+	 */
+	private static function copy_when_empty( string $old, string $new, string $insert_select ): void {
+		global $wpdb;
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- fixed table names from an internal map, one-off migration.
+		if ( ! $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $old ) ) ) {
+			return;
+		}
+		if ( ! $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $new ) ) ) {
+			return;
+		}
+		if ( (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$new}" ) > 0 ) {
+			return;
+		}
+		$wpdb->query( str_replace( array( '%OLD%', '%NEW%' ), array( $old, $new ), $insert_select ) );
+		// phpcs:enable
 	}
 }

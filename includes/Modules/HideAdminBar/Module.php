@@ -34,7 +34,7 @@ final class Module extends BaseModule {
 		}
 		$roles  = (array) $this->settings->get( 'roles', array() );
 		if ( array() === $roles ) {
-			return false; // No role restriction = hide for everyone.
+			return $show; // No roles selected = hide for no one (matches legacy ux1).
 		}
 		$user = wp_get_current_user();
 		return array_intersect( $roles, $user->roles ) ? false : $show;
@@ -49,7 +49,7 @@ final class Module extends BaseModule {
 				'key'     => 'roles',
 				'type'    => 'multiselect',
 				'label'   => __( 'Hide for roles', 'ux-studio' ),
-				'help'    => __( 'Leave empty to hide the admin bar for all users.', 'ux-studio' ),
+				'help'    => __( 'Select the roles to hide the admin bar for. Leave empty to hide it for no one.', 'ux-studio' ),
 				'options' => array_map(
 					static fn ( $role ) => translate_user_role( $role['name'] ),
 					wp_roles()->roles

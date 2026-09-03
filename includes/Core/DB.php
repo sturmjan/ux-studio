@@ -78,6 +78,10 @@ final class DB {
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		$migrator( $current );
 		update_option( $option, $version, false );
+
+		// A module's tables now exist. If legacy ux1 data for this module is
+		// present and the new table is still empty, import it now (idempotent).
+		Migrator::maybe_migrate_module_data( $module_id );
 	}
 
 	/**
