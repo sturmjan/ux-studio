@@ -59,7 +59,7 @@ hyphen→underscore bez migrace), obecně moduly s vlastní tabulkou a přeznač
 | 13 | `code-snippets` | ✅ | ⬜ | ⬜ | Věrný file-based port + integrity hash, PhpValidator, safe mode; metadata v DB (hardening). |
 | 14 | `content-sync` | ❌ | ⬜ | ⬜ | Plná Hub-Node vzdálená správa redukována na uložení URL+HMAC, evidenci webů a log. |
 | 15 | `cron-control` | ❌ | ⬜ | ⬜ | Chybí řízení režimu WP-Cronu (disable/local/hosting/central) + watcher/whitelist. |
-| 16 | `dashboard-widgets` | ❌ | ⬜ | ⬜ | Jen SPA (PageSpeed + úkoly/poznámky); nespravuje reálné dashboard widgety a layout. |
+| 16 | `dashboard-widgets` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-03: doplněna správa reálných wp-admin widgetů (wp_dashboard_setup snapshot + skrytí vybraných/všech vč. welcome panelu). Ověřeno jednotkově. SPA (PageSpeed/úkoly) zůstává. |
 | 17 | `debug-mode` | ⚠️ | ⬜ | ⬜ | Vědomě netoggluje WP_DEBUG; jen read-only čtečka konstant + logu. |
 | 18 | `disable-auto-updates` | ✅ | ⬜ | ⬜ | Options i logika 1:1, jen bez show_if UI hintů. |
 | 19 | `disable-video-uploads` | ✅ | ⬜ | ⬜ | Doslovný port filtru upload_mimes. |

@@ -14,9 +14,11 @@ use UxStudio\Modules\BaseModule;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Ported/redesigned from the legacy dashboard-widgets module. There is no
- * real wp-admin dashboard widget registration here - the UI lives entirely
- * in the SPA under this module's own page.
+ * Ported/redesigned from the legacy dashboard-widgets module. The rich views
+ * (PageSpeed score, recent activity, quick tasks/notes) live in the SPA under
+ * this module's own page; on top of that it manages the REAL wp-admin
+ * dashboard by hiding selected (or all) core/plugin dashboard widgets via
+ * wp_dashboard_setup.
  *
  * Secrets (Google PageSpeed API key, GA service-account JSON) are never
  * stored in the regular uxstudio_dashboard-widgets settings option; they go
@@ -31,11 +33,111 @@ final class Module extends BaseModule {
 	private const OPTION_TASKS = 'uxstudio_dashboard_tasks';
 	private const OPTION_NOTES = 'uxstudio_dashboard_notes';
 
+	private const CACHE_WIDGETS = 'uxstudio_dashboard_widgets_cache';
+
 	/**
 	 * Register hooks.
 	 */
 	public function boot(): void {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+
+		// Manage the real wp-admin dashboard: snapshot the registered widgets
+		// late (so add-ons have registered), then remove the ones the admin
+		// hid. Priority ordering matters - cache before we start removing.
+		add_action( 'wp_dashboard_setup', array( $this, 'cache_dashboard_widgets' ), 998 );
+		add_action( 'wp_dashboard_setup', array( $this, 'apply_hidden_widgets' ), 999 );
+	}
+
+	/* ------------------------------------------------------------------ *
+	 * Real wp-admin dashboard widget management
+	 * ------------------------------------------------------------------ */
+
+	/**
+	 * Snapshot the currently registered dashboard meta boxes (id => title) into
+	 * a transient so the settings screen can list them even outside the
+	 * dashboard request where $wp_meta_boxes isn't populated.
+	 */
+	public function cache_dashboard_widgets(): void {
+		global $wp_meta_boxes;
+		if ( ! isset( $wp_meta_boxes['dashboard'] ) || ! is_array( $wp_meta_boxes['dashboard'] ) ) {
+			return;
+		}
+
+		$normalized = array();
+		foreach ( $wp_meta_boxes['dashboard'] as $priorities ) {
+			if ( ! is_array( $priorities ) ) {
+				continue;
+			}
+			foreach ( $priorities as $boxes ) {
+				if ( ! is_array( $boxes ) ) {
+					continue;
+				}
+				foreach ( $boxes as $box_id => $box ) {
+					$title = is_array( $box ) && isset( $box['title'] ) ? sanitize_text_field( wp_strip_all_tags( (string) $box['title'] ) ) : '';
+					$normalized[ (string) $box_id ] = $title;
+				}
+			}
+		}
+		set_transient( self::CACHE_WIDGETS, $normalized, DAY_IN_SECONDS );
+	}
+
+	/**
+	 * Remove the dashboard widgets the admin hid (or all of them, plus the
+	 * welcome panel, when "disable all" is on).
+	 */
+	public function apply_hidden_widgets(): void {
+		global $wp_meta_boxes;
+
+		if ( (bool) $this->settings->get( 'disable_all_widgets', false ) ) {
+			remove_action( 'welcome_panel', 'wp_welcome_panel' );
+			$wp_meta_boxes['dashboard'] = array();
+			return;
+		}
+
+		$hidden = (array) $this->settings->get( 'hidden_widgets', array() );
+		if ( empty( $hidden ) ) {
+			return;
+		}
+
+		if ( in_array( 'dashboard_welcome', $hidden, true ) ) {
+			remove_action( 'welcome_panel', 'wp_welcome_panel' );
+		}
+		if ( ! isset( $wp_meta_boxes['dashboard'] ) || ! is_array( $wp_meta_boxes['dashboard'] ) ) {
+			return;
+		}
+
+		foreach ( $hidden as $widget_id ) {
+			foreach ( array_keys( $wp_meta_boxes['dashboard'] ) as $context ) {
+				foreach ( array_keys( (array) $wp_meta_boxes['dashboard'][ $context ] ) as $priority ) {
+					unset( $wp_meta_boxes['dashboard'][ $context ][ $priority ][ $widget_id ] );
+				}
+			}
+		}
+	}
+
+	/**
+	 * Known dashboard widgets as id => title (core defaults merged over the
+	 * cached snapshot of whatever is actually registered on this site).
+	 *
+	 * @return array<string,string>
+	 */
+	public function available_widgets(): array {
+		$defaults = array(
+			'dashboard_welcome'     => __( 'Welcome', 'ux-studio' ),
+			'dashboard_site_health' => __( 'Site Health Status', 'ux-studio' ),
+			'dashboard_right_now'   => __( 'At a Glance', 'ux-studio' ),
+			'dashboard_activity'    => __( 'Activity', 'ux-studio' ),
+			'dashboard_quick_press' => __( 'Quick Draft', 'ux-studio' ),
+			'dashboard_primary'     => __( 'WordPress Events and News', 'ux-studio' ),
+		);
+
+		$cached = get_transient( self::CACHE_WIDGETS );
+		if ( is_array( $cached ) ) {
+			foreach ( $cached as $id => $title ) {
+				$defaults[ (string) $id ] = '' !== (string) $title ? (string) $title : (string) $id;
+			}
+		}
+		return $defaults;
 	}
 
 	/**
@@ -57,6 +159,21 @@ final class Module extends BaseModule {
 	 */
 	public function settings_schema(): array {
 		return array(
+			array(
+				'key'     => 'disable_all_widgets',
+				'type'    => 'toggle',
+				'label'   => __( 'Hide all dashboard widgets', 'ux-studio' ),
+				'help'    => __( 'Removes every wp-admin dashboard widget and the welcome panel for a clean dashboard.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'hidden_widgets',
+				'type'    => 'multiselect',
+				'label'   => __( 'Hide specific dashboard widgets', 'ux-studio' ),
+				'help'    => __( 'The list reflects widgets registered on this site (visit Dashboard once to refresh it).', 'ux-studio' ),
+				'options' => $this->available_widgets(),
+				'default' => array(),
+			),
 			array(
 				'key'     => 'pagespeed_api_key',
 				'type'    => 'text',
