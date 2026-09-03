@@ -87,7 +87,7 @@ hyphen→underscore bez migrace), obecně moduly s vlastní tabulkou a přeznač
 | 41 | `media-trash` | ✅ | ⬜ | ⬜ | Ekvivalentní: MEDIA_TRASH v boot() místo zápisu do wp-config. |
 | 42 | `menu-visibility` | ✅ | ⬜ | ⬜ | 1:1; čte i legacy _wpext_menu_item_visible jako fallback. |
 | 43 | `notice-board` | ❌ | ⬜ | ⬜ | Stub; chybí description, data, archivace, více příloh, RSS, per-kat. odběry, emaily, frontend shortcode. |
-| 44 | `opening-hours` | ❌ | ⬜ | ⬜ | Jen CRUD + open now + geocode; chybí shortcode, widgety, mapa (4 provideři), Schema.org, bannery, svátky, sezóny. |
+| 44 | `opening-hours` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-03: doplněna zobrazovací vrstva (shortcody [opening_hours]/[opening_hours_status] + Schema.org JSON-LD + české svátky do open-now). Ověřeno renderem + JSON-LD na homepage. Dekorativní widgety (hodiny/mapy/foto) vědomě vypuštěny. Data v post meta = migrace ➖. |
 | 45 | `page-load` | ❌ | ⬜ | ⬜ | Měření zůstalo; chybí benchmark dopadu plugin/modul, admin-bar indikátor, metriky query/paměť. |
 | 46 | `performance-optimization` | ⚠️ | ❌ | ⬜ | Vědomé bezpečnostní zúžení: read-only analýza 5 metrik + 3 whitelistované fixy (sedí se zadáním). |
 | 47 | `pixel-tag-manager` | ⚠️ | ⬜ | ⬜ | Výstup shodný, ale **option klíče přejmenovány hyphen→underscore bez migrace**; GA regex rozšířen; chybí validace. |

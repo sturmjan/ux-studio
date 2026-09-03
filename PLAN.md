@@ -383,7 +383,7 @@ Toto běží uvnitř flow 15.0 (po deaktivaci ux1, před tím než cokoli data s
 - [ ] `content-sync` - doplnit plnou Hub↔Node správu (CRUD příspěvků/kategorií/médií/ACF, SSO, media transfer); dnes jen uložení URL+HMAC + log
 - [ ] `dashboard-widgets` - doplnit skrývání/registraci reálných dashboard widgetů a layoutu (dnes jen SPA s PageSpeed + úkoly)
 - [ ] `exit-popup` - doplnit appearance/CTA/image, autoresponder, cookie frekvenci, 4 z 5 detekčních režimů, URL cílení (dnes jen sběr e-mailů)
-- [ ] `opening-hours` - doplnit zobrazovací vrstvu: shortcode, widgety, mapa, Schema.org JSON-LD, bannery, svátky, sezóny (dnes jen CRUD + „open now")
+- [x] `opening-hours` - doplněna zobrazovací vrstva (`Frontend.php`): shortcody `[opening_hours]` (karta s týdenní tabulkou, lokalizované názvy dnů, zvýrazněný dnešek, open-now badge, dnešní výjimka/svátek) + `[opening_hours_status]` (inline badge) + Schema.org JSON-LD (LocalBusiness + openingHoursSpecification, na single lokaci / homepage / dle ID) + české státní svátky (`Holidays.php`, Velikonoce Meeus/Jones/Butcher) započítané do open-now. Vědomě NEportováno: dekorativní widget zoo (analog/digital hodiny, foto karty, 4 mapoví provideři) - nízká marginální hodnota. HOTOVO+OVĚŘENO 2026-09-03 na pobyty-studio: compute_status open=true, shortcode render (badge/open/address/table), status shortcode, svátek 1.1. detekován, Velikonoce 2026=5.4. správně, JSON-LD na homepage validní (LocalBusiness+geo+openingHoursSpecification).
 - [ ] `notice-board` - doplnit description, data/archivaci, více příloh, RSS, per-kategorie odběry, notifikační e-maily, frontend shortcode
 - [ ] `instagram-feed` - doplnit OAuth/connections, témata, per-feed nastavení, sideload, cron, hashtag filtry, admin UI (dnes jen `<img>` mřížka)
 

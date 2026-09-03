@@ -15,12 +15,14 @@ use WP_Error;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Ported (redesigned) from the legacy opening-hours module's location/hours
- * data model + "is it open now" resolver. Deliberately NOT ported this round:
- * the shortcode system, the widget builder, the map renderer and the visual
- * templates (Shortcode.php, ShortcodeBuilder.php, WidgetBuilder.php,
- * Widgets.php, MapRenderer.php, templates/*) - only CRUD for locations plus a
- * REST "is it open now" status endpoint and settings for the map API keys.
+ * Ported (redesigned) from the legacy opening-hours module: location/hours
+ * data model, the "is it open now" resolver, the frontend display layer
+ * (see Frontend.php: [opening_hours] / [opening_hours_status] shortcodes +
+ * LocalBusiness Schema.org JSON-LD) and Czech public-holiday handling
+ * (see Holidays.php). Deliberately NOT ported: the decorative widget zoo
+ * (analog/digital clocks, photo cards, 4-provider map embeds) - low marginal
+ * value; the core hours table, open-now status and SEO structured data cover
+ * the real use case.
  *
  * Locations are stored on a private CPT (uxstudio_location) with all
  * structured data (weekly hours, exceptions, coordinates) as JSON-encoded
@@ -41,6 +43,17 @@ final class Module extends BaseModule {
 	public function boot(): void {
 		add_action( 'init', array( $this, 'register_post_type' ) );
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+		( new Frontend( $this ) )->register();
+	}
+
+	/** Weekday keys mon..sun (for the frontend renderer). */
+	public function day_keys(): array {
+		return self::DAYS;
+	}
+
+	/** Current settings accessor for the frontend renderer. */
+	public function setting( string $key, $default = null ) {
+		return $this->settings->get( $key, $default );
 	}
 
 	/**
@@ -99,6 +112,32 @@ final class Module extends BaseModule {
 	 */
 	public function settings_schema(): array {
 		return array(
+			array(
+				'key'     => 'holidays_closed',
+				'type'    => 'toggle',
+				'label'   => __( 'Treat Czech public holidays as closed', 'ux-studio' ),
+				'help'    => __( 'Public holidays count as closed unless a specific exception for that date says otherwise.', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
+				'key'     => 'schema_enabled',
+				'type'    => 'toggle',
+				'label'   => __( 'Output Schema.org JSON-LD (SEO)', 'ux-studio' ),
+				'help'    => __( 'Emits LocalBusiness + openingHoursSpecification structured data in the page head.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'schema_on_homepage',
+				'type'    => 'toggle',
+				'label'   => __( 'Include JSON-LD on the homepage', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
+				'key'     => 'schema_location_ids',
+				'type'    => 'text',
+				'label'   => __( 'JSON-LD location IDs (comma-separated, blank = all)', 'ux-studio' ),
+				'default' => '',
+			),
 			array(
 				'key'     => 'google_maps_api_key',
 				'type'    => 'text',
@@ -468,9 +507,10 @@ final class Module extends BaseModule {
 
 		$hours      = is_array( $location['hours'] ) ? $location['hours'] : array();
 		$exceptions = is_array( $location['exceptions'] ) ? $location['exceptions'] : array();
+		$holidays   = (bool) $this->settings->get( 'holidays_closed', true );
 
-		$today_ranges     = self::ranges_for_date( $today, $hours, $exceptions, $tz );
-		$yesterday_ranges = self::ranges_for_date( $yesterday, $hours, $exceptions, $tz );
+		$today_ranges     = self::ranges_for_date( $today, $hours, $exceptions, $tz, $holidays );
+		$yesterday_ranges = self::ranges_for_date( $yesterday, $hours, $exceptions, $tz, $holidays );
 
 		// Expand each day's ranges into absolute start/end timestamps, folding
 		// overnight ranges (close <= open) into the following day.
@@ -524,13 +564,14 @@ final class Module extends BaseModule {
 	 * weekly schedule entirely (closed => no ranges, hours => those ranges);
 	 * otherwise fall back to the weekly schedule for that weekday.
 	 *
-	 * @param string             $date       Y-m-d.
-	 * @param array              $hours      Weekly schedule (mon..sun).
-	 * @param array              $exceptions Exceptions list.
-	 * @param \DateTimeZone      $tz         Site timezone.
+	 * @param string             $date            Y-m-d.
+	 * @param array              $hours           Weekly schedule (mon..sun).
+	 * @param array              $exceptions      Exceptions list.
+	 * @param \DateTimeZone      $tz              Site timezone.
+	 * @param bool               $holidays_closed Treat Czech public holidays as closed.
 	 * @return array<int, array{open:string,close:string}>
 	 */
-	private static function ranges_for_date( string $date, array $hours, array $exceptions, \DateTimeZone $tz ): array {
+	private static function ranges_for_date( string $date, array $hours, array $exceptions, \DateTimeZone $tz, bool $holidays_closed = false ): array {
 		foreach ( $exceptions as $exception ) {
 			if ( ( $exception['date'] ?? '' ) === $date ) {
 				if ( ! empty( $exception['closed'] ) ) {
@@ -538,6 +579,11 @@ final class Module extends BaseModule {
 				}
 				return is_array( $exception['hours'] ?? null ) ? $exception['hours'] : array();
 			}
+		}
+
+		// A public holiday with no explicit exception counts as closed.
+		if ( $holidays_closed && null !== Holidays::label_for( $date ) ) {
+			return array();
 		}
 
 		$day_index = (int) ( new \DateTimeImmutable( $date, $tz ) )->format( 'N' ) - 1; // Mon=0..Sun=6.
