@@ -126,6 +126,12 @@ final class RestController extends Controller {
 				),
 				array( '%s', '%s', '%s', '%s' )
 			);
+
+			// Fire the autoresponder only for genuinely new subscribers, so a
+			// caller probing existing addresses can't force repeat mailings.
+			if ( $this->module->autoresponder_enabled() ) {
+				$this->module->send_autoresponder( $email );
+			}
 		}
 
 		// Idempotent by design: an existing email is treated as success too,

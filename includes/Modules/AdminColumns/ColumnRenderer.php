@@ -18,8 +18,10 @@ final class ColumnRenderer {
 
 	private string $content_type;
 
-	/** @var array<int, array{key:string,label:string,type:string,enabled:bool,width:string}> */
+	/** @var array<int, array{key:string,label:string,type:string,field_type:string,enabled:bool,width:string}> */
 	private array $columns;
+
+	private FieldRenderer $fields;
 
 	/**
 	 * @param string $content_type Post type, or 'users' | 'comments' | 'attachment'.
@@ -28,6 +30,7 @@ final class ColumnRenderer {
 	public function __construct( string $content_type, array $columns ) {
 		$this->content_type = $content_type;
 		$this->columns      = $columns;
+		$this->fields       = new FieldRenderer();
 	}
 
 	/**
@@ -102,7 +105,8 @@ final class ColumnRenderer {
 		switch ( $config['type'] ) {
 			case 'meta':
 				$values = get_post_meta( $post_id, $config['key'] );
-				echo esc_html( implode( ', ', array_map( 'strval', $values ) ) );
+				// FieldRenderer returns fully-escaped HTML for the configured field type.
+				echo $this->fields->render( $config['field_type'] ?? 'text', (array) $values ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				break;
 			case 'taxonomy':
 				$this->render_taxonomy( $post_id, $config['key'] );
@@ -135,7 +139,7 @@ final class ColumnRenderer {
 		switch ( $config['type'] ) {
 			case 'meta':
 				$values = get_user_meta( $user_id, $config['key'] );
-				return esc_html( implode( ', ', array_map( 'strval', $values ) ) );
+				return $this->fields->render( $config['field_type'] ?? 'text', (array) $values );
 			case 'post_id':
 				return (string) (int) $user_id;
 			default:
@@ -158,7 +162,8 @@ final class ColumnRenderer {
 		switch ( $config['type'] ) {
 			case 'meta':
 				$values = get_comment_meta( $comment_id, $config['key'] );
-				echo esc_html( implode( ', ', array_map( 'strval', $values ) ) );
+				// FieldRenderer returns fully-escaped HTML for the configured field type.
+				echo $this->fields->render( $config['field_type'] ?? 'text', (array) $values ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				break;
 			case 'post_id':
 				echo (int) $comment_id;

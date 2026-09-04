@@ -13,16 +13,18 @@ use WP_REST_Request;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET    uxstudio/v1/cron-control/status - WP-Cron status snapshot
- * GET    uxstudio/v1/cron-control/events - flat list of scheduled events
+ * GET    uxstudio/v1/cron-control/status    - WP-Cron status + mode snapshot
+ * GET    uxstudio/v1/cron-control/events    - flat list of scheduled events
+ * GET    uxstudio/v1/cron-control/schedules - registered cron schedules
  * POST   uxstudio/v1/cron-control/events/run - run one scheduled event now
- * DELETE uxstudio/v1/cron-control/events - unschedule one event
+ * DELETE uxstudio/v1/cron-control/events    - unschedule one event
+ * GET    uxstudio/v1/cron-control/watch     - last watcher result
+ * POST   uxstudio/v1/cron-control/watch     - run the watcher now
  *
  * The run/delete endpoints take the event identity (hook, timestamp, args) as
  * body params rather than a {hook} URL path segment: hook names can contain
  * characters that would need URL-encoding, and timestamp+args are required
- * anyway to disambiguate a hook scheduled multiple times with different args,
- * so a plain body-args shape is the cleaner fit here.
+ * anyway to disambiguate a hook scheduled multiple times with different args.
  */
 final class RestController extends Controller {
 
@@ -41,6 +43,7 @@ final class RestController extends Controller {
 	public function register_routes(): void {
 		$this->route( '/cron-control/status', 'GET', array( $this, 'status' ) );
 		$this->route( '/cron-control/events', 'GET', array( $this, 'events' ) );
+		$this->route( '/cron-control/schedules', 'GET', array( $this, 'schedules' ) );
 
 		$this->route(
 			'/cron-control/events/run',
@@ -55,6 +58,9 @@ final class RestController extends Controller {
 			array( $this, 'delete' ),
 			$this->event_args()
 		);
+
+		$this->route( '/cron-control/watch', 'GET', array( $this, 'watch_result' ) );
+		$this->route( '/cron-control/watch', 'POST', array( $this, 'run_watch' ) );
 	}
 
 	/**
@@ -101,6 +107,15 @@ final class RestController extends Controller {
 	}
 
 	/**
+	 * Registered cron schedules.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function schedules( WP_REST_Request $request ) {
+		return $this->ok( $this->module->get_schedules() );
+	}
+
+	/**
 	 * Run one scheduled event now.
 	 *
 	 * @param WP_REST_Request $request Request.
@@ -124,5 +139,23 @@ final class RestController extends Controller {
 		$args      = (array) $request->get_param( 'args' );
 
 		return $this->ok( $this->module->delete_event( $hook, $timestamp, $args ) );
+	}
+
+	/**
+	 * Last cached watcher result.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function watch_result( WP_REST_Request $request ) {
+		return $this->ok( $this->module->watch_result() );
+	}
+
+	/**
+	 * Run the watcher now and return the fresh result.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function run_watch( WP_REST_Request $request ) {
+		return $this->ok( $this->module->run_watch_now() );
 	}
 }

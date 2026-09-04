@@ -15,6 +15,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * GET uxstudio/v1/page-load/overview - last 24h summary + hourly breakdown
  * GET uxstudio/v1/page-load/log      - recent raw log rows
+ * GET uxstudio/v1/page-load/impact   - per-plugin load impact benchmark
  */
 final class RestController extends Controller {
 
@@ -44,6 +45,7 @@ final class RestController extends Controller {
 				),
 			)
 		);
+		$this->route( '/page-load/impact', 'GET', array( $this, 'impact' ) );
 	}
 
 	/**
@@ -67,5 +69,14 @@ final class RestController extends Controller {
 		}
 		$limit = max( 1, min( 200, $limit ) );
 		return $this->ok( $this->module->get_recent_log( $limit ) );
+	}
+
+	/**
+	 * Return per-plugin load impact (aggregated) + recent benchmark events.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function impact( WP_REST_Request $request ) {
+		return $this->ok( $this->module->get_impact() );
 	}
 }

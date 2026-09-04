@@ -37,10 +37,22 @@ interface ConfiguredType {
 	columns: Column[];
 }
 
+type FieldType =
+	| 'text'
+	| 'number'
+	| 'boolean'
+	| 'date'
+	| 'image'
+	| 'url'
+	| 'email'
+	| 'color'
+	| 'post';
+
 interface Column {
 	key: string;
 	label: string;
 	type: 'default' | 'meta' | 'taxonomy' | 'post_id' | 'thumbnail';
+	field_type: FieldType;
 	enabled: boolean;
 	width: string;
 }
@@ -68,6 +80,20 @@ const TYPE_LABELS: Record< Column[ 'type' ], string > = {
 	thumbnail: __( 'Thumbnail', 'ux-studio' ),
 };
 
+// Renderers applied to a meta value. Non-meta sources (native column,
+// taxonomy, ID, thumbnail) render themselves and ignore this.
+const FIELD_TYPE_LABELS: Record< FieldType, string > = {
+	text: __( 'Text', 'ux-studio' ),
+	number: __( 'Number', 'ux-studio' ),
+	boolean: __( 'Yes / No', 'ux-studio' ),
+	date: __( 'Date', 'ux-studio' ),
+	image: __( 'Image', 'ux-studio' ),
+	url: __( 'Link', 'ux-studio' ),
+	email: __( 'Email', 'ux-studio' ),
+	color: __( 'Color swatch', 'ux-studio' ),
+	post: __( 'Related post', 'ux-studio' ),
+};
+
 const KEY_HELP: Record< Column[ 'type' ], string > = {
 	default: __( 'Key of an existing column — start typing to see suggestions.', 'ux-studio' ),
 	meta: __( 'Custom field (meta) key — start typing to see suggestions.', 'ux-studio' ),
@@ -77,7 +103,7 @@ const KEY_HELP: Record< Column[ 'type' ], string > = {
 };
 
 function emptyColumn(): Column {
-	return { key: '', label: '', type: 'default', enabled: true, width: '' };
+	return { key: '', label: '', type: 'default', field_type: 'text', enabled: true, width: '' };
 }
 
 function ColumnRow( {
@@ -122,16 +148,31 @@ function ColumnRow( {
 				/>
 			</td>
 			<td>
-				<select
-					value={ column.type }
-					onChange={ ( e ) => onChange( { ...column, type: e.target.value as Column[ 'type' ] } ) }
-				>
-					{ Object.entries( TYPE_LABELS ).map( ( [ value, label ] ) => (
-						<option key={ value } value={ value }>
-							{ label }
-						</option>
-					) ) }
-				</select>
+				<div style={ { display: 'flex', flexDirection: 'column', gap: 'var(--uxs-sp-1)' } }>
+					<select
+						value={ column.type }
+						onChange={ ( e ) => onChange( { ...column, type: e.target.value as Column[ 'type' ] } ) }
+					>
+						{ Object.entries( TYPE_LABELS ).map( ( [ value, label ] ) => (
+							<option key={ value } value={ value }>
+								{ label }
+							</option>
+						) ) }
+					</select>
+					{ column.type === 'meta' && (
+						<select
+							value={ column.field_type }
+							aria-label={ __( 'Render meta value as', 'ux-studio' ) }
+							onChange={ ( e ) => onChange( { ...column, field_type: e.target.value as FieldType } ) }
+						>
+							{ Object.entries( FIELD_TYPE_LABELS ).map( ( [ value, label ] ) => (
+								<option key={ value } value={ value }>
+									{ label }
+								</option>
+							) ) }
+						</select>
+					) }
+				</div>
 			</td>
 			<td>
 				<input

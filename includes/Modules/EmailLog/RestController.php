@@ -14,9 +14,11 @@ use WP_REST_Request;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET    uxstudio/v1/email-log/entries      - paginated log rows
- * DELETE uxstudio/v1/email-log/entries/{id} - delete one entry
- * POST   uxstudio/v1/email-log/clear        - delete every entry
+ * GET    uxstudio/v1/email-log/entries             - paginated log rows
+ * GET    uxstudio/v1/email-log/entries/{id}        - full detail (body/headers/attachments)
+ * DELETE uxstudio/v1/email-log/entries/{id}        - delete one entry
+ * POST   uxstudio/v1/email-log/entries/{id}/resend - re-send a stored message
+ * POST   uxstudio/v1/email-log/clear               - delete every entry
  */
 final class RestController extends Controller {
 
@@ -52,6 +54,18 @@ final class RestController extends Controller {
 		);
 		$this->route(
 			'/email-log/entries/(?P<id>\d+)',
+			'GET',
+			array( $this, 'get_entry' ),
+			array(
+				'id' => array(
+					'required'          => true,
+					'type'              => 'integer',
+					'sanitize_callback' => 'absint',
+				),
+			)
+		);
+		$this->route(
+			'/email-log/entries/(?P<id>\d+)',
 			'DELETE',
 			array( $this, 'delete_entry' ),
 			array(
@@ -62,7 +76,47 @@ final class RestController extends Controller {
 				),
 			)
 		);
+		$this->route(
+			'/email-log/entries/(?P<id>\d+)/resend',
+			'POST',
+			array( $this, 'resend_entry' ),
+			array(
+				'id' => array(
+					'required'          => true,
+					'type'              => 'integer',
+					'sanitize_callback' => 'absint',
+				),
+			)
+		);
 		$this->route( '/email-log/clear', 'POST', array( $this, 'clear' ) );
+	}
+
+	/**
+	 * Full detail of a single entry.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function get_entry( WP_REST_Request $request ) {
+		$id    = (int) $request['id'];
+		$entry = $this->module->get_entry( $id );
+		if ( null === $entry ) {
+			return new WP_Error( 'uxstudio_not_found', __( 'Entry not found.', 'ux-studio' ), array( 'status' => 404 ) );
+		}
+		return $this->ok( $entry );
+	}
+
+	/**
+	 * Re-send a stored message.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function resend_entry( WP_REST_Request $request ) {
+		$id     = (int) $request['id'];
+		$result = $this->module->resend_entry( $id );
+		if ( ! $result['success'] ) {
+			return new WP_Error( 'uxstudio_resend_failed', $result['message'], array( 'status' => 400 ) );
+		}
+		return $this->ok( array( 'id' => $id, 'message' => $result['message'] ) );
 	}
 
 	/**

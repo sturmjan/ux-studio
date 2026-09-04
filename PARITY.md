@@ -45,7 +45,7 @@ hyphen→underscore bez migrace), obecně moduly s vlastní tabulkou a přeznač
 | # | Modul | Statická | Migrace | Funkční A/B | Nález (statická parita) |
 |---|---|:--:|:--:|:--:|---|
 | 1 | `activity-log` | ❌ | ❌ | ⬜ | Jen loguje wp_login do sdílené tabulky; chybí ~25 událostí, alert eskalace, vlastní tabulka. |
-| 2 | `admin-columns` | ⚠️ | ⬜ | ⬜ | Meta-sloupce ported, ale bohaté field-type renderery a data-source konfigurace zjednodušené. |
+| 2 | `admin-columns` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: FieldRenderer 9 typů (image/boolean/date/url/email/color/post/number/text) + per-column data-source. Ověřeno lint/build/boot. |
 | 3 | `admin-customiser` | ⚠️ | ⬜ | ⬜ | Většina sub-modulů ported; chybí Sidebar styling a detailní theming login stránky. |
 | 4 | `ai-assistant` | ✅ | ⬜ | ⬜ | Kompletní (14 tabulek, 3 provideři, 106 route), navíc InternalChat. |
 | 5 | `ai-markdown` | ⚠️ | ⬜ | ⬜ | llms.txt + markdown výstup funguje; chybí ai-sitemap.md, cache lock, detekce botů, edit metabox, cron. |
@@ -58,7 +58,7 @@ hyphen→underscore bez migrace), obecně moduly s vlastní tabulkou a přeznač
 | 12 | `clean-profiles` | ✅ | ⬜ | ⬜ | Free+pro vč. WooCommerce; vypuštěny jen triviální rozšiřující filtry. |
 | 13 | `code-snippets` | ✅ | ⬜ | ⬜ | Věrný file-based port + integrity hash, PhpValidator, safe mode; metadata v DB (hardening). |
 | 14 | `content-sync` | ❌ | ⬜ | ⬜ | Plná Hub-Node vzdálená správa redukována na uložení URL+HMAC, evidenci webů a log. |
-| 15 | `cron-control` | ❌ | ⬜ | ⬜ | Chybí řízení režimu WP-Cronu (disable/local/hosting/central) + watcher/whitelist. |
+| 15 | `cron-control` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: režimy WP-Cronu (none/block_all/local/external/central) přes mu-plugin+.htaccess, watcher+whitelist. Ověřeno lint/build/boot. |
 | 16 | `dashboard-widgets` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-03: doplněna správa reálných wp-admin widgetů (wp_dashboard_setup snapshot + skrytí vybraných/všech vč. welcome panelu). Ověřeno jednotkově. SPA (PageSpeed/úkoly) zůstává. |
 | 17 | `debug-mode` | ⚠️ | ⬜ | ⬜ | Vědomě netoggluje WP_DEBUG; jen read-only čtečka konstant + logu. |
 | 18 | `disable-auto-updates` | ✅ | ⬜ | ⬜ | Options i logika 1:1, jen bez show_if UI hintů. |
@@ -68,13 +68,13 @@ hyphen→underscore bez migrace), obecně moduly s vlastní tabulkou a přeznač
 | 22 | `duplicate-post` | ✅ | ⬜ | ⬜ | Shodné options i elementy vč. Woo product_gallery. |
 | 23 | `elementor-import` | ❌ | ⬜ | ⬜ | Jen JSON/ZIP → draft; chybí URL/HTML import, export a režimy replace/append. |
 | 24 | `email-health` | ⚠️ | ⬜ | ⬜ | Core test emailu 1:1; vědomě zahozena Mail-Tester.com integrace, interval 6h→24h. |
-| 25 | `email-log` | ⚠️ | ⬜ | ⬜ | Loguje poštu, ale chybí tělo/hlavičky/přílohy, detekce zdroje, resend. |
-| 26 | `exit-popup` | ❌ | ⬜ | ⬜ | Jen sběr emailů; chybí appearance/CTA/image, autoresponder, cookie frekvence, 4/5 detekčních režimů, URL cílení. |
+| 25 | `email-log` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: tělo/hlavičky/přílohy (DB v2), detekce zdroje, resend, detail modal. Ověřeno build/boot/migrace. |
+| 26 | `exit-popup` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: appearance/CTA/image, autoresponder, cookie frekvence, 5 detekčních režimů, URL cílení. Ověřeno lint/build/boot; popup v prohlížeči jen ruční test. |
 | 27 | `export-posts` | ✅ | ⬜ | ⬜ | Shoda vč. PRO meta-fields; navíc opravuje legacy bug (post meta se teď fakt exportuje). |
 | 28 | `export-users` | ✅ | ⬜ | ⬜ | Shoda 1:1 (row/bulk/profil, meta z PRO). |
 | 29 | `external-permalinks` | ✅ | ⬜ | ⬜ | Shoda: meta _links_to, classic + block editor, redirect se stejnou ochranou. |
 | 30 | `file-manager` | ✅ | ⬜ | ⬜ | Balí stejný Tiny File Manager v2.6; shodná route, whitelist, auth, fail-closed marker. |
-| 31 | `folder-manager` | ⚠️ | ⬜ | ⬜ | Stejná taxonomie, ale chybí rename/reparent, bulk move, integrace do WP media library. |
+| 31 | `folder-manager` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: rename/reparent (cycle-guard) + bulk-move (per-item edit_post). Ověřeno lint/build/boot. |
 | 32 | `google-review-request` | ❌ | ⬜ | ⬜ | Přeznačeno: on-site popup + multiplatforma + triggery nahrazeny posíláním review-request emailu. |
 | 33 | `guide` | ❌ | ⬜ | ⬜ | Přeznačeno: editor Návodu s MD exportem + noindex cron nahrazen nesouvisejícím onboarding checklistem. |
 | 34 | `hide-admin-bar` | ⚠️ | ⬜ | ⬜ | **Opačné chování při prázdném výběru rolí** (legacy neskryje nikomu, studio skryje všem). |
@@ -88,7 +88,7 @@ hyphen→underscore bez migrace), obecně moduly s vlastní tabulkou a přeznač
 | 42 | `menu-visibility` | ✅ | ⬜ | ⬜ | 1:1; čte i legacy _wpext_menu_item_visible jako fallback. |
 | 43 | `notice-board` | ❌ | ⬜ | ⬜ | Stub; chybí description, data, archivace, více příloh, RSS, per-kat. odběry, emaily, frontend shortcode. |
 | 44 | `opening-hours` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-03: doplněna zobrazovací vrstva (shortcody [opening_hours]/[opening_hours_status] + Schema.org JSON-LD + české svátky do open-now). Ověřeno renderem + JSON-LD na homepage. Dekorativní widgety (hodiny/mapy/foto) vědomě vypuštěny. Data v post meta = migrace ➖. |
-| 45 | `page-load` | ❌ | ⬜ | ⬜ | Měření zůstalo; chybí benchmark dopadu plugin/modul, admin-bar indikátor, metriky query/paměť. |
+| 45 | `page-load` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: query/paměť metriky (DB v2), admin-bar indikátor, per-plugin benchmark. Ověřeno build/boot/migrace. |
 | 46 | `performance-optimization` | ⚠️ | ❌ | ⬜ | Vědomé bezpečnostní zúžení: read-only analýza 5 metrik + 3 whitelistované fixy (sedí se zadáním). |
 | 47 | `pixel-tag-manager` | ⚠️ | ⬜ | ⬜ | Výstup shodný, ale **option klíče přejmenovány hyphen→underscore bez migrace**; GA regex rozšířen; chybí validace. |
 | 48 | `popup-manager` | ⚠️ | ❌ | ⬜ | Jádro (obsah+delay/scroll/exit+cílení+track) funguje; osekány typy, styling, capping, plánování, šablony; stats model změněn. |

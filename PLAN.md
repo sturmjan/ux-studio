@@ -382,16 +382,16 @@ Toto běží uvnitř flow 15.0 (po deaktivaci ux1, před tím než cokoli data s
 **P2 - důležité (osekané, pravděpodobně používané):**
 - [ ] `content-sync` - doplnit plnou Hub↔Node správu (CRUD příspěvků/kategorií/médií/ACF, SSO, media transfer); dnes jen uložení URL+HMAC + log
 - [x] `dashboard-widgets` - doplněna správa reálných wp-admin dashboard widgetů: `wp_dashboard_setup` hooky snímkují registrované widgety (transient) a odstraní admin vybrané (`hidden_widgets` multiselect) nebo všechny (`disable_all_widgets` toggle + welcome panel). Nastavení nabízí widgety reálně registrované na webu (core defaulty + cache). SPA (PageSpeed/aktivita/úkoly) zůstává. HOTOVO+OVĚŘENO 2026-09-03: skrytí konkrétního widgetu (odstraní cíl, ostatní zůstanou), disable-all (vyprázdní dashboard), cache→available list.
-- [ ] `exit-popup` - doplnit appearance/CTA/image, autoresponder, cookie frekvenci, 4 z 5 detekčních režimů, URL cílení (dnes jen sběr e-mailů)
+- [x] `exit-popup` - doplněno appearance/CTA/image + barvy/overlay, autoresponder (wp_mail, jen pro nové odběratele), cookie frekvence (session/cookie N dní/always), všech 5 detekčních režimů (mouse-leave, tab-change, window-blur, idle, scroll-up + time-on-page), URL/post-type cílení + hide-for-logged-in. Frontend přes rozšířený assets/exit-popup.js z lokalizovaného configu. HOTOVO 2026-09-04 (fleet agent): php -l + node --check clean, build clean, boot 200. Neověřeno: chování popupu v prohlížeči (jen ruční test).
 - [x] `opening-hours` - doplněna zobrazovací vrstva (`Frontend.php`): shortcody `[opening_hours]` (karta s týdenní tabulkou, lokalizované názvy dnů, zvýrazněný dnešek, open-now badge, dnešní výjimka/svátek) + `[opening_hours_status]` (inline badge) + Schema.org JSON-LD (LocalBusiness + openingHoursSpecification, na single lokaci / homepage / dle ID) + české státní svátky (`Holidays.php`, Velikonoce Meeus/Jones/Butcher) započítané do open-now. Vědomě NEportováno: dekorativní widget zoo (analog/digital hodiny, foto karty, 4 mapoví provideři) - nízká marginální hodnota. HOTOVO+OVĚŘENO 2026-09-03 na pobyty-studio: compute_status open=true, shortcode render (badge/open/address/table), status shortcode, svátek 1.1. detekován, Velikonoce 2026=5.4. správně, JSON-LD na homepage validní (LocalBusiness+geo+openingHoursSpecification).
 - [ ] `notice-board` - doplnit description, data/archivaci, více příloh, RSS, per-kategorie odběry, notifikační e-maily, frontend shortcode
 - [ ] `instagram-feed` - doplnit OAuth/connections, témata, per-feed nastavení, sideload, cron, hashtag filtry, admin UI (dnes jen `<img>` mřížka)
 
 **P3 - nižší (osekané, web spíš nepoužívá):**
-- [ ] `cron-control` - doplnit řízení režimu WP-Cronu (disable/local/hosting/central) + watcher/whitelist
+- [x] `cron-control` - doplněno řízení režimu WP-Cronu (none/block_all/local_only/external/central_app) přes mu-plugin + .htaccess marker (wp-config se NEEDITUJE, WP_Filesystem s writability guardem), watcher naplánovaných úloh (+auto-remove/whitelist s wildcardem), Schedules/Watcher/Mode SPA taby, admin-bar varování. HOTOVO 2026-09-04 (fleet agent): php -l + build clean, boot 200. Nezachován legacy HMAC push cron configu na hub (studio content-sync nemá node schema). Neověřeno funkčně: reálný zápis mu-pluginu/.htaccess a efekt na DISABLE_WP_CRON.
 - [ ] `download-files` - rozhodnout koncept: legacy = přílohy k příspěvkům + shortcode + frontend vs Studio = tokenovaná knihovna; sjednotit nebo doplnit
 - [ ] `elementor-import` - doplnit URL/HTML import, export, režimy replace/append (dnes jen JSON/ZIP → draft)
-- [ ] `page-load` - doplnit benchmark dopadu plugin/modul, admin-bar indikátor, metriky query/paměť
+- [x] `page-load` - doplněny metriky query/paměť (get_num_queries + memory_get_peak_usage, DB v2: +query_count/+memory_peak_kb), admin-bar indikátor (barevně odstupňovaný čas + dropdown queries/paměť), per-plugin benchmark (activated/deactivated_plugin → cron N uncached front-page requestů → tabulka uxstudio_page_load_impact), SPA taby Overview+Plugin impact. HOTOVO+OVĚŘENO 2026-09-04 (fleet agent): build/lint clean, boot 200, DB v2 migrace + impact tabulka ověřeny. Benchmark potřebuje funkční loopback HTTP.
 
 **Vědomá rozhodnutí (POTVRZENO 2026-09-03 uživatelem - záměr, NEdodělávat, jen doplnit do dokumentace parity jako „by design"):**
 - `performance-optimization` - vědomě zúženo z bezpečnostních důvodů (read-only + 3 fixy). Ponecháno.
@@ -406,9 +406,9 @@ Toto běží uvnitř flow 15.0 (po deaktivaci ux1, před tím než cokoli data s
 - [ ] `image-optimizer` - doplnit AVIF, WebP delivery (.htaccess), auto-optimalizaci při uploadu, scanner nepoužitých obrázků
 - [ ] `security-optimization` - doplnit CSP enforcing (dnes jen reporting) + UI pro Upload Guard + ~8 hardening přepínačů
 - [ ] `third-party-login` - doplnit role gating, opt-in auto-create+role, link/unlink UI
-- [ ] `email-log` - doplnit ukládání těla/hlaviček/příloh + detekci zdroje + resend
-- [ ] `folder-manager` - doplnit rename/reparent složky, bulk move
-- [ ] `admin-columns` - doplnit bohaté field-type renderery a data-source konfigurace
+- [x] `email-log` - doplněno ukládání těla/hlaviček/příloh (capture přes `wp_mail` filtr prio 999 → pending řádek, pak wp_mail_succeeded/failed překlopí stav; DB v2: +source/+message/+headers/+attachments), detekce zdroje (backtrace → plugin/theme, toggle), resend (wp_mail; přílohy jen názvy). SPA: source sloupec + detail modal (hlavičky/přílohy/sandboxed body iframe) + resend. HOTOVO+OVĚŘENO 2026-09-04 (fleet agent): build/lint clean, boot 200, DB v2 sloupce ověřeny.
+- [x] `folder-manager` - doplněno rename složky (unikátní slug, kontrola duplicit), reparent (guard proti cyklu/self-parent přes ancestor walk), bulk-move příloh (per-item edit_post capability, skip nevalidních). REST PUT/move/items-move, SPA inline rename + move-under select (bez descendantů) + bulk panel. HOTOVO 2026-09-04 (fleet agent): php -l + build clean, boot 200. Neověřeno funkčně: reálné taxonomy operace na běžícím webu.
+- [x] `admin-columns` - doplněn `FieldRenderer` s 9 typy (text/number/boolean/date/image/url/email/color/post) + per-column selektor „render meta value as" a data-source (meta/taxonomy/post_id/thumbnail). Vše escapováno, zpětně kompatibilní (chybějící field_type → text). SPA: druhý select v Type buňce jen pro meta zdroj. HOTOVO 2026-09-04 (fleet agent): php -l + build clean, boot 200. Neověřeno funkčně: render na reálných list tables.
 - [ ] projít zbylé ⚠️ z `PARITY.md` a rozhodnout, co je bug a co přijatelný rozdíl
 
 ### 15.4 Uzavření (F5 gate)

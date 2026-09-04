@@ -82,7 +82,7 @@ final class Module extends BaseModule {
 	 * wpextended format when we have nothing stored yet.
 	 *
 	 * @param string $content_type Post type, or 'users' | 'comments' | 'attachment'.
-	 * @return array<int, array{key:string,label:string,type:string,enabled:bool,width:string}>
+	 * @return array<int, array{key:string,label:string,type:string,field_type:string,enabled:bool,width:string}>
 	 */
 	public function get_config( string $content_type ): array {
 		$all = $this->all_config();
@@ -118,8 +118,14 @@ final class Module extends BaseModule {
 	/**
 	 * Coerce one column definition into the canonical shape.
 	 *
+	 * `type` is the data source (default native column, post/user/comment meta,
+	 * taxonomy, the object ID, or the featured image). `field_type` is the
+	 * renderer applied to a meta value (text, number, boolean, date, image,
+	 * url, email, color, post relationship); it is ignored for non-meta sources
+	 * but always stored so the SPA round-trips it.
+	 *
 	 * @param array $column Raw column.
-	 * @return array{key:string,label:string,type:string,enabled:bool,width:string}
+	 * @return array{key:string,label:string,type:string,field_type:string,enabled:bool,width:string}
 	 */
 	public function normalize_column( array $column ): array {
 		$allowed_types = array( 'default', 'meta', 'taxonomy', 'post_id', 'thumbnail' );
@@ -127,12 +133,17 @@ final class Module extends BaseModule {
 			? $column['type']
 			: 'default';
 
+		$field_type = isset( $column['field_type'] ) && FieldRenderer::is_valid_type( (string) $column['field_type'] )
+			? (string) $column['field_type']
+			: 'text';
+
 		return array(
-			'key'     => sanitize_key( (string) ( $column['key'] ?? '' ) ),
-			'label'   => sanitize_text_field( (string) ( $column['label'] ?? '' ) ),
-			'type'    => $type,
-			'enabled' => ! isset( $column['enabled'] ) || (bool) $column['enabled'],
-			'width'   => sanitize_text_field( (string) ( $column['width'] ?? '' ) ),
+			'key'        => sanitize_key( (string) ( $column['key'] ?? '' ) ),
+			'label'      => sanitize_text_field( (string) ( $column['label'] ?? '' ) ),
+			'type'       => $type,
+			'field_type' => $field_type,
+			'enabled'    => ! isset( $column['enabled'] ) || (bool) $column['enabled'],
+			'width'      => sanitize_text_field( (string) ( $column['width'] ?? '' ) ),
 		);
 	}
 
@@ -171,11 +182,12 @@ final class Module extends BaseModule {
 				$col_key = sanitize_key( (string) ( $row['meta_key'] ?? $col_key ) );
 			}
 			$columns[] = array(
-				'key'     => $col_key,
-				'label'   => sanitize_text_field( (string) ( $row['column_title'] ?? $col_key ) ),
-				'type'    => $type,
-				'enabled' => empty( $row['disable_column'] ),
-				'width'   => '',
+				'key'        => $col_key,
+				'label'      => sanitize_text_field( (string) ( $row['column_title'] ?? $col_key ) ),
+				'type'       => $type,
+				'field_type' => 'text',
+				'enabled'    => empty( $row['disable_column'] ),
+				'width'      => '',
 			);
 		}
 
