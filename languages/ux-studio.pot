@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-04T12:54:44+00:00\n"
+"POT-Creation-Date: 2026-09-04T14:00:14+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: ux-studio\n"
@@ -80,15 +80,15 @@ msgstr ""
 #: includes/Modules/ExitPopup/Module.php:462
 #: includes/Modules/FileManager/Module.php:128
 #: includes/Modules/PopupManager/Module.php:398
-#: build/78.js:1
-#: build/367.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
 msgid "Close"
 msgstr ""
 
 #: includes/Core/Megamenu.php:166
 #: includes/Modules/AdminCustomiser/MenuOrganizer.php:74
 #: includes/Modules/ExportPosts/Module.php:356
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Content"
 msgstr ""
 
@@ -100,8 +100,8 @@ msgstr ""
 #: includes/Modules/AdminColumns/RestController.php:97
 #: includes/Modules/AdminCustomiser/MenuOrganizer.php:75
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:253
-#: build/78.js:1
-#: build/752.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Media"
 msgstr ""
 
@@ -212,17 +212,17 @@ msgstr ""
 #: includes/Modules/ActivityLog/Module.php:366
 #: includes/Modules/MediaReplace/RestController.php:131
 #: includes/Modules/MediaReplace/RestController.php:132
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "unknown"
 msgstr ""
 
 #: includes/Modules/AdminColumns/FieldRenderer.php:128
 #: includes/Modules/MaintenanceMode/Module.php:466
-#: build/50.js:1
-#: build/244.js:1
-#: build/475.js:1
-#: build/718.js:1
-#: build/809.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
+#: build/718.0297609e33fe5814329b.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Yes"
 msgstr ""
 
@@ -233,9 +233,9 @@ msgstr ""
 
 #: includes/Modules/AdminColumns/FieldRenderer.php:134
 #: includes/Modules/MaintenanceMode/Module.php:465
-#: build/50.js:1
-#: build/244.js:1
-#: build/718.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
+#: build/718.0297609e33fe5814329b.js:1
 msgid "No"
 msgstr ""
 
@@ -247,7 +247,7 @@ msgstr ""
 #: includes/Modules/AdminColumns/RestController.php:98
 #: includes/Modules/AdminCustomiser/MenuOrganizer.php:79
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:207
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Users"
 msgstr ""
 
@@ -297,17 +297,17 @@ msgstr ""
 #: includes/Modules/AdminCustomiser/HideAdminNotices.php:64
 #: includes/Modules/AdminCustomiser/HideAdminNotices.php:68
 #: includes/Modules/AdminCustomiser/HideAdminNotices.php:119
-#: build/819.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
 msgid "Notifications"
 msgstr ""
 
 #: includes/Modules/AdminCustomiser/MenuOrganizer.php:73
-#: build/50.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
 msgid "Dashboard"
 msgstr ""
 
 #: includes/Modules/AdminCustomiser/MenuOrganizer.php:76
-#: build/index.js:2
+#: build/index.508ec69e5c53f238b3b0.js:2
 msgid "Appearance"
 msgstr ""
 
@@ -427,8 +427,8 @@ msgstr ""
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:154
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:193
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:237
-#: build/78.js:1
-#: build/752.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Edit"
 msgstr ""
 
@@ -436,7 +436,7 @@ msgstr ""
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:152
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:195
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:240
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "View"
 msgstr ""
 
@@ -446,8 +446,8 @@ msgstr ""
 #: includes/Modules/AdminCustomiser/QuickSearch/ThirdPartyIntegrations.php:67
 #: includes/Modules/AdminCustomiser/QuickSearch/ThirdPartyIntegrations.php:68
 #: includes/Modules/AdminCustomiser/QuickSearch/ThirdPartyIntegrations.php:69
-#: build/190.js:1
-#: build/474.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
+#: build/474.d98fcb46027547ab305e.js:1
 msgid "Open"
 msgstr ""
 
@@ -461,9 +461,9 @@ msgstr ""
 
 #: includes/Modules/AdminCustomiser/QuickSearch/ThirdPartyIntegrations.php:50
 #: includes/Modules/ExportPosts/Module.php:372
-#: build/78.js:1
-#: build/475.js:1
-#: build/930.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Categories"
 msgstr ""
 
@@ -567,7 +567,7 @@ msgstr ""
 
 #: includes/Modules/AiAssistant/ChatHistory.php:134
 #: includes/Modules/AiAssistant/ChatHistory.php:137
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "New conversation"
 msgstr ""
 
@@ -612,23 +612,23 @@ msgstr ""
 
 #: includes/Modules/AiAssistant/ChatRestController.php:353
 #: includes/Modules/CleanProfiles/Module.php:58
-#: build/78.js:1
-#: build/93.js:1
-#: build/136.js:1
-#: build/230.js:1
-#: build/309.js:1
-#: build/475.js:1
-#: build/752.js:1
-#: build/809.js:1
-#: build/866.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
+#: build/136.71ec8b3d36d55a7536e3.js:1
+#: build/230.9edabc0030c217453fd8.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
+#: build/752.5b321b5d976757948e1d.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Name"
 msgstr ""
 
 #: includes/Modules/AiAssistant/ChatRestController.php:355
 #: includes/Modules/CleanProfiles/Module.php:42
-#: build/157.js:1
-#: build/213.js:1
-#: build/475.js:1
+#: build/157.6516b122bdc10ba986aa.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "Email"
 msgstr ""
 
@@ -639,13 +639,13 @@ msgstr ""
 
 #: includes/Modules/AiAssistant/ChatRestController.php:359
 #: includes/Modules/AiAssistant/ChatRestController.php:444
-#: build/78.js:1
-#: build/157.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/157.6516b122bdc10ba986aa.js:1
 msgid "Page"
 msgstr ""
 
 #: includes/Modules/AiAssistant/ChatRestController.php:361
-#: build/367.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
 msgid "Message"
 msgstr ""
 
@@ -676,8 +676,8 @@ msgid "New callback request from the AI chat"
 msgstr ""
 
 #: includes/Modules/AiAssistant/ChatRestController.php:446
-#: build/190.js:1
-#: build/809.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Note"
 msgstr ""
 
@@ -842,7 +842,7 @@ msgid "Could not extract content from the page."
 msgstr ""
 
 #: includes/Modules/AiAssistant/ContentRestController.php:278
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Import from URL"
 msgstr ""
 
@@ -1065,12 +1065,12 @@ msgid "Token not found."
 msgstr ""
 
 #: includes/Modules/AiAssistant/Mcp/JwtAuth.php:135
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Unknown"
 msgstr ""
 
 #: includes/Modules/AiAssistant/Mcp/McpBootstrap.php:48
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "AI Assistant"
 msgstr ""
 
@@ -1089,7 +1089,7 @@ msgstr ""
 
 #: includes/Modules/AiAssistant/Mcp/Resources/SiteInfoResource.php:25
 #: includes/Modules/AiAssistant/Mcp/Resources/SiteInfoResource.php:40
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Site Information"
 msgstr ""
 
@@ -1099,7 +1099,7 @@ msgstr ""
 
 #: includes/Modules/AiAssistant/Mcp/Resources/SiteSettingsResource.php:25
 #: includes/Modules/AiAssistant/Mcp/Resources/SiteSettingsResource.php:40
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Site Settings"
 msgstr ""
 
@@ -1720,7 +1720,7 @@ msgstr ""
 
 #: includes/Modules/AiPanel/Module.php:72
 #: includes/Modules/AiPanel/Module.php:73
-#: build/999.js:1
+#: build/999.099916b842480750146e.js:1
 msgid "AI Panel"
 msgstr ""
 
@@ -1843,8 +1843,8 @@ msgid "Current server load:"
 msgstr ""
 
 #: includes/Modules/BotThrottle/DashboardWidget.php:63
-#: build/50.js:1
-#: build/148.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
+#: build/148.d119a26df1a63436ea04.js:1
 msgid "Bot requests (24h)"
 msgstr ""
 
@@ -1857,28 +1857,28 @@ msgid "Blocked"
 msgstr ""
 
 #: includes/Modules/BotThrottle/DashboardWidget.php:72
-#: build/50.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
 msgid "Bot"
 msgstr ""
 
 #: includes/Modules/BotThrottle/DashboardWidget.php:73
-#: build/50.js:1
-#: build/78.js:1
-#: build/244.js:1
-#: build/475.js:1
-#: build/930.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Category"
 msgstr ""
 
 #: includes/Modules/BotThrottle/DashboardWidget.php:74
-#: build/50.js:1
-#: build/78.js:1
-#: build/474.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/474.d98fcb46027547ab305e.js:1
 msgid "Requests"
 msgstr ""
 
 #: includes/Modules/BotThrottle/DashboardWidget.php:88
-#: build/50.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
 msgid "No bot activity recorded yet."
 msgstr ""
 
@@ -2340,7 +2340,7 @@ msgid "No current user."
 msgstr ""
 
 #: includes/Modules/ContentSync/Hub.php:92
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "SSO issue failed."
 msgstr ""
 
@@ -2357,19 +2357,19 @@ msgid "Media upload failed."
 msgstr ""
 
 #: includes/Modules/ContentSync/Module.php:174
-#: build/930.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Editor"
 msgstr ""
 
 #: includes/Modules/ContentSync/Module.php:175
 #: includes/Modules/ExportPosts/Module.php:362
-#: build/718.js:1
-#: build/930.js:1
+#: build/718.0297609e33fe5814329b.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Author"
 msgstr ""
 
 #: includes/Modules/ContentSync/Module.php:176
-#: build/930.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Contributor"
 msgstr ""
 
@@ -2423,10 +2423,10 @@ msgstr ""
 
 #: includes/Modules/ContentSync/Module.php:213
 #: includes/Modules/MaintenanceMode/Module.php:368
-#: build/78.js:1
-#: build/190.js:1
-#: build/809.js:1
-#: build/866.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Disabled"
 msgstr ""
 
@@ -2770,7 +2770,7 @@ msgid "Disable for specific plugins only"
 msgstr ""
 
 #: includes/Modules/DisableAutoUpdates/Module.php:164
-#: build/136.js:2
+#: build/136.71ec8b3d36d55a7536e3.js:2
 msgid "Plugins"
 msgstr ""
 
@@ -2803,7 +2803,7 @@ msgid "Disable for specific themes only"
 msgstr ""
 
 #: includes/Modules/DisableAutoUpdates/Module.php:190
-#: build/136.js:2
+#: build/136.71ec8b3d36d55a7536e3.js:2
 msgid "Themes"
 msgstr ""
 
@@ -2962,7 +2962,7 @@ msgid "Redirect to the post edit screen after duplication."
 msgstr ""
 
 #: includes/Modules/DuplicatePost/Module.php:247
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Post status"
 msgstr ""
 
@@ -3047,7 +3047,7 @@ msgid "Could not build any Elementor widgets from the supplied HTML."
 msgstr ""
 
 #: includes/Modules/ElementorImport/Module.php:272
-#: build/563.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
 msgid "Imported HTML"
 msgstr ""
 
@@ -3192,7 +3192,7 @@ msgid "Record which plugin, theme or mu-plugin triggered each mail. Adds a small
 msgstr ""
 
 #: includes/Modules/EmailLog/Module.php:377
-#: build/367.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
 msgid "Email was re-sent."
 msgstr ""
 
@@ -3214,12 +3214,12 @@ msgid "Wait, don't go!"
 msgstr ""
 
 #: includes/Modules/ExitPopup/Module.php:95
-#: build/819.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
 msgid "Body"
 msgstr ""
 
 #: includes/Modules/ExitPopup/Module.php:101
-#: build/213.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
 msgid "Image"
 msgstr ""
 
@@ -3490,20 +3490,20 @@ msgid "Post ID"
 msgstr ""
 
 #: includes/Modules/ExportPosts/Module.php:354
-#: build/78.js:1
-#: build/84.js:1
-#: build/213.js:1
-#: build/244.js:1
-#: build/309.js:1
-#: build/474.js:1
-#: build/475.js:1
-#: build/819.js:1
-#: build/930.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/84.1a53127d36c807b7f9d6.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
+#: build/474.d98fcb46027547ab305e.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Title"
 msgstr ""
 
 #: includes/Modules/ExportPosts/Module.php:355
-#: build/475.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "Slug"
 msgstr ""
 
@@ -3512,18 +3512,18 @@ msgid "Excerpt"
 msgstr ""
 
 #: includes/Modules/ExportPosts/Module.php:358
-#: build/78.js:1
-#: build/84.js:1
-#: build/178.js:1
-#: build/190.js:1
-#: build/309.js:1
-#: build/367.js:1
-#: build/402.js:1
-#: build/474.js:1
-#: build/475.js:1
-#: build/819.js:1
-#: build/831.js:1
-#: build/866.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/84.1a53127d36c807b7f9d6.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
+#: build/402.b1fe1ccabde7eb8300df.js:1
+#: build/474.d98fcb46027547ab305e.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Status"
 msgstr ""
 
@@ -3533,20 +3533,20 @@ msgid "Post Type"
 msgstr ""
 
 #: includes/Modules/ExportPosts/Module.php:360
-#: build/50.js:1
-#: build/157.js:1
-#: build/158.js:1
-#: build/190.js:1
-#: build/213.js:1
-#: build/309.js:1
-#: build/367.js:1
-#: build/402.js:1
-#: build/475.js:1
-#: build/718.js:1
-#: build/819.js:1
-#: build/831.js:1
-#: build/860.js:1
-#: build/976.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
+#: build/157.6516b122bdc10ba986aa.js:1
+#: build/158.1a00cfb592a89b32f06b.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
+#: build/402.b1fe1ccabde7eb8300df.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
+#: build/718.0297609e33fe5814329b.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
+#: build/860.a8269f19205c5720d7ff.js:1
+#: build/976.9bdf1e13c10fe53dba47.js:1
 msgid "Date"
 msgstr ""
 
@@ -3584,7 +3584,7 @@ msgid "Filtered Content"
 msgstr ""
 
 #: includes/Modules/ExportPosts/Module.php:373
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Tags"
 msgstr ""
 
@@ -3670,7 +3670,7 @@ msgstr ""
 
 #: includes/Modules/ExportUsers/Module.php:352
 #: includes/Modules/FileManager/Module.php:434
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Username"
 msgstr ""
 
@@ -3699,9 +3699,9 @@ msgid "Website URL"
 msgstr ""
 
 #: includes/Modules/ExportUsers/Module.php:359
-#: build/78.js:1
-#: build/474.js:1
-#: build/866.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/474.d98fcb46027547ab305e.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Description"
 msgstr ""
 
@@ -3768,7 +3768,7 @@ msgstr ""
 #: includes/Modules/FileManager/Module.php:126
 #: includes/Modules/FileManager/Module.php:130
 #: includes/Modules/FileManager/Module.php:430
-#: build/386.js:1
+#: build/386.3fec0ad538544d603682.js:1
 msgid "File Manager"
 msgstr ""
 
@@ -3778,7 +3778,7 @@ msgstr ""
 
 #: includes/Modules/FileManager/Module.php:107
 #: includes/Modules/FileManager/Module.php:112
-#: build/386.js:1
+#: build/386.3fec0ad538544d603682.js:1
 msgid "Open File Manager"
 msgstr ""
 
@@ -3787,32 +3787,32 @@ msgid "You do not have access to the File Manager. Add your account to the allow
 msgstr ""
 
 #: includes/Modules/FileManager/Module.php:162
-#: build/31.js:1
-#: build/50.js:1
-#: build/78.js:1
-#: build/148.js:1
-#: build/157.js:1
-#: build/178.js:1
-#: build/190.js:1
-#: build/230.js:1
-#: build/244.js:1
-#: build/309.js:1
-#: build/367.js:1
-#: build/402.js:1
-#: build/457.js:1
-#: build/474.js:1
-#: build/475.js:1
-#: build/718.js:1
-#: build/752.js:1
-#: build/792.js:1
-#: build/819.js:1
-#: build/831.js:1
-#: build/860.js:1
-#: build/866.js:1
-#: build/907.js:1
-#: build/930.js:1
-#: build/976.js:1
-#: build/index.js:2
+#: build/31.e9354171b6207cee8a1b.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/148.d119a26df1a63436ea04.js:1
+#: build/157.6516b122bdc10ba986aa.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
+#: build/230.9edabc0030c217453fd8.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
+#: build/402.b1fe1ccabde7eb8300df.js:1
+#: build/457.e838d25a2b352769a07d.js:1
+#: build/474.d98fcb46027547ab305e.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
+#: build/718.0297609e33fe5814329b.js:1
+#: build/752.5b321b5d976757948e1d.js:1
+#: build/792.a567b513f75713d102ba.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
+#: build/860.a8269f19205c5720d7ff.js:1
+#: build/866.a786a1a3b954a048d924.js:1
+#: build/907.e407fbb311cd6ef44322.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
+#: build/976.9bdf1e13c10fe53dba47.js:1
+#: build/index.508ec69e5c53f238b3b0.js:2
 msgid "Settings"
 msgstr ""
 
@@ -3861,10 +3861,10 @@ msgid "Login failed:"
 msgstr ""
 
 #: includes/Modules/FileManager/Module.php:337
-#: build/367.js:1
-#: build/563.js:1
-#: build/831.js:1
-#: build/976.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
+#: build/976.9bdf1e13c10fe53dba47.js:1
 msgid "Error"
 msgstr ""
 
@@ -3889,12 +3889,12 @@ msgid "Log in"
 msgstr ""
 
 #: includes/Modules/FolderManager/Module.php:56
-#: build/93.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
 msgid "Folders"
 msgstr ""
 
 #: includes/Modules/FolderManager/Module.php:57
-#: build/93.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
 msgid "Folder"
 msgstr ""
 
@@ -4009,7 +4009,7 @@ msgid "How was your experience?"
 msgstr ""
 
 #: includes/Modules/GoogleReviewRequest/Module.php:102
-#: build/367.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
 msgid "Email body"
 msgstr ""
 
@@ -4218,7 +4218,7 @@ msgid "Twice daily"
 msgstr ""
 
 #: includes/Modules/InstagramFeed/Module.php:155
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Daily"
 msgstr ""
 
@@ -4385,8 +4385,8 @@ msgid "Preview"
 msgstr ""
 
 #: includes/Modules/MaintenanceMode/Module.php:365
-#: build/563.js:1
-#: build/809.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Mode"
 msgstr ""
 
@@ -4752,7 +4752,7 @@ msgstr ""
 
 #: includes/Modules/OpeningHours/Frontend.php:73
 #: includes/Modules/OpeningHours/Frontend.php:117
-#: build/230.js:1
+#: build/230.9edabc0030c217453fd8.js:1
 msgid "Open now"
 msgstr ""
 
@@ -4762,9 +4762,9 @@ msgid "Closed now"
 msgstr ""
 
 #: includes/Modules/OpeningHours/Frontend.php:91
-#: build/78.js:1
-#: build/84.js:1
-#: build/230.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/84.1a53127d36c807b7f9d6.js:1
+#: build/230.9edabc0030c217453fd8.js:1
 msgid "Closed"
 msgstr ""
 
@@ -4906,7 +4906,7 @@ msgid "DB queries"
 msgstr ""
 
 #: includes/Modules/PageLoad/AdminBar.php:83
-#: build/178.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "Peak memory"
 msgstr ""
 
@@ -4994,8 +4994,8 @@ msgid "Gallery"
 msgstr ""
 
 #: includes/Modules/PostGallery/Module.php:96
-#: build/309.js:1
-#: build/index.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
+#: build/index.508ec69e5c53f238b3b0.js:1
 #: includes/Modules/PostGallery/assets/js/post-gallery-admin.js:48
 msgid "Remove"
 msgstr ""
@@ -5031,13 +5031,13 @@ msgid "Image size used in the gallery grid."
 msgstr ""
 
 #: includes/Modules/PostGallery/Module.php:456
-#: build/213.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
 msgid "Thumbnail"
 msgstr ""
 
 #: includes/Modules/PostGallery/Module.php:457
-#: build/78.js:1
-#: build/457.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/457.e838d25a2b352769a07d.js:1
 msgid "Medium"
 msgstr ""
 
@@ -5555,7 +5555,7 @@ msgid "CSP tells the browser where scripts, styles, images and other content may
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/Module.php:375
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Off"
 msgstr ""
 
@@ -5907,15 +5907,15 @@ msgid "%d suspicious file(s) found on your site. Review and resolve them in the 
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/UploadGuardNotifier.php:94
-#: build/31.js:1
-#: build/190.js:1
-#: build/244.js:1
+#: build/31.e9354171b6207cee8a1b.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
 msgid "File"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/UploadGuardNotifier.php:95
-#: build/190.js:1
-#: build/457.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
+#: build/457.e838d25a2b352769a07d.js:1
 msgid "Severity"
 msgstr ""
 
@@ -6024,7 +6024,7 @@ msgstr ""
 
 #: includes/Modules/SmtpEmail/Module.php:173
 #: includes/Modules/UserSwitching/Module.php:849
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "None"
 msgstr ""
 
@@ -6264,7 +6264,7 @@ msgid "Last Login"
 msgstr ""
 
 #: includes/Modules/UserLastLogin/Module.php:87
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "Never"
 msgstr ""
 
@@ -6404,3961 +6404,3961 @@ msgstr ""
 msgid "Too many requests, slow down."
 msgstr ""
 
-#: build/31.js:1
+#: build/31.e9354171b6207cee8a1b.js:1
 msgid "WebP encoding"
 msgstr ""
 
-#: build/31.js:1
+#: build/31.e9354171b6207cee8a1b.js:1
 msgid "Supported"
 msgstr ""
 
-#: build/31.js:1
+#: build/31.e9354171b6207cee8a1b.js:1
 msgid "Unavailable"
 msgstr ""
 
-#: build/31.js:1
+#: build/31.e9354171b6207cee8a1b.js:1
 msgid "AVIF encoding"
 msgstr ""
 
-#: build/31.js:1
+#: build/31.e9354171b6207cee8a1b.js:1
 msgid "Unavailable on this server"
 msgstr ""
 
-#: build/31.js:1
+#: build/31.e9354171b6207cee8a1b.js:1
 msgid "Next-gen delivery (.htaccess)"
 msgstr ""
 
-#: build/31.js:1
-#: build/78.js:1
-#: build/190.js:1
-#: build/475.js:1
+#: build/31.e9354171b6207cee8a1b.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "Active"
 msgstr ""
 
-#: build/31.js:1
+#: build/31.e9354171b6207cee8a1b.js:1
 msgid "Inactive"
 msgstr ""
 
-#: build/31.js:1
+#: build/31.e9354171b6207cee8a1b.js:1
 msgid "uploads/.htaccess is not writable — delivery rules cannot be managed automatically."
 msgstr ""
 
-#: build/31.js:1
+#: build/31.e9354171b6207cee8a1b.js:1
 msgid "Compresses JPEG/PNG/GIF images already in the media library and optionally generates WebP/AVIF siblings. Originals are always kept as a backup file before the first optimization."
 msgstr ""
 
-#: build/31.js:1
+#: build/31.e9354171b6207cee8a1b.js:1
 msgid "Start bulk optimization"
 msgstr ""
 
-#: build/31.js:1
-#: build/78.js:1
+#: build/31.e9354171b6207cee8a1b.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Running…"
 msgstr ""
 
-#: build/31.js:1
+#: build/31.e9354171b6207cee8a1b.js:1
 msgid "Idle."
 msgstr ""
 
-#: build/31.js:1
+#: build/31.e9354171b6207cee8a1b.js:1
 msgid "Restore original by attachment ID"
 msgstr ""
 
-#: build/31.js:1
+#: build/31.e9354171b6207cee8a1b.js:1
 msgid "Restore"
 msgstr ""
 
-#: build/31.js:1
+#: build/31.e9354171b6207cee8a1b.js:1
 msgid "Restored."
 msgstr ""
 
-#: build/31.js:1
+#: build/31.e9354171b6207cee8a1b.js:1
 msgid "Heuristically finds image attachments not referenced in content, featured images, term meta, widgets or the site logo. Detection can never be perfect, so selected images are moved to the WordPress trash (fully recoverable) — never permanently deleted."
 msgstr ""
 
-#: build/31.js:1
+#: build/31.e9354171b6207cee8a1b.js:1
 msgid "Re-scan"
 msgstr ""
 
-#: build/31.js:1
+#: build/31.e9354171b6207cee8a1b.js:1
 msgid "Move selected to trash"
 msgstr ""
 
-#: build/31.js:1
+#: build/31.e9354171b6207cee8a1b.js:1
 msgid "unused images"
 msgstr ""
 
-#: build/31.js:1
+#: build/31.e9354171b6207cee8a1b.js:1
 msgid "Moved to trash:"
 msgstr ""
 
-#: build/31.js:1
+#: build/31.e9354171b6207cee8a1b.js:1
 msgid "skipped"
 msgstr ""
 
-#: build/31.js:1
-#: build/50.js:1
-#: build/78.js:1
-#: build/84.js:1
-#: build/93.js:1
-#: build/136.js:2
-#: build/148.js:1
-#: build/157.js:1
-#: build/158.js:1
-#: build/178.js:1
-#: build/190.js:1
-#: build/213.js:2
-#: build/230.js:1
-#: build/244.js:1
-#: build/309.js:1
-#: build/367.js:1
-#: build/402.js:1
-#: build/457.js:1
-#: build/474.js:1
-#: build/475.js:1
-#: build/718.js:1
-#: build/752.js:1
-#: build/792.js:1
-#: build/809.js:1
-#: build/819.js:1
-#: build/831.js:1
-#: build/860.js:1
-#: build/866.js:1
-#: build/907.js:1
-#: build/930.js:1
-#: build/976.js:1
-#: build/index.js:1
-#: build/index.js:2
+#: build/31.e9354171b6207cee8a1b.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/84.1a53127d36c807b7f9d6.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
+#: build/136.71ec8b3d36d55a7536e3.js:2
+#: build/148.d119a26df1a63436ea04.js:1
+#: build/157.6516b122bdc10ba986aa.js:1
+#: build/158.1a00cfb592a89b32f06b.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
+#: build/213.0fc210bb008e9541fd89.js:2
+#: build/230.9edabc0030c217453fd8.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
+#: build/402.b1fe1ccabde7eb8300df.js:1
+#: build/457.e838d25a2b352769a07d.js:1
+#: build/474.d98fcb46027547ab305e.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
+#: build/718.0297609e33fe5814329b.js:1
+#: build/752.5b321b5d976757948e1d.js:1
+#: build/792.a567b513f75713d102ba.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
+#: build/860.a8269f19205c5720d7ff.js:1
+#: build/866.a786a1a3b954a048d924.js:1
+#: build/907.e407fbb311cd6ef44322.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
+#: build/976.9bdf1e13c10fe53dba47.js:1
+#: build/index.508ec69e5c53f238b3b0.js:1
+#: build/index.508ec69e5c53f238b3b0.js:2
 msgid "Loading…"
 msgstr ""
 
-#: build/31.js:1
+#: build/31.e9354171b6207cee8a1b.js:1
 msgid "No unused images detected."
 msgstr ""
 
-#: build/31.js:1
+#: build/31.e9354171b6207cee8a1b.js:1
 msgid "Size"
 msgstr ""
 
-#: build/31.js:1
+#: build/31.e9354171b6207cee8a1b.js:1
 msgid "Uploaded"
 msgstr ""
 
-#: build/31.js:1
-#: build/78.js:1
-#: build/367.js:1
-#: build/860.js:1
+#: build/31.e9354171b6207cee8a1b.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
+#: build/860.a8269f19205c5720d7ff.js:1
 msgid "Previous"
 msgstr ""
 
-#: build/31.js:1
-#: build/78.js:1
-#: build/367.js:1
-#: build/860.js:1
+#: build/31.e9354171b6207cee8a1b.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
+#: build/860.a8269f19205c5720d7ff.js:1
 msgid "Next"
 msgstr ""
 
-#: build/31.js:1
-#: build/50.js:1
-#: build/78.js:1
-#: build/84.js:1
-#: build/93.js:1
-#: build/136.js:2
-#: build/148.js:1
-#: build/157.js:1
-#: build/158.js:1
-#: build/178.js:1
-#: build/190.js:1
-#: build/213.js:2
-#: build/230.js:1
-#: build/244.js:1
-#: build/309.js:1
-#: build/367.js:1
-#: build/386.js:1
-#: build/402.js:1
-#: build/457.js:1
-#: build/474.js:1
-#: build/475.js:1
-#: build/563.js:1
-#: build/718.js:1
-#: build/752.js:1
-#: build/792.js:1
-#: build/809.js:1
-#: build/819.js:1
-#: build/831.js:1
-#: build/860.js:1
-#: build/866.js:1
-#: build/907.js:1
-#: build/930.js:1
-#: build/976.js:1
-#: build/999.js:1
-#: build/index.js:2
+#: build/31.e9354171b6207cee8a1b.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/84.1a53127d36c807b7f9d6.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
+#: build/136.71ec8b3d36d55a7536e3.js:2
+#: build/148.d119a26df1a63436ea04.js:1
+#: build/157.6516b122bdc10ba986aa.js:1
+#: build/158.1a00cfb592a89b32f06b.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
+#: build/213.0fc210bb008e9541fd89.js:2
+#: build/230.9edabc0030c217453fd8.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
+#: build/386.3fec0ad538544d603682.js:1
+#: build/402.b1fe1ccabde7eb8300df.js:1
+#: build/457.e838d25a2b352769a07d.js:1
+#: build/474.d98fcb46027547ab305e.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
+#: build/718.0297609e33fe5814329b.js:1
+#: build/752.5b321b5d976757948e1d.js:1
+#: build/792.a567b513f75713d102ba.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
+#: build/860.a8269f19205c5720d7ff.js:1
+#: build/866.a786a1a3b954a048d924.js:1
+#: build/907.e407fbb311cd6ef44322.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
+#: build/976.9bdf1e13c10fe53dba47.js:1
+#: build/999.099916b842480750146e.js:1
+#: build/index.508ec69e5c53f238b3b0.js:2
 msgid "Back to modules"
 msgstr ""
 
-#: build/31.js:1
+#: build/31.e9354171b6207cee8a1b.js:1
 msgid "Image Optimizer"
 msgstr ""
 
-#: build/31.js:1
+#: build/31.e9354171b6207cee8a1b.js:1
 msgid "Bulk Optimize"
 msgstr ""
 
-#: build/31.js:1
+#: build/31.e9354171b6207cee8a1b.js:1
 msgid "Unused Images"
 msgstr ""
 
-#: build/31.js:1
-#: build/50.js:1
-#: build/78.js:1
-#: build/148.js:1
-#: build/157.js:1
-#: build/178.js:1
-#: build/190.js:1
-#: build/213.js:1
-#: build/230.js:1
-#: build/244.js:1
-#: build/309.js:1
-#: build/367.js:1
-#: build/402.js:1
-#: build/457.js:1
-#: build/474.js:1
-#: build/475.js:1
-#: build/718.js:1
-#: build/752.js:1
-#: build/792.js:1
-#: build/809.js:1
-#: build/819.js:1
-#: build/831.js:1
-#: build/860.js:1
-#: build/866.js:1
-#: build/907.js:1
-#: build/930.js:1
-#: build/976.js:1
-#: build/index.js:2
+#: build/31.e9354171b6207cee8a1b.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/148.d119a26df1a63436ea04.js:1
+#: build/157.6516b122bdc10ba986aa.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
+#: build/230.9edabc0030c217453fd8.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
+#: build/402.b1fe1ccabde7eb8300df.js:1
+#: build/457.e838d25a2b352769a07d.js:1
+#: build/474.d98fcb46027547ab305e.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
+#: build/718.0297609e33fe5814329b.js:1
+#: build/752.5b321b5d976757948e1d.js:1
+#: build/792.a567b513f75713d102ba.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
+#: build/860.a8269f19205c5720d7ff.js:1
+#: build/866.a786a1a3b954a048d924.js:1
+#: build/907.e407fbb311cd6ef44322.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
+#: build/976.9bdf1e13c10fe53dba47.js:1
+#: build/index.508ec69e5c53f238b3b0.js:2
 msgid "Saved"
 msgstr ""
 
-#: build/31.js:1
-#: build/50.js:1
-#: build/78.js:1
-#: build/148.js:1
-#: build/157.js:1
-#: build/178.js:1
-#: build/190.js:1
-#: build/230.js:1
-#: build/244.js:1
-#: build/309.js:1
-#: build/367.js:1
-#: build/402.js:1
-#: build/457.js:1
-#: build/474.js:1
-#: build/475.js:1
-#: build/718.js:1
-#: build/752.js:1
-#: build/792.js:1
-#: build/809.js:1
-#: build/819.js:1
-#: build/831.js:1
-#: build/860.js:1
-#: build/866.js:1
-#: build/907.js:1
-#: build/930.js:1
-#: build/976.js:1
-#: build/index.js:2
+#: build/31.e9354171b6207cee8a1b.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/148.d119a26df1a63436ea04.js:1
+#: build/157.6516b122bdc10ba986aa.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
+#: build/230.9edabc0030c217453fd8.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
+#: build/402.b1fe1ccabde7eb8300df.js:1
+#: build/457.e838d25a2b352769a07d.js:1
+#: build/474.d98fcb46027547ab305e.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
+#: build/718.0297609e33fe5814329b.js:1
+#: build/752.5b321b5d976757948e1d.js:1
+#: build/792.a567b513f75713d102ba.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
+#: build/860.a8269f19205c5720d7ff.js:1
+#: build/866.a786a1a3b954a048d924.js:1
+#: build/907.e407fbb311cd6ef44322.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
+#: build/976.9bdf1e13c10fe53dba47.js:1
+#: build/index.508ec69e5c53f238b3b0.js:2
 msgid "Save changes"
 msgstr ""
 
-#: build/50.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
 msgid "Current server load"
 msgstr ""
 
-#: build/50.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
 msgid "Bot requests (1h)"
 msgstr ""
 
-#: build/50.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
 msgid "Delayed (24h)"
 msgstr ""
 
-#: build/50.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
 msgid "Blocked (24h)"
 msgstr ""
 
-#: build/50.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
 msgid "Microcache files"
 msgstr ""
 
-#: build/50.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
 msgid "Top bots (24h)"
 msgstr ""
 
-#: build/50.js:1
-#: build/178.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "No data yet."
 msgstr ""
 
-#: build/50.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
 msgid "Ø delay"
 msgstr ""
 
-#: build/50.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
 msgid "Category rules"
 msgstr ""
 
-#: build/50.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
 msgid "Active action"
 msgstr ""
 
-#: build/50.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
 msgid "Bots"
 msgstr ""
 
-#: build/50.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
 msgid "Clear microcache"
 msgstr ""
 
-#: build/50.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
 msgid "Clear log"
 msgstr ""
 
-#: build/50.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
 msgid "Tier"
 msgstr ""
 
-#: build/50.js:1
-#: build/136.js:1
-#: build/309.js:1
-#: build/860.js:1
-#: build/976.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
+#: build/136.71ec8b3d36d55a7536e3.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
+#: build/860.a8269f19205c5720d7ff.js:1
+#: build/976.9bdf1e13c10fe53dba47.js:1
 msgid "Action"
 msgstr ""
 
-#: build/50.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
 msgid "Delay"
 msgstr ""
 
-#: build/50.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
 msgid "User-Agent"
 msgstr ""
 
-#: build/50.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
 msgid "IP (optional)"
 msgstr ""
 
-#: build/50.js:1
-#: build/178.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "Samples"
 msgstr ""
 
-#: build/50.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
 msgid "Test"
 msgstr ""
 
-#: build/50.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
 msgid "Detected as bot"
 msgstr ""
 
-#: build/50.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
 msgid "Current tier"
 msgstr ""
 
-#: build/50.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
 msgid "Planned action"
 msgstr ""
 
-#: build/50.js:1
-#: build/309.js:1
-#: build/367.js:1
-#: build/831.js:1
-#: build/860.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
+#: build/860.a8269f19205c5720d7ff.js:1
 msgid "Log"
 msgstr ""
 
-#: build/50.js:1
+#: build/50.5e1e490c895cec652ee2.js:1
 msgid "Bot Throttle"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Not rated"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 #, js-format
 msgid "%d out of 5 stars"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Conversation"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Page:"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Rating:"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Feedback:"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "No messages."
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Filter by rating"
 msgstr ""
 
-#: build/78.js:1
-#: build/190.js:1
-#: build/475.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "All"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "stars"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 #, js-format
 msgid "Delete selected (%d)"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Session"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Messages"
 msgstr ""
 
-#: build/78.js:1
-#: build/718.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/718.0297609e33fe5814329b.js:1
 msgid "Rating"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Updated"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Select conversation"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Delete conversation"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "No conversations yet."
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Public"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Internal"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Choose a file first."
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Document (PDF, DOCX, TXT, MD)"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Public chat"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Internal chat"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Upload document"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Add entry"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Documents"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "No documents uploaded yet."
 msgstr ""
 
-#: build/78.js:1
-#: build/190.js:1
-#: build/213.js:1
-#: build/309.js:1
-#: build/866.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Type"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Chunks"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Targets"
 msgstr ""
 
-#: build/78.js:1
-#: build/244.js:1
-#: build/309.js:1
-#: build/474.js:1
-#: build/475.js:1
-#: build/718.js:1
-#: build/809.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
+#: build/474.d98fcb46027547ab305e.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
+#: build/718.0297609e33fe5814329b.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Actions"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Delete this document and its knowledge chunks?"
 msgstr ""
 
-#: build/78.js:1
-#: build/93.js:1
-#: build/190.js:1
-#: build/244.js:1
-#: build/474.js:1
-#: build/475.js:1
-#: build/752.js:1
-#: build/809.js:1
-#: build/930.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
+#: build/474.d98fcb46027547ab305e.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
+#: build/752.5b321b5d976757948e1d.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Delete"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Manual entries"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "No manual entries yet."
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Delete this entry?"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Question"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Answer"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Add FAQ"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Generate from topic (optional)"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "e.g. cancellation policy"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Suggest from past chats"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Suggest from topic"
 msgstr ""
 
-#: build/78.js:1
-#: build/475.js:1
-#: build/930.js:1
-#: build/976.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
+#: build/976.9bdf1e13c10fe53dba47.js:1
 msgid "Add"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "No new suggestions."
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "FAQ"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "No FAQs yet."
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Views"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Delete this FAQ?"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Source type"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Web page URL"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Sitemap URL"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Raw text"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Title (optional)"
 msgstr ""
 
-#: build/78.js:1
-#: build/213.js:1
-#: build/718.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
+#: build/718.0297609e33fe5814329b.js:1
 msgid "Text"
 msgstr ""
 
-#: build/78.js:1
-#: build/178.js:1
-#: build/309.js:1
-#: build/930.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "URL"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Add source"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "No training sources yet."
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Title / URL"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Vectors"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Reindex"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Delete this source and its vectors?"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Indexed items:"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Vectorize existing data"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Index knowledge base, FAQ, products & content"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Computes embeddings for the current knowledge base entries, FAQ, product index and content index."
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Embedding provider:"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "dims"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Total vectors:"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Training sources:"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "pending"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "RAG status"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Products (WooCommerce)"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Content (posts/pages)"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Training sources"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "AI"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Waiting"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "With operator"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Visitor"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Waiting for pickup"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Active handoffs"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "No handoff requests right now."
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Take over"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Return to AI"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "No messages yet."
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Reply to the customer…"
 msgstr ""
 
-#: build/78.js:1
-#: build/402.js:1
-#: build/819.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/402.b1fe1ccabde7eb8300df.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
 msgid "Send"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Select a conversation from the list on the left."
 msgstr ""
 
-#: build/78.js:1
-#: build/148.js:1
-#: build/244.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/148.d119a26df1a63436ea04.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
 msgid "Post"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Neutral"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Professional"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Friendly"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Persuasive"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Enthusiastic"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Short"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Long"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Generate a post/page"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Content type"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Tone"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Length"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "What should this content be about?"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "SEO focus keyword (optional)"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Generate"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Category:"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Tags:"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Edit draft"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "View published post"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Publish"
 msgstr ""
 
-#: build/78.js:1
-#: build/819.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
 msgid "Create draft"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Generate a WooCommerce product description"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Product description (rough input)"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Copy the text above into the product description field."
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Generate SEO meta"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Save to post ID (optional)"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 #, js-format
 msgid "Detected SEO plugin: %s. Copy these values into its fields if needed."
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Title:"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Description:"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Keywords:"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Import HTML/URL into Elementor"
 msgstr ""
 
-#: build/78.js:1
-#: build/367.js:1
-#: build/457.js:1
-#: build/563.js:1
-#: build/718.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
+#: build/457.e838d25a2b352769a07d.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
+#: build/718.0297609e33fe5814329b.js:1
 msgid "Source"
 msgstr ""
 
-#: build/78.js:1
-#: build/563.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
 msgid "Paste HTML"
 msgstr ""
 
-#: build/78.js:1
-#: build/563.js:1
-#: build/866.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "HTML"
 msgstr ""
 
-#: build/78.js:1
-#: build/563.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
 msgid "Page URL"
 msgstr ""
 
-#: build/78.js:1
-#: build/563.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
 msgid "Content CSS selector (optional)"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Post type"
 msgstr ""
 
-#: build/78.js:1
-#: build/819.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
 msgid "Draft"
 msgstr ""
 
-#: build/78.js:1
-#: build/475.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "Published"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Pending review"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Import into Elementor"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 #, js-format
 msgid "Created \"%s\" with the widgets below."
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "widgets."
 msgstr ""
 
-#: build/78.js:1
-#: build/563.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
 msgid "Edit in Elementor"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Weekly"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Monthly"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Generators:"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "active"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Posts generated:"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "in the last 7 days"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Tokens used:"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Generator name"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Topics (one per line)"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Article types"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Leave empty to rotate through every article type."
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "AI provider"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Default provider"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Model"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Default model"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Extra long"
 msgstr ""
 
-#: build/78.js:1
-#: build/809.js:1
-#: build/819.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
 msgid "Schedule"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Publish time window"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "to"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Posts per run"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Create generator"
 msgstr ""
 
-#: build/78.js:1
-#: build/93.js:1
-#: build/475.js:1
-#: build/752.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Cancel"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Generators"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "New generator"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "No generators yet."
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Posts"
 msgstr ""
 
-#: build/78.js:1
-#: build/809.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Next run"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Generated:"
 msgstr ""
 
-#: build/78.js:1
-#: build/809.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Run now"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Pause"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Activate"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Delete this generator?"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Generated posts"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "No posts generated yet."
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Bulk action"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Set to draft"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Move to trash"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Apply"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Generator"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Article type"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Tokens"
 msgstr ""
 
-#: build/78.js:1
-#: build/474.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/474.d98fcb46027547ab305e.js:1
 msgid "Created"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Monthly tokens"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Daily requests (site-wide)"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Your daily requests"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Failed to reach the AI assistant."
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Ask the internal AI assistant about editing content, site settings, or how to use UX Studio."
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Thinking…"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Type your message…"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "1 hour"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "4 hours"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "8 hours"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "12 hours"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "24 hours"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "List, Get, Create, Update, Delete"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Pages"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "List, Get, Delete"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Custom Post Types"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "List Types, List Taxonomies, Get Items"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Get, Update"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Site Stats"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Get"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "WooCommerce Products"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "List, Get, Create, Update, Delete (if WooCommerce is active)"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "WooCommerce Orders"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "List, Get, Create (if WooCommerce is active)"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Elementor"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "List Pages, Get Structure, Find Widgets, Update Widget (if Elementor is active)"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Plugins Info"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Theme Info"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Users Info"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Validity"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Generate token"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "New JWT token"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Copied!"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Copy"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "This token is shown only once. Copy it now - once you leave this page it cannot be displayed again."
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "No active tokens yet."
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Token ID"
 msgstr ""
 
-#: build/78.js:1
-#: build/860.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/860.a8269f19205c5720d7ff.js:1
 msgid "User"
 msgstr ""
 
-#: build/78.js:1
-#: build/475.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "Expires"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Revoke"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "MCP Server"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "MCP (Model Context Protocol) is an open standard that lets external AI tools talk to this WordPress site. Once enabled, Claude Desktop, Cursor, Windsurf or another MCP client can manage posts, pages, products, media and settings directly. Clients authenticate with a JWT token (see below) and only ever get the operations you allow."
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Status:"
 msgstr ""
 
-#: build/78.js:1
-#: build/213.js:1
-#: build/809.js:1
-#: build/866.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Enabled"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "This toggle lives in the Settings tab (\"Enable MCP (tool calling)\") - it is shown here for reference only."
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Registered tools & resources"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "These WordPress REST API endpoints are automatically exposed as MCP tools and resources. Tools let the AI perform actions (CRUD operations). Resources provide read-only context about the site."
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Tools"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Tool"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Operations"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Resources"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Resource"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "URI"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Resources are read-only - the AI can read them but cannot use them to change data."
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "JWT access tokens"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "To connect an external AI client to the MCP server, generate a JWT (JSON Web Token). Paste it into the AI client's configuration (e.g. the Claude Desktop config). Each token has a limited lifetime and can be revoked at any time."
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Usage"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Conversations"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Handoff"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Knowledge Hub"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "RAG Training"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Content Creator"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Blog Pilot"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Internal Chat"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "MCP"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Daily requests (per user)"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "A Claude API key is currently set."
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "No Claude API key set yet."
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "An OpenAI API key is currently set."
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "No OpenAI API key set yet."
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "A DeepSeek API key is currently set."
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "No DeepSeek API key set yet."
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Period (days)"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Requests:"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Input tokens:"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Output tokens:"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Sessions:"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "No usage recorded for this period."
 msgstr ""
 
-#: build/78.js:1
-#: build/792.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/792.a567b513f75713d102ba.js:1
 msgid "Provider"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Feature"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Input tokens"
 msgstr ""
 
-#: build/78.js:1
+#: build/78.a540e8578ca2d1adbc33.js:1
 msgid "Output tokens"
 msgstr ""
 
-#: build/84.js:1
+#: build/84.1a53127d36c807b7f9d6.js:1
 msgid "Shown"
 msgstr ""
 
-#: build/84.js:1
-#: build/819.js:1
+#: build/84.1a53127d36c807b7f9d6.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
 msgid "Clicked"
 msgstr ""
 
-#: build/84.js:1
+#: build/84.1a53127d36c807b7f9d6.js:1
 msgid "Popup Manager"
 msgstr ""
 
-#: build/84.js:1
+#: build/84.1a53127d36c807b7f9d6.js:1
 msgid "New popup title"
 msgstr ""
 
-#: build/84.js:1
+#: build/84.1a53127d36c807b7f9d6.js:1
 msgid "Add popup"
 msgstr ""
 
-#: build/84.js:1
-#: build/402.js:1
-#: build/718.js:1
+#: build/84.1a53127d36c807b7f9d6.js:1
+#: build/402.b1fe1ccabde7eb8300df.js:1
+#: build/718.0297609e33fe5814329b.js:1
 msgid "Stats"
 msgstr ""
 
-#: build/84.js:1
+#: build/84.1a53127d36c807b7f9d6.js:1
 msgid "Delete popup"
 msgstr ""
 
-#: build/84.js:1
+#: build/84.1a53127d36c807b7f9d6.js:1
 msgid "No popups yet."
 msgstr ""
 
-#: build/93.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
 msgid "Folder name"
 msgstr ""
 
-#: build/93.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
 msgid "Save name"
 msgstr ""
 
-#: build/93.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
 msgid "Rename folder"
 msgstr ""
 
-#: build/93.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
 msgid "Could not rename folder."
 msgstr ""
 
-#: build/93.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
 msgid "Move folder under"
 msgstr ""
 
-#: build/93.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
 msgid "— Top level —"
 msgstr ""
 
-#: build/93.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
 msgid "Could not move folder."
 msgstr ""
 
-#: build/93.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
 msgid "Delete this folder? Attachments in it will become unassigned."
 msgstr ""
 
-#: build/93.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
 msgid "No folders yet. Create one below, then assign attachments to it — either one by one, or in bulk from the \"Bulk move attachments\" panel."
 msgstr ""
 
-#: build/93.js:1
-#: build/367.js:1
-#: build/475.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "Attachments"
 msgstr ""
 
-#: build/93.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
 msgid "Move under"
 msgstr ""
 
-#: build/93.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
 msgid "Folder Manager"
 msgstr ""
 
-#: build/93.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
 msgid "Add folder"
 msgstr ""
 
-#: build/93.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
 msgid "Parent folder"
 msgstr ""
 
-#: build/93.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
 msgid "— None (top level) —"
 msgstr ""
 
-#: build/93.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
 msgid "Could not create folder."
 msgstr ""
 
-#: build/93.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
 msgid "Assign attachment to a folder"
 msgstr ""
 
-#: build/93.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
 msgid "Folders are assigned to media via the standard WordPress media library - select attachments there and use this taxonomy, or assign a single attachment by id here."
 msgstr ""
 
-#: build/93.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
 msgid "Attachment ID"
 msgstr ""
 
-#: build/93.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
 msgid "— Unassigned —"
 msgstr ""
 
-#: build/93.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
 msgid "Assign"
 msgstr ""
 
-#: build/93.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
 msgid "Assigned."
 msgstr ""
 
-#: build/93.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
 msgid "Could not assign attachment."
 msgstr ""
 
-#: build/93.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
 msgid "Bulk move attachments"
 msgstr ""
 
-#: build/93.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
 msgid "Paste multiple attachment IDs (separated by spaces, commas or new lines) and move them all to one folder at once. Choose \"Unassigned\" to remove them from any folder."
 msgstr ""
 
-#: build/93.js:1
+#: build/93.bfc5e33039f2ea629940.js:1
 msgid "Attachment IDs"
 msgstr ""
 
 #. translators: %d: number of attachments selected.
-#: build/93.js:4
+#: build/93.bfc5e33039f2ea629940.js:4
 msgid "Move"
 msgstr ""
 
 #. translators: %d: number of attachments moved.
-#: build/93.js:6
+#: build/93.bfc5e33039f2ea629940.js:6
 msgid "Moved"
 msgstr ""
 
-#: build/93.js:6
+#: build/93.bfc5e33039f2ea629940.js:6
 msgid "Skipped"
 msgstr ""
 
-#: build/93.js:6
+#: build/93.bfc5e33039f2ea629940.js:6
 msgid "Could not move attachments."
 msgstr ""
 
-#: build/136.js:1
+#: build/136.71ec8b3d36d55a7536e3.js:1
 msgid "No versions found"
 msgstr ""
 
-#: build/136.js:1
+#: build/136.71ec8b3d36d55a7536e3.js:1
 msgid "Select a version…"
 msgstr ""
 
-#: build/136.js:1
+#: build/136.71ec8b3d36d55a7536e3.js:1
 msgid "current"
 msgstr ""
 
-#: build/136.js:1
+#: build/136.71ec8b3d36d55a7536e3.js:1
 msgid "No installed plugins from WordPress.org were found."
 msgstr ""
 
-#: build/136.js:1
+#: build/136.71ec8b3d36d55a7536e3.js:1
 msgid "No installed themes from WordPress.org were found."
 msgstr ""
 
-#: build/136.js:1
+#: build/136.71ec8b3d36d55a7536e3.js:1
 msgid "Current version"
 msgstr ""
 
-#: build/136.js:1
+#: build/136.71ec8b3d36d55a7536e3.js:1
 msgid "Roll back to"
 msgstr ""
 
 #. translators: %s: version number
-#: build/136.js:2
+#: build/136.71ec8b3d36d55a7536e3.js:2
 #, js-format
 msgid "Rolled back to %s"
 msgstr ""
 
-#: build/136.js:2
-#: build/831.js:1
+#: build/136.71ec8b3d36d55a7536e3.js:2
+#: build/831.f63d33eb2c8abcd821ed.js:1
 msgid "Unknown error"
 msgstr ""
 
-#: build/136.js:2
+#: build/136.71ec8b3d36d55a7536e3.js:2
 msgid "Rollback"
 msgstr ""
 
-#: build/136.js:2
+#: build/136.71ec8b3d36d55a7536e3.js:2
 msgid "Rollback Manager"
 msgstr ""
 
-#: build/148.js:1
+#: build/148.d119a26df1a63436ea04.js:1
 msgid "Cached posts"
 msgstr ""
 
-#: build/148.js:1
+#: build/148.d119a26df1a63436ea04.js:1
 msgid "Regenerate all"
 msgstr ""
 
-#: build/148.js:1
+#: build/148.d119a26df1a63436ea04.js:1
 msgid "Generated"
 msgstr ""
 
-#: build/148.js:1
+#: build/148.d119a26df1a63436ea04.js:1
 msgid "Regenerate"
 msgstr ""
 
-#: build/148.js:1
+#: build/148.d119a26df1a63436ea04.js:1
 msgid "Nothing cached yet."
 msgstr ""
 
-#: build/148.js:1
+#: build/148.d119a26df1a63436ea04.js:1
 msgid "AI Markdown"
 msgstr ""
 
-#: build/148.js:1
+#: build/148.d119a26df1a63436ea04.js:1
 msgid "Cache"
 msgstr ""
 
-#: build/157.js:1
+#: build/157.6516b122bdc10ba986aa.js:1
 msgid "Export CSV"
 msgstr ""
 
-#: build/157.js:1
+#: build/157.6516b122bdc10ba986aa.js:1
 msgid "No subscribers captured yet."
 msgstr ""
 
-#: build/157.js:1
+#: build/157.6516b122bdc10ba986aa.js:1
 msgid "Exit Popup"
 msgstr ""
 
-#: build/157.js:1
-#: build/475.js:1
-#: build/819.js:1
+#: build/157.6516b122bdc10ba986aa.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
 msgid "Subscribers"
 msgstr ""
 
-#: build/158.js:1
+#: build/158.1a00cfb592a89b32f06b.js:1
 msgid "Failed to analyze."
 msgstr ""
 
-#: build/158.js:1
+#: build/158.1a00cfb592a89b32f06b.js:1
 msgid "Score"
 msgstr ""
 
-#: build/158.js:1
+#: build/158.1a00cfb592a89b32f06b.js:1
 msgid "Re-run analysis"
 msgstr ""
 
-#: build/158.js:1
+#: build/158.1a00cfb592a89b32f06b.js:1
 msgid "Check"
 msgstr ""
 
-#: build/158.js:1
-#: build/190.js:1
+#: build/158.1a00cfb592a89b32f06b.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Value"
 msgstr ""
 
-#: build/158.js:1
+#: build/158.1a00cfb592a89b32f06b.js:1
 msgid "Fix"
 msgstr ""
 
-#: build/158.js:1
+#: build/158.1a00cfb592a89b32f06b.js:1
 msgid "Post revisions"
 msgstr ""
 
-#: build/158.js:1
+#: build/158.1a00cfb592a89b32f06b.js:1
 msgid "Delete revisions"
 msgstr ""
 
-#: build/158.js:1
+#: build/158.1a00cfb592a89b32f06b.js:1
 msgid "Spam comments"
 msgstr ""
 
-#: build/158.js:1
+#: build/158.1a00cfb592a89b32f06b.js:1
 msgid "Delete spam comments"
 msgstr ""
 
-#: build/158.js:1
+#: build/158.1a00cfb592a89b32f06b.js:1
 msgid "Auto-draft posts"
 msgstr ""
 
-#: build/158.js:1
+#: build/158.1a00cfb592a89b32f06b.js:1
 msgid "Transients"
 msgstr ""
 
-#: build/158.js:1
+#: build/158.1a00cfb592a89b32f06b.js:1
 msgid "Delete expired transients"
 msgstr ""
 
-#: build/158.js:1
+#: build/158.1a00cfb592a89b32f06b.js:1
 msgid "Fix applied."
 msgstr ""
 
-#: build/158.js:1
+#: build/158.1a00cfb592a89b32f06b.js:1
 msgid "No history yet - run an analysis first."
 msgstr ""
 
-#: build/158.js:1
+#: build/158.1a00cfb592a89b32f06b.js:1
 msgid "Performance Optimization"
 msgstr ""
 
-#: build/158.js:1
+#: build/158.1a00cfb592a89b32f06b.js:1
 msgid "Analyze"
 msgstr ""
 
-#: build/158.js:1
+#: build/158.1a00cfb592a89b32f06b.js:1
 msgid "History"
 msgstr ""
 
-#: build/178.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "Last 24 hours"
 msgstr ""
 
-#: build/178.js:1
-#: build/718.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
+#: build/718.0297609e33fe5814329b.js:1
 msgid "Average"
 msgstr ""
 
-#: build/178.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "Min"
 msgstr ""
 
-#: build/178.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "Max"
 msgstr ""
 
-#: build/178.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "Avg queries"
 msgstr ""
 
-#: build/178.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "Avg memory"
 msgstr ""
 
-#: build/178.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "Hour"
 msgstr ""
 
-#: build/178.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "Avg (ms)"
 msgstr ""
 
-#: build/178.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "Recent requests"
 msgstr ""
 
-#: build/178.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "Time"
 msgstr ""
 
-#: build/178.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "Load time (ms)"
 msgstr ""
 
-#: build/178.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "Queries"
 msgstr ""
 
-#: build/178.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "Memory (MB)"
 msgstr ""
 
-#: build/178.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "No requests logged yet."
 msgstr ""
 
-#: build/178.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "Estimated per-plugin impact"
 msgstr ""
 
-#: build/178.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "Measured from front-page benchmarks run automatically when a plugin is activated or deactivated. Positive values mean the plugin slowed the page."
 msgstr ""
 
-#: build/178.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "Plugin"
 msgstr ""
 
-#: build/178.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "Avg impact"
 msgstr ""
 
-#: build/178.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "Max impact"
 msgstr ""
 
-#: build/178.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "Measurements"
 msgstr ""
 
-#: build/178.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "Last event"
 msgstr ""
 
-#: build/178.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "No impact data yet. Activate or deactivate a plugin to trigger a benchmark."
 msgstr ""
 
-#: build/178.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "Recent benchmark events"
 msgstr ""
 
-#: build/178.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "Event"
 msgstr ""
 
-#: build/178.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "Before (ms)"
 msgstr ""
 
-#: build/178.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "After (ms)"
 msgstr ""
 
-#: build/178.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "Diff"
 msgstr ""
 
-#: build/178.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "No benchmark events yet."
 msgstr ""
 
-#: build/178.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "Page Load"
 msgstr ""
 
-#: build/178.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "Overview"
 msgstr ""
 
-#: build/178.js:1
+#: build/178.9f7c44183315fbd10ef5.js:1
 msgid "Plugin impact"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Enforcing"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Report only"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Real CSP violations reported by visitor browsers. Resolve entries once you have allowed or fixed the source."
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "CSP mode:"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "The policy is actively enforced on the front end (never in wp-admin). Disallowed sources are blocked."
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "The policy is sent report-only: nothing is blocked, browsers just report what would be. Review the violations below, then switch to Enforce in the Settings tab."
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "CSP is off. Enable it in the Settings tab - start with Report only to collect violations here before enforcing."
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Resolved"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Blocked source"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Directive"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Hits"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Last seen"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "(unknown)"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Mark resolved"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "No CSP violations reported."
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Save Upload Guard settings"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Uploaded files and wp-content are scanned for injected/malicious code. Critical findings are automatically moved to a protected quarantine folder."
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Scan running…"
 msgstr ""
 
-#: build/190.js:1
-#: build/457.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
+#: build/457.e838d25a2b352769a07d.js:1
 msgid "Scan now"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Scanning in batches…"
 msgstr ""
 
-#: build/190.js:1
-#: build/809.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Last scan:"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "files scanned:"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "detections:"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "No scan has run yet."
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Detected"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Quarantined"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Approved"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Queued"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Approve"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Delete permanently"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "No findings in this category."
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Login Attempts"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "IP Bans"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "CSP Violations"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Upload Guard"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "A CAPTCHA secret key is currently set."
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "No CAPTCHA secret key set yet."
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid ".htaccess rules"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Applied and up to date"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Out of date - re-apply to write current settings"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Apply .htaccess rules"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Clear all attempts"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "IP"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Lockout (min)"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Locked"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Cleared"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Unlock"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "No failed login attempts recorded."
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Single IP address"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "IP range (CIDR)"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Country code (ISO 3166-1 alpha-2)"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Add ban"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Target"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Central"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Disable"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Enable"
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "No IP bans yet."
 msgstr ""
 
-#: build/190.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Security - Access Control"
 msgstr ""
 
-#: build/213.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
 msgid "Default (native column)"
 msgstr ""
 
-#: build/213.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
 msgid "Custom field (meta)"
 msgstr ""
 
-#: build/213.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
 msgid "Taxonomy"
 msgstr ""
 
-#: build/213.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
 msgid "ID"
 msgstr ""
 
-#: build/213.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
 msgid "Number"
 msgstr ""
 
-#: build/213.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
 msgid "Yes / No"
 msgstr ""
 
-#: build/213.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
 msgid "Link"
 msgstr ""
 
-#: build/213.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
 msgid "Color swatch"
 msgstr ""
 
-#: build/213.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
 msgid "Related post"
 msgstr ""
 
-#: build/213.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
 msgid "Key of an existing column — start typing to see suggestions."
 msgstr ""
 
-#: build/213.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
 msgid "Custom field (meta) key — start typing to see suggestions."
 msgstr ""
 
-#: build/213.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
 msgid "Taxonomy slug — start typing to see suggestions."
 msgstr ""
 
-#: build/213.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
 msgid "Any unique column key."
 msgstr ""
 
-#: build/213.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
 msgid "Move up"
 msgstr ""
 
-#: build/213.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
 msgid "Move down"
 msgstr ""
 
-#: build/213.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
 msgid "Column title"
 msgstr ""
 
-#: build/213.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
 msgid "Render meta value as"
 msgstr ""
 
-#: build/213.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
 msgid "Required — a column with no key is discarded when you save."
 msgstr ""
 
-#: build/213.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
 msgid "e.g. 80px"
 msgstr ""
 
-#: build/213.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
 msgid "Disable column"
 msgstr ""
 
-#: build/213.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
 msgid "Enable column"
 msgstr ""
 
-#: build/213.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
 msgid "Delete column"
 msgstr ""
 
-#: build/213.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
 msgid "Remove section"
 msgstr ""
 
-#: build/213.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
 msgid "No custom columns yet — the native columns are shown unchanged. Add one below to relabel, reorder, hide or add a column."
 msgstr ""
 
-#: build/213.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
 msgid "Key"
 msgstr ""
 
-#: build/213.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
 msgid "Width"
 msgstr ""
 
-#: build/213.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
 msgid "Add column"
 msgstr ""
 
 #. translators: %s: content type label, e.g. "Posts".
-#: build/213.js:2
+#: build/213.0fc210bb008e9541fd89.js:2
 #, js-format
 msgid "Save changes for %s"
 msgstr ""
 
-#: build/213.js:2
+#: build/213.0fc210bb008e9541fd89.js:2
 msgid "Admin Columns"
 msgstr ""
 
-#: build/213.js:2
+#: build/213.0fc210bb008e9541fd89.js:2
 msgid "No content type has custom columns yet. Pick one below to start configuring it."
 msgstr ""
 
-#: build/213.js:2
+#: build/213.0fc210bb008e9541fd89.js:2
 msgid "— Select content type —"
 msgstr ""
 
-#: build/213.js:2
+#: build/213.0fc210bb008e9541fd89.js:2
 msgid "Add content type"
 msgstr ""
 
-#: build/230.js:1
+#: build/230.9edabc0030c217453fd8.js:1
 msgid "Address"
 msgstr ""
 
-#: build/230.js:1
+#: build/230.9edabc0030c217453fd8.js:1
 msgid "Add location"
 msgstr ""
 
-#: build/230.js:1
+#: build/230.9edabc0030c217453fd8.js:1
 msgid "Delete location"
 msgstr ""
 
-#: build/230.js:1
+#: build/230.9edabc0030c217453fd8.js:1
 msgid "No address set."
 msgstr ""
 
-#: build/230.js:1
+#: build/230.9edabc0030c217453fd8.js:1
 msgid "Weekly hours (JSON)"
 msgstr ""
 
-#: build/230.js:1
+#: build/230.9edabc0030c217453fd8.js:1
 msgid "Example"
 msgstr ""
 
-#: build/230.js:1
+#: build/230.9edabc0030c217453fd8.js:1
 msgid "Save hours"
 msgstr ""
 
-#: build/230.js:1
+#: build/230.9edabc0030c217453fd8.js:1
 msgid "No locations yet."
 msgstr ""
 
-#: build/230.js:1
+#: build/230.9edabc0030c217453fd8.js:1
 msgid "Opening Hours"
 msgstr ""
 
-#: build/230.js:1
+#: build/230.9edabc0030c217453fd8.js:1
 msgid "Locations"
 msgstr ""
 
-#: build/244.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
 msgid "Select a file to protect"
 msgstr ""
 
-#: build/244.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
 msgid "Change file"
 msgstr ""
 
-#: build/244.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
 msgid "Select file"
 msgstr ""
 
-#: build/244.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
 msgid "e.g. Price list 2026"
 msgstr ""
 
-#: build/244.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
 msgid "Optional, e.g. brochures"
 msgstr ""
 
-#: build/244.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
 msgid "Attach to post ID"
 msgstr ""
 
-#: build/244.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
 msgid "Optional post/page ID"
 msgstr ""
 
-#: build/244.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
 msgid "Require login to download"
 msgstr ""
 
-#: build/244.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
 msgid "Add file"
 msgstr ""
 
-#: build/244.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
 msgid "Show files on the frontend with the shortcode:"
 msgstr ""
 
-#: build/244.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
 msgid "(files attached to the current post),"
 msgstr ""
 
-#: build/244.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
 msgid "or"
 msgstr ""
 
-#: build/244.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
 msgid "No protected files yet."
 msgstr ""
 
-#: build/244.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
 msgid "Downloads"
 msgstr ""
 
-#: build/244.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
 msgid "Login required"
 msgstr ""
 
-#: build/244.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
 msgid "Copied"
 msgstr ""
 
-#: build/244.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
 msgid "Copy link"
 msgstr ""
 
-#: build/244.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
 msgid "Delete this file entry? The media library file itself is kept."
 msgstr ""
 
-#: build/244.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
 msgid "Download Files"
 msgstr ""
 
-#: build/244.js:1
-#: build/475.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "Files"
 msgstr ""
 
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "Node name"
 msgstr ""
 
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "e.g. Client hotel site"
 msgstr ""
 
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "Node URL"
 msgstr ""
 
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "Shared API key"
 msgstr ""
 
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "Same value as the node’s API key"
 msgstr ""
 
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "Stored encrypted; never shown again."
 msgstr ""
 
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "Add node"
 msgstr ""
 
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "Connection OK."
 msgstr ""
 
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "Connection failed."
 msgstr ""
 
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "SSO link opened in a new tab."
 msgstr ""
 
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "No nodes registered yet."
 msgstr ""
 
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "Last sync"
 msgstr ""
 
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "Test connection"
 msgstr ""
 
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "Open SSO login"
 msgstr ""
 
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "Find content to push"
 msgstr ""
 
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "Search posts…"
 msgstr ""
 
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "(no title)"
 msgstr ""
 
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "Target nodes"
 msgstr ""
 
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "(no key)"
 msgstr ""
 
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "Push to selected nodes"
 msgstr ""
 
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "Node"
 msgstr ""
 
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "Result"
 msgstr ""
 
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "Detail"
 msgstr ""
 
-#: build/309.js:1
-#: build/860.js:1
-#: build/976.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
+#: build/860.a8269f19205c5720d7ff.js:1
+#: build/976.9bdf1e13c10fe53dba47.js:1
 msgid "Object"
 msgstr ""
 
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "No sync activity yet."
 msgstr ""
 
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "Content Sync"
 msgstr ""
 
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "Nodes"
 msgstr ""
 
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "Push"
 msgstr ""
 
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "A node API key is currently set."
 msgstr ""
 
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "No node API key set yet."
 msgstr ""
 
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "A central-app HMAC secret is set."
 msgstr ""
 
-#: build/309.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
 msgid "No central-app HMAC secret set."
 msgstr ""
 
-#: build/367.js:1
-#: build/402.js:1
-#: build/819.js:1
-#: build/831.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
+#: build/402.b1fe1ccabde7eb8300df.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
 msgid "Sent"
 msgstr ""
 
-#: build/367.js:1
-#: build/402.js:1
-#: build/819.js:1
-#: build/831.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
+#: build/402.b1fe1ccabde7eb8300df.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
 msgid "Failed"
 msgstr ""
 
-#: build/367.js:1
-#: build/475.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "Pending"
 msgstr ""
 
-#: build/367.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
 msgid "Email detail"
 msgstr ""
 
-#: build/367.js:1
-#: build/831.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
 msgid "To"
 msgstr ""
 
-#: build/367.js:1
-#: build/831.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
 msgid "Subject"
 msgstr ""
 
-#: build/367.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
 msgid "Headers"
 msgstr ""
 
-#: build/367.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
 msgid "No headers"
 msgstr ""
 
-#: build/367.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
 msgid "Only filenames are stored, so attachments are not re-attached on resend."
 msgstr ""
 
-#: build/367.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
 msgid "Resend"
 msgstr ""
 
-#: build/367.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
 msgid "Clear all"
 msgstr ""
 
-#: build/367.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
 msgid "(no subject)"
 msgstr ""
 
-#: build/367.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
 msgid "Delete entry"
 msgstr ""
 
-#: build/367.js:1
-#: build/831.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
 msgid "No mail has been sent yet."
 msgstr ""
 
-#: build/367.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
 msgid "Email Log"
 msgstr ""
 
-#: build/386.js:1
+#: build/386.3fec0ad538544d603682.js:1
 msgid "File Manager grants browser access to the entire server filesystem, restricted to an explicit whitelist of administrators. It manages its own access and settings through a dedicated admin screen."
 msgstr ""
 
-#: build/402.js:1
+#: build/402.b1fe1ccabde7eb8300df.js:1
 msgid "Recipient email"
 msgstr ""
 
-#: build/402.js:1
+#: build/402.b1fe1ccabde7eb8300df.js:1
 msgid "Order ID (optional)"
 msgstr ""
 
-#: build/402.js:1
-#: build/831.js:1
+#: build/402.b1fe1ccabde7eb8300df.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
 msgid "Sent to"
 msgstr ""
 
-#: build/402.js:1
+#: build/402.b1fe1ccabde7eb8300df.js:1
 msgid "Failed to send"
 msgstr ""
 
-#: build/402.js:1
+#: build/402.b1fe1ccabde7eb8300df.js:1
 msgid "Recipient"
 msgstr ""
 
-#: build/402.js:1
+#: build/402.b1fe1ccabde7eb8300df.js:1
 msgid "Order ID"
 msgstr ""
 
-#: build/402.js:1
+#: build/402.b1fe1ccabde7eb8300df.js:1
 msgid "No review requests have been sent yet."
 msgstr ""
 
-#: build/402.js:1
+#: build/402.b1fe1ccabde7eb8300df.js:1
 msgid "Google Review Request"
 msgstr ""
 
-#: build/457.js:1
+#: build/457.e838d25a2b352769a07d.js:1
 msgid "Critical"
 msgstr ""
 
-#: build/457.js:1
+#: build/457.e838d25a2b352769a07d.js:1
 msgid "High"
 msgstr ""
 
-#: build/457.js:1
+#: build/457.e838d25a2b352769a07d.js:1
 msgid "Low"
 msgstr ""
 
-#: build/457.js:1
+#: build/457.e838d25a2b352769a07d.js:1
 msgid "WPScan CVE"
 msgstr ""
 
-#: build/457.js:1
+#: build/457.e838d25a2b352769a07d.js:1
 msgid "Outdated (WordPress.org)"
 msgstr ""
 
-#: build/457.js:1
+#: build/457.e838d25a2b352769a07d.js:1
 msgid "Last scanned:"
 msgstr ""
 
-#: build/457.js:1
+#: build/457.e838d25a2b352769a07d.js:1
 msgid "WordPress.org publishes no free CVE feed - the \"Outdated\" signal only means a newer version exists, not that the installed one is confirmed vulnerable. Add a WPScan API key in Settings for real CVE data."
 msgstr ""
 
-#: build/457.js:1
-#: build/930.js:1
+#: build/457.e838d25a2b352769a07d.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Item"
 msgstr ""
 
-#: build/457.js:1
+#: build/457.e838d25a2b352769a07d.js:1
 msgid "Issue"
 msgstr ""
 
-#: build/457.js:1
+#: build/457.e838d25a2b352769a07d.js:1
 msgid "Installed"
 msgstr ""
 
-#: build/457.js:1
+#: build/457.e838d25a2b352769a07d.js:1
 msgid "Fixed in"
 msgstr ""
 
-#: build/457.js:1
+#: build/457.e838d25a2b352769a07d.js:1
 msgid "(reference)"
 msgstr ""
 
-#: build/457.js:1
+#: build/457.e838d25a2b352769a07d.js:1
 msgid "Dismiss"
 msgstr ""
 
-#: build/457.js:1
+#: build/457.e838d25a2b352769a07d.js:1
 msgid "No known issues found. Run a scan if you have not yet, or check back later."
 msgstr ""
 
-#: build/457.js:1
+#: build/457.e838d25a2b352769a07d.js:1
 msgid "Vulnerability Scanner"
 msgstr ""
 
-#: build/457.js:1
+#: build/457.e838d25a2b352769a07d.js:1
 msgid "Results"
 msgstr ""
 
-#: build/457.js:1
+#: build/457.e838d25a2b352769a07d.js:1
 msgid "A WPScan API key is currently set."
 msgstr ""
 
-#: build/457.js:1
+#: build/457.e838d25a2b352769a07d.js:1
 msgid "No WPScan API key set yet - only the free WordPress.org outdated-version check runs."
 msgstr ""
 
-#: build/474.js:1
+#: build/474.d98fcb46027547ab305e.js:1
 msgid "In progress"
 msgstr ""
 
-#: build/474.js:1
+#: build/474.d98fcb46027547ab305e.js:1
 msgid "Done"
 msgstr ""
 
-#: build/474.js:1
+#: build/474.d98fcb46027547ab305e.js:1
 msgid "Attach a file"
 msgstr ""
 
-#: build/474.js:1
+#: build/474.d98fcb46027547ab305e.js:1
 msgid "Change attachment"
 msgstr ""
 
-#: build/474.js:1
+#: build/474.d98fcb46027547ab305e.js:1
 msgid "Requester email"
 msgstr ""
 
-#: build/474.js:1
+#: build/474.d98fcb46027547ab305e.js:1
 msgid "Attachment"
 msgstr ""
 
-#: build/474.js:1
+#: build/474.d98fcb46027547ab305e.js:1
 msgid "Create request"
 msgstr ""
 
-#: build/474.js:1
+#: build/474.d98fcb46027547ab305e.js:1
 msgid "No service requests yet."
 msgstr ""
 
-#: build/474.js:1
+#: build/474.d98fcb46027547ab305e.js:1
 msgid "Requester"
 msgstr ""
 
-#: build/474.js:1
+#: build/474.d98fcb46027547ab305e.js:1
 msgid "Delete this service request?"
 msgstr ""
 
-#: build/474.js:1
+#: build/474.d98fcb46027547ab305e.js:1
 msgid "Service Requests"
 msgstr ""
 
-#: build/475.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "e.g. Public notice 4/2026"
 msgstr ""
 
-#: build/475.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "Body / description"
 msgstr ""
 
-#: build/475.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "— None —"
 msgstr ""
 
-#: build/475.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "Reference number"
 msgstr ""
 
-#: build/475.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "Publish date"
 msgstr ""
 
-#: build/475.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "Expiry date (auto-archives after)"
 msgstr ""
 
-#: build/475.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "Select attachments"
 msgstr ""
 
-#: build/475.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "Add attachments"
 msgstr ""
 
-#: build/475.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "Remove attachment"
 msgstr ""
 
-#: build/475.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "Add notice"
 msgstr ""
 
-#: build/475.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "New notice"
 msgstr ""
 
-#: build/475.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "No notices yet."
 msgstr ""
 
-#: build/475.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "Archived"
 msgstr ""
 
-#: build/475.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "Unarchive"
 msgstr ""
 
-#: build/475.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "Archive"
 msgstr ""
 
-#: build/475.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "Delete this notice?"
 msgstr ""
 
-#: build/475.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "New category"
 msgstr ""
 
-#: build/475.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "Category name"
 msgstr ""
 
-#: build/475.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "No categories yet."
 msgstr ""
 
-#: build/475.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "Notices"
 msgstr ""
 
-#: build/475.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "Delete this category?"
 msgstr ""
 
-#: build/475.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "Confirmed"
 msgstr ""
 
-#: build/475.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "Remove this subscriber?"
 msgstr ""
 
-#: build/475.js:1
-#: build/819.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
 msgid "No subscribers yet."
 msgstr ""
 
-#: build/475.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
 msgid "Notice Board"
 msgstr ""
 
-#: build/563.js:1
-#: build/792.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
+#: build/792.a567b513f75713d102ba.js:1
 msgid "Imported"
 msgstr ""
 
-#: build/563.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
 msgid "widgets"
 msgstr ""
 
-#: build/563.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
 msgid "View page"
 msgstr ""
 
-#: build/563.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
 msgid "New draft page"
 msgstr ""
 
-#: build/563.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
 msgid "Replace existing page content"
 msgstr ""
 
-#: build/563.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
 msgid "Append to existing page"
 msgstr ""
 
-#: build/563.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
 msgid "Target page ID"
 msgstr ""
 
-#: build/563.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
 msgid "The numeric ID of the page whose Elementor content will be replaced or appended to."
 msgstr ""
 
-#: build/563.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
 msgid "Upload file (.json / .zip)"
 msgstr ""
 
-#: build/563.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
 msgid "Paste template JSON"
 msgstr ""
 
-#: build/563.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
 msgid "From URL"
 msgstr ""
 
-#: build/563.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
 msgid "Template file"
 msgstr ""
 
-#: build/563.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
 msgid "Template JSON"
 msgstr ""
 
-#: build/563.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
 msgid "Leave blank to auto-detect the main content."
 msgstr ""
 
-#: build/563.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
 msgid "Page title"
 msgstr ""
 
-#: build/563.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
 msgid "Choose a .json or .zip file first."
 msgstr ""
 
-#: build/563.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
 msgid "The pasted text is not valid JSON."
 msgstr ""
 
-#: build/563.js:1
-#: build/792.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
+#: build/792.a567b513f75713d102ba.js:1
 msgid "Import"
 msgstr ""
 
-#: build/563.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
 msgid "Page ID to export"
 msgstr ""
 
-#: build/563.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
 msgid "Exports the page's Elementor content and page settings to a downloadable JSON file."
 msgstr ""
 
-#: build/563.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
 msgid "Enter a valid page ID."
 msgstr ""
 
-#: build/563.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
 msgid "Export JSON"
 msgstr ""
 
-#: build/563.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
 msgid "Exported"
 msgstr ""
 
-#: build/563.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
 msgid "Elementor Import"
 msgstr ""
 
-#: build/563.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
 msgid "Export"
 msgstr ""
 
-#: build/718.js:1
+#: build/718.0297609e33fe5814329b.js:1
 msgid "Fetch reviews"
 msgstr ""
 
-#: build/718.js:1
+#: build/718.0297609e33fe5814329b.js:1
 msgid "Fetched"
 msgstr ""
 
-#: build/718.js:1
+#: build/718.0297609e33fe5814329b.js:1
 msgid "reviews"
 msgstr ""
 
-#: build/718.js:1
+#: build/718.0297609e33fe5814329b.js:1
 msgid "No reviews yet."
 msgstr ""
 
-#: build/718.js:1
-#: build/752.js:1
+#: build/718.0297609e33fe5814329b.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Visible"
 msgstr ""
 
-#: build/718.js:1
-#: build/752.js:1
-#: build/930.js:1
+#: build/718.0297609e33fe5814329b.js:1
+#: build/752.5b321b5d976757948e1d.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Hide"
 msgstr ""
 
-#: build/718.js:1
-#: build/752.js:1
+#: build/718.0297609e33fe5814329b.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Show"
 msgstr ""
 
-#: build/718.js:1
+#: build/718.0297609e33fe5814329b.js:1
 msgid "Total reviews:"
 msgstr ""
 
-#: build/718.js:1
+#: build/718.0297609e33fe5814329b.js:1
 msgid "Average rating:"
 msgstr ""
 
-#: build/718.js:1
+#: build/718.0297609e33fe5814329b.js:1
 msgid "Count"
 msgstr ""
 
-#: build/718.js:1
+#: build/718.0297609e33fe5814329b.js:1
 msgid "No data."
 msgstr ""
 
-#: build/718.js:1
+#: build/718.0297609e33fe5814329b.js:1
 msgid "Review Aggregator"
 msgstr ""
 
-#: build/718.js:1
+#: build/718.0297609e33fe5814329b.js:1
 msgid "Reviews"
 msgstr ""
 
-#: build/718.js:1
+#: build/718.0297609e33fe5814329b.js:1
 msgid "Shortcode: [uxstudio_reviews]"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Grid"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Masonry"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Carousel"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Slider"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Highlight"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Showcase"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Set the Instagram app ID and app secret on the Settings tab before connecting."
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Register this redirect URI in your Meta app:"
 msgstr ""
 
-#: build/752.js:1
-#: build/831.js:1
-#: build/907.js:1
+#: build/752.5b321b5d976757948e1d.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
+#: build/907.e407fbb311cd6ef44322.js:1
 msgid "Connected"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Token expires:"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "(auto-refreshed by cron)"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Cached media items:"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Sync now"
 msgstr ""
 
-#: build/752.js:1
-#: build/907.js:1
+#: build/752.5b321b5d976757948e1d.js:1
+#: build/907.e407fbb311cd6ef44322.js:1
 msgid "Disconnect"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Synced"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "new"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "updated"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "failed"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "No Instagram account is connected yet."
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Connect Instagram"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Hidden"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "No media cached yet. Connect an account and run a sync."
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Feed name"
 msgstr ""
 
-#: build/752.js:1
-#: build/index.js:2
+#: build/752.5b321b5d976757948e1d.js:1
+#: build/index.508ec69e5c53f238b3b0.js:2
 msgid "Theme"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Number of posts"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Columns (desktop)"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Gap (px)"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Media types"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Include hashtags"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Exclude hashtags"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Show captions"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Show follow button"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Save feed"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "New feed"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "No feeds yet. Create one, then embed it with its shortcode."
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Shortcode"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Default shortcode: [uxstudio_instagram]. Target a specific feed with [uxstudio_instagram id=\"1\"]."
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Instagram Feed"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Connection"
 msgstr ""
 
-#: build/752.js:1
+#: build/752.5b321b5d976757948e1d.js:1
 msgid "Feeds"
 msgstr ""
 
-#: build/792.js:1
+#: build/792.a567b513f75713d102ba.js:1
 msgid "no API key"
 msgstr ""
 
-#: build/792.js:1
+#: build/792.a567b513f75713d102ba.js:1
 msgid "Search"
 msgstr ""
 
-#: build/792.js:1
+#: build/792.a567b513f75713d102ba.js:1
 msgid "No results."
 msgstr ""
 
-#: build/792.js:1
+#: build/792.a567b513f75713d102ba.js:1
 msgid "Stock Photos"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Running normally"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Fully disabled"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Local requests only"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "External hosting cron"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Driven by central app"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "DISABLE_WP_CRON"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Defined elsewhere (wp-config.php or another plugin), not by this module."
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "DISABLE_WP_CRON writable"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "mu-plugins writable"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "mu-plugins NOT writable"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "The mu-plugins directory is not writable, so this module cannot set DISABLE_WP_CRON. Define it manually in wp-config.php if you need to disable WP-Cron."
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid ".htaccess writable"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "No (Apache access rules cannot be applied)"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "ALTERNATE_WP_CRON"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Next scheduled event"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Total scheduled events"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Cron running late"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Late"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "On time"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "External trigger"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Configure a hosting/system cron to call this URL every 5-15 minutes:"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Example crontab line:"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Hook"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Args"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Non-repeating"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Delete this scheduled event?"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "No events are currently scheduled."
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Display"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Interval"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "No schedules registered."
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Callback"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Run check now"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "events"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "suspicious"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "auto-remove ON"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Automatically removed:"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Suspicious"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "All scheduled hooks are recognised. Nothing to report."
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "The watcher has not run yet."
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Cron Control"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Events"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Schedules"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Watcher"
 msgstr ""
 
-#: build/809.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
 msgid "Mode & Settings"
 msgstr ""
 
-#: build/819.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
 msgid "Click URL"
 msgstr ""
 
-#: build/819.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
 msgid "Audience"
 msgstr ""
 
-#: build/819.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
 msgid "All subscribers"
 msgstr ""
 
-#: build/819.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
 msgid "Subscribed in last 30 days"
 msgstr ""
 
-#: build/819.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
 msgid "No notifications yet."
 msgstr ""
 
-#: build/819.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
 msgid "Delivered"
 msgstr ""
 
-#: build/819.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
 msgid "Scheduled"
 msgstr ""
 
-#: build/819.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
 msgid "Send now"
 msgstr ""
 
-#: build/819.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
 msgid "User agent"
 msgstr ""
 
-#: build/819.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
 msgid "Analytics"
 msgstr ""
 
-#: build/819.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
 msgid "Push Notifications"
 msgstr ""
 
-#: build/819.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
 msgid "A VAPID keypair is currently configured."
 msgstr ""
 
-#: build/819.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
 msgid "No VAPID keypair yet - one will be generated automatically."
 msgstr ""
 
-#: build/819.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
 msgid "Regenerate VAPID keys"
 msgstr ""
 
-#: build/831.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
 msgid "SMTP Email"
 msgstr ""
 
-#: build/831.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
 msgid "A SMTP password is currently set."
 msgstr ""
 
-#: build/831.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
 msgid "No SMTP password set yet."
 msgstr ""
 
-#: build/831.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
 msgid "A Brevo API key is currently set."
 msgstr ""
 
-#: build/831.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
 msgid "No Brevo API key set yet."
 msgstr ""
 
-#: build/831.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
 msgid "A Gmail client secret is currently set."
 msgstr ""
 
-#: build/831.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
 msgid "No Gmail client secret set yet."
 msgstr ""
 
-#: build/831.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
 msgid "Redirect URI to register in your Google Cloud OAuth client:"
 msgstr ""
 
-#: build/831.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
 msgid "Disconnect Gmail"
 msgstr ""
 
-#: build/831.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
 msgid "Connect Gmail account"
 msgstr ""
 
-#: build/831.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
 msgid "Save the client ID and secret first, then connect."
 msgstr ""
 
-#: build/831.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
 msgid "Send a test email to"
 msgstr ""
 
-#: build/831.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
 msgid "Defaults to the site admin email"
 msgstr ""
 
-#: build/831.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
 msgid "Send test email"
 msgstr ""
 
-#: build/831.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
 msgid "Resend last message"
 msgstr ""
 
-#: build/831.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
 msgid "Failed:"
 msgstr ""
 
-#: build/831.js:1
+#: build/831.f63d33eb2c8abcd821ed.js:1
 msgid "Resent to"
 msgstr ""
 
-#: build/860.js:1
-#: build/976.js:1
+#: build/860.a8269f19205c5720d7ff.js:1
+#: build/976.9bdf1e13c10fe53dba47.js:1
 msgid "Module"
 msgstr ""
 
-#: build/860.js:1
+#: build/860.a8269f19205c5720d7ff.js:1
 msgid "Purge old entries"
 msgstr ""
 
-#: build/860.js:1
+#: build/860.a8269f19205c5720d7ff.js:1
 msgid "No matching activity found."
 msgstr ""
 
-#: build/860.js:1
+#: build/860.a8269f19205c5720d7ff.js:1
 msgid "Activity Log"
 msgstr ""
 
-#: build/866.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Everywhere (frontend & admin)"
 msgstr ""
 
-#: build/866.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Admin only"
 msgstr ""
 
-#: build/866.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Frontend only"
 msgstr ""
 
-#: build/866.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Frontend header"
 msgstr ""
 
-#: build/866.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Frontend footer"
 msgstr ""
 
-#: build/866.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Admin header"
 msgstr ""
 
-#: build/866.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Admin footer"
 msgstr ""
 
-#: build/866.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Frontend body open"
 msgstr ""
 
-#: build/866.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Add snippet"
 msgstr ""
 
-#: build/866.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "No snippets have been created yet."
 msgstr ""
 
-#: build/866.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Integrity check failed"
 msgstr ""
 
-#: build/866.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Invalid"
 msgstr ""
 
-#: build/866.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Toggle enabled"
 msgstr ""
 
-#: build/866.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Edit snippet"
 msgstr ""
 
-#: build/866.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Delete snippet"
 msgstr ""
 
-#: build/866.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Delete this snippet? This cannot be undone."
 msgstr ""
 
-#: build/866.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Failed to save snippet."
 msgstr ""
 
-#: build/866.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Snippet name"
 msgstr ""
 
-#: build/866.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Snippet type"
 msgstr ""
 
-#: build/866.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "PHP"
 msgstr ""
 
-#: build/866.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "CSS"
 msgstr ""
 
-#: build/866.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "JavaScript"
 msgstr ""
 
-#: build/866.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Snippet code"
 msgstr ""
 
-#: build/866.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "PHP code only - do not include the opening <?php tag. Code is validated (syntax + duplicate declarations) before it is saved."
 msgstr ""
 
-#: build/866.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Where to run"
 msgstr ""
 
-#: build/866.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Enable snippet"
 msgstr ""
 
-#: build/866.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Update snippet"
 msgstr ""
 
-#: build/866.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Save snippet"
 msgstr ""
 
-#: build/866.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Back to list"
 msgstr ""
 
-#: build/866.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Code Snippets"
 msgstr ""
 
-#: build/866.js:1
+#: build/866.a786a1a3b954a048d924.js:1
 msgid "Snippets"
 msgstr ""
 
-#: build/907.js:1
+#: build/907.e407fbb311cd6ef44322.js:1
 msgid "Connect or disconnect a provider for your own account. Sign-in itself is handled by the central app, which posts a signed result back to this site."
 msgstr ""
 
-#: build/907.js:1
+#: build/907.e407fbb311cd6ef44322.js:1
 msgid "Your role is not in the allowed list, so linking is disabled."
 msgstr ""
 
-#: build/907.js:1
+#: build/907.e407fbb311cd6ef44322.js:1
 msgid "No providers are enabled yet. Enable providers in the Settings tab."
 msgstr ""
 
-#: build/907.js:1
+#: build/907.e407fbb311cd6ef44322.js:1
 msgid "Connect"
 msgstr ""
 
-#: build/907.js:1
+#: build/907.e407fbb311cd6ef44322.js:1
 msgid "Linking needs a central app URL and an HMAC secret configured in the Settings tab."
 msgstr ""
 
-#: build/907.js:1
+#: build/907.e407fbb311cd6ef44322.js:1
 msgid "Third-Party Login"
 msgstr ""
 
-#: build/907.js:1
+#: build/907.e407fbb311cd6ef44322.js:1
 msgid "Connected accounts"
 msgstr ""
 
-#: build/907.js:1
+#: build/907.e407fbb311cd6ef44322.js:1
 msgid "An HMAC secret is currently set."
 msgstr ""
 
-#: build/907.js:1
+#: build/907.e407fbb311cd6ef44322.js:1
 msgid "No HMAC secret set yet."
 msgstr ""
 
-#: build/930.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Administrator"
 msgstr ""
 
-#: build/930.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Subscriber"
 msgstr ""
 
-#: build/930.js:1
-#: build/index.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
+#: build/index.508ec69e5c53f238b3b0.js:1
 msgid "Layout"
 msgstr ""
 
-#: build/930.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Vertical sidebar (default)"
 msgstr ""
 
-#: build/930.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Horizontal top bar"
 msgstr ""
 
-#: build/930.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Export configuration"
 msgstr ""
 
-#: build/930.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Import configuration"
 msgstr ""
 
-#: build/930.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Add category"
 msgstr ""
 
-#: build/930.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "e.g. Reports"
 msgstr ""
 
-#: build/930.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Order"
 msgstr ""
 
-#: build/930.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Custom title"
 msgstr ""
 
-#: build/930.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Custom icon"
 msgstr ""
 
-#: build/930.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Custom URL"
 msgstr ""
 
-#: build/930.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Visible to roles"
 msgstr ""
 
-#: build/930.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "None checked = visible to everyone."
 msgstr ""
 
-#: build/930.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Custom links"
 msgstr ""
 
-#: build/930.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Add link"
 msgstr ""
 
-#: build/930.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "— category —"
 msgstr ""
 
-#: build/930.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Separators"
 msgstr ""
 
-#: build/930.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Add separator"
 msgstr ""
 
-#: build/930.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Label (optional)"
 msgstr ""
 
-#: build/930.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Label"
 msgstr ""
 
-#: build/930.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "(no label)"
 msgstr ""
 
-#: build/930.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Menu Organizer"
 msgstr ""
 
-#: build/930.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Admin Customiser"
 msgstr ""
 
-#: build/976.js:1
+#: build/976.9bdf1e13c10fe53dba47.js:1
 msgid "Performance score:"
 msgstr ""
 
-#: build/976.js:1
+#: build/976.9bdf1e13c10fe53dba47.js:1
 msgid "First Contentful Paint:"
 msgstr ""
 
-#: build/976.js:1
+#: build/976.9bdf1e13c10fe53dba47.js:1
 msgid "Largest Contentful Paint:"
 msgstr ""
 
-#: build/976.js:1
+#: build/976.9bdf1e13c10fe53dba47.js:1
 msgid "Not configured"
 msgstr ""
 
-#: build/976.js:1
+#: build/976.9bdf1e13c10fe53dba47.js:1
 msgid "Add a Google PageSpeed API key in Settings to see a score here."
 msgstr ""
 
-#: build/976.js:1
+#: build/976.9bdf1e13c10fe53dba47.js:1
 msgid "No recent activity."
 msgstr ""
 
-#: build/976.js:1
+#: build/976.9bdf1e13c10fe53dba47.js:1
 msgid "Quick tasks"
 msgstr ""
 
-#: build/976.js:1
+#: build/976.9bdf1e13c10fe53dba47.js:1
 msgid "Delete task"
 msgstr ""
 
-#: build/976.js:1
+#: build/976.9bdf1e13c10fe53dba47.js:1
 msgid "New task…"
 msgstr ""
 
-#: build/976.js:1
+#: build/976.9bdf1e13c10fe53dba47.js:1
 msgid "Notes"
 msgstr ""
 
-#: build/976.js:1
+#: build/976.9bdf1e13c10fe53dba47.js:1
 msgid "Dashboard Widgets"
 msgstr ""
 
-#: build/976.js:1
+#: build/976.9bdf1e13c10fe53dba47.js:1
 msgid "Tasks"
 msgstr ""
 
-#: build/976.js:1
+#: build/976.9bdf1e13c10fe53dba47.js:1
 msgid "PageSpeed score"
 msgstr ""
 
-#: build/976.js:1
+#: build/976.9bdf1e13c10fe53dba47.js:1
 msgid "Recent activity"
 msgstr ""
 
-#: build/976.js:1
+#: build/976.9bdf1e13c10fe53dba47.js:1
 msgid "Tasks & notes"
 msgstr ""
 
-#: build/976.js:1
+#: build/976.9bdf1e13c10fe53dba47.js:1
 msgid "A PageSpeed API key is currently set."
 msgstr ""
 
-#: build/976.js:1
+#: build/976.9bdf1e13c10fe53dba47.js:1
 msgid "No PageSpeed API key set yet."
 msgstr ""
 
-#: build/976.js:1
+#: build/976.9bdf1e13c10fe53dba47.js:1
 msgid "A GA service-account JSON is currently set."
 msgstr ""
 
-#: build/976.js:1
+#: build/976.9bdf1e13c10fe53dba47.js:1
 msgid "No GA service-account JSON set yet."
 msgstr ""
 
-#: build/999.js:1
+#: build/999.099916b842480750146e.js:1
 msgid "AI Panel manages temporary remote access grants through its own dedicated admin screen, unchanged from before the rewrite."
 msgstr ""
 
-#: build/999.js:1
+#: build/999.099916b842480750146e.js:1
 msgid "Open AI Panel"
 msgstr ""
 
-#: build/index.js:1
+#: build/index.508ec69e5c53f238b3b0.js:1
 msgid "Select image"
 msgstr ""
 
-#: build/index.js:1
+#: build/index.508ec69e5c53f238b3b0.js:1
 msgid "Change image"
 msgstr ""
 
-#: build/index.js:1
+#: build/index.508ec69e5c53f238b3b0.js:1
 msgid "— Select —"
 msgstr ""
 
-#: build/index.js:1
+#: build/index.508ec69e5c53f238b3b0.js:1
 msgid "Failed to load modules."
 msgstr ""
 
-#: build/index.js:1
-#: build/index.js:2
+#: build/index.508ec69e5c53f238b3b0.js:1
+#: build/index.508ec69e5c53f238b3b0.js:2
 msgid "Modules"
 msgstr ""
 
-#: build/index.js:1
+#: build/index.508ec69e5c53f238b3b0.js:1
 msgid "Grid view"
 msgstr ""
 
-#: build/index.js:1
+#: build/index.508ec69e5c53f238b3b0.js:1
 msgid "List view"
 msgstr ""
 
 #. translators: %d: number of currently active modules.
-#: build/index.js:2
+#: build/index.508ec69e5c53f238b3b0.js:2
 #, js-format
 msgid "Deactivate %d active module?"
 msgid_plural "Deactivate all %d active modules?"
 msgstr[0] ""
 msgstr[1] ""
 
-#: build/index.js:2
+#: build/index.508ec69e5c53f238b3b0.js:2
 msgid "Deactivate all modules"
 msgstr ""
 
-#: build/index.js:2
+#: build/index.508ec69e5c53f238b3b0.js:2
 msgid "Disable module"
 msgstr ""
 
-#: build/index.js:2
+#: build/index.508ec69e5c53f238b3b0.js:2
 msgid "Enable module"
 msgstr ""
 
-#: build/index.js:2
+#: build/index.508ec69e5c53f238b3b0.js:2
 msgid "Configure"
 msgstr ""
 
-#: build/index.js:2
+#: build/index.508ec69e5c53f238b3b0.js:2
 msgid "Switch to light mode"
 msgstr ""
 
-#: build/index.js:2
+#: build/index.508ec69e5c53f238b3b0.js:2
 msgid "Switch to dark mode"
 msgstr ""
 
-#: build/index.js:2
+#: build/index.508ec69e5c53f238b3b0.js:2
 msgid "About"
 msgstr ""
 
-#: build/index.js:2
+#: build/index.508ec69e5c53f238b3b0.js:2
 msgid "Plugin version"
 msgstr ""
 
-#: build/index.js:2
+#: build/index.508ec69e5c53f238b3b0.js:2
 msgid "API version"
 msgstr ""
 
-#: build/index.js:2
+#: build/index.508ec69e5c53f238b3b0.js:2
 msgid "Language"
 msgstr ""
 
-#: build/index.js:2
+#: build/index.508ec69e5c53f238b3b0.js:2
 msgid "This module is turned off. Enable it on the Modules screen to use its settings."
 msgstr ""
 
-#: build/index.js:2
+#: build/index.508ec69e5c53f238b3b0.js:2
 msgid "Toggle dark mode"
 msgstr ""
 
-#: build/index.js:2
+#: build/index.508ec69e5c53f238b3b0.js:2
 msgid "Light mode"
 msgstr ""
 
-#: build/index.js:2
+#: build/index.508ec69e5c53f238b3b0.js:2
 msgid "Dark mode"
 msgstr ""
 
-#: build/index.js:2
+#: build/index.508ec69e5c53f238b3b0.js:2
 msgid "UX Studio navigation"
 msgstr ""
 

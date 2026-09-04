@@ -37,6 +37,13 @@ jobs:
       - run: npm ci
       - run: npm run build
 
+      # The bundle filenames carry a content hash (webpack.config.js). The hash
+      # CI produces can differ from the local build the committed JSON targeted,
+      # so re-point the merged translation JSON at THIS build's index filename.
+      # (PHP only - no wp-cli/make-pot, which would choke on the minified build.)
+      - name: Align translations with this build's hashed bundle
+        run: php bin/merge-json-translations.php
+
       # Translations (languages/*.pot|po|mo|json) are maintained IN THE REPO and
       # ship as-is in the zip below. Regenerate them locally, not in CI:
       #   wp i18n make-pot . languages/ux-studio.pot --include=includes,build,ux-studio.php --exclude=node_modules,vendor,src

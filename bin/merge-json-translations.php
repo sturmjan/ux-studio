@@ -20,9 +20,17 @@ if ( ! is_dir( $languages ) ) {
 	exit( 1 );
 }
 
-// md5( 'build/index.js' ) - the relative source WP hashes for the enqueued
-// 'ux-studio-app' handle (src build/index.js). This is the file WP loads.
-$main_hash = md5( 'build/index.js' );
+// The relative source WP hashes for the enqueued 'ux-studio-app' handle is the
+// actual (content-hashed) main bundle path, e.g. build/index.<hash>.js. Resolve
+// it so the merged file lands where WP looks.
+$index_rel = 'build/index.js';
+foreach ( glob( __DIR__ . '/../build/index.*.js' ) ?: array() as $f ) {
+	if ( substr( $f, -3 ) === '.js' ) {
+		$index_rel = 'build/' . basename( $f );
+		break;
+	}
+}
+$main_hash = md5( $index_rel );
 
 $by_locale = array();
 foreach ( glob( $languages . '/ux-studio-*.json' ) ?: array() as $file ) {

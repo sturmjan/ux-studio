@@ -71,29 +71,35 @@ final class Admin {
 		// The generic settings renderer can open the WP media modal (media field).
 		wp_enqueue_media();
 
-		$asset_file = UXSTUDIO_PATH . 'build/index.asset.php';
+		// The build embeds a content hash in filenames (see webpack.config.js) so
+		// updates bust caches even where a host strips the ?ver query string.
+		// Resolve the actual hashed files at runtime; fall back to the plain names.
+		$js_file  = self::resolve_build_file( 'index', 'js' );
+		$css_file = self::resolve_build_file( 'style-index', 'css' );
+
+		$asset_file = UXSTUDIO_PATH . 'build/' . preg_replace( '/\.js$/', '.asset.php', $js_file );
 		$asset      = is_readable( $asset_file )
 			? include $asset_file
 			: array( 'dependencies' => array(), 'version' => UXSTUDIO_VERSION );
 
 		wp_enqueue_script(
 			'ux-studio-app',
-			UXSTUDIO_URL . 'build/index.js',
+			UXSTUDIO_URL . 'build/' . $js_file,
 			$asset['dependencies'],
 			$asset['version'],
 			true
 		);
 		wp_enqueue_style(
 			'ux-studio-app',
-			UXSTUDIO_URL . 'build/style-index.css',
+			UXSTUDIO_URL . 'build/' . $css_file,
 			array( 'wp-components' ),
 			$asset['version']
 		);
 
-		// JS translations. WP loads languages/ux-studio-<locale>-<md5('build/index.js')>.json
-		// for this handle; the build/CI merges every lazy-chunk's JSON into that one
-		// file (see bin/merge-json-translations.php) so code-split module pages are
-		// translated too, not just the main bundle.
+		// JS translations. WP loads languages/ux-studio-<locale>-<md5(relative src)>.json
+		// where the src is the hashed build/index.<hash>.js; the build/CI merges every
+		// lazy-chunk's JSON into that one file (bin/merge-json-translations.php) so
+		// code-split module pages are translated too, not just the main bundle.
 		wp_set_script_translations( 'ux-studio-app', 'ux-studio', UXSTUDIO_PATH . 'languages' );
 
 		wp_localize_script(
@@ -112,5 +118,24 @@ final class Admin {
 		 * Extension API: add-ons enqueue their page bundles here (after core app).
 		 */
 		do_action( 'ux_studio/admin_assets' );
+	}
+
+	/**
+	 * Resolve a content-hashed build file (e.g. index.<hash>.js), falling back
+	 * to the plain name when an unhashed build is present.
+	 *
+	 * @param string $base File base name (e.g. 'index', 'style-index').
+	 * @param string $ext  Extension without the dot (e.g. 'js', 'css').
+	 * @return string Basename inside build/ (e.g. 'index.508ec….js').
+	 */
+	private static function resolve_build_file( string $base, string $ext ): string {
+		$matches = glob( UXSTUDIO_PATH . 'build/' . $base . '.*.' . $ext ) ?: array();
+		foreach ( $matches as $match ) {
+			// Skip source maps / sidecar files; take the first real asset.
+			if ( substr( $match, -( strlen( $ext ) + 1 ) ) === '.' . $ext ) {
+				return basename( $match );
+			}
+		}
+		return $base . '.' . $ext;
 	}
 }
