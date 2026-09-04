@@ -413,5 +413,26 @@ Toto běží uvnitř flow 15.0 (po deaktivaci ux1, před tím než cokoli data s
 
 ### 15.4 Uzavření (F5 gate)
 
-- [ ] po dokončení 15.1-15.3 spustit celý parity audit znovu (harness stojí) - cíl: 0 ❌, migrace bez ztráty
+Stav k 2026-09-04 po dokončení 15.1-15.3 a smoke re-runu:
+
+- **15.1 migrace historických dat** - HOTOVO+OVĚŘENO (viz výše).
+- **15.2 funkční mezery (15 ❌)** - HOTOVO všech 15: activity-log, bot-throttle, push-notifications,
+  content-sync(ODLOŽEN), cron-control, dashboard-widgets, download-files, elementor-import,
+  exit-popup, instagram-feed, notice-board, opening-hours, page-load + google-review-request/guide
+  (přeznačené = záměr). Jediná nedokončená: **content-sync** (viz níže).
+- **15.3 drobné rozdíly (⚠️)** - hotové: hide-admin-bar, pixel-tag-manager, smtp-email, image-optimizer,
+  security-optimization, third-party-login, email-log, folder-manager, admin-columns. Zbývající ⚠️
+  (admin-customiser sidebar, ai-markdown sitemap, auto-unpublish JS panel, email-health mail-tester,
+  post-type-switcher bulk, user-switching redirect varianty, review-aggregator zdroje) = přijatelné
+  drobnosti, ne bloker F5.
+
+Zbývající skutečná ❌ v matici (po srovnání se skutečností):
+- `content-sync` - **ODLOŽEN** (5127ř. Hub↔Node, chce vlastní hub+node harness, web je idle node).
+- `google-review-request`, `guide`, `performance-optimization`(migrace), `popup-manager`(migrace) =
+  **vědomá rozhodnutí potvrzená uživatelem** (by design, ne mezery).
+
+- [x] SPA smoke re-run 18 opravených modulů (Playwright): 0 REST/console chyb, vše renderuje (2026-09-04).
+- [] plný re-run harness `D:\parity-test-pobyty` (statická + migrace + A/B) na tvrdé potvrzení - stojí, spustit před F5
+- [ ] dořešit `content-sync` (samostatná session s hub+node harnessem) NEBO vědomě vypustit z v1 scope
+- [ ] funkční A/B rizikových modulů s reálnými creds/pluginy: smtp-email (Gmail OAuth), instagram-feed (IG token), elementor-import (Elementor)
 - [ ] teprve pak přepnout (deaktivace ux1, aktivace ux-studio) dle kap. 10

@@ -44,7 +44,7 @@ hyphen→underscore bez migrace), obecně moduly s vlastní tabulkou a přeznač
 
 | # | Modul | Statická | Migrace | Funkční A/B | Nález (statická parita) |
 |---|---|:--:|:--:|:--:|---|
-| 1 | `activity-log` | ❌ | ❌ | ⬜ | Jen loguje wp_login do sdílené tabulky; chybí ~25 událostí, alert eskalace, vlastní tabulka. |
+| 1 | `activity-log` | ✅ | ✅ | ✅ | NAPRAVENO 2026-09-03 (15.2): ~20 sledovaných událostí + alert_role_escalation; migrace 227→227 (15.1). Ověřeno. |
 | 2 | `admin-columns` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: FieldRenderer 9 typů (image/boolean/date/url/email/color/post/number/text) + per-column data-source. Ověřeno lint/build/boot. |
 | 3 | `admin-customiser` | ⚠️ | ⬜ | ⬜ | Většina sub-modulů ported; chybí Sidebar styling a detailní theming login stránky. |
 | 4 | `ai-assistant` | ✅ | ⬜ | ⬜ | Kompletní (14 tabulek, 3 provideři, 106 route), navíc InternalChat. |
@@ -103,7 +103,7 @@ hyphen→underscore bez migrace), obecně moduly s vlastní tabulkou a přeznač
 | 57 | `review-aggregator` | ⚠️ | ⬜ | ⬜ | Architektura přes centrální Content-Sync broker; jádro zachováno, vypuštěny konfigurace zdrojů a /import. |
 | 58 | `rollback-manager` | ✅ | ⬜ | ⬜ | SPA+REST parita, přísnější oprávnění (manage_options) a server-side allow-list URL. |
 | 59 | `security-optimization` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: CSP off/report-only/ENFORCE (dřív žádná hlavička) + Upload Guard UI + hardening toggly. Jen frontend (wp-admin chráněn). Ověřeno lint/build/boot. |
-| 60 | `service-requests` | ⚠️ | ❌ | ⬜ | Jedna příloha místo multi-file; vypuštěna pole budget/telefon/admin_note a plná editace (jen změna stavu). |
+| 60 | `service-requests` | ⚠️ | ✅ | ⬜ | Migrace 2→2 OVĚŘENA (15.1). Drobný rozdíl zůstává: jedna příloha místo multi-file, vypuštěna pole budget/telefon/admin_note a plná editace (jen změna stavu) - přijatelné. |
 | 61 | `smtp-email` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: Gmail OAuth2 transport + From/Force-From + resend. Ověřeno lint/build/boot; reálný Gmail round-trip neověřen (chybí creds). |
 | 62 | `stock-photos` | ✅ | ⬜ | ⬜ | 7 providerů, shodné trasy; klíče nově přes store_secret + SSRF guard. |
 | 63 | `svg-upload` | ✅ | ⬜ | ⬜ | Free+pro, shodné hooky, DOM sanitizace navíc fail-closed. |
