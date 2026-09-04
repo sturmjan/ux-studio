@@ -13,8 +13,9 @@ use WP_REST_Request;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET  uxstudio/v1/smtp-email/logs - last 50 delivery log rows
- * POST uxstudio/v1/smtp-email/test - send a test email through the configured transport
+ * GET  uxstudio/v1/smtp-email/logs   - last 50 delivery log rows
+ * POST uxstudio/v1/smtp-email/test   - send a test email through the configured transport
+ * POST uxstudio/v1/smtp-email/resend - resend the last message that went through wp_mail()
  */
 final class RestController extends Controller {
 
@@ -44,6 +45,7 @@ final class RestController extends Controller {
 				),
 			)
 		);
+		$this->route( '/smtp-email/resend', 'POST', array( $this, 'resend' ) );
 	}
 
 	/**
@@ -63,5 +65,14 @@ final class RestController extends Controller {
 	public function test( WP_REST_Request $request ) {
 		$to = (string) $request->get_param( 'to' );
 		return $this->ok( $this->module->send_test( $to ) );
+	}
+
+	/**
+	 * Resend the last captured outgoing message.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function resend( WP_REST_Request $request ) {
+		return $this->ok( $this->module->resend_last() );
 	}
 }

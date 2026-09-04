@@ -1,10 +1,121 @@
 import { useState } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
-import { ArrowLeft, LoaderCircle } from 'lucide-react';
+import { ArrowLeft, LoaderCircle, Link2, Unlink } from 'lucide-react';
 import { navigate } from '../../app/route';
+import { api, queryClient } from '../../app/api';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
 
 type Tab = 'settings' | 'accounts';
+
+interface Identity {
+	provider: string;
+	label: string;
+	linked: boolean;
+	email: string;
+	linked_at: number;
+}
+
+interface IdentitiesPayload {
+	identities: Identity[];
+	can_link: boolean;
+	role_allowed: boolean;
+}
+
+function AccountsTab(): JSX.Element {
+	const identities = useQuery( {
+		queryKey: [ 'tpl-identities' ],
+		queryFn: () => api< IdentitiesPayload >( 'third-party-login/identities' ),
+	} );
+
+	const link = useMutation( {
+		mutationFn: ( provider: string ) =>
+			api< { redirect: string } >( `third-party-login/link/${ provider }`, { method: 'POST' } ),
+		onSuccess: ( data ) => {
+			if ( data.redirect ) {
+				window.location.assign( data.redirect );
+			}
+		},
+	} );
+
+	const unlink = useMutation( {
+		mutationFn: ( provider: string ) =>
+			api( `third-party-login/unlink/${ provider }`, { method: 'POST' } ),
+		onSuccess: () => {
+			void queryClient.invalidateQueries( { queryKey: [ 'tpl-identities' ] } );
+		},
+	} );
+
+	if ( identities.isLoading || ! identities.data ) {
+		return (
+			<div className="uxs-loading">
+				<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />
+			</div>
+		);
+	}
+
+	const { identities: rows, can_link: canLink, role_allowed: roleAllowed } = identities.data;
+
+	return (
+		<div className="uxs-form">
+			<p>
+				{ __(
+					'Connect or disconnect a provider for your own account. Sign-in itself is handled by the central app, which posts a signed result back to this site.',
+					'ux-studio'
+				) }
+			</p>
+			{ ! roleAllowed && (
+				<p className="uxs-form__help">
+					{ __( 'Your role is not in the allowed list, so linking is disabled.', 'ux-studio' ) }
+				</p>
+			) }
+			{ rows.length === 0 && (
+				<p className="uxs-form__help">
+					{ __( 'No providers are enabled yet. Enable providers in the Settings tab.', 'ux-studio' ) }
+				</p>
+			) }
+			{ rows.map( ( row ) => (
+				<div key={ row.provider } className="uxs-form__row">
+					<label>{ row.label }</label>
+					{ row.linked ? (
+						<span style={ { display: 'flex', alignItems: 'center', gap: '8px' } }>
+							<span>
+								{ row.email
+									? row.email
+									: __( 'Connected', 'ux-studio' ) }
+							</span>
+							<button
+								type="button"
+								className="button"
+								disabled={ unlink.isPending }
+								onClick={ () => unlink.mutate( row.provider ) }
+							>
+								<Unlink size={ 14 } /> { __( 'Disconnect', 'ux-studio' ) }
+							</button>
+						</span>
+					) : (
+						<button
+							type="button"
+							className="button button-primary"
+							disabled={ ! canLink || ! roleAllowed || link.isPending }
+							onClick={ () => link.mutate( row.provider ) }
+						>
+							<Link2 size={ 14 } /> { __( 'Connect', 'ux-studio' ) }
+						</button>
+					) }
+				</div>
+			) ) }
+			{ ! canLink && rows.length > 0 && (
+				<p className="uxs-form__help">
+					{ __(
+						'Linking needs a central app URL and an HMAC secret configured in the Settings tab.',
+						'ux-studio'
+					) }
+				</p>
+			) }
+		</div>
+	);
+}
 
 export default function Page(): JSX.Element {
 	const [ tab, setTab ] = useState< Tab >( 'settings' );
@@ -51,28 +162,7 @@ export default function Page(): JSX.Element {
 					</button>
 				</>
 			) }
-			{ tab === 'accounts' && (
-				<div className="uxs-form">
-					<p>
-						{ __(
-							'Visitors sign in through the central app, which handles the OAuth handshake with Google, Facebook or Apple and posts a signed result back to this site.',
-							'ux-studio'
-						) }
-					</p>
-					<p>
-						{ __(
-							'Account linking happens automatically on first login: if a WordPress user already exists with the matching email address, the provider account is linked to it. Otherwise a new WordPress user is created.',
-							'ux-studio'
-						) }
-					</p>
-					<p>
-						{ __(
-							'No separate list of connected accounts is stored by this module beyond WordPress’s own users — each linked provider is recorded as user meta on the corresponding WordPress user.',
-							'ux-studio'
-						) }
-					</p>
-				</div>
-			) }
+			{ tab === 'accounts' && <AccountsTab /> }
 		</>
 	);
 }

@@ -78,7 +78,7 @@ hyphen→underscore bez migrace), obecně moduly s vlastní tabulkou a přeznač
 | 32 | `google-review-request` | ❌ | ⬜ | ⬜ | Přeznačeno: on-site popup + multiplatforma + triggery nahrazeny posíláním review-request emailu. |
 | 33 | `guide` | ❌ | ⬜ | ⬜ | Přeznačeno: editor Návodu s MD exportem + noindex cron nahrazen nesouvisejícím onboarding checklistem. |
 | 34 | `hide-admin-bar` | ⚠️ | ⬜ | ⬜ | **Opačné chování při prázdném výběru rolí** (legacy neskryje nikomu, studio skryje všem). |
-| 35 | `image-optimizer` | ⚠️ | ⬜ | ⬜ | Core komprese/resize/WebP/bulk funguje; chybí AVIF, WebP delivery (.htaccess), auto při uploadu, scanner. |
+| 35 | `image-optimizer` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: AVIF (feature-detect), WebP/AVIF delivery (.htaccess marker), auto-optimize on upload, unused scanner. Ověřeno lint/build/boot. |
 | 36 | `indexing-notice` | ✅ | ⬜ | ⬜ | Shoda 1:1 (admin-bar notice při blog_public==0). |
 | 37 | `instagram-feed` | ❌ | ⬜ | ⬜ | Minimální img mřížka; chybí OAuth/connections, 6 témat, cron, hashtag filtry, sideload, celé admin UI. |
 | 38 | `link-manager` | ✅ | ⬜ | ⬜ | Kompletní port (free+pro), stejná logika i options vč. speculative loading. |
@@ -86,7 +86,7 @@ hyphen→underscore bez migrace), obecně moduly s vlastní tabulkou a přeznač
 | 40 | `media-replace` | ✅ | ⬜ | ⬜ | Parita row action + meta box + REST; mírně bezpečnější (per-item edit_post). |
 | 41 | `media-trash` | ✅ | ⬜ | ⬜ | Ekvivalentní: MEDIA_TRASH v boot() místo zápisu do wp-config. |
 | 42 | `menu-visibility` | ✅ | ⬜ | ⬜ | 1:1; čte i legacy _wpext_menu_item_visible jako fallback. |
-| 43 | `notice-board` | ❌ | ⬜ | ⬜ | Stub; chybí description, data, archivace, více příloh, RSS, per-kat. odběry, emaily, frontend shortcode. |
+| 43 | `notice-board` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: plná implementace - tělo/data/archivace/více příloh/RSS/per-kat odběry+notifikace/shortcode (3 tabulky, DB v2). Ověřeno build/boot/tabulky. |
 | 44 | `opening-hours` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-03: doplněna zobrazovací vrstva (shortcody [opening_hours]/[opening_hours_status] + Schema.org JSON-LD + české svátky do open-now). Ověřeno renderem + JSON-LD na homepage. Dekorativní widgety (hodiny/mapy/foto) vědomě vypuštěny. Data v post meta = migrace ➖. |
 | 45 | `page-load` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: query/paměť metriky (DB v2), admin-bar indikátor, per-plugin benchmark. Ověřeno build/boot/migrace. |
 | 46 | `performance-optimization` | ⚠️ | ❌ | ⬜ | Vědomé bezpečnostní zúžení: read-only analýza 5 metrik + 3 whitelistované fixy (sedí se zadáním). |
@@ -104,10 +104,10 @@ hyphen→underscore bez migrace), obecně moduly s vlastní tabulkou a přeznač
 | 58 | `rollback-manager` | ✅ | ⬜ | ⬜ | SPA+REST parita, přísnější oprávnění (manage_options) a server-side allow-list URL. |
 | 59 | `security-optimization` | ⚠️ | ⬜ | ⬜ | Obě domény pokryty (bany, htaccess, upload guard); ale CSP jen reporting (bez enforce), ~8 hardening přepínačů vypuštěno. |
 | 60 | `service-requests` | ⚠️ | ❌ | ⬜ | Jedna příloha místo multi-file; vypuštěna pole budget/telefon/admin_note a plná editace (jen změna stavu). |
-| 61 | `smtp-email` | ⚠️ | ⬜ | ⬜ | SMTP+Brevo fungují, klíče přes store_secret; chybí Gmail API transport, From/Force-From volby, resend. |
+| 61 | `smtp-email` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: Gmail OAuth2 transport + From/Force-From + resend. Ověřeno lint/build/boot; reálný Gmail round-trip neověřen (chybí creds). |
 | 62 | `stock-photos` | ✅ | ⬜ | ⬜ | 7 providerů, shodné trasy; klíče nově přes store_secret + SSRF guard. |
 | 63 | `svg-upload` | ✅ | ⬜ | ⬜ | Free+pro, shodné hooky, DOM sanitizace navíc fail-closed. |
-| 64 | `third-party-login` | ⚠️ | ⬜ | ⬜ | OAuth-proxy jádro (HMAC, auto-login) zachováno; vypuštěno role gating, opt-in create, link/unlink UI. |
+| 64 | `third-party-login` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: role gating (fail-closed) + opt-in auto-create (bez admina) + link/unlink (HMAC state). Navíc fix account-takeover přes email. Ověřeno lint/build/boot. |
 | 65 | `top-bar` | ✅ | ⬜ | ⬜ | 1:1 (pole, defaulty, wp_head render, plánování). |
 | 66 | `user-last-login` | ✅ | ⬜ | ⬜ | 1:1 se čtením legacy meta jako fallback. |
 | 67 | `user-switching` | ⚠️ | ⬜ | ⬜ | 1:1 free+pro merge; get_redirect řeší jen redirect_to URL (bez post/term/user/comment variant). |

@@ -12,35 +12,76 @@ use WP_Error;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Compresses/resizes a media library image in place and optionally emits a
- * WebP sibling, using whichever of Imagick/GD is available. Operates only on
- * files resolved via get_attached_file() and explicitly re-verified to sit
- * inside wp_upload_dir()['basedir'] before any filesystem write - never on
- * arbitrary paths or external URLs. The very first time an attachment is
- * touched, the untouched original is copied to "<name>-original.<ext>" in the
- * same directory so optimize/restore is always reversible.
+ * Compresses/resizes a media library image in place and optionally emits
+ * next-gen siblings (WebP and/or AVIF), using whichever of Imagick/GD is
+ * available. Operates only on files resolved via get_attached_file() and
+ * explicitly re-verified to sit inside wp_upload_dir()['basedir'] before any
+ * filesystem write - never on arbitrary paths or external URLs. The very first
+ * time an attachment is touched, the untouched original is copied to
+ * "<name>-original.<ext>" in the same directory so optimize/restore is always
+ * reversible. AVIF encoding is feature-detected and silently degrades to a
+ * no-op (webp/avif_done = false) when the runtime cannot encode it.
  */
 final class Optimizer {
 
 	public const META_ORIGINAL_SIZE  = '_uxstudio_io_original_size';
 	public const META_OPTIMIZED_SIZE = '_uxstudio_io_optimized_size';
 	public const META_WEBP_DONE      = '_uxstudio_io_webp_done';
+	public const META_AVIF_DONE      = '_uxstudio_io_avif_done';
 
 	private const SUPPORTED_MIME = array( 'image/jpeg', 'image/png', 'image/gif' );
 
 	/**
-	 * Optimize a single attachment: resize to max_width, recompress at
-	 * quality, optionally emit a WebP sibling. Idempotent-ish: a backup is
-	 * only created once (on first run), so running it again re-compresses
-	 * the already-optimized file, not the backup.
-	 *
-	 * @param int   $attachment_id Attachment post id.
-	 * @param int   $quality       JPEG/WebP quality 1-100.
-	 * @param bool  $convert_webp  Whether to also emit a .webp sibling.
-	 * @param int   $max_width     Max width in pixels; 0 disables resizing.
-	 * @return array|WP_Error {attachment_id, original_size, optimized_size, webp_done}
+	 * Whether the runtime can encode WebP (GD imagewebp or Imagick WEBP).
 	 */
-	public function optimize( int $attachment_id, int $quality, bool $convert_webp, int $max_width ) {
+	public static function supports_webp(): bool {
+		if ( function_exists( 'imagewebp' ) ) {
+			return true;
+		}
+		return self::imagick_supports( 'WEBP' );
+	}
+
+	/**
+	 * Whether the runtime can encode AVIF (GD imageavif >= PHP 8.1 built with
+	 * AVIF, or Imagick built against a libheif-enabled ImageMagick).
+	 */
+	public static function supports_avif(): bool {
+		if ( function_exists( 'imageavif' ) ) {
+			return true;
+		}
+		return self::imagick_supports( 'AVIF' );
+	}
+
+	/**
+	 * Whether Imagick is loaded and advertises the given format.
+	 *
+	 * @param string $format Uppercase format name, e.g. 'AVIF'.
+	 */
+	private static function imagick_supports( string $format ): bool {
+		if ( ! extension_loaded( 'imagick' ) || ! class_exists( '\Imagick' ) ) {
+			return false;
+		}
+		try {
+			return ! empty( \Imagick::queryFormats( $format ) );
+		} catch ( \Throwable $e ) {
+			return false;
+		}
+	}
+
+	/**
+	 * Optimize a single attachment: resize to max_width, recompress at
+	 * quality, optionally emit WebP and/or AVIF siblings. Idempotent-ish: a
+	 * backup is only created once (on first run), so running it again
+	 * re-compresses the already-optimized file, not the backup.
+	 *
+	 * @param int  $attachment_id Attachment post id.
+	 * @param int  $quality       JPEG/WebP/AVIF quality 1-100.
+	 * @param bool $convert_webp  Whether to also emit a .webp sibling.
+	 * @param int  $max_width     Max width in pixels; 0 disables resizing.
+	 * @param bool $convert_avif  Whether to also emit an .avif sibling.
+	 * @return array|WP_Error {attachment_id, original_size, optimized_size, webp_done, avif_done}
+	 */
+	public function optimize( int $attachment_id, int $quality, bool $convert_webp, int $max_width, bool $convert_avif = false ) {
 		if ( 'attachment' !== get_post_type( $attachment_id ) ) {
 			return new WP_Error( 'uxstudio_not_attachment', __( 'Not a media library attachment.', 'ux-studio' ) );
 		}
@@ -58,6 +99,10 @@ final class Optimizer {
 		$quality   = max( 1, min( 100, $quality ) );
 		$max_width = max( 0, $max_width );
 
+		// AVIF is best-effort: only attempt when the runtime can actually encode it.
+		$convert_avif = $convert_avif && self::supports_avif();
+		$convert_webp = $convert_webp && self::supports_webp();
+
 		$backup = $this->backup_path( $path );
 		if ( ! is_file( $backup ) ) {
 			if ( ! @copy( $path, $backup ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
@@ -68,9 +113,9 @@ final class Optimizer {
 		$original_size = (int) filesize( $backup );
 
 		$result = extension_loaded( 'imagick' )
-			? $this->process_with_imagick( $path, $mime, $quality, $max_width, $convert_webp )
+			? $this->process_with_imagick( $path, $mime, $quality, $max_width, $convert_webp, $convert_avif )
 			: ( extension_loaded( 'gd' )
-				? $this->process_with_gd( $path, $mime, $quality, $max_width, $convert_webp )
+				? $this->process_with_gd( $path, $mime, $quality, $max_width, $convert_webp, $convert_avif )
 				: new WP_Error( 'uxstudio_no_image_library', __( 'Neither the Imagick nor the GD PHP extension is available.', 'ux-studio' ) ) );
 
 		if ( is_wp_error( $result ) ) {
@@ -83,17 +128,20 @@ final class Optimizer {
 		update_post_meta( $attachment_id, self::META_ORIGINAL_SIZE, $original_size );
 		update_post_meta( $attachment_id, self::META_OPTIMIZED_SIZE, $optimized_size );
 		update_post_meta( $attachment_id, self::META_WEBP_DONE, $result['webp_done'] ? 1 : 0 );
+		update_post_meta( $attachment_id, self::META_AVIF_DONE, $result['avif_done'] ? 1 : 0 );
 
 		return array(
 			'attachment_id'  => $attachment_id,
 			'original_size'  => $original_size,
 			'optimized_size' => $optimized_size,
 			'webp_done'      => $result['webp_done'],
+			'avif_done'      => $result['avif_done'],
 		);
 	}
 
 	/**
-	 * Restore the original from its backup and drop the optimization meta.
+	 * Restore the original from its backup and drop the optimization meta and
+	 * any generated next-gen siblings.
 	 *
 	 * @param int $attachment_id Attachment post id.
 	 */
@@ -116,13 +164,15 @@ final class Optimizer {
 			return new WP_Error( 'uxstudio_restore_failed', __( 'Could not restore the original image.', 'ux-studio' ) );
 		}
 
-		$webp = $this->webp_path( $path );
-		if ( is_file( $webp ) ) {
-			@unlink( $webp ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		foreach ( array( $this->webp_path( $path ), $this->avif_path( $path ) ) as $sibling ) {
+			if ( is_file( $sibling ) ) {
+				@unlink( $sibling ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			}
 		}
 
 		delete_post_meta( $attachment_id, self::META_OPTIMIZED_SIZE );
 		delete_post_meta( $attachment_id, self::META_WEBP_DONE );
+		delete_post_meta( $attachment_id, self::META_AVIF_DONE );
 
 		return array( 'attachment_id' => $attachment_id, 'restored' => true );
 	}
@@ -166,14 +216,23 @@ final class Optimizer {
 	}
 
 	/**
+	 * @param string $path Absolute file path.
+	 */
+	private function avif_path( string $path ): string {
+		$info = pathinfo( $path );
+		return $info['dirname'] . '/' . $info['filename'] . '.avif';
+	}
+
+	/**
 	 * @param string $path         Absolute file path (overwritten in place).
 	 * @param string $mime         Mime type.
 	 * @param int    $quality      1-100.
 	 * @param int    $max_width    0 disables resize.
 	 * @param bool   $convert_webp Whether to emit a .webp sibling.
-	 * @return array{webp_done:bool}|WP_Error
+	 * @param bool   $convert_avif Whether to emit an .avif sibling.
+	 * @return array{webp_done:bool,avif_done:bool}|WP_Error
 	 */
-	private function process_with_gd( string $path, string $mime, int $quality, int $max_width, bool $convert_webp ) {
+	private function process_with_gd( string $path, string $mime, int $quality, int $max_width, bool $convert_webp, bool $convert_avif ) {
 		$image = $this->gd_load( $path, $mime );
 		if ( ! $image ) {
 			return new WP_Error( 'uxstudio_decode_failed', __( 'Could not decode the image.', 'ux-studio' ) );
@@ -208,12 +267,18 @@ final class Optimizer {
 
 		$webp_done = false;
 		if ( $convert_webp && function_exists( 'imagewebp' ) ) {
-			$webp_done = (bool) imagewebp( $image, $this->webp_path( $path ), $quality );
+			$webp_done = (bool) @imagewebp( $image, $this->webp_path( $path ), $quality ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		}
+
+		$avif_done = false;
+		if ( $convert_avif && function_exists( 'imageavif' ) ) {
+			// imageavif( image, file, quality, speed ). speed -1 = auto/default.
+			$avif_done = (bool) @imageavif( $image, $this->avif_path( $path ), $quality ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		}
 
 		imagedestroy( $image );
 
-		return array( 'webp_done' => $webp_done );
+		return array( 'webp_done' => $webp_done, 'avif_done' => $avif_done );
 	}
 
 	/**
@@ -226,7 +291,13 @@ final class Optimizer {
 			case 'image/jpeg':
 				return @imagecreatefromjpeg( $path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 			case 'image/png':
-				return @imagecreatefrompng( $path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				$img = @imagecreatefrompng( $path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				if ( $img ) {
+					imagepalettetotruecolor( $img );
+					imagealphablending( $img, false );
+					imagesavealpha( $img, true );
+				}
+				return $img;
 			case 'image/gif':
 				return @imagecreatefromgif( $path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 			default:
@@ -240,9 +311,10 @@ final class Optimizer {
 	 * @param int    $quality      1-100.
 	 * @param int    $max_width    0 disables resize.
 	 * @param bool   $convert_webp Whether to emit a .webp sibling.
-	 * @return array{webp_done:bool}|WP_Error
+	 * @param bool   $convert_avif Whether to emit an .avif sibling.
+	 * @return array{webp_done:bool,avif_done:bool}|WP_Error
 	 */
-	private function process_with_imagick( string $path, string $mime, int $quality, int $max_width, bool $convert_webp ) {
+	private function process_with_imagick( string $path, string $mime, int $quality, int $max_width, bool $convert_webp, bool $convert_avif ) {
 		try {
 			$imagick = new \Imagick( $path );
 			$imagick->setImageCompressionQuality( $quality );
@@ -255,20 +327,41 @@ final class Optimizer {
 			$imagick->writeImage( $path );
 
 			$webp_done = false;
-			if ( $convert_webp ) {
-				$webp = clone $imagick;
-				$webp->setImageFormat( 'webp' );
-				$webp->setImageCompressionQuality( $quality );
-				$webp->writeImage( $this->webp_path( $path ) );
-				$webp->destroy();
-				$webp_done = true;
+			if ( $convert_webp && self::imagick_supports( 'WEBP' ) ) {
+				$webp_done = $this->imagick_write_variant( $imagick, 'webp', $quality, $this->webp_path( $path ) );
+			}
+
+			$avif_done = false;
+			if ( $convert_avif && self::imagick_supports( 'AVIF' ) ) {
+				$avif_done = $this->imagick_write_variant( $imagick, 'avif', $quality, $this->avif_path( $path ) );
 			}
 
 			$imagick->destroy();
 
-			return array( 'webp_done' => $webp_done );
+			return array( 'webp_done' => $webp_done, 'avif_done' => $avif_done );
 		} catch ( \Throwable $e ) {
 			return new WP_Error( 'uxstudio_imagick_failed', $e->getMessage() );
+		}
+	}
+
+	/**
+	 * Clone an Imagick instance and write it out in a next-gen format.
+	 *
+	 * @param \Imagick $source  Source instance (not modified).
+	 * @param string   $format  Target format, e.g. 'webp'.
+	 * @param int      $quality 1-100.
+	 * @param string   $target  Absolute output path.
+	 */
+	private function imagick_write_variant( \Imagick $source, string $format, int $quality, string $target ): bool {
+		try {
+			$variant = clone $source;
+			$variant->setImageFormat( $format );
+			$variant->setImageCompressionQuality( $quality );
+			$variant->writeImage( $target );
+			$variant->destroy();
+			return true;
+		} catch ( \Throwable $e ) {
+			return false;
 		}
 	}
 }
