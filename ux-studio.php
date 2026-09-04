@@ -3,7 +3,7 @@
  * Plugin Name:       UX Studio
  * Plugin URI:        https://github.com/sturmjan/ux-studio
  * Description:       Modular WordPress admin platform: one consistent SPA for all site tools.
- * Version:           0.1.0
+ * Version:           0.2.0
  * Requires at least: 6.5
  * Requires PHP:      8.1
  * Author:            UX One
@@ -18,7 +18,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'UXSTUDIO_VERSION', '0.1.0' );
+define( 'UXSTUDIO_VERSION', '0.2.0' );
 // Public Extension API version (contract for add-on plugins: `ux_studio/modules`
 // filter, BaseModule, REST namespace, window.uxStudio.registerPage). An add-on
 // declares a minimum version; on mismatch it is skipped safely.
