@@ -1,6 +1,8 @@
 # Závislosti
 node_modules/
-vendor/
+vendor/*
+# ...ale plugin-update-checker se VERSIONUJE i ships v release zipu (jinak auto-update nefunguje).
+!vendor/plugin-update-checker/
 
 # Build (generuje se z src/ přes @wordpress/scripts)
 build/

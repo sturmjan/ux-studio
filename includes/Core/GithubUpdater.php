@@ -16,12 +16,19 @@ defined( 'ABSPATH' ) || exit;
  */
 final class GithubUpdater {
 
-	// Repo je privátní - plugin-update-checker bez access tokenu update nestáhne.
-	// Token doplnit přes buildUpdateChecker()/setAuthentication() při nasazení.
 	private const REPO_URL = 'https://github.com/sturmjan/ux-studio/';
 
 	/**
-	 * Register the update checker (no-op until the library exists).
+	 * Register the update checker (no-op until the library is bundled).
+	 *
+	 * Works for a PUBLIC repo out of the box. For a PRIVATE repo, define a
+	 * fine-grained GitHub token with read access to this repo on each client
+	 * site in wp-config.php:
+	 *
+	 *     define( 'UXSTUDIO_GITHUB_TOKEN', 'github_pat_...' );
+	 *
+	 * The token is read from that constant only - never hard-coded here or
+	 * committed. Without it a private repo returns 404 and no update is offered.
 	 */
 	public static function register(): void {
 		$puc = UXSTUDIO_PATH . 'vendor/plugin-update-checker/plugin-update-checker.php';
@@ -30,12 +37,26 @@ final class GithubUpdater {
 		}
 		require_once $puc;
 
-		$builder = \YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
+		if ( ! class_exists( '\YahnisElsts\PluginUpdateChecker\v5\PucFactory' ) ) {
+			return;
+		}
+
+		$checker = \YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
 			self::REPO_URL,
 			UXSTUDIO_FILE,
 			'ux-studio'
 		);
-		// Use release assets (the CI-built distribution zip), not source archives.
-		$builder->getVcsApi()->enableReleaseAssets();
+
+		// Private-repo access token, supplied per-site via a wp-config constant.
+		if ( defined( 'UXSTUDIO_GITHUB_TOKEN' ) && '' !== (string) UXSTUDIO_GITHUB_TOKEN ) {
+			$checker->setAuthentication( (string) UXSTUDIO_GITHUB_TOKEN );
+		}
+
+		// Update from GitHub Releases: prefer the CI-built distribution zip
+		// (contains build/), falling back to the source archive.
+		$api = $checker->getVcsApi();
+		if ( method_exists( $api, 'enableReleaseAssets' ) ) {
+			$api->enableReleaseAssets();
+		}
 	}
 }
