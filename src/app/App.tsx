@@ -5,13 +5,54 @@
  */
 import { Suspense, useEffect, useState, type ComponentType } from 'react';
 import { __ } from '@wordpress/i18n';
+import { useQuery } from '@tanstack/react-query';
 import { LayoutGrid, Settings, Blocks, Moon, Sun, LoaderCircle } from 'lucide-react';
 import { currentRoute, hashParam, navigate } from './route';
+import { api, type ModuleInfo } from './api';
 import { ModuleGrid } from './ModuleGrid';
 import { ModuleSettings } from './ModuleSettings';
 import { GlobalSettings } from './GlobalSettings';
 import { getTheme, setTheme, type Theme } from './prefs';
 import { MODULE_PAGES } from '../modules/registry';
+
+/**
+ * Gate for a group-C module's own SPA page: a disabled module hasn't booted, so
+ * its REST routes aren't registered and its page would only fire 404s. Show a
+ * "module is off" state (with a jump back to the grid) instead of rendering it.
+ */
+function ModulePageGate( { moduleId, Page }: { moduleId: string; Page: ComponentType } ): JSX.Element {
+	const { data, isLoading } = useQuery( {
+		queryKey: [ 'modules' ],
+		queryFn: () => api< ModuleInfo[] >( 'modules' ),
+	} );
+
+	if ( isLoading ) {
+		return (
+			<div className="uxs-loading">
+				<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />
+			</div>
+		);
+	}
+
+	const module = data?.find( ( m ) => m.id === moduleId );
+	if ( module && ! module.enabled ) {
+		return (
+			<>
+				<header className="uxs-pagehead">
+					<h1>{ module.name }</h1>
+				</header>
+				<div className="uxs-notice">
+					<p>{ __( 'This module is turned off. Enable it on the Modules screen to use its settings.', 'ux-studio' ) }</p>
+					<button type="button" className="button button-primary" onClick={ () => navigate( '' ) }>
+						{ __( 'Back to modules', 'ux-studio' ) }
+					</button>
+				</div>
+			</>
+		);
+	}
+
+	return <Page />;
+}
 
 interface PageDef {
 	route: string;
@@ -127,7 +168,7 @@ export function App(): JSX.Element {
 							</div>
 						}
 					>
-						<CustomPage />
+						<ModulePageGate moduleId={ moduleId } Page={ CustomPage } />
 					</Suspense>
 				) : route === 'module' ? (
 					<ModuleSettings />

@@ -767,3 +767,18 @@
 	color: var(--uxs-text-soft);
 	margin-top: 2px;
 }
+
+/* ---- Disabled-module gate notice ---- */
+.uxs-notice {
+	background: var(--uxs-surface);
+	border: 1px solid var(--uxs-border);
+	border-left: 3px solid var(--uxs-warning);
+	border-radius: var(--uxs-radius-s);
+	padding: var(--uxs-sp-4);
+	max-width: 520px;
+
+	p {
+		margin: 0 0 var(--uxs-sp-3);
+		color: var(--uxs-text-soft);
+	}
+}

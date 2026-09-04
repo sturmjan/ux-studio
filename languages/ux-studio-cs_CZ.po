@@ -7882,7 +7882,10 @@ msgid ""
 "User %1$s (ID %2$d) was just promoted to administrator.\n"
 "Previous roles: %3$s\n"
 "Time: %4$s"
-msgstr "Uživatel %1$s (ID %2$d) byl právě povýšen na administrátora.\nPředchozí role: %3$s\nČas: %4$s"
+msgstr ""
+"Uživatel %1$s (ID %2$d) byl právě povýšen na administrátora.\n"
+"Předchozí role: %3$s\n"
+"Čas: %4$s"
 
 #: includes/Modules/AdminColumns/FieldRenderer.php:129
 msgctxt "boolean true mark"
@@ -10376,3 +10379,7 @@ msgstr "Připojit"
 #: build/907.js:1
 msgid "Linking needs a central app URL and an HMAC secret configured in the Settings tab."
 msgstr "Propojení vyžaduje URL centrální aplikace a HMAC klíč nastavené na kartě Nastavení."
+
+#: build/index.js:2
+msgid "This module is turned off. Enable it on the Modules screen to use its settings."
+msgstr "Tento modul je vypnutý. Zapněte ho na stránce Moduly, abyste mohli používat jeho nastavení."
