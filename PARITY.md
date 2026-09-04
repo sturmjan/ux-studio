@@ -144,6 +144,20 @@ historická data (staré logy, nasbírané e-maily z popupů apod.). Nutno doře
   označené jako "stub/osekané" (notice-board, push-notifications, instagram-feed) mají plné
   SPA UI s taby. Chybí ale backend funkčnost (viz push-notifications = TODO stub), což z UI nepoznat.
 
+### Re-smoke po opravách 18 modulů (2026-09-04)
+
+Po dokončení všech oprav (2× P1 + 16 dalších modulů) proběhl cílený SPA smoke všech 18
+změněných modulů přes Playwright (přihlášen `parity_tester`, 19 modulů aktivních):
+
+- **Všech 18 modulových SPA stránek renderuje** (h1 + taby + reálný obsah po doskočení fetchů).
+- **0 REST chyb** napříč celým smoke = žádné `uxstudio/v1/*` volání (settings schémata, dashboardy,
+  logy, seznamy) nevrátilo ≥400.
+- **0 console chyb** = žádné React render výjimky ani JS chyby.
+- Potvrzeno vizuálně: exit-popup má nová appearance/detekční pole, smtp-email má „Gmail API (OAuth)"
+  v selektoru transportu, notice-board/instagram-feed/security-optimization mají plné taby.
+- Zůstává neověřené jen to, co potřebuje reálné creds/pluginy (Gmail OAuth round-trip, Instagram
+  fetch, Elementor import) - kód je pro ně guardovaný a nefataluje.
+
 **BUG PROSTŘEDÍ nalezen a opraven při smoke:** kopie webu měly v `.htaccess` původní
 `RewriteBase /pobyty/` (search-replace opravil jen DB, ne soubor). REST volání
 `/wp-json/uxstudio/v1/*` se proto přesměrovávalo 301 na originál a settings stránky se
