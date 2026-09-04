@@ -37,15 +37,14 @@ jobs:
       - run: npm ci
       - run: npm run build
 
-      - name: i18n
-        run: |
-          npm install -g @wordpress/env >/dev/null 2>&1 || true
-          curl -sL https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -o /usr/local/bin/wp && chmod +x /usr/local/bin/wp
-          wp i18n make-pot . languages/ux-studio.pot --include=includes,build,ux-studio.php --exclude=node_modules,vendor,src --allow-root
-          wp i18n make-json languages --no-purge --allow-root
-          # Merge per-chunk JSON into the file WP loads, so lazy-chunk strings
-          # are translated in the browser (see bin/merge-json-translations.php).
-          php bin/merge-json-translations.php
+      # Translations (languages/*.pot|po|mo|json) are maintained IN THE REPO and
+      # ship as-is in the zip below. Regenerate them locally, not in CI:
+      #   wp i18n make-pot . languages/ux-studio.pot --include=includes,build,ux-studio.php --exclude=node_modules,vendor,src
+      #   wp i18n update-po languages/ux-studio.pot languages/ux-studio-cs_CZ.po   # then translate new strings
+      #   wp i18n make-mo languages/ux-studio-cs_CZ.po languages/
+      #   wp i18n make-json languages/ --no-purge && php bin/merge-json-translations.php
+      # (CI can't run make-pot over the minified build/ JS: Xdebug + the JS parser
+      # abort on deep recursion.)
 
       - name: Assemble distribution zip
         run: |
