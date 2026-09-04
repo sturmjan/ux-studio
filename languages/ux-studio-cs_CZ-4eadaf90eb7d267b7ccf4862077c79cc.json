@@ -1,0 +1,54 @@
+{
+    "translation-revision-date": "2026-09-04T09:12:50+00:00",
+    "generator": "WP-CLI\/2.12.0",
+    "source": "build\/84.js",
+    "domain": "messages",
+    "locale_data": {
+        "messages": {
+            "": {
+                "domain": "messages",
+                "lang": "cs_CZ",
+                "plural-forms": "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
+            },
+            "Title": [
+                "N\u00e1zev"
+            ],
+            "Status": [
+                "Stav"
+            ],
+            "Back to modules": [
+                "Zp\u011bt na moduly"
+            ],
+            "Loading\u2026": [
+                "Na\u010d\u00edt\u00e1n\u00ed\u2026"
+            ],
+            "Closed": [
+                "Uzav\u0159eno"
+            ],
+            "Shown": [
+                "Zobrazeno"
+            ],
+            "Clicked": [
+                "Kliknuto"
+            ],
+            "Popup Manager": [
+                "Spr\u00e1vce vyskakovac\u00edch oken"
+            ],
+            "New popup title": [
+                "N\u00e1zev nov\u00e9ho vyskakovac\u00edho okna"
+            ],
+            "Add popup": [
+                "P\u0159idat vyskakovac\u00ed okno"
+            ],
+            "Stats": [
+                "Statistiky"
+            ],
+            "Delete popup": [
+                "Smazat vyskakovac\u00ed okno"
+            ],
+            "No popups yet.": [
+                "Zat\u00edm \u017e\u00e1dn\u00e1 vyskakovac\u00ed okna."
+            ]
+        }
+    }
+}

@@ -1,0 +1,144 @@
+{
+    "translation-revision-date": "2026-09-04T09:12:50+00:00",
+    "generator": "WP-CLI\/2.12.0",
+    "source": "build\/866.js",
+    "domain": "messages",
+    "locale_data": {
+        "messages": {
+            "": {
+                "domain": "messages",
+                "lang": "cs_CZ",
+                "plural-forms": "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
+            },
+            "Name": [
+                "Jm\u00e9no"
+            ],
+            "Status": [
+                "Stav"
+            ],
+            "Description": [
+                "Popis"
+            ],
+            "Settings": [
+                "Nastaven\u00ed"
+            ],
+            "Disabled": [
+                "Vypnuto"
+            ],
+            "Back to modules": [
+                "Zp\u011bt na moduly"
+            ],
+            "Loading\u2026": [
+                "Na\u010d\u00edt\u00e1n\u00ed\u2026"
+            ],
+            "Saved": [
+                "Ulo\u017eeno"
+            ],
+            "Save changes": [
+                "Ulo\u017eit zm\u011bny"
+            ],
+            "Type": [
+                "Typ"
+            ],
+            "HTML": [
+                "HTML"
+            ],
+            "Enabled": [
+                "Zapnuto"
+            ],
+            "Everywhere (frontend & admin)": [
+                "V\u0161ude (frontend i administrace)"
+            ],
+            "Admin only": [
+                "Pouze administrace"
+            ],
+            "Frontend only": [
+                "Pouze frontend"
+            ],
+            "Frontend header": [
+                "Hlavi\u010dka frontendu"
+            ],
+            "Frontend footer": [
+                "Pati\u010dka frontendu"
+            ],
+            "Admin header": [
+                "Hlavi\u010dka administrace"
+            ],
+            "Admin footer": [
+                "Pati\u010dka administrace"
+            ],
+            "Frontend body open": [
+                "Otev\u0159en\u00ed t\u011bla frontendu"
+            ],
+            "Add snippet": [
+                "P\u0159idat \u00faryvek"
+            ],
+            "No snippets have been created yet.": [
+                "Zat\u00edm nebyly vytvo\u0159eny \u017e\u00e1dn\u00e9 \u00faryvky."
+            ],
+            "Integrity check failed": [
+                "Kontrola integrity selhala"
+            ],
+            "Invalid": [
+                "Neplatn\u00e9"
+            ],
+            "Toggle enabled": [
+                "P\u0159epnout aktivaci"
+            ],
+            "Edit snippet": [
+                "Upravit \u00faryvek"
+            ],
+            "Delete snippet": [
+                "Smazat \u00faryvek"
+            ],
+            "Delete this snippet? This cannot be undone.": [
+                "Smazat tento \u00faryvek? Tuto akci nelze vr\u00e1tit zp\u011bt."
+            ],
+            "Failed to save snippet.": [
+                "Nepoda\u0159ilo se ulo\u017eit \u00faryvek."
+            ],
+            "Snippet name": [
+                "N\u00e1zev \u00faryvku"
+            ],
+            "Snippet type": [
+                "Typ \u00faryvku"
+            ],
+            "PHP": [
+                "PHP"
+            ],
+            "CSS": [
+                "CSS"
+            ],
+            "JavaScript": [
+                "JavaScript"
+            ],
+            "Snippet code": [
+                "K\u00f3d \u00faryvku"
+            ],
+            "PHP code only - do not include the opening <?php tag. Code is validated (syntax + duplicate declarations) before it is saved.": [
+                "Pouze PHP k\u00f3d - nezahrnujte \u00favodn\u00ed tag <?php. K\u00f3d je p\u0159ed ulo\u017een\u00edm ov\u011b\u0159en (syntaxe + duplicitn\u00ed deklarace)."
+            ],
+            "Where to run": [
+                "Kde spustit"
+            ],
+            "Enable snippet": [
+                "Zapnout snippet"
+            ],
+            "Update snippet": [
+                "Aktualizovat snippet"
+            ],
+            "Save snippet": [
+                "Ulo\u017eit snippet"
+            ],
+            "Back to list": [
+                "Zp\u011bt na seznam"
+            ],
+            "Code Snippets": [
+                "Snippety k\u00f3du"
+            ],
+            "Snippets": [
+                "Snippety"
+            ]
+        }
+    }
+}

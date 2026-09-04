@@ -1,0 +1,114 @@
+{
+    "translation-revision-date": "2026-09-04T09:12:50+00:00",
+    "generator": "WP-CLI\/2.12.0",
+    "source": "build\/244.js",
+    "domain": "messages",
+    "locale_data": {
+        "messages": {
+            "": {
+                "domain": "messages",
+                "lang": "cs_CZ",
+                "plural-forms": "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
+            },
+            "Title": [
+                "N\u00e1zev"
+            ],
+            "Settings": [
+                "Nastaven\u00ed"
+            ],
+            "No": [
+                "Ne"
+            ],
+            "Yes": [
+                "Ano"
+            ],
+            "File": [
+                "Soubor"
+            ],
+            "Back to modules": [
+                "Zp\u011bt na moduly"
+            ],
+            "Loading\u2026": [
+                "Na\u010d\u00edt\u00e1n\u00ed\u2026"
+            ],
+            "Saved": [
+                "Ulo\u017eeno"
+            ],
+            "Save changes": [
+                "Ulo\u017eit zm\u011bny"
+            ],
+            "Actions": [
+                "Akce"
+            ],
+            "Delete": [
+                "Smazat"
+            ],
+            "Category": [
+                "Kategorie"
+            ],
+            "Post": [
+                "P\u0159\u00edsp\u011bvek"
+            ],
+            "Select a file to protect": [
+                "Vyberte soubor k ochran\u011b"
+            ],
+            "Change file": [
+                "Zm\u011bnit soubor"
+            ],
+            "Select file": [
+                "Vybrat soubor"
+            ],
+            "e.g. Price list 2026": [
+                "nap\u0159. Cen\u00edk 2026"
+            ],
+            "Require login to download": [
+                "Vy\u017eadovat p\u0159ihl\u00e1\u0161en\u00ed ke sta\u017een\u00ed"
+            ],
+            "Add file": [
+                "P\u0159idat soubor"
+            ],
+            "No protected files yet.": [
+                "Zat\u00edm \u017e\u00e1dn\u00e9 chr\u00e1n\u011bn\u00e9 soubory."
+            ],
+            "Downloads": [
+                "Sta\u017een\u00ed"
+            ],
+            "Login required": [
+                "Vy\u017eadov\u00e1no p\u0159ihl\u00e1\u0161en\u00ed"
+            ],
+            "Copied": [
+                "Zkop\u00edrov\u00e1no"
+            ],
+            "Copy link": [
+                "Kop\u00edrovat odkaz"
+            ],
+            "Delete this file entry? The media library file itself is kept.": [
+                "Smazat tuto polo\u017eku souboru? Samotn\u00fd soubor v knihovn\u011b m\u00e9di\u00ed z\u016fstane zachov\u00e1n."
+            ],
+            "Download Files": [
+                "Soubory ke sta\u017een\u00ed"
+            ],
+            "Files": [
+                "Soubory"
+            ],
+            "Optional, e.g. brochures": [
+                "Voliteln\u00e9, nap\u0159. bro\u017eury"
+            ],
+            "Attach to post ID": [
+                "P\u0159ipojit k ID p\u0159\u00edsp\u011bvku"
+            ],
+            "Optional post\/page ID": [
+                "Voliteln\u00e9 ID p\u0159\u00edsp\u011bvku\/str\u00e1nky"
+            ],
+            "Show files on the frontend with the shortcode:": [
+                "Zobrazte soubory na frontendu pomoc\u00ed shortcodu:"
+            ],
+            "(files attached to the current post),": [
+                "(soubory p\u0159ipojen\u00e9 k aktu\u00e1ln\u00edmu p\u0159\u00edsp\u011bvku),"
+            ],
+            "or": [
+                "nebo"
+            ]
+        }
+    }
+}

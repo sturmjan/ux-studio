@@ -1,0 +1,96 @@
+{
+    "translation-revision-date": "2026-09-04T09:12:50+00:00",
+    "generator": "WP-CLI\/2.12.0",
+    "source": "build\/457.js",
+    "domain": "messages",
+    "locale_data": {
+        "messages": {
+            "": {
+                "domain": "messages",
+                "lang": "cs_CZ",
+                "plural-forms": "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
+            },
+            "Settings": [
+                "Nastaven\u00ed"
+            ],
+            "Medium": [
+                "St\u0159edn\u00ed"
+            ],
+            "Severity": [
+                "Z\u00e1va\u017enost"
+            ],
+            "Back to modules": [
+                "Zp\u011bt na moduly"
+            ],
+            "Loading\u2026": [
+                "Na\u010d\u00edt\u00e1n\u00ed\u2026"
+            ],
+            "Saved": [
+                "Ulo\u017eeno"
+            ],
+            "Save changes": [
+                "Ulo\u017eit zm\u011bny"
+            ],
+            "Source": [
+                "Zdroj"
+            ],
+            "Scan now": [
+                "Zkontrolovat nyn\u00ed"
+            ],
+            "Critical": [
+                "Kritick\u00e1"
+            ],
+            "High": [
+                "Vysok\u00e1"
+            ],
+            "Low": [
+                "N\u00edzk\u00e1"
+            ],
+            "WPScan CVE": [
+                "WPScan CVE"
+            ],
+            "Outdated (WordPress.org)": [
+                "Zastaral\u00e9 (WordPress.org)"
+            ],
+            "Last scanned:": [
+                "Naposledy kontrolov\u00e1no:"
+            ],
+            "WordPress.org publishes no free CVE feed - the \"Outdated\" signal only means a newer version exists, not that the installed one is confirmed vulnerable. Add a WPScan API key in Settings for real CVE data.": [
+                "WordPress.org nezve\u0159ej\u0148uje \u017e\u00e1dn\u00fd bezplatn\u00fd CVE feed \u2013 sign\u00e1l \u201eZastaral\u00e9\u201c znamen\u00e1 pouze to, \u017ee existuje nov\u011bj\u0161\u00ed verze, nikoli \u017ee je nainstalovan\u00e1 verze potvrzen\u011b zraniteln\u00e1. Pro re\u00e1ln\u00e1 CVE data p\u0159idejte v Nastaven\u00ed kl\u00ed\u010d WPScan API."
+            ],
+            "Item": [
+                "Polo\u017eka"
+            ],
+            "Issue": [
+                "Probl\u00e9m"
+            ],
+            "Installed": [
+                "Nainstalov\u00e1no"
+            ],
+            "Fixed in": [
+                "Opraveno ve verzi"
+            ],
+            "(reference)": [
+                "(reference)"
+            ],
+            "Dismiss": [
+                "Zav\u0159\u00edt"
+            ],
+            "No known issues found. Run a scan if you have not yet, or check back later.": [
+                "Nebyly nalezeny \u017e\u00e1dn\u00e9 zn\u00e1m\u00e9 probl\u00e9my. Pokud jste je\u0161t\u011b neprovedli kontrolu, spus\u0165te ji, nebo se vra\u0165te pozd\u011bji."
+            ],
+            "Vulnerability Scanner": [
+                "Skener zranitelnost\u00ed"
+            ],
+            "Results": [
+                "V\u00fdsledky"
+            ],
+            "A WPScan API key is currently set.": [
+                "Kl\u00ed\u010d WPScan API je aktu\u00e1ln\u011b nastaven."
+            ],
+            "No WPScan API key set yet - only the free WordPress.org outdated-version check runs.": [
+                "Zat\u00edm nen\u00ed nastaven \u017e\u00e1dn\u00fd kl\u00ed\u010d WPScan API \u2013 spou\u0161t\u00ed se pouze bezplatn\u00e1 kontrola zastaral\u00fdch verz\u00ed z WordPress.org."
+            ]
+        }
+    }
+}

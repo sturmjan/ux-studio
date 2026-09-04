@@ -1,0 +1,132 @@
+{
+    "translation-revision-date": "2026-09-04T09:12:50+00:00",
+    "generator": "WP-CLI\/2.12.0",
+    "source": "build\/50.js",
+    "domain": "messages",
+    "locale_data": {
+        "messages": {
+            "": {
+                "domain": "messages",
+                "lang": "cs_CZ",
+                "plural-forms": "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
+            },
+            "Dashboard": [
+                "N\u00e1st\u011bnka"
+            ],
+            "Date": [
+                "Datum"
+            ],
+            "Settings": [
+                "Nastaven\u00ed"
+            ],
+            "No": [
+                "Ne"
+            ],
+            "Yes": [
+                "Ano"
+            ],
+            "Back to modules": [
+                "Zp\u011bt na moduly"
+            ],
+            "Loading\u2026": [
+                "Na\u010d\u00edt\u00e1n\u00ed\u2026"
+            ],
+            "Saved": [
+                "Ulo\u017eeno"
+            ],
+            "Save changes": [
+                "Ulo\u017eit zm\u011bny"
+            ],
+            "User-Agent": [
+                "User-Agent"
+            ],
+            "Action": [
+                "Akce"
+            ],
+            "Bot Throttle": [
+                "Omezen\u00ed bot\u016f"
+            ],
+            "Log": [
+                "Protokol"
+            ],
+            "Category": [
+                "Kategorie"
+            ],
+            "Requests": [
+                "Po\u017eadavky"
+            ],
+            "Bot requests (24h)": [
+                "Po\u017eadavky bot\u016f (24 h)"
+            ],
+            "Samples": [
+                "Vzorky"
+            ],
+            "No data yet.": [
+                "Zat\u00edm \u017e\u00e1dn\u00e1 data."
+            ],
+            "Bot": [
+                "Bot"
+            ],
+            "No bot activity recorded yet.": [
+                "Zat\u00edm nebyla zaznamen\u00e1na \u017e\u00e1dn\u00e1 aktivita bot\u016f."
+            ],
+            "Current server load": [
+                "Aktu\u00e1ln\u00ed zat\u00ed\u017een\u00ed serveru"
+            ],
+            "Bot requests (1h)": [
+                "Po\u017eadavky bot\u016f (1h)"
+            ],
+            "Delayed (24h)": [
+                "Zpo\u017ed\u011bno (24h)"
+            ],
+            "Blocked (24h)": [
+                "Zablokov\u00e1no (24h)"
+            ],
+            "Microcache files": [
+                "Soubory microcache"
+            ],
+            "Top bots (24h)": [
+                "Nej\u010dast\u011bj\u0161\u00ed boti (24h)"
+            ],
+            "\u00d8 delay": [
+                "\u00d8 zpo\u017ed\u011bn\u00ed"
+            ],
+            "Category rules": [
+                "Pravidla kategori\u00ed"
+            ],
+            "Active action": [
+                "Aktivn\u00ed akce"
+            ],
+            "Bots": [
+                "Boti"
+            ],
+            "Clear microcache": [
+                "Vymazat microcache"
+            ],
+            "Clear log": [
+                "Vymazat protokol"
+            ],
+            "Tier": [
+                "\u00darove\u0148"
+            ],
+            "Delay": [
+                "Zpo\u017ed\u011bn\u00ed"
+            ],
+            "IP (optional)": [
+                "IP (voliteln\u00e9)"
+            ],
+            "Test": [
+                "Otestovat"
+            ],
+            "Detected as bot": [
+                "Detekov\u00e1no jako bot"
+            ],
+            "Current tier": [
+                "Aktu\u00e1ln\u00ed \u00farove\u0148"
+            ],
+            "Planned action": [
+                "Pl\u00e1novan\u00e1 akce"
+            ]
+        }
+    }
+}

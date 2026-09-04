@@ -1,0 +1,123 @@
+{
+    "translation-revision-date": "2026-09-04T09:12:50+00:00",
+    "generator": "WP-CLI\/2.12.0",
+    "source": "build\/31.js",
+    "domain": "messages",
+    "locale_data": {
+        "messages": {
+            "": {
+                "domain": "messages",
+                "lang": "cs_CZ",
+                "plural-forms": "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
+            },
+            "Settings": [
+                "Nastaven\u00ed"
+            ],
+            "File": [
+                "Soubor"
+            ],
+            "Start bulk optimization": [
+                "Spustit hromadnou optimalizaci"
+            ],
+            "Running\u2026": [
+                "Prob\u00edh\u00e1\u2026"
+            ],
+            "Idle.": [
+                "Ne\u010dinn\u00e9."
+            ],
+            "Restore original by attachment ID": [
+                "Obnovit origin\u00e1l podle ID p\u0159\u00edlohy"
+            ],
+            "Restore": [
+                "Obnovit"
+            ],
+            "Restored.": [
+                "Obnoveno."
+            ],
+            "Back to modules": [
+                "Zp\u011bt na moduly"
+            ],
+            "Image Optimizer": [
+                "Optimalizace obr\u00e1zk\u016f"
+            ],
+            "Bulk Optimize": [
+                "Hromadn\u00e1 optimalizace"
+            ],
+            "Loading\u2026": [
+                "Na\u010d\u00edt\u00e1n\u00ed\u2026"
+            ],
+            "Saved": [
+                "Ulo\u017eeno"
+            ],
+            "Save changes": [
+                "Ulo\u017eit zm\u011bny"
+            ],
+            "Previous": [
+                "P\u0159edchoz\u00ed"
+            ],
+            "Next": [
+                "Dal\u0161\u00ed"
+            ],
+            "Active": [
+                "Aktivn\u00ed"
+            ],
+            "WebP encoding": [
+                "K\u00f3dov\u00e1n\u00ed WebP"
+            ],
+            "Supported": [
+                "Podporov\u00e1no"
+            ],
+            "Unavailable": [
+                "Nedostupn\u00e9"
+            ],
+            "AVIF encoding": [
+                "K\u00f3dov\u00e1n\u00ed AVIF"
+            ],
+            "Unavailable on this server": [
+                "Na tomto serveru nedostupn\u00e9"
+            ],
+            "Next-gen delivery (.htaccess)": [
+                "Doru\u010dov\u00e1n\u00ed nov\u00e9 generace (.htaccess)"
+            ],
+            "Inactive": [
+                "Neaktivn\u00ed"
+            ],
+            "uploads\/.htaccess is not writable \u2014 delivery rules cannot be managed automatically.": [
+                "Do uploads\/.htaccess nelze zapisovat \u2014 pravidla doru\u010dov\u00e1n\u00ed nelze spravovat automaticky."
+            ],
+            "Compresses JPEG\/PNG\/GIF images already in the media library and optionally generates WebP\/AVIF siblings. Originals are always kept as a backup file before the first optimization.": [
+                "Komprimuje obr\u00e1zky JPEG\/PNG\/GIF, kter\u00e9 ji\u017e jsou v knihovn\u011b m\u00e9di\u00ed, a voliteln\u011b generuje varianty WebP\/AVIF. Origin\u00e1ly jsou p\u0159ed prvn\u00ed optimalizac\u00ed v\u017edy zachov\u00e1ny jako z\u00e1lo\u017en\u00ed soubor."
+            ],
+            "Heuristically finds image attachments not referenced in content, featured images, term meta, widgets or the site logo. Detection can never be perfect, so selected images are moved to the WordPress trash (fully recoverable) \u2014 never permanently deleted.": [
+                "Heuristicky najde obr\u00e1zkov\u00e9 p\u0159\u00edlohy, na kter\u00e9 se neodkazuje v obsahu, n\u00e1hledov\u00fdch obr\u00e1zc\u00edch, meta \u00fadaj\u00edch term\u00edn\u016f, widgetech ani v logu webu. Detekce nem\u016f\u017ee b\u00fdt nikdy dokonal\u00e1, proto se vybran\u00e9 obr\u00e1zky p\u0159esouvaj\u00ed do ko\u0161e WordPressu (pln\u011b obnoviteln\u00e9) \u2014 nikdy se trvale nema\u017eou."
+            ],
+            "Re-scan": [
+                "Znovu prohledat"
+            ],
+            "Move selected to trash": [
+                "P\u0159esunout vybran\u00e9 do ko\u0161e"
+            ],
+            "unused images": [
+                "nepou\u017eit\u00e9 obr\u00e1zky"
+            ],
+            "Moved to trash:": [
+                "P\u0159esunuto do ko\u0161e:"
+            ],
+            "skipped": [
+                "p\u0159esko\u010deno"
+            ],
+            "No unused images detected.": [
+                "Nebyly zji\u0161t\u011bny \u017e\u00e1dn\u00e9 nepou\u017eit\u00e9 obr\u00e1zky."
+            ],
+            "Size": [
+                "Velikost"
+            ],
+            "Uploaded": [
+                "Nahr\u00e1no"
+            ],
+            "Unused Images": [
+                "Nepou\u017eit\u00e9 obr\u00e1zky"
+            ]
+        }
+    }
+}

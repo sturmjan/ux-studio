@@ -1,0 +1,63 @@
+{
+    "translation-revision-date": "2026-09-04T09:12:50+00:00",
+    "generator": "WP-CLI\/2.12.0",
+    "source": "build\/907.js",
+    "domain": "messages",
+    "locale_data": {
+        "messages": {
+            "": {
+                "domain": "messages",
+                "lang": "cs_CZ",
+                "plural-forms": "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
+            },
+            "Settings": [
+                "Nastaven\u00ed"
+            ],
+            "Back to modules": [
+                "Zp\u011bt na moduly"
+            ],
+            "Loading\u2026": [
+                "Na\u010d\u00edt\u00e1n\u00ed\u2026"
+            ],
+            "Saved": [
+                "Ulo\u017eeno"
+            ],
+            "Save changes": [
+                "Ulo\u017eit zm\u011bny"
+            ],
+            "Third-Party Login": [
+                "P\u0159ihl\u00e1\u0161en\u00ed p\u0159es t\u0159et\u00ed stranu"
+            ],
+            "Connected accounts": [
+                "Propojen\u00e9 \u00fa\u010dty"
+            ],
+            "An HMAC secret is currently set.": [
+                "Tajn\u00fd kl\u00ed\u010d HMAC je moment\u00e1ln\u011b nastaven."
+            ],
+            "No HMAC secret set yet.": [
+                "Zat\u00edm nen\u00ed nastaven \u017e\u00e1dn\u00fd tajn\u00fd kl\u00ed\u010d HMAC."
+            ],
+            "Connected": [
+                "P\u0159ipojeno"
+            ],
+            "Disconnect": [
+                "Odpojit"
+            ],
+            "Connect or disconnect a provider for your own account. Sign-in itself is handled by the central app, which posts a signed result back to this site.": [
+                "P\u0159ipojte nebo odpojte poskytovatele pro sv\u016fj vlastn\u00ed \u00fa\u010det. Samotn\u00e9 p\u0159ihl\u00e1\u0161en\u00ed zaji\u0161\u0165uje centr\u00e1ln\u00ed aplikace, kter\u00e1 ode\u0161le podepsan\u00fd v\u00fdsledek zp\u011bt na tento web."
+            ],
+            "Your role is not in the allowed list, so linking is disabled.": [
+                "Va\u0161e role nen\u00ed na seznamu povolen\u00fdch, propojen\u00ed je proto vypnuto."
+            ],
+            "No providers are enabled yet. Enable providers in the Settings tab.": [
+                "Zat\u00edm nejsou povoleni \u017e\u00e1dn\u00ed poskytovatel\u00e9. Povolte poskytovatele na kart\u011b Nastaven\u00ed."
+            ],
+            "Connect": [
+                "P\u0159ipojit"
+            ],
+            "Linking needs a central app URL and an HMAC secret configured in the Settings tab.": [
+                "Propojen\u00ed vy\u017eaduje URL centr\u00e1ln\u00ed aplikace a HMAC kl\u00ed\u010d nastaven\u00e9 na kart\u011b Nastaven\u00ed."
+            ]
+        }
+    }
+}

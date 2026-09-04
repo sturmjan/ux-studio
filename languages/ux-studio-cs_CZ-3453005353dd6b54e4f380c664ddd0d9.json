@@ -1,0 +1,117 @@
+{
+    "translation-revision-date": "2026-09-04T09:12:50+00:00",
+    "generator": "WP-CLI\/2.12.0",
+    "source": "build\/831.js",
+    "domain": "messages",
+    "locale_data": {
+        "messages": {
+            "": {
+                "domain": "messages",
+                "lang": "cs_CZ",
+                "plural-forms": "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
+            },
+            "Status": [
+                "Stav"
+            ],
+            "Date": [
+                "Datum"
+            ],
+            "Settings": [
+                "Nastaven\u00ed"
+            ],
+            "Error": [
+                "Chyba"
+            ],
+            "Back to modules": [
+                "Zp\u011bt na moduly"
+            ],
+            "Loading\u2026": [
+                "Na\u010d\u00edt\u00e1n\u00ed\u2026"
+            ],
+            "Saved": [
+                "Ulo\u017eeno"
+            ],
+            "Save changes": [
+                "Ulo\u017eit zm\u011bny"
+            ],
+            "Log": [
+                "Protokol"
+            ],
+            "To": [
+                "Komu"
+            ],
+            "Subject": [
+                "P\u0159edm\u011bt"
+            ],
+            "Sent": [
+                "Odesl\u00e1no"
+            ],
+            "Failed": [
+                "Nezda\u0159ilo se"
+            ],
+            "No mail has been sent yet.": [
+                "Zat\u00edm nebyl odesl\u00e1n \u017e\u00e1dn\u00fd e-mail."
+            ],
+            "Sent to": [
+                "Odesl\u00e1no na"
+            ],
+            "Unknown error": [
+                "Nezn\u00e1m\u00e1 chyba"
+            ],
+            "SMTP Email": [
+                "SMTP e-mail"
+            ],
+            "A SMTP password is currently set.": [
+                "Heslo SMTP je aktu\u00e1ln\u011b nastaveno."
+            ],
+            "No SMTP password set yet.": [
+                "Zat\u00edm nen\u00ed nastaveno \u017e\u00e1dn\u00e9 heslo SMTP."
+            ],
+            "A Brevo API key is currently set.": [
+                "Kl\u00ed\u010d Brevo API je aktu\u00e1ln\u011b nastaven."
+            ],
+            "No Brevo API key set yet.": [
+                "Zat\u00edm nen\u00ed nastaven \u017e\u00e1dn\u00fd kl\u00ed\u010d Brevo API."
+            ],
+            "Send a test email to": [
+                "Odeslat testovac\u00ed e-mail na"
+            ],
+            "Defaults to the site admin email": [
+                "V\u00fdchoz\u00ed je e-mail administr\u00e1tora webu"
+            ],
+            "Send test email": [
+                "Odeslat testovac\u00ed e-mail"
+            ],
+            "Failed:": [
+                "Nezda\u0159ilo se:"
+            ],
+            "Connected": [
+                "P\u0159ipojeno"
+            ],
+            "A Gmail client secret is currently set.": [
+                "Client secret pro Gmail je aktu\u00e1ln\u011b nastaven."
+            ],
+            "No Gmail client secret set yet.": [
+                "Zat\u00edm nen\u00ed nastaven \u017e\u00e1dn\u00fd client secret pro Gmail."
+            ],
+            "Redirect URI to register in your Google Cloud OAuth client:": [
+                "P\u0159esm\u011brovac\u00ed URI k registraci ve va\u0161em OAuth klientovi Google Cloud:"
+            ],
+            "Disconnect Gmail": [
+                "Odpojit Gmail"
+            ],
+            "Connect Gmail account": [
+                "P\u0159ipojit \u00fa\u010det Gmail"
+            ],
+            "Save the client ID and secret first, then connect.": [
+                "Nejprve ulo\u017ete client ID a secret, pot\u00e9 se p\u0159ipojte."
+            ],
+            "Resend last message": [
+                "Znovu odeslat posledn\u00ed zpr\u00e1vu"
+            ],
+            "Resent to": [
+                "Znovu odesl\u00e1no na"
+            ]
+        }
+    }
+}

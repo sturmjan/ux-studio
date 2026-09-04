@@ -1,0 +1,78 @@
+{
+    "translation-revision-date": "2026-09-04T09:12:50+00:00",
+    "generator": "WP-CLI\/2.12.0",
+    "source": "build\/158.js",
+    "domain": "messages",
+    "locale_data": {
+        "messages": {
+            "": {
+                "domain": "messages",
+                "lang": "cs_CZ",
+                "plural-forms": "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
+            },
+            "Date": [
+                "Datum"
+            ],
+            "Back to modules": [
+                "Zp\u011bt na moduly"
+            ],
+            "Loading\u2026": [
+                "Na\u010d\u00edt\u00e1n\u00ed\u2026"
+            ],
+            "Failed to analyze.": [
+                "Anal\u00fdza se nezda\u0159ila."
+            ],
+            "Score": [
+                "Sk\u00f3re"
+            ],
+            "Re-run analysis": [
+                "Spustit anal\u00fdzu znovu"
+            ],
+            "Check": [
+                "Kontrola"
+            ],
+            "Value": [
+                "Hodnota"
+            ],
+            "Fix": [
+                "Opravit"
+            ],
+            "Post revisions": [
+                "Revize p\u0159\u00edsp\u011bvk\u016f"
+            ],
+            "Delete revisions": [
+                "Smazat revize"
+            ],
+            "Spam comments": [
+                "Spam koment\u00e1\u0159e"
+            ],
+            "Delete spam comments": [
+                "Smazat spam koment\u00e1\u0159e"
+            ],
+            "Auto-draft posts": [
+                "Automaticky ulo\u017een\u00e9 koncepty"
+            ],
+            "Transients": [
+                "Transienty"
+            ],
+            "Delete expired transients": [
+                "Smazat expirovan\u00e9 transienty"
+            ],
+            "Fix applied.": [
+                "Oprava aplikov\u00e1na."
+            ],
+            "No history yet - run an analysis first.": [
+                "Zat\u00edm \u017e\u00e1dn\u00e1 historie \u2013 nejprve spus\u0165te anal\u00fdzu."
+            ],
+            "Performance Optimization": [
+                "Optimalizace v\u00fdkonu"
+            ],
+            "Analyze": [
+                "Analyzovat"
+            ],
+            "History": [
+                "Historie"
+            ]
+        }
+    }
+}

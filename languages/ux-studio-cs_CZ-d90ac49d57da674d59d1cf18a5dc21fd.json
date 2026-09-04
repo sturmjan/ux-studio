@@ -1,0 +1,57 @@
+{
+    "translation-revision-date": "2026-09-04T09:12:50+00:00",
+    "generator": "WP-CLI\/2.12.0",
+    "source": "build\/148.js",
+    "domain": "messages",
+    "locale_data": {
+        "messages": {
+            "": {
+                "domain": "messages",
+                "lang": "cs_CZ",
+                "plural-forms": "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
+            },
+            "Settings": [
+                "Nastaven\u00ed"
+            ],
+            "Back to modules": [
+                "Zp\u011bt na moduly"
+            ],
+            "Loading\u2026": [
+                "Na\u010d\u00edt\u00e1n\u00ed\u2026"
+            ],
+            "Saved": [
+                "Ulo\u017eeno"
+            ],
+            "Save changes": [
+                "Ulo\u017eit zm\u011bny"
+            ],
+            "Post": [
+                "P\u0159\u00edsp\u011bvek"
+            ],
+            "Cached posts": [
+                "Ulo\u017een\u00e9 p\u0159\u00edsp\u011bvky v cache"
+            ],
+            "Bot requests (24h)": [
+                "Po\u017eadavky bot\u016f (24 h)"
+            ],
+            "Regenerate all": [
+                "Znovu vygenerovat v\u0161e"
+            ],
+            "Generated": [
+                "Vygenerov\u00e1no"
+            ],
+            "Regenerate": [
+                "Znovu vygenerovat"
+            ],
+            "Nothing cached yet.": [
+                "Zat\u00edm nen\u00ed nic ulo\u017eeno v cache."
+            ],
+            "AI Markdown": [
+                "AI Markdown"
+            ],
+            "Cache": [
+                "Cache"
+            ]
+        }
+    }
+}

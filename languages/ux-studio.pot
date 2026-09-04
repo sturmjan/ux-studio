@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-17T11:45:29+00:00\n"
+"POT-Creation-Date: 2026-09-04T09:12:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: ux-studio\n"
@@ -25,7 +25,7 @@ msgstr ""
 
 #. Plugin URI of the plugin
 #: ux-studio.php
-msgid "https://github.com/TODO-org/ux-studio"
+msgid "https://github.com/sturmjan/ux-studio"
 msgstr ""
 
 #. Description of the plugin
@@ -53,7 +53,19 @@ msgid "Central app response failed signature verification."
 msgstr ""
 
 #: includes/Core/ConflictGuard.php:39
-msgid "UX Studio is inactive: the legacy plugin \"UX One - Wordpress customizer\" is still active. Deactivate it to let UX Studio take over."
+msgid "UX Studio is completing the takeover from the legacy plugin \"UX One - WordPress customizer\": it will be deactivated automatically and UX Studio takes over on the next page load."
+msgstr ""
+
+#: includes/Core/Handoff.php:83
+msgid "UX Studio has taken over from the legacy UX1 plugin and migrated its data. You can now delete the old plugin files - your data stays and keeps migrating as you enable modules."
+msgstr ""
+
+#: includes/Core/Handoff.php:85
+msgid "Delete old UX1 plugin"
+msgstr ""
+
+#: includes/Core/Handoff.php:94
+msgid "You are not allowed to delete plugins."
 msgstr ""
 
 #: includes/Core/Megamenu.php:86
@@ -65,10 +77,11 @@ msgid "All modules"
 msgstr ""
 
 #: includes/Core/Megamenu.php:95
-#: includes/Modules/ExitPopup/Module.php:147
+#: includes/Modules/ExitPopup/Module.php:462
 #: includes/Modules/FileManager/Module.php:128
 #: includes/Modules/PopupManager/Module.php:398
 #: build/78.js:1
+#: build/367.js:1
 msgid "Close"
 msgstr ""
 
@@ -88,7 +101,7 @@ msgstr ""
 #: includes/Modules/AdminCustomiser/MenuOrganizer.php:75
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:253
 #: build/78.js:1
-#: build/149.js:1
+#: build/752.js:1
 msgid "Media"
 msgstr ""
 
@@ -121,51 +134,114 @@ msgstr ""
 msgid "You are not allowed to manage this module."
 msgstr ""
 
-#: includes/Modules/ActivityLog/Module.php:53
-#: includes/Modules/EmailLog/Module.php:77
-#: includes/Modules/NoticeBoard/Module.php:100
-#: includes/Modules/PageLoad/Module.php:90
+#: includes/Core/Ux1Lock.php:81
+msgid "Replaced by UX Studio"
+msgstr ""
+
+#: includes/Core/Ux1Lock.php:95
+msgid "The legacy plugin \"UX One - WordPress customizer\" was kept deactivated: UX Studio has replaced it, and running both at once would conflict. Its data is preserved - nothing was deleted."
+msgstr ""
+
+#: includes/Modules/ActivityLog/Module.php:89
+#: includes/Modules/EmailLog/Module.php:101
+#: includes/Modules/PageLoad/Module.php:137
 msgid "Retention (days)"
 msgstr ""
 
-#: includes/Modules/ActivityLog/Module.php:54
+#: includes/Modules/ActivityLog/Module.php:90
 msgid "Entries older than this are removed by the \"Purge old entries\" action."
 msgstr ""
 
-#: includes/Modules/ActivityLog/Module.php:60
+#: includes/Modules/ActivityLog/Module.php:96
 msgid "Alert on new IP login"
 msgstr ""
 
-#: includes/Modules/ActivityLog/Module.php:61
+#: includes/Modules/ActivityLog/Module.php:97
 msgid "Send an email when a user logs in from an IP address not seen for them before."
 msgstr ""
 
-#: includes/Modules/ActivityLog/Module.php:67
+#: includes/Modules/ActivityLog/Module.php:103
+msgid "Alert on admin promotion"
+msgstr ""
+
+#: includes/Modules/ActivityLog/Module.php:104
+msgid "Send an email when any user is promoted to the administrator role."
+msgstr ""
+
+#: includes/Modules/ActivityLog/Module.php:110
 msgid "Alert email"
 msgstr ""
 
-#: includes/Modules/ActivityLog/Module.php:68
-msgid "Recipient for new-IP alerts. Defaults to the site admin email."
+#: includes/Modules/ActivityLog/Module.php:111
+msgid "Recipient for alerts. Defaults to the site admin email."
+msgstr ""
+
+#: includes/Modules/ActivityLog/Module.php:301
+msgid "(none)"
+msgstr ""
+
+#. translators: %s: site name
+#: includes/Modules/ActivityLog/Module.php:304
+#, php-format
+msgid "[%s] User promoted to administrator"
+msgstr ""
+
+#. translators: 1: user login, 2: user id, 3: previous roles, 4: date/time
+#: includes/Modules/ActivityLog/Module.php:309
+#, php-format
+msgid ""
+"User %1$s (ID %2$d) was just promoted to administrator.\n"
+"Previous roles: %3$s\n"
+"Time: %4$s"
 msgstr ""
 
 #. translators: 1: site name, 2: user login
-#: includes/Modules/ActivityLog/Module.php:130
+#: includes/Modules/ActivityLog/Module.php:358
 #, php-format
 msgid "[%1$s] New IP login for %2$s"
 msgstr ""
 
 #. translators: 1: user login, 2: IP address, 3: date/time
-#: includes/Modules/ActivityLog/Module.php:136
+#: includes/Modules/ActivityLog/Module.php:364
 #, php-format
 msgid ""
 "User %1$s just logged in from a new IP address: %2$s\n"
 "Time: %3$s"
 msgstr ""
 
-#: includes/Modules/ActivityLog/Module.php:138
+#: includes/Modules/ActivityLog/Module.php:366
 #: includes/Modules/MediaReplace/RestController.php:131
 #: includes/Modules/MediaReplace/RestController.php:132
+#: build/809.js:1
 msgid "unknown"
+msgstr ""
+
+#: includes/Modules/AdminColumns/FieldRenderer.php:128
+#: includes/Modules/MaintenanceMode/Module.php:466
+#: build/50.js:1
+#: build/244.js:1
+#: build/475.js:1
+#: build/718.js:1
+#: build/809.js:1
+msgid "Yes"
+msgstr ""
+
+#: includes/Modules/AdminColumns/FieldRenderer.php:129
+msgctxt "boolean true mark"
+msgid "✓"
+msgstr ""
+
+#: includes/Modules/AdminColumns/FieldRenderer.php:134
+#: includes/Modules/MaintenanceMode/Module.php:465
+#: build/50.js:1
+#: build/244.js:1
+#: build/718.js:1
+msgid "No"
+msgstr ""
+
+#: includes/Modules/AdminColumns/FieldRenderer.php:135
+msgctxt "boolean false mark"
+msgid "–"
 msgstr ""
 
 #: includes/Modules/AdminColumns/RestController.php:98
@@ -221,10 +297,12 @@ msgstr ""
 #: includes/Modules/AdminCustomiser/HideAdminNotices.php:64
 #: includes/Modules/AdminCustomiser/HideAdminNotices.php:68
 #: includes/Modules/AdminCustomiser/HideAdminNotices.php:119
+#: build/819.js:1
 msgid "Notifications"
 msgstr ""
 
 #: includes/Modules/AdminCustomiser/MenuOrganizer.php:73
+#: build/50.js:1
 msgid "Dashboard"
 msgstr ""
 
@@ -350,6 +428,7 @@ msgstr ""
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:193
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:237
 #: build/78.js:1
+#: build/752.js:1
 msgid "Edit"
 msgstr ""
 
@@ -383,6 +462,7 @@ msgstr ""
 #: includes/Modules/AdminCustomiser/QuickSearch/ThirdPartyIntegrations.php:50
 #: includes/Modules/ExportPosts/Module.php:372
 #: build/78.js:1
+#: build/475.js:1
 #: build/930.js:1
 msgid "Categories"
 msgstr ""
@@ -533,17 +613,21 @@ msgstr ""
 #: includes/Modules/AiAssistant/ChatRestController.php:353
 #: includes/Modules/CleanProfiles/Module.php:58
 #: build/78.js:1
+#: build/93.js:1
 #: build/136.js:1
 #: build/230.js:1
 #: build/309.js:1
-#: build/755.js:1
-#: build/968.js:1
+#: build/475.js:1
+#: build/752.js:1
+#: build/809.js:1
+#: build/866.js:1
 msgid "Name"
 msgstr ""
 
 #: includes/Modules/AiAssistant/ChatRestController.php:355
 #: includes/Modules/CleanProfiles/Module.php:42
 #: build/157.js:1
+#: build/213.js:1
 #: build/475.js:1
 msgid "Email"
 msgstr ""
@@ -561,6 +645,7 @@ msgid "Page"
 msgstr ""
 
 #: includes/Modules/AiAssistant/ChatRestController.php:361
+#: build/367.js:1
 msgid "Message"
 msgstr ""
 
@@ -592,6 +677,7 @@ msgstr ""
 
 #: includes/Modules/AiAssistant/ChatRestController.php:446
 #: build/190.js:1
+#: build/809.js:1
 msgid "Note"
 msgstr ""
 
@@ -896,16 +982,17 @@ msgstr ""
 
 #: includes/Modules/AiAssistant/KnowledgeHubRestController.php:187
 #: includes/Modules/AiAssistant/KnowledgeHubRestController.php:226
+#: includes/Modules/EmailLog/Module.php:347
+#: includes/Modules/EmailLog/RestController.php:103
 msgid "Entry not found."
 msgstr ""
 
 #: includes/Modules/AiAssistant/KnowledgeHubRestController.php:234
-#: includes/Modules/ElementorImport/Module.php:117
+#: includes/Modules/ElementorImport/Module.php:109
 msgid "No file was uploaded."
 msgstr ""
 
 #: includes/Modules/AiAssistant/KnowledgeHubRestController.php:258
-#: includes/Modules/NoticeBoard/RestController.php:153
 msgid "Document not found."
 msgstr ""
 
@@ -978,6 +1065,7 @@ msgid "Token not found."
 msgstr ""
 
 #: includes/Modules/AiAssistant/Mcp/JwtAuth.php:135
+#: build/809.js:1
 msgid "Unknown"
 msgstr ""
 
@@ -1453,8 +1541,8 @@ msgstr ""
 #: includes/Modules/AiAssistant/Module.php:356
 #: includes/Modules/AiAssistant/Module.php:370
 #: includes/Modules/AiAssistant/Module.php:384
-#: includes/Modules/DashboardWidgets/Module.php:64
-#: includes/Modules/SmtpEmail/Module.php:139
+#: includes/Modules/DashboardWidgets/Module.php:181
+#: includes/Modules/SmtpEmail/Module.php:194
 #: includes/Modules/StockPhotos/Module.php:116
 msgid "Stored encrypted. Leave blank to keep the current key."
 msgstr ""
@@ -1624,6 +1712,9 @@ msgstr ""
 
 #: includes/Modules/AiMarkdown/RestController.php:63
 #: includes/Modules/AiMarkdown/RestController.php:76
+#: includes/Modules/ContentSync/NodeController.php:239
+#: includes/Modules/ContentSync/NodeController.php:314
+#: includes/Modules/ContentSync/NodeController.php:356
 msgid "Post not found."
 msgstr ""
 
@@ -1743,34 +1834,210 @@ msgstr ""
 msgid "Unpublish: %s"
 msgstr ""
 
-#: includes/Modules/BotThrottle/Module.php:91
+#: includes/Modules/BotThrottle/DashboardWidget.php:41
+msgid "Bot Throttle - activity"
+msgstr ""
+
+#: includes/Modules/BotThrottle/DashboardWidget.php:57
+msgid "Current server load:"
+msgstr ""
+
+#: includes/Modules/BotThrottle/DashboardWidget.php:63
+#: build/50.js:1
+#: build/148.js:1
+msgid "Bot requests (24h)"
+msgstr ""
+
+#: includes/Modules/BotThrottle/DashboardWidget.php:64
+msgid "Delayed"
+msgstr ""
+
+#: includes/Modules/BotThrottle/DashboardWidget.php:65
+msgid "Blocked"
+msgstr ""
+
+#: includes/Modules/BotThrottle/DashboardWidget.php:72
+#: build/50.js:1
+msgid "Bot"
+msgstr ""
+
+#: includes/Modules/BotThrottle/DashboardWidget.php:73
+#: build/50.js:1
+#: build/78.js:1
+#: build/244.js:1
+#: build/475.js:1
+#: build/930.js:1
+msgid "Category"
+msgstr ""
+
+#: includes/Modules/BotThrottle/DashboardWidget.php:74
+#: build/50.js:1
+#: build/78.js:1
+#: build/474.js:1
+msgid "Requests"
+msgstr ""
+
+#: includes/Modules/BotThrottle/DashboardWidget.php:88
+#: build/50.js:1
+msgid "No bot activity recorded yet."
+msgstr ""
+
+#: includes/Modules/BotThrottle/DashboardWidget.php:91
+msgid "Open Bot Throttle"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Module.php:316
+msgid "Always pass (no throttle)"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Module.php:317
+msgid "Pass with minimal delay"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Module.php:318
+msgid "Throttle lightly at YELLOW+"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Module.php:319
+msgid "Throttle aggressively"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Module.php:320
+msgid "Block (503/429)"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Module.php:327
 msgid "Enable bot throttling"
 msgstr ""
 
-#: includes/Modules/BotThrottle/Module.php:97
-msgid "Requests per minute per IP"
+#: includes/Modules/BotThrottle/Module.php:333
+msgid "Reverse-DNS verification"
 msgstr ""
 
-#: includes/Modules/BotThrottle/Module.php:103
-msgid "Blocked User-Agent patterns (one per line)"
+#: includes/Modules/BotThrottle/Module.php:334
+msgid "Confirm the UA matches the real IP (guards against UA spoofing). Slightly slower."
 msgstr ""
 
-#: includes/Modules/BotThrottle/Module.php:104
-msgid "Case-insensitive substring or regex match against the request's User-Agent header."
+#: includes/Modules/BotThrottle/Module.php:340
+msgid "Hard rate-limit per IP (requests/minute, 0 = off)"
 msgstr ""
 
-#: includes/Modules/BotThrottle/Module.php:110
-msgid "Block response code"
+#: includes/Modules/BotThrottle/Module.php:341
+msgid "DoS safety cap applied to every visitor, independent of bot detection."
 msgstr ""
 
-#: includes/Modules/BotThrottle/Module.php:112
-#: includes/Modules/SecurityOptimization/Module.php:619
-#: includes/Modules/SecurityOptimization/Module.php:885
-msgid "403 Forbidden"
+#: includes/Modules/BotThrottle/Module.php:347
+msgid "Rate-limit block response code"
 msgstr ""
 
-#: includes/Modules/BotThrottle/Module.php:113
+#: includes/Modules/BotThrottle/Module.php:349
 msgid "429 Too Many Requests"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Module.php:350
+msgid "503 Service Unavailable"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Module.php:357
+msgid "Log retention (days)"
+msgstr ""
+
+#. translators: %s: comma-separated bot names.
+#: includes/Modules/BotThrottle/Module.php:370
+#, php-format
+msgid "Bots in this category: %s"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Module.php:380
+msgid "YELLOW threshold (load score)"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Module.php:381
+msgid "ORANGE threshold (load score)"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Module.php:382
+msgid "RED threshold (load score)"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Module.php:383
+msgid "Min delay (ms)"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Module.php:384
+msgid "Light delay min (ms)"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Module.php:385
+msgid "Light delay max (ms)"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Module.php:386
+msgid "Aggressive delay min (ms)"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Module.php:387
+msgid "Aggressive delay max (ms)"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Module.php:388
+msgid "RED delay min (ms)"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Module.php:389
+msgid "RED delay max (ms)"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Module.php:404
+msgid "Whitelist User-Agents (one per line)"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Module.php:405
+msgid "UA fragments that are NEVER throttled."
+msgstr ""
+
+#: includes/Modules/BotThrottle/Module.php:411
+msgid "Whitelist IP / CIDR (one per line)"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Module.php:412
+msgid "e.g. 192.168.0.0/16"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Module.php:418
+msgid "Blacklist User-Agents (one per line)"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Module.php:419
+msgid "UA fragments that are ALWAYS aggressively throttled."
+msgstr ""
+
+#: includes/Modules/BotThrottle/Signatures.php:28
+msgid "Search engines"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Signatures.php:48
+msgid "AI assistants (real-time)"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Signatures.php:63
+msgid "AI training crawlers"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Signatures.php:85
+msgid "SEO tools"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Signatures.php:101
+msgid "Social media"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Signatures.php:116
+msgid "Archivers"
+msgstr ""
+
+#: includes/Modules/BotThrottle/Signatures.php:126
+msgid "Generic crawlers"
 msgstr ""
 
 #: includes/Modules/ClassicEditor/Module.php:87
@@ -2038,44 +2305,323 @@ msgstr ""
 msgid "Snippet deleted successfully"
 msgstr ""
 
-#: includes/Modules/ContentSync/Module.php:107
-#: includes/Modules/ThirdPartyLogin/Module.php:70
+#: includes/Modules/ContentSync/HmacAuth.php:85
+msgid "Missing authentication headers."
+msgstr ""
+
+#: includes/Modules/ContentSync/HmacAuth.php:88
+msgid "This node has no API key configured."
+msgstr ""
+
+#: includes/Modules/ContentSync/HmacAuth.php:91
+msgid "Malformed authentication headers."
+msgstr ""
+
+#: includes/Modules/ContentSync/HmacAuth.php:97
+msgid "Request timestamp outside the allowed window."
+msgstr ""
+
+#: includes/Modules/ContentSync/HmacAuth.php:123
+msgid "Invalid request signature."
+msgstr ""
+
+#: includes/Modules/ContentSync/HmacAuth.php:129
+msgid "Request nonce already used."
+msgstr ""
+
+#: includes/Modules/ContentSync/Hub.php:58
+#: includes/Modules/ContentSync/Hub.php:134
+#: includes/Modules/ContentSync/SiteManager.php:173
+msgid "Site not found or missing API key."
+msgstr ""
+
+#: includes/Modules/ContentSync/Hub.php:62
+msgid "No current user."
+msgstr ""
+
+#: includes/Modules/ContentSync/Hub.php:92
+#: build/309.js:1
+msgid "SSO issue failed."
+msgstr ""
+
+#: includes/Modules/ContentSync/Hub.php:181
+msgid "Push failed."
+msgstr ""
+
+#: includes/Modules/ContentSync/MediaTransfer.php:39
+msgid "Local media file not found."
+msgstr ""
+
+#: includes/Modules/ContentSync/MediaTransfer.php:47
+msgid "Media upload failed."
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:174
+#: build/930.js:1
+msgid "Editor"
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:175
+#: includes/Modules/ExportPosts/Module.php:362
+#: build/718.js:1
+#: build/930.js:1
+msgid "Author"
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:176
+#: build/930.js:1
+msgid "Contributor"
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:183
+msgid "Role of this site"
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:184
+msgid "Hub pushes content out and manages other sites. Node receives content and exposes the signed endpoints."
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:186
+msgid "Hub (console)"
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:187
+msgid "Node (managed site)"
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:194
+msgid "Node API key (this site)"
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:195
+msgid "Shared HMAC secret this node uses to authenticate the hub. Give the same value to the hub when registering this site. Stored encrypted; leave blank to keep the current key."
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:201
+msgid "Default author (node)"
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:202
+msgid "User ID assigned to posts created by the hub when the payload has no author."
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:208
+msgid "SSO user mapping"
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:209
+msgid "auto: map by email, provision if missing. strict: only pre-mapped/known users. disabled: SSO off."
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:211
+msgid "Auto (map by email, provision if missing)"
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:212
+msgid "Strict (existing users only)"
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:213
+#: includes/Modules/MaintenanceMode/Module.php:368
+#: build/78.js:1
+#: build/190.js:1
+#: build/809.js:1
+#: build/866.js:1
+msgid "Disabled"
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:220
+msgid "Allow SSO user provisioning"
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:221
+msgid "Create a WP user when an operator has none. Never creates administrators."
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:227
+msgid "Provisioned role"
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:228
+msgid "Role given to auto-provisioned SSO users. Administrator is intentionally not selectable."
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:235
+msgid "SSO token lifetime (seconds)"
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:236
+msgid "Clamped to 15-300 seconds."
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:242
+msgid "Require user-agent match"
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:248
+msgid "Require IP match"
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:254
+msgid "Max failed redemptions per IP / hour"
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:260
+msgid "Max token issues per operator / hour"
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:266
+#: includes/Modules/ThirdPartyLogin/Module.php:92
 msgid "Central app URL"
 msgstr ""
 
-#: includes/Modules/ContentSync/Module.php:108
+#: includes/Modules/ContentSync/Module.php:267
 msgid "Base URL of the central application acting as the broker for connected sites."
 msgstr ""
 
-#: includes/Modules/ContentSync/Module.php:114
-#: includes/Modules/ThirdPartyLogin/Module.php:77
-msgid "HMAC secret"
+#: includes/Modules/ContentSync/Module.php:273
+msgid "Central app HMAC secret"
 msgstr ""
 
-#: includes/Modules/ContentSync/Module.php:115
+#: includes/Modules/ContentSync/Module.php:274
 msgid "Shared secret used to sign/verify every request to and from the central app. Stored encrypted. Leave blank to keep the current secret."
 msgstr ""
 
-#: includes/Modules/CronControl/Module.php:146
-#: includes/Modules/CronControl/Module.php:172
+#: includes/Modules/ContentSync/NodeController.php:361
+msgid "Could not delete the post."
+msgstr ""
+
+#: includes/Modules/ContentSync/NodeController.php:387
+msgid "Category name is required."
+msgstr ""
+
+#: includes/Modules/ContentSync/NodeController.php:417
+#: includes/Modules/ContentSync/NodeController.php:449
+#: includes/Modules/NoticeBoard/RestController.php:248
+#: includes/Modules/NoticeBoard/RestController.php:258
+msgid "Category not found."
+msgstr ""
+
+#: includes/Modules/ContentSync/NodeController.php:452
+msgid "Cannot delete the default category."
+msgstr ""
+
+#: includes/Modules/ContentSync/NodeController.php:471
+msgid "Taxonomy not found."
+msgstr ""
+
+#: includes/Modules/ContentSync/NodeController.php:484
+msgid "No file was sent."
+msgstr ""
+
+#: includes/Modules/ContentSync/NodeController.php:491
+msgid "Disallowed file type."
+msgstr ""
+
+#: includes/Modules/ContentSync/NodeController.php:494
+msgid "File too large (max 10 MB)."
+msgstr ""
+
+#: includes/Modules/ContentSync/NodeController.php:536
+msgid "Media not found."
+msgstr ""
+
+#: includes/Modules/ContentSync/NodeController.php:539
+msgid "Could not delete the media."
+msgstr ""
+
+#: includes/Modules/ContentSync/SyncClient.php:107
+msgid "Local file is not readable."
+msgstr ""
+
+#: includes/Modules/CronControl/Module.php:99
+msgid "Do not intervene - WP-Cron runs normally"
+msgstr ""
+
+#: includes/Modules/CronControl/Module.php:100
+msgid "Disable completely (even locally)"
+msgstr ""
+
+#: includes/Modules/CronControl/Module.php:101
+msgid "Disable publicly, allow local requests only"
+msgstr ""
+
+#: includes/Modules/CronControl/Module.php:102
+msgid "Disable WP-Cron and trigger it from a hosting cron"
+msgstr ""
+
+#: includes/Modules/CronControl/Module.php:103
+msgid "Drive WP-Cron from the central app"
+msgstr ""
+
+#: includes/Modules/CronControl/Module.php:110
+msgid "WP-Cron mode"
+msgstr ""
+
+#: includes/Modules/CronControl/Module.php:111
+msgid "WordPress runs scheduled tasks (wp-cron) on every front-end page load, which is unreliable and adds overhead. Change that behaviour here. Disabling is done via an mu-plugin that defines DISABLE_WP_CRON - wp-config.php is never edited."
+msgstr ""
+
+#: includes/Modules/CronControl/Module.php:118
+msgid "Central app IP allowlist (central mode)"
+msgstr ""
+
+#: includes/Modules/CronControl/Module.php:119
+msgid "Only used in \"central app\" mode. One IP or CIDR per line - these are allowed to reach wp-cron.php in addition to local requests. Leave blank to allow local requests only."
+msgstr ""
+
+#: includes/Modules/CronControl/Module.php:125
+msgid "Watch scheduled tasks"
+msgstr ""
+
+#: includes/Modules/CronControl/Module.php:126
+msgid "Runs a nightly check of all scheduled cron tasks and flags unknown/suspicious hooks (typical of malware that schedules its own hidden hook)."
+msgstr ""
+
+#: includes/Modules/CronControl/Module.php:132
+msgid "Automatically remove suspicious tasks"
+msgstr ""
+
+#: includes/Modules/CronControl/Module.php:133
+msgid "CAUTION: active protection. Tasks graded as suspicious (random name, callback in uploads, etc.) are automatically unscheduled. Leave off until you have reviewed the findings."
+msgstr ""
+
+#: includes/Modules/CronControl/Module.php:139
+msgid "Custom hook whitelist"
+msgstr ""
+
+#: includes/Modules/CronControl/Module.php:140
+msgid "Cron hook names that must never be reported as unknown - one per line. Supports a trailing \"*\" wildcard, e.g. \"woocommerce_*\"."
+msgstr ""
+
+#: includes/Modules/CronControl/Module.php:298
+#: includes/Modules/CronControl/Module.php:324
 msgid "That scheduled event could not be found."
 msgstr ""
 
-#: includes/Modules/CronControl/Module.php:156
+#: includes/Modules/CronControl/Module.php:308
 msgid "Event executed."
 msgstr ""
 
-#: includes/Modules/CronControl/Module.php:181
+#: includes/Modules/CronControl/Module.php:333
 msgid "Failed to delete the event."
 msgstr ""
 
-#: includes/Modules/CronControl/Module.php:189
+#: includes/Modules/CronControl/Module.php:341
 msgid "Event deleted."
+msgstr ""
+
+#: includes/Modules/CronControl/Module.php:638
+msgid "WP-Cron disabled"
+msgstr ""
+
+#: includes/Modules/CronControl/Module.php:641
+msgid "WP-Cron is fully disabled - scheduled tasks will not run. Click to review."
 msgstr ""
 
 #. translators: %s: human-readable time difference
 #. translators: %s: human-readable time difference, e.g. "3 days"
-#: includes/Modules/CronControl/Module.php:234
+#: includes/Modules/CronControl/Module.php:691
 #: includes/Modules/UserLastLogin/Module.php:162
 #, php-format
 msgid "in %s"
@@ -2083,31 +2629,91 @@ msgstr ""
 
 #. translators: %s: human-readable time difference
 #. translators: %s: human-readable time difference, e.g. "3 days"
-#: includes/Modules/CronControl/Module.php:237
+#: includes/Modules/CronControl/Module.php:694
 #: includes/Modules/UserLastLogin/Module.php:160
 #, php-format
 msgid "%s ago"
 msgstr ""
 
-#: includes/Modules/DashboardWidgets/Module.php:63
+#: includes/Modules/CronControl/Watcher.php:114
+msgid "callback from a suspicious location"
+msgstr ""
+
+#: includes/Modules/CronControl/Watcher.php:125
+msgid "unknown hook with no registered callback"
+msgstr ""
+
+#: includes/Modules/CronControl/Watcher.php:300
+msgid "hook name looks like a random hex string"
+msgstr ""
+
+#: includes/Modules/CronControl/Watcher.php:304
+msgid "unusually long hook name with no separators"
+msgstr ""
+
+#: includes/Modules/CronControl/Watcher.php:308
+msgid "hook name looks like base64"
+msgstr ""
+
+#: includes/Modules/DashboardWidgets/Module.php:126
+msgid "Welcome"
+msgstr ""
+
+#: includes/Modules/DashboardWidgets/Module.php:127
+msgid "Site Health Status"
+msgstr ""
+
+#: includes/Modules/DashboardWidgets/Module.php:128
+msgid "At a Glance"
+msgstr ""
+
+#: includes/Modules/DashboardWidgets/Module.php:129
+msgid "Activity"
+msgstr ""
+
+#: includes/Modules/DashboardWidgets/Module.php:130
+msgid "Quick Draft"
+msgstr ""
+
+#: includes/Modules/DashboardWidgets/Module.php:131
+msgid "WordPress Events and News"
+msgstr ""
+
+#: includes/Modules/DashboardWidgets/Module.php:165
+msgid "Hide all dashboard widgets"
+msgstr ""
+
+#: includes/Modules/DashboardWidgets/Module.php:166
+msgid "Removes every wp-admin dashboard widget and the welcome panel for a clean dashboard."
+msgstr ""
+
+#: includes/Modules/DashboardWidgets/Module.php:172
+msgid "Hide specific dashboard widgets"
+msgstr ""
+
+#: includes/Modules/DashboardWidgets/Module.php:173
+msgid "The list reflects widgets registered on this site (visit Dashboard once to refresh it)."
+msgstr ""
+
+#: includes/Modules/DashboardWidgets/Module.php:180
 msgid "Google PageSpeed API key"
 msgstr ""
 
-#: includes/Modules/DashboardWidgets/Module.php:70
+#: includes/Modules/DashboardWidgets/Module.php:187
 msgid "Google Analytics service-account JSON"
 msgstr ""
 
-#: includes/Modules/DashboardWidgets/Module.php:71
+#: includes/Modules/DashboardWidgets/Module.php:188
 msgid "Paste the full service-account JSON. Stored encrypted. Leave blank to keep the current value."
 msgstr ""
 
 #. translators: %d: HTTP status code
-#: includes/Modules/DashboardWidgets/Module.php:228
+#: includes/Modules/DashboardWidgets/Module.php:345
 #, php-format
 msgid "PageSpeed API returned HTTP %d."
 msgstr ""
 
-#: includes/Modules/DashboardWidgets/Module.php:239
+#: includes/Modules/DashboardWidgets/Module.php:356
 msgid "Unexpected PageSpeed API response."
 msgstr ""
 
@@ -2164,7 +2770,7 @@ msgid "Disable for specific plugins only"
 msgstr ""
 
 #: includes/Modules/DisableAutoUpdates/Module.php:164
-#: build/755.js:2
+#: build/136.js:2
 msgid "Plugins"
 msgstr ""
 
@@ -2197,7 +2803,7 @@ msgid "Disable for specific themes only"
 msgstr ""
 
 #: includes/Modules/DisableAutoUpdates/Module.php:190
-#: build/755.js:2
+#: build/136.js:2
 msgid "Themes"
 msgstr ""
 
@@ -2213,46 +2819,67 @@ msgstr ""
 msgid "Disable automatic updates for translations."
 msgstr ""
 
-#: includes/Modules/DownloadFiles/Module.php:78
+#: includes/Modules/DownloadFiles/Module.php:108
 msgid "Require login by default"
 msgstr ""
 
-#: includes/Modules/DownloadFiles/Module.php:79
+#: includes/Modules/DownloadFiles/Module.php:109
 msgid "Default value of \"require login\" for newly added files."
 msgstr ""
 
-#: includes/Modules/DownloadFiles/Module.php:161
-#: includes/Modules/DownloadFiles/Module.php:248
-#: includes/Modules/DownloadFiles/RestController.php:140
+#: includes/Modules/DownloadFiles/Module.php:115
+msgid "Shortcode heading"
+msgstr ""
+
+#: includes/Modules/DownloadFiles/Module.php:116
+msgid "Default heading shown above the file list rendered by the [download_files] shortcode. Override per-instance with the heading=\"\" attribute; use heading=\"\" to hide it."
+msgstr ""
+
+#: includes/Modules/DownloadFiles/Module.php:117
+#: includes/Modules/DownloadFiles/Module.php:403
+msgid "Files to download"
+msgstr ""
+
+#: includes/Modules/DownloadFiles/Module.php:122
+msgid "Hide login-only files from guests"
+msgstr ""
+
+#: includes/Modules/DownloadFiles/Module.php:123
+msgid "When on, files that require login are omitted from the shortcode list for visitors who are not logged in (the download endpoint still enforces login regardless)."
+msgstr ""
+
+#: includes/Modules/DownloadFiles/Module.php:207
+#: includes/Modules/DownloadFiles/Module.php:304
+#: includes/Modules/DownloadFiles/RestController.php:227
 msgid "File not found."
 msgstr ""
 
-#: includes/Modules/DownloadFiles/Module.php:252
+#: includes/Modules/DownloadFiles/Module.php:308
 msgid "Invalid or missing download token."
 msgstr ""
 
-#: includes/Modules/DownloadFiles/Module.php:256
+#: includes/Modules/DownloadFiles/Module.php:312
 msgid "You must be logged in to download this file."
 msgstr ""
 
-#: includes/Modules/DownloadFiles/Module.php:261
+#: includes/Modules/DownloadFiles/Module.php:317
 msgid "The underlying media attachment is missing."
 msgstr ""
 
-#: includes/Modules/DownloadFiles/Module.php:266
-#: includes/Modules/ImageOptimizer/Optimizer.php:140
+#: includes/Modules/DownloadFiles/Module.php:322
+#: includes/Modules/ImageOptimizer/Optimizer.php:190
 msgid "The file is missing on disk."
 msgstr ""
 
-#: includes/Modules/DownloadFiles/Module.php:275
+#: includes/Modules/DownloadFiles/Module.php:331
 msgid "Refused to serve a file outside the uploads directory."
 msgstr ""
 
-#: includes/Modules/DownloadFiles/RestController.php:116
+#: includes/Modules/DownloadFiles/RestController.php:157
 msgid "Please select a valid media library file."
 msgstr ""
 
-#: includes/Modules/DownloadFiles/RestController.php:161
+#: includes/Modules/DownloadFiles/RestController.php:248
 msgid "Unable to serve the file."
 msgstr ""
 
@@ -2367,40 +2994,125 @@ msgstr ""
 msgid "Use {post_title} to insert the original post title."
 msgstr ""
 
-#: includes/Modules/ElementorImport/Module.php:60
+#: includes/Modules/ElementorImport/Module.php:83
 msgid "Invalid template file. The \"content\" array with Elementor data is missing."
 msgstr ""
 
-#: includes/Modules/ElementorImport/Module.php:65
+#: includes/Modules/ElementorImport/Module.php:93
+#: includes/Modules/ElementorImport/RestController.php:207
 msgid "Imported template"
 msgstr ""
 
-#: includes/Modules/ElementorImport/Module.php:134
+#: includes/Modules/ElementorImport/Module.php:115
+msgid "The uploaded file is too large (max 5 MB)."
+msgstr ""
+
+#: includes/Modules/ElementorImport/Module.php:132
 msgid "Only .json and .zip files are allowed."
 msgstr ""
 
-#: includes/Modules/ElementorImport/Module.php:147
+#: includes/Modules/ElementorImport/Module.php:145
 msgid "ZIP support is not available on this server."
 msgstr ""
 
-#: includes/Modules/ElementorImport/Module.php:152
+#: includes/Modules/ElementorImport/Module.php:150
 msgid "The ZIP archive could not be opened."
 msgstr ""
 
-#: includes/Modules/ElementorImport/Module.php:166
+#: includes/Modules/ElementorImport/Module.php:164
 msgid "The ZIP archive does not contain a JSON template."
 msgstr ""
 
-#: includes/Modules/ElementorImport/Module.php:181
+#: includes/Modules/ElementorImport/Module.php:179
 msgid "The file does not contain valid JSON."
 msgstr ""
 
-#: includes/Modules/ElementorImport/RestController.php:48
-msgid "Elementor must be installed and active to import templates."
+#: includes/Modules/ElementorImport/Module.php:204
+#: includes/Modules/ElementorImport/Module.php:253
+msgid "HTML import requires the AI Assistant module (HTML → Elementor converter)."
 msgstr ""
 
-#: includes/Modules/ElementorImport/RestController.php:57
+#: includes/Modules/ElementorImport/Module.php:218
+msgid "Could not extract content from the page. Try providing a CSS selector for the main content."
+msgstr ""
+
+#. translators: %s: source hostname.
+#: includes/Modules/ElementorImport/Module.php:227
+#, php-format
+msgid "Import from %s"
+msgstr ""
+
+#: includes/Modules/ElementorImport/Module.php:262
+msgid "Could not build any Elementor widgets from the supplied HTML."
+msgstr ""
+
+#: includes/Modules/ElementorImport/Module.php:272
+#: build/563.js:1
+msgid "Imported HTML"
+msgstr ""
+
+#: includes/Modules/ElementorImport/Module.php:300
+msgid "Imported page"
+msgstr ""
+
+#: includes/Modules/ElementorImport/Module.php:324
+msgid "The target post was not found."
+msgstr ""
+
+#: includes/Modules/ElementorImport/Module.php:393
+msgid "The page was not found."
+msgstr ""
+
+#: includes/Modules/ElementorImport/Module.php:398
+msgid "This page has no Elementor content to export."
+msgstr ""
+
+#: includes/Modules/ElementorImport/Module.php:403
+msgid "The stored Elementor data is corrupted."
+msgstr ""
+
+#: includes/Modules/ElementorImport/RestController.php:77
 msgid "Upload a .json or .zip template file in the \"file\" field."
+msgstr ""
+
+#: includes/Modules/ElementorImport/RestController.php:104
+msgid "A valid http(s) URL is required."
+msgstr ""
+
+#: includes/Modules/ElementorImport/RestController.php:107
+msgid "The URL points to a disallowed (internal/private) address."
+msgstr ""
+
+#: includes/Modules/ElementorImport/RestController.php:143
+msgid "Paste some HTML to import."
+msgstr ""
+
+#: includes/Modules/ElementorImport/RestController.php:146
+msgid "The HTML is too large (max 2 MB)."
+msgstr ""
+
+#: includes/Modules/ElementorImport/RestController.php:186
+msgid "Invalid JSON. The \"content\" array with Elementor data is missing."
+msgstr ""
+
+#: includes/Modules/ElementorImport/RestController.php:230
+msgid "You are not allowed to export this page."
+msgstr ""
+
+#: includes/Modules/ElementorImport/RestController.php:250
+msgid "Elementor must be installed and active to import or export templates."
+msgstr ""
+
+#: includes/Modules/ElementorImport/RestController.php:266
+msgid "A target page is required for replace/append."
+msgstr ""
+
+#: includes/Modules/ElementorImport/RestController.php:269
+msgid "The target page was not found."
+msgstr ""
+
+#: includes/Modules/ElementorImport/RestController.php:272
+msgid "You are not allowed to edit this page."
 msgstr ""
 
 #: includes/Modules/EmailHealth/Module.php:123
@@ -2467,61 +3179,271 @@ msgstr ""
 msgid "Once a day"
 msgstr ""
 
-#: includes/Modules/EmailLog/Module.php:78
+#: includes/Modules/EmailLog/Module.php:102
 msgid "Log entries older than this are pruned automatically."
 msgstr ""
 
-#: includes/Modules/EmailLog/RestController.php:89
+#: includes/Modules/EmailLog/Module.php:108
+msgid "Detect source"
+msgstr ""
+
+#: includes/Modules/EmailLog/Module.php:109
+msgid "Record which plugin, theme or mu-plugin triggered each mail. Adds a small overhead per send; disable on high-volume sites."
+msgstr ""
+
+#: includes/Modules/EmailLog/Module.php:377
+#: build/367.js:1
+msgid "Email was re-sent."
+msgstr ""
+
+#: includes/Modules/EmailLog/Module.php:383
+msgid "Re-sending failed."
+msgstr ""
+
+#: includes/Modules/EmailLog/RestController.php:143
 msgid "Could not delete this entry."
 msgstr ""
 
-#: includes/Modules/ExitPopup/Module.php:83
-msgid "Show on"
-msgstr ""
-
-#: includes/Modules/ExitPopup/Module.php:84
-msgid "Post types on which the exit popup can appear."
-msgstr ""
-
-#: includes/Modules/ExitPopup/Module.php:91
+#: includes/Modules/ExitPopup/Module.php:89
 msgid "Headline"
 msgstr ""
 
-#: includes/Modules/ExitPopup/Module.php:92
-#: includes/Modules/ExitPopup/Module.php:139
+#: includes/Modules/ExitPopup/Module.php:90
+#: includes/Modules/ExitPopup/Module.php:424
 msgid "Wait, don't go!"
 msgstr ""
 
-#: includes/Modules/ExitPopup/Module.php:97
+#: includes/Modules/ExitPopup/Module.php:95
 #: build/819.js:1
 msgid "Body"
 msgstr ""
 
-#: includes/Modules/ExitPopup/Module.php:103
-msgid "Delay before enabling exit-intent detection (seconds)"
+#: includes/Modules/ExitPopup/Module.php:101
+#: build/213.js:1
+msgid "Image"
 msgstr ""
 
-#: includes/Modules/ExitPopup/Module.php:109
-msgid "Show only once per session"
+#: includes/Modules/ExitPopup/Module.php:102
+msgid "Optional image shown above the popup content."
 msgstr ""
 
-#: includes/Modules/ExitPopup/Module.php:145
-msgid "Email address"
+#: includes/Modules/ExitPopup/Module.php:108
+msgid "Show CTA button"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:114
+msgid "CTA button label"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:115
+msgid "Stay on page"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:120
+msgid "CTA button URL"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:121
+msgid "Use # to simply close the popup."
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:127
+msgid "Open CTA in a new tab"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:134
+#: includes/Modules/MaintenanceMode/Module.php:486
+#: includes/Modules/TopBar/Module.php:133
+msgid "Background colour"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:140
+#: includes/Modules/MaintenanceMode/Module.php:433
+msgid "Headline colour"
 msgstr ""
 
 #: includes/Modules/ExitPopup/Module.php:146
+#: includes/Modules/TopBar/Module.php:140
+msgid "Text colour"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:152
+msgid "CTA background colour"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:158
+msgid "CTA text colour"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:164
+msgid "Overlay opacity (%)"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:171
+msgid "Delay before enabling detection (seconds)"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:177
+msgid "Show frequency"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:179
+msgid "Once per browser session"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:180
+msgid "Once every N days (cookie)"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:181
+msgid "Every page view"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:188
+msgid "Cookie lifetime (days)"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:189
+msgid "Used when frequency is \"Once every N days\"."
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:196
+msgid "Detect: mouse leaves the window (exit-intent)"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:202
+msgid "Mouse-leave delay (ms)"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:208
+msgid "Detect: switch to another browser tab"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:214
+msgid "Detect: browser window loses focus"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:220
+msgid "Detect: user inactivity"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:226
+msgid "Inactivity timeout (seconds)"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:232
+msgid "Detect: fast scroll up (mobile exit signal)"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:238
+msgid "Scroll-up threshold desktop (px)"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:244
+msgid "Scroll-up threshold mobile (px)"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:250
+msgid "Show after N seconds on page (0 = off)"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:257
+msgid "Show e-mail capture field"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:263
+msgid "E-mail field placeholder"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:264
+#: includes/Modules/ExitPopup/Module.php:460
+msgid "Email address"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:269
+msgid "Submit button label"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:270
+#: includes/Modules/ExitPopup/Module.php:461
+#: includes/Modules/NoticeBoard/Module.php:1105
 msgid "Subscribe"
 msgstr ""
 
-#: includes/Modules/ExitPopup/Module.php:148
+#: includes/Modules/ExitPopup/Module.php:275
+msgid "Success message"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:276
+#: includes/Modules/ExitPopup/Module.php:463
 msgid "Thanks! Check your inbox soon."
 msgstr ""
 
-#: includes/Modules/ExitPopup/Module.php:149
+#: includes/Modules/ExitPopup/Module.php:281
+msgid "Send autoresponder e-mail to the subscriber"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:287
+msgid "Autoresponder subject"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:288
+msgid "Thanks for your interest"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:293
+msgid "Autoresponder body"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:300
+msgid "Show on"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:301
+msgid "Post types on which the exit popup can appear."
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:308
+msgid "URL targeting"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:310
+msgid "Everywhere allowed above"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:311
+msgid "Only on matching URLs"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:312
+msgid "Everywhere except matching URLs"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:319
+msgid "Include URLs / page IDs"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:320
+msgid "One per line: a page ID or a URL fragment (e.g. /contact)."
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:326
+msgid "Exclude URLs / page IDs"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:327
+msgid "One per line: a page ID or a URL fragment (e.g. /checkout)."
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:333
+msgid "Hide for logged-in users"
+msgstr ""
+
+#: includes/Modules/ExitPopup/Module.php:464
 msgid "Something went wrong, please try again."
 msgstr ""
 
-#: includes/Modules/ExitPopup/Module.php:173
+#: includes/Modules/ExitPopup/Module.php:528
 msgid "You are not allowed to do this."
 msgstr ""
 
@@ -2572,6 +3494,7 @@ msgstr ""
 #: build/84.js:1
 #: build/213.js:1
 #: build/244.js:1
+#: build/309.js:1
 #: build/474.js:1
 #: build/475.js:1
 #: build/819.js:1
@@ -2580,6 +3503,7 @@ msgid "Title"
 msgstr ""
 
 #: includes/Modules/ExportPosts/Module.php:355
+#: build/475.js:1
 msgid "Slug"
 msgstr ""
 
@@ -2590,15 +3514,16 @@ msgstr ""
 #: includes/Modules/ExportPosts/Module.php:358
 #: build/78.js:1
 #: build/84.js:1
-#: build/136.js:1
+#: build/178.js:1
 #: build/190.js:1
 #: build/309.js:1
 #: build/367.js:1
 #: build/402.js:1
 #: build/474.js:1
-#: build/809.js:1
+#: build/475.js:1
 #: build/819.js:1
 #: build/831.js:1
+#: build/866.js:1
 msgid "Status"
 msgstr ""
 
@@ -2612,6 +3537,7 @@ msgstr ""
 #: build/157.js:1
 #: build/158.js:1
 #: build/190.js:1
+#: build/213.js:1
 #: build/309.js:1
 #: build/367.js:1
 #: build/402.js:1
@@ -2626,12 +3552,6 @@ msgstr ""
 
 #: includes/Modules/ExportPosts/Module.php:361
 msgid "Modified Date"
-msgstr ""
-
-#: includes/Modules/ExportPosts/Module.php:362
-#: build/718.js:1
-#: build/930.js:1
-msgid "Author"
 msgstr ""
 
 #: includes/Modules/ExportPosts/Module.php:364
@@ -2780,8 +3700,8 @@ msgstr ""
 
 #: includes/Modules/ExportUsers/Module.php:359
 #: build/78.js:1
-#: build/136.js:1
 #: build/474.js:1
+#: build/866.js:1
 msgid "Description"
 msgstr ""
 
@@ -2870,10 +3790,7 @@ msgstr ""
 #: build/31.js:1
 #: build/50.js:1
 #: build/78.js:1
-#: build/136.js:1
-#: build/144.js:1
 #: build/148.js:1
-#: build/149.js:1
 #: build/157.js:1
 #: build/178.js:1
 #: build/190.js:1
@@ -2886,10 +3803,13 @@ msgstr ""
 #: build/474.js:1
 #: build/475.js:1
 #: build/718.js:1
+#: build/752.js:1
 #: build/792.js:1
 #: build/819.js:1
 #: build/831.js:1
 #: build/860.js:1
+#: build/866.js:1
+#: build/907.js:1
 #: build/930.js:1
 #: build/976.js:1
 #: build/index.js:2
@@ -2942,6 +3862,7 @@ msgstr ""
 
 #: includes/Modules/FileManager/Module.php:337
 #: build/367.js:1
+#: build/563.js:1
 #: build/831.js:1
 #: build/976.js:1
 msgid "Error"
@@ -2968,12 +3889,12 @@ msgid "Log in"
 msgstr ""
 
 #: includes/Modules/FolderManager/Module.php:56
-#: build/968.js:1
+#: build/93.js:1
 msgid "Folders"
 msgstr ""
 
 #: includes/Modules/FolderManager/Module.php:57
-#: build/968.js:1
+#: build/93.js:1
 msgid "Folder"
 msgstr ""
 
@@ -3014,10 +3935,12 @@ msgid "No folders found"
 msgstr ""
 
 #: includes/Modules/FolderManager/Module.php:129
+#: includes/Modules/FolderManager/Module.php:227
 msgid "Folder name is required."
 msgstr ""
 
 #: includes/Modules/FolderManager/Module.php:133
+#: includes/Modules/FolderManager/Module.php:278
 msgid "Parent folder does not exist."
 msgstr ""
 
@@ -3027,6 +3950,9 @@ msgstr ""
 
 #: includes/Modules/FolderManager/Module.php:167
 #: includes/Modules/FolderManager/Module.php:195
+#: includes/Modules/FolderManager/Module.php:222
+#: includes/Modules/FolderManager/Module.php:268
+#: includes/Modules/FolderManager/Module.php:310
 msgid "Folder not found."
 msgstr ""
 
@@ -3036,6 +3962,34 @@ msgstr ""
 
 #: includes/Modules/FolderManager/Module.php:189
 msgid "Attachment not found."
+msgstr ""
+
+#: includes/Modules/FolderManager/Module.php:231
+msgid "Folder name cannot exceed 200 characters."
+msgstr ""
+
+#: includes/Modules/FolderManager/Module.php:235
+msgid "A folder with this name already exists at this level."
+msgstr ""
+
+#: includes/Modules/FolderManager/Module.php:273
+msgid "A folder cannot be its own parent."
+msgstr ""
+
+#: includes/Modules/FolderManager/Module.php:282
+msgid "Cannot move folder: would create a circular reference."
+msgstr ""
+
+#: includes/Modules/FolderManager/Module.php:323
+msgid "No valid attachment IDs provided."
+msgstr ""
+
+#: includes/Modules/FolderManager/Module.php:348
+msgid "No attachments were moved. Check the IDs and your permissions."
+msgstr ""
+
+#: includes/Modules/FolderManager/Module.php:440
+msgid "Folder could not be reloaded."
 msgstr ""
 
 #: includes/Modules/GoogleReviewRequest/Module.php:89
@@ -3055,6 +4009,7 @@ msgid "How was your experience?"
 msgstr ""
 
 #: includes/Modules/GoogleReviewRequest/Module.php:102
+#: build/367.js:1
 msgid "Email body"
 msgstr ""
 
@@ -3119,59 +4074,87 @@ msgid "Hide for roles"
 msgstr ""
 
 #: includes/Modules/HideAdminBar/Module.php:52
-msgid "Leave empty to hide the admin bar for all users."
+msgid "Select the roles to hide the admin bar for. Leave empty to hide it for no one."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Module.php:71
+#: includes/Modules/ImageOptimizer/HtaccessDelivery.php:148
+msgid "The web server does not look like Apache/LiteSpeed; .htaccess rules may be ignored (e.g. on nginx). Configure next-gen delivery at the server level instead."
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/Module.php:79
 msgid "Quality"
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Module.php:72
-msgid "JPEG/WebP compression quality, 1-100."
+#: includes/Modules/ImageOptimizer/Module.php:80
+msgid "JPEG/WebP/AVIF compression quality, 1-100."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Module.php:78
-msgid "Also generate WebP"
-msgstr ""
-
-#: includes/Modules/ImageOptimizer/Module.php:84
+#: includes/Modules/ImageOptimizer/Module.php:86
 msgid "Max width (px)"
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Module.php:85
+#: includes/Modules/ImageOptimizer/Module.php:87
 msgid "Images wider than this are downscaled. 0 disables resizing."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Optimizer.php:45
-#: includes/Modules/ImageOptimizer/Optimizer.php:102
+#: includes/Modules/ImageOptimizer/Module.php:93
+msgid "Also generate WebP"
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/Module.php:99
+msgid "Also generate AVIF"
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/Module.php:100
+msgid "AVIF is smaller than WebP but requires server support. Ignored automatically when the server cannot encode AVIF."
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/Module.php:106
+msgid "Optimize new uploads automatically"
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/Module.php:107
+msgid "Compress and generate next-gen siblings whenever an image is uploaded."
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/Module.php:113
+msgid "Serve next-gen images via .htaccess"
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/Module.php:114
+msgid "Adds Apache/LiteSpeed rewrite rules to uploads/.htaccess so browsers get AVIF/WebP when available. Removed when disabled. No effect on nginx."
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/Optimizer.php:86
+#: includes/Modules/ImageOptimizer/Optimizer.php:150
 msgid "Not a media library attachment."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Optimizer.php:55
+#: includes/Modules/ImageOptimizer/Optimizer.php:96
 msgid "Only JPEG, PNG and GIF images are supported."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Optimizer.php:64
+#: includes/Modules/ImageOptimizer/Optimizer.php:109
 msgid "Could not create a backup of the original image."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Optimizer.php:74
+#: includes/Modules/ImageOptimizer/Optimizer.php:119
 msgid "Neither the Imagick nor the GD PHP extension is available."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Optimizer.php:112
+#: includes/Modules/ImageOptimizer/Optimizer.php:160
 msgid "No backup exists for this image."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Optimizer.php:116
+#: includes/Modules/ImageOptimizer/Optimizer.php:164
 msgid "Could not restore the original image."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Optimizer.php:146
+#: includes/Modules/ImageOptimizer/Optimizer.php:196
 msgid "Refused to operate on a file outside the uploads directory."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Optimizer.php:179
+#: includes/Modules/ImageOptimizer/Optimizer.php:238
 msgid "Could not decode the image."
 msgstr ""
 
@@ -3179,16 +4162,105 @@ msgstr ""
 msgid "Search Engines Discouraged"
 msgstr ""
 
-#: includes/Modules/InstagramFeed/Module.php:90
-msgid "Sync interval (hours)"
+#: includes/Modules/InstagramFeed/InstagramClient.php:93
+msgid "Instagram did not return an access token."
 msgstr ""
 
-#: includes/Modules/InstagramFeed/Module.php:91
-msgid "How often the feed is refreshed from the central app."
+#: includes/Modules/InstagramFeed/InstagramClient.php:122
+msgid "Could not obtain a long-lived Instagram token."
 msgstr ""
 
-#: includes/Modules/InstagramFeed/Module.php:97
-msgid "Number of posts to display"
+#: includes/Modules/InstagramFeed/InstagramClient.php:150
+msgid "Instagram token refresh failed."
+msgstr ""
+
+#: includes/Modules/InstagramFeed/InstagramClient.php:241
+msgid "Unexpected response from Instagram."
+msgstr ""
+
+#. translators: %d: HTTP status code
+#: includes/Modules/InstagramFeed/InstagramClient.php:252
+#, php-format
+msgid "Instagram API error (HTTP %d)."
+msgstr ""
+
+#: includes/Modules/InstagramFeed/Module.php:135
+msgid "Instagram app ID"
+msgstr ""
+
+#: includes/Modules/InstagramFeed/Module.php:136
+msgid "The client_id of your Instagram app (Meta App Dashboard → Instagram → API setup with Instagram login)."
+msgstr ""
+
+#: includes/Modules/InstagramFeed/Module.php:142
+msgid "Instagram app secret"
+msgstr ""
+
+#: includes/Modules/InstagramFeed/Module.php:143
+#: includes/Modules/SmtpEmail/Module.php:208
+msgid "Stored encrypted. Leave blank to keep the current secret."
+msgstr ""
+
+#: includes/Modules/InstagramFeed/Module.php:149
+msgid "Sync interval"
+msgstr ""
+
+#: includes/Modules/InstagramFeed/Module.php:150
+msgid "How often media is refreshed from Instagram via WP-Cron."
+msgstr ""
+
+#: includes/Modules/InstagramFeed/Module.php:153
+msgid "Hourly"
+msgstr ""
+
+#: includes/Modules/InstagramFeed/Module.php:154
+msgid "Twice daily"
+msgstr ""
+
+#: includes/Modules/InstagramFeed/Module.php:155
+#: build/78.js:1
+msgid "Daily"
+msgstr ""
+
+#: includes/Modules/InstagramFeed/Module.php:161
+msgid "Items per sync"
+msgstr ""
+
+#: includes/Modules/InstagramFeed/Module.php:162
+msgid "Maximum number of recent posts pulled per sync (1-100)."
+msgstr ""
+
+#: includes/Modules/InstagramFeed/Module.php:234
+msgid "Set the Instagram app ID and app secret in Settings before connecting."
+msgstr ""
+
+#: includes/Modules/InstagramFeed/Module.php:260
+msgid "You do not have permission to do this."
+msgstr ""
+
+#: includes/Modules/InstagramFeed/Module.php:360
+msgid "No Instagram account connected. Connect an account first."
+msgstr ""
+
+#: includes/Modules/InstagramFeed/Module.php:618
+msgid "Media item not found."
+msgstr ""
+
+#: includes/Modules/InstagramFeed/Module.php:675
+#: includes/Modules/InstagramFeed/Module.php:700
+msgid "Feed not found."
+msgstr ""
+
+#: includes/Modules/InstagramFeed/Module.php:759
+msgid "Instagram feed not found. Create one in the Instagram Feed screen."
+msgstr ""
+
+#: includes/Modules/InstagramFeed/Module.php:801
+msgid "No Instagram account connected. Connect one in the Instagram Feed screen."
+msgstr ""
+
+#: includes/Modules/InstagramFeed/Module.php:803
+msgid "No media yet. Run a sync in the Instagram Feed screen."
 msgstr ""
 
 #. translators: appended to the aria-label of external links opening in a new tab.
@@ -3313,19 +4385,13 @@ msgid "Preview"
 msgstr ""
 
 #: includes/Modules/MaintenanceMode/Module.php:365
+#: build/563.js:1
+#: build/809.js:1
 msgid "Mode"
 msgstr ""
 
 #: includes/Modules/MaintenanceMode/Module.php:366
 msgid "Select the maintenance mode type."
-msgstr ""
-
-#: includes/Modules/MaintenanceMode/Module.php:368
-#: build/78.js:1
-#: build/136.js:1
-#: build/190.js:1
-#: build/809.js:1
-msgid "Disabled"
 msgstr ""
 
 #: includes/Modules/MaintenanceMode/Module.php:369
@@ -3398,6 +4464,7 @@ msgstr ""
 
 #: includes/Modules/MaintenanceMode/Module.php:419
 #: includes/Modules/SvgUpload/Module.php:174
+#: includes/Modules/ThirdPartyLogin/Module.php:117
 msgid "Allowed roles"
 msgstr ""
 
@@ -3407,10 +4474,6 @@ msgstr ""
 
 #: includes/Modules/MaintenanceMode/Module.php:427
 msgid "Headline text"
-msgstr ""
-
-#: includes/Modules/MaintenanceMode/Module.php:433
-msgid "Headline colour"
 msgstr ""
 
 #: includes/Modules/MaintenanceMode/Module.php:439
@@ -3433,19 +4496,6 @@ msgstr ""
 msgid "Enable logo"
 msgstr ""
 
-#: includes/Modules/MaintenanceMode/Module.php:465
-#: build/244.js:1
-#: build/718.js:1
-msgid "No"
-msgstr ""
-
-#: includes/Modules/MaintenanceMode/Module.php:466
-#: build/244.js:1
-#: build/475.js:1
-#: build/718.js:1
-msgid "Yes"
-msgstr ""
-
 #: includes/Modules/MaintenanceMode/Module.php:473
 msgid "Logo image"
 msgstr ""
@@ -3456,11 +4506,6 @@ msgstr ""
 
 #: includes/Modules/MaintenanceMode/Module.php:480
 msgid "Logo width (px)"
-msgstr ""
-
-#: includes/Modules/MaintenanceMode/Module.php:486
-#: includes/Modules/TopBar/Module.php:133
-msgid "Background colour"
 msgstr ""
 
 #: includes/Modules/MaintenanceMode/Module.php:492
@@ -3569,98 +4614,336 @@ msgstr ""
 msgid "Set visibility to %s"
 msgstr ""
 
-#: includes/Modules/NoticeBoard/Module.php:101
-msgid "Informational only: how long documents are intended to stay published. No automatic deletion is performed."
+#: includes/Modules/NoticeBoard/Module.php:140
+msgid "Email subscribers when a notice is published"
 msgstr ""
 
-#: includes/Modules/NoticeBoard/Module.php:107
+#: includes/Modules/NoticeBoard/Module.php:141
+msgid "Sends a notification to confirmed subscribers of the matching category (and to \"all categories\" subscribers)."
+msgstr ""
+
+#: includes/Modules/NoticeBoard/Module.php:147
+#: includes/Modules/SmtpEmail/Module.php:130
 msgid "From email"
 msgstr ""
 
-#: includes/Modules/NoticeBoard/Module.php:108
-msgid "Sender address used for subscription confirmation emails. Defaults to the site admin email."
+#: includes/Modules/NoticeBoard/Module.php:148
+msgid "Sender address for subscription and notification emails. Defaults to the site admin email."
+msgstr ""
+
+#: includes/Modules/NoticeBoard/Module.php:154
+msgid "Notices per page (shortcode / feed)"
+msgstr ""
+
+#: includes/Modules/NoticeBoard/Module.php:160
+msgid "Delete archived notices after (days)"
+msgstr ""
+
+#: includes/Modules/NoticeBoard/Module.php:161
+msgid "Archived notices whose expiry date is older than this are permanently deleted. 0 = keep forever."
+msgstr ""
+
+#: includes/Modules/NoticeBoard/Module.php:216
+#: includes/Modules/NoticeBoard/Module.php:272
+msgid "A title is required."
+msgstr ""
+
+#: includes/Modules/NoticeBoard/Module.php:263
+#: includes/Modules/NoticeBoard/RestController.php:155
+#: includes/Modules/NoticeBoard/RestController.php:187
+msgid "Notice not found."
 msgstr ""
 
 #. translators: %s: site name
-#: includes/Modules/NoticeBoard/Module.php:427
+#: includes/Modules/NoticeBoard/Module.php:835
 #, php-format
 msgid "[%s] Confirm your notice board subscription"
 msgstr ""
 
-#. translators: %s: confirmation URL
-#: includes/Modules/NoticeBoard/Module.php:432
-#, php-format
-msgid ""
-"Please confirm your subscription to the notice board by visiting:\n"
-"\n"
-"%s"
+#: includes/Modules/NoticeBoard/Module.php:839
+msgid "Please confirm your subscription to the notice board by clicking the link below:"
 msgstr ""
 
-#: includes/Modules/NoticeBoard/RestController.php:175
+#: includes/Modules/NoticeBoard/Module.php:840
+msgid "Confirm subscription"
+msgstr ""
+
+#: includes/Modules/NoticeBoard/Module.php:841
+msgid "If you did not request this, you can ignore this email."
+msgstr ""
+
+#. translators: 1: site name, 2: notice title
+#: includes/Modules/NoticeBoard/Module.php:878
+#, php-format
+msgid "[%1$s] New notice: %2$s"
+msgstr ""
+
+#: includes/Modules/NoticeBoard/Module.php:909
+msgid "New notice published"
+msgstr ""
+
+#: includes/Modules/NoticeBoard/Module.php:912
+msgid "Reference:"
+msgstr ""
+
+#: includes/Modules/NoticeBoard/Module.php:915
+msgid "Published:"
+msgstr ""
+
+#: includes/Modules/NoticeBoard/Module.php:921
+msgid "Unsubscribe"
+msgstr ""
+
+#: includes/Modules/NoticeBoard/Module.php:957
+msgid "Notice board"
+msgstr ""
+
+#: includes/Modules/NoticeBoard/Module.php:965
+msgid "Latest notices"
+msgstr ""
+
+#: includes/Modules/NoticeBoard/Module.php:1022
+msgid "No notices at the moment."
+msgstr ""
+
+#: includes/Modules/NoticeBoard/Module.php:1103
+msgid "Get notified of new notices by email:"
+msgstr ""
+
+#: includes/Modules/NoticeBoard/Module.php:1104
+msgid "your@email.com"
+msgstr ""
+
+#: includes/Modules/NoticeBoard/Module.php:1116
+msgid "Sending…"
+msgstr ""
+
+#: includes/Modules/NoticeBoard/Module.php:1123
+msgid "Check your inbox for a confirmation link."
+msgstr ""
+
+#: includes/Modules/NoticeBoard/Module.php:1125
+msgid "Something went wrong. Please try again later."
+msgstr ""
+
+#: includes/Modules/NoticeBoard/RestController.php:230
 msgid "A category with this name already exists."
 msgstr ""
 
-#: includes/Modules/NoticeBoard/RestController.php:186
-msgid "Category not found."
+#: includes/Modules/NoticeBoard/RestController.php:277
+msgid "Subscriber not found."
 msgstr ""
 
-#: includes/Modules/OpeningHours/Module.php:58
+#: includes/Modules/NoticeBoard/RestController.php:313
+msgid "Your subscription is confirmed."
+msgstr ""
+
+#: includes/Modules/NoticeBoard/RestController.php:314
+msgid "This confirmation link is invalid or has expired."
+msgstr ""
+
+#: includes/Modules/NoticeBoard/RestController.php:330
+msgid "You have been unsubscribed."
+msgstr ""
+
+#: includes/Modules/NoticeBoard/RestController.php:331
+msgid "This unsubscribe link is invalid or has expired."
+msgstr ""
+
+#: includes/Modules/OpeningHours/Frontend.php:73
+#: includes/Modules/OpeningHours/Frontend.php:117
+#: build/230.js:1
+msgid "Open now"
+msgstr ""
+
+#: includes/Modules/OpeningHours/Frontend.php:73
+#: includes/Modules/OpeningHours/Frontend.php:117
+msgid "Closed now"
+msgstr ""
+
+#: includes/Modules/OpeningHours/Frontend.php:91
+#: build/78.js:1
+#: build/84.js:1
+#: build/230.js:1
+msgid "Closed"
+msgstr ""
+
+#: includes/Modules/OpeningHours/Holidays.php:31
+msgid "New Year / Restoration Day of the Czech State"
+msgstr ""
+
+#: includes/Modules/OpeningHours/Holidays.php:32
+msgid "Good Friday"
+msgstr ""
+
+#: includes/Modules/OpeningHours/Holidays.php:33
+msgid "Easter Monday"
+msgstr ""
+
+#: includes/Modules/OpeningHours/Holidays.php:34
+msgid "Labour Day"
+msgstr ""
+
+#: includes/Modules/OpeningHours/Holidays.php:35
+msgid "Victory Day"
+msgstr ""
+
+#: includes/Modules/OpeningHours/Holidays.php:36
+msgid "Saints Cyril and Methodius Day"
+msgstr ""
+
+#: includes/Modules/OpeningHours/Holidays.php:37
+msgid "Jan Hus Day"
+msgstr ""
+
+#: includes/Modules/OpeningHours/Holidays.php:38
+msgid "Czech Statehood Day"
+msgstr ""
+
+#: includes/Modules/OpeningHours/Holidays.php:39
+msgid "Independent Czechoslovak State Day"
+msgstr ""
+
+#: includes/Modules/OpeningHours/Holidays.php:40
+msgid "Struggle for Freedom and Democracy Day"
+msgstr ""
+
+#: includes/Modules/OpeningHours/Holidays.php:41
+msgid "Christmas Eve"
+msgstr ""
+
+#: includes/Modules/OpeningHours/Holidays.php:42
+msgid "Christmas Day"
+msgstr ""
+
+#: includes/Modules/OpeningHours/Holidays.php:43
+msgid "St. Stephen's Day"
+msgstr ""
+
+#: includes/Modules/OpeningHours/Module.php:71
 msgid "Opening Hours Locations"
 msgstr ""
 
-#: includes/Modules/OpeningHours/Module.php:105
+#: includes/Modules/OpeningHours/Module.php:118
+msgid "Treat Czech public holidays as closed"
+msgstr ""
+
+#: includes/Modules/OpeningHours/Module.php:119
+msgid "Public holidays count as closed unless a specific exception for that date says otherwise."
+msgstr ""
+
+#: includes/Modules/OpeningHours/Module.php:125
+msgid "Output Schema.org JSON-LD (SEO)"
+msgstr ""
+
+#: includes/Modules/OpeningHours/Module.php:126
+msgid "Emits LocalBusiness + openingHoursSpecification structured data in the page head."
+msgstr ""
+
+#: includes/Modules/OpeningHours/Module.php:132
+msgid "Include JSON-LD on the homepage"
+msgstr ""
+
+#: includes/Modules/OpeningHours/Module.php:138
+msgid "JSON-LD location IDs (comma-separated, blank = all)"
+msgstr ""
+
+#: includes/Modules/OpeningHours/Module.php:144
 msgid "Google Maps API key"
 msgstr ""
 
-#: includes/Modules/OpeningHours/Module.php:106
+#: includes/Modules/OpeningHours/Module.php:145
 msgid "Stored encrypted. Leave blank to keep the current key. Used for geocoding addresses."
 msgstr ""
 
-#: includes/Modules/OpeningHours/Module.php:112
+#: includes/Modules/OpeningHours/Module.php:151
 msgid "Mapy.cz API key"
 msgstr ""
 
-#: includes/Modules/OpeningHours/Module.php:113
+#: includes/Modules/OpeningHours/Module.php:152
 msgid "Stored encrypted. Leave blank to keep the current key. Used as a fallback geocoder when no Google Maps key is set."
 msgstr ""
 
-#: includes/Modules/OpeningHours/Module.php:197
-#: includes/Modules/OpeningHours/Module.php:234
+#: includes/Modules/OpeningHours/Module.php:236
+#: includes/Modules/OpeningHours/Module.php:273
 msgid "A location name is required."
 msgstr ""
 
-#: includes/Modules/OpeningHours/Module.php:228
-#: includes/Modules/OpeningHours/Module.php:461
+#: includes/Modules/OpeningHours/Module.php:267
+#: includes/Modules/OpeningHours/Module.php:500
 #: includes/Modules/OpeningHours/RestController.php:120
 msgid "Location not found."
 msgstr ""
 
-#: includes/Modules/OpeningHours/Module.php:597
+#: includes/Modules/OpeningHours/Module.php:643
 msgid "An address is required."
 msgstr ""
 
-#: includes/Modules/OpeningHours/Module.php:612
+#: includes/Modules/OpeningHours/Module.php:658
 msgid "No geocoding provider is configured. Add a Google Maps or Mapy.cz API key in Settings."
 msgstr ""
 
-#: includes/Modules/OpeningHours/Module.php:638
+#: includes/Modules/OpeningHours/Module.php:684
 msgid "Google Maps could not resolve this address."
 msgstr ""
 
-#: includes/Modules/OpeningHours/Module.php:677
+#: includes/Modules/OpeningHours/Module.php:723
 msgid "Mapy.cz could not resolve this address."
 msgstr ""
 
-#: includes/Modules/PageLoad/Module.php:83
+#. translators: %s: page generation time.
+#: includes/Modules/PageLoad/AdminBar.php:67
+#, php-format
+msgid "Page generated in %s"
+msgstr ""
+
+#: includes/Modules/PageLoad/AdminBar.php:79
+msgid "Load time"
+msgstr ""
+
+#: includes/Modules/PageLoad/AdminBar.php:81
+msgid "DB queries"
+msgstr ""
+
+#: includes/Modules/PageLoad/AdminBar.php:83
+#: build/178.js:1
+msgid "Peak memory"
+msgstr ""
+
+#: includes/Modules/PageLoad/Module.php:130
 msgid "Sample rate (%)"
 msgstr ""
 
-#: includes/Modules/PageLoad/Module.php:84
+#: includes/Modules/PageLoad/Module.php:131
 msgid "Percentage of frontend GET requests to time and record (0-100)."
 msgstr ""
 
-#: includes/Modules/PageLoad/Module.php:91
+#: includes/Modules/PageLoad/Module.php:138
 msgid "Log rows older than this are pruned automatically."
+msgstr ""
+
+#: includes/Modules/PageLoad/Module.php:144
+msgid "Admin-bar indicator"
+msgstr ""
+
+#: includes/Modules/PageLoad/Module.php:145
+msgid "Show the current page load time, DB queries and peak memory in the admin bar (admins only)."
+msgstr ""
+
+#: includes/Modules/PageLoad/Module.php:151
+msgid "Plugin impact benchmark"
+msgstr ""
+
+#: includes/Modules/PageLoad/Module.php:152
+msgid "When a plugin is activated or deactivated, measure the change in front-page load time."
+msgstr ""
+
+#: includes/Modules/PageLoad/Module.php:158
+msgid "Benchmark requests"
+msgstr ""
+
+#: includes/Modules/PageLoad/Module.php:159
+msgid "How many front-page requests to average per benchmark run (1-10)."
 msgstr ""
 
 #: includes/Modules/PerformanceOptimization/Module.php:162
@@ -3676,6 +4959,7 @@ msgid "Enter a Google tracking ID, e.g. G-XXXXXXXXXX."
 msgstr ""
 
 #: includes/Modules/PixelTagManager/Module.php:169
+#: includes/Modules/SecurityOptimization/Module.php:644
 msgid "Facebook Pixel"
 msgstr ""
 
@@ -3710,6 +4994,7 @@ msgid "Gallery"
 msgstr ""
 
 #: includes/Modules/PostGallery/Module.php:96
+#: build/309.js:1
 #: build/index.js:1
 #: includes/Modules/PostGallery/assets/js/post-gallery-admin.js:48
 msgid "Remove"
@@ -3912,19 +5197,23 @@ msgstr ""
 msgid "— No change —"
 msgstr ""
 
-#: includes/Modules/PushNotifications/Module.php:118
+#: includes/Modules/PushNotifications/Module.php:121
 msgid "VAPID contact (mailto: or URL)"
 msgstr ""
 
-#: includes/Modules/PushNotifications/Module.php:119
-msgid "Used as the \"sub\" claim of the VAPID JWT once real delivery is implemented."
+#: includes/Modules/PushNotifications/Module.php:122
+msgid "Used as the \"sub\" claim of the VAPID JWT sent with each push. Defaults to the site admin email."
 msgstr ""
 
-#: includes/Modules/PushNotifications/Module.php:328
+#: includes/Modules/PushNotifications/Module.php:335
 msgid "Notification not found."
 msgstr ""
 
-#: includes/Modules/PushNotifications/RestController.php:174
+#: includes/Modules/PushNotifications/Module.php:338
+msgid "Generate VAPID keys first."
+msgstr ""
+
+#: includes/Modules/PushNotifications/RestController.php:201
 msgid "Could not generate a VAPID keypair (is the openssl PHP extension with EC support available?)."
 msgstr ""
 
@@ -4157,284 +5446,439 @@ msgstr ""
 msgid "Invalid CIDR range: %s"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:254
+#: includes/Modules/SecurityOptimization/Module.php:281
 msgid "Enable IP firewall"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:255
+#: includes/Modules/SecurityOptimization/Module.php:282
 msgid "Blocks every request (frontend, login, admin, REST) from banned IPs/ranges/countries. Logged-in administrators and allowlisted IPs are never blocked."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:261
+#: includes/Modules/SecurityOptimization/Module.php:288
 msgid "Client IP source"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:262
+#: includes/Modules/SecurityOptimization/Module.php:289
 msgid "Forwarded headers are only trusted in the selected mode (otherwise spoofable). Choose Cloudflare if the site is behind Cloudflare."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:264
+#: includes/Modules/SecurityOptimization/Module.php:291
 msgid "Direct connection (REMOTE_ADDR) - safe default"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:265
+#: includes/Modules/SecurityOptimization/Module.php:292
 msgid "Behind Cloudflare (CF-Connecting-IP)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:266
+#: includes/Modules/SecurityOptimization/Module.php:293
 msgid "Behind a reverse proxy (X-Forwarded-For)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:273
+#: includes/Modules/SecurityOptimization/Module.php:300
 msgid "Allowlist (never block)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:274
+#: includes/Modules/SecurityOptimization/Module.php:301
 msgid "IP addresses or CIDR ranges that are never blocked, one per line. Loopback is always allowed."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:280
+#: includes/Modules/SecurityOptimization/Module.php:307
 msgid "Block page message"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:281
+#: includes/Modules/SecurityOptimization/Module.php:308
 msgid "Optional message shown to a blocked visitor (403)."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:289
+#: includes/Modules/SecurityOptimization/Module.php:316
 msgid "Enable country blocklist"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:290
+#: includes/Modules/SecurityOptimization/Module.php:317
 msgid "Blocks visitors from the selected countries via the IP firewall (downloads aggregated IP ranges per country)."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:296
+#: includes/Modules/SecurityOptimization/Module.php:323
 msgid "Blocked countries"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:297
+#: includes/Modules/SecurityOptimization/Module.php:324
 msgid "Selecting a country here creates/refreshes a country-type IP ban the next time settings are saved."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:306
+#: includes/Modules/SecurityOptimization/Module.php:333
 msgid "Force canonical URL redirect"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:307
+#: includes/Modules/SecurityOptimization/Module.php:334
 msgid "Writes .htaccess rules that redirect every request to a single canonical version of the site, based on Settings -> General -> Site Address."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:313
+#: includes/Modules/SecurityOptimization/Module.php:340
 msgid "Force HTTPS"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:314
+#: includes/Modules/SecurityOptimization/Module.php:341
 msgid "Redirects all HTTP requests to HTTPS. Only enable with a working SSL certificate on the whole site. Ignored when canonical URL redirect is on (it already covers this)."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:322
+#: includes/Modules/SecurityOptimization/Module.php:349
 msgid "Security headers"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:323
+#: includes/Modules/SecurityOptimization/Module.php:350
 msgid "Sends X-Frame-Options, X-Content-Type-Options and Referrer-Policy, both via .htaccess and as a PHP fallback."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:329
+#: includes/Modules/SecurityOptimization/Module.php:356
 msgid "HSTS (Strict-Transport-Security)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:330
+#: includes/Modules/SecurityOptimization/Module.php:357
 msgid "Tells browsers to only ever connect over HTTPS for a year. Only enable with a valid SSL certificate everywhere on the site."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:336
+#: includes/Modules/SecurityOptimization/Module.php:363
 msgid "Permissions-Policy"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:337
+#: includes/Modules/SecurityOptimization/Module.php:364
 msgid "Disables browser access to camera, microphone, geolocation, payment and USB APIs by default."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:345
-msgid "Protect wp-config.php"
-msgstr ""
-
-#: includes/Modules/SecurityOptimization/Module.php:351
-msgid "Disable directory listing"
-msgstr ""
-
-#: includes/Modules/SecurityOptimization/Module.php:357
-msgid "Block readme.html / license.txt"
-msgstr ""
-
-#: includes/Modules/SecurityOptimization/Module.php:365
-msgid "Enable custom login URL"
-msgstr ""
-
-#: includes/Modules/SecurityOptimization/Module.php:366
-msgid "Rescue switch: define UXSTUDIO_DISABLE_LOGIN_LOCK in wp-config.php to bypass this feature entirely if you get locked out."
-msgstr ""
-
 #: includes/Modules/SecurityOptimization/Module.php:372
-msgid "Custom login slug"
+msgid "Content-Security-Policy (CSP)"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/Module.php:373
-msgid "New slug for the login page. wp-login.php will 404 for direct visitors. If the slug collides with an existing page/rewrite rule, the redirect is automatically NOT activated (fail-open) and a warning is logged."
+msgid "CSP tells the browser where scripts, styles, images and other content may load from, strongly reducing XSS risk. SAFETY: CSP is only ever sent on the front end - never in wp-admin - so it cannot lock you out of the dashboard. Start with \"Report only\" to see what would break (violations appear in the CSP Violations tab), then switch to \"Enforce\" once clean."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:379
-msgid "Direct wp-login.php behavior"
+#: includes/Modules/SecurityOptimization/Module.php:375
+#: build/190.js:1
+msgid "Off"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:381
-msgid "404 page"
+#: includes/Modules/SecurityOptimization/Module.php:376
+msgid "Report only (recommended first - nothing is blocked)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:382
-msgid "Homepage"
+#: includes/Modules/SecurityOptimization/Module.php:377
+msgid "Enforce (actively blocks disallowed sources)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:391
-msgid "Limit login attempts"
+#: includes/Modules/SecurityOptimization/Module.php:384
+msgid "CSP strictness"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:392
-msgid "Blocks an IP/username after too many failed login attempts (brute-force protection)."
+#: includes/Modules/SecurityOptimization/Module.php:385
+msgid "Basic allows inline scripts and eval() so it stays compatible with most themes, plugins and visual editors. Strict removes eval() for tighter protection but may break page builders (Elementor, WPBakery, Divi)."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:398
-msgid "Max attempts"
+#: includes/Modules/SecurityOptimization/Module.php:387
+msgid "Basic (recommended - allows eval)"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:388
+msgid "Strict (no eval)"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:395
+msgid "CSP - allowed services"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:396
+msgid "Select the external services the site uses. Matching domains are added to the policy so their scripts, styles, fonts and images keep working."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:403
+msgid "CSP - custom domain allowlist"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/Module.php:404
-msgid "Lockout time (minutes)"
+msgid "One domain per line, added to script/style/img/font/connect/frame sources. Examples: https://cdn.example.com, https://*.example.com, wss://socket.example.com."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:410
-msgid "Email admin on lockout"
+#: includes/Modules/SecurityOptimization/Module.php:412
+msgid "Protect wp-config.php"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/Module.php:418
+msgid "Disable directory listing"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:424
+msgid "Block readme.html / license.txt"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:432
+msgid "Enable custom login URL"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:433
+msgid "Rescue switch: define UXSTUDIO_DISABLE_LOGIN_LOCK in wp-config.php to bypass this feature entirely if you get locked out."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:439
+msgid "Custom login slug"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:440
+msgid "New slug for the login page. wp-login.php will 404 for direct visitors. If the slug collides with an existing page/rewrite rule, the redirect is automatically NOT activated (fail-open) and a warning is logged."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:446
+msgid "Direct wp-login.php behavior"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:448
+msgid "404 page"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:449
+msgid "Homepage"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:458
+msgid "Limit login attempts"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:459
+msgid "Blocks an IP/username after too many failed login attempts (brute-force protection)."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:465
+msgid "Max attempts"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:471
+msgid "Lockout time (minutes)"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:477
+msgid "Email admin on lockout"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:485
 msgid "Block reserved usernames"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:419
+#: includes/Modules/SecurityOptimization/Module.php:486
 msgid "Prevents registering/renaming to reserved names such as admin, administrator, root, test."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:425
+#: includes/Modules/SecurityOptimization/Module.php:492
 msgid "Additional blocked usernames"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:426
+#: includes/Modules/SecurityOptimization/Module.php:493
 msgid "One per line, added on top of the built-in reserved list (admin, administrator, root, test)."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:434
+#: includes/Modules/SecurityOptimization/Module.php:501
 msgid "Enable CAPTCHA"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:435
+#: includes/Modules/SecurityOptimization/Module.php:502
 msgid "Adds CAPTCHA verification to login, registration and lost-password forms. Without both keys set, nothing is enforced."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:441
+#: includes/Modules/SecurityOptimization/Module.php:508
 msgid "CAPTCHA provider"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:443
+#: includes/Modules/SecurityOptimization/Module.php:510
 msgid "Cloudflare Turnstile"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:444
+#: includes/Modules/SecurityOptimization/Module.php:511
 msgid "Google reCAPTCHA v2 (checkbox)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:445
+#: includes/Modules/SecurityOptimization/Module.php:512
 msgid "Google reCAPTCHA v3 (score)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:452
+#: includes/Modules/SecurityOptimization/Module.php:519
 msgid "Enforcement mode"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:454
+#: includes/Modules/SecurityOptimization/Module.php:521
 msgid "Always"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:455
+#: includes/Modules/SecurityOptimization/Module.php:522
 msgid "Adaptive (after repeated failures)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:462
+#: includes/Modules/SecurityOptimization/Module.php:529
 msgid "Site key"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:463
+#: includes/Modules/SecurityOptimization/Module.php:530
 msgid "Public key, safe to expose in the page markup."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:469
+#: includes/Modules/SecurityOptimization/Module.php:536
 msgid "Secret key"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:470
+#: includes/Modules/SecurityOptimization/Module.php:537
 msgid "Stored encrypted server-side. Leave blank to keep the current key."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:478
+#: includes/Modules/SecurityOptimization/Module.php:545
 msgid "Disable XML-RPC"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:484
+#: includes/Modules/SecurityOptimization/Module.php:551
 msgid "Hide WordPress version"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:490
+#: includes/Modules/SecurityOptimization/Module.php:557
 msgid "Disable emoji scripts"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:496
+#: includes/Modules/SecurityOptimization/Module.php:563
 msgid "Disable embeds script"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:502
+#: includes/Modules/SecurityOptimization/Module.php:569
 msgid "Disable RSS feeds"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:508
+#: includes/Modules/SecurityOptimization/Module.php:575
 msgid "Restrict REST API to logged-in users"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:618
+#: includes/Modules/SecurityOptimization/Module.php:576
+msgid "Blocks the WordPress REST API for anonymous visitors. Common public endpoints (oEmbed, WooCommerce, Contact Form 7, WPForms, Elementor, site health) stay reachable so front-end features keep working."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:584
+msgid "Block user enumeration"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:585
+msgid "Stops attackers harvesting usernames via ?author=N redirects and the public /wp/v2/users REST route. Logged-in users keep full access."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:591
+msgid "Disable theme/plugin file editor"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:592
+msgid "Defines DISALLOW_FILE_EDIT so nobody can edit theme or plugin PHP from wp-admin - a common way attackers turn a stolen admin login into code execution."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:598
+msgid "Harden the login page"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:599
+msgid "Hides detailed login error messages (so an attacker cannot tell which of username/password was wrong) and disables Application Passwords."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:607
+msgid "Enable Upload Guard scanner"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:608
+msgid "Scans uploaded files and wp-content for injected/malicious code and runs a nightly full scan. Turning this off stops all scanning (existing findings are kept). CSP violation reporting is unaffected."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:614
+msgid "Email admin on detections"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:615
+msgid "Sends a throttled summary email when new high/critical findings appear (at most one per 15 minutes)."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:621
+#: includes/Modules/ServiceRequests/Module.php:81
+msgid "Notification email"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:622
+msgid "Where to send Upload Guard alerts. Leave blank to use the site admin email."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:635
+msgid "Google Fonts"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:636
+msgid "Google Tag Manager + Analytics"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:637
+msgid "YouTube (embedded videos)"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:638
+msgid "Vimeo (embedded videos)"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:639
+msgid "Smartsupp (chat)"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:640
+msgid "Google reCAPTCHA"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:641
+msgid "Cloudflare / CloudFront CDN"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:642
+msgid "Mapy.cz"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:643
+msgid "Google Maps"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:645
+msgid "Gravatar (comment avatars)"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:753
 msgid "Your IP address has been blocked."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:678
+#: includes/Modules/SecurityOptimization/Module.php:754
+#: includes/Modules/SecurityOptimization/Module.php:1276
+msgid "403 Forbidden"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:1010
+msgid "Invalid login credentials. Please check both the username and the password."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:1069
 msgid "XML-RPC is disabled."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:768
+#: includes/Modules/SecurityOptimization/Module.php:1159
 msgid "Not found."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:807
+#: includes/Modules/SecurityOptimization/Module.php:1198
 msgid "This username is not allowed for security reasons. Please choose another."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:822
-#: includes/Modules/SecurityOptimization/Module.php:835
+#: includes/Modules/SecurityOptimization/Module.php:1213
+#: includes/Modules/SecurityOptimization/Module.php:1226
 msgid "This username is not allowed for security reasons."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:884
+#: includes/Modules/SecurityOptimization/Module.php:1275
 msgid "RSS feeds are disabled on this site."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:901
+#: includes/Modules/SecurityOptimization/Module.php:1292
 msgid "REST API access is restricted to logged-in users."
 msgstr ""
 
@@ -4447,29 +5891,29 @@ msgid "Ban not found or cannot be deleted."
 msgstr ""
 
 #. translators: %s: site name
-#: includes/Modules/SecurityOptimization/UploadGuardNotifier.php:64
+#: includes/Modules/SecurityOptimization/UploadGuardNotifier.php:71
 #, php-format
 msgid "[%s] Upload Guard: suspicious files detected"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/UploadGuardNotifier.php:80
+#: includes/Modules/SecurityOptimization/UploadGuardNotifier.php:87
 msgid "Upload Guard - suspicious files"
 msgstr ""
 
 #. translators: %d: number of findings
-#: includes/Modules/SecurityOptimization/UploadGuardNotifier.php:83
+#: includes/Modules/SecurityOptimization/UploadGuardNotifier.php:90
 #, php-format
 msgid "%d suspicious file(s) found on your site. Review and resolve them in the UX Studio admin."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/UploadGuardNotifier.php:87
+#: includes/Modules/SecurityOptimization/UploadGuardNotifier.php:94
+#: build/31.js:1
 #: build/190.js:1
 #: build/244.js:1
-#: build/475.js:1
 msgid "File"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/UploadGuardNotifier.php:88
+#: includes/Modules/SecurityOptimization/UploadGuardNotifier.php:95
 #: build/190.js:1
 #: build/457.js:1
 msgid "Severity"
@@ -4482,10 +5926,6 @@ msgstr ""
 
 #: includes/Modules/SecurityOptimization/UploadGuardRestController.php:133
 msgid "Could not restore the file from quarantine."
-msgstr ""
-
-#: includes/Modules/ServiceRequests/Module.php:81
-msgid "Notification email"
 msgstr ""
 
 #: includes/Modules/ServiceRequests/Module.php:82
@@ -4518,72 +5958,152 @@ msgid ""
 "Requester: %3$s"
 msgstr ""
 
-#: includes/Modules/SmtpEmail/Module.php:91
+#: includes/Modules/SmtpEmail/Module.php:118
 msgid "Mailer"
 msgstr ""
 
-#: includes/Modules/SmtpEmail/Module.php:92
+#: includes/Modules/SmtpEmail/Module.php:119
 msgid "How outgoing mail is sent."
 msgstr ""
 
-#: includes/Modules/SmtpEmail/Module.php:94
+#: includes/Modules/SmtpEmail/Module.php:121
 msgid "SMTP"
 msgstr ""
 
-#: includes/Modules/SmtpEmail/Module.php:95
+#: includes/Modules/SmtpEmail/Module.php:122
 msgid "Brevo API"
 msgstr ""
 
-#: includes/Modules/SmtpEmail/Module.php:102
+#: includes/Modules/SmtpEmail/Module.php:123
+msgid "Gmail API (OAuth)"
+msgstr ""
+
+#: includes/Modules/SmtpEmail/Module.php:131
+msgid "Sender address used for outgoing mail. Leave blank to keep WordPress defaults."
+msgstr ""
+
+#: includes/Modules/SmtpEmail/Module.php:137
+msgid "Force From email"
+msgstr ""
+
+#: includes/Modules/SmtpEmail/Module.php:138
+msgid "Override the From address on every outgoing message, even if a plugin sets its own."
+msgstr ""
+
+#: includes/Modules/SmtpEmail/Module.php:144
+msgid "From name"
+msgstr ""
+
+#: includes/Modules/SmtpEmail/Module.php:150
+msgid "Force From name"
+msgstr ""
+
+#: includes/Modules/SmtpEmail/Module.php:151
+msgid "Override the From name on every outgoing message."
+msgstr ""
+
+#: includes/Modules/SmtpEmail/Module.php:157
 msgid "SMTP host"
 msgstr ""
 
-#: includes/Modules/SmtpEmail/Module.php:108
+#: includes/Modules/SmtpEmail/Module.php:163
 msgid "SMTP port"
 msgstr ""
 
-#: includes/Modules/SmtpEmail/Module.php:114
+#: includes/Modules/SmtpEmail/Module.php:169
 msgid "Encryption"
 msgstr ""
 
-#: includes/Modules/SmtpEmail/Module.php:116
+#: includes/Modules/SmtpEmail/Module.php:171
 msgid "TLS"
 msgstr ""
 
-#: includes/Modules/SmtpEmail/Module.php:117
+#: includes/Modules/SmtpEmail/Module.php:172
 msgid "SSL"
 msgstr ""
 
-#: includes/Modules/SmtpEmail/Module.php:118
+#: includes/Modules/SmtpEmail/Module.php:173
 #: includes/Modules/UserSwitching/Module.php:849
 #: build/809.js:1
 msgid "None"
 msgstr ""
 
-#: includes/Modules/SmtpEmail/Module.php:125
+#: includes/Modules/SmtpEmail/Module.php:180
 msgid "SMTP username"
 msgstr ""
 
-#: includes/Modules/SmtpEmail/Module.php:131
+#: includes/Modules/SmtpEmail/Module.php:186
 msgid "SMTP password"
 msgstr ""
 
-#: includes/Modules/SmtpEmail/Module.php:132
+#: includes/Modules/SmtpEmail/Module.php:187
 msgid "Stored encrypted. Leave blank to keep the current password."
 msgstr ""
 
-#: includes/Modules/SmtpEmail/Module.php:138
+#: includes/Modules/SmtpEmail/Module.php:193
 msgid "Brevo API key"
 msgstr ""
 
+#: includes/Modules/SmtpEmail/Module.php:200
+msgid "Gmail OAuth client ID"
+msgstr ""
+
+#: includes/Modules/SmtpEmail/Module.php:201
+msgid "From your Google Cloud OAuth client. Add the redirect URI shown below to that client."
+msgstr ""
+
+#: includes/Modules/SmtpEmail/Module.php:207
+msgid "Gmail OAuth client secret"
+msgstr ""
+
+#: includes/Modules/SmtpEmail/Module.php:651
+msgid "Access token refresh failed (refresh token may have been revoked)."
+msgstr ""
+
+#: includes/Modules/SmtpEmail/Module.php:703
+msgid "Enter and save the Gmail client ID and secret first."
+msgstr ""
+
+#. translators: %s: Google error code
+#: includes/Modules/SmtpEmail/Module.php:724
+#, php-format
+msgid "Google returned an error: %s"
+msgstr ""
+
+#: includes/Modules/SmtpEmail/Module.php:731
+msgid "Invalid or expired OAuth state. Try connecting again."
+msgstr ""
+
+#: includes/Modules/SmtpEmail/Module.php:742
+msgid "Code-for-token exchange failed. Check the client secret and redirect URI in Google Cloud."
+msgstr ""
+
+#: includes/Modules/SmtpEmail/Module.php:748
+msgid "Google did not send a refresh token. Revoke this app at myaccount.google.com/permissions and connect again."
+msgstr ""
+
+#. translators: %s: Google account email
+#: includes/Modules/SmtpEmail/Module.php:781
+#, php-format
+msgid "Account %s connected."
+msgstr ""
+
+#: includes/Modules/SmtpEmail/Module.php:796
+msgid "Account disconnected."
+msgstr ""
+
 #. translators: %s: site name
-#: includes/Modules/SmtpEmail/Module.php:339
+#: includes/Modules/SmtpEmail/Module.php:891
 #, php-format
 msgid "[%s] SMTP test email"
 msgstr ""
 
-#: includes/Modules/SmtpEmail/Module.php:342
+#: includes/Modules/SmtpEmail/Module.php:894
 msgid "This is a test email sent from the UX Studio SMTP Email module."
+msgstr ""
+
+#: includes/Modules/SmtpEmail/Module.php:910
+msgid "No previous message to resend."
 msgstr ""
 
 #. translators: %s: provider name, e.g. Pexels
@@ -4641,43 +6161,69 @@ msgstr ""
 msgid "Only users with one of these roles may upload SVG files. Defaults to administrators only."
 msgstr ""
 
-#: includes/Modules/ThirdPartyLogin/Module.php:71
+#: includes/Modules/ThirdPartyLogin/Module.php:93
 msgid "Base URL of the central app that performs the OAuth handshake."
 msgstr ""
 
-#: includes/Modules/ThirdPartyLogin/Module.php:78
+#: includes/Modules/ThirdPartyLogin/Module.php:99
+msgid "HMAC secret"
+msgstr ""
+
+#: includes/Modules/ThirdPartyLogin/Module.php:100
 msgid "Shared secret used to verify signed callbacks from the central app. Stored encrypted. Leave blank to keep the current secret."
 msgstr ""
 
-#: includes/Modules/ThirdPartyLogin/Module.php:84
+#: includes/Modules/ThirdPartyLogin/Module.php:106
 msgid "Enabled providers"
 msgstr ""
 
-#: includes/Modules/ThirdPartyLogin/Module.php:86
+#: includes/Modules/ThirdPartyLogin/Module.php:108
+#: includes/Modules/ThirdPartyLogin/Module.php:342
 msgid "Google"
 msgstr ""
 
-#: includes/Modules/ThirdPartyLogin/Module.php:87
+#: includes/Modules/ThirdPartyLogin/Module.php:109
+#: includes/Modules/ThirdPartyLogin/Module.php:343
 msgid "Facebook"
 msgstr ""
 
-#: includes/Modules/ThirdPartyLogin/Module.php:88
+#: includes/Modules/ThirdPartyLogin/Module.php:110
+#: includes/Modules/ThirdPartyLogin/Module.php:344
 msgid "Apple"
 msgstr ""
 
-#: includes/Modules/ThirdPartyLogin/Module.php:146
-msgid "Sign in with Google"
+#: includes/Modules/ThirdPartyLogin/Module.php:118
+msgid "Only users whose role is selected here may log in (or be auto-created) via a provider. Leave empty to block third-party login for everyone."
 msgstr ""
 
-#: includes/Modules/ThirdPartyLogin/Module.php:147
-msgid "Sign in with Facebook"
+#: includes/Modules/ThirdPartyLogin/Module.php:125
+msgid "Auto-create accounts on first login"
 msgstr ""
 
-#: includes/Modules/ThirdPartyLogin/Module.php:148
-msgid "Sign in with Apple"
+#: includes/Modules/ThirdPartyLogin/Module.php:126
+msgid "When on, an unknown verified provider identity creates a new WordPress user. When off, unknown identities are rejected and users must link a provider from their profile after logging in."
 msgstr ""
 
-#: includes/Modules/ThirdPartyLogin/RestController.php:74
+#: includes/Modules/ThirdPartyLogin/Module.php:132
+msgid "Default role for auto-created accounts"
+msgstr ""
+
+#: includes/Modules/ThirdPartyLogin/Module.php:133
+msgid "Role assigned to auto-created users. Administrator is intentionally not selectable. This role should also be in \"Allowed roles\", otherwise the new account cannot log in."
+msgstr ""
+
+#. translators: %s = provider name
+#: includes/Modules/ThirdPartyLogin/Module.php:395
+#, php-format
+msgid "Sign in with %s"
+msgstr ""
+
+#: includes/Modules/ThirdPartyLogin/RestController.php:128
+msgid "Your role is not allowed to use third-party login."
+msgstr ""
+
+#: includes/Modules/ThirdPartyLogin/RestController.php:188
+#: includes/Modules/ThirdPartyLogin/RestController.php:432
 msgid "Invalid request."
 msgstr ""
 
@@ -4691,10 +6237,6 @@ msgstr ""
 
 #: includes/Modules/TopBar/Module.php:134
 msgid "Background colour of the bar."
-msgstr ""
-
-#: includes/Modules/TopBar/Module.php:140
-msgid "Text colour"
 msgstr ""
 
 #: includes/Modules/TopBar/Module.php:141
@@ -4863,7 +6405,46 @@ msgid "Too many requests, slow down."
 msgstr ""
 
 #: build/31.js:1
-msgid "Compresses JPEG/PNG/GIF images already in the media library and optionally generates WebP siblings. Originals are always kept as a backup file before the first optimization."
+msgid "WebP encoding"
+msgstr ""
+
+#: build/31.js:1
+msgid "Supported"
+msgstr ""
+
+#: build/31.js:1
+msgid "Unavailable"
+msgstr ""
+
+#: build/31.js:1
+msgid "AVIF encoding"
+msgstr ""
+
+#: build/31.js:1
+msgid "Unavailable on this server"
+msgstr ""
+
+#: build/31.js:1
+msgid "Next-gen delivery (.htaccess)"
+msgstr ""
+
+#: build/31.js:1
+#: build/78.js:1
+#: build/190.js:1
+#: build/475.js:1
+msgid "Active"
+msgstr ""
+
+#: build/31.js:1
+msgid "Inactive"
+msgstr ""
+
+#: build/31.js:1
+msgid "uploads/.htaccess is not writable — delivery rules cannot be managed automatically."
+msgstr ""
+
+#: build/31.js:1
+msgid "Compresses JPEG/PNG/GIF images already in the media library and optionally generates WebP/AVIF siblings. Originals are always kept as a backup file before the first optimization."
 msgstr ""
 
 #: build/31.js:1
@@ -4892,13 +6473,98 @@ msgid "Restored."
 msgstr ""
 
 #: build/31.js:1
+msgid "Heuristically finds image attachments not referenced in content, featured images, term meta, widgets or the site logo. Detection can never be perfect, so selected images are moved to the WordPress trash (fully recoverable) — never permanently deleted."
+msgstr ""
+
+#: build/31.js:1
+msgid "Re-scan"
+msgstr ""
+
+#: build/31.js:1
+msgid "Move selected to trash"
+msgstr ""
+
+#: build/31.js:1
+msgid "unused images"
+msgstr ""
+
+#: build/31.js:1
+msgid "Moved to trash:"
+msgstr ""
+
+#: build/31.js:1
+msgid "skipped"
+msgstr ""
+
+#: build/31.js:1
 #: build/50.js:1
 #: build/78.js:1
 #: build/84.js:1
-#: build/136.js:1
-#: build/144.js:1
+#: build/93.js:1
+#: build/136.js:2
 #: build/148.js:1
-#: build/149.js:1
+#: build/157.js:1
+#: build/158.js:1
+#: build/178.js:1
+#: build/190.js:1
+#: build/213.js:2
+#: build/230.js:1
+#: build/244.js:1
+#: build/309.js:1
+#: build/367.js:1
+#: build/402.js:1
+#: build/457.js:1
+#: build/474.js:1
+#: build/475.js:1
+#: build/718.js:1
+#: build/752.js:1
+#: build/792.js:1
+#: build/809.js:1
+#: build/819.js:1
+#: build/831.js:1
+#: build/860.js:1
+#: build/866.js:1
+#: build/907.js:1
+#: build/930.js:1
+#: build/976.js:1
+#: build/index.js:1
+#: build/index.js:2
+msgid "Loading…"
+msgstr ""
+
+#: build/31.js:1
+msgid "No unused images detected."
+msgstr ""
+
+#: build/31.js:1
+msgid "Size"
+msgstr ""
+
+#: build/31.js:1
+msgid "Uploaded"
+msgstr ""
+
+#: build/31.js:1
+#: build/78.js:1
+#: build/367.js:1
+#: build/860.js:1
+msgid "Previous"
+msgstr ""
+
+#: build/31.js:1
+#: build/78.js:1
+#: build/367.js:1
+#: build/860.js:1
+msgid "Next"
+msgstr ""
+
+#: build/31.js:1
+#: build/50.js:1
+#: build/78.js:1
+#: build/84.js:1
+#: build/93.js:1
+#: build/136.js:2
+#: build/148.js:1
 #: build/157.js:1
 #: build/158.js:1
 #: build/178.js:1
@@ -4913,15 +6579,17 @@ msgstr ""
 #: build/457.js:1
 #: build/474.js:1
 #: build/475.js:1
+#: build/563.js:1
 #: build/718.js:1
-#: build/755.js:2
+#: build/752.js:1
 #: build/792.js:1
 #: build/809.js:1
 #: build/819.js:1
 #: build/831.js:1
 #: build/860.js:1
+#: build/866.js:1
+#: build/907.js:1
 #: build/930.js:1
-#: build/968.js:1
 #: build/976.js:1
 #: build/999.js:1
 #: build/index.js:2
@@ -4937,48 +6605,13 @@ msgid "Bulk Optimize"
 msgstr ""
 
 #: build/31.js:1
-#: build/50.js:1
-#: build/78.js:1
-#: build/84.js:1
-#: build/136.js:1
-#: build/144.js:1
-#: build/148.js:1
-#: build/149.js:1
-#: build/157.js:1
-#: build/158.js:1
-#: build/178.js:1
-#: build/190.js:1
-#: build/213.js:2
-#: build/230.js:1
-#: build/244.js:1
-#: build/309.js:1
-#: build/367.js:1
-#: build/402.js:1
-#: build/457.js:1
-#: build/474.js:1
-#: build/475.js:1
-#: build/718.js:1
-#: build/755.js:2
-#: build/792.js:1
-#: build/809.js:1
-#: build/819.js:1
-#: build/831.js:1
-#: build/860.js:1
-#: build/930.js:1
-#: build/968.js:1
-#: build/976.js:1
-#: build/index.js:1
-#: build/index.js:2
-msgid "Loading…"
+msgid "Unused Images"
 msgstr ""
 
 #: build/31.js:1
 #: build/50.js:1
 #: build/78.js:1
-#: build/136.js:1
-#: build/144.js:1
 #: build/148.js:1
-#: build/149.js:1
 #: build/157.js:1
 #: build/178.js:1
 #: build/190.js:1
@@ -4992,10 +6625,14 @@ msgstr ""
 #: build/474.js:1
 #: build/475.js:1
 #: build/718.js:1
+#: build/752.js:1
 #: build/792.js:1
+#: build/809.js:1
 #: build/819.js:1
 #: build/831.js:1
 #: build/860.js:1
+#: build/866.js:1
+#: build/907.js:1
 #: build/930.js:1
 #: build/976.js:1
 #: build/index.js:2
@@ -5005,10 +6642,7 @@ msgstr ""
 #: build/31.js:1
 #: build/50.js:1
 #: build/78.js:1
-#: build/136.js:1
-#: build/144.js:1
 #: build/148.js:1
-#: build/149.js:1
 #: build/157.js:1
 #: build/178.js:1
 #: build/190.js:1
@@ -5021,10 +6655,14 @@ msgstr ""
 #: build/474.js:1
 #: build/475.js:1
 #: build/718.js:1
+#: build/752.js:1
 #: build/792.js:1
+#: build/809.js:1
 #: build/819.js:1
 #: build/831.js:1
 #: build/860.js:1
+#: build/866.js:1
+#: build/907.js:1
 #: build/930.js:1
 #: build/976.js:1
 #: build/index.js:2
@@ -5032,7 +6670,72 @@ msgid "Save changes"
 msgstr ""
 
 #: build/50.js:1
-msgid "IP hash"
+msgid "Current server load"
+msgstr ""
+
+#: build/50.js:1
+msgid "Bot requests (1h)"
+msgstr ""
+
+#: build/50.js:1
+msgid "Delayed (24h)"
+msgstr ""
+
+#: build/50.js:1
+msgid "Blocked (24h)"
+msgstr ""
+
+#: build/50.js:1
+msgid "Microcache files"
+msgstr ""
+
+#: build/50.js:1
+msgid "Top bots (24h)"
+msgstr ""
+
+#: build/50.js:1
+#: build/178.js:1
+msgid "No data yet."
+msgstr ""
+
+#: build/50.js:1
+msgid "Ø delay"
+msgstr ""
+
+#: build/50.js:1
+msgid "Category rules"
+msgstr ""
+
+#: build/50.js:1
+msgid "Active action"
+msgstr ""
+
+#: build/50.js:1
+msgid "Bots"
+msgstr ""
+
+#: build/50.js:1
+msgid "Clear microcache"
+msgstr ""
+
+#: build/50.js:1
+msgid "Clear log"
+msgstr ""
+
+#: build/50.js:1
+msgid "Tier"
+msgstr ""
+
+#: build/50.js:1
+#: build/136.js:1
+#: build/309.js:1
+#: build/860.js:1
+#: build/976.js:1
+msgid "Action"
+msgstr ""
+
+#: build/50.js:1
+msgid "Delay"
 msgstr ""
 
 #: build/50.js:1
@@ -5040,27 +6743,28 @@ msgid "User-Agent"
 msgstr ""
 
 #: build/50.js:1
-#: build/309.js:1
-#: build/755.js:1
-#: build/860.js:1
-#: build/976.js:1
-msgid "Action"
+msgid "IP (optional)"
 msgstr ""
 
 #: build/50.js:1
-msgid "Allowed"
+#: build/178.js:1
+msgid "Samples"
 msgstr ""
 
 #: build/50.js:1
-msgid "Blocked"
+msgid "Test"
 msgstr ""
 
 #: build/50.js:1
-msgid "No blocked requests yet."
+msgid "Detected as bot"
 msgstr ""
 
 #: build/50.js:1
-msgid "Bot Throttle"
+msgid "Current tier"
+msgstr ""
+
+#: build/50.js:1
+msgid "Planned action"
 msgstr ""
 
 #: build/50.js:1
@@ -5069,6 +6773,10 @@ msgstr ""
 #: build/831.js:1
 #: build/860.js:1
 msgid "Log"
+msgstr ""
+
+#: build/50.js:1
+msgid "Bot Throttle"
 msgstr ""
 
 #: build/78.js:1
@@ -5106,6 +6814,7 @@ msgstr ""
 
 #: build/78.js:1
 #: build/190.js:1
+#: build/475.js:1
 msgid "All"
 msgstr ""
 
@@ -5148,18 +6857,6 @@ msgid "No conversations yet."
 msgstr ""
 
 #: build/78.js:1
-#: build/367.js:1
-#: build/860.js:1
-msgid "Previous"
-msgstr ""
-
-#: build/78.js:1
-#: build/367.js:1
-#: build/860.js:1
-msgid "Next"
-msgstr ""
-
-#: build/78.js:1
 msgid "Public"
 msgstr ""
 
@@ -5192,7 +6889,6 @@ msgid "Add entry"
 msgstr ""
 
 #: build/78.js:1
-#: build/475.js:1
 msgid "Documents"
 msgstr ""
 
@@ -5201,9 +6897,10 @@ msgid "No documents uploaded yet."
 msgstr ""
 
 #: build/78.js:1
-#: build/136.js:1
 #: build/190.js:1
 #: build/213.js:1
+#: build/309.js:1
+#: build/866.js:1
 msgid "Type"
 msgstr ""
 
@@ -5217,11 +6914,11 @@ msgstr ""
 
 #: build/78.js:1
 #: build/244.js:1
+#: build/309.js:1
 #: build/474.js:1
 #: build/475.js:1
 #: build/718.js:1
 #: build/809.js:1
-#: build/819.js:1
 msgid "Actions"
 msgstr ""
 
@@ -5230,13 +6927,14 @@ msgid "Delete this document and its knowledge chunks?"
 msgstr ""
 
 #: build/78.js:1
+#: build/93.js:1
 #: build/190.js:1
 #: build/244.js:1
 #: build/474.js:1
 #: build/475.js:1
+#: build/752.js:1
 #: build/809.js:1
 #: build/930.js:1
-#: build/968.js:1
 msgid "Delete"
 msgstr ""
 
@@ -5258,12 +6956,6 @@ msgstr ""
 
 #: build/78.js:1
 msgid "Answer"
-msgstr ""
-
-#: build/78.js:1
-#: build/475.js:1
-#: build/930.js:1
-msgid "Category"
 msgstr ""
 
 #: build/78.js:1
@@ -5306,11 +6998,6 @@ msgid "No FAQs yet."
 msgstr ""
 
 #: build/78.js:1
-#: build/190.js:1
-msgid "Active"
-msgstr ""
-
-#: build/78.js:1
 msgid "Views"
 msgstr ""
 
@@ -5339,6 +7026,7 @@ msgid "Title (optional)"
 msgstr ""
 
 #: build/78.js:1
+#: build/213.js:1
 #: build/718.js:1
 msgid "Text"
 msgstr ""
@@ -5439,12 +7127,6 @@ msgid "With operator"
 msgstr ""
 
 #: build/78.js:1
-#: build/84.js:1
-#: build/230.js:1
-msgid "Closed"
-msgstr ""
-
-#: build/78.js:1
 msgid "Visitor"
 msgstr ""
 
@@ -5488,6 +7170,7 @@ msgstr ""
 
 #: build/78.js:1
 #: build/148.js:1
+#: build/244.js:1
 msgid "Post"
 msgstr ""
 
@@ -5614,25 +7297,31 @@ msgid "Import HTML/URL into Elementor"
 msgstr ""
 
 #: build/78.js:1
+#: build/367.js:1
 #: build/457.js:1
+#: build/563.js:1
 #: build/718.js:1
 msgid "Source"
 msgstr ""
 
 #: build/78.js:1
+#: build/563.js:1
 msgid "Paste HTML"
 msgstr ""
 
 #: build/78.js:1
-#: build/136.js:1
+#: build/563.js:1
+#: build/866.js:1
 msgid "HTML"
 msgstr ""
 
 #: build/78.js:1
+#: build/563.js:1
 msgid "Page URL"
 msgstr ""
 
 #: build/78.js:1
+#: build/563.js:1
 msgid "Content CSS selector (optional)"
 msgstr ""
 
@@ -5646,6 +7335,7 @@ msgid "Draft"
 msgstr ""
 
 #: build/78.js:1
+#: build/475.js:1
 msgid "Published"
 msgstr ""
 
@@ -5667,11 +7357,8 @@ msgid "widgets."
 msgstr ""
 
 #: build/78.js:1
+#: build/563.js:1
 msgid "Edit in Elementor"
-msgstr ""
-
-#: build/78.js:1
-msgid "Daily"
 msgstr ""
 
 #: build/78.js:1
@@ -5740,6 +7427,7 @@ msgstr ""
 
 #: build/78.js:1
 #: build/809.js:1
+#: build/819.js:1
 msgid "Schedule"
 msgstr ""
 
@@ -5760,6 +7448,9 @@ msgid "Create generator"
 msgstr ""
 
 #: build/78.js:1
+#: build/93.js:1
+#: build/475.js:1
+#: build/752.js:1
 msgid "Cancel"
 msgstr ""
 
@@ -6000,6 +7691,7 @@ msgid "User"
 msgstr ""
 
 #: build/78.js:1
+#: build/475.js:1
 msgid "Expires"
 msgstr ""
 
@@ -6020,9 +7712,9 @@ msgid "Status:"
 msgstr ""
 
 #: build/78.js:1
-#: build/136.js:1
 #: build/213.js:1
 #: build/809.js:1
+#: build/866.js:1
 msgid "Enabled"
 msgstr ""
 
@@ -6172,11 +7864,6 @@ msgid "Feature"
 msgstr ""
 
 #: build/78.js:1
-#: build/474.js:1
-msgid "Requests"
-msgstr ""
-
-#: build/78.js:1
 msgid "Input tokens"
 msgstr ""
 
@@ -6189,6 +7876,7 @@ msgid "Shown"
 msgstr ""
 
 #: build/84.js:1
+#: build/819.js:1
 msgid "Clicked"
 msgstr ""
 
@@ -6218,166 +7906,179 @@ msgstr ""
 msgid "No popups yet."
 msgstr ""
 
-#: build/136.js:1
-msgid "Everywhere (frontend & admin)"
+#: build/93.js:1
+msgid "Folder name"
+msgstr ""
+
+#: build/93.js:1
+msgid "Save name"
+msgstr ""
+
+#: build/93.js:1
+msgid "Rename folder"
+msgstr ""
+
+#: build/93.js:1
+msgid "Could not rename folder."
+msgstr ""
+
+#: build/93.js:1
+msgid "Move folder under"
+msgstr ""
+
+#: build/93.js:1
+msgid "— Top level —"
+msgstr ""
+
+#: build/93.js:1
+msgid "Could not move folder."
+msgstr ""
+
+#: build/93.js:1
+msgid "Delete this folder? Attachments in it will become unassigned."
+msgstr ""
+
+#: build/93.js:1
+msgid "No folders yet. Create one below, then assign attachments to it — either one by one, or in bulk from the \"Bulk move attachments\" panel."
+msgstr ""
+
+#: build/93.js:1
+#: build/367.js:1
+#: build/475.js:1
+msgid "Attachments"
+msgstr ""
+
+#: build/93.js:1
+msgid "Move under"
+msgstr ""
+
+#: build/93.js:1
+msgid "Folder Manager"
+msgstr ""
+
+#: build/93.js:1
+msgid "Add folder"
+msgstr ""
+
+#: build/93.js:1
+msgid "Parent folder"
+msgstr ""
+
+#: build/93.js:1
+msgid "— None (top level) —"
+msgstr ""
+
+#: build/93.js:1
+msgid "Could not create folder."
+msgstr ""
+
+#: build/93.js:1
+msgid "Assign attachment to a folder"
+msgstr ""
+
+#: build/93.js:1
+msgid "Folders are assigned to media via the standard WordPress media library - select attachments there and use this taxonomy, or assign a single attachment by id here."
+msgstr ""
+
+#: build/93.js:1
+msgid "Attachment ID"
+msgstr ""
+
+#: build/93.js:1
+msgid "— Unassigned —"
+msgstr ""
+
+#: build/93.js:1
+msgid "Assign"
+msgstr ""
+
+#: build/93.js:1
+msgid "Assigned."
+msgstr ""
+
+#: build/93.js:1
+msgid "Could not assign attachment."
+msgstr ""
+
+#: build/93.js:1
+msgid "Bulk move attachments"
+msgstr ""
+
+#: build/93.js:1
+msgid "Paste multiple attachment IDs (separated by spaces, commas or new lines) and move them all to one folder at once. Choose \"Unassigned\" to remove them from any folder."
+msgstr ""
+
+#: build/93.js:1
+msgid "Attachment IDs"
+msgstr ""
+
+#. translators: %d: number of attachments selected.
+#: build/93.js:4
+msgid "Move"
+msgstr ""
+
+#. translators: %d: number of attachments moved.
+#: build/93.js:6
+msgid "Moved"
+msgstr ""
+
+#: build/93.js:6
+msgid "Skipped"
+msgstr ""
+
+#: build/93.js:6
+msgid "Could not move attachments."
 msgstr ""
 
 #: build/136.js:1
-msgid "Admin only"
+msgid "No versions found"
 msgstr ""
 
 #: build/136.js:1
-msgid "Frontend only"
+msgid "Select a version…"
 msgstr ""
 
 #: build/136.js:1
-msgid "Frontend header"
+msgid "current"
 msgstr ""
 
 #: build/136.js:1
-msgid "Frontend footer"
+msgid "No installed plugins from WordPress.org were found."
 msgstr ""
 
 #: build/136.js:1
-msgid "Admin header"
+msgid "No installed themes from WordPress.org were found."
 msgstr ""
 
 #: build/136.js:1
-msgid "Admin footer"
+msgid "Current version"
 msgstr ""
 
 #: build/136.js:1
-msgid "Frontend body open"
+msgid "Roll back to"
 msgstr ""
 
-#: build/136.js:1
-msgid "Add snippet"
+#. translators: %s: version number
+#: build/136.js:2
+#, js-format
+msgid "Rolled back to %s"
 msgstr ""
 
-#: build/136.js:1
-msgid "No snippets have been created yet."
+#: build/136.js:2
+#: build/831.js:1
+msgid "Unknown error"
 msgstr ""
 
-#: build/136.js:1
-msgid "Integrity check failed"
+#: build/136.js:2
+msgid "Rollback"
 msgstr ""
 
-#: build/136.js:1
-msgid "Invalid"
-msgstr ""
-
-#: build/136.js:1
-msgid "Toggle enabled"
-msgstr ""
-
-#: build/136.js:1
-msgid "Edit snippet"
-msgstr ""
-
-#: build/136.js:1
-msgid "Delete snippet"
-msgstr ""
-
-#: build/136.js:1
-msgid "Delete this snippet? This cannot be undone."
-msgstr ""
-
-#: build/136.js:1
-msgid "Failed to save snippet."
-msgstr ""
-
-#: build/136.js:1
-msgid "Snippet name"
-msgstr ""
-
-#: build/136.js:1
-msgid "Snippet type"
-msgstr ""
-
-#: build/136.js:1
-msgid "PHP"
-msgstr ""
-
-#: build/136.js:1
-msgid "CSS"
-msgstr ""
-
-#: build/136.js:1
-msgid "JavaScript"
-msgstr ""
-
-#: build/136.js:1
-msgid "Snippet code"
-msgstr ""
-
-#: build/136.js:1
-msgid "PHP code only - do not include the opening <?php tag. Code is validated (syntax + duplicate declarations) before it is saved."
-msgstr ""
-
-#: build/136.js:1
-msgid "Where to run"
-msgstr ""
-
-#: build/136.js:1
-msgid "Enable snippet"
-msgstr ""
-
-#: build/136.js:1
-msgid "Update snippet"
-msgstr ""
-
-#: build/136.js:1
-msgid "Save snippet"
-msgstr ""
-
-#: build/136.js:1
-msgid "Back to list"
-msgstr ""
-
-#: build/136.js:1
-msgid "Code Snippets"
-msgstr ""
-
-#: build/136.js:1
-msgid "Snippets"
-msgstr ""
-
-#: build/144.js:1
-msgid "Third-Party Login"
-msgstr ""
-
-#: build/144.js:1
-msgid "Connected accounts"
-msgstr ""
-
-#: build/144.js:1
-#: build/309.js:1
-msgid "An HMAC secret is currently set."
-msgstr ""
-
-#: build/144.js:1
-#: build/309.js:1
-msgid "No HMAC secret set yet."
-msgstr ""
-
-#: build/144.js:1
-msgid "Visitors sign in through the central app, which handles the OAuth handshake with Google, Facebook or Apple and posts a signed result back to this site."
-msgstr ""
-
-#: build/144.js:1
-msgid "Account linking happens automatically on first login: if a WordPress user already exists with the matching email address, the provider account is linked to it. Otherwise a new WordPress user is created."
-msgstr ""
-
-#: build/144.js:1
-msgid "No separate list of connected accounts is stored by this module beyond WordPress’s own users — each linked provider is recorded as user meta on the corresponding WordPress user."
+#: build/136.js:2
+msgid "Rollback Manager"
 msgstr ""
 
 #: build/148.js:1
 msgid "Cached posts"
-msgstr ""
-
-#: build/148.js:1
-msgid "Bot requests (24h)"
 msgstr ""
 
 #: build/148.js:1
@@ -6402,30 +8103,6 @@ msgstr ""
 
 #: build/148.js:1
 msgid "Cache"
-msgstr ""
-
-#: build/149.js:1
-msgid "Sync now"
-msgstr ""
-
-#: build/149.js:1
-msgid "Synced"
-msgstr ""
-
-#: build/149.js:1
-msgid "items"
-msgstr ""
-
-#: build/149.js:1
-msgid "No media synced yet. Configure Content Sync and click \"Sync now\"."
-msgstr ""
-
-#: build/149.js:1
-msgid "Instagram Feed"
-msgstr ""
-
-#: build/149.js:1
-msgid "Shortcode: [uxstudio_instagram]"
 msgstr ""
 
 #: build/157.js:1
@@ -6537,7 +8214,11 @@ msgid "Max"
 msgstr ""
 
 #: build/178.js:1
-msgid "Samples"
+msgid "Avg queries"
+msgstr ""
+
+#: build/178.js:1
+msgid "Avg memory"
 msgstr ""
 
 #: build/178.js:1
@@ -6546,10 +8227,6 @@ msgstr ""
 
 #: build/178.js:1
 msgid "Avg (ms)"
-msgstr ""
-
-#: build/178.js:1
-msgid "No data yet."
 msgstr ""
 
 #: build/178.js:1
@@ -6565,7 +8242,71 @@ msgid "Load time (ms)"
 msgstr ""
 
 #: build/178.js:1
+msgid "Queries"
+msgstr ""
+
+#: build/178.js:1
+msgid "Memory (MB)"
+msgstr ""
+
+#: build/178.js:1
 msgid "No requests logged yet."
+msgstr ""
+
+#: build/178.js:1
+msgid "Estimated per-plugin impact"
+msgstr ""
+
+#: build/178.js:1
+msgid "Measured from front-page benchmarks run automatically when a plugin is activated or deactivated. Positive values mean the plugin slowed the page."
+msgstr ""
+
+#: build/178.js:1
+msgid "Plugin"
+msgstr ""
+
+#: build/178.js:1
+msgid "Avg impact"
+msgstr ""
+
+#: build/178.js:1
+msgid "Max impact"
+msgstr ""
+
+#: build/178.js:1
+msgid "Measurements"
+msgstr ""
+
+#: build/178.js:1
+msgid "Last event"
+msgstr ""
+
+#: build/178.js:1
+msgid "No impact data yet. Activate or deactivate a plugin to trigger a benchmark."
+msgstr ""
+
+#: build/178.js:1
+msgid "Recent benchmark events"
+msgstr ""
+
+#: build/178.js:1
+msgid "Event"
+msgstr ""
+
+#: build/178.js:1
+msgid "Before (ms)"
+msgstr ""
+
+#: build/178.js:1
+msgid "After (ms)"
+msgstr ""
+
+#: build/178.js:1
+msgid "Diff"
+msgstr ""
+
+#: build/178.js:1
+msgid "No benchmark events yet."
 msgstr ""
 
 #: build/178.js:1
@@ -6576,8 +8317,36 @@ msgstr ""
 msgid "Overview"
 msgstr ""
 
+#: build/178.js:1
+msgid "Plugin impact"
+msgstr ""
+
+#: build/190.js:1
+msgid "Enforcing"
+msgstr ""
+
+#: build/190.js:1
+msgid "Report only"
+msgstr ""
+
 #: build/190.js:1
 msgid "Real CSP violations reported by visitor browsers. Resolve entries once you have allowed or fixed the source."
+msgstr ""
+
+#: build/190.js:1
+msgid "CSP mode:"
+msgstr ""
+
+#: build/190.js:1
+msgid "The policy is actively enforced on the front end (never in wp-admin). Disallowed sources are blocked."
+msgstr ""
+
+#: build/190.js:1
+msgid "The policy is sent report-only: nothing is blocked, browsers just report what would be. Review the violations below, then switch to Enforce in the Settings tab."
+msgstr ""
+
+#: build/190.js:1
+msgid "CSP is off. Enable it in the Settings tab - start with Report only to collect violations here before enforcing."
 msgstr ""
 
 #: build/190.js:1
@@ -6613,6 +8382,10 @@ msgid "No CSP violations reported."
 msgstr ""
 
 #: build/190.js:1
+msgid "Save Upload Guard settings"
+msgstr ""
+
+#: build/190.js:1
 msgid "Uploaded files and wp-content are scanned for injected/malicious code. Critical findings are automatically moved to a protected quarantine folder."
 msgstr ""
 
@@ -6630,6 +8403,7 @@ msgid "Scanning in batches…"
 msgstr ""
 
 #: build/190.js:1
+#: build/809.js:1
 msgid "Last scan:"
 msgstr ""
 
@@ -6798,6 +8572,26 @@ msgid "ID"
 msgstr ""
 
 #: build/213.js:1
+msgid "Number"
+msgstr ""
+
+#: build/213.js:1
+msgid "Yes / No"
+msgstr ""
+
+#: build/213.js:1
+msgid "Link"
+msgstr ""
+
+#: build/213.js:1
+msgid "Color swatch"
+msgstr ""
+
+#: build/213.js:1
+msgid "Related post"
+msgstr ""
+
+#: build/213.js:1
 msgid "Key of an existing column — start typing to see suggestions."
 msgstr ""
 
@@ -6823,6 +8617,10 @@ msgstr ""
 
 #: build/213.js:1
 msgid "Column title"
+msgstr ""
+
+#: build/213.js:1
+msgid "Render meta value as"
 msgstr ""
 
 #: build/213.js:1
@@ -6888,10 +8686,6 @@ msgid "Add content type"
 msgstr ""
 
 #: build/230.js:1
-msgid "Open now"
-msgstr ""
-
-#: build/230.js:1
 msgid "Address"
 msgstr ""
 
@@ -6948,11 +8742,35 @@ msgid "e.g. Price list 2026"
 msgstr ""
 
 #: build/244.js:1
+msgid "Optional, e.g. brochures"
+msgstr ""
+
+#: build/244.js:1
+msgid "Attach to post ID"
+msgstr ""
+
+#: build/244.js:1
+msgid "Optional post/page ID"
+msgstr ""
+
+#: build/244.js:1
 msgid "Require login to download"
 msgstr ""
 
 #: build/244.js:1
 msgid "Add file"
+msgstr ""
+
+#: build/244.js:1
+msgid "Show files on the frontend with the shortcode:"
+msgstr ""
+
+#: build/244.js:1
+msgid "(files attached to the current post),"
+msgstr ""
+
+#: build/244.js:1
+msgid "or"
 msgstr ""
 
 #: build/244.js:1
@@ -6984,31 +8802,106 @@ msgid "Download Files"
 msgstr ""
 
 #: build/244.js:1
+#: build/475.js:1
 msgid "Files"
 msgstr ""
 
 #: build/309.js:1
-msgid "Site name"
+msgid "Node name"
 msgstr ""
 
 #: build/309.js:1
-msgid "e.g. Main hotel site"
+msgid "e.g. Client hotel site"
 msgstr ""
 
 #: build/309.js:1
-msgid "Site URL"
+msgid "Node URL"
 msgstr ""
 
 #: build/309.js:1
-msgid "Add site"
+msgid "Shared API key"
 msgstr ""
 
 #: build/309.js:1
-msgid "No sites registered yet."
+msgid "Same value as the node’s API key"
+msgstr ""
+
+#: build/309.js:1
+msgid "Stored encrypted; never shown again."
+msgstr ""
+
+#: build/309.js:1
+msgid "Add node"
+msgstr ""
+
+#: build/309.js:1
+msgid "Connection OK."
+msgstr ""
+
+#: build/309.js:1
+msgid "Connection failed."
+msgstr ""
+
+#: build/309.js:1
+msgid "SSO link opened in a new tab."
+msgstr ""
+
+#: build/309.js:1
+msgid "No nodes registered yet."
 msgstr ""
 
 #: build/309.js:1
 msgid "Last sync"
+msgstr ""
+
+#: build/309.js:1
+msgid "Test connection"
+msgstr ""
+
+#: build/309.js:1
+msgid "Open SSO login"
+msgstr ""
+
+#: build/309.js:1
+msgid "Find content to push"
+msgstr ""
+
+#: build/309.js:1
+msgid "Search posts…"
+msgstr ""
+
+#: build/309.js:1
+msgid "(no title)"
+msgstr ""
+
+#: build/309.js:1
+msgid "Target nodes"
+msgstr ""
+
+#: build/309.js:1
+msgid "(no key)"
+msgstr ""
+
+#: build/309.js:1
+msgid "Push to selected nodes"
+msgstr ""
+
+#: build/309.js:1
+msgid "Node"
+msgstr ""
+
+#: build/309.js:1
+msgid "Result"
+msgstr ""
+
+#: build/309.js:1
+msgid "Detail"
+msgstr ""
+
+#: build/309.js:1
+#: build/860.js:1
+#: build/976.js:1
+msgid "Object"
 msgstr ""
 
 #: build/309.js:1
@@ -7020,11 +8913,50 @@ msgid "Content Sync"
 msgstr ""
 
 #: build/309.js:1
-msgid "Sites"
+msgid "Nodes"
+msgstr ""
+
+#: build/309.js:1
+msgid "Push"
+msgstr ""
+
+#: build/309.js:1
+msgid "A node API key is currently set."
+msgstr ""
+
+#: build/309.js:1
+msgid "No node API key set yet."
+msgstr ""
+
+#: build/309.js:1
+msgid "A central-app HMAC secret is set."
+msgstr ""
+
+#: build/309.js:1
+msgid "No central-app HMAC secret set."
 msgstr ""
 
 #: build/367.js:1
-msgid "Clear all"
+#: build/402.js:1
+#: build/819.js:1
+#: build/831.js:1
+msgid "Sent"
+msgstr ""
+
+#: build/367.js:1
+#: build/402.js:1
+#: build/819.js:1
+#: build/831.js:1
+msgid "Failed"
+msgstr ""
+
+#: build/367.js:1
+#: build/475.js:1
+msgid "Pending"
+msgstr ""
+
+#: build/367.js:1
+msgid "Email detail"
 msgstr ""
 
 #: build/367.js:1
@@ -7038,16 +8970,27 @@ msgid "Subject"
 msgstr ""
 
 #: build/367.js:1
-#: build/402.js:1
-#: build/819.js:1
-#: build/831.js:1
-msgid "Sent"
+msgid "Headers"
 msgstr ""
 
 #: build/367.js:1
-#: build/402.js:1
-#: build/831.js:1
-msgid "Failed"
+msgid "No headers"
+msgstr ""
+
+#: build/367.js:1
+msgid "Only filenames are stored, so attachments are not re-attached on resend."
+msgstr ""
+
+#: build/367.js:1
+msgid "Resend"
+msgstr ""
+
+#: build/367.js:1
+msgid "Clear all"
+msgstr ""
+
+#: build/367.js:1
+msgid "(no subject)"
 msgstr ""
 
 #: build/367.js:1
@@ -7186,7 +9129,6 @@ msgid "Attach a file"
 msgstr ""
 
 #: build/474.js:1
-#: build/475.js:1
 msgid "Change attachment"
 msgstr ""
 
@@ -7195,7 +9137,6 @@ msgid "Requester email"
 msgstr ""
 
 #: build/474.js:1
-#: build/475.js:1
 msgid "Attachment"
 msgstr ""
 
@@ -7220,15 +9161,11 @@ msgid "Service Requests"
 msgstr ""
 
 #: build/475.js:1
-msgid "Select an attachment"
-msgstr ""
-
-#: build/475.js:1
-msgid "Select attachment"
-msgstr ""
-
-#: build/475.js:1
 msgid "e.g. Public notice 4/2026"
+msgstr ""
+
+#: build/475.js:1
+msgid "Body / description"
 msgstr ""
 
 #: build/475.js:1
@@ -7236,23 +9173,75 @@ msgid "— None —"
 msgstr ""
 
 #: build/475.js:1
-msgid "New category name"
+msgid "Reference number"
 msgstr ""
 
 #: build/475.js:1
-msgid "Add document"
+msgid "Publish date"
 msgstr ""
 
 #: build/475.js:1
-msgid "No documents yet."
+msgid "Expiry date (auto-archives after)"
 msgstr ""
 
 #: build/475.js:1
-msgid "Download"
+msgid "Select attachments"
 msgstr ""
 
 #: build/475.js:1
-msgid "Delete this document?"
+msgid "Add attachments"
+msgstr ""
+
+#: build/475.js:1
+msgid "Remove attachment"
+msgstr ""
+
+#: build/475.js:1
+msgid "Add notice"
+msgstr ""
+
+#: build/475.js:1
+msgid "New notice"
+msgstr ""
+
+#: build/475.js:1
+msgid "No notices yet."
+msgstr ""
+
+#: build/475.js:1
+msgid "Archived"
+msgstr ""
+
+#: build/475.js:1
+msgid "Unarchive"
+msgstr ""
+
+#: build/475.js:1
+msgid "Archive"
+msgstr ""
+
+#: build/475.js:1
+msgid "Delete this notice?"
+msgstr ""
+
+#: build/475.js:1
+msgid "New category"
+msgstr ""
+
+#: build/475.js:1
+msgid "Category name"
+msgstr ""
+
+#: build/475.js:1
+msgid "No categories yet."
+msgstr ""
+
+#: build/475.js:1
+msgid "Notices"
+msgstr ""
+
+#: build/475.js:1
+msgid "Delete this category?"
 msgstr ""
 
 #: build/475.js:1
@@ -7260,7 +9249,7 @@ msgid "Confirmed"
 msgstr ""
 
 #: build/475.js:1
-msgid "Pending"
+msgid "Remove this subscriber?"
 msgstr ""
 
 #: build/475.js:1
@@ -7270,6 +9259,108 @@ msgstr ""
 
 #: build/475.js:1
 msgid "Notice Board"
+msgstr ""
+
+#: build/563.js:1
+#: build/792.js:1
+msgid "Imported"
+msgstr ""
+
+#: build/563.js:1
+msgid "widgets"
+msgstr ""
+
+#: build/563.js:1
+msgid "View page"
+msgstr ""
+
+#: build/563.js:1
+msgid "New draft page"
+msgstr ""
+
+#: build/563.js:1
+msgid "Replace existing page content"
+msgstr ""
+
+#: build/563.js:1
+msgid "Append to existing page"
+msgstr ""
+
+#: build/563.js:1
+msgid "Target page ID"
+msgstr ""
+
+#: build/563.js:1
+msgid "The numeric ID of the page whose Elementor content will be replaced or appended to."
+msgstr ""
+
+#: build/563.js:1
+msgid "Upload file (.json / .zip)"
+msgstr ""
+
+#: build/563.js:1
+msgid "Paste template JSON"
+msgstr ""
+
+#: build/563.js:1
+msgid "From URL"
+msgstr ""
+
+#: build/563.js:1
+msgid "Template file"
+msgstr ""
+
+#: build/563.js:1
+msgid "Template JSON"
+msgstr ""
+
+#: build/563.js:1
+msgid "Leave blank to auto-detect the main content."
+msgstr ""
+
+#: build/563.js:1
+msgid "Page title"
+msgstr ""
+
+#: build/563.js:1
+msgid "Choose a .json or .zip file first."
+msgstr ""
+
+#: build/563.js:1
+msgid "The pasted text is not valid JSON."
+msgstr ""
+
+#: build/563.js:1
+#: build/792.js:1
+msgid "Import"
+msgstr ""
+
+#: build/563.js:1
+msgid "Page ID to export"
+msgstr ""
+
+#: build/563.js:1
+msgid "Exports the page's Elementor content and page settings to a downloadable JSON file."
+msgstr ""
+
+#: build/563.js:1
+msgid "Enter a valid page ID."
+msgstr ""
+
+#: build/563.js:1
+msgid "Export JSON"
+msgstr ""
+
+#: build/563.js:1
+msgid "Exported"
+msgstr ""
+
+#: build/563.js:1
+msgid "Elementor Import"
+msgstr ""
+
+#: build/563.js:1
+msgid "Export"
 msgstr ""
 
 #: build/718.js:1
@@ -7289,15 +9380,18 @@ msgid "No reviews yet."
 msgstr ""
 
 #: build/718.js:1
+#: build/752.js:1
 msgid "Visible"
 msgstr ""
 
 #: build/718.js:1
+#: build/752.js:1
 #: build/930.js:1
 msgid "Hide"
 msgstr ""
 
 #: build/718.js:1
+#: build/752.js:1
 msgid "Show"
 msgstr ""
 
@@ -7329,51 +9423,168 @@ msgstr ""
 msgid "Shortcode: [uxstudio_reviews]"
 msgstr ""
 
-#: build/755.js:1
-msgid "No versions found"
+#: build/752.js:1
+msgid "Grid"
 msgstr ""
 
-#: build/755.js:1
-msgid "Select a version…"
+#: build/752.js:1
+msgid "Masonry"
 msgstr ""
 
-#: build/755.js:1
-msgid "current"
+#: build/752.js:1
+msgid "Carousel"
 msgstr ""
 
-#: build/755.js:1
-msgid "No installed plugins from WordPress.org were found."
+#: build/752.js:1
+msgid "Slider"
 msgstr ""
 
-#: build/755.js:1
-msgid "No installed themes from WordPress.org were found."
+#: build/752.js:1
+msgid "Highlight"
 msgstr ""
 
-#: build/755.js:1
-msgid "Current version"
+#: build/752.js:1
+msgid "Showcase"
 msgstr ""
 
-#: build/755.js:1
-msgid "Roll back to"
+#: build/752.js:1
+msgid "Set the Instagram app ID and app secret on the Settings tab before connecting."
 msgstr ""
 
-#. translators: %s: version number
-#: build/755.js:2
-#, js-format
-msgid "Rolled back to %s"
+#: build/752.js:1
+msgid "Register this redirect URI in your Meta app:"
 msgstr ""
 
-#: build/755.js:2
+#: build/752.js:1
 #: build/831.js:1
-msgid "Unknown error"
+#: build/907.js:1
+msgid "Connected"
 msgstr ""
 
-#: build/755.js:2
-msgid "Rollback"
+#: build/752.js:1
+msgid "Token expires:"
 msgstr ""
 
-#: build/755.js:2
-msgid "Rollback Manager"
+#: build/752.js:1
+msgid "(auto-refreshed by cron)"
+msgstr ""
+
+#: build/752.js:1
+msgid "Cached media items:"
+msgstr ""
+
+#: build/752.js:1
+msgid "Sync now"
+msgstr ""
+
+#: build/752.js:1
+#: build/907.js:1
+msgid "Disconnect"
+msgstr ""
+
+#: build/752.js:1
+msgid "Synced"
+msgstr ""
+
+#: build/752.js:1
+msgid "new"
+msgstr ""
+
+#: build/752.js:1
+msgid "updated"
+msgstr ""
+
+#: build/752.js:1
+msgid "failed"
+msgstr ""
+
+#: build/752.js:1
+msgid "No Instagram account is connected yet."
+msgstr ""
+
+#: build/752.js:1
+msgid "Connect Instagram"
+msgstr ""
+
+#: build/752.js:1
+msgid "Hidden"
+msgstr ""
+
+#: build/752.js:1
+msgid "No media cached yet. Connect an account and run a sync."
+msgstr ""
+
+#: build/752.js:1
+msgid "Feed name"
+msgstr ""
+
+#: build/752.js:1
+#: build/index.js:2
+msgid "Theme"
+msgstr ""
+
+#: build/752.js:1
+msgid "Number of posts"
+msgstr ""
+
+#: build/752.js:1
+msgid "Columns (desktop)"
+msgstr ""
+
+#: build/752.js:1
+msgid "Gap (px)"
+msgstr ""
+
+#: build/752.js:1
+msgid "Media types"
+msgstr ""
+
+#: build/752.js:1
+msgid "Include hashtags"
+msgstr ""
+
+#: build/752.js:1
+msgid "Exclude hashtags"
+msgstr ""
+
+#: build/752.js:1
+msgid "Show captions"
+msgstr ""
+
+#: build/752.js:1
+msgid "Show follow button"
+msgstr ""
+
+#: build/752.js:1
+msgid "Save feed"
+msgstr ""
+
+#: build/752.js:1
+msgid "New feed"
+msgstr ""
+
+#: build/752.js:1
+msgid "No feeds yet. Create one, then embed it with its shortcode."
+msgstr ""
+
+#: build/752.js:1
+msgid "Shortcode"
+msgstr ""
+
+#: build/752.js:1
+msgid "Default shortcode: [uxstudio_instagram]. Target a specific feed with [uxstudio_instagram id=\"1\"]."
+msgstr ""
+
+#: build/752.js:1
+msgid "Instagram Feed"
+msgstr ""
+
+#: build/752.js:1
+msgid "Connection"
+msgstr ""
+
+#: build/752.js:1
+msgid "Feeds"
 msgstr ""
 
 #: build/792.js:1
@@ -7385,14 +9596,6 @@ msgid "Search"
 msgstr ""
 
 #: build/792.js:1
-msgid "Imported"
-msgstr ""
-
-#: build/792.js:1
-msgid "Import"
-msgstr ""
-
-#: build/792.js:1
 msgid "No results."
 msgstr ""
 
@@ -7401,27 +9604,55 @@ msgid "Stock Photos"
 msgstr ""
 
 #: build/809.js:1
-msgid "Hook"
+msgid "Running normally"
 msgstr ""
 
 #: build/809.js:1
-msgid "Args"
+msgid "Fully disabled"
 msgstr ""
 
 #: build/809.js:1
-msgid "Non-repeating"
+msgid "Local requests only"
 msgstr ""
 
 #: build/809.js:1
-msgid "Delete this scheduled event?"
+msgid "External hosting cron"
 msgstr ""
 
 #: build/809.js:1
-msgid "No events are currently scheduled."
+msgid "Driven by central app"
 msgstr ""
 
 #: build/809.js:1
 msgid "DISABLE_WP_CRON"
+msgstr ""
+
+#: build/809.js:1
+msgid "Defined elsewhere (wp-config.php or another plugin), not by this module."
+msgstr ""
+
+#: build/809.js:1
+msgid "DISABLE_WP_CRON writable"
+msgstr ""
+
+#: build/809.js:1
+msgid "mu-plugins writable"
+msgstr ""
+
+#: build/809.js:1
+msgid "mu-plugins NOT writable"
+msgstr ""
+
+#: build/809.js:1
+msgid "The mu-plugins directory is not writable, so this module cannot set DISABLE_WP_CRON. Define it manually in wp-config.php if you need to disable WP-Cron."
+msgstr ""
+
+#: build/809.js:1
+msgid ".htaccess writable"
+msgstr ""
+
+#: build/809.js:1
+msgid "No (Apache access rules cannot be applied)"
 msgstr ""
 
 #: build/809.js:1
@@ -7449,6 +9680,86 @@ msgid "On time"
 msgstr ""
 
 #: build/809.js:1
+msgid "External trigger"
+msgstr ""
+
+#: build/809.js:1
+msgid "Configure a hosting/system cron to call this URL every 5-15 minutes:"
+msgstr ""
+
+#: build/809.js:1
+msgid "Example crontab line:"
+msgstr ""
+
+#: build/809.js:1
+msgid "Hook"
+msgstr ""
+
+#: build/809.js:1
+msgid "Args"
+msgstr ""
+
+#: build/809.js:1
+msgid "Non-repeating"
+msgstr ""
+
+#: build/809.js:1
+msgid "Delete this scheduled event?"
+msgstr ""
+
+#: build/809.js:1
+msgid "No events are currently scheduled."
+msgstr ""
+
+#: build/809.js:1
+msgid "Display"
+msgstr ""
+
+#: build/809.js:1
+msgid "Interval"
+msgstr ""
+
+#: build/809.js:1
+msgid "No schedules registered."
+msgstr ""
+
+#: build/809.js:1
+msgid "Callback"
+msgstr ""
+
+#: build/809.js:1
+msgid "Run check now"
+msgstr ""
+
+#: build/809.js:1
+msgid "events"
+msgstr ""
+
+#: build/809.js:1
+msgid "suspicious"
+msgstr ""
+
+#: build/809.js:1
+msgid "auto-remove ON"
+msgstr ""
+
+#: build/809.js:1
+msgid "Automatically removed:"
+msgstr ""
+
+#: build/809.js:1
+msgid "Suspicious"
+msgstr ""
+
+#: build/809.js:1
+msgid "All scheduled hooks are recognised. Nothing to report."
+msgstr ""
+
+#: build/809.js:1
+msgid "The watcher has not run yet."
+msgstr ""
+
+#: build/809.js:1
 msgid "Cron Control"
 msgstr ""
 
@@ -7456,16 +9767,56 @@ msgstr ""
 msgid "Events"
 msgstr ""
 
+#: build/809.js:1
+msgid "Schedules"
+msgstr ""
+
+#: build/809.js:1
+msgid "Watcher"
+msgstr ""
+
+#: build/809.js:1
+msgid "Mode & Settings"
+msgstr ""
+
+#: build/819.js:1
+msgid "Click URL"
+msgstr ""
+
+#: build/819.js:1
+msgid "Audience"
+msgstr ""
+
+#: build/819.js:1
+msgid "All subscribers"
+msgstr ""
+
+#: build/819.js:1
+msgid "Subscribed in last 30 days"
+msgstr ""
+
 #: build/819.js:1
 msgid "No notifications yet."
 msgstr ""
 
 #: build/819.js:1
-msgid "Queued (delivery not yet implemented)"
+msgid "Delivered"
+msgstr ""
+
+#: build/819.js:1
+msgid "Scheduled"
+msgstr ""
+
+#: build/819.js:1
+msgid "Send now"
 msgstr ""
 
 #: build/819.js:1
 msgid "User agent"
+msgstr ""
+
+#: build/819.js:1
+msgid "Analytics"
 msgstr ""
 
 #: build/819.js:1
@@ -7505,6 +9856,30 @@ msgid "No Brevo API key set yet."
 msgstr ""
 
 #: build/831.js:1
+msgid "A Gmail client secret is currently set."
+msgstr ""
+
+#: build/831.js:1
+msgid "No Gmail client secret set yet."
+msgstr ""
+
+#: build/831.js:1
+msgid "Redirect URI to register in your Google Cloud OAuth client:"
+msgstr ""
+
+#: build/831.js:1
+msgid "Disconnect Gmail"
+msgstr ""
+
+#: build/831.js:1
+msgid "Connect Gmail account"
+msgstr ""
+
+#: build/831.js:1
+msgid "Save the client ID and secret first, then connect."
+msgstr ""
+
+#: build/831.js:1
 msgid "Send a test email to"
 msgstr ""
 
@@ -7517,7 +9892,15 @@ msgid "Send test email"
 msgstr ""
 
 #: build/831.js:1
+msgid "Resend last message"
+msgstr ""
+
+#: build/831.js:1
 msgid "Failed:"
+msgstr ""
+
+#: build/831.js:1
+msgid "Resent to"
 msgstr ""
 
 #: build/860.js:1
@@ -7530,11 +9913,6 @@ msgid "Purge old entries"
 msgstr ""
 
 #: build/860.js:1
-#: build/976.js:1
-msgid "Object"
-msgstr ""
-
-#: build/860.js:1
 msgid "No matching activity found."
 msgstr ""
 
@@ -7542,16 +9920,168 @@ msgstr ""
 msgid "Activity Log"
 msgstr ""
 
+#: build/866.js:1
+msgid "Everywhere (frontend & admin)"
+msgstr ""
+
+#: build/866.js:1
+msgid "Admin only"
+msgstr ""
+
+#: build/866.js:1
+msgid "Frontend only"
+msgstr ""
+
+#: build/866.js:1
+msgid "Frontend header"
+msgstr ""
+
+#: build/866.js:1
+msgid "Frontend footer"
+msgstr ""
+
+#: build/866.js:1
+msgid "Admin header"
+msgstr ""
+
+#: build/866.js:1
+msgid "Admin footer"
+msgstr ""
+
+#: build/866.js:1
+msgid "Frontend body open"
+msgstr ""
+
+#: build/866.js:1
+msgid "Add snippet"
+msgstr ""
+
+#: build/866.js:1
+msgid "No snippets have been created yet."
+msgstr ""
+
+#: build/866.js:1
+msgid "Integrity check failed"
+msgstr ""
+
+#: build/866.js:1
+msgid "Invalid"
+msgstr ""
+
+#: build/866.js:1
+msgid "Toggle enabled"
+msgstr ""
+
+#: build/866.js:1
+msgid "Edit snippet"
+msgstr ""
+
+#: build/866.js:1
+msgid "Delete snippet"
+msgstr ""
+
+#: build/866.js:1
+msgid "Delete this snippet? This cannot be undone."
+msgstr ""
+
+#: build/866.js:1
+msgid "Failed to save snippet."
+msgstr ""
+
+#: build/866.js:1
+msgid "Snippet name"
+msgstr ""
+
+#: build/866.js:1
+msgid "Snippet type"
+msgstr ""
+
+#: build/866.js:1
+msgid "PHP"
+msgstr ""
+
+#: build/866.js:1
+msgid "CSS"
+msgstr ""
+
+#: build/866.js:1
+msgid "JavaScript"
+msgstr ""
+
+#: build/866.js:1
+msgid "Snippet code"
+msgstr ""
+
+#: build/866.js:1
+msgid "PHP code only - do not include the opening <?php tag. Code is validated (syntax + duplicate declarations) before it is saved."
+msgstr ""
+
+#: build/866.js:1
+msgid "Where to run"
+msgstr ""
+
+#: build/866.js:1
+msgid "Enable snippet"
+msgstr ""
+
+#: build/866.js:1
+msgid "Update snippet"
+msgstr ""
+
+#: build/866.js:1
+msgid "Save snippet"
+msgstr ""
+
+#: build/866.js:1
+msgid "Back to list"
+msgstr ""
+
+#: build/866.js:1
+msgid "Code Snippets"
+msgstr ""
+
+#: build/866.js:1
+msgid "Snippets"
+msgstr ""
+
+#: build/907.js:1
+msgid "Connect or disconnect a provider for your own account. Sign-in itself is handled by the central app, which posts a signed result back to this site."
+msgstr ""
+
+#: build/907.js:1
+msgid "Your role is not in the allowed list, so linking is disabled."
+msgstr ""
+
+#: build/907.js:1
+msgid "No providers are enabled yet. Enable providers in the Settings tab."
+msgstr ""
+
+#: build/907.js:1
+msgid "Connect"
+msgstr ""
+
+#: build/907.js:1
+msgid "Linking needs a central app URL and an HMAC secret configured in the Settings tab."
+msgstr ""
+
+#: build/907.js:1
+msgid "Third-Party Login"
+msgstr ""
+
+#: build/907.js:1
+msgid "Connected accounts"
+msgstr ""
+
+#: build/907.js:1
+msgid "An HMAC secret is currently set."
+msgstr ""
+
+#: build/907.js:1
+msgid "No HMAC secret set yet."
+msgstr ""
+
 #: build/930.js:1
 msgid "Administrator"
-msgstr ""
-
-#: build/930.js:1
-msgid "Editor"
-msgstr ""
-
-#: build/930.js:1
-msgid "Contributor"
 msgstr ""
 
 #: build/930.js:1
@@ -7649,66 +10179,6 @@ msgstr ""
 
 #: build/930.js:1
 msgid "Admin Customiser"
-msgstr ""
-
-#: build/968.js:1
-msgid "No folders yet. Create one below, then open the standard WordPress media library, bulk-select attachments and assign them to a folder from this screen (or the \"Assign attachment\" panel below)."
-msgstr ""
-
-#: build/968.js:1
-msgid "Attachments"
-msgstr ""
-
-#: build/968.js:1
-msgid "Delete this folder? Attachments in it will become unassigned."
-msgstr ""
-
-#: build/968.js:1
-msgid "Folder Manager"
-msgstr ""
-
-#: build/968.js:1
-msgid "Add folder"
-msgstr ""
-
-#: build/968.js:1
-msgid "Parent folder"
-msgstr ""
-
-#: build/968.js:1
-msgid "— None (top level) —"
-msgstr ""
-
-#: build/968.js:1
-msgid "Could not create folder."
-msgstr ""
-
-#: build/968.js:1
-msgid "Assign attachment to a folder"
-msgstr ""
-
-#: build/968.js:1
-msgid "Folders are assigned to media via the standard WordPress media library - select attachments there and use this taxonomy, or assign a single attachment by id here."
-msgstr ""
-
-#: build/968.js:1
-msgid "Attachment ID"
-msgstr ""
-
-#: build/968.js:1
-msgid "— Unassigned —"
-msgstr ""
-
-#: build/968.js:1
-msgid "Assign"
-msgstr ""
-
-#: build/968.js:1
-msgid "Assigned."
-msgstr ""
-
-#: build/968.js:1
-msgid "Could not assign attachment."
 msgstr ""
 
 #: build/976.js:1
@@ -7846,10 +10316,6 @@ msgstr ""
 
 #: build/index.js:2
 msgid "Configure"
-msgstr ""
-
-#: build/index.js:2
-msgid "Theme"
 msgstr ""
 
 #: build/index.js:2

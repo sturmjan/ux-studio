@@ -1,0 +1,87 @@
+{
+    "translation-revision-date": "2026-09-04T09:12:50+00:00",
+    "generator": "WP-CLI\/2.12.0",
+    "source": "build\/474.js",
+    "domain": "messages",
+    "locale_data": {
+        "messages": {
+            "": {
+                "domain": "messages",
+                "lang": "cs_CZ",
+                "plural-forms": "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
+            },
+            "Open": [
+                "Otev\u0159\u00edt"
+            ],
+            "Title": [
+                "N\u00e1zev"
+            ],
+            "Status": [
+                "Stav"
+            ],
+            "Description": [
+                "Popis"
+            ],
+            "Settings": [
+                "Nastaven\u00ed"
+            ],
+            "Back to modules": [
+                "Zp\u011bt na moduly"
+            ],
+            "Loading\u2026": [
+                "Na\u010d\u00edt\u00e1n\u00ed\u2026"
+            ],
+            "Saved": [
+                "Ulo\u017eeno"
+            ],
+            "Save changes": [
+                "Ulo\u017eit zm\u011bny"
+            ],
+            "Actions": [
+                "Akce"
+            ],
+            "Delete": [
+                "Smazat"
+            ],
+            "Created": [
+                "Vytvo\u0159eno"
+            ],
+            "Requests": [
+                "Po\u017eadavky"
+            ],
+            "In progress": [
+                "Prob\u00edh\u00e1"
+            ],
+            "Done": [
+                "Hotovo"
+            ],
+            "Attach a file": [
+                "P\u0159ipojit soubor"
+            ],
+            "Change attachment": [
+                "Zm\u011bnit p\u0159\u00edlohu"
+            ],
+            "Requester email": [
+                "E-mail \u017eadatele"
+            ],
+            "Attachment": [
+                "P\u0159\u00edloha"
+            ],
+            "Create request": [
+                "Vytvo\u0159it \u017e\u00e1dost"
+            ],
+            "No service requests yet.": [
+                "Zat\u00edm \u017e\u00e1dn\u00e9 servisn\u00ed \u017e\u00e1dosti."
+            ],
+            "Requester": [
+                "\u017dadatel"
+            ],
+            "Delete this service request?": [
+                "Smazat tuto servisn\u00ed \u017e\u00e1dost?"
+            ],
+            "Service Requests": [
+                "Servisn\u00ed \u017e\u00e1dosti"
+            ]
+        }
+    }
+}

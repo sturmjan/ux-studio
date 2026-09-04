@@ -1,0 +1,204 @@
+{
+    "translation-revision-date": "2026-09-04T09:12:50+00:00",
+    "generator": "WP-CLI\/2.12.0",
+    "source": "build\/809.js",
+    "domain": "messages",
+    "locale_data": {
+        "messages": {
+            "": {
+                "domain": "messages",
+                "lang": "cs_CZ",
+                "plural-forms": "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
+            },
+            "unknown": [
+                "nezn\u00e1m\u00e9"
+            ],
+            "Name": [
+                "Jm\u00e9no"
+            ],
+            "Note": [
+                "Pozn\u00e1mka"
+            ],
+            "Unknown": [
+                "Nezn\u00e1m\u00e9"
+            ],
+            "Mode": [
+                "Re\u017eim"
+            ],
+            "Disabled": [
+                "Vypnuto"
+            ],
+            "Yes": [
+                "Ano"
+            ],
+            "None": [
+                "\u017d\u00e1dn\u00e9"
+            ],
+            "Back to modules": [
+                "Zp\u011bt na moduly"
+            ],
+            "Loading\u2026": [
+                "Na\u010d\u00edt\u00e1n\u00ed\u2026"
+            ],
+            "Saved": [
+                "Ulo\u017eeno"
+            ],
+            "Save changes": [
+                "Ulo\u017eit zm\u011bny"
+            ],
+            "Actions": [
+                "Akce"
+            ],
+            "Delete": [
+                "Smazat"
+            ],
+            "Schedule": [
+                "Pl\u00e1nov\u00e1n\u00ed"
+            ],
+            "Next run": [
+                "Dal\u0161\u00ed b\u011bh"
+            ],
+            "Run now": [
+                "Spustit nyn\u00ed"
+            ],
+            "Enabled": [
+                "Zapnuto"
+            ],
+            "Last scan:": [
+                "Posledn\u00ed kontrola:"
+            ],
+            "Hook": [
+                "Hook"
+            ],
+            "Args": [
+                "Argumenty"
+            ],
+            "Non-repeating": [
+                "Neopakuj\u00edc\u00ed se"
+            ],
+            "Delete this scheduled event?": [
+                "Smazat tuto napl\u00e1novanou ud\u00e1lost?"
+            ],
+            "No events are currently scheduled.": [
+                "Aktu\u00e1ln\u011b nejsou napl\u00e1nov\u00e1ny \u017e\u00e1dn\u00e9 ud\u00e1losti."
+            ],
+            "DISABLE_WP_CRON": [
+                "DISABLE_WP_CRON"
+            ],
+            "ALTERNATE_WP_CRON": [
+                "ALTERNATE_WP_CRON"
+            ],
+            "Next scheduled event": [
+                "Dal\u0161\u00ed napl\u00e1novan\u00e1 ud\u00e1lost"
+            ],
+            "Total scheduled events": [
+                "Celkem napl\u00e1novan\u00fdch ud\u00e1lost\u00ed"
+            ],
+            "Cron running late": [
+                "Cron m\u00e1 zpo\u017ed\u011bn\u00ed"
+            ],
+            "Late": [
+                "Zpo\u017ed\u011bno"
+            ],
+            "On time": [
+                "V\u010das"
+            ],
+            "Cron Control": [
+                "Ovl\u00e1d\u00e1n\u00ed cronu"
+            ],
+            "Events": [
+                "Ud\u00e1losti"
+            ],
+            "Running normally": [
+                "B\u011b\u017e\u00ed norm\u00e1ln\u011b"
+            ],
+            "Fully disabled": [
+                "Zcela vypnuto"
+            ],
+            "Local requests only": [
+                "Pouze lok\u00e1ln\u00ed po\u017eadavky"
+            ],
+            "External hosting cron": [
+                "Extern\u00ed hostingov\u00fd cron"
+            ],
+            "Driven by central app": [
+                "\u0158\u00edzeno centr\u00e1ln\u00ed aplikac\u00ed"
+            ],
+            "Defined elsewhere (wp-config.php or another plugin), not by this module.": [
+                "Definov\u00e1no jinde (wp-config.php nebo jin\u00fd plugin), nikoli t\u00edmto modulem."
+            ],
+            "DISABLE_WP_CRON writable": [
+                "DISABLE_WP_CRON zapisovateln\u00e9"
+            ],
+            "mu-plugins writable": [
+                "mu-plugins zapisovateln\u00e9"
+            ],
+            "mu-plugins NOT writable": [
+                "mu-plugins NEN\u00cd zapisovateln\u00e9"
+            ],
+            "The mu-plugins directory is not writable, so this module cannot set DISABLE_WP_CRON. Define it manually in wp-config.php if you need to disable WP-Cron.": [
+                "Do adres\u00e1\u0159e mu-plugins nelze zapisovat, tak\u017ee tento modul nem\u016f\u017ee nastavit DISABLE_WP_CRON. Pokud pot\u0159ebujete WP-Cron vypnout, definujte jej ru\u010dn\u011b v wp-config.php."
+            ],
+            ".htaccess writable": [
+                ".htaccess zapisovateln\u00e9"
+            ],
+            "No (Apache access rules cannot be applied)": [
+                "Ne (p\u0159\u00edstupov\u00e1 pravidla Apache nelze uplatnit)"
+            ],
+            "External trigger": [
+                "Extern\u00ed spou\u0161t\u011b\u010d"
+            ],
+            "Configure a hosting\/system cron to call this URL every 5-15 minutes:": [
+                "Nastavte hostingov\u00fd\/syst\u00e9mov\u00fd cron, aby volal tuto URL ka\u017ed\u00fdch 5-15 minut:"
+            ],
+            "Example crontab line:": [
+                "P\u0159\u00edklad \u0159\u00e1dku crontabu:"
+            ],
+            "Display": [
+                "Zobrazen\u00ed"
+            ],
+            "Interval": [
+                "Interval"
+            ],
+            "No schedules registered.": [
+                "Nejsou registrov\u00e1ny \u017e\u00e1dn\u00e9 pl\u00e1ny."
+            ],
+            "Callback": [
+                "Callback"
+            ],
+            "Run check now": [
+                "Spustit kontrolu nyn\u00ed"
+            ],
+            "events": [
+                "ud\u00e1losti"
+            ],
+            "suspicious": [
+                "podez\u0159el\u00e9"
+            ],
+            "auto-remove ON": [
+                "automatick\u00e9 odstran\u011bn\u00ed ZAPNUTO"
+            ],
+            "Automatically removed:": [
+                "Automaticky odstran\u011bno:"
+            ],
+            "Suspicious": [
+                "Podez\u0159el\u00e9"
+            ],
+            "All scheduled hooks are recognised. Nothing to report.": [
+                "V\u0161echny napl\u00e1novan\u00e9 hooky jsou rozpozn\u00e1ny. Nen\u00ed co hl\u00e1sit."
+            ],
+            "The watcher has not run yet.": [
+                "Hl\u00edda\u010d zat\u00edm neb\u011b\u017eel."
+            ],
+            "Schedules": [
+                "Pl\u00e1ny"
+            ],
+            "Watcher": [
+                "Hl\u00edda\u010d"
+            ],
+            "Mode & Settings": [
+                "Re\u017eim a nastaven\u00ed"
+            ]
+        }
+    }
+}

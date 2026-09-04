@@ -1,0 +1,138 @@
+{
+    "translation-revision-date": "2026-09-04T09:12:50+00:00",
+    "generator": "WP-CLI\/2.12.0",
+    "source": "build\/178.js",
+    "domain": "messages",
+    "locale_data": {
+        "messages": {
+            "": {
+                "domain": "messages",
+                "lang": "cs_CZ",
+                "plural-forms": "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
+            },
+            "Status": [
+                "Stav"
+            ],
+            "Settings": [
+                "Nastaven\u00ed"
+            ],
+            "Back to modules": [
+                "Zp\u011bt na moduly"
+            ],
+            "Loading\u2026": [
+                "Na\u010d\u00edt\u00e1n\u00ed\u2026"
+            ],
+            "Saved": [
+                "Ulo\u017eeno"
+            ],
+            "Save changes": [
+                "Ulo\u017eit zm\u011bny"
+            ],
+            "URL": [
+                "URL"
+            ],
+            "Last 24 hours": [
+                "Posledn\u00edch 24 hodin"
+            ],
+            "Average": [
+                "Pr\u016fm\u011br"
+            ],
+            "Min": [
+                "Min"
+            ],
+            "Max": [
+                "Max"
+            ],
+            "Samples": [
+                "Vzorky"
+            ],
+            "Hour": [
+                "Hodina"
+            ],
+            "Avg (ms)": [
+                "Pr\u016fm\u011br (ms)"
+            ],
+            "No data yet.": [
+                "Zat\u00edm \u017e\u00e1dn\u00e1 data."
+            ],
+            "Recent requests": [
+                "Ned\u00e1vn\u00e9 po\u017eadavky"
+            ],
+            "Time": [
+                "\u010cas"
+            ],
+            "Load time (ms)": [
+                "Doba na\u010d\u00edt\u00e1n\u00ed (ms)"
+            ],
+            "No requests logged yet.": [
+                "Zat\u00edm nebyly zaznamen\u00e1ny \u017e\u00e1dn\u00e9 po\u017eadavky."
+            ],
+            "Page Load": [
+                "Na\u010dten\u00ed str\u00e1nky"
+            ],
+            "Overview": [
+                "P\u0159ehled"
+            ],
+            "Peak memory": [
+                "\u0160pi\u010dkov\u00e1 pam\u011b\u0165"
+            ],
+            "Avg queries": [
+                "Pr\u016fm. dotaz\u016f"
+            ],
+            "Avg memory": [
+                "Pr\u016fm. pam\u011b\u0165"
+            ],
+            "Queries": [
+                "Dotazy"
+            ],
+            "Memory (MB)": [
+                "Pam\u011b\u0165 (MB)"
+            ],
+            "Estimated per-plugin impact": [
+                "Odhadovan\u00fd dopad jednotliv\u00fdch plugin\u016f"
+            ],
+            "Measured from front-page benchmarks run automatically when a plugin is activated or deactivated. Positive values mean the plugin slowed the page.": [
+                "Zm\u011b\u0159eno z benchmark\u016f \u00favodn\u00ed str\u00e1nky spu\u0161t\u011bn\u00fdch automaticky p\u0159i aktivaci nebo deaktivaci pluginu. Kladn\u00e9 hodnoty znamenaj\u00ed, \u017ee plugin str\u00e1nku zpomalil."
+            ],
+            "Plugin": [
+                "Plugin"
+            ],
+            "Avg impact": [
+                "Pr\u016fm. dopad"
+            ],
+            "Max impact": [
+                "Max. dopad"
+            ],
+            "Measurements": [
+                "M\u011b\u0159en\u00ed"
+            ],
+            "Last event": [
+                "Posledn\u00ed ud\u00e1lost"
+            ],
+            "No impact data yet. Activate or deactivate a plugin to trigger a benchmark.": [
+                "Zat\u00edm \u017e\u00e1dn\u00e1 data o dopadu. Aktivujte nebo deaktivujte plugin pro spu\u0161t\u011bn\u00ed benchmarku."
+            ],
+            "Recent benchmark events": [
+                "Ned\u00e1vn\u00e9 ud\u00e1losti benchmarku"
+            ],
+            "Event": [
+                "Ud\u00e1lost"
+            ],
+            "Before (ms)": [
+                "P\u0159ed (ms)"
+            ],
+            "After (ms)": [
+                "Po (ms)"
+            ],
+            "Diff": [
+                "Rozd\u00edl"
+            ],
+            "No benchmark events yet.": [
+                "Zat\u00edm \u017e\u00e1dn\u00e9 ud\u00e1losti benchmarku."
+            ],
+            "Plugin impact": [
+                "Dopad plugin\u016f"
+            ]
+        }
+    }
+}

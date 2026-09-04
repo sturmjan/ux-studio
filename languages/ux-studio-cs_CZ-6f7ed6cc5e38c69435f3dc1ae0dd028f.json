@@ -1,0 +1,174 @@
+{
+    "translation-revision-date": "2026-09-04T09:12:50+00:00",
+    "generator": "WP-CLI\/2.12.0",
+    "source": "build\/752.js",
+    "domain": "messages",
+    "locale_data": {
+        "messages": {
+            "": {
+                "domain": "messages",
+                "lang": "cs_CZ",
+                "plural-forms": "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
+            },
+            "Media": [
+                "M\u00e9dia"
+            ],
+            "Edit": [
+                "Upravit"
+            ],
+            "Name": [
+                "Jm\u00e9no"
+            ],
+            "Settings": [
+                "Nastaven\u00ed"
+            ],
+            "Back to modules": [
+                "Zp\u011bt na moduly"
+            ],
+            "Loading\u2026": [
+                "Na\u010d\u00edt\u00e1n\u00ed\u2026"
+            ],
+            "Saved": [
+                "Ulo\u017eeno"
+            ],
+            "Save changes": [
+                "Ulo\u017eit zm\u011bny"
+            ],
+            "Delete": [
+                "Smazat"
+            ],
+            "Cancel": [
+                "Zru\u0161it"
+            ],
+            "Sync now": [
+                "Synchronizovat nyn\u00ed"
+            ],
+            "Synced": [
+                "Synchronizov\u00e1no"
+            ],
+            "Instagram Feed": [
+                "Instagram Feed"
+            ],
+            "Hide": [
+                "Skr\u00fdt"
+            ],
+            "Visible": [
+                "Viditeln\u00e9"
+            ],
+            "Show": [
+                "Zobrazit"
+            ],
+            "Theme": [
+                "Vzhled"
+            ],
+            "Grid": [
+                "M\u0159\u00ed\u017eka"
+            ],
+            "Masonry": [
+                "Masonry"
+            ],
+            "Carousel": [
+                "Karusel"
+            ],
+            "Slider": [
+                "Slider"
+            ],
+            "Highlight": [
+                "Zv\u00fdrazn\u011bn\u00ed"
+            ],
+            "Showcase": [
+                "Prezentace"
+            ],
+            "Set the Instagram app ID and app secret on the Settings tab before connecting.": [
+                "P\u0159ed propojen\u00edm nastavte na kart\u011b Nastaven\u00ed ID a tajn\u00fd kl\u00ed\u010d aplikace Instagram."
+            ],
+            "Register this redirect URI in your Meta app:": [
+                "Zaregistrujte tuto p\u0159esm\u011brovac\u00ed URI ve sv\u00e9 aplikaci Meta:"
+            ],
+            "Connected": [
+                "P\u0159ipojeno"
+            ],
+            "Token expires:": [
+                "Token vypr\u0161\u00ed:"
+            ],
+            "(auto-refreshed by cron)": [
+                "(automaticky obnovov\u00e1no cronem)"
+            ],
+            "Cached media items:": [
+                "Polo\u017eky m\u00e9di\u00ed v mezipam\u011bti:"
+            ],
+            "Disconnect": [
+                "Odpojit"
+            ],
+            "new": [
+                "nov\u00e9"
+            ],
+            "updated": [
+                "aktualizovan\u00e9"
+            ],
+            "failed": [
+                "ne\u00fasp\u011b\u0161n\u00e9"
+            ],
+            "No Instagram account is connected yet.": [
+                "Zat\u00edm nen\u00ed p\u0159ipojen \u017e\u00e1dn\u00fd \u00fa\u010det Instagram."
+            ],
+            "Connect Instagram": [
+                "P\u0159ipojit Instagram"
+            ],
+            "Hidden": [
+                "Skryt\u00e9"
+            ],
+            "No media cached yet. Connect an account and run a sync.": [
+                "Zat\u00edm \u017e\u00e1dn\u00e1 m\u00e9dia v mezipam\u011bti. P\u0159ipojte \u00fa\u010det a spus\u0165te synchronizaci."
+            ],
+            "Feed name": [
+                "N\u00e1zev feedu"
+            ],
+            "Number of posts": [
+                "Po\u010det p\u0159\u00edsp\u011bvk\u016f"
+            ],
+            "Columns (desktop)": [
+                "Sloupce (desktop)"
+            ],
+            "Gap (px)": [
+                "Mezera (px)"
+            ],
+            "Media types": [
+                "Typy m\u00e9di\u00ed"
+            ],
+            "Include hashtags": [
+                "Zahrnout hashtagy"
+            ],
+            "Exclude hashtags": [
+                "Vylou\u010dit hashtagy"
+            ],
+            "Show captions": [
+                "Zobrazit popisky"
+            ],
+            "Show follow button": [
+                "Zobrazit tla\u010d\u00edtko Sledovat"
+            ],
+            "Save feed": [
+                "Ulo\u017eit feed"
+            ],
+            "New feed": [
+                "Nov\u00fd feed"
+            ],
+            "No feeds yet. Create one, then embed it with its shortcode.": [
+                "Zat\u00edm \u017e\u00e1dn\u00e9 feedy. Vytvo\u0159te jeden a pot\u00e9 jej vlo\u017ete pomoc\u00ed jeho shortcodu."
+            ],
+            "Shortcode": [
+                "Shortcode"
+            ],
+            "Default shortcode: [uxstudio_instagram]. Target a specific feed with [uxstudio_instagram id=\"1\"].": [
+                "V\u00fdchoz\u00ed shortcode: [uxstudio_instagram]. Konkr\u00e9tn\u00ed feed zac\u00edl\u00edte pomoc\u00ed [uxstudio_instagram id=\"1\"]."
+            ],
+            "Connection": [
+                "P\u0159ipojen\u00ed"
+            ],
+            "Feeds": [
+                "Feedy"
+            ]
+        }
+    }
+}

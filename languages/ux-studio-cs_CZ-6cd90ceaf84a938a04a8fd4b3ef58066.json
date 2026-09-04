@@ -1,0 +1,69 @@
+{
+    "translation-revision-date": "2026-09-04T09:12:50+00:00",
+    "generator": "WP-CLI\/2.12.0",
+    "source": "build\/230.js",
+    "domain": "messages",
+    "locale_data": {
+        "messages": {
+            "": {
+                "domain": "messages",
+                "lang": "cs_CZ",
+                "plural-forms": "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
+            },
+            "Name": [
+                "Jm\u00e9no"
+            ],
+            "Settings": [
+                "Nastaven\u00ed"
+            ],
+            "Back to modules": [
+                "Zp\u011bt na moduly"
+            ],
+            "Loading\u2026": [
+                "Na\u010d\u00edt\u00e1n\u00ed\u2026"
+            ],
+            "Saved": [
+                "Ulo\u017eeno"
+            ],
+            "Save changes": [
+                "Ulo\u017eit zm\u011bny"
+            ],
+            "Closed": [
+                "Uzav\u0159eno"
+            ],
+            "Open now": [
+                "Nyn\u00ed otev\u0159eno"
+            ],
+            "Address": [
+                "Adresa"
+            ],
+            "Add location": [
+                "P\u0159idat lokalitu"
+            ],
+            "Delete location": [
+                "Smazat lokalitu"
+            ],
+            "No address set.": [
+                "Nen\u00ed nastavena \u017e\u00e1dn\u00e1 adresa."
+            ],
+            "Weekly hours (JSON)": [
+                "T\u00fddenn\u00ed otev\u00edrac\u00ed doba (JSON)"
+            ],
+            "Example": [
+                "P\u0159\u00edklad"
+            ],
+            "Save hours": [
+                "Ulo\u017eit otev\u00edrac\u00ed dobu"
+            ],
+            "No locations yet.": [
+                "Zat\u00edm \u017e\u00e1dn\u00e9 lokality."
+            ],
+            "Opening Hours": [
+                "Otev\u00edrac\u00ed doba"
+            ],
+            "Locations": [
+                "Lokality"
+            ]
+        }
+    }
+}

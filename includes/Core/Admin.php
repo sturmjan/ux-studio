@@ -90,7 +90,10 @@ final class Admin {
 			$asset['version']
 		);
 
-		// JS translations (languages/ux-studio-<locale>-ux-studio-app.json).
+		// JS translations. WP loads languages/ux-studio-<locale>-<md5('build/index.js')>.json
+		// for this handle; the build/CI merges every lazy-chunk's JSON into that one
+		// file (see bin/merge-json-translations.php) so code-split module pages are
+		// translated too, not just the main bundle.
 		wp_set_script_translations( 'ux-studio-app', 'ux-studio', UXSTUDIO_PATH . 'languages' );
 
 		wp_localize_script(

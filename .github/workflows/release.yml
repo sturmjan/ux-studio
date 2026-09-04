@@ -36,8 +36,11 @@ jobs:
         run: |
           npm install -g @wordpress/env >/dev/null 2>&1 || true
           curl -sL https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -o /usr/local/bin/wp && chmod +x /usr/local/bin/wp
-          wp i18n make-pot . languages/ux-studio.pot --exclude=node_modules,build,vendor --allow-root
+          wp i18n make-pot . languages/ux-studio.pot --include=includes,build,ux-studio.php --exclude=node_modules,vendor,src --allow-root
           wp i18n make-json languages --no-purge --allow-root
+          # Merge per-chunk JSON into the file WP loads, so lazy-chunk strings
+          # are translated in the browser (see bin/merge-json-translations.php).
+          php bin/merge-json-translations.php
 
       - name: Assemble distribution zip
         run: |

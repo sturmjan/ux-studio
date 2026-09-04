@@ -1,0 +1,162 @@
+{
+    "translation-revision-date": "2026-09-04T09:12:50+00:00",
+    "generator": "WP-CLI\/2.12.0",
+    "source": "build\/309.js",
+    "domain": "messages",
+    "locale_data": {
+        "messages": {
+            "": {
+                "domain": "messages",
+                "lang": "cs_CZ",
+                "plural-forms": "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
+            },
+            "Name": [
+                "Jm\u00e9no"
+            ],
+            "Title": [
+                "N\u00e1zev"
+            ],
+            "Status": [
+                "Stav"
+            ],
+            "Date": [
+                "Datum"
+            ],
+            "Settings": [
+                "Nastaven\u00ed"
+            ],
+            "Remove": [
+                "Odebrat"
+            ],
+            "Never": [
+                "Nikdy"
+            ],
+            "Back to modules": [
+                "Zp\u011bt na moduly"
+            ],
+            "Loading\u2026": [
+                "Na\u010d\u00edt\u00e1n\u00ed\u2026"
+            ],
+            "Saved": [
+                "Ulo\u017eeno"
+            ],
+            "Save changes": [
+                "Ulo\u017eit zm\u011bny"
+            ],
+            "Action": [
+                "Akce"
+            ],
+            "Log": [
+                "Protokol"
+            ],
+            "Type": [
+                "Typ"
+            ],
+            "Actions": [
+                "Akce"
+            ],
+            "URL": [
+                "URL"
+            ],
+            "Last sync": [
+                "Posledn\u00ed synchronizace"
+            ],
+            "No sync activity yet.": [
+                "Zat\u00edm \u017e\u00e1dn\u00e1 aktivita synchronizace."
+            ],
+            "Content Sync": [
+                "Content Sync"
+            ],
+            "Object": [
+                "Objekt"
+            ],
+            "SSO issue failed.": [
+                "Vyd\u00e1n\u00ed SSO tokenu selhalo."
+            ],
+            "Node name": [
+                "N\u00e1zev uzlu"
+            ],
+            "e.g. Client hotel site": [
+                "nap\u0159. web hotelu klienta"
+            ],
+            "Node URL": [
+                "URL uzlu"
+            ],
+            "Shared API key": [
+                "Sd\u00edlen\u00fd API kl\u00ed\u010d"
+            ],
+            "Same value as the node\u2019s API key": [
+                "Stejn\u00e1 hodnota jako API kl\u00ed\u010d uzlu"
+            ],
+            "Stored encrypted; never shown again.": [
+                "Ulo\u017eeno \u0161ifrovan\u011b; u\u017e se nikdy nezobraz\u00ed."
+            ],
+            "Add node": [
+                "P\u0159idat uzel"
+            ],
+            "Connection OK.": [
+                "P\u0159ipojen\u00ed v po\u0159\u00e1dku."
+            ],
+            "Connection failed.": [
+                "P\u0159ipojen\u00ed selhalo."
+            ],
+            "SSO link opened in a new tab.": [
+                "Odkaz SSO otev\u0159en v nov\u00e9 kart\u011b."
+            ],
+            "No nodes registered yet.": [
+                "Zat\u00edm nejsou registrov\u00e1ny \u017e\u00e1dn\u00e9 uzly."
+            ],
+            "Test connection": [
+                "Otestovat p\u0159ipojen\u00ed"
+            ],
+            "Open SSO login": [
+                "Otev\u0159\u00edt p\u0159ihl\u00e1\u0161en\u00ed SSO"
+            ],
+            "Find content to push": [
+                "Naj\u00edt obsah k odesl\u00e1n\u00ed"
+            ],
+            "Search posts\u2026": [
+                "Hledat p\u0159\u00edsp\u011bvky\u2026"
+            ],
+            "(no title)": [
+                "(bez n\u00e1zvu)"
+            ],
+            "Target nodes": [
+                "C\u00edlov\u00e9 uzly"
+            ],
+            "(no key)": [
+                "(bez kl\u00ed\u010de)"
+            ],
+            "Push to selected nodes": [
+                "Odeslat do vybran\u00fdch uzl\u016f"
+            ],
+            "Node": [
+                "Uzel"
+            ],
+            "Result": [
+                "V\u00fdsledek"
+            ],
+            "Detail": [
+                "Detail"
+            ],
+            "Nodes": [
+                "Uzly"
+            ],
+            "Push": [
+                "Odeslat"
+            ],
+            "A node API key is currently set.": [
+                "API kl\u00ed\u010d uzlu je aktu\u00e1ln\u011b nastaven."
+            ],
+            "No node API key set yet.": [
+                "Zat\u00edm nen\u00ed nastaven \u017e\u00e1dn\u00fd API kl\u00ed\u010d uzlu."
+            ],
+            "A central-app HMAC secret is set.": [
+                "HMAC kl\u00ed\u010d centr\u00e1ln\u00ed aplikace je nastaven."
+            ],
+            "No central-app HMAC secret set.": [
+                "Nen\u00ed nastaven \u017e\u00e1dn\u00fd HMAC kl\u00ed\u010d centr\u00e1ln\u00ed aplikace."
+            ]
+        }
+    }
+}

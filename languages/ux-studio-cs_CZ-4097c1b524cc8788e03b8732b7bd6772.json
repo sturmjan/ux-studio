@@ -1,0 +1,126 @@
+{
+    "translation-revision-date": "2026-09-04T09:12:50+00:00",
+    "generator": "WP-CLI\/2.12.0",
+    "source": "build\/93.js",
+    "domain": "messages",
+    "locale_data": {
+        "messages": {
+            "": {
+                "domain": "messages",
+                "lang": "cs_CZ",
+                "plural-forms": "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
+            },
+            "Name": [
+                "Jm\u00e9no"
+            ],
+            "Folders": [
+                "Slo\u017eky"
+            ],
+            "Folder": [
+                "Slo\u017eka"
+            ],
+            "Back to modules": [
+                "Zp\u011bt na moduly"
+            ],
+            "Loading\u2026": [
+                "Na\u010d\u00edt\u00e1n\u00ed\u2026"
+            ],
+            "Delete": [
+                "Smazat"
+            ],
+            "Cancel": [
+                "Zru\u0161it"
+            ],
+            "Attachments": [
+                "P\u0159\u00edlohy"
+            ],
+            "Delete this folder? Attachments in it will become unassigned.": [
+                "Smazat tuto slo\u017eku? P\u0159\u00edlohy v n\u00ed se stanou nep\u0159i\u0159azen\u00fdmi."
+            ],
+            "Folder Manager": [
+                "Spr\u00e1vce slo\u017eek"
+            ],
+            "Add folder": [
+                "P\u0159idat slo\u017eku"
+            ],
+            "Parent folder": [
+                "Nad\u0159azen\u00e1 slo\u017eka"
+            ],
+            "\u2014 None (top level) \u2014": [
+                "\u2014 \u017d\u00e1dn\u00e1 (nejvy\u0161\u0161\u00ed \u00farove\u0148) \u2014"
+            ],
+            "Could not create folder.": [
+                "Slo\u017eku se nepoda\u0159ilo vytvo\u0159it."
+            ],
+            "Assign attachment to a folder": [
+                "P\u0159i\u0159adit p\u0159\u00edlohu ke slo\u017ece"
+            ],
+            "Folders are assigned to media via the standard WordPress media library - select attachments there and use this taxonomy, or assign a single attachment by id here.": [
+                "Slo\u017eky se p\u0159i\u0159azuj\u00ed k m\u00e9di\u00edm prost\u0159ednictv\u00edm standardn\u00ed knihovny m\u00e9di\u00ed WordPressu \u2013 vyberte tam p\u0159\u00edlohy a pou\u017eijte tuto taxonomii, nebo zde p\u0159i\u0159a\u010fte jednotlivou p\u0159\u00edlohu podle id."
+            ],
+            "Attachment ID": [
+                "ID p\u0159\u00edlohy"
+            ],
+            "\u2014 Unassigned \u2014": [
+                "\u2014 Nep\u0159i\u0159azeno \u2014"
+            ],
+            "Assign": [
+                "P\u0159i\u0159adit"
+            ],
+            "Assigned.": [
+                "P\u0159i\u0159azeno."
+            ],
+            "Could not assign attachment.": [
+                "P\u0159\u00edlohu se nepoda\u0159ilo p\u0159i\u0159adit."
+            ],
+            "Folder name": [
+                "N\u00e1zev slo\u017eky"
+            ],
+            "Save name": [
+                "Ulo\u017eit n\u00e1zev"
+            ],
+            "Rename folder": [
+                "P\u0159ejmenovat slo\u017eku"
+            ],
+            "Could not rename folder.": [
+                "Slo\u017eku se nepoda\u0159ilo p\u0159ejmenovat."
+            ],
+            "Move folder under": [
+                "P\u0159esunout slo\u017eku pod"
+            ],
+            "\u2014 Top level \u2014": [
+                "\u2014 Nejvy\u0161\u0161\u00ed \u00farove\u0148 \u2014"
+            ],
+            "Could not move folder.": [
+                "Slo\u017eku se nepoda\u0159ilo p\u0159esunout."
+            ],
+            "No folders yet. Create one below, then assign attachments to it \u2014 either one by one, or in bulk from the \"Bulk move attachments\" panel.": [
+                "Zat\u00edm \u017e\u00e1dn\u00e9 slo\u017eky. Vytvo\u0159te jednu n\u00ed\u017ee a pot\u00e9 k n\u00ed p\u0159i\u0159a\u010fte p\u0159\u00edlohy \u2014 bu\u010f jednu po druh\u00e9, nebo hromadn\u011b z panelu \"Hromadn\u00e9 p\u0159esunut\u00ed p\u0159\u00edloh\"."
+            ],
+            "Move under": [
+                "P\u0159esunout pod"
+            ],
+            "Bulk move attachments": [
+                "Hromadn\u00e9 p\u0159esunut\u00ed p\u0159\u00edloh"
+            ],
+            "Paste multiple attachment IDs (separated by spaces, commas or new lines) and move them all to one folder at once. Choose \"Unassigned\" to remove them from any folder.": [
+                "Vlo\u017ete v\u00edce ID p\u0159\u00edloh (odd\u011blen\u00fdch mezerami, \u010d\u00e1rkami nebo nov\u00fdmi \u0159\u00e1dky) a p\u0159esu\u0148te je v\u0161echny najednou do jedn\u00e9 slo\u017eky. Zvolte \"Nep\u0159i\u0159azeno\" pro jejich odebr\u00e1n\u00ed z jak\u00e9koli slo\u017eky."
+            ],
+            "Attachment IDs": [
+                "ID p\u0159\u00edloh"
+            ],
+            "Move": [
+                "P\u0159esunout"
+            ],
+            "Moved": [
+                "P\u0159esunuto"
+            ],
+            "Skipped": [
+                "P\u0159esko\u010deno"
+            ],
+            "Could not move attachments.": [
+                "P\u0159\u00edlohy se nepoda\u0159ilo p\u0159esunout."
+            ]
+        }
+    }
+}

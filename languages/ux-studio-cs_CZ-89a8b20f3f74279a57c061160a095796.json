@@ -1,0 +1,888 @@
+{
+    "translation-revision-date": "2026-09-04T09:12:50+00:00",
+    "generator": "WP-CLI\/2.12.0",
+    "source": "build\/78.js",
+    "domain": "messages",
+    "locale_data": {
+        "messages": {
+            "": {
+                "domain": "messages",
+                "lang": "cs_CZ",
+                "plural-forms": "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
+            },
+            "Content": [
+                "Obsah"
+            ],
+            "Media": [
+                "M\u00e9dia"
+            ],
+            "Users": [
+                "U\u017eivatel\u00e9"
+            ],
+            "Edit": [
+                "Upravit"
+            ],
+            "View": [
+                "Zobrazit"
+            ],
+            "Categories": [
+                "Kategorie"
+            ],
+            "New conversation": [
+                "Nov\u00e1 konverzace"
+            ],
+            "Name": [
+                "Jm\u00e9no"
+            ],
+            "Page": [
+                "Str\u00e1nka"
+            ],
+            "Import from URL": [
+                "Import z URL"
+            ],
+            "AI Assistant": [
+                "AI asistent"
+            ],
+            "Site Information": [
+                "Informace o webu"
+            ],
+            "Site Settings": [
+                "Nastaven\u00ed webu"
+            ],
+            "Post status": [
+                "Stav p\u0159\u00edsp\u011bvku"
+            ],
+            "Close": [
+                "Zav\u0159\u00edt"
+            ],
+            "Title": [
+                "N\u00e1zev"
+            ],
+            "Status": [
+                "Stav"
+            ],
+            "Tags": [
+                "\u0160t\u00edtky"
+            ],
+            "Description": [
+                "Popis"
+            ],
+            "Settings": [
+                "Nastaven\u00ed"
+            ],
+            "Disabled": [
+                "Vypnuto"
+            ],
+            "Medium": [
+                "St\u0159edn\u00ed"
+            ],
+            "Running\u2026": [
+                "Prob\u00edh\u00e1\u2026"
+            ],
+            "Back to modules": [
+                "Zp\u011bt na moduly"
+            ],
+            "Loading\u2026": [
+                "Na\u010d\u00edt\u00e1n\u00ed\u2026"
+            ],
+            "Saved": [
+                "Ulo\u017eeno"
+            ],
+            "Save changes": [
+                "Ulo\u017eit zm\u011bny"
+            ],
+            "Not rated": [
+                "Nehodnoceno"
+            ],
+            "%d out of 5 stars": [
+                "%d z 5 hv\u011bzdi\u010dek"
+            ],
+            "Conversation": [
+                "Konverzace"
+            ],
+            "Page:": [
+                "Str\u00e1nka:"
+            ],
+            "Rating:": [
+                "Hodnocen\u00ed:"
+            ],
+            "Feedback:": [
+                "Zp\u011btn\u00e1 vazba:"
+            ],
+            "No messages.": [
+                "\u017d\u00e1dn\u00e9 zpr\u00e1vy."
+            ],
+            "Filter by rating": [
+                "Filtrovat podle hodnocen\u00ed"
+            ],
+            "All": [
+                "V\u0161e"
+            ],
+            "stars": [
+                "hv\u011bzdi\u010dek"
+            ],
+            "Delete selected (%d)": [
+                "Smazat vybran\u00e9 (%d)"
+            ],
+            "Session": [
+                "Relace"
+            ],
+            "Messages": [
+                "Zpr\u00e1vy"
+            ],
+            "Rating": [
+                "Hodnocen\u00ed"
+            ],
+            "Updated": [
+                "Aktualizov\u00e1no"
+            ],
+            "Select conversation": [
+                "Vybrat konverzaci"
+            ],
+            "Delete conversation": [
+                "Smazat konverzaci"
+            ],
+            "No conversations yet.": [
+                "Zat\u00edm \u017e\u00e1dn\u00e9 konverzace."
+            ],
+            "Previous": [
+                "P\u0159edchoz\u00ed"
+            ],
+            "Next": [
+                "Dal\u0161\u00ed"
+            ],
+            "Public": [
+                "Ve\u0159ejn\u00e9"
+            ],
+            "Internal": [
+                "Intern\u00ed"
+            ],
+            "Choose a file first.": [
+                "Nejprve vyberte soubor."
+            ],
+            "Document (PDF, DOCX, TXT, MD)": [
+                "Dokument (PDF, DOCX, TXT, MD)"
+            ],
+            "Public chat": [
+                "Ve\u0159ejn\u00fd chat"
+            ],
+            "Internal chat": [
+                "Intern\u00ed chat"
+            ],
+            "Upload document": [
+                "Nahr\u00e1t dokument"
+            ],
+            "Add entry": [
+                "P\u0159idat z\u00e1znam"
+            ],
+            "Documents": [
+                "Dokumenty"
+            ],
+            "No documents uploaded yet.": [
+                "Zat\u00edm nebyly nahr\u00e1ny \u017e\u00e1dn\u00e9 dokumenty."
+            ],
+            "Type": [
+                "Typ"
+            ],
+            "Chunks": [
+                "\u010c\u00e1sti"
+            ],
+            "Targets": [
+                "C\u00edle"
+            ],
+            "Actions": [
+                "Akce"
+            ],
+            "Delete this document and its knowledge chunks?": [
+                "Smazat tento dokument a jeho \u010d\u00e1sti znalostn\u00ed b\u00e1ze?"
+            ],
+            "Delete": [
+                "Smazat"
+            ],
+            "Manual entries": [
+                "Ru\u010dn\u00ed z\u00e1znamy"
+            ],
+            "No manual entries yet.": [
+                "Zat\u00edm \u017e\u00e1dn\u00e9 ru\u010dn\u00ed z\u00e1znamy."
+            ],
+            "Delete this entry?": [
+                "Smazat tento z\u00e1znam?"
+            ],
+            "Question": [
+                "Ot\u00e1zka"
+            ],
+            "Answer": [
+                "Odpov\u011b\u010f"
+            ],
+            "Category": [
+                "Kategorie"
+            ],
+            "Add FAQ": [
+                "P\u0159idat FAQ"
+            ],
+            "Generate from topic (optional)": [
+                "Vygenerovat z t\u00e9matu (voliteln\u00e9)"
+            ],
+            "e.g. cancellation policy": [
+                "nap\u0159. storno podm\u00ednky"
+            ],
+            "Suggest from past chats": [
+                "Navrhnout z minul\u00fdch chat\u016f"
+            ],
+            "Suggest from topic": [
+                "Navrhnout z t\u00e9matu"
+            ],
+            "Add": [
+                "P\u0159idat"
+            ],
+            "No new suggestions.": [
+                "\u017d\u00e1dn\u00e9 nov\u00e9 n\u00e1vrhy."
+            ],
+            "FAQ": [
+                "FAQ"
+            ],
+            "No FAQs yet.": [
+                "Zat\u00edm \u017e\u00e1dn\u00e9 FAQ."
+            ],
+            "Active": [
+                "Aktivn\u00ed"
+            ],
+            "Views": [
+                "Zobrazen\u00ed"
+            ],
+            "Delete this FAQ?": [
+                "Smazat toto FAQ?"
+            ],
+            "Source type": [
+                "Typ zdroje"
+            ],
+            "Web page URL": [
+                "URL webov\u00e9 str\u00e1nky"
+            ],
+            "Sitemap URL": [
+                "URL mapy webu"
+            ],
+            "Raw text": [
+                "Neform\u00e1tovan\u00fd text"
+            ],
+            "Title (optional)": [
+                "N\u00e1zev (voliteln\u00e9)"
+            ],
+            "Text": [
+                "Text"
+            ],
+            "URL": [
+                "URL"
+            ],
+            "Add source": [
+                "P\u0159idat zdroj"
+            ],
+            "No training sources yet.": [
+                "Zat\u00edm \u017e\u00e1dn\u00e9 tr\u00e9novac\u00ed zdroje."
+            ],
+            "Title \/ URL": [
+                "N\u00e1zev \/ URL"
+            ],
+            "Vectors": [
+                "Vektory"
+            ],
+            "Reindex": [
+                "P\u0159eindexovat"
+            ],
+            "Delete this source and its vectors?": [
+                "Smazat tento zdroj a jeho vektory?"
+            ],
+            "Indexed items:": [
+                "Indexovan\u00e9 polo\u017eky:"
+            ],
+            "Vectorize existing data": [
+                "Vektorizovat existuj\u00edc\u00ed data"
+            ],
+            "Index knowledge base, FAQ, products & content": [
+                "Indexovat znalostn\u00ed b\u00e1zi, FAQ, produkty a obsah"
+            ],
+            "Computes embeddings for the current knowledge base entries, FAQ, product index and content index.": [
+                "Vypo\u010d\u00edt\u00e1 embeddingy pro aktu\u00e1ln\u00ed z\u00e1znamy znalostn\u00ed b\u00e1ze, FAQ, index produkt\u016f a index obsahu."
+            ],
+            "Embedding provider:": [
+                "Poskytovatel embedding\u016f:"
+            ],
+            "dims": [
+                "dim."
+            ],
+            "Total vectors:": [
+                "Vektor\u016f celkem:"
+            ],
+            "Training sources:": [
+                "Tr\u00e9novac\u00ed zdroje:"
+            ],
+            "pending": [
+                "\u010dek\u00e1"
+            ],
+            "RAG status": [
+                "Stav RAG"
+            ],
+            "Products (WooCommerce)": [
+                "Produkty (WooCommerce)"
+            ],
+            "Content (posts\/pages)": [
+                "Obsah (p\u0159\u00edsp\u011bvky\/str\u00e1nky)"
+            ],
+            "Training sources": [
+                "Tr\u00e9novac\u00ed zdroje"
+            ],
+            "AI": [
+                "AI"
+            ],
+            "Waiting": [
+                "\u010cek\u00e1"
+            ],
+            "With operator": [
+                "S oper\u00e1torem"
+            ],
+            "Closed": [
+                "Uzav\u0159eno"
+            ],
+            "Visitor": [
+                "N\u00e1v\u0161t\u011bvn\u00edk"
+            ],
+            "Waiting for pickup": [
+                "\u010cek\u00e1 na p\u0159evzet\u00ed"
+            ],
+            "Active handoffs": [
+                "Aktivn\u00ed p\u0159ed\u00e1n\u00ed"
+            ],
+            "No handoff requests right now.": [
+                "\u017d\u00e1dn\u00e9 po\u017eadavky na p\u0159ed\u00e1n\u00ed."
+            ],
+            "Take over": [
+                "P\u0159evz\u00edt"
+            ],
+            "Return to AI": [
+                "Vr\u00e1tit AI"
+            ],
+            "No messages yet.": [
+                "Zat\u00edm \u017e\u00e1dn\u00e9 zpr\u00e1vy."
+            ],
+            "Reply to the customer\u2026": [
+                "Odpov\u011bd\u011bt z\u00e1kazn\u00edkovi\u2026"
+            ],
+            "Send": [
+                "Odeslat"
+            ],
+            "Select a conversation from the list on the left.": [
+                "Vyberte konverzaci ze seznamu vlevo."
+            ],
+            "Post": [
+                "P\u0159\u00edsp\u011bvek"
+            ],
+            "Neutral": [
+                "Neutr\u00e1ln\u00ed"
+            ],
+            "Professional": [
+                "Profesion\u00e1ln\u00ed"
+            ],
+            "Friendly": [
+                "P\u0159\u00e1telsk\u00fd"
+            ],
+            "Persuasive": [
+                "P\u0159esv\u011bd\u010div\u00fd"
+            ],
+            "Enthusiastic": [
+                "Nad\u0161en\u00fd"
+            ],
+            "Short": [
+                "Kr\u00e1tk\u00fd"
+            ],
+            "Long": [
+                "Dlouh\u00fd"
+            ],
+            "Generate a post\/page": [
+                "Vygenerovat p\u0159\u00edsp\u011bvek\/str\u00e1nku"
+            ],
+            "Content type": [
+                "Typ obsahu"
+            ],
+            "Tone": [
+                "T\u00f3n"
+            ],
+            "Length": [
+                "D\u00e9lka"
+            ],
+            "What should this content be about?": [
+                "O \u010dem m\u00e1 tento obsah b\u00fdt?"
+            ],
+            "SEO focus keyword (optional)": [
+                "Kl\u00ed\u010dov\u00e9 slovo pro SEO (voliteln\u00e9)"
+            ],
+            "Generate": [
+                "Vygenerovat"
+            ],
+            "Category:": [
+                "Kategorie:"
+            ],
+            "Tags:": [
+                "\u0160t\u00edtky:"
+            ],
+            "Edit draft": [
+                "Upravit koncept"
+            ],
+            "View published post": [
+                "Zobrazit publikovan\u00fd p\u0159\u00edsp\u011bvek"
+            ],
+            "Publish": [
+                "Publikovat"
+            ],
+            "Create draft": [
+                "Vytvo\u0159it koncept"
+            ],
+            "Generate a WooCommerce product description": [
+                "Vygenerovat popis produktu WooCommerce"
+            ],
+            "Product description (rough input)": [
+                "Popis produktu (hrub\u00fd vstup)"
+            ],
+            "Copy the text above into the product description field.": [
+                "Zkop\u00edrujte text v\u00fd\u0161e do pole popisu produktu."
+            ],
+            "Generate SEO meta": [
+                "Vygenerovat SEO meta"
+            ],
+            "Save to post ID (optional)": [
+                "Ulo\u017eit k p\u0159\u00edsp\u011bvku s ID (voliteln\u00e9)"
+            ],
+            "Detected SEO plugin: %s. Copy these values into its fields if needed.": [
+                "Zji\u0161t\u011bn\u00fd SEO plugin: %s. V p\u0159\u00edpad\u011b pot\u0159eby zkop\u00edrujte tyto hodnoty do jeho pol\u00ed."
+            ],
+            "Title:": [
+                "Titulek:"
+            ],
+            "Description:": [
+                "Popis:"
+            ],
+            "Keywords:": [
+                "Kl\u00ed\u010dov\u00e1 slova:"
+            ],
+            "Import HTML\/URL into Elementor": [
+                "Importovat HTML\/URL do Elementoru"
+            ],
+            "Source": [
+                "Zdroj"
+            ],
+            "Paste HTML": [
+                "Vlo\u017eit HTML"
+            ],
+            "HTML": [
+                "HTML"
+            ],
+            "Page URL": [
+                "URL str\u00e1nky"
+            ],
+            "Content CSS selector (optional)": [
+                "CSS selektor obsahu (voliteln\u00e9)"
+            ],
+            "Post type": [
+                "Typ p\u0159\u00edsp\u011bvku"
+            ],
+            "Draft": [
+                "Koncept"
+            ],
+            "Published": [
+                "Publikov\u00e1no"
+            ],
+            "Pending review": [
+                "\u010cek\u00e1 na kontrolu"
+            ],
+            "Import into Elementor": [
+                "Importovat do Elementoru"
+            ],
+            "Created \"%s\" with the widgets below.": [
+                "Vytvo\u0159eno \u201e%s\u201c s widgety n\u00ed\u017ee."
+            ],
+            "widgets.": [
+                "widget\u016f."
+            ],
+            "Edit in Elementor": [
+                "Upravit v Elementoru"
+            ],
+            "Daily": [
+                "Denn\u011b"
+            ],
+            "Weekly": [
+                "T\u00fddn\u011b"
+            ],
+            "Monthly": [
+                "M\u011bs\u00ed\u010dn\u011b"
+            ],
+            "Generators:": [
+                "Gener\u00e1tory:"
+            ],
+            "active": [
+                "aktivn\u00ed"
+            ],
+            "Posts generated:": [
+                "Vygenerovan\u00e9 p\u0159\u00edsp\u011bvky:"
+            ],
+            "in the last 7 days": [
+                "za posledn\u00edch 7 dn\u00ed"
+            ],
+            "Tokens used:": [
+                "Vyu\u017eit\u00e9 tokeny:"
+            ],
+            "Generator name": [
+                "N\u00e1zev gener\u00e1toru"
+            ],
+            "Topics (one per line)": [
+                "T\u00e9mata (jedno na \u0159\u00e1dek)"
+            ],
+            "Article types": [
+                "Typy \u010dl\u00e1nk\u016f"
+            ],
+            "Leave empty to rotate through every article type.": [
+                "Ponechte pr\u00e1zdn\u00e9 pro st\u0159\u00edd\u00e1n\u00ed v\u0161ech typ\u016f \u010dl\u00e1nk\u016f."
+            ],
+            "AI provider": [
+                "Poskytovatel AI"
+            ],
+            "Default provider": [
+                "V\u00fdchoz\u00ed poskytovatel"
+            ],
+            "Model": [
+                "Model"
+            ],
+            "Default model": [
+                "V\u00fdchoz\u00ed model"
+            ],
+            "Extra long": [
+                "Extra dlouh\u00fd"
+            ],
+            "Schedule": [
+                "Pl\u00e1nov\u00e1n\u00ed"
+            ],
+            "Publish time window": [
+                "\u010casov\u00e9 okno publikov\u00e1n\u00ed"
+            ],
+            "to": [
+                "do"
+            ],
+            "Posts per run": [
+                "P\u0159\u00edsp\u011bvk\u016f na b\u011bh"
+            ],
+            "Create generator": [
+                "Vytvo\u0159it gener\u00e1tor"
+            ],
+            "Cancel": [
+                "Zru\u0161it"
+            ],
+            "Generators": [
+                "Gener\u00e1tory"
+            ],
+            "New generator": [
+                "Nov\u00fd gener\u00e1tor"
+            ],
+            "No generators yet.": [
+                "Zat\u00edm \u017e\u00e1dn\u00e9 gener\u00e1tory."
+            ],
+            "Posts": [
+                "P\u0159\u00edsp\u011bvky"
+            ],
+            "Next run": [
+                "Dal\u0161\u00ed b\u011bh"
+            ],
+            "Generated:": [
+                "Vygenerov\u00e1no:"
+            ],
+            "Run now": [
+                "Spustit nyn\u00ed"
+            ],
+            "Pause": [
+                "Pozastavit"
+            ],
+            "Activate": [
+                "Aktivovat"
+            ],
+            "Delete this generator?": [
+                "Smazat tento gener\u00e1tor?"
+            ],
+            "Generated posts": [
+                "Vygenerovan\u00e9 p\u0159\u00edsp\u011bvky"
+            ],
+            "No posts generated yet.": [
+                "Zat\u00edm nebyly vygenerov\u00e1ny \u017e\u00e1dn\u00e9 p\u0159\u00edsp\u011bvky."
+            ],
+            "Bulk action": [
+                "Hromadn\u00e1 akce"
+            ],
+            "Set to draft": [
+                "Nastavit jako koncept"
+            ],
+            "Move to trash": [
+                "P\u0159esunout do ko\u0161e"
+            ],
+            "Apply": [
+                "Pou\u017e\u00edt"
+            ],
+            "Generator": [
+                "Gener\u00e1tor"
+            ],
+            "Article type": [
+                "Typ \u010dl\u00e1nku"
+            ],
+            "Tokens": [
+                "Tokeny"
+            ],
+            "Created": [
+                "Vytvo\u0159eno"
+            ],
+            "Monthly tokens": [
+                "M\u011bs\u00ed\u010dn\u00ed tokeny"
+            ],
+            "Daily requests (site-wide)": [
+                "Denn\u00ed po\u017eadavky (cel\u00fd web)"
+            ],
+            "Your daily requests": [
+                "Va\u0161e denn\u00ed po\u017eadavky"
+            ],
+            "Failed to reach the AI assistant.": [
+                "Nepoda\u0159ilo se spojit s AI asistentem."
+            ],
+            "Ask the internal AI assistant about editing content, site settings, or how to use UX Studio.": [
+                "Zeptejte se intern\u00edho AI asistenta na \u00fapravy obsahu, nastaven\u00ed webu nebo na to, jak pou\u017e\u00edvat UX Studio."
+            ],
+            "Thinking\u2026": [
+                "P\u0159em\u00fd\u0161l\u00edm\u2026"
+            ],
+            "Type your message\u2026": [
+                "Napi\u0161te svou zpr\u00e1vu\u2026"
+            ],
+            "1 hour": [
+                "1 hodina"
+            ],
+            "4 hours": [
+                "4 hodiny"
+            ],
+            "8 hours": [
+                "8 hodin"
+            ],
+            "12 hours": [
+                "12 hodin"
+            ],
+            "24 hours": [
+                "24 hodin"
+            ],
+            "List, Get, Create, Update, Delete": [
+                "Seznam, Z\u00edskat, Vytvo\u0159it, Aktualizovat, Smazat"
+            ],
+            "Pages": [
+                "Str\u00e1nky"
+            ],
+            "List, Get, Delete": [
+                "Seznam, Z\u00edskat, Smazat"
+            ],
+            "Custom Post Types": [
+                "Vlastn\u00ed typy obsahu"
+            ],
+            "List Types, List Taxonomies, Get Items": [
+                "Seznam typ\u016f, Seznam taxonomi\u00ed, Z\u00edskat polo\u017eky"
+            ],
+            "Get, Update": [
+                "Z\u00edskat, Aktualizovat"
+            ],
+            "Site Stats": [
+                "Statistiky webu"
+            ],
+            "Get": [
+                "Z\u00edskat"
+            ],
+            "WooCommerce Products": [
+                "Produkty WooCommerce"
+            ],
+            "List, Get, Create, Update, Delete (if WooCommerce is active)": [
+                "Seznam, Z\u00edskat, Vytvo\u0159it, Aktualizovat, Smazat (pokud je WooCommerce aktivn\u00ed)"
+            ],
+            "WooCommerce Orders": [
+                "Objedn\u00e1vky WooCommerce"
+            ],
+            "List, Get, Create (if WooCommerce is active)": [
+                "Seznam, Z\u00edskat, Vytvo\u0159it (pokud je WooCommerce aktivn\u00ed)"
+            ],
+            "Elementor": [
+                "Elementor"
+            ],
+            "List Pages, Get Structure, Find Widgets, Update Widget (if Elementor is active)": [
+                "Seznam str\u00e1nek, Z\u00edskat strukturu, Naj\u00edt widgety, Aktualizovat widget (pokud je Elementor aktivn\u00ed)"
+            ],
+            "Plugins Info": [
+                "Informace o pluginech"
+            ],
+            "Theme Info": [
+                "Informace o \u0161ablon\u011b"
+            ],
+            "Users Info": [
+                "Informace o u\u017eivatel\u00edch"
+            ],
+            "Validity": [
+                "Platnost"
+            ],
+            "Generate token": [
+                "Vygenerovat token"
+            ],
+            "New JWT token": [
+                "Nov\u00fd JWT token"
+            ],
+            "Copied!": [
+                "Zkop\u00edrov\u00e1no!"
+            ],
+            "Copy": [
+                "Kop\u00edrovat"
+            ],
+            "This token is shown only once. Copy it now - once you leave this page it cannot be displayed again.": [
+                "Tento token se zobraz\u00ed pouze jednou. Zkop\u00edrujte jej nyn\u00ed - jakmile tuto str\u00e1nku opust\u00edte, nebude jej ji\u017e mo\u017en\u00e9 znovu zobrazit."
+            ],
+            "No active tokens yet.": [
+                "Zat\u00edm \u017e\u00e1dn\u00e9 aktivn\u00ed tokeny."
+            ],
+            "Token ID": [
+                "ID tokenu"
+            ],
+            "User": [
+                "U\u017eivatel"
+            ],
+            "Expires": [
+                "Vypr\u0161\u00ed"
+            ],
+            "Revoke": [
+                "Zru\u0161it platnost"
+            ],
+            "MCP Server": [
+                "MCP Server"
+            ],
+            "MCP (Model Context Protocol) is an open standard that lets external AI tools talk to this WordPress site. Once enabled, Claude Desktop, Cursor, Windsurf or another MCP client can manage posts, pages, products, media and settings directly. Clients authenticate with a JWT token (see below) and only ever get the operations you allow.": [
+                "MCP (Model Context Protocol) je otev\u0159en\u00fd standard, kter\u00fd umo\u017e\u0148uje extern\u00edm AI n\u00e1stroj\u016fm komunikovat s t\u00edmto webem WordPress. Po zapnut\u00ed mohou Claude Desktop, Cursor, Windsurf nebo jin\u00fd MCP klient p\u0159\u00edmo spravovat p\u0159\u00edsp\u011bvky, str\u00e1nky, produkty, m\u00e9dia a nastaven\u00ed. Klienti se ov\u011b\u0159uj\u00ed pomoc\u00ed JWT tokenu (viz n\u00ed\u017ee) a z\u00edskaj\u00ed v\u017edy jen operace, kter\u00e9 povol\u00edte."
+            ],
+            "Status:": [
+                "Stav:"
+            ],
+            "Enabled": [
+                "Zapnuto"
+            ],
+            "This toggle lives in the Settings tab (\"Enable MCP (tool calling)\") - it is shown here for reference only.": [
+                "Tento p\u0159ep\u00edna\u010d se nach\u00e1z\u00ed na kart\u011b Nastaven\u00ed (\u201eZapnout MCP (vol\u00e1n\u00ed n\u00e1stroj\u016f)\u201c) - zde je zobrazen pouze pro informaci."
+            ],
+            "Registered tools & resources": [
+                "Registrovan\u00e9 n\u00e1stroje a zdroje"
+            ],
+            "These WordPress REST API endpoints are automatically exposed as MCP tools and resources. Tools let the AI perform actions (CRUD operations). Resources provide read-only context about the site.": [
+                "Tyto endpointy WordPress REST API jsou automaticky zp\u0159\u00edstupn\u011bny jako MCP n\u00e1stroje a zdroje. N\u00e1stroje umo\u017e\u0148uj\u00ed AI prov\u00e1d\u011bt akce (operace CRUD). Zdroje poskytuj\u00ed kontext o webu pouze pro \u010dten\u00ed."
+            ],
+            "Tools": [
+                "N\u00e1stroje"
+            ],
+            "Tool": [
+                "N\u00e1stroj"
+            ],
+            "Operations": [
+                "Operace"
+            ],
+            "Resources": [
+                "Zdroje"
+            ],
+            "Resource": [
+                "Zdroj"
+            ],
+            "URI": [
+                "URI"
+            ],
+            "Resources are read-only - the AI can read them but cannot use them to change data.": [
+                "Zdroje jsou pouze pro \u010dten\u00ed - AI je m\u016f\u017ee \u010d\u00edst, ale nem\u016f\u017ee je pou\u017e\u00edt ke zm\u011bn\u011b dat."
+            ],
+            "JWT access tokens": [
+                "P\u0159\u00edstupov\u00e9 JWT tokeny"
+            ],
+            "To connect an external AI client to the MCP server, generate a JWT (JSON Web Token). Paste it into the AI client's configuration (e.g. the Claude Desktop config). Each token has a limited lifetime and can be revoked at any time.": [
+                "Chcete-li k MCP serveru p\u0159ipojit extern\u00edho AI klienta, vygenerujte JWT (JSON Web Token). Vlo\u017ete jej do konfigurace AI klienta (nap\u0159. konfigurace Claude Desktop). Ka\u017ed\u00fd token m\u00e1 omezenou \u017eivotnost a lze jej kdykoli zru\u0161it."
+            ],
+            "Usage": [
+                "Vyu\u017eit\u00ed"
+            ],
+            "Conversations": [
+                "Konverzace"
+            ],
+            "Handoff": [
+                "P\u0159ed\u00e1n\u00ed"
+            ],
+            "Knowledge Hub": [
+                "Knowledge Hub"
+            ],
+            "RAG Training": [
+                "Tr\u00e9nov\u00e1n\u00ed RAG"
+            ],
+            "Content Creator": [
+                "Content Creator"
+            ],
+            "Blog Pilot": [
+                "Blog Pilot"
+            ],
+            "Internal Chat": [
+                "Intern\u00ed chat"
+            ],
+            "MCP": [
+                "MCP"
+            ],
+            "Daily requests (per user)": [
+                "Denn\u00ed po\u017eadavky (na u\u017eivatele)"
+            ],
+            "A Claude API key is currently set.": [
+                "Kl\u00ed\u010d Claude API je moment\u00e1ln\u011b nastaven."
+            ],
+            "No Claude API key set yet.": [
+                "Kl\u00ed\u010d Claude API zat\u00edm nebyl nastaven."
+            ],
+            "An OpenAI API key is currently set.": [
+                "Kl\u00ed\u010d OpenAI API je moment\u00e1ln\u011b nastaven."
+            ],
+            "No OpenAI API key set yet.": [
+                "Kl\u00ed\u010d OpenAI API zat\u00edm nebyl nastaven."
+            ],
+            "A DeepSeek API key is currently set.": [
+                "Kl\u00ed\u010d DeepSeek API je moment\u00e1ln\u011b nastaven."
+            ],
+            "No DeepSeek API key set yet.": [
+                "Kl\u00ed\u010d DeepSeek API zat\u00edm nebyl nastaven."
+            ],
+            "Period (days)": [
+                "Obdob\u00ed (dny)"
+            ],
+            "Requests:": [
+                "Po\u017eadavky:"
+            ],
+            "Input tokens:": [
+                "Vstupn\u00ed tokeny:"
+            ],
+            "Output tokens:": [
+                "V\u00fdstupn\u00ed tokeny:"
+            ],
+            "Sessions:": [
+                "Relace:"
+            ],
+            "No usage recorded for this period.": [
+                "Za toto obdob\u00ed nebylo zaznamen\u00e1no \u017e\u00e1dn\u00e9 vyu\u017eit\u00ed."
+            ],
+            "Provider": [
+                "Poskytovatel"
+            ],
+            "Feature": [
+                "Funkce"
+            ],
+            "Requests": [
+                "Po\u017eadavky"
+            ],
+            "Input tokens": [
+                "Vstupn\u00ed tokeny"
+            ],
+            "Output tokens": [
+                "V\u00fdstupn\u00ed tokeny"
+            ]
+        }
+    }
+}

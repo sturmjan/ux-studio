@@ -1,0 +1,72 @@
+{
+    "translation-revision-date": "2026-09-04T09:12:50+00:00",
+    "generator": "WP-CLI\/2.12.0",
+    "source": "build\/402.js",
+    "domain": "messages",
+    "locale_data": {
+        "messages": {
+            "": {
+                "domain": "messages",
+                "lang": "cs_CZ",
+                "plural-forms": "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
+            },
+            "Status": [
+                "Stav"
+            ],
+            "Date": [
+                "Datum"
+            ],
+            "Settings": [
+                "Nastaven\u00ed"
+            ],
+            "Back to modules": [
+                "Zp\u011bt na moduly"
+            ],
+            "Loading\u2026": [
+                "Na\u010d\u00edt\u00e1n\u00ed\u2026"
+            ],
+            "Saved": [
+                "Ulo\u017eeno"
+            ],
+            "Save changes": [
+                "Ulo\u017eit zm\u011bny"
+            ],
+            "Send": [
+                "Odeslat"
+            ],
+            "Stats": [
+                "Statistiky"
+            ],
+            "Sent": [
+                "Odesl\u00e1no"
+            ],
+            "Failed": [
+                "Nezda\u0159ilo se"
+            ],
+            "Recipient email": [
+                "E-mail p\u0159\u00edjemce"
+            ],
+            "Order ID (optional)": [
+                "ID objedn\u00e1vky (nepovinn\u00e9)"
+            ],
+            "Sent to": [
+                "Odesl\u00e1no na"
+            ],
+            "Failed to send": [
+                "Odesl\u00e1n\u00ed se nezda\u0159ilo"
+            ],
+            "Recipient": [
+                "P\u0159\u00edjemce"
+            ],
+            "Order ID": [
+                "ID objedn\u00e1vky"
+            ],
+            "No review requests have been sent yet.": [
+                "Zat\u00edm nebyly odesl\u00e1ny \u017e\u00e1dn\u00e9 \u017e\u00e1dosti o recenzi."
+            ],
+            "Google Review Request": [
+                "\u017d\u00e1dost o recenzi na Google"
+            ]
+        }
+    }
+}

@@ -1,0 +1,120 @@
+{
+    "translation-revision-date": "2026-09-04T09:12:50+00:00",
+    "generator": "WP-CLI\/2.12.0",
+    "source": "build\/563.js",
+    "domain": "messages",
+    "locale_data": {
+        "messages": {
+            "": {
+                "domain": "messages",
+                "lang": "cs_CZ",
+                "plural-forms": "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
+            },
+            "Error": [
+                "Chyba"
+            ],
+            "Mode": [
+                "Re\u017eim"
+            ],
+            "Back to modules": [
+                "Zp\u011bt na moduly"
+            ],
+            "Source": [
+                "Zdroj"
+            ],
+            "Paste HTML": [
+                "Vlo\u017eit HTML"
+            ],
+            "HTML": [
+                "HTML"
+            ],
+            "Page URL": [
+                "URL str\u00e1nky"
+            ],
+            "Content CSS selector (optional)": [
+                "CSS selektor obsahu (voliteln\u00e9)"
+            ],
+            "Edit in Elementor": [
+                "Upravit v Elementoru"
+            ],
+            "Imported": [
+                "Importov\u00e1no"
+            ],
+            "Import": [
+                "Importovat"
+            ],
+            "Elementor Import": [
+                "Import Elementoru"
+            ],
+            "Imported HTML": [
+                "Importovan\u00e9 HTML"
+            ],
+            "widgets": [
+                "widgety"
+            ],
+            "View page": [
+                "Zobrazit str\u00e1nku"
+            ],
+            "New draft page": [
+                "Nov\u00e1 konceptov\u00e1 str\u00e1nka"
+            ],
+            "Replace existing page content": [
+                "Nahradit obsah existuj\u00edc\u00ed str\u00e1nky"
+            ],
+            "Append to existing page": [
+                "P\u0159ipojit k existuj\u00edc\u00ed str\u00e1nce"
+            ],
+            "Target page ID": [
+                "ID c\u00edlov\u00e9 str\u00e1nky"
+            ],
+            "The numeric ID of the page whose Elementor content will be replaced or appended to.": [
+                "\u010c\u00edseln\u00e9 ID str\u00e1nky, jej\u00ed\u017e obsah Elementoru bude nahrazen nebo k n\u011bmu bude p\u0159ipojeno."
+            ],
+            "Upload file (.json \/ .zip)": [
+                "Nahr\u00e1t soubor (.json \/ .zip)"
+            ],
+            "Paste template JSON": [
+                "Vlo\u017eit JSON \u0161ablony"
+            ],
+            "From URL": [
+                "Z URL"
+            ],
+            "Template file": [
+                "Soubor \u0161ablony"
+            ],
+            "Template JSON": [
+                "JSON \u0161ablony"
+            ],
+            "Leave blank to auto-detect the main content.": [
+                "Ponechte pr\u00e1zdn\u00e9 pro automatick\u00e9 zji\u0161t\u011bn\u00ed hlavn\u00edho obsahu."
+            ],
+            "Page title": [
+                "N\u00e1zev str\u00e1nky"
+            ],
+            "Choose a .json or .zip file first.": [
+                "Nejprve zvolte soubor .json nebo .zip."
+            ],
+            "The pasted text is not valid JSON.": [
+                "Vlo\u017een\u00fd text nen\u00ed platn\u00e9 JSON."
+            ],
+            "Page ID to export": [
+                "ID str\u00e1nky k exportu"
+            ],
+            "Exports the page's Elementor content and page settings to a downloadable JSON file.": [
+                "Exportuje obsah Elementoru a nastaven\u00ed str\u00e1nky do JSON souboru ke sta\u017een\u00ed."
+            ],
+            "Enter a valid page ID.": [
+                "Zadejte platn\u00e9 ID str\u00e1nky."
+            ],
+            "Export JSON": [
+                "Exportovat JSON"
+            ],
+            "Exported": [
+                "Exportov\u00e1no"
+            ],
+            "Export": [
+                "Exportovat"
+            ]
+        }
+    }
+}

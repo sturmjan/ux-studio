@@ -1,0 +1,27 @@
+{
+    "translation-revision-date": "2026-09-04T09:12:50+00:00",
+    "generator": "WP-CLI\/2.12.0",
+    "source": "build\/999.js",
+    "domain": "messages",
+    "locale_data": {
+        "messages": {
+            "": {
+                "domain": "messages",
+                "lang": "cs_CZ",
+                "plural-forms": "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
+            },
+            "AI Panel": [
+                "AI Panel"
+            ],
+            "Back to modules": [
+                "Zp\u011bt na moduly"
+            ],
+            "AI Panel manages temporary remote access grants through its own dedicated admin screen, unchanged from before the rewrite.": [
+                "AI Panel spravuje do\u010dasn\u00e1 opr\u00e1vn\u011bn\u00ed pro vzd\u00e1len\u00fd p\u0159\u00edstup prost\u0159ednictv\u00edm vlastn\u00ed vyhrazen\u00e9 administra\u010dn\u00ed obrazovky, beze zm\u011bny oproti stavu p\u0159ed p\u0159episem."
+            ],
+            "Open AI Panel": [
+                "Otev\u0159\u00edt AI Panel"
+            ]
+        }
+    }
+}

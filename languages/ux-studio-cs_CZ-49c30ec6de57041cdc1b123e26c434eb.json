@@ -1,0 +1,144 @@
+{
+    "translation-revision-date": "2026-09-04T09:12:50+00:00",
+    "generator": "WP-CLI\/2.12.0",
+    "source": "build\/213.js",
+    "domain": "messages",
+    "locale_data": {
+        "messages": {
+            "": {
+                "domain": "messages",
+                "lang": "cs_CZ",
+                "plural-forms": "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
+            },
+            "Email": [
+                "E-mail"
+            ],
+            "Title": [
+                "N\u00e1zev"
+            ],
+            "Date": [
+                "Datum"
+            ],
+            "Thumbnail": [
+                "N\u00e1hled"
+            ],
+            "Back to modules": [
+                "Zp\u011bt na moduly"
+            ],
+            "Loading\u2026": [
+                "Na\u010d\u00edt\u00e1n\u00ed\u2026"
+            ],
+            "Saved": [
+                "Ulo\u017eeno"
+            ],
+            "Type": [
+                "Typ"
+            ],
+            "Text": [
+                "Text"
+            ],
+            "Enabled": [
+                "Zapnuto"
+            ],
+            "Admin Columns": [
+                "Sloupce administrace"
+            ],
+            "Default (native column)": [
+                "V\u00fdchoz\u00ed (nativn\u00ed sloupec)"
+            ],
+            "Custom field (meta)": [
+                "Vlastn\u00ed pole (meta)"
+            ],
+            "Taxonomy": [
+                "Taxonomie"
+            ],
+            "ID": [
+                "ID"
+            ],
+            "Any unique column key.": [
+                "Libovoln\u00fd unik\u00e1tn\u00ed kl\u00ed\u010d sloupce."
+            ],
+            "Move up": [
+                "Posunout nahoru"
+            ],
+            "Move down": [
+                "Posunout dol\u016f"
+            ],
+            "Column title": [
+                "N\u00e1zev sloupce"
+            ],
+            "e.g. 80px": [
+                "nap\u0159. 80px"
+            ],
+            "Disable column": [
+                "Vypnout sloupec"
+            ],
+            "Enable column": [
+                "Zapnout sloupec"
+            ],
+            "Delete column": [
+                "Smazat sloupec"
+            ],
+            "Key": [
+                "Kl\u00ed\u010d"
+            ],
+            "Width": [
+                "\u0160\u00ed\u0159ka"
+            ],
+            "Add column": [
+                "P\u0159idat sloupec"
+            ],
+            "Save changes for %s": [
+                "Ulo\u017eit zm\u011bny pro %s"
+            ],
+            "Required \u2014 a column with no key is discarded when you save.": [
+                "Povinn\u00e9 - sloupec bez kl\u00ed\u010de se p\u0159i ulo\u017een\u00ed zahod\u00ed."
+            ],
+            "Remove section": [
+                "Odebrat sekci"
+            ],
+            "No custom columns yet \u2014 the native columns are shown unchanged. Add one below to relabel, reorder, hide or add a column.": [
+                "Zat\u00edm \u017e\u00e1dn\u00e9 vlastn\u00ed sloupce - zobrazuj\u00ed se nezm\u011bn\u011bn\u00e9 v\u00fdchoz\u00ed sloupce. P\u0159idejte n\u00ed\u017ee sloupec, kter\u00fd chcete p\u0159ejmenovat, p\u0159euspo\u0159\u00e1dat, skr\u00fdt nebo p\u0159idat."
+            ],
+            "No content type has custom columns yet. Pick one below to start configuring it.": [
+                "\u017d\u00e1dn\u00fd typ obsahu zat\u00edm nem\u00e1 vlastn\u00ed sloupce. Vyberte n\u00ed\u017ee typ, u kter\u00e9ho chcete za\u010d\u00edt."
+            ],
+            "\u2014 Select content type \u2014": [
+                "\u2014 Vyberte typ obsahu \u2014"
+            ],
+            "Add content type": [
+                "P\u0159idat typ obsahu"
+            ],
+            "Key of an existing column \u2014 start typing to see suggestions.": [
+                "Kl\u00ed\u010d existuj\u00edc\u00edho sloupce - za\u010dn\u011bte ps\u00e1t pro zobrazen\u00ed n\u00e1pov\u011bdy."
+            ],
+            "Custom field (meta) key \u2014 start typing to see suggestions.": [
+                "Kl\u00ed\u010d vlastn\u00edho pole (meta) - za\u010dn\u011bte ps\u00e1t pro zobrazen\u00ed n\u00e1pov\u011bdy."
+            ],
+            "Taxonomy slug \u2014 start typing to see suggestions.": [
+                "Identifik\u00e1tor (slug) taxonomie - za\u010dn\u011bte ps\u00e1t pro zobrazen\u00ed n\u00e1pov\u011bdy."
+            ],
+            "Image": [
+                "Obr\u00e1zek"
+            ],
+            "Number": [
+                "\u010c\u00edslo"
+            ],
+            "Yes \/ No": [
+                "Ano \/ Ne"
+            ],
+            "Link": [
+                "Odkaz"
+            ],
+            "Color swatch": [
+                "Vzorn\u00edk barev"
+            ],
+            "Related post": [
+                "Souvisej\u00edc\u00ed p\u0159\u00edsp\u011bvek"
+            ],
+            "Render meta value as": [
+                "Vykreslit meta hodnotu jako"
+            ]
+        }
+    }
+}

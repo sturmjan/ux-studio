@@ -1,0 +1,114 @@
+{
+    "translation-revision-date": "2026-09-04T09:12:50+00:00",
+    "generator": "WP-CLI\/2.12.0",
+    "source": "build\/819.js",
+    "domain": "messages",
+    "locale_data": {
+        "messages": {
+            "": {
+                "domain": "messages",
+                "lang": "cs_CZ",
+                "plural-forms": "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
+            },
+            "Notifications": [
+                "Ozn\u00e1men\u00ed"
+            ],
+            "Body": [
+                "Text"
+            ],
+            "Title": [
+                "N\u00e1zev"
+            ],
+            "Status": [
+                "Stav"
+            ],
+            "Date": [
+                "Datum"
+            ],
+            "Settings": [
+                "Nastaven\u00ed"
+            ],
+            "Back to modules": [
+                "Zp\u011bt na moduly"
+            ],
+            "Loading\u2026": [
+                "Na\u010d\u00edt\u00e1n\u00ed\u2026"
+            ],
+            "Saved": [
+                "Ulo\u017eeno"
+            ],
+            "Save changes": [
+                "Ulo\u017eit zm\u011bny"
+            ],
+            "Send": [
+                "Odeslat"
+            ],
+            "Create draft": [
+                "Vytvo\u0159it koncept"
+            ],
+            "Draft": [
+                "Koncept"
+            ],
+            "Schedule": [
+                "Pl\u00e1nov\u00e1n\u00ed"
+            ],
+            "Clicked": [
+                "Kliknuto"
+            ],
+            "Subscribers": [
+                "Odb\u011bratel\u00e9"
+            ],
+            "Sent": [
+                "Odesl\u00e1no"
+            ],
+            "Failed": [
+                "Nezda\u0159ilo se"
+            ],
+            "No subscribers yet.": [
+                "Zat\u00edm \u017e\u00e1dn\u00ed odb\u011bratel\u00e9."
+            ],
+            "No notifications yet.": [
+                "Zat\u00edm \u017e\u00e1dn\u00e1 ozn\u00e1men\u00ed."
+            ],
+            "User agent": [
+                "User agent"
+            ],
+            "Push Notifications": [
+                "Push ozn\u00e1men\u00ed"
+            ],
+            "A VAPID keypair is currently configured.": [
+                "P\u00e1r kl\u00ed\u010d\u016f VAPID je aktu\u00e1ln\u011b nastaven."
+            ],
+            "No VAPID keypair yet - one will be generated automatically.": [
+                "Zat\u00edm nen\u00ed nastaven \u017e\u00e1dn\u00fd p\u00e1r kl\u00ed\u010d\u016f VAPID \u2013 bude vygenerov\u00e1n automaticky."
+            ],
+            "Regenerate VAPID keys": [
+                "Znovu vygenerovat kl\u00ed\u010de VAPID"
+            ],
+            "Click URL": [
+                "URL po kliknut\u00ed"
+            ],
+            "Audience": [
+                "Publikum"
+            ],
+            "All subscribers": [
+                "V\u0161ichni odb\u011bratel\u00e9"
+            ],
+            "Subscribed in last 30 days": [
+                "P\u0159ihl\u00e1\u0161en\u00ed za posledn\u00edch 30 dn\u00ed"
+            ],
+            "Delivered": [
+                "Doru\u010deno"
+            ],
+            "Scheduled": [
+                "Napl\u00e1nov\u00e1no"
+            ],
+            "Send now": [
+                "Odeslat nyn\u00ed"
+            ],
+            "Analytics": [
+                "Analytika"
+            ]
+        }
+    }
+}
