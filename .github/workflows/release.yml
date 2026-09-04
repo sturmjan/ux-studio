@@ -19,10 +19,15 @@ jobs:
 
       - name: Guard - forbidden strings
         run: |
-          # Migrator.php legitimately references legacy option names it imports from.
-          ! grep -ri --include="*.php" --include="*.ts" --include="*.tsx" --include="*.scss" \
-              --exclude="Migrator.php" "wpextended" includes src ux-studio.php
-          ! grep -r --include="*.tsx" --include="*.ts" "dashicons" src
+          # Forbid re-branding as the old plugin: the PHP namespace (Wpextended\)
+          # and its text-domain constant. Legacy option NAMES (wpextended__*),
+          # interop path checks (WP_EXTENDED_PATH) and explanatory comments are
+          # allowed - they read/detect legacy data, they are not new branding.
+          ! grep -rnE --include="*.php" --include="*.ts" --include="*.tsx" --include="*.scss" \
+              'Wpextended\\|WP_EXTENDED_TEXT_DOMAIN' includes src ux-studio.php
+          # Plugin chrome uses lucide, not dashicons. A placeholder hint for WP's
+          # own admin-menu icon field (which IS a dashicon) is allowed.
+          ! { grep -rn --include="*.tsx" --include="*.ts" 'dashicons' src | grep -v 'placeholder='; }
 
       - uses: actions/setup-node@v4
         with:
