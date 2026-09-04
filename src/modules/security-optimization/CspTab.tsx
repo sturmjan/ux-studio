@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Check, LoaderCircle, ShieldAlert, Trash2 } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
+import { useModuleSettings } from '../../app/SettingsForm';
 
 interface CspViolation {
 	id: number;
@@ -30,6 +31,9 @@ const QUERY_KEY = [ 'security-optimization', 'csp-violations' ];
 export function CspTab(): JSX.Element {
 	const [ statusFilter, setStatusFilter ] = useState< '' | 'open' | 'resolved' >( 'open' );
 
+	const settings = useModuleSettings( 'security-optimization' );
+	const cspMode = String( settings.draft.csp_mode ?? 'off' );
+
 	const query = useQuery( {
 		queryKey: [ ...QUERY_KEY, statusFilter ],
 		queryFn: () =>
@@ -48,12 +52,32 @@ export function CspTab(): JSX.Element {
 		onSuccess: () => void queryClient.invalidateQueries( { queryKey: QUERY_KEY } ),
 	} );
 
+	const modeBadge =
+		cspMode === 'enforce'
+			? { cls: 'is-danger', label: __( 'Enforcing', 'ux-studio' ) }
+			: cspMode === 'report-only'
+			? { cls: 'is-warning', label: __( 'Report only', 'ux-studio' ) }
+			: { cls: 'is-info', label: __( 'Off', 'ux-studio' ) };
+
 	return (
 		<>
 			<div style={ { display: 'flex', gap: 'var(--uxs-sp-3)', marginBottom: 'var(--uxs-sp-4)', alignItems: 'center' } }>
 				<ShieldAlert size={ 16 } />
 				<p style={ { margin: 0, color: 'var(--uxs-text-soft)' } }>
 					{ __( 'Real CSP violations reported by visitor browsers. Resolve entries once you have allowed or fixed the source.', 'ux-studio' ) }
+				</p>
+			</div>
+
+			<div style={ { marginBottom: 'var(--uxs-sp-4)' } }>
+				<span className={ `uxs-badge ${ modeBadge.cls }` }>
+					{ __( 'CSP mode:', 'ux-studio' ) } { modeBadge.label }
+				</span>
+				<p style={ { margin: 'var(--uxs-sp-2) 0 0', color: 'var(--uxs-text-soft)', fontSize: 'var(--uxs-fs-s)' } }>
+					{ cspMode === 'enforce'
+						? __( 'The policy is actively enforced on the front end (never in wp-admin). Disallowed sources are blocked.', 'ux-studio' )
+						: cspMode === 'report-only'
+						? __( 'The policy is sent report-only: nothing is blocked, browsers just report what would be. Review the violations below, then switch to Enforce in the Settings tab.', 'ux-studio' )
+						: __( 'CSP is off. Enable it in the Settings tab - start with Report only to collect violations here before enforcing.', 'ux-studio' ) }
 				</p>
 			</div>
 

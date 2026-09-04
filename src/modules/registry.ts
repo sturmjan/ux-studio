@@ -25,6 +25,7 @@ export const MODULE_PAGES: Record< string, ReturnType< typeof lazy > > = {
 	'rollback-manager': lazy( () => import( './rollback-manager/Page' ) ),
 	'folder-manager': lazy( () => import( './folder-manager/Page' ) ),
 	'download-files': lazy( () => import( './download-files/Page' ) ),
+	'elementor-import': lazy( () => import( './elementor-import/Page' ) ),
 	'cron-control': lazy( () => import( './cron-control/Page' ) ),
 	'exit-popup': lazy( () => import( './exit-popup/Page' ) ),
 	'bot-throttle': lazy( () => import( './bot-throttle/Page' ) ),

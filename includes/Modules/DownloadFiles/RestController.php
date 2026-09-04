@@ -16,7 +16,9 @@ defined( 'ABSPATH' ) || exit;
 /**
  * GET    uxstudio/v1/download-files/items          - list files (manage_options)
  * POST   uxstudio/v1/download-files/items          - create a file entry (manage_options)
+ * PATCH  uxstudio/v1/download-files/items/{id}     - update a file entry (manage_options)
  * DELETE uxstudio/v1/download-files/items/{id}     - delete a file entry (manage_options)
+ * GET    uxstudio/v1/download-files/categories     - distinct category labels (manage_options)
  * GET    uxstudio/v1/download-files/serve/{id}     - public, token-gated download
  *
  * The serve route is deliberately NOT registered through Controller::route():
@@ -62,6 +64,43 @@ final class RestController extends Controller {
 					'required' => false,
 					'type'     => 'boolean',
 				),
+				'category'      => array(
+					'required'          => false,
+					'type'              => 'string',
+					'sanitize_callback' => 'sanitize_text_field',
+				),
+				'post_id'       => array(
+					'required'          => false,
+					'type'              => 'integer',
+					'sanitize_callback' => 'absint',
+				),
+			)
+		);
+
+		$this->route(
+			'/download-files/items/(?P<id>\d+)',
+			'PATCH',
+			array( $this, 'update_item' ),
+			array(
+				'title'         => array(
+					'required'          => false,
+					'type'              => 'string',
+					'sanitize_callback' => 'sanitize_text_field',
+				),
+				'require_login' => array(
+					'required' => false,
+					'type'     => 'boolean',
+				),
+				'category'      => array(
+					'required'          => false,
+					'type'              => 'string',
+					'sanitize_callback' => 'sanitize_text_field',
+				),
+				'post_id'       => array(
+					'required'          => false,
+					'type'              => 'integer',
+					'sanitize_callback' => 'absint',
+				),
 			)
 		);
 
@@ -70,6 +109,8 @@ final class RestController extends Controller {
 			'DELETE',
 			array( $this, 'delete_item' )
 		);
+
+		$this->route( '/download-files/categories', 'GET', array( $this, 'list_categories' ) );
 
 		// Deliberate deviation from $this->route(): see class docblock above.
 		register_rest_route(
@@ -124,8 +165,54 @@ final class RestController extends Controller {
 		if ( null !== $request->get_param( 'require_login' ) ) {
 			$data['require_login'] = (bool) $request->get_param( 'require_login' );
 		}
+		if ( null !== $request->get_param( 'category' ) ) {
+			$data['category'] = (string) $request->get_param( 'category' );
+		}
+		if ( null !== $request->get_param( 'post_id' ) ) {
+			$data['post_id'] = absint( $request->get_param( 'post_id' ) );
+		}
 
 		return $this->ok( $this->module->create_file( $data ) );
+	}
+
+	/**
+	 * Update an existing file entry (title / require_login / category / post_id).
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function update_item( WP_REST_Request $request ) {
+		$id = absint( $request->get_param( 'id' ) );
+
+		$data = array();
+		if ( null !== $request->get_param( 'title' ) ) {
+			$data['title'] = (string) $request->get_param( 'title' );
+		}
+		if ( null !== $request->get_param( 'require_login' ) ) {
+			$data['require_login'] = (bool) $request->get_param( 'require_login' );
+		}
+		if ( null !== $request->get_param( 'category' ) ) {
+			$data['category'] = (string) $request->get_param( 'category' );
+		}
+		if ( null !== $request->get_param( 'post_id' ) ) {
+			$data['post_id'] = absint( $request->get_param( 'post_id' ) );
+		}
+
+		$result = $this->module->update_file( $id, $data );
+
+		if ( $result instanceof WP_Error ) {
+			return $result;
+		}
+
+		return $this->ok( $result );
+	}
+
+	/**
+	 * List distinct category labels in use.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function list_categories( WP_REST_Request $request ) {
+		return $this->ok( $this->module->list_categories() );
 	}
 
 	/**

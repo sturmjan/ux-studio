@@ -75,9 +75,13 @@ function SettingsTab(): JSX.Element {
 		);
 	}
 
+	// Upload Guard settings live on their own tab (UploadGuardTab); keep them out
+	// of the generic settings grid to avoid showing the same fields twice.
+	const schema = data.schema.filter( ( f ) => ! f.key.startsWith( 'upload_guard' ) );
+
 	return (
 		<>
-			<SettingsFields schema={ data.schema } draft={ draft } setDraft={ setDraft } />
+			<SettingsFields schema={ schema } draft={ draft } setDraft={ setDraft } />
 			<p>
 				{ draft.has_captcha_secret_key
 					? __( 'A CAPTCHA secret key is currently set.', 'ux-studio' )

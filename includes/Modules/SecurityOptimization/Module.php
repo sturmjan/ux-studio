@@ -115,6 +115,11 @@ final class Module extends BaseModule {
 		add_action( 'send_headers', array( $this, 'send_security_headers' ) );
 		add_action( 'admin_init', array( $this, 'send_security_headers' ) );
 
+		/* ── Content-Security-Policy - FRONT END ONLY (send_headers never fires in
+		 * wp-admin) so a bad policy can never lock the dashboard. Report-only and
+		 * enforce modes share one builder. ── */
+		add_action( 'send_headers', array( $this, 'maybe_send_csp_header' ) );
+
 		/* ── .htaccess sync when settings changed ── */
 		$this->maybe_update_htaccess();
 
@@ -124,11 +129,31 @@ final class Module extends BaseModule {
 			add_filter( 'xmlrpc_enabled', '__return_false' );
 			add_filter( 'xmlrpc_methods', '__return_empty_array' );
 			add_filter( 'pings_open', '__return_false', 9999 );
+			add_filter( 'wp_headers', array( $this, 'remove_x_pingback' ) );
 		}
 
 		/* ── Hide WP version ── */
 		if ( $this->setting( 'hide_wp_version', true ) ) {
 			add_filter( 'the_generator', '__return_false' );
+			add_filter( 'style_loader_src', array( $this, 'remove_version_query_arg' ), 9999 );
+			add_filter( 'script_loader_src', array( $this, 'remove_version_query_arg' ), 9999 );
+		}
+
+		/* ── Disable theme/plugin file editor (define early, before wp-admin caps) ── */
+		if ( $this->setting( 'disable_file_editing', false ) && ! defined( 'DISALLOW_FILE_EDIT' ) ) {
+			define( 'DISALLOW_FILE_EDIT', true );
+		}
+
+		/* ── Block user enumeration ── */
+		if ( $this->setting( 'block_user_enumeration', false ) ) {
+			add_action( 'init', array( $this, 'block_author_enumeration' ), 1 );
+			add_filter( 'rest_endpoints', array( $this, 'disable_user_rest_route' ) );
+		}
+
+		/* ── Harden login page ── */
+		if ( $this->setting( 'protect_login', false ) ) {
+			add_filter( 'login_errors', array( $this, 'sanitize_login_errors' ) );
+			add_filter( 'wp_is_application_passwords_available', '__return_false' );
 		}
 
 		/* ── Custom login URL (with kill-switch + collision fail-open guard) ── */
@@ -175,8 +200,10 @@ final class Module extends BaseModule {
 
 		/* ── CSP violation reporting + Upload Guard malware scanner (ported
 		 * separately, self-contained: own tables, own REST routes, own cron/
-		 * upload hooks). See CspUploadGuardBootstrap for details. ── */
-		CspUploadGuardBootstrap::register();
+		 * upload hooks). See CspUploadGuardBootstrap for details. The Upload Guard
+		 * scanner honours its enable toggle; CSP violation collection is always on
+		 * so the report-uri sink keeps working regardless. ── */
+		CspUploadGuardBootstrap::register( (bool) $this->setting( 'upload_guard_enabled', true ) );
 	}
 
 	/**
@@ -336,6 +363,46 @@ final class Module extends BaseModule {
 				'label'   => __( 'Permissions-Policy', 'ux-studio' ),
 				'help'    => __( 'Disables browser access to camera, microphone, geolocation, payment and USB APIs by default.', 'ux-studio' ),
 				'default' => false,
+			),
+
+			// Content-Security-Policy.
+			array(
+				'key'     => 'csp_mode',
+				'type'    => 'select',
+				'label'   => __( 'Content-Security-Policy (CSP)', 'ux-studio' ),
+				'help'    => __( 'CSP tells the browser where scripts, styles, images and other content may load from, strongly reducing XSS risk. SAFETY: CSP is only ever sent on the front end - never in wp-admin - so it cannot lock you out of the dashboard. Start with "Report only" to see what would break (violations appear in the CSP Violations tab), then switch to "Enforce" once clean.', 'ux-studio' ),
+				'options' => array(
+					'off'         => __( 'Off', 'ux-studio' ),
+					'report-only' => __( 'Report only (recommended first - nothing is blocked)', 'ux-studio' ),
+					'enforce'     => __( 'Enforce (actively blocks disallowed sources)', 'ux-studio' ),
+				),
+				'default' => 'off',
+			),
+			array(
+				'key'     => 'csp_level',
+				'type'    => 'select',
+				'label'   => __( 'CSP strictness', 'ux-studio' ),
+				'help'    => __( 'Basic allows inline scripts and eval() so it stays compatible with most themes, plugins and visual editors. Strict removes eval() for tighter protection but may break page builders (Elementor, WPBakery, Divi).', 'ux-studio' ),
+				'options' => array(
+					'basic'  => __( 'Basic (recommended - allows eval)', 'ux-studio' ),
+					'strict' => __( 'Strict (no eval)', 'ux-studio' ),
+				),
+				'default' => 'basic',
+			),
+			array(
+				'key'     => 'csp_presets',
+				'type'    => 'multiselect',
+				'label'   => __( 'CSP - allowed services', 'ux-studio' ),
+				'help'    => __( 'Select the external services the site uses. Matching domains are added to the policy so their scripts, styles, fonts and images keep working.', 'ux-studio' ),
+				'options' => self::csp_preset_labels(),
+				'default' => array(),
+			),
+			array(
+				'key'     => 'csp_custom_allowlist',
+				'type'    => 'textarea',
+				'label'   => __( 'CSP - custom domain allowlist', 'ux-studio' ),
+				'help'    => __( 'One domain per line, added to script/style/img/font/connect/frame sources. Examples: https://cdn.example.com, https://*.example.com, wss://socket.example.com.', 'ux-studio' ),
+				'default' => '',
 			),
 
 			// File protection (.htaccess).
@@ -506,8 +573,76 @@ final class Module extends BaseModule {
 				'key'     => 'restrict_rest_api',
 				'type'    => 'toggle',
 				'label'   => __( 'Restrict REST API to logged-in users', 'ux-studio' ),
+				'help'    => __( 'Blocks the WordPress REST API for anonymous visitors. Common public endpoints (oEmbed, WooCommerce, Contact Form 7, WPForms, Elementor, site health) stay reachable so front-end features keep working.', 'ux-studio' ),
 				'default' => false,
 			),
+
+			// Extra hardening (ported from legacy).
+			array(
+				'key'     => 'block_user_enumeration',
+				'type'    => 'toggle',
+				'label'   => __( 'Block user enumeration', 'ux-studio' ),
+				'help'    => __( 'Stops attackers harvesting usernames via ?author=N redirects and the public /wp/v2/users REST route. Logged-in users keep full access.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'disable_file_editing',
+				'type'    => 'toggle',
+				'label'   => __( 'Disable theme/plugin file editor', 'ux-studio' ),
+				'help'    => __( 'Defines DISALLOW_FILE_EDIT so nobody can edit theme or plugin PHP from wp-admin - a common way attackers turn a stolen admin login into code execution.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'protect_login',
+				'type'    => 'toggle',
+				'label'   => __( 'Harden the login page', 'ux-studio' ),
+				'help'    => __( 'Hides detailed login error messages (so an attacker cannot tell which of username/password was wrong) and disables Application Passwords.', 'ux-studio' ),
+				'default' => false,
+			),
+
+			// Upload Guard (malware scanner) configuration.
+			array(
+				'key'     => 'upload_guard_enabled',
+				'type'    => 'toggle',
+				'label'   => __( 'Enable Upload Guard scanner', 'ux-studio' ),
+				'help'    => __( 'Scans uploaded files and wp-content for injected/malicious code and runs a nightly full scan. Turning this off stops all scanning (existing findings are kept). CSP violation reporting is unaffected.', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
+				'key'     => 'upload_guard_notify',
+				'type'    => 'toggle',
+				'label'   => __( 'Email admin on detections', 'ux-studio' ),
+				'help'    => __( 'Sends a throttled summary email when new high/critical findings appear (at most one per 15 minutes).', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
+				'key'     => 'upload_guard_notify_email',
+				'type'    => 'text',
+				'label'   => __( 'Notification email', 'ux-studio' ),
+				'help'    => __( 'Where to send Upload Guard alerts. Leave blank to use the site admin email.', 'ux-studio' ),
+				'default' => '',
+			),
+		);
+	}
+
+	/**
+	 * CSP preset checkbox labels (keys match csp_preset_sources()).
+	 *
+	 * @return array<string,string>
+	 */
+	private static function csp_preset_labels(): array {
+		return array(
+			'google_fonts'   => __( 'Google Fonts', 'ux-studio' ),
+			'gtm_ga'         => __( 'Google Tag Manager + Analytics', 'ux-studio' ),
+			'youtube'        => __( 'YouTube (embedded videos)', 'ux-studio' ),
+			'vimeo'          => __( 'Vimeo (embedded videos)', 'ux-studio' ),
+			'smartsupp'      => __( 'Smartsupp (chat)', 'ux-studio' ),
+			'recaptcha'      => __( 'Google reCAPTCHA', 'ux-studio' ),
+			'cloudflare'     => __( 'Cloudflare / CloudFront CDN', 'ux-studio' ),
+			'mapy_cz'        => __( 'Mapy.cz', 'ux-studio' ),
+			'google_maps'    => __( 'Google Maps', 'ux-studio' ),
+			'facebook_pixel' => __( 'Facebook Pixel', 'ux-studio' ),
+			'gravatar'       => __( 'Gravatar (comment avatars)', 'ux-studio' ),
 		);
 	}
 
@@ -633,6 +768,7 @@ final class Module extends BaseModule {
 		if ( $this->setting( 'security_headers', false ) ) {
 			header( 'X-Frame-Options: SAMEORIGIN' );
 			header( 'X-Content-Type-Options: nosniff' );
+			header( 'X-XSS-Protection: 1; mode=block' );
 			header( 'Referrer-Policy: strict-origin-when-cross-origin' );
 		}
 
@@ -643,6 +779,261 @@ final class Module extends BaseModule {
 		if ( $this->setting( 'enable_permissions_policy', false ) ) {
 			header( 'Permissions-Policy: geolocation=(), camera=(), microphone=(), payment=(), usb=()' );
 		}
+	}
+
+	/* ═══════════════════════════════════════════════════
+	   Content-Security-Policy (front end only)
+	   ═══════════════════════════════════════════════════ */
+
+	/**
+	 * Emit the CSP header on front-end requests. Report-only sends
+	 * Content-Security-Policy-Report-Only (nothing is blocked); enforce sends the
+	 * real Content-Security-Policy. Never runs in wp-admin (send_headers does not
+	 * fire there) so the dashboard can never be broken by a policy.
+	 */
+	public function maybe_send_csp_header(): void {
+		if ( headers_sent() || is_admin() ) {
+			return;
+		}
+
+		$mode = (string) $this->setting( 'csp_mode', 'off' );
+		if ( 'report-only' !== $mode && 'enforce' !== $mode ) {
+			return;
+		}
+
+		$policy = $this->build_csp_header();
+		if ( '' === $policy ) {
+			return;
+		}
+
+		$header = ( 'enforce' === $mode ) ? 'Content-Security-Policy' : 'Content-Security-Policy-Report-Only';
+		header( $header . ': ' . $policy );
+	}
+
+	/**
+	 * Build the CSP header value from the configurable directive builder
+	 * (level + service presets + custom allowlist). Always appends a report-uri
+	 * pointing at the module's public CSP report sink so violations show up in
+	 * the CSP Violations tab. Individual directives can be filtered via
+	 * uxstudio_csp_<directive> and the whole map via uxstudio_csp_directives.
+	 */
+	private function build_csp_header(): string {
+		$level      = (string) $this->setting( 'csp_level', 'basic' );
+		$script_src = array( "'self'", "'unsafe-inline'" );
+		if ( 'basic' === $level ) {
+			$script_src[] = "'unsafe-eval'";
+		}
+
+		$directives = array(
+			'default-src'     => array( "'self'" ),
+			'script-src'      => $script_src,
+			'style-src'       => array( "'self'", "'unsafe-inline'" ),
+			'img-src'         => array( "'self'", 'data:', 'https:' ),
+			'font-src'        => array( "'self'", 'data:', 'https:' ),
+			'connect-src'     => array( "'self'" ),
+			'frame-src'       => array( "'self'" ),
+			'frame-ancestors' => array( "'self'" ),
+			'base-uri'        => array( "'self'" ),
+			'form-action'     => array( "'self'" ),
+		);
+
+		foreach ( (array) $this->setting( 'csp_presets', array() ) as $preset ) {
+			foreach ( $this->csp_preset_sources( (string) $preset ) as $directive => $sources ) {
+				$directives[ $directive ] = array_merge( $directives[ $directive ] ?? array(), $sources );
+			}
+		}
+
+		$custom = $this->parse_csp_allowlist( (string) $this->setting( 'csp_custom_allowlist', '' ) );
+		if ( ! empty( $custom ) ) {
+			foreach ( array( 'script-src', 'style-src', 'img-src', 'font-src', 'connect-src', 'frame-src' ) as $directive ) {
+				$directives[ $directive ] = array_merge( $directives[ $directive ] ?? array(), $custom );
+			}
+		}
+
+		foreach ( $directives as $name => $sources ) {
+			$hook               = 'uxstudio_csp_' . str_replace( '-', '_', $name );
+			$directives[ $name ] = apply_filters( $hook, $sources );
+		}
+
+		/**
+		 * Filter the full CSP directive map before it is serialized.
+		 *
+		 * @param array<string,array<int,string>> $directives Directive => sources.
+		 */
+		$directives = apply_filters( 'uxstudio_csp_directives', $directives );
+
+		$parts = array();
+		foreach ( $directives as $name => $sources ) {
+			$sources = array_values( array_unique( array_filter( array_map( 'trim', (array) $sources ), 'strlen' ) ) );
+			if ( empty( $sources ) ) {
+				continue;
+			}
+			$parts[] = $name . ' ' . implode( ' ', $sources );
+		}
+
+		$parts[] = 'report-uri ' . esc_url_raw( rest_url( 'uxstudio/v1/security-optimization/csp-report' ) );
+
+		return implode( '; ', $parts );
+	}
+
+	/**
+	 * Source allowlist for a single service preset key.
+	 *
+	 * @return array<string,array<int,string>>
+	 */
+	private function csp_preset_sources( string $preset ): array {
+		$map = array(
+			'google_fonts'   => array(
+				'style-src' => array( 'https://fonts.googleapis.com' ),
+				'font-src'  => array( 'https://fonts.gstatic.com' ),
+			),
+			'gtm_ga'         => array(
+				'script-src'  => array( 'https://www.googletagmanager.com', 'https://www.google-analytics.com', 'https://ssl.google-analytics.com' ),
+				'img-src'     => array( 'https://www.googletagmanager.com', 'https://www.google-analytics.com' ),
+				'connect-src' => array( 'https://www.google-analytics.com', 'https://*.analytics.google.com', 'https://*.g.doubleclick.net', 'https://www.googletagmanager.com' ),
+			),
+			'youtube'        => array(
+				'frame-src'  => array( 'https://www.youtube.com', 'https://www.youtube-nocookie.com' ),
+				'script-src' => array( 'https://www.youtube.com', 'https://s.ytimg.com' ),
+				'img-src'    => array( 'https://i.ytimg.com' ),
+			),
+			'vimeo'          => array(
+				'frame-src'  => array( 'https://player.vimeo.com' ),
+				'script-src' => array( 'https://player.vimeo.com' ),
+				'img-src'    => array( 'https://i.vimeocdn.com' ),
+			),
+			'smartsupp'      => array(
+				'script-src'  => array( 'https://www.smartsuppchat.com', 'https://*.smartsupp.com' ),
+				'connect-src' => array( 'https://*.smartsupp.com', 'wss://*.smartsupp.com' ),
+				'img-src'     => array( 'https://*.smartsupp.com' ),
+				'frame-src'   => array( 'https://*.smartsupp.com' ),
+			),
+			'recaptcha'      => array(
+				'script-src'  => array( 'https://www.google.com', 'https://www.gstatic.com' ),
+				'frame-src'   => array( 'https://www.google.com' ),
+				'connect-src' => array( 'https://www.google.com' ),
+			),
+			'cloudflare'     => array(
+				'script-src'  => array( 'https://*.cloudflare.com', 'https://*.cloudfront.net' ),
+				'style-src'   => array( 'https://*.cloudflare.com' ),
+				'connect-src' => array( 'https://*.cloudflare.com' ),
+			),
+			'mapy_cz'        => array(
+				'script-src'  => array( 'https://api.mapy.cz' ),
+				'style-src'   => array( 'https://api.mapy.cz' ),
+				'img-src'     => array( 'https://api.mapy.cz', 'https://mapy.cz', 'https://*.mapy.cz' ),
+				'connect-src' => array( 'https://api.mapy.cz', 'https://*.mapy.cz' ),
+			),
+			'google_maps'    => array(
+				'script-src'  => array( 'https://maps.googleapis.com', 'https://maps.gstatic.com' ),
+				'style-src'   => array( 'https://fonts.googleapis.com' ),
+				'img-src'     => array( 'https://maps.googleapis.com', 'https://maps.gstatic.com', 'https://*.googleusercontent.com' ),
+				'connect-src' => array( 'https://maps.googleapis.com' ),
+			),
+			'facebook_pixel' => array(
+				'script-src'  => array( 'https://connect.facebook.net' ),
+				'img-src'     => array( 'https://www.facebook.com' ),
+				'connect-src' => array( 'https://www.facebook.com' ),
+			),
+			'gravatar'       => array(
+				'img-src' => array( 'https://secure.gravatar.com', 'https://*.gravatar.com' ),
+			),
+		);
+		return $map[ $preset ] ?? array();
+	}
+
+	/**
+	 * Parse the newline/comma separated custom allowlist textarea into a list of
+	 * validated CSP source tokens (quoted keywords, scheme URLs, wildcard hosts).
+	 *
+	 * @return array<int,string>
+	 */
+	private function parse_csp_allowlist( string $raw ): array {
+		if ( '' === trim( $raw ) ) {
+			return array();
+		}
+		$out = array();
+		foreach ( preg_split( '/[\r\n,]+/', $raw ) as $line ) {
+			$line = trim( (string) $line );
+			if ( '' === $line || '#' === $line[0] ) {
+				continue;
+			}
+			if ( preg_match( "/^'[a-z0-9\-]+'$/i", $line ) ) {
+				$out[] = $line;
+				continue;
+			}
+			if ( preg_match( '#^(https?:|wss?:|data:|blob:)#i', $line )
+				|| preg_match( '#^\*\.[a-z0-9\-]+#i', $line )
+				|| preg_match( '#^[a-z0-9\-]+\.[a-z]#i', $line ) ) {
+				$out[] = $line;
+			}
+		}
+		return array_values( array_unique( $out ) );
+	}
+
+	/* ═══════════════════════════════════════════════════
+	   Extra hardening
+	   ═══════════════════════════════════════════════════ */
+
+	/**
+	 * Redirect ?author=N enumeration probes to the homepage (front end only).
+	 */
+	public function block_author_enumeration(): void {
+		if ( is_admin() ) {
+			return;
+		}
+		$qs = isset( $_SERVER['QUERY_STRING'] ) ? sanitize_text_field( wp_unslash( $_SERVER['QUERY_STRING'] ) ) : '';
+		if ( '' !== $qs && preg_match( '/author=\d+/i', $qs ) ) {
+			wp_safe_redirect( home_url(), 301 );
+			exit;
+		}
+	}
+
+	/**
+	 * Remove the public users REST routes for anonymous visitors.
+	 *
+	 * @param array $endpoints REST endpoint map.
+	 */
+	public function disable_user_rest_route( $endpoints ) {
+		if ( ! is_user_logged_in() && is_array( $endpoints ) ) {
+			unset( $endpoints['/wp/v2/users'], $endpoints['/wp/v2/users/(?P<id>[\d]+)'] );
+		}
+		return $endpoints;
+	}
+
+	/**
+	 * Replace detailed login error text with a generic message.
+	 *
+	 * @param string $error Original error markup (unused).
+	 */
+	public function sanitize_login_errors( $error ): string {
+		return __( 'Invalid login credentials. Please check both the username and the password.', 'ux-studio' );
+	}
+
+	/**
+	 * Strip the X-Pingback response header (XML-RPC endpoint advertisement).
+	 *
+	 * @param array $headers Response headers.
+	 */
+	public function remove_x_pingback( $headers ) {
+		if ( is_array( $headers ) ) {
+			unset( $headers['X-Pingback'], $headers['x-pingback'] );
+		}
+		return $headers;
+	}
+
+	/**
+	 * Drop the ?ver= query arg from enqueued asset URLs so the WP/asset version
+	 * is not leaked in the page source.
+	 *
+	 * @param string $src Asset URL.
+	 */
+	public function remove_version_query_arg( $src ): string {
+		$src = (string) $src;
+		if ( false !== strpos( $src, 'ver=' ) ) {
+			$src = remove_query_arg( 'ver', $src );
+		}
+		return $src;
 	}
 
 	/* ═══════════════════════════════════════════════════

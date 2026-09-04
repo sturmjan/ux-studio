@@ -15,6 +15,8 @@ interface DownloadFile {
 	attachment_id: number;
 	download_count: number;
 	require_login: boolean;
+	category: string;
+	post_id: number;
 	download_url: string;
 }
 
@@ -68,10 +70,12 @@ function AttachmentPicker( {
 	);
 }
 
-function AddFileForm(): JSX.Element {
+function AddFileForm( { categories }: { categories: string[] } ): JSX.Element {
 	const [ title, setTitle ] = useState( '' );
 	const [ attachment, setAttachment ] = useState< WpMediaAttachment | null >( null );
 	const [ requireLogin, setRequireLogin ] = useState( true );
+	const [ category, setCategory ] = useState( '' );
+	const [ postId, setPostId ] = useState( '' );
 
 	const create = useMutation( {
 		mutationFn: () =>
@@ -81,13 +85,18 @@ function AddFileForm(): JSX.Element {
 					title,
 					attachment_id: attachment?.id ?? 0,
 					require_login: requireLogin,
+					category: category.trim(),
+					post_id: Number( postId ) || 0,
 				} ),
 			} ),
 		onSuccess: () => {
 			void queryClient.invalidateQueries( { queryKey: [ 'download-files', 'items' ] } );
+			void queryClient.invalidateQueries( { queryKey: [ 'download-files', 'categories' ] } );
 			setTitle( '' );
 			setAttachment( null );
 			setRequireLogin( true );
+			setCategory( '' );
+			setPostId( '' );
 		},
 	} );
 
@@ -118,6 +127,33 @@ function AddFileForm(): JSX.Element {
 				</span>
 			</div>
 			<div className="uxs-form__row">
+				<label htmlFor="uxs-df-category">{ __( 'Category', 'ux-studio' ) }</label>
+				<input
+					id="uxs-df-category"
+					type="text"
+					list="uxs-df-categories"
+					value={ category }
+					onChange={ ( e ) => setCategory( e.target.value ) }
+					placeholder={ __( 'Optional, e.g. brochures', 'ux-studio' ) }
+				/>
+				<datalist id="uxs-df-categories">
+					{ categories.map( ( c ) => (
+						<option key={ c } value={ c } />
+					) ) }
+				</datalist>
+			</div>
+			<div className="uxs-form__row">
+				<label htmlFor="uxs-df-post">{ __( 'Attach to post ID', 'ux-studio' ) }</label>
+				<input
+					id="uxs-df-post"
+					type="number"
+					min={ 0 }
+					value={ postId }
+					onChange={ ( e ) => setPostId( e.target.value ) }
+					placeholder={ __( 'Optional post/page ID', 'ux-studio' ) }
+				/>
+			</div>
+			<div className="uxs-form__row">
 				<label htmlFor="uxs-df-require-login">{ __( 'Require login to download', 'ux-studio' ) }</label>
 				<button
 					id="uxs-df-require-login"
@@ -146,10 +182,17 @@ function FilesTable(): JSX.Element {
 		queryFn: () => api< DownloadFile[] >( 'download-files/items' ),
 	} );
 
+	const categoriesQuery = useQuery( {
+		queryKey: [ 'download-files', 'categories' ],
+		queryFn: () => api< string[] >( 'download-files/categories' ),
+	} );
+	const categories = categoriesQuery.data ?? [];
+
 	const remove = useMutation( {
 		mutationFn: ( id: number ) => api( `download-files/items/${ id }`, { method: 'DELETE' } ),
 		onSuccess: () => {
 			void queryClient.invalidateQueries( { queryKey: [ 'download-files', 'items' ] } );
+			void queryClient.invalidateQueries( { queryKey: [ 'download-files', 'categories' ] } );
 		},
 	} );
 
@@ -162,7 +205,15 @@ function FilesTable(): JSX.Element {
 
 	return (
 		<>
-			<AddFileForm />
+			<AddFileForm categories={ categories } />
+			<p className="uxs-form__help">
+				{ __( 'Show files on the frontend with the shortcode:', 'ux-studio' ) }{ ' ' }
+				<code>[download_files]</code>{ ' ' }
+				{ __( '(files attached to the current post),', 'ux-studio' ) }{ ' ' }
+				<code>[download_files category=&quot;brochures&quot;]</code>{ ' ' }
+				{ __( 'or', 'ux-studio' ) }{ ' ' }
+				<code>[download_files ids=&quot;1,2,3&quot;]</code>.
+			</p>
 			{ isLoading ? (
 				<div className="uxs-loading">
 					<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />
@@ -174,6 +225,8 @@ function FilesTable(): JSX.Element {
 					<thead>
 						<tr>
 							<th>{ __( 'Title', 'ux-studio' ) }</th>
+							<th>{ __( 'Category', 'ux-studio' ) }</th>
+							<th>{ __( 'Post', 'ux-studio' ) }</th>
 							<th>{ __( 'Downloads', 'ux-studio' ) }</th>
 							<th>{ __( 'Login required', 'ux-studio' ) }</th>
 							<th>{ __( 'Actions', 'ux-studio' ) }</th>
@@ -183,6 +236,8 @@ function FilesTable(): JSX.Element {
 						{ data.map( ( file ) => (
 							<tr key={ file.id }>
 								<td>{ file.title }</td>
+								<td>{ file.category || '—' }</td>
+								<td>{ file.post_id > 0 ? file.post_id : '—' }</td>
 								<td>{ file.download_count }</td>
 								<td>
 									<span className={ `uxs-badge ${ file.require_login ? 'is-success' : '' }` }>

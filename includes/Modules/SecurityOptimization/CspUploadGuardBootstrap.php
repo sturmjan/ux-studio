@@ -33,8 +33,15 @@ final class CspUploadGuardBootstrap {
 	/**
 	 * Register REST routes, upload/scan hooks, and cron. Safe to call more
 	 * than once (subsequent calls are no-ops).
+	 *
+	 * Tables and the two REST controllers are always registered (CSP violation
+	 * reporting must keep working regardless). The Upload Guard scanner hooks
+	 * and its nightly cron are only wired when $upload_guard_enabled is true;
+	 * when disabled, any previously scheduled cron event is cleared.
+	 *
+	 * @param bool $upload_guard_enabled Whether the malware scanner is active.
 	 */
-	public static function register(): void {
+	public static function register( bool $upload_guard_enabled = true ): void {
 		if ( self::$registered ) {
 			return;
 		}
@@ -43,6 +50,11 @@ final class CspUploadGuardBootstrap {
 		self::ensure_tables();
 
 		add_action( 'rest_api_init', array( self::class, 'register_rest_routes' ) );
+
+		if ( ! $upload_guard_enabled ) {
+			self::on_deactivate();
+			return;
+		}
 
 		$scanner = new UploadGuardScanner();
 

@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Check, LoaderCircle, ScanSearch, Trash2 } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
+import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
 
 interface Finding {
 	id: number;
@@ -47,6 +48,34 @@ const SEVERITY_BADGE: Record< string, string > = {
  * Named export (not default) - composed into the module's shared Page.tsx
  * as one tab among others.
  */
+/**
+ * Upload Guard configuration sub-form: the scanner enable toggle and email
+ * notification options (schema keys prefixed "upload_guard"). These are hidden
+ * from the generic Settings tab and surfaced here next to the findings they
+ * govern.
+ */
+function UploadGuardConfig(): JSX.Element | null {
+	const { data, isLoading, draft, setDraft, save, saved } = useModuleSettings( 'security-optimization' );
+
+	if ( isLoading || ! data ) {
+		return null;
+	}
+
+	const schema = data.schema.filter( ( f ) => f.key.startsWith( 'upload_guard' ) );
+	if ( schema.length === 0 ) {
+		return null;
+	}
+
+	return (
+		<div style={ { marginBottom: 'var(--uxs-sp-5)' } }>
+			<SettingsFields schema={ schema } draft={ draft } setDraft={ setDraft } />
+			<button type="button" className="button button-primary" onClick={ () => save.mutate() }>
+				{ saved ? __( 'Saved', 'ux-studio' ) : __( 'Save Upload Guard settings', 'ux-studio' ) }
+			</button>
+		</div>
+	);
+}
+
 export function UploadGuardTab(): JSX.Element {
 	const [ statusFilter, setStatusFilter ] = useState< string >( 'scanned' );
 
@@ -84,6 +113,8 @@ export function UploadGuardTab(): JSX.Element {
 
 	return (
 		<>
+			<UploadGuardConfig />
+
 			<div
 				style={ {
 					display: 'flex',

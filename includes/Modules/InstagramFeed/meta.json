@@ -1,7 +1,7 @@
 {
 	"id": "instagram-feed",
 	"name": "Instagram Feed",
-	"description": "Display an Instagram feed on the frontend, synchronized through the Content Sync broker (no Meta API credentials on this site).",
+	"description": "Connect an Instagram account via OAuth and display its photos, videos and reels through the official Instagram Graph API. Media is cached to the media library, refreshed on a cron, and rendered by a themeable shortcode (grid, masonry, carousel, slider, highlight, showcase).",
 	"group": "content",
 	"icon": "instagram",
 	"settings": true

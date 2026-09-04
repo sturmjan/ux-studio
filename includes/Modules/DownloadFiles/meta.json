@@ -1,7 +1,7 @@
 {
 	"id": "download-files",
 	"name": "Download Files",
-	"description": "Manage protected downloadable files (e.g. PDFs) served via a tokenized link, backed by the standard WordPress media library.",
+	"description": "Manage protected downloadable files (e.g. PDFs) served via a tokenized, download-counted link, and list them on the frontend with the [download_files] shortcode.",
 	"group": "content",
 	"icon": "file-down",
 	"settings": true

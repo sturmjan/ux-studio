@@ -63,10 +63,10 @@ hyphen→underscore bez migrace), obecně moduly s vlastní tabulkou a přeznač
 | 17 | `debug-mode` | ⚠️ | ⬜ | ⬜ | Vědomě netoggluje WP_DEBUG; jen read-only čtečka konstant + logu. |
 | 18 | `disable-auto-updates` | ✅ | ⬜ | ⬜ | Options i logika 1:1, jen bez show_if UI hintů. |
 | 19 | `disable-video-uploads` | ✅ | ⬜ | ⬜ | Doslovný port filtru upload_mimes. |
-| 20 | `download-files` | ❌ | ⬜ | ⬜ | Jiný koncept: tokenovaná knihovna z media library místo příloh k příspěvkům + shortcode + frontend. |
+| 20 | `download-files` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: sjednoceno - tokenized knihovna + [download_files] shortcode přes počítaný endpoint, kategorie/attach-to-post/login gating (DB v2). Ověřeno build/boot/migrace. |
 | 21 | `duplicate-menu` | ✅ | ⬜ | ⬜ | Stejný endpoint, args i capability; navíc výčet menu. |
 | 22 | `duplicate-post` | ✅ | ⬜ | ⬜ | Shodné options i elementy vč. Woo product_gallery. |
-| 23 | `elementor-import` | ❌ | ⬜ | ⬜ | Jen JSON/ZIP → draft; chybí URL/HTML import, export a režimy replace/append. |
+| 23 | `elementor-import` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: URL/HTML import + export + replace/append módy, SSRF+IDOR guardy, Elementor-presence guard→424. Ověřeno lint/build/boot; Elementor neinstalován (cesty guardovány). |
 | 24 | `email-health` | ⚠️ | ⬜ | ⬜ | Core test emailu 1:1; vědomě zahozena Mail-Tester.com integrace, interval 6h→24h. |
 | 25 | `email-log` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: tělo/hlavičky/přílohy (DB v2), detekce zdroje, resend, detail modal. Ověřeno build/boot/migrace. |
 | 26 | `exit-popup` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: appearance/CTA/image, autoresponder, cookie frekvence, 5 detekčních režimů, URL cílení. Ověřeno lint/build/boot; popup v prohlížeči jen ruční test. |
@@ -80,7 +80,7 @@ hyphen→underscore bez migrace), obecně moduly s vlastní tabulkou a přeznač
 | 34 | `hide-admin-bar` | ⚠️ | ⬜ | ⬜ | **Opačné chování při prázdném výběru rolí** (legacy neskryje nikomu, studio skryje všem). |
 | 35 | `image-optimizer` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: AVIF (feature-detect), WebP/AVIF delivery (.htaccess marker), auto-optimize on upload, unused scanner. Ověřeno lint/build/boot. |
 | 36 | `indexing-notice` | ✅ | ⬜ | ⬜ | Shoda 1:1 (admin-bar notice při blog_public==0). |
-| 37 | `instagram-feed` | ❌ | ⬜ | ⬜ | Minimální img mřížka; chybí OAuth/connections, 6 témat, cron, hashtag filtry, sideload, celé admin UI. |
+| 37 | `instagram-feed` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: přímá Graph API integrace (OAuth+encrypted token), 6 témat, per-feed CRUD, sideload, cron, hashtag filtry, shortcode (DB v2). Standalone OAuth místo broker (dle gapu). Ověřeno build/boot/tabulky; reálný fetch neověřen (chybí token). |
 | 38 | `link-manager` | ✅ | ⬜ | ⬜ | Kompletní port (free+pro), stejná logika i options vč. speculative loading. |
 | 39 | `maintenance-mode` | ✅ | ⬜ | ⬜ | Plná parita free+pro; studio navíc pouští admina vždy. |
 | 40 | `media-replace` | ✅ | ⬜ | ⬜ | Parita row action + meta box + REST; mírně bezpečnější (per-item edit_post). |
@@ -102,7 +102,7 @@ hyphen→underscore bez migrace), obecně moduly s vlastní tabulkou a přeznač
 | 56 | `redirect-404-to-homepage` | ✅ | ⬜ | ⬜ | 404→home (301) + detekce 6 cizích redirect pluginů 1:1; chybí jen varovná admin notice. |
 | 57 | `review-aggregator` | ⚠️ | ⬜ | ⬜ | Architektura přes centrální Content-Sync broker; jádro zachováno, vypuštěny konfigurace zdrojů a /import. |
 | 58 | `rollback-manager` | ✅ | ⬜ | ⬜ | SPA+REST parita, přísnější oprávnění (manage_options) a server-side allow-list URL. |
-| 59 | `security-optimization` | ⚠️ | ⬜ | ⬜ | Obě domény pokryty (bany, htaccess, upload guard); ale CSP jen reporting (bez enforce), ~8 hardening přepínačů vypuštěno. |
+| 59 | `security-optimization` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: CSP off/report-only/ENFORCE (dřív žádná hlavička) + Upload Guard UI + hardening toggly. Jen frontend (wp-admin chráněn). Ověřeno lint/build/boot. |
 | 60 | `service-requests` | ⚠️ | ❌ | ⬜ | Jedna příloha místo multi-file; vypuštěna pole budget/telefon/admin_note a plná editace (jen změna stavu). |
 | 61 | `smtp-email` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: Gmail OAuth2 transport + From/Force-From + resend. Ověřeno lint/build/boot; reálný Gmail round-trip neověřen (chybí creds). |
 | 62 | `stock-photos` | ✅ | ⬜ | ⬜ | 7 providerů, shodné trasy; klíče nově přes store_secret + SSRF guard. |

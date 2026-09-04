@@ -40,6 +40,11 @@ final class UploadGuardNotifier {
 			return;
 		}
 
+		$settings = (array) get_option( 'uxstudio_security_optimization', array() );
+		if ( array_key_exists( 'upload_guard_notify', $settings ) && ! $settings['upload_guard_notify'] ) {
+			return;
+		}
+
 		$last_sent = (int) get_option( self::THROTTLE_OPTION, 0 );
 		if ( ( time() - $last_sent ) < self::THROTTLE_WINDOW ) {
 			return;
@@ -53,7 +58,9 @@ final class UploadGuardNotifier {
 	 * @param array<int,object|array<string,mixed>> $findings Findings to include in the email.
 	 */
 	private function send_email( array $findings ): void {
-		$to = (string) get_option( 'admin_email' );
+		$settings = (array) get_option( 'uxstudio_security_optimization', array() );
+		$override = isset( $settings['upload_guard_notify_email'] ) ? trim( (string) $settings['upload_guard_notify_email'] ) : '';
+		$to       = ( '' !== $override && is_email( $override ) ) ? $override : (string) get_option( 'admin_email' );
 		if ( '' === $to ) {
 			return;
 		}
