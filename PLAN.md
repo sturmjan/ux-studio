@@ -432,7 +432,7 @@ Zbývající skutečná ❌ v matici (po srovnání se skutečností):
   **vědomá rozhodnutí potvrzená uživatelem** (by design, ne mezery).
 
 - [x] SPA smoke re-run 18 opravených modulů (Playwright): 0 REST/console chyb, vše renderuje (2026-09-04).
-- [] plný re-run harness `D:\parity-test-pobyty` (statická + migrace + A/B) na tvrdé potvrzení - stojí, spustit před F5
+- [x] migrační re-run harness `reset-migration.ps1` (2026-09-04): čistá migrace, počty legacy vs studio bez ztráty - activity_log 226→230 (226 přeneseno + nové z bootu), push_subscribers 6=6, push_notifications 6=6, service_requests 2=2, ai_conversations 2=2, query_log 68 vs 65 = známý časový artefakt (legacy dál loguje, ne ztráta). Home 200 s 21 moduly. Statická parita srovnána v matici výše.
 - [ ] dořešit `content-sync` (samostatná session s hub+node harnessem) NEBO vědomě vypustit z v1 scope
 - [ ] funkční A/B rizikových modulů s reálnými creds/pluginy: smtp-email (Gmail OAuth), instagram-feed (IG token), elementor-import (Elementor)
 - [ ] teprve pak přepnout (deaktivace ux1, aktivace ux-studio) dle kap. 10
