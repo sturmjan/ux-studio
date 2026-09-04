@@ -233,6 +233,12 @@ final class Migrator {
 		// keys would silently lose their values).
 		self::remap_pixel_tag_keys( $log, $dry_run );
 
+		// 4d) Carry over API keys the operator already filled in on the legacy
+		// plugin, into the encrypted studio secret store, so they don't have to
+		// be re-entered after the switch. Idempotent + never overwrites a key the
+		// operator already set in UX Studio.
+		self::migrate_secrets( $log, $dry_run );
+
 		// 5) Files outside DB (snippets dir etc.) - handled by their modules
 		// during their own port (see AUDIT.md section D); logged here for visibility.
 		$log[] = 'note: file-based data (ux1-snippets/, mu-plugin cron-control, .htaccess blocks) migrates with its module';
@@ -241,6 +247,95 @@ final class Migrator {
 			update_option( self::DONE_OPTION, gmdate( 'c' ), false );
 		}
 		return $log;
+	}
+
+	/**
+	 * Carry over API keys/secrets the operator filled in on the legacy plugin.
+	 *
+	 * stock-photos stored provider keys as PLAIN strings inside its settings
+	 * blob; ai-assistant stored provider keys ENCRYPTED (aes-256-gcm keyed by
+	 * SECURE_AUTH_KEY). Both are re-stored via Security::store_secret() (which
+	 * re-encrypts with wp_salt('auth')). Only fills a studio secret that is
+	 * currently empty, so re-running or a prior manual entry is never clobbered.
+	 *
+	 * @param string[] $log     Log lines (by reference).
+	 * @param bool     $dry_run When true, only log what would happen.
+	 */
+	private static function migrate_secrets( array &$log, bool $dry_run ): void {
+		// stock-photos: plain keys -> encrypted studio secrets.
+		$stock = get_option( 'wpextended__stock-photos_settings' );
+		if ( is_array( $stock ) ) {
+			$map = array(
+				'api_key_pexels'    => 'uxstudio_secret_stock_pexels',
+				'api_key_pixabay'   => 'uxstudio_secret_stock_pixabay',
+				'api_key_unsplash'  => 'uxstudio_secret_stock_unsplash',
+				'api_key_flickr'    => 'uxstudio_secret_stock_flickr',
+				'api_key_mapillary' => 'uxstudio_secret_stock_mapillary',
+				'api_key_giphy'     => 'uxstudio_secret_stock_giphy',
+			);
+			foreach ( $map as $legacy_key => $secret_option ) {
+				$val = isset( $stock[ $legacy_key ] ) ? (string) $stock[ $legacy_key ] : '';
+				if ( '' === $val || '' !== Security::get_secret( $secret_option ) ) {
+					continue;
+				}
+				$log[] = "secret stock-photos:{$legacy_key} -> {$secret_option}";
+				if ( ! $dry_run ) {
+					Security::store_secret( $secret_option, $val );
+				}
+			}
+		}
+
+		// ai-assistant: ux1-encrypted keys -> decrypt -> re-store studio-side.
+		$ai = get_option( 'wpextended__ai-assistant_settings' );
+		if ( is_array( $ai ) ) {
+			$map = array(
+				'claude_api_key'   => 'uxstudio_secret_ai_assistant_claude_api_key',
+				'openai_api_key'   => 'uxstudio_secret_ai_assistant_openai_api_key',
+				'deepseek_api_key' => 'uxstudio_secret_ai_assistant_deepseek_api_key',
+			);
+			foreach ( $map as $legacy_key => $secret_option ) {
+				$enc = isset( $ai[ $legacy_key ] ) ? (string) $ai[ $legacy_key ] : '';
+				if ( '' === $enc || '' !== Security::get_secret( $secret_option ) ) {
+					continue;
+				}
+				$plain = self::ux1_decrypt( $enc );
+				if ( '' === $plain ) {
+					$log[] = "secret ai-assistant:{$legacy_key} SKIPPED (could not decrypt legacy value)";
+					continue;
+				}
+				$log[] = "secret ai-assistant:{$legacy_key} -> {$secret_option}";
+				if ( ! $dry_run ) {
+					Security::store_secret( $secret_option, $plain );
+				}
+			}
+		}
+	}
+
+	/**
+	 * Decrypt a value encrypted by the legacy ai-assistant Encryption class
+	 * (aes-256-gcm, key = sha256(SECURE_AUTH_KEY), payload = base64(iv|tag|cipher)).
+	 * Returns '' on any failure.
+	 *
+	 * @param string $b64 Legacy base64 ciphertext.
+	 */
+	private static function ux1_decrypt( string $b64 ): string {
+		if ( '' === $b64 || ! defined( 'SECURE_AUTH_KEY' ) || ! function_exists( 'openssl_decrypt' ) ) {
+			return '';
+		}
+		$decoded = base64_decode( $b64, true );
+		if ( false === $decoded ) {
+			return '';
+		}
+		$iv_len = (int) openssl_cipher_iv_length( 'aes-256-gcm' );
+		if ( strlen( $decoded ) <= $iv_len + 16 ) {
+			return '';
+		}
+		$key    = hash( 'sha256', SECURE_AUTH_KEY, true );
+		$iv     = substr( $decoded, 0, $iv_len );
+		$tag    = substr( $decoded, $iv_len, 16 );
+		$cipher = substr( $decoded, $iv_len + 16 );
+		$out    = openssl_decrypt( $cipher, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $iv, $tag );
+		return false === $out ? '' : $out;
 	}
 
 	/**

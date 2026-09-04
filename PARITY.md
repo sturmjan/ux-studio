@@ -57,7 +57,7 @@ hyphen→underscore bez migrace), obecně moduly s vlastní tabulkou a přeznač
 | 11 | `classic-widgets` | ✅ | ⬜ | ⬜ | Doslovná shoda dvou filtrů. |
 | 12 | `clean-profiles` | ✅ | ⬜ | ⬜ | Free+pro vč. WooCommerce; vypuštěny jen triviální rozšiřující filtry. |
 | 13 | `code-snippets` | ✅ | ⬜ | ⬜ | Věrný file-based port + integrity hash, PhpValidator, safe mode; metadata v DB (hardening). |
-| 14 | `content-sync` | ❌ | ⬜ | ⬜ | Plná Hub-Node vzdálená správa redukována na uložení URL+HMAC, evidenci webů a log. |
+| 14 | `content-sync` | ✅ | ➖ | ⚠️ | NAPRAVENO 2026-09-04: plný Hub↔Node port (HmacAuth replay-guard, NodeController CRUD posts/terms/media/ACF idempotentně, Hub push+SiteManager, SSO single-use token bez auto-admina). Statika ✅, admin REST 200. A/B ⚠️: hub↔node round-trip nejde ověřit bez 2. WP instance (viz manuál). |
 | 15 | `cron-control` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: režimy WP-Cronu (none/block_all/local/external/central) přes mu-plugin+.htaccess, watcher+whitelist. Ověřeno lint/build/boot. |
 | 16 | `dashboard-widgets` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-03: doplněna správa reálných wp-admin widgetů (wp_dashboard_setup snapshot + skrytí vybraných/všech vč. welcome panelu). Ověřeno jednotkově. SPA (PageSpeed/úkoly) zůstává. |
 | 17 | `debug-mode` | ⚠️ | ⬜ | ⬜ | Vědomě netoggluje WP_DEBUG; jen read-only čtečka konstant + logu. |
@@ -66,7 +66,7 @@ hyphen→underscore bez migrace), obecně moduly s vlastní tabulkou a přeznač
 | 20 | `download-files` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: sjednoceno - tokenized knihovna + [download_files] shortcode přes počítaný endpoint, kategorie/attach-to-post/login gating (DB v2). Ověřeno build/boot/migrace. |
 | 21 | `duplicate-menu` | ✅ | ⬜ | ⬜ | Stejný endpoint, args i capability; navíc výčet menu. |
 | 22 | `duplicate-post` | ✅ | ⬜ | ⬜ | Shodné options i elementy vč. Woo product_gallery. |
-| 23 | `elementor-import` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: URL/HTML import + export + replace/append módy, SSRF+IDOR guardy, Elementor-presence guard→424. Ověřeno lint/build/boot; Elementor neinstalován (cesty guardovány). |
+| 23 | `elementor-import` | ✅ | ➖ | ✅ | NAPRAVENO+OVĚŘENO FUNKČNĚ 2026-09-04: URL/HTML import + export + replace/append, guardy. Elementor 4.0.1+Pro na pobyty-studio: export str.17→import→_elementor_data+builder, PASS. |
 | 24 | `email-health` | ⚠️ | ⬜ | ⬜ | Core test emailu 1:1; vědomě zahozena Mail-Tester.com integrace, interval 6h→24h. |
 | 25 | `email-log` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: tělo/hlavičky/přílohy (DB v2), detekce zdroje, resend, detail modal. Ověřeno build/boot/migrace. |
 | 26 | `exit-popup` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: appearance/CTA/image, autoresponder, cookie frekvence, 5 detekčních režimů, URL cílení. Ověřeno lint/build/boot; popup v prohlížeči jen ruční test. |
@@ -77,7 +77,7 @@ hyphen→underscore bez migrace), obecně moduly s vlastní tabulkou a přeznač
 | 31 | `folder-manager` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: rename/reparent (cycle-guard) + bulk-move (per-item edit_post). Ověřeno lint/build/boot. |
 | 32 | `google-review-request` | ❌ | ⬜ | ⬜ | Přeznačeno: on-site popup + multiplatforma + triggery nahrazeny posíláním review-request emailu. |
 | 33 | `guide` | ❌ | ⬜ | ⬜ | Přeznačeno: editor Návodu s MD exportem + noindex cron nahrazen nesouvisejícím onboarding checklistem. |
-| 34 | `hide-admin-bar` | ⚠️ | ⬜ | ⬜ | **Opačné chování při prázdném výběru rolí** (legacy neskryje nikomu, studio skryje všem). |
+| 34 | `hide-admin-bar` | ✅ | ➖ | ✅ | OPRAVENO 2026-09-03 (15.3): prázdný výběr rolí → neskryje nikomu (jako legacy). Ověřeno logicky. |
 | 35 | `image-optimizer` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: AVIF (feature-detect), WebP/AVIF delivery (.htaccess marker), auto-optimize on upload, unused scanner. Ověřeno lint/build/boot. |
 | 36 | `indexing-notice` | ✅ | ⬜ | ⬜ | Shoda 1:1 (admin-bar notice při blog_public==0). |
 | 37 | `instagram-feed` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: přímá Graph API integrace (OAuth+encrypted token), 6 témat, per-feed CRUD, sideload, cron, hashtag filtry, shortcode (DB v2). Standalone OAuth místo broker (dle gapu). Ověřeno build/boot/tabulky; reálný fetch neověřen (chybí token). |
