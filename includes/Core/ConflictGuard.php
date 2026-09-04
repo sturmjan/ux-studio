@@ -35,8 +35,8 @@ final class ConflictGuard {
 	 */
 	public static function notice(): void {
 		printf(
-			'<div class="notice notice-error"><p>%s</p></div>',
-			esc_html__( 'UX Studio is inactive: the legacy plugin "UX One - Wordpress customizer" is still active. Deactivate it to let UX Studio take over.', 'ux-studio' )
+			'<div class="notice notice-info"><p>%s</p></div>',
+			esc_html__( 'UX Studio is completing the takeover from the legacy plugin "UX One - WordPress customizer": it will be deactivated automatically and UX Studio takes over on the next page load.', 'ux-studio' )
 		);
 	}
 }
