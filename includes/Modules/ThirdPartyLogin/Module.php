@@ -1,7 +1,7 @@
 <?php
 /**
- * Third-Party Login module - sign in via Google/Facebook/Apple through the
- * central app as an OAuth proxy.
+ * Third-Party Login module - sign in via Google/Facebook/Apple/Seznam through
+ * the central app as an OAuth proxy.
  *
  * @package UxStudio
  */
@@ -18,9 +18,23 @@ defined( 'ABSPATH' ) || exit;
  * Narrower re-implementation of the legacy third-party-login module: OAuth
  * credentials live in the central app, not here. This module renders the
  * login buttons that kick off the flow and exposes the public REST callback
- * that the central app posts the signed result back to.
+ * the central app redirects back to.
  *
- * On top of the OAuth-proxy core (HMAC, auto-login) this module adds:
+ * HANDSHAKE PROTOCOL. The central app implements exactly one third-party-login
+ * protocol (`BaseAuthController`), and this module speaks it:
+ *
+ *   1. WP -> CA   GET {CA}/?page={provider}_auth&action=init
+ *                 &site_url&return_url&mode&nonce&ts[&user_id]&sig
+ *   2. CA -> IdP  the provider's own OAuth dance (credentials never touch WP)
+ *   3. CA -> WP   GET {return_url}?provider&mode&{provider}_sub&email
+ *                 &nonce&ts[&user_id]&sig
+ *
+ * `sig` is HMAC-SHA256 over the ksort()ed, http_build_query()-encoded params
+ * (minus `sig`) with the per-site shared secret; both directions use the same
+ * routine. `nonce` is single-use, lives in a transient, and carries the mode,
+ * provider and initiating user so the callback cannot be swapped for another.
+ *
+ * On top of the OAuth-proxy core this module adds:
  *  - ROLE GATING: only users whose role is in `allowed_roles` may log in or be
  *    created via a provider (fail-closed: empty list = nobody).
  *  - opt-in AUTO-CREATE of a WordPress user on first login, with a configurable
@@ -36,11 +50,20 @@ final class Module extends BaseModule {
 
 	public const SECRET_HMAC = 'uxstudio_secret_third_party_login_hmac';
 
-	/** Providers this module understands. */
-	public const PROVIDERS = array( 'google', 'facebook', 'apple' );
+	/** Providers this module understands. Order drives the login-form buttons. */
+	public const PROVIDERS = array( 'google', 'facebook', 'apple', 'seznam' );
 
-	/** Max age (seconds) of a signed link-state token. */
-	public const LINK_STATE_MAX_AGE = 600;
+	/** Query var that starts a login handshake from the front end. */
+	public const INIT_QUERY_VAR = 'uxstudio_tpl';
+
+	/** Transient prefix for the single-use handshake nonce. */
+	public const NONCE_TRANSIENT_PREFIX = 'uxstudio_tpl_nonce_';
+
+	/** How long a started handshake may stay unfinished (seconds). */
+	public const NONCE_TTL = 900;
+
+	/** Replay window the central app is allowed to sign within (seconds). */
+	public const MAX_AGE = 300;
 
 	/**
 	 * Register hooks.
@@ -48,6 +71,24 @@ final class Module extends BaseModule {
 	public function boot(): void {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'login_form', array( $this, 'render_login_buttons' ) );
+		add_action( 'template_redirect', array( $this, 'maybe_start_handshake' ) );
+		add_action( 'login_init', array( $this, 'maybe_start_handshake' ) );
+		add_filter( 'uxstudio_rest_public_routes', array( $this, 'allow_public_callback_route' ) );
+	}
+
+	/**
+	 * Keep the callback reachable when Security Optimization restricts the REST
+	 * API to logged-in users: the visitor arriving here is anonymous by
+	 * definition - logging them in is the point. The route is protected by the
+	 * HMAC signature and the single-use nonce, not by the session.
+	 *
+	 * @param array<int, string> $routes Route prefixes already exempted.
+	 * @return array<int, string>
+	 */
+	public function allow_public_callback_route( $routes ): array {
+		$routes   = is_array( $routes ) ? $routes : array();
+		$routes[] = '/uxstudio/v1/third-party-login/callback';
+		return $routes;
 	}
 
 	/**
@@ -90,24 +131,26 @@ final class Module extends BaseModule {
 				'key'     => 'central_app_url',
 				'type'    => 'text',
 				'label'   => __( 'Central app URL', 'ux-studio' ),
-				'help'    => __( 'Base URL of the central app that performs the OAuth handshake.', 'ux-studio' ),
+				'help'    => __( 'Base URL of the central app that performs the OAuth handshake, e.g. https://ux1.cz/app/.', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
 				'key'     => 'hmac_secret',
 				'type'    => 'text',
 				'label'   => __( 'HMAC secret', 'ux-studio' ),
-				'help'    => __( 'Shared secret used to verify signed callbacks from the central app. Stored encrypted. Leave blank to keep the current secret.', 'ux-studio' ),
+				'help'    => __( 'Shared secret from the central app (site detail, "Third-party login"). Signs the handshake in both directions. Stored encrypted. Leave blank to keep the current secret.', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
 				'key'     => 'enabled_providers',
 				'type'    => 'multiselect',
 				'label'   => __( 'Enabled providers', 'ux-studio' ),
+				'help'    => __( 'A provider also has to be configured centrally and enabled for this site in the central app.', 'ux-studio' ),
 				'options' => array(
 					'google'   => __( 'Google', 'ux-studio' ),
 					'facebook' => __( 'Facebook', 'ux-studio' ),
 					'apple'    => __( 'Apple', 'ux-studio' ),
+					'seznam'   => __( 'Seznam', 'ux-studio' ),
 				),
 				'default' => array(),
 			),
@@ -163,7 +206,7 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Enabled provider keys (subset of google/facebook/apple).
+	 * Enabled provider keys (subset of self::PROVIDERS).
 	 *
 	 * @return array<int, string>
 	 */
@@ -265,71 +308,12 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Create a signed, short-lived state token binding a link handshake to a
-	 * specific logged-in user and provider. Its integrity is self-contained
-	 * (its own HMAC over the payload), so the central app only has to echo it
-	 * back verbatim in the callback. Returns '' when no secret is configured.
+	 * Query parameter the central app puts the provider subject id in.
 	 *
-	 * @param int    $user_id  Initiating user id.
 	 * @param string $provider Provider id.
 	 */
-	public function create_link_state( int $user_id, string $provider ): string {
-		$secret = Security::get_secret( self::SECRET_HMAC );
-		if ( '' === $secret || $user_id <= 0 ) {
-			return '';
-		}
-		$payload = wp_json_encode(
-			array(
-				'uid'      => $user_id,
-				'provider' => $provider,
-				'ts'       => time(),
-			)
-		);
-		if ( ! is_string( $payload ) ) {
-			return '';
-		}
-		$b64 = self::b64url_encode( $payload );
-		$sig = hash_hmac( 'sha256', $b64, $secret );
-		return $b64 . '.' . $sig;
-	}
-
-	/**
-	 * Verify a link-state token. Returns the bound user id on success, or 0.
-	 *
-	 * @param string $state    Token from the callback.
-	 * @param string $provider Provider id the callback claims.
-	 */
-	public function verify_link_state( string $state, string $provider ): int {
-		$secret = Security::get_secret( self::SECRET_HMAC );
-		if ( '' === $secret || '' === $state ) {
-			return 0;
-		}
-		$parts = explode( '.', $state );
-		if ( 2 !== count( $parts ) ) {
-			return 0;
-		}
-		list( $b64, $sig ) = $parts;
-		if ( '' === $sig || ! ctype_xdigit( $sig ) ) {
-			return 0;
-		}
-		$expected = hash_hmac( 'sha256', $b64, $secret );
-		if ( ! hash_equals( $expected, $sig ) ) {
-			return 0;
-		}
-		$data = json_decode( self::b64url_decode( $b64 ), true );
-		if ( ! is_array( $data ) ) {
-			return 0;
-		}
-		$uid = isset( $data['uid'] ) ? absint( $data['uid'] ) : 0;
-		$ts  = isset( $data['ts'] ) ? absint( $data['ts'] ) : 0;
-		$p   = isset( $data['provider'] ) ? (string) $data['provider'] : '';
-		if ( $uid <= 0 || $ts <= 0 || $p !== $provider ) {
-			return 0;
-		}
-		if ( abs( time() - $ts ) > self::LINK_STATE_MAX_AGE ) {
-			return 0;
-		}
-		return $uid;
+	public function sub_param( string $provider ): string {
+		return $provider . '_sub';
 	}
 
 	/**
@@ -342,32 +326,181 @@ final class Module extends BaseModule {
 			'google'   => __( 'Google', 'ux-studio' ),
 			'facebook' => __( 'Facebook', 'ux-studio' ),
 			'apple'    => __( 'Apple', 'ux-studio' ),
+			'seznam'   => __( 'Seznam', 'ux-studio' ),
 		);
 	}
 
 	/**
-	 * Build the central-app handshake URL for a given mode/provider.
-	 *
-	 * @param string $provider Provider id (assumed validated).
-	 * @param string $mode     'login' or 'link'.
-	 * @param string $state    Optional signed link-state token (link mode).
+	 * Public REST endpoint the central app redirects back to.
 	 */
-	public function handshake_url( string $provider, string $mode, string $state = '' ): string {
-		$args = array(
-			'site'      => rawurlencode( home_url( '/' ) ),
-			'return_to' => rawurlencode( rest_url( 'uxstudio/v1/third-party-login/callback' ) ),
-			'provider'  => rawurlencode( $provider ),
-			'mode'      => rawurlencode( $mode ),
-		);
-		if ( '' !== $state ) {
-			$args['state'] = rawurlencode( $state );
+	public function callback_url(): string {
+		return rest_url( 'uxstudio/v1/third-party-login/callback' );
+	}
+
+	// ---------------------------------------------------------------------
+	//  Handshake signing - must stay byte-identical to the central app's
+	//  signer, otherwise every request is rejected as a bad signature.
+	// ---------------------------------------------------------------------
+
+	/**
+	 * HMAC-SHA256 over the ksort()ed params (minus `sig`).
+	 *
+	 * @param array  $params Parameters to sign.
+	 * @param string $secret Shared secret.
+	 */
+	public static function sign( array $params, string $secret ): string {
+		unset( $params['sig'] );
+		ksort( $params );
+		return hash_hmac( 'sha256', http_build_query( $params ), $secret );
+	}
+
+	/**
+	 * Constant-time signature check plus the replay window on `ts`.
+	 *
+	 * @param array  $params Parameters as received (including `sig` and `ts`).
+	 * @param string $secret Shared secret.
+	 */
+	public static function verify( array $params, string $secret ): bool {
+		if ( empty( $params['sig'] ) || empty( $params['ts'] ) ) {
+			return false;
 		}
-		return add_query_arg( $args, untrailingslashit( esc_url_raw( $this->central_app_url() ) ) );
+		$ts = (int) $params['ts'];
+		if ( $ts <= 0 || abs( time() - $ts ) > self::MAX_AGE ) {
+			return false;
+		}
+		return hash_equals( self::sign( $params, $secret ), (string) $params['sig'] );
+	}
+
+	// ---------------------------------------------------------------------
+	//  Handshake start
+	// ---------------------------------------------------------------------
+
+	/**
+	 * Front-end entry point: `?uxstudio_tpl=login&provider=google` starts a
+	 * login handshake. The indirection exists so the login form can render a
+	 * plain link without minting a nonce for every page view.
+	 */
+	public function maybe_start_handshake(): void {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- public entry point, no state is changed here.
+		if ( ! isset( $_GET[ self::INIT_QUERY_VAR ] ) ) {
+			return;
+		}
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( 'login' !== sanitize_key( wp_unslash( $_GET[ self::INIT_QUERY_VAR ] ) ) ) {
+			return;
+		}
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$provider = isset( $_GET['provider'] ) ? sanitize_key( wp_unslash( $_GET['provider'] ) ) : '';
+
+		if ( ! in_array( $provider, $this->enabled_providers(), true ) ) {
+			wp_safe_redirect( add_query_arg( 'uxstudio_tpl_error', 'provider', wp_login_url() ) );
+			exit;
+		}
+
+		$url = $this->handshake_url( $provider, 'login' );
+		if ( '' === $url ) {
+			wp_safe_redirect( add_query_arg( 'uxstudio_tpl_error', 'config', wp_login_url() ) );
+			exit;
+		}
+
+		wp_redirect( $url ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- the central app is an external, admin-configured host.
+		exit;
+	}
+
+	/**
+	 * Build (and arm) a signed central-app handshake URL.
+	 *
+	 * Side effect: stores the single-use nonce, so call this only when the
+	 * user is actually being sent to the central app. Returns '' when the
+	 * module is not configured or `link` is requested without a user.
+	 *
+	 * @param string $provider Provider id (assumed to be enabled).
+	 * @param string $mode     'login' or 'link'.
+	 * @param int    $user_id  Initiating user for 'link' mode.
+	 */
+	public function handshake_url( string $provider, string $mode, int $user_id = 0 ): string {
+		$app_url = $this->central_app_url();
+		$secret  = Security::get_secret( self::SECRET_HMAC );
+		if ( '' === $app_url || '' === $secret ) {
+			return '';
+		}
+		if ( ! in_array( $mode, array( 'login', 'link' ), true ) ) {
+			return '';
+		}
+		if ( 'link' === $mode && $user_id <= 0 ) {
+			return '';
+		}
+
+		$nonce = wp_generate_password( 32, false, false );
+		set_transient(
+			self::NONCE_TRANSIENT_PREFIX . $nonce,
+			array(
+				'mode'     => $mode,
+				'provider' => $provider,
+				'user_id'  => $user_id,
+				'issued'   => time(),
+			),
+			self::NONCE_TTL
+		);
+
+		$params = array(
+			'site_url'   => home_url(),
+			'return_url' => $this->callback_url(),
+			'mode'       => $mode,
+			'nonce'      => $nonce,
+			'ts'         => (string) time(),
+		);
+		if ( 'link' === $mode ) {
+			$params['user_id'] = (string) $user_id;
+		}
+		$params['sig'] = self::sign( $params, $secret );
+
+		$init_url = untrailingslashit( esc_url_raw( $app_url ) ) . '/?page=' . rawurlencode( $provider ) . '_auth&action=init';
+
+		return $init_url . '&' . http_build_query( $params );
+	}
+
+	/**
+	 * Read (and burn) a handshake nonce. Returns null when it is unknown,
+	 * expired or already used.
+	 *
+	 * @param string $nonce Nonce from the callback.
+	 * @return array{mode:string,provider:string,user_id:int,issued:int}|null
+	 */
+	public function consume_nonce( string $nonce ): ?array {
+		$key  = self::NONCE_TRANSIENT_PREFIX . sanitize_key( $nonce );
+		$data = get_transient( $key );
+		if ( ! is_array( $data ) ) {
+			return null;
+		}
+		delete_transient( $key );
+
+		return array(
+			'mode'     => isset( $data['mode'] ) ? (string) $data['mode'] : '',
+			'provider' => isset( $data['provider'] ) ? (string) $data['provider'] : '',
+			'user_id'  => isset( $data['user_id'] ) ? (int) $data['user_id'] : 0,
+			'issued'   => isset( $data['issued'] ) ? (int) $data['issued'] : 0,
+		);
+	}
+
+	/**
+	 * URL that starts a login handshake for a provider (no nonce minted yet).
+	 *
+	 * @param string $provider Provider id.
+	 */
+	public function login_start_url( string $provider ): string {
+		return add_query_arg(
+			array(
+				self::INIT_QUERY_VAR => 'login',
+				'provider'           => $provider,
+			),
+			home_url( '/' )
+		);
 	}
 
 	/**
 	 * Renders "Sign in with ..." buttons on the login form for every enabled
-	 * provider, linking to the central app.
+	 * provider.
 	 */
 	public function render_login_buttons(): void {
 		if ( '' === $this->central_app_url() || ! $this->has_secret() ) {
@@ -388,7 +521,7 @@ final class Module extends BaseModule {
 
 			printf(
 				'<a class="button button-secondary" style="width:100%%;text-align:center;" href="%1$s">%2$s</a>',
-				esc_url( $this->handshake_url( $provider, 'login' ) ),
+				esc_url( $this->login_start_url( $provider ) ),
 				esc_html(
 					sprintf(
 						/* translators: %s = provider name */
@@ -411,20 +544,5 @@ final class Module extends BaseModule {
 			return array();
 		}
 		return array_map( 'strval', wp_roles()->get_names() );
-	}
-
-	/**
-	 * URL-safe base64 encode (no padding).
-	 */
-	private static function b64url_encode( string $value ): string {
-		return rtrim( strtr( base64_encode( $value ), '+/', '-_' ), '=' );
-	}
-
-	/**
-	 * Inverse of b64url_encode(). Returns '' on malformed input.
-	 */
-	private static function b64url_decode( string $value ): string {
-		$decoded = base64_decode( strtr( $value, '-_', '+/' ), true );
-		return false === $decoded ? '' : $decoded;
 	}
 }

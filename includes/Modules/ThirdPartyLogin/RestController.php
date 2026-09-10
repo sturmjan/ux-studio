@@ -18,8 +18,10 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Routes:
- *  - POST uxstudio/v1/third-party-login/callback  (PUBLIC) - central app posts
- *      the signed OAuth result here for both `login` and `link` modes.
+ *  - GET  uxstudio/v1/third-party-login/callback  (PUBLIC) - the central app
+ *      redirects the browser here with the signed OAuth result, for both
+ *      `login` and `link` modes. Responds with a redirect, not JSON: the
+ *      visitor's browser is what lands on this URL.
  *  - GET  uxstudio/v1/third-party-login/identities (cap: read) - the current
  *      user's linked providers.
  *  - POST uxstudio/v1/third-party-login/link/{provider}   (cap: read) - start a
@@ -29,13 +31,11 @@ defined( 'ABSPATH' ) || exit;
  *
  * The callback is registered directly (not via Controller::route()) because it
  * must stay reachable by anonymous clients; all trust there comes from the HMAC
- * signature + replay/state checks, never current_user_can(). The self-service
+ * signature + single-use nonce, never current_user_can(). The self-service
  * routes act ONLY on get_current_user_id() and never accept a user id from the
  * request, so capability 'read' is safe (least privilege).
  */
 final class RestController extends Controller {
-
-	private const MAX_AGE = 300; // seconds.
 
 	private Module $module;
 
@@ -54,7 +54,7 @@ final class RestController extends Controller {
 			self::NS,
 			'/third-party-login/callback',
 			array(
-				'methods'             => 'POST',
+				'methods'             => 'GET',
 				'callback'            => array( $this, 'callback' ),
 				'permission_callback' => '__return_true',
 				'args'                => array(),
@@ -106,9 +106,9 @@ final class RestController extends Controller {
 	}
 
 	/**
-	 * Start a link handshake for the current user: returns the central-app URL
-	 * carrying a signed state token that binds the eventual callback to this
-	 * user + provider.
+	 * Start a link handshake for the current user: returns the signed
+	 * central-app URL, which carries a single-use nonce bound to this user and
+	 * provider.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return \WP_REST_Response|WP_Error
@@ -119,21 +119,17 @@ final class RestController extends Controller {
 			return $this->bad_request();
 		}
 
-		if ( '' === $this->module->central_app_url() || ! $this->module->has_secret() ) {
-			return $this->bad_request();
-		}
-
 		$user = wp_get_current_user();
 		if ( ! ( $user instanceof WP_User ) || 0 === $user->ID || ! $this->module->is_user_allowed( $user ) ) {
 			return new WP_Error( 'uxstudio_tpl_forbidden', __( 'Your role is not allowed to use third-party login.', 'ux-studio' ), array( 'status' => 403 ) );
 		}
 
-		$state = $this->module->create_link_state( $user->ID, $provider );
-		if ( '' === $state ) {
+		$url = $this->module->handshake_url( $provider, 'link', $user->ID );
+		if ( '' === $url ) {
 			return $this->bad_request();
 		}
 
-		return $this->ok( array( 'redirect' => $this->module->handshake_url( $provider, 'link', $state ) ) );
+		return $this->ok( array( 'redirect' => $url ) );
 	}
 
 	/**
@@ -172,123 +168,124 @@ final class RestController extends Controller {
 	 * (mode=login) or link the provider identity to the initiating user
 	 * (mode=link).
 	 *
-	 * Every failure collapses into the same generic 403 - no information about
-	 * which check failed leaks, and no login/creation/link happens unless every
-	 * check passes.
+	 * The visitor's browser lands here, so every outcome is a redirect: on
+	 * success to the profile / home, on failure back to wp-login.php with an
+	 * opaque `uxstudio_tpl_error` code. The codes deliberately say nothing
+	 * about which check failed beyond what the user can act on.
 	 *
 	 * @param WP_REST_Request $request Request.
-	 * @return \WP_REST_Response|WP_Error
+	 * @return void Always terminates with a redirect.
 	 */
 	public function callback( WP_REST_Request $request ) {
-		$params = $request->get_json_params();
-		$params = is_array( $params ) ? $params : array();
-
-		$generic_error = new WP_Error(
-			'uxstudio_tpl_invalid',
-			__( 'Invalid request.', 'ux-studio' ),
-			array( 'status' => 403 )
-		);
-
-		$provider  = isset( $params['provider'] ) ? sanitize_text_field( (string) $params['provider'] ) : '';
-		$email_raw = isset( $params['email'] ) ? sanitize_email( (string) $params['email'] ) : '';
-		$sub       = isset( $params['sub'] ) ? sanitize_text_field( (string) $params['sub'] ) : '';
-		$timestamp = isset( $params['timestamp'] ) ? absint( $params['timestamp'] ) : 0;
-		$signature = isset( $params['signature'] ) ? sanitize_text_field( (string) $params['signature'] ) : '';
-		$mode      = isset( $params['mode'] ) ? sanitize_key( (string) $params['mode'] ) : 'login';
-		$state     = isset( $params['state'] ) ? (string) $params['state'] : '';
-
-		if ( ! in_array( $mode, array( 'login', 'link' ), true ) ) {
-			return $generic_error;
+		$secret = Security::get_secret( Module::SECRET_HMAC );
+		if ( '' === $secret || '' === $this->module->central_app_url() ) {
+			return $this->fail( 'config' );
 		}
 
-		if ( ! in_array( $provider, Module::PROVIDERS, true ) ) {
-			return $generic_error;
+		$params = $request->get_query_params();
+
+		$provider = $this->detect_provider( $params );
+		if ( null === $provider ) {
+			return $this->fail( 'provider' );
+		}
+
+		$sub_param = $this->module->sub_param( $provider );
+		foreach ( array( 'mode', $sub_param, 'email', 'nonce', 'ts', 'sig' ) as $required ) {
+			if ( empty( $params[ $required ] ) ) {
+				return $this->fail( 'invalid' );
+			}
+		}
+
+		$mode = sanitize_key( (string) $params['mode'] );
+		if ( ! in_array( $mode, array( 'login', 'link' ), true ) ) {
+			return $this->fail( 'invalid' );
+		}
+
+		// Verify over exactly the fields the central app signed - the REST stack
+		// may add its own (`rest_route` with plain permalinks), and those were
+		// never part of the signature.
+		$signed = array(
+			'mode'     => (string) $params['mode'],
+			$sub_param => (string) $params[ $sub_param ],
+			'email'    => (string) $params['email'],
+			'nonce'    => (string) $params['nonce'],
+			'ts'       => (string) $params['ts'],
+			'sig'      => (string) $params['sig'],
+		);
+		if ( ! empty( $params['provider'] ) ) {
+			$signed['provider'] = (string) $params['provider'];
+		}
+		if ( 'link' === $mode ) {
+			if ( empty( $params['user_id'] ) ) {
+				return $this->fail( 'invalid' );
+			}
+			$signed['user_id'] = (string) $params['user_id'];
+		}
+
+		if ( ! Module::verify( $signed, $secret ) ) {
+			return $this->fail( 'signature' );
+		}
+
+		// Single-use nonce: also pins the mode and provider chosen at start.
+		$nonce_data = $this->module->consume_nonce( (string) $params['nonce'] );
+		if ( null === $nonce_data ) {
+			return $this->fail( 'expired' );
+		}
+		if ( $nonce_data['mode'] !== $mode ) {
+			return $this->fail( 'invalid' );
+		}
+		if ( '' !== $nonce_data['provider'] && $nonce_data['provider'] !== $provider ) {
+			return $this->fail( 'invalid' );
 		}
 
 		if ( ! in_array( $provider, $this->module->enabled_providers(), true ) ) {
-			return $generic_error;
+			return $this->fail( 'provider' );
 		}
 
-		if ( '' === $email_raw || ! is_email( $email_raw ) ) {
-			return $generic_error;
+		$sub   = sanitize_text_field( (string) $params[ $sub_param ] );
+		$email = sanitize_email( (string) $params['email'] );
+		if ( '' === $sub || ! is_email( $email ) ) {
+			return $this->fail( 'invalid' );
 		}
-
-		if ( '' === $sub ) {
-			return $generic_error;
-		}
-
-		if ( 0 === $timestamp || abs( time() - $timestamp ) > self::MAX_AGE ) {
-			return $generic_error;
-		}
-
-		if ( '' === $signature || ! ctype_xdigit( $signature ) ) {
-			return $generic_error;
-		}
-
-		$secret = Security::get_secret( Module::SECRET_HMAC );
-		if ( '' === $secret ) {
-			return $generic_error;
-		}
-
-		$signed_fields = array(
-			'provider'  => $provider,
-			'email'     => $email_raw,
-			'sub'       => $sub,
-			'timestamp' => $timestamp,
-		);
-		ksort( $signed_fields );
-		$expected = hash_hmac( 'sha256', http_build_query( $signed_fields ), $secret );
-
-		if ( ! hash_equals( $expected, $signature ) ) {
-			return $generic_error;
-		}
-
-		// Anti-replay: this exact signature must not have been used before.
-		$replay_key = 'uxstudio_tpl_used_' . md5( $signature );
-		if ( false !== get_transient( $replay_key ) ) {
-			return $generic_error;
-		}
-		set_transient( $replay_key, 1, self::MAX_AGE + 10 );
 
 		if ( 'link' === $mode ) {
-			return $this->handle_link( $provider, $email_raw, $sub, $state, $generic_error );
+			return $this->handle_link( $provider, $email, $sub, $nonce_data['user_id'], (int) $params['user_id'] );
 		}
 
-		return $this->handle_login( $provider, $email_raw, $sub, $generic_error );
+		return $this->handle_login( $provider, $email, $sub );
 	}
 
 	/**
 	 * Login / auto-create flow (mode=login).
 	 *
-	 * @param string   $provider      Provider id (validated).
-	 * @param string   $email_raw     Verified email (validated).
-	 * @param string   $sub           Provider subject id.
-	 * @param WP_Error $generic_error Shared opaque error.
-	 * @return \WP_REST_Response|WP_Error
+	 * @param string $provider  Provider id (validated).
+	 * @param string $email_raw Verified email (validated).
+	 * @param string $sub       Provider subject id.
+	 * @return void Always terminates with a redirect.
 	 */
-	private function handle_login( string $provider, string $email_raw, string $sub, WP_Error $generic_error ) {
+	private function handle_login( string $provider, string $email_raw, string $sub ) {
 		$user             = $this->find_by_sub( $provider, $sub );
 		$created_new_user = false;
 
 		if ( ! ( $user instanceof WP_User ) ) {
 			// Unknown identity: only create when auto-create is enabled.
 			if ( ! $this->module->auto_create_enabled() ) {
-				return $generic_error;
+				return $this->fail( 'notlinked' );
 			}
 
 			// Takeover protection: never attach to an existing account by email;
 			// linking to an existing user only happens via the explicit,
 			// authenticated link flow. Placeholder emails are rejected outright.
 			if ( false !== stripos( $email_raw, '@unknown.local' ) ) {
-				return $generic_error;
+				return $this->fail( 'placeholder_email' );
 			}
 			if ( get_user_by( 'email', $email_raw ) instanceof WP_User ) {
-				return $generic_error;
+				return $this->fail( 'email_taken' );
 			}
 
 			$role = $this->module->auto_create_role();
 			if ( '' === $role ) {
-				return $generic_error;
+				return $this->fail( 'config' );
 			}
 
 			$username = $this->unique_username( $email_raw );
@@ -301,7 +298,7 @@ final class RestController extends Controller {
 				)
 			);
 			if ( is_wp_error( $user_id ) ) {
-				return $generic_error;
+				return $this->fail( 'invalid' );
 			}
 
 			$this->store_identity( (int) $user_id, $provider, $sub, $email_raw );
@@ -310,12 +307,12 @@ final class RestController extends Controller {
 		}
 
 		if ( ! ( $user instanceof WP_User ) ) {
-			return $generic_error;
+			return $this->fail( 'invalid' );
 		}
 
 		// Role gate applies to every login, existing or freshly created.
 		if ( ! $this->module->is_user_allowed( $user ) ) {
-			return $generic_error;
+			return $this->fail( 'role' );
 		}
 
 		wp_set_auth_cookie( $user->ID, true );
@@ -329,46 +326,73 @@ final class RestController extends Controller {
 			array( 'provider' => $provider )
 		);
 
-		return $this->ok( array( 'redirect' => home_url() ) );
+		return $this->redirect( admin_url() );
 	}
 
 	/**
 	 * Link flow (mode=link): bind the authenticated provider identity to the
-	 * user carried by the signed state token.
+	 * user that started the handshake.
 	 *
-	 * @param string   $provider      Provider id (validated).
-	 * @param string   $email_raw     Verified email (validated).
-	 * @param string   $sub           Provider subject id.
-	 * @param string   $state         Signed link-state token.
-	 * @param WP_Error $generic_error Shared opaque error.
-	 * @return \WP_REST_Response|WP_Error
+	 * @param string $provider         Provider id (validated).
+	 * @param string $email_raw        Verified email (validated).
+	 * @param string $sub              Provider subject id.
+	 * @param int    $expected_user_id User id recorded when the handshake started.
+	 * @param int    $received_user_id User id echoed back by the central app.
+	 * @return void Always terminates with a redirect.
 	 */
-	private function handle_link( string $provider, string $email_raw, string $sub, string $state, WP_Error $generic_error ) {
-		$user_id = $this->module->verify_link_state( $state, $provider );
-		if ( $user_id <= 0 ) {
-			return $generic_error;
+	private function handle_link( string $provider, string $email_raw, string $sub, int $expected_user_id, int $received_user_id ) {
+		if ( $expected_user_id <= 0 || $expected_user_id !== $received_user_id ) {
+			return $this->fail( 'invalid' );
 		}
 
-		$user = get_user_by( 'id', $user_id );
+		$user = get_user_by( 'id', $expected_user_id );
 		if ( ! ( $user instanceof WP_User ) ) {
-			return $generic_error;
+			return $this->fail( 'invalid' );
 		}
 
 		if ( ! $this->module->is_user_allowed( $user ) ) {
-			return $generic_error;
+			return $this->fail( 'role' );
 		}
 
 		// Anti-hijack: refuse if this sub is already owned by a different user.
 		$owner = $this->find_by_sub( $provider, $sub );
 		if ( $owner instanceof WP_User && $owner->ID !== $user->ID ) {
-			return $generic_error;
+			return $this->fail( 'sub_taken' );
 		}
 
 		$this->store_identity( $user->ID, $provider, $sub, $email_raw );
 
 		ActivityLog::log( 'third-party-login', 'account_linked', 'user', $user->ID, array( 'provider' => $provider ) );
 
-		return $this->ok( array( 'redirect' => home_url() ) );
+		return $this->redirect(
+			add_query_arg(
+				array(
+					'uxstudio_tpl_linked'   => '1',
+					'uxstudio_tpl_provider' => $provider,
+				),
+				admin_url( 'profile.php' )
+			)
+		);
+	}
+
+	/**
+	 * Which provider does this callback belong to? Prefers the explicit
+	 * `provider` parameter, falls back to whichever `{provider}_sub` is present
+	 * (the central app's Google flow predates the explicit parameter).
+	 *
+	 * @param array $params Query parameters.
+	 */
+	private function detect_provider( array $params ): ?string {
+		if ( ! empty( $params['provider'] ) ) {
+			$candidate = sanitize_key( (string) $params['provider'] );
+			return in_array( $candidate, Module::PROVIDERS, true ) ? $candidate : null;
+		}
+		foreach ( Module::PROVIDERS as $provider ) {
+			if ( ! empty( $params[ $this->module->sub_param( $provider ) ] ) ) {
+				return $provider;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -423,6 +447,26 @@ final class RestController extends Controller {
 	private function request_provider( WP_REST_Request $request ): ?string {
 		$provider = sanitize_key( (string) $request->get_param( 'provider' ) );
 		return in_array( $provider, Module::PROVIDERS, true ) ? $provider : null;
+	}
+
+	/**
+	 * Send the browser somewhere and stop - the callback is a navigation, not
+	 * an API call, so a JSON body would just be shown as text.
+	 *
+	 * @param string $url Destination.
+	 */
+	private function redirect( string $url ): void {
+		wp_safe_redirect( $url );
+		exit;
+	}
+
+	/**
+	 * Bounce back to the login form with an opaque error code.
+	 *
+	 * @param string $code Error code for the login screen.
+	 */
+	private function fail( string $code ): void {
+		$this->redirect( add_query_arg( 'uxstudio_tpl_error', $code, wp_login_url() ) );
 	}
 
 	/**

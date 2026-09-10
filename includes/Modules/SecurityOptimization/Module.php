@@ -1289,6 +1289,73 @@ final class Module extends BaseModule {
 		if ( is_user_logged_in() ) {
 			return $result;
 		}
+		if ( $this->is_public_rest_route() ) {
+			return $result;
+		}
 		return new WP_Error( 'uxstudio_rest_forbidden', __( 'REST API access is restricted to logged-in users.', 'ux-studio' ), array( 'status' => 401 ) );
+	}
+
+	/**
+	 * Is the requested route explicitly exempt from the login requirement?
+	 *
+	 * Some endpoints have to stay reachable by anonymous clients even with the
+	 * REST API locked down, because they ARE the way a visitor becomes logged
+	 * in - the third-party-login callback the central app redirects back to is
+	 * the canonical case. Such routes carry their own proof (HMAC signature,
+	 * single-use nonce), so the login requirement adds nothing there but breaks
+	 * the flow.
+	 */
+	private function is_public_rest_route(): bool {
+		$route = $this->current_rest_route();
+		if ( '' === $route ) {
+			return false;
+		}
+
+		/**
+		 * Route prefixes reachable without login while the REST API is restricted.
+		 *
+		 * @param array<int, string> $routes Leading-slash route prefixes.
+		 */
+		$public = (array) apply_filters( 'uxstudio_rest_public_routes', array() );
+
+		foreach ( $public as $prefix ) {
+			$prefix = (string) $prefix;
+			if ( '' !== $prefix && 0 === strpos( $route, $prefix ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * The REST route being requested, with a leading slash.
+	 *
+	 * `rest_authentication_errors` fires before the REST server has resolved
+	 * the route, so read it off the request the same way the server will:
+	 * either the `rest_route` query var (plain permalinks) or the path after
+	 * the REST prefix.
+	 */
+	private function current_rest_route(): string {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only routing lookup.
+		if ( isset( $_GET['rest_route'] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$route = sanitize_text_field( wp_unslash( $_GET['rest_route'] ) );
+			return '/' . ltrim( $route, '/' );
+		}
+
+		$uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+		if ( '' === $uri ) {
+			return '';
+		}
+
+		$path   = (string) wp_parse_url( $uri, PHP_URL_PATH );
+		$needle = '/' . trim( rest_get_url_prefix(), '/' ) . '/';
+		$pos    = strpos( $path, $needle );
+		if ( false === $pos ) {
+			return '';
+		}
+
+		return '/' . ltrim( substr( $path, $pos + strlen( $needle ) ), '/' );
 	}
 }

@@ -438,3 +438,42 @@ Zbývající skutečná ❌ v matici (po srovnání se skutečností):
 - [x] migrace vyplněných API klíčů z ux1 do studia (Migrator krok 4d): stock-photos (pexels/pixabay/unsplash/mapillary, plain→secret) + ai-assistant (claude_api_key, ux1-decrypt SECURE_AUTH_KEY → re-encrypt studio) - OVĚŘENO 2026-09-04: hodnoty se shodují po dešifrování, uloženo šifrovaně. Pozn.: ux1 smtp-email/instagram-feed na pobyty NEMAJÍ vyplněno nic (e-maily jdou přes jiné pluginy), takže tam není co přenášet; Gmail/Instagram creds zadá uživatel jednou v UI a jeho testování si dělá sám.
 - [ ] zbývá jen funkční A/B smtp-email (Gmail OAuth) + instagram-feed (IG token) - potřebuje reálné creds, testuje uživatel
 - [x] **F5 přepnutí PROVEDENO 2026-09-04 na lokálním webu `pobyty`** (DB `pobyty`): záloha DB (166 MB, `D:\parity-test-pobyty\f5-backup\`) → aktivace ux-studio → Handoff deaktivoval ux1 → migrace re-run (guard byl z 15.8., proto přeskočena; smazán a spuštěna znovu kvůli novým krokům vč. klíčů) → zapnuto 48 modulů (mapováno z 58 legacy, konsolidované slity, reservation-calendar vypuštěn). Ověřeno: ux-studio active / ux1 inactive, frontend 200, backend bez fatalu, migrované klíče sedí (pexels/claude). ux1 soubory PONECHÁNY jako záloha (Ux1Lock brání reaktivaci; Handoff nabízí smazání, neprovedeno). Produkční nasazení na server = samostatný krok (deploy pluginu), NEprovedeno.
+
+---
+
+## 15. Přihlášení přes Seznam účet + srovnání handshake s centrální aplikací (2026-09-10)
+
+Zadání bylo přidat Seznam účet jako čtvrtého providera. Při čtení modulu se ukázalo, že
+`third-party-login` ve studiu mluvil **jiným protokolem, než centrální aplikace umí** —
+posílal `?site=&return_to=&provider=&mode=` na kořen CA, bez podpisu, a čekal zpátky POST
+JSON. V CA takový endpoint neexistuje (`BaseAuthController` má jen podepsaný
+`?page={provider}_auth&action=init`). Nefungoval tedy ani Google; Seznam by ten rozpor
+nevyřešil. Rozhodnutí uživatele: srovnat studio na protokol CA (varianta A).
+
+- [x] `Module::PROVIDERS` rozšířeno o `seznam` (+ labels, settings options, meta.json)
+- [x] `handshake_url()` přepsán na protokol CA: `?page={provider}_auth&action=init`
+      s `site_url`, `return_url`, `mode`, `nonce`, `ts`, volitelně `user_id`, a `sig`
+- [x] `Module::sign()` / `verify()` — HMAC-SHA256 nad ksort()ovanými parametry
+      (byte-identické s `GoogleProxySigner` v CA), replay okno 300 s
+- [x] jednorázový nonce v transientu (900 s) nese mode + provider + iniciujícího uživatele,
+      takže callback nejde zaměnit za jiný; nahradil dřívější self-contained `state` token
+- [x] callback route překlopena z `POST` (JSON) na `GET` (podepsaný redirect z CA)
+      a odpovídá **přesměrováním**, ne JSONem — přistává na ní prohlížeč návštěvníka
+- [x] front-endový vstup `?uxstudio_tpl=login&provider=X` (nonce se razí až při odchodu
+      na CA, ne při každém vykreslení login formuláře)
+- [x] **nalezeno a opraveno:** modul `security-optimization` zamyká celé REST API na
+      přihlášené uživatele, takže veřejný callback vracel 401 a flow nikdy nedoběhl.
+      Přidán filtr `uxstudio_rest_public_routes`; TPL modul si přes něj whitelistuje
+      jen svou callback routu (chráněnou HMACem a nonce, ne session)
+- [x] E2E ověřeno 2026-09-10 na lokálním `pobyty` proti lokální CA: login-start →
+      podepsaný init → CA přijala a přesměrovala na `login.seznam.cz` → podepsaný callback
+      přihlásil spárovaného uživatele (auth cookie). Negativní případy: neznámý sub →
+      `notlinked`, podvržený e-mail → `signature`, replay nonce → `expired`, vymyšlený
+      nonce → `expired`. Testovací stav lokálu vrácen zpět.
+- [ ] reálný OAuth round-trip se Seznamem — čeká na registraci aplikace na
+      `vyvojari.seznam.cz/oauth/admin` a vyplnění Client ID/Secret v CA
+- [ ] nasadit na weby (modul je na lokále i po testu **vypnutý**, konfigurace smazaná)
+
+Pasti: `redirect_uri` Seznam vždy přepisuje na https (kromě `localhost`), scope se
+odděluje čárkami a musí obsahovat `identity`, a `account_name` u firemních domén není
+e-mail — bere se pole `email`. Frontend (`src/`) se neměnil, takže rebuild JS není nutný.
