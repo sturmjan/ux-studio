@@ -496,10 +496,20 @@ final class Module extends BaseModule {
 	/**
 	 * Remember the last outgoing message so the UI can resend it.
 	 *
-	 * @param array $atts wp_mail() arguments.
-	 * @return array Unmodified arguments.
+	 * The `wp_mail` filter is NOT guaranteed to carry an array. Plugins that
+	 * short-circuit mail (Disable Emails passes `false`) hand the filter their
+	 * own value, and a typed `array` parameter turns that into a fatal error
+	 * that takes down whatever was sending the mail. Found 10.9.2026: filing a
+	 * service request on a site with Disable Emails active crashed the request.
+	 *
+	 * @param mixed $atts wp_mail() arguments, or whatever another plugin passed.
+	 * @return mixed Unmodified arguments.
 	 */
-	public function capture_last_message( array $atts ): array {
+	public function capture_last_message( $atts ) {
+		if ( ! is_array( $atts ) ) {
+			return $atts;
+		}
+
 		update_option(
 			self::LAST_MESSAGE_OPTION,
 			array(

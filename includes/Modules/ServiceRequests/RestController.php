@@ -17,7 +17,13 @@ defined( 'ABSPATH' ) || exit;
  * GET    uxstudio/v1/service-requests/items                 - list requests (optionally ?status=)
  * POST   uxstudio/v1/service-requests/items                 - create a request
  * DELETE uxstudio/v1/service-requests/items/{id}             - delete a request
- * POST   uxstudio/v1/service-requests/items/{id}/status      - change status
+ * POST   uxstudio/v1/service-requests/items/{id}/status      - change status (legacy, local only)
+ * POST   uxstudio/v1/service-requests/items/{id}/reply       - client reply into the central thread
+ * POST   uxstudio/v1/service-requests/items/{id}/resync      - force a push/pull for this request
+ *
+ * Since F2 the central app owns a request: `status` here is a local mirror and
+ * the value the UI shows is `central_status`. The `/status` route is kept so
+ * pre-F2 rows that never reached the central app can still be closed locally.
  */
 final class RestController extends Controller {
 
@@ -72,6 +78,21 @@ final class RestController extends Controller {
 					'type'              => 'integer',
 					'sanitize_callback' => 'absint',
 				),
+				'page_url'        => array(
+					'required'          => false,
+					'type'              => 'string',
+					'sanitize_callback' => 'esc_url_raw',
+				),
+				'type'            => array(
+					'required'          => false,
+					'type'              => 'string',
+					'sanitize_callback' => 'sanitize_key',
+				),
+				'priority'        => array(
+					'required'          => false,
+					'type'              => 'string',
+					'sanitize_callback' => 'sanitize_key',
+				),
 			)
 		);
 
@@ -92,6 +113,25 @@ final class RestController extends Controller {
 					'sanitize_callback' => 'sanitize_text_field',
 				),
 			)
+		);
+
+		$this->route(
+			'/service-requests/items/(?P<id>\d+)/reply',
+			'POST',
+			array( $this, 'reply' ),
+			array(
+				'body' => array(
+					'required'          => true,
+					'type'              => 'string',
+					'sanitize_callback' => 'sanitize_textarea_field',
+				),
+			)
+		);
+
+		$this->route(
+			'/service-requests/items/(?P<id>\d+)/resync',
+			'POST',
+			array( $this, 'resync' )
 		);
 	}
 
@@ -116,6 +156,9 @@ final class RestController extends Controller {
 			'description'     => (string) $request->get_param( 'description' ),
 			'requester_email' => (string) $request->get_param( 'requester_email' ),
 			'attachment_id'   => absint( $request->get_param( 'attachment_id' ) ),
+			'page_url'        => (string) $request->get_param( 'page_url' ),
+			'type'            => (string) $request->get_param( 'type' ),
+			'priority'        => (string) $request->get_param( 'priority' ),
 		);
 
 		return $this->ok( $this->module->create_item( $data ) );
@@ -146,6 +189,31 @@ final class RestController extends Controller {
 		$status = (string) $request->get_param( 'status' );
 
 		$result = $this->module->update_status( $id, $status );
+		return $result instanceof WP_Error ? $result : $this->ok( $result );
+	}
+
+	/**
+	 * Client reply, delivered into the central conversation.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function reply( WP_REST_Request $request ) {
+		$result = $this->module->reply(
+			absint( $request->get_param( 'id' ) ),
+			(string) $request->get_param( 'body' )
+		);
+
+		return $result instanceof WP_Error ? $result : $this->ok( $result );
+	}
+
+	/**
+	 * Force a sync pass for this request.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function resync( WP_REST_Request $request ) {
+		$result = $this->module->resync( absint( $request->get_param( 'id' ) ) );
+
 		return $result instanceof WP_Error ? $result : $this->ok( $result );
 	}
 }

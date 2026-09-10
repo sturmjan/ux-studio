@@ -477,3 +477,58 @@ nevyřešil. Rozhodnutí uživatele: srovnat studio na protokol CA (varianta A).
 Pasti: `redirect_uri` Seznam vždy přepisuje na https (kromě `localhost`), scope se
 odděluje čárkami a musí obsahovat `identity`, a `account_name` u firemních domén není
 e-mail — bere se pole `email`. Frontend (`src/`) se neměnil, takže rebuild JS není nutný.
+
+
+## 16. Modul Service Requests jako klient centrálního ticket systému (2026-09-10)
+
+Modul přestal být vlastníkem dat. Zdrojem pravdy je od F2 tabulka `tickets`
+v centrální aplikaci; lokální řádek zůstává jen proto, aby klient viděl svoje
+požadavky i ve chvíli, kdy je centrála nedostupná. Číslo, stav a celá
+konverzace se zrcadlí odtamtud. Zadání a fáze F1–F7 jsou v `PLAN.md` centrály,
+sekce „Ticket systém (helpdesk) v centrále".
+
+**Kanál se nezakládal nový.** Používá se existující dvojice klíčů a existující
+podpisové schéma hub↔node:
+
+- tajemství: `node_api_key` (`ContentSyncModule::SECRET_NODE_KEY`) — týž sdílený
+  klíč, kterým centrála volá tenhle web opačným směrem,
+- podpis: `ContentSync\HmacAuth::sign()`, tedy
+  `METHOD \n URL \n TIMESTAMP \n NONCE \n sha256(body)`,
+- adresa: `central_app_url` z nastavení content-syncu.
+
+Centrála ověřuje `HmacAuth::signWithNonce()` a podpis spálí v `hmac_nonces`,
+takže zachycený požadavek nejde přehrát. Žádné nové párování, žádná nová
+kryptografie, jedno místo, kde se web přepojí na jinou centrálu.
+
+**Nové soubory:** `ServiceRequests/CentralClient.php` (podepsaný klient),
+`ServiceRequests/Sync.php` (fronta, backoff, pull, sběr prostředí).
+Schéma modulu na v2: rozšířené sloupce požadavku + zrcadlo z centrály +
+tabulka `uxstudio_service_request_outbox` pro odpovědi klienta.
+
+- [x] Formulář sbírá URL stránky, typ a naléhavost a **automaticky přikládá
+      kontext webu** (WP, PHP, šablona, jazyk, role, prohlížeč, 30 aktivních
+      pluginů s verzemi). Sbírá se v okamžiku odeslání — pozdější čtení by
+      popsalo web, jaký je teď, ne jaký byl, když se to rozbilo.
+- [x] Push do centrály hned při založení, při neúspěchu fronta s backoffem
+      (0/1/5/15/60/180/360/720 min, 8 pokusů) a cron `uxstudio_five_minutes`.
+      Trvalá chyba (4xx mimo 429) retry zastaví a zůstane vidět jako
+      `sync_state='error'` i s důvodem.
+- [x] Idempotence přes `external_id = uxs-<id>`; opakovaný push jen vrátí
+      existující ticket a nic nepřepíše.
+- [x] Odpovědi klienta jdou přes outbox (jedna neodeslaná zpráva nesmí
+      zablokovat další), příloha se posílá zvlášť podepsaným uploadem.
+- [x] Pull stavu a vlákna; obrazovka ukazuje číslo `TCK-…`, stav slovy,
+      konverzaci, odeslání odpovědi a tlačítko Obnovit.
+- [x] E2E ověřeno 2026-09-10 na lokálním `pobyty` proti lokální CA — 22 kontrol
+      včetně toho, že **interní poznámka operátora se na web nedostane** a že
+      požadavek založený při nedostupné centrále se neztratí a po obnovení
+      spojení se dopushuje.
+- [ ] nasadit (na lokále zůstává spárování s lokální CA kvůli proklikání)
+
+**Opraveno při té příležitosti:** `SmtpEmail\Module::capture_last_message()` měl
+typovaný parametr `array`, ale filtr `wp_mail` nemá zaručeno, že pole ponese —
+plugin Disable Emails do něj posílá `false`. Na webu s ním aktivním tím padalo
+odeslání servisního požadavku fatální chybou. Teď se nepolní hodnota propustí beze změny.
+
+**Past:** `Sync::collect_environment()` volá `get_plugin_data()`, takže potřebuje
+`wp-admin/includes/plugin.php`. V kontextu REST požadavku není načtený sám od sebe.
