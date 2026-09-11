@@ -146,6 +146,52 @@ final class ArticleTypes {
 			'description' => 'An interview with an expert or interesting person.',
 			'prompt_hint' => 'Create a fictional interview in question-and-answer format. Questions should be probing and answers should contain valuable practical insight.',
 		),
+
+		// Copywriting frameworks - same catalogue mechanism as the article
+		// types above, just marketing-copy structures instead of blog-post
+		// shapes. Reuses the whole Content Creator/Blog Pilot pipeline
+		// (provider selection, tone/length, generate → draft → publish) with
+		// no new architecture - only these entries were missing.
+		'aida'              => array(
+			'name'        => 'AIDA Copy',
+			'description' => 'Attention - Interest - Desire - Action marketing copy.',
+			'prompt_hint' => 'Structure the copy using the AIDA framework: grab Attention with a strong opening, build Interest with relevant benefits, create Desire by showing the value/transformation, end with a clear call to Action.',
+		),
+		'pas'               => array(
+			'name'        => 'PAS Copy',
+			'description' => 'Problem - Agitate - Solution marketing copy.',
+			'prompt_hint' => 'Structure the copy using the PAS framework: state the reader\'s Problem clearly, Agitate it by describing the pain/consequences of not solving it, then present the Solution as the clear way out.',
+		),
+		'bab'               => array(
+			'name'        => 'BAB Copy',
+			'description' => 'Before - After - Bridge marketing copy.',
+			'prompt_hint' => 'Structure the copy using the BAB framework: describe the reader\'s current (Before) situation, paint a picture of the improved (After) situation, then present the offer as the Bridge between the two.',
+		),
+		'hero'              => array(
+			'name'        => 'HERO Copy',
+			'description' => 'Hook - Empathize - Response - Outcome marketing copy.',
+			'prompt_hint' => 'Structure the copy using the HERO framework: open with a Hook that grabs attention, Empathize with the reader\'s situation/pain, present the offer as the Response, end with the concrete Outcome/result they can expect.',
+		),
+		'spin'              => array(
+			'name'        => 'SPIN Copy',
+			'description' => 'Situation - Problem - Implication - Need-payoff selling copy.',
+			'prompt_hint' => 'Structure the copy using the SPIN selling framework: establish the Situation, surface the Problem, explain the Implication of leaving it unsolved, then show the Need-payoff of the solution.',
+		),
+		'idca'              => array(
+			'name'        => 'IDCA Copy',
+			'description' => 'Identify - Develop - Communicate - Ask marketing copy.',
+			'prompt_hint' => 'Structure the copy using the IDCA framework: Identify the reader\'s core need, Develop it with supporting detail/proof, Communicate the offer clearly, end with a direct Ask (call to action).',
+		),
+		'email'             => array(
+			'name'        => 'Email',
+			'description' => 'A standalone marketing or transactional email.',
+			'prompt_hint' => 'Write a complete email with a compelling subject line (on the first line, prefixed "Subject: "), a personal greeting, a clear body focused on one main message, and a single clear call to action.',
+		),
+		'comment-reply'     => array(
+			'name'        => 'Comment / Review Reply',
+			'description' => 'A short, on-brand reply to a comment or review.',
+			'prompt_hint' => 'Write a short, genuine-sounding reply (2-4 sentences) to the comment/review provided in the topic. Thank the author, address their specific point, and keep the site\'s tone. Never invent facts not present in the original comment.',
+		),
 	);
 
 	/**

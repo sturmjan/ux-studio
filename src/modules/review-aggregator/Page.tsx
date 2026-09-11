@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Eye, EyeOff, LoaderCircle, RefreshCw, Star } from 'lucide-react';
+import { ArrowLeft, Copy, Eye, EyeOff, LoaderCircle, RefreshCw, Sparkles, Star } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
@@ -21,6 +21,10 @@ interface Review {
 
 interface FetchResult {
 	fetched: number;
+}
+
+interface SuggestReplyResult {
+	suggestion: string;
 }
 
 interface Stats {
@@ -48,6 +52,23 @@ function ReviewsTab(): JSX.Element {
 		onSuccess: () => {
 			void queryClient.invalidateQueries( { queryKey: [ 'review-aggregator', 'reviews' ] } );
 		},
+	} );
+
+	const [ suggestions, setSuggestions ] = useState< Record< number, string > >( {} );
+	const [ suggestErrors, setSuggestErrors ] = useState< Record< number, string > >( {} );
+	const [ pendingSuggestId, setPendingSuggestId ] = useState< number | null >( null );
+
+	const suggestReply = useMutation( {
+		mutationFn: ( id: number ) => api< SuggestReplyResult >( `review-aggregator/reviews/${ id }/suggest-reply`, { method: 'POST', body: JSON.stringify( {} ) } ),
+		onMutate: ( id: number ) => setPendingSuggestId( id ),
+		onSuccess: ( result, id ) => {
+			setSuggestions( ( prev ) => ( { ...prev, [ id ]: result.suggestion } ) );
+			setSuggestErrors( ( prev ) => ( { ...prev, [ id ]: '' } ) );
+		},
+		onError: ( error, id ) => {
+			setSuggestErrors( ( prev ) => ( { ...prev, [ id ]: ( error as Error ).message } ) );
+		},
+		onSettled: () => setPendingSuggestId( null ),
 	} );
 
 	return (
@@ -86,33 +107,67 @@ function ReviewsTab(): JSX.Element {
 					</thead>
 					<tbody>
 						{ data.map( ( review ) => (
-							<tr key={ review.id }>
-								<td>{ review.source }</td>
-								<td>{ review.author }</td>
-								<td>
-									{ Array.from( { length: review.rating } ).map( ( _, i ) => (
-										<Star key={ i } size={ 12 } fill="currentColor" />
-									) ) }
-								</td>
-								<td>{ review.text }</td>
-								<td>{ review.review_date ?? '' }</td>
-								<td>
-									<span className={ `uxs-badge ${ review.visible ? 'is-success' : '' }` }>
-										{ review.visible ? __( 'Yes', 'ux-studio' ) : __( 'No', 'ux-studio' ) }
-									</span>
-								</td>
-								<td>
-									<button
-										type="button"
-										className="button"
-										disabled={ toggleVisibility.isPending }
-										onClick={ () => toggleVisibility.mutate( review.id ) }
-									>
-										{ review.visible ? <EyeOff size={ 14 } /> : <Eye size={ 14 } /> }{ ' ' }
-										{ review.visible ? __( 'Hide', 'ux-studio' ) : __( 'Show', 'ux-studio' ) }
-									</button>
-								</td>
-							</tr>
+							<Fragment key={ review.id }>
+								<tr>
+									<td>{ review.source }</td>
+									<td>{ review.author }</td>
+									<td>
+										{ Array.from( { length: review.rating } ).map( ( _, i ) => (
+											<Star key={ i } size={ 12 } fill="currentColor" />
+										) ) }
+									</td>
+									<td>{ review.text }</td>
+									<td>{ review.review_date ?? '' }</td>
+									<td>
+										<span className={ `uxs-badge ${ review.visible ? 'is-success' : '' }` }>
+											{ review.visible ? __( 'Yes', 'ux-studio' ) : __( 'No', 'ux-studio' ) }
+										</span>
+									</td>
+									<td style={ { whiteSpace: 'nowrap' } }>
+										<button
+											type="button"
+											className="button"
+											disabled={ toggleVisibility.isPending }
+											onClick={ () => toggleVisibility.mutate( review.id ) }
+										>
+											{ review.visible ? <EyeOff size={ 14 } /> : <Eye size={ 14 } /> }{ ' ' }
+											{ review.visible ? __( 'Hide', 'ux-studio' ) : __( 'Show', 'ux-studio' ) }
+										</button>{ ' ' }
+										<button
+											type="button"
+											className="button"
+											disabled={ pendingSuggestId === review.id }
+											onClick={ () => suggestReply.mutate( review.id ) }
+										>
+											{ pendingSuggestId === review.id ? <LoaderCircle size={ 14 } /> : <Sparkles size={ 14 } /> }{ ' ' }
+											{ __( 'Suggest reply', 'ux-studio' ) }
+										</button>
+									</td>
+								</tr>
+								{ suggestErrors[ review.id ] ? (
+									<tr>
+										<td colSpan={ 7 }>
+											<p className="uxs-form__help">{ suggestErrors[ review.id ] }</p>
+										</td>
+									</tr>
+								) : null }
+								{ suggestions[ review.id ] ? (
+									<tr>
+										<td colSpan={ 7 }>
+											<div className="uxs-card" style={ { padding: 'var(--uxs-sp-3)', display: 'flex', alignItems: 'flex-start', gap: 'var(--uxs-sp-2)' } }>
+												<p style={ { margin: 0, flex: 1 } }>{ suggestions[ review.id ] }</p>
+												<button
+													type="button"
+													className="button"
+													onClick={ () => void navigator.clipboard.writeText( suggestions[ review.id ] ) }
+												>
+													<Copy size={ 14 } /> { __( 'Copy', 'ux-studio' ) }
+												</button>
+											</div>
+										</td>
+									</tr>
+								) : null }
+							</Fragment>
 						) ) }
 					</tbody>
 				</table>

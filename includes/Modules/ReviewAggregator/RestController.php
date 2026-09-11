@@ -17,6 +17,7 @@ defined( 'ABSPATH' ) || exit;
  * GET  uxstudio/v1/review-aggregator/reviews                    - list reviews (filterable)
  * POST uxstudio/v1/review-aggregator/fetch                      - pull fresh reviews through the content-sync broker
  * POST uxstudio/v1/review-aggregator/reviews/{id}/toggle-visibility
+ * POST uxstudio/v1/review-aggregator/reviews/{id}/suggest-reply
  * GET  uxstudio/v1/review-aggregator/stats
  */
 final class RestController extends Controller {
@@ -64,6 +65,12 @@ final class RestController extends Controller {
 			array( $this, 'toggle_visibility' )
 		);
 
+		$this->route(
+			'/review-aggregator/reviews/(?P<id>\d+)/suggest-reply',
+			'POST',
+			array( $this, 'suggest_reply' )
+		);
+
 		$this->route( '/review-aggregator/stats', 'GET', array( $this, 'stats' ) );
 	}
 
@@ -106,6 +113,17 @@ final class RestController extends Controller {
 	public function toggle_visibility( WP_REST_Request $request ) {
 		$id     = absint( $request->get_param( 'id' ) );
 		$result = $this->module->toggle_visibility( $id );
+		return $result instanceof WP_Error ? $result : $this->ok( $result );
+	}
+
+	/**
+	 * AI-drafted reply suggestion for one review.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function suggest_reply( WP_REST_Request $request ) {
+		$id     = absint( $request->get_param( 'id' ) );
+		$result = $this->module->suggest_reply( $id );
 		return $result instanceof WP_Error ? $result : $this->ok( $result );
 	}
 

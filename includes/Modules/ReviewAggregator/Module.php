@@ -11,6 +11,8 @@ use UxStudio\Core\ActivityLog;
 use UxStudio\Core\Broker;
 use UxStudio\Core\Security;
 use UxStudio\Core\Settings;
+use UxStudio\Modules\AiAssistant\ProviderFactory;
+use UxStudio\Modules\AiAssistant\UsageTracker;
 use UxStudio\Modules\BaseModule;
 use UxStudio\Modules\ContentSync\Module as ContentSyncModule;
 use WP_Error;
@@ -316,6 +318,67 @@ final class Module extends BaseModule {
 		ContentSyncModule::log_sync( 'review-aggregator:fetch', 'success' );
 
 		return array( 'fetched' => $fetched, 'updated' => $updated );
+	}
+
+	/**
+	 * AI-drafted reply suggestion for one review (Rank Math Content AI's
+	 * "Comment Reply"/"Testimonial" tools, applied to an imported review).
+	 * This module has no write-back channel to Google/Facebook/etc., so the
+	 * result is a draft for the admin to copy - never posted automatically.
+	 *
+	 * @return array{suggestion:string}|WP_Error
+	 */
+	public function suggest_reply( int $id ) {
+		if ( ! class_exists( ProviderFactory::class ) ) {
+			return new WP_Error( 'uxstudio_ai_unavailable', __( 'AI Assistant module is required for reply suggestions.', 'ux-studio' ), array( 'status' => 424 ) );
+		}
+
+		$review = $this->get_review( $id );
+		if ( null === $review ) {
+			return new WP_Error( 'uxstudio_not_found', __( 'Review not found.', 'ux-studio' ), array( 'status' => 404 ) );
+		}
+
+		$stars = str_repeat( '★', max( 0, (int) $review['rating'] ) ) . str_repeat( '☆', 5 - max( 0, (int) $review['rating'] ) );
+		$system_prompt = "You write short, genuine-sounding public replies to customer reviews on behalf of \"" . get_bloginfo( 'name' ) . "\".\n"
+			. "Rules: 2-4 sentences, match the review's language, thank the author by name if given, address their specific point, "
+			. "never invent facts not present in the review, stay professional even for negative reviews, no generic filler.\n"
+			. "Reply with the reply text only - no preamble, no quotes around it.";
+		$user_prompt = sprintf(
+			"Source: %s\nRating: %s (%d/5)\nAuthor: %s\nReview text:\n%s",
+			$review['source'],
+			$stars,
+			(int) $review['rating'],
+			'' !== $review['author'] ? $review['author'] : __( 'Anonymous', 'ux-studio' ),
+			'' !== (string) $review['text'] ? (string) $review['text'] : __( '(no text, rating only)', 'ux-studio' )
+		);
+
+		try {
+			$provider    = ProviderFactory::create();
+			$provider_id = $provider->get_id();
+			$settings    = new Settings( 'uxstudio_ai_assistant' );
+			$model       = (string) $settings->get( $provider_id . '_model', '' );
+			if ( '' === $model ) {
+				$model = array_key_first( $provider->get_models() );
+			}
+
+			$result = $provider->generate_content(
+				$system_prompt,
+				$user_prompt,
+				$model,
+				array( 'max_tokens' => 400, 'temperature' => 0.6 )
+			);
+
+			$usage = $result['usage'] ?? array( 'input_tokens' => 0, 'output_tokens' => 0 );
+			if ( class_exists( UsageTracker::class ) ) {
+				UsageTracker::log( $provider_id, $model, 'review_reply', (int) ( $usage['input_tokens'] ?? 0 ), (int) ( $usage['output_tokens'] ?? 0 ) );
+			}
+
+			ActivityLog::log( 'review-aggregator', 'suggest_reply', 'review', $id );
+
+			return array( 'suggestion' => trim( (string) ( $result['content'] ?? '' ) ) );
+		} catch ( \Throwable $e ) {
+			return new WP_Error( 'uxstudio_ai_error', $e->getMessage(), array( 'status' => 502 ) );
+		}
 	}
 
 	/**
