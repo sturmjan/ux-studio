@@ -16,6 +16,7 @@
 namespace UxStudio\Modules\AiAssistant\BlogPilot;
 
 use UxStudio\Modules\AiAssistant\ErrorLogger;
+use UxStudio\Modules\AiAssistant\UsageLimiter;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -106,6 +107,12 @@ final class Scheduler {
 		$posts_per_run = max( 1, (int) $generator->posts_per_run );
 
 		for ( $i = 0; $i < $posts_per_run; $i++ ) {
+			$limit_error = UsageLimiter::check();
+			if ( null !== $limit_error ) {
+				$manager->log_error( $generator_id, $limit_error );
+				break; // Usage limit reached - stop this run, cron will try again next schedule.
+			}
+
 			try {
 				$topic        = $this->select_topic( $generator );
 				$article_type = $this->select_article_type( $generator );
@@ -144,6 +151,14 @@ final class Scheduler {
 			return array(
 				'success' => false,
 				'error'   => __( 'Generator not found.', 'ux-studio' ),
+			);
+		}
+
+		$limit_error = UsageLimiter::check();
+		if ( null !== $limit_error ) {
+			return array(
+				'success' => false,
+				'error'   => $limit_error,
 			);
 		}
 

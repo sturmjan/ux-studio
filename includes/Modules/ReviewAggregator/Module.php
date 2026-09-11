@@ -40,14 +40,20 @@ final class Module extends BaseModule {
 
 		\UxStudio\Core\DB::ensure_module_tables(
 			'review-aggregator',
-			1,
+			2,
 			function ( int $from ): void {
 				global $wpdb;
 				$charset = $wpdb->get_charset_collate();
+				// v2 adds dedup_hash + a unique key on it, so repeated fetch()
+				// calls upsert instead of duplicating every review already
+				// imported (see Module::fetch()). dbDelta() diffs this full
+				// definition against the existing table on upgrade too.
 				dbDelta(
 					"CREATE TABLE {$wpdb->prefix}uxstudio_reviews (
 						id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 						source VARCHAR(32) NOT NULL DEFAULT '',
+						external_id VARCHAR(191) NOT NULL DEFAULT '',
+						dedup_hash VARCHAR(64) NOT NULL DEFAULT '',
 						author VARCHAR(255) NOT NULL DEFAULT '',
 						rating TINYINT UNSIGNED NOT NULL DEFAULT 0,
 						text LONGTEXT NULL,
@@ -55,10 +61,21 @@ final class Module extends BaseModule {
 						imported_at DATETIME NOT NULL,
 						visible TINYINT(1) NOT NULL DEFAULT 1,
 						PRIMARY KEY  (id),
+						UNIQUE KEY dedup_hash (dedup_hash),
 						KEY source (source),
 						KEY visible (visible)
 					) {$charset};"
 				);
+
+				if ( $from < 2 ) {
+					// Backfill dedup_hash for any rows imported before v2 existed,
+					// so the new unique key doesn't collide on empty strings.
+					$wpdb->query(
+						"UPDATE {$wpdb->prefix}uxstudio_reviews
+						 SET dedup_hash = SHA1(CONCAT(source, '|', author, '|', COALESCE(review_date, ''), '|', COALESCE(text, ''), '|', id))
+						 WHERE dedup_hash = ''"
+					);
+				}
 			}
 		);
 	}
@@ -247,29 +264,58 @@ final class Module extends BaseModule {
 
 		global $wpdb;
 		$fetched = 0;
+		$updated = 0;
 		foreach ( $items as $item ) {
 			if ( ! is_array( $item ) || empty( $item['source'] ) ) {
 				continue;
 			}
-			$wpdb->insert(
-				"{$wpdb->prefix}uxstudio_reviews",
-				array(
-					'source'      => sanitize_text_field( (string) $item['source'] ),
-					'author'      => sanitize_text_field( (string) ( $item['author'] ?? '' ) ),
-					'rating'      => max( 0, min( 5, absint( $item['rating'] ?? 0 ) ) ),
-					'text'        => isset( $item['text'] ) ? sanitize_textarea_field( (string) $item['text'] ) : null,
-					'review_date' => ! empty( $item['review_date'] ) ? gmdate( 'Y-m-d H:i:s', strtotime( (string) $item['review_date'] ) ?: time() ) : null,
-					'imported_at' => current_time( 'mysql' ),
-					'visible'     => 1,
-				),
-				array( '%s', '%s', '%d', '%s', '%s', '%s', '%d' )
+
+			$source      = sanitize_text_field( (string) $item['source'] );
+			$external_id = sanitize_text_field( (string) ( $item['external_id'] ?? '' ) );
+			$author      = sanitize_text_field( (string) ( $item['author'] ?? '' ) );
+			$text        = isset( $item['text'] ) ? sanitize_textarea_field( (string) $item['text'] ) : '';
+			$review_date = ! empty( $item['review_date'] ) ? gmdate( 'Y-m-d H:i:s', strtotime( (string) $item['review_date'] ) ?: time() ) : '';
+
+			// Stable dedup key: prefer external_id from the source (same
+			// approach as the central app's own Review model), fall back to
+			// a content hash when the broker doesn't provide one so repeated
+			// fetches of the same review never insert a duplicate row.
+			$dedup_hash = sha1(
+				$source . '|' . ( '' !== $external_id ? 'ext:' . $external_id : 'sig:' . $author . '|' . $review_date . '|' . $text )
 			);
-			++$fetched;
+
+			$existing_id = (int) $wpdb->get_var(
+				$wpdb->prepare( "SELECT id FROM {$wpdb->prefix}uxstudio_reviews WHERE dedup_hash = %s", $dedup_hash )
+			);
+
+			$row = array(
+				'source'      => $source,
+				'external_id' => $external_id,
+				'dedup_hash'  => $dedup_hash,
+				'author'      => $author,
+				'rating'      => max( 0, min( 5, absint( $item['rating'] ?? 0 ) ) ),
+				'text'        => '' !== $text ? $text : null,
+				'review_date' => '' !== $review_date ? $review_date : null,
+				'imported_at' => current_time( 'mysql' ),
+			);
+			$formats = array( '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s' );
+
+			if ( $existing_id > 0 ) {
+				// Update content/rating (owner replies, edits) but never
+				// touch `visible` - that is a local moderation decision.
+				$wpdb->update( "{$wpdb->prefix}uxstudio_reviews", $row, array( 'id' => $existing_id ), $formats, array( '%d' ) );
+				++$updated;
+			} else {
+				$row['visible'] = 1;
+				$formats[]      = '%d';
+				$wpdb->insert( "{$wpdb->prefix}uxstudio_reviews", $row, $formats );
+				++$fetched;
+			}
 		}
 
 		ContentSyncModule::log_sync( 'review-aggregator:fetch', 'success' );
 
-		return array( 'fetched' => $fetched );
+		return array( 'fetched' => $fetched, 'updated' => $updated );
 	}
 
 	/**

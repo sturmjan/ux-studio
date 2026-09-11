@@ -6,9 +6,12 @@
  * option registry so they can be listed/revoked from the admin UI.
  *
  * Token management routes are always registered (even with MCP disabled) so
- * admins can prepare tokens ahead of enabling MCP; validate_token() is meant
- * to be called by REST/MCP authentication middleware, not by ability
- * permission_callbacks (those stay manage_options, same as legacy).
+ * admins can prepare tokens ahead of enabling MCP. validate_token() is called
+ * by McpBootstrap::authenticate_bearer_token() (a `determine_current_user`
+ * filter), not by ability permission_callbacks directly - those stay
+ * manage_options checks, same as legacy; the filter is what lets a bearer
+ * token satisfy that check by authenticating as the WP user it was issued
+ * for.
  *
  * @package UxStudio
  */

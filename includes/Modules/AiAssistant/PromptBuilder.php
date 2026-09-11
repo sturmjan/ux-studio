@@ -9,16 +9,21 @@
 namespace UxStudio\Modules\AiAssistant;
 
 use UxStudio\Core\Settings;
+use UxStudio\Modules\AiAssistant\Rag\VectorSearch;
+use UxStudio\Modules\AiAssistant\Rag\VectorStore;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
  * Search results are sourced from KnowledgeManager/FaqManager/ContentIndexer/
  * ProductIndexer (owned by a different wave of this module, see the class
- * docblocks for their exact contract) and merged into a system prompt via
- * PromptTemplates. RAG (vector) results are intentionally out of scope here -
- * KnowledgeManager::search()/etc. are expected to already blend keyword and
- * vector search internally.
+ * docblocks for their exact contract) - all plain keyword/FULLTEXT search -
+ * plus a genuine vector RAG pass over the same chat_target via VectorSearch
+ * (embeddings built by RAG Training / "Vectorize existing data", see
+ * Rag/TrainingSourceManager). Both are merged into the system prompt via
+ * PromptTemplates. VectorSearch gracefully falls back to FULLTEXT internally
+ * if embeddings are unavailable, so this never regresses below the previous
+ * keyword-only behaviour.
  */
 final class PromptBuilder {
 
@@ -83,6 +88,16 @@ final class PromptBuilder {
 			$context['products'] = $search_results;
 		}
 
+		$context['rag_results'] = array();
+		if ( VectorSearch::is_available( $chat_target ) ) {
+			try {
+				$rag             = new VectorSearch( $chat_target );
+				$context['rag_results'] = $rag->hybrid_search( $message, 5 );
+			} catch ( \Throwable $e ) {
+				error_log( 'UX Studio AI Assistant RAG (public chat): ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			}
+		}
+
 		return $context;
 	}
 
@@ -97,6 +112,11 @@ final class PromptBuilder {
 			$prompt .= 'cs' === $language
 				? "\nNávštěvník se aktuálně nachází na stránce: {$context['page_url']}\n\n"
 				: "\nThe visitor is currently on this page: {$context['page_url']}\n\n";
+		}
+
+		if ( ! empty( $context['rag_results'] ) ) {
+			$prompt .= PromptTemplates::rag_heading( $language );
+			$prompt .= VectorSearch::format_for_context( $context['rag_results'] ) . "\n\n";
 		}
 
 		if ( ! empty( $context['knowledge_chunks'] ) ) {

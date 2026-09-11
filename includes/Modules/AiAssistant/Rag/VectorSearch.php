@@ -143,7 +143,7 @@ final class VectorSearch {
 	 *
 	 * @param array<int, array<string, mixed>> $results Results from search()/hybrid_search().
 	 */
-	public function format_for_context( array $results ): string {
+	public static function format_for_context( array $results ): string {
 		if ( empty( $results ) ) {
 			return '';
 		}

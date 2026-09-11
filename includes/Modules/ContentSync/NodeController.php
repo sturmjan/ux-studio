@@ -9,6 +9,8 @@ namespace UxStudio\Modules\ContentSync;
 
 use UxStudio\Core\ActivityLog;
 use UxStudio\Core\Security;
+use UxStudio\Modules\EmailLog\Module as EmailLogModule;
+use UxStudio\Plugin;
 use WP_Error;
 use WP_Post;
 use WP_Query;
@@ -120,6 +122,41 @@ final class NodeController {
 			'callback'            => array( $this, 'get_acf_field_groups' ),
 			'permission_callback' => $verify,
 		) );
+
+		register_rest_route( self::NS, self::BASE . '/email-log', array(
+			'methods'             => 'GET',
+			'callback'            => array( $this, 'get_email_log' ),
+			'permission_callback' => $verify,
+		) );
+	}
+
+	/**
+	 * Filtered/paginated email-log entries for the hub's aggregated "Log
+	 * emailů" view. Returns an empty list (not an error) when the email-log
+	 * module isn't enabled here - same as a site simply having sent nothing.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function get_email_log( WP_REST_Request $request ): WP_REST_Response {
+		$modules = Plugin::instance()->modules;
+		$module  = in_array( 'email-log', $modules->enabled_ids(), true ) ? $modules->instance( 'email-log' ) : null;
+
+		if ( ! $module instanceof EmailLogModule ) {
+			return new WP_REST_Response( array( 'items' => array(), 'total' => 0 ), 200 );
+		}
+
+		return new WP_REST_Response(
+			$module->get_entries_for_hub(
+				array(
+					'limit'     => $request->get_param( 'limit' ),
+					'status'    => $request->get_param( 'status' ),
+					'search'    => $request->get_param( 'search' ),
+					'date_from' => $request->get_param( 'date_from' ),
+					'date_to'   => $request->get_param( 'date_to' ),
+				)
+			),
+			200
+		);
 	}
 
 	/**
@@ -285,6 +322,9 @@ final class NodeController {
 		if ( isset( $data['post_parent'] ) ) {
 			$post_data['post_parent'] = (int) $data['post_parent'];
 		}
+		if ( ! empty( $data['slug'] ) ) {
+			$post_data['post_name'] = sanitize_title( (string) $data['slug'] );
+		}
 
 		$post_id = wp_insert_post( $post_data, true );
 		if ( is_wp_error( $post_id ) ) {
@@ -330,6 +370,9 @@ final class NodeController {
 		}
 		if ( isset( $data['post_parent'] ) ) {
 			$post_data['post_parent'] = (int) $data['post_parent'];
+		}
+		if ( ! empty( $data['slug'] ) ) {
+			$post_data['post_name'] = sanitize_title( (string) $data['slug'] );
 		}
 
 		$result = wp_update_post( $post_data, true );
@@ -595,6 +638,23 @@ final class NodeController {
 		}
 		if ( ! empty( $data['acf'] ) && is_array( $data['acf'] ) ) {
 			AcfBridge::apply( $post_id, $data['acf'] );
+		}
+
+		// SEO fields, when the hub sends them (e.g. the central app's AI
+		// Agent / AI Rewriter drafts) - reuses the same storage +
+		// SEO-plugin-detection as the local AI Assistant Content Creator,
+		// so an AI-drafted meta title/description isn't silently dropped
+		// on sites that already run Yoast/Rank Math/SEOPress.
+		if ( ( isset( $data['meta_title'] ) || isset( $data['meta_desc'] ) || isset( $data['focus_keyword'] ) )
+			&& class_exists( \UxStudio\Modules\AiAssistant\SeoManager::class ) ) {
+			\UxStudio\Modules\AiAssistant\SeoManager::save_meta(
+				$post_id,
+				array(
+					'seo_title'       => (string) ( $data['meta_title'] ?? '' ),
+					'seo_description' => (string) ( $data['meta_desc'] ?? '' ),
+					'seo_keywords'    => (string) ( $data['focus_keyword'] ?? '' ),
+				)
+			);
 		}
 	}
 

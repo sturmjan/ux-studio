@@ -23,7 +23,47 @@ final class SeoManager {
 	public const META_KEYWORDS    = '_uxstudio_ai_seo_keywords';
 
 	/**
+	 * Postmeta keys used by each detected SEO plugin to render its own
+	 * title/description/focus-keyword - keyed by detect_seo_plugin()'s
+	 * return value. Only plugins that store meta as plain postmeta are
+	 * listed here; All in One SEO (v4+) keeps its data in a dedicated
+	 * `wp_aioseo_posts` table instead and is intentionally not covered.
+	 *
+	 * @return array{title?:string,description?:string,keywords?:string}
+	 */
+	private static function plugin_meta_keys( string $plugin ): array {
+		switch ( $plugin ) {
+			case 'Yoast SEO':
+				return array(
+					'title'       => '_yoast_wpseo_title',
+					'description' => '_yoast_wpseo_metadesc',
+					'keywords'    => '_yoast_wpseo_focuskw',
+				);
+			case 'Rank Math':
+				return array(
+					'title'       => 'rank_math_title',
+					'description' => 'rank_math_description',
+					'keywords'    => 'rank_math_focus_keyword',
+				);
+			case 'SEOPress':
+				return array(
+					'title'       => '_seopress_titles_title',
+					'description' => '_seopress_titles_desc',
+				);
+			default:
+				return array();
+		}
+	}
+
+	/**
 	 * Saves AI-generated SEO meta onto a post.
+	 *
+	 * Writes into UX Studio's own `_uxstudio_ai_seo_*` keys (always, as an
+	 * audit trail / fallback when no SEO plugin is active) AND, when a
+	 * supported SEO plugin is detected, into that plugin's own meta keys -
+	 * otherwise the AI-generated title/description silently never affects
+	 * the rendered `<title>`/meta description on sites that already run
+	 * Yoast/Rank Math/SEOPress.
 	 *
 	 * @param array{seo_title?:string,seo_description?:string,seo_keywords?:string} $seo
 	 */
@@ -32,14 +72,29 @@ final class SeoManager {
 			return false;
 		}
 
-		if ( isset( $seo['seo_title'] ) ) {
-			update_post_meta( $post_id, self::META_TITLE, sanitize_text_field( (string) $seo['seo_title'] ) );
+		$title       = isset( $seo['seo_title'] ) ? sanitize_text_field( (string) $seo['seo_title'] ) : null;
+		$description = isset( $seo['seo_description'] ) ? sanitize_text_field( (string) $seo['seo_description'] ) : null;
+		$keywords    = isset( $seo['seo_keywords'] ) ? sanitize_text_field( (string) $seo['seo_keywords'] ) : null;
+
+		if ( null !== $title ) {
+			update_post_meta( $post_id, self::META_TITLE, $title );
 		}
-		if ( isset( $seo['seo_description'] ) ) {
-			update_post_meta( $post_id, self::META_DESCRIPTION, sanitize_text_field( (string) $seo['seo_description'] ) );
+		if ( null !== $description ) {
+			update_post_meta( $post_id, self::META_DESCRIPTION, $description );
 		}
-		if ( isset( $seo['seo_keywords'] ) ) {
-			update_post_meta( $post_id, self::META_KEYWORDS, sanitize_text_field( (string) $seo['seo_keywords'] ) );
+		if ( null !== $keywords ) {
+			update_post_meta( $post_id, self::META_KEYWORDS, $keywords );
+		}
+
+		$plugin_keys = self::plugin_meta_keys( self::detect_seo_plugin() );
+		if ( null !== $title && isset( $plugin_keys['title'] ) ) {
+			update_post_meta( $post_id, $plugin_keys['title'], $title );
+		}
+		if ( null !== $description && isset( $plugin_keys['description'] ) ) {
+			update_post_meta( $post_id, $plugin_keys['description'], $description );
+		}
+		if ( null !== $keywords && isset( $plugin_keys['keywords'] ) ) {
+			update_post_meta( $post_id, $plugin_keys['keywords'], $keywords );
 		}
 
 		return true;
