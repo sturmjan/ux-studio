@@ -146,6 +146,67 @@ final class ContentGenerator {
 	}
 
 	/**
+	 * Generates platform-specific social captions (Facebook/Instagram/X)
+	 * from existing content - one AI call, one JSON response for whichever
+	 * platforms were requested (Rank Math's "Facebook Post"/"Instagram
+	 * Caption"/"Tweet" tools, applied to a post the site already has).
+	 *
+	 * @param string   $content   Source content (HTML or plain text) to base captions on.
+	 * @param string[] $platforms Subset of 'facebook', 'instagram', 'x'.
+	 * @return array<string, mixed> Decoded AI JSON (one key per requested platform) plus _usage.
+	 */
+	public function generate_social_captions( string $content, array $platforms ): array {
+		$platforms = array_values( array_intersect( $platforms, array( 'facebook', 'instagram', 'x' ) ) );
+		if ( empty( $platforms ) ) {
+			throw new \RuntimeException( __( 'Select at least one platform.', 'ux-studio' ) );
+		}
+
+		$system_prompt = self::social_system_prompt( $platforms );
+		$user_prompt   = __( 'Source content:', 'ux-studio' ) . "\n\n" . wp_strip_all_tags( $content );
+
+		$model  = $this->get_model();
+		$result = $this->provider->generate_content(
+			$system_prompt,
+			$user_prompt,
+			$model,
+			array( 'max_tokens' => 600 )
+		);
+
+		UsageTracker::log(
+			$this->provider->get_id(),
+			$model,
+			'social_caption',
+			$result['usage']['input_tokens'],
+			$result['usage']['output_tokens']
+		);
+
+		$parsed           = $this->parse_json_response( $result['content'] );
+		$parsed['_usage'] = $result['usage'];
+
+		return $parsed;
+	}
+
+	private static function social_system_prompt( array $platforms ): string {
+		$language_line = 'cs' === self::language() ? 'Piš v jazyce: čeština.' : 'Write in: English.';
+		$limits        = array(
+			'facebook'  => 'Facebook: 1-3 short paragraphs, at most 1-2 emoji, no hashtags.',
+			'instagram' => 'Instagram: short, engaging caption, up to 5 relevant hashtags at the end.',
+			'x'         => 'X (Twitter): max 260 characters total including hashtags, at most 2 hashtags.',
+		);
+		$lines = array();
+		foreach ( $platforms as $p ) {
+			$lines[] = '- ' . $limits[ $p ];
+		}
+
+		return 'You are a social media manager. Write short promotional captions for the source content below, '
+			. 'one per requested platform. ' . $language_line . "\n"
+			. "Never invent facts not present in the source content. Never include raw URLs (a link is added separately).\n"
+			. implode( "\n", $lines )
+			. "\n" . 'Return the answer strictly as JSON (no markdown code block wrapper), with exactly these keys: '
+			. implode( ', ', $platforms ) . ' (each a string).';
+	}
+
+	/**
 	 * Parses an AI JSON response, stripping a ```json ... ``` markdown wrapper if present.
 	 *
 	 * @return array<string, mixed>

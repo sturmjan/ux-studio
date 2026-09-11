@@ -29,6 +29,7 @@ defined( 'ABSPATH' ) || exit;
  *   POST uxstudio/v1/ai-assistant/content/publish/{id}
  *   POST uxstudio/v1/ai-assistant/content/generate-woo
  *   POST uxstudio/v1/ai-assistant/content/generate-seo
+ *   POST uxstudio/v1/ai-assistant/content/generate-social
  *   POST uxstudio/v1/ai-assistant/content/elementor-import-html
  *   POST uxstudio/v1/ai-assistant/content/elementor-import-url
  */
@@ -81,6 +82,17 @@ final class ContentRestController extends Controller {
 			array(
 				'content' => array( 'required' => true, 'type' => 'string' ),
 				'post_id' => array( 'required' => false, 'type' => 'integer' ),
+			)
+		);
+
+		$this->route(
+			'/ai-assistant/content/generate-social',
+			'POST',
+			array( $this, 'generate_social' ),
+			array(
+				'content'   => array( 'required' => true, 'type' => 'string' ),
+				'platforms' => array( 'required' => true, 'type' => 'array', 'items' => array( 'type' => 'string' ) ),
+				'post_id'   => array( 'required' => false, 'type' => 'integer' ),
 			)
 		);
 
@@ -218,6 +230,28 @@ final class ContentRestController extends Controller {
 			return $this->ok( $result );
 		} catch ( \Throwable $e ) {
 			return new WP_Error( 'uxstudio_generate_seo_failed', $e->getMessage(), array( 'status' => 400 ) );
+		}
+	}
+
+	public function generate_social( WP_REST_Request $request ) {
+		$limit_error = UsageLimiter::check();
+		if ( null !== $limit_error ) {
+			return new WP_Error( 'uxstudio_usage_limited', $limit_error, array( 'status' => 429 ) );
+		}
+
+		$content = (string) $request->get_param( 'content' );
+		if ( '' === trim( $content ) ) {
+			return new WP_Error( 'uxstudio_empty_content', __( 'The content to base captions on is empty.', 'ux-studio' ), array( 'status' => 400 ) );
+		}
+
+		try {
+			$generator  = new ContentGenerator();
+			$platforms  = array_map( 'sanitize_key', (array) $request->get_param( 'platforms' ) );
+			$result     = $generator->generate_social_captions( $content, $platforms );
+
+			return $this->ok( $result );
+		} catch ( \Throwable $e ) {
+			return new WP_Error( 'uxstudio_generate_social_failed', $e->getMessage(), array( 'status' => 400 ) );
 		}
 	}
 

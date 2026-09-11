@@ -35,6 +35,13 @@ interface GeneratedSeo {
 	_usage?: UsageInfo;
 }
 
+interface GeneratedSocial {
+	facebook?: string;
+	instagram?: string;
+	x?: string;
+	_usage?: UsageInfo;
+}
+
 interface DraftResponse {
 	post_id: number;
 	edit_url: string;
@@ -355,6 +362,83 @@ function SeoGeneratorSection(): JSX.Element {
 	);
 }
 
+const SOCIAL_PLATFORMS: Array< { id: 'facebook' | 'instagram' | 'x'; label: string } > = [
+	{ id: 'facebook', label: 'Facebook' },
+	{ id: 'instagram', label: 'Instagram' },
+	{ id: 'x', label: 'X (Twitter)' },
+];
+
+/**
+ * Social caption generator: paste any content, get back a caption per
+ * selected platform (Rank Math's "Facebook Post"/"Instagram Caption"/
+ * "Tweet" tools, applied to content this site already has).
+ */
+function SocialCaptionSection(): JSX.Element {
+	const [ content, setContent ] = useState( '' );
+	const [ platforms, setPlatforms ] = useState< string[] >( [ 'facebook', 'instagram', 'x' ] );
+	const [ result, setResult ] = useState< GeneratedSocial | null >( null );
+
+	const generate = useMutation( {
+		mutationFn: () =>
+			api< GeneratedSocial >( 'ai-assistant/content/generate-social', {
+				method: 'POST',
+				body: JSON.stringify( { content, platforms } ),
+			} ),
+		onSuccess: ( data ) => setResult( data ),
+	} );
+
+	const togglePlatform = ( id: string ) =>
+		setPlatforms( ( prev ) => ( prev.includes( id ) ? prev.filter( ( p ) => p !== id ) : [ ...prev, id ] ) );
+
+	return (
+		<div className="uxs-form" style={ { marginBottom: 'var(--uxs-sp-5)' } }>
+			<h2>{ __( 'Generate social captions', 'ux-studio' ) }</h2>
+			<div className="uxs-form__row">
+				<label htmlFor="uxs-cc-social-content">{ __( 'Content', 'ux-studio' ) }</label>
+				<textarea id="uxs-cc-social-content" rows={ 5 } value={ content } onChange={ ( e ) => setContent( e.target.value ) } />
+			</div>
+			<div className="uxs-form__row">
+				<label>{ __( 'Platforms', 'ux-studio' ) }</label>
+				<div style={ { display: 'flex', gap: 'var(--uxs-sp-3)' } }>
+					{ SOCIAL_PLATFORMS.map( ( p ) => (
+						<label key={ p.id } style={ { display: 'flex', alignItems: 'center', gap: 'var(--uxs-sp-1)' } }>
+							<input type="checkbox" checked={ platforms.includes( p.id ) } onChange={ () => togglePlatform( p.id ) } />
+							{ p.label }
+						</label>
+					) ) }
+				</div>
+			</div>
+			<button
+				type="button"
+				className="button button-primary"
+				disabled={ content.trim() === '' || platforms.length === 0 || generate.isPending }
+				onClick={ () => generate.mutate() }
+			>
+				{ generate.isPending ? <LoaderCircle size={ 14 } /> : <Sparkles size={ 14 } /> } { __( 'Generate captions', 'ux-studio' ) }
+			</button>
+			{ generate.isError ? <p className="uxs-form__help">{ ( generate.error as Error ).message }</p> : null }
+
+			{ result ? (
+				<div style={ { marginTop: 'var(--uxs-sp-4)' } }>
+					{ SOCIAL_PLATFORMS.map( ( p ) =>
+						result[ p.id ] ? (
+							<div key={ p.id } style={ { marginBottom: 'var(--uxs-sp-3)' } }>
+								<p style={ { marginBottom: 'var(--uxs-sp-1)' } }>
+									<strong>{ p.label }</strong>{ ' ' }
+									<button type="button" className="button" onClick={ () => void navigator.clipboard.writeText( result[ p.id ] as string ) }>
+										{ __( 'Copy', 'ux-studio' ) }
+									</button>
+								</p>
+								<p style={ { whiteSpace: 'pre-wrap' } }>{ result[ p.id ] }</p>
+							</div>
+						) : null
+					) }
+				</div>
+			) : null }
+		</div>
+	);
+}
+
 function sprintf_( template: string, value: string ): string {
 	return template.replace( '%s', value );
 }
@@ -483,6 +567,7 @@ export function ContentCreatorTab(): JSX.Element {
 			<PostGeneratorSection />
 			<WooGeneratorSection />
 			<SeoGeneratorSection />
+			<SocialCaptionSection />
 			<ElementorImportSection />
 		</>
 	);
