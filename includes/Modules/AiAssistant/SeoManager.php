@@ -112,6 +112,77 @@ final class SeoManager {
 	}
 
 	/**
+	 * Whether a post already has an SEO title - either from the detected
+	 * plugin's own meta key, or (no plugin active) our own convenience key.
+	 * Used to find posts that still need one (bulk SEO fix).
+	 */
+	public static function has_seo_title( int $post_id ): bool {
+		$plugin_keys = self::plugin_meta_keys( self::detect_seo_plugin() );
+		$key         = $plugin_keys['title'] ?? self::META_TITLE;
+		return '' !== (string) get_post_meta( $post_id, $key, true );
+	}
+
+	/**
+	 * Post IDs of a given type that have no SEO title yet (see
+	 * has_seo_title()), oldest-published-first so a bulk run makes steady
+	 * progress across repeated batches instead of re-scanning the same posts.
+	 *
+	 * @return int[]
+	 */
+	public static function find_missing_seo_post_ids( string $post_type, int $limit ): array {
+		$plugin_keys = self::plugin_meta_keys( self::detect_seo_plugin() );
+		$key         = $plugin_keys['title'] ?? self::META_TITLE;
+
+		$query = new \WP_Query(
+			array(
+				'post_type'      => $post_type,
+				'post_status'    => 'publish',
+				'posts_per_page' => max( 1, $limit ),
+				'orderby'        => 'date',
+				'order'          => 'ASC',
+				'fields'         => 'ids',
+				'no_found_rows'  => true,
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				'meta_query'     => array(
+					array(
+						'key'     => $key,
+						'compare' => 'NOT EXISTS',
+					),
+				),
+			)
+		);
+
+		return array_map( 'intval', $query->posts );
+	}
+
+	/**
+	 * Total count of posts of a given type still missing an SEO title -
+	 * for the "X posts left" progress the bulk-run UI shows.
+	 */
+	public static function count_missing_seo( string $post_type ): int {
+		$plugin_keys = self::plugin_meta_keys( self::detect_seo_plugin() );
+		$key         = $plugin_keys['title'] ?? self::META_TITLE;
+
+		$query = new \WP_Query(
+			array(
+				'post_type'      => $post_type,
+				'post_status'    => 'publish',
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				'meta_query'     => array(
+					array(
+						'key'     => $key,
+						'compare' => 'NOT EXISTS',
+					),
+				),
+			)
+		);
+
+		return (int) $query->found_posts;
+	}
+
+	/**
 	 * Detects a known SEO plugin, so the UI can hint that these AI-generated
 	 * fields are a convenience copy rather than the plugin's own meta.
 	 */

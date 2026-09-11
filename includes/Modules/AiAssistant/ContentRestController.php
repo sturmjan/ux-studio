@@ -86,6 +86,25 @@ final class ContentRestController extends Controller {
 		);
 
 		$this->route(
+			'/ai-assistant/content/bulk-seo/status',
+			'GET',
+			array( $this, 'bulk_seo_status' ),
+			array(
+				'post_type' => array( 'required' => false, 'type' => 'string', 'default' => 'post' ),
+			)
+		);
+
+		$this->route(
+			'/ai-assistant/content/bulk-seo/run',
+			'POST',
+			array( $this, 'bulk_seo_run' ),
+			array(
+				'post_type' => array( 'required' => false, 'type' => 'string', 'default' => 'post' ),
+				'limit'     => array( 'required' => false, 'type' => 'integer', 'default' => 5 ),
+			)
+		);
+
+		$this->route(
 			'/ai-assistant/content/generate-social',
 			'POST',
 			array( $this, 'generate_social' ),
@@ -231,6 +250,83 @@ final class ContentRestController extends Controller {
 		} catch ( \Throwable $e ) {
 			return new WP_Error( 'uxstudio_generate_seo_failed', $e->getMessage(), array( 'status' => 400 ) );
 		}
+	}
+
+	/**
+	 * How many published posts of the given type still have no SEO title -
+	 * "Rank Math bulk SEO generation", applied across everything already on
+	 * this site instead of one post at a time.
+	 */
+	public function bulk_seo_status( WP_REST_Request $request ) {
+		$post_type = sanitize_key( (string) $request->get_param( 'post_type' ) );
+		if ( ! post_type_exists( $post_type ) ) {
+			$post_type = 'post';
+		}
+
+		return $this->ok(
+			array(
+				'post_type'      => $post_type,
+				'missing_count'  => SeoManager::count_missing_seo( $post_type ),
+				'seo_plugin'     => SeoManager::detect_seo_plugin(),
+			)
+		);
+	}
+
+	/**
+	 * Generates + saves SEO meta for up to `limit` posts still missing one.
+	 * Bounded per request (default 5, max 20) so a large backlog is worked
+	 * through in repeated clicks rather than one long-running request that
+	 * risks a PHP timeout (the mistake AiMarkdown::regenerate_all() made).
+	 */
+	public function bulk_seo_run( WP_REST_Request $request ) {
+		$post_type = sanitize_key( (string) $request->get_param( 'post_type' ) );
+		if ( ! post_type_exists( $post_type ) ) {
+			$post_type = 'post';
+		}
+		$limit = max( 1, min( 20, (int) $request->get_param( 'limit' ) ) );
+
+		$post_ids  = SeoManager::find_missing_seo_post_ids( $post_type, $limit );
+		$generator = new ContentGenerator();
+		$processed = array();
+
+		foreach ( $post_ids as $post_id ) {
+			$limit_error = UsageLimiter::check();
+			if ( null !== $limit_error ) {
+				break;
+			}
+
+			$post = get_post( $post_id );
+			if ( ! $post ) {
+				continue;
+			}
+
+			try {
+				$source = wp_strip_all_tags( $post->post_title . "\n\n" . $post->post_content );
+				$result = $generator->generate_seo_meta( '' !== trim( $source ) ? $source : $post->post_title );
+				SeoManager::save_meta( $post_id, $result );
+
+				$processed[] = array(
+					'post_id'         => $post_id,
+					'title'           => $post->post_title,
+					'seo_title'       => $result['seo_title'] ?? '',
+					'seo_description' => $result['seo_description'] ?? '',
+				);
+			} catch ( \Throwable $e ) {
+				$processed[] = array(
+					'post_id' => $post_id,
+					'title'   => $post->post_title,
+					'error'   => $e->getMessage(),
+				);
+			}
+		}
+
+		return $this->ok(
+			array(
+				'processed'     => $processed,
+				'remaining'     => SeoManager::count_missing_seo( $post_type ),
+				'seo_plugin'    => SeoManager::detect_seo_plugin(),
+			)
+		);
 	}
 
 	public function generate_social( WP_REST_Request $request ) {

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { FileText, LoaderCircle, Sparkles, Upload } from 'lucide-react';
 import { api } from '../../app/api';
 
@@ -33,6 +33,18 @@ interface GeneratedSeo {
 	seo_keywords?: string;
 	seo_plugin_detected?: string;
 	_usage?: UsageInfo;
+}
+
+interface BulkSeoStatus {
+	post_type: string;
+	missing_count: number;
+	seo_plugin: string;
+}
+
+interface BulkSeoRunResult {
+	processed: Array< { post_id: number; title: string; seo_title?: string; seo_description?: string; error?: string } >;
+	remaining: number;
+	seo_plugin: string;
 }
 
 interface GeneratedSocial {
@@ -307,6 +319,94 @@ function WooGeneratorSection(): JSX.Element {
 }
 
 /**
+ * Bulk SEO fix: generates + saves SEO meta for every published post/page
+ * that doesn't have one yet, a bounded batch at a time (Rank Math's bulk
+ * SEO title/description generation, applied to everything already on this
+ * site instead of one post at a time).
+ */
+function BulkSeoSection(): JSX.Element {
+	const queryClient = useQueryClient();
+	const [ postType, setPostType ] = useState( 'post' );
+	const [ log, setLog ] = useState< BulkSeoRunResult[ 'processed' ] >( [] );
+
+	const status = useQuery( {
+		queryKey: [ 'ai-assistant', 'bulk-seo-status', postType ],
+		queryFn: () => api< BulkSeoStatus >( `ai-assistant/content/bulk-seo/status?post_type=${ postType }` ),
+	} );
+
+	const run = useMutation( {
+		mutationFn: () =>
+			api< BulkSeoRunResult >( 'ai-assistant/content/bulk-seo/run', {
+				method: 'POST',
+				body: JSON.stringify( { post_type: postType, limit: 5 } ),
+			} ),
+		onSuccess: ( data ) => {
+			setLog( ( prev ) => [ ...data.processed, ...prev ] );
+			void queryClient.invalidateQueries( { queryKey: [ 'ai-assistant', 'bulk-seo-status', postType ] } );
+		},
+	} );
+
+	return (
+		<div className="uxs-form" style={ { marginBottom: 'var(--uxs-sp-5)' } }>
+			<h2>{ __( 'Bulk SEO fix', 'ux-studio' ) }</h2>
+			<div className="uxs-form__row">
+				<label htmlFor="uxs-cc-bulk-post-type">{ __( 'Post type', 'ux-studio' ) }</label>
+				<select id="uxs-cc-bulk-post-type" value={ postType } onChange={ ( e ) => setPostType( e.target.value ) }>
+					<option value="post">{ __( 'Posts', 'ux-studio' ) }</option>
+					<option value="page">{ __( 'Pages', 'ux-studio' ) }</option>
+				</select>
+			</div>
+			{ status.data ? (
+				<p className="uxs-form__help">
+					{ status.data.seo_plugin
+						? sprintf_( __( 'Detected SEO plugin: %s - the generated title/description is written directly into its fields.', 'ux-studio' ), status.data.seo_plugin )
+						: __( 'No SEO plugin detected - saved into UX Studio\'s own fields.', 'ux-studio' ) }
+				</p>
+			) : null }
+			<p>
+				{ status.isLoading
+					? __( 'Checking…', 'ux-studio' )
+					: sprintf_number( __( '%d posts still missing SEO title/description.', 'ux-studio' ), status.data?.missing_count ?? 0 ) }
+			</p>
+			<button
+				type="button"
+				className="button button-primary"
+				disabled={ run.isPending || ! status.data || status.data.missing_count === 0 }
+				onClick={ () => run.mutate() }
+			>
+				{ run.isPending ? <LoaderCircle size={ 14 } /> : <Sparkles size={ 14 } /> } { __( 'Fix next 5', 'ux-studio' ) }
+			</button>
+			{ run.isError ? <p className="uxs-form__help">{ ( run.error as Error ).message }</p> : null }
+
+			{ log.length > 0 ? (
+				<table className="uxs-table" style={ { marginTop: 'var(--uxs-sp-4)' } }>
+					<thead>
+						<tr>
+							<th>{ __( 'Post', 'ux-studio' ) }</th>
+							<th>{ __( 'SEO title', 'ux-studio' ) }</th>
+							<th>{ __( 'SEO description', 'ux-studio' ) }</th>
+						</tr>
+					</thead>
+					<tbody>
+						{ log.map( ( row ) => (
+							<tr key={ row.post_id }>
+								<td>{ row.title }</td>
+								<td>{ row.error ? <span style={ { color: '#dc2626' } }>{ row.error }</span> : row.seo_title }</td>
+								<td>{ row.seo_description }</td>
+							</tr>
+						) ) }
+					</tbody>
+				</table>
+			) : null }
+		</div>
+	);
+}
+
+function sprintf_number( template: string, value: number ): string {
+	return template.replace( '%d', String( value ) );
+}
+
+/**
  * SEO meta generator: paste any content, get back a title/description/
  * keywords set. Optionally saved onto an existing post id.
  */
@@ -567,6 +667,7 @@ export function ContentCreatorTab(): JSX.Element {
 			<PostGeneratorSection />
 			<WooGeneratorSection />
 			<SeoGeneratorSection />
+			<BulkSeoSection />
 			<SocialCaptionSection />
 			<ElementorImportSection />
 		</>
