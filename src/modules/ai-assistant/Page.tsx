@@ -3,7 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, LoaderCircle } from 'lucide-react';
 import { api } from '../../app/api';
-import { navigate } from '../../app/route';
+import { hashParam, navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
 import { ChatTab } from './ChatTab';
 import { KnowledgeHubTab } from './KnowledgeHubTab';
@@ -219,8 +219,16 @@ function UsageTab(): JSX.Element {
 	);
 }
 
+const TAB_IDS = TABS.map( ( t ) => t.id );
+
+/** Allows a deep link like `#/module?id=ai-assistant&tab=content` (e.g. from the central app's site view) to open directly on a specific tab instead of always defaulting to Settings. */
+function initialTab(): TabId {
+	const requested = hashParam( 'tab' );
+	return requested && ( TAB_IDS as string[] ).includes( requested ) ? ( requested as TabId ) : 'settings';
+}
+
 export default function Page(): JSX.Element {
-	const [ tab, setTab ] = useState< TabId >( 'settings' );
+	const [ tab, setTab ] = useState< TabId >( initialTab );
 
 	return (
 		<>
