@@ -111,9 +111,21 @@ final class NodeController {
 			'permission_callback' => $verify,
 		) );
 
+		register_rest_route( self::NS, self::BASE . '/media', array(
+			'methods'             => 'GET',
+			'callback'            => array( $this, 'list_media' ),
+			'permission_callback' => $verify,
+		) );
+
 		register_rest_route( self::NS, self::BASE . '/media/(?P<id>\d+)', array(
 			'methods'             => 'DELETE',
 			'callback'            => array( $this, 'delete_media' ),
+			'permission_callback' => $verify,
+		) );
+
+		register_rest_route( self::NS, self::BASE . '/media/(?P<id>\d+)', array(
+			'methods'             => 'PUT',
+			'callback'            => array( $this, 'update_media' ),
 			'permission_callback' => $verify,
 		) );
 
@@ -564,6 +576,89 @@ final class NodeController {
 				'filename'      => basename( (string) get_attached_file( (int) $attachment_id ) ),
 			),
 			201
+		);
+	}
+
+	/**
+	 * List image attachments, optionally only those with an empty ALT text
+	 * (bulk ALT text generation from the hub) - paginated, oldest first so
+	 * repeated batches make steady progress.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function list_media( WP_REST_Request $request ): WP_REST_Response {
+		$per_page     = max( 1, min( 50, (int) ( $request->get_param( 'per_page' ) ?: 20 ) ) );
+		$page         = max( 1, (int) ( $request->get_param( 'page' ) ?: 1 ) );
+		$missing_alt  = ! empty( $request->get_param( 'missing_alt' ) );
+
+		$args = array(
+			'post_type'      => 'attachment',
+			'post_mime_type' => 'image',
+			'post_status'    => 'inherit',
+			'posts_per_page' => $per_page,
+			'paged'          => $page,
+			'orderby'        => 'date',
+			'order'          => 'ASC',
+			'fields'         => 'ids',
+			'no_found_rows'  => $missing_alt, // "total" (found_posts) is only reported when not filtering below.
+		);
+		if ( $missing_alt ) {
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+			$args['meta_query'] = array(
+				'relation' => 'OR',
+				array( 'key' => '_wp_attachment_image_alt', 'compare' => 'NOT EXISTS' ),
+				array( 'key' => '_wp_attachment_image_alt', 'value' => '', 'compare' => '=' ),
+			);
+		}
+
+		$query = new WP_Query( $args );
+		$items = array();
+		foreach ( $query->posts as $attachment_id ) {
+			$items[] = array(
+				'id'         => (int) $attachment_id,
+				'url'        => wp_get_attachment_url( (int) $attachment_id ),
+				'title'      => get_the_title( $attachment_id ),
+				'alt_text'   => get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ),
+			);
+		}
+
+		return new WP_REST_Response(
+			array(
+				'items' => $items,
+				'total' => $missing_alt ? null : (int) $query->found_posts,
+			),
+			200
+		);
+	}
+
+	/**
+	 * Update an attachment's ALT text (and/or title).
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function update_media( WP_REST_Request $request ): WP_REST_Response {
+		$attachment_id = (int) $request['id'];
+		$attachment    = get_post( $attachment_id );
+		if ( ! $attachment || 'attachment' !== $attachment->post_type ) {
+			return $this->not_found( __( 'Media not found.', 'ux-studio' ) );
+		}
+
+		$data = (array) $request->get_json_params();
+		if ( isset( $data['alt_text'] ) ) {
+			update_post_meta( $attachment_id, '_wp_attachment_image_alt', sanitize_text_field( (string) $data['alt_text'] ) );
+		}
+		if ( isset( $data['title'] ) ) {
+			wp_update_post( array( 'ID' => $attachment_id, 'post_title' => sanitize_text_field( (string) $data['title'] ) ) );
+		}
+
+		ActivityLog::log( 'content-sync', 'node_update_media', 'attachment', $attachment_id );
+
+		return new WP_REST_Response(
+			array(
+				'id'       => $attachment_id,
+				'alt_text' => get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ),
+			),
+			200
 		);
 	}
 
