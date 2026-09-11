@@ -38,6 +38,7 @@ msgstr "Synchronizace obsahu není nakonfigurována."
 
 #. translators: %d: HTTP status code
 #: includes/Core/Broker.php:80
+#: includes/Modules/ServiceRequests/CentralClient.php:119
 #, php-format
 msgid "Central app returned HTTP %d."
 msgstr "Centrální aplikace vrátila HTTP %d."
@@ -156,7 +157,7 @@ msgstr "Nástěnka"
 #: includes/Core/Megamenu.php:166
 #: includes/Modules/AdminCustomiser/MenuOrganizer.php:74
 #: includes/Modules/ExportPosts/Module.php:356
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 msgid "Content"
 msgstr "Obsah"
 
@@ -164,13 +165,13 @@ msgstr "Obsah"
 #: includes/Modules/AdminColumns/RestController.php:97
 #: includes/Modules/AdminCustomiser/MenuOrganizer.php:75
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:253
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 #: build/752.5b321b5d976757948e1d.js:1
 msgid "Media"
 msgstr "Média"
 
 #: includes/Modules/AdminCustomiser/MenuOrganizer.php:76
-#: build/index.508ec69e5c53f238b3b0.js:2
+#: build/index.8fe12f55411233ea4a52.js:2
 msgid "Appearance"
 msgstr "Vzhled"
 
@@ -185,7 +186,7 @@ msgstr "Marketing"
 #: includes/Modules/AdminColumns/RestController.php:98
 #: includes/Modules/AdminCustomiser/MenuOrganizer.php:79
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:207
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 msgid "Users"
 msgstr "Uživatelé"
 
@@ -303,7 +304,7 @@ msgstr "Hledat…"
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:154
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:193
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:237
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 #: build/752.5b321b5d976757948e1d.js:1
 msgid "Edit"
 msgstr "Upravit"
@@ -312,7 +313,7 @@ msgstr "Upravit"
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:152
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:195
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:240
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 msgid "View"
 msgstr "Zobrazit"
 
@@ -323,7 +324,6 @@ msgstr "Zobrazit"
 #: includes/Modules/AdminCustomiser/QuickSearch/ThirdPartyIntegrations.php:68
 #: includes/Modules/AdminCustomiser/QuickSearch/ThirdPartyIntegrations.php:69
 #: build/190.65e7b3330e4a8f2bc38a.js:1
-#: build/474.d98fcb46027547ab305e.js:1
 msgid "Open"
 msgstr "Otevřít"
 
@@ -337,7 +337,7 @@ msgstr "Produkty"
 
 #: includes/Modules/AdminCustomiser/QuickSearch/ThirdPartyIntegrations.php:50
 #: includes/Modules/ExportPosts/Module.php:372
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 #: build/475.b4eae071038b2bb3095d.js:1
 #: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Categories"
@@ -375,15 +375,15 @@ msgstr "AI vrátila neplatnou odpověď. Zkuste to prosím znovu."
 msgid "Error creating the post: %s"
 msgstr "Chyba při vytváření příspěvku: %s"
 
-#: includes/Modules/AiAssistant/BlogPilot/Scheduler.php:36
+#: includes/Modules/AiAssistant/BlogPilot/Scheduler.php:37
 msgid "Weekly (UX Studio)"
 msgstr "Týdně (UX Studio)"
 
-#: includes/Modules/AiAssistant/BlogPilot/Scheduler.php:43
+#: includes/Modules/AiAssistant/BlogPilot/Scheduler.php:44
 msgid "Monthly (UX Studio)"
 msgstr "Měsíčně (UX Studio)"
 
-#: includes/Modules/AiAssistant/BlogPilot/Scheduler.php:146
+#: includes/Modules/AiAssistant/BlogPilot/Scheduler.php:153
 #: includes/Modules/AiAssistant/BlogPilotRestController.php:145
 #: includes/Modules/AiAssistant/BlogPilotRestController.php:159
 #: includes/Modules/AiAssistant/BlogPilotRestController.php:173
@@ -391,7 +391,7 @@ msgstr "Měsíčně (UX Studio)"
 msgid "Generator not found."
 msgstr "Generátor nenalezen."
 
-#: includes/Modules/AiAssistant/BlogPilot/Scheduler.php:209
+#: includes/Modules/AiAssistant/BlogPilot/Scheduler.php:224
 msgid "General article"
 msgstr "Obecný článek"
 
@@ -443,7 +443,7 @@ msgstr "Akce „%1$s“ byla použita na %2$d příspěvek(ů)."
 
 #: includes/Modules/AiAssistant/ChatHistory.php:134
 #: includes/Modules/AiAssistant/ChatHistory.php:137
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 msgid "New conversation"
 msgstr "Nová konverzace"
 
@@ -488,10 +488,10 @@ msgstr "Nová zpráva z chatu AI asistenta"
 
 #: includes/Modules/AiAssistant/ChatRestController.php:353
 #: includes/Modules/CleanProfiles/Module.php:58
-#: build/78.a540e8578ca2d1adbc33.js:1
 #: build/93.bfc5e33039f2ea629940.js:1
 #: build/136.71ec8b3d36d55a7536e3.js:1
 #: build/230.9edabc0030c217453fd8.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 #: build/309.1176c611d8f1aa33c863.js:1
 #: build/475.b4eae071038b2bb3095d.js:1
 #: build/752.5b321b5d976757948e1d.js:1
@@ -515,8 +515,9 @@ msgstr "Telefon"
 
 #: includes/Modules/AiAssistant/ChatRestController.php:359
 #: includes/Modules/AiAssistant/ChatRestController.php:444
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: includes/Modules/ServiceRequests/Sync.php:450
 #: build/157.6516b122bdc10ba986aa.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 msgid "Page"
 msgstr "Stránka"
 
@@ -679,50 +680,50 @@ msgid "Content:"
 msgstr "Obsah:"
 
 #. translators: %s: json_last_error_msg() text
-#: includes/Modules/AiAssistant/ContentGenerator.php:166
+#: includes/Modules/AiAssistant/ContentGenerator.php:227
 #, php-format
 msgid "The AI returned an invalid JSON response: %s"
 msgstr "AI vrátila neplatnou odpověď ve formátu JSON: %s"
 
-#: includes/Modules/AiAssistant/ContentRestController.php:164
+#: includes/Modules/AiAssistant/ContentRestController.php:195
 msgid "Publishing failed."
 msgstr "Publikování se nezdařilo."
 
-#: includes/Modules/AiAssistant/ContentRestController.php:205
+#: includes/Modules/AiAssistant/ContentRestController.php:236
 msgid "The content to analyse for SEO is empty."
 msgstr "Obsah k analýze pro SEO je prázdný."
 
-#: includes/Modules/AiAssistant/ContentRestController.php:228
-#: includes/Modules/AiAssistant/ContentRestController.php:250
+#: includes/Modules/AiAssistant/ContentRestController.php:358
+#: includes/Modules/AiAssistant/ContentRestController.php:380
 msgid "Elementor is not active."
 msgstr "Elementor není aktivní."
 
-#: includes/Modules/AiAssistant/ContentRestController.php:233
+#: includes/Modules/AiAssistant/ContentRestController.php:363
 msgid "The html_content parameter is required."
 msgstr "Parametr html_content je povinný."
 
-#: includes/Modules/AiAssistant/ContentRestController.php:238
+#: includes/Modules/AiAssistant/ContentRestController.php:368
 msgid "Could not convert the HTML into Elementor widgets."
 msgstr "HTML se nepodařilo převést na widgety Elementoru."
 
-#: includes/Modules/AiAssistant/ContentRestController.php:244
+#: includes/Modules/AiAssistant/ContentRestController.php:374
 msgid "Elementor page"
 msgstr "Stránka Elementoru"
 
-#: includes/Modules/AiAssistant/ContentRestController.php:259
+#: includes/Modules/AiAssistant/ContentRestController.php:389
 msgid "The url parameter must be a valid, publicly reachable URL."
 msgstr "Parametr url musí být platná, veřejně dostupná URL."
 
-#: includes/Modules/AiAssistant/ContentRestController.php:275
+#: includes/Modules/AiAssistant/ContentRestController.php:405
 msgid "Could not extract content from the page."
 msgstr "Ze stránky se nepodařilo extrahovat obsah."
 
-#: includes/Modules/AiAssistant/ContentRestController.php:278
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: includes/Modules/AiAssistant/ContentRestController.php:408
+#: build/295.4378b5e3d0a9182107f0.js:1
 msgid "Import from URL"
 msgstr "Import z URL"
 
-#: includes/Modules/AiAssistant/ContentRestController.php:305
+#: includes/Modules/AiAssistant/ContentRestController.php:435
 msgid "Page not found."
 msgstr "Stránka nenalezena."
 
@@ -858,7 +859,7 @@ msgstr "Seznam zpráv je prázdný."
 
 #: includes/Modules/AiAssistant/KnowledgeHubRestController.php:187
 #: includes/Modules/AiAssistant/KnowledgeHubRestController.php:226
-#: includes/Modules/EmailLog/Module.php:347
+#: includes/Modules/EmailLog/Module.php:409
 #: includes/Modules/EmailLog/RestController.php:103
 msgid "Entry not found."
 msgstr "Záznam nebyl nalezen."
@@ -936,21 +937,21 @@ msgstr "Ze souboru se nepodařilo extrahovat žádný text."
 msgid "The document contains no usable text."
 msgstr "Dokument neobsahuje žádný použitelný text."
 
-#: includes/Modules/AiAssistant/Mcp/JwtAuth.php:112
+#: includes/Modules/AiAssistant/Mcp/JwtAuth.php:115
 msgid "Token not found."
 msgstr "Token nebyl nalezen."
 
-#: includes/Modules/AiAssistant/Mcp/JwtAuth.php:135
+#: includes/Modules/AiAssistant/Mcp/JwtAuth.php:138
 #: build/809.5b0b6628282ca76341c7.js:1
 msgid "Unknown"
 msgstr "Neznámé"
 
-#: includes/Modules/AiAssistant/Mcp/McpBootstrap.php:48
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: includes/Modules/AiAssistant/Mcp/McpBootstrap.php:112
+#: build/295.4378b5e3d0a9182107f0.js:1
 msgid "AI Assistant"
 msgstr "AI asistent"
 
-#: includes/Modules/AiAssistant/Mcp/McpBootstrap.php:49
+#: includes/Modules/AiAssistant/Mcp/McpBootstrap.php:113
 msgid "WordPress management tools provided by AI Assistant"
 msgstr "Nástroje pro správu WordPressu poskytované AI asistentem"
 
@@ -965,7 +966,7 @@ msgstr "Poskytuje podrobné informace o aktivních a dostupných pluginech WordP
 
 #: includes/Modules/AiAssistant/Mcp/Resources/SiteInfoResource.php:25
 #: includes/Modules/AiAssistant/Mcp/Resources/SiteInfoResource.php:40
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 msgid "Site Information"
 msgstr "Informace o webu"
 
@@ -975,7 +976,7 @@ msgstr "Poskytuje obecné informace o webu WordPress včetně podrobností o web
 
 #: includes/Modules/AiAssistant/Mcp/Resources/SiteSettingsResource.php:25
 #: includes/Modules/AiAssistant/Mcp/Resources/SiteSettingsResource.php:40
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 msgid "Site Settings"
 msgstr "Nastavení webu"
 
@@ -1588,9 +1589,9 @@ msgstr "(smazáno)"
 
 #: includes/Modules/AiMarkdown/RestController.php:63
 #: includes/Modules/AiMarkdown/RestController.php:76
-#: includes/Modules/ContentSync/NodeController.php:239
-#: includes/Modules/ContentSync/NodeController.php:314
-#: includes/Modules/ContentSync/NodeController.php:356
+#: includes/Modules/ContentSync/NodeController.php:288
+#: includes/Modules/ContentSync/NodeController.php:366
+#: includes/Modules/ContentSync/NodeController.php:411
 msgid "Post not found."
 msgstr "Příspěvek nebyl nalezen."
 
@@ -1989,7 +1990,7 @@ msgid "Snippet deleted successfully"
 msgstr "Úryvek byl úspěšně smazán"
 
 #: includes/Modules/ContentSync/Module.php:266
-#: includes/Modules/ThirdPartyLogin/Module.php:92
+#: includes/Modules/ThirdPartyLogin/Module.php:133
 msgid "Central app URL"
 msgstr "URL centrální aplikace"
 
@@ -1997,7 +1998,7 @@ msgstr "URL centrální aplikace"
 msgid "Base URL of the central application acting as the broker for connected sites."
 msgstr "Základní URL centrální aplikace, která funguje jako broker pro připojené weby."
 
-#: includes/Modules/ThirdPartyLogin/Module.php:99
+#: includes/Modules/ThirdPartyLogin/Module.php:140
 msgid "HMAC secret"
 msgstr "Tajný klíč HMAC"
 
@@ -2113,6 +2114,7 @@ msgid "Disable for specific plugins only"
 msgstr "Zakázat pouze pro vybrané pluginy"
 
 #: includes/Modules/DisableAutoUpdates/Module.php:164
+#: includes/Modules/ServiceRequests/Sync.php:457
 #: build/136.71ec8b3d36d55a7536e3.js:2
 msgid "Plugins"
 msgstr "Pluginy"
@@ -2284,7 +2286,7 @@ msgid "Redirect to the post edit screen after duplication."
 msgstr "Po duplikaci přesměrovat na obrazovku úprav příspěvku."
 
 #: includes/Modules/DuplicatePost/Module.php:247
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 msgid "Post status"
 msgstr "Stav příspěvku"
 
@@ -2462,7 +2464,7 @@ msgstr "Odebírat"
 #: includes/Modules/ExitPopup/Module.php:462
 #: includes/Modules/FileManager/Module.php:128
 #: includes/Modules/PopupManager/Module.php:398
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 #: build/367.fc7f739d3b65ad856d5c.js:1
 msgid "Close"
 msgstr "Zavřít"
@@ -2523,12 +2525,12 @@ msgid "Post ID"
 msgstr "ID příspěvku"
 
 #: includes/Modules/ExportPosts/Module.php:354
-#: build/78.a540e8578ca2d1adbc33.js:1
 #: build/84.1a53127d36c807b7f9d6.js:1
 #: build/213.0fc210bb008e9541fd89.js:1
 #: build/244.51cc9501d13d30b5c2a2.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 #: build/309.1176c611d8f1aa33c863.js:1
-#: build/474.d98fcb46027547ab305e.js:1
+#: build/474.cf43816866abf5df7c56.js:1
 #: build/475.b4eae071038b2bb3095d.js:1
 #: build/819.0464f25e368c7e7fbca9.js:1
 #: build/930.c657f0a8ddf5aeb4be68.js:1
@@ -2545,14 +2547,14 @@ msgid "Excerpt"
 msgstr "Zkrácený obsah"
 
 #: includes/Modules/ExportPosts/Module.php:358
-#: build/78.a540e8578ca2d1adbc33.js:1
 #: build/84.1a53127d36c807b7f9d6.js:1
 #: build/178.9f7c44183315fbd10ef5.js:1
 #: build/190.65e7b3330e4a8f2bc38a.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 #: build/309.1176c611d8f1aa33c863.js:1
 #: build/367.fc7f739d3b65ad856d5c.js:1
 #: build/402.b1fe1ccabde7eb8300df.js:1
-#: build/474.d98fcb46027547ab305e.js:1
+#: build/474.cf43816866abf5df7c56.js:1
 #: build/475.b4eae071038b2bb3095d.js:1
 #: build/819.0464f25e368c7e7fbca9.js:1
 #: build/831.f63d33eb2c8abcd821ed.js:1
@@ -2575,7 +2577,7 @@ msgstr "Typ obsahu"
 #: build/367.fc7f739d3b65ad856d5c.js:1
 #: build/402.b1fe1ccabde7eb8300df.js:1
 #: build/475.b4eae071038b2bb3095d.js:1
-#: build/718.0297609e33fe5814329b.js:1
+#: build/718.876091783360f2260d98.js:1
 #: build/819.0464f25e368c7e7fbca9.js:1
 #: build/831.f63d33eb2c8abcd821ed.js:1
 #: build/860.a8269f19205c5720d7ff.js:1
@@ -2589,7 +2591,7 @@ msgstr "Datum úpravy"
 
 #: includes/Modules/ContentSync/Module.php:175
 #: includes/Modules/ExportPosts/Module.php:362
-#: build/718.0297609e33fe5814329b.js:1
+#: build/718.876091783360f2260d98.js:1
 #: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Author"
 msgstr "Autor"
@@ -2624,7 +2626,7 @@ msgid "Filtered Content"
 msgstr "Filtrovaný obsah"
 
 #: includes/Modules/ExportPosts/Module.php:373
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 msgid "Tags"
 msgstr "Štítky"
 
@@ -2739,8 +2741,8 @@ msgid "Website URL"
 msgstr "URL webu"
 
 #: includes/Modules/ExportUsers/Module.php:359
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/474.d98fcb46027547ab305e.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/474.cf43816866abf5df7c56.js:1
 #: build/866.a786a1a3b954a048d924.js:1
 msgid "Description"
 msgstr "Popis"
@@ -2829,20 +2831,20 @@ msgstr "Nemáte přístup ke Správci souborů. Přidejte svůj účet do seznam
 #: includes/Modules/FileManager/Module.php:162
 #: build/31.e9354171b6207cee8a1b.js:1
 #: build/50.5e1e490c895cec652ee2.js:1
-#: build/78.a540e8578ca2d1adbc33.js:1
 #: build/148.d119a26df1a63436ea04.js:1
 #: build/157.6516b122bdc10ba986aa.js:1
 #: build/178.9f7c44183315fbd10ef5.js:1
 #: build/190.65e7b3330e4a8f2bc38a.js:1
 #: build/230.9edabc0030c217453fd8.js:1
 #: build/244.51cc9501d13d30b5c2a2.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 #: build/309.1176c611d8f1aa33c863.js:1
 #: build/367.fc7f739d3b65ad856d5c.js:1
 #: build/402.b1fe1ccabde7eb8300df.js:1
 #: build/457.e838d25a2b352769a07d.js:1
-#: build/474.d98fcb46027547ab305e.js:1
+#: build/474.cf43816866abf5df7c56.js:1
 #: build/475.b4eae071038b2bb3095d.js:1
-#: build/718.0297609e33fe5814329b.js:1
+#: build/718.876091783360f2260d98.js:1
 #: build/752.5b321b5d976757948e1d.js:1
 #: build/792.a567b513f75713d102ba.js:1
 #: build/819.0464f25e368c7e7fbca9.js:1
@@ -2852,7 +2854,7 @@ msgstr "Nemáte přístup ke Správci souborů. Přidejte svůj účet do seznam
 #: build/907.e407fbb311cd6ef44322.js:1
 #: build/930.c657f0a8ddf5aeb4be68.js:1
 #: build/976.9bdf1e13c10fe53dba47.js:1
-#: build/index.508ec69e5c53f238b3b0.js:2
+#: build/index.8fe12f55411233ea4a52.js:2
 msgid "Settings"
 msgstr "Nastavení"
 
@@ -3271,8 +3273,8 @@ msgstr "Vyberte typ režimu údržby."
 
 #: includes/Modules/ContentSync/Module.php:213
 #: includes/Modules/MaintenanceMode/Module.php:368
-#: build/78.a540e8578ca2d1adbc33.js:1
 #: build/190.65e7b3330e4a8f2bc38a.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 #: build/809.5b0b6628282ca76341c7.js:1
 #: build/866.a786a1a3b954a048d924.js:1
 msgid "Disabled"
@@ -3348,7 +3350,7 @@ msgstr "Podle role uživatele"
 
 #: includes/Modules/MaintenanceMode/Module.php:419
 #: includes/Modules/SvgUpload/Module.php:174
-#: includes/Modules/ThirdPartyLogin/Module.php:117
+#: includes/Modules/ThirdPartyLogin/Module.php:160
 msgid "Allowed roles"
 msgstr "Povolené role"
 
@@ -3389,7 +3391,7 @@ msgstr "Zapnout logo"
 #: includes/Modules/MaintenanceMode/Module.php:465
 #: build/50.5e1e490c895cec652ee2.js:1
 #: build/244.51cc9501d13d30b5c2a2.js:1
-#: build/718.0297609e33fe5814329b.js:1
+#: build/718.876091783360f2260d98.js:1
 msgid "No"
 msgstr "Ne"
 
@@ -3398,7 +3400,7 @@ msgstr "Ne"
 #: build/50.5e1e490c895cec652ee2.js:1
 #: build/244.51cc9501d13d30b5c2a2.js:1
 #: build/475.b4eae071038b2bb3095d.js:1
-#: build/718.0297609e33fe5814329b.js:1
+#: build/718.876091783360f2260d98.js:1
 #: build/809.5b0b6628282ca76341c7.js:1
 msgid "Yes"
 msgstr "Ano"
@@ -3542,8 +3544,8 @@ msgstr "[%s] Potvrďte svůj odběr nástěnky"
 msgid "A category with this name already exists."
 msgstr "Kategorie s tímto názvem již existuje."
 
-#: includes/Modules/ContentSync/NodeController.php:417
-#: includes/Modules/ContentSync/NodeController.php:449
+#: includes/Modules/ContentSync/NodeController.php:472
+#: includes/Modules/ContentSync/NodeController.php:504
 #: includes/Modules/NoticeBoard/RestController.php:248
 #: includes/Modules/NoticeBoard/RestController.php:258
 msgid "Category not found."
@@ -3657,7 +3659,7 @@ msgstr "Galerie"
 
 #: includes/Modules/PostGallery/Module.php:96
 #: build/309.1176c611d8f1aa33c863.js:1
-#: build/index.508ec69e5c53f238b3b0.js:1
+#: build/index.8fe12f55411233ea4a52.js:1
 #: includes/Modules/PostGallery/assets/js/post-gallery-admin.js:48
 msgid "Remove"
 msgstr "Odebrat"
@@ -3698,7 +3700,7 @@ msgid "Thumbnail"
 msgstr "Náhled"
 
 #: includes/Modules/PostGallery/Module.php:457
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 #: build/457.e838d25a2b352769a07d.js:1
 msgid "Medium"
 msgstr "Střední"
@@ -3872,6 +3874,7 @@ msgid "Could not generate a VAPID keypair (is the openssl PHP extension with EC 
 msgstr "Nepodařilo se vygenerovat pár VAPID klíčů (je k dispozici PHP rozšíření openssl s podporou EC?)."
 
 #: includes/Modules/QuickAddPost/Module.php:59
+#: build/474.cf43816866abf5df7c56.js:1
 msgid "New"
 msgstr "Nový"
 
@@ -3937,27 +3940,28 @@ msgstr "Nepodařilo se aktualizovat náhledový obrázek."
 msgid "Featured image updated."
 msgstr "Náhledový obrázek aktualizován."
 
-#: includes/Modules/ReviewAggregator/Module.php:88
+#: includes/Modules/ReviewAggregator/Module.php:107
 msgid "Minimum rating to display"
 msgstr "Minimální hodnocení k zobrazení"
 
-#: includes/Modules/ReviewAggregator/Module.php:89
+#: includes/Modules/ReviewAggregator/Module.php:108
 msgid "Reviews below this rating are still stored but hidden from the shortcode output."
 msgstr "Recenze s nižším hodnocením jsou stále uloženy, ale skryty z výstupu shortcodu."
 
-#: includes/Modules/ReviewAggregator/Module.php:95
+#: includes/Modules/ReviewAggregator/Module.php:114
 msgid "Auto-fetch new reviews"
 msgstr "Automaticky načítat nové recenze"
 
-#: includes/Modules/ReviewAggregator/Module.php:101
+#: includes/Modules/ReviewAggregator/Module.php:120
 msgid "Central app profile ID"
 msgstr "ID profilu v centrální aplikaci"
 
-#: includes/Modules/ReviewAggregator/Module.php:102
+#: includes/Modules/ReviewAggregator/Module.php:121
 msgid "Identifies which review profile the central app should fetch for this site."
 msgstr "Určuje, který profil recenzí má centrální aplikace pro tento web načítat."
 
-#: includes/Modules/ReviewAggregator/Module.php:171
+#: includes/Modules/ReviewAggregator/Module.php:190
+#: includes/Modules/ReviewAggregator/Module.php:338
 msgid "Review not found."
 msgstr "Recenze nenalezena."
 
@@ -4377,7 +4381,7 @@ msgstr "Toto uživatelské jméno není z bezpečnostních důvodů povoleno."
 msgid "RSS feeds are disabled on this site."
 msgstr "RSS kanály jsou na tomto webu zakázány."
 
-#: includes/Modules/SecurityOptimization/Module.php:1292
+#: includes/Modules/SecurityOptimization/Module.php:1295
 msgid "REST API access is restricted to logged-in users."
 msgstr "Přístup k REST API je omezen pouze na přihlášené uživatele."
 
@@ -4428,31 +4432,33 @@ msgid "Could not restore the file from quarantine."
 msgstr "Soubor se nepodařilo obnovit z karantény."
 
 #: includes/Modules/SecurityOptimization/Module.php:621
-#: includes/Modules/ServiceRequests/Module.php:81
+#: includes/Modules/ServiceRequests/Module.php:127
 msgid "Notification email"
 msgstr "Notifikační e-mail"
 
-#: includes/Modules/ServiceRequests/Module.php:82
+#: includes/Modules/ServiceRequests/Module.php:128
 msgid "Where notifications about new service requests are sent. Defaults to the site admin email if left blank."
 msgstr "Kam se odesílají upozornění na nové servisní požadavky. Pokud je ponecháno prázdné, použije se e-mail administrátora webu."
 
-#: includes/Modules/ServiceRequests/Module.php:179
+#: includes/Modules/ServiceRequests/Module.php:341
 msgid "Invalid status."
 msgstr "Neplatný stav."
 
-#: includes/Modules/ServiceRequests/Module.php:184
-#: includes/Modules/ServiceRequests/RestController.php:133
+#: includes/Modules/ServiceRequests/Module.php:263
+#: includes/Modules/ServiceRequests/Module.php:302
+#: includes/Modules/ServiceRequests/Module.php:346
+#: includes/Modules/ServiceRequests/RestController.php:176
 msgid "Service request not found."
 msgstr "Servisní požadavek nebyl nalezen."
 
 #. translators: %s: request title
-#: includes/Modules/ServiceRequests/Module.php:237
+#: includes/Modules/ServiceRequests/Module.php:399
 #, php-format
 msgid "New service request: %s"
 msgstr "Nový servisní požadavek: %s"
 
 #. translators: 1: title, 2: description, 3: requester email
-#: includes/Modules/ServiceRequests/Module.php:242
+#: includes/Modules/ServiceRequests/Module.php:404
 #, php-format
 msgid ""
 "A new service request was submitted.\n"
@@ -4526,12 +4532,12 @@ msgid "Brevo API key"
 msgstr "Brevo API klíč"
 
 #. translators: %s: site name
-#: includes/Modules/SmtpEmail/Module.php:891
+#: includes/Modules/SmtpEmail/Module.php:901
 #, php-format
 msgid "[%s] SMTP test email"
 msgstr "[%s] Testovací SMTP e-mail"
 
-#: includes/Modules/SmtpEmail/Module.php:894
+#: includes/Modules/SmtpEmail/Module.php:904
 msgid "This is a test email sent from the UX Studio SMTP Email module."
 msgstr "Toto je testovací e-mail odeslaný z modulu SMTP Email v UX Studio."
 
@@ -4590,35 +4596,26 @@ msgstr "Soubor SVG nebylo možné bezpečně ošetřit."
 msgid "Only users with one of these roles may upload SVG files. Defaults to administrators only."
 msgstr "Soubory SVG mohou nahrávat pouze uživatelé s jednou z těchto rolí. Ve výchozím nastavení pouze administrátoři."
 
-#: includes/Modules/ThirdPartyLogin/Module.php:93
-msgid "Base URL of the central app that performs the OAuth handshake."
-msgstr "Základní URL centrální aplikace, která provádí OAuth handshake."
-
-#: includes/Modules/ThirdPartyLogin/Module.php:100
-msgid "Shared secret used to verify signed callbacks from the central app. Stored encrypted. Leave blank to keep the current secret."
-msgstr "Sdílený tajný klíč používaný k ověření podepsaných zpětných volání z centrální aplikace. Uloženo zašifrovaně. Ponechte prázdné pro zachování stávajícího klíče."
-
-#: includes/Modules/ThirdPartyLogin/Module.php:106
+#: includes/Modules/ThirdPartyLogin/Module.php:147
 msgid "Enabled providers"
 msgstr "Zapnutí poskytovatelé"
 
-#: includes/Modules/ThirdPartyLogin/Module.php:108
-#: includes/Modules/ThirdPartyLogin/Module.php:342
+#: includes/Modules/ThirdPartyLogin/Module.php:150
+#: includes/Modules/ThirdPartyLogin/Module.php:326
 msgid "Google"
 msgstr "Google"
 
-#: includes/Modules/ThirdPartyLogin/Module.php:109
-#: includes/Modules/ThirdPartyLogin/Module.php:343
+#: includes/Modules/ThirdPartyLogin/Module.php:151
+#: includes/Modules/ThirdPartyLogin/Module.php:327
 msgid "Facebook"
 msgstr "Facebook"
 
-#: includes/Modules/ThirdPartyLogin/Module.php:110
-#: includes/Modules/ThirdPartyLogin/Module.php:344
+#: includes/Modules/ThirdPartyLogin/Module.php:152
+#: includes/Modules/ThirdPartyLogin/Module.php:328
 msgid "Apple"
 msgstr "Apple"
 
-#: includes/Modules/ThirdPartyLogin/RestController.php:188
-#: includes/Modules/ThirdPartyLogin/RestController.php:432
+#: includes/Modules/ThirdPartyLogin/RestController.php:476
 msgid "Invalid request."
 msgstr "Neplatný požadavek."
 
@@ -4804,1521 +4801,38 @@ msgstr "%s má na WordPress.org k dispozici novější verzi"
 msgid "Too many requests, slow down."
 msgstr "Příliš mnoho požadavků, zpomalte."
 
-#: build/31.e9354171b6207cee8a1b.js:1
-msgid "Start bulk optimization"
-msgstr "Spustit hromadnou optimalizaci"
-
-#: build/31.e9354171b6207cee8a1b.js:1
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Running…"
-msgstr "Probíhá…"
-
-#: build/31.e9354171b6207cee8a1b.js:1
-msgid "Idle."
-msgstr "Nečinné."
-
-#: build/31.e9354171b6207cee8a1b.js:1
-msgid "Restore original by attachment ID"
-msgstr "Obnovit originál podle ID přílohy"
-
-#: build/31.e9354171b6207cee8a1b.js:1
-msgid "Restore"
-msgstr "Obnovit"
-
-#: build/31.e9354171b6207cee8a1b.js:1
-msgid "Restored."
-msgstr "Obnoveno."
-
-#: build/31.e9354171b6207cee8a1b.js:1
-#: build/50.5e1e490c895cec652ee2.js:1
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/84.1a53127d36c807b7f9d6.js:1
-#: build/93.bfc5e33039f2ea629940.js:1
-#: build/136.71ec8b3d36d55a7536e3.js:2
-#: build/148.d119a26df1a63436ea04.js:1
-#: build/157.6516b122bdc10ba986aa.js:1
-#: build/158.1a00cfb592a89b32f06b.js:1
-#: build/178.9f7c44183315fbd10ef5.js:1
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-#: build/213.0fc210bb008e9541fd89.js:2
-#: build/230.9edabc0030c217453fd8.js:1
-#: build/244.51cc9501d13d30b5c2a2.js:1
-#: build/309.1176c611d8f1aa33c863.js:1
-#: build/367.fc7f739d3b65ad856d5c.js:1
-#: build/386.3fec0ad538544d603682.js:1
-#: build/402.b1fe1ccabde7eb8300df.js:1
-#: build/457.e838d25a2b352769a07d.js:1
-#: build/474.d98fcb46027547ab305e.js:1
-#: build/475.b4eae071038b2bb3095d.js:1
-#: build/563.64a47ca5b2f0345c6df5.js:1
-#: build/718.0297609e33fe5814329b.js:1
-#: build/752.5b321b5d976757948e1d.js:1
-#: build/792.a567b513f75713d102ba.js:1
-#: build/809.5b0b6628282ca76341c7.js:1
-#: build/819.0464f25e368c7e7fbca9.js:1
-#: build/831.f63d33eb2c8abcd821ed.js:1
-#: build/860.a8269f19205c5720d7ff.js:1
-#: build/866.a786a1a3b954a048d924.js:1
-#: build/907.e407fbb311cd6ef44322.js:1
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-#: build/976.9bdf1e13c10fe53dba47.js:1
-#: build/999.099916b842480750146e.js:1
-#: build/index.508ec69e5c53f238b3b0.js:2
-msgid "Back to modules"
-msgstr "Zpět na moduly"
-
-#: build/31.e9354171b6207cee8a1b.js:1
-msgid "Image Optimizer"
-msgstr "Optimalizace obrázků"
-
-#: build/31.e9354171b6207cee8a1b.js:1
-msgid "Bulk Optimize"
-msgstr "Hromadná optimalizace"
-
-#: build/31.e9354171b6207cee8a1b.js:1
-#: build/50.5e1e490c895cec652ee2.js:1
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/84.1a53127d36c807b7f9d6.js:1
-#: build/93.bfc5e33039f2ea629940.js:1
-#: build/136.71ec8b3d36d55a7536e3.js:2
-#: build/148.d119a26df1a63436ea04.js:1
-#: build/157.6516b122bdc10ba986aa.js:1
-#: build/158.1a00cfb592a89b32f06b.js:1
-#: build/178.9f7c44183315fbd10ef5.js:1
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-#: build/213.0fc210bb008e9541fd89.js:2
-#: build/230.9edabc0030c217453fd8.js:1
-#: build/244.51cc9501d13d30b5c2a2.js:1
-#: build/309.1176c611d8f1aa33c863.js:1
-#: build/367.fc7f739d3b65ad856d5c.js:1
-#: build/402.b1fe1ccabde7eb8300df.js:1
-#: build/457.e838d25a2b352769a07d.js:1
-#: build/474.d98fcb46027547ab305e.js:1
-#: build/475.b4eae071038b2bb3095d.js:1
-#: build/718.0297609e33fe5814329b.js:1
-#: build/752.5b321b5d976757948e1d.js:1
-#: build/792.a567b513f75713d102ba.js:1
-#: build/809.5b0b6628282ca76341c7.js:1
-#: build/819.0464f25e368c7e7fbca9.js:1
-#: build/831.f63d33eb2c8abcd821ed.js:1
-#: build/860.a8269f19205c5720d7ff.js:1
-#: build/866.a786a1a3b954a048d924.js:1
-#: build/907.e407fbb311cd6ef44322.js:1
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-#: build/976.9bdf1e13c10fe53dba47.js:1
-#: build/index.508ec69e5c53f238b3b0.js:1
-#: build/index.508ec69e5c53f238b3b0.js:2
-msgid "Loading…"
-msgstr "Načítání…"
-
-#: build/31.e9354171b6207cee8a1b.js:1
-#: build/50.5e1e490c895cec652ee2.js:1
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/148.d119a26df1a63436ea04.js:1
-#: build/157.6516b122bdc10ba986aa.js:1
-#: build/178.9f7c44183315fbd10ef5.js:1
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-#: build/213.0fc210bb008e9541fd89.js:1
-#: build/230.9edabc0030c217453fd8.js:1
-#: build/244.51cc9501d13d30b5c2a2.js:1
-#: build/309.1176c611d8f1aa33c863.js:1
-#: build/367.fc7f739d3b65ad856d5c.js:1
-#: build/402.b1fe1ccabde7eb8300df.js:1
-#: build/457.e838d25a2b352769a07d.js:1
-#: build/474.d98fcb46027547ab305e.js:1
-#: build/475.b4eae071038b2bb3095d.js:1
-#: build/718.0297609e33fe5814329b.js:1
-#: build/752.5b321b5d976757948e1d.js:1
-#: build/792.a567b513f75713d102ba.js:1
-#: build/809.5b0b6628282ca76341c7.js:1
-#: build/819.0464f25e368c7e7fbca9.js:1
-#: build/831.f63d33eb2c8abcd821ed.js:1
-#: build/860.a8269f19205c5720d7ff.js:1
-#: build/866.a786a1a3b954a048d924.js:1
-#: build/907.e407fbb311cd6ef44322.js:1
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-#: build/976.9bdf1e13c10fe53dba47.js:1
-#: build/index.508ec69e5c53f238b3b0.js:2
-msgid "Saved"
-msgstr "Uloženo"
-
-#: build/31.e9354171b6207cee8a1b.js:1
-#: build/50.5e1e490c895cec652ee2.js:1
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/148.d119a26df1a63436ea04.js:1
-#: build/157.6516b122bdc10ba986aa.js:1
-#: build/178.9f7c44183315fbd10ef5.js:1
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-#: build/230.9edabc0030c217453fd8.js:1
-#: build/244.51cc9501d13d30b5c2a2.js:1
-#: build/309.1176c611d8f1aa33c863.js:1
-#: build/367.fc7f739d3b65ad856d5c.js:1
-#: build/402.b1fe1ccabde7eb8300df.js:1
-#: build/457.e838d25a2b352769a07d.js:1
-#: build/474.d98fcb46027547ab305e.js:1
-#: build/475.b4eae071038b2bb3095d.js:1
-#: build/718.0297609e33fe5814329b.js:1
-#: build/752.5b321b5d976757948e1d.js:1
-#: build/792.a567b513f75713d102ba.js:1
-#: build/809.5b0b6628282ca76341c7.js:1
-#: build/819.0464f25e368c7e7fbca9.js:1
-#: build/831.f63d33eb2c8abcd821ed.js:1
-#: build/860.a8269f19205c5720d7ff.js:1
-#: build/866.a786a1a3b954a048d924.js:1
-#: build/907.e407fbb311cd6ef44322.js:1
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-#: build/976.9bdf1e13c10fe53dba47.js:1
-#: build/index.508ec69e5c53f238b3b0.js:2
-msgid "Save changes"
-msgstr "Uložit změny"
-
-#: build/50.5e1e490c895cec652ee2.js:1
-msgid "User-Agent"
-msgstr "User-Agent"
-
-#: build/50.5e1e490c895cec652ee2.js:1
-#: build/136.71ec8b3d36d55a7536e3.js:1
-#: build/309.1176c611d8f1aa33c863.js:1
-#: build/860.a8269f19205c5720d7ff.js:1
-#: build/976.9bdf1e13c10fe53dba47.js:1
-msgid "Action"
-msgstr "Akce"
-
 #: includes/Modules/BotThrottle/DashboardWidget.php:65
 msgid "Blocked"
 msgstr "Blokováno"
 
-#: build/50.5e1e490c895cec652ee2.js:1
-msgid "Bot Throttle"
-msgstr "Omezení botů"
-
-#: build/50.5e1e490c895cec652ee2.js:1
-#: build/309.1176c611d8f1aa33c863.js:1
-#: build/367.fc7f739d3b65ad856d5c.js:1
-#: build/831.f63d33eb2c8abcd821ed.js:1
-#: build/860.a8269f19205c5720d7ff.js:1
-msgid "Log"
-msgstr "Protokol"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Not rated"
-msgstr "Nehodnoceno"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#, js-format
-msgid "%d out of 5 stars"
-msgstr "%d z 5 hvězdiček"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Conversation"
-msgstr "Konverzace"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Page:"
-msgstr "Stránka:"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Rating:"
-msgstr "Hodnocení:"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Feedback:"
-msgstr "Zpětná vazba:"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No messages."
-msgstr "Žádné zprávy."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Filter by rating"
-msgstr "Filtrovat podle hodnocení"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "All"
-msgstr "Vše"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "stars"
-msgstr "hvězdiček"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#, js-format
-msgid "Delete selected (%d)"
-msgstr "Smazat vybrané (%d)"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Session"
-msgstr "Relace"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Messages"
-msgstr "Zprávy"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/718.0297609e33fe5814329b.js:1
-msgid "Rating"
-msgstr "Hodnocení"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Updated"
-msgstr "Aktualizováno"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Select conversation"
-msgstr "Vybrat konverzaci"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Delete conversation"
-msgstr "Smazat konverzaci"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No conversations yet."
-msgstr "Zatím žádné konverzace."
-
-#: build/31.e9354171b6207cee8a1b.js:1
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/367.fc7f739d3b65ad856d5c.js:1
-#: build/860.a8269f19205c5720d7ff.js:1
-msgid "Previous"
-msgstr "Předchozí"
-
-#: build/31.e9354171b6207cee8a1b.js:1
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/367.fc7f739d3b65ad856d5c.js:1
-#: build/860.a8269f19205c5720d7ff.js:1
-msgid "Next"
-msgstr "Další"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Public"
-msgstr "Veřejné"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Internal"
-msgstr "Interní"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Choose a file first."
-msgstr "Nejprve vyberte soubor."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Document (PDF, DOCX, TXT, MD)"
-msgstr "Dokument (PDF, DOCX, TXT, MD)"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Public chat"
-msgstr "Veřejný chat"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Internal chat"
-msgstr "Interní chat"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Upload document"
-msgstr "Nahrát dokument"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Add entry"
-msgstr "Přidat záznam"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Documents"
-msgstr "Dokumenty"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No documents uploaded yet."
-msgstr "Zatím nebyly nahrány žádné dokumenty."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-#: build/213.0fc210bb008e9541fd89.js:1
-#: build/309.1176c611d8f1aa33c863.js:1
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "Type"
-msgstr "Typ"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Chunks"
-msgstr "Části"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Targets"
-msgstr "Cíle"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/244.51cc9501d13d30b5c2a2.js:1
-#: build/309.1176c611d8f1aa33c863.js:1
-#: build/474.d98fcb46027547ab305e.js:1
-#: build/475.b4eae071038b2bb3095d.js:1
-#: build/718.0297609e33fe5814329b.js:1
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Actions"
-msgstr "Akce"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Delete this document and its knowledge chunks?"
-msgstr "Smazat tento dokument a jeho části znalostní báze?"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/93.bfc5e33039f2ea629940.js:1
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-#: build/244.51cc9501d13d30b5c2a2.js:1
-#: build/474.d98fcb46027547ab305e.js:1
-#: build/475.b4eae071038b2bb3095d.js:1
-#: build/752.5b321b5d976757948e1d.js:1
-#: build/809.5b0b6628282ca76341c7.js:1
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-msgid "Delete"
-msgstr "Smazat"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Manual entries"
-msgstr "Ruční záznamy"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No manual entries yet."
-msgstr "Zatím žádné ruční záznamy."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Delete this entry?"
-msgstr "Smazat tento záznam?"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Question"
-msgstr "Otázka"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Answer"
-msgstr "Odpověď"
-
 #: includes/Modules/BotThrottle/DashboardWidget.php:73
 #: build/50.5e1e490c895cec652ee2.js:1
-#: build/78.a540e8578ca2d1adbc33.js:1
 #: build/244.51cc9501d13d30b5c2a2.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 #: build/475.b4eae071038b2bb3095d.js:1
 #: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Category"
 msgstr "Kategorie"
 
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Add FAQ"
-msgstr "Přidat FAQ"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Generate from topic (optional)"
-msgstr "Vygenerovat z tématu (volitelné)"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "e.g. cancellation policy"
-msgstr "např. storno podmínky"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Suggest from past chats"
-msgstr "Navrhnout z minulých chatů"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Suggest from topic"
-msgstr "Navrhnout z tématu"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/475.b4eae071038b2bb3095d.js:1
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-#: build/976.9bdf1e13c10fe53dba47.js:1
-msgid "Add"
-msgstr "Přidat"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No new suggestions."
-msgstr "Žádné nové návrhy."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "FAQ"
-msgstr "FAQ"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No FAQs yet."
-msgstr "Zatím žádné FAQ."
-
-#: build/31.e9354171b6207cee8a1b.js:1
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "Active"
-msgstr "Aktivní"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Views"
-msgstr "Zobrazení"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Delete this FAQ?"
-msgstr "Smazat toto FAQ?"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Source type"
-msgstr "Typ zdroje"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Web page URL"
-msgstr "URL webové stránky"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Sitemap URL"
-msgstr "URL mapy webu"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Raw text"
-msgstr "Neformátovaný text"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Title (optional)"
-msgstr "Název (volitelné)"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/213.0fc210bb008e9541fd89.js:1
-#: build/718.0297609e33fe5814329b.js:1
-msgid "Text"
-msgstr "Text"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/178.9f7c44183315fbd10ef5.js:1
-#: build/309.1176c611d8f1aa33c863.js:1
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-msgid "URL"
-msgstr "URL"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Add source"
-msgstr "Přidat zdroj"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No training sources yet."
-msgstr "Zatím žádné trénovací zdroje."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Title / URL"
-msgstr "Název / URL"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Vectors"
-msgstr "Vektory"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Reindex"
-msgstr "Přeindexovat"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Delete this source and its vectors?"
-msgstr "Smazat tento zdroj a jeho vektory?"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Indexed items:"
-msgstr "Indexované položky:"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Vectorize existing data"
-msgstr "Vektorizovat existující data"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Index knowledge base, FAQ, products & content"
-msgstr "Indexovat znalostní bázi, FAQ, produkty a obsah"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Computes embeddings for the current knowledge base entries, FAQ, product index and content index."
-msgstr "Vypočítá embeddingy pro aktuální záznamy znalostní báze, FAQ, index produktů a index obsahu."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Embedding provider:"
-msgstr "Poskytovatel embeddingů:"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "dims"
-msgstr "dim."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Total vectors:"
-msgstr "Vektorů celkem:"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Training sources:"
-msgstr "Trénovací zdroje:"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "pending"
-msgstr "čeká"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "RAG status"
-msgstr "Stav RAG"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Products (WooCommerce)"
-msgstr "Produkty (WooCommerce)"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Content (posts/pages)"
-msgstr "Obsah (příspěvky/stránky)"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Training sources"
-msgstr "Trénovací zdroje"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "AI"
-msgstr "AI"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Waiting"
-msgstr "Čeká"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "With operator"
-msgstr "S operátorem"
-
 #: includes/Modules/OpeningHours/Frontend.php:91
-#: build/78.a540e8578ca2d1adbc33.js:1
 #: build/84.1a53127d36c807b7f9d6.js:1
 #: build/230.9edabc0030c217453fd8.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/474.cf43816866abf5df7c56.js:1
 msgid "Closed"
 msgstr "Uzavřeno"
 
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Visitor"
-msgstr "Návštěvník"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Waiting for pickup"
-msgstr "Čeká na převzetí"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Active handoffs"
-msgstr "Aktivní předání"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No handoff requests right now."
-msgstr "Žádné požadavky na předání."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Take over"
-msgstr "Převzít"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Return to AI"
-msgstr "Vrátit AI"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No messages yet."
-msgstr "Zatím žádné zprávy."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Reply to the customer…"
-msgstr "Odpovědět zákazníkovi…"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/402.b1fe1ccabde7eb8300df.js:1
-#: build/819.0464f25e368c7e7fbca9.js:1
-msgid "Send"
-msgstr "Odeslat"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Select a conversation from the list on the left."
-msgstr "Vyberte konverzaci ze seznamu vlevo."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/148.d119a26df1a63436ea04.js:1
-#: build/244.51cc9501d13d30b5c2a2.js:1
-msgid "Post"
-msgstr "Příspěvek"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Neutral"
-msgstr "Neutrální"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Professional"
-msgstr "Profesionální"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Friendly"
-msgstr "Přátelský"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Persuasive"
-msgstr "Přesvědčivý"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Enthusiastic"
-msgstr "Nadšený"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Short"
-msgstr "Krátký"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Long"
-msgstr "Dlouhý"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Generate a post/page"
-msgstr "Vygenerovat příspěvek/stránku"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Content type"
-msgstr "Typ obsahu"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Tone"
-msgstr "Tón"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Length"
-msgstr "Délka"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "What should this content be about?"
-msgstr "O čem má tento obsah být?"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "SEO focus keyword (optional)"
-msgstr "Klíčové slovo pro SEO (volitelné)"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Generate"
-msgstr "Vygenerovat"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Category:"
-msgstr "Kategorie:"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Tags:"
-msgstr "Štítky:"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Edit draft"
-msgstr "Upravit koncept"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "View published post"
-msgstr "Zobrazit publikovaný příspěvek"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Publish"
-msgstr "Publikovat"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/819.0464f25e368c7e7fbca9.js:1
-msgid "Create draft"
-msgstr "Vytvořit koncept"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Generate a WooCommerce product description"
-msgstr "Vygenerovat popis produktu WooCommerce"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Product description (rough input)"
-msgstr "Popis produktu (hrubý vstup)"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Copy the text above into the product description field."
-msgstr "Zkopírujte text výše do pole popisu produktu."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Generate SEO meta"
-msgstr "Vygenerovat SEO meta"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Save to post ID (optional)"
-msgstr "Uložit k příspěvku s ID (volitelné)"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#, js-format
-msgid "Detected SEO plugin: %s. Copy these values into its fields if needed."
-msgstr "Zjištěný SEO plugin: %s. V případě potřeby zkopírujte tyto hodnoty do jeho polí."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Title:"
-msgstr "Titulek:"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Description:"
-msgstr "Popis:"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Keywords:"
-msgstr "Klíčová slova:"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Import HTML/URL into Elementor"
-msgstr "Importovat HTML/URL do Elementoru"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/367.fc7f739d3b65ad856d5c.js:1
-#: build/457.e838d25a2b352769a07d.js:1
-#: build/563.64a47ca5b2f0345c6df5.js:1
-#: build/718.0297609e33fe5814329b.js:1
-msgid "Source"
-msgstr "Zdroj"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/563.64a47ca5b2f0345c6df5.js:1
-msgid "Paste HTML"
-msgstr "Vložit HTML"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/563.64a47ca5b2f0345c6df5.js:1
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "HTML"
-msgstr "HTML"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/563.64a47ca5b2f0345c6df5.js:1
-msgid "Page URL"
-msgstr "URL stránky"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/563.64a47ca5b2f0345c6df5.js:1
-msgid "Content CSS selector (optional)"
-msgstr "CSS selektor obsahu (volitelné)"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Post type"
-msgstr "Typ příspěvku"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/819.0464f25e368c7e7fbca9.js:1
-msgid "Draft"
-msgstr "Koncept"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "Published"
-msgstr "Publikováno"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Pending review"
-msgstr "Čeká na kontrolu"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Import into Elementor"
-msgstr "Importovat do Elementoru"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#, js-format
-msgid "Created \"%s\" with the widgets below."
-msgstr "Vytvořeno „%s“ s widgety níže."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "widgets."
-msgstr "widgetů."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/563.64a47ca5b2f0345c6df5.js:1
-msgid "Edit in Elementor"
-msgstr "Upravit v Elementoru"
-
 #: includes/Modules/InstagramFeed/Module.php:155
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 msgid "Daily"
 msgstr "Denně"
 
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Weekly"
-msgstr "Týdně"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Monthly"
-msgstr "Měsíčně"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Generators:"
-msgstr "Generátory:"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "active"
-msgstr "aktivní"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Posts generated:"
-msgstr "Vygenerované příspěvky:"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "in the last 7 days"
-msgstr "za posledních 7 dní"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Tokens used:"
-msgstr "Využité tokeny:"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Generator name"
-msgstr "Název generátoru"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Topics (one per line)"
-msgstr "Témata (jedno na řádek)"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Article types"
-msgstr "Typy článků"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Leave empty to rotate through every article type."
-msgstr "Ponechte prázdné pro střídání všech typů článků."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "AI provider"
-msgstr "Poskytovatel AI"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Default provider"
-msgstr "Výchozí poskytovatel"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Model"
-msgstr "Model"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Default model"
-msgstr "Výchozí model"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Extra long"
-msgstr "Extra dlouhý"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/809.5b0b6628282ca76341c7.js:1
-#: build/819.0464f25e368c7e7fbca9.js:1
-msgid "Schedule"
-msgstr "Plánování"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Publish time window"
-msgstr "Časové okno publikování"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "to"
-msgstr "do"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Posts per run"
-msgstr "Příspěvků na běh"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Create generator"
-msgstr "Vytvořit generátor"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/93.bfc5e33039f2ea629940.js:1
-#: build/475.b4eae071038b2bb3095d.js:1
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Generators"
-msgstr "Generátory"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "New generator"
-msgstr "Nový generátor"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No generators yet."
-msgstr "Zatím žádné generátory."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Posts"
-msgstr "Příspěvky"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Next run"
-msgstr "Další běh"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Generated:"
-msgstr "Vygenerováno:"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Run now"
-msgstr "Spustit nyní"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Pause"
-msgstr "Pozastavit"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Activate"
-msgstr "Aktivovat"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Delete this generator?"
-msgstr "Smazat tento generátor?"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Generated posts"
-msgstr "Vygenerované příspěvky"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No posts generated yet."
-msgstr "Zatím nebyly vygenerovány žádné příspěvky."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Bulk action"
-msgstr "Hromadná akce"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Set to draft"
-msgstr "Nastavit jako koncept"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Move to trash"
-msgstr "Přesunout do koše"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Apply"
-msgstr "Použít"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Generator"
-msgstr "Generátor"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Article type"
-msgstr "Typ článku"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Tokens"
-msgstr "Tokeny"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/474.d98fcb46027547ab305e.js:1
-msgid "Created"
-msgstr "Vytvořeno"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Monthly tokens"
-msgstr "Měsíční tokeny"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Daily requests (site-wide)"
-msgstr "Denní požadavky (celý web)"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Your daily requests"
-msgstr "Vaše denní požadavky"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Failed to reach the AI assistant."
-msgstr "Nepodařilo se spojit s AI asistentem."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Ask the internal AI assistant about editing content, site settings, or how to use UX Studio."
-msgstr "Zeptejte se interního AI asistenta na úpravy obsahu, nastavení webu nebo na to, jak používat UX Studio."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Thinking…"
-msgstr "Přemýšlím…"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Type your message…"
-msgstr "Napište svou zprávu…"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "1 hour"
-msgstr "1 hodina"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "4 hours"
-msgstr "4 hodiny"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "8 hours"
-msgstr "8 hodin"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "12 hours"
-msgstr "12 hodin"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "24 hours"
-msgstr "24 hodin"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "List, Get, Create, Update, Delete"
-msgstr "Seznam, Získat, Vytvořit, Aktualizovat, Smazat"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Pages"
-msgstr "Stránky"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "List, Get, Delete"
-msgstr "Seznam, Získat, Smazat"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Custom Post Types"
-msgstr "Vlastní typy obsahu"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "List Types, List Taxonomies, Get Items"
-msgstr "Seznam typů, Seznam taxonomií, Získat položky"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Get, Update"
-msgstr "Získat, Aktualizovat"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Site Stats"
-msgstr "Statistiky webu"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Get"
-msgstr "Získat"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "WooCommerce Products"
-msgstr "Produkty WooCommerce"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "List, Get, Create, Update, Delete (if WooCommerce is active)"
-msgstr "Seznam, Získat, Vytvořit, Aktualizovat, Smazat (pokud je WooCommerce aktivní)"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "WooCommerce Orders"
-msgstr "Objednávky WooCommerce"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "List, Get, Create (if WooCommerce is active)"
-msgstr "Seznam, Získat, Vytvořit (pokud je WooCommerce aktivní)"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Elementor"
-msgstr "Elementor"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "List Pages, Get Structure, Find Widgets, Update Widget (if Elementor is active)"
-msgstr "Seznam stránek, Získat strukturu, Najít widgety, Aktualizovat widget (pokud je Elementor aktivní)"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Plugins Info"
-msgstr "Informace o pluginech"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Theme Info"
-msgstr "Informace o šabloně"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Users Info"
-msgstr "Informace o uživatelích"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Validity"
-msgstr "Platnost"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Generate token"
-msgstr "Vygenerovat token"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "New JWT token"
-msgstr "Nový JWT token"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Copied!"
-msgstr "Zkopírováno!"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Copy"
-msgstr "Kopírovat"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "This token is shown only once. Copy it now - once you leave this page it cannot be displayed again."
-msgstr "Tento token se zobrazí pouze jednou. Zkopírujte jej nyní - jakmile tuto stránku opustíte, nebude jej již možné znovu zobrazit."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No active tokens yet."
-msgstr "Zatím žádné aktivní tokeny."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Token ID"
-msgstr "ID tokenu"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/860.a8269f19205c5720d7ff.js:1
-msgid "User"
-msgstr "Uživatel"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "Expires"
-msgstr "Vyprší"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Revoke"
-msgstr "Zrušit platnost"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "MCP Server"
-msgstr "MCP Server"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "MCP (Model Context Protocol) is an open standard that lets external AI tools talk to this WordPress site. Once enabled, Claude Desktop, Cursor, Windsurf or another MCP client can manage posts, pages, products, media and settings directly. Clients authenticate with a JWT token (see below) and only ever get the operations you allow."
-msgstr "MCP (Model Context Protocol) je otevřený standard, který umožňuje externím AI nástrojům komunikovat s tímto webem WordPress. Po zapnutí mohou Claude Desktop, Cursor, Windsurf nebo jiný MCP klient přímo spravovat příspěvky, stránky, produkty, média a nastavení. Klienti se ověřují pomocí JWT tokenu (viz níže) a získají vždy jen operace, které povolíte."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Status:"
-msgstr "Stav:"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/213.0fc210bb008e9541fd89.js:1
-#: build/809.5b0b6628282ca76341c7.js:1
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "Enabled"
-msgstr "Zapnuto"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "This toggle lives in the Settings tab (\"Enable MCP (tool calling)\") - it is shown here for reference only."
-msgstr "Tento přepínač se nachází na kartě Nastavení („Zapnout MCP (volání nástrojů)“) - zde je zobrazen pouze pro informaci."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Registered tools & resources"
-msgstr "Registrované nástroje a zdroje"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "These WordPress REST API endpoints are automatically exposed as MCP tools and resources. Tools let the AI perform actions (CRUD operations). Resources provide read-only context about the site."
-msgstr "Tyto endpointy WordPress REST API jsou automaticky zpřístupněny jako MCP nástroje a zdroje. Nástroje umožňují AI provádět akce (operace CRUD). Zdroje poskytují kontext o webu pouze pro čtení."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Tools"
-msgstr "Nástroje"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Tool"
-msgstr "Nástroj"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Operations"
-msgstr "Operace"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Resources"
-msgstr "Zdroje"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Resource"
-msgstr "Zdroj"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "URI"
-msgstr "URI"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Resources are read-only - the AI can read them but cannot use them to change data."
-msgstr "Zdroje jsou pouze pro čtení - AI je může číst, ale nemůže je použít ke změně dat."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "JWT access tokens"
-msgstr "Přístupové JWT tokeny"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "To connect an external AI client to the MCP server, generate a JWT (JSON Web Token). Paste it into the AI client's configuration (e.g. the Claude Desktop config). Each token has a limited lifetime and can be revoked at any time."
-msgstr "Chcete-li k MCP serveru připojit externího AI klienta, vygenerujte JWT (JSON Web Token). Vložte jej do konfigurace AI klienta (např. konfigurace Claude Desktop). Každý token má omezenou životnost a lze jej kdykoli zrušit."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Usage"
-msgstr "Využití"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Conversations"
-msgstr "Konverzace"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Handoff"
-msgstr "Předání"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Knowledge Hub"
-msgstr "Knowledge Hub"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "RAG Training"
-msgstr "Trénování RAG"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Content Creator"
-msgstr "Content Creator"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Blog Pilot"
-msgstr "Blog Pilot"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Internal Chat"
-msgstr "Interní chat"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "MCP"
-msgstr "MCP"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Daily requests (per user)"
-msgstr "Denní požadavky (na uživatele)"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "A Claude API key is currently set."
-msgstr "Klíč Claude API je momentálně nastaven."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No Claude API key set yet."
-msgstr "Klíč Claude API zatím nebyl nastaven."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "An OpenAI API key is currently set."
-msgstr "Klíč OpenAI API je momentálně nastaven."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No OpenAI API key set yet."
-msgstr "Klíč OpenAI API zatím nebyl nastaven."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "A DeepSeek API key is currently set."
-msgstr "Klíč DeepSeek API je momentálně nastaven."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No DeepSeek API key set yet."
-msgstr "Klíč DeepSeek API zatím nebyl nastaven."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Period (days)"
-msgstr "Období (dny)"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Requests:"
-msgstr "Požadavky:"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Input tokens:"
-msgstr "Vstupní tokeny:"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Output tokens:"
-msgstr "Výstupní tokeny:"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Sessions:"
-msgstr "Relace:"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No usage recorded for this period."
-msgstr "Za toto období nebylo zaznamenáno žádné využití."
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/792.a567b513f75713d102ba.js:1
-msgid "Provider"
-msgstr "Poskytovatel"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Feature"
-msgstr "Funkce"
-
 #: includes/Modules/BotThrottle/DashboardWidget.php:74
 #: build/50.5e1e490c895cec652ee2.js:1
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/474.d98fcb46027547ab305e.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/474.cf43816866abf5df7c56.js:1
 msgid "Requests"
 msgstr "Požadavky"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Input tokens"
-msgstr "Vstupní tokeny"
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Output tokens"
-msgstr "Výstupní tokeny"
-
-#: build/84.1a53127d36c807b7f9d6.js:1
-msgid "Shown"
-msgstr "Zobrazeno"
-
-#: build/84.1a53127d36c807b7f9d6.js:1
-#: build/819.0464f25e368c7e7fbca9.js:1
-msgid "Clicked"
-msgstr "Kliknuto"
-
-#: build/84.1a53127d36c807b7f9d6.js:1
-msgid "Popup Manager"
-msgstr "Správce vyskakovacích oken"
-
-#: build/84.1a53127d36c807b7f9d6.js:1
-msgid "New popup title"
-msgstr "Název nového vyskakovacího okna"
-
-#: build/84.1a53127d36c807b7f9d6.js:1
-msgid "Add popup"
-msgstr "Přidat vyskakovací okno"
-
-#: build/84.1a53127d36c807b7f9d6.js:1
-#: build/402.b1fe1ccabde7eb8300df.js:1
-#: build/718.0297609e33fe5814329b.js:1
-msgid "Stats"
-msgstr "Statistiky"
-
-#: build/84.1a53127d36c807b7f9d6.js:1
-msgid "Delete popup"
-msgstr "Smazat vyskakovací okno"
-
-#: build/84.1a53127d36c807b7f9d6.js:1
-msgid "No popups yet."
-msgstr "Zatím žádná vyskakovací okna."
-
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "Everywhere (frontend & admin)"
-msgstr "Všude (frontend i administrace)"
-
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "Admin only"
-msgstr "Pouze administrace"
-
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "Frontend only"
-msgstr "Pouze frontend"
-
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "Frontend header"
-msgstr "Hlavička frontendu"
-
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "Frontend footer"
-msgstr "Patička frontendu"
-
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "Admin header"
-msgstr "Hlavička administrace"
-
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "Admin footer"
-msgstr "Patička administrace"
-
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "Frontend body open"
-msgstr "Otevření těla frontendu"
-
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "Add snippet"
-msgstr "Přidat úryvek"
-
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "No snippets have been created yet."
-msgstr "Zatím nebyly vytvořeny žádné úryvky."
-
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "Integrity check failed"
-msgstr "Kontrola integrity selhala"
-
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "Invalid"
-msgstr "Neplatné"
-
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "Toggle enabled"
-msgstr "Přepnout aktivaci"
-
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "Edit snippet"
-msgstr "Upravit úryvek"
-
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "Delete snippet"
-msgstr "Smazat úryvek"
-
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "Delete this snippet? This cannot be undone."
-msgstr "Smazat tento úryvek? Tuto akci nelze vrátit zpět."
-
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "Failed to save snippet."
-msgstr "Nepodařilo se uložit úryvek."
-
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "Snippet name"
-msgstr "Název úryvku"
-
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "Snippet type"
-msgstr "Typ úryvku"
-
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "PHP"
-msgstr "PHP"
-
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "CSS"
-msgstr "CSS"
-
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "JavaScript"
-msgstr "JavaScript"
-
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "Snippet code"
-msgstr "Kód úryvku"
-
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "PHP code only - do not include the opening <?php tag. Code is validated (syntax + duplicate declarations) before it is saved."
-msgstr "Pouze PHP kód - nezahrnujte úvodní tag <?php. Kód je před uložením ověřen (syntaxe + duplicitní deklarace)."
-
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "Where to run"
-msgstr "Kde spustit"
-
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "Enable snippet"
-msgstr "Zapnout snippet"
-
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "Update snippet"
-msgstr "Aktualizovat snippet"
-
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "Save snippet"
-msgstr "Uložit snippet"
-
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "Back to list"
-msgstr "Zpět na seznam"
-
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "Code Snippets"
-msgstr "Snippety kódu"
-
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "Snippets"
-msgstr "Snippety"
-
-#: build/907.e407fbb311cd6ef44322.js:1
-msgid "Third-Party Login"
-msgstr "Přihlášení přes třetí stranu"
-
-#: build/907.e407fbb311cd6ef44322.js:1
-msgid "Connected accounts"
-msgstr "Propojené účty"
-
-#: build/907.e407fbb311cd6ef44322.js:1
-msgid "An HMAC secret is currently set."
-msgstr "Tajný klíč HMAC je momentálně nastaven."
-
-#: build/907.e407fbb311cd6ef44322.js:1
-msgid "No HMAC secret set yet."
-msgstr "Zatím není nastaven žádný tajný klíč HMAC."
-
-#: build/148.d119a26df1a63436ea04.js:1
-msgid "Cached posts"
-msgstr "Uložené příspěvky v cache"
 
 #: includes/Modules/BotThrottle/DashboardWidget.php:63
 #: build/50.5e1e490c895cec652ee2.js:1
@@ -6326,737 +4840,11 @@ msgstr "Uložené příspěvky v cache"
 msgid "Bot requests (24h)"
 msgstr "Požadavky botů (24 h)"
 
-#: build/148.d119a26df1a63436ea04.js:1
-msgid "Regenerate all"
-msgstr "Znovu vygenerovat vše"
-
-#: build/148.d119a26df1a63436ea04.js:1
-msgid "Generated"
-msgstr "Vygenerováno"
-
-#: build/148.d119a26df1a63436ea04.js:1
-msgid "Regenerate"
-msgstr "Znovu vygenerovat"
-
-#: build/148.d119a26df1a63436ea04.js:1
-msgid "Nothing cached yet."
-msgstr "Zatím není nic uloženo v cache."
-
-#: build/148.d119a26df1a63436ea04.js:1
-msgid "AI Markdown"
-msgstr "AI Markdown"
-
-#: build/148.d119a26df1a63436ea04.js:1
-msgid "Cache"
-msgstr "Cache"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Sync now"
-msgstr "Synchronizovat nyní"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Synced"
-msgstr "Synchronizováno"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Instagram Feed"
-msgstr "Instagram Feed"
-
-#: build/157.6516b122bdc10ba986aa.js:1
-msgid "Export CSV"
-msgstr "Exportovat CSV"
-
-#: build/157.6516b122bdc10ba986aa.js:1
-msgid "No subscribers captured yet."
-msgstr "Zatím nebyli zaznamenáni žádní odběratelé."
-
-#: build/157.6516b122bdc10ba986aa.js:1
-msgid "Exit Popup"
-msgstr "Exit Popup"
-
-#: build/157.6516b122bdc10ba986aa.js:1
-#: build/475.b4eae071038b2bb3095d.js:1
-#: build/819.0464f25e368c7e7fbca9.js:1
-msgid "Subscribers"
-msgstr "Odběratelé"
-
-#: build/158.1a00cfb592a89b32f06b.js:1
-msgid "Failed to analyze."
-msgstr "Analýza se nezdařila."
-
-#: build/158.1a00cfb592a89b32f06b.js:1
-msgid "Score"
-msgstr "Skóre"
-
-#: build/158.1a00cfb592a89b32f06b.js:1
-msgid "Re-run analysis"
-msgstr "Spustit analýzu znovu"
-
-#: build/158.1a00cfb592a89b32f06b.js:1
-msgid "Check"
-msgstr "Kontrola"
-
-#: build/158.1a00cfb592a89b32f06b.js:1
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Value"
-msgstr "Hodnota"
-
-#: build/158.1a00cfb592a89b32f06b.js:1
-msgid "Fix"
-msgstr "Opravit"
-
-#: build/158.1a00cfb592a89b32f06b.js:1
-msgid "Post revisions"
-msgstr "Revize příspěvků"
-
-#: build/158.1a00cfb592a89b32f06b.js:1
-msgid "Delete revisions"
-msgstr "Smazat revize"
-
-#: build/158.1a00cfb592a89b32f06b.js:1
-msgid "Spam comments"
-msgstr "Spam komentáře"
-
-#: build/158.1a00cfb592a89b32f06b.js:1
-msgid "Delete spam comments"
-msgstr "Smazat spam komentáře"
-
-#: build/158.1a00cfb592a89b32f06b.js:1
-msgid "Auto-draft posts"
-msgstr "Automaticky uložené koncepty"
-
-#: build/158.1a00cfb592a89b32f06b.js:1
-msgid "Transients"
-msgstr "Transienty"
-
-#: build/158.1a00cfb592a89b32f06b.js:1
-msgid "Delete expired transients"
-msgstr "Smazat expirované transienty"
-
-#: build/158.1a00cfb592a89b32f06b.js:1
-msgid "Fix applied."
-msgstr "Oprava aplikována."
-
-#: build/158.1a00cfb592a89b32f06b.js:1
-msgid "No history yet - run an analysis first."
-msgstr "Zatím žádná historie – nejprve spusťte analýzu."
-
-#: build/158.1a00cfb592a89b32f06b.js:1
-msgid "Performance Optimization"
-msgstr "Optimalizace výkonu"
-
-#: build/158.1a00cfb592a89b32f06b.js:1
-msgid "Analyze"
-msgstr "Analyzovat"
-
-#: build/158.1a00cfb592a89b32f06b.js:1
-msgid "History"
-msgstr "Historie"
-
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "Last 24 hours"
-msgstr "Posledních 24 hodin"
-
-#: build/178.9f7c44183315fbd10ef5.js:1
-#: build/718.0297609e33fe5814329b.js:1
-msgid "Average"
-msgstr "Průměr"
-
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "Min"
-msgstr "Min"
-
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "Max"
-msgstr "Max"
-
-#: build/50.5e1e490c895cec652ee2.js:1
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "Samples"
-msgstr "Vzorky"
-
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "Hour"
-msgstr "Hodina"
-
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "Avg (ms)"
-msgstr "Průměr (ms)"
-
-#: build/50.5e1e490c895cec652ee2.js:1
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "No data yet."
-msgstr "Zatím žádná data."
-
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "Recent requests"
-msgstr "Nedávné požadavky"
-
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "Time"
-msgstr "Čas"
-
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "Load time (ms)"
-msgstr "Doba načítání (ms)"
-
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "No requests logged yet."
-msgstr "Zatím nebyly zaznamenány žádné požadavky."
-
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "Page Load"
-msgstr "Načtení stránky"
-
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "Overview"
-msgstr "Přehled"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Real CSP violations reported by visitor browsers. Resolve entries once you have allowed or fixed the source."
-msgstr "Skutečná porušení CSP hlášená prohlížeči návštěvníků. Vyřešte položky, jakmile zdroj povolíte nebo opravíte."
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Resolved"
-msgstr "Vyřešeno"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Blocked source"
-msgstr "Blokovaný zdroj"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Directive"
-msgstr "Direktiva"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Hits"
-msgstr "Zásahy"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Last seen"
-msgstr "Naposledy viděno"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "(unknown)"
-msgstr "(neznámé)"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Mark resolved"
-msgstr "Označit jako vyřešené"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "No CSP violations reported."
-msgstr "Nebyla nahlášena žádná porušení CSP."
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Uploaded files and wp-content are scanned for injected/malicious code. Critical findings are automatically moved to a protected quarantine folder."
-msgstr "Nahrané soubory a wp-content jsou kontrolovány na vložený/škodlivý kód. Kritické nálezy jsou automaticky přesunuty do chráněné karanténní složky."
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Scan running…"
-msgstr "Probíhá kontrola…"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-#: build/457.e838d25a2b352769a07d.js:1
-msgid "Scan now"
-msgstr "Zkontrolovat nyní"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Scanning in batches…"
-msgstr "Kontrola po dávkách…"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Last scan:"
-msgstr "Poslední kontrola:"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "files scanned:"
-msgstr "zkontrolováno souborů:"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "detections:"
-msgstr "detekce:"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "No scan has run yet."
-msgstr "Zatím neproběhla žádná kontrola."
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Detected"
-msgstr "Detekováno"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Quarantined"
-msgstr "V karanténě"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Approved"
-msgstr "Schváleno"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Queued"
-msgstr "Ve frontě"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Approve"
-msgstr "Schválit"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Delete permanently"
-msgstr "Smazat trvale"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "No findings in this category."
-msgstr "V této kategorii nejsou žádné nálezy."
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Login Attempts"
-msgstr "Pokusy o přihlášení"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "IP Bans"
-msgstr "Blokované IP"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "CSP Violations"
-msgstr "Porušení CSP"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Upload Guard"
-msgstr "Ochrana nahrávání"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "A CAPTCHA secret key is currently set."
-msgstr "Tajný klíč CAPTCHA je momentálně nastaven."
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "No CAPTCHA secret key set yet."
-msgstr "Zatím není nastaven žádný tajný klíč CAPTCHA."
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid ".htaccess rules"
-msgstr "Pravidla .htaccess"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Applied and up to date"
-msgstr "Aplikováno a aktuální"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Out of date - re-apply to write current settings"
-msgstr "Neaktuální – znovu aplikujte pro zapsání aktuálního nastavení"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Apply .htaccess rules"
-msgstr "Aplikovat pravidla .htaccess"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Clear all attempts"
-msgstr "Vymazat všechny pokusy"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "IP"
-msgstr "IP"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Lockout (min)"
-msgstr "Uzamčení (min)"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Locked"
-msgstr "Uzamčeno"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Cleared"
-msgstr "Vymazáno"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Unlock"
-msgstr "Odemknout"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "No failed login attempts recorded."
-msgstr "Nebyly zaznamenány žádné neúspěšné pokusy o přihlášení."
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Single IP address"
-msgstr "Jedna IP adresa"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "IP range (CIDR)"
-msgstr "Rozsah IP (CIDR)"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Country code (ISO 3166-1 alpha-2)"
-msgstr "Kód země (ISO 3166-1 alpha-2)"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Add ban"
-msgstr "Přidat blokaci"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Target"
-msgstr "Cíl"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Central"
-msgstr "Centrální"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Disable"
-msgstr "Vypnout"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Enable"
-msgstr "Zapnout"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "No IP bans yet."
-msgstr "Zatím žádné blokované IP."
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Security - Access Control"
-msgstr "Zabezpečení – řízení přístupu"
-
 #: includes/Modules/OpeningHours/Frontend.php:73
 #: includes/Modules/OpeningHours/Frontend.php:117
 #: build/230.9edabc0030c217453fd8.js:1
 msgid "Open now"
 msgstr "Nyní otevřeno"
-
-#: build/230.9edabc0030c217453fd8.js:1
-msgid "Address"
-msgstr "Adresa"
-
-#: build/230.9edabc0030c217453fd8.js:1
-msgid "Add location"
-msgstr "Přidat lokalitu"
-
-#: build/230.9edabc0030c217453fd8.js:1
-msgid "Delete location"
-msgstr "Smazat lokalitu"
-
-#: build/230.9edabc0030c217453fd8.js:1
-msgid "No address set."
-msgstr "Není nastavena žádná adresa."
-
-#: build/230.9edabc0030c217453fd8.js:1
-msgid "Weekly hours (JSON)"
-msgstr "Týdenní otevírací doba (JSON)"
-
-#: build/230.9edabc0030c217453fd8.js:1
-msgid "Example"
-msgstr "Příklad"
-
-#: build/230.9edabc0030c217453fd8.js:1
-msgid "Save hours"
-msgstr "Uložit otevírací dobu"
-
-#: build/230.9edabc0030c217453fd8.js:1
-msgid "No locations yet."
-msgstr "Zatím žádné lokality."
-
-#: build/230.9edabc0030c217453fd8.js:1
-msgid "Opening Hours"
-msgstr "Otevírací doba"
-
-#: build/230.9edabc0030c217453fd8.js:1
-msgid "Locations"
-msgstr "Lokality"
-
-#: build/244.51cc9501d13d30b5c2a2.js:1
-msgid "Select a file to protect"
-msgstr "Vyberte soubor k ochraně"
-
-#: build/244.51cc9501d13d30b5c2a2.js:1
-msgid "Change file"
-msgstr "Změnit soubor"
-
-#: build/244.51cc9501d13d30b5c2a2.js:1
-msgid "Select file"
-msgstr "Vybrat soubor"
-
-#: build/244.51cc9501d13d30b5c2a2.js:1
-msgid "e.g. Price list 2026"
-msgstr "např. Ceník 2026"
-
-#: build/244.51cc9501d13d30b5c2a2.js:1
-msgid "Require login to download"
-msgstr "Vyžadovat přihlášení ke stažení"
-
-#: build/244.51cc9501d13d30b5c2a2.js:1
-msgid "Add file"
-msgstr "Přidat soubor"
-
-#: build/244.51cc9501d13d30b5c2a2.js:1
-msgid "No protected files yet."
-msgstr "Zatím žádné chráněné soubory."
-
-#: build/244.51cc9501d13d30b5c2a2.js:1
-msgid "Downloads"
-msgstr "Stažení"
-
-#: build/244.51cc9501d13d30b5c2a2.js:1
-msgid "Login required"
-msgstr "Vyžadováno přihlášení"
-
-#: build/244.51cc9501d13d30b5c2a2.js:1
-msgid "Copied"
-msgstr "Zkopírováno"
-
-#: build/244.51cc9501d13d30b5c2a2.js:1
-msgid "Copy link"
-msgstr "Kopírovat odkaz"
-
-#: build/244.51cc9501d13d30b5c2a2.js:1
-msgid "Delete this file entry? The media library file itself is kept."
-msgstr "Smazat tuto položku souboru? Samotný soubor v knihovně médií zůstane zachován."
-
-#: build/244.51cc9501d13d30b5c2a2.js:1
-msgid "Download Files"
-msgstr "Soubory ke stažení"
-
-#: build/244.51cc9501d13d30b5c2a2.js:1
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "Files"
-msgstr "Soubory"
-
-#: build/309.1176c611d8f1aa33c863.js:1
-msgid "Last sync"
-msgstr "Poslední synchronizace"
-
-#: build/309.1176c611d8f1aa33c863.js:1
-msgid "No sync activity yet."
-msgstr "Zatím žádná aktivita synchronizace."
-
-#: build/309.1176c611d8f1aa33c863.js:1
-msgid "Content Sync"
-msgstr "Content Sync"
-
-#: build/367.fc7f739d3b65ad856d5c.js:1
-msgid "Clear all"
-msgstr "Vymazat vše"
-
-#: build/367.fc7f739d3b65ad856d5c.js:1
-#: build/831.f63d33eb2c8abcd821ed.js:1
-msgid "To"
-msgstr "Komu"
-
-#: build/367.fc7f739d3b65ad856d5c.js:1
-#: build/831.f63d33eb2c8abcd821ed.js:1
-msgid "Subject"
-msgstr "Předmět"
-
-#: build/367.fc7f739d3b65ad856d5c.js:1
-#: build/402.b1fe1ccabde7eb8300df.js:1
-#: build/819.0464f25e368c7e7fbca9.js:1
-#: build/831.f63d33eb2c8abcd821ed.js:1
-msgid "Sent"
-msgstr "Odesláno"
-
-#: build/367.fc7f739d3b65ad856d5c.js:1
-#: build/402.b1fe1ccabde7eb8300df.js:1
-#: build/819.0464f25e368c7e7fbca9.js:1
-#: build/831.f63d33eb2c8abcd821ed.js:1
-msgid "Failed"
-msgstr "Nezdařilo se"
-
-#: build/367.fc7f739d3b65ad856d5c.js:1
-msgid "Delete entry"
-msgstr "Smazat položku"
-
-#: build/367.fc7f739d3b65ad856d5c.js:1
-#: build/831.f63d33eb2c8abcd821ed.js:1
-msgid "No mail has been sent yet."
-msgstr "Zatím nebyl odeslán žádný e-mail."
-
-#: build/367.fc7f739d3b65ad856d5c.js:1
-msgid "Email Log"
-msgstr "Protokol e-mailů"
-
-#: build/386.3fec0ad538544d603682.js:1
-msgid "File Manager grants browser access to the entire server filesystem, restricted to an explicit whitelist of administrators. It manages its own access and settings through a dedicated admin screen."
-msgstr "File Manager umožňuje přístup k celému souborovému systému serveru přes prohlížeč, omezený na výslovný seznam povolených administrátorů. Vlastní přístup a nastavení spravuje prostřednictvím vyhrazené administrátorské obrazovky."
-
-#: build/402.b1fe1ccabde7eb8300df.js:1
-msgid "Recipient email"
-msgstr "E-mail příjemce"
-
-#: build/402.b1fe1ccabde7eb8300df.js:1
-msgid "Order ID (optional)"
-msgstr "ID objednávky (nepovinné)"
-
-#: build/402.b1fe1ccabde7eb8300df.js:1
-#: build/831.f63d33eb2c8abcd821ed.js:1
-msgid "Sent to"
-msgstr "Odesláno na"
-
-#: build/402.b1fe1ccabde7eb8300df.js:1
-msgid "Failed to send"
-msgstr "Odeslání se nezdařilo"
-
-#: build/402.b1fe1ccabde7eb8300df.js:1
-msgid "Recipient"
-msgstr "Příjemce"
-
-#: build/402.b1fe1ccabde7eb8300df.js:1
-msgid "Order ID"
-msgstr "ID objednávky"
-
-#: build/402.b1fe1ccabde7eb8300df.js:1
-msgid "No review requests have been sent yet."
-msgstr "Zatím nebyly odeslány žádné žádosti o recenzi."
-
-#: build/402.b1fe1ccabde7eb8300df.js:1
-msgid "Google Review Request"
-msgstr "Žádost o recenzi na Google"
-
-#: build/457.e838d25a2b352769a07d.js:1
-msgid "Critical"
-msgstr "Kritická"
-
-#: build/457.e838d25a2b352769a07d.js:1
-msgid "High"
-msgstr "Vysoká"
-
-#: build/457.e838d25a2b352769a07d.js:1
-msgid "Low"
-msgstr "Nízká"
-
-#: build/457.e838d25a2b352769a07d.js:1
-msgid "WPScan CVE"
-msgstr "WPScan CVE"
-
-#: build/457.e838d25a2b352769a07d.js:1
-msgid "Outdated (WordPress.org)"
-msgstr "Zastaralé (WordPress.org)"
-
-#: build/457.e838d25a2b352769a07d.js:1
-msgid "Last scanned:"
-msgstr "Naposledy kontrolováno:"
-
-#: build/457.e838d25a2b352769a07d.js:1
-msgid "WordPress.org publishes no free CVE feed - the \"Outdated\" signal only means a newer version exists, not that the installed one is confirmed vulnerable. Add a WPScan API key in Settings for real CVE data."
-msgstr "WordPress.org nezveřejňuje žádný bezplatný CVE feed – signál „Zastaralé“ znamená pouze to, že existuje novější verze, nikoli že je nainstalovaná verze potvrzeně zranitelná. Pro reálná CVE data přidejte v Nastavení klíč WPScan API."
-
-#: build/457.e838d25a2b352769a07d.js:1
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-msgid "Item"
-msgstr "Položka"
-
-#: build/457.e838d25a2b352769a07d.js:1
-msgid "Issue"
-msgstr "Problém"
-
-#: build/457.e838d25a2b352769a07d.js:1
-msgid "Installed"
-msgstr "Nainstalováno"
-
-#: build/457.e838d25a2b352769a07d.js:1
-msgid "Fixed in"
-msgstr "Opraveno ve verzi"
-
-#: build/457.e838d25a2b352769a07d.js:1
-msgid "(reference)"
-msgstr "(reference)"
-
-#: build/457.e838d25a2b352769a07d.js:1
-msgid "Dismiss"
-msgstr "Zavřít"
-
-#: build/457.e838d25a2b352769a07d.js:1
-msgid "No known issues found. Run a scan if you have not yet, or check back later."
-msgstr "Nebyly nalezeny žádné známé problémy. Pokud jste ještě neprovedli kontrolu, spusťte ji, nebo se vraťte později."
-
-#: build/457.e838d25a2b352769a07d.js:1
-msgid "Vulnerability Scanner"
-msgstr "Skener zranitelností"
-
-#: build/457.e838d25a2b352769a07d.js:1
-msgid "Results"
-msgstr "Výsledky"
-
-#: build/457.e838d25a2b352769a07d.js:1
-msgid "A WPScan API key is currently set."
-msgstr "Klíč WPScan API je aktuálně nastaven."
-
-#: build/457.e838d25a2b352769a07d.js:1
-msgid "No WPScan API key set yet - only the free WordPress.org outdated-version check runs."
-msgstr "Zatím není nastaven žádný klíč WPScan API – spouští se pouze bezplatná kontrola zastaralých verzí z WordPress.org."
-
-#: build/474.d98fcb46027547ab305e.js:1
-msgid "In progress"
-msgstr "Probíhá"
-
-#: build/474.d98fcb46027547ab305e.js:1
-msgid "Done"
-msgstr "Hotovo"
-
-#: build/474.d98fcb46027547ab305e.js:1
-msgid "Attach a file"
-msgstr "Připojit soubor"
-
-#: build/474.d98fcb46027547ab305e.js:1
-msgid "Change attachment"
-msgstr "Změnit přílohu"
-
-#: build/474.d98fcb46027547ab305e.js:1
-msgid "Requester email"
-msgstr "E-mail žadatele"
-
-#: build/474.d98fcb46027547ab305e.js:1
-msgid "Attachment"
-msgstr "Příloha"
-
-#: build/474.d98fcb46027547ab305e.js:1
-msgid "Create request"
-msgstr "Vytvořit žádost"
-
-#: build/474.d98fcb46027547ab305e.js:1
-msgid "No service requests yet."
-msgstr "Zatím žádné servisní žádosti."
-
-#: build/474.d98fcb46027547ab305e.js:1
-msgid "Requester"
-msgstr "Žadatel"
-
-#: build/474.d98fcb46027547ab305e.js:1
-msgid "Delete this service request?"
-msgstr "Smazat tuto servisní žádost?"
-
-#: build/474.d98fcb46027547ab305e.js:1
-msgid "Service Requests"
-msgstr "Servisní žádosti"
-
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "e.g. Public notice 4/2026"
-msgstr "např. Veřejná vyhláška 4/2026"
-
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "— None —"
-msgstr "— Žádná —"
-
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "Confirmed"
-msgstr "Potvrzeno"
-
-#: build/367.fc7f739d3b65ad856d5c.js:1
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "Pending"
-msgstr "Čeká na potvrzení"
-
-#: build/475.b4eae071038b2bb3095d.js:1
-#: build/819.0464f25e368c7e7fbca9.js:1
-msgid "No subscribers yet."
-msgstr "Zatím žádní odběratelé."
-
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "Notice Board"
-msgstr "Nástěnka"
-
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-msgid "Administrator"
-msgstr "Administrátor"
 
 #: includes/Modules/ContentSync/Module.php:174
 #: build/930.c657f0a8ddf5aeb4be68.js:1
@@ -7068,737 +4856,20 @@ msgstr "Editor"
 msgid "Contributor"
 msgstr "Přispěvatel"
 
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-msgid "Subscriber"
-msgstr "Odběratel"
-
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-#: build/index.508ec69e5c53f238b3b0.js:1
-msgid "Layout"
-msgstr "Rozvržení"
-
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-msgid "Vertical sidebar (default)"
-msgstr "Svislý postranní panel (výchozí)"
-
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-msgid "Horizontal top bar"
-msgstr "Vodorovný horní panel"
-
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-msgid "Export configuration"
-msgstr "Exportovat konfiguraci"
-
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-msgid "Import configuration"
-msgstr "Importovat konfiguraci"
-
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-msgid "Add category"
-msgstr "Přidat kategorii"
-
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-msgid "e.g. Reports"
-msgstr "např. Reporty"
-
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-msgid "Order"
-msgstr "Pořadí"
-
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-msgid "Custom title"
-msgstr "Vlastní název"
-
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-msgid "Custom icon"
-msgstr "Vlastní ikona"
-
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-msgid "Custom URL"
-msgstr "Vlastní URL"
-
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-msgid "Visible to roles"
-msgstr "Viditelné pro role"
-
-#: build/718.0297609e33fe5814329b.js:1
+#: includes/Modules/ServiceRequests/Sync.php:453
 #: build/752.5b321b5d976757948e1d.js:1
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-msgid "Hide"
-msgstr "Skrýt"
-
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-msgid "None checked = visible to everyone."
-msgstr "Nic zaškrtnuto = viditelné pro všechny."
-
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-msgid "Custom links"
-msgstr "Vlastní odkazy"
-
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-msgid "Add link"
-msgstr "Přidat odkaz"
-
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-msgid "— category —"
-msgstr "— kategorie —"
-
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-msgid "Separators"
-msgstr "Oddělovače"
-
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-msgid "Add separator"
-msgstr "Přidat oddělovač"
-
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-msgid "Label (optional)"
-msgstr "Popisek (nepovinné)"
-
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-msgid "Label"
-msgstr "Popisek"
-
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-msgid "(no label)"
-msgstr "(bez popisku)"
-
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-msgid "Menu Organizer"
-msgstr "Organizátor menu"
-
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-msgid "Admin Customiser"
-msgstr "Přizpůsobení administrace"
-
-#: build/718.0297609e33fe5814329b.js:1
-msgid "Fetch reviews"
-msgstr "Načíst recenze"
-
-#: build/718.0297609e33fe5814329b.js:1
-msgid "Fetched"
-msgstr "Načteno"
-
-#: build/718.0297609e33fe5814329b.js:1
-msgid "reviews"
-msgstr "recenzí"
-
-#: build/718.0297609e33fe5814329b.js:1
-msgid "No reviews yet."
-msgstr "Zatím žádné recenze."
-
-#: build/718.0297609e33fe5814329b.js:1
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Visible"
-msgstr "Viditelné"
-
-#: build/718.0297609e33fe5814329b.js:1
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Show"
-msgstr "Zobrazit"
-
-#: build/718.0297609e33fe5814329b.js:1
-msgid "Total reviews:"
-msgstr "Celkem recenzí:"
-
-#: build/718.0297609e33fe5814329b.js:1
-msgid "Average rating:"
-msgstr "Průměrné hodnocení:"
-
-#: build/718.0297609e33fe5814329b.js:1
-msgid "Count"
-msgstr "Počet"
-
-#: build/718.0297609e33fe5814329b.js:1
-msgid "No data."
-msgstr "Žádná data."
-
-#: build/718.0297609e33fe5814329b.js:1
-msgid "Review Aggregator"
-msgstr "Agregátor recenzí"
-
-#: build/718.0297609e33fe5814329b.js:1
-msgid "Reviews"
-msgstr "Recenze"
-
-#: build/718.0297609e33fe5814329b.js:1
-msgid "Shortcode: [uxstudio_reviews]"
-msgstr "Shortcode: [uxstudio_reviews]"
-
-#: build/136.71ec8b3d36d55a7536e3.js:1
-msgid "No versions found"
-msgstr "Nebyly nalezeny žádné verze"
-
-#: build/136.71ec8b3d36d55a7536e3.js:1
-msgid "Select a version…"
-msgstr "Vyberte verzi…"
-
-#: build/136.71ec8b3d36d55a7536e3.js:1
-msgid "current"
-msgstr "aktuální"
-
-#: build/136.71ec8b3d36d55a7536e3.js:1
-msgid "No installed plugins from WordPress.org were found."
-msgstr "Nebyly nalezeny žádné nainstalované pluginy z WordPress.org."
-
-#: build/136.71ec8b3d36d55a7536e3.js:1
-msgid "No installed themes from WordPress.org were found."
-msgstr "Nebyly nalezeny žádné nainstalované šablony z WordPress.org."
-
-#: build/136.71ec8b3d36d55a7536e3.js:1
-msgid "Current version"
-msgstr "Aktuální verze"
-
-#: build/136.71ec8b3d36d55a7536e3.js:1
-msgid "Roll back to"
-msgstr "Vrátit zpět na"
-
-#. translators: %s: version number
-#: build/136.71ec8b3d36d55a7536e3.js:2
-#, js-format
-msgid "Rolled back to %s"
-msgstr "Vráceno zpět na %s"
-
-#: build/136.71ec8b3d36d55a7536e3.js:2
-#: build/831.f63d33eb2c8abcd821ed.js:1
-msgid "Unknown error"
-msgstr "Neznámá chyba"
-
-#: build/136.71ec8b3d36d55a7536e3.js:2
-msgid "Rollback"
-msgstr "Vrácení zpět"
-
-#: build/136.71ec8b3d36d55a7536e3.js:2
-msgid "Rollback Manager"
-msgstr "Správce vrácení verzí"
-
-#: build/792.a567b513f75713d102ba.js:1
-msgid "no API key"
-msgstr "bez klíče API"
-
-#: build/792.a567b513f75713d102ba.js:1
-msgid "Search"
-msgstr "Hledat"
-
-#: build/563.64a47ca5b2f0345c6df5.js:1
-#: build/792.a567b513f75713d102ba.js:1
-msgid "Imported"
-msgstr "Importováno"
-
-#: build/563.64a47ca5b2f0345c6df5.js:1
-#: build/792.a567b513f75713d102ba.js:1
-msgid "Import"
-msgstr "Importovat"
-
-#: build/792.a567b513f75713d102ba.js:1
-msgid "No results."
-msgstr "Žádné výsledky."
-
-#: build/792.a567b513f75713d102ba.js:1
-msgid "Stock Photos"
-msgstr "Fotobanky"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Hook"
-msgstr "Hook"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Args"
-msgstr "Argumenty"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Non-repeating"
-msgstr "Neopakující se"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Delete this scheduled event?"
-msgstr "Smazat tuto naplánovanou událost?"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "No events are currently scheduled."
-msgstr "Aktuálně nejsou naplánovány žádné události."
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "DISABLE_WP_CRON"
-msgstr "DISABLE_WP_CRON"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "ALTERNATE_WP_CRON"
-msgstr "ALTERNATE_WP_CRON"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Next scheduled event"
-msgstr "Další naplánovaná událost"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Total scheduled events"
-msgstr "Celkem naplánovaných událostí"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Cron running late"
-msgstr "Cron má zpoždění"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Late"
-msgstr "Zpožděno"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "On time"
-msgstr "Včas"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Cron Control"
-msgstr "Ovládání cronu"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Events"
-msgstr "Události"
-
-#: build/819.0464f25e368c7e7fbca9.js:1
-msgid "No notifications yet."
-msgstr "Zatím žádná oznámení."
-
-#: build/819.0464f25e368c7e7fbca9.js:1
-msgid "User agent"
-msgstr "User agent"
-
-#: build/819.0464f25e368c7e7fbca9.js:1
-msgid "Push Notifications"
-msgstr "Push oznámení"
-
-#: build/819.0464f25e368c7e7fbca9.js:1
-msgid "A VAPID keypair is currently configured."
-msgstr "Pár klíčů VAPID je aktuálně nastaven."
-
-#: build/819.0464f25e368c7e7fbca9.js:1
-msgid "No VAPID keypair yet - one will be generated automatically."
-msgstr "Zatím není nastaven žádný pár klíčů VAPID – bude vygenerován automaticky."
-
-#: build/819.0464f25e368c7e7fbca9.js:1
-msgid "Regenerate VAPID keys"
-msgstr "Znovu vygenerovat klíče VAPID"
-
-#: build/831.f63d33eb2c8abcd821ed.js:1
-msgid "SMTP Email"
-msgstr "SMTP e-mail"
-
-#: build/831.f63d33eb2c8abcd821ed.js:1
-msgid "A SMTP password is currently set."
-msgstr "Heslo SMTP je aktuálně nastaveno."
-
-#: build/831.f63d33eb2c8abcd821ed.js:1
-msgid "No SMTP password set yet."
-msgstr "Zatím není nastaveno žádné heslo SMTP."
-
-#: build/831.f63d33eb2c8abcd821ed.js:1
-msgid "A Brevo API key is currently set."
-msgstr "Klíč Brevo API je aktuálně nastaven."
-
-#: build/831.f63d33eb2c8abcd821ed.js:1
-msgid "No Brevo API key set yet."
-msgstr "Zatím není nastaven žádný klíč Brevo API."
-
-#: build/831.f63d33eb2c8abcd821ed.js:1
-msgid "Send a test email to"
-msgstr "Odeslat testovací e-mail na"
-
-#: build/831.f63d33eb2c8abcd821ed.js:1
-msgid "Defaults to the site admin email"
-msgstr "Výchozí je e-mail administrátora webu"
-
-#: build/831.f63d33eb2c8abcd821ed.js:1
-msgid "Send test email"
-msgstr "Odeslat testovací e-mail"
-
-#: build/831.f63d33eb2c8abcd821ed.js:1
-msgid "Failed:"
-msgstr "Nezdařilo se:"
-
-#: build/860.a8269f19205c5720d7ff.js:1
-#: build/976.9bdf1e13c10fe53dba47.js:1
-msgid "Module"
-msgstr "Modul"
-
-#: build/860.a8269f19205c5720d7ff.js:1
-msgid "Purge old entries"
-msgstr "Vymazat staré záznamy"
-
-#: build/309.1176c611d8f1aa33c863.js:1
-#: build/860.a8269f19205c5720d7ff.js:1
-#: build/976.9bdf1e13c10fe53dba47.js:1
-msgid "Object"
-msgstr "Objekt"
-
-#: build/860.a8269f19205c5720d7ff.js:1
-msgid "No matching activity found."
-msgstr "Nebyla nalezena žádná odpovídající aktivita."
-
-#: build/860.a8269f19205c5720d7ff.js:1
-msgid "Activity Log"
-msgstr "Protokol aktivit"
-
-#: build/93.bfc5e33039f2ea629940.js:1
-#: build/367.fc7f739d3b65ad856d5c.js:1
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "Attachments"
-msgstr "Přílohy"
-
-#: build/93.bfc5e33039f2ea629940.js:1
-msgid "Delete this folder? Attachments in it will become unassigned."
-msgstr "Smazat tuto složku? Přílohy v ní se stanou nepřiřazenými."
-
-#: build/93.bfc5e33039f2ea629940.js:1
-msgid "Folder Manager"
-msgstr "Správce složek"
-
-#: build/93.bfc5e33039f2ea629940.js:1
-msgid "Add folder"
-msgstr "Přidat složku"
-
-#: build/93.bfc5e33039f2ea629940.js:1
-msgid "Parent folder"
-msgstr "Nadřazená složka"
-
-#: build/93.bfc5e33039f2ea629940.js:1
-msgid "— None (top level) —"
-msgstr "— Žádná (nejvyšší úroveň) —"
-
-#: build/93.bfc5e33039f2ea629940.js:1
-msgid "Could not create folder."
-msgstr "Složku se nepodařilo vytvořit."
-
-#: build/93.bfc5e33039f2ea629940.js:1
-msgid "Assign attachment to a folder"
-msgstr "Přiřadit přílohu ke složce"
-
-#: build/93.bfc5e33039f2ea629940.js:1
-msgid "Folders are assigned to media via the standard WordPress media library - select attachments there and use this taxonomy, or assign a single attachment by id here."
-msgstr "Složky se přiřazují k médiím prostřednictvím standardní knihovny médií WordPressu – vyberte tam přílohy a použijte tuto taxonomii, nebo zde přiřaďte jednotlivou přílohu podle id."
-
-#: build/93.bfc5e33039f2ea629940.js:1
-msgid "Attachment ID"
-msgstr "ID přílohy"
-
-#: build/93.bfc5e33039f2ea629940.js:1
-msgid "— Unassigned —"
-msgstr "— Nepřiřazeno —"
-
-#: build/93.bfc5e33039f2ea629940.js:1
-msgid "Assign"
-msgstr "Přiřadit"
-
-#: build/93.bfc5e33039f2ea629940.js:1
-msgid "Assigned."
-msgstr "Přiřazeno."
-
-#: build/93.bfc5e33039f2ea629940.js:1
-msgid "Could not assign attachment."
-msgstr "Přílohu se nepodařilo přiřadit."
-
-#: build/976.9bdf1e13c10fe53dba47.js:1
-msgid "Performance score:"
-msgstr "Skóre výkonu:"
-
-#: build/976.9bdf1e13c10fe53dba47.js:1
-msgid "First Contentful Paint:"
-msgstr "First Contentful Paint:"
-
-#: build/976.9bdf1e13c10fe53dba47.js:1
-msgid "Largest Contentful Paint:"
-msgstr "Largest Contentful Paint:"
-
-#: build/976.9bdf1e13c10fe53dba47.js:1
-msgid "Not configured"
-msgstr "Nenakonfigurováno"
-
-#: build/976.9bdf1e13c10fe53dba47.js:1
-msgid "Add a Google PageSpeed API key in Settings to see a score here."
-msgstr "Přidejte v Nastavení klíč Google PageSpeed API, abyste zde viděli skóre."
-
-#: build/976.9bdf1e13c10fe53dba47.js:1
-msgid "No recent activity."
-msgstr "Žádná nedávná aktivita."
-
-#: build/976.9bdf1e13c10fe53dba47.js:1
-msgid "Quick tasks"
-msgstr "Rychlé úkoly"
-
-#: build/976.9bdf1e13c10fe53dba47.js:1
-msgid "Delete task"
-msgstr "Smazat úkol"
-
-#: build/976.9bdf1e13c10fe53dba47.js:1
-msgid "New task…"
-msgstr "Nový úkol…"
-
-#: build/976.9bdf1e13c10fe53dba47.js:1
-msgid "Notes"
-msgstr "Poznámky"
-
-#: build/976.9bdf1e13c10fe53dba47.js:1
-msgid "Dashboard Widgets"
-msgstr "Widgety nástěnky"
-
-#: build/976.9bdf1e13c10fe53dba47.js:1
-msgid "Tasks"
-msgstr "Úkoly"
-
-#: build/976.9bdf1e13c10fe53dba47.js:1
-msgid "PageSpeed score"
-msgstr "Skóre PageSpeed"
-
-#: build/976.9bdf1e13c10fe53dba47.js:1
-msgid "Recent activity"
-msgstr "Nedávná aktivita"
-
-#: build/976.9bdf1e13c10fe53dba47.js:1
-msgid "Tasks & notes"
-msgstr "Úkoly a poznámky"
-
-#: build/976.9bdf1e13c10fe53dba47.js:1
-msgid "A PageSpeed API key is currently set."
-msgstr "Klíč PageSpeed API je aktuálně nastaven."
-
-#: build/976.9bdf1e13c10fe53dba47.js:1
-msgid "No PageSpeed API key set yet."
-msgstr "Zatím není nastaven žádný klíč PageSpeed API."
-
-#: build/976.9bdf1e13c10fe53dba47.js:1
-msgid "A GA service-account JSON is currently set."
-msgstr "JSON servisního účtu GA je aktuálně nastaven."
-
-#: build/976.9bdf1e13c10fe53dba47.js:1
-msgid "No GA service-account JSON set yet."
-msgstr "Zatím není nastaven žádný JSON servisního účtu GA."
-
-#: build/999.099916b842480750146e.js:1
-msgid "AI Panel manages temporary remote access grants through its own dedicated admin screen, unchanged from before the rewrite."
-msgstr "AI Panel spravuje dočasná oprávnění pro vzdálený přístup prostřednictvím vlastní vyhrazené administrační obrazovky, beze změny oproti stavu před přepisem."
-
-#: build/999.099916b842480750146e.js:1
-msgid "Open AI Panel"
-msgstr "Otevřít AI Panel"
-
-#: build/index.508ec69e5c53f238b3b0.js:1
-msgid "Select image"
-msgstr "Vybrat obrázek"
-
-#: build/index.508ec69e5c53f238b3b0.js:1
-msgid "Change image"
-msgstr "Změnit obrázek"
-
-#: build/index.508ec69e5c53f238b3b0.js:1
-msgid "— Select —"
-msgstr "— Vybrat —"
-
-#: build/index.508ec69e5c53f238b3b0.js:1
-msgid "Failed to load modules."
-msgstr "Nepodařilo se načíst moduly."
-
-#: build/index.508ec69e5c53f238b3b0.js:1
-#: build/index.508ec69e5c53f238b3b0.js:2
-msgid "Modules"
-msgstr "Moduly"
-
-#. translators: %d: number of currently active modules.
-#: build/index.508ec69e5c53f238b3b0.js:2
-#, js-format
-msgid "Deactivate %d active module?"
-msgid_plural "Deactivate all %d active modules?"
-msgstr[0] "Deaktivovat %d aktivní modul?"
-msgstr[1] "Deaktivovat všechny %d aktivní moduly?"
-msgstr[2] "Deaktivovat všech %d aktivních modulů?"
-
-#: build/index.508ec69e5c53f238b3b0.js:2
-msgid "Deactivate all modules"
-msgstr "Deaktivovat všechny moduly"
-
-#: build/index.508ec69e5c53f238b3b0.js:2
-msgid "Disable module"
-msgstr "Vypnout modul"
-
-#: build/index.508ec69e5c53f238b3b0.js:2
-msgid "Enable module"
-msgstr "Zapnout modul"
-
-#: build/752.5b321b5d976757948e1d.js:1
-#: build/index.508ec69e5c53f238b3b0.js:2
+#: build/index.8fe12f55411233ea4a52.js:2
 msgid "Theme"
 msgstr "Vzhled"
 
-#: build/index.508ec69e5c53f238b3b0.js:2
-msgid "Switch to light mode"
-msgstr "Přepnout na světlý režim"
-
-#: build/index.508ec69e5c53f238b3b0.js:2
-msgid "Switch to dark mode"
-msgstr "Přepnout na tmavý režim"
-
-#: build/index.508ec69e5c53f238b3b0.js:2
-msgid "About"
-msgstr "O aplikaci"
-
-#: build/index.508ec69e5c53f238b3b0.js:2
-msgid "Plugin version"
-msgstr "Verze pluginu"
-
-#: build/index.508ec69e5c53f238b3b0.js:2
-msgid "API version"
-msgstr "Verze API"
-
-#: build/index.508ec69e5c53f238b3b0.js:2
+#: includes/Modules/ServiceRequests/Sync.php:454
+#: build/index.8fe12f55411233ea4a52.js:2
 msgid "Language"
 msgstr "Jazyk"
-
-#: build/index.508ec69e5c53f238b3b0.js:2
-msgid "Toggle dark mode"
-msgstr "Přepnout tmavý režim"
-
-#: build/index.508ec69e5c53f238b3b0.js:2
-msgid "Light mode"
-msgstr "Světlý režim"
-
-#: build/index.508ec69e5c53f238b3b0.js:2
-msgid "Dark mode"
-msgstr "Tmavý režim"
-
-#: build/index.508ec69e5c53f238b3b0.js:2
-msgid "UX Studio navigation"
-msgstr "Navigace UX Studio"
-
-#: includes/Modules/PostGallery/assets/js/post-gallery-admin.js:26
-msgid "Select gallery images"
-msgstr "Vybrat obrázky galerie"
-
-#: includes/Modules/PostGallery/assets/js/post-gallery-admin.js:27
-msgid "Add to gallery"
-msgstr "Přidat do galerie"
-
-#: build/213.0fc210bb008e9541fd89.js:2
-msgid "Admin Columns"
-msgstr "Sloupce administrace"
-
-#: build/563.64a47ca5b2f0345c6df5.js:1
-msgid "Elementor Import"
-msgstr "Import Elementoru"
-
-#: build/index.508ec69e5c53f238b3b0.js:1
-msgid "Grid view"
-msgstr "Zobrazení mřížky"
-
-#: build/index.508ec69e5c53f238b3b0.js:1
-msgid "List view"
-msgstr "Zobrazení seznamu"
 
 #: includes/Modules/AdminColumns/RestController.php:99
 msgid "Comments"
 msgstr "Komentáře"
-
-#: build/213.0fc210bb008e9541fd89.js:1
-msgid "Default (native column)"
-msgstr "Výchozí (nativní sloupec)"
-
-#: build/213.0fc210bb008e9541fd89.js:1
-msgid "Custom field (meta)"
-msgstr "Vlastní pole (meta)"
-
-#: build/213.0fc210bb008e9541fd89.js:1
-msgid "Taxonomy"
-msgstr "Taxonomie"
-
-#: build/213.0fc210bb008e9541fd89.js:1
-msgid "ID"
-msgstr "ID"
-
-#: build/213.0fc210bb008e9541fd89.js:1
-msgid "Any unique column key."
-msgstr "Libovolný unikátní klíč sloupce."
-
-#: build/213.0fc210bb008e9541fd89.js:1
-msgid "Move up"
-msgstr "Posunout nahoru"
-
-#: build/213.0fc210bb008e9541fd89.js:1
-msgid "Move down"
-msgstr "Posunout dolů"
-
-#: build/213.0fc210bb008e9541fd89.js:1
-msgid "Column title"
-msgstr "Název sloupce"
-
-#: build/213.0fc210bb008e9541fd89.js:1
-msgid "e.g. 80px"
-msgstr "např. 80px"
-
-#: build/213.0fc210bb008e9541fd89.js:1
-msgid "Disable column"
-msgstr "Vypnout sloupec"
-
-#: build/213.0fc210bb008e9541fd89.js:1
-msgid "Enable column"
-msgstr "Zapnout sloupec"
-
-#: build/213.0fc210bb008e9541fd89.js:1
-msgid "Delete column"
-msgstr "Smazat sloupec"
-
-#: build/213.0fc210bb008e9541fd89.js:1
-msgid "Key"
-msgstr "Klíč"
-
-#: build/213.0fc210bb008e9541fd89.js:1
-msgid "Width"
-msgstr "Šířka"
-
-#: build/213.0fc210bb008e9541fd89.js:1
-msgid "Add column"
-msgstr "Přidat sloupec"
-
-#: build/index.508ec69e5c53f238b3b0.js:2
-msgid "Configure"
-msgstr "Nastavit"
-
-#. translators: %s: content type label, e.g. "Posts".
-#: build/213.0fc210bb008e9541fd89.js:2
-#, js-format
-msgid "Save changes for %s"
-msgstr "Uložit změny pro %s"
-
-#: build/213.0fc210bb008e9541fd89.js:1
-msgid "Required — a column with no key is discarded when you save."
-msgstr "Povinné - sloupec bez klíče se při uložení zahodí."
-
-#: build/213.0fc210bb008e9541fd89.js:1
-msgid "Remove section"
-msgstr "Odebrat sekci"
-
-#: build/213.0fc210bb008e9541fd89.js:1
-msgid "No custom columns yet — the native columns are shown unchanged. Add one below to relabel, reorder, hide or add a column."
-msgstr "Zatím žádné vlastní sloupce - zobrazují se nezměněné výchozí sloupce. Přidejte níže sloupec, který chcete přejmenovat, přeuspořádat, skrýt nebo přidat."
-
-#: build/213.0fc210bb008e9541fd89.js:2
-msgid "No content type has custom columns yet. Pick one below to start configuring it."
-msgstr "Žádný typ obsahu zatím nemá vlastní sloupce. Vyberte níže typ, u kterého chcete začít."
-
-#: build/213.0fc210bb008e9541fd89.js:2
-msgid "— Select content type —"
-msgstr "— Vyberte typ obsahu —"
-
-#: build/213.0fc210bb008e9541fd89.js:2
-msgid "Add content type"
-msgstr "Přidat typ obsahu"
-
-#: build/213.0fc210bb008e9541fd89.js:1
-msgid "Key of an existing column — start typing to see suggestions."
-msgstr "Klíč existujícího sloupce - začněte psát pro zobrazení nápovědy."
-
-#: build/213.0fc210bb008e9541fd89.js:1
-msgid "Custom field (meta) key — start typing to see suggestions."
-msgstr "Klíč vlastního pole (meta) - začněte psát pro zobrazení nápovědy."
-
-#: build/213.0fc210bb008e9541fd89.js:1
-msgid "Taxonomy slug — start typing to see suggestions."
-msgstr "Identifikátor (slug) taxonomie - začněte psát pro zobrazení nápovědy."
 
 #: includes/Core/Megamenu.php:86
 msgid "UX Studio quick navigation"
@@ -8212,39 +5283,40 @@ msgstr "Max. vydaných tokenů na operátora / hodinu"
 msgid "Central app HMAC secret"
 msgstr "HMAC klíč centrální aplikace"
 
-#: includes/Modules/ContentSync/NodeController.php:361
+#: includes/Modules/ContentSync/NodeController.php:416
 msgid "Could not delete the post."
 msgstr "Příspěvek se nepodařilo smazat."
 
-#: includes/Modules/ContentSync/NodeController.php:387
+#: includes/Modules/ContentSync/NodeController.php:442
 msgid "Category name is required."
 msgstr "Název kategorie je povinný."
 
-#: includes/Modules/ContentSync/NodeController.php:452
+#: includes/Modules/ContentSync/NodeController.php:507
 msgid "Cannot delete the default category."
 msgstr "Výchozí kategorii nelze smazat."
 
-#: includes/Modules/ContentSync/NodeController.php:471
+#: includes/Modules/ContentSync/NodeController.php:526
 msgid "Taxonomy not found."
 msgstr "Taxonomie nenalezena."
 
-#: includes/Modules/ContentSync/NodeController.php:484
+#: includes/Modules/ContentSync/NodeController.php:539
 msgid "No file was sent."
 msgstr "Nebyl odeslán žádný soubor."
 
-#: includes/Modules/ContentSync/NodeController.php:491
+#: includes/Modules/ContentSync/NodeController.php:546
 msgid "Disallowed file type."
 msgstr "Nepovolený typ souboru."
 
-#: includes/Modules/ContentSync/NodeController.php:494
+#: includes/Modules/ContentSync/NodeController.php:549
 msgid "File too large (max 10 MB)."
 msgstr "Soubor je příliš velký (max 10 MB)."
 
-#: includes/Modules/ContentSync/NodeController.php:536
+#: includes/Modules/ContentSync/NodeController.php:643
+#: includes/Modules/ContentSync/NodeController.php:674
 msgid "Media not found."
 msgstr "Médium nenalezeno."
 
-#: includes/Modules/ContentSync/NodeController.php:539
+#: includes/Modules/ContentSync/NodeController.php:677
 msgid "Could not delete the media."
 msgstr "Médium se nepodařilo smazat."
 
@@ -8497,12 +5569,12 @@ msgstr "Zjišťovat zdroj"
 msgid "Record which plugin, theme or mu-plugin triggered each mail. Adds a small overhead per send; disable on high-volume sites."
 msgstr "Zaznamenává, který plugin, šablona nebo mu-plugin vyvolal každý e-mail. Přidává malou zátěž na každé odeslání; na webech s vysokým objemem vypněte."
 
-#: includes/Modules/EmailLog/Module.php:377
+#: includes/Modules/EmailLog/Module.php:439
 #: build/367.fc7f739d3b65ad856d5c.js:1
 msgid "Email was re-sent."
 msgstr "E-mail byl znovu odeslán."
 
-#: includes/Modules/EmailLog/Module.php:383
+#: includes/Modules/EmailLog/Module.php:445
 msgid "Re-sending failed."
 msgstr "Opětovné odeslání selhalo."
 
@@ -8937,6 +6009,7 @@ msgid "your@email.com"
 msgstr "your@email.com"
 
 #: includes/Modules/NoticeBoard/Module.php:1116
+#: build/474.cf43816866abf5df7c56.js:1
 msgid "Sending…"
 msgstr "Odesílání…"
 
@@ -9285,1101 +6358,149 @@ msgstr "Z vašeho OAuth klienta Google Cloud. Přidejte tomuto klientovi přesm�
 msgid "Gmail OAuth client secret"
 msgstr "OAuth client secret pro Gmail"
 
-#: includes/Modules/SmtpEmail/Module.php:651
+#: includes/Modules/SmtpEmail/Module.php:661
 msgid "Access token refresh failed (refresh token may have been revoked)."
 msgstr "Obnovení přístupového tokenu selhalo (obnovovací token mohl být odvolán)."
 
-#: includes/Modules/SmtpEmail/Module.php:703
+#: includes/Modules/SmtpEmail/Module.php:713
 msgid "Enter and save the Gmail client ID and secret first."
 msgstr "Nejprve zadejte a uložte client ID a secret pro Gmail."
 
 #. translators: %s: Google error code
-#: includes/Modules/SmtpEmail/Module.php:724
+#: includes/Modules/SmtpEmail/Module.php:734
 #, php-format
 msgid "Google returned an error: %s"
 msgstr "Google vrátil chybu: %s"
 
-#: includes/Modules/SmtpEmail/Module.php:731
+#: includes/Modules/SmtpEmail/Module.php:741
 msgid "Invalid or expired OAuth state. Try connecting again."
 msgstr "Neplatný nebo vypršelý stav OAuth. Zkuste se připojit znovu."
 
-#: includes/Modules/SmtpEmail/Module.php:742
+#: includes/Modules/SmtpEmail/Module.php:752
 msgid "Code-for-token exchange failed. Check the client secret and redirect URI in Google Cloud."
 msgstr "Výměna kódu za token selhala. Zkontrolujte client secret a přesměrovací URI v Google Cloud."
 
-#: includes/Modules/SmtpEmail/Module.php:748
+#: includes/Modules/SmtpEmail/Module.php:758
 msgid "Google did not send a refresh token. Revoke this app at myaccount.google.com/permissions and connect again."
 msgstr "Google neposlal obnovovací token. Odvolejte tuto aplikaci na myaccount.google.com/permissions a připojte se znovu."
 
 #. translators: %s: Google account email
-#: includes/Modules/SmtpEmail/Module.php:781
+#: includes/Modules/SmtpEmail/Module.php:791
 #, php-format
 msgid "Account %s connected."
 msgstr "Účet %s připojen."
 
-#: includes/Modules/SmtpEmail/Module.php:796
+#: includes/Modules/SmtpEmail/Module.php:806
 msgid "Account disconnected."
 msgstr "Účet odpojen."
 
-#: includes/Modules/SmtpEmail/Module.php:910
+#: includes/Modules/SmtpEmail/Module.php:920
 msgid "No previous message to resend."
 msgstr "Není žádná předchozí zpráva k opětovnému odeslání."
 
-#: includes/Modules/ThirdPartyLogin/Module.php:118
+#: includes/Modules/ThirdPartyLogin/Module.php:161
 msgid "Only users whose role is selected here may log in (or be auto-created) via a provider. Leave empty to block third-party login for everyone."
 msgstr "Přihlásit se (nebo být automaticky vytvořeni) přes poskytovatele mohou pouze uživatelé, jejichž role je zde vybrána. Ponechte prázdné pro zablokování přihlášení přes třetí strany pro všechny."
 
-#: includes/Modules/ThirdPartyLogin/Module.php:125
+#: includes/Modules/ThirdPartyLogin/Module.php:168
 msgid "Auto-create accounts on first login"
 msgstr "Automaticky vytvářet účty při prvním přihlášení"
 
-#: includes/Modules/ThirdPartyLogin/Module.php:126
+#: includes/Modules/ThirdPartyLogin/Module.php:169
 msgid "When on, an unknown verified provider identity creates a new WordPress user. When off, unknown identities are rejected and users must link a provider from their profile after logging in."
 msgstr "Když je zapnuto, neznámá ověřená identita poskytovatele vytvoří nového uživatele WordPressu. Když je vypnuto, neznámé identity jsou odmítnuty a uživatelé musí poskytovatele propojit ze svého profilu po přihlášení."
 
-#: includes/Modules/ThirdPartyLogin/Module.php:132
+#: includes/Modules/ThirdPartyLogin/Module.php:175
 msgid "Default role for auto-created accounts"
 msgstr "Výchozí role pro automaticky vytvořené účty"
 
-#: includes/Modules/ThirdPartyLogin/Module.php:133
+#: includes/Modules/ThirdPartyLogin/Module.php:176
 msgid "Role assigned to auto-created users. Administrator is intentionally not selectable. This role should also be in \"Allowed roles\", otherwise the new account cannot log in."
 msgstr "Role přiřazená automaticky vytvořeným uživatelům. Role administrátora záměrně nelze vybrat. Tato role by měla být také v \"Povolených rolích\", jinak se nový účet nemůže přihlásit."
 
 #. translators: %s = provider name
-#: includes/Modules/ThirdPartyLogin/Module.php:395
+#: includes/Modules/ThirdPartyLogin/Module.php:528
 #, php-format
 msgid "Sign in with %s"
 msgstr "Přihlásit se přes %s"
 
-#: includes/Modules/ThirdPartyLogin/RestController.php:128
+#: includes/Modules/ThirdPartyLogin/RestController.php:124
 msgid "Your role is not allowed to use third-party login."
 msgstr "Vaše role nemá povoleno používat přihlášení přes třetí strany."
 
-#: build/31.e9354171b6207cee8a1b.js:1
-msgid "WebP encoding"
-msgstr "Kódování WebP"
-
-#: build/31.e9354171b6207cee8a1b.js:1
-msgid "Supported"
-msgstr "Podporováno"
-
-#: build/31.e9354171b6207cee8a1b.js:1
-msgid "Unavailable"
-msgstr "Nedostupné"
-
-#: build/31.e9354171b6207cee8a1b.js:1
-msgid "AVIF encoding"
-msgstr "Kódování AVIF"
-
-#: build/31.e9354171b6207cee8a1b.js:1
-msgid "Unavailable on this server"
-msgstr "Na tomto serveru nedostupné"
-
-#: build/31.e9354171b6207cee8a1b.js:1
-msgid "Next-gen delivery (.htaccess)"
-msgstr "Doručování nové generace (.htaccess)"
-
-#: build/31.e9354171b6207cee8a1b.js:1
-msgid "Inactive"
-msgstr "Neaktivní"
-
-#: build/31.e9354171b6207cee8a1b.js:1
-msgid "uploads/.htaccess is not writable — delivery rules cannot be managed automatically."
-msgstr "Do uploads/.htaccess nelze zapisovat — pravidla doručování nelze spravovat automaticky."
-
-#: build/31.e9354171b6207cee8a1b.js:1
-msgid "Compresses JPEG/PNG/GIF images already in the media library and optionally generates WebP/AVIF siblings. Originals are always kept as a backup file before the first optimization."
-msgstr "Komprimuje obrázky JPEG/PNG/GIF, které již jsou v knihovně médií, a volitelně generuje varianty WebP/AVIF. Originály jsou před první optimalizací vždy zachovány jako záložní soubor."
-
-#: build/31.e9354171b6207cee8a1b.js:1
-msgid "Heuristically finds image attachments not referenced in content, featured images, term meta, widgets or the site logo. Detection can never be perfect, so selected images are moved to the WordPress trash (fully recoverable) — never permanently deleted."
-msgstr "Heuristicky najde obrázkové přílohy, na které se neodkazuje v obsahu, náhledových obrázcích, meta údajích termínů, widgetech ani v logu webu. Detekce nemůže být nikdy dokonalá, proto se vybrané obrázky přesouvají do koše WordPressu (plně obnovitelné) — nikdy se trvale nemažou."
-
-#: build/31.e9354171b6207cee8a1b.js:1
-msgid "Re-scan"
-msgstr "Znovu prohledat"
-
-#: build/31.e9354171b6207cee8a1b.js:1
-msgid "Move selected to trash"
-msgstr "Přesunout vybrané do koše"
-
-#: build/31.e9354171b6207cee8a1b.js:1
-msgid "unused images"
-msgstr "nepoužité obrázky"
-
-#: build/31.e9354171b6207cee8a1b.js:1
-msgid "Moved to trash:"
-msgstr "Přesunuto do koše:"
-
-#: build/31.e9354171b6207cee8a1b.js:1
-msgid "skipped"
-msgstr "přeskočeno"
-
-#: build/31.e9354171b6207cee8a1b.js:1
-msgid "No unused images detected."
-msgstr "Nebyly zjištěny žádné nepoužité obrázky."
-
-#: build/31.e9354171b6207cee8a1b.js:1
-msgid "Size"
-msgstr "Velikost"
-
-#: build/31.e9354171b6207cee8a1b.js:1
-msgid "Uploaded"
-msgstr "Nahráno"
-
-#: build/31.e9354171b6207cee8a1b.js:1
-msgid "Unused Images"
-msgstr "Nepoužité obrázky"
-
-#: build/50.5e1e490c895cec652ee2.js:1
-msgid "Current server load"
-msgstr "Aktuální zatížení serveru"
-
-#: build/50.5e1e490c895cec652ee2.js:1
-msgid "Bot requests (1h)"
-msgstr "Požadavky botů (1h)"
-
-#: build/50.5e1e490c895cec652ee2.js:1
-msgid "Delayed (24h)"
-msgstr "Zpožděno (24h)"
-
-#: build/50.5e1e490c895cec652ee2.js:1
-msgid "Blocked (24h)"
-msgstr "Zablokováno (24h)"
-
-#: build/50.5e1e490c895cec652ee2.js:1
-msgid "Microcache files"
-msgstr "Soubory microcache"
-
-#: build/50.5e1e490c895cec652ee2.js:1
-msgid "Top bots (24h)"
-msgstr "Nejčastější boti (24h)"
-
-#: build/50.5e1e490c895cec652ee2.js:1
-msgid "Ø delay"
-msgstr "Ø zpoždění"
-
-#: build/50.5e1e490c895cec652ee2.js:1
-msgid "Category rules"
-msgstr "Pravidla kategorií"
-
-#: build/50.5e1e490c895cec652ee2.js:1
-msgid "Active action"
-msgstr "Aktivní akce"
-
-#: build/50.5e1e490c895cec652ee2.js:1
-msgid "Bots"
-msgstr "Boti"
-
-#: build/50.5e1e490c895cec652ee2.js:1
-msgid "Clear microcache"
-msgstr "Vymazat microcache"
-
-#: build/50.5e1e490c895cec652ee2.js:1
-msgid "Clear log"
-msgstr "Vymazat protokol"
-
-#: build/50.5e1e490c895cec652ee2.js:1
-msgid "Tier"
-msgstr "Úroveň"
-
-#: build/50.5e1e490c895cec652ee2.js:1
-msgid "Delay"
-msgstr "Zpoždění"
-
-#: build/50.5e1e490c895cec652ee2.js:1
-msgid "IP (optional)"
-msgstr "IP (volitelné)"
-
-#: build/50.5e1e490c895cec652ee2.js:1
-msgid "Test"
-msgstr "Otestovat"
-
-#: build/50.5e1e490c895cec652ee2.js:1
-msgid "Detected as bot"
-msgstr "Detekováno jako bot"
-
-#: build/50.5e1e490c895cec652ee2.js:1
-msgid "Current tier"
-msgstr "Aktuální úroveň"
-
-#: build/50.5e1e490c895cec652ee2.js:1
-msgid "Planned action"
-msgstr "Plánovaná akce"
-
-#: build/93.bfc5e33039f2ea629940.js:1
-msgid "Folder name"
-msgstr "Název složky"
-
-#: build/93.bfc5e33039f2ea629940.js:1
-msgid "Save name"
-msgstr "Uložit název"
-
-#: build/93.bfc5e33039f2ea629940.js:1
-msgid "Rename folder"
-msgstr "Přejmenovat složku"
-
-#: build/93.bfc5e33039f2ea629940.js:1
-msgid "Could not rename folder."
-msgstr "Složku se nepodařilo přejmenovat."
-
-#: build/93.bfc5e33039f2ea629940.js:1
-msgid "Move folder under"
-msgstr "Přesunout složku pod"
-
-#: build/93.bfc5e33039f2ea629940.js:1
-msgid "— Top level —"
-msgstr "— Nejvyšší úroveň —"
-
-#: build/93.bfc5e33039f2ea629940.js:1
-msgid "Could not move folder."
-msgstr "Složku se nepodařilo přesunout."
-
-#: build/93.bfc5e33039f2ea629940.js:1
-msgid "No folders yet. Create one below, then assign attachments to it — either one by one, or in bulk from the \"Bulk move attachments\" panel."
-msgstr "Zatím žádné složky. Vytvořte jednu níže a poté k ní přiřaďte přílohy — buď jednu po druhé, nebo hromadně z panelu \"Hromadné přesunutí příloh\"."
-
-#: build/93.bfc5e33039f2ea629940.js:1
-msgid "Move under"
-msgstr "Přesunout pod"
-
-#: build/93.bfc5e33039f2ea629940.js:1
-msgid "Bulk move attachments"
-msgstr "Hromadné přesunutí příloh"
-
-#: build/93.bfc5e33039f2ea629940.js:1
-msgid "Paste multiple attachment IDs (separated by spaces, commas or new lines) and move them all to one folder at once. Choose \"Unassigned\" to remove them from any folder."
-msgstr "Vložte více ID příloh (oddělených mezerami, čárkami nebo novými řádky) a přesuňte je všechny najednou do jedné složky. Zvolte \"Nepřiřazeno\" pro jejich odebrání z jakékoli složky."
-
-#: build/93.bfc5e33039f2ea629940.js:1
-msgid "Attachment IDs"
-msgstr "ID příloh"
-
-#. translators: %d: number of attachments selected.
-#: build/93.bfc5e33039f2ea629940.js:4
-msgid "Move"
-msgstr "Přesunout"
-
-#. translators: %d: number of attachments moved.
-#: build/93.bfc5e33039f2ea629940.js:6
-msgid "Moved"
-msgstr "Přesunuto"
-
-#: build/93.bfc5e33039f2ea629940.js:6
-msgid "Skipped"
-msgstr "Přeskočeno"
-
-#: build/93.bfc5e33039f2ea629940.js:6
-msgid "Could not move attachments."
-msgstr "Přílohy se nepodařilo přesunout."
-
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "Avg queries"
-msgstr "Prům. dotazů"
-
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "Avg memory"
-msgstr "Prům. paměť"
-
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "Queries"
-msgstr "Dotazy"
-
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "Memory (MB)"
-msgstr "Paměť (MB)"
-
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "Estimated per-plugin impact"
-msgstr "Odhadovaný dopad jednotlivých pluginů"
-
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "Measured from front-page benchmarks run automatically when a plugin is activated or deactivated. Positive values mean the plugin slowed the page."
-msgstr "Změřeno z benchmarků úvodní stránky spuštěných automaticky při aktivaci nebo deaktivaci pluginu. Kladné hodnoty znamenají, že plugin stránku zpomalil."
-
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "Plugin"
-msgstr "Plugin"
-
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "Avg impact"
-msgstr "Prům. dopad"
-
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "Max impact"
-msgstr "Max. dopad"
-
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "Measurements"
-msgstr "Měření"
-
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "Last event"
-msgstr "Poslední událost"
-
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "No impact data yet. Activate or deactivate a plugin to trigger a benchmark."
-msgstr "Zatím žádná data o dopadu. Aktivujte nebo deaktivujte plugin pro spuštění benchmarku."
-
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "Recent benchmark events"
-msgstr "Nedávné události benchmarku"
-
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "Event"
-msgstr "Událost"
-
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "Before (ms)"
-msgstr "Před (ms)"
-
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "After (ms)"
-msgstr "Po (ms)"
-
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "Diff"
-msgstr "Rozdíl"
-
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "No benchmark events yet."
-msgstr "Zatím žádné události benchmarku."
-
-#: build/178.9f7c44183315fbd10ef5.js:1
-msgid "Plugin impact"
-msgstr "Dopad pluginů"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Enforcing"
-msgstr "Vynucuje se"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Report only"
-msgstr "Pouze hlášení"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "CSP mode:"
-msgstr "Režim CSP:"
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "The policy is actively enforced on the front end (never in wp-admin). Disallowed sources are blocked."
-msgstr "Politika je aktivně vynucována na frontendu (nikdy ve wp-adminu). Nepovolené zdroje jsou blokovány."
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "The policy is sent report-only: nothing is blocked, browsers just report what would be. Review the violations below, then switch to Enforce in the Settings tab."
-msgstr "Politika se posílá pouze pro hlášení: nic se neblokuje, prohlížeče jen hlásí, co by se blokovalo. Projděte si porušení níže a poté přepněte na Vynucovat na kartě Nastavení."
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "CSP is off. Enable it in the Settings tab - start with Report only to collect violations here before enforcing."
-msgstr "CSP je vypnuté. Zapněte jej na kartě Nastavení - začněte s režimem Pouze hlášení, abyste zde nasbírali porušení, než začnete vynucovat."
-
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-msgid "Save Upload Guard settings"
-msgstr "Uložit nastavení Ochrany nahrávání"
-
-#: build/213.0fc210bb008e9541fd89.js:1
-msgid "Number"
-msgstr "Číslo"
-
-#: build/213.0fc210bb008e9541fd89.js:1
-msgid "Yes / No"
-msgstr "Ano / Ne"
-
-#: build/213.0fc210bb008e9541fd89.js:1
-msgid "Link"
-msgstr "Odkaz"
-
-#: build/213.0fc210bb008e9541fd89.js:1
-msgid "Color swatch"
-msgstr "Vzorník barev"
-
-#: build/213.0fc210bb008e9541fd89.js:1
-msgid "Related post"
-msgstr "Související příspěvek"
-
-#: build/213.0fc210bb008e9541fd89.js:1
-msgid "Render meta value as"
-msgstr "Vykreslit meta hodnotu jako"
-
-#: build/244.51cc9501d13d30b5c2a2.js:1
-msgid "Optional, e.g. brochures"
-msgstr "Volitelné, např. brožury"
-
-#: build/244.51cc9501d13d30b5c2a2.js:1
-msgid "Attach to post ID"
-msgstr "Připojit k ID příspěvku"
-
-#: build/244.51cc9501d13d30b5c2a2.js:1
-msgid "Optional post/page ID"
-msgstr "Volitelné ID příspěvku/stránky"
-
-#: build/244.51cc9501d13d30b5c2a2.js:1
-msgid "Show files on the frontend with the shortcode:"
-msgstr "Zobrazte soubory na frontendu pomocí shortcodu:"
-
-#: build/244.51cc9501d13d30b5c2a2.js:1
-msgid "(files attached to the current post),"
-msgstr "(soubory připojené k aktuálnímu příspěvku),"
-
-#: build/244.51cc9501d13d30b5c2a2.js:1
-msgid "or"
-msgstr "nebo"
-
-#: build/309.1176c611d8f1aa33c863.js:1
-msgid "Node name"
-msgstr "Název uzlu"
-
-#: build/309.1176c611d8f1aa33c863.js:1
-msgid "e.g. Client hotel site"
-msgstr "např. web hotelu klienta"
-
-#: build/309.1176c611d8f1aa33c863.js:1
-msgid "Node URL"
-msgstr "URL uzlu"
-
-#: build/309.1176c611d8f1aa33c863.js:1
-msgid "Shared API key"
-msgstr "Sdílený API klíč"
-
-#: build/309.1176c611d8f1aa33c863.js:1
-msgid "Same value as the node’s API key"
-msgstr "Stejná hodnota jako API klíč uzlu"
-
-#: build/309.1176c611d8f1aa33c863.js:1
-msgid "Stored encrypted; never shown again."
-msgstr "Uloženo šifrovaně; už se nikdy nezobrazí."
-
-#: build/309.1176c611d8f1aa33c863.js:1
-msgid "Add node"
-msgstr "Přidat uzel"
-
-#: build/309.1176c611d8f1aa33c863.js:1
-msgid "Connection OK."
-msgstr "Připojení v pořádku."
-
-#: build/309.1176c611d8f1aa33c863.js:1
-msgid "Connection failed."
-msgstr "Připojení selhalo."
-
-#: build/309.1176c611d8f1aa33c863.js:1
-msgid "SSO link opened in a new tab."
-msgstr "Odkaz SSO otevřen v nové kartě."
-
-#: build/309.1176c611d8f1aa33c863.js:1
-msgid "No nodes registered yet."
-msgstr "Zatím nejsou registrovány žádné uzly."
-
-#: build/309.1176c611d8f1aa33c863.js:1
-msgid "Test connection"
-msgstr "Otestovat připojení"
-
-#: build/309.1176c611d8f1aa33c863.js:1
-msgid "Open SSO login"
-msgstr "Otevřít přihlášení SSO"
-
-#: build/309.1176c611d8f1aa33c863.js:1
-msgid "Find content to push"
-msgstr "Najít obsah k odeslání"
-
-#: build/309.1176c611d8f1aa33c863.js:1
-msgid "Search posts…"
-msgstr "Hledat příspěvky…"
-
-#: build/309.1176c611d8f1aa33c863.js:1
-msgid "(no title)"
-msgstr "(bez názvu)"
-
-#: build/309.1176c611d8f1aa33c863.js:1
-msgid "Target nodes"
-msgstr "Cílové uzly"
-
-#: build/309.1176c611d8f1aa33c863.js:1
-msgid "(no key)"
-msgstr "(bez klíče)"
-
-#: build/309.1176c611d8f1aa33c863.js:1
-msgid "Push to selected nodes"
-msgstr "Odeslat do vybraných uzlů"
-
-#: build/309.1176c611d8f1aa33c863.js:1
-msgid "Node"
-msgstr "Uzel"
-
-#: build/309.1176c611d8f1aa33c863.js:1
-msgid "Result"
-msgstr "Výsledek"
-
-#: build/309.1176c611d8f1aa33c863.js:1
-msgid "Detail"
-msgstr "Detail"
-
-#: build/309.1176c611d8f1aa33c863.js:1
-msgid "Nodes"
-msgstr "Uzly"
-
-#: build/309.1176c611d8f1aa33c863.js:1
-msgid "Push"
-msgstr "Odeslat"
-
-#: build/309.1176c611d8f1aa33c863.js:1
-msgid "A node API key is currently set."
-msgstr "API klíč uzlu je aktuálně nastaven."
-
-#: build/309.1176c611d8f1aa33c863.js:1
-msgid "No node API key set yet."
-msgstr "Zatím není nastaven žádný API klíč uzlu."
-
-#: build/309.1176c611d8f1aa33c863.js:1
-msgid "A central-app HMAC secret is set."
-msgstr "HMAC klíč centrální aplikace je nastaven."
-
-#: build/309.1176c611d8f1aa33c863.js:1
-msgid "No central-app HMAC secret set."
-msgstr "Není nastaven žádný HMAC klíč centrální aplikace."
-
-#: build/367.fc7f739d3b65ad856d5c.js:1
-msgid "Email detail"
-msgstr "Detail e-mailu"
-
-#: build/367.fc7f739d3b65ad856d5c.js:1
-msgid "Headers"
-msgstr "Hlavičky"
-
-#: build/367.fc7f739d3b65ad856d5c.js:1
-msgid "No headers"
-msgstr "Žádné hlavičky"
-
-#: build/367.fc7f739d3b65ad856d5c.js:1
-msgid "Only filenames are stored, so attachments are not re-attached on resend."
-msgstr "Ukládají se pouze názvy souborů, takže přílohy se při opětovném odeslání znovu nepřipojí."
-
-#: build/367.fc7f739d3b65ad856d5c.js:1
-msgid "Resend"
-msgstr "Odeslat znovu"
-
-#: build/367.fc7f739d3b65ad856d5c.js:1
-msgid "(no subject)"
-msgstr "(bez předmětu)"
-
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "Body / description"
-msgstr "Tělo / popis"
-
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "Reference number"
-msgstr "Referenční číslo"
-
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "Publish date"
-msgstr "Datum zveřejnění"
-
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "Expiry date (auto-archives after)"
-msgstr "Datum vypršení (poté se automaticky archivuje)"
-
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "Select attachments"
-msgstr "Vybrat přílohy"
-
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "Add attachments"
-msgstr "Přidat přílohy"
-
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "Remove attachment"
-msgstr "Odebrat přílohu"
-
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "Add notice"
-msgstr "Přidat oznámení"
-
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "New notice"
-msgstr "Nové oznámení"
-
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "No notices yet."
-msgstr "Zatím žádná oznámení."
-
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "Archived"
-msgstr "Archivováno"
-
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "Unarchive"
-msgstr "Zrušit archivaci"
-
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "Archive"
-msgstr "Archivovat"
-
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "Delete this notice?"
-msgstr "Smazat toto oznámení?"
-
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "New category"
-msgstr "Nová kategorie"
-
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "Category name"
-msgstr "Název kategorie"
-
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "No categories yet."
-msgstr "Zatím žádné kategorie."
-
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "Notices"
-msgstr "Oznámení"
-
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "Delete this category?"
-msgstr "Smazat tuto kategorii?"
-
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "Remove this subscriber?"
-msgstr "Odebrat tohoto odběratele?"
-
-#: build/563.64a47ca5b2f0345c6df5.js:1
-msgid "widgets"
-msgstr "widgety"
-
-#: build/563.64a47ca5b2f0345c6df5.js:1
-msgid "View page"
-msgstr "Zobrazit stránku"
-
-#: build/563.64a47ca5b2f0345c6df5.js:1
-msgid "New draft page"
-msgstr "Nová konceptová stránka"
-
-#: build/563.64a47ca5b2f0345c6df5.js:1
-msgid "Replace existing page content"
-msgstr "Nahradit obsah existující stránky"
-
-#: build/563.64a47ca5b2f0345c6df5.js:1
-msgid "Append to existing page"
-msgstr "Připojit k existující stránce"
-
-#: build/563.64a47ca5b2f0345c6df5.js:1
-msgid "Target page ID"
-msgstr "ID cílové stránky"
-
-#: build/563.64a47ca5b2f0345c6df5.js:1
-msgid "The numeric ID of the page whose Elementor content will be replaced or appended to."
-msgstr "Číselné ID stránky, jejíž obsah Elementoru bude nahrazen nebo k němu bude připojeno."
-
-#: build/563.64a47ca5b2f0345c6df5.js:1
-msgid "Upload file (.json / .zip)"
-msgstr "Nahrát soubor (.json / .zip)"
-
-#: build/563.64a47ca5b2f0345c6df5.js:1
-msgid "Paste template JSON"
-msgstr "Vložit JSON šablony"
-
-#: build/563.64a47ca5b2f0345c6df5.js:1
-msgid "From URL"
-msgstr "Z URL"
-
-#: build/563.64a47ca5b2f0345c6df5.js:1
-msgid "Template file"
-msgstr "Soubor šablony"
-
-#: build/563.64a47ca5b2f0345c6df5.js:1
-msgid "Template JSON"
-msgstr "JSON šablony"
-
-#: build/563.64a47ca5b2f0345c6df5.js:1
-msgid "Leave blank to auto-detect the main content."
-msgstr "Ponechte prázdné pro automatické zjištění hlavního obsahu."
-
-#: build/563.64a47ca5b2f0345c6df5.js:1
-msgid "Page title"
-msgstr "Název stránky"
-
-#: build/563.64a47ca5b2f0345c6df5.js:1
-msgid "Choose a .json or .zip file first."
-msgstr "Nejprve zvolte soubor .json nebo .zip."
-
-#: build/563.64a47ca5b2f0345c6df5.js:1
-msgid "The pasted text is not valid JSON."
-msgstr "Vložený text není platné JSON."
-
-#: build/563.64a47ca5b2f0345c6df5.js:1
-msgid "Page ID to export"
-msgstr "ID stránky k exportu"
-
-#: build/563.64a47ca5b2f0345c6df5.js:1
-msgid "Exports the page's Elementor content and page settings to a downloadable JSON file."
-msgstr "Exportuje obsah Elementoru a nastavení stránky do JSON souboru ke stažení."
-
-#: build/563.64a47ca5b2f0345c6df5.js:1
-msgid "Enter a valid page ID."
-msgstr "Zadejte platné ID stránky."
-
-#: build/563.64a47ca5b2f0345c6df5.js:1
-msgid "Export JSON"
-msgstr "Exportovat JSON"
-
-#: build/563.64a47ca5b2f0345c6df5.js:1
-msgid "Exported"
-msgstr "Exportováno"
-
-#: build/563.64a47ca5b2f0345c6df5.js:1
-msgid "Export"
-msgstr "Exportovat"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Grid"
-msgstr "Mřížka"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Masonry"
-msgstr "Masonry"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Carousel"
-msgstr "Karusel"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Slider"
-msgstr "Slider"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Highlight"
-msgstr "Zvýraznění"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Showcase"
-msgstr "Prezentace"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Set the Instagram app ID and app secret on the Settings tab before connecting."
-msgstr "Před propojením nastavte na kartě Nastavení ID a tajný klíč aplikace Instagram."
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Register this redirect URI in your Meta app:"
-msgstr "Zaregistrujte tuto přesměrovací URI ve své aplikaci Meta:"
-
-#: build/752.5b321b5d976757948e1d.js:1
-#: build/831.f63d33eb2c8abcd821ed.js:1
-#: build/907.e407fbb311cd6ef44322.js:1
-msgid "Connected"
-msgstr "Připojeno"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Token expires:"
-msgstr "Token vyprší:"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "(auto-refreshed by cron)"
-msgstr "(automaticky obnovováno cronem)"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Cached media items:"
-msgstr "Položky médií v mezipaměti:"
-
-#: build/752.5b321b5d976757948e1d.js:1
-#: build/907.e407fbb311cd6ef44322.js:1
-msgid "Disconnect"
-msgstr "Odpojit"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "new"
-msgstr "nové"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "updated"
-msgstr "aktualizované"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "failed"
-msgstr "neúspěšné"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "No Instagram account is connected yet."
-msgstr "Zatím není připojen žádný účet Instagram."
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Connect Instagram"
-msgstr "Připojit Instagram"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Hidden"
-msgstr "Skryté"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "No media cached yet. Connect an account and run a sync."
-msgstr "Zatím žádná média v mezipaměti. Připojte účet a spusťte synchronizaci."
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Feed name"
-msgstr "Název feedu"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Number of posts"
-msgstr "Počet příspěvků"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Columns (desktop)"
-msgstr "Sloupce (desktop)"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Gap (px)"
-msgstr "Mezera (px)"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Media types"
-msgstr "Typy médií"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Include hashtags"
-msgstr "Zahrnout hashtagy"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Exclude hashtags"
-msgstr "Vyloučit hashtagy"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Show captions"
-msgstr "Zobrazit popisky"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Show follow button"
-msgstr "Zobrazit tlačítko Sledovat"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Save feed"
-msgstr "Uložit feed"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "New feed"
-msgstr "Nový feed"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "No feeds yet. Create one, then embed it with its shortcode."
-msgstr "Zatím žádné feedy. Vytvořte jeden a poté jej vložte pomocí jeho shortcodu."
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Shortcode"
-msgstr "Shortcode"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Default shortcode: [uxstudio_instagram]. Target a specific feed with [uxstudio_instagram id=\"1\"]."
-msgstr "Výchozí shortcode: [uxstudio_instagram]. Konkrétní feed zacílíte pomocí [uxstudio_instagram id=\"1\"]."
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Connection"
-msgstr "Připojení"
-
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Feeds"
-msgstr "Feedy"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Running normally"
-msgstr "Běží normálně"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Fully disabled"
-msgstr "Zcela vypnuto"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Local requests only"
-msgstr "Pouze lokální požadavky"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "External hosting cron"
-msgstr "Externí hostingový cron"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Driven by central app"
-msgstr "Řízeno centrální aplikací"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Defined elsewhere (wp-config.php or another plugin), not by this module."
-msgstr "Definováno jinde (wp-config.php nebo jiný plugin), nikoli tímto modulem."
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "DISABLE_WP_CRON writable"
-msgstr "DISABLE_WP_CRON zapisovatelné"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "mu-plugins writable"
-msgstr "mu-plugins zapisovatelné"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "mu-plugins NOT writable"
-msgstr "mu-plugins NENÍ zapisovatelné"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "The mu-plugins directory is not writable, so this module cannot set DISABLE_WP_CRON. Define it manually in wp-config.php if you need to disable WP-Cron."
-msgstr "Do adresáře mu-plugins nelze zapisovat, takže tento modul nemůže nastavit DISABLE_WP_CRON. Pokud potřebujete WP-Cron vypnout, definujte jej ručně v wp-config.php."
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid ".htaccess writable"
-msgstr ".htaccess zapisovatelné"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "No (Apache access rules cannot be applied)"
-msgstr "Ne (přístupová pravidla Apache nelze uplatnit)"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "External trigger"
-msgstr "Externí spouštěč"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Configure a hosting/system cron to call this URL every 5-15 minutes:"
-msgstr "Nastavte hostingový/systémový cron, aby volal tuto URL každých 5-15 minut:"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Example crontab line:"
-msgstr "Příklad řádku crontabu:"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Display"
-msgstr "Zobrazení"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Interval"
-msgstr "Interval"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "No schedules registered."
-msgstr "Nejsou registrovány žádné plány."
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Callback"
-msgstr "Callback"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Run check now"
-msgstr "Spustit kontrolu nyní"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "events"
-msgstr "události"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "suspicious"
-msgstr "podezřelé"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "auto-remove ON"
-msgstr "automatické odstranění ZAPNUTO"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Automatically removed:"
-msgstr "Automaticky odstraněno:"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Suspicious"
-msgstr "Podezřelé"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "All scheduled hooks are recognised. Nothing to report."
-msgstr "Všechny naplánované hooky jsou rozpoznány. Není co hlásit."
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "The watcher has not run yet."
-msgstr "Hlídač zatím neběžel."
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Schedules"
-msgstr "Plány"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Watcher"
-msgstr "Hlídač"
-
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Mode & Settings"
-msgstr "Režim a nastavení"
-
-#: build/819.0464f25e368c7e7fbca9.js:1
-msgid "Click URL"
-msgstr "URL po kliknutí"
-
-#: build/819.0464f25e368c7e7fbca9.js:1
-msgid "Audience"
-msgstr "Publikum"
-
-#: build/819.0464f25e368c7e7fbca9.js:1
-msgid "All subscribers"
-msgstr "Všichni odběratelé"
-
-#: build/819.0464f25e368c7e7fbca9.js:1
-msgid "Subscribed in last 30 days"
-msgstr "Přihlášení za posledních 30 dní"
-
-#: build/819.0464f25e368c7e7fbca9.js:1
-msgid "Delivered"
-msgstr "Doručeno"
-
-#: build/819.0464f25e368c7e7fbca9.js:1
-msgid "Scheduled"
-msgstr "Naplánováno"
-
-#: build/819.0464f25e368c7e7fbca9.js:1
-msgid "Send now"
-msgstr "Odeslat nyní"
-
-#: build/819.0464f25e368c7e7fbca9.js:1
-msgid "Analytics"
-msgstr "Analytika"
-
-#: build/831.f63d33eb2c8abcd821ed.js:1
-msgid "A Gmail client secret is currently set."
-msgstr "Client secret pro Gmail je aktuálně nastaven."
-
-#: build/831.f63d33eb2c8abcd821ed.js:1
-msgid "No Gmail client secret set yet."
-msgstr "Zatím není nastaven žádný client secret pro Gmail."
-
-#: build/831.f63d33eb2c8abcd821ed.js:1
-msgid "Redirect URI to register in your Google Cloud OAuth client:"
-msgstr "Přesměrovací URI k registraci ve vašem OAuth klientovi Google Cloud:"
-
-#: build/831.f63d33eb2c8abcd821ed.js:1
-msgid "Disconnect Gmail"
-msgstr "Odpojit Gmail"
-
-#: build/831.f63d33eb2c8abcd821ed.js:1
-msgid "Connect Gmail account"
-msgstr "Připojit účet Gmail"
-
-#: build/831.f63d33eb2c8abcd821ed.js:1
-msgid "Save the client ID and secret first, then connect."
-msgstr "Nejprve uložte client ID a secret, poté se připojte."
-
-#: build/831.f63d33eb2c8abcd821ed.js:1
-msgid "Resend last message"
-msgstr "Znovu odeslat poslední zprávu"
-
-#: build/831.f63d33eb2c8abcd821ed.js:1
-msgid "Resent to"
-msgstr "Znovu odesláno na"
-
-#: build/907.e407fbb311cd6ef44322.js:1
-msgid "Connect or disconnect a provider for your own account. Sign-in itself is handled by the central app, which posts a signed result back to this site."
-msgstr "Připojte nebo odpojte poskytovatele pro svůj vlastní účet. Samotné přihlášení zajišťuje centrální aplikace, která odešle podepsaný výsledek zpět na tento web."
-
-#: build/907.e407fbb311cd6ef44322.js:1
-msgid "Your role is not in the allowed list, so linking is disabled."
-msgstr "Vaše role není na seznamu povolených, propojení je proto vypnuto."
-
-#: build/907.e407fbb311cd6ef44322.js:1
-msgid "No providers are enabled yet. Enable providers in the Settings tab."
-msgstr "Zatím nejsou povoleni žádní poskytovatelé. Povolte poskytovatele na kartě Nastavení."
-
-#: build/907.e407fbb311cd6ef44322.js:1
-msgid "Connect"
-msgstr "Připojit"
-
-#: build/907.e407fbb311cd6ef44322.js:1
-msgid "Linking needs a central app URL and an HMAC secret configured in the Settings tab."
-msgstr "Propojení vyžaduje URL centrální aplikace a HMAC klíč nastavené na kartě Nastavení."
-
-#: build/index.508ec69e5c53f238b3b0.js:2
-msgid "This module is turned off. Enable it on the Modules screen to use its settings."
-msgstr "Tento modul je vypnutý. Zapněte ho na stránce Moduly, abyste mohli používat jeho nastavení."
+#: includes/Modules/AiAssistant/ContentGenerator.php:161
+msgid "Select at least one platform."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ContentGenerator.php:165
+msgid "Source content:"
+msgstr ""
+
+#: includes/Modules/AiAssistant/ContentRestController.php:340
+msgid "The content to base captions on is empty."
+msgstr ""
+
+#: includes/Modules/ReviewAggregator/Module.php:333
+msgid "AI Assistant module is required for reply suggestions."
+msgstr ""
+
+#: includes/Modules/ReviewAggregator/Module.php:351
+msgid "Anonymous"
+msgstr ""
+
+#: includes/Modules/ReviewAggregator/Module.php:352
+msgid "(no text, rating only)"
+msgstr ""
+
+#: includes/Modules/ServiceRequests/CentralClient.php:70
+msgid "The central app URL or the node API key is missing in Content Sync settings."
+msgstr ""
+
+#: includes/Modules/ServiceRequests/CentralClient.php:153
+msgid "Ticket sync is not configured."
+msgstr ""
+
+#: includes/Modules/ServiceRequests/CentralClient.php:156
+msgid "Attachment is not readable."
+msgstr ""
+
+#: includes/Modules/ServiceRequests/CentralClient.php:206
+msgid "Attachment upload failed."
+msgstr ""
+
+#: includes/Modules/ServiceRequests/Module.php:268
+msgid "This request has not reached the central app yet. Try again once it is submitted."
+msgstr ""
+
+#: includes/Modules/ServiceRequests/Sync.php:89
+msgid "Every 5 minutes (UX Studio ticket sync)"
+msgstr ""
+
+#: includes/Modules/ServiceRequests/Sync.php:234
+msgid "The message is empty."
+msgstr ""
+
+#: includes/Modules/ServiceRequests/Sync.php:455
+msgid "User role"
+msgstr ""
+
+#: includes/Modules/ServiceRequests/Sync.php:456
+msgid "Browser"
+msgstr ""
+
+#: includes/Modules/ThirdPartyLogin/Module.php:134
+msgid "Base URL of the central app that performs the OAuth handshake, e.g. https://ux1.cz/app/."
+msgstr ""
+
+#: includes/Modules/ThirdPartyLogin/Module.php:141
+msgid "Shared secret from the central app (site detail, \"Third-party login\"). Signs the handshake in both directions. Stored encrypted. Leave blank to keep the current secret."
+msgstr ""
+
+#: includes/Modules/ThirdPartyLogin/Module.php:148
+msgid "A provider also has to be configured centrally and enabled for this site in the central app."
+msgstr ""
+
+#: includes/Modules/ThirdPartyLogin/Module.php:153
+#: includes/Modules/ThirdPartyLogin/Module.php:329
+msgid "Seznam"
+msgstr ""

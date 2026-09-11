@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-04T14:00:14+00:00\n"
+"POT-Creation-Date: 2026-09-11T19:20:20+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: ux-studio\n"
@@ -44,6 +44,7 @@ msgstr ""
 
 #. translators: %d: HTTP status code
 #: includes/Core/Broker.php:80
+#: includes/Modules/ServiceRequests/CentralClient.php:119
 #, php-format
 msgid "Central app returned HTTP %d."
 msgstr ""
@@ -80,7 +81,7 @@ msgstr ""
 #: includes/Modules/ExitPopup/Module.php:462
 #: includes/Modules/FileManager/Module.php:128
 #: includes/Modules/PopupManager/Module.php:398
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 #: build/367.fc7f739d3b65ad856d5c.js:1
 msgid "Close"
 msgstr ""
@@ -88,7 +89,7 @@ msgstr ""
 #: includes/Core/Megamenu.php:166
 #: includes/Modules/AdminCustomiser/MenuOrganizer.php:74
 #: includes/Modules/ExportPosts/Module.php:356
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 msgid "Content"
 msgstr ""
 
@@ -100,7 +101,7 @@ msgstr ""
 #: includes/Modules/AdminColumns/RestController.php:97
 #: includes/Modules/AdminCustomiser/MenuOrganizer.php:75
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:253
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 #: build/752.5b321b5d976757948e1d.js:1
 msgid "Media"
 msgstr ""
@@ -221,7 +222,7 @@ msgstr ""
 #: build/50.5e1e490c895cec652ee2.js:1
 #: build/244.51cc9501d13d30b5c2a2.js:1
 #: build/475.b4eae071038b2bb3095d.js:1
-#: build/718.0297609e33fe5814329b.js:1
+#: build/718.876091783360f2260d98.js:1
 #: build/809.5b0b6628282ca76341c7.js:1
 msgid "Yes"
 msgstr ""
@@ -235,7 +236,7 @@ msgstr ""
 #: includes/Modules/MaintenanceMode/Module.php:465
 #: build/50.5e1e490c895cec652ee2.js:1
 #: build/244.51cc9501d13d30b5c2a2.js:1
-#: build/718.0297609e33fe5814329b.js:1
+#: build/718.876091783360f2260d98.js:1
 msgid "No"
 msgstr ""
 
@@ -247,7 +248,7 @@ msgstr ""
 #: includes/Modules/AdminColumns/RestController.php:98
 #: includes/Modules/AdminCustomiser/MenuOrganizer.php:79
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:207
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 msgid "Users"
 msgstr ""
 
@@ -307,7 +308,7 @@ msgid "Dashboard"
 msgstr ""
 
 #: includes/Modules/AdminCustomiser/MenuOrganizer.php:76
-#: build/index.508ec69e5c53f238b3b0.js:2
+#: build/index.8fe12f55411233ea4a52.js:2
 msgid "Appearance"
 msgstr ""
 
@@ -427,7 +428,7 @@ msgstr ""
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:154
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:193
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:237
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 #: build/752.5b321b5d976757948e1d.js:1
 msgid "Edit"
 msgstr ""
@@ -436,7 +437,7 @@ msgstr ""
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:152
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:195
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:240
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 msgid "View"
 msgstr ""
 
@@ -447,7 +448,6 @@ msgstr ""
 #: includes/Modules/AdminCustomiser/QuickSearch/ThirdPartyIntegrations.php:68
 #: includes/Modules/AdminCustomiser/QuickSearch/ThirdPartyIntegrations.php:69
 #: build/190.65e7b3330e4a8f2bc38a.js:1
-#: build/474.d98fcb46027547ab305e.js:1
 msgid "Open"
 msgstr ""
 
@@ -461,7 +461,7 @@ msgstr ""
 
 #: includes/Modules/AdminCustomiser/QuickSearch/ThirdPartyIntegrations.php:50
 #: includes/Modules/ExportPosts/Module.php:372
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 #: build/475.b4eae071038b2bb3095d.js:1
 #: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Categories"
@@ -499,15 +499,15 @@ msgstr ""
 msgid "Error creating the post: %s"
 msgstr ""
 
-#: includes/Modules/AiAssistant/BlogPilot/Scheduler.php:36
+#: includes/Modules/AiAssistant/BlogPilot/Scheduler.php:37
 msgid "Weekly (UX Studio)"
 msgstr ""
 
-#: includes/Modules/AiAssistant/BlogPilot/Scheduler.php:43
+#: includes/Modules/AiAssistant/BlogPilot/Scheduler.php:44
 msgid "Monthly (UX Studio)"
 msgstr ""
 
-#: includes/Modules/AiAssistant/BlogPilot/Scheduler.php:146
+#: includes/Modules/AiAssistant/BlogPilot/Scheduler.php:153
 #: includes/Modules/AiAssistant/BlogPilotRestController.php:145
 #: includes/Modules/AiAssistant/BlogPilotRestController.php:159
 #: includes/Modules/AiAssistant/BlogPilotRestController.php:173
@@ -515,7 +515,7 @@ msgstr ""
 msgid "Generator not found."
 msgstr ""
 
-#: includes/Modules/AiAssistant/BlogPilot/Scheduler.php:209
+#: includes/Modules/AiAssistant/BlogPilot/Scheduler.php:224
 msgid "General article"
 msgstr ""
 
@@ -567,7 +567,7 @@ msgstr ""
 
 #: includes/Modules/AiAssistant/ChatHistory.php:134
 #: includes/Modules/AiAssistant/ChatHistory.php:137
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 msgid "New conversation"
 msgstr ""
 
@@ -612,10 +612,10 @@ msgstr ""
 
 #: includes/Modules/AiAssistant/ChatRestController.php:353
 #: includes/Modules/CleanProfiles/Module.php:58
-#: build/78.a540e8578ca2d1adbc33.js:1
 #: build/93.bfc5e33039f2ea629940.js:1
 #: build/136.71ec8b3d36d55a7536e3.js:1
 #: build/230.9edabc0030c217453fd8.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 #: build/309.1176c611d8f1aa33c863.js:1
 #: build/475.b4eae071038b2bb3095d.js:1
 #: build/752.5b321b5d976757948e1d.js:1
@@ -639,8 +639,9 @@ msgstr ""
 
 #: includes/Modules/AiAssistant/ChatRestController.php:359
 #: includes/Modules/AiAssistant/ChatRestController.php:444
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: includes/Modules/ServiceRequests/Sync.php:450
 #: build/157.6516b122bdc10ba986aa.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 msgid "Page"
 msgstr ""
 
@@ -802,51 +803,63 @@ msgstr ""
 msgid "Content:"
 msgstr ""
 
+#: includes/Modules/AiAssistant/ContentGenerator.php:161
+msgid "Select at least one platform."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ContentGenerator.php:165
+msgid "Source content:"
+msgstr ""
+
 #. translators: %s: json_last_error_msg() text
-#: includes/Modules/AiAssistant/ContentGenerator.php:166
+#: includes/Modules/AiAssistant/ContentGenerator.php:227
 #, php-format
 msgid "The AI returned an invalid JSON response: %s"
 msgstr ""
 
-#: includes/Modules/AiAssistant/ContentRestController.php:164
+#: includes/Modules/AiAssistant/ContentRestController.php:195
 msgid "Publishing failed."
 msgstr ""
 
-#: includes/Modules/AiAssistant/ContentRestController.php:205
+#: includes/Modules/AiAssistant/ContentRestController.php:236
 msgid "The content to analyse for SEO is empty."
 msgstr ""
 
-#: includes/Modules/AiAssistant/ContentRestController.php:228
-#: includes/Modules/AiAssistant/ContentRestController.php:250
+#: includes/Modules/AiAssistant/ContentRestController.php:340
+msgid "The content to base captions on is empty."
+msgstr ""
+
+#: includes/Modules/AiAssistant/ContentRestController.php:358
+#: includes/Modules/AiAssistant/ContentRestController.php:380
 msgid "Elementor is not active."
 msgstr ""
 
-#: includes/Modules/AiAssistant/ContentRestController.php:233
+#: includes/Modules/AiAssistant/ContentRestController.php:363
 msgid "The html_content parameter is required."
 msgstr ""
 
-#: includes/Modules/AiAssistant/ContentRestController.php:238
+#: includes/Modules/AiAssistant/ContentRestController.php:368
 msgid "Could not convert the HTML into Elementor widgets."
 msgstr ""
 
-#: includes/Modules/AiAssistant/ContentRestController.php:244
+#: includes/Modules/AiAssistant/ContentRestController.php:374
 msgid "Elementor page"
 msgstr ""
 
-#: includes/Modules/AiAssistant/ContentRestController.php:259
+#: includes/Modules/AiAssistant/ContentRestController.php:389
 msgid "The url parameter must be a valid, publicly reachable URL."
 msgstr ""
 
-#: includes/Modules/AiAssistant/ContentRestController.php:275
+#: includes/Modules/AiAssistant/ContentRestController.php:405
 msgid "Could not extract content from the page."
 msgstr ""
 
-#: includes/Modules/AiAssistant/ContentRestController.php:278
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: includes/Modules/AiAssistant/ContentRestController.php:408
+#: build/295.4378b5e3d0a9182107f0.js:1
 msgid "Import from URL"
 msgstr ""
 
-#: includes/Modules/AiAssistant/ContentRestController.php:305
+#: includes/Modules/AiAssistant/ContentRestController.php:435
 msgid "Page not found."
 msgstr ""
 
@@ -982,7 +995,7 @@ msgstr ""
 
 #: includes/Modules/AiAssistant/KnowledgeHubRestController.php:187
 #: includes/Modules/AiAssistant/KnowledgeHubRestController.php:226
-#: includes/Modules/EmailLog/Module.php:347
+#: includes/Modules/EmailLog/Module.php:409
 #: includes/Modules/EmailLog/RestController.php:103
 msgid "Entry not found."
 msgstr ""
@@ -1060,21 +1073,21 @@ msgstr ""
 msgid "The document contains no usable text."
 msgstr ""
 
-#: includes/Modules/AiAssistant/Mcp/JwtAuth.php:112
+#: includes/Modules/AiAssistant/Mcp/JwtAuth.php:115
 msgid "Token not found."
 msgstr ""
 
-#: includes/Modules/AiAssistant/Mcp/JwtAuth.php:135
+#: includes/Modules/AiAssistant/Mcp/JwtAuth.php:138
 #: build/809.5b0b6628282ca76341c7.js:1
 msgid "Unknown"
 msgstr ""
 
-#: includes/Modules/AiAssistant/Mcp/McpBootstrap.php:48
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: includes/Modules/AiAssistant/Mcp/McpBootstrap.php:112
+#: build/295.4378b5e3d0a9182107f0.js:1
 msgid "AI Assistant"
 msgstr ""
 
-#: includes/Modules/AiAssistant/Mcp/McpBootstrap.php:49
+#: includes/Modules/AiAssistant/Mcp/McpBootstrap.php:113
 msgid "WordPress management tools provided by AI Assistant"
 msgstr ""
 
@@ -1089,7 +1102,7 @@ msgstr ""
 
 #: includes/Modules/AiAssistant/Mcp/Resources/SiteInfoResource.php:25
 #: includes/Modules/AiAssistant/Mcp/Resources/SiteInfoResource.php:40
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 msgid "Site Information"
 msgstr ""
 
@@ -1099,7 +1112,7 @@ msgstr ""
 
 #: includes/Modules/AiAssistant/Mcp/Resources/SiteSettingsResource.php:25
 #: includes/Modules/AiAssistant/Mcp/Resources/SiteSettingsResource.php:40
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 msgid "Site Settings"
 msgstr ""
 
@@ -1712,9 +1725,9 @@ msgstr ""
 
 #: includes/Modules/AiMarkdown/RestController.php:63
 #: includes/Modules/AiMarkdown/RestController.php:76
-#: includes/Modules/ContentSync/NodeController.php:239
-#: includes/Modules/ContentSync/NodeController.php:314
-#: includes/Modules/ContentSync/NodeController.php:356
+#: includes/Modules/ContentSync/NodeController.php:288
+#: includes/Modules/ContentSync/NodeController.php:366
+#: includes/Modules/ContentSync/NodeController.php:411
 msgid "Post not found."
 msgstr ""
 
@@ -1863,8 +1876,8 @@ msgstr ""
 
 #: includes/Modules/BotThrottle/DashboardWidget.php:73
 #: build/50.5e1e490c895cec652ee2.js:1
-#: build/78.a540e8578ca2d1adbc33.js:1
 #: build/244.51cc9501d13d30b5c2a2.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 #: build/475.b4eae071038b2bb3095d.js:1
 #: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Category"
@@ -1872,8 +1885,8 @@ msgstr ""
 
 #: includes/Modules/BotThrottle/DashboardWidget.php:74
 #: build/50.5e1e490c895cec652ee2.js:1
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/474.d98fcb46027547ab305e.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/474.cf43816866abf5df7c56.js:1
 msgid "Requests"
 msgstr ""
 
@@ -2363,7 +2376,7 @@ msgstr ""
 
 #: includes/Modules/ContentSync/Module.php:175
 #: includes/Modules/ExportPosts/Module.php:362
-#: build/718.0297609e33fe5814329b.js:1
+#: build/718.876091783360f2260d98.js:1
 #: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Author"
 msgstr ""
@@ -2423,8 +2436,8 @@ msgstr ""
 
 #: includes/Modules/ContentSync/Module.php:213
 #: includes/Modules/MaintenanceMode/Module.php:368
-#: build/78.a540e8578ca2d1adbc33.js:1
 #: build/190.65e7b3330e4a8f2bc38a.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 #: build/809.5b0b6628282ca76341c7.js:1
 #: build/866.a786a1a3b954a048d924.js:1
 msgid "Disabled"
@@ -2471,7 +2484,7 @@ msgid "Max token issues per operator / hour"
 msgstr ""
 
 #: includes/Modules/ContentSync/Module.php:266
-#: includes/Modules/ThirdPartyLogin/Module.php:92
+#: includes/Modules/ThirdPartyLogin/Module.php:133
 msgid "Central app URL"
 msgstr ""
 
@@ -2487,46 +2500,47 @@ msgstr ""
 msgid "Shared secret used to sign/verify every request to and from the central app. Stored encrypted. Leave blank to keep the current secret."
 msgstr ""
 
-#: includes/Modules/ContentSync/NodeController.php:361
+#: includes/Modules/ContentSync/NodeController.php:416
 msgid "Could not delete the post."
 msgstr ""
 
-#: includes/Modules/ContentSync/NodeController.php:387
+#: includes/Modules/ContentSync/NodeController.php:442
 msgid "Category name is required."
 msgstr ""
 
-#: includes/Modules/ContentSync/NodeController.php:417
-#: includes/Modules/ContentSync/NodeController.php:449
+#: includes/Modules/ContentSync/NodeController.php:472
+#: includes/Modules/ContentSync/NodeController.php:504
 #: includes/Modules/NoticeBoard/RestController.php:248
 #: includes/Modules/NoticeBoard/RestController.php:258
 msgid "Category not found."
 msgstr ""
 
-#: includes/Modules/ContentSync/NodeController.php:452
+#: includes/Modules/ContentSync/NodeController.php:507
 msgid "Cannot delete the default category."
 msgstr ""
 
-#: includes/Modules/ContentSync/NodeController.php:471
+#: includes/Modules/ContentSync/NodeController.php:526
 msgid "Taxonomy not found."
 msgstr ""
 
-#: includes/Modules/ContentSync/NodeController.php:484
+#: includes/Modules/ContentSync/NodeController.php:539
 msgid "No file was sent."
 msgstr ""
 
-#: includes/Modules/ContentSync/NodeController.php:491
+#: includes/Modules/ContentSync/NodeController.php:546
 msgid "Disallowed file type."
 msgstr ""
 
-#: includes/Modules/ContentSync/NodeController.php:494
+#: includes/Modules/ContentSync/NodeController.php:549
 msgid "File too large (max 10 MB)."
 msgstr ""
 
-#: includes/Modules/ContentSync/NodeController.php:536
+#: includes/Modules/ContentSync/NodeController.php:643
+#: includes/Modules/ContentSync/NodeController.php:674
 msgid "Media not found."
 msgstr ""
 
-#: includes/Modules/ContentSync/NodeController.php:539
+#: includes/Modules/ContentSync/NodeController.php:677
 msgid "Could not delete the media."
 msgstr ""
 
@@ -2770,6 +2784,7 @@ msgid "Disable for specific plugins only"
 msgstr ""
 
 #: includes/Modules/DisableAutoUpdates/Module.php:164
+#: includes/Modules/ServiceRequests/Sync.php:457
 #: build/136.71ec8b3d36d55a7536e3.js:2
 msgid "Plugins"
 msgstr ""
@@ -2962,7 +2977,7 @@ msgid "Redirect to the post edit screen after duplication."
 msgstr ""
 
 #: includes/Modules/DuplicatePost/Module.php:247
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 msgid "Post status"
 msgstr ""
 
@@ -3191,12 +3206,12 @@ msgstr ""
 msgid "Record which plugin, theme or mu-plugin triggered each mail. Adds a small overhead per send; disable on high-volume sites."
 msgstr ""
 
-#: includes/Modules/EmailLog/Module.php:377
+#: includes/Modules/EmailLog/Module.php:439
 #: build/367.fc7f739d3b65ad856d5c.js:1
 msgid "Email was re-sent."
 msgstr ""
 
-#: includes/Modules/EmailLog/Module.php:383
+#: includes/Modules/EmailLog/Module.php:445
 msgid "Re-sending failed."
 msgstr ""
 
@@ -3490,12 +3505,12 @@ msgid "Post ID"
 msgstr ""
 
 #: includes/Modules/ExportPosts/Module.php:354
-#: build/78.a540e8578ca2d1adbc33.js:1
 #: build/84.1a53127d36c807b7f9d6.js:1
 #: build/213.0fc210bb008e9541fd89.js:1
 #: build/244.51cc9501d13d30b5c2a2.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 #: build/309.1176c611d8f1aa33c863.js:1
-#: build/474.d98fcb46027547ab305e.js:1
+#: build/474.cf43816866abf5df7c56.js:1
 #: build/475.b4eae071038b2bb3095d.js:1
 #: build/819.0464f25e368c7e7fbca9.js:1
 #: build/930.c657f0a8ddf5aeb4be68.js:1
@@ -3512,14 +3527,14 @@ msgid "Excerpt"
 msgstr ""
 
 #: includes/Modules/ExportPosts/Module.php:358
-#: build/78.a540e8578ca2d1adbc33.js:1
 #: build/84.1a53127d36c807b7f9d6.js:1
 #: build/178.9f7c44183315fbd10ef5.js:1
 #: build/190.65e7b3330e4a8f2bc38a.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 #: build/309.1176c611d8f1aa33c863.js:1
 #: build/367.fc7f739d3b65ad856d5c.js:1
 #: build/402.b1fe1ccabde7eb8300df.js:1
-#: build/474.d98fcb46027547ab305e.js:1
+#: build/474.cf43816866abf5df7c56.js:1
 #: build/475.b4eae071038b2bb3095d.js:1
 #: build/819.0464f25e368c7e7fbca9.js:1
 #: build/831.f63d33eb2c8abcd821ed.js:1
@@ -3542,7 +3557,7 @@ msgstr ""
 #: build/367.fc7f739d3b65ad856d5c.js:1
 #: build/402.b1fe1ccabde7eb8300df.js:1
 #: build/475.b4eae071038b2bb3095d.js:1
-#: build/718.0297609e33fe5814329b.js:1
+#: build/718.876091783360f2260d98.js:1
 #: build/819.0464f25e368c7e7fbca9.js:1
 #: build/831.f63d33eb2c8abcd821ed.js:1
 #: build/860.a8269f19205c5720d7ff.js:1
@@ -3584,7 +3599,7 @@ msgid "Filtered Content"
 msgstr ""
 
 #: includes/Modules/ExportPosts/Module.php:373
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 msgid "Tags"
 msgstr ""
 
@@ -3699,8 +3714,8 @@ msgid "Website URL"
 msgstr ""
 
 #: includes/Modules/ExportUsers/Module.php:359
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/474.d98fcb46027547ab305e.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/474.cf43816866abf5df7c56.js:1
 #: build/866.a786a1a3b954a048d924.js:1
 msgid "Description"
 msgstr ""
@@ -3789,20 +3804,20 @@ msgstr ""
 #: includes/Modules/FileManager/Module.php:162
 #: build/31.e9354171b6207cee8a1b.js:1
 #: build/50.5e1e490c895cec652ee2.js:1
-#: build/78.a540e8578ca2d1adbc33.js:1
 #: build/148.d119a26df1a63436ea04.js:1
 #: build/157.6516b122bdc10ba986aa.js:1
 #: build/178.9f7c44183315fbd10ef5.js:1
 #: build/190.65e7b3330e4a8f2bc38a.js:1
 #: build/230.9edabc0030c217453fd8.js:1
 #: build/244.51cc9501d13d30b5c2a2.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 #: build/309.1176c611d8f1aa33c863.js:1
 #: build/367.fc7f739d3b65ad856d5c.js:1
 #: build/402.b1fe1ccabde7eb8300df.js:1
 #: build/457.e838d25a2b352769a07d.js:1
-#: build/474.d98fcb46027547ab305e.js:1
+#: build/474.cf43816866abf5df7c56.js:1
 #: build/475.b4eae071038b2bb3095d.js:1
-#: build/718.0297609e33fe5814329b.js:1
+#: build/718.876091783360f2260d98.js:1
 #: build/752.5b321b5d976757948e1d.js:1
 #: build/792.a567b513f75713d102ba.js:1
 #: build/819.0464f25e368c7e7fbca9.js:1
@@ -3812,7 +3827,7 @@ msgstr ""
 #: build/907.e407fbb311cd6ef44322.js:1
 #: build/930.c657f0a8ddf5aeb4be68.js:1
 #: build/976.9bdf1e13c10fe53dba47.js:1
-#: build/index.508ec69e5c53f238b3b0.js:2
+#: build/index.8fe12f55411233ea4a52.js:2
 msgid "Settings"
 msgstr ""
 
@@ -4218,7 +4233,7 @@ msgid "Twice daily"
 msgstr ""
 
 #: includes/Modules/InstagramFeed/Module.php:155
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 msgid "Daily"
 msgstr ""
 
@@ -4464,7 +4479,7 @@ msgstr ""
 
 #: includes/Modules/MaintenanceMode/Module.php:419
 #: includes/Modules/SvgUpload/Module.php:174
-#: includes/Modules/ThirdPartyLogin/Module.php:117
+#: includes/Modules/ThirdPartyLogin/Module.php:160
 msgid "Allowed roles"
 msgstr ""
 
@@ -4715,6 +4730,7 @@ msgid "your@email.com"
 msgstr ""
 
 #: includes/Modules/NoticeBoard/Module.php:1116
+#: build/474.cf43816866abf5df7c56.js:1
 msgid "Sending…"
 msgstr ""
 
@@ -4762,9 +4778,10 @@ msgid "Closed now"
 msgstr ""
 
 #: includes/Modules/OpeningHours/Frontend.php:91
-#: build/78.a540e8578ca2d1adbc33.js:1
 #: build/84.1a53127d36c807b7f9d6.js:1
 #: build/230.9edabc0030c217453fd8.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/474.cf43816866abf5df7c56.js:1
 msgid "Closed"
 msgstr ""
 
@@ -4995,7 +5012,7 @@ msgstr ""
 
 #: includes/Modules/PostGallery/Module.php:96
 #: build/309.1176c611d8f1aa33c863.js:1
-#: build/index.508ec69e5c53f238b3b0.js:1
+#: build/index.8fe12f55411233ea4a52.js:1
 #: includes/Modules/PostGallery/assets/js/post-gallery-admin.js:48
 msgid "Remove"
 msgstr ""
@@ -5036,7 +5053,7 @@ msgid "Thumbnail"
 msgstr ""
 
 #: includes/Modules/PostGallery/Module.php:457
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 #: build/457.e838d25a2b352769a07d.js:1
 msgid "Medium"
 msgstr ""
@@ -5218,6 +5235,7 @@ msgid "Could not generate a VAPID keypair (is the openssl PHP extension with EC 
 msgstr ""
 
 #: includes/Modules/QuickAddPost/Module.php:59
+#: build/474.cf43816866abf5df7c56.js:1
 msgid "New"
 msgstr ""
 
@@ -5283,28 +5301,41 @@ msgstr ""
 msgid "Featured image updated."
 msgstr ""
 
-#: includes/Modules/ReviewAggregator/Module.php:88
+#: includes/Modules/ReviewAggregator/Module.php:107
 msgid "Minimum rating to display"
 msgstr ""
 
-#: includes/Modules/ReviewAggregator/Module.php:89
+#: includes/Modules/ReviewAggregator/Module.php:108
 msgid "Reviews below this rating are still stored but hidden from the shortcode output."
 msgstr ""
 
-#: includes/Modules/ReviewAggregator/Module.php:95
+#: includes/Modules/ReviewAggregator/Module.php:114
 msgid "Auto-fetch new reviews"
 msgstr ""
 
-#: includes/Modules/ReviewAggregator/Module.php:101
+#: includes/Modules/ReviewAggregator/Module.php:120
 msgid "Central app profile ID"
 msgstr ""
 
-#: includes/Modules/ReviewAggregator/Module.php:102
+#: includes/Modules/ReviewAggregator/Module.php:121
 msgid "Identifies which review profile the central app should fetch for this site."
 msgstr ""
 
-#: includes/Modules/ReviewAggregator/Module.php:171
+#: includes/Modules/ReviewAggregator/Module.php:190
+#: includes/Modules/ReviewAggregator/Module.php:338
 msgid "Review not found."
+msgstr ""
+
+#: includes/Modules/ReviewAggregator/Module.php:333
+msgid "AI Assistant module is required for reply suggestions."
+msgstr ""
+
+#: includes/Modules/ReviewAggregator/Module.php:351
+msgid "Anonymous"
+msgstr ""
+
+#: includes/Modules/ReviewAggregator/Module.php:352
+msgid "(no text, rating only)"
 msgstr ""
 
 #: includes/Modules/RollbackManager/RestController.php:122
@@ -5796,7 +5827,7 @@ msgid "Sends a throttled summary email when new high/critical findings appear (a
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/Module.php:621
-#: includes/Modules/ServiceRequests/Module.php:81
+#: includes/Modules/ServiceRequests/Module.php:127
 msgid "Notification email"
 msgstr ""
 
@@ -5878,7 +5909,7 @@ msgstr ""
 msgid "RSS feeds are disabled on this site."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1292
+#: includes/Modules/SecurityOptimization/Module.php:1295
 msgid "REST API access is restricted to logged-in users."
 msgstr ""
 
@@ -5928,27 +5959,49 @@ msgstr ""
 msgid "Could not restore the file from quarantine."
 msgstr ""
 
-#: includes/Modules/ServiceRequests/Module.php:82
+#: includes/Modules/ServiceRequests/CentralClient.php:70
+msgid "The central app URL or the node API key is missing in Content Sync settings."
+msgstr ""
+
+#: includes/Modules/ServiceRequests/CentralClient.php:153
+msgid "Ticket sync is not configured."
+msgstr ""
+
+#: includes/Modules/ServiceRequests/CentralClient.php:156
+msgid "Attachment is not readable."
+msgstr ""
+
+#: includes/Modules/ServiceRequests/CentralClient.php:206
+msgid "Attachment upload failed."
+msgstr ""
+
+#: includes/Modules/ServiceRequests/Module.php:128
 msgid "Where notifications about new service requests are sent. Defaults to the site admin email if left blank."
 msgstr ""
 
-#: includes/Modules/ServiceRequests/Module.php:179
-msgid "Invalid status."
-msgstr ""
-
-#: includes/Modules/ServiceRequests/Module.php:184
-#: includes/Modules/ServiceRequests/RestController.php:133
+#: includes/Modules/ServiceRequests/Module.php:263
+#: includes/Modules/ServiceRequests/Module.php:302
+#: includes/Modules/ServiceRequests/Module.php:346
+#: includes/Modules/ServiceRequests/RestController.php:176
 msgid "Service request not found."
 msgstr ""
 
+#: includes/Modules/ServiceRequests/Module.php:268
+msgid "This request has not reached the central app yet. Try again once it is submitted."
+msgstr ""
+
+#: includes/Modules/ServiceRequests/Module.php:341
+msgid "Invalid status."
+msgstr ""
+
 #. translators: %s: request title
-#: includes/Modules/ServiceRequests/Module.php:237
+#: includes/Modules/ServiceRequests/Module.php:399
 #, php-format
 msgid "New service request: %s"
 msgstr ""
 
 #. translators: 1: title, 2: description, 3: requester email
-#: includes/Modules/ServiceRequests/Module.php:242
+#: includes/Modules/ServiceRequests/Module.php:404
 #, php-format
 msgid ""
 "A new service request was submitted.\n"
@@ -5956,6 +6009,33 @@ msgid ""
 "Title: %1$s\n"
 "Description: %2$s\n"
 "Requester: %3$s"
+msgstr ""
+
+#: includes/Modules/ServiceRequests/Sync.php:89
+msgid "Every 5 minutes (UX Studio ticket sync)"
+msgstr ""
+
+#: includes/Modules/ServiceRequests/Sync.php:234
+msgid "The message is empty."
+msgstr ""
+
+#: includes/Modules/ServiceRequests/Sync.php:453
+#: build/752.5b321b5d976757948e1d.js:1
+#: build/index.8fe12f55411233ea4a52.js:2
+msgid "Theme"
+msgstr ""
+
+#: includes/Modules/ServiceRequests/Sync.php:454
+#: build/index.8fe12f55411233ea4a52.js:2
+msgid "Language"
+msgstr ""
+
+#: includes/Modules/ServiceRequests/Sync.php:455
+msgid "User role"
+msgstr ""
+
+#: includes/Modules/ServiceRequests/Sync.php:456
+msgid "Browser"
 msgstr ""
 
 #: includes/Modules/SmtpEmail/Module.php:118
@@ -6056,53 +6136,53 @@ msgstr ""
 msgid "Gmail OAuth client secret"
 msgstr ""
 
-#: includes/Modules/SmtpEmail/Module.php:651
+#: includes/Modules/SmtpEmail/Module.php:661
 msgid "Access token refresh failed (refresh token may have been revoked)."
 msgstr ""
 
-#: includes/Modules/SmtpEmail/Module.php:703
+#: includes/Modules/SmtpEmail/Module.php:713
 msgid "Enter and save the Gmail client ID and secret first."
 msgstr ""
 
 #. translators: %s: Google error code
-#: includes/Modules/SmtpEmail/Module.php:724
+#: includes/Modules/SmtpEmail/Module.php:734
 #, php-format
 msgid "Google returned an error: %s"
 msgstr ""
 
-#: includes/Modules/SmtpEmail/Module.php:731
+#: includes/Modules/SmtpEmail/Module.php:741
 msgid "Invalid or expired OAuth state. Try connecting again."
 msgstr ""
 
-#: includes/Modules/SmtpEmail/Module.php:742
+#: includes/Modules/SmtpEmail/Module.php:752
 msgid "Code-for-token exchange failed. Check the client secret and redirect URI in Google Cloud."
 msgstr ""
 
-#: includes/Modules/SmtpEmail/Module.php:748
+#: includes/Modules/SmtpEmail/Module.php:758
 msgid "Google did not send a refresh token. Revoke this app at myaccount.google.com/permissions and connect again."
 msgstr ""
 
 #. translators: %s: Google account email
-#: includes/Modules/SmtpEmail/Module.php:781
+#: includes/Modules/SmtpEmail/Module.php:791
 #, php-format
 msgid "Account %s connected."
 msgstr ""
 
-#: includes/Modules/SmtpEmail/Module.php:796
+#: includes/Modules/SmtpEmail/Module.php:806
 msgid "Account disconnected."
 msgstr ""
 
 #. translators: %s: site name
-#: includes/Modules/SmtpEmail/Module.php:891
+#: includes/Modules/SmtpEmail/Module.php:901
 #, php-format
 msgid "[%s] SMTP test email"
 msgstr ""
 
-#: includes/Modules/SmtpEmail/Module.php:894
+#: includes/Modules/SmtpEmail/Module.php:904
 msgid "This is a test email sent from the UX Studio SMTP Email module."
 msgstr ""
 
-#: includes/Modules/SmtpEmail/Module.php:910
+#: includes/Modules/SmtpEmail/Module.php:920
 msgid "No previous message to resend."
 msgstr ""
 
@@ -6161,69 +6241,77 @@ msgstr ""
 msgid "Only users with one of these roles may upload SVG files. Defaults to administrators only."
 msgstr ""
 
-#: includes/Modules/ThirdPartyLogin/Module.php:93
-msgid "Base URL of the central app that performs the OAuth handshake."
+#: includes/Modules/ThirdPartyLogin/Module.php:134
+msgid "Base URL of the central app that performs the OAuth handshake, e.g. https://ux1.cz/app/."
 msgstr ""
 
-#: includes/Modules/ThirdPartyLogin/Module.php:99
+#: includes/Modules/ThirdPartyLogin/Module.php:140
 msgid "HMAC secret"
 msgstr ""
 
-#: includes/Modules/ThirdPartyLogin/Module.php:100
-msgid "Shared secret used to verify signed callbacks from the central app. Stored encrypted. Leave blank to keep the current secret."
+#: includes/Modules/ThirdPartyLogin/Module.php:141
+msgid "Shared secret from the central app (site detail, \"Third-party login\"). Signs the handshake in both directions. Stored encrypted. Leave blank to keep the current secret."
 msgstr ""
 
-#: includes/Modules/ThirdPartyLogin/Module.php:106
+#: includes/Modules/ThirdPartyLogin/Module.php:147
 msgid "Enabled providers"
 msgstr ""
 
-#: includes/Modules/ThirdPartyLogin/Module.php:108
-#: includes/Modules/ThirdPartyLogin/Module.php:342
+#: includes/Modules/ThirdPartyLogin/Module.php:148
+msgid "A provider also has to be configured centrally and enabled for this site in the central app."
+msgstr ""
+
+#: includes/Modules/ThirdPartyLogin/Module.php:150
+#: includes/Modules/ThirdPartyLogin/Module.php:326
 msgid "Google"
 msgstr ""
 
-#: includes/Modules/ThirdPartyLogin/Module.php:109
-#: includes/Modules/ThirdPartyLogin/Module.php:343
+#: includes/Modules/ThirdPartyLogin/Module.php:151
+#: includes/Modules/ThirdPartyLogin/Module.php:327
 msgid "Facebook"
 msgstr ""
 
-#: includes/Modules/ThirdPartyLogin/Module.php:110
-#: includes/Modules/ThirdPartyLogin/Module.php:344
+#: includes/Modules/ThirdPartyLogin/Module.php:152
+#: includes/Modules/ThirdPartyLogin/Module.php:328
 msgid "Apple"
 msgstr ""
 
-#: includes/Modules/ThirdPartyLogin/Module.php:118
+#: includes/Modules/ThirdPartyLogin/Module.php:153
+#: includes/Modules/ThirdPartyLogin/Module.php:329
+msgid "Seznam"
+msgstr ""
+
+#: includes/Modules/ThirdPartyLogin/Module.php:161
 msgid "Only users whose role is selected here may log in (or be auto-created) via a provider. Leave empty to block third-party login for everyone."
 msgstr ""
 
-#: includes/Modules/ThirdPartyLogin/Module.php:125
+#: includes/Modules/ThirdPartyLogin/Module.php:168
 msgid "Auto-create accounts on first login"
 msgstr ""
 
-#: includes/Modules/ThirdPartyLogin/Module.php:126
+#: includes/Modules/ThirdPartyLogin/Module.php:169
 msgid "When on, an unknown verified provider identity creates a new WordPress user. When off, unknown identities are rejected and users must link a provider from their profile after logging in."
 msgstr ""
 
-#: includes/Modules/ThirdPartyLogin/Module.php:132
+#: includes/Modules/ThirdPartyLogin/Module.php:175
 msgid "Default role for auto-created accounts"
 msgstr ""
 
-#: includes/Modules/ThirdPartyLogin/Module.php:133
+#: includes/Modules/ThirdPartyLogin/Module.php:176
 msgid "Role assigned to auto-created users. Administrator is intentionally not selectable. This role should also be in \"Allowed roles\", otherwise the new account cannot log in."
 msgstr ""
 
 #. translators: %s = provider name
-#: includes/Modules/ThirdPartyLogin/Module.php:395
+#: includes/Modules/ThirdPartyLogin/Module.php:528
 #, php-format
 msgid "Sign in with %s"
 msgstr ""
 
-#: includes/Modules/ThirdPartyLogin/RestController.php:128
+#: includes/Modules/ThirdPartyLogin/RestController.php:124
 msgid "Your role is not allowed to use third-party login."
 msgstr ""
 
-#: includes/Modules/ThirdPartyLogin/RestController.php:188
-#: includes/Modules/ThirdPartyLogin/RestController.php:432
+#: includes/Modules/ThirdPartyLogin/RestController.php:476
 msgid "Invalid request."
 msgstr ""
 
@@ -6429,8 +6517,8 @@ msgid "Next-gen delivery (.htaccess)"
 msgstr ""
 
 #: build/31.e9354171b6207cee8a1b.js:1
-#: build/78.a540e8578ca2d1adbc33.js:1
 #: build/190.65e7b3330e4a8f2bc38a.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 #: build/475.b4eae071038b2bb3095d.js:1
 msgid "Active"
 msgstr ""
@@ -6452,7 +6540,7 @@ msgid "Start bulk optimization"
 msgstr ""
 
 #: build/31.e9354171b6207cee8a1b.js:1
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 msgid "Running…"
 msgstr ""
 
@@ -6498,7 +6586,6 @@ msgstr ""
 
 #: build/31.e9354171b6207cee8a1b.js:1
 #: build/50.5e1e490c895cec652ee2.js:1
-#: build/78.a540e8578ca2d1adbc33.js:1
 #: build/84.1a53127d36c807b7f9d6.js:1
 #: build/93.bfc5e33039f2ea629940.js:1
 #: build/136.71ec8b3d36d55a7536e3.js:2
@@ -6510,13 +6597,14 @@ msgstr ""
 #: build/213.0fc210bb008e9541fd89.js:2
 #: build/230.9edabc0030c217453fd8.js:1
 #: build/244.51cc9501d13d30b5c2a2.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 #: build/309.1176c611d8f1aa33c863.js:1
 #: build/367.fc7f739d3b65ad856d5c.js:1
 #: build/402.b1fe1ccabde7eb8300df.js:1
 #: build/457.e838d25a2b352769a07d.js:1
-#: build/474.d98fcb46027547ab305e.js:1
+#: build/474.cf43816866abf5df7c56.js:1
 #: build/475.b4eae071038b2bb3095d.js:1
-#: build/718.0297609e33fe5814329b.js:1
+#: build/718.876091783360f2260d98.js:1
 #: build/752.5b321b5d976757948e1d.js:1
 #: build/792.a567b513f75713d102ba.js:1
 #: build/809.5b0b6628282ca76341c7.js:1
@@ -6527,8 +6615,8 @@ msgstr ""
 #: build/907.e407fbb311cd6ef44322.js:1
 #: build/930.c657f0a8ddf5aeb4be68.js:1
 #: build/976.9bdf1e13c10fe53dba47.js:1
-#: build/index.508ec69e5c53f238b3b0.js:1
-#: build/index.508ec69e5c53f238b3b0.js:2
+#: build/index.8fe12f55411233ea4a52.js:1
+#: build/index.8fe12f55411233ea4a52.js:2
 msgid "Loading…"
 msgstr ""
 
@@ -6545,14 +6633,14 @@ msgid "Uploaded"
 msgstr ""
 
 #: build/31.e9354171b6207cee8a1b.js:1
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 #: build/367.fc7f739d3b65ad856d5c.js:1
 #: build/860.a8269f19205c5720d7ff.js:1
 msgid "Previous"
 msgstr ""
 
 #: build/31.e9354171b6207cee8a1b.js:1
-#: build/78.a540e8578ca2d1adbc33.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 #: build/367.fc7f739d3b65ad856d5c.js:1
 #: build/860.a8269f19205c5720d7ff.js:1
 msgid "Next"
@@ -6560,7 +6648,6 @@ msgstr ""
 
 #: build/31.e9354171b6207cee8a1b.js:1
 #: build/50.5e1e490c895cec652ee2.js:1
-#: build/78.a540e8578ca2d1adbc33.js:1
 #: build/84.1a53127d36c807b7f9d6.js:1
 #: build/93.bfc5e33039f2ea629940.js:1
 #: build/136.71ec8b3d36d55a7536e3.js:2
@@ -6572,15 +6659,16 @@ msgstr ""
 #: build/213.0fc210bb008e9541fd89.js:2
 #: build/230.9edabc0030c217453fd8.js:1
 #: build/244.51cc9501d13d30b5c2a2.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 #: build/309.1176c611d8f1aa33c863.js:1
 #: build/367.fc7f739d3b65ad856d5c.js:1
 #: build/386.3fec0ad538544d603682.js:1
 #: build/402.b1fe1ccabde7eb8300df.js:1
 #: build/457.e838d25a2b352769a07d.js:1
-#: build/474.d98fcb46027547ab305e.js:1
+#: build/474.cf43816866abf5df7c56.js:1
 #: build/475.b4eae071038b2bb3095d.js:1
 #: build/563.64a47ca5b2f0345c6df5.js:1
-#: build/718.0297609e33fe5814329b.js:1
+#: build/718.876091783360f2260d98.js:1
 #: build/752.5b321b5d976757948e1d.js:1
 #: build/792.a567b513f75713d102ba.js:1
 #: build/809.5b0b6628282ca76341c7.js:1
@@ -6592,7 +6680,7 @@ msgstr ""
 #: build/930.c657f0a8ddf5aeb4be68.js:1
 #: build/976.9bdf1e13c10fe53dba47.js:1
 #: build/999.099916b842480750146e.js:1
-#: build/index.508ec69e5c53f238b3b0.js:2
+#: build/index.8fe12f55411233ea4a52.js:2
 msgid "Back to modules"
 msgstr ""
 
@@ -6610,7 +6698,6 @@ msgstr ""
 
 #: build/31.e9354171b6207cee8a1b.js:1
 #: build/50.5e1e490c895cec652ee2.js:1
-#: build/78.a540e8578ca2d1adbc33.js:1
 #: build/148.d119a26df1a63436ea04.js:1
 #: build/157.6516b122bdc10ba986aa.js:1
 #: build/178.9f7c44183315fbd10ef5.js:1
@@ -6618,13 +6705,14 @@ msgstr ""
 #: build/213.0fc210bb008e9541fd89.js:1
 #: build/230.9edabc0030c217453fd8.js:1
 #: build/244.51cc9501d13d30b5c2a2.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 #: build/309.1176c611d8f1aa33c863.js:1
 #: build/367.fc7f739d3b65ad856d5c.js:1
 #: build/402.b1fe1ccabde7eb8300df.js:1
 #: build/457.e838d25a2b352769a07d.js:1
-#: build/474.d98fcb46027547ab305e.js:1
+#: build/474.cf43816866abf5df7c56.js:1
 #: build/475.b4eae071038b2bb3095d.js:1
-#: build/718.0297609e33fe5814329b.js:1
+#: build/718.876091783360f2260d98.js:1
 #: build/752.5b321b5d976757948e1d.js:1
 #: build/792.a567b513f75713d102ba.js:1
 #: build/809.5b0b6628282ca76341c7.js:1
@@ -6635,26 +6723,26 @@ msgstr ""
 #: build/907.e407fbb311cd6ef44322.js:1
 #: build/930.c657f0a8ddf5aeb4be68.js:1
 #: build/976.9bdf1e13c10fe53dba47.js:1
-#: build/index.508ec69e5c53f238b3b0.js:2
+#: build/index.8fe12f55411233ea4a52.js:2
 msgid "Saved"
 msgstr ""
 
 #: build/31.e9354171b6207cee8a1b.js:1
 #: build/50.5e1e490c895cec652ee2.js:1
-#: build/78.a540e8578ca2d1adbc33.js:1
 #: build/148.d119a26df1a63436ea04.js:1
 #: build/157.6516b122bdc10ba986aa.js:1
 #: build/178.9f7c44183315fbd10ef5.js:1
 #: build/190.65e7b3330e4a8f2bc38a.js:1
 #: build/230.9edabc0030c217453fd8.js:1
 #: build/244.51cc9501d13d30b5c2a2.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
 #: build/309.1176c611d8f1aa33c863.js:1
 #: build/367.fc7f739d3b65ad856d5c.js:1
 #: build/402.b1fe1ccabde7eb8300df.js:1
 #: build/457.e838d25a2b352769a07d.js:1
-#: build/474.d98fcb46027547ab305e.js:1
+#: build/474.cf43816866abf5df7c56.js:1
 #: build/475.b4eae071038b2bb3095d.js:1
-#: build/718.0297609e33fe5814329b.js:1
+#: build/718.876091783360f2260d98.js:1
 #: build/752.5b321b5d976757948e1d.js:1
 #: build/792.a567b513f75713d102ba.js:1
 #: build/809.5b0b6628282ca76341c7.js:1
@@ -6665,7 +6753,7 @@ msgstr ""
 #: build/907.e407fbb311cd6ef44322.js:1
 #: build/930.c657f0a8ddf5aeb4be68.js:1
 #: build/976.9bdf1e13c10fe53dba47.js:1
-#: build/index.508ec69e5c53f238b3b0.js:2
+#: build/index.8fe12f55411233ea4a52.js:2
 msgid "Save changes"
 msgstr ""
 
@@ -6779,1098 +6867,6 @@ msgstr ""
 msgid "Bot Throttle"
 msgstr ""
 
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Not rated"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#, js-format
-msgid "%d out of 5 stars"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Conversation"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Page:"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Rating:"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Feedback:"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No messages."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Filter by rating"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "All"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "stars"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#, js-format
-msgid "Delete selected (%d)"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Session"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Messages"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/718.0297609e33fe5814329b.js:1
-msgid "Rating"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Updated"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Select conversation"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Delete conversation"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No conversations yet."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Public"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Internal"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Choose a file first."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Document (PDF, DOCX, TXT, MD)"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Public chat"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Internal chat"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Upload document"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Add entry"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Documents"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No documents uploaded yet."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-#: build/213.0fc210bb008e9541fd89.js:1
-#: build/309.1176c611d8f1aa33c863.js:1
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "Type"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Chunks"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Targets"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/244.51cc9501d13d30b5c2a2.js:1
-#: build/309.1176c611d8f1aa33c863.js:1
-#: build/474.d98fcb46027547ab305e.js:1
-#: build/475.b4eae071038b2bb3095d.js:1
-#: build/718.0297609e33fe5814329b.js:1
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Actions"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Delete this document and its knowledge chunks?"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/93.bfc5e33039f2ea629940.js:1
-#: build/190.65e7b3330e4a8f2bc38a.js:1
-#: build/244.51cc9501d13d30b5c2a2.js:1
-#: build/474.d98fcb46027547ab305e.js:1
-#: build/475.b4eae071038b2bb3095d.js:1
-#: build/752.5b321b5d976757948e1d.js:1
-#: build/809.5b0b6628282ca76341c7.js:1
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-msgid "Delete"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Manual entries"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No manual entries yet."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Delete this entry?"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Question"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Answer"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Add FAQ"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Generate from topic (optional)"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "e.g. cancellation policy"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Suggest from past chats"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Suggest from topic"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/475.b4eae071038b2bb3095d.js:1
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-#: build/976.9bdf1e13c10fe53dba47.js:1
-msgid "Add"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No new suggestions."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "FAQ"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No FAQs yet."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Views"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Delete this FAQ?"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Source type"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Web page URL"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Sitemap URL"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Raw text"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Title (optional)"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/213.0fc210bb008e9541fd89.js:1
-#: build/718.0297609e33fe5814329b.js:1
-msgid "Text"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/178.9f7c44183315fbd10ef5.js:1
-#: build/309.1176c611d8f1aa33c863.js:1
-#: build/930.c657f0a8ddf5aeb4be68.js:1
-msgid "URL"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Add source"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No training sources yet."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Title / URL"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Vectors"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Reindex"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Delete this source and its vectors?"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Indexed items:"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Vectorize existing data"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Index knowledge base, FAQ, products & content"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Computes embeddings for the current knowledge base entries, FAQ, product index and content index."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Embedding provider:"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "dims"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Total vectors:"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Training sources:"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "pending"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "RAG status"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Products (WooCommerce)"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Content (posts/pages)"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Training sources"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "AI"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Waiting"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "With operator"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Visitor"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Waiting for pickup"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Active handoffs"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No handoff requests right now."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Take over"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Return to AI"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No messages yet."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Reply to the customer…"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/402.b1fe1ccabde7eb8300df.js:1
-#: build/819.0464f25e368c7e7fbca9.js:1
-msgid "Send"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Select a conversation from the list on the left."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/148.d119a26df1a63436ea04.js:1
-#: build/244.51cc9501d13d30b5c2a2.js:1
-msgid "Post"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Neutral"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Professional"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Friendly"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Persuasive"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Enthusiastic"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Short"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Long"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Generate a post/page"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Content type"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Tone"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Length"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "What should this content be about?"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "SEO focus keyword (optional)"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Generate"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Category:"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Tags:"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Edit draft"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "View published post"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Publish"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/819.0464f25e368c7e7fbca9.js:1
-msgid "Create draft"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Generate a WooCommerce product description"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Product description (rough input)"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Copy the text above into the product description field."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Generate SEO meta"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Save to post ID (optional)"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#, js-format
-msgid "Detected SEO plugin: %s. Copy these values into its fields if needed."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Title:"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Description:"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Keywords:"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Import HTML/URL into Elementor"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/367.fc7f739d3b65ad856d5c.js:1
-#: build/457.e838d25a2b352769a07d.js:1
-#: build/563.64a47ca5b2f0345c6df5.js:1
-#: build/718.0297609e33fe5814329b.js:1
-msgid "Source"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/563.64a47ca5b2f0345c6df5.js:1
-msgid "Paste HTML"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/563.64a47ca5b2f0345c6df5.js:1
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "HTML"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/563.64a47ca5b2f0345c6df5.js:1
-msgid "Page URL"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/563.64a47ca5b2f0345c6df5.js:1
-msgid "Content CSS selector (optional)"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Post type"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/819.0464f25e368c7e7fbca9.js:1
-msgid "Draft"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "Published"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Pending review"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Import into Elementor"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#, js-format
-msgid "Created \"%s\" with the widgets below."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "widgets."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/563.64a47ca5b2f0345c6df5.js:1
-msgid "Edit in Elementor"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Weekly"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Monthly"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Generators:"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "active"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Posts generated:"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "in the last 7 days"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Tokens used:"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Generator name"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Topics (one per line)"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Article types"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Leave empty to rotate through every article type."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "AI provider"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Default provider"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Model"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Default model"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Extra long"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/809.5b0b6628282ca76341c7.js:1
-#: build/819.0464f25e368c7e7fbca9.js:1
-msgid "Schedule"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Publish time window"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "to"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Posts per run"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Create generator"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/93.bfc5e33039f2ea629940.js:1
-#: build/475.b4eae071038b2bb3095d.js:1
-#: build/752.5b321b5d976757948e1d.js:1
-msgid "Cancel"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Generators"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "New generator"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No generators yet."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Posts"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Next run"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Generated:"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/809.5b0b6628282ca76341c7.js:1
-msgid "Run now"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Pause"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Activate"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Delete this generator?"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Generated posts"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No posts generated yet."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Bulk action"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Set to draft"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Move to trash"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Apply"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Generator"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Article type"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Tokens"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/474.d98fcb46027547ab305e.js:1
-msgid "Created"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Monthly tokens"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Daily requests (site-wide)"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Your daily requests"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Failed to reach the AI assistant."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Ask the internal AI assistant about editing content, site settings, or how to use UX Studio."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Thinking…"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Type your message…"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "1 hour"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "4 hours"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "8 hours"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "12 hours"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "24 hours"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "List, Get, Create, Update, Delete"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Pages"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "List, Get, Delete"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Custom Post Types"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "List Types, List Taxonomies, Get Items"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Get, Update"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Site Stats"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Get"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "WooCommerce Products"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "List, Get, Create, Update, Delete (if WooCommerce is active)"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "WooCommerce Orders"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "List, Get, Create (if WooCommerce is active)"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Elementor"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "List Pages, Get Structure, Find Widgets, Update Widget (if Elementor is active)"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Plugins Info"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Theme Info"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Users Info"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Validity"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Generate token"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "New JWT token"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Copied!"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Copy"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "This token is shown only once. Copy it now - once you leave this page it cannot be displayed again."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No active tokens yet."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Token ID"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/860.a8269f19205c5720d7ff.js:1
-msgid "User"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/475.b4eae071038b2bb3095d.js:1
-msgid "Expires"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Revoke"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "MCP Server"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "MCP (Model Context Protocol) is an open standard that lets external AI tools talk to this WordPress site. Once enabled, Claude Desktop, Cursor, Windsurf or another MCP client can manage posts, pages, products, media and settings directly. Clients authenticate with a JWT token (see below) and only ever get the operations you allow."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Status:"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/213.0fc210bb008e9541fd89.js:1
-#: build/809.5b0b6628282ca76341c7.js:1
-#: build/866.a786a1a3b954a048d924.js:1
-msgid "Enabled"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "This toggle lives in the Settings tab (\"Enable MCP (tool calling)\") - it is shown here for reference only."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Registered tools & resources"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "These WordPress REST API endpoints are automatically exposed as MCP tools and resources. Tools let the AI perform actions (CRUD operations). Resources provide read-only context about the site."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Tools"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Tool"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Operations"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Resources"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Resource"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "URI"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Resources are read-only - the AI can read them but cannot use them to change data."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "JWT access tokens"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "To connect an external AI client to the MCP server, generate a JWT (JSON Web Token). Paste it into the AI client's configuration (e.g. the Claude Desktop config). Each token has a limited lifetime and can be revoked at any time."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Usage"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Conversations"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Handoff"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Knowledge Hub"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "RAG Training"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Content Creator"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Blog Pilot"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Internal Chat"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "MCP"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Daily requests (per user)"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "A Claude API key is currently set."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No Claude API key set yet."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "An OpenAI API key is currently set."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No OpenAI API key set yet."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "A DeepSeek API key is currently set."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No DeepSeek API key set yet."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Period (days)"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Requests:"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Input tokens:"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Output tokens:"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Sessions:"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "No usage recorded for this period."
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-#: build/792.a567b513f75713d102ba.js:1
-msgid "Provider"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Feature"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Input tokens"
-msgstr ""
-
-#: build/78.a540e8578ca2d1adbc33.js:1
-msgid "Output tokens"
-msgstr ""
-
 #: build/84.1a53127d36c807b7f9d6.js:1
 msgid "Shown"
 msgstr ""
@@ -7894,7 +6890,7 @@ msgstr ""
 
 #: build/84.1a53127d36c807b7f9d6.js:1
 #: build/402.b1fe1ccabde7eb8300df.js:1
-#: build/718.0297609e33fe5814329b.js:1
+#: build/718.876091783360f2260d98.js:1
 msgid "Stats"
 msgstr ""
 
@@ -7912,6 +6908,13 @@ msgstr ""
 
 #: build/93.bfc5e33039f2ea629940.js:1
 msgid "Save name"
+msgstr ""
+
+#: build/93.bfc5e33039f2ea629940.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
+#: build/752.5b321b5d976757948e1d.js:1
+msgid "Cancel"
 msgstr ""
 
 #: build/93.bfc5e33039f2ea629940.js:1
@@ -7936,6 +6939,18 @@ msgstr ""
 
 #: build/93.bfc5e33039f2ea629940.js:1
 msgid "Delete this folder? Attachments in it will become unassigned."
+msgstr ""
+
+#: build/93.bfc5e33039f2ea629940.js:1
+#: build/190.65e7b3330e4a8f2bc38a.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/474.cf43816866abf5df7c56.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
+#: build/752.5b321b5d976757948e1d.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
+msgid "Delete"
 msgstr ""
 
 #: build/93.bfc5e33039f2ea629940.js:1
@@ -8086,6 +7101,12 @@ msgid "Regenerate all"
 msgstr ""
 
 #: build/148.d119a26df1a63436ea04.js:1
+#: build/244.51cc9501d13d30b5c2a2.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Post"
+msgstr ""
+
+#: build/148.d119a26df1a63436ea04.js:1
 msgid "Generated"
 msgstr ""
 
@@ -8201,7 +7222,7 @@ msgid "Last 24 hours"
 msgstr ""
 
 #: build/178.9f7c44183315fbd10ef5.js:1
-#: build/718.0297609e33fe5814329b.js:1
+#: build/718.876091783360f2260d98.js:1
 msgid "Average"
 msgstr ""
 
@@ -8235,6 +7256,13 @@ msgstr ""
 
 #: build/178.9f7c44183315fbd10ef5.js:1
 msgid "Time"
+msgstr ""
+
+#: build/178.9f7c44183315fbd10ef5.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
+msgid "URL"
 msgstr ""
 
 #: build/178.9f7c44183315fbd10ef5.js:1
@@ -8350,7 +7378,14 @@ msgid "CSP is off. Enable it in the Settings tab - start with Report only to col
 msgstr ""
 
 #: build/190.65e7b3330e4a8f2bc38a.js:1
+#: build/474.cf43816866abf5df7c56.js:1
 msgid "Resolved"
+msgstr ""
+
+#: build/190.65e7b3330e4a8f2bc38a.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
+msgid "All"
 msgstr ""
 
 #: build/190.65e7b3330e4a8f2bc38a.js:1
@@ -8433,6 +7468,15 @@ msgstr ""
 
 #: build/190.65e7b3330e4a8f2bc38a.js:1
 msgid "Queued"
+msgstr ""
+
+#: build/190.65e7b3330e4a8f2bc38a.js:1
+#: build/213.0fc210bb008e9541fd89.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
+#: build/474.cf43816866abf5df7c56.js:1
+#: build/866.a786a1a3b954a048d924.js:1
+msgid "Type"
 msgstr ""
 
 #: build/190.65e7b3330e4a8f2bc38a.js:1
@@ -8572,6 +7616,13 @@ msgid "ID"
 msgstr ""
 
 #: build/213.0fc210bb008e9541fd89.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/718.876091783360f2260d98.js:1
+msgid "Text"
+msgstr ""
+
+#: build/213.0fc210bb008e9541fd89.js:1
+#: build/474.cf43816866abf5df7c56.js:1
 msgid "Number"
 msgstr ""
 
@@ -8657,6 +7708,13 @@ msgstr ""
 
 #: build/213.0fc210bb008e9541fd89.js:1
 msgid "Width"
+msgstr ""
+
+#: build/213.0fc210bb008e9541fd89.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
+#: build/866.a786a1a3b954a048d924.js:1
+msgid "Enabled"
 msgstr ""
 
 #: build/213.0fc210bb008e9541fd89.js:1
@@ -8786,6 +7844,16 @@ msgid "Login required"
 msgstr ""
 
 #: build/244.51cc9501d13d30b5c2a2.js:1
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/309.1176c611d8f1aa33c863.js:1
+#: build/474.cf43816866abf5df7c56.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
+#: build/718.876091783360f2260d98.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
+msgid "Actions"
+msgstr ""
+
+#: build/244.51cc9501d13d30b5c2a2.js:1
 msgid "Copied"
 msgstr ""
 
@@ -8804,6 +7872,1079 @@ msgstr ""
 #: build/244.51cc9501d13d30b5c2a2.js:1
 #: build/475.b4eae071038b2bb3095d.js:1
 msgid "Files"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Not rated"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+#, js-format
+msgid "%d out of 5 stars"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/474.cf43816866abf5df7c56.js:1
+msgid "Conversation"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Page:"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Rating:"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Feedback:"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "No messages."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Filter by rating"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "stars"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+#, js-format
+msgid "Delete selected (%d)"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Session"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Messages"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/718.876091783360f2260d98.js:1
+msgid "Rating"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Updated"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Select conversation"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Delete conversation"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "No conversations yet."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Public"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Internal"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Choose a file first."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Document (PDF, DOCX, TXT, MD)"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Public chat"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Internal chat"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Upload document"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Add entry"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Documents"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "No documents uploaded yet."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Chunks"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Targets"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Delete this document and its knowledge chunks?"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Manual entries"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "No manual entries yet."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Delete this entry?"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/474.cf43816866abf5df7c56.js:1
+msgid "Question"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Answer"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Add FAQ"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Generate from topic (optional)"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "e.g. cancellation policy"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Suggest from past chats"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Suggest from topic"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
+#: build/930.c657f0a8ddf5aeb4be68.js:1
+#: build/976.9bdf1e13c10fe53dba47.js:1
+msgid "Add"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "No new suggestions."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "FAQ"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "No FAQs yet."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Views"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Delete this FAQ?"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Source type"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Web page URL"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Sitemap URL"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Raw text"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Title (optional)"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Add source"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "No training sources yet."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Title / URL"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Vectors"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Reindex"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Delete this source and its vectors?"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Indexed items:"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Vectorize existing data"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Index knowledge base, FAQ, products & content"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Computes embeddings for the current knowledge base entries, FAQ, product index and content index."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Embedding provider:"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "dims"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Total vectors:"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Training sources:"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "pending"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "RAG status"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Products (WooCommerce)"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Content (posts/pages)"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Training sources"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "AI"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Waiting"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "With operator"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Visitor"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Waiting for pickup"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Active handoffs"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "No handoff requests right now."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Take over"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Return to AI"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "No messages yet."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Reply to the customer…"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/402.b1fe1ccabde7eb8300df.js:1
+#: build/474.cf43816866abf5df7c56.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
+msgid "Send"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Select a conversation from the list on the left."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Neutral"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Professional"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Friendly"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Persuasive"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Enthusiastic"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Short"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Long"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Generate a post/page"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Content type"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Tone"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Length"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "What should this content be about?"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "SEO focus keyword (optional)"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Generate"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Category:"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Tags:"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Edit draft"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "View published post"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Publish"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
+msgid "Create draft"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Generate a WooCommerce product description"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Product description (rough input)"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Copy the text above into the product description field."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Bulk SEO fix"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Post type"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Posts"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Pages"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+#, js-format
+msgid "Detected SEO plugin: %s - the generated title/description is written directly into its fields."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "No SEO plugin detected - saved into UX Studio's own fields."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Checking…"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+#, js-format
+msgid "%d posts still missing SEO title/description."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Fix next 5"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "SEO title"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "SEO description"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Generate SEO meta"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Save to post ID (optional)"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+#, js-format
+msgid "Detected SEO plugin: %s. Copy these values into its fields if needed."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Title:"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Description:"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Keywords:"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Generate social captions"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Platforms"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Generate captions"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/718.876091783360f2260d98.js:1
+msgid "Copy"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Import HTML/URL into Elementor"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/367.fc7f739d3b65ad856d5c.js:1
+#: build/457.e838d25a2b352769a07d.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
+#: build/718.876091783360f2260d98.js:1
+msgid "Source"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
+msgid "Paste HTML"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
+#: build/866.a786a1a3b954a048d924.js:1
+msgid "HTML"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
+msgid "Page URL"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
+msgid "Content CSS selector (optional)"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
+msgid "Draft"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
+msgid "Published"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Pending review"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Import into Elementor"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+#, js-format
+msgid "Created \"%s\" with the widgets below."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "widgets."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/563.64a47ca5b2f0345c6df5.js:1
+msgid "Edit in Elementor"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Weekly"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Monthly"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Generators:"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "active"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Posts generated:"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "in the last 7 days"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Tokens used:"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Generator name"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Topics (one per line)"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Article types"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Leave empty to rotate through every article type."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "AI provider"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Default provider"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Model"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Default model"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Extra long"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
+#: build/819.0464f25e368c7e7fbca9.js:1
+msgid "Schedule"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Publish time window"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "to"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Posts per run"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Create generator"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Generators"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "New generator"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "No generators yet."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
+msgid "Next run"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Generated:"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/809.5b0b6628282ca76341c7.js:1
+msgid "Run now"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Pause"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Activate"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Delete this generator?"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Generated posts"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "No posts generated yet."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Bulk action"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Set to draft"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Move to trash"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Apply"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Generator"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Article type"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Tokens"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/474.cf43816866abf5df7c56.js:1
+msgid "Created"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Monthly tokens"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Daily requests (site-wide)"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Your daily requests"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Failed to reach the AI assistant."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Ask the internal AI assistant about editing content, site settings, or how to use UX Studio."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Thinking…"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Type your message…"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "1 hour"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "4 hours"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "8 hours"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "12 hours"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "24 hours"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "List, Get, Create, Update, Delete"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "List, Get, Delete"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Custom Post Types"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "List Types, List Taxonomies, Get Items"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Get, Update"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Site Stats"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Get"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "WooCommerce Products"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "List, Get, Create, Update, Delete (if WooCommerce is active)"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "WooCommerce Orders"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "List, Get, Create (if WooCommerce is active)"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Elementor"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "List Pages, Get Structure, Find Widgets, Update Widget (if Elementor is active)"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Plugins Info"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Theme Info"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Users Info"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Validity"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Generate token"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "New JWT token"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Copied!"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "This token is shown only once. Copy it now - once you leave this page it cannot be displayed again."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "No active tokens yet."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Token ID"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/860.a8269f19205c5720d7ff.js:1
+msgid "User"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/475.b4eae071038b2bb3095d.js:1
+msgid "Expires"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Revoke"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "MCP Server"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "MCP (Model Context Protocol) is an open standard that lets external AI tools talk to this WordPress site. Once enabled, Claude Desktop, Cursor, Windsurf or another MCP client can manage posts, pages, products, media and settings directly. Clients authenticate with a JWT token (see below) and only ever get the operations you allow."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Status:"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "This toggle lives in the Settings tab (\"Enable MCP (tool calling)\") - it is shown here for reference only."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Registered tools & resources"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "These WordPress REST API endpoints are automatically exposed as MCP tools and resources. Tools let the AI perform actions (CRUD operations). Resources provide read-only context about the site."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Tools"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Tool"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Operations"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Resources"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Resource"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "URI"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Resources are read-only - the AI can read them but cannot use them to change data."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "JWT access tokens"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "To connect an external AI client to the MCP server, generate a JWT (JSON Web Token). Paste it into the AI client's configuration (e.g. the Claude Desktop config). Each token has a limited lifetime and can be revoked at any time."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Usage"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Conversations"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Handoff"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Knowledge Hub"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "RAG Training"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Content Creator"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Blog Pilot"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Internal Chat"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "MCP"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Daily requests (per user)"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "A Claude API key is currently set."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "No Claude API key set yet."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "An OpenAI API key is currently set."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "No OpenAI API key set yet."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "A DeepSeek API key is currently set."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "No DeepSeek API key set yet."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Period (days)"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Requests:"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Input tokens:"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Output tokens:"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Sessions:"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "No usage recorded for this period."
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+#: build/792.a567b513f75713d102ba.js:1
+msgid "Provider"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Feature"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Input tokens"
+msgstr ""
+
+#: build/295.4378b5e3d0a9182107f0.js:1
+msgid "Output tokens"
 msgstr ""
 
 #: build/309.1176c611d8f1aa33c863.js:1
@@ -9048,10 +9189,12 @@ msgid "Critical"
 msgstr ""
 
 #: build/457.e838d25a2b352769a07d.js:1
+#: build/474.cf43816866abf5df7c56.js:1
 msgid "High"
 msgstr ""
 
 #: build/457.e838d25a2b352769a07d.js:1
+#: build/474.cf43816866abf5df7c56.js:1
 msgid "Low"
 msgstr ""
 
@@ -9116,47 +9259,135 @@ msgstr ""
 msgid "No WPScan API key set yet - only the free WordPress.org outdated-version check runs."
 msgstr ""
 
-#: build/474.d98fcb46027547ab305e.js:1
+#: build/474.cf43816866abf5df7c56.js:1
+msgid "Triaged"
+msgstr ""
+
+#: build/474.cf43816866abf5df7c56.js:1
 msgid "In progress"
 msgstr ""
 
-#: build/474.d98fcb46027547ab305e.js:1
-msgid "Done"
+#: build/474.cf43816866abf5df7c56.js:1
+msgid "Waiting for you"
 msgstr ""
 
-#: build/474.d98fcb46027547ab305e.js:1
+#: build/474.cf43816866abf5df7c56.js:1
+msgid "Waiting for a third party"
+msgstr ""
+
+#: build/474.cf43816866abf5df7c56.js:1
+msgid "Rejected"
+msgstr ""
+
+#: build/474.cf43816866abf5df7c56.js:1
+msgid "Something is broken"
+msgstr ""
+
+#: build/474.cf43816866abf5df7c56.js:1
+msgid "Change request"
+msgstr ""
+
+#: build/474.cf43816866abf5df7c56.js:1
+msgid "Task"
+msgstr ""
+
+#: build/474.cf43816866abf5df7c56.js:1
+msgid "Normal"
+msgstr ""
+
+#: build/474.cf43816866abf5df7c56.js:1
+msgid "Critical - the site is unusable"
+msgstr ""
+
+#: build/474.cf43816866abf5df7c56.js:1
+msgid "Not delivered"
+msgstr ""
+
+#: build/474.cf43816866abf5df7c56.js:1
 msgid "Attach a file"
 msgstr ""
 
-#: build/474.d98fcb46027547ab305e.js:1
+#: build/474.cf43816866abf5df7c56.js:1
 msgid "Change attachment"
 msgstr ""
 
-#: build/474.d98fcb46027547ab305e.js:1
-msgid "Requester email"
+#: build/474.cf43816866abf5df7c56.js:1
+msgid "What is it about?"
 msgstr ""
 
-#: build/474.d98fcb46027547ab305e.js:1
+#: build/474.cf43816866abf5df7c56.js:1
+msgid "What happens, where it is visible, and what you expected instead."
+msgstr ""
+
+#: build/474.cf43816866abf5df7c56.js:1
+msgid "Page it happens on"
+msgstr ""
+
+#: build/474.cf43816866abf5df7c56.js:1
+msgid "Urgency"
+msgstr ""
+
+#: build/474.cf43816866abf5df7c56.js:1
+msgid "Contact email"
+msgstr ""
+
+#: build/474.cf43816866abf5df7c56.js:1
+msgid "Leave blank to use your account email"
+msgstr ""
+
+#: build/474.cf43816866abf5df7c56.js:1
 msgid "Attachment"
 msgstr ""
 
-#: build/474.d98fcb46027547ab305e.js:1
-msgid "Create request"
+#: build/474.cf43816866abf5df7c56.js:1
+msgid "Details about this site (WordPress and PHP version, theme, plugins, your browser) are attached automatically, so you do not have to look them up."
 msgstr ""
 
-#: build/474.d98fcb46027547ab305e.js:1
+#: build/474.cf43816866abf5df7c56.js:1
+msgid "Send request"
+msgstr ""
+
+#: build/474.cf43816866abf5df7c56.js:1
+msgid "Back to the list"
+msgstr ""
+
+#: build/474.cf43816866abf5df7c56.js:1
+msgid "This request has not reached us yet:"
+msgstr ""
+
+#: build/474.cf43816866abf5df7c56.js:1
+msgid "Site details sent with this request"
+msgstr ""
+
+#: build/474.cf43816866abf5df7c56.js:1
+msgid "No replies yet."
+msgstr ""
+
+#: build/474.cf43816866abf5df7c56.js:1
+msgid "Add a message"
+msgstr ""
+
+#: build/474.cf43816866abf5df7c56.js:1
+msgid "Refresh"
+msgstr ""
+
+#: build/474.cf43816866abf5df7c56.js:1
+msgid "You can reply once the request reaches us. Use Refresh to try again now."
+msgstr ""
+
+#: build/474.cf43816866abf5df7c56.js:1
 msgid "No service requests yet."
 msgstr ""
 
-#: build/474.d98fcb46027547ab305e.js:1
-msgid "Requester"
-msgstr ""
-
-#: build/474.d98fcb46027547ab305e.js:1
+#: build/474.cf43816866abf5df7c56.js:1
 msgid "Delete this service request?"
 msgstr ""
 
-#: build/474.d98fcb46027547ab305e.js:1
+#: build/474.cf43816866abf5df7c56.js:1
+msgid "Deleting removes your local copy only. The request itself stays with us so nothing gets lost mid-conversation."
+msgstr ""
+
+#: build/474.cf43816866abf5df7c56.js:1
 msgid "Service Requests"
 msgstr ""
 
@@ -9363,63 +9594,67 @@ msgstr ""
 msgid "Export"
 msgstr ""
 
-#: build/718.0297609e33fe5814329b.js:1
+#: build/718.876091783360f2260d98.js:1
 msgid "Fetch reviews"
 msgstr ""
 
-#: build/718.0297609e33fe5814329b.js:1
+#: build/718.876091783360f2260d98.js:1
 msgid "Fetched"
 msgstr ""
 
-#: build/718.0297609e33fe5814329b.js:1
+#: build/718.876091783360f2260d98.js:1
 msgid "reviews"
 msgstr ""
 
-#: build/718.0297609e33fe5814329b.js:1
+#: build/718.876091783360f2260d98.js:1
 msgid "No reviews yet."
 msgstr ""
 
-#: build/718.0297609e33fe5814329b.js:1
+#: build/718.876091783360f2260d98.js:1
 #: build/752.5b321b5d976757948e1d.js:1
 msgid "Visible"
 msgstr ""
 
-#: build/718.0297609e33fe5814329b.js:1
+#: build/718.876091783360f2260d98.js:1
 #: build/752.5b321b5d976757948e1d.js:1
 #: build/930.c657f0a8ddf5aeb4be68.js:1
 msgid "Hide"
 msgstr ""
 
-#: build/718.0297609e33fe5814329b.js:1
+#: build/718.876091783360f2260d98.js:1
 #: build/752.5b321b5d976757948e1d.js:1
 msgid "Show"
 msgstr ""
 
-#: build/718.0297609e33fe5814329b.js:1
+#: build/718.876091783360f2260d98.js:1
+msgid "Suggest reply"
+msgstr ""
+
+#: build/718.876091783360f2260d98.js:1
 msgid "Total reviews:"
 msgstr ""
 
-#: build/718.0297609e33fe5814329b.js:1
+#: build/718.876091783360f2260d98.js:1
 msgid "Average rating:"
 msgstr ""
 
-#: build/718.0297609e33fe5814329b.js:1
+#: build/718.876091783360f2260d98.js:1
 msgid "Count"
 msgstr ""
 
-#: build/718.0297609e33fe5814329b.js:1
+#: build/718.876091783360f2260d98.js:1
 msgid "No data."
 msgstr ""
 
-#: build/718.0297609e33fe5814329b.js:1
+#: build/718.876091783360f2260d98.js:1
 msgid "Review Aggregator"
 msgstr ""
 
-#: build/718.0297609e33fe5814329b.js:1
+#: build/718.876091783360f2260d98.js:1
 msgid "Reviews"
 msgstr ""
 
-#: build/718.0297609e33fe5814329b.js:1
+#: build/718.876091783360f2260d98.js:1
 msgid "Shortcode: [uxstudio_reviews]"
 msgstr ""
 
@@ -9516,11 +9751,6 @@ msgstr ""
 
 #: build/752.5b321b5d976757948e1d.js:1
 msgid "Feed name"
-msgstr ""
-
-#: build/752.5b321b5d976757948e1d.js:1
-#: build/index.508ec69e5c53f238b3b0.js:2
-msgid "Theme"
 msgstr ""
 
 #: build/752.5b321b5d976757948e1d.js:1
@@ -10089,7 +10319,7 @@ msgid "Subscriber"
 msgstr ""
 
 #: build/930.c657f0a8ddf5aeb4be68.js:1
-#: build/index.508ec69e5c53f238b3b0.js:1
+#: build/index.8fe12f55411233ea4a52.js:1
 msgid "Layout"
 msgstr ""
 
@@ -10265,100 +10495,96 @@ msgstr ""
 msgid "Open AI Panel"
 msgstr ""
 
-#: build/index.508ec69e5c53f238b3b0.js:1
+#: build/index.8fe12f55411233ea4a52.js:1
 msgid "Select image"
 msgstr ""
 
-#: build/index.508ec69e5c53f238b3b0.js:1
+#: build/index.8fe12f55411233ea4a52.js:1
 msgid "Change image"
 msgstr ""
 
-#: build/index.508ec69e5c53f238b3b0.js:1
+#: build/index.8fe12f55411233ea4a52.js:1
 msgid "— Select —"
 msgstr ""
 
-#: build/index.508ec69e5c53f238b3b0.js:1
+#: build/index.8fe12f55411233ea4a52.js:1
 msgid "Failed to load modules."
 msgstr ""
 
-#: build/index.508ec69e5c53f238b3b0.js:1
-#: build/index.508ec69e5c53f238b3b0.js:2
+#: build/index.8fe12f55411233ea4a52.js:1
+#: build/index.8fe12f55411233ea4a52.js:2
 msgid "Modules"
 msgstr ""
 
-#: build/index.508ec69e5c53f238b3b0.js:1
+#: build/index.8fe12f55411233ea4a52.js:1
 msgid "Grid view"
 msgstr ""
 
-#: build/index.508ec69e5c53f238b3b0.js:1
+#: build/index.8fe12f55411233ea4a52.js:1
 msgid "List view"
 msgstr ""
 
 #. translators: %d: number of currently active modules.
-#: build/index.508ec69e5c53f238b3b0.js:2
+#: build/index.8fe12f55411233ea4a52.js:2
 #, js-format
 msgid "Deactivate %d active module?"
 msgid_plural "Deactivate all %d active modules?"
 msgstr[0] ""
 msgstr[1] ""
 
-#: build/index.508ec69e5c53f238b3b0.js:2
+#: build/index.8fe12f55411233ea4a52.js:2
 msgid "Deactivate all modules"
 msgstr ""
 
-#: build/index.508ec69e5c53f238b3b0.js:2
+#: build/index.8fe12f55411233ea4a52.js:2
 msgid "Disable module"
 msgstr ""
 
-#: build/index.508ec69e5c53f238b3b0.js:2
+#: build/index.8fe12f55411233ea4a52.js:2
 msgid "Enable module"
 msgstr ""
 
-#: build/index.508ec69e5c53f238b3b0.js:2
+#: build/index.8fe12f55411233ea4a52.js:2
 msgid "Configure"
 msgstr ""
 
-#: build/index.508ec69e5c53f238b3b0.js:2
+#: build/index.8fe12f55411233ea4a52.js:2
 msgid "Switch to light mode"
 msgstr ""
 
-#: build/index.508ec69e5c53f238b3b0.js:2
+#: build/index.8fe12f55411233ea4a52.js:2
 msgid "Switch to dark mode"
 msgstr ""
 
-#: build/index.508ec69e5c53f238b3b0.js:2
+#: build/index.8fe12f55411233ea4a52.js:2
 msgid "About"
 msgstr ""
 
-#: build/index.508ec69e5c53f238b3b0.js:2
+#: build/index.8fe12f55411233ea4a52.js:2
 msgid "Plugin version"
 msgstr ""
 
-#: build/index.508ec69e5c53f238b3b0.js:2
+#: build/index.8fe12f55411233ea4a52.js:2
 msgid "API version"
 msgstr ""
 
-#: build/index.508ec69e5c53f238b3b0.js:2
-msgid "Language"
-msgstr ""
-
-#: build/index.508ec69e5c53f238b3b0.js:2
+#: build/index.8fe12f55411233ea4a52.js:2
 msgid "This module is turned off. Enable it on the Modules screen to use its settings."
 msgstr ""
 
-#: build/index.508ec69e5c53f238b3b0.js:2
+#: build/index.8fe12f55411233ea4a52.js:2
 msgid "Toggle dark mode"
 msgstr ""
 
-#: build/index.508ec69e5c53f238b3b0.js:2
+#: build/index.8fe12f55411233ea4a52.js:2
 msgid "Light mode"
 msgstr ""
 
-#: build/index.508ec69e5c53f238b3b0.js:2
+#: build/index.8fe12f55411233ea4a52.js:2
 msgid "Dark mode"
 msgstr ""
 
-#: build/index.508ec69e5c53f238b3b0.js:2
+#: build/index.8fe12f55411233ea4a52.js:2
 msgid "UX Studio navigation"
 msgstr ""
 
