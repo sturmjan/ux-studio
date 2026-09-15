@@ -1,0 +1,8 @@
+{
+	"id": "menu-icons",
+	"name": "Menu Icons & Item Status",
+	"description": "Add an icon (SVG, Lucide, or Media Library) to navigation menu items and mark individual items as hidden or disabled.",
+	"group": "content",
+	"icon": "sparkles",
+	"settings": true
+}

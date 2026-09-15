@@ -9,10 +9,12 @@
     "lint:js": "wp-scripts lint-js",
     "format": "wp-scripts format",
     "i18n:pot": "wp i18n make-pot . languages/ux-studio.pot --exclude=node_modules,vendor,languages --domain=ux-studio",
-    "i18n:json": "wp i18n make-json languages --no-purge"
+    "i18n:json": "wp i18n make-json languages --no-purge",
+    "icons:sync": "node bin/sync-menu-icons.mjs"
   },
   "devDependencies": {
-    "@wordpress/scripts": "^30.23.0"
+    "@wordpress/scripts": "^30.23.0",
+    "lucide-static": "^0.469.0"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.62.0",

@@ -1,0 +1,19 @@
+.field-uxstudio-menu-icons .menu-item-status-option {
+	display: block;
+	margin-bottom: 4px;
+}
+
+.field-uxstudio-menu-icons .uxs-icon-field {
+	display: none;
+}
+
+.field-uxstudio-menu-icons .uxs-icon-field.uxs-visible {
+	display: block;
+}
+
+.field-uxstudio-menu-icons .uxs-media-preview img {
+	vertical-align: middle;
+	margin-left: 8px;
+	max-width: 24px;
+	max-height: 24px;
+}
