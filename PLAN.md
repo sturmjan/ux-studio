@@ -574,18 +574,35 @@ konzument pro live panel ve WP editoru. Plný plán: `centrani-app/PLAN.md` §22
 
 F1 je hotové kompletně (backend most + editor UI).
 
-### 17.2 F2 — Copywriting/content generátory (nezávislé na F1)
-- [ ] `includes/Modules/AiAssistant/PromptLibrary.php` — registr ~40 šablon
-      (blog, product, social, seo, copy-formulas AIDA/PAS/IDCA/HERO/SPIN/BAB,
-      video), proměnné + tón hlasu + jazyk (30 jazyků vč. CS).
-- [ ] `ContentGenerator::generate_from_prompt(string $toolKey, array $vars,
-      array $opts): array` čtoucí z `PromptLibrary`.
-- [ ] `ContentRestController` — `POST /ai-assistant/content/tool` (parametr
-      `tool` místo 40 endpointů).
-- [ ] `assets/js/ai-toolbar.js` — toolbar akce Write More/Improve/Summarize/
-      Fix Grammar nad vybraným textem, volá `/content/tool`.
-- [ ] `bulk-alt/run` podle vzoru `bulk-seo/status|run`, limit 1-20/request.
-- [ ] volitelně `uxstudio_ai_assistant_tool_history` tabulka pro historii výstupů.
+### 17.2 F2 — Copywriting/content generátory ✅ backend *(hotovo lokálně 2026-09-15)*
+- [x] `includes/Modules/AiAssistant/PromptLibrary.php` — registr 39 šablon
+      (blog, product, social, email/bio, copy-formulas AIDA/IDCA/PAS/HERO/
+      SPIN/BAB, video/podcast, recipe, freeform, ai_command, topic_research,
+      faq), tón hlasu + jazyk (cs/en dle nastavení modulu jako u ostatních
+      generátorů).
+- [x] `ContentGenerator::generate_from_prompt(string $toolKey, array $vars,
+      array $opts): array` — validuje required vars, staví prompt z šablony,
+      volá provider, parsuje JSON (reuse `parse_json_response`).
+- [x] `ContentGenerator::generate_alt_text(array $context)` — ALT text
+      z KONTEXTU (title/caption/filename/nadřazený post), ne ze skutečného
+      obrázku — žádný provider v `ProviderFactory` zatím neumí vision vstup
+      (`AiProviderInterface::generate_content()` je čistě textové). Stejné
+      omezení jako `emcp-tools`' `add-alt-text-from-context`.
+- [x] `ContentRestController` — `POST /ai-assistant/content/tool` (parametr
+      `tool`) + `GET /ai-assistant/content/tools` (katalog pro picker UI).
+- [x] `bulk-alt/status` + `bulk-alt/run` podle vzoru `bulk-seo/status|run`
+      (WP_Query na `_wp_attachment_image_alt` NOT EXISTS/prázdné, limit
+      1-20/request).
+- [x] E2E ověřeno přes `rest_do_request()`: katalog vrátil 39 nástrojů,
+      neznámý tool/chybějící povinná proměnná vrací čistou 400 chybu,
+      `bulk-alt/status` vrátil reálný počet (8488 na lokále), samotné
+      volání AI providera narazilo na účtový limit Claude API (ne na chybu
+      v kódu — routing/parsing/JSON error handling funguje).
+- [ ] ZBÝVÁ: `assets/js/ai-toolbar.js` (Write More/Improve/Summarize/Fix
+      Grammar přímo v editoru) + tool picker UI — backend hotový, frontend
+      odložen stejně jako u F1.
+- [ ] ZBÝVÁ (volitelné): `uxstudio_ai_assistant_tool_history` tabulka pro
+      historii výstupů.
 
 ### 17.3 F3-F5
 - [ ] F3 topic research: `SeoAiClient::topicResearch()`, zobrazení v SEO panelu.
@@ -593,3 +610,40 @@ F1 je hotové kompletně (backend most + editor UI).
       nová WP-strana logika mimo zobrazení.
 - [ ] F5 RankBot: nový chat mód `seo_advisor` přes existující MCP tools vzor
       (`Mcp/Tools/PostsTools`, `PagesTools`), volá `SeoAiClient` jako nástroj.
+
+## 18. Menu Icons & Item Status (2026-09-15)
+
+Nový modul `includes/Modules/MenuIcons/` — ikona (SVG/Lucide/Media Library) +
+visible/hidden/disabled stav na jednotlivých položkách nav menu, vedle a
+nezávisle na login-based `MenuVisibility`. Postmeta-only, žádná nová DB
+tabulka. Admin UI je vanilla PHP+JS na `nav-menus.php` (stejný vzor jako
+`MenuVisibility`), ne React SPA — modul má jen generický `settings_schema()`
+(velikost ikony).
+
+Kostra HOTOVÁ A OVĚŘENÁ LOKÁLNĚ 2026-09-15 (necommitnuto do stavu "aktivní
+modul", jen do repa): `Module.php` (fieldset na položce menu, uložení,
+`wp_get_nav_menu_items`/`wp_nav_menu_objects`/`nav_menu_link_attributes`/
+`nav_menu_css_class`/`nav_menu_item_title` filtry), `SvgSanitizer.php`
+(přísný DOMDocument allowlist — otestováno na script tag/onload/foreign
+`<image javascript:>`, všechny zamítnuty; PHP CLI test proti `php -l`
+i běhový test proveden a smazán, kód sám žádný test soubor neobsahuje),
+`IconLibrary.php` (35 kurátorovaných Lucide ikon, čte lokální SVG z
+`assets/lucide/`, nikdy síť), `bin/sync-menu-icons.mjs` + `npm run
+icons:sync` (kopíruje z `lucide-static`, spuštěno, 35/35 synced — POZOR
+past: `lucide-static` v aktuální verzi přejmenoval `home`→`house` a
+`help-circle`→`circle-help`, allowlist na to má reálné, ne intuitivní
+názvy). Ikona `sparkles` doplněna do `src/app/moduleIcons.tsx`.
+
+- [ ] Modul zapnout v `Modules` registru a projít reálně v adminu na
+      `pobyty` (uložit ikonu/status na položce, ověřit frontend render).
+- [ ] REST endpoint pro živé hledání Lucide ikon / širší sadu, pokud 35
+      kurátorovaných nestačí (dnes jen `<select>` ze statického seznamu).
+- [ ] Rozhodnout, jestli `hidden` stav sloučit s `MenuVisibility`
+      (`_uxstudio_menu_item_visible`) do jednoho zdroje pravdy, nebo nechat
+      oba nezávislé (dnešní stav — nižší riziko, ale uživatel má dvě místa
+      pro "skrýt položku").
+- [ ] `npm run build` (frontend se změnil jen v `moduleIcons.tsx` — mapování
+      ikony pro SPA, ne funkční kód modulu).
+- [ ] Bonus nápady z návrhu (neimplementováno): icon-only mód na mobilu bez
+      textu, barva/velikost ikony per-položka, bulk přiřazení ikon, import/
+      export konfigurace menu.
