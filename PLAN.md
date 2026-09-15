@@ -532,3 +532,54 @@ odeslání servisního požadavku fatální chybou. Teď se nepolní hodnota pro
 
 **Past:** `Sync::collect_environment()` volá `get_plugin_data()`, takže potřebuje
 `wp-admin/includes/plugin.php`. V kontextu REST požadavku není načtený sám od sebe.
+
+## 17. RankMath Content AI parita — sdílené jádro s centrani-app (2026-09-15)
+
+**Cíl:** dohnat funkce https://rankmath.com/content-ai/ (content score v editoru,
+40+ AI content/copywriting nástrojů, topic research, schema markup, interní
+linking, RankBot chat) — plná parita, ne jen SEO jádro. Byznys logika žije v
+`centrani-app` jako API (`SeoAnalyzer`, `Checks/*`, prompty), ux-studio je
+konzument pro live panel ve WP editoru. Plný plán: `centrani-app/PLAN.md` §22
+(sdílená architektura, F1-F5). Zdejší úkoly jsou WP-strana toho plánu.
+
+**Rozhodnutí:** keyword research AI-only (Claude/OpenAI odhad z kontextu),
+žádné placené keyword API se search volume/difficulty (F3).
+
+### 17.1 F1 — SEO scoring most ✅ backend *(hotovo lokálně 2026-09-15)*
+- [x] `includes/Modules/AiAssistant/SeoAiClient.php` — HMAC klient, reuse
+      `Modules\ContentSync\HmacAuth::sign()` + `node_api_key` secret a
+      `central_app_url` nastavení (žádný nový secret, žádné nové párování —
+      stejný kanál, jen v opačném směru než hub→node sync).
+- [x] `SeoAiClient::analyze(array $fields)` volá `centrani-app`
+      `?page=seo_ai_api&action=analyze`.
+- [x] `includes/Modules/AiAssistant/SeoScorePanel.php` + `SeoBootstrap.php` —
+      REST `POST uxstudio/v1/ai-assistant/seo/score` (proxy na CA), zapojeno
+      do `Module::boot()`.
+- [x] E2E ověřeno 15.9. přes `wp-cli eval`: `SeoAiClient::analyze()` vrátil
+      reálné skóre z CA (secret na obou stranách sedí — `Security::get_secret`
+      na WP straně == `sites.api_key` na CA straně pro site #142), REST route
+      zaregistrovaná.
+- [ ] ZBÝVÁ: `assets/js/seo-score-panel.js` — live UI panel v
+      Gutenberg/Elementor (backend most hotový, frontend odložen).
+- [ ] ZBÝVÁ: zápis skóre do `SeoManager::save_meta()` jako
+      `_uxstudio_ai_seo_score` — navázat až s JS panelem.
+
+### 17.2 F2 — Copywriting/content generátory (nezávislé na F1)
+- [ ] `includes/Modules/AiAssistant/PromptLibrary.php` — registr ~40 šablon
+      (blog, product, social, seo, copy-formulas AIDA/PAS/IDCA/HERO/SPIN/BAB,
+      video), proměnné + tón hlasu + jazyk (30 jazyků vč. CS).
+- [ ] `ContentGenerator::generate_from_prompt(string $toolKey, array $vars,
+      array $opts): array` čtoucí z `PromptLibrary`.
+- [ ] `ContentRestController` — `POST /ai-assistant/content/tool` (parametr
+      `tool` místo 40 endpointů).
+- [ ] `assets/js/ai-toolbar.js` — toolbar akce Write More/Improve/Summarize/
+      Fix Grammar nad vybraným textem, volá `/content/tool`.
+- [ ] `bulk-alt/run` podle vzoru `bulk-seo/status|run`, limit 1-20/request.
+- [ ] volitelně `uxstudio_ai_assistant_tool_history` tabulka pro historii výstupů.
+
+### 17.3 F3-F5
+- [ ] F3 topic research: `SeoAiClient::topicResearch()`, zobrazení v SEO panelu.
+- [ ] F4 schema + cross-site linking: konzument nových CA endpointů, žádná
+      nová WP-strana logika mimo zobrazení.
+- [ ] F5 RankBot: nový chat mód `seo_advisor` přes existující MCP tools vzor
+      (`Mcp/Tools/PostsTools`, `PagesTools`), volá `SeoAiClient` jako nástroj.

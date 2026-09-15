@@ -50,6 +50,7 @@ final class Module extends BaseModule {
 		KnowledgeBootstrap::register();
 		HandoffBootstrap::register();
 		ContentBootstrap::register();
+		SeoBootstrap::register();
 		BlogPilotBootstrap::register();
 		InternalChatBootstrap::register();
 		McpBootstrap::register();
