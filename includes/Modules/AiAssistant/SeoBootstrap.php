@@ -14,6 +14,7 @@ final class SeoBootstrap {
 
 	public static function register(): void {
 		add_action( 'rest_api_init', array( self::class, 'register_rest_routes' ) );
+		( new SeoScoreEditor() )->register();
 	}
 
 	public static function register_rest_routes(): void {

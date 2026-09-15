@@ -559,10 +559,20 @@ konzument pro live panel ve WP editoru. Plný plán: `centrani-app/PLAN.md` §22
       reálné skóre z CA (secret na obou stranách sedí — `Security::get_secret`
       na WP straně == `sites.api_key` na CA straně pro site #142), REST route
       zaregistrovaná.
-- [ ] ZBÝVÁ: `assets/js/seo-score-panel.js` — live UI panel v
-      Gutenberg/Elementor (backend most hotový, frontend odložen).
-- [ ] ZBÝVÁ: zápis skóre do `SeoManager::save_meta()` jako
-      `_uxstudio_ai_seo_score` — navázat až s JS panelem.
+- [x] `includes/Modules/AiAssistant/SeoScoreEditor.php` — registruje
+      `_uxstudio_ai_seo_focus_keyword` (nový) + REST-exposuje existující
+      `SeoManager::META_TITLE`/`META_DESCRIPTION` a nové `META_SCORE`/
+      `META_GRADE`, enqueue `seo-score-panel.js`/`.css` v block editoru.
+- [x] `assets/js/seo-score-panel.js` — vanilla JS (bez wp-scripts buildu,
+      stejný vzor jako `Modules\ExternalPermalinks`), `PluginSidebar` se
+      skóre badge + checklistem, debounced (700 ms) přes `wp.data.subscribe`,
+      focus keyword/meta title/desc editovatelné přímo v panelu, skóre+grade
+      se po každé analýze zapíše do post meta (přežije uložení článku).
+- [x] E2E ověřeno 15.9. přes `rest_do_request()` uvnitř wp-cli: přihlášený
+      admin dostal HTTP 200 s reálným skóre, anonym HTTP 401; registrace
+      meta (`show_in_rest=1` pro všech 5 klíčů) potvrzena.
+
+F1 je hotové kompletně (backend most + editor UI).
 
 ### 17.2 F2 — Copywriting/content generátory (nezávislé na F1)
 - [ ] `includes/Modules/AiAssistant/PromptLibrary.php` — registr ~40 šablon
