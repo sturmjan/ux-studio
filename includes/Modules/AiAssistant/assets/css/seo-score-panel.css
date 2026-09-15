@@ -55,3 +55,41 @@
 	flex: 1 1 auto;
 	line-height: 1.4;
 }
+
+.uxstudio-seo-score__hint {
+	font-size: 11px;
+	color: #757575;
+	font-style: italic;
+}
+
+.uxstudio-seo-score__topics {
+	margin-top: 12px;
+}
+
+.uxstudio-seo-score__topics strong {
+	display: block;
+	font-size: 11px;
+	text-transform: uppercase;
+	color: #757575;
+	margin: 12px 0 6px;
+}
+
+.uxstudio-seo-score__chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.uxstudio-seo-score__chip {
+	background: #f0f0f1;
+	border-radius: 12px;
+	padding: 3px 10px;
+	font-size: 12px;
+}
+
+.uxstudio-seo-score__subtopics {
+	margin: 0;
+	padding-left: 18px;
+	font-size: 12px;
+	line-height: 1.5;
+}

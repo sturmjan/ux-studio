@@ -604,8 +604,20 @@ F1 je hotové kompletně (backend most + editor UI).
 - [ ] ZBÝVÁ (volitelné): `uxstudio_ai_assistant_tool_history` tabulka pro
       historii výstupů.
 
-### 17.3 F3-F5
-- [ ] F3 topic research: `SeoAiClient::topicResearch()`, zobrazení v SEO panelu.
+### 17.3 F3 — Topic research ✅ *(hotovo lokálně 2026-09-15)*
+- [x] `SeoAiClient::topic_research()` — reuse nové sdílené `call()` helper
+      metody (refaktorováno z `analyze()`, žádná duplicitní HMAC logika).
+- [x] `SeoScorePanel::topic_research()` — `POST
+      uxstudio/v1/ai-assistant/seo/topic-research`.
+- [x] JS: sbalitelná sekce "Návrh klíčových slov" v `seo-score-panel.js` —
+      tlačítko vezme aktuální focus keyword jako seed, zobrazí chips s
+      related keywords + seznam podtémat, s hintem že jde o AI odhad, ne
+      reálná data.
+- [x] E2E ověřeno přes `rest_do_request()` — auth/routing prošly, HTTP 424
+      jen kvůli nedostupnému lokálnímu `claude_code` bridge (ne kvůli chybě
+      v kódu).
+
+### 17.4 F4-F5
 - [ ] F4 schema + cross-site linking: konzument nových CA endpointů, žádná
       nová WP-strana logika mimo zobrazení.
 - [ ] F5 RankBot: nový chat mód `seo_advisor` přes existující MCP tools vzor

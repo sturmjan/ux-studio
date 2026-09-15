@@ -1,7 +1,7 @@
 <?php
 /**
  * HMAC-signed HTTP client for the SEO scoring bridge (RankMath Content AI
- * parity, centrani-app PLAN.md §22, F1).
+ * parity, centrani-app PLAN.md §22, F1/F3).
  *
  * @package UxStudio
  */
@@ -50,15 +50,8 @@ final class SeoAiClient {
 	 * @return array<string, mixed> {success,score,grade,checks,serp_preview,computed_at} or {success:false,error}.
 	 */
 	public function analyze( array $fields ): array {
-		if ( ! $this->is_configured() ) {
-			return array(
-				'success' => false,
-				'error'   => __( 'Centrální aplikace není propojená (chybí central_app_url nebo node_api_key v nastavení Content Sync).', 'ux-studio' ),
-			);
-		}
-
-		$url = $this->base_url . '/?page=seo_ai_api&action=analyze&site_url=' . rawurlencode( home_url( '/' ) );
-		$body = (string) wp_json_encode(
+		return $this->call(
+			'analyze',
 			array(
 				'title'         => (string) ( $fields['title'] ?? '' ),
 				'content'       => (string) ( $fields['content'] ?? '' ),
@@ -68,6 +61,41 @@ final class SeoAiClient {
 				'slug'          => (string) ( $fields['slug'] ?? '' ),
 			)
 		);
+	}
+
+	/**
+	 * Topic research (AI-only — see centrani-app's core/Seo/TopicResearch.php):
+	 * related/LSI keywords + subtopics for a seed keyword, no real search
+	 * volume/difficulty. Cached 30 days on the central app side.
+	 *
+	 * @return array<string, mixed> {success,seed_keyword,related_keywords,subtopics,cached} or {success:false,error}.
+	 */
+	public function topic_research( string $seed_keyword, string $language = 'cs' ): array {
+		return $this->call(
+			'topic_research',
+			array(
+				'seed_keyword' => $seed_keyword,
+				'language'     => $language,
+			)
+		);
+	}
+
+	/**
+	 * Signed POST to a seo_ai_api action, normalised into {success,...}|{success:false,error}.
+	 *
+	 * @param array<string, mixed> $payload
+	 * @return array<string, mixed>
+	 */
+	private function call( string $action, array $payload ): array {
+		if ( ! $this->is_configured() ) {
+			return array(
+				'success' => false,
+				'error'   => __( 'Centrální aplikace není propojená (chybí central_app_url nebo node_api_key v nastavení Content Sync).', 'ux-studio' ),
+			);
+		}
+
+		$url  = $this->base_url . '/?page=seo_ai_api&action=' . $action . '&site_url=' . rawurlencode( home_url( '/' ) );
+		$body = (string) wp_json_encode( $payload );
 
 		$timestamp = time();
 		$nonce     = wp_generate_password( 24, false );

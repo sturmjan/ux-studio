@@ -48,15 +48,15 @@
 		dispatch( 'core/editor' ).editPost( { meta: fields } );
 	}
 
-	function analyze( fields ) {
-		return fetch( cfg.restUrl, {
+	function postJson( url, payload ) {
+		return fetch( url, {
 			method: 'POST',
 			credentials: 'same-origin',
 			headers: {
 				'Content-Type': 'application/json',
 				'X-WP-Nonce': cfg.nonce || '',
 			},
-			body: JSON.stringify( fields ),
+			body: JSON.stringify( payload ),
 		} ).then( function ( res ) {
 			return res.json().then( function ( data ) {
 				if ( ! res.ok ) {
@@ -65,6 +65,14 @@
 				return data;
 			} );
 		} );
+	}
+
+	function analyze( fields ) {
+		return postJson( cfg.restUrl, fields );
+	}
+
+	function topicResearch( seedKeyword ) {
+		return postJson( cfg.restUrlTopics, { seed_keyword: seedKeyword } );
 	}
 
 	function ScoreBadge( props ) {
@@ -129,7 +137,38 @@
 		var error = errorState[ 0 ];
 		var setError = errorState[ 1 ];
 
+		var topicsState = useState( null );
+		var topics = topicsState[ 0 ];
+		var setTopics = topicsState[ 1 ];
+		var topicsLoadingState = useState( false );
+		var topicsLoading = topicsLoadingState[ 0 ];
+		var setTopicsLoading = topicsLoadingState[ 1 ];
+		var topicsErrorState = useState( '' );
+		var topicsError = topicsErrorState[ 0 ];
+		var setTopicsError = topicsErrorState[ 1 ];
+
 		var timerRef = useRef( null );
+
+		function runTopicResearch() {
+			if ( ! focusKeyword ) {
+				return;
+			}
+			setTopicsLoading( true );
+			setTopicsError( '' );
+			topicResearch( focusKeyword )
+				.then( function ( data ) {
+					setTopicsLoading( false );
+					if ( ! data.success ) {
+						setTopicsError( data.error || i18n.error );
+						return;
+					}
+					setTopics( data );
+				} )
+				.catch( function ( err ) {
+					setTopicsLoading( false );
+					setTopicsError( err.message || i18n.error );
+				} );
+		}
 
 		function runAnalyze() {
 			var editor = select( 'core/editor' );
@@ -229,7 +268,46 @@
 						},
 					} ) )
 				),
-				el( PanelBody, { title: 'Checklist', initialOpen: true }, el( CheckList, { checks: checks } ) )
+				el( PanelBody, { title: 'Checklist', initialOpen: true }, el( CheckList, { checks: checks } ) ),
+				el(
+					PanelBody,
+					{ title: i18n.topicResearch || 'Návrh klíčových slov', initialOpen: false },
+					el(
+						'p',
+						{ className: 'uxstudio-seo-score__hint' },
+						i18n.topicResearchHint || 'AI odhad z kontextu, ne reálná data o vyhledávanosti.'
+					),
+					el(
+						wp.components.Button,
+						{
+							variant: 'secondary',
+							disabled: ! focusKeyword || topicsLoading,
+							onClick: runTopicResearch,
+						},
+						topicsLoading ? ( i18n.researching || 'Hledám…' ) : ( i18n.topicResearch || 'Návrh klíčových slov' )
+					),
+					topicsError ? el( 'p', { className: 'uxstudio-seo-score__error' }, topicsError ) : null,
+					topics ? el(
+						'div',
+						{ className: 'uxstudio-seo-score__topics' },
+						el( 'strong', null, i18n.relatedKeywords || 'Související klíčová slova' ),
+						el(
+							'div',
+							{ className: 'uxstudio-seo-score__chips' },
+							( topics.related_keywords || [] ).map( function ( kw, i ) {
+								return el( 'span', { key: i, className: 'uxstudio-seo-score__chip' }, kw );
+							} )
+						),
+						el( 'strong', null, i18n.subtopics || 'Podtémata k pokrytí' ),
+						el(
+							'ul',
+							{ className: 'uxstudio-seo-score__subtopics' },
+							( topics.subtopics || [] ).map( function ( st, i ) {
+								return el( 'li', { key: i }, st );
+							} )
+						)
+					) : null
+				)
 			)
 		);
 	}

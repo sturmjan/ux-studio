@@ -39,6 +39,15 @@ final class SeoScorePanel extends Controller {
 				'slug'          => array( 'required' => false, 'type' => 'string' ),
 			)
 		);
+
+		$this->route(
+			'/ai-assistant/seo/topic-research',
+			'POST',
+			array( $this, 'topic_research' ),
+			array(
+				'seed_keyword' => array( 'required' => true, 'type' => 'string' ),
+			)
+		);
 	}
 
 	public function score( WP_REST_Request $request ) {
@@ -58,6 +67,24 @@ final class SeoScorePanel extends Controller {
 			return new WP_Error(
 				'uxstudio_seo_score_bridge',
 				(string) ( $result['error'] ?? __( 'SEO analýza selhala.', 'ux-studio' ) ),
+				array( 'status' => 424 )
+			);
+		}
+
+		return new WP_REST_Response( $result, 200 );
+	}
+
+	public function topic_research( WP_REST_Request $request ) {
+		$client = new SeoAiClient();
+		$result = $client->topic_research(
+			(string) $request->get_param( 'seed_keyword' ),
+			'cs' === ( new \UxStudio\Core\Settings( 'uxstudio_ai_assistant' ) )->get( 'language', 'cs' ) ? 'cs' : 'en'
+		);
+
+		if ( empty( $result['success'] ) ) {
+			return new WP_Error(
+				'uxstudio_topic_research_bridge',
+				(string) ( $result['error'] ?? __( 'Topic research selhal.', 'ux-studio' ) ),
 				array( 'status' => 424 )
 			);
 		}
