@@ -339,7 +339,10 @@ final class Module extends BaseModule {
 
 		switch ( $icon_type ) {
 			case 'lucide':
-				return IconLibrary::exists( $value ) ? IconLibrary::svg_markup( $value, $size ) : '';
+				if ( ! IconLibrary::exists( $value ) ) {
+					return '';
+				}
+				return '<span class="uxs-menu-icon uxs-menu-icon-lucide">' . IconLibrary::svg_markup( $value, $size ) . '</span>';
 
 			case 'svg':
 				// Re-sanitize on every render: defence in depth if postmeta was ever
