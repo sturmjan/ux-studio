@@ -186,6 +186,124 @@ final class ContentGenerator {
 		return $parsed;
 	}
 
+	/**
+	 * Generic entry point for the ~40 RankMath-Content-AI-style tools
+	 * registered in PromptLibrary — one AI call, prompt built from the tool's
+	 * template instead of a bespoke method per tool.
+	 *
+	 * @param string                $tool_key Key from PromptLibrary::all().
+	 * @param array<string, string> $vars     Values for the tool's `{placeholder}` vars.
+	 * @param array{tone?:string}   $opts     Optional overrides (tone; length is not used by these short-form tools).
+	 * @return array<string, mixed> Decoded AI JSON (shape defined by the tool's `output`) plus _usage/_provider/_model/_tool.
+	 */
+	public function generate_from_prompt( string $tool_key, array $vars, array $opts = array() ): array {
+		$tool = PromptLibrary::get( $tool_key );
+		if ( null === $tool ) {
+			throw new \RuntimeException(
+				sprintf( /* translators: %s: unknown tool key */ __( 'Unknown content tool: %s', 'ux-studio' ), $tool_key )
+			);
+		}
+
+		foreach ( $tool['required'] as $required_var ) {
+			if ( '' === trim( (string) ( $vars[ $required_var ] ?? '' ) ) ) {
+				throw new \RuntimeException(
+					sprintf( /* translators: %s: missing variable name */ __( 'Missing required field: %s', 'ux-studio' ), $required_var )
+				);
+			}
+		}
+
+		$clean_vars = array();
+		foreach ( $tool['vars'] as $var_name ) {
+			$raw                    = (string) ( $vars[ $var_name ] ?? '' );
+			$clean_vars[ $var_name ] = 'source_content' === $var_name ? wp_strip_all_tags( $raw ) : sanitize_textarea_field( $raw );
+		}
+
+		$tone          = sanitize_text_field( (string) ( $opts['tone'] ?? 'neutral' ) );
+		$language_line = 'cs' === self::language() ? 'Piš v jazyce: čeština.' : 'Write in: English.';
+		$instruction   = PromptLibrary::fill_instruction( $tool['instruction'], $clean_vars );
+
+		$system_prompt = sprintf(
+			"You are an expert content writer and SEO copywriter.\n%s\nTone: %s.\n%s%s",
+			$language_line,
+			$tone,
+			$instruction,
+			PromptLibrary::json_instructions( $tool['output'] )
+		);
+
+		$model    = $this->get_model();
+		$max_toks = (int) ( $tool['max_tokens'] ?? 500 );
+		$result   = $this->provider->generate_content( $system_prompt, $instruction, $model, array( 'max_tokens' => $max_toks ) );
+
+		UsageTracker::log(
+			$this->provider->get_id(),
+			$model,
+			'content_tool:' . $tool_key,
+			$result['usage']['input_tokens'],
+			$result['usage']['output_tokens']
+		);
+
+		$parsed              = $this->parse_json_response( $result['content'] );
+		$parsed['_usage']    = $result['usage'];
+		$parsed['_provider'] = $this->provider->get_id();
+		$parsed['_model']    = $model;
+		$parsed['_tool']     = $tool_key;
+
+		return $parsed;
+	}
+
+	/**
+	 * ALT text from CONTEXT (attachment title/caption/filename + the post
+	 * it's attached to) - NOT from the actual image pixels. No provider in
+	 * ProviderFactory implements vision input yet (AiProviderInterface is
+	 * text-only), so this is an editorial estimate, same limited scope as
+	 * emcp-tools' `add-alt-text-from-context` MCP tool. Honest about that in
+	 * the prompt so the AI doesn't invent visual details it cannot know.
+	 *
+	 * @param array{title?:string, caption?:string, filename?:string, post_title?:string} $context
+	 * @return array<string, mixed> {alt_text} plus _usage.
+	 */
+	public function generate_alt_text( array $context ): array {
+		$title      = sanitize_text_field( (string) ( $context['title'] ?? '' ) );
+		$caption    = sanitize_text_field( (string) ( $context['caption'] ?? '' ) );
+		$filename   = sanitize_text_field( (string) ( $context['filename'] ?? '' ) );
+		$post_title = sanitize_text_field( (string) ( $context['post_title'] ?? '' ) );
+
+		if ( '' === $title && '' === $caption && '' === $filename && '' === $post_title ) {
+			throw new \RuntimeException( __( 'No context available to describe this image (title, caption, filename or containing post are all empty).', 'ux-studio' ) );
+		}
+
+		$language_line = 'cs' === self::language() ? 'Piš v jazyce: čeština.' : 'Write in: English.';
+		$system_prompt = 'You write concise, descriptive image ALT text for web accessibility and SEO. '
+			. $language_line
+			. ' You do NOT see the actual image - infer a plausible, generic description only from the '
+			. "context below. Do not invent specific visual details (colours, exact objects, people) you cannot know.\n"
+			. 'Return the answer strictly as JSON (no markdown code block wrapper), with exactly this key: '
+			. '"alt_text" (string, max 125 characters).';
+		$user_prompt = sprintf(
+			"Image filename: %s\nAttachment title: %s\nAttachment caption: %s\nUsed in article titled: %s",
+			$filename ?: '–',
+			$title ?: '–',
+			$caption ?: '–',
+			$post_title ?: '–'
+		);
+
+		$model  = $this->get_model();
+		$result = $this->provider->generate_content( $system_prompt, $user_prompt, $model, array( 'max_tokens' => 150 ) );
+
+		UsageTracker::log(
+			$this->provider->get_id(),
+			$model,
+			'alt_text',
+			$result['usage']['input_tokens'],
+			$result['usage']['output_tokens']
+		);
+
+		$parsed           = $this->parse_json_response( $result['content'] );
+		$parsed['_usage'] = $result['usage'];
+
+		return $parsed;
+	}
+
 	private static function social_system_prompt( array $platforms ): string {
 		$language_line = 'cs' === self::language() ? 'Piš v jazyce: čeština.' : 'Write in: English.';
 		$limits        = array(

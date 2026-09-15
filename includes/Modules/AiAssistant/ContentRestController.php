@@ -105,6 +105,39 @@ final class ContentRestController extends Controller {
 		);
 
 		$this->route(
+			'/ai-assistant/content/tool',
+			'POST',
+			array( $this, 'tool' ),
+			array(
+				'tool'           => array( 'required' => true, 'type' => 'string' ),
+				'topic'          => array( 'required' => false, 'type' => 'string' ),
+				'source_content' => array( 'required' => false, 'type' => 'string' ),
+				'tone'           => array( 'required' => false, 'type' => 'string' ),
+			)
+		);
+
+		$this->route(
+			'/ai-assistant/content/tools',
+			'GET',
+			array( $this, 'tools_catalog' )
+		);
+
+		$this->route(
+			'/ai-assistant/content/bulk-alt/status',
+			'GET',
+			array( $this, 'bulk_alt_status' )
+		);
+
+		$this->route(
+			'/ai-assistant/content/bulk-alt/run',
+			'POST',
+			array( $this, 'bulk_alt_run' ),
+			array(
+				'limit' => array( 'required' => false, 'type' => 'integer', 'default' => 5 ),
+			)
+		);
+
+		$this->route(
 			'/ai-assistant/content/generate-social',
 			'POST',
 			array( $this, 'generate_social' ),
@@ -253,6 +286,51 @@ final class ContentRestController extends Controller {
 	}
 
 	/**
+	 * Generic content tool endpoint - one route for the ~40 RankMath-Content-AI
+	 * style tools registered in PromptLibrary, selected by the `tool` param.
+	 */
+	public function tool( WP_REST_Request $request ) {
+		$limit_error = UsageLimiter::check();
+		if ( null !== $limit_error ) {
+			return new WP_Error( 'uxstudio_usage_limited', $limit_error, array( 'status' => 429 ) );
+		}
+
+		$tool_key = sanitize_key( (string) $request->get_param( 'tool' ) );
+
+		try {
+			$generator = new ContentGenerator();
+			$result    = $generator->generate_from_prompt(
+				$tool_key,
+				array(
+					'topic'          => (string) $request->get_param( 'topic' ),
+					'source_content' => (string) $request->get_param( 'source_content' ),
+				),
+				array( 'tone' => (string) $request->get_param( 'tone' ) )
+			);
+
+			return $this->ok( $result );
+		} catch ( \Throwable $e ) {
+			return new WP_Error( 'uxstudio_tool_failed', $e->getMessage(), array( 'status' => 400 ) );
+		}
+	}
+
+	/**
+	 * Tool catalog (key/label/vars) for building the picker UI.
+	 */
+	public function tools_catalog( WP_REST_Request $request ) {
+		$catalog = array();
+		foreach ( PromptLibrary::all() as $key => $tool ) {
+			$catalog[] = array(
+				'key'      => $key,
+				'label'    => $tool['label'],
+				'vars'     => $tool['vars'],
+				'required' => $tool['required'],
+			);
+		}
+		return $this->ok( $catalog );
+	}
+
+	/**
 	 * How many published posts of the given type still have no SEO title -
 	 * "Rank Math bulk SEO generation", applied across everything already on
 	 * this site instead of one post at a time.
@@ -327,6 +405,108 @@ final class ContentRestController extends Controller {
 				'seo_plugin'    => SeoManager::detect_seo_plugin(),
 			)
 		);
+	}
+
+	/**
+	 * How many image attachments still have no ALT text.
+	 */
+	public function bulk_alt_status( WP_REST_Request $request ) {
+		return $this->ok(
+			array(
+				'missing_count' => (int) ( new \WP_Query( $this->missing_alt_query_args( 1, 1, true ) ) )->found_posts,
+			)
+		);
+	}
+
+	/**
+	 * Generates + saves ALT text (from context, see ContentGenerator::generate_alt_text())
+	 * for up to `limit` images still missing one. Same bounded-per-request
+	 * shape as bulk_seo_run() to avoid a PHP timeout on a large media library.
+	 */
+	public function bulk_alt_run( WP_REST_Request $request ) {
+		$limit = max( 1, min( 20, (int) $request->get_param( 'limit' ) ) );
+
+		$query     = new \WP_Query( $this->missing_alt_query_args( $limit, 1, false ) );
+		$generator = new ContentGenerator();
+		$processed = array();
+
+		foreach ( $query->posts as $attachment_id ) {
+			$limit_error = UsageLimiter::check();
+			if ( null !== $limit_error ) {
+				break;
+			}
+
+			$attachment = get_post( $attachment_id );
+			if ( ! $attachment ) {
+				continue;
+			}
+
+			$post_title = '';
+			if ( $attachment->post_parent > 0 ) {
+				$parent = get_post( $attachment->post_parent );
+				if ( $parent ) {
+					$post_title = $parent->post_title;
+				}
+			}
+
+			try {
+				$result = $generator->generate_alt_text(
+					array(
+						'title'      => $attachment->post_title,
+						'caption'    => $attachment->post_excerpt,
+						'filename'   => basename( (string) get_attached_file( $attachment_id ) ),
+						'post_title' => $post_title,
+					)
+				);
+				$alt_text = sanitize_text_field( (string) ( $result['alt_text'] ?? '' ) );
+				update_post_meta( $attachment_id, '_wp_attachment_image_alt', $alt_text );
+
+				$processed[] = array(
+					'attachment_id' => $attachment_id,
+					'title'         => $attachment->post_title,
+					'alt_text'      => $alt_text,
+				);
+			} catch ( \Throwable $e ) {
+				$processed[] = array(
+					'attachment_id' => $attachment_id,
+					'title'         => $attachment->post_title,
+					'error'         => $e->getMessage(),
+				);
+			}
+		}
+
+		return $this->ok(
+			array(
+				'processed' => $processed,
+				'remaining' => (int) ( new \WP_Query( $this->missing_alt_query_args( 1, 1, true ) ) )->found_posts,
+			)
+		);
+	}
+
+	/**
+	 * WP_Query args for image attachments with an empty/missing ALT text.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function missing_alt_query_args( int $per_page, int $page, bool $count_only ): array {
+		$args = array(
+			'post_type'      => 'attachment',
+			'post_mime_type' => 'image',
+			'post_status'    => 'inherit',
+			'posts_per_page' => $per_page,
+			'paged'          => $page,
+			'orderby'        => 'date',
+			'order'          => 'ASC',
+			'fields'         => 'ids',
+			'no_found_rows'  => ! $count_only,
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+			'meta_query'     => array(
+				'relation' => 'OR',
+				array( 'key' => '_wp_attachment_image_alt', 'compare' => 'NOT EXISTS' ),
+				array( 'key' => '_wp_attachment_image_alt', 'value' => '', 'compare' => '=' ),
+			),
+		);
+		return $args;
 	}
 
 	public function generate_social( WP_REST_Request $request ) {
