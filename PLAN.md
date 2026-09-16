@@ -647,6 +647,39 @@ F1 je hotové kompletně (backend most + editor UI).
       Article+FAQPage JSON-LD, link-suggestions vrátil prázdné pole (web
       zatím bez `portfolio_key` na CA straně — správné chování).
 
+### 17.6 Ověření v živém prohlížeči (16.9.2026) — 3 nálezy
+
+Playwright proti lokálnímu `pobyty`. Panel i toolbar ověřeny naostro
+(skóre 72 → 80 po zadání klíčového slova, schema vygenerovalo
+Article+FAQPage, interní odkazy vrátily relevantní návrhy a irelevantní
+vynechaly, toolbar "AI nástroje" se ukázal a chyba AI se zobrazila jako
+snackbar, aniž by poškodila označený text).
+
+**Tři nálezy, které testy přes `rest_do_request()` ukázat nemohly:**
+
+1. **OPRAVENO** (commit def5ca8): panel bušil naprázdno — `wp.data.subscribe`
+   reaguje i na cizí změny storu (~12×/s), naměřeno 13 požadavků za 24 s
+   při nulové aktivitě uživatele. Po opravě 0 / 15 s v klidu.
+2. **OPRAVENO** (tentýž commit): read-only routy utrácely sdílený rozpočet
+   60 ZÁPISŮ/min a panel ho vyčerpal sám — v prohlížeči pak reálně spadlo
+   „Příliš mnoho požadavků, zpomalte" a přestaly by procházet i skutečné
+   zápisy uživatele včetně uložení článku.
+3. **NEOPRAVENO, k rozhodnutí:** na tomhle webu je aktivní plugin **Classic
+   Editor** s vynuceným klasickým editorem, takže
+   `enqueue_block_editor_assets` nikdy neproběhne a **SEO panel ani AI
+   toolbar tam vůbec nejsou**. Navíc staré články jsou `core/freeform`
+   (jeden classic blok), kde se rich-text toolbar nenabídne ani v blokovém
+   editoru. RankMath Content AI umí Block i Classic editor + Elementor a
+   Divi; naše řešení zatím jen blokový editor. Pokud to má fungovat i tady,
+   je potřeba classic varianta (metabox + TinyMCE tlačítko) — v centrani-app
+   už hotový vzor je: `views/partials/seo_panel.php` + `public/js/seo-panel.js`.
+4. **NEOPRAVENO, vedlejší nález mimo tuhle práci:** modul
+   `SecurityOptimization::remove_version_query_arg()` strhává `?ver=` ze
+   VŠECH skriptů a stylů pluginu. Prohlížeč si je pak cachuje natrvalo a po
+   aktualizaci pluginu dostane uživatel starý JS — přesně na tohle jsem při
+   testu narazil (měřil jsem starou verzi panelu). Stojí za samostatné
+   rozhodnutí, protože to sabotuje každý budoucí update assetů.
+
 ### 17.5 F5 — RankBot ✅ *(hotovo lokálně 16.9.2026)*
 - [x] `Mcp/Tools/SeoTools.php` — 4 MCP nástroje nad SEO mostem:
       `ai-assistant/seo-score` (post_id nebo raw content), `seo-topic-research`
