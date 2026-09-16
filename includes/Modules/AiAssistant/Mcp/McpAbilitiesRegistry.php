@@ -31,6 +31,7 @@ class McpAbilitiesRegistry {
 		( new Tools\CustomPostTypesTools() )->register();
 		( new Tools\SettingsTools() )->register();
 		( new Tools\SiteInfoTools() )->register();
+		( new Tools\SeoTools() )->register();
 
 		if ( class_exists( 'WooCommerce' ) ) {
 			( new Tools\WooProductsTools() )->register();

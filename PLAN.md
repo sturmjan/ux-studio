@@ -630,9 +630,25 @@ F1 je hotové kompletně (backend most + editor UI).
       Article+FAQPage JSON-LD, link-suggestions vrátil prázdné pole (web
       zatím bez `portfolio_key` na CA straně — správné chování).
 
-### 17.5 F5 — RankBot (nice-to-have, nezapočato)
-- [ ] nový chat mód `seo_advisor` přes existující MCP tools vzor
-      (`Mcp/Tools/PostsTools`, `PagesTools`), volá `SeoAiClient` jako nástroj.
+### 17.5 F5 — RankBot ✅ *(hotovo lokálně 16.9.2026)*
+- [x] `Mcp/Tools/SeoTools.php` — 4 MCP nástroje nad SEO mostem:
+      `ai-assistant/seo-score` (post_id nebo raw content), `seo-topic-research`
+      (seed keyword), `seo-schema` (post_id), `seo-link-suggestions` (post_id).
+      Všechny read-only, permission `edit_posts`, vstupy se skládají ze
+      skutečného postu přes `SeoManager`/`SeoScoreEditor` meta klíče.
+- [x] Bespoke `execute_callback`, NE `RestEndpointTool` wrapper — ten je
+      podle vlastní dokumentace vyhrazený pro `wp/v2`/`wc/v3` routy, nikdy
+      `uxstudio/v1`. Stejný vzor jako `SiteInfoTools`.
+- [x] Zaregistrováno v `McpAbilitiesRegistry::register_tools()`.
+- [x] Ověřeno: všechny 4 schopnosti se registrují přes reálný
+      `McpBootstrap` (testováno s `mcp_enabled` zapnutým JEN v paměti přes
+      filtr, bez zápisu do DB) a všechny 4 reálně proběhly proti skutečnému
+      postu — schema vrátila Article JSON-LD, score 45/fail, link suggestions
+      prázdné (web bez `portfolio_key`), chybová cesta bez post_id čistě.
+- [x] Samostatný chat mód `seo_advisor` se NEDĚLAL: jakmile je MCP zapnuté,
+      existující InternalChat i externí klienti (Claude Desktop, CA bridge)
+      tyhle nástroje vidí automaticky — bespoke mód by byl duplicitní vrstva
+      navíc. Rozhodnutí zaznamenáno, ne tiše vypuštěno z plánu.
 
 ## 18. Menu Icons & Item Status (2026-09-15)
 
