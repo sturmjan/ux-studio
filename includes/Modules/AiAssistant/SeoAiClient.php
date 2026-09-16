@@ -81,6 +81,33 @@ final class SeoAiClient {
 	}
 
 	/**
+	 * JSON-LD schema markup (Article + auto-detected FAQ, optional Product/Recipe).
+	 *
+	 * @param array<string, mixed> $fields Same shape as analyze(), plus optional image_url/site_name/product/recipe.
+	 * @return array<string, mixed> {success,schema:array} or {success:false,error}.
+	 */
+	public function schema( array $fields ): array {
+		return $this->call( 'schema', $fields );
+	}
+
+	/**
+	 * Cross-site internal link suggestions within the site's client portfolio
+	 * (empty when `sites.portfolio_key` isn't set on the central app — safe
+	 * default, no suggestions across unrelated clients' sites).
+	 *
+	 * @return array<string, mixed> {success,suggestions:array} or {success:false,error}.
+	 */
+	public function link_suggestions( string $content, string $exclude_url = '' ): array {
+		return $this->call(
+			'link_suggestions',
+			array(
+				'content'     => $content,
+				'exclude_url' => $exclude_url,
+			)
+		);
+	}
+
+	/**
 	 * Signed POST to a seo_ai_api action, normalised into {success,...}|{success:false,error}.
 	 *
 	 * @param array<string, mixed> $payload

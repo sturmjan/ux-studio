@@ -137,6 +137,8 @@ final class SeoScoreEditor {
 			array(
 				'restUrl'         => esc_url_raw( rest_url( 'uxstudio/v1/ai-assistant/seo/score' ) ),
 				'restUrlTopics'   => esc_url_raw( rest_url( 'uxstudio/v1/ai-assistant/seo/topic-research' ) ),
+				'restUrlSchema'   => esc_url_raw( rest_url( 'uxstudio/v1/ai-assistant/seo/schema' ) ),
+				'restUrlLinks'    => esc_url_raw( rest_url( 'uxstudio/v1/ai-assistant/seo/link-suggestions' ) ),
 				'nonce'   => wp_create_nonce( 'wp_rest' ),
 				'i18n'    => array(
 					'panelTitle'    => __( 'SEO skóre', 'ux-studio' ),
@@ -151,6 +153,13 @@ final class SeoScoreEditor {
 					'relatedKeywords' => __( 'Související klíčová slova', 'ux-studio' ),
 					'subtopics'     => __( 'Podtémata k pokrytí', 'ux-studio' ),
 					'topicResearchHint' => __( 'AI odhad z kontextu, ne reálná data o vyhledávanosti.', 'ux-studio' ),
+					'schema'          => __( 'Schema markup (JSON-LD)', 'ux-studio' ),
+					'schemaGenerate'  => __( 'Vygenerovat', 'ux-studio' ),
+					'schemaCopy'      => __( 'Zkopírovat', 'ux-studio' ),
+					'schemaCopied'    => __( 'Zkopírováno!', 'ux-studio' ),
+					'linkSuggestions' => __( 'Interní odkazy', 'ux-studio' ),
+					'linkSuggestionsFind' => __( 'Najít návrhy', 'ux-studio' ),
+					'linkSuggestionsEmpty' => __( 'Žádné návrhy — buď chybí portfolio klienta v centrální aplikaci, nebo se v obsahu nenašla shoda.', 'ux-studio' ),
 				),
 			)
 		);

@@ -75,6 +75,14 @@
 		return postJson( cfg.restUrlTopics, { seed_keyword: seedKeyword } );
 	}
 
+	function fetchSchema( fields ) {
+		return postJson( cfg.restUrlSchema, fields );
+	}
+
+	function fetchLinkSuggestions( content, excludeUrl ) {
+		return postJson( cfg.restUrlLinks, { content: content, exclude_url: excludeUrl || '' } );
+	}
+
 	function ScoreBadge( props ) {
 		var score = props.score;
 		var grade = props.grade;
@@ -147,7 +155,86 @@
 		var topicsError = topicsErrorState[ 0 ];
 		var setTopicsError = topicsErrorState[ 1 ];
 
+		var schemaState = useState( null );
+		var schema = schemaState[ 0 ];
+		var setSchema = schemaState[ 1 ];
+		var schemaLoadingState = useState( false );
+		var schemaLoading = schemaLoadingState[ 0 ];
+		var setSchemaLoading = schemaLoadingState[ 1 ];
+		var schemaErrorState = useState( '' );
+		var schemaError = schemaErrorState[ 0 ];
+		var setSchemaError = schemaErrorState[ 1 ];
+		var schemaCopiedState = useState( false );
+		var schemaCopied = schemaCopiedState[ 0 ];
+		var setSchemaCopied = schemaCopiedState[ 1 ];
+
+		var linksState = useState( null );
+		var links = linksState[ 0 ];
+		var setLinks = linksState[ 1 ];
+		var linksLoadingState = useState( false );
+		var linksLoading = linksLoadingState[ 0 ];
+		var setLinksLoading = linksLoadingState[ 1 ];
+		var linksErrorState = useState( '' );
+		var linksError = linksErrorState[ 0 ];
+		var setLinksError = linksErrorState[ 1 ];
+
 		var timerRef = useRef( null );
+
+		function runSchema() {
+			var editor = select( 'core/editor' );
+			var meta = editor.getEditedPostAttribute( 'meta' ) || {};
+			setSchemaLoading( true );
+			setSchemaError( '' );
+			setSchemaCopied( false );
+			fetchSchema( {
+				title: editor.getEditedPostAttribute( 'title' ) || '',
+				content: editor.getEditedPostContent() || '',
+				meta_title: meta._uxstudio_ai_seo_title || '',
+				meta_desc: meta._uxstudio_ai_seo_description || '',
+				slug: editor.getEditedPostAttribute( 'slug' ) || '',
+			} )
+				.then( function ( data ) {
+					setSchemaLoading( false );
+					if ( ! data.success ) {
+						setSchemaError( data.error || i18n.error );
+						return;
+					}
+					setSchema( data.schema || [] );
+				} )
+				.catch( function ( err ) {
+					setSchemaLoading( false );
+					setSchemaError( err.message || i18n.error );
+				} );
+		}
+
+		function copySchema() {
+			var text = JSON.stringify( schema, null, 2 );
+			if ( navigator.clipboard && navigator.clipboard.writeText ) {
+				navigator.clipboard.writeText( text ).then( function () {
+					setSchemaCopied( true );
+				} );
+			}
+		}
+
+		function runLinkSuggestions() {
+			var editor = select( 'core/editor' );
+			setLinksLoading( true );
+			setLinksError( '' );
+			var link = editor.getCurrentPost() ? editor.getCurrentPost().link : '';
+			fetchLinkSuggestions( editor.getEditedPostContent() || '', link || '' )
+				.then( function ( data ) {
+					setLinksLoading( false );
+					if ( ! data.success ) {
+						setLinksError( data.error || i18n.error );
+						return;
+					}
+					setLinks( data.suggestions || [] );
+				} )
+				.catch( function ( err ) {
+					setLinksLoading( false );
+					setLinksError( err.message || i18n.error );
+				} );
+		}
 
 		function runTopicResearch() {
 			if ( ! focusKeyword ) {
@@ -306,6 +393,48 @@
 								return el( 'li', { key: i }, st );
 							} )
 						)
+					) : null
+				),
+				el(
+					PanelBody,
+					{ title: i18n.schema || 'Schema markup (JSON-LD)', initialOpen: false },
+					el(
+						wp.components.Button,
+						{ variant: 'secondary', disabled: schemaLoading, onClick: runSchema },
+						schemaLoading ? ( i18n.analyzing || 'Analyzuji…' ) : ( i18n.schemaGenerate || 'Vygenerovat' )
+					),
+					schemaError ? el( 'p', { className: 'uxstudio-seo-score__error' }, schemaError ) : null,
+					schema ? el(
+						'div',
+						null,
+						el(
+							wp.components.Button,
+							{ variant: 'link', onClick: copySchema },
+							schemaCopied ? ( i18n.schemaCopied || 'Zkopírováno!' ) : ( i18n.schemaCopy || 'Zkopírovat' )
+						),
+						el( 'pre', { className: 'uxstudio-seo-score__schema' }, JSON.stringify( schema, null, 2 ) )
+					) : null
+				),
+				el(
+					PanelBody,
+					{ title: i18n.linkSuggestions || 'Interní odkazy', initialOpen: false },
+					el(
+						wp.components.Button,
+						{ variant: 'secondary', disabled: linksLoading, onClick: runLinkSuggestions },
+						linksLoading ? ( i18n.analyzing || 'Analyzuji…' ) : ( i18n.linkSuggestionsFind || 'Najít návrhy' )
+					),
+					linksError ? el( 'p', { className: 'uxstudio-seo-score__error' }, linksError ) : null,
+					links && 0 === links.length ? el( 'p', { className: 'uxstudio-seo-score__hint' }, i18n.linkSuggestionsEmpty || 'Žádné návrhy.' ) : null,
+					links && links.length ? el(
+						'ul',
+						{ className: 'uxstudio-seo-score__links' },
+						links.map( function ( link, i ) {
+							return el(
+								'li',
+								{ key: i },
+								el( 'a', { href: link.url, target: '_blank', rel: 'noreferrer' }, link.title )
+							);
+						} )
 					) : null
 				)
 			)

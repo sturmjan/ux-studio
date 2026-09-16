@@ -617,10 +617,21 @@ F1 je hotové kompletně (backend most + editor UI).
       jen kvůli nedostupnému lokálnímu `claude_code` bridge (ne kvůli chybě
       v kódu).
 
-### 17.4 F4-F5
-- [ ] F4 schema + cross-site linking: konzument nových CA endpointů, žádná
-      nová WP-strana logika mimo zobrazení.
-- [ ] F5 RankBot: nový chat mód `seo_advisor` přes existující MCP tools vzor
+### 17.4 F4 — Schema markup + cross-site linking ✅ *(hotovo lokálně 16.9.2026)*
+- [x] `SeoAiClient::schema()` + `::link_suggestions()` — čistý konzument
+      nových CA endpointů přes sdílenou `call()` metodu.
+- [x] `SeoScorePanel::schema()` + `::link_suggestions()` — REST proxy
+      `POST uxstudio/v1/ai-assistant/seo/schema` a `.../seo/link-suggestions`.
+- [x] JS: dvě další sbalitelné sekce v `seo-score-panel.js` — "Schema markup
+      (JSON-LD)" s tlačítkem Vygenerovat + Zkopírovat (`navigator.clipboard`,
+      tmavý `<pre>` blok), "Interní odkazy" s tlačítkem Najít návrhy +
+      seznam odkazů (nebo hint, že chybí portfolio/shoda).
+- [x] E2E ověřeno přes `rest_do_request()` — schema vrátila reálný
+      Article+FAQPage JSON-LD, link-suggestions vrátil prázdné pole (web
+      zatím bez `portfolio_key` na CA straně — správné chování).
+
+### 17.5 F5 — RankBot (nice-to-have, nezapočato)
+- [ ] nový chat mód `seo_advisor` přes existující MCP tools vzor
       (`Mcp/Tools/PostsTools`, `PagesTools`), volá `SeoAiClient` jako nástroj.
 
 ## 18. Menu Icons & Item Status (2026-09-15)

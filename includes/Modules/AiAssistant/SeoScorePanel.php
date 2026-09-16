@@ -48,6 +48,29 @@ final class SeoScorePanel extends Controller {
 				'seed_keyword' => array( 'required' => true, 'type' => 'string' ),
 			)
 		);
+
+		$this->route(
+			'/ai-assistant/seo/schema',
+			'POST',
+			array( $this, 'schema' ),
+			array(
+				'title'      => array( 'required' => false, 'type' => 'string' ),
+				'content'    => array( 'required' => true, 'type' => 'string' ),
+				'meta_title' => array( 'required' => false, 'type' => 'string' ),
+				'meta_desc'  => array( 'required' => false, 'type' => 'string' ),
+				'slug'       => array( 'required' => false, 'type' => 'string' ),
+			)
+		);
+
+		$this->route(
+			'/ai-assistant/seo/link-suggestions',
+			'POST',
+			array( $this, 'link_suggestions' ),
+			array(
+				'content'     => array( 'required' => true, 'type' => 'string' ),
+				'exclude_url' => array( 'required' => false, 'type' => 'string' ),
+			)
+		);
 	}
 
 	public function score( WP_REST_Request $request ) {
@@ -85,6 +108,47 @@ final class SeoScorePanel extends Controller {
 			return new WP_Error(
 				'uxstudio_topic_research_bridge',
 				(string) ( $result['error'] ?? __( 'Topic research selhal.', 'ux-studio' ) ),
+				array( 'status' => 424 )
+			);
+		}
+
+		return new WP_REST_Response( $result, 200 );
+	}
+
+	public function schema( WP_REST_Request $request ) {
+		$client = new SeoAiClient();
+		$result = $client->schema(
+			array(
+				'title'      => (string) $request->get_param( 'title' ),
+				'content'    => (string) $request->get_param( 'content' ),
+				'meta_title' => (string) $request->get_param( 'meta_title' ),
+				'meta_desc'  => (string) $request->get_param( 'meta_desc' ),
+				'slug'       => (string) $request->get_param( 'slug' ),
+			)
+		);
+
+		if ( empty( $result['success'] ) ) {
+			return new WP_Error(
+				'uxstudio_schema_bridge',
+				(string) ( $result['error'] ?? __( 'Generování schema markup selhalo.', 'ux-studio' ) ),
+				array( 'status' => 424 )
+			);
+		}
+
+		return new WP_REST_Response( $result, 200 );
+	}
+
+	public function link_suggestions( WP_REST_Request $request ) {
+		$client = new SeoAiClient();
+		$result = $client->link_suggestions(
+			(string) $request->get_param( 'content' ),
+			(string) $request->get_param( 'exclude_url' )
+		);
+
+		if ( empty( $result['success'] ) ) {
+			return new WP_Error(
+				'uxstudio_link_suggestions_bridge',
+				(string) ( $result['error'] ?? __( 'Návrh interních odkazů selhal.', 'ux-studio' ) ),
 				array( 'status' => 424 )
 			);
 		}
