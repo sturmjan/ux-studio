@@ -30,6 +30,7 @@ final class Log {
 	 */
 	public static function insert( array $entry ): void {
 		global $wpdb;
+		$report_hash = (string) ( $entry['report_hash'] ?? '' );
 		$wpdb->insert(
 			self::table(),
 			array(
@@ -44,8 +45,9 @@ final class Log {
 				'url'             => mb_substr( (string) ( $entry['url'] ?? '' ), 0, 500 ),
 				'load_score'      => (float) ( $entry['load_score'] ?? 0 ),
 				'response_status' => (int) ( $entry['response_status'] ?? 200 ),
+				'report_hash'     => '' !== $report_hash ? substr( $report_hash, 0, 64 ) : null,
 			),
-			array( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%f', '%d' )
+			array( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%f', '%d', '%s' )
 		);
 	}
 
@@ -121,6 +123,33 @@ final class Log {
 			'since'     => $since,
 			'hours'     => $hours,
 		);
+	}
+
+	/**
+	 * Reportable bans for the central app's pull (cursor-based, ascending).
+	 * Only rows with a `report_hash` qualify - bans recorded before a fleet
+	 * secret was configured stay local forever, never reported retroactively.
+	 *
+	 * @param int $after_id Exclusive cursor - only rows with a higher id.
+	 * @param int $limit    Max rows (1-500).
+	 * @return array<int,array<string,mixed>>
+	 */
+	public static function bans_since( int $after_id, int $limit = 200 ): array {
+		global $wpdb;
+		$table = self::table();
+		$limit = max( 1, min( 500, $limit ) );
+
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT id, created_at, bot_name AS context, report_hash FROM {$table}
+				 WHERE action = 'ban' AND report_hash IS NOT NULL AND id > %d
+				 ORDER BY id ASC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$after_id,
+				$limit
+			),
+			ARRAY_A
+		);
+		return is_array( $rows ) ? $rows : array();
 	}
 
 	/**

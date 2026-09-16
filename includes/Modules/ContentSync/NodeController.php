@@ -9,7 +9,10 @@ namespace UxStudio\Modules\ContentSync;
 
 use UxStudio\Core\ActivityLog;
 use UxStudio\Core\Security;
+use UxStudio\Core\Settings;
+use UxStudio\Modules\BotThrottle\Log as BotThrottleLog;
 use UxStudio\Modules\EmailLog\Module as EmailLogModule;
+use UxStudio\Modules\SecurityOptimization\IpBanStore;
 use UxStudio\Plugin;
 use WP_Error;
 use WP_Post;
@@ -140,6 +143,24 @@ final class NodeController {
 			'callback'            => array( $this, 'get_email_log' ),
 			'permission_callback' => $verify,
 		) );
+
+		register_rest_route( self::NS, self::BASE . '/ip-bans', array(
+			'methods'             => 'GET',
+			'callback'            => array( $this, 'get_ip_bans' ),
+			'permission_callback' => $verify,
+		) );
+
+		register_rest_route( self::NS, self::BASE . '/ip-bans/sync', array(
+			'methods'             => 'POST',
+			'callback'            => array( $this, 'sync_ip_bans' ),
+			'permission_callback' => $verify,
+		) );
+
+		register_rest_route( self::NS, self::BASE . '/bot-throttle/bans', array(
+			'methods'             => 'GET',
+			'callback'            => array( $this, 'get_bot_throttle_bans' ),
+			'permission_callback' => $verify,
+		) );
 	}
 
 	/**
@@ -166,6 +187,76 @@ final class NodeController {
 					'date_from' => $request->get_param( 'date_from' ),
 					'date_to'   => $request->get_param( 'date_to' ),
 				)
+			),
+			200
+		);
+	}
+
+	/**
+	 * Informational report of this site's IP bans (local + central) for CA's
+	 * per-site detail popup - read-only, CA never mutates local bans here.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function get_ip_bans( WP_REST_Request $request ): WP_REST_Response {
+		$report = ( new IpBanStore() )->get_report();
+
+		return new WP_REST_Response(
+			array(
+				'bans'            => $report['bans'],
+				'local_count'     => $report['local_count'],
+				'central_count'   => $report['central_count'],
+				'firewall_active' => (bool) ( new Settings( 'uxstudio_security_optimization' ) )->get( 'ip_firewall_enabled', false ),
+			),
+			200
+		);
+	}
+
+	/**
+	 * Replace this site's central-origin bans with the authoritative set CA
+	 * just pushed. Local bans are never touched.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function sync_ip_bans( WP_REST_Request $request ): WP_REST_Response {
+		$data  = (array) $request->get_json_params();
+		$items = is_array( $data['bans'] ?? null ) ? $data['bans'] : array();
+
+		$result = ( new IpBanStore() )->replace_central_bans( $items );
+
+		ActivityLog::log( 'content-sync', 'central_ip_bans_synced', 'ip_ban', 0, $result );
+
+		return new WP_REST_Response(
+			array(
+				'success' => true,
+				'synced'  => $result['synced'],
+				'skipped' => $result['skipped'],
+			),
+			200
+		);
+	}
+
+	/**
+	 * Cursor-based pull of this site's reportable Bot Throttle bans (keyed-hash
+	 * IP, no raw address) for the central app's fleet-wide correlation feed.
+	 * Rows recorded before a fleet secret was configured (`report_hash` null)
+	 * are permanently excluded - see `BotThrottle\Guard::report_hash()`.
+	 *
+	 * @param WP_REST_Request $request Request, `since` = last id already pulled.
+	 */
+	public function get_bot_throttle_bans( WP_REST_Request $request ): WP_REST_Response {
+		$since = max( 0, (int) $request->get_param( 'since' ) );
+		$items = BotThrottleLog::bans_since( $since, 200 );
+
+		$last_id = $since;
+		foreach ( $items as $row ) {
+			$last_id = max( $last_id, (int) $row['id'] );
+		}
+
+		return new WP_REST_Response(
+			array(
+				'items'   => $items,
+				'last_id' => $last_id,
 			),
 			200
 		);

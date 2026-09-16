@@ -191,6 +191,113 @@ final class IpBanStore {
 	}
 
 	/* ═══════════════════════════════════════════════════
+	   Central sync (CA <-> node, content-sync channel)
+	   ═══════════════════════════════════════════════════ */
+
+	/**
+	 * Full, unpaginated report for CA's informational per-site read
+	 * (`GET .../ip-bans`) - every ban regardless of origin, plus counts.
+	 *
+	 * @return array{bans:array<int,array>,local_count:int,central_count:int}
+	 */
+	public function get_report(): array {
+		global $wpdb;
+		$rows = $wpdb->get_results( "SELECT * FROM {$this->bans} ORDER BY created_at DESC", ARRAY_A ) ?: array();
+
+		$local   = 0;
+		$central = 0;
+		foreach ( $rows as $row ) {
+			if ( 'central' === $row['origin'] ) {
+				++$central;
+			} else {
+				++$local;
+			}
+		}
+
+		return array(
+			'bans'          => $rows,
+			'local_count'   => $local,
+			'central_count' => $central,
+		);
+	}
+
+	/**
+	 * Idempotent full replace of every `central`-origin ban with the
+	 * authoritative set CA just pushed (`POST .../ip-bans/sync`) - CA always
+	 * sends its complete current set, so a full delete+reinsert is simpler
+	 * and safer than diffing, and self-heals from any previous partial sync.
+	 * `local`-origin bans are never touched. Items that would ban this
+	 * site's own current IP are skipped, same guard as save_ban().
+	 *
+	 * @param array<int,array> $items Each: central_id, type, value, label?, note?, is_active?, ranges? (country only).
+	 * @return array{synced:int, skipped:int}
+	 */
+	public function replace_central_bans( array $items ): array {
+		global $wpdb;
+
+		$wpdb->query( "DELETE r FROM {$this->ranges} r INNER JOIN {$this->bans} b ON b.id = r.ban_id WHERE b.origin = 'central'" );
+		$wpdb->delete( $this->bans, array( 'origin' => 'central' ) );
+
+		$my_ip   = $this->get_client_ip();
+		$synced  = 0;
+		$skipped = 0;
+
+		foreach ( $items as $item ) {
+			$type  = in_array( $item['type'] ?? '', array( 'single', 'cidr', 'country' ), true ) ? $item['type'] : 'single';
+			$value = trim( (string) ( $item['value'] ?? '' ) );
+			if ( '' === $value ) {
+				continue;
+			}
+
+			$computed = $this->compute_ranges( $type, $value, (array) ( $item['ranges'] ?? array() ) );
+			if ( is_wp_error( $computed ) || empty( $computed ) ) {
+				++$skipped;
+				continue;
+			}
+			if ( '' !== $my_ip && $this->ip_matches_ranges( $my_ip, $computed ) ) {
+				++$skipped; // Self-ban guard - never let a central push lock this site out.
+				continue;
+			}
+
+			$ban_id = $this->insert_central_ban( $item, $type, $value );
+			if ( $ban_id ) {
+				$this->replace_ranges( $ban_id, $computed );
+				++$synced;
+			}
+		}
+
+		$this->refresh_active_flag();
+
+		return array(
+			'synced'  => $synced,
+			'skipped' => $skipped,
+		);
+	}
+
+	/**
+	 * @param array  $item  Raw payload item (label/note/is_active/central_id).
+	 * @param string $type  Validated type.
+	 * @param string $value Validated value.
+	 */
+	private function insert_central_ban( array $item, string $type, string $value ): int {
+		global $wpdb;
+		$wpdb->insert(
+			$this->bans,
+			array(
+				'type'       => $type,
+				'value'      => $value,
+				'label'      => isset( $item['label'] ) ? sanitize_text_field( (string) $item['label'] ) : null,
+				'note'       => isset( $item['note'] ) ? sanitize_textarea_field( (string) $item['note'] ) : null,
+				'origin'     => 'central',
+				'central_id' => isset( $item['central_id'] ) ? (int) $item['central_id'] : null,
+				'is_active'  => isset( $item['is_active'] ) ? (int) (bool) $item['is_active'] : 1,
+				'created_at' => current_time( 'mysql' ),
+			)
+		);
+		return (int) $wpdb->insert_id;
+	}
+
+	/* ═══════════════════════════════════════════════════
 	   HOT PATH - firewall matching
 	   ═══════════════════════════════════════════════════ */
 

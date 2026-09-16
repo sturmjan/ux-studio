@@ -40,7 +40,7 @@ final class Module extends BaseModule {
 
 		\UxStudio\Core\DB::ensure_module_tables(
 			'bot-throttle',
-			2,
+			3,
 			function ( int $from ): void {
 				global $wpdb;
 				$charset = $wpdb->get_charset_collate();
@@ -66,6 +66,7 @@ final class Module extends BaseModule {
 						url VARCHAR(500) NOT NULL DEFAULT '',
 						load_score FLOAT NOT NULL DEFAULT 0,
 						response_status SMALLINT UNSIGNED NOT NULL DEFAULT 200,
+						report_hash CHAR(64) NULL,
 						PRIMARY KEY  (id),
 						KEY created_at (created_at),
 						KEY bot_name (bot_name)
@@ -75,6 +76,7 @@ final class Module extends BaseModule {
 		);
 
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+		add_action( 'ux_studio/bot_throttle/ip_banned', array( BanNotifier::class, 'notify' ), 10, 3 );
 		DashboardWidget::register();
 
 		if ( ! (bool) $this->settings->get( 'enabled', true ) ) {
@@ -356,6 +358,13 @@ final class Module extends BaseModule {
 				'type'    => 'number',
 				'label'   => __( 'Log retention (days)', 'ux-studio' ),
 				'default' => 14,
+			),
+			array(
+				'key'     => 'central_report_secret',
+				'type'    => 'text',
+				'label'   => __( 'Central report secret', 'ux-studio' ),
+				'help'    => __( 'Set the SAME value on every site managed by your central app to let it recognize a repeat-offender IP across sites, without ever seeing the raw address (only a keyed hash is reported). Leave empty to keep bans local and never report them.', 'ux-studio' ),
+				'default' => '',
 			),
 		);
 
