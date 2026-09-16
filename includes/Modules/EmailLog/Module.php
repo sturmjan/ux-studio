@@ -302,6 +302,68 @@ final class Module extends BaseModule {
 	}
 
 	/**
+	 * Filtered/paginated entries for the hub (centrani-app aggregated "Log
+	 * emailů" view). Separate from get_entries() because the hub speaks a
+	 * different status vocabulary (sent/failed) than this table's own
+	 * (success/error) - mapped both ways here so the SPA's get_entries() is
+	 * left untouched.
+	 *
+	 * @param array{limit?:mixed,status?:mixed,search?:mixed,date_from?:mixed,date_to?:mixed} $args Hub filter params.
+	 * @return array{items:array<int,array<string,mixed>>,total:int}
+	 */
+	public function get_entries_for_hub( array $args ): array {
+		global $wpdb;
+		$table = "{$wpdb->prefix}uxstudio_email_log";
+
+		$limit = max( 1, min( 200, (int) ( $args['limit'] ?? 50 ) ) );
+		$where = '1=1';
+
+		$status_map = array( 'sent' => 'success', 'failed' => 'error', 'pending' => 'pending' );
+		$status     = (string) ( $args['status'] ?? '' );
+		if ( isset( $status_map[ $status ] ) ) {
+			$where .= $wpdb->prepare( ' AND status = %s', $status_map[ $status ] );
+		}
+
+		$search = (string) ( $args['search'] ?? '' );
+		if ( '' !== $search ) {
+			$like   = '%' . $wpdb->esc_like( $search ) . '%';
+			$where .= $wpdb->prepare( ' AND (subject LIKE %s OR to_email LIKE %s OR source LIKE %s)', $like, $like, $like );
+		}
+
+		$date_from = (string) ( $args['date_from'] ?? '' );
+		if ( '' !== $date_from ) {
+			$where .= $wpdb->prepare( ' AND created_at >= %s', $date_from . ' 00:00:00' );
+		}
+
+		$date_to = (string) ( $args['date_to'] ?? '' );
+		if ( '' !== $date_to ) {
+			$where .= $wpdb->prepare( ' AND created_at <= %s', $date_to . ' 23:59:59' );
+		}
+
+		$total = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} WHERE {$where}" );
+		$rows  = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT id, created_at, to_email, subject, status, error_message, source
+				FROM {$table} WHERE {$where} ORDER BY id DESC LIMIT %d",
+				$limit
+			),
+			ARRAY_A
+		);
+
+		$reverse_map = array( 'success' => 'sent', 'error' => 'failed', 'pending' => 'pending' );
+		$items       = array();
+		foreach ( (array) $rows as $row ) {
+			$row['status'] = $reverse_map[ $row['status'] ] ?? $row['status'];
+			$items[]       = $row;
+		}
+
+		return array(
+			'items' => $items,
+			'total' => $total,
+		);
+	}
+
+	/**
 	 * Full detail of a single entry, including body/headers/attachments.
 	 * Attachments are decoded to an array of filenames.
 	 *
