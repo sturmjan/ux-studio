@@ -170,9 +170,15 @@ final class Module extends BaseModule {
 			add_action( 'init', array( $this->attempts, 'cleanup_expired_attempts' ) );
 		}
 
-		/* ── CAPTCHA ── */
+		/* ── CAPTCHA - inline widget in the form, or a standalone gate page
+		 * shown before it (also covers wp-admin, since WordPress itself
+		 * redirects every logged-out admin request to wp-login.php). ── */
 		if ( $this->setting( 'captcha_enabled', false ) ) {
-			new CaptchaHandler( $this );
+			if ( 'gate' === (string) $this->setting( 'captcha_placement', 'inline' ) ) {
+				new CaptchaGate( $this );
+			} else {
+				new CaptchaHandler( $this );
+			}
 		}
 
 		/* ── Block reserved usernames ── */
@@ -514,9 +520,20 @@ final class Module extends BaseModule {
 				'default' => 'turnstile',
 			),
 			array(
+				'key'     => 'captcha_placement',
+				'type'    => 'select',
+				'label'   => __( 'Placement', 'ux-studio' ),
+				'help'    => __( 'Inline shows the widget inside the login/register/lost-password form itself. Standalone gate shows a dedicated "verify you\'re not a robot" page before the form is reachable at all - since WordPress redirects every logged-out admin request to wp-login.php, this also protects the whole admin, not just the login form. The gate ignores enforcement mode below and always applies (adaptive mode only affects the inline widget).', 'ux-studio' ),
+				'options' => array(
+					'inline' => __( 'Inline widget in the form', 'ux-studio' ),
+					'gate'   => __( 'Standalone page before login (also gates wp-admin)', 'ux-studio' ),
+				),
+				'default' => 'inline',
+			),
+			array(
 				'key'     => 'captcha_mode',
 				'type'    => 'select',
-				'label'   => __( 'Enforcement mode', 'ux-studio' ),
+				'label'   => __( 'Enforcement mode (inline placement only)', 'ux-studio' ),
 				'options' => array(
 					'always'   => __( 'Always', 'ux-studio' ),
 					'adaptive' => __( 'Adaptive (after repeated failures)', 'ux-studio' ),
