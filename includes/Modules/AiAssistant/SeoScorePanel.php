@@ -26,9 +26,12 @@ defined( 'ABSPATH' ) || exit;
 final class SeoScorePanel extends Controller {
 
 	public function register_routes(): void {
-		$this->route(
+		// Score/schema/link-suggestions nic nezapisují a panel je volá při psaní.
+		// Kdyby utrácely sdílený rozpočet zápisů (60/min na uživatele), vyčerpá
+		// ho sám panel a přestane procházet i uložení článku. Topic research
+		// zůstává normální `route()` — ten stojí AI tokeny, tam limit dává smysl.
+		$this->route_readonly(
 			'/ai-assistant/seo/score',
-			'POST',
 			array( $this, 'score' ),
 			array(
 				'title'         => array( 'required' => false, 'type' => 'string' ),
@@ -49,9 +52,8 @@ final class SeoScorePanel extends Controller {
 			)
 		);
 
-		$this->route(
+		$this->route_readonly(
 			'/ai-assistant/seo/schema',
-			'POST',
 			array( $this, 'schema' ),
 			array(
 				'title'      => array( 'required' => false, 'type' => 'string' ),
@@ -62,9 +64,8 @@ final class SeoScorePanel extends Controller {
 			)
 		);
 
-		$this->route(
+		$this->route_readonly(
 			'/ai-assistant/seo/link-suggestions',
-			'POST',
 			array( $this, 'link_suggestions' ),
 			array(
 				'content'     => array( 'required' => true, 'type' => 'string' ),

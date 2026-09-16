@@ -179,6 +179,7 @@
 		var setLinksError = linksErrorState[ 1 ];
 
 		var timerRef = useRef( null );
+		var lastSignatureRef = useRef( null );
 
 		function runSchema() {
 			var editor = select( 'core/editor' );
@@ -290,7 +291,32 @@
 				} );
 		}
 
-		function schedule() {
+		// Otisk toho, z čeho se skóre počítá. `subscribe()` se spouští při
+		// JAKÉKOLI změně storu (i cizí), takže bez téhle kontroly panel posílá
+		// požadavky i když se obsah vůbec nezměnil - a rychle vyčerpá limit.
+		function contentSignature() {
+			var editor = select( 'core/editor' );
+			if ( ! editor ) {
+				return '';
+			}
+			var meta = editor.getEditedPostAttribute( 'meta' ) || {};
+			return [
+				editor.getEditedPostAttribute( 'title' ) || '',
+				editor.getEditedPostContent() || '',
+				meta._uxstudio_ai_seo_title || '',
+				meta._uxstudio_ai_seo_description || '',
+				meta._uxstudio_ai_seo_focus_keyword || '',
+				editor.getEditedPostAttribute( 'slug' ) || '',
+			].join( ' ' );
+		}
+
+		function schedule( force ) {
+			var signature = contentSignature();
+			if ( ! force && signature === lastSignatureRef.current ) {
+				return;
+			}
+			lastSignatureRef.current = signature;
+
 			if ( timerRef.current ) {
 				clearTimeout( timerRef.current );
 			}
@@ -298,9 +324,9 @@
 		}
 
 		useEffect( function () {
-			schedule();
+			schedule( true );
 			var unsubscribe = subscribe( function () {
-				schedule();
+				schedule( false );
 			} );
 			return function () {
 				if ( timerRef.current ) {
