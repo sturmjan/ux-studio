@@ -10,6 +10,7 @@
 import { lazy } from 'react';
 
 export const MODULE_PAGES: Record< string, ReturnType< typeof lazy > > = {
+	analytics: lazy( () => import( './analytics/Page' ) ),
 	'admin-columns': lazy( () => import( './admin-columns/Page' ) ),
 	'admin-customiser': lazy( () => import( './admin-customiser/Page' ) ),
 	'smtp-email': lazy( () => import( './smtp-email/Page' ) ),

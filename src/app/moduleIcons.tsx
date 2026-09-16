@@ -12,6 +12,7 @@ import {
 	Activity,
 	ArrowUpDown,
 	Bell,
+	BarChart2,
 	BellRing,
 	BookOpen,
 	Bot,
@@ -76,6 +77,7 @@ import {
 const ICONS: Record< string, ComponentType< LucideProps > > = {
 	activity: Activity,
 	'arrow-up-down': ArrowUpDown,
+	'bar-chart-2': BarChart2,
 	bell: Bell,
 	'bell-ring': BellRing,
 	'book-open': BookOpen,
