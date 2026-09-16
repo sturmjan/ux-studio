@@ -598,9 +598,26 @@ F1 je hotové kompletně (backend most + editor UI).
       `bulk-alt/status` vrátil reálný počet (8488 na lokále), samotné
       volání AI providera narazilo na účtový limit Claude API (ne na chybu
       v kódu — routing/parsing/JSON error handling funguje).
-- [ ] ZBÝVÁ: `assets/js/ai-toolbar.js` (Write More/Improve/Summarize/Fix
-      Grammar přímo v editoru) + tool picker UI — backend hotový, frontend
-      odložen stejně jako u F1.
+- [x] `ContentToolbarEditor.php` + `assets/js/ai-toolbar.js` *(16.9.2026)* —
+      AI akce v toolbaru bloku nad OZNAČENÝM textem přes
+      `registerFormatType` (formát se nikdy neaplikuje, je to jen nosič
+      tlačítka) + `ToolbarDropdownMenu`: Rozvinout (`sentence_expander`),
+      Přepsat lépe (`paragraph_rewriter`), Shrnout (`text_summarizer`),
+      Opravit gramatiku (`fix_grammar`). Výsledek nahradí označený úsek přes
+      `richText.insert()`. Pozice výběru se zapamatuje PŘED voláním — jinak
+      by odpověď přepsala to, kam uživatel mezitím klikl.
+- [x] `ContentToolbarEditor::actions()` ověřuje klíče proti `PromptLibrary` —
+      po přejmenování nástroje tlačítko zmizí, místo aby tiše vracelo
+      „Unknown content tool".
+- [x] Ověřeno: 4 akce se rozpadly správně proti PromptLibrary, hook
+      `enqueue_block_editor_assets` navěšen, a celý řetězec
+      `generate_from_prompt()` protažen podvrženým providerem — instrukce
+      nástroje se opravdu dostane do system promptu a odpověď má tvar
+      `{text, _usage, _provider, _model, _tool}`, tedy `payload.data.text`,
+      na který JS spoléhá. ŽIVÉ volání AI ověřeno NEBYLO (účtový limit
+      Claude API do 1. 10.).
+- [ ] ZBÝVÁ: tool picker UI pro zbylých 35 nástrojů z `PromptLibrary`
+      (endpoint i katalog `GET /content/tools` hotové, chybí jen obrazovka).
 - [ ] ZBÝVÁ (volitelné): `uxstudio_ai_assistant_tool_history` tabulka pro
       historii výstupů.
 
