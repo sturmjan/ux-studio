@@ -736,3 +736,43 @@ názvy). Ikona `sparkles` doplněna do `src/app/moduleIcons.tsx`.
 - [ ] Bonus nápady z návrhu (neimplementováno): icon-only mód na mobilu bez
       textu, barva/velikost ikony per-položka, bulk přiřazení ikon, import/
       export konfigurace menu.
+
+## Auto-provisioning Cloudflare Turnstile klíčů (Security Optimization)
+
+Cíl: admin nemusí ručně zakládat Turnstile widget v Cloudflare dashboardu a
+kopírovat site_key/secret_key do nastavení - `captcha_key_source` (schema
+pole v `Module.php`) přepíná mezi `manual` (dnešní chování), `ca`
+(automaticky přes Centrální aplikaci, sdílený fleet-wide widget) a
+`self_api` (automaticky přes vlastní Cloudflare API token, vlastní widget).
+Ověřování Turnstile tokenu při loginu zůstává vždy přímo tento web →
+Cloudflare - CA/vlastní token se volá jen jednou při uložení nastavení
+(provisioning), ne při každém přihlášení, aby výpadek CA/Cloudflare API
+nezamkl přihlašování. Plný návrh a bezpečnostní úvaha: plán session
+17.9.2026, `TurnstileCaProvisioner.php` (HMAC přes stejný hub<->node kanál
+jako `ServiceRequests\CentralClient`, cíl `?page=turnstile_provision` na
+CA) a `TurnstileSelfProvisioner.php` (přímo Cloudflare API, vlastní token
+scoped jen na `Account.Turnstile:Edit`). Zároveň přepnut default
+`captcha_placement` z `inline` na `gate` (nové instalace mají rovnou
+standalone "verify you're not a robot" stránku před wp-login/wp-admin).
+
+HOTOVO A OVĚŘENO `php -l` 17.9.2026 (commit `4369438`, necommitnuto NA
+GITHUB): schema pole `captcha_key_source`/`captcha_cf_account_id`/
+`captcha_cf_api_token`, `Module::maybe_provision_captcha_keys()` (hák v
+`save_settings()`, volá se jen když chybí site_key nebo se změnila
+`home_url()`), oba provisionery. CA strana: broker `turnstile_provision`
+(`controllers/TurnstileProvisionController.php`,
+`core/CloudflareTurnstileClient.php`) - viz `PLAN.md` v `centrani-app`.
+
+- [ ] Vyplnit reálný Cloudflare API token (`Account.Turnstile:Edit`) v CA
+      Nastavení → Fleet Turnstile, aby šlo `ca` režim vůbec vyzkoušet.
+- [ ] End-to-end test v prohlížeči: `captcha_key_source=ca` na webu s
+      Content Sync párováním → uložit → ověřit, že se `captcha_site_key`
+      vyplnil sám a `has_captcha_secret_key=true`; totéž pro `self_api` s
+      vlastním tokenem.
+- [ ] Ověřit, že `/wp-admin/` v anonymním okně po provisioningu skutečně
+      ukáže reálný Turnstile widget na `?action=uxstudio_verify`.
+- [ ] Rozhodnout, jestli `captcha_cf_widget_id`/registered-domain (dnes
+      plain `get_option()`, mimo settings schema, proto se nezobrazí v
+      generickém SPA rendereru) nepotřebují vlastní admin-viditelný stav
+      (např. "widget vytvořen, doména zaregistrována dne...").
+- [ ] Po ověření zvážit push na GitHub (repo je veřejné).
