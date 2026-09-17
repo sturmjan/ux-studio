@@ -73,10 +73,13 @@ final class TurnstileSelfProvisioner {
 
 		$site_key   = (string) ( $response['result']['sitekey'] ?? '' );
 		$secret_key = (string) ( $response['result']['secret'] ?? '' );
-		$widget_id  = (string) ( $response['result']['id'] ?? '' );
+		// Turnstile has no separate widget id - GET/PUT/DELETE address the
+		// widget by its sitekey (confirmed against the live API 17.9.2026;
+		// the create response never contains an "id" field).
+		$widget_id  = $site_key;
 
-		if ( '' === $site_key || '' === $secret_key || '' === $widget_id ) {
-			return new WP_Error( 'uxstudio_turnstile_self_incomplete', __( 'Cloudflare did not return a complete widget (sitekey/secret/id).', 'ux-studio' ) );
+		if ( '' === $site_key || '' === $secret_key ) {
+			return new WP_Error( 'uxstudio_turnstile_self_incomplete', __( 'Cloudflare did not return a complete widget (sitekey/secret).', 'ux-studio' ) );
 		}
 
 		update_option( self::WIDGET_OPT, $widget_id );
@@ -99,11 +102,19 @@ final class TurnstileSelfProvisioner {
 		$domains = array_map( 'strval', (array) ( $current['result']['domains'] ?? array() ) );
 		if ( ! in_array( $domain, $domains, true ) ) {
 			$domains[] = $domain;
-			$updated    = self::request(
-				'PATCH',
+			// PATCH is rejected for API-token auth on this endpoint ("Method
+			// not allowed for this authentication scheme", HTTP 405, found
+			// 17.9.2026) - PUT works but needs the full resource resent, not
+			// just the changed field.
+			$updated = self::request(
+				'PUT',
 				"/accounts/{$account_id}/challenges/widgets/{$widget_id}",
 				$token,
-				array( 'domains' => $domains )
+				array(
+					'name'    => (string) ( $current['result']['name'] ?? 'ux-studio (auto-provisioned)' ),
+					'mode'    => (string) ( $current['result']['mode'] ?? 'managed' ),
+					'domains' => $domains,
+				)
 			);
 			if ( is_wp_error( $updated ) ) {
 				return $updated;
