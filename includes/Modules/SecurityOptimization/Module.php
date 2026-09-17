@@ -27,7 +27,8 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Module extends BaseModule {
 
-	private const SECRET_CAPTCHA = 'uxstudio_secret_security_optimization_captcha_secret_key';
+	private const SECRET_CAPTCHA        = 'uxstudio_secret_security_optimization_captcha_secret_key';
+	private const SECRET_CF_API_TOKEN   = 'uxstudio_secret_security_optimization_cf_api_token';
 
 	/** Kill-switch for the custom login URL feature, settable in wp-config.php:
 	 *  define( 'UXSTUDIO_DISABLE_LOGIN_LOCK', true );
@@ -174,7 +175,7 @@ final class Module extends BaseModule {
 		 * shown before it (also covers wp-admin, since WordPress itself
 		 * redirects every logged-out admin request to wp-login.php). ── */
 		if ( $this->setting( 'captcha_enabled', false ) ) {
-			if ( 'gate' === (string) $this->setting( 'captcha_placement', 'inline' ) ) {
+			if ( 'gate' === (string) $this->setting( 'captcha_placement', 'gate' ) ) {
 				new CaptchaGate( $this );
 			} else {
 				new CaptchaHandler( $this );
@@ -239,6 +240,10 @@ final class Module extends BaseModule {
 
 	public function captcha_secret_key(): string {
 		return Security::get_secret( self::SECRET_CAPTCHA );
+	}
+
+	public function captcha_cf_api_token(): string {
+		return Security::get_secret( self::SECRET_CF_API_TOKEN );
 	}
 
 	public function ip_ban_store(): IpBanStore {
@@ -528,7 +533,7 @@ final class Module extends BaseModule {
 					'inline' => __( 'Inline widget in the form', 'ux-studio' ),
 					'gate'   => __( 'Standalone page before login (also gates wp-admin)', 'ux-studio' ),
 				),
-				'default' => 'inline',
+				'default' => 'gate',
 			),
 			array(
 				'key'     => 'captcha_mode',
@@ -552,6 +557,32 @@ final class Module extends BaseModule {
 				'type'    => 'text',
 				'label'   => __( 'Secret key', 'ux-studio' ),
 				'help'    => __( 'Stored encrypted server-side. Leave blank to keep the current key.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'captcha_key_source',
+				'type'    => 'select',
+				'label'   => __( 'Key source', 'ux-studio' ),
+				'help'    => __( 'Manual: paste site/secret key yourself. Central app: this site (already paired via Content Sync) gets a key automatically from a shared Turnstile widget managed by the central app. Own Cloudflare API token: this site manages its own Turnstile widget directly, using an API token you paste below.', 'ux-studio' ),
+				'options' => array(
+					'manual'   => __( 'Manual (paste keys below)', 'ux-studio' ),
+					'ca'       => __( 'Automatic via central app', 'ux-studio' ),
+					'self_api' => __( 'Automatic via own Cloudflare API token', 'ux-studio' ),
+				),
+				'default' => 'manual',
+			),
+			array(
+				'key'     => 'captcha_cf_account_id',
+				'type'    => 'text',
+				'label'   => __( 'Cloudflare account ID', 'ux-studio' ),
+				'help'    => __( 'Used only for "own Cloudflare API token" key source.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'captcha_cf_api_token',
+				'type'    => 'text',
+				'label'   => __( 'Cloudflare API token', 'ux-studio' ),
+				'help'    => __( 'Scope it to Account > Turnstile > Edit only, nothing else. Stored encrypted server-side. Leave blank to keep the current token.', 'ux-studio' ),
 				'default' => '',
 			),
 
@@ -675,6 +706,13 @@ final class Module extends BaseModule {
 		}
 		unset( $input['captcha_secret_key'] );
 
+		if ( array_key_exists( 'captcha_cf_api_token', $input ) && '' !== (string) $input['captcha_cf_api_token'] ) {
+			Security::store_secret( self::SECRET_CF_API_TOKEN, (string) $input['captcha_cf_api_token'] );
+		}
+		unset( $input['captcha_cf_api_token'] );
+
+		$input = $this->maybe_provision_captcha_keys( $input );
+
 		$result = parent::save_settings( $input );
 
 		delete_option( HtaccessWriter::HASH_OPTION );
@@ -688,10 +726,66 @@ final class Module extends BaseModule {
 	 * Never leak the CAPTCHA secret back to the client; expose only whether it's set.
 	 */
 	public function settings_values(): array {
-		$values                        = parent::settings_values();
-		$values['captcha_secret_key']  = '';
+		$values                           = parent::settings_values();
+		$values['captcha_secret_key']     = '';
 		$values['has_captcha_secret_key'] = '' !== $this->captcha_secret_key();
+		$values['captcha_cf_api_token']   = '';
+		$values['has_captcha_cf_api_token'] = '' !== $this->captcha_cf_api_token();
 		return $values;
+	}
+
+	/**
+	 * When `captcha_key_source` is `ca` or `self_api`, auto-fill
+	 * captcha_site_key (and store the secret key) via the matching
+	 * provisioner - either once (no site key yet) or again after the site's
+	 * public domain changed (covers a staging -> prod move without a
+	 * dedicated "re-sync" button, just re-saving the settings screen).
+	 *
+	 * Provisioning failures are logged, never block the rest of the save -
+	 * CaptchaVerifier::is_configured() already requires both keys present,
+	 * so until provisioning succeeds the gate simply stays inactive instead
+	 * of locking anyone out.
+	 *
+	 * @param array $input Raw input, already stripped of the secret fields.
+	 * @return array Input, with captcha_site_key filled in on success.
+	 */
+	private function maybe_provision_captcha_keys( array $input ): array {
+		$key_source = (string) ( $input['captcha_key_source'] ?? $this->setting( 'captcha_key_source', 'manual' ) );
+		if ( ! in_array( $key_source, array( 'ca', 'self_api' ), true ) ) {
+			return $input;
+		}
+
+		$domain_option    = 'uxstudio_security_optimization_cf_registered_domain';
+		$current_domain   = home_url( '/' );
+		$site_key_present = '' !== (string) ( $input['captcha_site_key'] ?? $this->setting( 'captcha_site_key', '' ) );
+		$domain_changed   = get_option( $domain_option, '' ) !== $current_domain;
+
+		if ( $site_key_present && ! $domain_changed ) {
+			return $input;
+		}
+
+		$result = 'ca' === $key_source
+			? TurnstileCaProvisioner::provision( $this )
+			: TurnstileSelfProvisioner::provision( $this );
+
+		if ( is_wp_error( $result ) ) {
+			ActivityLog::log(
+				'security-optimization',
+				'captcha_provision_failed',
+				'turnstile',
+				0,
+				array( 'source' => $key_source, 'error' => $result->get_error_message() )
+			);
+			return $input;
+		}
+
+		$input['captcha_site_key'] = (string) $result['site_key'];
+		Security::store_secret( self::SECRET_CAPTCHA, (string) $result['secret_key'] );
+		update_option( $domain_option, $current_domain );
+
+		ActivityLog::log( 'security-optimization', 'captcha_provisioned', 'turnstile', 0, array( 'source' => $key_source ) );
+
+		return $input;
 	}
 
 	/**
