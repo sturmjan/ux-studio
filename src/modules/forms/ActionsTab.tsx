@@ -1,15 +1,18 @@
 /**
- * Actions tab: post-submit email action(s) - recipient, subject, message,
- * built-in HTML template picker, and a live preview rendered server-side by
- * EmailTemplateRenderer (no email is actually sent). PLAN.md 20.9. Webhook/
- * redirect actions are phase F2 (PLAN.md 20.11) and intentionally absent.
+ * Actions tab: the post-submit action chain (PLAN.md 20.2/20.11 F2) - email
+ * notification(s) with a built-in HTML template picker and live preview
+ * (EmailTemplateRenderer, PLAN.md 20.9), webhook (HMAC-signed POST, PLAN.md
+ * 20.2/20.8) and redirect. Multiple `email` actions can coexist (e.g. one
+ * "branded" notification to the site owner plus a second "minimal"/"card"
+ * autoresponder to the submitter via `to: {email}`) - there is no separate
+ * "autoresponder" action type, it is just a second email action.
  */
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useMutation } from '@tanstack/react-query';
-import { Check, Eye, Plus, Save, Trash2 } from 'lucide-react';
+import { ArrowRight, Check, Copy, Eye, Mail, Save, Trash2, Webhook as WebhookIcon } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
-import type { EmailAction, EmailTemplate, FormDefinition } from './types';
+import type { EmailAction, EmailTemplate, FormAction, FormDefinition, RedirectAction, WebhookAction } from './types';
 
 const TEMPLATES: { id: EmailTemplate; label: string }[] = [
 	{ id: 'minimal', label: __( 'Minimal', 'ux-studio' ) },
@@ -17,7 +20,7 @@ const TEMPLATES: { id: EmailTemplate; label: string }[] = [
 	{ id: 'branded', label: __( 'Branded', 'ux-studio' ) },
 ];
 
-function emptyAction(): EmailAction {
+function emptyEmailAction(): EmailAction {
 	return {
 		type: 'email',
 		to: '',
@@ -28,6 +31,115 @@ function emptyAction(): EmailAction {
 		cta_text: '',
 		cta_url: '',
 	};
+}
+
+function emptyWebhookAction(): WebhookAction {
+	return { type: 'webhook', url: '' };
+}
+
+function emptyRedirectAction(): RedirectAction {
+	return { type: 'redirect', url: '' };
+}
+
+function WebhookActionEditor( {
+	action,
+	secret,
+	onChange,
+	onRemove,
+}: {
+	action: WebhookAction;
+	secret: string;
+	onChange: ( patch: Partial< WebhookAction > ) => void;
+	onRemove: () => void;
+} ): JSX.Element {
+	const [ copied, setCopied ] = useState( false );
+
+	return (
+		<div className="uxs-card" style={ { marginBottom: 'var(--uxs-sp-4)' } }>
+			<div style={ { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--uxs-sp-3)' } }>
+				<strong>
+					<WebhookIcon size={ 14 } style={ { verticalAlign: 'middle', marginRight: 6 } } /> { __( 'Webhook', 'ux-studio' ) }
+				</strong>
+				<button type="button" className="button-link" onClick={ onRemove } aria-label={ __( 'Remove this action', 'ux-studio' ) }>
+					<Trash2 size={ 14 } />
+				</button>
+			</div>
+
+			<div className="uxs-form">
+				<div className="uxs-form__row">
+					<label>{ __( 'Webhook URL', 'ux-studio' ) }</label>
+					<input
+						type="url"
+						value={ action.url }
+						placeholder="https://example.com/webhook"
+						onChange={ ( e ) => onChange( { url: e.target.value } ) }
+					/>
+					<p className="uxs-form__help">
+						{ __( 'On every submission a JSON payload is POSTed to this URL (form, submission and field values).', 'ux-studio' ) }
+					</p>
+				</div>
+				<div className="uxs-form__row">
+					<label>{ __( 'Signing secret', 'ux-studio' ) }</label>
+					<div style={ { display: 'flex', gap: 'var(--uxs-sp-2)' } }>
+						<input type="text" readOnly value={ secret } onFocus={ ( e ) => e.currentTarget.select() } />
+						<button
+							type="button"
+							className="button"
+							onClick={ () => {
+								void navigator.clipboard.writeText( secret );
+								setCopied( true );
+								window.setTimeout( () => setCopied( false ), 1500 );
+							} }
+						>
+							{ copied ? <Check size={ 14 } /> : <Copy size={ 14 } /> } { __( 'Copy', 'ux-studio' ) }
+						</button>
+					</div>
+					<p className="uxs-form__help">
+						{ __(
+							'Sent with every request in the X-UxStudio-Signature header - HMAC-SHA256 of the raw JSON body, using this secret. Verify it on your side to confirm the request came from this site.',
+							'ux-studio'
+						) }
+					</p>
+				</div>
+			</div>
+		</div>
+	);
+}
+
+function RedirectActionEditor( {
+	action,
+	onChange,
+	onRemove,
+}: {
+	action: RedirectAction;
+	onChange: ( patch: Partial< RedirectAction > ) => void;
+	onRemove: () => void;
+} ): JSX.Element {
+	return (
+		<div className="uxs-card" style={ { marginBottom: 'var(--uxs-sp-4)' } }>
+			<div style={ { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--uxs-sp-3)' } }>
+				<strong>
+					<ArrowRight size={ 14 } style={ { verticalAlign: 'middle', marginRight: 6 } } /> { __( 'Redirect', 'ux-studio' ) }
+				</strong>
+				<button type="button" className="button-link" onClick={ onRemove } aria-label={ __( 'Remove this action', 'ux-studio' ) }>
+					<Trash2 size={ 14 } />
+				</button>
+			</div>
+
+			<div className="uxs-form">
+				<div className="uxs-form__row">
+					<label>{ __( 'Redirect URL after submit', 'ux-studio' ) }</label>
+					<input
+						type="url"
+						value={ action.url }
+						placeholder="https://example.com/thank-you"
+						onChange={ ( e ) => onChange( { url: e.target.value } ) }
+					/>
+					<p className="uxs-form__help">{ __( 'Sends the visitor here instead of showing the inline success message.', 'ux-studio' ) }</p>
+				</div>
+			</div>
+		</div>
+	);
 }
 
 function EmailActionEditor( {
@@ -122,7 +234,7 @@ function EmailActionEditor( {
 }
 
 export default function ActionsTab( { form }: { form: FormDefinition } ): JSX.Element {
-	const [ actions, setActions ] = useState< EmailAction[] >( form.settings.actions );
+	const [ actions, setActions ] = useState< FormAction[] >( form.settings.actions );
 	const [ dirty, setDirty ] = useState( false );
 
 	const save = useMutation( {
@@ -138,13 +250,18 @@ export default function ActionsTab( { form }: { form: FormDefinition } ): JSX.El
 		},
 	} );
 
-	function update( index: number, patch: Partial< EmailAction > ) {
-		setActions( actions.map( ( a, i ) => ( i === index ? { ...a, ...patch } : a ) ) );
+	function update< A extends FormAction >( index: number, patch: Partial< A > ) {
+		setActions( actions.map( ( a, i ) => ( i === index ? ( { ...a, ...patch } as A ) : a ) ) );
 		setDirty( true );
 	}
 
 	function remove( index: number ) {
 		setActions( actions.filter( ( _, i ) => i !== index ) );
+		setDirty( true );
+	}
+
+	function add( action: FormAction ) {
+		setActions( [ ...actions, action ] );
 		setDirty( true );
 	}
 
@@ -158,29 +275,53 @@ export default function ActionsTab( { form }: { form: FormDefinition } ): JSX.El
 			</div>
 
 			{ actions.length === 0 ? (
-				<div className="uxs-fb-empty">{ __( 'No actions yet - add an email notification below.', 'ux-studio' ) }</div>
+				<div className="uxs-fb-empty">{ __( 'No actions yet - add one below (email, webhook or redirect).', 'ux-studio' ) }</div>
 			) : (
-				actions.map( ( action, i ) => (
-					<EmailActionEditor
-						key={ i }
-						action={ action }
-						formId={ form.id }
-						onChange={ ( patch ) => update( i, patch ) }
-						onRemove={ () => remove( i ) }
-					/>
-				) )
+				actions.map( ( action, i ) => {
+					if ( 'email' === action.type ) {
+						return (
+							<EmailActionEditor
+								key={ i }
+								action={ action }
+								formId={ form.id }
+								onChange={ ( patch ) => update< EmailAction >( i, patch ) }
+								onRemove={ () => remove( i ) }
+							/>
+						);
+					}
+					if ( 'webhook' === action.type ) {
+						return (
+							<WebhookActionEditor
+								key={ i }
+								action={ action }
+								secret={ form.settings.webhook_secret }
+								onChange={ ( patch ) => update< WebhookAction >( i, patch ) }
+								onRemove={ () => remove( i ) }
+							/>
+						);
+					}
+					return (
+						<RedirectActionEditor
+							key={ i }
+							action={ action }
+							onChange={ ( patch ) => update< RedirectAction >( i, patch ) }
+							onRemove={ () => remove( i ) }
+						/>
+					);
+				} )
 			) }
 
-			<button
-				type="button"
-				className="button"
-				onClick={ () => {
-					setActions( [ ...actions, emptyAction() ] );
-					setDirty( true );
-				} }
-			>
-				<Plus size={ 14 } /> { __( 'Add email notification', 'ux-studio' ) }
-			</button>
+			<div style={ { display: 'flex', gap: 'var(--uxs-sp-2)', flexWrap: 'wrap' } }>
+				<button type="button" className="button" onClick={ () => add( emptyEmailAction() ) }>
+					<Mail size={ 14 } /> { __( 'Add email notification', 'ux-studio' ) }
+				</button>
+				<button type="button" className="button" onClick={ () => add( emptyWebhookAction() ) }>
+					<WebhookIcon size={ 14 } /> { __( 'Add webhook', 'ux-studio' ) }
+				</button>
+				<button type="button" className="button" onClick={ () => add( emptyRedirectAction() ) }>
+					<ArrowRight size={ 14 } /> { __( 'Add redirect', 'ux-studio' ) }
+				</button>
+			</div>
 		</>
 	);
 }

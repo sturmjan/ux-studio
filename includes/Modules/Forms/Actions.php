@@ -1,7 +1,7 @@
 <?php
 /**
- * Post-submit action execution (F1: `email` only - webhook/redirect are F2
- * per PLAN.md 20.11) + the per-submission action log.
+ * Post-submit action execution: `email`, `webhook` and `redirect` (F2 per
+ * PLAN.md 20.11 - `create_post` remains F4) + the per-submission action log.
  *
  * @package UxStudio
  */
@@ -31,12 +31,106 @@ final class Actions {
 				case 'email':
 					self::run_email( $form, $submission, $action );
 					break;
+				case 'webhook':
+					self::run_webhook( $form, $submission, $action );
+					break;
+				case 'redirect':
+					// The actual browser redirect is carried in the REST
+					// response (see RestController::submit()/redirect_url())
+					// - this just records that the action fired.
+					self::run_redirect( $submission, $action );
+					break;
 				default:
-					// Unknown/future action types (webhook, redirect, create_post - F2/F4)
-					// are stored but simply skipped by the F1 runner.
+					// Unknown/future action types (create_post - F4) are
+					// stored but simply skipped by the runner.
 					break;
 			}
 		}
+	}
+
+	/**
+	 * POST JSON to the form's configured webhook URL, HMAC-signed the same
+	 * way as ContentSync\HmacAuth (hub<->node channel) so the receiver can
+	 * verify the request really came from this site - PLAN.md 20.2/20.8.
+	 * The secret lives only in the form's own settings_json (Module::
+	 * sanitize_settings()), never in code.
+	 *
+	 * @param array $action { url }.
+	 */
+	private static function run_webhook( array $form, array $submission, array $action ): void {
+		$url = (string) ( $action['url'] ?? '' );
+		if ( '' === $url || ! wp_http_validate_url( $url ) ) {
+			self::log( (int) ( $submission['id'] ?? 0 ), 'webhook', 'fail', __( 'Invalid or missing webhook URL.', 'ux-studio' ) );
+			return;
+		}
+
+		$secret = (string) ( $form['settings']['webhook_secret'] ?? '' );
+		$body   = (string) wp_json_encode(
+			array(
+				'event'         => 'form_submission',
+				'form_id'       => (int) ( $form['id'] ?? 0 ),
+				'form_title'    => (string) ( $form['title'] ?? '' ),
+				'submission_id' => (int) ( $submission['id'] ?? 0 ),
+				'submitted_at'  => (string) ( $submission['created_at'] ?? current_time( 'mysql' ) ),
+				'fields'        => (array) ( $submission['fields_snapshot'] ?? array() ),
+				'values'        => (array) ( $submission['values'] ?? array() ),
+			)
+		);
+		$signature = hash_hmac( 'sha256', $body, $secret );
+
+		$response = wp_remote_post(
+			$url,
+			array(
+				'timeout' => 10,
+				'headers' => array(
+					'Content-Type'          => 'application/json',
+					'X-UxStudio-Signature'  => $signature,
+				),
+				'body'    => $body,
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			self::log( (int) ( $submission['id'] ?? 0 ), 'webhook', 'fail', $response->get_error_message() );
+			return;
+		}
+
+		$code = (int) wp_remote_retrieve_response_code( $response );
+		$ok   = $code >= 200 && $code < 300;
+		self::log(
+			(int) ( $submission['id'] ?? 0 ),
+			'webhook',
+			$ok ? 'ok' : 'fail',
+			/* translators: %d: HTTP status code returned by the receiving webhook. */
+			sprintf( __( 'HTTP %d.', 'ux-studio' ), $code )
+		);
+	}
+
+	/**
+	 * @param array $action { url }.
+	 */
+	private static function run_redirect( array $submission, array $action ): void {
+		$url = (string) ( $action['url'] ?? '' );
+		self::log(
+			(int) ( $submission['id'] ?? 0 ),
+			'redirect',
+			'' !== $url ? 'ok' : 'fail',
+			'' !== $url ? $url : __( 'No redirect URL configured.', 'ux-studio' )
+		);
+	}
+
+	/**
+	 * First `redirect` action's URL in the chain, if any - used by
+	 * RestController::submit() to tell the public form runtime where to send
+	 * the browser after a successful submission (PLAN.md 20.11).
+	 */
+	public static function redirect_url( array $form ): string {
+		foreach ( (array) ( $form['settings']['actions'] ?? array() ) as $action ) {
+			if ( is_array( $action ) && 'redirect' === ( $action['type'] ?? '' ) ) {
+				return (string) ( $action['url'] ?? '' );
+			}
+		}
+		return '';
 	}
 
 	/**
@@ -110,8 +204,9 @@ final class Actions {
 	}
 
 	/**
-	 * Re-run one form's email action(s) for an already-stored submission
-	 * ("Resend" button in the archive). Only 'email' actions are re-run.
+	 * Re-run a form's whole action chain for an already-stored submission
+	 * ("Resend" button in the archive) - email, webhook and redirect alike;
+	 * a redirect action just logs again (there is no browser to redirect).
 	 */
 	public static function resend( array $form, array $submission ): void {
 		self::run( $form, $submission );

@@ -1272,7 +1272,7 @@ integrace — je to jen další položka `wp_dashboard_setup`, přesně jako dne
 
 ### 20.11 Fáze
 
-- [ ] **F1 — MVP se všemi uživatelskými požadavky rovnou zabudovanými**
+- [x] **F1 — MVP se všemi uživatelskými požadavky rovnou zabudovanými**
       (ne odloženými do F2/F3, jak byl původní návrh — přepracováno na
       žádost uživatele): tabulky vč. `fields_snapshot_json`/`search_text`
       (20.3), REST CRUD formulářů se **stránkováním a plnotextovým hledáním
@@ -1287,10 +1287,23 @@ integrace — je to jen další položka `wp_dashboard_setup`, přesně jako dne
       šablon** (20.9, přes SmtpEmail/EmailLog), **Archiv** jako
       plnohodnotná obrazovka (ne jen "seznam + detail bez CSV") vč. CSV
       exportu (20.2 `csv_safe_cell`), **dashboard widget** (20.10).
-- [ ] **F2 — Elementor-úroveň UX**: podmíněná logika (AND/OR, operátory),
-      řetězené akce (přidat webhook + redirect), captcha napojení
-      (`CaptchaVerifier`), rate-limit (`BotThrottle\Guard`), Gutenberg blok,
-      druhá e-mailová šablona (autoresponder odesílateli).
+- [x] **F2 — Elementor-úroveň UX** *(hotovo lokálně 2026-09-22)*: podmíněná
+      logika rozšířena o `greater`/`less` operátory (klient i server -
+      `Fields::is_active()`), řetězené akce doplněny o `webhook` (obecný
+      POST JSON, HMAC podpis `X-UxStudio-Signature` stejným vzorem jako
+      `ContentSync\HmacAuth`, tajný klíč per formulář generovaný a uložený
+      jen v `settings_json`) a `redirect` (URL vrácená v REST odpovědi,
+      klientský runtime přesměruje místo zobrazení úspěchu), captcha
+      doopravdy vynucena přes `CaptchaVerifier::verify_token()` navíc
+      podmíněná i vypínačem `captcha_enabled` v Security Optimization (dřív
+      to bralo v potaz jen nakonfigurovaný klíč), rate-limit
+      `BotThrottle\Guard::exceeded()` na `/forms/submit` (bylo už od F1),
+      Gutenberg blok `uxstudio/form` (`GutenbergBlock.php`, render_callback
+      = shortcode render, editor bez vlastního build kroku, náhled přes
+      jádrový `ServerSideRender`/`/wp/v2/block-renderer`, výběr formuláře
+      přes novou `edit_posts`-gated routu `/forms/options`), druhá
+      e-mailová šablona pro autoresponder — beze změny datového modelu,
+      jde jen o druhou `email` akci v řetězu (to bylo možné už od F1).
 - [ ] **F3 — Distribuce a polish**: nativní Elementor widget (20.7), AI
       generování formuláře, log akcí v archivu s "Odeslat znovu", revize
       definice formuláře (vzor `Revisions`), vlastní editor HTML šablony

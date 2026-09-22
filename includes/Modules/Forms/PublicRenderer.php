@@ -365,8 +365,9 @@ final class PublicRenderer {
 
 	/**
 	 * If Security Optimization has a configured provider, embed the real
-	 * widget; otherwise a neutral placeholder (full verification wiring is
-	 * PLAN.md 20.11 phase F2 - the field type/slot exists from F1).
+	 * widget; otherwise a neutral placeholder. Server-side verification of
+	 * whatever token this widget produces happens in
+	 * RestController::verify_captcha() (PLAN.md 20.11/F2).
 	 */
 	private function render_captcha(): string {
 		$module = class_exists( \UxStudio\Modules\SecurityOptimization\Module::class )
@@ -475,6 +476,8 @@ final class PublicRenderer {
 					case 'contains': return want !== '' && v.toLowerCase().indexOf( want.toLowerCase() ) !== -1;
 					case 'empty': return v.trim() === '';
 					case 'not_empty': return v.trim() !== '';
+					case 'greater': return v !== '' && want !== '' && ! isNaN( parseFloat( v ) ) && ! isNaN( parseFloat( want ) ) && parseFloat( v ) > parseFloat( want );
+					case 'less': return v !== '' && want !== '' && ! isNaN( parseFloat( v ) ) && ! isNaN( parseFloat( want ) ) && parseFloat( v ) < parseFloat( want );
 					default: return v === want;
 				}
 			}
@@ -690,6 +693,11 @@ final class PublicRenderer {
 						.then( function ( res ) { return res.json().then( function ( json ) { return { ok: res.ok, json: json }; } ); } )
 						.then( function ( result ) {
 							if ( result.ok ) {
+								var redirectUrl = result.json && result.json.data && result.json.data.redirect;
+								if ( redirectUrl ) {
+									window.location.href = redirectUrl;
+									return;
+								}
 								if ( alertEl ) {
 									alertEl.hidden = false;
 									alertEl.className = 'uxs-fp-alert is-success';

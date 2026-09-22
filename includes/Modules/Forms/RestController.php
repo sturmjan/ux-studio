@@ -36,6 +36,10 @@ final class RestController extends Controller {
 		$cap = $this->module->capability();
 
 		$this->route( '/forms', 'GET', array( $this, 'list_forms' ), array(), $cap );
+		// Lightweight picker for the Gutenberg block (20.11/F2) - deliberately
+		// `edit_posts`, not `manage_options`: any content editor placing a
+		// block must be able to choose a form even without full form-builder access.
+		$this->route( '/forms/options', 'GET', array( $this, 'list_form_options' ), array(), 'edit_posts' );
 		$this->route( '/forms', 'POST', array( $this, 'create_form' ), array(), $cap );
 		$this->route( '/forms/(?P<id>\d+)', 'GET', array( $this, 'get_form' ), $this->id_arg(), $cap );
 		$this->route( '/forms/(?P<id>\d+)', 'POST', array( $this, 'update_form' ), $this->id_arg(), $cap );
@@ -84,6 +88,10 @@ final class RestController extends Controller {
 
 	public function list_forms(): WP_REST_Response {
 		return $this->ok( $this->module->list_forms() );
+	}
+
+	public function list_form_options(): WP_REST_Response {
+		return $this->ok( $this->module->list_form_options() );
 	}
 
 	public function create_form( WP_REST_Request $request ) {
@@ -288,13 +296,16 @@ final class RestController extends Controller {
 			return $result;
 		}
 
+		$redirect = '';
 		if ( empty( $result['discarded'] ) ) {
 			Actions::run( $form, $result );
+			$redirect = Actions::redirect_url( $form );
 		}
 
 		return $this->ok(
 			array(
-				'message' => (string) ( $form['settings']['success_text'] ?? __( 'Thank you, your submission has been received.', 'ux-studio' ) ),
+				'message'  => (string) ( $form['settings']['success_text'] ?? __( 'Thank you, your submission has been received.', 'ux-studio' ) ),
+				'redirect' => '' !== $redirect ? $redirect : null,
 			)
 		);
 	}
@@ -308,12 +319,24 @@ final class RestController extends Controller {
 		return false;
 	}
 
+	/**
+	 * Real verification against SecurityOptimization\CaptchaVerifier (PLAN.md
+	 * 20.11/F2) - only actually enforced when Security Optimization's own
+	 * `captcha_enabled` toggle is on AND a provider is configured; otherwise
+	 * fails open (a `captcha` field with no configured provider must never
+	 * itself block every submission - the field's presence alone isn't a
+	 * promise of protection, same reasoning as CaptchaVerifier's own outage
+	 * fail-open).
+	 */
 	private function verify_captcha(): bool {
 		if ( ! class_exists( \UxStudio\Modules\SecurityOptimization\Module::class ) ) {
-			return true; // Module not installed - nothing to verify against, fail open (see PLAN.md 20.11: full captcha enforcement is F2).
+			return true; // Module not installed - nothing to verify against.
 		}
 		$module = \UxStudio\Plugin::instance()->modules->instance( 'security-optimization' );
-		if ( ! $module instanceof \UxStudio\Modules\SecurityOptimization\Module || ! CaptchaVerifier::is_configured( $module ) ) {
+		if ( ! $module instanceof \UxStudio\Modules\SecurityOptimization\Module ) {
+			return true;
+		}
+		if ( ! $module->setting( 'captcha_enabled', false ) || ! CaptchaVerifier::is_configured( $module ) ) {
 			return true;
 		}
 		return CaptchaVerifier::verify_token( $module );

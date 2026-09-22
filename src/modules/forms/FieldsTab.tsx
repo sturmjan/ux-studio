@@ -425,6 +425,8 @@ function Inspector( {
 								<option value="contains">{ __( 'contains', 'ux-studio' ) }</option>
 								<option value="empty">{ __( 'is empty', 'ux-studio' ) }</option>
 								<option value="not_empty">{ __( 'is not empty', 'ux-studio' ) }</option>
+								<option value="greater">{ __( 'is greater than', 'ux-studio' ) }</option>
+								<option value="less">{ __( 'is less than', 'ux-studio' ) }</option>
 							</select>
 							{ ! [ 'empty', 'not_empty' ].includes( rule.operator ) && (
 								<input

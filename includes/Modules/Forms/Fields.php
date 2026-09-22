@@ -55,7 +55,7 @@ final class Fields {
 
 	public const LABEL_DISPLAY = array( 'inherit', 'visible', 'placeholder_only' );
 
-	public const CONDITION_OPERATORS = array( 'equals', 'not_equals', 'contains', 'empty', 'not_empty' );
+	public const CONDITION_OPERATORS = array( 'equals', 'not_equals', 'contains', 'empty', 'not_empty', 'greater', 'less' );
 
 	public const CONDITION_LOGIC = array( 'all', 'any' );
 
@@ -315,6 +315,12 @@ final class Fields {
 					break;
 				case 'not_empty':
 					$results[] = ( '' !== trim( $val ) );
+					break;
+				case 'greater':
+					$results[] = ( is_numeric( $val ) && is_numeric( $want ) && (float) $val > (float) $want );
+					break;
+				case 'less':
+					$results[] = ( is_numeric( $val ) && is_numeric( $want ) && (float) $val < (float) $want );
 					break;
 				default:
 					$results[] = ( $val === $want );

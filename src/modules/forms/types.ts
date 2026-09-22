@@ -36,7 +36,7 @@ export const ALLOWED_WIDTHS = [ 25, 33, 50, 66, 75, 100 ] as const;
 export type FieldWidth = ( typeof ALLOWED_WIDTHS )[ number ];
 
 export type LabelDisplay = 'inherit' | 'visible' | 'placeholder_only';
-export type ConditionOperator = 'equals' | 'not_equals' | 'contains' | 'empty' | 'not_empty';
+export type ConditionOperator = 'equals' | 'not_equals' | 'contains' | 'empty' | 'not_empty' | 'greater' | 'less';
 export type ConditionLogic = 'all' | 'any';
 
 export interface FieldOption {
@@ -91,6 +91,18 @@ export interface EmailAction {
 	cta_url: string;
 }
 
+export interface WebhookAction {
+	type: 'webhook';
+	url: string;
+}
+
+export interface RedirectAction {
+	type: 'redirect';
+	url: string;
+}
+
+export type FormAction = EmailAction | WebhookAction | RedirectAction;
+
 export type ProgressStyle = 'steps' | 'bar' | 'none';
 
 export interface FormSettings {
@@ -98,7 +110,9 @@ export interface FormSettings {
 	progress_style: ProgressStyle;
 	success_text: string;
 	captcha_enabled: boolean;
-	actions: EmailAction[];
+	/** Per-form HMAC secret for the webhook action - server-generated, read-only. */
+	webhook_secret: string;
+	actions: FormAction[];
 }
 
 export type FormStatus = 'active' | 'draft' | 'archived';
@@ -189,6 +203,7 @@ export function defaultSettings(): FormSettings {
 		progress_style: 'steps',
 		success_text: '',
 		captcha_enabled: false,
+		webhook_secret: '',
 		actions: [],
 	};
 }

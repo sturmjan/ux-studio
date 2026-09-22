@@ -34,6 +34,7 @@ final class Module extends BaseModule {
 		add_filter( 'uxstudio_rest_public_routes', array( $this, 'allow_public_routes' ) );
 
 		DashboardWidget::register();
+		GutenbergBlock::register( $this );
 	}
 
 	/**
@@ -434,30 +435,114 @@ final class Module extends BaseModule {
 
 		$actions = array();
 		foreach ( (array) ( $settings['actions'] ?? array() ) as $action ) {
-			if ( ! is_array( $action ) || 'email' !== ( $action['type'] ?? '' ) ) {
+			if ( ! is_array( $action ) ) {
 				continue;
 			}
-			$actions[] = array(
-				'type'           => 'email',
-				'to'             => sanitize_text_field( (string) ( $action['to'] ?? '' ) ),
-				'subject'        => sanitize_text_field( (string) ( $action['subject'] ?? '' ) ),
-				'message'        => wp_kses_post( (string) ( $action['message'] ?? '' ) ),
-				'template'       => EmailTemplateRenderer::is_valid_template( (string) ( $action['template'] ?? '' ) ) ? $action['template'] : 'branded',
-				'include_table'  => ! isset( $action['include_table'] ) || ! empty( $action['include_table'] ),
-				'cta_text'       => sanitize_text_field( (string) ( $action['cta_text'] ?? '' ) ),
-				'cta_url'        => esc_url_raw( (string) ( $action['cta_url'] ?? '' ) ),
-			);
+			switch ( $action['type'] ?? '' ) {
+				case 'email':
+					$actions[] = $this->sanitize_email_action( $action );
+					break;
+				case 'webhook':
+					$actions[] = $this->sanitize_webhook_action( $action );
+					break;
+				case 'redirect':
+					$actions[] = $this->sanitize_redirect_action( $action );
+					break;
+				default:
+					// Unknown/future action types (create_post - F4) are dropped.
+					continue 2;
+			}
 			if ( count( $actions ) >= 5 ) {
 				break;
 			}
 		}
 
 		return array(
-			'label_display'  => $label_display,
-			'progress_style' => $progress,
-			'success_text'   => $success_text,
+			'label_display'   => $label_display,
+			'progress_style'  => $progress,
+			'success_text'    => $success_text,
 			'captcha_enabled' => ! empty( $settings['captcha_enabled'] ),
-			'actions'        => $actions,
+			// Per-form HMAC secret for the webhook action (PLAN.md 20.2/20.8) -
+			// generated once and kept stable across saves; never accepted as
+			// client input, only ever round-tripped or (re)generated here, so
+			// it can never be set to an attacker-chosen value.
+			'webhook_secret'  => $this->sanitize_webhook_secret( $settings['webhook_secret'] ?? '' ),
+			'actions'         => $actions,
+		);
+	}
+
+	/**
+	 * @param array $action { to, subject, message, template, include_table, cta_text, cta_url }.
+	 */
+	private function sanitize_email_action( array $action ): array {
+		return array(
+			'type'          => 'email',
+			'to'            => sanitize_text_field( (string) ( $action['to'] ?? '' ) ),
+			'subject'       => sanitize_text_field( (string) ( $action['subject'] ?? '' ) ),
+			'message'       => wp_kses_post( (string) ( $action['message'] ?? '' ) ),
+			'template'      => EmailTemplateRenderer::is_valid_template( (string) ( $action['template'] ?? '' ) ) ? $action['template'] : 'branded',
+			'include_table' => ! isset( $action['include_table'] ) || ! empty( $action['include_table'] ),
+			'cta_text'      => sanitize_text_field( (string) ( $action['cta_text'] ?? '' ) ),
+			'cta_url'       => esc_url_raw( (string) ( $action['cta_url'] ?? '' ) ),
+		);
+	}
+
+	/**
+	 * @param array $action { url }.
+	 */
+	private function sanitize_webhook_action( array $action ): array {
+		return array(
+			'type' => 'webhook',
+			'url'  => esc_url_raw( (string) ( $action['url'] ?? '' ) ),
+		);
+	}
+
+	/**
+	 * @param array $action { url }.
+	 */
+	private function sanitize_redirect_action( array $action ): array {
+		return array(
+			'type' => 'redirect',
+			'url'  => esc_url_raw( (string) ( $action['url'] ?? '' ) ),
+		);
+	}
+
+	/**
+	 * Keeps an already-valid 64 hex char secret as-is (round-tripped from a
+	 * previous read), otherwise generates a fresh cryptographically random
+	 * one - so every form always has a stable secret available the moment a
+	 * webhook action is added, without ever trusting a client-supplied value.
+	 */
+	private function sanitize_webhook_secret( $secret ): string {
+		$secret = (string) $secret;
+		if ( 64 === strlen( $secret ) && ctype_xdigit( $secret ) ) {
+			return $secret;
+		}
+		return bin2hex( random_bytes( 32 ) );
+	}
+
+	/**
+	 * Minimal { id, title, status } list for pickers that only need
+	 * `edit_posts` (e.g. the Gutenberg block's form select) - unlike every
+	 * other route here, which stays gated behind `manage_options` since it
+	 * exposes full form configuration.
+	 *
+	 * @return array<int, array{id:int,title:string,status:string}>
+	 */
+	public function list_form_options(): array {
+		global $wpdb;
+		$rows = $wpdb->get_results( "SELECT id, title, status FROM {$wpdb->prefix}uxstudio_forms ORDER BY title ASC", ARRAY_A );
+		$rows = is_array( $rows ) ? $rows : array();
+
+		return array_map(
+			static function ( array $row ): array {
+				return array(
+					'id'     => (int) $row['id'],
+					'title'  => (string) $row['title'],
+					'status' => (string) $row['status'],
+				);
+			},
+			$rows
 		);
 	}
 }
