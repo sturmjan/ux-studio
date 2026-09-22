@@ -35,6 +35,7 @@ export const MODULE_PAGES: Record< string, ReturnType< typeof lazy > > = {
 	'google-review-request': lazy( () => import( './google-review-request/Page' ) ),
 	'page-load': lazy( () => import( './page-load/Page' ) ),
 	'popup-manager': lazy( () => import( './popup-manager/Page' ) ),
+	forms: lazy( () => import( './forms/Page' ) ),
 	'stock-photos': lazy( () => import( './stock-photos/Page' ) ),
 	'opening-hours': lazy( () => import( './opening-hours/Page' ) ),
 	'ai-markdown': lazy( () => import( './ai-markdown/Page' ) ),

@@ -17,8 +17,12 @@
     "lucide-static": "^0.469.0"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@tanstack/react-query": "^5.62.0",
     "@wordpress/i18n": "^5.14.0",
-    "lucide-react": "^0.469.0"
+    "lucide-react": "^0.469.0",
+    "react-aria-components": "^1.6.0"
   }
 }
