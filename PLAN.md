@@ -978,6 +978,7 @@ submission.
 | **Podmíněná logika** | Upgrade proti Destimě: pravidlo = `{ field, operator, value }`, pole `conditions: Rule[]`, `logic: 'all' | 'any'` (AND/OR). Vyhodnocuje se **na klientu** (pro UX — okamžité show/hide) i **znovu na serveru** při submitu (globální bezpečnostní baseline — nikdy nevěřit jen klientské validaci; skryté/neaktivní pole se ze submitu ignorují, i kdyby je útočník poslal ručně). |
 | **Stránkování formuláře (multi-step)** | Uživatelský požadavek, proto přesunuto do **F1** (ne F2, jak byl původní návrh). Pole typu `step` jako u Destimy (`step` index na každém poli), navíc `progress_style: 'steps' \| 'bar' \| 'none'`. Krokovou validaci dělá klient pro UX (Další/Zpět, blokace postupu při chybě), server validuje VŽDY všechna aktivní pole najednou při finálním submitu (ne per-krok round-trip — jeden formulář = jeden REST zápis, meziukládání rozpracovaného kroku není v MVP). |
 | **Struktura formuláře (řádky/sloupce)** | Uživatelský požadavek — editovatelný layout, ne jen lineární seznam polí. Model shodný s Elementorem: každé pole má `width` v % (100/75/66/50/33/25), **pole s `width < 100` se v canvasu i na frontendu vizuálně řadí vedle sebe do řádku** (CSS `flex-wrap`, žádná ruční správa "řádků" jako samostatných entit — přesně tak to dělá Elementor a je to jednodušší na údržbu než vnořený rows/columns strom). Šířka se nastavuje zvlášť pro desktop/tablet/mobil (`width`, `width_tablet`, `width_mobile`) — na mobilu se typicky vynutí 100 % bez ohledu na desktop nastavení. Vizuální editor v builderu (20.5) ukazuje živě, jak se pole zalamují. |
+| **Popisky polí (label vs. placeholder)** | Uživatelský požadavek — přepínatelné, ne napevno dané. `label_display` na úrovni **celého formuláře** (`settings_json`, tab Vzhled): `'visible'` (výchozí — label nad/vedle polem, placeholder jen jako doplňkový příklad) nebo `'placeholder_only'` (label se vizuálně skryje, placeholder nese text). Navíc **per-pole override** `label_display: 'inherit' \| 'visible' \| 'placeholder_only'` pro výjimky (typicky pole v jednom úzkém řádku vedle sebe, kde viditelné labely nedávají prostorově smysl). Přístupnost: `'placeholder_only'` label jen **vizuálně** skryje (`aria-hidden` na viditelném textu se nepoužívá — místo toho label zůstává v DOM jako `sr-only`/`aria-label` na inputu), placeholder sám nikdy nenahrazuje label u čteček obrazovky ani u polí bez zadané hodnoty po opuštění focusu — je to known WCAG anti-pattern (placeholder zmizí při psaní), řešení kopíruje běžnou praxi Elementoru/formulářových frameworků, ne vlastní vynález. |
 | **Archiv odeslaných formulářů** | Uživatelský požadavek — musí jít **dohledat**, ne jen procházet poslední stránku. Řeší 20.6 (plnotextové hledání + trvalé uchování + jednotná obrazovka napříč všemi formuláři). |
 | **E-mailové šablony** | Uživatelský požadavek — hotové, hezké HTML šablony pro e-mailovou akci, ne holý textový/HTML box jako u `GoogleReviewRequest`. Řeší 20.9 (nová, plugin dnes žádnou sdílenou HTML šablonu pro e-maily nemá — je to první modul, který to zavádí). |
 | **Dashboard widget** | Uživatelský požadavek. Vlastní `DashboardWidget.php` po vzoru `BotThrottle\DashboardWidget` (`wp_add_dashboard_widget`, statická třída `register()/add()/render()`, server-rendered inline HTML, deep-link do SPA) — **ne** přes modul `DashboardWidgets` (ten jen spravuje/skrývá nativní wp-admin widgety a má vlastní samostatný widget s úkoly/poznámkami/PageSpeed; není to registr, do kterého by se ostatní moduly hlásily). Detaily v 20.10. |
@@ -989,7 +990,8 @@ submission.
 | **CSV export** | Přebírá se Destimin `csv_safe_cell()` vzor 1:1 (ochrana proti formula injection přidáním `'` před buňku začínající na `=+-@`) — je to bezpečnostně nenulová věc, ne kosmetika, přepisovat znovu je zbytečné riziko regrese. |
 | **AI generování formuláře** | Fáze F3. Volitelné tlačítko „Vygenerovat AI" v builderu — text popisu → návrh polí. Nejde přes novou AI cestu, ale přes existující `AiAssistant`/`SeoAiClient` sdílené jádro (stejný vzor jako Destima `ai_generate`, ale bez duplikace klienta). |
 | **GDPR / retence** | Nastavení formuláře: `retention_days` (volitelné auto-mazání starých odpovědí cronem), pole typu `acceptance` s povinným odkazem na zásady zpracování. |
-| **Composer/závislosti** | Frontend: `@dnd-kit/core` + `@dnd-kit/sortable` + `@dnd-kit/utilities` (nové npm závislosti, ale ověřený pattern — stejné verze jako v Destimě, žádné nativní HTML5 D&D kvůli mobilu/dotyku). Backend: žádné nové Composer balíčky (stejné zdůvodnění jako u `passkeys` v §19 — `vendor/` je jen pro plugin-update-checker). |
+| **Moderní pole (multiselect, animovaný checkbox/switch, upload)** | Uživatelský požadavek — nekreslit si vlastní checkbox/multiselect ručně, postavit to na ověřené knihovně. Zdůvodnění výběru a rozsah v **20.4b**. |
+| **Composer/závislosti** | Frontend: `@dnd-kit/core` + `@dnd-kit/sortable` + `@dnd-kit/utilities` (nové npm závislosti, ale ověřený pattern — stejné verze jako v Destimě, žádné nativní HTML5 D&D kvůli mobilu/dotyku) + `react-aria-components` (nová, zdůvodnění 20.4b). Backend: žádné nové Composer balíčky (stejné zdůvodnění jako u `passkeys` v §19 — `vendor/` je jen pro plugin-update-checker). |
 
 ### 20.3 Datový model
 
@@ -1066,12 +1068,13 @@ over-engineering).
 |---|---|
 | `text`, `textarea`, `email`, `url`, `tel`, `number`, `password`, `hidden` | základ, 1:1 s Elementorem |
 | `select`, `radio`, `checkbox`, `checkbox_group` | volby (`options[]`) |
+| `multiselect` | uživatelský požadavek — dropdown s vícenásobným výběrem a "chips" pro zvolené hodnoty, ne skupina checkboxů. Postaveno na `react-aria-components` (20.4b). |
 | `acceptance` | checkbox se souhlasem + odkaz (GDPR) |
 | `date`, `time` | nativní HTML5 input, žádný vlastní datepicker v MVP |
 | `rating` | škála 2-10 (převzato z Destimy) |
 | `address` | strukturované podpole (ulice/město/PSČ/země) jako jedno pole |
 | `name` | křestní+příjmení jako jedno pole (Elementor vzor) |
-| `file` | viz 20.2 zabezpečení uploadu |
+| `file` | viz 20.2 zabezpečení uploadu; vícenásobný výběr souborů + drag&drop zóna s náhledy (20.4b), ne holý `<input type=file>` |
 | `html` | statický obsahový blok (nadpis/odstavec mezi pole) |
 | `step` | rozdělovač kroku, ne skutečné vstupní pole |
 | `captcha` | vizuální placeholder napojený na `CaptchaVerifier`, ne samostatná implementace |
@@ -1079,7 +1082,11 @@ over-engineering).
 
 Každé pole navíc (proti Destimě): `width`/`width_tablet`/`width_mobile`
 (20.4a), `conditions`/`logic` (20.2), `css_class`, `default_value`
-(vč. tokenů `{today}`, `{query.utm_source}` — dynamické tagy z URL).
+(vč. tokenů `{today}`, `{query.utm_source}` — dynamické tagy z URL),
+`label_display` (`'inherit' | 'visible' | 'placeholder_only'` — **nastavitelné
+u každého pole samostatně**, ne jen jako globální přepínač s výjimkami;
+`'inherit'` je výchozí a řídí se formulářovým nastavením z 20.2, ale
+kterékoliv pole ho může přebít vlastní hodnotou nezávisle na ostatních).
 
 ### 20.4a Struktura formuláře (řádky a sloupce)
 
@@ -1102,6 +1109,28 @@ procentuální šířku a řadí se vedle sebe jako flex-wrap, žádný samostat
   responzivního náhledu v Elementoru).
 - **Pole `html`** (statický blok) i **`step`** (předěl kroku) mají vždy
   `width: 100` bez výjimky — nedávalo by smysl je zalamovat vedle jiných polí.
+
+### 20.4b Moderní stavební prvky (react-aria-components)
+
+Uživatelský požadavek: "mělo by to umět i multiselect a další moderní pole
+třeba animované checkboxy, upload souboru atd." — a rovnou zadání "ideálně
+nějaká moderní knihovna", ne ruční implementace.
+
+**Volba: [`react-aria-components`](https://react-spectrum.adobe.com/react-aria/)
+(Adobe).** Zdůvodnění proti alternativám:
+
+| Knihovna | Proč ne / proč ano |
+|---|---|
+| **Radix UI** | Výborné primitivy pro Checkbox/Switch/Select, ale **nemá nativní multi-select listbox** (`Select` je jen jednovýběrový) ani upload komponentu — musel by se řešit druhou knihovnou navíc. |
+| `react-select` | Multiselect umí, ale je to starší knihovna s vlastním (těžším) stylovacím modelem a slabší accessibilitou než moderní *aria*-first knihovny; vizuálně to i s override CSS "cítit" jako cizí prvek vedle vlastního design systému. |
+| **`react-aria-components`** | **Jedna knihovna pokrývá všechno požadované**: `<ListBox selectionMode="multiple">`/`<Select>`/`<ComboBox>` pro multiselect, `<Checkbox>`/`<CheckboxGroup>`/`<Switch>` pro animované volby, **`<FileTrigger>`+`<DropZone>`** přímo pro upload s drag&drop. Plně **unstyled** (žádné vlastní CSS k přepisování — stylujeme čistě přes `--uxs-*` tokeny z 5. Design systém), nejvyšší úroveň přístupnosti na trhu (WAI-ARIA Authoring Practices, klávesová navigace, screen reader), aktivně udržovaná (týdenní vydání), TS-first. |
+
+Co konkrétně nahrazuje/rozšiřuje:
+- **`multiselect`** (20.4) → `react-aria-components` `<ComboBox>`/`<ListBox selectionMode="multiple">` s "chips" pro vybrané hodnoty, klávesová navigace našeptávačem.
+- **`checkbox`/`checkbox_group`** → `<Checkbox>`/`<CheckboxGroup>` s animovaným stavem (fajfka se kreslí/mizí přes CSS transition na `--uxs-motion-*` tokeny, ne skokem jako u nativního `<input>`), vizuálně shodné s `ToggleSwitch` komponentou, kterou plugin už má.
+- **`file`** → `<FileTrigger>` (tlačítko "Vybrat soubor(y)") + `<DropZone>` (přetažení myší), náhledy vybraných souborů (ikona podle MIME nebo thumbnail u obrázků) a odebrání před odesláním — vše na klientu, server pořád validuje MIME/velikost/allowlist nezávisle (20.8, klientská validace je jen UX).
+- Vzniklé obalové komponenty (`MultiSelectField`, `AnimatedCheckbox`, `FileUploadField`) se zapíší do **sdílené knihovny komponent** (3.3/5. Design systém) — ne jen lokálně v modulu `forms` — protože stejné potřeby (multiselect, checkbox, upload) se dřív nebo později objeví i v jiných modulech a duplikovat vlastní implementaci by bylo přesně to, čemu má sdílená knihovna předcházet.
+- Zbylá "obyčejná" pole (text/select-jednovýběrový/radio/date/…) zůstávají na nativních HTML prvcích stylovaných design tokeny — `react-aria-components` se nasazuje cíleně tam, kde nativní `<input>`/`<select>` UX limit skutečně naráží (multi-výběr, drag&drop upload, animovaný switch), ne plošně všude, aby bundle zůstal malý (3.3 zdůvodňuje code-splitting per modul stejnou logikou).
 
 ### 20.5 Builder UI (React SPA, `src/modules/forms`)
 
@@ -1243,12 +1272,16 @@ integrace — je to jen další položka `wp_dashboard_setup`, přesně jako dne
 
 ### 20.11 Fáze
 
-- [ ] **F1 — MVP se čtyřmi uživatelskými požadavky rovnou zabudovanými**
+- [ ] **F1 — MVP se všemi uživatelskými požadavky rovnou zabudovanými**
       (ne odloženými do F2/F3, jak byl původní návrh — přepracováno na
       žádost uživatele): tabulky vč. `fields_snapshot_json`/`search_text`
       (20.3), REST CRUD formulářů se **stránkováním a plnotextovým hledáním
-      archivu** (20.6), pole z 20.4 kromě `signature`, **struktura polí do
-      sloupců** (`width`/breakpointy, 20.4a) v builderu, **vícekrokové
+      archivu** (20.6), pole z 20.4 kromě `signature` vč. **`multiselect`**
+      a **`file` s drag&drop** postavených na `react-aria-components` (20.4b),
+      **animovaný checkbox/switch** (20.4b) místo nativních prvků,
+      **struktura polí do sloupců** (`width`/breakpointy, 20.4a) v builderu,
+      **přepínatelné popisky vs. placeholdery** per formulář i per pole
+      (`label_display`, 20.2) vč. a11y `sr-only` fallbacku, **vícekrokové
       formuláře** (`step`, progress indikátor) na frontendu i v builderu,
       shortcode render, honeypot, e-mailová akce **s výběrem z hotových HTML
       šablon** (20.9, přes SmtpEmail/EmailLog), **Archiv** jako
