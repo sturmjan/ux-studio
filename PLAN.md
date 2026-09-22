@@ -776,3 +776,151 @@ GITHUB): schema pole `captcha_key_source`/`captcha_cf_account_id`/
       generickém SPA rendereru) nepotřebují vlastní admin-viditelný stav
       (např. "widget vytvořen, doména zaregistrována dne...").
 - [ ] Po ověření zvážit push na GitHub (repo je veřejné).
+
+---
+
+## 19. Passkey (WebAuthn) na wp-login — modul `passkeys` (2026-09-22)
+
+Protějšek sekce 24 v `centrani-app/PLAN.md`. **Nejdřív se dělá CA, tenhle modul
+až po ní** — důvod není v pořadí práce, ale v tom, že většinu užitku CA pokryje
+sama a tenhle modul řeší jiné publikum.
+
+### Koho to je pro, a koho ne
+
+Passkey je vázaný na doménu. 97 klientských webů = 97 různých registrovatelných
+domén = 97 samostatných registrací na každém tvém zařízení. **Pro správce sítě je
+to tedy nepoužitelné** a nemá to ani smysl stavět — `ContentSync\SsoRedeemer` už
+dnes dělá `wp_set_auth_cookie()` na základě tokenu z CA, takže passkey v CA
+pokryje vstup do všech 97 wp-adminů zadarmo.
+
+Tenhle modul je proto **výhradně pro koncové klienty, kteří se na svůj vlastní
+web hlásí sami** a do CA přístup nemají. Pro ně je to jediná dostupná ochrana
+proti phishingu — a zároveň odstranění hesla, které si stejně vedou v sešitě.
+
+### Rozhodnutí
+
+| | |
+|---|---|
+| **Umístění** | **Nový samostatný modul `passkeys`**, ne přílepek k `security-optimization`. Ten už je na 21 souborech a míchá IP bany, CAPTCHu, .htaccess, CSP a upload guard — passkey je jiná doména (identita, ne obrana perimetru) a chce vlastní zapínání i vlastní tabulku. Sousedí spíš s `third-party-login`, ale ten je o delegaci identity na cizí providery, tady je opak. |
+| **RP ID** | Registrovatelná doména z `home_url()`, tedy `klient.cz` i pro web na `www.klient.cz`. Počítá se jednou při první registraci a **uloží se do option** — když se web přestěhuje na jinou doménu, klíče přestanou platit a modul to musí poznat a říct to nahlas, ne tiše selhat u přihlášení. |
+| **Role passkey** | Náhrada hesla. `userVerification: "required"`, stejně jako v CA. |
+| **Fallback** | Standardní WP heslo zůstává. Volitelně nastavení „po zaregistrování klíče skrýt pole s heslem" — ale **jen skrýt, nikdy nezakázat**, jinak si klient zamkne vlastní web. |
+| **Sdílení kódu s CA** | Jádro (`WebAuthn.php`) je čisté PHP bez závislostí na frameworku. **Zdroj pravdy je verze v CA**, sem se přenáší kopie s namespace `UxStudio\Core`. Stejné testovací vektory musí projít na obou stranách — jinak se to za půl roku rozejde a rozdíl se pozná až na produkci klienta. Precedent pro sdílené jádro už je (`SeoAiClient`, `ContentSync\HmacAuth`). |
+| **Distribuce** | Modul **defaultně vypnutý**. Jde na 97 živých webů auto-updatem — zapnout ho plošně by znamenalo změnit přihlašovací obrazovku všem klientům najednou bez varování. |
+| **Composer** | Nepřidává se. Plugin má `vendor/` jen pro `plugin-update-checker` a vlastní vendor namespace na 97 webech s cizími pluginy je zbytečné riziko kolize. PHP 8.1 + `openssl` stačí. |
+
+### Datový model
+
+Tabulka přes `DB::ensure_module_tables( 'passkeys', 1, ... )` → option
+`uxstudio_dbv_passkeys`, stejně jako ostatní moduly:
+
+```
+{prefix}uxstudio_passkeys
+  id            BIGINT UNSIGNED AUTO_INCREMENT PK
+  user_id       BIGINT UNSIGNED NOT NULL        -- WP user ID
+  credential_id VARBINARY(255) NOT NULL UNIQUE
+  public_key    TEXT NOT NULL                   -- PEM (SPKI)
+  alg           SMALLINT NOT NULL               -- -7 ES256, -257 RS256
+  sign_count    BIGINT UNSIGNED NOT NULL DEFAULT 0
+  transports    VARCHAR(64) NULL
+  name          VARCHAR(64) NOT NULL
+  created_at    DATETIME NOT NULL
+  last_used_at  DATETIME NULL
+  KEY user_id (user_id)
+```
+
+**Zásadní rozdíl proti CA: WordPress nemá `$_SESSION`.** Challenge se tedy
+nedrží v session, ale v **transientu s TTL 120 s**, klíčovaném náhodným ID, které
+si prohlížeč nese v krátkodobé cookie (`SameSite=Strict`, `HttpOnly`, `Secure`).
+Bez té vazby by challenge byl jen globální řetězec, který může uplatnit kdokoli.
+Po použití se transient maže, opakované použití = odmítnutí. Úklid po vypršených
+transientech řeší WP sám.
+
+### Kde to v UI žije (a proč ne ve SPA)
+
+Obě obrazovky, kterých se to týká, jsou **mimo React SPA** pluginu, a to je
+záměr, ne kompromis:
+
+- **Přihlášení** — `wp-login.php`, hák `login_form` (stejné místo, kde už kreslí
+  tlačítka `ThirdPartyLogin`) + `login_enqueue_scripts` pro skript a styl.
+- **Registrace klíče** — klasická obrazovka profilu uživatele, háky
+  `show_user_profile` / `edit_user_profile` + `personal_options_update`.
+  Tam klient hledá „svoje nastavení", ne v administraci pluginu.
+- **Administrace pluginu (SPA)** — jen zapnutí modulu, jeho nastavení a
+  přehled „kdo z uživatelů má kolik klíčů", jako read-only výpis.
+
+### Endpointy
+
+REST namespace `uxstudio/v1`, čtyři routy, obě přihlašovací registrované jako
+veřejné přes filtr `uxstudio_rest_public_routes` (stejný mechanismus, jakým si
+`ThirdPartyLogin` pouští callback a `Analytics` hit route):
+
+```
+POST /passkeys/register/options   (auth: přihlášený uživatel, nonce)
+POST /passkeys/register/verify    (auth: přihlášený uživatel, nonce)
+POST /passkeys/login/options      (public, rate-limited)
+POST /passkeys/login/verify       (public, rate-limited) -> wp_set_auth_cookie()
+```
+
+### Fáze
+
+- [ ] **F1 — přenos jádra.** `includes/Core/WebAuthn.php` (kopie z CA,
+      namespace `UxStudio\Core`) + `includes/Core/Crypto.php` s ECDSA/base64url
+      helpery. Testovací skript v `bin/` se **stejnými vektory jako v CA**.
+- [ ] **F2 — kostra modulu.** `includes/Modules/Passkeys/` — `meta.json`
+      (`id: passkeys`, `group: security`, `icon: key`, `settings: true`),
+      `Module.php` extends `BaseModule`, `DB::ensure_module_tables()`,
+      `Store.php` (CRUD nad tabulkou). Modul defaultně vypnutý.
+- [ ] **F3 — registrace.** `RestController` s oběma register routami, challenge
+      v transientu + cookie, UI v profilu uživatele (seznam klíčů, přidat,
+      přejmenovat, smazat). Zápis do `ActivityLog` u přidání i smazání.
+- [ ] **F4 — přihlášení.** Login routy, `wp_set_auth_cookie()` po ověření,
+      tlačítko a conditional UI na `wp-login.php`, feature detection.
+      Zapojit `ActivityLog::log( 'passkeys', 'login', ... )` a **projít
+      `AttemptsHandler`**, aby se neúspěšné pokusy počítaly do stejného limitu
+      jako heslo — jinak je passkey endpoint obchvat rate limitu.
+- [ ] **F5 — souhra se `security-optimization`.** Vlastní URL loginu, CAPTCHA
+      gate (`?action=uxstudio_verify`), IP bany a country blocklist musí platit
+      i pro passkey cestu. **Ověřit každou kombinaci ručně** — tohle je místo,
+      kde se dvě nezávisle vyvinuté ochrany nejspíš potlučou.
+- [ ] **F6 — i18n.** Všechny řetězce v CZ i EN od začátku (požadavek 9 z kap. 1),
+      včetně chybových hlášek na `wp-login.php`.
+- [ ] **F7 — test a rollout.** Testovací matice jako v CA (Windows Hello, iOS,
+      Android, hardwarový klíč, správce hesel, prohlížeč bez podpory) + negativní
+      testy. Pak zapnout na **jednom** vlastním webu, nechat měsíc běžet, a teprve
+      pak nabídnout klientům.
+
+### Pasti a rizika
+
+- **Zamčení klienta z vlastního webu je tady reálné riziko**, na rozdíl od CA,
+  kde si účet umíš opravit v DB. Klient s jedním zařízením, které ztratí, nemá
+  koho zavolat kromě tebe. Proto heslo nikdy nezakazovat, jen skrývat, a
+  v nastavení modulu mít viditelné upozornění.
+- **Přestěhování domény zneplatní všechny klíče.** Uložené RP ID se musí
+  porovnávat s aktuálním `home_url()` při každém načtení loginu a při
+  nesouhlasu nabídnout heslo a vypsat srozumitelnou hlášku. Bez toho klient
+  po migraci hostingu uvidí jen „přihlášení selhalo".
+- **Staging a produkce mají různé domény**, takže klíč ze stagingu na produkci
+  nefunguje. Není to chyba, ale musí to být v dokumentaci, jinak to bude hlášené
+  jako chyba.
+- **Kolize s jinými login pluginy.** Na klientských webech běží cizí pluginy,
+  které si taky sahají na `login_form` a `authenticate`. Priorita háků a chování
+  při souběhu s Limit Login Attempts a spol. se musí ověřit, ne předpokládat.
+- **Duplikace jádra proti CA** je vědomý dluh. Bez testu se stejnými vektory na
+  obou stranách se to rozejde. Ten test není volitelný.
+- **`sign_count` bývá nula** — platí totéž co v CA, nesmí z toho být tvrdé
+  odmítnutí.
+- **Lokální vývoj na `127.0.0.1` nefunguje**, RP ID nesmí být IP adresa.
+  Lokálně chodit na `localhost`.
+
+### Otevřené otázky
+
+- [ ] Nechat klienta zaregistrovat klíč samoobslužně, nebo to nechat na tobě při
+      předání webu? Samoobsluha je levnější, ale „přidat klíč" je přesně to, co
+      by udělal útočník s ukradenou session.
+- [ ] Má se stav passkeyů (kolik uživatelů, kolik klíčů) posílat do CA jako
+      součást inventáře webu, aby to bylo vidět na kartě Bezpečnost? Kanál na to
+      už existuje (`SecurityApiController` inventory), byla by to jen další
+      položka.
+- [ ] Ponechat modul navždy opt-in, nebo ho po odzkoušení zapnout plošně na
+      webech v režimu `sprava`?
