@@ -924,3 +924,214 @@ POST /passkeys/login/verify       (public, rate-limited) -> wp_set_auth_cookie()
       položka.
 - [ ] Ponechat modul navždy opt-in, nebo ho po odzkoušení zapnout plošně na
       webech v režimu `sprava`?
+
+---
+
+## 20. Form Builder — modul `forms` (2026-09-22)
+
+Vzor je **Elementor Forms** (uživatel to výslovně chce) — bez platebních bran
+(vědomě mimo rozsah). Modul zatím v UX Studiu VŮBEC NEEXISTUJE (ověřeno —
+`ux1-wordpress-customizer`/`ux-studio` žádný form builder nemá, jen izolovaná
+jednoúčelová pole v `security-optimization`/`service-requests`/starém
+`reservation-calendar`). **Sesterský projekt Destima ale form builder hotový
+má** (`destima-obec/includes/Modules/Forms`, `src/app/pages/Forms.tsx`, stack
+React+TS+`@dnd-kit`+react-query — identický s UX Studiem) — je to ověřený
+bezpečnostní základ, na kterém stavíme, ne reference na UX úroveň. Co odtamtud
+PŘEBÍRÁME beze změny: honeypot, CSV export s ochranou proti
+formula-injection (`csv_safe_cell`), stažení přiloženého souboru přes
+capability-gated REST routu (ne přímý URL), revize definice formuláře (stejný
+vzor jako `RollbackManager`/existující `Revisions`). Co Destima NEMÁ a
+Elementor ano — to je jádro rozšíření v tomhle plánu: bohatší podmíněná
+logika (AND/OR, operátory, ne jen `pole = hodnota`), šířka pole ve sloupcích,
+řetězené akce po odeslání (ne jen e-mail), webhook, a hlavně **nativní
+Elementor widget** (Destima Elementor vůbec neřeší, UX Studio ho už jako
+závislost integruje — `ElementorImport`).
+
+### 20.1 Analýza Elementor Forms (od čeho se odpichujeme)
+
+| Oblast | Co Elementor (Pro) umí |
+|---|---|
+| **Pole** | Text, Textarea, Email, URL, Tel, Number, Password, Hidden, HTML (statický blok), Select, Select2, Radio, Checkbox, skupina checkboxů, Acceptance (souhlas s odkazem na podmínky), Date, Time, Upload souboru, Rating, Name (jméno/příjmení jako jedno pole), Address (strukturovaná adresa), Step (rozdělovač na kroky), Signature (podpis myší/prstem), reCAPTCHA v2/v3/invisible |
+| **Nastavení pole** | label, placeholder, povinné, šířka ve sloupcích (10-100 %, zvlášť desktop/tablet/mobil), výchozí hodnota, min/max délka nebo hodnota, vlastní CSS třída, unikátní ID |
+| **Podmíněná logika** | per-pole i per-krok, víc pravidel, AND/OR mezi nimi, operátory (rovná se/nerovná se/obsahuje/je prázdné/je vyplněné/větší/menší) |
+| **Vícekrokové formuláře** | pole typu Step dělí formulář na stránky, styl indikátoru postupu (kroky/progress bar/žádný), validace kroku před postupem dál |
+| **Akce po odeslání (řetězitelné)** | E-mail (komu, předmět, reply-to, šablona s dynamickými tagy z polí), druhý e-mail (autoresponder odesílateli), Webhook (POST JSON na URL), Redirect, vytvoření WP příspěvku ze submission, integrace na marketing/CRM nástroje (Mailchimp, Google Sheets, Slack, Zapier...) |
+| **Submissions (Elementor Pro)** | Každé odeslání uložené v DB, přehled v adminu s hledáním/filtrem, log toho, které akce proběhly a s jakým výsledkem, opětovné odeslání e-mailu, export CSV, needeleted/unread stav |
+| **Anti-spam** | honeypot (skryté pole), reCAPTCHA v2/v3/invisible, Akismet |
+| **Styl** | šířka obsahu, mezery mezi sloupci/řádky, pozice labelu (nad/inline/skrytý), velikost inputů, stavy focus/error/hover, tlačítko stylované zvlášť |
+| **Ostatní** | dynamické tagy pro výchozí hodnoty (z URL parametru, meta, uživatele), GDPR souhlas, omezení typu/velikosti nahrávaného souboru |
+
+**Vědomě MIMO rozsah (na žádost uživatele):** platební brány (Stripe/PayPal
+pole a akce). **Vědomě ODLOŽENO na pozdější fázi** (nejsou v Elementor Pro
+zdarma ani kritická pro MVP): nativní CRM/marketing integrace (Mailchimp
+apod.) — pokrývá je obecný Webhook, který dá napojit na Zapier/Make/n8n bez
+budování N vlastních konektorů; Signature pole; vytvoření WP příspěvku ze
+submission.
+
+### 20.2 Rozhodnutí
+
+| | |
+|---|---|
+| **Umístění** | Nový samostatný modul `forms`, `group: "content"`. Nesahá na `service-requests` (to je klient centrálního ticket systému, jiná doména) ani na `security-optimization` (odtud si jen **půjčuje** `CaptchaVerifier`, nevlastní ho). |
+| **Renderovací kanály** | Tři, sdílejí stejná uložená data formuláře: (1) shortcode `[uxstudio_form id="1"]` (vzor `NoticeBoard::render_shortcode` — scoped inline styly), (2) Gutenberg blok (stejný render přes `render_callback`, blok je jen UI nad shortcode atributy), (3) **nativní Elementor widget** (fáze F3, viz 20.7). Frontend markup a validace jsou stejné pro všechny tři — liší se jen obalový kontejner. |
+| **Datový zdroj pravdy** | `uxstudio/v1/forms` REST, ukládání do vlastních tabulek (ne CPT+postmeta — formuláře nejsou obsah, jsou konfigurace+data, stejně jako u Destimy). |
+| **Podmíněná logika** | Upgrade proti Destimě: pravidlo = `{ field, operator, value }`, pole `conditions: Rule[]`, `logic: 'all' | 'any'` (AND/OR). Vyhodnocuje se **na klientu** (pro UX — okamžité show/hide) i **znovu na serveru** při submitu (globální bezpečnostní baseline — nikdy nevěřit jen klientské validaci; skryté/neaktivní pole se ze submitu ignorují, i kdyby je útočník poslal ručně). |
+| **Vícekrokové formuláře** | Pole typu `step` jako u Destimy (`step` index na každém poli), navíc `progress_style: 'steps' | 'bar' | 'none'`. Krokovou validaci dělá klient pro UX, server validuje VŽDY všechna aktivní pole najednou při finálním submitu (ne per-krok round-trip — jeden formulář = jeden REST zápis). |
+| **Akce po odeslání** | Řetěz akcí uložený jako `actions: Action[]` v `settings_json`, vykonávaný synchronně v pořadí, chyba jedné akce nezastaví další (log má per-akci status). MVP: `email`, `webhook`, `redirect`. Fáze F4: `create_post`. |
+| **E-mail akce** | Neposílá se přímo přes `wp_mail()` napřímo — jde přes existující `SmtpEmail` modul (pokud je zapnutý, jinak fallback na `wp_mail`) a zapisuje se do `EmailLog` (stejná viditelnost doručení/resend jako u ostatních modulů, žádná nová e-mailová cesta navíc). Šablona předmětu/těla podporuje `{pole_key}` tagy z odpovědi. |
+| **Webhook akce** | Obecná POST JSON na URL zadanou v nastavení formuláře. Payload se podepisuje HMAC (stejný vzor jako `ContentSync\HmacAuth` — hlavička `X-UxStudio-Signature`), aby si příjemce (Zapier/Make/n8n/vlastní endpoint) mohl ověřit původ. Tajný klíč per formulář, generovaný, nikdy v kódu (soulad s bezpečnostní baseline). |
+| **Anti-spam** | Honeypot **vždy zapnutý** (skryté pole, zero-config). Volitelně captcha — **žádná nová implementace**, modul jen zavolá `SecurityOptimization\CaptchaVerifier` (Turnstile/reCAPTCHA už je ve pluginu hotové a nakonfigurované). Rate-limit na submit routě přes `BotThrottle\Guard::exceeded()` (stejný sdílený guard jako Analytics/BotThrottle — burst limit, žádná třetí duplicitní logika). |
+| **Nahrávání souborů** | Pole `file`: allowlist přípon/MIME, limit velikosti (nastavitelný, default 10 MB), uložení **mimo webroot** (`wp-content/uploads/uxstudio-forms-private/`) s deny-all `.htaccess` po vzoru globální bezpečnostní baseline pro citlivá data — stahování jen přes capability-gated REST routu s nonce (přesný vzor `download_file` v Destimě, ale navíc kontrola, že přihlášený uživatel smí VIDĚT konkrétní formulář). |
+| **CSV export** | Přebírá se Destimin `csv_safe_cell()` vzor 1:1 (ochrana proti formula injection přidáním `'` před buňku začínající na `=+-@`) — je to bezpečnostně nenulová věc, ne kosmetika, přepisovat znovu je zbytečné riziko regrese. |
+| **AI generování formuláře** | Fáze F3. Volitelné tlačítko „Vygenerovat AI" v builderu — text popisu → návrh polí. Nejde přes novou AI cestu, ale přes existující `AiAssistant`/`SeoAiClient` sdílené jádro (stejný vzor jako Destima `ai_generate`, ale bez duplikace klienta). |
+| **GDPR / retence** | Nastavení formuláře: `retention_days` (volitelné auto-mazání starých odpovědí cronem), pole typu `acceptance` s povinným odkazem na zásady zpracování. |
+| **Composer/závislosti** | Frontend: `@dnd-kit/core` + `@dnd-kit/sortable` + `@dnd-kit/utilities` (nové npm závislosti, ale ověřený pattern — stejné verze jako v Destimě, žádné nativní HTML5 D&D kvůli mobilu/dotyku). Backend: žádné nové Composer balíčky (stejné zdůvodnění jako u `passkeys` v §19 — `vendor/` je jen pro plugin-update-checker). |
+
+### 20.3 Datový model
+
+```
+{prefix}uxstudio_forms
+  id             BIGINT UNSIGNED AUTO_INCREMENT PK
+  title          VARCHAR(190) NOT NULL
+  description    TEXT NULL
+  fields_json    LONGTEXT NOT NULL        -- pole definic (viz 20.4)
+  settings_json  LONGTEXT NOT NULL        -- akce, styl, anti-spam, retence, webhook secret
+  status         VARCHAR(20) NOT NULL DEFAULT 'active'   -- active|draft|archived
+  created_by     BIGINT UNSIGNED NULL
+  created_at     DATETIME NOT NULL
+  updated_at     DATETIME NOT NULL
+  KEY status (status)
+
+{prefix}uxstudio_form_submissions
+  id             BIGINT UNSIGNED AUTO_INCREMENT PK
+  form_id        BIGINT UNSIGNED NOT NULL
+  values_json    LONGTEXT NOT NULL        -- { field_key: hodnota }
+  meta_json      LONGTEXT NULL            -- ip_hash, UA, referrer, UTM, page_url
+  status         VARCHAR(20) NOT NULL DEFAULT 'unread'    -- unread|read|spam|trash
+  created_at     DATETIME NOT NULL
+  KEY form_id (form_id), KEY status (status)
+
+{prefix}uxstudio_form_submission_files
+  id             BIGINT UNSIGNED AUTO_INCREMENT PK
+  submission_id  BIGINT UNSIGNED NOT NULL
+  field_key      VARCHAR(190) NOT NULL
+  original_name  VARCHAR(255) NOT NULL
+  stored_path    VARCHAR(500) NOT NULL    -- mimo webroot, viz 20.2
+  mime           VARCHAR(100) NOT NULL
+  size           INT UNSIGNED NOT NULL
+  KEY submission_id (submission_id)
+
+{prefix}uxstudio_form_action_log
+  id             BIGINT UNSIGNED AUTO_INCREMENT PK
+  submission_id  BIGINT UNSIGNED NOT NULL
+  action_type    VARCHAR(30) NOT NULL     -- email|webhook|redirect|create_post
+  status         VARCHAR(10) NOT NULL     -- ok|fail
+  detail         TEXT NULL                -- HTTP status, chybová hláška, message-id
+  created_at     DATETIME NOT NULL
+  KEY submission_id (submission_id)
+```
+
+Registrace přes `DB::ensure_module_tables( 'forms', 1, ... )` jako všechny
+ostatní moduly (option `uxstudio_dbv_forms`).
+
+### 20.4 Katalog polí (MVP proti Elementoru, bez plateb)
+
+| Typ | Poznámka |
+|---|---|
+| `text`, `textarea`, `email`, `url`, `tel`, `number`, `password`, `hidden` | základ, 1:1 s Elementorem |
+| `select`, `radio`, `checkbox`, `checkbox_group` | volby (`options[]`) |
+| `acceptance` | checkbox se souhlasem + odkaz (GDPR) |
+| `date`, `time` | nativní HTML5 input, žádný vlastní datepicker v MVP |
+| `rating` | škála 2-10 (převzato z Destimy) |
+| `address` | strukturované podpole (ulice/město/PSČ/země) jako jedno pole |
+| `name` | křestní+příjmení jako jedno pole (Elementor vzor) |
+| `file` | viz 20.2 zabezpečení uploadu |
+| `html` | statický obsahový blok (nadpis/odstavec mezi pole) |
+| `step` | rozdělovač kroku, ne skutečné vstupní pole |
+| `captcha` | vizuální placeholder napojený na `CaptchaVerifier`, ne samostatná implementace |
+| `signature` | **F4**, mimo MVP (nízká priorita, žádný jasný interní use-case zatím) |
+
+Každé pole navíc (proti Destimě): `width` (25/33/50/66/75/100 %, per
+desktop/mobil), `conditions`/`logic` (20.2), `css_class`, `default_value`
+(vč. tokenů `{today}`, `{query.utm_source}` — dynamické tagy z URL).
+
+### 20.5 Builder UI (React SPA, `src/modules/forms`)
+
+- **Levý panel** — paleta polí podle kategorie (Základní/Volby/Pokročilé/Layout).
+- **Střed (canvas)** — seznam polí, přetahování přes `@dnd-kit` (stejný vzor jako
+  Destima `Forms.tsx`: `DndContext` + `SortableContext` +
+  `useSortable`, úchyt jen na `GripVertical` ikoně, ne na celém řádku).
+  Vizuální oddělovače kroků, live náhled aktuální šířky sloupců.
+- **Pravý panel** — nastavení vybraného pole (taby Obecné/Validace/Podmínky).
+- **Horní taby formuláře** — Pole / Akce po odeslání / Vzhled / Odpovědi
+  (submissions inbox) / Nastavení (anti-spam, retence).
+- Sdílené komponenty pluginu se znovu použijí (`DataTable`, `Modal`,
+  `Tabs`, `ToggleSwitch`, `Confirm`, `Toast` — žádná nová UI knihovna
+  kromě dnd-kit).
+
+### 20.6 Submissions inbox
+
+`DataTable` (existující sdílená komponenta) nad `form_submissions`:
+sloupce podle definice pole formuláře, stavy nepřečteno/přečteno/spam/koš,
+hledání, filtr podle formuláře a data, detail se zobrazí v `Modal` vč. logu
+akcí (`form_action_log` — kdy e-mail prošel/webhook selhal, "Odeslat znovu"
+tlačítko), export CSV (20.2), stažení přiložených souborů přes gated routu.
+
+### 20.7 Elementor integrace (nativní widget, fáze F3)
+
+`ElementorImport` modul už dokazuje, že je Elementor v UX Studiu first-class
+závislost. Nový soubor (registrovaný stejným hookem `elementor/widgets/register`,
+jaký `ElementorImport` už používá) přidá widget **„UX Form"** do panelu
+Elementoru:
+
+- Widget nemá vlastní pole — má select „Vyber formulář" (načte seznam z
+  `uxstudio/v1/forms`) + zdědí stylové kontroly Elementoru (typografie,
+  barvy, mezery pro label/input/button, stavy hover/focus/error) tak, jak to
+  dělá originál — díky tomu je vzhled formuláře v Elementoru plně WYSIWYG,
+  stejně jako u vzoru, ze kterého vycházíme.
+- V editoru Elementoru renderuje živý náhled přes stejnou REST routu jako
+  shortcode (žádná druhá implementace renderu).
+- Widget se registruje, jen když je Elementor aktivní — bez něj modul `forms`
+  funguje normálně přes shortcode/Gutenberg.
+
+### 20.8 Bezpečnost (mapování na globální baseline)
+
+- Server-side validace VŽDY, klientská je jen UX (viz 20.2 podmíněná logika).
+- Parametrizované dotazy (`$wpdb->prepare`), žádné ruční skládání SQL.
+- Upload: allowlist MIME+přípona, limit velikosti, uložení mimo webroot,
+  stahování jen capability-gated.
+- Rate-limit přes `BotThrottle\Guard` na veřejné submit routě — brání DoS
+  zaplavením i spamu, ne jen honeypot.
+- Webhook secret a případné API klíče (budoucí integrace) jen v DB (options),
+  nikdy v kódu/gitu.
+- CSV export: ochrana proti formula injection (převzato z Destimy, 20.2).
+- Veřejná submit routa je bez WP nonce (nepřihlášený návštěvník) — ochranou
+  je honeypot + captcha + rate-limit, ne nonce; admin REST routy mají nonce
+  jako všude v pluginu (3.2).
+
+### 20.9 Fáze
+
+- [ ] **F1 — MVP**: tabulky (20.3), REST CRUD formulářů, pole z 20.4 kromě
+      `signature`, builder bez podmíněné logiky, shortcode render, honeypot,
+      jedna akce (e-mail přes SmtpEmail/EmailLog), submissions inbox základ
+      (seznam + detail, bez CSV).
+- [ ] **F2 — Elementor-úroveň UX**: podmíněná logika (AND/OR, operátory),
+      vícekrokové formuláře s progress indikátorem, šířka polí ve sloupcích,
+      řetězené akce (přidat webhook + redirect), captcha napojení
+      (`CaptchaVerifier`), rate-limit (`BotThrottle\Guard`), Gutenberg blok.
+- [ ] **F3 — Distribuce a polish**: nativní Elementor widget (20.7), CSV
+      export (20.2), AI generování formuláře, log akcí v submissions inboxu
+      s "Odeslat znovu", revize definice formuláře (vzor `Revisions`).
+- [ ] **F4 — volitelné rozšíření**: pole `signature`, akce `create_post`,
+      retence/GDPR auto-mazání, případné napojení na CA (formulář jako zdroj
+      leadu do centrálního systému — jen pokud vznikne konkrétní potřeba,
+      není to MVP požadavek).
+
+### Otevřené otázky
+
+- [ ] Má `forms` směřovat i k `service-requests`/CA jako volitelný cíl akce
+      (vedle e-mailu a webhooku), nebo je webhook jako univerzální únik
+      dostačující a specifickou CA integraci řešit až na vyžádání?
+- [ ] Stahovat `@dnd-kit` jako novou závislost pluginu, nebo je (vzhledem k
+      tomu, že Destima ho už používá se stejným stackem) prostě zkopírovat
+      ověřenou verzi z `destima-obec/package.json`?
