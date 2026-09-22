@@ -976,7 +976,11 @@ submission.
 | **Renderovací kanály** | Tři, sdílejí stejná uložená data formuláře: (1) shortcode `[uxstudio_form id="1"]` (vzor `NoticeBoard::render_shortcode` — scoped inline styly), (2) Gutenberg blok (stejný render přes `render_callback`, blok je jen UI nad shortcode atributy), (3) **nativní Elementor widget** (fáze F3, viz 20.7). Frontend markup a validace jsou stejné pro všechny tři — liší se jen obalový kontejner. |
 | **Datový zdroj pravdy** | `uxstudio/v1/forms` REST, ukládání do vlastních tabulek (ne CPT+postmeta — formuláře nejsou obsah, jsou konfigurace+data, stejně jako u Destimy). |
 | **Podmíněná logika** | Upgrade proti Destimě: pravidlo = `{ field, operator, value }`, pole `conditions: Rule[]`, `logic: 'all' | 'any'` (AND/OR). Vyhodnocuje se **na klientu** (pro UX — okamžité show/hide) i **znovu na serveru** při submitu (globální bezpečnostní baseline — nikdy nevěřit jen klientské validaci; skryté/neaktivní pole se ze submitu ignorují, i kdyby je útočník poslal ručně). |
-| **Vícekrokové formuláře** | Pole typu `step` jako u Destimy (`step` index na každém poli), navíc `progress_style: 'steps' | 'bar' | 'none'`. Krokovou validaci dělá klient pro UX, server validuje VŽDY všechna aktivní pole najednou při finálním submitu (ne per-krok round-trip — jeden formulář = jeden REST zápis). |
+| **Stránkování formuláře (multi-step)** | Uživatelský požadavek, proto přesunuto do **F1** (ne F2, jak byl původní návrh). Pole typu `step` jako u Destimy (`step` index na každém poli), navíc `progress_style: 'steps' \| 'bar' \| 'none'`. Krokovou validaci dělá klient pro UX (Další/Zpět, blokace postupu při chybě), server validuje VŽDY všechna aktivní pole najednou při finálním submitu (ne per-krok round-trip — jeden formulář = jeden REST zápis, meziukládání rozpracovaného kroku není v MVP). |
+| **Struktura formuláře (řádky/sloupce)** | Uživatelský požadavek — editovatelný layout, ne jen lineární seznam polí. Model shodný s Elementorem: každé pole má `width` v % (100/75/66/50/33/25), **pole s `width < 100` se v canvasu i na frontendu vizuálně řadí vedle sebe do řádku** (CSS `flex-wrap`, žádná ruční správa "řádků" jako samostatných entit — přesně tak to dělá Elementor a je to jednodušší na údržbu než vnořený rows/columns strom). Šířka se nastavuje zvlášť pro desktop/tablet/mobil (`width`, `width_tablet`, `width_mobile`) — na mobilu se typicky vynutí 100 % bez ohledu na desktop nastavení. Vizuální editor v builderu (20.5) ukazuje živě, jak se pole zalamují. |
+| **Archiv odeslaných formulářů** | Uživatelský požadavek — musí jít **dohledat**, ne jen procházet poslední stránku. Řeší 20.6 (plnotextové hledání + trvalé uchování + jednotná obrazovka napříč všemi formuláři). |
+| **E-mailové šablony** | Uživatelský požadavek — hotové, hezké HTML šablony pro e-mailovou akci, ne holý textový/HTML box jako u `GoogleReviewRequest`. Řeší 20.9 (nová, plugin dnes žádnou sdílenou HTML šablonu pro e-maily nemá — je to první modul, který to zavádí). |
+| **Dashboard widget** | Uživatelský požadavek. Vlastní `DashboardWidget.php` po vzoru `BotThrottle\DashboardWidget` (`wp_add_dashboard_widget`, statická třída `register()/add()/render()`, server-rendered inline HTML, deep-link do SPA) — **ne** přes modul `DashboardWidgets` (ten jen spravuje/skrývá nativní wp-admin widgety a má vlastní samostatný widget s úkoly/poznámkami/PageSpeed; není to registr, do kterého by se ostatní moduly hlásily). Detaily v 20.10. |
 | **Akce po odeslání** | Řetěz akcí uložený jako `actions: Action[]` v `settings_json`, vykonávaný synchronně v pořadí, chyba jedné akce nezastaví další (log má per-akci status). MVP: `email`, `webhook`, `redirect`. Fáze F4: `create_post`. |
 | **E-mail akce** | Neposílá se přímo přes `wp_mail()` napřímo — jde přes existující `SmtpEmail` modul (pokud je zapnutý, jinak fallback na `wp_mail`) a zapisuje se do `EmailLog` (stejná viditelnost doručení/resend jako u ostatních modulů, žádná nová e-mailová cesta navíc). Šablona předmětu/těla podporuje `{pole_key}` tagy z odpovědi. |
 | **Webhook akce** | Obecná POST JSON na URL zadanou v nastavení formuláře. Payload se podepisuje HMAC (stejný vzor jako `ContentSync\HmacAuth` — hlavička `X-UxStudio-Signature`), aby si příjemce (Zapier/Make/n8n/vlastní endpoint) mohl ověřit původ. Tajný klíč per formulář, generovaný, nikdy v kódu (soulad s bezpečnostní baseline). |
@@ -1005,11 +1009,15 @@ submission.
 {prefix}uxstudio_form_submissions
   id             BIGINT UNSIGNED AUTO_INCREMENT PK
   form_id        BIGINT UNSIGNED NOT NULL
+  form_title     VARCHAR(190) NOT NULL    -- snapshot názvu formuláře v době odeslání
   values_json    LONGTEXT NOT NULL        -- { field_key: hodnota }
+  fields_snapshot_json LONGTEXT NOT NULL  -- snapshot { key: {label, type} } v době odeslání
   meta_json      LONGTEXT NULL            -- ip_hash, UA, referrer, UTM, page_url
+  search_text    MEDIUMTEXT NOT NULL      -- plaintext konkatenace hodnot, pro FULLTEXT hledání
   status         VARCHAR(20) NOT NULL DEFAULT 'unread'    -- unread|read|spam|trash
   created_at     DATETIME NOT NULL
-  KEY form_id (form_id), KEY status (status)
+  KEY form_id (form_id), KEY status (status), KEY created_at (created_at),
+  FULLTEXT KEY search_text (search_text)
 
 {prefix}uxstudio_form_submission_files
   id             BIGINT UNSIGNED AUTO_INCREMENT PK
@@ -1034,6 +1042,24 @@ submission.
 Registrace přes `DB::ensure_module_tables( 'forms', 1, ... )` jako všechny
 ostatní moduly (option `uxstudio_dbv_forms`).
 
+**Proč `fields_snapshot_json` a `form_title` duplikují data z `uxstudio_forms`:**
+archiv musí zůstat čitelný, i když se formulář později upraví (přejmenuje
+pole, smaže volbu ze selectu) nebo úplně smaže. Bez snapshotu by stará
+odpověď ukazovala buď dnešní (nesedící) popisky polí, nebo prázdné hodnoty
+po smazání formuláře. Se snapshotem je `uxstudio_forms` jen "aktuální
+definice pro nové odpovědi", archiv žije nezávisle na ní — smazání
+formuláře proto **maže jen definici, ne odpovědi** (musí to být explicitní
+druhá akce s vlastním potvrzením, ne kaskáda).
+
+**Proč `search_text` + `FULLTEXT`:** dohledatelnost byl explicitní
+požadavek. `LIKE '%...%'` přes `values_json` by fungovalo, ale bez indexu
+lineárně prohledává celou tabulku a nejde v něm hledat "obsahuje slovo A i B
+v libovolném pořadí" rozumně rychle. `search_text` je při zápisu vyplněný
+plain-textový výtah hodnot všech textových polí (bez HTML, bez hesel/citlivých
+typů), nad kterým jede `MATCH() AGAINST()` — škáluje na tisíce odpovědí bez
+zvláštní infrastruktury (Elasticsearch/Meilisearch by tu byl zjevný
+over-engineering).
+
 ### 20.4 Katalog polí (MVP proti Elementoru, bez plateb)
 
 | Typ | Poznámka |
@@ -1051,9 +1077,31 @@ ostatní moduly (option `uxstudio_dbv_forms`).
 | `captcha` | vizuální placeholder napojený na `CaptchaVerifier`, ne samostatná implementace |
 | `signature` | **F4**, mimo MVP (nízká priorita, žádný jasný interní use-case zatím) |
 
-Každé pole navíc (proti Destimě): `width` (25/33/50/66/75/100 %, per
-desktop/mobil), `conditions`/`logic` (20.2), `css_class`, `default_value`
+Každé pole navíc (proti Destimě): `width`/`width_tablet`/`width_mobile`
+(20.4a), `conditions`/`logic` (20.2), `css_class`, `default_value`
 (vč. tokenů `{today}`, `{query.utm_source}` — dynamické tagy z URL).
+
+### 20.4a Struktura formuláře (řádky a sloupce)
+
+Uživatelský požadavek: "musí jít upravovat struktura, tedy sloupce atd."
+Data model je popsaný v 20.2 (řádek `Struktura formuláře`) — pole mají
+procentuální šířku a řadí se vedle sebe jako flex-wrap, žádný samostatný
+"row" objekt navíc. Co z toho plyne pro builder a frontend:
+
+- **Pořadí v poli `fields[]` = pořadí vykreslení.** Řádek vznikne přirozeně
+  tak, že N po sobě jdoucích polí má součet šířek ≤ 100 %; jakmile by další
+  pole řádek přetáhlo přes 100 %, zalomí se samo (CSS, žádná ruční logika).
+  Přesun pole mezi "řádky" je tedy jen změna pořadí (drag) nebo změna šířky
+  — nemusí se řešit zvlášť.
+- **Editace šířky přímo v canvasu**, ne jen v postranním panelu — úchyt na
+  pravém okraji pole (drag-to-resize, přichytávání na 25/33/50/66/75/100 %),
+  doplněný číselným vstupem v pravém panelu pro přesnost.
+- **Přepínač breakpointu** (Desktop/Tablet/Mobil) nad canvasem mění, které z
+  `width`/`width_tablet`/`width_mobile` se právě edituje — canvas se
+  vizuálně zúží, aby bylo vidět skutečné zalamování na dané šířce (obdoba
+  responzivního náhledu v Elementoru).
+- **Pole `html`** (statický blok) i **`step`** (předěl kroku) mají vždy
+  `width: 100` bez výjimky — nedávalo by smysl je zalamovat vedle jiných polí.
 
 ### 20.5 Builder UI (React SPA, `src/modules/forms`)
 
@@ -1061,21 +1109,44 @@ desktop/mobil), `conditions`/`logic` (20.2), `css_class`, `default_value`
 - **Střed (canvas)** — seznam polí, přetahování přes `@dnd-kit` (stejný vzor jako
   Destima `Forms.tsx`: `DndContext` + `SortableContext` +
   `useSortable`, úchyt jen na `GripVertical` ikoně, ne na celém řádku).
-  Vizuální oddělovače kroků, live náhled aktuální šířky sloupců.
-- **Pravý panel** — nastavení vybraného pole (taby Obecné/Validace/Podmínky).
+  Vizuální oddělovače kroků, živé zalamování polí do řádků podle šířky
+  (20.4a) a přepínač breakpointu Desktop/Tablet/Mobil.
+- **Pravý panel** — nastavení vybraného pole (taby Obecné/Validace/Podmínky/Šířka).
 - **Horní taby formuláře** — Pole / Akce po odeslání / Vzhled / Odpovědi
   (submissions inbox) / Nastavení (anti-spam, retence).
 - Sdílené komponenty pluginu se znovu použijí (`DataTable`, `Modal`,
   `Tabs`, `ToggleSwitch`, `Confirm`, `Toast` — žádná nová UI knihovna
   kromě dnd-kit).
 
-### 20.6 Submissions inbox
+### 20.6 Archiv odeslaných formulářů
 
-`DataTable` (existující sdílená komponenta) nad `form_submissions`:
-sloupce podle definice pole formuláře, stavy nepřečteno/přečteno/spam/koš,
-hledání, filtr podle formuláře a data, detail se zobrazí v `Modal` vč. logu
-akcí (`form_action_log` — kdy e-mail prošel/webhook selhal, "Odeslat znovu"
-tlačítko), export CSV (20.2), stažení přiložených souborů přes gated routu.
+Uživatelský požadavek: "musí existovat archiv odeslaných formulářů z
+administrace, to musí jít dohledat" — proto vlastní obrazovka **Archiv**
+(horní tab vedle Pole/Akce/Vzhled/Nastavení, viz 20.5), ne jen prostý výpis
+poslední várky:
+
+- **Napříč všemi formuláři i jednotlivě.** Výchozí pohled je "Archiv"
+  (agregovaně, se sloupcem "Formulář"), z detailu formuláře jde otevřít
+  filtrovaně jen na něj — jedna implementace `DataTable`, dva vstupní body.
+- **Stránkování na serveru**, ne "načti všechno a filtruj v prohlížeči" —
+  `GET uxstudio/v1/forms/submissions?page=&per_page=&form_id=&status=&q=&from=&to=`,
+  odpověď `{ data, meta: { total, page, per_page } }` (jednotný tvar dle 3.2).
+  Bez toho by archiv po pár tisících odpovědí zpomalil celou SPA stránku.
+- **Plnotextové hledání** (`q` parametr) přes `search_text`/`FULLTEXT` (20.3)
+  — najde odpověď podle jména, e-mailu, textu ve zprávě atd., napříč všemi
+  poli i formuláři najednou. To je jádro "musí jít dohledat", ne jen
+  filtr podle data.
+- **Trvalé uchování jako výchozí stav.** Žádné tiché mazání — `retention_days`
+  z 20.2 je vypnuté (`null`), dokud ho admin sám nezapne u konkrétního
+  formuláře. Archiv je právně/provozně důkazní materiál (kdo co kdy odeslal),
+  ne cache.
+- Sloupce tabulky se generují z `fields_snapshot_json` dané odpovědi (20.3) —
+  **ne** z aktuální definice formuláře, takže staré odpovědi zůstanou čitelné
+  i po úpravě formuláře.
+- Stavy nepřečteno/přečteno/spam/koš, detail v `Modal` vč. logu akcí
+  (`form_action_log` — kdy e-mail prošel/webhook selhal, tlačítko "Odeslat
+  znovu"), export CSV (20.2, respektuje aktivní filtr/hledání, ne jen
+  aktuální stránku), stažení přiložených souborů přes gated routu.
 
 ### 20.7 Elementor integrace (nativní widget, fáze F3)
 
@@ -1109,19 +1180,88 @@ Elementoru:
   je honeypot + captcha + rate-limit, ne nonce; admin REST routy mají nonce
   jako všude v pluginu (3.2).
 
-### 20.9 Fáze
+### 20.9 E-mailové šablony (HTML)
 
-- [ ] **F1 — MVP**: tabulky (20.3), REST CRUD formulářů, pole z 20.4 kromě
-      `signature`, builder bez podmíněné logiky, shortcode render, honeypot,
-      jedna akce (e-mail přes SmtpEmail/EmailLog), submissions inbox základ
-      (seznam + detail, bez CSV).
+Uživatelský požadavek: "předpřipravené hezké HTML šablony pro e-maily."
+Plugin dnes **nemá žádnou sdílenou HTML šablonu pro e-maily** — `GoogleReviewRequest`
+i ostatní moduly posílají holý HTML string z textového pole nastavení. Forms
+zavádí první verzi téhle vrstvy (může se v budoucnu vytáhnout do `Core/`, až
+o ni požádá druhý modul — teď by to byla předčasná abstrakce):
+
+- **`EmailTemplateRenderer`** — sada 3-4 vestavěných šablon (`minimal`,
+  `card`, `branded`) jako statické HTML se zavřenými inline styly (e-mailoví
+  klienti CSS soubory ani `<style>` bloky spolehlivě nepodporují — musí to
+  být `style="..."` na každém elementu, stejně jako to dělají Elementor/Mailchimp).
+  Šablona má sloty: hlavička (logo ze `custom_logo` webu + barva z nastavení
+  formuláře nebo plugin brand barvy), nadpis, tělo (text/HTML z akce),
+  **`{{submission_table}}`** — automaticky vyrenderovaná tabulka
+  label→hodnota z odeslaných polí (podle `fields_snapshot_json`, ne surových
+  klíčů), CTA tlačítko (volitelné, pro autoresponder např. "Přejít na web"),
+  patička (název webu, volitelný odkaz na zásady zpracování).
+- **Merge tagy** v předmětu i vlastním textu: `{pole_key}`, `{form_title}`,
+  `{submission_date}`, `{submission_table}` — stejná syntaxe jako u Destimy
+  (`{today}` apod.), aby si uživatel nemusel pamatovat dvě různé notace napříč
+  pluginem.
+- **Multipart e-mail** (`text/html` + `text/plain` alternativa generovaná
+  automaticky stripováním HTML) — bez toho e-mail často skončí ve spamu nebo
+  je nečitelný v klientech bez HTML, což je tichá chyba, kterou nikdo neuvidí
+  dokud si nestěžuje příjemce.
+- **Živý náhled v builderu** (tab Akce → e-mailová akce → "Náhled") —
+  vyrenderuje aktuální šablonu s ukázkovými daty přímo v SPA (`iframe`
+  se `srcDoc`, bez odeslání skutečného e-mailu).
+- Dvě šablony, dva adresáti: notifikace pro provozovatele (`branded`,
+  obsahuje celou `submission_table`) a autoresponder pro odesílatele
+  (`minimal`/`card`, jen poděkování + volitelně kopie jím vyplněných údajů) —
+  volitelné jako druhá `email` akce v řetězu (20.2).
+- Odchozí e-mail (subjekt i vyrenderované tělo) se loguje do `EmailLog` beze
+  změny — je to poslední krok stejné existující cesty, ne nová.
+
+### 20.10 Dashboard widget
+
+Uživatelský požadavek — widget na nativním wp-admin dashboardu (`/wp-admin/index.php`),
+po vzoru `BotThrottle\DashboardWidget` (18.1 v kódu, viz nález v 20.2):
+statická třída `Forms\DashboardWidget` s `register()` (hook `wp_dashboard_setup`),
+`add()` (`wp_add_dashboard_widget`, jen pro `manage_options`) a `render()`
+(server-renderované inline HTML, žádný React — widget žije mimo SPA stejně
+jako u BotThrottle).
+
+Obsah widgetu:
+- Počet nepřečtených odpovědí celkem (velké číslo, barevný akcent jako u
+  BotThrottle) + rozpad podle formuláře (top 5 podle objemu za posledních
+  7 dní).
+- Posledních 5 odpovědí (jméno/e-mail pokud pole existuje, formulář, čas
+  "před X hodinami") s odkazem na detail.
+- Deep-link "Zobrazit archiv" → `admin_url( 'admin.php?page=ux-studio#/module?id=forms&tab=archive&status=unread' )`
+  — přesně vzor BotThrottle (`#/module?id=bot-throttle`).
+
+**Synergie s `DashboardWidgets` modulem zdarma:** ten modul periodicky
+snapshotuje VŠECHNY registrované wp-admin dashboard widgety
+(`cache_dashboard_widgets`) a umožňuje je adminovi skrýt. Nový widget
+formulářů se do toho seznamu propíše automaticky, bez jakékoli extra
+integrace — je to jen další položka `wp_dashboard_setup`, přesně jako dnes
+`uxstudio_bot_throttle_widget`.
+
+### 20.11 Fáze
+
+- [ ] **F1 — MVP se čtyřmi uživatelskými požadavky rovnou zabudovanými**
+      (ne odloženými do F2/F3, jak byl původní návrh — přepracováno na
+      žádost uživatele): tabulky vč. `fields_snapshot_json`/`search_text`
+      (20.3), REST CRUD formulářů se **stránkováním a plnotextovým hledáním
+      archivu** (20.6), pole z 20.4 kromě `signature`, **struktura polí do
+      sloupců** (`width`/breakpointy, 20.4a) v builderu, **vícekrokové
+      formuláře** (`step`, progress indikátor) na frontendu i v builderu,
+      shortcode render, honeypot, e-mailová akce **s výběrem z hotových HTML
+      šablon** (20.9, přes SmtpEmail/EmailLog), **Archiv** jako
+      plnohodnotná obrazovka (ne jen "seznam + detail bez CSV") vč. CSV
+      exportu (20.2 `csv_safe_cell`), **dashboard widget** (20.10).
 - [ ] **F2 — Elementor-úroveň UX**: podmíněná logika (AND/OR, operátory),
-      vícekrokové formuláře s progress indikátorem, šířka polí ve sloupcích,
       řetězené akce (přidat webhook + redirect), captcha napojení
-      (`CaptchaVerifier`), rate-limit (`BotThrottle\Guard`), Gutenberg blok.
-- [ ] **F3 — Distribuce a polish**: nativní Elementor widget (20.7), CSV
-      export (20.2), AI generování formuláře, log akcí v submissions inboxu
-      s "Odeslat znovu", revize definice formuláře (vzor `Revisions`).
+      (`CaptchaVerifier`), rate-limit (`BotThrottle\Guard`), Gutenberg blok,
+      druhá e-mailová šablona (autoresponder odesílateli).
+- [ ] **F3 — Distribuce a polish**: nativní Elementor widget (20.7), AI
+      generování formuláře, log akcí v archivu s "Odeslat znovu", revize
+      definice formuláře (vzor `Revisions`), vlastní editor HTML šablony
+      (nad rámec 3-4 vestavěných).
 - [ ] **F4 — volitelné rozšíření**: pole `signature`, akce `create_post`,
       retence/GDPR auto-mazání, případné napojení na CA (formulář jako zdroj
       leadu do centrálního systému — jen pokud vznikne konkrétní potřeba,
