@@ -449,6 +449,8 @@ final class PublicRenderer {
 		.uxs-fp-progress{display:flex;gap:8px;margin-bottom:18px;}
 		.uxs-fp-progress__step{flex:1;height:4px;border-radius:2px;background:#e5e7eb;}
 		.uxs-fp-progress__step.is-done,.uxs-fp-progress__step.is-active{background:#2563eb;}
+		.uxs-fp-progress--bar{height:6px;border-radius:3px;background:#e5e7eb;overflow:hidden;}
+		.uxs-fp-progress--bar .uxs-fp-progress__fill{display:block;height:100%;border-radius:3px;background:#2563eb;transition:width .2s ease;}
 		.uxs-fp-step__title{font-size:16px;font-weight:700;margin:0 0 12px;padding:0;}
 		</style>
 		<?php
@@ -587,11 +589,26 @@ final class PublicRenderer {
 				return ok;
 			}
 
-			function updateProgress( form, index, total ) {
+			function updateProgress( form, index, total, style ) {
 				var bar = form.querySelector( '[data-uxs-progress]' );
-				if ( ! bar || total <= 1 ) { if ( bar ) { bar.hidden = true; } return; }
+				if ( ! bar ) { return; }
+				if ( 'none' === style || total <= 1 ) {
+					bar.hidden = true;
+					bar.innerHTML = '';
+					return;
+				}
 				bar.hidden = false;
 				bar.innerHTML = '';
+				if ( 'bar' === style ) {
+					bar.className = 'uxs-fp-progress uxs-fp-progress--bar';
+					var fill = document.createElement( 'span' );
+					fill.className = 'uxs-fp-progress__fill';
+					var pct = total > 1 ? Math.round( ( index / ( total - 1 ) ) * 100 ) : 100;
+					fill.style.width = pct + '%';
+					bar.appendChild( fill );
+					return;
+				}
+				bar.className = 'uxs-fp-progress';
 				for ( var i = 0; i < total; i++ ) {
 					var el = document.createElement( 'span' );
 					el.className = 'uxs-fp-progress__step' + ( i < index ? ' is-done' : ( i === index ? ' is-active' : '' ) );
@@ -603,7 +620,7 @@ final class PublicRenderer {
 				var steps = form.querySelectorAll( '[data-uxs-step]' );
 				steps.forEach( function ( s, i ) { s.hidden = i !== index; } );
 				form.setAttribute( 'data-uxs-current-step', String( index ) );
-				updateProgress( form, index, steps.length );
+				updateProgress( form, index, steps.length, cfg.progressStyle );
 				var prev = form.querySelector( '[data-uxs-prev]' );
 				var next = form.querySelector( '[data-uxs-next]' );
 				var submit = form.querySelector( '[data-uxs-submit]' );

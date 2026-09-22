@@ -20,8 +20,28 @@ import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-
 import { CSS } from '@dnd-kit/utilities';
 import { Check, GripVertical, Monitor, Plus, Save, Smartphone, Tablet, Trash2 } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
+import AnimatedCheckbox from '../../components/AnimatedCheckbox';
+import FileUploadField from '../../components/FileUploadField';
+import MultiSelectField, { type MultiSelectOption } from '../../components/MultiSelectField';
 import { fieldCatalog, fieldCatalogEntry, CATEGORY_LABELS, type FieldCatalogEntry } from './fieldCatalog';
 import { ALLOWED_WIDTHS, CHOICE_TYPES, LAYOUT_TYPES, emptyField, type FieldType, type FormDefinition, type FormField } from './types';
+
+// Keep in sync with FileStorage::ALLOWED_TYPES (includes/Modules/Forms/FileStorage.php) -
+// the server is the source of truth for what actually gets accepted on upload.
+const FILE_TYPE_OPTIONS: MultiSelectOption[] = [
+	{ value: 'pdf', label: 'PDF' },
+	{ value: 'doc', label: 'DOC' },
+	{ value: 'docx', label: 'DOCX' },
+	{ value: 'xls', label: 'XLS' },
+	{ value: 'xlsx', label: 'XLSX' },
+	{ value: 'jpg', label: 'JPG' },
+	{ value: 'jpeg', label: 'JPEG' },
+	{ value: 'png', label: 'PNG' },
+	{ value: 'gif', label: 'GIF' },
+	{ value: 'webp', label: 'WEBP' },
+	{ value: 'txt', label: 'TXT' },
+	{ value: 'zip', label: 'ZIP' },
+];
 
 type Breakpoint = 'width' | 'width_tablet' | 'width_mobile';
 
@@ -148,6 +168,24 @@ function OptionsEditor( { field, onChange }: { field: FormField; onChange: ( pat
 	);
 }
 
+/**
+ * Non-functional live preview of the shared `FileUploadField` for the
+ * currently edited `file` field - lets the admin see the exact drop-zone /
+ * chip styling end users will get without leaving the builder. Selected
+ * files never leave this component (no upload, no submission).
+ */
+function FileFieldPreview( { accept, multiple }: { accept?: string[]; multiple: boolean } ): JSX.Element {
+	const [ files, setFiles ] = useState< File[] >( [] );
+	return (
+		<FileUploadField
+			files={ files }
+			onChange={ setFiles }
+			accept={ accept && accept.length > 0 ? accept.map( ( ext ) => `.${ ext }` ) : undefined }
+			multiple={ multiple }
+		/>
+	);
+}
+
 function Inspector( {
 	field,
 	allFields,
@@ -226,10 +264,9 @@ function Inspector( {
 								/>
 							</div>
 							<div className="uxs-form__row">
-								<label>
-									<input type="checkbox" checked={ field.required } onChange={ ( e ) => onChange( { required: e.target.checked } ) } />{ ' ' }
+								<AnimatedCheckbox isSelected={ field.required } onChange={ ( isSelected ) => onChange( { required: isSelected } ) }>
 									{ __( 'Required', 'ux-studio' ) }
-								</label>
+								</AnimatedCheckbox>
 							</div>
 							<div className="uxs-form__row">
 								<label>{ __( 'Label display', 'ux-studio' ) }</label>
@@ -253,10 +290,9 @@ function Inspector( {
 							{ field.type === 'file' && (
 								<>
 									<div className="uxs-form__row">
-										<label>
-											<input type="checkbox" checked={ !! field.multiple } onChange={ ( e ) => onChange( { multiple: e.target.checked } ) } />{ ' ' }
+										<AnimatedCheckbox isSelected={ !! field.multiple } onChange={ ( isSelected ) => onChange( { multiple: isSelected } ) }>
 											{ __( 'Allow multiple files', 'ux-studio' ) }
-										</label>
+										</AnimatedCheckbox>
 									</div>
 									<div className="uxs-form__row">
 										<label>{ __( 'Max size (MB)', 'ux-studio' ) }</label>
@@ -267,6 +303,22 @@ function Inspector( {
 											value={ field.max_size_mb ?? 10 }
 											onChange={ ( e ) => onChange( { max_size_mb: Number( e.target.value ) } ) }
 										/>
+									</div>
+									<div className="uxs-form__row">
+										<MultiSelectField
+											label={ __( 'Allowed file types', 'ux-studio' ) }
+											options={ FILE_TYPE_OPTIONS }
+											value={ field.accept ?? [] }
+											onChange={ ( next ) => onChange( { accept: next } ) }
+											placeholder={ __( 'All types allowed', 'ux-studio' ) }
+										/>
+										<p className="uxs-form__help">
+											{ __( 'Leave empty to allow every supported file type.', 'ux-studio' ) }
+										</p>
+									</div>
+									<div className="uxs-form__row">
+										<label>{ __( 'Preview', 'ux-studio' ) }</label>
+										<FileFieldPreview accept={ field.accept } multiple={ !! field.multiple } />
 									</div>
 								</>
 							) }
@@ -558,6 +610,7 @@ export default function FieldsTab( { form }: { form: FormDefinition } ): JSX.Ele
 
 				{ selectedField ? (
 					<Inspector
+						key={ selectedField.key }
 						field={ selectedField }
 						allFields={ fields }
 						onChange={ ( patch ) => patchField( selectedField.key, patch ) }

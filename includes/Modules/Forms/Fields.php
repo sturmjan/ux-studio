@@ -129,7 +129,7 @@ final class Fields {
 			'default_value' => sanitize_text_field( (string) ( $field['default_value'] ?? '' ) ),
 			'width'         => $is_layout ? 100 : self::sanitize_width( $field['width'] ?? 100 ),
 			'width_tablet'  => $is_layout ? 100 : self::sanitize_width( $field['width_tablet'] ?? ( $field['width'] ?? 100 ) ),
-			'width_mobile'  => 100,
+			'width_mobile'  => $is_layout ? 100 : self::sanitize_width( $field['width_mobile'] ?? ( $field['width_tablet'] ?? ( $field['width'] ?? 100 ) ) ),
 			'label_display' => in_array( $field['label_display'] ?? 'inherit', self::LABEL_DISPLAY, true ) ? $field['label_display'] : 'inherit',
 			'conditions'    => $is_layout ? array() : self::sanitize_conditions( $field['conditions'] ?? array() ),
 			'logic'         => in_array( $field['logic'] ?? 'all', self::CONDITION_LOGIC, true ) ? $field['logic'] : 'all',
