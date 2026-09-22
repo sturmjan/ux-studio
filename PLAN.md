@@ -1304,10 +1304,25 @@ integrace — je to jen další položka `wp_dashboard_setup`, přesně jako dne
       přes novou `edit_posts`-gated routu `/forms/options`), druhá
       e-mailová šablona pro autoresponder — beze změny datového modelu,
       jde jen o druhou `email` akci v řetězu (to bylo možné už od F1).
-- [ ] **F3 — Distribuce a polish**: nativní Elementor widget (20.7), AI
-      generování formuláře, log akcí v archivu s "Odeslat znovu", revize
-      definice formuláře (vzor `Revisions`), vlastní editor HTML šablony
-      (nad rámec 3-4 vestavěných).
+- [x] **F3 — Distribuce a polish** *(hotovo lokálně 2026-09-22)*: nativní
+      Elementor widget (`ElementorWidget.php`, hook `elementor/widgets/register`,
+      select formuláře + stylové kontroly label/input/tlačítko vč. stavů
+      hover/focus/error, render deleguje na `Module::render_shortcode()` -
+      žádná druhá implementace renderu, 20.7); AI generování formuláře
+      (`ContentGenerator::generate_form_fields()` ve sdíleném AI jádru,
+      `Module::generate_ai_fields()` sanitizuje výstup přes `Fields::sanitize_fields()`
+      se seedem existujících klíčů, tlačítko „Generate with AI" v `FieldsTab`);
+      log akcí v archivu s „Odeslat znovu" - ověřeno, že už bylo funkční od F2
+      (`Actions::resend()` → `Actions::run()` skutečně přeposílá a zapisuje
+      do `form_action_log`, beze změny); revize definice formuláře
+      (`Revisions.php`, nová tabulka `uxstudio_form_revisions` v2 schématu,
+      snapshot při každém uložení title/fields/settings, obnova snapshotuje
+      aktuální stav jako novou revizi první - nikdy nevratná akce, tab
+      „Revisions" v builderu); vlastní editor HTML e-mailové šablony
+      (`template: 'custom'`, `EmailTemplateRenderer::sanitize_custom_html()` -
+      allowlist rozšiřuje `wp_kses_post()` o `style` atribut a
+      html/head/body/meta/title shell, ale bez `<script>`/`<iframe>`, textarea
+      v `ActionsTab` nahrazuje vestavěný wrapper místo doplnění).
 - [ ] **F4 — volitelné rozšíření**: pole `signature`, akce `create_post`,
       retence/GDPR auto-mazání, případné napojení na CA (formulář jako zdroj
       leadu do centrálního systému — jen pokud vznikne konkrétní potřeba,

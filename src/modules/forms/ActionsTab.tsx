@@ -18,7 +18,17 @@ const TEMPLATES: { id: EmailTemplate; label: string }[] = [
 	{ id: 'minimal', label: __( 'Minimal', 'ux-studio' ) },
 	{ id: 'card', label: __( 'Card', 'ux-studio' ) },
 	{ id: 'branded', label: __( 'Branded', 'ux-studio' ) },
+	{ id: 'custom', label: __( 'Custom HTML', 'ux-studio' ) },
 ];
+
+const CUSTOM_HTML_PLACEHOLDER = `<!DOCTYPE html>
+<html>
+<body style="font-family:Arial,sans-serif;">
+  <h1 style="color:#2563eb;">{form_title}</h1>
+  <p>Hello, a new submission arrived on {submission_date}.</p>
+  {submission_table}
+</body>
+</html>`;
 
 function emptyEmailAction(): EmailAction {
 	return {
@@ -30,6 +40,7 @@ function emptyEmailAction(): EmailAction {
 		include_table: true,
 		cta_text: '',
 		cta_url: '',
+		custom_html: '',
 	};
 }
 
@@ -185,19 +196,6 @@ function EmailActionEditor( {
 					<input type="text" value={ action.subject } onChange={ ( e ) => onChange( { subject: e.target.value } ) } />
 				</div>
 				<div className="uxs-form__row">
-					<label>{ __( 'Message', 'ux-studio' ) }</label>
-					<textarea rows={ 5 } value={ action.message } onChange={ ( e ) => onChange( { message: e.target.value } ) } />
-					<p className="uxs-form__help">
-						{ __( 'Merge tags: {form_title}, {submission_date}, {submission_table}, and any field key like {email}.', 'ux-studio' ) }
-					</p>
-				</div>
-				<div className="uxs-form__row">
-					<label>
-						<input type="checkbox" checked={ action.include_table } onChange={ ( e ) => onChange( { include_table: e.target.checked } ) } />{ ' ' }
-						{ __( 'Include a table of all submitted fields', 'ux-studio' ) }
-					</label>
-				</div>
-				<div className="uxs-form__row">
 					<label>{ __( 'Template', 'ux-studio' ) }</label>
 					<select value={ action.template } onChange={ ( e ) => onChange( { template: e.target.value as EmailTemplate } ) }>
 						{ TEMPLATES.map( ( t ) => (
@@ -207,14 +205,49 @@ function EmailActionEditor( {
 						) ) }
 					</select>
 				</div>
-				<div className="uxs-form__row">
-					<label>{ __( 'Button text (optional)', 'ux-studio' ) }</label>
-					<input type="text" value={ action.cta_text } onChange={ ( e ) => onChange( { cta_text: e.target.value } ) } />
-				</div>
-				<div className="uxs-form__row">
-					<label>{ __( 'Button URL', 'ux-studio' ) }</label>
-					<input type="url" value={ action.cta_url } onChange={ ( e ) => onChange( { cta_url: e.target.value } ) } />
-				</div>
+
+				{ action.template === 'custom' ? (
+					<div className="uxs-form__row">
+						<label>{ __( 'Custom HTML', 'ux-studio' ) }</label>
+						<textarea
+							rows={ 12 }
+							style={ { fontFamily: 'monospace', fontSize: 'var(--uxs-fs-s)' } }
+							value={ action.custom_html }
+							placeholder={ CUSTOM_HTML_PLACEHOLDER }
+							onChange={ ( e ) => onChange( { custom_html: e.target.value } ) }
+						/>
+						<p className="uxs-form__help">
+							{ __(
+								'Your own complete HTML email - no built-in layout is added around it. Merge tags: {form_title}, {submission_date}, {submission_table}, and any field key like {email}. Use inline style="" attributes; most email clients ignore <style> blocks and external CSS.',
+								'ux-studio'
+							) }
+						</p>
+					</div>
+				) : (
+					<>
+						<div className="uxs-form__row">
+							<label>{ __( 'Message', 'ux-studio' ) }</label>
+							<textarea rows={ 5 } value={ action.message } onChange={ ( e ) => onChange( { message: e.target.value } ) } />
+							<p className="uxs-form__help">
+								{ __( 'Merge tags: {form_title}, {submission_date}, {submission_table}, and any field key like {email}.', 'ux-studio' ) }
+							</p>
+						</div>
+						<div className="uxs-form__row">
+							<label>
+								<input type="checkbox" checked={ action.include_table } onChange={ ( e ) => onChange( { include_table: e.target.checked } ) } />{ ' ' }
+								{ __( 'Include a table of all submitted fields', 'ux-studio' ) }
+							</label>
+						</div>
+						<div className="uxs-form__row">
+							<label>{ __( 'Button text (optional)', 'ux-studio' ) }</label>
+							<input type="text" value={ action.cta_text } onChange={ ( e ) => onChange( { cta_text: e.target.value } ) } />
+						</div>
+						<div className="uxs-form__row">
+							<label>{ __( 'Button URL', 'ux-studio' ) }</label>
+							<input type="url" value={ action.cta_url } onChange={ ( e ) => onChange( { cta_url: e.target.value } ) } />
+						</div>
+					</>
+				) }
 
 				<button type="button" className="button" disabled={ previewMutation.isPending } onClick={ () => previewMutation.mutate() }>
 					<Eye size={ 14 } /> { __( 'Preview', 'ux-studio' ) }

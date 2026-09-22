@@ -24,7 +24,7 @@ defined( 'ABSPATH' ) || exit;
 final class Module extends BaseModule {
 
 	/** Schema version for this module's own tables. */
-	private const DB_VERSION = 1;
+	private const DB_VERSION = 2;
 
 	public function boot(): void {
 		DB::ensure_module_tables( 'forms', self::DB_VERSION, array( $this, 'migrate' ) );
@@ -35,6 +35,10 @@ final class Module extends BaseModule {
 
 		DashboardWidget::register();
 		GutenbergBlock::register( $this );
+		// Only ever fires when Elementor itself calls it - see ElementorWidget's
+		// class docblock for why that makes the `extends \Elementor\Widget_Base`
+		// safe without Elementor being present (PLAN.md 20.7/F3).
+		ElementorWidget::register( $this );
 	}
 
 	/**
@@ -103,6 +107,21 @@ final class Module extends BaseModule {
 				created_at DATETIME NOT NULL,
 				PRIMARY KEY  (id),
 				KEY submission_id (submission_id)
+			) {$charset};"
+		);
+
+		// v2 (F3, PLAN.md 20.11): form definition revision history.
+		dbDelta(
+			"CREATE TABLE {$wpdb->prefix}uxstudio_form_revisions (
+				id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+				form_id BIGINT UNSIGNED NOT NULL,
+				title VARCHAR(190) NOT NULL DEFAULT '',
+				fields_json LONGTEXT NOT NULL,
+				settings_json LONGTEXT NOT NULL,
+				created_by BIGINT UNSIGNED NOT NULL DEFAULT 0,
+				created_at DATETIME NOT NULL,
+				PRIMARY KEY  (id),
+				KEY form_id (form_id)
 			) {$charset};"
 		);
 	}
@@ -220,6 +239,14 @@ final class Module extends BaseModule {
 			return null;
 		}
 
+		// Snapshot the state that is about to be replaced - but only when the
+		// definition itself (title/fields/settings) actually changes; a
+		// status-only toggle (e.g. draft -> active) isn't a definition edit
+		// and would just spam the history (PLAN.md 20.11/F3 Revisions).
+		if ( array_key_exists( 'title', $data ) || array_key_exists( 'fields', $data ) || array_key_exists( 'settings', $data ) ) {
+			Revisions::snapshot( $id, $existing );
+		}
+
 		global $wpdb;
 		$update = array( 'updated_at' => current_time( 'mysql' ) );
 		$format = array( '%s' );
@@ -266,6 +293,9 @@ final class Module extends BaseModule {
 		global $wpdb;
 		$deleted = false !== $wpdb->delete( "{$wpdb->prefix}uxstudio_forms", array( 'id' => $id ), array( '%d' ) );
 		if ( $deleted ) {
+			// Unlike submissions (kept on purpose, PLAN.md 20.3), revision
+			// history has no value once the definition it documents is gone.
+			Revisions::delete_for_form( $id );
 			ActivityLog::log( 'forms', 'delete', 'form', $id );
 		}
 		return $deleted;
@@ -279,6 +309,100 @@ final class Module extends BaseModule {
 	public function delete_form_and_submissions( int $id ): bool {
 		Submissions::delete_for_form( $id );
 		return $this->delete_form( $id );
+	}
+
+	// =====================================================================
+	// Revisions (PLAN.md 20.11/F3)
+	// =====================================================================
+
+	/**
+	 * @return array<int, array{id:int,title:string,field_count:int,created_by:int,created_by_name:string,created_at:string}>
+	 */
+	public function list_revisions( int $form_id ): array {
+		return Revisions::list_for( $form_id );
+	}
+
+	/**
+	 * Restores an older revision as the form's live definition. Snapshots the
+	 * current (about-to-be-discarded) state first, so restoring is itself
+	 * just another entry in the history - never a one-way, unrecoverable action.
+	 */
+	public function restore_revision( int $form_id, int $revision_id ): ?array {
+		$existing = $this->get_form( $form_id );
+		if ( null === $existing ) {
+			return null;
+		}
+		$revision = Revisions::get( $form_id, $revision_id );
+		if ( null === $revision ) {
+			return null;
+		}
+
+		Revisions::snapshot( $form_id, $existing );
+
+		global $wpdb;
+		$wpdb->update(
+			"{$wpdb->prefix}uxstudio_forms",
+			array(
+				'title'         => $revision['title'],
+				'fields_json'   => wp_json_encode( Fields::sanitize_fields( $revision['fields'] ) ),
+				'settings_json' => wp_json_encode( $this->sanitize_settings( $revision['settings'] ) ),
+				'updated_at'    => current_time( 'mysql' ),
+			),
+			array( 'id' => $form_id ),
+			array( '%s', '%s', '%s', '%s' ),
+			array( '%d' )
+		);
+
+		ActivityLog::log( 'forms', 'restore_revision', 'form', $form_id, array( 'revision_id' => $revision_id ) );
+
+		return $this->get_form( $form_id );
+	}
+
+	// =====================================================================
+	// AI-assisted field generation (PLAN.md 20.11/F3)
+	// =====================================================================
+
+	/**
+	 * Drafts fields from a plain-language description via the plugin's
+	 * shared AI core (AiAssistant\ContentGenerator - no bespoke AI client
+	 * here) and sanitizes the result through the exact same allowlist real
+	 * builder input goes through, so an AI response can never smuggle an
+	 * invalid type or a key collision into a form (PLAN.md 20.8 baseline:
+	 * server-side validation always, never trust the input - AI output is
+	 * just another untrusted input).
+	 *
+	 * @return array<int, array<string, mixed>>|\WP_Error Sanitized field definitions, or an error.
+	 */
+	public function generate_ai_fields( int $form_id, string $description ) {
+		if ( ! class_exists( \UxStudio\Modules\AiAssistant\ContentGenerator::class ) ) {
+			return new \WP_Error(
+				'uxstudio_forms_ai_unavailable',
+				__( 'The AI Assistant module is not active - enable it to use AI form generation.', 'ux-studio' ),
+				array( 'status' => 424 )
+			);
+		}
+
+		$form          = $this->get_form( $form_id );
+		$existing_keys = null !== $form ? wp_list_pluck( (array) $form['fields'], 'key' ) : array();
+
+		try {
+			$generator = new \UxStudio\Modules\AiAssistant\ContentGenerator();
+			$result    = $generator->generate_form_fields( $description );
+		} catch ( \Throwable $e ) {
+			return new \WP_Error( 'uxstudio_forms_ai_failed', $e->getMessage(), array( 'status' => 400 ) );
+		}
+
+		$raw_fields = array();
+		foreach ( (array) ( $result['fields'] ?? array() ) as $field ) {
+			if ( ! is_array( $field ) ) {
+				continue;
+			}
+			// The AI returns options as plain strings; Fields::sanitize_field()
+			// already accepts that shape (see sanitize_options()).
+			$raw_fields[] = $field;
+		}
+
+		return Fields::sanitize_fields( $raw_fields, array_map( 'strval', $existing_keys ) );
 	}
 
 	// =====================================================================
@@ -346,8 +470,21 @@ final class Module extends BaseModule {
 			'values'          => $values,
 		);
 
-		$subject = EmailTemplateRenderer::merge_tags( sanitize_text_field( (string) ( $action['subject'] ?? '' ) ) ?: (string) ( $form['title'] ?? '' ), $context );
-		$template  = EmailTemplateRenderer::is_valid_template( (string) ( $action['template'] ?? '' ) ) ? (string) $action['template'] : 'branded';
+		$subject  = EmailTemplateRenderer::merge_tags( sanitize_text_field( (string) ( $action['subject'] ?? '' ) ) ?: (string) ( $form['title'] ?? '' ), $context );
+		$template = (string) ( $action['template'] ?? '' );
+
+		// Custom template (PLAN.md 20.11/F3): the admin's own complete HTML
+		// document IS the email body - no built-in wrapper/layout is applied,
+		// same rule Actions::run_email() follows for the real send, so a
+		// preview can never drift from what actually goes out.
+		if ( 'custom' === $template ) {
+			return array(
+				'subject' => $subject,
+				'html'    => EmailTemplateRenderer::merge_tags( EmailTemplateRenderer::sanitize_custom_html( (string) ( $action['custom_html'] ?? '' ) ), $context ),
+			);
+		}
+
+		$template  = EmailTemplateRenderer::is_valid_template( $template ) ? $template : 'branded';
 		$body_html = wpautop( EmailTemplateRenderer::merge_tags( wp_kses_post( (string) ( $action['message'] ?? '' ) ), $context ) );
 
 		$html = EmailTemplateRenderer::render(
@@ -472,18 +609,27 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * @param array $action { to, subject, message, template, include_table, cta_text, cta_url }.
+	 * @param array $action { to, subject, message, template, include_table, cta_text, cta_url, custom_html }.
 	 */
 	private function sanitize_email_action( array $action ): array {
+		$template = (string) ( $action['template'] ?? '' );
+		$is_custom = 'custom' === $template;
+
 		return array(
 			'type'          => 'email',
 			'to'            => sanitize_text_field( (string) ( $action['to'] ?? '' ) ),
 			'subject'       => sanitize_text_field( (string) ( $action['subject'] ?? '' ) ),
 			'message'       => wp_kses_post( (string) ( $action['message'] ?? '' ) ),
-			'template'      => EmailTemplateRenderer::is_valid_template( (string) ( $action['template'] ?? '' ) ) ? $action['template'] : 'branded',
+			'template'      => $is_custom || EmailTemplateRenderer::is_valid_template( $template ) ? $template : 'branded',
 			'include_table' => ! isset( $action['include_table'] ) || ! empty( $action['include_table'] ),
 			'cta_text'      => sanitize_text_field( (string) ( $action['cta_text'] ?? '' ) ),
 			'cta_url'       => esc_url_raw( (string) ( $action['cta_url'] ?? '' ) ),
+			// User-authored full HTML email document (PLAN.md 20.11/F3 "custom
+			// HTML template editor") - only ever used when template === 'custom'
+			// (Actions::run_email()/preview_email() below), but always
+			// sanitized/stored regardless so switching template back and forth
+			// never silently loses what was written.
+			'custom_html'   => EmailTemplateRenderer::sanitize_custom_html( (string) ( $action['custom_html'] ?? '' ) ),
 		);
 	}
 

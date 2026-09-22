@@ -15,15 +15,17 @@ import ActionsTab from './ActionsTab';
 import AppearanceTab from './AppearanceTab';
 import SettingsTab from './SettingsTab';
 import ArchiveTab from './ArchiveTab';
+import RevisionsTab from './RevisionsTab';
 import type { FormDefinition } from './types';
 
-type BuilderTab = 'fields' | 'actions' | 'appearance' | 'archive' | 'settings';
+type BuilderTab = 'fields' | 'actions' | 'appearance' | 'archive' | 'revisions' | 'settings';
 
 const TABS: { id: BuilderTab; label: () => string }[] = [
 	{ id: 'fields', label: () => __( 'Fields', 'ux-studio' ) },
 	{ id: 'actions', label: () => __( 'Actions after submit', 'ux-studio' ) },
 	{ id: 'appearance', label: () => __( 'Appearance', 'ux-studio' ) },
 	{ id: 'archive', label: () => __( 'Archive', 'ux-studio' ) },
+	{ id: 'revisions', label: () => __( 'Revisions', 'ux-studio' ) },
 	{ id: 'settings', label: () => __( 'Settings', 'ux-studio' ) },
 ];
 
@@ -74,6 +76,7 @@ function Builder( { id }: { id: number } ): JSX.Element {
 			{ tab === 'appearance' && <AppearanceTab form={ form } /> }
 			{ tab === 'settings' && <SettingsTab form={ form } /> }
 			{ tab === 'archive' && <ArchiveTab formId={ form.id } formTitle={ form.title } /> }
+			{ tab === 'revisions' && <RevisionsTab form={ form } /> }
 		</>
 	);
 }

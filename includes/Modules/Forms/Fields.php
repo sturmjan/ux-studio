@@ -68,16 +68,20 @@ final class Fields {
 	 * Drops invalid entries outright rather than trying to partially repair
 	 * them - a malformed field must not silently corrupt the form.
 	 *
-	 * @param mixed $fields Raw input.
+	 * @param mixed             $fields     Raw input.
+	 * @param array<int,string> $seed_keys  Keys already in use elsewhere (e.g. the
+	 *                                      form's existing fields when sanitizing a
+	 *                                      batch of AI-drafted fields to append) -
+	 *                                      guarantees the result never collides with them.
 	 * @return array<int, array<string, mixed>>
 	 */
-	public static function sanitize_fields( $fields ): array {
+	public static function sanitize_fields( $fields, array $seed_keys = array() ): array {
 		if ( ! is_array( $fields ) ) {
 			return array();
 		}
 
 		$clean      = array();
-		$used_keys  = array();
+		$used_keys  = $seed_keys;
 		foreach ( $fields as $field ) {
 			if ( ! is_array( $field ) ) {
 				continue;

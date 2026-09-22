@@ -18,7 +18,7 @@ import {
 } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Check, GripVertical, Monitor, Plus, Save, Smartphone, Tablet, Trash2 } from 'lucide-react';
+import { Check, GripVertical, LoaderCircle, Monitor, Plus, Save, Smartphone, Sparkles, Tablet, Trash2, X } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import AnimatedCheckbox from '../../components/AnimatedCheckbox';
 import FileUploadField from '../../components/FileUploadField';
@@ -487,11 +487,108 @@ function Inspector( {
 	);
 }
 
+/**
+ * "Generate with AI" (PLAN.md 20.11/F3): a plain-language description goes
+ * through the shared AI core (AiAssistant\ContentGenerator, no bespoke AI
+ * client) and comes back as a batch of already-sanitized fields, which the
+ * admin still reviews/edits/reorders in the canvas before Save - the AI only
+ * drafts, it never writes anything by itself.
+ */
+function AiGenerateModal( {
+	formId,
+	onClose,
+	onGenerated,
+}: {
+	formId: number;
+	onClose: () => void;
+	onGenerated: ( fields: FormField[] ) => void;
+} ): JSX.Element {
+	const [ description, setDescription ] = useState( '' );
+
+	const generate = useMutation( {
+		mutationFn: () =>
+			api< { fields: FormField[] } >( `forms/${ formId }/ai-generate`, {
+				method: 'POST',
+				body: JSON.stringify( { description } ),
+			} ),
+		onSuccess: ( result ) => {
+			onGenerated( result.fields );
+			onClose();
+		},
+	} );
+
+	return (
+		<div
+			role="dialog"
+			aria-modal="true"
+			style={ {
+				position: 'fixed',
+				inset: 0,
+				background: 'rgba(0,0,0,0.5)',
+				display: 'flex',
+				alignItems: 'flex-start',
+				justifyContent: 'center',
+				padding: 'var(--uxs-sp-6, 24px)',
+				zIndex: 100000,
+				overflow: 'auto',
+			} }
+			onClick={ onClose }
+		>
+			<div
+				className="uxs-card"
+				style={ { background: 'var(--uxs-surface)', maxWidth: 560, width: '100%', padding: 'var(--uxs-sp-5, 20px)' } }
+				onClick={ ( e ) => e.stopPropagation() }
+			>
+				<div style={ { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--uxs-sp-4)' } }>
+					<h2 style={ { margin: 0 } }>
+						<Sparkles size={ 16 } style={ { verticalAlign: '-3px', marginRight: 6 } } /> { __( 'Generate fields with AI', 'ux-studio' ) }
+					</h2>
+					<button type="button" className="button-link" aria-label={ __( 'Close', 'ux-studio' ) } onClick={ onClose }>
+						<X size={ 18 } />
+					</button>
+				</div>
+
+				<div className="uxs-form">
+					<div className="uxs-form__row">
+						<label>{ __( 'Describe the form you want', 'ux-studio' ) }</label>
+						<textarea
+							rows={ 4 }
+							value={ description }
+							placeholder={ __( 'e.g. A contact form with name, email, phone and a message, plus a GDPR consent checkbox.', 'ux-studio' ) }
+							onChange={ ( e ) => setDescription( e.target.value ) }
+						/>
+					</div>
+
+					{ generate.isError && (
+						<p className="uxs-form__help" style={ { color: 'var(--uxs-danger, #dc2626)' } }>
+							{ ( generate.error as Error ).message }
+						</p>
+					) }
+
+					<p className="uxs-form__help">
+						{ __( 'Generated fields are appended to the canvas below for you to review, edit or remove - nothing is saved until you click "Save changes".', 'ux-studio' ) }
+					</p>
+
+					<button
+						type="button"
+						className="button button-primary"
+						disabled={ generate.isPending || description.trim().length < 10 }
+						onClick={ () => generate.mutate() }
+					>
+						{ generate.isPending ? <LoaderCircle size={ 14 } /> : <Sparkles size={ 14 } /> } { __( 'Generate', 'ux-studio' ) }
+					</button>
+				</div>
+			</div>
+		</div>
+	);
+}
+
 export default function FieldsTab( { form }: { form: FormDefinition } ): JSX.Element {
 	const [ fields, setFields ] = useState< FormField[] >( form.fields );
 	const [ selectedKey, setSelectedKey ] = useState< string | null >( null );
 	const [ breakpoint, setBreakpoint ] = useState< Breakpoint >( 'width' );
 	const [ dirty, setDirty ] = useState( false );
+	const [ aiOpen, setAiOpen ] = useState( false );
 
 	const sensors = useSensors(
 		useSensor( PointerSensor, { activationConstraint: { distance: 6 } } ),
@@ -567,11 +664,27 @@ export default function FieldsTab( { form }: { form: FormDefinition } ): JSX.Ele
 						</button>
 					) ) }
 				</div>
-				<button type="button" className="button button-primary" disabled={ ! dirty || save.isPending } onClick={ () => save.mutate() }>
-					{ save.isSuccess && ! dirty ? <Check size={ 14 } /> : <Save size={ 14 } /> }{ ' ' }
-					{ dirty ? __( 'Save changes', 'ux-studio' ) : __( 'Saved', 'ux-studio' ) }
-				</button>
+				<div style={ { display: 'flex', gap: 'var(--uxs-sp-2)' } }>
+					<button type="button" className="button" onClick={ () => setAiOpen( true ) }>
+						<Sparkles size={ 14 } /> { __( 'Generate with AI', 'ux-studio' ) }
+					</button>
+					<button type="button" className="button button-primary" disabled={ ! dirty || save.isPending } onClick={ () => save.mutate() }>
+						{ save.isSuccess && ! dirty ? <Check size={ 14 } /> : <Save size={ 14 } /> }{ ' ' }
+						{ dirty ? __( 'Save changes', 'ux-studio' ) : __( 'Saved', 'ux-studio' ) }
+					</button>
+				</div>
 			</div>
+
+			{ aiOpen && (
+				<AiGenerateModal
+					formId={ form.id }
+					onClose={ () => setAiOpen( false ) }
+					onGenerated={ ( generated ) => {
+						updateFields( [ ...fields, ...generated ] );
+						setSelectedKey( generated[ 0 ]?.key ?? null );
+					} }
+				/>
+			) }
 
 			<div className="uxs-fb-layout">
 				<aside className="uxs-fb-palette">

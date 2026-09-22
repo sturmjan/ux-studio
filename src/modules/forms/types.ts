@@ -78,7 +78,7 @@ export interface FormField {
 	multiple?: boolean;
 }
 
-export type EmailTemplate = 'minimal' | 'card' | 'branded';
+export type EmailTemplate = 'minimal' | 'card' | 'branded' | 'custom';
 
 export interface EmailAction {
 	type: 'email';
@@ -89,6 +89,8 @@ export interface EmailAction {
 	include_table: boolean;
 	cta_text: string;
 	cta_url: string;
+	/** Full hand-written HTML document, used only when template === 'custom'. */
+	custom_html: string;
 }
 
 export interface WebhookAction {
@@ -173,6 +175,16 @@ export interface ActionLogEntry {
 export interface SubmissionDetail extends SubmissionListItem {
 	files: SubmissionFile[];
 	action_log: ActionLogEntry[];
+}
+
+/** Revision list-row shape returned by GET /forms/{id}/revisions (PLAN.md 20.11/F3). */
+export interface FormRevision {
+	id: number;
+	title: string;
+	field_count: number;
+	created_by: number;
+	created_by_name: string;
+	created_at: string;
 }
 
 export function emptyField( type: FieldType, key: string ): FormField {

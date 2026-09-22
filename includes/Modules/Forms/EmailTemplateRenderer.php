@@ -32,6 +32,35 @@ final class EmailTemplateRenderer {
 	}
 
 	/**
+	 * Sanitizes a user-authored "custom" email template (PLAN.md 20.11/F3) -
+	 * a complete hand-written HTML document, not a post-content fragment, so
+	 * `wp_kses_post()` alone is too strict (it drops the outer
+	 * html/head/body/style shell and never allows the `style` attribute
+	 * inline styling requires for HTML email clients). Still an ALLOWLIST,
+	 * not a blocklist: `<script>`, `<iframe>`, `<object>`/`<embed>` and
+	 * external `<link>` stylesheets stay excluded because they are never
+	 * added to the base set, exactly like `wp_kses_post()` itself.
+	 */
+	public static function sanitize_custom_html( string $html ): string {
+		if ( '' === trim( $html ) ) {
+			return '';
+		}
+
+		$allowed = wp_kses_allowed_html( 'post' );
+		foreach ( $allowed as $tag => $attrs ) {
+			$allowed[ $tag ]['style'] = true;
+		}
+		$allowed['html']  = array( 'lang' => true );
+		$allowed['head']  = array();
+		$allowed['body']  = array( 'style' => true );
+		$allowed['meta']  = array( 'charset' => true, 'name' => true, 'content' => true );
+		$allowed['title'] = array();
+		$allowed['style'] = array( 'type' => true );
+
+		return (string) wp_kses( $html, $allowed );
+	}
+
+	/**
 	 * Render the full HTML email body.
 	 *
 	 * @param string $template  One of self::TEMPLATES.

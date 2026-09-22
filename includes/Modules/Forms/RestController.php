@@ -8,6 +8,7 @@
 namespace UxStudio\Modules\Forms;
 
 use UxStudio\Core\ActivityLog;
+use UxStudio\Modules\AiAssistant\UsageLimiter;
 use UxStudio\Modules\BotThrottle\Guard;
 use UxStudio\Modules\SecurityOptimization\CaptchaVerifier;
 use UxStudio\Rest\Controller;
@@ -46,6 +47,21 @@ final class RestController extends Controller {
 		$this->route( '/forms/(?P<id>\d+)', 'DELETE', array( $this, 'delete_form' ), $this->id_arg(), $cap );
 		$this->route( '/forms/(?P<id>\d+)/delete-with-submissions', 'POST', array( $this, 'delete_form_and_submissions' ), $this->id_arg(), $cap );
 		$this->route_readonly( '/forms/(?P<id>\d+)/preview-email', array( $this, 'preview_email' ), $this->id_arg(), $cap );
+		$this->route( '/forms/(?P<id>\d+)/revisions', 'GET', array( $this, 'list_revisions' ), $this->id_arg(), $cap );
+		$this->route(
+			'/forms/(?P<id>\d+)/revisions/(?P<revision_id>\d+)/restore',
+			'POST',
+			array( $this, 'restore_revision' ),
+			array(
+				'id'          => array( 'required' => true, 'type' => 'integer' ),
+				'revision_id' => array( 'required' => true, 'type' => 'integer' ),
+			),
+			$cap
+		);
+		// AI drafts fields only (no side effects besides an AI-usage log entry),
+		// but it does spend AI tokens - route(), not route_readonly() (see the
+		// docblock on route_readonly() for why that distinction matters).
+		$this->route( '/forms/(?P<id>\d+)/ai-generate', 'POST', array( $this, 'ai_generate' ), $this->id_arg(), $cap );
 
 		$this->route( '/forms/submissions', 'GET', array( $this, 'list_submissions' ), array(), $cap );
 		$this->route( '/forms/submissions/export', 'GET', array( $this, 'export_submissions' ), array(), $cap );
@@ -141,6 +157,41 @@ final class RestController extends Controller {
 		}
 		$action = (array) $request->get_json_params();
 		return $this->ok( $this->module->preview_email( $form, $action ) );
+	}
+
+	// =====================================================================
+	// Revisions (PLAN.md 20.11/F3)
+	// =====================================================================
+
+	public function list_revisions( WP_REST_Request $request ): WP_REST_Response {
+		return $this->ok( $this->module->list_revisions( (int) $request->get_param( 'id' ) ) );
+	}
+
+	public function restore_revision( WP_REST_Request $request ) {
+		$form = $this->module->restore_revision( (int) $request->get_param( 'id' ), (int) $request->get_param( 'revision_id' ) );
+		if ( null === $form ) {
+			return new WP_Error( 'uxstudio_forms_revision_not_found', __( 'Revision not found.', 'ux-studio' ), array( 'status' => 404 ) );
+		}
+		return $this->ok( $form );
+	}
+
+	// =====================================================================
+	// AI-assisted field generation (PLAN.md 20.11/F3)
+	// =====================================================================
+
+	public function ai_generate( WP_REST_Request $request ) {
+		$limit_error = UsageLimiter::check();
+		if ( null !== $limit_error ) {
+			return new WP_Error( 'uxstudio_usage_limited', $limit_error, array( 'status' => 429 ) );
+		}
+
+		$description = sanitize_textarea_field( (string) $request->get_param( 'description' ) );
+		$fields      = $this->module->generate_ai_fields( (int) $request->get_param( 'id' ), $description );
+		if ( is_wp_error( $fields ) ) {
+			return $fields;
+		}
+
+		return $this->ok( array( 'fields' => $fields ) );
 	}
 
 	// =====================================================================

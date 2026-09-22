@@ -162,22 +162,32 @@ final class Actions {
 			$context
 		);
 
-		$template   = EmailTemplateRenderer::is_valid_template( (string) ( $action['template'] ?? '' ) ) ? (string) $action['template'] : 'branded';
-		$body_text  = EmailTemplateRenderer::merge_tags( wp_kses_post( (string) ( $action['message'] ?? '' ) ), $context );
-		$body_html  = wpautop( $body_text );
+		$template = (string) ( $action['template'] ?? '' );
 
-		$html = EmailTemplateRenderer::render(
-			$template,
-			array(
-				'heading'         => (string) ( $form['title'] ?? '' ),
-				'body_html'       => $body_html,
-				'include_table'   => ! isset( $action['include_table'] ) || ! empty( $action['include_table'] ),
-				'fields_snapshot' => $context['fields_snapshot'],
-				'values'          => $context['values'],
-				'cta_text'        => sanitize_text_field( (string) ( $action['cta_text'] ?? '' ) ),
-				'cta_url'         => esc_url_raw( (string) ( $action['cta_url'] ?? '' ) ),
-			)
-		);
+		// Custom template (PLAN.md 20.11/F3): the admin's own complete HTML
+		// document IS the email - no built-in wrapper applies, same rule
+		// Module::preview_email() follows so a preview can never drift from
+		// the real send.
+		if ( 'custom' === $template ) {
+			$html = EmailTemplateRenderer::merge_tags( EmailTemplateRenderer::sanitize_custom_html( (string) ( $action['custom_html'] ?? '' ) ), $context );
+		} else {
+			$template  = EmailTemplateRenderer::is_valid_template( $template ) ? $template : 'branded';
+			$body_text = EmailTemplateRenderer::merge_tags( wp_kses_post( (string) ( $action['message'] ?? '' ) ), $context );
+			$body_html = wpautop( $body_text );
+
+			$html = EmailTemplateRenderer::render(
+				$template,
+				array(
+					'heading'         => (string) ( $form['title'] ?? '' ),
+					'body_html'       => $body_html,
+					'include_table'   => ! isset( $action['include_table'] ) || ! empty( $action['include_table'] ),
+					'fields_snapshot' => $context['fields_snapshot'],
+					'values'          => $context['values'],
+					'cta_text'        => sanitize_text_field( (string) ( $action['cta_text'] ?? '' ) ),
+					'cta_url'         => esc_url_raw( (string) ( $action['cta_url'] ?? '' ) ),
+				)
+			);
+		}
 		$text = EmailTemplateRenderer::html_to_text( $html );
 
 		// Sent through the normal wp_mail() pipe on purpose: if the SMTP
