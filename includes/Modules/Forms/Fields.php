@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Fields {
 
-	/** Every supported field type. `signature` is intentionally NOT here (F4). */
+	/** Every supported field type. */
 	public const TYPES = array(
 		'text',
 		'textarea',
@@ -37,10 +37,14 @@ final class Fields {
 		'date',
 		'time',
 		'file',
+		'signature',
 		'html',
 		'step',
 		'captcha',
 	);
+
+	/** Types whose submitted value is a stored-file entry, same shape as `file` (PLAN.md 20.11/F4). */
+	public const FILE_LIKE_TYPES = array( 'file', 'signature' );
 
 	/** Types that carry an `options[]` list of { label, value }. */
 	public const CHOICE_TYPES = array( 'select', 'radio', 'checkbox_group', 'multiselect' );

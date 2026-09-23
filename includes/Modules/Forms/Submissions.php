@@ -84,6 +84,27 @@ final class Submissions {
 				continue;
 			}
 
+			if ( 'signature' === $type ) {
+				if ( ! $active ) {
+					continue;
+				}
+				$raw = (string) ( $input[ $key ] ?? '' );
+				if ( '' === trim( $raw ) ) {
+					if ( ! empty( $field['required'] ) ) {
+						$errors[ $key ] = __( 'A signature is required.', 'ux-studio' );
+					}
+					continue;
+				}
+				$result = self::handle_signature_field( $raw );
+				if ( is_wp_error( $result ) ) {
+					$errors[ $key ] = $result->get_error_message();
+					continue;
+				}
+				$stored_files[ $result['stored_name'] ] = $result;
+				$clean[ $key ]                          = $result;
+				continue;
+			}
+
 			if ( 'hidden' === $type ) {
 				if ( ! $active ) {
 					continue;
@@ -232,6 +253,33 @@ final class Submissions {
 	}
 
 	/**
+	 * Decode+validate a `signature` field's data URI (a small canvas PNG drawn
+	 * client-side, see PublicRenderer's runtime script) and store it exactly
+	 * like a `file` field upload - same private, deny-all directory, same
+	 * capability-gated download route, same submission_files row shape
+	 * (PLAN.md 20.11/F4). Never trusts the client's declared MIME - the bytes
+	 * themselves are re-validated via getimagesize() in FileStorage::store_binary().
+	 *
+	 * @param string $data_uri Raw `data:image/png;base64,...` string.
+	 * @return array{stored_name:string,original_name:string,mime:string,size:int}|WP_Error
+	 */
+	private static function handle_signature_field( string $data_uri ) {
+		if ( ! preg_match( '/^data:image\/png;base64,([a-zA-Z0-9+\/=]+)$/', trim( $data_uri ), $matches ) ) {
+			return new WP_Error( 'uxstudio_forms_signature_invalid', __( 'Invalid signature data.', 'ux-studio' ) );
+		}
+		$binary = base64_decode( $matches[1], true );
+		if ( false === $binary || '' === $binary ) {
+			return new WP_Error( 'uxstudio_forms_signature_invalid', __( 'Invalid signature data.', 'ux-studio' ) );
+		}
+		// A signature is a small canvas PNG - cap well below the generic file
+		// upload limit to guard against an oversized/malicious payload.
+		if ( strlen( $binary ) > 2 * MB_IN_BYTES ) {
+			return new WP_Error( 'uxstudio_forms_signature_too_large', __( 'The signature image is too large.', 'ux-studio' ) );
+		}
+		return FileStorage::store_binary( $binary, 'signature.png', 'png', 'image/png' );
+	}
+
+	/**
 	 * @param mixed $value Raw input.
 	 * @return mixed Sanitized value (scalar or array for choice groups).
 	 */
@@ -326,7 +374,7 @@ final class Submissions {
 		$parts = array();
 		foreach ( $values as $key => $value ) {
 			$type = (string) ( $snapshot[ $key ]['type'] ?? '' );
-			if ( in_array( $type, array( 'file', 'password' ), true ) ) {
+			if ( in_array( $type, array_merge( Fields::FILE_LIKE_TYPES, array( 'password' ) ), true ) ) {
 				continue;
 			}
 			if ( is_array( $value ) ) {
@@ -517,6 +565,33 @@ final class Submissions {
 		foreach ( $ids as $id ) {
 			self::delete( (int) $id );
 		}
+	}
+
+	/**
+	 * Delete a form's submissions (+ files/action log, via delete()) older
+	 * than `$days` - the GDPR/retention cron (PLAN.md 20.2/20.6/F4,
+	 * Retention::run()). Never touches forms with no retention configured -
+	 * that decision is made by the caller (it never passes $days <= 0 here).
+	 *
+	 * @return int Number of submissions deleted.
+	 */
+	public static function delete_older_than( int $form_id, int $days ): int {
+		if ( $days <= 0 ) {
+			return 0;
+		}
+		global $wpdb;
+		$cutoff = gmdate( 'Y-m-d H:i:s', strtotime( current_time( 'mysql' ) ) - ( $days * DAY_IN_SECONDS ) );
+		$ids    = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT id FROM {$wpdb->prefix}uxstudio_form_submissions WHERE form_id = %d AND created_at < %s",
+				$form_id,
+				$cutoff
+			)
+		);
+		foreach ( $ids as $id ) {
+			self::delete( (int) $id );
+		}
+		return count( $ids );
 	}
 
 	public static function count_unread(): int {

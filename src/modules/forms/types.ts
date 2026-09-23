@@ -22,6 +22,7 @@ export const FIELD_TYPES = [
 	'date',
 	'time',
 	'file',
+	'signature',
 	'html',
 	'step',
 	'captcha',
@@ -31,6 +32,8 @@ export type FieldType = ( typeof FIELD_TYPES )[ number ];
 
 export const LAYOUT_TYPES: FieldType[] = [ 'html', 'step' ];
 export const CHOICE_TYPES: FieldType[] = [ 'select', 'radio', 'checkbox_group', 'multiselect' ];
+/** Types whose submitted value is a stored-file entry, same shape as `file` (PLAN.md 20.11/F4). Mirrors Fields::FILE_LIKE_TYPES. */
+export const FILE_LIKE_TYPES: FieldType[] = [ 'file', 'signature' ];
 
 export const ALLOWED_WIDTHS = [ 25, 33, 50, 66, 75, 100 ] as const;
 export type FieldWidth = ( typeof ALLOWED_WIDTHS )[ number ];
@@ -103,7 +106,24 @@ export interface RedirectAction {
 	url: string;
 }
 
-export type FormAction = EmailAction | WebhookAction | RedirectAction;
+export type PostStatus = 'draft' | 'pending' | 'private' | 'publish';
+
+export interface CreatePostAction {
+	type: 'create_post';
+	post_type: string;
+	post_status: PostStatus;
+	title_template: string;
+	content_template: string;
+	/** 0 = auto (form creator, else the site's first administrator). */
+	author_id: number;
+}
+
+export type FormAction = EmailAction | WebhookAction | RedirectAction | CreatePostAction;
+
+export interface PostTypeOption {
+	id: string;
+	label: string;
+}
 
 export type ProgressStyle = 'steps' | 'bar' | 'none';
 
@@ -115,6 +135,8 @@ export interface FormSettings {
 	/** Per-form HMAC secret for the webhook action - server-generated, read-only. */
 	webhook_secret: string;
 	actions: FormAction[];
+	/** Optional GDPR/retention auto-delete (PLAN.md 20.2/20.6/F4) - null (default) keeps the archive forever. */
+	retention_days: number | null;
 }
 
 export type FormStatus = 'active' | 'draft' | 'archived';
@@ -217,5 +239,6 @@ export function defaultSettings(): FormSettings {
 		captcha_enabled: false,
 		webhook_secret: '',
 		actions: [],
+		retention_days: null,
 	};
 }

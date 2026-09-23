@@ -22,6 +22,7 @@ import {
 	Milestone,
 	Phone,
 	Shield,
+	Signature,
 	SquareStack,
 	Type as TypeIcon,
 	Upload,
@@ -57,6 +58,7 @@ export function fieldCatalog(): FieldCatalogEntry[] {
 		{ type: 'acceptance', label: __( 'Acceptance (GDPR)', 'ux-studio' ), icon: Shield, category: 'choice' },
 
 		{ type: 'file', label: __( 'File upload', 'ux-studio' ), icon: Upload, category: 'advanced' },
+		{ type: 'signature', label: __( 'Signature', 'ux-studio' ), icon: Signature, category: 'advanced' },
 		{ type: 'captcha', label: __( 'CAPTCHA', 'ux-studio' ), icon: Shield, category: 'advanced' },
 
 		{ type: 'html', label: __( 'HTML content', 'ux-studio' ), icon: Code2, category: 'layout' },

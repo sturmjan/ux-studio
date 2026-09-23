@@ -281,6 +281,11 @@ function Inspector( {
 								<input type="text" value={ field.css_class } onChange={ ( e ) => onChange( { css_class: e.target.value } ) } />
 							</div>
 							{ isChoice && <OptionsEditor field={ field } onChange={ onChange } /> }
+							{ field.type === 'signature' && (
+								<p className="uxs-form__help">
+									{ __( 'Visitors sign with their mouse or finger on a drawing pad - no extra settings for this field.', 'ux-studio' ) }
+								</p>
+							) }
 							{ field.type === 'acceptance' && (
 								<div className="uxs-form__row">
 									<label>{ __( 'Terms/policy URL', 'ux-studio' ) }</label>

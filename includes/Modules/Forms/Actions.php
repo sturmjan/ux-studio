@@ -1,7 +1,7 @@
 <?php
 /**
- * Post-submit action execution: `email`, `webhook` and `redirect` (F2 per
- * PLAN.md 20.11 - `create_post` remains F4) + the per-submission action log.
+ * Post-submit action execution: `email`, `webhook`, `redirect` (F2) and
+ * `create_post` (F4, PLAN.md 20.11) + the per-submission action log.
  *
  * @package UxStudio
  */
@@ -40,9 +40,12 @@ final class Actions {
 					// - this just records that the action fired.
 					self::run_redirect( $submission, $action );
 					break;
+				case 'create_post':
+					self::run_create_post( $form, $submission, $action );
+					break;
 				default:
-					// Unknown/future action types (create_post - F4) are
-					// stored but simply skipped by the runner.
+					// Unknown/future action types are stored but simply
+					// skipped by the runner.
 					break;
 			}
 		}
@@ -117,6 +120,105 @@ final class Actions {
 			'' !== $url ? 'ok' : 'fail',
 			'' !== $url ? $url : __( 'No redirect URL configured.', 'ux-studio' )
 		);
+	}
+
+	/**
+	 * Creates a WP post/CPT from a submission (PLAN.md 20.2/20.11 F4). Every
+	 * submitted scalar value is also written as post meta (`_uxsf_{key}`,
+	 * mirroring the `{key}` merge-tag naming used everywhere else in this
+	 * module) so the created post carries the raw data, not just the
+	 * title/content template's rendering of it - useful for a theme template,
+	 * ACF field group or another plugin to pick up later without re-parsing text.
+	 *
+	 * @param array $action { post_type, post_status, title_template, content_template, author_id }.
+	 */
+	private static function run_create_post( array $form, array $submission, array $action ): void {
+		$post_type = (string) ( $action['post_type'] ?? 'post' );
+		if ( ! post_type_exists( $post_type ) ) {
+			self::log( (int) ( $submission['id'] ?? 0 ), 'create_post', 'fail', __( 'The configured post type no longer exists.', 'ux-studio' ) );
+			return;
+		}
+
+		$context = array(
+			'form_title'      => (string) ( $form['title'] ?? '' ),
+			'submission_date' => (string) ( $submission['created_at'] ?? current_time( 'mysql' ) ),
+			'fields_snapshot' => (array) ( $submission['fields_snapshot'] ?? array() ),
+			'values'          => (array) ( $submission['values'] ?? array() ),
+		);
+
+		$title = trim( EmailTemplateRenderer::merge_tags( (string) ( $action['title_template'] ?? '' ), $context ) );
+		if ( '' === $title ) {
+			/* translators: 1: form title, 2: submission date. */
+			$title = sprintf( __( '%1$s submission - %2$s', 'ux-studio' ), $context['form_title'], $context['submission_date'] );
+		}
+		$content = EmailTemplateRenderer::merge_tags( (string) ( $action['content_template'] ?? '' ), $context );
+
+		$post_id = wp_insert_post(
+			array(
+				'post_type'    => $post_type,
+				'post_status'  => (string) ( $action['post_status'] ?? 'draft' ),
+				'post_title'   => wp_strip_all_tags( $title ),
+				'post_content' => $content,
+				'post_author'  => self::resolve_post_author( $form, (int) ( $action['author_id'] ?? 0 ) ),
+			),
+			true
+		);
+
+		if ( is_wp_error( $post_id ) ) {
+			self::log( (int) ( $submission['id'] ?? 0 ), 'create_post', 'fail', $post_id->get_error_message() );
+			return;
+		}
+
+		update_post_meta( $post_id, '_uxstudio_forms_form_id', (int) ( $form['id'] ?? 0 ) );
+		update_post_meta( $post_id, '_uxstudio_forms_submission_id', (int) ( $submission['id'] ?? 0 ) );
+		foreach ( (array) $context['values'] as $key => $value ) {
+			$meta_value = self::meta_safe_value( $value );
+			if ( null !== $meta_value ) {
+				update_post_meta( $post_id, '_uxsf_' . sanitize_key( (string) $key ), $meta_value );
+			}
+		}
+
+		self::log(
+			(int) ( $submission['id'] ?? 0 ),
+			'create_post',
+			'ok',
+			/* translators: 1: post type, 2: post ID. */
+			sprintf( __( 'Created %1$s #%2$d.', 'ux-studio' ), $post_type, $post_id )
+		);
+	}
+
+	/**
+	 * @param mixed $value Raw submitted value.
+	 * @return string|null Null when the value has no sensible flat text form (file/signature entries).
+	 */
+	private static function meta_safe_value( $value ): ?string {
+		if ( is_scalar( $value ) ) {
+			return (string) $value;
+		}
+		if ( is_array( $value ) && array_is_list( $value ) && ! isset( $value['stored_name'] ) ) {
+			$scalars = array_filter( $value, 'is_scalar' );
+			if ( count( $scalars ) === count( $value ) && ! empty( $scalars ) ) {
+				return implode( ', ', array_map( 'strval', $scalars ) );
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * A public submit request has no logged-in user, so `post_author` must be
+	 * resolved explicitly - an admin-picked `author_id` (validated it still
+	 * exists), else the form creator, else the site's first administrator.
+	 */
+	private static function resolve_post_author( array $form, int $configured_id ): int {
+		if ( $configured_id > 0 && false !== get_userdata( $configured_id ) ) {
+			return $configured_id;
+		}
+		$created_by = (int) ( $form['created_by'] ?? 0 );
+		if ( $created_by > 0 && false !== get_userdata( $created_by ) ) {
+			return $created_by;
+		}
+		$admins = get_users( array( 'role' => 'administrator', 'number' => 1, 'fields' => 'ID' ) );
+		return ! empty( $admins ) ? (int) $admins[0] : 0;
 	}
 
 	/**

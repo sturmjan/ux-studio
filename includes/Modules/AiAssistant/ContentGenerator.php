@@ -304,6 +304,56 @@ final class ContentGenerator {
 		return $parsed;
 	}
 
+	/**
+	 * Drafts a set of form fields from a plain-language description, for the
+	 * Form Builder's "Generate with AI" button (UxStudio\Modules\Forms,
+	 * PLAN.md §20.11/F3). Returns a raw, UNTRUSTED field list - the caller
+	 * (Forms\Module) MUST still run it through Fields::sanitize_fields()
+	 * before it can touch a form definition; this method only talks to the
+	 * AI, it never writes anything.
+	 *
+	 * @return array<string, mixed> { fields: array<int, array<string, mixed>> } plus _usage/_provider/_model.
+	 */
+	public function generate_form_fields( string $description ): array {
+		$description = sanitize_textarea_field( $description );
+		if ( strlen( $description ) < 10 ) {
+			throw new \RuntimeException( __( 'Describe the form you want in at least 10 characters.', 'ux-studio' ) );
+		}
+
+		$language_line = 'cs' === self::language() ? 'Piš popisky a texty v jazyce: čeština.' : 'Write labels/text in: English.';
+		$system_prompt = 'You design web form field lists for a WordPress form builder. ' . $language_line . "\n"
+			. "Choose only from these field types: text, textarea, email, url, tel, number, hidden, select, radio, checkbox, checkbox_group, multiselect, acceptance, date, time, file. \n"
+			. "Order fields sensibly (e.g. name before email before message). Mark fields required only when it genuinely makes sense. \n"
+			. "For select/radio/checkbox_group/multiselect fields, include 2-6 short 'options' as plain strings. \n"
+			. 'Return the answer strictly as JSON (no markdown code block wrapper), with exactly one key "fields": an array of objects, '
+			. 'each with keys "type" (one of the allowed types above), "label" (string), "required" (boolean), '
+			. 'and optionally "placeholder" (string) and "options" (array of strings, only for choice types).';
+		$user_prompt = sprintf(
+			/* translators: %s: plain-language description of the desired form. */
+			__( 'Build the field list for this form: %s', 'ux-studio' ),
+			$description
+		);
+
+		$model  = $this->get_model();
+		$result = $this->provider->generate_content( $system_prompt, $user_prompt, $model, array( 'max_tokens' => 1200 ) );
+
+		UsageTracker::log(
+			$this->provider->get_id(),
+			$model,
+			'form_fields',
+			$result['usage']['input_tokens'],
+			$result['usage']['output_tokens']
+		);
+
+		$parsed              = $this->parse_json_response( $result['content'] );
+		$parsed['fields']    = is_array( $parsed['fields'] ?? null ) ? $parsed['fields'] : array();
+		$parsed['_usage']    = $result['usage'];
+		$parsed['_provider'] = $this->provider->get_id();
+		$parsed['_model']    = $model;
+
+		return $parsed;
+	}
+
 	private static function social_system_prompt( array $platforms ): string {
 		$language_line = 'cs' === self::language() ? 'Piš v jazyce: čeština.' : 'Write in: English.';
 		$limits        = array(

@@ -15,6 +15,7 @@ export default function SettingsTab( { form }: { form: FormDefinition } ): JSX.E
 	const [ description, setDescription ] = useState( form.description );
 	const [ status, setStatus ] = useState< FormStatus >( form.status );
 	const [ captchaEnabled, setCaptchaEnabled ] = useState( form.settings.captcha_enabled );
+	const [ retentionDays, setRetentionDays ] = useState< string >( form.settings.retention_days ? String( form.settings.retention_days ) : '' );
 	const [ dirty, setDirty ] = useState( false );
 
 	const save = useMutation( {
@@ -25,7 +26,11 @@ export default function SettingsTab( { form }: { form: FormDefinition } ): JSX.E
 					title,
 					description,
 					status,
-					settings: { ...form.settings, captcha_enabled: captchaEnabled },
+					settings: {
+						...form.settings,
+						captcha_enabled: captchaEnabled,
+						retention_days: retentionDays.trim() === '' ? null : Number( retentionDays ),
+					},
 				} ),
 			} ),
 		onSuccess: () => {
@@ -95,6 +100,26 @@ export default function SettingsTab( { form }: { form: FormDefinition } ): JSX.E
 				</label>
 				<p className="uxs-form__help">
 					{ __( 'A honeypot field is always active regardless of this setting. Full CAPTCHA enforcement requires the Security Optimization module to be configured.', 'ux-studio' ) }
+				</p>
+			</div>
+			<div className="uxs-form__row">
+				<label>{ __( 'Auto-delete responses after (days)', 'ux-studio' ) }</label>
+				<input
+					type="number"
+					min={ 1 }
+					max={ 3650 }
+					value={ retentionDays }
+					placeholder={ __( 'Never (keep forever)', 'ux-studio' ) }
+					onChange={ ( e ) => {
+						setRetentionDays( e.target.value );
+						setDirty( true );
+					} }
+				/>
+				<p className="uxs-form__help">
+					{ __(
+						'Leave empty to keep every response forever (the default). When set, a daily cleanup permanently deletes responses to this form (and their attached files) older than this many days.',
+						'ux-studio'
+					) }
 				</p>
 			</div>
 

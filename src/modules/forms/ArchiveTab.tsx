@@ -10,7 +10,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Download, LoaderCircle, Mail, Paperclip, RotateCcw, Search, Trash2, X } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
-import type { ActionLogEntry, SubmissionDetail, SubmissionFile, SubmissionListItem, SubmissionStatus } from './types';
+import { FILE_LIKE_TYPES, type ActionLogEntry, type SubmissionDetail, type SubmissionFile, type SubmissionListItem, type SubmissionStatus } from './types';
 
 const PAGE_SIZE = 20;
 
@@ -118,7 +118,7 @@ function DetailModal( { id, onClose }: { id: number; onClose: () => void } ): JS
 								{ Object.entries( detail.fields_snapshot ).map( ( [ key, meta ] ) => {
 									const value = detail.values[ key ];
 									const display = Array.isArray( value ) ? value.join( ', ' ) : value === true ? __( 'Yes', 'ux-studio' ) : value === false ? __( 'No', 'ux-studio' ) : String( value ?? '' );
-									if ( meta.type === 'file' || display === '' ) {
+									if ( FILE_LIKE_TYPES.includes( meta.type ) || display === '' ) {
 										return null;
 									}
 									return (

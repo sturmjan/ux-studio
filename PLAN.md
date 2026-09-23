@@ -1323,10 +1323,26 @@ integrace — je to jen další položka `wp_dashboard_setup`, přesně jako dne
       allowlist rozšiřuje `wp_kses_post()` o `style` atribut a
       html/head/body/meta/title shell, ale bez `<script>`/`<iframe>`, textarea
       v `ActionsTab` nahrazuje vestavěný wrapper místo doplnění).
-- [ ] **F4 — volitelné rozšíření**: pole `signature`, akce `create_post`,
-      retence/GDPR auto-mazání, případné napojení na CA (formulář jako zdroj
-      leadu do centrálního systému — jen pokud vznikne konkrétní potřeba,
-      není to MVP požadavek).
+- [x] **F4 — volitelné rozšíření** *(hotovo lokálně 2026-09-23)*: pole
+      `signature` (canvas podpis myší/prstem v `PublicRenderer` runtime JS,
+      uloženo jako PNG stejnou soukromou cestou jako `file` —
+      `FileStorage::store_binary()` znovu ověřuje bajty přes `getimagesize()`,
+      limit 2 MB, `Fields::FILE_LIKE_TYPES` sjednocuje `file`/`signature` napříč
+      CSV exportem, e-mailovou šablonou a archivem); akce `create_post`
+      (`Actions::run_create_post()` — vytvoří WP příspěvek zvoleného CPT/stavu
+      z `title_template`/`content_template` s merge tagy, každá hodnota navíc
+      jako `_uxsf_{key}` postmeta, autor: nastavený/tvůrce formuláře/první
+      administrátor; editor akce v `ActionsTab` s výběrem post typu přes novou
+      routu `/forms/post-types`); `retention_days` (nastavení formuláře v
+      `SettingsTab`, výchozí `null` = archiv trvalý dle 20.6, `Retention`
+      třída registruje denní WP-Cron `uxstudio_forms_retention_cron`, maže jen
+      formuláře, které to samy zapnuly, přes `Submissions::delete_older_than()`).
+      Napojení na CA jako cíl akce zůstává neimplementované (viz Otevřené
+      otázky níže) — mimo rozsah této volitelné fáze, řeší se webhookem.
+      Mimochodem opravena i nekompletní F3 AI-generace: `Module::generate_ai_fields()`
+      volal `ContentGenerator::generate_form_fields()`, která v repu chyběla
+      (byla jen rozpracovaná v pracovním stromu) — doplněna a commitnuta spolu
+      s F4.
 
 ### Otevřené otázky
 

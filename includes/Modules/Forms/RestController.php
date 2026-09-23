@@ -37,6 +37,8 @@ final class RestController extends Controller {
 		$cap = $this->module->capability();
 
 		$this->route( '/forms', 'GET', array( $this, 'list_forms' ), array(), $cap );
+		// Picker for the "create_post" action's post-type select (PLAN.md 20.11/F4).
+		$this->route( '/forms/post-types', 'GET', array( $this, 'list_post_type_options' ), array(), $cap );
 		// Lightweight picker for the Gutenberg block (20.11/F2) - deliberately
 		// `edit_posts`, not `manage_options`: any content editor placing a
 		// block must be able to choose a form even without full form-builder access.
@@ -108,6 +110,10 @@ final class RestController extends Controller {
 
 	public function list_form_options(): WP_REST_Response {
 		return $this->ok( $this->module->list_form_options() );
+	}
+
+	public function list_post_type_options(): WP_REST_Response {
+		return $this->ok( $this->module->list_post_type_options() );
 	}
 
 	public function create_form( WP_REST_Request $request ) {

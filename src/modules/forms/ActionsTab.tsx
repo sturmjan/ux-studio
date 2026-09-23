@@ -1,18 +1,26 @@
 /**
- * Actions tab: the post-submit action chain (PLAN.md 20.2/20.11 F2) - email
+ * Actions tab: the post-submit action chain (PLAN.md 20.2/20.11 F2/F4) - email
  * notification(s) with a built-in HTML template picker and live preview
  * (EmailTemplateRenderer, PLAN.md 20.9), webhook (HMAC-signed POST, PLAN.md
- * 20.2/20.8) and redirect. Multiple `email` actions can coexist (e.g. one
- * "branded" notification to the site owner plus a second "minimal"/"card"
- * autoresponder to the submitter via `to: {email}`) - there is no separate
- * "autoresponder" action type, it is just a second email action.
+ * 20.2/20.8), redirect and create-a-post (PLAN.md 20.11 F4). Multiple `email`
+ * actions can coexist (e.g. one "branded" notification to the site owner plus
+ * a second "minimal"/"card" autoresponder to the submitter via `to: {email}`)
+ * - there is no separate "autoresponder" action type, it is just a second
+ * email action.
  */
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { useMutation } from '@tanstack/react-query';
-import { ArrowRight, Check, Copy, Eye, Mail, Save, Trash2, Webhook as WebhookIcon } from 'lucide-react';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { ArrowRight, Check, Copy, Eye, FilePlus2, Mail, Save, Trash2, Webhook as WebhookIcon } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
-import type { EmailAction, EmailTemplate, FormAction, FormDefinition, RedirectAction, WebhookAction } from './types';
+import type { CreatePostAction, EmailAction, EmailTemplate, FormAction, FormDefinition, PostStatus, PostTypeOption, RedirectAction, WebhookAction } from './types';
+
+const POST_STATUSES: { id: PostStatus; label: string }[] = [
+	{ id: 'draft', label: __( 'Draft', 'ux-studio' ) },
+	{ id: 'pending', label: __( 'Pending review', 'ux-studio' ) },
+	{ id: 'private', label: __( 'Private', 'ux-studio' ) },
+	{ id: 'publish', label: __( 'Published', 'ux-studio' ) },
+];
 
 const TEMPLATES: { id: EmailTemplate; label: string }[] = [
 	{ id: 'minimal', label: __( 'Minimal', 'ux-studio' ) },
@@ -50,6 +58,10 @@ function emptyWebhookAction(): WebhookAction {
 
 function emptyRedirectAction(): RedirectAction {
 	return { type: 'redirect', url: '' };
+}
+
+function emptyCreatePostAction(): CreatePostAction {
+	return { type: 'create_post', post_type: 'post', post_status: 'draft', title_template: '', content_template: '', author_id: 0 };
 }
 
 function WebhookActionEditor( {
@@ -148,6 +160,90 @@ function RedirectActionEditor( {
 					/>
 					<p className="uxs-form__help">{ __( 'Sends the visitor here instead of showing the inline success message.', 'ux-studio' ) }</p>
 				</div>
+			</div>
+		</div>
+	);
+}
+
+function CreatePostActionEditor( {
+	action,
+	onChange,
+	onRemove,
+}: {
+	action: CreatePostAction;
+	onChange: ( patch: Partial< CreatePostAction > ) => void;
+	onRemove: () => void;
+} ): JSX.Element {
+	const postTypes = useQuery( {
+		queryKey: [ 'forms', 'post-types' ],
+		queryFn: () => api< PostTypeOption[] >( 'forms/post-types' ),
+		staleTime: 5 * 60 * 1000,
+	} );
+
+	return (
+		<div className="uxs-card" style={ { marginBottom: 'var(--uxs-sp-4)' } }>
+			<div style={ { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--uxs-sp-3)' } }>
+				<strong>
+					<FilePlus2 size={ 14 } style={ { verticalAlign: 'middle', marginRight: 6 } } /> { __( 'Create a post', 'ux-studio' ) }
+				</strong>
+				<button type="button" className="button-link" onClick={ onRemove } aria-label={ __( 'Remove this action', 'ux-studio' ) }>
+					<Trash2 size={ 14 } />
+				</button>
+			</div>
+
+			<div className="uxs-form">
+				<div className="uxs-form__row">
+					<label>{ __( 'Post type', 'ux-studio' ) }</label>
+					<select value={ action.post_type } onChange={ ( e ) => onChange( { post_type: e.target.value } ) }>
+						{ ( postTypes.data ?? [ { id: action.post_type, label: action.post_type } ] ).map( ( t ) => (
+							<option key={ t.id } value={ t.id }>
+								{ t.label }
+							</option>
+						) ) }
+					</select>
+				</div>
+				<div className="uxs-form__row">
+					<label>{ __( 'Status of the created post', 'ux-studio' ) }</label>
+					<select value={ action.post_status } onChange={ ( e ) => onChange( { post_status: e.target.value as PostStatus } ) }>
+						{ POST_STATUSES.map( ( s ) => (
+							<option key={ s.id } value={ s.id }>
+								{ s.label }
+							</option>
+						) ) }
+					</select>
+				</div>
+				<div className="uxs-form__row">
+					<label>{ __( 'Title', 'ux-studio' ) }</label>
+					<input
+						type="text"
+						value={ action.title_template }
+						placeholder={ __( '{form_title} submission - {submission_date}', 'ux-studio' ) }
+						onChange={ ( e ) => onChange( { title_template: e.target.value } ) }
+					/>
+					<p className="uxs-form__help">
+						{ __( 'Leave empty to use "{form_title} submission - {submission_date}". Supports merge tags, e.g. {email}.', 'ux-studio' ) }
+					</p>
+				</div>
+				<div className="uxs-form__row">
+					<label>{ __( 'Content', 'ux-studio' ) }</label>
+					<textarea rows={ 5 } value={ action.content_template } onChange={ ( e ) => onChange( { content_template: e.target.value } ) } />
+					<p className="uxs-form__help">
+						{ __( 'Merge tags: {form_title}, {submission_date}, {submission_table}, and any field key like {email}.', 'ux-studio' ) }
+					</p>
+				</div>
+				<div className="uxs-form__row">
+					<label>{ __( 'Author user ID (optional)', 'ux-studio' ) }</label>
+					<input
+						type="number"
+						min={ 0 }
+						value={ action.author_id || '' }
+						placeholder={ __( 'Auto (form creator, else the first administrator)', 'ux-studio' ) }
+						onChange={ ( e ) => onChange( { author_id: e.target.value ? Number( e.target.value ) : 0 } ) }
+					/>
+				</div>
+				<p className="uxs-form__help">
+					{ __( 'Every submitted field is also saved as post meta, so a theme template or another plugin can read the raw values.', 'ux-studio' ) }
+				</p>
 			</div>
 		</div>
 	);
@@ -308,7 +404,7 @@ export default function ActionsTab( { form }: { form: FormDefinition } ): JSX.El
 			</div>
 
 			{ actions.length === 0 ? (
-				<div className="uxs-fb-empty">{ __( 'No actions yet - add one below (email, webhook or redirect).', 'ux-studio' ) }</div>
+				<div className="uxs-fb-empty">{ __( 'No actions yet - add one below (email, webhook, redirect or create a post).', 'ux-studio' ) }</div>
 			) : (
 				actions.map( ( action, i ) => {
 					if ( 'email' === action.type ) {
@@ -333,6 +429,16 @@ export default function ActionsTab( { form }: { form: FormDefinition } ): JSX.El
 							/>
 						);
 					}
+					if ( 'create_post' === action.type ) {
+						return (
+							<CreatePostActionEditor
+								key={ i }
+								action={ action }
+								onChange={ ( patch ) => update< CreatePostAction >( i, patch ) }
+								onRemove={ () => remove( i ) }
+							/>
+						);
+					}
 					return (
 						<RedirectActionEditor
 							key={ i }
@@ -353,6 +459,9 @@ export default function ActionsTab( { form }: { form: FormDefinition } ): JSX.El
 				</button>
 				<button type="button" className="button" onClick={ () => add( emptyRedirectAction() ) }>
 					<ArrowRight size={ 14 } /> { __( 'Add redirect', 'ux-studio' ) }
+				</button>
+				<button type="button" className="button" onClick={ () => add( emptyCreatePostAction() ) }>
+					<FilePlus2 size={ 14 } /> { __( 'Add create post', 'ux-studio' ) }
 				</button>
 			</div>
 		</>

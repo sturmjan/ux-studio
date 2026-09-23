@@ -183,7 +183,7 @@ final class EmailTemplateRenderer {
 		if ( in_array( $type, array( 'checkbox_group', 'multiselect' ), true ) ) {
 			return is_array( $value ) ? implode( ', ', array_map( 'strval', $value ) ) : (string) $value;
 		}
-		if ( 'file' === $type ) {
+		if ( 'file' === $type || 'signature' === $type ) {
 			if ( is_array( $value ) ) {
 				$list = array_is_list( $value ) ? $value : array( $value );
 				$names = array_map( static fn( $f ) => is_array( $f ) ? (string) ( $f['original_name'] ?? '' ) : '', $list );

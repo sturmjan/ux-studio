@@ -97,6 +97,7 @@ final class Csv {
 			case 'multiselect':
 				return is_array( $value ) ? implode( ', ', array_map( 'strval', $value ) ) : (string) $value;
 			case 'file':
+			case 'signature':
 				if ( is_array( $value ) ) {
 					$names = array_map(
 						static fn( $f ) => is_array( $f ) ? (string) ( $f['original_name'] ?? '' ) : '',

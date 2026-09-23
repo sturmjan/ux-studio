@@ -39,6 +39,12 @@ final class Module extends BaseModule {
 		// class docblock for why that makes the `extends \Elementor\Widget_Base`
 		// safe without Elementor being present (PLAN.md 20.7/F3).
 		ElementorWidget::register( $this );
+
+		// Optional per-form GDPR/retention auto-cleanup (PLAN.md 20.2/20.6/F4) -
+		// archive stays permanent by default, this sweep only ever touches a
+		// form that explicitly opted in via `retention_days` (Retention::run()).
+		add_action( Retention::CRON_HOOK, array( Retention::class, 'run' ) );
+		Retention::ensure_cron_scheduled();
 	}
 
 	/**
@@ -585,8 +591,11 @@ final class Module extends BaseModule {
 				case 'redirect':
 					$actions[] = $this->sanitize_redirect_action( $action );
 					break;
+				case 'create_post':
+					$actions[] = $this->sanitize_create_post_action( $action );
+					break;
 				default:
-					// Unknown/future action types (create_post - F4) are dropped.
+					// Unknown/future action types are dropped.
 					continue 2;
 			}
 			if ( count( $actions ) >= 5 ) {
@@ -605,6 +614,49 @@ final class Module extends BaseModule {
 			// it can never be set to an attacker-chosen value.
 			'webhook_secret'  => $this->sanitize_webhook_secret( $settings['webhook_secret'] ?? '' ),
 			'actions'         => $actions,
+			// Optional GDPR/retention auto-mazání (PLAN.md 20.2/20.6/F4) - null
+			// (the default) means "keep forever", the archive's default stance.
+			'retention_days'  => $this->sanitize_retention_days( $settings['retention_days'] ?? null ),
+		);
+	}
+
+	/**
+	 * @param mixed $days Raw retention_days input.
+	 * @return int|null Positive day count, or null ("keep forever").
+	 */
+	private function sanitize_retention_days( $days ): ?int {
+		if ( null === $days || '' === $days ) {
+			return null;
+		}
+		if ( ! is_numeric( $days ) ) {
+			return null;
+		}
+		$days = (int) $days;
+		return $days > 0 ? min( 3650, $days ) : null;
+	}
+
+	/**
+	 * @param array $action { post_type, post_status, title_template, content_template, author_id }.
+	 */
+	private function sanitize_create_post_action( array $action ): array {
+		$post_type = sanitize_key( (string) ( $action['post_type'] ?? 'post' ) );
+		if ( ! post_type_exists( $post_type ) ) {
+			$post_type = 'post';
+		}
+		$status = (string) ( $action['post_status'] ?? 'draft' );
+
+		return array(
+			'type'              => 'create_post',
+			'post_type'         => $post_type,
+			'post_status'       => in_array( $status, array( 'draft', 'pending', 'private', 'publish' ), true ) ? $status : 'draft',
+			'title_template'    => sanitize_text_field( (string) ( $action['title_template'] ?? '' ) ),
+			// Not wp_kses_post()-restricted to inline-safe HTML like the email
+			// action's message - a created post's content goes through the
+			// normal post-editing/publishing pipeline (revisions, capability
+			// checks on display) same as any other post content, so the
+			// standard post_content allowlist is the right one here.
+			'content_template'  => wp_kses_post( (string) ( $action['content_template'] ?? '' ) ),
+			'author_id'         => max( 0, (int) ( $action['author_id'] ?? 0 ) ),
 		);
 	}
 
@@ -690,5 +742,27 @@ final class Module extends BaseModule {
 			},
 			$rows
 		);
+	}
+
+	/**
+	 * Post types offered by the `create_post` action's picker (PLAN.md 20.11/F4) -
+	 * anything with an admin UI except attachments (media has its own upload
+	 * flow, never makes sense as a form-submission target).
+	 *
+	 * @return array<int, array{id:string,label:string}>
+	 */
+	public function list_post_type_options(): array {
+		$types = get_post_types( array( 'show_ui' => true ), 'objects' );
+		$out   = array();
+		foreach ( $types as $type ) {
+			if ( 'attachment' === $type->name ) {
+				continue;
+			}
+			$out[] = array(
+				'id'    => $type->name,
+				'label' => (string) $type->labels->singular_name,
+			);
+		}
+		return $out;
 	}
 }

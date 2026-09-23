@@ -314,6 +314,22 @@ final class PublicRenderer {
 					esc_html__( 'Drag & drop a file here, or click to choose.', 'ux-studio' )
 				);
 
+			case 'signature':
+				return sprintf(
+					'<div class="uxs-fp-signature" data-uxs-signature>' .
+						'<canvas class="uxs-fp-signature__pad" height="160"></canvas>' .
+						'<input type="hidden" id="%1$s" name="%2$s">' .
+						'<div class="uxs-fp-signature__actions">' .
+							'<button type="button" class="uxs-fp-btn uxs-fp-btn--ghost" data-uxs-signature-clear>%3$s</button>' .
+						'</div>' .
+						'<p class="uxs-fp-dropzone__hint">%4$s</p>' .
+					'</div>',
+					esc_attr( $uid ),
+					$name,
+					esc_html__( 'Clear', 'ux-studio' ),
+					esc_html__( 'Sign using your mouse or finger.', 'ux-studio' )
+				);
+
 			case 'hidden':
 				return sprintf(
 					'<input type="hidden" name="%1$s" value="%2$s">',
@@ -437,6 +453,9 @@ final class PublicRenderer {
 		.uxs-fp-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
 		.uxs-fp-chip{background:#eef2ff;color:#3730a3;border-radius:999px;padding:3px 10px;font-size:12px;display:inline-flex;align-items:center;gap:6px;}
 		.uxs-fp-chip button{border:0;background:none;color:inherit;cursor:pointer;font-size:12px;line-height:1;padding:0;}
+		.uxs-fp-signature{display:flex;flex-direction:column;gap:8px;}
+		.uxs-fp-signature__pad{width:100%;height:160px;border:1px solid #d1d5db;border-radius:6px;background:#fff;touch-action:none;cursor:crosshair;}
+		.uxs-fp-signature__actions{display:flex;justify-content:flex-end;}
 		.uxs-fp-hp{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;}
 		.uxs-fp-html{font-size:14px;line-height:1.5;}
 		.uxs-fp-nav{display:flex;gap:10px;margin-top:20px;}
@@ -571,6 +590,78 @@ final class PublicRenderer {
 				} );
 			}
 
+			function setupSignature( wrap ) {
+				var container = wrap.querySelector( '[data-uxs-signature]' );
+				if ( ! container ) { return; }
+				var canvas = container.querySelector( 'canvas' );
+				var input = container.querySelector( 'input[type=hidden]' );
+				var clearBtn = container.querySelector( '[data-uxs-signature-clear]' );
+				if ( ! canvas || ! input ) { return; }
+				var ctx = canvas.getContext( '2d' );
+				var drawing = false;
+				var hasInk = false;
+
+				function resize() {
+					var ratio = window.devicePixelRatio || 1;
+					var rect = canvas.getBoundingClientRect();
+					var wasInk = hasInk;
+					canvas.width = Math.max( 1, rect.width ) * ratio;
+					canvas.height = 160 * ratio;
+					ctx.scale( ratio, ratio );
+					ctx.lineWidth = 2;
+					ctx.lineCap = 'round';
+					ctx.strokeStyle = '#111827';
+					// A resize clears the canvas bitmap - an in-progress signature
+					// can't be preserved across a breakpoint change, so start over
+					// rather than silently keep a stale value in the hidden input.
+					if ( wasInk ) {
+						hasInk = false;
+						input.value = '';
+					}
+				}
+				resize();
+				window.addEventListener( 'resize', resize );
+
+				function pointFromEvent( e ) {
+					var rect = canvas.getBoundingClientRect();
+					var point = e.touches && e.touches.length ? e.touches[ 0 ] : e;
+					return { x: point.clientX - rect.left, y: point.clientY - rect.top };
+				}
+				function start( e ) {
+					e.preventDefault();
+					drawing = true;
+					var p = pointFromEvent( e );
+					ctx.beginPath();
+					ctx.moveTo( p.x, p.y );
+				}
+				function move( e ) {
+					if ( ! drawing ) { return; }
+					e.preventDefault();
+					var p = pointFromEvent( e );
+					ctx.lineTo( p.x, p.y );
+					ctx.stroke();
+					hasInk = true;
+				}
+				function end() {
+					if ( ! drawing ) { return; }
+					drawing = false;
+					input.value = hasInk ? canvas.toDataURL( 'image/png' ) : '';
+				}
+				canvas.addEventListener( 'mousedown', start );
+				canvas.addEventListener( 'mousemove', move );
+				window.addEventListener( 'mouseup', end );
+				canvas.addEventListener( 'touchstart', start, { passive: false } );
+				canvas.addEventListener( 'touchmove', move, { passive: false } );
+				canvas.addEventListener( 'touchend', end );
+				if ( clearBtn ) {
+					clearBtn.addEventListener( 'click', function () {
+						ctx.clearRect( 0, 0, canvas.width, canvas.height );
+						hasInk = false;
+						input.value = '';
+					} );
+				}
+			}
+
 			function stepFields( form, index ) {
 				var step = form.querySelector( '[data-uxs-step="' + index + '"]' );
 				return step ? step.querySelectorAll( '[data-uxs-field]:not([hidden])' ) : [];
@@ -585,6 +676,14 @@ final class PublicRenderer {
 					var inputs = wrap.querySelectorAll( 'input, select, textarea' );
 					var valid = true;
 					inputs.forEach( function ( input ) { if ( ! input.checkValidity() ) { valid = false; } } );
+					// A `signature` field's actual control is a <canvas>, not a
+					// native form element - its hidden mirror input is type=hidden,
+					// which the constraint-validation API always treats as valid
+					// regardless of `required`, so check it manually here.
+					if ( def && def.required && def.type === 'signature' ) {
+						var sigInput = wrap.querySelector( '[data-uxs-signature] input[type=hidden]' );
+						if ( sigInput && ! sigInput.value ) { valid = false; }
+					}
 					wrap.classList.toggle( 'has-error', ! valid );
 					if ( errorEl ) { errorEl.textContent = valid ? '' : ( def && def.required ? cfg.i18n.required : '' ); }
 					if ( ! valid ) { ok = false; }
@@ -644,6 +743,7 @@ final class PublicRenderer {
 				form.querySelectorAll( '.uxs-fp-field' ).forEach( function ( wrap ) {
 					setupMultiselect( wrap, cfg );
 					setupDropzone( wrap );
+					setupSignature( wrap );
 				} );
 
 				form.addEventListener( 'input', function () { applyConditions( form ); } );

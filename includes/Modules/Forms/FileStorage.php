@@ -148,6 +148,51 @@ final class FileStorage {
 	}
 
 	/**
+	 * Store already-decoded binary data (e.g. a `signature` field's canvas
+	 * PNG, PLAN.md 20.11/F4) as a private file - same directory, same random
+	 * name, same permissions as `store()`, so both go through one code path
+	 * for FileStorage::stream()/download_file()/CSV export. The caller MUST
+	 * already have decoded+size-capped the data (see Submissions::handle_signature_field());
+	 * this only re-validates that the bytes really are the declared image
+	 * type before trusting them.
+	 *
+	 * @param string $binary         Raw decoded file bytes.
+	 * @param string $original_name  Display name to store alongside it.
+	 * @param string $ext            Lowercase extension (no dot).
+	 * @param string $expected_mime  MIME the bytes must actually be (checked via getimagesize()).
+	 * @return array{stored_name:string,original_name:string,mime:string,size:int}|WP_Error
+	 */
+	public static function store_binary( string $binary, string $original_name, string $ext, string $expected_mime ) {
+		$tmp = wp_tempnam( 'uxstudio-signature' );
+		if ( false === $tmp || false === file_put_contents( $tmp, $binary ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			return new WP_Error( 'uxstudio_forms_upload_failed', __( 'Could not process the uploaded image.', 'ux-studio' ) );
+		}
+
+		$dims = @getimagesize( $tmp ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
+		if ( false === $dims || ( $dims['mime'] ?? '' ) !== $expected_mime ) {
+			@unlink( $tmp ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
+			return new WP_Error( 'uxstudio_forms_upload_type', __( 'The uploaded image is not valid.', 'ux-studio' ) );
+		}
+
+		$dir         = self::private_dir();
+		$stored_name = wp_generate_password( 32, false, false ) . '.' . $ext;
+		$dest        = $dir . '/' . $stored_name;
+
+		if ( ! @rename( $tmp, $dest ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors
+			@unlink( $tmp ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
+			return new WP_Error( 'uxstudio_forms_upload_failed', __( 'Could not store the uploaded image.', 'ux-studio' ) );
+		}
+		@chmod( $dest, 0640 ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
+
+		return array(
+			'stored_name'   => $stored_name,
+			'original_name' => sanitize_file_name( $original_name ),
+			'mime'          => $expected_mime,
+			'size'          => strlen( $binary ),
+		);
+	}
+
+	/**
 	 * Delete a stored file by its random stored name (never trusts a path).
 	 */
 	public static function delete( string $stored_name ): void {
