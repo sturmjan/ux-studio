@@ -81,7 +81,11 @@ final class Actions {
 		);
 		$signature = hash_hmac( 'sha256', $body, $secret );
 
-		$response = wp_remote_post(
+		// wp_safe_remote_post() (not wp_remote_post()) rejects loopback/private/
+		// link-local targets (e.g. cloud metadata endpoints) via the
+		// http_request_host_is_external filter — the webhook URL is admin-set
+		// but still an outbound request to an arbitrary user-supplied host.
+		$response = wp_safe_remote_post(
 			$url,
 			array(
 				'timeout' => 10,

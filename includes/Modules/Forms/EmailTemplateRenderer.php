@@ -209,17 +209,28 @@ final class EmailTemplateRenderer {
 	 */
 	public static function merge_tags( string $text, array $context ): string {
 		$replacements = array(
-			'{form_title}'       => (string) ( $context['form_title'] ?? '' ),
-			'{submission_date}'  => (string) ( $context['submission_date'] ?? '' ),
+			'{form_title}'       => self::strip_header_breaks( (string) ( $context['form_title'] ?? '' ) ),
+			'{submission_date}'  => self::strip_header_breaks( (string) ( $context['submission_date'] ?? '' ) ),
+			// {submission_table} is rendered HTML for the body only, never used in
+			// a subject/To context, so it is intentionally exempt from the strip.
 			'{submission_table}' => self::submission_table( (array) ( $context['fields_snapshot'] ?? array() ), (array) ( $context['values'] ?? array() ) ),
 		);
 
 		$values = (array) ( $context['values'] ?? array() );
 		foreach ( $values as $key => $value ) {
-			$replacements[ '{' . $key . '}' ] = is_scalar( $value ) ? (string) $value : ( is_array( $value ) ? implode( ', ', array_map( 'strval', $value ) ) : '' );
+			$flat = is_scalar( $value ) ? (string) $value : ( is_array( $value ) ? implode( ', ', array_map( 'strval', $value ) ) : '' );
+			// Submitted field values feed both the subject and the To address of
+			// the notification email (Actions.php) - without stripping CR/LF here
+			// a crafted field value could inject extra mail headers.
+			$replacements[ '{' . $key . '}' ] = self::strip_header_breaks( $flat );
 		}
 
 		return strtr( $text, $replacements );
+	}
+
+	/** Remove CR/LF so a merge-tag value can never inject extra mail headers. */
+	private static function strip_header_breaks( string $value ): string {
+		return trim( str_replace( array( "\r", "\n" ), ' ', $value ) );
 	}
 
 	/**
