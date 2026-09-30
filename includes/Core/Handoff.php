@@ -43,9 +43,49 @@ final class Handoff {
 		//    never drop data before it is copied. Module-specific data copies
 		//    lazily on each module's first boot; ux1_* tables survive deactivation.
 		if ( is_plugin_active( self::LEGACY_PLUGIN ) ) {
-			deactivate_plugins( self::LEGACY_PLUGIN );
+			// Silent: skip ux1's own deactivation hook. Its Deactivator can drop
+			// the legacy tables (remove_plugin_data), and module data is copied
+			// lazily on each module's first boot - long after this request.
+			deactivate_plugins( self::LEGACY_PLUGIN, true );
+			// A silent deactivation also skips ux1's cron cleanup - do it here.
+			self::clear_legacy_cron();
 			// Offer to delete the now-orphaned ux1 files (only shown if present).
 			update_option( self::OFFER_OPTION, '1', false );
+		}
+	}
+
+	/**
+	 * Legacy ux1 cron hooks that are not prefixed ux1_ (see its SMTP module).
+	 *
+	 * @var string[]
+	 */
+	private const LEGACY_CRON_HOOKS = array( 'wpextended_smtp_email_purge_logs' );
+
+	/**
+	 * Unschedule every cron event left behind by the legacy ux1 plugin (ux1_*
+	 * hooks + LEGACY_CRON_HOOKS). With ux1 inactive nothing listens to them,
+	 * so they only fire into the void. Idempotent; no-op while ux1 is still
+	 * active (it would re-schedule them and they are still live then).
+	 */
+	public static function clear_legacy_cron(): void {
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+		$cron = _get_cron_array();
+		if ( ! is_array( $cron ) || is_plugin_active( self::LEGACY_PLUGIN ) ) {
+			return;
+		}
+		$hooks = array();
+		foreach ( $cron as $events ) {
+			foreach ( array_keys( (array) $events ) as $hook ) {
+				$hook = (string) $hook;
+				if ( 0 === strpos( $hook, 'ux1_' ) || in_array( $hook, self::LEGACY_CRON_HOOKS, true ) ) {
+					$hooks[ $hook ] = true;
+				}
+			}
+		}
+		foreach ( array_keys( $hooks ) as $hook ) {
+			wp_unschedule_hook( $hook );
 		}
 	}
 

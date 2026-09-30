@@ -64,8 +64,18 @@ final class Settings {
 			$clean[ $key ] = self::sanitize_field( $input[ $key ], $field );
 		}
 		$this->values = array_merge( $this->all(), $clean );
-		update_option( $this->option, $this->values );
+		update_option( $this->option, $this->values, self::should_autoload( $this->values ) );
 		return $this->values;
+	}
+
+	/**
+	 * Module settings are read on every request by their (enabled) module, so
+	 * small blobs are autoloaded; unusually large ones stay out of alloptions.
+	 *
+	 * @param mixed $value Option value.
+	 */
+	public static function should_autoload( $value ): bool {
+		return strlen( (string) maybe_serialize( $value ) ) < 10 * KB_IN_BYTES;
 	}
 
 	/**

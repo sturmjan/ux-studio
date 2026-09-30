@@ -115,6 +115,32 @@ final class HtaccessDelivery {
 	}
 
 	/**
+	 * Remove our block INCLUDING its BEGIN/END marker lines (remove() leaves the
+	 * empty markers behind, which is_active() would still report as present).
+	 * Used when the module is switched off.
+	 */
+	public function purge(): bool {
+		$path = $this->htaccess_path();
+		if ( '' === $path || ! is_file( $path ) ) {
+			return true;
+		}
+		if ( ! $this->is_safe_target( $path ) || ! is_writable( $path ) ) {
+			return false;
+		}
+		$content = file_get_contents( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		if ( ! is_string( $content ) ) {
+			return false;
+		}
+		$marker  = preg_quote( self::MARKER, '/' );
+		$cleaned = preg_replace( '/^# BEGIN ' . $marker . '\R.*?^# END ' . $marker . '\R?/ms', '', $content );
+		if ( ! is_string( $cleaned ) || $cleaned === $content ) {
+			return true;
+		}
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- same direct write insert_with_markers() does, target realpath-verified above.
+		return false !== file_put_contents( $path, $cleaned, LOCK_EX );
+	}
+
+	/**
 	 * Whether our marker block is currently present in uploads/.htaccess.
 	 */
 	public function is_active(): bool {

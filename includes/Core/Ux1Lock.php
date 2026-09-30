@@ -65,7 +65,12 @@ final class Ux1Lock {
 		if ( ! function_exists( 'deactivate_plugins' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
-		deactivate_plugins( self::LEGACY_PLUGIN );
+		// Silent: ux1's deactivation hook may drop its tables (remove_plugin_data)
+		// before UX Studio modules have lazily copied their data.
+		deactivate_plugins( self::LEGACY_PLUGIN, true );
+		// Its activation may have re-scheduled ux1_* cron events; the silent
+		// deactivation skipped ux1's own cleanup, so remove them here.
+		Handoff::clear_legacy_cron();
 		set_transient( self::NOTICE_TRANSIENT, 1, MINUTE_IN_SECONDS );
 	}
 

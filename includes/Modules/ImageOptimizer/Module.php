@@ -52,6 +52,32 @@ final class Module extends BaseModule {
 			// the file is final on disk. Filter: must return metadata untouched.
 			add_filter( 'wp_generate_attachment_metadata', array( $this, 'auto_optimize_metadata' ), 20, 2 );
 		}
+
+		// on_disable() strips the delivery block; after re-enabling, restore it
+		// (admin only - is_active() reads uploads/.htaccess).
+		if ( (bool) $this->settings->get( 'htaccess_delivery', false ) ) {
+			add_action( 'admin_init', array( $this, 'restore_htaccess_delivery' ) );
+		}
+	}
+
+	/**
+	 * Module switched off / plugin deactivated: stop serving next-gen images
+	 * via uploads/.htaccess (the rules would otherwise outlive the module) and
+	 * drop any pending bulk-optimize batch. Settings and the queue are kept.
+	 */
+	public function on_disable(): void {
+		( new HtaccessDelivery() )->purge();
+		wp_clear_scheduled_hook( self::CRON_HOOK );
+	}
+
+	/**
+	 * admin_init: re-write the delivery block if it is enabled in settings but
+	 * missing from uploads/.htaccess (e.g. after the module was re-enabled).
+	 */
+	public function restore_htaccess_delivery(): void {
+		if ( ! ( new HtaccessDelivery() )->is_active() ) {
+			$this->sync_htaccess();
+		}
 	}
 
 	/**
