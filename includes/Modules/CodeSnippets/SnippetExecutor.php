@@ -54,10 +54,10 @@ final class SnippetExecutor {
 	private function isSafeMode(): bool {
 		$persisted_default = (bool) $this->settings->get( 'safe_mode', false );
 
-		if ( ! current_user_can( 'manage_options' ) ) {
-			if ( isset( $_COOKIE['uxstudio_safe_mode'] ) && '1' === $_COOKIE['uxstudio_safe_mode'] ) {
-				return true;
-			}
+		// The cookie is only honoured for admins: anyone can send it, and a
+		// visitor must not be able to switch off snippets (e.g. a security or
+		// consent snippet) for their own requests.
+		if ( ! is_user_logged_in() || ! current_user_can( 'manage_options' ) ) {
 			return $persisted_default;
 		}
 
@@ -121,7 +121,7 @@ final class SnippetExecutor {
 	 * Include enabled PHP snippets early so they can register their own hooks.
 	 */
 	public function loadPhpSnippets(): void {
-		foreach ( $this->snippetManager->getAllSnippets() as $snippet ) {
+		foreach ( $this->snippetManager->getEnabledSnippets() as $snippet ) {
 			if ( ! $snippet->isEnabled() || ! $snippet->canExecute() ) {
 				continue;
 			}
@@ -135,7 +135,7 @@ final class SnippetExecutor {
 	 * Queue enabled non-PHP snippets for output on their appropriate hooks.
 	 */
 	private function processNonPhpSnippets(): void {
-		foreach ( $this->snippetManager->getAllSnippets() as $snippet ) {
+		foreach ( $this->snippetManager->getEnabledSnippets() as $snippet ) {
 			if ( ! $snippet->isEnabled() || ! $snippet->canExecute() ) {
 				continue;
 			}

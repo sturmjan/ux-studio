@@ -12,6 +12,11 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Given the per-category rule and the current tier, decide the action
  * (pass / delay / microcache / block), the delay in ms and the HTTP status.
+ *
+ * Sleeping is only planned at GREEN/YELLOW: at ORANGE/RED a usleep() would
+ * hold a PHP worker exactly when the server is short of them, so those tiers
+ * serve the microcache and otherwise answer 429/503 with Retry-After
+ * (`block_on_miss`). Search engines and friendly bots are never turned away.
  */
 final class Throttler {
 
@@ -23,7 +28,7 @@ final class Throttler {
 
 	/**
 	 * @param array $rules  category id => [ action ].
-	 * @param array $delays delay bounds (min_delay_ms, light_*, aggressive_*, red_*).
+	 * @param array $delays delay bounds (min_delay_ms, light_*, aggressive_*).
 	 */
 	public function __construct( array $rules = array(), array $delays = array() ) {
 		$this->rules  = $rules;
@@ -34,8 +39,6 @@ final class Throttler {
 				'light_max'      => 1500,
 				'aggressive_min' => 2000,
 				'aggressive_max' => 5000,
-				'red_min'        => 5000,
-				'red_max'        => 10000,
 			),
 			$delays
 		);
@@ -46,12 +49,13 @@ final class Throttler {
 	 *
 	 * @param string $category Bot category id.
 	 * @param string $tier     Load tier constant.
-	 * @return array{action:string,delay_ms:int,status:int}
+	 * @return array{action:string,delay_ms:int,status:int,block_on_miss?:bool,retry_after?:int}
 	 */
 	public function plan( string $category, string $tier ): array {
 		$rule = $this->rules[ $category ]['action'] ?? $this->default_action_for_category( $category );
 
-		// Search engines: never blocked, only mildly delayed, to avoid deindexing.
+		// Search engines: never blocked, to avoid deindexing. Under load they
+		// get the microcache (rendered once, then served) instead of a sleep.
 		if ( 'search_engines' === $category ) {
 			switch ( $tier ) {
 				case 'GREEN':
@@ -59,9 +63,8 @@ final class Throttler {
 				case 'YELLOW':
 					return array( 'action' => 'delay', 'delay_ms' => $this->delays['min_delay_ms'], 'status' => 200 );
 				case 'ORANGE':
-					return array( 'action' => 'delay', 'delay_ms' => $this->jitter( 500, 1500 ), 'status' => 200 );
 				case 'RED':
-					return array( 'action' => 'delay', 'delay_ms' => 1000, 'status' => 200 );
+					return array( 'action' => 'microcache', 'delay_ms' => 0, 'status' => 200 );
 			}
 		}
 
@@ -70,7 +73,10 @@ final class Throttler {
 				return array( 'action' => 'pass', 'delay_ms' => 0, 'status' => 200 );
 
 			case 'pass_with_min_delay':
-				$d = 'GREEN' === $tier ? 0 : ( 'YELLOW' === $tier ? 200 : ( 'ORANGE' === $tier ? 800 : 1500 ) );
+				if ( 'ORANGE' === $tier || 'RED' === $tier ) {
+					return array( 'action' => 'microcache', 'delay_ms' => 0, 'status' => 200 );
+				}
+				$d = 'YELLOW' === $tier ? 200 : 0;
 				return array( 'action' => $d > 0 ? 'delay' : 'pass', 'delay_ms' => $d, 'status' => 200 );
 
 			case 'throttle_light':
@@ -80,7 +86,7 @@ final class Throttler {
 				return $this->throttle_aggressive( $tier );
 
 			case 'block':
-				return array( 'action' => 'block', 'delay_ms' => 0, 'status' => 429 );
+				return array( 'action' => 'block', 'delay_ms' => 0, 'status' => 429, 'retry_after' => 60 );
 
 			default:
 				return $this->throttle_light( $tier );
@@ -98,9 +104,11 @@ final class Throttler {
 			case 'YELLOW':
 				return array( 'action' => 'delay', 'delay_ms' => $this->jitter( $this->delays['light_min'], $this->delays['light_max'] ), 'status' => 200 );
 			case 'ORANGE':
-				return array( 'action' => 'microcache', 'delay_ms' => $this->jitter( 1000, 3000 ), 'status' => 200 );
+				// Serve cached copies; a miss still renders once to fill the cache.
+				return array( 'action' => 'microcache', 'delay_ms' => 0, 'status' => 200 );
 			case 'RED':
-				return array( 'action' => 'microcache', 'delay_ms' => $this->jitter( $this->delays['red_min'], $this->delays['red_max'] ), 'status' => 200 );
+				// No rendering under RED: cache hit or 503 + Retry-After.
+				return array( 'action' => 'microcache', 'delay_ms' => 0, 'status' => 503, 'block_on_miss' => true, 'retry_after' => 120 );
 		}
 		return array( 'action' => 'pass', 'delay_ms' => 0, 'status' => 200 );
 	}
@@ -116,15 +124,15 @@ final class Throttler {
 			case 'YELLOW':
 				return array( 'action' => 'delay', 'delay_ms' => $this->jitter( $this->delays['aggressive_min'], $this->delays['aggressive_max'] ), 'status' => 200 );
 			case 'ORANGE':
-				return array( 'action' => 'microcache', 'delay_ms' => $this->jitter( 3000, 6000 ), 'status' => 200 );
+				return array( 'action' => 'microcache', 'delay_ms' => 0, 'status' => 429, 'block_on_miss' => true, 'retry_after' => 60 );
 			case 'RED':
-				return array( 'action' => 'block', 'delay_ms' => 0, 'status' => 503 );
+				return array( 'action' => 'block', 'delay_ms' => 0, 'status' => 503, 'retry_after' => 120 );
 		}
 		return array( 'action' => 'pass', 'delay_ms' => 0, 'status' => 200 );
 	}
 
 	/**
-	 * Sleep for the planned delay (capped at 10s).
+	 * Sleep for the planned delay (capped at 5s; only GREEN/YELLOW plans sleep).
 	 *
 	 * @param int $delay_ms Delay in milliseconds.
 	 */
@@ -132,7 +140,7 @@ final class Throttler {
 		if ( $delay_ms <= 0 ) {
 			return;
 		}
-		$delay_ms = min( 10000, $delay_ms );
+		$delay_ms = min( 5000, $delay_ms );
 		usleep( $delay_ms * 1000 );
 	}
 

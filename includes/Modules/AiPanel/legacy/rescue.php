@@ -18,7 +18,7 @@
  * Konfigurace (heslo hash, root, IP whitelist) se čte z config.php ve stejné
  * složce. Soubor generuje a spravuje plugin AI Panel ve WP adminu.
  *
- * @version 1.1.0
+ * @version 1.2.0
  */
 
 declare(strict_types=1);
@@ -34,6 +34,8 @@ $CFG = [
     'require_https' => false,
     'label'         => '',
     'created'       => 0,
+    'expires_at'    => 0,
+    'proxies'       => [],
 ];
 $cfg_file = __DIR__ . '/config.php';
 if (is_file($cfg_file)) {
@@ -68,6 +70,29 @@ if ($CFG['hash'] === '') {
     exit;
 }
 
+// Platnost: po vypršení přístupu se endpoint sám smaže (i když WP-cron ani
+// plugin úklid neprovedou). Starší config bez expires_at = max. délka grantu
+// (7 dní) od vytvoření.
+$expires_at = (int) $CFG['expires_at'];
+if ($expires_at <= 0 && (int) $CFG['created'] > 0) {
+    $expires_at = (int) $CFG['created'] + 7 * 86400;
+}
+if ($expires_at <= 0 || time() >= $expires_at) {
+    if (basename(__DIR__) === 'claude-panel-rescue') {
+        foreach ((array) scandir(__DIR__) as $f) {
+            if ($f !== '.' && $f !== '..' && is_file(__DIR__ . '/' . $f)) {
+                @unlink(__DIR__ . '/' . $f);
+            }
+        }
+        @chdir(dirname(__DIR__)); // Windows neumí smazat aktuální adresář.
+        @rmdir(__DIR__);
+    }
+    http_response_code(404);
+    header('Content-Type: text/plain; charset=utf-8');
+    echo 'Not Found';
+    exit;
+}
+
 // Tento skript i jeho konfigurace jsou tabu — nedovol si přepsat/smazat sám
 // sebe a přijít o přístup.
 $SELF_DIR = rtrim(str_replace('\\', '/', __DIR__), '/') . '/';
@@ -75,7 +100,45 @@ $SELF_DIR = rtrim(str_replace('\\', '/', __DIR__), '/') . '/';
 /* ============ HELPERS ============ */
 
 function client_ip(): string {
-    return isset($_SERVER['REMOTE_ADDR']) ? (string) $_SERVER['REMOTE_ADDR'] : '?';
+    // Proxy hlavičky jen od důvěryhodné proxy (Cloudflare / nastavené proxy
+    // z configu) - stejně jako UX Studio Core\ClientIp, jinak by IP zámek
+    // nesouhlasil s IP, kterou zamkl WP admin.
+    global $CFG;
+    $remote = isset($_SERVER['REMOTE_ADDR']) ? trim((string) $_SERVER['REMOTE_ADDR']) : '';
+    if (!filter_var($remote, FILTER_VALIDATE_IP)) return '?';
+    $proxies = (array) ($CFG['proxies'] ?? []);
+    if (!$proxies || !ip_in_ranges($remote, $proxies)) return $remote;
+    $cf = trim((string) ($_SERVER['HTTP_CF_CONNECTING_IP'] ?? ''));
+    if ($cf !== '' && filter_var($cf, FILTER_VALIDATE_IP)) return $cf;
+    foreach (array_reverse(array_map('trim', explode(',', (string) ($_SERVER['HTTP_X_FORWARDED_FOR'] ?? '')))) as $hop) {
+        if (!filter_var($hop, FILTER_VALIDATE_IP)) break;
+        if (!ip_in_ranges($hop, $proxies)) return $hop;
+    }
+    return $remote;
+}
+
+function ip_in_ranges(string $ip, array $ranges): bool {
+    $bin = @inet_pton($ip);
+    if ($bin === false) return false;
+    foreach ($ranges as $range) {
+        $range = trim((string) $range);
+        if ($range === '') continue;
+        if (strpos($range, '/') === false) {
+            if (@inet_pton($range) === $bin) return true;
+            continue;
+        }
+        [$net, $bits] = explode('/', $range, 2);
+        $net_bin = @inet_pton($net);
+        $bits    = (int) $bits;
+        if ($net_bin === false || strlen($net_bin) !== strlen($bin) || $bits < 0 || $bits > strlen($bin) * 8) continue;
+        $full = intdiv($bits, 8);
+        $rest = $bits % 8;
+        if (substr($bin, 0, $full) !== substr($net_bin, 0, $full)) continue;
+        if ($rest === 0) return true;
+        $mask = (0xFF << (8 - $rest)) & 0xFF;
+        if ((ord($bin[$full]) & $mask) === (ord($net_bin[$full]) & $mask)) return true;
+    }
+    return false;
 }
 
 function is_https(): bool {

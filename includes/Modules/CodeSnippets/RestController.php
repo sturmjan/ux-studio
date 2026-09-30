@@ -23,6 +23,8 @@ defined( 'ABSPATH' ) || exit;
  *
  * Every route requires manage_options (base Controller default) - this module
  * executes arbitrary server-side PHP, so there is no lower-privilege tier.
+ * Writes (create/update/enable/delete) additionally need edit_plugins and are
+ * refused under DISALLOW_FILE_EDIT/MODS (SnippetManager::editBlockReason()).
  */
 final class RestController extends Controller {
 
@@ -138,6 +140,10 @@ final class RestController extends Controller {
 	 * Create a snippet.
 	 */
 	public function create_snippet( WP_REST_Request $request ) {
+		$blocked = SnippetManager::editBlockReason();
+		if ( '' !== $blocked ) {
+			return new WP_Error( 'uxstudio_file_edit_disallowed', $blocked, array( 'status' => 403 ) );
+		}
 		$result = $this->snippetManager->createSnippet( $this->payload( $request ) );
 		if ( ! $result['success'] ) {
 			return new WP_Error( 'uxstudio_snippet_create_failed', $result['message'], array( 'status' => 400 ) );
@@ -149,6 +155,10 @@ final class RestController extends Controller {
 	 * Update a snippet.
 	 */
 	public function update_snippet( WP_REST_Request $request ) {
+		$blocked = SnippetManager::editBlockReason();
+		if ( '' !== $blocked ) {
+			return new WP_Error( 'uxstudio_file_edit_disallowed', $blocked, array( 'status' => 403 ) );
+		}
 		$result = $this->snippetManager->updateSnippet( (string) $request['id'], $this->payload( $request ) );
 		if ( ! $result['success'] ) {
 			return new WP_Error( 'uxstudio_snippet_update_failed', $result['message'], array( 'status' => 400 ) );
@@ -162,6 +172,11 @@ final class RestController extends Controller {
 	public function toggle_snippet( WP_REST_Request $request ) {
 		$id      = (string) $request['id'];
 		$enabled = (bool) $request->get_param( 'enabled' );
+
+		$blocked = $enabled ? SnippetManager::editBlockReason() : '';
+		if ( '' !== $blocked ) {
+			return new WP_Error( 'uxstudio_file_edit_disallowed', $blocked, array( 'status' => 403 ) );
+		}
 
 		if ( ! $this->snippetManager->getSnippet( $id ) ) {
 			return new WP_Error( 'uxstudio_not_found', __( 'Snippet not found', 'ux-studio' ), array( 'status' => 404 ) );
@@ -180,6 +195,11 @@ final class RestController extends Controller {
 	 */
 	public function delete_snippet( WP_REST_Request $request ) {
 		$id = (string) $request['id'];
+
+		$blocked = SnippetManager::editBlockReason();
+		if ( '' !== $blocked ) {
+			return new WP_Error( 'uxstudio_file_edit_disallowed', $blocked, array( 'status' => 403 ) );
+		}
 
 		if ( ! $this->snippetManager->getSnippet( $id ) ) {
 			return new WP_Error( 'uxstudio_not_found', __( 'Snippet not found', 'ux-studio' ), array( 'status' => 404 ) );

@@ -45,9 +45,11 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Rolling back core assets is high-impact; keep it restricted to admins.
+	 * Rolling back is replacing plugin/theme code: update_plugins is denied by
+	 * core under DISALLOW_FILE_MODS and limited to super admins on multisite.
+	 * The rollback route itself checks update_* + install_* per item type.
 	 */
 	public function capability(): string {
-		return 'manage_options';
+		return 'update_plugins';
 	}
 }

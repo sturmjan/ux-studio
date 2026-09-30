@@ -79,6 +79,9 @@ final class Claude_Panel_Runtime {
                 session_regenerate_id(true);
                 $_SESSION['auth']      = true;
                 $_SESSION['auth_time'] = time();
+                // UX Studio: bind the session to this grant (see is_logged_in).
+                $_SESSION['grant_slug']    = (string) self::$opts['access_slug'];
+                $_SESSION['grant_expires'] = intval(self::$opts['access_expires_at']);
                 self::rate_limit_ok($attempts, $ip);
                 Claude_Panel_Bootstrap::audit('login_ok');
                 Claude_Panel_Bootstrap::notify_admin_email(
@@ -242,8 +245,16 @@ final class Claude_Panel_Runtime {
     /* ============ AUTH HELPERS ============ */
 
     public static function is_logged_in() {
+        // UX Studio: the session only counts for the grant it was opened
+        // under - a revoke / new grant (new slug) or expiry invalidates it.
+        $slug    = (string) (self::$opts['access_slug'] ?? '');
+        $expires = intval(self::$opts['access_expires_at'] ?? 0);
         return !empty($_SESSION['auth'])
-            && intval($_SESSION['auth_time'] ?? 0) > time() - 3600;
+            && intval($_SESSION['auth_time'] ?? 0) > time() - 3600
+            && $slug !== ''
+            && hash_equals($slug, (string) ($_SESSION['grant_slug'] ?? ''))
+            && intval($_SESSION['grant_expires'] ?? -1) === $expires
+            && $expires > time();
     }
 
     public static function csrf_token() {

@@ -31,7 +31,9 @@ defined( 'ABSPATH' ) || exit;
  *  - Execution is skipped during REST/AJAX/CRON requests.
  *  - A safe-mode kill switch (cookie + nonce-verified query param, plus a
  *    persisted default in module settings) can disable all snippet execution.
- *  - Every route requires manage_options - there is no lower tier here.
+ *  - Every route requires manage_options - there is no lower tier here;
+ *    writes also need edit_plugins and respect DISALLOW_FILE_EDIT/MODS
+ *    (already enabled snippets keep running).
  *
  * The one deliberate structural deviation from the legacy module: snippet
  * METADATA (title/type/enabled/run_location) now lives in a proper DB table
@@ -108,6 +110,15 @@ final class Module extends BaseModule {
 				'default' => false,
 			),
 		);
+	}
+
+	/**
+	 * Managing snippets = writing executable PHP: edit_plugins is denied by
+	 * core under DISALLOW_FILE_EDIT/MODS and limited to super admins on
+	 * multisite.
+	 */
+	public function capability(): string {
+		return 'edit_plugins';
 	}
 
 	/**

@@ -4,9 +4,12 @@
  *
  * How it works:
  *  - The frontend sends an async "beacon" (fetch keepalive) after the page has
- *    rendered, so page load is never delayed. It posts to a REST endpoint that
- *    writes into a raw `analytics_hits` buffer table, which only holds a
- *    couple of days' worth of rows.
+ *    rendered, so page load is never delayed. It posts to the REST URL of the
+ *    hit endpoint, but the request is answered already on plugins_loaded
+ *    (maybe_fast_hit()) - before the theme, `init` and the REST server boot -
+ *    and writes into a raw `analytics_hits` buffer table, which only holds a
+ *    couple of days' worth of rows. The registered REST route stays as a
+ *    fallback (e.g. plain permalinks behind an unusual rewrite).
  *  - A daily cron job (rollup()) merges older days into small daily
  *    aggregates (`analytics_daily`, `_daily_pages`, `_daily_refs`,
  *    `_daily_dims`) and deletes the raw rows, so the buffer never grows
@@ -33,7 +36,7 @@ defined( 'ABSPATH' ) || exit;
 final class Module extends BaseModule {
 
 	/** Schema version for this module's own tables. */
-	private const DB_VERSION = 1;
+	private const DB_VERSION = 2;
 
 	private const ROLLUP_CRON_HOOK = 'ux_studio/analytics_rollup';
 	private const GEOIP_CRON_HOOK  = 'ux_studio/analytics_geoip_refresh';
@@ -119,8 +122,22 @@ final class Module extends BaseModule {
 						PRIMARY KEY  (day, dim, val)
 					) {$charset};"
 				);
+
+				// v2: per-IP hourly cap for the public hit endpoint (was two
+				// transients = four option rows rewritten on every page view).
+				dbDelta(
+					"CREATE TABLE {$prefix}rate (
+						k CHAR(40) NOT NULL,
+						window_start INT UNSIGNED NOT NULL,
+						hits INT UNSIGNED NOT NULL DEFAULT 0,
+						PRIMARY KEY  (k,window_start)
+					) {$charset};"
+				);
 			}
 		);
+
+		// Beacon hits are answered right here (plugins_loaded) and exit.
+		$this->maybe_fast_hit();
 
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'wp_footer', array( $this, 'beacon' ) );
@@ -221,12 +238,75 @@ final class Module extends BaseModule {
 		return array( 'ok' => $ok, 'message' => $msg );
 	}
 
-	/** Record a (cookieless, public) page view into the buffer. */
+	/**
+	 * Fast path for the beacon: when this request is a POST to the hit
+	 * endpoint's REST URL (pretty `/wp-json/...` or `?rest_route=`), record it
+	 * now and exit - skipping the theme, `init` (post types, WooCommerce...)
+	 * and the REST server, which made every page view cost a second full boot.
+	 * Runs only while the module is enabled (called from boot()), with the
+	 * same Guard/RateLimit protection and input validation as the REST route.
+	 */
+	private function maybe_fast_hit(): void {
+		if ( 'POST' !== strtoupper( (string) ( $_SERVER['REQUEST_METHOD'] ?? '' ) ) || ! self::is_hit_request() ) {
+			return;
+		}
+
+		$raw  = (string) file_get_contents( 'php://input', false, null, 0, 4096 );
+		$data = json_decode( $raw, true );
+		if ( ! is_array( $data ) ) {
+			$data = wp_unslash( $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- public cookieless beacon.
+		}
+
+		$this->record_hit(
+			is_scalar( $data['path'] ?? null ) ? (string) $data['path'] : '',
+			is_scalar( $data['ref'] ?? null ) ? (string) $data['ref'] : ''
+		);
+
+		if ( ! headers_sent() ) {
+			status_header( 200 );
+			nocache_headers();
+			header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ) );
+			header( 'X-Robots-Tag: noindex' );
+		}
+		echo '{"ok":true}';
+		exit;
+	}
+
+	/**
+	 * Whether the current request targets the hit endpoint.
+	 */
+	private static function is_hit_request(): bool {
+		$route = '/' . Controller::NS . '/analytics/hit';
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- routing only.
+		if ( isset( $_GET['rest_route'] ) && is_string( $_GET['rest_route'] ) && untrailingslashit( $_GET['rest_route'] ) === $route ) {
+			return true;
+		}
+
+		$path = (string) wp_parse_url( (string) ( $_SERVER['REQUEST_URI'] ?? '' ), PHP_URL_PATH );
+		$tail = '/' . trim( rest_get_url_prefix(), '/' ) . $route;
+		return '' !== $path && str_ends_with( untrailingslashit( $path ), $tail );
+	}
+
+	/** Record a (cookieless, public) page view into the buffer (REST fallback). */
 	public function hit( WP_REST_Request $req ): WP_REST_Response {
+		$path = $req->get_param( 'path' );
+		$ref  = $req->get_param( 'ref' );
+		$this->record_hit( is_scalar( $path ) ? (string) $path : '', is_scalar( $ref ) ? (string) $ref : '' );
+		return new WP_REST_Response( array( 'ok' => true ), 200 );
+	}
+
+	/**
+	 * Validate and store one page view (shared by the fast path and REST).
+	 *
+	 * @param string $path Page path sent by the beacon.
+	 * @param string $ref  document.referrer.
+	 */
+	private function record_hit( string $path, string $ref ): void {
 		global $wpdb;
 
 		// Cheapest check first, and shared with the rest of the site: Bot
-		// Throttle's Guard rejects an already-banned IP on a single transient
+		// Throttle's Guard rejects an already-banned IP on a single cheap
 		// read, before any DB write or GeoIP lookup runs, and owns the
 		// ban log + throttled admin email. A real bot hammering this endpoint
 		// costs almost nothing once caught.
@@ -239,15 +319,15 @@ final class Module extends BaseModule {
 			BotThrottleGuard::exceeded( 'analytics_hit', 20, 10, 15 * MINUTE_IN_SECONDS )
 			|| RateLimit::exceeded( 'hit', 600 )
 		) {
-			return new WP_REST_Response( array( 'ok' => true ), 200 ); // Silently drop.
+			return; // Silently drop.
 		}
 
-		$path = (string) $req->get_param( 'path' );
+		$path = substr( $path, 0, 2048 );
 		$path = '/' . ltrim( sanitize_text_field( wp_parse_url( $path, PHP_URL_PATH ) ?: $path ), '/' );
 		$path = substr( $path, 0, 255 );
 
-		$ref  = (string) $req->get_param( 'ref' );
-		$host = $ref ? sanitize_text_field( (string) wp_parse_url( $ref, PHP_URL_HOST ) ) : '';
+		$ref  = substr( $ref, 0, 2048 );
+		$host = $ref ? substr( sanitize_text_field( (string) wp_parse_url( $ref, PHP_URL_HOST ) ), 0, 120 ) : '';
 
 		// Other dimensions are derived server-side from headers (raw UA/IP are
 		// never stored).
@@ -270,7 +350,6 @@ final class Module extends BaseModule {
 				'ts'           => current_time( 'mysql', true ),
 			)
 		);
-		return new WP_REST_Response( array( 'ok' => true ), 200 );
 	}
 
 	/** Device type from the User-Agent. */
@@ -344,7 +423,7 @@ final class Module extends BaseModule {
 
 	/** Daily-rotating, anonymous visitor fingerprint (no raw IP stored). */
 	private function visitor_hash(): string {
-		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? (string) $_SERVER['REMOTE_ADDR'] : ''; // phpcs:ignore
+		$ip = ClientIp::get();
 		$ua = isset( $_SERVER['HTTP_USER_AGENT'] ) ? (string) $_SERVER['HTTP_USER_AGENT'] : ''; // phpcs:ignore
 		return hash( 'sha256', $ip . '|' . $ua . '|' . current_time( 'Y-m-d' ) . '|' . wp_salt() );
 	}

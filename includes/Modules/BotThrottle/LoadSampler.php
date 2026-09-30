@@ -12,12 +12,23 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Records per-request metrics (response time, query count, peak memory) into a
  * 60-second sliding window and derives a 0-100 load score + tier from it.
- * Storage: APCu when available, otherwise a non-autoloaded option.
+ * Storage: APCu when available (every request, raw entries). Without APCu a
+ * small per-10s-bucket aggregate (count + sums) lives in a non-autoloaded
+ * option and only 1 in SAMPLE_RATE requests writes it - the score only needs
+ * averages, which sampling keeps unbiased, and the option is no longer
+ * rewritten (and raced) on every request.
  */
 final class LoadSampler {
 
 	private const KEY      = 'uxstudio_bt_load_window';
+	private const AGG_KEY  = 'uxstudio_bt_load_agg';
 	private const TIER_KEY = 'uxstudio_bt_current_tier';
+
+	/** Without APCu, 1 in N requests is recorded (filter: uxstudio_bt_sample_rate). */
+	private const SAMPLE_RATE = 20;
+
+	/** Aggregate bucket width in seconds. */
+	private const BUCKET = 10;
 
 	public const TIER_GREEN  = 'GREEN';
 	public const TIER_YELLOW = 'YELLOW';
@@ -49,7 +60,17 @@ final class LoadSampler {
 	 * @param float $mem_mb           Peak memory in MB.
 	 */
 	public function record( float $response_time_ms, int $queries, float $mem_mb ): void {
-		$now      = time();
+		$now = time();
+
+		if ( ! self::has_apcu() ) {
+			$rate = max( 1, (int) apply_filters( 'uxstudio_bt_sample_rate', self::SAMPLE_RATE ) );
+			if ( $rate > 1 && 1 !== wp_rand( 1, $rate ) ) {
+				return;
+			}
+			$this->record_aggregate( $now, $response_time_ms, $queries, $mem_mb );
+			return;
+		}
+
 		$window   = $this->load_window();
 		$window[] = array(
 			't'  => $now,
@@ -66,14 +87,85 @@ final class LoadSampler {
 	}
 
 	/**
+	 * Fold one sampled request into the per-bucket aggregate option (no APCu).
+	 *
+	 * @param int   $now              Current timestamp.
+	 * @param float $response_time_ms Wall-clock request time in ms.
+	 * @param int   $queries          Number of DB queries.
+	 * @param float $mem_mb           Peak memory in MB.
+	 */
+	private function record_aggregate( int $now, float $response_time_ms, int $queries, float $mem_mb ): void {
+		$agg    = $this->load_aggregate( $now );
+		$bucket = $now - ( $now % self::BUCKET );
+		$row    = $agg[ $bucket ] ?? array( 0, 0.0, 0, 0.0 );
+
+		$agg[ $bucket ] = array(
+			(int) $row[0] + 1,
+			round( (float) $row[1] + $response_time_ms, 1 ),
+			(int) $row[2] + $queries,
+			round( (float) $row[3] + $mem_mb, 1 ),
+		);
+		update_option( self::AGG_KEY, $agg, false );
+	}
+
+	/**
+	 * Aggregate buckets from the last 60 s: bucket start => [count, rt sum, q sum, mem sum].
+	 *
+	 * @param int $now Current timestamp.
+	 * @return array<int,array{0:int,1:float,2:int,3:float}>
+	 */
+	private function load_aggregate( int $now ): array {
+		$agg = get_option( self::AGG_KEY, array() );
+		if ( ! is_array( $agg ) ) {
+			return array();
+		}
+		return array_filter(
+			$agg,
+			static fn ( $row, $bucket ) => ( $now - (int) $bucket ) <= 60 && is_array( $row ) && 4 === count( $row ),
+			ARRAY_FILTER_USE_BOTH
+		);
+	}
+
+	/**
+	 * Window totals regardless of storage: [count, rt sum, q sum, mem sum].
+	 *
+	 * @return array{0:int,1:float,2:float,3:float}
+	 */
+	private function totals(): array {
+		$n  = 0;
+		$rt = 0.0;
+		$q  = 0.0;
+		$m  = 0.0;
+		if ( self::has_apcu() ) {
+			foreach ( $this->load_window() as $e ) {
+				++$n;
+				$rt += (float) $e['rt'];
+				$q  += (float) $e['q'];
+				$m  += (float) $e['m'];
+			}
+		} else {
+			foreach ( $this->load_aggregate( time() ) as $row ) {
+				$n  += (int) $row[0];
+				$rt += (float) $row[1];
+				$q  += (float) $row[2];
+				$m  += (float) $row[3];
+			}
+		}
+		return array( $n, $rt, $q, $m );
+	}
+
+	private static function has_apcu(): bool {
+		return function_exists( 'apcu_fetch' ) && function_exists( 'apcu_enabled' ) && apcu_enabled();
+	}
+
+	/**
 	 * Current load score (0-100) and tier, with RED->lower hysteresis.
 	 *
 	 * @return array{tier:string,score:float}
 	 */
 	public function current_tier(): array {
-		$window = $this->load_window();
-		$score  = $this->compute_score( $window );
-		$tier   = $this->score_to_tier( $score );
+		$score = $this->compute_score( $this->totals() );
+		$tier  = $this->score_to_tier( $score );
 
 		// Hysteresis: hold RED for up to 30s while the score is still above 80,
 		// so a brief dip doesn't flap the tier back and forth.
@@ -98,20 +190,17 @@ final class LoadSampler {
 	 * Weighted score from window averages, falling back to system load when the
 	 * window is empty.
 	 *
-	 * @param array $window Sliding window entries.
+	 * @param array{0:int,1:float,2:float,3:float} $totals Window totals [count, rt, q, mem].
 	 */
-	private function compute_score( array $window ): float {
-		if ( empty( $window ) ) {
+	private function compute_score( array $totals ): float {
+		list( $n, $rt, $q, $m ) = $totals;
+		if ( $n <= 0 ) {
 			return $this->system_load_percent() ?? 0.0;
 		}
 
-		$rt = array_column( $window, 'rt' );
-		$q  = array_column( $window, 'q' );
-		$m  = array_column( $window, 'm' );
-
-		$avg_rt = array_sum( $rt ) / count( $rt );
-		$avg_q  = array_sum( $q ) / count( $q );
-		$avg_m  = array_sum( $m ) / count( $m );
+		$avg_rt = $rt / $n;
+		$avg_q  = $q / $n;
+		$avg_m  = $m / $n;
 
 		$rt_score  = min( 100, ( $avg_rt / 2000 ) * 100 );  // 2s = 100.
 		$q_score   = min( 100, ( $avg_q / 100 ) * 100 );    // 100 queries = 100.
@@ -157,32 +246,36 @@ final class LoadSampler {
 	 * @return array<int,array{t:int,rt:float,q:int,m:float}>
 	 */
 	private function load_window(): array {
-		if ( function_exists( 'apcu_fetch' ) ) {
-			$val = apcu_fetch( self::KEY, $ok );
-			if ( $ok && is_array( $val ) ) {
-				return $val;
-			}
-		}
-		$val = get_option( self::KEY, array() );
-		return is_array( $val ) ? $val : array();
+		$val = apcu_fetch( self::KEY, $ok );
+		return $ok && is_array( $val ) ? $val : array();
 	}
 
 	/**
 	 * @param array $window Sliding window entries.
 	 */
 	private function save_window( array $window ): void {
-		if ( function_exists( 'apcu_store' ) ) {
-			apcu_store( self::KEY, $window, 120 );
-			return;
+		apcu_store( self::KEY, $window, 120 );
+	}
+
+	/**
+	 * Drop the stored window/aggregate (module switched off). The pre-aggregate
+	 * option (~35 kB raw entries) is removed too.
+	 */
+	public static function purge(): void {
+		delete_option( self::KEY );
+		delete_option( self::AGG_KEY );
+		delete_option( self::TIER_KEY );
+		if ( self::has_apcu() ) {
+			apcu_delete( self::KEY );
+			apcu_delete( self::TIER_KEY );
 		}
-		update_option( self::KEY, $window, false );
 	}
 
 	/**
 	 * @return array{tier:string,since:int}|null
 	 */
 	private function load_cached_tier(): ?array {
-		if ( function_exists( 'apcu_fetch' ) ) {
+		if ( self::has_apcu() ) {
 			$val = apcu_fetch( self::TIER_KEY, $ok );
 			if ( $ok && is_array( $val ) ) {
 				return $val;
@@ -200,7 +293,7 @@ final class LoadSampler {
 			'tier'  => $tier,
 			'since' => time(),
 		);
-		if ( function_exists( 'apcu_store' ) ) {
+		if ( self::has_apcu() ) {
 			apcu_store( self::TIER_KEY, $entry, 300 );
 		} else {
 			update_option( self::TIER_KEY, $entry, false );
