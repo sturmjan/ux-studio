@@ -113,6 +113,9 @@ final class Sanitizer {
 			return '';
 		}
 
+		// The root <svg> itself is an element too: its attributes (onload=...,
+		// href=javascript:...) must go through the same allowlist.
+		self::sanitize_element_attributes( $dom->documentElement );
 		self::sanitize_node( $dom->documentElement );
 
 		$output = $dom->saveXML( $dom->documentElement );
@@ -255,7 +258,8 @@ final class Sanitizer {
 
 		$dangerous_patterns = array(
 			'/<script/i',
-			'/on\w+=/i',
+			// Event handler attribute, whitespace-tolerant (`onload =`, newline before `=`).
+			'/(?<![\w:.-])on[a-z]+\s*=/i',
 			'/<foreignObject/i',
 			'/javascript:/i',
 			'/vbscript:/i',

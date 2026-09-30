@@ -66,14 +66,28 @@ final class Sync {
 
 	/**
 	 * Register the recurring sync. Idempotent - safe to call on every boot.
+	 * Only scheduled while the central channel is configured: an unpaired
+	 * site would otherwise wake WP-Cron every 5 minutes for nothing.
 	 */
 	public static function schedule(): void {
 		add_filter( 'cron_schedules', array( __CLASS__, 'add_schedule' ) ); // phpcs:ignore WordPress.WP.CronInterval.ChangeDetected
 		add_action( self::CRON_HOOK, array( __CLASS__, 'run' ) );
 
-		if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
-			wp_schedule_event( time() + 60, self::CRON_SCHEDULE, self::CRON_HOOK );
+		$scheduled = wp_next_scheduled( self::CRON_HOOK );
+		if ( CentralClient::is_configured() ) {
+			if ( ! $scheduled ) {
+				wp_schedule_event( time() + 60, self::CRON_SCHEDULE, self::CRON_HOOK );
+			}
+		} elseif ( $scheduled ) {
+			self::unschedule();
 		}
+	}
+
+	/**
+	 * Remove the recurring sync (module disabled / channel unconfigured).
+	 */
+	public static function unschedule(): void {
+		wp_clear_scheduled_hook( self::CRON_HOOK );
 	}
 
 	/**
@@ -311,7 +325,7 @@ final class Sync {
 					array(
 						'attempts'     => $permanent ? self::MAX_ATTEMPTS : ( (int) $row['attempts'] + 1 ),
 						'last_error'   => mb_substr( $result->get_error_message(), 0, 500 ),
-						'last_try_at'  => current_time( 'mysql' ),
+						'last_try_at'  => current_time( 'mysql', true ), // UTC, see is_due().
 					),
 					array( 'id' => (int) $row['id'] ),
 					array( '%d', '%s', '%s' ),
@@ -478,6 +492,10 @@ final class Sync {
 	/**
 	 * Has enough time passed since the last failed attempt?
 	 *
+	 * last_try_at is stored in UTC (current_time('mysql', true)) so it can be
+	 * compared with time(); synced_at is site-local (it is shown to users)
+	 * and is converted before comparing.
+	 *
 	 * @param array $row Row with `attempts`/`sync_attempts` and a last-try timestamp.
 	 */
 	private static function is_due( array $row ): bool {
@@ -485,12 +503,15 @@ final class Sync {
 		if ( 0 === $attempts ) {
 			return true;
 		}
-		$last = (string) ( $row['last_try_at'] ?? $row['synced_at'] ?? '' );
-		if ( '' === $last ) {
+		if ( ! empty( $row['last_try_at'] ) ) {
+			$last = (int) strtotime( (string) $row['last_try_at'] . ' UTC' );
+		} elseif ( ! empty( $row['synced_at'] ) ) {
+			$last = (int) strtotime( get_gmt_from_date( (string) $row['synced_at'] ) . ' UTC' );
+		} else {
 			return true;
 		}
 		$wait = self::BACKOFF[ min( $attempts, count( self::BACKOFF ) - 1 ) ];
-		return ( time() - (int) strtotime( $last ) ) >= $wait;
+		return ( time() - $last ) >= $wait;
 	}
 
 	/**
@@ -515,7 +536,7 @@ final class Sync {
 				  WHERE id = %d',
 				$permanent ? 'error' : 'pending',
 				mb_substr( $error->get_error_message(), 0, 500 ),
-				current_time( 'mysql' ),
+				current_time( 'mysql', true ), // UTC, see is_due().
 				$request_id
 			)
 		);

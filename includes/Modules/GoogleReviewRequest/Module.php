@@ -9,6 +9,7 @@ namespace UxStudio\Modules\GoogleReviewRequest;
 
 use UxStudio\Core\ActivityLog;
 use UxStudio\Core\DB;
+use UxStudio\Core\Retention;
 use UxStudio\Modules\BaseModule;
 
 defined( 'ABSPATH' ) || exit;
@@ -21,6 +22,9 @@ defined( 'ABSPATH' ) || exit;
  * WooCommerce order completes.
  */
 final class Module extends BaseModule {
+
+	/** Daily cron hook purging old grr_stats rows. */
+	public const CRON_RETENTION = 'uxstudio_grr_stats_retention';
 
 	/**
 	 * Register hooks.
@@ -55,6 +59,23 @@ final class Module extends BaseModule {
 		if ( class_exists( 'WooCommerce' ) && $this->settings->get( 'trigger_on_order_complete', false ) ) {
 			add_action( 'woocommerce_order_status_completed', array( $this, 'maybe_send_on_order_complete' ) );
 		}
+
+		add_action( self::CRON_RETENTION, array( $this, 'purge_old_stats' ) );
+		Retention::ensure_scheduled( self::CRON_RETENTION );
+	}
+
+	/**
+	 * Remove the retention cron when the module is switched off.
+	 */
+	public function on_disable(): void {
+		Retention::unschedule( self::CRON_RETENTION );
+	}
+
+	/**
+	 * Daily retention purge of the sent-request log.
+	 */
+	public function purge_old_stats(): void {
+		Retention::purge( 'uxstudio_grr_stats', (int) $this->settings->get( 'retention_days', Retention::DEFAULT_DAYS ) );
 	}
 
 	/**
@@ -109,6 +130,13 @@ final class Module extends BaseModule {
 				'label'   => __( 'Send automatically when a WooCommerce order completes', 'ux-studio' ),
 				'help'    => __( 'Only takes effect if WooCommerce is active.', 'ux-studio' ),
 				'default' => false,
+			),
+			array(
+				'key'     => 'retention_days',
+				'type'    => 'number',
+				'label'   => __( 'Log retention (days)', 'ux-studio' ),
+				'help'    => __( 'Sent-request log entries older than this are deleted daily. 0 = keep forever.', 'ux-studio' ),
+				'default' => Retention::DEFAULT_DAYS,
 			),
 		);
 	}

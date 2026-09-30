@@ -38,8 +38,10 @@ final class Module extends BaseModule {
 	 * Module schema version. Bumped from 1 -> 2 to add the `category` and
 	 * `post_id` columns that power the frontend shortcode's filtering /
 	 * post-association. dbDelta() adds the new columns in place on upgrade.
+	 * 2 -> 3: files of existing login-only entries are moved into private
+	 * storage (see ProtectedStorage).
 	 */
-	private const SCHEMA_VERSION = 2;
+	private const SCHEMA_VERSION = 3;
 
 	/**
 	 * Guard so the shortcode's inline <style> block is printed at most once
@@ -53,6 +55,11 @@ final class Module extends BaseModule {
 	public function boot(): void {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_shortcode( 'download_files', array( $this, 'render_shortcode' ) );
+
+		// Login-only files live outside uploads (ProtectedStorage): WP won't
+		// delete them there, and their public URL is replaced by the token link.
+		add_action( 'delete_attachment', array( ProtectedStorage::class, 'delete_files' ) );
+		add_filter( 'wp_get_attachment_url', array( $this, 'filter_protected_url' ), 10, 2 );
 
 		\UxStudio\Core\DB::ensure_module_tables(
 			'download-files',
@@ -79,8 +86,68 @@ final class Module extends BaseModule {
 						KEY post_id (post_id)
 					) {$charset};"
 				);
+				if ( $from > 0 && $from < 3 ) {
+					$ids = $wpdb->get_col( "SELECT DISTINCT attachment_id FROM {$wpdb->prefix}uxstudio_download_files WHERE require_login = 1" );
+					foreach ( is_array( $ids ) ? $ids : array() as $attachment_id ) {
+						$this->sync_protection( (int) $attachment_id );
+					}
+				}
 			}
 		);
+	}
+
+	/**
+	 * Move an attachment into / out of private storage so its physical
+	 * location matches the entries referencing it: protected while at least
+	 * one login-only entry points at it, public otherwise.
+	 *
+	 * @param int $attachment_id Attachment id.
+	 */
+	public function sync_protection( int $attachment_id ): void {
+		if ( $attachment_id <= 0 || 'attachment' !== get_post_type( $attachment_id ) ) {
+			return;
+		}
+		global $wpdb;
+		$needs = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$wpdb->prefix}uxstudio_download_files WHERE attachment_id = %d AND require_login = 1",
+				$attachment_id
+			)
+		) > 0;
+
+		if ( $needs && ! ProtectedStorage::is_protected( $attachment_id ) ) {
+			if ( ProtectedStorage::protect( $attachment_id ) ) {
+				ActivityLog::log( 'download-files', 'protect', 'attachment', $attachment_id );
+			}
+		} elseif ( ! $needs && ProtectedStorage::is_protected( $attachment_id ) ) {
+			if ( ProtectedStorage::unprotect( $attachment_id ) ) {
+				ActivityLog::log( 'download-files', 'unprotect', 'attachment', $attachment_id );
+			}
+		}
+	}
+
+	/**
+	 * A protected attachment has no public URL any more - point WP (media
+	 * library, attachment links) at its token download link instead, which
+	 * still enforces login.
+	 *
+	 * @param string $url           Computed URL.
+	 * @param int    $attachment_id Attachment id.
+	 */
+	public function filter_protected_url( $url, $attachment_id ) {
+		if ( ! ProtectedStorage::is_protected( (int) $attachment_id ) ) {
+			return $url;
+		}
+		global $wpdb;
+		$id = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT id FROM {$wpdb->prefix}uxstudio_download_files WHERE attachment_id = %d ORDER BY require_login DESC, id ASC LIMIT 1",
+				(int) $attachment_id
+			)
+		);
+		return $id > 0
+			? rest_url( 'uxstudio/v1/download-files/serve/' . $id ) . '?token=' . $this->build_download_token( $id )
+			: $url;
 	}
 
 	/**
@@ -106,7 +173,7 @@ final class Module extends BaseModule {
 				'key'     => 'require_login_default',
 				'type'    => 'toggle',
 				'label'   => __( 'Require login by default', 'ux-studio' ),
-				'help'    => __( 'Default value of "require login" for newly added files.', 'ux-studio' ),
+				'help'    => __( 'Default value of "require login" for newly added files. Login-only files are moved out of the public uploads folder, so their original media URL stops working and they can only be downloaded through the download link by logged-in users.', 'ux-studio' ),
 				'default' => true,
 			),
 			array(
@@ -187,6 +254,8 @@ final class Module extends BaseModule {
 
 		$id = (int) $wpdb->insert_id;
 
+		$this->sync_protection( absint( $data['attachment_id'] ) );
+
 		ActivityLog::log( 'download-files', 'create', 'attachment', absint( $data['attachment_id'] ), array( 'file_id' => $id ) );
 
 		return (array) $this->get_file( $id );
@@ -239,6 +308,8 @@ final class Module extends BaseModule {
 			array( '%d' )
 		);
 
+		$this->sync_protection( (int) $existing['attachment_id'] );
+
 		ActivityLog::log( 'download-files', 'update', 'attachment', (int) $existing['attachment_id'], array( 'file_id' => $id ) );
 
 		return (array) $this->get_file( $id );
@@ -260,6 +331,7 @@ final class Module extends BaseModule {
 		$deleted = $wpdb->delete( "{$wpdb->prefix}uxstudio_download_files", array( 'id' => $id ), array( '%d' ) );
 
 		if ( $deleted ) {
+			$this->sync_protection( (int) $existing['attachment_id'] );
 			ActivityLog::log( 'download-files', 'delete', 'attachment', (int) $existing['attachment_id'], array( 'file_id' => $id ) );
 		}
 
@@ -322,12 +394,14 @@ final class Module extends BaseModule {
 			return new WP_Error( 'uxstudio_missing_file', __( 'The file is missing on disk.', 'ux-studio' ), array( 'status' => 404 ) );
 		}
 
-		// Mandatory defense-in-depth check: even though get_attached_file()
-		// should always resolve inside the uploads dir, explicitly reject
-		// anything that doesn't before touching the filesystem further.
-		$real_path = realpath( $path );
-		$real_base = realpath( wp_upload_dir()['basedir'] );
-		if ( false === $real_path || false === $real_base || 0 !== strpos( $real_path, $real_base ) ) {
+		// Mandatory defense-in-depth check: get_attached_file() must resolve
+		// inside the uploads dir or (login-only files) inside the private
+		// storage root; reject anything else before touching the filesystem.
+		$real_path  = realpath( $path );
+		$real_base  = realpath( wp_upload_dir()['basedir'] );
+		$in_uploads = false !== $real_path && false !== $real_base
+			&& 0 === strpos( wp_normalize_path( $real_path ), trailingslashit( wp_normalize_path( $real_base ) ) );
+		if ( false === $real_path || ( ! $in_uploads && ! ProtectedStorage::contains( $real_path ) ) ) {
 			return new WP_Error( 'uxstudio_path_traversal', __( 'Refused to serve a file outside the uploads directory.', 'ux-studio' ), array( 'status' => 403 ) );
 		}
 

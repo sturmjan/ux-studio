@@ -84,14 +84,18 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Validate an uploaded SVG before processing.
+	 * Validate an uploaded SVG before processing. Whether the file is an SVG is
+	 * decided from its extension and its content - never from the
+	 * client-supplied $file['type'], which an attacker controls.
 	 *
 	 * @param array $file Uploaded file data.
 	 * @return array Modified file data.
 	 */
 	public function validate_svg_file( $file ): array {
-		if ( ! isset( $file['type'] ) || 'image/svg+xml' !== $file['type'] ) {
-			return (array) $file;
+		$file = (array) $file;
+		$path = (string) ( $file['tmp_name'] ?? '' );
+		if ( '' === $path || ! $this->is_svg( (string) ( $file['name'] ?? '' ), $path ) ) {
+			return $file;
 		}
 
 		if ( ! $this->has_upload_permission() ) {
@@ -99,14 +103,13 @@ final class Module extends BaseModule {
 			return $file;
 		}
 
-		if ( isset( $file['size'] ) && $file['size'] > self::MAX_BYTES ) {
+		if ( ( isset( $file['size'] ) && $file['size'] > self::MAX_BYTES ) || (int) @filesize( $path ) > self::MAX_BYTES ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 			$file['error'] = __( 'SVG file size must be less than 1MB.', 'ux-studio' );
 			return $file;
 		}
 
-		$content = file_get_contents( $file['tmp_name'] );
-
-		if ( ! Sanitizer::validate( (string) $content ) ) {
+		$svg = $this->read_svg( $path );
+		if ( null === $svg || ! Sanitizer::validate( $svg['content'] ) ) {
 			$file['error'] = __( 'Invalid SVG file.', 'ux-studio' );
 			return $file;
 		}
@@ -122,23 +125,76 @@ final class Module extends BaseModule {
 	 * @return array Modified file data.
 	 */
 	public function sanitize_svg_content( $file, $action ): array {
-		if ( ! isset( $file['type'] ) || 'image/svg+xml' !== $file['type'] ) {
-			return (array) $file;
+		$file = (array) $file;
+		$path = (string) ( $file['file'] ?? '' );
+		if ( '' === $path || ! is_file( $path ) || ! $this->is_svg( wp_basename( $path ), $path ) ) {
+			return $file;
 		}
 
-		$content   = (string) file_get_contents( $file['file'] );
-		$sanitized = Sanitizer::sanitize( $content );
+		$svg       = $this->read_svg( $path );
+		$sanitized = null !== $svg ? Sanitizer::sanitize( $svg['content'] ) : '';
 
 		// Fail-closed: if sanitization emptied the file, remove it and surface an error.
 		if ( '' === $sanitized ) {
-			@unlink( $file['file'] ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			@unlink( $path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 			$file['error'] = __( 'The SVG file could not be sanitized safely.', 'ux-studio' );
 			return $file;
 		}
 
-		file_put_contents( $file['file'], $sanitized );
+		file_put_contents( $path, $svg['gzip'] ? (string) gzencode( $sanitized ) : $sanitized ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 
 		return $file;
+	}
+
+	/**
+	 * Whether a file is (or pretends to be) an SVG: .svg/.svgz extension, or
+	 * content whose root element is <svg> whatever the extension says.
+	 *
+	 * @param string $name File name (for the extension).
+	 * @param string $path File on disk (for the content sniff).
+	 */
+	private function is_svg( string $name, string $path ): bool {
+		$ext = strtolower( pathinfo( $name, PATHINFO_EXTENSION ) );
+		if ( 'svg' === $ext || 'svgz' === $ext ) {
+			return true;
+		}
+		$svg = $this->read_svg( $path, 4096 );
+		return null !== $svg
+			&& (bool) preg_match( '/^\s*(?:<\?xml[^>]*>\s*|<!--.*?-->\s*|<!DOCTYPE[^>]*>\s*)*<svg[\s>\/]/is', $svg['content'] );
+	}
+
+	/**
+	 * Read a (possibly gzip-compressed, i.e. .svgz) SVG. Decompression is
+	 * capped at MAX_BYTES so a gzip bomb cannot exhaust memory.
+	 *
+	 * @param string $path  File path.
+	 * @param int    $limit Bytes of raw file to read (0 = whole file).
+	 * @return array{content:string,gzip:bool}|null
+	 */
+	private function read_svg( string $path, int $limit = 0 ): ?array {
+		if ( ! is_readable( $path ) ) {
+			return null;
+		}
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$raw = $limit > 0 ? file_get_contents( $path, false, null, 0, $limit ) : file_get_contents( $path );
+		if ( false === $raw ) {
+			return null;
+		}
+		if ( 0 === strncmp( $raw, "\x1f\x8b", 2 ) ) {
+			if ( $limit > 0 ) {
+				// Partial gzip stream can't be decoded; judge the whole (capped) file.
+				$raw = (string) file_get_contents( $path, false, null, 0, self::MAX_BYTES ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			}
+			$decoded = @gzdecode( $raw, self::MAX_BYTES ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			return false === $decoded ? null : array(
+				'content' => $decoded,
+				'gzip'    => true,
+			);
+		}
+		return array(
+			'content' => $raw,
+			'gzip'    => false,
+		);
 	}
 
 	/**

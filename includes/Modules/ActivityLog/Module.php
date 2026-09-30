@@ -8,6 +8,7 @@
 namespace UxStudio\Modules\ActivityLog;
 
 use UxStudio\Core\ActivityLog;
+use UxStudio\Core\Retention;
 use UxStudio\Modules\BaseModule;
 
 defined( 'ABSPATH' ) || exit;
@@ -20,12 +21,25 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Module extends BaseModule {
 
+	/** Daily cron hook applying retention_days to the shared log. */
+	public const CRON_RETENTION = 'uxstudio_activity_log_retention';
+
 	/**
 	 * Register hooks.
 	 */
 	public function boot(): void {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		$this->register_event_tracking();
+
+		add_action( self::CRON_RETENTION, array( $this, 'purge_old_entries' ) );
+		Retention::ensure_scheduled( self::CRON_RETENTION );
+	}
+
+	/**
+	 * Remove the retention cron when the module is switched off.
+	 */
+	public function on_disable(): void {
+		Retention::unschedule( self::CRON_RETENTION );
 	}
 
 	/**
@@ -87,8 +101,8 @@ final class Module extends BaseModule {
 				'key'     => 'retention_days',
 				'type'    => 'number',
 				'label'   => __( 'Retention (days)', 'ux-studio' ),
-				'help'    => __( 'Entries older than this are removed by the "Purge old entries" action.', 'ux-studio' ),
-				'default' => 30,
+				'help'    => __( 'Entries older than this are removed automatically once a day (and by the "Purge old entries" action). 0 = keep forever.', 'ux-studio' ),
+				'default' => Retention::DEFAULT_DAYS,
 			),
 			array(
 				'key'     => 'alert_new_ip',
@@ -424,20 +438,16 @@ final class Module extends BaseModule {
 	/**
 	 * Delete entries older than the configured (or given) retention window.
 	 *
+	 * Also the daily WP-Cron callback (CRON_RETENTION). A configured
+	 * retention of 0 means "keep forever".
+	 *
 	 * @param int $days Override for the configured retention_days; 0 = use settings.
 	 * @return int Number of deleted rows.
 	 */
-	public function purge_old_entries( int $days = 0 ): int {
-		global $wpdb;
+	public function purge_old_entries( $days = 0 ): int {
+		$days = (int) $days > 0 ? (int) $days : (int) $this->settings->get( 'retention_days', Retention::DEFAULT_DAYS );
 
-		$days = $days > 0 ? $days : max( 1, (int) $this->settings->get( 'retention_days', 30 ) );
-		$cutoff = gmdate( 'Y-m-d H:i:s', time() - ( $days * DAY_IN_SECONDS ) );
-
-		return (int) $wpdb->query(
-			$wpdb->prepare(
-				"DELETE FROM {$wpdb->prefix}uxstudio_activity_log WHERE created_at < %s",
-				$cutoff
-			)
-		);
+		// created_at is written with current_time('mysql') (site-local).
+		return Retention::purge( 'uxstudio_activity_log', $days );
 	}
 }

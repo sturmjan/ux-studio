@@ -8,6 +8,8 @@
 
 namespace UxStudio\Modules\Forms;
 
+use UxStudio\Core\ClientIp;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -16,6 +18,19 @@ defined( 'ABSPATH' ) || exit;
  * action logs its own ok|fail row to uxstudio_form_action_log.
  */
 final class Actions {
+
+	/**
+	 * Autoresponses (email action whose recipient comes from a merge tag such
+	 * as {email}) per recipient address per hour - the recipient is typed in
+	 * by an anonymous visitor, so without a cap the form is a mail relay.
+	 */
+	private const AUTORESPONSE_PER_RECIPIENT = 3;
+
+	/** Autoresponses per client IP per hour. */
+	private const AUTORESPONSE_PER_IP = 10;
+
+	/** True while an admin "Resend" runs the chain (no visitor limits). */
+	private static bool $manual = false;
 
 	/**
 	 * @param array $form       Form row (array form, see Module::form_to_array()).
@@ -256,10 +271,16 @@ final class Actions {
 		}
 		// Allow the recipient itself to be a merge tag, e.g. {email} to
 		// reply to the submitter for an autoresponder-style action.
-		$to = EmailTemplateRenderer::merge_tags( $to, $context );
+		$is_autoresponse = false !== strpos( $to, '{' );
+		$to              = EmailTemplateRenderer::merge_tags( $to, $context );
 
 		if ( ! is_email( $to ) ) {
 			self::log( (int) ( $submission['id'] ?? 0 ), 'email', 'fail', __( 'Invalid recipient address.', 'ux-studio' ) );
+			return;
+		}
+
+		if ( $is_autoresponse && ! self::$manual && ! self::allow_autoresponse( $to ) ) {
+			self::log( (int) ( $submission['id'] ?? 0 ), 'email', 'fail', __( 'Autoresponse skipped: hourly limit for this recipient or visitor reached.', 'ux-studio' ) );
 			return;
 		}
 
@@ -325,7 +346,34 @@ final class Actions {
 	 * a redirect action just logs again (there is no browser to redirect).
 	 */
 	public static function resend( array $form, array $submission ): void {
-		self::run( $form, $submission );
+		self::$manual = true;
+		try {
+			self::run( $form, $submission );
+		} finally {
+			self::$manual = false;
+		}
+	}
+
+	/**
+	 * Count one autoresponse against the per-recipient and per-IP hourly
+	 * caps. Returns false (and counts nothing) when either cap is reached.
+	 *
+	 * @param string $to Resolved recipient address.
+	 */
+	private static function allow_autoresponse( string $to ): bool {
+		$keys = array(
+			'uxstudio_forms_ar_to_' . md5( strtolower( $to ) . wp_salt() ) => self::AUTORESPONSE_PER_RECIPIENT,
+			'uxstudio_forms_ar_ip_' . md5( ClientIp::get( 'auto' ) . wp_salt() ) => self::AUTORESPONSE_PER_IP,
+		);
+		foreach ( $keys as $key => $limit ) {
+			if ( (int) get_transient( $key ) >= $limit ) {
+				return false;
+			}
+		}
+		foreach ( array_keys( $keys ) as $key ) {
+			set_transient( $key, (int) get_transient( $key ) + 1, HOUR_IN_SECONDS );
+		}
+		return true;
 	}
 
 	private static function log( int $submission_id, string $action_type, string $status, string $detail = '' ): void {

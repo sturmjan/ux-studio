@@ -97,8 +97,8 @@ final class Vapid {
 	}
 
 	/**
-	 * The private key PEM, for building a Web Push VAPID JWT (real sending is
-	 * a documented TODO in this module - see Module::send_notification()).
+	 * The private key PEM, used by Sender/WebPushCrypto to sign the VAPID JWT
+	 * sent with every Web Push request.
 	 */
 	public function private_key_pem(): string {
 		return Security::get_secret( self::SECRET_PRIVATE );

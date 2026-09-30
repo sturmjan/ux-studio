@@ -10,6 +10,7 @@ namespace UxStudio\Modules\PerformanceOptimization;
 
 use UxStudio\Core\ActivityLog;
 use UxStudio\Core\DB;
+use UxStudio\Core\Retention;
 use UxStudio\Modules\BaseModule;
 use WP_Error;
 
@@ -30,10 +31,19 @@ final class Module extends BaseModule {
 	private const FIXES = array( 'revisions', 'expired_transients', 'spam_comments' );
 
 	/**
+	 * Daily cron hook purging old performance_history rows. The module has no
+	 * settings screen, so retention comes from Retention::days_for()
+	 * (default 180 days, `uxstudio_retention_days` filter).
+	 */
+	public const CRON_RETENTION = 'uxstudio_performance_history_retention';
+
+	/**
 	 * Register hooks.
 	 */
 	public function boot(): void {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+		add_action( self::CRON_RETENTION, array( $this, 'purge_old_history' ) );
+		Retention::ensure_scheduled( self::CRON_RETENTION );
 
 		DB::ensure_module_tables(
 			'performance-optimization',
@@ -53,6 +63,20 @@ final class Module extends BaseModule {
 				);
 			}
 		);
+	}
+
+	/**
+	 * Remove the retention cron when the module is switched off.
+	 */
+	public function on_disable(): void {
+		Retention::unschedule( self::CRON_RETENTION );
+	}
+
+	/**
+	 * Daily retention purge of the score history.
+	 */
+	public function purge_old_history(): void {
+		Retention::purge( 'uxstudio_performance_history', Retention::days_for( 'uxstudio_performance_history' ) );
 	}
 
 	/**

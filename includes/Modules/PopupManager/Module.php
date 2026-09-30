@@ -12,6 +12,7 @@ namespace UxStudio\Modules\PopupManager;
 
 use UxStudio\Core\ActivityLog;
 use UxStudio\Core\DB;
+use UxStudio\Core\Retention;
 use UxStudio\Modules\BaseModule;
 use WP_Post;
 use WP_Query;
@@ -32,6 +33,16 @@ final class Module extends BaseModule {
 
 	private const TRIGGER_TYPES = array( 'delay', 'scroll', 'exit', 'immediate' );
 	private const EVENT_TYPES   = array( 'shown', 'closed', 'clicked' );
+
+	/**
+	 * Transient caching the ids of published popups for the wp_footer
+	 * renderer (no expiry = autoloaded, so the common "no popups" case costs
+	 * no query at all). Dropped whenever a popup is saved or deleted.
+	 */
+	private const ACTIVE_CACHE = 'uxstudio_popup_active_ids';
+
+	/** Daily cron hook purging old popup_stats rows. */
+	public const CRON_RETENTION = 'uxstudio_popup_stats_retention';
 
 	/**
 	 * Register hooks.
@@ -60,6 +71,70 @@ final class Module extends BaseModule {
 		add_action( 'init', array( $this, 'register_post_type' ) );
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'wp_footer', array( $this, 'maybe_output_popups' ) );
+
+		add_action( 'save_post_' . self::POST_TYPE, array( __CLASS__, 'flush_active_cache' ) );
+		add_action( 'deleted_post', array( $this, 'maybe_flush_on_delete' ), 10, 2 );
+
+		add_action( self::CRON_RETENTION, array( $this, 'purge_old_stats' ) );
+		Retention::ensure_scheduled( self::CRON_RETENTION );
+	}
+
+	/**
+	 * Remove the retention cron when the module is switched off.
+	 */
+	public function on_disable(): void {
+		Retention::unschedule( self::CRON_RETENTION );
+		self::flush_active_cache();
+	}
+
+	/**
+	 * Daily retention purge of impression/click events (filterable via
+	 * `uxstudio_retention_days`, default 180 days).
+	 */
+	public function purge_old_stats(): void {
+		Retention::purge( 'uxstudio_popup_stats', Retention::days_for( 'uxstudio_popup_stats' ) );
+	}
+
+	/**
+	 * Drop the cached list of published popups.
+	 */
+	public static function flush_active_cache(): void {
+		delete_transient( self::ACTIVE_CACHE );
+	}
+
+	/**
+	 * @param int          $post_id Deleted post id.
+	 * @param WP_Post|null $post    Deleted post (WP 5.5+).
+	 */
+	public function maybe_flush_on_delete( $post_id, $post = null ): void {
+		if ( $post instanceof WP_Post && self::POST_TYPE !== $post->post_type ) {
+			return;
+		}
+		self::flush_active_cache();
+	}
+
+	/**
+	 * Ids of published popups (max 20), cached until a popup changes.
+	 *
+	 * @return int[]
+	 */
+	private function active_popup_ids(): array {
+		$ids = get_transient( self::ACTIVE_CACHE );
+		if ( is_array( $ids ) ) {
+			return array_map( 'intval', $ids );
+		}
+		$ids = get_posts(
+			array(
+				'post_type'      => self::POST_TYPE,
+				'post_status'    => 'publish',
+				'posts_per_page' => 20,
+				'fields'         => 'ids',
+				'no_found_rows'  => true,
+			)
+		);
+		$ids = array_map( 'intval', (array) $ids );
+		set_transient( self::ACTIVE_CACHE, $ids );
+		return $ids;
 	}
 
 	/**
@@ -308,10 +383,17 @@ final class Module extends BaseModule {
 			return;
 		}
 
+		$ids = $this->active_popup_ids();
+		if ( empty( $ids ) ) {
+			return;
+		}
+
 		$query = new WP_Query(
 			array(
 				'post_type'      => self::POST_TYPE,
 				'post_status'    => 'publish',
+				'post__in'       => $ids,
+				'orderby'        => 'post__in',
 				'posts_per_page' => 20,
 				'no_found_rows'  => true,
 			)

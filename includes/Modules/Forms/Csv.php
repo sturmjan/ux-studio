@@ -79,10 +79,7 @@ final class Csv {
 	 * is prefixed with an apostrophe so it always opens as plain text.
 	 */
 	public static function safe_cell( string $value ): string {
-		if ( '' !== $value && false !== strpos( "=+-@\t\r", $value[0] ) ) {
-			return "'" . $value;
-		}
-		return $value;
+		return \UxStudio\Core\Csv::safe_cell( $value );
 	}
 
 	/**

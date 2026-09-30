@@ -834,8 +834,26 @@ final class PublicRenderer {
 						} )
 						.finally( function () {
 							if ( submitBtn ) { submitBtn.disabled = false; }
+							resetCaptcha( form );
 						} );
 				} );
+			}
+
+			// CAPTCHA tokens are single-use and the server has consumed this
+			// one (or will reject it again) - render a fresh challenge so a
+			// second submission works without reloading the page. reCAPTCHA v3
+			// needs nothing: its footer script refreshes the token on submit.
+			function resetCaptcha( form ) {
+				try {
+					if ( window.turnstile ) {
+						form.querySelectorAll( '.cf-turnstile' ).forEach( function ( el ) { window.turnstile.reset( el ); } );
+					}
+					if ( window.grecaptcha && typeof window.grecaptcha.reset === 'function' ) {
+						// Auto-rendered v2 widgets get ids in document order.
+						var all = Array.prototype.slice.call( document.querySelectorAll( '.g-recaptcha' ) );
+						form.querySelectorAll( '.g-recaptcha' ).forEach( function ( el ) { window.grecaptcha.reset( all.indexOf( el ) ); } );
+					}
+				} catch ( err ) {}
 			}
 
 			var api = { init: init };
