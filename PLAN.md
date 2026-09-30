@@ -1352,3 +1352,103 @@ integrace — je to jen další položka `wp_dashboard_setup`, přesně jako dne
 - [ ] Stahovat `@dnd-kit` jako novou závislost pluginu, nebo je (vzhledem k
       tomu, že Destima ho už používá se stejným stackem) prostě zkopírovat
       ověřenou verzi z `destima-obec/package.json`?
+
+## 21. Audit bezpečnost / funkčnost / výkon (2026-09-30)
+
+Statický audit celého pluginu (73 modulů, ~110k ř. PHP) + měření na lokálu. Lint PHP 8.4
+čistý, `tsc` 5 typových nepřesností (bez runtime dopadu), `npm audit` 2× moderate jen
+v build nástrojích (do zipu nejdou). Pořadí = priorita.
+
+### 21.1 Bezpečnost — VYSOKÁ
+- [ ] Login lockout neblokuje správné heslo: `AttemptsHandler::check_attempted_login` na
+      `authenticate` prio 30 (po ověření hesla) vrátí WP_User a resetuje počítadlo →
+      přesunout na prio 5, blokovat nezávisle na výsledku. + sjednotit `current_time('mysql')`
+      vs `NOW()` (TZ posun expirace).
+- [ ] CaptchaGate obejde `wp-login.php?action=x` (jádro neznámou akci mění na login, gate
+      čte surové `$_REQUEST['action']`) i `action=retrievepassword` → gate na
+      `authenticate` když je `log` vyplněné + `lostpassword_post`; cookie vázat na hash UA.
+- [ ] Inline CAPTCHA (`CaptchaHandler.php:131`) se ověřuje jen u správného hesla → oracle
+      na správné heslo; ověřovat před prio 20.
+- [ ] Klientská IP (`IpBanStore.php:420`, `AttemptsHandler.php:235`): XFF bere první
+      (podvržitelnou) položku, `X-Forwarded-For: 127.0.0.1` = loopback allowlist → bypass
+      všech banů; CF hlavička bez ověření REMOTE_ADDR v CF rozsazích → použít vzor
+      `Analytics/ClientIp.php` všude (i BotThrottle, AiPanel IP lock).
+- [ ] AiPanel `rescue.php` přežije vypnutí modulu/pluginu a sám nekontroluje expiraci →
+      `expires_at` v config.php + kontrola v rescue.php + úklid při disable/deactivation.
+- [ ] PushNotifications: veřejný subscribe uloží libovolný `endpoint` (i 127.0.0.1 /
+      169.254.169.254), `Sender.php:136` posílá přes `wp_remote_post` → stored SSRF;
+      https + allowlist push služeb + `wp_safe_remote_post`.
+- [ ] MediaReplace IDOR (`RestController.php:54-81`): `new_attachment_id` bez `delete_post`
+      kontroly → autor smaže/ukradne cizí médium.
+- [ ] Posty chráněné heslem unikají přes `?format=markdown` (AiMarkdown `is_eligible`) a
+      AI chat index (`ContentIndexer`) → vynechat `post_password !== ''`, přeindexovat.
+
+### 21.2 Bezpečnost — STŘEDNÍ / NÍZKÁ
+- [ ] FileManager `/spravce-souboru/` = druhý login formulář bez CAPTCHA/lockoutu, přihlásí
+      kohokoli → redirect na `wp_login_url()`; `?logout` GET bez nonce.
+- [ ] SvgUpload sanitizer nečistí atributy kořenového `<svg>` (`Sanitizer.php:115`) a
+      prefilter `on\w+=` obejde mezera před `=` → XSS z role s SVG uploadem.
+- [ ] AI chat: mail bombing (nová `session_id` = nový e-mail adminovi, contact limit
+      klíčovaný klientským session_id) → limit per IP hash + globální strop mailů/h.
+- [ ] AI chat: `message` bez limitu délky, výchozí token/request limity 0 → denial of wallet.
+- [ ] CSV formula injection: ExitPopup export (`page_url` z veřejného endpointu),
+      ExportUsers/ExportPosts → escape jako `Forms/Csv.php`.
+- [ ] CodeSnippets safe-mode cookie `uxstudio_safe_mode=1` vypne snippety i anonymům →
+      respektovat jen u admina.
+- [ ] DownloadFiles `require_login` soubor nechrání (příloha je veřejně v uploads) →
+      přesunout mimo uploads nebo přejmenovat volbu na „skrýt odkaz“.
+- [ ] MCP SeoTools bez `edit_post` na `post_id`; MCP JWT platí pro celé REST API i s
+      vypnutým MCP (`McpBootstrap.php:35`) → omezit na MCP routy.
+- [ ] CodeSnippets/FileManager/AiPanel/RollbackManager ignorují `DISALLOW_FILE_MODS/EDIT`.
+- [ ] ThirdPartyLogin: nonce nevázaná na prohlížeč (login CSRF), anonymní tvorba transientů
+      bez limitu.
+- [ ] Drobnosti: AiPanel session nevázaná na grant, NoticeBoard re-subscribe přepíše
+      kategorie, Forms autoresponder `{email}` relay, SSRF (admin-only) v HtmlToElementor
+      a RAG WebCrawleru, AutoImageUpload `post_id` bez kontroly, podpis release zipu.
+
+### 21.3 Funkčnost
+- [ ] ReviewAggregator `fetch()` volá neexistující `/api/reviews/fetch` + CA nezná
+      `X-UxStudio-Signature` → stažení recenzí vždy selže.
+- [ ] Vypnutí CronControl (modulu i pluginu) nechá mu-plugin s `DISABLE_WP_CRON` +
+      `.htaccess` deny → WP-Cron mrtvý natrvalo. Zavést `BaseModule::on_disable()` +
+      `register_deactivation_hook` (uklidit i .htaccess bloky SecurityOptimization/ImageOptimizer).
+- [ ] AiAssistant `UsageLimiter` pro `user_id=0` počítá celý web → per-user limit zablokuje
+      veřejný chat všem.
+- [ ] VulnerabilityScanner `report_to_central` má typ `checkbox` (renderer ho nezná) → `toggle`.
+- [ ] dbDelta schémata AiAssistant (~14 tabulek) + SecurityOptimization: `PRIMARY KEY (id), KEY…`
+      na jednom řádku → „Multiple primary key defined“ při bumpu verze.
+- [ ] Handoff: `deactivate_plugins(ux1)` spustí legacy Deactivator (může smazat tabulky
+      dřív, než se lazy zkopírují) → `deactivate_plugins(..., true)`.
+- [ ] Migrator: chybí data-migrace recenzí (`ux1_reviews`), instagram, bot-throttle, exit-popup.
+- [ ] ServiceRequests `Sync::is_due` míchá lokální čas a `time()` → backoff +2 h v létě.
+- [ ] i18n: ~1998 z 3961 výskytů řetězců chybí v cs_CZ.po (Forms, AiAssistant, SecurityOpt.).
+- [ ] Forms: po úspěšném odeslání se neresetuje Turnstile/reCAPTCHA → druhé odeslání 422.
+- [ ] WIP drobnosti: widget „Disk usage“ synchronně skenuje ABSPATH; SecOpt widget ukazuje
+      vypršelé bany a „in 2 hours“ u minulosti; login CSS `.wp-pwd` rozbíjí ukazatel síly
+      hesla; WooCommerce ikona + odkaz `wc-orders` jen s HPOS; AiPanel CSV export testuje
+      starý slug `ux1-claude-panel`.
+
+### 21.4 Výkon (lokál: ~100 ms a 44 SQL dotazů z UX Studia na request)
+- [ ] Analytics beacon = druhý plný boot WP na každé zobrazení (~1,3 s CPU) → odlehčený
+      endpoint (SHORTINIT/mu-plugin), rate-limit v APCu/UPSERT.
+- [ ] BotThrottle `record_metrics` na shutdown každého requestu přepisuje ~35 kB option
+      `uxstudio_bt_load_window` (bez APCu) → jen s APCu / vzorkovat / agregát, jen frontend.
+- [ ] Upload Guard full-scan: worklist 2,4 MB v jedné option přepisované po 40 souborech;
+      sken visí ve stavu `running` od 16. 8. bez navazující cron události → fronta v tabulce
+      + watchdog, starou option smazat.
+- [ ] `hide_wp_version` (default true) strhává `?ver` ze VŠECH assetů + `.htaccess` dává
+      `immutable` 1 rok → po updatu rok starý CSS/JS. Strhávat jen `ver == wp version`.
+- [ ] 39 SELECTů na neautoloadované `uxstudio_dbv_*` + nastavení modulů → jedna
+      autoloadovaná option s verzemi.
+- [ ] SecurityOptimization `maybe_update_htaccess` na každém bootu (schéma + 2× decrypt +
+      md5) → jen při uložení nastavení / admin_init.
+- [ ] `AttemptsHandler::cleanup_expired_attempts` DELETE na každém `init` → denní cron.
+- [ ] BotThrottle `usleep` 5-10 s drží PHP worker při přetížení → 429/503 + Retry-After.
+- [ ] AI chat widget (78 kB JS + 45 kB CSS neminifikováno) na každé stránce → minifikovat,
+      lazy load po kliku.
+- [ ] EmailHealth posílá testovací mail synchronně na `admin_init` → cron.
+- [ ] Retence chybí: activity_log, popup_stats, smtp_logs, push_events, ai_markdown_log,
+      content_sync_log, performance_history, grr_stats, ai_assistant_usage, chat_history.
+- [ ] Drobnosti: `Modules::discover()` 73× json_decode na request (cache), PUC načítán i na
+      frontendu, CodeSnippets 2× `SELECT *`, PopupManager WP_Query ve footeru, SR sync cron
+      každých 5 min i bez centrály, 6 osiřelých `ux1_*` cron událostí.
