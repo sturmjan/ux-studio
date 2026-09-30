@@ -18,11 +18,12 @@ defined( 'ABSPATH' ) || exit;
  *     file content is read there. A single_event is scheduled a few
  *     seconds later to actually scan the queue off-request.
  *  2. Queue batch: scans up to N queued rows per invocation.
- *  3. Full wp-content scan: builds a bounded file worklist once, then
- *     processes it N files at a time via chained wp_schedule_single_event
- *     calls (never a single unbounded loop/request) until the list is
- *     empty - used for both the manual "Scan now" REST action and the
- *     nightly cron.
+ *  3. Full wp-content scan: builds a bounded file worklist once into the
+ *     uxstudio_security_scan_queue table, then processes it N files at a
+ *     time via chained wp_schedule_single_event calls (never a single
+ *     unbounded loop/request) until the queue is empty - used for both the
+ *     manual "Scan now" REST action and the nightly cron. A watchdog
+ *     resumes or ends a run whose event chain broke.
  */
 final class UploadGuardScanner {
 
@@ -30,13 +31,26 @@ final class UploadGuardScanner {
 	public const FULL_SCAN_EVENT   = 'uxstudio_security_full_scan_event';
 	public const DAILY_CRON_HOOK   = 'uxstudio_security_daily_scan';
 
-	private const WORKLIST_OPTION = 'uxstudio_security_scan_worklist';
-	private const STATUS_OPTION   = 'uxstudio_security_scan_status';
-	private const STATS_OPTION    = 'uxstudio_security_scan_stats';
+	/**
+	 * Pre-v2 storage of the whole worklist in ONE option (2+ MB, rewritten
+	 * after every batch). Replaced by the uxstudio_security_scan_queue table;
+	 * only still referenced so upgrades/finishes delete it.
+	 */
+	public const LEGACY_WORKLIST_OPTION = 'uxstudio_security_scan_worklist';
 
-	private const QUEUE_BATCH_SIZE = 25;
-	private const FULL_BATCH_SIZE  = 40;
-	private const MAX_WORKLIST     = 20000;
+	private const STATUS_OPTION = 'uxstudio_security_scan_status';
+	private const STATS_OPTION  = 'uxstudio_security_scan_stats';
+
+	private const QUEUE_BATCH_SIZE   = 25;
+	private const FULL_BATCH_SIZE    = 40;
+	private const MAX_WORKLIST       = 20000;
+	private const QUEUE_INSERT_CHUNK = 500;
+
+	/** Watchdog: no batch progress for this long = the chain is broken, reschedule. */
+	private const STALL_TIMEOUT = 15 * MINUTE_IN_SECONDS;
+
+	/** Watchdog: no progress for this long = give up and end the scan as interrupted. */
+	private const STALL_ABORT = DAY_IN_SECONDS;
 
 	/** Max file size scanned, in bytes (10 MB). Larger files are skipped. */
 	private const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -269,31 +283,36 @@ final class UploadGuardScanner {
 	 * ========================================================== */
 
 	/**
-	 * Kick off (or resume) a full wp-content injection scan. Called by the
-	 * manual "Scan now" REST action and by the daily cron. Builds a bounded
-	 * worklist once, then processes it via chained single events.
+	 * Kick off a full wp-content injection scan. Called by the manual "Scan
+	 * now" REST action and by the daily cron. Builds a bounded worklist once
+	 * into the queue table (one row per file - NOT one huge option rewritten
+	 * after every batch), then processes it via chained single events.
 	 */
 	public function trigger_full_scan(): void {
+		$this->watchdog();
 		$status = $this->get_status();
 		if ( 'running' === ( $status['state'] ?? '' ) ) {
-			return; // Already in progress.
+			return; // Already in progress (and not stuck - the watchdog just checked).
 		}
 
 		$worklist = $this->build_worklist();
 
+		$this->clear_queue();
+		$this->enqueue_paths( $worklist );
+
 		update_option(
 			self::STATUS_OPTION,
 			array(
-				'state'      => 'running',
-				'total'      => count( $worklist ),
-				'remaining'  => count( $worklist ),
-				'scanned'    => 0,
-				'detections' => 0,
-				'started_at' => current_time( 'mysql' ),
+				'state'            => 'running',
+				'total'            => count( $worklist ),
+				'remaining'        => count( $worklist ),
+				'scanned'          => 0,
+				'detections'       => 0,
+				'started_at'       => current_time( 'mysql' ),
+				'last_progress_at' => time(),
 			),
 			false
 		);
-		update_option( self::WORKLIST_OPTION, $worklist, false );
 
 		if ( ! wp_next_scheduled( self::FULL_SCAN_EVENT ) ) {
 			wp_schedule_single_event( time() + 5, self::FULL_SCAN_EVENT );
@@ -301,39 +320,48 @@ final class UploadGuardScanner {
 	}
 
 	/**
-	 * Process one batch of the full-scan worklist; reschedules itself until
-	 * the worklist is empty.
+	 * Process one batch of the full-scan queue; reschedules itself until the
+	 * queue is empty. The batch is claimed (deleted) BEFORE scanning, so a
+	 * file that fatals the scanner is skipped next time instead of wedging
+	 * the scan on the same batch forever.
 	 */
 	public function run_full_scan_batch(): void {
-		$worklist = get_option( self::WORKLIST_OPTION, array() );
-		if ( ! is_array( $worklist ) || empty( $worklist ) ) {
+		global $wpdb;
+		$queue = self::queue_table();
+
+		$rows = $wpdb->get_results(
+			$wpdb->prepare( "SELECT id, file_path FROM {$queue} ORDER BY id ASC LIMIT %d", self::FULL_BATCH_SIZE ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		);
+		if ( empty( $rows ) ) {
 			$this->finish_full_scan();
 			return;
 		}
 
-		$batch    = array_splice( $worklist, 0, self::FULL_BATCH_SIZE );
-		$status   = $this->get_status();
-		$detected = array();
+		$last_id = (int) end( $rows )->id;
+		$wpdb->query( $wpdb->prepare( "DELETE FROM {$queue} WHERE id <= %d", $last_id ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-		foreach ( $batch as $file_path ) {
-			$finding = $this->scan_full_scan_file( $file_path );
+		$detected = array();
+		foreach ( $rows as $row ) {
+			$finding = $this->scan_full_scan_file( (string) $row->file_path );
 			if ( null !== $finding ) {
 				$detected[] = $finding;
 			}
 		}
 
-		$status['scanned']    = (int) ( $status['scanned'] ?? 0 ) + count( $batch );
-		$status['remaining']  = count( $worklist );
-		$status['detections'] = (int) ( $status['detections'] ?? 0 ) + count( $detected );
+		$remaining = $this->queue_count();
 
-		update_option( self::WORKLIST_OPTION, $worklist, false );
+		$status                     = $this->get_status();
+		$status['scanned']          = (int) ( $status['scanned'] ?? 0 ) + count( $rows );
+		$status['remaining']        = $remaining;
+		$status['detections']       = (int) ( $status['detections'] ?? 0 ) + count( $detected );
+		$status['last_progress_at'] = time();
 		update_option( self::STATUS_OPTION, $status, false );
 
 		if ( ! empty( $detected ) ) {
 			( new UploadGuardNotifier() )->notify( $detected );
 		}
 
-		if ( ! empty( $worklist ) ) {
+		if ( $remaining > 0 ) {
 			if ( ! wp_next_scheduled( self::FULL_SCAN_EVENT ) ) {
 				wp_schedule_single_event( time() + 5, self::FULL_SCAN_EVENT );
 			}
@@ -344,14 +372,78 @@ final class UploadGuardScanner {
 	}
 
 	/**
-	 * Finalize a completed full scan run.
+	 * Recover a full scan stuck in `running` - e.g. the chained event was lost
+	 * (cron cleared, fatal mid-batch, module toggled), or a pre-queue-table scan
+	 * whose worklist lived in the old option. Cheap: one option read when idle.
+	 *
+	 * Acts only once nothing has progressed for STALL_TIMEOUT:
+	 *  - queue empty            -> finish (marked interrupted when the run never
+	 *                              progressed at all - the legacy worklist case)
+	 *  - stalled >= STALL_ABORT -> give up: mark interrupted, clear the queue
+	 *  - otherwise              -> reschedule the lost batch event
 	 */
-	private function finish_full_scan(): void {
-		$status               = $this->get_status();
-		$status['state']      = 'idle';
+	public function watchdog(): void {
+		$status = $this->get_status();
+		if ( 'running' !== ( $status['state'] ?? '' ) ) {
+			return;
+		}
+
+		$last     = (int) ( $status['last_progress_at'] ?? 0 );
+		$idle_for = $last ? time() - $last : PHP_INT_MAX;
+
+		// A batch takes seconds and the next one is chained 5s later, so recent
+		// progress means healthy - even if the event is momentarily unscheduled
+		// because WP-Cron is executing it right now (don't double-schedule).
+		if ( $idle_for < self::STALL_TIMEOUT ) {
+			return;
+		}
+
+		if ( 0 === $this->queue_count() ) {
+			$this->finish_full_scan( 0 === $last );
+			return;
+		}
+
+		if ( $idle_for >= self::STALL_ABORT ) {
+			$this->abort_full_scan();
+			return;
+		}
+
+		if ( ! wp_next_scheduled( self::FULL_SCAN_EVENT ) ) {
+			wp_schedule_single_event( time() + 5, self::FULL_SCAN_EVENT );
+		}
+	}
+
+	/**
+	 * End a running full scan without finishing it (module switched off,
+	 * hopelessly stalled). Keeps the last-run stats untouched.
+	 */
+	public function abort_full_scan(): void {
+		$status = $this->get_status();
+		if ( 'running' !== ( $status['state'] ?? '' ) ) {
+			return;
+		}
+		$this->finish_full_scan( true );
+	}
+
+	/**
+	 * Finalize a full scan run.
+	 *
+	 * @param bool $interrupted True when the run was cut short - status says so
+	 *                          and the "last completed scan" stats are kept.
+	 */
+	private function finish_full_scan( bool $interrupted = false ): void {
+		$status                = $this->get_status();
+		$status['state']       = 'idle';
 		$status['finished_at'] = current_time( 'mysql' );
+		$status['interrupted'] = $interrupted;
 		update_option( self::STATUS_OPTION, $status, false );
-		delete_option( self::WORKLIST_OPTION );
+		$this->clear_queue();
+		delete_option( self::LEGACY_WORKLIST_OPTION );
+		wp_clear_scheduled_hook( self::FULL_SCAN_EVENT );
+
+		if ( $interrupted ) {
+			return;
+		}
 
 		update_option(
 			self::STATS_OPTION,
@@ -362,6 +454,37 @@ final class UploadGuardScanner {
 			),
 			false
 		);
+	}
+
+	/* ----- queue table helpers ----- */
+
+	public static function queue_table(): string {
+		global $wpdb;
+		return $wpdb->prefix . 'uxstudio_security_scan_queue';
+	}
+
+	private function queue_count(): int {
+		global $wpdb;
+		return (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . self::queue_table() ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+	}
+
+	private function clear_queue(): void {
+		global $wpdb;
+		$wpdb->query( 'DELETE FROM ' . self::queue_table() ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+	}
+
+	/**
+	 * Bulk-insert paths in chunks (a few hundred rows per statement).
+	 *
+	 * @param string[] $paths File paths.
+	 */
+	private function enqueue_paths( array $paths ): void {
+		global $wpdb;
+		$queue = self::queue_table();
+		foreach ( array_chunk( $paths, self::QUEUE_INSERT_CHUNK ) as $chunk ) {
+			$placeholders = implode( ',', array_fill( 0, count( $chunk ), '(%s)' ) );
+			$wpdb->query( $wpdb->prepare( "INSERT INTO {$queue} (file_path) VALUES {$placeholders}", $chunk ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		}
 	}
 
 	/**

@@ -7,6 +7,8 @@
 
 namespace UxStudio\Modules\SecurityOptimization;
 
+use UxStudio\Core\ClientIp;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -35,9 +37,12 @@ final class CaptchaVerifier {
 		return '' !== self::site_key( $module ) && '' !== self::secret_key( $module );
 	}
 
-	public static function get_client_ip(): string {
-		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
-		return filter_var( $ip, FILTER_VALIDATE_IP ) ? $ip : '';
+	/**
+	 * Client IP in the module's configured proxy mode (Core\ClientIp) - behind
+	 * Cloudflare REMOTE_ADDR alone would lump every visitor onto a few edge IPs.
+	 */
+	public static function get_client_ip( ?Module $module = null ): string {
+		return ClientIp::get( $module ? $module->proxy_mode() : 'none' );
 	}
 
 	/**
@@ -138,7 +143,7 @@ final class CaptchaVerifier {
 				'body'    => array(
 					'secret'   => self::secret_key( $module ),
 					'response' => $token,
-					'remoteip' => self::get_client_ip(),
+					'remoteip' => self::get_client_ip( $module ),
 				),
 			)
 		);

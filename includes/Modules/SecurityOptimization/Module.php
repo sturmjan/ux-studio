@@ -35,6 +35,12 @@ final class Module extends BaseModule {
 	 */
 	private const LOGIN_LOCK_CONST = 'UXSTUDIO_DISABLE_LOGIN_LOCK';
 
+	/** Hourly purge of stale login-attempt counters. */
+	public const ATTEMPTS_CLEANUP_HOOK = 'uxstudio_security_login_attempts_cleanup';
+
+	/** Set after a failed .htaccess write so an unwritable file isn't retried on every admin page. */
+	private const HTACCESS_BACKOFF = 'uxstudio_security_htaccess_backoff';
+
 	private ?AttemptsHandler $attempts       = null;
 	private ?IpBanStore $ip_ban_store        = null;
 	private ?IpBanManager $ip_ban_manager    = null;
@@ -61,7 +67,9 @@ final class Module extends BaseModule {
 						locktime int(11) NOT NULL DEFAULT 30,
 						locklimit int(11) NOT NULL DEFAULT 3,
 						date datetime NOT NULL DEFAULT current_timestamp(),
-						PRIMARY KEY (id), KEY ip (ip), KEY status (status)
+						PRIMARY KEY  (id),
+						KEY ip (ip),
+						KEY status (status)
 					) {$charset};"
 				);
 
@@ -71,7 +79,8 @@ final class Module extends BaseModule {
 						attempt int(11) NOT NULL DEFAULT 1,
 						ip varchar(45) NOT NULL,
 						date datetime NOT NULL DEFAULT current_timestamp(),
-						PRIMARY KEY (id), KEY ip (ip)
+						PRIMARY KEY  (id),
+						KEY ip (ip)
 					) {$charset};"
 				);
 
@@ -90,7 +99,10 @@ final class Module extends BaseModule {
 						last_hit_at datetime NULL,
 						created_by bigint(20) NULL,
 						created_at datetime NOT NULL DEFAULT current_timestamp(),
-						PRIMARY KEY (id), UNIQUE KEY origin_value (origin, value), KEY is_active (is_active), KEY origin (origin)
+						PRIMARY KEY  (id),
+						UNIQUE KEY origin_value (origin,value),
+						KEY is_active (is_active),
+						KEY origin (origin)
 					) {$charset};"
 				);
 
@@ -101,7 +113,9 @@ final class Module extends BaseModule {
 						ip_version tinyint(1) NOT NULL DEFAULT 4,
 						start_ip varbinary(16) NOT NULL,
 						end_ip varbinary(16) NOT NULL,
-						PRIMARY KEY (id), KEY ban_id (ban_id), KEY lookup (ip_version, start_ip)
+						PRIMARY KEY  (id),
+						KEY ban_id (ban_id),
+						KEY lookup (ip_version,start_ip)
 					) {$charset};"
 				);
 			}
@@ -121,8 +135,10 @@ final class Module extends BaseModule {
 		 * enforce modes share one builder. ── */
 		add_action( 'send_headers', array( $this, 'maybe_send_csp_header' ) );
 
-		/* ── .htaccess sync when settings changed ── */
-		$this->maybe_update_htaccess();
+		/* ── .htaccess sync - written on settings save; admin_init only re-checks
+		 * the stored hash (cheap, no secrets decrypted) to heal drift, e.g. after
+		 * a site-URL change. Never on front-end requests. ── */
+		add_action( 'admin_init', array( $this, 'maybe_update_htaccess' ) );
 
 		/* ── XML-RPC ── */
 		if ( $this->setting( 'disable_xmlrpc', true ) ) {
@@ -133,7 +149,7 @@ final class Module extends BaseModule {
 			add_filter( 'wp_headers', array( $this, 'remove_x_pingback' ) );
 		}
 
-		/* ── Hide WP version ── */
+		/* ── Hide WP version (asset ?ver= masked only where it equals the core version) ── */
 		if ( $this->setting( 'hide_wp_version', true ) ) {
 			add_filter( 'the_generator', '__return_false' );
 			add_filter( 'style_loader_src', array( $this, 'remove_version_query_arg' ), 9999 );
@@ -163,12 +179,22 @@ final class Module extends BaseModule {
 			add_action( 'init', array( $this, 'handle_custom_login_url' ), 0 );
 		}
 
-		/* ── Login rate limiting ── */
+		/* ── Login rate limiting - lockout checked at priority 5, BEFORE core
+		 * verifies the password (20), and re-asserted last (PHP_INT_MAX) since
+		 * core's password check overwrites an incoming WP_Error. Counters reset
+		 * only on a completed login (wp_login). ── */
 		if ( $this->setting( 'limit_login_attempts', false ) ) {
 			$this->attempts = new AttemptsHandler( $this );
-			add_filter( 'authenticate', array( $this->attempts, 'check_attempted_login' ), 30, 3 );
+			add_filter( 'authenticate', array( $this->attempts, 'check_attempted_login' ), 5, 3 );
+			add_filter( 'authenticate', array( $this->attempts, 'enforce_lockout' ), PHP_INT_MAX, 1 );
 			add_action( 'wp_login_failed', array( $this->attempts, 'handle_failed_login' ), 10, 1 );
-			add_action( 'init', array( $this->attempts, 'cleanup_expired_attempts' ) );
+			add_action( 'wp_login', array( $this->attempts, 'handle_successful_login' ), 10, 1 );
+			add_action( self::ATTEMPTS_CLEANUP_HOOK, array( $this->attempts, 'cleanup_expired_attempts' ) );
+			if ( ! wp_next_scheduled( self::ATTEMPTS_CLEANUP_HOOK ) ) {
+				wp_schedule_event( time() + HOUR_IN_SECONDS, 'hourly', self::ATTEMPTS_CLEANUP_HOOK );
+			}
+		} elseif ( wp_next_scheduled( self::ATTEMPTS_CLEANUP_HOOK ) ) {
+			wp_clear_scheduled_hook( self::ATTEMPTS_CLEANUP_HOOK );
 		}
 
 		/* ── CAPTCHA - inline widget in the form, or a standalone gate page
@@ -238,6 +264,14 @@ final class Module extends BaseModule {
 		return $this->settings->get( $key, $default );
 	}
 
+	/**
+	 * Validated `ip_firewall_proxy` setting for Core\ClientIp::get().
+	 */
+	public function proxy_mode(): string {
+		$mode = (string) $this->setting( 'ip_firewall_proxy', 'none' );
+		return in_array( $mode, array( 'none', 'cloudflare', 'xff' ), true ) ? $mode : 'none';
+	}
+
 	public function captcha_secret_key(): string {
 		return Security::get_secret( self::SECRET_CAPTCHA );
 	}
@@ -248,7 +282,7 @@ final class Module extends BaseModule {
 
 	public function ip_ban_store(): IpBanStore {
 		if ( null === $this->ip_ban_store ) {
-			$this->ip_ban_store = new IpBanStore();
+			$this->ip_ban_store = new IpBanStore( $this->proxy_mode() );
 		}
 		return $this->ip_ban_store;
 	}
@@ -716,6 +750,7 @@ final class Module extends BaseModule {
 		$result = parent::save_settings( $input );
 
 		delete_option( HtaccessWriter::HASH_OPTION );
+		delete_transient( self::HTACCESS_BACKOFF );
 		$this->maybe_update_htaccess();
 		$this->sync_country_blocklist();
 
@@ -839,8 +874,7 @@ final class Module extends BaseModule {
 			return;
 		}
 
-		$proxy_mode = (string) $this->setting( 'ip_firewall_proxy', 'none' );
-		$ip         = $store->get_client_ip( $proxy_mode );
+		$ip = $store->get_client_ip( $this->proxy_mode() );
 		if ( '' === $ip ) {
 			return;
 		}
@@ -1134,33 +1168,99 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Drop the ?ver= query arg from enqueued asset URLs so the WP/asset version
-	 * is not leaked in the page source.
+	 * Hide the WordPress version in enqueued asset URLs. Only a `ver` equal to
+	 * the core version is touched - and replaced by a site-salted hash of it
+	 * rather than dropped, so it still changes on a core update (assets can be
+	 * served with long immutable cache headers; stripping `ver` would pin stale
+	 * CSS/JS). Plugin/theme versions are left intact.
 	 *
 	 * @param string $src Asset URL.
 	 */
 	public function remove_version_query_arg( $src ): string {
 		$src = (string) $src;
-		if ( false !== strpos( $src, 'ver=' ) ) {
-			$src = remove_query_arg( 'ver', $src );
+		if ( false === strpos( $src, 'ver=' ) ) {
+			return $src;
 		}
-		return $src;
+
+		static $wp_version = null, $masked = null;
+		if ( null === $wp_version ) {
+			$wp_version = (string) get_bloginfo( 'version' );
+			$masked     = substr( wp_hash( 'uxstudio-ver|' . $wp_version ), 0, 10 );
+		}
+
+		$query = (string) wp_parse_url( $src, PHP_URL_QUERY );
+		parse_str( $query, $args );
+		if ( '' === $wp_version || ! isset( $args['ver'] ) || (string) $args['ver'] !== $wp_version ) {
+			return $src;
+		}
+
+		return add_query_arg( 'ver', $masked, $src );
 	}
 
 	/* ═══════════════════════════════════════════════════
 	   .htaccess sync
 	   ═══════════════════════════════════════════════════ */
 
-	private function maybe_update_htaccess(): void {
-		$writer   = $this->htaccess_writer();
-		$settings = $this->settings_values();
-
-		if ( ! $writer->is_applied( $settings ) ) {
-			$result = $writer->apply( $settings );
-			if ( true === $result ) {
-				ActivityLog::log( 'security-optimization', 'htaccess_applied' );
-			}
+	/**
+	 * Only the keys HtaccessWriter::build_rules() reads - deliberately NOT
+	 * settings_values(), which builds the whole schema and decrypts secrets.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function htaccess_settings(): array {
+		$out = array();
+		foreach ( array( 'canonical_redirect', 'force_https', 'disable_directory_listing', 'protect_wp_config', 'block_sensitive_files', 'security_headers', 'enable_hsts' ) as $key ) {
+			$out[ $key ] = $this->setting( $key, false );
 		}
+		return $out;
+	}
+
+	/**
+	 * Write the rules if the stored hash no longer matches the settings. Runs on
+	 * admin_init and after a settings save (which clears the backoff). A failed
+	 * write (unwritable .htaccess) backs off for an hour instead of retrying on
+	 * every admin request.
+	 */
+	public function maybe_update_htaccess(): void {
+		if ( get_transient( self::HTACCESS_BACKOFF ) ) {
+			return;
+		}
+
+		$writer   = $this->htaccess_writer();
+		$settings = $this->htaccess_settings();
+
+		if ( $writer->is_applied( $settings ) ) {
+			return;
+		}
+
+		$result = $writer->apply( $settings );
+		if ( true === $result ) {
+			ActivityLog::log( 'security-optimization', 'htaccess_applied' );
+			return;
+		}
+
+		set_transient( self::HTACCESS_BACKOFF, 1, HOUR_IN_SECONDS );
+	}
+
+	/* ═══════════════════════════════════════════════════
+	   Module switched off / plugin deactivated
+	   ═══════════════════════════════════════════════════ */
+
+	/**
+	 * Remove this module's .htaccess block and unschedule its cron events.
+	 * May run on an instance that was never booted - reads settings only.
+	 * Data (tables, options, findings) is kept.
+	 */
+	public function on_disable(): void {
+		$this->htaccess_writer()->remove();
+		delete_transient( self::HTACCESS_BACKOFF );
+
+		wp_clear_scheduled_hook( self::ATTEMPTS_CLEANUP_HOOK );
+
+		// Upload Guard: nightly + chained batch events; a running full scan is
+		// ended so re-enabling later does not resume a stale worklist.
+		CspUploadGuardBootstrap::on_deactivate();
+		( new UploadGuardScanner() )->abort_full_scan();
 	}
 
 	/* ═══════════════════════════════════════════════════
@@ -1433,6 +1533,35 @@ final class Module extends BaseModule {
 			$prefix = (string) $prefix;
 			if ( '' !== $prefix && 0 === strpos( $route, $prefix ) ) {
 				return true;
+			}
+		}
+
+		return $this->is_own_public_endpoint( $route );
+	}
+
+	/**
+	 * UX Studio's own endpoints that are deliberately public (AI chat, push
+	 * subscribe, popup tracking…) declare `permission_callback => __return_true`.
+	 * Honour that for our namespace only, so the lock keeps covering core and
+	 * other plugins without every module having to whitelist itself.
+	 *
+	 * @param string $route Requested route with a leading slash.
+	 */
+	private function is_own_public_endpoint( string $route ): bool {
+		if ( 0 !== strpos( $route, '/uxstudio/v1/' ) || ! function_exists( 'rest_get_server' ) ) {
+			return false;
+		}
+		$method = isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( sanitize_key( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) : 'GET';
+
+		foreach ( rest_get_server()->get_routes( 'uxstudio/v1' ) as $pattern => $handlers ) {
+			if ( ! preg_match( '@^' . $pattern . '$@i', $route ) ) {
+				continue;
+			}
+			foreach ( (array) $handlers as $handler ) {
+				if ( empty( $handler['methods'][ $method ] ) ) {
+					continue;
+				}
+				return isset( $handler['permission_callback'] ) && '__return_true' === $handler['permission_callback'];
 			}
 		}
 

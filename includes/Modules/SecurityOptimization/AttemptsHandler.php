@@ -7,6 +7,7 @@
 
 namespace UxStudio\Modules\SecurityOptimization;
 
+use UxStudio\Core\ClientIp;
 use WP_Error;
 use WP_User;
 
@@ -27,6 +28,9 @@ final class AttemptsHandler {
 	/** @var string */
 	private $login_attempt;
 
+	/** Lockout decided at the start of the authenticate chain (see enforce_lockout()). */
+	private ?WP_Error $lockout_error = null;
+
 	public function __construct( Module $module ) {
 		global $wpdb;
 		$this->module        = $module;
@@ -42,26 +46,49 @@ final class AttemptsHandler {
 		return max( 1, (int) $this->module->setting( 'lockout_time', 30 ) );
 	}
 
+	/**
+	 * The one clock for both tables: rows are written AND compared with the
+	 * site-local time from PHP, never MySQL's NOW() (the DB server's time zone,
+	 * which usually differs from WordPress's and shifted every lockout window).
+	 * Local rather than UTC so the admin list keeps showing the same times.
+	 */
+	private function now(): string {
+		return current_time( 'mysql' );
+	}
+
 	/* ═══════════════════════════════════════════════════
 	   Authentication hooks
 	   ═══════════════════════════════════════════════════ */
 
 	/**
+	 * Lockout check - runs on `authenticate` at priority 5, i.e. BEFORE core
+	 * verifies the password (priority 20), and blocks regardless of whether
+	 * the credentials are correct. Otherwise a locked-out attacker could keep
+	 * guessing and a correct guess would still get through (a different
+	 * response for the correct password would also be a password oracle).
+	 *
+	 * Core's wp_authenticate_username_password() ignores an incoming WP_Error
+	 * (it only short-circuits on WP_User), so the error is remembered here and
+	 * re-asserted by enforce_lockout() at the very end of the chain.
+	 *
 	 * @param WP_User|WP_Error|null $user     Incoming authenticate() value.
 	 * @param string                $username Attempted username.
 	 * @param string                $password Attempted password (unused).
 	 * @return WP_User|WP_Error|null
 	 */
 	public function check_attempted_login( $user, $username, $password ) {
-		if ( $user instanceof WP_User ) {
-			$this->reset_attempts( $username );
-			return $user;
+		$this->lockout_error = null;
+
+		$username = (string) $username;
+		if ( '' === $username && '' === (string) $password ) {
+			return $user; // Plain login page load, not an attempt.
 		}
 
-		$ip = $this->get_client_ip();
+		$ip    = $this->get_client_ip();
+		$error = null;
 
 		if ( $this->is_ip_blocked( $ip ) ) {
-			return new WP_Error(
+			$error = new WP_Error(
 				'uxstudio_ip_blocked',
 				sprintf(
 					/* translators: %d: minutes */
@@ -69,10 +96,8 @@ final class AttemptsHandler {
 					$this->lockout_time()
 				)
 			);
-		}
-
-		if ( $this->is_username_blocked( $username ) ) {
-			return new WP_Error(
+		} elseif ( '' !== $username && $this->is_username_blocked( $username ) ) {
+			$error = new WP_Error(
 				'uxstudio_username_blocked',
 				sprintf(
 					/* translators: %d: minutes */
@@ -80,10 +105,8 @@ final class AttemptsHandler {
 					$this->lockout_time()
 				)
 			);
-		}
-
-		if ( $this->get_current_attempt_count( $ip ) >= $this->max_attempts() ) {
-			return new WP_Error(
+		} elseif ( '' !== $ip && $this->get_current_attempt_count( $ip ) >= $this->max_attempts() ) {
+			$error = new WP_Error(
 				'uxstudio_attempts_exceeded',
 				sprintf(
 					/* translators: %d: minutes */
@@ -93,18 +116,48 @@ final class AttemptsHandler {
 			);
 		}
 
-		return $user;
+		if ( null === $error ) {
+			return $user;
+		}
+
+		$this->lockout_error = $error;
+		return $error;
+	}
+
+	/**
+	 * Last word on `authenticate` (PHP_INT_MAX): re-assert the lockout decided
+	 * by check_attempted_login(), whatever the filters in between returned.
+	 *
+	 * @param WP_User|WP_Error|null $user Incoming authenticate() value.
+	 * @return WP_User|WP_Error|null
+	 */
+	public function enforce_lockout( $user ) {
+		return null !== $this->lockout_error ? $this->lockout_error : $user;
+	}
+
+	/**
+	 * Counters are reset only after a real, completed login (`wp_login`),
+	 * never from inside the authenticate chain.
+	 *
+	 * @param string $user_login Logged-in username.
+	 */
+	public function handle_successful_login( $user_login ): void {
+		$this->reset_attempts( (string) $user_login );
 	}
 
 	/**
 	 * @param string $username Attempted username.
 	 */
 	public function handle_failed_login( $username ): void {
+		$username       = (string) $username;
 		$ip             = $this->get_client_ip();
 		$ip_attempts    = $this->increment_ip_attempts( $ip );
 		$username_count = $this->get_current_username_attempts( $username );
 
 		if ( $ip_attempts >= $this->max_attempts() || $username_count >= $this->max_attempts() ) {
+			if ( $this->is_ip_blocked( $ip ) ) {
+				return; // Retry during an active lockout - don't stack lock rows / emails.
+			}
 			$this->block_ip( $ip, $username );
 			if ( $this->module->setting( 'notify_admin', false ) ) {
 				$this->notify_admin( $ip, $username );
@@ -129,7 +182,7 @@ final class AttemptsHandler {
 				$this->login_attempt,
 				array(
 					'attempt' => $count,
-					'date'    => current_time( 'mysql' ),
+					'date'    => $this->now(),
 				),
 				array( 'id' => $existing->id ),
 				array( '%d', '%s' ),
@@ -143,7 +196,7 @@ final class AttemptsHandler {
 			array(
 				'attempt' => 1,
 				'ip'      => $ip,
-				'date'    => current_time( 'mysql' ),
+				'date'    => $this->now(),
 			),
 			array( '%d', '%s', '%s' )
 		);
@@ -155,8 +208,9 @@ final class AttemptsHandler {
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$this->login_failed}
-				 WHERE username = %s AND status = 1 AND date > DATE_SUB(NOW(), INTERVAL locktime MINUTE)",
-				$username
+				 WHERE username = %s AND status = 1 AND date > DATE_SUB(%s, INTERVAL locktime MINUTE)",
+				$username,
+				$this->now()
 			)
 		);
 	}
@@ -172,7 +226,7 @@ final class AttemptsHandler {
 				'status'    => 1,
 				'locktime'  => $this->lockout_time(),
 				'locklimit' => $this->max_attempts(),
-				'date'      => current_time( 'mysql' ),
+				'date'      => $this->now(),
 			),
 			array( '%s', '%s', '%s', '%d', '%d', '%d', '%s' )
 		);
@@ -186,8 +240,9 @@ final class AttemptsHandler {
 		$blocked = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$this->login_failed}
-				 WHERE ip = %s AND status = 1 AND date > DATE_SUB(NOW(), INTERVAL locktime MINUTE)",
-				$ip
+				 WHERE ip = %s AND status = 1 AND date > DATE_SUB(%s, INTERVAL locktime MINUTE)",
+				$ip,
+				$this->now()
 			)
 		);
 		return (bool) $blocked;
@@ -198,8 +253,9 @@ final class AttemptsHandler {
 		$blocked = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$this->login_failed}
-				 WHERE username = %s AND status = 1 AND date > DATE_SUB(NOW(), INTERVAL locktime MINUTE)",
-				$username
+				 WHERE username = %s AND status = 1 AND date > DATE_SUB(%s, INTERVAL locktime MINUTE)",
+				$username,
+				$this->now()
 			)
 		);
 		return (bool) $blocked;
@@ -218,9 +274,10 @@ final class AttemptsHandler {
 		$row = $wpdb->get_row(
 			$wpdb->prepare(
 				"SELECT attempt FROM {$this->login_attempt}
-				 WHERE ip = %s AND date > DATE_SUB(NOW(), INTERVAL %d MINUTE)
+				 WHERE ip = %s AND date > DATE_SUB(%s, INTERVAL %d MINUTE)
 				 ORDER BY date DESC LIMIT 1",
 				$ip,
+				$this->now(),
 				$this->lockout_time()
 			)
 		);
@@ -229,27 +286,11 @@ final class AttemptsHandler {
 
 	/**
 	 * Client IP - REMOTE_ADDR by default (unspoofable); forwarded headers are
-	 * only trusted when the IP firewall proxy mode explicitly says so, via
-	 * the shared filter also used by IpBanStore's proxy-mode setting.
+	 * only trusted in the configured IP firewall proxy mode AND only when they
+	 * come from that proxy itself (Core\ClientIp), never a bare client header.
 	 */
 	public function get_client_ip(): string {
-		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
-
-		$proxy_mode = (string) $this->module->setting( 'ip_firewall_proxy', 'none' );
-		if ( 'cloudflare' === $proxy_mode && ! empty( $_SERVER['HTTP_CF_CONNECTING_IP'] ) ) {
-			$candidate = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CF_CONNECTING_IP'] ) );
-			if ( filter_var( $candidate, FILTER_VALIDATE_IP ) ) {
-				$ip = $candidate;
-			}
-		} elseif ( 'xff' === $proxy_mode && ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-			$parts     = explode( ',', sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) );
-			$candidate = trim( $parts[0] );
-			if ( filter_var( $candidate, FILTER_VALIDATE_IP ) ) {
-				$ip = $candidate;
-			}
-		}
-
-		return filter_var( $ip, FILTER_VALIDATE_IP ) ? $ip : '';
+		return ClientIp::get( $this->module->proxy_mode() );
 	}
 
 	private function notify_admin( string $ip, string $username ): void {
@@ -277,11 +318,16 @@ final class AttemptsHandler {
 		wp_mail( $admin_email, $subject, implode( "\r\n", $lines ) );
 	}
 
+	/**
+	 * Purge stale attempt counters. Hourly cron (Module::ATTEMPTS_CLEANUP_HOOK),
+	 * not on every request.
+	 */
 	public function cleanup_expired_attempts(): void {
 		global $wpdb;
 		$wpdb->query(
 			$wpdb->prepare(
-				"DELETE FROM {$this->login_attempt} WHERE date < DATE_SUB(NOW(), INTERVAL %d MINUTE)",
+				"DELETE FROM {$this->login_attempt} WHERE date < DATE_SUB(%s, INTERVAL %d MINUTE)",
+				$this->now(),
 				$this->lockout_time()
 			)
 		);
