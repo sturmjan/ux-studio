@@ -7,6 +7,7 @@
 
 namespace UxStudio\Modules\SecurityOptimization;
 
+use UxStudio\Core\ClientIp;
 use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
@@ -33,10 +34,14 @@ final class IpBanStore {
 	/** @var string */
 	private $ranges;
 
-	public function __construct() {
+	/** Proxy mode for the self-ban guard (Module::proxy_mode()). */
+	private string $proxy_mode;
+
+	public function __construct( string $proxy_mode = 'none' ) {
 		global $wpdb;
-		$this->bans   = $wpdb->prefix . 'uxstudio_ip_bans';
-		$this->ranges = $wpdb->prefix . 'uxstudio_ip_ban_ranges';
+		$this->proxy_mode = $proxy_mode;
+		$this->bans       = $wpdb->prefix . 'uxstudio_ip_bans';
+		$this->ranges     = $wpdb->prefix . 'uxstudio_ip_ban_ranges';
 	}
 
 	/* ═══════════════════════════════════════════════════
@@ -131,7 +136,7 @@ final class IpBanStore {
 	/**
 	 * Paginated/filtered list.
 	 *
-	 * @param array $args type, search, page, per_page, active_only.
+	 * @param array $args type, search, page, per_page, active_only (is_active and not expired).
 	 */
 	public function get_bans( array $args = array() ): array {
 		global $wpdb;
@@ -144,7 +149,8 @@ final class IpBanStore {
 			$params[] = $args['type'];
 		}
 		if ( ! empty( $args['active_only'] ) ) {
-			$where[] = 'is_active = 1';
+			$where[]  = 'is_active = 1 AND (expires_at IS NULL OR expires_at > %s)';
+			$params[] = self::now_utc();
 		}
 		if ( ! empty( $args['search'] ) ) {
 			$like     = '%' . $wpdb->esc_like( $args['search'] ) . '%';
@@ -315,13 +321,25 @@ final class IpBanStore {
 	public function refresh_active_flag(): bool {
 		global $wpdb;
 		$exists = (int) $wpdb->get_var(
-			"SELECT EXISTS(
-				SELECT 1 FROM {$this->bans}
-				WHERE is_active = 1 AND (expires_at IS NULL OR expires_at > NOW())
-			)"
+			$wpdb->prepare(
+				"SELECT EXISTS(
+					SELECT 1 FROM {$this->bans}
+					WHERE is_active = 1 AND (expires_at IS NULL OR expires_at > %s)
+				)",
+				self::now_utc()
+			)
 		);
 		update_option( self::ACTIVE_OPTION, $exists ? 1 : 0, true );
 		return (bool) $exists;
+	}
+
+	/**
+	 * `expires_at` is stored in UTC (normalize_date() uses gmdate), so every
+	 * expiry comparison uses this PHP UTC clock - never MySQL NOW() (DB server
+	 * time zone) or current_time('mysql') (site-local time).
+	 */
+	private static function now_utc(): string {
+		return gmdate( 'Y-m-d H:i:s' );
 	}
 
 	/**
@@ -349,7 +367,7 @@ final class IpBanStore {
 				$version,
 				$hex,
 				$hex,
-				current_time( 'mysql' )
+				self::now_utc()
 			),
 			ARRAY_A
 		);
@@ -413,24 +431,16 @@ final class IpBanStore {
 	}
 
 	/**
-	 * Client IP detection, trusting forwarded headers only in the configured proxy mode.
+	 * Client IP detection. Forwarded headers are trusted only in the configured
+	 * proxy mode AND only when sent by that proxy (Cloudflare edge ranges /
+	 * configured trusted proxies; XFF walked from the right) - see Core\ClientIp.
+	 * A client-supplied CF-Connecting-IP / X-Forwarded-For is never used as is.
 	 *
-	 * @param string $proxy_mode none|cloudflare|xff.
+	 * @param string|null $proxy_mode none|cloudflare|xff; null = the mode this store was built with.
 	 */
-	public function get_client_ip( string $proxy_mode = 'none' ): string {
-		$candidate = '';
-		if ( 'cloudflare' === $proxy_mode && ! empty( $_SERVER['HTTP_CF_CONNECTING_IP'] ) ) {
-			$candidate = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CF_CONNECTING_IP'] ) );
-		} elseif ( 'xff' === $proxy_mode && ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-			$parts     = explode( ',', sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) );
-			$candidate = trim( $parts[0] );
-		}
-
-		if ( '' === $candidate ) {
-			$candidate = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
-		}
-
-		return filter_var( $candidate, FILTER_VALIDATE_IP ) ? $candidate : '';
+	public function get_client_ip( ?string $proxy_mode = null ): string {
+		$proxy_mode = $proxy_mode ?? $this->proxy_mode;
+		return ClientIp::get( in_array( $proxy_mode, array( 'none', 'cloudflare', 'xff' ), true ) ? $proxy_mode : 'none' );
 	}
 
 	/* ═══════════════════════════════════════════════════

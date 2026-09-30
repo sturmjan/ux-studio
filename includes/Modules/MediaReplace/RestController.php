@@ -61,10 +61,16 @@ final class RestController extends Controller {
 		$attachment     = get_post( $attachment_id );
 		$new_attachment = get_post( $new_attachment_id );
 
+		// The replacement attachment is consumed (its file copied, then the
+		// attachment deleted) - so it must be a temporary upload the current
+		// user made themselves and may delete. Checked BEFORE any use/delete,
+		// otherwise any uploader could delete arbitrary media by id.
+		if ( ! $this->owns_replacement( $new_attachment ) || $new_attachment_id === $attachment_id ) {
+			return new WP_Error( 'uxstudio_forbidden', __( 'You are not allowed to use this media item as a replacement.', 'ux-studio' ), array( 'status' => 403 ) );
+		}
+
 		if ( ! $this->validate_attachments( $attachment, $new_attachment ) ) {
-			if ( $new_attachment ) {
-				wp_delete_attachment( $new_attachment_id, true );
-			}
+			wp_delete_attachment( $new_attachment_id, true );
 			return new WP_Error( 'uxstudio_not_found', __( 'One or both media items could not be found.', 'ux-studio' ), array( 'status' => 404 ) );
 		}
 
@@ -83,6 +89,19 @@ final class RestController extends Controller {
 		}
 
 		return $this->ok( array( 'message' => $result['message'] ) );
+	}
+
+	/**
+	 * The replacement is an attachment uploaded by the current user, who may
+	 * also delete it.
+	 *
+	 * @param \WP_Post|null $new_attachment Replacement.
+	 */
+	private function owns_replacement( $new_attachment ): bool {
+		return $new_attachment instanceof \WP_Post
+			&& 'attachment' === $new_attachment->post_type
+			&& (int) $new_attachment->post_author === get_current_user_id()
+			&& current_user_can( 'delete_post', $new_attachment->ID );
 	}
 
 	/**

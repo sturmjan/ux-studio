@@ -76,7 +76,19 @@ final class Claude_Panel_Bootstrap {
     }
 
     public static function client_ip() {
-        return isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : '?';
+        // UX Studio: shared resolver (proxy headers only from Cloudflare /
+        // configured trusted proxies) instead of the raw REMOTE_ADDR.
+        $ip = \UxStudio\Core\ClientIp::get('auto');
+        return $ip !== '' ? $ip : '?';
+    }
+
+    /**
+     * UX Studio: proxy ranges whose forwarding headers rescue.php may trust
+     * (it runs outside WordPress, so it gets them via config.php). Same set
+     * Core\ClientIp uses: Cloudflare edges + configured trusted proxies.
+     */
+    public static function rescue_trusted_proxies() {
+        return array_values(array_filter(array_map('strval', \UxStudio\Core\ClientIp::trusted_proxy_ranges())));
     }
 
     /* ============ FRONTEND ROUTE ============ */
@@ -208,7 +220,7 @@ final class Claude_Panel_Bootstrap {
         // Volba „zamknout na IP" z formuláře (výchozí = zamknuto, bezpečnější).
         $lock_ip   = (!isset($_POST['lock_ip']) || $_POST['lock_ip'] === '1');
         $rescue_ip = $lock_ip ? self::client_ip() : '';
-        if (self::rescue_install($password, $rescue_ip, is_ssl())) {
+        if (self::rescue_install($password, $rescue_ip, is_ssl(), intval($opts['access_expires_at']))) {
             wp_clear_scheduled_hook('cp_rescue_expire');
             wp_schedule_single_event(intval($opts['access_expires_at']), 'cp_rescue_expire');
         }
@@ -275,7 +287,7 @@ final class Claude_Panel_Bootstrap {
 
     public static function maybe_export_csv() {
         if (!current_user_can('manage_options')) return;
-        if (!isset($_GET['page'], $_GET['cp_export']) || $_GET['page'] !== 'ux1-claude-panel' || $_GET['cp_export'] !== 'csv') return;
+        if (!isset($_GET['page'], $_GET['cp_export']) || $_GET['page'] !== 'ux-studio-ai-panel' || $_GET['cp_export'] !== 'csv') return;
         if (!isset($_GET['_wpnonce']) || !wp_verify_nonce($_GET['_wpnonce'], 'cp_export_csv')) wp_die('Bad nonce', 403);
 
         $log = get_option(CP_AUDIT_OPT, []);
@@ -377,7 +389,7 @@ final class Claude_Panel_Bootstrap {
      * šablonu includes/rescue.php do wp-content/uploads/claude-panel-rescue/
      * pod náhodným názvem a zapíše vedle ní config.php (hash hesla + root + IP).
      */
-    public static function rescue_install($password, $allowed_ips, $require_https) {
+    public static function rescue_install($password, $allowed_ips, $require_https, $expires_at = 0) {
         self::rescue_remove(false); // starou instalaci ukliď (rotace názvu = nová URL)
 
         $up = wp_upload_dir();
@@ -398,6 +410,10 @@ final class Claude_Panel_Bootstrap {
             'require_https' => (bool) $require_https,
             'label'         => get_bloginfo('name'),
             'created'       => time(),
+            // UX Studio: rescue.php itself refuses (and deletes itself) after
+            // this moment, even if WP-Cron / the plugin never cleans it up.
+            'expires_at'    => (int) $expires_at,
+            'proxies'       => self::rescue_trusted_proxies(),
         ];
         $php = "<?php\n// AI Panel — rescue config. Nesahat ručně; spravuje plugin.\n"
              . "// Přímý přístup přes HTTP nic nevypíše (jen vrátí pole).\nreturn "
@@ -433,6 +449,12 @@ final class Claude_Panel_Bootstrap {
         $dir  = (string) $opts['rescue_dir'];
         if ($dir && is_dir($dir) && strpos($dir, 'claude-panel-rescue') !== false) {
             self::rrmdir_safe($dir);
+        }
+        // UX Studio: also the default location, in case the option was lost.
+        $up = wp_upload_dir(null, false);
+        $default_dir = empty($up['basedir']) ? '' : trailingslashit($up['basedir']) . 'claude-panel-rescue';
+        if ($default_dir !== '' && is_dir($default_dir)) {
+            self::rrmdir_safe($default_dir);
         }
         if ($update_option) {
             $opts['rescue_installed'] = false;
@@ -903,7 +925,7 @@ final class Claude_Panel_Bootstrap {
         $page     = min($page, $total_pages);
         $sliced   = array_slice($log, ($page - 1) * $per_page, $per_page);
 
-        $base_url = admin_url('admin.php?page=ux1-claude-panel');
+        $base_url = admin_url('admin.php?page=ux-studio-ai-panel');
         $export_url = wp_nonce_url(add_query_arg('cp_export', 'csv', $base_url), 'cp_export_csv');
 
         ob_start();

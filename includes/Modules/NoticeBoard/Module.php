@@ -36,7 +36,13 @@ final class Module extends BaseModule {
 
 	private const FEED_SLUG   = 'uxstudio-notice-board';
 	private const QUERY_VAR   = 'uxs_nb_cat';
-	private const DB_VERSION  = 2;
+	private const DB_VERSION  = 3;
+
+	/**
+	 * Minimum gap (hours) between two confirmation e-mails to one address, so
+	 * the public subscribe form can't be used to mail-bomb someone.
+	 */
+	private const CONFIRM_RESEND_HOURS = 6;
 
 	/**
 	 * Register hooks.
@@ -107,6 +113,8 @@ final class Module extends BaseModule {
 				confirm_token VARCHAR(64) NOT NULL DEFAULT '',
 				unsubscribe_token VARCHAR(64) NOT NULL DEFAULT '',
 				categories LONGTEXT NULL,
+				pending_categories LONGTEXT NULL,
+				confirm_sent_at DATETIME NULL,
 				PRIMARY KEY  (id),
 				UNIQUE KEY email (email),
 				KEY confirm_token (confirm_token),
@@ -674,9 +682,13 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Subscribe an email address (double opt-in). Idempotent: re-sends the
-	 * confirmation for an unconfirmed address and updates the category set;
-	 * never reveals whether an address already exists.
+	 * Subscribe an email address (double opt-in). Idempotent and never reveals
+	 * whether an address already exists:
+	 *  - unconfirmed address: category set updated, confirmation re-sent;
+	 *  - confirmed address: the new category set is only parked in
+	 *    pending_categories and applied once the owner clicks a fresh
+	 *    confirmation link - anyone can submit the form for any address.
+	 * Confirmation mails to one address are throttled (CONFIRM_RESEND_HOURS).
 	 *
 	 * @param string   $email      Raw email address.
 	 * @param string[] $categories Category slugs (empty = all categories).
@@ -693,20 +705,49 @@ final class Module extends BaseModule {
 		$categories = $this->sanitize_category_slugs( $categories );
 
 		$existing = $wpdb->get_row(
-			$wpdb->prepare( "SELECT id, confirmed, confirm_token FROM {$table} WHERE email = %s", $email ),
+			$wpdb->prepare( "SELECT id, confirmed, confirm_token, confirm_sent_at FROM {$table} WHERE email = %s", $email ),
 			ARRAY_A
 		);
 
 		if ( is_array( $existing ) ) {
-			$wpdb->update(
-				$table,
-				array( 'categories' => wp_json_encode( $categories ) ),
-				array( 'id' => (int) $existing['id'] ),
-				array( '%s' ),
-				array( '%d' )
-			);
-			if ( ! (int) $existing['confirmed'] ) {
-				$this->send_confirm_email( $email, (string) $existing['confirm_token'] );
+			$id        = (int) $existing['id'];
+			$confirmed = (bool) (int) $existing['confirmed'];
+			$token     = (string) $existing['confirm_token'];
+			$last      = (string) ( $existing['confirm_sent_at'] ?? '' );
+			$can_mail  = '' === $last || strtotime( $last . ' UTC' ) < time() - self::CONFIRM_RESEND_HOURS * HOUR_IN_SECONDS;
+
+			if ( $confirmed && ! $can_mail ) {
+				// Throttled: leave the confirmed row (and the link already
+				// mailed) untouched.
+				return true;
+			}
+
+			if ( $confirmed ) {
+				// Park the change; rotate the token so only the new mail applies it.
+				$token = wp_generate_password( 32, false, false );
+				$wpdb->update(
+					$table,
+					array(
+						'pending_categories' => wp_json_encode( $categories ),
+						'confirm_token'      => $token,
+					),
+					array( 'id' => $id ),
+					array( '%s', '%s' ),
+					array( '%d' )
+				);
+			} else {
+				$wpdb->update(
+					$table,
+					array( 'categories' => wp_json_encode( $categories ) ),
+					array( 'id' => $id ),
+					array( '%s' ),
+					array( '%d' )
+				);
+			}
+
+			if ( $can_mail ) {
+				$this->send_confirm_email( $email, $token, $confirmed );
+				$this->mark_confirm_sent( $id );
 			}
 			return true;
 		}
@@ -728,7 +769,24 @@ final class Module extends BaseModule {
 		);
 
 		$this->send_confirm_email( $email, $confirm_token );
+		$this->mark_confirm_sent( (int) $wpdb->insert_id );
 		return true;
+	}
+
+	/**
+	 * Remember when a confirmation mail was last sent (UTC).
+	 *
+	 * @param int $id Subscription id.
+	 */
+	private function mark_confirm_sent( int $id ): void {
+		global $wpdb;
+		$wpdb->update(
+			"{$wpdb->prefix}uxstudio_notice_board_subscriptions",
+			array( 'confirm_sent_at' => gmdate( 'Y-m-d H:i:s' ) ),
+			array( 'id' => $id ),
+			array( '%s' ),
+			array( '%d' )
+		);
 	}
 
 	/**
@@ -741,12 +799,15 @@ final class Module extends BaseModule {
 		if ( '' === $token ) {
 			return false;
 		}
-		$updated = $wpdb->update(
-			"{$wpdb->prefix}uxstudio_notice_board_subscriptions",
-			array( 'confirmed' => 1 ),
-			array( 'confirm_token' => $token ),
-			array( '%d' ),
-			array( '%s' )
+		// Confirms a new subscription, or applies a category change parked in
+		// pending_categories by subscribe() for an already confirmed address.
+		$updated = $wpdb->query(
+			$wpdb->prepare(
+				"UPDATE {$wpdb->prefix}uxstudio_notice_board_subscriptions
+				SET confirmed = 1, categories = COALESCE(pending_categories, categories), pending_categories = NULL
+				WHERE confirm_token = %s",
+				$token
+			)
 		);
 		return (bool) $updated;
 	}
@@ -826,8 +887,9 @@ final class Module extends BaseModule {
 	 *
 	 * @param string $email         Recipient.
 	 * @param string $confirm_token Confirm token.
+	 * @param bool   $change        Confirming a category change of a confirmed address.
 	 */
-	private function send_confirm_email( string $email, string $confirm_token ): void {
+	private function send_confirm_email( string $email, string $confirm_token, bool $change = false ): void {
 		$confirm_url = rest_url( 'uxstudio/v1/notice-board/confirm/' . rawurlencode( $confirm_token ) );
 
 		$subject = sprintf(
@@ -836,7 +898,9 @@ final class Module extends BaseModule {
 			get_bloginfo( 'name' )
 		);
 
-		$body  = '<p>' . esc_html__( 'Please confirm your subscription to the notice board by clicking the link below:', 'ux-studio' ) . '</p>';
+		$body  = '<p>' . ( $change
+			? esc_html__( 'A change of the categories you follow on the notice board was requested. Confirm it by clicking the link below:', 'ux-studio' )
+			: esc_html__( 'Please confirm your subscription to the notice board by clicking the link below:', 'ux-studio' ) ) . '</p>';
 		$body .= '<p><a href="' . esc_url( $confirm_url ) . '">' . esc_html__( 'Confirm subscription', 'ux-studio' ) . '</a></p>';
 		$body .= '<p style="color:#787c82;font-size:13px;">' . esc_html__( 'If you did not request this, you can ignore this email.', 'ux-studio' ) . '</p>';
 

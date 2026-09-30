@@ -117,6 +117,12 @@ final class Sender {
 	 */
 	private function send_one( array $sub, string $payload, string $subject, string $private_pem, string $public_raw ): string {
 		try {
+			// Re-check at send time: rows stored before the allowlist existed
+			// (or a narrowed `uxstudio_push_allowed_hosts` filter) never get a request.
+			if ( ! Module::is_allowed_endpoint( (string) $sub['endpoint'] ) ) {
+				return 'fail';
+			}
+
 			$key  = WebPushCrypto::b64u_decode( (string) $sub['p256dh_key'] );
 			$auth = WebPushCrypto::b64u_decode( (string) $sub['auth_key'] );
 			if ( strlen( $key ) < 65 || strlen( $auth ) < 16 ) {
@@ -133,7 +139,9 @@ final class Sender {
 				$subject
 			);
 
-			$response = wp_remote_post(
+			// wp_safe_remote_post additionally refuses private/loopback targets
+			// (e.g. an allowlisted host resolving to an internal address).
+			$response = wp_safe_remote_post(
 				$request['url'],
 				array(
 					'headers'   => $request['headers'],

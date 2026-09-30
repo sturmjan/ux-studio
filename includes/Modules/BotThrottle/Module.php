@@ -9,6 +9,7 @@
 
 namespace UxStudio\Modules\BotThrottle;
 
+use UxStudio\Core\ClientIp;
 use UxStudio\Modules\BaseModule;
 
 defined( 'ABSPATH' ) || exit;
@@ -40,9 +41,12 @@ final class Module extends BaseModule {
 
 		\UxStudio\Core\DB::ensure_module_tables(
 			'bot-throttle',
-			3,
+			4,
 			function ( int $from ): void {
 				global $wpdb;
+				// v4: the raw-entry load window option (~35 kB) is replaced by a
+				// small aggregate (LoadSampler) - drop the stale copy.
+				delete_option( 'uxstudio_bt_load_window' );
 				$charset = $wpdb->get_charset_collate();
 				dbDelta(
 					"CREATE TABLE {$wpdb->prefix}uxstudio_bot_throttle_buckets (
@@ -91,8 +95,23 @@ final class Module extends BaseModule {
 
 		// template_redirect fires only for normal frontend page requests -
 		// it excludes REST, wp-cron and wp-admin, so no extra gating is needed.
+		// Load metrics are sampled from the same requests only (registered at
+		// priority 0, before evaluate() may exit).
+		add_action(
+			'template_redirect',
+			function (): void {
+				add_action( 'shutdown', array( $this, 'record_metrics' ), 999 );
+			},
+			0
+		);
 		add_action( 'template_redirect', array( $this, 'evaluate' ), 1 );
-		add_action( 'shutdown', array( $this, 'record_metrics' ), 999 );
+	}
+
+	/**
+	 * Module switched off: drop the ephemeral load window / tier cache.
+	 */
+	public function on_disable(): void {
+		LoadSampler::purge();
 	}
 
 	/**
@@ -135,6 +154,11 @@ final class Module extends BaseModule {
 			exit;
 		}
 
+		// Logged-in visitors are never bot-throttled (only the hard cap above).
+		if ( is_user_logged_in() ) {
+			return;
+		}
+
 		$detector = new Detector(
 			array(
 				'whitelist_ua' => $this->csv_list( 'whitelist_ua' ),
@@ -164,14 +188,17 @@ final class Module extends BaseModule {
 		$this->plan     = $plan;
 		$this->tier     = $tier;
 
-		// Block -> send 503/429 and stop (log before exit).
+		// Block -> send 503/429 with Retry-After and stop (log before exit).
 		if ( 'block' === $plan['action'] ) {
-			$this->log_final( $ip, $ua, 0 );
-			$throttler->send_block_response( (int) $plan['status'], 60 );
+			$this->log_final( $ip, $ua, (int) $plan['status'] );
+			$throttler->send_block_response( (int) $plan['status'], (int) ( $plan['retry_after'] ?? 60 ) );
 			exit;
 		}
 
-		// Microcache: try to serve a cached copy, otherwise capture this render.
+		// Microcache: serve a cached copy (no sleep - a sleeping request would
+		// hold a PHP worker exactly when the server is short of them). On a miss
+		// either render + capture, or - where the plan says so - turn the bot
+		// away with Retry-After instead of rendering under load.
 		if ( 'microcache' === $plan['action'] ) {
 			$cache  = new Microcache();
 			$key    = $cache->key( (string) ( $_SERVER['HTTP_HOST'] ?? '' ), (string) ( $_SERVER['REQUEST_URI'] ?? '' ), (string) $detected['category'] );
@@ -181,16 +208,20 @@ final class Module extends BaseModule {
 					header( 'X-UXS-BotThrottle: microcache-hit' );
 					header( 'X-UXS-Tier: ' . $tier['tier'] );
 				}
-				$throttler->apply_delay( (int) $plan['delay_ms'] );
 				$this->log_final( $ip, $ua, 200 );
 				echo $cached; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- cached full HTML document.
+				exit;
+			}
+			if ( ! empty( $plan['block_on_miss'] ) ) {
+				$this->log_final( $ip, $ua, (int) $plan['status'] );
+				$throttler->send_block_response( (int) $plan['status'], (int) ( $plan['retry_after'] ?? 60 ) );
 				exit;
 			}
 			$this->start_cache_capture( $detected['category'], $tier['tier'] );
 		}
 
-		// Delay before the response is rendered.
-		if ( in_array( $plan['action'], array( 'delay', 'microcache' ), true ) && (int) $plan['delay_ms'] > 0 ) {
+		// Delay before the response is rendered (GREEN/YELLOW plans only).
+		if ( 'delay' === $plan['action'] && (int) $plan['delay_ms'] > 0 ) {
 			$throttler->apply_delay( (int) $plan['delay_ms'] );
 		}
 
@@ -394,8 +425,6 @@ final class Module extends BaseModule {
 			'light_max'        => array( __( 'Light delay max (ms)', 'ux-studio' ), 1500 ),
 			'aggressive_min'   => array( __( 'Aggressive delay min (ms)', 'ux-studio' ), 2000 ),
 			'aggressive_max'   => array( __( 'Aggressive delay max (ms)', 'ux-studio' ), 5000 ),
-			'red_min'          => array( __( 'RED delay min (ms)', 'ux-studio' ), 5000 ),
-			'red_max'          => array( __( 'RED delay max (ms)', 'ux-studio' ), 10000 ),
 		);
 		foreach ( $numbers as $key => $def ) {
 			$schema[] = array(
@@ -460,8 +489,6 @@ final class Module extends BaseModule {
 			'light_max'      => (int) $this->settings->get( 'light_max', 1500 ),
 			'aggressive_min' => (int) $this->settings->get( 'aggressive_min', 2000 ),
 			'aggressive_max' => (int) $this->settings->get( 'aggressive_max', 5000 ),
-			'red_min'        => (int) $this->settings->get( 'red_min', 5000 ),
-			'red_max'        => (int) $this->settings->get( 'red_max', 10000 ),
 		);
 	}
 
@@ -481,8 +508,10 @@ final class Module extends BaseModule {
 
 	/**
 	 * Atomically increments the fixed 1-minute-window bucket for this IP and
-	 * reports whether the request is now over the limit. Opportunistically
-	 * prunes stale bucket rows (1% chance per call).
+	 * reports whether the request is now over the limit. APCu when available
+	 * (no DB at all), otherwise ONE upsert that also returns the new count via
+	 * LAST_INSERT_ID(expr). Opportunistically prunes stale bucket rows (1%
+	 * chance per call).
 	 *
 	 * @param string $ip    Raw client IP (only its hash is stored).
 	 * @param int    $limit requests_per_minute setting.
@@ -492,25 +521,28 @@ final class Module extends BaseModule {
 
 		$ip_hash      = $this->hash_ip( $ip );
 		$window_start = gmdate( 'Y-m-d H:i:00' );
-		$table        = "{$wpdb->prefix}uxstudio_bot_throttle_buckets";
 
+		if ( function_exists( 'apcu_inc' ) && function_exists( 'apcu_enabled' ) && apcu_enabled() ) {
+			$key = 'uxstudio_bt_rl_' . $ip_hash . '_' . $window_start;
+			apcu_add( $key, 0, 120 );
+			$count = (int) apcu_inc( $key );
+			return $count > $limit;
+		}
+
+		$table = "{$wpdb->prefix}uxstudio_bot_throttle_buckets";
+
+		// Affected rows: 1 = new row (count 1), 2 = updated row whose new count
+		// LAST_INSERT_ID(expr) hands back as insert_id - no follow-up SELECT.
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $table fixed, values parameterized.
-		$wpdb->query(
+		$affected = $wpdb->query(
 			$wpdb->prepare(
 				"INSERT INTO {$table} (ip_hash, window_start, request_count) VALUES (%s, %s, 1)
-				ON DUPLICATE KEY UPDATE request_count = request_count + 1",
+				ON DUPLICATE KEY UPDATE request_count = LAST_INSERT_ID(request_count + 1)",
 				$ip_hash,
 				$window_start
 			)
 		);
-
-		$count = (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT request_count FROM {$table} WHERE ip_hash = %s AND window_start = %s",
-				$ip_hash,
-				$window_start
-			)
-		);
+		$count = 1 === (int) $affected ? 1 : (int) $wpdb->insert_id;
 
 		if ( wp_rand( 1, 100 ) === 1 ) {
 			$wpdb->query(
@@ -525,13 +557,13 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Client IP. REMOTE_ADDR only: honoring proxy headers (X-Forwarded-For etc.)
-	 * without a trusted-proxy allowlist would let a client spoof its way past
-	 * both the rate limiter and the IP whitelist.
+	 * Client IP via the shared resolver: proxy headers are honoured only from
+	 * Cloudflare edges / configured trusted proxies, so a client can't spoof
+	 * its way past the rate limiter or the IP whitelist.
 	 */
 	private function client_ip(): string {
-		$ip = (string) ( $_SERVER['REMOTE_ADDR'] ?? '' );
-		return filter_var( $ip, FILTER_VALIDATE_IP ) ? $ip : '0.0.0.0';
+		$ip = ClientIp::get( 'auto' );
+		return '' !== $ip ? $ip : '0.0.0.0';
 	}
 
 	/**

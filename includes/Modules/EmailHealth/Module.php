@@ -32,14 +32,34 @@ final class Module extends BaseModule {
 	private const OPTION_LAST_RUN = 'uxstudio_email_health_last_run';
 
 	/**
+	 * Hourly WP-Cron tick for the scheduled test. The configured interval
+	 * (1-24 h) is enforced by maybe_run_scheduled_test(), so the test mail
+	 * and the gate query never run inside an admin page request.
+	 */
+	public const CRON_HOOK = 'uxstudio_email_health_scheduled_test';
+
+	/**
 	 * Register hooks.
 	 */
 	public function boot(): void {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+		add_action( self::CRON_HOOK, array( $this, 'maybe_run_scheduled_test' ) );
 
+		$scheduled = wp_next_scheduled( self::CRON_HOOK );
 		if ( $this->settings->get( 'auto_test', false ) ) {
-			add_action( 'admin_init', array( $this, 'maybe_run_scheduled_test' ) );
+			if ( ! $scheduled ) {
+				wp_schedule_event( time() + 5 * MINUTE_IN_SECONDS, 'hourly', self::CRON_HOOK );
+			}
+		} elseif ( $scheduled ) {
+			wp_clear_scheduled_hook( self::CRON_HOOK );
 		}
+	}
+
+	/**
+	 * Remove the scheduled-test cron when the module is switched off.
+	 */
+	public function on_disable(): void {
+		wp_clear_scheduled_hook( self::CRON_HOOK );
 	}
 
 	/**
@@ -57,11 +77,15 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Run the periodic test when the configured interval has elapsed. Uses an
-	 * atomic option-based compare-and-swap so concurrent admin requests only
-	 * fire one test.
+	 * WP-Cron callback: run the periodic test when the configured interval has
+	 * elapsed. Uses an atomic option-based compare-and-swap so overlapping
+	 * cron runs only fire one test.
 	 */
 	public function maybe_run_scheduled_test(): void {
+		if ( ! $this->settings->get( 'auto_test', false ) ) {
+			return;
+		}
+
 		$interval_hours   = max( 1, (int) $this->settings->get( 'test_interval', 24 ) );
 		$interval_seconds = $interval_hours * HOUR_IN_SECONDS;
 

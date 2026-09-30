@@ -74,7 +74,13 @@ final class RestController extends Controller {
 		$url     = (string) $request->get_param( 'url' );
 		$post_id = (int) $request->get_param( 'post_id' );
 
-		$result = $this->module->processor()->sideload( $url, $post_id );
+		// The new attachment is parented to post_id: the caller must be able
+		// to edit that post (0 = unattached, fine for any uploader).
+		if ( $post_id > 0 && ! current_user_can( 'edit_post', $post_id ) ) {
+			return new WP_Error( 'uxstudio_forbidden', __( 'You are not allowed to edit this post.', 'ux-studio' ), array( 'status' => 403 ) );
+		}
+
+		$result =$this->module->processor()->sideload( $url, $post_id );
 		if ( is_wp_error( $result ) ) {
 			return new WP_Error( 'uxstudio_sideload_failed', $result->get_error_message(), array( 'status' => 400 ) );
 		}

@@ -10,6 +10,7 @@ namespace UxStudio\Modules\PushNotifications;
 
 use UxStudio\Core\ActivityLog;
 use UxStudio\Core\DB;
+use UxStudio\Core\Retention;
 use UxStudio\Modules\BaseModule;
 use WP_Error;
 
@@ -26,6 +27,24 @@ final class Module extends BaseModule {
 
 	/** Cron hook for scheduled sends. */
 	public const CRON_SEND = 'uxstudio_push_send';
+
+	/** Daily cron hook purging old push_events rows. */
+	public const CRON_RETENTION = 'uxstudio_push_retention';
+
+	/**
+	 * Push service hosts a subscription endpoint may point at (exact host or,
+	 * with a leading dot, any subdomain). Filterable via
+	 * `uxstudio_push_allowed_hosts`. Anything else is refused at subscribe and
+	 * send time - the endpoint comes from an anonymous request, so without
+	 * this the server would POST to any URL an attacker stores (SSRF).
+	 */
+	private const ALLOWED_PUSH_HOSTS = array(
+		'fcm.googleapis.com',
+		'.push.services.mozilla.com',
+		'.notify.windows.com',
+		'web.push.apple.com',
+		'.push.apple.com',
+	);
 
 	private Vapid $vapid;
 
@@ -44,10 +63,12 @@ final class Module extends BaseModule {
 	public function boot(): void {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( self::CRON_SEND, array( $this, 'cron_send' ) );
+		add_action( self::CRON_RETENTION, array( $this, 'purge_old_events' ) );
+		Retention::ensure_scheduled( self::CRON_RETENTION );
 
 		DB::ensure_module_tables(
 			'push-notifications',
-			2,
+			3,
 			function ( int $from ): void {
 				global $wpdb;
 				$charset = $wpdb->get_charset_collate();
@@ -89,11 +110,97 @@ final class Module extends BaseModule {
 						event VARCHAR(20) NOT NULL DEFAULT '',
 						PRIMARY KEY  (id),
 						KEY subscriber_id (subscriber_id),
-						KEY notification_id (notification_id)
+						KEY notification_id (notification_id),
+						KEY created_at (created_at)
 					) {$charset};"
 				);
+				// v3: endpoints are now allowlisted; drop anything stored before
+				// that does not point at a known push service.
+				if ( $from > 0 && $from < 3 ) {
+					$this->prune_disallowed_subscribers();
+				}
 			}
 		);
+	}
+
+	/**
+	 * Remove the retention cron when the module is switched off.
+	 */
+	public function on_disable(): void {
+		Retention::unschedule( self::CRON_RETENTION );
+	}
+
+	/**
+	 * Daily retention purge of the delivery/click event log.
+	 */
+	public function purge_old_events(): void {
+		Retention::purge( 'uxstudio_push_events', (int) $this->settings->get( 'retention_days', Retention::DEFAULT_DAYS ) );
+	}
+
+	/**
+	 * Whether a subscription endpoint is an https URL on an allowlisted push
+	 * service host (see ALLOWED_PUSH_HOSTS).
+	 *
+	 * @param string $endpoint Endpoint URL.
+	 */
+	public static function is_allowed_endpoint( string $endpoint ): bool {
+		$parts = wp_parse_url( $endpoint );
+		if ( ! is_array( $parts ) || 'https' !== strtolower( (string) ( $parts['scheme'] ?? '' ) ) ) {
+			return false;
+		}
+		if ( isset( $parts['port'] ) && 443 !== (int) $parts['port'] ) {
+			return false;
+		}
+		if ( isset( $parts['user'] ) || isset( $parts['pass'] ) ) {
+			return false;
+		}
+		$host = strtolower( rtrim( (string) ( $parts['host'] ?? '' ), '.' ) );
+		if ( '' === $host ) {
+			return false;
+		}
+
+		/**
+		 * Push service hosts a Web Push endpoint may use. Exact host, or a
+		 * leading dot for "any subdomain of".
+		 *
+		 * @param string[] $hosts Allowed hosts.
+		 */
+		$allowed = (array) apply_filters( 'uxstudio_push_allowed_hosts', self::ALLOWED_PUSH_HOSTS );
+		foreach ( $allowed as $pattern ) {
+			$pattern = strtolower( (string) $pattern );
+			if ( '' === $pattern ) {
+				continue;
+			}
+			if ( '.' === $pattern[0] ) {
+				if ( str_ends_with( $host, $pattern ) && strlen( $host ) > strlen( $pattern ) ) {
+					return true;
+				}
+			} elseif ( $host === $pattern ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Delete stored subscriptions whose endpoint fails is_allowed_endpoint().
+	 *
+	 * @return int Number of removed subscriptions.
+	 */
+	public function prune_disallowed_subscribers(): int {
+		global $wpdb;
+		$rows    = $wpdb->get_results( "SELECT id, endpoint FROM {$wpdb->prefix}uxstudio_push_subscribers", ARRAY_A );
+		$removed = 0;
+		foreach ( is_array( $rows ) ? $rows : array() as $row ) {
+			if ( ! self::is_allowed_endpoint( (string) $row['endpoint'] ) ) {
+				$this->delete_subscriber( (int) $row['id'] );
+				++$removed;
+			}
+		}
+		if ( $removed > 0 ) {
+			ActivityLog::log( 'push-notifications', 'prune_disallowed', '', 0, array( 'removed' => $removed ) );
+		}
+		return $removed;
 	}
 
 	/**
@@ -121,6 +228,13 @@ final class Module extends BaseModule {
 				'label'   => __( 'VAPID contact (mailto: or URL)', 'ux-studio' ),
 				'help'    => __( 'Used as the "sub" claim of the VAPID JWT sent with each push. Defaults to the site admin email.', 'ux-studio' ),
 				'default' => '',
+			),
+			array(
+				'key'     => 'retention_days',
+				'type'    => 'number',
+				'label'   => __( 'Event log retention (days)', 'ux-studio' ),
+				'help'    => __( 'Delivery/click events older than this are deleted daily. 0 = keep forever.', 'ux-studio' ),
+				'default' => Retention::DEFAULT_DAYS,
 			),
 		);
 	}
@@ -197,6 +311,9 @@ final class Module extends BaseModule {
 		$auth     = sanitize_text_field( (string) ( $data['auth'] ?? '' ) );
 
 		if ( '' === $endpoint || '' === $p256dh || '' === $auth ) {
+			return false;
+		}
+		if ( ! self::is_allowed_endpoint( $endpoint ) ) {
 			return false;
 		}
 

@@ -13,6 +13,15 @@ defined( 'ABSPATH' ) || exit;
 
 final class UsageLimiter {
 
+	/**
+	 * Defaults for sites that never saved the limit settings. Non-zero on
+	 * purpose: the public chat is anonymous, so "unlimited" would let anyone
+	 * run up the provider bill (denial of wallet). Explicitly saved values -
+	 * including 0 = unlimited - always win.
+	 */
+	public const DEFAULT_MONTHLY_TOKEN_LIMIT = 2000000;
+	public const DEFAULT_DAILY_REQUEST_LIMIT = 500;
+
 	private static ?Settings $settings = null;
 
 	private static function settings(): Settings {
@@ -24,13 +33,18 @@ final class UsageLimiter {
 
 	/**
 	 * Checks all limits and returns an error message when one is exceeded,
-	 * or null when the request may proceed.
+	 * or null when the request may proceed. User id 0 (public chat, cron)
+	 * skips the per-user limit: all anonymous usage is logged as user 0, so
+	 * counting it "per user" would be the whole site's traffic and one busy
+	 * day would lock the widget for every visitor. Anonymous traffic is bound
+	 * by the site-wide limits here plus the per-IP rate limit in
+	 * ChatRestController.
 	 */
 	public static function check( ?int $user_id = null ): ?string {
 		$user_id = $user_id ?? get_current_user_id();
 
 		// 1. Monthly token limit.
-		$monthly_limit = (int) self::settings()->get( 'monthly_token_limit', 0 );
+		$monthly_limit = self::monthly_token_limit();
 		if ( $monthly_limit > 0 ) {
 			$used = self::get_monthly_tokens();
 			if ( $used >= $monthly_limit ) {
@@ -44,7 +58,7 @@ final class UsageLimiter {
 		}
 
 		// 2. Global daily request limit.
-		$daily_limit = (int) self::settings()->get( 'daily_request_limit', 0 );
+		$daily_limit = self::daily_request_limit();
 		if ( $daily_limit > 0 ) {
 			$today_requests = self::get_daily_requests();
 			if ( $today_requests >= $daily_limit ) {
@@ -59,7 +73,7 @@ final class UsageLimiter {
 
 		// 3. Per-user daily request limit.
 		$user_daily_limit = (int) self::settings()->get( 'user_daily_request_limit', 0 );
-		if ( $user_daily_limit > 0 ) {
+		if ( $user_id > 0 && $user_daily_limit > 0 ) {
 			$user_today_requests = self::get_daily_requests( $user_id );
 			if ( $user_today_requests >= $user_daily_limit ) {
 				return sprintf(
@@ -80,8 +94,8 @@ final class UsageLimiter {
 	 * @return array<string, array{used:int,limit:int,percent:int,remaining:int}>
 	 */
 	public static function get_status(): array {
-		$monthly_limit    = (int) self::settings()->get( 'monthly_token_limit', 0 );
-		$daily_limit      = (int) self::settings()->get( 'daily_request_limit', 0 );
+		$monthly_limit    = self::monthly_token_limit();
+		$daily_limit      = self::daily_request_limit();
 		$user_daily_limit = (int) self::settings()->get( 'user_daily_request_limit', 0 );
 
 		$status = array();
@@ -106,7 +120,7 @@ final class UsageLimiter {
 			);
 		}
 
-		if ( $user_daily_limit > 0 ) {
+		if ( $user_daily_limit > 0 && get_current_user_id() > 0 ) {
 			$used                           = self::get_daily_requests( get_current_user_id() );
 			$status['user_daily_requests'] = array(
 				'used'      => $used,
@@ -117,6 +131,16 @@ final class UsageLimiter {
 		}
 
 		return $status;
+	}
+
+	/** Configured monthly token limit (0 = unlimited). */
+	private static function monthly_token_limit(): int {
+		return max( 0, (int) self::settings()->get( 'monthly_token_limit', self::DEFAULT_MONTHLY_TOKEN_LIMIT ) );
+	}
+
+	/** Configured site-wide daily request limit (0 = unlimited). */
+	private static function daily_request_limit(): int {
+		return max( 0, (int) self::settings()->get( 'daily_request_limit', self::DEFAULT_DAILY_REQUEST_LIMIT ) );
 	}
 
 	/**
@@ -155,7 +179,7 @@ final class UsageLimiter {
 
 		$today = gmdate( 'Y-m-d 00:00:00' );
 
-		if ( $user_id ) {
+		if ( $user_id > 0 ) {
 			$result = $wpdb->get_var(
 				$wpdb->prepare(
 					"SELECT COUNT(*) FROM {$table} WHERE created_at >= %s AND user_id = %d",

@@ -8,8 +8,6 @@
 namespace UxStudio\Modules\ReviewAggregator;
 
 use UxStudio\Core\ActivityLog;
-use UxStudio\Core\Broker;
-use UxStudio\Core\Security;
 use UxStudio\Core\Settings;
 use UxStudio\Modules\AiAssistant\ProviderFactory;
 use UxStudio\Modules\AiAssistant\UsageTracker;
@@ -23,9 +21,10 @@ defined( 'ABSPATH' ) || exit;
  * Ported/redesigned from the legacy review-aggregator module (free+pro
  * merged) as a group-C module with its own SPA screen. Unlike the legacy
  * module there is no local scraping (Google/Facebook/Mapy.cz scrapers) and
- * no API keys on this site - review fetching is delegated entirely to the
- * central app via the content-sync broker (see UxStudio\Core\Broker and
- * UxStudio\Modules\ContentSync\Module).
+ * no API keys on this site - reviews are scraped and stored by the central
+ * app and pulled from its public reviews API (`?page=reviews_api`, see
+ * CentralReviewsClient for the auth scheme), using the Content Sync
+ * central_app_url + node_api_key.
  *
  * IMPORTANT: the uxstudio_reviews table is never dropped, including on
  * module deactivation - the legacy module lost data this way. There is
@@ -33,12 +32,35 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Module extends BaseModule {
 
+	/** Daily cron hook for the "Auto-fetch new reviews" setting. */
+	public const CRON_FETCH = 'uxstudio_review_aggregator_fetch';
+
+	/** Option holding the central app's ETag of the last complete fetch. */
+	private const ETAG_OPTION = 'uxstudio_review_aggregator_etag';
+
+	/** Reviews per page requested from the central app. */
+	private const PAGE_SIZE = 100;
+
+	/** Safety cap on pages per fetch. */
+	private const MAX_PAGES = 20;
+
 	/**
 	 * Register hooks.
 	 */
 	public function boot(): void {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_shortcode( 'uxstudio_reviews', array( $this, 'render_shortcode' ) );
+
+		// Cheap when nothing changed: the first page is requested with the
+		// last ETag and the central app answers 304.
+		add_action( self::CRON_FETCH, array( $this, 'cron_fetch' ) );
+		if ( (bool) $this->settings->get( 'auto_fetch', false ) ) {
+			if ( ! wp_next_scheduled( self::CRON_FETCH ) ) {
+				wp_schedule_event( time() + HOUR_IN_SECONDS, 'daily', self::CRON_FETCH );
+			}
+		} elseif ( wp_next_scheduled( self::CRON_FETCH ) ) {
+			wp_clear_scheduled_hook( self::CRON_FETCH );
+		}
 
 		\UxStudio\Core\DB::ensure_module_tables(
 			'review-aggregator',
@@ -83,6 +105,33 @@ final class Module extends BaseModule {
 	}
 
 	/**
+	 * Remove the auto-fetch cron when the module is switched off.
+	 */
+	public function on_disable(): void {
+		wp_clear_scheduled_hook( self::CRON_FETCH );
+	}
+
+	/**
+	 * WP-Cron callback for auto-fetch.
+	 */
+	public function cron_fetch(): void {
+		if ( (bool) $this->settings->get( 'auto_fetch', false ) ) {
+			$this->fetch( true );
+		}
+	}
+
+	/**
+	 * ETag of the last complete fetch, if it was for this profile.
+	 *
+	 * @param int $profile_id Central profile id.
+	 */
+	private function stored_etag( int $profile_id ): string {
+		$stored = (string) get_option( self::ETAG_OPTION, '' );
+		$prefix = $profile_id . ':';
+		return 0 === strpos( $stored, $prefix ) ? substr( $stored, strlen( $prefix ) ) : '';
+	}
+
+	/**
 	 * Register the module REST controller.
 	 */
 	public function register_rest_routes(): void {
@@ -118,7 +167,7 @@ final class Module extends BaseModule {
 				'key'     => 'central_profile_id',
 				'type'    => 'text',
 				'label'   => __( 'Central app profile ID', 'ux-studio' ),
-				'help'    => __( 'Identifies which review profile the central app should fetch for this site.', 'ux-studio' ),
+				'help'    => __( 'Numeric ID of the review profile in the central app (Reviews). The profile must belong to this site there.', 'ux-studio' ),
 				'default' => '',
 			),
 		);
@@ -237,32 +286,49 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Ask the central app (via the content-sync broker) for the latest
-	 * reviews for the configured profile and store them locally.
+	 * Pull the stored reviews of the configured profile from the central
+	 * app's reviews API (paged) and upsert them locally.
 	 *
-	 * @return array{fetched:int}|WP_Error
+	 * @param bool $use_etag Send the last ETag so an unchanged profile costs a
+	 *                       single 304 (auto-fetch). Manual fetches always
+	 *                       re-read everything.
+	 * @return array{fetched:int,updated:int}|WP_Error
 	 */
-	public function fetch() {
-		list( $central_url, $secret ) = $this->broker_credentials();
-
-		$profile_id = (string) $this->settings->get( 'central_profile_id', '' );
-
-		$result = Broker::call(
-			$central_url,
-			$secret,
-			'/api/reviews/fetch',
-			array(
-				'site'       => home_url( '/' ),
-				'profile_id' => $profile_id,
-			)
-		);
-
-		if ( is_wp_error( $result ) ) {
-			ContentSyncModule::log_sync( 'review-aggregator:fetch', 'error' );
-			return $result;
+	public function fetch( bool $use_etag = false ) {
+		$profile_id = absint( $this->settings->get( 'central_profile_id', '' ) );
+		if ( $profile_id <= 0 ) {
+			return new WP_Error( 'uxstudio_reviews_no_profile', __( 'Set the central app profile ID first.', 'ux-studio' ), array( 'status' => 424 ) );
 		}
 
-		$items = is_array( $result['reviews'] ?? null ) ? $result['reviews'] : array();
+		$items = array();
+		$etag  = '';
+		for ( $page = 0; $page < self::MAX_PAGES; $page++ ) {
+			$result = CentralReviewsClient::call(
+				'reviews',
+				array(
+					'profile_id' => $profile_id,
+					'limit'      => self::PAGE_SIZE,
+					'offset'     => $page * self::PAGE_SIZE,
+				),
+				0 === $page && $use_etag ? $this->stored_etag( $profile_id ) : ''
+			);
+
+			if ( is_wp_error( $result ) ) {
+				ContentSyncModule::log_sync( 'review-aggregator:fetch', 'error' );
+				return $result;
+			}
+			if ( ! empty( $result['not_modified'] ) ) {
+				ContentSyncModule::log_sync( 'review-aggregator:fetch', 'success' );
+				return array( 'fetched' => 0, 'updated' => 0 );
+			}
+
+			$etag  = (string) ( $result['etag'] ?? $etag );
+			$batch = is_array( $result['reviews'] ?? null ) ? $result['reviews'] : array();
+			$items = array_merge( $items, $batch );
+			if ( count( $batch ) < self::PAGE_SIZE ) {
+				break;
+			}
+		}
 
 		global $wpdb;
 		$fetched = 0;
@@ -274,13 +340,15 @@ final class Module extends BaseModule {
 
 			$source      = sanitize_text_field( (string) $item['source'] );
 			$external_id = sanitize_text_field( (string) ( $item['external_id'] ?? '' ) );
-			$author      = sanitize_text_field( (string) ( $item['author'] ?? '' ) );
-			$text        = isset( $item['text'] ) ? sanitize_textarea_field( (string) $item['text'] ) : '';
+			// Central app Review rows use author_name / review_text.
+			$author      = sanitize_text_field( (string) ( $item['author_name'] ?? $item['author'] ?? '' ) );
+			$raw_text    = $item['review_text'] ?? $item['text'] ?? null;
+			$text        = null !== $raw_text ? sanitize_textarea_field( (string) $raw_text ) : '';
 			$review_date = ! empty( $item['review_date'] ) ? gmdate( 'Y-m-d H:i:s', strtotime( (string) $item['review_date'] ) ?: time() ) : '';
 
 			// Stable dedup key: prefer external_id from the source (same
 			// approach as the central app's own Review model), fall back to
-			// a content hash when the broker doesn't provide one so repeated
+			// a content hash when the central app doesn't provide one so repeated
 			// fetches of the same review never insert a duplicate row.
 			$dedup_hash = sha1(
 				$source . '|' . ( '' !== $external_id ? 'ext:' . $external_id : 'sig:' . $author . '|' . $review_date . '|' . $text )
@@ -315,6 +383,9 @@ final class Module extends BaseModule {
 			}
 		}
 
+		if ( '' !== $etag ) {
+			update_option( self::ETAG_OPTION, $profile_id . ':' . $etag, false );
+		}
 		ContentSyncModule::log_sync( 'review-aggregator:fetch', 'success' );
 
 		return array( 'fetched' => $fetched, 'updated' => $updated );
@@ -412,21 +483,6 @@ final class Module extends BaseModule {
 		$html .= '</div>';
 
 		return $html;
-	}
-
-	/**
-	 * Read the shared broker credentials from the content-sync module's
-	 * settings (see the class-level contract documented on
-	 * UxStudio\Modules\ContentSync\Module). This module never stores its
-	 * own copy of the URL or secret and holds no API keys of its own.
-	 *
-	 * @return array{0:string,1:string} [central_app_url, hmac_secret].
-	 */
-	private function broker_credentials(): array {
-		$content_sync_settings = new Settings( 'uxstudio_content_sync' );
-		$central_url            = (string) $content_sync_settings->get( 'central_app_url', '' );
-		$hmac_secret             = Security::get_secret( ContentSyncModule::SECRET_HMAC );
-		return array( $central_url, $hmac_secret );
 	}
 
 	/**

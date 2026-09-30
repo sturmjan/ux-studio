@@ -45,6 +45,15 @@ abstract class BaseModule {
 	abstract public function boot(): void;
 
 	/**
+	 * Undo side effects that outlive the request (mu-plugins, .htaccess blocks,
+	 * cron events) when the module is switched off or the plugin deactivated.
+	 * Data (tables, options) is kept, so re-enabling restores the previous state.
+	 * Runs on a module instance that was NOT necessarily booted.
+	 */
+	public function on_disable(): void {
+	}
+
+	/**
 	 * Settings schema for the generic SPA settings renderer. Field types:
 	 * toggle | text | textarea | number | select | multiselect | color | media | richtext.
 	 * Empty array = module has no settings screen.

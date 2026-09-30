@@ -625,9 +625,14 @@ class HtmlToElementor
         $cssUrls = array_slice($cssUrls, 0, 5);
 
         foreach ($cssUrls as $cssUrl) {
-            $response = wp_remote_get($cssUrl, [
+            // URL pochází z importované (cizí) stránky - stejná SSRF ochrana jako u hlavního stažení.
+            if (!wp_http_validate_url($cssUrl)) {
+                continue;
+            }
+            $response = wp_safe_remote_get($cssUrl, [
                 'timeout' => 5,
-                'sslverify' => false,
+                'redirection' => 3,
+                'limit_response_size' => 600000,
                 'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
             ]);
 
@@ -1937,10 +1942,15 @@ class HtmlToElementor
      */
     public static function convert_from_url(string $url, array $options = []): array
     {
-        // Stáhnout HTML
-        $response = wp_remote_get($url, [
+        // Stáhnout HTML. wp_safe_remote_get = reject_unsafe_urls: odmítne interní/privátní
+        // adresy a nestandardní porty (SSRF) a stejnou kontrolou projde i každý redirect.
+        if (!wp_http_validate_url($url)) {
+            throw new \RuntimeException('Neplatná nebo nepovolená URL (interní adresa či nestandardní port).');
+        }
+        $response = wp_safe_remote_get($url, [
             'timeout' => 30,
-            'sslverify' => false,
+            'redirection' => 3,
+            'limit_response_size' => 5 * MB_IN_BYTES,
             'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         ]);
 

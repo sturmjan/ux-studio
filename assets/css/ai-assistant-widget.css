@@ -1046,8 +1046,8 @@
     appearance: none;
 }
 
-/* Trigger button */
-#uxstudio-ai-assistant-widget-root .uxstudio-ais-trigger {
+/* Trigger button - `button.` so it outranks the button[type="button"] reset above */
+#uxstudio-ai-assistant-widget-root button.uxstudio-ais-trigger {
     position: fixed;
     bottom: 24px;
     right: 24px;
@@ -1064,7 +1064,7 @@
     z-index: 99999;
 }
 
-#uxstudio-ai-assistant-widget-root .uxstudio-ais-trigger:hover {
+#uxstudio-ai-assistant-widget-root button.uxstudio-ais-trigger:hover {
     transform: scale(1.1);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
 }

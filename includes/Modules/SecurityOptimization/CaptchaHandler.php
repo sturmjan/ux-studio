@@ -27,6 +27,9 @@ final class CaptchaHandler {
 
 	private Module $module;
 
+	/** CAPTCHA failure decided before the password check (see enforce_login()). */
+	private ?WP_Error $login_error = null;
+
 	public function __construct( Module $module ) {
 		$this->module = $module;
 		$this->init();
@@ -39,9 +42,14 @@ final class CaptchaHandler {
 
 		add_action( 'login_enqueue_scripts', array( $this, 'enqueue_provider_script' ) );
 		add_action( 'login_form', array( $this, 'render_widget' ) );
-		// Priority 40: after AttemptsHandler's authenticate filter (30), so the
-		// attempt limit is checked first and CAPTCHA only kicks in afterwards.
-		add_filter( 'authenticate', array( $this, 'verify_login' ), 40, 3 );
+		// Priority 5: BEFORE core checks the password (20), so the CAPTCHA result
+		// never depends on whether the password was right (no password oracle).
+		// Same priority as AttemptsHandler's lockout check, registered after it,
+		// so a locked-out request doesn't even cost a siteverify call. Core's
+		// password check overwrites an incoming WP_Error, hence enforce_login()
+		// re-asserts the failure as the very last authenticate filter.
+		add_filter( 'authenticate', array( $this, 'verify_login' ), 5, 3 );
+		add_filter( 'authenticate', array( $this, 'enforce_login' ), PHP_INT_MAX, 1 );
 
 		add_action( 'register_form', array( $this, 'render_widget' ) );
 		add_filter( 'registration_errors', array( $this, 'verify_registration' ), 10, 3 );
@@ -72,7 +80,7 @@ final class CaptchaHandler {
 	}
 
 	private function fail_transient_key(): string {
-		return self::FAIL_TRANSIENT_PREFIX . md5( CaptchaVerifier::get_client_ip() );
+		return self::FAIL_TRANSIENT_PREFIX . md5( CaptchaVerifier::get_client_ip( $this->module ) );
 	}
 
 	private function get_failure_count(): int {
@@ -83,14 +91,14 @@ final class CaptchaHandler {
 		if ( 'adaptive' !== (string) $this->module->setting( 'captcha_mode', 'always' ) ) {
 			return;
 		}
-		if ( '' === CaptchaVerifier::get_client_ip() ) {
+		if ( '' === CaptchaVerifier::get_client_ip( $this->module ) ) {
 			return;
 		}
 		set_transient( $this->fail_transient_key(), $this->get_failure_count() + 1, self::FAIL_WINDOW );
 	}
 
 	public function clear_failures(): void {
-		if ( '' === CaptchaVerifier::get_client_ip() ) {
+		if ( '' === CaptchaVerifier::get_client_ip( $this->module ) ) {
 			return;
 		}
 		delete_transient( $this->fail_transient_key() );
@@ -128,6 +136,10 @@ final class CaptchaHandler {
 	 * @return \WP_User|WP_Error|null
 	 */
 	public function verify_login( $user, $username, $password ) {
+		$this->login_error = null;
+
+		// An incoming WP_Error at priority 5 can only be an earlier-priority
+		// block (the attempts lockout), never a password verdict.
 		if ( is_wp_error( $user ) || ! $this->is_interactive_login_post() ) {
 			return $user;
 		}
@@ -136,10 +148,22 @@ final class CaptchaHandler {
 		}
 
 		if ( ! CaptchaVerifier::verify_token( $this->module ) ) {
-			return new WP_Error( 'uxstudio_captcha_failed', __( 'CAPTCHA verification failed. Please try again.', 'ux-studio' ) );
+			$this->login_error = new WP_Error( 'uxstudio_captcha_failed', __( 'CAPTCHA verification failed. Please try again.', 'ux-studio' ) );
+			return $this->login_error;
 		}
 
 		return $user;
+	}
+
+	/**
+	 * Last authenticate filter: keep a failed CAPTCHA failed even if the
+	 * password check in between returned a WP_User.
+	 *
+	 * @param \WP_User|WP_Error|null $user Incoming authenticate() value.
+	 * @return \WP_User|WP_Error|null
+	 */
+	public function enforce_login( $user ) {
+		return null !== $this->login_error ? $this->login_error : $user;
 	}
 
 	/**

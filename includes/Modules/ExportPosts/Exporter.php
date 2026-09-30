@@ -7,6 +7,8 @@
 
 namespace UxStudio\Modules\ExportPosts;
 
+use UxStudio\Core\Csv;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -66,10 +68,12 @@ final class Exporter {
 			return;
 		}
 
-		fputcsv( $output, (array) $data['headers'] );
+		// Csv::safe_row neutralises cells starting with = + - @ tab/CR
+		// (formula injection when the file is opened in Excel/Sheets).
+		fputcsv( $output, Csv::safe_row( (array) $data['headers'] ) );
 
 		foreach ( (array) $data['body'] as $row ) {
-			fputcsv( $output, (array) $row );
+			fputcsv( $output, Csv::safe_row( (array) $row ) );
 		}
 
 		fclose( $output );

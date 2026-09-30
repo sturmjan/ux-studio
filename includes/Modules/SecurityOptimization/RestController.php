@@ -192,7 +192,7 @@ final class RestController extends Controller {
 
 	public function htaccess_status( WP_REST_Request $request ) {
 		$writer   = $this->module->htaccess_writer();
-		$settings = $this->module->settings_values();
+		$settings = $this->module->htaccess_settings();
 		return $this->ok(
 			array(
 				'applied'      => $writer->is_applied( $settings ),
@@ -204,7 +204,7 @@ final class RestController extends Controller {
 
 	public function htaccess_apply( WP_REST_Request $request ) {
 		$writer   = $this->module->htaccess_writer();
-		$settings = $this->module->settings_values();
+		$settings = $this->module->htaccess_settings();
 		$result   = $writer->apply( $settings );
 
 		if ( is_wp_error( $result ) ) {

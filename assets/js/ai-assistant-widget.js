@@ -318,6 +318,7 @@
     var input = el('textarea', 'uxstudio-ais-input', {
         'placeholder': opts.placeholder || 'Napiste svuj dotaz...',
         'rows': '1',
+        'maxlength': String(cfg.maxMessageLength || 2000),
         'aria-label': 'Zprava'
     });
     var sendBtn = el('button', 'uxstudio-ais-send', {

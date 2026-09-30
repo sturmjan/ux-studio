@@ -53,6 +53,49 @@ final class CaptchaGate {
 		add_action( 'login_init', array( $this, 'maybe_gate' ), 5 );
 		add_action( 'login_form_uxstudio_verify', array( $this, 'render_gate_page' ) );
 		add_action( 'login_enqueue_scripts', array( $this, 'maybe_enqueue_script' ) );
+
+		// Server-side backstop independent of how the action was spelled: any
+		// credential check or reset request coming through wp-login.php without
+		// a valid verified cookie is refused. authenticate runs twice - early
+		// (before the password check, so the answer never depends on it) and
+		// last, because core's password check overwrites an incoming WP_Error.
+		add_filter( 'authenticate', array( $this, 'enforce_on_authenticate' ), 5, 1 );
+		add_filter( 'authenticate', array( $this, 'enforce_on_authenticate' ), PHP_INT_MAX, 1 );
+		add_action( 'lostpassword_post', array( $this, 'enforce_on_lostpassword' ), 5, 1 );
+	}
+
+	/* ═══════════════════════════════════════════════════
+	   Server-side enforcement
+	   ═══════════════════════════════════════════════════ */
+
+	/**
+	 * Only requests served by wp-login.php (directly or via the custom login
+	 * slug, which includes it) - other login/reset forms (e.g. WooCommerce My
+	 * Account) never pass through the gate page and must not be broken by it.
+	 */
+	private function is_unverified_login_request(): bool {
+		return did_action( 'login_init' ) && ! is_user_logged_in() && ! $this->is_verified();
+	}
+
+	/**
+	 * @param \WP_User|WP_Error|null $user Incoming authenticate() value.
+	 * @return \WP_User|WP_Error|null
+	 */
+	public function enforce_on_authenticate( $user ) {
+		if ( ! isset( $_POST['log'] ) || ! $this->is_unverified_login_request() ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			return $user;
+		}
+		return new WP_Error( 'uxstudio_verify_required', __( 'Please confirm you are not a robot first, then log in again.', 'ux-studio' ) );
+	}
+
+	/**
+	 * @param WP_Error $errors Lost-password errors.
+	 */
+	public function enforce_on_lostpassword( $errors ): void {
+		if ( ! ( $errors instanceof WP_Error ) || ! $this->is_unverified_login_request() ) {
+			return;
+		}
+		$errors->add( 'uxstudio_verify_required', __( '<strong>Error:</strong> Please confirm you are not a robot first, then try again.', 'ux-studio' ) );
 	}
 
 	/* ═══════════════════════════════════════════════════
@@ -71,9 +114,43 @@ final class CaptchaGate {
 		return (array) apply_filters( 'uxstudio_human_verify_gated_actions', array( 'login', 'lostpassword' ) );
 	}
 
+	/**
+	 * The action wp-login.php will ACTUALLY run, normalized exactly like core
+	 * does before firing login_init - reading the raw $_REQUEST['action'] let
+	 * `?action=anything` (which core silently treats as `login`) skip the gate.
+	 * `retrievepassword` is core's alias of `lostpassword`.
+	 */
 	private function current_action(): string {
-		$action = isset( $_REQUEST['action'] ) ? sanitize_key( wp_unslash( $_REQUEST['action'] ) ) : 'login'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		return '' === $action ? 'login' : $action;
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		// Deliberately NOT unslashed/sanitized: must compare the same raw value core does.
+		$action = isset( $_REQUEST['action'] ) && is_string( $_REQUEST['action'] ) ? $_REQUEST['action'] : 'login';
+		if ( isset( $_GET['key'] ) ) {
+			$action = 'resetpass';
+		}
+		if ( isset( $_GET['checkemail'] ) ) {
+			$action = 'checkemail';
+		}
+		// phpcs:enable
+
+		$core_actions = array(
+			'confirm_admin_email',
+			'postpass',
+			'logout',
+			'lostpassword',
+			'retrievepassword',
+			'resetpass',
+			'rp',
+			'register',
+			'checkemail',
+			'confirmaction',
+			'login',
+			class_exists( '\WP_Recovery_Mode_Link_Service' ) ? \WP_Recovery_Mode_Link_Service::LOGIN_ACTION_ENTERED : 'entered_recovery_mode',
+		);
+		if ( ! in_array( $action, $core_actions, true ) && false === has_filter( 'login_form_' . $action ) ) {
+			$action = 'login';
+		}
+
+		return 'retrievepassword' === $action ? 'lostpassword' : $action;
 	}
 
 	/**
@@ -199,8 +276,19 @@ final class CaptchaGate {
 	   Verified-cookie (no server session in WordPress)
 	   ═══════════════════════════════════════════════════ */
 
+	/**
+	 * HMAC over issue time + a hash of the User-Agent: one solved CAPTCHA can't
+	 * be copied across a bot farm with rotating UAs, and a stolen cookie only
+	 * works with the exact same UA string. (Not bound to the IP on purpose -
+	 * mobile users switch networks mid-session.)
+	 */
 	private function sign( string $issued ): string {
-		return hash_hmac( 'sha256', self::NONCE_ACTION . '|' . $issued, wp_salt( 'auth' ) );
+		return hash_hmac( 'sha256', self::NONCE_ACTION . '|' . $issued . '|' . $this->ua_hash(), wp_salt( 'auth' ) );
+	}
+
+	private function ua_hash(): string {
+		$ua = isset( $_SERVER['HTTP_USER_AGENT'] ) ? (string) wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- only hashed.
+		return hash( 'sha256', $ua );
 	}
 
 	private function is_verified(): bool {

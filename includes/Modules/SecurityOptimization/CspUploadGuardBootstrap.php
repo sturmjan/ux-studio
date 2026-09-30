@@ -26,7 +26,8 @@ defined( 'ABSPATH' ) || exit;
 final class CspUploadGuardBootstrap {
 
 	private const DB_MODULE_ID = 'security-optimization-csp-upload';
-	private const DB_VERSION   = 1;
+	/** v2: full-scan worklist moved from one big option to the scan_queue table. */
+	private const DB_VERSION   = 2;
 
 	private static bool $registered = false;
 
@@ -64,6 +65,9 @@ final class CspUploadGuardBootstrap {
 		add_action( UploadGuardScanner::QUEUE_BATCH_EVENT, array( $scanner, 'run_queue_batch' ) );
 		add_action( UploadGuardScanner::FULL_SCAN_EVENT, array( $scanner, 'run_full_scan_batch' ) );
 		add_action( UploadGuardScanner::DAILY_CRON_HOOK, array( $scanner, 'run_daily_cron' ) );
+
+		// Resume/end a full scan whose event chain broke (one option read when idle).
+		add_action( 'admin_init', array( $scanner, 'watchdog' ) );
 
 		self::ensure_cron_scheduled();
 	}
@@ -139,6 +143,21 @@ final class CspUploadGuardBootstrap {
 						UNIQUE KEY uniq_path (file_path)
 					) {$charset};"
 				);
+
+				// Full-scan worklist, one row per file (v2).
+				dbDelta(
+					"CREATE TABLE {$wpdb->prefix}uxstudio_security_scan_queue (
+						id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+						file_path text NOT NULL,
+						PRIMARY KEY  (id)
+					) {$charset};"
+				);
+
+				if ( $from < 2 ) {
+					// The old 2+ MB single-option worklist. A scan it belonged to
+					// stays `running`; the watchdog ends it as interrupted.
+					delete_option( UploadGuardScanner::LEGACY_WORKLIST_OPTION );
+				}
 			}
 		);
 	}

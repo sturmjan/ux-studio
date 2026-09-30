@@ -50,6 +50,13 @@ final class Module extends BaseModule {
 	/** Option caching the last synced (mode|home_url) hash. */
 	private const HASH_OPTION = 'uxstudio_cron_control_hash';
 
+	/**
+	 * Version of the generated mu-plugin. Part of the sync hash, so bumping it
+	 * regenerates an existing mu-plugin on the next boot. v2 = self-guarding
+	 * (only disables WP-Cron while UX Studio + this module are active).
+	 */
+	private const MU_PLUGIN_VERSION = 2;
+
 	/** Daily watcher event hook. */
 	private const WATCH_HOOK = 'uxstudio_cron_watch_daily';
 
@@ -71,6 +78,22 @@ final class Module extends BaseModule {
 
 		// Warn in the admin bar when WP-Cron is fully blocked.
 		add_action( 'admin_bar_menu', array( $this, 'admin_bar_warning' ), 100 );
+	}
+
+	/**
+	 * Module switched off / plugin deactivated: give WP-Cron back. Removes the
+	 * DISABLE_WP_CRON mu-plugin and the wp-cron.php .htaccess block, unschedules
+	 * the watcher and forgets the sync hash so re-enabling rewrites both.
+	 * Settings (the chosen mode) are kept.
+	 */
+	public function on_disable(): void {
+		$mu_file = $this->mu_plugin_path();
+		if ( file_exists( $mu_file ) ) {
+			wp_delete_file( $mu_file );
+		}
+		$this->remove_htaccess_block();
+		wp_clear_scheduled_hook( self::WATCH_HOOK );
+		delete_option( self::HASH_OPTION );
 	}
 
 	/**
@@ -430,7 +453,7 @@ final class Module extends BaseModule {
 	 */
 	private function sync_filesystem( bool $force = false ): void {
 		$mode = $this->get_mode();
-		$hash = md5( $mode . '|' . home_url() . '|' . (string) $this->settings->get( 'central_allowed_ips', '' ) );
+		$hash = md5( $mode . '|' . home_url() . '|' . (string) $this->settings->get( 'central_allowed_ips', '' ) . '|' . self::MU_PLUGIN_VERSION );
 
 		if ( ! $force && get_option( self::HASH_OPTION, '' ) === $hash ) {
 			return;
@@ -439,7 +462,8 @@ final class Module extends BaseModule {
 		$this->write_mu_plugin( $mode );
 		$this->write_htaccess( $mode );
 
-		update_option( self::HASH_OPTION, $hash, false );
+		// Autoloaded: compared on every boot of this module.
+		update_option( self::HASH_OPTION, $hash, true );
 	}
 
 	/**
@@ -487,16 +511,34 @@ final class Module extends BaseModule {
 			return;
 		}
 
+		// Self-guarding: the constant is only defined while UX Studio is really
+		// active AND this module is enabled. If the plugin is removed via FTP or
+		// switched off without its cleanup running, the leftover file is inert
+		// and WP-Cron keeps working (fail safe - never "cron dead forever").
 		$content = "<?php\n"
 			. "/**\n"
 			. " * Plugin Name: UX Studio Cron Control\n"
-			. " * Description: Disables WP-Cron - managed by the Cron Control module in UX Studio.\n"
+			. " * Description: Disables WP-Cron - managed by the Cron Control module in UX Studio. Inert unless UX Studio and that module are active.\n"
 			. " * Author: UX Studio\n"
-			. " * Version: 1.0\n"
+			. ' * Version: ' . self::MU_PLUGIN_VERSION . "\n"
 			. " */\n\n"
-			. "if ( ! defined( 'DISABLE_WP_CRON' ) ) {\n"
-			. "\tdefine( 'DISABLE_WP_CRON', true );\n"
-			. "}\n";
+			. "defined( 'ABSPATH' ) || exit;\n\n"
+			. "( static function () {\n"
+			. "\t\$plugin = " . var_export( plugin_basename( UXSTUDIO_FILE ), true ) . ";\n"
+			. "\tif ( ! is_file( WP_PLUGIN_DIR . '/' . \$plugin ) ) {\n"
+			. "\t\treturn;\n"
+			. "\t}\n"
+			. "\t\$active = in_array( \$plugin, (array) get_option( 'active_plugins', array() ), true );\n"
+			. "\tif ( ! \$active && is_multisite() ) {\n"
+			. "\t\t\$active = isset( ( (array) get_site_option( 'active_sitewide_plugins', array() ) )[ \$plugin ] );\n"
+			. "\t}\n"
+			. "\tif ( ! \$active || ! in_array( 'cron-control', (array) get_option( 'uxstudio_active_modules', array() ), true ) ) {\n"
+			. "\t\treturn;\n"
+			. "\t}\n"
+			. "\tif ( ! defined( 'DISABLE_WP_CRON' ) ) {\n"
+			. "\t\tdefine( 'DISABLE_WP_CRON', true );\n"
+			. "\t}\n"
+			. "} )();\n";
 
 		$this->put_file( $mu_file, $content );
 	}
@@ -521,6 +563,26 @@ final class Module extends BaseModule {
 		}
 
 		insert_with_markers( $htaccess, self::HTACCESS_MARKER, $this->htaccess_rules( $mode ) );
+	}
+
+	/**
+	 * Remove our wp-cron.php block from the site .htaccess entirely (markers
+	 * included), leaving every other rule untouched.
+	 */
+	private function remove_htaccess_block(): void {
+		if ( ! function_exists( 'get_home_path' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+		$htaccess = get_home_path() . '.htaccess';
+		if ( ! is_file( $htaccess ) || ! is_writable( $htaccess ) ) {
+			return;
+		}
+		$content = (string) file_get_contents( $htaccess ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$marker  = preg_quote( self::HTACCESS_MARKER, '/' );
+		$cleaned = preg_replace( '/^# BEGIN ' . $marker . '\R.*?^# END ' . $marker . '\R?/ms', '', $content );
+		if ( is_string( $cleaned ) && $cleaned !== $content ) {
+			$this->put_file( $htaccess, $cleaned );
+		}
 	}
 
 	/**

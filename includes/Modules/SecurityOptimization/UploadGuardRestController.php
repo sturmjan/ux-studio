@@ -186,6 +186,7 @@ final class UploadGuardRestController extends Controller {
 	 */
 	public function scan_status( WP_REST_Request $request ) {
 		$scanner = new UploadGuardScanner();
+		$scanner->watchdog(); // A status poll must never keep showing a dead "running" scan.
 		return $this->ok(
 			array(
 				'status' => $scanner->get_status(),

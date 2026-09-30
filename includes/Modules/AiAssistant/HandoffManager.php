@@ -12,6 +12,8 @@
 
 namespace UxStudio\Modules\AiAssistant;
 
+use UxStudio\Core\ClientIp;
+
 defined( 'ABSPATH' ) || exit;
 
 final class HandoffManager {
@@ -529,11 +531,14 @@ final class HandoffManager {
 	/**
 	 * Emails the site admin when a handoff is first requested. Deliberately
 	 * not sent on every follow-up customer message - only on the ai -> requested
-	 * transition (see request_handoff()) - to avoid spamming the inbox.
+	 * transition (see request_handoff()) - to avoid spamming the inbox. A new
+	 * session id is a new transition, so the e-mail is additionally capped per
+	 * client IP and site-wide (PublicGuard); the request itself still lands in
+	 * the operator inbox.
 	 */
 	private function notify_operators( int $conversation_id, string $reason ): void {
 		$to = get_option( 'admin_email' );
-		if ( empty( $to ) ) {
+		if ( empty( $to ) || ! PublicGuard::allow_notification_email() ) {
 			return;
 		}
 
@@ -604,19 +609,11 @@ final class HandoffManager {
 		return $this->operator_name_nullable( $user_id ) ?? __( 'Operator', 'ux-studio' );
 	}
 
+	/**
+	 * Client IP via Core\ClientIp - forwarding headers are trusted only from
+	 * Cloudflare/configured proxies (they are spoofable otherwise).
+	 */
 	private function get_visitor_ip(): string {
-		$headers = array( 'HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR' );
-		foreach ( $headers as $header ) {
-			if ( ! empty( $_SERVER[ $header ] ) ) {
-				$ip = sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) );
-				if ( str_contains( $ip, ',' ) ) {
-					$ip = trim( explode( ',', $ip )[0] );
-				}
-				if ( filter_var( $ip, FILTER_VALIDATE_IP ) ) {
-					return $ip;
-				}
-			}
-		}
-		return '';
+		return ClientIp::get( 'auto' );
 	}
 }

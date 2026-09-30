@@ -776,3 +776,701 @@ GITHUB): schema pole `captcha_key_source`/`captcha_cf_account_id`/
       generickém SPA rendereru) nepotřebují vlastní admin-viditelný stav
       (např. "widget vytvořen, doména zaregistrována dne...").
 - [ ] Po ověření zvážit push na GitHub (repo je veřejné).
+
+---
+
+## 19. Passkey (WebAuthn) na wp-login — modul `passkeys` (2026-09-22)
+
+Protějšek sekce 24 v `centrani-app/PLAN.md`. **Nejdřív se dělá CA, tenhle modul
+až po ní** — důvod není v pořadí práce, ale v tom, že většinu užitku CA pokryje
+sama a tenhle modul řeší jiné publikum.
+
+### Koho to je pro, a koho ne
+
+Passkey je vázaný na doménu. 97 klientských webů = 97 různých registrovatelných
+domén = 97 samostatných registrací na každém tvém zařízení. **Pro správce sítě je
+to tedy nepoužitelné** a nemá to ani smysl stavět — `ContentSync\SsoRedeemer` už
+dnes dělá `wp_set_auth_cookie()` na základě tokenu z CA, takže passkey v CA
+pokryje vstup do všech 97 wp-adminů zadarmo.
+
+Tenhle modul je proto **výhradně pro koncové klienty, kteří se na svůj vlastní
+web hlásí sami** a do CA přístup nemají. Pro ně je to jediná dostupná ochrana
+proti phishingu — a zároveň odstranění hesla, které si stejně vedou v sešitě.
+
+### Rozhodnutí
+
+| | |
+|---|---|
+| **Umístění** | **Nový samostatný modul `passkeys`**, ne přílepek k `security-optimization`. Ten už je na 21 souborech a míchá IP bany, CAPTCHu, .htaccess, CSP a upload guard — passkey je jiná doména (identita, ne obrana perimetru) a chce vlastní zapínání i vlastní tabulku. Sousedí spíš s `third-party-login`, ale ten je o delegaci identity na cizí providery, tady je opak. |
+| **RP ID** | Registrovatelná doména z `home_url()`, tedy `klient.cz` i pro web na `www.klient.cz`. Počítá se jednou při první registraci a **uloží se do option** — když se web přestěhuje na jinou doménu, klíče přestanou platit a modul to musí poznat a říct to nahlas, ne tiše selhat u přihlášení. |
+| **Role passkey** | Náhrada hesla. `userVerification: "required"`, stejně jako v CA. |
+| **Fallback** | Standardní WP heslo zůstává. Volitelně nastavení „po zaregistrování klíče skrýt pole s heslem" — ale **jen skrýt, nikdy nezakázat**, jinak si klient zamkne vlastní web. |
+| **Sdílení kódu s CA** | Jádro (`WebAuthn.php`) je čisté PHP bez závislostí na frameworku. **Zdroj pravdy je verze v CA**, sem se přenáší kopie s namespace `UxStudio\Core`. Stejné testovací vektory musí projít na obou stranách — jinak se to za půl roku rozejde a rozdíl se pozná až na produkci klienta. Precedent pro sdílené jádro už je (`SeoAiClient`, `ContentSync\HmacAuth`). |
+| **Distribuce** | Modul **defaultně vypnutý**. Jde na 97 živých webů auto-updatem — zapnout ho plošně by znamenalo změnit přihlašovací obrazovku všem klientům najednou bez varování. |
+| **Composer** | Nepřidává se. Plugin má `vendor/` jen pro `plugin-update-checker` a vlastní vendor namespace na 97 webech s cizími pluginy je zbytečné riziko kolize. PHP 8.1 + `openssl` stačí. |
+
+### Datový model
+
+Tabulka přes `DB::ensure_module_tables( 'passkeys', 1, ... )` → option
+`uxstudio_dbv_passkeys`, stejně jako ostatní moduly:
+
+```
+{prefix}uxstudio_passkeys
+  id            BIGINT UNSIGNED AUTO_INCREMENT PK
+  user_id       BIGINT UNSIGNED NOT NULL        -- WP user ID
+  credential_id VARBINARY(255) NOT NULL UNIQUE
+  public_key    TEXT NOT NULL                   -- PEM (SPKI)
+  alg           SMALLINT NOT NULL               -- -7 ES256, -257 RS256
+  sign_count    BIGINT UNSIGNED NOT NULL DEFAULT 0
+  transports    VARCHAR(64) NULL
+  name          VARCHAR(64) NOT NULL
+  created_at    DATETIME NOT NULL
+  last_used_at  DATETIME NULL
+  KEY user_id (user_id)
+```
+
+**Zásadní rozdíl proti CA: WordPress nemá `$_SESSION`.** Challenge se tedy
+nedrží v session, ale v **transientu s TTL 120 s**, klíčovaném náhodným ID, které
+si prohlížeč nese v krátkodobé cookie (`SameSite=Strict`, `HttpOnly`, `Secure`).
+Bez té vazby by challenge byl jen globální řetězec, který může uplatnit kdokoli.
+Po použití se transient maže, opakované použití = odmítnutí. Úklid po vypršených
+transientech řeší WP sám.
+
+### Kde to v UI žije (a proč ne ve SPA)
+
+Obě obrazovky, kterých se to týká, jsou **mimo React SPA** pluginu, a to je
+záměr, ne kompromis:
+
+- **Přihlášení** — `wp-login.php`, hák `login_form` (stejné místo, kde už kreslí
+  tlačítka `ThirdPartyLogin`) + `login_enqueue_scripts` pro skript a styl.
+- **Registrace klíče** — klasická obrazovka profilu uživatele, háky
+  `show_user_profile` / `edit_user_profile` + `personal_options_update`.
+  Tam klient hledá „svoje nastavení", ne v administraci pluginu.
+- **Administrace pluginu (SPA)** — jen zapnutí modulu, jeho nastavení a
+  přehled „kdo z uživatelů má kolik klíčů", jako read-only výpis.
+
+### Endpointy
+
+REST namespace `uxstudio/v1`, čtyři routy, obě přihlašovací registrované jako
+veřejné přes filtr `uxstudio_rest_public_routes` (stejný mechanismus, jakým si
+`ThirdPartyLogin` pouští callback a `Analytics` hit route):
+
+```
+POST /passkeys/register/options   (auth: přihlášený uživatel, nonce)
+POST /passkeys/register/verify    (auth: přihlášený uživatel, nonce)
+POST /passkeys/login/options      (public, rate-limited)
+POST /passkeys/login/verify       (public, rate-limited) -> wp_set_auth_cookie()
+```
+
+### Fáze
+
+- [ ] **F1 — přenos jádra.** `includes/Core/WebAuthn.php` (kopie z CA,
+      namespace `UxStudio\Core`) + `includes/Core/Crypto.php` s ECDSA/base64url
+      helpery. Testovací skript v `bin/` se **stejnými vektory jako v CA**.
+- [ ] **F2 — kostra modulu.** `includes/Modules/Passkeys/` — `meta.json`
+      (`id: passkeys`, `group: security`, `icon: key`, `settings: true`),
+      `Module.php` extends `BaseModule`, `DB::ensure_module_tables()`,
+      `Store.php` (CRUD nad tabulkou). Modul defaultně vypnutý.
+- [ ] **F3 — registrace.** `RestController` s oběma register routami, challenge
+      v transientu + cookie, UI v profilu uživatele (seznam klíčů, přidat,
+      přejmenovat, smazat). Zápis do `ActivityLog` u přidání i smazání.
+- [ ] **F4 — přihlášení.** Login routy, `wp_set_auth_cookie()` po ověření,
+      tlačítko a conditional UI na `wp-login.php`, feature detection.
+      Zapojit `ActivityLog::log( 'passkeys', 'login', ... )` a **projít
+      `AttemptsHandler`**, aby se neúspěšné pokusy počítaly do stejného limitu
+      jako heslo — jinak je passkey endpoint obchvat rate limitu.
+- [ ] **F5 — souhra se `security-optimization`.** Vlastní URL loginu, CAPTCHA
+      gate (`?action=uxstudio_verify`), IP bany a country blocklist musí platit
+      i pro passkey cestu. **Ověřit každou kombinaci ručně** — tohle je místo,
+      kde se dvě nezávisle vyvinuté ochrany nejspíš potlučou.
+- [ ] **F6 — i18n.** Všechny řetězce v CZ i EN od začátku (požadavek 9 z kap. 1),
+      včetně chybových hlášek na `wp-login.php`.
+- [ ] **F7 — test a rollout.** Testovací matice jako v CA (Windows Hello, iOS,
+      Android, hardwarový klíč, správce hesel, prohlížeč bez podpory) + negativní
+      testy. Pak zapnout na **jednom** vlastním webu, nechat měsíc běžet, a teprve
+      pak nabídnout klientům.
+
+### Pasti a rizika
+
+- **Zamčení klienta z vlastního webu je tady reálné riziko**, na rozdíl od CA,
+  kde si účet umíš opravit v DB. Klient s jedním zařízením, které ztratí, nemá
+  koho zavolat kromě tebe. Proto heslo nikdy nezakazovat, jen skrývat, a
+  v nastavení modulu mít viditelné upozornění.
+- **Přestěhování domény zneplatní všechny klíče.** Uložené RP ID se musí
+  porovnávat s aktuálním `home_url()` při každém načtení loginu a při
+  nesouhlasu nabídnout heslo a vypsat srozumitelnou hlášku. Bez toho klient
+  po migraci hostingu uvidí jen „přihlášení selhalo".
+- **Staging a produkce mají různé domény**, takže klíč ze stagingu na produkci
+  nefunguje. Není to chyba, ale musí to být v dokumentaci, jinak to bude hlášené
+  jako chyba.
+- **Kolize s jinými login pluginy.** Na klientských webech běží cizí pluginy,
+  které si taky sahají na `login_form` a `authenticate`. Priorita háků a chování
+  při souběhu s Limit Login Attempts a spol. se musí ověřit, ne předpokládat.
+- **Duplikace jádra proti CA** je vědomý dluh. Bez testu se stejnými vektory na
+  obou stranách se to rozejde. Ten test není volitelný.
+- **`sign_count` bývá nula** — platí totéž co v CA, nesmí z toho být tvrdé
+  odmítnutí.
+- **Lokální vývoj na `127.0.0.1` nefunguje**, RP ID nesmí být IP adresa.
+  Lokálně chodit na `localhost`.
+
+### Otevřené otázky
+
+- [ ] Nechat klienta zaregistrovat klíč samoobslužně, nebo to nechat na tobě při
+      předání webu? Samoobsluha je levnější, ale „přidat klíč" je přesně to, co
+      by udělal útočník s ukradenou session.
+- [ ] Má se stav passkeyů (kolik uživatelů, kolik klíčů) posílat do CA jako
+      součást inventáře webu, aby to bylo vidět na kartě Bezpečnost? Kanál na to
+      už existuje (`SecurityApiController` inventory), byla by to jen další
+      položka.
+- [ ] Ponechat modul navždy opt-in, nebo ho po odzkoušení zapnout plošně na
+      webech v režimu `sprava`?
+
+---
+
+## 20. Form Builder — modul `forms` (2026-09-22)
+
+Vzor je **Elementor Forms** (uživatel to výslovně chce) — bez platebních bran
+(vědomě mimo rozsah). Modul zatím v UX Studiu VŮBEC NEEXISTUJE (ověřeno —
+`ux1-wordpress-customizer`/`ux-studio` žádný form builder nemá, jen izolovaná
+jednoúčelová pole v `security-optimization`/`service-requests`/starém
+`reservation-calendar`). **Sesterský projekt Destima ale form builder hotový
+má** (`destima-obec/includes/Modules/Forms`, `src/app/pages/Forms.tsx`, stack
+React+TS+`@dnd-kit`+react-query — identický s UX Studiem) — je to ověřený
+bezpečnostní základ, na kterém stavíme, ne reference na UX úroveň. Co odtamtud
+PŘEBÍRÁME beze změny: honeypot, CSV export s ochranou proti
+formula-injection (`csv_safe_cell`), stažení přiloženého souboru přes
+capability-gated REST routu (ne přímý URL), revize definice formuláře (stejný
+vzor jako `RollbackManager`/existující `Revisions`). Co Destima NEMÁ a
+Elementor ano — to je jádro rozšíření v tomhle plánu: bohatší podmíněná
+logika (AND/OR, operátory, ne jen `pole = hodnota`), šířka pole ve sloupcích,
+řetězené akce po odeslání (ne jen e-mail), webhook, a hlavně **nativní
+Elementor widget** (Destima Elementor vůbec neřeší, UX Studio ho už jako
+závislost integruje — `ElementorImport`).
+
+### 20.1 Analýza Elementor Forms (od čeho se odpichujeme)
+
+| Oblast | Co Elementor (Pro) umí |
+|---|---|
+| **Pole** | Text, Textarea, Email, URL, Tel, Number, Password, Hidden, HTML (statický blok), Select, Select2, Radio, Checkbox, skupina checkboxů, Acceptance (souhlas s odkazem na podmínky), Date, Time, Upload souboru, Rating, Name (jméno/příjmení jako jedno pole), Address (strukturovaná adresa), Step (rozdělovač na kroky), Signature (podpis myší/prstem), reCAPTCHA v2/v3/invisible |
+| **Nastavení pole** | label, placeholder, povinné, šířka ve sloupcích (10-100 %, zvlášť desktop/tablet/mobil), výchozí hodnota, min/max délka nebo hodnota, vlastní CSS třída, unikátní ID |
+| **Podmíněná logika** | per-pole i per-krok, víc pravidel, AND/OR mezi nimi, operátory (rovná se/nerovná se/obsahuje/je prázdné/je vyplněné/větší/menší) |
+| **Vícekrokové formuláře** | pole typu Step dělí formulář na stránky, styl indikátoru postupu (kroky/progress bar/žádný), validace kroku před postupem dál |
+| **Akce po odeslání (řetězitelné)** | E-mail (komu, předmět, reply-to, šablona s dynamickými tagy z polí), druhý e-mail (autoresponder odesílateli), Webhook (POST JSON na URL), Redirect, vytvoření WP příspěvku ze submission, integrace na marketing/CRM nástroje (Mailchimp, Google Sheets, Slack, Zapier...) |
+| **Submissions (Elementor Pro)** | Každé odeslání uložené v DB, přehled v adminu s hledáním/filtrem, log toho, které akce proběhly a s jakým výsledkem, opětovné odeslání e-mailu, export CSV, needeleted/unread stav |
+| **Anti-spam** | honeypot (skryté pole), reCAPTCHA v2/v3/invisible, Akismet |
+| **Styl** | šířka obsahu, mezery mezi sloupci/řádky, pozice labelu (nad/inline/skrytý), velikost inputů, stavy focus/error/hover, tlačítko stylované zvlášť |
+| **Ostatní** | dynamické tagy pro výchozí hodnoty (z URL parametru, meta, uživatele), GDPR souhlas, omezení typu/velikosti nahrávaného souboru |
+
+**Vědomě MIMO rozsah (na žádost uživatele):** platební brány (Stripe/PayPal
+pole a akce). **Vědomě ODLOŽENO na pozdější fázi** (nejsou v Elementor Pro
+zdarma ani kritická pro MVP): nativní CRM/marketing integrace (Mailchimp
+apod.) — pokrývá je obecný Webhook, který dá napojit na Zapier/Make/n8n bez
+budování N vlastních konektorů; Signature pole; vytvoření WP příspěvku ze
+submission.
+
+### 20.2 Rozhodnutí
+
+| | |
+|---|---|
+| **Umístění** | Nový samostatný modul `forms`, `group: "content"`. Nesahá na `service-requests` (to je klient centrálního ticket systému, jiná doména) ani na `security-optimization` (odtud si jen **půjčuje** `CaptchaVerifier`, nevlastní ho). |
+| **Renderovací kanály** | Tři, sdílejí stejná uložená data formuláře: (1) shortcode `[uxstudio_form id="1"]` (vzor `NoticeBoard::render_shortcode` — scoped inline styly), (2) Gutenberg blok (stejný render přes `render_callback`, blok je jen UI nad shortcode atributy), (3) **nativní Elementor widget** (fáze F3, viz 20.7). Frontend markup a validace jsou stejné pro všechny tři — liší se jen obalový kontejner. |
+| **Datový zdroj pravdy** | `uxstudio/v1/forms` REST, ukládání do vlastních tabulek (ne CPT+postmeta — formuláře nejsou obsah, jsou konfigurace+data, stejně jako u Destimy). |
+| **Podmíněná logika** | Upgrade proti Destimě: pravidlo = `{ field, operator, value }`, pole `conditions: Rule[]`, `logic: 'all' | 'any'` (AND/OR). Vyhodnocuje se **na klientu** (pro UX — okamžité show/hide) i **znovu na serveru** při submitu (globální bezpečnostní baseline — nikdy nevěřit jen klientské validaci; skryté/neaktivní pole se ze submitu ignorují, i kdyby je útočník poslal ručně). |
+| **Stránkování formuláře (multi-step)** | Uživatelský požadavek, proto přesunuto do **F1** (ne F2, jak byl původní návrh). Pole typu `step` jako u Destimy (`step` index na každém poli), navíc `progress_style: 'steps' \| 'bar' \| 'none'`. Krokovou validaci dělá klient pro UX (Další/Zpět, blokace postupu při chybě), server validuje VŽDY všechna aktivní pole najednou při finálním submitu (ne per-krok round-trip — jeden formulář = jeden REST zápis, meziukládání rozpracovaného kroku není v MVP). |
+| **Struktura formuláře (řádky/sloupce)** | Uživatelský požadavek — editovatelný layout, ne jen lineární seznam polí. Model shodný s Elementorem: každé pole má `width` v % (100/75/66/50/33/25), **pole s `width < 100` se v canvasu i na frontendu vizuálně řadí vedle sebe do řádku** (CSS `flex-wrap`, žádná ruční správa "řádků" jako samostatných entit — přesně tak to dělá Elementor a je to jednodušší na údržbu než vnořený rows/columns strom). Šířka se nastavuje zvlášť pro desktop/tablet/mobil (`width`, `width_tablet`, `width_mobile`) — na mobilu se typicky vynutí 100 % bez ohledu na desktop nastavení. Vizuální editor v builderu (20.5) ukazuje živě, jak se pole zalamují. |
+| **Popisky polí (label vs. placeholder)** | Uživatelský požadavek — přepínatelné, ne napevno dané. `label_display` na úrovni **celého formuláře** (`settings_json`, tab Vzhled): `'visible'` (výchozí — label nad/vedle polem, placeholder jen jako doplňkový příklad) nebo `'placeholder_only'` (label se vizuálně skryje, placeholder nese text). Navíc **per-pole override** `label_display: 'inherit' \| 'visible' \| 'placeholder_only'` pro výjimky (typicky pole v jednom úzkém řádku vedle sebe, kde viditelné labely nedávají prostorově smysl). Přístupnost: `'placeholder_only'` label jen **vizuálně** skryje (`aria-hidden` na viditelném textu se nepoužívá — místo toho label zůstává v DOM jako `sr-only`/`aria-label` na inputu), placeholder sám nikdy nenahrazuje label u čteček obrazovky ani u polí bez zadané hodnoty po opuštění focusu — je to known WCAG anti-pattern (placeholder zmizí při psaní), řešení kopíruje běžnou praxi Elementoru/formulářových frameworků, ne vlastní vynález. |
+| **Archiv odeslaných formulářů** | Uživatelský požadavek — musí jít **dohledat**, ne jen procházet poslední stránku. Řeší 20.6 (plnotextové hledání + trvalé uchování + jednotná obrazovka napříč všemi formuláři). |
+| **E-mailové šablony** | Uživatelský požadavek — hotové, hezké HTML šablony pro e-mailovou akci, ne holý textový/HTML box jako u `GoogleReviewRequest`. Řeší 20.9 (nová, plugin dnes žádnou sdílenou HTML šablonu pro e-maily nemá — je to první modul, který to zavádí). |
+| **Dashboard widget** | Uživatelský požadavek. Vlastní `DashboardWidget.php` po vzoru `BotThrottle\DashboardWidget` (`wp_add_dashboard_widget`, statická třída `register()/add()/render()`, server-rendered inline HTML, deep-link do SPA) — **ne** přes modul `DashboardWidgets` (ten jen spravuje/skrývá nativní wp-admin widgety a má vlastní samostatný widget s úkoly/poznámkami/PageSpeed; není to registr, do kterého by se ostatní moduly hlásily). Detaily v 20.10. |
+| **Akce po odeslání** | Řetěz akcí uložený jako `actions: Action[]` v `settings_json`, vykonávaný synchronně v pořadí, chyba jedné akce nezastaví další (log má per-akci status). MVP: `email`, `webhook`, `redirect`. Fáze F4: `create_post`. |
+| **E-mail akce** | Neposílá se přímo přes `wp_mail()` napřímo — jde přes existující `SmtpEmail` modul (pokud je zapnutý, jinak fallback na `wp_mail`) a zapisuje se do `EmailLog` (stejná viditelnost doručení/resend jako u ostatních modulů, žádná nová e-mailová cesta navíc). Šablona předmětu/těla podporuje `{pole_key}` tagy z odpovědi. |
+| **Webhook akce** | Obecná POST JSON na URL zadanou v nastavení formuláře. Payload se podepisuje HMAC (stejný vzor jako `ContentSync\HmacAuth` — hlavička `X-UxStudio-Signature`), aby si příjemce (Zapier/Make/n8n/vlastní endpoint) mohl ověřit původ. Tajný klíč per formulář, generovaný, nikdy v kódu (soulad s bezpečnostní baseline). |
+| **Anti-spam** | Honeypot **vždy zapnutý** (skryté pole, zero-config). Volitelně captcha — **žádná nová implementace**, modul jen zavolá `SecurityOptimization\CaptchaVerifier` (Turnstile/reCAPTCHA už je ve pluginu hotové a nakonfigurované). Rate-limit na submit routě přes `BotThrottle\Guard::exceeded()` (stejný sdílený guard jako Analytics/BotThrottle — burst limit, žádná třetí duplicitní logika). |
+| **Nahrávání souborů** | Pole `file`: allowlist přípon/MIME, limit velikosti (nastavitelný, default 10 MB), uložení **mimo webroot** (`wp-content/uploads/uxstudio-forms-private/`) s deny-all `.htaccess` po vzoru globální bezpečnostní baseline pro citlivá data — stahování jen přes capability-gated REST routu s nonce (přesný vzor `download_file` v Destimě, ale navíc kontrola, že přihlášený uživatel smí VIDĚT konkrétní formulář). |
+| **CSV export** | Přebírá se Destimin `csv_safe_cell()` vzor 1:1 (ochrana proti formula injection přidáním `'` před buňku začínající na `=+-@`) — je to bezpečnostně nenulová věc, ne kosmetika, přepisovat znovu je zbytečné riziko regrese. |
+| **AI generování formuláře** | Fáze F3. Volitelné tlačítko „Vygenerovat AI" v builderu — text popisu → návrh polí. Nejde přes novou AI cestu, ale přes existující `AiAssistant`/`SeoAiClient` sdílené jádro (stejný vzor jako Destima `ai_generate`, ale bez duplikace klienta). |
+| **GDPR / retence** | Nastavení formuláře: `retention_days` (volitelné auto-mazání starých odpovědí cronem), pole typu `acceptance` s povinným odkazem na zásady zpracování. |
+| **Moderní pole (multiselect, animovaný checkbox/switch, upload)** | Uživatelský požadavek — nekreslit si vlastní checkbox/multiselect ručně, postavit to na ověřené knihovně. Zdůvodnění výběru a rozsah v **20.4b**. |
+| **Composer/závislosti** | Frontend: `@dnd-kit/core` + `@dnd-kit/sortable` + `@dnd-kit/utilities` (nové npm závislosti, ale ověřený pattern — stejné verze jako v Destimě, žádné nativní HTML5 D&D kvůli mobilu/dotyku) + `react-aria-components` (nová, zdůvodnění 20.4b). Backend: žádné nové Composer balíčky (stejné zdůvodnění jako u `passkeys` v §19 — `vendor/` je jen pro plugin-update-checker). |
+
+### 20.3 Datový model
+
+```
+{prefix}uxstudio_forms
+  id             BIGINT UNSIGNED AUTO_INCREMENT PK
+  title          VARCHAR(190) NOT NULL
+  description    TEXT NULL
+  fields_json    LONGTEXT NOT NULL        -- pole definic (viz 20.4)
+  settings_json  LONGTEXT NOT NULL        -- akce, styl, anti-spam, retence, webhook secret
+  status         VARCHAR(20) NOT NULL DEFAULT 'active'   -- active|draft|archived
+  created_by     BIGINT UNSIGNED NULL
+  created_at     DATETIME NOT NULL
+  updated_at     DATETIME NOT NULL
+  KEY status (status)
+
+{prefix}uxstudio_form_submissions
+  id             BIGINT UNSIGNED AUTO_INCREMENT PK
+  form_id        BIGINT UNSIGNED NOT NULL
+  form_title     VARCHAR(190) NOT NULL    -- snapshot názvu formuláře v době odeslání
+  values_json    LONGTEXT NOT NULL        -- { field_key: hodnota }
+  fields_snapshot_json LONGTEXT NOT NULL  -- snapshot { key: {label, type} } v době odeslání
+  meta_json      LONGTEXT NULL            -- ip_hash, UA, referrer, UTM, page_url
+  search_text    MEDIUMTEXT NOT NULL      -- plaintext konkatenace hodnot, pro FULLTEXT hledání
+  status         VARCHAR(20) NOT NULL DEFAULT 'unread'    -- unread|read|spam|trash
+  created_at     DATETIME NOT NULL
+  KEY form_id (form_id), KEY status (status), KEY created_at (created_at),
+  FULLTEXT KEY search_text (search_text)
+
+{prefix}uxstudio_form_submission_files
+  id             BIGINT UNSIGNED AUTO_INCREMENT PK
+  submission_id  BIGINT UNSIGNED NOT NULL
+  field_key      VARCHAR(190) NOT NULL
+  original_name  VARCHAR(255) NOT NULL
+  stored_path    VARCHAR(500) NOT NULL    -- mimo webroot, viz 20.2
+  mime           VARCHAR(100) NOT NULL
+  size           INT UNSIGNED NOT NULL
+  KEY submission_id (submission_id)
+
+{prefix}uxstudio_form_action_log
+  id             BIGINT UNSIGNED AUTO_INCREMENT PK
+  submission_id  BIGINT UNSIGNED NOT NULL
+  action_type    VARCHAR(30) NOT NULL     -- email|webhook|redirect|create_post
+  status         VARCHAR(10) NOT NULL     -- ok|fail
+  detail         TEXT NULL                -- HTTP status, chybová hláška, message-id
+  created_at     DATETIME NOT NULL
+  KEY submission_id (submission_id)
+```
+
+Registrace přes `DB::ensure_module_tables( 'forms', 1, ... )` jako všechny
+ostatní moduly (option `uxstudio_dbv_forms`).
+
+**Proč `fields_snapshot_json` a `form_title` duplikují data z `uxstudio_forms`:**
+archiv musí zůstat čitelný, i když se formulář později upraví (přejmenuje
+pole, smaže volbu ze selectu) nebo úplně smaže. Bez snapshotu by stará
+odpověď ukazovala buď dnešní (nesedící) popisky polí, nebo prázdné hodnoty
+po smazání formuláře. Se snapshotem je `uxstudio_forms` jen "aktuální
+definice pro nové odpovědi", archiv žije nezávisle na ní — smazání
+formuláře proto **maže jen definici, ne odpovědi** (musí to být explicitní
+druhá akce s vlastním potvrzením, ne kaskáda).
+
+**Proč `search_text` + `FULLTEXT`:** dohledatelnost byl explicitní
+požadavek. `LIKE '%...%'` přes `values_json` by fungovalo, ale bez indexu
+lineárně prohledává celou tabulku a nejde v něm hledat "obsahuje slovo A i B
+v libovolném pořadí" rozumně rychle. `search_text` je při zápisu vyplněný
+plain-textový výtah hodnot všech textových polí (bez HTML, bez hesel/citlivých
+typů), nad kterým jede `MATCH() AGAINST()` — škáluje na tisíce odpovědí bez
+zvláštní infrastruktury (Elasticsearch/Meilisearch by tu byl zjevný
+over-engineering).
+
+### 20.4 Katalog polí (MVP proti Elementoru, bez plateb)
+
+| Typ | Poznámka |
+|---|---|
+| `text`, `textarea`, `email`, `url`, `tel`, `number`, `password`, `hidden` | základ, 1:1 s Elementorem |
+| `select`, `radio`, `checkbox`, `checkbox_group` | volby (`options[]`) |
+| `multiselect` | uživatelský požadavek — dropdown s vícenásobným výběrem a "chips" pro zvolené hodnoty, ne skupina checkboxů. Postaveno na `react-aria-components` (20.4b). |
+| `acceptance` | checkbox se souhlasem + odkaz (GDPR) |
+| `date`, `time` | nativní HTML5 input, žádný vlastní datepicker v MVP |
+| `rating` | škála 2-10 (převzato z Destimy) |
+| `address` | strukturované podpole (ulice/město/PSČ/země) jako jedno pole |
+| `name` | křestní+příjmení jako jedno pole (Elementor vzor) |
+| `file` | viz 20.2 zabezpečení uploadu; vícenásobný výběr souborů + drag&drop zóna s náhledy (20.4b), ne holý `<input type=file>` |
+| `html` | statický obsahový blok (nadpis/odstavec mezi pole) |
+| `step` | rozdělovač kroku, ne skutečné vstupní pole |
+| `captcha` | vizuální placeholder napojený na `CaptchaVerifier`, ne samostatná implementace |
+| `signature` | **F4**, mimo MVP (nízká priorita, žádný jasný interní use-case zatím) |
+
+Každé pole navíc (proti Destimě): `width`/`width_tablet`/`width_mobile`
+(20.4a), `conditions`/`logic` (20.2), `css_class`, `default_value`
+(vč. tokenů `{today}`, `{query.utm_source}` — dynamické tagy z URL),
+`label_display` (`'inherit' | 'visible' | 'placeholder_only'` — **nastavitelné
+u každého pole samostatně**, ne jen jako globální přepínač s výjimkami;
+`'inherit'` je výchozí a řídí se formulářovým nastavením z 20.2, ale
+kterékoliv pole ho může přebít vlastní hodnotou nezávisle na ostatních).
+
+### 20.4a Struktura formuláře (řádky a sloupce)
+
+Uživatelský požadavek: "musí jít upravovat struktura, tedy sloupce atd."
+Data model je popsaný v 20.2 (řádek `Struktura formuláře`) — pole mají
+procentuální šířku a řadí se vedle sebe jako flex-wrap, žádný samostatný
+"row" objekt navíc. Co z toho plyne pro builder a frontend:
+
+- **Pořadí v poli `fields[]` = pořadí vykreslení.** Řádek vznikne přirozeně
+  tak, že N po sobě jdoucích polí má součet šířek ≤ 100 %; jakmile by další
+  pole řádek přetáhlo přes 100 %, zalomí se samo (CSS, žádná ruční logika).
+  Přesun pole mezi "řádky" je tedy jen změna pořadí (drag) nebo změna šířky
+  — nemusí se řešit zvlášť.
+- **Editace šířky přímo v canvasu**, ne jen v postranním panelu — úchyt na
+  pravém okraji pole (drag-to-resize, přichytávání na 25/33/50/66/75/100 %),
+  doplněný číselným vstupem v pravém panelu pro přesnost.
+- **Přepínač breakpointu** (Desktop/Tablet/Mobil) nad canvasem mění, které z
+  `width`/`width_tablet`/`width_mobile` se právě edituje — canvas se
+  vizuálně zúží, aby bylo vidět skutečné zalamování na dané šířce (obdoba
+  responzivního náhledu v Elementoru).
+- **Pole `html`** (statický blok) i **`step`** (předěl kroku) mají vždy
+  `width: 100` bez výjimky — nedávalo by smysl je zalamovat vedle jiných polí.
+
+### 20.4b Moderní stavební prvky (react-aria-components)
+
+Uživatelský požadavek: "mělo by to umět i multiselect a další moderní pole
+třeba animované checkboxy, upload souboru atd." — a rovnou zadání "ideálně
+nějaká moderní knihovna", ne ruční implementace.
+
+**Volba: [`react-aria-components`](https://react-spectrum.adobe.com/react-aria/)
+(Adobe).** Zdůvodnění proti alternativám:
+
+| Knihovna | Proč ne / proč ano |
+|---|---|
+| **Radix UI** | Výborné primitivy pro Checkbox/Switch/Select, ale **nemá nativní multi-select listbox** (`Select` je jen jednovýběrový) ani upload komponentu — musel by se řešit druhou knihovnou navíc. |
+| `react-select` | Multiselect umí, ale je to starší knihovna s vlastním (těžším) stylovacím modelem a slabší accessibilitou než moderní *aria*-first knihovny; vizuálně to i s override CSS "cítit" jako cizí prvek vedle vlastního design systému. |
+| **`react-aria-components`** | **Jedna knihovna pokrývá všechno požadované**: `<ListBox selectionMode="multiple">`/`<Select>`/`<ComboBox>` pro multiselect, `<Checkbox>`/`<CheckboxGroup>`/`<Switch>` pro animované volby, **`<FileTrigger>`+`<DropZone>`** přímo pro upload s drag&drop. Plně **unstyled** (žádné vlastní CSS k přepisování — stylujeme čistě přes `--uxs-*` tokeny z 5. Design systém), nejvyšší úroveň přístupnosti na trhu (WAI-ARIA Authoring Practices, klávesová navigace, screen reader), aktivně udržovaná (týdenní vydání), TS-first. |
+
+Co konkrétně nahrazuje/rozšiřuje:
+- **`multiselect`** (20.4) → `react-aria-components` `<ComboBox>`/`<ListBox selectionMode="multiple">` s "chips" pro vybrané hodnoty, klávesová navigace našeptávačem.
+- **`checkbox`/`checkbox_group`** → `<Checkbox>`/`<CheckboxGroup>` s animovaným stavem (fajfka se kreslí/mizí přes CSS transition na `--uxs-motion-*` tokeny, ne skokem jako u nativního `<input>`), vizuálně shodné s `ToggleSwitch` komponentou, kterou plugin už má.
+- **`file`** → `<FileTrigger>` (tlačítko "Vybrat soubor(y)") + `<DropZone>` (přetažení myší), náhledy vybraných souborů (ikona podle MIME nebo thumbnail u obrázků) a odebrání před odesláním — vše na klientu, server pořád validuje MIME/velikost/allowlist nezávisle (20.8, klientská validace je jen UX).
+- Vzniklé obalové komponenty (`MultiSelectField`, `AnimatedCheckbox`, `FileUploadField`) se zapíší do **sdílené knihovny komponent** (3.3/5. Design systém) — ne jen lokálně v modulu `forms` — protože stejné potřeby (multiselect, checkbox, upload) se dřív nebo později objeví i v jiných modulech a duplikovat vlastní implementaci by bylo přesně to, čemu má sdílená knihovna předcházet.
+- Zbylá "obyčejná" pole (text/select-jednovýběrový/radio/date/…) zůstávají na nativních HTML prvcích stylovaných design tokeny — `react-aria-components` se nasazuje cíleně tam, kde nativní `<input>`/`<select>` UX limit skutečně naráží (multi-výběr, drag&drop upload, animovaný switch), ne plošně všude, aby bundle zůstal malý (3.3 zdůvodňuje code-splitting per modul stejnou logikou).
+
+### 20.5 Builder UI (React SPA, `src/modules/forms`)
+
+- **Levý panel** — paleta polí podle kategorie (Základní/Volby/Pokročilé/Layout).
+- **Střed (canvas)** — seznam polí, přetahování přes `@dnd-kit` (stejný vzor jako
+  Destima `Forms.tsx`: `DndContext` + `SortableContext` +
+  `useSortable`, úchyt jen na `GripVertical` ikoně, ne na celém řádku).
+  Vizuální oddělovače kroků, živé zalamování polí do řádků podle šířky
+  (20.4a) a přepínač breakpointu Desktop/Tablet/Mobil.
+- **Pravý panel** — nastavení vybraného pole (taby Obecné/Validace/Podmínky/Šířka).
+- **Horní taby formuláře** — Pole / Akce po odeslání / Vzhled / Odpovědi
+  (submissions inbox) / Nastavení (anti-spam, retence).
+- Sdílené komponenty pluginu se znovu použijí (`DataTable`, `Modal`,
+  `Tabs`, `ToggleSwitch`, `Confirm`, `Toast` — žádná nová UI knihovna
+  kromě dnd-kit).
+
+### 20.6 Archiv odeslaných formulářů
+
+Uživatelský požadavek: "musí existovat archiv odeslaných formulářů z
+administrace, to musí jít dohledat" — proto vlastní obrazovka **Archiv**
+(horní tab vedle Pole/Akce/Vzhled/Nastavení, viz 20.5), ne jen prostý výpis
+poslední várky:
+
+- **Napříč všemi formuláři i jednotlivě.** Výchozí pohled je "Archiv"
+  (agregovaně, se sloupcem "Formulář"), z detailu formuláře jde otevřít
+  filtrovaně jen na něj — jedna implementace `DataTable`, dva vstupní body.
+- **Stránkování na serveru**, ne "načti všechno a filtruj v prohlížeči" —
+  `GET uxstudio/v1/forms/submissions?page=&per_page=&form_id=&status=&q=&from=&to=`,
+  odpověď `{ data, meta: { total, page, per_page } }` (jednotný tvar dle 3.2).
+  Bez toho by archiv po pár tisících odpovědí zpomalil celou SPA stránku.
+- **Plnotextové hledání** (`q` parametr) přes `search_text`/`FULLTEXT` (20.3)
+  — najde odpověď podle jména, e-mailu, textu ve zprávě atd., napříč všemi
+  poli i formuláři najednou. To je jádro "musí jít dohledat", ne jen
+  filtr podle data.
+- **Trvalé uchování jako výchozí stav.** Žádné tiché mazání — `retention_days`
+  z 20.2 je vypnuté (`null`), dokud ho admin sám nezapne u konkrétního
+  formuláře. Archiv je právně/provozně důkazní materiál (kdo co kdy odeslal),
+  ne cache.
+- Sloupce tabulky se generují z `fields_snapshot_json` dané odpovědi (20.3) —
+  **ne** z aktuální definice formuláře, takže staré odpovědi zůstanou čitelné
+  i po úpravě formuláře.
+- Stavy nepřečteno/přečteno/spam/koš, detail v `Modal` vč. logu akcí
+  (`form_action_log` — kdy e-mail prošel/webhook selhal, tlačítko "Odeslat
+  znovu"), export CSV (20.2, respektuje aktivní filtr/hledání, ne jen
+  aktuální stránku), stažení přiložených souborů přes gated routu.
+
+### 20.7 Elementor integrace (nativní widget, fáze F3)
+
+`ElementorImport` modul už dokazuje, že je Elementor v UX Studiu first-class
+závislost. Nový soubor (registrovaný stejným hookem `elementor/widgets/register`,
+jaký `ElementorImport` už používá) přidá widget **„UX Form"** do panelu
+Elementoru:
+
+- Widget nemá vlastní pole — má select „Vyber formulář" (načte seznam z
+  `uxstudio/v1/forms`) + zdědí stylové kontroly Elementoru (typografie,
+  barvy, mezery pro label/input/button, stavy hover/focus/error) tak, jak to
+  dělá originál — díky tomu je vzhled formuláře v Elementoru plně WYSIWYG,
+  stejně jako u vzoru, ze kterého vycházíme.
+- V editoru Elementoru renderuje živý náhled přes stejnou REST routu jako
+  shortcode (žádná druhá implementace renderu).
+- Widget se registruje, jen když je Elementor aktivní — bez něj modul `forms`
+  funguje normálně přes shortcode/Gutenberg.
+
+### 20.8 Bezpečnost (mapování na globální baseline)
+
+- Server-side validace VŽDY, klientská je jen UX (viz 20.2 podmíněná logika).
+- Parametrizované dotazy (`$wpdb->prepare`), žádné ruční skládání SQL.
+- Upload: allowlist MIME+přípona, limit velikosti, uložení mimo webroot,
+  stahování jen capability-gated.
+- Rate-limit přes `BotThrottle\Guard` na veřejné submit routě — brání DoS
+  zaplavením i spamu, ne jen honeypot.
+- Webhook secret a případné API klíče (budoucí integrace) jen v DB (options),
+  nikdy v kódu/gitu.
+- CSV export: ochrana proti formula injection (převzato z Destimy, 20.2).
+- Veřejná submit routa je bez WP nonce (nepřihlášený návštěvník) — ochranou
+  je honeypot + captcha + rate-limit, ne nonce; admin REST routy mají nonce
+  jako všude v pluginu (3.2).
+
+### 20.9 E-mailové šablony (HTML)
+
+Uživatelský požadavek: "předpřipravené hezké HTML šablony pro e-maily."
+Plugin dnes **nemá žádnou sdílenou HTML šablonu pro e-maily** — `GoogleReviewRequest`
+i ostatní moduly posílají holý HTML string z textového pole nastavení. Forms
+zavádí první verzi téhle vrstvy (může se v budoucnu vytáhnout do `Core/`, až
+o ni požádá druhý modul — teď by to byla předčasná abstrakce):
+
+- **`EmailTemplateRenderer`** — sada 3-4 vestavěných šablon (`minimal`,
+  `card`, `branded`) jako statické HTML se zavřenými inline styly (e-mailoví
+  klienti CSS soubory ani `<style>` bloky spolehlivě nepodporují — musí to
+  být `style="..."` na každém elementu, stejně jako to dělají Elementor/Mailchimp).
+  Šablona má sloty: hlavička (logo ze `custom_logo` webu + barva z nastavení
+  formuláře nebo plugin brand barvy), nadpis, tělo (text/HTML z akce),
+  **`{{submission_table}}`** — automaticky vyrenderovaná tabulka
+  label→hodnota z odeslaných polí (podle `fields_snapshot_json`, ne surových
+  klíčů), CTA tlačítko (volitelné, pro autoresponder např. "Přejít na web"),
+  patička (název webu, volitelný odkaz na zásady zpracování).
+- **Merge tagy** v předmětu i vlastním textu: `{pole_key}`, `{form_title}`,
+  `{submission_date}`, `{submission_table}` — stejná syntaxe jako u Destimy
+  (`{today}` apod.), aby si uživatel nemusel pamatovat dvě různé notace napříč
+  pluginem.
+- **Multipart e-mail** (`text/html` + `text/plain` alternativa generovaná
+  automaticky stripováním HTML) — bez toho e-mail často skončí ve spamu nebo
+  je nečitelný v klientech bez HTML, což je tichá chyba, kterou nikdo neuvidí
+  dokud si nestěžuje příjemce.
+- **Živý náhled v builderu** (tab Akce → e-mailová akce → "Náhled") —
+  vyrenderuje aktuální šablonu s ukázkovými daty přímo v SPA (`iframe`
+  se `srcDoc`, bez odeslání skutečného e-mailu).
+- Dvě šablony, dva adresáti: notifikace pro provozovatele (`branded`,
+  obsahuje celou `submission_table`) a autoresponder pro odesílatele
+  (`minimal`/`card`, jen poděkování + volitelně kopie jím vyplněných údajů) —
+  volitelné jako druhá `email` akce v řetězu (20.2).
+- Odchozí e-mail (subjekt i vyrenderované tělo) se loguje do `EmailLog` beze
+  změny — je to poslední krok stejné existující cesty, ne nová.
+
+### 20.10 Dashboard widget
+
+Uživatelský požadavek — widget na nativním wp-admin dashboardu (`/wp-admin/index.php`),
+po vzoru `BotThrottle\DashboardWidget` (18.1 v kódu, viz nález v 20.2):
+statická třída `Forms\DashboardWidget` s `register()` (hook `wp_dashboard_setup`),
+`add()` (`wp_add_dashboard_widget`, jen pro `manage_options`) a `render()`
+(server-renderované inline HTML, žádný React — widget žije mimo SPA stejně
+jako u BotThrottle).
+
+Obsah widgetu:
+- Počet nepřečtených odpovědí celkem (velké číslo, barevný akcent jako u
+  BotThrottle) + rozpad podle formuláře (top 5 podle objemu za posledních
+  7 dní).
+- Posledních 5 odpovědí (jméno/e-mail pokud pole existuje, formulář, čas
+  "před X hodinami") s odkazem na detail.
+- Deep-link "Zobrazit archiv" → `admin_url( 'admin.php?page=ux-studio#/module?id=forms&tab=archive&status=unread' )`
+  — přesně vzor BotThrottle (`#/module?id=bot-throttle`).
+
+**Synergie s `DashboardWidgets` modulem zdarma:** ten modul periodicky
+snapshotuje VŠECHNY registrované wp-admin dashboard widgety
+(`cache_dashboard_widgets`) a umožňuje je adminovi skrýt. Nový widget
+formulářů se do toho seznamu propíše automaticky, bez jakékoli extra
+integrace — je to jen další položka `wp_dashboard_setup`, přesně jako dnes
+`uxstudio_bot_throttle_widget`.
+
+### 20.11 Fáze
+
+- [x] **F1 — MVP se všemi uživatelskými požadavky rovnou zabudovanými**
+      (ne odloženými do F2/F3, jak byl původní návrh — přepracováno na
+      žádost uživatele): tabulky vč. `fields_snapshot_json`/`search_text`
+      (20.3), REST CRUD formulářů se **stránkováním a plnotextovým hledáním
+      archivu** (20.6), pole z 20.4 kromě `signature` vč. **`multiselect`**
+      a **`file` s drag&drop** postavených na `react-aria-components` (20.4b),
+      **animovaný checkbox/switch** (20.4b) místo nativních prvků,
+      **struktura polí do sloupců** (`width`/breakpointy, 20.4a) v builderu,
+      **přepínatelné popisky vs. placeholdery** per formulář i per pole
+      (`label_display`, 20.2) vč. a11y `sr-only` fallbacku, **vícekrokové
+      formuláře** (`step`, progress indikátor) na frontendu i v builderu,
+      shortcode render, honeypot, e-mailová akce **s výběrem z hotových HTML
+      šablon** (20.9, přes SmtpEmail/EmailLog), **Archiv** jako
+      plnohodnotná obrazovka (ne jen "seznam + detail bez CSV") vč. CSV
+      exportu (20.2 `csv_safe_cell`), **dashboard widget** (20.10).
+- [x] **F2 — Elementor-úroveň UX** *(hotovo lokálně 2026-09-22)*: podmíněná
+      logika rozšířena o `greater`/`less` operátory (klient i server -
+      `Fields::is_active()`), řetězené akce doplněny o `webhook` (obecný
+      POST JSON, HMAC podpis `X-UxStudio-Signature` stejným vzorem jako
+      `ContentSync\HmacAuth`, tajný klíč per formulář generovaný a uložený
+      jen v `settings_json`) a `redirect` (URL vrácená v REST odpovědi,
+      klientský runtime přesměruje místo zobrazení úspěchu), captcha
+      doopravdy vynucena přes `CaptchaVerifier::verify_token()` navíc
+      podmíněná i vypínačem `captcha_enabled` v Security Optimization (dřív
+      to bralo v potaz jen nakonfigurovaný klíč), rate-limit
+      `BotThrottle\Guard::exceeded()` na `/forms/submit` (bylo už od F1),
+      Gutenberg blok `uxstudio/form` (`GutenbergBlock.php`, render_callback
+      = shortcode render, editor bez vlastního build kroku, náhled přes
+      jádrový `ServerSideRender`/`/wp/v2/block-renderer`, výběr formuláře
+      přes novou `edit_posts`-gated routu `/forms/options`), druhá
+      e-mailová šablona pro autoresponder — beze změny datového modelu,
+      jde jen o druhou `email` akci v řetězu (to bylo možné už od F1).
+- [x] **F3 — Distribuce a polish** *(hotovo lokálně 2026-09-22)*: nativní
+      Elementor widget (`ElementorWidget.php`, hook `elementor/widgets/register`,
+      select formuláře + stylové kontroly label/input/tlačítko vč. stavů
+      hover/focus/error, render deleguje na `Module::render_shortcode()` -
+      žádná druhá implementace renderu, 20.7); AI generování formuláře
+      (`ContentGenerator::generate_form_fields()` ve sdíleném AI jádru,
+      `Module::generate_ai_fields()` sanitizuje výstup přes `Fields::sanitize_fields()`
+      se seedem existujících klíčů, tlačítko „Generate with AI" v `FieldsTab`);
+      log akcí v archivu s „Odeslat znovu" - ověřeno, že už bylo funkční od F2
+      (`Actions::resend()` → `Actions::run()` skutečně přeposílá a zapisuje
+      do `form_action_log`, beze změny); revize definice formuláře
+      (`Revisions.php`, nová tabulka `uxstudio_form_revisions` v2 schématu,
+      snapshot při každém uložení title/fields/settings, obnova snapshotuje
+      aktuální stav jako novou revizi první - nikdy nevratná akce, tab
+      „Revisions" v builderu); vlastní editor HTML e-mailové šablony
+      (`template: 'custom'`, `EmailTemplateRenderer::sanitize_custom_html()` -
+      allowlist rozšiřuje `wp_kses_post()` o `style` atribut a
+      html/head/body/meta/title shell, ale bez `<script>`/`<iframe>`, textarea
+      v `ActionsTab` nahrazuje vestavěný wrapper místo doplnění).
+- [x] **F4 — volitelné rozšíření** *(hotovo lokálně 2026-09-23)*: pole
+      `signature` (canvas podpis myší/prstem v `PublicRenderer` runtime JS,
+      uloženo jako PNG stejnou soukromou cestou jako `file` —
+      `FileStorage::store_binary()` znovu ověřuje bajty přes `getimagesize()`,
+      limit 2 MB, `Fields::FILE_LIKE_TYPES` sjednocuje `file`/`signature` napříč
+      CSV exportem, e-mailovou šablonou a archivem); akce `create_post`
+      (`Actions::run_create_post()` — vytvoří WP příspěvek zvoleného CPT/stavu
+      z `title_template`/`content_template` s merge tagy, každá hodnota navíc
+      jako `_uxsf_{key}` postmeta, autor: nastavený/tvůrce formuláře/první
+      administrátor; editor akce v `ActionsTab` s výběrem post typu přes novou
+      routu `/forms/post-types`); `retention_days` (nastavení formuláře v
+      `SettingsTab`, výchozí `null` = archiv trvalý dle 20.6, `Retention`
+      třída registruje denní WP-Cron `uxstudio_forms_retention_cron`, maže jen
+      formuláře, které to samy zapnuly, přes `Submissions::delete_older_than()`).
+      Napojení na CA jako cíl akce zůstává neimplementované (viz Otevřené
+      otázky níže) — mimo rozsah této volitelné fáze, řeší se webhookem.
+      Mimochodem opravena i nekompletní F3 AI-generace: `Module::generate_ai_fields()`
+      volal `ContentGenerator::generate_form_fields()`, která v repu chyběla
+      (byla jen rozpracovaná v pracovním stromu) — doplněna a commitnuta spolu
+      s F4.
+
+### Otevřené otázky
+
+- [ ] Má `forms` směřovat i k `service-requests`/CA jako volitelný cíl akce
+      (vedle e-mailu a webhooku), nebo je webhook jako univerzální únik
+      dostačující a specifickou CA integraci řešit až na vyžádání?
+- [ ] Stahovat `@dnd-kit` jako novou závislost pluginu, nebo je (vzhledem k
+      tomu, že Destima ho už používá se stejným stackem) prostě zkopírovat
+      ověřenou verzi z `destima-obec/package.json`?
+
+## 21. Audit bezpečnost / funkčnost / výkon (2026-09-30)
+
+Statický audit celého pluginu (73 modulů, ~110k ř. PHP) + měření na lokálu. Lint PHP 8.4
+čistý, `tsc` 5 typových nepřesností (bez runtime dopadu), `npm audit` 2× moderate jen
+v build nástrojích (do zipu nejdou). Pořadí = priorita.
+
+### 21.1 Bezpečnost — VYSOKÁ
+- [x] Login lockout neblokuje správné heslo: `AttemptsHandler::check_attempted_login` na
+      `authenticate` prio 30 (po ověření hesla) vrátí WP_User a resetuje počítadlo →
+      přesunout na prio 5, blokovat nezávisle na výsledku. + sjednotit `current_time('mysql')`
+      vs `NOW()` (TZ posun expirace).
+- [x] CaptchaGate obejde `wp-login.php?action=x` (jádro neznámou akci mění na login, gate
+      čte surové `$_REQUEST['action']`) i `action=retrievepassword` → gate na
+      `authenticate` když je `log` vyplněné + `lostpassword_post`; cookie vázat na hash UA.
+- [x] Inline CAPTCHA (`CaptchaHandler.php:131`) se ověřuje jen u správného hesla → oracle
+      na správné heslo; ověřovat před prio 20.
+- [x] Klientská IP (`IpBanStore.php:420`, `AttemptsHandler.php:235`): XFF bere první
+      (podvržitelnou) položku, `X-Forwarded-For: 127.0.0.1` = loopback allowlist → bypass
+      všech banů; CF hlavička bez ověření REMOTE_ADDR v CF rozsazích → použít vzor
+      `Analytics/ClientIp.php` všude (i BotThrottle, AiPanel IP lock).
+- [x] AiPanel `rescue.php` přežije vypnutí modulu/pluginu a sám nekontroluje expiraci →
+      `expires_at` v config.php + kontrola v rescue.php + úklid při disable/deactivation.
+- [x] PushNotifications: veřejný subscribe uloží libovolný `endpoint` (i 127.0.0.1 /
+      169.254.169.254), `Sender.php:136` posílá přes `wp_remote_post` → stored SSRF;
+      https + allowlist push služeb + `wp_safe_remote_post`.
+- [x] MediaReplace IDOR (`RestController.php:54-81`): `new_attachment_id` bez `delete_post`
+      kontroly → autor smaže/ukradne cizí médium.
+- [x] Posty chráněné heslem unikají přes `?format=markdown` (AiMarkdown `is_eligible`) a
+      AI chat index (`ContentIndexer`) → vynechat `post_password !== ''`, přeindexovat.
+
+### 21.2 Bezpečnost — STŘEDNÍ / NÍZKÁ
+- [x] FileManager `/spravce-souboru/` = druhý login formulář bez CAPTCHA/lockoutu, přihlásí
+      kohokoli → redirect na `wp_login_url()`; `?logout` GET bez nonce.
+- [x] SvgUpload sanitizer nečistí atributy kořenového `<svg>` (`Sanitizer.php:115`) a
+      prefilter `on\w+=` obejde mezera před `=` → XSS z role s SVG uploadem.
+- [x] AI chat: mail bombing (nová `session_id` = nový e-mail adminovi, contact limit
+      klíčovaný klientským session_id) → limit per IP hash + globální strop mailů/h.
+- [x] AI chat: `message` bez limitu délky, výchozí token/request limity 0 → denial of wallet.
+- [x] CSV formula injection: ExitPopup export (`page_url` z veřejného endpointu),
+      ExportUsers/ExportPosts → escape jako `Forms/Csv.php`.
+- [x] CodeSnippets safe-mode cookie `uxstudio_safe_mode=1` vypne snippety i anonymům →
+      respektovat jen u admina.
+- [x] DownloadFiles `require_login` soubor nechrání (příloha je veřejně v uploads) →
+      přesunout mimo uploads nebo přejmenovat volbu na „skrýt odkaz“.
+- [x] MCP SeoTools bez `edit_post` na `post_id`; MCP JWT platí pro celé REST API i s
+      vypnutým MCP (`McpBootstrap.php:35`) → omezit na MCP routy.
+- [x] CodeSnippets/FileManager/AiPanel/RollbackManager ignorují `DISALLOW_FILE_MODS/EDIT`.
+- [x] ThirdPartyLogin: nonce nevázaná na prohlížeč (login CSRF), anonymní tvorba transientů
+      bez limitu.
+- [x] Drobnosti: AiPanel session nevázaná na grant, NoticeBoard re-subscribe přepíše
+      kategorie, Forms autoresponder `{email}` relay, SSRF (admin-only) v HtmlToElementor
+      a RAG WebCrawleru, AutoImageUpload `post_id` bez kontroly, podpis release zipu.
+
+### 21.3 Funkčnost
+- [x] ReviewAggregator `fetch()` volá neexistující `/api/reviews/fetch` + CA nezná
+      `X-UxStudio-Signature` → stažení recenzí vždy selže.
+- [x] Vypnutí CronControl (modulu i pluginu) nechá mu-plugin s `DISABLE_WP_CRON` +
+      `.htaccess` deny → WP-Cron mrtvý natrvalo. Zavést `BaseModule::on_disable()` +
+      `register_deactivation_hook` (uklidit i .htaccess bloky SecurityOptimization/ImageOptimizer).
+- [x] AiAssistant `UsageLimiter` pro `user_id=0` počítá celý web → per-user limit zablokuje
+      veřejný chat všem.
+- [x] VulnerabilityScanner `report_to_central` má typ `checkbox` (renderer ho nezná) → `toggle`.
+- [x] dbDelta schémata AiAssistant (~14 tabulek) + SecurityOptimization: `PRIMARY KEY (id), KEY…`
+      na jednom řádku → „Multiple primary key defined“ při bumpu verze.
+- [x] Handoff: `deactivate_plugins(ux1)` spustí legacy Deactivator (může smazat tabulky
+      dřív, než se lazy zkopírují) → `deactivate_plugins(..., true)`.
+- [x] Migrator: chybí data-migrace recenzí (`ux1_reviews`), instagram, bot-throttle, exit-popup.
+- [x] ServiceRequests `Sync::is_due` míchá lokální čas a `time()` → backoff +2 h v létě.
+- [ ] i18n: ~1998 z 3961 výskytů řetězců chybí v cs_CZ.po (Forms, AiAssistant, SecurityOpt.).
+- [x] Forms: po úspěšném odeslání se neresetuje Turnstile/reCAPTCHA → druhé odeslání 422.
+- [x] WIP drobnosti: widget „Disk usage“ synchronně skenuje ABSPATH; SecOpt widget ukazuje
+      vypršelé bany a „in 2 hours“ u minulosti; login CSS `.wp-pwd` rozbíjí ukazatel síly
+      hesla; WooCommerce ikona + odkaz `wc-orders` jen s HPOS; AiPanel CSV export testuje
+      starý slug `ux1-claude-panel`.
+
+### 21.4 Výkon (lokál: ~100 ms a 44 SQL dotazů z UX Studia na request)
+- [x] Analytics beacon = druhý plný boot WP na každé zobrazení (~1,3 s CPU) → odlehčený
+      endpoint (SHORTINIT/mu-plugin), rate-limit v APCu/UPSERT.
+- [x] BotThrottle `record_metrics` na shutdown každého requestu přepisuje ~35 kB option
+      `uxstudio_bt_load_window` (bez APCu) → jen s APCu / vzorkovat / agregát, jen frontend.
+- [x] Upload Guard full-scan: worklist 2,4 MB v jedné option přepisované po 40 souborech;
+      sken visí ve stavu `running` od 16. 8. bez navazující cron události → fronta v tabulce
+      + watchdog, starou option smazat.
+- [x] `hide_wp_version` (default true) strhává `?ver` ze VŠECH assetů + `.htaccess` dává
+      `immutable` 1 rok → po updatu rok starý CSS/JS. Strhávat jen `ver == wp version`.
+- [x] 39 SELECTů na neautoloadované `uxstudio_dbv_*` + nastavení modulů → jedna
+      autoloadovaná option s verzemi.
+- [x] SecurityOptimization `maybe_update_htaccess` na každém bootu (schéma + 2× decrypt +
+      md5) → jen při uložení nastavení / admin_init.
+- [x] `AttemptsHandler::cleanup_expired_attempts` DELETE na každém `init` → denní cron.
+- [x] BotThrottle `usleep` 5-10 s drží PHP worker při přetížení → 429/503 + Retry-After.
+- [x] AI chat widget (78 kB JS + 45 kB CSS neminifikováno) na každé stránce → minifikovat,
+      lazy load po kliku.
+- [x] EmailHealth posílá testovací mail synchronně na `admin_init` → cron.
+- [x] Retence chybí: activity_log, popup_stats, smtp_logs, push_events, ai_markdown_log,
+      content_sync_log, performance_history, grr_stats, ai_assistant_usage, chat_history.
+- [x] Drobnosti: `Modules::discover()` 73× json_decode na request (cache), PUC načítán i na
+      frontendu, CodeSnippets 2× `SELECT *`, PopupManager WP_Query ve footeru, SR sync cron
+      každých 5 min i bez centrály, 6 osiřelých `ux1_*` cron událostí.
+
+### 21.5 Stav po opravách (2026-09-30, větev `fix/audit-2026-09-30`)
+Opraveno v 5 commitech (Core / Security Optimization / rizikové moduly / AI Assistant /
+ostatní moduly), lint čistý, build OK, web 200. Nové sdílené třídy: `Core\ClientIp`,
+`Core\Csv`, `Core\Retention`, `BaseModule::on_disable()` + deactivation hook.
+Zbývá / k rozhodnutí:
+- [x] Lockout jen podle IP (rozhodnuto 30. 9.): dřív blokoval i správné heslo podle JMÉNA,
+      takže šlo zamknout admina. Přihlášení už neruší zámky jiných IP. Ověřeno skriptem.
+- [ ] Podpis release: vygenerovat Ed25519 klíč, secret `UXSTUDIO_SIGNING_KEY` na GitHub,
+      veřejný klíč do `GithubUpdater::RELEASE_PUBLIC_KEY` (bez klíče se neověřuje nic).
+- [ ] ReviewAggregator ověřit živě proti CA (lokální CA má web jako `http://localhost/pobyty`,
+      WP je `https://127.0.0.1/pobyty/` → podpis nesedí jen kvůli URL). ID profilu musí být číselné.
+- [ ] Uklidit legacy `.htaccess` bloky „UX1 Image Optimizer WebP“ (uploads) a prázdný
+      „UX1 Cron Control“ (kořen) - jen na webech, kde už běží ux-studio ImageOptimizer.
+- [ ] Retence konverzací veřejného AI chatu (obsahují IP) - polling handoffu počítá s pořadím.
+- [ ] Blog Pilot crony se po vypnutí AiAssistant neruší; ContentSync volá `new IpBanStore()`
+      bez proxy režimu.
+- [ ] Vizuálně ověřit reset hesla na wp-login (WIP Login.php, selektor `.wp-pwd`) a admin SPA
+      proklik (Playwright MCP se v session nepřipojil).
+- [ ] File Manager `?auth=` přestane fungovat, když je zapnutá CAPTCHA na loginu (důsledek
+      toho, že teď jde přes `wp_authenticate`).
+

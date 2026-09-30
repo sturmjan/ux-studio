@@ -8,6 +8,7 @@
 
 namespace UxStudio\Modules\AiAssistant;
 
+use UxStudio\Core\ClientIp;
 use UxStudio\Core\Settings;
 use UxStudio\Modules\AiAssistant\Providers\AiProviderInterface;
 
@@ -66,7 +67,19 @@ final class ChatEngine {
 			'role'    => 'user',
 			'content' => $message,
 		);
-		$chat_messages = array_slice( $messages, -self::MAX_HISTORY_MESSAGES );
+		// Only role + (length-capped) text go to the provider - stored rows may
+		// predate the message length cap or carry handoff metadata.
+		$chat_messages = array();
+		foreach ( array_slice( $messages, -self::MAX_HISTORY_MESSAGES ) as $history_message ) {
+			$role = (string) ( $history_message['role'] ?? '' );
+			if ( ! in_array( $role, array( 'user', 'assistant' ), true ) ) {
+				continue;
+			}
+			$chat_messages[] = array(
+				'role'    => $role,
+				'content' => mb_substr( (string) ( $history_message['content'] ?? '' ), 0, 4000 ),
+			);
+		}
 
 		$providers  = $this->get_provider_order();
 		$has_any_key = false;
@@ -451,19 +464,11 @@ final class ChatEngine {
 		return $models ? (string) array_key_first( $models ) : '';
 	}
 
+	/**
+	 * Client IP via Core\ClientIp - forwarding headers are trusted only from
+	 * Cloudflare/configured proxies (they are spoofable otherwise).
+	 */
 	private function get_visitor_ip(): string {
-		$headers = array( 'HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR' );
-		foreach ( $headers as $header ) {
-			if ( ! empty( $_SERVER[ $header ] ) ) {
-				$ip = sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) );
-				if ( str_contains( $ip, ',' ) ) {
-					$ip = trim( explode( ',', $ip )[0] );
-				}
-				if ( filter_var( $ip, FILTER_VALIDATE_IP ) ) {
-					return $ip;
-				}
-			}
-		}
-		return '';
+		return ClientIp::get( 'auto' );
 	}
 }

@@ -24,6 +24,9 @@ final class SnippetManager {
 
 	private string $snippetsDir;
 
+	/** @var Snippet[]|null Per-request memo of enabled snippets (runtime path). */
+	private static ?array $enabledCache = null;
+
 	public function __construct() {
 		$this->snippetsDir = WP_CONTENT_DIR . '/uxstudio-snippets';
 		$this->initializeDirectory();
@@ -261,6 +264,54 @@ final class SnippetManager {
 	}
 
 	/**
+	 * Enabled snippets only - the runtime path. One query per request (the
+	 * executor needs the list twice: PHP includes early, non-PHP output
+	 * queued on hooks), memoized in a static.
+	 *
+	 * @return Snippet[]
+	 */
+	public function getEnabledSnippets(): array {
+		if ( null !== self::$enabledCache ) {
+			return self::$enabledCache;
+		}
+		global $wpdb;
+		$table = $this->table();
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name only, no user input.
+		$rows = $wpdb->get_results( "SELECT * FROM {$table} WHERE enabled = 1 ORDER BY id ASC", ARRAY_A );
+
+		$snippets = array();
+		foreach ( (array) $rows as $row ) {
+			$snippet = $this->loadSnippetFromRow( $row );
+			if ( $snippet ) {
+				$snippets[] = $snippet;
+			}
+		}
+
+		self::$enabledCache = $snippets;
+		return $snippets;
+	}
+
+	/**
+	 * Why the current user may not create/edit/enable/delete snippets right
+	 * now (empty = allowed). Writing snippets = writing executable PHP, so
+	 * DISALLOW_FILE_EDIT / DISALLOW_FILE_MODS apply, and edit_plugins is
+	 * required on top of manage_options (super admins only on multisite).
+	 * Snippets that are already enabled keep running either way.
+	 */
+	public static function editBlockReason(): string {
+		if ( defined( 'DISALLOW_FILE_MODS' ) && DISALLOW_FILE_MODS ) {
+			return __( 'DISALLOW_FILE_MODS is set in wp-config.php, so code snippets cannot be created, edited, enabled or deleted. Enabled snippets keep running.', 'ux-studio' );
+		}
+		if ( defined( 'DISALLOW_FILE_EDIT' ) && DISALLOW_FILE_EDIT ) {
+			return __( 'DISALLOW_FILE_EDIT is set in wp-config.php, so code snippets cannot be created, edited, enabled or deleted. Enabled snippets keep running.', 'ux-studio' );
+		}
+		if ( ! current_user_can( 'manage_options' ) || ! current_user_can( 'edit_plugins' ) ) {
+			return __( 'Only administrators allowed to edit plugin files (super admins on multisite) can change code snippets.', 'ux-studio' );
+		}
+		return '';
+	}
+
+	/**
 	 * A single snippet by id.
 	 */
 	public function getSnippet( string $id ): ?Snippet {
@@ -327,6 +378,15 @@ final class SnippetManager {
 				'data'    => null,
 			);
 		}
+		$blocked = self::editBlockReason();
+		if ( '' !== $blocked ) {
+			return array(
+				'success' => false,
+				'message' => $blocked,
+				'data'    => null,
+			);
+		}
+		self::$enabledCache = null;
 
 		if ( ! is_writable( $this->snippetsDir ) ) {
 			return array(
@@ -441,6 +501,15 @@ final class SnippetManager {
 				'data'    => null,
 			);
 		}
+		$blocked = self::editBlockReason();
+		if ( '' !== $blocked ) {
+			return array(
+				'success' => false,
+				'message' => $blocked,
+				'data'    => null,
+			);
+		}
+		self::$enabledCache = null;
 
 		global $wpdb;
 		$table = $this->table();
@@ -531,9 +600,12 @@ final class SnippetManager {
 	 * stays consistent with its content) and the metadata row.
 	 */
 	public function setSnippetEnabled( string $id, bool $enabled ): bool {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		// Switching a snippet OFF stays possible for any admin (a safety
+		// action); switching it ON means running code, so it is gated.
+		if ( ! current_user_can( 'manage_options' ) || ( $enabled && '' !== self::editBlockReason() ) ) {
 			return false;
 		}
+		self::$enabledCache = null;
 
 		$snippet = $this->getSnippet( $id );
 		if ( ! $snippet ) {
@@ -585,6 +657,14 @@ final class SnippetManager {
 				'message' => __( 'You do not have sufficient permissions to delete snippets.', 'ux-studio' ),
 			);
 		}
+		$blocked = self::editBlockReason();
+		if ( '' !== $blocked ) {
+			return array(
+				'success' => false,
+				'message' => $blocked,
+			);
+		}
+		self::$enabledCache = null;
 
 		$snippet = $this->getSnippet( $id );
 		if ( ! $snippet ) {

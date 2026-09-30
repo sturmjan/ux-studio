@@ -103,6 +103,13 @@ final class Module extends BaseModule {
 	}
 
 	/**
+	 * Stop the 5-minute sync cron when the module is switched off.
+	 */
+	public function on_disable(): void {
+		Sync::unschedule();
+	}
+
+	/**
 	 * Register the module REST controller.
 	 */
 	public function register_rest_routes(): void {

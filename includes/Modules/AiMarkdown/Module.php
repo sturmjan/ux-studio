@@ -8,6 +8,7 @@
 namespace UxStudio\Modules\AiMarkdown;
 
 use UxStudio\Core\DB;
+use UxStudio\Core\Retention;
 use UxStudio\Modules\BaseModule;
 
 defined( 'ABSPATH' ) || exit;
@@ -18,6 +19,9 @@ defined( 'ABSPATH' ) || exit;
  * cache table keyed by content hash and an access log.
  */
 final class Module extends BaseModule {
+
+	/** Daily purge of the access log (see Core\Retention). */
+	private const RETENTION_HOOK = 'uxstudio_ai_markdown_retention';
 
 	/**
 	 * Register hooks.
@@ -57,6 +61,23 @@ final class Module extends BaseModule {
 		add_action( 'template_redirect', array( $this, 'maybe_serve_markdown' ) );
 		add_action( 'parse_request', array( $this, 'maybe_serve_llms_txt' ) );
 		add_action( 'save_post', array( $this, 'maybe_invalidate_cache' ), 10, 2 );
+
+		add_action( self::RETENTION_HOOK, array( $this, 'purge_log' ) );
+		Retention::ensure_scheduled( self::RETENTION_HOOK );
+	}
+
+	/**
+	 * Unschedule the log purge when the module is switched off.
+	 */
+	public function on_disable(): void {
+		Retention::unschedule( self::RETENTION_HOOK );
+	}
+
+	/**
+	 * Cron callback: drop access-log rows older than the retention setting.
+	 */
+	public function purge_log(): void {
+		Retention::purge( 'uxstudio_ai_markdown_log', max( 0, (int) $this->settings->get( 'log_retention_days', Retention::DEFAULT_DAYS ) ), 'created_at', true );
 	}
 
 	/**
@@ -93,6 +114,13 @@ final class Module extends BaseModule {
 				'options' => $this->post_type_options(),
 				'default' => array( 'attachment' ),
 			),
+			array(
+				'key'     => 'log_retention_days',
+				'type'    => 'number',
+				'label'   => __( 'Keep access log (days)', 'ux-studio' ),
+				'help'    => __( 'Older bot-access log entries are deleted daily. 0 = keep forever.', 'ux-studio' ),
+				'default' => Retention::DEFAULT_DAYS,
+			),
 		);
 	}
 
@@ -110,11 +138,13 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Whether a post type is eligible for markdown generation.
+	 * Whether a post is eligible for markdown generation: published, not
+	 * password-protected (the markdown would bypass the password form) and
+	 * not an excluded post type.
 	 */
 	private function is_eligible( int $post_id ): bool {
 		$post = get_post( $post_id );
-		if ( ! $post || 'publish' !== $post->post_status ) {
+		if ( ! $post || 'publish' !== $post->post_status || '' !== (string) $post->post_password ) {
 			return false;
 		}
 		$excluded = (array) $this->settings->get( 'excluded_post_types', array( 'attachment' ) );
@@ -199,10 +229,13 @@ final class Module extends BaseModule {
 			array(
 				'post_type'      => array_values( $post_types ),
 				'post_status'    => 'publish',
+				'has_password'   => false,
 				'posts_per_page' => -1,
 				'fields'         => 'ids',
 			)
 		);
+
+		$this->purge_ineligible_cache();
 
 		foreach ( $ids as $id ) {
 			$this->regenerate( (int) $id );
@@ -264,7 +297,31 @@ final class Module extends BaseModule {
 		}
 		if ( $this->is_eligible( $post_id ) ) {
 			$this->regenerate( $post_id );
+		} else {
+			// E.g. the post just got a password or was unpublished - never keep a stale copy.
+			$this->delete_cache( $post_id );
 		}
+	}
+
+	/**
+	 * Remove one post's cached markdown.
+	 */
+	private function delete_cache( int $post_id ): void {
+		global $wpdb;
+		$wpdb->delete( "{$wpdb->prefix}uxstudio_ai_markdown_cache", array( 'post_id' => $post_id ), array( '%d' ) );
+	}
+
+	/**
+	 * Remove cached markdown of posts that are gone, unpublished or
+	 * password-protected (cached before protected posts were excluded).
+	 */
+	private function purge_ineligible_cache(): void {
+		global $wpdb;
+		$wpdb->query(
+			"DELETE c FROM {$wpdb->prefix}uxstudio_ai_markdown_cache c
+			 LEFT JOIN {$wpdb->posts} p ON p.ID = c.post_id
+			 WHERE p.ID IS NULL OR p.post_status <> 'publish' OR p.post_password <> ''"
+		);
 	}
 
 	/**
@@ -305,6 +362,7 @@ final class Module extends BaseModule {
 			array(
 				'post_type'      => array_values( $post_types ),
 				'post_status'    => 'publish',
+				'has_password'   => false,
 				'posts_per_page' => 200,
 				'fields'         => 'ids',
 			)

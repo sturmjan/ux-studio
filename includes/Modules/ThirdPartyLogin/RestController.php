@@ -231,6 +231,10 @@ final class RestController extends Controller {
 		if ( null === $nonce_data ) {
 			return $this->fail( 'expired' );
 		}
+		// Bound to the browser that started the flow (login CSRF guard).
+		if ( ! $this->module->verify_browser( (string) $params['nonce'], $nonce_data ) ) {
+			return $this->fail( 'session' );
+		}
 		if ( $nonce_data['mode'] !== $mode ) {
 			return $this->fail( 'invalid' );
 		}

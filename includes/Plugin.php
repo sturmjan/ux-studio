@@ -54,7 +54,11 @@ final class Plugin {
 			( new Megamenu( $this->modules ) )->register();
 		}
 
-		GithubUpdater::register();
+		// Plugin Update Checker loads ~20 files - only where updates are
+		// checked/installed (admin, WP-Cron auto-updates, WP-CLI, plugins REST).
+		if ( GithubUpdater::is_update_context() ) {
+			GithubUpdater::register();
+		}
 
 		/**
 		 * Fires after UX Studio has booted. Add-on plugins hook here.

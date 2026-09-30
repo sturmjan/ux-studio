@@ -27,6 +27,10 @@ defined( 'ABSPATH' ) || exit;
  *   UXSTUDIO_FM_EMBEDDED marker is defined by loadTinyFileManager() below,
  *   which only happens after is_user_logged_in() + the allowed_users
  *   whitelist have both been checked.
+ * - Logged-out visitors are sent to the site's regular login page (no own
+ *   login form - CAPTCHA/lockout/custom login URL stay in force).
+ * - DISALLOW_FILE_EDIT / DISALLOW_FILE_MODS switch the route off; on
+ *   multisite only super admins (edit_plugins) get in.
  * - legacy/.htaccess denies direct HTTP access to the legacy/ folder.
  */
 final class Module extends BaseModule {
@@ -55,6 +59,37 @@ final class Module extends BaseModule {
 	 */
 	public function settings_schema(): array {
 		return array();
+	}
+
+	/**
+	 * Managing this module requires an admin who may edit plugin code:
+	 * edit_plugins is denied by core under DISALLOW_FILE_EDIT/MODS and is
+	 * limited to super admins on multisite.
+	 */
+	public function capability(): string {
+		return 'edit_plugins';
+	}
+
+	/**
+	 * Non-empty (a human-readable reason) when wp-config.php disallows file
+	 * edits/mods - a browser file manager must not become a way around them.
+	 */
+	public static function file_mods_block_reason(): string {
+		if ( defined( 'DISALLOW_FILE_MODS' ) && DISALLOW_FILE_MODS ) {
+			return __( 'DISALLOW_FILE_MODS is set in wp-config.php, so the File Manager is disabled.', 'ux-studio' );
+		}
+		if ( defined( 'DISALLOW_FILE_EDIT' ) && DISALLOW_FILE_EDIT ) {
+			return __( 'DISALLOW_FILE_EDIT is set in wp-config.php, so the File Manager is disabled.', 'ux-studio' );
+		}
+		return '';
+	}
+
+	/**
+	 * Administrator (manage_options) who may also edit plugin files
+	 * (edit_plugins: super admins only on multisite).
+	 */
+	private static function user_has_caps(): bool {
+		return current_user_can( 'manage_options' ) && current_user_can( 'edit_plugins' );
 	}
 
 	// ═══════════════════════════════════════════════════
@@ -91,7 +126,13 @@ final class Module extends BaseModule {
 		settings_errors( 'uxstudio_fm_notices' );
 
 		$popup_url  = home_url( '/' . self::ROUTE_SLUG . '/' );
-		$is_allowed = $this->is_user_allowed( get_current_user_id() );
+		$blocked    = self::file_mods_block_reason();
+		$is_allowed = '' === $blocked && self::user_has_caps() && $this->is_user_allowed( get_current_user_id() );
+		if ( '' !== $blocked ) {
+			printf( '<div class="notice notice-warning"><p>%s</p></div>', esc_html( $blocked ) );
+		} elseif ( ! self::user_has_caps() ) {
+			printf( '<div class="notice notice-warning"><p>%s</p></div>', esc_html__( 'Only administrators allowed to edit plugin files (super admins on multisite) can use the File Manager.', 'ux-studio' ) );
+		}
 		?>
 		<style>
 			.uxs-fm-path-warning { color: #d63638; font-size: 13px; margin-top: 4px; }
@@ -257,6 +298,9 @@ final class Module extends BaseModule {
 			return;
 		}
 		check_admin_referer( 'uxstudio_fm_settings_nonce' );
+		if ( ! self::user_has_caps() || '' !== self::file_mods_block_reason() ) {
+			return;
+		}
 
 		$allowed_users = isset( $_POST['uxstudio_fm_allowed_users'] ) && is_array( $_POST['uxstudio_fm_allowed_users'] )
 			? implode( ',', array_map( 'absint', wp_unslash( $_POST['uxstudio_fm_allowed_users'] ) ) )
@@ -306,53 +350,51 @@ final class Module extends BaseModule {
 			return;
 		}
 
-		// Logout.
+		$route_url = home_url( '/' . self::ROUTE_SLUG . '/' );
+
+		// Logout: GET must carry a log-out nonce (wp_logout_url() style), so a
+		// third-party page can't log the user out by embedding this URL.
 		if ( isset( $_GET['logout'] ) ) {
+			$nonce = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) : '';
+			if ( ! wp_verify_nonce( $nonce, 'log-out' ) ) {
+				wp_nonce_ays( 'log-out' );
+			}
 			wp_logout();
-			wp_safe_redirect( home_url( '/' . self::ROUTE_SLUG . '/' ) );
+			wp_safe_redirect( $route_url );
 			exit;
+		}
+
+		// File editing disallowed site-wide (or not a super admin on multisite):
+		// this route exposes the filesystem, so it refuses before any login.
+		$blocked = self::file_mods_block_reason();
+		if ( '' !== $blocked ) {
+			wp_die( esc_html( $blocked ), esc_html__( 'Access denied', 'ux-studio' ), array( 'response' => 403 ) );
 		}
 
 		// Auto-login from ?auth=user:pass.
 		// Deliberately preserved from the legacy module even though it puts a
 		// password in the URL/server logs - explicitly confirmed by the site
 		// owner as a required convenience feature. Do not "fix" this without
-		// checking with them first.
+		// checking with them first. It runs through the regular authenticate
+		// filter chain (lockout / CAPTCHA / blocked usernames) and only ever
+		// logs in a whitelisted user - anyone else gets no session at all.
 		$auth = isset( $_GET['auth'] ) ? sanitize_text_field( wp_unslash( $_GET['auth'] ) ) : '';
 		if ( $auth && ! is_user_logged_in() ) {
 			$parts = explode( ':', $auth, 2 );
 			if ( 2 === count( $parts ) ) {
-				$result = wp_signon(
-					array(
-						'user_login'    => $parts[0],
-						'user_password' => $parts[1],
-						'remember'      => true,
-					),
-					is_ssl()
-				);
-
-				if ( is_wp_error( $result ) ) {
-					wp_die(
-						esc_html__( 'Login failed:', 'ux-studio' ) . ' ' . esc_html( $result->get_error_message() ),
-						esc_html__( 'Error', 'ux-studio' ),
-						array( 'response' => 403 )
-					);
-				}
-
-				wp_set_current_user( $result->ID );
-				wp_safe_redirect( home_url( '/' . self::ROUTE_SLUG . '/' ) );
-				exit;
+				$this->auth_from_query( $parts[0], $parts[1], $route_url );
 			}
 		}
 
-		// Must be logged in.
+		// Must be logged in - through the site's regular login page (CAPTCHA,
+		// lockout and a custom login URL all apply there).
 		if ( ! is_user_logged_in() ) {
-			$this->render_standalone_login();
+			wp_safe_redirect( wp_login_url( $route_url ) );
 			exit;
 		}
 
-		// Whitelist check.
-		if ( ! $this->is_user_allowed( get_current_user_id() ) ) {
+		// Whitelist check (+ administrator who may edit plugin files).
+		if ( ! $this->is_user_allowed( get_current_user_id() ) || ! self::user_has_caps() ) {
 			wp_die(
 				esc_html__( 'You do not have access to the File Manager. Ask an administrator to add you to the allowed users list.', 'ux-studio' ),
 				esc_html__( 'Access denied', 'ux-studio' ),
@@ -367,6 +409,47 @@ final class Module extends BaseModule {
 	}
 
 	/**
+	 * ?auth=user:pass login: wp_authenticate() (the full `authenticate` filter
+	 * chain, `wp_login_failed` on failure), then the whitelist BEFORE any auth
+	 * cookie is set.
+	 *
+	 * @param string $login     Username or e-mail.
+	 * @param string $password  Password.
+	 * @param string $route_url Where to go after login.
+	 */
+	private function auth_from_query( string $login, string $password, string $route_url ): void {
+		/** Same pre-auth action wp_signon() fires (some CAPTCHA/lockout plugins hook it). */
+		do_action_ref_array( 'wp_authenticate', array( &$login, &$password ) );
+
+		$user = wp_authenticate( $login, $password );
+		if ( is_wp_error( $user ) ) {
+			// Generic message: the core one tells apart unknown user / wrong password.
+			wp_die(
+				esc_html__( 'Login failed:', 'ux-studio' ) . ' ' . esc_html__( 'Invalid credentials.', 'ux-studio' ),
+				esc_html__( 'Error', 'ux-studio' ),
+				array( 'response' => 403 )
+			);
+		}
+
+		if ( ! $this->is_user_allowed( (int) $user->ID ) || ! user_can( $user, 'manage_options' ) || ! user_can( $user, 'edit_plugins' ) ) {
+			ActivityLog::log( 'file-manager', 'auth_denied', 'user', (int) $user->ID );
+			wp_die(
+				esc_html__( 'You do not have access to the File Manager. Ask an administrator to add you to the allowed users list.', 'ux-studio' ),
+				esc_html__( 'Access denied', 'ux-studio' ),
+				array( 'response' => 403 )
+			);
+		}
+
+		wp_set_auth_cookie( $user->ID, true, is_ssl() );
+		wp_set_current_user( $user->ID );
+		/** Core login action (resets lockout counters, login logs...). */
+		do_action( 'wp_login', $user->user_login, $user );
+
+		wp_safe_redirect( $route_url );
+		exit;
+	}
+
+	/**
 	 * @param int $user_id WP user id.
 	 */
 	private function is_user_allowed( int $user_id ): bool {
@@ -376,70 +459,6 @@ final class Module extends BaseModule {
 		}
 		$allowed = array_map( 'intval', explode( ',', $raw ) );
 		return in_array( $user_id, $allowed, true );
-	}
-
-	/**
-	 * Standalone login form, shown when a non-logged-in visitor hits the
-	 * /spravce-souboru/ route directly (not through wp-admin).
-	 */
-	private function render_standalone_login(): void {
-		$error = '';
-		if ( 'POST' === $_SERVER['REQUEST_METHOD'] && ! empty( $_POST['uxstudio_fm_user'] ) && ! empty( $_POST['uxstudio_fm_pass'] ) ) {
-			check_admin_referer( 'uxstudio_fm_standalone_login' );
-			$result = wp_signon(
-				array(
-					'user_login'    => sanitize_text_field( wp_unslash( $_POST['uxstudio_fm_user'] ) ),
-					'user_password' => wp_unslash( $_POST['uxstudio_fm_pass'] ),
-					'remember'      => true,
-				),
-				is_ssl()
-			);
-
-			if ( ! is_wp_error( $result ) ) {
-				wp_set_current_user( $result->ID );
-				wp_safe_redirect( home_url( '/' . self::ROUTE_SLUG . '/' ) );
-				exit;
-			}
-			$error = __( 'Invalid credentials.', 'ux-studio' );
-		}
-		?>
-		<!DOCTYPE html>
-		<html lang="en">
-		<head>
-			<meta charset="UTF-8">
-			<meta name="viewport" content="width=device-width, initial-scale=1.0">
-			<title><?php esc_html_e( 'File Manager — Login', 'ux-studio' ); ?></title>
-			<style>
-				* { box-sizing: border-box; margin: 0; padding: 0; }
-				body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f0f2f5; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-				.login-box { background: #fff; border-radius: 12px; padding: 40px; width: 360px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
-				.login-box h1 { font-size: 22px; margin-bottom: 24px; text-align: center; color: #1f2937; display: flex; align-items: center; justify-content: center; gap: 8px; }
-				.login-box h1 svg { width: 28px; height: 28px; color: #6b7280; }
-				.login-box label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #374151; }
-				.login-box input[type="text"], .login-box input[type="password"] { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; margin-bottom: 16px; outline: none; transition: border-color 0.2s; }
-				.login-box input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
-				.login-box button { width: 100%; padding: 10px; background: #3b82f6; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
-				.login-box button:hover { background: #2563eb; }
-				.login-error { background: #fef2f2; color: #dc2626; padding: 10px; border-radius: 8px; margin-bottom: 16px; font-size: 13px; text-align: center; }
-			</style>
-		</head>
-		<body>
-			<form class="login-box" method="post">
-				<h1>
-					<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
-					<?php esc_html_e( 'File Manager', 'ux-studio' ); ?>
-				</h1>
-				<?php if ( $error ) : ?><div class="login-error"><?php echo esc_html( $error ); ?></div><?php endif; ?>
-				<?php wp_nonce_field( 'uxstudio_fm_standalone_login' ); ?>
-				<label for="uxstudio_fm_user"><?php esc_html_e( 'Username', 'ux-studio' ); ?></label>
-				<input type="text" name="uxstudio_fm_user" id="uxstudio_fm_user" autocomplete="username" autofocus>
-				<label for="uxstudio_fm_pass"><?php esc_html_e( 'Password', 'ux-studio' ); ?></label>
-				<input type="password" name="uxstudio_fm_pass" id="uxstudio_fm_pass" autocomplete="current-password">
-				<button type="submit"><?php esc_html_e( 'Log in', 'ux-studio' ); ?></button>
-			</form>
-		</body>
-		</html>
-		<?php
 	}
 
 	/**

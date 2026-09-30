@@ -33,6 +33,14 @@ final class InternalChatEngine {
 	 */
 	private const MAX_HISTORY_MESSAGES = 20;
 
+	/**
+	 * The message list comes from the client, so it is bounded before it is
+	 * sent to the provider or stored: at most this many messages, each cut to
+	 * MAX_MESSAGE_CHARS characters.
+	 */
+	private const MAX_STORED_MESSAGES = 200;
+	private const MAX_MESSAGE_CHARS   = 20000;
+
 	private static ?Settings $settings = null;
 
 	private static function settings(): Settings {
@@ -296,11 +304,11 @@ final class InternalChatEngine {
 			if ( in_array( $role, array( 'user', 'assistant' ), true ) && is_string( $content ) && '' !== $content ) {
 				$clean[] = array(
 					'role'    => $role,
-					'content' => $content,
+					'content' => mb_substr( $content, 0, self::MAX_MESSAGE_CHARS ),
 				);
 			}
 		}
-		return $clean;
+		return array_slice( $clean, -self::MAX_STORED_MESSAGES );
 	}
 
 	private function get_model( string $provider_id ): string {

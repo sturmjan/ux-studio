@@ -138,6 +138,32 @@ final class HtaccessWriter {
 	}
 
 	/**
+	 * Remove our marker block (module switched off / plugin deactivated) and
+	 * forget the hash, so re-enabling writes the rules again. No-op when the
+	 * file is missing or unwritable.
+	 */
+	public function remove(): void {
+		if ( ! function_exists( 'insert_with_markers' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/misc.php';
+		}
+		if ( ! function_exists( 'get_home_path' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
+		delete_option( self::HASH_OPTION );
+
+		$htaccess = get_home_path() . '.htaccess';
+		if ( ! is_file( $htaccess ) || ! is_writable( $htaccess ) ) {
+			return;
+		}
+		// Only touch the file if our block is actually in it.
+		if ( array() === extract_from_markers( $htaccess, self::MARKER ) ) {
+			return;
+		}
+		insert_with_markers( $htaccess, self::MARKER, array() );
+	}
+
+	/**
 	 * Canonical URL detection based on the WordPress site address setting.
 	 *
 	 * @return array{uses_https:bool,uses_www:bool}

@@ -14,6 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      # Optional Ed25519 release signing key (base64 of the 64-byte sodium
+      # secret key). Without the secret the zip ships unsigned, as before.
+      UXSTUDIO_SIGNING_KEY: ${{ secrets.UXSTUDIO_SIGNING_KEY }}
     steps:
       - uses: actions/checkout@v4
 
@@ -60,8 +64,26 @@ jobs:
                 --exclude src --exclude dist --exclude "*.zip" ./ dist/ux-studio/
           cd dist && zip -rq ux-studio.zip ux-studio
 
+      # Detached Ed25519 signature over the zip's SHA-384 hash (base64), checked
+      # by Core\GithubUpdater before install when a public key is configured.
+      - name: Sign distribution zip
+        if: env.UXSTUDIO_SIGNING_KEY != ''
+        run: |
+          php -r '
+            $sk = base64_decode( trim( (string) getenv( "UXSTUDIO_SIGNING_KEY" ) ), true );
+            if ( false === $sk || SODIUM_CRYPTO_SIGN_SECRETKEYBYTES !== strlen( $sk ) ) { fwrite( STDERR, "Invalid UXSTUDIO_SIGNING_KEY" . PHP_EOL ); exit( 1 ); }
+            $sig = sodium_crypto_sign_detached( hash_file( "sha384", "dist/ux-studio.zip", true ), $sk );
+            if ( ! sodium_crypto_sign_verify_detached( $sig, hash_file( "sha384", "dist/ux-studio.zip", true ), sodium_crypto_sign_publickey_from_secretkey( $sk ) ) ) { exit( 1 ); }
+            file_put_contents( "dist/ux-studio.zip.sig", base64_encode( $sig ) );
+            echo "Signed with public key ", base64_encode( sodium_crypto_sign_publickey_from_secretkey( $sk ) ), PHP_EOL;
+          '
+
       - name: Attach to release
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/ux-studio.zip
+          # The .sig only exists when the signing secret is set (unmatched
+          # patterns are skipped, not fatal).
+          files: |
+            dist/ux-studio.zip
+            dist/ux-studio.zip.sig
           generate_release_notes: true

@@ -8,6 +8,7 @@
 namespace UxStudio\Modules\SmtpEmail;
 
 use UxStudio\Core\ActivityLog;
+use UxStudio\Core\Retention;
 use UxStudio\Core\Security;
 use UxStudio\Modules\BaseModule;
 use WP_Error;
@@ -41,6 +42,9 @@ final class Module extends BaseModule {
 
 	/** Admin page slug hosting the SPA (also the OAuth redirect target). */
 	private const ADMIN_PAGE = 'ux-studio';
+
+	/** Daily cron hook purging old smtp_logs rows. */
+	public const CRON_RETENTION = 'uxstudio_smtp_logs_retention';
 
 	/**
 	 * Register hooks.
@@ -91,6 +95,23 @@ final class Module extends BaseModule {
 
 		add_action( 'wp_mail_succeeded', array( $this, 'log_success' ) );
 		add_action( 'wp_mail_failed', array( $this, 'log_failure' ) );
+
+		add_action( self::CRON_RETENTION, array( $this, 'purge_old_logs' ) );
+		Retention::ensure_scheduled( self::CRON_RETENTION );
+	}
+
+	/**
+	 * Remove the retention cron when the module is switched off.
+	 */
+	public function on_disable(): void {
+		Retention::unschedule( self::CRON_RETENTION );
+	}
+
+	/**
+	 * Daily retention purge of the delivery log.
+	 */
+	public function purge_old_logs(): void {
+		Retention::purge( 'uxstudio_smtp_logs', (int) $this->settings->get( 'retention_days', Retention::DEFAULT_DAYS ) );
 	}
 
 	/**
@@ -207,6 +228,13 @@ final class Module extends BaseModule {
 				'label'   => __( 'Gmail OAuth client secret', 'ux-studio' ),
 				'help'    => __( 'Stored encrypted. Leave blank to keep the current secret.', 'ux-studio' ),
 				'default' => '',
+			),
+			array(
+				'key'     => 'retention_days',
+				'type'    => 'number',
+				'label'   => __( 'Delivery log retention (days)', 'ux-studio' ),
+				'help'    => __( 'Log entries older than this are deleted daily. 0 = keep forever.', 'ux-studio' ),
+				'default' => Retention::DEFAULT_DAYS,
 			),
 		);
 	}

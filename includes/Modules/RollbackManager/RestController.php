@@ -116,6 +116,11 @@ final class RestController extends Controller {
 		$slug    = sanitize_text_field( (string) $request->get_param( 'slug' ) );
 		$version = sanitize_text_field( (string) $request->get_param( 'version' ) );
 
+		$blocked = self::block_reason( $type );
+		if ( '' !== $blocked ) {
+			return new WP_Error( 'uxstudio_file_mods_disallowed', $blocked, array( 'status' => 403 ) );
+		}
+
 		$download_url = WordPressApi::resolve_download_url( $type, $slug, $version );
 		if ( null === $download_url ) {
 			ActivityLog::log( 'rollback-manager', 'rollback_failed', $type, 0, array( 'slug' => $slug, 'version' => $version, 'reason' => 'version_not_available' ) );
@@ -147,6 +152,26 @@ final class RestController extends Controller {
 				'version' => $version,
 			)
 		);
+	}
+
+	/**
+	 * Why the current user may not roll back this item type (empty = allowed).
+	 * Replacing plugin/theme code is an update + install: core maps those
+	 * caps to "no" under DISALLOW_FILE_MODS and to super admins on multisite.
+	 *
+	 * @param string $type plugin|theme.
+	 */
+	public static function block_reason( string $type ): string {
+		if ( defined( 'DISALLOW_FILE_MODS' ) && DISALLOW_FILE_MODS ) {
+			return __( 'DISALLOW_FILE_MODS is set in wp-config.php, so plugins and themes cannot be rolled back.', 'ux-studio' );
+		}
+		$caps = 'theme' === $type ? array( 'update_themes', 'install_themes' ) : array( 'update_plugins', 'install_plugins' );
+		foreach ( $caps as $cap ) {
+			if ( ! current_user_can( $cap ) ) {
+				return __( 'You are not allowed to update and install this item type.', 'ux-studio' );
+			}
+		}
+		return '';
 	}
 
 	/**

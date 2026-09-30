@@ -8,6 +8,7 @@
 namespace UxStudio\Modules\ContentSync;
 
 use UxStudio\Core\DB;
+use UxStudio\Core\Retention;
 use UxStudio\Core\Security;
 use UxStudio\Core\Settings;
 use UxStudio\Modules\BaseModule;
@@ -45,6 +46,9 @@ final class Module extends BaseModule {
 	/** Module DB schema version. */
 	private const DB_VERSION = 2;
 
+	/** Daily cron hook purging old content_sync_log rows. */
+	public const CRON_RETENTION = 'uxstudio_content_sync_log_retention';
+
 	/**
 	 * Register hooks.
 	 */
@@ -56,6 +60,23 @@ final class Module extends BaseModule {
 		if ( 'node' === (string) $this->settings->get( 'mode', 'hub' ) ) {
 			( new SsoRedeemer() )->register();
 		}
+
+		add_action( self::CRON_RETENTION, array( $this, 'purge_old_log' ) );
+		Retention::ensure_scheduled( self::CRON_RETENTION );
+	}
+
+	/**
+	 * Remove the retention cron when the module is switched off.
+	 */
+	public function on_disable(): void {
+		Retention::unschedule( self::CRON_RETENTION );
+	}
+
+	/**
+	 * Daily retention purge of the sync log.
+	 */
+	public function purge_old_log(): void {
+		Retention::purge( 'uxstudio_content_sync_log', (int) $this->settings->get( 'retention_days', Retention::DEFAULT_DAYS ) );
 	}
 
 	/**
@@ -273,6 +294,13 @@ final class Module extends BaseModule {
 				'label'   => __( 'Central app HMAC secret', 'ux-studio' ),
 				'help'    => __( 'Shared secret used to sign/verify every request to and from the central app. Stored encrypted. Leave blank to keep the current secret.', 'ux-studio' ),
 				'default' => '',
+			),
+			array(
+				'key'     => 'retention_days',
+				'type'    => 'number',
+				'label'   => __( 'Sync log retention (days)', 'ux-studio' ),
+				'help'    => __( 'Sync log entries older than this are deleted daily. 0 = keep forever.', 'ux-studio' ),
+				'default' => Retention::DEFAULT_DAYS,
 			),
 		);
 	}

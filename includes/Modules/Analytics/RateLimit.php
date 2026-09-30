@@ -22,7 +22,9 @@ defined( 'ABSPATH' ) || exit;
 final class RateLimit {
 
 	/**
-	 * Check and record one attempt.
+	 * Check and record one attempt. APCu when available, otherwise a single
+	 * upsert into the small `uxstudio_analytics_rate` table (fixed windows),
+	 * so a hit no longer rewrites transient option rows.
 	 *
 	 * @param string $action Endpoint identifier, e.g. 'hit'.
 	 * @param int    $max    Max attempts within the window.
@@ -30,32 +32,55 @@ final class RateLimit {
 	 * @return bool True when the limit is exceeded (request should be dropped).
 	 */
 	public static function exceeded( string $action, int $max, int $window = HOUR_IN_SECONDS ): bool {
+		global $wpdb;
+
 		if ( $max <= 0 ) {
 			return false;
 		}
 
-		$key  = self::key( $action );
-		$now  = time();
-		$data = get_transient( $key );
+		$window = max( 1, $window );
+		$key    = self::key( $action );
+		$slot   = intdiv( time(), $window ) * $window;
 
-		if ( ! is_array( $data ) || empty( $data['reset'] ) || $data['reset'] <= $now ) {
-			$data = array(
-				'count' => 0,
-				'reset' => $now + $window,
-			);
+		if ( function_exists( 'apcu_inc' ) && function_exists( 'apcu_enabled' ) && apcu_enabled() ) {
+			$apcu_key = 'uxstudio_analytics_rl_' . $key . '_' . $slot;
+			apcu_add( $apcu_key, 0, $window + 1 );
+			return (int) apcu_inc( $apcu_key ) > $max;
 		}
 
-		++$data['count'];
-		set_transient( $key, $data, max( 1, $data['reset'] - $now ) );
+		$table = self::table();
+		// A fresh row affects 1 row (count 1); an update hands the new count
+		// back through LAST_INSERT_ID(expr) - no follow-up SELECT.
+		$affected = $wpdb->query(
+			$wpdb->prepare(
+				"INSERT INTO {$table} (k, window_start, hits) VALUES (%s, %d, 1)
+				ON DUPLICATE KEY UPDATE hits = LAST_INSERT_ID(hits + 1)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$key,
+				$slot
+			)
+		);
+		if ( false === $affected ) {
+			return false; // Table missing (fail open - this is only a fallback cap).
+		}
+		$count = 1 === (int) $affected ? 1 : (int) $wpdb->insert_id;
 
-		return $data['count'] > $max;
+		if ( 1 === wp_rand( 1, 200 ) ) {
+			$wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE window_start < %d", time() - 2 * DAY_IN_SECONDS ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		}
+
+		return $count > $max;
+	}
+
+	public static function table(): string {
+		global $wpdb;
+		return $wpdb->prefix . 'uxstudio_analytics_rate';
 	}
 
 	/**
-	 * Transient key, scoped by client IP.
+	 * Row key, scoped by client IP (never stored raw).
 	 */
 	private static function key( string $action ): string {
 		$scope = $action . '|' . ClientIp::get();
-		return 'uxstudio_analytics_rl_' . substr( hash( 'sha256', $scope . '|' . wp_salt() ), 0, 40 );
+		return substr( hash( 'sha256', $scope . '|' . wp_salt() ), 0, 40 );
 	}
 }

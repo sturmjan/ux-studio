@@ -8,6 +8,7 @@
 namespace UxStudio\Modules\ExitPopup;
 
 use UxStudio\Core\ActivityLog;
+use UxStudio\Core\Csv;
 use UxStudio\Core\DB;
 use UxStudio\Modules\BaseModule;
 
@@ -548,10 +549,13 @@ final class Module extends BaseModule {
 		foreach ( $rows as $row ) {
 			fputcsv(
 				$out,
-				array(
-					(string) $row['email'],
-					(string) $row['page_url'],
-					(string) $row['created_at'],
+				// page_url comes from the public endpoint -> formula-injection guard.
+				Csv::safe_row(
+					array(
+						(string) $row['email'],
+						(string) $row['page_url'],
+						(string) $row['created_at'],
+					)
 				)
 			);
 		}

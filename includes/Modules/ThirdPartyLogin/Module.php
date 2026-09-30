@@ -8,6 +8,7 @@
 
 namespace UxStudio\Modules\ThirdPartyLogin;
 
+use UxStudio\Core\ClientIp;
 use UxStudio\Core\Security;
 use UxStudio\Modules\BaseModule;
 use WP_User;
@@ -64,6 +65,20 @@ final class Module extends BaseModule {
 
 	/** Replay window the central app is allowed to sign within (seconds). */
 	public const MAX_AGE = 300;
+
+	/**
+	 * Cookie (name prefix) binding a handshake to the browser that started
+	 * it: its random value is stored hashed next to the nonce and must come
+	 * back with the callback, so a callback URL minted in an attacker's
+	 * browser can't log a victim into the attacker's account (login CSRF).
+	 */
+	public const BROWSER_COOKIE_PREFIX = 'uxstudio_tpl_b_';
+
+	/** Anonymous handshake starts allowed per IP per window. */
+	private const START_RATE_LIMIT = 10;
+
+	/** Rate-limit window (seconds) for anonymous handshake starts. */
+	private const START_RATE_WINDOW = 600;
 
 	/**
 	 * Register hooks.
@@ -397,6 +412,13 @@ final class Module extends BaseModule {
 			exit;
 		}
 
+		// Every start stores a transient; cap anonymous starts per IP so the
+		// public link can't be used to flood the options table.
+		if ( ! $this->allow_start() ) {
+			wp_safe_redirect( add_query_arg( 'uxstudio_tpl_error', 'rate', wp_login_url() ) );
+			exit;
+		}
+
 		$url = $this->handshake_url( $provider, 'login' );
 		if ( '' === $url ) {
 			wp_safe_redirect( add_query_arg( 'uxstudio_tpl_error', 'config', wp_login_url() ) );
@@ -431,7 +453,8 @@ final class Module extends BaseModule {
 			return '';
 		}
 
-		$nonce = wp_generate_password( 32, false, false );
+		$nonce   = wp_generate_password( 32, false, false );
+		$browser = wp_generate_password( 32, false, false );
 		set_transient(
 			self::NONCE_TRANSIENT_PREFIX . $nonce,
 			array(
@@ -439,9 +462,11 @@ final class Module extends BaseModule {
 				'provider' => $provider,
 				'user_id'  => $user_id,
 				'issued'   => time(),
+				'browser'  => hash( 'sha256', $browser ),
 			),
 			self::NONCE_TTL
 		);
+		$this->set_browser_cookie( $nonce, $browser, time() + self::NONCE_TTL );
 
 		$params = array(
 			'site_url'   => home_url(),
@@ -465,7 +490,7 @@ final class Module extends BaseModule {
 	 * expired or already used.
 	 *
 	 * @param string $nonce Nonce from the callback.
-	 * @return array{mode:string,provider:string,user_id:int,issued:int}|null
+	 * @return array{mode:string,provider:string,user_id:int,issued:int,browser:string}|null
 	 */
 	public function consume_nonce( string $nonce ): ?array {
 		$key  = self::NONCE_TRANSIENT_PREFIX . sanitize_key( $nonce );
@@ -480,7 +505,74 @@ final class Module extends BaseModule {
 			'provider' => isset( $data['provider'] ) ? (string) $data['provider'] : '',
 			'user_id'  => isset( $data['user_id'] ) ? (int) $data['user_id'] : 0,
 			'issued'   => isset( $data['issued'] ) ? (int) $data['issued'] : 0,
+			'browser'  => isset( $data['browser'] ) ? (string) $data['browser'] : '',
 		);
+	}
+
+	/**
+	 * Whether the callback comes from the browser that started the handshake
+	 * (see BROWSER_COOKIE_PREFIX). Always clears the cookie.
+	 *
+	 * @param string $nonce      Handshake nonce.
+	 * @param array  $nonce_data Data returned by consume_nonce().
+	 */
+	public function verify_browser( string $nonce, array $nonce_data ): bool {
+		$name  = $this->browser_cookie_name( $nonce );
+		$value = isset( $_COOKIE[ $name ] ) ? sanitize_text_field( wp_unslash( $_COOKIE[ $name ] ) ) : '';
+		$this->set_browser_cookie( $nonce, '', time() - YEAR_IN_SECONDS );
+
+		$expected = (string) ( $nonce_data['browser'] ?? '' );
+		return '' !== $expected && '' !== $value && hash_equals( $expected, hash( 'sha256', $value ) );
+	}
+
+	/**
+	 * Per-handshake cookie name (parallel handshakes in two tabs don't clash).
+	 *
+	 * @param string $nonce Handshake nonce.
+	 */
+	private function browser_cookie_name( string $nonce ): string {
+		return self::BROWSER_COOKIE_PREFIX . substr( hash( 'sha256', $nonce ), 0, 16 );
+	}
+
+	/**
+	 * Set (or, with a past expiry, clear) the browser-binding cookie.
+	 * SameSite=Lax: still sent on the top-level GET redirect back from the
+	 * central app, never on cross-site subrequests.
+	 *
+	 * @param string $nonce   Handshake nonce.
+	 * @param string $value   Random value ('' to clear).
+	 * @param int    $expires Expiry timestamp.
+	 */
+	private function set_browser_cookie( string $nonce, string $value, int $expires ): void {
+		if ( headers_sent() ) {
+			return;
+		}
+		setcookie(
+			$this->browser_cookie_name( $nonce ),
+			$value,
+			array(
+				'expires'  => $expires,
+				'path'     => COOKIEPATH ? COOKIEPATH : '/',
+				'domain'   => COOKIE_DOMAIN ? COOKIE_DOMAIN : '',
+				'secure'   => is_ssl(),
+				'httponly' => true,
+				'samesite' => 'Lax',
+			)
+		);
+	}
+
+	/**
+	 * Sliding-window limit on anonymous handshake starts, keyed by a salted
+	 * hash of the client IP.
+	 */
+	private function allow_start(): bool {
+		$key   = 'uxstudio_tpl_rl_' . md5( ClientIp::get( 'auto' ) . wp_salt() );
+		$count = (int) get_transient( $key );
+		if ( $count >= self::START_RATE_LIMIT ) {
+			return false;
+		}
+		set_transient( $key, $count + 1, self::START_RATE_WINDOW );
+		return true;
 	}
 
 	/**

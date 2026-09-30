@@ -125,7 +125,8 @@ final class Migrator {
 	 * bot-throttle, exit-popup, google-review-request, page-load, popup-manager,
 	 * ai-markdown, content-sync, instagram-feed, review-aggregator,
 	 * service-requests, notice-board, push-notifications, performance-optimization.
-	 * Each needs a real data-migration step in F4, not this generic copy.
+	 * Each needs a real data-migration step, not this generic copy - see
+	 * maybe_migrate_module_data() for the column-mapped ones.
 	 *
 	 * Booking tables intentionally absent.
 	 *
@@ -171,7 +172,8 @@ final class Migrator {
 			$new   = 'uxstudio_' . str_replace( '-', '_', $id );
 			$log[] = "option {$old} -> {$new}";
 			if ( ! $dry_run ) {
-				add_option( $new, $value, '', false );
+				// Read on every request by the enabled module - autoload if small.
+				add_option( $new, $value, '', Settings::should_autoload( $value ) );
 			}
 		}
 
@@ -412,8 +414,50 @@ final class Migrator {
 		if ( $changed ) {
 			$log[] = 'settings pixel-tag-manager: remapped hyphen keys -> underscore';
 			if ( ! $dry_run ) {
-				update_option( $option, $value, false );
+				update_option( $option, $value, Settings::should_autoload( $value ) );
 			}
+		}
+	}
+
+	/**
+	 * Switch existing module settings options (uxstudio_<module>) to autoload.
+	 * Earlier versions stored them with autoload off, costing one SELECT per
+	 * enabled module on every request. Oversized blobs (>= 10 kB) stay off, as
+	 * does anything that isn't a module settings row. Also covers the Cron
+	 * Control mode hash, which that module compares on every boot.
+	 *
+	 * @param string[] $module_ids Built-in module ids.
+	 */
+	public static function autoload_module_settings( array $module_ids ): void {
+		if ( ! function_exists( 'wp_set_option_autoload_values' ) ) {
+			return;
+		}
+		$names = array( 'uxstudio_cron_control_hash' );
+		foreach ( $module_ids as $id ) {
+			$names[] = 'uxstudio_' . str_replace( '-', '_', (string) $id );
+		}
+
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-off migration, reads sizes without loading values.
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				sprintf(
+					"SELECT option_name, LENGTH(option_value) AS len FROM {$wpdb->options} WHERE option_name IN (%s)",
+					implode( ',', array_fill( 0, count( $names ), '%s' ) )
+				),
+				$names
+			)
+		);
+
+		$autoload = array();
+		foreach ( (array) $rows as $row ) {
+			if ( (int) $row->len < 10 * KB_IN_BYTES ) {
+				$autoload[ $row->option_name ] = true;
+			}
+		}
+		if ( $autoload ) {
+			// Writes the right flag for the running WP version ('on' / 'yes').
+			wp_set_option_autoload_values( $autoload );
 		}
 	}
 
@@ -477,6 +521,98 @@ final class Migrator {
 					"INSERT INTO %NEW% (created_at, to_email, subject, status, error_message)
 					 SELECT `timestamp`, `to`, subject,
 					        IF(error IS NULL OR error = '', 'sent', 'failed'), error FROM %OLD%"
+				);
+				break;
+
+			case 'review-aggregator':
+				// platform->source, author_name->author, review_text->text,
+				// is_visible->visible, created_at->imported_at. dedup_hash is
+				// computed exactly like Module::fetch() does (external_id first,
+				// content signature fallback) so the next broker fetch updates
+				// these rows instead of inserting duplicates. IGNORE: two legacy
+				// rows can share a signature (NULL external_id + same content).
+				// author_image/review_url/raw_data have no new column.
+				self::copy_when_empty(
+					$wpdb->prefix . 'ux1_reviews',
+					$wpdb->prefix . 'uxstudio_reviews',
+					"INSERT IGNORE INTO %NEW% (source, external_id, dedup_hash, author, rating, text, review_date, imported_at, visible)
+					 SELECT LEFT(platform,32), LEFT(COALESCE(external_id,''),191),
+					        SHA1(CONCAT(platform, '|', IF(COALESCE(external_id,'') <> '',
+					            CONCAT('ext:', external_id),
+					            CONCAT('sig:', author_name, '|', COALESCE(review_date,''), '|', COALESCE(review_text,''))))),
+					        LEFT(author_name,255), LEAST(COALESCE(rating,0),5), review_text, review_date,
+					        created_at, is_visible FROM %OLD%"
+				);
+				break;
+
+			case 'instagram-feed':
+				// Feeds: legacy per-column display config -> JSON `settings` blob
+				// (same keys Module::normalize_config() reads). Ids are kept so
+				// existing shortcode ids keep pointing at the same feed.
+				// show_likes/custom_css have no new equivalent.
+				self::copy_when_empty(
+					$wpdb->prefix . 'ux1_instagram_feeds',
+					$wpdb->prefix . 'uxstudio_instagram_feeds',
+					"INSERT INTO %NEW% (id, created_at, name, settings)
+					 SELECT id, created_at, LEFT(name,255), JSON_OBJECT(
+					        'theme', theme, 'item_limit', item_limit,
+					        'cols_desktop', cols_desktop, 'cols_tablet', cols_tablet, 'cols_mobile', cols_mobile,
+					        'gap_px', gap_px, 'show_caption', show_caption, 'show_follow', show_follow,
+					        'caption_length', caption_length, 'link_target', link_target,
+					        'media_types', media_types,
+					        'include_hashtags', COALESCE(include_hashtags,''),
+					        'exclude_hashtags', COALESCE(exclude_hashtags,''))
+					 FROM %OLD%"
+				);
+				// Media: the new cache is one account-wide pool keyed by
+				// instagram_id (legacy was per broker connection), so only the
+				// newest row per instagram_id is copied. Sideloaded attachment ids
+				// are kept, so the next sync reuses them instead of re-downloading.
+				// The broker connection itself cannot migrate (the token never
+				// lived on the site) - the operator reconnects once.
+				self::copy_when_empty(
+					$wpdb->prefix . 'ux1_instagram_media',
+					$wpdb->prefix . 'uxstudio_instagram_media',
+					"INSERT INTO %NEW% (feed_id, instagram_id, media_type, media_url, thumbnail_url, permalink, caption,
+					        hashtags, attachment_id, video_attachment_id, media_timestamp, like_count, comments_count,
+					        is_hidden, synced_at)
+					 SELECT 0, instagram_id, media_type, LEFT(COALESCE(media_url,''),1000),
+					        LEFT(COALESCE(thumbnail_url,''),1000), LEFT(COALESCE(permalink,''),1000), caption,
+					        hashtags, COALESCE(attachment_id,0), COALESCE(video_attachment_id,0), media_timestamp,
+					        like_count, comments_count, is_hidden, synced_at
+					 FROM %OLD% WHERE id IN (SELECT MAX(id) FROM %OLD% GROUP BY instagram_id)"
+				);
+				break;
+
+			case 'bot-throttle':
+				// Log only: raw IP -> salted hash (same as Module::hash_ip(), no
+				// raw IPs are stored any more - GDPR), timestamp->created_at, long
+				// text columns trimmed to the new widths. The rate-limit buckets
+				// are short-lived windows keyed differently (bot_key vs ip_hash) -
+				// intentionally not migrated, they rebuild within minutes.
+				$salt = $wpdb->prepare( '%s', wp_salt() );
+				self::copy_when_empty(
+					$wpdb->prefix . 'ux1_bot_throttle_log',
+					$wpdb->prefix . 'uxstudio_bot_throttle_log',
+					"INSERT INTO %NEW% (created_at, ip_hash, user_agent, action, bot_category, bot_name, tier, delay_ms,
+					        url, load_score, response_status)
+					 SELECT `timestamp`, SHA2(CONCAT(ip, {$salt}), 256), LEFT(user_agent,255), action, bot_category,
+					        bot_name, tier, GREATEST(delay_ms,0), LEFT(url,500), load_score, GREATEST(response_status,0)
+					 FROM %OLD%"
+				);
+				break;
+
+			case 'exit-popup':
+				// Raw ip_address -> salted ip_hash (same as RestController), so
+				// rate limiting / dedup keep matching; empty IP stays empty.
+				$salt = $wpdb->prepare( '%s', wp_salt() );
+				self::copy_when_empty(
+					$wpdb->prefix . 'ux1_exit_popup_emails',
+					$wpdb->prefix . 'uxstudio_exit_popup_emails',
+					"INSERT INTO %NEW% (created_at, email, page_url, ip_hash)
+					 SELECT created_at, email, COALESCE(page_url,''),
+					        IF(COALESCE(ip_address,'') = '', '', SHA2(CONCAT(ip_address, {$salt}), 256))
+					 FROM %OLD%"
 				);
 				break;
 
