@@ -1458,8 +1458,8 @@ Opraveno v 5 commitech (Core / Security Optimization / rizikové moduly / AI Ass
 ostatní moduly), lint čistý, build OK, web 200. Nové sdílené třídy: `Core\ClientIp`,
 `Core\Csv`, `Core\Retention`, `BaseModule::on_disable()` + deactivation hook.
 Zbývá / k rozhodnutí:
-- [ ] Rozhodnout lockout podle JMÉNA: teď blokuje i správné heslo, takže útočník může
-      zkoušením cizího jména zamknout admina. Varianta: blokovat jen podle IP.
+- [x] Lockout jen podle IP (rozhodnuto 30. 9.): dřív blokoval i správné heslo podle JMÉNA,
+      takže šlo zamknout admina. Přihlášení už neruší zámky jiných IP. Ověřeno skriptem.
 - [ ] Podpis release: vygenerovat Ed25519 klíč, secret `UXSTUDIO_SIGNING_KEY` na GitHub,
       veřejný klíč do `GithubUpdater::RELEASE_PUBLIC_KEY` (bez klíče se neověřuje nic).
 - [ ] ReviewAggregator ověřit živě proti CA (lokální CA má web jako `http://localhost/pobyty`,

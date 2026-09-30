@@ -67,6 +67,10 @@ final class AttemptsHandler {
 	 * guessing and a correct guess would still get through (a different
 	 * response for the correct password would also be a password oracle).
 	 *
+	 * Locks are per IP only. A per-username lock that also rejects the correct
+	 * password would let anyone lock the real admin out just by guessing
+	 * against their username.
+	 *
 	 * Core's wp_authenticate_username_password() ignores an incoming WP_Error
 	 * (it only short-circuits on WP_User), so the error is remembered here and
 	 * re-asserted by enforce_lockout() at the very end of the chain.
@@ -93,15 +97,6 @@ final class AttemptsHandler {
 				sprintf(
 					/* translators: %d: minutes */
 					__( 'Too many failed login attempts from this IP. Please try again in %d minutes.', 'ux-studio' ),
-					$this->lockout_time()
-				)
-			);
-		} elseif ( '' !== $username && $this->is_username_blocked( $username ) ) {
-			$error = new WP_Error(
-				'uxstudio_username_blocked',
-				sprintf(
-					/* translators: %d: minutes */
-					__( 'Too many failed login attempts for this username. Please try again in %d minutes.', 'ux-studio' ),
 					$this->lockout_time()
 				)
 			);
@@ -142,19 +137,18 @@ final class AttemptsHandler {
 	 * @param string $user_login Logged-in username.
 	 */
 	public function handle_successful_login( $user_login ): void {
-		$this->reset_attempts( (string) $user_login );
+		$this->reset_attempts();
 	}
 
 	/**
 	 * @param string $username Attempted username.
 	 */
 	public function handle_failed_login( $username ): void {
-		$username       = (string) $username;
-		$ip             = $this->get_client_ip();
-		$ip_attempts    = $this->increment_ip_attempts( $ip );
-		$username_count = $this->get_current_username_attempts( $username );
+		$username    = (string) $username;
+		$ip          = $this->get_client_ip();
+		$ip_attempts = $this->increment_ip_attempts( $ip );
 
-		if ( $ip_attempts >= $this->max_attempts() || $username_count >= $this->max_attempts() ) {
+		if ( $ip_attempts >= $this->max_attempts() ) {
 			if ( $this->is_ip_blocked( $ip ) ) {
 				return; // Retry during an active lockout - don't stack lock rows / emails.
 			}
@@ -203,18 +197,6 @@ final class AttemptsHandler {
 		return 1;
 	}
 
-	private function get_current_username_attempts( string $username ): int {
-		global $wpdb;
-		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$this->login_failed}
-				 WHERE username = %s AND status = 1 AND date > DATE_SUB(%s, INTERVAL locktime MINUTE)",
-				$username,
-				$this->now()
-			)
-		);
-	}
-
 	private function block_ip( string $ip, string $username ): void {
 		global $wpdb;
 		$wpdb->insert(
@@ -248,25 +230,14 @@ final class AttemptsHandler {
 		return (bool) $blocked;
 	}
 
-	private function is_username_blocked( string $username ): bool {
+	/**
+	 * Clear the failure counter of the IP that just logged in. Lock rows of
+	 * OTHER IPs that guessed against the same username stay in force - the
+	 * real user signing in must not lift an attacker's ban.
+	 */
+	private function reset_attempts(): void {
 		global $wpdb;
-		$blocked = $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$this->login_failed}
-				 WHERE username = %s AND status = 1 AND date > DATE_SUB(%s, INTERVAL locktime MINUTE)",
-				$username,
-				$this->now()
-			)
-		);
-		return (bool) $blocked;
-	}
-
-	private function reset_attempts( string $username ): void {
-		global $wpdb;
-		$ip = $this->get_client_ip();
-
-		$wpdb->delete( $this->login_attempt, array( 'ip' => $ip ), array( '%s' ) );
-		$wpdb->update( $this->login_failed, array( 'status' => 0 ), array( 'username' => $username ), array( '%d' ), array( '%s' ) );
+		$wpdb->delete( $this->login_attempt, array( 'ip' => $this->get_client_ip() ), array( '%s' ) );
 	}
 
 	public function get_current_attempt_count( string $ip ): int {
