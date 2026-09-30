@@ -136,7 +136,8 @@ final class ProductIndexer {
 		}
 
 		$product = wc_get_product( $product_id );
-		if ( ! $product || 'publish' !== $product->get_status() ) {
+		// Password-protected products stay out of the (public) chat index.
+		if ( ! $product || 'publish' !== $product->get_status() || '' !== (string) get_post_field( 'post_password', $product_id ) ) {
 			$this->remove_product( $product_id );
 			return;
 		}
@@ -158,13 +159,35 @@ final class ProductIndexer {
 	 */
 	public function remove_product( int $product_id ): void {
 		global $wpdb;
+		$table = "{$wpdb->prefix}uxstudio_ai_assistant_product_index";
+		$ids   = $wpdb->get_col( $wpdb->prepare( "SELECT product_id FROM {$table} WHERE product_id = %d OR parent_id = %d", $product_id, $product_id ) );
 		$wpdb->query(
 			$wpdb->prepare(
-				"DELETE FROM {$wpdb->prefix}uxstudio_ai_assistant_product_index WHERE product_id = %d OR parent_id = %d",
+				"DELETE FROM {$table} WHERE product_id = %d OR parent_id = %d",
 				$product_id,
 				$product_id
 			)
 		);
+		foreach ( (array) $ids as $id ) {
+			$wpdb->delete( "{$wpdb->prefix}uxstudio_ai_assistant_vectors", array( 'source_type' => 'product', 'source_id' => (int) $id ), array( '%s', '%d' ) );
+		}
+	}
+
+	/**
+	 * Drop index rows whose product (or variation parent) is gone, unpublished
+	 * or password-protected. Runs at the start of every full reindex.
+	 */
+	public function purge_non_public(): int {
+		global $wpdb;
+		$ids = $wpdb->get_col(
+			"SELECT DISTINCT IF(pi.parent_id > 0, pi.parent_id, pi.product_id) FROM {$wpdb->prefix}uxstudio_ai_assistant_product_index pi
+			 LEFT JOIN {$wpdb->posts} p ON p.ID = IF(pi.parent_id > 0, pi.parent_id, pi.product_id)
+			 WHERE p.ID IS NULL OR p.post_status <> 'publish' OR p.post_password <> ''"
+		);
+		foreach ( (array) $ids as $id ) {
+			$this->remove_product( (int) $id );
+		}
+		return count( (array) $ids );
 	}
 
 	/**
@@ -179,6 +202,8 @@ final class ProductIndexer {
 			update_option( self::TOTAL_OPTION, 0, false );
 			return array( 'queued' => 0, 'total' => 0 );
 		}
+
+		$this->purge_non_public();
 
 		$products = wc_get_products( array( 'status' => 'publish', 'limit' => -1, 'return' => 'ids', 'type' => array( 'simple', 'variable' ) ) );
 		$ids      = array_map( 'intval', (array) $products );

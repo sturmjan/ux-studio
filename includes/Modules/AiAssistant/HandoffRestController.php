@@ -42,6 +42,13 @@ final class HandoffRestController extends Controller {
 	private const IP_WINDOW    = 60;
 	private const SESSION_LIMIT = 30;
 
+	/**
+	 * Operator requests per IP-hash per hour. Each request with a fresh
+	 * session id creates a conversation, so this bounds inbox/DB spam; the
+	 * notification e-mail has its own (stricter) cap in PublicGuard.
+	 */
+	private const REQUEST_HOURLY_LIMIT = 10;
+
 	public function register_routes(): void {
 		$this->register_public_routes();
 		$this->register_admin_routes();
@@ -153,7 +160,7 @@ final class HandoffRestController extends Controller {
 			return new WP_REST_Response( array( 'error' => __( 'session_id is required.', 'ux-studio' ) ), 400 );
 		}
 
-		if ( ! $this->check_rate_limit( $session_id ) ) {
+		if ( ! $this->check_rate_limit( $session_id ) || ! PublicGuard::hit( 'handoff_request', self::REQUEST_HOURLY_LIMIT, HOUR_IN_SECONDS ) ) {
 			return new WP_REST_Response( array( 'error' => __( 'Too many requests. Please try again shortly.', 'ux-studio' ) ), 429 );
 		}
 
@@ -191,8 +198,8 @@ final class HandoffRestController extends Controller {
 
 	public function customer_message( WP_REST_Request $request ): WP_REST_Response {
 		$session_id = $this->sanitize_session( $request->get_param( 'session_id' ) );
-		$message    = sanitize_textarea_field( (string) ( $request->get_param( 'message' ) ?? '' ) );
-		$page_url   = esc_url_raw( (string) ( $request->get_param( 'page_url' ) ?? '' ) );
+		$message    = mb_substr( sanitize_textarea_field( (string) ( $request->get_param( 'message' ) ?? '' ) ), 0, ChatRestController::MAX_MESSAGE_LENGTH );
+		$page_url   = mb_substr( esc_url_raw( (string) ( $request->get_param( 'page_url' ) ?? '' ) ), 0, 500 );
 
 		if ( '' === $session_id || '' === $message ) {
 			return new WP_REST_Response( array( 'error' => __( 'session_id and message are required.', 'ux-studio' ) ), 400 );
@@ -333,8 +340,7 @@ final class HandoffRestController extends Controller {
 	 * limit trivially bypassable), with a secondary per-session cap.
 	 */
 	private function check_rate_limit( string $session_id ): bool {
-		$ip     = isset( $_SERVER['REMOTE_ADDR'] ) ? (string) $_SERVER['REMOTE_ADDR'] : '';
-		$ip_key = 'uxstudio_ah_rl_ip_' . md5( ( $ip ?: 'unknown' ) . wp_salt() );
+		$ip_key   = 'uxstudio_ah_rl_ip_' . PublicGuard::ip_hash();
 		$ip_count = (int) get_transient( $ip_key );
 
 		$session_key   = 'uxstudio_ah_rl_session_' . md5( $session_id . wp_salt() );

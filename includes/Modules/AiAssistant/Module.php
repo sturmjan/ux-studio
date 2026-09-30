@@ -9,6 +9,7 @@
 namespace UxStudio\Modules\AiAssistant;
 
 use UxStudio\Core\DB;
+use UxStudio\Core\Retention;
 use UxStudio\Core\Security;
 use UxStudio\Modules\AiAssistant\Mcp\McpBootstrap;
 use UxStudio\Modules\BaseModule;
@@ -38,6 +39,11 @@ final class Module extends BaseModule {
 		'deepseek' => self::SECRET_DEEPSEEK,
 	);
 
+	/** Daily purge of the usage/error log and internal chat history (see Core\Retention). */
+	private const RETENTION_HOOK = 'uxstudio_ai_assistant_retention';
+
+	private const DEFAULT_CHAT_HISTORY_RETENTION_DAYS = 365;
+
 	/**
 	 * Register hooks.
 	 */
@@ -45,6 +51,9 @@ final class Module extends BaseModule {
 		DB::ensure_module_tables( 'ai-assistant', 1, array( $this, 'migrate' ) );
 
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+
+		add_action( self::RETENTION_HOOK, array( $this, 'purge_old_rows' ) );
+		Retention::ensure_scheduled( self::RETENTION_HOOK );
 
 		ChatBootstrap::register();
 		KnowledgeBootstrap::register();
@@ -54,6 +63,25 @@ final class Module extends BaseModule {
 		BlogPilotBootstrap::register();
 		InternalChatBootstrap::register();
 		McpBootstrap::register();
+	}
+
+	/**
+	 * Unschedule the retention purge when the module is switched off.
+	 */
+	public function on_disable(): void {
+		Retention::unschedule( self::RETENTION_HOOK );
+	}
+
+	/**
+	 * Cron callback: drop usage/error-log rows and internal chat history older
+	 * than their retention settings (0 = keep forever). All three tables
+	 * index created_at.
+	 */
+	public function purge_old_rows(): void {
+		$usage_days = max( 0, (int) $this->settings->get( 'usage_retention_days', Retention::DEFAULT_DAYS ) );
+		Retention::purge( 'uxstudio_ai_assistant_usage', $usage_days );
+		Retention::purge( 'uxstudio_ai_assistant_error_log', $usage_days );
+		Retention::purge( 'uxstudio_ai_assistant_chat_history', max( 0, (int) $this->settings->get( 'chat_history_retention_days', self::DEFAULT_CHAT_HISTORY_RETENTION_DAYS ) ) );
 	}
 
 	/**
@@ -101,8 +129,14 @@ final class Module extends BaseModule {
 				last_message_at datetime DEFAULT NULL,
 				created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 				updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-				PRIMARY KEY (id), KEY session_id (session_id), KEY status (status), KEY created_at (created_at),
-				KEY rating (rating), KEY handoff_status (handoff_status), KEY handoff_assigned_to (handoff_assigned_to), KEY last_message_at (last_message_at)
+				PRIMARY KEY  (id),
+				KEY session_id (session_id),
+				KEY status (status),
+				KEY created_at (created_at),
+				KEY rating (rating),
+				KEY handoff_status (handoff_status),
+				KEY handoff_assigned_to (handoff_assigned_to),
+				KEY last_message_at (last_message_at)
 			) {$charset};"
 		);
 
@@ -118,7 +152,9 @@ final class Module extends BaseModule {
 				use_internal tinyint(1) NOT NULL DEFAULT 0,
 				created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 				updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-				PRIMARY KEY (id), KEY document_id (document_id), FULLTEXT KEY ft_content (content, title)
+				PRIMARY KEY  (id),
+				KEY document_id (document_id),
+				FULLTEXT KEY ft_content (content, title)
 			) {$charset} ENGINE=InnoDB;"
 		);
 
@@ -137,7 +173,8 @@ final class Module extends BaseModule {
 				error_message text,
 				author_id bigint(20) UNSIGNED NOT NULL DEFAULT 0,
 				created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-				PRIMARY KEY (id), KEY status (status)
+				PRIMARY KEY  (id),
+				KEY status (status)
 			) {$charset};"
 		);
 
@@ -156,7 +193,10 @@ final class Module extends BaseModule {
 				helpful_no int NOT NULL DEFAULT 0,
 				created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 				updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-				PRIMARY KEY (id), KEY is_active (is_active), KEY sort_order (sort_order), FULLTEXT KEY ft_faq (question, answer)
+				PRIMARY KEY  (id),
+				KEY is_active (is_active),
+				KEY sort_order (sort_order),
+				FULLTEXT KEY ft_faq (question, answer)
 			) {$charset} ENGINE=InnoDB;"
 		);
 
@@ -176,7 +216,10 @@ final class Module extends BaseModule {
 				permalink varchar(500) DEFAULT '',
 				stock_status varchar(20) NOT NULL DEFAULT 'instock',
 				indexed_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-				PRIMARY KEY (id), UNIQUE KEY product_id (product_id), KEY parent_id (parent_id), KEY stock_status (stock_status),
+				PRIMARY KEY  (id),
+				UNIQUE KEY product_id (product_id),
+				KEY parent_id (parent_id),
+				KEY stock_status (stock_status),
 				FULLTEXT KEY ft_product (name, description_text)
 			) {$charset} ENGINE=InnoDB;"
 		);
@@ -193,7 +236,10 @@ final class Module extends BaseModule {
 				image_url varchar(500) DEFAULT '',
 				permalink varchar(500) DEFAULT '',
 				indexed_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-				PRIMARY KEY (id), UNIQUE KEY post_id (post_id), KEY post_type (post_type), FULLTEXT KEY ft_content (post_title, content_text)
+				PRIMARY KEY  (id),
+				UNIQUE KEY post_id (post_id),
+				KEY post_type (post_type),
+				FULLTEXT KEY ft_content (post_title, content_text)
 			) {$charset} ENGINE=InnoDB;"
 		);
 
@@ -208,7 +254,11 @@ final class Module extends BaseModule {
 				input_tokens int UNSIGNED NOT NULL DEFAULT 0,
 				output_tokens int UNSIGNED NOT NULL DEFAULT 0,
 				created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-				PRIMARY KEY (id), KEY provider (provider), KEY feature (feature), KEY user_id (user_id), KEY created_at (created_at)
+				PRIMARY KEY  (id),
+				KEY provider (provider),
+				KEY feature (feature),
+				KEY user_id (user_id),
+				KEY created_at (created_at)
 			) {$charset};"
 		);
 
@@ -222,7 +272,9 @@ final class Module extends BaseModule {
 				model varchar(100) NOT NULL DEFAULT '',
 				created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 				updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-				PRIMARY KEY (id), KEY user_id (user_id), KEY created_at (created_at)
+				PRIMARY KEY  (id),
+				KEY user_id (user_id),
+				KEY created_at (created_at)
 			) {$charset};"
 		);
 
@@ -238,7 +290,10 @@ final class Module extends BaseModule {
 				page_url varchar(500) DEFAULT '',
 				status varchar(20) NOT NULL DEFAULT 'new',
 				created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-				PRIMARY KEY (id), KEY type (type), KEY status (status), KEY created_at (created_at)
+				PRIMARY KEY  (id),
+				KEY type (type),
+				KEY status (status),
+				KEY created_at (created_at)
 			) {$charset};"
 		);
 
@@ -257,7 +312,11 @@ final class Module extends BaseModule {
 				visitor_ip varchar(45) DEFAULT '',
 				context longtext,
 				created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-				PRIMARY KEY (id), KEY session_id (session_id), KEY provider (provider), KEY error_type (error_type), KEY created_at (created_at)
+				PRIMARY KEY  (id),
+				KEY session_id (session_id),
+				KEY provider (provider),
+				KEY error_type (error_type),
+				KEY created_at (created_at)
 			) {$charset};"
 		);
 
@@ -273,7 +332,11 @@ final class Module extends BaseModule {
 				embedding_model varchar(100) NOT NULL DEFAULT '',
 				metadata text,
 				created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-				PRIMARY KEY (id), KEY chat_target (chat_target), KEY source_type (source_type), KEY source_id (source_id), FULLTEXT KEY ft_chunk (chunk_text)
+				PRIMARY KEY  (id),
+				KEY chat_target (chat_target),
+				KEY source_type (source_type),
+				KEY source_id (source_id),
+				FULLTEXT KEY ft_chunk (chunk_text)
 			) {$charset} ENGINE=InnoDB;"
 		);
 
@@ -292,7 +355,9 @@ final class Module extends BaseModule {
 				error_message text,
 				last_crawled_at datetime DEFAULT NULL,
 				created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-				PRIMARY KEY (id), KEY type (type), KEY status (status)
+				PRIMARY KEY  (id),
+				KEY type (type),
+				KEY status (status)
 			) {$charset} ENGINE=InnoDB;"
 		);
 
@@ -314,7 +379,8 @@ final class Module extends BaseModule {
 				last_error text,
 				created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 				updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-				PRIMARY KEY (id), KEY status (status)
+				PRIMARY KEY  (id),
+				KEY status (status)
 			) {$charset};"
 		);
 
@@ -329,7 +395,9 @@ final class Module extends BaseModule {
 				model varchar(100) DEFAULT '',
 				tokens_used int UNSIGNED NOT NULL DEFAULT 0,
 				created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-				PRIMARY KEY (id), KEY generator_id (generator_id), KEY post_id (post_id)
+				PRIMARY KEY  (id),
+				KEY generator_id (generator_id),
+				KEY post_id (post_id)
 			) {$charset};"
 		);
 	}
@@ -396,22 +464,43 @@ final class Module extends BaseModule {
 				'key'     => 'monthly_token_limit',
 				'type'    => 'number',
 				'label'   => __( 'Monthly token limit', 'ux-studio' ),
-				'help'    => __( '0 = unlimited. Resets on the 1st of each month.', 'ux-studio' ),
-				'default' => 0,
+				'help'    => __( 'Site-wide, all AI features incl. the public chat. Default 2,000,000 protects against a runaway bill from the anonymous chat. 0 = unlimited. Resets on the 1st of each month.', 'ux-studio' ),
+				'default' => UsageLimiter::DEFAULT_MONTHLY_TOKEN_LIMIT,
 			),
 			array(
 				'key'     => 'daily_request_limit',
 				'type'    => 'number',
 				'label'   => __( 'Daily request limit (site-wide)', 'ux-studio' ),
-				'help'    => __( '0 = unlimited.', 'ux-studio' ),
-				'default' => 0,
+				'help'    => __( 'All AI requests per day incl. the public chat. Default 500. 0 = unlimited.', 'ux-studio' ),
+				'default' => UsageLimiter::DEFAULT_DAILY_REQUEST_LIMIT,
 			),
 			array(
 				'key'     => 'user_daily_request_limit',
 				'type'    => 'number',
 				'label'   => __( 'Daily request limit (per user)', 'ux-studio' ),
-				'help'    => __( '0 = unlimited.', 'ux-studio' ),
+				'help'    => __( 'Logged-in users only - anonymous chat visitors are bound by the site-wide limits and a per-IP rate limit. 0 = unlimited.', 'ux-studio' ),
 				'default' => 0,
+			),
+			array(
+				'key'     => 'notification_email_hourly_limit',
+				'type'    => 'number',
+				'label'   => __( 'Notification e-mails per hour', 'ux-studio' ),
+				'help'    => __( 'Cap on admin e-mails triggered from the public chat (contact form, callback, operator request). Requests above the cap are still saved, just not e-mailed. 0 = no e-mails.', 'ux-studio' ),
+				'default' => PublicGuard::DEFAULT_EMAILS_PER_HOUR,
+			),
+			array(
+				'key'     => 'usage_retention_days',
+				'type'    => 'number',
+				'label'   => __( 'Keep usage statistics and error log (days)', 'ux-studio' ),
+				'help'    => __( 'Older rows are deleted daily. 0 = keep forever.', 'ux-studio' ),
+				'default' => Retention::DEFAULT_DAYS,
+			),
+			array(
+				'key'     => 'chat_history_retention_days',
+				'type'    => 'number',
+				'label'   => __( 'Keep internal chat history (days)', 'ux-studio' ),
+				'help'    => __( 'Saved internal (admin) chat conversations started earlier are deleted daily. 0 = keep forever.', 'ux-studio' ),
+				'default' => self::DEFAULT_CHAT_HISTORY_RETENTION_DAYS,
 			),
 			array(
 				'key'     => 'mcp_enabled',

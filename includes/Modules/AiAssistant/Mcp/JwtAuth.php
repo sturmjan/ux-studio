@@ -86,6 +86,7 @@ final class JwtAuth extends Controller {
 			'exp'     => $now + $expires_in,
 			'user_id' => get_current_user_id(),
 			'jti'     => $jti,
+			'pwh'     => $this->password_fingerprint( get_current_user_id() ),
 		);
 
 		$token = $this->encode( $payload, $this->get_secret() );
@@ -150,25 +151,45 @@ final class JwtAuth extends Controller {
 	/**
 	 * Validates a JWT bearer token for MCP/REST authentication middleware.
 	 * Not used by ability permission_callbacks (those check manage_options
-	 * directly, same as legacy).
+	 * directly, same as legacy). A token dies with a password change of its
+	 * user: the `pwh` claim must match the current password hash fingerprint
+	 * (tokens issued before the claim existed are rejected too).
 	 */
 	public function validate_token( string $token ): ?array {
 		$payload = $this->decode( $token, $this->get_secret() );
 
-		if ( ! $payload ) {
+		if ( ! $payload || ! isset( $payload['exp'], $payload['jti'], $payload['user_id'], $payload['pwh'] ) ) {
 			return null;
 		}
 
-		if ( $payload['exp'] < time() ) {
+		if ( (int) $payload['exp'] < time() ) {
 			return null;
 		}
 
 		$registry = get_option( self::TOKEN_REGISTRY_OPTION, array() );
-		if ( ! isset( $registry[ $payload['jti'] ] ) ) {
+		if ( ! isset( $registry[ (string) $payload['jti'] ] ) ) {
+			return null;
+		}
+
+		$fingerprint = $this->password_fingerprint( (int) $payload['user_id'] );
+		if ( '' === $fingerprint || ! hash_equals( $fingerprint, (string) $payload['pwh'] ) ) {
 			return null;
 		}
 
 		return $payload;
+	}
+
+	/**
+	 * Keyed fingerprint of the user's current password hash ('' for an
+	 * unknown user). Changes whenever the password does, which invalidates
+	 * every token issued before; the hash itself never leaves the server.
+	 */
+	private function password_fingerprint( int $user_id ): string {
+		$user = $user_id > 0 ? get_userdata( $user_id ) : false;
+		if ( ! $user ) {
+			return '';
+		}
+		return substr( hash_hmac( 'sha256', 'pwh|' . $user->ID . '|' . $user->user_pass, $this->get_secret() ), 0, 32 );
 	}
 
 	/**

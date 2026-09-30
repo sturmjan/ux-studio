@@ -7,6 +7,8 @@
 
 namespace UxStudio\Modules\AiAssistant;
 
+use UxStudio\Core\ClientIp;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -172,19 +174,10 @@ final class ErrorLogger {
 		return $result;
 	}
 
+	/**
+	 * Client IP via Core\ClientIp (forwarding headers only from trusted proxies).
+	 */
 	private static function get_visitor_ip(): string {
-		$headers = array( 'HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR' );
-		foreach ( $headers as $header ) {
-			if ( ! empty( $_SERVER[ $header ] ) ) {
-				$ip = sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) );
-				if ( str_contains( $ip, ',' ) ) {
-					$ip = trim( explode( ',', $ip )[0] );
-				}
-				if ( filter_var( $ip, FILTER_VALIDATE_IP ) ) {
-					return $ip;
-				}
-			}
-		}
-		return '';
+		return ClientIp::get( 'auto' );
 	}
 }

@@ -131,7 +131,11 @@ class SeoTools extends RestEndpointTool {
 	}
 
 	public function seo_score( array $input = array() ): array {
-		$fields = $this->fields_from_post( (int) ( $input['post_id'] ?? 0 ) );
+		$post_id = (int) ( $input['post_id'] ?? 0 );
+		if ( $post_id > 0 && ! current_user_can( 'edit_post', $post_id ) ) {
+			return $this->forbidden();
+		}
+		$fields = $this->fields_from_post( $post_id );
 		if ( ! empty( $input['content'] ) ) {
 			$fields['content'] = (string) $input['content'];
 		}
@@ -159,6 +163,9 @@ class SeoTools extends RestEndpointTool {
 		if ( $post_id <= 0 ) {
 			return $this->text_result( array( 'error' => __( 'post_id is required.', 'ux-studio' ) ) );
 		}
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return $this->forbidden();
+		}
 
 		return $this->text_result( ( new SeoAiClient() )->schema( $this->fields_from_post( $post_id ) ) );
 	}
@@ -167,6 +174,9 @@ class SeoTools extends RestEndpointTool {
 		$post_id = (int) ( $input['post_id'] ?? 0 );
 		if ( $post_id <= 0 ) {
 			return $this->text_result( array( 'error' => __( 'post_id is required.', 'ux-studio' ) ) );
+		}
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return $this->forbidden();
 		}
 
 		$post = get_post( $post_id );
@@ -206,6 +216,17 @@ class SeoTools extends RestEndpointTool {
 			'focus_keyword' => (string) get_post_meta( $post_id, SeoScoreEditor::META_FOCUS_KEYWORD, true ),
 			'slug'          => (string) $post->post_name,
 		);
+	}
+
+	/**
+	 * Permission_callback kontroluje jen obecné edit_posts - obsah konkrétního
+	 * postu (i cizí koncepty, soukromé a chráněné heslem) smí číst jen ten,
+	 * kdo ho smí editovat. Stejná odpověď pro neexistující i cizí post.
+	 *
+	 * @return array<int, array<string, string>>
+	 */
+	private function forbidden(): array {
+		return $this->text_result( array( 'error' => __( 'Post not found or you are not allowed to edit it.', 'ux-studio' ) ) );
 	}
 
 	/**

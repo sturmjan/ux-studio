@@ -38,8 +38,24 @@ final class ChatRestController extends Controller {
 	private const CHAT_IP_WINDOW  = 60;
 	private const CHAT_SESSION_LIMIT = 30;
 
-	/** Simple per-hour caps for the lightweight public write endpoints. */
-	private const FORM_HOURLY_LIMIT = 3;
+	/**
+	 * Per-IP-hash hourly caps for the lightweight public write endpoints.
+	 * Keyed by IP, not by the client-supplied session id (rotatable at will).
+	 */
+	private const FORM_HOURLY_LIMITS = array(
+		'contact'  => 5,
+		'callback' => 5,
+		'rating'   => 10,
+		'consent'  => 30,
+		'feedback' => 30,
+	);
+
+	/**
+	 * Max visitor message length (characters). Longer input is rejected - it
+	 * would only inflate the prompt (and the bill); the widget enforces the
+	 * same limit via maxlength.
+	 */
+	public const MAX_MESSAGE_LENGTH = 2000;
 
 	public function register_routes(): void {
 		$this->register_public_routes();
@@ -187,10 +203,22 @@ final class ChatRestController extends Controller {
 	 * generating text - see ChatEngine::process_message()'s $on_chunk callback.
 	 */
 	public function chat( WP_REST_Request $request ): void {
-		$message    = sanitize_text_field( (string) $request->get_param( 'message' ) );
-		$session_id = sanitize_text_field( (string) $request->get_param( 'session_id' ) );
-		$page_url   = esc_url_raw( (string) $request->get_param( 'page_url' ) );
-		$product_id = absint( $request->get_param( 'product_id' ) );
+		$raw_message = $request->get_param( 'message' );
+		$message     = is_string( $raw_message ) ? sanitize_text_field( $raw_message ) : '';
+		$session_id  = self::sanitize_session( $request->get_param( 'session_id' ) );
+		$page_url    = mb_substr( esc_url_raw( (string) $request->get_param( 'page_url' ) ), 0, 500 );
+		$product_id  = absint( $request->get_param( 'product_id' ) );
+
+		if ( mb_strlen( $message ) > self::MAX_MESSAGE_LENGTH ) {
+			$this->send_json_error(
+				sprintf(
+					/* translators: %d: maximum number of characters */
+					__( 'The message is too long (max %d characters).', 'ux-studio' ),
+					self::MAX_MESSAGE_LENGTH
+				)
+			);
+			return;
+		}
 
 		if ( '' === $message || '' === $session_id ) {
 			ErrorLogger::log(
@@ -299,9 +327,12 @@ final class ChatRestController extends Controller {
 	}
 
 	public function gdpr_consent( WP_REST_Request $request ) {
-		$session_id = sanitize_text_field( (string) $request->get_param( 'session_id' ) );
+		$session_id = self::sanitize_session( $request->get_param( 'session_id' ) );
 		if ( '' === $session_id ) {
 			return new WP_Error( 'uxstudio_missing_session', __( 'Session id is missing.', 'ux-studio' ), array( 'status' => 400 ) );
+		}
+		if ( ! $this->check_form_rate_limit( 'consent' ) ) {
+			return new WP_Error( 'uxstudio_rate_limited', __( 'Too many requests. Please try again shortly.', 'ux-studio' ), array( 'status' => 429 ) );
 		}
 
 		( new ChatEngine() )->record_gdpr_consent( $session_id );
@@ -313,7 +344,7 @@ final class ChatRestController extends Controller {
 		$faq_id  = absint( $request->get_param( 'faq_id' ) );
 		$helpful = (bool) $request->get_param( 'helpful' );
 
-		if ( $faq_id > 0 && class_exists( FaqManager::class ) && method_exists( FaqManager::class, 'record_feedback' ) ) {
+		if ( $faq_id > 0 && $this->check_form_rate_limit( 'feedback' ) && class_exists( FaqManager::class ) && method_exists( FaqManager::class, 'record_feedback' ) ) {
 			FaqManager::record_feedback( $faq_id, $helpful );
 		}
 
@@ -321,21 +352,43 @@ final class ChatRestController extends Controller {
 	}
 
 	public function contact( WP_REST_Request $request ) {
-		$session_id = sanitize_text_field( (string) $request->get_param( 'session_id' ) );
-		$name       = sanitize_text_field( (string) $request->get_param( 'name' ) );
-		$email      = sanitize_email( (string) $request->get_param( 'email' ) );
-		$phone      = sanitize_text_field( (string) $request->get_param( 'phone' ) );
-		$message    = sanitize_textarea_field( (string) $request->get_param( 'message' ) );
-		$page_url   = esc_url_raw( (string) $request->get_param( 'page_url' ) );
+		$session_id = self::sanitize_session( $request->get_param( 'session_id' ) );
+		$name       = mb_substr( sanitize_text_field( (string) $request->get_param( 'name' ) ), 0, 255 );
+		$email      = mb_substr( sanitize_email( (string) $request->get_param( 'email' ) ), 0, 255 );
+		$phone      = mb_substr( sanitize_text_field( (string) $request->get_param( 'phone' ) ), 0, 50 );
+		$message    = mb_substr( sanitize_textarea_field( (string) $request->get_param( 'message' ) ), 0, 5000 );
+		$page_url   = mb_substr( esc_url_raw( (string) $request->get_param( 'page_url' ) ), 0, 500 );
 
 		if ( '' === $name || '' === $email || '' === $message ) {
 			return new WP_Error( 'uxstudio_missing_fields', __( 'Please fill in all fields.', 'ux-studio' ), array( 'status' => 400 ) );
 		}
-		if ( ! is_email( $email ) ) {
+		$reply_to = PublicGuard::reply_to_address( $email );
+		if ( '' === $reply_to ) {
 			return new WP_Error( 'uxstudio_invalid_email', __( 'Invalid email address.', 'ux-studio' ), array( 'status' => 400 ) );
 		}
-		if ( ! $this->check_form_rate_limit( 'contact', $session_id ) ) {
+		if ( ! $this->check_form_rate_limit( 'contact' ) ) {
 			return new WP_Error( 'uxstudio_rate_limited', __( 'You have reached the maximum number of messages. Please try again later.', 'ux-studio' ), array( 'status' => 429 ) );
+		}
+
+		// Stored first - the e-mail is only a notification and may be capped.
+		global $wpdb;
+		$wpdb->insert(
+			$wpdb->prefix . 'uxstudio_ai_assistant_inquiries',
+			array(
+				'type'       => 'email',
+				'session_id' => $session_id,
+				'name'       => $name,
+				'email'      => $email,
+				'phone'      => $phone,
+				'message'    => $message,
+				'page_url'   => $page_url,
+				'status'     => 'new',
+				'created_at' => current_time( 'mysql' ),
+			)
+		);
+
+		if ( ! PublicGuard::allow_notification_email() ) {
+			return $this->ok( array( 'success' => true ) );
 		}
 
 		$to        = get_option( 'admin_email' );
@@ -362,44 +415,26 @@ final class ChatRestController extends Controller {
 			nl2br( esc_html( $message ) )
 		);
 
-		$sent = wp_mail(
+		// Bare validated address only - the visitor-typed name never reaches a header.
+		wp_mail(
 			$to,
 			$subject,
 			$body,
 			array(
 				'Content-Type: text/html; charset=UTF-8',
-				'Reply-To: ' . $name . ' <' . $email . '>',
+				'Reply-To: ' . $reply_to,
 			)
 		);
 
-		if ( ! $sent ) {
-			return new WP_Error( 'uxstudio_mail_failed', __( 'Could not send the email. Please try again.', 'ux-studio' ), array( 'status' => 500 ) );
-		}
-
-		global $wpdb;
-		$wpdb->insert(
-			$wpdb->prefix . 'uxstudio_ai_assistant_inquiries',
-			array(
-				'type'       => 'email',
-				'session_id' => $session_id,
-				'name'       => $name,
-				'email'      => $email,
-				'phone'      => $phone,
-				'message'    => $message,
-				'page_url'   => $page_url,
-				'status'     => 'new',
-				'created_at' => current_time( 'mysql' ),
-			)
-		);
-
+		// The inquiry is already stored, so a failed notification is not the visitor's error.
 		return $this->ok( array( 'success' => true ) );
 	}
 
 	public function callback_request( WP_REST_Request $request ) {
-		$session_id = sanitize_text_field( (string) $request->get_param( 'session_id' ) );
-		$phone      = sanitize_text_field( (string) $request->get_param( 'phone' ) );
-		$message    = sanitize_textarea_field( (string) $request->get_param( 'message' ) );
-		$page_url   = esc_url_raw( (string) $request->get_param( 'page_url' ) );
+		$session_id = self::sanitize_session( $request->get_param( 'session_id' ) );
+		$phone      = mb_substr( sanitize_text_field( (string) $request->get_param( 'phone' ) ), 0, 50 );
+		$message    = mb_substr( sanitize_textarea_field( (string) $request->get_param( 'message' ) ), 0, 2000 );
+		$page_url   = mb_substr( esc_url_raw( (string) $request->get_param( 'page_url' ) ), 0, 500 );
 
 		if ( '' === $phone ) {
 			return new WP_Error( 'uxstudio_missing_phone', __( 'Please enter a phone number.', 'ux-studio' ), array( 'status' => 400 ) );
@@ -409,7 +444,7 @@ final class ChatRestController extends Controller {
 		if ( ! preg_match( '/^\+?\d{9,15}$/', $phone_sanitized ) ) {
 			return new WP_Error( 'uxstudio_invalid_phone', __( 'Invalid phone number.', 'ux-studio' ), array( 'status' => 400 ) );
 		}
-		if ( ! $this->check_form_rate_limit( 'callback', $session_id ) ) {
+		if ( ! $this->check_form_rate_limit( 'callback' ) ) {
 			return new WP_Error( 'uxstudio_rate_limited', __( 'You have reached the maximum number of requests.', 'ux-studio' ), array( 'status' => 429 ) );
 		}
 
@@ -428,6 +463,10 @@ final class ChatRestController extends Controller {
 				'created_at' => current_time( 'mysql' ),
 			)
 		);
+
+		if ( ! PublicGuard::allow_notification_email() ) {
+			return $this->ok( array( 'success' => true ) );
+		}
 
 		$to        = get_option( 'admin_email' );
 		$site_name = get_bloginfo( 'name' );
@@ -452,14 +491,14 @@ final class ChatRestController extends Controller {
 	}
 
 	public function rating( WP_REST_Request $request ) {
-		$session_id = sanitize_text_field( (string) $request->get_param( 'session_id' ) );
+		$session_id = self::sanitize_session( $request->get_param( 'session_id' ) );
 		$rating     = absint( $request->get_param( 'rating' ) );
-		$feedback   = sanitize_textarea_field( (string) $request->get_param( 'feedback' ) );
+		$feedback   = mb_substr( sanitize_textarea_field( (string) $request->get_param( 'feedback' ) ), 0, 2000 );
 
 		if ( '' === $session_id || $rating < 1 || $rating > 5 ) {
 			return new WP_Error( 'uxstudio_invalid_rating', __( 'Invalid rating.', 'ux-studio' ), array( 'status' => 400 ) );
 		}
-		if ( ! $this->check_form_rate_limit( 'rating', $session_id ) ) {
+		if ( ! $this->check_form_rate_limit( 'rating' ) ) {
 			return new WP_Error( 'uxstudio_rate_limited', __( 'You have reached the maximum number of ratings.', 'ux-studio' ), array( 'status' => 429 ) );
 		}
 
@@ -581,8 +620,7 @@ final class ChatRestController extends Controller {
 	 * per-session cap. The raw IP is never stored, only a salted hash.
 	 */
 	private function check_chat_rate_limit( string $session_id ): bool {
-		$ip     = isset( $_SERVER['REMOTE_ADDR'] ) ? (string) $_SERVER['REMOTE_ADDR'] : '';
-		$ip_key = 'uxstudio_ais_rl_ip_' . md5( ( $ip ?: 'unknown' ) . wp_salt() );
+		$ip_key   = 'uxstudio_ais_rl_ip_' . PublicGuard::ip_hash();
 		$ip_count = (int) get_transient( $ip_key );
 
 		$session_key   = 'uxstudio_ais_rl_session_' . md5( $session_id . wp_salt() );
@@ -599,19 +637,21 @@ final class ChatRestController extends Controller {
 	}
 
 	/**
-	 * Per-hour cap (per session-hash, falling back to IP-hash) for the
-	 * lightweight public write endpoints (contact/callback/rating).
+	 * Per-hour cap per IP-hash for the lightweight public write endpoints
+	 * (see FORM_HOURLY_LIMITS).
 	 */
-	private function check_form_rate_limit( string $scope, string $session_id ): bool {
-		$ip  = isset( $_SERVER['REMOTE_ADDR'] ) ? (string) $_SERVER['REMOTE_ADDR'] : '';
-		$key = 'uxstudio_ais_rl_' . $scope . '_' . md5( ( $session_id ?: $ip ) . wp_salt() );
+	private function check_form_rate_limit( string $scope ): bool {
+		return PublicGuard::hit( 'form_' . $scope, self::FORM_HOURLY_LIMITS[ $scope ] ?? 3, HOUR_IN_SECONDS );
+	}
 
-		$count = (int) get_transient( $key );
-		if ( $count >= self::FORM_HOURLY_LIMIT ) {
-			return false;
-		}
-		set_transient( $key, $count + 1, HOUR_IN_SECONDS );
-
-		return true;
+	/**
+	 * Session ids are generated by crypto.randomUUID() in the widget; anything
+	 * else (or longer than the 64-char column) is rejected as ''.
+	 *
+	 * @param mixed $raw Raw request value.
+	 */
+	private static function sanitize_session( $raw ): string {
+		$id = is_string( $raw ) ? $raw : '';
+		return preg_match( '/^[a-zA-Z0-9_\-]{1,64}$/', $id ) ? $id : '';
 	}
 }

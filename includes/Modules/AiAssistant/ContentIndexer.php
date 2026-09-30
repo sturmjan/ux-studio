@@ -86,7 +86,8 @@ final class ContentIndexer {
 
 	/**
 	 * Index a single published post; removes it from the index if it is no
-	 * longer published or not an allowed post type.
+	 * longer published or has become password-protected. The index feeds the
+	 * public chat, so protected content must never land in it.
 	 */
 	public function index_post( int $post_id ): void {
 		if ( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) ) {
@@ -102,7 +103,7 @@ final class ContentIndexer {
 			return;
 		}
 
-		if ( 'publish' !== $post->post_status ) {
+		if ( ! self::is_public( $post ) ) {
 			$this->remove_post( $post_id );
 			return;
 		}
@@ -111,11 +112,39 @@ final class ContentIndexer {
 	}
 
 	/**
-	 * Remove a post from the index.
+	 * Remove a post from the index (and its derived RAG vectors).
 	 */
 	public function remove_post( int $post_id ): void {
 		global $wpdb;
 		$wpdb->delete( "{$wpdb->prefix}uxstudio_ai_assistant_content_index", array( 'post_id' => $post_id ), array( '%d' ) );
+		$wpdb->delete( "{$wpdb->prefix}uxstudio_ai_assistant_vectors", array( 'source_type' => 'content', 'source_id' => $post_id ), array( '%s', '%d' ) );
+	}
+
+	/**
+	 * Published and not password-protected - the only posts the public chat may see.
+	 */
+	public static function is_public( \WP_Post $post ): bool {
+		return 'publish' === $post->post_status && '' === (string) $post->post_password;
+	}
+
+	/**
+	 * Drop index rows (and their vectors) whose post is gone, unpublished or
+	 * password-protected - e.g. rows indexed before protected posts were
+	 * excluded. Runs at the start of every full reindex.
+	 *
+	 * @return int Number of removed posts.
+	 */
+	public function purge_non_public(): int {
+		global $wpdb;
+		$ids = $wpdb->get_col(
+			"SELECT ci.post_id FROM {$wpdb->prefix}uxstudio_ai_assistant_content_index ci
+			 LEFT JOIN {$wpdb->posts} p ON p.ID = ci.post_id
+			 WHERE p.ID IS NULL OR p.post_status <> 'publish' OR p.post_password <> ''"
+		);
+		foreach ( (array) $ids as $post_id ) {
+			$this->remove_post( (int) $post_id );
+		}
+		return count( (array) $ids );
 	}
 
 	/**
@@ -124,10 +153,13 @@ final class ContentIndexer {
 	 * @return array{queued:int,total:int}
 	 */
 	public function queue_reindex(): array {
+		$this->purge_non_public();
+
 		$ids = get_posts(
 			array(
 				'post_type'      => $this->get_allowed_post_types(),
 				'post_status'    => 'publish',
+				'has_password'   => false,
 				'posts_per_page' => -1,
 				'fields'         => 'ids',
 				'no_found_rows'  => true,
@@ -157,8 +189,14 @@ final class ContentIndexer {
 		$batch = array_splice( $queue, 0, self::BATCH_SIZE );
 		foreach ( $batch as $post_id ) {
 			$post = get_post( (int) $post_id );
-			if ( $post ) {
+			if ( ! $post ) {
+				continue;
+			}
+			// Re-checked here: the post may have changed since it was queued.
+			if ( self::is_public( $post ) ) {
 				$this->index_single_post( $post );
+			} else {
+				$this->remove_post( (int) $post_id );
 			}
 		}
 

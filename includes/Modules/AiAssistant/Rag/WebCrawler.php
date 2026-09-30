@@ -15,6 +15,28 @@ final class WebCrawler {
 	private const TIMEOUT    = 30;
 
 	/**
+	 * Common request args. wp_safe_remote_get() (reject_unsafe_urls) refuses
+	 * internal/private hosts and non-standard ports - and re-validates every
+	 * redirect hop the same way - so a URL/sitemap source cannot be used to
+	 * probe the server's internal network (SSRF).
+	 *
+	 * @param array<string, mixed> $extra Extra args.
+	 * @return array<string, mixed>
+	 */
+	private static function request_args( array $extra = array() ): array {
+		return array_merge(
+			array(
+				'timeout'             => self::TIMEOUT,
+				'user-agent'          => self::USER_AGENT,
+				'sslverify'           => true,
+				'redirection'         => 3,
+				'limit_response_size' => 10 * MB_IN_BYTES,
+			),
+			$extra
+		);
+	}
+
+	/**
 	 * Fetch one URL and return its extracted title/text.
 	 *
 	 * @return array{title:string,text:string,url:string,success:bool,error?:string}
@@ -22,14 +44,14 @@ final class WebCrawler {
 	public function crawl_url( string $url ): array {
 		$result = array( 'title' => '', 'text' => '', 'url' => $url, 'success' => false );
 
-		$response = wp_remote_get(
+		if ( ! wp_http_validate_url( $url ) ) {
+			$result['error'] = __( 'This URL is not allowed (internal address or non-standard port).', 'ux-studio' );
+			return $result;
+		}
+
+		$response = wp_safe_remote_get(
 			$url,
-			array(
-				'timeout'    => self::TIMEOUT,
-				'user-agent' => self::USER_AGENT,
-				'sslverify'  => true,
-				'headers'    => array( 'Accept' => 'text/html,application/xhtml+xml' ),
-			)
+			self::request_args( array( 'headers' => array( 'Accept' => 'text/html,application/xhtml+xml' ) ) )
 		);
 
 		if ( is_wp_error( $response ) ) {
@@ -77,8 +99,12 @@ final class WebCrawler {
 			return array();
 		}
 
-		$response = wp_remote_get( $sitemap_url, array( 'timeout' => self::TIMEOUT, 'user-agent' => self::USER_AGENT ) );
-		if ( is_wp_error( $response ) ) {
+		if ( ! wp_http_validate_url( $sitemap_url ) ) {
+			return array();
+		}
+
+		$response = wp_safe_remote_get( $sitemap_url, self::request_args() );
+		if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
 			return array();
 		}
 

@@ -6,6 +6,7 @@
   "scripts": {
     "start": "wp-scripts start",
     "build": "wp-scripts build",
+    "build:widget": "node bin/build-widget.mjs",
     "lint:js": "wp-scripts lint-js",
     "format": "wp-scripts format",
     "i18n:pot": "wp i18n make-pot . languages/ux-studio.pot --exclude=node_modules,vendor,languages --domain=ux-studio",
