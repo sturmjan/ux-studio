@@ -12767,3 +12767,406 @@ msgstr "Odstraní komentářové routy REST API, metody XML-RPC pro komentáře 
 
 msgid "Comments are disabled."
 msgstr "Komentáře jsou zakázané."
+
+msgid "SEO-safe 301/308/410 redirects with chain and loop protection, 404 log and AI tools (Redirection plugin replacement)."
+msgstr "SEO bezpečná přesměrování 301/308/410 s ochranou proti řetězům a smyčkám, log 404 a nástroje pro AI (náhrada pluginu Redirection)."
+
+#: includes/Modules/Redirects/Abilities.php:45 build/337.63a3582431d9b55979b3.js:1
+msgid "Redirects"
+msgstr "Přesměrování"
+
+#: includes/Modules/Redirects/Abilities.php:46
+msgid "SEO-safe URL redirects, 410 rules and the 404 log."
+msgstr "SEO bezpečná přesměrování URL, pravidla 410 a log chyb 404."
+
+#: includes/Modules/Redirects/Abilities.php:75
+msgid "List redirects"
+msgstr "Výpis přesměrování"
+
+#: includes/Modules/Redirects/Abilities.php:94
+msgid "Create or update redirects"
+msgstr "Vytvořit nebo upravit přesměrování"
+
+#: includes/Modules/Redirects/Abilities.php:115
+msgid "Delete redirects"
+msgstr "Smazat přesměrování"
+
+#: includes/Modules/Redirects/Abilities.php:131 build/337.63a3582431d9b55979b3.js:1
+msgid "Test a URL"
+msgstr "Otestovat URL"
+
+#: includes/Modules/Redirects/Abilities.php:147
+msgid "Audit redirects"
+msgstr "Audit přesměrování"
+
+#: includes/Modules/Redirects/Abilities.php:161
+msgid "List 404 errors"
+msgstr "Výpis chyb 404"
+
+#: includes/Modules/Redirects/Abilities.php:178
+msgid "List current site URLs"
+msgstr "Výpis URL tohoto webu"
+
+#: includes/Modules/Redirects/Abilities.php:195
+msgid "Suggest a target"
+msgstr "Navrhnout cíl"
+
+#: includes/Modules/Redirects/Module.php:152
+msgid "URL changed to %s"
+msgstr "URL změněna na %s"
+
+#: includes/Modules/Redirects/Module.php:166
+msgid "Redirect automatically when a URL changes"
+msgstr "Automaticky přesměrovat při změně URL"
+
+#: includes/Modules/Redirects/Module.php:167
+msgid "When a published post or page changes its slug or parent, a 301 from the old URL is created (also for child pages)."
+msgstr "Když publikovaný příspěvek nebo stránka změní slug nebo nadřazenou stránku, vytvoří se 301 ze staré URL (i pro podstránky)."
+
+#: includes/Modules/Redirects/Module.php:173
+msgid "Keep the query string"
+msgstr "Zachovat parametry URL"
+
+#: includes/Modules/Redirects/Module.php:174
+msgid "Carries ?utm_source, gclid and similar parameters over to the target so campaign tracking survives the redirect."
+msgstr "Přenese ?utm_source, gclid a podobné parametry na cíl, aby měření kampaní přežilo přesměrování."
+
+#: includes/Modules/Redirects/Module.php:180
+msgid "Browser cache for permanent redirects (seconds)"
+msgstr "Cache prohlížeče pro trvalá přesměrování (sekundy)"
+
+#: includes/Modules/Redirects/Module.php:181
+msgid "Browsers cache a 301 forever unless told otherwise. 3600 keeps mistakes fixable; 0 = no caching."
+msgstr "Prohlížeče si 301 bez dalšího pokynu pamatují navždy. 3600 nechá chyby opravitelné; 0 = bez cache."
+
+#: includes/Modules/Redirects/Module.php:187
+msgid "Count hits per rule"
+msgstr "Počítat návštěvy u pravidel"
+
+#: includes/Modules/Redirects/Module.php:188
+msgid "Shows which old URLs still get traffic (one small database write per redirect)."
+msgstr "Ukáže, které staré URL ještě mají návštěvnost (jeden malý zápis do databáze na přesměrování)."
+
+#: includes/Modules/Redirects/Module.php:194
+msgid "Log 404 errors"
+msgstr "Zaznamenávat chyby 404"
+
+#: includes/Modules/Redirects/Module.php:195
+msgid "Aggregated per URL with hit count and referrer, no IP addresses."
+msgstr "Souhrnně po URL s počtem návštěv a odkazující stránkou, bez IP adres."
+
+#: includes/Modules/Redirects/Module.php:201
+msgid "Keep 404 entries for (days)"
+msgstr "Uchovávat záznamy 404 (dní)"
+
+#: includes/Modules/Redirects/Module.php:202
+msgid "Entries not seen for this long are removed. 0 = keep."
+msgstr "Záznamy, které se tak dlouho neobjevily, se smažou. 0 = ponechat."
+
+#: includes/Modules/Redirects/Repository.php:355
+msgid "Rule not found."
+msgstr "Pravidlo nenalezeno."
+
+#: includes/Modules/Redirects/Repository.php:380
+msgid "match_type must be \"exact\" or \"regex\"."
+msgstr "match_type musí být „exact\" nebo „regex\"."
+
+#: includes/Modules/Redirects/Repository.php:383
+msgid "code must be one of 301, 302, 307, 308, 410."
+msgstr "code musí být jeden z kódů 301, 302, 307, 308, 410."
+
+#: includes/Modules/Redirects/Repository.php:390
+msgid "Source is required."
+msgstr "Zdrojová URL je povinná."
+
+#: includes/Modules/Redirects/Repository.php:393
+msgid "Source is not a valid regular expression."
+msgstr "Zdroj není platný regulární výraz."
+
+#: includes/Modules/Redirects/Repository.php:401
+msgid "Source is not a valid URL or path."
+msgstr "Zdroj není platná URL ani cesta."
+
+#: includes/Modules/Redirects/Repository.php:403
+msgid "The homepage itself cannot be redirected."
+msgstr "Úvodní stránku samotnou nelze přesměrovat."
+
+#: includes/Modules/Redirects/Repository.php:405
+msgid "WordPress system paths (wp-admin, wp-login.php, wp-json…) cannot be redirected."
+msgstr "Systémové cesty WordPressu (wp-admin, wp-login.php, wp-json…) nelze přesměrovat."
+
+#: includes/Modules/Redirects/Repository.php:420
+msgid "target_post_id must be a published, publicly viewable post."
+msgstr "target_post_id musí být publikovaný, veřejně zobrazitelný příspěvek."
+
+#: includes/Modules/Redirects/Repository.php:425
+msgid "Target (URL or target_post_id) is required unless code is 410."
+msgstr "Cíl (URL nebo target_post_id) je povinný, pokud kód není 410."
+
+#: includes/Modules/Redirects/Repository.php:427
+msgid "Protocol-relative targets (//host) are not allowed, use https://."
+msgstr "Cíle bez protokolu (//host) nejsou povolené, použijte https://."
+
+#: includes/Modules/Redirects/Repository.php:431
+msgid "Target must be a site path starting with \"/\" or an http(s) URL."
+msgstr "Cíl musí být cesta na webu začínající „/\" nebo http(s) URL."
+
+#: includes/Modules/Redirects/Repository.php:458
+msgid "This redirect would create a loop (the target leads back to the source)."
+msgstr "Toto přesměrování by vytvořilo smyčku (cíl vede zpět na zdroj)."
+
+#: includes/Modules/Redirects/Repository.php:468
+msgid "The target itself is marked 410 Gone - pick a live page or use 410 for this source too."
+msgstr "Cíl je sám označený jako 410 Gone - vyberte živou stránku, nebo použijte 410 i pro tento zdroj."
+
+#: includes/Modules/Redirects/Repository.php:476
+msgid "Target %1$s is itself redirected - pointed straight to %2$s to avoid a redirect chain."
+msgstr "Cíl %1$s je sám přesměrovaný - pravidlo vede rovnou na %2$s, aby nevznikl řetěz přesměrování."
+
+#: includes/Modules/Redirects/Repository.php:487
+msgid "Redirecting to the homepage is treated as a soft 404 by Google. Prefer the closest matching page, or 410 when the content is gone."
+msgstr "Přesměrování na úvodní stránku bere Google jako soft 404. Zvolte nejbližší odpovídající stránku, nebo 410, pokud obsah zanikl."
+
+#: includes/Modules/Redirects/Repository.php:490
+msgid "Temporary redirect: search engines keep the old URL indexed and do not pass its ranking. Use 301/308 for permanent moves."
+msgstr "Dočasné přesměrování: vyhledávače nechají starou URL v indexu a nepředají její hodnocení. Pro trvalý přesun použijte 301/308."
+
+#: includes/Modules/Redirects/Repository.php:493
+msgid "Target is not a known post or page - verify it answers 200 (test-url with live=true)."
+msgstr "Cíl není známý příspěvek ani stránka - ověřte, že vrací 200 (test URL s živou kontrolou)."
+
+#: includes/Modules/Redirects/Repository.php:496
+msgid "The source URL currently shows live content - the redirect will hide it."
+msgstr "Na zdrojové URL je teď živý obsah - přesměrování ho skryje."
+
+#: includes/Modules/Redirects/Repository.php:506
+msgid "Another rule (#%d) already handles this source."
+msgstr "Tento zdroj už obsluhuje jiné pravidlo (#%d)."
+
+#: includes/Modules/Redirects/Repository.php:508
+msgid "Source already has a rule - skipped."
+msgstr "Zdroj už má pravidlo - přeskočeno."
+
+#: includes/Modules/Redirects/RestController.php:70
+msgid "items must be a non-empty array."
+msgstr "items musí být neprázdné pole."
+
+#: includes/Modules/Redirects/RestController.php:147
+msgid "CSV is empty."
+msgstr "CSV je prázdné."
+
+#: includes/Modules/Redirects/Tester.php:183
+msgid "Invalid regular expression - the rule never matches."
+msgstr "Neplatný regulární výraz - pravidlo se nikdy neuplatní."
+
+#: includes/Modules/Redirects/Tester.php:190
+msgid "The target post is no longer published - pick a new target or switch to 410."
+msgstr "Cílový příspěvek už není publikovaný - vyberte nový cíl nebo přepněte na 410."
+
+#: includes/Modules/Redirects/Tester.php:195
+msgid "Redirect loop."
+msgstr "Smyčka přesměrování."
+
+#: includes/Modules/Redirects/Tester.php:205
+msgid "Redirect chain with %d hops - each hop loses crawl budget; point straight at the final URL."
+msgstr "Řetěz přesměrování s %d kroky - každý krok ubírá crawl budget; směřujte rovnou na konečnou URL."
+
+#: includes/Modules/Redirects/Tester.php:212
+msgid "Temporary redirect older than 30 days - if the move is permanent, switch to 301 so the ranking is passed."
+msgstr "Dočasné přesměrování starší než 30 dní - pokud je přesun trvalý, přepněte na 301, aby se předalo hodnocení."
+
+#: includes/Modules/Redirects/Tester.php:216
+msgid "The source URL has live content again - the redirect hides it. Delete the rule if the page should be reachable."
+msgstr "Na zdrojové URL je znovu živý obsah - přesměrování ho skrývá. Pokud má být stránka dostupná, pravidlo smažte."
+
+#: includes/Modules/Redirects/Tester.php:225
+msgid "Target answers HTTP %1$d after %2$d extra hop(s) - it must answer 200 directly."
+msgstr "Cíl vrací HTTP %1$d po %2$d dalších krocích - musí vracet 200 přímo."
+
+#: includes/Modules/Redirects/Tester.php:238
+msgid "%d rules send visitors to the homepage. Google treats mass homepage redirects as soft 404s - map each URL to its closest page or use 410."
+msgstr "Pravidel posílajících návštěvníky na úvodní stránku: %d. Google bere hromadná přesměrování na úvodní stránku jako soft 404 - namapujte každou URL na nejbližší stránku, nebo použijte 410."
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "301 Moved permanently (recommended)"
+msgstr "301 Trvale přesunuto (doporučeno)"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "308 Permanent, keeps method"
+msgstr "308 Trvale, zachová metodu"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "302 Temporary"
+msgstr "302 Dočasně"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "307 Temporary, keeps method"
+msgstr "307 Dočasně, zachová metodu"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "410 Gone (content removed)"
+msgstr "410 Gone (obsah odstraněn)"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "Warning"
+msgstr "Varování"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "Live HTTP check"
+msgstr "Živá kontrola přes HTTP"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "(gone)"
+msgstr "(zrušeno)"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "%d hop(s)"
+msgstr "Kroků: %d"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "No rule matches this URL."
+msgstr "Na tuto URL se nevztahuje žádné pravidlo."
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "Unexpected empty response."
+msgstr "Neočekávaná prázdná odpověď."
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "Old URL"
+msgstr "Stará URL"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "New URL"
+msgstr "Nová URL"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "Exact URL"
+msgstr "Přesná URL"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "Regular expression"
+msgstr "Regulární výraz"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "Update redirect"
+msgstr "Uložit přesměrování"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "Search redirects…"
+msgstr "Hledat přesměrování…"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "No redirects yet."
+msgstr "Zatím žádná přesměrování."
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "Code"
+msgstr "Kód"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "Origin"
+msgstr "Původ"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "Delete this redirect?"
+msgstr "Smazat toto přesměrování?"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "Only URLs without a redirect"
+msgstr "Jen URL bez přesměrování"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "Clear the whole 404 log?"
+msgstr "Vymazat celý log 404?"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "No 404 errors logged."
+msgstr "Žádné chyby 404 nezaznamenány."
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "Referrer"
+msgstr "Odkazující stránka"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "Redirect…"
+msgstr "Přesměrovat…"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "Checks loops, redirect chains, removed target pages, long-running temporary redirects, mass redirects to the homepage (soft 404) and old URLs that have live content again."
+msgstr "Kontroluje smyčky, řetězy přesměrování, odstraněné cílové stránky, dlouhodobá dočasná přesměrování, hromadná přesměrování na úvodní stránku (soft 404) a staré URL, na kterých je znovu živý obsah."
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "Run audit"
+msgstr "Spustit audit"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "Audit + check targets over HTTP"
+msgstr "Audit + kontrola cílů přes HTTP"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "Fix chains"
+msgstr "Opravit řetězy"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "Active rules"
+msgstr "Aktivní pravidla"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "Errors"
+msgstr "Chyby"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "Warnings"
+msgstr "Varování"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "Chains fixed"
+msgstr "Opravené řetězy"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "No problems found."
+msgstr "Žádné problémy nenalezeny."
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "CSV import"
+msgstr "Import CSV"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "One redirect per line: source, target, code, note. Header row optional, comma or semicolon separated. Empty target = 410 Gone."
+msgstr "Jedno přesměrování na řádek: zdroj, cíl, kód, poznámka. Hlavička je nepovinná, oddělovač čárka nebo středník. Prázdný cíl = 410 Gone."
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "Check (dry run)"
+msgstr "Zkontrolovat (bez uložení)"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "Import from the Redirection plugin"
+msgstr "Import z pluginu Redirection"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "Copies URL redirects and 410 rules. Rules with login, referrer or IP conditions are skipped. Deactivate Redirection afterwards so the two do not compete."
+msgstr "Zkopíruje přesměrování URL a pravidla 410. Pravidla s podmínkou na přihlášení, odkazující stránku nebo IP se přeskočí. Pak Redirection deaktivujte, ať si nekonkurují."
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "Download CSV"
+msgstr "Stáhnout CSV"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "404 log"
+msgstr "Log 404"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "SEO audit"
+msgstr "SEO audit"
+
+#: build/337.63a3582431d9b55979b3.js:1
+msgid "Import / export"
+msgstr "Import / export"
+
+#: includes/Modules/Redirects/Repository.php:564
+msgid "%d older rule pointed at this source - repointed to the new target (no chain)."
+msgid_plural "%d older rules pointed at this source - repointed to the new target (no chain)."
+msgstr[0] "%d starší pravidlo mířilo na tento zdroj - přesměrováno na nový cíl (bez řetězu)."
+msgstr[1] "%d starší pravidla mířila na tento zdroj - přesměrována na nový cíl (bez řetězu)."
+msgstr[2] "%d starších pravidel mířilo na tento zdroj - přesměrováno na nový cíl (bez řetězu)."
+

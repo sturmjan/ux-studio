@@ -14,12 +14,13 @@ defined( 'ABSPATH' ) || exit;
 final class SiteIndex {
 
 	/**
-	 * Public post types (no attachments).
+	 * Public post types meant to be landed on: no attachments and nothing
+	 * excluded from search (Elementor templates, landing-page drafts…).
 	 *
 	 * @return array<int, string>
 	 */
 	private static function post_types(): array {
-		$types = get_post_types( array( 'public' => true ), 'names' );
+		$types = get_post_types( array( 'public' => true, 'exclude_from_search' => false ), 'names' );
 		unset( $types['attachment'] );
 		return array_values( $types );
 	}
