@@ -210,8 +210,11 @@ Celkem ~59 mezer; ✅ v tabulce výše je u níže uvedených modulů nepřesné
 - [x] `security-optimization`: doplněno `disable_comments`, `disable_blog`, `heartbeat_control`,
   `limit_revisions`+`revisions_count`, `restrict_mime_types` (filtruje, nepřepisuje - SVG jen se
   SVG modulem), `hide_author_slugs` (AES s wp_salt místo DES-EDE3), `captcha_forms` (inline).
-  Klíče shodné s legacy → migrovaná hodnota platí bez migrace. Lint + unit test čistých funkcí OK;
-  v prohlížeči NEověřeno (lokální DB `pobyt_options` poškozená).
+  Klíče shodné s legacy → migrovaná hodnota platí bez migrace. Zákaz komentářů navíc převzal
+  rozšíření ze samostatného modulu DisableComments (rozsah všude/typy obsahu, skrytí existujících,
+  admin UI, blokace REST/XML-RPC/feedů) - ten modul i jeho větev zrušeny. Ověřeno naostro na
+  pobyty (kde byly disable_comments/hide_author_slugs/restrict_mime_types zapnuté a tiše nefungovaly):
+  wp-comments-post 403, comment feed 301, URL autora šifrovaná a dešifruje se, MIME omezené.
 
 ### Kritické
 - [ ] Staré shortcody nezaregistrované (vypíšou se jako text): `[ux1_download_files]`, `[ux1_reviews]`,
