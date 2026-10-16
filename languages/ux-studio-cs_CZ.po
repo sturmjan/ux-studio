@@ -12728,3 +12728,42 @@ msgstr "Registrace"
 
 msgid "Lost password"
 msgstr "Obnova hesla"
+
+msgid "Where to disable comments"
+msgstr "Kde zakázat komentáře"
+
+msgid "Everywhere closes comments on all content and removes the comment tools from the admin. For selected post types only those post types are affected."
+msgstr "Všude zavře komentáře u veškerého obsahu a odstraní nástroje pro komentáře z administrace. U vybraných typů obsahu se změna týká jen jich."
+
+msgid "Everywhere"
+msgstr "Všude"
+
+msgid "Only for selected post types"
+msgstr "Jen pro vybrané typy obsahu"
+
+msgid "Post types without comments"
+msgstr "Typy obsahu bez komentářů"
+
+msgid "Used when \"Only for selected post types\" is chosen."
+msgstr "Použije se, když je zvoleno „Jen pro vybrané typy obsahu“."
+
+msgid "Hide existing comments"
+msgstr "Skrýt existující komentáře"
+
+msgid "Existing comments are hidden on the site but not deleted - switching this off shows them again."
+msgstr "Existující komentáře se na webu skryjí, ale nesmažou - po vypnutí se zase zobrazí."
+
+msgid "Remove comment tools from the admin"
+msgstr "Odstranit nástroje pro komentáře z administrace"
+
+msgid "Hides the Comments menu, the Discussion settings page, the dashboard widget, the admin bar bubble and the Recent Comments widget. Applies only when disabling everywhere."
+msgstr "Skryje menu Komentáře, stránku nastavení Diskuse, widget na nástěnce, bublinu v admin liště a widget Nejnovější komentáře. Platí jen při zákazu všude."
+
+msgid "Block comment endpoints"
+msgstr "Zablokovat koncové body komentářů"
+
+msgid "Removes the REST API comment routes, XML-RPC comment/pingback methods, the X-Pingback header and comment feeds. Applies only when disabling everywhere."
+msgstr "Odstraní komentářové routy REST API, metody XML-RPC pro komentáře a pingbacky, hlavičku X-Pingback a komentářové feedy. Platí jen při zákazu všude."
+
+msgid "Comments are disabled."
+msgstr "Komentáře jsou zakázané."

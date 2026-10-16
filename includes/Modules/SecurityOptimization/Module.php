@@ -745,6 +745,46 @@ final class Module extends BaseModule {
 				'default' => false,
 			),
 			array(
+				'key'     => 'disable_comments_scope',
+				'type'    => 'select',
+				'label'   => __( 'Where to disable comments', 'ux-studio' ),
+				'help'    => __( 'Everywhere closes comments on all content and removes the comment tools from the admin. For selected post types only those post types are affected.', 'ux-studio' ),
+				'options' => array(
+					'all'      => __( 'Everywhere', 'ux-studio' ),
+					'selected' => __( 'Only for selected post types', 'ux-studio' ),
+				),
+				'default' => 'all',
+			),
+			array(
+				'key'     => 'disable_comments_post_types',
+				'type'    => 'multiselect',
+				'label'   => __( 'Post types without comments', 'ux-studio' ),
+				'help'    => __( 'Used when "Only for selected post types" is chosen.', 'ux-studio' ),
+				'options' => self::post_type_options(),
+				'default' => array(),
+			),
+			array(
+				'key'     => 'disable_comments_hide_existing',
+				'type'    => 'toggle',
+				'label'   => __( 'Hide existing comments', 'ux-studio' ),
+				'help'    => __( 'Existing comments are hidden on the site but not deleted - switching this off shows them again.', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
+				'key'     => 'disable_comments_admin_ui',
+				'type'    => 'toggle',
+				'label'   => __( 'Remove comment tools from the admin', 'ux-studio' ),
+				'help'    => __( 'Hides the Comments menu, the Discussion settings page, the dashboard widget, the admin bar bubble and the Recent Comments widget. Applies only when disabling everywhere.', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
+				'key'     => 'disable_comments_block_endpoints',
+				'type'    => 'toggle',
+				'label'   => __( 'Block comment endpoints', 'ux-studio' ),
+				'help'    => __( 'Removes the REST API comment routes, XML-RPC comment/pingback methods, the X-Pingback header and comment feeds. Applies only when disabling everywhere.', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
 				'key'     => 'disable_blog',
 				'type'    => 'toggle',
 				'label'   => __( 'Disable blog', 'ux-studio' ),
@@ -1742,43 +1782,136 @@ final class Module extends BaseModule {
 	   Content: disable comments
 	   ═══════════════════════════════════════════════════ */
 
+	/**
+	 * Closes comments and pingbacks everywhere or for selected post types,
+	 * hides existing comments and (when everywhere) removes the comment admin
+	 * screens, REST/XML-RPC endpoints and comment feeds. No data is deleted -
+	 * switching it off restores the previous state.
+	 */
 	private function init_disable_comments(): void {
-		add_filter( 'comments_open', '__return_false', 20, 2 );
-		add_filter( 'pings_open', '__return_false', 20, 2 );
-		add_filter( 'comments_array', '__return_empty_array', 10, 2 );
-		remove_action( 'wp_head', 'feed_links_extra', 3 );
-
-		add_action( 'admin_menu', array( $this, 'remove_comments_admin_menu' ) );
-		add_action( 'admin_init', array( $this, 'disable_comments_admin' ) );
 		add_action( 'init', array( $this, 'remove_comment_support' ), 100 );
-		add_action( 'wp_before_admin_bar_render', array( $this, 'remove_comments_admin_bar_node' ) );
-		add_filter( 'wp_count_comments', array( $this, 'zero_comment_count' ), 10, 2 );
+		add_filter( 'comments_open', array( $this, 'filter_comments_open' ), 20, 2 );
+		add_filter( 'pings_open', array( $this, 'filter_comments_open' ), 20, 2 );
+		add_action( 'pre_comment_on_post', array( $this, 'block_comment_submission' ) );
+
+		if ( $this->setting( 'disable_comments_hide_existing', true ) ) {
+			add_filter( 'comments_array', array( $this, 'filter_comments_array' ), 20, 2 );
+			add_filter( 'get_comments_number', array( $this, 'filter_comments_number' ), 20, 2 );
+		}
+
+		// The remaining switches only make sense when comments are off everywhere.
+		if ( ! $this->comments_disabled_globally() ) {
+			return;
+		}
+
+		if ( $this->setting( 'disable_comments_admin_ui', true ) ) {
+			add_action( 'admin_menu', array( $this, 'remove_comments_admin_menus' ), 999 );
+			add_action( 'admin_init', array( $this, 'block_comments_admin_screens' ) );
+			add_action( 'wp_dashboard_setup', array( $this, 'remove_comments_dashboard_widget' ) );
+			add_action( 'wp_before_admin_bar_render', array( $this, 'remove_comments_admin_bar_node' ) );
+			add_action( 'widgets_init', array( $this, 'remove_comments_widget' ), 20 );
+			add_filter( 'wp_count_comments', array( $this, 'zero_comment_count' ), 10, 2 );
+		}
+
+		if ( $this->setting( 'disable_comments_block_endpoints', true ) ) {
+			add_filter( 'rest_endpoints', array( $this, 'filter_comment_rest_endpoints' ) );
+			add_filter( 'xmlrpc_methods', array( $this, 'filter_comment_xmlrpc_methods' ) );
+			add_filter( 'wp_headers', array( $this, 'remove_x_pingback' ) );
+			add_filter( 'feed_links_show_comments_feed', '__return_false' );
+			add_action( 'template_redirect', array( $this, 'redirect_comment_feeds' ), 1 );
+		}
 	}
 
-	public function remove_comments_admin_menu(): void {
+	private function comments_disabled_globally(): bool {
+		return 'selected' !== (string) $this->setting( 'disable_comments_scope', 'all' );
+	}
+
+	private function comments_disabled_for( string $post_type ): bool {
+		if ( $this->comments_disabled_globally() ) {
+			return true;
+		}
+		return in_array( $post_type, (array) $this->setting( 'disable_comments_post_types', array() ), true );
+	}
+
+	/**
+	 * Selectable post types for the per-type scope.
+	 *
+	 * @return array<string,string>
+	 */
+	private static function post_type_options(): array {
+		$options = array();
+		foreach ( get_post_types( array( 'show_ui' => true ), 'objects' ) as $type ) {
+			$options[ $type->name ] = $type->labels->name;
+		}
+		return $options;
+	}
+
+	public function remove_comment_support(): void {
+		foreach ( get_post_types( array(), 'names' ) as $post_type ) {
+			if ( ! $this->comments_disabled_for( $post_type ) ) {
+				continue;
+			}
+			remove_post_type_support( $post_type, 'comments' );
+			remove_post_type_support( $post_type, 'trackbacks' );
+		}
+	}
+
+	/**
+	 * @param bool         $open    Current state.
+	 * @param int|\WP_Post $post_id Post.
+	 */
+	public function filter_comments_open( $open, $post_id ) {
+		$post_type = get_post_type( $post_id );
+		return ( $post_type && $this->comments_disabled_for( $post_type ) ) ? false : $open;
+	}
+
+	/**
+	 * Refuse direct submissions to wp-comments-post.php.
+	 *
+	 * @param int|string $post_id Post ID.
+	 */
+	public function block_comment_submission( $post_id ): void {
+		$post_type = get_post_type( (int) $post_id );
+		if ( $post_type && $this->comments_disabled_for( $post_type ) ) {
+			wp_die( esc_html__( 'Comments are disabled.', 'ux-studio' ), '', array( 'response' => 403 ) );
+		}
+	}
+
+	/**
+	 * @param array $comments Comments.
+	 * @param int   $post_id  Post ID.
+	 */
+	public function filter_comments_array( $comments, $post_id ) {
+		$post_type = get_post_type( $post_id );
+		return ( $post_type && $this->comments_disabled_for( $post_type ) ) ? array() : $comments;
+	}
+
+	/**
+	 * @param int|string $count   Comment count.
+	 * @param int        $post_id Post ID.
+	 */
+	public function filter_comments_number( $count, $post_id ) {
+		$post_type = get_post_type( $post_id );
+		return ( $post_type && $this->comments_disabled_for( $post_type ) ) ? 0 : $count;
+	}
+
+	public function remove_comments_admin_menus(): void {
 		remove_menu_page( 'edit-comments.php' );
+		remove_submenu_page( 'options-general.php', 'options-discussion.php' );
 	}
 
-	public function disable_comments_admin(): void {
+	public function block_comments_admin_screens(): void {
 		global $pagenow;
-
-		if ( 'edit-comments.php' === $pagenow ) {
+		if ( in_array( $pagenow, array( 'edit-comments.php', 'comment.php', 'options-discussion.php' ), true ) ) {
 			wp_safe_redirect( admin_url() );
 			exit;
 		}
-
-		remove_meta_box( 'dashboard_recent_comments', 'dashboard', 'normal' );
 		// Again here for post types registered after init:100.
 		$this->remove_comment_support();
 	}
 
-	public function remove_comment_support(): void {
-		foreach ( get_post_types() as $post_type ) {
-			if ( post_type_supports( $post_type, 'comments' ) ) {
-				remove_post_type_support( $post_type, 'comments' );
-				remove_post_type_support( $post_type, 'trackbacks' );
-			}
-		}
+	public function remove_comments_dashboard_widget(): void {
+		remove_meta_box( 'dashboard_recent_comments', 'dashboard', 'normal' );
 	}
 
 	public function remove_comments_admin_bar_node(): void {
@@ -1788,7 +1921,53 @@ final class Module extends BaseModule {
 		}
 	}
 
+	public function remove_comments_widget(): void {
+		unregister_widget( 'WP_Widget_Recent_Comments' );
+	}
+
 	/**
+	 * @param array $endpoints Registered REST routes.
+	 */
+	public function filter_comment_rest_endpoints( $endpoints ) {
+		foreach ( array_keys( (array) $endpoints ) as $route ) {
+			if ( 0 === strpos( (string) $route, '/wp/v2/comments' ) ) {
+				unset( $endpoints[ $route ] );
+			}
+		}
+		return $endpoints;
+	}
+
+	/**
+	 * @param array $methods XML-RPC methods.
+	 */
+	public function filter_comment_xmlrpc_methods( $methods ) {
+		$remove = array(
+			'wp.newComment',
+			'wp.getComment',
+			'wp.getComments',
+			'wp.getCommentCount',
+			'wp.editComment',
+			'wp.deleteComment',
+			'wp.getCommentStatusList',
+			'pingback.ping',
+			'pingback.extensions.getPingbacks',
+		);
+		foreach ( $remove as $method ) {
+			unset( $methods[ $method ] );
+		}
+		return $methods;
+	}
+
+	public function redirect_comment_feeds(): void {
+		if ( is_comment_feed() ) {
+			wp_safe_redirect( home_url( '/' ), 301 );
+			exit;
+		}
+	}
+
+	/**
+	 * Admin counters (menu bubble, At a Glance) report zero when comments are off everywhere.
+	 *
 	 * @param array|object $counts  Incoming counts (unused).
 	 * @param int          $post_id Post ID (unused).
 	 */
