@@ -1512,10 +1512,17 @@ Redirection, export CSV, SPA (pravidla + test URL, 404, SEO audit, import/export
 - [x] PHP: Url, Repository, Engine, NotFoundLog, Tester, Importer, SiteIndex, Abilities,
       RestController, Module; php -l čisté; normalizace URL ověřena samostatným testem (13 případů)
 - [x] SPA `src/modules/redirects/Page.tsx`, ikona `signpost`, registry
-- [ ] Ověřit na běžícím WP (16.10. lokální DB `pobyty` poškozená - `pobyt_options` „doesn't exist
-      in engine", MySQL běží v `innodb_force_recovery`): zapnout modul, vytvořit tabulky,
-      curl na 301/410/řetěz/smyčku, abilities přes `/wp-json/wp-abilities/v1`
-- [ ] Překlady cs_CZ (make-pot → update-po → přeložit → make-mo → make-json → merge-json)
+- [x] Ověřeno na lokálu 16.10. (po opravě DB): tabulky, uložení přes Repository (smyčka, self,
+      wp-admin zamítnuté; řetěz zploštěn na 1 hop; upstream A→B přepojen na post), curl: 301 s utm,
+      case/lomítko, query pravidlo, regex `$1`, `/$1` neutekl na cizí host, 410 + noindex,
+      `X-Redirect-By`; auto-301 při změně slugu + smazání pravidla na obnovené URL; log 404;
+      8 abilities (dry-run výchozí, volání bez vstupu OK); REST pro SPA; dry-run importu z
+      Redirection na pobyty = 338 pravidel. Pozn.: `.htaccess` (Performance Optimization) přepisuje
+      `Cache-Control` na `no-cache` pro všechny .php → 301 se v prohlížeči necachuje (neškodné).
+- [x] Překlady cs_CZ (100 řetězců vč. meta.json). PAST: `wp i18n update-po` vyhodí ručně vedené
+      msgid z meta.json (nejsou v kódu) - nové řetězce připisovat do .po cíleně, pak make-mo,
+      make-json, merge-json.
+- [ ] Vizuálně projít SPA stránku modulu v prohlížeči (Playwright MCP se v session nepřipojil)
 - [ ] Import z Redirection na webu, kde ho používá, pak Redirection vypnout
 - [ ] Zvážit: `trash` publikovaného obsahu → nabídnout 410/redirect (záměrně vynecháno,
       automatická 410 by blokovala obnovení z koše)
