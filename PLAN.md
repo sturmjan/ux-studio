@@ -1474,3 +1474,48 @@ Zbývá / k rozhodnutí:
 - [ ] File Manager `?auth=` přestane fungovat, když je zapnutá CAPTCHA na loginu (důsledek
       toho, že teď jde přes `wp_authenticate`).
 
+
+## 22. Přesměrování - modul `redirects` (2026-10-16)
+
+Náhrada pluginu Redirection (wordpress.org/plugins/redirection), se kterou umí AI pracovat
+nativně přes Abilities API (jádro WP 6.9+, na lokálu 7.1) → MCP. Mapování starých URL na
+nové dělá AI agent sám, modul hlídá, aby výsledek odpovídal SEO pravidlům.
+
+**SEO pravidla zabudovaná v `Repository::save()` (platí pro UI, import, AI i auto-redirect):**
+- 301 výchozí (308 = trvalé se zachováním metody, 302/307 dočasné s varováním, 410 = obsah
+  zrušen bez náhrady → rychlejší vyřazení z indexu než 404, vykresleno 404 šablonou + noindex);
+- žádné smyčky ani přesměrování na sebe (včetně zdroje bez query, který chytá libovolnou query,
+  a regexu, který chytá vlastní cíl);
+- žádné řetězy: A→B + B→C se uloží jako A→C, a když přibude B→C později, starší A→B se
+  přesměruje na C (`repoint_upstream`);
+- cíl na tomhle webu se uloží relativně a naváže na `post_id` → po změně slugu se cíl posune sám;
+- varování: cíl = homepage (Google bere jako soft 404), dočasný kód, neověřený cíl, zdroj má
+  živý obsah; systémové cesty (wp-admin, wp-login.php, wp-json…) a homepage jako zdroj zakázané.
+
+**Engine:** `init` prio 1, jen front-end GET/HEAD přes index.php. Exact = 1 indexovaný dotaz
+přes sha1 hash (cesta lowercase, bez koncového lomítka, dekódovaná, query seřazená); regexy
+v autoloaded optionu `uxstudio_redirects_state`. Query návštěvníka (utm, gclid) se přenáší.
+301/308 dostane `Cache-Control: max-age=3600` (jinak to prohlížeč cachuje navždy).
+`X-Redirect-By: UX Studio Redirects`. Modul `redirect-404-to-homepage` respektuje
+`Engine::handled()` (410 se nikdy nezmění na redirect na homepage).
+
+**AI (category `redirects`):** `list-rules`, `upsert-rules` (max 500, `dry_run` výchozí true,
+per-položka status + errors/warnings), `delete-rules`, `test-url` (průchod pravidly + `live`
+HTTP s reálnými kódy každého hopu), `audit` (+`fix_chains`), `list-404` (`unresolved_only`),
+`list-site-urls` (inventář nového webu), `find-target` (kandidáti podle slugu/titulku, skóre).
+Stejné operace v REST `uxstudio/v1/redirects/*` pro SPA.
+
+**Další:** log 404 agregovaný po URL (bez IP, retence 90 dní, strop 20 000 řádků), automatická
+301 při změně slugu/rodiče publikovaného obsahu (i podstránky), import CSV + z tabulek
+Redirection, export CSV, SPA (pravidla + test URL, 404, SEO audit, import/export, nastavení).
+
+- [x] PHP: Url, Repository, Engine, NotFoundLog, Tester, Importer, SiteIndex, Abilities,
+      RestController, Module; php -l čisté; normalizace URL ověřena samostatným testem (13 případů)
+- [x] SPA `src/modules/redirects/Page.tsx`, ikona `signpost`, registry
+- [ ] Ověřit na běžícím WP (16.10. lokální DB `pobyty` poškozená - `pobyt_options` „doesn't exist
+      in engine", MySQL běží v `innodb_force_recovery`): zapnout modul, vytvořit tabulky,
+      curl na 301/410/řetěz/smyčku, abilities přes `/wp-json/wp-abilities/v1`
+- [ ] Překlady cs_CZ (make-pot → update-po → přeložit → make-mo → make-json → merge-json)
+- [ ] Import z Redirection na webu, kde ho používá, pak Redirection vypnout
+- [ ] Zvážit: `trash` publikovaného obsahu → nabídnout 410/redirect (záměrně vynecháno,
+      automatická 410 by blokovala obnovení z koše)

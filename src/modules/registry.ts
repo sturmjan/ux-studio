@@ -46,4 +46,5 @@ export const MODULE_PAGES: Record< string, ReturnType< typeof lazy > > = {
 	'ai-panel': lazy( () => import( './ai-panel/Page' ) ),
 	'file-manager': lazy( () => import( './file-manager/Page' ) ),
 	'ai-assistant': lazy( () => import( './ai-assistant/Page' ) ),
+	redirects: lazy( () => import( './redirects/Page' ) ),
 };

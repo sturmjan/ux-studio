@@ -62,6 +62,15 @@ final class Module extends BaseModule {
 	 */
 	public function get_supported_plugins(): array {
 		return array(
+			// UX Studio Redirects module (also covers its 410 Gone rules,
+			// which must never turn into a homepage redirect).
+			array(
+				'class'  => 'UxStudio\Modules\Redirects\Engine',
+				'active' => static function (): bool {
+					return class_exists( '\UxStudio\Modules\Redirects\Engine', false )
+						&& \UxStudio\Modules\Redirects\Engine::handled();
+				},
+			),
 			// Redirection plugin.
 			array(
 				'class'  => 'Redirection',
