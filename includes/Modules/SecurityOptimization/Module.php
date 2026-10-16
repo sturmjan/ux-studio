@@ -167,6 +167,13 @@ final class Module extends BaseModule {
 			add_filter( 'rest_endpoints', array( $this, 'disable_user_rest_route' ) );
 		}
 
+		/* ── Hide author slugs (encrypted user ID instead of the username) ── */
+		if ( $this->setting( 'hide_author_slugs', false ) ) {
+			add_action( 'pre_get_posts', array( $this, 'handle_author_query' ) );
+			add_filter( 'author_link', array( $this, 'encrypt_author_link' ), 10, 3 );
+			add_filter( 'rest_prepare_user', array( $this, 'encrypt_rest_api_user' ), 10, 3 );
+		}
+
 		/* ── Harden login page ── */
 		if ( $this->setting( 'protect_login', false ) ) {
 			add_filter( 'login_errors', array( $this, 'sanitize_login_errors' ) );
@@ -229,6 +236,31 @@ final class Module extends BaseModule {
 		}
 		if ( $this->setting( 'restrict_rest_api', false ) ) {
 			add_filter( 'rest_authentication_errors', array( $this, 'restrict_rest_api' ), 99 );
+		}
+
+		/* ── Heartbeat (left alone when a caching/perf plugin already manages it) ── */
+		if ( false === self::heartbeat_managed_externally() ) {
+			$heartbeat = (string) $this->setting( 'heartbeat_control', 'normal' );
+			if ( 'slow' === $heartbeat ) {
+				add_filter( 'heartbeat_settings', array( $this, 'slow_heartbeat' ) );
+			} elseif ( 'disable' === $heartbeat ) {
+				add_action( 'init', array( $this, 'disable_heartbeat' ), 1 );
+			}
+		}
+
+		if ( $this->setting( 'limit_revisions', false ) ) {
+			add_filter( 'wp_revisions_to_keep', array( $this, 'limit_revisions' ), 10, 2 );
+		}
+		if ( $this->setting( 'restrict_mime_types', false ) ) {
+			add_filter( 'upload_mimes', array( $this, 'restrict_mime_types' ), 9999 );
+		}
+
+		/* ── Content: disable comments / blog ── */
+		if ( $this->setting( 'disable_comments', false ) ) {
+			$this->init_disable_comments();
+		}
+		if ( $this->setting( 'disable_blog', false ) ) {
+			$this->init_disable_blog();
 		}
 
 		/* ── CSP violation reporting + Upload Guard malware scanner (ported
@@ -580,6 +612,18 @@ final class Module extends BaseModule {
 				'default' => 'always',
 			),
 			array(
+				'key'     => 'captcha_forms',
+				'type'    => 'multiselect',
+				'label'   => __( 'Protected forms (inline placement only)', 'ux-studio' ),
+				'help'    => __( 'Which forms show and verify the CAPTCHA widget. The standalone gate always covers login and lost password.', 'ux-studio' ),
+				'options' => array(
+					'login'        => __( 'Login', 'ux-studio' ),
+					'register'     => __( 'Registration', 'ux-studio' ),
+					'lostpassword' => __( 'Lost password', 'ux-studio' ),
+				),
+				'default' => array( 'login', 'register', 'lostpassword' ),
+			),
+			array(
 				'key'     => 'captcha_site_key',
 				'type'    => 'text',
 				'label'   => __( 'Site key', 'ux-studio' ),
@@ -658,6 +702,55 @@ final class Module extends BaseModule {
 				'help'    => __( 'Blocks the WordPress REST API for anonymous visitors. Common public endpoints (oEmbed, WooCommerce, Contact Form 7, WPForms, Elementor, site health) stay reachable so front-end features keep working.', 'ux-studio' ),
 				'default' => false,
 			),
+			array(
+				'key'     => 'heartbeat_control',
+				'type'    => 'select',
+				'label'   => __( 'Heartbeat API', 'ux-studio' ),
+				'help'    => __( 'Heartbeat periodically talks to the server in the background (autosave, post locking, session checks). Slowing it down reduces server load on busy admins. Ignored when WP Rocket, LiteSpeed Cache, Heartbeat Control or Perfmatters already manage Heartbeat.', 'ux-studio' ),
+				'options' => array(
+					'normal'  => __( 'Default (15 s)', 'ux-studio' ),
+					'slow'    => __( 'Slowed down (60 s)', 'ux-studio' ),
+					'disable' => __( 'Disabled', 'ux-studio' ),
+				),
+				'default' => 'normal',
+			),
+			array(
+				'key'     => 'limit_revisions',
+				'type'    => 'toggle',
+				'label'   => __( 'Limit post revisions', 'ux-studio' ),
+				'help'    => __( 'Limits how many revisions are kept for each post.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'revisions_count',
+				'type'    => 'number',
+				'label'   => __( 'Maximum number of revisions', 'ux-studio' ),
+				'help'    => __( 'Recommended value is 3-10. Setting 0 disables revisions entirely.', 'ux-studio' ),
+				'default' => 5,
+			),
+			array(
+				'key'     => 'restrict_mime_types',
+				'type'    => 'toggle',
+				'label'   => __( 'Restrict uploadable file types', 'ux-studio' ),
+				'help'    => __( 'Allows only common images, documents (PDF, Office), ZIP, MP3/MP4/WebM and web fonts. SVG stays allowed only if the SVG Upload module permits it.', 'ux-studio' ),
+				'default' => false,
+			),
+
+			// Content - features to disable.
+			array(
+				'key'     => 'disable_comments',
+				'type'    => 'toggle',
+				'label'   => __( 'Disable comments', 'ux-studio' ),
+				'help'    => __( 'Completely disables comments site-wide - closes comments on all content types, removes the Comments section from wp-admin and hides the comment counter from the admin bar. Existing comments stay in the database but are not displayed.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'disable_blog',
+				'type'    => 'toggle',
+				'label'   => __( 'Disable blog', 'ux-studio' ),
+				'help'    => __( 'Removes blog features - hides "Posts" from the admin menu, redirects blog posts and archives to the homepage and hides the Quick Draft dashboard widget. Suitable for presentation sites without a blog.', 'ux-studio' ),
+				'default' => false,
+			),
 
 			// Extra hardening (ported from legacy).
 			array(
@@ -665,6 +758,13 @@ final class Module extends BaseModule {
 				'type'    => 'toggle',
 				'label'   => __( 'Block user enumeration', 'ux-studio' ),
 				'help'    => __( 'Stops attackers harvesting usernames via ?author=N redirects and the public /wp/v2/users REST route. Logged-in users keep full access.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'hide_author_slugs',
+				'type'    => 'toggle',
+				'label'   => __( 'Hide author slugs', 'ux-studio' ),
+				'help'    => __( 'Replaces usernames in author archive URLs and REST API responses with an encrypted ID, so the login name cannot be read from the URL. Use instead of or together with blocking user enumeration.', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
@@ -1147,6 +1247,84 @@ final class Module extends BaseModule {
 	}
 
 	/**
+	 * Resolve an encrypted author slug back to the real user; anything that
+	 * isn't a valid encrypted slug (including the plain username) 404s.
+	 *
+	 * @param \WP_Query $query Query.
+	 */
+	public function handle_author_query( $query ): void {
+		if ( ! $query->is_author() || empty( $query->query_vars['author_name'] ) ) {
+			return;
+		}
+
+		$slug    = (string) $query->query_vars['author_name'];
+		$user_id = ctype_xdigit( $slug ) ? $this->decrypt_author_slug( $slug ) : 0;
+		$user    = $user_id > 0 ? get_user_by( 'id', $user_id ) : false;
+
+		if ( ! $user ) {
+			$query->is_404     = true;
+			$query->is_author  = false;
+			$query->is_archive = false;
+			return;
+		}
+
+		$query->set( 'author_name', $user->user_nicename );
+	}
+
+	/**
+	 * @param string $link        Author archive URL.
+	 * @param int    $user_id     User ID.
+	 * @param string $author_slug Original nicename.
+	 */
+	public function encrypt_author_link( $link, $user_id, $author_slug ): string {
+		$encrypted = $this->encrypt_author_slug( (int) $user_id );
+		return '' === $encrypted ? (string) $link : str_replace( '/' . $author_slug, '/' . $encrypted, (string) $link );
+	}
+
+	/**
+	 * @param \WP_REST_Response $response REST response.
+	 * @param \WP_User          $user     User (unused).
+	 * @param \WP_REST_Request  $request  Request (unused).
+	 */
+	public function encrypt_rest_api_user( $response, $user, $request ) {
+		$data = $response->get_data();
+		if ( isset( $data['id'] ) ) {
+			$encrypted = $this->encrypt_author_slug( (int) $data['id'] );
+			if ( '' !== $encrypted ) {
+				$data['slug'] = $encrypted;
+				$response->set_data( $data );
+			}
+		}
+		return $response;
+	}
+
+	/**
+	 * Deterministic (same ID -> same slug, so URLs stay stable) reversible
+	 * encoding of the user ID. Legacy used DES-EDE3 keyed by SERVER_ADDR +
+	 * plugin URL, which OpenSSL 3 no longer ships by default and which changed
+	 * whenever the server IP moved; keyed by the site salt instead.
+	 */
+	private function encrypt_author_slug( int $user_id ): string {
+		if ( ! function_exists( 'openssl_encrypt' ) ) {
+			return '';
+		}
+		$encrypted = openssl_encrypt( base_convert( (string) $user_id, 10, 36 ), 'aes-128-ecb', $this->author_slug_key(), OPENSSL_RAW_DATA );
+		return false === $encrypted ? '' : bin2hex( $encrypted );
+	}
+
+	private function decrypt_author_slug( string $slug ): int {
+		if ( ! function_exists( 'openssl_decrypt' ) || 0 !== strlen( $slug ) % 2 ) {
+			return 0;
+		}
+		$decrypted = openssl_decrypt( (string) hex2bin( $slug ), 'aes-128-ecb', $this->author_slug_key(), OPENSSL_RAW_DATA );
+		return false === $decrypted ? 0 : (int) base_convert( $decrypted, 36, 10 );
+	}
+
+	private function author_slug_key(): string {
+		return substr( hash( 'sha256', wp_salt( 'auth' ) . '|uxstudio-author-slug', true ), 0, 16 );
+	}
+
+	/**
 	 * Replace detailed login error text with a generic message.
 	 *
 	 * @param string $error Original error markup (unused).
@@ -1487,6 +1665,195 @@ final class Module extends BaseModule {
 			esc_html__( '403 Forbidden', 'ux-studio' ),
 			array( 'response' => 403 )
 		);
+	}
+
+	/* ═══════════════════════════════════════════════════
+	   Performance: Heartbeat, revisions, upload types
+	   ═══════════════════════════════════════════════════ */
+
+	/**
+	 * Name of a plugin that already controls Heartbeat, or false.
+	 *
+	 * @return string|false
+	 */
+	public static function heartbeat_managed_externally() {
+		if ( defined( 'WP_ROCKET_VERSION' ) ) {
+			return 'WP Rocket';
+		}
+		if ( defined( 'LSCWP_V' ) ) {
+			return 'LiteSpeed Cache';
+		}
+		if ( defined( 'JERL_STARTER_SLUG' ) || defined( 'JERL_STARTER_PATH' ) ) {
+			return 'Heartbeat Control';
+		}
+		if ( defined( 'PERFMATTERS_VERSION' ) ) {
+			return 'Perfmatters';
+		}
+		return false;
+	}
+
+	/**
+	 * @param array $settings Heartbeat settings.
+	 */
+	public function slow_heartbeat( $settings ) {
+		$settings             = (array) $settings;
+		$settings['interval'] = 60;
+		return $settings;
+	}
+
+	public function disable_heartbeat(): void {
+		wp_deregister_script( 'heartbeat' );
+	}
+
+	/**
+	 * @param int      $num  Revisions to keep.
+	 * @param \WP_Post $post Post (unused).
+	 */
+	public function limit_revisions( $num, $post ): int {
+		return max( 0, (int) $this->setting( 'revisions_count', 5 ) );
+	}
+
+	/**
+	 * Narrow the upload allowlist to common safe types. Legacy replaced the
+	 * whole map (and so force-enabled SVG even with the SVG Upload module off);
+	 * here the incoming map is filtered instead, so SVG - and anything another
+	 * module removed, e.g. video via Disable Video Uploads - stays as decided
+	 * upstream. Web fonts aren't in core's map, so they are added explicitly.
+	 *
+	 * @param array $mimes Extension regex => MIME type.
+	 */
+	public function restrict_mime_types( $mimes ): array {
+		$allowed = array( 'jpg', 'jpeg', 'jpe', 'png', 'gif', 'webp', 'avif', 'svg', 'ico', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'mp3', 'mp4', 'webm' );
+
+		$result = array();
+		foreach ( (array) $mimes as $exts => $type ) {
+			$kept = array_intersect( explode( '|', (string) $exts ), $allowed );
+			if ( ! empty( $kept ) ) {
+				$result[ implode( '|', $kept ) ] = $type;
+			}
+		}
+
+		$result['woff']  = 'font/woff';
+		$result['woff2'] = 'font/woff2';
+		return $result;
+	}
+
+	/* ═══════════════════════════════════════════════════
+	   Content: disable comments
+	   ═══════════════════════════════════════════════════ */
+
+	private function init_disable_comments(): void {
+		add_filter( 'comments_open', '__return_false', 20, 2 );
+		add_filter( 'pings_open', '__return_false', 20, 2 );
+		add_filter( 'comments_array', '__return_empty_array', 10, 2 );
+		remove_action( 'wp_head', 'feed_links_extra', 3 );
+
+		add_action( 'admin_menu', array( $this, 'remove_comments_admin_menu' ) );
+		add_action( 'admin_init', array( $this, 'disable_comments_admin' ) );
+		add_action( 'init', array( $this, 'remove_comment_support' ), 100 );
+		add_action( 'wp_before_admin_bar_render', array( $this, 'remove_comments_admin_bar_node' ) );
+		add_filter( 'wp_count_comments', array( $this, 'zero_comment_count' ), 10, 2 );
+	}
+
+	public function remove_comments_admin_menu(): void {
+		remove_menu_page( 'edit-comments.php' );
+	}
+
+	public function disable_comments_admin(): void {
+		global $pagenow;
+
+		if ( 'edit-comments.php' === $pagenow ) {
+			wp_safe_redirect( admin_url() );
+			exit;
+		}
+
+		remove_meta_box( 'dashboard_recent_comments', 'dashboard', 'normal' );
+		// Again here for post types registered after init:100.
+		$this->remove_comment_support();
+	}
+
+	public function remove_comment_support(): void {
+		foreach ( get_post_types() as $post_type ) {
+			if ( post_type_supports( $post_type, 'comments' ) ) {
+				remove_post_type_support( $post_type, 'comments' );
+				remove_post_type_support( $post_type, 'trackbacks' );
+			}
+		}
+	}
+
+	public function remove_comments_admin_bar_node(): void {
+		global $wp_admin_bar;
+		if ( $wp_admin_bar instanceof \WP_Admin_Bar ) {
+			$wp_admin_bar->remove_node( 'comments' );
+		}
+	}
+
+	/**
+	 * @param array|object $counts  Incoming counts (unused).
+	 * @param int          $post_id Post ID (unused).
+	 */
+	public function zero_comment_count( $counts, $post_id ): object {
+		return (object) array(
+			'approved'            => 0,
+			'awaiting_moderation' => 0,
+			'moderated'           => 0,
+			'spam'                => 0,
+			'trash'               => 0,
+			'post-trashed'        => 0,
+			'total_comments'      => 0,
+			'all'                 => 0,
+		);
+	}
+
+	/* ═══════════════════════════════════════════════════
+	   Content: disable blog
+	   ═══════════════════════════════════════════════════ */
+
+	private function init_disable_blog(): void {
+		add_action( 'admin_menu', array( $this, 'remove_blog_admin_menu' ) );
+		add_action( 'admin_init', array( $this, 'disable_blog_admin_redirect' ) );
+		add_action( 'wp_dashboard_setup', array( $this, 'remove_blog_dashboard_widgets' ) );
+		add_action( 'template_redirect', array( $this, 'redirect_blog_pages' ) );
+		add_action( 'admin_bar_menu', array( $this, 'remove_blog_admin_bar_nodes' ), 999 );
+	}
+
+	public function remove_blog_admin_menu(): void {
+		remove_menu_page( 'edit.php' );
+	}
+
+	public function disable_blog_admin_redirect(): void {
+		global $pagenow;
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only routing check.
+		$post_type = isset( $_GET['post_type'] ) ? sanitize_key( wp_unslash( $_GET['post_type'] ) ) : 'post';
+		if ( in_array( $pagenow, array( 'edit.php', 'post-new.php' ), true ) && 'post' === $post_type ) {
+			wp_safe_redirect( admin_url() );
+			exit;
+		}
+	}
+
+	public function remove_blog_dashboard_widgets(): void {
+		remove_meta_box( 'dashboard_quick_press', 'dashboard', 'side' );
+		remove_meta_box( 'dashboard_recent_drafts', 'dashboard', 'side' );
+	}
+
+	public function redirect_blog_pages(): void {
+		if ( ! ( is_singular( 'post' ) || is_category() || is_tag() || is_date() || is_author() || is_home() ) ) {
+			return;
+		}
+		// Homepage set to "latest posts" is the front page itself - never redirect it.
+		if ( is_home() && is_front_page() ) {
+			return;
+		}
+		wp_safe_redirect( home_url( '/' ), 301 );
+		exit;
+	}
+
+	/**
+	 * @param \WP_Admin_Bar $wp_admin_bar Admin bar.
+	 */
+	public function remove_blog_admin_bar_nodes( $wp_admin_bar ): void {
+		$wp_admin_bar->remove_node( 'new-post' );
 	}
 
 	/**

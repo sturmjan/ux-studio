@@ -41,28 +41,48 @@ final class CaptchaHandler {
 		}
 
 		add_action( 'login_enqueue_scripts', array( $this, 'enqueue_provider_script' ) );
-		add_action( 'login_form', array( $this, 'render_widget' ) );
-		// Priority 5: BEFORE core checks the password (20), so the CAPTCHA result
-		// never depends on whether the password was right (no password oracle).
-		// Same priority as AttemptsHandler's lockout check, registered after it,
-		// so a locked-out request doesn't even cost a siteverify call. Core's
-		// password check overwrites an incoming WP_Error, hence enforce_login()
-		// re-asserts the failure as the very last authenticate filter.
-		add_filter( 'authenticate', array( $this, 'verify_login' ), 5, 3 );
-		add_filter( 'authenticate', array( $this, 'enforce_login' ), PHP_INT_MAX, 1 );
 
-		add_action( 'register_form', array( $this, 'render_widget' ) );
-		add_filter( 'registration_errors', array( $this, 'verify_registration' ), 10, 3 );
+		if ( $this->form_enabled( 'login' ) ) {
+			add_action( 'login_form', array( $this, 'render_widget' ) );
+			// Priority 5: BEFORE core checks the password (20), so the CAPTCHA result
+			// never depends on whether the password was right (no password oracle).
+			// Same priority as AttemptsHandler's lockout check, registered after it,
+			// so a locked-out request doesn't even cost a siteverify call. Core's
+			// password check overwrites an incoming WP_Error, hence enforce_login()
+			// re-asserts the failure as the very last authenticate filter.
+			add_filter( 'authenticate', array( $this, 'verify_login' ), 5, 3 );
+			add_filter( 'authenticate', array( $this, 'enforce_login' ), PHP_INT_MAX, 1 );
 
-		add_action( 'lostpassword_form', array( $this, 'render_widget' ) );
-		add_action( 'lostpassword_post', array( $this, 'verify_lost_password' ), 10, 1 );
+			add_action( 'wp_login_failed', array( $this, 'record_failure' ) );
+			add_action( 'wp_login', array( $this, 'clear_failures' ), 10, 0 );
+		}
 
-		add_action( 'wp_login_failed', array( $this, 'record_failure' ) );
-		add_action( 'wp_login', array( $this, 'clear_failures' ), 10, 0 );
+		if ( $this->form_enabled( 'register' ) ) {
+			add_action( 'register_form', array( $this, 'render_widget' ) );
+			add_filter( 'registration_errors', array( $this, 'verify_registration' ), 10, 3 );
+		}
+
+		if ( $this->form_enabled( 'lostpassword' ) ) {
+			add_action( 'lostpassword_form', array( $this, 'render_widget' ) );
+			add_action( 'lostpassword_post', array( $this, 'verify_lost_password' ), 10, 1 );
+		}
 
 		if ( 'recaptcha_v3' === CaptchaVerifier::provider( $this->module ) ) {
 			add_action( 'login_footer', array( $this, 'render_v3_footer' ) );
 		}
+	}
+
+	/**
+	 * Whether the given form is selected in `captcha_forms`. A setting never
+	 * saved (null) means all three, as in legacy; an explicitly emptied list
+	 * protects nothing.
+	 */
+	private function form_enabled( string $form ): bool {
+		$forms = $this->module->setting( 'captcha_forms', null );
+		if ( null === $forms ) {
+			return true;
+		}
+		return in_array( $form, (array) $forms, true );
 	}
 
 	/* ═══════════════════════════════════════════════════

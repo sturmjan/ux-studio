@@ -102,7 +102,7 @@ hyphen→underscore bez migrace), obecně moduly s vlastní tabulkou a přeznač
 | 56 | `redirect-404-to-homepage` | ✅ | ⬜ | ⬜ | 404→home (301) + detekce 6 cizích redirect pluginů 1:1; chybí jen varovná admin notice. |
 | 57 | `review-aggregator` | ⚠️ | ⬜ | ⬜ | Architektura přes centrální Content-Sync broker; jádro zachováno, vypuštěny konfigurace zdrojů a /import. |
 | 58 | `rollback-manager` | ✅ | ⬜ | ⬜ | SPA+REST parita, přísnější oprávnění (manage_options) a server-side allow-list URL. |
-| 59 | `security-optimization` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: CSP off/report-only/ENFORCE (dřív žádná hlavička) + Upload Guard UI + hardening toggly. Jen frontend (wp-admin chráněn). Ověřeno lint/build/boot. |
+| 59 | `security-optimization` | ⚠️ | ➖ | ✅ | NAPRAVENO 2026-09-04: CSP off/report-only/ENFORCE (dřív žádná hlavička) + Upload Guard UI + hardening toggly. Jen frontend (wp-admin chráněn). Ověřeno lint/build/boot. 2026-10-16: chyběla nastavení z tabů Optimalizace/Obsah (komentáře, blog, heartbeat, revize, MIME, slugy autorů, captcha_forms) - doplněno, viz Revize. |
 | 60 | `service-requests` | ⚠️ | ✅ | ⬜ | Migrace 2→2 OVĚŘENA (15.1). Drobný rozdíl zůstává: jedna příloha místo multi-file, vypuštěna pole budget/telefon/admin_note a plná editace (jen změna stavu) - přijatelné. |
 | 61 | `smtp-email` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: Gmail OAuth2 transport + From/Force-From + resend. Ověřeno lint/build/boot; reálný Gmail round-trip neověřen (chybí creds). |
 | 62 | `stock-photos` | ✅ | ⬜ | ⬜ | 7 providerů, shodné trasy; klíče nově přes store_secret + SSRF guard. |
@@ -198,3 +198,61 @@ je vypuštěn vědomě - booking se do Studia neportoval.
 - **Fáze 3b - hloubkový A/B legacy vs Studio:** ZBÝVÁ. Side-by-side na `pobyty-legacy` vs `pobyty-studio`
   u 15 ❌ + rizikových ⚠️ (hide-admin-bar prázdné role, pixel-tag-manager migrace klíčů,
   push-notifications reálné odeslání, exit-popup sběr e-mailů, opening-hours zobrazení).
+
+## Revize parity pole po poli (2026-10-16)
+
+Spouštěč: v `security-optimization` chyběl „Zakázat komentáře". Původní audit (Fáze 1) porovnával
+hlavní části modulů, ne jednotlivá nastavení. Revize porovnávala každé legacy nastavení, admin
+stránku, REST/AJAX, shortcode a frontend výstup s chováním v Studiu (ne podle názvu klíče).
+Celkem ~59 mezer; ✅ v tabulce výše je u níže uvedených modulů nepřesné.
+
+### Opraveno
+- [x] `security-optimization`: doplněno `disable_comments`, `disable_blog`, `heartbeat_control`,
+  `limit_revisions`+`revisions_count`, `restrict_mime_types` (filtruje, nepřepisuje - SVG jen se
+  SVG modulem), `hide_author_slugs` (AES s wp_salt místo DES-EDE3), `captcha_forms` (inline).
+  Klíče shodné s legacy → migrovaná hodnota platí bez migrace. Lint + unit test čistých funkcí OK;
+  v prohlížeči NEověřeno (lokální DB `pobyt_options` poškozená).
+
+### Kritické
+- [ ] Staré shortcody nezaregistrované (vypíšou se jako text): `[ux1_download_files]`, `[ux1_reviews]`,
+  `[ux1_instagram]`, `[uredni_nastenka]`, `[oh_*]` (7×). Řešení: aliasy jako `post-gallery` SHORTCODE_LEGACY.
+- [ ] `push-notifications`: chybí service worker + subscribe JS → návštěvník se nemůže přihlásit k odběru.
+  Dál chybí prompt nastavení, auto-send při publikaci, `/unsubscribe`, `/test`, vlastní segmenty.
+- [ ] `content-sync` node: chybí endpointy, které volá CA (`/updates`, `/php-errors`, `/pagespeed`,
+  `/email-health`, `/security-monitor`, `/vulnerabilities`, `/guide`, `/service-requests`, `/packages/*`)
+  + `/posts/{id}/revisions`, `/post-types`, `/taxonomies`, download-files. Hub neumí vzdálenou správu příspěvků.
+- [ ] `folder-manager`: složky nejsou v Knihovně médií (sidebar, filtr, sloupec, hromadná akce, při
+  nahrání); chybí složky pro příspěvky/CPT.
+- [ ] Ztráta nastavení při migraci: `svg-upload` `user_roles`→`allowed_roles` (a prázdné = nikdo místo
+  všichni); `post-type-order` `post-types`→`post_types`. Doplnit remap v Migratoru.
+
+### Ostatní mezery
+- [ ] `admin-customiser`: barvy/logo admin lišty, `body_bg_color`, `hide_admin_bar_elements`, 4 přepínače
+  lišty natvrdo zapnuté, `keep_on_bar_ids`, `horizontal_menu_inline`, 8× `sidebar_*`,
+  `global__update_notifications`, `hide_login_logo`, `login_form_text_hover_color`.
+- [ ] `ai-assistant`: celá záložka Widget (vzhled, texty, auto-open, timeouty) natvrdo; `contact_email`,
+  `operator_notification_email`; nastavení interního chatbota; `default_tone/length/content_language`;
+  `index_post_types/acf_types` v UI; WooMetabox v editaci produktu (pravděp.).
+- [ ] `smtp-email`: mazání/export CSV logu, detail logu + resend záznamu, `enable_email_logs`, `brevo_status`.
+- [ ] `notice-board`: `/open-data` (OFN), archiv/hledání/filtry/detail na webu, RSS slug změněn.
+- [ ] `opening-hours`: speciální oznámení + `[oh_banner]`, dočasné uzavření, `[oh_next_open]`, `[oh_list]`,
+  `[oh_week]`, přepis šablon v motivu.
+- [ ] `ai-markdown`: WooCommerce data, YAML hlavička, `exclude_ids`, site_name/description,
+  `enable_llms_txt`/`enable_markdown_content`, `cache_ttl`, `enable_logging`.
+- [ ] `download-files`: metabox v editoru, `auto_append`, `enabled_post_types`, fce `ux1_download_files()`.
+- [ ] `image-optimizer`: `max_height`, `convert_png_to_jpg`, kvalita per formát, sloupec/akce v Knihovně médií.
+- [ ] `dashboard-widgets`: GA4 widget nefunkční (`ga_property_id`, runReport), `dashboard_columns`, `force_layout`.
+- [ ] `review-aggregator`: atributy shortcode (`platform/count/order/min_rating`) + zobrazovací nastavení.
+- [ ] `stock-photos`: záložka v okně Média (wp.media).
+- [ ] `third-party-login`: notice „propojte účet", chybové hlášky na loginu se nezobrazují.
+- [ ] `vulnerability-scanner`: admin notice při nálezu (`notice_enabled/level`).
+- [ ] `duplicate-post`: tlačítko v editoru (Gutenberg/klasický/Woo) + modal výběru prvků.
+- [ ] `duplicate-menu`: žádné UI (jen REST) → nepoužitelné.
+- [ ] `auto-image-upload`: UI hromadné opravy (REST `/bulk` nikdo nevolá).
+- [ ] `export-posts`: export z editace příspěvku (metabox / Gutenberg panel).
+- [ ] `email-health`: výsledek posledního testu se nikde nezobrazuje (pravděp.).
+- [ ] `exit-popup`: `popup_icon`, `popup_layout`. `instagram-feed`: `show_likes`, `custom_css`.
+- [ ] `page-load`: ModuleTracker (pravděp.). `rollback-manager`: odkaz Rollback v Pluginy/Vzhled.
+
+Bez nových mezer: maintenance-mode, code-snippets, admin-columns, activity-log, bot-throttle,
+cron-control, email-log + 22 malých modulů (viz revize). performance-optimization vědomě zúžen.

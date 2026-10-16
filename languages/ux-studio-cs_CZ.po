@@ -12665,3 +12665,66 @@ msgstr "Kontrola nainstalovaných pluginů, šablon a jádra WordPressu na znám
 #: includes/Modules/WooCommerce/meta.json
 msgid "Native wp-admin dashboard widgets for recent orders and top-selling products (requires WooCommerce)."
 msgstr "Nativní widgety nástěnky wp-admin pro nejnovější objednávky a nejprodávanější produkty (vyžaduje WooCommerce)."
+
+msgid "Heartbeat API"
+msgstr "Heartbeat API"
+
+msgid "Heartbeat periodically talks to the server in the background (autosave, post locking, session checks). Slowing it down reduces server load on busy admins. Ignored when WP Rocket, LiteSpeed Cache, Heartbeat Control or Perfmatters already manage Heartbeat."
+msgstr "Heartbeat na pozadí pravidelně komunikuje se serverem (automatické ukládání, zamykání příspěvků, kontrola přihlášení). Zpomalením snížíte zátěž serveru, když v administraci pracuje víc lidí. Nastavení se ignoruje, pokud Heartbeat už spravuje WP Rocket, LiteSpeed Cache, Heartbeat Control nebo Perfmatters."
+
+msgid "Default (15 s)"
+msgstr "Výchozí (15 s)"
+
+msgid "Slowed down (60 s)"
+msgstr "Zpomalený (60 s)"
+
+msgid "Limit post revisions"
+msgstr "Omezit revize příspěvků"
+
+msgid "Limits how many revisions are kept for each post."
+msgstr "Omezí počet uchovaných revizí u každého příspěvku."
+
+msgid "Maximum number of revisions"
+msgstr "Maximální počet revizí"
+
+msgid "Recommended value is 3-10. Setting 0 disables revisions entirely."
+msgstr "Doporučená hodnota je 3-10. Hodnota 0 revize úplně vypne."
+
+msgid "Restrict uploadable file types"
+msgstr "Omezit typy nahrávaných souborů"
+
+msgid "Allows only common images, documents (PDF, Office), ZIP, MP3/MP4/WebM and web fonts. SVG stays allowed only if the SVG Upload module permits it."
+msgstr "Povolí jen běžné obrázky, dokumenty (PDF, Office), ZIP, MP3/MP4/WebM a webová písma. SVG zůstane povolené jen tehdy, když ho povoluje modul Nahrávání SVG."
+
+msgid "Disable comments"
+msgstr "Zakázat komentáře"
+
+msgid "Completely disables comments site-wide - closes comments on all content types, removes the Comments section from wp-admin and hides the comment counter from the admin bar. Existing comments stay in the database but are not displayed."
+msgstr "Kompletně zakáže komentáře na celém webu - uzavře komentáře u všech typů obsahu, odstraní sekci Komentáře z administrace a skryje počítadlo komentářů z admin baru. Existující komentáře zůstanou v databázi, ale nebudou se zobrazovat."
+
+msgid "Disable blog"
+msgstr "Zakázat blog"
+
+msgid "Removes blog features - hides \"Posts\" from the admin menu, redirects blog posts and archives to the homepage and hides the Quick Draft dashboard widget. Suitable for presentation sites without a blog."
+msgstr "Odstraní funkce blogu - skryje položku „Příspěvky“ z menu administrace, přesměruje blogové příspěvky a archivy na hlavní stránku a skryje widget Rychlý koncept z nástěnky. Vhodné pro prezentační weby bez blogu."
+
+msgid "Hide author slugs"
+msgstr "Skrýt slugy autorů"
+
+msgid "Replaces usernames in author archive URLs and REST API responses with an encrypted ID, so the login name cannot be read from the URL. Use instead of or together with blocking user enumeration."
+msgstr "Nahradí uživatelská jména v adresách autorských archivů a v odpovědích REST API zašifrovaným ID, takže z URL nejde vyčíst přihlašovací jméno. Použijte místo blokování zjišťování uživatelů, nebo spolu s ním."
+
+msgid "Protected forms (inline placement only)"
+msgstr "Chráněné formuláře (jen pro widget ve formuláři)"
+
+msgid "Which forms show and verify the CAPTCHA widget. The standalone gate always covers login and lost password."
+msgstr "Na kterých formulářích se CAPTCHA zobrazí a ověří. Samostatná ověřovací stránka vždy chrání přihlášení a obnovu hesla."
+
+msgid "Login"
+msgstr "Přihlášení"
+
+msgid "Registration"
+msgstr "Registrace"
+
+msgid "Lost password"
+msgstr "Obnova hesla"
