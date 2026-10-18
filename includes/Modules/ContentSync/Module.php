@@ -236,6 +236,13 @@ final class Module extends BaseModule {
 				'default' => '',
 			),
 			array(
+				'key'     => 'node_allow_packages',
+				'type'    => 'toggle',
+				'label'   => __( 'Allow package management (node)', 'ux-studio' ),
+				'help'    => __( 'Lets the central app install/update plugins and themes and set FS_METHOD in wp-config.php on this site. Off by default: with it on, a leaked node key means code execution. Turn on only together with the allowed IP list above.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
 				'key'     => 'node_default_author',
 				'type'    => 'number',
 				'label'   => __( 'Default author (node)', 'ux-studio' ),

@@ -24,7 +24,7 @@ export default function Page(): JSX.Element {
 					{ __( 'File Manager', 'ux-studio' ) }
 				</h1>
 			</header>
-			<div className="uxs-form" style={ { maxWidth: 480 } }>
+			<div className="uxs-form">
 				<div className="uxs-form__row">
 					<p className="uxs-form__help" style={ { margin: 0 } }>
 						<FolderOpen size={ 16 } style={ { verticalAlign: 'middle', marginRight: 6 } } />

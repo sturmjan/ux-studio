@@ -27,7 +27,14 @@ export interface Field {
 	help?: string;
 	default?: Value;
 	options?: Record< string, string >;
+	/** Optional group label; two or more distinct sections render as sub-tabs. */
+	section?: string;
+	/** Span the full row of the field grid (long text, checklists). */
+	wide?: boolean;
 }
+
+/** Field types whose input needs a full grid row to stay readable. */
+const WIDE_TYPES: ReadonlyArray< Field[ 'type' ] > = [ 'textarea', 'richtext', 'multiselect' ];
 
 export interface SettingsPayload {
 	name: string;
@@ -143,12 +150,23 @@ export function FieldInput( {
 				/>
 			);
 		case 'color':
+			// A native color input cannot be empty, so an unset value is shown as
+			// a faded swatch + "Default" instead of a misleading black.
 			return (
-				<input
-					type="color"
-					value={ value ? String( value ) : '#000000' }
-					onChange={ ( e ) => onChange( e.target.value ) }
-				/>
+				<span className="uxs-color">
+					<input
+						type="color"
+						className={ value ? '' : 'is-empty' }
+						value={ value ? String( value ) : '#000000' }
+						onChange={ ( e ) => onChange( e.target.value ) }
+					/>
+					<code>{ value ? String( value ) : __( 'Default', 'ux-studio' ) }</code>
+					{ value ? (
+						<button type="button" className="button-link" onClick={ () => onChange( '' ) }>
+							{ __( 'Reset', 'ux-studio' ) }
+						</button>
+					) : null }
+				</span>
 			);
 		case 'media':
 			return <MediaField value={ Number( value ?? 0 ) } onChange={ onChange } />;
@@ -172,7 +190,12 @@ export function FieldInput( {
 	}
 }
 
-/** Renders a schema as a field grid (no header, no save button - caller owns those). */
+/**
+ * Renders a schema as a responsive field grid that uses the full page width
+ * (no header, no save button - caller owns those). When the schema groups its
+ * fields into two or more `section`s, each section becomes a sub-tab; fields
+ * without a section belong to a leading "General" group.
+ */
 export function SettingsFields( {
 	schema,
 	draft,
@@ -182,10 +205,25 @@ export function SettingsFields( {
 	draft: Record< string, Value >;
 	setDraft: ( updater: ( d: Record< string, Value > ) => Record< string, Value > ) => void;
 } ): JSX.Element {
-	return (
-		<div className="uxs-form">
-			{ schema.map( ( field ) => (
-				<div key={ field.key } className="uxs-form__row">
+	const general = __( 'General', 'ux-studio' );
+	const sections: string[] = [];
+	for ( const field of schema ) {
+		const name = field.section || general;
+		if ( ! sections.includes( name ) ) {
+			sections.push( name );
+		}
+	}
+	const [ active, setActive ] = useState( 0 );
+	const current = sections[ Math.min( active, sections.length - 1 ) ] ?? general;
+	const visible = sections.length > 1 ? schema.filter( ( f ) => ( f.section || general ) === current ) : schema;
+
+	const grid = (
+		<div className="uxs-form uxs-form--grid">
+			{ visible.map( ( field ) => (
+				<div
+					key={ field.key }
+					className={ `uxs-form__row${ field.wide || WIDE_TYPES.includes( field.type ) ? ' uxs-form__row--wide' : '' }` }
+				>
 					<label htmlFor={ `uxs-${ field.key }` }>{ field.label }</label>
 					<FieldInput
 						field={ field }
@@ -196,6 +234,30 @@ export function SettingsFields( {
 				</div>
 			) ) }
 		</div>
+	);
+
+	if ( sections.length < 2 ) {
+		return grid;
+	}
+
+	return (
+		<>
+			<div className="uxs-subtabs" role="tablist">
+				{ sections.map( ( name, i ) => (
+					<button
+						key={ name }
+						type="button"
+						role="tab"
+						aria-selected={ name === current }
+						className={ name === current ? 'is-active' : '' }
+						onClick={ () => setActive( i ) }
+					>
+						{ name }
+					</button>
+				) ) }
+			</div>
+			{ grid }
+		</>
 	);
 }
 

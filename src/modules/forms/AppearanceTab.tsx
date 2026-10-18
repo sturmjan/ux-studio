@@ -28,7 +28,7 @@ export default function AppearanceTab( { form }: { form: FormDefinition } ): JSX
 	}
 
 	return (
-		<div className="uxs-form" style={ { maxWidth: 560 } }>
+		<div className="uxs-form">
 			<div className="uxs-form__row">
 				<label>{ __( 'Label display (default for all fields)', 'ux-studio' ) }</label>
 				<select value={ settings.label_display } onChange={ ( e ) => patch( { label_display: e.target.value as FormSettings[ 'label_display' ] } ) }>

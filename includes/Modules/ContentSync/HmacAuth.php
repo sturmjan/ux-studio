@@ -86,6 +86,21 @@ final class HmacAuth {
 			return $network;
 		}
 
+		$result = self::verify_signature( $request, $secret );
+		if ( is_wp_error( $result ) ) {
+			self::record_failure();
+		}
+		return $result;
+	}
+
+	/**
+	 * Signature, timestamp window and anti-replay checks.
+	 *
+	 * @param WP_REST_Request $request Incoming request.
+	 * @param string          $secret  Shared secret.
+	 * @return true|WP_Error
+	 */
+	private static function verify_signature( WP_REST_Request $request, string $secret ) {
 		$signature = (string) $request->get_header( self::HEADER_SIGNATURE );
 		$timestamp = (string) $request->get_header( self::HEADER_TIMESTAMP );
 		$nonce     = (string) $request->get_header( self::HEADER_NONCE );
@@ -143,14 +158,19 @@ final class HmacAuth {
 	}
 
 	/**
-	 * IP allowlist + per-IP rate limit, checked before any signature work.
+	 * IP allowlist + brute-force guard, checked before any signature work.
 	 * REMOTE_ADDR on purpose (as legacy): forwarded headers are spoofable and
 	 * the hub/central app calls the node directly.
+	 *
+	 * Only FAILED verifications are counted (see record_failure()): counting
+	 * every request let an anonymous client exhaust the budget of an IP shared
+	 * with the central app (e.g. a Cloudflare edge) and write a transient per
+	 * random IPv6 address; authentic requests never consume it.
 	 *
 	 * @return true|WP_Error
 	 */
 	private static function check_network() {
-		$ip       = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+		$ip       = self::client_ip();
 		$settings = (array) get_option( 'uxstudio_content_sync', array() );
 		$allowed  = array_filter( array_map( 'trim', preg_split( '/[\r\n,]+/', (string) ( $settings['node_allowed_ips'] ?? '' ) ) ) );
 
@@ -158,13 +178,26 @@ final class HmacAuth {
 			return new WP_Error( 'uxstudio_cs_ip_blocked', __( 'This IP address is not on the node allowlist.', 'ux-studio' ), array( 'status' => 403 ) );
 		}
 
-		$rate_key = 'uxstudio_cs_rate_' . md5( $ip );
-		$count    = (int) get_transient( $rate_key );
-		if ( $count >= self::RATE_LIMIT ) {
+		if ( (int) get_transient( self::rate_key( $ip ) ) >= self::RATE_LIMIT ) {
 			return new WP_Error( 'uxstudio_cs_rate_limited', __( 'Too many requests. Try again in a minute.', 'ux-studio' ), array( 'status' => 429 ) );
 		}
-		set_transient( $rate_key, $count + 1, MINUTE_IN_SECONDS );
 
 		return true;
+	}
+
+	/**
+	 * Count a failed verification for the caller's IP (1-minute window).
+	 */
+	private static function record_failure(): void {
+		$key = self::rate_key( self::client_ip() );
+		set_transient( $key, (int) get_transient( $key ) + 1, MINUTE_IN_SECONDS );
+	}
+
+	private static function client_ip(): string {
+		return isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+	}
+
+	private static function rate_key( string $ip ): string {
+		return 'uxstudio_cs_rate_' . md5( $ip );
 	}
 }

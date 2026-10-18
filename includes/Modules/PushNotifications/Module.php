@@ -302,6 +302,17 @@ final class Module extends BaseModule {
 				'default' => array( 'post' ),
 			),
 			array(
+				'key'     => 'auto_send_authors',
+				'type'    => 'select',
+				'label'   => __( 'Who triggers the automatic notification', 'ux-studio' ),
+				'help'    => __( 'The notification goes to every subscriber. By default only posts by editors and administrators trigger it.', 'ux-studio' ),
+				'options' => array(
+					'editors'    => __( 'Editors and administrators', 'ux-studio' ),
+					'publishers' => __( 'Anyone who can publish (incl. Authors)', 'ux-studio' ),
+				),
+				'default' => 'editors',
+			),
+			array(
 				'key'     => 'prompt_delay',
 				'type'    => 'number',
 				'label'   => __( 'Opt-in prompt delay (seconds)', 'ux-studio' ),
@@ -884,6 +895,12 @@ final class Module extends BaseModule {
 		}
 		$allowed = (array) $this->settings->get( 'auto_send_post_types', array( 'post' ) );
 		if ( ! in_array( $post->post_type, $allowed, true ) ) {
+			return;
+		}
+		// A notification reaches every subscriber: by default only authors who
+		// may also edit others' posts (editors+) trigger it, not every Author.
+		if ( 'publishers' !== (string) $this->settings->get( 'auto_send_authors', 'editors' )
+			&& ! user_can( (int) $post->post_author, 'edit_others_posts' ) ) {
 			return;
 		}
 		// Already announced (this module or the legacy one) - never twice.

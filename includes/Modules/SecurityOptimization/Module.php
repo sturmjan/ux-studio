@@ -354,6 +354,7 @@ final class Module extends BaseModule {
 			// IP firewall.
 			array(
 				'key'     => 'ip_firewall_enabled',
+				'section' => __( 'Firewall', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Enable IP firewall', 'ux-studio' ),
 				'help'    => __( 'Blocks every request (frontend, login, admin, REST) from banned IPs/ranges/countries. Logged-in administrators and allowlisted IPs are never blocked.', 'ux-studio' ),
@@ -361,6 +362,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'ip_firewall_proxy',
+				'section' => __( 'Firewall', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'Client IP source', 'ux-studio' ),
 				'help'    => __( 'Forwarded headers are only trusted in the selected mode (otherwise spoofable). Choose Cloudflare if the site is behind Cloudflare.', 'ux-studio' ),
@@ -373,6 +375,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'ip_firewall_allowlist',
+				'section' => __( 'Firewall', 'ux-studio' ),
 				'type'    => 'textarea',
 				'label'   => __( 'Allowlist (never block)', 'ux-studio' ),
 				'help'    => __( 'IP addresses or CIDR ranges that are never blocked, one per line. Loopback is always allowed.', 'ux-studio' ),
@@ -380,6 +383,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'ip_firewall_message',
+				'section' => __( 'Firewall', 'ux-studio' ),
 				'type'    => 'text',
 				'label'   => __( 'Block page message', 'ux-studio' ),
 				'help'    => __( 'Optional message shown to a blocked visitor (403).', 'ux-studio' ),
@@ -389,6 +393,7 @@ final class Module extends BaseModule {
 			// Country blocklist.
 			array(
 				'key'     => 'country_blocklist_enabled',
+				'section' => __( 'Firewall', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Enable country blocklist', 'ux-studio' ),
 				'help'    => __( 'Blocks visitors from the selected countries via the IP firewall (downloads aggregated IP ranges per country).', 'ux-studio' ),
@@ -396,6 +401,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'blocked_countries',
+				'section' => __( 'Firewall', 'ux-studio' ),
 				'type'    => 'multiselect',
 				'label'   => __( 'Blocked countries', 'ux-studio' ),
 				'help'    => __( 'Selecting a country here creates/refreshes a country-type IP ban the next time settings are saved.', 'ux-studio' ),
@@ -406,6 +412,7 @@ final class Module extends BaseModule {
 			// Canonical URL / protocols.
 			array(
 				'key'     => 'canonical_redirect',
+				'section' => __( 'HTTPS & headers', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Force canonical URL redirect', 'ux-studio' ),
 				'help'    => __( 'Writes .htaccess rules that redirect every request to a single canonical version of the site, based on Settings -> General -> Site Address.', 'ux-studio' ),
@@ -413,6 +420,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'force_https',
+				'section' => __( 'HTTPS & headers', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Force HTTPS', 'ux-studio' ),
 				'help'    => __( 'Redirects all HTTP requests to HTTPS. Only enable with a working SSL certificate on the whole site. Ignored when canonical URL redirect is on (it already covers this).', 'ux-studio' ),
@@ -422,6 +430,7 @@ final class Module extends BaseModule {
 			// Security headers.
 			array(
 				'key'     => 'security_headers',
+				'section' => __( 'HTTPS & headers', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Security headers', 'ux-studio' ),
 				'help'    => __( 'Sends X-Frame-Options, X-Content-Type-Options and Referrer-Policy, both via .htaccess and as a PHP fallback.', 'ux-studio' ),
@@ -429,6 +438,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'enable_hsts',
+				'section' => __( 'HTTPS & headers', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'HSTS (Strict-Transport-Security)', 'ux-studio' ),
 				'help'    => __( 'Tells browsers to only ever connect over HTTPS for a year. Only enable with a valid SSL certificate everywhere on the site.', 'ux-studio' ),
@@ -436,6 +446,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'enable_permissions_policy',
+				'section' => __( 'HTTPS & headers', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Permissions-Policy', 'ux-studio' ),
 				'help'    => __( 'Disables browser access to camera, microphone, geolocation, payment and USB APIs by default.', 'ux-studio' ),
@@ -445,6 +456,7 @@ final class Module extends BaseModule {
 			// Content-Security-Policy.
 			array(
 				'key'     => 'csp_mode',
+				'section' => __( 'HTTPS & headers', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'Content-Security-Policy (CSP)', 'ux-studio' ),
 				'help'    => __( 'CSP tells the browser where scripts, styles, images and other content may load from, strongly reducing XSS risk. SAFETY: CSP is only ever sent on the front end - never in wp-admin - so it cannot lock you out of the dashboard. Start with "Report only" to see what would break (violations appear in the CSP Violations tab), then switch to "Enforce" once clean.', 'ux-studio' ),
@@ -457,6 +469,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'csp_level',
+				'section' => __( 'HTTPS & headers', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'CSP strictness', 'ux-studio' ),
 				'help'    => __( 'Basic allows inline scripts and eval() so it stays compatible with most themes, plugins and visual editors. Strict removes eval() for tighter protection but may break page builders (Elementor, WPBakery, Divi).', 'ux-studio' ),
@@ -468,6 +481,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'csp_presets',
+				'section' => __( 'HTTPS & headers', 'ux-studio' ),
 				'type'    => 'multiselect',
 				'label'   => __( 'CSP - allowed services', 'ux-studio' ),
 				'help'    => __( 'Select the external services the site uses. Matching domains are added to the policy so their scripts, styles, fonts and images keep working.', 'ux-studio' ),
@@ -476,6 +490,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'csp_custom_allowlist',
+				'section' => __( 'HTTPS & headers', 'ux-studio' ),
 				'type'    => 'textarea',
 				'label'   => __( 'CSP - custom domain allowlist', 'ux-studio' ),
 				'help'    => __( 'One domain per line, added to script/style/img/font/connect/frame sources. Examples: https://cdn.example.com, https://*.example.com, wss://socket.example.com.', 'ux-studio' ),
@@ -485,18 +500,21 @@ final class Module extends BaseModule {
 			// File protection (.htaccess).
 			array(
 				'key'     => 'protect_wp_config',
+				'section' => __( 'Hardening', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Protect wp-config.php', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
 				'key'     => 'disable_directory_listing',
+				'section' => __( 'Hardening', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Disable directory listing', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
 				'key'     => 'block_sensitive_files',
+				'section' => __( 'Hardening', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Block readme.html / license.txt', 'ux-studio' ),
 				'default' => false,
@@ -505,6 +523,7 @@ final class Module extends BaseModule {
 			// Custom login URL.
 			array(
 				'key'     => 'login_url_enabled',
+				'section' => __( 'Login', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Enable custom login URL', 'ux-studio' ),
 				'help'    => __( 'Rescue switch: define UXSTUDIO_DISABLE_LOGIN_LOCK in wp-config.php to bypass this feature entirely if you get locked out.', 'ux-studio' ),
@@ -512,6 +531,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'login_url',
+				'section' => __( 'Login', 'ux-studio' ),
 				'type'    => 'text',
 				'label'   => __( 'Custom login slug', 'ux-studio' ),
 				'help'    => __( 'New slug for the login page. wp-login.php will 404 for direct visitors. If the slug collides with an existing page/rewrite rule, the redirect is automatically NOT activated (fail-open) and a warning is logged.', 'ux-studio' ),
@@ -519,6 +539,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'disabled_behavior',
+				'section' => __( 'Login', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'Direct wp-login.php behavior', 'ux-studio' ),
 				'options' => array(
@@ -531,6 +552,7 @@ final class Module extends BaseModule {
 			// Login rate limiting.
 			array(
 				'key'     => 'limit_login_attempts',
+				'section' => __( 'Login', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Limit login attempts', 'ux-studio' ),
 				'help'    => __( 'Blocks an IP/username after too many failed login attempts (brute-force protection).', 'ux-studio' ),
@@ -538,18 +560,21 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'max_attempts',
+				'section' => __( 'Login', 'ux-studio' ),
 				'type'    => 'number',
 				'label'   => __( 'Max attempts', 'ux-studio' ),
 				'default' => 3,
 			),
 			array(
 				'key'     => 'lockout_time',
+				'section' => __( 'Login', 'ux-studio' ),
 				'type'    => 'number',
 				'label'   => __( 'Lockout time (minutes)', 'ux-studio' ),
 				'default' => 30,
 			),
 			array(
 				'key'     => 'notify_admin',
+				'section' => __( 'Login', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Email admin on lockout', 'ux-studio' ),
 				'default' => false,
@@ -558,6 +583,7 @@ final class Module extends BaseModule {
 			// Block usernames.
 			array(
 				'key'     => 'block_usernames',
+				'section' => __( 'Login', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Block reserved usernames', 'ux-studio' ),
 				'help'    => __( 'Prevents registering/renaming to reserved names such as admin, administrator, root, test.', 'ux-studio' ),
@@ -565,6 +591,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'blocked_usernames_extra',
+				'section' => __( 'Login', 'ux-studio' ),
 				'type'    => 'textarea',
 				'label'   => __( 'Additional blocked usernames', 'ux-studio' ),
 				'help'    => __( 'One per line, added on top of the built-in reserved list (admin, administrator, root, test).', 'ux-studio' ),
@@ -574,6 +601,7 @@ final class Module extends BaseModule {
 			// CAPTCHA.
 			array(
 				'key'     => 'captcha_enabled',
+				'section' => __( 'CAPTCHA', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Enable CAPTCHA', 'ux-studio' ),
 				'help'    => __( 'Adds CAPTCHA verification to login, registration and lost-password forms. Without both keys set, nothing is enforced.', 'ux-studio' ),
@@ -581,6 +609,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'captcha_provider',
+				'section' => __( 'CAPTCHA', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'CAPTCHA provider', 'ux-studio' ),
 				'options' => array(
@@ -592,6 +621,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'captcha_placement',
+				'section' => __( 'CAPTCHA', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'Placement', 'ux-studio' ),
 				'help'    => __( 'Inline shows the widget inside the login/register/lost-password form itself. Standalone gate shows a dedicated "verify you\'re not a robot" page before the form is reachable at all - since WordPress redirects every logged-out admin request to wp-login.php, this also protects the whole admin, not just the login form. The gate ignores enforcement mode below and always applies (adaptive mode only affects the inline widget).', 'ux-studio' ),
@@ -603,6 +633,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'captcha_mode',
+				'section' => __( 'CAPTCHA', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'Enforcement mode (inline placement only)', 'ux-studio' ),
 				'options' => array(
@@ -613,6 +644,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'captcha_forms',
+				'section' => __( 'CAPTCHA', 'ux-studio' ),
 				'type'    => 'multiselect',
 				'label'   => __( 'Protected forms (inline placement only)', 'ux-studio' ),
 				'help'    => __( 'Which forms show and verify the CAPTCHA widget. The standalone gate always covers login and lost password.', 'ux-studio' ),
@@ -625,6 +657,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'captcha_site_key',
+				'section' => __( 'CAPTCHA', 'ux-studio' ),
 				'type'    => 'text',
 				'label'   => __( 'Site key', 'ux-studio' ),
 				'help'    => __( 'Public key, safe to expose in the page markup.', 'ux-studio' ),
@@ -632,6 +665,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'captcha_secret_key',
+				'section' => __( 'CAPTCHA', 'ux-studio' ),
 				'type'    => 'text',
 				'label'   => __( 'Secret key', 'ux-studio' ),
 				'help'    => __( 'Stored encrypted server-side. Leave blank to keep the current key.', 'ux-studio' ),
@@ -639,6 +673,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'captcha_key_source',
+				'section' => __( 'CAPTCHA', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'Key source', 'ux-studio' ),
 				'help'    => __( 'Manual: paste site/secret key yourself. Central app: this site (already paired via Content Sync) gets a key automatically from a shared Turnstile widget managed by the central app. Own Cloudflare API token: this site manages its own Turnstile widget directly, using an API token you paste below.', 'ux-studio' ),
@@ -651,6 +686,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'captcha_cf_account_id',
+				'section' => __( 'CAPTCHA', 'ux-studio' ),
 				'type'    => 'text',
 				'label'   => __( 'Cloudflare account ID', 'ux-studio' ),
 				'help'    => __( 'Used only for "own Cloudflare API token" key source.', 'ux-studio' ),
@@ -658,6 +694,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'captcha_cf_api_token',
+				'section' => __( 'CAPTCHA', 'ux-studio' ),
 				'type'    => 'text',
 				'label'   => __( 'Cloudflare API token', 'ux-studio' ),
 				'help'    => __( 'Scope it to Account > Turnstile > Edit only, nothing else. Stored encrypted server-side. Leave blank to keep the current token.', 'ux-studio' ),
@@ -667,36 +704,42 @@ final class Module extends BaseModule {
 			// Cleanup / performance / disable-features.
 			array(
 				'key'     => 'disable_xmlrpc',
+				'section' => __( 'Hardening', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Disable XML-RPC', 'ux-studio' ),
 				'default' => true,
 			),
 			array(
 				'key'     => 'hide_wp_version',
+				'section' => __( 'Hardening', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Hide WordPress version', 'ux-studio' ),
 				'default' => true,
 			),
 			array(
 				'key'     => 'disable_emojis',
+				'section' => __( 'Performance', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Disable emoji scripts', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
 				'key'     => 'disable_embeds',
+				'section' => __( 'Performance', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Disable embeds script', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
 				'key'     => 'disable_rss_feeds',
+				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Disable RSS feeds', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
 				'key'     => 'restrict_rest_api',
+				'section' => __( 'Hardening', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Restrict REST API to logged-in users', 'ux-studio' ),
 				'help'    => __( 'Blocks the WordPress REST API for anonymous visitors. Common public endpoints (oEmbed, WooCommerce, Contact Form 7, WPForms, Elementor, site health) stay reachable so front-end features keep working.', 'ux-studio' ),
@@ -704,6 +747,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'heartbeat_control',
+				'section' => __( 'Performance', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'Heartbeat API', 'ux-studio' ),
 				'help'    => __( 'Heartbeat periodically talks to the server in the background (autosave, post locking, session checks). Slowing it down reduces server load on busy admins. Ignored when WP Rocket, LiteSpeed Cache, Heartbeat Control or Perfmatters already manage Heartbeat.', 'ux-studio' ),
@@ -716,6 +760,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'limit_revisions',
+				'section' => __( 'Performance', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Limit post revisions', 'ux-studio' ),
 				'help'    => __( 'Limits how many revisions are kept for each post.', 'ux-studio' ),
@@ -723,6 +768,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'revisions_count',
+				'section' => __( 'Performance', 'ux-studio' ),
 				'type'    => 'number',
 				'label'   => __( 'Maximum number of revisions', 'ux-studio' ),
 				'help'    => __( 'Recommended value is 3-10. Setting 0 disables revisions entirely.', 'ux-studio' ),
@@ -730,6 +776,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'restrict_mime_types',
+				'section' => __( 'Uploads', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Restrict uploadable file types', 'ux-studio' ),
 				'help'    => __( 'Allows only common images, documents (PDF, Office), ZIP, MP3/MP4/WebM and web fonts. SVG stays allowed only if the SVG Upload module permits it.', 'ux-studio' ),
@@ -739,6 +786,7 @@ final class Module extends BaseModule {
 			// Content - features to disable.
 			array(
 				'key'     => 'disable_comments',
+				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Disable comments', 'ux-studio' ),
 				'help'    => __( 'Completely disables comments site-wide - closes comments on all content types, removes the Comments section from wp-admin and hides the comment counter from the admin bar. Existing comments stay in the database but are not displayed.', 'ux-studio' ),
@@ -746,6 +794,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'disable_comments_scope',
+				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'Where to disable comments', 'ux-studio' ),
 				'help'    => __( 'Everywhere closes comments on all content and removes the comment tools from the admin. For selected post types only those post types are affected.', 'ux-studio' ),
@@ -757,6 +806,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'disable_comments_post_types',
+				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'multiselect',
 				'label'   => __( 'Post types without comments', 'ux-studio' ),
 				'help'    => __( 'Used when "Only for selected post types" is chosen.', 'ux-studio' ),
@@ -765,6 +815,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'disable_comments_hide_existing',
+				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Hide existing comments', 'ux-studio' ),
 				'help'    => __( 'Existing comments are hidden on the site but not deleted - switching this off shows them again.', 'ux-studio' ),
@@ -772,6 +823,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'disable_comments_admin_ui',
+				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Remove comment tools from the admin', 'ux-studio' ),
 				'help'    => __( 'Hides the Comments menu, the Discussion settings page, the dashboard widget, the admin bar bubble and the Recent Comments widget. Applies only when disabling everywhere.', 'ux-studio' ),
@@ -779,6 +831,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'disable_comments_block_endpoints',
+				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Block comment endpoints', 'ux-studio' ),
 				'help'    => __( 'Removes the REST API comment routes, XML-RPC comment/pingback methods, the X-Pingback header and comment feeds. Applies only when disabling everywhere.', 'ux-studio' ),
@@ -786,6 +839,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'disable_blog',
+				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Disable blog', 'ux-studio' ),
 				'help'    => __( 'Removes blog features - hides "Posts" from the admin menu, redirects blog posts and archives to the homepage and hides the Quick Draft dashboard widget. Suitable for presentation sites without a blog.', 'ux-studio' ),
@@ -795,6 +849,7 @@ final class Module extends BaseModule {
 			// Extra hardening (ported from legacy).
 			array(
 				'key'     => 'block_user_enumeration',
+				'section' => __( 'Hardening', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Block user enumeration', 'ux-studio' ),
 				'help'    => __( 'Stops attackers harvesting usernames via ?author=N redirects and the public /wp/v2/users REST route. Logged-in users keep full access.', 'ux-studio' ),
@@ -802,6 +857,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'hide_author_slugs',
+				'section' => __( 'Hardening', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Hide author slugs', 'ux-studio' ),
 				'help'    => __( 'Replaces usernames in author archive URLs and REST API responses with an encrypted ID, so the login name cannot be read from the URL. Use instead of or together with blocking user enumeration.', 'ux-studio' ),
@@ -809,6 +865,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'disable_file_editing',
+				'section' => __( 'Hardening', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Disable theme/plugin file editor', 'ux-studio' ),
 				'help'    => __( 'Defines DISALLOW_FILE_EDIT so nobody can edit theme or plugin PHP from wp-admin - a common way attackers turn a stolen admin login into code execution.', 'ux-studio' ),
@@ -816,6 +873,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'protect_login',
+				'section' => __( 'Login', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Harden the login page', 'ux-studio' ),
 				'help'    => __( 'Hides detailed login error messages (so an attacker cannot tell which of username/password was wrong) and disables Application Passwords.', 'ux-studio' ),
@@ -825,6 +883,7 @@ final class Module extends BaseModule {
 			// Upload Guard (malware scanner) configuration.
 			array(
 				'key'     => 'upload_guard_enabled',
+				'section' => __( 'Uploads', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Enable Upload Guard scanner', 'ux-studio' ),
 				'help'    => __( 'Checks new uploads and runs a nightly scan of uploads, plugins and themes. It only reports - files are never moved or deleted automatically. Plugin files identical to the official WordPress.org version count as clean. Turning this off stops all scanning (existing findings are kept). CSP violation reporting is unaffected.', 'ux-studio' ),
@@ -832,6 +891,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'upload_guard_notify',
+				'section' => __( 'Uploads', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Email admin on detections', 'ux-studio' ),
 				'help'    => __( 'Sends a throttled summary email when new high/critical findings appear (at most one per 15 minutes).', 'ux-studio' ),
@@ -839,6 +899,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'upload_guard_notify_email',
+				'section' => __( 'Uploads', 'ux-studio' ),
 				'type'    => 'text',
 				'label'   => __( 'Notification email', 'ux-studio' ),
 				'help'    => __( 'Where to send Upload Guard alerts. Leave blank to use the site admin email.', 'ux-studio' ),

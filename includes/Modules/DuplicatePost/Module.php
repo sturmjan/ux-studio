@@ -346,8 +346,17 @@ final class Module extends BaseModule {
 	 */
 	private function get_post_status( int $post_id ): string {
 		$status = (string) $this->settings->get( 'post_status', 'draft' );
+		$status = (string) apply_filters( 'ux_studio/duplicate_post/post_status', $status, $post_id );
 
-		return (string) apply_filters( 'ux_studio/duplicate_post/post_status', $status, $post_id );
+		// wp_insert_post() does not check capabilities: never let a duplicate
+		// skip review - a contributor's copy goes to "pending", not "publish".
+		$type = get_post_type_object( (string) get_post_type( $post_id ) );
+		if ( in_array( $status, array( 'publish', 'future', 'private' ), true )
+			&& ! ( $type && current_user_can( $type->cap->publish_posts ) ) ) {
+			$status = 'pending';
+		}
+
+		return $status;
 	}
 
 	/**

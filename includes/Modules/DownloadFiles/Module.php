@@ -425,6 +425,11 @@ final class Module extends BaseModule {
 			return new WP_Error( 'uxstudio_login_required', __( 'You must be logged in to download this file.', 'ux-studio' ), array( 'status' => 401 ) );
 		}
 
+		// A file attached to a post is only as visible as that post.
+		if ( (int) ( $file['post_id'] ?? 0 ) > 0 && ! $this->can_view_post( (int) $file['post_id'] ) ) {
+			return new WP_Error( 'uxstudio_not_found', __( 'File not found.', 'ux-studio' ), array( 'status' => 404 ) );
+		}
+
 		$attachment_id = (int) $file['attachment_id'];
 		if ( 'attachment' !== get_post_type( $attachment_id ) ) {
 			return new WP_Error( 'uxstudio_missing_attachment', __( 'The underlying media attachment is missing.', 'ux-studio' ), array( 'status' => 404 ) );
@@ -845,6 +850,15 @@ final class Module extends BaseModule {
 
 		$rows = is_array( $rows ) ? $rows : array();
 
+		// Files attached to a post inherit its visibility: never list files of
+		// a draft/private post the visitor can't read, or of a password-protected
+		// post whose password wasn't entered (the_content also runs over the
+		// password form, so auto-append would leak them otherwise).
+		$rows = array_filter(
+			$rows,
+			fn( $row ) => (int) ( $row['post_id'] ?? 0 ) <= 0 || $this->can_view_post( (int) $row['post_id'] )
+		);
+
 		$hide_login = (bool) $this->settings->get( 'hide_login_required', true );
 		$logged_in  = is_user_logged_in();
 
@@ -864,7 +878,7 @@ final class Module extends BaseModule {
 
 		// Post association also lists files the legacy plugin (or the central
 		// app via content-sync) stored per post outside the media library.
-		if ( empty( $ids ) && '' === $category && $post_id > 0 ) {
+		if ( empty( $ids ) && '' === $category && $post_id > 0 && $this->can_view_post( $post_id ) ) {
 			$out = array_merge( $out, $this->legacy_files_for_post( $post_id ) );
 		}
 
@@ -877,6 +891,31 @@ final class Module extends BaseModule {
 
 	/** Post meta (JSON list of {name,size,uploaded_at}) written by the legacy module. */
 	public const LEGACY_META = '_ux1_download_files';
+
+	/**
+	 * Whether the current visitor may see a post's attached files: the post
+	 * must be readable (public or `read_post`) and, when password-protected,
+	 * the password entered (or the user can edit it).
+	 *
+	 * @param int $post_id Post ID.
+	 */
+	private function can_view_post( int $post_id ): bool {
+		$post = get_post( $post_id );
+		if ( ! $post || ! ( is_post_publicly_viewable( $post ) || current_user_can( 'read_post', $post_id ) ) ) {
+			return false;
+		}
+		return ! post_password_required( $post ) || current_user_can( 'edit_post', $post_id );
+	}
+
+	/**
+	 * File name of a legacy meta entry: the legacy module stored `name`, the
+	 * content-sync node endpoint writes `filename`.
+	 *
+	 * @param mixed $entry Decoded meta entry.
+	 */
+	private static function legacy_entry_name( $entry ): string {
+		return is_array( $entry ) ? (string) ( $entry['name'] ?? $entry['filename'] ?? '' ) : '';
+	}
 
 	/**
 	 * Absolute directory of a post's legacy files.
@@ -900,7 +939,7 @@ final class Module extends BaseModule {
 		}
 		$out = array();
 		foreach ( $list as $entry ) {
-			$name = sanitize_file_name( (string) ( $entry['name'] ?? '' ) );
+			$name = sanitize_file_name( self::legacy_entry_name( $entry ) );
 			if ( '' === $name || null === $this->legacy_path( $post_id, $name ) ) {
 				continue;
 			}
@@ -944,13 +983,12 @@ final class Module extends BaseModule {
 	 * @return WP_Error|void
 	 */
 	public function serve_legacy( int $post_id, string $filename ) {
-		$post = get_post( $post_id );
-		if ( ! $post || ! ( is_post_publicly_viewable( $post ) || current_user_can( 'read_post', $post_id ) ) ) {
+		if ( ! $this->can_view_post( $post_id ) ) {
 			return new WP_Error( 'uxstudio_not_found', __( 'File not found.', 'ux-studio' ), array( 'status' => 404 ) );
 		}
 
 		$filename = sanitize_file_name( $filename );
-		$listed   = wp_list_pluck( (array) json_decode( (string) get_post_meta( $post_id, self::LEGACY_META, true ), true ), 'name' );
+		$listed   = array_map( array( self::class, 'legacy_entry_name' ), (array) json_decode( (string) get_post_meta( $post_id, self::LEGACY_META, true ), true ) );
 		$path     = in_array( $filename, array_map( 'sanitize_file_name', $listed ), true ) ? $this->legacy_path( $post_id, $filename ) : null;
 		if ( null === $path ) {
 			return new WP_Error( 'uxstudio_not_found', __( 'File not found.', 'ux-studio' ), array( 'status' => 404 ) );

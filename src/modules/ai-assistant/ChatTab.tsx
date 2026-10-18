@@ -87,7 +87,7 @@ function ConversationDetailModal( { id, onClose }: { id: number; onClose: () => 
 		>
 			<div
 				style={ {
-					background: '#fff',
+					background: 'var(--uxs-surface)',
 					borderRadius: 8,
 					width: 'min(640px, 92vw)',
 					maxHeight: '80vh',

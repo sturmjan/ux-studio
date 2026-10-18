@@ -41,6 +41,7 @@ final class NodePackages {
 				'module_version' => '1.0',
 				'fs_method'      => defined( 'FS_METHOD' ) ? FS_METHOD : null,
 				'wp_version'     => get_bloginfo( 'version' ),
+				'packages'       => self::packages_allowed(),
 			),
 			200
 		);
@@ -109,6 +110,9 @@ final class NodePackages {
 	 * @param WP_REST_Request $request Request (JSON: type, slug, version, download_url, sha256, activate, network_wide).
 	 */
 	public function install( WP_REST_Request $request ): WP_REST_Response {
+		if ( ! self::packages_allowed() ) {
+			return $this->fail( 'packages_disabled', __( 'Remote package management is disabled on this site (Content Sync > Allow package management).', 'ux-studio' ), 403 );
+		}
 		$data = (array) $request->get_json_params();
 
 		$type         = sanitize_text_field( (string) ( $data['type'] ?? '' ) );
@@ -315,6 +319,9 @@ final class NodePackages {
 	 * @param WP_REST_Request $request Request.
 	 */
 	public function configure_fs_method( WP_REST_Request $request ): WP_REST_Response {
+		if ( ! self::packages_allowed() ) {
+			return $this->fail( 'packages_disabled', __( 'Remote package management is disabled on this site (Content Sync > Allow package management).', 'ux-studio' ), 403 );
+		}
 		$config_path = ABSPATH . 'wp-config.php';
 		if ( ! file_exists( $config_path ) ) {
 			$config_path = dirname( ABSPATH ) . '/wp-config.php';
@@ -348,8 +355,13 @@ final class NodePackages {
 			);
 		}
 
-		// Backup before any write.
-		$backup_path = $config_path . '.bak-' . gmdate( 'Ymd-His' );
+		// Backup before any write - never next to wp-config.php: a ".bak-*" file
+		// in the web root is served as plain text (DB credentials, salts).
+		$backup_dir = self::private_backup_dir();
+		if ( '' === $backup_dir ) {
+			return $this->fail( 'backup_failed', __( 'Could not create a backup of wp-config.php.', 'ux-studio' ), 500 );
+		}
+		$backup_path = $backup_dir . '/wp-config.php.bak-' . gmdate( 'Ymd-His' ) . '-' . bin2hex( random_bytes( 8 ) );
 		if ( ! @copy( $config_path, $backup_path ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_system_operations_copy
 			return $this->fail( 'backup_failed', __( 'Could not create a backup of wp-config.php.', 'ux-studio' ), 500 );
 		}
@@ -478,5 +490,43 @@ final class NodePackages {
 			),
 			$status
 		);
+	}
+
+	/**
+	 * Installing code / editing wp-config.php turns a leaked node key into code
+	 * execution, so it is opt-in per site (default off), unlike content sync.
+	 */
+	private static function packages_allowed(): bool {
+		$settings = (array) get_option( 'uxstudio_content_sync', array() );
+		return ! empty( $settings['node_allow_packages'] );
+	}
+
+	/**
+	 * Directory for wp-config.php backups that is never web-served: one level
+	 * above the WordPress root when writable (outside the document root on
+	 * typical hosts), otherwise wp-content/uxstudio-private locked down with a
+	 * deny-all .htaccess and an empty index (Apache; on nginx the random file
+	 * name is the remaining guard). Returns '' when nothing is writable.
+	 */
+	private static function private_backup_dir(): string {
+		$outside = dirname( untrailingslashit( ABSPATH ) ) . '/uxstudio-backups';
+		$inside  = WP_CONTENT_DIR . '/uxstudio-private';
+
+		foreach ( array( $outside, $inside ) as $dir ) {
+			if ( ! is_dir( $dir ) && ! wp_mkdir_p( $dir ) ) {
+				continue;
+			}
+			if ( ! wp_is_writable( $dir ) ) {
+				continue;
+			}
+			if ( ! file_exists( $dir . '/.htaccess' ) ) {
+				@file_put_contents( $dir . '/.htaccess', "Require all denied\n<IfModule !mod_authz_core.c>\nDeny from all\n</IfModule>\nOptions -Indexes\n" ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			}
+			if ( ! file_exists( $dir . '/index.html' ) ) {
+				@file_put_contents( $dir . '/index.html', '' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			}
+			return $dir;
+		}
+		return '';
 	}
 }

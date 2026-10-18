@@ -14,8 +14,23 @@ import { ModuleIcon } from './moduleIcons';
 import { getViewMode, setViewMode, type ViewMode } from './prefs';
 import { navigate } from './route';
 
+/** meta.json `group` values in display order. */
+const GROUPS: { id: string; label: string }[] = [
+	{ id: 'security', label: __( 'Security', 'ux-studio' ) },
+	{ id: 'content', label: __( 'Content', 'ux-studio' ) },
+	{ id: 'media', label: __( 'Media', 'ux-studio' ) },
+	{ id: 'admin', label: __( 'Administration', 'ux-studio' ) },
+	{ id: 'performance', label: __( 'Performance', 'ux-studio' ) },
+	{ id: 'developer', label: __( 'Developer', 'ux-studio' ) },
+];
+
+type StatusFilter = 'all' | 'on' | 'off';
+
 export function ModuleGrid(): JSX.Element {
 	const [ view, setView ] = useState< ViewMode >( getViewMode() );
+	const [ group, setGroup ] = useState( 'all' );
+	const [ status, setStatus ] = useState< StatusFilter >( 'all' );
+	const [ search, setSearch ] = useState( '' );
 	const { data: modules, isLoading, error } = useQuery( {
 		queryKey: [ 'modules' ],
 		queryFn: () => api< ModuleInfo[] >( 'modules' ),
@@ -63,6 +78,15 @@ export function ModuleGrid(): JSX.Element {
 	}
 
 	const enabledCount = modules.filter( ( m ) => m.enabled ).length;
+
+	const needle = search.trim().toLocaleLowerCase();
+	const visible = modules.filter(
+		( m ) =>
+			( 'all' === group || m.group === group ) &&
+			( 'all' === status || ( 'on' === status ) === m.enabled ) &&
+			( '' === needle || `${ m.name } ${ m.description } ${ m.id }`.toLocaleLowerCase().includes( needle ) )
+	);
+	const countIn = ( id: string ): number => modules.filter( ( m ) => m.group === id ).length;
 
 	const onDeactivateAll = (): void => {
 		if ( enabledCount === 0 || deactivateAll.isPending ) {
@@ -128,8 +152,39 @@ export function ModuleGrid(): JSX.Element {
 					</button>
 				</div>
 			</header>
+			<div className="uxs-modulefilter">
+				<input
+					type="search"
+					className="uxs-modulefilter__search"
+					placeholder={ __( 'Search modules…', 'ux-studio' ) }
+					aria-label={ __( 'Search modules', 'ux-studio' ) }
+					value={ search }
+					onChange={ ( e ) => setSearch( e.target.value ) }
+				/>
+				<div className="uxs-subtabs" role="tablist" aria-label={ __( 'Module group', 'ux-studio' ) }>
+					<button type="button" role="tab" aria-selected={ 'all' === group } className={ 'all' === group ? 'is-active' : '' } onClick={ () => setGroup( 'all' ) }>
+						{ __( 'All', 'ux-studio' ) } ({ modules.length })
+					</button>
+					{ GROUPS.filter( ( g ) => countIn( g.id ) > 0 ).map( ( g ) => (
+						<button key={ g.id } type="button" role="tab" aria-selected={ g.id === group } className={ g.id === group ? 'is-active' : '' } onClick={ () => setGroup( g.id ) }>
+							{ g.label } ({ countIn( g.id ) })
+						</button>
+					) ) }
+				</div>
+				<select
+					className="uxs-modulefilter__status"
+					aria-label={ __( 'Status', 'ux-studio' ) }
+					value={ status }
+					onChange={ ( e ) => setStatus( e.target.value as StatusFilter ) }
+				>
+					<option value="all">{ __( 'All statuses', 'ux-studio' ) }</option>
+					<option value="on">{ sprintf( /* translators: %d: number of enabled modules. */ __( 'Enabled (%d)', 'ux-studio' ), enabledCount ) }</option>
+					<option value="off">{ sprintf( /* translators: %d: number of disabled modules. */ __( 'Disabled (%d)', 'ux-studio' ), modules.length - enabledCount ) }</option>
+				</select>
+			</div>
+			{ 0 === visible.length ? <p className="uxs-modulefilter__empty">{ __( 'No module matches the filter.', 'ux-studio' ) }</p> : null }
 			<div className={ `uxs-grid${ view === 'list' ? ' is-list' : '' }` }>
-				{ modules.map( ( m ) => {
+				{ visible.map( ( m ) => {
 					const clickable = m.settings;
 					const interactionProps = clickable
 						? {

@@ -386,6 +386,7 @@
 /* ---- Tabs (module pages with a custom SPA screen) ---- */
 .uxs-tabs {
 	display: flex;
+	flex-wrap: wrap;
 	gap: var(--uxs-sp-5);
 	border-bottom: 1px solid var(--uxs-border);
 	margin-bottom: var(--uxs-sp-5);
@@ -406,16 +407,90 @@
 	}
 }
 
+/* ---- Module overview filter (search + group pills + status) ---- */
+.uxs-modulefilter {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--uxs-sp-3) var(--uxs-sp-4);
+	margin-bottom: var(--uxs-sp-5);
+
+	.uxs-subtabs { margin-bottom: 0; flex: 1 1 auto; }
+
+	.uxs-modulefilter__search,
+	.uxs-modulefilter__status {
+		background: var(--uxs-surface);
+		color: var(--uxs-text);
+		border: 1px solid var(--uxs-border);
+		border-radius: var(--uxs-radius-s);
+		padding: 0 var(--uxs-sp-3);
+		height: 38px;
+		min-height: 38px;
+		line-height: 36px;
+		font-size: var(--uxs-fs);
+
+		&:focus { outline: none; border-color: var(--uxs-brand); box-shadow: 0 0 0 3px var(--uxs-brand-soft); }
+	}
+
+	.uxs-modulefilter__status { padding-right: var(--uxs-sp-6); }
+
+	.uxs-modulefilter__search { flex: 0 1 280px; min-width: 200px; }
+}
+
+.uxs-modulefilter__empty { color: var(--uxs-text-soft); }
+
+/* ---- Sub-tabs: sections of one settings form (second level under .uxs-tabs) ---- */
+.uxs-subtabs {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--uxs-sp-2);
+	margin-bottom: var(--uxs-sp-4);
+
+	button {
+		background: var(--uxs-surface);
+		border: 1px solid var(--uxs-border);
+		border-radius: 999px;
+		padding: var(--uxs-sp-1) var(--uxs-sp-4);
+		font-size: var(--uxs-fs);
+		font-weight: 600;
+		color: var(--uxs-text-soft);
+		cursor: pointer;
+		transition: color var(--uxs-motion-fast) var(--uxs-ease), background var(--uxs-motion-fast) var(--uxs-ease), border-color var(--uxs-motion-fast) var(--uxs-ease);
+
+		&:hover { color: var(--uxs-text); border-color: var(--uxs-text-soft); }
+		&.is-active { color: #fff; background: var(--uxs-brand); border-color: var(--uxs-brand); }
+		&:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--uxs-brand-soft); }
+	}
+}
+
 /* ---- Settings form (generic schema renderer) ---- */
 .uxs-form {
 	background: var(--uxs-surface);
 	border: 1px solid var(--uxs-border);
 	border-radius: var(--uxs-radius);
 	padding: var(--uxs-sp-5);
-	max-width: 720px;
 	display: flex;
 	flex-direction: column;
 	gap: var(--uxs-sp-4);
+
+	/* Generic settings renderer: fill the page width with as many columns as
+	 * fit, instead of a narrow column that leaves empty space on the right. */
+	&.uxs-form--grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
+		gap: var(--uxs-sp-5) var(--uxs-sp-6);
+		align-items: start;
+
+		.uxs-form__row--wide { grid-column: 1 / -1; }
+
+		/* Fill the grid cell; number fields stay compact. */
+		.uxs-form__row {
+			input[type="text"],
+			select,
+			textarea { width: 100%; box-sizing: border-box; }
+			input[type="number"] { max-width: 180px; }
+		}
+	}
 
 	.uxs-form__row {
 		display: flex;
@@ -443,6 +518,15 @@
 				box-shadow: 0 0 0 3px var(--uxs-brand-soft);
 			}
 		}
+	}
+
+	.uxs-color {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--uxs-sp-3);
+
+		input.is-empty { opacity: 0.3; }
+		code { background: none; padding: 0; color: var(--uxs-text-soft); }
 	}
 
 	.uxs-media {
