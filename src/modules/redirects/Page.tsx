@@ -136,8 +136,8 @@ function TestBox(): JSX.Element {
 	const result = test.data?.[ 0 ];
 
 	return (
-		<div className="uxs-card" style={ { textAlign: 'left', marginBottom: 'var(--uxs-sp-4)' } }>
-			<div className="uxs-form" style={ { flexDirection: 'row', alignItems: 'flex-end', gap: 'var(--uxs-sp-3)' } }>
+		<div className="uxs-form" style={ { maxWidth: 'none', marginBottom: 'var(--uxs-sp-4)' } }>
+			<div style={ { display: 'flex', alignItems: 'flex-end', gap: 'var(--uxs-sp-3)' } }>
 				<div className="uxs-form__row" style={ { flex: 1 } }>
 					<label htmlFor="uxs-rd-test">{ __( 'Test a URL', 'ux-studio' ) }</label>
 					<input id="uxs-rd-test" type="text" value={ url } placeholder="/old-page.html" onChange={ ( e ) => setUrl( e.target.value ) } />
@@ -217,8 +217,8 @@ function RuleForm( { draft, setDraft }: { draft: Draft; setDraft: ( d: Draft ) =
 	} );
 
 	return (
-		<div className="uxs-card" style={ { textAlign: 'left', marginBottom: 'var(--uxs-sp-4)' } }>
-			<div className="uxs-form" style={ { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-end', gap: 'var(--uxs-sp-3)' } }>
+		<div className="uxs-form" style={ { maxWidth: 'none', marginBottom: 'var(--uxs-sp-4)' } }>
+			<div style={ { display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', gap: 'var(--uxs-sp-3)' } }>
 				<div className="uxs-form__row" style={ { flex: '1 1 220px' } }>
 					<label htmlFor="uxs-rd-source">{ __( 'Old URL', 'ux-studio' ) }</label>
 					<input id="uxs-rd-source" type="text" value={ draft.source } placeholder="/old-page.html" onChange={ ( e ) => setDraft( { ...draft, source: e.target.value } ) } />
@@ -301,6 +301,14 @@ function RulesTab( { draft, setDraft }: { draft: Draft; setDraft: ( d: Draft ) =
 			<div className="uxs-form__row" style={ { maxWidth: 320, marginBottom: 'var(--uxs-sp-3)' } }>
 				<input
 					type="search"
+					style={ {
+						background: 'var(--uxs-surface)',
+						color: 'var(--uxs-text)',
+						border: '1px solid var(--uxs-border)',
+						borderRadius: 'var(--uxs-radius-s)',
+						padding: 'var(--uxs-sp-2) var(--uxs-sp-3)',
+						width: '100%',
+					} }
 					value={ search }
 					placeholder={ __( 'Search redirects…', 'ux-studio' ) }
 					onChange={ ( e ) => {
