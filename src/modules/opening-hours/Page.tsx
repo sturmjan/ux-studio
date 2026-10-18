@@ -22,8 +22,144 @@ interface Location {
 	address: string;
 	hours: WeeklyHours;
 	exceptions: unknown[];
+	phone: string;
+	announcements: Announcement[];
+	override: { until: number; reason: string } | null;
 	lat: number | null;
 	lng: number | null;
+}
+
+interface Announcement {
+	text: string;
+	from: string;
+	to: string;
+	severity: 'info' | 'warning' | 'critical';
+}
+
+/** Phone, special announcements and the quick "closed for X minutes" override. */
+function LocationExtras( { loc }: { loc: Location } ): JSX.Element {
+	const [ phone, setPhone ] = useState( loc.phone ?? '' );
+	const [ announcements, setAnnouncements ] = useState< Announcement[] >( loc.announcements ?? [] );
+	const [ minutes, setMinutes ] = useState( 60 );
+	const [ reason, setReason ] = useState( '' );
+	const refresh = () => queryClient.invalidateQueries( { queryKey: [ 'opening-hours' ] } );
+
+	const saveExtras = useMutation( {
+		mutationFn: () =>
+			api( `opening-hours/locations/${ loc.id }`, {
+				method: 'POST',
+				body: JSON.stringify( { phone, announcements } ),
+			} ),
+		onSuccess: refresh,
+	} );
+	const closeNow = useMutation( {
+		mutationFn: () =>
+			api( `opening-hours/locations/${ loc.id }/override`, {
+				method: 'POST',
+				body: JSON.stringify( { minutes, reason } ),
+			} ),
+		onSuccess: refresh,
+	} );
+	const reopen = useMutation( {
+		mutationFn: () => api( `opening-hours/locations/${ loc.id }/override`, { method: 'DELETE' } ),
+		onSuccess: refresh,
+	} );
+
+	const update = ( i: number, patch: Partial< Announcement > ) =>
+		setAnnouncements( ( list ) => list.map( ( a, idx ) => ( idx === i ? { ...a, ...patch } : a ) ) );
+
+	return (
+		<>
+			<div className="uxs-form__row">
+				<label htmlFor={ `uxs-oh-phone-${ loc.id }` }>{ __( 'Phone', 'ux-studio' ) }</label>
+				<input id={ `uxs-oh-phone-${ loc.id }` } type="text" value={ phone } onChange={ ( e ) => setPhone( e.target.value ) } />
+			</div>
+
+			<div className="uxs-form__row">
+				<label>{ __( 'Special announcements', 'ux-studio' ) }</label>
+				<p className="uxs-form__help">{ __( 'Shown by the [oh_banner] shortcode. Leave the dates empty for an announcement without a time limit.', 'ux-studio' ) }</p>
+				{ announcements.map( ( a, i ) => (
+					<div key={ i } style={ { display: 'flex', gap: 'var(--uxs-sp-2)', flexWrap: 'wrap', marginBottom: 'var(--uxs-sp-2)' } }>
+						<input
+							type="text"
+							style={ { flex: '1 1 240px' } }
+							value={ a.text }
+							aria-label={ __( 'Announcement text', 'ux-studio' ) }
+							onChange={ ( e ) => update( i, { text: e.target.value } ) }
+						/>
+						<input type="date" value={ a.from } aria-label={ __( 'From', 'ux-studio' ) } onChange={ ( e ) => update( i, { from: e.target.value } ) } />
+						<input type="date" value={ a.to } aria-label={ __( 'To', 'ux-studio' ) } onChange={ ( e ) => update( i, { to: e.target.value } ) } />
+						<select
+							value={ a.severity }
+							aria-label={ __( 'Severity', 'ux-studio' ) }
+							onChange={ ( e ) => update( i, { severity: e.target.value as Announcement[ 'severity' ] } ) }
+						>
+							<option value="info">{ __( 'Info', 'ux-studio' ) }</option>
+							<option value="warning">{ __( 'Warning', 'ux-studio' ) }</option>
+							<option value="critical">{ __( 'Critical', 'ux-studio' ) }</option>
+						</select>
+						<button
+							type="button"
+							className="button-link"
+							aria-label={ __( 'Remove announcement', 'ux-studio' ) }
+							onClick={ () => setAnnouncements( ( list ) => list.filter( ( _, idx ) => idx !== i ) ) }
+							style={ { color: 'var(--uxs-danger)' } }
+						>
+							<Trash2 size={ 16 } />
+						</button>
+					</div>
+				) ) }
+				<div>
+					<button
+						type="button"
+						className="button"
+						onClick={ () => setAnnouncements( ( list ) => [ ...list, { text: '', from: '', to: '', severity: 'info' } ] ) }
+					>
+						<Plus size={ 14 } /> { __( 'Add announcement', 'ux-studio' ) }
+					</button>{ ' ' }
+					<button type="button" className="button" disabled={ saveExtras.isPending } onClick={ () => saveExtras.mutate() }>
+						{ __( 'Save phone and announcements', 'ux-studio' ) }
+					</button>
+				</div>
+			</div>
+
+			<div className="uxs-form__row">
+				<label>{ __( 'Temporary closure', 'ux-studio' ) }</label>
+				{ loc.override ? (
+					<p>
+						<strong>{ __( 'Active override', 'ux-studio' ) }</strong>{ ' ' }
+						{ loc.override.reason ? `(${ loc.override.reason }) ` : '' }
+						{ new Date( loc.override.until * 1000 ).toLocaleString() }{ ' ' }
+						<button type="button" className="button" disabled={ reopen.isPending } onClick={ () => reopen.mutate() }>
+							{ __( 'Cancel override', 'ux-studio' ) }
+						</button>
+					</p>
+				) : (
+					<div style={ { display: 'flex', gap: 'var(--uxs-sp-2)', flexWrap: 'wrap', alignItems: 'center' } }>
+						<input
+							type="number"
+							min={ 1 }
+							max={ 10080 }
+							value={ minutes }
+							aria-label={ __( 'Close for (minutes)', 'ux-studio' ) }
+							onChange={ ( e ) => setMinutes( Math.max( 1, Number( e.target.value ) || 1 ) ) }
+							style={ { width: 90 } }
+						/>
+						<input
+							type="text"
+							value={ reason }
+							placeholder={ __( 'Reason (optional)', 'ux-studio' ) }
+							aria-label={ __( 'Reason (optional)', 'ux-studio' ) }
+							onChange={ ( e ) => setReason( e.target.value ) }
+						/>
+						<button type="button" className="button" disabled={ closeNow.isPending } onClick={ () => closeNow.mutate() }>
+							{ __( 'Close now', 'ux-studio' ) }
+						</button>
+					</div>
+				) }
+			</div>
+		</>
+	);
 }
 
 interface Status {
@@ -165,6 +301,7 @@ function LocationsTab(): JSX.Element {
 					>
 						{ __( 'Save hours', 'ux-studio' ) }
 					</button>
+					<LocationExtras key={ `${ loc.id }-${ loc.override?.until ?? 0 }` } loc={ loc } />
 				</div>
 			) ) }
 			{ ! locations?.length ? <p>{ __( 'No locations yet.', 'ux-studio' ) }</p> : null }

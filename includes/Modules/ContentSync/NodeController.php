@@ -161,6 +161,286 @@ final class NodeController {
 			'callback'            => array( $this, 'get_bot_throttle_bans' ),
 			'permission_callback' => $verify,
 		) );
+
+		// Content structure + revisions + download files (legacy parity).
+		register_rest_route( self::NS, self::BASE . '/posts/(?P<id>\d+)/revisions', array(
+			'methods'             => 'GET',
+			'callback'            => array( $this, 'get_revisions' ),
+			'permission_callback' => $verify,
+		) );
+
+		register_rest_route( self::NS, self::BASE . '/post-types', array(
+			'methods'             => 'GET',
+			'callback'            => array( $this, 'get_post_types' ),
+			'permission_callback' => $verify,
+		) );
+
+		register_rest_route( self::NS, self::BASE . '/taxonomies', array(
+			'methods'             => 'GET',
+			'callback'            => array( $this, 'get_taxonomies' ),
+			'permission_callback' => $verify,
+		) );
+
+		register_rest_route( self::NS, self::BASE . '/posts/(?P<id>\d+)/download-files', array(
+			'methods'             => 'POST',
+			'callback'            => array( $this, 'upload_download_file' ),
+			'permission_callback' => $verify,
+		) );
+
+		register_rest_route( self::NS, self::BASE . '/posts/(?P<id>\d+)/download-files/(?P<filename>[^/]+)', array(
+			'methods'             => 'DELETE',
+			'callback'            => array( $this, 'delete_download_file' ),
+			'permission_callback' => $verify,
+		) );
+
+		// Health monitoring polled by the Central App.
+		$health = new NodeHealth();
+		$health_routes = array(
+			'/updates'          => 'updates',
+			'/php-errors'       => 'php_errors',
+			'/pagespeed'        => 'pagespeed',
+			'/email-health'     => 'email_health',
+			'/security-monitor' => 'security_monitor',
+			'/vulnerabilities'  => 'vulnerabilities',
+			'/guide'            => 'guide',
+			'/service-requests' => 'service_requests',
+		);
+		foreach ( $health_routes as $path => $method ) {
+			register_rest_route( self::NS, self::BASE . $path, array(
+				'methods'             => 'GET',
+				'callback'            => array( $health, $method ),
+				'permission_callback' => $verify,
+			) );
+		}
+
+		// Package distribution (HIGH RISK - HMAC only, see NodePackages).
+		$packages = new NodePackages();
+		register_rest_route( self::NS, self::BASE . '/packages/ping', array(
+			'methods'             => 'GET',
+			'callback'            => array( $packages, 'ping' ),
+			'permission_callback' => $verify,
+		) );
+		register_rest_route( self::NS, self::BASE . '/packages/status', array(
+			'methods'             => 'GET',
+			'callback'            => array( $packages, 'status' ),
+			'permission_callback' => $verify,
+		) );
+		register_rest_route( self::NS, self::BASE . '/packages/install', array(
+			'methods'             => 'POST',
+			'callback'            => array( $packages, 'install' ),
+			'permission_callback' => $verify,
+		) );
+		register_rest_route( self::NS, self::BASE . '/packages/configure-fs-method', array(
+			'methods'             => 'POST',
+			'callback'            => array( $packages, 'configure_fs_method' ),
+			'permission_callback' => $verify,
+		) );
+	}
+
+	/**
+	 * Revisions of a post (latest 50), with content, for the hub's diff view.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function get_revisions( WP_REST_Request $request ): WP_REST_Response {
+		$post_id = (int) $request['id'];
+		if ( ! $this->is_editable_post( get_post( $post_id ) ) ) {
+			return $this->not_found( __( 'Post not found.', 'ux-studio' ) );
+		}
+
+		$items = array();
+		foreach ( wp_get_post_revisions( $post_id, array( 'order' => 'DESC', 'posts_per_page' => 50 ) ) as $rev ) {
+			$items[] = array(
+				'id'      => $rev->ID,
+				'author'  => get_the_author_meta( 'display_name', (int) $rev->post_author ),
+				'date'    => $rev->post_date,
+				'title'   => $rev->post_title,
+				'excerpt' => wp_trim_words( $rev->post_content, 30, '...' ),
+				'content' => $rev->post_content,
+			);
+		}
+
+		return new WP_REST_Response( $items, 200 );
+	}
+
+	/**
+	 * Public post types with labels, supports and attached taxonomies.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function get_post_types( WP_REST_Request $request ): WP_REST_Response {
+		$result = array();
+		foreach ( get_post_types( array( 'public' => true ), 'objects' ) as $pt ) {
+			if ( 'attachment' === $pt->name ) {
+				continue;
+			}
+			$result[] = array(
+				'name'         => $pt->name,
+				'label'        => $pt->label,
+				'labels'       => array(
+					'singular' => $pt->labels->singular_name,
+					'add_new'  => $pt->labels->add_new_item,
+					'edit'     => $pt->labels->edit_item,
+				),
+				'hierarchical' => (bool) $pt->hierarchical,
+				'has_archive'  => (bool) $pt->has_archive,
+				'supports'     => get_all_post_type_supports( $pt->name ),
+				'taxonomies'   => get_object_taxonomies( $pt->name ),
+			);
+		}
+		return new WP_REST_Response( $result, 200 );
+	}
+
+	/**
+	 * Public taxonomies, each with all of its terms.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function get_taxonomies( WP_REST_Request $request ): WP_REST_Response {
+		$result = array();
+		foreach ( get_taxonomies( array( 'public' => true ), 'objects' ) as $tax ) {
+			$result[] = array(
+				'name'         => $tax->name,
+				'label'        => $tax->label,
+				'hierarchical' => (bool) $tax->hierarchical,
+				'post_types'   => (array) $tax->object_type,
+				'terms'        => $this->format_terms( $tax->name ),
+			);
+		}
+		return new WP_REST_Response( $result, 200 );
+	}
+
+	/**
+	 * Attach an uploaded file to a post's "download files" list (legacy storage:
+	 * uploads/ux1-download-files/{post_id}/, post meta `_ux1_download_files`).
+	 *
+	 * @param WP_REST_Request $request Request (multipart `file`).
+	 */
+	public function upload_download_file( WP_REST_Request $request ): WP_REST_Response {
+		$post_id = (int) $request['id'];
+		if ( ! $this->is_editable_post( get_post( $post_id ) ) ) {
+			return $this->not_found( __( 'Post not found.', 'ux-studio' ) );
+		}
+
+		$files = $request->get_file_params();
+		if ( empty( $files['file'] ) || ! is_array( $files['file'] ) ) {
+			return new WP_REST_Response( array( 'message' => __( 'No file was sent.', 'ux-studio' ) ), 400 );
+		}
+		$file = $files['file'];
+
+		if ( (int) $file['size'] > 20 * 1024 * 1024 ) {
+			return new WP_REST_Response( array( 'message' => __( 'File is too large (max 20 MB).', 'ux-studio' ) ), 400 );
+		}
+
+		$allowed_ext = array( 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'rar', 'txt', 'rtf', 'odt', 'ods', 'jpg', 'jpeg', 'png', 'gif' );
+		$ext         = strtolower( pathinfo( (string) $file['name'], PATHINFO_EXTENSION ) );
+		if ( ! in_array( $ext, $allowed_ext, true ) ) {
+			return new WP_REST_Response( array( 'message' => __( 'Unsupported file type.', 'ux-studio' ) ), 400 );
+		}
+
+		$upload_dir = WP_CONTENT_DIR . '/uploads/ux1-download-files/' . $post_id;
+		if ( ! is_dir( $upload_dir ) ) {
+			wp_mkdir_p( $upload_dir );
+			// Block direct access and listing (Apache; on nginx deny this path in the server config).
+			file_put_contents( $upload_dir . '/.htaccess', 'Deny from all' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			file_put_contents( $upload_dir . '/index.php', '<?php // Silence is golden' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		}
+
+		$safe_name = sanitize_file_name( (string) $file['name'] );
+		$dest      = $upload_dir . '/' . $safe_name;
+
+		// Never overwrite an existing file.
+		$counter = 1;
+		$base    = pathinfo( $safe_name, PATHINFO_FILENAME );
+		while ( file_exists( $dest ) ) {
+			$safe_name = $base . '-' . $counter . '.' . $ext;
+			$dest      = $upload_dir . '/' . $safe_name;
+			++$counter;
+		}
+
+		// move_uploaded_file() fails for cURL multipart relayed by WP REST; fall back to copy().
+		if ( ! move_uploaded_file( $file['tmp_name'], $dest ) && ! @copy( $file['tmp_name'], $dest ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_system_operations_copy
+			return new WP_REST_Response( array( 'message' => __( 'Could not save the file.', 'ux-studio' ) ), 500 );
+		}
+
+		$file_list   = $this->download_file_list( $post_id );
+		$file_list[] = array(
+			'filename' => $safe_name,
+			'size'     => (int) $file['size'],
+			'uploaded' => current_time( 'mysql' ),
+		);
+		update_post_meta( $post_id, '_ux1_download_files', wp_json_encode( $file_list ) );
+
+		ActivityLog::log( 'content-sync', 'node_download_file_upload', 'post', $post_id, array( 'file' => $safe_name ) );
+
+		return new WP_REST_Response(
+			array(
+				'filename' => $safe_name,
+				'size'     => (int) $file['size'],
+				'files'    => $file_list,
+			),
+			201
+		);
+	}
+
+	/**
+	 * Remove one file from a post's "download files" list.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function delete_download_file( WP_REST_Request $request ): WP_REST_Response {
+		$post_id  = (int) $request['id'];
+		$filename = sanitize_file_name( rawurldecode( (string) $request['filename'] ) );
+		if ( ! $this->is_editable_post( get_post( $post_id ) ) ) {
+			return $this->not_found( __( 'Post not found.', 'ux-studio' ) );
+		}
+		if ( '' === $filename || $filename !== basename( $filename ) ) {
+			return new WP_REST_Response( array( 'message' => __( 'Invalid file path.', 'ux-studio' ) ), 400 );
+		}
+
+		$upload_dir = WP_CONTENT_DIR . '/uploads/ux1-download-files/' . $post_id;
+		$filepath   = $upload_dir . '/' . $filename;
+
+		// Path traversal guard: the resolved file must live inside the post's directory.
+		$real_dir  = realpath( $upload_dir );
+		$real_file = realpath( $filepath );
+		if ( false !== $real_file ) {
+			if ( false === $real_dir || 0 !== strpos( $real_file, $real_dir . DIRECTORY_SEPARATOR ) ) {
+				return new WP_REST_Response( array( 'message' => __( 'Invalid file path.', 'ux-studio' ) ), 400 );
+			}
+			wp_delete_file( $real_file );
+		}
+
+		$file_list = array_values(
+			array_filter(
+				$this->download_file_list( $post_id ),
+				static fn ( $f ): bool => ( $f['filename'] ?? '' ) !== $filename
+			)
+		);
+		update_post_meta( $post_id, '_ux1_download_files', wp_json_encode( $file_list ) );
+
+		ActivityLog::log( 'content-sync', 'node_download_file_delete', 'post', $post_id, array( 'file' => $filename ) );
+
+		return new WP_REST_Response(
+			array(
+				'deleted'  => true,
+				'filename' => $filename,
+				'files'    => $file_list,
+			),
+			200
+		);
+	}
+
+	/**
+	 * Decoded `_ux1_download_files` meta of a post.
+	 *
+	 * @param int $post_id Post id.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function download_file_list( int $post_id ): array {
+		$raw  = get_post_meta( $post_id, '_ux1_download_files', true );
+		$list = is_string( $raw ) && '' !== $raw ? json_decode( $raw, true ) : array();
+		return is_array( $list ) ? $list : array();
 	}
 
 	/**
@@ -344,16 +624,49 @@ final class NodeController {
 			$args['s'] = sanitize_text_field( (string) $search );
 		}
 
+		// Optional status filter (comma separated), restricted to known statuses.
+		$status_param = sanitize_text_field( (string) $request->get_param( 'status' ) );
+		if ( '' !== $status_param ) {
+			$known    = array( 'publish', 'draft', 'pending', 'private', 'future' );
+			$statuses = array_values( array_intersect( array_map( 'trim', explode( ',', $status_param ) ), $known ) );
+			if ( ! empty( $statuses ) ) {
+				$args['post_status'] = $statuses;
+			}
+		}
+
+		$category = (int) $request->get_param( 'category' );
+		if ( $category > 0 ) {
+			$args['cat'] = $category;
+		}
+
+		// Custom taxonomy filter: ?taxonomy=slug&term_id=N.
+		$taxonomy = sanitize_key( (string) $request->get_param( 'taxonomy' ) );
+		$term_id  = (int) $request->get_param( 'term_id' );
+		if ( '' !== $taxonomy && $term_id > 0 && taxonomy_exists( $taxonomy ) ) {
+			$args['tax_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+				array(
+					'taxonomy' => $taxonomy,
+					'field'    => 'term_id',
+					'terms'    => $term_id,
+				),
+			);
+		}
+
 		$query = new WP_Query( $args );
 		$items = array();
 		foreach ( $query->posts as $p ) {
-			$items[] = array(
-				'id'         => $p->ID,
-				'title'      => $p->post_title,
-				'status'     => $p->post_status,
-				'post_type'  => $p->post_type,
-				'date'       => $p->post_date,
-				'modified'   => $p->post_modified,
+			$thumb_id = (int) get_post_thumbnail_id( $p->ID );
+			$items[]  = array(
+				'id'                 => $p->ID,
+				'title'              => $p->post_title,
+				'status'             => $p->post_status,
+				'post_type'          => $p->post_type,
+				'date'               => $p->post_date,
+				'modified'           => $p->post_modified,
+				'categories'         => wp_list_pluck( wp_get_post_categories( $p->ID, array( 'fields' => 'all' ) ), 'name' ),
+				'author'             => get_the_author_meta( 'display_name', (int) $p->post_author ),
+				'featured_image_url' => $thumb_id ? wp_get_attachment_image_url( $thumb_id, 'thumbnail' ) : null,
+				'elementor'          => 'builder' === get_post_meta( $p->ID, '_elementor_edit_mode', true ),
 			);
 		}
 

@@ -61,6 +61,8 @@ final class Module extends BaseModule {
 		add_action( 'admin_post_' . self::OAUTH_ACTION, array( $this, 'handle_oauth_return' ) );
 		add_action( self::CRON_HOOK, array( $this, 'cron_run' ) );
 		add_shortcode( 'uxstudio_instagram', array( $this, 'render_shortcode' ) );
+		// Legacy alias - embedded in existing content.
+		add_shortcode( 'ux1_instagram', array( $this, 'render_shortcode' ) );
 
 		$this->ensure_schedule();
 
@@ -736,6 +738,8 @@ final class Module extends BaseModule {
 				'cols'             => 0,
 				'gap'              => -1,
 				'show_caption'     => '',
+				'show_likes'       => '',
+				'show_follow'      => '',
 				'include_hashtags' => '',
 				'exclude_hashtags' => '',
 			),
@@ -777,6 +781,12 @@ final class Module extends BaseModule {
 		if ( '' !== $atts['show_caption'] ) {
 			$config['show_caption'] = (bool) filter_var( $atts['show_caption'], FILTER_VALIDATE_BOOLEAN );
 		}
+		if ( '' !== $atts['show_likes'] ) {
+			$config['show_likes'] = (bool) filter_var( $atts['show_likes'], FILTER_VALIDATE_BOOLEAN );
+		}
+		if ( '' !== $atts['show_follow'] ) {
+			$config['show_follow'] = (bool) filter_var( $atts['show_follow'], FILTER_VALIDATE_BOOLEAN );
+		}
 		if ( '' !== $atts['include_hashtags'] ) {
 			$config['include_hashtags'] = (string) $atts['include_hashtags'];
 		}
@@ -817,7 +827,11 @@ final class Module extends BaseModule {
 		);
 
 		$html  = $style;
-		$html .= '<div class="uxstudio-ig uxstudio-ig--' . esc_attr( $theme ) . '" style="' . esc_attr( $css_vars ) . '">';
+		static $instance = 0;
+		++$instance;
+		$uid = 'uxstudio-ig-' . $instance;
+
+		$html .= '<div id="' . esc_attr( $uid ) . '" class="uxstudio-ig uxstudio-ig--' . esc_attr( $theme ) . '" style="' . esc_attr( $css_vars ) . '">';
 		$html .= '<div class="uxstudio-ig__grid">';
 
 		$target = '_self' === $config['link_target'] ? '_self' : '_blank';
@@ -839,6 +853,13 @@ final class Module extends BaseModule {
 			} elseif ( $is_album ) {
 				$html .= '<span class="uxstudio-ig__badge" aria-hidden="true">&#9635;</span>';
 			}
+			if ( ! empty( $config['show_likes'] ) ) {
+				$html .= '<span class="uxstudio-ig__overlay"><span class="uxstudio-ig__stat">&#9829; '
+					. esc_html( number_format_i18n( (int) ( $item['like_count'] ?? 0 ) ) )
+					. '</span><span class="uxstudio-ig__stat">&#128172; '
+					. esc_html( number_format_i18n( (int) ( $item['comments_count'] ?? 0 ) ) )
+					. '</span></span>';
+			}
 			$html .= '</span>';
 			if ( ! empty( $config['show_caption'] ) && '' !== $caption ) {
 				$html .= '<span class="uxstudio-ig__caption">' . esc_html( $caption ) . '</span>';
@@ -855,9 +876,27 @@ final class Module extends BaseModule {
 				. esc_html( (string) $connection['username'] ) . '</a></div>';
 		}
 
+		if ( ! empty( $config['custom_css'] ) ) {
+			$html .= '<style id="' . esc_attr( $uid ) . '-css">#' . esc_attr( $uid ) . '{'
+				. $this->sanitize_custom_css( (string) $config['custom_css'] ) . '}</style>';
+		}
+
 		$html .= '</div>';
 
 		return $html;
+	}
+
+	/**
+	 * Sanitize per-feed custom CSS (declarations only, wrapped in the feed's
+	 * #id selector at render time): no tags, no rule blocks, no @import.
+	 *
+	 * @param string $css Raw CSS declarations.
+	 */
+	private function sanitize_custom_css( string $css ): string {
+		$css = wp_strip_all_tags( $css );
+		$css = str_replace( array( '{', '}', '<', '>', '\\' ), '', $css );
+		$css = (string) preg_replace( '/@import|expression\s*\(|javascript:|behavior\s*:/i', '', $css );
+		return trim( $css );
 	}
 
 	/**
@@ -946,6 +985,8 @@ final class Module extends BaseModule {
 			. '.uxstudio-ig__media{position:relative;display:block;aspect-ratio:1/1;overflow:hidden;border-radius:6px;background:#f0f0f1;}'
 			. '.uxstudio-ig__image{width:100%;height:100%;object-fit:cover;display:block;}'
 			. '.uxstudio-ig__badge{position:absolute;top:8px;right:8px;color:#fff;font-size:14px;line-height:1;text-shadow:0 1px 2px rgba(0,0,0,.5);}'
+			. '.uxstudio-ig__overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:16px;background:rgba(0,0,0,.45);color:#fff;font-weight:600;opacity:0;transition:opacity .2s;}'
+			. '.uxstudio-ig__item:hover .uxstudio-ig__overlay,.uxstudio-ig__item:focus .uxstudio-ig__overlay{opacity:1;}'
 			. '.uxstudio-ig__caption{display:block;margin-top:6px;font-size:13px;line-height:1.4;}'
 			. '.uxstudio-ig__follow-wrap{margin-top:12px;text-align:center;}'
 			. '.uxstudio-ig__follow{display:inline-block;padding:8px 16px;border-radius:6px;background:#0095f6;color:#fff;text-decoration:none;font-weight:600;}'
@@ -987,6 +1028,8 @@ final class Module extends BaseModule {
 			'gap_px'           => $this->clamp( $data['gap_px'] ?? 8, 0, 100 ),
 			'show_caption'     => ! empty( $data['show_caption'] ),
 			'show_follow'      => ! empty( $data['show_follow'] ),
+			'show_likes'       => ! empty( $data['show_likes'] ),
+			'custom_css'       => $this->sanitize_custom_css( is_string( $data['custom_css'] ?? null ) ? $data['custom_css'] : '' ),
 			'caption_length'   => $this->clamp( $data['caption_length'] ?? 120, 0, 1000 ),
 			'link_target'      => '_self' === ( $data['link_target'] ?? '_blank' ) ? '_self' : '_blank',
 			'media_types'      => $types,

@@ -42,6 +42,9 @@ final class DB {
 	 * Upgrade path on normal boot (after plugin update).
 	 */
 	public static function maybe_upgrade(): void {
+		// One-time settings key remap for sites migrated before the remaps existed.
+		Migrator::maybe_repair_settings();
+
 		$current = (int) get_option( self::OPTION, 0 );
 		if ( $current >= UXSTUDIO_DB_VERSION ) {
 			return;

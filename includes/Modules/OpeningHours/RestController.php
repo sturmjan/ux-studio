@@ -16,6 +16,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * GET/POST     uxstudio/v1/opening-hours/locations
  * GET/POST/DEL uxstudio/v1/opening-hours/locations/{id}
+ * POST/DEL     uxstudio/v1/opening-hours/locations/{id}/override
  * GET          uxstudio/v1/opening-hours/locations/{id}/status
  * GET          uxstudio/v1/opening-hours/geocode
  */
@@ -50,6 +51,23 @@ final class RestController extends Controller {
 			'/opening-hours/locations/(?P<id>\d+)',
 			'DELETE',
 			array( $this, 'delete_location' ),
+			array( 'id' => array( 'required' => true, 'type' => 'integer' ) )
+		);
+		// Quick temporary closure ("closed for X minutes"); DELETE clears it.
+		$this->route(
+			'/opening-hours/locations/(?P<id>\d+)/override',
+			'POST',
+			array( $this, 'set_override' ),
+			array(
+				'id'      => array( 'required' => true, 'type' => 'integer' ),
+				'minutes' => array( 'required' => true, 'type' => 'integer', 'minimum' => 1, 'maximum' => 10080 ),
+				'reason'  => array( 'type' => 'string' ),
+			)
+		);
+		$this->route(
+			'/opening-hours/locations/(?P<id>\d+)/override',
+			'DELETE',
+			array( $this, 'clear_override' ),
 			array( 'id' => array( 'required' => true, 'type' => 'integer' ) )
 		);
 		// Status is intentionally public (used by frontend widgets) and
@@ -120,6 +138,30 @@ final class RestController extends Controller {
 			return new WP_Error( 'uxstudio_oh_not_found', __( 'Location not found.', 'ux-studio' ), array( 'status' => 404 ) );
 		}
 		return $this->ok( array( 'deleted' => true ) );
+	}
+
+	/**
+	 * Close a location for N minutes.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function set_override( WP_REST_Request $request ): mixed {
+		$loc = $this->module->set_override(
+			(int) $request->get_param( 'id' ),
+			(int) $request->get_param( 'minutes' ),
+			(string) $request->get_param( 'reason' )
+		);
+		return is_wp_error( $loc ) ? $loc : $this->ok( $loc );
+	}
+
+	/**
+	 * Clear a temporary closure.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function clear_override( WP_REST_Request $request ): mixed {
+		$loc = $this->module->set_override( (int) $request->get_param( 'id' ), 0 );
+		return is_wp_error( $loc ) ? $loc : $this->ok( $loc );
 	}
 
 	/**

@@ -382,7 +382,7 @@ final class ProductIndexer {
 			return $result;
 		}
 
-		$skip_types = array( 'tab', 'accordion', 'message', 'group', 'flexible_content', 'clone', 'image', 'gallery', 'file', 'google_map', 'post_object', 'relationship', 'page_link', 'oembed', 'user', 'color_picker', 'link' );
+		$skip_types = AssistantConfig::acf_skip_types();
 
 		foreach ( $field_objects as $field ) {
 			$label = $field['label'] ?? $field['name'] ?? '';

@@ -50,6 +50,9 @@ final class Module extends BaseModule {
 	public function boot(): void {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_shortcode( 'uxstudio_reviews', array( $this, 'render_shortcode' ) );
+		// Legacy alias - embedded in existing content.
+		add_shortcode( 'ux1_reviews', array( $this, 'render_shortcode' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'register_frontend_assets' ) );
 
 		// Cheap when nothing changed: the first page is requested with the
 		// last ETag and the central app answers 304.
@@ -156,6 +159,48 @@ final class Module extends BaseModule {
 				'label'   => __( 'Minimum rating to display', 'ux-studio' ),
 				'help'    => __( 'Reviews below this rating are still stored but hidden from the shortcode output.', 'ux-studio' ),
 				'default' => 1,
+			),
+			array(
+				'key'     => 'per_page',
+				'type'    => 'number',
+				'label'   => __( 'Number of reviews', 'ux-studio' ),
+				'help'    => __( 'How many reviews the shortcode shows (1-100). Override with count="" in the shortcode.', 'ux-studio' ),
+				'default' => 10,
+			),
+			array(
+				'key'     => 'order_by',
+				'type'    => 'select',
+				'label'   => __( 'Order', 'ux-studio' ),
+				'options' => array(
+					'newest'      => __( 'Newest', 'ux-studio' ),
+					'oldest'      => __( 'Oldest', 'ux-studio' ),
+					'best_rating' => __( 'Best rating', 'ux-studio' ),
+				),
+				'default' => 'newest',
+			),
+			array(
+				'key'     => 'show_platform',
+				'type'    => 'toggle',
+				'label'   => __( 'Show platform', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
+				'key'     => 'show_date',
+				'type'    => 'toggle',
+				'label'   => __( 'Show date', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
+				'key'     => 'show_avatar',
+				'type'    => 'toggle',
+				'label'   => __( 'Show avatar', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
+				'key'     => 'show_stars',
+				'type'    => 'toggle',
+				'label'   => __( 'Show stars', 'ux-studio' ),
+				'default' => true,
 			),
 			array(
 				'key'     => 'auto_fetch',
@@ -453,36 +498,159 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Frontend shortcode: visible reviews at/above the configured minimum
-	 * rating, rendered as a simple list.
+	 * Register the frontend assets (enqueued by the shortcode on demand).
+	 */
+	public function register_frontend_assets(): void {
+		$version = defined( 'UXSTUDIO_VERSION' ) ? UXSTUDIO_VERSION : false;
+		wp_register_style( 'uxstudio-reviews', plugins_url( 'assets/css/reviews-front.css', __FILE__ ), array(), $version );
+		wp_register_script( 'uxstudio-reviews', plugins_url( 'assets/js/reviews-front.js', __FILE__ ), array(), $version, true );
+	}
+
+	/**
+	 * Visible reviews for the shortcode.
 	 *
+	 * @param array{platform:string,limit:int,min_rating:int,order:string} $args Query args.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function query_visible( array $args ): array {
+		global $wpdb;
+
+		$where  = array( 'visible = 1' );
+		$params = array();
+		if ( '' !== $args['platform'] ) {
+			$where[]  = 'source = %s';
+			$params[] = $args['platform'];
+		}
+		if ( $args['min_rating'] > 0 ) {
+			$where[]  = 'rating >= %d';
+			$params[] = $args['min_rating'];
+		}
+
+		$order_map = array(
+			'newest'      => 'review_date DESC, id DESC',
+			'oldest'      => 'review_date ASC, id ASC',
+			'best_rating' => 'rating DESC, review_date DESC, id DESC',
+		);
+		$order_sql = $order_map[ $args['order'] ] ?? $order_map['newest'];
+		$params[]  = max( 1, min( 100, $args['limit'] ) );
+
+		$sql = "SELECT id, source, author, rating, text, review_date FROM {$wpdb->prefix}uxstudio_reviews WHERE " . implode( ' AND ', $where ) . " ORDER BY {$order_sql} LIMIT %d";
+
+		$rows = $wpdb->get_results( $wpdb->prepare( $sql, $params ), ARRAY_A );
+		return is_array( $rows ) ? $rows : array();
+	}
+
+	/**
+	 * Frontend shortcode [uxstudio_reviews] / legacy [ux1_reviews].
+	 *
+	 * Attributes: platform (all|google|facebook|mapycz|...), count, order
+	 * (newest|oldest|best_rating), min_rating. Defaults come from settings.
+	 *
+	 * @param array<string, string>|string $atts Shortcode attributes.
 	 * @return string
 	 */
-	public function render_shortcode(): string {
-		$min_rating = (int) $this->settings->get( 'min_rating', 1 );
-		$reviews    = $this->list_reviews(
+	public function render_shortcode( $atts = array() ): string {
+		$atts = shortcode_atts(
 			array(
-				'visible'    => true,
-				'min_rating' => $min_rating,
+				'platform'   => 'all',
+				'count'      => (string) $this->settings->get( 'per_page', 10 ),
+				'min_rating' => (string) $this->settings->get( 'min_rating', 1 ),
+				'order'      => (string) $this->settings->get( 'order_by', 'newest' ),
+			),
+			is_array( $atts ) ? $atts : array(),
+			'uxstudio_reviews'
+		);
+
+		$platform = 'all' === $atts['platform'] ? '' : sanitize_key( $atts['platform'] );
+		$reviews  = $this->query_visible(
+			array(
+				'platform'   => $platform,
+				'limit'      => (int) $atts['count'],
+				'min_rating' => max( 0, min( 5, (int) $atts['min_rating'] ) ),
+				'order'      => sanitize_key( $atts['order'] ),
 			)
 		);
 
+		wp_enqueue_style( 'uxstudio-reviews' );
+
 		if ( empty( $reviews ) ) {
-			return '';
+			return '<div class="ux1-reviews ux1-reviews--empty uxstudio-reviews">' . esc_html__( 'No reviews yet.', 'ux-studio' ) . '</div>';
 		}
 
-		$html = '<div class="uxstudio-reviews">';
+		wp_enqueue_script( 'uxstudio-reviews' );
+
+		$show = array(
+			'platform' => (bool) $this->settings->get( 'show_platform', true ),
+			'date'     => (bool) $this->settings->get( 'show_date', true ),
+			'avatar'   => (bool) $this->settings->get( 'show_avatar', true ),
+			'stars'    => (bool) $this->settings->get( 'show_stars', true ),
+		);
+
+		$html = '<div class="ux1-reviews uxstudio-reviews"><div class="ux1-reviews__grid">';
 		foreach ( $reviews as $review ) {
-			$html .= sprintf(
-				'<div class="uxstudio-reviews__item"><strong>%1$s</strong> <span class="uxstudio-reviews__rating">%2$s</span><p>%3$s</p></div>',
-				esc_html( (string) $review['author'] ),
-				esc_html( str_repeat( '★', (int) $review['rating'] ) ),
-				esc_html( (string) ( $review['text'] ?? '' ) )
-			);
+			$html .= $this->render_card( $review, $show );
+		}
+		return $html . '</div></div>';
+	}
+
+	/**
+	 * One review card (markup and classes match the legacy module).
+	 *
+	 * @param array<string, mixed> $review Raw DB row.
+	 * @param array<string, bool>  $show   Display flags.
+	 */
+	private function render_card( array $review, array $show ): string {
+		$source = sanitize_html_class( (string) $review['source'] );
+		$author = (string) $review['author'];
+		$text   = (string) ( $review['text'] ?? '' );
+		$rating = (int) $review['rating'];
+
+		$labels = array(
+			'google'   => 'Google',
+			'mapycz'   => 'Mapy.cz',
+			'facebook' => 'Facebook',
+		);
+		$label  = $labels[ $source ] ?? (string) $review['source'];
+
+		$html = '<div class="ux1-reviews__card ux1-reviews__card--' . esc_attr( $source ) . '"><div class="ux1-reviews__header">';
+		if ( $show['avatar'] ) {
+			$initial = '' !== $author ? mb_strtoupper( mb_substr( $author, 0, 1 ) ) : '?';
+			$html   .= '<div class="ux1-reviews__avatar ux1-reviews__avatar--placeholder">' . esc_html( $initial ) . '</div>';
+		}
+		$html .= '<div class="ux1-reviews__author-info"><span class="ux1-reviews__name">' . esc_html( $author ) . '</span>';
+		if ( $show['date'] && ! empty( $review['review_date'] ) ) {
+			$ts = strtotime( (string) $review['review_date'] );
+			if ( $ts ) {
+				$html .= '<span class="ux1-reviews__date">' . esc_html( wp_date( 'd.m.Y', $ts ) ) . '</span>';
+			}
+		}
+		$html .= '</div>';
+		if ( $show['platform'] ) {
+			$html .= '<span class="ux1-reviews__platform ux1-reviews__platform--' . esc_attr( $source ) . '" title="' . esc_attr( $label ) . '">' . esc_html( $label ) . '</span>';
 		}
 		$html .= '</div>';
 
-		return $html;
+		if ( $show['stars'] && $rating > 0 ) {
+			$html .= '<div class="ux1-reviews__stars">';
+			for ( $i = 1; $i <= 5; $i++ ) {
+				$html .= '<span class="ux1-reviews__star' . ( $i <= $rating ? ' ux1-reviews__star--filled' : '' ) . '">&#9733;</span>';
+			}
+			$html .= '</div>';
+		}
+
+		if ( '' !== $text ) {
+			$expand = mb_strlen( $text ) > 200;
+			$html  .= '<div class="ux1-reviews__text"><span class="ux1-reviews__excerpt">'
+				. esc_html( $expand ? mb_substr( $text, 0, 200 ) . '...' : $text ) . '</span>';
+			if ( $expand ) {
+				$html .= '<span class="ux1-reviews__full" style="display:none;">' . esc_html( $text ) . '</span>'
+					. '<button type="button" class="ux1-reviews__more" data-more="' . esc_attr__( 'show more', 'ux-studio' ) . '" data-less="' . esc_attr__( 'show less', 'ux-studio' ) . '">'
+					. esc_html__( 'show more', 'ux-studio' ) . '</button>';
+			}
+			$html .= '</div>';
+		}
+
+		return $html . '</div>';
 	}
 
 	/**

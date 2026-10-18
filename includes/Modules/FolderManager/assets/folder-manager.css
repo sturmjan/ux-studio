@@ -1,0 +1,251 @@
+/* Folder Manager - folder tree for Media Library / post lists / media modal. */
+
+.uxs-fm-panel {
+	box-sizing: border-box;
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	font-size: 13px;
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.uxs-fm-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 8px 10px;
+	border-bottom: 1px solid #dcdcde;
+}
+
+.uxs-fm-head h3 {
+	margin: 0;
+	font-size: 14px;
+	line-height: 1.4;
+}
+
+.uxs-fm-head-actions {
+	display: inline-flex;
+	gap: 2px;
+}
+
+.uxs-fm-btn {
+	background: none;
+	border: 0;
+	padding: 2px;
+	cursor: pointer;
+	color: #646970;
+	border-radius: 3px;
+	line-height: 1;
+}
+
+.uxs-fm-btn:hover,
+.uxs-fm-btn:focus {
+	color: #2271b1;
+	background: #f0f0f1;
+}
+
+.uxs-fm-btn .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+
+.uxs-fm-tree {
+	padding: 6px 4px;
+	overflow-y: auto;
+	flex: 1;
+	min-height: 0;
+}
+
+.uxs-fm-item {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	padding: 4px 6px;
+	border-radius: 3px;
+	cursor: pointer;
+	color: #1d2327;
+}
+
+.uxs-fm-item:hover,
+.uxs-fm-item:focus {
+	background: #e8f0f7;
+	outline: 0;
+}
+
+.uxs-fm-item.is-active {
+	background: #2271b1;
+	color: #fff;
+}
+
+.uxs-fm-item.is-drop {
+	background: #e7f5e7;
+	outline: 2px dashed #46b450;
+	outline-offset: -2px;
+	color: #1d2327;
+}
+
+.uxs-fm-item .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	flex: 0 0 16px;
+}
+
+.uxs-fm-name {
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.uxs-fm-count {
+	font-size: 11px;
+	opacity: 0.75;
+}
+
+.uxs-fm-toggle,
+.uxs-fm-toggle-space {
+	width: 16px;
+	flex: 0 0 16px;
+	height: 16px;
+}
+
+.uxs-fm-toggle {
+	background: none;
+	border: 0;
+	padding: 0;
+	cursor: pointer;
+	color: inherit;
+}
+
+.uxs-fm-actions {
+	display: none;
+	gap: 0;
+}
+
+.uxs-fm-item:hover .uxs-fm-actions,
+.uxs-fm-item:focus-within .uxs-fm-actions {
+	display: inline-flex;
+}
+
+.uxs-fm-item.is-active .uxs-fm-btn {
+	color: #fff;
+}
+
+.uxs-fm-manage {
+	display: block;
+	padding: 6px 10px 8px;
+	border-top: 1px solid #dcdcde;
+	font-size: 12px;
+}
+
+.uxs-fm-none,
+.uxs-folder-none {
+	color: #8c8f94;
+}
+
+.uxs-fm-bulk-select {
+	margin: 0 6px 0 0;
+}
+
+/* List pages: sidebar next to the list. */
+.uxs-fm-layout {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	margin: 10px 20px 0 2px;
+}
+
+.uxs-fm-layout > .uxs-fm-panel {
+	flex: 0 0 240px;
+	width: 240px;
+	position: sticky;
+	top: 42px;
+	max-height: calc(100vh - 60px);
+}
+
+.uxs-fm-main {
+	flex: 1;
+	min-width: 0;
+}
+
+.uxs-fm-main > .wrap {
+	margin: 0;
+}
+
+@media screen and (max-width: 782px) {
+	.uxs-fm-layout {
+		flex-direction: column;
+		margin-right: 10px;
+	}
+
+	.uxs-fm-layout > .uxs-fm-panel {
+		flex: none;
+		width: 100%;
+		position: static;
+		max-height: 260px;
+	}
+}
+
+/* Media modal: panel on the left, original browser content on the right. */
+.attachments-browser.uxs-fm-has-panel > .uxs-fm-panel {
+	border-radius: 0;
+	border-width: 0 1px 0 0;
+}
+
+.attachments-browser.uxs-fm-modal > .uxs-fm-panel {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	width: 220px;
+	z-index: 5;
+}
+
+.attachments-browser.uxs-fm-modal > .uxs-fm-content {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 220px;
+	right: 0;
+}
+
+/* Grid view on the Media Library page: normal flow, panel beside the grid. */
+.attachments-browser.uxs-fm-flow {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+}
+
+.attachments-browser.uxs-fm-flow > .uxs-fm-panel {
+	flex: 0 0 220px;
+	width: 220px;
+	border-width: 1px;
+	border-radius: 4px;
+	position: sticky;
+	top: 42px;
+}
+
+.attachments-browser.uxs-fm-flow > .uxs-fm-content {
+	flex: 1;
+	min-width: 0;
+	position: relative;
+}
+
+.attachments-browser.uxs-fm-has-panel .attachments .attachment[draggable="true"] {
+	cursor: grab;
+}
+
+@media screen and (max-width: 640px) {
+	.attachments-browser.uxs-fm-modal > .uxs-fm-panel {
+		display: none;
+	}
+
+	.attachments-browser.uxs-fm-modal > .uxs-fm-content {
+		left: 0;
+	}
+}

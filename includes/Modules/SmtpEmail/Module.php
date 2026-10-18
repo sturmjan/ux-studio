@@ -8,6 +8,7 @@
 namespace UxStudio\Modules\SmtpEmail;
 
 use UxStudio\Core\ActivityLog;
+use UxStudio\Core\Csv;
 use UxStudio\Core\Retention;
 use UxStudio\Core\Security;
 use UxStudio\Modules\BaseModule;
@@ -36,6 +37,9 @@ final class Module extends BaseModule {
 	private const SECRET_BREVO         = 'uxstudio_secret_smtp_brevo_api_key';
 	private const SECRET_GMAIL_SECRET  = 'uxstudio_secret_smtp_gmail_client_secret';
 	private const SECRET_GMAIL_REFRESH = 'uxstudio_secret_smtp_gmail_refresh_token';
+
+	private const BREVO_STATUS_OPTION = 'uxstudio_smtp_brevo_status';
+	private const BREVO_ACCOUNT_URL   = 'https://api.brevo.com/v3/account';
 
 	private const OAUTH_OPTION        = 'uxstudio_smtp_gmail_oauth';
 	private const LAST_MESSAGE_OPTION = 'uxstudio_smtp_last_message';
@@ -98,6 +102,9 @@ final class Module extends BaseModule {
 
 		add_action( self::CRON_RETENTION, array( $this, 'purge_old_logs' ) );
 		Retention::ensure_scheduled( self::CRON_RETENTION );
+
+		// Nonce-signed CSV download of the delivery log (link from the Log tab).
+		add_action( 'admin_post_uxstudio_smtp_logs_export', array( $this, 'export_logs_csv' ) );
 	}
 
 	/**
@@ -230,6 +237,13 @@ final class Module extends BaseModule {
 				'default' => '',
 			),
 			array(
+				'key'     => 'enable_email_logs',
+				'type'    => 'toggle',
+				'label'   => __( 'Enable email logs', 'ux-studio' ),
+				'help'    => __( 'Record every email sent from the site in the delivery log (for debugging and overview).', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
 				'key'     => 'retention_days',
 				'type'    => 'number',
 				'label'   => __( 'Delivery log retention (days)', 'ux-studio' ),
@@ -303,6 +317,9 @@ final class Module extends BaseModule {
 			),
 			'uxs_gmail_disconnect'
 		);
+
+		// Result of the last "Verify Brevo key" check (never contains the key).
+		$values['brevo_status'] = $this->brevo_status_data();
 
 		$last                      = (array) get_option( self::LAST_MESSAGE_OPTION, array() );
 		$values['has_last_message'] = ! empty( $last['to'] ) || ! empty( $last['subject'] );
@@ -883,6 +900,10 @@ final class Module extends BaseModule {
 	 * @param string          $error   Error message, if any.
 	 */
 	private function insert_log( $to, string $subject, string $status, string $error ): void {
+		if ( ! $this->settings->get( 'enable_email_logs', true ) ) {
+			return;
+		}
+
 		global $wpdb;
 		$to_string = is_array( $to ) ? implode( ', ', $to ) : (string) $to;
 
@@ -900,17 +921,170 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Last 50 log rows, newest first.
+	 * Paginated / searchable delivery log, newest first.
 	 *
-	 * @return array<int, array<string, mixed>>
+	 * @param int    $page     1-based page number.
+	 * @param int    $per_page Rows per page (1-100).
+	 * @param string $search   Optional substring matched against recipient, subject and error.
+	 * @return array{items:array<int,array<string,mixed>>,total:int,page:int,per_page:int}
 	 */
-	public function get_logs(): array {
+	public function get_logs( int $page = 1, int $per_page = 20, string $search = '' ): array {
 		global $wpdb;
-		$rows = $wpdb->get_results(
-			"SELECT id, created_at, to_email, subject, status, error FROM {$wpdb->prefix}uxstudio_smtp_logs ORDER BY id DESC LIMIT 50",
+		$table    = "{$wpdb->prefix}uxstudio_smtp_logs";
+		$page     = max( 1, $page );
+		$per_page = max( 1, min( 100, $per_page ) );
+		$offset   = ( $page - 1 ) * $per_page;
+
+		$where = '1=1';
+		if ( '' !== $search ) {
+			$like   = '%' . $wpdb->esc_like( $search ) . '%';
+			$where .= $wpdb->prepare( ' AND (to_email LIKE %s OR subject LIKE %s OR error LIKE %s)', $like, $like, $like );
+		}
+
+		$total = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} WHERE {$where}" ); // phpcs:ignore WordPress.DB.PreparedSQL
+		$rows  = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT id, created_at, to_email, subject, status, error FROM {$table} WHERE {$where} ORDER BY id DESC LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL
+				$per_page,
+				$offset
+			),
 			ARRAY_A
 		);
-		return is_array( $rows ) ? $rows : array();
+
+		return array(
+			'items'    => is_array( $rows ) ? $rows : array(),
+			'total'    => $total,
+			'page'     => $page,
+			'per_page' => $per_page,
+		);
+	}
+
+	/**
+	 * Delete every delivery log row.
+	 */
+	public function clear_logs(): bool {
+		global $wpdb;
+		$result = $wpdb->query( "TRUNCATE TABLE {$wpdb->prefix}uxstudio_smtp_logs" );
+		ActivityLog::log( 'smtp-email', 'clear_logs', 'smtp_logs', 0 );
+		return false !== $result;
+	}
+
+	/**
+	 * Nonce-signed URL of the CSV export.
+	 */
+	public function export_logs_url(): string {
+		return wp_nonce_url(
+			admin_url( 'admin-post.php?action=uxstudio_smtp_logs_export' ),
+			'uxstudio_smtp_logs_export'
+		);
+	}
+
+	/**
+	 * Stream the whole delivery log as CSV (admin-post handler).
+	 */
+	public function export_logs_csv(): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You are not allowed to do this.', 'ux-studio' ), '', array( 'response' => 403 ) );
+		}
+		check_admin_referer( 'uxstudio_smtp_logs_export' );
+
+		global $wpdb;
+		$rows = $wpdb->get_results(
+			"SELECT created_at, to_email, subject, status, error FROM {$wpdb->prefix}uxstudio_smtp_logs ORDER BY id DESC",
+			ARRAY_A
+		);
+		$rows = is_array( $rows ) ? $rows : array();
+
+		ActivityLog::log( 'smtp-email', 'export_logs', 'smtp_logs', 0, array( 'rows' => count( $rows ) ) );
+
+		$filename = sanitize_file_name( get_bloginfo( 'name' ) . '-smtp-email-logs-' . gmdate( 'Y-m-d' ) . '.csv' );
+
+		nocache_headers();
+		header( 'Content-Type: text/csv; charset=utf-8' );
+		header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
+
+		$out = fopen( 'php://output', 'w' );
+		fputcsv( $out, array( 'Date', 'To', 'Subject', 'Status', 'Error' ) );
+		foreach ( $rows as $row ) {
+			// Subject / recipient / error originate from arbitrary mail callers.
+			fputcsv(
+				$out,
+				Csv::safe_row(
+					array(
+						(string) $row['created_at'],
+						(string) $row['to_email'],
+						(string) $row['subject'],
+						(string) $row['status'],
+						(string) ( $row['error'] ?? '' ),
+					)
+				)
+			);
+		}
+		fclose( $out );
+		exit;
+	}
+
+	/**
+	 * Last stored result of the Brevo key check.
+	 *
+	 * @return array{state:string,account:string,error:string,checked:string}
+	 */
+	private function brevo_status_data(): array {
+		$data = (array) get_option( self::BREVO_STATUS_OPTION, array() );
+		return array(
+			'state'   => (string) ( $data['state'] ?? '' ),
+			'account' => (string) ( $data['account'] ?? '' ),
+			'error'   => (string) ( $data['error'] ?? '' ),
+			'checked' => (string) ( $data['checked'] ?? '' ),
+		);
+	}
+
+	/**
+	 * Verify the stored Brevo API key against GET /v3/account and remember the
+	 * outcome. The key is read from the encrypted secret and never returned.
+	 *
+	 * @return array{state:string,account:string,error:string,checked:string}
+	 */
+	public function verify_brevo_key(): array {
+		$api_key = Security::get_secret( self::SECRET_BREVO );
+		$result  = array(
+			'state'   => 'error',
+			'account' => '',
+			'error'   => '',
+			'checked' => current_time( 'mysql' ),
+		);
+
+		if ( '' === $api_key ) {
+			$result['error'] = __( 'Enter the API key and save the settings first.', 'ux-studio' );
+		} else {
+			$response = wp_remote_get(
+				self::BREVO_ACCOUNT_URL,
+				array(
+					'timeout' => 15,
+					'headers' => array(
+						'api-key' => $api_key,
+						'accept'  => 'application/json',
+					),
+				)
+			);
+
+			if ( is_wp_error( $response ) ) {
+				$result['error'] = $response->get_error_message();
+			} else {
+				$code = (int) wp_remote_retrieve_response_code( $response );
+				$data = json_decode( wp_remote_retrieve_body( $response ), true );
+				if ( 200 === $code && is_array( $data ) ) {
+					$result['state']   = 'ok';
+					$account           = (string) ( $data['email'] ?? '' );
+					$result['account'] = '' !== $account ? $account : (string) ( $data['companyName'] ?? '' );
+				} else {
+					$result['error'] = is_array( $data ) && isset( $data['message'] ) ? (string) $data['message'] : 'HTTP ' . $code;
+				}
+			}
+		}
+
+		update_option( self::BREVO_STATUS_OPTION, $result, false );
+		return $result;
 	}
 
 	/**

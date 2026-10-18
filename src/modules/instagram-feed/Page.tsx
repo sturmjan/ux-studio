@@ -44,6 +44,8 @@ interface FeedConfig {
 	gap_px: number;
 	show_caption: boolean;
 	show_follow: boolean;
+	show_likes: boolean;
+	custom_css: string;
 	caption_length: number;
 	link_target: string;
 	media_types: string;
@@ -236,6 +238,8 @@ const DEFAULT_CONFIG: FeedConfig = {
 	gap_px: 8,
 	show_caption: false,
 	show_follow: false,
+	show_likes: false,
+	custom_css: '',
 	caption_length: 120,
 	link_target: '_blank',
 	media_types: 'IMAGE,VIDEO,CAROUSEL_ALBUM',
@@ -316,6 +320,25 @@ function FeedEditor( {
 					className={ `uxs-switch${ config.show_follow ? ' is-on' : '' }` }
 					aria-pressed={ config.show_follow }
 					onClick={ () => set( 'show_follow', ! config.show_follow ) }
+				/>
+			</div>
+			<div className="uxs-form__row">
+				<label>{ __( 'Show likes and comments on hover', 'ux-studio' ) }</label>
+				<button
+					type="button"
+					className={ `uxs-switch${ config.show_likes ? ' is-on' : '' }` }
+					aria-pressed={ config.show_likes }
+					onClick={ () => set( 'show_likes', ! config.show_likes ) }
+				/>
+			</div>
+			<div className="uxs-form__row">
+				<label>{ __( 'Custom CSS (declarations for the feed wrapper)', 'ux-studio' ) }</label>
+				<textarea
+					rows={ 3 }
+					className="code"
+					placeholder="border-radius: 8px; background: #fafafa;"
+					value={ config.custom_css }
+					onChange={ ( e ) => set( 'custom_css', e.target.value ) }
 				/>
 			</div>
 			<div style={ { display: 'flex', gap: 'var(--uxs-sp-3)' } }>

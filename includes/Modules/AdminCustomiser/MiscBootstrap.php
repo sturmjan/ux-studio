@@ -40,8 +40,12 @@ final class MiscBootstrap {
 		add_action( 'admin_head', array( self::class, 'handle_admin_features_visibility' ) );
 		add_filter( 'admin_footer_text', array( self::class, 'custom_admin_footer_text' ), 11 );
 
+		// Admin page background, admin bar colors/logo/hidden elements and sidebar
+		// styling. Each rule is printed only for a configured value.
+		( new AdminTheme( $settings ) )->register();
+
 		if ( $settings->get( 'admin_bar_enabled', false ) ) {
-			( new AdminBar() )->register();
+			( new AdminBar( $settings ) )->register();
 		}
 
 		if ( $settings->get( 'quick_search_enabled', true ) ) {
@@ -54,7 +58,8 @@ final class MiscBootstrap {
 
 		if ( $settings->get( 'hide_notices_enabled', false ) ) {
 			$relocate = (bool) $settings->get( 'hide_notices_relocate', false );
-			( new HideAdminNotices( $relocate ) )->register();
+			$update_types = $settings->get( 'global__update_notifications', array() );
+			( new HideAdminNotices( $relocate, is_array( $update_types ) ? array_map( 'strval', $update_types ) : array() ) )->register();
 		}
 
 		if ( $settings->get( 'server_clock_enabled', false ) ) {

@@ -16,7 +16,7 @@ import { useEffect, useRef, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { LoaderCircle, Plus, Send, Trash2 } from 'lucide-react';
-import { queryClient } from '../../app/api';
+import { api, queryClient } from '../../app/api';
 
 interface ChatMessage {
 	role: 'user' | 'assistant';
@@ -224,6 +224,13 @@ function LimitsBar(): JSX.Element | null {
 }
 
 export function InternalChatTab(): JSX.Element {
+	const { data: settingsData } = useQuery( {
+		queryKey: [ 'settings', 'ai-assistant' ],
+		queryFn: () => api< { values: Record< string, unknown > } >( 'settings/ai-assistant' ),
+	} );
+	const rawGreeting = settingsData?.values.chatbot_greeting;
+	const greeting = 'string' === typeof rawGreeting ? rawGreeting.trim() : '';
+	const chatbotDisabled = false === settingsData?.values.chatbot_enabled;
 	const [ conversationId, setConversationId ] = useState< number | null >( null );
 	const [ messages, setMessages ] = useState< ChatMessage[] >( [] );
 	const [ input, setInput ] = useState( '' );
@@ -343,7 +350,29 @@ export function InternalChatTab(): JSX.Element {
 						maxHeight: 520,
 					} }
 				>
-					{ ! messages.length && ! streamingText ? (
+					{ chatbotDisabled ? (
+						<p role="alert" style={ { color: 'var(--uxs-danger, #d63638)' } }>
+							{ __( 'The internal chatbot is disabled in the settings above.', 'ux-studio' ) }
+						</p>
+					) : null }
+
+					{ ! messages.length && ! streamingText && greeting ? (
+						<div
+							style={ {
+								alignSelf: 'flex-start',
+								background: 'var(--uxs-border, #f0f0f1)',
+								color: '#1e1e1e',
+								borderRadius: 10,
+								padding: '8px 12px',
+								maxWidth: '80%',
+								whiteSpace: 'pre-wrap',
+							} }
+						>
+							{ greeting }
+						</div>
+					) : null }
+
+					{ ! messages.length && ! streamingText && ! greeting ? (
 						<p style={ { opacity: 0.7 } }>
 							{ __( 'Ask the internal AI assistant about editing content, site settings, or how to use UX Studio.', 'ux-studio' ) }
 						</p>

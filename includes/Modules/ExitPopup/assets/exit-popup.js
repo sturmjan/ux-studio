@@ -84,6 +84,18 @@
 			'.uxstudio-exit-popup{border-radius:8px;max-width:480px;width:100%;position:relative;box-shadow:0 10px 40px rgba(0,0,0,.25);font-family:inherit;overflow:hidden;}' +
 			'.uxstudio-exit-popup__image{display:block;width:100%;max-height:220px;object-fit:cover;}' +
 			'.uxstudio-exit-popup__inner{padding:32px;}' +
+			'.uxstudio-exit-popup__media{position:relative;}' +
+			'.uxstudio-exit-popup__icon{position:absolute;left:50%;bottom:-32px;width:64px;height:64px;margin-left:-32px;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;overflow:hidden;z-index:1;}' +
+			'.uxstudio-exit-popup__icon img{max-width:70%;max-height:70%;object-fit:contain;display:block;}' +
+			'.uxstudio-exit-popup__icon--standalone{position:static;margin:32px auto 0;box-shadow:none;background:transparent;width:72px;height:72px;}' +
+			'.uxstudio-exit-popup__media+.uxstudio-exit-popup__inner--has-icon{padding-top:48px;}' +
+			'.uxstudio-exit-popup--horizontal{display:flex;max-width:760px;}' +
+			'.uxstudio-exit-popup--horizontal .uxstudio-exit-popup__media{flex:0 0 40%;}' +
+			'.uxstudio-exit-popup--horizontal .uxstudio-exit-popup__image{height:100%;max-height:none;}' +
+			'.uxstudio-exit-popup--horizontal .uxstudio-exit-popup__icon{left:auto;right:-32px;bottom:auto;top:50%;margin:-32px 0 0;}' +
+			'.uxstudio-exit-popup--horizontal .uxstudio-exit-popup__media+.uxstudio-exit-popup__inner--has-icon{padding-top:32px;padding-left:48px;}' +
+			'.uxstudio-exit-popup--horizontal .uxstudio-exit-popup__inner{flex:1;}' +
+			'@media(max-width:640px){.uxstudio-exit-popup--horizontal{display:block;}.uxstudio-exit-popup--horizontal .uxstudio-exit-popup__image{height:auto;max-height:220px;}.uxstudio-exit-popup--horizontal .uxstudio-exit-popup__icon{left:50%;right:auto;top:auto;bottom:-32px;margin:0 0 0 -32px;}.uxstudio-exit-popup--horizontal .uxstudio-exit-popup__media+.uxstudio-exit-popup__inner--has-icon{padding-left:32px;padding-top:48px;}}' +
 			'.uxstudio-exit-popup__close{position:absolute;top:8px;right:8px;background:rgba(255,255,255,.85);border:none;font-size:22px;line-height:1;cursor:pointer;padding:4px 10px;border-radius:4px;color:#333;}' +
 			'.uxstudio-exit-popup__headline{margin:0 0 12px;font-size:22px;}' +
 			'.uxstudio-exit-popup__body{margin:0 0 16px;font-size:14px;}' +
@@ -120,17 +132,41 @@
 		closeBtn.innerHTML = '&times;';
 		modal.appendChild( closeBtn );
 
+		if ( 'horizontal' === cfg.layout ) {
+			modal.className += ' uxstudio-exit-popup--horizontal';
+		}
+
+		function buildIcon( extraClass ) {
+			var wrap = document.createElement( 'div' );
+			wrap.className = 'uxstudio-exit-popup__icon' + ( extraClass ? ' ' + extraClass : '' );
+			var ico = document.createElement( 'img' );
+			ico.src = cfg.iconUrl;
+			ico.alt = '';
+			wrap.appendChild( ico );
+			return wrap;
+		}
+
+		var hasMedia = false;
 		if ( cfg.imageUrl ) {
+			var media = document.createElement( 'div' );
+			media.className = 'uxstudio-exit-popup__media';
 			var img = document.createElement( 'img' );
 			img.className = 'uxstudio-exit-popup__image';
 			img.src = cfg.imageUrl;
 			img.alt = cfg.imageAlt || '';
 			img.loading = 'lazy';
-			modal.appendChild( img );
+			media.appendChild( img );
+			if ( cfg.iconUrl ) {
+				media.appendChild( buildIcon( '' ) );
+			}
+			modal.appendChild( media );
+			hasMedia = true;
+		} else if ( cfg.iconUrl ) {
+			modal.appendChild( buildIcon( 'uxstudio-exit-popup__icon--standalone' ) );
 		}
 
 		var inner = document.createElement( 'div' );
-		inner.className = 'uxstudio-exit-popup__inner';
+		inner.className = 'uxstudio-exit-popup__inner' + ( hasMedia && cfg.iconUrl ? ' uxstudio-exit-popup__inner--has-icon' : '' );
 
 		var headline = document.createElement( 'h2' );
 		headline.className = 'uxstudio-exit-popup__headline';

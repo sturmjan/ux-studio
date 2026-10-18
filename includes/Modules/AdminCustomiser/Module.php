@@ -55,6 +55,31 @@ final class Module extends BaseModule {
 	}
 
 	/**
+	 * Normalize values the legacy framework stored in other shapes so the
+	 * generic settings form shows (and re-saves) them correctly: `file` fields
+	 * are arrays of attachment IDs, empty checklists / toggles are ''.
+	 */
+	public function settings_values(): array {
+		$values = parent::settings_values();
+
+		foreach ( array( 'login_logo', 'admin_bar_logo' ) as $key ) {
+			if ( isset( $values[ $key ] ) ) {
+				$values[ $key ] = AdminTheme::attachment_id( $values[ $key ] );
+			}
+		}
+		foreach ( array( 'hide_admin_bar_elements', 'global__update_notifications', 'form_options' ) as $key ) {
+			if ( isset( $values[ $key ] ) && ! is_array( $values[ $key ] ) ) {
+				$values[ $key ] = array();
+			}
+		}
+		if ( isset( $values['hide_sidebar_icons'] ) ) {
+			$values['hide_sidebar_icons'] = true === $values['hide_sidebar_icons'] || 1 === $values['hide_sidebar_icons'] || '1' === $values['hide_sidebar_icons'];
+		}
+
+		return $values;
+	}
+
+	/**
 	 * Settings schema shared by every Admin Customiser sub-feature. Fields
 	 * belonging to domains ported by the concurrent agent (admin bar, quick
 	 * search, login, icon replacer, hide notices, server clock, theming) are
@@ -238,6 +263,178 @@ final class Module extends BaseModule {
 				'type'    => 'toggle',
 				'label'   => __( 'Enable admin bar customization', 'ux-studio' ),
 				'default' => false,
+			),
+			array(
+				'key'     => 'body_bg_color',
+				'type'    => 'color',
+				'label'   => __( 'Admin page background color', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'admin_bar_logo',
+				'type'    => 'media',
+				'label'   => __( 'Admin bar logo', 'ux-studio' ),
+				'help'    => __( 'Replaces the WordPress logo in the admin bar.', 'ux-studio' ),
+				'default' => 0,
+			),
+			array(
+				'key'     => 'admin_bar_bg_color',
+				'type'    => 'color',
+				'label'   => __( 'Admin bar background color', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'admin_bar_bg_dropdown_color',
+				'type'    => 'color',
+				'label'   => __( 'Admin bar dropdown background color', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'admin_bar_text_color',
+				'type'    => 'color',
+				'label'   => __( 'Admin bar text color', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'admin_bar_text_hover_color',
+				'type'    => 'color',
+				'label'   => __( 'Admin bar text hover color', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'hide_admin_bar_elements',
+				'type'    => 'multiselect',
+				'label'   => __( 'Hide admin bar elements', 'ux-studio' ),
+				'options' => array(
+					'wp_logo'   => __( 'WordPress logo', 'ux-studio' ),
+					'icons'     => __( 'Icons', 'ux-studio' ),
+					'updates'   => __( 'Updates item', 'ux-studio' ),
+					'customize' => __( 'Customize item', 'ux-studio' ),
+					'comments'  => __( 'Comments item', 'ux-studio' ),
+					'new_item'  => __( 'New item', 'ux-studio' ),
+				),
+				'default' => array(),
+			),
+			array(
+				'key'     => 'hide_howdy_name',
+				'type'    => 'toggle',
+				'label'   => __( 'Admin bar: show only the avatar', 'ux-studio' ),
+				'help'    => __( 'The user name stays in the dropdown menu. Applies when admin bar customization is enabled.', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
+				'key'     => 'move_updates_right',
+				'type'    => 'toggle',
+				'label'   => __( 'Admin bar: move updates to the right', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
+				'key'     => 'consolidate_plugin_actions',
+				'type'    => 'toggle',
+				'label'   => __( 'Admin bar: collapse plugin items under "+"', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
+				'key'     => 'keep_on_bar_ids',
+				'type'    => 'textarea',
+				'label'   => __( 'Admin bar: keep these items on the bar', 'ux-studio' ),
+				'help'    => __( 'Admin bar item IDs (one per line or comma separated) that must NOT be collapsed under "+". Full IDs (e.g. wp-admin-bar-notifications) and prefixes both work. Tip: right-click an icon in the admin bar and choose Inspect to find its ID.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'move_site_link_right',
+				'type'    => 'toggle',
+				'label'   => __( 'Admin bar: site name as a link icon on the right', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
+				'key'     => 'horizontal_menu_inline',
+				'type'    => 'toggle',
+				'label'   => __( 'Horizontal menu on the same row as the admin bar', 'ux-studio' ),
+				'help'    => __( 'Merges the horizontal menu and the admin bar into one row. Applies only when the Menu Organizer uses the horizontal layout.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'sidebar_bg_color',
+				'type'    => 'color',
+				'label'   => __( 'Sidebar background color', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'sidebar_text_color',
+				'type'    => 'color',
+				'label'   => __( 'Sidebar text color', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'selected_menu_bg_color',
+				'type'    => 'color',
+				'label'   => __( 'Sidebar active item background', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'selected_menu_text_color',
+				'type'    => 'color',
+				'label'   => __( 'Sidebar active item text', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'hover_menu_bg_color',
+				'type'    => 'color',
+				'label'   => __( 'Sidebar hover item background', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'hover_menu_text_color',
+				'type'    => 'color',
+				'label'   => __( 'Sidebar hover item text', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'sidebar_icons_color',
+				'type'    => 'color',
+				'label'   => __( 'Sidebar icons color', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'hide_sidebar_icons',
+				'type'    => 'toggle',
+				'label'   => __( 'Hide sidebar icons', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'sidebar_width',
+				'type'    => 'number',
+				'label'   => __( 'Sidebar width (px, 120-300)', 'ux-studio' ),
+				'help'    => __( 'WordPress default is 160.', 'ux-studio' ),
+				'default' => 160,
+			),
+			array(
+				'key'     => 'global__update_notifications',
+				'type'    => 'multiselect',
+				'label'   => __( 'Suppress update notifications', 'ux-studio' ),
+				'help'    => __( 'The selected update checks report "nothing to update", so the update nags and admin bar badges disappear. Applies when hiding admin notices is enabled.', 'ux-studio' ),
+				'options' => array(
+					'core'   => __( 'Core', 'ux-studio' ),
+					'theme'  => __( 'Themes', 'ux-studio' ),
+					'plugin' => __( 'Plugins', 'ux-studio' ),
+				),
+				'default' => array(),
+			),
+			array(
+				'key'     => 'form_options',
+				'type'    => 'multiselect',
+				'label'   => __( 'Login form options', 'ux-studio' ),
+				'options' => array(
+					'hide_login_logo' => __( 'Hide login logo', 'ux-studio' ),
+				),
+				'default' => array(),
+			),
+			array(
+				'key'     => 'login_form_text_hover_color',
+				'type'    => 'color',
+				'label'   => __( 'Login form text hover color', 'ux-studio' ),
+				'default' => '',
 			),
 			array(
 				'key'     => 'quick_search_enabled',

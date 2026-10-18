@@ -3,7 +3,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, History, LoaderCircle, RotateCcw } from 'lucide-react';
 import { api } from '../../app/api';
-import { navigate } from '../../app/route';
+import { hashParam, navigate } from '../../app/route';
 
 type Tab = 'plugins' | 'themes';
 type ItemType = 'plugin' | 'theme';
@@ -70,7 +70,7 @@ function VersionsSelect( {
 	);
 }
 
-function ItemsTable( { type, items }: { type: ItemType; items: RollbackItem[] } ): JSX.Element {
+function ItemsTable( { type, items, focusSlug }: { type: ItemType; items: RollbackItem[]; focusSlug?: string } ): JSX.Element {
 	const queryClient = useQueryClient();
 	const [ selected, setSelected ] = useState< Record< string, string > >( {} );
 	const [ result, setResult ] = useState< Record< string, { success: boolean; message: string } > >( {} );
@@ -143,7 +143,7 @@ function ItemsTable( { type, items }: { type: ItemType; items: RollbackItem[] } 
 					const isBusy = rollback.isPending && rollback.variables?.slug === item.slug;
 					const itemResult = result[ item.slug ];
 					return (
-						<tr key={ item.slug }>
+						<tr key={ item.slug } style={ focusSlug && focusSlug === item.slug ? { background: 'var(--uxs-warning-bg, #fff8e5)' } : undefined }>
 							<td>{ item.name }</td>
 							<td>{ item.version }</td>
 							<td>
@@ -187,7 +187,8 @@ function ItemsTable( { type, items }: { type: ItemType; items: RollbackItem[] } 
 }
 
 export default function Page(): JSX.Element {
-	const [ tab, setTab ] = useState< Tab >( 'plugins' );
+	const [ tab, setTab ] = useState< Tab >( hashParam( 'type' ) === 'theme' ? 'themes' : 'plugins' );
+	const focusSlug = hashParam( 'name' ) ?? undefined;
 
 	const { data, isLoading } = useQuery( {
 		queryKey: [ 'rollback-manager', 'items' ],
@@ -223,8 +224,8 @@ export default function Page(): JSX.Element {
 				</div>
 			) : (
 				<>
-					{ tab === 'plugins' && <ItemsTable type="plugin" items={ data.plugins } /> }
-					{ tab === 'themes' && <ItemsTable type="theme" items={ data.themes } /> }
+					{ tab === 'plugins' && <ItemsTable type="plugin" items={ data.plugins } focusSlug={ focusSlug } /> }
+					{ tab === 'themes' && <ItemsTable type="theme" items={ data.themes } focusSlug={ focusSlug } /> }
 				</>
 			) }
 		</>

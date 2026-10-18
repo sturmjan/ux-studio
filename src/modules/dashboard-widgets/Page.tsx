@@ -265,6 +265,27 @@ function TasksAndNotes(): JSX.Element {
 	);
 }
 
+function SaveLayout( { summary }: { summary: string } ): JSX.Element {
+	const save = useMutation( {
+		mutationFn: () => api< { summary: string } >( 'dashboard-widgets/layout/save', { method: 'POST', body: JSON.stringify( {} ) } ),
+		onSuccess: () => void queryClient.invalidateQueries( { queryKey: [ 'settings', 'dashboard-widgets' ] } ),
+	} );
+	const text = save.data?.summary || summary;
+
+	return (
+		<div className="uxs-form" style={ { marginTop: 'var(--uxs-sp-4)' } }>
+			<button type="button" className="button" disabled={ save.isPending } onClick={ () => save.mutate() }>
+				{ __( 'Save current layout as default', 'ux-studio' ) }
+			</button>
+			<p className="uxs-form__help">
+				{ text ||
+					__( 'No layout saved yet. Arrange the widgets on the Dashboard first, then come back and save it here.', 'ux-studio' ) }
+			</p>
+			{ save.error ? <p className="uxs-badge is-danger">{ ( save.error as Error ).message }</p> : null }
+		</div>
+	);
+}
+
 export default function Page(): JSX.Element {
 	const [ tab, setTab ] = useState< Tab >( 'tasks' );
 	const { data, isLoading, draft, setDraft, save, saved } = useModuleSettings( 'dashboard-widgets' );
@@ -319,6 +340,7 @@ export default function Page(): JSX.Element {
 							? __( 'A GA service-account JSON is currently set.', 'ux-studio' )
 							: __( 'No GA service-account JSON set yet.', 'ux-studio' ) }
 					</p>
+					<SaveLayout summary={ String( draft.saved_layout ?? '' ) } />
 					<button type="button" className="button button-primary" onClick={ () => save.mutate() }>
 						{ saved ? __( 'Saved', 'ux-studio' ) : __( 'Save changes', 'ux-studio' ) }
 					</button>

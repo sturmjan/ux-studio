@@ -34,8 +34,8 @@ final class ContentGenerator {
 	 */
 	public function generate( array $params ): array {
 		$post_type   = sanitize_text_field( (string) ( $params['post_type'] ?? 'post' ) );
-		$tone        = sanitize_text_field( (string) ( $params['tone'] ?? 'neutral' ) );
-		$length      = sanitize_text_field( (string) ( $params['length'] ?? 'medium' ) );
+		$tone        = sanitize_text_field( (string) ( ( $params['tone'] ?? '' ) ?: AssistantConfig::default_tone() ) );
+		$length      = sanitize_text_field( (string) ( ( $params['length'] ?? '' ) ?: AssistantConfig::default_length() ) );
 		$description = sanitize_textarea_field( (string) ( $params['description'] ?? '' ) );
 		$keywords    = sanitize_text_field( (string) ( $params['focus_keyword'] ?? '' ) );
 
@@ -82,8 +82,8 @@ final class ContentGenerator {
 	 * @return array<string, mixed>
 	 */
 	public function generate_woo_product( array $params ): array {
-		$tone        = sanitize_text_field( (string) ( $params['tone'] ?? 'neutral' ) );
-		$length      = sanitize_text_field( (string) ( $params['length'] ?? 'medium' ) );
+		$tone        = sanitize_text_field( (string) ( ( $params['tone'] ?? '' ) ?: AssistantConfig::default_tone() ) );
+		$length      = sanitize_text_field( (string) ( ( $params['length'] ?? '' ) ?: AssistantConfig::default_length() ) );
 		$description = sanitize_textarea_field( (string) ( $params['description'] ?? '' ) );
 
 		if ( strlen( $description ) < 10 ) {
@@ -218,8 +218,8 @@ final class ContentGenerator {
 			$clean_vars[ $var_name ] = 'source_content' === $var_name ? wp_strip_all_tags( $raw ) : sanitize_textarea_field( $raw );
 		}
 
-		$tone          = sanitize_text_field( (string) ( $opts['tone'] ?? 'neutral' ) );
-		$language_line = 'cs' === self::language() ? 'Piš v jazyce: čeština.' : 'Write in: English.';
+		$tone          = sanitize_text_field( (string) ( ( $opts['tone'] ?? '' ) ?: AssistantConfig::default_tone() ) );
+		$language_line = self::language_line();
 		$instruction   = PromptLibrary::fill_instruction( $tool['instruction'], $clean_vars );
 
 		$system_prompt = sprintf(
@@ -272,7 +272,7 @@ final class ContentGenerator {
 			throw new \RuntimeException( __( 'No context available to describe this image (title, caption, filename or containing post are all empty).', 'ux-studio' ) );
 		}
 
-		$language_line = 'cs' === self::language() ? 'Piš v jazyce: čeština.' : 'Write in: English.';
+		$language_line = self::language_line();
 		$system_prompt = 'You write concise, descriptive image ALT text for web accessibility and SEO. '
 			. $language_line
 			. ' You do NOT see the actual image - infer a plausible, generic description only from the '
@@ -320,7 +320,7 @@ final class ContentGenerator {
 			throw new \RuntimeException( __( 'Describe the form you want in at least 10 characters.', 'ux-studio' ) );
 		}
 
-		$language_line = 'cs' === self::language() ? 'Piš popisky a texty v jazyce: čeština.' : 'Write labels/text in: English.';
+		$language_line = self::language_line( true );
 		$system_prompt = 'You design web form field lists for a WordPress form builder. ' . $language_line . "\n"
 			. "Choose only from these field types: text, textarea, email, url, tel, number, hidden, select, radio, checkbox, checkbox_group, multiselect, acceptance, date, time, file. \n"
 			. "Order fields sensibly (e.g. name before email before message). Mark fields required only when it genuinely makes sense. \n"
@@ -355,7 +355,7 @@ final class ContentGenerator {
 	}
 
 	private static function social_system_prompt( array $platforms ): string {
-		$language_line = 'cs' === self::language() ? 'Piš v jazyce: čeština.' : 'Write in: English.';
+		$language_line = self::language_line();
 		$limits        = array(
 			'facebook'  => 'Facebook: 1-3 short paragraphs, at most 1-2 emoji, no hashtags.',
 			'instagram' => 'Instagram: short, engaging caption, up to 5 relevant hashtags at the end.',
@@ -428,6 +428,22 @@ final class ContentGenerator {
 		return in_array( $language, array( 'cs', 'en' ), true ) ? $language : 'cs';
 	}
 
+	/**
+	 * Language instruction for the prompts: the free-text `content_language` override
+	 * when set, otherwise the chat language ('cs'/'en').
+	 */
+	private static function language_line( bool $labels = false ): string {
+		$custom = AssistantConfig::content_language();
+		if ( '' !== $custom ) {
+			/* Not translated: prompt text for the AI, not UI. */
+			return $labels ? 'Write labels/text in: ' . $custom . '.' : 'Write in: ' . $custom . '.';
+		}
+		if ( 'cs' === self::language() ) {
+			return $labels ? 'Piš popisky a texty v jazyce: čeština.' : 'Piš v jazyce: čeština.';
+		}
+		return $labels ? 'Write labels/text in: English.' : 'Write in: English.';
+	}
+
 	private static function json_instructions_content(): string {
 		return "\n" . 'Return the answer strictly as JSON (no markdown code block wrapper), with keys: '
 			. '"title" (string), "content" (HTML string), "excerpt" (string, 1-2 sentences), '
@@ -447,7 +463,7 @@ final class ContentGenerator {
 	}
 
 	private static function content_system_prompt( string $post_type, string $tone, string $length ): string {
-		$language_line = 'cs' === self::language() ? 'Piš v jazyce: čeština.' : 'Write in: English.';
+		$language_line = self::language_line();
 
 		return sprintf(
 			"You are a professional copywriter creating content for a WordPress %s.\n%s\nTone: %s.\nLength: %s.\nUse clean semantic HTML for the content field (headings, paragraphs, lists).%s",
@@ -460,7 +476,7 @@ final class ContentGenerator {
 	}
 
 	private static function woo_system_prompt( string $tone, string $length ): string {
-		$language_line = 'cs' === self::language() ? 'Piš v jazyce: čeština.' : 'Write in: English.';
+		$language_line = self::language_line();
 
 		return sprintf(
 			"You are a professional e-commerce copywriter creating a WooCommerce product description.\n%s\nTone: %s.\nLength: %s.\nHighlight benefits and features, use clean semantic HTML.%s",
@@ -472,7 +488,7 @@ final class ContentGenerator {
 	}
 
 	private static function seo_system_prompt(): string {
-		$language_line = 'cs' === self::language() ? 'Piš v jazyce: čeština.' : 'Write in: English.';
+		$language_line = self::language_line();
 
 		return 'You are an SEO specialist. Analyse the given content and produce concise, search-optimised meta data. '
 			. $language_line

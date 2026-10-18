@@ -49,12 +49,38 @@ final class Module extends BaseModule {
 	 */
 	private static bool $style_printed = false;
 
+	private const SHORTCODE_LEGACY = 'ux1_download_files';
+	private const NONCE_ACTION     = 'uxstudio_df_save';
+	private const NONCE_NAME       = 'uxstudio_df_nonce';
+
+	/** Running instance (for the global template function). */
+	private static ?self $instance = null;
+
+	/**
+	 * Running module instance, if booted.
+	 */
+	public static function instance(): ?self {
+		return self::$instance;
+	}
+
 	/**
 	 * Register hooks.
 	 */
 	public function boot(): void {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_shortcode( 'download_files', array( $this, 'render_shortcode' ) );
+		// Legacy alias - embedded in existing content. Legacy attribute: id="<post id>".
+		add_shortcode( self::SHORTCODE_LEGACY, array( $this, 'render_shortcode' ) );
+
+		// Editor meta box + auto-append under the content.
+		self::$instance = $this;
+		add_action( 'add_meta_boxes', array( $this, 'register_meta_box' ) );
+		add_action( 'save_post', array( $this, 'save_meta_box' ), 10, 2 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
+		add_filter( 'the_content', array( $this, 'append_to_content' ), 999 );
+
+		// Legacy global template function.
+		require_once __DIR__ . '/functions.php';
 
 		// Login-only files live outside uploads (ProtectedStorage): WP won't
 		// delete them there, and their public URL is replaced by the token link.
@@ -169,6 +195,21 @@ final class Module extends BaseModule {
 	 */
 	public function settings_schema(): array {
 		return array(
+			array(
+				'key'     => 'enabled_post_types',
+				'type'    => 'multiselect',
+				'label'   => __( 'Post types', 'ux-studio' ),
+				'help'    => __( 'Post types that get the "Files to download" meta box (and the automatic file list).', 'ux-studio' ),
+				'options' => $this->get_available_post_types(),
+				'default' => array( 'post', 'page' ),
+			),
+			array(
+				'key'     => 'auto_append',
+				'type'    => 'toggle',
+				'label'   => __( 'Show automatically', 'ux-studio' ),
+				'help'    => __( 'Append the files attached to a post to the end of its content. Skipped when the content already contains the [download_files] or [ux1_download_files] shortcode. PHP alternative: ux1_download_files().', 'ux-studio' ),
+				'default' => true,
+			),
 			array(
 				'key'     => 'require_login_default',
 				'type'    => 'toggle',
@@ -462,20 +503,55 @@ final class Module extends BaseModule {
 				'ids'      => '',
 				'category' => '',
 				'post'     => '',
+				'id'       => '', // Legacy [ux1_download_files id="123"] = post id.
 				'heading'  => null,
 			),
 			is_array( $atts ) ? $atts : array(),
 			'download_files'
 		);
 
-		$files = $this->files_for_shortcode( $atts );
+		if ( '' === (string) $atts['post'] && '' !== (string) $atts['id'] ) {
+			$atts['post'] = $atts['id'];
+		}
+
+		$files   = $this->files_for_shortcode( $atts );
+		$heading = null === $atts['heading'] ? null : sanitize_text_field( (string) $atts['heading'] );
+
+		return $this->render_list( $files, $heading );
+	}
+
+	/**
+	 * Render the file list of one post (auto-append / ux1_download_files()).
+	 *
+	 * @param int $post_id Post ID.
+	 * @return string HTML (escaped), empty when the post has no files.
+	 */
+	public function render_for_post( int $post_id ): string {
+		$files = $this->files_for_shortcode(
+			array(
+				'ids'      => '',
+				'category' => '',
+				'post'     => (string) $post_id,
+			)
+		);
+		return $this->render_list( $files, null );
+	}
+
+	/**
+	 * Render decorated files as the styled list.
+	 *
+	 * @param array<int, array<string, mixed>> $files   Decorated files.
+	 * @param string|null                      $heading Heading, null = setting default.
+	 * @return string HTML (escaped).
+	 */
+	private function render_list( array $files, ?string $heading ): string {
 		if ( empty( $files ) ) {
 			return '';
 		}
 
-		$heading = null === $atts['heading']
-			? (string) $this->settings->get( 'heading_text', __( 'Files to download', 'ux-studio' ) )
-			: sanitize_text_field( (string) $atts['heading'] );
+		if ( null === $heading ) {
+			$heading = (string) $this->settings->get( 'heading_text', __( 'Files to download', 'ux-studio' ) );
+		}
 
 		ob_start();
 		$this->print_shortcode_styles();
@@ -504,6 +580,215 @@ final class Module extends BaseModule {
 		</div>
 		<?php
 		return (string) ob_get_clean();
+	}
+
+	// ---------------------------------------------------------------------
+	//  Post editor meta box + auto-append
+	// ---------------------------------------------------------------------
+
+	/**
+	 * Post types that use the meta box / auto-append.
+	 *
+	 * @return string[]
+	 */
+	private function get_enabled_post_types(): array {
+		$setting = $this->settings->get( 'enabled_post_types', array( 'post', 'page' ) );
+		if ( is_string( $setting ) ) {
+			$setting = array_filter( array_map( 'trim', explode( ',', $setting ) ) );
+		}
+		if ( ! is_array( $setting ) || empty( $setting ) ) {
+			return array( 'post', 'page' );
+		}
+		return array_values( array_map( 'strval', $setting ) );
+	}
+
+	/**
+	 * Public post types available for selection.
+	 *
+	 * @return array<string, string>
+	 */
+	private function get_available_post_types(): array {
+		$choices = array();
+		foreach ( get_post_types( array( 'public' => true ), 'objects' ) as $type ) {
+			if ( 'attachment' === $type->name ) {
+				continue;
+			}
+			$choices[ $type->name ] = $type->labels->singular_name;
+		}
+		return $choices;
+	}
+
+	/**
+	 * Formatted rows attached to a post.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function rows_for_post( int $post_id ): array {
+		global $wpdb;
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT id, created_at, title, attachment_id, download_count, require_login, category, post_id FROM {$wpdb->prefix}uxstudio_download_files WHERE post_id = %d ORDER BY id ASC",
+				$post_id
+			),
+			ARRAY_A
+		);
+		return array_map( array( $this, 'format_row' ), is_array( $rows ) ? $rows : array() );
+	}
+
+	/**
+	 * Register the "Files to download" meta box.
+	 */
+	public function register_meta_box(): void {
+		foreach ( $this->get_enabled_post_types() as $post_type ) {
+			add_meta_box(
+				'uxstudio-download-files',
+				__( 'Files to download', 'ux-studio' ),
+				array( $this, 'render_meta_box' ),
+				$post_type,
+				'side',
+				'default'
+			);
+		}
+	}
+
+	/**
+	 * Render the meta box.
+	 *
+	 * @param \WP_Post $post Current post.
+	 */
+	public function render_meta_box( \WP_Post $post ): void {
+		$rows  = $this->rows_for_post( $post->ID );
+		$login = ! empty( $rows ) && ! empty( $rows[0]['require_login'] );
+		wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME );
+		?>
+		<div class="uxstudio-df-metabox">
+			<ul id="uxstudio-df-list" class="uxstudio-df-list">
+				<?php foreach ( $rows as $row ) : ?>
+					<?php $name = '' !== (string) $row['title'] ? (string) $row['title'] : (string) get_the_title( (int) $row['attachment_id'] ); ?>
+					<li class="uxstudio-df-item" data-id="<?php echo esc_attr( (string) $row['attachment_id'] ); ?>">
+						<span class="uxstudio-df-item__name"><?php echo esc_html( $name ); ?></span>
+						<button type="button" class="uxstudio-df-item__remove" title="<?php esc_attr_e( 'Remove', 'ux-studio' ); ?>">&times;</button>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+			<button type="button" class="button" id="uxstudio-df-add"><?php esc_html_e( 'Add files', 'ux-studio' ); ?></button>
+			<input type="hidden" name="uxstudio_df_ids" id="uxstudio-df-ids" value="<?php echo esc_attr( implode( ',', wp_list_pluck( $rows, 'attachment_id' ) ) ); ?>">
+			<p>
+				<label>
+					<input type="checkbox" name="uxstudio_df_login" value="1" <?php checked( $login ); ?>>
+					<?php esc_html_e( 'Only for logged-in users', 'ux-studio' ); ?>
+				</label>
+			</p>
+			<p class="description">
+				<?php
+				printf(
+					/* translators: %s: shortcode. */
+					esc_html__( 'Files are listed at the end of the content automatically, or place them with %s.', 'ux-studio' ),
+					'<code>[download_files]</code>'
+				);
+				?>
+			</p>
+		</div>
+		<style>.uxstudio-df-list{margin:0 0 8px;padding:0}.uxstudio-df-item{display:flex;align-items:center;gap:6px;margin:0 0 4px;padding:4px 6px;background:#f6f7f7;border:1px solid #dcdcde;border-radius:3px}.uxstudio-df-item__name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.uxstudio-df-item__remove{border:0;background:none;color:#b32d2e;font-size:18px;line-height:1;cursor:pointer}</style>
+		<?php
+	}
+
+	/**
+	 * Persist the meta box: sync rows of this post with the submitted attachments.
+	 *
+	 * @param int      $post_id Post ID.
+	 * @param \WP_Post $post    Post object.
+	 */
+	public function save_meta_box( int $post_id, \WP_Post $post ): void {
+		$nonce = isset( $_POST[ self::NONCE_NAME ] ) ? sanitize_text_field( wp_unslash( $_POST[ self::NONCE_NAME ] ) ) : '';
+		if ( '' === $nonce || ! wp_verify_nonce( $nonce, self::NONCE_ACTION ) ) {
+			return;
+		}
+		if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || wp_is_post_revision( $post_id ) ) {
+			return;
+		}
+		if ( ! current_user_can( 'edit_post', $post_id ) || ! in_array( $post->post_type, $this->get_enabled_post_types(), true ) ) {
+			return;
+		}
+
+		$raw    = isset( $_POST['uxstudio_df_ids'] ) ? sanitize_text_field( wp_unslash( $_POST['uxstudio_df_ids'] ) ) : '';
+		$wanted = array_values( array_unique( array_filter( array_map( 'absint', explode( ',', $raw ) ) ) ) );
+		$login  = ! empty( $_POST['uxstudio_df_login'] );
+
+		$existing = array();
+		foreach ( $this->rows_for_post( $post_id ) as $row ) {
+			$existing[ (int) $row['attachment_id'] ] = $row;
+		}
+
+		foreach ( $existing as $attachment_id => $row ) {
+			if ( ! in_array( $attachment_id, $wanted, true ) ) {
+				$this->delete_file( (int) $row['id'] );
+			} elseif ( (bool) $row['require_login'] !== $login ) {
+				$this->update_file( (int) $row['id'], array( 'require_login' => $login ) );
+			}
+		}
+
+		foreach ( $wanted as $attachment_id ) {
+			if ( isset( $existing[ $attachment_id ] ) ) {
+				continue;
+			}
+			// Only real attachments the current user may edit can be exposed for download.
+			if ( 'attachment' !== get_post_type( $attachment_id ) || ! current_user_can( 'edit_post', $attachment_id ) ) {
+				continue;
+			}
+			$this->create_file(
+				array(
+					'title'         => get_the_title( $attachment_id ),
+					'attachment_id' => $attachment_id,
+					'require_login' => $login,
+					'post_id'       => $post_id,
+				)
+			);
+		}
+	}
+
+	/**
+	 * Enqueue the media picker on enabled post editor screens.
+	 *
+	 * @param string $hook Admin page hook.
+	 */
+	public function enqueue_admin_assets( string $hook ): void {
+		if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ), true ) ) {
+			return;
+		}
+		$screen = get_current_screen();
+		if ( ! $screen || ! in_array( $screen->post_type, $this->get_enabled_post_types(), true ) ) {
+			return;
+		}
+		wp_enqueue_media();
+		wp_enqueue_script(
+			'uxstudio-download-files-admin',
+			plugins_url( 'assets/js/download-files-admin.js', __FILE__ ),
+			array( 'wp-i18n' ),
+			defined( 'UXSTUDIO_VERSION' ) ? UXSTUDIO_VERSION : false,
+			true
+		);
+	}
+
+	/**
+	 * Append the post's files under the content (auto_append setting).
+	 *
+	 * @param string $content Post content.
+	 */
+	public function append_to_content( $content ) {
+		$content = (string) $content;
+		if ( ! is_singular() || ! (bool) $this->settings->get( 'auto_append', true ) ) {
+			return $content;
+		}
+		if ( has_shortcode( $content, 'download_files' ) || has_shortcode( $content, self::SHORTCODE_LEGACY ) ) {
+			return $content;
+		}
+		$post = get_post();
+		if ( ! $post || ! in_array( $post->post_type, $this->get_enabled_post_types(), true ) ) {
+			return $content;
+		}
+		return $content . $this->render_for_post( (int) $post->ID );
 	}
 
 	/**
@@ -577,7 +862,109 @@ final class Module extends BaseModule {
 			}
 		}
 
+		// Post association also lists files the legacy plugin (or the central
+		// app via content-sync) stored per post outside the media library.
+		if ( empty( $ids ) && '' === $category && $post_id > 0 ) {
+			$out = array_merge( $out, $this->legacy_files_for_post( $post_id ) );
+		}
+
 		return $out;
+	}
+
+	// ---------------------------------------------------------------------
+	//  Legacy per-post files: uploads/ux1-download-files/{post}/ + meta
+	// ---------------------------------------------------------------------
+
+	/** Post meta (JSON list of {name,size,uploaded_at}) written by the legacy module. */
+	public const LEGACY_META = '_ux1_download_files';
+
+	/**
+	 * Absolute directory of a post's legacy files.
+	 *
+	 * @param int $post_id Post ID.
+	 */
+	private function legacy_dir( int $post_id ): string {
+		return wp_upload_dir()['basedir'] . '/ux1-download-files/' . $post_id;
+	}
+
+	/**
+	 * Legacy files of a post, decorated like table rows for render_list().
+	 *
+	 * @param int $post_id Post ID.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function legacy_files_for_post( int $post_id ): array {
+		$list = json_decode( (string) get_post_meta( $post_id, self::LEGACY_META, true ), true );
+		if ( ! is_array( $list ) ) {
+			return array();
+		}
+		$out = array();
+		foreach ( $list as $entry ) {
+			$name = sanitize_file_name( (string) ( $entry['name'] ?? '' ) );
+			if ( '' === $name || null === $this->legacy_path( $post_id, $name ) ) {
+				continue;
+			}
+			$ext   = strtolower( pathinfo( $name, PATHINFO_EXTENSION ) );
+			$bytes = (int) ( $entry['size'] ?? 0 );
+			$info  = $this->file_type_info( $ext );
+			$out[] = array(
+				'label'        => $name,
+				'ext'          => $ext,
+				'meta'         => trim( strtoupper( $ext ) . ( $bytes > 0 ? ' · ' . size_format( $bytes ) : '' ), ' ·' ),
+				'icon'         => $info['icon'],
+				'type_class'   => $info['class'],
+				'download_url' => rest_url( 'uxstudio/v1/download-files/legacy/' . $post_id . '/' . rawurlencode( $name ) ),
+			);
+		}
+		return $out;
+	}
+
+	/**
+	 * Resolve a legacy file to a real path inside its post directory, or null.
+	 *
+	 * @param int    $post_id  Post ID.
+	 * @param string $filename File name (already sanitized).
+	 */
+	private function legacy_path( int $post_id, string $filename ): ?string {
+		$base = realpath( $this->legacy_dir( $post_id ) );
+		$path = $base ? realpath( $base . '/' . $filename ) : false;
+		if ( false === $base || false === $path || ! is_file( $path )
+			|| 0 !== strpos( wp_normalize_path( $path ), trailingslashit( wp_normalize_path( $base ) ) ) ) {
+			return null;
+		}
+		return $path;
+	}
+
+	/**
+	 * Stream a legacy per-post file. Same visibility rule as the post itself:
+	 * only files listed in the post's legacy meta, on posts the visitor may read.
+	 *
+	 * @param int    $post_id  Post ID.
+	 * @param string $filename Requested file name.
+	 * @return WP_Error|void
+	 */
+	public function serve_legacy( int $post_id, string $filename ) {
+		$post = get_post( $post_id );
+		if ( ! $post || ! ( is_post_publicly_viewable( $post ) || current_user_can( 'read_post', $post_id ) ) ) {
+			return new WP_Error( 'uxstudio_not_found', __( 'File not found.', 'ux-studio' ), array( 'status' => 404 ) );
+		}
+
+		$filename = sanitize_file_name( $filename );
+		$listed   = wp_list_pluck( (array) json_decode( (string) get_post_meta( $post_id, self::LEGACY_META, true ), true ), 'name' );
+		$path     = in_array( $filename, array_map( 'sanitize_file_name', $listed ), true ) ? $this->legacy_path( $post_id, $filename ) : null;
+		if ( null === $path ) {
+			return new WP_Error( 'uxstudio_not_found', __( 'File not found.', 'ux-studio' ), array( 'status' => 404 ) );
+		}
+
+		$filetype = wp_check_filetype( $filename );
+		nocache_headers();
+		header( 'Content-Type: ' . ( $filetype['type'] ?: 'application/octet-stream' ) );
+		header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
+		header( 'Content-Length: ' . (string) filesize( $path ) );
+		header( 'X-Content-Type-Options: nosniff' );
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_readfile -- validated file inside its post directory.
+		readfile( $path );
+		exit;
 	}
 
 	/**

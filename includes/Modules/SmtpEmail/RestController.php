@@ -13,9 +13,12 @@ use WP_REST_Request;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET  uxstudio/v1/smtp-email/logs   - last 50 delivery log rows
- * POST uxstudio/v1/smtp-email/test   - send a test email through the configured transport
- * POST uxstudio/v1/smtp-email/resend - resend the last message that went through wp_mail()
+ * GET  uxstudio/v1/smtp-email/logs            - paginated / searchable delivery log
+ * POST uxstudio/v1/smtp-email/logs/clear      - delete the whole delivery log
+ * GET  uxstudio/v1/smtp-email/logs/export-url - nonce-signed CSV export URL
+ * POST uxstudio/v1/smtp-email/brevo/verify    - check the stored Brevo API key
+ * POST uxstudio/v1/smtp-email/test            - send a test email through the configured transport
+ * POST uxstudio/v1/smtp-email/resend          - resend the last message that went through wp_mail()
  */
 final class RestController extends Controller {
 
@@ -32,7 +35,31 @@ final class RestController extends Controller {
 	 * Register routes.
 	 */
 	public function register_routes(): void {
-		$this->route( '/smtp-email/logs', 'GET', array( $this, 'logs' ) );
+		$this->route(
+			'/smtp-email/logs',
+			'GET',
+			array( $this, 'logs' ),
+			array(
+				'page'     => array(
+					'type'              => 'integer',
+					'default'           => 1,
+					'sanitize_callback' => 'absint',
+				),
+				'per_page' => array(
+					'type'              => 'integer',
+					'default'           => 20,
+					'sanitize_callback' => 'absint',
+				),
+				'search'   => array(
+					'type'              => 'string',
+					'default'           => '',
+					'sanitize_callback' => 'sanitize_text_field',
+				),
+			)
+		);
+		$this->route( '/smtp-email/logs/clear', 'POST', array( $this, 'clear_logs' ) );
+		$this->route( '/smtp-email/logs/export-url', 'GET', array( $this, 'export_url' ) );
+		$this->route( '/smtp-email/brevo/verify', 'POST', array( $this, 'verify_brevo' ) );
 		$this->route(
 			'/smtp-email/test',
 			'POST',
@@ -49,12 +76,45 @@ final class RestController extends Controller {
 	}
 
 	/**
-	 * Return the last 50 delivery log rows.
+	 * Paginated / searchable delivery log.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 */
 	public function logs( WP_REST_Request $request ) {
-		return $this->ok( $this->module->get_logs() );
+		return $this->ok(
+			$this->module->get_logs(
+				(int) $request->get_param( 'page' ),
+				(int) $request->get_param( 'per_page' ),
+				(string) $request->get_param( 'search' )
+			)
+		);
+	}
+
+	/**
+	 * Delete the whole delivery log.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function clear_logs( WP_REST_Request $request ) {
+		return $this->ok( array( 'cleared' => $this->module->clear_logs() ) );
+	}
+
+	/**
+	 * Nonce-signed CSV export URL.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function export_url( WP_REST_Request $request ) {
+		return $this->ok( array( 'url' => $this->module->export_logs_url() ) );
+	}
+
+	/**
+	 * Verify the stored Brevo API key.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function verify_brevo( WP_REST_Request $request ) {
+		return $this->ok( $this->module->verify_brevo_key() );
 	}
 
 	/**

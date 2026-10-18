@@ -54,6 +54,172 @@ final class Module extends BaseModule {
 		add_filter( 'post_row_actions', array( $this, 'add_duplicate_link' ), 10, 2 );
 		add_filter( 'page_row_actions', array( $this, 'add_duplicate_link' ), 10, 2 );
 		add_action( 'admin_post_' . self::ACTION, array( $this, 'handle_duplicate_request' ) );
+
+		// Edit-screen UI: block editor toolbar button, classic editor button,
+		// WooCommerce "Duplicate Product" button + element picker modal.
+		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_classic_assets' ) );
+		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ) );
+		add_action( 'post_submitbox_misc_actions', array( $this, 'render_product_button' ) );
+	}
+
+	/**
+	 * Register the module REST controller.
+	 */
+	public function register_rest_routes(): void {
+		( new RestController( $this ) )->register_routes();
+	}
+
+	/**
+	 * REST controller class.
+	 */
+	public function rest_controller(): ?string {
+		return RestController::class;
+	}
+
+	/**
+	 * Duplicate a post on behalf of the REST controller / modal.
+	 *
+	 * The caller must already have verified edit_post for $post_id.
+	 *
+	 * @param int      $post_id  Source post ID.
+	 * @param string[] $elements Elements chosen in the modal (empty = defaults).
+	 * @return \WP_Post|\WP_Error
+	 */
+	public function duplicate_for_request( int $post_id, array $elements ) {
+		$post = get_post( $post_id );
+		if ( ! $post || ! $this->is_allowed_post_type( $post->post_type ) ) {
+			return new \WP_Error( 'uxstudio_invalid_post', __( 'Invalid post ID.', 'ux-studio' ), array( 'status' => 404 ) );
+		}
+
+		$available = array_keys( $this->get_available_elements() );
+		$elements  = array_values( array_intersect( array_map( 'strval', $elements ), $available ) );
+		if ( array() === $elements ) {
+			$elements = $this->get_default_elements();
+		}
+
+		$duplicator = new Duplicator( $this->excluded_meta );
+
+		return $duplicator->duplicate(
+			$post_id,
+			$elements,
+			$this->get_post_status( $post_id ),
+			$this->get_post_title( $post_id )
+		);
+	}
+
+	/**
+	 * Whether the current user can duplicate the given post from the edit screen.
+	 *
+	 * @param \WP_Post|null $post Post.
+	 */
+	private function can_show_ui( $post ): bool {
+		return $post instanceof \WP_Post
+			&& 'auto-draft' !== $post->post_status
+			&& $this->is_allowed_post_type( $post->post_type )
+			&& current_user_can( 'edit_post', $post->ID );
+	}
+
+	/**
+	 * Register the shared modal script/style and its data.
+	 *
+	 * @param \WP_Post $post         Edited post.
+	 * @param bool     $block_editor Whether this is the block editor.
+	 */
+	private function enqueue_common( \WP_Post $post, bool $block_editor ): void {
+		$version = defined( 'UXSTUDIO_VERSION' ) ? UXSTUDIO_VERSION : false;
+		$base    = UXSTUDIO_URL . 'includes/Modules/DuplicatePost/assets/';
+
+		wp_enqueue_style( 'uxstudio-duplicate-post', $base . 'modal.css', array(), $version );
+		wp_enqueue_script( 'uxstudio-duplicate-post', $base . 'duplicate-post.js', array(), $version, true );
+
+		$post_type = get_post_type_object( $post->post_type );
+
+		wp_localize_script(
+			'uxstudio-duplicate-post',
+			'uxStudioDuplicatePost',
+			array(
+				'restUrl'         => rest_url( 'uxstudio/v1/duplicate-post/duplicate/' ),
+				'nonce'           => wp_create_nonce( 'wp_rest' ),
+				'postId'          => (int) $post->ID,
+				'postRedirect'    => (bool) $this->settings->get( 'post_redirect', true ),
+				'isBlockEditor'   => $block_editor,
+				'elements'        => (object) $this->get_available_elements(),
+				'defaultElements' => $this->get_default_elements(),
+				'i18n'            => array(
+					'duplicate'         => __( 'Duplicate', 'ux-studio' ),
+					'duplicatePost'     => sprintf(
+						/* translators: %s: post type singular label */
+						__( 'Duplicate %s', 'ux-studio' ),
+						$post_type ? $post_type->labels->singular_name : __( 'Post', 'ux-studio' )
+					),
+					'duplicating'       => __( 'Duplicating...', 'ux-studio' ),
+					'success'           => __( 'Post duplicated successfully', 'ux-studio' ),
+					'error'             => __( 'Duplication failed. Please try again.', 'ux-studio' ),
+					'errorInvalid'      => __( 'Invalid response from server', 'ux-studio' ),
+					'modalTitle'        => __( 'Duplicate Options', 'ux-studio' ),
+					'modalDescription'  => __( 'Select which elements to include in the duplicate.', 'ux-studio' ),
+					'modalCancel'       => __( 'Cancel', 'ux-studio' ),
+					'selectAll'         => __( 'Select All', 'ux-studio' ),
+					'deselectAll'       => __( 'Deselect All', 'ux-studio' ),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Classic editor: "Duplicate" next to "Add New" (post.php only).
+	 *
+	 * @param string $hook Admin page hook.
+	 */
+	public function enqueue_classic_assets( $hook ): void {
+		if ( 'post.php' !== $hook ) {
+			return;
+		}
+		$screen = get_current_screen();
+		if ( $screen && method_exists( $screen, 'is_block_editor' ) && $screen->is_block_editor() ) {
+			return;
+		}
+		$post = get_post();
+		if ( ! $this->can_show_ui( $post ) ) {
+			return;
+		}
+		$this->enqueue_common( $post, false );
+	}
+
+	/**
+	 * Block editor: "Duplicate" button in the header toolbar.
+	 */
+	public function enqueue_block_editor_assets(): void {
+		$post = get_post();
+		if ( ! $this->can_show_ui( $post ) ) {
+			return;
+		}
+		$this->enqueue_common( $post, true );
+
+		wp_enqueue_script(
+			'uxstudio-duplicate-post-editor',
+			UXSTUDIO_URL . 'includes/Modules/DuplicatePost/assets/duplicate-post-editor.js',
+			array( 'uxstudio-duplicate-post', 'wp-data' ),
+			defined( 'UXSTUDIO_VERSION' ) ? UXSTUDIO_VERSION : false,
+			true
+		);
+	}
+
+	/**
+	 * WooCommerce: "Duplicate Product" button in the publish box.
+	 */
+	public function render_product_button(): void {
+		$post = get_post();
+		if ( ! $post instanceof \WP_Post || 'product' !== $post->post_type || ! $this->can_show_ui( $post ) ) {
+			return;
+		}
+
+		printf(
+			'<div class="misc-pub-section"><a href="#" class="button uxstudio-duplicate-post" data-id="%d">%s</a></div>',
+			(int) $post->ID,
+			esc_html__( 'Duplicate Product', 'ux-studio' )
+		);
 	}
 
 	/**

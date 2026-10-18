@@ -98,7 +98,7 @@ final class Module extends BaseModule {
 	 * Settings schema.
 	 */
 	public function settings_schema(): array {
-		return array(
+		$schema = array(
 			array(
 				'key'     => 'auto_regenerate',
 				'type'    => 'toggle',
@@ -115,6 +115,72 @@ final class Module extends BaseModule {
 				'default' => array( 'attachment' ),
 			),
 			array(
+				'key'     => 'site_name',
+				'type'    => 'text',
+				'label'   => __( 'Site name', 'ux-studio' ),
+				'help'    => __( 'Used as the heading of llms.txt. Empty = the WordPress site title.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'site_description',
+				'type'    => 'textarea',
+				'label'   => __( 'Site description', 'ux-studio' ),
+				'help'    => __( 'Short description for AI chatbots, shown in llms.txt. Empty = the WordPress tagline.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'enable_llms_txt',
+				'type'    => 'toggle',
+				'label'   => __( 'Serve /llms.txt', 'ux-studio' ),
+				'help'    => __( 'Structured overview of the site for AI crawlers (llmstxt.org).', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
+				'key'     => 'enable_markdown_content',
+				'type'    => 'toggle',
+				'label'   => __( 'Markdown version of content', 'ux-studio' ),
+				'help'    => __( 'Makes the markdown version of any post available by adding ?format=markdown to its URL.', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
+				'key'     => 'include_meta_header',
+				'type'    => 'toggle',
+				'label'   => __( 'Metadata header', 'ux-studio' ),
+				'help'    => __( 'Start the markdown with a YAML header (title, URL, type, date, author).', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
+				'key'     => 'cache_ttl',
+				'type'    => 'select',
+				'label'   => __( 'Cache validity', 'ux-studio' ),
+				'help'    => __( 'How long generated markdown stays valid. After that it is regenerated on the next access. Editing the content always regenerates it.', 'ux-studio' ),
+				'options' => array(
+					'0'   => __( 'Unlimited (only when the content changes)', 'ux-studio' ),
+					'1'   => __( '1 hour', 'ux-studio' ),
+					'6'   => __( '6 hours', 'ux-studio' ),
+					'12'  => __( '12 hours', 'ux-studio' ),
+					'24'  => __( '24 hours', 'ux-studio' ),
+					'48'  => __( '2 days', 'ux-studio' ),
+					'168' => __( '7 days', 'ux-studio' ),
+					'720' => __( '30 days', 'ux-studio' ),
+				),
+				'default' => '0',
+			),
+			array(
+				'key'     => 'exclude_ids',
+				'type'    => 'text',
+				'label'   => __( 'Excluded IDs', 'ux-studio' ),
+				'help'    => __( 'Comma-separated IDs of posts/pages that never get a markdown version, e.g. 12, 45, 78.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'enable_logging',
+				'type'    => 'toggle',
+				'label'   => __( 'Log accesses', 'ux-studio' ),
+				'help'    => __( 'Record accesses to the markdown endpoints (user agent, post, time).', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
 				'key'     => 'log_retention_days',
 				'type'    => 'number',
 				'label'   => __( 'Keep access log (days)', 'ux-studio' ),
@@ -122,6 +188,91 @@ final class Module extends BaseModule {
 				'default' => Retention::DEFAULT_DAYS,
 			),
 		);
+
+		if ( class_exists( 'WooCommerce' ) ) {
+			$woo = array(
+				'enable_woocommerce'      => array( __( 'WooCommerce support', 'ux-studio' ), __( 'Use a special markdown template for products with price, stock and attributes.', 'ux-studio' ) ),
+				'show_price'              => array( __( 'Show price', 'ux-studio' ), __( 'Include the product price in the YAML header.', 'ux-studio' ) ),
+				'show_currency'           => array( __( 'Show currency', 'ux-studio' ), __( 'Include the currency code (CZK, EUR...) in the header.', 'ux-studio' ) ),
+				'show_stock_status'       => array( __( 'Stock availability', 'ux-studio' ), __( 'Include whether the product is in stock.', 'ux-studio' ) ),
+				'show_product_categories' => array( __( 'Product categories', 'ux-studio' ), __( 'Include the product categories in the header.', 'ux-studio' ) ),
+				'show_product_attributes' => array( __( 'Product attributes', 'ux-studio' ), __( 'Include product attributes (size, colour...) in the header.', 'ux-studio' ) ),
+			);
+			foreach ( $woo as $key => $texts ) {
+				$schema[] = array(
+					'key'     => $key,
+					'type'    => 'toggle',
+					'label'   => $texts[0],
+					'help'    => $texts[1],
+					'default' => true,
+				);
+			}
+		}
+
+		return $schema;
+	}
+
+	/**
+	 * Boolean setting; accepts true/false and the legacy '1'/'0'/'' strings.
+	 */
+	private function flag( string $key, bool $default ): bool {
+		$all = $this->settings->all();
+		return array_key_exists( $key, $all ) ? filter_var( $all[ $key ], FILTER_VALIDATE_BOOLEAN ) : $default;
+	}
+
+	/**
+	 * Toggles migrated from the legacy plugin are '1'/'0' strings - hand the UI real booleans.
+	 */
+	public function settings_values(): array {
+		$values = parent::settings_values();
+		foreach ( $this->settings_schema() as $field ) {
+			if ( 'toggle' === $field['type'] ) {
+				$values[ $field['key'] ] = filter_var( $values[ $field['key'] ], FILTER_VALIDATE_BOOLEAN );
+			}
+		}
+		return $values;
+	}
+
+	/**
+	 * Normalise the excluded-IDs list to digits and commas before storing.
+	 *
+	 * @param array $input Raw input.
+	 */
+	public function save_settings( array $input ): array {
+		if ( array_key_exists( 'exclude_ids', $input ) ) {
+			$input['exclude_ids'] = implode( ', ', array_filter( array_map( 'absint', explode( ',', (string) $input['exclude_ids'] ) ) ) );
+		}
+		return parent::save_settings( $input );
+	}
+
+	/**
+	 * IDs excluded from markdown generation (setting `exclude_ids`).
+	 *
+	 * @return array<int, int>
+	 */
+	private function exclude_ids(): array {
+		$raw = $this->settings->get( 'exclude_ids', '' );
+		if ( ! is_string( $raw ) || '' === trim( $raw ) ) {
+			return array();
+		}
+		return array_values( array_filter( array_map( 'absint', explode( ',', $raw ) ) ) );
+	}
+
+	/**
+	 * Part of the per-post cache hash: every setting that changes the generated
+	 * markdown, so toggling e.g. the YAML header regenerates stale entries.
+	 */
+	private function output_signature(): string {
+		$keys = array( 'include_meta_header', 'enable_woocommerce', 'show_price', 'show_currency', 'show_stock_status', 'show_product_categories', 'show_product_attributes' );
+		$sig  = '';
+		foreach ( $keys as $key ) {
+			$sig .= $this->flag( $key, true ) ? '1' : '0';
+		}
+		return $sig;
+	}
+
+	private function content_hash( \WP_Post $post ): string {
+		return hash( 'sha256', $post->post_title . '|' . $post->post_content . '|' . $post->post_modified_gmt . '|' . $this->output_signature() );
 	}
 
 	/**
@@ -147,6 +298,9 @@ final class Module extends BaseModule {
 		if ( ! $post || 'publish' !== $post->post_status || '' !== (string) $post->post_password ) {
 			return false;
 		}
+		if ( in_array( $post_id, $this->exclude_ids(), true ) ) {
+			return false;
+		}
 		$excluded = (array) $this->settings->get( 'excluded_post_types', array( 'attachment' ) );
 		return ! in_array( $post->post_type, $excluded, true );
 	}
@@ -164,7 +318,7 @@ final class Module extends BaseModule {
 		}
 
 		global $wpdb;
-		$hash = hash( 'sha256', $post->post_title . '|' . $post->post_content );
+		$hash = $this->content_hash( $post );
 		$row  = $wpdb->get_row(
 			$wpdb->prepare(
 				"SELECT * FROM {$wpdb->prefix}uxstudio_ai_markdown_cache WHERE post_id = %d",
@@ -173,7 +327,7 @@ final class Module extends BaseModule {
 			ARRAY_A
 		);
 
-		if ( $row && $row['content_hash'] === $hash ) {
+		if ( $row && $row['content_hash'] === $hash && ! $this->is_cache_expired( (string) $row['generated_at'] ) ) {
 			return array(
 				'post_id'      => $post_id,
 				'markdown'     => (string) $row['markdown_content'],
@@ -182,6 +336,145 @@ final class Module extends BaseModule {
 		}
 
 		return $this->regenerate( $post_id );
+	}
+
+	/**
+	 * Cache TTL (setting `cache_ttl`, hours; 0 = never expires). generated_at is stored in GMT.
+	 */
+	private function is_cache_expired( string $generated_at ): bool {
+		$ttl = (int) $this->settings->get( 'cache_ttl', 0 );
+		if ( $ttl <= 0 ) {
+			return false;
+		}
+		$ts = strtotime( $generated_at . ' UTC' );
+		return ! $ts || ( time() - $ts ) > $ttl * HOUR_IN_SECONDS;
+	}
+
+	/**
+	 * Markdown of one post: WooCommerce template for products (when enabled),
+	 * otherwise optional YAML header + converted content.
+	 */
+	private function build_markdown( \WP_Post $post ): string {
+		if ( 'product' === $post->post_type && $this->flag( 'enable_woocommerce', true ) && function_exists( 'wc_get_product' ) ) {
+			$product = wc_get_product( $post->ID );
+			if ( $product ) {
+				return $this->build_product_markdown( $post, $product );
+			}
+		}
+
+		$front = '';
+		if ( $this->flag( 'include_meta_header', true ) ) {
+			$front  = "---\n";
+			$front .= 'title: ' . self::escape_yaml( $post->post_title ) . "\n";
+			$front .= 'url: ' . get_permalink( $post ) . "\n";
+			$front .= 'type: ' . $post->post_type . "\n";
+			$front .= 'date: ' . get_the_date( 'Y-m-d', $post ) . "\n";
+			$author = get_the_author_meta( 'display_name', (int) $post->post_author );
+			if ( $author ) {
+				$front .= 'author: ' . self::escape_yaml( $author ) . "\n";
+			}
+			$modified = get_the_modified_date( 'Y-m-d', $post );
+			if ( $modified && $modified !== get_the_date( 'Y-m-d', $post ) ) {
+				$front .= 'modified: ' . $modified . "\n";
+			}
+			$front .= "---\n\n";
+		}
+
+		return $front . self::html_to_markdown( $post->post_title, $post->post_content );
+	}
+
+	/**
+	 * Product markdown (port of the legacy Generator::generateProductMarkdown()).
+	 *
+	 * @param \WP_Post    $post    Product post.
+	 * @param \WC_Product $product Product.
+	 */
+	private function build_product_markdown( \WP_Post $post, $product ): string {
+		$plain = static fn ( string $html ): string => trim( html_entity_decode( wp_strip_all_tags( $html ), ENT_QUOTES, 'UTF-8' ) );
+
+		$md  = "---\n";
+		$md .= 'title: ' . self::escape_yaml( $post->post_title ) . "\n";
+		$md .= 'url: ' . get_permalink( $post ) . "\n";
+		$md .= "type: product\n";
+		$md .= 'date: ' . get_the_date( 'Y-m-d', $post ) . "\n";
+
+		if ( $this->flag( 'show_price', true ) ) {
+			$price = $product->get_price();
+			if ( $price ) {
+				$md .= 'price: ' . $plain( wc_price( $price ) ) . "\n";
+			}
+			if ( $product->is_on_sale() && $product->get_regular_price() ) {
+				$md .= 'regular_price: ' . $plain( wc_price( $product->get_regular_price() ) ) . "\n";
+			}
+		}
+
+		if ( $this->flag( 'show_currency', true ) ) {
+			$md .= 'currency: ' . get_woocommerce_currency() . "\n";
+		}
+
+		if ( $this->flag( 'show_stock_status', true ) ) {
+			$md .= 'stock: ' . ( $product->is_in_stock() ? __( 'In stock', 'ux-studio' ) : __( 'Out of stock', 'ux-studio' ) ) . "\n";
+			$qty = $product->get_stock_quantity();
+			if ( null !== $qty ) {
+				$md .= 'stock_quantity: ' . (int) $qty . "\n";
+			}
+		}
+
+		if ( $this->flag( 'show_product_categories', true ) ) {
+			$cats = wp_get_post_terms( $post->ID, 'product_cat', array( 'fields' => 'names' ) );
+			if ( ! empty( $cats ) && ! is_wp_error( $cats ) ) {
+				$md .= 'categories: ' . self::escape_yaml( implode( ', ', $cats ) ) . "\n";
+			}
+		}
+
+		if ( $this->flag( 'show_product_attributes', true ) ) {
+			foreach ( $product->get_attributes() as $attr ) {
+				if ( ! is_object( $attr ) || ! method_exists( $attr, 'is_taxonomy' ) ) {
+					continue; // Variation attributes come as plain strings.
+				}
+				if ( $attr->is_taxonomy() ) {
+					$label = wc_attribute_label( $attr->get_name() );
+					$terms = $attr->get_terms();
+					$names = $terms ? wp_list_pluck( $terms, 'name' ) : array();
+				} else {
+					$label = $attr->get_name();
+					$names = $attr->get_options();
+				}
+				if ( ! empty( $names ) ) {
+					$md .= strtolower( sanitize_title( $label ) ) . ': ' . self::escape_yaml( implode( ', ', array_map( 'strval', $names ) ) ) . "\n";
+				}
+			}
+		}
+
+		$sku = $product->get_sku();
+		if ( $sku ) {
+			$md .= 'sku: ' . self::escape_yaml( $sku ) . "\n";
+		}
+
+		$md .= "---\n\n";
+		$md .= '# ' . $post->post_title . "\n\n";
+
+		$short = $product->get_short_description();
+		if ( $short ) {
+			$md .= trim( preg_replace( '/^# .*\n+/', '', self::html_to_markdown( '', $short ) ) ) . "\n\n";
+		}
+		if ( '' !== trim( $post->post_content ) ) {
+			$md .= '## ' . __( 'Description', 'ux-studio' ) . "\n\n";
+			$md .= trim( preg_replace( '/^# .*\n+/', '', self::html_to_markdown( '', $post->post_content ) ) ) . "\n";
+		}
+
+		return $md;
+	}
+
+	/**
+	 * Quote a YAML scalar when it contains characters that would break the header.
+	 */
+	private static function escape_yaml( string $value ): string {
+		$value = str_replace( array( "\r", "\n" ), ' ', $value );
+		if ( preg_match( '/[:#\[\]{}|>&*!,?"\']/', $value ) || str_starts_with( $value, '-' ) ) {
+			return '"' . str_replace( array( '\\', '"' ), array( '\\\\', '\\"' ), $value ) . '"';
+		}
+		return $value;
 	}
 
 	/**
@@ -195,8 +488,8 @@ final class Module extends BaseModule {
 			return null;
 		}
 
-		$markdown = self::html_to_markdown( $post->post_title, $post->post_content );
-		$hash     = hash( 'sha256', $post->post_title . '|' . $post->post_content );
+		$markdown = $this->build_markdown( $post );
+		$hash     = $this->content_hash( $post );
 		$now      = current_time( 'mysql', true );
 
 		global $wpdb;
@@ -230,6 +523,7 @@ final class Module extends BaseModule {
 				'post_type'      => array_values( $post_types ),
 				'post_status'    => 'publish',
 				'has_password'   => false,
+				'post__not_in'   => $this->exclude_ids(),
 				'posts_per_page' => -1,
 				'fields'         => 'ids',
 			)
@@ -328,6 +622,9 @@ final class Module extends BaseModule {
 	 * Serve ?format=markdown on a single post's normal URL.
 	 */
 	public function maybe_serve_markdown(): void {
+		if ( ! $this->flag( 'enable_markdown_content', true ) ) {
+			return;
+		}
 		if ( ! is_singular() || 'markdown' !== ( $_GET['format'] ?? '' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return;
 		}
@@ -352,7 +649,7 @@ final class Module extends BaseModule {
 	 * @param \WP $wp Main query object.
 	 */
 	public function maybe_serve_llms_txt( \WP $wp ): void {
-		if ( 'llms.txt' !== trim( (string) $wp->request, '/' ) ) {
+		if ( 'llms.txt' !== trim( (string) $wp->request, '/' ) || ! $this->flag( 'enable_llms_txt', true ) ) {
 			return;
 		}
 
@@ -363,12 +660,24 @@ final class Module extends BaseModule {
 				'post_type'      => array_values( $post_types ),
 				'post_status'    => 'publish',
 				'has_password'   => false,
+				'post__not_in'   => $this->exclude_ids(),
 				'posts_per_page' => 200,
 				'fields'         => 'ids',
 			)
 		);
 
-		$lines   = array( '# ' . get_bloginfo( 'name' ), '' );
+		// Name/description overrides (plain text; a newline would break the heading/blockquote).
+		$one_line  = static fn ( string $v ): string => trim( (string) preg_replace( '/\s+/', ' ', wp_strip_all_tags( $v ) ) );
+		$site_name = $one_line( (string) $this->settings->get( 'site_name', '' ) );
+		$site_desc = $one_line( (string) $this->settings->get( 'site_description', '' ) );
+		$site_name = '' !== $site_name ? $site_name : $one_line( get_bloginfo( 'name' ) );
+		$site_desc = '' !== $site_desc ? $site_desc : $one_line( get_bloginfo( 'description' ) );
+
+		$lines = array( '# ' . $site_name, '' );
+		if ( '' !== $site_desc ) {
+			$lines[] = '> ' . $site_desc;
+			$lines[] = '';
+		}
 		foreach ( $ids as $id ) {
 			$lines[] = '- [' . get_the_title( $id ) . '](' . add_query_arg( 'format', 'markdown', get_permalink( $id ) ) . ')';
 		}
@@ -387,6 +696,9 @@ final class Module extends BaseModule {
 	 * @param int|null $post_id Post id, or null for the /llms.txt index.
 	 */
 	private function log_access( ?int $post_id ): void {
+		if ( ! $this->flag( 'enable_logging', true ) ) {
+			return;
+		}
 		global $wpdb;
 		$ua = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( (string) $_SERVER['HTTP_USER_AGENT'] ) : '';
 		$wpdb->insert(

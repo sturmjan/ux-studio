@@ -78,6 +78,9 @@ final class Module extends BaseModule {
 			'_uxstudio_oh_exceptions' => '[]',
 			'_uxstudio_oh_lat'        => '',
 			'_uxstudio_oh_lng'        => '',
+			'_uxstudio_oh_phone'      => '',
+			'_uxstudio_oh_announcements' => '[]',
+			'_uxstudio_oh_override'   => '',
 		);
 		foreach ( $string_meta as $key => $default ) {
 			register_post_meta(
@@ -137,6 +140,38 @@ final class Module extends BaseModule {
 				'type'    => 'text',
 				'label'   => __( 'JSON-LD location IDs (comma-separated, blank = all)', 'ux-studio' ),
 				'default' => '',
+			),
+			array(
+				'key'     => 'show_location_dropdown',
+				'type'    => 'toggle',
+				'label'   => __( 'Location dropdown', 'ux-studio' ),
+				'help'    => __( 'When a shortcode shows several locations, display a dropdown to switch between them.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'banner_color',
+				'type'    => 'color',
+				'label'   => __( 'Default banner color', 'ux-studio' ),
+				'help'    => __( 'Fallback color of the [oh_banner] announcement; severity colors below take precedence.', 'ux-studio' ),
+				'default' => '#1d3998',
+			),
+			array(
+				'key'     => 'severity_info_color',
+				'type'    => 'color',
+				'label'   => __( 'Banner color: Info', 'ux-studio' ),
+				'default' => '#2271b1',
+			),
+			array(
+				'key'     => 'severity_warning_color',
+				'type'    => 'color',
+				'label'   => __( 'Banner color: Warning', 'ux-studio' ),
+				'default' => '#dba617',
+			),
+			array(
+				'key'     => 'severity_critical_color',
+				'type'    => 'color',
+				'label'   => __( 'Banner color: Critical', 'ux-studio' ),
+				'default' => '#d63638',
 			),
 			array(
 				'key'     => 'google_maps_api_key',
@@ -321,6 +356,13 @@ final class Module extends BaseModule {
 			$exceptions = is_array( $data['exceptions'] ) ? $data['exceptions'] : array();
 			update_post_meta( $id, '_uxstudio_oh_exceptions', wp_json_encode( self::sanitize_exceptions( $exceptions ) ) );
 		}
+		if ( array_key_exists( 'phone', $data ) ) {
+			update_post_meta( $id, '_uxstudio_oh_phone', sanitize_text_field( (string) $data['phone'] ) );
+		}
+		if ( array_key_exists( 'announcements', $data ) ) {
+			$announcements = is_array( $data['announcements'] ) ? $data['announcements'] : array();
+			update_post_meta( $id, '_uxstudio_oh_announcements', wp_json_encode( self::sanitize_announcements( $announcements ), JSON_UNESCAPED_UNICODE ) );
+		}
 		if ( array_key_exists( 'lat', $data ) ) {
 			update_post_meta( $id, '_uxstudio_oh_lat', self::sanitize_lat( $data['lat'] ) );
 		}
@@ -342,7 +384,10 @@ final class Module extends BaseModule {
 			'address'    => (string) get_post_meta( $post->ID, '_uxstudio_oh_address', true ),
 			'hours'      => self::decode_json_meta( $post->ID, '_uxstudio_oh_hours', array() ),
 			'exceptions' => self::decode_json_meta( $post->ID, '_uxstudio_oh_exceptions', array() ),
-			'lat'        => '' === get_post_meta( $post->ID, '_uxstudio_oh_lat', true ) ? null : (float) get_post_meta( $post->ID, '_uxstudio_oh_lat', true ),
+			'phone'         => (string) get_post_meta( $post->ID, '_uxstudio_oh_phone', true ),
+			'announcements' => self::decode_json_meta( $post->ID, '_uxstudio_oh_announcements', array() ),
+			'override'      => self::active_override( $post->ID ),
+			'lat'       => '' === get_post_meta( $post->ID, '_uxstudio_oh_lat', true ) ? null : (float) get_post_meta( $post->ID, '_uxstudio_oh_lat', true ),
 			'lng'        => '' === get_post_meta( $post->ID, '_uxstudio_oh_lng', true ) ? null : (float) get_post_meta( $post->ID, '_uxstudio_oh_lng', true ),
 		);
 	}
@@ -438,6 +483,139 @@ final class Module extends BaseModule {
 			$clean[] = $entry;
 		}
 		return $clean;
+	}
+
+	/**
+	 * Validate announcements: array of {text, from?:Y-m-d, to?:Y-m-d, severity:info|warning|critical}.
+	 * Same shape as the legacy `_oh_announcements` meta.
+	 *
+	 * @param array $announcements Raw announcements.
+	 * @return array<int, array{text:string,from:string,to:string,severity:string}>
+	 */
+	public static function sanitize_announcements( array $announcements ): array {
+		$clean = array();
+		foreach ( $announcements as $announcement ) {
+			if ( ! is_array( $announcement ) ) {
+				continue;
+			}
+			$text = sanitize_text_field( (string) ( $announcement['text'] ?? '' ) );
+			if ( '' === $text ) {
+				continue;
+			}
+			$from     = (string) ( $announcement['from'] ?? '' );
+			$to       = (string) ( $announcement['to'] ?? '' );
+			$severity = (string) ( $announcement['severity'] ?? 'info' );
+
+			$clean[] = array(
+				'text'     => $text,
+				'from'     => self::is_valid_date( $from ) ? $from : '',
+				'to'       => self::is_valid_date( $to ) ? $to : '',
+				'severity' => in_array( $severity, array( 'info', 'warning', 'critical' ), true ) ? $severity : 'info',
+			);
+		}
+		return $clean;
+	}
+
+	/**
+	 * Highest-severity announcement active on a Y-m-d date, or null.
+	 *
+	 * @param array  $announcements Stored announcements.
+	 * @param string $date          Y-m-d.
+	 * @return array{text:string,from:string,to:string,severity:string}|null
+	 */
+	public static function active_announcement( array $announcements, string $date ): ?array {
+		$best     = null;
+		$best_sev = -1;
+		$sev_map  = array(
+			'info'     => 0,
+			'warning'  => 1,
+			'critical' => 2,
+		);
+		foreach ( $announcements as $announcement ) {
+			if ( ! is_array( $announcement ) || '' === (string) ( $announcement['text'] ?? '' ) ) {
+				continue;
+			}
+			$from = (string) ( $announcement['from'] ?? '' );
+			$to   = (string) ( $announcement['to'] ?? '' );
+			if ( '' !== $from && $date < $from ) {
+				continue;
+			}
+			if ( '' !== $to && $date > $to ) {
+				continue;
+			}
+			$sev = $sev_map[ $announcement['severity'] ?? 'info' ] ?? 0;
+			if ( $sev > $best_sev ) {
+				$best     = $announcement;
+				$best_sev = $sev;
+			}
+		}
+		return $best;
+	}
+
+	/* ------------------------------------------------------------------ *
+	 * Quick temporary closure (override)
+	 * ------------------------------------------------------------------ */
+
+	/**
+	 * Active "closed for X minutes" override for a location, or null. Expired
+	 * overrides are removed lazily. Same shape as the legacy `_oh_override`.
+	 *
+	 * @param int $id Location id.
+	 * @return array{until:int,reason:string,kind:string}|null
+	 */
+	public static function active_override( int $id ): ?array {
+		$raw = (string) get_post_meta( $id, '_uxstudio_oh_override', true );
+		if ( '' === $raw ) {
+			return null;
+		}
+		$data = json_decode( $raw, true );
+		if ( ! is_array( $data ) || empty( $data['until'] ) ) {
+			return null;
+		}
+		if ( (int) $data['until'] <= time() ) {
+			delete_post_meta( $id, '_uxstudio_oh_override' );
+			return null;
+		}
+		return array(
+			'until'  => (int) $data['until'],
+			'reason' => (string) ( $data['reason'] ?? '' ),
+			'kind'   => 'closed',
+		);
+	}
+
+	/**
+	 * Close a location for N minutes (0 clears the override).
+	 *
+	 * @param int    $id      Location id.
+	 * @param int    $minutes Duration, 1..10080 (a week).
+	 * @param string $reason  Optional public reason.
+	 * @return array<string, mixed>|WP_Error Updated location.
+	 */
+	public function set_override( int $id, int $minutes, string $reason = '' ) {
+		$post = get_post( $id );
+		if ( ! $post || self::CPT !== $post->post_type ) {
+			return new WP_Error( 'uxstudio_oh_not_found', __( 'Location not found.', 'ux-studio' ), array( 'status' => 404 ) );
+		}
+		if ( $minutes <= 0 ) {
+			delete_post_meta( $id, '_uxstudio_oh_override' );
+			ActivityLog::log( 'opening-hours', 'override_clear', 'location', $id );
+			return $this->get_location( $id );
+		}
+		$minutes = min( $minutes, 10080 );
+		update_post_meta(
+			$id,
+			'_uxstudio_oh_override',
+			wp_json_encode(
+				array(
+					'until'  => time() + $minutes * 60,
+					'reason' => sanitize_text_field( $reason ),
+					'kind'   => 'closed',
+				),
+				JSON_UNESCAPED_UNICODE
+			)
+		);
+		ActivityLog::log( 'opening-hours', 'override_set', 'location', $id, array( 'minutes' => $minutes ) );
+		return $this->get_location( $id );
 	}
 
 	/**
@@ -551,12 +729,97 @@ final class Module extends BaseModule {
 			}
 		}
 
+		// A manual "closed for X minutes" override beats everything else.
+		$override = self::active_override( $location_id );
+		if ( null !== $override ) {
+			$open        = false;
+			$next_change = ( new \DateTimeImmutable( '@' . $override['until'] ) )->setTimezone( $tz )->format( DATE_ATOM );
+		}
+
 		return array(
 			'open'        => $open,
 			'location_id' => $location_id,
 			'checked_at'  => $now->format( DATE_ATOM ),
 			'next_change' => $next_change,
+			'override'    => $override,
 		);
+	}
+
+	/**
+	 * Timestamp of the next opening (a range start) after now, looking up to
+	 * 14 days ahead; null when nothing is scheduled. Honors an active override
+	 * (never earlier than its end) and the exceptions/holidays rules.
+	 *
+	 * @param int $location_id Location id.
+	 */
+	public function next_open_timestamp( int $location_id ): ?int {
+		$location = $this->get_location( $location_id );
+		if ( null === $location ) {
+			return null;
+		}
+		$tz         = wp_timezone();
+		$now        = current_datetime();
+		$now_ts     = $now->getTimestamp();
+		$hours      = is_array( $location['hours'] ) ? $location['hours'] : array();
+		$exceptions = is_array( $location['exceptions'] ) ? $location['exceptions'] : array();
+		$holidays   = (bool) $this->settings->get( 'holidays_closed', true );
+		$floor      = $now_ts;
+
+		if ( is_array( $location['override'] ) ) {
+			$floor = max( $floor, (int) $location['override']['until'] );
+		}
+
+		$best = null;
+		for ( $i = -1; $i < 14; $i++ ) {
+			$date = $now->modify( ( $i >= 0 ? '+' : '' ) . $i . ' day' )->format( 'Y-m-d' );
+			foreach ( self::ranges_for_date( $date, $hours, $exceptions, $tz, $holidays ) as $range ) {
+				$interval = self::range_to_interval( $date, $range, $tz );
+				if ( null === $interval || $interval['end'] <= $floor ) {
+					continue;
+				}
+				$candidate = max( $interval['start'], $floor );
+				if ( $candidate > $now_ts && ( null === $best || $candidate < $best ) ) {
+					$best = $candidate;
+				}
+			}
+		}
+		return $best;
+	}
+
+	/**
+	 * Public wrapper: effective {open,close} ranges of a location on a date
+	 * (exceptions > holidays > weekly schedule). The temporary override is NOT
+	 * applied here, it only affects "right now".
+	 *
+	 * @param array  $location Location array (see get_location()).
+	 * @param string $date     Y-m-d.
+	 * @return array<int, array{open:string,close:string}>
+	 */
+	public function day_ranges( array $location, string $date ): array {
+		$hours      = is_array( $location['hours'] ?? null ) ? $location['hours'] : array();
+		$exceptions = is_array( $location['exceptions'] ?? null ) ? $location['exceptions'] : array();
+		return self::ranges_for_date( $date, $hours, $exceptions, wp_timezone(), (bool) $this->settings->get( 'holidays_closed', true ) );
+	}
+
+	/**
+	 * Exception label (or public-holiday name) for a date, or '' if none.
+	 *
+	 * @param array  $location Location array.
+	 * @param string $date     Y-m-d.
+	 */
+	public function day_note( array $location, string $date ): string {
+		foreach ( (array) ( $location['exceptions'] ?? array() ) as $exception ) {
+			if ( ( $exception['date'] ?? '' ) === $date && '' !== (string) ( $exception['label'] ?? '' ) ) {
+				return (string) $exception['label'];
+			}
+		}
+		if ( (bool) $this->settings->get( 'holidays_closed', true ) ) {
+			$holiday = Holidays::label_for( $date );
+			if ( null !== $holiday ) {
+				return $holiday;
+			}
+		}
+		return '';
 	}
 
 	/**

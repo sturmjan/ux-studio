@@ -26,11 +26,15 @@ defined( 'ABSPATH' ) || exit;
  *   - constant-time comparison (hash_equals)
  *   - +/- 300s timestamp window (rejects stale / clock-skewed replays)
  *   - per-nonce single-use guard (rejects in-window replays)
+ *   - optional IP allowlist (node_allowed_ips) + 60 req/min per IP, as legacy
  */
 final class HmacAuth {
 
 	/** Timestamp tolerance in seconds. */
 	public const TOLERANCE = 300;
+
+	/** Requests per IP per minute before the node answers 429 (legacy value). */
+	private const RATE_LIMIT = 60;
 
 	public const HEADER_SIGNATURE = 'X-Content-Sync-Signature';
 	public const HEADER_TIMESTAMP = 'X-Content-Sync-Timestamp';
@@ -77,6 +81,11 @@ final class HmacAuth {
 	 * @return true|WP_Error True when authentic, WP_Error otherwise.
 	 */
 	public static function verify_request( WP_REST_Request $request, string $secret ) {
+		$network = self::check_network();
+		if ( is_wp_error( $network ) ) {
+			return $network;
+		}
+
 		$signature = (string) $request->get_header( self::HEADER_SIGNATURE );
 		$timestamp = (string) $request->get_header( self::HEADER_TIMESTAMP );
 		$nonce     = (string) $request->get_header( self::HEADER_NONCE );
@@ -129,6 +138,32 @@ final class HmacAuth {
 			return new WP_Error( 'uxstudio_cs_replay', __( 'Request nonce already used.', 'ux-studio' ), array( 'status' => 401 ) );
 		}
 		set_transient( $replay_key, 1, self::TOLERANCE * 2 );
+
+		return true;
+	}
+
+	/**
+	 * IP allowlist + per-IP rate limit, checked before any signature work.
+	 * REMOTE_ADDR on purpose (as legacy): forwarded headers are spoofable and
+	 * the hub/central app calls the node directly.
+	 *
+	 * @return true|WP_Error
+	 */
+	private static function check_network() {
+		$ip       = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+		$settings = (array) get_option( 'uxstudio_content_sync', array() );
+		$allowed  = array_filter( array_map( 'trim', preg_split( '/[\r\n,]+/', (string) ( $settings['node_allowed_ips'] ?? '' ) ) ) );
+
+		if ( ! empty( $allowed ) && ! in_array( $ip, $allowed, true ) ) {
+			return new WP_Error( 'uxstudio_cs_ip_blocked', __( 'This IP address is not on the node allowlist.', 'ux-studio' ), array( 'status' => 403 ) );
+		}
+
+		$rate_key = 'uxstudio_cs_rate_' . md5( $ip );
+		$count    = (int) get_transient( $rate_key );
+		if ( $count >= self::RATE_LIMIT ) {
+			return new WP_Error( 'uxstudio_cs_rate_limited', __( 'Too many requests. Try again in a minute.', 'ux-studio' ), array( 'status' => 429 ) );
+		}
+		set_transient( $rate_key, $count + 1, MINUTE_IN_SECONDS );
 
 		return true;
 	}

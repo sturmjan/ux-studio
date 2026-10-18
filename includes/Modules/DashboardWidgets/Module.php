@@ -35,6 +35,9 @@ final class Module extends BaseModule {
 
 	private const CACHE_WIDGETS = 'uxstudio_dashboard_widgets_cache';
 
+	private ?Analytics $analytics = null;
+	private ?Layout $layout       = null;
+
 	/**
 	 * Register hooks.
 	 */
@@ -46,6 +49,30 @@ final class Module extends BaseModule {
 		// hid. Priority ordering matters - cache before we start removing.
 		add_action( 'wp_dashboard_setup', array( $this, 'cache_dashboard_widgets' ), 998 );
 		add_action( 'wp_dashboard_setup', array( $this, 'apply_hidden_widgets' ), 999 );
+
+		// GA4 visits widget + dashboard column count / forced layout.
+		$this->analytics()->boot();
+		$this->layout()->boot();
+	}
+
+	/**
+	 * GA4 widget helper (lazy, shared with the REST controller).
+	 */
+	public function analytics(): Analytics {
+		if ( null === $this->analytics ) {
+			$this->analytics = new Analytics( $this->settings );
+		}
+		return $this->analytics;
+	}
+
+	/**
+	 * Dashboard layout helper (lazy, shared with the REST controller).
+	 */
+	public function layout(): Layout {
+		if ( null === $this->layout ) {
+			$this->layout = new Layout( $this->settings );
+		}
+		return $this->layout;
 	}
 
 	/* ------------------------------------------------------------------ *
@@ -188,6 +215,41 @@ final class Module extends BaseModule {
 				'help'    => __( 'Paste the full service-account JSON. Stored encrypted. Leave blank to keep the current value.', 'ux-studio' ),
 				'default' => '',
 			),
+			array(
+				'key'     => 'widget_analytics',
+				'type'    => 'toggle',
+				'label'   => __( 'Dashboard widget: visits (GA4)', 'ux-studio' ),
+				'help'    => __( 'Sessions today / this month / this year plus a 7-day chart from Google Analytics 4. Needs the GA4 property ID and the service-account JSON above.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'ga_property_id',
+				'type'    => 'text',
+				'label'   => __( 'GA4 property ID', 'ux-studio' ),
+				'help'    => __( 'Numeric ID of the Google Analytics 4 property (e.g. 123456789). The service account must have Viewer access to it.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'dashboard_columns',
+				'type'    => 'select',
+				'label'   => __( 'Dashboard columns', 'ux-studio' ),
+				'help'    => __( 'Number of columns on the wp-admin home screen.', 'ux-studio' ),
+				'options' => array(
+					'0' => __( 'Default (WordPress)', 'ux-studio' ),
+					'1' => '1',
+					'2' => '2',
+					'3' => '3',
+					'4' => '4',
+				),
+				'default' => '0',
+			),
+			array(
+				'key'     => 'force_layout',
+				'type'    => 'toggle',
+				'label'   => __( 'Force layout for all users', 'ux-studio' ),
+				'help'    => __( 'Every user gets the widget arrangement saved with the "Save current layout as default" button below.', 'ux-studio' ),
+				'default' => false,
+			),
 		);
 	}
 
@@ -220,6 +282,7 @@ final class Module extends BaseModule {
 		$values['ga_service_account_json']  = '';
 		$values['has_pagespeed_key']        = '' !== Security::get_secret( self::SECRET_PAGESPEED );
 		$values['has_ga_key']               = '' !== Security::get_secret( self::SECRET_GA );
+		$values['saved_layout']             = $this->layout()->summary();
 		return $values;
 	}
 

@@ -17,6 +17,8 @@ defined( 'ABSPATH' ) || exit;
  * POST uxstudio/v1/dashboard-widgets/tasks     - persist full tasks list + notes
  * GET  uxstudio/v1/dashboard-widgets/pagespeed - PageSpeed Insights performance score
  * GET  uxstudio/v1/dashboard-widgets/activity  - recent rows from the shared activity log
+ * POST uxstudio/v1/dashboard-widgets/analytics/refresh - fetch GA4 sessions (runReport) and return widget HTML
+ * POST uxstudio/v1/dashboard-widgets/layout/save - store the current user's dashboard layout as the forced default
  */
 final class RestController extends Controller {
 
@@ -62,6 +64,8 @@ final class RestController extends Controller {
 				),
 			)
 		);
+		$this->route( '/dashboard-widgets/analytics/refresh', 'POST', array( $this, 'analytics_refresh' ) );
+		$this->route( '/dashboard-widgets/layout/save', 'POST', array( $this, 'layout_save' ) );
 		$this->route(
 			'/dashboard-widgets/activity',
 			'GET',
@@ -131,5 +135,31 @@ final class RestController extends Controller {
 			$limit = 10;
 		}
 		return $this->ok( $this->module->get_recent_activity( $limit ) );
+	}
+
+	/**
+	 * Fetch fresh GA4 data and return the rendered widget HTML.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function analytics_refresh( WP_REST_Request $request ) {
+		$result = $this->module->analytics()->refresh();
+		if ( empty( $result['ok'] ) ) {
+			return new \WP_Error( 'uxstudio_ga_failed', (string) ( $result['error'] ?? 'GA4 error' ), array( 'status' => 502 ) );
+		}
+		return $this->ok( array( 'html' => $result['html'] ?? '' ) );
+	}
+
+	/**
+	 * Save the current user's dashboard arrangement as the forced layout.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function layout_save( WP_REST_Request $request ) {
+		$result = $this->module->layout()->save_current();
+		if ( empty( $result['ok'] ) ) {
+			return new \WP_Error( 'uxstudio_layout_missing', (string) ( $result['error'] ?? '' ), array( 'status' => 400 ) );
+		}
+		return $this->ok( array( 'summary' => $result['summary'] ?? '' ) );
 	}
 }

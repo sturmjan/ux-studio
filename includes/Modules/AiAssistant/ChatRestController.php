@@ -391,7 +391,7 @@ final class ChatRestController extends Controller {
 			return $this->ok( array( 'success' => true ) );
 		}
 
-		$to        = get_option( 'admin_email' );
+		$to        = AssistantConfig::contact_email();
 		$site_name = get_bloginfo( 'name' );
 		$subject   = sprintf(
 			/* translators: 1: site name, 2: sender name */
@@ -468,7 +468,7 @@ final class ChatRestController extends Controller {
 			return $this->ok( array( 'success' => true ) );
 		}
 
-		$to        = get_option( 'admin_email' );
+		$to        = AssistantConfig::contact_email();
 		$site_name = get_bloginfo( 'name' );
 		$subject   = sprintf(
 			/* translators: %s: site name */

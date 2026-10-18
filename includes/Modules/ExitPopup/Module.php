@@ -102,6 +102,23 @@ final class Module extends BaseModule {
 				'label' => __( 'Image', 'ux-studio' ),
 				'help'  => __( 'Optional image shown above the popup content.', 'ux-studio' ),
 			),
+			array(
+				'key'   => 'popup_icon',
+				'type'  => 'media',
+				'label' => __( 'Icon', 'ux-studio' ),
+				'help'  => __( 'Optional icon shown on the edge between the image and the text (recommended 64-80 px).', 'ux-studio' ),
+			),
+			array(
+				'key'     => 'popup_layout',
+				'type'    => 'select',
+				'label'   => __( 'Layout', 'ux-studio' ),
+				'help'    => __( 'Vertical: image on top, text below. Horizontal: image on the left, text on the right.', 'ux-studio' ),
+				'options' => array(
+					'vertical'   => __( 'Vertical (image on top)', 'ux-studio' ),
+					'horizontal' => __( 'Horizontal (image on the left)', 'ux-studio' ),
+				),
+				'default' => 'vertical',
+			),
 			// --- Call to action ---
 			array(
 				'key'     => 'enable_cta',
@@ -415,6 +432,12 @@ final class Module extends BaseModule {
 		$image_url = $image_id ? (string) wp_get_attachment_url( $image_id ) : '';
 		$image_alt = $image_id ? (string) get_post_meta( $image_id, '_wp_attachment_image_alt', true ) : '';
 
+		// Legacy stored the icon as a one-element array ([id]); the new media field stores the id.
+		$icon_raw = $this->settings->get( 'popup_icon', 0 );
+		$icon_id  = (int) ( is_array( $icon_raw ) ? reset( $icon_raw ) : $icon_raw );
+		$icon_url = $icon_id ? (string) wp_get_attachment_url( $icon_id ) : '';
+		$layout   = 'horizontal' === $this->settings->get( 'popup_layout', 'vertical' ) ? 'horizontal' : 'vertical';
+
 		$overlay_opacity = (int) $this->settings->get( 'overlay_opacity', 60 );
 		$overlay_opacity = max( 0, min( 100, $overlay_opacity ) );
 
@@ -426,6 +449,8 @@ final class Module extends BaseModule {
 				'body'           => (string) $this->settings->get( 'body', '' ),
 				'imageUrl'       => $image_url ? esc_url_raw( $image_url ) : '',
 				'imageAlt'       => $image_alt,
+				'iconUrl'        => $icon_url ? esc_url_raw( $icon_url ) : '',
+				'layout'         => $layout,
 				'cta'            => array(
 					'enabled' => (bool) $this->settings->get( 'enable_cta', false ),
 					'text'    => (string) $this->settings->get( 'cta_text', '' ),

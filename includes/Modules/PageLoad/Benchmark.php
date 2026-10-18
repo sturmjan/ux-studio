@@ -25,7 +25,16 @@ final class Benchmark {
 	/** Cron hook name for the deferred benchmark run. */
 	public const HOOK = 'uxstudio_page_load_benchmark';
 
+	/** Option holding the enabled UX Studio module ids (Core\Modules::OPTION). */
+	private const MODULES_OPTION = 'uxstudio_active_modules';
+
+	/** More toggled modules than this in one write are logged without a benchmark. */
+	private const MAX_MODULE_BENCHMARKS = 3;
+
 	private Settings $settings;
+
+	/** @var string[]|null Module ids captured before the current option write. */
+	private ?array $modules_before = null;
 
 	/**
 	 * @param Settings $settings Owning module's settings instance.
@@ -43,20 +52,97 @@ final class Benchmark {
 		add_action( 'activated_plugin', array( $this, 'on_activated' ), 10, 1 );
 		add_action( 'deactivated_plugin', array( $this, 'on_deactivated' ), 10, 1 );
 		add_action( self::HOOK, array( $this, 'run' ), 10, 1 );
+
+		// UX Studio module toggles (ModuleTracker port): Core\Modules persists the
+		// enabled-module list in one option, so compare it before/after the write.
+		add_filter( 'pre_update_option_' . self::MODULES_OPTION, array( $this, 'capture_modules_before' ), 1, 2 );
+		add_action( 'update_option_' . self::MODULES_OPTION, array( $this, 'on_modules_changed' ), 10, 2 );
+	}
+
+	/**
+	 * Remember the module list as it was before the write.
+	 *
+	 * @param mixed $new_value New value.
+	 * @param mixed $old_value Old value.
+	 * @return mixed
+	 */
+	public function capture_modules_before( $new_value, $old_value ) {
+		if ( null === $this->modules_before ) {
+			$this->modules_before = self::normalise_ids( $old_value );
+		}
+		return $new_value;
+	}
+
+	/**
+	 * Diff the module list and record an impact event per toggled module.
+	 * The very first write of the option (initial setup / migration) is not a
+	 * user toggle and is deliberately not tracked.
+	 *
+	 * @param mixed $old_value Old value.
+	 * @param mixed $new_value New value.
+	 */
+	public function on_modules_changed( $old_value, $new_value ): void {
+		$before               = $this->modules_before ?? self::normalise_ids( $old_value );
+		$this->modules_before = null;
+		$after                = self::normalise_ids( $new_value );
+
+		$activated   = array_values( array_diff( $after, $before ) );
+		$deactivated = array_values( array_diff( $before, $after ) );
+		$total       = count( $activated ) + count( $deactivated );
+		if ( 0 === $total || ! $this->enabled() ) {
+			return;
+		}
+
+		// A bulk change ("deactivate all") would queue dozens of benchmark
+		// requests; only the first few get measured, the rest are just logged.
+		$measure = $total <= self::MAX_MODULE_BENCHMARKS;
+		foreach ( $activated as $id ) {
+			$this->record_event( 'activated', $id, 'module', $this->module_name( $id ), $measure );
+		}
+		foreach ( $deactivated as $id ) {
+			$this->record_event( 'deactivated', $id, 'module', $this->module_name( $id ), $measure );
+		}
+	}
+
+	/**
+	 * Option value -> sorted list of string ids.
+	 *
+	 * @param mixed $value Raw option value.
+	 * @return string[]
+	 */
+	private static function normalise_ids( $value ): array {
+		$ids = array_values( array_unique( array_map( 'strval', is_array( $value ) ? $value : array() ) ) );
+		sort( $ids );
+		return $ids;
+	}
+
+	/**
+	 * Human readable label for a module id.
+	 *
+	 * @param string $id Module id.
+	 */
+	private function module_name( string $id ): string {
+		$name = $id;
+		$all  = \UxStudio\Plugin::instance()->modules->all();
+		if ( ! empty( $all[ $id ]['name'] ) ) {
+			$name = (string) $all[ $id ]['name'];
+		}
+		/* translators: %s: UX Studio module name */
+		return sprintf( __( 'UX Studio module: %s', 'ux-studio' ), $name );
 	}
 
 	/**
 	 * @param string $plugin Plugin file (relative to plugins dir).
 	 */
 	public function on_activated( string $plugin ): void {
-		$this->record_event( 'activated', $plugin );
+		$this->record_event( 'activated', $plugin, 'plugin', '', true );
 	}
 
 	/**
 	 * @param string $plugin Plugin file (relative to plugins dir).
 	 */
 	public function on_deactivated( string $plugin ): void {
-		$this->record_event( 'deactivated', $plugin );
+		$this->record_event( 'deactivated', $plugin, 'plugin', '', true );
 	}
 
 	/**
@@ -77,20 +163,26 @@ final class Benchmark {
 	 * Record a plugin change event and schedule its deferred benchmark.
 	 *
 	 * @param string $type        'activated' | 'deactivated'.
-	 * @param string $plugin_file Plugin file.
+	 * @param string $plugin_file Plugin file, or the module id for source_type 'module'.
+	 * @param string $source_type 'plugin' | 'module'.
+	 * @param string $name        Display name (resolved from the plugin list when empty).
+	 * @param bool   $measure     Schedule the deferred benchmark (otherwise status 'skipped').
 	 */
-	private function record_event( string $type, string $plugin_file ): void {
+	private function record_event( string $type, string $plugin_file, string $source_type = 'plugin', string $name = '', bool $measure = true ): void {
 		if ( ! $this->enabled() ) {
 			return;
 		}
 
 		global $wpdb;
 
-		if ( ! function_exists( 'get_plugins' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		$plugin_name = $name;
+		if ( '' === $plugin_name ) {
+			if ( ! function_exists( 'get_plugins' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/plugin.php';
+			}
+			$all_plugins = get_plugins();
+			$plugin_name = isset( $all_plugins[ $plugin_file ]['Name'] ) ? (string) $all_plugins[ $plugin_file ]['Name'] : $plugin_file;
 		}
-		$all_plugins = get_plugins();
-		$plugin_name = isset( $all_plugins[ $plugin_file ]['Name'] ) ? (string) $all_plugins[ $plugin_file ]['Name'] : $plugin_file;
 
 		$before = $this->recent_avg_ms();
 
@@ -98,7 +190,7 @@ final class Benchmark {
 			"{$wpdb->prefix}uxstudio_page_load_impact",
 			array(
 				'created_at'       => current_time( 'mysql' ),
-				'source_type'      => 'plugin',
+				'source_type'      => $source_type,
 				'event_type'       => $type,
 				'plugin_file'      => mb_substr( $plugin_file, 0, 255 ),
 				'plugin_name'      => mb_substr( $plugin_name, 0, 191 ),
@@ -106,14 +198,14 @@ final class Benchmark {
 				'benchmark_after'  => null,
 				'benchmark_diff'   => null,
 				'benchmark_count'  => 0,
-				'status'           => 'pending',
+				'status'           => $measure ? 'pending' : 'skipped',
 				'user_id'          => get_current_user_id(),
 			),
 			array( '%s', '%s', '%s', '%s', '%s', '%f', '%f', '%f', '%d', '%s', '%d' )
 		);
 
 		$event_id = (int) $wpdb->insert_id;
-		if ( $event_id > 0 ) {
+		if ( $event_id > 0 && $measure ) {
 			wp_schedule_single_event( time() + 10, self::HOOK, array( $event_id ) );
 		}
 	}

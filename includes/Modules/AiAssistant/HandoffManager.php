@@ -537,7 +537,7 @@ final class HandoffManager {
 	 * the operator inbox.
 	 */
 	private function notify_operators( int $conversation_id, string $reason ): void {
-		$to = get_option( 'admin_email' );
+		$to = AssistantConfig::operator_email();
 		if ( empty( $to ) || ! PublicGuard::allow_notification_email() ) {
 			return;
 		}

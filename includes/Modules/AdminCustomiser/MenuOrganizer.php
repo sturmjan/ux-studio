@@ -1143,6 +1143,26 @@ final class MenuOrganizer {
 				html body.uxs-amo-horizontal #wpwrap #adminmenuback, html body.uxs-amo-horizontal #wpwrap #adminmenuwrap { top: 46px !important; }
 				html body.uxs-amo-horizontal #wpcontent, html body.uxs-amo-horizontal #wpfooter { padding-left: 10px !important; padding-right: 10px !important; }
 			}
+			/* Inline mode (horizontal_menu_inline): menu shares the 32px admin bar row, left-aligned;
+			   the bar's left items are hidden, right-side items (user, notifications...) stay. */
+			body.uxs-amo-horizontal.uxs-amo-horizontal-inline { --uxs-amo-bar-h: 32px; }
+			html body.uxs-amo-horizontal.uxs-amo-horizontal-inline #wpwrap #adminmenuback,
+			html body.uxs-amo-horizontal.uxs-amo-horizontal-inline #wpwrap #adminmenuwrap {
+				top: 0 !important; left: 0 !important; right: auto !important; width: auto !important; max-width: calc(100vw - 280px) !important;
+				height: 32px !important; background: transparent !important; box-shadow: none !important; z-index: 100000 !important;
+			}
+			html body.uxs-amo-horizontal.uxs-amo-horizontal-inline #wpwrap #adminmenu,
+			html body.uxs-amo-horizontal.uxs-amo-horizontal-inline #adminmenu > li,
+			html body.uxs-amo-horizontal.uxs-amo-horizontal-inline #adminmenu > li > a.menu-top { height: 32px !important; min-height: 32px !important; }
+			html body.uxs-amo-horizontal.uxs-amo-horizontal-inline #wpwrap #adminmenu { width: auto !important; max-width: 100% !important; padding: 0 !important; background: transparent !important; }
+			html body.uxs-amo-horizontal.uxs-amo-horizontal-inline #wpadminbar #wp-admin-bar-root-default { display: none !important; }
+			html body.uxs-amo-horizontal.uxs-amo-horizontal-inline #wpbody { padding-top: 0 !important; }
+			html body.wp-admin.uxs-amo-horizontal.uxs-amo-horizontal-inline #wpwrap #adminmenu li.menu-top > ul.wp-submenu,
+			html body.wp-admin.uxs-amo-horizontal.uxs-amo-horizontal-inline #wpwrap #adminmenu li.menu-top > ul.wp-submenu-wrap { top: 32px !important; }
+			@media (max-width: 782px) {
+				html body.uxs-amo-horizontal.uxs-amo-horizontal-inline #wpwrap #adminmenuback,
+				html body.uxs-amo-horizontal.uxs-amo-horizontal-inline #wpwrap #adminmenuwrap { top: 46px !important; height: 46px !important; max-width: 100vw !important; }
+			}
 		</style>
 		<?php
 	}
@@ -1165,6 +1185,10 @@ final class MenuOrganizer {
 			}
 			if ( empty( $config['show_icons_level3'] ) ) {
 				$classes .= ' uxs-amo-no-icons-l3';
+			}
+			// Legacy `horizontal_menu_inline` (admin bar settings): merge menu and admin bar into one row.
+			if ( (bool) ( new Settings( self::SETTINGS_OPTION ) )->get( 'horizontal_menu_inline', false ) ) {
+				$classes .= ' uxs-amo-horizontal-inline';
 			}
 		}
 		return $classes;

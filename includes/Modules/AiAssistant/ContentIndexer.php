@@ -257,7 +257,7 @@ final class ContentIndexer {
 		 *
 		 * @param array<int, string> $post_types Allowed post types.
 		 */
-		return (array) apply_filters( 'uxstudio_ai_assistant_index_post_types', self::DEFAULT_POST_TYPES );
+		return (array) apply_filters( 'uxstudio_ai_assistant_index_post_types', AssistantConfig::index_post_types( self::DEFAULT_POST_TYPES ) );
 	}
 
 	/**
@@ -318,7 +318,7 @@ final class ContentIndexer {
 			return $result;
 		}
 
-		$skip_types = array( 'tab', 'accordion', 'message', 'group', 'flexible_content', 'clone', 'image', 'gallery', 'file', 'google_map', 'post_object', 'relationship', 'page_link', 'oembed', 'user', 'color_picker', 'link' );
+		$skip_types = AssistantConfig::acf_skip_types();
 
 		foreach ( $field_objects as $field ) {
 			$label = $field['label'] ?? $field['name'] ?? '';
