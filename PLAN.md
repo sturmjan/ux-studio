@@ -1522,7 +1522,7 @@ Redirection, export CSV, SPA (pravidla + test URL, 404, SEO audit, import/export
 - [x] Překlady cs_CZ (100 řetězců vč. meta.json). PAST: `wp i18n update-po` vyhodí ručně vedené
       msgid z meta.json (nejsou v kódu) - nové řetězce připisovat do .po cíleně, pak make-mo,
       make-json, merge-json.
-- [ ] Vizuálně projít SPA stránku modulu v prohlížeči (Playwright MCP se v session nepřipojil)
+- [x] Vizuálně ověřeno 18.10. v wp-admin (Playwright přes Node): 5 záložek česky, přidání pravidla z formuláře, světlý i tmavý režim, 0 chyb v konzoli i REST; opraven rámeček v rámečku a bílé hledání v tmavém režimu (79983a1)
 - [ ] Import z Redirection na webu, kde ho používá, pak Redirection vypnout
 - [ ] Zvážit: `trash` publikovaného obsahu → nabídnout 410/redirect (záměrně vynecháno,
       automatická 410 by blokovala obnovení z koše)
