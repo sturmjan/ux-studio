@@ -61,4 +61,8 @@ export interface ModuleInfo {
 	icon: string;
 	settings: boolean;
 	enabled: boolean;
+	/** Group tile this module ("feature") is nested under, if any. */
+	parent?: string | null;
+	/** Feature ids of a virtual group tile (empty for normal modules). */
+	children?: string[];
 }

@@ -1,0 +1,10 @@
+{
+	"id": "duplicate",
+	"name": "Duplication",
+	"description": "One-click copies of posts, pages, products and navigation menus. Post and menu duplication can be switched on separately.",
+	"group": "content",
+	"icon": "copy",
+	"settings": true,
+	"virtual": true,
+	"children": [ "duplicate-post", "duplicate-menu" ]
+}

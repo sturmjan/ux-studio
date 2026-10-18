@@ -12,6 +12,7 @@ import { api, type ModuleInfo } from './api';
 import { ModuleGrid } from './ModuleGrid';
 import { ModuleSettings } from './ModuleSettings';
 import { GlobalSettings } from './GlobalSettings';
+import { GroupBreadcrumb, GroupPage } from './GroupPage';
 import { getTheme, setTheme, type Theme } from './prefs';
 import { MODULE_PAGES } from '../modules/registry';
 
@@ -122,6 +123,12 @@ export function App(): JSX.Element {
 	const extension = pages.get( route );
 	const moduleId = route === 'module' ? hashParam( 'id' ) ?? '' : '';
 	const CustomPage = moduleId ? MODULE_PAGES[ moduleId ] : undefined;
+	const { data: moduleList } = useQuery( {
+		queryKey: [ 'modules' ],
+		queryFn: () => api< ModuleInfo[] >( 'modules' ),
+		enabled: route === 'module',
+	} );
+	const isGroup = !! moduleId && !! moduleList?.find( ( m ) => m.id === moduleId )?.children?.length;
 
 	const nav = [
 		{ route: '', title: __( 'Modules', 'ux-studio' ), icon: <LayoutGrid size={ 16 } /> },
@@ -158,8 +165,11 @@ export function App(): JSX.Element {
 				</div>
 			</nav>
 			<main className="uxs-content">
+				{ moduleId && ! isGroup ? <GroupBreadcrumb moduleId={ moduleId } /> : null }
 				{ extension ? (
 					<extension.component />
+				) : isGroup ? (
+					<GroupPage groupId={ moduleId } />
 				) : CustomPage ? (
 					<Suspense
 						fallback={
@@ -171,7 +181,15 @@ export function App(): JSX.Element {
 						<ModulePageGate moduleId={ moduleId } Page={ CustomPage } />
 					</Suspense>
 				) : route === 'module' ? (
-					<ModuleSettings />
+					// Wait for the module list so a group id never hits the generic
+					// settings page (groups have no settings of their own).
+					moduleList ? (
+						<ModuleSettings />
+					) : (
+						<div className="uxs-loading">
+							<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />
+						</div>
+					)
 				) : route === 'settings' ? (
 					<GlobalSettings />
 				) : (

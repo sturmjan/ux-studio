@@ -1,0 +1,10 @@
+{
+	"id": "updates",
+	"name": "Updates",
+	"description": "Control automatic updates of WordPress core, plugins and themes, and roll a plugin or theme back to an earlier version. Each part can be switched on separately.",
+	"group": "admin",
+	"icon": "history",
+	"settings": true,
+	"virtual": true,
+	"children": [ "disable-auto-updates", "rollback-manager" ]
+}

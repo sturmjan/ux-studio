@@ -44,6 +44,7 @@ final class Modules {
 		 * @param array $meta Discovered module metadata, keyed by id.
 		 */
 		$this->meta = apply_filters( 'ux_studio/modules', $this->meta );
+		$this->meta = self::link_groups( $this->meta );
 
 		$enabled = $this->enabled_ids();
 
@@ -95,6 +96,13 @@ final class Modules {
 		if ( ! isset( $this->meta[ $id ] ) ) {
 			return false;
 		}
+		// A group has no state of its own: switching it switches every feature in it.
+		if ( self::is_group( $this->meta[ $id ] ) ) {
+			foreach ( $this->meta[ $id ]['children'] as $child ) {
+				$this->set_enabled( (string) $child, $enable );
+			}
+			return true;
+		}
 		$enabled     = $this->enabled_ids();
 		$was_enabled = in_array( $id, $enabled, true );
 		if ( $enable ) {
@@ -107,6 +115,37 @@ final class Modules {
 			$this->run_on_disable( $id );
 		}
 		return true;
+	}
+
+	/**
+	 * Whether a meta entry is a virtual group: a tile that bundles several
+	 * modules ("features") which keep their own enabled state and settings.
+	 *
+	 * @param array $meta Module meta.
+	 */
+	public static function is_group( array $meta ): bool {
+		return ! empty( $meta['virtual'] ) && ! empty( $meta['children'] ) && is_array( $meta['children'] );
+	}
+
+	/**
+	 * Resolve group membership: drop group children that don't exist and tag
+	 * each child with `parent`, so the UI can nest it under its group tile.
+	 *
+	 * @param array<string, array> $meta Module meta keyed by id.
+	 * @return array<string, array>
+	 */
+	private static function link_groups( array $meta ): array {
+		foreach ( $meta as $id => $data ) {
+			if ( ! self::is_group( $data ) ) {
+				continue;
+			}
+			$children = array_values( array_filter( $data['children'], static fn( $c ) => isset( $meta[ $c ] ) && ! self::is_group( $meta[ $c ] ) ) );
+			$meta[ $id ]['children'] = $children;
+			foreach ( $children as $child ) {
+				$meta[ $child ]['parent'] = $id;
+			}
+		}
+		return $meta;
 	}
 
 	/**

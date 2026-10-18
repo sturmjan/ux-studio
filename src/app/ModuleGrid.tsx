@@ -77,16 +77,25 @@ export function ModuleGrid(): JSX.Element {
 		return <p role="alert">{ __( 'Failed to load modules.', 'ux-studio' ) }</p>;
 	}
 
-	const enabledCount = modules.filter( ( m ) => m.enabled ).length;
+	// Real (non-group) modules drive "deactivate all"; the grid shows only
+	// top-level tiles - features nested in a group live on the group's page.
+	const enabledCount = modules.filter( ( m ) => m.enabled && ! m.children?.length ).length;
+	const byId = new Map( modules.map( ( m ) => [ m.id, m ] ) );
+	const topLevel = modules.filter( ( m ) => ! m.parent );
+	const childrenOf = ( m: ModuleInfo ): ModuleInfo[] =>
+		( m.children ?? [] ).map( ( id ) => byId.get( id ) ).filter( ( c ): c is ModuleInfo => !! c );
+	const haystack = ( m: ModuleInfo ): string =>
+		[ m, ...childrenOf( m ) ].map( ( x ) => `${ x.name } ${ x.description } ${ x.id }` ).join( ' ' ).toLocaleLowerCase();
 
 	const needle = search.trim().toLocaleLowerCase();
-	const visible = modules.filter(
+	const visible = topLevel.filter(
 		( m ) =>
 			( 'all' === group || m.group === group ) &&
 			( 'all' === status || ( 'on' === status ) === m.enabled ) &&
-			( '' === needle || `${ m.name } ${ m.description } ${ m.id }`.toLocaleLowerCase().includes( needle ) )
+			( '' === needle || haystack( m ).includes( needle ) )
 	);
-	const countIn = ( id: string ): number => modules.filter( ( m ) => m.group === id ).length;
+	const countIn = ( id: string ): number => topLevel.filter( ( m ) => m.group === id ).length;
+	const topEnabled = topLevel.filter( ( m ) => m.enabled ).length;
 
 	const onDeactivateAll = (): void => {
 		if ( enabledCount === 0 || deactivateAll.isPending ) {
@@ -163,7 +172,7 @@ export function ModuleGrid(): JSX.Element {
 				/>
 				<div className="uxs-subtabs" role="tablist" aria-label={ __( 'Module group', 'ux-studio' ) }>
 					<button type="button" role="tab" aria-selected={ 'all' === group } className={ 'all' === group ? 'is-active' : '' } onClick={ () => setGroup( 'all' ) }>
-						{ __( 'All', 'ux-studio' ) } ({ modules.length })
+						{ __( 'All', 'ux-studio' ) } ({ topLevel.length })
 					</button>
 					{ GROUPS.filter( ( g ) => countIn( g.id ) > 0 ).map( ( g ) => (
 						<button key={ g.id } type="button" role="tab" aria-selected={ g.id === group } className={ g.id === group ? 'is-active' : '' } onClick={ () => setGroup( g.id ) }>
@@ -178,8 +187,8 @@ export function ModuleGrid(): JSX.Element {
 					onChange={ ( e ) => setStatus( e.target.value as StatusFilter ) }
 				>
 					<option value="all">{ __( 'All statuses', 'ux-studio' ) }</option>
-					<option value="on">{ sprintf( /* translators: %d: number of enabled modules. */ __( 'Enabled (%d)', 'ux-studio' ), enabledCount ) }</option>
-					<option value="off">{ sprintf( /* translators: %d: number of disabled modules. */ __( 'Disabled (%d)', 'ux-studio' ), modules.length - enabledCount ) }</option>
+					<option value="on">{ sprintf( /* translators: %d: number of enabled modules. */ __( 'Enabled (%d)', 'ux-studio' ), topEnabled ) }</option>
+					<option value="off">{ sprintf( /* translators: %d: number of disabled modules. */ __( 'Disabled (%d)', 'ux-studio' ), topLevel.length - topEnabled ) }</option>
 				</select>
 			</div>
 			{ 0 === visible.length ? <p className="uxs-modulefilter__empty">{ __( 'No module matches the filter.', 'ux-studio' ) }</p> : null }
@@ -231,6 +240,18 @@ export function ModuleGrid(): JSX.Element {
 							</div>
 							{ view === 'grid' && <span className="uxs-tile__name">{ m.name }</span> }
 							{ view === 'grid' && <span className="uxs-tile__desc">{ m.description }</span> }
+							{ m.children?.length ? (
+								<span className="uxs-tile__features">
+									{ sprintf(
+										/* translators: 1: enabled features, 2: all features in the group. */
+										__( '%1$d of %2$d on', 'ux-studio' ),
+										childrenOf( m ).filter( ( c ) => c.enabled ).length,
+										childrenOf( m ).length
+									) }
+									{ ' · ' }
+									{ childrenOf( m ).map( ( c ) => c.name ).join( ', ' ) }
+								</span>
+							) : null }
 							{ view === 'grid' && clickable && (
 								<span className="uxs-tile__configure">
 									{ __( 'Configure', 'ux-studio' ) }

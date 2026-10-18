@@ -162,6 +162,7 @@
 
 	.uxs-tile__name { font-size: var(--uxs-fs-m); font-weight: 600; }
 	.uxs-tile__desc { color: var(--uxs-text-soft); line-height: 1.45; }
+	.uxs-tile__features { font-size: 12px; color: var(--uxs-brand); font-weight: 600; }
 
 	/* Only shown on tiles the user can actually click into (m.settings). */
 	.uxs-tile__configure {
@@ -405,6 +406,53 @@
 		&:hover { color: var(--uxs-text); }
 		&.is-active { color: var(--uxs-brand); border-bottom-color: var(--uxs-brand); }
 	}
+}
+
+/* ---- Group page: features of a virtual group, each with its own switch ---- */
+.uxs-group__intro { color: var(--uxs-text-soft); margin: 0 0 var(--uxs-sp-5); max-width: 80ch; }
+
+.uxs-group {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 520px), 1fr));
+	gap: var(--uxs-sp-4);
+}
+
+.uxs-group__item {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--uxs-sp-4);
+	background: var(--uxs-surface);
+	border: 1px solid var(--uxs-border);
+	border-radius: var(--uxs-radius);
+	padding: var(--uxs-sp-5);
+
+	&.is-on { border-color: var(--uxs-brand); }
+
+	.uxs-tile__name { display: block; font-weight: 600; margin-bottom: var(--uxs-sp-1); }
+	.uxs-tile__desc { display: block; color: var(--uxs-text-soft); line-height: 1.45; }
+}
+
+.uxs-group__text { flex: 1 1 auto; min-width: 0; }
+
+.uxs-group__actions {
+	display: flex;
+	align-items: center;
+	gap: var(--uxs-sp-3);
+	flex-shrink: 0;
+
+	.button { display: inline-flex; align-items: center; gap: var(--uxs-sp-1); }
+}
+
+.uxs-group__crumb {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--uxs-sp-1);
+	margin-bottom: var(--uxs-sp-3);
+	color: var(--uxs-text-soft);
+	text-decoration: none;
+	font-weight: 600;
+
+	&:hover { color: var(--uxs-brand); }
 }
 
 /* ---- Module overview filter (search + group pills + status) ---- */

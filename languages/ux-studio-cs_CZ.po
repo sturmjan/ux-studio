@@ -52,7 +52,7 @@ msgstr "Ověření podpisu odpovědi centrální aplikace se nezdařilo."
 
 #: includes/Core/Rest.php:69
 #: includes/Core/Rest.php:90
-#: includes/Core/Rest.php:151
+#: includes/Core/Rest.php:155
 msgid "Unknown module."
 msgstr "Neznámý modul."
 
@@ -183,7 +183,7 @@ msgstr "Nástěnka"
 #: includes/Modules/SecurityOptimization/Module.php:844
 #: build/295.a2b42013b2aace5fa6b8.js:1
 #: build/348.be18249b924a2d37e4c4.js:3
-#: build/index.01184dbccda21e3512d7.js:1
+#: build/index.a5123134802902c0d385.js:1
 msgid "Content"
 msgstr "Obsah"
 
@@ -193,7 +193,7 @@ msgstr "Obsah"
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:253
 #: build/295.a2b42013b2aace5fa6b8.js:1
 #: build/752.68d78e7a3e0054952684.js:1
-#: build/index.01184dbccda21e3512d7.js:1
+#: build/index.a5123134802902c0d385.js:1
 msgid "Media"
 msgstr "Média"
 
@@ -212,7 +212,7 @@ msgstr "Média"
 #: includes/Modules/MaintenanceMode/Module.php:514
 #: includes/Modules/MaintenanceMode/Module.php:521
 #: build/348.be18249b924a2d37e4c4.js:4
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:3
 msgid "Appearance"
 msgstr "Vzhled"
 
@@ -2635,7 +2635,7 @@ msgstr "Zkrácený obsah"
 #: build/587.bbad24948bc07e32a25d.js:1
 #: build/831.4a50788efbe243723ea1.js:1
 #: build/866.a786a1a3b954a048d924.js:1
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:2
 msgid "Status"
 msgstr "Stav"
 
@@ -2937,7 +2937,8 @@ msgstr "Nemáte přístup ke Správci souborů. Přidejte svůj účet do seznam
 #: build/907.e407fbb311cd6ef44322.js:1
 #: build/930.c657f0a8ddf5aeb4be68.js:1
 #: build/976.d134b086cadd547a42bf.js:1
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:3
+#: build/index.a5123134802902c0d385.js:4
 msgid "Settings"
 msgstr "Nastavení"
 
@@ -3751,7 +3752,7 @@ msgstr "Galerie"
 #: includes/Modules/PostGallery/Module.php:96
 #: build/309.62b4119d52614c5b9e45.js:1
 #: build/348.be18249b924a2d37e4c4.js:3
-#: build/index.01184dbccda21e3512d7.js:1
+#: build/index.a5123134802902c0d385.js:1
 #: includes/Modules/DownloadFiles/assets/js/download-files-admin.js:49
 #: includes/Modules/PostGallery/assets/js/post-gallery-admin.js:48
 msgid "Remove"
@@ -4936,13 +4937,13 @@ msgstr "Přispěvatel"
 
 #: includes/Modules/ServiceRequests/Sync.php:467
 #: build/752.68d78e7a3e0054952684.js:1
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:3
 msgid "Theme"
 msgstr "Vzhled"
 
 #: includes/Modules/ServiceRequests/Sync.php:468
 #: build/786.1b32c5aeb00eaa613caf.js:1
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:3
 msgid "Language"
 msgstr "Jazyk"
 
@@ -4963,7 +4964,7 @@ msgid "Admin Tools"
 msgstr "Nástroje administrace"
 
 #: includes/Core/Megamenu.php:172
-#: build/index.01184dbccda21e3512d7.js:1
+#: build/index.a5123134802902c0d385.js:1
 msgid "Security"
 msgstr "Zabezpečení"
 
@@ -4973,12 +4974,12 @@ msgstr "Zabezpečení"
 #: includes/Modules/SecurityOptimization/Module.php:752
 #: includes/Modules/SecurityOptimization/Module.php:765
 #: includes/Modules/SecurityOptimization/Module.php:773
-#: build/index.01184dbccda21e3512d7.js:1
+#: build/index.a5123134802902c0d385.js:1
 msgid "Performance"
 msgstr "Výkon"
 
 #: includes/Core/Megamenu.php:176
-#: build/index.01184dbccda21e3512d7.js:1
+#: build/index.a5123134802902c0d385.js:1
 msgid "Developer"
 msgstr "Vývojářské nástroje"
 
@@ -8163,7 +8164,7 @@ msgstr "Vyřešeno"
 #: build/295.a2b42013b2aace5fa6b8.js:1
 #: build/309.62b4119d52614c5b9e45.js:1
 #: build/475.b4eae071038b2bb3095d.js:1
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:2
 msgid "All"
 msgstr "Vše"
 
@@ -8206,8 +8207,9 @@ msgstr "Vše"
 #: build/907.e407fbb311cd6ef44322.js:1
 #: build/930.c657f0a8ddf5aeb4be68.js:1
 #: build/976.d134b086cadd547a42bf.js:1
-#: build/index.01184dbccda21e3512d7.js:1
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:1
+#: build/index.a5123134802902c0d385.js:3
+#: build/index.a5123134802902c0d385.js:4
 msgid "Loading…"
 msgstr "Načítání…"
 
@@ -8287,7 +8289,7 @@ msgstr "Nebyla nahlášena žádná porušení CSP."
 #: build/907.e407fbb311cd6ef44322.js:1
 #: build/930.c657f0a8ddf5aeb4be68.js:1
 #: build/976.d134b086cadd547a42bf.js:1
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:3
 msgid "Saved"
 msgstr "Uloženo"
 
@@ -8407,7 +8409,7 @@ msgstr "Tajný klíč CAPTCHA zatím není nastaven."
 #: build/907.e407fbb311cd6ef44322.js:1
 #: build/930.c657f0a8ddf5aeb4be68.js:1
 #: build/976.d134b086cadd547a42bf.js:1
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:3
 msgid "Save changes"
 msgstr "Uložit změny"
 
@@ -8543,7 +8545,8 @@ msgstr "Zatím žádné blokace IP."
 #: build/930.c657f0a8ddf5aeb4be68.js:1
 #: build/976.d134b086cadd547a42bf.js:1
 #: build/999.e3a9e917913d7f31633a.js:1
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:3
+#: build/index.a5123134802902c0d385.js:4
 msgid "Back to modules"
 msgstr "Zpět na moduly"
 
@@ -11138,7 +11141,7 @@ msgstr "Pokročilé"
 #: includes/Modules/ExitPopup/Module.php:119
 #: build/348.be18249b924a2d37e4c4.js:3
 #: build/930.c657f0a8ddf5aeb4be68.js:1
-#: build/index.01184dbccda21e3512d7.js:1
+#: build/index.a5123134802902c0d385.js:1
 msgid "Layout"
 msgstr "Rozvržení"
 
@@ -11171,7 +11174,7 @@ msgid "Add option"
 msgstr "Přidat možnost"
 
 #: build/348.be18249b924a2d37e4c4.js:3
-#: build/index.01184dbccda21e3512d7.js:1
+#: build/index.a5123134802902c0d385.js:1
 msgid "General"
 msgstr "Obecné"
 
@@ -13017,37 +13020,37 @@ msgstr "AI panel spravuje dočasná oprávnění ke vzdálenému přístupu na v
 msgid "Open AI Panel"
 msgstr "Otevřít AI panel"
 
-#: build/index.01184dbccda21e3512d7.js:1
+#: build/index.a5123134802902c0d385.js:1
 msgid "Select image"
 msgstr "Vybrat obrázek"
 
-#: build/index.01184dbccda21e3512d7.js:1
+#: build/index.a5123134802902c0d385.js:1
 msgid "Change image"
 msgstr "Změnit obrázek"
 
-#: build/index.01184dbccda21e3512d7.js:1
+#: build/index.a5123134802902c0d385.js:1
 msgid "— Select —"
 msgstr "— Vyberte —"
 
-#: build/index.01184dbccda21e3512d7.js:1
+#: build/index.a5123134802902c0d385.js:1
 msgid "Failed to load modules."
 msgstr "Moduly se nepodařilo načíst."
 
-#: build/index.01184dbccda21e3512d7.js:1
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:1
+#: build/index.a5123134802902c0d385.js:4
 msgid "Modules"
 msgstr "Moduly"
 
-#: build/index.01184dbccda21e3512d7.js:1
+#: build/index.a5123134802902c0d385.js:1
 msgid "Grid view"
 msgstr "Zobrazení mřížky"
 
-#: build/index.01184dbccda21e3512d7.js:1
+#: build/index.a5123134802902c0d385.js:1
 msgid "List view"
 msgstr "Zobrazení seznamu"
 
 #. translators: %d: number of currently active modules.
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:2
 #, js-format
 msgid "Deactivate %d active module?"
 msgid_plural "Deactivate all %d active modules?"
@@ -13055,59 +13058,62 @@ msgstr[0] "Deaktivovat %d aktivní modul?"
 msgstr[1] "Deaktivovat všechny %d aktivní moduly?"
 msgstr[2] "Deaktivovat všech %d aktivních modulů?"
 
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:2
 msgid "Deactivate all modules"
 msgstr "Deaktivovat všechny moduly"
 
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:2
+#: build/index.a5123134802902c0d385.js:4
 msgid "Disable module"
 msgstr "Vypnout modul"
 
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:2
+#: build/index.a5123134802902c0d385.js:4
 msgid "Enable module"
 msgstr "Zapnout modul"
 
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:3
+#: build/index.a5123134802902c0d385.js:4
 msgid "Configure"
 msgstr "Nastavit"
 
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:3
 msgid "Switch to light mode"
 msgstr "Přepnout na světlý režim"
 
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:3
 msgid "Switch to dark mode"
 msgstr "Přepnout na tmavý režim"
 
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:3
 msgid "About"
 msgstr "O pluginu"
 
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:3
 msgid "Plugin version"
 msgstr "Verze pluginu"
 
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:3
 msgid "API version"
 msgstr "Verze API"
 
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:4
 msgid "This module is turned off. Enable it on the Modules screen to use its settings."
 msgstr "Tento modul je vypnutý. Pro použití jeho nastavení jej zapněte na obrazovce Moduly."
 
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:4
 msgid "Toggle dark mode"
 msgstr "Přepnout tmavý režim"
 
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:4
 msgid "Light mode"
 msgstr "Světlý režim"
 
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:4
 msgid "Dark mode"
 msgstr "Tmavý režim"
 
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:4
 msgid "UX Studio navigation"
 msgstr "Navigace UX Studio"
 
@@ -14823,7 +14829,7 @@ msgid "Filter"
 msgstr "Filtrovat"
 
 #: includes/Modules/NoticeBoard/Module.php:1399
-#: build/index.01184dbccda21e3512d7.js:1
+#: build/index.a5123134802902c0d385.js:1
 msgid "Reset"
 msgstr "Obnovit"
 
@@ -15675,7 +15681,7 @@ msgstr "Vybrat soubory"
 msgid "Attach to post"
 msgstr "Připojit k příspěvku"
 
-#: includes/Core/Modules.php:268
+#: includes/Core/Modules.php:307
 msgid "UX Studio: some modules failed to start and were switched off for now. The rest of the site keeps running."
 msgstr "UX Studio: některé moduly se nepodařilo spustit, a proto jsou zatím vypnuté. Zbytek webu běží dál."
 
@@ -16010,52 +16016,57 @@ msgstr "Editoři a administrátoři"
 msgid "Anyone who can publish (incl. Authors)"
 msgstr "Kdokoli, kdo smí publikovat (vč. autorů)"
 
-#: build/index.01184dbccda21e3512d7.js:1
+#: build/index.a5123134802902c0d385.js:1
 msgid "Default"
 msgstr "Výchozí"
 
-#: build/index.01184dbccda21e3512d7.js:1
+#: build/index.a5123134802902c0d385.js:1
 msgid "Administration"
 msgstr "Administrace"
 
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:2
 msgid "Search modules…"
 msgstr "Hledat moduly…"
 
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:2
 msgid "Search modules"
 msgstr "Hledat moduly"
 
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:2
 msgid "Module group"
 msgstr "Skupina modulů"
 
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:2
 msgid "All statuses"
 msgstr "Všechny stavy"
 
 #. translators: %d: number of enabled modules.
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:2
 #, js-format
 msgid "Enabled (%d)"
 msgstr "Zapnuté (%d)"
 
 #. translators: %d: number of disabled modules.
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:2
 #, js-format
 msgid "Disabled (%d)"
 msgstr "Vypnuté (%d)"
 
-#: build/index.01184dbccda21e3512d7.js:2
+#: build/index.a5123134802902c0d385.js:2
 msgid "No module matches the filter."
 msgstr "Filtru neodpovídá žádný modul."
 
-#. Restored (module meta.json / not seen by make-pot)
+#. translators: 1: enabled features, 2: all features in the group.
+#: build/index.a5123134802902c0d385.js:3
+#: build/index.a5123134802902c0d385.js:4
+#, js-format
+msgid "%1$d of %2$d on"
+msgstr "%1$d z %2$d zapnuto"
+
 #. Restored (module meta.json / not seen by make-pot)
 msgid "Folder was created but could not be reloaded."
 msgstr "Složka byla vytvořena, ale nepodařilo se ji znovu načíst."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. translators: %d: minutes
 #, php-format
@@ -16063,622 +16074,518 @@ msgid "Too many failed login attempts for this username. Please try again in %d 
 msgstr "Příliš mnoho neúspěšných pokusů o přihlášení pro toto uživatelské jméno. Zkuste to prosím znovu za %d minut."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. translators: %d: number of findings
 #, php-format
 msgid "%d suspicious file(s) found on your site. Review and resolve them in the UX Studio admin."
 msgstr "Na vašem webu byl nalezen %d podezřelý soubor. Zkontrolujte a vyřešte je v administraci UX Studio."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 msgid "JPEG/WebP/AVIF compression quality, 1-100."
 msgstr "Kvalita komprese JPEG/WebP/AVIF, 1-100."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 msgid "Scans uploaded files and wp-content for injected/malicious code and runs a nightly full scan. Turning this off stops all scanning (existing findings are kept). CSP violation reporting is unaffected."
 msgstr "Kontroluje nahrané soubory a wp-content na vložený/škodlivý kód a provádí noční úplnou kontrolu. Vypnutí zastaví veškeré skenování (existující nálezy zůstanou zachovány). Hlášení porušení CSP tím není dotčeno."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 msgid "Uploaded files and wp-content are scanned for injected/malicious code. Critical findings are automatically moved to a protected quarantine folder."
 msgstr "Nahrané soubory a wp-content se kontrolují na vložený/škodlivý kód. Kritická zjištění se automaticky přesouvají do chráněné složky karantény."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Browse, filter and prune the site-wide activity/audit log."
 msgstr "Procházení, filtrování a čištění logu aktivit/auditu celého webu."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Customize the columns shown in admin list tables for posts, pages, media, comments and users."
 msgstr "Úprava sloupců zobrazených v tabulkách výpisů v administraci pro příspěvky, stránky, média, komentáře a uživatele."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Customize the WordPress admin menu, admin bar, login screen and more."
 msgstr "Úprava administračního menu WordPressu, lišty administrace, přihlašovací obrazovky a dalšího."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "AI chat widget with knowledge base (RAG), FAQ, human handoff, blog auto-generation and multi-provider support (Claude, OpenAI, DeepSeek)."
 msgstr "AI chat widget se znalostní bází (RAG), FAQ, předáním člověku, automatickým generováním blogu a podporou více poskytovatelů (Claude, OpenAI, DeepSeek)."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Serve a markdown version of your content for AI bots via /llms.txt and ?format=markdown, with a local (non-AI) conversion and access log."
 msgstr "Poskytuje AI botům markdown verzi vašeho obsahu přes /llms.txt a ?format=markdown, s lokálním (ne-AI) převodem a logem přístupů."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Temporary controlled access to files, database and shell for a remote AI agent (Claude Code, Codex, or similar). Access is granted once from the dashboard for a limited time, generates a URL + strong password, and is auto-revoked on expiry."
 msgstr "Dočasný kontrolovaný přístup k souborům, databázi a shellu pro vzdáleného AI agenta (Claude Code, Codex apod.). Přístup se jednorázově udělí z nástěnky na omezenou dobu, vygeneruje URL + silné heslo a po vypršení se automaticky odebere."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Vlastní měření návštěvnosti bez cookies (GDPR-friendly) – zobrazení stránek, unikátní návštěvníci, nejnavštěvovanější stránky, zdroje a graf posledních dní. Data se dávkově agregují do denních souhrnů."
 msgstr "Vlastní měření návštěvnosti bez cookies (GDPR-friendly) – zobrazení stránek, unikátní návštěvníci, nejnavštěvovanější stránky, zdroje a graf posledních dní. Data se dávkově agregují do denních souhrnů."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Automatically sideload external images pasted into the editor (from another site or data: URLs) into the media library."
 msgstr "Automaticky stáhne externí obrázky vložené do editoru (z jiného webu nebo data: URL) do knihovny médií."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module name from meta.json
 msgid "Auto Unpublish"
 msgstr "Automatické zrušení publikace"
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Schedule posts to be automatically switched back to draft at a chosen date and time."
 msgstr "Naplánuje automatické vrácení příspěvků do konceptu ve zvolené datum a čas."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Detect bots by User-Agent pattern and rate-limit frontend requests."
 msgstr "Rozpoznává boty podle vzoru User-Agent a omezuje frekvenci jejich požadavků na frontend."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module name from meta.json
 msgid "Classic Editor"
 msgstr "Klasický editor"
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Replace the block editor with the classic editor for selected post types."
 msgstr "Nahradí blokový editor klasickým editorem u vybraných typů obsahu."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module name from meta.json
 msgid "Classic Widgets"
 msgstr "Klasické widgety"
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Restore the classic widgets screen by disabling the block-based widgets editor."
 msgstr "Obnoví klasickou obrazovku widgetů vypnutím blokového editoru widgetů."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module name from meta.json
 msgid "Clean Profiles"
 msgstr "Čisté profily"
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Hide selected sections and fields on the user profile screen to simplify it."
 msgstr "Skryje vybrané sekce a pole na obrazovce uživatelského profilu a zjednoduší ji."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Run PHP, HTML, CSS or JS snippets in the header or footer of your site."
 msgstr "Spouští úryvky PHP, HTML, CSS nebo JS v hlavičce nebo patičce webu."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Central broker connection to the central app: registered sites, SSO tokens and a synchronization log."
 msgstr "Centrální propojení s centrální aplikací: registrované weby, SSO tokeny a log synchronizace."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Inspect and manage WP-Cron scheduled events."
 msgstr "Prohlížení a správa naplánovaných událostí WP-Cron."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "PageSpeed score, recent activity and quick tasks/notes."
 msgstr "Skóre PageSpeed, nedávná aktivita a rychlé úkoly/poznámky."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module name from meta.json
 msgid "Debug Mode"
 msgstr "Režim ladění"
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Inspect the status of WordPress debug constants and read the debug log."
 msgstr "Zobrazení stavu ladicích konstant WordPressu a čtení debug logu."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module name from meta.json
 msgid "Disable Auto Updates"
 msgstr "Vypnutí automatických aktualizací"
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Disable automatic updates for WordPress core, plugins, themes and translations."
 msgstr "Vypne automatické aktualizace jádra WordPressu, pluginů, šablon a překladů."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module name from meta.json
 msgid "Disable Video Uploads"
 msgstr "Zákaz nahrávání videí"
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Prevent video files from being uploaded to the media library."
 msgstr "Zabrání nahrávání videosouborů do knihovny médií."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Manage protected downloadable files (e.g. PDFs) served via a tokenized, download-counted link, and list them on the frontend with the [download_files] shortcode."
 msgstr "Správa chráněných souborů ke stažení (např. PDF) poskytovaných přes odkaz s tokenem a počítadlem stažení a jejich výpis na frontendu shortcodem [download_files]."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Duplicate an existing navigation menu including all of its items."
 msgstr "Duplikuje existující navigační menu včetně všech jeho položek."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module name from meta.json
 msgid "Duplicate Post"
 msgstr "Duplikace příspěvků"
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Duplicate posts, pages and custom post types with one click from the post list."
 msgstr "Duplikuje příspěvky, stránky a vlastní typy obsahu jedním kliknutím z výpisu příspěvků."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Import Elementor content from a JSON/ZIP file, pasted JSON, a URL or pasted HTML, and export existing pages back to JSON."
 msgstr "Import obsahu Elementoru ze souboru JSON/ZIP, vloženého JSON, URL nebo vloženého HTML a export existujících stránek zpět do JSON."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Send a test email to verify outgoing mail works and record the last result."
 msgstr "Odešle testovací e-mail pro ověření funkčnosti odchozí pošty a zaznamená poslední výsledek."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Record every outgoing wp_mail() send, successful or failed."
 msgstr "Zaznamenává každé odeslání přes wp_mail(), úspěšné i neúspěšné."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Show a popup with an email capture form when a visitor is about to leave the page."
 msgstr "Zobrazí vyskakovací okno s formulářem pro zachycení e-mailu, když se návštěvník chystá opustit stránku."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module name from meta.json
 msgid "Export Posts"
 msgstr "Export příspěvků"
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Export post data to CSV, JSON or TXT from row actions and bulk actions."
 msgstr "Export dat příspěvků do CSV, JSON nebo TXT z akcí řádků a hromadných akcí."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module name from meta.json
 msgid "Export Users"
 msgstr "Export uživatelů"
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Export user data to CSV, JSON or TXT from row actions, bulk actions and profiles."
 msgstr "Export dat uživatelů do CSV, JSON nebo TXT z akcí řádků, hromadných akcí a profilů."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module name from meta.json
 msgid "External Permalinks"
 msgstr "Externí permalinky"
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Point posts, pages or custom post types to an external URL instead of the default permalink."
 msgstr "Nasměruje příspěvky, stránky nebo vlastní typy obsahu na externí URL místo výchozího permalinku."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Browse and manage server files through the embedded Tiny File Manager. Access is restricted to an explicit whitelist of administrators."
 msgstr "Procházení a správa souborů na serveru přes vestavěný Tiny File Manager. Přístup je omezen na výslovně povolený seznam administrátorů."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Organize media library attachments into folders using a taxonomy - no filesystem changes."
 msgstr "Uspořádání příloh knihovny médií do složek pomocí taxonomie - bez změn v souborovém systému."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Build multi-step forms with conditional fields, file uploads and email notifications, and browse a searchable archive of submissions."
 msgstr "Tvorba vícekrokových formulářů s podmíněnými poli, nahráváním souborů a e-mailovými oznámeními a prohledávatelný archiv odeslání."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Send Google review request emails after orders or reservations and track delivery stats."
 msgstr "Odesílá po objednávkách nebo rezervacích e-maily se žádostí o Google recenzi a sleduje statistiky doručení."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module name from meta.json
 msgid "Guide"
 msgstr "Průvodce"
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "A getting-started checklist that tracks setup progress for the site."
 msgstr "Kontrolní seznam pro začátek, který sleduje postup nastavení webu."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module name from meta.json
 msgid "Hide Admin Bar"
 msgstr "Skrytí lišty administrace"
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Hide the WordPress admin bar on the frontend for selected roles."
 msgstr "Skryje lištu administrace WordPressu na frontendu pro vybrané role."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Compress media library images, generate WebP/AVIF copies with next-gen delivery, auto-optimize uploads and find unused images. Originals always kept as backups."
 msgstr "Komprese obrázků v knihovně médií, generování kopií WebP/AVIF s doručováním moderních formátů, automatická optimalizace nahrávaných souborů a vyhledání nepoužitých obrázků. Originály se vždy uchovávají jako záloha."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module name from meta.json
 msgid "Indexing Notice"
 msgstr "Upozornění na indexování"
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Show an admin bar warning when search engines are discouraged from indexing the site."
 msgstr "Zobrazí varování v liště administrace, když je vyhledávačům zakázáno web indexovat."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Connect an Instagram account via OAuth and display its photos, videos and reels through the official Instagram Graph API. Media is cached to the media library, refreshed on a cron, and rendered by a themeable shortcode (grid, masonry, carousel, slider, highlight, showcase)."
 msgstr "Připojí účet Instagram přes OAuth a zobrazí jeho fotky, videa a reels přes oficiální Instagram Graph API. Média se ukládají do knihovny médií, obnovují se cronem a vykreslují se upravitelným shortcodem (mřížka, zděná mřížka, karusel, slider, zvýraznění, přehlídka)."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module name from meta.json
 msgid "Link Manager"
 msgstr "Správce odkazů"
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Control how external links behave: add rel attributes, open in new tab, arrow icon and speculative loading."
 msgstr "Řízení chování externích odkazů: přidání atributů rel, otevírání v nové kartě, ikona šipky a spekulativní načítání."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Put the site into maintenance or coming soon mode with a customisable page while you work."
 msgstr "Přepne web do režimu údržby nebo „již brzy“ s upravitelnou stránkou, zatímco na něm pracujete."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Replace an image or file in the media library by uploading a new one, keeping the same URL."
 msgstr "Nahradí obrázek nebo soubor v knihovně médií nahráním nového se zachováním stejné URL."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module name from meta.json
 msgid "Media Trash"
 msgstr "Koš médií"
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Send deleted media files to the trash instead of deleting them permanently."
 msgstr "Smazané soubory médií přesouvá do koše místo trvalého smazání."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module name from meta.json
 msgid "Menu Icons & Item Status"
 msgstr "Ikony a stav položek menu"
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Add an icon (SVG, Lucide, or Media Library) to navigation menu items and mark individual items as hidden or disabled."
 msgstr "Přidá k položkám navigačního menu ikonu (SVG, Lucide nebo z knihovny médií) a umožní označit jednotlivé položky jako skryté nebo vypnuté."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module name from meta.json
 msgid "Menu Visibility"
 msgstr "Viditelnost menu"
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Show or hide individual navigation menu items based on the visitor's login status."
 msgstr "Zobrazí nebo skryje jednotlivé položky navigačního menu podle toho, zda je návštěvník přihlášen."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Public notice board with downloadable documents, categories and email subscriptions."
 msgstr "Veřejná nástěnka oznámení s dokumenty ke stažení, kategoriemi a odběrem e-mailem."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Manage branch locations, weekly opening hours and exceptions, with a live open/closed status API. (Scope note: legacy shortcodes/map widgets are intentionally not ported yet - CRUD + status API only.)"
 msgstr "Správa poboček, týdenní otevírací doby a výjimek s API pro aktuální stav otevřeno/zavřeno. (Poznámka k rozsahu: starší shortcody/widgety map záměrně zatím nejsou převedeny - jen CRUD + API stavu.)"
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Sample and report server-side page response times."
 msgstr "Vzorkování a reporting doby odezvy stránek na straně serveru."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Read-only database/content health checks with a small whitelist of safe cleanup actions and score history."
 msgstr "Kontroly stavu databáze/obsahu jen pro čtení s malým seznamem bezpečných úklidových akcí a historií skóre."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module name from meta.json
 msgid "Pixel & Tag Manager"
 msgstr "Pixel & Tag Manager"
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Add tracking pixels and tags for Google Analytics, Facebook Pixel and Pinterest to the site head."
 msgstr "Přidá do hlavičky webu měřicí pixely a tagy pro Google Analytics, Facebook Pixel a Pinterest."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Create and target on-site popups with delay, scroll or page-load triggers and track impressions/clicks."
 msgstr "Tvorba a cílení vyskakovacích oken na webu se spouštěním po prodlevě, posunu stránky nebo načtení a sledováním zobrazení/kliknutí."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module name from meta.json
 msgid "Post Gallery"
 msgstr "Galerie příspěvku"
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Attach an image gallery to any post or page with a grid layout and lightbox."
 msgstr "Připojí k libovolnému příspěvku nebo stránce galerii obrázků s mřížkou a lightboxem."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module name from meta.json
 msgid "Post ID Display"
 msgstr "Zobrazení ID příspěvku"
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Show the post ID in the row actions of post list tables."
 msgstr "Zobrazí ID příspěvku v akcích řádků ve výpisech příspěvků."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module name from meta.json
 msgid "Post Type Order"
 msgstr "Pořadí příspěvků"
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Reorder posts, pages and custom post types with drag and drop in the admin list tables."
 msgstr "Změna pořadí příspěvků, stránek a vlastních typů obsahu přetažením ve výpisech v administraci."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Switch the post type of your content to reorganise and reuse existing posts and pages."
 msgstr "Změna typu obsahu u vašeho obsahu pro reorganizaci a opětovné využití existujících příspěvků a stránek."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Web push (VAPID) subscriptions and notifications, with delivery/click event tracking."
 msgstr "Odběry a oznámení web push (VAPID) se sledováním doručení a kliknutí."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module name from meta.json
 msgid "Quick Add Post"
 msgstr "Rychlé přidání příspěvku"
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Add a New button to the block editor toolbar for quickly creating another post."
 msgstr "Přidá do panelu nástrojů blokového editoru tlačítko Nový pro rychlé vytvoření dalšího příspěvku."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module name from meta.json
 msgid "Quick Image"
 msgstr "Rychlý obrázek"
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Change the featured image straight from the posts and pages list tables via a thumbnail column."
 msgstr "Změna náhledového obrázku přímo ve výpisech příspěvků a stránek pomocí sloupce s náhledem."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module name from meta.json
 msgid "Redirect 404 to Homepage"
 msgstr "Přesměrování 404 na úvodní stránku"
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Redirect 404 error pages to the homepage with a 301 redirect."
 msgstr "Přesměruje chybové stránky 404 na úvodní stránku pomocí přesměrování 301."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Aggregate Google, Facebook and Mapy.cz reviews through the Content Sync broker - no local scraping or API keys on this site."
 msgstr "Agregace recenzí z Google, Facebooku a Mapy.cz přes broker Synchronizace obsahu - na tomto webu žádné lokální stahování ani API klíče."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Roll back an installed plugin or theme to an older version pulled from WordPress.org."
 msgstr "Vrátí nainstalovaný plugin nebo šablonu na starší verzi stažením z WordPress.org."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Login protection, IP bans, country blocklist, custom login URL, .htaccess hardening and security headers."
 msgstr "Ochrana přihlášení, blokace IP, blokování zemí, vlastní přihlašovací URL, zabezpečení .htaccess a bezpečnostní hlavičky."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Internal system for tracking service/change requests for the site, with media library attachments."
 msgstr "Interní systém pro evidenci servisních požadavků a požadavků na změny webu s přílohami z knihovny médií."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Route outgoing mail through SMTP or the Brevo API and keep a delivery log."
 msgstr "Směruje odchozí poštu přes SMTP nebo Brevo API a vede log doručení."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Search and import images from Pexels, Pixabay, Unsplash, Flickr, Mapillary, Giphy and Openverse straight into the media library."
 msgstr "Vyhledávání a import obrázků z Pexels, Pixabay, Unsplash, Flickr, Mapillary, Giphy a Openverse přímo do knihovny médií."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module name from meta.json
 msgid "SVG Upload"
 msgstr "Nahrávání SVG"
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Allow SVG files to be uploaded to the media library, sanitized on the way in for selected roles."
 msgstr "Povolí vybraným rolím nahrávat SVG soubory do knihovny médií, při nahrání se sanitizují."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Sign in via Google, Facebook, Apple or Seznam through the central app as an OAuth proxy."
 msgstr "Přihlášení přes Google, Facebook, Apple nebo Seznam s centrální aplikací jako OAuth proxy."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module name from meta.json
 msgid "Top Bar"
 msgstr "Horní lišta"
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Show a scheduled announcement bar at the top of the site with custom colours."
 msgstr "Zobrazí v horní části webu naplánovanou oznamovací lištu s vlastními barvami."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module name from meta.json
 msgid "User Last Login"
 msgstr "Poslední přihlášení uživatele"
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Record each user's last login time and show it as a column on the Users screen."
 msgstr "Zaznamenává čas posledního přihlášení každého uživatele a zobrazuje jej jako sloupec na obrazovce Uživatelé."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Instantly switch between user accounts to test roles and troubleshoot, then switch straight back."
 msgstr "Okamžité přepínání mezi uživatelskými účty pro testování rolí a řešení problémů a pak rychlý návrat zpět."
 
 #. Restored (module meta.json / not seen by make-pot)
-#. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Check installed plugins, themes and WordPress core for known vulnerabilities and outdated versions using WordPress.org, plus real CVE data from WPScan when an API key is provided."
 msgstr "Kontrola nainstalovaných pluginů, šablon a jádra WordPressu na známé zranitelnosti a zastaralé verze pomocí WordPress.org a navíc reálná data CVE z WPScan, pokud je zadán API klíč."
 
-#. Restored (module meta.json / not seen by make-pot)
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
 msgid "Native wp-admin dashboard widgets for recent orders and top-selling products (requires WooCommerce)."
@@ -16688,3 +16595,44 @@ msgstr "Nativní widgety nástěnky wp-admin pro nejnovější objednávky a nej
 #. Module meta.json (Redirects)
 msgid "SEO-safe 301/308/410 redirects with chain and loop protection, 404 log and AI tools (Redirection plugin replacement)."
 msgstr "SEO-bezpečná přesměrování 301/308/410 s ochranou proti řetězení a smyčkám, log chyb 404 a AI nástroje (náhrada pluginu Redirection)."
+
+#. Module meta.json (virtual groups)
+
+msgid "Email delivery over SMTP/API, a log of every sent message with resend, and a deliverability health check. Each part can be switched on separately."
+msgstr "Odesílání e-mailů přes SMTP/API, log všech odeslaných zpráv s možností znovu odeslat a kontrola doručitelnosti. Každou část lze zapnout zvlášť."
+
+msgid "Duplication"
+msgstr "Duplikace"
+
+msgid "One-click copies of posts, pages, products and navigation menus. Post and menu duplication can be switched on separately."
+msgstr "Kopie příspěvků, stránek, produktů a navigačních menu jedním kliknutím. Duplikaci příspěvků a menu lze zapnout zvlášť."
+
+msgid "Export posts and users to CSV, JSON or TXT. Each export can be switched on separately."
+msgstr "Export příspěvků a uživatelů do CSV, JSON nebo TXT. Každý export lze zapnout zvlášť."
+
+msgid "Reviews"
+msgstr "Recenze"
+
+msgid "Show reviews collected from Google, Mapy.cz and other platforms, and ask customers for a Google review. Each part can be switched on separately."
+msgstr "Zobrazení recenzí z Googlu, Mapy.cz a dalších platforem a žádosti zákazníkům o recenzi na Googlu. Každou část lze zapnout zvlášť."
+
+msgid "Updates"
+msgstr "Aktualizace"
+
+msgid "Control automatic updates of WordPress core, plugins and themes, and roll a plugin or theme back to an earlier version. Each part can be switched on separately."
+msgstr "Řízení automatických aktualizací jádra WordPressu, pluginů a šablon a návrat pluginu nebo šablony ke starší verzi. Každou část lze zapnout zvlášť."
+
+msgid "SEO-safe redirects with a 404 log, and an optional catch-all that sends every 404 to the homepage. Each part can be switched on separately."
+msgstr "SEO-bezpečná přesměrování s logem chyb 404 a volitelné přesměrování všech chyb 404 na hlavní stránku. Každou část lze zapnout zvlášť."
+
+msgid "Admin appearance"
+msgstr "Vzhled administrace"
+
+msgid "Customise the admin menu, admin bar, login screen and colours, and hide the admin bar on the front end. Each part can be switched on separately."
+msgstr "Úprava menu a lišty administrace, přihlašovací obrazovky a barev a skrytí admin lišty na webu. Každou část lze zapnout zvlášť."
+
+msgid "Classic editor & widgets"
+msgstr "Klasický editor a widgety"
+
+msgid "Bring back the classic post editor and the classic widgets screen instead of the block editor. Each part can be switched on separately."
+msgstr "Návrat klasického editoru příspěvků a klasické obrazovky widgetů místo blokového editoru. Každou část lze zapnout zvlášť."
