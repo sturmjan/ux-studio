@@ -16,6 +16,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * GET  uxstudio/v1/security-optimization/findings         - list findings (filter status/severity)
  * POST uxstudio/v1/security-optimization/findings/{id}/approve - approve a finding (restore + whitelist hash)
+ * POST uxstudio/v1/security-optimization/findings/{id}/quarantine - move the file to quarantine (manual only)
  * POST uxstudio/v1/security-optimization/findings/{id}/delete  - permanently delete a quarantined file
  * POST uxstudio/v1/security-optimization/scan             - trigger a manual, batched full scan
  * GET  uxstudio/v1/security-optimization/scan-status       - current scan progress
@@ -34,6 +35,17 @@ final class UploadGuardRestController extends Controller {
 			'/security-optimization/findings/(?P<id>\d+)/approve',
 			'POST',
 			array( $this, 'approve_finding' ),
+			array(
+				'id' => array(
+					'required' => true,
+					'type'     => 'integer',
+				),
+			)
+		);
+		$this->route(
+			'/security-optimization/findings/(?P<id>\d+)/quarantine',
+			'POST',
+			array( $this, 'quarantine_finding' ),
 			array(
 				'id' => array(
 					'required' => true,
@@ -127,7 +139,10 @@ final class UploadGuardRestController extends Controller {
 		$details = is_string( $row->details ) ? json_decode( $row->details, true ) : array();
 		$details = is_array( $details ) ? $details : array();
 
-		if ( 'quarantined' === $row->status && ! empty( $details['quarantine_path'] ) ) {
+		// Restore from quarantine - unless the file is already back in place
+		// (put back by hand, e.g. over FTP) and the quarantine copy is gone.
+		$already_back = file_exists( (string) $row->file_path ) && ( empty( $details['quarantine_path'] ) || ! file_exists( (string) $details['quarantine_path'] ) );
+		if ( 'quarantined' === $row->status && ! empty( $details['quarantine_path'] ) && ! $already_back ) {
 			$restored = UploadGuardQuarantine::restore_file( (string) $details['quarantine_path'], (string) $row->file_path );
 			if ( ! $restored ) {
 				return new WP_Error( 'uxstudio_restore_failed', __( 'Could not restore the file from quarantine.', 'ux-studio' ), array( 'status' => 500 ) );
@@ -139,6 +154,60 @@ final class UploadGuardRestController extends Controller {
 		$wpdb->update( $table, array( 'status' => 'approved' ), array( 'id' => $id ), array( '%s' ), array( '%d' ) );
 
 		return $this->ok( array( 'approved' => true ) );
+	}
+
+	/**
+	 * Move a finding's file to quarantine. The only way a file ever gets
+	 * there: an admin clicked and confirmed it for this one file. Refused for
+	 * files the site loads (UploadGuardScope::protection_reason) and when the
+	 * file changed since it was scanned (the finding may no longer apply).
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function quarantine_finding( WP_REST_Request $request ) {
+		global $wpdb;
+		$id    = (int) $request->get_param( 'id' );
+		$table = $wpdb->prefix . 'uxstudio_security_findings';
+		$row   = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $id ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+		if ( ! $row ) {
+			return new WP_Error( 'uxstudio_finding_not_found', __( 'Finding not found.', 'ux-studio' ), array( 'status' => 404 ) );
+		}
+		if ( 'scanned' !== $row->status || 'malware' !== $row->finding_type ) {
+			return new WP_Error( 'uxstudio_finding_state', __( 'Only open file findings can be quarantined.', 'ux-studio' ), array( 'status' => 409 ) );
+		}
+
+		$file_path = (string) $row->file_path;
+		if ( ! file_exists( $file_path ) ) {
+			return new WP_Error( 'uxstudio_file_missing', __( 'The file no longer exists.', 'ux-studio' ), array( 'status' => 409 ) );
+		}
+		if ( '' !== (string) $row->hash && hash_file( 'sha256', $file_path ) !== (string) $row->hash ) {
+			return new WP_Error( 'uxstudio_file_changed', __( 'The file changed since it was scanned. Run a new scan first.', 'ux-studio' ), array( 'status' => 409 ) );
+		}
+
+		$result = UploadGuardQuarantine::quarantine_file( $file_path, (string) $id );
+		if ( empty( $result['success'] ) ) {
+			return new WP_Error( 'uxstudio_quarantine_refused', $result['error'], array( 'status' => 409 ) );
+		}
+
+		$details                    = is_string( $row->details ) ? json_decode( $row->details, true ) : array();
+		$details                    = is_array( $details ) ? $details : array();
+		$details['quarantine_path'] = $result['quarantine_path'];
+		$details['quarantined_by']  = get_current_user_id();
+		$details['quarantined_at']  = current_time( 'mysql' );
+
+		$wpdb->update(
+			$table,
+			array(
+				'status'  => 'quarantined',
+				'details' => wp_json_encode( $details ),
+			),
+			array( 'id' => $id ),
+			array( '%s', '%s' ),
+			array( '%d' )
+		);
+
+		return $this->ok( array( 'quarantined' => true ) );
 	}
 
 	/**

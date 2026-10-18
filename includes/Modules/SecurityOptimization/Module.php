@@ -827,7 +827,7 @@ final class Module extends BaseModule {
 				'key'     => 'upload_guard_enabled',
 				'type'    => 'toggle',
 				'label'   => __( 'Enable Upload Guard scanner', 'ux-studio' ),
-				'help'    => __( 'Scans uploaded files and wp-content for injected/malicious code and runs a nightly full scan. Turning this off stops all scanning (existing findings are kept). CSP violation reporting is unaffected.', 'ux-studio' ),
+				'help'    => __( 'Checks new uploads and runs a nightly scan of uploads, plugins and themes. It only reports - files are never moved or deleted automatically. Plugin files identical to the official WordPress.org version count as clean. Turning this off stops all scanning (existing findings are kept). CSP violation reporting is unaffected.', 'ux-studio' ),
 				'default' => true,
 			),
 			array(

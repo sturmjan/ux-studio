@@ -26,8 +26,11 @@ defined( 'ABSPATH' ) || exit;
 final class CspUploadGuardBootstrap {
 
 	private const DB_MODULE_ID = 'security-optimization-csp-upload';
-	/** v2: full-scan worklist moved from one big option to the scan_queue table. */
-	private const DB_VERSION   = 2;
+	/**
+	 * v2: full-scan worklist moved from one big option to the scan_queue table.
+	 * v3: keyword scoring replaced by token analysis + WordPress.org checksums.
+	 */
+	private const DB_VERSION   = 3;
 
 	private static bool $registered = false;
 
@@ -157,6 +160,19 @@ final class CspUploadGuardBootstrap {
 					// The old 2+ MB single-option worklist. A scan it belonged to
 					// stays `running`; the watchdog ends it as interrupted.
 					delete_option( UploadGuardScanner::LEGACY_WORKLIST_OPTION );
+				}
+
+				if ( $from < 3 ) {
+					// Open findings of the old keyword engine were mostly false
+					// alarms (Predis, Akeeba, our own files) and its hash cache
+					// would stop the new engine from ever re-reading those files.
+					// Admin decisions stay: quarantined/approved/deleted rows and
+					// approved hashes (incl. integrity baselines) are kept.
+					$wpdb->query( "DELETE FROM {$wpdb->prefix}uxstudio_security_findings WHERE status = 'scanned' AND finding_type = 'malware'" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$wpdb->query( "DELETE FROM {$wpdb->prefix}uxstudio_security_file_hashes WHERE approved = 0" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					// A scan queued by the old version walked the old scope (all JS in
+					// plugins...). Drop it; the watchdog ends that run as finished.
+					$wpdb->query( "DELETE FROM {$wpdb->prefix}uxstudio_security_scan_queue" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				}
 			}
 		);

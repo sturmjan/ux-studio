@@ -18,12 +18,18 @@ defined( 'ABSPATH' ) || exit;
  *     file content is read there. A single_event is scheduled a few
  *     seconds later to actually scan the queue off-request.
  *  2. Queue batch: scans up to N queued rows per invocation.
- *  3. Full wp-content scan: builds a bounded file worklist once into the
+ *  3. Full scan: builds a bounded file worklist once into the
  *     uxstudio_security_scan_queue table, then processes it N files at a
  *     time via chained wp_schedule_single_event calls (never a single
  *     unbounded loop/request) until the queue is empty - used for both the
  *     manual "Scan now" REST action and the nightly cron. A watchdog
  *     resumes or ends a run whose event chain broke.
+ *
+ * The scanner only READS and REPORTS. It never moves, renames or deletes a
+ * file - quarantine is a separate manual action per finding (see
+ * UploadGuardRestController::quarantine_finding). Scope and exclusions live
+ * in UploadGuardScope; plugin files matching the official WordPress.org
+ * package are clean without any heuristics (UploadGuardChecksums).
  */
 final class UploadGuardScanner {
 
@@ -55,32 +61,16 @@ final class UploadGuardScanner {
 	/** Max file size scanned, in bytes (10 MB). Larger files are skipped. */
 	private const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
+	/** Severities stored as findings; low/clean results are not reported. */
+	private const REPORTED_SEVERITIES = array( 'medium', 'high', 'critical' );
+
 	private UploadGuardDetectionEngine $engine;
 
+	private UploadGuardChecksums $checksums;
+
 	public function __construct() {
-		$this->engine = new UploadGuardDetectionEngine( array(), $this->whitelist_paths() );
-	}
-
-	/**
-	 * @return string[] Extensions eligible for scanning.
-	 */
-	public static function relevant_extensions(): array {
-		/**
-		 * Filter the list of file extensions Upload Guard scans.
-		 *
-		 * @param string[] $extensions Extensions without a leading dot.
-		 */
-		return (array) apply_filters(
-			'uxstudio_security_scan_extensions',
-			array( 'php', 'phtml', 'phar', 'js', 'svg', 'html', 'htm', 'zip' )
-		);
-	}
-
-	/**
-	 * @return string[] Path prefixes to always treat as clean.
-	 */
-	private function whitelist_paths(): array {
-		return (array) apply_filters( 'uxstudio_security_scan_whitelist_paths', array() );
+		$this->engine    = new UploadGuardDetectionEngine();
+		$this->checksums = new UploadGuardChecksums();
 	}
 
 	/* ==========================================================
@@ -126,8 +116,11 @@ final class UploadGuardScanner {
 	private function queue_file( string $file_path ): void {
 		global $wpdb;
 
+		if ( UploadGuardScope::is_excluded( $file_path ) ) {
+			return;
+		}
 		$extension = strtolower( pathinfo( $file_path, PATHINFO_EXTENSION ) );
-		if ( ! in_array( $extension, self::relevant_extensions(), true ) ) {
+		if ( 'zip' !== $extension && ! UploadGuardScope::is_relevant( $file_path, UploadGuardScope::area( $file_path ) ) ) {
 			return;
 		}
 
@@ -232,12 +225,11 @@ final class UploadGuardScanner {
 			return null;
 		}
 
-		$extension = strtolower( pathinfo( $file_path, PATHINFO_EXTENSION ) );
-		$result    = $this->engine->scan( $file_path, $extension );
+		$result = $this->evaluate( $file_path );
 
 		$this->cache_hash( $file_path, $hash );
 
-		if ( $result['score'] <= 0 ) {
+		if ( null === $result ) {
 			$wpdb->delete( $table, array( 'id' => (int) $row->id ), array( '%d' ) );
 			return null;
 		}
@@ -246,25 +238,10 @@ final class UploadGuardScanner {
 			'finding_type' => 'malware',
 			'severity'     => $result['severity'],
 			'hash'         => $hash,
-			'details'      => wp_json_encode(
-				array(
-					'score'   => $result['score'],
-					'matches' => array_slice( $result['matches'], 0, 25 ),
-				)
-			),
+			'details'      => wp_json_encode( $result['details'] ),
 			'status'       => 'scanned',
 			'scanned_at'   => current_time( 'mysql' ),
 		);
-
-		if ( 'critical' === $result['severity'] && $this->auto_quarantine_enabled() ) {
-			$quarantine = UploadGuardQuarantine::quarantine_file( $file_path, (string) $row->id );
-			if ( ! empty( $quarantine['success'] ) ) {
-				$data['status']  = 'quarantined';
-				$decoded         = json_decode( $data['details'], true );
-				$decoded['quarantine_path'] = $quarantine['quarantine_path'];
-				$data['details'] = wp_json_encode( $decoded );
-			}
-		}
 
 		$wpdb->update( $table, $data, array( 'id' => (int) $row->id ), array( '%s', '%s', '%s', '%s', '%s', '%s' ), array( '%d' ) );
 
@@ -272,10 +249,97 @@ final class UploadGuardScanner {
 	}
 
 	/**
-	 * @return bool Whether critical findings should be auto-quarantined.
+	 * Decide whether a file is worth reporting, combining where it lives with
+	 * what is in it:
+	 *  - plugin file identical to the official WordPress.org package: clean;
+	 *    differing from it / not in it: reported with that as the reason;
+	 *  - PHP in uploads: reported whenever it contains any executable code
+	 *    (an empty "Silence is golden" index.php is fine);
+	 *  - everything else: token-level heuristics of the detection engine.
+	 *
+	 * @return array{severity:string,details:array}|null Null = nothing to report.
 	 */
-	private function auto_quarantine_enabled(): bool {
-		return (bool) apply_filters( 'uxstudio_security_auto_quarantine', true );
+	public function evaluate( string $file_path ): ?array {
+		if ( UploadGuardScope::is_excluded( $file_path ) ) {
+			return null;
+		}
+
+		$area      = UploadGuardScope::area( $file_path );
+		$extension = strtolower( pathinfo( $file_path, PATHINFO_EXTENSION ) );
+		// Upload-time queue may hold a ZIP; anything else outside the scope
+		// (e.g. a queue built by an older version) is not ours to judge.
+		if ( 'zip' !== $extension && ! UploadGuardScope::is_relevant( $file_path, $area ) ) {
+			return null;
+		}
+		$is_php    = in_array( $extension, UploadGuardScope::PHP_EXTENSIONS, true );
+		$context   = array();
+		$official  = null;
+
+		if ( UploadGuardScope::AREA_PLUGINS === $area && $is_php ) {
+			$official = $this->checksums->verify( $file_path );
+			if ( UploadGuardChecksums::MATCH === $official['state'] ) {
+				return null;
+			}
+			if ( UploadGuardChecksums::MODIFIED === $official['state'] ) {
+				$context[] = $this->context_match(
+					'modified_official',
+					35,
+					/* translators: 1: plugin folder, 2: version */
+					sprintf( __( 'Differs from the official package of %1$s %2$s on WordPress.org', 'ux-studio' ), $official['plugin'], $official['version'] )
+				);
+			} elseif ( UploadGuardChecksums::UNKNOWN === $official['state'] ) {
+				$context[] = $this->context_match(
+					'not_in_official',
+					20,
+					/* translators: 1: plugin folder, 2: version */
+					sprintf( __( 'Not part of the official package of %1$s %2$s on WordPress.org', 'ux-studio' ), $official['plugin'], $official['version'] )
+				);
+			}
+		}
+
+		$result = $this->engine->scan( $file_path, $extension );
+
+		if ( UploadGuardScope::AREA_UPLOADS === $area && $is_php ) {
+			if ( ! $result['has_code'] ) {
+				return null;
+			}
+			$context[] = $this->context_match( 'php_in_uploads', 35, __( 'PHP code in the uploads folder (uploads should only hold media)', 'ux-studio' ) );
+		}
+
+		$matches = array_merge( $context, $result['matches'] );
+		$score   = (int) array_sum( array_column( $matches, 'weight' ) );
+		$severity = $this->engine->calculate_severity( $score );
+		if ( ! in_array( $severity, self::REPORTED_SEVERITIES, true ) ) {
+			return null;
+		}
+
+		$details = array(
+			'score'   => $score,
+			'area'    => $area,
+			'matches' => array_slice( $matches, 0, 25 ),
+		);
+		if ( null !== $official && '' !== $official['plugin'] ) {
+			$details['official'] = $official;
+		}
+
+		return array(
+			'severity' => $severity,
+			'details'  => $details,
+		);
+	}
+
+	/**
+	 * A match that comes from the file's context rather than its content.
+	 */
+	private function context_match( string $name, int $weight, string $label ): array {
+		return array(
+			'name'    => $name,
+			'weight'  => $weight,
+			'label'   => $label,
+			'line'    => 0,
+			'snippet' => '',
+			'count'   => 1,
+		);
 	}
 
 	/* ==========================================================
@@ -519,9 +583,8 @@ final class UploadGuardScanner {
 	}
 
 	/**
-	 * Scan a single file found during the full wp-content walk. Skips
-	 * unchanged files via the shared hash cache and never quarantines
-	 * automatically outside of 'critical' severity.
+	 * Scan a single file found during the full walk. Skips unchanged files
+	 * via the shared hash cache. Report only - never touches the file.
 	 *
 	 * @return array|null Finding data if a detection was recorded, else null.
 	 */
@@ -545,12 +608,11 @@ final class UploadGuardScanner {
 			return null;
 		}
 
-		$extension = strtolower( pathinfo( $file_path, PATHINFO_EXTENSION ) );
-		$result    = $this->engine->scan( $file_path, $extension );
+		$result = $this->evaluate( $file_path );
 
 		$this->cache_hash( $file_path, $hash );
 
-		if ( $result['score'] <= 0 || 'low' === $result['severity'] ) {
+		if ( null === $result ) {
 			return null;
 		}
 
@@ -562,25 +624,9 @@ final class UploadGuardScanner {
 			'severity'     => $result['severity'],
 			'hash'         => $hash,
 			'status'       => 'scanned',
-			'details'      => wp_json_encode(
-				array(
-					'score'   => $result['score'],
-					'matches' => array_slice( $result['matches'], 0, 25 ),
-					'source'  => 'fullscan',
-				)
-			),
+			'details'      => wp_json_encode( array_merge( $result['details'], array( 'source' => 'fullscan' ) ) ),
 			'scanned_at'   => current_time( 'mysql' ),
 		);
-
-		if ( 'critical' === $result['severity'] && $this->auto_quarantine_enabled() ) {
-			$quarantine = UploadGuardQuarantine::quarantine_file( $file_path, 'fs' . time() . wp_generate_password( 6, false ) );
-			if ( ! empty( $quarantine['success'] ) ) {
-				$data['status']              = 'quarantined';
-				$decoded                     = json_decode( $data['details'], true );
-				$decoded['quarantine_path']  = $quarantine['quarantine_path'];
-				$data['details']             = wp_json_encode( $decoded );
-			}
-		}
 
 		$wpdb->insert( $table, $data, array( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ) );
 
@@ -588,52 +634,75 @@ final class UploadGuardScanner {
 	}
 
 	/**
-	 * Build a bounded list of candidate files under wp-content, excluding
-	 * the quarantine directory itself.
+	 * Build a bounded list of candidate files, most suspicious places first:
+	 * uploads (where no PHP belongs), mu-plugins, wp-content root drop-ins,
+	 * then plugins and themes. Never walks other wp-content folders (cache,
+	 * upgrade, backups...) and prunes excluded folders (our own plugins,
+	 * vendor/node_modules...) without descending into them.
 	 *
 	 * @return string[]
 	 */
 	private function build_worklist(): array {
-		$root = wp_normalize_path( WP_CONTENT_DIR );
-		if ( ! is_dir( $root ) ) {
-			return array();
-		}
+		$uploads = wp_upload_dir( null, false );
+		$roots   = array_filter(
+			array(
+				empty( $uploads['basedir'] ) ? '' : $uploads['basedir'],
+				WPMU_PLUGIN_DIR,
+				WP_PLUGIN_DIR,
+				get_theme_root(),
+			)
+		);
 
-		$extensions     = self::relevant_extensions();
-		$quarantine_dir = wp_normalize_path( UploadGuardQuarantine::get_path() );
-		$files          = array();
+		$files = $this->root_php_files( WP_CONTENT_DIR );
 
-		try {
-			$iterator = new \RecursiveIteratorIterator(
-				new \RecursiveDirectoryIterator( $root, \RecursiveDirectoryIterator::SKIP_DOTS )
-			);
-		} catch ( \Throwable $e ) {
-			return array();
-		}
-
-		foreach ( $iterator as $file_info ) {
-			if ( count( $files ) >= self::MAX_WORKLIST ) {
-				break;
-			}
-			if ( ! $file_info->isFile() ) {
+		foreach ( $roots as $root ) {
+			$root = wp_normalize_path( (string) $root );
+			if ( ! is_dir( $root ) ) {
 				continue;
 			}
+			$area = UploadGuardScope::area( $root . '/x' );
 
-			$path = wp_normalize_path( $file_info->getPathname() );
-			if ( $quarantine_dir && 0 === strpos( $path, $quarantine_dir ) ) {
-				continue;
+			try {
+				$iterator = new \RecursiveIteratorIterator(
+					new \RecursiveCallbackFilterIterator(
+						new \RecursiveDirectoryIterator( $root, \RecursiveDirectoryIterator::SKIP_DOTS ),
+						// Name-only check, no stat: isDir() per entry costs ~1 ms on
+						// some filesystems and uploads easily hold 60k+ images.
+						static function ( \SplFileInfo $item ): bool {
+							return ! UploadGuardScope::is_excluded_dir( $item->getPathname() );
+						}
+					)
+				);
+				foreach ( $iterator as $file_info ) {
+					if ( count( $files ) >= self::MAX_WORKLIST ) {
+						break 2;
+					}
+					$path = wp_normalize_path( $file_info->getPathname() );
+					if ( UploadGuardScope::is_relevant( $path, $area ) && ! UploadGuardScope::is_excluded( $path ) && $file_info->isFile() ) {
+						$files[] = $path;
+					}
+				}
+			} catch ( \Throwable $e ) {
+				continue; // Unreadable folder: scan the rest.
 			}
-
-			$ext = strtolower( $file_info->getExtension() );
-			if ( 'zip' === $ext || ! in_array( $ext, $extensions, true ) ) {
-				// ZIP archives are only scanned when uploaded (queue path); a
-				// full-tree ZIP scan is too expensive to run unattended.
-				continue;
-			}
-
-			$files[] = $path;
 		}
 
+		return array_slice( array_values( array_unique( $files ) ), 0, self::MAX_WORKLIST );
+	}
+
+	/**
+	 * PHP files directly in a folder (drop-ins in wp-content), not recursive.
+	 *
+	 * @return string[]
+	 */
+	private function root_php_files( string $dir ): array {
+		$files = array();
+		foreach ( glob( trailingslashit( $dir ) . '*' ) ?: array() as $path ) {
+			$path = wp_normalize_path( $path );
+			if ( is_file( $path ) && in_array( strtolower( pathinfo( $path, PATHINFO_EXTENSION ) ), UploadGuardScope::PHP_EXTENSIONS, true ) ) {
+				$files[] = $path;
+			}
+		}
 		return $files;
 	}
 

@@ -28,6 +28,9 @@ final class Modules {
 	/** @var array<string, BaseModule> Booted module instances. */
 	private array $instances = array();
 
+	/** @var array<string, string> Module id => error, for modules skipped this request. */
+	private array $boot_failures = array();
+
 	/**
 	 * Discover modules and boot the enabled ones.
 	 */
@@ -224,10 +227,59 @@ final class Modules {
 	 * @param string $id Module id.
 	 */
 	private function boot_module( string $id ): void {
-		$module = $this->instance( $id );
-		if ( $module ) {
-			$module->boot();
+		try {
+			$module = $this->instance( $id );
+			if ( $module ) {
+				$module->boot();
+			}
+		} catch ( \Throwable $e ) {
+			// A broken module (missing class file, parse error, fatal in boot) must
+			// never take the whole site down: skip it for this request and report
+			// it in wp-admin. Not persisted as "disabled" - once the file is back
+			// (restored, plugin updated) the module boots again on its own.
+			unset( $this->instances[ $id ] );
+			$this->record_boot_failure( $id, $e );
 		}
+	}
+
+	/**
+	 * Remember a module boot failure and show it to admins.
+	 *
+	 * @param string     $id Module id.
+	 * @param \Throwable $e  What went wrong.
+	 */
+	private function record_boot_failure( string $id, \Throwable $e ): void {
+		$message = sprintf( '%s: %s (%s:%d)', get_class( $e ), $e->getMessage(), wp_basename( $e->getFile() ), $e->getLine() );
+		error_log( 'UX Studio: module ' . $id . ' failed to boot and was skipped - ' . $message ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+
+		$this->boot_failures[ $id ] = $message;
+		if ( 1 === count( $this->boot_failures ) ) {
+			add_action( 'admin_notices', array( $this, 'render_boot_failures' ) );
+		}
+	}
+
+	/**
+	 * Admin notice listing modules skipped in this request.
+	 */
+	public function render_boot_failures(): void {
+		if ( empty( $this->boot_failures ) || ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		echo '<div class="notice notice-error"><p><strong>' . esc_html__( 'UX Studio: some modules failed to start and were switched off for now. The rest of the site keeps running.', 'ux-studio' ) . '</strong></p><ul>';
+		foreach ( $this->boot_failures as $id => $message ) {
+			$name = (string) ( $this->meta[ $id ]['name'] ?? $id );
+			echo '<li><code>' . esc_html( $name ) . '</code> - ' . esc_html( $message ) . '</li>';
+		}
+		echo '</ul></div>';
+	}
+
+	/**
+	 * Modules that failed to boot in this request (id => error message).
+	 *
+	 * @return array<string, string>
+	 */
+	public function boot_failures(): array {
+		return $this->boot_failures;
 	}
 
 	/**

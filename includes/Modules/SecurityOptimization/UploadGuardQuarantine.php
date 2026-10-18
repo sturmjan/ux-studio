@@ -14,6 +14,8 @@ defined( 'ABSPATH' ) || exit;
  * this is a module-owned directory, so a deny-all .htaccess here is safe
  * and does not touch the site's main rewrite rules). Files are MOVED
  * (rename), never deleted outright, so a false positive can be restored.
+ * Only ever called on an explicit admin action - the scanner itself never
+ * quarantines anything.
  */
 final class UploadGuardQuarantine {
 
@@ -67,12 +69,20 @@ final class UploadGuardQuarantine {
 		);
 
 		if ( ! file_exists( $file_path ) ) {
-			$result['error'] = 'Source file does not exist.';
+			$result['error'] = __( 'The file no longer exists.', 'ux-studio' );
+			return $result;
+		}
+
+		// Last line of defence, whoever the caller is: never move a file the
+		// site loads (core, active plugin/theme, drop-in, our own code).
+		$protected = UploadGuardScope::protection_reason( $file_path );
+		if ( '' !== $protected ) {
+			$result['error'] = $protected;
 			return $result;
 		}
 
 		if ( ! self::ensure_directory() ) {
-			$result['error'] = 'Failed to create quarantine directory.';
+			$result['error'] = __( 'Could not create the quarantine folder.', 'ux-studio' );
 			return $result;
 		}
 
@@ -83,7 +93,7 @@ final class UploadGuardQuarantine {
 			$result['success']         = true;
 			$result['quarantine_path'] = $dest_path;
 		} else {
-			$result['error'] = 'Failed to move file to quarantine.';
+			$result['error'] = __( 'Could not move the file to quarantine.', 'ux-studio' );
 		}
 
 		return $result;

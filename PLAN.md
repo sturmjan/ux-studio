@@ -1526,3 +1526,49 @@ Redirection, export CSV, SPA (pravidla + test URL, 404, SEO audit, import/export
 - [ ] Import z Redirection na webu, kde ho používá, pak Redirection vypnout
 - [ ] Zvážit: `trash` publikovaného obsahu → nabídnout 410/redirect (záměrně vynecháno,
       automatická 410 by blokovala obnovení z koše)
+
+## 23. Upload Guard - incident 16.-17. 10. a přestavba na „jen hlásí" (2026-10-18)
+
+**Co se stalo:** noční plný sken (17 714 souborů) označil 189 jako podezřelé a 12 z nich sám
+přesunul do karantény (`uxstudio_security_auto_quarantine` = výchozí `true`). Žádný nebyl
+škodlivý: Predis/Credis (Redis Cache - slovo `eval` v docblocku), 2× Akeeba, 6× UX1, 2× UX Studio
+včetně `UploadGuardDetectionEngine.php`. Bez něj padal autoload v `boot()` → fatal na každém
+requestu → 500 celého webu. Soubory vráceny ručně, modul Security vypnutý.
+
+**Příčiny:** skóre podle výskytu slov v surovém textu (komentáře, řetězce), detektor bez výjimky
+na sebe sama (305 bodů), sken celého wp-content včetně cizích pluginů, destruktivní akce bez
+potvrzení, pád jednoho modulu shodí celý plugin.
+
+**Nový model:**
+- [x] Skener jen čte a hlásí. Automatická karanténa odstraněna úplně (i filtr). Karanténa =
+      ruční akce u jednoho nálezu s potvrzením (`POST findings/{id}/quarantine`).
+- [x] `UploadGuardQuarantine::quarantine_file` odmítne soubory, které web načítá (jádro, aktivní
+      plugin/šablona, drop-in, vlastní kód, `get_included_files()`) - `UploadGuardScope::protection_reason`.
+      Odmítne i soubor změněný od skenu (hash).
+- [x] Rozsah: uploads (PHP + js/svg/html), mu-plugins, drop-iny ve wp-content, plugins, themes
+      (jen PHP). Cache, upgrade, zálohy apod. se neprochází.
+- [x] Natvrdo vyjmuto: `ux-studio`, `ux1-wordpress-customizer`, karanténa, složky
+      `vendor`/`vendor-prefixed`/`node_modules`/`bower_components`/`dependencies` v kódu.
+- [x] Pluginy z WordPress.org: MD5 proti `downloads.wordpress.org/plugin-checksums/<slug>/<ver>.json`
+      (transient 12 h, negativní 24 h). Shoda = čisté bez heuristiky. Liší se = high, není v balíčku
+      = medium, plus heuristika.
+- [x] PHP v uploads = high, pokud obsahuje aspoň jeden spustitelný token (prázdný „Silence is
+      golden" index.php je čistý).
+- [x] Detektor PHP nad tokeny (`token_get_all`): komentáře a řetězce se ignorují, volání metod
+      (`->exec`, `::exec`) a deklarace (`function eval`) nejsou volání. Kritické jsou jen kombinace
+      v jednom příkazu: dekodér → eval/shell, `$_GET/$_POST/...` → eval/shell/include,
+      blob → eval. Osamocené `exec()`/`eval()` = low, nehlásí se.
+- [x] Migrace DB v3: smazány otevřené nálezy starého enginu a neschválená cache hashů
+      (rozhodnutí admina - karanténa/schváleno/smazáno, schválené hashe - zůstávají).
+- [x] Schválení nálezu v karanténě, který už byl ručně vrácen, nespadne na „restore failed".
+- [x] Jádro: `Modules::boot_module` v `try/catch Throwable` - modul, který nenaběhne, se pro daný
+      request přeskočí a v adminu se ukáže chyba. Nevypíná se natrvalo (po vrácení souboru naběhne sám).
+- [x] Výkon: sestavení seznamu na lokálu 157 s → 6,8 s (kontrola podle jména, `stat()` až u
+      relevantních souborů; adresáře resolvované jednou za request).
+- [ ] Nasadit na web, kde incident proběhl, zapnout Security a pustit sken - zkontrolovat, že
+      nálezy dávají smysl (čekáno: jednotky, ne stovky).
+- [ ] Zvážit kontrolní součty jádra WP (`api.wordpress.org/core/checksums`) a šablon.
+
+**Mez metody:** ClickFix plugin ze seco-traktory.cz (jen `wp_enqueue_script` s cizí doménou)
+je podle obsahu čistý a žádná heuristika ho nenajde - to řeší návrh v `PLAN-strazce-integrity.md`
+(nové soubory, které tam nikdo nedal + cizí domény na frontendu).

@@ -1,6 +1,6 @@
 <?php
 /**
- * Upload Guard detection engine: heuristic pattern scoring for uploaded/scanned files.
+ * Upload Guard detection engine: scores files for signs of injected code.
  *
  * @package UxStudio
  */
@@ -10,36 +10,33 @@ namespace UxStudio\Modules\SecurityOptimization;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Ported verbatim (signatures/weights) from the legacy security-optimization
- * module's upload-guard/DetectionEngine.php. This is the core detection
- * logic - PHP/JS/SVG/HTML pattern signatures, obfuscation heuristics, and
- * ZIP archive scanning with strict per-archive safety limits.
+ * PHP is analysed on tokens, not with regexes over raw text: a word in a
+ * comment (Predis' "@method eval(...)") or inside a string (the old signature
+ * list of this very engine) is not a call. Single risky calls score low -
+ * real libraries use exec() and base64_decode() all the time. What scores
+ * high is the shape of malware: a decoder or request data fed straight into
+ * eval/shell/include, or an encoded blob next to an executor.
+ *
+ * SVG/HTML/JS keep simple patterns - those are only scanned in uploads,
+ * where markup with scripts has no business being anyway.
  */
 final class UploadGuardDetectionEngine {
 
-	private const THRESHOLD_LOW      = 16;
-	private const THRESHOLD_MEDIUM   = 31;
-	private const THRESHOLD_HIGH     = 51;
+	private const THRESHOLD_LOW    = 16;
+	private const THRESHOLD_MEDIUM = 31;
+	private const THRESHOLD_HIGH   = 51;
 
-	private const PHP_PATTERNS = array(
-		array( 'name' => 'eval', 'regex' => '/\beval\s*\(/i', 'weight' => 30, 'label' => 'eval() function call' ),
-		array( 'name' => 'base64_decode', 'regex' => '/\bbase64_decode\s*\(/i', 'weight' => 20, 'label' => 'base64_decode() function call' ),
-		array( 'name' => 'gzinflate', 'regex' => '/\bgzinflate\s*\(/i', 'weight' => 25, 'label' => 'gzinflate() function call' ),
-		array( 'name' => 'str_rot13', 'regex' => '/\bstr_rot13\s*\(/i', 'weight' => 20, 'label' => 'str_rot13() function call' ),
-		array( 'name' => 'assert', 'regex' => '/\bassert\s*\(/i', 'weight' => 25, 'label' => 'assert() function call' ),
-		array( 'name' => 'preg_replace_e', 'regex' => '/preg_replace\s*\(\s*[\'"][^\'"]*\/e[\'"\s,]/i', 'weight' => 40, 'label' => 'preg_replace() with /e modifier' ),
-		array( 'name' => 'system', 'regex' => '/\bsystem\s*\(/i', 'weight' => 40, 'label' => 'system() function call' ),
-		array( 'name' => 'shell_exec', 'regex' => '/\bshell_exec\s*\(/i', 'weight' => 40, 'label' => 'shell_exec() function call' ),
-		array( 'name' => 'passthru', 'regex' => '/\bpassthru\s*\(/i', 'weight' => 40, 'label' => 'passthru() function call' ),
-		array( 'name' => 'exec', 'regex' => '/\bexec\s*\(/i', 'weight' => 35, 'label' => 'exec() function call' ),
-		array( 'name' => 'create_function', 'regex' => '/\bcreate_function\s*\(/i', 'weight' => 30, 'label' => 'create_function() call (deprecated)' ),
-		array( 'name' => 'post_in_include', 'regex' => '/(include|require|include_once|require_once)\s*\(?\s*\$_(POST|GET|REQUEST|COOKIE)/i', 'weight' => 50, 'label' => '$_POST/$_GET/$_REQUEST in include/require' ),
-	);
+	/** Run a string as PHP code. assert() only counts in combinations (it is a no-op on PHP 8). */
+	private const EXECUTORS = array( 'eval', 'assert', 'create_function' );
 
-	private const OBFUSCATION_PATTERNS = array(
-		array( 'name' => 'long_base64', 'regex' => '/[A-Za-z0-9+\/=]{500,}/', 'weight' => 30, 'label' => 'Long base64-encoded string (>500 chars)' ),
-		array( 'name' => 'hex_strings', 'regex' => '/(\\\\x[0-9a-fA-F]{2}){10,}/', 'weight' => 25, 'label' => 'Hex-encoded string sequence' ),
-	);
+	private const SHELL = array( 'system', 'shell_exec', 'passthru', 'exec', 'proc_open', 'popen', 'pcntl_exec' );
+
+	private const DECODERS = array( 'base64_decode', 'gzinflate', 'gzuncompress', 'gzdecode', 'str_rot13', 'convert_uudecode', 'hex2bin' );
+
+	private const INPUTS = array( '$_GET', '$_POST', '$_REQUEST', '$_COOKIE', '$_FILES' );
+
+	/** An encoded string literal at least this long counts as a blob. */
+	private const BLOB_MIN_LENGTH = 1000;
 
 	private const SVG_PATTERNS = array(
 		array( 'name' => 'svg_script', 'regex' => '/<script[^>]*>/i', 'weight' => 50, 'label' => '<script> tag in SVG' ),
@@ -57,32 +54,33 @@ final class UploadGuardDetectionEngine {
 	private const JS_PATTERNS = array(
 		array( 'name' => 'js_eval', 'regex' => '/\beval\s*\(/i', 'weight' => 30, 'label' => 'eval() in JavaScript' ),
 		array( 'name' => 'js_function_constructor', 'regex' => '/new\s+Function\s*\(/i', 'weight' => 35, 'label' => 'new Function() constructor' ),
+		array( 'name' => 'long_base64', 'regex' => '/[A-Za-z0-9+\/=]{500,}/', 'weight' => 15, 'label' => 'Long base64-encoded string (>500 chars)' ),
 	);
 
 	/** @var array<int,array{name?:string,regex:string,weight?:int,label?:string}> */
 	private array $custom_patterns;
 
-	/** @var string[] */
-	private array $whitelist_paths;
-
 	/**
 	 * @param array $custom_patterns Array of ['regex'=>string,'weight'=>int,'label'=>string].
-	 * @param array $whitelist_paths Array of path prefixes to skip.
 	 */
-	public function __construct( array $custom_patterns = array(), array $whitelist_paths = array() ) {
+	public function __construct( array $custom_patterns = array() ) {
 		$this->custom_patterns = $custom_patterns;
-		$this->whitelist_paths = $whitelist_paths;
 	}
 
 	/**
-	 * Scan a file and return a score/severity/matches result.
+	 * Scan a file and return a score/severity/matches result. `has_code` is
+	 * false for PHP files that run nothing (the "Silence is golden" index.php
+	 * plugins drop into uploads, data files guarded by a bare exit;).
 	 *
-	 * @return array{score:int,severity:string,matches:array}
+	 * @return array{score:int,severity:string,matches:array,has_code:bool}
 	 */
 	public function scan( string $file_path, string $extension ): array {
-		if ( $this->is_whitelisted( $file_path ) ) {
-			return array( 'score' => 0, 'severity' => 'clean', 'matches' => array() );
-		}
+		$clean = array(
+			'score'    => 0,
+			'severity' => 'clean',
+			'matches'  => array(),
+			'has_code' => false,
+		);
 
 		$extension = strtolower( ltrim( $extension, '.' ) );
 
@@ -91,42 +89,316 @@ final class UploadGuardDetectionEngine {
 		}
 
 		if ( ! is_readable( $file_path ) ) {
-			return array( 'score' => 0, 'severity' => 'clean', 'matches' => array() );
+			return $clean;
 		}
 
 		$content = file_get_contents( $file_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		if ( false === $content || '' === $content ) {
-			return array( 'score' => 0, 'severity' => 'clean', 'matches' => array() );
+			return $clean;
 		}
 
-		$patterns = $this->patterns_for_extension( $extension );
-
-		$matches     = $this->match_patterns( $content, $patterns );
-		$total_score = 0;
-		foreach ( $matches as $match ) {
-			$total_score += $match['weight'];
-		}
-
-		if ( in_array( $extension, array( 'php', 'phtml', 'phar' ), true ) ) {
-			$non_ascii = $this->check_non_ascii_concentration( $content );
-			if ( null !== $non_ascii ) {
-				$matches[]   = $non_ascii;
-				$total_score += $non_ascii['weight'];
-			}
+		$has_code = true;
+		if ( in_array( $extension, UploadGuardScope::PHP_EXTENSIONS, true ) ) {
+			$analysis = $this->analyse_php( $content );
+			$matches  = $analysis['matches'];
+			$has_code = $analysis['has_code'];
+		} else {
+			$matches = $this->match_patterns( $content, $this->patterns_for_extension( $extension ) );
 		}
 
 		if ( ! empty( $this->custom_patterns ) ) {
-			foreach ( $this->match_patterns( $content, $this->custom_patterns ) as $custom_match ) {
-				$matches[]   = $custom_match;
-				$total_score += $custom_match['weight'];
-			}
+			$matches = array_merge( $matches, $this->match_patterns( $content, $this->custom_patterns ) );
+		}
+
+		$total_score = 0;
+		foreach ( $matches as $match ) {
+			$total_score += $match['weight'];
 		}
 
 		return array(
 			'score'    => $total_score,
 			'severity' => $this->calculate_severity( $total_score ),
 			'matches'  => $matches,
+			'has_code' => $has_code,
 		);
+	}
+
+	/**
+	 * Map a raw score to the stored severity (clean|low|medium|high|critical).
+	 */
+	public function calculate_severity( int $score ): string {
+		if ( $score <= 0 ) {
+			return 'clean';
+		}
+		if ( $score < self::THRESHOLD_LOW ) {
+			return 'low';
+		}
+		if ( $score < self::THRESHOLD_MEDIUM ) {
+			return 'medium';
+		}
+		if ( $score < self::THRESHOLD_HIGH ) {
+			return 'high';
+		}
+		return 'critical';
+	}
+
+	/**
+	 * Token-level analysis of PHP source.
+	 *
+	 * @return array{matches:array,has_code:bool}
+	 */
+	private function analyse_php( string $content ): array {
+		$tokens = token_get_all( $content );
+		$lines  = explode( "\n", $content );
+
+		$ignored = array( T_OPEN_TAG, T_CLOSE_TAG, T_COMMENT, T_DOC_COMMENT, T_WHITESPACE, T_INLINE_HTML );
+		$no_call = array( T_OBJECT_OPERATOR, T_DOUBLE_COLON, T_FUNCTION, T_NEW, T_CONST );
+		if ( defined( 'T_NULLSAFE_OBJECT_OPERATOR' ) ) {
+			$no_call[] = T_NULLSAFE_OBJECT_OPERATOR;
+		}
+		$name_ids = array( T_STRING );
+		if ( defined( 'T_NAME_FULLY_QUALIFIED' ) ) {
+			$name_ids[] = T_NAME_FULLY_QUALIFIED;
+		}
+
+		$has_code   = false;
+		$line       = 1;
+		$prev       = null; // Previous significant token.
+		$statement  = $this->empty_statement();
+		$statements = array();
+		$file       = array(
+			'executor'   => 0, // Line of the first eval()/create_function() call, 0 = none.
+			'blob'       => 0,
+			'code_chars' => 0,
+			'odd_chars'  => 0,
+		);
+
+		$count = count( $tokens );
+		for ( $i = 0; $i < $count; $i++ ) {
+			$token = $tokens[ $i ];
+			$id    = is_array( $token ) ? $token[0] : null;
+			$text  = is_array( $token ) ? $token[1] : $token;
+			if ( is_array( $token ) ) {
+				$line = $token[2];
+			}
+
+			if ( null !== $id && in_array( $id, $ignored, true ) ) {
+				continue;
+			}
+			// An opening tag, exit(0); and a closing tag in front of data is how
+			// Sucuri/Wordfence guard their data files: nothing runs, not code.
+			if ( ! in_array( $id ?? $text, array( T_EXIT, T_LNUMBER, '(', ')', ';' ), true ) ) {
+				$has_code = true;
+			}
+
+			if ( ';' === $text || '{' === $text || '}' === $text ) {
+				$statements[] = $statement;
+				$statement    = $this->empty_statement();
+				$prev         = $token;
+				continue;
+			}
+
+			if ( T_CONSTANT_ENCAPSED_STRING === $id || T_ENCAPSED_AND_WHITESPACE === $id ) {
+				if ( $this->is_encoded_blob( $text ) ) {
+					$file['blob']      = $file['blob'] ?: $line;
+					$statement['blob'] = true;
+				}
+				$prev = $token;
+				continue;
+			}
+
+			if ( T_VARIABLE === $id ) {
+				if ( in_array( $text, self::INPUTS, true ) ) {
+					$statement['input'] = true;
+				}
+				// $f( $_POST[...] ): calling a function whose name sits in a variable.
+				if ( '(' === $this->next_significant( $tokens, $i ) && ! $this->is_one_of( $prev, $no_call ) ) {
+					$statement['dynamic'] = $statement['dynamic'] ?: $line;
+				}
+				$this->count_chars( $file, $text );
+				$prev = $token;
+				continue;
+			}
+
+			if ( in_array( $id, array( T_INCLUDE, T_INCLUDE_ONCE, T_REQUIRE, T_REQUIRE_ONCE ), true ) ) {
+				$statement['include'] = $statement['include'] ?: $line;
+				$prev                 = $token;
+				continue;
+			}
+
+			$name = '';
+			if ( T_EVAL === $id ) {
+				// `function eval(...)` declares a method (Predis' Client::eval), not a call.
+				$name = $this->is_one_of( $prev, $no_call ) ? '' : 'eval';
+			} elseif ( in_array( $id, $name_ids, true ) ) {
+				$this->count_chars( $file, $text );
+				if ( '(' === $this->next_significant( $tokens, $i ) && ! $this->is_one_of( $prev, $no_call ) ) {
+					$name = strtolower( ltrim( $text, '\\' ) );
+				}
+			}
+
+			if ( in_array( $name, self::EXECUTORS, true ) ) {
+				$statement['executor'] = $statement['executor'] ?: array( $name, $line );
+				if ( 'assert' !== $name ) {
+					$file['executor'] = $file['executor'] ?: $line;
+				}
+			} elseif ( in_array( $name, self::SHELL, true ) ) {
+				$statement['shell'] = $statement['shell'] ?: array( $name, $line );
+			} elseif ( in_array( $name, self::DECODERS, true ) ) {
+				$statement['decoder'] = $statement['decoder'] ?: array( $name, $line );
+			}
+
+			$prev = $token;
+		}
+		$statements[] = $statement;
+
+		return array(
+			'matches'  => $this->score_php( $statements, $file, $lines ),
+			'has_code' => $has_code,
+		);
+	}
+
+	/**
+	 * Turn collected features into weighted matches. Combinations are what
+	 * reach high/critical; lone calls stay low so libraries aren't reported.
+	 *
+	 * @param array<int,array> $statements Per-statement features.
+	 * @param array            $file       File-level features.
+	 * @param string[]         $lines      Source lines for snippets.
+	 * @return array<int,array>
+	 */
+	private function score_php( array $statements, array $file, array $lines ): array {
+		$found = array();
+		$add   = static function ( string $name, int $weight, string $label, int $line ) use ( &$found ): void {
+			if ( isset( $found[ $name ] ) ) {
+				++$found[ $name ]['count'];
+				return;
+			}
+			$found[ $name ] = array(
+				'name'   => $name,
+				'weight' => $weight,
+				'label'  => $label,
+				'line'   => $line,
+				'count'  => 1,
+			);
+		};
+
+		foreach ( $statements as $s ) {
+			$runner = $s['executor'] ?: $s['shell'];
+			if ( $runner && $s['decoder'] ) {
+				/* translators: 1: function like eval, 2: decoder like base64_decode */
+				$add( 'run_decoded', 60, sprintf( __( 'Decoded data is executed: %1$s(%2$s(...))', 'ux-studio' ), $runner[0], $s['decoder'][0] ), $runner[1] );
+			}
+			if ( $runner && $s['input'] ) {
+				/* translators: %s: function like eval or system */
+				$add( 'run_input', 60, sprintf( __( 'Request data ($_GET/$_POST/...) is passed to %s()', 'ux-studio' ), $runner[0] ), $runner[1] );
+			}
+			if ( $s['include'] && $s['input'] ) {
+				$add( 'include_input', 60, __( 'A file is included from a path taken from the request', 'ux-studio' ), $s['include'] );
+			}
+			if ( $s['executor'] && $s['blob'] ) {
+				$add( 'run_blob', 60, __( 'An encoded blob is executed in the same statement', 'ux-studio' ), $s['executor'][1] );
+			}
+			if ( $s['dynamic'] && $s['input'] && ! $runner ) {
+				$add( 'dynamic_input', 25, __( 'A function whose name is in a variable is called with request data', 'ux-studio' ), $s['dynamic'] );
+			}
+			if ( $s['executor'] && 'assert' !== $s['executor'][0] ) {
+				/* translators: %s: eval or create_function */
+				$add( 'executor', 10, sprintf( __( '%s() call', 'ux-studio' ), $s['executor'][0] ), $s['executor'][1] );
+			}
+			if ( $s['shell'] ) {
+				/* translators: %s: shell function like exec */
+				$add( 'shell', 8, sprintf( __( 'Shell command call: %s()', 'ux-studio' ), $s['shell'][0] ), $s['shell'][1] );
+			}
+		}
+
+		if ( $file['blob'] ) {
+			if ( $file['executor'] ) {
+				$add( 'blob_with_executor', 40, __( 'Long encoded string in a file that also runs eval()', 'ux-studio' ), $file['blob'] );
+			} else {
+				$add( 'blob', 5, __( 'Long encoded string', 'ux-studio' ), $file['blob'] );
+			}
+		}
+
+		if ( $file['code_chars'] >= 200 && $file['odd_chars'] / $file['code_chars'] > 0.3 ) {
+			$add( 'obfuscated_names', $file['executor'] ? 40 : 15, __( 'Function and variable names are mostly non-ASCII (obfuscation)', 'ux-studio' ), 1 );
+		}
+
+		$matches = array_values( $found );
+		foreach ( $matches as &$match ) {
+			$snippet          = trim( $lines[ $match['line'] - 1 ] ?? '' );
+			$match['snippet'] = strlen( $snippet ) > 120 ? substr( $snippet, 0, 120 ) . '...' : $snippet;
+		}
+		unset( $match );
+
+		usort( $matches, static fn( array $a, array $b ): int => $b['weight'] <=> $a['weight'] );
+		return $matches;
+	}
+
+	/**
+	 * @return array{executor:array|false,shell:array|false,decoder:array|false,include:int,dynamic:int,input:bool,blob:bool}
+	 */
+	private function empty_statement(): array {
+		return array(
+			'executor' => false,
+			'shell'    => false,
+			'decoder'  => false,
+			'include'  => 0,
+			'dynamic'  => 0,
+			'input'    => false,
+			'blob'     => false,
+		);
+	}
+
+	/**
+	 * Count identifier characters and how many of them are non-ASCII.
+	 *
+	 * @param array  $file File-level features (by reference).
+	 * @param string $text Identifier.
+	 */
+	private function count_chars( array &$file, string $text ): void {
+		$file['code_chars'] += strlen( $text );
+		$file['odd_chars']  += (int) preg_match_all( '/[^\x20-\x7E]/', $text );
+	}
+
+	/**
+	 * A long string literal made of base64 or \x escapes, not prose or markup.
+	 */
+	private function is_encoded_blob( string $literal ): bool {
+		if ( strlen( $literal ) < self::BLOB_MIN_LENGTH ) {
+			return false;
+		}
+		$body = trim( $literal, "'\"" );
+		if ( preg_match( '/^[A-Za-z0-9+\/=\r\n]+$/', $body ) ) {
+			return true;
+		}
+		return (int) preg_match_all( '/\\\\x[0-9a-fA-F]{2}/', $body ) * 4 > strlen( $body ) / 2;
+	}
+
+	/**
+	 * Text of the next token that is not whitespace or a comment.
+	 *
+	 * @param array $tokens Tokens.
+	 * @param int   $i      Current index.
+	 */
+	private function next_significant( array $tokens, int $i ): string {
+		$count = count( $tokens );
+		for ( $j = $i + 1; $j < $count; $j++ ) {
+			$token = $tokens[ $j ];
+			if ( is_array( $token ) && in_array( $token[0], array( T_WHITESPACE, T_COMMENT, T_DOC_COMMENT ), true ) ) {
+				continue;
+			}
+			return is_array( $token ) ? $token[1] : $token;
+		}
+		return '';
+	}
+
+	/**
+	 * @param array|string|null $token Token.
+	 * @param int[]             $ids   Token ids.
+	 */
+	private function is_one_of( $token, array $ids ): bool {
+		return is_array( $token ) && in_array( $token[0], $ids, true );
 	}
 
 	/**
@@ -134,16 +406,23 @@ final class UploadGuardDetectionEngine {
 	 * strict count/size limits and path-traversal protection, then scanning
 	 * each extracted file.
 	 *
-	 * @return array{score:int,severity:string,matches:array}
+	 * @return array{score:int,severity:string,matches:array,has_code:bool}
 	 */
 	private function scan_zip( string $file_path ): array {
+		$clean = array(
+			'score'    => 0,
+			'severity' => 'clean',
+			'matches'  => array(),
+			'has_code' => false,
+		);
+
 		if ( ! class_exists( 'ZipArchive' ) ) {
-			return array( 'score' => 0, 'severity' => 'clean', 'matches' => array() );
+			return $clean;
 		}
 
 		$zip = new \ZipArchive();
 		if ( true !== $zip->open( $file_path ) ) {
-			return array( 'score' => 0, 'severity' => 'clean', 'matches' => array() );
+			return $clean;
 		}
 
 		$max_files      = 50;
@@ -154,10 +433,10 @@ final class UploadGuardDetectionEngine {
 		$temp_dir = get_temp_dir() . 'uxstudio-security-zip-' . wp_generate_password( 12, false, false );
 		if ( ! wp_mkdir_p( $temp_dir ) ) {
 			$zip->close();
-			return array( 'score' => 0, 'severity' => 'clean', 'matches' => array() );
+			return $clean;
 		}
 
-		$scan_extensions = array( 'php', 'phtml', 'phar', 'js', 'svg', 'html', 'htm' );
+		$scan_extensions = array_merge( UploadGuardScope::PHP_EXTENSIONS, UploadGuardScope::UPLOAD_EXTENSIONS );
 		$files_to_scan   = array();
 
 		for ( $i = 0; $i < $zip->numFiles; $i++ ) {
@@ -225,6 +504,7 @@ final class UploadGuardDetectionEngine {
 			'score'    => $max_score,
 			'severity' => $this->calculate_severity( $max_score ),
 			'matches'  => $all_matches,
+			'has_code' => true,
 		);
 	}
 
@@ -233,12 +513,8 @@ final class UploadGuardDetectionEngine {
 	 */
 	private function patterns_for_extension( string $extension ): array {
 		switch ( $extension ) {
-			case 'php':
-			case 'phtml':
-			case 'phar':
-				return array_merge( self::PHP_PATTERNS, self::OBFUSCATION_PATTERNS );
 			case 'js':
-				return array_merge( self::JS_PATTERNS, self::OBFUSCATION_PATTERNS );
+				return self::JS_PATTERNS;
 			case 'svg':
 				return self::SVG_PATTERNS;
 			case 'html':
@@ -287,73 +563,6 @@ final class UploadGuardDetectionEngine {
 		}
 
 		return $matches;
-	}
-
-	/**
-	 * Detect a high concentration of non-ASCII bytes (obfuscation indicator)
-	 * in PHP-family files.
-	 */
-	private function check_non_ascii_concentration( string $content ): ?array {
-		$total_chars = strlen( $content );
-		if ( $total_chars < 100 ) {
-			return null;
-		}
-
-		$non_ascii = preg_match_all( '/[^\x20-\x7E\s]/', $content );
-		if ( false === $non_ascii ) {
-			return null;
-		}
-
-		$ratio = $non_ascii / $total_chars;
-		if ( $ratio > 0.3 ) {
-			return array(
-				'name'    => 'non_ascii_concentration',
-				'weight'  => 20,
-				'label'   => sprintf( 'High non-ASCII character concentration (%.0f%%)', $ratio * 100 ),
-				'line'    => 1,
-				'snippet' => '(binary/obfuscated content)',
-				'count'   => $non_ascii,
-			);
-		}
-
-		return null;
-	}
-
-	/**
-	 * Maps the raw pattern-weight score to the storage severity enum
-	 * (low|medium|high|critical). 'clean' rows are never persisted -
-	 * callers delete/skip them instead.
-	 */
-	private function calculate_severity( int $score ): string {
-		if ( $score <= 0 ) {
-			return 'clean';
-		}
-		if ( $score < self::THRESHOLD_LOW ) {
-			return 'low';
-		}
-		if ( $score < self::THRESHOLD_MEDIUM ) {
-			return 'medium';
-		}
-		if ( $score < self::THRESHOLD_HIGH ) {
-			return 'high';
-		}
-		return 'critical';
-	}
-
-	private function is_whitelisted( string $file_path ): bool {
-		$normalized = wp_normalize_path( $file_path );
-
-		foreach ( $this->whitelist_paths as $whitelisted ) {
-			$whitelisted = wp_normalize_path( trim( $whitelisted ) );
-			if ( '' === $whitelisted ) {
-				continue;
-			}
-			if ( false !== strpos( $normalized, $whitelisted ) ) {
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 	/**

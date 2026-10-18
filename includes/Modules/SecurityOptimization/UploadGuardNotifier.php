@@ -87,7 +87,7 @@ final class UploadGuardNotifier {
 		$body .= '<h2 style="color:#d63638;">' . esc_html__( 'Upload Guard - suspicious files', 'ux-studio' ) . '</h2>';
 		$body .= '<p>' . sprintf(
 			/* translators: %d: number of findings */
-			esc_html__( '%d suspicious file(s) found on your site. Review and resolve them in the UX Studio admin.', 'ux-studio' ),
+			esc_html__( '%d suspicious file(s) found on your site. Nothing was moved or deleted - review them in the UX Studio admin and decide per file.', 'ux-studio' ),
 			count( $findings )
 		) . '</p>';
 		$body .= '<table style="border-collapse:collapse;width:100%;"><thead><tr>';
