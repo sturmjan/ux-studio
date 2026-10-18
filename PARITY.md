@@ -217,45 +217,61 @@ Celkem ~59 mezer; ✅ v tabulce výše je u níže uvedených modulů nepřesné
   wp-comments-post 403, comment feed 301, URL autora šifrovaná a dešifruje se, MIME omezené.
 
 ### Kritické
-- [ ] Staré shortcody nezaregistrované (vypíšou se jako text): `[ux1_download_files]`, `[ux1_reviews]`,
+- [x] Staré shortcody nezaregistrované (vypíšou se jako text): `[ux1_download_files]`, `[ux1_reviews]`,
   `[ux1_instagram]`, `[uredni_nastenka]`, `[oh_*]` (7×). Řešení: aliasy jako `post-gallery` SHORTCODE_LEGACY.
-- [ ] `push-notifications`: chybí service worker + subscribe JS → návštěvník se nemůže přihlásit k odběru.
+- [x] `push-notifications`: chybí service worker + subscribe JS → návštěvník se nemůže přihlásit k odběru.
   Dál chybí prompt nastavení, auto-send při publikaci, `/unsubscribe`, `/test`, vlastní segmenty.
-- [ ] `content-sync` node: chybí endpointy, které volá CA (`/updates`, `/php-errors`, `/pagespeed`,
+- [x] `content-sync` node: chybí endpointy, které volá CA (`/updates`, `/php-errors`, `/pagespeed`,
   `/email-health`, `/security-monitor`, `/vulnerabilities`, `/guide`, `/service-requests`, `/packages/*`)
   + `/posts/{id}/revisions`, `/post-types`, `/taxonomies`, download-files. Hub neumí vzdálenou správu příspěvků.
-- [ ] `folder-manager`: složky nejsou v Knihovně médií (sidebar, filtr, sloupec, hromadná akce, při
+- [x] `folder-manager`: složky nejsou v Knihovně médií (sidebar, filtr, sloupec, hromadná akce, při
   nahrání); chybí složky pro příspěvky/CPT.
-- [ ] Ztráta nastavení při migraci: `svg-upload` `user_roles`→`allowed_roles` (a prázdné = nikdo místo
+- [x] Ztráta nastavení při migraci: `svg-upload` `user_roles`→`allowed_roles` (a prázdné = nikdo místo
   všichni); `post-type-order` `post-types`→`post_types`. Doplnit remap v Migratoru.
 
 ### Ostatní mezery
-- [ ] `admin-customiser`: barvy/logo admin lišty, `body_bg_color`, `hide_admin_bar_elements`, 4 přepínače
+- [x] `admin-customiser`: barvy/logo admin lišty, `body_bg_color`, `hide_admin_bar_elements`, 4 přepínače
   lišty natvrdo zapnuté, `keep_on_bar_ids`, `horizontal_menu_inline`, 8× `sidebar_*`,
   `global__update_notifications`, `hide_login_logo`, `login_form_text_hover_color`.
-- [ ] `ai-assistant`: celá záložka Widget (vzhled, texty, auto-open, timeouty) natvrdo; `contact_email`,
+- [x] `ai-assistant`: celá záložka Widget (vzhled, texty, auto-open, timeouty) natvrdo; `contact_email`,
   `operator_notification_email`; nastavení interního chatbota; `default_tone/length/content_language`;
   `index_post_types/acf_types` v UI; WooMetabox v editaci produktu (pravděp.).
-- [ ] `smtp-email`: mazání/export CSV logu, detail logu + resend záznamu, `enable_email_logs`, `brevo_status`.
-- [ ] `notice-board`: `/open-data` (OFN), archiv/hledání/filtry/detail na webu, RSS slug změněn.
-- [ ] `opening-hours`: speciální oznámení + `[oh_banner]`, dočasné uzavření, `[oh_next_open]`, `[oh_list]`,
+- [x] `smtp-email`: mazání/export CSV logu, detail logu + resend záznamu, `enable_email_logs`, `brevo_status`.
+- [x] `notice-board`: `/open-data` (OFN), archiv/hledání/filtry/detail na webu, RSS slug změněn.
+- [x] `opening-hours`: speciální oznámení + `[oh_banner]`, dočasné uzavření, `[oh_next_open]`, `[oh_list]`,
   `[oh_week]`, přepis šablon v motivu.
-- [ ] `ai-markdown`: WooCommerce data, YAML hlavička, `exclude_ids`, site_name/description,
+- [x] `ai-markdown`: WooCommerce data, YAML hlavička, `exclude_ids`, site_name/description,
   `enable_llms_txt`/`enable_markdown_content`, `cache_ttl`, `enable_logging`.
-- [ ] `download-files`: metabox v editoru, `auto_append`, `enabled_post_types`, fce `ux1_download_files()`.
-- [ ] `image-optimizer`: `max_height`, `convert_png_to_jpg`, kvalita per formát, sloupec/akce v Knihovně médií.
-- [ ] `dashboard-widgets`: GA4 widget nefunkční (`ga_property_id`, runReport), `dashboard_columns`, `force_layout`.
-- [ ] `review-aggregator`: atributy shortcode (`platform/count/order/min_rating`) + zobrazovací nastavení.
-- [ ] `stock-photos`: záložka v okně Média (wp.media).
-- [ ] `third-party-login`: notice „propojte účet", chybové hlášky na loginu se nezobrazují.
-- [ ] `vulnerability-scanner`: admin notice při nálezu (`notice_enabled/level`).
-- [ ] `duplicate-post`: tlačítko v editoru (Gutenberg/klasický/Woo) + modal výběru prvků.
-- [ ] `duplicate-menu`: žádné UI (jen REST) → nepoužitelné.
-- [ ] `auto-image-upload`: UI hromadné opravy (REST `/bulk` nikdo nevolá).
-- [ ] `export-posts`: export z editace příspěvku (metabox / Gutenberg panel).
-- [ ] `email-health`: výsledek posledního testu se nikde nezobrazuje (pravděp.).
-- [ ] `exit-popup`: `popup_icon`, `popup_layout`. `instagram-feed`: `show_likes`, `custom_css`.
-- [ ] `page-load`: ModuleTracker (pravděp.). `rollback-manager`: odkaz Rollback v Pluginy/Vzhled.
+- [x] `download-files`: metabox v editoru, `auto_append`, `enabled_post_types`, fce `ux1_download_files()`.
+- [x] `image-optimizer`: `max_height`, `convert_png_to_jpg`, kvalita per formát, sloupec/akce v Knihovně médií.
+- [x] `dashboard-widgets`: GA4 widget nefunkční (`ga_property_id`, runReport), `dashboard_columns`, `force_layout`.
+- [x] `review-aggregator`: atributy shortcode (`platform/count/order/min_rating`) + zobrazovací nastavení.
+- [x] `stock-photos`: záložka v okně Média (wp.media).
+- [x] `third-party-login`: notice „propojte účet", chybové hlášky na loginu se nezobrazují.
+- [x] `vulnerability-scanner`: admin notice při nálezu (`notice_enabled/level`).
+- [x] `duplicate-post`: tlačítko v editoru (Gutenberg/klasický/Woo) + modal výběru prvků.
+- [x] `duplicate-menu`: žádné UI (jen REST) → nepoužitelné.
+- [x] `auto-image-upload`: UI hromadné opravy (REST `/bulk` nikdo nevolá).
+- [x] `export-posts`: export z editace příspěvku (metabox / Gutenberg panel).
+- [x] `email-health`: výsledek posledního testu se nikde nezobrazuje (pravděp.).
+- [x] `exit-popup`: `popup_icon`, `popup_layout`. `instagram-feed`: `show_likes`, `custom_css`.
+- [x] `page-load`: ModuleTracker (pravděp.). `rollback-manager`: odkaz Rollback v Pluginy/Vzhled.
 
 Bez nových mezer: maintenance-mode, code-snippets, admin-columns, activity-log, bot-throttle,
 cron-control, email-log + 22 malých modulů (viz revize). performance-optimization vědomě zúžen.
+
+### Doplněno 2026-10-18 (commit 225972a)
+Všech 25 otevřených položek doplněno (9 agentů + kontrola). Ověřeno: php -l/node --check/tsc bez nových chyb,
+bezpečnostní průchod (REST permission, nonce, SQL, escapování), test v prohlížeči na pobyty: 48+9 SPA stránek bez chyb
+konzole a REST ≥400, Knihovna médií (složky, sloupce, akce), okno médií (složky, Fotobanka - hledání funguje),
+editor (Duplikovat, Export, soubory ke stažení), Pluginy (Rollback), frontend (exit-popup s legacy texty, push SW
+na legacy URL, open-data OFN, staré shortcody nevypisují text), duplikace menu end-to-end, stahování souborů z UX1.
+
+Vědomé odchylky / zbývá:
+- content-sync /security-monitor: bez kontroly checksumů jádra WP (changed/added/missing prázdné).
+- ai-assistant: plovoucí admin panel interního chatbota nepřenesen (chat je záložka).
+- download-files: metabox vybírá z Knihovny médií (UX1 nahrával drag&drop); soubory z UX1 se zobrazí a stáhnou.
+- push: A/B varianty, akční tlačítka a obrázek notifikace v payloadu chybí (worker je umí zobrazit).
+- image-optimizer: výchozí max_height=0 a convert_png_to_jpg=false (UX1 1920/true) - bezpečnější.
+- Migrator push: odběratelé se přenesou bez user_id/segments (doporučeno rozšířit).
+- Opening-hours: šablony v motivu čtoucí _oh_* meta nenajdou data nových poboček (_uxstudio_oh_*).
