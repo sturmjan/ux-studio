@@ -10,33 +10,16 @@ namespace UxStudio\Modules\SecurityOptimization;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * PHP is analysed on tokens, not with regexes over raw text: a word in a
- * comment (Predis' "@method eval(...)") or inside a string (the old signature
- * list of this very engine) is not a call. Single risky calls score low -
- * real libraries use exec() and base64_decode() all the time. What scores
- * high is the shape of malware: a decoder or request data fed straight into
- * eval/shell/include, or an encoded blob next to an executor.
- *
- * SVG/HTML/JS keep simple patterns - those are only scanned in uploads,
- * where markup with scripts has no business being anyway.
+ * Scores a file. PHP goes to UploadGuardPhpAnalyzer (token-level, see there
+ * why single words never decide). SVG/HTML/JS keep simple patterns - those
+ * are only scanned in uploads, where markup with scripts has no business
+ * being anyway.
  */
 final class UploadGuardDetectionEngine {
 
 	private const THRESHOLD_LOW    = 16;
 	private const THRESHOLD_MEDIUM = 31;
 	private const THRESHOLD_HIGH   = 51;
-
-	/** Run a string as PHP code. assert() only counts in combinations (it is a no-op on PHP 8). */
-	private const EXECUTORS = array( 'eval', 'assert', 'create_function' );
-
-	private const SHELL = array( 'system', 'shell_exec', 'passthru', 'exec', 'proc_open', 'popen', 'pcntl_exec' );
-
-	private const DECODERS = array( 'base64_decode', 'gzinflate', 'gzuncompress', 'gzdecode', 'str_rot13', 'convert_uudecode', 'hex2bin' );
-
-	private const INPUTS = array( '$_GET', '$_POST', '$_REQUEST', '$_COOKIE', '$_FILES' );
-
-	/** An encoded string literal at least this long counts as a blob. */
-	private const BLOB_MIN_LENGTH = 1000;
 
 	private const SVG_PATTERNS = array(
 		array( 'name' => 'svg_script', 'regex' => '/<script[^>]*>/i', 'weight' => 50, 'label' => '<script> tag in SVG' ),
@@ -99,7 +82,7 @@ final class UploadGuardDetectionEngine {
 
 		$has_code = true;
 		if ( in_array( $extension, UploadGuardScope::PHP_EXTENSIONS, true ) ) {
-			$analysis = $this->analyse_php( $content );
+			$analysis = ( new UploadGuardPhpAnalyzer() )->analyse( $content );
 			$matches  = $analysis['matches'];
 			$has_code = $analysis['has_code'];
 		} else {
@@ -140,265 +123,6 @@ final class UploadGuardDetectionEngine {
 			return 'high';
 		}
 		return 'critical';
-	}
-
-	/**
-	 * Token-level analysis of PHP source.
-	 *
-	 * @return array{matches:array,has_code:bool}
-	 */
-	private function analyse_php( string $content ): array {
-		$tokens = token_get_all( $content );
-		$lines  = explode( "\n", $content );
-
-		$ignored = array( T_OPEN_TAG, T_CLOSE_TAG, T_COMMENT, T_DOC_COMMENT, T_WHITESPACE, T_INLINE_HTML );
-		$no_call = array( T_OBJECT_OPERATOR, T_DOUBLE_COLON, T_FUNCTION, T_NEW, T_CONST );
-		if ( defined( 'T_NULLSAFE_OBJECT_OPERATOR' ) ) {
-			$no_call[] = T_NULLSAFE_OBJECT_OPERATOR;
-		}
-		$name_ids = array( T_STRING );
-		if ( defined( 'T_NAME_FULLY_QUALIFIED' ) ) {
-			$name_ids[] = T_NAME_FULLY_QUALIFIED;
-		}
-
-		$has_code   = false;
-		$line       = 1;
-		$prev       = null; // Previous significant token.
-		$statement  = $this->empty_statement();
-		$statements = array();
-		$file       = array(
-			'executor'   => 0, // Line of the first eval()/create_function() call, 0 = none.
-			'blob'       => 0,
-			'code_chars' => 0,
-			'odd_chars'  => 0,
-		);
-
-		$count = count( $tokens );
-		for ( $i = 0; $i < $count; $i++ ) {
-			$token = $tokens[ $i ];
-			$id    = is_array( $token ) ? $token[0] : null;
-			$text  = is_array( $token ) ? $token[1] : $token;
-			if ( is_array( $token ) ) {
-				$line = $token[2];
-			}
-
-			if ( null !== $id && in_array( $id, $ignored, true ) ) {
-				continue;
-			}
-			// An opening tag, exit(0); and a closing tag in front of data is how
-			// Sucuri/Wordfence guard their data files: nothing runs, not code.
-			if ( ! in_array( $id ?? $text, array( T_EXIT, T_LNUMBER, '(', ')', ';' ), true ) ) {
-				$has_code = true;
-			}
-
-			if ( ';' === $text || '{' === $text || '}' === $text ) {
-				$statements[] = $statement;
-				$statement    = $this->empty_statement();
-				$prev         = $token;
-				continue;
-			}
-
-			if ( T_CONSTANT_ENCAPSED_STRING === $id || T_ENCAPSED_AND_WHITESPACE === $id ) {
-				if ( $this->is_encoded_blob( $text ) ) {
-					$file['blob']      = $file['blob'] ?: $line;
-					$statement['blob'] = true;
-				}
-				$prev = $token;
-				continue;
-			}
-
-			if ( T_VARIABLE === $id ) {
-				if ( in_array( $text, self::INPUTS, true ) ) {
-					$statement['input'] = true;
-				}
-				// $f( $_POST[...] ): calling a function whose name sits in a variable.
-				if ( '(' === $this->next_significant( $tokens, $i ) && ! $this->is_one_of( $prev, $no_call ) ) {
-					$statement['dynamic'] = $statement['dynamic'] ?: $line;
-				}
-				$this->count_chars( $file, $text );
-				$prev = $token;
-				continue;
-			}
-
-			if ( in_array( $id, array( T_INCLUDE, T_INCLUDE_ONCE, T_REQUIRE, T_REQUIRE_ONCE ), true ) ) {
-				$statement['include'] = $statement['include'] ?: $line;
-				$prev                 = $token;
-				continue;
-			}
-
-			$name = '';
-			if ( T_EVAL === $id ) {
-				// `function eval(...)` declares a method (Predis' Client::eval), not a call.
-				$name = $this->is_one_of( $prev, $no_call ) ? '' : 'eval';
-			} elseif ( in_array( $id, $name_ids, true ) ) {
-				$this->count_chars( $file, $text );
-				if ( '(' === $this->next_significant( $tokens, $i ) && ! $this->is_one_of( $prev, $no_call ) ) {
-					$name = strtolower( ltrim( $text, '\\' ) );
-				}
-			}
-
-			if ( in_array( $name, self::EXECUTORS, true ) ) {
-				$statement['executor'] = $statement['executor'] ?: array( $name, $line );
-				if ( 'assert' !== $name ) {
-					$file['executor'] = $file['executor'] ?: $line;
-				}
-			} elseif ( in_array( $name, self::SHELL, true ) ) {
-				$statement['shell'] = $statement['shell'] ?: array( $name, $line );
-			} elseif ( in_array( $name, self::DECODERS, true ) ) {
-				$statement['decoder'] = $statement['decoder'] ?: array( $name, $line );
-			}
-
-			$prev = $token;
-		}
-		$statements[] = $statement;
-
-		return array(
-			'matches'  => $this->score_php( $statements, $file, $lines ),
-			'has_code' => $has_code,
-		);
-	}
-
-	/**
-	 * Turn collected features into weighted matches. Combinations are what
-	 * reach high/critical; lone calls stay low so libraries aren't reported.
-	 *
-	 * @param array<int,array> $statements Per-statement features.
-	 * @param array            $file       File-level features.
-	 * @param string[]         $lines      Source lines for snippets.
-	 * @return array<int,array>
-	 */
-	private function score_php( array $statements, array $file, array $lines ): array {
-		$found = array();
-		$add   = static function ( string $name, int $weight, string $label, int $line ) use ( &$found ): void {
-			if ( isset( $found[ $name ] ) ) {
-				++$found[ $name ]['count'];
-				return;
-			}
-			$found[ $name ] = array(
-				'name'   => $name,
-				'weight' => $weight,
-				'label'  => $label,
-				'line'   => $line,
-				'count'  => 1,
-			);
-		};
-
-		foreach ( $statements as $s ) {
-			$runner = $s['executor'] ?: $s['shell'];
-			if ( $runner && $s['decoder'] ) {
-				/* translators: 1: function like eval, 2: decoder like base64_decode */
-				$add( 'run_decoded', 60, sprintf( __( 'Decoded data is executed: %1$s(%2$s(...))', 'ux-studio' ), $runner[0], $s['decoder'][0] ), $runner[1] );
-			}
-			if ( $runner && $s['input'] ) {
-				/* translators: %s: function like eval or system */
-				$add( 'run_input', 60, sprintf( __( 'Request data ($_GET/$_POST/...) is passed to %s()', 'ux-studio' ), $runner[0] ), $runner[1] );
-			}
-			if ( $s['include'] && $s['input'] ) {
-				$add( 'include_input', 60, __( 'A file is included from a path taken from the request', 'ux-studio' ), $s['include'] );
-			}
-			if ( $s['executor'] && $s['blob'] ) {
-				$add( 'run_blob', 60, __( 'An encoded blob is executed in the same statement', 'ux-studio' ), $s['executor'][1] );
-			}
-			if ( $s['dynamic'] && $s['input'] && ! $runner ) {
-				$add( 'dynamic_input', 25, __( 'A function whose name is in a variable is called with request data', 'ux-studio' ), $s['dynamic'] );
-			}
-			if ( $s['executor'] && 'assert' !== $s['executor'][0] ) {
-				/* translators: %s: eval or create_function */
-				$add( 'executor', 10, sprintf( __( '%s() call', 'ux-studio' ), $s['executor'][0] ), $s['executor'][1] );
-			}
-			if ( $s['shell'] ) {
-				/* translators: %s: shell function like exec */
-				$add( 'shell', 8, sprintf( __( 'Shell command call: %s()', 'ux-studio' ), $s['shell'][0] ), $s['shell'][1] );
-			}
-		}
-
-		if ( $file['blob'] ) {
-			if ( $file['executor'] ) {
-				$add( 'blob_with_executor', 40, __( 'Long encoded string in a file that also runs eval()', 'ux-studio' ), $file['blob'] );
-			} else {
-				$add( 'blob', 5, __( 'Long encoded string', 'ux-studio' ), $file['blob'] );
-			}
-		}
-
-		if ( $file['code_chars'] >= 200 && $file['odd_chars'] / $file['code_chars'] > 0.3 ) {
-			$add( 'obfuscated_names', $file['executor'] ? 40 : 15, __( 'Function and variable names are mostly non-ASCII (obfuscation)', 'ux-studio' ), 1 );
-		}
-
-		$matches = array_values( $found );
-		foreach ( $matches as &$match ) {
-			$snippet          = trim( $lines[ $match['line'] - 1 ] ?? '' );
-			$match['snippet'] = strlen( $snippet ) > 120 ? substr( $snippet, 0, 120 ) . '...' : $snippet;
-		}
-		unset( $match );
-
-		usort( $matches, static fn( array $a, array $b ): int => $b['weight'] <=> $a['weight'] );
-		return $matches;
-	}
-
-	/**
-	 * @return array{executor:array|false,shell:array|false,decoder:array|false,include:int,dynamic:int,input:bool,blob:bool}
-	 */
-	private function empty_statement(): array {
-		return array(
-			'executor' => false,
-			'shell'    => false,
-			'decoder'  => false,
-			'include'  => 0,
-			'dynamic'  => 0,
-			'input'    => false,
-			'blob'     => false,
-		);
-	}
-
-	/**
-	 * Count identifier characters and how many of them are non-ASCII.
-	 *
-	 * @param array  $file File-level features (by reference).
-	 * @param string $text Identifier.
-	 */
-	private function count_chars( array &$file, string $text ): void {
-		$file['code_chars'] += strlen( $text );
-		$file['odd_chars']  += (int) preg_match_all( '/[^\x20-\x7E]/', $text );
-	}
-
-	/**
-	 * A long string literal made of base64 or \x escapes, not prose or markup.
-	 */
-	private function is_encoded_blob( string $literal ): bool {
-		if ( strlen( $literal ) < self::BLOB_MIN_LENGTH ) {
-			return false;
-		}
-		$body = trim( $literal, "'\"" );
-		if ( preg_match( '/^[A-Za-z0-9+\/=\r\n]+$/', $body ) ) {
-			return true;
-		}
-		return (int) preg_match_all( '/\\\\x[0-9a-fA-F]{2}/', $body ) * 4 > strlen( $body ) / 2;
-	}
-
-	/**
-	 * Text of the next token that is not whitespace or a comment.
-	 *
-	 * @param array $tokens Tokens.
-	 * @param int   $i      Current index.
-	 */
-	private function next_significant( array $tokens, int $i ): string {
-		$count = count( $tokens );
-		for ( $j = $i + 1; $j < $count; $j++ ) {
-			$token = $tokens[ $j ];
-			if ( is_array( $token ) && in_array( $token[0], array( T_WHITESPACE, T_COMMENT, T_DOC_COMMENT ), true ) ) {
-				continue;
-			}
-			return is_array( $token ) ? $token[1] : $token;
-		}
-		return '';
-	}
-
-	/**
-	 * @param array|string|null $token Token.
-	 * @param int[]             $ids   Token ids.
-	 */
-	private function is_one_of( $token, array $ids ): bool {
-		return is_array( $token ) && in_array( $token[0], $ids, true );
 	}
 
 	/**

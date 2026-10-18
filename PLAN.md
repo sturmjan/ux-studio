@@ -1569,6 +1569,36 @@ potvrzení, pád jednoho modulu shodí celý plugin.
       nálezy dávají smysl (čekáno: jednotky, ne stovky).
 - [ ] Zvážit kontrolní součty jádra WP (`api.wordpress.org/core/checksums`) a šablon.
 
+### 23.1 Databáze vzorů: php-malware-finder vs. MalwareBazaar (2026-10-18)
+
+Wordfence CLI skončil a jeho Free signatury stejně nešly komerčně. Porovnány dvě volné cesty,
+podmínka: musí běžet na obyčejném webhostingu (čisté PHP, bez exec/YARA/ClamAV).
+
+| | php-malware-finder (PMF) | MalwareBazaar |
+|---|---|---|
+| Co to je | YARA pravidla na PHP webshelly (LGPLv3), repo `jvoisin/php-malware-finder`, poslední commit 05/2023 | databáze hashů vzorků (abuse.ch), API s bezplatným klíčem |
+| Na hostingu | YARA nejde → převést regexy do PHP (ověřeno, jde) | jen HTTP dotaz s hashem, ale klíč nesmí na weby → přes CA |
+| Záchyt na 17 vzorcích PMF* | 16 | jen přesná shoda bajtů; injektovaný/per-web generovaný PHP malware má pokaždé jiný hash |
+| Falešné poplachy, lokální pobyty | **567** z 14 977 PHP (3,8 %), jádro WP **65** z 1 301 | 0 (hash) |
+| Whitelist | hashe WP verzí do 2018 → na moderním WP k ničemu | - |
+
+\* Defender zablokoval čtení 11 z 28 vzorků (c99, r57...), měřeno na 17 čitelných.
+
+**Rozhodnutí:** PMF ne jako knihovnu, ale jeho vzory přepsané do tokenového analyzátoru
+(`UploadGuardPhpAnalyzer`) - záchyt **15/17** (dřív 4/17), falešné poplachy **0** na webu
+(stále jen 6 odchylek od WordPress.org) a **1** „medium" v jádru (`update.php` include ověřeného
+pluginu). MalwareBazaar jen volitelně později, centrálně z CA nad hashi souborů, které nejdou
+ověřit kontrolními součty - přínos pro PHP malý.
+
+- [x] Analyzátor: sledování dat z požadavku přes proměnné (jen v rámci funkce, klíč do cizího pole
+      se nepočítá, přiřazení přes jinou funkci stav ruší), volání přes proměnnou/prvek pole,
+      `call_user_func($_POST..)`, nebezpečná funkce jako textový callback, `extract($_REQUEST)`,
+      literály dekódující se na `eval(` (\x/base64), include obrázku/.ico/escapované cesty, kód za
+      150+ mezerami, pozpátku psaná jména, `chr().chr()` řetěz, `preg_replace /e`, heslo
+      `md5($_POST)==hash`, krátké tagy `<?` (s vypnutým short_open_tag by je tokenizer neviděl).
+- [ ] Nezachyceno: `real/awvjtnz.php` (callback přes proměnnou vrácenou jinou proměnnou) a
+      `sucuri_2014_04.php` (callback v `array_diff_ukey`, minul ho i PMF).
+
 **Mez metody:** ClickFix plugin ze seco-traktory.cz (jen `wp_enqueue_script` s cizí doménou)
 je podle obsahu čistý a žádná heuristika ho nenajde - to řeší návrh v `PLAN-strazce-integrity.md`
 (nové soubory, které tam nikdo nedal + cizí domény na frontendu).

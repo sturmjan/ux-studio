@@ -16636,3 +16636,62 @@ msgstr "Klasický editor a widgety"
 
 msgid "Bring back the classic post editor and the classic widgets screen instead of the block editor. Each part can be switched on separately."
 msgstr "Návrat klasického editoru příspěvků a klasické obrazovky widgetů místo blokového editoru. Každou část lze zapnout zvlášť."
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:353
+#, php-format
+msgid "Function name written backwards: \"%s\""
+msgstr "Název funkce zapsaný pozpátku: „%s“"
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:359
+msgid "preg_replace() with the /e modifier executes code"
+msgstr "preg_replace() s modifikátorem /e spouští kód"
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:364
+msgid "Encoded string that decodes to PHP code (eval/system/base64_decode)"
+msgstr "Zakódovaný řetězec, který po dekódování obsahuje PHP kód (eval/system/base64_decode)"
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:392
+#, php-format
+msgid "Includes a disguised file as PHP: %s"
+msgstr "Načítá jako PHP soubor maskovaný za jiný typ: %s"
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:417
+msgid "A file is included from a path derived from request data"
+msgstr "Soubor se načítá z cesty odvozené z dat požadavku"
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:424
+msgid "A function chosen by a variable is called with request data"
+msgstr "Funkce vybraná proměnnou se volá s daty z požadavku"
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:426
+msgid "A function chosen by a variable is called with decoded data"
+msgstr "Funkce vybraná proměnnou se volá s dekódovanými daty"
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:429
+msgid "The function to call is taken from the request (call_user_func)"
+msgstr "Volaná funkce se bere z požadavku (call_user_func)"
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:433
+#, php-format
+msgid "Dangerous function \"%s\" passed as a callback"
+msgstr "Nebezpečná funkce „%s“ předaná jako callback"
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:436
+msgid "Request data compared with a hard-coded hash (password-protected shell)"
+msgstr "Data z požadavku se porovnávají s natvrdo zapsaným hashem (shell chráněný heslem)"
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:454
+msgid "extract() of request data plus a call through a variable"
+msgstr "extract() dat z požadavku a k tomu volání funkce přes proměnnou"
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:456
+msgid "extract() turns request data into variables"
+msgstr "extract() mění data z požadavku na proměnné"
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:467
+msgid "Text assembled from many chr() calls"
+msgstr "Text poskládaný z mnoha volání chr()"
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:481
+msgid "Code hidden off-screen behind hundreds of spaces"
+msgstr "Kód schovaný mimo obrazovku za stovkami mezer"
