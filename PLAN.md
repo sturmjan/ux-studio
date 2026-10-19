@@ -1807,22 +1807,31 @@ na token - bohatě stačí. Výpis záznamů cache v CA 60 s, invalidace po záp
 
 ### 24.8 Fáze
 
-- [ ] F1 CA: tabulky, `CloudflareDnsClient` (list/create/update/delete/export), napojení zóny
-      v detailu webu + ověření tokenu; ověřit PATCH vs PUT na testovací zóně
-- [ ] F2 CA: `DnsManageController` - HMAC auth, zóna ze `site_url`, `DnsValidator`, zámky
-      (auto apex + www při napojení), rate limit, optimistický zámek (409), log včetně `denied`
-- [ ] F3 CA: snapshot zóny, `revert`, `DnsChangeMailer` se slučováním dávek, denní souhrn
-      zamítnutí; historie a vrácení v detailu webu
-- [ ] F4 UX Studio: modul `DnsManager` - capability, `CaClient`, REST, lokální log,
-      nastavení „kdo smí upravovat", stav „není aktivní"
-- [ ] F5 SPA: výpis záznamů (zámky, filtr podle typu), formulář přidat/upravit, banner,
-      potvrzení prvního vstupu, potvrzovací dialog s diffem, zesílená varování MX/SPF/DKIM,
-      opsání názvu při mazání, info o šíření; Historie změn s diffem a „Vrátit"
-- [ ] F6 Překlady cs_CZ, ikona, dashboard widget, texty přes `design:ux-copy`
-- [ ] F7 Ověření na testovací zóně: všechny typy, zamčený záznam (UI i přímé volání REST
-      i CA endpointu = `denied`), cizí doména v těle ignorována, 409 při souběžné změně
-      v dashboardu, e-mail přijde i po rozbití MX testovací domény, revert, snapshot;
-      Playwright světlý/tmavý režim
+- [x] F1 CA: tabulky (migrace 113), `CloudflareDnsClient` (list/create/update/delete/export, PATCH
+      s fallbackem na PUT), napojení zóny v detailu webu (`?page=dns_admin`) + ověření tokenu
+      (`/user/tokens/verify`, `/zones?name=`, výpis záznamů). Ověřeno 19.10. proti FAKE Cloudflare
+      (`tools/fake-cloudflare.php`). NEOVĚŘENO na živé zóně: PATCH vs PUT s API tokenem
+- [x] F2 CA: `DnsManageController` (HMAC, zóna ze `site_url`), `DnsValidator`, zámky (auto apex +
+      www + hostitel), rate limit 30/h, optimistický zámek 409, log vč. `denied`; ověřeno
+      `tools/test-dns-manager.php` (150 kontrol, vše projde proti fake Cloudflare)
+- [x] F3 CA: snapshot zóny (denní + před mazáním), `revert`, `DnsChangeMailer` se slučováním dávek
+      (cron `flushDue`), denní souhrn a okamžité upozornění při 5+ zamítnutích, historie + vrácení
+      + stažení snapshotu v detailu webu. Chybí: obnova celé zóny ze snapshotu (jen stažení BIND,
+      import ručně v Cloudflare)
+- [x] F4 UX Studio: modul `DnsManager` - capability `uxstudio_manage_dns`/`view_dns`, `CaClient`,
+      REST, lokální log, nastavení „kdo smí upravovat", stav „není aktivní". Ověřeno WP -> CA
+      end-to-end na lokále (curl s cookie + nonce, fake Cloudflare): ack, create, validace,
+      zámek, 409, revert, `reauth_required` po zestárnutí přihlášení
+- [x] F5 SPA: výpis (zámky, filtr typu), formulář, banner, potvrzení prvního vstupu, potvrzovací
+      dialog s diffem, zesílená varování MX/SPF/DKIM/subdoména, opsání názvu při mazání MX /
+      poslední A na subdoméně, info o šíření; Historie s diffem a „Vrátit". Ověřeno Playwrightem
+      (Node) ve wp-admin, světlý i tmavý režim, 0 chyb v konzoli
+- [x] F6 Překlady cs_CZ (89 řetězců), ikona `globe`, dashboard widget. Texty NEPROŠLY skillem
+      `design:ux-copy` (psáno přímo podle §24.3) - doporučena revize
+- [ ] F7 Ověření na živé testovací zóně: všechny typy proti reálnému Cloudflare, 409 při souběžné
+      změně v dashboardu, e-mail po rozbití MX testovací domény (lokálně SMTP nefunguje, e-maily
+      ověřeny jen zachycením transportu), PATCH vs PUT. Proti fake Cloudflare hotovo
+      (zamčený záznam = denied, cizí zóna v těle ignorována, 409, revert, snapshot)
 - [ ] F8 Pilot na jednom klientovi, pak nasazení CA (záloha podle pravidel live serveru)
 
 ### 24.9 Pasti a rizika
