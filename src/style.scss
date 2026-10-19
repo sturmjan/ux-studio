@@ -4,7 +4,8 @@
  * shadows or motion; they only consume --uxs-* tokens.
  */
 
-#ux-studio-root {
+#ux-studio-root,
+.uxs-portal {
 	/* Brand */
 	--uxs-brand: #4f46e5;
 	--uxs-brand-strong: #4338ca;

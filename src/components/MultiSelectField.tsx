@@ -78,8 +78,13 @@ export default function MultiSelectField( {
 					<ChevronDown size={ 14 } aria-hidden="true" />
 				</Button>
 				<Popover
-					// Render inside the plugin root so the --uxs-* theme variables apply to the popover.
-					UNSTABLE_portalContainer={ document.getElementById( 'ux-studio-root' ) ?? undefined }
+					// Portalled to <body>, outside #ux-studio-root: carry the theme over so
+					// the --uxs-* variables (defined for .uxs-portal too) resolve, dark mode included.
+					data-theme={ document.getElementById( 'ux-studio-root' )?.getAttribute( 'data-theme' ) ?? 'light' }
+					// Fixed cap: react-aria otherwise sizes it to all free space and flips it
+					// above the trigger, over the WP admin bar.
+					maxHeight={ 340 }
+					containerPadding={ 40 }
 					isOpen={ open }
 					onOpenChange={ ( o ) => {
 						setOpen( o );
@@ -87,7 +92,7 @@ export default function MultiSelectField( {
 							setQuery( '' );
 						}
 					} }
-					className="uxs-multiselect__popover"
+					className="uxs-multiselect__popover uxs-portal"
 				>
 					{ showSearch ? (
 						<input

@@ -78,7 +78,8 @@ final class ExtraWidgets {
 
 		if ( $scripts ) {
 			wp_enqueue_script( 'wp-api-fetch' );
-			add_action( 'admin_footer', array( $this, 'print_script' ) );
+			// After the footer scripts (wp-api-fetch) are printed - admin_footer runs before them.
+			add_action( 'admin_print_footer_scripts', array( $this, 'print_script' ), 100 );
 		}
 	}
 
