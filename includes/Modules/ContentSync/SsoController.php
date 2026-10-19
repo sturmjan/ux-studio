@@ -82,6 +82,13 @@ final class SsoController {
 			return new WP_REST_Response( array( 'success' => false, 'error' => 'user_mapping_failed:' . $mapped['source'] ), 422 );
 		}
 
+		// Logging in as an administrator = installing code from wp-admin, so a
+		// leaked node key would mean code execution. Admin-level SSO is opt-in
+		// per site (sso_allow_admin); editors and below work as before.
+		if ( SsoOperatorMapper::is_admin_level( (int) $mapped['user_id'] ) && ! Module::setting( 'sso_allow_admin', false ) ) {
+			return new WP_REST_Response( array( 'success' => false, 'error' => 'admin_sso_disabled' ), 403 );
+		}
+
 		// Per-operator issue rate limit.
 		$rate_key = 'uxstudio_cs_sso_rate_' . md5( $email );
 		$rate     = (int) get_transient( $rate_key );

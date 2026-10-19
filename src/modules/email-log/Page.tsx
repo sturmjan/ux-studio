@@ -76,7 +76,7 @@ function DetailModal( { id, onClose }: { id: number; onClose: () => void } ): JS
 		>
 			<div
 				className="uxs-card"
-				style={ { background: '#fff', maxWidth: 720, width: '100%', padding: 'var(--uxs-sp-5, 20px)' } }
+				style={ { background: 'var(--uxs-surface)', maxWidth: 720, width: '100%', padding: 'var(--uxs-sp-5, 20px)' } }
 				onClick={ ( e ) => e.stopPropagation() }
 			>
 				<div style={ { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--uxs-sp-4)' } }>

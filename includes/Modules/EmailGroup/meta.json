@@ -1,0 +1,10 @@
+{
+	"id": "email",
+	"name": "Email",
+	"description": "Email delivery over SMTP/API, a log of every sent message with resend, and a deliverability health check. Each part can be switched on separately.",
+	"group": "admin",
+	"icon": "mail",
+	"settings": true,
+	"virtual": true,
+	"children": [ "smtp-email", "email-log", "email-health" ]
+}

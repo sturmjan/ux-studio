@@ -45,6 +45,7 @@ final class Frontend {
 		add_shortcode( 'opening_hours', array( $this, 'render_card' ) );
 		add_shortcode( 'opening_hours_status', array( $this, 'render_status' ) );
 		add_action( 'wp_head', array( $this, 'json_ld' ), 20 );
+		( new LegacyShortcodes( $this->module, $this ) )->register();
 	}
 
 	/**
@@ -53,8 +54,8 @@ final class Frontend {
 	 * @param array|string $atts Shortcode attributes.
 	 */
 	public function render_card( $atts ): string {
-		$atts     = shortcode_atts( array( 'id' => 0 ), (array) $atts, 'opening_hours' );
-		$location = $this->resolve_location( (int) $atts['id'] );
+		$atts     = shortcode_atts( array( 'id' => 0, 'location' => 0 ), (array) $atts, 'opening_hours' );
+		$location = $this->resolve_location( (int) $atts['id'] ?: (int) $atts['location'] );
 		if ( null === $location ) {
 			return '';
 		}
@@ -104,8 +105,8 @@ final class Frontend {
 	 * @param array|string $atts Shortcode attributes.
 	 */
 	public function render_status( $atts ): string {
-		$atts     = shortcode_atts( array( 'id' => 0 ), (array) $atts, 'opening_hours_status' );
-		$location = $this->resolve_location( (int) $atts['id'] );
+		$atts     = shortcode_atts( array( 'id' => 0, 'location' => 0 ), (array) $atts, 'opening_hours_status' );
+		$location = $this->resolve_location( (int) $atts['id'] ?: (int) $atts['location'] );
 		if ( null === $location ) {
 			return '';
 		}
@@ -171,6 +172,9 @@ final class Frontend {
 	 * @param string $today    Y-m-d.
 	 */
 	private function today_note( array $location, string $today ): string {
+		if ( is_array( $location['override'] ?? null ) ) {
+			return '' !== (string) $location['override']['reason'] ? (string) $location['override']['reason'] : __( 'Temporarily closed', 'ux-studio' );
+		}
 		foreach ( (array) ( $location['exceptions'] ?? array() ) as $exception ) {
 			if ( ( $exception['date'] ?? '' ) === $today && '' !== (string) ( $exception['label'] ?? '' ) ) {
 				return (string) $exception['label'];
@@ -230,6 +234,9 @@ final class Frontend {
 				'@type'         => 'PostalAddress',
 				'streetAddress' => (string) $location['address'],
 			);
+		}
+		if ( '' !== (string) ( $location['phone'] ?? '' ) ) {
+			$data['telephone'] = (string) $location['phone'];
 		}
 		if ( null !== $location['lat'] && null !== $location['lng'] ) {
 			$data['geo'] = array(

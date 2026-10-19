@@ -162,6 +162,7 @@
 
 	.uxs-tile__name { font-size: var(--uxs-fs-m); font-weight: 600; }
 	.uxs-tile__desc { color: var(--uxs-text-soft); line-height: 1.45; }
+	.uxs-tile__features { font-size: 12px; color: var(--uxs-brand); font-weight: 600; }
 
 	/* Only shown on tiles the user can actually click into (m.settings). */
 	.uxs-tile__configure {
@@ -386,6 +387,7 @@
 /* ---- Tabs (module pages with a custom SPA screen) ---- */
 .uxs-tabs {
 	display: flex;
+	flex-wrap: wrap;
 	gap: var(--uxs-sp-5);
 	border-bottom: 1px solid var(--uxs-border);
 	margin-bottom: var(--uxs-sp-5);
@@ -406,16 +408,137 @@
 	}
 }
 
+/* ---- Group page: features of a virtual group, each with its own switch ---- */
+.uxs-group__intro { color: var(--uxs-text-soft); margin: 0 0 var(--uxs-sp-5); max-width: 80ch; }
+
+.uxs-group {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 520px), 1fr));
+	gap: var(--uxs-sp-4);
+}
+
+.uxs-group__item {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--uxs-sp-4);
+	background: var(--uxs-surface);
+	border: 1px solid var(--uxs-border);
+	border-radius: var(--uxs-radius);
+	padding: var(--uxs-sp-5);
+
+	&.is-on { border-color: var(--uxs-brand); }
+
+	.uxs-tile__name { display: block; font-weight: 600; margin-bottom: var(--uxs-sp-1); }
+	.uxs-tile__desc { display: block; color: var(--uxs-text-soft); line-height: 1.45; }
+}
+
+.uxs-group__text { flex: 1 1 auto; min-width: 0; }
+
+.uxs-group__actions {
+	display: flex;
+	align-items: center;
+	gap: var(--uxs-sp-3);
+	flex-shrink: 0;
+
+	.button { display: inline-flex; align-items: center; gap: var(--uxs-sp-1); }
+}
+
+.uxs-group__crumb {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--uxs-sp-1);
+	margin-bottom: var(--uxs-sp-3);
+	color: var(--uxs-text-soft);
+	text-decoration: none;
+	font-weight: 600;
+
+	&:hover { color: var(--uxs-brand); }
+}
+
+/* ---- Module overview filter (search + group pills + status) ---- */
+.uxs-modulefilter {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--uxs-sp-3) var(--uxs-sp-4);
+	margin-bottom: var(--uxs-sp-5);
+
+	.uxs-subtabs { margin-bottom: 0; flex: 1 1 auto; }
+
+	.uxs-modulefilter__search,
+	.uxs-modulefilter__status {
+		background: var(--uxs-surface);
+		color: var(--uxs-text);
+		border: 1px solid var(--uxs-border);
+		border-radius: var(--uxs-radius-s);
+		padding: 0 var(--uxs-sp-3);
+		height: 38px;
+		min-height: 38px;
+		line-height: 36px;
+		font-size: var(--uxs-fs);
+
+		&:focus { outline: none; border-color: var(--uxs-brand); box-shadow: 0 0 0 3px var(--uxs-brand-soft); }
+	}
+
+	.uxs-modulefilter__status { padding-right: var(--uxs-sp-6); }
+
+	.uxs-modulefilter__search { flex: 0 1 280px; min-width: 200px; }
+}
+
+.uxs-modulefilter__empty { color: var(--uxs-text-soft); }
+
+/* ---- Sub-tabs: sections of one settings form (second level under .uxs-tabs) ---- */
+.uxs-subtabs {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--uxs-sp-2);
+	margin-bottom: var(--uxs-sp-4);
+
+	button {
+		background: var(--uxs-surface);
+		border: 1px solid var(--uxs-border);
+		border-radius: 999px;
+		padding: var(--uxs-sp-1) var(--uxs-sp-4);
+		font-size: var(--uxs-fs);
+		font-weight: 600;
+		color: var(--uxs-text-soft);
+		cursor: pointer;
+		transition: color var(--uxs-motion-fast) var(--uxs-ease), background var(--uxs-motion-fast) var(--uxs-ease), border-color var(--uxs-motion-fast) var(--uxs-ease);
+
+		&:hover { color: var(--uxs-text); border-color: var(--uxs-text-soft); }
+		&.is-active { color: #fff; background: var(--uxs-brand); border-color: var(--uxs-brand); }
+		&:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--uxs-brand-soft); }
+	}
+}
+
 /* ---- Settings form (generic schema renderer) ---- */
 .uxs-form {
 	background: var(--uxs-surface);
 	border: 1px solid var(--uxs-border);
 	border-radius: var(--uxs-radius);
 	padding: var(--uxs-sp-5);
-	max-width: 720px;
 	display: flex;
 	flex-direction: column;
 	gap: var(--uxs-sp-4);
+
+	/* Generic settings renderer: fill the page width with as many columns as
+	 * fit, instead of a narrow column that leaves empty space on the right. */
+	&.uxs-form--grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
+		gap: var(--uxs-sp-5) var(--uxs-sp-6);
+		align-items: start;
+
+		.uxs-form__row--wide { grid-column: 1 / -1; }
+
+		/* Fill the grid cell; number fields stay compact. */
+		.uxs-form__row {
+			input[type="text"],
+			select,
+			textarea { width: 100%; box-sizing: border-box; }
+			input[type="number"] { max-width: 180px; }
+		}
+	}
 
 	.uxs-form__row {
 		display: flex;
@@ -443,6 +566,15 @@
 				box-shadow: 0 0 0 3px var(--uxs-brand-soft);
 			}
 		}
+	}
+
+	.uxs-color {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--uxs-sp-3);
+
+		input.is-empty { opacity: 0.3; }
+		code { background: none; padding: 0; color: var(--uxs-text-soft); }
 	}
 
 	.uxs-media {

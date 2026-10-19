@@ -1,0 +1,8 @@
+{
+	"id": "redirects",
+	"name": "Redirects",
+	"description": "SEO-safe 301/308/410 redirects with chain and loop protection, 404 log and AI tools (Redirection plugin replacement).",
+	"group": "content",
+	"icon": "signpost",
+	"settings": true
+}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { FileText, LoaderCircle, Sparkles, Upload } from 'lucide-react';
@@ -82,10 +82,32 @@ const POST_TYPES: { id: string; label: string }[] = [
 const TONES: { id: string; label: string }[] = [
 	{ id: 'neutral', label: __( 'Neutral', 'ux-studio' ) },
 	{ id: 'professional', label: __( 'Professional', 'ux-studio' ) },
+	{ id: 'formal', label: __( 'Formal', 'ux-studio' ) },
+	{ id: 'trustworthy', label: __( 'Trustworthy', 'ux-studio' ) },
 	{ id: 'friendly', label: __( 'Friendly', 'ux-studio' ) },
+	{ id: 'witty', label: __( 'Witty', 'ux-studio' ) },
 	{ id: 'persuasive', label: __( 'Persuasive', 'ux-studio' ) },
 	{ id: 'enthusiastic', label: __( 'Enthusiastic', 'ux-studio' ) },
 ];
+
+/** Default tone/length from the module settings (default_tone / default_length). */
+function useContentDefaults( setTone: ( v: string ) => void, setLength: ( v: string ) => void ): void {
+	const { data } = useQuery( {
+		queryKey: [ 'settings', 'ai-assistant' ],
+		queryFn: () => api< { values: Record< string, unknown > } >( 'settings/ai-assistant' ),
+	} );
+	const tone = data?.values.default_tone;
+	const length = data?.values.default_length;
+	useEffect( () => {
+		if ( 'string' === typeof tone && tone ) {
+			setTone( tone );
+		}
+		if ( 'string' === typeof length && length ) {
+			setLength( length );
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ tone, length ] );
+}
 
 const LENGTHS: { id: string; label: string }[] = [
 	{ id: 'short', label: __( 'Short', 'ux-studio' ) },
@@ -104,6 +126,7 @@ function PostGeneratorSection(): JSX.Element {
 	const [ postType, setPostType ] = useState( 'post' );
 	const [ tone, setTone ] = useState( 'neutral' );
 	const [ length, setLength ] = useState( 'medium' );
+	useContentDefaults( setTone, setLength );
 	const [ description, setDescription ] = useState( '' );
 	const [ focusKeyword, setFocusKeyword ] = useState( '' );
 	const [ result, setResult ] = useState< GeneratedContent | null >( null );
@@ -252,6 +275,7 @@ function PostGeneratorSection(): JSX.Element {
 function WooGeneratorSection(): JSX.Element {
 	const [ tone, setTone ] = useState( 'neutral' );
 	const [ length, setLength ] = useState( 'medium' );
+	useContentDefaults( setTone, setLength );
 	const [ description, setDescription ] = useState( '' );
 	const [ result, setResult ] = useState< GeneratedWoo | null >( null );
 

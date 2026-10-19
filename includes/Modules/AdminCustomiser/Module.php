@@ -55,6 +55,31 @@ final class Module extends BaseModule {
 	}
 
 	/**
+	 * Normalize values the legacy framework stored in other shapes so the
+	 * generic settings form shows (and re-saves) them correctly: `file` fields
+	 * are arrays of attachment IDs, empty checklists / toggles are ''.
+	 */
+	public function settings_values(): array {
+		$values = parent::settings_values();
+
+		foreach ( array( 'login_logo', 'admin_bar_logo' ) as $key ) {
+			if ( isset( $values[ $key ] ) ) {
+				$values[ $key ] = AdminTheme::attachment_id( $values[ $key ] );
+			}
+		}
+		foreach ( array( 'hide_admin_bar_elements', 'global__update_notifications', 'form_options' ) as $key ) {
+			if ( isset( $values[ $key ] ) && ! is_array( $values[ $key ] ) ) {
+				$values[ $key ] = array();
+			}
+		}
+		if ( isset( $values['hide_sidebar_icons'] ) ) {
+			$values['hide_sidebar_icons'] = true === $values['hide_sidebar_icons'] || 1 === $values['hide_sidebar_icons'] || '1' === $values['hide_sidebar_icons'];
+		}
+
+		return $values;
+	}
+
+	/**
 	 * Settings schema shared by every Admin Customiser sub-feature. Fields
 	 * belonging to domains ported by the concurrent agent (admin bar, quick
 	 * search, login, icon replacer, hide notices, server clock, theming) are
@@ -71,90 +96,105 @@ final class Module extends BaseModule {
 		return array(
 			array(
 				'key'     => 'primary_color',
+				'section' => __( 'Admin screens', 'ux-studio' ),
 				'type'    => 'color',
 				'label'   => __( 'Primary color', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
 				'key'     => 'login_logo',
+				'section' => __( 'Login page', 'ux-studio' ),
 				'type'    => 'media',
 				'label'   => __( 'Login screen logo', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
 				'key'     => 'login_background_color',
+				'section' => __( 'Login page', 'ux-studio' ),
 				'type'    => 'color',
 				'label'   => __( 'Login screen background color', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
 				'key'     => 'login_text_color',
+				'section' => __( 'Login page', 'ux-studio' ),
 				'type'    => 'color',
 				'label'   => __( 'Login screen text color', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
 				'key'     => 'login_form_bg_color',
+				'section' => __( 'Login page', 'ux-studio' ),
 				'type'    => 'color',
 				'label'   => __( 'Login form background color', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
 				'key'     => 'login_form_text_color',
+				'section' => __( 'Login page', 'ux-studio' ),
 				'type'    => 'color',
 				'label'   => __( 'Login form text color', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
 				'key'     => 'login_form_border_color',
+				'section' => __( 'Login page', 'ux-studio' ),
 				'type'    => 'color',
 				'label'   => __( 'Login form border color', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
 				'key'     => 'login_form_border_radius',
+				'section' => __( 'Login page', 'ux-studio' ),
 				'type'    => 'number',
 				'label'   => __( 'Login form corner radius (px)', 'ux-studio' ),
 				'default' => 0,
 			),
 			array(
 				'key'     => 'login_input_bg_color',
+				'section' => __( 'Login page', 'ux-studio' ),
 				'type'    => 'color',
 				'label'   => __( 'Login field background color', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
 				'key'     => 'login_input_text_color',
+				'section' => __( 'Login page', 'ux-studio' ),
 				'type'    => 'color',
 				'label'   => __( 'Login field text color', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
 				'key'     => 'login_input_border_color',
+				'section' => __( 'Login page', 'ux-studio' ),
 				'type'    => 'color',
 				'label'   => __( 'Login field border color', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
 				'key'     => 'login_button_bg_color',
+				'section' => __( 'Login page', 'ux-studio' ),
 				'type'    => 'color',
 				'label'   => __( 'Login button background color', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
 				'key'     => 'login_button_text_color',
+				'section' => __( 'Login page', 'ux-studio' ),
 				'type'    => 'color',
 				'label'   => __( 'Login button text color', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
 				'key'     => 'login_remember_me_default',
+				'section' => __( 'Login page', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( '"Remember me" checked by default', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
 				'key'     => 'login_message',
+				'section' => __( 'Login page', 'ux-studio' ),
 				'type'    => 'textarea',
 				'label'   => __( 'Custom message above the login form', 'ux-studio' ),
 				'help'    => __( 'Plain text/basic HTML shown above the username/password fields.', 'ux-studio' ),
@@ -162,6 +202,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'login_style',
+				'section' => __( 'Login page', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'Login screen layout', 'ux-studio' ),
 				'help'    => __( '"Split" reproduces the Centrální aplikace login screen: a full-height media panel (video/image/YouTube) on one side and the form on the other.', 'ux-studio' ),
@@ -173,6 +214,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'login_split_media_type',
+				'section' => __( 'Login page', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'Split layout: media panel type', 'ux-studio' ),
 				'options' => array(
@@ -184,6 +226,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'login_split_media_image',
+				'section' => __( 'Login page', 'ux-studio' ),
 				'type'    => 'media',
 				'label'   => __( 'Split layout: image / video poster', 'ux-studio' ),
 				'help'    => __( 'Used directly when the media type is "Static image", and as the poster/fallback frame for "Video" and "YouTube". Left empty, "Video" falls back to the same background clip used on the Centrální aplikace login screen.', 'ux-studio' ),
@@ -191,6 +234,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'login_split_media_video_url',
+				'section' => __( 'Login page', 'ux-studio' ),
 				'type'    => 'text',
 				'label'   => __( 'Split layout: video URL (MP4)', 'ux-studio' ),
 				'help'    => __( 'Link to an .mp4 file - an external URL or a link copied from the media library. Used only when the media type is "Video". Left empty, it loads the same background clip used on the Centrální aplikace login screen (not bundled with the plugin, fetched from ux1.cz).', 'ux-studio' ),
@@ -198,36 +242,42 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'login_split_media_youtube_url',
+				'section' => __( 'Login page', 'ux-studio' ),
 				'type'    => 'text',
 				'label'   => __( 'Split layout: YouTube URL or video ID', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
 				'key'     => 'login_split_show_logo',
+				'section' => __( 'Login page', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Split layout: show logo over the media panel', 'ux-studio' ),
 				'default' => true,
 			),
 			array(
 				'key'     => 'admin_footer_text',
+				'section' => __( 'Admin screens', 'ux-studio' ),
 				'type'    => 'text',
 				'label'   => __( 'Admin footer text', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
 				'key'     => 'hide_screen_options',
+				'section' => __( 'Admin screens', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Hide "Screen Options" tab', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
 				'key'     => 'hide_help_tab',
+				'section' => __( 'Admin screens', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Hide "Help" tab', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
 				'key'     => 'menu_organizer_enabled',
+				'section' => __( 'Sidebar menu', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Enable menu organizer', 'ux-studio' ),
 				'help'    => __( 'Reorganizes the WordPress admin menu into custom categories. Configure categories, item order and overrides in the Menu Organizer tab.', 'ux-studio' ),
@@ -235,18 +285,218 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'admin_bar_enabled',
+				'section' => __( 'Admin bar', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Enable admin bar customization', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
+				'key'     => 'body_bg_color',
+				'section' => __( 'Admin screens', 'ux-studio' ),
+				'type'    => 'color',
+				'label'   => __( 'Admin page background color', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'admin_bar_logo',
+				'section' => __( 'Admin bar', 'ux-studio' ),
+				'type'    => 'media',
+				'label'   => __( 'Admin bar logo', 'ux-studio' ),
+				'help'    => __( 'Replaces the WordPress logo in the admin bar.', 'ux-studio' ),
+				'default' => 0,
+			),
+			array(
+				'key'     => 'admin_bar_bg_color',
+				'section' => __( 'Admin bar', 'ux-studio' ),
+				'type'    => 'color',
+				'label'   => __( 'Admin bar background color', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'admin_bar_bg_dropdown_color',
+				'section' => __( 'Admin bar', 'ux-studio' ),
+				'type'    => 'color',
+				'label'   => __( 'Admin bar dropdown background color', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'admin_bar_text_color',
+				'section' => __( 'Admin bar', 'ux-studio' ),
+				'type'    => 'color',
+				'label'   => __( 'Admin bar text color', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'admin_bar_text_hover_color',
+				'section' => __( 'Admin bar', 'ux-studio' ),
+				'type'    => 'color',
+				'label'   => __( 'Admin bar text hover color', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'hide_admin_bar_elements',
+				'section' => __( 'Admin bar', 'ux-studio' ),
+				'type'    => 'multiselect',
+				'label'   => __( 'Hide admin bar elements', 'ux-studio' ),
+				'options' => array(
+					'wp_logo'   => __( 'WordPress logo', 'ux-studio' ),
+					'icons'     => __( 'Icons', 'ux-studio' ),
+					'updates'   => __( 'Updates item', 'ux-studio' ),
+					'customize' => __( 'Customize item', 'ux-studio' ),
+					'comments'  => __( 'Comments item', 'ux-studio' ),
+					'new_item'  => __( 'New item', 'ux-studio' ),
+				),
+				'default' => array(),
+			),
+			array(
+				'key'     => 'hide_howdy_name',
+				'section' => __( 'Admin bar', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Admin bar: show only the avatar', 'ux-studio' ),
+				'help'    => __( 'The user name stays in the dropdown menu. Applies when admin bar customization is enabled.', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
+				'key'     => 'move_updates_right',
+				'section' => __( 'Admin bar', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Admin bar: move updates to the right', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
+				'key'     => 'consolidate_plugin_actions',
+				'section' => __( 'Admin bar', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Admin bar: collapse plugin items under "+"', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
+				'key'     => 'keep_on_bar_ids',
+				'section' => __( 'Admin bar', 'ux-studio' ),
+				'type'    => 'textarea',
+				'label'   => __( 'Admin bar: keep these items on the bar', 'ux-studio' ),
+				'help'    => __( 'Admin bar item IDs (one per line or comma separated) that must NOT be collapsed under "+". Full IDs (e.g. wp-admin-bar-notifications) and prefixes both work. Tip: right-click an icon in the admin bar and choose Inspect to find its ID.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'move_site_link_right',
+				'section' => __( 'Admin bar', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Admin bar: site name as a link icon on the right', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
+				'key'     => 'horizontal_menu_inline',
+				'section' => __( 'Sidebar menu', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Horizontal menu on the same row as the admin bar', 'ux-studio' ),
+				'help'    => __( 'Merges the horizontal menu and the admin bar into one row. Applies only when the Menu Organizer uses the horizontal layout.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'sidebar_bg_color',
+				'section' => __( 'Sidebar menu', 'ux-studio' ),
+				'type'    => 'color',
+				'label'   => __( 'Sidebar background color', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'sidebar_text_color',
+				'section' => __( 'Sidebar menu', 'ux-studio' ),
+				'type'    => 'color',
+				'label'   => __( 'Sidebar text color', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'selected_menu_bg_color',
+				'section' => __( 'Sidebar menu', 'ux-studio' ),
+				'type'    => 'color',
+				'label'   => __( 'Sidebar active item background', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'selected_menu_text_color',
+				'section' => __( 'Sidebar menu', 'ux-studio' ),
+				'type'    => 'color',
+				'label'   => __( 'Sidebar active item text', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'hover_menu_bg_color',
+				'section' => __( 'Sidebar menu', 'ux-studio' ),
+				'type'    => 'color',
+				'label'   => __( 'Sidebar hover item background', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'hover_menu_text_color',
+				'section' => __( 'Sidebar menu', 'ux-studio' ),
+				'type'    => 'color',
+				'label'   => __( 'Sidebar hover item text', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'sidebar_icons_color',
+				'section' => __( 'Sidebar menu', 'ux-studio' ),
+				'type'    => 'color',
+				'label'   => __( 'Sidebar icons color', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'hide_sidebar_icons',
+				'section' => __( 'Sidebar menu', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Hide sidebar icons', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'sidebar_width',
+				'section' => __( 'Sidebar menu', 'ux-studio' ),
+				'type'    => 'number',
+				'label'   => __( 'Sidebar width (px, 120-300)', 'ux-studio' ),
+				'help'    => __( 'WordPress default is 160.', 'ux-studio' ),
+				'default' => 160,
+			),
+			array(
+				'key'     => 'global__update_notifications',
+				'section' => __( 'Admin screens', 'ux-studio' ),
+				'type'    => 'multiselect',
+				'label'   => __( 'Suppress update notifications', 'ux-studio' ),
+				'help'    => __( 'The selected update checks report "nothing to update", so the update nags and admin bar badges disappear. Applies when hiding admin notices is enabled.', 'ux-studio' ),
+				'options' => array(
+					'core'   => __( 'Core', 'ux-studio' ),
+					'theme'  => __( 'Themes', 'ux-studio' ),
+					'plugin' => __( 'Plugins', 'ux-studio' ),
+				),
+				'default' => array(),
+			),
+			array(
+				'key'     => 'form_options',
+				'section' => __( 'Login page', 'ux-studio' ),
+				'type'    => 'multiselect',
+				'label'   => __( 'Login form options', 'ux-studio' ),
+				'options' => array(
+					'hide_login_logo' => __( 'Hide login logo', 'ux-studio' ),
+				),
+				'default' => array(),
+			),
+			array(
+				'key'     => 'login_form_text_hover_color',
+				'section' => __( 'Login page', 'ux-studio' ),
+				'type'    => 'color',
+				'label'   => __( 'Login form text hover color', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
 				'key'     => 'quick_search_enabled',
+				'section' => __( 'Admin screens', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Enable quick search', 'ux-studio' ),
 				'default' => true,
 			),
 			array(
 				'key'     => 'quick_search_post_types',
+				'section' => __( 'Admin screens', 'ux-studio' ),
 				'type'    => 'multiselect',
 				'label'   => __( 'Quick search post types', 'ux-studio' ),
 				'options' => $post_type_options,
@@ -254,18 +504,21 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'icon_replacer_enabled',
+				'section' => __( 'Sidebar menu', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Enable icon replacer', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
 				'key'     => 'hide_notices_enabled',
+				'section' => __( 'Admin screens', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Hide admin notices', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
 				'key'     => 'hide_notices_relocate',
+				'section' => __( 'Admin screens', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Relocate instead of hiding', 'ux-studio' ),
 				'help'    => __( 'Move notices to a tray instead of hiding them completely', 'ux-studio' ),
@@ -273,12 +526,14 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'server_clock_enabled',
+				'section' => __( 'Admin bar', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Enable server clock', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
 				'key'     => 'server_clock_position',
+				'section' => __( 'Admin bar', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'Server clock position', 'ux-studio' ),
 				'options' => array(
@@ -289,6 +544,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'login_customization_enabled',
+				'section' => __( 'Login page', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Enable login screen customization', 'ux-studio' ),
 				'default' => false,

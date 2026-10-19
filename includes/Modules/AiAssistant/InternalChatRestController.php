@@ -105,6 +105,14 @@ final class InternalChatRestController extends Controller {
 			}
 		}
 
+		if ( ! AssistantConfig::flag( 'chatbot_enabled', true ) ) {
+			header( 'Content-Type: text/event-stream' );
+			header( 'Cache-Control: no-cache' );
+			echo 'data: ' . wp_json_encode( array( 'error' => __( 'The internal chatbot is disabled in the AI Assistant settings.', 'ux-studio' ) ) ) . "\n\n";
+			flush();
+			exit;
+		}
+
 		$limit_error = UsageLimiter::check();
 		if ( null !== $limit_error ) {
 			header( 'Content-Type: text/event-stream' );

@@ -1,0 +1,10 @@
+{
+	"id": "redirect-tools",
+	"name": "Redirects",
+	"description": "SEO-safe redirects with a 404 log, and an optional catch-all that sends every 404 to the homepage. Each part can be switched on separately.",
+	"group": "content",
+	"icon": "signpost",
+	"settings": true,
+	"virtual": true,
+	"children": [ "redirects", "redirect-404-to-homepage" ]
+}

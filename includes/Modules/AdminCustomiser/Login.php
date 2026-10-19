@@ -171,6 +171,9 @@ final class Login {
 			$css .= $this->split_layout_css();
 		}
 
+		// Legacy form_options "hide login logo" + login_form_text_hover_color (see LoginExtras).
+		$css .= LoginExtras::css( $this->settings, $this->is_split() );
+
 		if ( '' === $css ) {
 			return;
 		}

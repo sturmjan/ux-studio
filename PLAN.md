@@ -1474,3 +1474,377 @@ Zbývá / k rozhodnutí:
 - [ ] File Manager `?auth=` přestane fungovat, když je zapnutá CAPTCHA na loginu (důsledek
       toho, že teď jde přes `wp_authenticate`).
 
+
+## 22. Přesměrování - modul `redirects` (2026-10-16)
+
+Náhrada pluginu Redirection (wordpress.org/plugins/redirection), se kterou umí AI pracovat
+nativně přes Abilities API (jádro WP 6.9+, na lokálu 7.1) → MCP. Mapování starých URL na
+nové dělá AI agent sám, modul hlídá, aby výsledek odpovídal SEO pravidlům.
+
+**SEO pravidla zabudovaná v `Repository::save()` (platí pro UI, import, AI i auto-redirect):**
+- 301 výchozí (308 = trvalé se zachováním metody, 302/307 dočasné s varováním, 410 = obsah
+  zrušen bez náhrady → rychlejší vyřazení z indexu než 404, vykresleno 404 šablonou + noindex);
+- žádné smyčky ani přesměrování na sebe (včetně zdroje bez query, který chytá libovolnou query,
+  a regexu, který chytá vlastní cíl);
+- žádné řetězy: A→B + B→C se uloží jako A→C, a když přibude B→C později, starší A→B se
+  přesměruje na C (`repoint_upstream`);
+- cíl na tomhle webu se uloží relativně a naváže na `post_id` → po změně slugu se cíl posune sám;
+- varování: cíl = homepage (Google bere jako soft 404), dočasný kód, neověřený cíl, zdroj má
+  živý obsah; systémové cesty (wp-admin, wp-login.php, wp-json…) a homepage jako zdroj zakázané.
+
+**Engine:** `init` prio 1, jen front-end GET/HEAD přes index.php. Exact = 1 indexovaný dotaz
+přes sha1 hash (cesta lowercase, bez koncového lomítka, dekódovaná, query seřazená); regexy
+v autoloaded optionu `uxstudio_redirects_state`. Query návštěvníka (utm, gclid) se přenáší.
+301/308 dostane `Cache-Control: max-age=3600` (jinak to prohlížeč cachuje navždy).
+`X-Redirect-By: UX Studio Redirects`. Modul `redirect-404-to-homepage` respektuje
+`Engine::handled()` (410 se nikdy nezmění na redirect na homepage).
+
+**AI (category `redirects`):** `list-rules`, `upsert-rules` (max 500, `dry_run` výchozí true,
+per-položka status + errors/warnings), `delete-rules`, `test-url` (průchod pravidly + `live`
+HTTP s reálnými kódy každého hopu), `audit` (+`fix_chains`), `list-404` (`unresolved_only`),
+`list-site-urls` (inventář nového webu), `find-target` (kandidáti podle slugu/titulku, skóre).
+Stejné operace v REST `uxstudio/v1/redirects/*` pro SPA.
+
+**Další:** log 404 agregovaný po URL (bez IP, retence 90 dní, strop 20 000 řádků), automatická
+301 při změně slugu/rodiče publikovaného obsahu (i podstránky), import CSV + z tabulek
+Redirection, export CSV, SPA (pravidla + test URL, 404, SEO audit, import/export, nastavení).
+
+- [x] PHP: Url, Repository, Engine, NotFoundLog, Tester, Importer, SiteIndex, Abilities,
+      RestController, Module; php -l čisté; normalizace URL ověřena samostatným testem (13 případů)
+- [x] SPA `src/modules/redirects/Page.tsx`, ikona `signpost`, registry
+- [x] Ověřeno na lokálu 16.10. (po opravě DB): tabulky, uložení přes Repository (smyčka, self,
+      wp-admin zamítnuté; řetěz zploštěn na 1 hop; upstream A→B přepojen na post), curl: 301 s utm,
+      case/lomítko, query pravidlo, regex `$1`, `/$1` neutekl na cizí host, 410 + noindex,
+      `X-Redirect-By`; auto-301 při změně slugu + smazání pravidla na obnovené URL; log 404;
+      8 abilities (dry-run výchozí, volání bez vstupu OK); REST pro SPA; dry-run importu z
+      Redirection na pobyty = 338 pravidel. Pozn.: `.htaccess` (Performance Optimization) přepisuje
+      `Cache-Control` na `no-cache` pro všechny .php → 301 se v prohlížeči necachuje (neškodné).
+- [x] Překlady cs_CZ (100 řetězců vč. meta.json). PAST: `wp i18n update-po` vyhodí ručně vedené
+      msgid z meta.json (nejsou v kódu) - nové řetězce připisovat do .po cíleně, pak make-mo,
+      make-json, merge-json.
+- [x] Vizuálně ověřeno 18.10. v wp-admin (Playwright přes Node): 5 záložek česky, přidání pravidla z formuláře, světlý i tmavý režim, 0 chyb v konzoli i REST; opraven rámeček v rámečku a bílé hledání v tmavém režimu (79983a1)
+- [ ] Import z Redirection na webu, kde ho používá, pak Redirection vypnout
+- [ ] Zvážit: `trash` publikovaného obsahu → nabídnout 410/redirect (záměrně vynecháno,
+      automatická 410 by blokovala obnovení z koše)
+
+## 23. Upload Guard - incident 16.-17. 10. a přestavba na „jen hlásí" (2026-10-18)
+
+**Co se stalo:** noční plný sken (17 714 souborů) označil 189 jako podezřelé a 12 z nich sám
+přesunul do karantény (`uxstudio_security_auto_quarantine` = výchozí `true`). Žádný nebyl
+škodlivý: Predis/Credis (Redis Cache - slovo `eval` v docblocku), 2× Akeeba, 6× UX1, 2× UX Studio
+včetně `UploadGuardDetectionEngine.php`. Bez něj padal autoload v `boot()` → fatal na každém
+requestu → 500 celého webu. Soubory vráceny ručně, modul Security vypnutý.
+
+**Příčiny:** skóre podle výskytu slov v surovém textu (komentáře, řetězce), detektor bez výjimky
+na sebe sama (305 bodů), sken celého wp-content včetně cizích pluginů, destruktivní akce bez
+potvrzení, pád jednoho modulu shodí celý plugin.
+
+**Nový model:**
+- [x] Skener jen čte a hlásí. Automatická karanténa odstraněna úplně (i filtr). Karanténa =
+      ruční akce u jednoho nálezu s potvrzením (`POST findings/{id}/quarantine`).
+- [x] `UploadGuardQuarantine::quarantine_file` odmítne soubory, které web načítá (jádro, aktivní
+      plugin/šablona, drop-in, vlastní kód, `get_included_files()`) - `UploadGuardScope::protection_reason`.
+      Odmítne i soubor změněný od skenu (hash).
+- [x] Rozsah: uploads (PHP + js/svg/html), mu-plugins, drop-iny ve wp-content, plugins, themes
+      (jen PHP). Cache, upgrade, zálohy apod. se neprochází.
+- [x] Natvrdo vyjmuto: `ux-studio`, `ux1-wordpress-customizer`, karanténa, složky
+      `vendor`/`vendor-prefixed`/`node_modules`/`bower_components`/`dependencies` v kódu.
+- [x] Pluginy z WordPress.org: MD5 proti `downloads.wordpress.org/plugin-checksums/<slug>/<ver>.json`
+      (transient 12 h, negativní 24 h). Shoda = čisté bez heuristiky. Liší se = high, není v balíčku
+      = medium, plus heuristika.
+- [x] PHP v uploads = high, pokud obsahuje aspoň jeden spustitelný token (prázdný „Silence is
+      golden" index.php je čistý).
+- [x] Detektor PHP nad tokeny (`token_get_all`): komentáře a řetězce se ignorují, volání metod
+      (`->exec`, `::exec`) a deklarace (`function eval`) nejsou volání. Kritické jsou jen kombinace
+      v jednom příkazu: dekodér → eval/shell, `$_GET/$_POST/...` → eval/shell/include,
+      blob → eval. Osamocené `exec()`/`eval()` = low, nehlásí se.
+- [x] Migrace DB v3: smazány otevřené nálezy starého enginu a neschválená cache hashů
+      (rozhodnutí admina - karanténa/schváleno/smazáno, schválené hashe - zůstávají).
+- [x] Schválení nálezu v karanténě, který už byl ručně vrácen, nespadne na „restore failed".
+- [x] Jádro: `Modules::boot_module` v `try/catch Throwable` - modul, který nenaběhne, se pro daný
+      request přeskočí a v adminu se ukáže chyba. Nevypíná se natrvalo (po vrácení souboru naběhne sám).
+- [x] Výkon: sestavení seznamu na lokálu 157 s → 6,8 s (kontrola podle jména, `stat()` až u
+      relevantních souborů; adresáře resolvované jednou za request).
+- [ ] Nasadit na web, kde incident proběhl, zapnout Security a pustit sken - zkontrolovat, že
+      nálezy dávají smysl (čekáno: jednotky, ne stovky).
+- [ ] Zvážit kontrolní součty jádra WP (`api.wordpress.org/core/checksums`) a šablon.
+
+### 23.1 Databáze vzorů: php-malware-finder vs. MalwareBazaar (2026-10-18)
+
+Wordfence CLI skončil a jeho Free signatury stejně nešly komerčně. Porovnány dvě volné cesty,
+podmínka: musí běžet na obyčejném webhostingu (čisté PHP, bez exec/YARA/ClamAV).
+
+| | php-malware-finder (PMF) | MalwareBazaar |
+|---|---|---|
+| Co to je | YARA pravidla na PHP webshelly (LGPLv3), repo `jvoisin/php-malware-finder`, poslední commit 05/2023 | databáze hashů vzorků (abuse.ch), API s bezplatným klíčem |
+| Na hostingu | YARA nejde → převést regexy do PHP (ověřeno, jde) | jen HTTP dotaz s hashem, ale klíč nesmí na weby → přes CA |
+| Záchyt na 17 vzorcích PMF* | 16 | jen přesná shoda bajtů; injektovaný/per-web generovaný PHP malware má pokaždé jiný hash |
+| Falešné poplachy, lokální pobyty | **567** z 14 977 PHP (3,8 %), jádro WP **65** z 1 301 | 0 (hash) |
+| Whitelist | hashe WP verzí do 2018 → na moderním WP k ničemu | - |
+
+\* Defender zablokoval čtení 11 z 28 vzorků (c99, r57...), měřeno na 17 čitelných.
+
+**Rozhodnutí:** PMF ne jako knihovnu, ale jeho vzory přepsané do tokenového analyzátoru
+(`UploadGuardPhpAnalyzer`) - záchyt **15/17** (dřív 4/17), falešné poplachy **0** na webu
+(stále jen 6 odchylek od WordPress.org) a **1** „medium" v jádru (`update.php` include ověřeného
+pluginu). MalwareBazaar jen volitelně později, centrálně z CA nad hashi souborů, které nejdou
+ověřit kontrolními součty - přínos pro PHP malý.
+
+- [x] Analyzátor: sledování dat z požadavku přes proměnné (jen v rámci funkce, klíč do cizího pole
+      se nepočítá, přiřazení přes jinou funkci stav ruší), volání přes proměnnou/prvek pole,
+      `call_user_func($_POST..)`, nebezpečná funkce jako textový callback, `extract($_REQUEST)`,
+      literály dekódující se na `eval(` (\x/base64), include obrázku/.ico/escapované cesty, kód za
+      150+ mezerami, pozpátku psaná jména, `chr().chr()` řetěz, `preg_replace /e`, heslo
+      `md5($_POST)==hash`, krátké tagy `<?` (s vypnutým short_open_tag by je tokenizer neviděl).
+- [ ] Nezachyceno: `real/awvjtnz.php` (callback přes proměnnou vrácenou jinou proměnnou) a
+      `sucuri_2014_04.php` (callback v `array_diff_ukey`, minul ho i PMF).
+
+### 23.2 Kdy a jak rychle sken běží (2026-10-19)
+
+**Předtím:** plný sken každou noc v pevných 03:00 UTC (všechny weby na serveru naráz), pokaždé
+znovu čte a hashuje všech ~15 000 souborů, dávky po 40 souborech každých 5 s (~30 min nepřetržité
+zátěže), ruční „Skenovat nyní" bez omezení.
+
+**Pravidla teď** (konstanty v `UploadGuardScanner`, frekvence v nastavení):
+- [x] Frekvence `upload_guard_schedule`: týdně (výchozí) / denně / jen ručně. Denní cron dál
+      kontroluje upload frontu a integritu klíčových souborů (pár souborů), plný sken jen když je na řadě.
+- [x] Noční okno 4 h podle času webu se startem 01:00 + posun z `crc32(home_url)` (0-2 h), tedy
+      konec nejpozději 07:00; každý web má stejně dlouhé okno (původní 01-06 h s posunem okno
+      zkracovalo až na 1 h), weby na jednom serveru se nepotkají. Mimo okno se automatický běh pozastaví
+      a pokračuje další noc. Staré události (03:00 UTC) se jednou přeplánují.
+- [x] Dávka: max 40 PŘEČTENÝCH souborů nebo 8 s práce; kontrola nezměněného souboru (jen `stat()`)
+      se nepočítá. Pauza 30 s mezi dávkami (dřív 5 s).
+- [x] Zátěž: `sys_getloadavg()` / počet jader > 1 → odložit o 5 min (kde hosting load skrývá, nic).
+- [x] Nezměněné soubory (velikost + čas změny v cache, DB v4) se nečtou; každý 4. automatický
+      běh a každý ruční je hloubkový (čte vše) - pojistka proti podvrženému mtime.
+- [x] Ruční sken: kdykoli (i ve dne), ale max 1× za hodinu (REST 429 s počtem minut).
+- [x] Zámek přes `add_option`: dvě souběžné dávky (dva požadavky WP-Cronu) nepoběží; zámek
+      po pádu vyprší za 2 min. Běh delší než 14 dní se ukončí jako přerušený (hloubkový běh při
+      cronu á 5 min může potřebovat víc nocí; týdenní běh se nespustí, dokud běží předchozí).
+- [x] Kontrolní součty WordPress.org: cache 30 dní (data vydané verze se nemění).
+- [x] UI ukazuje „čeká na noční okno / server je vytížený, pokračuje <čas>" a hlášku cooldownu.
+
+**Kdo to řídí:** každý web sám přes svůj WP-Cron (žádný centrální orchestrátor). WP-Cron běží jen
+při požadavku na web nebo ze serverového cronu (Cron Control „externí" typicky á 5 min), takže 30 s
+je jen minimum. Při cronu á 5 min by hloubkový běh po 40 souborech trval přes 6 nocí.
+- [x] `SLOW_CRON_GAP`: když od předchozí dávky uběhly ≥ 2 min, limit 40 přečtených souborů neplatí
+      a dávku omezuje jen 8 s práce (~3 % jednoho jádra při cronu á 5 min). Simulace na lokálu
+      (Windows, pomalé čtení ~87 souborů/8 s): hloubkový běh při cronu á 5 min 377 → 170 dávek
+      (~14 h čistého času, tj. 3-4 noci); na Linuxovém hostingu výrazně rychleji.
+- [ ] **Centrální řízení z CA (návrh, neimplementováno):** Cron Control už má režim „řízeno
+      centrální aplikací" (CA volá wp-cron.php). CA zná, které weby sdílí server (např. ns318721),
+      a mohla by plné skeny celé flotily řadit tak, aby na jednom serveru běžel vždy jen jeden web.
+      Potřeba: v CA fronta skenů po serverech + endpoint v UX Studiu „spusť/pokračuj v dávce" s
+      podpisem (`Core\Broker` HMAC), web pak vlastní noční slot nepoužije. Jednotlivý web tohle sám
+      zajistit neumí - o ostatních webech na serveru neví.
+
+Změřeno na lokálu (15 077 souborů): hloubkový běh 377 dávek, nejdelší 6,1 s; rychlý běh
+16 dávek, nejdelší 0,6 s, 0 přečtených souborů (~7 min i s pauzami); automatický běh ve dne
+se pozastavil do 04:08; druhý ruční do hodiny zamítnut; dávka při drženém zámku nic neudělala.
+
+**Mez metody:** ClickFix plugin ze seco-traktory.cz (jen `wp_enqueue_script` s cizí doménou)
+je podle obsahu čistý a žádná heuristika ho nenajde - to řeší návrh v `PLAN-strazce-integrity.md`
+(nové soubory, které tam nikdo nedal + cizí domény na frontendu).
+
+## 24. Správa DNS přes Cloudflare - modul `dns-manager` (2026-10-19, NÁVRH)
+
+**Cíl:** klient upravuje DNS záznamy své domény ve wp-admin, aniž by dostal přístup do
+Cloudflare. Každá změna se zapíše do logu (kdo, kdy, co z čeho na co), admin dostane e-mail
+a uživatel je před uložením výslovně upozorněn, že změna má přímý dopad na web, e-maily
+a další služby navázané na DNS.
+
+### 24.1 Rozhodnutí
+
+- **Cloudflare token NIKDY na webu klienta.** Admin WordPressu by si ho přečetl z DB a měl by
+  plné API. Web volá broker v CA (stejný HMAC kanál přes `sites.api_key` jako
+  `turnstile_provision` / `ServiceRequests\CentralClient`), CA drží token a volá Cloudflare.
+- **Zóna se odvozuje z ověřené `site_url`**, nikdy z těla požadavku. Kompromitovaný klíč
+  jednoho webu nesáhne na cizí doménu (stejný princip jako u Turnstile).
+- **Token per zóna**, scope jen `Zone > DNS > Edit` + `Include > Specific zone`. Únik jednoho
+  tokenu = jedna doména, ne celá flotila. Nesdílet s Turnstile tokenem (`Account.Turnstile:Edit`).
+- **Zdroj pravdy pro log je CA**, kopie na webu je jen pro zobrazení klientovi. Admin
+  WordPressu umí smazat řádky ve své DB, v CA ne.
+- **E-mail o změně odesílá CA**, ne WordPress. Když klient rozbije MX své domény, `admin_email`
+  na téže doméně už poštu nedostane, a WP mail může jít přes SMTP plugin, který si klient vypne.
+  CA posílá na adresu agentury (nezávislá doména) + volitelně `admin_email` webu.
+- **Validace a zámky platí v CA.** Kontroly ve WP/SPA jsou jen pro UX, obejít se dají.
+- **Modul zapíná CA**, ne klient: per web příznak `dns_enabled` + napojená zóna. Bez toho
+  modul ve wp-admin ukáže jen „Správa DNS není pro tento web aktivní".
+- **Žádné AI abilities pro zápis.** Případně jen `dns/list-records` (čtení). Chybná AI změna
+  MX = tichá ztráta pošty.
+
+### 24.2 Co klient smí (v1)
+
+| Typ | Smí | Pozn. |
+|---|---|---|
+| A, AAAA, CNAME | přidat / upravit / smazat | proxied přepínač jen u těchto tří |
+| MX | přidat / upravit / smazat | zesílené varování, smazání = opsat název domény |
+| TXT | přidat / upravit / smazat | SPF/DKIM/DMARC poznáno podle obsahu → zesílené varování |
+| SRV, CAA | jen číst | v2 podle poptávky |
+| NS, SOA | skryté | |
+
+**Zamčené záznamy** (vidí je, ale nesmí měnit ani smazat; ikona zámku + důvod):
+- apex a `www` (A/AAAA/CNAME), na kterých běží web - zamčeno automaticky při napojení zóny;
+- záznamy, které přidal admin v CA jako zamčené (např. ověření Google, DKIM poštovního
+  hostingu, záznamy pro monitoring);
+- zámek je v CA tabulce (ne v Cloudflare `tags`, ty nejsou na všech plánech).
+
+Klient smí přidat záznam se stejným názvem jako zamčený jen tam, kde to nekoliduje
+(např. další TXT na apexu ano, druhý CNAME ne - Cloudflare to stejně odmítne).
+
+### 24.3 Upozornění pro uživatele (UX)
+
+1. **Trvalý banner** nahoře na stránce (varování, ne jen info): „Změny DNS se projeví okamžitě
+   a mají přímý dopad na fungování webu, e-mailové schránky a další služby navázané na doménu
+   (ověření Google, platební brány, SSL certifikát). Chybný záznam může znamenat nedostupný web
+   nebo ztracené e-maily. Pokud si nejste jistí, kontaktujte nás."
+2. **První vstup:** modální potvrzení „Rozumím rizikům" - uloží se per uživatel
+   (`user_meta` s časem) a zapíše do logu jako akce `acknowledged`. Bez něj jen čtení.
+3. **Před každým uložením** potvrzovací dialog s přehledem změny (před → po) a zaškrtávátkem
+   „Rozumím, že tato změna ovlivní fungování webu a navázaných služeb". Tlačítko je do té doby
+   neaktivní.
+4. **Zesílené varování** (červené, konkrétní důsledek):
+   - MX: „Změna nebo smazání MX záznamu přesměruje nebo zastaví doručování e-mailů na @domena";
+   - SPF/DKIM/DMARC: „Odeslané e-maily mohou začít padat do spamu nebo být odmítnuty";
+   - CNAME/A na subdoméně, která má platný certifikát nebo běžící službu: „Služba na
+     sub.domena přestane odpovídat";
+   - smazání MX nebo poslední A/AAAA subdomény: potvrzení opsáním názvu záznamu.
+5. **Po uložení** informace o šíření: proxied záznam platí hned, neproxied až po vypršení TTL
+   (uvést konkrétní TTL), lokální cache může držet starou hodnotu.
+
+Texty projdou `design:ux-copy` a jdou do cs_CZ překladu (viz past z §22: ručně připisovat do .po).
+
+### 24.4 Log změn
+
+**CA (autoritativní)** - nová tabulka `dns_change_log`:
+
+| Sloupec | Obsah |
+|---|---|
+| `id`, `created_at` (UTC) | |
+| `site_id`, `zone_id` | |
+| `batch_id` | jedno uložení v UI = jedna dávka (= jeden e-mail) |
+| `wp_user_id`, `wp_user_login`, `wp_user_name`, `wp_user_email` | snímek v okamžiku změny (uživatel se může později přejmenovat nebo smazat) |
+| `ip`, `user_agent` | IP celá kvůli auditu bezpečnostní změny (oprávněný zájem), retence 24 měsíců |
+| `action` | `create` / `update` / `delete` / `revert` / `acknowledged` / `denied` |
+| `record_id`, `record_type`, `record_name` | |
+| `before_json`, `after_json` | celý záznam z Cloudflare před a po (content, ttl, proxied, priority, comment) |
+| `status`, `error` | `success` / `error` / `conflict` + chybová hláška Cloudflare |
+
+Logují se i **zamítnuté pokusy** (zamčený záznam, neplatná hodnota, rate limit) jako `denied`
+- důležité, když něco nefunguje a klient tvrdí, že „nic neměnil".
+
+**WP (kopie pro klienta)** - tabulka `{prefix}uxstudio_dns_log` se stejnými sloupci bez IP.
+Záložka „Historie změn" ve SPA: filtr podle uživatele / typu / data, řádek ukazuje diff
+(před → po, změněná pole zvýrazněná). Zdroj pro výpis je CA (`action=log`), lokální tabulka jen
+jako záloha, když CA neodpovídá.
+
+**Vrácení změny:** u každého úspěšného řádku tlačítko „Vrátit" (jen pro uživatele s oprávněním)
+= nová operace s `action=revert`, která obnoví `before_json`. Prochází stejnými zámky,
+validací, potvrzením i e-mailem. V CA navíc vrácení pro admina agentury.
+
+**Snapshot zóny:** před první změnou dne a před každou dávkou s mazáním CA uloží
+`GET /zones/{id}/dns_records/export` (BIND) do `dns_zone_snapshots`, retence 90 dní. Ruční
+obnova celé zóny jen z CA.
+
+### 24.5 E-mail o změně
+
+- **Kdy:** po každé dávce (ne po každém záznamu). Víc dávek do 10 min od stejného uživatele
+  se sloučí do jednoho e-mailu (proti zahlcení, vzor `BotThrottle\BanNotifier`).
+  Zamítnuté pokusy (`denied`) jen v denním souhrnu, kromě 5+ zamítnutí za hodinu = okamžitě.
+- **Komu:** e-mail agentury (nastavení CA, výchozí adresa notifikací) + volitelně `admin_email`
+  webu + další adresy per web v CA. Uživateli, který změnu provedl, kopie (potvrzení).
+- **Obsah:** předmět `[domena.cz] Změna DNS: 2 záznamy (MX, TXT)`; kdo (jméno, login, e-mail,
+  IP), kdy (Europe/Prague), web a zóna; tabulka změn typ / název / před / po; u MX/SPF/DKIM
+  zvýrazněné upozornění; odkaz na historii ve wp-admin a odkaz na vrácení v CA.
+- Odesílá CA svou mailovou vrstvou (stejnou jako notifikace monitoringu), HTML šablona
+  v jejím stylu.
+
+### 24.6 Oprávnění a ochrana
+
+- Nová capability `uxstudio_manage_dns`. Výchozí nikdo; v nastavení modulu admin webu
+  vybere konkrétní uživatele (jen role administrator). Čtení: `uxstudio_view_dns`.
+- REST `uxstudio/v1/dns/*`: `permission_callback` na capability + nonce (standard pluginu).
+- Zápisové operace vyžadují čerstvé přihlášení (posledních 15 min) nebo znovu zadat heslo;
+  s modulem `passkeys` stačí passkey. (Otevřená otázka O4.)
+- Rate limit v CA: 30 zapsaných záznamů / hodinu / web, max 20 záznamů v jedné dávce.
+  Ve WP navíc `BotThrottle\Guard` na REST endpointu.
+- **Optimistický zámek:** web posílá `modified_on` záznamu, jak ho viděl. CA před zápisem
+  záznam znovu načte; když se mezitím změnil (např. agentura v Cloudflare dashboardu), vrátí
+  409 a UI nabídne obnovit. Žádné tiché přepsání.
+- Validace v CA: IPv4/IPv6 formát a ne privátní rozsahy (10/8, 192.168/16, 127/8, ::1),
+  CNAME ne na apex bez flatteningu, název jen v rámci zóny, žádný `*` wildcard v v1, TXT
+  max 2048 znaků, TTL 1 (auto) nebo 60-86400, MX priorita 0-65535, kontrola SPF syntaxe
+  (jeden `v=spf1` na název, max 10 lookupů - varování).
+
+### 24.7 Architektura
+
+```
+wp-admin SPA (src/modules/dns-manager/Page.tsx)
+  → REST uxstudio/v1/dns/{records,records/{id},log,revert,ack}
+    → includes/Modules/DnsManager/CaClient.php  (HMAC, jako TurnstileCaProvisioner)
+      → CA ?page=dns_manage&action={list,create,update,delete,log,revert}
+        → DnsManageController.php (auth přes site_url, zámky, validace, rate limit, log, mail)
+          → core/CloudflareDnsClient.php (token per zóna, dešifrovaný až tady)
+            → api.cloudflare.com/client/v4/zones/{zone_id}/dns_records
+```
+
+**UX Studio** `includes/Modules/DnsManager/`: `Module.php`, `meta.json`, `CaClient.php`,
+`RestController.php`, `Validator.php` (zrcadlo pravidel z CA, jen UX), `LocalLog.php`,
+`DashboardWidget.php` (poslední 3 změny, vzor §20.10). SPA: záložky Záznamy / Historie změn /
+Nastavení (kdo smí upravovat).
+
+**CA**: `controllers/DnsManageController.php`, `core/CloudflareDnsClient.php`,
+`core/DnsValidator.php`, `core/DnsChangeMailer.php`; tabulky `dns_zones` (site_id, zone_id,
+zone_name, token šifrovaně stejně jako Turnstile token, dns_enabled, notify_emails),
+`dns_record_locks`, `dns_change_log`, `dns_zone_snapshots`. V detailu webu sekce „DNS":
+napojení zóny (vložit token → CA sama najde zone_id přes `GET /zones?name=` a ověří
+`GET /user/tokens/verify`), zámky, historie, vrácení, obnova snapshotu.
+
+**Cloudflare API** (ověřit na živém tokenu, u Turnstile se ukázalo, že PATCH s API tokenem
+neprošel): `GET /zones/{id}/dns_records?per_page=5000`, `POST`, `PATCH /dns_records/{id}`
+(záložně `PUT` s celým tělem), `DELETE`, `GET /dns_records/export`. Limit 1200 req / 5 min
+na token - bohatě stačí. Výpis záznamů cache v CA 60 s, invalidace po zápisu.
+
+### 24.8 Fáze
+
+- [ ] F1 CA: tabulky, `CloudflareDnsClient` (list/create/update/delete/export), napojení zóny
+      v detailu webu + ověření tokenu; ověřit PATCH vs PUT na testovací zóně
+- [ ] F2 CA: `DnsManageController` - HMAC auth, zóna ze `site_url`, `DnsValidator`, zámky
+      (auto apex + www při napojení), rate limit, optimistický zámek (409), log včetně `denied`
+- [ ] F3 CA: snapshot zóny, `revert`, `DnsChangeMailer` se slučováním dávek, denní souhrn
+      zamítnutí; historie a vrácení v detailu webu
+- [ ] F4 UX Studio: modul `DnsManager` - capability, `CaClient`, REST, lokální log,
+      nastavení „kdo smí upravovat", stav „není aktivní"
+- [ ] F5 SPA: výpis záznamů (zámky, filtr podle typu), formulář přidat/upravit, banner,
+      potvrzení prvního vstupu, potvrzovací dialog s diffem, zesílená varování MX/SPF/DKIM,
+      opsání názvu při mazání, info o šíření; Historie změn s diffem a „Vrátit"
+- [ ] F6 Překlady cs_CZ, ikona, dashboard widget, texty přes `design:ux-copy`
+- [ ] F7 Ověření na testovací zóně: všechny typy, zamčený záznam (UI i přímé volání REST
+      i CA endpointu = `denied`), cizí doména v těle ignorována, 409 při souběžné změně
+      v dashboardu, e-mail přijde i po rozbití MX testovací domény, revert, snapshot;
+      Playwright světlý/tmavý režim
+- [ ] F8 Pilot na jednom klientovi, pak nasazení CA (záloha podle pravidel live serveru)
+
+### 24.9 Pasti a rizika
+
+- **Zóny v cizím Cloudflare účtu** (klient má vlastní účet): klient musí vytvořit token
+  a předat ho; návod s obrázky v CA. Když token revokuje, modul ukáže „spojení přerušeno".
+- **Změny mimo modul** (agentura v dashboardu) se do logu nepropíšou. V2: denní porovnání
+  snapshotů a zápis rozdílů jako `external_change`.
+- **Cloudflare hlásí chyby jako 400 s kódem** (např. 81053 záznam existuje, 9005 neplatný
+  obsah) - převést na srozumitelné české hlášky, ne surový text.
+- **Proxied CNAME na cizí služby** (Mailchimp, ověřovací CNAME) musí být DNS-only, jinak
+  neověří - u známých cílů (`*.mcsv.net`, `*.mandrillapp.com`, `_domainkey`) proxied vypnout
+  a zamknout přepínač.
+- **Hostinger přepisuje CSP** - netýká se (žádný cizí skript), ale potvrzovací dialogy
+  nespoléhat na inline JS mimo SPA bundle.
+
+### 24.10 Otevřené otázky
+
+- O1: Jsou zóny klientů ve vašem Cloudflare účtu, nebo v jejich vlastních? (onboarding, F1)
+- O2: Má informační e-mail jít i na `admin_email` webu, nebo jen agentuře? (výchozí: obojí,
+      vypínatelné per web)
+- O3: Smí klient upravovat i apex/www (třeba při přechodu na jiný hosting), nebo vždy jen
+      přes vás? (výchozí: zamčené, odemyká admin v CA)
+- O4: Vyžadovat před zápisem znovu heslo / passkey? (výchozí: ano, pokud přihlášení starší
+      než 15 min)

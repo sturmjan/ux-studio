@@ -120,14 +120,21 @@ final class Rest extends Controller {
 		$enabled = $this->modules->enabled_ids();
 		$out     = array();
 		foreach ( $this->modules->all() as $id => $meta ) {
-			$out[] = array(
+			if ( ! empty( $meta['virtual'] ) && ! Modules::is_group( $meta ) ) {
+				continue; // Empty group (all its features gone) - nothing to show.
+			}
+			$children = Modules::is_group( $meta ) ? array_values( (array) $meta['children'] ) : array();
+			$out[]    = array(
 				'id'          => $id,
 				'name'        => $this->translate_meta( $meta['name'] ?? $id ),
 				'description' => $this->translate_meta( $meta['description'] ?? '' ),
 				'group'       => $meta['group'] ?? 'general',
 				'icon'        => $meta['icon'] ?? 'puzzle',
 				'settings'    => ! empty( $meta['settings'] ),
-				'enabled'     => in_array( $id, $enabled, true ),
+				// A group counts as enabled when any of its features is.
+				'enabled'     => $children ? (bool) array_intersect( $children, $enabled ) : in_array( $id, $enabled, true ),
+				'parent'      => isset( $meta['parent'] ) ? (string) $meta['parent'] : null,
+				'children'    => $children,
 			);
 		}
 		return $this->ok( $out );

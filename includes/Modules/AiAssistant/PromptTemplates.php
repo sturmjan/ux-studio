@@ -106,6 +106,12 @@ final class PromptTemplates {
 			: __( 'Type your question...', 'ux-studio' );
 	}
 
+	public static function default_handoff_timeout_message( string $language ): string {
+		return 'cs' === $language
+			? __( 'Omlouváme se, operátor se vám nyní nemůže věnovat. Napište nám prosím zprávu nebo zanechte telefonní kontakt a ozveme se vám co nejdříve.', 'ux-studio' )
+			: __( 'Sorry, an operator is not available right now. Please leave us a message or a phone number and we will get back to you as soon as possible.', 'ux-studio' );
+	}
+
 	public static function default_title( string $language ): string {
 		return 'cs' === $language
 			? __( 'AI Podpora', 'ux-studio' )

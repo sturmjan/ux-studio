@@ -112,6 +112,28 @@ final class RestController extends Controller {
 
 		$this->route( '/download-files/categories', 'GET', array( $this, 'list_categories' ) );
 
+		// Legacy per-post files (uploads/ux1-download-files/{post}/). Public like
+		// the post itself; Module::serve_legacy() enforces post visibility and
+		// that the file is listed in the post's legacy meta. The wpextended/v1
+		// alias keeps links in old content/caches working once ux1 is gone.
+		$legacy = array(
+			'methods'             => 'GET',
+			'callback'            => array( $this, 'serve_legacy' ),
+			'permission_callback' => '__return_true',
+		);
+		register_rest_route( self::NS, '/download-files/legacy/(?P<post>\d+)/(?P<file>[^/]+)', $legacy );
+		if ( ! defined( 'WP_EXTENDED_API_NAMESPACE' ) ) {
+			register_rest_route( 'wpextended/v1', '/download-files/download/(?P<post>\d+)/(?P<file>[^/]+)', $legacy );
+			// Outside uxstudio/v1, so "REST only for logged-in users" would block it.
+			add_filter(
+				'uxstudio_rest_public_routes',
+				static function ( array $routes ): array {
+					$routes[] = '/wpextended/v1/download-files/download/';
+					return $routes;
+				}
+			);
+		}
+
 		// Deliberate deviation from $this->route(): see class docblock above.
 		register_rest_route(
 			self::NS,
@@ -245,6 +267,17 @@ final class RestController extends Controller {
 
 		// Module::serve() exits directly on success; it only returns when
 		// something went wrong.
+		return $result instanceof WP_Error ? $result : new WP_Error( 'uxstudio_download_failed', __( 'Unable to serve the file.', 'ux-studio' ), array( 'status' => 500 ) );
+	}
+
+	/**
+	 * Stream a legacy per-post file (see Module::serve_legacy()).
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_Error
+	 */
+	public function serve_legacy( WP_REST_Request $request ) {
+		$result = $this->module->serve_legacy( absint( $request->get_param( 'post' ) ), rawurldecode( (string) $request->get_param( 'file' ) ) );
 		return $result instanceof WP_Error ? $result : new WP_Error( 'uxstudio_download_failed', __( 'Unable to serve the file.', 'ux-studio' ), array( 'status' => 500 ) );
 	}
 }

@@ -4,5 +4,5 @@
 	"description": "Duplicate an existing navigation menu including all of its items.",
 	"group": "content",
 	"icon": "copy",
-	"settings": false
+	"settings": true
 }

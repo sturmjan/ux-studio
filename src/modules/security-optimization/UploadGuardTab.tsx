@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Check, LoaderCircle, ScanSearch, Trash2 } from 'lucide-react';
+import { Archive, Check, LoaderCircle, ScanSearch, Trash2 } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
 
@@ -13,7 +13,11 @@ interface Finding {
 	severity: 'low' | 'medium' | 'high' | 'critical' | '';
 	status: 'queued' | 'scanned' | 'quarantined' | 'approved' | 'deleted';
 	hash: string;
-	details: { score?: number; matches?: Array< { label: string } >; message?: string } | null;
+	details: {
+		score?: number;
+		matches?: Array< { label: string; line?: number } >;
+		message?: string;
+	} | null;
 	scanned_at: string | null;
 }
 
@@ -23,11 +27,16 @@ interface ScanStatus {
 	remaining: number;
 	scanned: number;
 	detections: number;
+	read?: number;
+	deep?: boolean;
+	manual?: boolean;
+	paused_until?: number;
+	pause_reason?: 'window' | 'load';
 }
 
 interface ScanStatusResponse {
 	status: ScanStatus;
-	stats: { last_scan_at?: string; files_scanned?: number; detections_found?: number };
+	stats: { last_scan_at?: string; files_scanned?: number; files_read?: number; detections_found?: number };
 }
 
 const FINDINGS_KEY = [ 'security-optimization', 'findings' ];
@@ -103,6 +112,21 @@ export function UploadGuardTab(): JSX.Element {
 		onSuccess: () => void queryClient.invalidateQueries( { queryKey: FINDINGS_KEY } ),
 	} );
 
+	const quarantine = useMutation( {
+		mutationFn: ( id: number ) => api( `security-optimization/findings/${ id }/quarantine`, { method: 'POST' } ),
+		onSuccess: () => void queryClient.invalidateQueries( { queryKey: FINDINGS_KEY } ),
+	} );
+
+	const confirmQuarantine = ( row: Finding ): void => {
+		const message = __(
+			'Move this file to quarantine?\n\n%s\n\nThe site stops loading it. If it is part of a working plugin or theme, that part may break - you can restore it with Approve.',
+			'ux-studio'
+		).replace( '%s', row.file_path );
+		if ( window.confirm( message ) ) {
+			quarantine.mutate( row.id );
+		}
+	};
+
 	const remove = useMutation( {
 		mutationFn: ( id: number ) => api( `security-optimization/findings/${ id }/delete`, { method: 'POST' } ),
 		onSuccess: () => void queryClient.invalidateQueries( { queryKey: FINDINGS_KEY } ),
@@ -110,6 +134,22 @@ export function UploadGuardTab(): JSX.Element {
 
 	const status = scanStatus.data?.status;
 	const isRunning = status?.state === 'running';
+	const pausedUntil =
+		isRunning && status?.paused_until && status.paused_until * 1000 > Date.now()
+			? new Date( status.paused_until * 1000 ).toLocaleString( undefined, { weekday: 'short', hour: '2-digit', minute: '2-digit' } )
+			: null;
+
+	let progress = '';
+	if ( isRunning && status ) {
+		progress = `${ __( 'Scanning in batches…', 'ux-studio' ) } ${ status.scanned }/${ status.total }`;
+		if ( pausedUntil ) {
+			progress += ` · ${
+				status.pause_reason === 'load'
+					? __( 'server is busy, continuing at', 'ux-studio' )
+					: __( 'waiting for the night window, continuing at', 'ux-studio' )
+			} ${ pausedUntil }`;
+		}
+	}
 
 	return (
 		<>
@@ -125,7 +165,7 @@ export function UploadGuardTab(): JSX.Element {
 				} }
 			>
 				<p style={ { margin: 0, color: 'var(--uxs-text-soft)' } }>
-					{ __( 'Uploaded files and wp-content are scanned for injected/malicious code. Critical findings are automatically moved to a protected quarantine folder.', 'ux-studio' ) }
+					{ __( 'New uploads are checked right away; uploads, plugins and themes are scanned at night by the schedule below, in small batches that pause when the server is busy. The scanner only reports: nothing is moved or deleted unless you quarantine a file yourself.', 'ux-studio' ) }
 				</p>
 				<button
 					type="button"
@@ -141,10 +181,22 @@ export function UploadGuardTab(): JSX.Element {
 			{ status && (
 				<p style={ { color: 'var(--uxs-text-soft)', fontSize: 'var(--uxs-fs-s)' } }>
 					{ isRunning
-						? __( 'Scanning in batches…', 'ux-studio' ) + ` ${ status.scanned }/${ status.total }`
+						? progress
 						: scanStatus.data?.stats.last_scan_at
 						? `${ __( 'Last scan:', 'ux-studio' ) } ${ scanStatus.data.stats.last_scan_at } · ${ __( 'files scanned:', 'ux-studio' ) } ${ scanStatus.data.stats.files_scanned ?? 0 } · ${ __( 'detections:', 'ux-studio' ) } ${ scanStatus.data.stats.detections_found ?? 0 }`
 						: __( 'No scan has run yet.', 'ux-studio' ) }
+				</p>
+			) }
+
+			{ triggerScan.isError && (
+				<p>
+					<span className="uxs-badge is-warning">{ ( triggerScan.error as Error ).message }</span>
+				</p>
+			) }
+
+			{ quarantine.isError && (
+				<p>
+					<span className="uxs-badge is-danger">{ ( quarantine.error as Error ).message }</span>
 				</p>
 			) }
 
@@ -183,7 +235,10 @@ export function UploadGuardTab(): JSX.Element {
 									<div>{ row.file_path }</div>
 									{ row.details?.matches && row.details.matches.length > 0 && (
 										<div style={ { fontSize: 'var(--uxs-fs-s)', color: 'var(--uxs-text-soft)' } }>
-											{ row.details.matches.slice( 0, 3 ).map( ( m ) => m.label ).join( ', ' ) }
+											{ row.details.matches
+												.slice( 0, 3 )
+												.map( ( m ) => ( m.line ? `${ m.label } (${ __( 'line', 'ux-studio' ) } ${ m.line })` : m.label ) )
+												.join( ', ' ) }
 										</div>
 									) }
 								</td>
@@ -207,6 +262,18 @@ export function UploadGuardTab(): JSX.Element {
 											onClick={ () => approve.mutate( row.id ) }
 										>
 											<Check size={ 14 } />
+										</button>
+									) }
+									{ row.status === 'scanned' && row.finding_type === 'malware' && (
+										<button
+											type="button"
+											className="button-link"
+											aria-label={ __( 'Move to quarantine', 'ux-studio' ) }
+											title={ __( 'Move to quarantine', 'ux-studio' ) }
+											disabled={ quarantine.isPending }
+											onClick={ () => confirmQuarantine( row ) }
+										>
+											<Archive size={ 14 } />
 										</button>
 									) }
 									{ row.status === 'quarantined' && (

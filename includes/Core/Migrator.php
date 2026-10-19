@@ -234,6 +234,7 @@ final class Migrator {
 		// (the framework migration copies the blob verbatim, so renamed inner
 		// keys would silently lose their values).
 		self::remap_pixel_tag_keys( $log, $dry_run );
+		self::apply_key_remaps( $log, $dry_run );
 
 		// 4d) Carry over API keys the operator already filled in on the legacy
 		// plugin, into the encrypted studio secret store, so they don't have to
@@ -419,6 +420,189 @@ final class Migrator {
 		}
 	}
 
+	/** Flag: the 2026-10-16 settings key remap/repair already ran on this site. */
+	private const KEYREMAP_OPTION = 'uxstudio_keyremap_v1';
+
+	/**
+	 * One-time repair for sites that ALREADY ran the migration (DONE_OPTION is
+	 * set, so run() returns early and never reaches the remaps below).
+	 *
+	 * Idempotent and cheap on repeat calls (one autoloaded flag lookup). It is
+	 * not hooked anywhere by itself: it must be called on a normal request, e.g.
+	 * from a module boot (SvgUpload does) or an early admin_init/plugins_loaded
+	 * hook in a core file. Fresh migrations get the same remaps through run().
+	 */
+	public static function maybe_repair_settings(): void {
+		if ( get_option( self::KEYREMAP_OPTION ) ) {
+			return;
+		}
+		$log = array();
+		self::apply_key_remaps( $log, false );
+		update_option( self::KEYREMAP_OPTION, gmdate( 'c' ), true );
+	}
+
+	/**
+	 * Settings keys renamed in the port, plus data the first port dropped.
+	 * Each step only acts when the new key/value is not already present, so it
+	 * never overwrites something the operator set in UX Studio.
+	 *
+	 * @param string[] $log     Log lines (by reference).
+	 * @param bool     $dry_run When true, only log what would happen.
+	 */
+	private static function apply_key_remaps( array &$log, bool $dry_run ): void {
+		self::remap_svg_upload_roles( $log, $dry_run );
+		self::remap_option_key( 'uxstudio_post_type_order', array( 'post-types' => 'post_types' ), 'post-type-order', $log, $dry_run );
+		self::repair_instagram_feed_fields( $log, $dry_run );
+		self::remap_exit_popup( $log, $dry_run );
+	}
+
+	/**
+	 * exit-popup: legacy popup_title/popup_description/popup_image/
+	 * activation_delay were renamed to headline/body/image/delay_seconds.
+	 * The legacy media field may hold `[id]` (framework media field); the new
+	 * `media` type expects a plain attachment ID.
+	 *
+	 * @param string[] $log     Log lines (by reference).
+	 * @param bool     $dry_run When true, only log what would happen.
+	 */
+	private static function remap_exit_popup( array &$log, bool $dry_run ): void {
+		self::remap_option_key(
+			'uxstudio_exit_popup',
+			array(
+				'popup_title'       => 'headline',
+				'popup_description' => 'body',
+				'popup_image'       => 'image',
+				'activation_delay'  => 'delay_seconds',
+			),
+			'exit-popup',
+			$log,
+			$dry_run
+		);
+
+		$value = get_option( 'uxstudio_exit_popup', null );
+		if ( $dry_run || ! is_array( $value ) ) {
+			return;
+		}
+		$changed = false;
+		foreach ( array( 'image', 'popup_icon' ) as $key ) {
+			if ( isset( $value[ $key ] ) && is_array( $value[ $key ] ) ) {
+				$value[ $key ] = absint( reset( $value[ $key ] ) );
+				$changed       = true;
+			}
+		}
+		if ( $changed ) {
+			update_option( 'uxstudio_exit_popup', $value, Settings::should_autoload( $value ) );
+		}
+	}
+
+	/**
+	 * svg-upload: legacy `user_roles` -> `allowed_roles`.
+	 *
+	 * Legacy semantics: empty/unset = every role that can upload files. The
+	 * port treats an empty allow-list as "nobody" (safer default: administrator
+	 * only), so an empty legacy value is expanded to the explicit list of all
+	 * roles holding upload_files - behaviour is preserved and the new module
+	 * keeps its strict semantics. Only applied to an existing settings blob
+	 * that has no `allowed_roles` yet.
+	 *
+	 * @param string[] $log     Log lines (by reference).
+	 * @param bool     $dry_run When true, only log what would happen.
+	 */
+	private static function remap_svg_upload_roles( array &$log, bool $dry_run ): void {
+		$option = 'uxstudio_svg_upload';
+		$value  = get_option( $option, null );
+		if ( ! is_array( $value ) || array_key_exists( 'allowed_roles', $value ) ) {
+			return;
+		}
+
+		$legacy = isset( $value['user_roles'] ) && is_array( $value['user_roles'] )
+			? array_values( array_filter( array_map( 'sanitize_key', $value['user_roles'] ) ) )
+			: array();
+
+		if ( array() === $legacy ) {
+			foreach ( wp_roles()->roles as $role_id => $role ) {
+				if ( ! empty( $role['capabilities']['upload_files'] ) ) {
+					$legacy[] = (string) $role_id;
+				}
+			}
+		}
+
+		$value['allowed_roles'] = $legacy;
+		unset( $value['user_roles'] );
+
+		$log[] = 'settings svg-upload: user_roles -> allowed_roles (empty = all upload roles)';
+		if ( ! $dry_run ) {
+			update_option( $option, $value, Settings::should_autoload( $value ) );
+		}
+	}
+
+	/**
+	 * Generic inner-key rename for a migrated settings blob.
+	 *
+	 * @param string                $option Option name.
+	 * @param array<string, string> $map    Old key => new key.
+	 * @param string                $label  Module id for the log.
+	 * @param string[]              $log     Log lines (by reference).
+	 * @param bool                  $dry_run When true, only log what would happen.
+	 */
+	private static function remap_option_key( string $option, array $map, string $label, array &$log, bool $dry_run ): void {
+		$value = get_option( $option, null );
+		if ( ! is_array( $value ) ) {
+			return;
+		}
+		$changed = false;
+		foreach ( $map as $old => $new ) {
+			if ( array_key_exists( $old, $value ) && ! array_key_exists( $new, $value ) ) {
+				$value[ $new ] = $value[ $old ];
+				unset( $value[ $old ] );
+				$changed = true;
+			}
+		}
+		if ( $changed ) {
+			$log[] = "settings {$label}: remapped keys " . implode( ', ', array_keys( $map ) );
+			if ( ! $dry_run ) {
+				update_option( $option, $value, Settings::should_autoload( $value ) );
+			}
+		}
+	}
+
+	/**
+	 * instagram-feed: feeds migrated by the first port lost `show_likes` and
+	 * `custom_css`. Backfill them (same keys as legacy) into the feed settings
+	 * JSON from the legacy table, only for feeds that do not have them yet.
+	 *
+	 * @param string[] $log     Log lines (by reference).
+	 * @param bool     $dry_run When true, only log what would happen.
+	 */
+	private static function repair_instagram_feed_fields( array &$log, bool $dry_run ): void {
+		global $wpdb;
+		$old = $wpdb->prefix . 'ux1_instagram_feeds';
+		$new = $wpdb->prefix . 'uxstudio_instagram_feeds';
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- fixed table names, one-off repair.
+		if ( ! $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $old ) ) || ! $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $new ) ) ) {
+			return;
+		}
+		if ( ! $wpdb->get_var( "SHOW COLUMNS FROM {$old} LIKE 'custom_css'" ) || ! $wpdb->get_var( "SHOW COLUMNS FROM {$old} LIKE 'show_likes'" ) ) {
+			return;
+		}
+
+		$rows = $wpdb->get_results( "SELECT n.id, n.settings, o.show_likes, o.custom_css FROM {$new} n JOIN {$old} o ON o.id = n.id" );
+		foreach ( (array) $rows as $row ) {
+			$settings = json_decode( (string) $row->settings, true );
+			if ( ! is_array( $settings ) || array_key_exists( 'show_likes', $settings ) || array_key_exists( 'custom_css', $settings ) ) {
+				continue;
+			}
+			$settings['show_likes'] = (int) $row->show_likes;
+			$settings['custom_css'] = (string) $row->custom_css;
+			$log[]                  = "instagram-feed: feed {$row->id} backfilled show_likes/custom_css";
+			if ( ! $dry_run ) {
+				$wpdb->update( $new, array( 'settings' => wp_json_encode( $settings ) ), array( 'id' => (int) $row->id ) );
+			}
+		}
+		// phpcs:enable
+	}
+
 	/**
 	 * Switch existing module settings options (uxstudio_<module>) to autoload.
 	 * Earlier versions stored them with autoload off, costing one SELECT per
@@ -549,7 +733,7 @@ final class Migrator {
 				// Feeds: legacy per-column display config -> JSON `settings` blob
 				// (same keys Module::normalize_config() reads). Ids are kept so
 				// existing shortcode ids keep pointing at the same feed.
-				// show_likes/custom_css have no new equivalent.
+				// show_likes/custom_css are carried into the settings blob too.
 				self::copy_when_empty(
 					$wpdb->prefix . 'ux1_instagram_feeds',
 					$wpdb->prefix . 'uxstudio_instagram_feeds',
@@ -561,7 +745,8 @@ final class Migrator {
 					        'caption_length', caption_length, 'link_target', link_target,
 					        'media_types', media_types,
 					        'include_hashtags', COALESCE(include_hashtags,''),
-					        'exclude_hashtags', COALESCE(exclude_hashtags,''))
+					        'exclude_hashtags', COALESCE(exclude_hashtags,''),
+					        'show_likes', COALESCE(show_likes,0), 'custom_css', COALESCE(custom_css,''))
 					 FROM %OLD%"
 				);
 				// Media: the new cache is one account-wide pool keyed by

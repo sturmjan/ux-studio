@@ -26,11 +26,15 @@ defined( 'ABSPATH' ) || exit;
  *   - constant-time comparison (hash_equals)
  *   - +/- 300s timestamp window (rejects stale / clock-skewed replays)
  *   - per-nonce single-use guard (rejects in-window replays)
+ *   - optional IP allowlist (node_allowed_ips) + 60 req/min per IP, as legacy
  */
 final class HmacAuth {
 
 	/** Timestamp tolerance in seconds. */
 	public const TOLERANCE = 300;
+
+	/** Requests per IP per minute before the node answers 429 (legacy value). */
+	private const RATE_LIMIT = 60;
 
 	public const HEADER_SIGNATURE = 'X-Content-Sync-Signature';
 	public const HEADER_TIMESTAMP = 'X-Content-Sync-Timestamp';
@@ -77,6 +81,39 @@ final class HmacAuth {
 	 * @return true|WP_Error True when authentic, WP_Error otherwise.
 	 */
 	public static function verify_request( WP_REST_Request $request, string $secret ) {
+		$trusted = self::check_allowlist();
+		if ( is_wp_error( $trusted ) ) {
+			return $trusted;
+		}
+
+		// A valid signature always passes: the failure budget below can never
+		// lock out the hub, even when an attacker shares its IP (Cloudflare
+		// edge, NAT) - forging a 256-bit HMAC is not a realistic threat.
+		$result = self::verify_signature( $request, $secret );
+		if ( true === $result || $trusted ) {
+			return $result;
+		}
+
+		// Invalid request from a non-allowlisted IP: throttle repeated crypto
+		// failures (missing/malformed headers are rejected for free and not
+		// counted, so anonymous noise doesn't write transients).
+		if ( (int) get_transient( self::rate_key( self::client_ip() ) ) >= self::RATE_LIMIT ) {
+			return new WP_Error( 'uxstudio_cs_rate_limited', __( 'Too many requests. Try again in a minute.', 'ux-studio' ), array( 'status' => 429 ) );
+		}
+		if ( in_array( $result->get_error_code(), array( 'uxstudio_cs_signature', 'uxstudio_cs_timestamp', 'uxstudio_cs_replay' ), true ) ) {
+			self::record_failure();
+		}
+		return $result;
+	}
+
+	/**
+	 * Signature, timestamp window and anti-replay checks.
+	 *
+	 * @param WP_REST_Request $request Incoming request.
+	 * @param string          $secret  Shared secret.
+	 * @return true|WP_Error
+	 */
+	private static function verify_signature( WP_REST_Request $request, string $secret ) {
 		$signature = (string) $request->get_header( self::HEADER_SIGNATURE );
 		$timestamp = (string) $request->get_header( self::HEADER_TIMESTAMP );
 		$nonce     = (string) $request->get_header( self::HEADER_NONCE );
@@ -131,5 +168,55 @@ final class HmacAuth {
 		set_transient( $replay_key, 1, self::TOLERANCE * 2 );
 
 		return true;
+	}
+
+	/**
+	 * Optional IP allowlist, checked before any signature work. REMOTE_ADDR on
+	 * purpose (as legacy): forwarded headers are spoofable and the hub/central
+	 * app calls the node directly.
+	 *
+	 * @return bool|WP_Error true = allowlisted (trusted) IP, false = no
+	 *                       allowlist configured, WP_Error = IP not allowed.
+	 */
+	private static function check_allowlist() {
+		$settings = (array) get_option( 'uxstudio_content_sync', array() );
+		$allowed  = array_filter( array_map( 'trim', preg_split( '/[\r\n,]+/', (string) ( $settings['node_allowed_ips'] ?? '' ) ) ) );
+		if ( empty( $allowed ) ) {
+			return false;
+		}
+		if ( ! in_array( self::client_ip(), $allowed, true ) ) {
+			return new WP_Error( 'uxstudio_cs_ip_blocked', __( 'This IP address is not on the node allowlist.', 'ux-studio' ), array( 'status' => 403 ) );
+		}
+		return true;
+	}
+
+	/**
+	 * Count a failed verification for the caller's IP (1-minute window).
+	 */
+	private static function record_failure(): void {
+		$key = self::rate_key( self::client_ip() );
+		set_transient( $key, (int) get_transient( $key ) + 1, MINUTE_IN_SECONDS );
+	}
+
+	private static function client_ip(): string {
+		return isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+	}
+
+	/**
+	 * Per-IP counter key; IPv6 is bucketed by /64 so rotating addresses inside
+	 * one allocation can't create a transient per request.
+	 *
+	 * @param string $ip Client IP.
+	 */
+	private static function rate_key( string $ip ): string {
+		$packed = filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ? @inet_pton( $ip ) : false; // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		if ( false !== $packed && 16 === strlen( $packed ) ) {
+			// IPv4-mapped (::ffff:a.b.c.d on dual-stack listeners) is one IPv4
+			// client, not a shared all-zero /64.
+			$ip = str_repeat( "\0", 10 ) . "\xff\xff" === substr( $packed, 0, 12 )
+				? (string) inet_ntop( substr( $packed, 12 ) )
+				: bin2hex( substr( $packed, 0, 8 ) ) . '::/64';
+		}
+		return 'uxstudio_cs_rate_' . md5( $ip );
 	}
 }

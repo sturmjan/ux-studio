@@ -1,6 +1,6 @@
 <?php
 /**
- * Upload Guard detection engine: heuristic pattern scoring for uploaded/scanned files.
+ * Upload Guard detection engine: scores files for signs of injected code.
  *
  * @package UxStudio
  */
@@ -10,36 +10,16 @@ namespace UxStudio\Modules\SecurityOptimization;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Ported verbatim (signatures/weights) from the legacy security-optimization
- * module's upload-guard/DetectionEngine.php. This is the core detection
- * logic - PHP/JS/SVG/HTML pattern signatures, obfuscation heuristics, and
- * ZIP archive scanning with strict per-archive safety limits.
+ * Scores a file. PHP goes to UploadGuardPhpAnalyzer (token-level, see there
+ * why single words never decide). SVG/HTML/JS keep simple patterns - those
+ * are only scanned in uploads, where markup with scripts has no business
+ * being anyway.
  */
 final class UploadGuardDetectionEngine {
 
-	private const THRESHOLD_LOW      = 16;
-	private const THRESHOLD_MEDIUM   = 31;
-	private const THRESHOLD_HIGH     = 51;
-
-	private const PHP_PATTERNS = array(
-		array( 'name' => 'eval', 'regex' => '/\beval\s*\(/i', 'weight' => 30, 'label' => 'eval() function call' ),
-		array( 'name' => 'base64_decode', 'regex' => '/\bbase64_decode\s*\(/i', 'weight' => 20, 'label' => 'base64_decode() function call' ),
-		array( 'name' => 'gzinflate', 'regex' => '/\bgzinflate\s*\(/i', 'weight' => 25, 'label' => 'gzinflate() function call' ),
-		array( 'name' => 'str_rot13', 'regex' => '/\bstr_rot13\s*\(/i', 'weight' => 20, 'label' => 'str_rot13() function call' ),
-		array( 'name' => 'assert', 'regex' => '/\bassert\s*\(/i', 'weight' => 25, 'label' => 'assert() function call' ),
-		array( 'name' => 'preg_replace_e', 'regex' => '/preg_replace\s*\(\s*[\'"][^\'"]*\/e[\'"\s,]/i', 'weight' => 40, 'label' => 'preg_replace() with /e modifier' ),
-		array( 'name' => 'system', 'regex' => '/\bsystem\s*\(/i', 'weight' => 40, 'label' => 'system() function call' ),
-		array( 'name' => 'shell_exec', 'regex' => '/\bshell_exec\s*\(/i', 'weight' => 40, 'label' => 'shell_exec() function call' ),
-		array( 'name' => 'passthru', 'regex' => '/\bpassthru\s*\(/i', 'weight' => 40, 'label' => 'passthru() function call' ),
-		array( 'name' => 'exec', 'regex' => '/\bexec\s*\(/i', 'weight' => 35, 'label' => 'exec() function call' ),
-		array( 'name' => 'create_function', 'regex' => '/\bcreate_function\s*\(/i', 'weight' => 30, 'label' => 'create_function() call (deprecated)' ),
-		array( 'name' => 'post_in_include', 'regex' => '/(include|require|include_once|require_once)\s*\(?\s*\$_(POST|GET|REQUEST|COOKIE)/i', 'weight' => 50, 'label' => '$_POST/$_GET/$_REQUEST in include/require' ),
-	);
-
-	private const OBFUSCATION_PATTERNS = array(
-		array( 'name' => 'long_base64', 'regex' => '/[A-Za-z0-9+\/=]{500,}/', 'weight' => 30, 'label' => 'Long base64-encoded string (>500 chars)' ),
-		array( 'name' => 'hex_strings', 'regex' => '/(\\\\x[0-9a-fA-F]{2}){10,}/', 'weight' => 25, 'label' => 'Hex-encoded string sequence' ),
-	);
+	private const THRESHOLD_LOW    = 16;
+	private const THRESHOLD_MEDIUM = 31;
+	private const THRESHOLD_HIGH   = 51;
 
 	private const SVG_PATTERNS = array(
 		array( 'name' => 'svg_script', 'regex' => '/<script[^>]*>/i', 'weight' => 50, 'label' => '<script> tag in SVG' ),
@@ -57,32 +37,33 @@ final class UploadGuardDetectionEngine {
 	private const JS_PATTERNS = array(
 		array( 'name' => 'js_eval', 'regex' => '/\beval\s*\(/i', 'weight' => 30, 'label' => 'eval() in JavaScript' ),
 		array( 'name' => 'js_function_constructor', 'regex' => '/new\s+Function\s*\(/i', 'weight' => 35, 'label' => 'new Function() constructor' ),
+		array( 'name' => 'long_base64', 'regex' => '/[A-Za-z0-9+\/=]{500,}/', 'weight' => 15, 'label' => 'Long base64-encoded string (>500 chars)' ),
 	);
 
 	/** @var array<int,array{name?:string,regex:string,weight?:int,label?:string}> */
 	private array $custom_patterns;
 
-	/** @var string[] */
-	private array $whitelist_paths;
-
 	/**
 	 * @param array $custom_patterns Array of ['regex'=>string,'weight'=>int,'label'=>string].
-	 * @param array $whitelist_paths Array of path prefixes to skip.
 	 */
-	public function __construct( array $custom_patterns = array(), array $whitelist_paths = array() ) {
+	public function __construct( array $custom_patterns = array() ) {
 		$this->custom_patterns = $custom_patterns;
-		$this->whitelist_paths = $whitelist_paths;
 	}
 
 	/**
-	 * Scan a file and return a score/severity/matches result.
+	 * Scan a file and return a score/severity/matches result. `has_code` is
+	 * false for PHP files that run nothing (the "Silence is golden" index.php
+	 * plugins drop into uploads, data files guarded by a bare exit;).
 	 *
-	 * @return array{score:int,severity:string,matches:array}
+	 * @return array{score:int,severity:string,matches:array,has_code:bool}
 	 */
 	public function scan( string $file_path, string $extension ): array {
-		if ( $this->is_whitelisted( $file_path ) ) {
-			return array( 'score' => 0, 'severity' => 'clean', 'matches' => array() );
-		}
+		$clean = array(
+			'score'    => 0,
+			'severity' => 'clean',
+			'matches'  => array(),
+			'has_code' => false,
+		);
 
 		$extension = strtolower( ltrim( $extension, '.' ) );
 
@@ -91,42 +72,57 @@ final class UploadGuardDetectionEngine {
 		}
 
 		if ( ! is_readable( $file_path ) ) {
-			return array( 'score' => 0, 'severity' => 'clean', 'matches' => array() );
+			return $clean;
 		}
 
 		$content = file_get_contents( $file_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		if ( false === $content || '' === $content ) {
-			return array( 'score' => 0, 'severity' => 'clean', 'matches' => array() );
+			return $clean;
 		}
 
-		$patterns = $this->patterns_for_extension( $extension );
-
-		$matches     = $this->match_patterns( $content, $patterns );
-		$total_score = 0;
-		foreach ( $matches as $match ) {
-			$total_score += $match['weight'];
-		}
-
-		if ( in_array( $extension, array( 'php', 'phtml', 'phar' ), true ) ) {
-			$non_ascii = $this->check_non_ascii_concentration( $content );
-			if ( null !== $non_ascii ) {
-				$matches[]   = $non_ascii;
-				$total_score += $non_ascii['weight'];
-			}
+		$has_code = true;
+		if ( in_array( $extension, UploadGuardScope::PHP_EXTENSIONS, true ) ) {
+			$analysis = ( new UploadGuardPhpAnalyzer() )->analyse( $content );
+			$matches  = $analysis['matches'];
+			$has_code = $analysis['has_code'];
+		} else {
+			$matches = $this->match_patterns( $content, $this->patterns_for_extension( $extension ) );
 		}
 
 		if ( ! empty( $this->custom_patterns ) ) {
-			foreach ( $this->match_patterns( $content, $this->custom_patterns ) as $custom_match ) {
-				$matches[]   = $custom_match;
-				$total_score += $custom_match['weight'];
-			}
+			$matches = array_merge( $matches, $this->match_patterns( $content, $this->custom_patterns ) );
+		}
+
+		$total_score = 0;
+		foreach ( $matches as $match ) {
+			$total_score += $match['weight'];
 		}
 
 		return array(
 			'score'    => $total_score,
 			'severity' => $this->calculate_severity( $total_score ),
 			'matches'  => $matches,
+			'has_code' => $has_code,
 		);
+	}
+
+	/**
+	 * Map a raw score to the stored severity (clean|low|medium|high|critical).
+	 */
+	public function calculate_severity( int $score ): string {
+		if ( $score <= 0 ) {
+			return 'clean';
+		}
+		if ( $score < self::THRESHOLD_LOW ) {
+			return 'low';
+		}
+		if ( $score < self::THRESHOLD_MEDIUM ) {
+			return 'medium';
+		}
+		if ( $score < self::THRESHOLD_HIGH ) {
+			return 'high';
+		}
+		return 'critical';
 	}
 
 	/**
@@ -134,16 +130,23 @@ final class UploadGuardDetectionEngine {
 	 * strict count/size limits and path-traversal protection, then scanning
 	 * each extracted file.
 	 *
-	 * @return array{score:int,severity:string,matches:array}
+	 * @return array{score:int,severity:string,matches:array,has_code:bool}
 	 */
 	private function scan_zip( string $file_path ): array {
+		$clean = array(
+			'score'    => 0,
+			'severity' => 'clean',
+			'matches'  => array(),
+			'has_code' => false,
+		);
+
 		if ( ! class_exists( 'ZipArchive' ) ) {
-			return array( 'score' => 0, 'severity' => 'clean', 'matches' => array() );
+			return $clean;
 		}
 
 		$zip = new \ZipArchive();
 		if ( true !== $zip->open( $file_path ) ) {
-			return array( 'score' => 0, 'severity' => 'clean', 'matches' => array() );
+			return $clean;
 		}
 
 		$max_files      = 50;
@@ -154,10 +157,10 @@ final class UploadGuardDetectionEngine {
 		$temp_dir = get_temp_dir() . 'uxstudio-security-zip-' . wp_generate_password( 12, false, false );
 		if ( ! wp_mkdir_p( $temp_dir ) ) {
 			$zip->close();
-			return array( 'score' => 0, 'severity' => 'clean', 'matches' => array() );
+			return $clean;
 		}
 
-		$scan_extensions = array( 'php', 'phtml', 'phar', 'js', 'svg', 'html', 'htm' );
+		$scan_extensions = array_merge( UploadGuardScope::PHP_EXTENSIONS, UploadGuardScope::UPLOAD_EXTENSIONS );
 		$files_to_scan   = array();
 
 		for ( $i = 0; $i < $zip->numFiles; $i++ ) {
@@ -225,6 +228,7 @@ final class UploadGuardDetectionEngine {
 			'score'    => $max_score,
 			'severity' => $this->calculate_severity( $max_score ),
 			'matches'  => $all_matches,
+			'has_code' => true,
 		);
 	}
 
@@ -233,12 +237,8 @@ final class UploadGuardDetectionEngine {
 	 */
 	private function patterns_for_extension( string $extension ): array {
 		switch ( $extension ) {
-			case 'php':
-			case 'phtml':
-			case 'phar':
-				return array_merge( self::PHP_PATTERNS, self::OBFUSCATION_PATTERNS );
 			case 'js':
-				return array_merge( self::JS_PATTERNS, self::OBFUSCATION_PATTERNS );
+				return self::JS_PATTERNS;
 			case 'svg':
 				return self::SVG_PATTERNS;
 			case 'html':
@@ -287,73 +287,6 @@ final class UploadGuardDetectionEngine {
 		}
 
 		return $matches;
-	}
-
-	/**
-	 * Detect a high concentration of non-ASCII bytes (obfuscation indicator)
-	 * in PHP-family files.
-	 */
-	private function check_non_ascii_concentration( string $content ): ?array {
-		$total_chars = strlen( $content );
-		if ( $total_chars < 100 ) {
-			return null;
-		}
-
-		$non_ascii = preg_match_all( '/[^\x20-\x7E\s]/', $content );
-		if ( false === $non_ascii ) {
-			return null;
-		}
-
-		$ratio = $non_ascii / $total_chars;
-		if ( $ratio > 0.3 ) {
-			return array(
-				'name'    => 'non_ascii_concentration',
-				'weight'  => 20,
-				'label'   => sprintf( 'High non-ASCII character concentration (%.0f%%)', $ratio * 100 ),
-				'line'    => 1,
-				'snippet' => '(binary/obfuscated content)',
-				'count'   => $non_ascii,
-			);
-		}
-
-		return null;
-	}
-
-	/**
-	 * Maps the raw pattern-weight score to the storage severity enum
-	 * (low|medium|high|critical). 'clean' rows are never persisted -
-	 * callers delete/skip them instead.
-	 */
-	private function calculate_severity( int $score ): string {
-		if ( $score <= 0 ) {
-			return 'clean';
-		}
-		if ( $score < self::THRESHOLD_LOW ) {
-			return 'low';
-		}
-		if ( $score < self::THRESHOLD_MEDIUM ) {
-			return 'medium';
-		}
-		if ( $score < self::THRESHOLD_HIGH ) {
-			return 'high';
-		}
-		return 'critical';
-	}
-
-	private function is_whitelisted( string $file_path ): bool {
-		$normalized = wp_normalize_path( $file_path );
-
-		foreach ( $this->whitelist_paths as $whitelisted ) {
-			$whitelisted = wp_normalize_path( trim( $whitelisted ) );
-			if ( '' === $whitelisted ) {
-				continue;
-			}
-			if ( false !== strpos( $normalized, $whitelisted ) ) {
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 	/**

@@ -361,6 +361,7 @@ final class Module extends BaseModule {
 		return array(
 			array(
 				'key'     => 'mode',
+				'section' => __( 'Access', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'Mode', 'ux-studio' ),
 				'help'    => __( 'Select the maintenance mode type.', 'ux-studio' ),
@@ -373,6 +374,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'layout_type',
+				'section' => __( 'Access', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'Layout type', 'ux-studio' ),
 				'help'    => __( 'Choose how to display the maintenance page.', 'ux-studio' ),
@@ -384,6 +386,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'custom_layout',
+				'section' => __( 'Access', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'Choose layout', 'ux-studio' ),
 				'help'    => __( 'Which built-in layout to use for the maintenance page.', 'ux-studio' ),
@@ -396,6 +399,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'existing_page',
+				'section' => __( 'Access', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'Existing page', 'ux-studio' ),
 				'help'    => __( 'Page displayed when the layout type is "Existing Page".', 'ux-studio' ),
@@ -404,6 +408,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'auth_type',
+				'section' => __( 'Access', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'Authentication type', 'ux-studio' ),
 				'help'    => __( 'Who is allowed to access the site while maintenance mode is active. Administrators always have access.', 'ux-studio' ),
@@ -415,6 +420,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'access_roles',
+				'section' => __( 'Access', 'ux-studio' ),
 				'type'    => 'multiselect',
 				'label'   => __( 'Allowed roles', 'ux-studio' ),
 				'help'    => __( 'Roles allowed to access the site when authentication is by role.', 'ux-studio' ),
@@ -423,42 +429,49 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'headline_text',
+				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'text',
 				'label'   => __( 'Headline text', 'ux-studio' ),
 				'default' => __( 'Maintenance Mode', 'ux-studio' ),
 			),
 			array(
 				'key'     => 'headline_colour',
+				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'color',
 				'label'   => __( 'Headline colour', 'ux-studio' ),
 				'default' => '#1f2937',
 			),
 			array(
 				'key'     => 'body_text',
+				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'richtext',
 				'label'   => __( 'Body text', 'ux-studio' ),
 				'default' => __( 'Site will be available soon. Thank you for your patience!', 'ux-studio' ),
 			),
 			array(
 				'key'     => 'body_colour',
+				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'color',
 				'label'   => __( 'Body colour', 'ux-studio' ),
 				'default' => '#676c76',
 			),
 			array(
 				'key'     => 'footer_text',
+				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'text',
 				'label'   => __( 'Footer text', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
 				'key'     => 'footer_colour',
+				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'color',
 				'label'   => __( 'Footer colour', 'ux-studio' ),
 				'default' => '#676c76',
 			),
 			array(
 				'key'     => 'enable_logo',
+				'section' => __( 'Appearance', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'Enable logo', 'ux-studio' ),
 				'options' => array(
@@ -469,6 +482,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'logo_image',
+				'section' => __( 'Appearance', 'ux-studio' ),
 				'type'    => 'media',
 				'label'   => __( 'Logo image', 'ux-studio' ),
 				'help'    => __( 'Logo image shown on the maintenance page.', 'ux-studio' ),
@@ -476,30 +490,35 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'logo_width',
+				'section' => __( 'Appearance', 'ux-studio' ),
 				'type'    => 'number',
 				'label'   => __( 'Logo width (px)', 'ux-studio' ),
 				'default' => 180,
 			),
 			array(
 				'key'     => 'background_colour',
+				'section' => __( 'Appearance', 'ux-studio' ),
 				'type'    => 'color',
 				'label'   => __( 'Background colour', 'ux-studio' ),
 				'default' => '#f5f5f5',
 			),
 			array(
 				'key'     => 'enable_background_image',
+				'section' => __( 'Appearance', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Enable background image', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
 				'key'     => 'background_image',
+				'section' => __( 'Appearance', 'ux-studio' ),
 				'type'    => 'media',
 				'label'   => __( 'Background image', 'ux-studio' ),
 				'default' => 0,
 			),
 			array(
 				'key'     => 'custom_css',
+				'section' => __( 'Appearance', 'ux-studio' ),
 				'type'    => 'textarea',
 				'label'   => __( 'Custom CSS', 'ux-studio' ),
 				'help'    => __( 'Custom CSS for the maintenance page. Useful classes: .uxstudio__card, .uxstudio__headline, .uxstudio__description, .uxstudio__footer, .uxstudio__logo.', 'ux-studio' ),

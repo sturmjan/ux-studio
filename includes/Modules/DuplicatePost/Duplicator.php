@@ -67,6 +67,18 @@ final class Duplicator {
 
 		$new_post = apply_filters( 'ux_studio/duplicate_post/post_data', $new_post, $post, $elements );
 
+		// Re-check after the filter: it must not lift a copy past review, change
+		// its type to one the user can't publish, or attribute it to someone else.
+		$new_post['post_author'] = get_current_user_id();
+		$type                    = get_post_type_object( (string) ( $new_post['post_type'] ?? $post->post_type ) );
+		if ( ! $type ) {
+			return new \WP_Error( 'uxstudio_invalid_post_type', __( 'Invalid post type.', 'ux-studio' ) );
+		}
+		if ( ! current_user_can( $type->cap->publish_posts )
+			&& ! in_array( $new_post['post_status'] ?? '', array( 'draft', 'pending' ), true ) ) {
+			$new_post['post_status'] = 'pending';
+		}
+
 		$new_post_id = wp_insert_post( $new_post, true );
 		if ( is_wp_error( $new_post_id ) ) {
 			return $new_post_id;

@@ -1,0 +1,47 @@
+/* Image Optimizer - Media Library column + attachment details. */
+
+.uxs-io-badge {
+	color: #00a32a;
+	font-weight: 600;
+}
+
+.uxs-io-pending,
+.uxs-io-na,
+.uxs-io-nextgen {
+	color: #646970;
+}
+
+.uxs-io-saved {
+	color: #00a32a;
+	font-weight: 600;
+}
+
+.uxs-io-compare {
+	font-size: 12px;
+}
+
+.uxs-io-actions {
+	margin-top: 6px;
+}
+
+.uxs-io-status {
+	display: block;
+	margin-top: 4px;
+	font-size: 12px;
+}
+
+.uxs-io-status.is-success {
+	color: #00a32a;
+}
+
+.uxs-io-status.is-error {
+	color: #d63638;
+}
+
+.column-uxstudio_io_size {
+	width: 8%;
+}
+
+.column-uxstudio_io {
+	width: 14%;
+}

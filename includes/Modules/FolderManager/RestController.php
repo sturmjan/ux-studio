@@ -8,6 +8,7 @@
 namespace UxStudio\Modules\FolderManager;
 
 use UxStudio\Rest\Controller;
+use WP_Error;
 use WP_REST_Request;
 
 defined( 'ABSPATH' ) || exit;
@@ -21,8 +22,13 @@ defined( 'ABSPATH' ) || exit;
  * POST   uxstudio/v1/folder-manager/assign             - assign/clear an attachment's folder {attachment_id, folder_id}
  * POST   uxstudio/v1/folder-manager/items/move         - bulk-move attachments {attachment_ids[], folder_id}
  *
- * All routes require the module capability (manage_options); the bulk-move
- * handler additionally checks edit_post per attachment.
+ * GET    uxstudio/v1/folder-manager/overview           - folder tree + counts for the sidebar {post_type}
+ * GET    uxstudio/v1/folder-manager/post-types         - post types folders are enabled for
+ *
+ * Folder structure routes need `manage_categories` (the capability core uses
+ * for taxonomy terms, so editors can manage folders from the media library
+ * sidebar, not only administrators); moving items needs `edit_posts` and is
+ * additionally checked per item with `edit_post`.
  */
 final class RestController extends Controller {
 
@@ -39,9 +45,20 @@ final class RestController extends Controller {
 	 * Register routes.
 	 */
 	public function register_routes(): void {
-		$capability = $this->module->capability();
+		$manage = 'manage_categories';
+		$edit   = 'edit_posts';
 
-		$this->route( '/folder-manager/folders', 'GET', array( $this, 'list_folders' ), array(), $capability );
+		$post_type_arg = array(
+			'required'          => false,
+			'type'              => 'string',
+			'sanitize_callback' => 'sanitize_key',
+		);
+
+		$this->route( '/folder-manager/folders', 'GET', array( $this, 'list_folders' ), array( 'post_type' => $post_type_arg ), $manage );
+
+		$this->route( '/folder-manager/overview', 'GET', array( $this, 'overview' ), array( 'post_type' => $post_type_arg ), $edit );
+
+		$this->route( '/folder-manager/post-types', 'GET', array( $this, 'post_types' ), array(), $manage );
 
 		$this->route(
 			'/folder-manager/folders',
@@ -59,8 +76,14 @@ final class RestController extends Controller {
 					'default'           => 0,
 					'sanitize_callback' => 'absint',
 				),
+				'post_type' => array(
+					'required'          => false,
+					'type'              => 'string',
+					'default'           => 'attachment',
+					'sanitize_callback' => 'sanitize_key',
+				),
 			),
-			$capability
+			$manage
 		);
 
 		$this->route(
@@ -79,7 +102,7 @@ final class RestController extends Controller {
 					'sanitize_callback' => 'sanitize_text_field',
 				),
 			),
-			$capability
+			$manage
 		);
 
 		$this->route(
@@ -99,7 +122,7 @@ final class RestController extends Controller {
 					'sanitize_callback' => 'absint',
 				),
 			),
-			$capability
+			$manage
 		);
 
 		$this->route(
@@ -113,7 +136,7 @@ final class RestController extends Controller {
 					'sanitize_callback' => 'absint',
 				),
 			),
-			$capability
+			$manage
 		);
 
 		$this->route(
@@ -132,7 +155,7 @@ final class RestController extends Controller {
 					'sanitize_callback' => 'absint',
 				),
 			),
-			$capability
+			$edit
 		);
 
 		$this->route(
@@ -151,7 +174,7 @@ final class RestController extends Controller {
 					'sanitize_callback' => 'absint',
 				),
 			),
-			$capability
+			$edit
 		);
 	}
 
@@ -161,7 +184,45 @@ final class RestController extends Controller {
 	 * @param WP_REST_Request $request Request.
 	 */
 	public function list_folders( WP_REST_Request $request ) {
-		return $this->ok( $this->module->list_folders() );
+		$post_type = (string) $request->get_param( 'post_type' );
+
+		return $this->ok( $this->module->list_folders( '' === $post_type ? null : $post_type ) );
+	}
+
+	/**
+	 * Folder tree + counts for the sidebar (one post type).
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function overview( WP_REST_Request $request ) {
+		$post_type = (string) $request->get_param( 'post_type' );
+		if ( '' === $post_type ) {
+			$post_type = 'attachment';
+		}
+
+		if ( ! $this->module->is_enabled( $post_type ) || ! AdminIntegration::user_can_use( $post_type ) ) {
+			return new WP_Error( 'uxstudio_post_type_disabled', __( 'Folders are not enabled for this post type.', 'ux-studio' ), array( 'status' => 403 ) );
+		}
+
+		return $this->ok( $this->module->overview( $post_type ) );
+	}
+
+	/**
+	 * Post types folders are enabled for.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function post_types( WP_REST_Request $request ) {
+		$labels = $this->module->available_post_types();
+		$out    = array();
+		foreach ( $this->module->enabled_post_types() as $type ) {
+			$out[] = array(
+				'name'  => $type,
+				'label' => $labels[ $type ] ?? $type,
+			);
+		}
+
+		return $this->ok( $out );
 	}
 
 	/**
@@ -172,8 +233,9 @@ final class RestController extends Controller {
 	public function create_folder( WP_REST_Request $request ) {
 		$name   = (string) $request->get_param( 'name' );
 		$parent = (int) $request->get_param( 'parent' );
+		$type   = (string) $request->get_param( 'post_type' );
 
-		$result = $this->module->create_folder( $name, $parent );
+		$result = $this->module->create_folder( $name, $parent, '' === $type ? 'attachment' : $type );
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}

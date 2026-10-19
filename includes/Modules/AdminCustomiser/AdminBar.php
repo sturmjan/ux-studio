@@ -5,20 +5,73 @@
  * and a compact external-link icon replacing the site name.
  *
  * Ported from the legacy admin-customiser module (includes/AdminBar.php).
- * The legacy version exposed a handful of on/off toggles for each of these
- * behaviours (hide_howdy_name, move_updates_right, consolidate_plugin_actions,
- * move_site_link_right) plus per-element color fields; the new settings
- * contract only has a single `admin_bar_enabled` toggle, so all behaviours
- * below are simply always-on once this class is instantiated.
+ * The four behaviours below are individual toggles again (same keys as the
+ * legacy module: hide_howdy_name, move_updates_right, consolidate_plugin_actions,
+ * move_site_link_right). When a key was never stored they default to ON, which
+ * is what this class did while it hard-enabled all four; a stored legacy
+ * value wins. `keep_on_bar_ids` is the user-editable list of node IDs that
+ * stay on the bar instead of collapsing under "+". Colors, logo and the
+ * "hide elements" checklist live in AdminTheme.
  *
  * @package UxStudio
  */
 
 namespace UxStudio\Modules\AdminCustomiser;
 
+use UxStudio\Core\Settings;
+
 defined( 'ABSPATH' ) || exit;
 
 final class AdminBar {
+
+	private Settings $settings;
+
+	/**
+	 * @param Settings|null $settings Module settings (defaults to the module option).
+	 */
+	public function __construct( ?Settings $settings = null ) {
+		$this->settings = $settings ?? new Settings( 'uxstudio_admin_customiser' );
+	}
+
+	/** Individual reorganize toggle; ON when the key was never stored. */
+	private function flag( string $key ): bool {
+		return (bool) $this->settings->get( $key, true );
+	}
+
+	/**
+	 * User keep-on-bar list: newline/comma separated node IDs or ID prefixes
+	 * (with or without the `wp-admin-bar-` DOM prefix), normalized to bare
+	 * node IDs. Entries that are empty after normalization are dropped so a
+	 * stray "wp-admin-bar-" cannot match every node.
+	 *
+	 * @return string[]
+	 */
+	private function user_keep_list(): array {
+		$raw = (string) $this->settings->get( 'keep_on_bar_ids', '' );
+		if ( '' === trim( $raw ) ) {
+			return array();
+		}
+		$out = array();
+		foreach ( (array) preg_split( '/[\r\n,]+/', $raw ) as $entry ) {
+			$entry = preg_replace( '/[^A-Za-z0-9_:.\-]/', '', trim( (string) $entry ) );
+			$bare  = (string) preg_replace( '/^wp-admin-bar-/', '', (string) $entry );
+			if ( '' !== $bare ) {
+				$out[ $bare ] = $bare;
+			}
+		}
+		return array_values( $out );
+	}
+
+	/** Does the bare admin-bar node id match any user keep entry (exact or prefix)? */
+	private function matches_user_keep( string $id, array $list ): bool {
+		$bare = (string) preg_replace( '/^wp-admin-bar-/', '', $id );
+		foreach ( $list as $entry ) {
+			if ( 0 === strpos( $bare, $entry ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	/**
 	 * Register admin bar hooks. Only instantiated when admin_bar_enabled=true.
@@ -56,10 +109,14 @@ final class AdminBar {
 			return $admin_bar;
 		}
 
+		$move_updates    = $this->flag( 'move_updates_right' );
+		$consolidate     = $this->flag( 'consolidate_plugin_actions' );
+		$site_link_right = $this->flag( 'move_site_link_right' );
+
 		// 1) "Howdy, {Name}" is compacted to a bare avatar purely via CSS (print_styles()).
 
 		// 2) Move "Updates" to the right (top-secondary), keeping WP's default icon.
-		$updates = $admin_bar->get_node( 'updates' );
+		$updates = $move_updates ? $admin_bar->get_node( 'updates' ) : null;
 		if ( $updates ) {
 			$admin_bar->remove_node( 'updates' );
 			$admin_bar->add_node(
@@ -77,6 +134,28 @@ final class AdminBar {
 		}
 
 		// 3) Consolidate plugin-added top-level nodes under a "+" icon on the right.
+		if ( $consolidate ) {
+			$this->consolidate_nodes( $admin_bar );
+		}
+
+		// 4) Site name -> compact external-link icon on the right.
+		if ( $site_link_right ) {
+			$this->add_site_link( $admin_bar );
+		}
+
+		// 5) Force visual order of top-secondary items (search, bell, updates, plus, site-link, avatar).
+		$this->force_top_secondary_order( $admin_bar );
+
+		return $admin_bar;
+	}
+
+	/**
+	 * Move plugin-added top-level nodes under the "+" dropdown and append the
+	 * quick-actions panel (consolidate_plugin_actions).
+	 *
+	 * @param \WP_Admin_Bar $admin_bar Admin bar instance.
+	 */
+	private function consolidate_nodes( $admin_bar ): void {
 		$plus_id = 'uxstudio-plus-menu';
 
 		$keep_ids = apply_filters(
@@ -90,9 +169,15 @@ final class AdminBar {
 			)
 		);
 
+		$user_keeps = $this->user_keep_list();
+
 		$candidates = array();
 		foreach ( $admin_bar->get_nodes() as $id => $node ) {
 			if ( in_array( $id, $keep_ids, true ) ) {
+				continue;
+			}
+			// User-configured keep list (keep_on_bar_ids): exact id or prefix.
+			if ( $user_keeps && $this->matches_user_keep( (string) $id, $user_keeps ) ) {
 				continue;
 			}
 			if ( strpos( $id, 'uxstudio-plus-' ) === 0 ) {
@@ -163,7 +248,15 @@ final class AdminBar {
 			);
 		}
 
-		// 4) Site name -> compact external-link icon on the right.
+	}
+
+	/**
+	 * Replace the site name with a compact external-link icon on the right
+	 * (move_site_link_right).
+	 *
+	 * @param \WP_Admin_Bar $admin_bar Admin bar instance.
+	 */
+	private function add_site_link( $admin_bar ): void {
 		$admin_bar->remove_node( 'site-name' );
 
 		$link_icon = '<span class="ab-icon uxstudio-extlink" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/></svg></span>';
@@ -183,11 +276,6 @@ final class AdminBar {
 				),
 			)
 		);
-
-		// 5) Force visual order of top-secondary items (search, bell, updates, plus, site-link, avatar).
-		$this->force_top_secondary_order( $admin_bar );
-
-		return $admin_bar;
 	}
 
 	/**
@@ -330,6 +418,16 @@ final class AdminBar {
 			return;
 		}
 
+		$hide_howdy      = $this->flag( 'hide_howdy_name' );
+		$move_updates    = $this->flag( 'move_updates_right' );
+		$consolidate     = $this->flag( 'consolidate_plugin_actions' );
+		$site_link_right = $this->flag( 'move_site_link_right' );
+
+		// Legacy parity: with every reorganize toggle off, no CSS is printed at all.
+		if ( ! $hide_howdy && ! $move_updates && ! $consolidate && ! $site_link_right ) {
+			return;
+		}
+
 		$css  = '#wpadminbar #wp-admin-bar-uxstudio-plus-menu > .ab-item,';
 		$css .= '#wpadminbar #wp-admin-bar-uxstudio-site-link > .ab-item {';
 		$css .= 'display: inline-flex !important; align-items: center; justify-content: center;';
@@ -342,33 +440,54 @@ final class AdminBar {
 		$css .= 'width: 18px; height: 18px; margin: 0 !important; padding: 0 !important; line-height: 1;';
 		$css .= '}';
 
-		// Compact "Howdy" avatar - hide every child, paint a static SVG via background-image.
-		$svg     = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23ffffff' d='M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-3.3 0-8 1.7-8 5v2h16v-2c0-3.3-4.7-5-8-5z'/></svg>";
-		$svg_url = 'data:image/svg+xml;utf8,' . $svg;
+		if ( $hide_howdy ) {
+			// Compact "Howdy" avatar - hide every child, paint a static SVG via background-image.
+			$svg     = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23ffffff' d='M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-3.3 0-8 1.7-8 5v2h16v-2c0-3.3-4.7-5-8-5z'/></svg>";
+			$svg_url = 'data:image/svg+xml;utf8,' . $svg;
 
-		$css .= '#wpadminbar #wp-admin-bar-my-account > .ab-item {';
-		$css .= 'display: inline-block !important; box-sizing: border-box !important;';
-		$css .= 'width: 32px !important; height: 32px !important; padding: 0 !important; margin: 0 !important;';
-		$css .= 'line-height: 32px !important; font-size: 0 !important; text-indent: 100% !important;';
-		$css .= 'white-space: nowrap !important; overflow: hidden !important;';
-		$css .= 'background-image: url("' . $svg_url . '") !important;';
-		$css .= 'background-repeat: no-repeat !important; background-position: center center !important; background-size: 20px 20px !important;';
-		$css .= '}';
-		$css .= '#wpadminbar #wp-admin-bar-my-account > .ab-item > * { display: none !important; visibility: hidden !important; }';
-		$css .= '#wpadminbar #wp-admin-bar-my-account.menupop > .ab-sub-wrapper { top: 32px !important; right: 0 !important; left: auto !important; margin-top: 0 !important; }';
+			$css .= '#wpadminbar #wp-admin-bar-my-account > .ab-item {';
+			$css .= 'display: inline-block !important; box-sizing: border-box !important;';
+			$css .= 'width: 32px !important; height: 32px !important; padding: 0 !important; margin: 0 !important;';
+			$css .= 'line-height: 32px !important; font-size: 0 !important; text-indent: 100% !important;';
+			$css .= 'white-space: nowrap !important; overflow: hidden !important;';
+			$css .= 'background-image: url("' . $svg_url . '") !important;';
+			$css .= 'background-repeat: no-repeat !important; background-position: center center !important; background-size: 20px 20px !important;';
+			$css .= '}';
+			$css .= '#wpadminbar #wp-admin-bar-my-account > .ab-item > * { display: none !important; visibility: hidden !important; }';
+			$css .= '#wpadminbar #wp-admin-bar-my-account.menupop > .ab-sub-wrapper { top: 32px !important; right: 0 !important; left: auto !important; margin-top: 0 !important; }';
+		}
 
-		// Updates badge - compact, badge anchored top-right.
-		$css .= '#wpadminbar #wp-admin-bar-updates { position: relative; overflow: visible; }';
-		$css .= '#wpadminbar #wp-admin-bar-updates > .ab-item { display: inline-flex !important; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0 !important; line-height: 1 !important; position: relative; overflow: visible; }';
-		$css .= '#wpadminbar #wp-admin-bar-updates .ab-label, #wpadminbar #wp-admin-bar-updates .update-count, #wpadminbar #wp-admin-bar-updates .update-plugins {';
-		$css .= 'position: absolute !important; top: 3px !important; right: 2px !important; left: auto !important; bottom: auto !important;';
-		$css .= 'min-width: 14px !important; width: auto !important; height: 14px !important; line-height: 14px !important; padding: 0 3px !important;';
-		$css .= 'font-size: 9px !important; font-weight: 700 !important; border-radius: 9px !important; background: #d63638 !important; color: #fff !important;';
-		$css .= 'text-align: center !important; box-sizing: border-box !important; display: inline-block !important; margin: 0 !important;';
-		$css .= '}';
+		if ( $move_updates ) {
+			// Updates badge - compact, badge anchored top-right.
+			$css .= '#wpadminbar #wp-admin-bar-updates { position: relative; overflow: visible; }';
+			$css .= '#wpadminbar #wp-admin-bar-updates > .ab-item { display: inline-flex !important; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0 !important; line-height: 1 !important; position: relative; overflow: visible; }';
+			$css .= '#wpadminbar #wp-admin-bar-updates .ab-label, #wpadminbar #wp-admin-bar-updates .update-count, #wpadminbar #wp-admin-bar-updates .update-plugins {';
+			$css .= 'position: absolute !important; top: 3px !important; right: 2px !important; left: auto !important; bottom: auto !important;';
+			$css .= 'min-width: 14px !important; width: auto !important; height: 14px !important; line-height: 14px !important; padding: 0 3px !important;';
+			$css .= 'font-size: 9px !important; font-weight: 700 !important; border-radius: 9px !important; background: #d63638 !important; color: #fff !important;';
+			$css .= 'text-align: center !important; box-sizing: border-box !important; display: inline-block !important; margin: 0 !important;';
+			$css .= '}';
+		}
 
+		if ( $consolidate ) {
+			$css .= $this->consolidate_css();
+		}
+
+		// Top-secondary alignment.
+		$css .= '#wpadminbar #wp-admin-bar-top-secondary { display: flex !important; flex-wrap: nowrap; align-items: center; justify-content: flex-end; }';
+		$css .= '#wpadminbar #wp-admin-bar-top-secondary > li { float: none !important; display: inline-flex; align-items: center; height: 32px; }';
+		$css .= '#wpadminbar #wp-admin-bar-top-secondary > li > .ab-item { height: 32px !important; line-height: 32px !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; }';
+
+		printf( '<style id="uxstudio-admin-bar-reorganize">%s</style>', $css ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+
+	/**
+	 * CSS for the "+" dropdown (consolidate_plugin_actions): panel, plugin/quick-action
+	 * rows, heading and the server-clock row.
+	 */
+	private function consolidate_css(): string {
 		// "+" dropdown panel.
-		$css .= '#wpadminbar #wp-admin-bar-uxstudio-plus-menu.menupop > .ab-sub-wrapper {';
+		$css  = '#wpadminbar #wp-admin-bar-uxstudio-plus-menu.menupop > .ab-sub-wrapper {';
 		$css .= 'top: 32px !important; right: 0 !important; left: auto !important; margin-top: 0 !important; z-index: 99999 !important; min-width: 240px; padding: 4px 0 !important;';
 		$css .= '}';
 
@@ -390,12 +509,7 @@ final class AdminBar {
 		$css     .= $clock_li . ' .uxstudio-plus-clock__time { font-size: 16px !important; font-weight: 600 !important; color: #fff !important; }';
 		$css     .= $clock_li . ' .uxstudio-plus-clock__label, ' . $clock_li . ' .uxstudio-plus-clock__date, ' . $clock_li . ' .uxstudio-plus-clock__tz { font-size: 10px !important; color: rgba(255,255,255,0.55) !important; }';
 
-		// Top-secondary alignment.
-		$css .= '#wpadminbar #wp-admin-bar-top-secondary { display: flex !important; flex-wrap: nowrap; align-items: center; justify-content: flex-end; }';
-		$css .= '#wpadminbar #wp-admin-bar-top-secondary > li { float: none !important; display: inline-flex; align-items: center; height: 32px; }';
-		$css .= '#wpadminbar #wp-admin-bar-top-secondary > li > .ab-item { height: 32px !important; line-height: 32px !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; }';
-
-		printf( '<style id="uxstudio-admin-bar-reorganize">%s</style>', $css ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		return $css;
 	}
 
 	/**
@@ -404,9 +518,18 @@ final class AdminBar {
 	 * their label/icon so the compact dropdown row layout stays consistent.
 	 */
 	public function print_script(): void {
-		if ( ! is_admin_bar_showing() ) {
+		if ( ! is_admin_bar_showing() || ! $this->flag( 'consolidate_plugin_actions' ) ) {
 			return;
 		}
+
+		$user_keep_json = wp_json_encode(
+			array_map(
+				static function ( string $bare ): string {
+					return 'wp-admin-bar-' . $bare;
+				},
+				$this->user_keep_list()
+			)
+		);
 
 		$keep_ids  = array(
 			'wp-admin-bar-top-secondary', 'wp-admin-bar-root-default', 'wp-admin-bar-secondary',
@@ -423,6 +546,7 @@ final class AdminBar {
 <script id="uxstudio-admin-bar-reorganize-js">
 (function () {
 	var KEEP = <?php echo $keep_json; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
+	var USER_KEEP = <?php echo $user_keep_json; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
 	var KEEP_PREFIXES = ['wp-admin-bar-uxstudio-plus-'];
 
 	function shouldKeep(id) {
@@ -430,6 +554,9 @@ final class AdminBar {
 		if (KEEP.indexOf(id) !== -1) return true;
 		for (var i = 0; i < KEEP_PREFIXES.length; i++) {
 			if (id.indexOf(KEEP_PREFIXES[i]) === 0) return true;
+		}
+		for (var j = 0; j < USER_KEEP.length; j++) {
+			if (USER_KEEP[j] && id.indexOf(USER_KEEP[j]) === 0) return true;
 		}
 		return false;
 	}

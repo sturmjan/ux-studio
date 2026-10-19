@@ -59,6 +59,18 @@ final class Module extends BaseModule {
 
 		if ( 'node' === (string) $this->settings->get( 'mode', 'hub' ) ) {
 			( new SsoRedeemer() )->register();
+
+			// The hub / Central App are not logged-in users. Let the node routes
+			// through the "REST API for logged-in users only" lock; every one of
+			// them still requires a valid HMAC signature (permission_callback).
+			add_filter(
+				'uxstudio_rest_public_routes',
+				static function ( $routes ): array {
+					$routes   = is_array( $routes ) ? $routes : array();
+					$routes[] = '/uxstudio/v1/content-sync/node/';
+					return $routes;
+				}
+			);
 		}
 
 		add_action( self::CRON_RETENTION, array( $this, 'purge_old_log' ) );
@@ -217,11 +229,32 @@ final class Module extends BaseModule {
 				'default' => '',
 			),
 			array(
+				'key'     => 'node_allowed_ips',
+				'type'    => 'textarea',
+				'label'   => __( 'Allowed hub IP addresses (node)', 'ux-studio' ),
+				'help'    => __( 'One IP address per line. When filled in, the node answers only requests from these addresses (the hub / central app server). Leave blank to accept any IP with a valid signature.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'node_allow_packages',
+				'type'    => 'toggle',
+				'label'   => __( 'Allow package management (node)', 'ux-studio' ),
+				'help'    => __( 'Lets the central app install/update plugins and themes and set FS_METHOD in wp-config.php on this site. Off by default. Turn on only together with the allowed IP list above.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
 				'key'     => 'node_default_author',
 				'type'    => 'number',
 				'label'   => __( 'Default author (node)', 'ux-studio' ),
 				'help'    => __( 'User ID assigned to posts created by the hub when the payload has no author.', 'ux-studio' ),
 				'default' => 0,
+			),
+			array(
+				'key'     => 'sso_allow_admin',
+				'type'    => 'toggle',
+				'label'   => __( 'Allow SSO login as administrator', 'ux-studio' ),
+				'help'    => __( 'Lets central app operators sign in to accounts with administrator rights (install plugins, manage users). Off by default: an administrator login can install code, so with this on a leaked node key gives full control of the site. Turn on only together with the allowed IP list. Editors and lower roles sign in either way.', 'ux-studio' ),
+				'default' => false,
 			),
 			array(
 				'key'     => 'sso_mapping_strategy',

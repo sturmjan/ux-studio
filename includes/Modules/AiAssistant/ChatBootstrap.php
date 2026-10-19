@@ -33,7 +33,7 @@ final class ChatBootstrap {
 	}
 
 	private static function widget_enabled(): bool {
-		return (bool) ( new Settings( 'uxstudio_ai_assistant' ) )->get( 'widget_enabled', true );
+		return AssistantConfig::flag( 'widget_enabled', true );
 	}
 
 	/**
@@ -101,21 +101,7 @@ final class ChatBootstrap {
 					'js'  => add_query_arg( 'ver', $version, UXSTUDIO_URL . $js_rel ),
 					'css' => add_query_arg( 'ver', $version, UXSTUDIO_URL . $css_rel ),
 				),
-				'config'           => array(
-					'type'               => 'bubble',
-					'position'           => 'bottom-right',
-					'color'              => '#2271b1',
-					'textColor'          => '#ffffff',
-					'title'              => PromptTemplates::default_title( $language ),
-					'greeting'           => PromptTemplates::default_greeting( $language ),
-					'placeholder'        => PromptTemplates::default_placeholder( $language ),
-					'gdprText'           => PromptTemplates::default_gdpr_text( $language ),
-					'autoOpen'           => false,
-					'autoOpenDelay'      => 5,
-					'autoOpenSound'      => true,
-					'autoOpenCooldown'   => 30,
-					'inactivityTimeout'  => 60,
-				),
+				'config'           => AssistantConfig::widget_config( $language ),
 			)
 		);
 	}

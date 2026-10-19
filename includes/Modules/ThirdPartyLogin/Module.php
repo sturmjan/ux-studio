@@ -89,6 +89,24 @@ final class Module extends BaseModule {
 		add_action( 'template_redirect', array( $this, 'maybe_start_handshake' ) );
 		add_action( 'login_init', array( $this, 'maybe_start_handshake' ) );
 		add_filter( 'uxstudio_rest_public_routes', array( $this, 'allow_public_callback_route' ) );
+
+		// "Link your account" admin notice + login-screen error messages.
+		( new Notice( $this ) )->boot();
+	}
+
+	/**
+	 * Whether the "link your account" admin notice is on (bool or legacy 1/'1').
+	 */
+	public function notice_enabled(): bool {
+		$value = $this->settings->get( 'notice_enabled', true );
+		return is_string( $value ) ? in_array( $value, array( '1', 'true', 'on' ), true ) : (bool) $value;
+	}
+
+	/**
+	 * Custom notice text ('' = use the default).
+	 */
+	public function notice_text(): string {
+		return (string) $this->settings->get( 'notice_text', '' );
 	}
 
 	/**
@@ -191,6 +209,20 @@ final class Module extends BaseModule {
 				'help'    => __( 'Role assigned to auto-created users. Administrator is intentionally not selectable. This role should also be in "Allowed roles", otherwise the new account cannot log in.', 'ux-studio' ),
 				'options' => $create_roles,
 				'default' => 'subscriber',
+			),
+			array(
+				'key'     => 'notice_enabled',
+				'type'    => 'toggle',
+				'label'   => __( 'Show "link your account" notice', 'ux-studio' ),
+				'help'    => __( 'Shows a dismissible notice in wp-admin to allowed users who have not linked any external account yet.', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
+				'key'     => 'notice_text',
+				'type'    => 'textarea',
+				'label'   => __( 'Notice text', 'ux-studio' ),
+				'help'    => __( 'Leave blank for the default text.', 'ux-studio' ),
+				'default' => '',
 			),
 		);
 	}

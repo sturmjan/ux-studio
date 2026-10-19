@@ -30,6 +30,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * Public (token/rate-limited) routes:
  *   POST   uxstudio/v1/notice-board/subscribe           - double opt-in subscribe
+ *   GET    uxstudio/v1/notice-board/open-data           - OFN open data (also wpextended/v1/... for legacy URLs)
  *   GET    uxstudio/v1/notice-board/confirm/{token}     - confirm a subscription
  *   GET    uxstudio/v1/notice-board/unsubscribe/{token} - remove a subscription
  */
@@ -116,6 +117,27 @@ final class RestController extends Controller {
 				),
 			)
 		);
+		// Open data "Informace na úřední desce" (OFN). Public, read-only. Also exposed
+		// under the legacy namespace so the URL already registered in the national
+		// open-data catalogue (wpextended/v1/notice-board/open-data) keeps working;
+		// skipped while the legacy plugin itself is active (it owns that route).
+		$open_data = array(
+			'methods'             => 'GET',
+			'callback'            => array( $this, 'open_data' ),
+			'permission_callback' => '__return_true',
+		);
+		register_rest_route( self::NS, '/notice-board/open-data', $open_data );
+		if ( ! defined( 'WP_EXTENDED_API_NAMESPACE' ) ) {
+			register_rest_route( 'wpextended/v1', '/notice-board/open-data', $open_data );
+			// Outside uxstudio/v1, so "REST only for logged-in users" would block it.
+			add_filter(
+				'uxstudio_rest_public_routes',
+				static function ( array $routes ): array {
+					$routes[] = '/wpextended/v1/notice-board/open-data';
+					return $routes;
+				}
+			);
+		}
 		register_rest_route(
 			self::NS,
 			'/notice-board/confirm/(?P<token>[a-zA-Z0-9]+)',
@@ -297,6 +319,17 @@ final class RestController extends Controller {
 		}
 
 		return $this->ok( array( 'ok' => true ) );
+	}
+
+	/**
+	 * Public OFN open-data document (JSON-LD).
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function open_data( WP_REST_Request $request ): WP_REST_Response {
+		$response = new WP_REST_Response( $this->module->open_data() );
+		$response->header( 'Cache-Control', 'public, max-age=300' );
+		return $response;
 	}
 
 	/**

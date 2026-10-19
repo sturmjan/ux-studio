@@ -62,9 +62,16 @@ final class InternalChatEngine {
 	public function process_message( array $messages, int $conversation_id, callable $on_chunk ): array {
 		$user_id = get_current_user_id();
 
-		$provider_id = (string) self::settings()->get( 'default_provider', 'claude' );
-		$provider    = ProviderFactory::create( $provider_id );
-		$model       = $this->get_model( $provider_id );
+		// Optional provider/model override for the internal chatbot (legacy chatbot_provider/chatbot_model).
+		$provider_id = (string) self::settings()->get( 'chatbot_provider', '' );
+		if ( '' === $provider_id || ! isset( ProviderFactory::get_all_providers()[ $provider_id ] ) ) {
+			$provider_id = (string) self::settings()->get( 'default_provider', 'claude' );
+		}
+		$provider = ProviderFactory::create( $provider_id );
+		$model    = AssistantConfig::text( 'chatbot_model' );
+		if ( '' === $model || $provider_id !== (string) self::settings()->get( 'chatbot_provider', '' ) ) {
+			$model = $this->get_model( $provider_id );
+		}
 
 		$system_prompt  = $this->build_persona();
 		$system_prompt .= $this->build_rag_context( $messages );
@@ -149,7 +156,8 @@ final class InternalChatEngine {
 			. "content editing, site configuration, and how to use UX Studio's own modules.\n"
 			. "Be concise, professional and practical. When relevant, mention which admin screen or "
 			. "UX Studio module the user should use.\n"
-			. "Respond in the same language the user writes in.\n";
+			. "Respond in the same language the user writes in.\n"
+			. ( '' !== ( $extra = trim( wp_strip_all_tags( (string) self::settings()->get( 'chatbot_system_prompt', '' ) ) ) ) ? "\n" . $extra . "\n" : '' );
 	}
 
 	/**
@@ -158,7 +166,7 @@ final class InternalChatEngine {
 	 * @param array<int, array{role:string,content:string}> $messages Message history.
 	 */
 	private function build_rag_context( array $messages ): string {
-		if ( ! (bool) self::settings()->get( 'internal_rag_enabled', true ) ) {
+		if ( ! AssistantConfig::flag( 'internal_rag_enabled', true ) ) {
 			return '';
 		}
 
@@ -193,7 +201,7 @@ final class InternalChatEngine {
 	 * @param array<int, array{role:string,content:string}> $messages Message history.
 	 */
 	private function build_knowledge_context( array $messages ): string {
-		if ( ! (bool) self::settings()->get( 'internal_rag_enabled', true ) ) {
+		if ( ! AssistantConfig::flag( 'internal_rag_enabled', true ) ) {
 			return '';
 		}
 
@@ -245,7 +253,7 @@ final class InternalChatEngine {
 	 * equivalent "how does this admin panel work" context available.
 	 */
 	private function build_guide_context(): string {
-		if ( ! (bool) self::settings()->get( 'internal_guide_enabled', true ) ) {
+		if ( ! AssistantConfig::flag( 'internal_guide_enabled', true ) ) {
 			return '';
 		}
 

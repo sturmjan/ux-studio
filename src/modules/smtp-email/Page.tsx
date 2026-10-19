@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Check, LoaderCircle, Send } from 'lucide-react';
-import { api } from '../../app/api';
+import { ArrowLeft, Check, Download, LoaderCircle, Send, Trash2 } from 'lucide-react';
+import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
 
@@ -23,11 +23,134 @@ interface TestResult {
 	error: string;
 }
 
-function LogTable(): JSX.Element {
-	const { data, isLoading } = useQuery( {
-		queryKey: [ 'smtp-email', 'logs' ],
-		queryFn: () => api< SmtpLog[] >( 'smtp-email/logs' ),
+interface BrevoStatus {
+	state: string;
+	account: string;
+	error: string;
+	checked: string;
+}
+
+function BrevoVerify( { hasKey, stored }: { hasKey: boolean; stored?: BrevoStatus } ): JSX.Element {
+	const verify = useMutation( {
+		mutationFn: () => api< BrevoStatus >( 'smtp-email/brevo/verify', { method: 'POST', body: JSON.stringify( {} ) } ),
+		onSuccess: () => void queryClient.invalidateQueries( { queryKey: [ 'settings', 'smtp-email' ] } ),
 	} );
+	const status = verify.data ?? ( stored && stored.state ? stored : undefined );
+
+	return (
+		<div className="uxs-form" style={ { marginTop: 'var(--uxs-sp-5)' } }>
+			<p className="uxs-form__help">
+				{ __( 'The sender address (From email) must be a verified sender or belong to a verified domain in Brevo.', 'ux-studio' ) }
+			</p>
+			<button type="button" className="button" disabled={ ! hasKey || verify.isPending } onClick={ () => verify.mutate() }>
+				{ __( 'Verify API key', 'ux-studio' ) }
+			</button>{ ' ' }
+			{ ! hasKey && (
+				<span className="uxs-form__help">{ __( 'Enter the API key and save the settings first.', 'ux-studio' ) }</span>
+			) }
+			{ verify.error && <p className="uxs-badge is-danger">{ ( verify.error as Error ).message }</p> }
+			{ status && (
+				<p>
+					{ status.state === 'ok' ? (
+						<span className="uxs-badge is-success">
+							<Check size={ 12 } /> { __( 'API key is valid. Account:', 'ux-studio' ) } { status.account || '—' }
+						</span>
+					) : (
+						<span className="uxs-badge is-danger">
+							{ __( 'Verification failed:', 'ux-studio' ) } { status.error }
+						</span>
+					) }
+					{ status.checked ? <span className="uxs-form__help"> { status.checked }</span> : null }
+				</p>
+			) }
+		</div>
+	);
+}
+
+const PER_PAGE = 20;
+
+interface SmtpLogPage {
+	items: SmtpLog[];
+	total: number;
+	page: number;
+	per_page: number;
+}
+
+function LogTable(): JSX.Element {
+	const [ page, setPage ] = useState( 1 );
+	const [ searchInput, setSearchInput ] = useState( '' );
+	const [ search, setSearch ] = useState( '' );
+
+	const { data, isLoading } = useQuery( {
+		queryKey: [ 'smtp-email', 'logs', page, search ],
+		queryFn: () =>
+			api< SmtpLogPage >(
+				`smtp-email/logs?page=${ page }&per_page=${ PER_PAGE }&search=${ encodeURIComponent( search ) }`
+			),
+	} );
+
+	const exportUrl = useQuery( {
+		queryKey: [ 'smtp-email', 'export-url' ],
+		queryFn: () => api< { url: string } >( 'smtp-email/logs/export-url' ),
+	} );
+
+	const clear = useMutation( {
+		mutationFn: () => api( 'smtp-email/logs/clear', { method: 'POST', body: JSON.stringify( {} ) } ),
+		onSuccess: () => {
+			setPage( 1 );
+			void queryClient.invalidateQueries( { queryKey: [ 'smtp-email', 'logs' ] } );
+		},
+	} );
+
+	const totalPages = data ? Math.max( 1, Math.ceil( data.total / PER_PAGE ) ) : 1;
+
+	const toolbar = (
+		<div style={ { display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: 'var(--uxs-sp-4)' } }>
+			<form
+				onSubmit={ ( e ) => {
+					e.preventDefault();
+					setPage( 1 );
+					setSearch( searchInput.trim() );
+				} }
+				style={ { display: 'flex', gap: '8px' } }
+			>
+				<input
+					type="search"
+					aria-label={ __( 'Search the log', 'ux-studio' ) }
+					placeholder={ __( 'Search recipient, subject or error…', 'ux-studio' ) }
+					value={ searchInput }
+					onChange={ ( e ) => setSearchInput( e.target.value ) }
+				/>
+				<button type="submit" className="button">
+					{ __( 'Search', 'ux-studio' ) }
+				</button>
+			</form>
+			{ exportUrl.data && (
+				<a className="button" href={ exportUrl.data.url }>
+					<Download size={ 14 } /> { __( 'Download CSV', 'ux-studio' ) }
+				</a>
+			) }
+			<button
+				type="button"
+				className="button"
+				disabled={ clear.isPending || ! data || data.total === 0 }
+				onClick={ () => {
+					if ( window.confirm( __( 'Are you sure you want to clear all email logs? This action cannot be undone.', 'ux-studio' ) ) ) {
+						clear.mutate();
+					}
+				} }
+			>
+				<Trash2 size={ 14 } /> { __( 'Clear logs', 'ux-studio' ) }
+			</button>
+			<button
+				type="button"
+				className="button-link"
+				onClick={ () => navigate( 'module', { id: 'email-log' } ) }
+			>
+				{ __( 'Message bodies, headers and per-entry resend: Email Log module', 'ux-studio' ) }
+			</button>
+		</div>
+	);
 
 	if ( isLoading ) {
 		return (
@@ -37,37 +160,60 @@ function LogTable(): JSX.Element {
 		);
 	}
 
-	if ( ! data || data.length === 0 ) {
-		return <p>{ __( 'No mail has been sent yet.', 'ux-studio' ) }</p>;
+	if ( ! data || data.items.length === 0 ) {
+		return (
+			<>
+				{ toolbar }
+				<p>
+					{ search
+						? __( 'No log entries match your search.', 'ux-studio' )
+						: __( 'No mail has been sent yet.', 'ux-studio' ) }
+				</p>
+			</>
+		);
 	}
 
 	return (
-		<table className="uxs-table">
-			<thead>
-				<tr>
-					<th>{ __( 'Date', 'ux-studio' ) }</th>
-					<th>{ __( 'To', 'ux-studio' ) }</th>
-					<th>{ __( 'Subject', 'ux-studio' ) }</th>
-					<th>{ __( 'Status', 'ux-studio' ) }</th>
-					<th>{ __( 'Error', 'ux-studio' ) }</th>
-				</tr>
-			</thead>
-			<tbody>
-				{ data.map( ( row ) => (
-					<tr key={ row.id }>
-						<td>{ row.created_at }</td>
-						<td>{ row.to_email }</td>
-						<td>{ row.subject }</td>
-						<td>
-							<span className={ `uxs-badge ${ row.status === 'success' ? 'is-success' : 'is-danger' }` }>
-								{ row.status === 'success' ? __( 'Sent', 'ux-studio' ) : __( 'Failed', 'ux-studio' ) }
-							</span>
-						</td>
-						<td>{ row.error ?? '' }</td>
+		<>
+			{ toolbar }
+			<table className="uxs-table">
+				<thead>
+					<tr>
+						<th>{ __( 'Date', 'ux-studio' ) }</th>
+						<th>{ __( 'To', 'ux-studio' ) }</th>
+						<th>{ __( 'Subject', 'ux-studio' ) }</th>
+						<th>{ __( 'Status', 'ux-studio' ) }</th>
+						<th>{ __( 'Error', 'ux-studio' ) }</th>
 					</tr>
-				) ) }
-			</tbody>
-		</table>
+				</thead>
+				<tbody>
+					{ data.items.map( ( row ) => (
+						<tr key={ row.id }>
+							<td>{ row.created_at }</td>
+							<td>{ row.to_email }</td>
+							<td>{ row.subject }</td>
+							<td>
+								<span className={ `uxs-badge ${ row.status === 'success' ? 'is-success' : 'is-danger' }` }>
+									{ row.status === 'success' ? __( 'Sent', 'ux-studio' ) : __( 'Failed', 'ux-studio' ) }
+								</span>
+							</td>
+							<td>{ row.error ?? '' }</td>
+						</tr>
+					) ) }
+				</tbody>
+			</table>
+			<p style={ { display: 'flex', gap: '8px', alignItems: 'center' } }>
+				<button type="button" className="button" disabled={ page <= 1 } onClick={ () => setPage( page - 1 ) }>
+					{ __( 'Previous', 'ux-studio' ) }
+				</button>
+				<span>
+					{ page } / { totalPages } ({ data.total })
+				</span>
+				<button type="button" className="button" disabled={ page >= totalPages } onClick={ () => setPage( page + 1 ) }>
+					{ __( 'Next', 'ux-studio' ) }
+				</button>
+			</p>
+		</>
 	);
 }
 
@@ -139,6 +285,13 @@ export default function Page(): JSX.Element {
 					<button type="button" className="button button-primary" onClick={ () => save.mutate() }>
 						{ saved ? __( 'Saved', 'ux-studio' ) : __( 'Save changes', 'ux-studio' ) }
 					</button>
+
+					{ draft.mailer === 'brevo' && (
+						<BrevoVerify
+							hasKey={ Boolean( draft.has_brevo_api_key ) }
+							stored={ draft.brevo_status as BrevoStatus | undefined }
+						/>
+					) }
 
 					{ draft.mailer === 'gmail' && (
 						<div className="uxs-form" style={ { marginTop: 'var(--uxs-sp-5)' } }>

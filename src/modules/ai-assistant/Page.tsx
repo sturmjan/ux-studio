@@ -20,6 +20,7 @@ import { McpTab } from './McpTab';
  */
 type TabId =
 	| 'settings'
+	| 'widget'
 	| 'usage'
 	| 'conversations'
 	| 'knowledge'
@@ -32,6 +33,7 @@ type TabId =
 
 const TABS: { id: TabId; label: string }[] = [
 	{ id: 'settings', label: __( 'Settings', 'ux-studio' ) },
+	{ id: 'widget', label: __( 'Widget', 'ux-studio' ) },
 	{ id: 'usage', label: __( 'Usage', 'ux-studio' ) },
 	{ id: 'conversations', label: __( 'Conversations', 'ux-studio' ) },
 	{ id: 'handoff', label: __( 'Handoff', 'ux-studio' ) },
@@ -78,7 +80,24 @@ const LIMIT_LABELS: Record< string, string > = {
 	user_daily_requests: __( 'Daily requests (per user)', 'ux-studio' ),
 };
 
-function SettingsTab(): JSX.Element {
+/**
+ * The module has one flat settings schema; each tab shows the slice that
+ * belongs to it. Settings that live in another tab are hidden here.
+ */
+const isWidgetKey = ( key: string ): boolean => key.startsWith( 'widget_' );
+const isInternalChatKey = ( key: string ): boolean => key.startsWith( 'chatbot_' ) || key.startsWith( 'internal_' );
+const isContentKey = ( key: string ): boolean => [ 'default_tone', 'default_length', 'content_language' ].includes( key );
+const isIndexKey = ( key: string ): boolean => key.startsWith( 'index_' );
+const isGeneralKey = ( key: string ): boolean =>
+	! isWidgetKey( key ) && ! isInternalChatKey( key ) && ! isContentKey( key ) && ! isIndexKey( key );
+
+export function SettingsTab( {
+	filter = isGeneralKey,
+	showKeyStatus = false,
+}: {
+	filter?: ( key: string ) => boolean;
+	showKeyStatus?: boolean;
+} ): JSX.Element {
 	const { data, isLoading, draft, setDraft, save, saved } = useModuleSettings( 'ai-assistant' );
 
 	if ( isLoading || ! data ) {
@@ -91,7 +110,8 @@ function SettingsTab(): JSX.Element {
 
 	return (
 		<>
-			<SettingsFields schema={ data.schema } draft={ draft } setDraft={ setDraft } />
+			<SettingsFields schema={ data.schema.filter( ( f ) => filter( f.key ) ) } draft={ draft } setDraft={ setDraft } />
+			{ showKeyStatus && (
 			<p>
 				{ draft.has_claude_api_key
 					? __( 'A Claude API key is currently set.', 'ux-studio' )
@@ -105,10 +125,23 @@ function SettingsTab(): JSX.Element {
 					? __( 'A DeepSeek API key is currently set.', 'ux-studio' )
 					: __( 'No DeepSeek API key set yet.', 'ux-studio' ) }
 			</p>
+			) }
 			<button type="button" className="button button-primary" onClick={ () => save.mutate() }>
 				{ saved ? __( 'Saved', 'ux-studio' ) : __( 'Save changes', 'ux-studio' ) }
 			</button>
 		</>
+	);
+}
+
+/** Collapsible settings slice shown above a feature tab. */
+function SettingsPanel( { title, filter }: { title: string; filter: ( key: string ) => boolean } ): JSX.Element {
+	return (
+		<details style={ { marginBottom: 'var(--uxs-sp-5)' } }>
+			<summary style={ { cursor: 'pointer', fontWeight: 600 } }>{ title }</summary>
+			<div style={ { marginTop: 'var(--uxs-sp-3)' } }>
+				<SettingsTab filter={ filter } />
+			</div>
+		</details>
 	);
 }
 
@@ -252,15 +285,31 @@ export default function Page(): JSX.Element {
 					</button>
 				) ) }
 			</div>
-			{ tab === 'settings' && <SettingsTab /> }
+			{ tab === 'settings' && <SettingsTab showKeyStatus /> }
+			{ tab === 'widget' && <SettingsTab filter={ isWidgetKey } /> }
 			{ tab === 'usage' && <UsageTab /> }
 			{ tab === 'conversations' && <ChatTab /> }
 			{ tab === 'handoff' && <HandoffTab /> }
 			{ tab === 'knowledge' && <KnowledgeHubTab /> }
-			{ tab === 'rag' && <RagTrainingTab /> }
-			{ tab === 'content' && <ContentCreatorTab /> }
+			{ tab === 'rag' && (
+				<>
+					<SettingsPanel title={ __( 'Indexing settings', 'ux-studio' ) } filter={ isIndexKey } />
+					<RagTrainingTab />
+				</>
+			) }
+			{ tab === 'content' && (
+				<>
+					<SettingsPanel title={ __( 'Generation defaults', 'ux-studio' ) } filter={ isContentKey } />
+					<ContentCreatorTab />
+				</>
+			) }
 			{ tab === 'blog-pilot' && <BlogPilotTab /> }
-			{ tab === 'internal-chat' && <InternalChatTab /> }
+			{ tab === 'internal-chat' && (
+				<>
+					<SettingsPanel title={ __( 'Internal chatbot settings', 'ux-studio' ) } filter={ isInternalChatKey } />
+					<InternalChatTab />
+				</>
+			) }
 			{ tab === 'mcp' && <McpTab /> }
 		</>
 	);

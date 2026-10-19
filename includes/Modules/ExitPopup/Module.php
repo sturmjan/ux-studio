@@ -86,37 +86,62 @@ final class Module extends BaseModule {
 			// --- Content ---
 			array(
 				'key'     => 'headline',
+				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'text',
 				'label'   => __( 'Headline', 'ux-studio' ),
 				'default' => __( "Wait, don't go!", 'ux-studio' ),
 			),
 			array(
 				'key'     => 'body',
+				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'richtext',
 				'label'   => __( 'Body', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
 				'key'   => 'image',
+				'section' => __( 'Content', 'ux-studio' ),
 				'type'  => 'media',
 				'label' => __( 'Image', 'ux-studio' ),
 				'help'  => __( 'Optional image shown above the popup content.', 'ux-studio' ),
 			),
+			array(
+				'key'   => 'popup_icon',
+				'section' => __( 'Content', 'ux-studio' ),
+				'type'  => 'media',
+				'label' => __( 'Icon', 'ux-studio' ),
+				'help'  => __( 'Optional icon shown on the edge between the image and the text (recommended 64-80 px).', 'ux-studio' ),
+			),
+			array(
+				'key'     => 'popup_layout',
+				'section' => __( 'Content', 'ux-studio' ),
+				'type'    => 'select',
+				'label'   => __( 'Layout', 'ux-studio' ),
+				'help'    => __( 'Vertical: image on top, text below. Horizontal: image on the left, text on the right.', 'ux-studio' ),
+				'options' => array(
+					'vertical'   => __( 'Vertical (image on top)', 'ux-studio' ),
+					'horizontal' => __( 'Horizontal (image on the left)', 'ux-studio' ),
+				),
+				'default' => 'vertical',
+			),
 			// --- Call to action ---
 			array(
 				'key'     => 'enable_cta',
+				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Show CTA button', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
 				'key'     => 'cta_text',
+				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'text',
 				'label'   => __( 'CTA button label', 'ux-studio' ),
 				'default' => __( 'Stay on page', 'ux-studio' ),
 			),
 			array(
 				'key'     => 'cta_url',
+				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'text',
 				'label'   => __( 'CTA button URL', 'ux-studio' ),
 				'help'    => __( 'Use # to simply close the popup.', 'ux-studio' ),
@@ -124,6 +149,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'cta_new_tab',
+				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Open CTA in a new tab', 'ux-studio' ),
 				'default' => false,
@@ -131,36 +157,42 @@ final class Module extends BaseModule {
 			// --- Appearance ---
 			array(
 				'key'     => 'bg_color',
+				'section' => __( 'Appearance', 'ux-studio' ),
 				'type'    => 'color',
 				'label'   => __( 'Background colour', 'ux-studio' ),
 				'default' => '#ffffff',
 			),
 			array(
 				'key'     => 'title_color',
+				'section' => __( 'Appearance', 'ux-studio' ),
 				'type'    => 'color',
 				'label'   => __( 'Headline colour', 'ux-studio' ),
 				'default' => '#1f2937',
 			),
 			array(
 				'key'     => 'text_color',
+				'section' => __( 'Appearance', 'ux-studio' ),
 				'type'    => 'color',
 				'label'   => __( 'Text colour', 'ux-studio' ),
 				'default' => '#4b5563',
 			),
 			array(
 				'key'     => 'cta_bg_color',
+				'section' => __( 'Appearance', 'ux-studio' ),
 				'type'    => 'color',
 				'label'   => __( 'CTA background colour', 'ux-studio' ),
 				'default' => '#2563eb',
 			),
 			array(
 				'key'     => 'cta_text_color',
+				'section' => __( 'Appearance', 'ux-studio' ),
 				'type'    => 'color',
 				'label'   => __( 'CTA text colour', 'ux-studio' ),
 				'default' => '#ffffff',
 			),
 			array(
 				'key'     => 'overlay_opacity',
+				'section' => __( 'Appearance', 'ux-studio' ),
 				'type'    => 'number',
 				'label'   => __( 'Overlay opacity (%)', 'ux-studio' ),
 				'default' => 60,
@@ -168,12 +200,14 @@ final class Module extends BaseModule {
 			// --- Behaviour ---
 			array(
 				'key'     => 'delay_seconds',
+				'section' => __( 'Triggers', 'ux-studio' ),
 				'type'    => 'number',
 				'label'   => __( 'Delay before enabling detection (seconds)', 'ux-studio' ),
 				'default' => 2,
 			),
 			array(
 				'key'     => 'frequency_mode',
+				'section' => __( 'Triggers', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'Show frequency', 'ux-studio' ),
 				'options' => array(
@@ -185,6 +219,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'cookie_days',
+				'section' => __( 'Triggers', 'ux-studio' ),
 				'type'    => 'number',
 				'label'   => __( 'Cookie lifetime (days)', 'ux-studio' ),
 				'help'    => __( 'Used when frequency is "Once every N days".', 'ux-studio' ),
@@ -193,60 +228,70 @@ final class Module extends BaseModule {
 			// --- Detection ---
 			array(
 				'key'     => 'detect_mouse_leave',
+				'section' => __( 'Triggers', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Detect: mouse leaves the window (exit-intent)', 'ux-studio' ),
 				'default' => true,
 			),
 			array(
 				'key'     => 'mouse_leave_delay',
+				'section' => __( 'Triggers', 'ux-studio' ),
 				'type'    => 'number',
 				'label'   => __( 'Mouse-leave delay (ms)', 'ux-studio' ),
 				'default' => 500,
 			),
 			array(
 				'key'     => 'detect_tab_change',
+				'section' => __( 'Triggers', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Detect: switch to another browser tab', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
 				'key'     => 'detect_window_blur',
+				'section' => __( 'Triggers', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Detect: browser window loses focus', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
 				'key'     => 'detect_idle',
+				'section' => __( 'Triggers', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Detect: user inactivity', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
 				'key'     => 'idle_timeout',
+				'section' => __( 'Triggers', 'ux-studio' ),
 				'type'    => 'number',
 				'label'   => __( 'Inactivity timeout (seconds)', 'ux-studio' ),
 				'default' => 30,
 			),
 			array(
 				'key'     => 'detect_scroll_up',
+				'section' => __( 'Triggers', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Detect: fast scroll up (mobile exit signal)', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
 				'key'     => 'scroll_up_desktop',
+				'section' => __( 'Triggers', 'ux-studio' ),
 				'type'    => 'number',
 				'label'   => __( 'Scroll-up threshold desktop (px)', 'ux-studio' ),
 				'default' => 400,
 			),
 			array(
 				'key'     => 'scroll_up_mobile',
+				'section' => __( 'Triggers', 'ux-studio' ),
 				'type'    => 'number',
 				'label'   => __( 'Scroll-up threshold mobile (px)', 'ux-studio' ),
 				'default' => 200,
 			),
 			array(
 				'key'     => 'time_on_page',
+				'section' => __( 'Triggers', 'ux-studio' ),
 				'type'    => 'number',
 				'label'   => __( 'Show after N seconds on page (0 = off)', 'ux-studio' ),
 				'default' => 0,
@@ -254,42 +299,49 @@ final class Module extends BaseModule {
 			// --- E-mail capture ---
 			array(
 				'key'     => 'enable_email',
+				'section' => __( 'Email capture', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Show e-mail capture field', 'ux-studio' ),
 				'default' => true,
 			),
 			array(
 				'key'     => 'email_placeholder',
+				'section' => __( 'Email capture', 'ux-studio' ),
 				'type'    => 'text',
 				'label'   => __( 'E-mail field placeholder', 'ux-studio' ),
 				'default' => __( 'Email address', 'ux-studio' ),
 			),
 			array(
 				'key'     => 'email_button_text',
+				'section' => __( 'Email capture', 'ux-studio' ),
 				'type'    => 'text',
 				'label'   => __( 'Submit button label', 'ux-studio' ),
 				'default' => __( 'Subscribe', 'ux-studio' ),
 			),
 			array(
 				'key'     => 'email_success_message',
+				'section' => __( 'Email capture', 'ux-studio' ),
 				'type'    => 'text',
 				'label'   => __( 'Success message', 'ux-studio' ),
 				'default' => __( 'Thanks! Check your inbox soon.', 'ux-studio' ),
 			),
 			array(
 				'key'     => 'enable_autoresponder',
+				'section' => __( 'Email capture', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Send autoresponder e-mail to the subscriber', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
 				'key'     => 'autoresponder_subject',
+				'section' => __( 'Email capture', 'ux-studio' ),
 				'type'    => 'text',
 				'label'   => __( 'Autoresponder subject', 'ux-studio' ),
 				'default' => __( 'Thanks for your interest', 'ux-studio' ),
 			),
 			array(
 				'key'     => 'autoresponder_body',
+				'section' => __( 'Email capture', 'ux-studio' ),
 				'type'    => 'richtext',
 				'label'   => __( 'Autoresponder body', 'ux-studio' ),
 				'default' => '',
@@ -297,6 +349,7 @@ final class Module extends BaseModule {
 			// --- Targeting ---
 			array(
 				'key'     => 'enabled_post_types',
+				'section' => __( 'Targeting', 'ux-studio' ),
 				'type'    => 'multiselect',
 				'label'   => __( 'Show on', 'ux-studio' ),
 				'help'    => __( 'Post types on which the exit popup can appear.', 'ux-studio' ),
@@ -305,6 +358,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'targeting_mode',
+				'section' => __( 'Targeting', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'URL targeting', 'ux-studio' ),
 				'options' => array(
@@ -316,6 +370,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'include_pages',
+				'section' => __( 'Targeting', 'ux-studio' ),
 				'type'    => 'textarea',
 				'label'   => __( 'Include URLs / page IDs', 'ux-studio' ),
 				'help'    => __( 'One per line: a page ID or a URL fragment (e.g. /contact).', 'ux-studio' ),
@@ -323,6 +378,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'exclude_pages',
+				'section' => __( 'Targeting', 'ux-studio' ),
 				'type'    => 'textarea',
 				'label'   => __( 'Exclude URLs / page IDs', 'ux-studio' ),
 				'help'    => __( 'One per line: a page ID or a URL fragment (e.g. /checkout).', 'ux-studio' ),
@@ -330,6 +386,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'hide_for_logged_in',
+				'section' => __( 'Targeting', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Hide for logged-in users', 'ux-studio' ),
 				'default' => false,
@@ -415,6 +472,12 @@ final class Module extends BaseModule {
 		$image_url = $image_id ? (string) wp_get_attachment_url( $image_id ) : '';
 		$image_alt = $image_id ? (string) get_post_meta( $image_id, '_wp_attachment_image_alt', true ) : '';
 
+		// Legacy stored the icon as a one-element array ([id]); the new media field stores the id.
+		$icon_raw = $this->settings->get( 'popup_icon', 0 );
+		$icon_id  = (int) ( is_array( $icon_raw ) ? reset( $icon_raw ) : $icon_raw );
+		$icon_url = $icon_id ? (string) wp_get_attachment_url( $icon_id ) : '';
+		$layout   = 'horizontal' === $this->settings->get( 'popup_layout', 'vertical' ) ? 'horizontal' : 'vertical';
+
 		$overlay_opacity = (int) $this->settings->get( 'overlay_opacity', 60 );
 		$overlay_opacity = max( 0, min( 100, $overlay_opacity ) );
 
@@ -426,6 +489,8 @@ final class Module extends BaseModule {
 				'body'           => (string) $this->settings->get( 'body', '' ),
 				'imageUrl'       => $image_url ? esc_url_raw( $image_url ) : '',
 				'imageAlt'       => $image_alt,
+				'iconUrl'        => $icon_url ? esc_url_raw( $icon_url ) : '',
+				'layout'         => $layout,
 				'cta'            => array(
 					'enabled' => (bool) $this->settings->get( 'enable_cta', false ),
 					'text'    => (string) $this->settings->get( 'cta_text', '' ),

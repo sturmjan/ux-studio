@@ -17,7 +17,13 @@ defined( 'ABSPATH' ) || exit;
 /**
  * GET  uxstudio/v1/push-notifications/vapid-key              - PUBLIC, public VAPID key only
  * POST uxstudio/v1/push-notifications/subscribe               - PUBLIC, rate limited
+ * POST uxstudio/v1/push-notifications/unsubscribe             - PUBLIC, rate limited
  * POST uxstudio/v1/push-notifications/event                   - PUBLIC, rate limited
+ * DELETE uxstudio/v1/push-notifications/subscribers/{id}       - manage_options
+ * POST uxstudio/v1/push-notifications/subscribers/{id}/segments - manage_options, set segment tags
+ * GET/POST uxstudio/v1/push-notifications/segments             - manage_options
+ * DELETE uxstudio/v1/push-notifications/segments/{id}          - manage_options (custom only)
+ * POST uxstudio/v1/push-notifications/notifications/{id}/test  - manage_options, send to own subscription
  * POST uxstudio/v1/push-notifications/vapid/generate           - manage_options, (re)generate keypair
  * GET  uxstudio/v1/push-notifications/subscribers               - manage_options
  * GET  uxstudio/v1/push-notifications/notifications              - manage_options
@@ -64,7 +70,21 @@ final class RestController extends Controller {
 				'args'                => array(
 					'endpoint' => array( 'required' => true, 'type' => 'string' ),
 					'p256dh'   => array( 'required' => true, 'type' => 'string' ),
-					'auth'     => array( 'required' => true, 'type' => 'string' ),
+					// `auth` (new) or `auth_key` (legacy payload name) - checked in the handler.
+					'auth'     => array( 'required' => false, 'type' => 'string' ),
+					'auth_key' => array( 'required' => false, 'type' => 'string' ),
+				),
+			)
+		);
+		register_rest_route(
+			self::NS,
+			'/push-notifications/unsubscribe',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $this, 'unsubscribe' ),
+				'permission_callback' => '__return_true',
+				'args'                => array(
+					'endpoint' => array( 'required' => true, 'type' => 'string' ),
 				),
 			)
 		);
@@ -85,6 +105,22 @@ final class RestController extends Controller {
 
 		$this->route( '/push-notifications/vapid/generate', 'POST', array( $this, 'generate_vapid' ) );
 		$this->route( '/push-notifications/subscribers', 'GET', array( $this, 'list_subscribers' ) );
+		$this->route( '/push-notifications/subscribers/(?P<id>\d+)', 'DELETE', array( $this, 'delete_subscriber' ) );
+		$this->route(
+			'/push-notifications/subscribers/(?P<id>\d+)/segments',
+			'POST',
+			array( $this, 'set_subscriber_segments' ),
+			array( 'segments' => array( 'required' => true, 'type' => 'array', 'items' => array( 'type' => 'string' ) ) )
+		);
+		$this->route( '/push-notifications/segments', 'GET', array( $this, 'list_segments' ) );
+		$this->route(
+			'/push-notifications/segments',
+			'POST',
+			array( $this, 'create_segment' ),
+			array( 'name' => array( 'required' => true, 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field' ) )
+		);
+		$this->route( '/push-notifications/segments/(?P<id>\d+)', 'DELETE', array( $this, 'delete_segment' ) );
+		$this->route( '/push-notifications/notifications/(?P<id>\d+)/test', 'POST', array( $this, 'send_test' ) );
 		$this->route( '/push-notifications/analytics', 'GET', array( $this, 'analytics' ) );
 		$this->route( '/push-notifications/notifications', 'GET', array( $this, 'list_notifications' ) );
 		$this->route(
@@ -114,6 +150,11 @@ final class RestController extends Controller {
 				'segment' => array(
 					'required' => false,
 					'type'     => 'string',
+				),
+				'segments' => array(
+					'required' => false,
+					'type'     => 'array',
+					'items'    => array( 'type' => 'string' ),
 				),
 			)
 		);
@@ -151,10 +192,21 @@ final class RestController extends Controller {
 				array(
 					'endpoint'   => (string) $request->get_param( 'endpoint' ),
 					'p256dh'     => (string) $request->get_param( 'p256dh' ),
-					'auth'       => (string) $request->get_param( 'auth' ),
+					'auth'       => (string) ( $request->get_param( 'auth' ) ?? $request->get_param( 'auth_key' ) ),
 					'user_agent' => (string) $request->get_header( 'user-agent' ),
+					'user_id'    => get_current_user_id(),
 				)
 			);
+		}
+		return $this->ok( array( 'ok' => true ) );
+	}
+
+	/**
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function unsubscribe( WP_REST_Request $request ): WP_REST_Response {
+		if ( $this->check_public_rate_limit() ) {
+			$this->module->unsubscribe( (string) $request->get_param( 'endpoint' ) );
 		}
 		return $this->ok( array( 'ok' => true ) );
 	}
@@ -235,10 +287,64 @@ final class RestController extends Controller {
 					'body'    => (string) $request->get_param( 'body' ),
 					'url'     => (string) $request->get_param( 'url' ),
 					'icon'    => (string) $request->get_param( 'icon' ),
-					'segment' => (string) $request->get_param( 'segment' ),
+					'segment'  => (string) $request->get_param( 'segment' ),
+					'segments' => (array) $request->get_param( 'segments' ),
 				)
 			)
 		);
+	}
+
+	/**
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function delete_subscriber( WP_REST_Request $request ) {
+		if ( ! $this->module->remove_subscriber( absint( $request->get_param( 'id' ) ) ) ) {
+			return new WP_Error( 'uxstudio_not_found', __( 'Subscriber not found.', 'ux-studio' ), array( 'status' => 404 ) );
+		}
+		return $this->ok( array( 'deleted' => true ) );
+	}
+
+	/**
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function set_subscriber_segments( WP_REST_Request $request ) {
+		if ( ! $this->module->set_subscriber_segments( absint( $request->get_param( 'id' ) ), (array) $request->get_param( 'segments' ) ) ) {
+			return new WP_Error( 'uxstudio_not_found', __( 'Subscriber not found.', 'ux-studio' ), array( 'status' => 404 ) );
+		}
+		return $this->ok( array( 'updated' => true ) );
+	}
+
+	/**
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function list_segments( WP_REST_Request $request ) {
+		return $this->ok( $this->module->list_segments() );
+	}
+
+	/**
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function create_segment( WP_REST_Request $request ) {
+		$result = $this->module->create_segment( (string) $request->get_param( 'name' ) );
+		return is_wp_error( $result ) ? $result : $this->ok( $result );
+	}
+
+	/**
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function delete_segment( WP_REST_Request $request ) {
+		if ( ! $this->module->delete_segment( absint( $request->get_param( 'id' ) ) ) ) {
+			return new WP_Error( 'uxstudio_cannot_delete', __( 'Segment not found or it is a system segment.', 'ux-studio' ), array( 'status' => 400 ) );
+		}
+		return $this->ok( array( 'deleted' => true ) );
+	}
+
+	/**
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function send_test( WP_REST_Request $request ) {
+		$result = $this->module->send_test( absint( $request->get_param( 'id' ) ) );
+		return is_wp_error( $result ) ? $result : $this->ok( $result );
 	}
 
 	/**

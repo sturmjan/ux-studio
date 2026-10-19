@@ -49,7 +49,7 @@ export default function SettingsTab( { form }: { form: FormDefinition } ): JSX.E
 	} );
 
 	return (
-		<div className="uxs-form" style={ { maxWidth: 560 } }>
+		<div className="uxs-form">
 			<div className="uxs-form__row">
 				<label>{ __( 'Title', 'ux-studio' ) }</label>
 				<input

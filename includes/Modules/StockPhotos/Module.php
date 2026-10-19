@@ -86,6 +86,67 @@ final class Module extends BaseModule {
 	 */
 	public function boot(): void {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+
+		if ( is_admin() ) {
+			add_action( 'wp_enqueue_media', array( $this, 'enqueue_media_assets' ) );
+		}
+	}
+
+	/**
+	 * "Stock photos" tab in the media modal (post editor, Media Library grid,
+	 * every wp.media picker). Only offered to users who may upload files and
+	 * only when at least one provider is usable (keyless Openverse always is).
+	 * Provider API keys never reach the browser - the script only gets
+	 * id + name and talks to the module REST endpoints.
+	 */
+	public function enqueue_media_assets(): void {
+		static $done = false;
+		if ( $done || ! current_user_can( 'upload_files' ) ) {
+			return;
+		}
+
+		$providers = array();
+		foreach ( $this->providers() as $provider ) {
+			if ( ! empty( $provider['has_key'] ) ) {
+				$providers[ $provider['id'] ] = array( 'name' => $provider['name'] );
+			}
+		}
+		if ( empty( $providers ) ) {
+			return;
+		}
+		$done = true;
+
+		$version = defined( 'UXSTUDIO_VERSION' ) ? UXSTUDIO_VERSION : false;
+		$base    = UXSTUDIO_URL . 'includes/Modules/StockPhotos/assets/';
+
+		wp_enqueue_style( 'uxstudio-stock-photos', $base . 'stock-photos.css', array( 'dashicons' ), $version );
+		wp_enqueue_script( 'uxstudio-stock-photos', $base . 'stock-photos.js', array( 'jquery', 'media-views' ), $version, true );
+		wp_localize_script(
+			'uxstudio-stock-photos',
+			'uxsStockPhotos',
+			array(
+				'restUrl'   => esc_url_raw( rest_url( 'uxstudio/v1/stock-photos' ) ),
+				'nonce'     => wp_create_nonce( 'wp_rest' ),
+				'providers' => $providers,
+				'i18n'      => array(
+					'tabTitle'          => __( 'Stock photos', 'ux-studio' ),
+					'search'            => __( 'Search', 'ux-studio' ),
+					'searchPlaceholder' => __( 'Search photos, images, GIFs...', 'ux-studio' ),
+					'importLabel'       => __( 'Import into library', 'ux-studio' ),
+					'importing'         => __( 'Importing...', 'ux-studio' ),
+					'imported'          => __( 'The image was imported into the media library.', 'ux-studio' ),
+					'noResults'         => __( 'No results. Try a different search term.', 'ux-studio' ),
+					'loadMore'          => __( 'Load more', 'ux-studio' ),
+					'author'            => __( 'Author', 'ux-studio' ),
+					'license'           => __( 'License', 'ux-studio' ),
+					'source'            => __( 'Source', 'ux-studio' ),
+					'dimensions'        => __( 'Dimensions', 'ux-studio' ),
+					'error'             => __( 'Something went wrong. Please try again.', 'ux-studio' ),
+					'backToResults'     => __( 'Back to results', 'ux-studio' ),
+					'allProviders'      => __( 'All providers', 'ux-studio' ),
+				),
+			)
+		);
 	}
 
 	/**

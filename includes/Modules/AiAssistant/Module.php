@@ -44,6 +44,14 @@ final class Module extends BaseModule {
 
 	private const DEFAULT_CHAT_HISTORY_RETENTION_DAYS = 365;
 
+	/** Allowed range of numeric widget settings: key => [min, max]. */
+	private const NUMBER_RANGES = array(
+		'widget_auto_open_delay'    => array( 0, 120 ),
+		'widget_auto_open_cooldown' => array( 0, 365 ),
+		'widget_inactivity_timeout' => array( 0, 600 ),
+		'widget_handoff_timeout'    => array( 0, 3600 ),
+	);
+
 	/**
 	 * Register hooks.
 	 */
@@ -519,12 +527,284 @@ final class Module extends BaseModule {
 				'default' => 'cs',
 			),
 			array(
+				'key'     => 'contact_email',
+				'type'    => 'text',
+				'label'   => __( 'Contact e-mail', 'ux-studio' ),
+				'help'    => __( 'Receives messages and callback requests from the chat contact form. Empty or invalid = the site admin e-mail.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'operator_notifications_enabled',
+				'type'    => 'toggle',
+				'label'   => __( 'E-mail me when a customer asks for an operator', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
+				'key'     => 'operator_notification_email',
+				'type'    => 'text',
+				'label'   => __( 'Operator notification e-mail', 'ux-studio' ),
+				'help'    => __( 'Empty or invalid = the site admin e-mail.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'custom_system_prompt',
+				'type'    => 'textarea',
+				'label'   => __( 'Custom system prompt', 'ux-studio' ),
+				'help'    => __( 'Appended to the default system prompt of the public chat and the content generator.', 'ux-studio' ),
+				'default' => '',
+			),
+
+			// --- Widget tab -------------------------------------------------
+			array(
 				'key'     => 'widget_enabled',
 				'type'    => 'toggle',
 				'label'   => __( 'Show chat widget on the frontend', 'ux-studio' ),
 				'default' => true,
 			),
+			array(
+				'key'     => 'widget_type',
+				'type'    => 'select',
+				'label'   => __( 'Widget type', 'ux-studio' ),
+				'options' => array(
+					'bubble'  => __( 'Floating bubble', 'ux-studio' ),
+					'sidebar' => __( 'Sidebar panel', 'ux-studio' ),
+				),
+				'default' => 'bubble',
+			),
+			array(
+				'key'     => 'widget_position',
+				'type'    => 'select',
+				'label'   => __( 'Position', 'ux-studio' ),
+				'options' => array(
+					'bottom-right' => __( 'Bottom right', 'ux-studio' ),
+					'bottom-left'  => __( 'Bottom left', 'ux-studio' ),
+				),
+				'default' => 'bottom-right',
+			),
+			array(
+				'key'     => 'widget_color',
+				'type'    => 'color',
+				'label'   => __( 'Primary colour', 'ux-studio' ),
+				'default' => '#2271b1',
+			),
+			array(
+				'key'     => 'widget_text_color',
+				'type'    => 'color',
+				'label'   => __( 'Text colour', 'ux-studio' ),
+				'default' => '#ffffff',
+			),
+			array(
+				'key'     => 'widget_title',
+				'type'    => 'text',
+				'label'   => __( 'Widget title', 'ux-studio' ),
+				'help'    => __( 'Shown in the chat window header. Empty = default text for the chat language.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'widget_greeting',
+				'type'    => 'textarea',
+				'label'   => __( 'Greeting message', 'ux-studio' ),
+				'help'    => __( 'Empty = default text for the chat language.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'widget_placeholder',
+				'type'    => 'text',
+				'label'   => __( 'Input placeholder', 'ux-studio' ),
+				'help'    => __( 'Empty = default text for the chat language.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'widget_gdpr_text',
+				'type'    => 'textarea',
+				'label'   => __( 'GDPR notice', 'ux-studio' ),
+				'help'    => __( 'Empty = default text for the chat language.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'widget_auto_open',
+				'type'    => 'toggle',
+				'label'   => __( 'Open the chat automatically after the page loads', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'widget_auto_open_delay',
+				'type'    => 'number',
+				'label'   => __( 'Auto-open delay (seconds)', 'ux-studio' ),
+				'help'    => __( '0 to 120.', 'ux-studio' ),
+				'default' => 5,
+			),
+			array(
+				'key'     => 'widget_auto_open_sound',
+				'type'    => 'toggle',
+				'label'   => __( 'Play a sound on auto-open', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
+				'key'     => 'widget_auto_open_cooldown',
+				'type'    => 'number',
+				'label'   => __( 'Do not auto-open after closing (days)', 'ux-studio' ),
+				'help'    => __( 'If the visitor closes the chat manually, auto-open is disabled for this many days (stored in a cookie). 0 = auto-open every time.', 'ux-studio' ),
+				'default' => 30,
+			),
+			array(
+				'key'     => 'widget_inactivity_timeout',
+				'type'    => 'number',
+				'label'   => __( 'Inactivity timeout (seconds)', 'ux-studio' ),
+				'help'    => __( 'After this time of inactivity the chat asks whether it can help further. 0 = off.', 'ux-studio' ),
+				'default' => 60,
+			),
+			array(
+				'key'     => 'widget_handoff_timeout',
+				'type'    => 'number',
+				'label'   => __( 'Operator wait timeout (seconds)', 'ux-studio' ),
+				'help'    => __( 'If no operator joins in this time, the customer sees an apology with the contact form. 0 = no timeout.', 'ux-studio' ),
+				'default' => 120,
+			),
+			array(
+				'key'     => 'widget_handoff_timeout_message',
+				'type'    => 'textarea',
+				'label'   => __( 'Message after the timeout', 'ux-studio' ),
+				'help'    => __( 'Empty = default text for the chat language.', 'ux-studio' ),
+				'default' => '',
+			),
+
+			// --- Internal chatbot -------------------------------------------
+			array(
+				'key'     => 'chatbot_enabled',
+				'type'    => 'toggle',
+				'label'   => __( 'Enable the internal chatbot', 'ux-studio' ),
+				'help'    => __( 'When off, the Internal Chat tab refuses new messages.', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
+				'key'     => 'chatbot_provider',
+				'type'    => 'select',
+				'label'   => __( 'Internal chatbot provider (override)', 'ux-studio' ),
+				'help'    => __( 'Empty = the default provider.', 'ux-studio' ),
+				'options' => $provider_names,
+				'default' => '',
+			),
+			array(
+				'key'     => 'chatbot_model',
+				'type'    => 'text',
+				'label'   => __( 'Internal chatbot model (override)', 'ux-studio' ),
+				'help'    => __( 'Empty = the model configured for the chosen provider.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'chatbot_greeting',
+				'type'    => 'textarea',
+				'label'   => __( 'Internal chatbot greeting', 'ux-studio' ),
+				'help'    => __( 'Shown as the first message of a new internal conversation.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'chatbot_system_prompt',
+				'type'    => 'textarea',
+				'label'   => __( 'Internal chatbot system prompt', 'ux-studio' ),
+				'help'    => __( 'Appended to the default prompt of the internal chatbot.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'internal_rag_enabled',
+				'type'    => 'toggle',
+				'label'   => __( 'Internal knowledge base (RAG)', 'ux-studio' ),
+				'help'    => __( 'The internal chat uses vectors trained for the internal chat target.', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
+				'key'     => 'internal_guide_enabled',
+				'type'    => 'toggle',
+				'label'   => __( 'Site guide (Guide module)', 'ux-studio' ),
+				'help'    => __( 'The internal chat knows the Guide module setup checklist.', 'ux-studio' ),
+				'default' => true,
+			),
+
+			// --- Content generation defaults --------------------------------
+			array(
+				'key'     => 'default_tone',
+				'type'    => 'select',
+				'label'   => __( 'Default tone of generated content', 'ux-studio' ),
+				'options' => self::tone_options(),
+				'default' => 'neutral',
+			),
+			array(
+				'key'     => 'default_length',
+				'type'    => 'select',
+				'label'   => __( 'Default length of generated content', 'ux-studio' ),
+				'options' => self::length_options(),
+				'default' => 'medium',
+			),
+			array(
+				'key'     => 'content_language',
+				'type'    => 'text',
+				'label'   => __( 'Content language (override)', 'ux-studio' ),
+				'help'    => __( 'Free text, e.g. "Slovak". Empty = the chat language.', 'ux-studio' ),
+				'default' => '',
+			),
+
+			// --- Indexing ---------------------------------------------------
+			array(
+				'key'     => 'index_post_types',
+				'type'    => 'multiselect',
+				'label'   => __( 'Post types to index', 'ux-studio' ),
+				'help'    => __( 'Content of these post types is searchable by the chat. Products are indexed separately.', 'ux-studio' ),
+				'options' => self::indexable_post_types(),
+				'default' => array( 'post', 'page' ),
+			),
+			array(
+				'key'     => 'index_acf_types',
+				'type'    => 'multiselect',
+				'label'   => __( 'ACF field types to index', 'ux-studio' ),
+				'help'    => __( 'Shared by the content and product index. Structural types (tab, group, ...) are always skipped.', 'ux-studio' ),
+				'options' => array_combine( AssistantConfig::ACF_DATA_TYPES, AssistantConfig::ACF_DATA_TYPES ),
+				'default' => AssistantConfig::to_list( AssistantConfig::DEFAULT_ACF_TYPES ),
+			),
 		);
+	}
+
+	/**
+	 * @return array<string, string>
+	 */
+	public static function tone_options(): array {
+		return array(
+			'neutral'      => __( 'Neutral', 'ux-studio' ),
+			'professional' => __( 'Professional', 'ux-studio' ),
+			'formal'       => __( 'Formal', 'ux-studio' ),
+			'trustworthy'  => __( 'Trustworthy', 'ux-studio' ),
+			'friendly'     => __( 'Friendly', 'ux-studio' ),
+			'witty'        => __( 'Witty', 'ux-studio' ),
+			'persuasive'   => __( 'Persuasive', 'ux-studio' ),
+			'enthusiastic' => __( 'Enthusiastic', 'ux-studio' ),
+		);
+	}
+
+	/**
+	 * @return array<string, string>
+	 */
+	public static function length_options(): array {
+		return array(
+			'short'  => __( 'Short', 'ux-studio' ),
+			'medium' => __( 'Medium', 'ux-studio' ),
+			'long'   => __( 'Long', 'ux-studio' ),
+		);
+	}
+
+	/**
+	 * Public post types that can be added to the content index (products have their own indexer).
+	 *
+	 * @return array<string, string>
+	 */
+	private static function indexable_post_types(): array {
+		$options = array();
+		foreach ( get_post_types( array( 'public' => true ), 'objects' ) as $type ) {
+			if ( in_array( $type->name, array( 'attachment', 'product', 'product_variation' ), true ) ) {
+				continue;
+			}
+			$options[ $type->name ] = $type->label . ' (' . $type->name . ')';
+		}
+		return $options;
 	}
 
 	/**
@@ -542,6 +822,21 @@ final class Module extends BaseModule {
 			unset( $input[ $field ] );
 		}
 
+		// E-mails: keep only valid addresses (an invalid one would silently swallow notifications).
+		foreach ( array( 'contact_email', 'operator_notification_email' ) as $email_key ) {
+			if ( array_key_exists( $email_key, $input ) ) {
+				$email                = sanitize_email( (string) $input[ $email_key ] );
+				$input[ $email_key ] = is_email( $email ) ? $email : '';
+			}
+		}
+
+		// Numeric widget settings: clamp to the ranges the widget supports.
+		foreach ( self::NUMBER_RANGES as $num_key => $range ) {
+			if ( array_key_exists( $num_key, $input ) ) {
+				$input[ $num_key ] = max( $range[0], min( $range[1], (int) $input[ $num_key ] ) );
+			}
+		}
+
 		return parent::save_settings( $input );
 	}
 
@@ -550,6 +845,18 @@ final class Module extends BaseModule {
 	 */
 	public function settings_values(): array {
 		$values = parent::settings_values();
+
+		// Migrated legacy values: '1'/'0' strings for toggles (a '0' string is truthy in JS)
+		// and comma-separated strings for the indexing lists.
+		foreach ( $this->settings_schema() as $field ) {
+			if ( 'toggle' === $field['type'] ) {
+				$values[ $field['key'] ] = filter_var( $values[ $field['key'] ], FILTER_VALIDATE_BOOLEAN );
+			}
+		}
+		foreach ( array( 'index_post_types', 'index_acf_types' ) as $list_key ) {
+			$values[ $list_key ] = AssistantConfig::to_list( $values[ $list_key ] );
+		}
+
 		foreach ( self::PROVIDER_SECRETS as $provider_id => $secret_option ) {
 			$values[ $provider_id . '_api_key' ]   = '';
 			$values[ 'has_' . $provider_id . '_api_key' ] = '' !== Security::get_secret( $secret_option );

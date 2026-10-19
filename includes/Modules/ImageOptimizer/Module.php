@@ -47,6 +47,10 @@ final class Module extends BaseModule {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( self::CRON_HOOK, array( $this, 'process_batch' ) );
 
+		if ( is_admin() ) {
+			( new MediaLibrary( $this, $this->optimizer ) )->register();
+		}
+
 		if ( (bool) $this->settings->get( 'auto_optimize', false ) ) {
 			// Runs after WP has generated the attachment metadata/thumbnails, so
 			// the file is final on disk. Filter: must return metadata untouched.
@@ -103,8 +107,29 @@ final class Module extends BaseModule {
 				'key'     => 'quality',
 				'type'    => 'number',
 				'label'   => __( 'Quality', 'ux-studio' ),
-				'help'    => __( 'JPEG/WebP/AVIF compression quality, 1-100.', 'ux-studio' ),
+				'help'    => __( 'JPEG/WebP/AVIF compression quality, 1-100. Used for every format that has no quality of its own below.', 'ux-studio' ),
 				'default' => 82,
+			),
+			array(
+				'key'     => 'jpeg_quality',
+				'type'    => 'number',
+				'label'   => __( 'JPEG quality', 'ux-studio' ),
+				'help'    => __( '1-100. 0 = use the general Quality.', 'ux-studio' ),
+				'default' => 0,
+			),
+			array(
+				'key'     => 'webp_quality',
+				'type'    => 'number',
+				'label'   => __( 'WebP quality', 'ux-studio' ),
+				'help'    => __( '1-100. 0 = use the general Quality.', 'ux-studio' ),
+				'default' => 0,
+			),
+			array(
+				'key'     => 'avif_quality',
+				'type'    => 'number',
+				'label'   => __( 'AVIF quality', 'ux-studio' ),
+				'help'    => __( '1-100. 0 = use the general Quality. AVIF reaches the same look at a lower number than JPEG.', 'ux-studio' ),
+				'default' => 0,
 			),
 			array(
 				'key'     => 'max_width',
@@ -112,6 +137,20 @@ final class Module extends BaseModule {
 				'label'   => __( 'Max width (px)', 'ux-studio' ),
 				'help'    => __( 'Images wider than this are downscaled. 0 disables resizing.', 'ux-studio' ),
 				'default' => 2000,
+			),
+			array(
+				'key'     => 'max_height',
+				'type'    => 'number',
+				'label'   => __( 'Max height (px)', 'ux-studio' ),
+				'help'    => __( 'Images taller than this are downscaled (aspect ratio is kept, together with the max width). 0 = no height limit.', 'ux-studio' ),
+				'default' => 0,
+			),
+			array(
+				'key'     => 'convert_png_to_jpg',
+				'type'    => 'toggle',
+				'label'   => __( 'Convert PNG to JPEG', 'ux-studio' ),
+				'help'    => __( 'PNG images without transparency are saved as JPEG, which is usually much smaller. The file name changes (.png becomes .jpg), so links to an already published PNG stop working - best used together with automatic optimization of new uploads. The PNG is kept as the backup and Restore brings it back.', 'ux-studio' ),
+				'default' => false,
 			),
 			array(
 				'key'     => 'convert_to_webp',
@@ -144,6 +183,45 @@ final class Module extends BaseModule {
 	}
 
 	/**
+	 * Read a setting, falling back to the key the legacy UX1 module used for it
+	 * (the migrator copies legacy values verbatim, e.g. enable_webp).
+	 *
+	 * @param string $key        Current key.
+	 * @param string $legacy_key Legacy key.
+	 * @param mixed  $default    Default when neither is stored.
+	 * @return mixed
+	 */
+	public function setting( string $key, string $legacy_key, $default ) {
+		$all = $this->settings->all();
+		if ( array_key_exists( $key, $all ) ) {
+			return $all[ $key ];
+		}
+		if ( array_key_exists( $legacy_key, $all ) ) {
+			return $all[ $legacy_key ];
+		}
+
+		return $default;
+	}
+
+	/**
+	 * Current values; settings migrated from the legacy module (enable_webp /
+	 * enable_avif) show up under the current keys until saved again.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public function settings_values(): array {
+		$values = parent::settings_values();
+		$all    = $this->settings->all();
+		foreach ( array( 'convert_to_webp' => 'enable_webp', 'convert_to_avif' => 'enable_avif' ) as $key => $legacy ) {
+			if ( ! array_key_exists( $key, $all ) && array_key_exists( $legacy, $all ) ) {
+				$values[ $key ] = (bool) $all[ $legacy ];
+			}
+		}
+
+		return $values;
+	}
+
+	/**
 	 * Persist settings, then reconcile the .htaccess delivery block with the
 	 * new webp/avif/delivery toggles (write when enabled, remove otherwise).
 	 *
@@ -162,8 +240,8 @@ final class Module extends BaseModule {
 	private function sync_htaccess(): void {
 		$delivery = new HtaccessDelivery();
 		$enabled  = (bool) $this->settings->get( 'htaccess_delivery', false );
-		$webp     = (bool) $this->settings->get( 'convert_to_webp', true ) && Optimizer::supports_webp();
-		$avif     = (bool) $this->settings->get( 'convert_to_avif', false ) && Optimizer::supports_avif();
+		$webp     = (bool) $this->setting( 'convert_to_webp', 'enable_webp', true ) && Optimizer::supports_webp();
+		$avif     = (bool) $this->setting( 'convert_to_avif', 'enable_avif', false ) && Optimizer::supports_avif();
 
 		if ( $enabled && ( $webp || $avif ) ) {
 			$delivery->write( $webp, $avif );
@@ -199,12 +277,22 @@ final class Module extends BaseModule {
 	 * @param int $attachment_id Attachment post id.
 	 */
 	public function optimize( int $attachment_id ) {
+		$general = max( 1, min( 100, (int) $this->settings->get( 'quality', 82 ) ) );
+		$resize  = (bool) $this->setting( 'enable_resize', 'enable_resize', true );
+
 		$result = $this->optimizer->optimize(
 			$attachment_id,
-			(int) $this->settings->get( 'quality', 82 ),
-			(bool) $this->settings->get( 'convert_to_webp', true ),
-			(int) $this->settings->get( 'max_width', 2000 ),
-			(bool) $this->settings->get( 'convert_to_avif', false )
+			$general,
+			(bool) $this->setting( 'convert_to_webp', 'enable_webp', true ),
+			$resize ? (int) $this->settings->get( 'max_width', 2000 ) : 0,
+			(bool) $this->setting( 'convert_to_avif', 'enable_avif', false ),
+			array(
+				'max_height'   => $resize ? (int) $this->settings->get( 'max_height', 0 ) : 0,
+				'png_to_jpg'   => (bool) $this->settings->get( 'convert_png_to_jpg', false ),
+				'jpeg_quality' => (int) $this->settings->get( 'jpeg_quality', 0 ),
+				'webp_quality' => (int) $this->settings->get( 'webp_quality', 0 ),
+				'avif_quality' => (int) $this->settings->get( 'avif_quality', 0 ),
+			)
 		);
 
 		if ( ! is_wp_error( $result ) ) {
@@ -237,6 +325,12 @@ final class Module extends BaseModule {
 		$result = $this->optimize( $attachment_id );
 		if ( is_wp_error( $result ) ) {
 			return $metadata;
+		}
+
+		// PNG -> JPEG changed the file: the optimizer already rebuilt the metadata.
+		if ( ! empty( $result['converted'] ) ) {
+			$fresh = wp_get_attachment_metadata( $attachment_id );
+			return is_array( $fresh ) ? $fresh : $metadata;
 		}
 
 		// Keep metadata dimensions in sync if the master file was resized.

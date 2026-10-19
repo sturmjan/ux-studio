@@ -10,6 +10,12 @@ interface Folder {
 	name: string;
 	parent: number;
 	count: number;
+	post_type?: string;
+}
+
+interface EnabledPostType {
+	name: string;
+	label: string;
 }
 
 interface FolderNode extends Folder {
@@ -24,6 +30,7 @@ interface BulkMoveResult {
 }
 
 const FOLDERS_QUERY_KEY = [ 'folder-manager', 'folders' ];
+const POST_TYPES_QUERY_KEY = [ 'folder-manager', 'post-types' ];
 
 /**
  * Build a nested tree from the flat folder list, then flatten it back into
@@ -271,10 +278,16 @@ export default function Page(): JSX.Element {
 	const [ assignFolder, setAssignFolder ] = useState( 0 );
 	const [ bulkIds, setBulkIds ] = useState( '' );
 	const [ bulkFolder, setBulkFolder ] = useState( 0 );
+	const [ postType, setPostType ] = useState( 'attachment' );
+
+	const postTypes = useQuery( {
+		queryKey: POST_TYPES_QUERY_KEY,
+		queryFn: () => api< EnabledPostType[] >( 'folder-manager/post-types' ),
+	} );
 
 	const query = useQuery( {
-		queryKey: FOLDERS_QUERY_KEY,
-		queryFn: () => api< Folder[] >( 'folder-manager/folders' ),
+		queryKey: [ ...FOLDERS_QUERY_KEY, postType ],
+		queryFn: () => api< Folder[] >( `folder-manager/folders?post_type=${ encodeURIComponent( postType ) }` ),
 	} );
 
 	const folders = query.data ?? [];
@@ -283,7 +296,7 @@ export default function Page(): JSX.Element {
 		mutationFn: () =>
 			api< Folder >( 'folder-manager/folders', {
 				method: 'POST',
-				body: JSON.stringify( { name, parent } ),
+				body: JSON.stringify( { name, parent, post_type: postType } ),
 			} ),
 		onSuccess: () => {
 			setName( '' );
@@ -333,6 +346,26 @@ export default function Page(): JSX.Element {
 			<div className="uxs-tabs">
 				<button className="is-active">{ __( 'Folders', 'ux-studio' ) }</button>
 			</div>
+
+			{ ( postTypes.data?.length ?? 0 ) > 1 && (
+				<div className="uxs-form__row">
+					<label htmlFor="uxs-fm-post-type">{ __( 'Post type', 'ux-studio' ) }</label>
+					<select
+						id="uxs-fm-post-type"
+						value={ postType }
+						onChange={ ( e ) => {
+							setPostType( e.target.value );
+							setParent( 0 );
+						} }
+					>
+						{ ( postTypes.data ?? [] ).map( ( type ) => (
+							<option key={ type.name } value={ type.name }>
+								{ type.label }
+							</option>
+						) ) }
+					</select>
+				</div>
+			) }
 
 			{ query.isLoading ? (
 				<div className="uxs-loading">

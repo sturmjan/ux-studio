@@ -36,6 +36,13 @@ final class Module extends BaseModule {
 
 	private const FEED_SLUG   = 'uxstudio-notice-board';
 	private const QUERY_VAR   = 'uxs_nb_cat';
+
+	/** Legacy names kept for content / feed readers already in the wild. */
+	private const FEED_SLUG_LEGACY      = 'uredni-nastenka';
+	private const SHORTCODE_LEGACY      = 'uredni_nastenka';
+	private const SHORTCODE             = 'uxstudio_notice_board';
+	private const DETAIL_QUERY_ARG      = 'dokument';
+	private const LEGACY_REST_NAMESPACE = 'wpextended/v1';
 	private const DB_VERSION  = 3;
 
 	/**
@@ -53,7 +60,8 @@ final class Module extends BaseModule {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'init', array( $this, 'register_feed' ) );
 		add_filter( 'query_vars', array( $this, 'register_query_vars' ) );
-		add_shortcode( 'uxstudio_notice_board', array( $this, 'render_shortcode' ) );
+		add_shortcode( self::SHORTCODE, array( $this, 'render_shortcode' ) );
+		add_shortcode( self::SHORTCODE_LEGACY, array( $this, 'render_shortcode' ) );
 
 		// Auto-archive expired notices once per day (throttled by a transient).
 		if ( ! get_transient( 'uxstudio_nb_archive_check' ) ) {
@@ -375,6 +383,219 @@ final class Module extends BaseModule {
 		$rows = $wpdb->get_results( $sql, ARRAY_A );
 		$rows = is_array( $rows ) ? $rows : array();
 		return array_map( array( $this, 'format_notice' ), $rows );
+	}
+
+	/**
+	 * Public, paginated, filterable query for the frontend board.
+	 * Only published notices (publish date reached) are ever returned.
+	 *
+	 * @param array $args archived(bool), search, categories(slug[]), date_from, date_to (Y-m-d), page, per_page.
+	 * @return array{items:array<int,array<string,mixed>>,total:int,pages:int,page:int}
+	 */
+	public function query_notices( array $args ): array {
+		global $wpdb;
+		$table    = "{$wpdb->prefix}uxstudio_notice_board";
+		$page     = max( 1, (int) ( $args['page'] ?? 1 ) );
+		$per_page = max( 1, min( 100, (int) ( $args['per_page'] ?? 20 ) ) );
+
+		$where  = array( 'is_archived = %d', '( publish_date IS NULL OR publish_date <= %s )' );
+		$params = array( ! empty( $args['archived'] ) ? 1 : 0, current_time( 'Y-m-d' ) );
+
+		$search = trim( (string) ( $args['search'] ?? '' ) );
+		if ( '' !== $search ) {
+			$like     = '%' . $wpdb->esc_like( $search ) . '%';
+			$where[]  = '( title LIKE %s OR body LIKE %s OR reference LIKE %s )';
+			$params[] = $like;
+			$params[] = $like;
+			$params[] = $like;
+		}
+
+		$slugs = array_values( array_filter( array_map( 'sanitize_title', (array) ( $args['categories'] ?? array() ) ) ) );
+		if ( ! empty( $slugs ) ) {
+			$where[] = 'category IN ( ' . implode( ', ', array_fill( 0, count( $slugs ), '%s' ) ) . ' )';
+			$params  = array_merge( $params, $slugs );
+		}
+
+		$from = $this->sanitize_date( $args['date_from'] ?? '' );
+		$to   = $this->sanitize_date( $args['date_to'] ?? '' );
+		if ( null !== $from ) {
+			$where[]  = 'publish_date >= %s';
+			$params[] = $from;
+		}
+		if ( null !== $to ) {
+			$where[]  = 'publish_date <= %s';
+			$params[] = $to;
+		}
+
+		$where_sql = implode( ' AND ', $where );
+		$total     = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE {$where_sql}", $params ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$rows      = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT * FROM {$table} WHERE {$where_sql} ORDER BY publish_date DESC, id DESC LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				array_merge( $params, array( $per_page, ( $page - 1 ) * $per_page ) )
+			),
+			ARRAY_A
+		);
+		$rows = is_array( $rows ) ? $rows : array();
+
+		return array(
+			'items' => array_map( array( $this, 'format_notice' ), $rows ),
+			'total' => $total,
+			'pages' => max( 1, (int) ceil( $total / $per_page ) ),
+			'page'  => $page,
+		);
+	}
+
+	/**
+	 * Published notice by id for the public detail view (archived allowed,
+	 * not-yet-published hidden).
+	 *
+	 * @param int $id Row id.
+	 * @return array<string, mixed>|null
+	 */
+	public function get_public_notice( int $id ): ?array {
+		$notice = $this->get_notice( $id );
+		if ( null === $notice ) {
+			return null;
+		}
+		if ( '' !== (string) $notice['publish_date'] && (string) $notice['publish_date'] > current_time( 'Y-m-d' ) ) {
+			return null;
+		}
+		return $notice;
+	}
+
+	/**
+	 * Number of published active / archived notices (tab counters).
+	 *
+	 * @return array{active:int,archived:int}
+	 */
+	public function count_public_notices(): array {
+		global $wpdb;
+		$table = "{$wpdb->prefix}uxstudio_notice_board";
+		$rows  = $wpdb->get_results(
+			$wpdb->prepare( "SELECT is_archived, COUNT(*) AS c FROM {$table} WHERE ( publish_date IS NULL OR publish_date <= %s ) GROUP BY is_archived", current_time( 'Y-m-d' ) ),
+			ARRAY_A
+		);
+		$out = array(
+			'active'   => 0,
+			'archived' => 0,
+		);
+		foreach ( is_array( $rows ) ? $rows : array() as $row ) {
+			$out[ ! empty( $row['is_archived'] ) ? 'archived' : 'active' ] = (int) $row['c'];
+		}
+		return $out;
+	}
+
+	/**
+	 * URL of the page that hosts the board (first published page/post with one
+	 * of the shortcodes; legacy option `ux1_notice_board_page_id` wins). Cached.
+	 */
+	public function board_page_url(): string {
+		$legacy_id = (int) get_option( 'ux1_notice_board_page_id', 0 );
+		if ( $legacy_id > 0 && 'publish' === get_post_status( $legacy_id ) ) {
+			return (string) get_permalink( $legacy_id );
+		}
+		$cached = get_transient( 'uxstudio_nb_page_id' );
+		if ( false === $cached ) {
+			global $wpdb;
+			$cached = (int) $wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT ID FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type IN ( 'page', 'post' ) AND ( post_content LIKE %s OR post_content LIKE %s ) ORDER BY ID ASC LIMIT 1",
+					'%[' . $wpdb->esc_like( self::SHORTCODE ) . '%',
+					'%[' . $wpdb->esc_like( self::SHORTCODE_LEGACY ) . '%'
+				)
+			);
+			set_transient( 'uxstudio_nb_page_id', $cached, HOUR_IN_SECONDS );
+		}
+		$url = (int) $cached > 0 ? get_permalink( (int) $cached ) : '';
+		return $url ? (string) $url : home_url( '/' );
+	}
+
+	/**
+	 * Open data "Informace na úřední desce" (OFN Úřední deska, JSON-LD) of all
+	 * published, non-archived notices. Structure and keys are fixed by the
+	 * standard (and identical to the legacy output), so they stay Czech.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public function open_data(): array {
+		$page_url   = $this->board_page_url();
+		$result     = $this->query_notices(
+			array(
+				'archived' => false,
+				'per_page' => 100,
+			)
+		);
+		$categories = array();
+		foreach ( $this->list_categories() as $cat ) {
+			$categories[ (string) $cat['slug'] ] = (string) $cat['name'];
+		}
+
+		$items = $result['items'];
+		for ( $p = 2; $p <= $result['pages'] && $p <= 5; $p++ ) {
+			$more  = $this->query_notices(
+				array(
+					'archived' => false,
+					'per_page' => 100,
+					'page'     => $p,
+				)
+			);
+			$items = array_merge( $items, $more['items'] );
+		}
+
+		$informace = array();
+		foreach ( $items as $item ) {
+			$posted = '' !== (string) $item['publish_date'] ? (string) $item['publish_date'] : substr( (string) $item['created_at'], 0, 10 );
+			$entry  = array(
+				'typ'      => array( 'Digitální objekt', 'Informace na úřední desce' ),
+				'url'      => add_query_arg( self::DETAIL_QUERY_ARG, (int) $item['id'], $page_url ),
+				'název'    => array( 'cs' => (string) $item['title'] ),
+				'vyvěšení' => array(
+					'typ'   => 'Časový okamžik',
+					'datum' => $posted,
+				),
+			);
+			if ( '' !== (string) $item['expiry_date'] ) {
+				$entry['relevantní_do'] = array(
+					'typ'   => 'Časový okamžik',
+					'datum' => (string) $item['expiry_date'],
+				);
+			}
+			if ( '' !== (string) $item['reference'] ) {
+				$entry['číslo_jednací'] = (string) $item['reference'];
+			}
+			if ( '' !== (string) $item['category'] ) {
+				$entry['agenda'] = array(
+					array(
+						'typ'   => 'Agenda',
+						'název' => array( 'cs' => $categories[ (string) $item['category'] ] ?? (string) $item['category'] ),
+					),
+				);
+			}
+			if ( ! empty( $item['attachments'] ) ) {
+				$entry['dokument'] = array();
+				foreach ( (array) $item['attachments'] as $att ) {
+					$entry['dokument'][] = array(
+						'typ'       => 'Digitální objekt',
+						'url'       => (string) $att['url'],
+						'název'     => array( 'cs' => (string) $att['filename'] ),
+						'typ_média' => 'http://www.iana.org/assignments/media-types/' . ( '' !== (string) $att['mime'] ? (string) $att['mime'] : 'application/octet-stream' ),
+					);
+				}
+			}
+			$informace[] = $entry;
+		}
+
+		return array(
+			'@context'     => 'https://ofn.gov.cz/úřední-desky/2021-07-20/kontexty/úřední-deska.jsonld',
+			'typ'          => 'Úřední deska',
+			'stránka'      => $page_url,
+			'provozovatel' => array(
+				'typ'   => 'Orgán veřejné moci',
+				'název' => array( 'cs' => get_bloginfo( 'name' ) ),
+			),
+			'informace'    => $informace,
+		);
 	}
 
 	/**
@@ -997,6 +1218,23 @@ final class Module extends BaseModule {
 	 */
 	public function register_feed(): void {
 		add_feed( self::FEED_SLUG, array( $this, 'render_feed' ) );
+		// Legacy slug: /feed/uredni-nastenka/ is already subscribed to in feed readers.
+		add_feed( self::FEED_SLUG_LEGACY, array( $this, 'render_feed' ) );
+
+		// add_feed() only takes effect in pretty permalinks after a rewrite
+		// flush; module toggles don't flush, so heal once when our feed rule
+		// is missing from the stored rules (cheap check on an autoloaded option).
+		// Deferred to wp_loaded so every plugin's post types/rules registered
+		// later on init are included in the regenerated set.
+		$rules = get_option( 'rewrite_rules' );
+		if ( is_array( $rules ) && ! empty( $rules ) && false === strpos( implode( ' ', array_keys( $rules ) ), self::FEED_SLUG_LEGACY ) ) {
+			add_action(
+				'wp_loaded',
+				static function (): void {
+					flush_rewrite_rules( false );
+				}
+			);
+		}
 	}
 
 	/**
@@ -1056,9 +1294,12 @@ final class Module extends BaseModule {
 	 * ================================================================== */
 
 	/**
-	 * [uxstudio_notice_board] - list active notices, optional category filter,
-	 * plus a subscribe form. Attributes: category="slug", limit="20",
-	 * subscribe="1".
+	 * [uxstudio_notice_board] (legacy alias [uredni_nastenka]) - public board:
+	 * Active / Archive tabs, search, document-type filter, date range,
+	 * pagination, document detail (?dokument=ID) and a subscribe form.
+	 *
+	 * Attributes: category="slug" (fixed category, hides the type filter),
+	 * limit="20" (per page), subscribe="1", filters="1" (search/filter/archive UI).
 	 *
 	 * @param array|string $atts Shortcode attributes.
 	 * @return string
@@ -1069,55 +1310,138 @@ final class Module extends BaseModule {
 				'category'  => '',
 				'limit'     => (string) (int) $this->settings->get( 'per_page', 20 ),
 				'subscribe' => '1',
+				'filters'   => '1',
 			),
 			is_array( $atts ) ? $atts : array(),
-			'uxstudio_notice_board'
+			self::SHORTCODE
 		);
 
-		$category = sanitize_title( (string) $atts['category'] );
-		$limit    = max( 1, min( 200, (int) $atts['limit'] ) );
-		$notices  = $this->get_active_notices( $category, $limit );
+		$this->run_auto_archive_if_due();
 
 		ob_start();
 		$this->render_shortcode_styles();
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- public read-only view.
+		$detail_id = isset( $_GET[ self::DETAIL_QUERY_ARG ] ) ? absint( wp_unslash( $_GET[ self::DETAIL_QUERY_ARG ] ) ) : 0;
+		if ( $detail_id > 0 ) {
+			$this->render_detail( $detail_id );
+			return (string) ob_get_clean();
+		}
+
+		$fixed_cat = sanitize_title( (string) $atts['category'] );
+		$per_page  = max( 1, min( 100, (int) $atts['limit'] ) );
+		$filters   = '1' === (string) $atts['filters'];
+		$names     = array();
+		foreach ( $this->list_categories() as $cat ) {
+			$names[ (string) $cat['slug'] ] = (string) $cat['name'];
+		}
+
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- public read-only filters.
+		$archived = $filters && isset( $_GET['nb_tab'] ) && 'archive' === sanitize_key( wp_unslash( $_GET['nb_tab'] ) );
+		$search   = $filters && isset( $_GET['nb_q'] ) ? sanitize_text_field( wp_unslash( $_GET['nb_q'] ) ) : '';
+		$sel_cats = array();
+		if ( '' !== $fixed_cat ) {
+			$sel_cats = array( $fixed_cat );
+		} elseif ( $filters && isset( $_GET['nb_cat'] ) ) {
+			$sel_cats = array_map( 'sanitize_title', array_map( 'sanitize_text_field', (array) wp_unslash( $_GET['nb_cat'] ) ) );
+		}
+		$from = $filters && isset( $_GET['nb_from'] ) ? sanitize_text_field( wp_unslash( $_GET['nb_from'] ) ) : '';
+		$to   = $filters && isset( $_GET['nb_to'] ) ? sanitize_text_field( wp_unslash( $_GET['nb_to'] ) ) : '';
+		$page = isset( $_GET['nb_page'] ) ? max( 1, absint( wp_unslash( $_GET['nb_page'] ) ) ) : 1;
+		// phpcs:enable
+
+		$result = $this->query_notices(
+			array(
+				'archived'   => $archived,
+				'search'     => $search,
+				'categories' => $sel_cats,
+				'date_from'  => $from,
+				'date_to'    => $to,
+				'page'       => $page,
+				'per_page'   => $per_page,
+			)
+		);
+
+		$base   = $this->current_base_url();
+		$counts = $this->count_public_notices();
 		?>
 		<div class="uxs-notice-board">
-			<?php if ( empty( $notices ) ) : ?>
+			<?php if ( $filters ) : ?>
+				<nav class="uxs-nb-tabs" aria-label="<?php esc_attr_e( 'Notice board', 'ux-studio' ); ?>">
+					<a class="uxs-nb-tab<?php echo $archived ? '' : ' is-active'; ?>" href="<?php echo esc_url( $base ); ?>"><?php esc_html_e( 'Active', 'ux-studio' ); ?> <span class="uxs-nb-tab__count"><?php echo (int) $counts['active']; ?></span></a>
+					<a class="uxs-nb-tab<?php echo $archived ? ' is-active' : ''; ?>" href="<?php echo esc_url( add_query_arg( 'nb_tab', 'archive', $base ) ); ?>"><?php esc_html_e( 'Archive', 'ux-studio' ); ?> <span class="uxs-nb-tab__count"><?php echo (int) $counts['archived']; ?></span></a>
+				</nav>
+
+				<form class="uxs-nb-filters" method="get" action="<?php echo esc_url( $base ); ?>" role="search">
+					<?php foreach ( array( 'page_id', 'p' ) as $keep ) : // Plain permalinks keep the page in the query string. ?>
+						<?php if ( isset( $_GET[ $keep ] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
+							<input type="hidden" name="<?php echo esc_attr( $keep ); ?>" value="<?php echo esc_attr( (string) absint( wp_unslash( $_GET[ $keep ] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>">
+						<?php endif; ?>
+					<?php endforeach; ?>
+					<?php if ( $archived ) : ?>
+						<input type="hidden" name="nb_tab" value="archive">
+					<?php endif; ?>
+					<input type="search" name="nb_q" value="<?php echo esc_attr( $search ); ?>" placeholder="<?php esc_attr_e( 'Search notices…', 'ux-studio' ); ?>" aria-label="<?php esc_attr_e( 'Search notices…', 'ux-studio' ); ?>">
+					<?php if ( '' === $fixed_cat && ! empty( $names ) ) : ?>
+						<details class="uxs-nb-types">
+							<summary><?php esc_html_e( 'Document type', 'ux-studio' ); ?><?php echo $sel_cats ? ' (' . (int) count( $sel_cats ) . ')' : ''; ?></summary>
+							<div class="uxs-nb-types__list">
+								<?php foreach ( $names as $slug => $name ) : ?>
+									<label><input type="checkbox" name="nb_cat[]" value="<?php echo esc_attr( $slug ); ?>" <?php checked( in_array( $slug, $sel_cats, true ) ); ?>> <?php echo esc_html( $name ); ?></label>
+								<?php endforeach; ?>
+							</div>
+						</details>
+					<?php endif; ?>
+					<label><?php esc_html_e( 'From', 'ux-studio' ); ?> <input type="date" name="nb_from" value="<?php echo esc_attr( (string) ( $this->sanitize_date( $from ) ?? '' ) ); ?>"></label>
+					<label><?php esc_html_e( 'To', 'ux-studio' ); ?> <input type="date" name="nb_to" value="<?php echo esc_attr( (string) ( $this->sanitize_date( $to ) ?? '' ) ); ?>"></label>
+					<button type="submit"><?php esc_html_e( 'Filter', 'ux-studio' ); ?></button>
+					<?php if ( '' !== $search || ( $sel_cats && '' === $fixed_cat ) || '' !== $from || '' !== $to ) : ?>
+						<a class="uxs-nb-reset" href="<?php echo esc_url( $archived ? add_query_arg( 'nb_tab', 'archive', $base ) : $base ); ?>"><?php esc_html_e( 'Reset', 'ux-studio' ); ?></a>
+					<?php endif; ?>
+				</form>
+			<?php endif; ?>
+
+			<?php if ( empty( $result['items'] ) ) : ?>
 				<p class="uxs-nb-empty"><?php esc_html_e( 'No notices at the moment.', 'ux-studio' ); ?></p>
 			<?php else : ?>
 				<ul class="uxs-nb-list">
-					<?php foreach ( $notices as $notice ) : ?>
+					<?php foreach ( $result['items'] as $notice ) : ?>
 						<li class="uxs-nb-item">
-							<h3 class="uxs-nb-item__title"><?php echo esc_html( (string) $notice['title'] ); ?></h3>
-							<p class="uxs-nb-item__meta">
-								<?php if ( '' !== (string) $notice['publish_date'] ) : ?>
-									<span><?php echo esc_html( date_i18n( get_option( 'date_format' ), strtotime( (string) $notice['publish_date'] ) ) ); ?></span>
-								<?php endif; ?>
-								<?php if ( '' !== (string) $notice['reference'] ) : ?>
-									<span class="uxs-nb-item__ref"><?php echo esc_html( (string) $notice['reference'] ); ?></span>
-								<?php endif; ?>
-								<?php if ( '' !== (string) $notice['category'] ) : ?>
-									<span class="uxs-nb-item__cat"><?php echo esc_html( (string) $notice['category'] ); ?></span>
-								<?php endif; ?>
-							</p>
+							<h3 class="uxs-nb-item__title"><a href="<?php echo esc_url( add_query_arg( self::DETAIL_QUERY_ARG, (int) $notice['id'], $base ) ); ?>"><?php echo esc_html( (string) $notice['title'] ); ?></a></h3>
+							<?php $this->render_notice_meta( $notice, $names ); ?>
 							<?php if ( '' !== (string) $notice['body'] ) : ?>
 								<div class="uxs-nb-item__body"><?php echo wp_kses_post( wpautop( (string) $notice['body'] ) ); ?></div>
 							<?php endif; ?>
-							<?php if ( ! empty( $notice['attachments'] ) ) : ?>
-								<ul class="uxs-nb-item__files">
-									<?php foreach ( (array) $notice['attachments'] as $att ) : ?>
-										<li>
-											<a href="<?php echo esc_url( (string) $att['url'] ); ?>" rel="noopener" target="_blank">
-												<?php echo esc_html( (string) $att['filename'] ); ?>
-											</a>
-										</li>
-									<?php endforeach; ?>
-								</ul>
-							<?php endif; ?>
+							<?php $this->render_notice_files( $notice ); ?>
 						</li>
 					<?php endforeach; ?>
 				</ul>
+
+				<?php if ( $result['pages'] > 1 ) : ?>
+					<nav class="uxs-nb-pager" aria-label="<?php esc_attr_e( 'Pagination', 'ux-studio' ); ?>">
+						<?php
+						$keep_args = array_filter(
+							array(
+								'nb_tab'  => $archived ? 'archive' : '',
+								'nb_q'    => $search,
+								'nb_cat'  => '' === $fixed_cat ? $sel_cats : array(),
+								'nb_from' => $from,
+								'nb_to'   => $to,
+							)
+						);
+						for ( $i = 1; $i <= $result['pages']; $i++ ) :
+							$url = add_query_arg( array_merge( $keep_args, $i > 1 ? array( 'nb_page' => $i ) : array() ), $base );
+							?>
+							<a class="uxs-nb-pager__link<?php echo $i === $result['page'] ? ' is-active' : ''; ?>" href="<?php echo esc_url( $url ); ?>"<?php echo $i === $result['page'] ? ' aria-current="page"' : ''; ?>><?php echo (int) $i; ?></a>
+						<?php endfor; ?>
+					</nav>
+				<?php endif; ?>
 			<?php endif; ?>
+
+			<p class="uxs-nb-links">
+				<a href="<?php echo esc_url( rest_url( 'uxstudio/v1/notice-board/open-data' ) ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Open data (JSON-LD)', 'ux-studio' ); ?></a>
+				<a href="<?php echo esc_url( home_url( '/?feed=' . self::FEED_SLUG ) ); ?>" target="_blank" rel="noopener">RSS</a>
+			</p>
 
 			<?php if ( '1' === (string) $atts['subscribe'] ) : ?>
 				<?php $this->render_subscribe_form(); ?>
@@ -1125,6 +1449,115 @@ final class Module extends BaseModule {
 		</div>
 		<?php
 		return (string) ob_get_clean();
+	}
+
+	/**
+	 * Document detail view (?dokument=ID).
+	 *
+	 * @param int $id Notice id.
+	 */
+	private function render_detail( int $id ): void {
+		$base   = $this->current_base_url();
+		$notice = $this->get_public_notice( $id );
+		?>
+		<div class="uxs-notice-board">
+			<a class="uxs-nb-back" href="<?php echo esc_url( $base ); ?>">&larr; <?php esc_html_e( 'Back to notice board', 'ux-studio' ); ?></a>
+			<?php if ( null === $notice ) : ?>
+				<p class="uxs-nb-empty"><?php esc_html_e( 'Notice not found.', 'ux-studio' ); ?></p>
+			<?php else : ?>
+				<?php
+				$names = array();
+				foreach ( $this->list_categories() as $cat ) {
+					$names[ (string) $cat['slug'] ] = (string) $cat['name'];
+				}
+				?>
+				<article class="uxs-nb-detail">
+					<h2 class="uxs-nb-item__title"><?php echo esc_html( (string) $notice['title'] ); ?></h2>
+					<?php $this->render_notice_meta( $notice, $names, true ); ?>
+					<?php if ( '' !== (string) $notice['body'] ) : ?>
+						<div class="uxs-nb-item__body"><?php echo wp_kses_post( wpautop( (string) $notice['body'] ) ); ?></div>
+					<?php endif; ?>
+					<?php $this->render_notice_files( $notice ); ?>
+					<?php if ( $notice['is_archived'] ) : ?>
+						<p class="uxs-nb-archived" role="status"><?php esc_html_e( 'This notice has been taken down and is kept in the archive.', 'ux-studio' ); ?></p>
+					<?php endif; ?>
+				</article>
+			<?php endif; ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Date / reference / category line of a notice.
+	 *
+	 * @param array                $notice      Formatted notice.
+	 * @param array<string,string> $names       Category slug => name.
+	 * @param bool                 $with_expiry Also show the removal date.
+	 */
+	private function render_notice_meta( array $notice, array $names, bool $with_expiry = false ): void {
+		$category = (string) $notice['category'];
+		?>
+		<p class="uxs-nb-item__meta">
+			<?php if ( '' !== (string) $notice['publish_date'] ) : ?>
+				<span><?php echo $with_expiry ? esc_html__( 'Posted', 'ux-studio' ) . ': ' : ''; ?><?php echo esc_html( date_i18n( get_option( 'date_format' ), strtotime( (string) $notice['publish_date'] ) ) ); ?></span>
+			<?php endif; ?>
+			<?php if ( $with_expiry && '' !== (string) $notice['expiry_date'] ) : ?>
+				<span><?php esc_html_e( 'Removed', 'ux-studio' ); ?>: <?php echo esc_html( date_i18n( get_option( 'date_format' ), strtotime( (string) $notice['expiry_date'] ) ) ); ?></span>
+			<?php endif; ?>
+			<?php if ( '' !== (string) $notice['reference'] ) : ?>
+				<span class="uxs-nb-item__ref"><?php echo esc_html( (string) $notice['reference'] ); ?></span>
+			<?php endif; ?>
+			<?php if ( '' !== $category ) : ?>
+				<span class="uxs-nb-item__cat"><?php echo esc_html( $names[ $category ] ?? $category ); ?></span>
+			<?php endif; ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Attachment links of a notice.
+	 *
+	 * @param array $notice Formatted notice.
+	 */
+	private function render_notice_files( array $notice ): void {
+		if ( empty( $notice['attachments'] ) ) {
+			return;
+		}
+		?>
+		<ul class="uxs-nb-item__files">
+			<?php foreach ( (array) $notice['attachments'] as $att ) : ?>
+				<li>
+					<a href="<?php echo esc_url( (string) $att['url'] ); ?>" rel="noopener" target="_blank">
+						<?php echo esc_html( (string) $att['filename'] ); ?>
+					</a>
+					<?php if ( (int) $att['size'] > 0 ) : ?>
+						<span class="uxs-nb-item__size">(<?php echo esc_html( size_format( (int) $att['size'] ) ); ?>)</span>
+					<?php endif; ?>
+				</li>
+			<?php endforeach; ?>
+		</ul>
+		<?php
+	}
+
+	/**
+	 * URL of the current page without the board's own query args (filters,
+	 * detail), used as the base for tab / filter / detail links.
+	 */
+	private function current_base_url(): string {
+		$url = is_singular() ? get_permalink( (int) get_queried_object_id() ) : home_url( '/' );
+		return (string) $url;
+	}
+
+	/**
+	 * Archive expired notices at most once per hour when a board is rendered
+	 * (the daily boot-time run alone could leave expired notices visible).
+	 */
+	private function run_auto_archive_if_due(): void {
+		if ( get_transient( 'uxstudio_nb_archive_render' ) ) {
+			return;
+		}
+		$this->run_auto_archive();
+		set_transient( 'uxstudio_nb_archive_render', 1, HOUR_IN_SECONDS );
 	}
 
 	/**
@@ -1147,6 +1580,23 @@ final class Module extends BaseModule {
 			.uxs-nb-item__files{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:4px}
 			.uxs-nb-item__files a{text-decoration:none}
 			.uxs-nb-empty{color:#646970;font-style:italic}
+			.uxs-nb-tabs{display:flex;gap:4px;border-bottom:1px solid #e2e4e7;margin-bottom:12px}
+			.uxs-nb-tab{padding:8px 14px;text-decoration:none;border-bottom:2px solid transparent;color:inherit}
+			.uxs-nb-tab.is-active{border-bottom-color:currentColor;font-weight:600}
+			.uxs-nb-tab__count{background:#f0f0f1;border-radius:9px;padding:0 7px;font-size:.8em}
+			.uxs-nb-filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+			.uxs-nb-filters input[type=search]{min-width:200px;padding:6px 10px}
+			.uxs-nb-types{position:relative}
+			.uxs-nb-types summary{cursor:pointer;padding:6px 10px;border:1px solid #c3c4c7;border-radius:3px;background:#fff}
+			.uxs-nb-types__list{position:absolute;z-index:5;background:#fff;border:1px solid #c3c4c7;border-radius:3px;padding:8px;display:flex;flex-direction:column;gap:4px;min-width:200px;max-height:260px;overflow:auto}
+			.uxs-nb-item__title a{text-decoration:none;color:inherit}
+			.uxs-nb-item__size{color:#646970;font-size:.85em}
+			.uxs-nb-pager{display:flex;gap:6px;flex-wrap:wrap;margin-top:16px}
+			.uxs-nb-pager__link{padding:4px 10px;border:1px solid #c3c4c7;border-radius:3px;text-decoration:none}
+			.uxs-nb-pager__link.is-active{font-weight:700;background:#f0f0f1}
+			.uxs-nb-links{display:flex;gap:16px;margin-top:16px;font-size:.9em}
+			.uxs-nb-back{display:inline-block;margin-bottom:12px;text-decoration:none}
+			.uxs-nb-archived{margin-top:16px;padding:10px 14px;background:#f6f7f7;border-left:4px solid #dba617}
 			.uxs-nb-subscribe{margin-top:24px;padding:16px;border:1px solid #e2e4e7;border-radius:6px;background:#fbfbfc}
 			.uxs-nb-subscribe input[type=email]{padding:6px 10px;min-width:220px}
 			.uxs-nb-subscribe button{padding:6px 16px;cursor:pointer}

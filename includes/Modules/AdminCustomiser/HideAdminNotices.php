@@ -12,8 +12,9 @@
  *   - hide_notices_relocate:  when on, notices are moved to the tray (legacy
  *                              "hidden_tray"); when off, they are dropped
  *                              entirely (legacy "none").
- * Per-update-type suppression is dropped (not in the contract) - notices are
- * only hidden/relocated visually, update checks themselves are untouched.
+ * Per-update-type suppression is back (legacy key `global__update_notifications`,
+ * values core/theme/plugin): the ticked update checks report "nothing to
+ * update" via pre_site_transient_* filters, so the nags and badges vanish.
  *
  * @package UxStudio
  */
@@ -26,11 +27,43 @@ final class HideAdminNotices {
 
 	private bool $relocate;
 
+	/** @var string[] Update types to silence: core, theme, plugin. */
+	private array $update_types;
+
 	/**
-	 * @param bool $relocate Whether to move notices into the tray (true) or hide them entirely (false).
+	 * @param bool     $relocate     Whether to move notices into the tray (true) or hide them entirely (false).
+	 * @param string[] $update_types Update types whose "update available" state is suppressed.
 	 */
-	public function __construct( bool $relocate ) {
-		$this->relocate = $relocate;
+	public function __construct( bool $relocate, array $update_types = array() ) {
+		$this->relocate     = $relocate;
+		$this->update_types = $update_types;
+	}
+
+	/**
+	 * Silence update availability for the selected types. The legacy module hooked
+	 * non-existent core actions (plugin_update/theme_update/core_update), so the
+	 * feature never actually ran there; here the filters are attached directly.
+	 */
+	private function silence_updates(): void {
+		if ( in_array( 'plugin', $this->update_types, true ) ) {
+			add_filter( 'pre_site_transient_update_plugins', array( $this, 'empty_update_state' ) );
+		}
+		if ( in_array( 'theme', $this->update_types, true ) ) {
+			add_filter( 'pre_site_transient_update_themes', array( $this, 'empty_update_state' ) );
+		}
+		if ( in_array( 'core', $this->update_types, true ) ) {
+			add_filter( 'pre_site_transient_update_core', array( $this, 'empty_update_state' ) );
+		}
+	}
+
+	/** "Checked just now, nothing to update" transient value. */
+	public function empty_update_state(): object {
+		global $wp_version;
+		return (object) array(
+			'last_checked'    => time(),
+			'version_checked' => $wp_version,
+			'updates'         => array(),
+		);
 	}
 
 	/**
@@ -41,6 +74,8 @@ final class HideAdminNotices {
 		if ( ! is_user_logged_in() ) {
 			return;
 		}
+
+		$this->silence_updates();
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ), 110 );
 

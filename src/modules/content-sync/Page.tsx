@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { ArrowLeft, LoaderCircle, Plus, RefreshCw, Trash2, KeyRound, Send } from 'lucide-react';
+import { ArrowLeft, LoaderCircle, Pencil, Plus, RefreshCw, Trash2, KeyRound, Send } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
 
-type Tab = 'sites' | 'push' | 'log' | 'settings';
+type Tab = 'sites' | 'push' | 'remote' | 'log' | 'settings';
 
 interface Site {
 	id: number;
@@ -295,6 +295,244 @@ function PushTab(): JSX.Element {
 	);
 }
 
+interface RemotePostItem {
+	id: number;
+	title: string;
+	status: string;
+	post_type: string;
+	date: string;
+}
+
+interface RemotePostList {
+	items: RemotePostItem[];
+	total: number;
+	total_pages: number;
+	page: number;
+}
+
+interface RemotePostDetail {
+	id: number;
+	title: string;
+	content: string;
+	excerpt: string;
+	status: string;
+}
+
+interface RemoteDraft {
+	id: number | null;
+	title: string;
+	content: string;
+	excerpt: string;
+	status: string;
+}
+
+const EMPTY_DRAFT: RemoteDraft = { id: null, title: '', content: '', excerpt: '', status: 'draft' };
+const REMOTE_STATUSES = [ 'publish', 'draft', 'pending', 'private' ];
+
+function RemoteTab(): JSX.Element {
+	const [ siteId, setSiteId ] = useState< number | null >( null );
+	const [ search, setSearch ] = useState( '' );
+	const [ status, setStatus ] = useState( '' );
+	const [ page, setPage ] = useState( 1 );
+	const [ draft, setDraft ] = useState< RemoteDraft | null >( null );
+	const [ notice, setNotice ] = useState( '' );
+
+	const sites = useQuery( {
+		queryKey: [ 'content-sync', 'sites' ],
+		queryFn: () => api< Site[] >( 'content-sync/sites' ),
+	} );
+
+	const posts = useQuery( {
+		queryKey: [ 'content-sync', 'remote-posts', siteId, search, status, page ],
+		enabled: siteId !== null,
+		queryFn: () =>
+			api< RemotePostList >(
+				`content-sync/sites/${ siteId }/posts?page=${ page }&per_page=20&search=${ encodeURIComponent( search ) }&status=${ encodeURIComponent( status ) }`
+			),
+	} );
+
+	const refresh = (): void => void queryClient.invalidateQueries( { queryKey: [ 'content-sync', 'remote-posts' ] } );
+
+	const edit = useMutation( {
+		mutationFn: ( id: number ) => api< RemotePostDetail >( `content-sync/sites/${ siteId }/posts/${ id }` ),
+		onSuccess: ( p ) => setDraft( { id: p.id, title: p.title, content: p.content, excerpt: p.excerpt, status: p.status } ),
+		onError: ( e: Error ) => setNotice( e.message ),
+	} );
+
+	const save = useMutation( {
+		mutationFn: ( d: RemoteDraft ) => {
+			const body = JSON.stringify( { title: d.title, content: d.content, excerpt: d.excerpt, status: d.status } );
+			return d.id === null
+				? api( `content-sync/sites/${ siteId }/posts`, { method: 'POST', body } )
+				: api( `content-sync/sites/${ siteId }/posts/${ d.id }`, { method: 'PUT', body } );
+		},
+		onSuccess: () => {
+			setDraft( null );
+			setNotice( __( 'Saved on the node.', 'ux-studio' ) );
+			refresh();
+		},
+		onError: ( e: Error ) => setNotice( e.message ),
+	} );
+
+	const remove = useMutation( {
+		mutationFn: ( id: number ) => api( `content-sync/sites/${ siteId }/posts/${ id }`, { method: 'DELETE' } ),
+		onSuccess: () => {
+			setNotice( __( 'Post moved to trash on the node.', 'ux-studio' ) );
+			refresh();
+		},
+		onError: ( e: Error ) => setNotice( e.message ),
+	} );
+
+	return (
+		<>
+			<div className="uxs-form" style={ { marginBottom: 'var(--uxs-sp-4)' } }>
+				<div className="uxs-form__row">
+					<label htmlFor="uxs-cs-remote-site">{ __( 'Node', 'ux-studio' ) }</label>
+					<select
+						id="uxs-cs-remote-site"
+						value={ siteId ?? '' }
+						onChange={ ( e ) => {
+							setSiteId( e.target.value === '' ? null : Number( e.target.value ) );
+							setPage( 1 );
+							setDraft( null );
+						} }
+					>
+						<option value="">{ __( 'Select a node…', 'ux-studio' ) }</option>
+						{ ( sites.data ?? [] ).filter( ( s ) => s.has_api_key ).map( ( s ) => (
+							<option key={ s.id } value={ s.id }>{ s.name }</option>
+						) ) }
+					</select>
+				</div>
+			</div>
+			{ notice ? <p className="uxs-form__help">{ notice }</p> : null }
+
+			{ siteId !== null && draft === null ? (
+				<>
+					<div className="uxs-form" style={ { marginBottom: 'var(--uxs-sp-4)' } }>
+						<div className="uxs-form__row">
+							<label htmlFor="uxs-cs-remote-search">{ __( 'Search', 'ux-studio' ) }</label>
+							<input
+								id="uxs-cs-remote-search"
+								type="text"
+								value={ search }
+								onChange={ ( e ) => {
+									setSearch( e.target.value );
+									setPage( 1 );
+								} }
+								placeholder={ __( 'Search posts…', 'ux-studio' ) }
+							/>
+						</div>
+						<div className="uxs-form__row">
+							<label htmlFor="uxs-cs-remote-status">{ __( 'Status', 'ux-studio' ) }</label>
+							<select
+								id="uxs-cs-remote-status"
+								value={ status }
+								onChange={ ( e ) => {
+									setStatus( e.target.value );
+									setPage( 1 );
+								} }
+							>
+								<option value="">{ __( 'All', 'ux-studio' ) }</option>
+								{ REMOTE_STATUSES.map( ( st ) => (
+									<option key={ st } value={ st }>{ st }</option>
+								) ) }
+							</select>
+						</div>
+						<button type="button" className="button button-primary" onClick={ () => setDraft( EMPTY_DRAFT ) }>
+							<Plus size={ 14 } /> { __( 'New post', 'ux-studio' ) }
+						</button>
+					</div>
+
+					{ posts.isLoading ? <div className="uxs-loading"><LoaderCircle size={ 24 } /></div> : null }
+					{ posts.isError ? <p className="uxs-form__help">{ ( posts.error as Error ).message }</p> : null }
+					{ posts.data ? (
+						<>
+							<table className="uxs-table">
+								<thead>
+									<tr>
+										<th>{ __( 'Title', 'ux-studio' ) }</th>
+										<th>{ __( 'Type', 'ux-studio' ) }</th>
+										<th>{ __( 'Status', 'ux-studio' ) }</th>
+										<th>{ __( 'Date', 'ux-studio' ) }</th>
+										<th>{ __( 'Actions', 'ux-studio' ) }</th>
+									</tr>
+								</thead>
+								<tbody>
+									{ posts.data.items.map( ( p ) => (
+										<tr key={ p.id }>
+											<td>{ p.title || __( '(no title)', 'ux-studio' ) }</td>
+											<td>{ p.post_type }</td>
+											<td><StatusBadge status={ p.status } /></td>
+											<td>{ p.date }</td>
+											<td>
+												<button type="button" className="button" title={ __( 'Edit', 'ux-studio' ) } onClick={ () => edit.mutate( p.id ) }>
+													<Pencil size={ 14 } />
+												</button>{ ' ' }
+												<button
+													type="button"
+													className="button"
+													title={ __( 'Delete', 'ux-studio' ) }
+													onClick={ () => {
+														if ( window.confirm( __( 'Move this post to trash on the node?', 'ux-studio' ) ) ) {
+															remove.mutate( p.id );
+														}
+													} }
+												>
+													<Trash2 size={ 14 } />
+												</button>
+											</td>
+										</tr>
+									) ) }
+								</tbody>
+							</table>
+							<p>
+								<button type="button" className="button" disabled={ page <= 1 } onClick={ () => setPage( ( n ) => n - 1 ) }>
+									{ __( 'Previous', 'ux-studio' ) }
+								</button>{ ' ' }
+								{ page } / { Math.max( 1, posts.data.total_pages ) }{ ' ' }
+								<button type="button" className="button" disabled={ page >= posts.data.total_pages } onClick={ () => setPage( ( n ) => n + 1 ) }>
+									{ __( 'Next', 'ux-studio' ) }
+								</button>
+							</p>
+						</>
+					) : null }
+				</>
+			) : null }
+
+			{ siteId !== null && draft !== null ? (
+				<div className="uxs-form">
+					<div className="uxs-form__row">
+						<label htmlFor="uxs-cs-rp-title">{ __( 'Title', 'ux-studio' ) }</label>
+						<input id="uxs-cs-rp-title" type="text" value={ draft.title } onChange={ ( e ) => setDraft( { ...draft, title: e.target.value } ) } />
+					</div>
+					<div className="uxs-form__row">
+						<label htmlFor="uxs-cs-rp-status">{ __( 'Status', 'ux-studio' ) }</label>
+						<select id="uxs-cs-rp-status" value={ draft.status } onChange={ ( e ) => setDraft( { ...draft, status: e.target.value } ) }>
+							{ REMOTE_STATUSES.map( ( st ) => (
+								<option key={ st } value={ st }>{ st }</option>
+							) ) }
+						</select>
+					</div>
+					<div className="uxs-form__row">
+						<label htmlFor="uxs-cs-rp-excerpt">{ __( 'Excerpt', 'ux-studio' ) }</label>
+						<textarea id="uxs-cs-rp-excerpt" rows={ 3 } value={ draft.excerpt } onChange={ ( e ) => setDraft( { ...draft, excerpt: e.target.value } ) } />
+					</div>
+					<div className="uxs-form__row">
+						<label htmlFor="uxs-cs-rp-content">{ __( 'Content (HTML)', 'ux-studio' ) }</label>
+						<textarea id="uxs-cs-rp-content" rows={ 14 } value={ draft.content } onChange={ ( e ) => setDraft( { ...draft, content: e.target.value } ) } />
+					</div>
+					<button type="button" className="button button-primary" disabled={ save.isPending || draft.title.trim() === '' } onClick={ () => save.mutate( draft ) }>
+						{ save.isPending ? <LoaderCircle size={ 14 } /> : null } { __( 'Save on node', 'ux-studio' ) }
+					</button>{ ' ' }
+					<button type="button" className="button" onClick={ () => setDraft( null ) }>
+						{ __( 'Cancel', 'ux-studio' ) }
+					</button>
+				</div>
+			) : null }
+		</>
+	);
+}
+
 function LogTab(): JSX.Element {
 	const { data, isLoading } = useQuery( {
 		queryKey: [ 'content-sync', 'log' ],
@@ -367,6 +605,9 @@ export default function Page(): JSX.Element {
 				<button className={ tab === 'push' ? 'is-active' : '' } onClick={ () => setTab( 'push' ) }>
 					{ __( 'Push', 'ux-studio' ) }
 				</button>
+				<button className={ tab === 'remote' ? 'is-active' : '' } onClick={ () => setTab( 'remote' ) }>
+					{ __( 'Remote posts', 'ux-studio' ) }
+				</button>
 				<button className={ tab === 'log' ? 'is-active' : '' } onClick={ () => setTab( 'log' ) }>
 					{ __( 'Log', 'ux-studio' ) }
 				</button>
@@ -376,6 +617,7 @@ export default function Page(): JSX.Element {
 			</div>
 			{ tab === 'sites' && <SitesTab /> }
 			{ tab === 'push' && <PushTab /> }
+			{ tab === 'remote' && <RemoteTab /> }
 			{ tab === 'log' && <LogTab /> }
 			{ tab === 'settings' && ( isLoading || ! data ) && (
 				<div className="uxs-loading">

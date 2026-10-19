@@ -17,6 +17,7 @@ final class ContentBootstrap {
 	public static function register(): void {
 		add_action( 'rest_api_init', array( self::class, 'register_rest_routes' ) );
 		( new ContentToolbarEditor() )->register();
+		( new WooMetabox() )->register();
 	}
 
 	public static function register_rest_routes(): void {

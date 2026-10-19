@@ -157,6 +157,56 @@ final class SsoOperatorMapper {
 	}
 
 	/**
+	 * Capabilities that let a session run or install code, or take over users.
+	 * Any of them (on any site of the user in multisite) makes an SSO target
+	 * "admin-level" - see SsoController::issue() / SsoRedeemer.
+	 */
+	private const ADMIN_LEVEL_CAPS = array(
+		'manage_options', 'install_plugins', 'activate_plugins', 'update_plugins', 'upload_plugins',
+		'edit_plugins', 'delete_plugins', 'install_themes', 'update_themes', 'upload_themes', 'edit_themes',
+		'delete_themes', 'switch_themes', 'update_core', 'edit_users', 'create_users', 'delete_users',
+		'promote_users', 'list_users', 'unfiltered_upload', 'manage_network', 'manage_sites',
+	);
+
+	/**
+	 * Whether a user holds admin-level capabilities (on any of their sites).
+	 *
+	 * @param int $user_id WP user id.
+	 */
+	public static function is_admin_level( int $user_id ): bool {
+		if ( $user_id <= 0 ) {
+			return false;
+		}
+		if ( is_multisite() && is_super_admin( $user_id ) ) {
+			return true;
+		}
+		$check = static function () use ( $user_id ): bool {
+			foreach ( self::ADMIN_LEVEL_CAPS as $cap ) {
+				if ( user_can( $user_id, $cap ) ) {
+					return true;
+				}
+			}
+			return false;
+		};
+		if ( $check() ) {
+			return true;
+		}
+		// The auth cookie is network-wide in multisite: an editor here may be an
+		// administrator of another site in the network.
+		if ( is_multisite() ) {
+			foreach ( array_keys( (array) get_blogs_of_user( $user_id ) ) as $blog_id ) {
+				switch_to_blog( (int) $blog_id );
+				$admin = $check();
+				restore_current_blog();
+				if ( $admin ) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Refresh the operator->user cache from a hub-supplied list.
 	 *
 	 * @param array<int, array{operator_id?:int, email?:string, wp_user_id?:int}> $operators Operators.
@@ -171,7 +221,16 @@ final class SsoOperatorMapper {
 			if ( $id <= 0 || '' === $email ) {
 				continue;
 			}
+			// A hub-supplied wp_user_id is only trusted when that account really
+			// belongs to the operator's email - otherwise a leaked node key could
+			// map any operator onto user 1 (the administrator).
 			$wp_id = (int) ( $op['wp_user_id'] ?? 0 );
+			if ( $wp_id > 0 ) {
+				$given = get_userdata( $wp_id );
+				if ( ! $given instanceof WP_User || 0 !== strcasecmp( (string) $given->user_email, $email ) ) {
+					$wp_id = 0;
+				}
+			}
 			if ( $wp_id <= 0 ) {
 				$user = get_user_by( 'email', $email );
 				if ( $user instanceof WP_User ) {

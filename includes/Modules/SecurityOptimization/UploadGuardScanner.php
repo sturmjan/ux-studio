@@ -18,12 +18,18 @@ defined( 'ABSPATH' ) || exit;
  *     file content is read there. A single_event is scheduled a few
  *     seconds later to actually scan the queue off-request.
  *  2. Queue batch: scans up to N queued rows per invocation.
- *  3. Full wp-content scan: builds a bounded file worklist once into the
+ *  3. Full scan: builds a bounded file worklist once into the
  *     uxstudio_security_scan_queue table, then processes it N files at a
  *     time via chained wp_schedule_single_event calls (never a single
  *     unbounded loop/request) until the queue is empty - used for both the
  *     manual "Scan now" REST action and the nightly cron. A watchdog
  *     resumes or ends a run whose event chain broke.
+ *
+ * The scanner only READS and REPORTS. It never moves, renames or deletes a
+ * file - quarantine is a separate manual action per finding (see
+ * UploadGuardRestController::quarantine_finding). Scope and exclusions live
+ * in UploadGuardScope; plugin files matching the official WordPress.org
+ * package are clean without any heuristics (UploadGuardChecksums).
  */
 final class UploadGuardScanner {
 
@@ -42,45 +48,90 @@ final class UploadGuardScanner {
 	private const STATS_OPTION  = 'uxstudio_security_scan_stats';
 
 	private const QUEUE_BATCH_SIZE   = 25;
-	private const FULL_BATCH_SIZE    = 40;
 	private const MAX_WORKLIST       = 20000;
 	private const QUEUE_INSERT_CHUNK = 500;
+
+	/*
+	 * Full-scan throttling. A run must never compete with visitors: it works
+	 * in small batches with pauses, only at night (automatic runs), backs off
+	 * when the server is loaded, and skips unchanged files without reading them.
+	 */
+
+	/** Files READ per batch at most (a stat()-only check of an unchanged file is not counted)... */
+	private const BATCH_MAX_FILES = 40;
+
+	/** Queue rows looked at per batch (bounds a batch of unchanged files). */
+	private const BATCH_MAX_ROWS = 1000;
+
+	/** ...and seconds of work per batch at most, whichever comes first. */
+	private const BATCH_TIME_BUDGET = 8;
+
+	/** Pause between batches, in seconds. */
+	private const BATCH_GAP = 30;
+
+	/**
+	 * WP-Cron only runs when the site gets a request (or a server cron calls
+	 * it, often every 5 min), so the real gap can be far longer than
+	 * BATCH_GAP. When the previous batch ended at least this long ago, the
+	 * 40-file cap is lifted and only the time budget limits the batch: with
+	 * a 5-minute cron that is ~8 s of work per 5 min (~3 % of one core), and
+	 * a deep run still fits into a night or two instead of a week.
+	 */
+	private const SLOW_CRON_GAP = 2 * MINUTE_IN_SECONDS;
+
+	/**
+	 * Automatic runs only work in a night window (site time zone): it opens
+	 * at WINDOW_START_HOUR + this site's offset (0..MAX_START_OFFSET, from
+	 * its URL) and stays open WINDOW_LENGTH - every site gets the same length,
+	 * sites on one server start at different times.
+	 */
+	private const WINDOW_START_HOUR = 1;
+	private const MAX_START_OFFSET  = 2 * HOUR_IN_SECONDS;
+	private const WINDOW_LENGTH     = 4 * HOUR_IN_SECONDS;
+
+	/** Server load above (CPU cores x this) postpones the next batch. */
+	private const LOAD_PER_CORE = 1.0;
+	private const LOAD_RETRY    = 5 * MINUTE_IN_SECONDS;
+
+	/** "Scan now" at most once per this period. */
+	public const MANUAL_COOLDOWN = HOUR_IN_SECONDS;
+
+	/** Every Nth automatic run re-reads unchanged files too (mtime can be faked). */
+	private const DEEP_EVERY = 4;
+
+	/**
+	 * A run not finished within this time is ended as interrupted. Generous:
+	 * a deep run on a site whose cron fires only every few minutes may need
+	 * several nights. A weekly run never starts while the previous one runs.
+	 */
+	private const MAX_RUN_TIME = 14 * DAY_IN_SECONDS;
+
+	/** One batch at a time: two WP-Cron requests must not process in parallel. */
+	private const LOCK_OPTION = 'uxstudio_security_scan_lock';
+	private const LOCK_TTL    = 2 * MINUTE_IN_SECONDS;
 
 	/** Watchdog: no batch progress for this long = the chain is broken, reschedule. */
 	private const STALL_TIMEOUT = 15 * MINUTE_IN_SECONDS;
 
-	/** Watchdog: no progress for this long = give up and end the scan as interrupted. */
-	private const STALL_ABORT = DAY_IN_SECONDS;
+	/** Counter of automatic runs (for DEEP_EVERY) and time of the last one. */
+	private const AUTO_RUNS_OPTION = 'uxstudio_security_auto_runs';
 
 	/** Max file size scanned, in bytes (10 MB). Larger files are skipped. */
 	private const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
+	/** Severities stored as findings; low/clean results are not reported. */
+	private const REPORTED_SEVERITIES = array( 'medium', 'high', 'critical' );
+
 	private UploadGuardDetectionEngine $engine;
 
+	private UploadGuardChecksums $checksums;
+
+	/** Why the last seconds_to_wait() call asked to wait: 'window' or 'load'. */
+	private string $last_wait_reason = '';
+
 	public function __construct() {
-		$this->engine = new UploadGuardDetectionEngine( array(), $this->whitelist_paths() );
-	}
-
-	/**
-	 * @return string[] Extensions eligible for scanning.
-	 */
-	public static function relevant_extensions(): array {
-		/**
-		 * Filter the list of file extensions Upload Guard scans.
-		 *
-		 * @param string[] $extensions Extensions without a leading dot.
-		 */
-		return (array) apply_filters(
-			'uxstudio_security_scan_extensions',
-			array( 'php', 'phtml', 'phar', 'js', 'svg', 'html', 'htm', 'zip' )
-		);
-	}
-
-	/**
-	 * @return string[] Path prefixes to always treat as clean.
-	 */
-	private function whitelist_paths(): array {
-		return (array) apply_filters( 'uxstudio_security_scan_whitelist_paths', array() );
+		$this->engine    = new UploadGuardDetectionEngine();
+		$this->checksums = new UploadGuardChecksums();
 	}
 
 	/* ==========================================================
@@ -126,8 +177,11 @@ final class UploadGuardScanner {
 	private function queue_file( string $file_path ): void {
 		global $wpdb;
 
+		if ( UploadGuardScope::is_excluded( $file_path ) ) {
+			return;
+		}
 		$extension = strtolower( pathinfo( $file_path, PATHINFO_EXTENSION ) );
-		if ( ! in_array( $extension, self::relevant_extensions(), true ) ) {
+		if ( 'zip' !== $extension && ! UploadGuardScope::is_relevant( $file_path, UploadGuardScope::area( $file_path ) ) ) {
 			return;
 		}
 
@@ -228,16 +282,15 @@ final class UploadGuardScanner {
 
 		if ( $this->is_hash_cleared( $file_path, $hash ) ) {
 			$wpdb->delete( $table, array( 'id' => (int) $row->id ), array( '%d' ) );
-			$this->cache_hash( $file_path, $hash );
+			$this->cache_hash( $file_path, $hash, $size, (int) filemtime( $file_path ) );
 			return null;
 		}
 
-		$extension = strtolower( pathinfo( $file_path, PATHINFO_EXTENSION ) );
-		$result    = $this->engine->scan( $file_path, $extension );
+		$result = $this->evaluate( $file_path );
 
-		$this->cache_hash( $file_path, $hash );
+		$this->cache_hash( $file_path, $hash, $size, (int) filemtime( $file_path ) );
 
-		if ( $result['score'] <= 0 ) {
+		if ( null === $result ) {
 			$wpdb->delete( $table, array( 'id' => (int) $row->id ), array( '%d' ) );
 			return null;
 		}
@@ -246,25 +299,10 @@ final class UploadGuardScanner {
 			'finding_type' => 'malware',
 			'severity'     => $result['severity'],
 			'hash'         => $hash,
-			'details'      => wp_json_encode(
-				array(
-					'score'   => $result['score'],
-					'matches' => array_slice( $result['matches'], 0, 25 ),
-				)
-			),
+			'details'      => wp_json_encode( $result['details'] ),
 			'status'       => 'scanned',
 			'scanned_at'   => current_time( 'mysql' ),
 		);
-
-		if ( 'critical' === $result['severity'] && $this->auto_quarantine_enabled() ) {
-			$quarantine = UploadGuardQuarantine::quarantine_file( $file_path, (string) $row->id );
-			if ( ! empty( $quarantine['success'] ) ) {
-				$data['status']  = 'quarantined';
-				$decoded         = json_decode( $data['details'], true );
-				$decoded['quarantine_path'] = $quarantine['quarantine_path'];
-				$data['details'] = wp_json_encode( $decoded );
-			}
-		}
 
 		$wpdb->update( $table, $data, array( 'id' => (int) $row->id ), array( '%s', '%s', '%s', '%s', '%s', '%s' ), array( '%d' ) );
 
@@ -272,10 +310,97 @@ final class UploadGuardScanner {
 	}
 
 	/**
-	 * @return bool Whether critical findings should be auto-quarantined.
+	 * Decide whether a file is worth reporting, combining where it lives with
+	 * what is in it:
+	 *  - plugin file identical to the official WordPress.org package: clean;
+	 *    differing from it / not in it: reported with that as the reason;
+	 *  - PHP in uploads: reported whenever it contains any executable code
+	 *    (an empty "Silence is golden" index.php is fine);
+	 *  - everything else: token-level heuristics of the detection engine.
+	 *
+	 * @return array{severity:string,details:array}|null Null = nothing to report.
 	 */
-	private function auto_quarantine_enabled(): bool {
-		return (bool) apply_filters( 'uxstudio_security_auto_quarantine', true );
+	public function evaluate( string $file_path ): ?array {
+		if ( UploadGuardScope::is_excluded( $file_path ) ) {
+			return null;
+		}
+
+		$area      = UploadGuardScope::area( $file_path );
+		$extension = strtolower( pathinfo( $file_path, PATHINFO_EXTENSION ) );
+		// Upload-time queue may hold a ZIP; anything else outside the scope
+		// (e.g. a queue built by an older version) is not ours to judge.
+		if ( 'zip' !== $extension && ! UploadGuardScope::is_relevant( $file_path, $area ) ) {
+			return null;
+		}
+		$is_php    = in_array( $extension, UploadGuardScope::PHP_EXTENSIONS, true );
+		$context   = array();
+		$official  = null;
+
+		if ( UploadGuardScope::AREA_PLUGINS === $area && $is_php ) {
+			$official = $this->checksums->verify( $file_path );
+			if ( UploadGuardChecksums::MATCH === $official['state'] ) {
+				return null;
+			}
+			if ( UploadGuardChecksums::MODIFIED === $official['state'] ) {
+				$context[] = $this->context_match(
+					'modified_official',
+					35,
+					/* translators: 1: plugin folder, 2: version */
+					sprintf( __( 'Differs from the official package of %1$s %2$s on WordPress.org', 'ux-studio' ), $official['plugin'], $official['version'] )
+				);
+			} elseif ( UploadGuardChecksums::UNKNOWN === $official['state'] ) {
+				$context[] = $this->context_match(
+					'not_in_official',
+					20,
+					/* translators: 1: plugin folder, 2: version */
+					sprintf( __( 'Not part of the official package of %1$s %2$s on WordPress.org', 'ux-studio' ), $official['plugin'], $official['version'] )
+				);
+			}
+		}
+
+		$result = $this->engine->scan( $file_path, $extension );
+
+		if ( UploadGuardScope::AREA_UPLOADS === $area && $is_php ) {
+			if ( ! $result['has_code'] ) {
+				return null;
+			}
+			$context[] = $this->context_match( 'php_in_uploads', 35, __( 'PHP code in the uploads folder (uploads should only hold media)', 'ux-studio' ) );
+		}
+
+		$matches = array_merge( $context, $result['matches'] );
+		$score   = (int) array_sum( array_column( $matches, 'weight' ) );
+		$severity = $this->engine->calculate_severity( $score );
+		if ( ! in_array( $severity, self::REPORTED_SEVERITIES, true ) ) {
+			return null;
+		}
+
+		$details = array(
+			'score'   => $score,
+			'area'    => $area,
+			'matches' => array_slice( $matches, 0, 25 ),
+		);
+		if ( null !== $official && '' !== $official['plugin'] ) {
+			$details['official'] = $official;
+		}
+
+		return array(
+			'severity' => $severity,
+			'details'  => $details,
+		);
+	}
+
+	/**
+	 * A match that comes from the file's context rather than its content.
+	 */
+	private function context_match( string $name, int $weight, string $label ): array {
+		return array(
+			'name'    => $name,
+			'weight'  => $weight,
+			'label'   => $label,
+			'line'    => 0,
+			'snippet' => '',
+			'count'   => 1,
+		);
 	}
 
 	/* ==========================================================
@@ -283,16 +408,34 @@ final class UploadGuardScanner {
 	 * ========================================================== */
 
 	/**
-	 * Kick off a full wp-content injection scan. Called by the manual "Scan
-	 * now" REST action and by the daily cron. Builds a bounded worklist once
-	 * into the queue table (one row per file - NOT one huge option rewritten
-	 * after every batch), then processes it via chained single events.
+	 * Start a full scan. Builds a bounded worklist once into the queue table,
+	 * then processes it in throttled batches (see run_full_scan_batch).
+	 *
+	 * @param bool $manual Started from "Scan now" (any time of day, always a
+	 *                     deep read) rather than by the nightly schedule.
+	 * @return bool False when a run is already in progress.
 	 */
-	public function trigger_full_scan(): void {
+	public function trigger_full_scan( bool $manual = true ): bool {
 		$this->watchdog();
 		$status = $this->get_status();
 		if ( 'running' === ( $status['state'] ?? '' ) ) {
-			return; // Already in progress (and not stuck - the watchdog just checked).
+			return false;
+		}
+
+		$deep = $manual;
+		if ( ! $manual ) {
+			$runs = get_option( self::AUTO_RUNS_OPTION, array() );
+			$runs = is_array( $runs ) ? $runs : array();
+			$n    = (int) ( $runs['count'] ?? 0 ) + 1;
+			$deep = 1 === $n % self::DEEP_EVERY; // The very first run reads everything too.
+			update_option(
+				self::AUTO_RUNS_OPTION,
+				array(
+					'count' => $n,
+					'last'  => time(),
+				),
+				false
+			);
 		}
 
 		$worklist = $this->build_worklist();
@@ -304,83 +447,236 @@ final class UploadGuardScanner {
 			self::STATUS_OPTION,
 			array(
 				'state'            => 'running',
+				'manual'           => $manual,
+				'deep'             => $deep,
 				'total'            => count( $worklist ),
 				'remaining'        => count( $worklist ),
 				'scanned'          => 0,
+				'read'             => 0,
 				'detections'       => 0,
 				'started_at'       => current_time( 'mysql' ),
+				'started_ts'       => time(),
 				'last_progress_at' => time(),
 			),
 			false
 		);
 
-		if ( ! wp_next_scheduled( self::FULL_SCAN_EVENT ) ) {
-			wp_schedule_single_event( time() + 5, self::FULL_SCAN_EVENT );
-		}
+		$this->schedule_batch( $manual ? 5 : $this->seconds_until_window() );
+		return true;
 	}
 
 	/**
-	 * Process one batch of the full-scan queue; reschedules itself until the
-	 * queue is empty. The batch is claimed (deleted) BEFORE scanning, so a
-	 * file that fatals the scanner is skipped next time instead of wedging
-	 * the scan on the same batch forever.
+	 * Seconds until "Scan now" is allowed again (0 = allowed): at most one
+	 * manual run per MANUAL_COOLDOWN, counted from its start.
+	 */
+	public function manual_cooldown_left(): int {
+		$status = $this->get_status();
+		if ( empty( $status['manual'] ) ) {
+			return 0;
+		}
+		return max( 0, (int) ( $status['started_ts'] ?? 0 ) + self::MANUAL_COOLDOWN - time() );
+	}
+
+	/**
+	 * Process one batch of the full-scan queue, then schedule the next one
+	 * BATCH_GAP seconds later. A batch stops after reading BATCH_MAX_FILES
+	 * files (lifted when cron runs rarely, see SLOW_CRON_GAP) or after
+	 * BATCH_TIME_BUDGET seconds; unchanged files only cost a stat(), so a
+	 * quick run gets through thousands per batch. Outside the night window (automatic runs) or
+	 * under high server load it does nothing and reschedules itself later.
+	 * Each row is deleted BEFORE its file is scanned, so a file that fatals
+	 * the scanner is skipped next time instead of wedging the run.
 	 */
 	public function run_full_scan_batch(): void {
 		global $wpdb;
-		$queue = self::queue_table();
 
-		$rows = $wpdb->get_results(
-			$wpdb->prepare( "SELECT id, file_path FROM {$queue} ORDER BY id ASC LIMIT %d", self::FULL_BATCH_SIZE ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		);
-		if ( empty( $rows ) ) {
+		$status = $this->get_status();
+		if ( 'running' !== $status['state'] ) {
+			return;
+		}
+		if ( ! $this->acquire_lock() ) {
+			return; // Another request is processing a batch right now.
+		}
+
+		try {
+			$wait = $this->seconds_to_wait( $status );
+			if ( $wait > 0 ) {
+				$status['paused_until'] = time() + $wait;
+				$status['pause_reason'] = $this->last_wait_reason;
+				update_option( self::STATUS_OPTION, $status, false );
+				$this->schedule_batch( $wait );
+				return;
+			}
+			unset( $status['paused_until'], $status['pause_reason'] );
+
+			$queue = self::queue_table();
+			$rows  = $wpdb->get_results(
+				$wpdb->prepare( "SELECT id, file_path FROM {$queue} ORDER BY id ASC LIMIT %d", self::BATCH_MAX_ROWS ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			);
+			if ( empty( $rows ) ) {
+				update_option( self::STATUS_OPTION, $status, false );
+				$this->finish_full_scan();
+				return;
+			}
+
+			$since_last = time() - (int) ( $status['last_progress_at'] ?? 0 );
+			$read_cap   = $since_last >= self::SLOW_CRON_GAP ? PHP_INT_MAX : self::BATCH_MAX_FILES;
+
+			$started  = microtime( true );
+			$done     = 0;
+			$read     = 0;
+			$detected = array();
+			foreach ( $rows as $row ) {
+				if ( $done > 0 && ( $read >= $read_cap || microtime( true ) - $started >= self::BATCH_TIME_BUDGET ) ) {
+					break;
+				}
+				// Claimed before scanning: a file that fatals the scanner is skipped next time.
+				$wpdb->delete( $queue, array( 'id' => (int) $row->id ), array( '%d' ) );
+				++$done;
+
+				$finding = $this->scan_full_scan_file( (string) $row->file_path, ! empty( $status['deep'] ), $read );
+				if ( null !== $finding ) {
+					$detected[] = $finding;
+				}
+			}
+
+			$remaining = $this->queue_count();
+
+			$status['scanned']          = (int) ( $status['scanned'] ?? 0 ) + $done;
+			$status['read']             = (int) ( $status['read'] ?? 0 ) + $read;
+			$status['remaining']        = $remaining;
+			$status['detections']       = (int) ( $status['detections'] ?? 0 ) + count( $detected );
+			$status['last_progress_at'] = time();
+			update_option( self::STATUS_OPTION, $status, false );
+
+			if ( ! empty( $detected ) ) {
+				( new UploadGuardNotifier() )->notify( $detected );
+			}
+
+			if ( $remaining > 0 ) {
+				$this->schedule_batch( self::BATCH_GAP );
+				return;
+			}
+
 			$this->finish_full_scan();
-			return;
+		} finally {
+			$this->release_lock();
 		}
-
-		$last_id = (int) end( $rows )->id;
-		$wpdb->query( $wpdb->prepare( "DELETE FROM {$queue} WHERE id <= %d", $last_id ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-
-		$detected = array();
-		foreach ( $rows as $row ) {
-			$finding = $this->scan_full_scan_file( (string) $row->file_path );
-			if ( null !== $finding ) {
-				$detected[] = $finding;
-			}
-		}
-
-		$remaining = $this->queue_count();
-
-		$status                     = $this->get_status();
-		$status['scanned']          = (int) ( $status['scanned'] ?? 0 ) + count( $rows );
-		$status['remaining']        = $remaining;
-		$status['detections']       = (int) ( $status['detections'] ?? 0 ) + count( $detected );
-		$status['last_progress_at'] = time();
-		update_option( self::STATUS_OPTION, $status, false );
-
-		if ( ! empty( $detected ) ) {
-			( new UploadGuardNotifier() )->notify( $detected );
-		}
-
-		if ( $remaining > 0 ) {
-			if ( ! wp_next_scheduled( self::FULL_SCAN_EVENT ) ) {
-				wp_schedule_single_event( time() + 5, self::FULL_SCAN_EVENT );
-			}
-			return;
-		}
-
-		$this->finish_full_scan();
 	}
 
 	/**
-	 * Recover a full scan stuck in `running` - e.g. the chained event was lost
-	 * (cron cleared, fatal mid-batch, module toggled), or a pre-queue-table scan
-	 * whose worklist lived in the old option. Cheap: one option read when idle.
+	 * How long the run should wait before working (0 = go now).
 	 *
-	 * Acts only once nothing has progressed for STALL_TIMEOUT:
-	 *  - queue empty            -> finish (marked interrupted when the run never
-	 *                              progressed at all - the legacy worklist case)
-	 *  - stalled >= STALL_ABORT -> give up: mark interrupted, clear the queue
-	 *  - otherwise              -> reschedule the lost batch event
+	 * @param array $status Current run status.
+	 */
+	private function seconds_to_wait( array $status ): int {
+		$this->last_wait_reason = '';
+
+		if ( empty( $status['manual'] ) ) {
+			$until_window = $this->seconds_until_window();
+			if ( $until_window > 0 ) {
+				$this->last_wait_reason = 'window';
+				return $until_window;
+			}
+		}
+
+		$load = $this->server_load_ratio();
+		if ( null !== $load && $load > self::LOAD_PER_CORE ) {
+			$this->last_wait_reason = 'load';
+			return self::LOAD_RETRY;
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Seconds until this site's night window opens (0 = inside it now).
+	 */
+	public function seconds_until_window(): int {
+		$now  = time();
+		$open = self::window_open( new \DateTimeImmutable( 'today', wp_timezone() ) );
+
+		if ( $now >= $open && $now < $open + self::WINDOW_LENGTH ) {
+			return 0;
+		}
+		if ( $now >= $open + self::WINDOW_LENGTH ) {
+			$open = self::window_open( new \DateTimeImmutable( 'tomorrow', wp_timezone() ) );
+		}
+		return max( 60, $open - $now );
+	}
+
+	/**
+	 * When this site's window opens on the given day.
+	 */
+	private static function window_open( \DateTimeImmutable $day ): int {
+		return $day->setTime( self::WINDOW_START_HOUR, 0 )->getTimestamp() + self::site_offset();
+	}
+
+	/**
+	 * This site's start offset in seconds (stable, derived from its URL).
+	 */
+	public static function site_offset(): int {
+		return (int) ( crc32( home_url() ) % self::MAX_START_OFFSET );
+	}
+
+	/**
+	 * 1-minute load average per CPU core, or null where the host hides it.
+	 */
+	private function server_load_ratio(): ?float {
+		if ( ! function_exists( 'sys_getloadavg' ) ) {
+			return null;
+		}
+		$load = @sys_getloadavg(); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		if ( ! is_array( $load ) || ! isset( $load[0] ) ) {
+			return null;
+		}
+		return (float) $load[0] / max( 1, $this->cpu_cores() );
+	}
+
+	private function cpu_cores(): int {
+		$cores = (int) get_transient( 'uxstudio_security_cpu_cores' );
+		if ( $cores > 0 ) {
+			return $cores;
+		}
+		$cpuinfo = @file_get_contents( '/proc/cpuinfo' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$cores   = is_string( $cpuinfo ) ? (int) preg_match_all( '/^processor\s*:/m', $cpuinfo ) : 0;
+		$cores   = $cores > 0 ? $cores : 2; // Unknown (open_basedir, Windows): assume a small box.
+		set_transient( 'uxstudio_security_cpu_cores', $cores, DAY_IN_SECONDS );
+		return $cores;
+	}
+
+	private function schedule_batch( int $delay ): void {
+		wp_clear_scheduled_hook( self::FULL_SCAN_EVENT );
+		wp_schedule_single_event( time() + max( 1, $delay ), self::FULL_SCAN_EVENT );
+	}
+
+	/**
+	 * Atomic lock (add_option fails if the row exists); a stale lock older
+	 * than LOCK_TTL is taken over - its holder died mid-batch.
+	 */
+	private function acquire_lock(): bool {
+		if ( add_option( self::LOCK_OPTION, time(), '', false ) ) {
+			return true;
+		}
+		$since = (int) get_option( self::LOCK_OPTION, 0 );
+		if ( time() - $since < self::LOCK_TTL ) {
+			return false;
+		}
+		update_option( self::LOCK_OPTION, time(), false );
+		return true;
+	}
+
+	private function release_lock(): void {
+		delete_option( self::LOCK_OPTION );
+	}
+
+	/**
+	 * Recover a full scan stuck in `running` (lost event, fatal mid-batch,
+	 * module toggled). Cheap: one option read when idle.
+	 *  - paused on purpose (night window, load) -> leave it alone
+	 *  - running longer than MAX_RUN_TIME     -> end as interrupted
+	 *  - no progress for STALL_TIMEOUT        -> finish if the queue is empty,
+	 *                                            else reschedule the lost batch
 	 */
 	public function watchdog(): void {
 		$status = $this->get_status();
@@ -388,12 +684,19 @@ final class UploadGuardScanner {
 			return;
 		}
 
+		$started = (int) ( $status['started_ts'] ?? 0 );
+		if ( $started && time() - $started > self::MAX_RUN_TIME ) {
+			$this->abort_full_scan();
+			return;
+		}
+
+		$paused_until = (int) ( $status['paused_until'] ?? 0 );
+		if ( $paused_until > time() && wp_next_scheduled( self::FULL_SCAN_EVENT ) ) {
+			return;
+		}
+
 		$last     = (int) ( $status['last_progress_at'] ?? 0 );
 		$idle_for = $last ? time() - $last : PHP_INT_MAX;
-
-		// A batch takes seconds and the next one is chained 5s later, so recent
-		// progress means healthy - even if the event is momentarily unscheduled
-		// because WP-Cron is executing it right now (don't double-schedule).
 		if ( $idle_for < self::STALL_TIMEOUT ) {
 			return;
 		}
@@ -403,19 +706,14 @@ final class UploadGuardScanner {
 			return;
 		}
 
-		if ( $idle_for >= self::STALL_ABORT ) {
-			$this->abort_full_scan();
-			return;
-		}
-
 		if ( ! wp_next_scheduled( self::FULL_SCAN_EVENT ) ) {
-			wp_schedule_single_event( time() + 5, self::FULL_SCAN_EVENT );
+			$this->schedule_batch( 5 );
 		}
 	}
 
 	/**
 	 * End a running full scan without finishing it (module switched off,
-	 * hopelessly stalled). Keeps the last-run stats untouched.
+	 * over MAX_RUN_TIME). Keeps the last-run stats untouched.
 	 */
 	public function abort_full_scan(): void {
 		$status = $this->get_status();
@@ -435,7 +733,9 @@ final class UploadGuardScanner {
 		$status                = $this->get_status();
 		$status['state']       = 'idle';
 		$status['finished_at'] = current_time( 'mysql' );
+		$status['finished_ts'] = time();
 		$status['interrupted'] = $interrupted;
+		unset( $status['paused_until'], $status['pause_reason'] );
 		update_option( self::STATUS_OPTION, $status, false );
 		$this->clear_queue();
 		delete_option( self::LEGACY_WORKLIST_OPTION );
@@ -450,6 +750,8 @@ final class UploadGuardScanner {
 			array(
 				'last_scan_at'     => current_time( 'mysql' ),
 				'files_scanned'    => $status['scanned'] ?? 0,
+				'files_read'       => $status['read'] ?? 0,
+				'deep'             => ! empty( $status['deep'] ),
 				'detections_found' => $status['detections'] ?? 0,
 			),
 			false
@@ -519,38 +821,47 @@ final class UploadGuardScanner {
 	}
 
 	/**
-	 * Scan a single file found during the full wp-content walk. Skips
-	 * unchanged files via the shared hash cache and never quarantines
-	 * automatically outside of 'critical' severity.
+	 * Scan a single file found during the full walk. Report only - never
+	 * touches the file. A file whose size and modification time match the
+	 * cache is skipped without being read at all (unless $deep); a file whose
+	 * content hash matches is skipped without analysis.
 	 *
+	 * @param int $read Incremented when the file content had to be read.
 	 * @return array|null Finding data if a detection was recorded, else null.
 	 */
-	private function scan_full_scan_file( string $file_path ): ?array {
+	private function scan_full_scan_file( string $file_path, bool $deep, int &$read ): ?array {
 		global $wpdb;
 
-		if ( ! file_exists( $file_path ) ) {
+		$stat = @stat( $file_path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		if ( false === $stat ) {
 			return null;
 		}
-		$size = (int) filesize( $file_path );
+		$size  = (int) $stat['size'];
+		$mtime = (int) $stat['mtime'];
 		if ( $size <= 0 || $size > self::MAX_FILE_SIZE ) {
 			return null;
 		}
 
+		if ( ! $deep && $this->is_stat_unchanged( $file_path, $size, $mtime ) ) {
+			return null;
+		}
+
+		++$read;
 		$hash = hash_file( 'sha256', $file_path );
 		if ( false === $hash ) {
 			return null;
 		}
 
 		if ( $this->is_hash_cleared( $file_path, $hash ) ) {
+			$this->cache_hash( $file_path, $hash, $size, $mtime );
 			return null;
 		}
 
-		$extension = strtolower( pathinfo( $file_path, PATHINFO_EXTENSION ) );
-		$result    = $this->engine->scan( $file_path, $extension );
+		$result = $this->evaluate( $file_path );
 
-		$this->cache_hash( $file_path, $hash );
+		$this->cache_hash( $file_path, $hash, $size, $mtime );
 
-		if ( $result['score'] <= 0 || 'low' === $result['severity'] ) {
+		if ( null === $result ) {
 			return null;
 		}
 
@@ -562,25 +873,9 @@ final class UploadGuardScanner {
 			'severity'     => $result['severity'],
 			'hash'         => $hash,
 			'status'       => 'scanned',
-			'details'      => wp_json_encode(
-				array(
-					'score'   => $result['score'],
-					'matches' => array_slice( $result['matches'], 0, 25 ),
-					'source'  => 'fullscan',
-				)
-			),
+			'details'      => wp_json_encode( array_merge( $result['details'], array( 'source' => 'fullscan' ) ) ),
 			'scanned_at'   => current_time( 'mysql' ),
 		);
-
-		if ( 'critical' === $result['severity'] && $this->auto_quarantine_enabled() ) {
-			$quarantine = UploadGuardQuarantine::quarantine_file( $file_path, 'fs' . time() . wp_generate_password( 6, false ) );
-			if ( ! empty( $quarantine['success'] ) ) {
-				$data['status']              = 'quarantined';
-				$decoded                     = json_decode( $data['details'], true );
-				$decoded['quarantine_path']  = $quarantine['quarantine_path'];
-				$data['details']             = wp_json_encode( $decoded );
-			}
-		}
 
 		$wpdb->insert( $table, $data, array( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ) );
 
@@ -588,52 +883,75 @@ final class UploadGuardScanner {
 	}
 
 	/**
-	 * Build a bounded list of candidate files under wp-content, excluding
-	 * the quarantine directory itself.
+	 * Build a bounded list of candidate files, most suspicious places first:
+	 * uploads (where no PHP belongs), mu-plugins, wp-content root drop-ins,
+	 * then plugins and themes. Never walks other wp-content folders (cache,
+	 * upgrade, backups...) and prunes excluded folders (our own plugins,
+	 * vendor/node_modules...) without descending into them.
 	 *
 	 * @return string[]
 	 */
 	private function build_worklist(): array {
-		$root = wp_normalize_path( WP_CONTENT_DIR );
-		if ( ! is_dir( $root ) ) {
-			return array();
-		}
+		$uploads = wp_upload_dir( null, false );
+		$roots   = array_filter(
+			array(
+				empty( $uploads['basedir'] ) ? '' : $uploads['basedir'],
+				WPMU_PLUGIN_DIR,
+				WP_PLUGIN_DIR,
+				get_theme_root(),
+			)
+		);
 
-		$extensions     = self::relevant_extensions();
-		$quarantine_dir = wp_normalize_path( UploadGuardQuarantine::get_path() );
-		$files          = array();
+		$files = $this->root_php_files( WP_CONTENT_DIR );
 
-		try {
-			$iterator = new \RecursiveIteratorIterator(
-				new \RecursiveDirectoryIterator( $root, \RecursiveDirectoryIterator::SKIP_DOTS )
-			);
-		} catch ( \Throwable $e ) {
-			return array();
-		}
-
-		foreach ( $iterator as $file_info ) {
-			if ( count( $files ) >= self::MAX_WORKLIST ) {
-				break;
-			}
-			if ( ! $file_info->isFile() ) {
+		foreach ( $roots as $root ) {
+			$root = wp_normalize_path( (string) $root );
+			if ( ! is_dir( $root ) ) {
 				continue;
 			}
+			$area = UploadGuardScope::area( $root . '/x' );
 
-			$path = wp_normalize_path( $file_info->getPathname() );
-			if ( $quarantine_dir && 0 === strpos( $path, $quarantine_dir ) ) {
-				continue;
+			try {
+				$iterator = new \RecursiveIteratorIterator(
+					new \RecursiveCallbackFilterIterator(
+						new \RecursiveDirectoryIterator( $root, \RecursiveDirectoryIterator::SKIP_DOTS ),
+						// Name-only check, no stat: isDir() per entry costs ~1 ms on
+						// some filesystems and uploads easily hold 60k+ images.
+						static function ( \SplFileInfo $item ): bool {
+							return ! UploadGuardScope::is_excluded_dir( $item->getPathname() );
+						}
+					)
+				);
+				foreach ( $iterator as $file_info ) {
+					if ( count( $files ) >= self::MAX_WORKLIST ) {
+						break 2;
+					}
+					$path = wp_normalize_path( $file_info->getPathname() );
+					if ( UploadGuardScope::is_relevant( $path, $area ) && ! UploadGuardScope::is_excluded( $path ) && $file_info->isFile() ) {
+						$files[] = $path;
+					}
+				}
+			} catch ( \Throwable $e ) {
+				continue; // Unreadable folder: scan the rest.
 			}
-
-			$ext = strtolower( $file_info->getExtension() );
-			if ( 'zip' === $ext || ! in_array( $ext, $extensions, true ) ) {
-				// ZIP archives are only scanned when uploaded (queue path); a
-				// full-tree ZIP scan is too expensive to run unattended.
-				continue;
-			}
-
-			$files[] = $path;
 		}
 
+		return array_slice( array_values( array_unique( $files ) ), 0, self::MAX_WORKLIST );
+	}
+
+	/**
+	 * PHP files directly in a folder (drop-ins in wp-content), not recursive.
+	 *
+	 * @return string[]
+	 */
+	private function root_php_files( string $dir ): array {
+		$files = array();
+		foreach ( glob( trailingslashit( $dir ) . '*' ) ?: array() as $path ) {
+			$path = wp_normalize_path( $path );
+			if ( is_file( $path ) && in_array( strtolower( pathinfo( $path, PATHINFO_EXTENSION ) ), UploadGuardScope::PHP_EXTENSIONS, true ) ) {
+				$files[] = $path;
+			}
+		}
 		return $files;
 	}
 
@@ -655,9 +973,19 @@ final class UploadGuardScanner {
 	}
 
 	/**
+	 * Same size and modification time as when the file was last hashed.
+	 */
+	private function is_stat_unchanged( string $file_path, int $size, int $mtime ): bool {
+		global $wpdb;
+		$table = $wpdb->prefix . 'uxstudio_security_file_hashes';
+		$row   = $wpdb->get_row( $wpdb->prepare( "SELECT file_size, file_mtime FROM {$table} WHERE file_path = %s", $file_path ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		return $row && $mtime > 0 && (int) $row->file_size === $size && (int) $row->file_mtime === $mtime;
+	}
+
+	/**
 	 * Upsert the scan-time hash cache for a file.
 	 */
-	private function cache_hash( string $file_path, string $hash ): void {
+	private function cache_hash( string $file_path, string $hash, int $size = 0, int $mtime = 0 ): void {
 		global $wpdb;
 		$table = $wpdb->prefix . 'uxstudio_security_file_hashes';
 
@@ -667,10 +995,12 @@ final class UploadGuardScanner {
 				$table,
 				array(
 					'hash'       => $hash,
+					'file_size'  => $size,
+					'file_mtime' => $mtime,
 					'updated_at' => current_time( 'mysql' ),
 				),
 				array( 'file_path' => $file_path ),
-				array( '%s', '%s' ),
+				array( '%s', '%d', '%d', '%s' ),
 				array( '%s' )
 			);
 			return;
@@ -681,10 +1011,12 @@ final class UploadGuardScanner {
 			array(
 				'file_path'  => $file_path,
 				'hash'       => $hash,
+				'file_size'  => $size,
+				'file_mtime' => $mtime,
 				'approved'   => 0,
 				'updated_at' => current_time( 'mysql' ),
 			),
-			array( '%s', '%s', '%d', '%s' )
+			array( '%s', '%s', '%d', '%d', '%d', '%s' )
 		);
 	}
 
@@ -693,11 +1025,39 @@ final class UploadGuardScanner {
 	 * ========================================================== */
 
 	/**
-	 * Nightly: drain any stuck queue, run the full scan, check integrity.
+	 * Nightly (at this site's slot in the window): drain any stuck upload
+	 * queue, check the few key files, and start a full scan only when one is
+	 * due by the schedule setting.
 	 */
 	public function run_daily_cron(): void {
 		$this->run_queue_batch();
-		$this->trigger_full_scan();
 		( new UploadGuardIntegrityChecker() )->run();
+		if ( $this->full_scan_due() ) {
+			$this->trigger_full_scan( false );
+		}
+	}
+
+	/**
+	 * Is an automatic full scan due? `upload_guard_schedule`: weekly (default),
+	 * daily, or manual (never automatic). A margin of 2 h keeps a daily cron
+	 * that drifts a little from skipping a day.
+	 */
+	private function full_scan_due(): bool {
+		$settings = (array) get_option( 'uxstudio_security_optimization', array() );
+		$schedule = (string) ( $settings['upload_guard_schedule'] ?? 'weekly' );
+		if ( 'manual' === $schedule ) {
+			return false;
+		}
+		$interval = 'daily' === $schedule ? DAY_IN_SECONDS : WEEK_IN_SECONDS;
+		$runs     = get_option( self::AUTO_RUNS_OPTION, array() );
+		$last     = is_array( $runs ) ? (int) ( $runs['last'] ?? 0 ) : 0;
+		return time() - $last >= $interval - 2 * HOUR_IN_SECONDS;
+	}
+
+	/**
+	 * Timestamp of this site's next nightly slot (window start + site offset).
+	 */
+	public static function next_nightly_slot(): int {
+		return self::window_open( new \DateTimeImmutable( 'tomorrow', wp_timezone() ) );
 	}
 }

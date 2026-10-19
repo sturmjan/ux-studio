@@ -40,6 +40,11 @@ final class Module extends BaseModule {
 		add_action( 'admin_post_' . self::ACTION, array( $this, 'handle_download' ) );
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 
+		// Single-post export from the edit screen (classic metabox + block editor panel).
+		add_action( 'add_meta_boxes', array( $this, 'add_meta_box' ), 10, 2 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_classic_assets' ) );
+		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ) );
+
 		foreach ( $this->get_post_types() as $post_type ) {
 			add_filter( "bulk_actions-edit-{$post_type->name}", array( $this, 'add_bulk_actions' ) );
 			add_filter( "handle_bulk_actions-edit-{$post_type->name}", array( $this, 'handle_bulk_export' ), 10, 3 );
@@ -59,6 +64,148 @@ final class Module extends BaseModule {
 	 */
 	public function rest_controller(): ?string {
 		return RestController::class;
+	}
+
+	/**
+	 * Names of exportable post types.
+	 *
+	 * @return string[]
+	 */
+	private function get_post_type_names(): array {
+		return array_map( static fn ( $post_type ): string => (string) $post_type->name, $this->get_post_types() );
+	}
+
+	/**
+	 * Add the "Export Post" metabox to the classic editor.
+	 *
+	 * @param string $post_type Post type.
+	 */
+	public function add_meta_box( $post_type ): void {
+		if ( array() === $this->enabled_types() || ! in_array( $post_type, $this->get_post_type_names(), true ) ) {
+			return;
+		}
+
+		$screen = get_current_screen();
+		if ( $screen && method_exists( $screen, 'is_block_editor' ) && $screen->is_block_editor() ) {
+			return; // Block editor uses the post status panel instead.
+		}
+
+		add_meta_box(
+			'uxstudio-export-posts',
+			__( 'Export Post', 'ux-studio' ),
+			array( $this, 'render_meta_box' ),
+			$post_type,
+			'side',
+			'high'
+		);
+	}
+
+	/**
+	 * Render the classic editor metabox (format select + export button).
+	 *
+	 * @param WP_Post $post Current post.
+	 */
+	public function render_meta_box( $post ): void {
+		if ( ! $post instanceof WP_Post || ! current_user_can( 'edit_post', $post->ID ) ) {
+			return;
+		}
+		?>
+		<div class="uxstudio-export-posts">
+			<select class="uxstudio-export-posts__select" aria-label="<?php esc_attr_e( 'Export post', 'ux-studio' ); ?>">
+				<option value=""><?php esc_html_e( 'Select Type', 'ux-studio' ); ?></option>
+				<?php foreach ( $this->enabled_types() as $type ) : ?>
+					<option value="<?php echo esc_attr( $type ); ?>"><?php echo esc_html( strtoupper( $type ) ); ?></option>
+				<?php endforeach; ?>
+			</select>
+			<button type="button" class="button uxstudio-export-posts__button"><?php esc_html_e( 'Export', 'ux-studio' ); ?></button>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Data handed to the edit-screen scripts.
+	 *
+	 * @param int $post_id Current post ID.
+	 * @return array<string, mixed>
+	 */
+	private function script_data( int $post_id ): array {
+		return array(
+			'adminPostUrl' => admin_url( 'admin-post.php' ),
+			'action'       => self::ACTION,
+			'nonce'        => wp_create_nonce( self::ACTION ),
+			'postId'       => $post_id,
+			'types'        => $this->enabled_types(),
+			'i18n'         => array(
+				'selectType'    => __( 'Select Type', 'ux-studio' ),
+				'confirmExport' => __( 'Are you sure you want to export this post?', 'ux-studio' ),
+				'exporting'     => __( 'Exporting...', 'ux-studio' ),
+				'export'        => __( 'Export', 'ux-studio' ),
+				'ariaLabel'     => __( 'Export post', 'ux-studio' ),
+			),
+		);
+	}
+
+	/**
+	 * Post ID of the edited post when the export UI may be shown.
+	 *
+	 * @return int Post ID, or 0 when the UI must not be shown.
+	 */
+	private function exportable_edit_post_id(): int {
+		$post = get_post();
+		if ( ! $post instanceof WP_Post || 'auto-draft' === $post->post_status || array() === $this->enabled_types() ) {
+			return 0;
+		}
+		if ( ! in_array( $post->post_type, $this->get_post_type_names(), true ) || ! current_user_can( 'edit_post', $post->ID ) ) {
+			return 0;
+		}
+		return (int) $post->ID;
+	}
+
+	/**
+	 * Classic editor script (metabox button).
+	 *
+	 * @param string $hook Admin page hook.
+	 */
+	public function enqueue_classic_assets( $hook ): void {
+		if ( 'post.php' !== $hook ) {
+			return;
+		}
+		$screen = get_current_screen();
+		if ( $screen && method_exists( $screen, 'is_block_editor' ) && $screen->is_block_editor() ) {
+			return;
+		}
+		$post_id = $this->exportable_edit_post_id();
+		if ( ! $post_id ) {
+			return;
+		}
+
+		wp_enqueue_script(
+			'uxstudio-export-posts-classic',
+			UXSTUDIO_URL . 'includes/Modules/ExportPosts/assets/export-post-classic.js',
+			array(),
+			defined( 'UXSTUDIO_VERSION' ) ? UXSTUDIO_VERSION : false,
+			true
+		);
+		wp_localize_script( 'uxstudio-export-posts-classic', 'uxStudioExportPost', $this->script_data( $post_id ) );
+	}
+
+	/**
+	 * Block editor script (post status panel).
+	 */
+	public function enqueue_block_editor_assets(): void {
+		$post_id = $this->exportable_edit_post_id();
+		if ( ! $post_id ) {
+			return;
+		}
+
+		wp_enqueue_script(
+			'uxstudio-export-posts-editor',
+			UXSTUDIO_URL . 'includes/Modules/ExportPosts/assets/export-post-editor.js',
+			array( 'wp-plugins', 'wp-edit-post', 'wp-editor', 'wp-element', 'wp-components', 'wp-data' ),
+			defined( 'UXSTUDIO_VERSION' ) ? UXSTUDIO_VERSION : false,
+			true
+		);
+		wp_localize_script( 'uxstudio-export-posts-editor', 'uxStudioExportPost', $this->script_data( $post_id ) );
 	}
 
 	/**

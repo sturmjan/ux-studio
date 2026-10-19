@@ -1,0 +1,10 @@
+{
+	"id": "reviews",
+	"name": "Reviews",
+	"description": "Show reviews collected from Google, Mapy.cz and other platforms, and ask customers for a Google review. Each part can be switched on separately.",
+	"group": "content",
+	"icon": "star",
+	"settings": true,
+	"virtual": true,
+	"children": [ "review-aggregator", "google-review-request" ]
+}
