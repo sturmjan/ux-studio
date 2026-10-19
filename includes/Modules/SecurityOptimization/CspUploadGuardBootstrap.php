@@ -34,7 +34,7 @@ final class CspUploadGuardBootstrap {
 	private const DB_VERSION   = 4;
 
 	/** Bump when the nightly slot logic changes, so existing events move. */
-	private const CRON_SLOT_VERSION = 2;
+	private const CRON_SLOT_VERSION = 3;
 
 	private static bool $registered = false;
 

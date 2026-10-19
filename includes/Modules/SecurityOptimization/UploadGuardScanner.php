@@ -69,9 +69,25 @@ final class UploadGuardScanner {
 	/** Pause between batches, in seconds. */
 	private const BATCH_GAP = 30;
 
-	/** Automatic runs only work between these hours (site time zone). */
+	/**
+	 * WP-Cron only runs when the site gets a request (or a server cron calls
+	 * it, often every 5 min), so the real gap can be far longer than
+	 * BATCH_GAP. When the previous batch ended at least this long ago, the
+	 * 40-file cap is lifted and only the time budget limits the batch: with
+	 * a 5-minute cron that is ~8 s of work per 5 min (~3 % of one core), and
+	 * a deep run still fits into a night or two instead of a week.
+	 */
+	private const SLOW_CRON_GAP = 2 * MINUTE_IN_SECONDS;
+
+	/**
+	 * Automatic runs only work in a night window (site time zone): it opens
+	 * at WINDOW_START_HOUR + this site's offset (0..MAX_START_OFFSET, from
+	 * its URL) and stays open WINDOW_LENGTH - every site gets the same length,
+	 * sites on one server start at different times.
+	 */
 	private const WINDOW_START_HOUR = 1;
-	private const WINDOW_END_HOUR   = 6;
+	private const MAX_START_OFFSET  = 2 * HOUR_IN_SECONDS;
+	private const WINDOW_LENGTH     = 4 * HOUR_IN_SECONDS;
 
 	/** Server load above (CPU cores x this) postpones the next batch. */
 	private const LOAD_PER_CORE = 1.0;
@@ -83,8 +99,12 @@ final class UploadGuardScanner {
 	/** Every Nth automatic run re-reads unchanged files too (mtime can be faked). */
 	private const DEEP_EVERY = 4;
 
-	/** A run not finished within this time is ended as interrupted. */
-	private const MAX_RUN_TIME = 7 * DAY_IN_SECONDS;
+	/**
+	 * A run not finished within this time is ended as interrupted. Generous:
+	 * a deep run on a site whose cron fires only every few minutes may need
+	 * several nights. A weekly run never starts while the previous one runs.
+	 */
+	private const MAX_RUN_TIME = 14 * DAY_IN_SECONDS;
 
 	/** One batch at a time: two WP-Cron requests must not process in parallel. */
 	private const LOCK_OPTION = 'uxstudio_security_scan_lock';
@@ -460,8 +480,9 @@ final class UploadGuardScanner {
 	/**
 	 * Process one batch of the full-scan queue, then schedule the next one
 	 * BATCH_GAP seconds later. A batch stops after reading BATCH_MAX_FILES
-	 * files or after BATCH_TIME_BUDGET seconds; unchanged files only cost a
-	 * stat(), so a quick run gets through thousands per batch. Outside the night window (automatic runs) or
+	 * files (lifted when cron runs rarely, see SLOW_CRON_GAP) or after
+	 * BATCH_TIME_BUDGET seconds; unchanged files only cost a stat(), so a
+	 * quick run gets through thousands per batch. Outside the night window (automatic runs) or
 	 * under high server load it does nothing and reschedules itself later.
 	 * Each row is deleted BEFORE its file is scanned, so a file that fatals
 	 * the scanner is skipped next time instead of wedging the run.
@@ -498,12 +519,15 @@ final class UploadGuardScanner {
 				return;
 			}
 
+			$since_last = time() - (int) ( $status['last_progress_at'] ?? 0 );
+			$read_cap   = $since_last >= self::SLOW_CRON_GAP ? PHP_INT_MAX : self::BATCH_MAX_FILES;
+
 			$started  = microtime( true );
 			$done     = 0;
 			$read     = 0;
 			$detected = array();
 			foreach ( $rows as $row ) {
-				if ( $done > 0 && ( $read >= self::BATCH_MAX_FILES || microtime( true ) - $started >= self::BATCH_TIME_BUDGET ) ) {
+				if ( $done > 0 && ( $read >= $read_cap || microtime( true ) - $started >= self::BATCH_TIME_BUDGET ) ) {
 					break;
 				}
 				// Claimed before scanning: a file that fatals the scanner is skipped next time.
@@ -566,32 +590,33 @@ final class UploadGuardScanner {
 	}
 
 	/**
-	 * Seconds until the night window opens (0 = inside it now). Each site
-	 * gets its own start inside the window, derived from its URL, so sites
-	 * sharing one server do not all start at the same minute.
+	 * Seconds until this site's night window opens (0 = inside it now).
 	 */
 	public function seconds_until_window(): int {
-		$now   = new \DateTimeImmutable( 'now', wp_timezone() );
-		$hour  = (int) $now->format( 'G' );
-		$open  = $now->setTime( self::WINDOW_START_HOUR, 0 )->getTimestamp() + self::site_offset();
-		$close = $now->setTime( self::WINDOW_END_HOUR, 0 )->getTimestamp();
+		$now  = time();
+		$open = self::window_open( new \DateTimeImmutable( 'today', wp_timezone() ) );
 
-		if ( $now->getTimestamp() >= $open && $now->getTimestamp() < $close ) {
+		if ( $now >= $open && $now < $open + self::WINDOW_LENGTH ) {
 			return 0;
 		}
-		if ( $hour >= self::WINDOW_END_HOUR ) {
-			$open += DAY_IN_SECONDS; // Window already over today: tomorrow night.
+		if ( $now >= $open + self::WINDOW_LENGTH ) {
+			$open = self::window_open( new \DateTimeImmutable( 'tomorrow', wp_timezone() ) );
 		}
-		return max( 60, $open - $now->getTimestamp() );
+		return max( 60, $open - $now );
 	}
 
 	/**
-	 * This site's start offset within the window, in seconds (stable).
-	 * Leaves the last hour of the window for the run itself.
+	 * When this site's window opens on the given day.
+	 */
+	private static function window_open( \DateTimeImmutable $day ): int {
+		return $day->setTime( self::WINDOW_START_HOUR, 0 )->getTimestamp() + self::site_offset();
+	}
+
+	/**
+	 * This site's start offset in seconds (stable, derived from its URL).
 	 */
 	public static function site_offset(): int {
-		$span = ( self::WINDOW_END_HOUR - self::WINDOW_START_HOUR - 1 ) * HOUR_IN_SECONDS;
-		return $span > 0 ? (int) ( crc32( home_url() ) % $span ) : 0;
+		return (int) ( crc32( home_url() ) % self::MAX_START_OFFSET );
 	}
 
 	/**
@@ -1033,7 +1058,6 @@ final class UploadGuardScanner {
 	 * Timestamp of this site's next nightly slot (window start + site offset).
 	 */
 	public static function next_nightly_slot(): int {
-		$tomorrow = new \DateTimeImmutable( 'tomorrow', wp_timezone() );
-		return $tomorrow->setTime( self::WINDOW_START_HOUR, 0 )->getTimestamp() + self::site_offset();
+		return self::window_open( new \DateTimeImmutable( 'tomorrow', wp_timezone() ) );
 	}
 }

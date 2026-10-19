@@ -893,7 +893,7 @@ final class Module extends BaseModule {
 				'key'     => 'upload_guard_schedule',
 				'type'    => 'select',
 				'label'   => __( 'Full scan frequency', 'ux-studio' ),
-				'help'    => __( 'Automatic full scans run only at night (01:00-06:00 site time, each site at its own minute), in small batches with pauses, and wait when the server is busy. Unchanged files are skipped without being read; every 4th run reads everything. New uploads are always checked right away.', 'ux-studio' ),
+				'help'    => __( 'Automatic full scans run only at night, in a 4-hour window starting between 01:00 and 03:00 site time (different for each site), in small batches with pauses, and wait when the server is busy. Unchanged files are skipped without being read; every 4th run reads everything. New uploads are always checked right away.', 'ux-studio' ),
 				'options' => array(
 					'weekly' => __( 'Weekly (recommended)', 'ux-studio' ),
 					'daily'  => __( 'Daily', 'ux-studio' ),

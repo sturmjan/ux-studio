@@ -1608,8 +1608,9 @@ zátěže), ruční „Skenovat nyní" bez omezení.
 **Pravidla teď** (konstanty v `UploadGuardScanner`, frekvence v nastavení):
 - [x] Frekvence `upload_guard_schedule`: týdně (výchozí) / denně / jen ručně. Denní cron dál
       kontroluje upload frontu a integritu klíčových souborů (pár souborů), plný sken jen když je na řadě.
-- [x] Noční okno 01:00-06:00 času webu; každý web má vlastní posun startu z `crc32(home_url)`
-      (0-4 h), aby se weby na jednom serveru nepotkaly. Mimo okno se automatický běh pozastaví
+- [x] Noční okno 4 h podle času webu se startem 01:00 + posun z `crc32(home_url)` (0-2 h), tedy
+      konec nejpozději 07:00; každý web má stejně dlouhé okno (původní 01-06 h s posunem okno
+      zkracovalo až na 1 h), weby na jednom serveru se nepotkají. Mimo okno se automatický běh pozastaví
       a pokračuje další noc. Staré události (03:00 UTC) se jednou přeplánují.
 - [x] Dávka: max 40 PŘEČTENÝCH souborů nebo 8 s práce; kontrola nezměněného souboru (jen `stat()`)
       se nepočítá. Pauza 30 s mezi dávkami (dřív 5 s).
@@ -1618,9 +1619,24 @@ zátěže), ruční „Skenovat nyní" bez omezení.
       běh a každý ruční je hloubkový (čte vše) - pojistka proti podvrženému mtime.
 - [x] Ruční sken: kdykoli (i ve dne), ale max 1× za hodinu (REST 429 s počtem minut).
 - [x] Zámek přes `add_option`: dvě souběžné dávky (dva požadavky WP-Cronu) nepoběží; zámek
-      po pádu vyprší za 2 min. Běh delší než 7 dní se ukončí jako přerušený.
+      po pádu vyprší za 2 min. Běh delší než 14 dní se ukončí jako přerušený (hloubkový běh při
+      cronu á 5 min může potřebovat víc nocí; týdenní běh se nespustí, dokud běží předchozí).
 - [x] Kontrolní součty WordPress.org: cache 30 dní (data vydané verze se nemění).
 - [x] UI ukazuje „čeká na noční okno / server je vytížený, pokračuje <čas>" a hlášku cooldownu.
+
+**Kdo to řídí:** každý web sám přes svůj WP-Cron (žádný centrální orchestrátor). WP-Cron běží jen
+při požadavku na web nebo ze serverového cronu (Cron Control „externí" typicky á 5 min), takže 30 s
+je jen minimum. Při cronu á 5 min by hloubkový běh po 40 souborech trval přes 6 nocí.
+- [x] `SLOW_CRON_GAP`: když od předchozí dávky uběhly ≥ 2 min, limit 40 přečtených souborů neplatí
+      a dávku omezuje jen 8 s práce (~3 % jednoho jádra při cronu á 5 min). Simulace na lokálu
+      (Windows, pomalé čtení ~87 souborů/8 s): hloubkový běh při cronu á 5 min 377 → 170 dávek
+      (~14 h čistého času, tj. 3-4 noci); na Linuxovém hostingu výrazně rychleji.
+- [ ] **Centrální řízení z CA (návrh, neimplementováno):** Cron Control už má režim „řízeno
+      centrální aplikací" (CA volá wp-cron.php). CA zná, které weby sdílí server (např. ns318721),
+      a mohla by plné skeny celé flotily řadit tak, aby na jednom serveru běžel vždy jen jeden web.
+      Potřeba: v CA fronta skenů po serverech + endpoint v UX Studiu „spusť/pokračuj v dávce" s
+      podpisem (`Core\Broker` HMAC), web pak vlastní noční slot nepoužije. Jednotlivý web tohle sám
+      zajistit neumí - o ostatních webech na serveru neví.
 
 Změřeno na lokálu (15 077 souborů): hloubkový běh 377 dávek, nejdelší 6,1 s; rychlý běh
 16 dávek, nejdelší 0,6 s, 0 přečtených souborů (~7 min i s pauzami); automatický běh ve dne
