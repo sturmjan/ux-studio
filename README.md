@@ -25,6 +25,17 @@ npm run build      # production build into build/
 - `AUDIT.md` - audit of all legacy modules + data migration map
 - `languages/README.md` - translation workflow
 
+## REST API restriction and public routes
+With *Security - Access Control > Restrict REST API to logged-in users* on,
+anonymous requests get `uxstudio_rest_forbidden` (401) for the whole REST API,
+except UX Studio's own public endpoints and the route prefixes in the
+`uxstudio_rest_public_routes` filter. `/complianz/v1/` is public by default:
+the Complianz cookie banner calls it as an anonymous visitor (`/banner`,
+`/manage_consent_html`, `/documents`, `/track`, `/store_cookies`), so locking it
+breaks the banner and consent is never stored. Core routes such as
+`/wp/v2/users` stay closed. Add or remove prefixes with the filter, which
+receives the defaults as its initial value.
+
 ## Module anatomy
 See DESIGN.md §7. A module is `includes/Modules/<Id>/` with `meta.json` +
 `Module.php` (extends `BaseModule`); optional REST controller and optional

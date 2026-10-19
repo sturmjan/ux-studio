@@ -170,7 +170,10 @@ final class Repository {
 	/**
 	 * Absolute URL a rule sends the visitor to ('' for 410). Post-bound
 	 * rules follow the post's current permalink, so a later slug change
-	 * never creates a chain.
+	 * never creates a chain - but only while that permalink is a real one.
+	 * Engine may run before a custom post type is registered; then the
+	 * permalink would be the plain "/?p=ID" and the visitor would be sent
+	 * through a second 301, so the stored (pretty) target is used instead.
 	 *
 	 * @param array<string, mixed> $rule    Rule row.
 	 * @param array<int, string>   $matches Regex captures for $1..$9.
@@ -180,14 +183,17 @@ final class Repository {
 			return '';
 		}
 		$post_id = (int) $rule['target_post_id'];
+		$target  = (string) $rule['target'];
 		if ( $post_id > 0 && 'publish' === get_post_status( $post_id ) ) {
-			$permalink = get_permalink( $post_id );
-			if ( is_string( $permalink ) && '' !== $permalink ) {
-				return $permalink;
+			$permalink = self::pretty_permalink( $post_id );
+			if ( '' !== $permalink ) {
+				// Rules saved before anchors were kept out of post binding
+				// still carry their "#fragment" in the stored target.
+				$fragment = (string) wp_parse_url( $target, PHP_URL_FRAGMENT );
+				return '' !== $fragment && ! str_contains( $permalink, '#' ) ? $permalink . '#' . $fragment : $permalink;
 			}
 		}
 
-		$target = (string) $rule['target'];
 		if ( $matches && str_contains( $target, '$' ) ) {
 			$target = (string) preg_replace_callback(
 				'~\$(\d)~',
@@ -200,6 +206,24 @@ final class Repository {
 			}
 		}
 		return Url::absolute( $target );
+	}
+
+	/**
+	 * Permalink of a post, or '' when it is not final yet: the post type is
+	 * not registered (yet) or WordPress falls back to the plain "?p=ID" form.
+	 *
+	 * @param int $post_id Post id.
+	 */
+	private static function pretty_permalink( int $post_id ): string {
+		$post = get_post( $post_id );
+		if ( ! $post || ! post_type_exists( $post->post_type ) ) {
+			return '';
+		}
+		$permalink = get_permalink( $post );
+		if ( ! is_string( $permalink ) || '' === $permalink || str_contains( $permalink, '?p=' ) || str_contains( $permalink, '&p=' ) ) {
+			return '';
+		}
+		return $permalink;
 	}
 
 	/**
@@ -435,9 +459,11 @@ final class Repository {
 		}
 
 		// Same-host target pointing at a post: bind to the post so the rule
-		// follows future slug changes (one hop forever).
+		// follows future slug changes (one hop forever). A target with an
+		// anchor or query ("/#kontakt", "/shop/?x=1") stays a plain text
+		// target - the post permalink would drop that part.
 		$is_template = 'regex' === $match_type && str_contains( $target, '$' );
-		if ( ! $errors && 0 === $post_id && '' !== $target && Url::is_internal( $target ) && ! $is_template ) {
+		if ( ! $errors && 0 === $post_id && '' !== $target && ! str_contains( $target, '#' ) && ! str_contains( $target, '?' ) && Url::is_internal( $target ) && ! $is_template ) {
 			$found = url_to_postid( Url::absolute( $target ) );
 			if ( $found > 0 && 'publish' === get_post_status( $found ) && Url::target_key( (string) get_permalink( $found ) ) === Url::target_key( $target ) ) {
 				$post_id = $found;

@@ -12,7 +12,9 @@ use UxStudio\Core\Settings;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Runs on `init` (before WordPress resolves the request), so a rule wins even
+ * Runs late on `init` (priority 99: after custom post types and taxonomies
+ * are registered, so post-bound targets resolve to their pretty permalink,
+ * but still before WordPress resolves the request), so a rule wins even
  * when the old URL would now render something. Only plain front-end GET/HEAD
  * requests are touched - never admin, REST, AJAX, cron, login or POSTs (a
  * 301 on a POST would drop the body).
@@ -51,7 +53,7 @@ final class Engine {
 	 * Hook into the request.
 	 */
 	public function register(): void {
-		add_action( 'init', array( $this, 'maybe_redirect' ), 1 );
+		add_action( 'init', array( $this, 'maybe_redirect' ), 99 );
 	}
 
 	/**
