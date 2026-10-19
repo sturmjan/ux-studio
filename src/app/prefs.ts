@@ -21,17 +21,3 @@ export function setTheme( theme: Theme ): void {
 export function apply( theme: Theme = getTheme() ): void {
 	document.getElementById( 'ux-studio-root' )?.setAttribute( 'data-theme', theme );
 }
-
-/** Module grid layout: tiles ("šachovnice") vs. compact rows. */
-export type ViewMode = 'grid' | 'list';
-
-const VIEW_KEY = 'uxstudio-view';
-
-export function getViewMode(): ViewMode {
-	const stored = window.localStorage.getItem( VIEW_KEY );
-	return stored === 'list' ? 'list' : 'grid';
-}
-
-export function setViewMode( mode: ViewMode ): void {
-	window.localStorage.setItem( VIEW_KEY, mode );
-}

@@ -8,6 +8,10 @@ import { __ } from '@wordpress/i18n';
 import { ArrowLeft, LoaderCircle, Plus, Trash2 } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
+import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { TabsNav } from '../../app/SubNav';
+
+type Tab = 'popups' | 'settings';
 
 interface Popup {
 	id: number;
@@ -43,7 +47,9 @@ function StatsBadges( { id }: { id: number } ): JSX.Element {
 }
 
 export default function Page(): JSX.Element {
+	const [ tab, setTab ] = useState< Tab >( 'popups' );
 	const [ newTitle, setNewTitle ] = useState( '' );
+	const settings = useModuleSettings( 'popup-manager' );
 
 	const { data: popups, isLoading } = useQuery( {
 		queryKey: [ 'popup-manager', 'popups' ],
@@ -82,73 +88,104 @@ export default function Page(): JSX.Element {
 					{ __( 'Popup Manager', 'ux-studio' ) }
 				</h1>
 			</header>
-
-			<div className="uxs-form" style={ { marginBottom: 'var(--uxs-sp-5)', flexDirection: 'row', alignItems: 'flex-end', gap: 'var(--uxs-sp-3)' } }>
-				<div className="uxs-form__row" style={ { flex: 1 } }>
-					<label htmlFor="uxs-new-popup-title">{ __( 'New popup title', 'ux-studio' ) }</label>
-					<input
-						id="uxs-new-popup-title"
-						type="text"
-						value={ newTitle }
-						onChange={ ( e ) => setNewTitle( e.target.value ) }
-					/>
-				</div>
-				<button
-					type="button"
-					className="button button-primary"
-					disabled={ ! newTitle || create.isPending }
-					onClick={ () => create.mutate() }
-				>
-					<Plus size={ 14 } /> { __( 'Add popup', 'ux-studio' ) }
+			<TabsNav>
+				<button className={ tab === 'popups' ? 'is-active' : '' } onClick={ () => setTab( 'popups' ) }>
+					{ __( 'Popups', 'ux-studio' ) }
 				</button>
-			</div>
+				<button className={ tab === 'settings' ? 'is-active' : '' } onClick={ () => setTab( 'settings' ) }>
+					{ __( 'Settings', 'ux-studio' ) }
+				</button>
+			</TabsNav>
 
-			{ isLoading ? (
+			{ tab === 'settings' && ( settings.isLoading || ! settings.data ) && (
 				<div className="uxs-loading">
 					<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />
 				</div>
-			) : (
-				<table className="uxs-table">
-					<thead>
-						<tr>
-							<th>{ __( 'Title', 'ux-studio' ) }</th>
-							<th>{ __( 'Status', 'ux-studio' ) }</th>
-							<th>{ __( 'Stats', 'ux-studio' ) }</th>
-							<th></th>
-						</tr>
-					</thead>
-					<tbody>
-						{ ( popups ?? [] ).map( ( p ) => (
-							<tr key={ p.id }>
-								<td>{ p.title }</td>
-								<td>
-									<span className={ `uxs-badge ${ p.status === 'publish' ? 'is-success' : 'is-warning' }` }>
-										{ p.status }
-									</span>
-								</td>
-								<td>
-									<StatsBadges id={ p.id } />
-								</td>
-								<td>
-									<button
-										type="button"
-										className="button-link"
-										aria-label={ __( 'Delete popup', 'ux-studio' ) }
-										onClick={ () => remove.mutate( p.id ) }
-										style={ { color: 'var(--uxs-danger)' } }
-									>
-										<Trash2 size={ 16 } />
-									</button>
-								</td>
-							</tr>
-						) ) }
-						{ ! popups?.length ? (
-							<tr>
-								<td colSpan={ 4 }>{ __( 'No popups yet.', 'ux-studio' ) }</td>
-							</tr>
-						) : null }
-					</tbody>
-				</table>
+			) }
+			{ tab === 'settings' && settings.data && (
+				<>
+					<SettingsFields schema={ settings.data.schema } draft={ settings.draft } setDraft={ settings.setDraft } />
+					<button
+						type="button"
+						className="button button-primary"
+						disabled={ settings.save.isPending }
+						onClick={ () => settings.save.mutate() }
+					>
+						{ settings.saved ? __( 'Saved', 'ux-studio' ) : __( 'Save changes', 'ux-studio' ) }
+					</button>
+				</>
+			) }
+
+			{ tab === 'popups' && (
+				<>
+					<div className="uxs-form" style={ { marginBottom: 'var(--uxs-sp-5)', flexDirection: 'row', alignItems: 'flex-end', gap: 'var(--uxs-sp-3)' } }>
+						<div className="uxs-form__row" style={ { flex: 1 } }>
+							<label htmlFor="uxs-new-popup-title">{ __( 'New popup title', 'ux-studio' ) }</label>
+							<input
+								id="uxs-new-popup-title"
+								type="text"
+								value={ newTitle }
+								onChange={ ( e ) => setNewTitle( e.target.value ) }
+							/>
+						</div>
+						<button
+							type="button"
+							className="button button-primary"
+							disabled={ ! newTitle || create.isPending }
+							onClick={ () => create.mutate() }
+						>
+							<Plus size={ 14 } /> { __( 'Add popup', 'ux-studio' ) }
+						</button>
+					</div>
+
+					{ isLoading ? (
+						<div className="uxs-loading">
+							<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />
+						</div>
+					) : (
+						<table className="uxs-table">
+							<thead>
+								<tr>
+									<th>{ __( 'Title', 'ux-studio' ) }</th>
+									<th>{ __( 'Status', 'ux-studio' ) }</th>
+									<th>{ __( 'Stats', 'ux-studio' ) }</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								{ ( popups ?? [] ).map( ( p ) => (
+									<tr key={ p.id }>
+										<td>{ p.title }</td>
+										<td>
+											<span className={ `uxs-badge ${ p.status === 'publish' ? 'is-success' : 'is-warning' }` }>
+												{ p.status }
+											</span>
+										</td>
+										<td>
+											<StatsBadges id={ p.id } />
+										</td>
+										<td>
+											<button
+												type="button"
+												className="button-link"
+												aria-label={ __( 'Delete popup', 'ux-studio' ) }
+												onClick={ () => remove.mutate( p.id ) }
+												style={ { color: 'var(--uxs-danger)' } }
+											>
+												<Trash2 size={ 16 } />
+											</button>
+										</td>
+									</tr>
+								) ) }
+								{ ! popups?.length ? (
+									<tr>
+										<td colSpan={ 4 }>{ __( 'No popups yet.', 'ux-studio' ) }</td>
+									</tr>
+								) : null }
+							</tbody>
+						</table>
+					) }
+				</>
 			) }
 		</>
 	);

@@ -8,6 +8,8 @@ import { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { api, queryClient } from './api';
+import { TabsNav } from './SubNav';
+import MultiSelectField from '../components/MultiSelectField';
 
 export type Value = string | number | boolean | string[] | null;
 
@@ -119,7 +121,18 @@ export function FieldInput( {
 				</select>
 			);
 		case 'multiselect': {
-			const selected = Array.isArray( value ) ? value : [];
+			const selected = Array.isArray( value ) ? value.map( String ) : [];
+			// Long lists (e.g. countries) become a searchable dropdown with chips instead of a wall of checkboxes.
+			if ( Object.keys( field.options ?? {} ).length > 8 ) {
+				return (
+					<MultiSelectField
+						id={ `uxs-${ field.key }` }
+						options={ Object.entries( field.options ?? {} ).map( ( [ k, label ] ) => ( { value: k, label } ) ) }
+						value={ selected }
+						onChange={ onChange }
+					/>
+				);
+			}
 			return (
 				<div className="uxs-checklist">
 					{ Object.entries( field.options ?? {} ).map( ( [ k, label ] ) => (
@@ -242,7 +255,7 @@ export function SettingsFields( {
 
 	return (
 		<>
-			<div className="uxs-subtabs" role="tablist">
+			<TabsNav level={ 2 } inlineClass="uxs-subtabs">
 				{ sections.map( ( name, i ) => (
 					<button
 						key={ name }
@@ -255,7 +268,8 @@ export function SettingsFields( {
 						{ name }
 					</button>
 				) ) }
-			</div>
+			</TabsNav>
+			<h2 className="uxs-form__section">{ current }</h2>
 			{ grid }
 		</>
 	);

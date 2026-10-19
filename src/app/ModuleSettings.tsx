@@ -8,8 +8,9 @@ import { ArrowLeft, Check, LoaderCircle } from 'lucide-react';
 import { hashParam, navigate } from './route';
 import { SettingsFields, useModuleSettings } from './SettingsForm';
 
-export function ModuleSettings(): JSX.Element {
-	const id = hashParam( 'id' ) ?? '';
+/** `embedded`: rendered inside a group page - no back arrow / title, only the save button. */
+export function ModuleSettings( { moduleId, embedded = false }: { moduleId?: string; embedded?: boolean } ): JSX.Element {
+	const id = moduleId ?? hashParam( 'id' ) ?? '';
 	const { data, isLoading, draft, setDraft, save, saved } = useModuleSettings( id );
 
 	if ( isLoading || ! data ) {
@@ -22,8 +23,8 @@ export function ModuleSettings(): JSX.Element {
 
 	return (
 		<>
-			<header className="uxs-pagehead">
-				<h1>
+			<header className={ `uxs-pagehead${ embedded ? ' is-embedded' : '' }` }>
+				{ embedded ? <span /> : <h1>
 					<button
 						type="button"
 						onClick={ () => navigate( '' ) }
@@ -33,7 +34,7 @@ export function ModuleSettings(): JSX.Element {
 						<ArrowLeft size={ 18 } />
 					</button>{ ' ' }
 					{ data.name }
-				</h1>
+				</h1> }
 				<button
 					type="button"
 					className="button button-primary"

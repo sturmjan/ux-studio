@@ -4,6 +4,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Check, FolderInput, FolderPlus, LoaderCircle, Pencil, Trash2, X } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
+import { TabsNav } from '../../app/SubNav';
 
 interface Folder {
 	id: number;
@@ -343,9 +344,9 @@ export default function Page(): JSX.Element {
 					{ __( 'Folder Manager', 'ux-studio' ) }
 				</h1>
 			</header>
-			<div className="uxs-tabs">
+			<TabsNav>
 				<button className="is-active">{ __( 'Folders', 'ux-studio' ) }</button>
-			</div>
+			</TabsNav>
 
 			{ ( postTypes.data?.length ?? 0 ) > 1 && (
 				<div className="uxs-form__row">

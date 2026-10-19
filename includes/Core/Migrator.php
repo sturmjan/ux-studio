@@ -85,8 +85,8 @@ final class Migrator {
 		'ux1_vulnerability_notice_dismissed'     => 'uxstudio_vulnerability_notice_dismissed',
 		'ux1_dashboard_forced_layout'            => 'uxstudio_dashboard_forced_layout',
 		'ux1_dashboard_forced_closed'            => 'uxstudio_dashboard_forced_closed',
-		// ux1_dashboard_tasks/ux1_dashboard_notes removed: DashboardWidgets::
-		// OPTION_TASKS/OPTION_NOTES own 'uxstudio_dashboard_tasks'/'_notes'.
+		// ux1_dashboard_tasks/ux1_dashboard_notes: copied by apply_key_remaps_v2()
+		// (only when the new option does not exist yet).
 		'ux1_cron_control_hash'                  => 'uxstudio_cron_control_hash',
 		'ux1_cron_control_remote_result'         => 'uxstudio_cron_control_remote_result',
 		'ux1_cron_watch_result'                  => 'uxstudio_cron_watch_result',
@@ -235,6 +235,7 @@ final class Migrator {
 		// keys would silently lose their values).
 		self::remap_pixel_tag_keys( $log, $dry_run );
 		self::apply_key_remaps( $log, $dry_run );
+		self::apply_key_remaps_v2( $log, $dry_run );
 
 		// 4d) Carry over API keys the operator already filled in on the legacy
 		// plugin, into the encrypted studio secret store, so they don't have to
@@ -433,12 +434,270 @@ final class Migrator {
 	 * hook in a core file. Fresh migrations get the same remaps through run().
 	 */
 	public static function maybe_repair_settings(): void {
-		if ( get_option( self::KEYREMAP_OPTION ) ) {
+		if ( ! get_option( self::KEYREMAP_OPTION ) ) {
+			$log = array();
+			self::apply_key_remaps( $log, false );
+			update_option( self::KEYREMAP_OPTION, gmdate( 'c' ), true );
+		}
+		// Second round (2026-10-19) for sites that already ran the first one.
+		if ( ! get_option( self::KEYREMAP_V2_OPTION ) ) {
+			$log = array();
+			self::apply_key_remaps_v2( $log, false );
+			update_option( self::KEYREMAP_V2_OPTION, gmdate( 'c' ), true );
+		}
+		// Remaps that need registered post types/taxonomies wait for wp_loaded.
+		if ( ! get_option( self::KEYREMAP_V2_LATE_OPTION ) ) {
+			add_action( 'wp_loaded', array( self::class, 'repair_after_init' ) );
+		}
+	}
+
+	/** Flag: the 2026-10-19 remaps that need post types (ai-markdown) ran. */
+	private const KEYREMAP_V2_LATE_OPTION = 'uxstudio_keyremap_v2_late';
+
+	/**
+	 * Late part of the v2 remap (wp_loaded): needs every public post type and
+	 * taxonomy registered, which is not the case on plugins_loaded.
+	 */
+	public static function repair_after_init(): void {
+		if ( get_option( self::KEYREMAP_V2_LATE_OPTION ) ) {
 			return;
 		}
 		$log = array();
-		self::apply_key_remaps( $log, false );
-		update_option( self::KEYREMAP_OPTION, gmdate( 'c' ), true );
+		self::remap_ai_markdown( $log, false );
+		update_option( self::KEYREMAP_V2_LATE_OPTION, gmdate( 'c' ), true );
+	}
+
+	/**
+	 * ai-markdown: legacy `pt_<type>` toggles were opt-in (only post + page on
+	 * by default); UX Studio uses an opt-out `excluded_post_types` list, so a
+	 * migrated site would expose every public post type in llms.txt. Rebuild
+	 * the exclusion list from the legacy toggles. Also `retention_days` was
+	 * renamed to `log_retention_days`.
+	 *
+	 * @param string[] $log     Log lines (by reference).
+	 * @param bool     $dry_run When true, only log what would happen.
+	 */
+	private static function remap_ai_markdown( array &$log, bool $dry_run ): void {
+		self::remap_option_key( 'uxstudio_ai_markdown', array( 'retention_days' => 'log_retention_days' ), 'ai-markdown', $log, $dry_run );
+
+		$option = 'uxstudio_ai_markdown';
+		$value  = get_option( $option, null );
+		if ( ! is_array( $value ) || array_key_exists( 'excluded_post_types', $value ) || ! get_option( 'wpextended__ai-markdown_settings' ) ) {
+			return; // Not migrated, or already configured in UX Studio.
+		}
+		$excluded = array();
+		foreach ( get_post_types( array( 'public' => true ) ) as $type ) {
+			$default = in_array( $type, array( 'post', 'page' ), true ) ? 1 : 0;
+			if ( ! (int) ( $value[ 'pt_' . $type ] ?? $default ) ) {
+				$excluded[] = $type;
+			}
+		}
+		$value['excluded_post_types'] = $excluded;
+		$log[]                        = 'settings ai-markdown: excluded_post_types = ' . implode( ', ', $excluded );
+
+		// Legacy `tax_<taxonomy>` toggles (only category on by default) became one list.
+		if ( ! array_key_exists( 'taxonomies', $value ) ) {
+			$taxonomies = array();
+			foreach ( get_taxonomies( array( 'public' => true ) ) as $tax ) {
+				if ( (int) ( $value[ 'tax_' . $tax ] ?? ( 'category' === $tax ? 1 : 0 ) ) ) {
+					$taxonomies[] = $tax;
+				}
+			}
+			$value['taxonomies'] = $taxonomies;
+			$log[]               = 'settings ai-markdown: taxonomies = ' . implode( ', ', $taxonomies );
+		}
+		// Legacy kept the bot log 90 days by default (UX Studio's default is 180).
+		if ( ! array_key_exists( 'log_retention_days', $value ) ) {
+			$value['log_retention_days'] = 90;
+		}
+		if ( ! $dry_run ) {
+			update_option( $option, $value, Settings::should_autoload( $value ) );
+		}
+	}
+
+	/** Flag: the 2026-10-19 remap (dashboard widgets, social login providers) ran. */
+	private const KEYREMAP_V2_OPTION = 'uxstudio_keyremap_v2';
+
+	/**
+	 * Second round of renamed keys / dropped data, found by bin/parity-keys.py.
+	 * Same rules as apply_key_remaps(): never overwrite a value set in UX Studio.
+	 *
+	 * @param string[] $log     Log lines (by reference).
+	 * @param bool     $dry_run When true, only log what would happen.
+	 */
+	private static function apply_key_remaps_v2( array &$log, bool $dry_run ): void {
+		self::remap_option_key(
+			'uxstudio_dashboard_widgets',
+			array(
+				'disk_usage_widget' => 'widget_disk_usage',
+				'widgets'           => 'hidden_widgets',
+			),
+			'dashboard-widgets',
+			$log,
+			$dry_run
+		);
+		self::copy_legacy_option( 'ux1_dashboard_tasks', 'uxstudio_dashboard_tasks', $log, $dry_run );
+		self::copy_legacy_option( 'ux1_dashboard_notes', 'uxstudio_dashboard_notes', $log, $dry_run );
+		self::remap_social_login_providers( $log, $dry_run );
+		self::remap_security_csp( $log, $dry_run );
+		self::remap_option_key( 'uxstudio_security_optimization', array( 'lwug_notify_email' => 'upload_guard_notify_email' ), 'security-optimization', $log, $dry_run );
+		self::remap_opening_hours_schema( $log, $dry_run );
+		self::remap_review_profile( $log, $dry_run );
+		self::remap_review_request_place( $log, $dry_run );
+	}
+
+	/**
+	 * security-optimization: legacy `enable_csp` (off|basic|strict) plus the
+	 * `csp_report_only` toggle became `csp_mode` (off|report-only|enforce) and
+	 * `csp_level` (basic|strict). Without this a site with CSP on lost it.
+	 *
+	 * @param string[] $log     Log lines (by reference).
+	 * @param bool     $dry_run When true, only log what would happen.
+	 */
+	private static function remap_security_csp( array &$log, bool $dry_run ): void {
+		$option = 'uxstudio_security_optimization';
+		$value  = get_option( $option, null );
+		if ( ! is_array( $value ) || ! array_key_exists( 'enable_csp', $value ) || array_key_exists( 'csp_mode', $value ) ) {
+			return;
+		}
+		$legacy = (string) $value['enable_csp'];
+		if ( 'off' === $legacy || '' === $legacy ) {
+			$value['csp_mode'] = 'off';
+		} else {
+			$value['csp_mode']  = ! empty( $value['csp_report_only'] ) ? 'report-only' : 'enforce';
+			$value['csp_level'] = 'strict' === $legacy ? 'strict' : 'basic';
+		}
+		unset( $value['enable_csp'], $value['csp_report_only'] );
+		$log[] = 'settings security-optimization: enable_csp=' . $legacy . ' -> csp_mode=' . $value['csp_mode'];
+		if ( ! $dry_run ) {
+			update_option( $option, $value, Settings::should_autoload( $value ) );
+		}
+	}
+
+	/**
+	 * opening-hours: legacy printed the JSON-LD always (no switch); UX Studio
+	 * added `schema_enabled` defaulting to off, so migrated sites lost it.
+	 *
+	 * @param string[] $log     Log lines (by reference).
+	 * @param bool     $dry_run When true, only log what would happen.
+	 */
+	private static function remap_opening_hours_schema( array &$log, bool $dry_run ): void {
+		$option = 'uxstudio_opening_hours';
+		$value  = get_option( $option, null );
+		if ( ! is_array( $value ) || array_key_exists( 'schema_enabled', $value ) || ! get_option( 'wpextended__opening-hours_settings' ) ) {
+			return;
+		}
+		$value['schema_enabled'] = true;
+		$log[]                   = 'settings opening-hours: schema_enabled = true (legacy always printed JSON-LD)';
+		if ( ! $dry_run ) {
+			update_option( $option, $value, Settings::should_autoload( $value ) );
+		}
+	}
+
+	/**
+	 * review-aggregator: the central profile id lived in a standalone legacy
+	 * option; UX Studio keeps it in the module settings.
+	 *
+	 * @param string[] $log     Log lines (by reference).
+	 * @param bool     $dry_run When true, only log what would happen.
+	 */
+	private static function remap_review_profile( array &$log, bool $dry_run ): void {
+		$profile = absint( get_option( 'ux1_review_aggregator_central_profile_id', 0 ) );
+		if ( ! $profile ) {
+			return;
+		}
+		$option = 'uxstudio_review_aggregator';
+		$value  = get_option( $option, array() );
+		$value  = is_array( $value ) ? $value : array();
+		if ( ! empty( $value['central_profile_id'] ) ) {
+			return;
+		}
+		$value['central_profile_id'] = $profile;
+		$log[]                       = 'settings review-aggregator: central_profile_id = ' . $profile;
+		if ( ! $dry_run ) {
+			update_option( $option, $value, Settings::should_autoload( $value ) );
+		}
+	}
+
+	/**
+	 * google-review-request: legacy stored only the Google Place ID and built
+	 * the review link from it; UX Studio expects the full review URL.
+	 *
+	 * @param string[] $log     Log lines (by reference).
+	 * @param bool     $dry_run When true, only log what would happen.
+	 */
+	private static function remap_review_request_place( array &$log, bool $dry_run ): void {
+		$legacy = get_option( 'wpextended__google-review-request_settings', null );
+		$place  = is_array( $legacy ) ? trim( (string) ( $legacy['place_id'] ?? '' ) ) : '';
+		if ( '' === $place ) {
+			return;
+		}
+		$option = 'uxstudio_google_review_request';
+		$value  = get_option( $option, array() );
+		$value  = is_array( $value ) ? $value : array();
+		if ( ! empty( $value['google_review_url'] ) ) {
+			return;
+		}
+		$value['google_review_url'] = 'https://search.google.com/local/writereview?placeid=' . rawurlencode( $place );
+		$log[]                      = 'settings google-review-request: google_review_url from place_id';
+		if ( ! $dry_run ) {
+			update_option( $option, $value, Settings::should_autoload( $value ) );
+		}
+	}
+
+	/**
+	 * Copy a legacy standalone option when the new one does not exist yet.
+	 *
+	 * @param string   $old     Legacy option.
+	 * @param string   $new     New option.
+	 * @param string[] $log     Log lines (by reference).
+	 * @param bool     $dry_run When true, only log what would happen.
+	 */
+	private static function copy_legacy_option( string $old, string $new, array &$log, bool $dry_run ): void {
+		$value = get_option( $old, null );
+		if ( null === $value || null !== get_option( $new, null ) ) {
+			return;
+		}
+		$log[] = "option {$old} -> {$new}";
+		if ( ! $dry_run ) {
+			update_option( $new, $value, false );
+		}
+	}
+
+	/**
+	 * third-party-login: legacy had one toggle per provider (google_enabled
+	 * defaulted to ON); UX Studio has a single enabled_providers list that
+	 * defaults to empty, so a migrated site lost every login button.
+	 *
+	 * @param string[] $log     Log lines (by reference).
+	 * @param bool     $dry_run When true, only log what would happen.
+	 */
+	private static function remap_social_login_providers( array &$log, bool $dry_run ): void {
+		$option = 'uxstudio_third_party_login';
+		$value  = get_option( $option, null );
+		if ( ! is_array( $value ) || array_key_exists( 'enabled_providers', $value ) ) {
+			return;
+		}
+		$legacy = array( 'google', 'facebook', 'apple', 'seznam' );
+		$found  = false;
+		$on     = array();
+		foreach ( $legacy as $id ) {
+			if ( array_key_exists( $id . '_enabled', $value ) ) {
+				$found = true;
+			}
+			// Same default as legacy: Google on unless switched off.
+			if ( (int) ( $value[ $id . '_enabled' ] ?? ( 'google' === $id ? 1 : 0 ) ) ) {
+				$on[] = $id;
+			}
+		}
+		if ( ! $found && ! get_option( 'wpextended__third-party-login_settings' ) ) {
+			return; // Not a migrated site - nothing to restore.
+		}
+		$value['enabled_providers'] = $on;
+		$log[]                      = 'settings third-party-login: enabled_providers = ' . implode( ', ', $on );
+		if ( ! $dry_run ) {
+			update_option( $option, $value, Settings::should_autoload( $value ) );
+		}
 	}
 
 	/**

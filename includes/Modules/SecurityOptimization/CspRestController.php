@@ -7,6 +7,7 @@
 
 namespace UxStudio\Modules\SecurityOptimization;
 
+use UxStudio\Core\Settings;
 use UxStudio\Rest\Controller;
 use WP_Error;
 use WP_REST_Request;
@@ -18,6 +19,7 @@ defined( 'ABSPATH' ) || exit;
  * POST   uxstudio/v1/security-optimization/csp-report              - PUBLIC, browsers post CSP violation reports here
  * GET    uxstudio/v1/security-optimization/csp-violations           - list violations (filter by status)
  * POST   uxstudio/v1/security-optimization/csp-violations/{id}/resolve - mark a violation resolved
+ * POST   uxstudio/v1/security-optimization/csp-violations/{id}/allow   - add its source to the CSP allowlist + resolve
  * DELETE uxstudio/v1/security-optimization/csp-violations/{id}      - delete a violation
  *
  * The report endpoint must stay public with permission_callback '__return_true'
@@ -51,6 +53,17 @@ final class CspRestController extends Controller {
 			'/security-optimization/csp-violations/(?P<id>\d+)/resolve',
 			'POST',
 			array( $this, 'resolve_violation' ),
+			array(
+				'id' => array(
+					'required' => true,
+					'type'     => 'integer',
+				),
+			)
+		);
+		$this->route(
+			'/security-optimization/csp-violations/(?P<id>\d+)/allow',
+			'POST',
+			array( $this, 'allow_violation' ),
 			array(
 				'id' => array(
 					'required' => true,
@@ -143,6 +156,57 @@ final class CspRestController extends Controller {
 			return new WP_Error( 'uxstudio_csp_not_found', __( 'Violation not found.', 'ux-studio' ), array( 'status' => 404 ) );
 		}
 		return $this->ok( array( 'resolved' => true ) );
+	}
+
+	/**
+	 * One-click "add to allowlist" (legacy CspViolationsPage::addToAllowlist):
+	 * append the violation's origin (scheme://host) to `csp_custom_allowlist`
+	 * - the list the policy builder adds to script/style/img/font/connect/frame
+	 * sources - and mark the violation resolved.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function allow_violation( WP_REST_Request $request ) {
+		$violation = CspLogger::get( (int) $request->get_param( 'id' ) );
+		if ( null === $violation ) {
+			return new WP_Error( 'uxstudio_csp_not_found', __( 'Violation not found.', 'ux-studio' ), array( 'status' => 404 ) );
+		}
+
+		$source = CspLogger::uri_to_source( (string) ( $violation['blocked_uri'] ?? '' ) );
+		if ( '' === $source ) {
+			return new WP_Error(
+				'uxstudio_csp_not_allowable',
+				__( 'This violation has no external source that can be allowlisted. Inline code, eval() and data: URIs have to be fixed in the code.', 'ux-studio' ),
+				array( 'status' => 422 )
+			);
+		}
+
+		$option   = 'uxstudio_security_optimization';
+		$current  = (string) ( ( (array) get_option( $option, array() ) )['csp_custom_allowlist'] ?? '' );
+		$existing = array_values( array_filter( array_map( 'trim', (array) preg_split( '/[\r\n,]+/', $current ) ), 'strlen' ) );
+
+		$added = ! in_array( $source, $existing, true );
+		if ( $added ) {
+			$existing[] = $source;
+			( new Settings( $option ) )->save(
+				array( 'csp_custom_allowlist' => implode( "\n", $existing ) ),
+				array(
+					array(
+						'key'  => 'csp_custom_allowlist',
+						'type' => 'textarea',
+					),
+				)
+			);
+		}
+
+		CspLogger::set_status( array( (int) $violation['id'] ), 'resolved' );
+
+		return $this->ok(
+			array(
+				'source' => $source,
+				'added'  => $added,
+			)
+		);
 	}
 
 	/**

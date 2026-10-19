@@ -136,6 +136,13 @@ final class Module extends BaseModule {
 				'default' => true,
 			),
 			array(
+				'key'     => 'schema_pages',
+				'type'    => 'text',
+				'label'   => __( 'Additional pages for JSON-LD (page IDs)', 'ux-studio' ),
+				'help'    => __( 'Comma-separated IDs of pages (e.g. Contact) where the JSON-LD of the locations is also printed. Blank = nowhere else.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
 				'key'     => 'schema_location_ids',
 				'type'    => 'text',
 				'label'   => __( 'JSON-LD location IDs (comma-separated, blank = all)', 'ux-studio' ),

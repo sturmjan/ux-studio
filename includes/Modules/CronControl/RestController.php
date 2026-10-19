@@ -20,6 +20,7 @@ defined( 'ABSPATH' ) || exit;
  * DELETE uxstudio/v1/cron-control/events    - unschedule one event
  * GET    uxstudio/v1/cron-control/watch     - last watcher result
  * POST   uxstudio/v1/cron-control/watch     - run the watcher now
+ * POST   uxstudio/v1/cron-control/central/resync - re-send cron config to the central app
  *
  * The run/delete endpoints take the event identity (hook, timestamp, args) as
  * body params rather than a {hook} URL path segment: hook names can contain
@@ -61,6 +62,8 @@ final class RestController extends Controller {
 
 		$this->route( '/cron-control/watch', 'GET', array( $this, 'watch_result' ) );
 		$this->route( '/cron-control/watch', 'POST', array( $this, 'run_watch' ) );
+
+		$this->route( '/cron-control/central/resync', 'POST', array( $this, 'resync_central' ) );
 	}
 
 	/**
@@ -157,5 +160,14 @@ final class RestController extends Controller {
 	 */
 	public function run_watch( WP_REST_Request $request ) {
 		return $this->ok( $this->module->run_watch_now() );
+	}
+
+	/**
+	 * Re-send the cron config to the central app (central mode only).
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function resync_central( WP_REST_Request $request ) {
+		return $this->ok( $this->module->resync_central() );
 	}
 }

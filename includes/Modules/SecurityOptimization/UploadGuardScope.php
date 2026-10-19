@@ -61,7 +61,8 @@ final class UploadGuardScope {
 	/**
 	 * Files the scanner never reads: our own plugins, bundled libraries, the
 	 * quarantine folder, plus anything added via the
-	 * uxstudio_security_scan_whitelist_paths filter.
+	 * uxstudio_security_scan_whitelist_paths filter or the "Skipped paths"
+	 * setting (upload_guard_whitelist_paths).
 	 */
 	public static function is_excluded( string $path ): bool {
 		$path = wp_normalize_path( $path );
@@ -92,7 +93,59 @@ final class UploadGuardScope {
 			}
 		}
 
+		// Relative entries from the setting match whole path segments anywhere
+		// ("plugins/cache-plugin" matches .../wp-content/plugins/cache-plugin/x.php
+		// but not .../plugins/cache-plugin-pro/x.php).
+		foreach ( $dirs['whitelist_relative'] as $fragment ) {
+			if ( false !== strpos( $path . '/', '/' . $fragment . '/' ) ) {
+				return true;
+			}
+		}
+
 		return false;
+	}
+
+	/**
+	 * Raw `upload_guard_whitelist_paths` value; until it is first saved in
+	 * Studio, the migrated legacy `lwug_whitelist_paths`.
+	 */
+	public static function whitelist_setting(): string {
+		$settings = (array) get_option( 'uxstudio_security_optimization', array() );
+		$raw      = array_key_exists( 'upload_guard_whitelist_paths', $settings ) ? $settings['upload_guard_whitelist_paths'] : ( $settings['lwug_whitelist_paths'] ?? '' );
+		return is_string( $raw ) ? $raw : '';
+	}
+
+	/**
+	 * Split the "Skipped paths" setting into absolute prefixes and relative
+	 * segment fragments. Entries that would skip everything ("/", "*", a bare
+	 * drive) are ignored.
+	 *
+	 * @return array{absolute:string[],relative:string[]}
+	 */
+	private static function parse_whitelist_setting(): array {
+		$absolute = array();
+		$relative = array();
+		foreach ( explode( "\n", str_replace( "\r", '', self::whitelist_setting() ) ) as $line ) {
+			$line = trim( wp_normalize_path( trim( $line ) ) );
+			if ( '' === $line || '#' === $line[0] || false !== strpos( $line, '*' ) || false !== strpos( $line, '..' ) ) {
+				continue;
+			}
+			if ( '/' === $line[0] || 1 === preg_match( '#^[A-Za-z]:/#', $line ) ) {
+				$line = untrailingslashit( $line );
+				if ( strlen( $line ) > 3 ) {
+					$absolute[] = $line;
+				}
+				continue;
+			}
+			$line = trim( $line, '/' );
+			if ( '' !== $line ) {
+				$relative[] = $line;
+			}
+		}
+		return array(
+			'absolute' => $absolute,
+			'relative' => array_values( array_unique( $relative ) ),
+		);
 	}
 
 	/**
@@ -193,7 +246,7 @@ final class UploadGuardScope {
 	 * about tens of thousands of paths and each lookup would otherwise run
 	 * the upload_dir/theme_root filters again.
 	 *
-	 * @return array{areas:array<string,string>,own:string[],quarantine:string,whitelist:string[]}
+	 * @return array{areas:array<string,string>,own:string[],quarantine:string,whitelist:string[],whitelist_relative:string[]}
 	 */
 	private static function dirs(): array {
 		static $dirs = null;
@@ -223,13 +276,15 @@ final class UploadGuardScope {
 		 * @param string[] $paths Absolute path prefixes.
 		 */
 		$whitelist = (array) apply_filters( 'uxstudio_security_scan_whitelist_paths', array() );
+		$setting   = self::parse_whitelist_setting();
 
 		$normalize = static fn( $dir ): string => untrailingslashit( wp_normalize_path( trim( (string) $dir ) ) );
 		$dirs      = array(
-			'areas'      => array_map( $normalize, $areas ),
-			'own'        => array_values( array_unique( array_map( $normalize, $own ) ) ),
-			'quarantine' => $normalize( UploadGuardQuarantine::get_path() ),
-			'whitelist'  => array_values( array_filter( array_map( $normalize, $whitelist ) ) ),
+			'areas'              => array_map( $normalize, $areas ),
+			'own'                => array_values( array_unique( array_map( $normalize, $own ) ) ),
+			'quarantine'         => $normalize( UploadGuardQuarantine::get_path() ),
+			'whitelist'          => array_values( array_filter( array_map( $normalize, array_merge( $whitelist, $setting['absolute'] ) ) ) ),
+			'whitelist_relative' => $setting['relative'],
 		);
 		return $dirs;
 	}

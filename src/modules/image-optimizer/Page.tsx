@@ -5,6 +5,7 @@ import { ArrowLeft, LoaderCircle, RotateCcw, Trash2, RefreshCw } from 'lucide-re
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { TabsNav } from '../../app/SubNav';
 
 type Tab = 'bulk' | 'scanner' | 'settings';
 
@@ -340,7 +341,7 @@ export default function Page(): JSX.Element {
 					{ __( 'Image Optimizer', 'ux-studio' ) }
 				</h1>
 			</header>
-			<div className="uxs-tabs">
+			<TabsNav>
 				<button className={ tab === 'bulk' ? 'is-active' : '' } onClick={ () => setTab( 'bulk' ) }>
 					{ __( 'Bulk Optimize', 'ux-studio' ) }
 				</button>
@@ -350,7 +351,7 @@ export default function Page(): JSX.Element {
 				<button className={ tab === 'settings' ? 'is-active' : '' } onClick={ () => setTab( 'settings' ) }>
 					{ __( 'Settings', 'ux-studio' ) }
 				</button>
-			</div>
+			</TabsNav>
 			{ tab === 'bulk' && <BulkTab /> }
 			{ tab === 'scanner' && <ScannerTab /> }
 			{ tab === 'settings' && ( isLoading || ! data ) && (

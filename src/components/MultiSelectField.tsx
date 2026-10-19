@@ -36,6 +36,8 @@ interface MultiSelectFieldProps {
 	onChange: ( value: string[] ) => void;
 	placeholder?: string;
 	id?: string;
+	/** Show a filter box in the popover (default: when there are more than 10 options). */
+	searchable?: boolean;
 }
 
 export default function MultiSelectField( {
@@ -45,8 +47,13 @@ export default function MultiSelectField( {
 	onChange,
 	placeholder,
 	id,
+	searchable,
 }: MultiSelectFieldProps ): JSX.Element {
 	const [ open, setOpen ] = useState( false );
+	const [ query, setQuery ] = useState( '' );
+	const showSearch = searchable ?? options.length > 10;
+	const needle = query.trim().toLocaleLowerCase();
+	const shown = needle ? options.filter( ( o ) => o.label.toLocaleLowerCase().includes( needle ) ) : options;
 	const selectedOptions = options.filter( ( o ) => value.includes( o.value ) );
 
 	return (
@@ -70,7 +77,35 @@ export default function MultiSelectField( {
 					</span>
 					<ChevronDown size={ 14 } aria-hidden="true" />
 				</Button>
-				<Popover isOpen={ open } onOpenChange={ setOpen } className="uxs-multiselect__popover">
+				<Popover
+					// Portalled to <body>, outside #ux-studio-root: carry the theme over so
+					// the --uxs-* variables (defined for .uxs-portal too) resolve, dark mode included.
+					data-theme={ document.getElementById( 'ux-studio-root' )?.getAttribute( 'data-theme' ) ?? 'light' }
+					// Fixed cap: react-aria otherwise sizes it to all free space and flips it
+					// above the trigger, over the WP admin bar.
+					maxHeight={ 340 }
+					containerPadding={ 40 }
+					isOpen={ open }
+					onOpenChange={ ( o ) => {
+						setOpen( o );
+						if ( ! o ) {
+							setQuery( '' );
+						}
+					} }
+					className="uxs-multiselect__popover uxs-portal"
+				>
+					{ showSearch ? (
+						<input
+							type="search"
+							className="uxs-multiselect__search"
+							placeholder={ __( 'Search...', 'ux-studio' ) }
+							aria-label={ __( 'Search...', 'ux-studio' ) }
+							value={ query }
+							onChange={ ( e ) => setQuery( e.target.value ) }
+							// eslint-disable-next-line jsx-a11y/no-autofocus
+							autoFocus
+						/>
+					) : null }
 					<ListBox
 						aria-label={ label || __( 'Options', 'ux-studio' ) }
 						selectionMode="multiple"
@@ -80,11 +115,13 @@ export default function MultiSelectField( {
 								onChange( options.map( ( o ) => o.value ) );
 								return;
 							}
-							onChange( Array.from( keys ).map( String ) );
+							// Keep selections that are currently filtered out of the list.
+							const hidden = value.filter( ( v ) => ! shown.some( ( o ) => o.value === v ) );
+							onChange( [ ...hidden, ...Array.from( keys ).map( String ).filter( ( k ) => ! hidden.includes( k ) ) ] );
 						} }
 						className="uxs-multiselect__listbox"
 					>
-						{ options.map( ( option ) => (
+						{ shown.map( ( option ) => (
 							<ListBoxItem key={ option.value } id={ option.value } textValue={ option.label } className="uxs-multiselect__item">
 								{ option.label }
 							</ListBoxItem>

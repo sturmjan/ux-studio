@@ -7,6 +7,7 @@
 
 namespace UxStudio\Modules\AiMarkdown;
 
+use UxStudio\Core\ClientIp;
 use UxStudio\Core\DB;
 use UxStudio\Core\Retention;
 use UxStudio\Modules\BaseModule;
@@ -23,13 +24,19 @@ final class Module extends BaseModule {
 	/** Daily purge of the access log (see Core\Retention). */
 	private const RETENTION_HOOK = 'uxstudio_ai_markdown_retention';
 
+	/** Periodic full regeneration (setting `auto_regenerate_interval`). */
+	private const AUTO_REGEN_HOOK = 'uxstudio_ai_markdown_auto_regenerate';
+
+	/** Cached /ai-sitemap.md body. */
+	private const SITEMAP_TRANSIENT = 'uxstudio_ai_markdown_sitemap';
+
 	/**
 	 * Register hooks.
 	 */
 	public function boot(): void {
 		DB::ensure_module_tables(
 			'ai-markdown',
-			1,
+			2,
 			function ( int $from ): void {
 				global $wpdb;
 				$charset = $wpdb->get_charset_collate();
@@ -49,28 +56,80 @@ final class Module extends BaseModule {
 						id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 						created_at DATETIME NOT NULL,
 						post_id BIGINT UNSIGNED NULL,
+						bot_name VARCHAR(100) NOT NULL DEFAULT '',
+						url VARCHAR(2048) NOT NULL DEFAULT '',
+						content_type VARCHAR(20) NOT NULL DEFAULT '',
+						ip_address VARCHAR(45) NOT NULL DEFAULT '',
 						user_agent VARCHAR(255) NOT NULL DEFAULT '',
 						PRIMARY KEY  (id),
-						KEY created_at (created_at)
+						KEY created_at (created_at),
+						KEY bot_name (bot_name)
 					) {$charset};"
 				);
+				// v2 added bot_name/url/content_type/ip_address and logs bots only.
+				if ( $from >= 1 && $from < 2 ) {
+					AccessLog::backfill_v1();
+				}
 			}
 		);
 
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'template_redirect', array( $this, 'maybe_serve_markdown' ) );
 		add_action( 'parse_request', array( $this, 'maybe_serve_llms_txt' ) );
+		add_action( 'parse_request', array( $this, 'maybe_serve_ai_sitemap' ) );
 		add_action( 'save_post', array( $this, 'maybe_invalidate_cache' ), 10, 2 );
 
+		// Any content/term change makes the cached /ai-sitemap.md stale.
+		foreach ( array( 'save_post', 'deleted_post', 'created_term', 'edited_term', 'delete_term' ) as $hook ) {
+			add_action( $hook, array( $this, 'flush_sitemap' ) );
+		}
+
 		add_action( self::RETENTION_HOOK, array( $this, 'purge_log' ) );
+		add_action( self::RETENTION_HOOK, array( $this, 'warm_sitemap' ) );
 		Retention::ensure_scheduled( self::RETENTION_HOOK );
+
+		// Periodic full regeneration (setting `auto_regenerate_interval`, hours; 0 = off).
+		add_action( self::AUTO_REGEN_HOOK, array( $this, 'cron_auto_regenerate' ) );
+		if ( $this->auto_interval() > 0 && ! wp_next_scheduled( self::AUTO_REGEN_HOOK ) ) {
+			$this->schedule_auto_regenerate();
+		}
 	}
 
 	/**
-	 * Unschedule the log purge when the module is switched off.
+	 * Unschedule the log purge and auto-regeneration when the module is switched off.
 	 */
 	public function on_disable(): void {
 		Retention::unschedule( self::RETENTION_HOOK );
+		wp_clear_scheduled_hook( self::AUTO_REGEN_HOOK );
+		delete_transient( self::SITEMAP_TRANSIENT );
+	}
+
+	/**
+	 * Auto-regeneration interval in hours (0 = off).
+	 */
+	private function auto_interval(): int {
+		return max( 0, (int) $this->settings->get( 'auto_regenerate_interval', '0' ) );
+	}
+
+	/**
+	 * Schedule the next auto-regeneration run (single event, re-armed by the
+	 * callback - any hour count works without a custom cron schedule).
+	 */
+	private function schedule_auto_regenerate(): void {
+		wp_schedule_single_event( time() + $this->auto_interval() * HOUR_IN_SECONDS, self::AUTO_REGEN_HOOK );
+	}
+
+	/**
+	 * Cron callback: regenerate the whole site's markdown, then re-arm.
+	 */
+	public function cron_auto_regenerate(): void {
+		if ( $this->auto_interval() <= 0 ) {
+			return;
+		}
+		$this->regenerate_all();
+		if ( ! wp_next_scheduled( self::AUTO_REGEN_HOOK ) ) {
+			$this->schedule_auto_regenerate();
+		}
 	}
 
 	/**
@@ -115,6 +174,14 @@ final class Module extends BaseModule {
 				'default' => array( 'attachment' ),
 			),
 			array(
+				'key'     => 'taxonomies',
+				'type'    => 'multiselect',
+				'label'   => __( 'Taxonomies', 'ux-studio' ),
+				'help'    => __( 'Terms of these taxonomies are listed in llms.txt and the AI sitemap.', 'ux-studio' ),
+				'options' => $this->taxonomy_options(),
+				'default' => array( 'category' ),
+			),
+			array(
 				'key'     => 'site_name',
 				'type'    => 'text',
 				'label'   => __( 'Site name', 'ux-studio' ),
@@ -133,6 +200,13 @@ final class Module extends BaseModule {
 				'type'    => 'toggle',
 				'label'   => __( 'Serve /llms.txt', 'ux-studio' ),
 				'help'    => __( 'Structured overview of the site for AI crawlers (llmstxt.org).', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
+				'key'     => 'enable_ai_sitemap',
+				'type'    => 'toggle',
+				'label'   => __( 'Serve /ai-sitemap.md', 'ux-studio' ),
+				'help'    => __( 'Markdown sitemap for AI bots: every published item with its date and a link to its markdown version, plus the selected taxonomies.', 'ux-studio' ),
 				'default' => true,
 			),
 			array(
@@ -167,6 +241,21 @@ final class Module extends BaseModule {
 				'default' => '0',
 			),
 			array(
+				'key'     => 'auto_regenerate_interval',
+				'type'    => 'select',
+				'label'   => __( 'Automatic regeneration', 'ux-studio' ),
+				'help'    => __( 'Regenerate the markdown of the whole site at this interval (via WP-Cron).', 'ux-studio' ),
+				'options' => array(
+					'0'   => __( 'Off', 'ux-studio' ),
+					'6'   => __( 'Every 6 hours', 'ux-studio' ),
+					'12'  => __( 'Every 12 hours', 'ux-studio' ),
+					'24'  => __( 'Once a day', 'ux-studio' ),
+					'48'  => __( 'Every 2 days', 'ux-studio' ),
+					'168' => __( 'Once a week', 'ux-studio' ),
+				),
+				'default' => '0',
+			),
+			array(
 				'key'     => 'exclude_ids',
 				'type'    => 'text',
 				'label'   => __( 'Excluded IDs', 'ux-studio' ),
@@ -177,7 +266,7 @@ final class Module extends BaseModule {
 				'key'     => 'enable_logging',
 				'type'    => 'toggle',
 				'label'   => __( 'Log accesses', 'ux-studio' ),
-				'help'    => __( 'Record accesses to the markdown endpoints (user agent, post, time).', 'ux-studio' ),
+				'help'    => __( 'Record accesses of AI bots (GPTBot, ClaudeBot, PerplexityBot...) to the markdown endpoints. Other visitors are not logged.', 'ux-studio' ),
 				'default' => true,
 			),
 			array(
@@ -228,6 +317,9 @@ final class Module extends BaseModule {
 		foreach ( $this->settings_schema() as $field ) {
 			if ( 'toggle' === $field['type'] ) {
 				$values[ $field['key'] ] = filter_var( $values[ $field['key'] ], FILTER_VALIDATE_BOOLEAN );
+			} elseif ( 'select' === $field['type'] && ! array_key_exists( (string) $values[ $field['key'] ], $field['options'] ) ) {
+				// Legacy stored '' for "not set" - show the default instead of an empty select.
+				$values[ $field['key'] ] = $field['default'];
 			}
 		}
 		return $values;
@@ -242,7 +334,21 @@ final class Module extends BaseModule {
 		if ( array_key_exists( 'exclude_ids', $input ) ) {
 			$input['exclude_ids'] = implode( ', ', array_filter( array_map( 'absint', explode( ',', (string) $input['exclude_ids'] ) ) ) );
 		}
-		return parent::save_settings( $input );
+
+		$old_interval = $this->auto_interval();
+		$values       = parent::save_settings( $input );
+
+		// Post types, taxonomies, exclusions... all change the sitemap.
+		$this->flush_sitemap();
+
+		if ( $this->auto_interval() !== $old_interval ) {
+			wp_clear_scheduled_hook( self::AUTO_REGEN_HOOK );
+			if ( $this->auto_interval() > 0 ) {
+				$this->schedule_auto_regenerate();
+			}
+		}
+
+		return $values;
 	}
 
 	/**
@@ -286,6 +392,90 @@ final class Module extends BaseModule {
 			$options[ $pt->name ] = $pt->label;
 		}
 		return $options;
+	}
+
+	/**
+	 * Public taxonomies as select options.
+	 *
+	 * @return array<string, string>
+	 */
+	private function taxonomy_options(): array {
+		$options = array();
+		foreach ( get_taxonomies( array( 'public' => true ), 'objects' ) as $tax ) {
+			$options[ $tax->name ] = $tax->label;
+		}
+		return $options;
+	}
+
+	/**
+	 * Post types that get a markdown version (public minus `excluded_post_types`).
+	 *
+	 * @return array<int, string>
+	 */
+	private function enabled_post_types(): array {
+		$excluded = (array) $this->settings->get( 'excluded_post_types', array( 'attachment' ) );
+		return array_values( array_diff( array_keys( $this->post_type_options() ), $excluded ) );
+	}
+
+	/**
+	 * Public taxonomies selected in the `taxonomies` setting.
+	 *
+	 * @return array<int, string>
+	 */
+	private function enabled_taxonomies(): array {
+		$selected = array_map( 'strval', (array) $this->settings->get( 'taxonomies', array( 'category' ) ) );
+		return array_values( array_intersect( array_keys( $this->taxonomy_options() ), $selected ) );
+	}
+
+	/**
+	 * Title as plain text for a markdown link label (no HTML entities/tags).
+	 */
+	private static function plain_title( int $post_id ): string {
+		return trim( html_entity_decode( wp_strip_all_tags( get_the_title( $post_id ) ), ENT_QUOTES, 'UTF-8' ) );
+	}
+
+	/**
+	 * Non-empty terms of one taxonomy as markdown list lines.
+	 *
+	 * @param string $taxonomy   Taxonomy name.
+	 * @param int    $limit      Max terms.
+	 * @param bool   $with_count Append the item count (sitemap) instead of the description (llms.txt).
+	 * @return array<int, string> Lines incl. the "## Label" heading, or empty.
+	 */
+	private function term_lines( string $taxonomy, int $limit, bool $with_count ): array {
+		$tax = get_taxonomy( $taxonomy );
+		if ( ! $tax ) {
+			return array();
+		}
+		$terms = get_terms(
+			array(
+				'taxonomy'   => $taxonomy,
+				'hide_empty' => true,
+				'number'     => $limit,
+			)
+		);
+		if ( empty( $terms ) || is_wp_error( $terms ) ) {
+			return array();
+		}
+
+		$lines = array( '## ' . $tax->labels->name, '' );
+		foreach ( $terms as $term ) {
+			$url = get_term_link( $term );
+			if ( is_wp_error( $url ) ) {
+				continue;
+			}
+			$name = html_entity_decode( $term->name, ENT_QUOTES, 'UTF-8' );
+			$line = '- [' . $name . '](' . $url . ')';
+			if ( $with_count ) {
+				/* translators: %d: number of items in the term. */
+				$line .= ' (' . sprintf( _n( '%d item', '%d items', (int) $term->count, 'ux-studio' ), (int) $term->count ) . ')';
+			} elseif ( '' !== trim( (string) $term->description ) ) {
+				$line .= ': ' . mb_substr( trim( (string) preg_replace( '/\s+/', ' ', wp_strip_all_tags( $term->description ) ) ), 0, 150 );
+			}
+			$lines[] = $line;
+		}
+		$lines[] = '';
+		return $lines;
 	}
 
 	/**
@@ -512,8 +702,10 @@ final class Module extends BaseModule {
 	 * Regenerate markdown for every eligible published post.
 	 */
 	public function regenerate_all(): int {
-		$excluded = (array) $this->settings->get( 'excluded_post_types', array( 'attachment' ) );
-		$post_types = array_diff( array_keys( $this->post_type_options() ), $excluded );
+		$this->flush_sitemap();
+		$this->warm_sitemap();
+
+		$post_types = $this->enabled_post_types();
 		if ( empty( $post_types ) ) {
 			return 0;
 		}
@@ -541,7 +733,7 @@ final class Module extends BaseModule {
 	/**
 	 * Cache + log stats for the admin screen.
 	 *
-	 * @return array{cached_posts:int,log_entries_24h:int}
+	 * @return array{cached_posts:int,log_entries_24h:int,llms_txt_url:string,ai_sitemap_url:string}
 	 */
 	public function get_stats(): array {
 		global $wpdb;
@@ -550,7 +742,13 @@ final class Module extends BaseModule {
 		$log_24h = (int) $wpdb->get_var(
 			$wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}uxstudio_ai_markdown_log WHERE created_at >= %s", $since )
 		);
-		return array( 'cached_posts' => $cached, 'log_entries_24h' => $log_24h );
+		return array(
+			'cached_posts'    => $cached,
+			'log_entries_24h' => $log_24h,
+			// Empty = endpoint switched off.
+			'llms_txt_url'    => $this->flag( 'enable_llms_txt', true ) ? home_url( '/llms.txt' ) : '',
+			'ai_sitemap_url'  => $this->flag( 'enable_ai_sitemap', true ) ? home_url( '/ai-sitemap.md' ) : '',
+		);
 	}
 
 	/**
@@ -634,7 +832,7 @@ final class Module extends BaseModule {
 		}
 
 		$cached = $this->get_cached( $post_id );
-		$this->log_access( $post_id );
+		$this->log_access( $post_id, (string) get_post_type( $post_id ), add_query_arg( 'format', 'markdown', (string) get_permalink( $post_id ) ) );
 
 		nocache_headers();
 		header( 'Content-Type: text/markdown; charset=utf-8' );
@@ -653,11 +851,9 @@ final class Module extends BaseModule {
 			return;
 		}
 
-		$excluded   = (array) $this->settings->get( 'excluded_post_types', array( 'attachment' ) );
-		$post_types = array_diff( array_keys( $this->post_type_options() ), $excluded );
-		$ids        = get_posts(
+		$ids = get_posts(
 			array(
-				'post_type'      => array_values( $post_types ),
+				'post_type'      => $this->enabled_post_types(),
 				'post_status'    => 'publish',
 				'has_password'   => false,
 				'post__not_in'   => $this->exclude_ids(),
@@ -666,49 +862,189 @@ final class Module extends BaseModule {
 			)
 		);
 
-		// Name/description overrides (plain text; a newline would break the heading/blockquote).
-		$one_line  = static fn ( string $v ): string => trim( (string) preg_replace( '/\s+/', ' ', wp_strip_all_tags( $v ) ) );
-		$site_name = $one_line( (string) $this->settings->get( 'site_name', '' ) );
-		$site_desc = $one_line( (string) $this->settings->get( 'site_description', '' ) );
-		$site_name = '' !== $site_name ? $site_name : $one_line( get_bloginfo( 'name' ) );
-		$site_desc = '' !== $site_desc ? $site_desc : $one_line( get_bloginfo( 'description' ) );
-
-		$lines = array( '# ' . $site_name, '' );
+		$lines     = array( '# ' . $this->site_name(), '' );
+		$site_desc = $this->site_description();
 		if ( '' !== $site_desc ) {
 			$lines[] = '> ' . $site_desc;
 			$lines[] = '';
 		}
 		foreach ( $ids as $id ) {
-			$lines[] = '- [' . get_the_title( $id ) . '](' . add_query_arg( 'format', 'markdown', get_permalink( $id ) ) . ')';
+			$lines[] = '- [' . self::plain_title( (int) $id ) . '](' . add_query_arg( 'format', 'markdown', get_permalink( $id ) ) . ')';
 		}
 
-		$this->log_access( null );
+		$taxonomies = $this->enabled_taxonomies();
+		if ( $taxonomies ) {
+			$lines[] = '';
+		}
+		foreach ( $taxonomies as $taxonomy ) {
+			$lines = array_merge( $lines, $this->term_lines( $taxonomy, 50, false ) );
+		}
+
+		$this->log_access( null, 'llms_txt', home_url( '/llms.txt' ) );
 
 		nocache_headers();
 		header( 'Content-Type: text/plain; charset=utf-8' );
-		echo implode( "\n", $lines ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		header( 'X-Robots-Tag: noindex' );
+		echo rtrim( implode( "\n", $lines ) ) . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- plain text, not HTML.
 		exit;
 	}
 
 	/**
-	 * Log a bot access (never blocks the response on failure).
+	 * Serve a virtual /ai-sitemap.md (port of the legacy Generator::generateSitemap()).
 	 *
-	 * @param int|null $post_id Post id, or null for the /llms.txt index.
+	 * @param \WP $wp Main query object.
 	 */
-	private function log_access( ?int $post_id ): void {
+	public function maybe_serve_ai_sitemap( \WP $wp ): void {
+		if ( 'ai-sitemap.md' !== trim( (string) $wp->request, '/' ) || ! $this->flag( 'enable_ai_sitemap', true ) ) {
+			return;
+		}
+
+		$body = $this->warm_sitemap();
+
+		$this->log_access( null, 'sitemap', home_url( '/ai-sitemap.md' ) );
+
+		status_header( 200 );
+		nocache_headers();
+		header( 'Content-Type: text/markdown; charset=utf-8' );
+		header( 'X-Robots-Tag: noindex' );
+		echo $body; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- plain markdown, not HTML.
+		exit;
+	}
+
+	/**
+	 * Cached sitemap body, (re)building it when missing. Also a daily-cron
+	 * callback, so the cache is complete before the first bot of the day.
+	 */
+	public function warm_sitemap(): string {
+		if ( ! $this->flag( 'enable_ai_sitemap', true ) ) {
+			return '';
+		}
+		$body = get_transient( self::SITEMAP_TRANSIENT );
+		if ( is_string( $body ) && '' !== $body ) {
+			return $body;
+		}
+		$body = $this->build_sitemap();
+		// Never 0 (= autoloaded, no expiry): the cache TTL setting, else a week. Content changes flush it anyway.
+		$ttl = (int) $this->settings->get( 'cache_ttl', 0 );
+		set_transient( self::SITEMAP_TRANSIENT, $body, $ttl > 0 ? $ttl * HOUR_IN_SECONDS : WEEK_IN_SECONDS );
+		return $body;
+	}
+
+	/**
+	 * Drop the cached sitemap (content, terms or settings changed).
+	 */
+	public function flush_sitemap(): void {
+		delete_transient( self::SITEMAP_TRANSIENT );
+	}
+
+	/**
+	 * Markdown sitemap: every enabled post type (published, not password
+	 * protected, not excluded - same rules as llms.txt) with dates and links
+	 * to the markdown version, then the selected taxonomies' terms.
+	 */
+	private function build_sitemap(): string {
+		$with_md = $this->flag( 'enable_markdown_content', true );
+		$lines   = array(
+			'# AI Sitemap - ' . $this->site_name(),
+			'',
+			/* translators: %s: date and time the sitemap was generated. */
+			sprintf( __( 'Generated: %s', 'ux-studio' ), current_time( 'Y-m-d H:i:s' ) ),
+			'',
+		);
+
+		foreach ( $this->enabled_post_types() as $type ) {
+			$type_obj = get_post_type_object( $type );
+			if ( ! $type_obj ) {
+				continue;
+			}
+			$ids = get_posts(
+				array(
+					'post_type'      => $type,
+					'post_status'    => 'publish',
+					'has_password'   => false,
+					'post__not_in'   => $this->exclude_ids(),
+					'posts_per_page' => 500,
+					'orderby'        => 'date',
+					'order'          => 'DESC',
+					'fields'         => 'ids',
+				)
+			);
+			if ( empty( $ids ) ) {
+				continue;
+			}
+			$lines[] = '## ' . $type_obj->labels->name;
+			$lines[] = '';
+			foreach ( $ids as $id ) {
+				$url  = (string) get_permalink( $id );
+				$line = '- [' . self::plain_title( (int) $id ) . '](' . $url . ') (' . get_the_date( 'Y-m-d', $id ) . ')';
+				if ( $with_md ) {
+					$line .= ' - [' . __( 'Markdown version', 'ux-studio' ) . '](' . add_query_arg( 'format', 'markdown', $url ) . ')';
+				}
+				$lines[] = $line;
+			}
+			$lines[] = '';
+		}
+
+		foreach ( $this->enabled_taxonomies() as $taxonomy ) {
+			$lines = array_merge( $lines, $this->term_lines( $taxonomy, 200, true ) );
+		}
+
+		return rtrim( implode( "\n", $lines ) ) . "\n";
+	}
+
+	/**
+	 * One-line plain text (a newline would break the markdown heading/blockquote).
+	 */
+	private static function one_line( string $value ): string {
+		return trim( (string) preg_replace( '/\s+/', ' ', wp_strip_all_tags( $value ) ) );
+	}
+
+	/**
+	 * Site name for llms.txt / the sitemap heading (setting `site_name`, else the site title).
+	 */
+	private function site_name(): string {
+		$name = self::one_line( (string) $this->settings->get( 'site_name', '' ) );
+		return '' !== $name ? $name : self::one_line( html_entity_decode( get_bloginfo( 'name' ), ENT_QUOTES, 'UTF-8' ) );
+	}
+
+	/**
+	 * Site description for llms.txt (setting `site_description`, else the tagline).
+	 */
+	private function site_description(): string {
+		$desc = self::one_line( (string) $this->settings->get( 'site_description', '' ) );
+		return '' !== $desc ? $desc : self::one_line( html_entity_decode( get_bloginfo( 'description' ), ENT_QUOTES, 'UTF-8' ) );
+	}
+
+	/**
+	 * Log an access by a known AI bot - other visitors are ignored, as in the
+	 * legacy plugin. Never blocks the response on failure.
+	 *
+	 * @param int|null $post_id      Post id, or null for llms.txt / the sitemap.
+	 * @param string   $content_type llms_txt | sitemap | post type.
+	 * @param string   $url          Canonical URL that was served.
+	 */
+	private function log_access( ?int $post_id, string $content_type, string $url ): void {
 		if ( ! $this->flag( 'enable_logging', true ) ) {
 			return;
 		}
+		$ua  = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( (string) $_SERVER['HTTP_USER_AGENT'] ) ) : '';
+		$bot = BotDetector::detect( $ua );
+		if ( null === $bot ) {
+			return;
+		}
 		global $wpdb;
-		$ua = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( (string) $_SERVER['HTTP_USER_AGENT'] ) : '';
 		$wpdb->insert(
 			"{$wpdb->prefix}uxstudio_ai_markdown_log",
 			array(
-				'created_at' => current_time( 'mysql', true ),
-				'post_id'    => $post_id,
-				'user_agent' => substr( $ua, 0, 255 ),
+				'created_at'   => current_time( 'mysql', true ),
+				'post_id'      => $post_id,
+				'bot_name'     => mb_substr( $bot, 0, 100 ),
+				'url'          => mb_substr( esc_url_raw( $url ), 0, 2048 ),
+				'content_type' => substr( sanitize_key( $content_type ), 0, 20 ),
+				'ip_address'   => substr( ClientIp::get( 'auto' ), 0, 45 ),
+				'user_agent'   => mb_substr( $ua, 0, 255 ),
 			),
-			array( '%s', '%d', '%s' )
+			array( '%s', '%d', '%s', '%s', '%s', '%s', '%s' )
 		);
 	}
 

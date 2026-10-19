@@ -35,6 +35,18 @@ final class Module extends BaseModule {
 
 	private const CACHE_WIDGETS = 'uxstudio_dashboard_widgets_cache';
 
+	/**
+	 * Disk usage widget: the install size is computed by a WP-Cron event
+	 * (never while rendering the dashboard) in time-boxed slices that resume
+	 * where the previous one stopped. OPTION_DISK holds the last complete
+	 * result, OPTION_DISK_SCAN the in-progress walk.
+	 */
+	public const CRON_DISK_USAGE  = 'uxstudio_dashboard_disk_usage';
+	private const OPTION_DISK      = 'uxstudio_disk_usage_data';
+	private const OPTION_DISK_SCAN = 'uxstudio_disk_usage_scan';
+	private const DISK_MAX_AGE     = 6 * HOUR_IN_SECONDS;
+	private const DISK_TIME_BUDGET = 15; // seconds per cron slice.
+
 	private ?Analytics $analytics = null;
 	private ?Layout $layout       = null;
 
@@ -50,8 +62,16 @@ final class Module extends BaseModule {
 		add_action( 'wp_dashboard_setup', array( $this, 'cache_dashboard_widgets' ), 998 );
 		add_action( 'wp_dashboard_setup', array( $this, 'apply_hidden_widgets' ), 999 );
 
+		// Priority 1000: after apply_hidden_widgets, so a widget added here is
+		// never itself hidden by a stale "hidden_widgets" settings snapshot.
+		add_action( 'wp_dashboard_setup', array( $this, 'register_content_widgets' ), 1000 );
+
+		add_action( self::CRON_DISK_USAGE, array( $this, 'compute_disk_usage' ) );
+
 		// GA4 visits widget + dashboard column count / forced layout.
 		$this->analytics()->boot();
+		( new ExtraWidgets( $this, $this->settings ) )->boot();
+		( new ModuleWidgets( $this->settings ) )->boot();
 		$this->layout()->boot();
 	}
 
@@ -73,6 +93,14 @@ final class Module extends BaseModule {
 			$this->layout = new Layout( $this->settings );
 		}
 		return $this->layout;
+	}
+
+	/**
+	 * Drop a pending disk-usage computation when the module is switched off.
+	 */
+	public function on_disable(): void {
+		wp_clear_scheduled_hook( self::CRON_DISK_USAGE );
+		delete_option( self::OPTION_DISK_SCAN );
 	}
 
 	/* ------------------------------------------------------------------ *
@@ -161,6 +189,10 @@ final class Module extends BaseModule {
 		$cached = get_transient( self::CACHE_WIDGETS );
 		if ( is_array( $cached ) ) {
 			foreach ( $cached as $id => $title ) {
+				// UX Studio's own widgets have their own switches in this module.
+				if ( 0 === strpos( (string) $id, 'uxstudio_' ) || in_array( (string) $id, ModuleWidgets::ids(), true ) ) {
+					continue;
+				}
 				$defaults[ (string) $id ] = '' !== (string) $title ? (string) $title : (string) $id;
 			}
 		}
@@ -185,9 +217,10 @@ final class Module extends BaseModule {
 	 * Settings schema for the generic renderer / embedded Settings tab.
 	 */
 	public function settings_schema(): array {
-		return array(
+		$rows = array(
 			array(
 				'key'     => 'disable_all_widgets',
+				'section' => __( 'Hidden widgets', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Hide all dashboard widgets', 'ux-studio' ),
 				'help'    => __( 'Removes every wp-admin dashboard widget and the welcome panel for a clean dashboard.', 'ux-studio' ),
@@ -195,6 +228,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'hidden_widgets',
+				'section' => __( 'Hidden widgets', 'ux-studio' ),
 				'type'    => 'multiselect',
 				'label'   => __( 'Hide specific dashboard widgets', 'ux-studio' ),
 				'help'    => __( 'The list reflects widgets registered on this site (visit Dashboard once to refresh it).', 'ux-studio' ),
@@ -202,35 +236,80 @@ final class Module extends BaseModule {
 				'default' => array(),
 			),
 			array(
-				'key'     => 'pagespeed_api_key',
-				'type'    => 'text',
-				'label'   => __( 'Google PageSpeed API key', 'ux-studio' ),
-				'help'    => __( 'Stored encrypted. Leave blank to keep the current key.', 'ux-studio' ),
-				'default' => '',
+				'key'     => 'widget_disk_usage',
+				'section' => __( 'Custom widgets', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Dashboard widget: disk usage', 'ux-studio' ),
+				'help'    => __( 'Adds a native wp-admin dashboard widget showing the WordPress install size, database size and free disk space (cached for 6 hours).', 'ux-studio' ),
+				'default' => false,
 			),
 			array(
-				'key'     => 'ga_service_account_json',
-				'type'    => 'textarea',
-				'label'   => __( 'Google Analytics service-account JSON', 'ux-studio' ),
-				'help'    => __( 'Paste the full service-account JSON. Stored encrypted. Leave blank to keep the current value.', 'ux-studio' ),
-				'default' => '',
+				'key'     => 'widget_recent_posts',
+				'section' => __( 'Custom widgets', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Dashboard widget: recent posts', 'ux-studio' ),
+				'help'    => __( 'Adds a native wp-admin dashboard widget listing the 5 most recently published posts.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'widget_recent_media',
+				'section' => __( 'Custom widgets', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Dashboard widget: recent media', 'ux-studio' ),
+				'help'    => __( 'Adds a native wp-admin dashboard widget with a thumbnail gallery of the most recently uploaded images.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'widget_tasks',
+				'section' => __( 'Custom widgets', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Dashboard widget: tasks', 'ux-studio' ),
+				'help'    => __( 'A to-do list on the wp-admin dashboard: add, tick off and delete tasks.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'widget_notes',
+				'section' => __( 'Custom widgets', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Dashboard widget: notes', 'ux-studio' ),
+				'help'    => __( 'A notepad on the wp-admin dashboard, saved automatically while you type.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'widget_pagespeed',
+				'section' => __( 'Custom widgets', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Dashboard widget: PageSpeed Insights', 'ux-studio' ),
+				'help'    => __( 'Performance score of the home page from Google PageSpeed. Needs the PageSpeed API key.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'widget_user_activity',
+				'section' => __( 'Custom widgets', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Dashboard widget: recent user activity', 'ux-studio' ),
+				'help'    => __( 'The last 15 actions from the activity log.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'widget_recent_forms',
+				'section' => __( 'Custom widgets', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Dashboard widget: Elementor form submissions', 'ux-studio' ),
+				'help'    => __( 'The last 10 form submissions. Needs Elementor Pro.', 'ux-studio' ),
+				'default' => false,
 			),
 			array(
 				'key'     => 'widget_analytics',
+				'section' => __( 'Custom widgets', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Dashboard widget: visits (GA4)', 'ux-studio' ),
 				'help'    => __( 'Sessions today / this month / this year plus a 7-day chart from Google Analytics 4. Needs the GA4 property ID and the service-account JSON above.', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
-				'key'     => 'ga_property_id',
-				'type'    => 'text',
-				'label'   => __( 'GA4 property ID', 'ux-studio' ),
-				'help'    => __( 'Numeric ID of the Google Analytics 4 property (e.g. 123456789). The service account must have Viewer access to it.', 'ux-studio' ),
-				'default' => '',
-			),
-			array(
 				'key'     => 'dashboard_columns',
+				'section' => __( 'Layout', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'Dashboard columns', 'ux-studio' ),
 				'help'    => __( 'Number of columns on the wp-admin home screen.', 'ux-studio' ),
@@ -245,12 +324,43 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'force_layout',
+				'section' => __( 'Layout', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Force layout for all users', 'ux-studio' ),
 				'help'    => __( 'Every user gets the widget arrangement saved with the "Save current layout as default" button below.', 'ux-studio' ),
 				'default' => false,
 			),
+			array(
+				'key'     => 'pagespeed_api_key',
+				'section' => __( 'API keys', 'ux-studio' ),
+				'type'    => 'text',
+				'label'   => __( 'Google PageSpeed API key', 'ux-studio' ),
+				'help'    => __( 'Stored encrypted. Leave blank to keep the current key.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'ga_property_id',
+				'section' => __( 'API keys', 'ux-studio' ),
+				'type'    => 'text',
+				'label'   => __( 'GA4 property ID', 'ux-studio' ),
+				'help'    => __( 'Numeric ID of the Google Analytics 4 property (e.g. 123456789). The service account must have Viewer access to it.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'ga_service_account_json',
+				'section' => __( 'API keys', 'ux-studio' ),
+				'type'    => 'textarea',
+				'label'   => __( 'Google Analytics service-account JSON', 'ux-studio' ),
+				'help'    => __( 'Paste the full service-account JSON. Stored encrypted. Leave blank to keep the current value.', 'ux-studio' ),
+				'default' => '',
+			),
 		);
+
+		// Toggles for the widgets other modules add go right after this
+		// module's own widgets, so all widget switches sit together.
+		$at = (int) array_search( 'dashboard_columns', array_column( $rows, 'key' ), true );
+		array_splice( $rows, $at, 0, ModuleWidgets::schema() );
+		return $rows;
 	}
 
 	/**
@@ -462,5 +572,266 @@ final class Module extends BaseModule {
 		);
 
 		return is_array( $rows ) ? $rows : array();
+	}
+
+	/* ------------------------------------------------------------------ *
+	 * Generic content widgets (no natural module owner - core WP concepts)
+	 * ------------------------------------------------------------------ */
+
+	/**
+	 * Register the plain, toggle-gated wp-admin dashboard widgets. Plain
+	 * server-rendered HTML (inline styles like BotThrottle's, not the SPA's
+	 * `.uxs-*` CSS classes - those aren't loaded on /wp-admin/index.php).
+	 */
+	public function register_content_widgets(): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		if ( (bool) $this->settings->get( 'widget_disk_usage', false ) ) {
+			wp_add_dashboard_widget(
+				'uxstudio_disk_usage',
+				__( 'Disk usage', 'ux-studio' ),
+				array( $this, 'render_disk_usage_widget' )
+			);
+		}
+
+		if ( (bool) $this->settings->get( 'widget_recent_posts', false ) ) {
+			wp_add_dashboard_widget(
+				'uxstudio_recent_posts',
+				__( 'Recent posts', 'ux-studio' ),
+				array( $this, 'render_recent_posts_widget' )
+			);
+		}
+
+		if ( (bool) $this->settings->get( 'widget_recent_media', false ) ) {
+			wp_add_dashboard_widget(
+				'uxstudio_recent_media',
+				__( 'Recent media', 'ux-studio' ),
+				array( $this, 'render_recent_media_widget' )
+			);
+		}
+	}
+
+	/**
+	 * Disk usage widget: WP install size, database size, free/total disk
+	 * space. Simplified from legacy (no threshold-alert config system). Shows
+	 * the last computed sizes; when they are missing or older than 6 hours a
+	 * background recomputation is queued (see compute_disk_usage()).
+	 */
+	public function render_disk_usage_widget(): void {
+		$data  = get_option( self::OPTION_DISK, array() );
+		$data  = is_array( $data ) ? $data : array();
+		$stale = empty( $data['computed_at'] ) || ( time() - (int) $data['computed_at'] ) > self::DISK_MAX_AGE;
+
+		if ( $stale && ! wp_next_scheduled( self::CRON_DISK_USAGE ) ) {
+			wp_schedule_single_event( time(), self::CRON_DISK_USAGE );
+		}
+
+		$free  = @disk_free_space( ABSPATH ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		$total = @disk_total_space( ABSPATH ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		?>
+		<table style="width:100%;border-collapse:collapse;font-size:12px;">
+			<tbody>
+				<?php if ( empty( $data['computed_at'] ) ) : ?>
+					<tr>
+						<td colspan="2" style="padding:4px 0;color:#646970;"><?php esc_html_e( 'Computing the WordPress install and database size in the background - check back in a few minutes.', 'ux-studio' ); ?></td>
+					</tr>
+				<?php else : ?>
+					<tr>
+						<td style="padding:4px 0;color:#646970;"><?php esc_html_e( 'WordPress install', 'ux-studio' ); ?></td>
+						<td style="text-align:right;font-weight:600;"><?php echo esc_html( size_format( (int) ( $data['wp_size'] ?? 0 ) ) ); ?></td>
+					</tr>
+					<tr>
+						<td style="padding:4px 0;color:#646970;"><?php esc_html_e( 'Database', 'ux-studio' ); ?></td>
+						<td style="text-align:right;font-weight:600;"><?php echo esc_html( size_format( (int) ( $data['db_size'] ?? 0 ) ) ); ?></td>
+					</tr>
+				<?php endif; ?>
+				<?php if ( false !== $free && false !== $total ) : ?>
+					<tr>
+						<td style="padding:4px 0;color:#646970;"><?php esc_html_e( 'Free disk space', 'ux-studio' ); ?></td>
+						<td style="text-align:right;font-weight:600;">
+							<?php
+							echo esc_html(
+								sprintf(
+									/* translators: 1: free space, 2: total space */
+									__( '%1$s of %2$s', 'ux-studio' ),
+									size_format( (float) $free ),
+									size_format( (float) $total )
+								)
+							);
+							?>
+						</td>
+					</tr>
+				<?php endif; ?>
+				<?php if ( ! empty( $data['computed_at'] ) ) : ?>
+					<tr>
+						<td colspan="2" style="padding:4px 0 0;color:#8c8f94;font-size:11px;">
+							<?php
+							echo esc_html(
+								sprintf(
+									/* translators: %s: human time difference, e.g. "2 hours" */
+									__( 'Sizes computed %s ago.', 'ux-studio' ),
+									human_time_diff( (int) $data['computed_at'] )
+								)
+							);
+							?>
+						</td>
+					</tr>
+				<?php endif; ?>
+			</tbody>
+		</table>
+		<?php
+	}
+
+	/**
+	 * WP-Cron callback: walk ABSPATH breadth-first within a time budget. The
+	 * queue of not-yet-listed directories and the running total are saved
+	 * between slices; an unfinished walk reschedules itself a minute later,
+	 * so even a huge install never blocks a single request for long.
+	 */
+	public function compute_disk_usage(): void {
+		$scan = get_option( self::OPTION_DISK_SCAN, array() );
+		if ( ! is_array( $scan ) || empty( $scan['queue'] ) ) {
+			$scan = array(
+				'queue' => array( untrailingslashit( ABSPATH ) ),
+				'size'  => 0,
+			);
+		}
+
+		$deadline = microtime( true ) + self::DISK_TIME_BUDGET;
+		$queue    = (array) $scan['queue'];
+		$size     = (int) $scan['size'];
+
+		while ( ! empty( $queue ) && microtime( true ) < $deadline ) {
+			$dir = (string) array_pop( $queue );
+			try {
+				foreach ( new \FilesystemIterator( $dir, \FilesystemIterator::SKIP_DOTS ) as $entry ) {
+					if ( $entry->isLink() ) {
+						continue;
+					}
+					if ( $entry->isDir() ) {
+						$queue[] = $entry->getPathname();
+					} elseif ( $entry->isFile() ) {
+						$size += (int) $entry->getSize();
+					}
+				}
+			} catch ( \Exception $e ) {
+				continue; // Unreadable directory - skipped, best effort.
+			}
+		}
+
+		if ( ! empty( $queue ) ) {
+			update_option(
+				self::OPTION_DISK_SCAN,
+				array(
+					'queue' => array_values( $queue ),
+					'size'  => $size,
+				),
+				false
+			);
+			wp_schedule_single_event( time() + MINUTE_IN_SECONDS, self::CRON_DISK_USAGE );
+			return;
+		}
+
+		delete_option( self::OPTION_DISK_SCAN );
+		update_option(
+			self::OPTION_DISK,
+			array(
+				'wp_size'     => $size,
+				'db_size'     => $this->database_size(),
+				'computed_at' => time(),
+			),
+			false
+		);
+	}
+
+	/**
+	 * Total size in bytes of all tables in the WordPress database.
+	 */
+	private function database_size(): int {
+		global $wpdb;
+		$size = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT SUM(data_length + index_length) FROM information_schema.TABLES WHERE table_schema = %s",
+				DB_NAME
+			)
+		);
+		return (int) $size;
+	}
+
+	/**
+	 * Recent posts widget: the 5 most recently published posts.
+	 */
+	public function render_recent_posts_widget(): void {
+		$posts = get_posts(
+			array(
+				'post_type'      => 'post',
+				'posts_per_page' => 5,
+				'post_status'    => 'publish',
+				'orderby'        => 'date',
+				'order'          => 'DESC',
+			)
+		);
+
+		if ( empty( $posts ) ) {
+			echo '<p style="color:#646970;font-style:italic;">' . esc_html__( 'No posts yet.', 'ux-studio' ) . '</p>';
+			return;
+		}
+		?>
+		<table style="width:100%;border-collapse:collapse;font-size:12px;">
+			<tbody>
+				<?php foreach ( $posts as $post ) : ?>
+					<tr>
+						<td style="padding:4px 0;">
+							<a href="<?php echo esc_url( (string) get_edit_post_link( $post->ID ) ); ?>"><?php echo esc_html( get_the_title( $post ) ); ?></a>
+						</td>
+						<td style="text-align:right;color:#646970;white-space:nowrap;">
+							<?php echo esc_html( get_the_author_meta( 'display_name', (int) $post->post_author ) ); ?>
+						</td>
+						<td style="text-align:right;color:#646970;white-space:nowrap;">
+							<?php echo esc_html( get_the_date( get_option( 'date_format' ), $post ) ); ?>
+						</td>
+					</tr>
+				<?php endforeach; ?>
+			</tbody>
+		</table>
+		<p style="margin-top:10px;">
+			<a href="<?php echo esc_url( admin_url( 'edit.php' ) ); ?>" class="button button-small"><?php esc_html_e( 'View all posts', 'ux-studio' ); ?></a>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Recent media widget: thumbnail gallery of the most recently uploaded images.
+	 */
+	public function render_recent_media_widget(): void {
+		$attachments = get_posts(
+			array(
+				'post_type'      => 'attachment',
+				'post_mime_type' => 'image',
+				'posts_per_page' => 12,
+				'orderby'        => 'date',
+				'order'          => 'DESC',
+				'post_status'    => 'inherit',
+			)
+		);
+
+		if ( empty( $attachments ) ) {
+			echo '<p style="color:#646970;font-style:italic;">' . esc_html__( 'No media uploaded yet.', 'ux-studio' ) . '</p>';
+			return;
+		}
+		?>
+		<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;">
+			<?php foreach ( $attachments as $attachment ) : ?>
+				<a href="<?php echo esc_url( (string) get_edit_post_link( $attachment->ID ) ); ?>" title="<?php echo esc_attr( $attachment->post_title ); ?>" style="display:block;">
+					<?php echo wp_get_attachment_image( $attachment->ID, 'thumbnail', false, array( 'style' => 'width:100%;height:auto;border-radius:3px;display:block;' ) ); ?>
+				</a>
+			<?php endforeach; ?>
+		</div>
+		<p style="margin-top:10px;">
+			<a href="<?php echo esc_url( admin_url( 'upload.php' ) ); ?>" class="button button-small"><?php esc_html_e( 'View media library', 'ux-studio' ); ?></a>
+		</p>
+		<?php
 	}
 }

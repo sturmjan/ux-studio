@@ -17,6 +17,7 @@ import SettingsTab from './SettingsTab';
 import ArchiveTab from './ArchiveTab';
 import RevisionsTab from './RevisionsTab';
 import type { FormDefinition } from './types';
+import { TabsNav } from '../../app/SubNav';
 
 type BuilderTab = 'fields' | 'actions' | 'appearance' | 'archive' | 'revisions' | 'settings';
 
@@ -63,13 +64,13 @@ function Builder( { id }: { id: number } ): JSX.Element {
 				</h1>
 			</header>
 
-			<div className="uxs-tabs">
+			<TabsNav>
 				{ TABS.map( ( t ) => (
 					<button key={ t.id } className={ tab === t.id ? 'is-active' : '' } onClick={ () => setTab( t.id ) }>
 						{ t.label() }
 					</button>
 				) ) }
-			</div>
+			</TabsNav>
 
 			{ tab === 'fields' && <FieldsTab form={ form } /> }
 			{ tab === 'actions' && <ActionsTab form={ form } /> }

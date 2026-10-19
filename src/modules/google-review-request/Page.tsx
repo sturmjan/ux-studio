@@ -5,6 +5,7 @@ import { ArrowLeft, LoaderCircle, Send } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { TabsNav } from '../../app/SubNav';
 
 type Tab = 'stats' | 'settings';
 
@@ -147,14 +148,14 @@ export default function Page(): JSX.Element {
 					{ __( 'Google Review Request', 'ux-studio' ) }
 				</h1>
 			</header>
-			<div className="uxs-tabs">
+			<TabsNav>
 				<button className={ tab === 'stats' ? 'is-active' : '' } onClick={ () => setTab( 'stats' ) }>
 					{ __( 'Stats', 'ux-studio' ) }
 				</button>
 				<button className={ tab === 'settings' ? 'is-active' : '' } onClick={ () => setTab( 'settings' ) }>
 					{ __( 'Settings', 'ux-studio' ) }
 				</button>
-			</div>
+			</TabsNav>
 			{ tab === 'stats' && (
 				<>
 					<SendForm />

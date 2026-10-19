@@ -199,8 +199,17 @@ final class Frontend {
 			return array( (int) get_queried_object_id() );
 		}
 
-		$on_home = (bool) $this->module->setting( 'schema_on_homepage', true );
-		if ( ! ( $on_home && ( is_front_page() || is_home() ) ) ) {
+		$on_home  = (bool) $this->module->setting( 'schema_on_homepage', true );
+		$page_ids = array_filter( array_map( 'intval', preg_split( '/[\s,]+/', (string) $this->module->setting( 'schema_pages', '' ) ) ?: array() ) );
+
+		$is_match = false;
+		if ( $on_home && ( is_front_page() || is_home() ) ) {
+			$is_match = true;
+		} elseif ( ! empty( $page_ids ) && is_singular() && in_array( (int) get_queried_object_id(), $page_ids, true ) ) {
+			// Extra pages (e.g. Contact) configured in `schema_pages`.
+			$is_match = true;
+		}
+		if ( ! $is_match ) {
 			return array();
 		}
 

@@ -11,6 +11,8 @@ namespace UxStudio\Modules\CronControl;
 use UxStudio\Core\ActivityLog;
 use UxStudio\Core\Settings;
 use UxStudio\Modules\BaseModule;
+use UxStudio\Modules\ContentSync\Module as ContentSyncModule;
+use UxStudio\Plugin;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -33,6 +35,11 @@ defined( 'ABSPATH' ) || exit;
  *
  * 3. A cron watcher (see Watcher.php) that grades scheduled hooks against a
  *    whitelist and can optionally auto-remove suspicious ones.
+ *
+ * 4. Central app sync for the central_app mode, both directions: entering /
+ *    saving / leaving the mode pushes {enabled} to the central app (see
+ *    CentralCronClient), and the central app can set the mode through the
+ *    Content Sync node route `cron-control` (apply_central_command()).
  */
 final class Module extends BaseModule {
 
@@ -64,6 +71,21 @@ final class Module extends BaseModule {
 	private const MODES = array( 'none', 'block_all', 'local_only', 'external', 'central_app' );
 
 	/**
+	 * Last result of pushing the cron config to the central app (migrated
+	 * from legacy ux1_cron_control_remote_result).
+	 */
+	private const REMOTE_RESULT_OPTION = 'uxstudio_cron_control_remote_result';
+
+	/** How often the central app should call wp-cron.php (legacy value). */
+	private const CENTRAL_INTERVAL_MINUTES = 5;
+
+	/**
+	 * Set while a mode change requested BY the central app is being applied,
+	 * so it is not pushed straight back to the central app (loop guard).
+	 */
+	private static bool $applying_central_command = false;
+
+	/**
 	 * Register hooks. Runs only for the enabled module (plugins_loaded).
 	 */
 	public function boot(): void {
@@ -87,6 +109,12 @@ final class Module extends BaseModule {
 	 * Settings (the chosen mode) are kept.
 	 */
 	public function on_disable(): void {
+		// WP-Cron goes back to normal here, so tell the central app to stop
+		// calling wp-cron.php (legacy parity). A failure is only recorded.
+		if ( 'central_app' === $this->get_mode() ) {
+			$this->push_to_central( false );
+		}
+
 		$mu_file = $this->mu_plugin_path();
 		if ( file_exists( $mu_file ) ) {
 			wp_delete_file( $mu_file );
@@ -173,6 +201,8 @@ final class Module extends BaseModule {
 	 * @param array $input Raw input.
 	 */
 	public function save_settings( array $input ): array {
+		$old_mode = $this->get_mode();
+
 		$values = parent::save_settings( $input );
 
 		// parent::save_settings() has refreshed $this->settings' cached values,
@@ -180,7 +210,185 @@ final class Module extends BaseModule {
 		$this->sync_filesystem( true );
 		$this->ensure_watch_scheduled();
 
+		// Keep the central app in step: start its wp-cron calls in central mode
+		// (re-sent on every save, as legacy), stop them when leaving it. Not when
+		// the change came from the central app itself.
+		if ( ! self::$applying_central_command ) {
+			$new_mode = $this->get_mode();
+			if ( 'central_app' === $new_mode ) {
+				$this->push_to_central( true );
+			} elseif ( 'central_app' === $old_mode ) {
+				$this->push_to_central( false );
+			}
+		}
+
 		return $values;
+	}
+
+	/* ------------------------------------------------------------------ *
+	 * Central app sync (both directions)
+	 * ------------------------------------------------------------------ */
+
+	/**
+	 * Push the cron config to the central app and record the outcome.
+	 *
+	 * @param bool $enabled Whether the central app should run wp-cron.php.
+	 * @return array<string, mixed> The stored result (see remote_result()).
+	 */
+	private function push_to_central( bool $enabled ): array {
+		$response = CentralCronClient::set_cron( $enabled, self::CENTRAL_INTERVAL_MINUTES );
+
+		if ( is_wp_error( $response ) ) {
+			$ok      = false;
+			$message = sprintf(
+				/* translators: %s: error message from the connection or the central app */
+				__( 'Sending the cron settings to the central app failed: %s', 'ux-studio' ),
+				$response->get_error_message()
+			);
+		} else {
+			$ok      = true;
+			$message = $enabled
+				? sprintf(
+					/* translators: %d: interval in minutes */
+					__( 'The central app runs wp-cron every %d minutes.', 'ux-studio' ),
+					(int) ( $response['cron_interval_minutes'] ?? self::CENTRAL_INTERVAL_MINUTES )
+				)
+				: __( 'The central app has cron switched off for this site.', 'ux-studio' );
+		}
+
+		$result = array(
+			'ok'        => $ok,
+			'enabled'   => $enabled,
+			'message'   => $message,
+			'tested_at' => current_time( 'mysql' ),
+			'timestamp' => time(),
+		);
+		update_option( self::REMOTE_RESULT_OPTION, $result, false );
+
+		ActivityLog::log(
+			'cron-control',
+			$ok ? 'central_push' : 'central_push_failed',
+			'cron_mode',
+			0,
+			array( 'enabled' => $enabled )
+		);
+
+		return $result;
+	}
+
+	/**
+	 * Last central-app push result, or null when none has happened yet.
+	 *
+	 * @return array{ok:bool, enabled:bool|null, message:string, tested_at:string, timestamp:int}|null
+	 */
+	public function remote_result(): ?array {
+		$raw = get_option( self::REMOTE_RESULT_OPTION, null );
+		if ( ! is_array( $raw ) ) {
+			return null;
+		}
+		return array(
+			'ok'        => ! empty( $raw['ok'] ),
+			// Legacy rows (migrated) carry no `enabled` flag.
+			'enabled'   => isset( $raw['enabled'] ) ? (bool) $raw['enabled'] : null,
+			'message'   => (string) ( $raw['message'] ?? '' ),
+			'tested_at' => (string) ( $raw['tested_at'] ?? '' ),
+			'timestamp' => (int) ( $raw['timestamp'] ?? 0 ),
+		);
+	}
+
+	/**
+	 * "Resend settings to the central app" button.
+	 *
+	 * @return array{success:bool, message:string, result:array|null}
+	 */
+	public function resync_central(): array {
+		if ( 'central_app' !== $this->get_mode() ) {
+			return array(
+				'success' => false,
+				'message' => __( 'The WP-Cron mode is not set to the central app.', 'ux-studio' ),
+				'result'  => $this->remote_result(),
+			);
+		}
+
+		$result = $this->push_to_central( true );
+
+		return array(
+			'success' => $result['ok'],
+			'message' => $result['message'],
+			'result'  => $this->remote_result(),
+		);
+	}
+
+	/**
+	 * Apply a mode change requested by the central app (node route
+	 * POST content-sync/node/cron-control, body {enabled: bool}). Enabling
+	 * switches this module on if needed and sets mode=central_app; disabling
+	 * drops central_app back to "none" (any other mode is left alone). Never
+	 * pushed back to the central app.
+	 *
+	 * @param bool $enabled Whether the central app takes over WP-Cron.
+	 * @return array{success:bool, mode:string, message:string}
+	 */
+	public static function apply_central_command( bool $enabled ): array {
+		$modules    = Plugin::instance()->modules;
+		$is_enabled = in_array( 'cron-control', $modules->enabled_ids(), true );
+
+		if ( ! $enabled && ! $is_enabled ) {
+			return array(
+				'success' => true,
+				'mode'    => 'none',
+				'message' => __( 'Cron Control is not active on this site - WP-Cron already runs normally.', 'ux-studio' ),
+			);
+		}
+
+		if ( $enabled && '' === (string) ContentSyncModule::setting( 'central_app_url', '' ) ) {
+			return array(
+				'success' => false,
+				'mode'    => 'none',
+				'message' => __( 'The central app URL is not set in Content Sync on this site, so the central app mode cannot be used.', 'ux-studio' ),
+			);
+		}
+
+		if ( $enabled && ! $is_enabled ) {
+			$modules->set_enabled( 'cron-control', true );
+		}
+
+		$module = $modules->instance( 'cron-control' );
+		if ( ! $module instanceof self ) {
+			return array(
+				'success' => false,
+				'mode'    => 'none',
+				'message' => __( 'The Cron Control module could not be loaded.', 'ux-studio' ),
+			);
+		}
+
+		return $module->apply_central_mode( $enabled );
+	}
+
+	/**
+	 * @param bool $enabled See apply_central_command().
+	 * @return array{success:bool, mode:string, message:string}
+	 */
+	private function apply_central_mode( bool $enabled ): array {
+		$current = (string) $this->settings->get( 'mode', 'none' );
+		$target  = $enabled ? 'central_app' : ( 'central_app' === $current ? 'none' : $current );
+
+		self::$applying_central_command = true;
+		try {
+			$this->save_settings( array( 'mode' => $target ) );
+		} finally {
+			self::$applying_central_command = false;
+		}
+
+		ActivityLog::log( 'cron-control', 'central_mode_set', 'cron_mode', 0, array( 'enabled' => $enabled, 'mode' => $this->get_mode() ) );
+
+		return array(
+			'success' => true,
+			'mode'    => $this->get_mode(),
+			'message' => $enabled
+				? __( 'WP-Cron is now driven by the central app.', 'ux-studio' )
+				: __( 'The central app no longer drives WP-Cron on this site.', 'ux-studio' ),
+		);
 	}
 
 	/* ------------------------------------------------------------------ *
@@ -229,6 +437,8 @@ final class Module extends BaseModule {
 			'cron_url'            => site_url( 'wp-cron.php' ) . '?doing_wp_cron',
 			// Convenience command for the "external"/hosting cron mode.
 			'external_cron_cmd'   => sprintf( '*/5 * * * * wget -q -O - "%s" >/dev/null 2>&1', site_url( 'wp-cron.php' ) . '?doing_wp_cron' ),
+			// Last push of the cron config to the central app (central mode).
+			'remote_result'       => $this->remote_result(),
 		);
 	}
 

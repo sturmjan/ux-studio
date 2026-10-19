@@ -5,6 +5,7 @@ import { ArrowLeft, LoaderCircle, Pencil, Plus, RefreshCw, Trash2, KeyRound, Sen
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { TabsNav } from '../../app/SubNav';
 
 type Tab = 'sites' | 'push' | 'remote' | 'log' | 'settings';
 
@@ -598,7 +599,7 @@ export default function Page(): JSX.Element {
 					{ __( 'Content Sync', 'ux-studio' ) }
 				</h1>
 			</header>
-			<div className="uxs-tabs">
+			<TabsNav>
 				<button className={ tab === 'sites' ? 'is-active' : '' } onClick={ () => setTab( 'sites' ) }>
 					{ __( 'Nodes', 'ux-studio' ) }
 				</button>
@@ -614,7 +615,7 @@ export default function Page(): JSX.Element {
 				<button className={ tab === 'settings' ? 'is-active' : '' } onClick={ () => setTab( 'settings' ) }>
 					{ __( 'Settings', 'ux-studio' ) }
 				</button>
-			</div>
+			</TabsNav>
 			{ tab === 'sites' && <SitesTab /> }
 			{ tab === 'push' && <PushTab /> }
 			{ tab === 'remote' && <RemoteTab /> }

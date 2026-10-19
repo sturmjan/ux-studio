@@ -25,6 +25,7 @@ import FileUploadField from '../../components/FileUploadField';
 import MultiSelectField, { type MultiSelectOption } from '../../components/MultiSelectField';
 import { fieldCatalog, fieldCatalogEntry, CATEGORY_LABELS, type FieldCatalogEntry } from './fieldCatalog';
 import { ALLOWED_WIDTHS, CHOICE_TYPES, LAYOUT_TYPES, emptyField, type FieldType, type FormDefinition, type FormField } from './types';
+import { TabsNav } from '../../app/SubNav';
 
 // Keep in sync with FileStorage::ALLOWED_TYPES (includes/Modules/Forms/FileStorage.php) -
 // the server is the source of truth for what actually gets accepted on upload.
@@ -211,7 +212,7 @@ function Inspector( {
 				</button>
 			</div>
 
-			<div className="uxs-tabs">
+			<TabsNav>
 				<button className={ tab === 'general' ? 'is-active' : '' } onClick={ () => setTab( 'general' ) }>
 					{ __( 'General', 'ux-studio' ) }
 				</button>
@@ -230,7 +231,7 @@ function Inspector( {
 						{ __( 'Width', 'ux-studio' ) }
 					</button>
 				) }
-			</div>
+			</TabsNav>
 
 			{ tab === 'general' && (
 				<div className="uxs-form">

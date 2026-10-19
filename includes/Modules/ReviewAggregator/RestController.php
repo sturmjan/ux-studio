@@ -16,6 +16,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * GET  uxstudio/v1/review-aggregator/reviews                    - list reviews (filterable)
  * POST uxstudio/v1/review-aggregator/fetch                      - pull fresh reviews through the content-sync broker
+ * POST uxstudio/v1/review-aggregator/request-scrape             - queue a deep Google scan on the central app (NAS)
  * POST uxstudio/v1/review-aggregator/reviews/{id}/toggle-visibility
  * POST uxstudio/v1/review-aggregator/reviews/{id}/suggest-reply
  * GET  uxstudio/v1/review-aggregator/stats
@@ -58,6 +59,8 @@ final class RestController extends Controller {
 		);
 
 		$this->route( '/review-aggregator/fetch', 'POST', array( $this, 'fetch' ) );
+
+		$this->route( '/review-aggregator/request-scrape', 'POST', array( $this, 'request_scrape' ) );
 
 		$this->route(
 			'/review-aggregator/reviews/(?P<id>\d+)/toggle-visibility',
@@ -102,6 +105,16 @@ final class RestController extends Controller {
 	 */
 	public function fetch( WP_REST_Request $request ) {
 		$result = $this->module->fetch();
+		return is_wp_error( $result ) ? $result : $this->ok( $result );
+	}
+
+	/**
+	 * Queue a deep Google scan on the central app (NAS scraper).
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function request_scrape( WP_REST_Request $request ) {
+		$result = $this->module->request_scrape();
 		return is_wp_error( $result ) ? $result : $this->ok( $result );
 	}
 

@@ -5,6 +5,7 @@ import { ArrowLeft, LoaderCircle, Pencil, Plus, Trash2 } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { TabsNav } from '../../app/SubNav';
 
 type Tab = 'snippets' | 'settings';
 type View = 'list' | 'editor';
@@ -39,18 +40,21 @@ const RUN_LOCATIONS: Record< SnippetType, Record< string, string > > = {
 		frontend_only: __( 'Frontend only', 'ux-studio' ),
 	},
 	css: {
+		everywhere: __( 'Everywhere (frontend & admin)', 'ux-studio' ),
 		site_header: __( 'Frontend header', 'ux-studio' ),
 		site_footer: __( 'Frontend footer', 'ux-studio' ),
 		admin_header: __( 'Admin header', 'ux-studio' ),
 		admin_footer: __( 'Admin footer', 'ux-studio' ),
 	},
 	js: {
+		everywhere: __( 'Everywhere (frontend & admin)', 'ux-studio' ),
 		site_header: __( 'Frontend header', 'ux-studio' ),
 		site_footer: __( 'Frontend footer', 'ux-studio' ),
 		admin_header: __( 'Admin header', 'ux-studio' ),
 		admin_footer: __( 'Admin footer', 'ux-studio' ),
 	},
 	html: {
+		everywhere: __( 'Everywhere (frontend & admin)', 'ux-studio' ),
 		site_header: __( 'Frontend header', 'ux-studio' ),
 		site_body_open: __( 'Frontend body open', 'ux-studio' ),
 		site_footer: __( 'Frontend footer', 'ux-studio' ),
@@ -61,9 +65,9 @@ const RUN_LOCATIONS: Record< SnippetType, Record< string, string > > = {
 
 const DEFAULT_RUN_LOCATION: Record< SnippetType, string > = {
 	php: 'everywhere',
-	css: 'site_header',
-	js: 'site_footer',
-	html: 'site_header',
+	css: 'everywhere',
+	js: 'everywhere',
+	html: 'everywhere',
 };
 
 const EMPTY_DRAFT = {
@@ -373,7 +377,7 @@ export default function Page(): JSX.Element {
 					{ __( 'Code Snippets', 'ux-studio' ) }
 				</h1>
 			</header>
-			<div className="uxs-tabs">
+			<TabsNav>
 				<button
 					className={ tab === 'snippets' ? 'is-active' : '' }
 					onClick={ () => {
@@ -386,7 +390,7 @@ export default function Page(): JSX.Element {
 				<button className={ tab === 'settings' ? 'is-active' : '' } onClick={ () => setTab( 'settings' ) }>
 					{ __( 'Settings', 'ux-studio' ) }
 				</button>
-			</div>
+			</TabsNav>
 
 			{ tab === 'snippets' && view === 'list' && (
 				<SnippetsTable

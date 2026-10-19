@@ -7,6 +7,7 @@ import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
 import { CspTab } from './CspTab';
 import { UploadGuardTab } from './UploadGuardTab';
+import { TabsNav } from '../../app/SubNav';
 
 /**
  * Tab registry for this module's page: "Settings", "Login Attempts" and
@@ -359,13 +360,13 @@ export default function Page(): JSX.Element {
 					{ __( 'Security - Access Control', 'ux-studio' ) }
 				</h1>
 			</header>
-			<div className="uxs-tabs">
+			<TabsNav>
 				{ TABS.map( ( t ) => (
 					<button key={ t.id } className={ tab === t.id ? 'is-active' : '' } onClick={ () => setTab( t.id ) }>
 						{ t.label }
 					</button>
 				) ) }
-			</div>
+			</TabsNav>
 			{ tab === 'settings' && <SettingsTab /> }
 			{ tab === 'login-attempts' && <LoginAttemptsTab /> }
 			{ tab === 'ip-bans' && <IpBansTab /> }

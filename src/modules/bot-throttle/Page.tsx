@@ -5,6 +5,7 @@ import { ArrowLeft, LoaderCircle } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { TabsNav } from '../../app/SubNav';
 
 type Tab = 'dashboard' | 'settings' | 'log' | 'test';
 
@@ -320,13 +321,13 @@ export default function Page(): JSX.Element {
 					{ __( 'Bot Throttle', 'ux-studio' ) }
 				</h1>
 			</header>
-			<div className="uxs-tabs">
+			<TabsNav>
 				{ tabs.map( ( [ id, label ] ) => (
 					<button key={ id } className={ tab === id ? 'is-active' : '' } onClick={ () => setTab( id ) }>
 						{ label }
 					</button>
 				) ) }
-			</div>
+			</TabsNav>
 			{ tab === 'dashboard' && <DashboardTab /> }
 			{ tab === 'settings' && <SettingsTab /> }
 			{ tab === 'log' && <LogTab /> }

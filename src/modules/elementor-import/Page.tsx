@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { ArrowLeft, Download, LoaderCircle, Upload } from 'lucide-react';
 import { api } from '../../app/api';
 import { navigate } from '../../app/route';
+import { TabsNav } from '../../app/SubNav';
 
 type Tab = 'import' | 'export';
 type Source = 'file' | 'url' | 'html' | 'json';
@@ -383,14 +384,14 @@ export default function Page(): JSX.Element {
 					{ __( 'Elementor Import', 'ux-studio' ) }
 				</h1>
 			</header>
-			<div className="uxs-tabs">
+			<TabsNav>
 				<button className={ tab === 'import' ? 'is-active' : '' } onClick={ () => setTab( 'import' ) }>
 					{ __( 'Import', 'ux-studio' ) }
 				</button>
 				<button className={ tab === 'export' ? 'is-active' : '' } onClick={ () => setTab( 'export' ) }>
 					{ __( 'Export', 'ux-studio' ) }
 				</button>
-			</div>
+			</TabsNav>
 			{ tab === 'import' ? <ImportTab /> : <ExportTab /> }
 		</>
 	);

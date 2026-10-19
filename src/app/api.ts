@@ -2,6 +2,8 @@
  * Shared React Query client + typed REST helper.
  */
 import { QueryClient } from '@tanstack/react-query';
+import { __ } from '@wordpress/i18n';
+import { pushToast } from './notify';
 
 declare global {
 	interface Window {
@@ -33,9 +35,44 @@ interface Envelope< T > {
 }
 
 /**
+ * Error thrown by api(): keeps the REST error code (e.g. `reauth_required`),
+ * HTTP status and the error `data` payload next to the message.
+ */
+export class ApiError extends Error {
+	code: string;
+	status: number;
+	data: Record< string, unknown >;
+
+	constructor( message: string, code: string, status: number, data: Record< string, unknown > ) {
+		super( message );
+		this.name = 'ApiError';
+		this.code = code;
+		this.status = status;
+		this.data = data;
+	}
+}
+
+/**
  * Fetch from uxstudio/v1 with nonce; throws on HTTP or API error.
  */
 export async function api< T >( path: string, init?: RequestInit ): Promise< T > {
+	// Settings saves get a global status toast (spinner -> green "saved" / red error).
+	const isSave = /^\/?settings\//.test( path ) && 'POST' === init?.method;
+	if ( ! isSave ) {
+		return request< T >( path, init );
+	}
+	const loading = pushToast( 'loading', __( 'Saving…', 'ux-studio' ) );
+	try {
+		const data = await request< T >( path, init );
+		pushToast( 'success', __( 'Settings saved.', 'ux-studio' ), loading );
+		return data;
+	} catch ( e ) {
+		pushToast( 'error', e instanceof Error ? e.message : String( e ), loading );
+		throw e;
+	}
+}
+
+async function request< T >( path: string, init?: RequestInit ): Promise< T > {
 	const boot = window.uxStudioBoot;
 	const res = await fetch( `${ boot.restUrl }/${ path.replace( /^\//, '' ) }`, {
 		...init,
@@ -46,8 +83,8 @@ export async function api< T >( path: string, init?: RequestInit ): Promise< T >
 		},
 	} );
 	if ( ! res.ok ) {
-		const body: { message?: string } = await res.json().catch( () => ( {} ) );
-		throw new Error( body.message ?? `HTTP ${ res.status }` );
+		const body: { message?: string; code?: string; data?: Record< string, unknown > } = await res.json().catch( () => ( {} ) );
+		throw new ApiError( body.message ?? `HTTP ${ res.status }`, body.code ?? '', res.status, body.data ?? {} );
 	}
 	const json: Envelope< T > = await res.json();
 	return json.data;

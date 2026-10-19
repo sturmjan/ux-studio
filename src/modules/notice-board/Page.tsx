@@ -5,6 +5,7 @@ import { ArrowLeft, LoaderCircle, Pencil, Plus, Trash2, X } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { TabsNav } from '../../app/SubNav';
 
 type Tab = 'notices' | 'categories' | 'subscribers' | 'settings';
 
@@ -564,7 +565,7 @@ export default function Page(): JSX.Element {
 					{ __( 'Notice Board', 'ux-studio' ) }
 				</h1>
 			</header>
-			<div className="uxs-tabs">
+			<TabsNav>
 				<button className={ tab === 'notices' ? 'is-active' : '' } onClick={ () => setTab( 'notices' ) }>
 					{ __( 'Notices', 'ux-studio' ) }
 				</button>
@@ -577,7 +578,7 @@ export default function Page(): JSX.Element {
 				<button className={ tab === 'settings' ? 'is-active' : '' } onClick={ () => setTab( 'settings' ) }>
 					{ __( 'Settings', 'ux-studio' ) }
 				</button>
-			</div>
+			</TabsNav>
 			{ tab === 'notices' && <NoticesTab /> }
 			{ tab === 'categories' && <CategoriesTab /> }
 			{ tab === 'subscribers' && <SubscribersTab /> }

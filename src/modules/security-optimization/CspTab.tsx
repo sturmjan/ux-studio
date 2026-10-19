@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Check, LoaderCircle, ShieldAlert, Trash2 } from 'lucide-react';
+import { Check, LoaderCircle, ShieldAlert, ShieldCheck, Trash2 } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { useModuleSettings } from '../../app/SettingsForm';
 
@@ -19,6 +19,23 @@ interface CspViolation {
 }
 
 const QUERY_KEY = [ 'security-optimization', 'csp-violations' ];
+
+/**
+ * The CSP source an "Allow" click would add (scheme://host), or '' when the
+ * violation has no external origin (inline, eval, data:). Mirrors
+ * CspLogger::uri_to_source() - the server decides, this only hides the button.
+ */
+function allowlistSource( uri: string ): string {
+	try {
+		const url = new URL( uri );
+		if ( ! [ 'http:', 'https:', 'ws:', 'wss:' ].includes( url.protocol ) || ! url.hostname.includes( '.' ) ) {
+			return '';
+		}
+		return `${ url.protocol }//${ url.hostname }`;
+	} catch {
+		return '';
+	}
+}
 
 /**
  * CSP violation reports tab. Lists violations reported by visitor browsers
@@ -52,6 +69,16 @@ export function CspTab(): JSX.Element {
 		onSuccess: () => void queryClient.invalidateQueries( { queryKey: QUERY_KEY } ),
 	} );
 
+	const allow = useMutation( {
+		mutationFn: ( id: number ) =>
+			api< { source: string; added: boolean } >( `security-optimization/csp-violations/${ id }/allow`, { method: 'POST' } ),
+		onSuccess: () => {
+			void queryClient.invalidateQueries( { queryKey: QUERY_KEY } );
+			// The Settings tab shows csp_custom_allowlist - refresh its draft too.
+			void queryClient.invalidateQueries( { queryKey: [ 'settings', 'security-optimization' ] } );
+		},
+	} );
+
 	const modeBadge =
 		cspMode === 'enforce'
 			? { cls: 'is-danger', label: __( 'Enforcing', 'ux-studio' ) }
@@ -67,6 +94,29 @@ export function CspTab(): JSX.Element {
 					{ __( 'Real CSP violations reported by visitor browsers. Resolve entries once you have allowed or fixed the source.', 'ux-studio' ) }
 				</p>
 			</div>
+
+			{ allow.isSuccess && (
+				<p>
+					<span className="uxs-badge is-success">
+						{ allow.data.added
+							? sprintf(
+									/* translators: %s: CSP source, e.g. https://cdn.example.com */
+									__( '%s was added to the CSP custom domain allowlist.', 'ux-studio' ),
+									allow.data.source
+							  )
+							: sprintf(
+									/* translators: %s: CSP source, e.g. https://cdn.example.com */
+									__( '%s is already in the CSP custom domain allowlist.', 'ux-studio' ),
+									allow.data.source
+							  ) }
+					</span>
+				</p>
+			) }
+			{ allow.isError && (
+				<p>
+					<span className="uxs-badge is-danger">{ ( allow.error as Error ).message }</span>
+				</p>
+			) }
 
 			<div style={ { marginBottom: 'var(--uxs-sp-4)' } }>
 				<span className={ `uxs-badge ${ modeBadge.cls }` }>
@@ -125,6 +175,22 @@ export function CspTab(): JSX.Element {
 								</td>
 								<td>{ row.last_seen }</td>
 								<td style={ { display: 'flex', gap: 'var(--uxs-sp-2)' } }>
+								{ row.status !== 'resolved' && allowlistSource( row.blocked_uri ) !== '' && (
+									<button
+										type="button"
+										className="button-link"
+										title={ sprintf(
+											/* translators: %s: CSP source, e.g. https://cdn.example.com */
+											__( 'Add %s to the CSP allowlist', 'ux-studio' ),
+											allowlistSource( row.blocked_uri )
+										) }
+										aria-label={ __( 'Add to allowlist', 'ux-studio' ) }
+										disabled={ allow.isPending }
+										onClick={ () => allow.mutate( row.id ) }
+									>
+										<ShieldCheck size={ 14 } />
+									</button>
+								) }
 									{ row.status !== 'resolved' && (
 										<button
 											type="button"

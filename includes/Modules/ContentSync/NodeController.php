@@ -11,6 +11,7 @@ use UxStudio\Core\ActivityLog;
 use UxStudio\Core\Security;
 use UxStudio\Core\Settings;
 use UxStudio\Modules\BotThrottle\Log as BotThrottleLog;
+use UxStudio\Modules\CronControl\Module as CronControlModule;
 use UxStudio\Modules\EmailLog\Module as EmailLogModule;
 use UxStudio\Modules\SecurityOptimization\IpBanStore;
 use UxStudio\Plugin;
@@ -159,6 +160,13 @@ final class NodeController {
 		register_rest_route( self::NS, self::BASE . '/bot-throttle/bans', array(
 			'methods'             => 'GET',
 			'callback'            => array( $this, 'get_bot_throttle_bans' ),
+			'permission_callback' => $verify,
+		) );
+
+		// Central app switches its WP-Cron takeover on/off (CA ApiClient::setCronControl).
+		register_rest_route( self::NS, self::BASE . '/cron-control', array(
+			'methods'             => 'POST',
+			'callback'            => array( $this, 'set_cron_control' ),
 			'permission_callback' => $verify,
 		) );
 
@@ -514,6 +522,25 @@ final class NodeController {
 			),
 			200
 		);
+	}
+
+	/**
+	 * Body {enabled: bool}: true = the central app takes over WP-Cron (Cron
+	 * Control mode central_app, module switched on if needed), false = give it
+	 * back. Logic lives in the Cron Control module.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function set_cron_control( WP_REST_Request $request ): WP_REST_Response {
+		$data    = (array) $request->get_json_params();
+		$enabled = array_key_exists( 'enabled', $data ) ? filter_var( $data['enabled'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE ) : null;
+		if ( null === $enabled ) {
+			return new WP_REST_Response( array( 'success' => false, 'message' => __( 'The "enabled" field must be a boolean.', 'ux-studio' ) ), 400 );
+		}
+
+		$result = CronControlModule::apply_central_command( $enabled );
+
+		return new WP_REST_Response( $result, $result['success'] ? 200 : 409 );
 	}
 
 	/**

@@ -2988,6 +2988,7 @@ msgid "Save settings"
 msgstr "Uložit nastavení"
 
 #: includes/Modules/FileManager/Module.php:332
+#: build/index.js:1
 msgid "Settings saved."
 msgstr "Nastavení bylo uloženo."
 
@@ -16195,60 +16196,60 @@ msgstr "Nově nahrané soubory se kontrolují hned; uploady, pluginy a šablony 
 
 #: includes/Modules/DnsManager/CaClient.php:84
 msgid "The central app is not reachable."
-msgstr ""
+msgstr "Centrální aplikace není dostupná."
 
 #: includes/Modules/DnsManager/DashboardWidget.php:30
 msgid "DNS - recent changes"
-msgstr ""
+msgstr "DNS - poslední změny"
 
 #: includes/Modules/DnsManager/DashboardWidget.php:42
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Added"
-msgstr ""
+msgstr "Přidáno"
 
 #: includes/Modules/DnsManager/DashboardWidget.php:43
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Changed"
-msgstr ""
+msgstr "Změněno"
 
 #: includes/Modules/DnsManager/DashboardWidget.php:44
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Deleted"
-msgstr ""
+msgstr "Smazáno"
 
 #: includes/Modules/DnsManager/DashboardWidget.php:45
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Reverted"
-msgstr ""
+msgstr "Vráceno"
 
 #: includes/Modules/DnsManager/DashboardWidget.php:46
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Risks acknowledged"
-msgstr ""
+msgstr "Potvrzení rizik"
 
 #: includes/Modules/DnsManager/DashboardWidget.php:51
 msgid "No DNS changes recorded yet."
-msgstr ""
+msgstr "Zatím žádné změny DNS."
 
 #: includes/Modules/DnsManager/DashboardWidget.php:76
 msgid "Open DNS management"
-msgstr ""
+msgstr "Otevřít správu DNS"
 
 #: includes/Modules/DnsManager/Module.php:85
 msgid "Administrators who may edit DNS"
-msgstr ""
+msgstr "Administrátoři, kteří smějí upravovat DNS"
 
 #: includes/Modules/DnsManager/Module.php:86
 msgid "Only the selected administrators can add, change, delete and revert DNS records. Other administrators can only view. Nobody is selected by default."
-msgstr ""
+msgstr "Záznamy DNS smějí přidávat, měnit, mazat a vracet jen vybraní administrátoři. Ostatní administrátoři je mohou jen prohlížet. Ve výchozím stavu není vybrán nikdo."
 
 #: includes/Modules/DnsManager/RestController.php:209
 msgid "Confirm that you understand the risks of changing DNS first."
-msgstr ""
+msgstr "Nejprve potvrďte, že rozumíte rizikům změny DNS."
 
 #: includes/Modules/DnsManager/RestController.php:214
 msgid "To change DNS, please log in again (your last login is older than 15 minutes)."
-msgstr ""
+msgstr "Pro změnu DNS se prosím znovu přihlaste (poslední přihlášení je starší než 15 minut)."
 
 #: includes/Modules/DuplicatePost/Duplicator.php:75
 msgid "Invalid post type."
@@ -16256,317 +16257,317 @@ msgstr "Neplatný typ obsahu."
 
 #: build/604.cd5aeb61c06909ba2a57.js:1
 msgid "Auto"
-msgstr ""
+msgstr "Auto"
 
 #: build/604.cd5aeb61c06909ba2a57.js:1
 msgid "Please log in again"
-msgstr ""
+msgstr "Přihlaste se prosím znovu"
 
 #: build/604.cd5aeb61c06909ba2a57.js:1
 msgid "Log in again"
-msgstr ""
+msgstr "Přihlásit se znovu"
 
 #: build/604.cd5aeb61c06909ba2a57.js:1
 msgid "Reload records"
-msgstr ""
+msgstr "Načíst záznamy znovu"
 
 #: build/604.cd5aeb61c06909ba2a57.js:1
 msgid "DNS changes take effect immediately."
-msgstr ""
+msgstr "Změny DNS se projeví okamžitě."
 
 #: build/604.cd5aeb61c06909ba2a57.js:1
 msgid "They directly affect the website, e-mail mailboxes and other services tied to the domain (Google verification, payment gateways, SSL certificate). A wrong record can mean an unreachable website or lost e-mails. If you are not sure, contact us."
-msgstr ""
+msgstr "Mají přímý dopad na fungování webu, e-mailové schránky a další služby navázané na doménu (ověření Google, platební brány, SSL certifikát). Chybný záznam může znamenat nedostupný web nebo ztracené e-maily. Pokud si nejste jistí, kontaktujte nás."
 
 #: build/604.cd5aeb61c06909ba2a57.js:1
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "Priority"
-msgstr ""
+msgstr "Priorita"
 
 #: build/604.cd5aeb61c06909ba2a57.js:1
 #: build/604.cd5aeb61c06909ba2a57.js:3
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "TTL"
-msgstr ""
+msgstr "TTL"
 
 #: build/604.cd5aeb61c06909ba2a57.js:1
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Proxy"
-msgstr ""
+msgstr "Proxy"
 
 #: build/604.cd5aeb61c06909ba2a57.js:1
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "on"
-msgstr ""
+msgstr "zapnuto"
 
 #: build/604.cd5aeb61c06909ba2a57.js:1
 msgid "off"
-msgstr ""
+msgstr "vypnuto"
 
 #: build/604.cd5aeb61c06909ba2a57.js:1
 msgid "E-mail delivery"
-msgstr ""
+msgstr "Doručování e-mailů"
 
 #. translators: %s: domain name
 #: build/604.cd5aeb61c06909ba2a57.js:2
 #, js-format
 msgid "Changing or deleting an MX record redirects or stops the delivery of e-mails to @%s."
-msgstr ""
+msgstr "Změna nebo smazání MX záznamu přesměruje nebo zastaví doručování e-mailů na @%s."
 
 #: build/604.cd5aeb61c06909ba2a57.js:2
 msgid "SPF / DKIM / DMARC"
-msgstr ""
+msgstr "SPF / DKIM / DMARC"
 
 #: build/604.cd5aeb61c06909ba2a57.js:2
 msgid "Sent e-mails may start landing in spam or be rejected."
-msgstr ""
+msgstr "Odeslané e-maily mohou začít padat do spamu nebo být odmítnuty."
 
 #: build/604.cd5aeb61c06909ba2a57.js:2
 msgid "Service on a subdomain"
-msgstr ""
+msgstr "Služba na subdoméně"
 
 #: build/604.cd5aeb61c06909ba2a57.js:2
 msgid "The service running on this subdomain will stop responding."
-msgstr ""
+msgstr "Služba běžící na této subdoméně přestane odpovídat."
 
 #: build/604.cd5aeb61c06909ba2a57.js:2
 msgid "If a certificate or service runs on this subdomain, it may stop responding after the change."
-msgstr ""
+msgstr "Pokud na této subdoméně běží certifikát nebo služba, po změně může přestat odpovídat."
 
 #: build/604.cd5aeb61c06909ba2a57.js:2
 msgid "I understand that this change will affect the functioning of the website and connected services."
-msgstr ""
+msgstr "Rozumím, že tato změna ovlivní fungování webu a navázaných služeb."
 
 #. translators: %s: record name the user has to retype
 #: build/604.cd5aeb61c06909ba2a57.js:3
 #, js-format
 msgid "To confirm, type the record name: %s"
-msgstr ""
+msgstr "Pro potvrzení opište název záznamu: %s"
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "Saving…"
-msgstr ""
+msgstr "Ukládám…"
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "Confirm and save"
-msgstr ""
+msgstr "Potvrdit a uložit"
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "Before you change DNS"
-msgstr ""
+msgstr "Než začnete měnit DNS"
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "DNS records decide where your website, e-mail and other services of the domain lead. A change is applied immediately and a mistake can make the website unreachable or lose e-mails."
-msgstr ""
+msgstr "DNS záznamy určují, kam vede váš web, e-mail a další služby domény. Změna se projeví okamžitě a chyba může způsobit nedostupnost webu nebo ztrátu e-mailů."
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "Every change is logged with your name and IP address and the administrators are notified by e-mail. You can revert a change in the history."
-msgstr ""
+msgstr "Každá změna se zapisuje do logu s vaším jménem a IP adresou a správci o ní dostanou e-mail. Změnu můžete vrátit v historii."
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "View only"
-msgstr ""
+msgstr "Jen zobrazit"
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "I understand the risks"
-msgstr ""
+msgstr "Rozumím rizikům"
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "Edit record"
-msgstr ""
+msgstr "Upravit záznam"
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Add record"
-msgstr ""
+msgstr "Přidat záznam"
 
 #. translators: %s: domain name
 #: build/604.cd5aeb61c06909ba2a57.js:3
 #, js-format
 msgid "@ = %s, \"blog\" = blog.%s"
-msgstr ""
+msgstr "@ = %s, „blog“ = blog.%s"
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "Proxied through Cloudflare (orange cloud)"
-msgstr ""
+msgstr "Přes proxy Cloudflare (oranžový mrak)"
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "not available for this record"
-msgstr ""
+msgstr "u tohoto záznamu není k dispozici"
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "Wildcard records (*) are not supported yet."
-msgstr ""
+msgstr "Wildcard záznamy (*) zatím nejsou podporované."
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "Fill in the record value."
-msgstr ""
+msgstr "Vyplňte hodnotu záznamu."
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "Enter a valid IPv4 address."
-msgstr ""
+msgstr "Zadejte platnou adresu IPv4."
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "Private and reserved IP addresses are not allowed."
-msgstr ""
+msgstr "Soukromé a vyhrazené IP adresy nejsou povolené."
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "Enter a valid public IPv6 address."
-msgstr ""
+msgstr "Zadejte platnou veřejnou adresu IPv6."
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "MX priority must be a whole number 0-65535."
-msgstr ""
+msgstr "Priorita MX musí být celé číslo 0-65535."
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "A TXT record can have at most 2048 characters."
-msgstr ""
+msgstr "TXT záznam může mít nejvýše 2048 znaků."
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "A CNAME cannot be used at the domain root."
-msgstr ""
+msgstr "Na kořeni domény nelze použít CNAME."
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "Review change…"
-msgstr ""
+msgstr "Zkontrolovat změnu…"
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "Change saved."
-msgstr ""
+msgstr "Změna uložena."
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "The record is proxied through Cloudflare, so the change applies immediately."
-msgstr ""
+msgstr "Záznam jde přes proxy Cloudflare, změna platí okamžitě."
 
 #. translators: %s: TTL, e.g. "300 s" or "Auto"
 #: build/604.cd5aeb61c06909ba2a57.js:4
 #, js-format
 msgid "The change appears after the TTL expires (%s). Computers and networks may keep the old value in their cache for a while."
-msgstr ""
+msgstr "Změna se projeví po vypršení TTL (%s). Počítače a sítě si mohou starou hodnotu ještě chvíli držet v cache."
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Notice"
-msgstr ""
+msgstr "Upozornění"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Confirm the change of the record"
-msgstr ""
+msgstr "Potvrďte změnu záznamu"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Confirm the new record"
-msgstr ""
+msgstr "Potvrďte nový záznam"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Filter by type"
-msgstr ""
+msgstr "Filtrovat podle typu"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "All types"
-msgstr ""
+msgstr "Všechny typy"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Search name or value…"
-msgstr ""
+msgstr "Hledat název nebo hodnotu…"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Reload"
-msgstr ""
+msgstr "Načíst znovu"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "You are in view-only mode until you confirm that you understand the risks."
-msgstr ""
+msgstr "Jste v režimu jen pro čtení, dokud nepotvrdíte, že rozumíte rizikům."
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "You can view the records. Editing is allowed only to administrators selected in the module settings."
-msgstr ""
+msgstr "Záznamy si můžete prohlížet. Upravovat smí jen administrátoři vybraní v nastavení modulu."
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "No records found."
-msgstr ""
+msgstr "Nenalezeny žádné záznamy."
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Read only"
-msgstr ""
+msgstr "Jen ke čtení"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Confirm deleting the record"
-msgstr ""
+msgstr "Potvrďte smazání záznamu"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Denied"
-msgstr ""
+msgstr "Zamítnuto"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "The central app is not reachable, showing the local copy of the history."
-msgstr ""
+msgstr "Centrální aplikace neodpovídá, zobrazuje se místní kopie historie."
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "All users"
-msgstr ""
+msgstr "Všichni uživatelé"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "All actions"
-msgstr ""
+msgstr "Všechny akce"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Any result"
-msgstr ""
+msgstr "Jakýkoli výsledek"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Success"
-msgstr ""
+msgstr "Úspěch"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Conflict"
-msgstr ""
+msgstr "Konflikt"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "No changes recorded."
-msgstr ""
+msgstr "Žádné zaznamenané změny."
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Who"
-msgstr ""
+msgstr "Kdo"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Change"
-msgstr ""
+msgstr "Změna"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "reverted"
-msgstr ""
+msgstr "vráceno"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Confirm reverting the change"
-msgstr ""
+msgstr "Potvrďte vrácení změny"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Revert"
-msgstr ""
+msgstr "Vrátit"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "The connection to Cloudflare is interrupted. Please contact us."
-msgstr ""
+msgstr "Spojení s Cloudflare je přerušeno. Kontaktujte nás prosím."
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "The central app is not reachable right now. Try again later."
-msgstr ""
+msgstr "Centrální aplikace teď neodpovídá. Zkuste to později."
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "DNS management is not active for this site."
-msgstr ""
+msgstr "Správa DNS není pro tento web aktivní."
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Records"
-msgstr ""
+msgstr "Záznamy"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Change history"
-msgstr ""
+msgstr "Historie změn"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "DNS Management"
-msgstr ""
+msgstr "Správa DNS"
 
 #. Restored (module meta.json / not seen by make-pot)
 msgid "A function whose name is in a variable is called with request data"
@@ -17164,3 +17165,519 @@ msgstr "Klasický editor a widgety"
 #. Restored (module meta.json / not seen by make-pot)
 msgid "Bring back the classic post editor and the classic widgets screen instead of the block editor. Each part can be switched on separately."
 msgstr "Návrat klasického editoru příspěvků a klasické obrazovky widgetů místo blokového editoru. Každou část lze zapnout zvlášť."
+
+#: includes/Modules/DnsManager
+msgid "Edit the DNS records of this domain via the central app (the Cloudflare token never reaches this site). Every change is validated, logged and e-mailed to the administrators."
+msgstr "Úprava DNS záznamů této domény přes centrální aplikaci (Cloudflare token se k tomuto webu nikdy nedostane). Každá změna se ověří, zapíše do logu a správcům přijde e-mail."
+
+#: includes/Modules/DashboardWidgets/ExtraWidgets.php
+msgid "PageSpeed Insights"
+msgstr "PageSpeed Insights"
+
+#: includes/Modules/DashboardWidgets/ExtraWidgets.php
+msgid "Recent user activity"
+msgstr "Poslední aktivita uživatelů"
+
+#: includes/Modules/DashboardWidgets/ExtraWidgets.php
+msgid "Recent form submissions (Elementor)"
+msgstr "Poslední odeslané formuláře (Elementor)"
+
+#: includes/Modules/DashboardWidgets/ExtraWidgets.php
+msgid "Write your notes…"
+msgstr "Pište si poznámky…"
+
+#: includes/Modules/DashboardWidgets/ExtraWidgets.php
+msgid "Measure again"
+msgstr "Změřit znovu"
+
+#: includes/Modules/DashboardWidgets/ExtraWidgets.php
+msgid "Measure"
+msgstr "Změřit"
+
+#: includes/Modules/DashboardWidgets/ExtraWidgets.php
+msgid "Add a Google PageSpeed API key in the Dashboard widgets module settings."
+msgstr "Doplňte API klíč Google PageSpeed v nastavení modulu Widgety nástěnky."
+
+#: includes/Modules/DashboardWidgets/ExtraWidgets.php
+msgid "Measurement failed."
+msgstr "Měření se nezdařilo."
+
+#: includes/Modules/DashboardWidgets/ExtraWidgets.php
+msgid "Performance (mobile)"
+msgstr "Výkon (mobil)"
+
+#: includes/Modules/DashboardWidgets/ExtraWidgets.php
+msgid "First Contentful Paint"
+msgstr "First Contentful Paint"
+
+#: includes/Modules/DashboardWidgets/ExtraWidgets.php
+msgid "Largest Contentful Paint"
+msgstr "Largest Contentful Paint"
+
+#: includes/Modules/DashboardWidgets/ExtraWidgets.php
+msgid "No activity yet."
+msgstr "Zatím žádná aktivita."
+
+#: includes/Modules/DashboardWidgets/ExtraWidgets.php
+msgid "Open activity log"
+msgstr "Otevřít log aktivit"
+
+#: includes/Modules/DashboardWidgets/ExtraWidgets.php
+msgid "No form submissions yet."
+msgstr "Zatím žádné odeslané formuláře."
+
+#: includes/Modules/DashboardWidgets/ExtraWidgets.php
+msgid "View all submissions"
+msgstr "Zobrazit všechny odpovědi"
+
+#: includes/Modules/DashboardWidgets/ExtraWidgets.php
+msgid "No tasks."
+msgstr "Žádné úkoly."
+
+#: includes/Modules/DashboardWidgets/ExtraWidgets.php
+msgid "Saving failed."
+msgstr "Uložení se nezdařilo."
+
+#: includes/Modules/DashboardWidgets/ExtraWidgets.php
+msgid "Measuring… this can take up to 30 seconds."
+msgstr "Měřím… může to trvat až 30 sekund."
+
+#: includes/Modules/DashboardWidgets/ExtraWidgets.php
+msgid "Hidden widgets"
+msgstr "Skrytí widgetů"
+
+#: includes/Modules/DashboardWidgets/ExtraWidgets.php
+msgid "Custom widgets"
+msgstr "Vlastní widgety"
+
+#: includes/Modules/DashboardWidgets/ExtraWidgets.php
+msgid "Dashboard widget: tasks"
+msgstr "Widget na nástěnce: úkoly"
+
+#: includes/Modules/DashboardWidgets/ExtraWidgets.php
+msgid "A to-do list on the wp-admin dashboard: add, tick off and delete tasks."
+msgstr "Seznam úkolů na nástěnce administrace: přidávání, odškrtávání a mazání."
+
+#: includes/Modules/DashboardWidgets/ExtraWidgets.php
+msgid "Dashboard widget: notes"
+msgstr "Widget na nástěnce: poznámky"
+
+#: includes/Modules/DashboardWidgets/ExtraWidgets.php
+msgid "A notepad on the wp-admin dashboard, saved automatically while you type."
+msgstr "Poznámkový blok na nástěnce administrace, ukládá se automaticky při psaní."
+
+#: includes/Modules/DashboardWidgets/ExtraWidgets.php
+msgid "Dashboard widget: PageSpeed Insights"
+msgstr "Widget na nástěnce: PageSpeed Insights"
+
+#: includes/Modules/DashboardWidgets/ExtraWidgets.php
+msgid "Performance score of the home page from Google PageSpeed. Needs the PageSpeed API key."
+msgstr "Skóre výkonu úvodní stránky z Google PageSpeed. Vyžaduje API klíč PageSpeed."
+
+#: includes/Modules/DashboardWidgets/ExtraWidgets.php
+msgid "Dashboard widget: recent user activity"
+msgstr "Widget na nástěnce: poslední aktivita uživatelů"
+
+#: includes/Modules/DashboardWidgets/ExtraWidgets.php
+msgid "The last 15 actions from the activity log."
+msgstr "Posledních 15 akcí z logu aktivit."
+
+#: includes/Modules/DashboardWidgets/ExtraWidgets.php
+msgid "Dashboard widget: Elementor form submissions"
+msgstr "Widget na nástěnce: formuláře Elementor"
+
+#: includes/Modules/DashboardWidgets/ExtraWidgets.php
+msgid "The last 10 form submissions. Needs Elementor Pro."
+msgstr "Posledních 10 odeslaných formulářů. Vyžaduje Elementor Pro."
+
+#: includes/Modules/DashboardWidgets/ExtraWidgets.php
+msgid "API keys"
+msgstr "API klíče"
+
+#: includes/Modules/AiMarkdown/Module.php
+msgid "Terms of these taxonomies are listed in llms.txt and the AI sitemap."
+msgstr "Termíny těchto taxonomií se vypíšou v llms.txt a v AI sitemapě."
+
+#: includes/Modules/AiMarkdown/Module.php
+msgid "Serve /ai-sitemap.md"
+msgstr "Poskytovat /ai-sitemap.md"
+
+#: includes/Modules/AiMarkdown/Module.php
+msgid "Markdown sitemap for AI bots: every published item with its date and a link to its markdown version, plus the selected taxonomies."
+msgstr "Markdown sitemapa pro AI boty: každá publikovaná položka s datem a odkazem na markdown verzi a k tomu vybrané taxonomie."
+
+#: includes/Modules/AiMarkdown/Module.php
+msgid "Automatic regeneration"
+msgstr "Automatické přegenerování"
+
+#: includes/Modules/AiMarkdown/Module.php
+msgid "Regenerate the markdown of the whole site at this interval (via WP-Cron)."
+msgstr "V tomto intervalu přegenerovat markdown celého webu (přes WP-Cron)."
+
+#: includes/Modules/AiMarkdown/Module.php
+msgid "Every 2 days"
+msgstr "Každé 2 dny"
+
+#: includes/Modules/ReviewAggregator/Module.php
+msgid "Once a week"
+msgstr "Jednou týdně"
+
+#: includes/Modules/AiMarkdown/Module.php
+msgid "Record accesses of AI bots (GPTBot, ClaudeBot, PerplexityBot...) to the markdown endpoints. Other visitors are not logged."
+msgstr "Zaznamenávat přístupy AI botů (GPTBot, ClaudeBot, PerplexityBot…) k markdown verzím. Ostatní návštěvníci se nezaznamenávají."
+
+#: includes/Modules/AiMarkdown/Module.php
+msgid "Generated: %s"
+msgstr "Vygenerováno: %s"
+
+#: includes/Modules/AiMarkdown/Module.php
+msgid "Markdown version"
+msgstr "Markdown verze"
+
+#: includes/Modules/ContentSync/NodeController.php
+msgid "The \"enabled\" field must be a boolean."
+msgstr "Pole „enabled“ musí být true nebo false."
+
+#: includes/Modules/CronControl/Module.php
+msgid "Sending the cron settings to the central app failed: %s"
+msgstr "Odeslání nastavení cronu do centrální aplikace selhalo: %s"
+
+#: includes/Modules/CronControl/Module.php
+msgid "The central app runs wp-cron every %d minutes."
+msgstr "Centrální aplikace spouští wp-cron každých %d minut."
+
+#: includes/Modules/CronControl/Module.php
+msgid "The central app has cron switched off for this site."
+msgstr "Centrální aplikace má pro tento web cron vypnutý."
+
+#: includes/Modules/CronControl/Module.php
+msgid "The WP-Cron mode is not set to the central app."
+msgstr "Režim WP-Cronu není nastavený na centrální aplikaci."
+
+#: includes/Modules/CronControl/Module.php
+msgid "Cron Control is not active on this site - WP-Cron already runs normally."
+msgstr "Řízení cronu na tomto webu není aktivní - WP-Cron už běží normálně."
+
+#: includes/Modules/CronControl/Module.php
+msgid "The central app URL is not set in Content Sync on this site, so the central app mode cannot be used."
+msgstr "Na tomto webu není v Synchronizaci obsahu nastavená URL centrální aplikace, režim centrální aplikace proto nejde použít."
+
+#: includes/Modules/CronControl/Module.php
+msgid "The Cron Control module could not be loaded."
+msgstr "Modul Řízení cronu se nepodařilo načíst."
+
+#: includes/Modules/CronControl/Module.php
+msgid "WP-Cron is now driven by the central app."
+msgstr "WP-Cron teď řídí centrální aplikace."
+
+#: includes/Modules/CronControl/Module.php
+msgid "The central app no longer drives WP-Cron on this site."
+msgstr "Centrální aplikace už na tomto webu WP-Cron neřídí."
+
+#: includes/Modules/OpeningHours/Module.php
+msgid "Additional pages for JSON-LD (page IDs)"
+msgstr "Další stránky s JSON-LD (ID stránek)"
+
+#: includes/Modules/OpeningHours/Module.php
+msgid "Comma-separated IDs of pages (e.g. Contact) where the JSON-LD of the locations is also printed. Blank = nowhere else."
+msgstr "ID stránek oddělená čárkou (např. Kontakt), kde se JSON-LD poboček vypíše také. Prázdné = nikde jinde."
+
+#: includes/Modules/PopupManager/Module.php
+msgid "Cache plugin compatibility"
+msgstr "Kompatibilita s cache pluginy"
+
+#: includes/Modules/PopupManager/Module.php
+msgid "Adds the data-cache-ignore attribute to popup markup so WP Rocket / W3 Total Cache leave it out of the HTML cache."
+msgstr "Přidá do kódu popupu atribut data-cache-ignore, aby ho WP Rocket / W3 Total Cache vynechaly z HTML cache."
+
+#: includes/Modules/PopupManager/Module.php
+msgid "Stats retention (days)"
+msgstr "Uchovávat statistiky (dny)"
+
+#: includes/Modules/PopupManager/Module.php
+msgid "Impression/click records older than this are deleted daily. 0 = keep forever."
+msgstr "Starší záznamy zobrazení a kliknutí se denně mažou. 0 = uchovávat navždy."
+
+#: includes/Modules/ReviewAggregator/Module.php
+msgid "Fetch interval"
+msgstr "Interval stahování"
+
+#: includes/Modules/ReviewAggregator/Module.php
+msgid "How often new reviews are pulled from the central app automatically."
+msgstr "Jak často se nové recenze automaticky stahují z centrální aplikace."
+
+#: includes/Modules/ReviewAggregator/Module.php
+msgid "Google Maps URL or Place ID"
+msgstr "URL Google Map nebo Place ID"
+
+#: includes/Modules/ReviewAggregator/Module.php
+msgid "Used by \"Request deep scan\" to find or create the Google profile in the central app."
+msgstr "Používá tlačítko „Vyžádat hloubkový sken“ k nalezení nebo založení Google profilu v centrální aplikaci."
+
+#: includes/Modules/ReviewAggregator/Module.php
+msgid "Set the Google Maps URL or Place ID first."
+msgstr "Nejdřív vyplňte URL Google Map nebo Place ID."
+
+#: includes/Modules/SecurityOptimization/CspRestController.php
+msgid "This violation has no external source that can be allowlisted. Inline code, eval() and data: URIs have to be fixed in the code."
+msgstr "Toto porušení nemá externí zdroj, který by šlo povolit. Inline kód, eval() a data: URI je potřeba opravit v kódu."
+
+#: includes/Modules/SecurityOptimization/Module.php
+msgid "New slug for the login page. Direct visitors to wp-login.php get the response chosen below. If the slug collides with an existing page/rewrite rule, the redirect is automatically NOT activated (fail-open) and a warning is logged."
+msgstr "Nový slug přihlašovací stránky. Kdo otevře přímo wp-login.php, dostane odpověď zvolenou níže. Pokud slug koliduje s existující stránkou nebo přepisovacím pravidlem, přesměrování se automaticky NEaktivuje (fail-open) a zapíše se varování."
+
+#: includes/Modules/SecurityOptimization/Module.php
+msgid "What a visitor who opens wp-login.php (or wp-admin while logged out) directly gets once the custom login URL is active."
+msgstr "Co dostane návštěvník, který přímo otevře wp-login.php (nebo nepřihlášený wp-admin), když je aktivní vlastní přihlašovací URL."
+
+#: includes/Modules/SecurityOptimization/Module.php
+msgid "Custom path on this site"
+msgstr "Vlastní cesta na tomto webu"
+
+#: includes/Modules/SecurityOptimization/Module.php
+msgid "Custom message (403)"
+msgstr "Vlastní zpráva (403)"
+
+#: includes/Modules/SecurityOptimization/Module.php
+msgid "Redirect path"
+msgstr "Cesta přesměrování"
+
+#: includes/Modules/SecurityOptimization/Module.php
+msgid "Used with \"Custom path on this site\". A slug or path on the current domain, e.g. about-us or contact/address. The domain is added automatically, so the redirect keeps working after a domain move."
+msgstr "Pro volbu „Vlastní cesta na tomto webu“. Slug nebo cesta na aktuální doméně, např. o-nas nebo kontakt/adresa. Doména se doplní automaticky, takže přesměrování funguje i po přesunu webu na jinou doménu."
+
+#: includes/Modules/SecurityOptimization/Module.php
+msgid "Redirect page"
+msgstr "Stránka přesměrování"
+
+#: includes/Modules/SecurityOptimization/Module.php
+msgid "Used with \"Existing page\"."
+msgstr "Pro volbu „Existující stránka“."
+
+#: includes/Modules/SecurityOptimization/Module.php
+msgid "Access denied message"
+msgstr "Zpráva o odepření přístupu"
+
+#: includes/Modules/SecurityOptimization/Module.php
+msgid "Used with \"Custom message (403)\". Plain text shown to the visitor."
+msgstr "Pro volbu „Vlastní zpráva (403)“. Prostý text zobrazený návštěvníkovi."
+
+#: includes/Modules/SecurityOptimization/Module.php
+msgid "This has been disabled."
+msgstr "Toto bylo zakázáno."
+
+#: includes/Modules/SecurityOptimization/Module.php
+msgid "Lock out IPs that try a blocked username"
+msgstr "Zablokovat IP, které zkusí zakázané uživatelské jméno"
+
+#: includes/Modules/SecurityOptimization/Module.php
+msgid "A failed login with a reserved username locks the IP out immediately (for the lockout time above) instead of after the maximum number of attempts. Requires \"Limit login attempts\" and \"Block reserved usernames\"."
+msgstr "Neúspěšné přihlášení se zakázaným jménem zablokuje IP okamžitě (na dobu blokace výše), ne až po maximálním počtu pokusů. Vyžaduje „Omezit pokusy o přihlášení“ a „Blokovat vyhrazená uživatelská jména“."
+
+#: includes/Modules/SecurityOptimization/Module.php
+msgid "reCAPTCHA v3 minimum score"
+msgstr "Minimální skóre reCAPTCHA v3"
+
+#: includes/Modules/SecurityOptimization/Module.php
+msgid "Only for Google reCAPTCHA v3. Score from 0.0 (bot) to 1.0 (human); requests below it are rejected. Recommended 0.5."
+msgstr "Jen pro Google reCAPTCHA v3. Skóre od 0.0 (bot) do 1.0 (člověk), požadavky pod ním se odmítnou. Doporučeno 0.5."
+
+#: includes/Modules/SecurityOptimization/Module.php
+msgid "Adaptive mode threshold"
+msgstr "Práh adaptivního režimu"
+
+#: includes/Modules/SecurityOptimization/Module.php
+msgid "Only for adaptive mode: after how many failed attempts from one IP the CAPTCHA starts being required (1-20)."
+msgstr "Jen pro adaptivní režim: po kolika neúspěšných pokusech z jedné IP se začne vyžadovat CAPTCHA (1-20)."
+
+#: includes/Modules/SecurityOptimization/Module.php
+msgid "Custom patterns (advanced)"
+msgstr "Vlastní vzory (pokročilé)"
+
+#: includes/Modules/SecurityOptimization/Module.php
+msgid "Your own regular expressions for suspicious code, one per line, e.g. /malicious_function\\s*\\(/i. Lines starting with # are comments. Each matching pattern adds 25 points to the file score. Invalid expressions are commented out on save and never used."
+msgstr "Vlastní regulární výrazy pro podezřelý kód, jeden na řádek, např. /malicious_function\\s*\\(/i. Řádky začínající # jsou komentáře. Každý shodný vzor přidá souboru 25 bodů. Neplatné výrazy se při uložení zakomentují a nikdy se nepoužijí."
+
+#: includes/Modules/SecurityOptimization/Module.php
+msgid "Skipped paths"
+msgstr "Vynechané cesty"
+
+#: includes/Modules/SecurityOptimization/Module.php
+msgid "Files under these paths are never scanned, one per line. Either an absolute path or a path relative to the site, e.g. wp-content/plugins/cache-plugin/. Useful for a trusted plugin that legitimately uses eval() or base64_decode()."
+msgstr "Soubory pod těmito cestami se nikdy neskenují, jedna na řádek. Absolutní cesta nebo cesta relativní k webu, např. wp-content/plugins/cache-plugin/. Hodí se pro důvěryhodný plugin, který oprávněně používá eval() nebo base64_decode()."
+
+#: includes/Modules/DashboardWidgets/ModuleWidgets.php
+msgid "Widgets from other modules"
+msgstr "Widgety ostatních modulů"
+
+#: includes/Modules/DashboardWidgets/ModuleWidgets.php
+msgid "The 10 most recent WooCommerce orders. Needs WooCommerce."
+msgstr "Posledních 10 objednávek WooCommerce. Vyžaduje WooCommerce."
+
+#: includes/Modules/DashboardWidgets/ModuleWidgets.php
+msgid "Best-selling WooCommerce products by quantity sold. Needs WooCommerce."
+msgstr "Nejprodávanější produkty WooCommerce podle prodaného množství. Vyžaduje WooCommerce."
+
+#: includes/Modules/DashboardWidgets/ModuleWidgets.php
+msgid "Dashboard widget: service requests"
+msgstr "Widget na nástěnce: požadavky na služby"
+
+#: includes/Modules/DashboardWidgets/ModuleWidgets.php
+msgid "Latest service requests. Shown only while the Service requests module is on."
+msgstr "Poslední požadavky. Zobrazí se, jen když je zapnutý modul Požadavky na služby."
+
+#: includes/Modules/DashboardWidgets/ModuleWidgets.php
+msgid "Dashboard widget: blocked IP addresses"
+msgstr "Widget na nástěnce: blokované IP adresy"
+
+#: includes/Modules/DashboardWidgets/ModuleWidgets.php
+msgid "Active IP bans with their expiry. Shown only while the Security module is on."
+msgstr "Aktivní blokace IP s dobou vypršení. Zobrazí se, jen když je zapnutý modul Zabezpečení."
+
+#: includes/Modules/DashboardWidgets/ModuleWidgets.php
+msgid "Dashboard widget: form submissions"
+msgstr "Widget na nástěnce: odpovědi formulářů"
+
+#: includes/Modules/DashboardWidgets/ModuleWidgets.php
+msgid "Unread submissions of the Form Builder. Shown only while the Form Builder module is on."
+msgstr "Nepřečtené odpovědi z Formulářů. Zobrazí se, jen když je zapnutý modul Formuláře."
+
+#: includes/Modules/DashboardWidgets/ModuleWidgets.php
+msgid "Dashboard widget: bot throttle"
+msgstr "Widget na nástěnce: omezování botů"
+
+#: includes/Modules/DashboardWidgets/ModuleWidgets.php
+msgid "Bot traffic and bans. Shown only while the Bot throttle module is on."
+msgstr "Provoz botů a blokace. Zobrazí se, jen když je zapnutý modul Omezování botů."
+
+#: includes/Modules/DashboardWidgets/ModuleWidgets.php
+msgid "Dashboard widget: DNS changes"
+msgstr "Widget na nástěnce: změny DNS"
+
+#: includes/Modules/DashboardWidgets/ModuleWidgets.php
+msgid "Recent DNS changes. Shown only while the DNS manager module is on."
+msgstr "Poslední změny DNS. Zobrazí se, jen když je zapnutý modul Správa DNS."
+
+#: includes/Modules/DashboardWidgets/ModuleWidgets.php
+msgid "Dashboard widget: AI Panel"
+msgstr "Widget na nástěnce: AI Panel"
+
+#: includes/Modules/DashboardWidgets/ModuleWidgets.php
+msgid "Temporary remote access for an AI agent. Shown only while the AI Panel module is on."
+msgstr "Dočasný vzdálený přístup pro AI agenta. Zobrazí se, jen když je zapnutý modul AI Panel."
+
+#: includes/Modules/SecurityOptimization/BlockedUsernamesNotice.php
+msgid "UX Studio security warning:"
+msgstr "Bezpečnostní upozornění UX Studia:"
+
+#: includes/Modules/SecurityOptimization/BlockedUsernamesNotice.php
+msgid "and %d more…"
+msgstr "a dalších %d…"
+
+msgid "%d item"
+msgid_plural "%d items"
+msgstr[0] "%d položka"
+msgstr[1] "%d položky"
+msgstr[2] "%d položek"
+
+msgid "%d existing user account uses a blocked username. Blocking only stops new accounts - rename or replace this one:"
+msgid_plural "%d existing user accounts use a blocked username. Blocking only stops new accounts - rename or replace these:"
+msgstr[0] "%d existující účet používá zakázané jméno. Blokace zastaví jen nové účty - tento účet přejmenujte nebo nahraďte:"
+msgstr[1] "%d existující účty používají zakázané jméno. Blokace zastaví jen nové účty - tyto účty přejmenujte nebo nahraďte:"
+msgstr[2] "%d existujících účtů používá zakázané jméno. Blokace zastaví jen nové účty - tyto účty přejmenujte nebo nahraďte:"
+
+#: build/index.js:1
+msgid "AI sitemap"
+msgstr "AI sitemapa"
+
+#: build/index.js:1
+msgid "Product"
+msgstr "Produkt"
+
+#: build/index.js:1
+msgid "Total"
+msgstr "Celkem"
+
+#: build/index.js:1
+msgid "Top bot"
+msgstr "Nejaktivnější bot"
+
+#: build/index.js:1
+msgid "AI bot"
+msgstr "AI bot"
+
+#: build/index.js:1
+msgid "Search bot, URL, IP…"
+msgstr "Hledat bota, URL, IP…"
+
+#: build/index.js:1
+msgid "All bots"
+msgstr "Všichni boti"
+
+#: build/index.js:1
+msgid "Delete the selected log entries?"
+msgstr "Smazat vybrané záznamy logu?"
+
+#: build/index.js:1
+msgid "Delete selected"
+msgstr "Smazat vybrané"
+
+#: build/index.js:1
+msgid "No AI bot has accessed the markdown endpoints yet."
+msgstr "Žádný AI bot zatím markdown verze nenavštívil."
+
+#: build/index.js:1
+msgid "Select all"
+msgstr "Vybrat vše"
+
+#: build/index.js:1
+msgid "IP address"
+msgstr "IP adresa"
+
+#: build/index.js:1
+msgid "Sync with the central app"
+msgstr "Synchronizace s centrální aplikací"
+
+#: build/index.js:1
+msgid "Last sent:"
+msgstr "Naposledy odesláno:"
+
+#: build/index.js:1
+msgid "The cron settings have not been sent to the central app yet."
+msgstr "Nastavení cronu zatím nebylo do centrální aplikace odesláno."
+
+#: build/index.js:1
+msgid "The central app may not be calling wp-cron.php for this site, so scheduled tasks may not run. Resend the settings."
+msgstr "Centrální aplikace možná pro tento web nevolá wp-cron.php, takže naplánované úlohy nemusí běžet. Odešlete nastavení znovu."
+
+#: build/index.js:1
+msgid "Resend settings to the central app"
+msgstr "Znovu odeslat nastavení do centrální aplikace"
+
+#: build/index.js:1
+msgid "Queue a full-history Google scan on the central app (NAS scraper). Fetch reviews once the scan has finished."
+msgstr "Zařadí v centrální aplikaci sken celé historie Google recenzí (scraper na NAS). Po dokončení skenu recenze stáhněte."
+
+#: build/index.js:1
+msgid "Request deep scan (NAS)"
+msgstr "Vyžádat hloubkový sken (NAS)"
+
+#: build/index.js:1
+msgid "Deep scan queued (job #%d). Fetch reviews once it has finished."
+msgstr "Hloubkový sken zařazen (úloha č. %d). Po dokončení recenze stáhněte."
+
+#: build/index.js:1
+msgid "%s was added to the CSP custom domain allowlist."
+msgstr "%s bylo přidáno do povolených domén CSP."
+
+#: build/index.js:1
+msgid "%s is already in the CSP custom domain allowlist."
+msgstr "%s už je v povolených doménách CSP."
+
+#: build/index.js:1
+msgid "Add %s to the CSP allowlist"
+msgstr "Přidat %s mezi povolené zdroje CSP"
+
+#: build/index.js:1
+msgid "Add to allowlist"
+msgstr "Povolit"

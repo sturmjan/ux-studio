@@ -4,6 +4,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, LoaderCircle, Wrench } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
+import { TabsNav } from '../../app/SubNav';
 
 type Tab = 'analyze' | 'history';
 
@@ -193,14 +194,14 @@ export default function Page(): JSX.Element {
 					{ __( 'Performance Optimization', 'ux-studio' ) }
 				</h1>
 			</header>
-			<div className="uxs-tabs">
+			<TabsNav>
 				<button className={ tab === 'analyze' ? 'is-active' : '' } onClick={ () => setTab( 'analyze' ) }>
 					{ __( 'Analyze', 'ux-studio' ) }
 				</button>
 				<button className={ tab === 'history' ? 'is-active' : '' } onClick={ () => setTab( 'history' ) }>
 					{ __( 'History', 'ux-studio' ) }
 				</button>
-			</div>
+			</TabsNav>
 			{ tab === 'analyze' && <AnalyzeTab /> }
 			{ tab === 'history' && <HistoryTab /> }
 		</>

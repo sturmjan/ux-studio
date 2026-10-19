@@ -5,6 +5,7 @@ import { ArrowLeft, Download, LoaderCircle, Pencil, Play, Trash2, Upload } from 
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { TabsNav } from '../../app/SubNav';
 
 type Tab = 'rules' | '404' | 'audit' | 'import' | 'settings';
 type Code = 301 | 302 | 307 | 308 | 410;
@@ -682,13 +683,13 @@ export default function Page(): JSX.Element {
 					{ __( 'Redirects', 'ux-studio' ) }
 				</h1>
 			</header>
-			<div className="uxs-tabs">
+			<TabsNav>
 				{ tabs.map( ( [ id, label ] ) => (
 					<button key={ id } className={ tab === id ? 'is-active' : '' } onClick={ () => setTab( id ) }>
 						{ label }
 					</button>
 				) ) }
-			</div>
+			</TabsNav>
 			{ tab === 'rules' && <RulesTab draft={ draft } setDraft={ setDraft } /> }
 			{ tab === '404' && (
 				<NotFoundTab

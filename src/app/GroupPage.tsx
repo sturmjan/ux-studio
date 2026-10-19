@@ -4,14 +4,21 @@
  * settings page, so a site can run just one part of the group.
  * Route: #/module?id=<group-id>
  */
+import { Suspense } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { __, sprintf } from '@wordpress/i18n';
-import { ArrowLeft, ChevronRight, LoaderCircle } from 'lucide-react';
+import { ArrowLeft, LoaderCircle } from 'lucide-react';
 import { api, queryClient, type ModuleInfo } from './api';
 import { ModuleIcon } from './moduleIcons';
-import { navigate } from './route';
+import { hashParam, navigate } from './route';
+import { ModuleSettings } from './ModuleSettings';
+import { MODULE_PAGES } from '../modules/registry';
+import { FEATURE_VIEWS, useViewEnabled } from './featureViews';
 
 export function GroupPage( { groupId }: { groupId: string } ): JSX.Element {
+	const active = hashParam( 'feature' ) ?? '';
+	const activeView = FEATURE_VIEWS[ active ]?.find( ( v ) => v.id === hashParam( 'view' ) );
+	const viewState = useViewEnabled( active, activeView );
 	const { data: modules, isLoading } = useQuery( {
 		queryKey: [ 'modules' ],
 		queryFn: () => api< ModuleInfo[] >( 'modules' ),
@@ -49,6 +56,15 @@ export function GroupPage( { groupId }: { groupId: string } ): JSX.Element {
 		.map( ( id ) => modules.find( ( m ) => m.id === id ) )
 		.filter( ( m ): m is ModuleInfo => !! m );
 	const enabledCount = features.filter( ( f ) => f.enabled ).length;
+	const current = features.find( ( f ) => f.id === active ) ?? features[ 0 ];
+	if ( ! current ) {
+		return <p>{ group.description }</p>;
+	}
+	const Custom = MODULE_PAGES[ current.id ];
+	const view = activeView?.enabledKey && active === current.id ? activeView : FEATURE_VIEWS[ current.id ]?.find( ( v ) => v.id === hashParam( 'view' ) );
+	// A view with its own switch drives the header switch and body; otherwise the feature's.
+	const switchOn = view?.enabledKey ? viewState.enabled : current.enabled;
+	const onSwitch = (): void => ( view?.enabledKey ? viewState.toggle() : toggle.mutate( current ) );
 
 	return (
 		<>
@@ -74,38 +90,42 @@ export function GroupPage( { groupId }: { groupId: string } ): JSX.Element {
 				</span>
 			</header>
 			<p className="uxs-group__intro">{ group.description }</p>
-			<div className="uxs-group">
-				{ features.map( ( f ) => (
-					<div key={ f.id } className={ `uxs-group__item${ f.enabled ? ' is-on' : '' }` }>
-						<span className="uxs-tile__icon">
-							<ModuleIcon name={ f.icon } size={ 20 } />
-						</span>
-						<div className="uxs-group__text">
-							<span className="uxs-tile__name">{ f.name }</span>
-							<span className="uxs-tile__desc">{ f.description }</span>
-						</div>
-						<div className="uxs-group__actions">
-							{ f.settings && f.enabled ? (
-								<button
-									type="button"
-									className="button"
-									onClick={ () => navigate( 'module', { id: f.id } ) }
-								>
-									{ __( 'Configure', 'ux-studio' ) }
-									<ChevronRight size={ 14 } aria-hidden />
-								</button>
-							) : null }
-							<button
-								type="button"
-								className={ `uxs-switch${ f.enabled ? ' is-on' : '' }` }
-								aria-label={ f.enabled ? __( 'Disable module', 'ux-studio' ) : __( 'Enable module', 'ux-studio' ) }
-								aria-pressed={ f.enabled }
-								onClick={ () => toggle.mutate( f ) }
-							/>
-						</div>
+			<section className="uxs-group__item">
+				<div className="uxs-group__head">
+					<span className="uxs-tile__icon">
+						<ModuleIcon name={ current.icon } size={ 20 } />
+					</span>
+					<div className="uxs-group__text">
+						<h2 className="uxs-tile__name">{ view ? `${ current.name }: ${ view.label }` : current.name }</h2>
+						<span className="uxs-tile__desc">{ view ? '' : current.description }</span>
 					</div>
-				) ) }
-			</div>
+					<span className="uxs-group__state">{ switchOn ? __( 'Enabled', 'ux-studio' ) : __( 'Disabled', 'ux-studio' ) }</span>
+					<button
+						type="button"
+						className={ `uxs-switch${ switchOn ? ' is-on' : '' }` }
+						aria-label={ switchOn ? __( 'Disable module', 'ux-studio' ) : __( 'Enable module', 'ux-studio' ) }
+						aria-pressed={ switchOn }
+						onClick={ onSwitch }
+					/>
+				</div>
+				{ current.enabled && current.settings && switchOn ? (
+					<div className="uxs-group__body uxs-embedded" key={ `${ current.id }-${ view?.id ?? '' }` }>
+						{ Custom ? (
+							<Suspense
+								fallback={
+									<div className="uxs-loading">
+										<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />
+									</div>
+								}
+							>
+								<Custom />
+							</Suspense>
+						) : (
+							<ModuleSettings moduleId={ current.id } embedded />
+						) }
+					</div>
+				) : null }
+			</section>
 		</>
 	);
 }

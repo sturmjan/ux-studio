@@ -1,10 +1,11 @@
 import { Fragment, useState } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Copy, Eye, EyeOff, LoaderCircle, RefreshCw, Sparkles, Star } from 'lucide-react';
+import { ArrowLeft, Copy, Eye, EyeOff, LoaderCircle, RefreshCw, ScanSearch, Sparkles, Star } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { TabsNav } from '../../app/SubNav';
 
 type Tab = 'reviews' | 'stats' | 'settings';
 
@@ -21,6 +22,12 @@ interface Review {
 
 interface FetchResult {
 	fetched: number;
+}
+
+interface ScrapeResult {
+	profile_id: number;
+	job_id: number;
+	status: string;
 }
 
 interface SuggestReplyResult {
@@ -44,6 +51,14 @@ function ReviewsTab(): JSX.Element {
 		onSuccess: () => {
 			void queryClient.invalidateQueries( { queryKey: [ 'review-aggregator', 'reviews' ] } );
 			void queryClient.invalidateQueries( { queryKey: [ 'review-aggregator', 'stats' ] } );
+		},
+	} );
+
+	const requestScrape = useMutation( {
+		mutationFn: () => api< ScrapeResult >( 'review-aggregator/request-scrape', { method: 'POST', body: JSON.stringify( {} ) } ),
+		onSuccess: () => {
+			// The profile id may have just been stored in the settings.
+			void queryClient.invalidateQueries( { queryKey: [ 'settings', 'review-aggregator' ] } );
 		},
 	} );
 
@@ -76,8 +91,29 @@ function ReviewsTab(): JSX.Element {
 			<div style={ { marginBottom: 'var(--uxs-sp-4)' } }>
 				<button type="button" className="button button-primary" disabled={ fetchReviews.isPending } onClick={ () => fetchReviews.mutate() }>
 					{ fetchReviews.isPending ? <LoaderCircle size={ 14 } /> : <RefreshCw size={ 14 } /> } { __( 'Fetch reviews', 'ux-studio' ) }
+				</button>{ ' ' }
+				<button
+					type="button"
+					className="button"
+					disabled={ requestScrape.isPending }
+					onClick={ () => requestScrape.mutate() }
+					title={ __( 'Queue a full-history Google scan on the central app (NAS scraper). Fetch reviews once the scan has finished.', 'ux-studio' ) }
+				>
+					{ requestScrape.isPending ? <LoaderCircle size={ 14 } /> : <ScanSearch size={ 14 } /> } { __( 'Request deep scan (NAS)', 'ux-studio' ) }
 				</button>
 				{ fetchReviews.isError ? <p className="uxs-form__help">{ ( fetchReviews.error as Error ).message }</p> : null }
+				{ requestScrape.isError ? <p className="uxs-form__help">{ ( requestScrape.error as Error ).message }</p> : null }
+				{ requestScrape.data ? (
+					<p>
+						<span className="uxs-badge is-success">
+							{ sprintf(
+								/* translators: %d: central app scrape job id */
+								__( 'Deep scan queued (job #%d). Fetch reviews once it has finished.', 'ux-studio' ),
+								requestScrape.data.job_id
+							) }
+						</span>
+					</p>
+				) : null }
 				{ fetchReviews.data ? (
 					<p>
 						<span className="uxs-badge is-success">
@@ -159,7 +195,7 @@ function ReviewsTab(): JSX.Element {
 												<button
 													type="button"
 													className="button"
-													onClick={ () => void navigator.clipboard.writeText( suggestions[ review.id ] ) }
+													onClick={ () => void navigator.clipboard.writeText( suggestions[ review.id ] ?? '' ) }
 												>
 													<Copy size={ 14 } /> { __( 'Copy', 'ux-studio' ) }
 												</button>
@@ -242,7 +278,7 @@ export default function Page(): JSX.Element {
 					{ __( 'Review Aggregator', 'ux-studio' ) }
 				</h1>
 			</header>
-			<div className="uxs-tabs">
+			<TabsNav>
 				<button className={ tab === 'reviews' ? 'is-active' : '' } onClick={ () => setTab( 'reviews' ) }>
 					{ __( 'Reviews', 'ux-studio' ) }
 				</button>
@@ -252,7 +288,7 @@ export default function Page(): JSX.Element {
 				<button className={ tab === 'settings' ? 'is-active' : '' } onClick={ () => setTab( 'settings' ) }>
 					{ __( 'Settings', 'ux-studio' ) }
 				</button>
-			</div>
+			</TabsNav>
 			{ tab === 'reviews' && <ReviewsTab /> }
 			{ tab === 'stats' && <StatsTab /> }
 			{ tab === 'settings' && ( isLoading || ! data ) && (

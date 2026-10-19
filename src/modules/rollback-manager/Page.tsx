@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, History, LoaderCircle, RotateCcw } from 'lucide-react';
 import { api } from '../../app/api';
 import { hashParam, navigate } from '../../app/route';
+import { TabsNav } from '../../app/SubNav';
 
 type Tab = 'plugins' | 'themes';
 type ItemType = 'plugin' | 'theme';
@@ -210,14 +211,14 @@ export default function Page(): JSX.Element {
 					<History size={ 18 } style={ { verticalAlign: 'middle' } } /> { __( 'Rollback Manager', 'ux-studio' ) }
 				</h1>
 			</header>
-			<div className="uxs-tabs">
+			<TabsNav>
 				<button className={ tab === 'plugins' ? 'is-active' : '' } onClick={ () => setTab( 'plugins' ) }>
 					{ __( 'Plugins', 'ux-studio' ) }
 				</button>
 				<button className={ tab === 'themes' ? 'is-active' : '' } onClick={ () => setTab( 'themes' ) }>
 					{ __( 'Themes', 'ux-studio' ) }
 				</button>
-			</div>
+			</TabsNav>
 			{ isLoading || ! data ? (
 				<div className="uxs-loading">
 					<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />

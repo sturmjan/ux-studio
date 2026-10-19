@@ -13,6 +13,7 @@ import { ContentCreatorTab } from './ContentCreatorTab';
 import { BlogPilotTab } from './BlogPilotTab';
 import { InternalChatTab } from './InternalChatTab';
 import { McpTab } from './McpTab';
+import { TabsNav } from '../../app/SubNav';
 
 /**
  * Tab registry for this module's page - covers every AI Assistant sub-feature
@@ -278,13 +279,13 @@ export default function Page(): JSX.Element {
 					{ __( 'AI Assistant', 'ux-studio' ) }
 				</h1>
 			</header>
-			<div className="uxs-tabs">
+			<TabsNav>
 				{ TABS.map( ( t ) => (
 					<button key={ t.id } className={ tab === t.id ? 'is-active' : '' } onClick={ () => setTab( t.id ) }>
 						{ t.label }
 					</button>
 				) ) }
-			</div>
+			</TabsNav>
 			{ tab === 'settings' && <SettingsTab showKeyStatus /> }
 			{ tab === 'widget' && <SettingsTab filter={ isWidgetKey } /> }
 			{ tab === 'usage' && <UsageTab /> }

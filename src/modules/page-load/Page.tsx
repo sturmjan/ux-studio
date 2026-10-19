@@ -9,6 +9,7 @@ import { ArrowLeft, Check, LoaderCircle } from 'lucide-react';
 import { api } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { TabsNav } from '../../app/SubNav';
 
 type Tab = 'overview' | 'impact' | 'settings';
 
@@ -299,7 +300,7 @@ export default function Page(): JSX.Element {
 					</button>
 				) }
 			</header>
-			<div className="uxs-tabs">
+			<TabsNav>
 				<button
 					className={ tab === 'overview' ? 'is-active' : '' }
 					onClick={ () => setTab( 'overview' ) }
@@ -318,7 +319,7 @@ export default function Page(): JSX.Element {
 				>
 					{ __( 'Settings', 'ux-studio' ) }
 				</button>
-			</div>
+			</TabsNav>
 			{ tab === 'overview' && <OverviewTab /> }
 			{ tab === 'impact' && <ImpactTab /> }
 			{ tab === 'settings' &&

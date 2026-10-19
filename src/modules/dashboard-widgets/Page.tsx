@@ -5,6 +5,7 @@ import { ArrowLeft, LoaderCircle, Plus, Trash2 } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { TabsNav } from '../../app/SubNav';
 
 type Tab = 'tasks' | 'settings';
 
@@ -305,14 +306,14 @@ export default function Page(): JSX.Element {
 					{ __( 'Dashboard Widgets', 'ux-studio' ) }
 				</h1>
 			</header>
-			<div className="uxs-tabs">
+			<TabsNav>
 				<button className={ tab === 'tasks' ? 'is-active' : '' } onClick={ () => setTab( 'tasks' ) }>
 					{ __( 'Tasks', 'ux-studio' ) }
 				</button>
 				<button className={ tab === 'settings' ? 'is-active' : '' } onClick={ () => setTab( 'settings' ) }>
 					{ __( 'Settings', 'ux-studio' ) }
 				</button>
-			</div>
+			</TabsNav>
 			{ tab === 'tasks' && (
 				<>
 					<h2>{ __( 'PageSpeed score', 'ux-studio' ) }</h2>
