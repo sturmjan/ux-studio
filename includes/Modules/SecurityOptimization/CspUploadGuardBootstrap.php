@@ -29,8 +29,12 @@ final class CspUploadGuardBootstrap {
 	/**
 	 * v2: full-scan worklist moved from one big option to the scan_queue table.
 	 * v3: keyword scoring replaced by token analysis + WordPress.org checksums.
+	 * v4: file_size/file_mtime in the hash cache (unchanged files are not read).
 	 */
-	private const DB_VERSION   = 3;
+	private const DB_VERSION   = 4;
+
+	/** Bump when the nightly slot logic changes, so existing events move. */
+	private const CRON_SLOT_VERSION = 2;
 
 	private static bool $registered = false;
 
@@ -140,6 +144,8 @@ final class CspUploadGuardBootstrap {
 						id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 						file_path varchar(500) NOT NULL DEFAULT '',
 						hash varchar(64) NOT NULL DEFAULT '',
+						file_size bigint(20) UNSIGNED NOT NULL DEFAULT 0,
+						file_mtime bigint(20) UNSIGNED NOT NULL DEFAULT 0,
 						approved tinyint(1) NOT NULL DEFAULT 0,
 						updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 						PRIMARY KEY  (id),
@@ -179,11 +185,19 @@ final class CspUploadGuardBootstrap {
 	}
 
 	/**
-	 * Schedule the nightly cron event if it is not already scheduled.
+	 * Schedule the nightly cron at this site's own slot in the night window
+	 * (site time zone + an offset derived from the URL, so sites on one
+	 * server don't all start together). Events from older versions (a fixed
+	 * 03:00 UTC for every site) are moved once.
 	 */
 	private static function ensure_cron_scheduled(): void {
+		$slot_key = self::CRON_SLOT_VERSION . ':' . UploadGuardScanner::site_offset() . ':' . wp_timezone_string();
+		if ( get_option( 'uxstudio_security_cron_slot' ) !== $slot_key ) {
+			wp_clear_scheduled_hook( UploadGuardScanner::DAILY_CRON_HOOK );
+			update_option( 'uxstudio_security_cron_slot', $slot_key, false );
+		}
 		if ( ! wp_next_scheduled( UploadGuardScanner::DAILY_CRON_HOOK ) ) {
-			wp_schedule_event( strtotime( 'tomorrow 03:00' ), 'daily', UploadGuardScanner::DAILY_CRON_HOOK );
+			wp_schedule_event( UploadGuardScanner::next_nightly_slot(), 'daily', UploadGuardScanner::DAILY_CRON_HOOK );
 		}
 	}
 

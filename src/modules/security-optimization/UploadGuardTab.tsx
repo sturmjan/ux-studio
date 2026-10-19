@@ -27,11 +27,16 @@ interface ScanStatus {
 	remaining: number;
 	scanned: number;
 	detections: number;
+	read?: number;
+	deep?: boolean;
+	manual?: boolean;
+	paused_until?: number;
+	pause_reason?: 'window' | 'load';
 }
 
 interface ScanStatusResponse {
 	status: ScanStatus;
-	stats: { last_scan_at?: string; files_scanned?: number; detections_found?: number };
+	stats: { last_scan_at?: string; files_scanned?: number; files_read?: number; detections_found?: number };
 }
 
 const FINDINGS_KEY = [ 'security-optimization', 'findings' ];
@@ -129,6 +134,22 @@ export function UploadGuardTab(): JSX.Element {
 
 	const status = scanStatus.data?.status;
 	const isRunning = status?.state === 'running';
+	const pausedUntil =
+		isRunning && status?.paused_until && status.paused_until * 1000 > Date.now()
+			? new Date( status.paused_until * 1000 ).toLocaleString( undefined, { weekday: 'short', hour: '2-digit', minute: '2-digit' } )
+			: null;
+
+	let progress = '';
+	if ( isRunning && status ) {
+		progress = `${ __( 'Scanning in batches…', 'ux-studio' ) } ${ status.scanned }/${ status.total }`;
+		if ( pausedUntil ) {
+			progress += ` · ${
+				status.pause_reason === 'load'
+					? __( 'server is busy, continuing at', 'ux-studio' )
+					: __( 'waiting for the night window, continuing at', 'ux-studio' )
+			} ${ pausedUntil }`;
+		}
+	}
 
 	return (
 		<>
@@ -144,7 +165,7 @@ export function UploadGuardTab(): JSX.Element {
 				} }
 			>
 				<p style={ { margin: 0, color: 'var(--uxs-text-soft)' } }>
-					{ __( 'New uploads and the nightly scan of uploads, plugins and themes are checked for injected code. The scanner only reports: nothing is moved or deleted unless you quarantine a file yourself.', 'ux-studio' ) }
+					{ __( 'New uploads are checked right away; uploads, plugins and themes are scanned at night by the schedule below, in small batches that pause when the server is busy. The scanner only reports: nothing is moved or deleted unless you quarantine a file yourself.', 'ux-studio' ) }
 				</p>
 				<button
 					type="button"
@@ -160,10 +181,16 @@ export function UploadGuardTab(): JSX.Element {
 			{ status && (
 				<p style={ { color: 'var(--uxs-text-soft)', fontSize: 'var(--uxs-fs-s)' } }>
 					{ isRunning
-						? __( 'Scanning in batches…', 'ux-studio' ) + ` ${ status.scanned }/${ status.total }`
+						? progress
 						: scanStatus.data?.stats.last_scan_at
 						? `${ __( 'Last scan:', 'ux-studio' ) } ${ scanStatus.data.stats.last_scan_at } · ${ __( 'files scanned:', 'ux-studio' ) } ${ scanStatus.data.stats.files_scanned ?? 0 } · ${ __( 'detections:', 'ux-studio' ) } ${ scanStatus.data.stats.detections_found ?? 0 }`
 						: __( 'No scan has run yet.', 'ux-studio' ) }
+				</p>
+			) }
+
+			{ triggerScan.isError && (
+				<p>
+					<span className="uxs-badge is-warning">{ ( triggerScan.error as Error ).message }</span>
 				</p>
 			) }
 

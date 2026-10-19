@@ -48,15 +48,53 @@ final class UploadGuardScanner {
 	private const STATS_OPTION  = 'uxstudio_security_scan_stats';
 
 	private const QUEUE_BATCH_SIZE   = 25;
-	private const FULL_BATCH_SIZE    = 40;
 	private const MAX_WORKLIST       = 20000;
 	private const QUEUE_INSERT_CHUNK = 500;
+
+	/*
+	 * Full-scan throttling. A run must never compete with visitors: it works
+	 * in small batches with pauses, only at night (automatic runs), backs off
+	 * when the server is loaded, and skips unchanged files without reading them.
+	 */
+
+	/** Files READ per batch at most (a stat()-only check of an unchanged file is not counted)... */
+	private const BATCH_MAX_FILES = 40;
+
+	/** Queue rows looked at per batch (bounds a batch of unchanged files). */
+	private const BATCH_MAX_ROWS = 1000;
+
+	/** ...and seconds of work per batch at most, whichever comes first. */
+	private const BATCH_TIME_BUDGET = 8;
+
+	/** Pause between batches, in seconds. */
+	private const BATCH_GAP = 30;
+
+	/** Automatic runs only work between these hours (site time zone). */
+	private const WINDOW_START_HOUR = 1;
+	private const WINDOW_END_HOUR   = 6;
+
+	/** Server load above (CPU cores x this) postpones the next batch. */
+	private const LOAD_PER_CORE = 1.0;
+	private const LOAD_RETRY    = 5 * MINUTE_IN_SECONDS;
+
+	/** "Scan now" at most once per this period. */
+	public const MANUAL_COOLDOWN = HOUR_IN_SECONDS;
+
+	/** Every Nth automatic run re-reads unchanged files too (mtime can be faked). */
+	private const DEEP_EVERY = 4;
+
+	/** A run not finished within this time is ended as interrupted. */
+	private const MAX_RUN_TIME = 7 * DAY_IN_SECONDS;
+
+	/** One batch at a time: two WP-Cron requests must not process in parallel. */
+	private const LOCK_OPTION = 'uxstudio_security_scan_lock';
+	private const LOCK_TTL    = 2 * MINUTE_IN_SECONDS;
 
 	/** Watchdog: no batch progress for this long = the chain is broken, reschedule. */
 	private const STALL_TIMEOUT = 15 * MINUTE_IN_SECONDS;
 
-	/** Watchdog: no progress for this long = give up and end the scan as interrupted. */
-	private const STALL_ABORT = DAY_IN_SECONDS;
+	/** Counter of automatic runs (for DEEP_EVERY) and time of the last one. */
+	private const AUTO_RUNS_OPTION = 'uxstudio_security_auto_runs';
 
 	/** Max file size scanned, in bytes (10 MB). Larger files are skipped. */
 	private const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -67,6 +105,9 @@ final class UploadGuardScanner {
 	private UploadGuardDetectionEngine $engine;
 
 	private UploadGuardChecksums $checksums;
+
+	/** Why the last seconds_to_wait() call asked to wait: 'window' or 'load'. */
+	private string $last_wait_reason = '';
 
 	public function __construct() {
 		$this->engine    = new UploadGuardDetectionEngine();
@@ -221,13 +262,13 @@ final class UploadGuardScanner {
 
 		if ( $this->is_hash_cleared( $file_path, $hash ) ) {
 			$wpdb->delete( $table, array( 'id' => (int) $row->id ), array( '%d' ) );
-			$this->cache_hash( $file_path, $hash );
+			$this->cache_hash( $file_path, $hash, $size, (int) filemtime( $file_path ) );
 			return null;
 		}
 
 		$result = $this->evaluate( $file_path );
 
-		$this->cache_hash( $file_path, $hash );
+		$this->cache_hash( $file_path, $hash, $size, (int) filemtime( $file_path ) );
 
 		if ( null === $result ) {
 			$wpdb->delete( $table, array( 'id' => (int) $row->id ), array( '%d' ) );
@@ -347,16 +388,34 @@ final class UploadGuardScanner {
 	 * ========================================================== */
 
 	/**
-	 * Kick off a full wp-content injection scan. Called by the manual "Scan
-	 * now" REST action and by the daily cron. Builds a bounded worklist once
-	 * into the queue table (one row per file - NOT one huge option rewritten
-	 * after every batch), then processes it via chained single events.
+	 * Start a full scan. Builds a bounded worklist once into the queue table,
+	 * then processes it in throttled batches (see run_full_scan_batch).
+	 *
+	 * @param bool $manual Started from "Scan now" (any time of day, always a
+	 *                     deep read) rather than by the nightly schedule.
+	 * @return bool False when a run is already in progress.
 	 */
-	public function trigger_full_scan(): void {
+	public function trigger_full_scan( bool $manual = true ): bool {
 		$this->watchdog();
 		$status = $this->get_status();
 		if ( 'running' === ( $status['state'] ?? '' ) ) {
-			return; // Already in progress (and not stuck - the watchdog just checked).
+			return false;
+		}
+
+		$deep = $manual;
+		if ( ! $manual ) {
+			$runs = get_option( self::AUTO_RUNS_OPTION, array() );
+			$runs = is_array( $runs ) ? $runs : array();
+			$n    = (int) ( $runs['count'] ?? 0 ) + 1;
+			$deep = 1 === $n % self::DEEP_EVERY; // The very first run reads everything too.
+			update_option(
+				self::AUTO_RUNS_OPTION,
+				array(
+					'count' => $n,
+					'last'  => time(),
+				),
+				false
+			);
 		}
 
 		$worklist = $this->build_worklist();
@@ -368,83 +427,231 @@ final class UploadGuardScanner {
 			self::STATUS_OPTION,
 			array(
 				'state'            => 'running',
+				'manual'           => $manual,
+				'deep'             => $deep,
 				'total'            => count( $worklist ),
 				'remaining'        => count( $worklist ),
 				'scanned'          => 0,
+				'read'             => 0,
 				'detections'       => 0,
 				'started_at'       => current_time( 'mysql' ),
+				'started_ts'       => time(),
 				'last_progress_at' => time(),
 			),
 			false
 		);
 
-		if ( ! wp_next_scheduled( self::FULL_SCAN_EVENT ) ) {
-			wp_schedule_single_event( time() + 5, self::FULL_SCAN_EVENT );
-		}
+		$this->schedule_batch( $manual ? 5 : $this->seconds_until_window() );
+		return true;
 	}
 
 	/**
-	 * Process one batch of the full-scan queue; reschedules itself until the
-	 * queue is empty. The batch is claimed (deleted) BEFORE scanning, so a
-	 * file that fatals the scanner is skipped next time instead of wedging
-	 * the scan on the same batch forever.
+	 * Seconds until "Scan now" is allowed again (0 = allowed): at most one
+	 * manual run per MANUAL_COOLDOWN, counted from its start.
+	 */
+	public function manual_cooldown_left(): int {
+		$status = $this->get_status();
+		if ( empty( $status['manual'] ) ) {
+			return 0;
+		}
+		return max( 0, (int) ( $status['started_ts'] ?? 0 ) + self::MANUAL_COOLDOWN - time() );
+	}
+
+	/**
+	 * Process one batch of the full-scan queue, then schedule the next one
+	 * BATCH_GAP seconds later. A batch stops after reading BATCH_MAX_FILES
+	 * files or after BATCH_TIME_BUDGET seconds; unchanged files only cost a
+	 * stat(), so a quick run gets through thousands per batch. Outside the night window (automatic runs) or
+	 * under high server load it does nothing and reschedules itself later.
+	 * Each row is deleted BEFORE its file is scanned, so a file that fatals
+	 * the scanner is skipped next time instead of wedging the run.
 	 */
 	public function run_full_scan_batch(): void {
 		global $wpdb;
-		$queue = self::queue_table();
 
-		$rows = $wpdb->get_results(
-			$wpdb->prepare( "SELECT id, file_path FROM {$queue} ORDER BY id ASC LIMIT %d", self::FULL_BATCH_SIZE ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		);
-		if ( empty( $rows ) ) {
+		$status = $this->get_status();
+		if ( 'running' !== $status['state'] ) {
+			return;
+		}
+		if ( ! $this->acquire_lock() ) {
+			return; // Another request is processing a batch right now.
+		}
+
+		try {
+			$wait = $this->seconds_to_wait( $status );
+			if ( $wait > 0 ) {
+				$status['paused_until'] = time() + $wait;
+				$status['pause_reason'] = $this->last_wait_reason;
+				update_option( self::STATUS_OPTION, $status, false );
+				$this->schedule_batch( $wait );
+				return;
+			}
+			unset( $status['paused_until'], $status['pause_reason'] );
+
+			$queue = self::queue_table();
+			$rows  = $wpdb->get_results(
+				$wpdb->prepare( "SELECT id, file_path FROM {$queue} ORDER BY id ASC LIMIT %d", self::BATCH_MAX_ROWS ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			);
+			if ( empty( $rows ) ) {
+				update_option( self::STATUS_OPTION, $status, false );
+				$this->finish_full_scan();
+				return;
+			}
+
+			$started  = microtime( true );
+			$done     = 0;
+			$read     = 0;
+			$detected = array();
+			foreach ( $rows as $row ) {
+				if ( $done > 0 && ( $read >= self::BATCH_MAX_FILES || microtime( true ) - $started >= self::BATCH_TIME_BUDGET ) ) {
+					break;
+				}
+				// Claimed before scanning: a file that fatals the scanner is skipped next time.
+				$wpdb->delete( $queue, array( 'id' => (int) $row->id ), array( '%d' ) );
+				++$done;
+
+				$finding = $this->scan_full_scan_file( (string) $row->file_path, ! empty( $status['deep'] ), $read );
+				if ( null !== $finding ) {
+					$detected[] = $finding;
+				}
+			}
+
+			$remaining = $this->queue_count();
+
+			$status['scanned']          = (int) ( $status['scanned'] ?? 0 ) + $done;
+			$status['read']             = (int) ( $status['read'] ?? 0 ) + $read;
+			$status['remaining']        = $remaining;
+			$status['detections']       = (int) ( $status['detections'] ?? 0 ) + count( $detected );
+			$status['last_progress_at'] = time();
+			update_option( self::STATUS_OPTION, $status, false );
+
+			if ( ! empty( $detected ) ) {
+				( new UploadGuardNotifier() )->notify( $detected );
+			}
+
+			if ( $remaining > 0 ) {
+				$this->schedule_batch( self::BATCH_GAP );
+				return;
+			}
+
 			$this->finish_full_scan();
-			return;
+		} finally {
+			$this->release_lock();
 		}
-
-		$last_id = (int) end( $rows )->id;
-		$wpdb->query( $wpdb->prepare( "DELETE FROM {$queue} WHERE id <= %d", $last_id ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-
-		$detected = array();
-		foreach ( $rows as $row ) {
-			$finding = $this->scan_full_scan_file( (string) $row->file_path );
-			if ( null !== $finding ) {
-				$detected[] = $finding;
-			}
-		}
-
-		$remaining = $this->queue_count();
-
-		$status                     = $this->get_status();
-		$status['scanned']          = (int) ( $status['scanned'] ?? 0 ) + count( $rows );
-		$status['remaining']        = $remaining;
-		$status['detections']       = (int) ( $status['detections'] ?? 0 ) + count( $detected );
-		$status['last_progress_at'] = time();
-		update_option( self::STATUS_OPTION, $status, false );
-
-		if ( ! empty( $detected ) ) {
-			( new UploadGuardNotifier() )->notify( $detected );
-		}
-
-		if ( $remaining > 0 ) {
-			if ( ! wp_next_scheduled( self::FULL_SCAN_EVENT ) ) {
-				wp_schedule_single_event( time() + 5, self::FULL_SCAN_EVENT );
-			}
-			return;
-		}
-
-		$this->finish_full_scan();
 	}
 
 	/**
-	 * Recover a full scan stuck in `running` - e.g. the chained event was lost
-	 * (cron cleared, fatal mid-batch, module toggled), or a pre-queue-table scan
-	 * whose worklist lived in the old option. Cheap: one option read when idle.
+	 * How long the run should wait before working (0 = go now).
 	 *
-	 * Acts only once nothing has progressed for STALL_TIMEOUT:
-	 *  - queue empty            -> finish (marked interrupted when the run never
-	 *                              progressed at all - the legacy worklist case)
-	 *  - stalled >= STALL_ABORT -> give up: mark interrupted, clear the queue
-	 *  - otherwise              -> reschedule the lost batch event
+	 * @param array $status Current run status.
+	 */
+	private function seconds_to_wait( array $status ): int {
+		$this->last_wait_reason = '';
+
+		if ( empty( $status['manual'] ) ) {
+			$until_window = $this->seconds_until_window();
+			if ( $until_window > 0 ) {
+				$this->last_wait_reason = 'window';
+				return $until_window;
+			}
+		}
+
+		$load = $this->server_load_ratio();
+		if ( null !== $load && $load > self::LOAD_PER_CORE ) {
+			$this->last_wait_reason = 'load';
+			return self::LOAD_RETRY;
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Seconds until the night window opens (0 = inside it now). Each site
+	 * gets its own start inside the window, derived from its URL, so sites
+	 * sharing one server do not all start at the same minute.
+	 */
+	public function seconds_until_window(): int {
+		$now   = new \DateTimeImmutable( 'now', wp_timezone() );
+		$hour  = (int) $now->format( 'G' );
+		$open  = $now->setTime( self::WINDOW_START_HOUR, 0 )->getTimestamp() + self::site_offset();
+		$close = $now->setTime( self::WINDOW_END_HOUR, 0 )->getTimestamp();
+
+		if ( $now->getTimestamp() >= $open && $now->getTimestamp() < $close ) {
+			return 0;
+		}
+		if ( $hour >= self::WINDOW_END_HOUR ) {
+			$open += DAY_IN_SECONDS; // Window already over today: tomorrow night.
+		}
+		return max( 60, $open - $now->getTimestamp() );
+	}
+
+	/**
+	 * This site's start offset within the window, in seconds (stable).
+	 * Leaves the last hour of the window for the run itself.
+	 */
+	public static function site_offset(): int {
+		$span = ( self::WINDOW_END_HOUR - self::WINDOW_START_HOUR - 1 ) * HOUR_IN_SECONDS;
+		return $span > 0 ? (int) ( crc32( home_url() ) % $span ) : 0;
+	}
+
+	/**
+	 * 1-minute load average per CPU core, or null where the host hides it.
+	 */
+	private function server_load_ratio(): ?float {
+		if ( ! function_exists( 'sys_getloadavg' ) ) {
+			return null;
+		}
+		$load = @sys_getloadavg(); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		if ( ! is_array( $load ) || ! isset( $load[0] ) ) {
+			return null;
+		}
+		return (float) $load[0] / max( 1, $this->cpu_cores() );
+	}
+
+	private function cpu_cores(): int {
+		$cores = (int) get_transient( 'uxstudio_security_cpu_cores' );
+		if ( $cores > 0 ) {
+			return $cores;
+		}
+		$cpuinfo = @file_get_contents( '/proc/cpuinfo' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$cores   = is_string( $cpuinfo ) ? (int) preg_match_all( '/^processor\s*:/m', $cpuinfo ) : 0;
+		$cores   = $cores > 0 ? $cores : 2; // Unknown (open_basedir, Windows): assume a small box.
+		set_transient( 'uxstudio_security_cpu_cores', $cores, DAY_IN_SECONDS );
+		return $cores;
+	}
+
+	private function schedule_batch( int $delay ): void {
+		wp_clear_scheduled_hook( self::FULL_SCAN_EVENT );
+		wp_schedule_single_event( time() + max( 1, $delay ), self::FULL_SCAN_EVENT );
+	}
+
+	/**
+	 * Atomic lock (add_option fails if the row exists); a stale lock older
+	 * than LOCK_TTL is taken over - its holder died mid-batch.
+	 */
+	private function acquire_lock(): bool {
+		if ( add_option( self::LOCK_OPTION, time(), '', false ) ) {
+			return true;
+		}
+		$since = (int) get_option( self::LOCK_OPTION, 0 );
+		if ( time() - $since < self::LOCK_TTL ) {
+			return false;
+		}
+		update_option( self::LOCK_OPTION, time(), false );
+		return true;
+	}
+
+	private function release_lock(): void {
+		delete_option( self::LOCK_OPTION );
+	}
+
+	/**
+	 * Recover a full scan stuck in `running` (lost event, fatal mid-batch,
+	 * module toggled). Cheap: one option read when idle.
+	 *  - paused on purpose (night window, load) -> leave it alone
+	 *  - running longer than MAX_RUN_TIME     -> end as interrupted
+	 *  - no progress for STALL_TIMEOUT        -> finish if the queue is empty,
+	 *                                            else reschedule the lost batch
 	 */
 	public function watchdog(): void {
 		$status = $this->get_status();
@@ -452,12 +659,19 @@ final class UploadGuardScanner {
 			return;
 		}
 
+		$started = (int) ( $status['started_ts'] ?? 0 );
+		if ( $started && time() - $started > self::MAX_RUN_TIME ) {
+			$this->abort_full_scan();
+			return;
+		}
+
+		$paused_until = (int) ( $status['paused_until'] ?? 0 );
+		if ( $paused_until > time() && wp_next_scheduled( self::FULL_SCAN_EVENT ) ) {
+			return;
+		}
+
 		$last     = (int) ( $status['last_progress_at'] ?? 0 );
 		$idle_for = $last ? time() - $last : PHP_INT_MAX;
-
-		// A batch takes seconds and the next one is chained 5s later, so recent
-		// progress means healthy - even if the event is momentarily unscheduled
-		// because WP-Cron is executing it right now (don't double-schedule).
 		if ( $idle_for < self::STALL_TIMEOUT ) {
 			return;
 		}
@@ -467,19 +681,14 @@ final class UploadGuardScanner {
 			return;
 		}
 
-		if ( $idle_for >= self::STALL_ABORT ) {
-			$this->abort_full_scan();
-			return;
-		}
-
 		if ( ! wp_next_scheduled( self::FULL_SCAN_EVENT ) ) {
-			wp_schedule_single_event( time() + 5, self::FULL_SCAN_EVENT );
+			$this->schedule_batch( 5 );
 		}
 	}
 
 	/**
 	 * End a running full scan without finishing it (module switched off,
-	 * hopelessly stalled). Keeps the last-run stats untouched.
+	 * over MAX_RUN_TIME). Keeps the last-run stats untouched.
 	 */
 	public function abort_full_scan(): void {
 		$status = $this->get_status();
@@ -499,7 +708,9 @@ final class UploadGuardScanner {
 		$status                = $this->get_status();
 		$status['state']       = 'idle';
 		$status['finished_at'] = current_time( 'mysql' );
+		$status['finished_ts'] = time();
 		$status['interrupted'] = $interrupted;
+		unset( $status['paused_until'], $status['pause_reason'] );
 		update_option( self::STATUS_OPTION, $status, false );
 		$this->clear_queue();
 		delete_option( self::LEGACY_WORKLIST_OPTION );
@@ -514,6 +725,8 @@ final class UploadGuardScanner {
 			array(
 				'last_scan_at'     => current_time( 'mysql' ),
 				'files_scanned'    => $status['scanned'] ?? 0,
+				'files_read'       => $status['read'] ?? 0,
+				'deep'             => ! empty( $status['deep'] ),
 				'detections_found' => $status['detections'] ?? 0,
 			),
 			false
@@ -583,34 +796,45 @@ final class UploadGuardScanner {
 	}
 
 	/**
-	 * Scan a single file found during the full walk. Skips unchanged files
-	 * via the shared hash cache. Report only - never touches the file.
+	 * Scan a single file found during the full walk. Report only - never
+	 * touches the file. A file whose size and modification time match the
+	 * cache is skipped without being read at all (unless $deep); a file whose
+	 * content hash matches is skipped without analysis.
 	 *
+	 * @param int $read Incremented when the file content had to be read.
 	 * @return array|null Finding data if a detection was recorded, else null.
 	 */
-	private function scan_full_scan_file( string $file_path ): ?array {
+	private function scan_full_scan_file( string $file_path, bool $deep, int &$read ): ?array {
 		global $wpdb;
 
-		if ( ! file_exists( $file_path ) ) {
+		$stat = @stat( $file_path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		if ( false === $stat ) {
 			return null;
 		}
-		$size = (int) filesize( $file_path );
+		$size  = (int) $stat['size'];
+		$mtime = (int) $stat['mtime'];
 		if ( $size <= 0 || $size > self::MAX_FILE_SIZE ) {
 			return null;
 		}
 
+		if ( ! $deep && $this->is_stat_unchanged( $file_path, $size, $mtime ) ) {
+			return null;
+		}
+
+		++$read;
 		$hash = hash_file( 'sha256', $file_path );
 		if ( false === $hash ) {
 			return null;
 		}
 
 		if ( $this->is_hash_cleared( $file_path, $hash ) ) {
+			$this->cache_hash( $file_path, $hash, $size, $mtime );
 			return null;
 		}
 
 		$result = $this->evaluate( $file_path );
 
-		$this->cache_hash( $file_path, $hash );
+		$this->cache_hash( $file_path, $hash, $size, $mtime );
 
 		if ( null === $result ) {
 			return null;
@@ -724,9 +948,19 @@ final class UploadGuardScanner {
 	}
 
 	/**
+	 * Same size and modification time as when the file was last hashed.
+	 */
+	private function is_stat_unchanged( string $file_path, int $size, int $mtime ): bool {
+		global $wpdb;
+		$table = $wpdb->prefix . 'uxstudio_security_file_hashes';
+		$row   = $wpdb->get_row( $wpdb->prepare( "SELECT file_size, file_mtime FROM {$table} WHERE file_path = %s", $file_path ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		return $row && $mtime > 0 && (int) $row->file_size === $size && (int) $row->file_mtime === $mtime;
+	}
+
+	/**
 	 * Upsert the scan-time hash cache for a file.
 	 */
-	private function cache_hash( string $file_path, string $hash ): void {
+	private function cache_hash( string $file_path, string $hash, int $size = 0, int $mtime = 0 ): void {
 		global $wpdb;
 		$table = $wpdb->prefix . 'uxstudio_security_file_hashes';
 
@@ -736,10 +970,12 @@ final class UploadGuardScanner {
 				$table,
 				array(
 					'hash'       => $hash,
+					'file_size'  => $size,
+					'file_mtime' => $mtime,
 					'updated_at' => current_time( 'mysql' ),
 				),
 				array( 'file_path' => $file_path ),
-				array( '%s', '%s' ),
+				array( '%s', '%d', '%d', '%s' ),
 				array( '%s' )
 			);
 			return;
@@ -750,10 +986,12 @@ final class UploadGuardScanner {
 			array(
 				'file_path'  => $file_path,
 				'hash'       => $hash,
+				'file_size'  => $size,
+				'file_mtime' => $mtime,
 				'approved'   => 0,
 				'updated_at' => current_time( 'mysql' ),
 			),
-			array( '%s', '%s', '%d', '%s' )
+			array( '%s', '%s', '%d', '%d', '%d', '%s' )
 		);
 	}
 
@@ -762,11 +1000,40 @@ final class UploadGuardScanner {
 	 * ========================================================== */
 
 	/**
-	 * Nightly: drain any stuck queue, run the full scan, check integrity.
+	 * Nightly (at this site's slot in the window): drain any stuck upload
+	 * queue, check the few key files, and start a full scan only when one is
+	 * due by the schedule setting.
 	 */
 	public function run_daily_cron(): void {
 		$this->run_queue_batch();
-		$this->trigger_full_scan();
 		( new UploadGuardIntegrityChecker() )->run();
+		if ( $this->full_scan_due() ) {
+			$this->trigger_full_scan( false );
+		}
+	}
+
+	/**
+	 * Is an automatic full scan due? `upload_guard_schedule`: weekly (default),
+	 * daily, or manual (never automatic). A margin of 2 h keeps a daily cron
+	 * that drifts a little from skipping a day.
+	 */
+	private function full_scan_due(): bool {
+		$settings = (array) get_option( 'uxstudio_security_optimization', array() );
+		$schedule = (string) ( $settings['upload_guard_schedule'] ?? 'weekly' );
+		if ( 'manual' === $schedule ) {
+			return false;
+		}
+		$interval = 'daily' === $schedule ? DAY_IN_SECONDS : WEEK_IN_SECONDS;
+		$runs     = get_option( self::AUTO_RUNS_OPTION, array() );
+		$last     = is_array( $runs ) ? (int) ( $runs['last'] ?? 0 ) : 0;
+		return time() - $last >= $interval - 2 * HOUR_IN_SECONDS;
+	}
+
+	/**
+	 * Timestamp of this site's next nightly slot (window start + site offset).
+	 */
+	public static function next_nightly_slot(): int {
+		$tomorrow = new \DateTimeImmutable( 'tomorrow', wp_timezone() );
+		return $tomorrow->setTime( self::WINDOW_START_HOUR, 0 )->getTimestamp() + self::site_offset();
 	}
 }

@@ -16,8 +16,8 @@ defined( 'ABSPATH' ) || exit;
  * the package, or are not in it at all, are worth a heuristic look.
  *
  * Checksums come from downloads.wordpress.org/plugin-checksums/<slug>/<ver>.json
- * and are cached per slug+version in a transient (PHP-family entries only,
- * a few hundred KB at most). Plugins not hosted on WordPress.org (premium,
+ * and are cached per slug+version in a transient for 30 days (PHP-family
+ * entries only, a few hundred KB at most). Plugins not hosted on WordPress.org (premium,
  * custom) get a negative cache entry and fall back to heuristics.
  */
 final class UploadGuardChecksums {
@@ -28,8 +28,11 @@ final class UploadGuardChecksums {
 	public const UNVERIFIABLE = 'unverifiable';
 
 	private const TRANSIENT_PREFIX = 'uxs_sec_cs_';
-	private const CACHE_TTL        = 12 * HOUR_IN_SECONDS;
-	private const MISS_TTL         = DAY_IN_SECONDS;
+	/** Checksums of a released version never change - keep them a month. */
+	private const CACHE_TTL = 30 * DAY_IN_SECONDS;
+
+	/** "Not on WordPress.org" is re-checked weekly. */
+	private const MISS_TTL = WEEK_IN_SECONDS;
 
 	/** @var array<string,string>|null Plugin folder => installed version. */
 	private ?array $versions = null;

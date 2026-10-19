@@ -886,8 +886,20 @@ final class Module extends BaseModule {
 				'section' => __( 'Uploads', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Enable Upload Guard scanner', 'ux-studio' ),
-				'help'    => __( 'Checks new uploads and runs a nightly scan of uploads, plugins and themes. It only reports - files are never moved or deleted automatically. Plugin files identical to the official WordPress.org version count as clean. Turning this off stops all scanning (existing findings are kept). CSP violation reporting is unaffected.', 'ux-studio' ),
+				'help'    => __( 'Checks new uploads and runs a scheduled night scan of uploads, plugins and themes. It only reports - files are never moved or deleted automatically. Plugin files identical to the official WordPress.org version count as clean. Turning this off stops all scanning (existing findings are kept). CSP violation reporting is unaffected.', 'ux-studio' ),
 				'default' => true,
+			),
+			array(
+				'key'     => 'upload_guard_schedule',
+				'type'    => 'select',
+				'label'   => __( 'Full scan frequency', 'ux-studio' ),
+				'help'    => __( 'Automatic full scans run only at night (01:00-06:00 site time, each site at its own minute), in small batches with pauses, and wait when the server is busy. Unchanged files are skipped without being read; every 4th run reads everything. New uploads are always checked right away.', 'ux-studio' ),
+				'options' => array(
+					'weekly' => __( 'Weekly (recommended)', 'ux-studio' ),
+					'daily'  => __( 'Daily', 'ux-studio' ),
+					'manual' => __( 'Only when I click "Scan now"', 'ux-studio' ),
+				),
+				'default' => 'weekly',
 			),
 			array(
 				'key'     => 'upload_guard_notify',

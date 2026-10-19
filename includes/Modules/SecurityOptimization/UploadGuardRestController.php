@@ -246,7 +246,16 @@ final class UploadGuardRestController extends Controller {
 	 */
 	public function trigger_scan( WP_REST_Request $request ) {
 		$scanner = new UploadGuardScanner();
-		$scanner->trigger_full_scan();
+		$wait    = $scanner->manual_cooldown_left();
+		if ( $wait > 0 && 'running' !== $scanner->get_status()['state'] ) {
+			return new WP_Error(
+				'uxstudio_scan_cooldown',
+				/* translators: %d: minutes */
+				sprintf( __( 'A manual scan ran recently. You can start another one in %d min.', 'ux-studio' ), (int) ceil( $wait / MINUTE_IN_SECONDS ) ),
+				array( 'status' => 429 )
+			);
+		}
+		$scanner->trigger_full_scan( true );
 		return $this->ok( $scanner->get_status() );
 	}
 
