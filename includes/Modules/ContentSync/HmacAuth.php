@@ -87,7 +87,10 @@ final class HmacAuth {
 		}
 
 		$result = self::verify_signature( $request, $secret );
-		if ( is_wp_error( $result ) ) {
+		// Count only well-formed attempts that failed the crypto checks. Requests
+		// without/with malformed headers are rejected for free and must not let
+		// anonymous noise exhaust the budget of an IP shared with the hub.
+		if ( is_wp_error( $result ) && in_array( $result->get_error_code(), array( 'uxstudio_cs_signature', 'uxstudio_cs_timestamp', 'uxstudio_cs_replay' ), true ) ) {
 			self::record_failure();
 		}
 		return $result;
@@ -174,8 +177,11 @@ final class HmacAuth {
 		$settings = (array) get_option( 'uxstudio_content_sync', array() );
 		$allowed  = array_filter( array_map( 'trim', preg_split( '/[\r\n,]+/', (string) ( $settings['node_allowed_ips'] ?? '' ) ) ) );
 
-		if ( ! empty( $allowed ) && ! in_array( $ip, $allowed, true ) ) {
-			return new WP_Error( 'uxstudio_cs_ip_blocked', __( 'This IP address is not on the node allowlist.', 'ux-studio' ), array( 'status' => 403 ) );
+		if ( ! empty( $allowed ) ) {
+			if ( ! in_array( $ip, $allowed, true ) ) {
+				return new WP_Error( 'uxstudio_cs_ip_blocked', __( 'This IP address is not on the node allowlist.', 'ux-studio' ), array( 'status' => 403 ) );
+			}
+			return true; // The trusted hub IP is never rate-limited.
 		}
 
 		if ( (int) get_transient( self::rate_key( $ip ) ) >= self::RATE_LIMIT ) {
@@ -197,7 +203,17 @@ final class HmacAuth {
 		return isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
 	}
 
+	/**
+	 * Per-IP counter key; IPv6 is bucketed by /64 so rotating addresses inside
+	 * one allocation can't create a transient per request.
+	 *
+	 * @param string $ip Client IP.
+	 */
 	private static function rate_key( string $ip ): string {
+		$packed = filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ? @inet_pton( $ip ) : false; // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		if ( false !== $packed && 16 === strlen( $packed ) ) {
+			$ip = bin2hex( substr( $packed, 0, 8 ) ) . '::/64';
+		}
 		return 'uxstudio_cs_rate_' . md5( $ip );
 	}
 }

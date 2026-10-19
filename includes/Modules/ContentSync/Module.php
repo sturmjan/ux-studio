@@ -239,7 +239,7 @@ final class Module extends BaseModule {
 				'key'     => 'node_allow_packages',
 				'type'    => 'toggle',
 				'label'   => __( 'Allow package management (node)', 'ux-studio' ),
-				'help'    => __( 'Lets the central app install/update plugins and themes and set FS_METHOD in wp-config.php on this site. Off by default: with it on, a leaked node key means code execution. Turn on only together with the allowed IP list above.', 'ux-studio' ),
+				'help'    => __( 'Lets the central app install/update plugins and themes and set FS_METHOD in wp-config.php on this site. Off by default. Turn on only together with the allowed IP list above.', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
@@ -248,6 +248,13 @@ final class Module extends BaseModule {
 				'label'   => __( 'Default author (node)', 'ux-studio' ),
 				'help'    => __( 'User ID assigned to posts created by the hub when the payload has no author.', 'ux-studio' ),
 				'default' => 0,
+			),
+			array(
+				'key'     => 'sso_allow_admin',
+				'type'    => 'toggle',
+				'label'   => __( 'Allow SSO login as administrator', 'ux-studio' ),
+				'help'    => __( 'Lets central app operators sign in to accounts with administrator rights (install plugins, manage users). Off by default: an administrator login can install code, so with this on a leaked node key gives full control of the site. Turn on only together with the allowed IP list. Editors and lower roles sign in either way.', 'ux-studio' ),
+				'default' => false,
 			),
 			array(
 				'key'     => 'sso_mapping_strategy',

@@ -171,7 +171,16 @@ final class SsoOperatorMapper {
 			if ( $id <= 0 || '' === $email ) {
 				continue;
 			}
+			// A hub-supplied wp_user_id is only trusted when that account really
+			// belongs to the operator's email - otherwise a leaked node key could
+			// map any operator onto user 1 (the administrator).
 			$wp_id = (int) ( $op['wp_user_id'] ?? 0 );
+			if ( $wp_id > 0 ) {
+				$given = get_userdata( $wp_id );
+				if ( ! $given instanceof WP_User || 0 !== strcasecmp( (string) $given->user_email, $email ) ) {
+					$wp_id = 0;
+				}
+			}
 			if ( $wp_id <= 0 ) {
 				$user = get_user_by( 'email', $email );
 				if ( $user instanceof WP_User ) {

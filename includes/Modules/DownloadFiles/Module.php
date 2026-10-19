@@ -79,6 +79,10 @@ final class Module extends BaseModule {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
 		add_filter( 'the_content', array( $this, 'append_to_content' ), 999 );
 
+		// Re-evaluate private storage of a post's files when its visibility changes.
+		add_action( 'transition_post_status', array( $this, 'on_post_visibility_change' ), 20, 3 );
+		add_action( 'post_updated', array( $this, 'on_post_password_change' ), 20, 3 );
+
 		// Legacy global template function.
 		require_once __DIR__ . '/functions.php';
 
@@ -123,6 +127,49 @@ final class Module extends BaseModule {
 	}
 
 	/**
+	 * @param string   $new_status New status.
+	 * @param string   $old_status Old status.
+	 * @param \WP_Post $post       Post.
+	 */
+	public function on_post_visibility_change( $new_status, $old_status, $post ): void {
+		if ( $new_status !== $old_status && $post instanceof \WP_Post ) {
+			$this->sync_post_files( (int) $post->ID );
+		}
+	}
+
+	/**
+	 * @param int      $post_id     Post ID.
+	 * @param \WP_Post $post_after  Post after update.
+	 * @param \WP_Post $post_before Post before update.
+	 */
+	public function on_post_password_change( $post_id, $post_after, $post_before ): void {
+		if ( $post_after instanceof \WP_Post && $post_before instanceof \WP_Post && $post_after->post_password !== $post_before->post_password ) {
+			$this->sync_post_files( (int) $post_id );
+		}
+	}
+
+	/**
+	 * Re-sync private storage of every attachment linked to a post.
+	 *
+	 * @param int $post_id Post ID.
+	 */
+	private function sync_post_files( int $post_id ): void {
+		if ( 'attachment' === get_post_type( $post_id ) ) {
+			return;
+		}
+		global $wpdb;
+		$attachments = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT DISTINCT attachment_id FROM {$wpdb->prefix}uxstudio_download_files WHERE post_id = %d",
+				$post_id
+			)
+		);
+		foreach ( (array) $attachments as $attachment_id ) {
+			$this->sync_protection( (int) $attachment_id );
+		}
+	}
+
+	/**
 	 * Move an attachment into / out of private storage so its physical
 	 * location matches the entries referencing it: protected while at least
 	 * one login-only entry points at it, public otherwise.
@@ -140,6 +187,25 @@ final class Module extends BaseModule {
 				$attachment_id
 			)
 		) > 0;
+
+		// Also keep the physical file private while it belongs to a post that
+		// is not public (draft, private, trashed) or is password-protected -
+		// otherwise its plain uploads URL would bypass the post's visibility.
+		if ( ! $needs ) {
+			$post_ids = $wpdb->get_col(
+				$wpdb->prepare(
+					"SELECT DISTINCT post_id FROM {$wpdb->prefix}uxstudio_download_files WHERE attachment_id = %d AND post_id > 0",
+					$attachment_id
+				)
+			);
+			foreach ( (array) $post_ids as $pid ) {
+				$post = get_post( (int) $pid );
+				if ( $post && ( ! is_post_publicly_viewable( $post ) || '' !== (string) $post->post_password ) ) {
+					$needs = true;
+					break;
+				}
+			}
+		}
 
 		if ( $needs && ! ProtectedStorage::is_protected( $attachment_id ) ) {
 			if ( ProtectedStorage::protect( $attachment_id ) ) {

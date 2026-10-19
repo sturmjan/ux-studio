@@ -67,6 +67,13 @@ final class Duplicator {
 
 		$new_post = apply_filters( 'ux_studio/duplicate_post/post_data', $new_post, $post, $elements );
 
+		// Re-check after the filter: it must not lift a copy past review.
+		$type = get_post_type_object( $post->post_type );
+		if ( in_array( $new_post['post_status'] ?? '', array( 'publish', 'future', 'private' ), true )
+			&& ! ( $type && current_user_can( $type->cap->publish_posts ) ) ) {
+			$new_post['post_status'] = 'pending';
+		}
+
 		$new_post_id = wp_insert_post( $new_post, true );
 		if ( is_wp_error( $new_post_id ) ) {
 			return $new_post_id;

@@ -96,6 +96,11 @@ final class Modules {
 		if ( ! isset( $this->meta[ $id ] ) ) {
 			return false;
 		}
+		// A virtual entry is never stored itself - even one whose children all
+		// disappeared (removed module, filtered out) must not end up "enabled".
+		if ( ! empty( $this->meta[ $id ]['virtual'] ) && ! self::is_group( $this->meta[ $id ] ) ) {
+			return false;
+		}
 		// A group has no state of its own: switching it switches every feature in it.
 		if ( self::is_group( $this->meta[ $id ] ) ) {
 			foreach ( $this->meta[ $id ]['children'] as $child ) {

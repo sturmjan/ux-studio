@@ -899,8 +899,12 @@ final class Module extends BaseModule {
 		}
 		// A notification reaches every subscriber: by default only authors who
 		// may also edit others' posts (editors+) trigger it, not every Author.
+		// Either the author or whoever publishes it (an editor approving a
+		// contributor's post) must be an editor+; cron-published posts have no
+		// current user, so the author decides then.
 		if ( 'publishers' !== (string) $this->settings->get( 'auto_send_authors', 'editors' )
-			&& ! user_can( (int) $post->post_author, 'edit_others_posts' ) ) {
+			&& ! user_can( (int) $post->post_author, 'edit_others_posts' )
+			&& ! current_user_can( 'edit_others_posts' ) ) {
 			return;
 		}
 		// Already announced (this module or the legacy one) - never twice.

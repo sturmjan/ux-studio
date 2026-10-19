@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-18T17:33:04+00:00\n"
+"POT-Creation-Date: 2026-10-19T06:36:57+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: ux-studio\n"
@@ -126,7 +126,7 @@ msgstr ""
 #: includes/Modules/SecurityOptimization/Module.php:844
 #: build/295.a2b42013b2aace5fa6b8.js:1
 #: build/348.be18249b924a2d37e4c4.js:3
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "Content"
 msgstr ""
 
@@ -140,12 +140,12 @@ msgstr ""
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:253
 #: build/295.a2b42013b2aace5fa6b8.js:1
 #: build/752.68d78e7a3e0054952684.js:1
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "Media"
 msgstr ""
 
 #: includes/Core/Megamenu.php:172
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "Security"
 msgstr ""
 
@@ -155,12 +155,12 @@ msgstr ""
 #: includes/Modules/SecurityOptimization/Module.php:752
 #: includes/Modules/SecurityOptimization/Module.php:765
 #: includes/Modules/SecurityOptimization/Module.php:773
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "Performance"
 msgstr ""
 
 #: includes/Core/Megamenu.php:176
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "Developer"
 msgstr ""
 
@@ -171,13 +171,13 @@ msgstr ""
 msgid "Other"
 msgstr ""
 
-#: includes/Core/Modules.php:307
+#: includes/Core/Modules.php:312
 msgid "UX Studio: some modules failed to start and were switched off for now. The rest of the site keeps running."
 msgstr ""
 
 #: includes/Core/Rest.php:69
 #: includes/Core/Rest.php:90
-#: includes/Core/Rest.php:155
+#: includes/Core/Rest.php:158
 msgid "Unknown module."
 msgstr ""
 
@@ -395,7 +395,7 @@ msgstr ""
 #: includes/Modules/MaintenanceMode/Module.php:514
 #: includes/Modules/MaintenanceMode/Module.php:521
 #: build/348.be18249b924a2d37e4c4.js:4
-#: build/index.a5123134802902c0d385.js:3
+#: build/index.c3079ddb8f45bfbdb84a.js:3
 msgid "Appearance"
 msgstr ""
 
@@ -886,7 +886,7 @@ msgstr ""
 #: includes/Modules/AdminCustomiser/QuickSearch/ThirdPartyIntegrations.php:68
 #: includes/Modules/AdminCustomiser/QuickSearch/ThirdPartyIntegrations.php:69
 #: includes/Modules/OpeningHours/LegacyShortcodes.php:297
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Open"
 msgstr ""
 
@@ -1128,7 +1128,7 @@ msgid "New callback request from the AI chat"
 msgstr ""
 
 #: includes/Modules/AiAssistant/ChatRestController.php:485
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/190.e8d6b6bb2fd4bf0dcc28.js:1
 #: build/337.a7a3bcc092c5cffdfe07.js:1
 msgid "Note"
@@ -3489,7 +3489,7 @@ msgid "Generic crawlers"
 msgstr ""
 
 #: includes/Modules/ClassicEditor/Module.php:87
-#: includes/Modules/DownloadFiles/Module.php:201
+#: includes/Modules/DownloadFiles/Module.php:267
 #: includes/Modules/DuplicatePost/Module.php:407
 #: includes/Modules/ExternalPermalinks/Module.php:354
 #: includes/Modules/FolderManager/Module.php:127
@@ -3767,35 +3767,35 @@ msgstr ""
 msgid "Snippet deleted successfully"
 msgstr ""
 
-#: includes/Modules/ContentSync/HmacAuth.php:109
+#: includes/Modules/ContentSync/HmacAuth.php:112
 msgid "Missing authentication headers."
 msgstr ""
 
-#: includes/Modules/ContentSync/HmacAuth.php:112
+#: includes/Modules/ContentSync/HmacAuth.php:115
 msgid "This node has no API key configured."
 msgstr ""
 
-#: includes/Modules/ContentSync/HmacAuth.php:115
+#: includes/Modules/ContentSync/HmacAuth.php:118
 msgid "Malformed authentication headers."
 msgstr ""
 
-#: includes/Modules/ContentSync/HmacAuth.php:121
+#: includes/Modules/ContentSync/HmacAuth.php:124
 msgid "Request timestamp outside the allowed window."
 msgstr ""
 
-#: includes/Modules/ContentSync/HmacAuth.php:147
+#: includes/Modules/ContentSync/HmacAuth.php:150
 msgid "Invalid request signature."
 msgstr ""
 
-#: includes/Modules/ContentSync/HmacAuth.php:153
+#: includes/Modules/ContentSync/HmacAuth.php:156
 msgid "Request nonce already used."
 msgstr ""
 
-#: includes/Modules/ContentSync/HmacAuth.php:178
+#: includes/Modules/ContentSync/HmacAuth.php:182
 msgid "This IP address is not on the node allowlist."
 msgstr ""
 
-#: includes/Modules/ContentSync/HmacAuth.php:182
+#: includes/Modules/ContentSync/HmacAuth.php:188
 msgid "Too many requests. Try again in a minute."
 msgstr ""
 
@@ -3882,7 +3882,7 @@ msgid "Allow package management (node)"
 msgstr ""
 
 #: includes/Modules/ContentSync/Module.php:242
-msgid "Lets the central app install/update plugins and themes and set FS_METHOD in wp-config.php on this site. Off by default: with it on, a leaked node key means code execution. Turn on only together with the allowed IP list above."
+msgid "Lets the central app install/update plugins and themes and set FS_METHOD in wp-config.php on this site. Off by default. Turn on only together with the allowed IP list above."
 msgstr ""
 
 #: includes/Modules/ContentSync/Module.php:248
@@ -3894,93 +3894,101 @@ msgid "User ID assigned to posts created by the hub when the payload has no auth
 msgstr ""
 
 #: includes/Modules/ContentSync/Module.php:255
-msgid "SSO user mapping"
+msgid "Allow SSO login as administrator"
 msgstr ""
 
 #: includes/Modules/ContentSync/Module.php:256
+msgid "Lets central app operators sign in to accounts with administrator rights (install plugins, manage users). Off by default: an administrator login can install code, so with this on a leaked node key gives full control of the site. Turn on only together with the allowed IP list. Editors and lower roles sign in either way."
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:262
+msgid "SSO user mapping"
+msgstr ""
+
+#: includes/Modules/ContentSync/Module.php:263
 msgid "auto: map by email, provision if missing. strict: only pre-mapped/known users. disabled: SSO off."
 msgstr ""
 
-#: includes/Modules/ContentSync/Module.php:258
+#: includes/Modules/ContentSync/Module.php:265
 msgid "Auto (map by email, provision if missing)"
 msgstr ""
 
-#: includes/Modules/ContentSync/Module.php:259
+#: includes/Modules/ContentSync/Module.php:266
 msgid "Strict (existing users only)"
 msgstr ""
 
-#: includes/Modules/ContentSync/Module.php:260
+#: includes/Modules/ContentSync/Module.php:267
 #: includes/Modules/MaintenanceMode/Module.php:369
 #: includes/Modules/SecurityOptimization/Module.php:759
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/190.e8d6b6bb2fd4bf0dcc28.js:1
 #: build/295.a2b42013b2aace5fa6b8.js:1
 #: build/866.a786a1a3b954a048d924.js:1
 msgid "Disabled"
 msgstr ""
 
-#: includes/Modules/ContentSync/Module.php:267
+#: includes/Modules/ContentSync/Module.php:274
 msgid "Allow SSO user provisioning"
 msgstr ""
 
-#: includes/Modules/ContentSync/Module.php:268
+#: includes/Modules/ContentSync/Module.php:275
 msgid "Create a WP user when an operator has none. Never creates administrators."
 msgstr ""
 
-#: includes/Modules/ContentSync/Module.php:274
+#: includes/Modules/ContentSync/Module.php:281
 msgid "Provisioned role"
 msgstr ""
 
-#: includes/Modules/ContentSync/Module.php:275
+#: includes/Modules/ContentSync/Module.php:282
 msgid "Role given to auto-provisioned SSO users. Administrator is intentionally not selectable."
 msgstr ""
 
-#: includes/Modules/ContentSync/Module.php:282
+#: includes/Modules/ContentSync/Module.php:289
 msgid "SSO token lifetime (seconds)"
 msgstr ""
 
-#: includes/Modules/ContentSync/Module.php:283
+#: includes/Modules/ContentSync/Module.php:290
 msgid "Clamped to 15-300 seconds."
 msgstr ""
 
-#: includes/Modules/ContentSync/Module.php:289
+#: includes/Modules/ContentSync/Module.php:296
 msgid "Require user-agent match"
 msgstr ""
 
-#: includes/Modules/ContentSync/Module.php:295
+#: includes/Modules/ContentSync/Module.php:302
 msgid "Require IP match"
 msgstr ""
 
-#: includes/Modules/ContentSync/Module.php:301
+#: includes/Modules/ContentSync/Module.php:308
 msgid "Max failed redemptions per IP / hour"
 msgstr ""
 
-#: includes/Modules/ContentSync/Module.php:307
+#: includes/Modules/ContentSync/Module.php:314
 msgid "Max token issues per operator / hour"
 msgstr ""
 
-#: includes/Modules/ContentSync/Module.php:313
+#: includes/Modules/ContentSync/Module.php:320
 #: includes/Modules/ThirdPartyLogin/Module.php:166
 msgid "Central app URL"
 msgstr ""
 
-#: includes/Modules/ContentSync/Module.php:314
+#: includes/Modules/ContentSync/Module.php:321
 msgid "Base URL of the central application acting as the broker for connected sites."
 msgstr ""
 
-#: includes/Modules/ContentSync/Module.php:320
+#: includes/Modules/ContentSync/Module.php:327
 msgid "Central app HMAC secret"
 msgstr ""
 
-#: includes/Modules/ContentSync/Module.php:321
+#: includes/Modules/ContentSync/Module.php:328
 msgid "Shared secret used to sign/verify every request to and from the central app. Stored encrypted. Leave blank to keep the current secret."
 msgstr ""
 
-#: includes/Modules/ContentSync/Module.php:327
+#: includes/Modules/ContentSync/Module.php:334
 msgid "Sync log retention (days)"
 msgstr ""
 
-#: includes/Modules/ContentSync/Module.php:328
+#: includes/Modules/ContentSync/Module.php:335
 msgid "Sync log entries older than this are deleted daily. 0 = keep forever."
 msgstr ""
 
@@ -4108,28 +4116,28 @@ msgid "FS_METHOD is already defined (%s) - not changing it."
 msgstr ""
 
 #: includes/Modules/ContentSync/NodePackages.php:362
-#: includes/Modules/ContentSync/NodePackages.php:366
+#: includes/Modules/ContentSync/NodePackages.php:374
 msgid "Could not create a backup of wp-config.php."
 msgstr ""
 
-#: includes/Modules/ContentSync/NodePackages.php:383
+#: includes/Modules/ContentSync/NodePackages.php:391
 msgid "Could not find an insertion point in wp-config.php (neither the \"That's all\" comment nor the wp-settings.php line). Edit the file manually."
 msgstr ""
 
 #. translators: %s: backup file name
-#: includes/Modules/ContentSync/NodePackages.php:397
+#: includes/Modules/ContentSync/NodePackages.php:407
 #, php-format
 msgid "Writing the temporary file failed - backup kept: %s"
 msgstr ""
 
 #. translators: %s: backup file name
-#: includes/Modules/ContentSync/NodePackages.php:420
+#: includes/Modules/ContentSync/NodePackages.php:430
 #, php-format
 msgid "Atomic rename failed - wp-config.php unchanged, backup in %s"
 msgstr ""
 
 #. translators: %s: backup file name
-#: includes/Modules/ContentSync/NodePackages.php:439
+#: includes/Modules/ContentSync/NodePackages.php:449
 #, php-format
 msgid "FS_METHOD=direct added to wp-config.php. Backup: %s"
 msgstr ""
@@ -4593,100 +4601,100 @@ msgstr ""
 msgid "Disable automatic updates for translations."
 msgstr ""
 
-#: includes/Modules/DownloadFiles/Module.php:202
+#: includes/Modules/DownloadFiles/Module.php:268
 msgid "Post types that get the \"Files to download\" meta box (and the automatic file list)."
 msgstr ""
 
-#: includes/Modules/DownloadFiles/Module.php:209
+#: includes/Modules/DownloadFiles/Module.php:275
 msgid "Show automatically"
 msgstr ""
 
-#: includes/Modules/DownloadFiles/Module.php:210
+#: includes/Modules/DownloadFiles/Module.php:276
 msgid "Append the files attached to a post to the end of its content. Skipped when the content already contains the [download_files] or [ux1_download_files] shortcode. PHP alternative: ux1_download_files()."
 msgstr ""
 
-#: includes/Modules/DownloadFiles/Module.php:216
+#: includes/Modules/DownloadFiles/Module.php:282
 msgid "Require login by default"
 msgstr ""
 
-#: includes/Modules/DownloadFiles/Module.php:217
+#: includes/Modules/DownloadFiles/Module.php:283
 msgid "Default value of \"require login\" for newly added files. Login-only files are moved out of the public uploads folder, so their original media URL stops working and they can only be downloaded through the download link by logged-in users."
 msgstr ""
 
-#: includes/Modules/DownloadFiles/Module.php:223
+#: includes/Modules/DownloadFiles/Module.php:289
 msgid "Shortcode heading"
 msgstr ""
 
-#: includes/Modules/DownloadFiles/Module.php:224
+#: includes/Modules/DownloadFiles/Module.php:290
 msgid "Default heading shown above the file list rendered by the [download_files] shortcode. Override per-instance with the heading=\"\" attribute; use heading=\"\" to hide it."
 msgstr ""
 
-#: includes/Modules/DownloadFiles/Module.php:225
-#: includes/Modules/DownloadFiles/Module.php:558
-#: includes/Modules/DownloadFiles/Module.php:651
+#: includes/Modules/DownloadFiles/Module.php:291
+#: includes/Modules/DownloadFiles/Module.php:624
+#: includes/Modules/DownloadFiles/Module.php:717
 msgid "Files to download"
 msgstr ""
 
-#: includes/Modules/DownloadFiles/Module.php:230
+#: includes/Modules/DownloadFiles/Module.php:296
 msgid "Hide login-only files from guests"
 msgstr ""
 
-#: includes/Modules/DownloadFiles/Module.php:231
+#: includes/Modules/DownloadFiles/Module.php:297
 msgid "When on, files that require login are omitted from the shortcode list for visitors who are not logged in (the download endpoint still enforces login regardless)."
 msgstr ""
 
-#: includes/Modules/DownloadFiles/Module.php:317
-#: includes/Modules/DownloadFiles/Module.php:417
-#: includes/Modules/DownloadFiles/Module.php:430
-#: includes/Modules/DownloadFiles/Module.php:987
-#: includes/Modules/DownloadFiles/Module.php:994
+#: includes/Modules/DownloadFiles/Module.php:383
+#: includes/Modules/DownloadFiles/Module.php:483
+#: includes/Modules/DownloadFiles/Module.php:496
+#: includes/Modules/DownloadFiles/Module.php:1053
+#: includes/Modules/DownloadFiles/Module.php:1060
 #: includes/Modules/DownloadFiles/RestController.php:249
 #: includes/Modules/Forms/RestController.php:298
 msgid "File not found."
 msgstr ""
 
-#: includes/Modules/DownloadFiles/Module.php:421
+#: includes/Modules/DownloadFiles/Module.php:487
 msgid "Invalid or missing download token."
 msgstr ""
 
-#: includes/Modules/DownloadFiles/Module.php:425
+#: includes/Modules/DownloadFiles/Module.php:491
 msgid "You must be logged in to download this file."
 msgstr ""
 
-#: includes/Modules/DownloadFiles/Module.php:435
+#: includes/Modules/DownloadFiles/Module.php:501
 msgid "The underlying media attachment is missing."
 msgstr ""
 
-#: includes/Modules/DownloadFiles/Module.php:440
+#: includes/Modules/DownloadFiles/Module.php:506
 #: includes/Modules/ImageOptimizer/Optimizer.php:476
 msgid "The file is missing on disk."
 msgstr ""
 
-#: includes/Modules/DownloadFiles/Module.php:451
+#: includes/Modules/DownloadFiles/Module.php:517
 msgid "Refused to serve a file outside the uploads directory."
 msgstr ""
 
-#: includes/Modules/DownloadFiles/Module.php:676
+#: includes/Modules/DownloadFiles/Module.php:742
 #: includes/Modules/Forms/PublicRenderer.php:107
 #: includes/Modules/PostGallery/Module.php:96
 #: build/309.62b4119d52614c5b9e45.js:1
 #: build/348.be18249b924a2d37e4c4.js:3
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 #: includes/Modules/DownloadFiles/assets/js/download-files-admin.js:49
 #: includes/Modules/PostGallery/assets/js/post-gallery-admin.js:48
 msgid "Remove"
 msgstr ""
 
-#: includes/Modules/DownloadFiles/Module.php:680
+#: includes/Modules/DownloadFiles/Module.php:746
 msgid "Add files"
 msgstr ""
 
-#: includes/Modules/DownloadFiles/Module.php:685
+#: includes/Modules/DownloadFiles/Module.php:751
 msgid "Only for logged-in users"
 msgstr ""
 
 #. translators: %s: shortcode.
-#: includes/Modules/DownloadFiles/Module.php:692
+#: includes/Modules/DownloadFiles/Module.php:758
 #, php-format
 msgid "Files are listed at the end of the content automatically, or place them with %s."
 msgstr ""
@@ -5116,7 +5124,7 @@ msgstr ""
 #: includes/Modules/ExitPopup/Module.php:119
 #: build/348.be18249b924a2d37e4c4.js:3
 #: build/930.c657f0a8ddf5aeb4be68.js:1
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "Layout"
 msgstr ""
 
@@ -5480,7 +5488,7 @@ msgstr ""
 #: includes/Modules/ExportPosts/Module.php:505
 #: includes/Modules/Forms/Csv.php:56
 #: includes/Modules/ServiceRequests/DashboardWidget.php:61
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/84.1a53127d36c807b7f9d6.js:1
 #: build/178.9f7c44183315fbd10ef5.js:1
 #: build/295.a2b42013b2aace5fa6b8.js:1
@@ -5494,7 +5502,7 @@ msgstr ""
 #: build/587.bbad24948bc07e32a25d.js:1
 #: build/831.4a50788efbe243723ea1.js:1
 #: build/866.a786a1a3b954a048d924.js:1
-#: build/index.a5123134802902c0d385.js:2
+#: build/index.c3079ddb8f45bfbdb84a.js:2
 msgid "Status"
 msgstr ""
 
@@ -5504,7 +5512,7 @@ msgid "Post Type"
 msgstr ""
 
 #: includes/Modules/ExportPosts/Module.php:507
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/50.5e1e490c895cec652ee2.js:1
 #: build/157.6516b122bdc10ba986aa.js:1
 #: build/158.1a00cfb592a89b32f06b.js:1
@@ -5643,7 +5651,7 @@ msgid "User ID"
 msgstr ""
 
 #: includes/Modules/ExportUsers/Module.php:352
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Username"
 msgstr ""
 
@@ -5764,7 +5772,7 @@ msgid "You do not have access to the File Manager. Add your account to the allow
 msgstr ""
 
 #: includes/Modules/FileManager/Module.php:203
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/21.8b53a3fd405d62c10b3c.js:1
 #: build/31.e9354171b6207cee8a1b.js:1
 #: build/50.5e1e490c895cec652ee2.js:1
@@ -5792,8 +5800,8 @@ msgstr ""
 #: build/907.e407fbb311cd6ef44322.js:1
 #: build/930.c657f0a8ddf5aeb4be68.js:1
 #: build/976.d134b086cadd547a42bf.js:1
-#: build/index.a5123134802902c0d385.js:3
-#: build/index.a5123134802902c0d385.js:4
+#: build/index.c3079ddb8f45bfbdb84a.js:3
+#: build/index.c3079ddb8f45bfbdb84a.js:4
 msgid "Settings"
 msgstr ""
 
@@ -6874,6 +6882,7 @@ msgid "Twice daily"
 msgstr ""
 
 #: includes/Modules/InstagramFeed/Module.php:157
+#: includes/Modules/SecurityOptimization/Module.php:901
 #: build/295.a2b42013b2aace5fa6b8.js:1
 msgid "Daily"
 msgstr ""
@@ -7463,7 +7472,7 @@ msgid "Latest notices"
 msgstr ""
 
 #: includes/Modules/NoticeBoard/Module.php:1371
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/31.e9354171b6207cee8a1b.js:1
 #: build/295.a2b42013b2aace5fa6b8.js:1
 #: build/337.a7a3bcc092c5cffdfe07.js:1
@@ -7504,7 +7513,7 @@ msgid "Filter"
 msgstr ""
 
 #: includes/Modules/NoticeBoard/Module.php:1399
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "Reset"
 msgstr ""
 
@@ -7906,7 +7915,7 @@ msgid "Enter a Google tracking ID, e.g. G-XXXXXXXXXX."
 msgstr ""
 
 #: includes/Modules/PixelTagManager/Module.php:169
-#: includes/Modules/SecurityOptimization/Module.php:929
+#: includes/Modules/SecurityOptimization/Module.php:941
 msgid "Facebook Pixel"
 msgstr ""
 
@@ -8260,24 +8269,24 @@ msgid "Later"
 msgstr ""
 
 #: includes/Modules/PushNotifications/Module.php:653
-#: includes/Modules/PushNotifications/Module.php:961
+#: includes/Modules/PushNotifications/Module.php:965
 msgid "Notification not found."
 msgstr ""
 
 #: includes/Modules/PushNotifications/Module.php:656
-#: includes/Modules/PushNotifications/Module.php:964
+#: includes/Modules/PushNotifications/Module.php:968
 msgid "Generate VAPID keys first."
 msgstr ""
 
-#: includes/Modules/PushNotifications/Module.php:980
+#: includes/Modules/PushNotifications/Module.php:984
 msgid "Your account has no push subscription. Open the public site while logged in and allow notifications, then try again."
 msgstr ""
 
-#: includes/Modules/PushNotifications/Module.php:1051
+#: includes/Modules/PushNotifications/Module.php:1055
 msgid "Name is required."
 msgstr ""
 
-#: includes/Modules/PushNotifications/Module.php:1071
+#: includes/Modules/PushNotifications/Module.php:1075
 msgid "Could not create the segment."
 msgstr ""
 
@@ -8850,14 +8859,14 @@ msgid "No active bans."
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/DashboardWidget.php:67
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/158.1a00cfb592a89b32f06b.js:1
 #: build/348.be18249b924a2d37e4c4.js:3
 msgid "Value"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/DashboardWidget.php:68
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/213.0fc210bb008e9541fd89.js:1
 #: build/295.a2b42013b2aace5fa6b8.js:1
 #: build/309.62b4119d52614c5b9e45.js:1
@@ -9056,7 +9065,7 @@ msgid "CSP tells the browser where scripts, styles, images and other content may
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/Module.php:466
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Off"
 msgstr ""
 
@@ -9398,8 +9407,8 @@ msgstr ""
 
 #: includes/Modules/SecurityOptimization/Module.php:781
 #: includes/Modules/SecurityOptimization/Module.php:888
-#: includes/Modules/SecurityOptimization/Module.php:896
-#: includes/Modules/SecurityOptimization/Module.php:904
+#: includes/Modules/SecurityOptimization/Module.php:908
+#: includes/Modules/SecurityOptimization/Module.php:916
 msgid "Uploads"
 msgstr ""
 
@@ -9512,105 +9521,121 @@ msgid "Enable Upload Guard scanner"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/Module.php:891
-msgid "Checks new uploads and runs a nightly scan of uploads, plugins and themes. It only reports - files are never moved or deleted automatically. Plugin files identical to the official WordPress.org version count as clean. Turning this off stops all scanning (existing findings are kept). CSP violation reporting is unaffected."
+msgid "Checks new uploads and runs a scheduled night scan of uploads, plugins and themes. It only reports - files are never moved or deleted automatically. Plugin files identical to the official WordPress.org version count as clean. Turning this off stops all scanning (existing findings are kept). CSP violation reporting is unaffected."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:897
+msgid "Full scan frequency"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/Module.php:898
+msgid "Automatic full scans run only at night (01:00-06:00 site time, each site at its own minute), in small batches with pauses, and wait when the server is busy. Unchanged files are skipped without being read; every 4th run reads everything. New uploads are always checked right away."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:900
+msgid "Weekly (recommended)"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:902
+msgid "Only when I click \"Scan now\""
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/Module.php:910
 msgid "Email admin on detections"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:899
+#: includes/Modules/SecurityOptimization/Module.php:911
 msgid "Sends a throttled summary email when new high/critical findings appear (at most one per 15 minutes)."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:906
+#: includes/Modules/SecurityOptimization/Module.php:918
 #: includes/Modules/ServiceRequests/Module.php:136
 msgid "Notification email"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:907
+#: includes/Modules/SecurityOptimization/Module.php:919
 msgid "Where to send Upload Guard alerts. Leave blank to use the site admin email."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:920
+#: includes/Modules/SecurityOptimization/Module.php:932
 msgid "Google Fonts"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:921
+#: includes/Modules/SecurityOptimization/Module.php:933
 msgid "Google Tag Manager + Analytics"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:922
+#: includes/Modules/SecurityOptimization/Module.php:934
 msgid "YouTube (embedded videos)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:923
+#: includes/Modules/SecurityOptimization/Module.php:935
 msgid "Vimeo (embedded videos)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:924
+#: includes/Modules/SecurityOptimization/Module.php:936
 msgid "Smartsupp (chat)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:925
+#: includes/Modules/SecurityOptimization/Module.php:937
 msgid "Google reCAPTCHA"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:926
+#: includes/Modules/SecurityOptimization/Module.php:938
 msgid "Cloudflare / CloudFront CDN"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:927
+#: includes/Modules/SecurityOptimization/Module.php:939
 msgid "Mapy.cz"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:928
+#: includes/Modules/SecurityOptimization/Module.php:940
 msgid "Google Maps"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:930
+#: includes/Modules/SecurityOptimization/Module.php:942
 msgid "Gravatar (comment avatars)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1101
+#: includes/Modules/SecurityOptimization/Module.php:1113
 msgid "Your IP address has been blocked."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1102
-#: includes/Modules/SecurityOptimization/Module.php:1768
+#: includes/Modules/SecurityOptimization/Module.php:1114
+#: includes/Modules/SecurityOptimization/Module.php:1780
 msgid "403 Forbidden"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1436
+#: includes/Modules/SecurityOptimization/Module.php:1448
 msgid "Invalid login credentials. Please check both the username and the password."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1561
+#: includes/Modules/SecurityOptimization/Module.php:1573
 msgid "XML-RPC is disabled."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1651
+#: includes/Modules/SecurityOptimization/Module.php:1663
 msgid "Not found."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1690
+#: includes/Modules/SecurityOptimization/Module.php:1702
 msgid "This username is not allowed for security reasons. Please choose another."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1705
-#: includes/Modules/SecurityOptimization/Module.php:1718
+#: includes/Modules/SecurityOptimization/Module.php:1717
+#: includes/Modules/SecurityOptimization/Module.php:1730
 msgid "This username is not allowed for security reasons."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1767
+#: includes/Modules/SecurityOptimization/Module.php:1779
 msgid "RSS feeds are disabled on this site."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1939
+#: includes/Modules/SecurityOptimization/Module.php:1951
 msgid "Comments are disabled."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:2115
+#: includes/Modules/SecurityOptimization/Module.php:2127
 msgid "REST API access is restricted to logged-in users."
 msgstr ""
 
@@ -9650,54 +9675,6 @@ msgstr ""
 msgid "Cloudflare API returned HTTP %1$d: %2$s"
 msgstr ""
 
-#. translators: 1: function like eval, 2: decoder like base64_decode
-#: includes/Modules/SecurityOptimization/UploadGuardDetectionEngine.php:290
-#, php-format
-msgid "Decoded data is executed: %1$s(%2$s(...))"
-msgstr ""
-
-#. translators: %s: function like eval or system
-#: includes/Modules/SecurityOptimization/UploadGuardDetectionEngine.php:294
-#, php-format
-msgid "Request data ($_GET/$_POST/...) is passed to %s()"
-msgstr ""
-
-#: includes/Modules/SecurityOptimization/UploadGuardDetectionEngine.php:297
-msgid "A file is included from a path taken from the request"
-msgstr ""
-
-#: includes/Modules/SecurityOptimization/UploadGuardDetectionEngine.php:300
-msgid "An encoded blob is executed in the same statement"
-msgstr ""
-
-#: includes/Modules/SecurityOptimization/UploadGuardDetectionEngine.php:303
-msgid "A function whose name is in a variable is called with request data"
-msgstr ""
-
-#. translators: %s: eval or create_function
-#: includes/Modules/SecurityOptimization/UploadGuardDetectionEngine.php:307
-#, php-format
-msgid "%s() call"
-msgstr ""
-
-#. translators: %s: shell function like exec
-#: includes/Modules/SecurityOptimization/UploadGuardDetectionEngine.php:311
-#, php-format
-msgid "Shell command call: %s()"
-msgstr ""
-
-#: includes/Modules/SecurityOptimization/UploadGuardDetectionEngine.php:317
-msgid "Long encoded string in a file that also runs eval()"
-msgstr ""
-
-#: includes/Modules/SecurityOptimization/UploadGuardDetectionEngine.php:319
-msgid "Long encoded string"
-msgstr ""
-
-#: includes/Modules/SecurityOptimization/UploadGuardDetectionEngine.php:324
-msgid "Function and variable names are mostly non-ASCII (obfuscation)"
-msgstr ""
-
 #. translators: %s: site name
 #: includes/Modules/SecurityOptimization/UploadGuardNotifier.php:71
 #, php-format
@@ -9715,17 +9692,123 @@ msgid "%d suspicious file(s) found on your site. Nothing was moved or deleted - 
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/UploadGuardNotifier.php:94
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/31.e9354171b6207cee8a1b.js:1
 #: build/244.51cc9501d13d30b5c2a2.js:1
 msgid "File"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/UploadGuardNotifier.php:95
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/230.8d6daa523ce030aeedfe.js:1
 #: build/457.8e027b7fdfd3d595b8ef.js:1
 msgid "Severity"
+msgstr ""
+
+#. translators: %s: reversed text like metsys
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:353
+#, php-format
+msgid "Function name written backwards: \"%s\""
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:359
+msgid "preg_replace() with the /e modifier executes code"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:364
+msgid "Encoded string that decodes to PHP code (eval/system/base64_decode)"
+msgstr ""
+
+#. translators: %s: included path
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:392
+#, php-format
+msgid "Includes a disguised file as PHP: %s"
+msgstr ""
+
+#. translators: 1: function like eval, 2: decoder like base64_decode
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:404
+#, php-format
+msgid "Decoded data is executed: %1$s(%2$s(...))"
+msgstr ""
+
+#. translators: %s: function like eval or system
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:409
+#, php-format
+msgid "Request data ($_GET/$_POST/...) is passed to %s()"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:415
+msgid "A file is included from a path taken from the request"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:417
+msgid "A file is included from a path derived from request data"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:421
+msgid "An encoded blob is executed in the same statement"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:424
+msgid "A function chosen by a variable is called with request data"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:426
+msgid "A function chosen by a variable is called with decoded data"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:429
+msgid "The function to call is taken from the request (call_user_func)"
+msgstr ""
+
+#. translators: %s: function like assert
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:433
+#, php-format
+msgid "Dangerous function \"%s\" passed as a callback"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:436
+msgid "Request data compared with a hard-coded hash (password-protected shell)"
+msgstr ""
+
+#. translators: %s: eval or create_function
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:440
+#, php-format
+msgid "%s() call"
+msgstr ""
+
+#. translators: %s: shell function like exec
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:444
+#, php-format
+msgid "Shell command call: %s()"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:454
+msgid "extract() of request data plus a call through a variable"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:456
+msgid "extract() turns request data into variables"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:461
+msgid "Long encoded string in a file that also runs eval()"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:463
+msgid "Long encoded string"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:467
+msgid "Text assembled from many chr() calls"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:470
+msgid "Function and variable names are mostly non-ASCII (obfuscation)"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:481
+msgid "Code hidden off-screen behind hundreds of spaces"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/UploadGuardQuarantine.php:72
@@ -9759,19 +9842,25 @@ msgstr ""
 msgid "The file changed since it was scanned. Run a new scan first."
 msgstr ""
 
+#. translators: %d: minutes
+#: includes/Modules/SecurityOptimization/UploadGuardRestController.php:254
+#, php-format
+msgid "A manual scan ran recently. You can start another one in %d min."
+msgstr ""
+
 #. translators: 1: plugin folder, 2: version
-#: includes/Modules/SecurityOptimization/UploadGuardScanner.php:288
+#: includes/Modules/SecurityOptimization/UploadGuardScanner.php:326
 #, php-format
 msgid "Differs from the official package of %1$s %2$s on WordPress.org"
 msgstr ""
 
 #. translators: 1: plugin folder, 2: version
-#: includes/Modules/SecurityOptimization/UploadGuardScanner.php:295
+#: includes/Modules/SecurityOptimization/UploadGuardScanner.php:333
 #, php-format
 msgid "Not part of the official package of %1$s %2$s on WordPress.org"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/UploadGuardScanner.php:306
+#: includes/Modules/SecurityOptimization/UploadGuardScanner.php:344
 msgid "PHP code in the uploads folder (uploads should only hold media)"
 msgstr ""
 
@@ -9879,13 +9968,13 @@ msgstr ""
 
 #: includes/Modules/ServiceRequests/Sync.php:467
 #: build/752.68d78e7a3e0054952684.js:1
-#: build/index.a5123134802902c0d385.js:3
+#: build/index.c3079ddb8f45bfbdb84a.js:3
 msgid "Theme"
 msgstr ""
 
 #: includes/Modules/ServiceRequests/Sync.php:468
 #: build/786.1b32c5aeb00eaa613caf.js:1
-#: build/index.a5123134802902c0d385.js:3
+#: build/index.c3079ddb8f45bfbdb84a.js:3
 msgid "Language"
 msgstr ""
 
@@ -10617,48 +10706,48 @@ msgstr ""
 msgid "Too many requests, slow down."
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Enforcing"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Report only"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Real CSP violations reported by visitor browsers. Resolve entries once you have allowed or fixed the source."
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "CSP mode:"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "The policy is actively enforced on the front end (never in wp-admin). Disallowed sources are blocked."
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "The policy is sent report-only: nothing is blocked, browsers just report what would be. Review the violations below, then switch to Enforce in the Settings tab."
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "CSP is off. Enable it in the Settings tab - start with Report only to collect violations here before enforcing."
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/474.cf43816866abf5df7c56.js:1
 msgid "Resolved"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/295.a2b42013b2aace5fa6b8.js:1
 #: build/309.62b4119d52614c5b9e45.js:1
 #: build/475.b4eae071038b2bb3095d.js:1
-#: build/index.a5123134802902c0d385.js:2
+#: build/index.c3079ddb8f45bfbdb84a.js:2
 msgid "All"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/21.8b53a3fd405d62c10b3c.js:1
 #: build/31.e9354171b6207cee8a1b.js:1
 #: build/50.5e1e490c895cec652ee2.js:1
@@ -10697,39 +10786,39 @@ msgstr ""
 #: build/907.e407fbb311cd6ef44322.js:1
 #: build/930.c657f0a8ddf5aeb4be68.js:1
 #: build/976.d134b086cadd547a42bf.js:1
-#: build/index.a5123134802902c0d385.js:1
-#: build/index.a5123134802902c0d385.js:3
-#: build/index.a5123134802902c0d385.js:4
+#: build/index.c3079ddb8f45bfbdb84a.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:3
+#: build/index.c3079ddb8f45bfbdb84a.js:4
 msgid "Loading…"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Blocked source"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Directive"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/337.a7a3bcc092c5cffdfe07.js:1
 msgid "Hits"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/337.a7a3bcc092c5cffdfe07.js:1
 msgid "Last seen"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "(unknown)"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Mark resolved"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/93.aa83f1c2e16e8b51123d.js:1
 #: build/190.e8d6b6bb2fd4bf0dcc28.js:1
 #: build/244.51cc9501d13d30b5c2a2.js:1
@@ -10744,11 +10833,11 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "No CSP violations reported."
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/21.8b53a3fd405d62c10b3c.js:1
 #: build/31.e9354171b6207cee8a1b.js:1
 #: build/50.5e1e490c895cec652ee2.js:1
@@ -10779,77 +10868,85 @@ msgstr ""
 #: build/907.e407fbb311cd6ef44322.js:1
 #: build/930.c657f0a8ddf5aeb4be68.js:1
 #: build/976.d134b086cadd547a42bf.js:1
-#: build/index.a5123134802902c0d385.js:3
+#: build/index.c3079ddb8f45bfbdb84a.js:3
 msgid "Saved"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Save Upload Guard settings"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
-msgid "New uploads and the nightly scan of uploads, plugins and themes are checked for injected code. The scanner only reports: nothing is moved or deleted unless you quarantine a file yourself."
+#: build/1.7a2734db11aeee4cb6e4.js:1
+msgid "Scanning in batches…"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
+msgid "server is busy, continuing at"
+msgstr ""
+
+#: build/1.7a2734db11aeee4cb6e4.js:1
+msgid "waiting for the night window, continuing at"
+msgstr ""
+
+#: build/1.7a2734db11aeee4cb6e4.js:1
+msgid "New uploads are checked right away; uploads, plugins and themes are scanned at night by the schedule below, in small batches that pause when the server is busy. The scanner only reports: nothing is moved or deleted unless you quarantine a file yourself."
+msgstr ""
+
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Scan running…"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/457.8e027b7fdfd3d595b8ef.js:1
 msgid "Scan now"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
-msgid "Scanning in batches…"
-msgstr ""
-
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/190.e8d6b6bb2fd4bf0dcc28.js:1
 msgid "Last scan:"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "files scanned:"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "detections:"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "No scan has run yet."
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Detected"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Quarantined"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Approved"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Queued"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "line"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Approve"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Move to quarantine"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #, js-format
 msgid ""
 "Move this file to quarantine?\n"
@@ -10859,39 +10956,39 @@ msgid ""
 "The site stops loading it. If it is part of a working plugin or theme, that part may break - you can restore it with Approve."
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Delete permanently"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "No findings in this category."
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Login Attempts"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "IP Bans"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "CSP Violations"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Upload Guard"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "A CAPTCHA secret key is currently set."
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "No CAPTCHA secret key set yet."
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/21.8b53a3fd405d62c10b3c.js:1
 #: build/31.e9354171b6207cee8a1b.js:1
 #: build/50.5e1e490c895cec652ee2.js:1
@@ -10921,92 +11018,92 @@ msgstr ""
 #: build/907.e407fbb311cd6ef44322.js:1
 #: build/930.c657f0a8ddf5aeb4be68.js:1
 #: build/976.d134b086cadd547a42bf.js:1
-#: build/index.a5123134802902c0d385.js:3
+#: build/index.c3079ddb8f45bfbdb84a.js:3
 msgid "Save changes"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid ".htaccess rules"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Applied and up to date"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Out of date - re-apply to write current settings"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Apply .htaccess rules"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Clear all attempts"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "IP"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Lockout (min)"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Locked"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Cleared"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Unlock"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "No failed login attempts recorded."
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Single IP address"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "IP range (CIDR)"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Country code (ISO 3166-1 alpha-2)"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Add ban"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Target"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Central"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/786.1b32c5aeb00eaa613caf.js:1
 msgid "Disable"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Enable"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "No IP bans yet."
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/21.8b53a3fd405d62c10b3c.js:1
 #: build/31.e9354171b6207cee8a1b.js:1
 #: build/50.5e1e490c895cec652ee2.js:1
@@ -11046,12 +11143,12 @@ msgstr ""
 #: build/930.c657f0a8ddf5aeb4be68.js:1
 #: build/976.d134b086cadd547a42bf.js:1
 #: build/999.e3a9e917913d7f31633a.js:1
-#: build/index.a5123134802902c0d385.js:3
-#: build/index.a5123134802902c0d385.js:4
+#: build/index.c3079ddb8f45bfbdb84a.js:3
+#: build/index.c3079ddb8f45bfbdb84a.js:4
 msgid "Back to modules"
 msgstr ""
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Security - Access Control"
 msgstr ""
 
@@ -13919,7 +14016,7 @@ msgid "Add option"
 msgstr ""
 
 #: build/348.be18249b924a2d37e4c4.js:3
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "General"
 msgstr ""
 
@@ -15880,146 +15977,146 @@ msgstr ""
 msgid "Open AI Panel"
 msgstr ""
 
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "Select image"
 msgstr ""
 
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "Change image"
 msgstr ""
 
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "— Select —"
 msgstr ""
 
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "Default"
 msgstr ""
 
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "Administration"
 msgstr ""
 
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "Failed to load modules."
 msgstr ""
 
-#: build/index.a5123134802902c0d385.js:1
-#: build/index.a5123134802902c0d385.js:4
+#: build/index.c3079ddb8f45bfbdb84a.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:4
 msgid "Modules"
 msgstr ""
 
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "Grid view"
 msgstr ""
 
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "List view"
 msgstr ""
 
 #. translators: %d: number of currently active modules.
-#: build/index.a5123134802902c0d385.js:2
+#: build/index.c3079ddb8f45bfbdb84a.js:2
 #, js-format
 msgid "Deactivate %d active module?"
 msgid_plural "Deactivate all %d active modules?"
 msgstr[0] ""
 msgstr[1] ""
 
-#: build/index.a5123134802902c0d385.js:2
+#: build/index.c3079ddb8f45bfbdb84a.js:2
 msgid "Deactivate all modules"
 msgstr ""
 
-#: build/index.a5123134802902c0d385.js:2
+#: build/index.c3079ddb8f45bfbdb84a.js:2
 msgid "Search modules…"
 msgstr ""
 
-#: build/index.a5123134802902c0d385.js:2
+#: build/index.c3079ddb8f45bfbdb84a.js:2
 msgid "Search modules"
 msgstr ""
 
-#: build/index.a5123134802902c0d385.js:2
+#: build/index.c3079ddb8f45bfbdb84a.js:2
 msgid "Module group"
 msgstr ""
 
-#: build/index.a5123134802902c0d385.js:2
+#: build/index.c3079ddb8f45bfbdb84a.js:2
 msgid "All statuses"
 msgstr ""
 
 #. translators: %d: number of enabled modules.
-#: build/index.a5123134802902c0d385.js:2
+#: build/index.c3079ddb8f45bfbdb84a.js:2
 #, js-format
 msgid "Enabled (%d)"
 msgstr ""
 
 #. translators: %d: number of disabled modules.
-#: build/index.a5123134802902c0d385.js:2
+#: build/index.c3079ddb8f45bfbdb84a.js:2
 #, js-format
 msgid "Disabled (%d)"
 msgstr ""
 
-#: build/index.a5123134802902c0d385.js:2
+#: build/index.c3079ddb8f45bfbdb84a.js:2
 msgid "No module matches the filter."
 msgstr ""
 
-#: build/index.a5123134802902c0d385.js:2
-#: build/index.a5123134802902c0d385.js:4
+#: build/index.c3079ddb8f45bfbdb84a.js:2
+#: build/index.c3079ddb8f45bfbdb84a.js:4
 msgid "Disable module"
 msgstr ""
 
-#: build/index.a5123134802902c0d385.js:2
-#: build/index.a5123134802902c0d385.js:4
+#: build/index.c3079ddb8f45bfbdb84a.js:2
+#: build/index.c3079ddb8f45bfbdb84a.js:4
 msgid "Enable module"
 msgstr ""
 
 #. translators: 1: enabled features, 2: all features in the group.
-#: build/index.a5123134802902c0d385.js:3
-#: build/index.a5123134802902c0d385.js:4
+#: build/index.c3079ddb8f45bfbdb84a.js:3
+#: build/index.c3079ddb8f45bfbdb84a.js:4
 #, js-format
 msgid "%1$d of %2$d on"
 msgstr ""
 
-#: build/index.a5123134802902c0d385.js:3
-#: build/index.a5123134802902c0d385.js:4
+#: build/index.c3079ddb8f45bfbdb84a.js:3
+#: build/index.c3079ddb8f45bfbdb84a.js:4
 msgid "Configure"
 msgstr ""
 
-#: build/index.a5123134802902c0d385.js:3
+#: build/index.c3079ddb8f45bfbdb84a.js:3
 msgid "Switch to light mode"
 msgstr ""
 
-#: build/index.a5123134802902c0d385.js:3
+#: build/index.c3079ddb8f45bfbdb84a.js:3
 msgid "Switch to dark mode"
 msgstr ""
 
-#: build/index.a5123134802902c0d385.js:3
+#: build/index.c3079ddb8f45bfbdb84a.js:3
 msgid "About"
 msgstr ""
 
-#: build/index.a5123134802902c0d385.js:3
+#: build/index.c3079ddb8f45bfbdb84a.js:3
 msgid "Plugin version"
 msgstr ""
 
-#: build/index.a5123134802902c0d385.js:3
+#: build/index.c3079ddb8f45bfbdb84a.js:3
 msgid "API version"
 msgstr ""
 
-#: build/index.a5123134802902c0d385.js:4
+#: build/index.c3079ddb8f45bfbdb84a.js:4
 msgid "This module is turned off. Enable it on the Modules screen to use its settings."
 msgstr ""
 
-#: build/index.a5123134802902c0d385.js:4
+#: build/index.c3079ddb8f45bfbdb84a.js:4
 msgid "Toggle dark mode"
 msgstr ""
 
-#: build/index.a5123134802902c0d385.js:4
+#: build/index.c3079ddb8f45bfbdb84a.js:4
 msgid "Light mode"
 msgstr ""
 
-#: build/index.a5123134802902c0d385.js:4
+#: build/index.c3079ddb8f45bfbdb84a.js:4
 msgid "Dark mode"
 msgstr ""
 
-#: build/index.a5123134802902c0d385.js:4
+#: build/index.c3079ddb8f45bfbdb84a.js:4
 msgid "UX Studio navigation"
 msgstr ""
 

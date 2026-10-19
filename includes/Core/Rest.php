@@ -120,6 +120,9 @@ final class Rest extends Controller {
 		$enabled = $this->modules->enabled_ids();
 		$out     = array();
 		foreach ( $this->modules->all() as $id => $meta ) {
+			if ( ! empty( $meta['virtual'] ) && ! Modules::is_group( $meta ) ) {
+				continue; // Empty group (all its features gone) - nothing to show.
+			}
 			$children = Modules::is_group( $meta ) ? array_values( (array) $meta['children'] ) : array();
 			$out[]    = array(
 				'id'          => $id,

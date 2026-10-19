@@ -72,7 +72,7 @@ final class HtaccessWriter {
 			$rules[] = '</files>';
 			// Backups/copies left by editors or tools (wp-config.php.bak, .old, .save~ ...)
 			// are served as plain text by Apache - block them too.
-			$rules[] = '<FilesMatch "^wp-config\.php.+">';
+			$rules[] = '<FilesMatch "^wp-config(\.php.+|.*\.(bak|old|orig|save|swp|txt|zip|tar|gz|sql))$">';
 			$rules[] = 'order allow,deny';
 			$rules[] = 'deny from all';
 			$rules[] = '</FilesMatch>';

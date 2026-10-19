@@ -52,7 +52,7 @@ msgstr "Ověření podpisu odpovědi centrální aplikace se nezdařilo."
 
 #: includes/Core/Rest.php:69
 #: includes/Core/Rest.php:90
-#: includes/Core/Rest.php:155
+#: includes/Core/Rest.php:158
 msgid "Unknown module."
 msgstr "Neznámý modul."
 
@@ -183,7 +183,7 @@ msgstr "Nástěnka"
 #: includes/Modules/SecurityOptimization/Module.php:844
 #: build/295.a2b42013b2aace5fa6b8.js:1
 #: build/348.be18249b924a2d37e4c4.js:3
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "Content"
 msgstr "Obsah"
 
@@ -193,7 +193,7 @@ msgstr "Obsah"
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:253
 #: build/295.a2b42013b2aace5fa6b8.js:1
 #: build/752.68d78e7a3e0054952684.js:1
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "Media"
 msgstr "Média"
 
@@ -212,7 +212,7 @@ msgstr "Média"
 #: includes/Modules/MaintenanceMode/Module.php:514
 #: includes/Modules/MaintenanceMode/Module.php:521
 #: build/348.be18249b924a2d37e4c4.js:4
-#: build/index.a5123134802902c0d385.js:3
+#: build/index.c3079ddb8f45bfbdb84a.js:3
 msgid "Appearance"
 msgstr "Vzhled"
 
@@ -369,7 +369,7 @@ msgstr "Zobrazit"
 #: includes/Modules/AdminCustomiser/QuickSearch/ThirdPartyIntegrations.php:68
 #: includes/Modules/AdminCustomiser/QuickSearch/ThirdPartyIntegrations.php:69
 #: includes/Modules/OpeningHours/LegacyShortcodes.php:297
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Open"
 msgstr "Otevřít"
 
@@ -605,7 +605,7 @@ msgid "New callback request from the AI chat"
 msgstr "Nová žádost o zpětné zavolání z AI chatu"
 
 #: includes/Modules/AiAssistant/ChatRestController.php:485
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/190.e8d6b6bb2fd4bf0dcc28.js:1
 #: build/337.a7a3bcc092c5cffdfe07.js:1
 msgid "Note"
@@ -1764,8 +1764,8 @@ msgstr "Zrušit publikování: %s"
 msgid "Enable bot throttling"
 msgstr "Zapnout omezování botů"
 
-#: includes/Modules/SecurityOptimization/Module.php:1102
-#: includes/Modules/SecurityOptimization/Module.php:1768
+#: includes/Modules/SecurityOptimization/Module.php:1114
+#: includes/Modules/SecurityOptimization/Module.php:1780
 msgid "403 Forbidden"
 msgstr "403 Forbidden"
 
@@ -1774,7 +1774,7 @@ msgid "429 Too Many Requests"
 msgstr "429 Too Many Requests"
 
 #: includes/Modules/ClassicEditor/Module.php:87
-#: includes/Modules/DownloadFiles/Module.php:201
+#: includes/Modules/DownloadFiles/Module.php:267
 #: includes/Modules/DuplicatePost/Module.php:407
 #: includes/Modules/ExternalPermalinks/Module.php:354
 #: includes/Modules/FolderManager/Module.php:127
@@ -2040,12 +2040,12 @@ msgstr "Nemáte dostatečná oprávnění k mazání úryvků."
 msgid "Snippet deleted successfully"
 msgstr "Úryvek byl úspěšně smazán"
 
-#: includes/Modules/ContentSync/Module.php:313
+#: includes/Modules/ContentSync/Module.php:320
 #: includes/Modules/ThirdPartyLogin/Module.php:166
 msgid "Central app URL"
 msgstr "URL centrální aplikace"
 
-#: includes/Modules/ContentSync/Module.php:314
+#: includes/Modules/ContentSync/Module.php:321
 msgid "Base URL of the central application acting as the broker for connected sites."
 msgstr "Základní URL centrální aplikace, která funguje jako broker pro připojené weby."
 
@@ -2053,7 +2053,7 @@ msgstr "Základní URL centrální aplikace, která funguje jako broker pro při
 msgid "HMAC secret"
 msgstr "Tajný klíč HMAC"
 
-#: includes/Modules/ContentSync/Module.php:321
+#: includes/Modules/ContentSync/Module.php:328
 msgid "Shared secret used to sign/verify every request to and from the central app. Stored encrypted. Leave blank to keep the current secret."
 msgstr "Sdílený tajný klíč používaný k podepisování/ověřování každého požadavku do a z centrální aplikace. Uloženo šifrovaně. Ponechte prázdné pro zachování stávajícího klíče."
 
@@ -2222,38 +2222,38 @@ msgstr "Zakázat aktualizace překladů"
 msgid "Disable automatic updates for translations."
 msgstr "Zakázat automatické aktualizace překladů."
 
-#: includes/Modules/DownloadFiles/Module.php:216
+#: includes/Modules/DownloadFiles/Module.php:282
 msgid "Require login by default"
 msgstr "Ve výchozím nastavení vyžadovat přihlášení"
 
-#: includes/Modules/DownloadFiles/Module.php:317
-#: includes/Modules/DownloadFiles/Module.php:417
-#: includes/Modules/DownloadFiles/Module.php:430
-#: includes/Modules/DownloadFiles/Module.php:987
-#: includes/Modules/DownloadFiles/Module.php:994
+#: includes/Modules/DownloadFiles/Module.php:383
+#: includes/Modules/DownloadFiles/Module.php:483
+#: includes/Modules/DownloadFiles/Module.php:496
+#: includes/Modules/DownloadFiles/Module.php:1053
+#: includes/Modules/DownloadFiles/Module.php:1060
 #: includes/Modules/DownloadFiles/RestController.php:249
 #: includes/Modules/Forms/RestController.php:298
 msgid "File not found."
 msgstr "Soubor nebyl nalezen."
 
-#: includes/Modules/DownloadFiles/Module.php:421
+#: includes/Modules/DownloadFiles/Module.php:487
 msgid "Invalid or missing download token."
 msgstr "Neplatný nebo chybějící token pro stažení."
 
-#: includes/Modules/DownloadFiles/Module.php:425
+#: includes/Modules/DownloadFiles/Module.php:491
 msgid "You must be logged in to download this file."
 msgstr "Pro stažení tohoto souboru musíte být přihlášeni."
 
-#: includes/Modules/DownloadFiles/Module.php:435
+#: includes/Modules/DownloadFiles/Module.php:501
 msgid "The underlying media attachment is missing."
 msgstr "Podkladová mediální příloha chybí."
 
-#: includes/Modules/DownloadFiles/Module.php:440
+#: includes/Modules/DownloadFiles/Module.php:506
 #: includes/Modules/ImageOptimizer/Optimizer.php:476
 msgid "The file is missing on disk."
 msgstr "Soubor na disku chybí."
 
-#: includes/Modules/DownloadFiles/Module.php:451
+#: includes/Modules/DownloadFiles/Module.php:517
 msgid "Refused to serve a file outside the uploads directory."
 msgstr "Odmítnuto zpřístupnit soubor mimo adresář uploads."
 
@@ -2621,7 +2621,7 @@ msgstr "Zkrácený obsah"
 #: includes/Modules/ExportPosts/Module.php:505
 #: includes/Modules/Forms/Csv.php:56
 #: includes/Modules/ServiceRequests/DashboardWidget.php:61
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/84.1a53127d36c807b7f9d6.js:1
 #: build/178.9f7c44183315fbd10ef5.js:1
 #: build/295.a2b42013b2aace5fa6b8.js:1
@@ -2635,7 +2635,7 @@ msgstr "Zkrácený obsah"
 #: build/587.bbad24948bc07e32a25d.js:1
 #: build/831.4a50788efbe243723ea1.js:1
 #: build/866.a786a1a3b954a048d924.js:1
-#: build/index.a5123134802902c0d385.js:2
+#: build/index.c3079ddb8f45bfbdb84a.js:2
 msgid "Status"
 msgstr "Stav"
 
@@ -2645,7 +2645,7 @@ msgid "Post Type"
 msgstr "Typ obsahu"
 
 #: includes/Modules/ExportPosts/Module.php:507
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/50.5e1e490c895cec652ee2.js:1
 #: build/157.6516b122bdc10ba986aa.js:1
 #: build/158.1a00cfb592a89b32f06b.js:1
@@ -2792,7 +2792,7 @@ msgid "User ID"
 msgstr "ID uživatele"
 
 #: includes/Modules/ExportUsers/Module.php:352
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Username"
 msgstr "Uživatelské jméno"
 
@@ -2909,7 +2909,7 @@ msgid "You do not have access to the File Manager. Add your account to the allow
 msgstr "Nemáte přístup ke Správci souborů. Přidejte svůj účet do seznamu povolených uživatelů níže."
 
 #: includes/Modules/FileManager/Module.php:203
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/21.8b53a3fd405d62c10b3c.js:1
 #: build/31.e9354171b6207cee8a1b.js:1
 #: build/50.5e1e490c895cec652ee2.js:1
@@ -2937,8 +2937,8 @@ msgstr "Nemáte přístup ke Správci souborů. Přidejte svůj účet do seznam
 #: build/907.e407fbb311cd6ef44322.js:1
 #: build/930.c657f0a8ddf5aeb4be68.js:1
 #: build/976.d134b086cadd547a42bf.js:1
-#: build/index.a5123134802902c0d385.js:3
-#: build/index.a5123134802902c0d385.js:4
+#: build/index.c3079ddb8f45bfbdb84a.js:3
+#: build/index.c3079ddb8f45bfbdb84a.js:4
 msgid "Settings"
 msgstr "Nastavení"
 
@@ -3355,10 +3355,10 @@ msgstr "Režim"
 msgid "Select the maintenance mode type."
 msgstr "Vyberte typ režimu údržby."
 
-#: includes/Modules/ContentSync/Module.php:260
+#: includes/Modules/ContentSync/Module.php:267
 #: includes/Modules/MaintenanceMode/Module.php:369
 #: includes/Modules/SecurityOptimization/Module.php:759
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/190.e8d6b6bb2fd4bf0dcc28.js:1
 #: build/295.a2b42013b2aace5fa6b8.js:1
 #: build/866.a786a1a3b954a048d924.js:1
@@ -3713,7 +3713,7 @@ msgid "Enter a Google tracking ID, e.g. G-XXXXXXXXXX."
 msgstr "Zadejte měřicí ID Google, např. G-XXXXXXXXXX."
 
 #: includes/Modules/PixelTagManager/Module.php:169
-#: includes/Modules/SecurityOptimization/Module.php:929
+#: includes/Modules/SecurityOptimization/Module.php:941
 msgid "Facebook Pixel"
 msgstr "Facebook Pixel"
 
@@ -3747,12 +3747,12 @@ msgstr "Vyskakovací okno nenalezeno."
 msgid "Gallery"
 msgstr "Galerie"
 
-#: includes/Modules/DownloadFiles/Module.php:676
+#: includes/Modules/DownloadFiles/Module.php:742
 #: includes/Modules/Forms/PublicRenderer.php:107
 #: includes/Modules/PostGallery/Module.php:96
 #: build/309.62b4119d52614c5b9e45.js:1
 #: build/348.be18249b924a2d37e4c4.js:3
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 #: includes/Modules/DownloadFiles/assets/js/download-files-admin.js:49
 #: includes/Modules/PostGallery/assets/js/post-gallery-admin.js:48
 msgid "Remove"
@@ -3962,7 +3962,7 @@ msgid "VAPID contact (mailto: or URL)"
 msgstr "VAPID kontakt (mailto: nebo URL)"
 
 #: includes/Modules/PushNotifications/Module.php:653
-#: includes/Modules/PushNotifications/Module.php:961
+#: includes/Modules/PushNotifications/Module.php:965
 msgid "Notification not found."
 msgstr "Oznámení nenalezeno."
 
@@ -4440,32 +4440,32 @@ msgstr "Zakázat RSS kanály"
 msgid "Restrict REST API to logged-in users"
 msgstr "Omezit REST API pouze na přihlášené uživatele"
 
-#: includes/Modules/SecurityOptimization/Module.php:1101
+#: includes/Modules/SecurityOptimization/Module.php:1113
 msgid "Your IP address has been blocked."
 msgstr "Vaše IP adresa byla zablokována."
 
-#: includes/Modules/SecurityOptimization/Module.php:1561
+#: includes/Modules/SecurityOptimization/Module.php:1573
 msgid "XML-RPC is disabled."
 msgstr "XML-RPC je zakázáno."
 
-#: includes/Modules/SecurityOptimization/Module.php:1651
+#: includes/Modules/SecurityOptimization/Module.php:1663
 msgid "Not found."
 msgstr "Nenalezeno."
 
-#: includes/Modules/SecurityOptimization/Module.php:1690
+#: includes/Modules/SecurityOptimization/Module.php:1702
 msgid "This username is not allowed for security reasons. Please choose another."
 msgstr "Toto uživatelské jméno není z bezpečnostních důvodů povoleno. Zvolte prosím jiné."
 
-#: includes/Modules/SecurityOptimization/Module.php:1705
-#: includes/Modules/SecurityOptimization/Module.php:1718
+#: includes/Modules/SecurityOptimization/Module.php:1717
+#: includes/Modules/SecurityOptimization/Module.php:1730
 msgid "This username is not allowed for security reasons."
 msgstr "Toto uživatelské jméno není z bezpečnostních důvodů povoleno."
 
-#: includes/Modules/SecurityOptimization/Module.php:1767
+#: includes/Modules/SecurityOptimization/Module.php:1779
 msgid "RSS feeds are disabled on this site."
 msgstr "RSS kanály jsou na tomto webu zakázány."
 
-#: includes/Modules/SecurityOptimization/Module.php:2115
+#: includes/Modules/SecurityOptimization/Module.php:2127
 msgid "REST API access is restricted to logged-in users."
 msgstr "Přístup k REST API je omezen pouze na přihlášené uživatele."
 
@@ -4488,14 +4488,14 @@ msgid "Upload Guard - suspicious files"
 msgstr "Upload Guard - podezřelé soubory"
 
 #: includes/Modules/SecurityOptimization/UploadGuardNotifier.php:94
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/31.e9354171b6207cee8a1b.js:1
 #: build/244.51cc9501d13d30b5c2a2.js:1
 msgid "File"
 msgstr "Soubor"
 
 #: includes/Modules/SecurityOptimization/UploadGuardNotifier.php:95
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/230.8d6daa523ce030aeedfe.js:1
 #: build/457.8e027b7fdfd3d595b8ef.js:1
 msgid "Severity"
@@ -4511,7 +4511,7 @@ msgstr "Nález nebyl nalezen."
 msgid "Could not restore the file from quarantine."
 msgstr "Soubor se nepodařilo obnovit z karantény."
 
-#: includes/Modules/SecurityOptimization/Module.php:906
+#: includes/Modules/SecurityOptimization/Module.php:918
 #: includes/Modules/ServiceRequests/Module.php:136
 msgid "Notification email"
 msgstr "Notifikační e-mail"
@@ -4900,6 +4900,7 @@ msgid "Closed"
 msgstr "Uzavřeno"
 
 #: includes/Modules/InstagramFeed/Module.php:157
+#: includes/Modules/SecurityOptimization/Module.php:901
 #: build/295.a2b42013b2aace5fa6b8.js:1
 msgid "Daily"
 msgstr "Denně"
@@ -4937,13 +4938,13 @@ msgstr "Přispěvatel"
 
 #: includes/Modules/ServiceRequests/Sync.php:467
 #: build/752.68d78e7a3e0054952684.js:1
-#: build/index.a5123134802902c0d385.js:3
+#: build/index.c3079ddb8f45bfbdb84a.js:3
 msgid "Theme"
 msgstr "Vzhled"
 
 #: includes/Modules/ServiceRequests/Sync.php:468
 #: build/786.1b32c5aeb00eaa613caf.js:1
-#: build/index.a5123134802902c0d385.js:3
+#: build/index.c3079ddb8f45bfbdb84a.js:3
 msgid "Language"
 msgstr "Jazyk"
 
@@ -4964,7 +4965,7 @@ msgid "Admin Tools"
 msgstr "Nástroje administrace"
 
 #: includes/Core/Megamenu.php:172
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "Security"
 msgstr "Zabezpečení"
 
@@ -4974,12 +4975,12 @@ msgstr "Zabezpečení"
 #: includes/Modules/SecurityOptimization/Module.php:752
 #: includes/Modules/SecurityOptimization/Module.php:765
 #: includes/Modules/SecurityOptimization/Module.php:773
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "Performance"
 msgstr "Výkon"
 
 #: includes/Core/Megamenu.php:176
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "Developer"
 msgstr "Vývojářské nástroje"
 
@@ -5221,27 +5222,27 @@ msgstr "Archivátory"
 msgid "Generic crawlers"
 msgstr "Obecné crawlery"
 
-#: includes/Modules/ContentSync/HmacAuth.php:109
+#: includes/Modules/ContentSync/HmacAuth.php:112
 msgid "Missing authentication headers."
 msgstr "Chybějící autentizační hlavičky."
 
-#: includes/Modules/ContentSync/HmacAuth.php:112
+#: includes/Modules/ContentSync/HmacAuth.php:115
 msgid "This node has no API key configured."
 msgstr "Tento uzel nemá nastavený API klíč."
 
-#: includes/Modules/ContentSync/HmacAuth.php:115
+#: includes/Modules/ContentSync/HmacAuth.php:118
 msgid "Malformed authentication headers."
 msgstr "Poškozené autentizační hlavičky."
 
-#: includes/Modules/ContentSync/HmacAuth.php:121
+#: includes/Modules/ContentSync/HmacAuth.php:124
 msgid "Request timestamp outside the allowed window."
 msgstr "Časové razítko požadavku je mimo povolené okno."
 
-#: includes/Modules/ContentSync/HmacAuth.php:147
+#: includes/Modules/ContentSync/HmacAuth.php:150
 msgid "Invalid request signature."
 msgstr "Neplatný podpis požadavku."
 
-#: includes/Modules/ContentSync/HmacAuth.php:153
+#: includes/Modules/ContentSync/HmacAuth.php:156
 msgid "Request nonce already used."
 msgstr "Nonce požadavku byl již použit."
 
@@ -5305,63 +5306,63 @@ msgstr "Výchozí autor (uzel)"
 msgid "User ID assigned to posts created by the hub when the payload has no author."
 msgstr "ID uživatele přiřazené příspěvkům vytvořeným hubem, když payload neobsahuje autora."
 
-#: includes/Modules/ContentSync/Module.php:255
+#: includes/Modules/ContentSync/Module.php:262
 msgid "SSO user mapping"
 msgstr "Mapování uživatelů SSO"
 
-#: includes/Modules/ContentSync/Module.php:256
+#: includes/Modules/ContentSync/Module.php:263
 msgid "auto: map by email, provision if missing. strict: only pre-mapped/known users. disabled: SSO off."
 msgstr "auto: mapovat podle e-mailu, vytvořit, pokud chybí. strict: pouze předem namapovaní/známí uživatelé. disabled: SSO vypnuto."
 
-#: includes/Modules/ContentSync/Module.php:258
+#: includes/Modules/ContentSync/Module.php:265
 msgid "Auto (map by email, provision if missing)"
 msgstr "Auto (mapovat podle e-mailu, vytvořit, pokud chybí)"
 
-#: includes/Modules/ContentSync/Module.php:259
+#: includes/Modules/ContentSync/Module.php:266
 msgid "Strict (existing users only)"
 msgstr "Striktní (pouze existující uživatelé)"
 
-#: includes/Modules/ContentSync/Module.php:267
+#: includes/Modules/ContentSync/Module.php:274
 msgid "Allow SSO user provisioning"
 msgstr "Povolit vytváření uživatelů přes SSO"
 
-#: includes/Modules/ContentSync/Module.php:268
+#: includes/Modules/ContentSync/Module.php:275
 msgid "Create a WP user when an operator has none. Never creates administrators."
 msgstr "Vytvořit WP uživatele, když operátor žádného nemá. Nikdy nevytváří administrátory."
 
-#: includes/Modules/ContentSync/Module.php:274
+#: includes/Modules/ContentSync/Module.php:281
 msgid "Provisioned role"
 msgstr "Přidělovaná role"
 
-#: includes/Modules/ContentSync/Module.php:275
+#: includes/Modules/ContentSync/Module.php:282
 msgid "Role given to auto-provisioned SSO users. Administrator is intentionally not selectable."
 msgstr "Role přidělená automaticky vytvořeným uživatelům SSO. Role administrátora záměrně nelze vybrat."
 
-#: includes/Modules/ContentSync/Module.php:282
+#: includes/Modules/ContentSync/Module.php:289
 msgid "SSO token lifetime (seconds)"
 msgstr "Životnost SSO tokenu (sekundy)"
 
-#: includes/Modules/ContentSync/Module.php:283
+#: includes/Modules/ContentSync/Module.php:290
 msgid "Clamped to 15-300 seconds."
 msgstr "Omezeno na 15-300 sekund."
 
-#: includes/Modules/ContentSync/Module.php:289
+#: includes/Modules/ContentSync/Module.php:296
 msgid "Require user-agent match"
 msgstr "Vyžadovat shodu User-Agenta"
 
-#: includes/Modules/ContentSync/Module.php:295
+#: includes/Modules/ContentSync/Module.php:302
 msgid "Require IP match"
 msgstr "Vyžadovat shodu IP adresy"
 
-#: includes/Modules/ContentSync/Module.php:301
+#: includes/Modules/ContentSync/Module.php:308
 msgid "Max failed redemptions per IP / hour"
 msgstr "Max. neúspěšných uplatnění na IP / hodinu"
 
-#: includes/Modules/ContentSync/Module.php:307
+#: includes/Modules/ContentSync/Module.php:314
 msgid "Max token issues per operator / hour"
 msgstr "Max. vydaných tokenů na operátora / hodinu"
 
-#: includes/Modules/ContentSync/Module.php:320
+#: includes/Modules/ContentSync/Module.php:327
 msgid "Central app HMAC secret"
 msgstr "HMAC klíč centrální aplikace"
 
@@ -5535,25 +5536,25 @@ msgstr "Skrýt konkrétní widgety nástěnky"
 msgid "The list reflects widgets registered on this site (visit Dashboard once to refresh it)."
 msgstr "Seznam odráží widgety registrované na tomto webu (jednou navštivte Nástěnku pro jeho obnovení)."
 
-#: includes/Modules/DownloadFiles/Module.php:223
+#: includes/Modules/DownloadFiles/Module.php:289
 msgid "Shortcode heading"
 msgstr "Nadpis shortcodu"
 
-#: includes/Modules/DownloadFiles/Module.php:224
+#: includes/Modules/DownloadFiles/Module.php:290
 msgid "Default heading shown above the file list rendered by the [download_files] shortcode. Override per-instance with the heading=\"\" attribute; use heading=\"\" to hide it."
 msgstr "Výchozí nadpis zobrazený nad seznamem souborů vykresleným shortcodem [download_files]. Pro jednotlivé instance přepište atributem heading=\"\"; použijte heading=\"\" pro jeho skrytí."
 
-#: includes/Modules/DownloadFiles/Module.php:225
-#: includes/Modules/DownloadFiles/Module.php:558
-#: includes/Modules/DownloadFiles/Module.php:651
+#: includes/Modules/DownloadFiles/Module.php:291
+#: includes/Modules/DownloadFiles/Module.php:624
+#: includes/Modules/DownloadFiles/Module.php:717
 msgid "Files to download"
 msgstr "Soubory ke stažení"
 
-#: includes/Modules/DownloadFiles/Module.php:230
+#: includes/Modules/DownloadFiles/Module.php:296
 msgid "Hide login-only files from guests"
 msgstr "Skrýt soubory jen pro přihlášené před hosty"
 
-#: includes/Modules/DownloadFiles/Module.php:231
+#: includes/Modules/DownloadFiles/Module.php:297
 msgid "When on, files that require login are omitted from the shortcode list for visitors who are not logged in (the download endpoint still enforces login regardless)."
 msgstr "Když je zapnuto, soubory vyžadující přihlášení jsou vynechány ze seznamu shortcodu pro nepřihlášené návštěvníky (endpoint pro stažení přihlášení stejně vyžaduje vždy)."
 
@@ -6260,7 +6261,7 @@ msgid "Used as the \"sub\" claim of the VAPID JWT sent with each push. Defaults 
 msgstr "Použito jako claim \"sub\" ve VAPID JWT odesílaném s každým pushem. Výchozí je e-mail správce webu."
 
 #: includes/Modules/PushNotifications/Module.php:656
-#: includes/Modules/PushNotifications/Module.php:964
+#: includes/Modules/PushNotifications/Module.php:968
 msgid "Generate VAPID keys first."
 msgstr "Nejprve vygenerujte klíče VAPID."
 
@@ -6273,7 +6274,7 @@ msgid "CSP tells the browser where scripts, styles, images and other content may
 msgstr "CSP říká prohlížeči, odkud se smějí načítat skripty, styly, obrázky a další obsah, čímž výrazně snižuje riziko XSS. BEZPEČNOST: CSP se posílá pouze na frontendu - nikdy ve wp-adminu - takže vás nemůže zamknout mimo administraci. Začněte s režimem \"Pouze hlášení\", abyste viděli, co by se rozbilo (porušení se objeví na kartě Porušení CSP), a po vyčištění přepněte na \"Vynucovat\"."
 
 #: includes/Modules/SecurityOptimization/Module.php:466
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Off"
 msgstr "Vypnuto"
 
@@ -6349,59 +6350,59 @@ msgstr "Skryje podrobné chybové hlášky přihlášení (aby útočník nepozn
 msgid "Enable Upload Guard scanner"
 msgstr "Zapnout skener Ochrany nahrávání"
 
-#: includes/Modules/SecurityOptimization/Module.php:898
+#: includes/Modules/SecurityOptimization/Module.php:910
 msgid "Email admin on detections"
 msgstr "Informovat správce e-mailem o nálezech"
 
-#: includes/Modules/SecurityOptimization/Module.php:899
+#: includes/Modules/SecurityOptimization/Module.php:911
 msgid "Sends a throttled summary email when new high/critical findings appear (at most one per 15 minutes)."
 msgstr "Odešle omezený souhrnný e-mail, když se objeví nové vysoké/kritické nálezy (nejvýše jeden za 15 minut)."
 
-#: includes/Modules/SecurityOptimization/Module.php:907
+#: includes/Modules/SecurityOptimization/Module.php:919
 msgid "Where to send Upload Guard alerts. Leave blank to use the site admin email."
 msgstr "Kam posílat upozornění Ochrany nahrávání. Ponechte prázdné pro použití e-mailu správce webu."
 
-#: includes/Modules/SecurityOptimization/Module.php:920
+#: includes/Modules/SecurityOptimization/Module.php:932
 msgid "Google Fonts"
 msgstr "Google Fonts"
 
-#: includes/Modules/SecurityOptimization/Module.php:921
+#: includes/Modules/SecurityOptimization/Module.php:933
 msgid "Google Tag Manager + Analytics"
 msgstr "Google Tag Manager + Analytics"
 
-#: includes/Modules/SecurityOptimization/Module.php:922
+#: includes/Modules/SecurityOptimization/Module.php:934
 msgid "YouTube (embedded videos)"
 msgstr "YouTube (vložená videa)"
 
-#: includes/Modules/SecurityOptimization/Module.php:923
+#: includes/Modules/SecurityOptimization/Module.php:935
 msgid "Vimeo (embedded videos)"
 msgstr "Vimeo (vložená videa)"
 
-#: includes/Modules/SecurityOptimization/Module.php:924
+#: includes/Modules/SecurityOptimization/Module.php:936
 msgid "Smartsupp (chat)"
 msgstr "Smartsupp (chat)"
 
-#: includes/Modules/SecurityOptimization/Module.php:925
+#: includes/Modules/SecurityOptimization/Module.php:937
 msgid "Google reCAPTCHA"
 msgstr "Google reCAPTCHA"
 
-#: includes/Modules/SecurityOptimization/Module.php:926
+#: includes/Modules/SecurityOptimization/Module.php:938
 msgid "Cloudflare / CloudFront CDN"
 msgstr "Cloudflare / CloudFront CDN"
 
-#: includes/Modules/SecurityOptimization/Module.php:927
+#: includes/Modules/SecurityOptimization/Module.php:939
 msgid "Mapy.cz"
 msgstr "Mapy.cz"
 
-#: includes/Modules/SecurityOptimization/Module.php:928
+#: includes/Modules/SecurityOptimization/Module.php:940
 msgid "Google Maps"
 msgstr "Google Maps"
 
-#: includes/Modules/SecurityOptimization/Module.php:930
+#: includes/Modules/SecurityOptimization/Module.php:942
 msgid "Gravatar (comment avatars)"
 msgstr "Gravatar (avatary komentářů)"
 
-#: includes/Modules/SecurityOptimization/Module.php:1436
+#: includes/Modules/SecurityOptimization/Module.php:1448
 msgid "Invalid login credentials. Please check both the username and the password."
 msgstr "Neplatné přihlašovací údaje. Zkontrolujte prosím uživatelské jméno i heslo."
 
@@ -7230,11 +7231,11 @@ msgstr "V wp-config.php je nastaveno DISALLOW_FILE_EDIT, proto nelze úryvky kó
 msgid "Only administrators allowed to edit plugin files (super admins on multisite) can change code snippets."
 msgstr "Úryvky kódu mohou měnit jen administrátoři s oprávněním upravovat soubory pluginů (na multisite super admini)."
 
-#: includes/Modules/ContentSync/Module.php:327
+#: includes/Modules/ContentSync/Module.php:334
 msgid "Sync log retention (days)"
 msgstr "Uchovávání logu synchronizace (dny)"
 
-#: includes/Modules/ContentSync/Module.php:328
+#: includes/Modules/ContentSync/Module.php:335
 msgid "Sync log entries older than this are deleted daily. 0 = keep forever."
 msgstr "Záznamy logu synchronizace starší než tato doba se denně mažou. 0 = uchovávat navždy."
 
@@ -7318,7 +7319,7 @@ msgstr "Zatím nebyla nahrána žádná média."
 msgid "View media library"
 msgstr "Zobrazit knihovnu médií"
 
-#: includes/Modules/DownloadFiles/Module.php:217
+#: includes/Modules/DownloadFiles/Module.php:283
 msgid "Default value of \"require login\" for newly added files. Login-only files are moved out of the public uploads folder, so their original media URL stops working and they can only be downloaded through the download link by logged-in users."
 msgstr "Výchozí hodnota „vyžadovat přihlášení“ pro nově přidané soubory. Soubory jen pro přihlášené se přesunou mimo veřejnou složku uploads, takže jejich původní URL v knihovně médií přestane fungovat a stáhnout je mohou jen přihlášení uživatelé přes odkaz ke stažení."
 
@@ -7927,14 +7928,14 @@ msgid "No active bans."
 msgstr "Žádné aktivní blokace."
 
 #: includes/Modules/SecurityOptimization/DashboardWidget.php:67
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/158.1a00cfb592a89b32f06b.js:1
 #: build/348.be18249b924a2d37e4c4.js:3
 msgid "Value"
 msgstr "Hodnota"
 
 #: includes/Modules/SecurityOptimization/DashboardWidget.php:68
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/213.0fc210bb008e9541fd89.js:1
 #: build/295.a2b42013b2aace5fa6b8.js:1
 #: build/309.62b4119d52614c5b9e45.js:1
@@ -8127,48 +8128,48 @@ msgstr "Widget nástěnky: nejprodávanější produkty"
 msgid "Adds a native wp-admin dashboard widget listing the best-selling products (by quantity sold)."
 msgstr "Přidá nativní widget na nástěnku wp-admin s nejprodávanějšími produkty (podle prodaného množství)."
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Enforcing"
 msgstr "Vynucováno"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Report only"
 msgstr "Pouze hlášení"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Real CSP violations reported by visitor browsers. Resolve entries once you have allowed or fixed the source."
 msgstr "Skutečná porušení CSP nahlášená prohlížeči návštěvníků. Jakmile zdroj povolíte nebo opravíte, označte záznamy jako vyřešené."
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "CSP mode:"
 msgstr "Režim CSP:"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "The policy is actively enforced on the front end (never in wp-admin). Disallowed sources are blocked."
 msgstr "Politika se na frontendu aktivně vynucuje (nikdy ve wp-adminu). Nepovolené zdroje jsou blokovány."
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "The policy is sent report-only: nothing is blocked, browsers just report what would be. Review the violations below, then switch to Enforce in the Settings tab."
 msgstr "Politika se posílá v režimu pouze hlášení: nic se neblokuje, prohlížeče jen hlásí, co by bylo zablokováno. Projděte porušení níže a pak na kartě Nastavení přepněte na Vynucovat."
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "CSP is off. Enable it in the Settings tab - start with Report only to collect violations here before enforcing."
 msgstr "CSP je vypnuté. Zapněte jej na kartě Nastavení - začněte režimem Pouze hlášení, abyste zde nejdříve nasbírali porušení, než začnete vynucovat."
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/474.cf43816866abf5df7c56.js:1
 msgid "Resolved"
 msgstr "Vyřešeno"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/295.a2b42013b2aace5fa6b8.js:1
 #: build/309.62b4119d52614c5b9e45.js:1
 #: build/475.b4eae071038b2bb3095d.js:1
-#: build/index.a5123134802902c0d385.js:2
+#: build/index.c3079ddb8f45bfbdb84a.js:2
 msgid "All"
 msgstr "Vše"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/21.8b53a3fd405d62c10b3c.js:1
 #: build/31.e9354171b6207cee8a1b.js:1
 #: build/50.5e1e490c895cec652ee2.js:1
@@ -8207,39 +8208,39 @@ msgstr "Vše"
 #: build/907.e407fbb311cd6ef44322.js:1
 #: build/930.c657f0a8ddf5aeb4be68.js:1
 #: build/976.d134b086cadd547a42bf.js:1
-#: build/index.a5123134802902c0d385.js:1
-#: build/index.a5123134802902c0d385.js:3
-#: build/index.a5123134802902c0d385.js:4
+#: build/index.c3079ddb8f45bfbdb84a.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:3
+#: build/index.c3079ddb8f45bfbdb84a.js:4
 msgid "Loading…"
 msgstr "Načítání…"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Blocked source"
 msgstr "Blokovaný zdroj"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Directive"
 msgstr "Direktiva"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/337.a7a3bcc092c5cffdfe07.js:1
 msgid "Hits"
 msgstr "Výskyty"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/337.a7a3bcc092c5cffdfe07.js:1
 msgid "Last seen"
 msgstr "Naposledy viděno"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "(unknown)"
 msgstr "(neznámé)"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Mark resolved"
 msgstr "Označit jako vyřešené"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/93.aa83f1c2e16e8b51123d.js:1
 #: build/190.e8d6b6bb2fd4bf0dcc28.js:1
 #: build/244.51cc9501d13d30b5c2a2.js:1
@@ -8254,11 +8255,11 @@ msgstr "Označit jako vyřešené"
 msgid "Delete"
 msgstr "Smazat"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "No CSP violations reported."
 msgstr "Nebyla nahlášena žádná porušení CSP."
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/21.8b53a3fd405d62c10b3c.js:1
 #: build/31.e9354171b6207cee8a1b.js:1
 #: build/50.5e1e490c895cec652ee2.js:1
@@ -8289,97 +8290,97 @@ msgstr "Nebyla nahlášena žádná porušení CSP."
 #: build/907.e407fbb311cd6ef44322.js:1
 #: build/930.c657f0a8ddf5aeb4be68.js:1
 #: build/976.d134b086cadd547a42bf.js:1
-#: build/index.a5123134802902c0d385.js:3
+#: build/index.c3079ddb8f45bfbdb84a.js:3
 msgid "Saved"
 msgstr "Uloženo"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Save Upload Guard settings"
 msgstr "Uložit nastavení Ochrany nahrávání"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Scan running…"
 msgstr "Probíhá kontrola…"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/457.8e027b7fdfd3d595b8ef.js:1
 msgid "Scan now"
 msgstr "Zkontrolovat nyní"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Scanning in batches…"
 msgstr "Kontrola po dávkách…"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/190.e8d6b6bb2fd4bf0dcc28.js:1
 msgid "Last scan:"
 msgstr "Poslední kontrola:"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "files scanned:"
 msgstr "zkontrolováno souborů:"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "detections:"
 msgstr "nálezů:"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "No scan has run yet."
 msgstr "Zatím neproběhla žádná kontrola."
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Detected"
 msgstr "Zjištěno"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Quarantined"
 msgstr "V karanténě"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Approved"
 msgstr "Schváleno"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Queued"
 msgstr "Ve frontě"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Approve"
 msgstr "Schválit"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Delete permanently"
 msgstr "Trvale smazat"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "No findings in this category."
 msgstr "V této kategorii nejsou žádná zjištění."
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Login Attempts"
 msgstr "Pokusy o přihlášení"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "IP Bans"
 msgstr "Blokace IP"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "CSP Violations"
 msgstr "Porušení CSP"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Upload Guard"
 msgstr "Ochrana nahrávání"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "A CAPTCHA secret key is currently set."
 msgstr "Tajný klíč CAPTCHA je nastaven."
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "No CAPTCHA secret key set yet."
 msgstr "Tajný klíč CAPTCHA zatím není nastaven."
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/21.8b53a3fd405d62c10b3c.js:1
 #: build/31.e9354171b6207cee8a1b.js:1
 #: build/50.5e1e490c895cec652ee2.js:1
@@ -8409,76 +8410,76 @@ msgstr "Tajný klíč CAPTCHA zatím není nastaven."
 #: build/907.e407fbb311cd6ef44322.js:1
 #: build/930.c657f0a8ddf5aeb4be68.js:1
 #: build/976.d134b086cadd547a42bf.js:1
-#: build/index.a5123134802902c0d385.js:3
+#: build/index.c3079ddb8f45bfbdb84a.js:3
 msgid "Save changes"
 msgstr "Uložit změny"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid ".htaccess rules"
 msgstr "Pravidla .htaccess"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Applied and up to date"
 msgstr "Použito a aktuální"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Out of date - re-apply to write current settings"
 msgstr "Zastaralé - použijte znovu pro zápis aktuálního nastavení"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Apply .htaccess rules"
 msgstr "Použít pravidla .htaccess"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Clear all attempts"
 msgstr "Vymazat všechny pokusy"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "IP"
 msgstr "IP"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Lockout (min)"
 msgstr "Zablokování (min)"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Locked"
 msgstr "Zablokováno"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Cleared"
 msgstr "Vymazáno"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Unlock"
 msgstr "Odblokovat"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "No failed login attempts recorded."
 msgstr "Nebyly zaznamenány žádné neúspěšné pokusy o přihlášení."
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Single IP address"
 msgstr "Jedna IP adresa"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "IP range (CIDR)"
 msgstr "Rozsah IP (CIDR)"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Country code (ISO 3166-1 alpha-2)"
 msgstr "Kód země (ISO 3166-1 alpha-2)"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Add ban"
 msgstr "Přidat blokaci"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Target"
 msgstr "Cíl"
 
 #: includes/Modules/NoticeBoard/Module.php:1371
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/31.e9354171b6207cee8a1b.js:1
 #: build/295.a2b42013b2aace5fa6b8.js:1
 #: build/337.a7a3bcc092c5cffdfe07.js:1
@@ -8488,24 +8489,24 @@ msgstr "Cíl"
 msgid "Active"
 msgstr "Aktivní"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Central"
 msgstr "Centrální"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/786.1b32c5aeb00eaa613caf.js:1
 msgid "Disable"
 msgstr "Vypnout"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Enable"
 msgstr "Zapnout"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "No IP bans yet."
 msgstr "Zatím žádné blokace IP."
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #: build/21.8b53a3fd405d62c10b3c.js:1
 #: build/31.e9354171b6207cee8a1b.js:1
 #: build/50.5e1e490c895cec652ee2.js:1
@@ -8545,12 +8546,12 @@ msgstr "Zatím žádné blokace IP."
 #: build/930.c657f0a8ddf5aeb4be68.js:1
 #: build/976.d134b086cadd547a42bf.js:1
 #: build/999.e3a9e917913d7f31633a.js:1
-#: build/index.a5123134802902c0d385.js:3
-#: build/index.a5123134802902c0d385.js:4
+#: build/index.c3079ddb8f45bfbdb84a.js:3
+#: build/index.c3079ddb8f45bfbdb84a.js:4
 msgid "Back to modules"
 msgstr "Zpět na moduly"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Security - Access Control"
 msgstr "Zabezpečení - Řízení přístupu"
 
@@ -11141,7 +11142,7 @@ msgstr "Pokročilé"
 #: includes/Modules/ExitPopup/Module.php:119
 #: build/348.be18249b924a2d37e4c4.js:3
 #: build/930.c657f0a8ddf5aeb4be68.js:1
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "Layout"
 msgstr "Rozvržení"
 
@@ -11174,7 +11175,7 @@ msgid "Add option"
 msgstr "Přidat možnost"
 
 #: build/348.be18249b924a2d37e4c4.js:3
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "General"
 msgstr "Obecné"
 
@@ -13020,37 +13021,37 @@ msgstr "AI panel spravuje dočasná oprávnění ke vzdálenému přístupu na v
 msgid "Open AI Panel"
 msgstr "Otevřít AI panel"
 
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "Select image"
 msgstr "Vybrat obrázek"
 
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "Change image"
 msgstr "Změnit obrázek"
 
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "— Select —"
 msgstr "— Vyberte —"
 
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "Failed to load modules."
 msgstr "Moduly se nepodařilo načíst."
 
-#: build/index.a5123134802902c0d385.js:1
-#: build/index.a5123134802902c0d385.js:4
+#: build/index.c3079ddb8f45bfbdb84a.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:4
 msgid "Modules"
 msgstr "Moduly"
 
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "Grid view"
 msgstr "Zobrazení mřížky"
 
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "List view"
 msgstr "Zobrazení seznamu"
 
 #. translators: %d: number of currently active modules.
-#: build/index.a5123134802902c0d385.js:2
+#: build/index.c3079ddb8f45bfbdb84a.js:2
 #, js-format
 msgid "Deactivate %d active module?"
 msgid_plural "Deactivate all %d active modules?"
@@ -13058,62 +13059,62 @@ msgstr[0] "Deaktivovat %d aktivní modul?"
 msgstr[1] "Deaktivovat všechny %d aktivní moduly?"
 msgstr[2] "Deaktivovat všech %d aktivních modulů?"
 
-#: build/index.a5123134802902c0d385.js:2
+#: build/index.c3079ddb8f45bfbdb84a.js:2
 msgid "Deactivate all modules"
 msgstr "Deaktivovat všechny moduly"
 
-#: build/index.a5123134802902c0d385.js:2
-#: build/index.a5123134802902c0d385.js:4
+#: build/index.c3079ddb8f45bfbdb84a.js:2
+#: build/index.c3079ddb8f45bfbdb84a.js:4
 msgid "Disable module"
 msgstr "Vypnout modul"
 
-#: build/index.a5123134802902c0d385.js:2
-#: build/index.a5123134802902c0d385.js:4
+#: build/index.c3079ddb8f45bfbdb84a.js:2
+#: build/index.c3079ddb8f45bfbdb84a.js:4
 msgid "Enable module"
 msgstr "Zapnout modul"
 
-#: build/index.a5123134802902c0d385.js:3
-#: build/index.a5123134802902c0d385.js:4
+#: build/index.c3079ddb8f45bfbdb84a.js:3
+#: build/index.c3079ddb8f45bfbdb84a.js:4
 msgid "Configure"
 msgstr "Nastavit"
 
-#: build/index.a5123134802902c0d385.js:3
+#: build/index.c3079ddb8f45bfbdb84a.js:3
 msgid "Switch to light mode"
 msgstr "Přepnout na světlý režim"
 
-#: build/index.a5123134802902c0d385.js:3
+#: build/index.c3079ddb8f45bfbdb84a.js:3
 msgid "Switch to dark mode"
 msgstr "Přepnout na tmavý režim"
 
-#: build/index.a5123134802902c0d385.js:3
+#: build/index.c3079ddb8f45bfbdb84a.js:3
 msgid "About"
 msgstr "O pluginu"
 
-#: build/index.a5123134802902c0d385.js:3
+#: build/index.c3079ddb8f45bfbdb84a.js:3
 msgid "Plugin version"
 msgstr "Verze pluginu"
 
-#: build/index.a5123134802902c0d385.js:3
+#: build/index.c3079ddb8f45bfbdb84a.js:3
 msgid "API version"
 msgstr "Verze API"
 
-#: build/index.a5123134802902c0d385.js:4
+#: build/index.c3079ddb8f45bfbdb84a.js:4
 msgid "This module is turned off. Enable it on the Modules screen to use its settings."
 msgstr "Tento modul je vypnutý. Pro použití jeho nastavení jej zapněte na obrazovce Moduly."
 
-#: build/index.a5123134802902c0d385.js:4
+#: build/index.c3079ddb8f45bfbdb84a.js:4
 msgid "Toggle dark mode"
 msgstr "Přepnout tmavý režim"
 
-#: build/index.a5123134802902c0d385.js:4
+#: build/index.c3079ddb8f45bfbdb84a.js:4
 msgid "Light mode"
 msgstr "Světlý režim"
 
-#: build/index.a5123134802902c0d385.js:4
+#: build/index.c3079ddb8f45bfbdb84a.js:4
 msgid "Dark mode"
 msgstr "Tmavý režim"
 
-#: build/index.a5123134802902c0d385.js:4
+#: build/index.c3079ddb8f45bfbdb84a.js:4
 msgid "UX Studio navigation"
 msgstr "Navigace UX Studio"
 
@@ -13279,7 +13280,7 @@ msgstr "Zablokovat koncové body komentářů"
 msgid "Removes the REST API comment routes, XML-RPC comment/pingback methods, the X-Pingback header and comment feeds. Applies only when disabling everywhere."
 msgstr "Odstraní komentářové routy REST API, metody XML-RPC pro komentáře a pingbacky, hlavičku X-Pingback a komentářové feedy. Platí jen při zákazu všude."
 
-#: includes/Modules/SecurityOptimization/Module.php:1939
+#: includes/Modules/SecurityOptimization/Module.php:1951
 msgid "Comments are disabled."
 msgstr "Komentáře jsou zakázané."
 
@@ -14269,11 +14270,11 @@ msgstr "Skladem"
 msgid "Out of stock"
 msgstr "Není skladem"
 
-#: includes/Modules/ContentSync/HmacAuth.php:178
+#: includes/Modules/ContentSync/HmacAuth.php:182
 msgid "This IP address is not on the node allowlist."
 msgstr "Tato IP adresa není na seznamu povolených adres uzlu."
 
-#: includes/Modules/ContentSync/HmacAuth.php:182
+#: includes/Modules/ContentSync/HmacAuth.php:188
 msgid "Too many requests. Try again in a minute."
 msgstr "Příliš mnoho požadavků. Zkuste to znovu za minutu."
 
@@ -14359,28 +14360,28 @@ msgid "FS_METHOD is already defined (%s) - not changing it."
 msgstr "FS_METHOD je již definována (%s) – neměním ji."
 
 #: includes/Modules/ContentSync/NodePackages.php:362
-#: includes/Modules/ContentSync/NodePackages.php:366
+#: includes/Modules/ContentSync/NodePackages.php:374
 msgid "Could not create a backup of wp-config.php."
 msgstr "Nepodařilo se vytvořit zálohu souboru wp-config.php."
 
-#: includes/Modules/ContentSync/NodePackages.php:383
+#: includes/Modules/ContentSync/NodePackages.php:391
 msgid "Could not find an insertion point in wp-config.php (neither the \"That's all\" comment nor the wp-settings.php line). Edit the file manually."
 msgstr "V souboru wp-config.php se nepodařilo najít místo pro vložení (ani komentář „That's all“, ani řádek wp-settings.php). Upravte soubor ručně."
 
 #. translators: %s: backup file name
-#: includes/Modules/ContentSync/NodePackages.php:397
+#: includes/Modules/ContentSync/NodePackages.php:407
 #, php-format
 msgid "Writing the temporary file failed - backup kept: %s"
 msgstr "Zápis dočasného souboru se nezdařil – záloha zachována: %s"
 
 #. translators: %s: backup file name
-#: includes/Modules/ContentSync/NodePackages.php:420
+#: includes/Modules/ContentSync/NodePackages.php:430
 #, php-format
 msgid "Atomic rename failed - wp-config.php unchanged, backup in %s"
 msgstr "Atomické přejmenování se nezdařilo – wp-config.php beze změny, záloha v %s"
 
 #. translators: %s: backup file name
-#: includes/Modules/ContentSync/NodePackages.php:439
+#: includes/Modules/ContentSync/NodePackages.php:449
 #, php-format
 msgid "FS_METHOD=direct added to wp-config.php. Backup: %s"
 msgstr "FS_METHOD=direct byla přidána do wp-config.php. Záloha: %s"
@@ -14470,28 +14471,28 @@ msgstr "Vynutit rozložení pro všechny uživatele"
 msgid "Every user gets the widget arrangement saved with the \"Save current layout as default\" button below."
 msgstr "Každý uživatel dostane rozložení widgetů uložené tlačítkem „Uložit aktuální rozložení jako výchozí“ níže."
 
-#: includes/Modules/DownloadFiles/Module.php:202
+#: includes/Modules/DownloadFiles/Module.php:268
 msgid "Post types that get the \"Files to download\" meta box (and the automatic file list)."
 msgstr "Typy obsahu, které dostanou metabox „Soubory ke stažení“ (a automatický seznam souborů)."
 
-#: includes/Modules/DownloadFiles/Module.php:209
+#: includes/Modules/DownloadFiles/Module.php:275
 msgid "Show automatically"
 msgstr "Zobrazit automaticky"
 
-#: includes/Modules/DownloadFiles/Module.php:210
+#: includes/Modules/DownloadFiles/Module.php:276
 msgid "Append the files attached to a post to the end of its content. Skipped when the content already contains the [download_files] or [ux1_download_files] shortcode. PHP alternative: ux1_download_files()."
 msgstr "Přidá soubory připojené k příspěvku na konec jeho obsahu. Přeskočí se, pokud obsah už obsahuje shortcode [download_files] nebo [ux1_download_files]. Alternativa v PHP: ux1_download_files()."
 
-#: includes/Modules/DownloadFiles/Module.php:680
+#: includes/Modules/DownloadFiles/Module.php:746
 msgid "Add files"
 msgstr "Přidat soubory"
 
-#: includes/Modules/DownloadFiles/Module.php:685
+#: includes/Modules/DownloadFiles/Module.php:751
 msgid "Only for logged-in users"
 msgstr "Pouze pro přihlášené uživatele"
 
 #. translators: %s: shortcode.
-#: includes/Modules/DownloadFiles/Module.php:692
+#: includes/Modules/DownloadFiles/Module.php:758
 #, php-format
 msgid "Files are listed at the end of the content automatically, or place them with %s."
 msgstr "Soubory se vypíšou automaticky na konci obsahu, nebo je umístěte pomocí %s."
@@ -14829,7 +14830,7 @@ msgid "Filter"
 msgstr "Filtrovat"
 
 #: includes/Modules/NoticeBoard/Module.php:1399
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "Reset"
 msgstr "Obnovit"
 
@@ -15064,15 +15065,15 @@ msgstr "Povolit"
 msgid "Later"
 msgstr "Později"
 
-#: includes/Modules/PushNotifications/Module.php:980
+#: includes/Modules/PushNotifications/Module.php:984
 msgid "Your account has no push subscription. Open the public site while logged in and allow notifications, then try again."
 msgstr "Váš účet nemá žádný push odběr. Otevřete veřejnou část webu, když jste přihlášeni, povolte oznámení a zkuste to znovu."
 
-#: includes/Modules/PushNotifications/Module.php:1051
+#: includes/Modules/PushNotifications/Module.php:1055
 msgid "Name is required."
 msgstr "Název je povinný."
 
-#: includes/Modules/PushNotifications/Module.php:1071
+#: includes/Modules/PushNotifications/Module.php:1075
 msgid "Could not create the segment."
 msgstr "Segment se nepodařilo vytvořit."
 
@@ -15681,7 +15682,7 @@ msgstr "Vybrat soubory"
 msgid "Attach to post"
 msgstr "Připojit k příspěvku"
 
-#: includes/Core/Modules.php:307
+#: includes/Core/Modules.php:312
 msgid "UX Studio: some modules failed to start and were switched off for now. The rest of the site keeps running."
 msgstr "UX Studio: některé moduly se nepodařilo spustit, a proto jsou zatím vypnuté. Zbytek webu běží dál."
 
@@ -15712,66 +15713,62 @@ msgid "The file is loaded by the site right now."
 msgstr "Web tento soubor právě načítá."
 
 #. translators: 1: function like eval, 2: decoder like base64_decode
-#: includes/Modules/SecurityOptimization/UploadGuardDetectionEngine.php:290
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:404
 #, php-format
 msgid "Decoded data is executed: %1$s(%2$s(...))"
 msgstr "Spouští se dekódovaná data: %1$s(%2$s(...))"
 
 #. translators: %s: function like eval or system
-#: includes/Modules/SecurityOptimization/UploadGuardDetectionEngine.php:294
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:409
 #, php-format
 msgid "Request data ($_GET/$_POST/...) is passed to %s()"
 msgstr "Data z požadavku ($_GET/$_POST/...) se předávají do %s()"
 
-#: includes/Modules/SecurityOptimization/UploadGuardDetectionEngine.php:297
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:415
 msgid "A file is included from a path taken from the request"
 msgstr "Soubor se načítá z cesty převzaté z požadavku"
 
-#: includes/Modules/SecurityOptimization/UploadGuardDetectionEngine.php:300
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:421
 msgid "An encoded blob is executed in the same statement"
 msgstr "Zakódovaný blok se spouští v tomtéž příkazu"
 
-#: includes/Modules/SecurityOptimization/UploadGuardDetectionEngine.php:303
-msgid "A function whose name is in a variable is called with request data"
-msgstr "Funkce s názvem v proměnné se volá s daty z požadavku"
-
 #. translators: %s: eval or create_function
-#: includes/Modules/SecurityOptimization/UploadGuardDetectionEngine.php:307
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:440
 #, php-format
 msgid "%s() call"
 msgstr "Volání %s()"
 
 #. translators: %s: shell function like exec
-#: includes/Modules/SecurityOptimization/UploadGuardDetectionEngine.php:311
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:444
 #, php-format
 msgid "Shell command call: %s()"
 msgstr "Volání příkazu systému: %s()"
 
-#: includes/Modules/SecurityOptimization/UploadGuardDetectionEngine.php:317
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:461
 msgid "Long encoded string in a file that also runs eval()"
 msgstr "Dlouhý zakódovaný řetězec v souboru, který zároveň volá eval()"
 
-#: includes/Modules/SecurityOptimization/UploadGuardDetectionEngine.php:319
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:463
 msgid "Long encoded string"
 msgstr "Dlouhý zakódovaný řetězec"
 
-#: includes/Modules/SecurityOptimization/UploadGuardDetectionEngine.php:324
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:470
 msgid "Function and variable names are mostly non-ASCII (obfuscation)"
 msgstr "Názvy funkcí a proměnných jsou převážně ne-ASCII (zamlžení kódu)"
 
 #. translators: 1: plugin folder, 2: version
-#: includes/Modules/SecurityOptimization/UploadGuardScanner.php:288
+#: includes/Modules/SecurityOptimization/UploadGuardScanner.php:326
 #, php-format
 msgid "Differs from the official package of %1$s %2$s on WordPress.org"
 msgstr "Liší se od oficiálního balíčku %1$s %2$s na WordPress.org"
 
 #. translators: 1: plugin folder, 2: version
-#: includes/Modules/SecurityOptimization/UploadGuardScanner.php:295
+#: includes/Modules/SecurityOptimization/UploadGuardScanner.php:333
 #, php-format
 msgid "Not part of the official package of %1$s %2$s on WordPress.org"
 msgstr "Není součástí oficiálního balíčku %1$s %2$s na WordPress.org"
 
-#: includes/Modules/SecurityOptimization/UploadGuardScanner.php:306
+#: includes/Modules/SecurityOptimization/UploadGuardScanner.php:344
 msgid "PHP code in the uploads folder (uploads should only hold media)"
 msgstr "PHP kód ve složce uploads (ta má obsahovat jen média)"
 
@@ -15796,29 +15793,21 @@ msgstr "Do karantény lze přesunout jen otevřený nález souboru."
 msgid "The file changed since it was scanned. Run a new scan first."
 msgstr "Soubor se od skenu změnil. Nejdřív spusťte nový sken."
 
-#: includes/Modules/SecurityOptimization/Module.php:891
-msgid "Checks new uploads and runs a nightly scan of uploads, plugins and themes. It only reports - files are never moved or deleted automatically. Plugin files identical to the official WordPress.org version count as clean. Turning this off stops all scanning (existing findings are kept). CSP violation reporting is unaffected."
-msgstr "Kontroluje nově nahrané soubory a každou noc projde uploads, pluginy a šablony. Pouze hlásí - soubory se nikdy samy nepřesouvají ani nemažou. Soubory pluginů shodné s oficiální verzí z WordPress.org se považují za čisté. Vypnutím se zastaví veškeré skenování (dosavadní nálezy zůstanou). Hlášení porušení CSP to neovlivní."
-
 #. translators: %d: number of findings
 #: includes/Modules/SecurityOptimization/UploadGuardNotifier.php:90
 #, php-format
 msgid "%d suspicious file(s) found on your site. Nothing was moved or deleted - review them in the UX Studio admin and decide per file."
 msgstr "Na webu bylo nalezeno %d podezřelých souborů. Nic nebylo přesunuto ani smazáno - projděte je v administraci UX Studia a rozhodněte u každého zvlášť."
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
-msgid "New uploads and the nightly scan of uploads, plugins and themes are checked for injected code. The scanner only reports: nothing is moved or deleted unless you quarantine a file yourself."
-msgstr "Nově nahrané soubory a noční sken uploads, pluginů a šablon se kontrolují na podstrčený kód. Skener pouze hlásí: nic se nepřesune ani nesmaže, dokud soubor sami nepošlete do karantény."
-
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "Move to quarantine"
 msgstr "Přesunout do karantény"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 msgid "line"
 msgstr "řádek"
 
-#: build/1.8a7031d0bb1d2fcef72f.js:1
+#: build/1.7a2734db11aeee4cb6e4.js:1
 #, js-format
 msgid ""
 "Move this file to quarantine?\n"
@@ -15982,18 +15971,14 @@ msgstr "Zabezpečení"
 
 #: includes/Modules/SecurityOptimization/Module.php:781
 #: includes/Modules/SecurityOptimization/Module.php:888
-#: includes/Modules/SecurityOptimization/Module.php:896
-#: includes/Modules/SecurityOptimization/Module.php:904
+#: includes/Modules/SecurityOptimization/Module.php:908
+#: includes/Modules/SecurityOptimization/Module.php:916
 msgid "Uploads"
 msgstr "Nahrávání"
 
 #: includes/Modules/ContentSync/Module.php:241
 msgid "Allow package management (node)"
 msgstr "Povolit správu balíčků (uzel)"
-
-#: includes/Modules/ContentSync/Module.php:242
-msgid "Lets the central app install/update plugins and themes and set FS_METHOD in wp-config.php on this site. Off by default: with it on, a leaked node key means code execution. Turn on only together with the allowed IP list above."
-msgstr "Umožní centrální aplikaci instalovat a aktualizovat pluginy a šablony a nastavit FS_METHOD ve wp-config.php tohoto webu. Ve výchozím stavu vypnuto: při zapnutí znamená únik klíče uzlu možnost spustit kód. Zapínejte jen spolu se seznamem povolených IP adres výše."
 
 #: includes/Modules/ContentSync/NodePackages.php:114
 #: includes/Modules/ContentSync/NodePackages.php:323
@@ -16016,52 +16001,180 @@ msgstr "Editoři a administrátoři"
 msgid "Anyone who can publish (incl. Authors)"
 msgstr "Kdokoli, kdo smí publikovat (vč. autorů)"
 
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "Default"
 msgstr "Výchozí"
 
-#: build/index.a5123134802902c0d385.js:1
+#: build/index.c3079ddb8f45bfbdb84a.js:1
 msgid "Administration"
 msgstr "Administrace"
 
-#: build/index.a5123134802902c0d385.js:2
+#: build/index.c3079ddb8f45bfbdb84a.js:2
 msgid "Search modules…"
 msgstr "Hledat moduly…"
 
-#: build/index.a5123134802902c0d385.js:2
+#: build/index.c3079ddb8f45bfbdb84a.js:2
 msgid "Search modules"
 msgstr "Hledat moduly"
 
-#: build/index.a5123134802902c0d385.js:2
+#: build/index.c3079ddb8f45bfbdb84a.js:2
 msgid "Module group"
 msgstr "Skupina modulů"
 
-#: build/index.a5123134802902c0d385.js:2
+#: build/index.c3079ddb8f45bfbdb84a.js:2
 msgid "All statuses"
 msgstr "Všechny stavy"
 
 #. translators: %d: number of enabled modules.
-#: build/index.a5123134802902c0d385.js:2
+#: build/index.c3079ddb8f45bfbdb84a.js:2
 #, js-format
 msgid "Enabled (%d)"
 msgstr "Zapnuté (%d)"
 
 #. translators: %d: number of disabled modules.
-#: build/index.a5123134802902c0d385.js:2
+#: build/index.c3079ddb8f45bfbdb84a.js:2
 #, js-format
 msgid "Disabled (%d)"
 msgstr "Vypnuté (%d)"
 
-#: build/index.a5123134802902c0d385.js:2
+#: build/index.c3079ddb8f45bfbdb84a.js:2
 msgid "No module matches the filter."
 msgstr "Filtru neodpovídá žádný modul."
 
 #. translators: 1: enabled features, 2: all features in the group.
-#: build/index.a5123134802902c0d385.js:3
-#: build/index.a5123134802902c0d385.js:4
+#: build/index.c3079ddb8f45bfbdb84a.js:3
+#: build/index.c3079ddb8f45bfbdb84a.js:4
 #, js-format
 msgid "%1$d of %2$d on"
 msgstr "%1$d z %2$d zapnuto"
+
+#. translators: %s: reversed text like metsys
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:353
+#, php-format
+msgid "Function name written backwards: \"%s\""
+msgstr "Název funkce zapsaný pozpátku: „%s“"
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:359
+msgid "preg_replace() with the /e modifier executes code"
+msgstr "preg_replace() s modifikátorem /e spouští kód"
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:364
+msgid "Encoded string that decodes to PHP code (eval/system/base64_decode)"
+msgstr "Zakódovaný řetězec, který po dekódování obsahuje PHP kód (eval/system/base64_decode)"
+
+#. translators: %s: included path
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:392
+#, php-format
+msgid "Includes a disguised file as PHP: %s"
+msgstr "Načítá jako PHP soubor maskovaný za jiný typ: %s"
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:417
+msgid "A file is included from a path derived from request data"
+msgstr "Soubor se načítá z cesty odvozené z dat požadavku"
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:424
+msgid "A function chosen by a variable is called with request data"
+msgstr "Funkce vybraná proměnnou se volá s daty z požadavku"
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:426
+msgid "A function chosen by a variable is called with decoded data"
+msgstr "Funkce vybraná proměnnou se volá s dekódovanými daty"
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:429
+msgid "The function to call is taken from the request (call_user_func)"
+msgstr "Volaná funkce se bere z požadavku (call_user_func)"
+
+#. translators: %s: function like assert
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:433
+#, php-format
+msgid "Dangerous function \"%s\" passed as a callback"
+msgstr "Nebezpečná funkce „%s“ předaná jako callback"
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:436
+msgid "Request data compared with a hard-coded hash (password-protected shell)"
+msgstr "Data z požadavku se porovnávají s natvrdo zapsaným hashem (shell chráněný heslem)"
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:454
+msgid "extract() of request data plus a call through a variable"
+msgstr "extract() dat z požadavku a k tomu volání funkce přes proměnnou"
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:456
+msgid "extract() turns request data into variables"
+msgstr "extract() mění data z požadavku na proměnné"
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:467
+msgid "Text assembled from many chr() calls"
+msgstr "Text poskládaný z mnoha volání chr()"
+
+#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:481
+msgid "Code hidden off-screen behind hundreds of spaces"
+msgstr "Kód schovaný mimo obrazovku za stovkami mezer"
+
+#: includes/Modules/ContentSync/Module.php:242
+msgid "Lets the central app install/update plugins and themes and set FS_METHOD in wp-config.php on this site. Off by default. Turn on only together with the allowed IP list above."
+msgstr "Umožní centrální aplikaci instalovat a aktualizovat pluginy a šablony a nastavit FS_METHOD ve wp-config.php tohoto webu. Ve výchozím stavu vypnuto. Zapínejte jen spolu se seznamem povolených IP adres výše."
+
+#: includes/Modules/ContentSync/Module.php:255
+msgid "Allow SSO login as administrator"
+msgstr "Povolit SSO přihlášení jako administrátor"
+
+#: includes/Modules/ContentSync/Module.php:256
+msgid "Lets central app operators sign in to accounts with administrator rights (install plugins, manage users). Off by default: an administrator login can install code, so with this on a leaked node key gives full control of the site. Turn on only together with the allowed IP list. Editors and lower roles sign in either way."
+msgstr "Umožní operátorům centrální aplikace přihlásit se k účtům s právy administrátora (instalace pluginů, správa uživatelů). Ve výchozím stavu vypnuto: přihlášení administrátora může instalovat kód, takže při zapnutí dává uniklý klíč uzlu plnou kontrolu nad webem. Zapínejte jen spolu se seznamem povolených IP adres. Editoři a nižší role se přihlásí tak jako tak."
+
+#: includes/Modules/SecurityOptimization/Module.php:891
+msgid "Checks new uploads and runs a scheduled night scan of uploads, plugins and themes. It only reports - files are never moved or deleted automatically. Plugin files identical to the official WordPress.org version count as clean. Turning this off stops all scanning (existing findings are kept). CSP violation reporting is unaffected."
+msgstr "Kontroluje nově nahrané soubory a v noci podle plánu prochází uploady, pluginy a šablony. Pouze hlásí - soubory se nikdy automaticky nepřesouvají ani nemažou. Soubory pluginů shodné s oficiální verzí z WordPress.org se berou jako čisté. Vypnutím se zastaví veškeré skenování (stávající nálezy zůstanou). Hlášení porušení CSP to neovlivní."
+
+#: includes/Modules/SecurityOptimization/Module.php:897
+msgid "Full scan frequency"
+msgstr "Četnost úplného skenu"
+
+#: includes/Modules/SecurityOptimization/Module.php:898
+msgid "Automatic full scans run only at night (01:00-06:00 site time, each site at its own minute), in small batches with pauses, and wait when the server is busy. Unchanged files are skipped without being read; every 4th run reads everything. New uploads are always checked right away."
+msgstr "Automatické úplné skeny běží jen v noci (01:00-06:00 podle času webu, každý web ve svou minutu), po malých dávkách s pauzami, a při vytíženém serveru počkají. Nezměněné soubory se přeskočí bez čtení; každý 4. běh přečte vše. Nově nahrané soubory se kontrolují vždy hned."
+
+#: includes/Modules/SecurityOptimization/Module.php:900
+msgid "Weekly (recommended)"
+msgstr "Týdně (doporučeno)"
+
+#: includes/Modules/SecurityOptimization/Module.php:902
+msgid "Only when I click \"Scan now\""
+msgstr "Jen když kliknu na „Skenovat nyní“"
+
+#. translators: %d: minutes
+#: includes/Modules/SecurityOptimization/UploadGuardRestController.php:254
+#, php-format
+msgid "A manual scan ran recently. You can start another one in %d min."
+msgstr "Ruční sken proběhl nedávno. Další můžete spustit za %d min."
+
+#: build/1.7a2734db11aeee4cb6e4.js:1
+msgid "server is busy, continuing at"
+msgstr "server je vytížený, pokračuje v"
+
+#: build/1.7a2734db11aeee4cb6e4.js:1
+msgid "waiting for the night window, continuing at"
+msgstr "čeká na noční okno, pokračuje v"
+
+#: build/1.7a2734db11aeee4cb6e4.js:1
+msgid "New uploads are checked right away; uploads, plugins and themes are scanned at night by the schedule below, in small batches that pause when the server is busy. The scanner only reports: nothing is moved or deleted unless you quarantine a file yourself."
+msgstr "Nově nahrané soubory se kontrolují hned; uploady, pluginy a šablony se skenují v noci podle plánu níže, po malých dávkách, které se při vytíženém serveru pozastaví. Skener pouze hlásí: nic se nepřesune ani nesmaže, dokud soubor sami nedáte do karantény."
+
+#. Restored (module meta.json / not seen by make-pot)
+msgid "A function whose name is in a variable is called with request data"
+msgstr "Funkce s názvem v proměnné se volá s daty z požadavku"
+
+#. Restored (module meta.json / not seen by make-pot)
+msgid "Checks new uploads and runs a nightly scan of uploads, plugins and themes. It only reports - files are never moved or deleted automatically. Plugin files identical to the official WordPress.org version count as clean. Turning this off stops all scanning (existing findings are kept). CSP violation reporting is unaffected."
+msgstr "Kontroluje nově nahrané soubory a každou noc projde uploads, pluginy a šablony. Pouze hlásí - soubory se nikdy samy nepřesouvají ani nemažou. Soubory pluginů shodné s oficiální verzí z WordPress.org se považují za čisté. Vypnutím se zastaví veškeré skenování (dosavadní nálezy zůstanou). Hlášení porušení CSP to neovlivní."
+
+#. Restored (module meta.json / not seen by make-pot)
+msgid "New uploads and the nightly scan of uploads, plugins and themes are checked for injected code. The scanner only reports: nothing is moved or deleted unless you quarantine a file yourself."
+msgstr "Nově nahrané soubory a noční sken uploads, pluginů a šablon se kontrolují na podstrčený kód. Skener pouze hlásí: nic se nepřesune ani nesmaže, dokud soubor sami nepošlete do karantény."
+
+#. Restored (module meta.json / not seen by make-pot)
+msgid "Lets the central app install/update plugins and themes and set FS_METHOD in wp-config.php on this site. Off by default: with it on, a leaked node key means code execution. Turn on only together with the allowed IP list above."
+msgstr "Umožní centrální aplikaci instalovat a aktualizovat pluginy a šablony a nastavit FS_METHOD ve wp-config.php tohoto webu. Ve výchozím stavu vypnuto: při zapnutí znamená únik klíče uzlu možnost spustit kód. Zapínejte jen spolu se seznamem povolených IP adres výše."
 
 #. Restored (module meta.json / not seen by make-pot)
 msgid "Folder was created but could not be reloaded."
@@ -16596,102 +16709,50 @@ msgstr "Nativní widgety nástěnky wp-admin pro nejnovější objednávky a nej
 msgid "SEO-safe 301/308/410 redirects with chain and loop protection, 404 log and AI tools (Redirection plugin replacement)."
 msgstr "SEO-bezpečná přesměrování 301/308/410 s ochranou proti řetězení a smyčkám, log chyb 404 a AI nástroje (náhrada pluginu Redirection)."
 
-#. Module meta.json (virtual groups)
-
+#. Restored (module meta.json / not seen by make-pot)
 msgid "Email delivery over SMTP/API, a log of every sent message with resend, and a deliverability health check. Each part can be switched on separately."
 msgstr "Odesílání e-mailů přes SMTP/API, log všech odeslaných zpráv s možností znovu odeslat a kontrola doručitelnosti. Každou část lze zapnout zvlášť."
 
+#. Restored (module meta.json / not seen by make-pot)
 msgid "Duplication"
 msgstr "Duplikace"
 
+#. Restored (module meta.json / not seen by make-pot)
 msgid "One-click copies of posts, pages, products and navigation menus. Post and menu duplication can be switched on separately."
 msgstr "Kopie příspěvků, stránek, produktů a navigačních menu jedním kliknutím. Duplikaci příspěvků a menu lze zapnout zvlášť."
 
+#. Restored (module meta.json / not seen by make-pot)
 msgid "Export posts and users to CSV, JSON or TXT. Each export can be switched on separately."
 msgstr "Export příspěvků a uživatelů do CSV, JSON nebo TXT. Každý export lze zapnout zvlášť."
 
-msgid "Reviews"
-msgstr "Recenze"
-
+#. Restored (module meta.json / not seen by make-pot)
 msgid "Show reviews collected from Google, Mapy.cz and other platforms, and ask customers for a Google review. Each part can be switched on separately."
 msgstr "Zobrazení recenzí z Googlu, Mapy.cz a dalších platforem a žádosti zákazníkům o recenzi na Googlu. Každou část lze zapnout zvlášť."
 
+#. Restored (module meta.json / not seen by make-pot)
 msgid "Updates"
 msgstr "Aktualizace"
 
+#. Restored (module meta.json / not seen by make-pot)
 msgid "Control automatic updates of WordPress core, plugins and themes, and roll a plugin or theme back to an earlier version. Each part can be switched on separately."
 msgstr "Řízení automatických aktualizací jádra WordPressu, pluginů a šablon a návrat pluginu nebo šablony ke starší verzi. Každou část lze zapnout zvlášť."
 
+#. Restored (module meta.json / not seen by make-pot)
 msgid "SEO-safe redirects with a 404 log, and an optional catch-all that sends every 404 to the homepage. Each part can be switched on separately."
 msgstr "SEO-bezpečná přesměrování s logem chyb 404 a volitelné přesměrování všech chyb 404 na hlavní stránku. Každou část lze zapnout zvlášť."
 
+#. Restored (module meta.json / not seen by make-pot)
 msgid "Admin appearance"
 msgstr "Vzhled administrace"
 
+#. Restored (module meta.json / not seen by make-pot)
 msgid "Customise the admin menu, admin bar, login screen and colours, and hide the admin bar on the front end. Each part can be switched on separately."
 msgstr "Úprava menu a lišty administrace, přihlašovací obrazovky a barev a skrytí admin lišty na webu. Každou část lze zapnout zvlášť."
 
+#. Restored (module meta.json / not seen by make-pot)
 msgid "Classic editor & widgets"
 msgstr "Klasický editor a widgety"
 
+#. Restored (module meta.json / not seen by make-pot)
 msgid "Bring back the classic post editor and the classic widgets screen instead of the block editor. Each part can be switched on separately."
 msgstr "Návrat klasického editoru příspěvků a klasické obrazovky widgetů místo blokového editoru. Každou část lze zapnout zvlášť."
-
-#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:353
-#, php-format
-msgid "Function name written backwards: \"%s\""
-msgstr "Název funkce zapsaný pozpátku: „%s“"
-
-#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:359
-msgid "preg_replace() with the /e modifier executes code"
-msgstr "preg_replace() s modifikátorem /e spouští kód"
-
-#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:364
-msgid "Encoded string that decodes to PHP code (eval/system/base64_decode)"
-msgstr "Zakódovaný řetězec, který po dekódování obsahuje PHP kód (eval/system/base64_decode)"
-
-#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:392
-#, php-format
-msgid "Includes a disguised file as PHP: %s"
-msgstr "Načítá jako PHP soubor maskovaný za jiný typ: %s"
-
-#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:417
-msgid "A file is included from a path derived from request data"
-msgstr "Soubor se načítá z cesty odvozené z dat požadavku"
-
-#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:424
-msgid "A function chosen by a variable is called with request data"
-msgstr "Funkce vybraná proměnnou se volá s daty z požadavku"
-
-#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:426
-msgid "A function chosen by a variable is called with decoded data"
-msgstr "Funkce vybraná proměnnou se volá s dekódovanými daty"
-
-#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:429
-msgid "The function to call is taken from the request (call_user_func)"
-msgstr "Volaná funkce se bere z požadavku (call_user_func)"
-
-#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:433
-#, php-format
-msgid "Dangerous function \"%s\" passed as a callback"
-msgstr "Nebezpečná funkce „%s“ předaná jako callback"
-
-#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:436
-msgid "Request data compared with a hard-coded hash (password-protected shell)"
-msgstr "Data z požadavku se porovnávají s natvrdo zapsaným hashem (shell chráněný heslem)"
-
-#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:454
-msgid "extract() of request data plus a call through a variable"
-msgstr "extract() dat z požadavku a k tomu volání funkce přes proměnnou"
-
-#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:456
-msgid "extract() turns request data into variables"
-msgstr "extract() mění data z požadavku na proměnné"
-
-#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:467
-msgid "Text assembled from many chr() calls"
-msgstr "Text poskládaný z mnoha volání chr()"
-
-#: includes/Modules/SecurityOptimization/UploadGuardPhpAnalyzer.php:481
-msgid "Code hidden off-screen behind hundreds of spaces"
-msgstr "Kód schovaný mimo obrazovku za stovkami mezer"

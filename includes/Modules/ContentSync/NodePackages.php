@@ -361,8 +361,16 @@ final class NodePackages {
 		if ( '' === $backup_dir ) {
 			return $this->fail( 'backup_failed', __( 'Could not create a backup of wp-config.php.', 'ux-studio' ), 500 );
 		}
-		$backup_path = $backup_dir . '/wp-config.php.bak-' . gmdate( 'Ymd-His' ) . '-' . bin2hex( random_bytes( 8 ) );
-		if ( ! @copy( $config_path, $backup_path ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_system_operations_copy
+		// Stored as a .php file that exits immediately: even if the directory
+		// turns out to be web-reachable (nginx, AllowOverride None, WP in a
+		// subdirectory of the docroot) it executes to an empty response instead
+		// of being served as text. Restore = drop the first line.
+		$backup_path = $backup_dir . '/wp-config-backup-' . gmdate( 'Ymd-His' ) . '-' . bin2hex( random_bytes( 8 ) ) . '.php';
+		$written     = @file_put_contents( $backup_path, "<?php exit; ?>\n" . $content, LOCK_EX ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		if ( false !== $written ) {
+			@chmod( $backup_path, 0600 ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.chmod_chmod
+		}
+		if ( false === $written ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_system_operations_copy
 			return $this->fail( 'backup_failed', __( 'Could not create a backup of wp-config.php.', 'ux-studio' ), 500 );
 		}
 
@@ -384,7 +392,9 @@ final class NodePackages {
 		}
 
 		// Atomic write: temp file in the same directory, then rename.
-		$tmp   = $config_path . '.tmp-' . bin2hex( random_bytes( 4 ) );
+		// Same directory as wp-config.php (atomic rename); exists only for the
+		// duration of the write, with an unguessable name.
+		$tmp   = $config_path . '.tmp-' . bin2hex( random_bytes( 16 ) );
 		$bytes = @file_put_contents( $tmp, $new_content, LOCK_EX ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		if ( false === $bytes || strlen( $new_content ) !== $bytes ) {
 			@unlink( $tmp ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.unlink_unlink
@@ -509,18 +519,26 @@ final class NodePackages {
 	 * name is the remaining guard). Returns '' when nothing is writable.
 	 */
 	private static function private_backup_dir(): string {
-		$outside = dirname( untrailingslashit( ABSPATH ) ) . '/uxstudio-backups';
-		$inside  = WP_CONTENT_DIR . '/uxstudio-private';
+		$parent  = dirname( untrailingslashit( ABSPATH ) );
+		$candidates = array();
+		// "One level above WordPress" is only outside the web root when WP sits
+		// at the docroot itself - with WP in a subdirectory (e.g. /pobyty/) it
+		// is the docroot, so skip it then.
+		if ( ! self::inside_document_root( $parent ) ) {
+			$candidates[] = $parent . '/uxstudio-backups';
+		}
+		$candidates[] = WP_CONTENT_DIR . '/uxstudio-private';
 
-		foreach ( array( $outside, $inside ) as $dir ) {
+		foreach ( $candidates as $dir ) {
 			if ( ! is_dir( $dir ) && ! wp_mkdir_p( $dir ) ) {
 				continue;
 			}
 			if ( ! wp_is_writable( $dir ) ) {
 				continue;
 			}
-			if ( ! file_exists( $dir . '/.htaccess' ) ) {
-				@file_put_contents( $dir . '/.htaccess', "Require all denied\n<IfModule !mod_authz_core.c>\nDeny from all\n</IfModule>\nOptions -Indexes\n" ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			if ( ! file_exists( $dir . '/.htaccess' )
+				&& false === @file_put_contents( $dir . '/.htaccess', "Require all denied\n<IfModule !mod_authz_core.c>\nDeny from all\n</IfModule>\nOptions -Indexes\n" ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+				continue;
 			}
 			if ( ! file_exists( $dir . '/index.html' ) ) {
 				@file_put_contents( $dir . '/index.html', '' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
@@ -528,5 +546,19 @@ final class NodePackages {
 			return $dir;
 		}
 		return '';
+	}
+
+	/**
+	 * Whether a path lies inside the web server's document root.
+	 *
+	 * @param string $path Absolute path.
+	 */
+	private static function inside_document_root( string $path ): bool {
+		$docroot = isset( $_SERVER['DOCUMENT_ROOT'] ) ? realpath( (string) $_SERVER['DOCUMENT_ROOT'] ) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		$real    = realpath( $path );
+		if ( false === $docroot || false === $real ) {
+			return true; // Unknown - assume the worst.
+		}
+		return 0 === strpos( trailingslashit( wp_normalize_path( $real ) ), trailingslashit( wp_normalize_path( $docroot ) ) );
 	}
 }
