@@ -1297,3 +1297,89 @@
 
 	iframe { width: 100%; height: 480px; border: 0; background: #fff; }
 }
+
+/* ---- DNS Management module ---- */
+.uxs-dns-banner {
+	background: color-mix(in srgb, var(--uxs-warning) 12%, var(--uxs-surface));
+	border: 1px solid color-mix(in srgb, var(--uxs-warning) 45%, var(--uxs-border));
+	border-left: 4px solid var(--uxs-warning);
+	border-radius: var(--uxs-radius-s);
+	padding: var(--uxs-sp-3) var(--uxs-sp-4);
+	margin-bottom: var(--uxs-sp-4);
+	color: var(--uxs-text);
+}
+
+.uxs-dns-danger {
+	background: color-mix(in srgb, var(--uxs-danger) 10%, var(--uxs-surface));
+	border: 1px solid color-mix(in srgb, var(--uxs-danger) 45%, var(--uxs-border));
+	border-radius: var(--uxs-radius-s);
+	padding: var(--uxs-sp-3) var(--uxs-sp-4);
+	margin: var(--uxs-sp-3) 0;
+	color: var(--uxs-text);
+
+	ul { margin: var(--uxs-sp-2) 0 0 var(--uxs-sp-4); padding: 0; }
+}
+
+.uxs-dns-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 100000;
+	background: rgb(15 20 32 / 60%);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: var(--uxs-sp-4);
+}
+
+.uxs-dns-modal {
+	background: var(--uxs-surface);
+	color: var(--uxs-text);
+	border: 1px solid var(--uxs-border);
+	border-radius: var(--uxs-radius);
+	box-shadow: var(--uxs-shadow-2);
+	width: 100%;
+	max-width: 640px;
+	max-height: 90vh;
+	overflow: auto;
+	padding: var(--uxs-sp-5);
+
+	h2 { margin: 0 0 var(--uxs-sp-3); font-size: var(--uxs-fs-l); color: var(--uxs-text); }
+}
+
+.uxs-dns-diff {
+	width: 100%;
+	border-collapse: collapse;
+	margin: var(--uxs-sp-3) 0;
+	font-size: var(--uxs-fs);
+
+	th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--uxs-border); vertical-align: top; word-break: break-all; }
+	th { color: var(--uxs-text-soft); font-weight: 600; width: 22%; }
+	.is-changed td { background: color-mix(in srgb, var(--uxs-warning) 14%, transparent); }
+	.is-old { color: var(--uxs-danger); text-decoration: line-through; }
+	.is-new { color: var(--uxs-success); font-weight: 600; }
+}
+
+.uxs-dns-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: var(--uxs-sp-3);
+	margin-top: var(--uxs-sp-4);
+}
+
+.uxs-dns-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--uxs-sp-3);
+	align-items: center;
+	margin-bottom: var(--uxs-sp-3);
+
+	input, select {
+		background: var(--uxs-surface);
+		color: var(--uxs-text);
+		border: 1px solid var(--uxs-border);
+		border-radius: var(--uxs-radius-s);
+		padding: var(--uxs-sp-2) var(--uxs-sp-3);
+	}
+}
+
+.uxs-dns-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; word-break: break-all; }

@@ -33,6 +33,24 @@ interface Envelope< T > {
 }
 
 /**
+ * Error thrown by api(): keeps the REST error code (e.g. `reauth_required`),
+ * HTTP status and the error `data` payload next to the message.
+ */
+export class ApiError extends Error {
+	code: string;
+	status: number;
+	data: Record< string, unknown >;
+
+	constructor( message: string, code: string, status: number, data: Record< string, unknown > ) {
+		super( message );
+		this.name = 'ApiError';
+		this.code = code;
+		this.status = status;
+		this.data = data;
+	}
+}
+
+/**
  * Fetch from uxstudio/v1 with nonce; throws on HTTP or API error.
  */
 export async function api< T >( path: string, init?: RequestInit ): Promise< T > {
@@ -46,8 +64,8 @@ export async function api< T >( path: string, init?: RequestInit ): Promise< T >
 		},
 	} );
 	if ( ! res.ok ) {
-		const body: { message?: string } = await res.json().catch( () => ( {} ) );
-		throw new Error( body.message ?? `HTTP ${ res.status }` );
+		const body: { message?: string; code?: string; data?: Record< string, unknown > } = await res.json().catch( () => ( {} ) );
+		throw new ApiError( body.message ?? `HTTP ${ res.status }`, body.code ?? '', res.status, body.data ?? {} );
 	}
 	const json: Envelope< T > = await res.json();
 	return json.data;
