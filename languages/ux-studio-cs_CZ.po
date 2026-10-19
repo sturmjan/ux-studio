@@ -16164,8 +16164,8 @@ msgid "Full scan frequency"
 msgstr "Četnost úplného skenu"
 
 #: includes/Modules/SecurityOptimization/Module.php:898
-msgid "Automatic full scans run only at night (01:00-06:00 site time, each site at its own minute), in small batches with pauses, and wait when the server is busy. Unchanged files are skipped without being read; every 4th run reads everything. New uploads are always checked right away."
-msgstr "Automatické úplné skeny běží jen v noci (01:00-06:00 podle času webu, každý web ve svou minutu), po malých dávkách s pauzami, a při vytíženém serveru počkají. Nezměněné soubory se přeskočí bez čtení; každý 4. běh přečte vše. Nově nahrané soubory se kontrolují vždy hned."
+msgid "Automatic full scans run only at night, in a 4-hour window starting between 01:00 and 03:00 site time (different for each site), in small batches with pauses, and wait when the server is busy. Unchanged files are skipped without being read; every 4th run reads everything. New uploads are always checked right away."
+msgstr "Automatické plné skeny běží jen v noci, ve 4hodinovém okně se startem mezi 01:00 a 03:00 podle času webu (každý web jindy), po malých dávkách s pauzami a při vytíženém serveru počkají. Nezměněné soubory se přeskočí bez čtení, každý 4. sken přečte vše. Nově nahrané soubory se kontrolují vždy hned."
 
 #: includes/Modules/SecurityOptimization/Module.php:900
 msgid "Weekly (recommended)"
