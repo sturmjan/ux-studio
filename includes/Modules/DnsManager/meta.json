@@ -1,0 +1,8 @@
+{
+	"id": "dns-manager",
+	"name": "DNS Management",
+	"description": "Edit the DNS records of this domain via the central app (the Cloudflare token never reaches this site). Every change is validated, logged and e-mailed to the administrators.",
+	"group": "security",
+	"icon": "globe",
+	"settings": true
+}
