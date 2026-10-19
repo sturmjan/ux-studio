@@ -20,6 +20,38 @@ defined( 'ABSPATH' ) || exit;
  */
 final class SsoRedeemer {
 
+	/** Session-token info key marking a session created by SSO. */
+	private const SESSION_FLAG = 'uxstudio_sso';
+
+	/** @var array<int, bool> Per-request cache: user id => session is SSO. */
+	private static array $sso_session = array();
+
+	/**
+	 * user_has_cap: a session opened via SSO never gets unfiltered_html, so a
+	 * leaked node key (-> editor session) can't plant stored XSS that would
+	 * run in an administrator's browser.
+	 *
+	 * @param array<string, bool> $allcaps All caps of the user.
+	 * @param array               $caps    Required primitive caps (unused).
+	 * @param array               $args    Capability check args (unused).
+	 * @param \WP_User|null       $user    User being checked.
+	 * @return array<string, bool>
+	 */
+	public static function strip_unfiltered_html( $allcaps, $caps, $args, $user ) {
+		if ( empty( $allcaps['unfiltered_html'] ) || ! $user instanceof WP_User || $user->ID !== get_current_user_id() ) {
+			return $allcaps;
+		}
+		if ( ! isset( self::$sso_session[ $user->ID ] ) ) {
+			$token   = wp_get_session_token();
+			$session = '' !== $token ? \WP_Session_Tokens::get_instance( $user->ID )->get( $token ) : null;
+			self::$sso_session[ $user->ID ] = is_array( $session ) && ! empty( $session[ self::SESSION_FLAG ] );
+		}
+		if ( self::$sso_session[ $user->ID ] ) {
+			$allcaps['unfiltered_html'] = false;
+		}
+		return $allcaps;
+	}
+
 	public const QUERY_VAR = 'uxstudio-sso';
 
 	/**
@@ -27,6 +59,7 @@ final class SsoRedeemer {
 	 */
 	public function register(): void {
 		add_action( 'init', array( $this, 'maybe_redeem' ), 1 );
+		add_filter( 'user_has_cap', array( self::class, 'strip_unfiltered_html' ), 10, 4 );
 	}
 
 	/**
@@ -103,6 +136,15 @@ final class SsoRedeemer {
 			$wp_user_id = (int) $mapped['user_id'];
 		}
 
+		// Re-check at redeem time: the user may have been promoted, or the
+		// setting switched off, since the token was issued (and the
+		// resolve-at-redeem branch above was never checked at issue time).
+		if ( SsoOperatorMapper::is_admin_level( $wp_user_id ) && ! Module::setting( 'sso_allow_admin', false ) ) {
+			SsoTokenStore::record_failure( (int) $row['id'] );
+			$this->fail( 'admin_sso_disabled' );
+			return;
+		}
+
 		// Single-use: consume atomically; bail on a lost race.
 		if ( ! SsoTokenStore::consume( (int) $row['id'] ) ) {
 			$this->fail( 'race_condition' );
@@ -111,7 +153,14 @@ final class SsoRedeemer {
 
 		wp_clear_auth_cookie();
 		wp_set_current_user( $wp_user_id );
+		// Tag the new session so SSO sessions never get unfiltered_html.
+		$tag = static function ( array $info ): array {
+			$info[ self::SESSION_FLAG ] = true;
+			return $info;
+		};
+		add_filter( 'attach_session_information', $tag );
 		wp_set_auth_cookie( $wp_user_id, false, is_ssl() );
+		remove_filter( 'attach_session_information', $tag );
 
 		ActivityLog::log( 'content-sync', 'sso_login', 'user', $wp_user_id, array( 'operator_id' => (int) $row['operator_id_central'] ) );
 

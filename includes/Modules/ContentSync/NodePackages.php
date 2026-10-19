@@ -366,7 +366,9 @@ final class NodePackages {
 		// subdirectory of the docroot) it executes to an empty response instead
 		// of being served as text. Restore = drop the first line.
 		$backup_path = $backup_dir . '/wp-config-backup-' . gmdate( 'Ymd-His' ) . '-' . bin2hex( random_bytes( 8 ) ) . '.php';
+		$old_umask   = umask( 0077 ); // Created 0600 from the first byte - no 0644 window.
 		$written     = @file_put_contents( $backup_path, "<?php exit; ?>\n" . $content, LOCK_EX ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		umask( $old_umask );
 		if ( false !== $written ) {
 			@chmod( $backup_path, 0600 ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.chmod_chmod
 		}
@@ -436,7 +438,8 @@ final class NodePackages {
 			);
 		}
 
-		ActivityLog::log( 'content-sync', 'node_configure_fs_method', 'config', 0, array( 'backup' => basename( $backup_path ) ) );
+		// Full path in the log so the backup can be found (restore = drop its first line).
+		ActivityLog::log( 'content-sync', 'node_configure_fs_method', 'config', 0, array( 'backup' => $backup_path ) );
 
 		return new WP_REST_Response(
 			array(
@@ -530,14 +533,21 @@ final class NodePackages {
 		$candidates[] = WP_CONTENT_DIR . '/uxstudio-private';
 
 		foreach ( $candidates as $dir ) {
-			if ( ! is_dir( $dir ) && ! wp_mkdir_p( $dir ) ) {
-				continue;
+			$created = false;
+			if ( ! is_dir( $dir ) ) {
+				if ( ! wp_mkdir_p( $dir ) ) {
+					continue;
+				}
+				$created = true;
 			}
 			if ( ! wp_is_writable( $dir ) ) {
 				continue;
 			}
 			if ( ! file_exists( $dir . '/.htaccess' )
 				&& false === @file_put_contents( $dir . '/.htaccess', "Require all denied\n<IfModule !mod_authz_core.c>\nDeny from all\n</IfModule>\nOptions -Indexes\n" ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+				if ( $created ) {
+					@rmdir( $dir ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
+				}
 				continue;
 			}
 			if ( ! file_exists( $dir . '/index.html' ) ) {
@@ -554,7 +564,11 @@ final class NodePackages {
 	 * @param string $path Absolute path.
 	 */
 	private static function inside_document_root( string $path ): bool {
-		$docroot = isset( $_SERVER['DOCUMENT_ROOT'] ) ? realpath( (string) $_SERVER['DOCUMENT_ROOT'] ) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		$raw = isset( $_SERVER['DOCUMENT_ROOT'] ) ? trim( (string) $_SERVER['DOCUMENT_ROOT'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		if ( '' === $raw ) {
+			return true; // CLI/cron/some FastCGI: realpath('') would be the cwd - assume the worst.
+		}
+		$docroot = realpath( $raw );
 		$real    = realpath( $path );
 		if ( false === $docroot || false === $real ) {
 			return true; // Unknown - assume the worst.
