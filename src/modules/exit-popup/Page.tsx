@@ -5,6 +5,7 @@ import { ArrowLeft, Download, LoaderCircle } from 'lucide-react';
 import { api } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { TabsNav } from '../../app/SubNav';
 
 type Tab = 'settings' | 'subscribers';
 
@@ -92,14 +93,14 @@ export default function Page(): JSX.Element {
 					{ __( 'Exit Popup', 'ux-studio' ) }
 				</h1>
 			</header>
-			<div className="uxs-tabs">
+			<TabsNav>
 				<button className={ tab === 'settings' ? 'is-active' : '' } onClick={ () => setTab( 'settings' ) }>
 					{ __( 'Settings', 'ux-studio' ) }
 				</button>
 				<button className={ tab === 'subscribers' ? 'is-active' : '' } onClick={ () => setTab( 'subscribers' ) }>
 					{ __( 'Subscribers', 'ux-studio' ) }
 				</button>
-			</div>
+			</TabsNav>
 			{ tab === 'settings' && ( isLoading || ! data ) && (
 				<div className="uxs-loading">
 					<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />

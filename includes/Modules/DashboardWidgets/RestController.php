@@ -64,6 +64,7 @@ final class RestController extends Controller {
 				),
 			)
 		);
+		$this->route( '/dashboard-widgets/pagespeed/widget', 'POST', array( $this, 'pagespeed_widget' ) );
 		$this->route( '/dashboard-widgets/analytics/refresh', 'POST', array( $this, 'analytics_refresh' ) );
 		$this->route( '/dashboard-widgets/layout/save', 'POST', array( $this, 'layout_save' ) );
 		$this->route(
@@ -100,11 +101,15 @@ final class RestController extends Controller {
 	 * @param WP_REST_Request $request Request.
 	 */
 	public function save_tasks( WP_REST_Request $request ) {
+		// Each part is saved only when sent, so the dashboard notes widget
+		// (notes only) never wipes the tasks list and vice versa.
 		$tasks = $request->get_param( 'tasks' );
-		$notes = (string) $request->get_param( 'notes' );
-
-		$saved_tasks = $this->module->save_tasks( is_array( $tasks ) ? $tasks : array() );
-		$saved_notes = $this->module->save_notes( $notes );
+		$saved_tasks = $request->has_param( 'tasks' )
+			? $this->module->save_tasks( is_array( $tasks ) ? $tasks : array() )
+			: $this->module->get_tasks();
+		$saved_notes = $request->has_param( 'notes' )
+			? $this->module->save_notes( (string) $request->get_param( 'notes' ) )
+			: $this->module->get_notes();
 
 		return $this->ok(
 			array(
@@ -122,6 +127,17 @@ final class RestController extends Controller {
 	public function pagespeed( WP_REST_Request $request ) {
 		$url = (string) $request->get_param( 'url' );
 		return $this->ok( $this->module->get_pagespeed( $url ) );
+	}
+
+	/**
+	 * Measure the home URL (fresh, bypassing the 1 h cache) and return the
+	 * wp-admin dashboard widget markup.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function pagespeed_widget( WP_REST_Request $request ) {
+		delete_transient( 'uxstudio_dashboard_pagespeed_' . md5( home_url( '/' ) ) );
+		return $this->ok( array( 'html' => ExtraWidgets::pagespeed_html( $this->module->get_pagespeed() ) ) );
 	}
 
 	/**

@@ -10,6 +10,7 @@ namespace UxStudio\Modules\SecurityOptimization;
 
 use UxStudio\Core\ActivityLog;
 use UxStudio\Core\Security;
+use UxStudio\Core\Settings;
 use UxStudio\Modules\BaseModule;
 use WP_Error;
 
@@ -123,6 +124,8 @@ final class Module extends BaseModule {
 
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 
+		DashboardWidget::register();
+
 		/* ── IP firewall - as early as possible (after pluggable functions load) ── */
 		add_action( 'init', array( $this, 'enforce_ip_firewall' ), 1 );
 
@@ -196,6 +199,10 @@ final class Module extends BaseModule {
 			add_filter( 'authenticate', array( $this->attempts, 'enforce_lockout' ), PHP_INT_MAX, 1 );
 			add_action( 'wp_login_failed', array( $this->attempts, 'handle_failed_login' ), 10, 1 );
 			add_action( 'wp_login', array( $this->attempts, 'handle_successful_login' ), 10, 1 );
+			// Before handle_failed_login (10), so that one sees the lock and adds no second row.
+			if ( $this->setting( 'block_usernames', false ) && $this->setting( 'block_username_attempts', false ) ) {
+				add_action( 'wp_login_failed', array( $this->attempts, 'handle_blocked_username_login' ), 5, 2 );
+			}
 			add_action( self::ATTEMPTS_CLEANUP_HOOK, array( $this->attempts, 'cleanup_expired_attempts' ) );
 			if ( ! wp_next_scheduled( self::ATTEMPTS_CLEANUP_HOOK ) ) {
 				wp_schedule_event( time() + HOUR_IN_SECONDS, 'hourly', self::ATTEMPTS_CLEANUP_HOOK );
@@ -220,6 +227,7 @@ final class Module extends BaseModule {
 			add_filter( 'registration_errors', array( $this, 'block_restricted_usernames' ), 10, 3 );
 			add_action( 'user_profile_update_errors', array( $this, 'block_restricted_usernames_admin' ), 10, 3 );
 			add_filter( 'wpmu_validate_user_signup', array( $this, 'block_restricted_usernames_multisite' ) );
+			( new BlockedUsernamesNotice( $this ) )->boot();
 		}
 
 		/* ── Cleanup / performance / hardening toggles ── */
@@ -534,7 +542,7 @@ final class Module extends BaseModule {
 				'section' => __( 'Login', 'ux-studio' ),
 				'type'    => 'text',
 				'label'   => __( 'Custom login slug', 'ux-studio' ),
-				'help'    => __( 'New slug for the login page. wp-login.php will 404 for direct visitors. If the slug collides with an existing page/rewrite rule, the redirect is automatically NOT activated (fail-open) and a warning is logged.', 'ux-studio' ),
+				'help'    => __( 'New slug for the login page. Direct visitors to wp-login.php get the response chosen below. If the slug collides with an existing page/rewrite rule, the redirect is automatically NOT activated (fail-open) and a warning is logged.', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
@@ -542,11 +550,40 @@ final class Module extends BaseModule {
 				'section' => __( 'Login', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'Direct wp-login.php behavior', 'ux-studio' ),
+				'help'    => __( 'What a visitor who opens wp-login.php (or wp-admin while logged out) directly gets once the custom login URL is active.', 'ux-studio' ),
 				'options' => array(
-					'404'  => __( '404 page', 'ux-studio' ),
-					'home' => __( 'Homepage', 'ux-studio' ),
+					'404'           => __( '404 page', 'ux-studio' ),
+					'home'          => __( 'Homepage', 'ux-studio' ),
+					'url_redirect'  => __( 'Custom path on this site', 'ux-studio' ),
+					'existing_page' => __( 'Existing page', 'ux-studio' ),
+					'message'       => __( 'Custom message (403)', 'ux-studio' ),
 				),
 				'default' => '404',
+			),
+			array(
+				'key'     => 'url_redirect',
+				'section' => __( 'Login', 'ux-studio' ),
+				'type'    => 'text',
+				'label'   => __( 'Redirect path', 'ux-studio' ),
+				'help'    => __( 'Used with "Custom path on this site". A slug or path on the current domain, e.g. about-us or contact/address. The domain is added automatically, so the redirect keeps working after a domain move.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'existing_page',
+				'section' => __( 'Login', 'ux-studio' ),
+				'type'    => 'select',
+				'label'   => __( 'Redirect page', 'ux-studio' ),
+				'help'    => __( 'Used with "Existing page".', 'ux-studio' ),
+				'options' => self::page_options(),
+				'default' => '',
+			),
+			array(
+				'key'     => 'disabled_message',
+				'section' => __( 'Login', 'ux-studio' ),
+				'type'    => 'textarea',
+				'label'   => __( 'Access denied message', 'ux-studio' ),
+				'help'    => __( 'Used with "Custom message (403)". Plain text shown to the visitor.', 'ux-studio' ),
+				'default' => __( 'This has been disabled.', 'ux-studio' ),
 			),
 
 			// Login rate limiting.
@@ -597,6 +634,14 @@ final class Module extends BaseModule {
 				'help'    => __( 'One per line, added on top of the built-in reserved list (admin, administrator, root, test).', 'ux-studio' ),
 				'default' => '',
 			),
+			array(
+				'key'     => 'block_username_attempts',
+				'section' => __( 'Login', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Lock out IPs that try a blocked username', 'ux-studio' ),
+				'help'    => __( 'A failed login with a reserved username locks the IP out immediately (for the lockout time above) instead of after the maximum number of attempts. Requires "Limit login attempts" and "Block reserved usernames".', 'ux-studio' ),
+				'default' => false,
+			),
 
 			// CAPTCHA.
 			array(
@@ -620,6 +665,14 @@ final class Module extends BaseModule {
 				'default' => 'turnstile',
 			),
 			array(
+				'key'     => 'captcha_recaptcha_v3_threshold',
+				'section' => __( 'CAPTCHA', 'ux-studio' ),
+				'type'    => 'number',
+				'label'   => __( 'reCAPTCHA v3 minimum score', 'ux-studio' ),
+				'help'    => __( 'Only for Google reCAPTCHA v3. Score from 0.0 (bot) to 1.0 (human); requests below it are rejected. Recommended 0.5.', 'ux-studio' ),
+				'default' => 0.5,
+			),
+			array(
 				'key'     => 'captcha_placement',
 				'section' => __( 'CAPTCHA', 'ux-studio' ),
 				'type'    => 'select',
@@ -641,6 +694,14 @@ final class Module extends BaseModule {
 					'adaptive' => __( 'Adaptive (after repeated failures)', 'ux-studio' ),
 				),
 				'default' => 'always',
+			),
+			array(
+				'key'     => 'captcha_adaptive_threshold',
+				'section' => __( 'CAPTCHA', 'ux-studio' ),
+				'type'    => 'number',
+				'label'   => __( 'Adaptive mode threshold', 'ux-studio' ),
+				'help'    => __( 'Only for adaptive mode: after how many failed attempts from one IP the CAPTCHA starts being required (1-20).', 'ux-studio' ),
+				'default' => 2,
 			),
 			array(
 				'key'     => 'captcha_forms',
@@ -917,7 +978,47 @@ final class Module extends BaseModule {
 				'help'    => __( 'Where to send Upload Guard alerts. Leave blank to use the site admin email.', 'ux-studio' ),
 				'default' => '',
 			),
+			array(
+				'key'     => 'upload_guard_custom_patterns',
+				'section' => __( 'Uploads', 'ux-studio' ),
+				'type'    => 'textarea',
+				'label'   => __( 'Custom patterns (advanced)', 'ux-studio' ),
+				'help'    => __( 'Your own regular expressions for suspicious code, one per line, e.g. /malicious_function\s*\(/i. Lines starting with # are comments. Each matching pattern adds 25 points to the file score. Invalid expressions are commented out on save and never used.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'upload_guard_whitelist_paths',
+				'section' => __( 'Uploads', 'ux-studio' ),
+				'type'    => 'textarea',
+				'label'   => __( 'Skipped paths', 'ux-studio' ),
+				'help'    => __( 'Files under these paths are never scanned, one per line. Either an absolute path or a path relative to the site, e.g. wp-content/plugins/cache-plugin/. Useful for a trusted plugin that legitimately uses eval() or base64_decode().', 'ux-studio' ),
+				'default' => '',
+			),
 		);
+	}
+
+	/**
+	 * Published pages for the "Existing page" redirect target.
+	 *
+	 * @return array<int|string,string>
+	 */
+	private static function page_options(): array {
+		$pages = get_posts(
+			array(
+				'post_type'      => 'page',
+				'post_status'    => 'publish',
+				'posts_per_page' => 200,
+				'orderby'        => 'title',
+				'order'          => 'ASC',
+				'no_found_rows'  => true,
+			)
+		);
+
+		$options = array();
+		foreach ( $pages as $page ) {
+			$options[ $page->ID ] = '' !== $page->post_title ? $page->post_title : '#' . $page->ID;
+		}
+		return $options;
 	}
 
 	/**
@@ -960,7 +1061,31 @@ final class Module extends BaseModule {
 
 		$input = $this->maybe_provision_captcha_keys( $input );
 
+		if ( array_key_exists( 'captcha_adaptive_threshold', $input ) ) {
+			$input['captcha_adaptive_threshold'] = max( 1, min( 20, (int) $input['captcha_adaptive_threshold'] ) );
+		}
+		if ( array_key_exists( 'captcha_recaptcha_v3_threshold', $input ) ) {
+			$input['captcha_recaptcha_v3_threshold'] = round( max( 0.0, min( 1.0, (float) $input['captcha_recaptcha_v3_threshold'] ) ), 2 );
+		}
+		if ( array_key_exists( 'url_redirect', $input ) ) {
+			$input['url_redirect'] = self::normalize_redirect_path( (string) $input['url_redirect'] );
+		}
+
+		// Regexes must not pass through the generic textarea sanitizer, which
+		// strips anything tag-like ("<script", "<\?php") and %XX sequences -
+		// exactly what malware patterns contain. Validated and stored separately.
+		$custom_patterns = null;
+		if ( array_key_exists( 'upload_guard_custom_patterns', $input ) ) {
+			$custom_patterns = UploadGuardDetectionEngine::clean_custom_patterns( (string) $input['upload_guard_custom_patterns'] );
+			unset( $input['upload_guard_custom_patterns'] );
+		}
+
 		$result = parent::save_settings( $input );
+
+		if ( null !== $custom_patterns ) {
+			$this->store_raw_setting( 'upload_guard_custom_patterns', $custom_patterns );
+			$result = $this->settings_values();
+		}
 
 		delete_option( HtaccessWriter::HASH_OPTION );
 		delete_transient( self::HTACCESS_BACKOFF );
@@ -979,7 +1104,43 @@ final class Module extends BaseModule {
 		$values['has_captcha_secret_key'] = '' !== $this->captcha_secret_key();
 		$values['captcha_cf_api_token']   = '';
 		$values['has_captcha_cf_api_token'] = '' !== $this->captcha_cf_api_token();
+
+		// Migrated legacy values live under the old lwug_* keys until first save.
+		$values['upload_guard_custom_patterns'] = UploadGuardDetectionEngine::custom_patterns_setting();
+		$values['upload_guard_whitelist_paths'] = UploadGuardScope::whitelist_setting();
 		return $values;
+	}
+
+	/**
+	 * Write one value straight into the module option, bypassing the schema
+	 * sanitizer (caller has validated it), and reload the cached settings.
+	 *
+	 * @param string $key   Setting key.
+	 * @param mixed  $value Already validated value.
+	 */
+	private function store_raw_setting( string $key, $value ): void {
+		$option         = 'uxstudio_security_optimization';
+		$values         = (array) get_option( $option, array() );
+		$values[ $key ] = $value;
+		update_option( $option, $values, Settings::should_autoload( $values ) );
+		$this->settings = new Settings( $option );
+	}
+
+	/**
+	 * Reduce the "custom path" redirect target to a site-relative path
+	 * (legacy accepted a full URL too - only its path was ever used).
+	 */
+	private static function normalize_redirect_path( string $value ): string {
+		$value = trim( sanitize_text_field( $value ) );
+		if ( '' === $value ) {
+			return '';
+		}
+		$path = wp_parse_url( $value, PHP_URL_PATH );
+		if ( ! is_string( $path ) ) {
+			$path = $value;
+		}
+		$path = str_replace( array( '\\', '..' ), array( '/', '' ), $path );
+		return trim( (string) preg_replace( '#/+#', '/', $path ), '/' );
 	}
 
 	/**
@@ -1643,8 +1804,9 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Runs on 'login_init' (fired only for direct wp-login.php hits): 404 unless
-	 * we ourselves are including it via the custom slug (bypass marker set).
+	 * Runs on 'login_init' (fired only for direct wp-login.php hits): deny
+	 * unless we ourselves are including it via the custom slug (bypass marker
+	 * set). How it is denied follows `disabled_behavior`.
 	 */
 	public function block_direct_wp_login(): void {
 		if ( defined( 'UXSTUDIO_LOGIN_URL_BYPASS' ) && UXSTUDIO_LOGIN_URL_BYPASS ) {
@@ -1656,9 +1818,62 @@ final class Module extends BaseModule {
 			return;
 		}
 
-		status_header( 404 );
+		$this->deny_direct_login();
+	}
+
+	/**
+	 * Ported from legacy disableLoginUrl(): 404 (default), homepage, a path on
+	 * this site, an existing page, or a 403 with a custom message. A redirect
+	 * whose target is missing or points back at the login (loop) falls back to
+	 * the 403 message, like legacy did for an empty target.
+	 */
+	private function deny_direct_login(): void {
 		nocache_headers();
-		wp_die( esc_html__( 'Not found.', 'ux-studio' ), '', array( 'response' => 404 ) );
+
+		switch ( (string) $this->setting( 'disabled_behavior', '404' ) ) {
+			case 'home':
+				wp_safe_redirect( home_url( '/' ) );
+				exit;
+
+			case 'url_redirect':
+				$path = self::normalize_redirect_path( (string) $this->setting( 'url_redirect', '' ) );
+				if ( '' !== $path && ! $this->is_login_path( $path ) ) {
+					wp_safe_redirect( home_url( '/' . $path ) );
+					exit;
+				}
+				break;
+
+			case 'existing_page':
+				$page_id = absint( $this->setting( 'existing_page', 0 ) );
+				$url     = ( $page_id > 0 && 'publish' === get_post_status( $page_id ) ) ? get_permalink( $page_id ) : false;
+				if ( $url ) {
+					wp_safe_redirect( $url );
+					exit;
+				}
+				break;
+
+			case 'message':
+				break;
+
+			default:
+				status_header( 404 );
+				wp_die( esc_html__( 'Not found.', 'ux-studio' ), '', array( 'response' => 404 ) );
+		}
+
+		$message = trim( (string) $this->setting( 'disabled_message', '' ) );
+		if ( '' === $message ) {
+			$message = __( 'This has been disabled.', 'ux-studio' );
+		}
+		status_header( 403 );
+		wp_die( nl2br( esc_html( $message ) ), esc_html__( '403 Forbidden', 'ux-studio' ), array( 'response' => 403 ) );
+	}
+
+	/**
+	 * Would redirecting to this site-relative path land on the login again?
+	 */
+	private function is_login_path( string $path ): bool {
+		$first = strtolower( (string) strtok( $path, '/?#' ) );
+		return in_array( $first, array( 'wp-login.php', 'wp-admin', strtolower( $this->login_slug() ) ), true );
 	}
 
 	/* ═══════════════════════════════════════════════════

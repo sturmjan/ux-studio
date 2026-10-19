@@ -122,7 +122,8 @@ final class UploadGuardScanner {
 	/** Severities stored as findings; low/clean results are not reported. */
 	private const REPORTED_SEVERITIES = array( 'medium', 'high', 'critical' );
 
-	private UploadGuardDetectionEngine $engine;
+	/** Built on first use - the scanner is constructed on every request, scans are rare. */
+	private ?UploadGuardDetectionEngine $engine = null;
 
 	private UploadGuardChecksums $checksums;
 
@@ -130,8 +131,17 @@ final class UploadGuardScanner {
 	private string $last_wait_reason = '';
 
 	public function __construct() {
-		$this->engine    = new UploadGuardDetectionEngine();
 		$this->checksums = new UploadGuardChecksums();
+	}
+
+	/**
+	 * Detection engine with the admin-defined custom patterns.
+	 */
+	private function engine(): UploadGuardDetectionEngine {
+		if ( null === $this->engine ) {
+			$this->engine = UploadGuardDetectionEngine::from_settings();
+		}
+		return $this->engine;
 	}
 
 	/* ==========================================================
@@ -358,7 +368,7 @@ final class UploadGuardScanner {
 			}
 		}
 
-		$result = $this->engine->scan( $file_path, $extension );
+		$result = $this->engine()->scan( $file_path, $extension );
 
 		if ( UploadGuardScope::AREA_UPLOADS === $area && $is_php ) {
 			if ( ! $result['has_code'] ) {
@@ -369,7 +379,7 @@ final class UploadGuardScanner {
 
 		$matches = array_merge( $context, $result['matches'] );
 		$score   = (int) array_sum( array_column( $matches, 'weight' ) );
-		$severity = $this->engine->calculate_severity( $score );
+		$severity = $this->engine()->calculate_severity( $score );
 		if ( ! in_array( $severity, self::REPORTED_SEVERITIES, true ) ) {
 			return null;
 		}

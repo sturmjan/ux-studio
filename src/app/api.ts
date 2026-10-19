@@ -2,6 +2,8 @@
  * Shared React Query client + typed REST helper.
  */
 import { QueryClient } from '@tanstack/react-query';
+import { __ } from '@wordpress/i18n';
+import { pushToast } from './notify';
 
 declare global {
 	interface Window {
@@ -54,6 +56,23 @@ export class ApiError extends Error {
  * Fetch from uxstudio/v1 with nonce; throws on HTTP or API error.
  */
 export async function api< T >( path: string, init?: RequestInit ): Promise< T > {
+	// Settings saves get a global status toast (spinner -> green "saved" / red error).
+	const isSave = /^\/?settings\//.test( path ) && 'POST' === init?.method;
+	if ( ! isSave ) {
+		return request< T >( path, init );
+	}
+	const loading = pushToast( 'loading', __( 'Saving…', 'ux-studio' ) );
+	try {
+		const data = await request< T >( path, init );
+		pushToast( 'success', __( 'Settings saved.', 'ux-studio' ), loading );
+		return data;
+	} catch ( e ) {
+		pushToast( 'error', e instanceof Error ? e.message : String( e ), loading );
+		throw e;
+	}
+}
+
+async function request< T >( path: string, init?: RequestInit ): Promise< T > {
 	const boot = window.uxStudioBoot;
 	const res = await fetch( `${ boot.restUrl }/${ path.replace( /^\//, '' ) }`, {
 		...init,

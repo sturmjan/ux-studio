@@ -19,6 +19,9 @@ defined( 'ABSPATH' ) || exit;
  * POST uxstudio/v1/ai-markdown/regenerate-all
  * GET  uxstudio/v1/ai-markdown/stats
  * GET  uxstudio/v1/ai-markdown/list
+ * GET  uxstudio/v1/ai-markdown/log?search=&bot=&type=&limit=&offset= - bot-access log {items,total}
+ * DELETE uxstudio/v1/ai-markdown/log {ids:[]}
+ * GET  uxstudio/v1/ai-markdown/log/stats - total, today, per-bot counts
  */
 final class RestController extends Controller {
 
@@ -50,6 +53,65 @@ final class RestController extends Controller {
 		$this->route( '/ai-markdown/regenerate-all', 'POST', array( $this, 'regenerate_all' ) );
 		$this->route( '/ai-markdown/stats', 'GET', array( $this, 'stats' ) );
 		$this->route( '/ai-markdown/list', 'GET', array( $this, 'list_cache' ) );
+		$this->route(
+			'/ai-markdown/log',
+			'GET',
+			array( $this, 'log_list' ),
+			array(
+				'search' => array( 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field' ),
+				'bot'    => array( 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field' ),
+				'type'   => array( 'type' => 'string', 'sanitize_callback' => 'sanitize_key' ),
+				'limit'  => array( 'type' => 'integer', 'default' => 30, 'minimum' => 1, 'maximum' => 200 ),
+				'offset' => array( 'type' => 'integer', 'default' => 0, 'minimum' => 0 ),
+			)
+		);
+		$this->route(
+			'/ai-markdown/log',
+			'DELETE',
+			array( $this, 'log_delete' ),
+			array(
+				'ids' => array(
+					'required' => true,
+					'type'     => 'array',
+					'items'    => array( 'type' => 'integer' ),
+				),
+			)
+		);
+		$this->route( '/ai-markdown/log/stats', 'GET', array( $this, 'log_stats' ) );
+	}
+
+	/**
+	 * Bot-access log entries (search/bot/type filters, paginated).
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function log_list( WP_REST_Request $request ): mixed {
+		$result = AccessLog::list(
+			array(
+				'search' => (string) $request->get_param( 'search' ),
+				'bot'    => (string) $request->get_param( 'bot' ),
+				'type'   => (string) $request->get_param( 'type' ),
+				'limit'  => (int) $request->get_param( 'limit' ),
+				'offset' => (int) $request->get_param( 'offset' ),
+			)
+		);
+		return $this->ok( $result );
+	}
+
+	/**
+	 * Delete log entries by id.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function log_delete( WP_REST_Request $request ): mixed {
+		return $this->ok( array( 'deleted' => AccessLog::delete( (array) $request->get_param( 'ids' ) ) ) );
+	}
+
+	/**
+	 * Total/today counts and per-bot counts.
+	 */
+	public function log_stats(): mixed {
+		return $this->ok( AccessLog::stats() );
 	}
 
 	/**

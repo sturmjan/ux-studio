@@ -159,6 +159,46 @@ final class AttemptsHandler {
 		}
 	}
 
+	/**
+	 * `block_username_attempts`: a failed login with a reserved username
+	 * (Module::is_blocked_username) locks the IP out at once, no counting.
+	 * Hooked on `wp_login_failed` at priority 5, before handle_failed_login().
+	 *
+	 * Unlike legacy, a CORRECT password for an existing account with such a
+	 * name is not turned into a failure here - that locked the site's real
+	 * "admin" out; the admin notice about such accounts covers that case.
+	 *
+	 * @param string        $username Attempted username.
+	 * @param WP_Error|null $error    Login error shown on the form (WP 5.4+).
+	 */
+	public function handle_blocked_username_login( $username, $error = null ): void {
+		$username = (string) $username;
+		if ( ! $this->module->is_blocked_username( $username ) ) {
+			return;
+		}
+
+		$ip = $this->get_client_ip();
+		if ( '' === $ip || $this->is_ip_blocked( $ip ) ) {
+			return;
+		}
+
+		$this->block_ip( $ip, $username );
+		if ( $this->module->setting( 'notify_admin', false ) ) {
+			$this->notify_admin( $ip, $username );
+		}
+
+		if ( $error instanceof WP_Error ) {
+			$error->add(
+				'uxstudio_ip_blocked',
+				sprintf(
+					/* translators: %d: minutes */
+					__( 'Too many failed login attempts from this IP. Please try again in %d minutes.', 'ux-studio' ),
+					$this->lockout_time()
+				)
+			);
+		}
+	}
+
 	/* ═══════════════════════════════════════════════════
 	   DB reads/writes
 	   ═══════════════════════════════════════════════════ */

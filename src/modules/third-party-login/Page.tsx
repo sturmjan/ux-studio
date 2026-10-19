@@ -5,6 +5,7 @@ import { ArrowLeft, LoaderCircle, Link2, Unlink } from 'lucide-react';
 import { navigate } from '../../app/route';
 import { api, queryClient } from '../../app/api';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { TabsNav } from '../../app/SubNav';
 
 type Tab = 'settings' | 'accounts';
 
@@ -136,14 +137,14 @@ export default function Page(): JSX.Element {
 					{ __( 'Third-Party Login', 'ux-studio' ) }
 				</h1>
 			</header>
-			<div className="uxs-tabs">
+			<TabsNav>
 				<button className={ tab === 'settings' ? 'is-active' : '' } onClick={ () => setTab( 'settings' ) }>
 					{ __( 'Settings', 'ux-studio' ) }
 				</button>
 				<button className={ tab === 'accounts' ? 'is-active' : '' } onClick={ () => setTab( 'accounts' ) }>
 					{ __( 'Connected accounts', 'ux-studio' ) }
 				</button>
-			</div>
+			</TabsNav>
 			{ tab === 'settings' && ( isLoading || ! data ) && (
 				<div className="uxs-loading">
 					<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />

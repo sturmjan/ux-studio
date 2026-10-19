@@ -44,6 +44,9 @@ final class Module extends BaseModule {
 	/** Daily cron hook purging old popup_stats rows. */
 	public const CRON_RETENTION = 'uxstudio_popup_stats_retention';
 
+	/** Default stats retention in days (same as legacy). */
+	private const DEFAULT_STATS_RETENTION_DAYS = 365;
+
 	/**
 	 * Register hooks.
 	 */
@@ -88,11 +91,33 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Daily retention purge of impression/click events (filterable via
-	 * `uxstudio_retention_days`, default 180 days).
+	 * Daily retention purge of impression/click events older than the
+	 * `stats_retention_days` setting (0 = keep forever).
 	 */
 	public function purge_old_stats(): void {
-		Retention::purge( 'uxstudio_popup_stats', Retention::days_for( 'uxstudio_popup_stats' ) );
+		Retention::purge( 'uxstudio_popup_stats', max( 0, (int) $this->settings->get( 'stats_retention_days', self::DEFAULT_STATS_RETENTION_DAYS ) ) );
+	}
+
+	/**
+	 * Settings schema (key names kept from the legacy spm_popup module).
+	 */
+	public function settings_schema(): array {
+		return array(
+			array(
+				'key'     => 'cache_compat',
+				'type'    => 'toggle',
+				'label'   => __( 'Cache plugin compatibility', 'ux-studio' ),
+				'help'    => __( 'Adds the data-cache-ignore attribute to popup markup so WP Rocket / W3 Total Cache leave it out of the HTML cache.', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
+				'key'     => 'stats_retention_days',
+				'type'    => 'number',
+				'label'   => __( 'Stats retention (days)', 'ux-studio' ),
+				'help'    => __( 'Impression/click records older than this are deleted daily. 0 = keep forever.', 'ux-studio' ),
+				'default' => self::DEFAULT_STATS_RETENTION_DAYS,
+			),
+		);
 	}
 
 	/**
@@ -471,9 +496,13 @@ final class Module extends BaseModule {
 		$delay_ms      = max( 0, (int) ( $trigger['delay_ms'] ?? 4000 ) );
 		$scroll_percent = min( 100, max( 0, (int) ( $trigger['scroll_percent'] ?? 50 ) ) );
 
+		// Cache compatibility: WP Rocket / W3TC skip elements carrying this attribute.
+		$cache_attr = (bool) $this->settings->get( 'cache_compat', true ) ? ' data-cache-ignore="true"' : '';
+
 		printf(
-			'<div class="uxs-popup" id="uxs-popup-%1$d" data-popup-id="%1$d">',
-			$id
+			'<div class="uxs-popup" id="uxs-popup-%1$d" data-popup-id="%1$d"%2$s>',
+			$id,
+			$cache_attr // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- constant literal.
 		);
 		echo '<div class="uxs-popup__overlay" data-uxs-dismiss></div>';
 		echo '<div class="uxs-popup__box" role="dialog" aria-modal="true">';

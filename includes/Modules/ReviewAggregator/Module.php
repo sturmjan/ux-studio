@@ -32,7 +32,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Module extends BaseModule {
 
-	/** Daily cron hook for the "Auto-fetch new reviews" setting. */
+	/** Cron hook for the "Auto-fetch new reviews" setting (recurrence = `fetch_interval`). */
 	public const CRON_FETCH = 'uxstudio_review_aggregator_fetch';
 
 	/** Option holding the central app's ETag of the last complete fetch. */
@@ -44,6 +44,21 @@ final class Module extends BaseModule {
 	/** Safety cap on pages per fetch. */
 	private const MAX_PAGES = 20;
 
+	/** Custom WP-Cron recurrence for the 6-hour fetch interval. */
+	private const SCHEDULE_6H = 'uxstudio_6hours';
+
+	/**
+	 * `fetch_interval` setting value => WP-Cron recurrence (legacy keys).
+	 * hourly/twicedaily/daily/weekly are WordPress core recurrences.
+	 */
+	private const FETCH_SCHEDULES = array(
+		'1h'     => 'hourly',
+		'6h'     => self::SCHEDULE_6H,
+		'12h'    => 'twicedaily',
+		'24h'    => 'daily',
+		'weekly' => 'weekly',
+	);
+
 	/**
 	 * Register hooks.
 	 */
@@ -53,13 +68,22 @@ final class Module extends BaseModule {
 		// Legacy alias - embedded in existing content.
 		add_shortcode( 'ux1_reviews', array( $this, 'render_shortcode' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_frontend_assets' ) );
+		add_filter( 'cron_schedules', array( $this, 'add_cron_schedules' ) );
 
 		// Cheap when nothing changed: the first page is requested with the
-		// last ETag and the central app answers 304.
+		// last ETag and the central app answers 304. Like legacy, the event
+		// is only scheduled once there is something to fetch (a profile id)
+		// and is rescheduled whenever the configured interval changes.
 		add_action( self::CRON_FETCH, array( $this, 'cron_fetch' ) );
-		if ( (bool) $this->settings->get( 'auto_fetch', false ) ) {
-			if ( ! wp_next_scheduled( self::CRON_FETCH ) ) {
-				wp_schedule_event( time() + HOUR_IN_SECONDS, 'daily', self::CRON_FETCH );
+		$schedule = $this->fetch_schedule();
+		if ( (bool) $this->settings->get( 'auto_fetch', true ) && absint( $this->settings->get( 'central_profile_id', '' ) ) > 0 ) {
+			$current = wp_get_schedule( self::CRON_FETCH );
+			if ( false !== $current && $current !== $schedule ) {
+				wp_clear_scheduled_hook( self::CRON_FETCH );
+				$current = false;
+			}
+			if ( false === $current ) {
+				wp_schedule_event( time() + 5 * MINUTE_IN_SECONDS, $schedule, self::CRON_FETCH );
 			}
 		} elseif ( wp_next_scheduled( self::CRON_FETCH ) ) {
 			wp_clear_scheduled_hook( self::CRON_FETCH );
@@ -118,9 +142,34 @@ final class Module extends BaseModule {
 	 * WP-Cron callback for auto-fetch.
 	 */
 	public function cron_fetch(): void {
-		if ( (bool) $this->settings->get( 'auto_fetch', false ) ) {
+		if ( (bool) $this->settings->get( 'auto_fetch', true ) ) {
 			$this->fetch( true );
 		}
+	}
+
+	/**
+	 * Register the custom 6-hour recurrence used by `fetch_interval`.
+	 *
+	 * @param array $schedules Existing schedules.
+	 * @return array
+	 */
+	public function add_cron_schedules( $schedules ): array {
+		$schedules = is_array( $schedules ) ? $schedules : array();
+		if ( ! isset( $schedules[ self::SCHEDULE_6H ] ) ) {
+			$schedules[ self::SCHEDULE_6H ] = array(
+				'interval' => 6 * HOUR_IN_SECONDS,
+				'display'  => __( 'Every 6 hours', 'ux-studio' ),
+			);
+		}
+		return $schedules;
+	}
+
+	/**
+	 * WP-Cron recurrence for the configured `fetch_interval` (default daily).
+	 */
+	private function fetch_schedule(): string {
+		$interval = (string) $this->settings->get( 'fetch_interval', '24h' );
+		return self::FETCH_SCHEDULES[ $interval ] ?? 'daily';
 	}
 
 	/**
@@ -206,13 +255,34 @@ final class Module extends BaseModule {
 				'key'     => 'auto_fetch',
 				'type'    => 'toggle',
 				'label'   => __( 'Auto-fetch new reviews', 'ux-studio' ),
-				'default' => false,
+				'default' => true,
+			),
+			array(
+				'key'     => 'fetch_interval',
+				'type'    => 'select',
+				'label'   => __( 'Fetch interval', 'ux-studio' ),
+				'help'    => __( 'How often new reviews are pulled from the central app automatically.', 'ux-studio' ),
+				'options' => array(
+					'1h'     => __( 'Every hour', 'ux-studio' ),
+					'6h'     => __( 'Every 6 hours', 'ux-studio' ),
+					'12h'    => __( 'Every 12 hours', 'ux-studio' ),
+					'24h'    => __( 'Once a day', 'ux-studio' ),
+					'weekly' => __( 'Once a week', 'ux-studio' ),
+				),
+				'default' => '24h',
 			),
 			array(
 				'key'     => 'central_profile_id',
 				'type'    => 'text',
 				'label'   => __( 'Central app profile ID', 'ux-studio' ),
 				'help'    => __( 'Numeric ID of the review profile in the central app (Reviews). The profile must belong to this site there.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'google_url',
+				'type'    => 'text',
+				'label'   => __( 'Google Maps URL or Place ID', 'ux-studio' ),
+				'help'    => __( 'Used by "Request deep scan" to find or create the Google profile in the central app.', 'ux-studio' ),
 				'default' => '',
 			),
 		);
@@ -434,6 +504,63 @@ final class Module extends BaseModule {
 		ContentSyncModule::log_sync( 'review-aggregator:fetch', 'success' );
 
 		return array( 'fetched' => $fetched, 'updated' => $updated );
+	}
+
+	/**
+	 * Ask the central app to queue a deep (full-history) Google scan of this
+	 * site's place on the NAS scraper (legacy "Vyžádat hloubkový sken").
+	 * The CA finds or creates the profile from the Place ID / Maps URL; its
+	 * id is stored as `central_profile_id` when none is configured yet.
+	 * Reviews arrive later - the admin fetches them once the job finishes.
+	 *
+	 * @return array{profile_id:int,job_id:int,status:string}|WP_Error
+	 */
+	public function request_scrape() {
+		list( $external_id, $maps_url ) = $this->resolve_place();
+		if ( '' === $external_id && '' === $maps_url ) {
+			return new WP_Error( 'uxstudio_reviews_no_place', __( 'Set the Google Maps URL or Place ID first.', 'ux-studio' ), array( 'status' => 424 ) );
+		}
+
+		$result = CentralReviewsClient::request_scrape( $external_id, $maps_url, get_bloginfo( 'name' ) . ' – Google' );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		$profile_id = absint( $result['profile_id'] ?? 0 );
+		if ( $profile_id > 0 && absint( $this->settings->get( 'central_profile_id', '' ) ) <= 0 ) {
+			$this->settings->save( array( 'central_profile_id' => (string) $profile_id ), $this->settings_schema() );
+		}
+
+		ActivityLog::log( 'review-aggregator', 'request_scrape', 'review_profile', $profile_id );
+
+		return array(
+			'profile_id' => $profile_id,
+			'job_id'     => absint( $result['job_id'] ?? 0 ),
+			'status'     => sanitize_key( (string) ( $result['status'] ?? 'queued' ) ),
+		);
+	}
+
+	/**
+	 * Split the `google_url` setting into [place_id, maps_url] (legacy
+	 * CentralClient::resolvePlace()).
+	 *
+	 * @return array{0:string,1:string}
+	 */
+	private function resolve_place(): array {
+		$input = trim( (string) $this->settings->get( 'google_url', '' ) );
+		if ( '' === $input ) {
+			return array( '', '' );
+		}
+		if ( preg_match( '/^ChIJ[A-Za-z0-9_-]{20,}$/', $input ) ) {
+			return array( $input, '' );
+		}
+		if ( preg_match( '/place_id[:=]([A-Za-z0-9_-]{20,})/', $input, $m ) ) {
+			return array( $m[1], $input );
+		}
+		if ( preg_match( '#^https?://#i', $input ) ) {
+			return array( '', $input );
+		}
+		return array( '', '' );
 	}
 
 	/**

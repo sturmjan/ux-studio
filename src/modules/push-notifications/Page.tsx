@@ -5,6 +5,7 @@ import { ArrowLeft, FlaskConical, KeyRound, LoaderCircle, Send, Trash2 } from 'l
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { TabsNav } from '../../app/SubNav';
 
 type Tab = 'send' | 'subscribers' | 'segments' | 'analytics' | 'settings';
 
@@ -498,13 +499,13 @@ export default function Page(): JSX.Element {
 					{ __( 'Push Notifications', 'ux-studio' ) }
 				</h1>
 			</header>
-			<div className="uxs-tabs">
+			<TabsNav>
 				{ tabs.map( ( [ id, label ] ) => (
 					<button key={ id } className={ tab === id ? 'is-active' : '' } onClick={ () => setTab( id ) }>
 						{ label }
 					</button>
 				) ) }
-			</div>
+			</TabsNav>
 			{ tab === 'send' && <SendTab /> }
 			{ tab === 'subscribers' && <SubscribersTab /> }
 			{ tab === 'segments' && <SegmentsTab /> }

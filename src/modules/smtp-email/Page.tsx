@@ -5,6 +5,7 @@ import { ArrowLeft, Check, Download, LoaderCircle, Send, Trash2 } from 'lucide-r
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { TabsNav } from '../../app/SubNav';
 
 type Tab = 'settings' | 'log';
 
@@ -253,14 +254,14 @@ export default function Page(): JSX.Element {
 					{ __( 'SMTP Email', 'ux-studio' ) }
 				</h1>
 			</header>
-			<div className="uxs-tabs">
+			<TabsNav>
 				<button className={ tab === 'settings' ? 'is-active' : '' } onClick={ () => setTab( 'settings' ) }>
 					{ __( 'Settings', 'ux-studio' ) }
 				</button>
 				<button className={ tab === 'log' ? 'is-active' : '' } onClick={ () => setTab( 'log' ) }>
 					{ __( 'Log', 'ux-studio' ) }
 				</button>
-			</div>
+			</TabsNav>
 			{ tab === 'settings' && ( isLoading || ! data ) && (
 				<div className="uxs-loading">
 					<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />

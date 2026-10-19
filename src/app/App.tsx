@@ -13,6 +13,10 @@ import { ModuleGrid } from './ModuleGrid';
 import { ModuleSettings } from './ModuleSettings';
 import { GlobalSettings } from './GlobalSettings';
 import { GroupBreadcrumb, GroupPage } from './GroupPage';
+import { ModuleIcon } from './moduleIcons';
+import { FEATURE_VIEWS, useViewEnabled, type FeatureView } from './featureViews';
+import { Toasts } from './Toasts';
+import { SubNavSlot } from './SubNav';
 import { getTheme, setTheme, type Theme } from './prefs';
 import { MODULE_PAGES } from '../modules/registry';
 
@@ -118,8 +122,27 @@ function ThemeToggle(): JSX.Element {
 	);
 }
 
+/** Sidebar-tree entry of a feature sub-page (with a status dot when it has its own switch). */
+function TreeView( { groupId, featureId, view, active }: { groupId: string; featureId: string; view: FeatureView; active: boolean } ): JSX.Element {
+	const { enabled } = useViewEnabled( featureId, view );
+	return (
+		<a
+			href={ `#/module?id=${ groupId }&feature=${ featureId }&view=${ view.id }` }
+			className={ `uxs-tree__item uxs-tree__view${ active ? ' is-active' : '' }` }
+			onClick={ ( e ) => {
+				e.preventDefault();
+				navigate( 'module', { id: groupId, feature: featureId, view: view.id } );
+			} }
+		>
+			{ view.enabledKey ? <span className={ `uxs-dot${ enabled ? ' is-on' : '' }` } aria-hidden /> : null }
+			{ view.label }
+		</a>
+	);
+}
+
 export function App(): JSX.Element {
 	const route = useHashRoute();
+	const [ subNavSlot, setSubNavSlot ] = useState< HTMLElement | null >( null );
 	const extension = pages.get( route );
 	const moduleId = route === 'module' ? hashParam( 'id' ) ?? '' : '';
 	const CustomPage = moduleId ? MODULE_PAGES[ moduleId ] : undefined;
@@ -129,6 +152,16 @@ export function App(): JSX.Element {
 		enabled: route === 'module',
 	} );
 	const isGroup = !! moduleId && !! moduleList?.find( ( m ) => m.id === moduleId )?.children?.length;
+
+	// Sidebar tree: on a group page (or one of its features) list the group's features.
+	const byId = new Map( ( moduleList ?? [] ).map( ( m ) => [ m.id, m ] ) );
+	const current = moduleId ? byId.get( moduleId ) : undefined;
+	const treeGroup = current?.children?.length ? current : current?.parent ? byId.get( current.parent ) : undefined;
+	const treeFeatures = ( treeGroup?.children ?? [] )
+		.map( ( id ) => byId.get( id ) )
+		.filter( ( m ): m is ModuleInfo => !! m );
+	const treeView = hashParam( 'view' );
+	const treeActive = current?.parent ? current.id : hashParam( 'feature' ) ?? treeFeatures[ 0 ]?.id;
 
 	const nav = [
 		{ route: '', title: __( 'Modules', 'ux-studio' ), icon: <LayoutGrid size={ 16 } /> },
@@ -142,14 +175,68 @@ export function App(): JSX.Element {
 					<Blocks size={ 20 } /> UX Studio
 				</span>
 				{ nav.map( ( item ) => (
-					<a
-						key={ item.route }
-						href={ `#/${ item.route }` }
-						className={ `uxs-sidebar__item${ route === item.route ? ' is-active' : '' }` }
-					>
-						{ item.icon }
-						{ item.title }
-					</a>
+					<div key={ item.route }>
+						<a
+							href={ `#/${ item.route }` }
+							className={ `uxs-sidebar__item${ route === item.route ? ' is-active' : '' }` }
+						>
+							{ item.icon }
+							{ item.title }
+						</a>
+						{ '' === item.route && ! treeGroup && current ? (
+							<div className="uxs-tree" role="group" aria-label={ current.name }>
+								<span className="uxs-tree__group">
+									<ModuleIcon name={ current.icon } size={ 14 } />
+									{ current.name }
+								</span>
+								<div ref={ setSubNavSlot } className="uxs-subnav" />
+							</div>
+						) : null }
+						{ '' === item.route && treeGroup ? (
+							<div className="uxs-tree" role="group" aria-label={ treeGroup.name }>
+								<a
+									href={ `#/module?id=${ treeGroup.id }` }
+									className="uxs-tree__group"
+									onClick={ ( e ) => {
+										e.preventDefault();
+										navigate( 'module', { id: treeGroup.id } );
+									} }
+								>
+									<ModuleIcon name={ treeGroup.icon } size={ 14 } />
+									{ treeGroup.name }
+								</a>
+								{ treeFeatures.map( ( f ) => {
+									const views = FEATURE_VIEWS[ f.id ] ?? [];
+									const featureActive = f.id === treeActive;
+									return (
+										<div key={ f.id } className="uxs-tree__feature">
+											<a
+												href={ `#/module?id=${ treeGroup.id }&feature=${ f.id }` }
+												className={ `uxs-tree__item${ featureActive && ! treeView ? ' is-active' : '' }` }
+												onClick={ ( e ) => {
+													e.preventDefault();
+													navigate( 'module', { id: treeGroup.id, feature: f.id } );
+												} }
+											>
+												<span className={ `uxs-dot${ f.enabled ? ' is-on' : '' }` } aria-hidden />
+												{ f.name }
+											</a>
+											{ featureActive && ! treeView ? <div ref={ setSubNavSlot } className="uxs-subnav" /> : null }
+											{ f.enabled && views.map( ( v ) => (
+												<TreeView
+													key={ v.id }
+													groupId={ treeGroup.id }
+													featureId={ f.id }
+													view={ v }
+													active={ featureActive && treeView === v.id }
+												/>
+											) ) }
+										</div>
+									);
+								} ) }
+							</div>
+						) : null }
+					</div>
 				) ) }
 				{ [ ...pages.values() ].map( ( p ) => (
 					<a
@@ -164,6 +251,8 @@ export function App(): JSX.Element {
 					<ThemeToggle />
 				</div>
 			</nav>
+			<Toasts />
+			<SubNavSlot.Provider value={ subNavSlot }>
 			<main className="uxs-content">
 				{ moduleId && ! isGroup ? <GroupBreadcrumb moduleId={ moduleId } /> : null }
 				{ extension ? (
@@ -196,6 +285,7 @@ export function App(): JSX.Element {
 					<ModuleGrid />
 				) }
 			</main>
+			</SubNavSlot.Provider>
 		</div>
 	);
 }

@@ -204,6 +204,43 @@ final class CspLogger {
 	}
 
 	/**
+	 * One violation row, or null.
+	 *
+	 * @return array<string,mixed>|null
+	 */
+	public static function get( int $id ): ?array {
+		global $wpdb;
+		if ( $id <= 0 ) {
+			return null;
+		}
+		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . self::table() . ' WHERE id = %d', $id ), ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		return is_array( $row ) ? $row : null;
+	}
+
+	/**
+	 * CSP source token (scheme://host) for a blocked-uri, or '' when the
+	 * violation has no external origin that could be allowlisted (inline code,
+	 * eval, data:/blob: URIs - those must be fixed in the code instead).
+	 * Ported from legacy CspViolationsLogger::uriToSource().
+	 */
+	public static function uri_to_source( string $uri ): string {
+		$uri = trim( $uri );
+		if ( '' === $uri || in_array( strtolower( $uri ), array( 'self', 'inline', 'eval', 'data', 'blob', 'wasm-eval', 'trusted-types-sink' ), true ) ) {
+			return '';
+		}
+		$parsed = wp_parse_url( $uri );
+		$host   = is_array( $parsed ) ? strtolower( (string) ( $parsed['host'] ?? '' ) ) : '';
+		if ( '' === $host || 1 !== preg_match( '/^[a-z0-9]([a-z0-9\-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9\-]*[a-z0-9])?)+$/', $host ) ) {
+			return '';
+		}
+		$scheme = strtolower( (string) ( $parsed['scheme'] ?? 'https' ) );
+		if ( ! in_array( $scheme, array( 'http', 'https', 'ws', 'wss' ), true ) ) {
+			$scheme = 'https';
+		}
+		return $scheme . '://' . $host;
+	}
+
+	/**
 	 * Extract a comparable host token from a blocked-uri value.
 	 */
 	private static function extract_host( string $uri ): string {

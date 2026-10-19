@@ -1,17 +1,16 @@
 /**
- * Landing page: the module "šachovnice" - tiles for every module with an
- * enable/disable switch. Only modules that actually have a settings/detail
- * page (m.settings) are clickable into it - modules without any
- * configuration (pure on/off toggles) render as static cards, matching the
- * legacy plugin's behaviour where hasSettings() gated the "Configure" link.
+ * Landing page: the module list - one row per module with an enable/disable
+ * switch. A virtual group (several features bundled in one entry) lists its
+ * features as indented sub-rows, each with its own switch. Only modules that
+ * actually have a settings/detail page (m.settings) are clickable into it -
+ * modules without any configuration render as static rows.
  */
 import { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { ChevronRight, LayoutGrid, List, LoaderCircle, PowerOff } from 'lucide-react';
+import { ChevronRight, LoaderCircle, PowerOff } from 'lucide-react';
 import { api, queryClient, type ModuleInfo } from './api';
 import { ModuleIcon } from './moduleIcons';
-import { getViewMode, setViewMode, type ViewMode } from './prefs';
 import { navigate } from './route';
 
 /** meta.json `group` values in display order. */
@@ -27,7 +26,6 @@ const GROUPS: { id: string; label: string }[] = [
 type StatusFilter = 'all' | 'on' | 'off';
 
 export function ModuleGrid(): JSX.Element {
-	const [ view, setView ] = useState< ViewMode >( getViewMode() );
 	const [ group, setGroup ] = useState( 'all' );
 	const [ status, setStatus ] = useState< StatusFilter >( 'all' );
 	const [ search, setSearch ] = useState( '' );
@@ -120,36 +118,11 @@ export function ModuleGrid(): JSX.Element {
 		}
 	};
 
-	const changeView = ( mode: ViewMode ): void => {
-		setView( mode );
-		setViewMode( mode );
-	};
-
 	return (
 		<>
 			<header className="uxs-pagehead">
 				<h1>{ __( 'Modules', 'ux-studio' ) }</h1>
 				<div className="uxs-pagehead__actions">
-					<div className="uxs-viewswitch" role="group" aria-label={ __( 'Layout', 'ux-studio' ) }>
-						<button
-							type="button"
-							className={ view === 'grid' ? 'is-active' : '' }
-							aria-label={ __( 'Grid view', 'ux-studio' ) }
-							aria-pressed={ view === 'grid' }
-							onClick={ () => changeView( 'grid' ) }
-						>
-							<LayoutGrid size={ 16 } aria-hidden />
-						</button>
-						<button
-							type="button"
-							className={ view === 'list' ? 'is-active' : '' }
-							aria-label={ __( 'List view', 'ux-studio' ) }
-							aria-pressed={ view === 'list' }
-							onClick={ () => changeView( 'list' ) }
-						>
-							<List size={ 16 } aria-hidden />
-						</button>
-					</div>
 					<button
 						type="button"
 						className="button"
@@ -192,76 +165,75 @@ export function ModuleGrid(): JSX.Element {
 				</select>
 			</div>
 			{ 0 === visible.length ? <p className="uxs-modulefilter__empty">{ __( 'No module matches the filter.', 'ux-studio' ) }</p> : null }
-			<div className={ `uxs-grid${ view === 'list' ? ' is-list' : '' }` }>
+			<div className="uxs-grid is-list">
 				{ visible.map( ( m ) => {
-					const clickable = m.settings;
-					const interactionProps = clickable
-						? {
-								role: 'button' as const,
-								tabIndex: 0,
-								onClick: () => navigate( 'module', { id: m.id } ),
-								onKeyDown: ( e: React.KeyboardEvent ) => {
-									if ( e.key === 'Enter' ) {
-										navigate( 'module', { id: m.id } );
-									}
-								},
-						  }
-						: {};
-
+					const subs = childrenOf( m );
 					return (
-						<div
-							key={ m.id }
-							className={ `uxs-tile${ clickable ? '' : ' is-static' }` }
-							{ ...interactionProps }
-						>
-							<div className="uxs-tile__head">
-								<span className="uxs-tile__icon">
-									<ModuleIcon name={ m.icon } size={ 20 } />
-								</span>
-								{ view === 'list' && <span className="uxs-tile__name">{ m.name }</span> }
-								{ view === 'list' && <span className="uxs-tile__desc">{ m.description }</span> }
-								<button
-									type="button"
-									className={ `uxs-switch${ m.enabled ? ' is-on' : '' }` }
-									aria-label={
-										m.enabled
-											? __( 'Disable module', 'ux-studio' )
-											: __( 'Enable module', 'ux-studio' )
-									}
-									aria-pressed={ m.enabled }
-									onClick={ ( e ) => {
-										e.stopPropagation();
-										toggle.mutate( m );
-									} }
-								/>
-								{ view === 'list' && clickable && (
-									<ChevronRight size={ 16 } className="uxs-tile__chevron" aria-hidden />
-								) }
-							</div>
-							{ view === 'grid' && <span className="uxs-tile__name">{ m.name }</span> }
-							{ view === 'grid' && <span className="uxs-tile__desc">{ m.description }</span> }
-							{ m.children?.length ? (
-								<span className="uxs-tile__features">
-									{ sprintf(
-										/* translators: 1: enabled features, 2: all features in the group. */
-										__( '%1$d of %2$d on', 'ux-studio' ),
-										childrenOf( m ).filter( ( c ) => c.enabled ).length,
-										childrenOf( m ).length
-									) }
-									{ ' · ' }
-									{ childrenOf( m ).map( ( c ) => c.name ).join( ', ' ) }
-								</span>
-							) : null }
-							{ view === 'grid' && clickable && (
-								<span className="uxs-tile__configure">
-									{ __( 'Configure', 'ux-studio' ) }
-									<ChevronRight size={ 14 } aria-hidden />
-								</span>
+						<div key={ m.id } className="uxs-rowgroup">
+							<ModuleRow m={ m } onToggle={ ( x ) => toggle.mutate( x ) } />
+							{ subs.length > 0 && (
+								<div className="uxs-rowgroup__subs">
+									{ subs.map( ( c ) => (
+										<ModuleRow key={ c.id } m={ c } sub onToggle={ ( x ) => toggle.mutate( x ) } />
+									) ) }
+								</div>
 							) }
 						</div>
 					);
 				} ) }
 			</div>
 		</>
+	);
+}
+
+interface ModuleRowProps {
+	m: ModuleInfo;
+	sub?: boolean;
+	onToggle: ( m: ModuleInfo ) => void;
+}
+
+function ModuleRow( { m, sub = false, onToggle }: ModuleRowProps ): JSX.Element {
+	const clickable = m.settings;
+	const open = (): void => navigate( 'module', { id: m.id } );
+
+	return (
+		<div
+			className={ `uxs-tile${ clickable ? '' : ' is-static' }${ sub ? ' is-sub' : '' }` }
+			{ ...( clickable
+				? {
+						role: 'button' as const,
+						tabIndex: 0,
+						onClick: open,
+						onKeyDown: ( e: React.KeyboardEvent ) => {
+							if ( e.key === 'Enter' ) {
+								open();
+							}
+						},
+				  }
+				: {} ) }
+		>
+			<div className="uxs-tile__head">
+				<span className="uxs-tile__icon">
+					<ModuleIcon name={ m.icon } size={ sub ? 16 : 20 } />
+				</span>
+				<span className="uxs-tile__name">{ m.name }</span>
+				<span className="uxs-tile__desc">{ m.description }</span>
+				<button
+					type="button"
+					className={ `uxs-switch${ m.enabled ? ' is-on' : '' }` }
+					aria-label={ m.enabled ? __( 'Disable module', 'ux-studio' ) : __( 'Enable module', 'ux-studio' ) }
+					aria-pressed={ m.enabled }
+					onClick={ ( e ) => {
+						e.stopPropagation();
+						onToggle( m );
+					} }
+				/>
+				{ clickable ? (
+					<ChevronRight size={ 16 } className="uxs-tile__chevron" aria-hidden />
+				) : (
+					<span className="uxs-tile__chevron" aria-hidden style={ { width: 16 } } />
+				) }
+			</div>
+		</div>
 	);
 }

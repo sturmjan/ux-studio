@@ -52,14 +52,14 @@ hyphen→underscore bez migrace), obecně moduly s vlastní tabulkou a přeznač
 | 6 | `ai-panel` | ✅ | ⬜ | ⬜ | Byte-for-byte lift-and-shift claude-panel, jen rebranding a přejmenovaný kill-switch. |
 | 7 | `auto-image-upload` | ✅ | ⬜ | ⬜ | Sideload REST + editor assety + save-filtr + bulk + SSRF guard, ekvivalentní. |
 | 8 | `auto-unpublish` | ⚠️ | ⬜ | ⬜ | Logika 1:1, jen publish-box UI zjednodušené (bez JS panelu). |
-| 9 | `bot-throttle` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-03: přenesena adaptivní logika (Detector/LoadSampler/Throttler/Microcache/Log + dashboard widget + Test tab). A/B ověřeno: block/microcache/delay/search-engine-protection sedí s legacy. Migrace historie ➖ (efemérní log). |
+| 9 | `bot-throttle` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-03: přenesena adaptivní logika (Detector/LoadSampler/Throttler/Microcache/Log + dashboard widget + Test tab). A/B ověřeno: block/microcache/delay/search-engine-protection sedí s legacy. Migrace historie ➖ (efemérní log). Vědomě: `red_min`/`red_max` (náhodné zpoždění) nahrazeno microcache/503. |
 | 10 | `classic-editor` | ✅ | ⬜ | ⬜ | 1:1 přes use_block_editor_for_post_type. |
 | 11 | `classic-widgets` | ✅ | ⬜ | ⬜ | Doslovná shoda dvou filtrů. |
 | 12 | `clean-profiles` | ✅ | ⬜ | ⬜ | Free+pro vč. WooCommerce; vypuštěny jen triviální rozšiřující filtry. |
 | 13 | `code-snippets` | ✅ | ⬜ | ⬜ | Věrný file-based port + integrity hash, PhpValidator, safe mode; metadata v DB (hardening). |
 | 14 | `content-sync` | ✅ | ➖ | ⚠️ | NAPRAVENO 2026-09-04: plný Hub↔Node port (HmacAuth replay-guard, NodeController CRUD posts/terms/media/ACF idempotentně, Hub push+SiteManager, SSO single-use token bez auto-admina). Statika ✅, admin REST 200. A/B ⚠️: hub↔node round-trip nejde ověřit bez 2. WP instance (viz manuál). |
 | 15 | `cron-control` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: režimy WP-Cronu (none/block_all/local/external/central) přes mu-plugin+.htaccess, watcher+whitelist. Ověřeno lint/build/boot. |
-| 16 | `dashboard-widgets` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-03: doplněna správa reálných wp-admin widgetů (wp_dashboard_setup snapshot + skrytí vybraných/všech vč. welcome panelu). Ověřeno jednotkově. SPA (PageSpeed/úkoly) zůstává. |
+| 16 | `dashboard-widgets` | ✅ | ✅ | ⚠️ | 2026-09-03 správa reálných widgetů. **19.10. CHYBĚLO 9 z 13 vlastních wp-admin widgetů UX1** (první port je vědomě přesunul jen do SPA, revize pole po poli to nezachytila). Doplněno `ExtraWidgets.php`: úkoly, poznámky, PageSpeed, aktivita uživatelů, formuláře Elementor Pro; disk/příspěvky/média v `Module.php` (WIP jiné session); objednávky/produkty v modulu WooCommerce, požadavky ve ServiceRequests, blokace v SecurityOptimization. Migrator v2: `disk_usage_widget`→`widget_disk_usage`, `widgets`→`hidden_widgets`, úkoly/poznámky z `ux1_dashboard_*`. Ověřeno WP-CLI na pobyty, v prohlížeči ne. |
 | 17 | `debug-mode` | ⚠️ | ⬜ | ⬜ | Vědomě netoggluje WP_DEBUG; jen read-only čtečka konstant + logu. |
 | 18 | `disable-auto-updates` | ✅ | ⬜ | ⬜ | Options i logika 1:1, jen bez show_if UI hintů. |
 | 19 | `disable-video-uploads` | ✅ | ⬜ | ⬜ | Doslovný port filtru upload_mimes. |
@@ -75,7 +75,7 @@ hyphen→underscore bez migrace), obecně moduly s vlastní tabulkou a přeznač
 | 29 | `external-permalinks` | ✅ | ⬜ | ⬜ | Shoda: meta _links_to, classic + block editor, redirect se stejnou ochranou. |
 | 30 | `file-manager` | ✅ | ⬜ | ⬜ | Balí stejný Tiny File Manager v2.6; shodná route, whitelist, auth, fail-closed marker. |
 | 31 | `folder-manager` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: rename/reparent (cycle-guard) + bulk-move (per-item edit_post). Ověřeno lint/build/boot. |
-| 32 | `google-review-request` | ❌ | ⬜ | ⬜ | Přeznačeno: on-site popup + multiplatforma + triggery nahrazeny posíláním review-request emailu. |
+| 32 | `google-review-request` | ✅ by design | ⬜ | ⬜ | Přeznačeno: on-site popup + multiplatforma + triggery nahrazeny posíláním review-request emailu. |
 | 33 | `guide` | ❌ | ⬜ | ⬜ | Přeznačeno: editor Návodu s MD exportem + noindex cron nahrazen nesouvisejícím onboarding checklistem. |
 | 34 | `hide-admin-bar` | ✅ | ➖ | ✅ | OPRAVENO 2026-09-03 (15.3): prázdný výběr rolí → neskryje nikomu (jako legacy). Ověřeno logicky. |
 | 35 | `image-optimizer` | ✅ | ➖ | ✅ | NAPRAVENO 2026-09-04: AVIF (feature-detect), WebP/AVIF delivery (.htaccess marker), auto-optimize on upload, unused scanner. Ověřeno lint/build/boot. |
@@ -275,3 +275,44 @@ Vědomé odchylky / zbývá:
 - image-optimizer: výchozí max_height=0 a convert_png_to_jpg=false (UX1 1920/true) - bezpečnější.
 - Migrator push: odběratelé se přenesou bez user_id/segments (doporučeno rozšířit).
 - Opening-hours: šablony v motivu čtoucí _oh_* meta nenajdou data nových poboček (_uxstudio_oh_*).
+
+## Revize 3 - strojová kontrola klíčů (2026-10-19)
+
+Revize „pole po poli" (16.-18.10.) přehlédla mimo jiné 9 widgetů nástěnky. Proto
+`bin/parity-keys.py` porovná VŠECHNA `id` polí z `getSettingsFields()` UX1 s klíči
+UX Studia (+ remapy v Migratoru). Výstup je hrubý (vypisuje i ID záložek a info
+pole); 22 modulů pak ručně roztřídili agenti proti kódu (šum / přejmenováno /
+vědomě / skutečná mezera). Níže jen SKUTEČNÉ mezery. Spouštět před každým vydáním.
+
+**Ztráta nastavení po migraci (nejvyšší priorita - weby to dostanou automaticky):**
+- [x] `dashboard-widgets`: 9 chybějících widgetů + remap `disk_usage_widget`, `widgets`, úkoly/poznámky (Migrator v2).
+- [x] `third-party-login`: `*_enabled` → `enabled_providers` (po migraci zmizela VŠECHNA tlačítka přihlášení; Migrator v2).
+- [x] `ai-markdown`: `pt_*` (opt-in, výchozí jen post/page) → `excluded_post_types` (opt-out) bez remapu = po migraci se do llms.txt dostanou VŠECHNY veřejné CPT. + `retention_days` → `log_retention_days`.
+- [x] `opening-hours`: `schema_enabled` má výchozí false, UX1 JSON-LD vypisoval vždy = migrované weby tiše ztratí strukturovaná data.
+- [x] `security-optimization`: `enable_csp`/`csp_report_only` → `csp_mode`/`csp_level` bez remapu = CSP po migraci vypnuté.
+- [x] `security-optimization`: `lwug_notify_email` → `upload_guard_notify_email` bez remapu.
+- [x] `review-aggregator`: `ux1_review_aggregator_central_profile_id` se nemigruje (nutno ručně).
+- [x] `google-review-request`: `place_id` → `google_review_url` bez remapu (jiný význam: ID → celá URL).
+
+**Chybějící funkce:**
+- [x] `security-optimization`: přímý přístup na wp-login.php - UX1 uměl vlastní URL / vybranou stránku / vlastní 403 zprávu; Studio nabízí jen 404/home a `disabled_behavior` se NIKDE nečte (vždy 404).
+- [x] `security-optimization`: `block_username_attempts` - pokus o přihlášení zakázaným jménem (admin…) okamžitě banuje IP; Studio kontroluje jméno jen při registraci/úpravě profilu.
+- [x] `security-optimization`: upozornění na existující účty se zakázaným jménem (admin notice).
+- [x] `security-optimization`: `captcha_adaptive_threshold`, `captcha_recaptcha_v3_threshold` fungují, ale nejsou ve formuláři (nejdou změnit); „přidat do allowlistu" z CSP porušení.
+- [x] `security-optimization` / Upload Guard: `upload_guard_custom_patterns`, `upload_guard_whitelist_paths` (fallback na migrované `lwug_*`).
+- [x] `cron-control`: push režimu do CA (`set_cron`), stav posledního odeslání + tlačítko znovu odeslat; opačný směr `content-sync/cron-control`.
+- [x] `ai-markdown`: `/ai-sitemap.md`, cron `auto_regenerate_interval`, taxonomie v llms.txt (`tax_*`), stránka logu s detekcí botů (Studio loguje všechny návštěvy bez rozpoznání bota).
+- [x] `code-snippets`: volba „všude" (frontend+admin) u CSS/JS/HTML v editoru (výchozí v UX1; migrované snippety fungují, ale v selectu hodnota chybí).
+- [x] `opening-hours`: `schema_pages` - JSON-LD na dalších vybraných stránkách (např. Kontakt).
+- [x] `popup-manager`: `cache_compat` (`data-cache-ignore` pro WP Rocket/W3TC); nastavitelná retence statistik.
+- [x] `review-aggregator`: `fetch_interval` (Studio vždy denně), `auto_fetch` výchozí zapnuto v UX1; tlačítko hloubkového skenu (NAS).
+
+**Jen dokumentace:**
+- [x] `google-review-request`: řádek matice přepsat z ❌ na „by design" (potvrzeno PLAN.md:396-398).
+- [x] `bot-throttle`: `red_min`/`red_max` (náhodné zpoždění) vědomě nahrazeno microcache/503 - dopsat do matice.
+
+
+**Výsledek 2026-10-19:** vše výše doplněno (4 agenti + Migrator v2 `uxstudio_keyremap_v2` / `_v2_late`), ověřeno lint + tsc + WP-CLI smoke + curl, v prohlížeči neověřeno.
+Vědomé odchylky: `block_username_attempts` neblokuje SPRÁVNÉ heslo existujícího účtu (UX1 by zamkl skutečného „admina“) - místo toho admin notice;
+volba 404 u wp-login vrací skutečnou 404; CSP remap nepřepíše `csp_mode` už uložený v UX Studiu; cron-control routa `content-sync/cron-control` je nová (v UX1 nikdy neexistovala);
+WooCommerce widgety přesunuty do modulu Widgety nástěnky (samostatný modul WooCommerce zrušen, záloha `D:\parity-test-pobyty6-10-19_woocommerce-module`).

@@ -43,11 +43,105 @@ final class UploadGuardDetectionEngine {
 	/** @var array<int,array{name?:string,regex:string,weight?:int,label?:string}> */
 	private array $custom_patterns;
 
+	/** Score added by each matching admin-defined pattern (as in legacy). */
+	public const CUSTOM_PATTERN_WEIGHT = 25;
+
+	/** Limits for the admin-defined pattern list. */
+	private const CUSTOM_PATTERNS_MAX = 50;
+	private const CUSTOM_PATTERN_MAX_LENGTH = 500;
+
+	/** Prefix that disables a line that does not compile. */
+	private const INVALID_PREFIX = '# invalid: ';
+
 	/**
 	 * @param array $custom_patterns Array of ['regex'=>string,'weight'=>int,'label'=>string].
 	 */
 	public function __construct( array $custom_patterns = array() ) {
 		$this->custom_patterns = $custom_patterns;
+	}
+
+	/**
+	 * Engine with the admin-defined patterns from the module settings.
+	 */
+	public static function from_settings(): self {
+		return new self( self::parse_custom_patterns( self::custom_patterns_setting() ) );
+	}
+
+	/**
+	 * Raw `upload_guard_custom_patterns` value; until it is first saved in
+	 * Studio, the migrated legacy `lwug_custom_patterns`.
+	 */
+	public static function custom_patterns_setting(): string {
+		$settings = (array) get_option( 'uxstudio_security_optimization', array() );
+		$raw      = array_key_exists( 'upload_guard_custom_patterns', $settings ) ? $settings['upload_guard_custom_patterns'] : ( $settings['lwug_custom_patterns'] ?? '' );
+		return is_string( $raw ) ? $raw : '';
+	}
+
+	/**
+	 * Does this line compile as a PCRE pattern? A broken pattern must never
+	 * reach the scanner, so this is checked on save and again on every load.
+	 */
+	public static function is_valid_custom_pattern( string $regex ): bool {
+		if ( '' === $regex || strlen( $regex ) > self::CUSTOM_PATTERN_MAX_LENGTH ) {
+			return false;
+		}
+		return false !== @preg_match( $regex, '' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+	}
+
+	/**
+	 * Save-time cleanup of the textarea: valid UTF-8, no control characters,
+	 * at most CUSTOM_PATTERNS_MAX active lines. A line that does not compile is
+	 * kept but commented out, so the admin sees what was rejected.
+	 */
+	public static function clean_custom_patterns( string $raw ): string {
+		$raw   = wp_check_invalid_utf8( str_replace( "\r", '', $raw ) );
+		$raw   = (string) preg_replace( '/[\x00-\x08\x0B-\x1F\x7F]/', '', $raw );
+		$out   = array();
+		$count = 0;
+		foreach ( explode( "\n", $raw ) as $line ) {
+			$line = trim( $line );
+			if ( '' === $line ) {
+				continue;
+			}
+			$line = substr( $line, 0, self::CUSTOM_PATTERN_MAX_LENGTH + strlen( self::INVALID_PREFIX ) );
+			if ( '#' !== $line[0] ) {
+				if ( ! self::is_valid_custom_pattern( $line ) || $count >= self::CUSTOM_PATTERNS_MAX ) {
+					$line = self::INVALID_PREFIX . $line;
+				} else {
+					++$count;
+				}
+			}
+			$out[] = $line;
+		}
+		return implode( "\n", $out );
+	}
+
+	/**
+	 * Turn the textarea into pattern definitions; comments, blank and
+	 * non-compiling lines are skipped.
+	 *
+	 * @return array<int,array{name:string,regex:string,weight:int,label:string}>
+	 */
+	public static function parse_custom_patterns( string $raw ): array {
+		$patterns = array();
+		foreach ( explode( "\n", str_replace( "\r", '', $raw ) ) as $line ) {
+			$line = trim( $line );
+			if ( '' === $line || '#' === $line[0] || ! self::is_valid_custom_pattern( $line ) ) {
+				continue;
+			}
+			$patterns[] = array(
+				'name'   => 'custom_' . md5( $line ),
+				'regex'  => $line,
+				'weight' => self::CUSTOM_PATTERN_WEIGHT,
+				// Untranslated like the built-in labels: parsed when the scanner is
+				// constructed, which may be before the text domain is loaded.
+				'label'  => 'Custom pattern: ' . $line,
+			);
+			if ( count( $patterns ) >= self::CUSTOM_PATTERNS_MAX ) {
+				break;
+			}
+		}
+		return $patterns;
 	}
 
 	/**

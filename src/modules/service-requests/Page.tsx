@@ -5,6 +5,7 @@ import { ArrowLeft, LoaderCircle, Plus, RefreshCw, Send, Trash2, TriangleAlert }
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { TabsNav } from '../../app/SubNav';
 
 type Tab = 'requests' | 'settings';
 type Status = 'open' | 'in_progress' | 'done';
@@ -470,14 +471,14 @@ export default function Page(): JSX.Element {
 					{ __( 'Service Requests', 'ux-studio' ) }
 				</h1>
 			</header>
-			<div className="uxs-tabs">
+			<TabsNav>
 				<button className={ tab === 'requests' ? 'is-active' : '' } onClick={ () => setTab( 'requests' ) }>
 					{ __( 'Requests', 'ux-studio' ) }
 				</button>
 				<button className={ tab === 'settings' ? 'is-active' : '' } onClick={ () => setTab( 'settings' ) }>
 					{ __( 'Settings', 'ux-studio' ) }
 				</button>
-			</div>
+			</TabsNav>
 			{ tab === 'requests' && <RequestsTable /> }
 			{ tab === 'settings' && ( isLoading || ! data ) && (
 				<div className="uxs-loading">

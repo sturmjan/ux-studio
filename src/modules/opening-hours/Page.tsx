@@ -9,6 +9,7 @@ import { ArrowLeft, Check, LoaderCircle, Plus, Trash2 } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { TabsNav } from '../../app/SubNav';
 
 type Tab = 'locations' | 'settings';
 
@@ -339,14 +340,14 @@ export default function Page(): JSX.Element {
 					</button>
 				) }
 			</header>
-			<div className="uxs-tabs">
+			<TabsNav>
 				<button className={ tab === 'locations' ? 'is-active' : '' } onClick={ () => setTab( 'locations' ) }>
 					{ __( 'Locations', 'ux-studio' ) }
 				</button>
 				<button className={ tab === 'settings' ? 'is-active' : '' } onClick={ () => setTab( 'settings' ) }>
 					{ __( 'Settings', 'ux-studio' ) }
 				</button>
-			</div>
+			</TabsNav>
 			{ tab === 'locations' && <LocationsTab /> }
 			{ tab === 'settings' &&
 				( isLoading || ! data ? (

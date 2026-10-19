@@ -67,6 +67,29 @@ final class CentralReviewsClient {
 	}
 
 	/**
+	 * Queue a deep Google Maps scan on the central app (`request_scrape`).
+	 * The CA finds or creates the review profile for this site from the Place
+	 * ID / Maps URL and enqueues a full scrape job for the NAS scraper.
+	 * At least one of $external_id / $maps_url must be non-empty.
+	 *
+	 * @param string $external_id Google Place ID ('' if unknown).
+	 * @param string $maps_url    Google Maps URL ('' if unknown).
+	 * @param string $name        Profile name used when the CA creates it.
+	 * @return array<string, mixed>|WP_Error {success, profile_id, job_id, status}.
+	 */
+	public static function request_scrape( string $external_id, string $maps_url, string $name ) {
+		return self::call(
+			'request_scrape',
+			array(
+				'source'      => 'google_maps',
+				'name'        => $name,
+				'external_id' => $external_id,
+				'maps_url'    => $maps_url,
+			)
+		);
+	}
+
+	/**
 	 * @param string $action        Action.
 	 * @param array  $params        Optional signed fields.
 	 * @param string $etag          If-None-Match.

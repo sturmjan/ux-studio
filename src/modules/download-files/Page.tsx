@@ -5,6 +5,7 @@ import { ArrowLeft, Check, Copy, LoaderCircle, Trash2 } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { TabsNav } from '../../app/SubNav';
 
 type Tab = 'files' | 'settings';
 
@@ -290,14 +291,14 @@ export default function Page(): JSX.Element {
 					{ __( 'Download Files', 'ux-studio' ) }
 				</h1>
 			</header>
-			<div className="uxs-tabs">
+			<TabsNav>
 				<button className={ tab === 'files' ? 'is-active' : '' } onClick={ () => setTab( 'files' ) }>
 					{ __( 'Files', 'ux-studio' ) }
 				</button>
 				<button className={ tab === 'settings' ? 'is-active' : '' } onClick={ () => setTab( 'settings' ) }>
 					{ __( 'Settings', 'ux-studio' ) }
 				</button>
-			</div>
+			</TabsNav>
 			{ tab === 'files' && <FilesTable /> }
 			{ tab === 'settings' && ( isLoading || ! data ) && (
 				<div className="uxs-loading">

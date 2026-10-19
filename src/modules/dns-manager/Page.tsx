@@ -5,6 +5,7 @@ import { ArrowLeft, Lock, LoaderCircle, Pencil, Plus, RefreshCw, Trash2, Undo2 }
 import { api, ApiError, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { TabsNav } from '../../app/SubNav';
 
 type Tab = 'records' | 'history' | 'settings';
 type RecType = 'A' | 'AAAA' | 'CNAME' | 'MX' | 'TXT' | 'SRV' | 'CAA';
@@ -991,13 +992,13 @@ export default function Page(): JSX.Element {
 				</h1>
 			</header>
 			<Banner />
-			<div className="uxs-tabs">
+			<TabsNav>
 				{ tabs.map( ( [ id, label ] ) => (
 					<button key={ id } className={ tab === id ? 'is-active' : '' } onClick={ () => setTab( id ) }>
 						{ label }
 					</button>
 				) ) }
-			</div>
+			</TabsNav>
 			{ status.isLoading && <Loading /> }
 			{ status.isError && errorBox( status.error ) }
 			{ s && tab !== 'settings' && ! s.active && (

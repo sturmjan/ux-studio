@@ -10,6 +10,7 @@ import { ArrowLeft, Check, LoaderCircle, Play, RefreshCw, Trash2 } from 'lucide-
 import { api } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { TabsNav } from '../../app/SubNav';
 
 type Tab = 'events' | 'schedules' | 'watch' | 'settings';
 
@@ -41,6 +42,21 @@ interface CronStatus {
 	htaccess_writable: boolean;
 	cron_url: string;
 	external_cron_cmd: string;
+	remote_result: RemoteResult | null;
+}
+
+interface RemoteResult {
+	ok: boolean;
+	enabled: boolean | null;
+	message: string;
+	tested_at: string;
+	timestamp: number;
+}
+
+interface ResyncResult {
+	success: boolean;
+	message: string;
+	result: RemoteResult | null;
 }
 
 interface WatchEntry {
@@ -181,6 +197,62 @@ function StatusView(): JSX.Element {
 				) : null }
 			</tbody>
 		</table>
+	);
+}
+
+function CentralSyncView(): JSX.Element | null {
+	const queryClient = useQueryClient();
+	const { data } = useQuery( {
+		queryKey: [ 'cron-control', 'status' ],
+		queryFn: () => api< CronStatus >( 'cron-control/status' ),
+	} );
+
+	const resync = useMutation( {
+		mutationFn: () => api< ResyncResult >( 'cron-control/central/resync', { method: 'POST' } ),
+		onSettled: () => queryClient.invalidateQueries( { queryKey: [ 'cron-control', 'status' ] } ),
+	} );
+
+	if ( ! data || data.mode !== 'central_app' ) {
+		return null;
+	}
+
+	const result = data.remote_result;
+	// Central mode is set, but the last confirmed state in the central app is
+	// not "running cron" - e.g. a failed push or a stale "switched off".
+	const outOfSync = ! result || ! result.ok || false === result.enabled;
+
+	return (
+		<div style={ { marginTop: 'var(--uxs-sp-5)' } }>
+			<h3>{ __( 'Sync with the central app', 'ux-studio' ) }</h3>
+			{ result ? (
+				<p>
+					<span className={ `uxs-badge ${ result.ok ? 'is-success' : 'is-danger' }` }>
+						{ result.ok ? __( 'Success', 'ux-studio' ) : __( 'Failed', 'ux-studio' ) }
+					</span>{ ' ' }
+					{ result.message }
+					<br />
+					<small>
+						{ __( 'Last sent:', 'ux-studio' ) }{ ' ' }
+						{ result.timestamp ? new Date( result.timestamp * 1000 ).toLocaleString() : result.tested_at }
+					</small>
+				</p>
+			) : (
+				<p>{ __( 'The cron settings have not been sent to the central app yet.', 'ux-studio' ) }</p>
+			) }
+			{ outOfSync ? (
+				<p className="uxs-form__help">
+					{ __( 'The central app may not be calling wp-cron.php for this site, so scheduled tasks may not run. Resend the settings.', 'ux-studio' ) }
+				</p>
+			) : null }
+			<button type="button" className="button" disabled={ resync.isPending } onClick={ () => resync.mutate() }>
+				<RefreshCw size={ 14 } /> { __( 'Resend settings to the central app', 'ux-studio' ) }
+			</button>
+			{ resync.isError ? (
+				<p className="uxs-form__help" role="alert">
+					{ resync.error instanceof Error ? resync.error.message : String( resync.error ) }
+				</p>
+			) : null }
+		</div>
 	);
 }
 
@@ -406,6 +478,7 @@ function WatchView(): JSX.Element {
 
 export default function Page(): JSX.Element {
 	const [ tab, setTab ] = useState< Tab >( 'events' );
+	const queryClient = useQueryClient();
 	const { data, isLoading, draft, setDraft, save, saved } = useModuleSettings( 'cron-control' );
 
 	return (
@@ -427,14 +500,19 @@ export default function Page(): JSX.Element {
 						type="button"
 						className="button button-primary"
 						disabled={ save.isPending }
-						onClick={ () => save.mutate() }
+						onClick={ () =>
+							save.mutate( undefined, {
+								// Mode + central app sync result change on save.
+								onSuccess: () => queryClient.invalidateQueries( { queryKey: [ 'cron-control', 'status' ] } ),
+							} )
+						}
 					>
 						{ saved ? <Check size={ 14 } /> : null }
 						{ saved ? __( 'Saved', 'ux-studio' ) : __( 'Save changes', 'ux-studio' ) }
 					</button>
 				) }
 			</header>
-			<div className="uxs-tabs">
+			<TabsNav>
 				<button className={ tab === 'events' ? 'is-active' : '' } onClick={ () => setTab( 'events' ) }>
 					{ __( 'Events', 'ux-studio' ) }
 				</button>
@@ -447,7 +525,7 @@ export default function Page(): JSX.Element {
 				<button className={ tab === 'settings' ? 'is-active' : '' } onClick={ () => setTab( 'settings' ) }>
 					{ __( 'Mode & Settings', 'ux-studio' ) }
 				</button>
-			</div>
+			</TabsNav>
 			{ tab === 'events' && <EventsTable /> }
 			{ tab === 'schedules' && <SchedulesTable /> }
 			{ tab === 'watch' && <WatchView /> }
@@ -459,6 +537,7 @@ export default function Page(): JSX.Element {
 				) : (
 					<>
 						<StatusView />
+						<CentralSyncView />
 						<div style={ { marginTop: 'var(--uxs-sp-5)' } }>
 							<SettingsFields schema={ data.schema } draft={ draft } setDraft={ setDraft } />
 						</div>
