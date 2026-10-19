@@ -2141,12 +2141,21 @@ final class Module extends BaseModule {
 			return false;
 		}
 
+		// A prefix must never be a springboard to another route via dot segments
+		// (/complianz/v1/../wp/v2/users), plain or URL-encoded.
+		if ( preg_match( '#(^|/)\.\.?(/|$)#', $route ) || preg_match( '#(^|/)\.\.?(/|$)#', rawurldecode( $route ) ) ) {
+			return false;
+		}
+
 		/**
 		 * Route prefixes reachable without login while the REST API is restricted.
 		 *
+		 * Starts from the built-in defaults (see default_public_rest_prefixes()),
+		 * so add-ons can extend the list and the filter can also remove a default.
+		 *
 		 * @param array<int, string> $routes Leading-slash route prefixes.
 		 */
-		$public = (array) apply_filters( 'uxstudio_rest_public_routes', array() );
+		$public = (array) apply_filters( 'uxstudio_rest_public_routes', self::default_public_rest_prefixes() );
 
 		foreach ( $public as $prefix ) {
 			$prefix = (string) $prefix;
@@ -2156,6 +2165,24 @@ final class Module extends BaseModule {
 		}
 
 		return $this->is_own_public_endpoint( $route );
+	}
+
+	/**
+	 * Route prefixes that are public by default, whatever the filter adds.
+	 *
+	 * Only third-party namespaces whose front-end code has to reach the REST API
+	 * as an anonymous visitor belong here. Never add core routes (wp/v2/users…).
+	 *
+	 * - /complianz/v1/ - Complianz cookie banner: /banner, /manage_consent_html,
+	 *   /documents, /track, /store_cookies. Locking it breaks the banner and
+	 *   consent is never stored.
+	 *
+	 * @return array<int, string> Leading-slash route prefixes.
+	 */
+	private static function default_public_rest_prefixes(): array {
+		return array(
+			'/complianz/v1/',
+		);
 	}
 
 	/**
