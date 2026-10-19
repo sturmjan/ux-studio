@@ -16195,60 +16195,60 @@ msgstr "Nově nahrané soubory se kontrolují hned; uploady, pluginy a šablony 
 
 #: includes/Modules/DnsManager/CaClient.php:84
 msgid "The central app is not reachable."
-msgstr ""
+msgstr "Centrální aplikace není dostupná."
 
 #: includes/Modules/DnsManager/DashboardWidget.php:30
 msgid "DNS - recent changes"
-msgstr ""
+msgstr "DNS - poslední změny"
 
 #: includes/Modules/DnsManager/DashboardWidget.php:42
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Added"
-msgstr ""
+msgstr "Přidáno"
 
 #: includes/Modules/DnsManager/DashboardWidget.php:43
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Changed"
-msgstr ""
+msgstr "Změněno"
 
 #: includes/Modules/DnsManager/DashboardWidget.php:44
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Deleted"
-msgstr ""
+msgstr "Smazáno"
 
 #: includes/Modules/DnsManager/DashboardWidget.php:45
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Reverted"
-msgstr ""
+msgstr "Vráceno"
 
 #: includes/Modules/DnsManager/DashboardWidget.php:46
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Risks acknowledged"
-msgstr ""
+msgstr "Potvrzení rizik"
 
 #: includes/Modules/DnsManager/DashboardWidget.php:51
 msgid "No DNS changes recorded yet."
-msgstr ""
+msgstr "Zatím žádné změny DNS."
 
 #: includes/Modules/DnsManager/DashboardWidget.php:76
 msgid "Open DNS management"
-msgstr ""
+msgstr "Otevřít správu DNS"
 
 #: includes/Modules/DnsManager/Module.php:85
 msgid "Administrators who may edit DNS"
-msgstr ""
+msgstr "Administrátoři, kteří smějí upravovat DNS"
 
 #: includes/Modules/DnsManager/Module.php:86
 msgid "Only the selected administrators can add, change, delete and revert DNS records. Other administrators can only view. Nobody is selected by default."
-msgstr ""
+msgstr "Záznamy DNS smějí přidávat, měnit, mazat a vracet jen vybraní administrátoři. Ostatní administrátoři je mohou jen prohlížet. Ve výchozím stavu není vybrán nikdo."
 
 #: includes/Modules/DnsManager/RestController.php:209
 msgid "Confirm that you understand the risks of changing DNS first."
-msgstr ""
+msgstr "Nejprve potvrďte, že rozumíte rizikům změny DNS."
 
 #: includes/Modules/DnsManager/RestController.php:214
 msgid "To change DNS, please log in again (your last login is older than 15 minutes)."
-msgstr ""
+msgstr "Pro změnu DNS se prosím znovu přihlaste (poslední přihlášení je starší než 15 minut)."
 
 #: includes/Modules/DuplicatePost/Duplicator.php:75
 msgid "Invalid post type."
@@ -16256,317 +16256,317 @@ msgstr "Neplatný typ obsahu."
 
 #: build/604.cd5aeb61c06909ba2a57.js:1
 msgid "Auto"
-msgstr ""
+msgstr "Auto"
 
 #: build/604.cd5aeb61c06909ba2a57.js:1
 msgid "Please log in again"
-msgstr ""
+msgstr "Přihlaste se prosím znovu"
 
 #: build/604.cd5aeb61c06909ba2a57.js:1
 msgid "Log in again"
-msgstr ""
+msgstr "Přihlásit se znovu"
 
 #: build/604.cd5aeb61c06909ba2a57.js:1
 msgid "Reload records"
-msgstr ""
+msgstr "Načíst záznamy znovu"
 
 #: build/604.cd5aeb61c06909ba2a57.js:1
 msgid "DNS changes take effect immediately."
-msgstr ""
+msgstr "Změny DNS se projeví okamžitě."
 
 #: build/604.cd5aeb61c06909ba2a57.js:1
 msgid "They directly affect the website, e-mail mailboxes and other services tied to the domain (Google verification, payment gateways, SSL certificate). A wrong record can mean an unreachable website or lost e-mails. If you are not sure, contact us."
-msgstr ""
+msgstr "Mají přímý dopad na fungování webu, e-mailové schránky a další služby navázané na doménu (ověření Google, platební brány, SSL certifikát). Chybný záznam může znamenat nedostupný web nebo ztracené e-maily. Pokud si nejste jistí, kontaktujte nás."
 
 #: build/604.cd5aeb61c06909ba2a57.js:1
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "Priority"
-msgstr ""
+msgstr "Priorita"
 
 #: build/604.cd5aeb61c06909ba2a57.js:1
 #: build/604.cd5aeb61c06909ba2a57.js:3
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "TTL"
-msgstr ""
+msgstr "TTL"
 
 #: build/604.cd5aeb61c06909ba2a57.js:1
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Proxy"
-msgstr ""
+msgstr "Proxy"
 
 #: build/604.cd5aeb61c06909ba2a57.js:1
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "on"
-msgstr ""
+msgstr "zapnuto"
 
 #: build/604.cd5aeb61c06909ba2a57.js:1
 msgid "off"
-msgstr ""
+msgstr "vypnuto"
 
 #: build/604.cd5aeb61c06909ba2a57.js:1
 msgid "E-mail delivery"
-msgstr ""
+msgstr "Doručování e-mailů"
 
 #. translators: %s: domain name
 #: build/604.cd5aeb61c06909ba2a57.js:2
 #, js-format
 msgid "Changing or deleting an MX record redirects or stops the delivery of e-mails to @%s."
-msgstr ""
+msgstr "Změna nebo smazání MX záznamu přesměruje nebo zastaví doručování e-mailů na @%s."
 
 #: build/604.cd5aeb61c06909ba2a57.js:2
 msgid "SPF / DKIM / DMARC"
-msgstr ""
+msgstr "SPF / DKIM / DMARC"
 
 #: build/604.cd5aeb61c06909ba2a57.js:2
 msgid "Sent e-mails may start landing in spam or be rejected."
-msgstr ""
+msgstr "Odeslané e-maily mohou začít padat do spamu nebo být odmítnuty."
 
 #: build/604.cd5aeb61c06909ba2a57.js:2
 msgid "Service on a subdomain"
-msgstr ""
+msgstr "Služba na subdoméně"
 
 #: build/604.cd5aeb61c06909ba2a57.js:2
 msgid "The service running on this subdomain will stop responding."
-msgstr ""
+msgstr "Služba běžící na této subdoméně přestane odpovídat."
 
 #: build/604.cd5aeb61c06909ba2a57.js:2
 msgid "If a certificate or service runs on this subdomain, it may stop responding after the change."
-msgstr ""
+msgstr "Pokud na této subdoméně běží certifikát nebo služba, po změně může přestat odpovídat."
 
 #: build/604.cd5aeb61c06909ba2a57.js:2
 msgid "I understand that this change will affect the functioning of the website and connected services."
-msgstr ""
+msgstr "Rozumím, že tato změna ovlivní fungování webu a navázaných služeb."
 
 #. translators: %s: record name the user has to retype
 #: build/604.cd5aeb61c06909ba2a57.js:3
 #, js-format
 msgid "To confirm, type the record name: %s"
-msgstr ""
+msgstr "Pro potvrzení opište název záznamu: %s"
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "Saving…"
-msgstr ""
+msgstr "Ukládám…"
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "Confirm and save"
-msgstr ""
+msgstr "Potvrdit a uložit"
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "Before you change DNS"
-msgstr ""
+msgstr "Než začnete měnit DNS"
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "DNS records decide where your website, e-mail and other services of the domain lead. A change is applied immediately and a mistake can make the website unreachable or lose e-mails."
-msgstr ""
+msgstr "DNS záznamy určují, kam vede váš web, e-mail a další služby domény. Změna se projeví okamžitě a chyba může způsobit nedostupnost webu nebo ztrátu e-mailů."
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "Every change is logged with your name and IP address and the administrators are notified by e-mail. You can revert a change in the history."
-msgstr ""
+msgstr "Každá změna se zapisuje do logu s vaším jménem a IP adresou a správci o ní dostanou e-mail. Změnu můžete vrátit v historii."
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "View only"
-msgstr ""
+msgstr "Jen zobrazit"
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "I understand the risks"
-msgstr ""
+msgstr "Rozumím rizikům"
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "Edit record"
-msgstr ""
+msgstr "Upravit záznam"
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Add record"
-msgstr ""
+msgstr "Přidat záznam"
 
 #. translators: %s: domain name
 #: build/604.cd5aeb61c06909ba2a57.js:3
 #, js-format
 msgid "@ = %s, \"blog\" = blog.%s"
-msgstr ""
+msgstr "@ = %s, „blog“ = blog.%s"
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "Proxied through Cloudflare (orange cloud)"
-msgstr ""
+msgstr "Přes proxy Cloudflare (oranžový mrak)"
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "not available for this record"
-msgstr ""
+msgstr "u tohoto záznamu není k dispozici"
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "Wildcard records (*) are not supported yet."
-msgstr ""
+msgstr "Wildcard záznamy (*) zatím nejsou podporované."
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "Fill in the record value."
-msgstr ""
+msgstr "Vyplňte hodnotu záznamu."
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "Enter a valid IPv4 address."
-msgstr ""
+msgstr "Zadejte platnou adresu IPv4."
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "Private and reserved IP addresses are not allowed."
-msgstr ""
+msgstr "Soukromé a vyhrazené IP adresy nejsou povolené."
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "Enter a valid public IPv6 address."
-msgstr ""
+msgstr "Zadejte platnou veřejnou adresu IPv6."
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "MX priority must be a whole number 0-65535."
-msgstr ""
+msgstr "Priorita MX musí být celé číslo 0-65535."
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "A TXT record can have at most 2048 characters."
-msgstr ""
+msgstr "TXT záznam může mít nejvýše 2048 znaků."
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "A CNAME cannot be used at the domain root."
-msgstr ""
+msgstr "Na kořeni domény nelze použít CNAME."
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "Review change…"
-msgstr ""
+msgstr "Zkontrolovat změnu…"
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "Change saved."
-msgstr ""
+msgstr "Změna uložena."
 
 #: build/604.cd5aeb61c06909ba2a57.js:3
 msgid "The record is proxied through Cloudflare, so the change applies immediately."
-msgstr ""
+msgstr "Záznam jde přes proxy Cloudflare, změna platí okamžitě."
 
 #. translators: %s: TTL, e.g. "300 s" or "Auto"
 #: build/604.cd5aeb61c06909ba2a57.js:4
 #, js-format
 msgid "The change appears after the TTL expires (%s). Computers and networks may keep the old value in their cache for a while."
-msgstr ""
+msgstr "Změna se projeví po vypršení TTL (%s). Počítače a sítě si mohou starou hodnotu ještě chvíli držet v cache."
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Notice"
-msgstr ""
+msgstr "Upozornění"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Confirm the change of the record"
-msgstr ""
+msgstr "Potvrďte změnu záznamu"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Confirm the new record"
-msgstr ""
+msgstr "Potvrďte nový záznam"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Filter by type"
-msgstr ""
+msgstr "Filtrovat podle typu"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "All types"
-msgstr ""
+msgstr "Všechny typy"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Search name or value…"
-msgstr ""
+msgstr "Hledat název nebo hodnotu…"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Reload"
-msgstr ""
+msgstr "Načíst znovu"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "You are in view-only mode until you confirm that you understand the risks."
-msgstr ""
+msgstr "Jste v režimu jen pro čtení, dokud nepotvrdíte, že rozumíte rizikům."
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "You can view the records. Editing is allowed only to administrators selected in the module settings."
-msgstr ""
+msgstr "Záznamy si můžete prohlížet. Upravovat smí jen administrátoři vybraní v nastavení modulu."
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "No records found."
-msgstr ""
+msgstr "Nenalezeny žádné záznamy."
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Read only"
-msgstr ""
+msgstr "Jen ke čtení"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Confirm deleting the record"
-msgstr ""
+msgstr "Potvrďte smazání záznamu"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Denied"
-msgstr ""
+msgstr "Zamítnuto"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "The central app is not reachable, showing the local copy of the history."
-msgstr ""
+msgstr "Centrální aplikace neodpovídá, zobrazuje se místní kopie historie."
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "All users"
-msgstr ""
+msgstr "Všichni uživatelé"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "All actions"
-msgstr ""
+msgstr "Všechny akce"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Any result"
-msgstr ""
+msgstr "Jakýkoli výsledek"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Success"
-msgstr ""
+msgstr "Úspěch"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Conflict"
-msgstr ""
+msgstr "Konflikt"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "No changes recorded."
-msgstr ""
+msgstr "Žádné zaznamenané změny."
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Who"
-msgstr ""
+msgstr "Kdo"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Change"
-msgstr ""
+msgstr "Změna"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "reverted"
-msgstr ""
+msgstr "vráceno"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Confirm reverting the change"
-msgstr ""
+msgstr "Potvrďte vrácení změny"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Revert"
-msgstr ""
+msgstr "Vrátit"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "The connection to Cloudflare is interrupted. Please contact us."
-msgstr ""
+msgstr "Spojení s Cloudflare je přerušeno. Kontaktujte nás prosím."
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "The central app is not reachable right now. Try again later."
-msgstr ""
+msgstr "Centrální aplikace teď neodpovídá. Zkuste to později."
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "DNS management is not active for this site."
-msgstr ""
+msgstr "Správa DNS není pro tento web aktivní."
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Records"
-msgstr ""
+msgstr "Záznamy"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "Change history"
-msgstr ""
+msgstr "Historie změn"
 
 #: build/604.cd5aeb61c06909ba2a57.js:4
 msgid "DNS Management"
-msgstr ""
+msgstr "Správa DNS"
 
 #. Restored (module meta.json / not seen by make-pot)
 msgid "A function whose name is in a variable is called with request data"
@@ -17164,3 +17164,7 @@ msgstr "Klasický editor a widgety"
 #. Restored (module meta.json / not seen by make-pot)
 msgid "Bring back the classic post editor and the classic widgets screen instead of the block editor. Each part can be switched on separately."
 msgstr "Návrat klasického editoru příspěvků a klasické obrazovky widgetů místo blokového editoru. Každou část lze zapnout zvlášť."
+
+#: includes/Modules/DnsManager
+msgid "Edit the DNS records of this domain via the central app (the Cloudflare token never reaches this site). Every change is validated, logged and e-mailed to the administrators."
+msgstr "Úprava DNS záznamů této domény přes centrální aplikaci (Cloudflare token se k tomuto webu nikdy nedostane). Každá změna se ověří, zapíše do logu a správcům přijde e-mail."
