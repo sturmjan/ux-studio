@@ -1629,3 +1629,206 @@ se pozastavil do 04:08; druhý ruční do hodiny zamítnut; dávka při držené
 **Mez metody:** ClickFix plugin ze seco-traktory.cz (jen `wp_enqueue_script` s cizí doménou)
 je podle obsahu čistý a žádná heuristika ho nenajde - to řeší návrh v `PLAN-strazce-integrity.md`
 (nové soubory, které tam nikdo nedal + cizí domény na frontendu).
+
+## 24. Správa DNS přes Cloudflare - modul `dns-manager` (2026-10-19, NÁVRH)
+
+**Cíl:** klient upravuje DNS záznamy své domény ve wp-admin, aniž by dostal přístup do
+Cloudflare. Každá změna se zapíše do logu (kdo, kdy, co z čeho na co), admin dostane e-mail
+a uživatel je před uložením výslovně upozorněn, že změna má přímý dopad na web, e-maily
+a další služby navázané na DNS.
+
+### 24.1 Rozhodnutí
+
+- **Cloudflare token NIKDY na webu klienta.** Admin WordPressu by si ho přečetl z DB a měl by
+  plné API. Web volá broker v CA (stejný HMAC kanál přes `sites.api_key` jako
+  `turnstile_provision` / `ServiceRequests\CentralClient`), CA drží token a volá Cloudflare.
+- **Zóna se odvozuje z ověřené `site_url`**, nikdy z těla požadavku. Kompromitovaný klíč
+  jednoho webu nesáhne na cizí doménu (stejný princip jako u Turnstile).
+- **Token per zóna**, scope jen `Zone > DNS > Edit` + `Include > Specific zone`. Únik jednoho
+  tokenu = jedna doména, ne celá flotila. Nesdílet s Turnstile tokenem (`Account.Turnstile:Edit`).
+- **Zdroj pravdy pro log je CA**, kopie na webu je jen pro zobrazení klientovi. Admin
+  WordPressu umí smazat řádky ve své DB, v CA ne.
+- **E-mail o změně odesílá CA**, ne WordPress. Když klient rozbije MX své domény, `admin_email`
+  na téže doméně už poštu nedostane, a WP mail může jít přes SMTP plugin, který si klient vypne.
+  CA posílá na adresu agentury (nezávislá doména) + volitelně `admin_email` webu.
+- **Validace a zámky platí v CA.** Kontroly ve WP/SPA jsou jen pro UX, obejít se dají.
+- **Modul zapíná CA**, ne klient: per web příznak `dns_enabled` + napojená zóna. Bez toho
+  modul ve wp-admin ukáže jen „Správa DNS není pro tento web aktivní".
+- **Žádné AI abilities pro zápis.** Případně jen `dns/list-records` (čtení). Chybná AI změna
+  MX = tichá ztráta pošty.
+
+### 24.2 Co klient smí (v1)
+
+| Typ | Smí | Pozn. |
+|---|---|---|
+| A, AAAA, CNAME | přidat / upravit / smazat | proxied přepínač jen u těchto tří |
+| MX | přidat / upravit / smazat | zesílené varování, smazání = opsat název domény |
+| TXT | přidat / upravit / smazat | SPF/DKIM/DMARC poznáno podle obsahu → zesílené varování |
+| SRV, CAA | jen číst | v2 podle poptávky |
+| NS, SOA | skryté | |
+
+**Zamčené záznamy** (vidí je, ale nesmí měnit ani smazat; ikona zámku + důvod):
+- apex a `www` (A/AAAA/CNAME), na kterých běží web - zamčeno automaticky při napojení zóny;
+- záznamy, které přidal admin v CA jako zamčené (např. ověření Google, DKIM poštovního
+  hostingu, záznamy pro monitoring);
+- zámek je v CA tabulce (ne v Cloudflare `tags`, ty nejsou na všech plánech).
+
+Klient smí přidat záznam se stejným názvem jako zamčený jen tam, kde to nekoliduje
+(např. další TXT na apexu ano, druhý CNAME ne - Cloudflare to stejně odmítne).
+
+### 24.3 Upozornění pro uživatele (UX)
+
+1. **Trvalý banner** nahoře na stránce (varování, ne jen info): „Změny DNS se projeví okamžitě
+   a mají přímý dopad na fungování webu, e-mailové schránky a další služby navázané na doménu
+   (ověření Google, platební brány, SSL certifikát). Chybný záznam může znamenat nedostupný web
+   nebo ztracené e-maily. Pokud si nejste jistí, kontaktujte nás."
+2. **První vstup:** modální potvrzení „Rozumím rizikům" - uloží se per uživatel
+   (`user_meta` s časem) a zapíše do logu jako akce `acknowledged`. Bez něj jen čtení.
+3. **Před každým uložením** potvrzovací dialog s přehledem změny (před → po) a zaškrtávátkem
+   „Rozumím, že tato změna ovlivní fungování webu a navázaných služeb". Tlačítko je do té doby
+   neaktivní.
+4. **Zesílené varování** (červené, konkrétní důsledek):
+   - MX: „Změna nebo smazání MX záznamu přesměruje nebo zastaví doručování e-mailů na @domena";
+   - SPF/DKIM/DMARC: „Odeslané e-maily mohou začít padat do spamu nebo být odmítnuty";
+   - CNAME/A na subdoméně, která má platný certifikát nebo běžící službu: „Služba na
+     sub.domena přestane odpovídat";
+   - smazání MX nebo poslední A/AAAA subdomény: potvrzení opsáním názvu záznamu.
+5. **Po uložení** informace o šíření: proxied záznam platí hned, neproxied až po vypršení TTL
+   (uvést konkrétní TTL), lokální cache může držet starou hodnotu.
+
+Texty projdou `design:ux-copy` a jdou do cs_CZ překladu (viz past z §22: ručně připisovat do .po).
+
+### 24.4 Log změn
+
+**CA (autoritativní)** - nová tabulka `dns_change_log`:
+
+| Sloupec | Obsah |
+|---|---|
+| `id`, `created_at` (UTC) | |
+| `site_id`, `zone_id` | |
+| `batch_id` | jedno uložení v UI = jedna dávka (= jeden e-mail) |
+| `wp_user_id`, `wp_user_login`, `wp_user_name`, `wp_user_email` | snímek v okamžiku změny (uživatel se může později přejmenovat nebo smazat) |
+| `ip`, `user_agent` | IP celá kvůli auditu bezpečnostní změny (oprávněný zájem), retence 24 měsíců |
+| `action` | `create` / `update` / `delete` / `revert` / `acknowledged` / `denied` |
+| `record_id`, `record_type`, `record_name` | |
+| `before_json`, `after_json` | celý záznam z Cloudflare před a po (content, ttl, proxied, priority, comment) |
+| `status`, `error` | `success` / `error` / `conflict` + chybová hláška Cloudflare |
+
+Logují se i **zamítnuté pokusy** (zamčený záznam, neplatná hodnota, rate limit) jako `denied`
+- důležité, když něco nefunguje a klient tvrdí, že „nic neměnil".
+
+**WP (kopie pro klienta)** - tabulka `{prefix}uxstudio_dns_log` se stejnými sloupci bez IP.
+Záložka „Historie změn" ve SPA: filtr podle uživatele / typu / data, řádek ukazuje diff
+(před → po, změněná pole zvýrazněná). Zdroj pro výpis je CA (`action=log`), lokální tabulka jen
+jako záloha, když CA neodpovídá.
+
+**Vrácení změny:** u každého úspěšného řádku tlačítko „Vrátit" (jen pro uživatele s oprávněním)
+= nová operace s `action=revert`, která obnoví `before_json`. Prochází stejnými zámky,
+validací, potvrzením i e-mailem. V CA navíc vrácení pro admina agentury.
+
+**Snapshot zóny:** před první změnou dne a před každou dávkou s mazáním CA uloží
+`GET /zones/{id}/dns_records/export` (BIND) do `dns_zone_snapshots`, retence 90 dní. Ruční
+obnova celé zóny jen z CA.
+
+### 24.5 E-mail o změně
+
+- **Kdy:** po každé dávce (ne po každém záznamu). Víc dávek do 10 min od stejného uživatele
+  se sloučí do jednoho e-mailu (proti zahlcení, vzor `BotThrottle\BanNotifier`).
+  Zamítnuté pokusy (`denied`) jen v denním souhrnu, kromě 5+ zamítnutí za hodinu = okamžitě.
+- **Komu:** e-mail agentury (nastavení CA, výchozí adresa notifikací) + volitelně `admin_email`
+  webu + další adresy per web v CA. Uživateli, který změnu provedl, kopie (potvrzení).
+- **Obsah:** předmět `[domena.cz] Změna DNS: 2 záznamy (MX, TXT)`; kdo (jméno, login, e-mail,
+  IP), kdy (Europe/Prague), web a zóna; tabulka změn typ / název / před / po; u MX/SPF/DKIM
+  zvýrazněné upozornění; odkaz na historii ve wp-admin a odkaz na vrácení v CA.
+- Odesílá CA svou mailovou vrstvou (stejnou jako notifikace monitoringu), HTML šablona
+  v jejím stylu.
+
+### 24.6 Oprávnění a ochrana
+
+- Nová capability `uxstudio_manage_dns`. Výchozí nikdo; v nastavení modulu admin webu
+  vybere konkrétní uživatele (jen role administrator). Čtení: `uxstudio_view_dns`.
+- REST `uxstudio/v1/dns/*`: `permission_callback` na capability + nonce (standard pluginu).
+- Zápisové operace vyžadují čerstvé přihlášení (posledních 15 min) nebo znovu zadat heslo;
+  s modulem `passkeys` stačí passkey. (Otevřená otázka O4.)
+- Rate limit v CA: 30 zapsaných záznamů / hodinu / web, max 20 záznamů v jedné dávce.
+  Ve WP navíc `BotThrottle\Guard` na REST endpointu.
+- **Optimistický zámek:** web posílá `modified_on` záznamu, jak ho viděl. CA před zápisem
+  záznam znovu načte; když se mezitím změnil (např. agentura v Cloudflare dashboardu), vrátí
+  409 a UI nabídne obnovit. Žádné tiché přepsání.
+- Validace v CA: IPv4/IPv6 formát a ne privátní rozsahy (10/8, 192.168/16, 127/8, ::1),
+  CNAME ne na apex bez flatteningu, název jen v rámci zóny, žádný `*` wildcard v v1, TXT
+  max 2048 znaků, TTL 1 (auto) nebo 60-86400, MX priorita 0-65535, kontrola SPF syntaxe
+  (jeden `v=spf1` na název, max 10 lookupů - varování).
+
+### 24.7 Architektura
+
+```
+wp-admin SPA (src/modules/dns-manager/Page.tsx)
+  → REST uxstudio/v1/dns/{records,records/{id},log,revert,ack}
+    → includes/Modules/DnsManager/CaClient.php  (HMAC, jako TurnstileCaProvisioner)
+      → CA ?page=dns_manage&action={list,create,update,delete,log,revert}
+        → DnsManageController.php (auth přes site_url, zámky, validace, rate limit, log, mail)
+          → core/CloudflareDnsClient.php (token per zóna, dešifrovaný až tady)
+            → api.cloudflare.com/client/v4/zones/{zone_id}/dns_records
+```
+
+**UX Studio** `includes/Modules/DnsManager/`: `Module.php`, `meta.json`, `CaClient.php`,
+`RestController.php`, `Validator.php` (zrcadlo pravidel z CA, jen UX), `LocalLog.php`,
+`DashboardWidget.php` (poslední 3 změny, vzor §20.10). SPA: záložky Záznamy / Historie změn /
+Nastavení (kdo smí upravovat).
+
+**CA**: `controllers/DnsManageController.php`, `core/CloudflareDnsClient.php`,
+`core/DnsValidator.php`, `core/DnsChangeMailer.php`; tabulky `dns_zones` (site_id, zone_id,
+zone_name, token šifrovaně stejně jako Turnstile token, dns_enabled, notify_emails),
+`dns_record_locks`, `dns_change_log`, `dns_zone_snapshots`. V detailu webu sekce „DNS":
+napojení zóny (vložit token → CA sama najde zone_id přes `GET /zones?name=` a ověří
+`GET /user/tokens/verify`), zámky, historie, vrácení, obnova snapshotu.
+
+**Cloudflare API** (ověřit na živém tokenu, u Turnstile se ukázalo, že PATCH s API tokenem
+neprošel): `GET /zones/{id}/dns_records?per_page=5000`, `POST`, `PATCH /dns_records/{id}`
+(záložně `PUT` s celým tělem), `DELETE`, `GET /dns_records/export`. Limit 1200 req / 5 min
+na token - bohatě stačí. Výpis záznamů cache v CA 60 s, invalidace po zápisu.
+
+### 24.8 Fáze
+
+- [ ] F1 CA: tabulky, `CloudflareDnsClient` (list/create/update/delete/export), napojení zóny
+      v detailu webu + ověření tokenu; ověřit PATCH vs PUT na testovací zóně
+- [ ] F2 CA: `DnsManageController` - HMAC auth, zóna ze `site_url`, `DnsValidator`, zámky
+      (auto apex + www při napojení), rate limit, optimistický zámek (409), log včetně `denied`
+- [ ] F3 CA: snapshot zóny, `revert`, `DnsChangeMailer` se slučováním dávek, denní souhrn
+      zamítnutí; historie a vrácení v detailu webu
+- [ ] F4 UX Studio: modul `DnsManager` - capability, `CaClient`, REST, lokální log,
+      nastavení „kdo smí upravovat", stav „není aktivní"
+- [ ] F5 SPA: výpis záznamů (zámky, filtr podle typu), formulář přidat/upravit, banner,
+      potvrzení prvního vstupu, potvrzovací dialog s diffem, zesílená varování MX/SPF/DKIM,
+      opsání názvu při mazání, info o šíření; Historie změn s diffem a „Vrátit"
+- [ ] F6 Překlady cs_CZ, ikona, dashboard widget, texty přes `design:ux-copy`
+- [ ] F7 Ověření na testovací zóně: všechny typy, zamčený záznam (UI i přímé volání REST
+      i CA endpointu = `denied`), cizí doména v těle ignorována, 409 při souběžné změně
+      v dashboardu, e-mail přijde i po rozbití MX testovací domény, revert, snapshot;
+      Playwright světlý/tmavý režim
+- [ ] F8 Pilot na jednom klientovi, pak nasazení CA (záloha podle pravidel live serveru)
+
+### 24.9 Pasti a rizika
+
+- **Zóny v cizím Cloudflare účtu** (klient má vlastní účet): klient musí vytvořit token
+  a předat ho; návod s obrázky v CA. Když token revokuje, modul ukáže „spojení přerušeno".
+- **Změny mimo modul** (agentura v dashboardu) se do logu nepropíšou. V2: denní porovnání
+  snapshotů a zápis rozdílů jako `external_change`.
+- **Cloudflare hlásí chyby jako 400 s kódem** (např. 81053 záznam existuje, 9005 neplatný
+  obsah) - převést na srozumitelné české hlášky, ne surový text.
+- **Proxied CNAME na cizí služby** (Mailchimp, ověřovací CNAME) musí být DNS-only, jinak
+  neověří - u známých cílů (`*.mcsv.net`, `*.mandrillapp.com`, `_domainkey`) proxied vypnout
+  a zamknout přepínač.
+- **Hostinger přepisuje CSP** - netýká se (žádný cizí skript), ale potvrzovací dialogy
+  nespoléhat na inline JS mimo SPA bundle.
+
+### 24.10 Otevřené otázky
+
+- O1: Jsou zóny klientů ve vašem Cloudflare účtu, nebo v jejich vlastních? (onboarding, F1)
+- O2: Má informační e-mail jít i na `admin_email` webu, nebo jen agentuře? (výchozí: obojí,
+      vypínatelné per web)
+- O3: Smí klient upravovat i apex/www (třeba při přechodu na jiný hosting), nebo vždy jen
+      přes vás? (výchozí: zamčené, odemyká admin v CA)
+- O4: Vyžadovat před zápisem znovu heslo / passkey? (výchozí: ano, pokud přihlášení starší
+      než 15 min)
