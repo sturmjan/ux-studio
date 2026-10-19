@@ -85,10 +85,7 @@ final class SsoController {
 		// Logging in as an administrator = installing code from wp-admin, so a
 		// leaked node key would mean code execution. Admin-level SSO is opt-in
 		// per site (sso_allow_admin); editors and below work as before.
-		$target = (int) $mapped['user_id'];
-		$is_admin_level = user_can( $target, 'manage_options' ) || user_can( $target, 'install_plugins' )
-			|| user_can( $target, 'edit_users' ) || user_can( $target, 'promote_users' );
-		if ( $is_admin_level && ! Module::setting( 'sso_allow_admin', false ) ) {
+		if ( SsoOperatorMapper::is_admin_level( (int) $mapped['user_id'] ) && ! Module::setting( 'sso_allow_admin', false ) ) {
 			return new WP_REST_Response( array( 'success' => false, 'error' => 'admin_sso_disabled' ), 403 );
 		}
 

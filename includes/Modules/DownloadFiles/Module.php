@@ -41,7 +41,7 @@ final class Module extends BaseModule {
 	 * 2 -> 3: files of existing login-only entries are moved into private
 	 * storage (see ProtectedStorage).
 	 */
-	private const SCHEMA_VERSION = 3;
+	private const SCHEMA_VERSION = 4;
 
 	/**
 	 * Guard so the shortcode's inline <style> block is printed at most once
@@ -82,6 +82,7 @@ final class Module extends BaseModule {
 		// Re-evaluate private storage of a post's files when its visibility changes.
 		add_action( 'transition_post_status', array( $this, 'on_post_visibility_change' ), 20, 3 );
 		add_action( 'post_updated', array( $this, 'on_post_password_change' ), 20, 3 );
+		add_action( 'before_delete_post', array( $this, 'on_post_delete' ) );
 
 		// Legacy global template function.
 		require_once __DIR__ . '/functions.php';
@@ -120,6 +121,24 @@ final class Module extends BaseModule {
 					$ids = $wpdb->get_col( "SELECT DISTINCT attachment_id FROM {$wpdb->prefix}uxstudio_download_files WHERE require_login = 1" );
 					foreach ( is_array( $ids ) ? $ids : array() as $attachment_id ) {
 						$this->sync_protection( (int) $attachment_id );
+					}
+				}
+				// v4: files of already non-public posts follow their visibility.
+				// Deferred to late init: this migration runs on plugins_loaded,
+				// before post types are registered, when is_post_publicly_viewable()
+				// would call every post hidden and protect files of public pages.
+				if ( $from > 0 && $from < 4 ) {
+					$backfill = function (): void {
+						global $wpdb;
+						$ids = $wpdb->get_col( "SELECT DISTINCT attachment_id FROM {$wpdb->prefix}uxstudio_download_files WHERE post_id > 0" );
+						foreach ( is_array( $ids ) ? $ids : array() as $attachment_id ) {
+							$this->sync_protection( (int) $attachment_id );
+						}
+					};
+					if ( did_action( 'init' ) ) {
+						$backfill();
+					} else {
+						add_action( 'init', $backfill, 999 );
 					}
 				}
 			}
@@ -188,23 +207,12 @@ final class Module extends BaseModule {
 			)
 		) > 0;
 
-		// Also keep the physical file private while it belongs to a post that
-		// is not public (draft, private, trashed) or is password-protected -
-		// otherwise its plain uploads URL would bypass the post's visibility.
+		// Also keep the physical file private while it is reachable ONLY through
+		// posts that are not public (draft, private, trashed, password) - its
+		// plain uploads URL would bypass their visibility. Never when anything
+		// public uses the same file, or a public page would lose its image/PDF.
 		if ( ! $needs ) {
-			$post_ids = $wpdb->get_col(
-				$wpdb->prepare(
-					"SELECT DISTINCT post_id FROM {$wpdb->prefix}uxstudio_download_files WHERE attachment_id = %d AND post_id > 0",
-					$attachment_id
-				)
-			);
-			foreach ( (array) $post_ids as $pid ) {
-				$post = get_post( (int) $pid );
-				if ( $post && ( ! is_post_publicly_viewable( $post ) || '' !== (string) $post->post_password ) ) {
-					$needs = true;
-					break;
-				}
-			}
+			$needs = $this->only_in_hidden_posts( $attachment_id );
 		}
 
 		if ( $needs && ! ProtectedStorage::is_protected( $attachment_id ) ) {
@@ -215,6 +223,80 @@ final class Module extends BaseModule {
 			if ( ProtectedStorage::unprotect( $attachment_id ) ) {
 				ActivityLog::log( 'download-files', 'unprotect', 'attachment', $attachment_id );
 			}
+		}
+	}
+
+	/**
+	 * Whether every use of an attachment is in a non-public post: all download
+	 * entries belong to hidden posts, and the file is neither a published
+	 * post's featured image nor linked from published content.
+	 *
+	 * @param int $attachment_id Attachment id.
+	 */
+	private function only_in_hidden_posts( int $attachment_id ): bool {
+		global $wpdb;
+		$post_ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT post_id FROM {$wpdb->prefix}uxstudio_download_files WHERE attachment_id = %d",
+				$attachment_id
+			)
+		);
+		$has_hidden = false;
+		foreach ( (array) $post_ids as $pid ) {
+			$post = (int) $pid > 0 ? get_post( (int) $pid ) : null;
+			if ( ! $post || ( is_post_publicly_viewable( $post ) && '' === (string) $post->post_password ) ) {
+				return false; // Standalone entry or a public post uses it.
+			}
+			$has_hidden = true;
+		}
+		if ( ! $has_hidden ) {
+			return false;
+		}
+
+		$public = "p.post_status = 'publish' AND p.post_password = ''";
+		$thumb  = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$wpdb->postmeta} pm JOIN {$wpdb->posts} p ON p.ID = pm.post_id WHERE pm.meta_key = '_thumbnail_id' AND pm.meta_value = %d AND {$public}", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$attachment_id
+			)
+		);
+		if ( $thumb > 0 ) {
+			return false;
+		}
+
+		// Linked from published content (also catches sized variants foo-300x200.jpg).
+		$file = (string) get_post_meta( $attachment_id, '_wp_attached_file', true );
+		$stem = '' !== $file ? preg_replace( '/\.[^.\/]+$/', '', $file ) : '';
+		if ( '' !== $stem ) {
+			$inline = (int) $wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT COUNT(*) FROM {$wpdb->posts} p WHERE {$public} AND p.post_type NOT IN ('revision','attachment') AND p.post_content LIKE %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					'%' . $wpdb->esc_like( $stem ) . '%'
+				)
+			);
+			if ( $inline > 0 ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Before a post is deleted for good: drop its download entries and re-sync
+	 * the files, so nothing stays orphaned (or stuck in private storage).
+	 *
+	 * @param int $post_id Post ID.
+	 */
+	public function on_post_delete( $post_id ): void {
+		global $wpdb;
+		$table       = "{$wpdb->prefix}uxstudio_download_files";
+		$attachments = $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT attachment_id FROM {$table} WHERE post_id = %d", (int) $post_id ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		if ( empty( $attachments ) ) {
+			return;
+		}
+		$wpdb->delete( $table, array( 'post_id' => (int) $post_id ), array( '%d' ) );
+		foreach ( $attachments as $attachment_id ) {
+			$this->sync_protection( (int) $attachment_id );
 		}
 	}
 
@@ -231,12 +313,25 @@ final class Module extends BaseModule {
 			return $url;
 		}
 		global $wpdb;
-		$id = (int) $wpdb->get_var(
+		// Prefer an entry the current visitor may actually use: a token for a
+		// draft's entry would only 404 for everyone else.
+		$rows = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT id FROM {$wpdb->prefix}uxstudio_download_files WHERE attachment_id = %d ORDER BY require_login DESC, id ASC LIMIT 1",
+				"SELECT id, post_id FROM {$wpdb->prefix}uxstudio_download_files WHERE attachment_id = %d ORDER BY require_login DESC, id ASC",
 				(int) $attachment_id
-			)
+			),
+			ARRAY_A
 		);
+		$id = 0;
+		foreach ( (array) $rows as $row ) {
+			if ( 0 === $id ) {
+				$id = (int) $row['id'];
+			}
+			if ( (int) $row['post_id'] <= 0 || $this->can_view_post( (int) $row['post_id'] ) ) {
+				$id = (int) $row['id'];
+				break;
+			}
+		}
 		return $id > 0
 			? rest_url( 'uxstudio/v1/download-files/serve/' . $id ) . '?token=' . $this->build_download_token( $id )
 			: $url;

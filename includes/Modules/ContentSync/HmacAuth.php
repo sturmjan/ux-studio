@@ -81,16 +81,26 @@ final class HmacAuth {
 	 * @return true|WP_Error True when authentic, WP_Error otherwise.
 	 */
 	public static function verify_request( WP_REST_Request $request, string $secret ) {
-		$network = self::check_network();
-		if ( is_wp_error( $network ) ) {
-			return $network;
+		$trusted = self::check_allowlist();
+		if ( is_wp_error( $trusted ) ) {
+			return $trusted;
 		}
 
+		// A valid signature always passes: the failure budget below can never
+		// lock out the hub, even when an attacker shares its IP (Cloudflare
+		// edge, NAT) - forging a 256-bit HMAC is not a realistic threat.
 		$result = self::verify_signature( $request, $secret );
-		// Count only well-formed attempts that failed the crypto checks. Requests
-		// without/with malformed headers are rejected for free and must not let
-		// anonymous noise exhaust the budget of an IP shared with the hub.
-		if ( is_wp_error( $result ) && in_array( $result->get_error_code(), array( 'uxstudio_cs_signature', 'uxstudio_cs_timestamp', 'uxstudio_cs_replay' ), true ) ) {
+		if ( true === $result || $trusted ) {
+			return $result;
+		}
+
+		// Invalid request from a non-allowlisted IP: throttle repeated crypto
+		// failures (missing/malformed headers are rejected for free and not
+		// counted, so anonymous noise doesn't write transients).
+		if ( (int) get_transient( self::rate_key( self::client_ip() ) ) >= self::RATE_LIMIT ) {
+			return new WP_Error( 'uxstudio_cs_rate_limited', __( 'Too many requests. Try again in a minute.', 'ux-studio' ), array( 'status' => 429 ) );
+		}
+		if ( in_array( $result->get_error_code(), array( 'uxstudio_cs_signature', 'uxstudio_cs_timestamp', 'uxstudio_cs_replay' ), true ) ) {
 			self::record_failure();
 		}
 		return $result;
@@ -161,33 +171,22 @@ final class HmacAuth {
 	}
 
 	/**
-	 * IP allowlist + brute-force guard, checked before any signature work.
-	 * REMOTE_ADDR on purpose (as legacy): forwarded headers are spoofable and
-	 * the hub/central app calls the node directly.
+	 * Optional IP allowlist, checked before any signature work. REMOTE_ADDR on
+	 * purpose (as legacy): forwarded headers are spoofable and the hub/central
+	 * app calls the node directly.
 	 *
-	 * Only FAILED verifications are counted (see record_failure()): counting
-	 * every request let an anonymous client exhaust the budget of an IP shared
-	 * with the central app (e.g. a Cloudflare edge) and write a transient per
-	 * random IPv6 address; authentic requests never consume it.
-	 *
-	 * @return true|WP_Error
+	 * @return bool|WP_Error true = allowlisted (trusted) IP, false = no
+	 *                       allowlist configured, WP_Error = IP not allowed.
 	 */
-	private static function check_network() {
-		$ip       = self::client_ip();
+	private static function check_allowlist() {
 		$settings = (array) get_option( 'uxstudio_content_sync', array() );
 		$allowed  = array_filter( array_map( 'trim', preg_split( '/[\r\n,]+/', (string) ( $settings['node_allowed_ips'] ?? '' ) ) ) );
-
-		if ( ! empty( $allowed ) ) {
-			if ( ! in_array( $ip, $allowed, true ) ) {
-				return new WP_Error( 'uxstudio_cs_ip_blocked', __( 'This IP address is not on the node allowlist.', 'ux-studio' ), array( 'status' => 403 ) );
-			}
-			return true; // The trusted hub IP is never rate-limited.
+		if ( empty( $allowed ) ) {
+			return false;
 		}
-
-		if ( (int) get_transient( self::rate_key( $ip ) ) >= self::RATE_LIMIT ) {
-			return new WP_Error( 'uxstudio_cs_rate_limited', __( 'Too many requests. Try again in a minute.', 'ux-studio' ), array( 'status' => 429 ) );
+		if ( ! in_array( self::client_ip(), $allowed, true ) ) {
+			return new WP_Error( 'uxstudio_cs_ip_blocked', __( 'This IP address is not on the node allowlist.', 'ux-studio' ), array( 'status' => 403 ) );
 		}
-
 		return true;
 	}
 
@@ -212,7 +211,11 @@ final class HmacAuth {
 	private static function rate_key( string $ip ): string {
 		$packed = filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ? @inet_pton( $ip ) : false; // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		if ( false !== $packed && 16 === strlen( $packed ) ) {
-			$ip = bin2hex( substr( $packed, 0, 8 ) ) . '::/64';
+			// IPv4-mapped (::ffff:a.b.c.d on dual-stack listeners) is one IPv4
+			// client, not a shared all-zero /64.
+			$ip = str_repeat( "\0", 10 ) . "\xff\xff" === substr( $packed, 0, 12 )
+				? (string) inet_ntop( substr( $packed, 12 ) )
+				: bin2hex( substr( $packed, 0, 8 ) ) . '::/64';
 		}
 		return 'uxstudio_cs_rate_' . md5( $ip );
 	}
