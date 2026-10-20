@@ -55,3 +55,17 @@ schema-driven settings renderer.
 Společné utility (`api.ts`, `route.ts`, `prefs.ts`, datum/formátování) jsou v
 `src/app/`. Per-modul kód se lazy-loaduje, ale sdílené závislosti zůstávají ve
 společném chunku - žádná duplikace knihoven.
+
+## 9. Menu modulu podle témat (2026-10-20)
+
+- Položky menu modulu jsou **témata** (Firewall a blokace IP, Přihlášení, Log…), jedna úroveň.
+  Žádná položka „Nastavení" s podsekcemi vedle karet s daty o stejných věcech - téma pak bylo
+  v menu dvakrát (Firewall vs. Blokace IP).
+- Stránka tématu = jeho nastavení (`src/app/TopicSettings.tsx`, vlastní Uložit) a pod tím data.
+  Stránky, které začínají daty (log, chat), mají nastavení sbalené (`collapsible`).
+- Samostatná položka „Nastavení" je v pořádku jen pro obecné věci modulu, které nepatří
+  k žádnému tématu (poskytovatel AI a klíče, nastavení odesílání e-mailů).
+- Žádné texty typu „tento přepínač je na kartě Nastavení" - přepínač patří tam, kde se o něm mluví.
+- Témata se vybírají podle přeložené sekce (`inSections`) nebo klíčů (`withKeys`). Když se
+  název sekce z PHP začne používat i v JS, spustit `languages/.build/po-refs.py`, jinak ho
+  aplikace nepřeloží a téma zůstane prázdné.
