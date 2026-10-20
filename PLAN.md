@@ -1857,3 +1857,89 @@ na token - bohatě stačí. Výpis záznamů cache v CA 60 s, invalidace po záp
       přes vás? (výchozí: zamčené, odemyká admin v CA)
 - O4: Vyžadovat před zápisem znovu heslo / passkey? (výchozí: ano, pokud přihlášení starší
       než 15 min)
+
+## 25. CSP - inventura, hodnocení rizika, widget a bezpečný přechod na Enforce (2026-10-20)
+
+Zadání uživatele: zapnutí CSP musí upozornit, že může rozbít web; výchozí cesta je
+Content-Security-Policy-Report-Only s povinným reportováním; modul musí umět projít celý web
+a správně povolit všechny služby; povinný widget na nástěnce ukazuje všechno, co se načítá,
+a zvýrazní podezřelé zdroje. Navazuje na `PLAN-strazce-integrity.md` (incident seco-traktory:
+škodlivá byla jen cizí doména ve `<script src>`), sdílí s ním hodnocení domén.
+
+### 25.1 Nálezy v původní implementaci
+
+- Report-Only s dosavadní politikou (`unsafe-inline`, `img-src https:`, povolené presety)
+  nehlásí nic, co politika povoluje - tedy neukáže, co web načítá. Pro inventuru je potřeba
+  záměrně přísná politika pro cizí původy.
+- Report endpoint byl veřejný bez tokenu a bez kontroly `document-uri` (kdokoli mohl plnit
+  tabulku), nefiltroval šum z rozšíření prohlížeče, `sample_ip` se ukládal syrově (komentář
+  tvrdil opak), URL včetně query stringu (tokeny, e-maily).
+- Chyběl `report-to` / `Reporting-Endpoints`, varování při zapnutí, kontrola, že hlavička
+  vůbec dorazí (Hostinger ji přepisuje, viz paměť `hostinger-prepisuje-csp`), a brána
+  před Enforce. `csp_custom_allowlist` se přidává do všech direktiv najednou.
+
+### 25.2 Režimy (`csp_mode`)
+
+| Režim | Hlavička | Politika | Účel |
+|---|---|---|---|
+| `off` | žádná | - | výchozí |
+| `audit` (nový) | Report-Only | inventurní: cizí původy zakázané, inline/eval povolené | zjistit, co web načítá |
+| `report-only` | Report-Only | kandidátní (presety + schválené zdroje) | test před ostrým režimem |
+| `enforce` | CSP | kandidátní | blokuje |
+
+- Inventura povoluje `unsafe-inline` / `unsafe-eval`: inline skripty a `style=""` jsou ve WP
+  na každé stránce desítky, report za každý by zahltil server. Cílem jsou cizí domény
+  (načtení skriptu, exfiltrace přes connect/img/frame) - ty se nahlásí vždy.
+- Hlavička se neposílá v náhledech page builderů a Customizeru a nikdy ve wp-admin.
+- Vzorkování `csp_sample_rate` (% zobrazení stránek s Report-Only hlavičkou, výchozí 100)
+  + automatická pojistka: nad 600 reportů za hodinu se Report-Only hlavička na zbytek hodiny
+  pozastaví (Enforce se nevzorkuje nikdy).
+- Nouzový vypínač `define( 'UXSTUDIO_CSP_DISABLE', true );` ve wp-config.php.
+
+### 25.3 Reporty a data
+
+- `report-uri` + `report-to` (`Reporting-Endpoints`), URL nese token z `wp_salt()` a značku
+  politiky. Bez tokenu, s cizím `document-uri` nebo ze schématu rozšíření prohlížeče se
+  report zahodí (204).
+- Tabulka `uxstudio_csp_violations` v5: `policy`, `script_sample`, `line_number`, `pages`
+  (až 10 cest), `risk_level`, `risk_score`, `risk_reasons`, `service`, `domain_created`,
+  `risk_checked_at`. URL bez query stringu, IP se neukládá.
+- Retence: vyřešené starší 90 dní a všechny starší 180 dní se mažou (denní údržba).
+
+### 25.4 Hodnocení rizika (`CspRisk`, `CspServices`, `CspRdap`)
+
+- Vlastní doména a subdomény = vlastní; katalog známých služeb (presety + běžná CDN,
+  analytika, platby, české služby) = známá služba.
+- Signály: `http://`, IP místo domény, punycode, riziková TLD, překlep známé domény
+  (Levenshtein), tunely / pastebiny / dynamické DNS, náhodně vypadající název, doména mladší
+  30 / 180 dní (RDAP, bez klíče, cache 30 dní). Skript/připojení/rámec váží víc než
+  obrázek/font.
+- Úroveň: `high` (červeně, e-mail adminovi max. 1× za 6 h), `medium`, `unknown` (neznámá
+  služba bez signálu), `known`, `self`.
+- Reputační služby (Safe Browsing / Web Risk, URLhaus) až přes broker v CA - mimo tuto fázi.
+
+### 25.5 Brána pro Enforce a rollback
+
+Enforce jde zapnout, až když: (1) self-test potvrdí, že hlavička opravdu dorazí do prohlížeče,
+(2) režim `report-only` běží aspoň 7 dní, (3) není otevřený nález z testovací politiky
+za posledních 7 dní, (4) není otevřený nález s vysokým rizikem. Jinak jen s výslovným
+„rozumím riziku" (`csp_enforce_override`, neukládá se). Server bránu vynucuje i bez UI.
+Automatický návrat do `report-only` (`csp_auto_rollback`): během 72 h po zapnutí Enforce
+přibudou aspoň 3 nové blokované zdroje typu skript/připojení/rámec s aspoň 3 hlášeními
+→ zpět na test + e-mail.
+
+### 25.6 Postup
+
+- [x] F1 Inventurní politika, report-to, token, filtr šumu, soukromí, vzorkování a pojistka, varovný dialog
+- [x] F2 DB v5, nové sloupce, retence
+- [x] F3 Povinný widget na nástěnce (nejde skrýt ani přes Dashboard Widgets)
+- [x] F4 Lokální heuristiky + RDAP, e-mail u vysokého rizika
+- [x] F5 Self-test hlavičky, brána pro Enforce, automatický rollback
+- [x] Ověřeno 2026-10-20 na lokálním pobyty (worktree napojený junction, po testu vráceno):
+      reporty s tokenem/bez tokenu/cizí dokument/rozšíření, query string a IP se neukládají,
+      kjhg.lol = vysoké riziko (RDAP: registrace 2026-09-05), dialog pro Inventuru a Enforce,
+      serverová brána (`csp_gate_blocked`), Schválit všechny bezpečné (jen pro danou direktivu),
+      widget na nástěnce, e-mail, automatický návrat z Enforce. Testy logiky: `php tests/csp-logic.php`.
+- [ ] Ověřit na živém webu, co dorazí do prohlížeče (Hostinger přepisuje CSP - self-test to ukáže)
+- [ ] F6 Aktivní sken (WP-cron stáhne homepage, sitemapu, košík) - později
+- [ ] F7 Reputační broker v CA (Safe Browsing / URLhaus) - později

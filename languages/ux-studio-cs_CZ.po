@@ -17681,3 +17681,483 @@ msgstr "Přidat %s mezi povolené zdroje CSP"
 #: build/index.js:1
 msgid "Add to allowlist"
 msgstr "Povolit"
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:44
+msgid "Security - what the website loads (CSP)"
+msgstr "Zabezpečení - co web načítá (CSP)"
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:86
+#: build/499.21da9a92adf310cf8f6c.js:10
+msgid "Inventory (Report only)"
+msgstr "Inventura (pouze hlášení)"
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:87
+#: build/499.21da9a92adf310cf8f6c.js:10
+msgid "Policy test (Report only)"
+msgstr "Test politiky (pouze hlášení)"
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:88
+#: build/499.21da9a92adf310cf8f6c.js:10
+msgid "Enforce (blocking)"
+msgstr "Vynucení (blokuje)"
+
+#. translators: %s: human-readable time difference, e.g. "3 days".
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:102
+msgid "for %s"
+msgstr "už %s"
+
+#. translators: 1: number of external sources, 2: number of high-risk sources.
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:115
+msgid "%1$d sources, %2$d high risk"
+msgstr "zdrojů: %1$d, vysoké riziko: %2$d"
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:128
+msgid "No external sources reported yet. Browsers report them as visitors open pages - give it a few hours."
+msgstr "Zatím nebyl nahlášen žádný externí zdroj. Prohlížeče je hlásí, jak návštěvníci otevírají stránky - počkejte pár hodin."
+
+#. translators: %d: number of further sources not shown.
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:151
+msgid "and %d more"
+msgstr "a dalších %d"
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:161
+msgid "Open CSP overview"
+msgstr "Otevřít přehled CSP"
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:174
+msgid "CSP is switched off by UXSTUDIO_CSP_DISABLE in wp-config.php - no header is sent."
+msgstr "CSP je vypnuté konstantou UXSTUDIO_CSP_DISABLE ve wp-config.php - hlavička se neposílá."
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:178
+msgid "The header is replaced on the way to the browser (server or another plugin). Reports cannot arrive - see the CSP overview."
+msgstr "Hlavička se cestou do prohlížeče nahrazuje (server nebo jiný plugin). Reporty nemohou dorazit - viz přehled CSP."
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:179
+msgid "The self-test did not find the CSP header in the response. Reports cannot arrive - see the CSP overview."
+msgstr "Self-test v odpovědi nenašel hlavičku CSP. Reporty nemohou dorazit - viz přehled CSP."
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:182
+msgid "Too many reports in the last hour - collecting is paused until the next full hour."
+msgstr "Za poslední hodinu přišlo příliš mnoho reportů - sběr je pozastavený do další celé hodiny."
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:195
+#: build/499.21da9a92adf310cf8f6c.js:1
+msgid "High risk"
+msgstr "Vysoké riziko"
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:198
+#: build/499.21da9a92adf310cf8f6c.js:1
+msgid "Known service"
+msgstr "Známá služba"
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:199
+#: build/499.21da9a92adf310cf8f6c.js:1
+msgid "Own domain"
+msgstr "Vlastní doména"
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:210
+#: build/499.21da9a92adf310cf8f6c.js:15
+msgid "NEW"
+msgstr "NOVÉ"
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:219
+msgid "approved"
+msgstr "schváleno"
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:233
+#: build/499.21da9a92adf310cf8f6c.js:1
+msgid "Script"
+msgstr "Skript"
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:234
+#: build/499.21da9a92adf310cf8f6c.js:1
+msgid "Stylesheet"
+msgstr "Styl"
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:236
+#: build/499.21da9a92adf310cf8f6c.js:1
+msgid "Font"
+msgstr "Font"
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:237
+#: build/499.21da9a92adf310cf8f6c.js:1
+msgid "Data connection"
+msgstr "Datové spojení"
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:238
+#: build/499.21da9a92adf310cf8f6c.js:1
+msgid "Embedded frame"
+msgstr "Vložený rámec"
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:239
+#: build/499.21da9a92adf310cf8f6c.js:1
+msgid "Audio/video"
+msgstr "Audio/video"
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:240
+#: build/499.21da9a92adf310cf8f6c.js:1
+msgid "Worker"
+msgstr "Worker"
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:241
+#: build/499.21da9a92adf310cf8f6c.js:1
+msgid "Manifest"
+msgstr "Manifest"
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:242
+#: build/499.21da9a92adf310cf8f6c.js:1
+msgid "Form submission"
+msgstr "Odeslání formuláře"
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:243
+#: build/499.21da9a92adf310cf8f6c.js:1
+msgid "Plugin object"
+msgstr "Objekt pluginu"
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:255
+#: build/499.21da9a92adf310cf8f6c.js:1
+msgid "unencrypted http"
+msgstr "nešifrované http"
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:257
+#: build/499.21da9a92adf310cf8f6c.js:1
+msgid "IP address instead of a domain"
+msgstr "IP adresa místo domény"
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:259
+#: build/499.21da9a92adf310cf8f6c.js:1
+msgid "internationalised (look-alike) characters"
+msgstr "mezinárodní znaky (napodobují jiné)"
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:261
+#: build/499.21da9a92adf310cf8f6c.js:1
+msgid "domain ending often used for abuse"
+msgstr "koncovka domény častá u zneužití"
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:263
+#: build/499.21da9a92adf310cf8f6c.js:1
+msgid "tunnel / paste / free hosting service"
+msgstr "tunel / sdílení kódu / bezplatný hosting"
+
+#. translators: %s: imitated domain, e.g. google-analytics.com
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:266
+#: build/499.21da9a92adf310cf8f6c.js:3
+msgid "imitates %s"
+msgstr "napodobuje %s"
+
+#. translators: %s: known domain with the same name, e.g. stripe.com
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:269
+#: build/499.21da9a92adf310cf8f6c.js:5
+msgid "same name as %s, other ending"
+msgstr "stejný název jako %s, jiná koncovka"
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:271
+#: build/499.21da9a92adf310cf8f6c.js:5
+msgid "random-looking name"
+msgstr "náhodně vypadající název"
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:273
+#: build/499.21da9a92adf310cf8f6c.js:5
+msgid "domain registered less than 30 days ago"
+msgstr "doména registrovaná před méně než 30 dny"
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:275
+#: build/499.21da9a92adf310cf8f6c.js:5
+msgid "domain registered less than 6 months ago"
+msgstr "doména registrovaná před méně než 6 měsíci"
+
+#: includes/Modules/SecurityOptimization/CspDashboardWidget.php:277
+#: build/499.21da9a92adf310cf8f6c.js:5
+msgid "obfuscated inline code"
+msgstr "zamaskovaný vložený kód"
+
+#. translators: %s: site name
+#: includes/Modules/SecurityOptimization/CspMaintenance.php:151
+msgid "[%s] CSP switched back to test mode"
+msgstr "[%s] CSP se přepnulo zpět do testovacího režimu"
+
+#: includes/Modules/SecurityOptimization/CspMaintenance.php:152
+msgid "Content-Security-Policy in Enforce mode blocked several sources visitors kept loading, so it was switched back to the test mode (Report only) automatically. Nothing is blocked now. Review the sources in the CSP tab, approve the legitimate ones and enable Enforce again."
+msgstr "Content-Security-Policy v režimu Vynucení zablokovala několik zdrojů, které návštěvníci opakovaně načítali, a proto se automaticky přepnula zpět do testovacího režimu (pouze hlášení). Nyní se nic neblokuje. Projděte zdroje na kartě CSP, schvalte ty legitimní a Vynucení zapněte znovu."
+
+#. translators: %s: site name
+#: includes/Modules/SecurityOptimization/CspMaintenance.php:188
+msgid "[%s] Suspicious source loaded on the website"
+msgstr "[%s] Web načítá podezřelý zdroj"
+
+#: includes/Modules/SecurityOptimization/CspMaintenance.php:189
+msgid "Visitor browsers reported that the website loads content from a source rated as high risk. This is the typical sign of injected code (for example a fake \"verify you are human\" page or a payment skimmer). Check where the source comes from (plugin, theme, tag manager) and remove it if nobody added it on purpose."
+msgstr "Prohlížeče návštěvníků nahlásily, že web načítá obsah ze zdroje s vysokým rizikem. To je typický znak vloženého kódu (například podvržené stránky „ověřte, že nejste robot“ nebo skimmeru platebních údajů). Zjistěte, odkud se zdroj bere (plugin, šablona, správce značek), a pokud ho nikdo nepřidal záměrně, odstraňte ho."
+
+#: includes/Modules/SecurityOptimization/CspMaintenance.php:216
+msgid "Open the CSP overview"
+msgstr "Otevřít přehled CSP"
+
+#: includes/Modules/SecurityOptimization/Module.php:472
+#: includes/Modules/SecurityOptimization/Module.php:486
+#: includes/Modules/SecurityOptimization/Module.php:498
+#: includes/Modules/SecurityOptimization/Module.php:507
+#: includes/Modules/SecurityOptimization/Module.php:515
+#: includes/Modules/SecurityOptimization/Module.php:523
+#: build/499.21da9a92adf310cf8f6c.js:17
+msgid "CSP"
+msgstr "CSP"
+
+#: includes/Modules/SecurityOptimization/Module.php:475
+msgid "CSP tells the browser where scripts, styles, images and other content may load from. It can break parts of the website (payments, chat, maps, analytics, booking widgets) when a needed source is missing, so go step by step: Inventory finds out what the website loads, Policy test shows what Enforce would block, and only then Enforce blocks for real. Inventory and Policy test never block anything. CSP is never sent in wp-admin."
+msgstr "CSP říká prohlížeči, odkud se smějí načítat skripty, styly, obrázky a další obsah. Když chybí zdroj, který web potřebuje, může rozbít části webu (platby, chat, mapy, analytiku, rezervační widgety), proto postupujte krok za krokem: Inventura zjistí, co web načítá, Test politiky ukáže, co by Vynucení blokovalo, a teprve potom Vynucení skutečně blokuje. Inventura ani Test politiky nikdy nic neblokují. Ve wp-adminu se CSP neposílá nikdy."
+
+#: includes/Modules/SecurityOptimization/Module.php:478
+msgid "Inventory - find out what the website loads (Report only, recommended first)"
+msgstr "Inventura - zjistit, co web načítá (pouze hlášení, doporučený začátek)"
+
+#: includes/Modules/SecurityOptimization/Module.php:479
+msgid "Policy test - report what Enforce would block (Report only)"
+msgstr "Test politiky - hlásit, co by Vynucení blokovalo (pouze hlášení)"
+
+#: includes/Modules/SecurityOptimization/Module.php:480
+msgid "Enforce - actively block disallowed sources"
+msgstr "Vynucení - aktivně blokovat nepovolené zdroje"
+
+#: includes/Modules/SecurityOptimization/Module.php:510
+msgid "One domain per line, added to script/style/img/font/connect/frame sources. Examples: https://cdn.example.com, https://*.example.com, wss://socket.example.com. Sources approved in the inventory below are added only for the type they were seen with and do not need to be listed here."
+msgstr "Jedna doména na řádek, přidá se ke zdrojům script/style/img/font/connect/frame. Příklady: https://cdn.example.com, https://*.example.com, wss://socket.example.com. Zdroje schválené v inventuře se přidávají jen pro typ, se kterým byly zachyceny, a není třeba je sem psát."
+
+#: includes/Modules/SecurityOptimization/Module.php:517
+msgid "Report-only sampling (% of page views)"
+msgstr "Vzorkování pouze hlášení (% zobrazení stránek)"
+
+#: includes/Modules/SecurityOptimization/Module.php:518
+msgid "Share of page views that carry the Report-only header in Inventory and Policy test. Every report is a small request to the website; lower this on very busy sites. Over 600 reports an hour collecting pauses until the next full hour automatically. Enforce is always sent on every page view."
+msgstr "Podíl zobrazení stránek, které v Inventuře a Testu politiky nesou hlavičku Report-Only. Každý report je malý požadavek na web; na velmi navštěvovaných webech hodnotu snižte. Nad 600 reportů za hodinu se sběr automaticky pozastaví do další celé hodiny. Vynucení se posílá vždy při každém zobrazení stránky."
+
+#: includes/Modules/SecurityOptimization/Module.php:525
+msgid "Switch back to Policy test automatically"
+msgstr "Automaticky přepnout zpět na Test politiky"
+
+#: includes/Modules/SecurityOptimization/Module.php:526
+msgid "When Enforce blocks several new scripts, connections or frames that visitors keep loading within 72 hours of switching it on, CSP goes back to Policy test (nothing blocked) and the administrator gets an e-mail."
+msgstr "Když Vynucení během 72 hodin od zapnutí zablokuje několik nových skriptů, spojení nebo rámců, které návštěvníci opakovaně načítají, CSP se vrátí na Test politiky (nic se neblokuje) a administrátor dostane e-mail."
+
+#: build/499.21da9a92adf310cf8f6c.js:5
+msgid "The header reaches the browser."
+msgstr "Hlavička dorazí do prohlížeče."
+
+#: build/499.21da9a92adf310cf8f6c.js:5
+msgid "A CSP header arrives, but not ours - the server or another plugin replaces it (known on Hostinger with \"Force HTTPS\"). Browsers will not send reports and Enforce would do nothing."
+msgstr "Hlavička CSP dorazí, ale není naše - server nebo jiný plugin ji nahrazuje (známé na Hostingeru s volbou „Force HTTPS“). Prohlížeče nebudou posílat reporty a Vynucení by nic nedělalo."
+
+#: build/499.21da9a92adf310cf8f6c.js:5
+msgid "The response has no CSP header. A page cache or the server drops it. Purge the cache and test again; if it stays, the header has to be allowed in the cache/server settings."
+msgstr "Odpověď nemá hlavičku CSP. Zahazuje ji stránková cache nebo server. Vyčistěte cache a otestujte znovu; pokud to přetrvá, je potřeba hlavičku povolit v nastavení cache/serveru."
+
+#. translators: %d: HTTP status code
+#: build/499.21da9a92adf310cf8f6c.js:7
+msgid "The home page answered with HTTP %d."
+msgstr "Domovská stránka odpověděla HTTP %d."
+
+#: build/499.21da9a92adf310cf8f6c.js:7
+msgid "The website could not load its own home page (loopback request failed)."
+msgstr "Web nedokázal načíst vlastní domovskou stránku (loopback požadavek selhal)."
+
+#: build/499.21da9a92adf310cf8f6c.js:7
+msgid "Not tested yet."
+msgstr "Zatím netestováno."
+
+#: build/499.21da9a92adf310cf8f6c.js:7
+msgid "The self-test confirmed the header reaches the browser (in the last 7 days)"
+msgstr "Self-test potvrdil, že hlavička dorazí do prohlížeče (za posledních 7 dní)"
+
+#. translators: 1: days required, 2: days the policy test has been running
+#: build/499.21da9a92adf310cf8f6c.js:8
+msgid "Policy test has been running at least %1$d days (now %2$d)"
+msgstr "Test politiky běží aspoň %1$d dní (nyní %2$d)"
+
+#. translators: %d: number of sources
+#: build/499.21da9a92adf310cf8f6c.js:9
+msgid "No unresolved source the test policy would block in the last 7 days (now %d)"
+msgstr "Za posledních 7 dní žádný nevyřešený zdroj, který by testovací politika blokovala (nyní %d)"
+
+#. translators: %d: number of sources
+#: build/499.21da9a92adf310cf8f6c.js:10
+msgid "No unresolved high-risk source (now %d)"
+msgstr "Žádný nevyřešený zdroj s vysokým rizikem (nyní %d)"
+
+#: build/499.21da9a92adf310cf8f6c.js:10
+msgid "Switch CSP to Enforce?"
+msgstr "Přepnout CSP na Vynucení?"
+
+#: build/499.21da9a92adf310cf8f6c.js:10
+msgid "Before you turn on Content-Security-Policy"
+msgstr "Než zapnete Content-Security-Policy"
+
+#: build/499.21da9a92adf310cf8f6c.js:10
+msgid "CSP can directly affect how the website works."
+msgstr "CSP může přímo ovlivnit chod webu."
+
+#: build/499.21da9a92adf310cf8f6c.js:10
+msgid "When a source the website needs is not allowed, the browser blocks it and that part stops working - typically payments, chat, maps, analytics, cookie bars, booking or review widgets."
+msgstr "Když zdroj, který web potřebuje, není povolený, prohlížeč ho zablokuje a ta část přestane fungovat - typicky platby, chat, mapy, analytika, cookie lišty, rezervační nebo recenzní widgety."
+
+#: build/499.21da9a92adf310cf8f6c.js:10
+msgid "Inventory never blocks anything. It sends the policy as Content-Security-Policy-Report-Only and every visitor browser reports each external source the page loads. You will see them in the list below and in the dashboard widget, rated by risk. Let it run for a few days so all page types get visited."
+msgstr "Inventura nikdy nic neblokuje. Posílá politiku jako Content-Security-Policy-Report-Only a prohlížeč každého návštěvníka nahlásí každý externí zdroj, který stránka načítá. Uvidíte je v seznamu níže a ve widgetu na nástěnce, ohodnocené podle rizika. Nechte ji běžet pár dní, aby se navštívily všechny typy stránek."
+
+#: build/499.21da9a92adf310cf8f6c.js:10
+msgid "Policy test never blocks anything either. Browsers report only what Enforce would block. Approve every source you recognise first (\"Approve all safe\" helps); what stays in the list after a week is what would break."
+msgstr "Ani Test politiky nic neblokuje. Prohlížeče hlásí jen to, co by Vynucení zablokovalo. Nejdřív schvalte všechny zdroje, které znáte (pomůže „Schválit všechny bezpečné“); co v seznamu zůstane po týdnu, by se rozbilo."
+
+#: build/499.21da9a92adf310cf8f6c.js:10
+msgid "From now on the browser really blocks every source the policy does not allow. If something stops working, switch back to Policy test - or define UXSTUDIO_CSP_DISABLE in wp-config.php to turn CSP off without logging in."
+msgstr "Od teď prohlížeč skutečně blokuje každý zdroj, který politika nepovoluje. Pokud něco přestane fungovat, přepněte zpět na Test politiky - nebo definujte UXSTUDIO_CSP_DISABLE ve wp-config.php a CSP vypnete i bez přihlášení."
+
+#: build/499.21da9a92adf310cf8f6c.js:10
+msgid "The checks above are not all passed. I understand the risk and want to enforce anyway."
+msgstr "Podmínky výše nejsou všechny splněné. Rozumím riziku a chci přesto vynucovat."
+
+#: build/499.21da9a92adf310cf8f6c.js:10
+msgid "Leaving Enforce: nothing will be blocked any more."
+msgstr "Opouštíte Vynucení: nic se už nebude blokovat."
+
+#: build/499.21da9a92adf310cf8f6c.js:10
+msgid "I understand that CSP can stop parts of the website or connected services from working."
+msgstr "Rozumím, že CSP může zastavit části webu nebo napojené služby."
+
+#: build/499.21da9a92adf310cf8f6c.js:10
+msgid "Start with Inventory: it blocks nothing and shows what the website loads."
+msgstr "Začněte Inventurou: nic neblokuje a ukáže, co web načítá."
+
+#: build/499.21da9a92adf310cf8f6c.js:10
+msgid "Next step: once the main pages have had visitors (a few days), review the list, use \"Approve all safe\", decide on the rest and switch to Policy test."
+msgstr "Další krok: až hlavní stránky navštíví návštěvníci (pár dní), projděte seznam, použijte „Schválit všechny bezpečné“, rozhodněte o zbytku a přepněte na Test politiky."
+
+#: build/499.21da9a92adf310cf8f6c.js:10
+msgid "Next step: what remains in the list would be blocked by Enforce. Approve what belongs to the website; Enforce unlocks after the checks below pass."
+msgstr "Další krok: co v seznamu zůstává, by Vynucení zablokovalo. Schvalte, co k webu patří; Vynucení se odemkne, až projdou podmínky níže."
+
+#: build/499.21da9a92adf310cf8f6c.js:10
+msgid "Disallowed sources are blocked. New entries in the list are sources that were blocked - check them, they may be an attack or a newly added service."
+msgstr "Nepovolené zdroje se blokují. Nové položky v seznamu jsou zablokované zdroje - zkontrolujte je, může jít o útok nebo nově přidanou službu."
+
+#. translators: %d: number of days
+#: build/499.21da9a92adf310cf8f6c.js:11
+msgid "running %d days"
+msgstr "běží %d dní"
+
+#. translators: 1: sources total, 2: high risk, 3: suspicious, 4: new in 7 days
+#: build/499.21da9a92adf310cf8f6c.js:12
+msgid "%1$d sources - %2$d high risk, %3$d suspicious, %4$d new this week"
+msgstr "zdrojů: %1$d - vysoké riziko: %2$d, podezřelé: %3$d, nové tento týden: %4$d"
+
+#: build/499.21da9a92adf310cf8f6c.js:12
+msgid "UXSTUDIO_CSP_DISABLE is set in wp-config.php - no CSP header is sent regardless of this setting."
+msgstr "Ve wp-config.php je nastavené UXSTUDIO_CSP_DISABLE - hlavička CSP se neposílá bez ohledu na toto nastavení."
+
+#: build/499.21da9a92adf310cf8f6c.js:12
+msgid "Over 600 reports in the last hour - collecting is paused until the next full hour. Lower the sampling on a busy site."
+msgstr "Za poslední hodinu přes 600 reportů - sběr je pozastavený do další celé hodiny. Na navštěvovaném webu snižte vzorkování."
+
+#: build/499.21da9a92adf310cf8f6c.js:12
+msgid "Header self-test"
+msgstr "Self-test hlavičky"
+
+#: build/499.21da9a92adf310cf8f6c.js:12
+msgid "A plain (possibly cached) page came without the header - purge the page cache after changing CSP."
+msgstr "Běžná (možná cachovaná) stránka přišla bez hlavičky - po změně CSP vyčistěte stránkovou cache."
+
+#: build/499.21da9a92adf310cf8f6c.js:12
+msgid "Testing…"
+msgstr "Testuji…"
+
+#: build/499.21da9a92adf310cf8f6c.js:12
+msgid "Test again"
+msgstr "Otestovat znovu"
+
+#: build/499.21da9a92adf310cf8f6c.js:12
+msgid "Conditions for Enforce"
+msgstr "Podmínky pro Vynucení"
+
+#: build/499.21da9a92adf310cf8f6c.js:12
+msgid "Enforce was not switched on: the conditions are not met. The previous mode stays."
+msgstr "Vynucení se nezapnulo: podmínky nejsou splněné. Zůstává předchozí režim."
+
+#. translators: %s: CSP source, e.g. https://cdn.example.com
+#: build/499.21da9a92adf310cf8f6c.js:13
+msgid "%s was approved in the policy."
+msgstr "%s byl schválen v politice."
+
+#. translators: %s: CSP source, e.g. https://cdn.example.com
+#: build/499.21da9a92adf310cf8f6c.js:14
+msgid "%s was already approved."
+msgstr "%s už byl schválený."
+
+#. translators: %d: number of sources
+#: build/499.21da9a92adf310cf8f6c.js:15
+msgid "%d sources approved. Suspicious and high-risk ones stay for your decision."
+msgstr "Schválené zdroje: %d. Podezřelé a rizikové zůstávají na vašem rozhodnutí."
+
+#: build/499.21da9a92adf310cf8f6c.js:15
+msgid "Content-Security-Policy tells the browser where the website may load content from. Here you can see every external source visitor browsers reported, rated by risk, and build the policy from them."
+msgstr "Content-Security-Policy říká prohlížeči, odkud smí web načítat obsah. Tady vidíte každý externí zdroj, který prohlížeče návštěvníků nahlásily, ohodnocený podle rizika, a sestavíte z nich politiku."
+
+#: build/499.21da9a92adf310cf8f6c.js:15
+msgid "CSP settings"
+msgstr "Nastavení CSP"
+
+#: build/499.21da9a92adf310cf8f6c.js:15
+msgid "What the website loads"
+msgstr "Co web načítá"
+
+#: build/499.21da9a92adf310cf8f6c.js:15
+msgid "Waiting for review"
+msgstr "Čeká na posouzení"
+
+#: build/499.21da9a92adf310cf8f6c.js:15
+msgid "Approved / resolved"
+msgstr "Schválené / vyřešené"
+
+#: build/499.21da9a92adf310cf8f6c.js:15
+msgid "Any rating"
+msgstr "Libovolné hodnocení"
+
+#: build/499.21da9a92adf310cf8f6c.js:15
+msgid "Approve every open source without any risk signal (own subdomains, known services, unknown hosts with no warning)? Suspicious and high-risk sources are left for you."
+msgstr "Schválit všechny otevřené zdroje bez rizikového signálu (vlastní subdomény, známé služby, neznámé hosty bez varování)? Podezřelé a rizikové zůstanou na vás."
+
+#: build/499.21da9a92adf310cf8f6c.js:15
+msgid "Approve all safe"
+msgstr "Schválit všechny bezpečné"
+
+#: build/499.21da9a92adf310cf8f6c.js:15
+msgid "State"
+msgstr "Stav"
+
+#. translators: 1: first page path, 2: number of pages
+#: build/499.21da9a92adf310cf8f6c.js:16
+msgid "seen on %1$s (%2$d pages)"
+msgstr "zachyceno na %1$s (stránek: %2$d)"
+
+#: build/499.21da9a92adf310cf8f6c.js:16
+msgid "Allowed by policy"
+msgstr "Povoleno politikou"
+
+#. translators: 1: CSP source, e.g. https://cdn.example.com, 2: type, e.g. Script
+#: build/499.21da9a92adf310cf8f6c.js:17
+msgid "Approve %1$s for %2$s"
+msgstr "Schválit %1$s pro typ %2$s"
+
+#: build/499.21da9a92adf310cf8f6c.js:17
+msgid "This source is rated as suspicious. Approve it only if you know who added it and why. Approve anyway?"
+msgstr "Tento zdroj je hodnocený jako podezřelý. Schvalte ho jen tehdy, když víte, kdo a proč ho přidal. Přesto schválit?"
+
+#: build/499.21da9a92adf310cf8f6c.js:17
+msgid "Mark resolved without changing the policy (e.g. removed from the website)"
+msgstr "Označit jako vyřešené bez změny politiky (např. odstraněno z webu)"
+
+#: build/499.21da9a92adf310cf8f6c.js:17
+msgid "Nothing collected yet. Switch CSP to Inventory to find out what the website loads."
+msgstr "Zatím nic nesesbíráno. Přepněte CSP na Inventuru a zjistěte, co web načítá."
+
+#: build/499.21da9a92adf310cf8f6c.js:17
+msgid "No sources reported yet. Browsers report them as visitors open pages - give it a few hours."
+msgstr "Zatím nebyl nahlášen žádný zdroj. Prohlížeče je hlásí, jak návštěvníci otevírají stránky - počkejte pár hodin."

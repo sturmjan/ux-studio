@@ -30,8 +30,9 @@ final class CspUploadGuardBootstrap {
 	 * v2: full-scan worklist moved from one big option to the scan_queue table.
 	 * v3: keyword scoring replaced by token analysis + WordPress.org checksums.
 	 * v4: file_size/file_mtime in the hash cache (unchanged files are not read).
+	 * v5: CSP inventory - risk rating, pages, policy, sample; raw IPs dropped.
 	 */
-	private const DB_VERSION   = 4;
+	private const DB_VERSION   = 5;
 
 	/** Bump when the nightly slot logic changes, so existing events move. */
 	private const CRON_SLOT_VERSION = 3;
@@ -108,16 +109,28 @@ final class CspUploadGuardBootstrap {
 						blocked_uri text NOT NULL,
 						document_uri text DEFAULT '',
 						source_file text DEFAULT '',
+						line_number int(11) UNSIGNED NOT NULL DEFAULT 0,
+						script_sample varchar(255) NOT NULL DEFAULT '',
+						pages text NULL,
+						policy_last char(1) NOT NULL DEFAULT 'a',
+						candidate_seen datetime NULL,
 						sample_user_agent varchar(500) DEFAULT '',
 						sample_ip varchar(45) DEFAULT '',
 						hit_count int(11) UNSIGNED NOT NULL DEFAULT 1,
 						status varchar(20) NOT NULL DEFAULT 'open',
+						risk_level varchar(10) NOT NULL DEFAULT 'unknown',
+						risk_score tinyint(3) UNSIGNED NOT NULL DEFAULT 0,
+						risk_reasons text NULL,
+						service varchar(100) NOT NULL DEFAULT '',
+						domain_created date NULL,
+						risk_checked_at datetime NULL,
 						first_seen datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 						last_seen datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 						PRIMARY KEY  (id),
 						UNIQUE KEY uniq_fp (fingerprint),
 						KEY status (status),
-						KEY last_seen (last_seen)
+						KEY last_seen (last_seen),
+						KEY risk_level (risk_level)
 					) {$charset};"
 				);
 
@@ -166,6 +179,28 @@ final class CspUploadGuardBootstrap {
 					// The old 2+ MB single-option worklist. A scan it belonged to
 					// stays `running`; the watchdog ends it as interrupted.
 					delete_option( UploadGuardScanner::LEGACY_WORKLIST_OPTION );
+				}
+
+				if ( $from < 5 && $from > 0 ) {
+					// Raw IPs were stored despite the docs saying otherwise.
+					$wpdb->query( "UPDATE {$wpdb->prefix}uxstudio_csp_violations SET sample_ip = ''" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					// Rate the rows collected before the rating existed.
+					$site = CspLogger::site_host();
+					$rows = $wpdb->get_results( "SELECT id, blocked_uri, directive FROM {$wpdb->prefix}uxstudio_csp_violations", ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					foreach ( (array) $rows as $row ) {
+						$rating = CspRisk::rate( (string) $row['blocked_uri'], (string) $row['directive'], $site );
+						$wpdb->update(
+							"{$wpdb->prefix}uxstudio_csp_violations",
+							array(
+								'risk_level'   => $rating['level'],
+								'risk_score'   => $rating['score'],
+								'risk_reasons' => wp_json_encode( $rating['reasons'] ),
+								'service'      => $rating['service'],
+								'directive'    => CspPolicy::base_directive( (string) strtok( (string) $row['directive'], ' ' ) ),
+							),
+							array( 'id' => (int) $row['id'] )
+						);
+					}
 				}
 
 				if ( $from < 3 ) {

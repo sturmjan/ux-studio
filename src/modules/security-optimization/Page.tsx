@@ -3,7 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, LoaderCircle, Lock, Plus, RefreshCw, Trash2, Unlock } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
-import { navigate } from '../../app/route';
+import { hashParam, navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
 import { CspTab } from './CspTab';
 import { UploadGuardTab } from './UploadGuardTab';
@@ -20,7 +20,7 @@ const TABS: { id: TabId; label: string }[] = [
 	{ id: 'settings', label: __( 'Settings', 'ux-studio' ) },
 	{ id: 'login-attempts', label: __( 'Login Attempts', 'ux-studio' ) },
 	{ id: 'ip-bans', label: __( 'IP Bans', 'ux-studio' ) },
-	{ id: 'csp', label: __( 'CSP Violations', 'ux-studio' ) },
+	{ id: 'csp', label: __( 'CSP', 'ux-studio' ) },
 	{ id: 'upload-guard', label: __( 'Upload Guard', 'ux-studio' ) },
 ];
 
@@ -76,9 +76,10 @@ function SettingsTab(): JSX.Element {
 		);
 	}
 
-	// Upload Guard settings live on their own tab (UploadGuardTab); keep them out
-	// of the generic settings grid to avoid showing the same fields twice.
-	const schema = data.schema.filter( ( f ) => ! f.key.startsWith( 'upload_guard' ) );
+	// Upload Guard and CSP settings live on their own tabs (UploadGuardTab,
+	// CspTab - mode changes need a confirmation dialog there); keep them out of
+	// the generic settings grid to avoid showing the same fields twice.
+	const schema = data.schema.filter( ( f ) => ! f.key.startsWith( 'upload_guard' ) && ! f.key.startsWith( 'csp_' ) );
 
 	return (
 		<>
@@ -343,7 +344,11 @@ function IpBansTab(): JSX.Element {
 }
 
 export default function Page(): JSX.Element {
-	const [ tab, setTab ] = useState< TabId >( 'settings' );
+	// Deep links (dashboard widget, e-mails) open a tab directly: #/module?id=…&tab=csp.
+	const [ tab, setTab ] = useState< TabId >( () => {
+		const wanted = hashParam( 'tab' );
+		return TABS.find( ( t ) => t.id === wanted )?.id ?? 'settings';
+	} );
 
 	return (
 		<>

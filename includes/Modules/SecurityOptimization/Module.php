@@ -134,9 +134,14 @@ final class Module extends BaseModule {
 		add_action( 'admin_init', array( $this, 'send_security_headers' ) );
 
 		/* ── Content-Security-Policy - FRONT END ONLY (send_headers never fires in
-		 * wp-admin) so a bad policy can never lock the dashboard. Report-only and
-		 * enforce modes share one builder. ── */
+		 * wp-admin) so a bad policy can never lock the dashboard. See CspPolicy
+		 * for the modes; the dashboard widget is mandatory while CSP is on. ── */
 		add_action( 'send_headers', array( $this, 'maybe_send_csp_header' ) );
+		$csp_mode = $this->csp_policy()->mode();
+		CspMaintenance::register( $csp_mode );
+		if ( 'off' !== $csp_mode ) {
+			CspDashboardWidget::register();
+		}
 
 		/* ── .htaccess sync - written on settings save; admin_init only re-checks
 		 * the stored hash (cheap, no secrets decrypted) to heal drift, e.g. after
@@ -461,23 +466,24 @@ final class Module extends BaseModule {
 				'default' => false,
 			),
 
-			// Content-Security-Policy.
+			// Content-Security-Policy (rendered on the CSP tab, not in the generic grid).
 			array(
 				'key'     => 'csp_mode',
-				'section' => __( 'HTTPS & headers', 'ux-studio' ),
+				'section' => __( 'CSP', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'Content-Security-Policy (CSP)', 'ux-studio' ),
-				'help'    => __( 'CSP tells the browser where scripts, styles, images and other content may load from, strongly reducing XSS risk. SAFETY: CSP is only ever sent on the front end - never in wp-admin - so it cannot lock you out of the dashboard. Start with "Report only" to see what would break (violations appear in the CSP Violations tab), then switch to "Enforce" once clean.', 'ux-studio' ),
+				'help'    => __( 'CSP tells the browser where scripts, styles, images and other content may load from. It can break parts of the website (payments, chat, maps, analytics, booking widgets) when a needed source is missing, so go step by step: Inventory finds out what the website loads, Policy test shows what Enforce would block, and only then Enforce blocks for real. Inventory and Policy test never block anything. CSP is never sent in wp-admin.', 'ux-studio' ),
 				'options' => array(
 					'off'         => __( 'Off', 'ux-studio' ),
-					'report-only' => __( 'Report only (recommended first - nothing is blocked)', 'ux-studio' ),
-					'enforce'     => __( 'Enforce (actively blocks disallowed sources)', 'ux-studio' ),
+					'audit'       => __( 'Inventory - find out what the website loads (Report only, recommended first)', 'ux-studio' ),
+					'report-only' => __( 'Policy test - report what Enforce would block (Report only)', 'ux-studio' ),
+					'enforce'     => __( 'Enforce - actively block disallowed sources', 'ux-studio' ),
 				),
 				'default' => 'off',
 			),
 			array(
 				'key'     => 'csp_level',
-				'section' => __( 'HTTPS & headers', 'ux-studio' ),
+				'section' => __( 'CSP', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'CSP strictness', 'ux-studio' ),
 				'help'    => __( 'Basic allows inline scripts and eval() so it stays compatible with most themes, plugins and visual editors. Strict removes eval() for tighter protection but may break page builders (Elementor, WPBakery, Divi).', 'ux-studio' ),
@@ -489,7 +495,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'csp_presets',
-				'section' => __( 'HTTPS & headers', 'ux-studio' ),
+				'section' => __( 'CSP', 'ux-studio' ),
 				'type'    => 'multiselect',
 				'label'   => __( 'CSP - allowed services', 'ux-studio' ),
 				'help'    => __( 'Select the external services the site uses. Matching domains are added to the policy so their scripts, styles, fonts and images keep working.', 'ux-studio' ),
@@ -498,11 +504,27 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'csp_custom_allowlist',
-				'section' => __( 'HTTPS & headers', 'ux-studio' ),
+				'section' => __( 'CSP', 'ux-studio' ),
 				'type'    => 'textarea',
 				'label'   => __( 'CSP - custom domain allowlist', 'ux-studio' ),
-				'help'    => __( 'One domain per line, added to script/style/img/font/connect/frame sources. Examples: https://cdn.example.com, https://*.example.com, wss://socket.example.com.', 'ux-studio' ),
+				'help'    => __( 'One domain per line, added to script/style/img/font/connect/frame sources. Examples: https://cdn.example.com, https://*.example.com, wss://socket.example.com. Sources approved in the inventory below are added only for the type they were seen with and do not need to be listed here.', 'ux-studio' ),
 				'default' => '',
+			),
+			array(
+				'key'     => 'csp_sample_rate',
+				'section' => __( 'CSP', 'ux-studio' ),
+				'type'    => 'number',
+				'label'   => __( 'Report-only sampling (% of page views)', 'ux-studio' ),
+				'help'    => __( 'Share of page views that carry the Report-only header in Inventory and Policy test. Every report is a small request to the website; lower this on very busy sites. Over 600 reports an hour collecting pauses until the next full hour automatically. Enforce is always sent on every page view.', 'ux-studio' ),
+				'default' => 100,
+			),
+			array(
+				'key'     => 'csp_auto_rollback',
+				'section' => __( 'CSP', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Switch back to Policy test automatically', 'ux-studio' ),
+				'help'    => __( 'When Enforce blocks several new scripts, connections or frames that visitors keep loading within 72 hours of switching it on, CSP goes back to Policy test (nothing blocked) and the administrator gets an e-mail.', 'ux-studio' ),
+				'default' => true,
 			),
 
 			// File protection (.htaccess).
@@ -1022,7 +1044,7 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * CSP preset checkbox labels (keys match csp_preset_sources()).
+	 * CSP preset checkbox labels (keys match CspServices::preset_sources()).
 	 *
 	 * @return array<string,string>
 	 */
@@ -1049,6 +1071,9 @@ final class Module extends BaseModule {
 	 * @param array $input Raw input.
 	 */
 	public function save_settings( array $input ): array {
+		$previous_csp_mode = $this->csp_policy()->mode();
+		[ $input, $csp_blocked, $csp_override ] = $this->apply_csp_gate( $input, $previous_csp_mode );
+
 		if ( array_key_exists( 'captcha_secret_key', $input ) && '' !== (string) $input['captcha_secret_key'] ) {
 			Security::store_secret( self::SECRET_CAPTCHA, (string) $input['captcha_secret_key'] );
 		}
@@ -1092,7 +1117,60 @@ final class Module extends BaseModule {
 		$this->maybe_update_htaccess();
 		$this->sync_country_blocklist();
 
+		$this->after_csp_save( $previous_csp_mode, $csp_override );
+		$result['csp_gate_blocked'] = $csp_blocked;
+
 		return $result;
+	}
+
+	/**
+	 * Enforce only when the gate is passed (CspGate) or the admin explicitly
+	 * overrides it in the confirmation dialog. The override flag is consumed
+	 * here and never stored. Returns [input, blocked, override].
+	 *
+	 * @param array  $input   Raw input.
+	 * @param string $current Mode before this save.
+	 * @return array{0:array,1:bool,2:bool}
+	 */
+	private function apply_csp_gate( array $input, string $current ): array {
+		$override = ! empty( $input['csp_enforce_override'] );
+		unset( $input['csp_enforce_override'] );
+
+		if ( array_key_exists( 'csp_sample_rate', $input ) ) {
+			$input['csp_sample_rate'] = max( 1, min( 100, (int) $input['csp_sample_rate'] ) );
+		}
+
+		$blocked = false;
+		if ( 'enforce' === (string) ( $input['csp_mode'] ?? '' ) && 'enforce' !== $current && ! $override && ! CspGate::ready() ) {
+			$input['csp_mode'] = $current;
+			$blocked           = true;
+		}
+		return array( $input, $blocked, $override );
+	}
+
+	/**
+	 * Bookkeeping after a save that changed the CSP mode.
+	 */
+	private function after_csp_save( string $previous, bool $override ): void {
+		$mode = $this->csp_policy()->mode();
+		if ( $mode === $previous ) {
+			return;
+		}
+		CspPolicy::record_mode( $mode );
+		if ( 'off' === $mode ) {
+			CspMaintenance::unschedule();
+		}
+		ActivityLog::log(
+			'security-optimization',
+			'csp_mode_changed',
+			'',
+			0,
+			array(
+				'from'          => $previous,
+				'to'            => $mode,
+				'gate_override' => $override && 'enforce' === $mode && ! CspGate::ready(),
+			)
+		);
 	}
 
 	/**
@@ -1305,189 +1383,14 @@ final class Module extends BaseModule {
 	   ═══════════════════════════════════════════════════ */
 
 	/**
-	 * Emit the CSP header on front-end requests. Report-only sends
-	 * Content-Security-Policy-Report-Only (nothing is blocked); enforce sends the
-	 * real Content-Security-Policy. Never runs in wp-admin (send_headers does not
-	 * fire there) so the dashboard can never be broken by a policy.
+	 * Emit the CSP header on front-end requests (see CspPolicy).
 	 */
 	public function maybe_send_csp_header(): void {
-		if ( headers_sent() || is_admin() ) {
-			return;
-		}
-
-		$mode = (string) $this->setting( 'csp_mode', 'off' );
-		if ( 'report-only' !== $mode && 'enforce' !== $mode ) {
-			return;
-		}
-
-		$policy = $this->build_csp_header();
-		if ( '' === $policy ) {
-			return;
-		}
-
-		$header = ( 'enforce' === $mode ) ? 'Content-Security-Policy' : 'Content-Security-Policy-Report-Only';
-		header( $header . ': ' . $policy );
+		$this->csp_policy()->send();
 	}
 
-	/**
-	 * Build the CSP header value from the configurable directive builder
-	 * (level + service presets + custom allowlist). Always appends a report-uri
-	 * pointing at the module's public CSP report sink so violations show up in
-	 * the CSP Violations tab. Individual directives can be filtered via
-	 * uxstudio_csp_<directive> and the whole map via uxstudio_csp_directives.
-	 */
-	private function build_csp_header(): string {
-		$level      = (string) $this->setting( 'csp_level', 'basic' );
-		$script_src = array( "'self'", "'unsafe-inline'" );
-		if ( 'basic' === $level ) {
-			$script_src[] = "'unsafe-eval'";
-		}
-
-		$directives = array(
-			'default-src'     => array( "'self'" ),
-			'script-src'      => $script_src,
-			'style-src'       => array( "'self'", "'unsafe-inline'" ),
-			'img-src'         => array( "'self'", 'data:', 'https:' ),
-			'font-src'        => array( "'self'", 'data:', 'https:' ),
-			'connect-src'     => array( "'self'" ),
-			'frame-src'       => array( "'self'" ),
-			'frame-ancestors' => array( "'self'" ),
-			'base-uri'        => array( "'self'" ),
-			'form-action'     => array( "'self'" ),
-		);
-
-		foreach ( (array) $this->setting( 'csp_presets', array() ) as $preset ) {
-			foreach ( $this->csp_preset_sources( (string) $preset ) as $directive => $sources ) {
-				$directives[ $directive ] = array_merge( $directives[ $directive ] ?? array(), $sources );
-			}
-		}
-
-		$custom = $this->parse_csp_allowlist( (string) $this->setting( 'csp_custom_allowlist', '' ) );
-		if ( ! empty( $custom ) ) {
-			foreach ( array( 'script-src', 'style-src', 'img-src', 'font-src', 'connect-src', 'frame-src' ) as $directive ) {
-				$directives[ $directive ] = array_merge( $directives[ $directive ] ?? array(), $custom );
-			}
-		}
-
-		foreach ( $directives as $name => $sources ) {
-			$hook               = 'uxstudio_csp_' . str_replace( '-', '_', $name );
-			$directives[ $name ] = apply_filters( $hook, $sources );
-		}
-
-		/**
-		 * Filter the full CSP directive map before it is serialized.
-		 *
-		 * @param array<string,array<int,string>> $directives Directive => sources.
-		 */
-		$directives = apply_filters( 'uxstudio_csp_directives', $directives );
-
-		$parts = array();
-		foreach ( $directives as $name => $sources ) {
-			$sources = array_values( array_unique( array_filter( array_map( 'trim', (array) $sources ), 'strlen' ) ) );
-			if ( empty( $sources ) ) {
-				continue;
-			}
-			$parts[] = $name . ' ' . implode( ' ', $sources );
-		}
-
-		$parts[] = 'report-uri ' . esc_url_raw( rest_url( 'uxstudio/v1/security-optimization/csp-report' ) );
-
-		return implode( '; ', $parts );
-	}
-
-	/**
-	 * Source allowlist for a single service preset key.
-	 *
-	 * @return array<string,array<int,string>>
-	 */
-	private function csp_preset_sources( string $preset ): array {
-		$map = array(
-			'google_fonts'   => array(
-				'style-src' => array( 'https://fonts.googleapis.com' ),
-				'font-src'  => array( 'https://fonts.gstatic.com' ),
-			),
-			'gtm_ga'         => array(
-				'script-src'  => array( 'https://www.googletagmanager.com', 'https://www.google-analytics.com', 'https://ssl.google-analytics.com' ),
-				'img-src'     => array( 'https://www.googletagmanager.com', 'https://www.google-analytics.com' ),
-				'connect-src' => array( 'https://www.google-analytics.com', 'https://*.analytics.google.com', 'https://*.g.doubleclick.net', 'https://www.googletagmanager.com' ),
-			),
-			'youtube'        => array(
-				'frame-src'  => array( 'https://www.youtube.com', 'https://www.youtube-nocookie.com' ),
-				'script-src' => array( 'https://www.youtube.com', 'https://s.ytimg.com' ),
-				'img-src'    => array( 'https://i.ytimg.com' ),
-			),
-			'vimeo'          => array(
-				'frame-src'  => array( 'https://player.vimeo.com' ),
-				'script-src' => array( 'https://player.vimeo.com' ),
-				'img-src'    => array( 'https://i.vimeocdn.com' ),
-			),
-			'smartsupp'      => array(
-				'script-src'  => array( 'https://www.smartsuppchat.com', 'https://*.smartsupp.com' ),
-				'connect-src' => array( 'https://*.smartsupp.com', 'wss://*.smartsupp.com' ),
-				'img-src'     => array( 'https://*.smartsupp.com' ),
-				'frame-src'   => array( 'https://*.smartsupp.com' ),
-			),
-			'recaptcha'      => array(
-				'script-src'  => array( 'https://www.google.com', 'https://www.gstatic.com' ),
-				'frame-src'   => array( 'https://www.google.com' ),
-				'connect-src' => array( 'https://www.google.com' ),
-			),
-			'cloudflare'     => array(
-				'script-src'  => array( 'https://*.cloudflare.com', 'https://*.cloudfront.net' ),
-				'style-src'   => array( 'https://*.cloudflare.com' ),
-				'connect-src' => array( 'https://*.cloudflare.com' ),
-			),
-			'mapy_cz'        => array(
-				'script-src'  => array( 'https://api.mapy.cz' ),
-				'style-src'   => array( 'https://api.mapy.cz' ),
-				'img-src'     => array( 'https://api.mapy.cz', 'https://mapy.cz', 'https://*.mapy.cz' ),
-				'connect-src' => array( 'https://api.mapy.cz', 'https://*.mapy.cz' ),
-			),
-			'google_maps'    => array(
-				'script-src'  => array( 'https://maps.googleapis.com', 'https://maps.gstatic.com' ),
-				'style-src'   => array( 'https://fonts.googleapis.com' ),
-				'img-src'     => array( 'https://maps.googleapis.com', 'https://maps.gstatic.com', 'https://*.googleusercontent.com' ),
-				'connect-src' => array( 'https://maps.googleapis.com' ),
-			),
-			'facebook_pixel' => array(
-				'script-src'  => array( 'https://connect.facebook.net' ),
-				'img-src'     => array( 'https://www.facebook.com' ),
-				'connect-src' => array( 'https://www.facebook.com' ),
-			),
-			'gravatar'       => array(
-				'img-src' => array( 'https://secure.gravatar.com', 'https://*.gravatar.com' ),
-			),
-		);
-		return $map[ $preset ] ?? array();
-	}
-
-	/**
-	 * Parse the newline/comma separated custom allowlist textarea into a list of
-	 * validated CSP source tokens (quoted keywords, scheme URLs, wildcard hosts).
-	 *
-	 * @return array<int,string>
-	 */
-	private function parse_csp_allowlist( string $raw ): array {
-		if ( '' === trim( $raw ) ) {
-			return array();
-		}
-		$out = array();
-		foreach ( preg_split( '/[\r\n,]+/', $raw ) as $line ) {
-			$line = trim( (string) $line );
-			if ( '' === $line || '#' === $line[0] ) {
-				continue;
-			}
-			if ( preg_match( "/^'[a-z0-9\-]+'$/i", $line ) ) {
-				$out[] = $line;
-				continue;
-			}
-			if ( preg_match( '#^(https?:|wss?:|data:|blob:)#i', $line )
-				|| preg_match( '#^\*\.[a-z0-9\-]+#i', $line )
-				|| preg_match( '#^[a-z0-9\-]+\.[a-z]#i', $line ) ) {
-				$out[] = $line;
-			}
-		}
-		return array_values( array_unique( $out ) );
+	public function csp_policy(): CspPolicy {
+		return new CspPolicy( array( $this, 'setting' ) );
 	}
 
 	/* ═══════════════════════════════════════════════════
@@ -1712,6 +1615,7 @@ final class Module extends BaseModule {
 		// Upload Guard: nightly + chained batch events; a running full scan is
 		// ended so re-enabling later does not resume a stale worklist.
 		CspUploadGuardBootstrap::on_deactivate();
+		CspMaintenance::unschedule();
 		( new UploadGuardScanner() )->abort_full_scan();
 	}
 
