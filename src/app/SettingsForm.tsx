@@ -4,7 +4,7 @@
  * (src/modules/<id>/Page.tsx) reuse the same <SettingsFields> + useModuleSettings()
  * to embed a "Settings" tab identical in look to every other module.
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { api, queryClient } from './api';
@@ -213,10 +213,13 @@ export function SettingsFields( {
 	schema,
 	draft,
 	setDraft,
+	sectionExtras,
 }: {
 	schema: Field[];
 	draft: Record< string, Value >;
 	setDraft: ( updater: ( d: Record< string, Value > ) => Record< string, Value > ) => void;
+	/** Extra content shown under the fields of a section, keyed by section label. */
+	sectionExtras?: Record< string, ReactNode >;
 } ): JSX.Element {
 	const general = __( 'General', 'ux-studio' );
 	const sections: string[] = [];
@@ -249,8 +252,15 @@ export function SettingsFields( {
 		</div>
 	);
 
+	const extra = sectionExtras?.[ current ] ?? null;
+
 	if ( sections.length < 2 ) {
-		return grid;
+		return (
+			<>
+				{ grid }
+				{ extra }
+			</>
+		);
 	}
 
 	return (
@@ -271,6 +281,7 @@ export function SettingsFields( {
 			</TabsNav>
 			<h2 className="uxs-form__section">{ current }</h2>
 			{ grid }
+			{ extra }
 		</>
 	);
 }

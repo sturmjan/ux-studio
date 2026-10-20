@@ -18169,3 +18169,11 @@ msgstr "Tento modul je vypnutý. Zapněte ho, abyste mohli použít jeho nastave
 #: build/index.65272ccf3788790bbacd.js:4
 msgid "Enabling…"
 msgstr "Zapínám…"
+
+#: build/499.61db26f3ddc7f6e95ea1.js:17
+msgid "Open CSP settings"
+msgstr "Otevřít nastavení CSP"
+
+#: build/499.61db26f3ddc7f6e95ea1.js:17
+msgid "CSP has its own tab: it shows what the website loads, rates each source by risk and switches modes step by step with a confirmation."
+msgstr "CSP má vlastní kartu: ukazuje, co web načítá, hodnotí každý zdroj podle rizika a přepíná režimy krok za krokem s potvrzením."

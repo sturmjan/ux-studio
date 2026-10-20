@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-20T10:31:13+00:00\n"
+"POT-Creation-Date: 2026-10-20T10:46:39+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: ux-studio\n"
@@ -97,7 +97,7 @@ msgstr ""
 #: build/295.a37662328d7b92668db7.js:1
 #: build/367.51e82cb65d783804b851.js:1
 #: build/780.243631a5425149210ac0.js:2
-#: build/index.65272ccf3788790bbacd.js:4
+#: build/index.6a308fc69fed278cad0d.js:4
 msgid "Close"
 msgstr ""
 
@@ -129,7 +129,7 @@ msgstr ""
 #: includes/Modules/SecurityOptimization/Module.php:925
 #: build/295.a37662328d7b92668db7.js:1
 #: build/780.243631a5425149210ac0.js:2
-#: build/index.65272ccf3788790bbacd.js:2
+#: build/index.6a308fc69fed278cad0d.js:2
 msgid "Content"
 msgstr ""
 
@@ -143,12 +143,12 @@ msgstr ""
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:253
 #: build/295.a37662328d7b92668db7.js:1
 #: build/752.b21532d4e46c7830dc22.js:1
-#: build/index.65272ccf3788790bbacd.js:2
+#: build/index.6a308fc69fed278cad0d.js:2
 msgid "Media"
 msgstr ""
 
 #: includes/Core/Megamenu.php:172
-#: build/index.65272ccf3788790bbacd.js:2
+#: build/index.6a308fc69fed278cad0d.js:2
 msgid "Security"
 msgstr ""
 
@@ -158,12 +158,12 @@ msgstr ""
 #: includes/Modules/SecurityOptimization/Module.php:833
 #: includes/Modules/SecurityOptimization/Module.php:846
 #: includes/Modules/SecurityOptimization/Module.php:854
-#: build/index.65272ccf3788790bbacd.js:2
+#: build/index.6a308fc69fed278cad0d.js:2
 msgid "Performance"
 msgstr ""
 
 #: includes/Core/Megamenu.php:176
-#: build/index.65272ccf3788790bbacd.js:2
+#: build/index.6a308fc69fed278cad0d.js:2
 msgid "Developer"
 msgstr ""
 
@@ -394,7 +394,7 @@ msgstr ""
 #: includes/Modules/MaintenanceMode/Module.php:514
 #: includes/Modules/MaintenanceMode/Module.php:521
 #: build/780.243631a5425149210ac0.js:3
-#: build/index.65272ccf3788790bbacd.js:3
+#: build/index.6a308fc69fed278cad0d.js:3
 msgid "Appearance"
 msgstr ""
 
@@ -855,7 +855,7 @@ msgid "Enable login screen customization"
 msgstr ""
 
 #: includes/Modules/AdminCustomiser/QuickSearch.php:55
-#: build/index.65272ccf3788790bbacd.js:2
+#: build/index.6a308fc69fed278cad0d.js:2
 msgid "Search..."
 msgstr ""
 
@@ -1135,7 +1135,7 @@ msgstr ""
 #: includes/Modules/AiAssistant/ChatRestController.php:485
 #: build/190.d1b6f4a21e981835a914.js:1
 #: build/337.a580f3ac5d2140c170b7.js:1
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 #: build/604.883e2d11d51b0c326fb2.js:1
 #: build/604.883e2d11d51b0c326fb2.js:3
 msgid "Note"
@@ -1590,7 +1590,7 @@ msgstr ""
 #: includes/Modules/AiAssistant/Mcp/JwtAuth.php:139
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:197
 #: build/190.d1b6f4a21e981835a914.js:1
-#: build/499.21da9a92adf310cf8f6c.js:1
+#: build/499.61db26f3ddc7f6e95ea1.js:1
 msgid "Unknown"
 msgstr ""
 
@@ -3047,7 +3047,8 @@ msgstr ""
 
 #: includes/Modules/AiMarkdown/Module.php:249
 #: includes/Modules/SecurityOptimization/Module.php:477
-#: build/499.21da9a92adf310cf8f6c.js:10
+#: build/499.61db26f3ddc7f6e95ea1.js:10
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Off"
 msgstr ""
 
@@ -4004,9 +4005,9 @@ msgstr ""
 #: includes/Modules/SecurityOptimization/Module.php:840
 #: build/190.d1b6f4a21e981835a914.js:1
 #: build/295.a37662328d7b92668db7.js:1
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 #: build/866.0cee928d24b917c3b404.js:1
-#: build/index.65272ccf3788790bbacd.js:4
+#: build/index.6a308fc69fed278cad0d.js:4
 msgid "Disabled"
 msgstr ""
 
@@ -4526,7 +4527,7 @@ msgstr ""
 #: build/457.f7a98c5bd561f630e188.js:1
 #: build/474.4383124541582dc509ec.js:1
 #: build/475.40a2252128428bbd474c.js:1
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 #: build/587.cbf4e8ceccbabc9bbc13.js:1
 #: build/604.883e2d11d51b0c326fb2.js:4
 #: build/718.d76e142b68122eeb1895.js:2
@@ -4537,8 +4538,8 @@ msgstr ""
 #: build/866.0cee928d24b917c3b404.js:1
 #: build/907.84f5bdf7cee41491c2d9.js:1
 #: build/976.893f2f0b8c0a5b48bda6.js:1
-#: build/index.65272ccf3788790bbacd.js:3
-#: build/index.65272ccf3788790bbacd.js:4
+#: build/index.6a308fc69fed278cad0d.js:3
+#: build/index.6a308fc69fed278cad0d.js:4
 msgid "Settings"
 msgstr ""
 
@@ -4592,7 +4593,7 @@ msgstr ""
 #: build/337.a580f3ac5d2140c170b7.js:1
 #: build/474.4383124541582dc509ec.js:1
 #: build/475.40a2252128428bbd474c.js:1
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 #: build/587.cbf4e8ceccbabc9bbc13.js:1
 #: build/604.883e2d11d51b0c326fb2.js:4
 #: build/752.b21532d4e46c7830dc22.js:1
@@ -4600,9 +4601,9 @@ msgid "Delete"
 msgstr ""
 
 #: includes/Modules/DashboardWidgets/ExtraWidgets.php:271
-#: build/499.21da9a92adf310cf8f6c.js:10
+#: build/499.61db26f3ddc7f6e95ea1.js:10
 #: build/604.883e2d11d51b0c326fb2.js:3
-#: build/index.65272ccf3788790bbacd.js:1
+#: build/index.6a308fc69fed278cad0d.js:1
 msgid "Saving…"
 msgstr ""
 
@@ -4629,7 +4630,7 @@ msgstr ""
 #: build/457.f7a98c5bd561f630e188.js:1
 #: build/474.4383124541582dc509ec.js:1
 #: build/475.40a2252128428bbd474c.js:1
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 #: build/587.cbf4e8ceccbabc9bbc13.js:1
 #: build/604.883e2d11d51b0c326fb2.js:4
 #: build/718.d76e142b68122eeb1895.js:2
@@ -4640,7 +4641,7 @@ msgstr ""
 #: build/866.0cee928d24b917c3b404.js:1
 #: build/907.84f5bdf7cee41491c2d9.js:1
 #: build/976.893f2f0b8c0a5b48bda6.js:1
-#: build/index.65272ccf3788790bbacd.js:3
+#: build/index.6a308fc69fed278cad0d.js:3
 msgid "Saved"
 msgstr ""
 
@@ -5220,8 +5221,8 @@ msgstr ""
 #: includes/Modules/Forms/PublicRenderer.php:107
 #: includes/Modules/PostGallery/Module.php:96
 #: build/309.ecbf7f057aef447cbd89.js:1
-#: build/index.65272ccf3788790bbacd.js:1
-#: build/index.65272ccf3788790bbacd.js:2
+#: build/index.6a308fc69fed278cad0d.js:1
+#: build/index.6a308fc69fed278cad0d.js:2
 #: includes/Modules/DownloadFiles/assets/js/download-files-admin.js:49
 #: includes/Modules/PostGallery/assets/js/post-gallery-admin.js:48
 msgid "Remove"
@@ -5318,7 +5319,7 @@ msgstr ""
 #: build/309.ecbf7f057aef447cbd89.js:1
 #: build/337.a580f3ac5d2140c170b7.js:1
 #: build/475.40a2252128428bbd474c.js:1
-#: build/499.21da9a92adf310cf8f6c.js:10
+#: build/499.61db26f3ddc7f6e95ea1.js:10
 #: build/604.883e2d11d51b0c326fb2.js:3
 #: build/752.b21532d4e46c7830dc22.js:1
 #: build/780.243631a5425149210ac0.js:3
@@ -5644,7 +5645,7 @@ msgstr ""
 #: includes/Modules/ExitPopup/Module.php:105
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:235
 #: build/213.a5a0f171542d1c11d261.js:1
-#: build/499.21da9a92adf310cf8f6c.js:1
+#: build/499.61db26f3ddc7f6e95ea1.js:1
 msgid "Image"
 msgstr ""
 
@@ -6027,13 +6028,13 @@ msgstr ""
 #: build/402.55ce95a199f9414ad68c.js:1
 #: build/474.4383124541582dc509ec.js:1
 #: build/475.40a2252128428bbd474c.js:1
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 #: build/587.cbf4e8ceccbabc9bbc13.js:1
 #: build/780.243631a5425149210ac0.js:1
 #: build/780.243631a5425149210ac0.js:2
 #: build/831.e18fac40bb00fd0d185e.js:1
 #: build/866.0cee928d24b917c3b404.js:1
-#: build/index.65272ccf3788790bbacd.js:3
+#: build/index.6a308fc69fed278cad0d.js:3
 msgid "Status"
 msgstr ""
 
@@ -6052,7 +6053,7 @@ msgstr ""
 #: build/367.51e82cb65d783804b851.js:1
 #: build/402.55ce95a199f9414ad68c.js:1
 #: build/475.40a2252128428bbd474c.js:1
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 #: build/587.cbf4e8ceccbabc9bbc13.js:1
 #: build/718.d76e142b68122eeb1895.js:2
 #: build/780.243631a5425149210ac0.js:2
@@ -6183,7 +6184,7 @@ msgid "User ID"
 msgstr ""
 
 #: includes/Modules/ExportUsers/Module.php:352
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Username"
 msgstr ""
 
@@ -6340,7 +6341,7 @@ msgid "Save settings"
 msgstr ""
 
 #: includes/Modules/FileManager/Module.php:332
-#: build/index.65272ccf3788790bbacd.js:1
+#: build/index.6a308fc69fed278cad0d.js:1
 msgid "Settings saved."
 msgstr ""
 
@@ -6898,7 +6899,7 @@ msgid "Leave this field empty"
 msgstr ""
 
 #: includes/Modules/Forms/PublicRenderer.php:227
-#: build/index.65272ccf3788790bbacd.js:2
+#: build/index.6a308fc69fed278cad0d.js:2
 msgid "Choose…"
 msgstr ""
 
@@ -7979,7 +7980,7 @@ msgstr ""
 #: build/295.a37662328d7b92668db7.js:1
 #: build/337.a580f3ac5d2140c170b7.js:1
 #: build/475.40a2252128428bbd474c.js:1
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 #: build/780.243631a5425149210ac0.js:1
 #: build/780.243631a5425149210ac0.js:2
 msgid "Active"
@@ -8018,7 +8019,7 @@ msgid "Filter"
 msgstr ""
 
 #: includes/Modules/NoticeBoard/Module.php:1399
-#: build/index.65272ccf3788790bbacd.js:1
+#: build/index.6a308fc69fed278cad0d.js:1
 msgid "Reset"
 msgstr ""
 
@@ -9415,17 +9416,20 @@ msgid "Security - what the website loads (CSP)"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:86
-#: build/499.21da9a92adf310cf8f6c.js:10
+#: build/499.61db26f3ddc7f6e95ea1.js:10
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Inventory (Report only)"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:87
-#: build/499.21da9a92adf310cf8f6c.js:10
+#: build/499.61db26f3ddc7f6e95ea1.js:10
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Policy test (Report only)"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:88
-#: build/499.21da9a92adf310cf8f6c.js:10
+#: build/499.61db26f3ddc7f6e95ea1.js:10
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Enforce (blocking)"
 msgstr ""
 
@@ -9451,7 +9455,7 @@ msgstr ""
 #: build/295.a37662328d7b92668db7.js:1
 #: build/367.51e82cb65d783804b851.js:1
 #: build/457.f7a98c5bd561f630e188.js:1
-#: build/499.21da9a92adf310cf8f6c.js:15
+#: build/499.61db26f3ddc7f6e95ea1.js:15
 #: build/563.7ca83152d7afec524ae9.js:1
 #: build/718.d76e142b68122eeb1895.js:2
 msgid "Source"
@@ -9464,8 +9468,8 @@ msgstr ""
 #: build/309.ecbf7f057aef447cbd89.js:1
 #: build/337.a580f3ac5d2140c170b7.js:1
 #: build/474.4383124541582dc509ec.js:1
-#: build/499.21da9a92adf310cf8f6c.js:15
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:15
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 #: build/587.cbf4e8ceccbabc9bbc13.js:1
 #: build/604.883e2d11d51b0c326fb2.js:1
 #: build/604.883e2d11d51b0c326fb2.js:3
@@ -9476,7 +9480,7 @@ msgstr ""
 
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:136
 #: build/295.a37662328d7b92668db7.js:1
-#: build/499.21da9a92adf310cf8f6c.js:15
+#: build/499.61db26f3ddc7f6e95ea1.js:15
 #: build/718.d76e142b68122eeb1895.js:2
 msgid "Rating"
 msgstr ""
@@ -9508,28 +9512,28 @@ msgid "Too many reports in the last hour - collecting is paused until the next f
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:195
-#: build/499.21da9a92adf310cf8f6c.js:1
+#: build/499.61db26f3ddc7f6e95ea1.js:1
 msgid "High risk"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:196
 #: build/190.d1b6f4a21e981835a914.js:1
-#: build/499.21da9a92adf310cf8f6c.js:1
+#: build/499.61db26f3ddc7f6e95ea1.js:1
 msgid "Suspicious"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:198
-#: build/499.21da9a92adf310cf8f6c.js:1
+#: build/499.61db26f3ddc7f6e95ea1.js:1
 msgid "Known service"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:199
-#: build/499.21da9a92adf310cf8f6c.js:1
+#: build/499.61db26f3ddc7f6e95ea1.js:1
 msgid "Own domain"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:210
-#: build/499.21da9a92adf310cf8f6c.js:15
+#: build/499.61db26f3ddc7f6e95ea1.js:15
 msgid "NEW"
 msgstr ""
 
@@ -9538,111 +9542,111 @@ msgid "approved"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:233
-#: build/499.21da9a92adf310cf8f6c.js:1
+#: build/499.61db26f3ddc7f6e95ea1.js:1
 msgid "Script"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:234
-#: build/499.21da9a92adf310cf8f6c.js:1
+#: build/499.61db26f3ddc7f6e95ea1.js:1
 msgid "Stylesheet"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:236
-#: build/499.21da9a92adf310cf8f6c.js:1
+#: build/499.61db26f3ddc7f6e95ea1.js:1
 msgid "Font"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:237
-#: build/499.21da9a92adf310cf8f6c.js:1
+#: build/499.61db26f3ddc7f6e95ea1.js:1
 msgid "Data connection"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:238
-#: build/499.21da9a92adf310cf8f6c.js:1
+#: build/499.61db26f3ddc7f6e95ea1.js:1
 msgid "Embedded frame"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:239
-#: build/499.21da9a92adf310cf8f6c.js:1
+#: build/499.61db26f3ddc7f6e95ea1.js:1
 msgid "Audio/video"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:240
-#: build/499.21da9a92adf310cf8f6c.js:1
+#: build/499.61db26f3ddc7f6e95ea1.js:1
 msgid "Worker"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:241
-#: build/499.21da9a92adf310cf8f6c.js:1
+#: build/499.61db26f3ddc7f6e95ea1.js:1
 msgid "Manifest"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:242
-#: build/499.21da9a92adf310cf8f6c.js:1
+#: build/499.61db26f3ddc7f6e95ea1.js:1
 msgid "Form submission"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:243
-#: build/499.21da9a92adf310cf8f6c.js:1
+#: build/499.61db26f3ddc7f6e95ea1.js:1
 msgid "Plugin object"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:255
-#: build/499.21da9a92adf310cf8f6c.js:1
+#: build/499.61db26f3ddc7f6e95ea1.js:1
 msgid "unencrypted http"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:257
-#: build/499.21da9a92adf310cf8f6c.js:1
+#: build/499.61db26f3ddc7f6e95ea1.js:1
 msgid "IP address instead of a domain"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:259
-#: build/499.21da9a92adf310cf8f6c.js:1
+#: build/499.61db26f3ddc7f6e95ea1.js:1
 msgid "internationalised (look-alike) characters"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:261
-#: build/499.21da9a92adf310cf8f6c.js:1
+#: build/499.61db26f3ddc7f6e95ea1.js:1
 msgid "domain ending often used for abuse"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:263
-#: build/499.21da9a92adf310cf8f6c.js:1
+#: build/499.61db26f3ddc7f6e95ea1.js:1
 msgid "tunnel / paste / free hosting service"
 msgstr ""
 
 #. translators: %s: imitated domain, e.g. google-analytics.com
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:266
-#: build/499.21da9a92adf310cf8f6c.js:3
+#: build/499.61db26f3ddc7f6e95ea1.js:3
 #, php-format,js-format
 msgid "imitates %s"
 msgstr ""
 
 #. translators: %s: known domain with the same name, e.g. stripe.com
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:269
-#: build/499.21da9a92adf310cf8f6c.js:5
+#: build/499.61db26f3ddc7f6e95ea1.js:5
 #, php-format,js-format
 msgid "same name as %s, other ending"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:271
-#: build/499.21da9a92adf310cf8f6c.js:5
+#: build/499.61db26f3ddc7f6e95ea1.js:5
 msgid "random-looking name"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:273
-#: build/499.21da9a92adf310cf8f6c.js:5
+#: build/499.61db26f3ddc7f6e95ea1.js:5
 msgid "domain registered less than 30 days ago"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:275
-#: build/499.21da9a92adf310cf8f6c.js:5
+#: build/499.61db26f3ddc7f6e95ea1.js:5
 msgid "domain registered less than 6 months ago"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:277
-#: build/499.21da9a92adf310cf8f6c.js:5
+#: build/499.61db26f3ddc7f6e95ea1.js:5
 msgid "obfuscated inline code"
 msgstr ""
 
@@ -9694,7 +9698,7 @@ msgstr ""
 
 #: includes/Modules/SecurityOptimization/DashboardWidget.php:67
 #: build/158.853532160e5a039b13bc.js:1
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 #: build/604.883e2d11d51b0c326fb2.js:1
 #: build/604.883e2d11d51b0c326fb2.js:3
 #: build/604.883e2d11d51b0c326fb2.js:4
@@ -9834,6 +9838,7 @@ msgstr ""
 #: includes/Modules/SecurityOptimization/Module.php:446
 #: includes/Modules/SecurityOptimization/Module.php:454
 #: includes/Modules/SecurityOptimization/Module.php:462
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "HTTPS & headers"
 msgstr ""
 
@@ -9883,11 +9888,12 @@ msgstr ""
 #: includes/Modules/SecurityOptimization/Module.php:507
 #: includes/Modules/SecurityOptimization/Module.php:515
 #: includes/Modules/SecurityOptimization/Module.php:523
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "CSP"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/Module.php:474
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Content-Security-Policy (CSP)"
 msgstr ""
 
@@ -10624,14 +10630,14 @@ msgstr ""
 #: includes/Modules/SecurityOptimization/UploadGuardNotifier.php:94
 #: build/31.e5abbbec55d1ca8b79fc.js:1
 #: build/244.8601386a2d8cadd7df59.js:1
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "File"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/UploadGuardNotifier.php:95
 #: build/230.642098200ca6ec2f4bce.js:1
 #: build/457.f7a98c5bd561f630e188.js:1
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Severity"
 msgstr ""
 
@@ -10878,13 +10884,13 @@ msgstr ""
 
 #: includes/Modules/ServiceRequests/Sync.php:467
 #: build/752.b21532d4e46c7830dc22.js:1
-#: build/index.65272ccf3788790bbacd.js:3
+#: build/index.6a308fc69fed278cad0d.js:3
 msgid "Theme"
 msgstr ""
 
 #: includes/Modules/ServiceRequests/Sync.php:468
 #: build/194.e6770cd4d469e3197bae.js:1
-#: build/index.65272ccf3788790bbacd.js:3
+#: build/index.6a308fc69fed278cad0d.js:3
 msgid "Language"
 msgstr ""
 
@@ -11613,8 +11619,8 @@ msgstr ""
 #: build/457.f7a98c5bd561f630e188.js:1
 #: build/474.4383124541582dc509ec.js:1
 #: build/475.40a2252128428bbd474c.js:1
-#: build/499.21da9a92adf310cf8f6c.js:15
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:15
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 #: build/541.46ac39317ab1a5a12a26.js:1
 #: build/587.cbf4e8ceccbabc9bbc13.js:1
 #: build/604.883e2d11d51b0c326fb2.js:1
@@ -11628,9 +11634,9 @@ msgstr ""
 #: build/866.0cee928d24b917c3b404.js:1
 #: build/907.84f5bdf7cee41491c2d9.js:1
 #: build/976.893f2f0b8c0a5b48bda6.js:1
-#: build/index.65272ccf3788790bbacd.js:2
-#: build/index.65272ccf3788790bbacd.js:3
-#: build/index.65272ccf3788790bbacd.js:4
+#: build/index.6a308fc69fed278cad0d.js:2
+#: build/index.6a308fc69fed278cad0d.js:3
+#: build/index.6a308fc69fed278cad0d.js:4
 msgid "Loading…"
 msgstr ""
 
@@ -11675,7 +11681,7 @@ msgstr ""
 #: build/457.f7a98c5bd561f630e188.js:1
 #: build/474.4383124541582dc509ec.js:1
 #: build/475.40a2252128428bbd474c.js:1
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 #: build/541.46ac39317ab1a5a12a26.js:1
 #: build/563.7ca83152d7afec524ae9.js:1
 #: build/587.cbf4e8ceccbabc9bbc13.js:1
@@ -11689,8 +11695,8 @@ msgstr ""
 #: build/907.84f5bdf7cee41491c2d9.js:1
 #: build/976.893f2f0b8c0a5b48bda6.js:1
 #: build/999.e3a9e917913d7f31633a.js:1
-#: build/index.65272ccf3788790bbacd.js:3
-#: build/index.65272ccf3788790bbacd.js:4
+#: build/index.6a308fc69fed278cad0d.js:3
+#: build/index.6a308fc69fed278cad0d.js:4
 msgid "Back to modules"
 msgstr ""
 
@@ -11719,8 +11725,8 @@ msgstr ""
 #: build/457.f7a98c5bd561f630e188.js:1
 #: build/474.4383124541582dc509ec.js:1
 #: build/475.40a2252128428bbd474c.js:1
-#: build/499.21da9a92adf310cf8f6c.js:15
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:15
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 #: build/587.cbf4e8ceccbabc9bbc13.js:1
 #: build/604.883e2d11d51b0c326fb2.js:4
 #: build/718.d76e142b68122eeb1895.js:2
@@ -11731,7 +11737,7 @@ msgstr ""
 #: build/866.0cee928d24b917c3b404.js:1
 #: build/907.84f5bdf7cee41491c2d9.js:1
 #: build/976.893f2f0b8c0a5b48bda6.js:1
-#: build/index.65272ccf3788790bbacd.js:3
+#: build/index.6a308fc69fed278cad0d.js:3
 msgid "Save changes"
 msgstr ""
 
@@ -12660,7 +12666,7 @@ msgstr ""
 #: build/213.a5a0f171542d1c11d261.js:1
 #: build/295.a37662328d7b92668db7.js:1
 #: build/866.0cee928d24b917c3b404.js:1
-#: build/index.65272ccf3788790bbacd.js:4
+#: build/index.6a308fc69fed278cad0d.js:4
 msgid "Enabled"
 msgstr ""
 
@@ -12828,7 +12834,7 @@ msgid "Run check now"
 msgstr ""
 
 #: build/190.d1b6f4a21e981835a914.js:1
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Last scan:"
 msgstr ""
 
@@ -12962,7 +12968,7 @@ msgid "Download database"
 msgstr ""
 
 #: build/194.e6770cd4d469e3197bae.js:1
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Disable"
 msgstr ""
 
@@ -13386,9 +13392,9 @@ msgstr ""
 #: build/295.a37662328d7b92668db7.js:1
 #: build/309.ecbf7f057aef447cbd89.js:1
 #: build/475.40a2252128428bbd474c.js:1
-#: build/499.21da9a92adf310cf8f6c.js:15
-#: build/499.21da9a92adf310cf8f6c.js:17
-#: build/index.65272ccf3788790bbacd.js:3
+#: build/499.61db26f3ddc7f6e95ea1.js:15
+#: build/499.61db26f3ddc7f6e95ea1.js:17
+#: build/index.6a308fc69fed278cad0d.js:3
 msgid "All"
 msgstr ""
 
@@ -13636,7 +13642,7 @@ msgid "AI"
 msgstr ""
 
 #: build/295.a37662328d7b92668db7.js:1
-#: build/499.21da9a92adf310cf8f6c.js:16
+#: build/499.61db26f3ddc7f6e95ea1.js:16
 msgid "Waiting"
 msgstr ""
 
@@ -14598,8 +14604,8 @@ msgid "Code"
 msgstr ""
 
 #: build/337.a580f3ac5d2140c170b7.js:1
-#: build/499.21da9a92adf310cf8f6c.js:15
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:15
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Hits"
 msgstr ""
 
@@ -14624,7 +14630,7 @@ msgid "No 404 errors logged."
 msgstr ""
 
 #: build/337.a580f3ac5d2140c170b7.js:1
-#: build/499.21da9a92adf310cf8f6c.js:15
+#: build/499.61db26f3ddc7f6e95ea1.js:15
 msgid "Last seen"
 msgstr ""
 
@@ -14824,7 +14830,7 @@ msgid "Outdated (WordPress.org)"
 msgstr ""
 
 #: build/457.f7a98c5bd561f630e188.js:1
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Scan now"
 msgstr ""
 
@@ -15114,319 +15120,319 @@ msgstr ""
 msgid "Notice Board"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:5
+#: build/499.61db26f3ddc7f6e95ea1.js:5
 msgid "The header reaches the browser."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:5
+#: build/499.61db26f3ddc7f6e95ea1.js:5
 msgid "A CSP header arrives, but not ours - the server or another plugin replaces it (known on Hostinger with \"Force HTTPS\"). Browsers will not send reports and Enforce would do nothing."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:5
+#: build/499.61db26f3ddc7f6e95ea1.js:5
 msgid "The response has no CSP header. A page cache or the server drops it. Purge the cache and test again; if it stays, the header has to be allowed in the cache/server settings."
 msgstr ""
 
 #. translators: %d: HTTP status code
-#: build/499.21da9a92adf310cf8f6c.js:7
+#: build/499.61db26f3ddc7f6e95ea1.js:7
 #, js-format
 msgid "The home page answered with HTTP %d."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:7
+#: build/499.61db26f3ddc7f6e95ea1.js:7
 msgid "The website could not load its own home page (loopback request failed)."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:7
+#: build/499.61db26f3ddc7f6e95ea1.js:7
 msgid "Not tested yet."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:7
+#: build/499.61db26f3ddc7f6e95ea1.js:7
 msgid "The self-test confirmed the header reaches the browser (in the last 7 days)"
 msgstr ""
 
 #. translators: 1: days required, 2: days the policy test has been running
-#: build/499.21da9a92adf310cf8f6c.js:8
+#: build/499.61db26f3ddc7f6e95ea1.js:8
 #, js-format
 msgid "Policy test has been running at least %1$d days (now %2$d)"
 msgstr ""
 
 #. translators: %d: number of sources
-#: build/499.21da9a92adf310cf8f6c.js:9
+#: build/499.61db26f3ddc7f6e95ea1.js:9
 #, js-format
 msgid "No unresolved source the test policy would block in the last 7 days (now %d)"
 msgstr ""
 
 #. translators: %d: number of sources
-#: build/499.21da9a92adf310cf8f6c.js:10
+#: build/499.61db26f3ddc7f6e95ea1.js:10
 #, js-format
 msgid "No unresolved high-risk source (now %d)"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:10
+#: build/499.61db26f3ddc7f6e95ea1.js:10
 msgid "Switch CSP to Enforce?"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:10
+#: build/499.61db26f3ddc7f6e95ea1.js:10
 msgid "Before you turn on Content-Security-Policy"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:10
+#: build/499.61db26f3ddc7f6e95ea1.js:10
 msgid "CSP can directly affect how the website works."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:10
+#: build/499.61db26f3ddc7f6e95ea1.js:10
 msgid "When a source the website needs is not allowed, the browser blocks it and that part stops working - typically payments, chat, maps, analytics, cookie bars, booking or review widgets."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:10
+#: build/499.61db26f3ddc7f6e95ea1.js:10
 msgid "Inventory never blocks anything. It sends the policy as Content-Security-Policy-Report-Only and every visitor browser reports each external source the page loads. You will see them in the list below and in the dashboard widget, rated by risk. Let it run for a few days so all page types get visited."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:10
+#: build/499.61db26f3ddc7f6e95ea1.js:10
 msgid "Policy test never blocks anything either. Browsers report only what Enforce would block. Approve every source you recognise first (\"Approve all safe\" helps); what stays in the list after a week is what would break."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:10
+#: build/499.61db26f3ddc7f6e95ea1.js:10
 msgid "From now on the browser really blocks every source the policy does not allow. If something stops working, switch back to Policy test - or define UXSTUDIO_CSP_DISABLE in wp-config.php to turn CSP off without logging in."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:10
+#: build/499.61db26f3ddc7f6e95ea1.js:10
 msgid "The checks above are not all passed. I understand the risk and want to enforce anyway."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:10
+#: build/499.61db26f3ddc7f6e95ea1.js:10
 msgid "Leaving Enforce: nothing will be blocked any more."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:10
+#: build/499.61db26f3ddc7f6e95ea1.js:10
 msgid "I understand that CSP can stop parts of the website or connected services from working."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:10
+#: build/499.61db26f3ddc7f6e95ea1.js:10
 #: build/604.883e2d11d51b0c326fb2.js:3
 msgid "Confirm and save"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:10
+#: build/499.61db26f3ddc7f6e95ea1.js:10
 msgid "Start with Inventory: it blocks nothing and shows what the website loads."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:10
+#: build/499.61db26f3ddc7f6e95ea1.js:10
 msgid "Next step: once the main pages have had visitors (a few days), review the list, use \"Approve all safe\", decide on the rest and switch to Policy test."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:10
+#: build/499.61db26f3ddc7f6e95ea1.js:10
 msgid "Next step: what remains in the list would be blocked by Enforce. Approve what belongs to the website; Enforce unlocks after the checks below pass."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:10
+#: build/499.61db26f3ddc7f6e95ea1.js:10
 msgid "Disallowed sources are blocked. New entries in the list are sources that were blocked - check them, they may be an attack or a newly added service."
 msgstr ""
 
 #. translators: %d: number of days
-#: build/499.21da9a92adf310cf8f6c.js:11
+#: build/499.61db26f3ddc7f6e95ea1.js:11
 #, js-format
 msgid "running %d days"
 msgstr ""
 
 #. translators: 1: sources total, 2: high risk, 3: suspicious, 4: new in 7 days
-#: build/499.21da9a92adf310cf8f6c.js:12
+#: build/499.61db26f3ddc7f6e95ea1.js:12
 #, js-format
 msgid "%1$d sources - %2$d high risk, %3$d suspicious, %4$d new this week"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:12
+#: build/499.61db26f3ddc7f6e95ea1.js:12
 msgid "UXSTUDIO_CSP_DISABLE is set in wp-config.php - no CSP header is sent regardless of this setting."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:12
+#: build/499.61db26f3ddc7f6e95ea1.js:12
 msgid "Over 600 reports in the last hour - collecting is paused until the next full hour. Lower the sampling on a busy site."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:12
+#: build/499.61db26f3ddc7f6e95ea1.js:12
 msgid "Header self-test"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:12
+#: build/499.61db26f3ddc7f6e95ea1.js:12
 msgid "A plain (possibly cached) page came without the header - purge the page cache after changing CSP."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:12
+#: build/499.61db26f3ddc7f6e95ea1.js:12
 msgid "Testing…"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:12
+#: build/499.61db26f3ddc7f6e95ea1.js:12
 msgid "Test again"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:12
+#: build/499.61db26f3ddc7f6e95ea1.js:12
 msgid "Conditions for Enforce"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:12
+#: build/499.61db26f3ddc7f6e95ea1.js:12
 msgid "Enforce was not switched on: the conditions are not met. The previous mode stays."
 msgstr ""
 
 #. translators: %s: CSP source, e.g. https://cdn.example.com
-#: build/499.21da9a92adf310cf8f6c.js:13
+#: build/499.61db26f3ddc7f6e95ea1.js:13
 #, js-format
 msgid "%s was approved in the policy."
 msgstr ""
 
 #. translators: %s: CSP source, e.g. https://cdn.example.com
-#: build/499.21da9a92adf310cf8f6c.js:14
+#: build/499.61db26f3ddc7f6e95ea1.js:14
 #, js-format
 msgid "%s was already approved."
 msgstr ""
 
 #. translators: %d: number of sources
-#: build/499.21da9a92adf310cf8f6c.js:15
+#: build/499.61db26f3ddc7f6e95ea1.js:15
 #, js-format
 msgid "%d sources approved. Suspicious and high-risk ones stay for your decision."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:15
+#: build/499.61db26f3ddc7f6e95ea1.js:15
 msgid "Content-Security-Policy tells the browser where the website may load content from. Here you can see every external source visitor browsers reported, rated by risk, and build the policy from them."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:15
+#: build/499.61db26f3ddc7f6e95ea1.js:15
 msgid "CSP settings"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:15
+#: build/499.61db26f3ddc7f6e95ea1.js:15
 msgid "What the website loads"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:15
+#: build/499.61db26f3ddc7f6e95ea1.js:15
 msgid "Waiting for review"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:15
+#: build/499.61db26f3ddc7f6e95ea1.js:15
 msgid "Approved / resolved"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:15
+#: build/499.61db26f3ddc7f6e95ea1.js:15
 msgid "Any rating"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:15
+#: build/499.61db26f3ddc7f6e95ea1.js:15
 msgid "Approve every open source without any risk signal (own subdomains, known services, unknown hosts with no warning)? Suspicious and high-risk sources are left for you."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:15
+#: build/499.61db26f3ddc7f6e95ea1.js:15
 msgid "Approve all safe"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:15
+#: build/499.61db26f3ddc7f6e95ea1.js:15
 msgid "State"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:15
+#: build/499.61db26f3ddc7f6e95ea1.js:15
 msgid "(unknown)"
 msgstr ""
 
 #. translators: 1: first page path, 2: number of pages
-#: build/499.21da9a92adf310cf8f6c.js:16
+#: build/499.61db26f3ddc7f6e95ea1.js:16
 #, js-format
 msgid "seen on %1$s (%2$d pages)"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:16
+#: build/499.61db26f3ddc7f6e95ea1.js:16
 msgid "Allowed by policy"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:16
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:16
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Approved"
 msgstr ""
 
 #. translators: 1: CSP source, e.g. https://cdn.example.com, 2: type, e.g. Script
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 #, js-format
 msgid "Approve %1$s for %2$s"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Approve"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "This source is rated as suspicious. Approve it only if you know who added it and why. Approve anyway?"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Mark resolved without changing the policy (e.g. removed from the website)"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Mark resolved"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Nothing collected yet. Switch CSP to Inventory to find out what the website loads."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "No sources reported yet. Browsers report them as visitors open pages - give it a few hours."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Save Upload Guard settings"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Scanning in batches…"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "server is busy, continuing at"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "waiting for the night window, continuing at"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "New uploads are checked right away; uploads, plugins and themes are scanned at night by the schedule below, in small batches that pause when the server is busy. The scanner only reports: nothing is moved or deleted unless you quarantine a file yourself."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Scan running…"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "files scanned:"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "detections:"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "No scan has run yet."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Detected"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Quarantined"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Queued"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "line"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Move to quarantine"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 #, js-format
 msgid ""
 "Move this file to quarantine?\n"
@@ -15436,112 +15442,120 @@ msgid ""
 "The site stops loading it. If it is part of a working plugin or theme, that part may break - you can restore it with Approve."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Delete permanently"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "No findings in this category."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Login Attempts"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "IP Bans"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Upload Guard"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
+msgid "Open CSP settings"
+msgstr ""
+
+#: build/499.61db26f3ddc7f6e95ea1.js:17
+msgid "CSP has its own tab: it shows what the website loads, rates each source by risk and switches modes step by step with a confirmation."
+msgstr ""
+
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "A CAPTCHA secret key is currently set."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "No CAPTCHA secret key set yet."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid ".htaccess rules"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Applied and up to date"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Out of date - re-apply to write current settings"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Apply .htaccess rules"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Clear all attempts"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "IP"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Lockout (min)"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 #: build/604.883e2d11d51b0c326fb2.js:4
 msgid "Locked"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Cleared"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Unlock"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "No failed login attempts recorded."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Single IP address"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "IP range (CIDR)"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Country code (ISO 3166-1 alpha-2)"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Add ban"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Target"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Central"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Enable"
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "No IP bans yet."
 msgstr ""
 
-#: build/499.21da9a92adf310cf8f6c.js:17
+#: build/499.61db26f3ddc7f6e95ea1.js:17
 msgid "Security - Access Control"
 msgstr ""
 
@@ -16470,7 +16484,7 @@ msgid "Delete field"
 msgstr ""
 
 #: build/780.243631a5425149210ac0.js:2
-#: build/index.65272ccf3788790bbacd.js:2
+#: build/index.6a308fc69fed278cad0d.js:2
 msgid "Options"
 msgstr ""
 
@@ -16483,7 +16497,7 @@ msgid "Add option"
 msgstr ""
 
 #: build/780.243631a5425149210ac0.js:2
-#: build/index.65272ccf3788790bbacd.js:1
+#: build/index.6a308fc69fed278cad0d.js:1
 msgid "General"
 msgstr ""
 
@@ -17355,154 +17369,154 @@ msgstr ""
 msgid "Open AI Panel"
 msgstr ""
 
-#: build/index.65272ccf3788790bbacd.js:1
+#: build/index.6a308fc69fed278cad0d.js:1
 msgid "Select image"
 msgstr ""
 
-#: build/index.65272ccf3788790bbacd.js:1
+#: build/index.6a308fc69fed278cad0d.js:1
 msgid "Change image"
 msgstr ""
 
-#: build/index.65272ccf3788790bbacd.js:1
+#: build/index.6a308fc69fed278cad0d.js:1
 msgid "— Select —"
 msgstr ""
 
-#: build/index.65272ccf3788790bbacd.js:1
+#: build/index.6a308fc69fed278cad0d.js:1
 msgid "Default"
 msgstr ""
 
-#: build/index.65272ccf3788790bbacd.js:1
+#: build/index.6a308fc69fed278cad0d.js:1
 msgid "Choose options"
 msgstr ""
 
 #. translators: %d: number of selected options.
-#: build/index.65272ccf3788790bbacd.js:2
+#: build/index.6a308fc69fed278cad0d.js:2
 #, js-format
 msgid "%d selected"
 msgstr ""
 
-#: build/index.65272ccf3788790bbacd.js:2
+#: build/index.6a308fc69fed278cad0d.js:2
 msgid "Selected options"
 msgstr ""
 
-#: build/index.65272ccf3788790bbacd.js:2
+#: build/index.6a308fc69fed278cad0d.js:2
 msgid "Administration"
 msgstr ""
 
-#: build/index.65272ccf3788790bbacd.js:2
+#: build/index.6a308fc69fed278cad0d.js:2
 msgid "Failed to load modules."
 msgstr ""
 
-#: build/index.65272ccf3788790bbacd.js:2
-#: build/index.65272ccf3788790bbacd.js:4
+#: build/index.6a308fc69fed278cad0d.js:2
+#: build/index.6a308fc69fed278cad0d.js:4
 msgid "Modules"
 msgstr ""
 
 #. translators: %d: number of currently active modules.
-#: build/index.65272ccf3788790bbacd.js:3
+#: build/index.6a308fc69fed278cad0d.js:3
 #, js-format
 msgid "Deactivate %d active module?"
 msgid_plural "Deactivate all %d active modules?"
 msgstr[0] ""
 msgstr[1] ""
 
-#: build/index.65272ccf3788790bbacd.js:3
+#: build/index.6a308fc69fed278cad0d.js:3
 msgid "Deactivate all modules"
 msgstr ""
 
-#: build/index.65272ccf3788790bbacd.js:3
+#: build/index.6a308fc69fed278cad0d.js:3
 msgid "Search modules…"
 msgstr ""
 
-#: build/index.65272ccf3788790bbacd.js:3
+#: build/index.6a308fc69fed278cad0d.js:3
 msgid "Search modules"
 msgstr ""
 
-#: build/index.65272ccf3788790bbacd.js:3
+#: build/index.6a308fc69fed278cad0d.js:3
 msgid "Module group"
 msgstr ""
 
-#: build/index.65272ccf3788790bbacd.js:3
+#: build/index.6a308fc69fed278cad0d.js:3
 msgid "All statuses"
 msgstr ""
 
 #. translators: %d: number of enabled modules.
-#: build/index.65272ccf3788790bbacd.js:3
+#: build/index.6a308fc69fed278cad0d.js:3
 #, js-format
 msgid "Enabled (%d)"
 msgstr ""
 
 #. translators: %d: number of disabled modules.
-#: build/index.65272ccf3788790bbacd.js:3
+#: build/index.6a308fc69fed278cad0d.js:3
 #, js-format
 msgid "Disabled (%d)"
 msgstr ""
 
-#: build/index.65272ccf3788790bbacd.js:3
+#: build/index.6a308fc69fed278cad0d.js:3
 msgid "No module matches the filter."
 msgstr ""
 
-#: build/index.65272ccf3788790bbacd.js:3
-#: build/index.65272ccf3788790bbacd.js:4
+#: build/index.6a308fc69fed278cad0d.js:3
+#: build/index.6a308fc69fed278cad0d.js:4
 msgid "Disable module"
 msgstr ""
 
-#: build/index.65272ccf3788790bbacd.js:3
-#: build/index.65272ccf3788790bbacd.js:4
+#: build/index.6a308fc69fed278cad0d.js:3
+#: build/index.6a308fc69fed278cad0d.js:4
 msgid "Enable module"
 msgstr ""
 
-#: build/index.65272ccf3788790bbacd.js:3
+#: build/index.6a308fc69fed278cad0d.js:3
 msgid "Switch to light mode"
 msgstr ""
 
-#: build/index.65272ccf3788790bbacd.js:3
+#: build/index.6a308fc69fed278cad0d.js:3
 msgid "Switch to dark mode"
 msgstr ""
 
-#: build/index.65272ccf3788790bbacd.js:3
+#: build/index.6a308fc69fed278cad0d.js:3
 msgid "About"
 msgstr ""
 
-#: build/index.65272ccf3788790bbacd.js:3
+#: build/index.6a308fc69fed278cad0d.js:3
 msgid "Plugin version"
 msgstr ""
 
-#: build/index.65272ccf3788790bbacd.js:3
+#: build/index.6a308fc69fed278cad0d.js:3
 msgid "API version"
 msgstr ""
 
-#: build/index.65272ccf3788790bbacd.js:3
+#: build/index.6a308fc69fed278cad0d.js:3
 msgid "Menu Organizer"
 msgstr ""
 
 #. translators: 1: enabled features, 2: all features in the group.
-#: build/index.65272ccf3788790bbacd.js:4
+#: build/index.6a308fc69fed278cad0d.js:4
 #, js-format
 msgid "%1$d of %2$d on"
 msgstr ""
 
-#: build/index.65272ccf3788790bbacd.js:4
+#: build/index.6a308fc69fed278cad0d.js:4
 msgid "This module is turned off. Enable it to use its settings."
 msgstr ""
 
-#: build/index.65272ccf3788790bbacd.js:4
+#: build/index.6a308fc69fed278cad0d.js:4
 msgid "Enabling…"
 msgstr ""
 
-#: build/index.65272ccf3788790bbacd.js:4
+#: build/index.6a308fc69fed278cad0d.js:4
 msgid "Toggle dark mode"
 msgstr ""
 
-#: build/index.65272ccf3788790bbacd.js:4
+#: build/index.6a308fc69fed278cad0d.js:4
 msgid "Light mode"
 msgstr ""
 
-#: build/index.65272ccf3788790bbacd.js:4
+#: build/index.6a308fc69fed278cad0d.js:4
 msgid "Dark mode"
 msgstr ""
 
-#: build/index.65272ccf3788790bbacd.js:4
+#: build/index.6a308fc69fed278cad0d.js:4
 msgid "UX Studio navigation"
 msgstr ""
 

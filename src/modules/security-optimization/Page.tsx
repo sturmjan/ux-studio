@@ -55,7 +55,21 @@ interface HtaccessStatus {
 	current_hash: string;
 }
 
-function SettingsTab(): JSX.Element {
+/** Badge for the saved CSP mode (shown in the HTTPS & headers section). */
+function cspBadge( mode: string ): { cls: string; label: string } {
+	switch ( mode ) {
+		case 'audit':
+			return { cls: 'is-warning', label: __( 'Inventory (Report only)', 'ux-studio' ) };
+		case 'report-only':
+			return { cls: 'is-warning', label: __( 'Policy test (Report only)', 'ux-studio' ) };
+		case 'enforce':
+			return { cls: 'is-danger', label: __( 'Enforce (blocking)', 'ux-studio' ) };
+		default:
+			return { cls: '', label: __( 'Off', 'ux-studio' ) };
+	}
+}
+
+function SettingsTab( { onOpenCsp }: { onOpenCsp: () => void } ): JSX.Element {
 	const { data, isLoading, draft, setDraft, save, saved } = useModuleSettings( 'security-optimization' );
 
 	const htaccess = useQuery( {
@@ -83,7 +97,33 @@ function SettingsTab(): JSX.Element {
 
 	return (
 		<>
-			<SettingsFields schema={ schema } draft={ draft } setDraft={ setDraft } />
+			<SettingsFields
+				schema={ schema }
+				draft={ draft }
+				setDraft={ setDraft }
+				sectionExtras={ {
+					// CSP lives on its own tab (mode changes need a confirmation dialog), but
+					// this is where people look for it - next to the other headers.
+					[ __( 'HTTPS & headers', 'ux-studio' ) ]: (
+						<div className="uxs-form uxs-form--grid">
+							<div className="uxs-form__row">
+								<label>{ __( 'Content-Security-Policy (CSP)', 'ux-studio' ) }</label>
+								<div>
+									<span className={ `uxs-badge ${ cspBadge( String( data.values.csp_mode ?? 'off' ) ).cls }` }>
+										{ cspBadge( String( data.values.csp_mode ?? 'off' ) ).label }
+									</span>{ ' ' }
+									<button type="button" className="button button-small" onClick={ onOpenCsp }>
+										{ __( 'Open CSP settings', 'ux-studio' ) }
+									</button>
+								</div>
+								<p className="uxs-form__help">
+									{ __( 'CSP has its own tab: it shows what the website loads, rates each source by risk and switches modes step by step with a confirmation.', 'ux-studio' ) }
+								</p>
+							</div>
+						</div>
+					),
+				} }
+			/>
 			<p>
 				{ draft.has_captcha_secret_key
 					? __( 'A CAPTCHA secret key is currently set.', 'ux-studio' )
@@ -372,7 +412,7 @@ export default function Page(): JSX.Element {
 					</button>
 				) ) }
 			</TabsNav>
-			{ tab === 'settings' && <SettingsTab /> }
+			{ tab === 'settings' && <SettingsTab onOpenCsp={ () => setTab( 'csp' ) } /> }
 			{ tab === 'login-attempts' && <LoginAttemptsTab /> }
 			{ tab === 'ip-bans' && <IpBansTab /> }
 			{ tab === 'csp' && <CspTab /> }
