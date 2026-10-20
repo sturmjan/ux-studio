@@ -4,10 +4,11 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, LoaderCircle, Pencil, Plus, RefreshCw, Trash2, KeyRound, Send } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
-import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { useModuleSettings } from '../../app/SettingsForm';
+import { TopicSettings, withKeys } from '../../app/TopicSettings';
 import { TabsNav } from '../../app/SubNav';
 
-type Tab = 'sites' | 'push' | 'remote' | 'log' | 'settings';
+type Tab = 'sites' | 'push' | 'remote' | 'log' | 'settings' | 'sso';
 
 interface Site {
 	id: number;
@@ -580,9 +581,27 @@ function LogTab(): JSX.Element {
 	);
 }
 
+/** Whether the secrets are stored (they are never sent back to the browser). */
+function SecretsNote(): JSX.Element {
+	const { draft } = useModuleSettings( 'content-sync' );
+	return (
+		<p>
+			{ draft.has_node_api_key
+				? __( 'A node API key is currently set.', 'ux-studio' )
+				: __( 'No node API key set yet.', 'ux-studio' ) }
+			{ ' ' }
+			{ draft.has_hmac_secret
+				? __( 'A central-app HMAC secret is set.', 'ux-studio' )
+				: __( 'No central-app HMAC secret set.', 'ux-studio' ) }
+		</p>
+	);
+}
+
+/** Role of this site plus how it connects (as a node, to the central app). */
+const isConnectionKey = withKeys( 'mode', 'node_', 'central_app_url', 'hmac_secret' );
+
 export default function Page(): JSX.Element {
 	const [ tab, setTab ] = useState< Tab >( 'sites' );
-	const { data, isLoading, draft, setDraft, save, saved } = useModuleSettings( 'content-sync' );
 
 	return (
 		<>
@@ -613,35 +632,27 @@ export default function Page(): JSX.Element {
 					{ __( 'Log', 'ux-studio' ) }
 				</button>
 				<button className={ tab === 'settings' ? 'is-active' : '' } onClick={ () => setTab( 'settings' ) }>
-					{ __( 'Settings', 'ux-studio' ) }
+					{ __( 'Role and connection', 'ux-studio' ) }
+				</button>
+				<button className={ tab === 'sso' ? 'is-active' : '' } onClick={ () => setTab( 'sso' ) }>
+					{ __( 'SSO login', 'ux-studio' ) }
 				</button>
 			</TabsNav>
 			{ tab === 'sites' && <SitesTab /> }
 			{ tab === 'push' && <PushTab /> }
 			{ tab === 'remote' && <RemoteTab /> }
-			{ tab === 'log' && <LogTab /> }
-			{ tab === 'settings' && ( isLoading || ! data ) && (
-				<div className="uxs-loading">
-					<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />
-				</div>
-			) }
-			{ tab === 'settings' && data && (
+			{ tab === 'log' && (
 				<>
-					<SettingsFields schema={ data.schema } draft={ draft } setDraft={ setDraft } />
-					<p>
-						{ draft.has_node_api_key
-							? __( 'A node API key is currently set.', 'ux-studio' )
-							: __( 'No node API key set yet.', 'ux-studio' ) }
-						{ ' ' }
-						{ draft.has_hmac_secret
-							? __( 'A central-app HMAC secret is set.', 'ux-studio' )
-							: __( 'No central-app HMAC secret set.', 'ux-studio' ) }
-					</p>
-					<button type="button" className="button button-primary" onClick={ () => save.mutate() }>
-						{ saved ? __( 'Saved', 'ux-studio' ) : __( 'Save changes', 'ux-studio' ) }
-					</button>
+					<TopicSettings moduleId="content-sync" include={ withKeys( 'retention_days' ) } collapsible={ __( 'Log settings', 'ux-studio' ) } />
+					<LogTab />
 				</>
 			) }
+			{ tab === 'settings' && (
+				<TopicSettings moduleId="content-sync" include={ isConnectionKey }>
+					<SecretsNote />
+				</TopicSettings>
+			) }
+			{ tab === 'sso' && <TopicSettings moduleId="content-sync" include={ withKeys( 'sso_' ) } /> }
 		</>
 	);
 }

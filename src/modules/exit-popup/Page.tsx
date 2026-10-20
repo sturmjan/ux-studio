@@ -4,10 +4,9 @@ import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Download, LoaderCircle } from 'lucide-react';
 import { api } from '../../app/api';
 import { navigate } from '../../app/route';
-import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { TopicSettings, inSections } from '../../app/TopicSettings';
 import { TabsNav } from '../../app/SubNav';
 
-type Tab = 'settings' | 'subscribers';
 
 interface Subscriber {
 	id: number;
@@ -74,9 +73,20 @@ function SubscribersTable(): JSX.Element {
 	);
 }
 
+const MODULE = 'exit-popup';
+
+/** One menu item per settings section; subscribers sit with the e-mail capture they come from. */
+const TOPICS: { id: string; label: string }[] = [
+	{ id: 'content', label: __( 'Content', 'ux-studio' ) },
+	{ id: 'appearance', label: __( 'Appearance', 'ux-studio' ) },
+	{ id: 'triggers', label: __( 'Triggers', 'ux-studio' ) },
+	{ id: 'targeting', label: __( 'Targeting', 'ux-studio' ) },
+	{ id: 'email', label: __( 'Email capture', 'ux-studio' ) },
+];
+
 export default function Page(): JSX.Element {
-	const [ tab, setTab ] = useState< Tab >( 'settings' );
-	const { data, isLoading, draft, setDraft, save, saved } = useModuleSettings( 'exit-popup' );
+	const [ tab, setTab ] = useState< string >( 'content' );
+	const topic = TOPICS.find( ( t ) => t.id === tab ) ?? ( TOPICS[ 0 ] as ( typeof TOPICS )[ number ] );
 
 	return (
 		<>
@@ -94,27 +104,19 @@ export default function Page(): JSX.Element {
 				</h1>
 			</header>
 			<TabsNav>
-				<button className={ tab === 'settings' ? 'is-active' : '' } onClick={ () => setTab( 'settings' ) }>
-					{ __( 'Settings', 'ux-studio' ) }
-				</button>
-				<button className={ tab === 'subscribers' ? 'is-active' : '' } onClick={ () => setTab( 'subscribers' ) }>
-					{ __( 'Subscribers', 'ux-studio' ) }
-				</button>
-			</TabsNav>
-			{ tab === 'settings' && ( isLoading || ! data ) && (
-				<div className="uxs-loading">
-					<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />
-				</div>
-			) }
-			{ tab === 'settings' && data && (
-				<>
-					<SettingsFields schema={ data.schema } draft={ draft } setDraft={ setDraft } />
-					<button type="button" className="button button-primary" onClick={ () => save.mutate() }>
-						{ saved ? __( 'Saved', 'ux-studio' ) : __( 'Save changes', 'ux-studio' ) }
+				{ TOPICS.map( ( t ) => (
+					<button key={ t.id } className={ tab === t.id ? 'is-active' : '' } onClick={ () => setTab( t.id ) }>
+						{ t.label }
 					</button>
-				</>
+				) ) }
+			</TabsNav>
+			<TopicSettings key={ topic.id } moduleId={ MODULE } include={ inSections( topic.label ) } />
+			{ topic.id === 'email' && (
+				<section className="uxs-topic-data">
+					<h3>{ __( 'Subscribers', 'ux-studio' ) }</h3>
+					<SubscribersTable />
+				</section>
 			) }
-			{ tab === 'subscribers' && <SubscribersTable /> }
 		</>
 	);
 }

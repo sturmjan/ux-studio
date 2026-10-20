@@ -4,25 +4,39 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, LoaderCircle, Lock, Plus, RefreshCw, Trash2, Unlock } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { hashParam, navigate } from '../../app/route';
-import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { useModuleSettings } from '../../app/SettingsForm';
+import { TopicSettings, inSections } from '../../app/TopicSettings';
 import { CspTab } from './CspTab';
 import { UploadGuardTab } from './UploadGuardTab';
 import { TabsNav } from '../../app/SubNav';
 
+const MODULE = 'security-optimization';
+
 /**
- * Tab registry for this module's page: "Settings", "Login Attempts" and
- * "IP Bans" (access-control domain, this file) plus "CSP" and "Upload Guard"
- * (malware scanner, ported separately - see CspTab.tsx/UploadGuardTab.tsx).
+ * One menu item per topic; each page shows the topic's settings and, below,
+ * its data (ban list, login attempts, CSP inventory, scan findings). CSP and
+ * Upload Guard pages live in CspTab.tsx/UploadGuardTab.tsx.
  */
-type TabId = 'settings' | 'login-attempts' | 'ip-bans' | 'csp' | 'upload-guard';
+type TabId = 'firewall' | 'login' | 'captcha' | 'headers' | 'csp' | 'upload-guard' | 'hardening' | 'performance' | 'content';
 
 const TABS: { id: TabId; label: string }[] = [
-	{ id: 'settings', label: __( 'Settings', 'ux-studio' ) },
-	{ id: 'login-attempts', label: __( 'Login Attempts', 'ux-studio' ) },
-	{ id: 'ip-bans', label: __( 'IP Bans', 'ux-studio' ) },
+	{ id: 'firewall', label: __( 'Firewall & IP bans', 'ux-studio' ) },
+	{ id: 'login', label: __( 'Login', 'ux-studio' ) },
+	{ id: 'captcha', label: __( 'CAPTCHA', 'ux-studio' ) },
+	{ id: 'headers', label: __( 'HTTPS & headers', 'ux-studio' ) },
 	{ id: 'csp', label: __( 'CSP', 'ux-studio' ) },
-	{ id: 'upload-guard', label: __( 'Upload Guard', 'ux-studio' ) },
+	{ id: 'upload-guard', label: __( 'Upload protection', 'ux-studio' ) },
+	{ id: 'hardening', label: __( 'Site hardening', 'ux-studio' ) },
+	{ id: 'performance', label: __( 'Performance', 'ux-studio' ) },
+	{ id: 'content', label: __( 'Content', 'ux-studio' ) },
 ];
+
+/** Tab ids of the old layout, still used by links in e-mails and bookmarks. */
+const LEGACY_TABS: Record< string, TabId > = {
+	settings: 'firewall',
+	'ip-bans': 'firewall',
+	'login-attempts': 'login',
+};
 
 interface LoginAttemptRow {
 	id: number;
@@ -55,105 +69,59 @@ interface HtaccessStatus {
 	current_hash: string;
 }
 
-/** Badge for the saved CSP mode (shown in the HTTPS & headers section). */
-function cspBadge( mode: string ): { cls: string; label: string } {
-	switch ( mode ) {
-		case 'audit':
-			return { cls: 'is-warning', label: __( 'Inventory (Report only)', 'ux-studio' ) };
-		case 'report-only':
-			return { cls: 'is-warning', label: __( 'Policy test (Report only)', 'ux-studio' ) };
-		case 'enforce':
-			return { cls: 'is-danger', label: __( 'Enforce (blocking)', 'ux-studio' ) };
-		default:
-			return { cls: '', label: __( 'Off', 'ux-studio' ) };
-	}
-}
-
-function SettingsTab( { onOpenCsp }: { onOpenCsp: () => void } ): JSX.Element {
-	const { data, isLoading, draft, setDraft, save, saved } = useModuleSettings( 'security-optimization' );
-
+/**
+ * State of the module's .htaccess block - shown on the topics whose settings
+ * are written there (HTTPS & headers, Site hardening).
+ */
+function HtaccessStatusBox(): JSX.Element {
 	const htaccess = useQuery( {
-		queryKey: [ 'security-optimization', 'htaccess-status' ],
+		queryKey: [ MODULE, 'htaccess-status' ],
 		queryFn: () => api< HtaccessStatus >( 'security-optimization/htaccess/status' ),
 	} );
 
 	const applyHtaccess = useMutation( {
 		mutationFn: () => api( 'security-optimization/htaccess/apply', { method: 'POST' } ),
-		onSuccess: () => void queryClient.invalidateQueries( { queryKey: [ 'security-optimization', 'htaccess-status' ] } ),
+		onSuccess: () => void queryClient.invalidateQueries( { queryKey: [ MODULE, 'htaccess-status' ] } ),
 	} );
 
-	if ( isLoading || ! data ) {
-		return (
-			<div className="uxs-loading">
-				<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />
-			</div>
-		);
-	}
-
-	// Upload Guard and CSP settings live on their own tabs (UploadGuardTab,
-	// CspTab - mode changes need a confirmation dialog there); keep them out of
-	// the generic settings grid to avoid showing the same fields twice.
-	const schema = data.schema.filter( ( f ) => ! f.key.startsWith( 'upload_guard' ) && ! f.key.startsWith( 'csp_' ) );
-
 	return (
-		<>
-			<SettingsFields
-				schema={ schema }
-				draft={ draft }
-				setDraft={ setDraft }
-				sectionExtras={ {
-					// CSP lives on its own tab (mode changes need a confirmation dialog), but
-					// this is where people look for it - next to the other headers.
-					[ __( 'HTTPS & headers', 'ux-studio' ) ]: (
-						<div className="uxs-form uxs-form--grid">
-							<div className="uxs-form__row">
-								<label>{ __( 'Content-Security-Policy (CSP)', 'ux-studio' ) }</label>
-								<div>
-									<span className={ `uxs-badge ${ cspBadge( String( data.values.csp_mode ?? 'off' ) ).cls }` }>
-										{ cspBadge( String( data.values.csp_mode ?? 'off' ) ).label }
-									</span>{ ' ' }
-									<button type="button" className="button button-small" onClick={ onOpenCsp }>
-										{ __( 'Open CSP settings', 'ux-studio' ) }
-									</button>
-								</div>
-								<p className="uxs-form__help">
-									{ __( 'CSP has its own tab: it shows what the website loads, rates each source by risk and switches modes step by step with a confirmation.', 'ux-studio' ) }
-								</p>
-							</div>
-						</div>
-					),
-				} }
-			/>
-			<p>
-				{ draft.has_captcha_secret_key
-					? __( 'A CAPTCHA secret key is currently set.', 'ux-studio' )
-					: __( 'No CAPTCHA secret key set yet.', 'ux-studio' ) }
-			</p>
-			<button type="button" className="button button-primary" onClick={ () => save.mutate() }>
-				{ saved ? __( 'Saved', 'ux-studio' ) : __( 'Save changes', 'ux-studio' ) }
+		<div style={ { marginTop: 'var(--uxs-sp-5)' } }>
+			<h3>{ __( '.htaccess rules', 'ux-studio' ) }</h3>
+			{ htaccess.data && (
+				<p>
+					<span className={ `uxs-badge ${ htaccess.data.applied ? 'is-success' : 'is-warning' }` }>
+						{ htaccess.data.applied
+							? __( 'Applied and up to date', 'ux-studio' )
+							: __( 'Out of date - re-apply to write current settings', 'ux-studio' ) }
+					</span>
+				</p>
+			) }
+			<button type="button" className="button" disabled={ applyHtaccess.isPending } onClick={ () => applyHtaccess.mutate() }>
+				<RefreshCw size={ 14 } /> { __( 'Apply .htaccess rules', 'ux-studio' ) }
 			</button>
+		</div>
+	);
+}
 
-			<div style={ { marginTop: 'var(--uxs-sp-5)' } }>
-				<h3>{ __( '.htaccess rules', 'ux-studio' ) }</h3>
-				{ htaccess.data && (
-					<p>
-						<span className={ `uxs-badge ${ htaccess.data.applied ? 'is-success' : 'is-warning' }` }>
-							{ htaccess.data.applied
-								? __( 'Applied and up to date', 'ux-studio' )
-								: __( 'Out of date - re-apply to write current settings', 'ux-studio' ) }
-						</span>
-					</p>
-				) }
-				<button
-					type="button"
-					className="button"
-					disabled={ applyHtaccess.isPending }
-					onClick={ () => applyHtaccess.mutate() }
-				>
-					<RefreshCw size={ 14 } /> { __( 'Apply .htaccess rules', 'ux-studio' ) }
-				</button>
-			</div>
-		</>
+/** Whether the CAPTCHA secret is stored (it is never sent back to the browser). */
+function CaptchaSecretNote(): JSX.Element {
+	const { draft } = useModuleSettings( MODULE );
+	return (
+		<p>
+			{ draft.has_captcha_secret_key
+				? __( 'A CAPTCHA secret key is currently set.', 'ux-studio' )
+				: __( 'No CAPTCHA secret key set yet.', 'ux-studio' ) }
+		</p>
+	);
+}
+
+/** A data block under the topic's settings. */
+function TopicData( { title, children }: { title: string; children: JSX.Element } ): JSX.Element {
+	return (
+		<section className="uxs-topic-data">
+			<h3>{ title }</h3>
+			{ children }
+		</section>
 	);
 }
 
@@ -384,10 +352,10 @@ function IpBansTab(): JSX.Element {
 }
 
 export default function Page(): JSX.Element {
-	// Deep links (dashboard widget, e-mails) open a tab directly: #/module?id=…&tab=csp.
+	// Deep links (dashboard widget, e-mails) open a topic directly: #/module?id=…&tab=csp.
 	const [ tab, setTab ] = useState< TabId >( () => {
-		const wanted = hashParam( 'tab' );
-		return TABS.find( ( t ) => t.id === wanted )?.id ?? 'settings';
+		const wanted = hashParam( 'tab' ) ?? '';
+		return TABS.find( ( t ) => t.id === wanted )?.id ?? LEGACY_TABS[ wanted ] ?? 'firewall';
 	} );
 
 	return (
@@ -412,11 +380,44 @@ export default function Page(): JSX.Element {
 					</button>
 				) ) }
 			</TabsNav>
-			{ tab === 'settings' && <SettingsTab onOpenCsp={ () => setTab( 'csp' ) } /> }
-			{ tab === 'login-attempts' && <LoginAttemptsTab /> }
-			{ tab === 'ip-bans' && <IpBansTab /> }
+			<h2 className="uxs-form__section">{ TABS.find( ( t ) => t.id === tab )?.label }</h2>
+			{ tab === 'firewall' && (
+				<>
+					<TopicSettings moduleId={ MODULE } include={ inSections( __( 'Firewall', 'ux-studio' ) ) } />
+					<TopicData title={ __( 'Blocked IP addresses', 'ux-studio' ) }>
+						<IpBansTab />
+					</TopicData>
+				</>
+			) }
+			{ tab === 'login' && (
+				<>
+					<TopicSettings moduleId={ MODULE } include={ inSections( __( 'Login', 'ux-studio' ) ) } />
+					<TopicData title={ __( 'Login attempts', 'ux-studio' ) }>
+						<LoginAttemptsTab />
+					</TopicData>
+				</>
+			) }
+			{ tab === 'captcha' && (
+				<TopicSettings moduleId={ MODULE } include={ inSections( __( 'CAPTCHA', 'ux-studio' ) ) }>
+					<CaptchaSecretNote />
+				</TopicSettings>
+			) }
+			{ tab === 'headers' && (
+				<>
+					<TopicSettings moduleId={ MODULE } include={ inSections( __( 'HTTPS & headers', 'ux-studio' ) ) } />
+					<HtaccessStatusBox />
+				</>
+			) }
 			{ tab === 'csp' && <CspTab /> }
 			{ tab === 'upload-guard' && <UploadGuardTab /> }
+			{ tab === 'hardening' && (
+				<>
+					<TopicSettings moduleId={ MODULE } include={ inSections( __( 'Hardening', 'ux-studio' ) ) } />
+					<HtaccessStatusBox />
+				</>
+			) }
+			{ tab === 'performance' && <TopicSettings moduleId={ MODULE } include={ inSections( __( 'Performance', 'ux-studio' ) ) } /> }
+			{ tab === 'content' && <TopicSettings moduleId={ MODULE } include={ inSections( __( 'Content', 'ux-studio' ) ) } /> }
 		</>
 	);
 }

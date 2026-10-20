@@ -4,10 +4,10 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, LoaderCircle, RefreshCw, Plug, Unplug, Trash2, Plus, Eye, EyeOff } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
-import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { TopicSettings, withKeys } from '../../app/TopicSettings';
 import { TabsNav } from '../../app/SubNav';
 
-type Tab = 'connection' | 'media' | 'feeds' | 'settings';
+type Tab = 'connection' | 'media' | 'feeds';
 
 interface Status {
 	connected: boolean;
@@ -125,7 +125,7 @@ function ConnectionTab(): JSX.Element {
 			{ ! data.has_app_id || ! data.has_app_secret ? (
 				<div style={ { padding: 'var(--uxs-sp-3)', borderLeft: '3px solid #d63638', background: 'rgba(214,54,56,.06)', marginBottom: 'var(--uxs-sp-4)' } }>
 					<p>
-						{ __( 'Set the Instagram app ID and app secret on the Settings tab before connecting.', 'ux-studio' ) }
+						{ __( 'Fill in the Instagram app ID and app secret above and save them before connecting.', 'ux-studio' ) }
 					</p>
 					<p className="uxs-form__help">
 						{ __( 'Register this redirect URI in your Meta app:', 'ux-studio' ) } <code>{ data.redirect_uri }</code>
@@ -454,26 +454,6 @@ function FeedsTab(): JSX.Element {
 	);
 }
 
-function SettingsTab(): JSX.Element {
-	const { data, isLoading, draft, setDraft, save, saved } = useModuleSettings( 'instagram-feed' );
-
-	if ( isLoading || ! data ) {
-		return <Spinner />;
-	}
-
-	return (
-		<>
-			<SettingsFields schema={ data.schema } draft={ draft } setDraft={ setDraft } />
-			<p className="uxs-form__help">
-				{ __( 'Default shortcode: [uxstudio_instagram]. Target a specific feed with [uxstudio_instagram id="1"].', 'ux-studio' ) }
-			</p>
-			<button type="button" className="button button-primary" onClick={ () => save.mutate() }>
-				{ saved ? __( 'Saved', 'ux-studio' ) : __( 'Save changes', 'ux-studio' ) }
-			</button>
-		</>
-	);
-}
-
 export default function Page(): JSX.Element {
 	const [ tab, setTab ] = useState< Tab >( 'connection' );
 
@@ -502,14 +482,31 @@ export default function Page(): JSX.Element {
 				<button className={ tab === 'feeds' ? 'is-active' : '' } onClick={ () => setTab( 'feeds' ) }>
 					{ __( 'Feeds', 'ux-studio' ) }
 				</button>
-				<button className={ tab === 'settings' ? 'is-active' : '' } onClick={ () => setTab( 'settings' ) }>
-					{ __( 'Settings', 'ux-studio' ) }
-				</button>
 			</TabsNav>
-			{ tab === 'connection' && <ConnectionTab /> }
-			{ tab === 'media' && <MediaTab /> }
-			{ tab === 'feeds' && <FeedsTab /> }
-			{ tab === 'settings' && <SettingsTab /> }
+			{ tab === 'connection' && (
+				<>
+					<TopicSettings
+						moduleId="instagram-feed"
+						include={ withKeys( 'app_id', 'app_secret' ) }
+						onSaved={ () => void queryClient.invalidateQueries( { queryKey: [ 'instagram-feed', 'status' ] } ) }
+					/>
+					<ConnectionTab />
+				</>
+			) }
+			{ tab === 'media' && (
+				<>
+					<TopicSettings moduleId="instagram-feed" include={ withKeys( 'sync_' ) } collapsible={ __( 'Synchronisation settings', 'ux-studio' ) } />
+					<MediaTab />
+				</>
+			) }
+			{ tab === 'feeds' && (
+				<>
+					<p className="uxs-form__help">
+						{ __( 'Default shortcode: [uxstudio_instagram]. Target a specific feed with [uxstudio_instagram id="1"].', 'ux-studio' ) }
+					</p>
+					<FeedsTab />
+				</>
+			) }
 		</>
 	);
 }

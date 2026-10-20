@@ -234,9 +234,6 @@ export function McpTab(): JSX.Element {
 					</span>
 				) }
 			</p>
-			<p className="uxs-form__help" style={ { marginBottom: 'var(--uxs-sp-5)' } }>
-				{ __( 'This toggle lives in the Settings tab ("Enable MCP (tool calling)") - it is shown here for reference only.', 'ux-studio' ) }
-			</p>
 
 			<h2>{ __( 'Registered tools & resources', 'ux-studio' ) }</h2>
 			<p>

@@ -1628,3 +1628,20 @@
 .uxs-csp-new { margin-left: 6px; }
 .uxs-csp-reasons { color: var(--uxs-danger); font-size: var(--uxs-fs-s); }
 .uxs-csp-sample { display: block; margin-top: 2px; font-size: var(--uxs-fs-s); word-break: break-all; }
+
+/* ---- Topic pages: settings of a topic, then its data (TopicSettings.tsx) ---- */
+.uxs-topic-settings {
+	margin-bottom: var(--uxs-sp-5);
+
+	> .button-primary { margin-top: var(--uxs-sp-3); }
+
+	&--collapsible > summary { cursor: pointer; font-weight: 600; margin-bottom: var(--uxs-sp-3); }
+}
+
+.uxs-topic-data {
+	margin-top: var(--uxs-sp-6, 32px);
+	padding-top: var(--uxs-sp-5);
+	border-top: 1px solid var(--uxs-border);
+
+	> h3 { margin-top: 0; }
+}

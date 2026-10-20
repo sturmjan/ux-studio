@@ -5,6 +5,7 @@ import { ArrowLeft, Check, Download, LoaderCircle, Send, Trash2 } from 'lucide-r
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { TopicSettings, withKeys } from '../../app/TopicSettings';
 import { TabsNav } from '../../app/SubNav';
 
 type Tab = 'settings' | 'log';
@@ -218,6 +219,9 @@ function LogTable(): JSX.Element {
 	);
 }
 
+/** Settings of the e-mail log - shown with the log, not in the sending settings. */
+const isLogKey = withKeys( 'enable_email_logs', 'retention_days' );
+
 export default function Page(): JSX.Element {
 	const [ tab, setTab ] = useState< Tab >( 'settings' );
 	const [ testTo, setTestTo ] = useState( '' );
@@ -269,7 +273,7 @@ export default function Page(): JSX.Element {
 			) }
 			{ tab === 'settings' && data && (
 				<>
-					<SettingsFields schema={ data.schema } draft={ draft } setDraft={ setDraft } />
+					<SettingsFields schema={ data.schema.filter( ( f ) => ! isLogKey( f ) ) } draft={ draft } setDraft={ setDraft } />
 					<p>
 						{ draft.has_password
 							? __( 'A SMTP password is currently set.', 'ux-studio' )
@@ -385,7 +389,12 @@ export default function Page(): JSX.Element {
 					</div>
 				</>
 			) }
-			{ tab === 'log' && <LogTable /> }
+			{ tab === 'log' && (
+				<>
+					<TopicSettings moduleId="smtp-email" include={ isLogKey } collapsible={ __( 'Log settings', 'ux-studio' ) } />
+					<LogTable />
+				</>
+			) }
 		</>
 	);
 }

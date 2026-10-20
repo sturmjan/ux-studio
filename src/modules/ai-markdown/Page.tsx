@@ -8,7 +8,7 @@ import { __ } from '@wordpress/i18n';
 import { ArrowLeft, Check, LoaderCircle, RefreshCw, Trash2 } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
-import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { TopicSettings, withKeys } from '../../app/TopicSettings';
 import { TabsNav } from '../../app/SubNav';
 
 type Tab = 'cache' | 'log' | 'settings';
@@ -381,9 +381,12 @@ function LogTab(): JSX.Element {
 	);
 }
 
+const MODULE = 'ai-markdown';
+const isCacheKey = withKeys( 'cache_ttl', 'auto_regenerate', 'auto_regenerate_interval' );
+const isLogKey = withKeys( 'enable_logging', 'log_retention_days' );
+
 export default function Page(): JSX.Element {
 	const [ tab, setTab ] = useState< Tab >( 'cache' );
-	const { data, isLoading, draft, setDraft, save, saved } = useModuleSettings( 'ai-markdown' );
 
 	return (
 		<>
@@ -399,17 +402,6 @@ export default function Page(): JSX.Element {
 					</button>{ ' ' }
 					{ __( 'AI Markdown', 'ux-studio' ) }
 				</h1>
-				{ tab === 'settings' && (
-					<button
-						type="button"
-						className="button button-primary"
-						disabled={ save.isPending }
-						onClick={ () => save.mutate() }
-					>
-						{ saved ? <Check size={ 14 } /> : null }
-						{ saved ? __( 'Saved', 'ux-studio' ) : __( 'Save changes', 'ux-studio' ) }
-					</button>
-				) }
 			</header>
 			<TabsNav>
 				<button className={ tab === 'cache' ? 'is-active' : '' } onClick={ () => setTab( 'cache' ) }>
@@ -422,16 +414,19 @@ export default function Page(): JSX.Element {
 					{ __( 'Settings', 'ux-studio' ) }
 				</button>
 			</TabsNav>
-			{ tab === 'cache' && <CacheTab /> }
-			{ tab === 'log' && <LogTab /> }
-			{ tab === 'settings' &&
-				( isLoading || ! data ? (
-					<div className="uxs-loading">
-						<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />
-					</div>
-				) : (
-					<SettingsFields schema={ data.schema } draft={ draft } setDraft={ setDraft } />
-				) ) }
+			{ tab === 'cache' && (
+				<>
+					<TopicSettings moduleId={ MODULE } include={ isCacheKey } collapsible={ __( 'Cache settings', 'ux-studio' ) } />
+					<CacheTab />
+				</>
+			) }
+			{ tab === 'log' && (
+				<>
+					<TopicSettings moduleId={ MODULE } include={ isLogKey } collapsible={ __( 'Log settings', 'ux-studio' ) } />
+					<LogTab />
+				</>
+			) }
+			{ tab === 'settings' && <TopicSettings moduleId={ MODULE } include={ ( f ) => ! isCacheKey( f ) && ! isLogKey( f ) } /> }
 		</>
 	);
 }
