@@ -1063,6 +1063,14 @@
 		margin: 0 0 var(--uxs-sp-3);
 		color: var(--uxs-text-soft);
 	}
+
+	.uxs-notice__error { color: var(--uxs-danger); }
+}
+
+.uxs-notice__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--uxs-sp-3);
 }
 
 /* ============================================================

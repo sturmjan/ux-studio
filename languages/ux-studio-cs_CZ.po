@@ -18161,3 +18161,11 @@ msgstr "Zatím nic nesesbíráno. Přepněte CSP na Inventuru a zjistěte, co we
 #: build/499.21da9a92adf310cf8f6c.js:17
 msgid "No sources reported yet. Browsers report them as visitors open pages - give it a few hours."
 msgstr "Zatím nebyl nahlášen žádný zdroj. Prohlížeče je hlásí, jak návštěvníci otevírají stránky - počkejte pár hodin."
+
+#: build/index.65272ccf3788790bbacd.js:4
+msgid "This module is turned off. Enable it to use its settings."
+msgstr "Tento modul je vypnutý. Zapněte ho, abyste mohli použít jeho nastavení."
+
+#: build/index.65272ccf3788790bbacd.js:4
+msgid "Enabling…"
+msgstr "Zapínám…"

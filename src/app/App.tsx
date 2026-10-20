@@ -5,10 +5,10 @@
  */
 import { Suspense, useEffect, useState, type ComponentType } from 'react';
 import { __ } from '@wordpress/i18n';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { LayoutGrid, Settings, Blocks, Moon, Sun, LoaderCircle } from 'lucide-react';
 import { currentRoute, hashParam, navigate } from './route';
-import { api, type ModuleInfo } from './api';
+import { api, queryClient, type ModuleInfo } from './api';
 import { ModuleGrid } from './ModuleGrid';
 import { ModuleSettings } from './ModuleSettings';
 import { GlobalSettings } from './GlobalSettings';
@@ -23,12 +23,23 @@ import { MODULE_PAGES } from '../modules/registry';
 /**
  * Gate for a group-C module's own SPA page: a disabled module hasn't booted, so
  * its REST routes aren't registered and its page would only fire 404s. Show a
- * "module is off" state (with a jump back to the grid) instead of rendering it.
+ * "module is off" state with an "Enable" button right here (same endpoint as
+ * the switch on the Modules screen) instead of rendering it. Once enabled, the
+ * module boots on the next request, so the page's own REST calls work.
  */
 function ModulePageGate( { moduleId, Page }: { moduleId: string; Page: ComponentType } ): JSX.Element {
 	const { data, isLoading } = useQuery( {
 		queryKey: [ 'modules' ],
 		queryFn: () => api< ModuleInfo[] >( 'modules' ),
+	} );
+
+	const enable = useMutation( {
+		mutationFn: () =>
+			api( `modules/${ moduleId }`, {
+				method: 'POST',
+				body: JSON.stringify( { enabled: true } ),
+			} ),
+		onSuccess: () => void queryClient.invalidateQueries( { queryKey: [ 'modules' ] } ),
 	} );
 
 	if ( isLoading ) {
@@ -47,10 +58,16 @@ function ModulePageGate( { moduleId, Page }: { moduleId: string; Page: Component
 					<h1>{ module.name }</h1>
 				</header>
 				<div className="uxs-notice">
-					<p>{ __( 'This module is turned off. Enable it on the Modules screen to use its settings.', 'ux-studio' ) }</p>
-					<button type="button" className="button button-primary" onClick={ () => navigate( '' ) }>
-						{ __( 'Back to modules', 'ux-studio' ) }
-					</button>
+					<p>{ __( 'This module is turned off. Enable it to use its settings.', 'ux-studio' ) }</p>
+					{ enable.isError && <p className="uxs-notice__error">{ ( enable.error as Error ).message }</p> }
+					<div className="uxs-notice__actions">
+						<button type="button" className="button button-primary" disabled={ enable.isPending } onClick={ () => enable.mutate() }>
+							{ enable.isPending ? __( 'Enabling…', 'ux-studio' ) : __( 'Enable module', 'ux-studio' ) }
+						</button>
+						<button type="button" className="button" disabled={ enable.isPending } onClick={ () => navigate( '' ) }>
+							{ __( 'Back to modules', 'ux-studio' ) }
+						</button>
+					</div>
 				</div>
 			</>
 		);
