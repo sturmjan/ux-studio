@@ -4,6 +4,8 @@
  * shadows or motion; they only consume --uxs-* tokens.
  */
 
+@use './app/wizard/wizard';
+
 #ux-studio-root,
 .uxs-portal {
 	/* Brand */

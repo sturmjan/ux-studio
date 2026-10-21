@@ -4,18 +4,35 @@
  *  - OverlapPanel    - "Plugin conflicts" panel above the module list;
  *  - OverlapBar      - slim notice on a module's own page;
  *  - OverlapModal    - shown when enabling a module is refused (HTTP 409).
- * Migration of the plugin's data comes with the wizard (a later phase).
+ * "Start the migration wizard" opens the wizard (#/wizard) with the plugin preselected.
  */
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { __, sprintf } from '@wordpress/i18n';
 import { ChevronDown, ChevronRight, CircleAlert, Info, TriangleAlert } from 'lucide-react';
 import { api, ApiError, queryClient, type OverlapErrorData, type OverlapRow, type OverlapsData } from './api';
+import { navigate } from './route';
 
 const QUERY_KEY = [ 'overlaps' ];
 
 /** Link to the WordPress Plugins screen (relative to wp-admin/admin.php). */
 const PLUGINS_URL = 'plugins.php?plugin_status=active';
+
+/** Open the migration wizard with these plugins (folder slugs) preselected. */
+function openWizard( slugs: string[] ): void {
+	navigate( 'wizard', { plugin: [ ...new Set( slugs ) ].join( ',' ) } );
+}
+
+function WizardButton( { slugs, small = true }: { slugs: string[]; small?: boolean } ): JSX.Element | null {
+	if ( 0 === slugs.length ) {
+		return null;
+	}
+	return (
+		<button type="button" className={ `button button-primary${ small ? ' button-small' : '' }` } onClick={ () => openWizard( slugs ) }>
+			{ __( 'Start the migration wizard', 'ux-studio' ) }
+		</button>
+	);
+}
 
 export function useOverlaps() {
 	return useQuery( {
@@ -115,6 +132,7 @@ export function OverlapPanel(): JSX.Element | null {
 									<p>{ rowText( row ) }</p>
 								</div>
 								<div className="uxs-overlaps__actions">
+									{ row.migratable && <WizardButton slugs={ [ row.slug ] } /> }
 									<a className="button button-small" href={ PLUGINS_URL }>
 										{ __( 'Open plugins', 'ux-studio' ) }
 									</a>
@@ -197,6 +215,7 @@ export function OverlapBar( { moduleId }: { moduleId: string } ): JSX.Element | 
 							names
 					  ) }
 			</span>
+			<WizardButton slugs={ rows.filter( ( r ) => r.migratable ).map( ( r ) => r.slug ) } />
 			<a className="button button-small" href={ PLUGINS_URL }>
 				{ __( 'Open plugins', 'ux-studio' ) }
 			</a>
@@ -223,6 +242,7 @@ export function OverlapModal( { error, moduleName, busy = false, onClose, onConf
 	const data = error.data as Partial< OverlapErrorData >;
 	const plugins = data.plugins ?? [];
 	const confirmable = !! data.requires_confirmation;
+	const migratable = plugins.filter( ( p ) => p.migratable && p.slug ).map( ( p ) => p.slug as string );
 
 	useEffect( () => {
 		const onKey = ( e: KeyboardEvent ): void => {
@@ -277,9 +297,12 @@ export function OverlapModal( { error, moduleName, busy = false, onClose, onConf
 							{ busy ? __( 'Enabling…', 'ux-studio' ) : __( 'Enable anyway', 'ux-studio' ) }
 						</button>
 					) : (
-						<a className="button button-primary" href={ PLUGINS_URL }>
-							{ __( 'Open plugins', 'ux-studio' ) }
-						</a>
+						<>
+							<a className={ `button${ migratable.length ? '' : ' button-primary' }` } href={ PLUGINS_URL }>
+								{ __( 'Open plugins', 'ux-studio' ) }
+							</a>
+							<WizardButton slugs={ migratable } small={ false } />
+						</>
 					) }
 				</div>
 			</div>

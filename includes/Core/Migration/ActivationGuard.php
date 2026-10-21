@@ -114,6 +114,8 @@ final class ActivationGuard {
 			$list[] = array(
 				'name'        => $row['name'],
 				'basename'    => $row['basename'],
+				'slug'        => $row['slug'],
+				'migratable'  => null !== SourceRegistry::get( (string) $row['slug'] ),
 				'type'        => $row['type'],
 				'module'      => $row['module'],
 				'module_name' => self::module_name( (string) $row['module'] ),

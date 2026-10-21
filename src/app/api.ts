@@ -118,6 +118,8 @@ export interface OverlapRow {
 	confirm: boolean;
 	/** Overlapping feature of a broad module (e.g. "Disable comments"), or ''. */
 	feature: string;
+	/** The migration wizard has a source for this plugin. */
+	migratable?: boolean;
 }
 
 export interface OverlapsData {
@@ -129,6 +131,6 @@ export interface OverlapsData {
 
 /** `data` of the 409 `uxstudio_plugin_overlap` error returned when enabling a module. */
 export interface OverlapErrorData {
-	plugins: { name: string; basename: string; type: 'full' | 'partial'; module: string; module_name: string }[];
+	plugins: { name: string; basename: string; slug?: string; migratable?: boolean; type: 'full' | 'partial'; module: string; module_name: string }[];
 	requires_confirmation: boolean;
 }

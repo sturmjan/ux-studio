@@ -81,7 +81,8 @@ final class Runner {
 		}
 
 		$current = self::state();
-		if ( $current && 'running' === $current['status'] && (int) ( $current['started'] ?? 0 ) > time() - self::STALE_AFTER ) {
+		// A dry run left half-way writes nothing, so it never blocks a new run; only a real one does.
+		if ( $current && 'running' === $current['status'] && empty( $current['dry_run'] ) && (int) ( $current['started'] ?? 0 ) > time() - self::STALE_AFTER ) {
 			return new \WP_Error(
 				'uxstudio_migration_busy',
 				__( 'Another migration is still running. Finish it first.', 'ux-studio' ),

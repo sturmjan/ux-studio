@@ -2013,10 +2013,23 @@ Neověří: chování jen pro návštěvníky z cizí IP, cron běhy, e-maily sk
 ### 26.7 Fáze
 
 - [x] F1 Catalog + detekce + ActivationGuard + upozornění (bez migrace) - hotovo 2026-10-21: `includes/Core/Migration/{Catalog,Overlaps,ActivationGuard}.php`, REST `overlaps` + `overlaps/ignore|unignore`, 409 `uxstudio_plugin_overlap` na `modules/{id}` (filtr `uxstudio_overlap_guard_enabled` vypíná kontrolu jen na REST cestě, WP-CLI a `Modules::set_enabled()` zůstávají volné), panel na Modulech, modal 409, lišta na stránce modulu, wp-admin notice; test `tests/overlap-catalog.php`
-- [ ] F2 Průvodce (UI) + sken + plán + zkušební běh + Snapshot/rollback + zdroje jen s nastavením
+- [x] F2 Průvodce (UI) + sken + plán + zkušební běh + Snapshot/rollback + zdroje jen s nastavením - hotovo 2026-10-21 (viz „F2 poznámky“ pod seznamem)
 - [ ] F3 Zdroje s daty: Redirection, Code Snippets/WPCode/HFCM, FileBird/Folders, Page Links To,
       PublishPress Future, Menu Icons/Nav Menu Roles, last login, WP Mail SMTP (vč. hesla), WP Mail Logging
 - [ ] F4 Bezpečný náhled + smoke testy + krok deaktivace
 - [ ] F5 Admin Customiser zdroje (Admin Menu Editor, Adminimize, White Label CMS) + Admin Columns
 - [ ] F6 MCP v jádru + abilities + scope tokenů + UI pro připojení klienta
 - [ ] F7 Automatické spuštění po instalaci, položka v menu, překlady, dokumentace
+
+**F2 poznámky (2026-10-21).**
+- Kód: `includes/Core/Migration/` - `Source` (rozhraní), `AbstractSource` (detekce, plán, zkušební běh, zápis, ověření; zdroj implementuje jen `map()`), `Mapping`, `SettingsWriter`, `Snapshot`, `Runner`, `History`, `MigrationMap`, `PluginInfo`, `SourceRegistry`, `MigrationRestController`, `Bootstrap`, `Sources/*` (14 tříd, 32 pluginů). SPA `src/app/wizard/` (krok = položka v `getSteps()`, F4 jen přidá další), styl `wizard.scss`. Test `tests/migration-sources.php`.
+- Zápis jde přes `Settings::clean()` (schéma modulu), ne přes `BaseModule::save_settings()`: ta má vedlejší účinky (přepis bloku v `.htaccess`, bany zemí, provisioning CAPTCHA) a migrace smí být jen kopie nastavení. Tajné hodnoty přes `Security::store_secret`, a jen když se liší (náhodný IV by jinak dělal z opakovaného běhu změnu).
+- Plugin s uloženým nastavením se přenáší i neaktivní (s varováním); plugin, který funguje jen svou přítomností (WPS Hide Login, Hide Admin Bar, Disable XML-RPC, Disable WordPress Updates, Classic Editor), se přenáší jen když je aktivní, jeho výchozí hodnoty se berou jako efektivní nastavení.
+- Sken hlásí i „plugin odstraněn, ale nastavení zůstala“ (`data_only`); je volitelný, nepředvybraný.
+- Hodnota, kterou modul neumí (neexistující typ obsahu, role), se v plánu označí a `verify()` ji hlásí jako rozdíl - nikdy se tiše neztratí. Lokálně např. `e-landing-page` u Disable Comments.
+- Mapovací tabulka: řádek na dvojici (zdrojový klíč > cílový klíč), unikátní klíč `source_plugin+source_key+target_type`; rollback řádky běhu maže.
+- Snímek: option `uxstudio_migration_snapshot_<run>`; tabulky (`capture_table`) jsou připravené pro F3, v F2 nepoužité (WP Extended běží v režimu `settings_only`, tabulky a import activity logu zůstávají F3). Snímek se po vrácení maže, jinak po 30 dnech (denní cron `uxstudio_migration_purge`). Vrácení obnovuje jen volby/tabulky cíle, ne `uxstudio_migration_run(s)`.
+- Krok Kontrola dělá zkušební běh (bez zápisu, bez snímku); snímek vzniká až na začátku skutečného běhu (první řádek kroku Migrace). Rozdělaný zkušební běh nikdy neblokuje nový běh, rozdělaný skutečný ano (409).
+- Pokud je cílový modul (např. Security Optimization) už zapnutý, přenesená nastavení se projeví hned - plán na to upozorní u každého zdroje.
+- Neověřeno proti skutečnému pluginu: `redirect-404-to-homepage` (slug na wordpress.org neexistuje, bere se jako plugin bez nastavení); formáty pluginů, které nejsou lokálně nainstalované, jsou čtené z kódu stažených zipů, ne z živých dat.
+

@@ -9,6 +9,7 @@ namespace UxStudio\Core;
 
 use UxStudio\Core\Migration\ActivationGuard;
 use UxStudio\Core\Migration\Overlaps;
+use UxStudio\Core\Migration\SourceRegistry;
 use UxStudio\Plugin;
 use UxStudio\Rest\Controller;
 use WP_REST_Request;
@@ -226,6 +227,7 @@ final class Rest extends Controller {
 	private function label_overlaps( array $rows ): array {
 		foreach ( $rows as &$row ) {
 			$row['module_name'] = ActivationGuard::module_name( (string) $row['module'] );
+			$row['migratable']  = null !== SourceRegistry::get( (string) $row['slug'] );
 		}
 		return $rows;
 	}

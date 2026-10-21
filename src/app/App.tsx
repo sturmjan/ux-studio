@@ -6,7 +6,7 @@
 import { Suspense, useEffect, useState, type ComponentType } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { LayoutGrid, Settings, Blocks, Moon, Sun, LoaderCircle } from 'lucide-react';
+import { LayoutGrid, Settings, Blocks, Moon, Sun, LoaderCircle, Wand2 } from 'lucide-react';
 import { currentRoute, hashParam, navigate } from './route';
 import { api, queryClient, type ApiError, type ModuleInfo } from './api';
 import { isOverlapError, OverlapBar, OverlapModal, refreshOverlaps } from './Overlaps';
@@ -17,6 +17,7 @@ import { GroupBreadcrumb, GroupPage } from './GroupPage';
 import { ModuleIcon } from './moduleIcons';
 import { FEATURE_VIEWS, useViewEnabled, type FeatureView } from './featureViews';
 import { Toasts } from './Toasts';
+import { Wizard } from './wizard/Wizard';
 import { SubNavSlot } from './SubNav';
 import { getTheme, setTheme, type Theme } from './prefs';
 import { MODULE_PAGES } from '../modules/registry';
@@ -209,6 +210,7 @@ export function App(): JSX.Element {
 
 	const nav = [
 		{ route: '', title: __( 'Modules', 'ux-studio' ), icon: <LayoutGrid size={ 16 } /> },
+		{ route: 'wizard', title: __( 'Migration wizard', 'ux-studio' ), icon: <Wand2 size={ 16 } /> },
 		{ route: 'settings', title: __( 'Settings', 'ux-studio' ), icon: <Settings size={ 16 } /> },
 	];
 
@@ -331,6 +333,8 @@ export function App(): JSX.Element {
 							<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />
 						</div>
 					)
+				) : route === 'wizard' ? (
+					<Wizard />
 				) : route === 'settings' ? (
 					<GlobalSettings />
 				) : (

@@ -39,7 +39,7 @@ final class ClassicEditorSource extends AbstractSource {
 		if ( in_array( (string) $replace, array( 'block', 'no-replace' ), true ) ) {
 			$m->note( __( 'The plugin keeps the block editor as the default editor. The module would force the classic editor, so nothing is transferred - do not switch the module on if you want to keep the block editor.', 'ux-studio' ) );
 		} else {
-			$m->set( 'classic-editor', 'post_types', array(), __( 'Post types', 'ux-studio' ), 'classic-editor-replace' );
+			$m->set( 'classic-editor', 'post_types', array(), __( 'Post types (none selected = all)', 'ux-studio' ), 'classic-editor-replace' );
 			$m->note( __( 'The plugin replaces the block editor everywhere; the module does the same for all post types.', 'ux-studio' ) );
 		}
 

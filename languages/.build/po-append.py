@@ -32,7 +32,8 @@ def escape(s):
 
 bad = []
 for entry, tr in zip(missing, cs):
-    if sorted(PLACEHOLDER.findall(unescape(entry['id']))) != sorted(PLACEHOLDER.findall(tr)):
+    first = tr[0] if isinstance(tr, list) else tr
+    if sorted(PLACEHOLDER.findall(unescape(entry['id']))) != sorted(PLACEHOLDER.findall(first)):
         bad.append((entry['id'][:80], tr[:80]))
 if bad:
     for b in bad:
@@ -46,7 +47,13 @@ for entry, tr in zip(missing, cs):
     if entry['ctx'] is not None:
         lines.append('msgctxt "' + entry['ctx'] + '"')
     lines.append('msgid "' + entry['id'] + '"')
-    lines.append('msgstr "' + escape(tr) + '"')
+    if entry.get('plural'):
+        # Plural entries: the translation is a list with one string per plural form.
+        lines.append('msgid_plural "' + entry['plural'] + '"')
+        for n, form in enumerate(tr):
+            lines.append('msgstr[' + str(n) + '] "' + escape(form) + '"')
+    else:
+        lines.append('msgstr "' + escape(tr) + '"')
     blocks.append('\n'.join(lines))
 
 po = LANG / 'ux-studio-cs_CZ.po'
