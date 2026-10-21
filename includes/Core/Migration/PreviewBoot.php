@@ -30,7 +30,8 @@ defined( 'ABSPATH' ) || exit;
  * For such a request, and only for it:
  *  - the run's source plugins disappear from `active_plugins` (and the network list),
  *  - the run's target modules are added to `uxstudio_active_modules`,
- *  - the values staged for the run overlay the module options (secrets and post meta too),
+ *  - the values staged for the run overlay the module options (secrets, whole-option keys such as the Menu
+ *    Organizer config, and post meta too),
  *  - nothing is persisted: WP-Cron is off, scheduling is refused, and every database write that
  *    touches an option, meta or table of UX Studio (or `active_plugins`) is dropped.
  */
@@ -335,6 +336,17 @@ final class PreviewBoot {
 			$option = 'uxstudio_' . str_replace( '-', '_', (string) $module );
 			$values = (array) $values;
 			$merge  = static function ( $value ) use ( $values ) {
+				return array_merge( is_array( $value ) ? $value : array(), $values );
+			};
+			add_filter( 'option_' . $option, $merge );
+			add_filter( 'default_option_' . $option, $merge );
+		}
+		foreach ( (array) ( self::$ctx['staged']['options'] ?? array() ) as $option => $spec ) {
+			$values = is_array( $spec ) ? (array) ( $spec['values'] ?? array() ) : array();
+			if ( ! $values ) {
+				continue;
+			}
+			$merge = static function ( $value ) use ( $values ) {
 				return array_merge( is_array( $value ) ? $value : array(), $values );
 			};
 			add_filter( 'option_' . $option, $merge );

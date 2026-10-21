@@ -112,6 +112,10 @@ final class SettingsWriter {
 			);
 		}
 		foreach ( $mapping->items as $item ) {
+			if ( isset( $item['option'] ) ) {
+				$items[] = self::option_row( $mapping, $item );
+				continue;
+			}
 			if ( $item['secret'] ) {
 				$live    = Security::get_secret( (string) $item['key'] );
 				$current = Staging::pending_secret( (string) $item['key'] ) ?? $live;
@@ -168,6 +172,41 @@ final class SettingsWriter {
 	}
 
 	/**
+	 * Preview row of one top-level key of a whole-option value (Menu Organizer config, Admin Columns).
+	 *
+	 * @param Mapping              $mapping Mapping.
+	 * @param array<string, mixed> $item    Item with `option`.
+	 * @return array<string, mixed>
+	 */
+	private static function option_row( Mapping $mapping, array $item ): array {
+		$option = (string) $item['option'];
+		$key    = (string) $item['key'];
+		$module = (string) $mapping->options[ $option ]['module'];
+		$new    = $mapping->options[ $option ]['values'][ $key ] ?? null;
+		$live   = get_option( $option, array() );
+		$live   = is_array( $live ) ? $live : array();
+		$stored = array_merge( $live, Staging::pending_options( $option ) );
+		$has    = array_key_exists( $key, $stored );
+		$cur    = $has ? $stored[ $key ] : null;
+		$live_v = array_key_exists( $key, $live ) ? $live[ $key ] : null;
+		return array(
+			'module'  => $module,
+			'key'     => $key,
+			'label'   => $item['label'],
+			'secret'  => false,
+			'from'    => Mapping::display( $cur ),
+			'to'      => Mapping::display( $new ),
+			'changed' => ! Mapping::same_deep( $cur, $new ),
+			'write'   => ! $has || ! Mapping::same_deep( $stored[ $key ], $new ),
+			'dropped' => false,
+			'staged'  => $mapping->stage && Staging::module_enabled( $module ) && ! Mapping::same_deep( $live_v, $new ),
+			'origin'  => $item['origin'],
+			'target'  => $option . ':' . $key,
+			'option'  => $option,
+		);
+	}
+
+	/**
 	 * Write a mapping. Secrets go through Security::store_secret, and only when the
 	 * value differs (a fresh IV on every call would make a re-run look like a change).
 	 * Values for a module that is switched ON go to the staging area instead of the live option.
@@ -189,7 +228,7 @@ final class SettingsWriter {
 			}
 			$keys = array();
 			foreach ( $preview['items'] as $row ) {
-				if ( $row['module'] === $module && $row['write'] ) {
+				if ( $row['module'] === $module && $row['write'] && empty( $row['option'] ) ) {
 					$keys[] = (string) $row['key'];
 					++$written;
 				}
@@ -202,6 +241,26 @@ final class SettingsWriter {
 				$staged += count( $keys );
 			} else {
 				( new Settings( self::option_name( $module ) ) )->save( $input, $schema );
+			}
+		}
+		foreach ( $mapping->options as $option => $spec ) {
+			$keys = array();
+			foreach ( $preview['items'] as $row ) {
+				if ( ( $row['option'] ?? '' ) === $option && $row['write'] ) {
+					$keys[] = (string) $row['key'];
+				}
+			}
+			if ( ! $keys ) {
+				continue;
+			}
+			$values = array_intersect_key( $spec['values'], array_flip( $keys ) );
+			$written += count( $keys );
+			if ( $mapping->stage && Staging::module_enabled( (string) $spec['module'] ) ) {
+				Staging::put_options( $run_id, (string) $spec['module'], (string) $option, $values );
+				$staged += count( $keys );
+			} else {
+				$live = get_option( (string) $option, array() );
+				update_option( (string) $option, array_merge( is_array( $live ) ? $live : array(), $values ) );
 			}
 		}
 		foreach ( $mapping->secrets as $option => $secret ) {
@@ -240,6 +299,23 @@ final class SettingsWriter {
 		$checks = array();
 		foreach ( self::preview( $mapping )['items'] as $row ) {
 			$id = $row['target'];
+			if ( ! empty( $row['option'] ) ) {
+				$checks[] = array(
+					'id'     => $id,
+					'label'  => $row['label'],
+					'ok'     => ! $row['write'],
+					'staged' => ! $row['write'] && $row['staged'],
+					'detail' => ! $row['write']
+						? $row['to']
+						: sprintf(
+							/* translators: 1: expected value, 2: value found in UX Studio. */
+							__( 'Expected "%1$s", UX Studio has "%2$s".', 'ux-studio' ),
+							$row['to'],
+							$row['from']
+						),
+				);
+				continue;
+			}
 			if ( $row['secret'] ) {
 				$stored   = Staging::pending_secret( (string) $row['key'] ) ?? Security::get_secret( (string) $row['key'] );
 				$expected = $mapping->secrets[ $row['key'] ]['value'] ?? '';

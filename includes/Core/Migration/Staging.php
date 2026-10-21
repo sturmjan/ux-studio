@@ -27,6 +27,8 @@ defined( 'ABSPATH' ) || exit;
  *
  *   created, settings[module][key] = clean value,
  *   secrets[option] = { module, sealed }   (AES-GCM via Security::seal, never plain text),
+ *   options[option] = { module, values }   (top-level keys merged into an option outside the settings schema,
+ *                                           e.g. the Menu Organizer config; values are clean already),
  *   activations[] = { source, kind, ids[] } (data created inactive, see Activatable)
  *
  * Pending entries are laid over the live option when previewing and verifying, so a second
@@ -90,6 +92,7 @@ final class Staging {
 			'created'     => time(),
 			'settings'    => array(),
 			'secrets'     => array(),
+			'options'     => array(),
 			'activations' => array(),
 		);
 	}
@@ -110,6 +113,29 @@ final class Staging {
 		$entry                               = self::fresh( $all, $run_id );
 		$entry['settings'][ $module ]        = array_merge( (array) ( $entry['settings'][ $module ] ?? array() ), $values );
 		$all[ $run_id ]                      = $entry;
+		self::save( $all );
+	}
+
+	/**
+	 * Stage top-level keys of a whole option (Menu Organizer config, Admin Columns).
+	 *
+	 * @param string               $run_id Run id.
+	 * @param string               $module Module id that reads the option.
+	 * @param string               $option Option name.
+	 * @param array<string, mixed> $values Clean values, key => value.
+	 */
+	public static function put_options( string $run_id, string $module, string $option, array $values ): void {
+		$run_id = Snapshot::clean_id( $run_id );
+		if ( '' === $run_id || ! $values ) {
+			return;
+		}
+		$all                          = self::all();
+		$entry                        = self::fresh( $all, $run_id );
+		$entry['options'][ $option ]  = array(
+			'module' => $module,
+			'values' => array_merge( (array) ( $entry['options'][ $option ]['values'] ?? array() ), $values ),
+		);
+		$all[ $run_id ]               = $entry;
 		self::save( $all );
 	}
 
@@ -188,6 +214,20 @@ final class Staging {
 	}
 
 	/**
+	 * Staged top-level keys of an option from every pending run (newest run wins).
+	 *
+	 * @param string $option Option name.
+	 * @return array<string, mixed>
+	 */
+	public static function pending_options( string $option ): array {
+		$out = array();
+		foreach ( self::all() as $entry ) {
+			$out = array_merge( $out, (array) ( $entry['options'][ $option ]['values'] ?? array() ) );
+		}
+		return $out;
+	}
+
+	/**
 	 * Staged plain value of a secret option, or null when nothing is staged for it.
 	 *
 	 * @param string $option Secret option name.
@@ -222,6 +262,10 @@ final class Staging {
 			foreach ( (array) $entry['secrets'] as $secret ) {
 				++$secrets;
 				$modules[] = (string) ( $secret['module'] ?? '' );
+			}
+			foreach ( (array) ( $entry['options'] ?? array() ) as $staged_option ) {
+				$count    += count( (array) ( $staged_option['values'] ?? array() ) );
+				$modules[] = (string) ( $staged_option['module'] ?? '' );
 			}
 			foreach ( (array) $entry['activations'] as $row ) {
 				$acts += count( (array) $row['ids'] );
@@ -272,6 +316,16 @@ final class Staging {
 			( new Settings( SettingsWriter::option_name( (string) $module ) ) )->save( (array) $values, $schema );
 			$out['settings'] += count( (array) $values );
 			$out['modules'][] = (string) $module;
+		}
+		foreach ( (array) ( $entry['options'] ?? array() ) as $option => $staged_option ) {
+			$values = (array) ( $staged_option['values'] ?? array() );
+			if ( ! $values ) {
+				continue;
+			}
+			$live = get_option( (string) $option, array() );
+			update_option( (string) $option, array_merge( is_array( $live ) ? $live : array(), $values ) );
+			$out['settings'] += count( $values );
+			$out['modules'][] = (string) ( $staged_option['module'] ?? '' );
 		}
 		foreach ( (array) $entry['secrets'] as $option => $secret ) {
 			$plain = Security::unseal( (string) ( $secret['sealed'] ?? '' ) );

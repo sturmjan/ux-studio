@@ -434,7 +434,21 @@ abstract class AbstractSource implements Source {
 		foreach ( array_keys( $mapping->secrets ) as $option ) {
 			$names[] = (string) $option;
 		}
+		foreach ( array_keys( $mapping->options ) as $option ) {
+			$names[] = (string) $option;
+		}
 		return array_values( array_unique( array_merge( $names, $this->extra_target_options() ) ) );
+	}
+
+	/**
+	 * Modules besides the target module that this source also fills with settings and that the
+	 * switch must turn on for them to have any effect (for example Hide Admin Bar next to Admin
+	 * Customiser). Empty by default.
+	 *
+	 * @return string[]
+	 */
+	public function extra_modules(): array {
+		return array();
 	}
 
 	/**

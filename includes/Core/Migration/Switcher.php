@@ -303,6 +303,9 @@ final class Switcher {
 		foreach ( array_keys( (array) ( $entry['secrets'] ?? array() ) ) as $option ) {
 			$names[] = (string) $option;
 		}
+		foreach ( array_keys( (array) ( $entry['options'] ?? array() ) ) as $option ) {
+			$names[] = (string) $option;
+		}
 		foreach ( $targets['modules'] as $module ) {
 			$instance = $modules_api->instance( $module );
 			if ( $instance ) {

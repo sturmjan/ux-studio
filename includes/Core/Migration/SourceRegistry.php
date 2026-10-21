@@ -8,6 +8,10 @@
 namespace UxStudio\Core\Migration;
 
 use UxStudio\Core\Migration\Sources\ActivityLogSource;
+use UxStudio\Core\Migration\Sources\AdminColumnsSource;
+use UxStudio\Core\Migration\Sources\AdminifySource;
+use UxStudio\Core\Migration\Sources\AdminimizeSource;
+use UxStudio\Core\Migration\Sources\AdminMenuEditorSource;
 use UxStudio\Core\Migration\Sources\AutoImageUploadSource;
 use UxStudio\Core\Migration\Sources\AutoUnpublishSource;
 use UxStudio\Core\Migration\Sources\CaptchaSource;
@@ -22,6 +26,7 @@ use UxStudio\Core\Migration\Sources\ExternalPermalinksSource;
 use UxStudio\Core\Migration\Sources\FolderSource;
 use UxStudio\Core\Migration\Sources\HideAdminBarSource;
 use UxStudio\Core\Migration\Sources\LastLoginSource;
+use UxStudio\Core\Migration\Sources\LoginPressSource;
 use UxStudio\Core\Migration\Sources\LoginSource;
 use UxStudio\Core\Migration\Sources\MaintenanceSource;
 use UxStudio\Core\Migration\Sources\MenuIconsSource;
@@ -34,6 +39,7 @@ use UxStudio\Core\Migration\Sources\SmtpSource;
 use UxStudio\Core\Migration\Sources\SvgSource;
 use UxStudio\Core\Migration\Sources\UpdatesSource;
 use UxStudio\Core\Migration\Sources\WpExtendedSource;
+use UxStudio\Core\Migration\Sources\WhiteLabelCmsSource;
 use UxStudio\Core\Migration\Sources\XmlRpcSource;
 
 defined( 'ABSPATH' ) || exit;
@@ -93,6 +99,13 @@ final class SourceRegistry {
 			MaintenanceSource::class      => array( 'wp-maintenance-mode', 'coming-soon', 'maintenance', 'under-construction-page' ),
 			ActivityLogSource::class      => array( 'simple-history', 'wp-security-audit-log', 'aryo-activity-log', 'adminify-activity-logs' ),
 			PostTypeOrderSource::class    => array( 'post-types-order', 'intuitive-custom-post-order' ),
+			// F5: Admin Customiser sources and Admin Columns.
+			AdminMenuEditorSource::class  => array( 'admin-menu-editor', 'admin-menu-editor-pro' ),
+			AdminimizeSource::class       => array( 'adminimize' ),
+			WhiteLabelCmsSource::class    => array( 'white-label-cms' ),
+			AdminifySource::class         => array( 'adminify' ),
+			LoginPressSource::class       => array( 'loginpress' ),
+			AdminColumnsSource::class     => array( 'codepress-admin-columns' ),
 		) as $class => $slugs ) {
 			foreach ( $slugs as $slug ) {
 				$map[ $slug ] = $class;

@@ -21,7 +21,15 @@ final class Mapping {
 	/** @var array<string, array{value:string,label:string,module:string}> Secret option => value (`module` = the module that reads it, decides direct write vs staging). */
 	public array $secrets = array();
 
-	/** @var array<int, array{module:string,key:string,label:string,value:string,secret:bool,origin:string}> */
+	/**
+	 * Whole-option values of modules that keep their configuration outside the settings schema
+	 * (Menu Organizer config, Admin Columns). Option name => module and top-level keys to merge into it.
+	 *
+	 * @var array<string, array{module:string,values:array<string,mixed>}>
+	 */
+	public array $options = array();
+
+	/** @var array<int, array{module:string,key:string,label:string,value:string,secret:bool,origin:string,option?:string}> */
 	public array $items = array();
 
 	/**
@@ -59,6 +67,36 @@ final class Mapping {
 			'secret' => false,
 			'origin' => '' !== $origin ? $origin : $key,
 		);
+		return $this;
+	}
+
+	/**
+	 * Queue top-level keys of an option that is not described by the module settings schema. The values
+	 * must already be clean (the source runs the module's own pure sanitizer); they are merged key by key
+	 * into the stored option, so keys the source does not mention stay as they are.
+	 *
+	 * @param string               $module Module id that reads the option (decides direct write vs staging).
+	 * @param string               $option Option name.
+	 * @param array<string, mixed> $values Top-level key => clean value.
+	 * @param array<string, string> $labels Key => translated label for the plan (falls back to the key).
+	 * @param string               $origin Where it comes from, for the mapping table.
+	 */
+	public function option( string $module, string $option, array $values, array $labels = array(), string $origin = '' ): self {
+		$this->options[ $option ] = array(
+			'module' => $module,
+			'values' => array_merge( (array) ( $this->options[ $option ]['values'] ?? array() ), $values ),
+		);
+		foreach ( $values as $key => $value ) {
+			$this->items[] = array(
+				'module' => $module,
+				'key'    => (string) $key,
+				'label'  => (string) ( $labels[ $key ] ?? $key ),
+				'value'  => self::display( $value ),
+				'secret' => false,
+				'origin' => '' !== $origin ? $origin : $option,
+				'option' => $option,
+			);
+		}
 		return $this;
 	}
 
@@ -120,7 +158,7 @@ final class Mapping {
 
 	/** Whether there is nothing to write. */
 	public function is_empty(): bool {
-		return array() === $this->settings && array() === $this->secrets;
+		return array() === $this->settings && array() === $this->secrets && array() === $this->options;
 	}
 
 	/**
@@ -133,7 +171,13 @@ final class Mapping {
 			return $value ? '✓' : '✗';
 		}
 		if ( is_array( $value ) ) {
-			return implode( ', ', array_map( static fn( $v ): string => self::display( $v ), $value ) );
+			$list = array_is_list( $value );
+			$out  = array();
+			foreach ( $value as $k => $v ) {
+				$out[] = ( $list ? '' : $k . ': ' ) . self::display( $v );
+			}
+			$text = implode( ', ', $out );
+			return strlen( $text ) > 240 ? substr( $text, 0, 237 ) . '...' : $text;
 		}
 		if ( null === $value ) {
 			return '';
@@ -166,5 +210,36 @@ final class Mapping {
 			return (float) $a === (float) $b;
 		}
 		return (string) $a === (string) $b;
+	}
+
+	/**
+	 * Deep comparison for whole-option values: lists keep their order (an order IS the value), maps
+	 * ignore key order, scalars compare as text (`1` equals `"1"`).
+	 *
+	 * @param mixed $a Value A.
+	 * @param mixed $b Value B.
+	 */
+	public static function same_deep( $a, $b ): bool {
+		return json_encode( self::canon( $a ) ) === json_encode( self::canon( $b ) );
+	}
+
+	/**
+	 * Canonical form used by same_deep().
+	 *
+	 * @param mixed $v Any value.
+	 * @return mixed
+	 */
+	private static function canon( $v ) {
+		if ( is_array( $v ) ) {
+			if ( array_is_list( $v ) ) {
+				return array_map( array( self::class, 'canon' ), $v );
+			}
+			ksort( $v );
+			return array_map( array( self::class, 'canon' ), $v );
+		}
+		if ( is_bool( $v ) ) {
+			return $v ? '1' : '';
+		}
+		return null === $v ? '' : (string) $v;
 	}
 }

@@ -283,6 +283,7 @@ final class Catalog {
 				'admin-customiser',
 				array(
 					'admin-menu-editor' => 'Admin Menu Editor',
+					'admin-menu-editor-pro' => 'Admin Menu Editor Pro',
 					'adminimize'        => 'Adminimize',
 					'white-label-cms'   => 'White Label CMS',
 					'adminify'          => 'Adminify',

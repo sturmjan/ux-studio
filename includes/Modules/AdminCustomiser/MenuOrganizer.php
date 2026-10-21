@@ -25,7 +25,7 @@ defined( 'ABSPATH' ) || exit;
 final class MenuOrganizer {
 
 	/** Single WP option holding the entire menu-organizer config (JSON-shaped array). */
-	private const CONFIG_OPTION = 'uxstudio_admin_customiser_menu_config';
+	public const CONFIG_OPTION = 'uxstudio_admin_customiser_menu_config';
 
 	/** Shared module settings option (schema-based, owns the master enable toggle). */
 	private const SETTINGS_OPTION = 'uxstudio_admin_customiser';
@@ -239,17 +239,12 @@ final class MenuOrganizer {
 	   ═══════════════════════════════════════════════════ */
 
 	/**
-	 * Load saved menu config, merged over defaults. Does NOT include the
-	 * `enabled` flag - that lives in the shared module settings row
-	 * (`menu_organizer_enabled`), see is_enabled().
+	 * Defaults every stored config is merged over.
+	 *
+	 * @return array<string, mixed>
 	 */
-	public function get_config(): array {
-		$config = get_option( self::CONFIG_OPTION, array() );
-		if ( ! is_array( $config ) ) {
-			$config = array();
-		}
-
-		$defaults = array(
+	public static function default_config(): array {
+		return array(
 			'layout'            => 'vertical',
 			'categories'        => self::default_categories(),
 			'category_order'    => array(),
@@ -271,8 +266,20 @@ final class MenuOrganizer {
 			'native_flyouts'    => true,
 			'seen_slugs'        => array(),
 		);
+	}
 
-		$config = array_merge( $defaults, $config );
+	/**
+	 * Load saved menu config, merged over defaults. Does NOT include the
+	 * `enabled` flag - that lives in the shared module settings row
+	 * (`menu_organizer_enabled`), see is_enabled().
+	 */
+	public function get_config(): array {
+		$config = get_option( self::CONFIG_OPTION, array() );
+		if ( ! is_array( $config ) ) {
+			$config = array();
+		}
+
+		$config = array_merge( self::default_config(), $config );
 
 		if ( empty( $config['categories'] ) || ! is_array( $config['categories'] ) ) {
 			$config['categories'] = self::default_categories();
@@ -289,8 +296,26 @@ final class MenuOrganizer {
 	 * @param array $input Raw input (already decoded JSON).
 	 */
 	public function save_config( array $input ): array {
-		$config = $this->get_config();
+		$config = self::clean_config( $input, $this->get_config() );
 
+		// Baseline snapshot for new-plugin detection.
+		$current               = $this->get_current_menu_items();
+		$config['seen_slugs'] = array_values( array_map( static fn( $it ) => $it['slug'], $current ) );
+
+		update_option( self::CONFIG_OPTION, $config );
+
+		return $config;
+	}
+
+	/**
+	 * The pure part of save_config(): sanitize a payload and lay it over a base config. Touches no
+	 * option and no menu global, so the migration wizard uses it to prepare a config it can stage.
+	 *
+	 * @param array $input  Raw payload (same shape as the REST body).
+	 * @param array $config Base config (what get_config() returns).
+	 * @return array The merged config.
+	 */
+	public static function clean_config( array $input, array $config ): array {
 		if ( isset( $input['layout'] ) ) {
 			$config['layout'] = 'horizontal' === $input['layout'] ? 'horizontal' : 'vertical';
 		}
@@ -351,7 +376,7 @@ final class MenuOrganizer {
 		if ( isset( $input['category_icons'] ) && is_array( $input['category_icons'] ) ) {
 			$clean_ci = array();
 			foreach ( $input['category_icons'] as $cat => $icon ) {
-				$clean_ci[ sanitize_key( (string) $cat ) ] = $this->sanitize_icon_value( $icon );
+				$clean_ci[ sanitize_key( (string) $cat ) ] = self::sanitize_icon_value( $icon );
 			}
 			$config['category_icons'] = array_filter( $clean_ci, static fn( $v ) => '' !== $v );
 		}
@@ -372,7 +397,7 @@ final class MenuOrganizer {
 		if ( isset( $input['item_icons'] ) && is_array( $input['item_icons'] ) ) {
 			$clean_ii = array();
 			foreach ( $input['item_icons'] as $slug => $icon ) {
-				$icon = $this->sanitize_icon_value( $icon );
+				$icon = self::sanitize_icon_value( $icon );
 				if ( '' !== $icon ) {
 					$clean_ii[ sanitize_text_field( (string) $slug ) ] = $icon;
 				}
@@ -509,7 +534,7 @@ final class MenuOrganizer {
 					'id'       => $id,
 					'title'    => $title,
 					'url'      => $url,
-					'icon'     => isset( $cl['icon'] ) ? $this->sanitize_icon_value( $cl['icon'] ) : '',
+					'icon'     => isset( $cl['icon'] ) ? self::sanitize_icon_value( $cl['icon'] ) : '',
 					'target'   => isset( $cl['target'] ) && '_blank' === $cl['target'] ? '_blank' : '',
 					'category' => isset( $cl['category'] ) ? sanitize_key( (string) $cl['category'] ) : 'other',
 				);
@@ -533,7 +558,7 @@ final class MenuOrganizer {
 				$clean_ps[ $sub_slug ] = array(
 					'parent'   => $parent,
 					'title'    => $title,
-					'icon'     => isset( $ps['icon'] ) ? $this->sanitize_icon_value( $ps['icon'] ) : '',
+					'icon'     => isset( $ps['icon'] ) ? self::sanitize_icon_value( $ps['icon'] ) : '',
 					'category' => isset( $ps['category'] ) ? sanitize_key( (string) $ps['category'] ) : 'other',
 				);
 			}
@@ -551,12 +576,6 @@ final class MenuOrganizer {
 			}
 		}
 		$config['hidden_items'] = array_values( array_keys( $clean_hi ) );
-
-		// Baseline snapshot for new-plugin detection.
-		$current               = $this->get_current_menu_items();
-		$config['seen_slugs'] = array_values( array_map( static fn( $it ) => $it['slug'], $current ) );
-
-		update_option( self::CONFIG_OPTION, $config );
 
 		return $config;
 	}
@@ -1521,7 +1540,7 @@ final class MenuOrganizer {
 	 *
 	 * @param mixed $icon Raw icon value.
 	 */
-	private function sanitize_icon_value( $icon ): string {
+	public static function sanitize_icon_value( $icon ): string {
 		if ( ! is_string( $icon ) ) {
 			return '';
 		}

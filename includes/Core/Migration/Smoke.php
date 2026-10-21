@@ -204,6 +204,8 @@ final class Smoke {
 				return self::check_editor( $check, $token );
 			case 'pages_clean':
 				return self::check_clean( $token );
+			case 'admin_access':
+				return self::check_admin_access( $check, $token );
 		}
 		return array(
 			'status' => 'info',
@@ -603,6 +605,91 @@ final class Smoke {
 			return self::result( 'fail', sprintf( /* translators: %d: HTTP status. */ __( 'wp-login.php should answer 404, but answers %d.', 'ux-studio' ), $old['code'] ) );
 		}
 		return self::result( 'ok', sprintf( /* translators: %s: login address. */ __( 'The login form is at %s and wp-login.php is closed as set.', 'ux-studio' ), '/' . $slug . '/' ) );
+	}
+
+	/**
+	 * Does an admin screen answer "you are not allowed"?
+	 *
+	 * @param array{code:int,body:string} $res Response.
+	 */
+	public static function is_denied( array $res ): bool {
+		if ( 403 === (int) $res['code'] ) {
+			return true;
+		}
+		return (bool) preg_match( '/Sorry, you are not allowed|you are not allowed to (?:access|view|manage)|nem[aá]te opr[aá]vn[eě]n[ií]|You need a higher level of permission|wp-die-message[^>]*>[^<]*(?:not allowed|opr[aá]vn)/iu', $res['body'] );
+	}
+
+	/**
+	 * The administrator who runs the migration can still open Plugins, Users, Settings and UX Studio
+	 * (the lockout guard of the Admin Customiser sources). Preview: the screens are fetched with the admin's
+	 * cookies and the preview header; a screen that is refused there but opened on the current site is a failure.
+	 *
+	 * @param array<string, mixed> $check Check with `urls` (relative to wp-admin).
+	 * @param string|null          $token Token (null = live site).
+	 * @return array{status:string,detail:string,data?:array<string, mixed>}
+	 */
+	private static function check_admin_access( array $check, ?string $token ): array {
+		$urls = array_values( array_filter( array_map( 'strval', (array) ( $check['urls'] ?? array() ) ) ) );
+		if ( ! $urls ) {
+			return self::result( 'info', __( 'No admin screens to look at.', 'ux-studio' ) );
+		}
+		$open  = 0;
+		$bad   = array();
+		$warn  = array();
+		$codes = array();
+		foreach ( $urls as $rel ) {
+			$url = admin_url( ltrim( $rel, '/' ) );
+			$now = self::fetch( $url, $token, array( 'cookies' => true ) );
+			if ( '' !== $now['error'] ) {
+				$bad[] = $rel . ': ' . $now['error'];
+				continue;
+			}
+			if ( null !== $token && ! self::was_preview( $now ) ) {
+				$bad[] = $rel . ': ' . __( 'the preview did not take effect on this page', 'ux-studio' );
+				continue;
+			}
+			$codes[ $rel ] = $now['code'];
+			if ( self::is_fatal( $now ) ) {
+				$bad[] = $rel . ': ' . __( 'server error', 'ux-studio' );
+				continue;
+			}
+			if ( $now['code'] >= 300 && $now['code'] < 400 ) {
+				$warn[] = $rel . ': ' . sprintf( /* translators: %d: HTTP status. */ __( 'redirected (HTTP %d), the session was not accepted', 'ux-studio' ), $now['code'] );
+				continue;
+			}
+			if ( 200 === $now['code'] && ! self::is_denied( $now ) ) {
+				++$open;
+				continue;
+			}
+			// Refused or missing in the preview: only a failure of the migration when the current site opens it.
+			if ( null !== $token ) {
+				$base = self::fetch( $url, null, array( 'cookies' => true ) );
+				if ( '' === $base['error'] && 200 === $base['code'] && ! self::is_denied( $base ) ) {
+					$bad[] = $rel . ': ' . sprintf( /* translators: %d: HTTP status. */ __( 'refused in the preview (HTTP %d), but open on the current site', 'ux-studio' ), $now['code'] );
+				} else {
+					$warn[] = $rel . ': ' . __( 'refused here already before the migration (the old plugins or the role limit it)', 'ux-studio' );
+				}
+			} else {
+				$bad[] = $rel . ': ' . sprintf( /* translators: %d: HTTP status. */ __( 'refused (HTTP %d)', 'ux-studio' ), $now['code'] );
+			}
+		}
+		$data = array( 'code' => 200, 'codes' => $codes );
+		if ( $bad ) {
+			return self::result( 'fail', implode( '; ', $bad ), $data );
+		}
+		if ( $warn ) {
+			return self::result( 'warn', implode( '; ', $warn ), $data );
+		}
+		return self::result(
+			'ok',
+			sprintf(
+				/* translators: 1: number of screens opened, 2: number of screens checked. */
+				__( '%1$d of %2$d admin screens open for the administrator.', 'ux-studio' ),
+				$open,
+				count( $urls )
+			),
+			$data
+		);
 	}
 
 	/**

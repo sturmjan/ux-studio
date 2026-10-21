@@ -301,6 +301,11 @@ final class Preview {
 			if ( '' !== $module && Catalog::ANY_MODULE !== $module ) {
 				$modules[] = $module;
 			}
+			if ( method_exists( $source, 'extra_modules' ) ) {
+				foreach ( (array) $source->extra_modules() as $extra ) {
+					$modules[] = (string) $extra;
+				}
+			}
 		}
 		foreach ( Staging::summary( $run_id )['modules'] as $module ) {
 			if ( '' !== $module && Catalog::ANY_MODULE !== $module ) {
