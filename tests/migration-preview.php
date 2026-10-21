@@ -226,6 +226,7 @@ $staged = array(
 	'created'     => $now,
 	'settings'    => array( 'security-optimization' => array( 'disable_comments' => true, 'login_url' => 'moje-prihlaseni' ) ),
 	'secrets'     => array( 'uxstudio_smtp_email_password' => array( 'module' => 'smtp-email', 'sealed' => 'uxs1:SEALEDVALUE' ) ),
+	'options'     => array( 'uxstudio_admin_customiser_menu_config' => array( 'module' => 'admin-customiser', 'values' => array( 'hidden_items' => array( 'tools.php' ), 'item_roles' => array( 'themes.php' => array( 'administrator' ) ) ) ) ),
 	'activations' => array(
 		array( 'source' => 'redirection', 'kind' => 'redirect', 'ids' => array( '11', '12' ), 'data' => array() ),
 		array( 'source' => 'code-snippets', 'kind' => 'snippet', 'ids' => array( '5' ), 'data' => array() ),
@@ -286,6 +287,9 @@ $sec = get_option( 'uxstudio_security_optimization' );
 $assert( 'staged values lie over the stored module option', true === $sec['disable_comments'] && 'moje-prihlaseni' === $sec['login_url'] && true === $sec['limit_login_attempts'] );
 $assert( 'the stored module option is untouched', false === $GLOBALS['uxs_options']['uxstudio_security_optimization']['disable_comments'] && 'administrace' === $GLOBALS['uxs_options']['uxstudio_security_optimization']['login_url'] );
 $assert( 'an option that never existed gets the staged values as its default', 'moje-prihlaseni' === ( apply_filters( 'default_option_uxstudio_security_optimization', array() )['login_url'] ?? '' ) );
+$menu_cfg_preview = get_option( 'uxstudio_admin_customiser_menu_config', array( 'layout' => 'vertical' ) );
+$assert( 'staged whole-option keys (menu config) lie over the stored option, other keys stay', array( 'tools.php' ) === $menu_cfg_preview['hidden_items'] && array( 'themes.php' => array( 'administrator' ) ) === $menu_cfg_preview['item_roles'] && 'vertical' === $menu_cfg_preview['layout'], json_encode( $menu_cfg_preview ) );
+$assert( 'a staged whole option that does not exist yet gets the values as its default', array( 'tools.php' ) === ( apply_filters( 'default_option_uxstudio_admin_customiser_menu_config', array() )['hidden_items'] ?? null ) );
 $assert( 'staged secrets are served sealed, in the storage format', 'uxs1:SEALEDVALUE' === apply_filters( 'pre_option_uxstudio_smtp_email_password', false ) );
 $assert( 'redirect ids staged for the run count as active in the preview', Preview::includes( 'redirect', 11 ) && Preview::includes( 'redirect', '12' ) && ! Preview::includes( 'redirect', 99 ) && array( '11', '12' ) === Preview::ids( 'redirect' ) );
 $assert( 'snippet ids staged for the run count as active in the preview', Preview::includes( 'snippet', 5 ) && ! Preview::includes( 'snippet', 6 ) );
@@ -603,6 +607,7 @@ $fresh_site = static function () use ( $world ): array {
 	Snapshot::create( 'rsw1' );
 	Snapshot::capture_options( 'rsw1', array( 'uxstudio_security_optimization', 'uxstudio_classic_editor' ) );
 	Staging::put_settings( 'rsw1', 'security-optimization', array( 'disable_comments' => true, 'login_url' => 'nove-prihlaseni', 'login_url_enabled' => true ) );
+	Staging::put_options( 'rsw1', 'security-optimization', 'uxstudio_admin_customiser_menu_config', array( 'hidden_items' => array( 'tools.php' ) ) );
 	Staging::put_activation( 'rsw1', 'menu-icons', 'menu_icon', array( 101 ), array( '101' => array( 'meta' => array( '_uxs_icon' => 'home' ), 'extra' => null, 'type' => 'post' ) ) );
 	return $orig;
 };
@@ -665,6 +670,7 @@ $assert( 'only the module that was off is enabled', array( 'classic-editor' ) ==
 $assert( 'the old plugins are deactivated, others stay in order', array( 'a/a.php', 'b/b.php', 'ux-studio/ux-studio.php' ) === $GLOBALS['uxs_options']['active_plugins'], json_encode( $GLOBALS['uxs_options']['active_plugins'] ) );
 $assert( 'staged settings are live', true === $GLOBALS['uxs_options']['uxstudio_security_optimization']['disable_comments'] && 'nove-prihlaseni' === $GLOBALS['uxs_options']['uxstudio_security_optimization']['login_url'] );
 $assert( 'staged data is switched on (menu meta written)', 'home' === ( $GLOBALS['uxs_meta']['post'][101]['_uxs_icon'][0] ?? '' ) );
+$assert( 'a staged whole option (menu config) is written at the switch', array( 'tools.php' ) === ( $GLOBALS['uxs_options']['uxstudio_admin_customiser_menu_config']['hidden_items'] ?? null ), json_encode( $GLOBALS['uxs_options']['uxstudio_admin_customiser_menu_config'] ?? null ) );
 $assert( 'the staging entry is consumed', null === Staging::entry( 'rsw1' ) );
 $assert( 'history shows the run as switched, and what was changed', ! empty( History::find( 'rsw1' )['switched'] ) && array( 'classic-editor' ) === History::find( 'rsw1' )['switch_modules'] && 2 === count( History::find( 'rsw1' )['switch_plugins'] ) );
 $assert( 'a switch record is kept for the undo, 30 days', Switcher::has_switch( 'rsw1' ) && Switcher::can_revert( 'rsw1' ) && ! Switcher::can_revert( 'rsw1', time() + 31 * DAY_IN_SECONDS ) );
@@ -687,6 +693,7 @@ $assert( 'undo: both plugins are reactivated through WordPress', in_array( 'acti
 $assert( 'undo: the plugin list is back exactly, in its original order', $before['active_plugins'] === $GLOBALS['uxs_options']['active_plugins'], json_encode( $GLOBALS['uxs_options']['active_plugins'] ) );
 $assert( 'undo: the module list is back exactly', $before['uxstudio_active_modules'] === $GLOBALS['uxs_options']['uxstudio_active_modules'] );
 $assert( 'undo: module settings and the htaccess hash are back exactly', $before['uxstudio_security_optimization'] === $GLOBALS['uxs_options']['uxstudio_security_optimization'] && 'oldhash' === $GLOBALS['uxs_options']['uxstudio_security_htaccess_hash'] );
+$assert( 'undo: a whole option the switch wrote (menu config) is gone again', ! array_key_exists( 'uxstudio_admin_customiser_menu_config', $GLOBALS['uxs_options'] ) && array_key_exists( 'options', Staging::entry( 'rsw1' ) ), json_encode( array_keys( $GLOBALS['uxs_options'] ) ) );
 $assert( 'undo: the data the switch switched on is off again', ! isset( $GLOBALS['uxs_meta']['post'][101]['_uxs_icon'] ) );
 $assert( 'undo: modules that stay on re-run their side effects with the old settings', in_array( 'effect:security-optimization', array_slice( $log, array_search( 'module-:classic-editor', $log, true ) ), true ) );
 $assert( 'undo: the prepared values wait again', null !== Staging::entry( 'rsw1' ) && true === Staging::entry( 'rsw1' )['settings']['security-optimization']['disable_comments'] );

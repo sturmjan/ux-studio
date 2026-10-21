@@ -431,6 +431,30 @@
 
 .uxs-wiz-lossy { margin-top: var(--uxs-sp-3); }
 
+/* Partial match note on a source card, and the per-role menu table of the check step. */
+.uxs-wiz-partial {
+	display: flex;
+	gap: var(--uxs-sp-2);
+	align-items: flex-start;
+	margin: var(--uxs-sp-2) 0 0;
+	padding: var(--uxs-sp-2) var(--uxs-sp-3);
+	border-radius: var(--uxs-radius-s);
+	background: color-mix(in srgb, var(--uxs-warning) 14%, transparent);
+	color: var(--uxs-text);
+	font-size: var(--uxs-fs-s);
+
+	svg { flex-shrink: 0; margin-top: 2px; color: var(--uxs-warning); }
+	&.is-reviewed { background: color-mix(in srgb, var(--uxs-success) 12%, transparent); svg { color: var(--uxs-success); } }
+}
+.uxs-wiz-tick:disabled { opacity: .45; cursor: not-allowed; &:hover { border-color: var(--uxs-border); } }
+.uxs-wiz-rolecompare {
+	margin-top: var(--uxs-sp-3);
+
+	.uxs-wiz-changes td { vertical-align: top; }
+	.uxs-wiz-changes tr.is-same td:last-child { background: none; }
+	.uxs-wiz-changes td strong { display: inline-block; min-width: 1.6em; }
+}
+
 .uxs-wiz-changes {
 	width: 100%;
 	border-collapse: collapse;
@@ -438,6 +462,7 @@
 	color: var(--uxs-text);
 
 	th, td { padding: var(--uxs-sp-2) var(--uxs-sp-3); text-align: left; border-bottom: 1px solid var(--uxs-border); vertical-align: top; word-break: break-word; }
+	th:first-child, td:first-child { min-width: 9em; word-break: normal; overflow-wrap: anywhere; }
 	th { color: var(--uxs-text-soft); font-weight: 600; }
 	tr.is-changed td:last-child code { background: color-mix(in srgb, var(--uxs-success) 18%, transparent); color: var(--uxs-text); }
 	.uxs-wiz-dropped { margin-left: var(--uxs-sp-1); color: var(--uxs-warning); vertical-align: middle; }

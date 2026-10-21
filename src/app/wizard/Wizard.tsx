@@ -133,7 +133,8 @@ export function Wizard(): JSX.Element {
 				const ids = sources.map( ( s ) => s.id );
 				if ( ! preselected.current ) {
 					preselected.current = true;
-					setSelected( preselect.filter( ( id ) => ids.includes( id ) ) );
+					// A partial match is never ticked for the admin: they must open the list of what is lost first.
+					setSelected( preselect.filter( ( id ) => ids.includes( id ) && 'partial' !== sources.find( ( s ) => s.id === id )?.match ) );
 				} else {
 					setSelected( ( cur ) => cur.filter( ( id ) => ids.includes( id ) ) );
 				}

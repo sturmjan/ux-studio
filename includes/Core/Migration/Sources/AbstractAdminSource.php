@@ -159,6 +159,7 @@ abstract class AbstractAdminSource extends AbstractSource {
 		$explain  = array();
 		$hidden   = array_values( array_unique( array_map( 'strval', (array) ( $model['hidden'] ?? array() ) ) ) );
 		$item_roles = array();
+		$keep_layout = false;
 
 		foreach ( (array) ( $model['denied'] ?? array() ) as $slug => $denied ) {
 			$denied = array_values( array_unique( array_map( 'strval', (array) $denied ) ) );
@@ -223,11 +224,17 @@ abstract class AbstractAdminSource extends AbstractSource {
 			$input['order']          = $order;
 			$m->note( __( 'The groups of the old menu (the parts between its separators) become categories "Group 1, 2 ..." of the Menu Organizer, in the same order. Items the plugin does not know about land in "Other".', 'ux-studio' ) );
 		} else {
-			// Only hiding: one category keeps the native order and does not regroup the whole menu.
+			// Only hiding: one category keeps the native order and does not regroup the whole menu ...
 			$input['categories']     = array( 'other' => __( 'Menu', 'ux-studio' ) );
 			$input['category_order'] = array( 'other' );
 			$input['assignments']    = array();
 			$input['order']          = array();
+			// ... unless an arrangement is already there (another plugin's menu that was migrated first): keep it.
+			$existing = $this->effective_menu_config();
+			if ( $existing['assignments'] || $existing['order'] ) {
+				$keep_layout = true;
+				$m->note( __( 'The menu already has an arrangement (categories and order), so only the hidden items and the role limits were added to it.', 'ux-studio' ) );
+			}
 		}
 
 		$titles = array();
@@ -298,11 +305,15 @@ abstract class AbstractAdminSource extends AbstractSource {
 		$clean = MenuOrganizer::clean_config( $input, MenuOrganizer::default_config() );
 		$keys  = array( 'categories', 'category_order', 'assignments', 'order', 'item_titles', 'item_icons', 'item_roles', 'hidden_items', 'promoted_subs', 'custom_links' );
 		if ( ! $own_order ) {
-			$keys = array( 'categories', 'category_order', 'assignments', 'order', 'item_roles', 'hidden_items' );
+			$keys = $keep_layout ? array( 'item_roles', 'hidden_items' ) : array( 'categories', 'category_order', 'item_roles', 'hidden_items' );
 		}
+		// Keys the plugin left empty are not written: they would wipe what is already set up in the module.
+		$always = array( 'categories', 'category_order' );
 		$values = array();
 		foreach ( $keys as $key ) {
-			$values[ $key ] = $clean[ $key ];
+			if ( in_array( $key, $always, true ) || array() !== $clean[ $key ] ) {
+				$values[ $key ] = $clean[ $key ];
+			}
 		}
 		$m->option(
 			self::MODULE,
@@ -429,7 +440,7 @@ abstract class AbstractAdminSource extends AbstractSource {
 	 * Role by role: what the plugin shows versus what UX Studio will show.
 	 *
 	 * @param bool $planned Compare with the config the mapping WOULD write (the plan), not with what is stored now (verify).
-	 * @return array{src:array<string,string[]>,dst:array<string,string[]>,diff:array<string,string[]>,unexplained:array<string,string[]>,universe:string[]}
+	 * @return array{src:array<string,string[]>,dst:array<string,string[]>,diff:array<string,string[]>,unexplained:array<string,string[]>,universe:string[],ruled:string[]}
 	 */
 	protected function compare_menu( bool $planned = false ): array {
 		$e = $this->menu_expect;
@@ -440,6 +451,7 @@ abstract class AbstractAdminSource extends AbstractSource {
 				'diff'        => array(),
 				'unexplained' => array(),
 				'universe'    => array(),
+				'ruled'       => array(),
 			);
 		}
 		$model = (array) $e['model'];
@@ -449,8 +461,17 @@ abstract class AbstractAdminSource extends AbstractSource {
 		$diff  = array();
 		$unex  = array();
 		$exp   = array_flip( (array) $e['explain'] );
+		// Only items the plugin has a rule for are compared: for the rest it has no opinion (another plugin may hide them).
+		$ruled = array_merge(
+			array_map( 'strval', (array) ( $model['hidden'] ?? array() ) ),
+			array_map( 'strval', array_keys( (array) ( $model['denied'] ?? array() ) ) ),
+			array_map( 'strval', (array) ( $model['hidden_subs'] ?? array() ) ),
+			array_map( 'strval', array_keys( (array) ( $model['denied_subs'] ?? array() ) ) )
+		);
 		foreach ( $roles as $role ) {
-			$d = array_values( array_merge( array_diff( $src[ $role ] ?? array(), $dst[ $role ] ?? array() ), array_diff( $dst[ $role ] ?? array(), $src[ $role ] ?? array() ) ) );
+			$a = array_values( array_intersect( $src[ $role ] ?? array(), $ruled ) );
+			$b = array_values( array_intersect( $dst[ $role ] ?? array(), $ruled ) );
+			$d = array_values( array_merge( array_diff( $a, $b ), array_diff( $b, $a ) ) );
 			sort( $d );
 			$diff[ $role ] = $d;
 			$unex[ $role ] = array_values(
@@ -470,6 +491,7 @@ abstract class AbstractAdminSource extends AbstractSource {
 			'diff'        => $diff,
 			'unexplained' => $unex,
 			'universe'    => array_map( 'strval', (array) $model['tops'] ),
+			'ruled'       => $ruled,
 		);
 	}
 
@@ -515,12 +537,14 @@ abstract class AbstractAdminSource extends AbstractSource {
 				'ok'     => array() === $unexplained,
 				'staged' => array() === $unexplained && $this->menu_is_staged(),
 				'detail' => array() === $unexplained
-					? sprintf(
-						/* translators: 1: number of items both menus agree on, 2: number of known differences. */
-						__( '%1$d menu items agree, %2$d known differences (listed as not transferred).', 'ux-studio' ),
-						count( array_intersect( $shown, $cmp['dst'][ $role ] ?? array() ) ),
-						max( 0, $known )
-					)
+					? ( array() === $cmp['ruled']
+						? __( 'The plugin has no hidden items or role limits in its menu, so there is nothing to compare for this role.', 'ux-studio' )
+						: sprintf(
+							/* translators: 1: number of menu items with a rule of the plugin on which both menus agree, 2: number of known differences. */
+							__( '%1$d menu items with a rule of the plugin agree, %2$d known differences (listed as not transferred).', 'ux-studio' ),
+							count( array_intersect( $shown, $cmp['dst'][ $role ] ?? array(), $cmp['ruled'] ) ),
+							max( 0, $known )
+						) )
 					: sprintf(
 						/* translators: %s: menu items. */
 						__( 'The old plugin and UX Studio disagree about: %s.', 'ux-studio' ),
@@ -561,6 +585,35 @@ abstract class AbstractAdminSource extends AbstractSource {
 			}
 		}
 		return $out;
+	}
+
+	/**
+	 * Hidden dashboard widgets: the module takes only widgets it has seen on the dashboard. Say which
+	 * ones it does not know yet, so the admin knows to open the dashboard once and check again.
+	 *
+	 * @param Mapping  $m   Mapping.
+	 * @param string[] $ids Widget ids the plugin hides.
+	 */
+	protected function note_unknown_widgets( Mapping $m, array $ids ): void {
+		$known = null;
+		foreach ( (array) SettingsWriter::schema( 'dashboard-widgets' ) as $field ) {
+			if ( 'hidden_widgets' === ( $field['key'] ?? '' ) ) {
+				$known = array_map( 'strval', array_keys( (array) ( $field['options'] ?? array() ) ) );
+			}
+		}
+		if ( null === $known ) {
+			return;
+		}
+		$unknown = array_values( array_diff( $ids, $known ) );
+		if ( $unknown ) {
+			$m->lossy(
+				sprintf(
+					/* translators: %s: widget ids. */
+					__( 'The Dashboard Widgets module does not know these widgets yet, so they were not transferred. Open the dashboard once so the module learns them, then run the check again: %s.', 'ux-studio' ),
+					implode( ', ', $unknown )
+				)
+			);
+		}
 	}
 
 	/**

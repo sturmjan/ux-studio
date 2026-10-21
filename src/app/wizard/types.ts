@@ -55,6 +55,16 @@ export interface PlanItem {
 	/** The module is already on: the value waits in the staging area until the switch. */
 	staged?: boolean;
 	target: string;
+	/** Set for keys of a whole option (menu config, list columns) rather than a module setting. */
+	option?: string;
+}
+
+/** Per role: the menu items hidden before (old plugin) and after (UX Studio), by display name. */
+export interface MenuRoleRow {
+	role: string;
+	label: string;
+	before: string[];
+	after: string[];
 }
 
 /** One entry of POST migration/plan. */
@@ -74,6 +84,8 @@ export interface SourcePlan {
 	warnings: string[];
 	notes: string[];
 	counts: { transfer: number; changed: number; lossy: number; data: number };
+	/** Only the sources that move an admin menu: what each role sees before and after. */
+	menu_table?: MenuRoleRow[];
 }
 
 export type RunSourceStatus = 'pending' | 'running' | 'done' | 'error';

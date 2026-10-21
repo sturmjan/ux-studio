@@ -229,6 +229,7 @@ final class AdminifySource extends AbstractAdminSource {
 		if ( $dash ) {
 			$m->set( 'dashboard-widgets', 'hidden_widgets', $dash, __( 'Hide specific dashboard widgets', 'ux-studio' ), $origin . ':remove_widgets.dashboard_widgets_list' );
 			$this->note_extra_module( $m, 'dashboard-widgets', __( 'Dashboard Widgets', 'ux-studio' ) );
+			$this->note_unknown_widgets( $m, $dash );
 		}
 		if ( ! empty( $rw['sidebar_widgets_list'] ) ) {
 			$lossy[] = __( 'Removed sidebar widgets (widget types the plugin takes away from the Widgets screen).', 'ux-studio' );

@@ -312,6 +312,7 @@ final class AdminimizeSource extends AbstractAdminSource {
 		if ( $hide_widgets ) {
 			$m->set( 'dashboard-widgets', 'hidden_widgets', $hide_widgets, __( 'Hide specific dashboard widgets', 'ux-studio' ), 'mw_adminimize_disabled_dashboard_option_*' );
 			$this->note_extra_module( $m, 'dashboard-widgets', __( 'Dashboard Widgets', 'ux-studio' ) );
+			$this->note_unknown_widgets( $m, $hide_widgets );
 		}
 		if ( $skipped ) {
 			$m->lossy(

@@ -24,7 +24,7 @@ defined( 'ABSPATH' ) || exit;
 final class AdminMenuEditorSource extends AbstractAdminSource {
 
 	protected function option_names(): array {
-		return array( 'ws_menu_editor', 'ws_menu_editor_pro' );
+		return array( 'admin-menu-editor-pro' === $this->slug ? 'ws_menu_editor_pro' : 'ws_menu_editor' );
 	}
 
 	/**

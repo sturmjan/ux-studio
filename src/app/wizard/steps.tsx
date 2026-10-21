@@ -8,7 +8,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { ArrowRight, Camera, ChevronDown, CircleCheck, History as HistoryIcon, Radar, ShieldCheck, Undo2, Wand2 } from 'lucide-react';
 import { navigate } from '../route';
 import type { WizardCtx } from './context';
-import { ChangeTable, DataCounts, DrawnCheck, ErrorLine, MatchBadge, PlanDetails, SourceIcon, StateIcon, StatusBadge, StepHead, Warnings, reducedMotion, sourceSummary } from './parts';
+import { ChangeTable, DataCounts, DrawnCheck, ErrorLine, MatchBadge, MenuRoleTable, PartialNote, PlanDetails, SourceIcon, StateIcon, StatusBadge, StepHead, Warnings, reducedMotion, sourceSummary } from './parts';
 import { PreviewStep, RevertedDone, SwitchStep, SwitchedDone } from './steps-preview';
 import type { RunSource, ScanSource } from './types';
 
@@ -153,11 +153,20 @@ function ScanStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 
 /* ── 3 Select ── */
 
-function SelectCard( { source, ctx }: { source: ScanSource; ctx: WizardCtx } ): JSX.Element {
+/** A partial match (Admin Customiser) can only be ticked after its list of what is lost was opened. */
+function SelectCard( { source, ctx, reviewed, onReview }: { source: ScanSource; ctx: WizardCtx; reviewed: boolean; onReview: ( id: string ) => void } ): JSX.Element {
 	const [ open, setOpen ] = useState( false );
 	const checked = ctx.selected.includes( source.id );
 	const plan = ctx.plans?.[ source.id ];
 	const bodyId = `uxs-wiz-plan-${ source.id }`;
+	const partial = 'partial' === source.match;
+	const locked = partial && ! reviewed && ! checked;
+	const expand = ( next: boolean ): void => {
+		setOpen( next );
+		if ( next && partial ) {
+			onReview( source.id );
+		}
+	};
 
 	return (
 		<li className={ `uxs-wiz-choice${ checked ? ' is-selected' : '' }` }>
@@ -172,6 +181,8 @@ function SelectCard( { source, ctx }: { source: ScanSource; ctx: WizardCtx } ): 
 						source.label
 					) }
 					className="uxs-wiz-tick"
+					disabled={ locked }
+					title={ locked ? __( 'Open the list of what is not transferred first.', 'ux-studio' ) : undefined }
 					onClick={ () => ctx.toggle( source.id ) }
 				>
 					{ checked && <DrawnCheck size={ 16 } /> }
@@ -187,6 +198,7 @@ function SelectCard( { source, ctx }: { source: ScanSource; ctx: WizardCtx } ): 
 						<MatchBadge match={ source.match } />
 						<span className="uxs-wiz-muted">{ sourceSummary( source.summary ) }</span>
 					</div>
+					{ partial && <PartialNote reviewed={ reviewed || checked } onOpen={ () => expand( true ) } /> }
 					{ plan && plan.options.length > 0 && (
 						<div className="uxs-wiz-options">
 							{ plan.options.map( ( option ) => (
@@ -204,7 +216,7 @@ function SelectCard( { source, ctx }: { source: ScanSource; ctx: WizardCtx } ): 
 						</div>
 					) }
 				</div>
-				<button type="button" className="button-link uxs-wiz-expand" aria-expanded={ open } aria-controls={ bodyId } onClick={ () => setOpen( ! open ) }>
+				<button type="button" className="button-link uxs-wiz-expand" aria-expanded={ open } aria-controls={ bodyId } onClick={ () => expand( ! open ) }>
 					{ __( 'What moves over', 'ux-studio' ) }
 					<ChevronDown size={ 15 } aria-hidden className={ open ? 'is-open' : '' } />
 				</button>
@@ -220,7 +232,10 @@ function SelectCard( { source, ctx }: { source: ScanSource; ctx: WizardCtx } ): 
 
 function SelectStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 	const sources = ctx.scan ?? [];
-	const all = sources.map( ( s ) => s.id );
+	// Partial matches the admin has looked at (the list of what is lost was opened).
+	const [ reviewed, setReviewed ] = useState< string[] >( [] );
+	const review = ( id: string ): void => setReviewed( ( prev ) => ( prev.includes( id ) ? prev : [ ...prev, id ] ) );
+	const all = sources.filter( ( s ) => 'partial' !== s.match || reviewed.includes( s.id ) || ctx.selected.includes( s.id ) ).map( ( s ) => s.id );
 
 	// Two selected plugins that both carry SETTINGS for one module overwrite each other (the later one wins).
 	const clashes = Object.values(
@@ -232,7 +247,7 @@ function SelectStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 	return (
 		<section className="uxs-wiz-panel">
 			<StepHead title={ __( 'Choose what to migrate', 'ux-studio' ) }>
-				{ __( 'Tick the plugins whose settings should be copied. Inactive plugins can be migrated too. Open "What moves over" to see exactly what is and is not transferred.', 'ux-studio' ) }
+				{ __( 'Tick the plugins whose settings should be copied. Inactive plugins can be migrated too. Open "What moves over" to see exactly what is and is not transferred. Partial matches can only be ticked once you have opened that list.', 'ux-studio' ) }
 			</StepHead>
 			<div className="uxs-wiz-bulk">
 				<button type="button" className="button-link" onClick={ () => ctx.setSelected( all ) }>
@@ -244,7 +259,7 @@ function SelectStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 			</div>
 			<ul className="uxs-wiz-choices">
 				{ sources.map( ( s ) => (
-					<SelectCard key={ s.id } source={ s } ctx={ ctx } />
+					<SelectCard key={ s.id } source={ s } ctx={ ctx } reviewed={ reviewed.includes( s.id ) } onReview={ review } />
 				) ) }
 			</ul>
 			<Warnings
@@ -320,6 +335,7 @@ function CheckStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 						{ result && 0 === result.items.length && <p className="uxs-wiz-muted">{ plan?.notes[ 0 ] ?? __( 'Nothing to transfer.', 'ux-studio' ) }</p> }
 						{ result && result.errors.length > 0 && <Warnings warnings={ result.errors } /> }
 						{ plan && <Warnings warnings={ plan.warnings } /> }
+						{ plan && plan.menu_table && plan.menu_table.length > 0 && <MenuRoleTable rows={ plan.menu_table } /> }
 						{ plan && plan.lossy.length > 0 && (
 							<div className="uxs-wiz-lossy">
 								<h4 className="uxs-wiz-plan__title is-no">{ __( 'Will not be transferred', 'ux-studio' ) }</h4>

@@ -1,480 +1,36 @@
 [
  {
   "ctx": null,
-  "id": "The site has no security keys (AUTH_KEY and AUTH_SALT in wp-config.php), so the preview cannot be protected with a signed token.",
-  "refs": [
-   "includes/Core/Migration/Preview.php:124"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The folder for must-use plugins is not defined on this site.",
-  "refs": [
-   "includes/Core/Migration/Preview.php:131"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The folder %s is not writable, so the preview cannot install the small file that switches the old plugins off for your browser only.",
-  "refs": [
-   "includes/Core/Migration/Preview.php:145"
-  ],
-  "comments": [
-   "#. translators: %s: folder path."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The preview file %s could not be written.",
-  "refs": [
-   "includes/Core/Migration/Preview.php:239"
-  ],
-  "comments": [
-   "#. translators: %s: file path."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "This migration run does not exist.",
-  "refs": [
-   "includes/Core/Migration/Preview.php:327",
-   "includes/Core/Migration/Switcher.php:114"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "This run is already switched on. Undo the switch to preview it again.",
-  "refs": [
-   "includes/Core/Migration/Preview.php:333"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "No plugin of this run was migrated, so there is nothing to preview.",
-  "refs": [
-   "includes/Core/Migration/Preview.php:337"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The preview has expired. Start it again.",
-  "refs": [
-   "includes/Core/Migration/Preview.php:485",
-   "includes/Core/Migration/Smoke.php:139"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The preview needs a normal browser login session.",
-  "refs": [
-   "includes/Core/Migration/Preview.php:490"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Preview without the old plugins - ends at %s",
-  "refs": [
-   "includes/Core/Migration/Preview.php:626"
-  ],
-  "comments": [
-   "#. translators: %s: time the preview ends (HH:MM)."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "End preview",
-  "refs": [
-   "includes/Core/Migration/Preview.php:633"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Home page",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:73"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Post: %s",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:78"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Page: %s",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:78"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Login page (wp-login.php)",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:103"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Administration (wp-admin)",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:111"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The preview token could not be created.",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:143"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Unknown test mode.",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:146"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Unknown test.",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:157"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "No test for this item.",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:210"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The request failed: %s",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:383"
-  ],
-  "comments": [
-   "#. translators: %s: error message."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The preview did not take effect on this page (the preview file is not loaded or the token was refused).",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:386",
-   "includes/Core/Migration/Smoke.php:485",
-   "includes/Core/Migration/Smoke.php:563",
-   "includes/Core/Migration/Smoke.php:588",
-   "includes/Core/Migration/Smoke.php:716"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The page fails with a server error (HTTP %d) or a PHP fatal error.",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:393"
-  ],
-  "comments": [
-   "#. translators: %d: HTTP status."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The page answered %1$d before the switch and answers %2$d now.",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:403"
-  ],
-  "comments": [
-   "#. translators: 1: HTTP status before, 2: after."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "HTTP %d",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:405"
-  ],
-  "comments": [
-   "#. translators: %d: HTTP status."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The page works in the preview, but the current site could not be requested for comparison: %s",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:410"
-  ],
-  "comments": [
-   "#. translators: %s: error message."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The page answers %1$d now and %2$d in the preview.",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:416",
-   "includes/Core/Migration/Smoke.php:418"
-  ],
-  "comments": [
-   "#. translators: 1: HTTP status now, 2: in the preview."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "%d new PHP warning is printed into the page.",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:422"
-  ],
-  "comments": [
-   "#. translators: %d: number of PHP notices."
-  ],
-  "plural": "%d new PHP warnings are printed into the page."
- },
- {
-  "ctx": null,
-  "id": "HTTP %1$d, %2$d ms",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:427"
-  ],
-  "comments": [
-   "#. translators: 1: HTTP status, 2: milliseconds."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "There is no simple rule to sample.",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:458"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "None of the sampled addresses was redirected by the old plugin, so there was nothing to compare.",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:499"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "%1$d of %2$d redirects differ from the old plugin: %3$s",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:506"
-  ],
-  "comments": [
-   "#. translators: 1: number of different redirects, 2: tested, 3: examples."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "%d redirect gives the same status and target as the old plugin.",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:518"
-  ],
-  "comments": [
-   "#. translators: %d: number of redirects."
-  ],
-  "plural": "%d redirects give the same status and target as the old plugin."
- },
- {
-  "ctx": null,
-  "id": "The site has no published post to look at.",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:556"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The post fails with a server error.",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:560"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The comment form is still on the post.",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:566"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The comment form is not on the post.",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:568"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "No custom login address is set.",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:581"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The new login address fails with a server error.",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:585"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The new login address %1$s does not show the login form (HTTP %2$d).",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:591"
-  ],
-  "comments": [
-   "#. translators: 1: address, 2: HTTP status."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "wp-login.php should redirect, but answers %d.",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:600"
-  ],
-  "comments": [
-   "#. translators: %d: HTTP status."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "wp-login.php should answer 404, but answers %d.",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:603"
-  ],
-  "comments": [
-   "#. translators: %d: HTTP status."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The login form is at %s and wp-login.php is closed as set.",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:605"
-  ],
-  "comments": [
-   "#. translators: %s: login address."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The preview did not take effect on this request.",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:631",
-   "includes/Core/Migration/Smoke.php:665"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The test e-mail could not be requested (HTTP %d). Is the SMTP module available?",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:635"
-  ],
-  "comments": [
-   "#. translators: %d: HTTP status."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The test e-mail was not sent: %s",
+  "id": "No admin screens to look at.",
   "refs": [
    "includes/Core/Migration/Smoke.php:639"
   ],
-  "comments": [
-   "#. translators: %s: error message."
-  ],
+  "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "A test e-mail was sent to %s through the module.",
+  "id": "the preview did not take effect on this page",
   "refs": [
-   "includes/Core/Migration/Smoke.php:641"
+   "includes/Core/Migration/Smoke.php:653"
   ],
-  "comments": [
-   "#. translators: %s: e-mail address."
-  ],
+  "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The editor settings could not be read (HTTP %d).",
+  "id": "server error",
   "refs": [
-   "includes/Core/Migration/Smoke.php:670"
+   "includes/Core/Migration/Smoke.php:658"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "redirected (HTTP %d), the session was not accepted",
+  "refs": [
+   "includes/Core/Migration/Smoke.php:662"
   ],
   "comments": [
    "#. translators: %d: HTTP status."
@@ -483,1044 +39,1569 @@
  },
  {
   "ctx": null,
-  "id": "The block editor is still on for: %s",
+  "id": "refused in the preview (HTTP %d), but open on the current site",
   "refs": [
-   "includes/Core/Migration/Smoke.php:679"
+   "includes/Core/Migration/Smoke.php:673"
   ],
   "comments": [
-   "#. translators: %s: post types."
+   "#. translators: %d: HTTP status."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The classic editor is used for %d post type.",
+  "id": "refused here already before the migration (the old plugins or the role limit it)",
   "refs": [
-   "includes/Core/Migration/Smoke.php:685"
+   "includes/Core/Migration/Smoke.php:675"
   ],
-  "comments": [
-   "#. translators: %d: number of post types."
-  ],
-  "plural": "The classic editor is used for all %d post types."
+  "comments": [],
+  "plural": null
  },
  {
   "ctx": null,
-  "id": "The page %s fails with the snippets switched on.",
+  "id": "refused (HTTP %d)",
   "refs": [
-   "includes/Core/Migration/Smoke.php:713"
+   "includes/Core/Migration/Smoke.php:678"
   ],
   "comments": [
-   "#. translators: %s: address."
+   "#. translators: %d: HTTP status."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The pages render without errors with the snippets switched on.",
+  "id": "%1$d of %2$d admin screens open for the administrator.",
   "refs": [
-   "includes/Core/Migration/Smoke.php:719"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The classic editor replaces the block editor",
-  "refs": [
-   "includes/Core/Migration/Sources/ClassicEditorSource.php:34"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Pages render with the snippets switched on",
-  "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:351"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Comments are disabled (no comment form on a post)",
-  "refs": [
-   "includes/Core/Migration/Sources/DisableCommentsSource.php:41"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "New login address works, wp-login.php is closed",
-  "refs": [
-   "includes/Core/Migration/Sources/LoginSource.php:47"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Sample of redirects behaves like the old plugin",
-  "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:346"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Test e-mail through the SMTP module",
-  "refs": [
-   "includes/Core/Migration/Sources/SmtpSource.php:311"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "This run is already switched on.",
-  "refs": [
-   "includes/Core/Migration/Switcher.php:212"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The migration had errors. Undo it and run it again before switching.",
-  "refs": [
-   "includes/Core/Migration/Switcher.php:219",
-   "build/index.35c7c8167bea179c3aa4.js:23"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "There is nothing to switch.",
-  "refs": [
-   "includes/Core/Migration/Switcher.php:225"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Run the safe preview and its tests first.",
-  "refs": [
-   "includes/Core/Migration/Switcher.php:233",
-   "build/index.35c7c8167bea179c3aa4.js:23"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The tests of the safe preview are incomplete or older than a day. Run them again.",
-  "refs": [
-   "includes/Core/Migration/Switcher.php:238",
-   "build/index.35c7c8167bea179c3aa4.js:23"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Some preview tests failed. Fix the cause, or confirm that you want to switch anyway.",
-  "refs": [
-   "includes/Core/Migration/Switcher.php:243"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The safe preview is not available here. Switch without it only if you confirm that you accept the risk.",
-  "refs": [
-   "includes/Core/Migration/Switcher.php:249"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Save the new login address and tick the box to confirm it.",
-  "refs": [
-   "includes/Core/Migration/Switcher.php:255",
-   "build/index.35c7c8167bea179c3aa4.js:23"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The module registry is not available.",
-  "refs": [
-   "includes/Core/Migration/Switcher.php:290",
-   "includes/Core/Migration/Switcher.php:532"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The module \\\"%s\\\" could not be switched on.",
-  "refs": [
-   "includes/Core/Migration/Switcher.php:351"
+   "includes/Core/Migration/Smoke.php:692"
   ],
   "comments": [
-   "#. translators: %s: module id."
+   "#. translators: 1: number of screens opened, 2: number of screens checked."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The module \\\"%1$s\\\" could not finish switching on: %2$s",
+  "id": "The item \\\"%1$s\\\" is hidden from %2$s in the plugin. The Menu Organizer always shows every item to users who can manage options, so it stays visible to them.",
   "refs": [
-   "includes/Core/Migration/Switcher.php:367"
-  ],
-  "comments": [
-   "#. translators: 1: module id, 2: error message."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The switch failed and was undone: %s",
-  "refs": [
-   "includes/Core/Migration/Switcher.php:396"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:177"
   ],
   "comments": [
-   "#. translators: %s: error message."
+   "#. translators: 1: menu item, 2: roles."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The site did not work after the switch (%s), so the switch was undone automatically.",
+  "id": "Group %d",
   "refs": [
-   "includes/Core/Migration/Switcher.php:429"
-  ],
-  "comments": [
-   "#. translators: %s: what failed."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "home page",
-  "refs": [
-   "includes/Core/Migration/Switcher.php:471"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "%1$s: HTTP %2$d",
-  "refs": [
-   "includes/Core/Migration/Switcher.php:476"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:210"
   ],
   "comments": [
-   "#. translators: 1: page, 2: HTTP status."
+   "#. translators: %d: group number."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "This run is not switched on, or the undo information has expired.",
+  "id": "The groups of the old menu (the parts between its separators) become categories \\\"Group 1, 2 ...\\\" of the Menu Organizer, in the same order. Items the plugin does not know about land in \\\"Other\\\".",
   "refs": [
-   "includes/Core/Migration/Switcher.php:528"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:225"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The plugin %1$s could not be reactivated: %2$s",
+  "id": "Menu",
   "refs": [
-   "includes/Core/Migration/Switcher.php:550"
-  ],
-  "comments": [
-   "#. translators: 1: plugin file, 2: error message."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The module \\\"%1$s\\\" could not restore its state: %2$s",
-  "refs": [
-   "includes/Core/Migration/Switcher.php:581"
-  ],
-  "comments": [
-   "#. translators: 1: module id, 2: error message."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The .htaccess file is not identical to how it was before the switch. Check it.",
-  "refs": [
-   "includes/Core/Migration/Switcher.php:610"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:228"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The .htaccess file is not written during a preview.",
+  "id": "The menu already has an arrangement (categories and order), so only the hidden items and the role limits were added to it.",
   "refs": [
-   "includes/Modules/SecurityOptimization/HtaccessWriter.php:165"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:236"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "%d ms",
+  "id": "Icons of these items (image, SVG or an icon that is not in the Menu Organizer set) are not transferred: %s.",
   "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:14"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:266"
   ],
   "comments": [
-   "#. translators: %d: milliseconds."
+   "#. translators: %s: menu items."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "%1$d of %2$d tests failed.",
+  "id": "The rule that hides \\\"%s\\\" was not transferred: the migration never hides UX Studio, Plugins, Users or Settings from administrators, so that nobody locks themselves out.",
   "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:15"
-  ],
-  "comments": [
-   "#. translators: 1: number of failed tests, 2: number of tests."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "All %2$d tests passed, %1$d with a warning.",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:16"
-  ],
-  "comments": [
-   "#. translators: 1: number of tests with a warning, 2: number of tests."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The test passed.",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:16"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:297"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "All %d tests passed.",
+  "id": "The rule that limits \\\"%s\\\" to some roles was not transferred: it would have taken the screen away from the current user.",
   "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:17"
-  ],
-  "comments": [
-   "#. translators: %d: number of tests."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Switched",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:17"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:298"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Switch undone",
+  "id": "Menu: categories",
   "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:17"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:323"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The switch can be undone until %s",
+  "id": "Menu: order of categories",
   "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:19"
-  ],
-  "comments": [
-   "#. translators: %s: date until which the switch can be undone."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Undo the switch",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:19",
-   "build/index.35c7c8167bea179c3aa4.js:21",
-   "build/index.35c7c8167bea179c3aa4.js:29"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:324"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Preview and switch",
+  "id": "Menu: item to category",
   "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:19"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:325"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The run is switched on, so the switch is undone first: the old plugins are activated again and the modules it turned on go off.",
+  "id": "Menu: order of items",
   "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:21"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:326"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Undo the switch?",
+  "id": "Menu: renamed items",
   "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:21",
-   "build/index.35c7c8167bea179c3aa4.js:29"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:327"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The old plugins of the run from %s are activated again, the modules the switch turned on go off, and settings and data return to how they were before the switch. Changes made in these modules since then are lost.",
+  "id": "Menu: item icons",
   "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:22"
-  ],
-  "comments": [
-   "#. translators: %s: date and time of the run."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "No migration to work on",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:328"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The preview and the switch work on a finished migration. Run one first, or continue a run from the run history below.",
+  "id": "Menu: items limited to roles",
   "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:329"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Start a migration",
+  "id": "Menu: hidden items",
   "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:330"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Only your browser sees the site without the old plugins, for 30 minutes. Visitors keep getting the old plugins the whole time.",
+  "id": "Menu: sub-items moved to the top level",
   "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:331"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Nothing is saved while you look: no .htaccess, no schedule, no module data. The preview ends by itself after 30 minutes, or when you end it.",
+  "id": "Menu: custom links",
   "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:332"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The tests compare the site now with the site in the preview and stop the switch when something breaks.",
+  "id": "The Menu Organizer only hides menu items. A page hidden from a role can still be opened with its address, whereas a plugin that changes capabilities blocks it. If the old plugin protected pages, check that before you switch.",
   "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:343"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Safe preview",
+  "id": "Admin Menu Editor, Adminimize and Adminify all write the same Menu Organizer configuration. If you migrate more than one of them, the one processed later overwrites the same parts of the earlier one.",
   "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:344"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "See the site the way it will work after the switch, before anything is switched.",
+  "id": " and %d more",
   "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The preview is not available on this server",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "You can still switch without a preview, but then nothing has been tested before the old plugins are deactivated. Everything can be undone for 30 days.",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The preview ends",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "It has ended",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Switched off in the preview",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "No active plugin",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Switched on in the preview",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The preview has ended. Start it again to test or look at the site.",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Fix the cause, or switch anyway only if you accept the risk.",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Starting…",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Start the safe preview",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Open the site in the preview",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Run the tests again",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23",
-   "build/index.35c7c8167bea179c3aa4.js:29"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "End the preview",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Continue without the preview",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Continue to the switch",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Copy the address",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Some preview tests failed. Fix the cause, or confirm below that you want to switch anyway.",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The safe preview is not available here. Confirm below that you want to switch without it.",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Switch to UX Studio",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "UX Studio modules take over and the old plugins are deactivated. Nothing is deleted, and you can undo it all for 30 days.",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "These plugins will be deactivated",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "None of the migrated plugins is active, so nothing is deactivated.",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "These modules will be switched on",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "already on",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "No module needs to be switched on.",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "What happens",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:23"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The prepared values go live: %1$d settings and %2$d objects (rules, snippets, menu fields) are switched on.",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:24"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:389"
   ],
   "comments": [
-   "#. translators: 1: number of prepared settings, 2: number of prepared objects (rules, snippets ...)."
+   "#. translators: %d: how many more."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The old plugins are deactivated the normal WordPress way, so their own deactivation steps run. Their files and data stay where they are.",
+  "id": "Menu for the role \\\"%s\\\"",
   "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:24"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Right after that the home page is checked from outside. If it fails, everything is undone automatically.",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:24"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "You can undo the whole switch with one click for %d day.",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:25"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:534"
   ],
   "comments": [
-   "#. translators: %d: number of days."
+   "#. translators: %s: role name."
   ],
-  "plural": "You can undo the whole switch with one click for %d days."
+  "plural": null
  },
  {
   "ctx": null,
-  "id": "The login address changes",
+  "id": "The plugin has no hidden items or role limits in its menu, so there is nothing to compare for this role.",
   "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:25"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:541"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "After the switch you log in at this address. The old one stops working for everybody. Save it now.",
+  "id": "%1$d menu items with a rule of the plugin agree, %2$d known differences (listed as not transferred).",
   "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:25"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "I have saved the new login address",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:25"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Locked out anyway? Add define( '%s', true ); to wp-config.php and the normal wp-login.php works again.",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:26"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:544"
   ],
   "comments": [
-   "#. translators: %s: PHP constant name."
+   "#. translators: 1: number of menu items with a rule of the plugin on which both menus agree, 2: number of known differences."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Switch anyway, I accept that these tests failed",
+  "id": "The old plugin and UX Studio disagree about: %s.",
   "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:26"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Back to the preview tests",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:26"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "No safe preview on this server",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:26"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Switch without a preview, I accept the risk",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:26"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Go to the safe preview",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:26"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Switch now",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:26"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Switch to UX Studio now?",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:26"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Switching…",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:26"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "%1$d plugin(s) will be deactivated and %2$d module(s) switched on. The site is checked right after, and you can undo the switch from the run history.",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:27"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:550"
   ],
   "comments": [
-   "#. translators: 1: number of plugins, 2: number of modules."
+   "#. translators: %s: menu items."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "New login address:",
+  "id": "The administrator can still open Plugins, Users, Settings and UX Studio",
   "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:27"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "UX Studio has taken over",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:27"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:573"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "%1$d plugin(s) deactivated, %2$d module(s) switched on. The site is being tested now, from outside, without the preview.",
+  "id": "The Dashboard Widgets module does not know these widgets yet, so they were not transferred. Open the dashboard once so the module learns them, then run the check again: %s.",
   "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:28"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:612"
   ],
   "comments": [
-   "#. translators: 1: number of deactivated plugins, 2: number of modules switched on."
+   "#. translators: %s: widget ids."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The login address is now",
+  "id": "The module \\\"%s\\\" is switched on together with Admin Customiser, because some settings belong to it.",
   "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:28"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "You can undo the switch below.",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:28"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "You can undo the switch until %s.",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:29"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:630"
   ],
   "comments": [
-   "#. translators: %s: date until which the switch can be undone."
+   "#. translators: %s: module name."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The old plugins are activated again, the modules the switch turned on go off, and the settings and data return to how they were before the switch. Changes made in these modules since then are lost. The migrated values stay prepared.",
+  "id": "The plugin has no saved column settings, there is nothing to transfer.",
   "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:29"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The switch was undone",
-  "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:29"
+   "includes/Core/Migration/Sources/AdminColumnsSource.php:165"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The old plugins are active again and the modules are as they were before. The migrated values are prepared again: you can preview and switch once more, or undo the migration from the run history.",
+  "id": "List columns: %s",
   "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:29"
+   "includes/Core/Migration/Sources/AdminColumnsSource.php:286"
+  ],
+  "comments": [
+   "#. translators: %s: content type."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Column types that UX Studio does not have (they are left out): %s. The module offers default columns, custom fields, taxonomies, the ID and the featured image.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminColumnsSource.php:298"
+  ],
+  "comments": [
+   "#. translators: %s: column types."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Custom field display types without an equivalent are shown as plain text: %s.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminColumnsSource.php:307"
+  ],
+  "comments": [
+   "#. translators: %s: value types."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "List screens the module does not cover (taxonomies, network screens): %s.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminColumnsSource.php:316"
+  ],
+  "comments": [
+   "#. translators: %s: list names."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Several layouts of one list or layouts limited to roles or users (Admin Columns Pro): only the first layout of each list is transferred, for everybody.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminColumnsSource.php:322"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Back to the preview",
+  "id": "Sorting, filtering, inline editing and bulk editing set on the columns, saved search segments and the column set per user.",
   "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:29"
+   "includes/Core/Migration/Sources/AdminColumnsSource.php:324"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "It only reads the plugins. Nothing in them changes, and nothing is switched on or deactivated until you confirm the switch.",
+  "id": "Native columns added by other plugins (SEO, shop ...) that you hid in Admin Columns stay visible: UX Studio knows only the WordPress columns.",
   "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:29"
+   "includes/Core/Migration/Sources/AdminColumnsSource.php:325"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Switching to the module and deactivating the old plugin is a separate step that comes after a safe preview of the site without the old plugins.",
+  "id": "Items with their own link (the item points somewhere else than WordPress made it): %s.",
   "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:29"
+   "includes/Core/Migration/Sources/AdminifySource.php:180"
+  ],
+  "comments": [
+   "#. translators: %s: menu items."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Menu items hidden for single users or capabilities (the Menu Organizer only knows roles): %s.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminifySource.php:187"
+  ],
+  "comments": [
+   "#. translators: %s: names."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Renamed, relinked, hidden or own sub-menu items (the Menu Organizer changes only top-level items): %s.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminifySource.php:194"
+  ],
+  "comments": [
+   "#. translators: %s: menu items."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The horizontal menu layout of Adminify (the Menu Organizer has its own horizontal layout built from categories, which is not the same).",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminifySource.php:200"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Continue to the safe preview",
+  "id": "The footer text is still the one Adminify ships (\\\"Developed by WP Adminify\\\"), so it was not copied. Set your own in Admin Customiser.",
   "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:38",
-   "build/index.35c7c8167bea179c3aa4.js:40"
+   "includes/Core/Migration/Sources/AdminifySource.php:213"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "To switch, open the safe preview (the site without the old plugins, only for you), then the switch. You can do that later from the run history.",
+  "id": "The changed or removed \\\"Howdy\\\" greeting in the admin bar.",
   "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:40"
+   "includes/Core/Migration/Sources/AdminifySource.php:216"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Switch",
+  "id": "Hide notices only for users who are not administrators (UX Studio hides or tucks away notices for everybody).",
   "refs": [
-   "build/index.35c7c8167bea179c3aa4.js:40"
+   "includes/Core/Migration/Sources/AdminifySource.php:221"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Removed sidebar widgets (widget types the plugin takes away from the Widgets screen).",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminifySource.php:235"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "its own admin interface (theme, colours, fonts, dark mode switch, favicons)",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminifySource.php:241"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "custom help tabs",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminifySource.php:244"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "custom list columns (set them up again in Admin Columns)",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminifySource.php:247"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "security, performance and redirect settings (UX Studio has its own modules for them, they are not read here)",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminifySource.php:250"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Not transferred from Adminify: %s.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminifySource.php:255"
+  ],
+  "comments": [
+   "#. translators: %s: list."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Adminify Pro modules (admin pages, redirects) are not transferred.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminifySource.php:260"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The plugin keeps only its defaults, there is nothing to transfer.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminifySource.php:266",
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:283"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The plugin has no per-role settings, there is nothing to transfer.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminimizeSource.php:97"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Sub-menu items hidden for a role (the Menu Organizer cannot hide a single sub-item, it appears when its parent appears): %s.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminimizeSource.php:175"
+  ],
+  "comments": [
+   "#. translators: %s: menu items."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The option \\\"Prevent page access\\\" blocks the hidden pages even when their address is typed in. UX Studio only hides the menu items, so those pages stay reachable by address.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminimizeSource.php:182"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The option for users with several roles (an item is hidden only when every role hides it) is not transferred: UX Studio shows an item when any role of the user may see it.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminimizeSource.php:185"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Hide the admin bar for roles",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminimizeSource.php:207",
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:194"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "\\\"%1$s\\\" is switched on for everybody in UX Studio, the plugin applied it only to some roles. %2$s lose it as well.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminimizeSource.php:225"
+  ],
+  "comments": [
+   "#. translators: 1: setting, 2: roles that lose the feature."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Items hidden in the screens of the admin that UX Studio has no setting for (or that the plugin hid only for roles other than administrators): %s.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminimizeSource.php:242"
+  ],
+  "comments": [
+   "#. translators: %s: list of items."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "front end",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminimizeSource.php:277"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Admin bar items UX Studio cannot hide, or can hide only for everybody and not for the roles named (the module hides: WordPress logo, updates, customize, comments, new): %s.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminimizeSource.php:286"
+  ],
+  "comments": [
+   "#. translators: %s: admin bar items."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The module hides dashboard widgets for every role, the plugin did it only for some roles. Roles that kept these widgets lose them: %s.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminimizeSource.php:321"
+  ],
+  "comments": [
+   "#. translators: %s: widgets."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Dashboard widgets hidden only for roles other than administrators (the module hides widgets for every role at once): %s.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminimizeSource.php:330"
+  ],
+  "comments": [
+   "#. translators: %s: widgets."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Hidden meta boxes and fields on the edit screens of posts, pages and other types (UX Studio has no setting for it).",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminimizeSource.php:344"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Hidden options on the screens for links, menus (appearance) and widgets.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminimizeSource.php:348"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "hidden admin footer",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminimizeSource.php:354"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "hidden admin header",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminimizeSource.php:355"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "changed user info in the admin bar",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminimizeSource.php:356"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "thickbox window size",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminimizeSource.php:357"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "full category list",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminimizeSource.php:358"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "dashboard redirect",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminimizeSource.php:359"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "redirect to the user profile",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminimizeSource.php:360"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "advice text in the footer",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminimizeSource.php:361"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Other tweaks of the plugin without an equivalent: %s.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminimizeSource.php:368"
+  ],
+  "comments": [
+   "#. translators: %s: list of tweaks."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Own CSS selectors the plugin hides (the \\\"own options\\\" fields).",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminimizeSource.php:372"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The plugin has no saved custom menu, there is nothing to transfer.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminMenuEditorSource.php:73"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "A required capability set for the item (the access level is changed in the plugin, so the page stays blocked for users without it, whereas UX Studio does not change capabilities): %s.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminMenuEditorSource.php:306"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Access rules for one user instead of a role (the Menu Organizer only knows roles): %s.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminMenuEditorSource.php:307"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The plugin grants a role access to an item that role would not have by itself (UX Studio never gives a role capabilities it lacks): %s.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminMenuEditorSource.php:308"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Renamed sub-menu items (the Menu Organizer renames only top-level items): %s.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminMenuEditorSource.php:309"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Sub-menu items moved under another parent: %s.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminMenuEditorSource.php:310"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Custom items without a usable link (HTML, JavaScript, empty address): %s.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminMenuEditorSource.php:311"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Hidden sub-menu items or sub-menu items hidden for a role (the Menu Organizer cannot hide a single sub-item, it appears when its parent appears): %s.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminMenuEditorSource.php:312"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Individual colours of menu items: %s.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminMenuEditorSource.php:313"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Items that open a page inside the admin (iframe, embedded page): %s.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminMenuEditorSource.php:314"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Menus kept always open: %s.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminMenuEditorSource.php:315"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Own CSS classes of menu items: %s.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminMenuEditorSource.php:316"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Which role sees an item is decided in the plugin by \\\"show for\\\" / \\\"hide for\\\" rules together with the role capabilities; UX Studio shows an item to the roles that remain after the rules are applied, and always to users who can manage options.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminMenuEditorSource.php:323"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Per-site menus of a multisite network, menu presets and the plugin's own tools (menu backup, import and export) are not transferred.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminMenuEditorSource.php:324"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%d menu item belongs to a plugin that is no longer installed and was skipped.",
+  "refs": [
+   "includes/Core/Migration/Sources/AdminMenuEditorSource.php:329"
+  ],
+  "comments": [
+   "#. translators: %d: number of menu items."
+  ],
+  "plural": "%d menu items belong to plugins that are no longer installed and were skipped."
+ },
+ {
+  "ctx": null,
+  "id": "The login logo %s is not in the media library of this site, so no attachment could be linked. Upload it and choose it in the Admin Customiser settings.",
+  "refs": [
+   "includes/Core/Migration/Sources/LoginPressSource.php:62",
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:83"
+  ],
+  "comments": [
+   "#. translators: %s: file address."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The colour \\\"%1$s\\\" (%2$s) is not a plain hex colour and was not transferred.",
+  "refs": [
+   "includes/Core/Migration/Sources/LoginPressSource.php:90",
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:105"
+  ],
+  "comments": [
+   "#. translators: 1: setting, 2: value."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The separate messages for the lost password and registration screens (the module shows one message on every login screen).",
+  "refs": [
+   "includes/Core/Migration/Sources/LoginPressSource.php:109"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "background image",
+  "refs": [
+   "includes/Core/Migration/Sources/LoginPressSource.php:118",
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:119"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "background gallery",
+  "refs": [
+   "includes/Core/Migration/Sources/LoginPressSource.php:119"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "rotating background images",
+  "refs": [
+   "includes/Core/Migration/Sources/LoginPressSource.php:120"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "mobile background",
+  "refs": [
+   "includes/Core/Migration/Sources/LoginPressSource.php:121"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "background video",
+  "refs": [
+   "includes/Core/Migration/Sources/LoginPressSource.php:122"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "form background image",
+  "refs": [
+   "includes/Core/Migration/Sources/LoginPressSource.php:123"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "logo size",
+  "refs": [
+   "includes/Core/Migration/Sources/LoginPressSource.php:124",
+   "includes/Core/Migration/Sources/LoginPressSource.php:125",
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:122",
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:123"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "form width and padding",
+  "refs": [
+   "includes/Core/Migration/Sources/LoginPressSource.php:126",
+   "includes/Core/Migration/Sources/LoginPressSource.php:127"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "button hover colours",
+  "refs": [
+   "includes/Core/Migration/Sources/LoginPressSource.php:128",
+   "includes/Core/Migration/Sources/LoginPressSource.php:129",
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:125",
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:126"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "button border",
+  "refs": [
+   "includes/Core/Migration/Sources/LoginPressSource.php:130"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "custom \\\"Lost your password?\\\" text",
+  "refs": [
+   "includes/Core/Migration/Sources/LoginPressSource.php:131"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "footer copyright text",
+  "refs": [
+   "includes/Core/Migration/Sources/LoginPressSource.php:132"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "own CSS",
+  "refs": [
+   "includes/Core/Migration/Sources/LoginPressSource.php:133"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "shadows",
+  "refs": [
+   "includes/Core/Migration/Sources/LoginPressSource.php:134"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "button corner radius",
+  "refs": [
+   "includes/Core/Migration/Sources/LoginPressSource.php:135"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Login screen settings without a target in the module: %s.",
+  "refs": [
+   "includes/Core/Migration/Sources/LoginPressSource.php:144",
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:142"
+  ],
+  "comments": [
+   "#. translators: %s: list.",
+   "#. translators: %s: list of login screen settings."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "login with user name or e-mail",
+  "refs": [
+   "includes/Core/Migration/Sources/LoginPressSource.php:150"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "password field on registration",
+  "refs": [
+   "includes/Core/Migration/Sources/LoginPressSource.php:151"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "session length per role",
+  "refs": [
+   "includes/Core/Migration/Sources/LoginPressSource.php:152"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "automatic login after registration",
+  "refs": [
+   "includes/Core/Migration/Sources/LoginPressSource.php:153"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "privacy policy checkbox",
+  "refs": [
+   "includes/Core/Migration/Sources/LoginPressSource.php:154"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "custom error messages",
+  "refs": [
+   "includes/Core/Migration/Sources/LoginPressSource.php:155"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Behaviour settings of the plugin are not transferred (UX Studio keeps the login behaviour in Security Optimization): %s.",
+  "refs": [
+   "includes/Core/Migration/Sources/LoginPressSource.php:165"
+  ],
+  "comments": [
+   "#. translators: %s: list."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "LoginPress presets and templates are not transferred, only the values saved in the customizer.",
+  "refs": [
+   "includes/Core/Migration/Sources/LoginPressSource.php:169"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "full screen background",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:120"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "retina logo",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:121"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "space under the logo",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:124"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "link hover colour",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:127"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "privacy link colours",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:128",
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:129"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "hidden \\\"Lost your password\\\" links",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:130"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "hidden \\\"Back to the site\\\" link",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:131"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "own CSS of the login screen",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:132"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "own JavaScript of the login screen",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:133"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The option \\\"Hide WordPress logo and links\\\" also removes the WordPress links from the footer and changes the exit icon in the block editor; UX Studio only hides the WordPress logo in the admin bar.",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:150"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The admin bar logo of the plugin is an extra item with its own link and size; in UX Studio it replaces the WordPress logo icon (the link and the alt text are not transferred).",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:157"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The admin bar logo %s is not in the media library of this site, so no attachment could be linked.",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:161"
+  ],
+  "comments": [
+   "#. translators: %s: file address."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The footer is HTML in the plugin; only its text is transferred, links and formatting are lost.",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:170"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The footer link and the footer image are not transferred.",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:175"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The plugin empties the admin footer; UX Studio keeps the default footer text when no own text is set.",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:178"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The plugin only removed the WordPress update notice. UX Studio's \\\"hide admin notices\\\" moves every notice of the admin into a tray (nothing is deleted).",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:190"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The plugin hides the admin bar for everybody except its own \\\"administrators\\\" (chosen users); UX Studio hides it for all roles except the administrator role.",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:196"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The module hides dashboard widgets for every role at once; the plugin hid them only for some roles. These roles lose the widgets too: %s.",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:218"
+  ],
+  "comments": [
+   "#. translators: %s: role names."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The plugin hides dashboard widgets only for these roles, not for administrators (the module hides them for every role at once): %s.",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:225"
+  ],
+  "comments": [
+   "#. translators: %s: role names."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%d custom welcome panel of the dashboard (text, page, Elementor or Beaver Builder template).",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:240"
+  ],
+  "comments": [
+   "#. translators: %d: number of panels."
+  ],
+  "plural": "%d custom welcome panels of the dashboard (text, page, Elementor or Beaver Builder templates)."
+ },
+ {
+  "ctx": null,
+  "id": "The own RSS widget of the dashboard.",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:245"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The changed title and icon of the dashboard page.",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:248"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "admin page title suffix",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:254"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "hidden WordPress version in the footer",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:255"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "text of the greeting in the admin bar",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:256"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "logo above the admin menu",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:257"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "developer icon",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:258"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "developer logo above the menu",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:259"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "own CSS of the admin",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:260"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "editor stylesheet",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:261"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "exit icon of the block editor",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:262"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "the plugin's own admin menu and admin bar editor",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:269"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Branding without a target in UX Studio: %s.",
+  "refs": [
+   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:274"
+  ],
+  "comments": [
+   "#. translators: %s: list of branding settings."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Partial match: check the list of what will not be transferred.",
+  "refs": [
+   "build/index.d9393f2199a7d0a56d7c.js:14"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Checked, you can tick it.",
+  "refs": [
+   "build/index.d9393f2199a7d0a56d7c.js:14"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Show the list",
+  "refs": [
+   "build/index.d9393f2199a7d0a56d7c.js:14"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "+ %d more",
+  "refs": [
+   "build/index.d9393f2199a7d0a56d7c.js:14"
+  ],
+  "comments": [
+   "#. translators: %d: how many more."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Menu by role",
+  "refs": [
+   "build/index.d9393f2199a7d0a56d7c.js:14"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Hidden now (old plugin)",
+  "refs": [
+   "build/index.d9393f2199a7d0a56d7c.js:14"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Hidden after migration",
+  "refs": [
+   "build/index.d9393f2199a7d0a56d7c.js:14"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "No role has a menu item hidden, before or after.",
+  "refs": [
+   "build/index.d9393f2199a7d0a56d7c.js:14"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Nothing is hidden, before or after, for: %s.",
+  "refs": [
+   "build/index.d9393f2199a7d0a56d7c.js:15"
+  ],
+  "comments": [
+   "#. translators: %s: role names."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Open the list of what is not transferred first.",
+  "refs": [
+   "build/index.d9393f2199a7d0a56d7c.js:33"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Tick the plugins whose settings should be copied. Inactive plugins can be migrated too. Open \\\"What moves over\\\" to see exactly what is and is not transferred. Partial matches can only be ticked once you have opened that list.",
+  "refs": [
+   "build/index.d9393f2199a7d0a56d7c.js:33"
   ],
   "comments": [],
   "plural": null

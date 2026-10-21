@@ -616,7 +616,12 @@ final class Smoke {
 		if ( 403 === (int) $res['code'] ) {
 			return true;
 		}
-		return (bool) preg_match( '/Sorry, you are not allowed|you are not allowed to (?:access|view|manage)|nem[aá]te opr[aá]vn[eě]n[ií]|You need a higher level of permission|wp-die-message[^>]*>[^<]*(?:not allowed|opr[aá]vn)/iu', $res['body'] );
+		// Only WordPress' own error screen counts: a regular admin page carries the same sentences inside
+		// translated JavaScript strings ("Sorry, you are not allowed to upload this file type").
+		if ( ! preg_match( '/<body[^>]*\sid=["\']error-page["\']|class=["\']wp-die-message["\']/i', $res['body'] ) ) {
+			return false;
+		}
+		return (bool) preg_match( '/not allowed|nem[aá]te (?:dostate[cč]n[aá] )?opr[aá]vn[eě]n[ií]|higher level of permission|permission/iu', $res['body'] );
 	}
 
 	/**

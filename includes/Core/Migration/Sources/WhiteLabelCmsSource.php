@@ -210,6 +210,7 @@ final class WhiteLabelCmsSource extends AbstractAdminSource {
 					$m->set( 'dashboard-widgets', 'hidden_widgets', $widgets, __( 'Hide specific dashboard widgets', 'ux-studio' ), $origin . ':dashboard_widgets' );
 				}
 				$this->note_extra_module( $m, 'dashboard-widgets', __( 'Dashboard Widgets', 'ux-studio' ) );
+				$this->note_unknown_widgets( $m, $widgets );
 				$rest = $d_roles ? array_values( array_diff( $site_roles, $d_roles ) ) : array();
 				if ( $rest ) {
 					$lossy[] = sprintf(

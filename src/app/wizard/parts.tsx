@@ -8,7 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import { api, type ModuleInfo } from '../api';
 import { ModuleIcon } from '../moduleIcons';
 import type { SmokeRun } from './flows';
-import type { DataRow, PlanItem, ScanSource, SmokeCounts, SmokeResult, SourcePlan } from './types';
+import type { DataRow, MenuRoleRow, PlanItem, ScanSource, SmokeCounts, SmokeResult, SourcePlan } from './types';
 
 /** True when the user asked the system for less motion. */
 export function reducedMotion(): boolean {
@@ -169,6 +169,81 @@ export function PlanDetails( { plan }: { plan: SourcePlan } ): JSX.Element {
 				</p>
 			) }
 			<Warnings warnings={ plan.warnings } />
+		</div>
+	);
+}
+
+/** The partial-match note of a source card (Admin Customiser sources). */
+export function PartialNote( { reviewed, onOpen }: { reviewed: boolean; onOpen: () => void } ): JSX.Element {
+	return (
+		<p className={ `uxs-wiz-partial${ reviewed ? ' is-reviewed' : '' }` }>
+			<TriangleAlert size={ 15 } aria-hidden />
+			<span>
+				{ __( 'Partial match: check the list of what will not be transferred.', 'ux-studio' ) }{ ' ' }
+				{ reviewed ? (
+					<strong>{ __( 'Checked, you can tick it.', 'ux-studio' ) }</strong>
+				) : (
+					<button type="button" className="button-link" onClick={ onOpen }>
+						{ __( 'Show the list', 'ux-studio' ) }
+					</button>
+				) }
+			</span>
+		</p>
+	);
+}
+
+function nameList( names: string[] ): string {
+	if ( 0 === names.length ) {
+		return '-';
+	}
+	return names.length > 3 ? `${ names.slice( 0, 3 ).join( ', ' ) } ${ sprintf( /* translators: %d: how many more. */ __( '+ %d more', 'ux-studio' ), names.length - 3 ) }` : names.join( ', ' );
+}
+
+/** Per role: menu items hidden before (old plugin) and after (UX Studio), compact: roles with nothing hidden share one line. */
+export function MenuRoleTable( { rows }: { rows: MenuRoleRow[] } ): JSX.Element {
+	const shown = rows.filter( ( row ) => row.before.length > 0 || row.after.length > 0 );
+	const quiet = rows.filter( ( row ) => 0 === row.before.length && 0 === row.after.length );
+	return (
+		<div className="uxs-wiz-rolecompare">
+			<h4 className="uxs-wiz-plan__title">{ __( 'Menu by role', 'ux-studio' ) }</h4>
+			{ shown.length > 0 && (
+				<table className="uxs-wiz-changes">
+					<thead>
+						<tr>
+							<th>{ __( 'Role', 'ux-studio' ) }</th>
+							<th>{ __( 'Hidden now (old plugin)', 'ux-studio' ) }</th>
+							<th>{ __( 'Hidden after migration', 'ux-studio' ) }</th>
+						</tr>
+					</thead>
+					<tbody>
+						{ shown.map( ( row ) => {
+							const same = row.before.join( '|' ) === row.after.join( '|' );
+							return (
+								<tr key={ row.role } className={ same ? 'is-same' : 'is-changed' }>
+									<td>{ row.label }</td>
+									<td title={ row.before.join( ', ' ) }>
+										<strong>{ row.before.length }</strong> <span className="uxs-wiz-muted">{ nameList( row.before ) }</span>
+									</td>
+									<td title={ row.after.join( ', ' ) }>
+										<strong>{ row.after.length }</strong> <span className="uxs-wiz-muted">{ nameList( row.after ) }</span>
+									</td>
+								</tr>
+							);
+						} ) }
+					</tbody>
+				</table>
+			) }
+			{ quiet.length > 0 && (
+				<p className="uxs-wiz-muted">
+					{ 0 === shown.length
+						? __( 'No role has a menu item hidden, before or after.', 'ux-studio' )
+						: sprintf(
+								/* translators: %s: role names. */
+								__( 'Nothing is hidden, before or after, for: %s.', 'ux-studio' ),
+								quiet.map( ( row ) => row.label ).join( ', ' )
+						  ) }
+				</p>
+			) }
 		</div>
 	);
 }

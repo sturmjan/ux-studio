@@ -227,7 +227,7 @@ $common = static function ( string $label, array $r, bool $writes = true ) use (
 	$bad = array_filter( $r['verify'], static fn( $c ) => ! $c['ok'] );
 	$assert( "$label: verify is all ok", array() === $bad, $j( $bad ) );
 };
-$menu_cfg = static fn(): array => (array) ( $GLOBALS['uxs_options'][ MenuOrganizer::CONFIG_OPTION ] ?? array() );
+$menu_cfg = static fn(): array => array_merge( MenuOrganizer::default_config(), (array) ( $GLOBALS['uxs_options'][ MenuOrganizer::CONFIG_OPTION ] ?? array() ) );
 
 /* ── Registry and catalog ── */
 
@@ -261,7 +261,7 @@ $assert( 'AME (real): renames of moved items are kept (Objednávky, Zákaznící
 $assert( 'AME (real): sub-items shown at the top level become promoted_subs with their parent', 'woocommerce' === ( $cfg['promoted_subs']['wc-orders']['parent'] ?? '' ) && isset( $cfg['promoted_subs']['edit.php?post_type=elementor_library&tabs_group=popup&elementor_library_type=popup'] ), $j( array_keys( (array) $cfg['promoted_subs'] ) ) );
 $assert( 'AME (real): dashicons of promoted items survive (cart)', 'dashicons-cart' === ( $cfg['item_icons']['wc-orders'] ?? '' ), $j( $cfg['item_icons'] ?? null ) );
 $assert( 'AME (real): the menu organizer is switched on in the module settings', true === ( $opt( 'uxstudio_admin_customiser' )['menu_organizer_enabled'] ?? false ) );
-$assert( 'AME (real): nothing hidden, nothing role-limited (the real config has no such rule)', array() === $cfg['hidden_items'] && array() === $cfg['item_roles'] );
+$assert( 'AME (real): nothing hidden, nothing role-limited (the real config has no such rule); empty keys are not written', array() === $cfg['hidden_items'] && array() === $cfg['item_roles'] && ! array_key_exists( 'hidden_items', (array) $opt( MenuOrganizer::CONFIG_OPTION ) ) );
 $assert( 'AME (real): plan carries a per-role table', 8 === count( $plan['menu_table'] ?? array() ) && 'administrator' === $plan['menu_table'][0]['role'], $j( $plan['menu_table'][0] ?? null ) );
 $assert( 'AME (real): lossy list names moved sub-items and the capability model', (bool) preg_grep( '/moved under another parent/', $plan['lossy'] ) && (bool) preg_grep( '/show for/', $plan['lossy'] ), $j( $plan['lossy'] ) );
 $assert( 'AME (real): plan warns the Organizer only hides (no capability change)', (bool) preg_grep( '/only hides menu items/', $plan['warnings'] ) );
@@ -351,6 +351,20 @@ $assert( 'Adminimize (real): per-role table: editor hides 20 before and the same
 // The editor of the fake site sees nothing from the whitelist-only items through MenuSimulator.
 $assert( 'Adminimize (real): MenuSimulator agrees with the Organizer rules (editor cannot see Themes, administrator can)', ! MenuSimulator::visible( $cfg, 'themes.php', array( 'editor' ), false ) && MenuSimulator::visible( $cfg, 'themes.php', array( 'administrator' ), true ) && MenuSimulator::visible( $cfg, 'themes.php', array( 'subscriber' ), false ) );
 
+/* Both menu plugins of pobyty migrated into one Menu Organizer config: AME gives the arrangement, Adminimize the role limits. */
+$site( array( 'admin-menu-editor', 'adminimize' ), array( 'admin-menu-editor', 'adminimize' ), $ame_opt + $adm );
+SourceRegistry::get( 'admin-menu-editor' )->migrate( array( 'run_id' => 'rboth' ), false );
+SourceRegistry::get( 'adminimize' )->migrate( array( 'run_id' => 'rboth' ), false );
+$cfg = $menu_cfg();
+$assert( 'AME + Adminimize: the arrangement of AME survives and the role limits of Adminimize are added', count( $cfg['categories'] ) >= 5 && 'index.php' === $cfg['order']['group-1'][0] && 20 === count( $cfg['item_roles'] ), $j( array_keys( $cfg['categories'] ) ) );
+$bad = array();
+foreach ( array( 'admin-menu-editor', 'adminimize' ) as $slug ) {
+	$bad = array_merge( $bad, array_filter( SourceRegistry::get( $slug )->verify(), static fn( $c ) => ! $c['ok'] ) );
+}
+$assert( 'AME + Adminimize: both verify ok (each is checked only on the items it has a rule for)', array() === $bad, $j( $bad ) );
+$second = SourceRegistry::get( 'adminimize' )->migrate( array( 'run_id' => 'rboth' ), false );
+$assert( 'AME + Adminimize: running Adminimize again changes nothing', 0 === $second['written'] );
+
 /* Adminimize: admin bar, global options, dashboard, lockout rule, bbPress-free synthetic extras. */
 $roles8 = array( 'administrator', 'editor', 'author', 'contributor', 'subscriber', 'shop_manager', 'customer', 'translator' );
 $per = static function ( string $prefix, array $by_role ) use ( $roles8 ): array {
@@ -407,6 +421,13 @@ $assert( 'WLCMS (real): login customization switched on, hide WordPress logo -> 
 $assert( 'WLCMS (real): dashboard widgets hidden for administrators -> Dashboard Widgets module gets the ids; roles not covered are reported', array( 'e-dashboard-overview', 'wordfence_activity_report_widget', 'wpseo-dashboard-overview', 'wpseo-wincher-dashboard-overview', 'dashboard_primary' ) === ( $opt( 'uxstudio_dashboard_widgets' )['hidden_widgets'] ?? null ) && (bool) preg_grep( '/Shop manager/', $plan['lossy'] ), $j( array( $opt( 'uxstudio_dashboard_widgets' ), $plan['lossy'] ) ) );
 $assert( 'WLCMS (real): lossy lists the hidden "Back to site" link, the page title and the footer', (bool) preg_grep( '/hidden "Back to the site" link/', $plan['lossy'] ) && (bool) preg_grep( '/admin page title suffix/', $plan['lossy'] ) && (bool) preg_grep( '/empties the admin footer/', $plan['lossy'] ), $j( $plan['lossy'] ) );
 $assert( 'WLCMS (real): extra modules for the dashboard widgets', array( 'dashboard-widgets' ) === SourceRegistry::get( 'white-label-cms' )->extra_modules() );
+// Widgets the module has not seen on a dashboard yet are named, not silently dropped.
+$narrow = $schemas;
+$narrow['dashboard-widgets'][1]['options'] = array_fill_keys( array( 'dashboard_primary', 'e-dashboard-overview' ), '' );
+SettingsWriter::set_schema_resolver( static fn( string $m ) => $narrow[ $m ] ?? null );
+$p = SourceRegistry::get( 'white-label-cms' )->plan();
+$assert( 'WLCMS: widgets the Dashboard Widgets module does not know yet are listed, with the advice to open the dashboard', (bool) preg_grep( '/wordfence_activity_report_widget, wpseo-dashboard-overview/', $p['lossy'] ) && (bool) preg_grep( '/Open the dashboard once/', $p['lossy'] ), $j( $p['lossy'] ) );
+SettingsWriter::set_schema_resolver( static fn( string $m ) => $schemas[ $m ] ?? null );
 // A logo that is not in the media library is not invented.
 AbstractAdminSource::set_media_double( static fn( string $url ): int => 0 );
 $site( array( 'white-label-cms' ), array( 'white-label-cms' ), $wl );
@@ -604,16 +625,17 @@ $check = array( 'urls' => MenuSimulator::protected_urls() );
 Smoke::set_transport( $http( array() ) );
 $res = $smoke->invoke( null, $check, 'tok' );
 $assert( 'smoke admin_access: all four open in the preview -> ok', 'ok' === $res['status'] && false !== strpos( $res['detail'], '4 of 4' ), $j( $res ) );
-Smoke::set_transport( $http( array( 'preview' => array( 'plugins.php' => array( 200, '<div class="wp-die-message">Sorry, you are not allowed to access this page.</div>' ) ) ) ) );
+Smoke::set_transport( $http( array( 'preview' => array( 'plugins.php' => array( 200, '<body id="error-page"><div class="wp-die-message">Sorry, you are not allowed to access this page.</div></body>' ) ) ) ) );
 $res = $smoke->invoke( null, $check, 'tok' );
 $assert( 'smoke admin_access: "not allowed" in the preview but open now -> fail', 'fail' === $res['status'] && false !== strpos( $res['detail'], 'plugins.php' ), $j( $res ) );
 Smoke::set_transport( $http( array( 'preview' => array( 'users.php' => array( 403, 'Forbidden' ) ), 'live' => array( 'users.php' => array( 403, 'Forbidden' ) ) ) ) );
 $res = $smoke->invoke( null, $check, 'tok' );
 $assert( 'smoke admin_access: refused before the migration too (old plugin) -> warning only', 'warn' === $res['status'], $j( $res ) );
-Smoke::set_transport( $http( array( 'live' => array( 'options-general.php' => array( 200, 'Nemáte oprávnění k přístupu na tuto stránku.' ) ) ) ) );
+Smoke::set_transport( $http( array( 'live' => array( 'options-general.php' => array( 200, '<body id="error-page"><div class="wp-die-message">Nemáte oprávnění k přístupu na tuto stránku.</div></body>' ) ) ) ) );
 $res = $smoke->invoke( null, $check, null );
 $assert( 'smoke admin_access: live site, Czech refusal text -> fail', 'fail' === $res['status'], $j( $res ) );
-$assert( 'Smoke::is_denied recognises 403 and both languages', Smoke::is_denied( array( 'code' => 403, 'body' => '' ) ) && Smoke::is_denied( array( 'code' => 200, 'body' => 'Sorry, you are not allowed to access this page.' ) ) && ! Smoke::is_denied( array( 'code' => 200, 'body' => '<h1>Plugins</h1>' ) ) );
+$assert( 'Smoke::is_denied recognises 403 and the WordPress error screen in both languages', Smoke::is_denied( array( 'code' => 403, 'body' => '' ) ) && Smoke::is_denied( array( 'code' => 200, 'body' => '<body id="error-page"><div class="wp-die-message">Sorry, you are not allowed to access this page.</div></body>' ) ) && Smoke::is_denied( array( 'code' => 200, 'body' => '<body id="error-page"><div class="wp-die-message">Nemáte dostatečná oprávnění</div>' ) ) && ! Smoke::is_denied( array( 'code' => 200, 'body' => '<h1>Plugins</h1>' ) ) );
+$assert( 'Smoke::is_denied is NOT fooled by the same sentence inside a translated JavaScript string of a normal admin page (found live on pobyty)', ! Smoke::is_denied( array( 'code' => 200, 'body' => '<body class="wp-admin"><script>var s={"%s: Sorry, you are not allowed to upload this file type.":["Nemáte dostatečná oprávnění"]}</script></body>' ) ) );
 Smoke::set_transport( null );
 
 /* ── Typo guard: every Admin Customiser key written exists in the real schema ── */
