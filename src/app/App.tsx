@@ -8,7 +8,8 @@ import { __ } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { LayoutGrid, Settings, Blocks, Moon, Sun, LoaderCircle } from 'lucide-react';
 import { currentRoute, hashParam, navigate } from './route';
-import { api, queryClient, type ModuleInfo } from './api';
+import { api, queryClient, type ApiError, type ModuleInfo } from './api';
+import { isOverlapError, OverlapBar, OverlapModal, refreshOverlaps } from './Overlaps';
 import { ModuleGrid } from './ModuleGrid';
 import { ModuleSettings } from './ModuleSettings';
 import { GlobalSettings } from './GlobalSettings';
@@ -33,13 +34,25 @@ function ModulePageGate( { moduleId, Page }: { moduleId: string; Page: Component
 		queryFn: () => api< ModuleInfo[] >( 'modules' ),
 	} );
 
+	// Set when enabling was refused (409): the modal names the overlapping plugin.
+	const [ blocked, setBlocked ] = useState< ApiError | null >( null );
+
 	const enable = useMutation( {
-		mutationFn: () =>
+		mutationFn: ( confirm?: boolean ) =>
 			api( `modules/${ moduleId }`, {
 				method: 'POST',
-				body: JSON.stringify( { enabled: true } ),
+				body: JSON.stringify( { enabled: true, ...( confirm ? { confirm_overlap: true } : {} ) } ),
 			} ),
-		onSuccess: () => void queryClient.invalidateQueries( { queryKey: [ 'modules' ] } ),
+		onSuccess: () => {
+			setBlocked( null );
+			void queryClient.invalidateQueries( { queryKey: [ 'modules' ] } );
+			void refreshOverlaps();
+		},
+		onError: ( err ) => {
+			if ( isOverlapError( err ) ) {
+				setBlocked( err );
+			}
+		},
 	} );
 
 	if ( isLoading ) {
@@ -59,9 +72,9 @@ function ModulePageGate( { moduleId, Page }: { moduleId: string; Page: Component
 				</header>
 				<div className="uxs-notice">
 					<p>{ __( 'This module is turned off. Enable it to use its settings.', 'ux-studio' ) }</p>
-					{ enable.isError && <p className="uxs-notice__error">{ ( enable.error as Error ).message }</p> }
+					{ enable.isError && ! isOverlapError( enable.error ) && <p className="uxs-notice__error">{ ( enable.error as Error ).message }</p> }
 					<div className="uxs-notice__actions">
-						<button type="button" className="button button-primary" disabled={ enable.isPending } onClick={ () => enable.mutate() }>
+						<button type="button" className="button button-primary" disabled={ enable.isPending } onClick={ () => enable.mutate( false ) }>
 							{ enable.isPending ? __( 'Enabling…', 'ux-studio' ) : __( 'Enable module', 'ux-studio' ) }
 						</button>
 						<button type="button" className="button" disabled={ enable.isPending } onClick={ () => navigate( '' ) }>
@@ -69,11 +82,25 @@ function ModulePageGate( { moduleId, Page }: { moduleId: string; Page: Component
 						</button>
 					</div>
 				</div>
+				{ blocked && (
+					<OverlapModal
+						error={ blocked }
+						moduleName={ module.name }
+						busy={ enable.isPending }
+						onClose={ () => setBlocked( null ) }
+						onConfirm={ () => enable.mutate( true ) }
+					/>
+				) }
 			</>
 		);
 	}
 
-	return <Page />;
+	return (
+		<>
+			{ module ? <OverlapBar moduleId={ moduleId } /> : null }
+			<Page />
+		</>
+	);
 }
 
 interface PageDef {

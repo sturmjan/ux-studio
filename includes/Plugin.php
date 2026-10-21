@@ -11,6 +11,7 @@ use UxStudio\Core\Admin;
 use UxStudio\Core\DB;
 use UxStudio\Core\GithubUpdater;
 use UxStudio\Core\Megamenu;
+use UxStudio\Core\Migration\ActivationGuard;
 use UxStudio\Core\Modules;
 use UxStudio\Core\Rest;
 
@@ -48,6 +49,7 @@ final class Plugin {
 		$this->modules->boot();
 
 		( new Rest( $this->modules ) )->register();
+		ActivationGuard::register();
 
 		if ( is_admin() ) {
 			( new Admin( $this->modules ) )->register();

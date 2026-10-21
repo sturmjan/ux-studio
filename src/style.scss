@@ -1208,6 +1208,105 @@
 	gap: var(--uxs-sp-3);
 }
 
+/* ---- Plugin conflicts (src/app/Overlaps.tsx) ---- */
+.uxs-overlaps {
+	margin-bottom: var(--uxs-sp-4);
+
+	.uxs-overlaps__title {
+		display: flex;
+		align-items: center;
+		gap: var(--uxs-sp-2);
+		margin: 0 0 var(--uxs-sp-3);
+		font-size: var(--uxs-fs-m);
+		color: var(--uxs-text);
+
+		svg { color: var(--uxs-warning); }
+	}
+}
+
+.uxs-overlaps__list {
+	display: grid;
+	gap: var(--uxs-sp-2);
+	margin: 0 0 var(--uxs-sp-3);
+	padding: 0;
+	list-style: none;
+
+	&.is-muted { opacity: 0.8; }
+}
+
+.uxs-overlaps__item {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--uxs-sp-3);
+	margin: 0;
+	padding: var(--uxs-sp-3) var(--uxs-sp-4);
+	background: var(--uxs-surface);
+	border: 1px solid var(--uxs-border);
+	border-left: 3px solid var(--uxs-info);
+	border-radius: var(--uxs-radius-s);
+
+	&.is-full { border-left-color: var(--uxs-danger); }
+	&.is-customiser { border-left-color: var(--uxs-warning); }
+
+	p {
+		margin: var(--uxs-sp-1) 0 0;
+		color: var(--uxs-text-soft);
+	}
+
+	code { color: var(--uxs-text-soft); }
+}
+
+.uxs-overlaps__icon {
+	display: inline-flex;
+	padding-top: 2px;
+	color: var(--uxs-text-soft);
+
+	.is-full > & { color: var(--uxs-danger); }
+	.is-customiser > & { color: var(--uxs-warning); }
+}
+
+.uxs-overlaps__body { flex: 1; min-width: 0; }
+
+.uxs-overlaps__head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--uxs-sp-2);
+	color: var(--uxs-text);
+}
+
+.uxs-overlaps__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--uxs-sp-2);
+	flex-shrink: 0;
+}
+
+.uxs-overlaps__ignored .button-link {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--uxs-sp-1);
+	color: var(--uxs-text-soft);
+}
+
+.uxs-overlapbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--uxs-sp-3);
+	margin-bottom: var(--uxs-sp-4);
+	padding: var(--uxs-sp-2) var(--uxs-sp-4);
+	background: var(--uxs-surface);
+	color: var(--uxs-text);
+	border: 1px solid var(--uxs-border);
+	border-left: 3px solid var(--uxs-info);
+	border-radius: var(--uxs-radius-s);
+
+	&.is-full { border-left-color: var(--uxs-danger); }
+
+	> span { flex: 1; min-width: 200px; }
+}
+
 /* ============================================================
    Shared react-aria-components-based fields (MultiSelectField,
    AnimatedCheckbox, FileUploadField - src/components/). Introduced by

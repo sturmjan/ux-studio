@@ -2012,7 +2012,7 @@ Neověří: chování jen pro návštěvníky z cizí IP, cron běhy, e-maily sk
 
 ### 26.7 Fáze
 
-- [ ] F1 Catalog + detekce + ActivationGuard + upozornění (bez migrace)
+- [x] F1 Catalog + detekce + ActivationGuard + upozornění (bez migrace) - hotovo 2026-10-21: `includes/Core/Migration/{Catalog,Overlaps,ActivationGuard}.php`, REST `overlaps` + `overlaps/ignore|unignore`, 409 `uxstudio_plugin_overlap` na `modules/{id}` (filtr `uxstudio_overlap_guard_enabled` vypíná kontrolu jen na REST cestě, WP-CLI a `Modules::set_enabled()` zůstávají volné), panel na Modulech, modal 409, lišta na stránce modulu, wp-admin notice; test `tests/overlap-catalog.php`
 - [ ] F2 Průvodce (UI) + sken + plán + zkušební běh + Snapshot/rollback + zdroje jen s nastavením
 - [ ] F3 Zdroje s daty: Redirection, Code Snippets/WPCode/HFCM, FileBird/Folders, Page Links To,
       PublishPress Future, Menu Icons/Nav Menu Roles, last login, WP Mail SMTP (vč. hesla), WP Mail Logging
