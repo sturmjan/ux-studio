@@ -1,1223 +1,567 @@
 [
  {
   "ctx": null,
-  "id": "UX Studio already has a different value here, it is kept.",
+  "id": "The site has no security keys (AUTH_KEY and AUTH_SALT in wp-config.php), so the preview cannot be protected with a signed token.",
   "refs": [
-   "includes/Core/Migration/AbstractMetaSource.php:124",
-   "includes/Core/Migration/AbstractMetaSource.php:140"
+   "includes/Core/Migration/Preview.php:124"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Needs a manual check.",
+  "id": "The folder for must-use plugins is not defined on this site.",
   "refs": [
-   "includes/Core/Migration/AbstractMetaSource.php:147"
+   "includes/Core/Migration/Preview.php:131"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "UX Studio has a different value here.",
+  "id": "The folder %s is not writable, so the preview cannot install the small file that switches the old plugins off for your browser only.",
   "refs": [
-   "includes/Core/Migration/AbstractMetaSource.php:202"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The value is not in UX Studio.",
-  "refs": [
-   "includes/Core/Migration/AbstractMetaSource.php:203"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The module \\\"%s\\\" is already switched on, so the transferred settings are only prepared. They take effect at the switch, after the safe preview.",
-  "refs": [
-   "includes/Core/Migration/AbstractSource.php:143"
+   "includes/Core/Migration/Preview.php:145"
   ],
   "comments": [
-   "#. translators: %s: module name."
+   "#. translators: %s: folder path."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "An item could not be written.",
+  "id": "The preview file %s could not be written.",
   "refs": [
-   "includes/Core/Migration/AbstractSource.php:568"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "created",
-  "refs": [
-   "includes/Core/Migration/AbstractSource.php:640"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "already there",
-  "refs": [
-   "includes/Core/Migration/AbstractSource.php:642"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "%1$d of %2$d found in UX Studio",
-  "refs": [
-   "includes/Core/Migration/AbstractSource.php:739"
+   "includes/Core/Migration/Preview.php:239"
   ],
   "comments": [
-   "#. translators: 1: number of objects found in UX Studio, 2: number of objects in the old plugin."
+   "#. translators: %s: file path."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The backup of the table \\\"%s\\\" failed, nothing was changed.",
+  "id": "This migration run does not exist.",
   "refs": [
-   "includes/Core/Migration/Runner.php:164"
-  ],
-  "comments": [
-   "#. translators: %s: table name."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "This run has already been switched on, so the snapshot no longer matches the site. Undo the switch first.",
-  "refs": [
-   "includes/Core/Migration/Runner.php:357"
+   "includes/Core/Migration/Preview.php:327",
+   "includes/Core/Migration/Switcher.php:114"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The key is prepared encrypted, it takes effect after the switch.",
+  "id": "This run is already switched on. Undo the switch to preview it again.",
   "refs": [
-   "includes/Core/Migration/SettingsWriter.php:262"
+   "includes/Core/Migration/Preview.php:333"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Keeping only the latest N events has no equivalent; the module deletes entries by age only.",
+  "id": "No plugin of this run was migrated, so there is nothing to preview.",
   "refs": [
-   "includes/Core/Migration/Sources/ActivityLogSource.php:78"
+   "includes/Core/Migration/Preview.php:337"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The plugin keeps its default retention, there is nothing to transfer.",
+  "id": "The preview has expired. Start it again.",
   "refs": [
-   "includes/Core/Migration/Sources/ActivityLogSource.php:95"
+   "includes/Core/Migration/Preview.php:485",
+   "includes/Core/Migration/Smoke.php:139"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The recorded history of the plugin is not imported (the event formats differ), the new log starts when the module is on. Notifications, filters and exports of the old plugin are not transferred.",
+  "id": "The preview needs a normal browser login session.",
   "refs": [
-   "includes/Core/Migration/Sources/ActivityLogSource.php:99"
+   "includes/Core/Migration/Preview.php:490"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Scheduled unpublishing",
+  "id": "Preview without the old plugins - ends at %s",
   "refs": [
-   "includes/Core/Migration/Sources/AutoUnpublishSource.php:46",
-   "includes/Core/Migration/Sources/AutoUnpublishSource.php:182"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The plugin has no scheduled actions stored, there is nothing to transfer.",
-  "refs": [
-   "includes/Core/Migration/Sources/AutoUnpublishSource.php:143"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "%d scheduled actions are already in the past and are not transferred (they would unpublish the post at once).",
-  "refs": [
-   "includes/Core/Migration/Sources/AutoUnpublishSource.php:151"
+   "includes/Core/Migration/Preview.php:626"
   ],
   "comments": [
-   "#. translators: %d: number of scheduled actions."
+   "#. translators: %s: time the preview ends (HH:MM)."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "%d scheduled actions belong to posts that no longer exist.",
+  "id": "End preview",
   "refs": [
-   "includes/Core/Migration/Sources/AutoUnpublishSource.php:159"
-  ],
-  "comments": [
-   "#. translators: %d: number of scheduled actions."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "%1$d scheduled actions \\\"%2$s\\\" have no equivalent: the module only moves a post to draft.",
-  "refs": [
-   "includes/Core/Migration/Sources/AutoUnpublishSource.php:167"
-  ],
-  "comments": [
-   "#. translators: 1: number of scheduled actions, 2: action of the plugin."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Each date is copied to the post as the module keeps it. With the module on it is only prepared and written at the switch.",
-  "refs": [
-   "includes/Core/Migration/Sources/AutoUnpublishSource.php:174"
+   "includes/Core/Migration/Preview.php:633"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Tags: %s",
+  "id": "Home page",
   "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:146"
-  ],
-  "comments": [
-   "#. translators: %s: comma separated tags."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Header scripts (from WPCode)",
-  "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:259"
+   "includes/Core/Migration/Smoke.php:73"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Footer scripts (from WPCode)",
+  "id": "Post: %s",
   "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:260"
+   "includes/Core/Migration/Smoke.php:78"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Body scripts (from WPCode)",
+  "id": "Page: %s",
   "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:261"
+   "includes/Core/Migration/Smoke.php:78"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The plugin has no snippets stored, there is nothing to transfer.",
+  "id": "Login page (wp-login.php)",
   "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:348"
+   "includes/Core/Migration/Smoke.php:103"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "shortcode snippets (content)",
+  "id": "Administration (wp-admin)",
   "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:352"
+   "includes/Core/Migration/Smoke.php:111"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "run-once snippets",
+  "id": "The preview token could not be created.",
   "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:353"
+   "includes/Core/Migration/Smoke.php:143"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "condition snippets",
+  "id": "Unknown test mode.",
   "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:354"
+   "includes/Core/Migration/Smoke.php:146"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "plain text snippets",
+  "id": "Unknown test.",
   "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:355"
+   "includes/Core/Migration/Smoke.php:157"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "universal (PHP + HTML) snippets",
+  "id": "No test for this item.",
   "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:356"
+   "includes/Core/Migration/Smoke.php:210"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "block snippets",
+  "id": "The request failed: %s",
   "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:357"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "SCSS snippets",
-  "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:358"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "snippets of an unknown type",
-  "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:359"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "snippets that run only through a shortcode or on demand",
-  "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:360"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "snippets inserted before or after posts",
-  "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:361"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "%1$d %2$s are not transferred, the module has no equivalent.",
-  "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:367"
+   "includes/Core/Migration/Smoke.php:383"
   ],
   "comments": [
-   "#. translators: 1: number of snippets, 2: kind of snippets."
+   "#. translators: %s: error message."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "snippets inserted at \\\"%s\\\"",
+  "id": "The preview did not take effect on this page (the preview file is not loaded or the token was refused).",
   "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:371"
-  ],
-  "comments": [
-   "#. translators: %s: place name used by the plugin."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "%d snippet used conditions, device or schedule rules or page targeting that the module does not have. It is created switched off so you can review it before it runs everywhere.",
-  "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:381"
-  ],
-  "comments": [
-   "#. translators: %d: number of snippets."
-  ],
-  "plural": "%d snippets used conditions, device or schedule rules or page targeting that the module does not have. They are created switched off so you can review them before they run everywhere."
- },
- {
-  "ctx": null,
-  "id": "Every snippet is created switched off, because it is code. Snippets that were on in the old plugin are switched on at the switch, after the safe preview.",
-  "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:391"
+   "includes/Core/Migration/Smoke.php:386",
+   "includes/Core/Migration/Smoke.php:485",
+   "includes/Core/Migration/Smoke.php:563",
+   "includes/Core/Migration/Smoke.php:588",
+   "includes/Core/Migration/Smoke.php:716"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Code snippets",
+  "id": "The page fails with a server error (HTTP %d) or a PHP fatal error.",
   "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:404",
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:420"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "of them will be switched on at the switch",
-  "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:425"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "of them stay off for your review",
-  "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:430"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "A snippet with this name already exists in UX Studio, it is kept.",
-  "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:498",
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:526"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The snippet has no code.",
-  "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:504"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The snippet is not in UX Studio.",
-  "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:568"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "UX Studio has a snippet with this name but different code.",
-  "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:574"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The integrity check of the snippet file failed.",
-  "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:580"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The plugin has no custom schedules or events stored, there is nothing to transfer.",
-  "refs": [
-   "includes/Core/Migration/Sources/CronSource.php:93"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "%d cron events run PHP code entered in WP Crontrol. The module cannot create them. Re-create them as a Code Snippet that hooks into a scheduled event.",
-  "refs": [
-   "includes/Core/Migration/Sources/CronSource.php:100"
+   "includes/Core/Migration/Smoke.php:393"
   ],
   "comments": [
-   "#. translators: %d: number of events."
+   "#. translators: %d: HTTP status."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "%d cron events call a URL on a schedule. The module cannot create them; set up the call at your hosting or in the central app instead.",
+  "id": "The page answered %1$d before the switch and answers %2$d now.",
   "refs": [
-   "includes/Core/Migration/Sources/CronSource.php:109"
-  ],
-  "comments": [
-   "#. translators: %d: number of events."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "%d paused hooks stay as they are in WordPress, but the module has no pause function to show or change that.",
-  "refs": [
-   "includes/Core/Migration/Sources/CronSource.php:118"
+   "includes/Core/Migration/Smoke.php:403"
   ],
   "comments": [
-   "#. translators: %d: number of hooks."
+   "#. translators: 1: HTTP status before, 2: after."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Events themselves live in WordPress and keep running; only the custom intervals need to be moved so they survive the removal of WP Crontrol.",
+  "id": "HTTP %d",
   "refs": [
-   "includes/Core/Migration/Sources/CronSource.php:123"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Cron intervals",
-  "refs": [
-   "includes/Core/Migration/Sources/CronSource.php:132"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Custom cron intervals",
-  "refs": [
-   "includes/Core/Migration/Sources/CronSource.php:144"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "PHP events (not transferred)",
-  "refs": [
-   "includes/Core/Migration/Sources/CronSource.php:149"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "URL events (not transferred)",
-  "refs": [
-   "includes/Core/Migration/Sources/CronSource.php:154"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "UX Studio already has an interval with this name and a different length, it is kept.",
-  "refs": [
-   "includes/Core/Migration/Sources/CronSource.php:195"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The interval is not in UX Studio.",
-  "refs": [
-   "includes/Core/Migration/Sources/CronSource.php:220"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Also move the history",
-  "refs": [
-   "includes/Core/Migration/Sources/EmailLogSource.php:85"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Copies the e-mails already logged by the old plugin. Mails older than the retention period are skipped, because the module would delete them at once.",
-  "refs": [
-   "includes/Core/Migration/Sources/EmailLogSource.php:86"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The plugin kept the log without deleting old entries. The module deletes entries after its retention period (30 days by default); change it in the module settings.",
-  "refs": [
-   "includes/Core/Migration/Sources/EmailLogSource.php:115"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Keeping only the latest N entries has no equivalent; the module deletes entries by age only.",
-  "refs": [
-   "includes/Core/Migration/Sources/EmailLogSource.php:118"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The logged e-mails can be copied too: tick \\\"Also move the history\\\" for this plugin.",
-  "refs": [
-   "includes/Core/Migration/Sources/EmailLogSource.php:123"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The plugin has no settings or logged e-mails, there is nothing to transfer.",
-  "refs": [
-   "includes/Core/Migration/Sources/EmailLogSource.php:125"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The free plugin has no settings that map to the module. IP address and attachment content of the logged mails are not copied.",
-  "refs": [
-   "includes/Core/Migration/Sources/EmailLogSource.php:128"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Logged e-mails",
-  "refs": [
-   "includes/Core/Migration/Sources/EmailLogSource.php:138",
-   "includes/Core/Migration/Sources/EmailLogSource.php:149"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "A logged e-mail could not be copied.",
-  "refs": [
-   "includes/Core/Migration/Sources/EmailLogSource.php:284"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The e-mail is not in the UX Studio log.",
-  "refs": [
-   "includes/Core/Migration/Sources/EmailLogSource.php:298"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "No post or page has an external address set by this plugin, there is nothing to transfer.",
-  "refs": [
-   "includes/Core/Migration/Sources/ExternalPermalinksSource.php:74"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Post types with external permalinks",
-  "refs": [
-   "includes/Core/Migration/Sources/ExternalPermalinksSource.php:77"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The addresses stay in the posts, because the module reads the same field as the plugin. Only the list of content types is set.",
-  "refs": [
-   "includes/Core/Migration/Sources/ExternalPermalinksSource.php:78"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "%d links were set to open in a new tab. The module has no such option, they open in the same tab.",
-  "refs": [
-   "includes/Core/Migration/Sources/ExternalPermalinksSource.php:83"
+   "includes/Core/Migration/Smoke.php:405"
   ],
   "comments": [
-   "#. translators: %d: number of links."
+   "#. translators: %d: HTTP status."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "%d links redirected permanently (301). The module redirects temporarily (302).",
+  "id": "The page works in the preview, but the current site could not be requested for comparison: %s",
   "refs": [
-   "includes/Core/Migration/Sources/ExternalPermalinksSource.php:92"
+   "includes/Core/Migration/Smoke.php:410"
   ],
   "comments": [
-   "#. translators: %d: number of links."
+   "#. translators: %s: error message."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Posts with an external address (%s)",
+  "id": "The page answers %1$d now and %2$d in the preview.",
   "refs": [
-   "includes/Core/Migration/Sources/ExternalPermalinksSource.php:107"
+   "includes/Core/Migration/Smoke.php:416",
+   "includes/Core/Migration/Smoke.php:418"
   ],
   "comments": [
-   "#. translators: %s: post type name."
+   "#. translators: 1: HTTP status now, 2: in the preview."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The plugin has no folders stored, there is nothing to transfer.",
+  "id": "%d new PHP warning is printed into the page.",
   "refs": [
-   "includes/Core/Migration/Sources/FolderSource.php:199"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "%1$d folders of other content types (%2$s) are not transferred. This step moves the media library folders only.",
-  "refs": [
-   "includes/Core/Migration/Sources/FolderSource.php:207"
+   "includes/Core/Migration/Smoke.php:422"
   ],
   "comments": [
-   "#. translators: 1: number of folders, 2: taxonomy name."
+   "#. translators: %d: number of PHP notices."
   ],
-  "plural": null
+  "plural": "%d new PHP warnings are printed into the page."
  },
  {
   "ctx": null,
-  "id": "%d collections, galleries or special entries are not transferred, only ordinary folders.",
+  "id": "HTTP %1$d, %2$d ms",
   "refs": [
-   "includes/Core/Migration/Sources/FolderSource.php:216"
+   "includes/Core/Migration/Smoke.php:427"
   ],
   "comments": [
-   "#. translators: %d: number of entries."
+   "#. translators: 1: HTTP status, 2: milliseconds."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "%d shortcuts (the same file in more than one folder) are not transferred. A file sits in one folder.",
+  "id": "There is no simple rule to sample.",
   "refs": [
-   "includes/Core/Migration/Sources/FolderSource.php:224"
+   "includes/Core/Migration/Smoke.php:458"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "None of the sampled addresses was redirected by the old plugin, so there was nothing to compare.",
+  "refs": [
+   "includes/Core/Migration/Smoke.php:499"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%1$d of %2$d redirects differ from the old plugin: %3$s",
+  "refs": [
+   "includes/Core/Migration/Smoke.php:506"
   ],
   "comments": [
-   "#. translators: %d: number of shortcuts."
+   "#. translators: 1: number of different redirects, 2: tested, 3: examples."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The manual order of folders and their colours or icons are not transferred.",
+  "id": "%d redirect gives the same status and target as the old plugin.",
   "refs": [
-   "includes/Core/Migration/Sources/FolderSource.php:230"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Files are not moved on disk, only the folder structure and which file is in which folder are copied. A file that is already in a UX Studio folder stays there.",
-  "refs": [
-   "includes/Core/Migration/Sources/FolderSource.php:231"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "files placed in them",
-  "refs": [
-   "includes/Core/Migration/Sources/FolderSource.php:257"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The parent folder could not be created.",
-  "refs": [
-   "includes/Core/Migration/Sources/FolderSource.php:354"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The folder is not in UX Studio.",
-  "refs": [
-   "includes/Core/Migration/Sources/FolderSource.php:408"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "%d files are not in any UX Studio folder.",
-  "refs": [
-   "includes/Core/Migration/Sources/FolderSource.php:419"
+   "includes/Core/Migration/Smoke.php:518"
   ],
   "comments": [
-   "#. translators: %d: number of files."
+   "#. translators: %d: number of redirects."
   ],
-  "plural": null
+  "plural": "%d redirects give the same status and target as the old plugin."
  },
  {
   "ctx": null,
-  "id": "Last login times",
+  "id": "The site has no published post to look at.",
   "refs": [
-   "includes/Core/Migration/Sources/LastLoginSource.php:39",
-   "includes/Core/Migration/Sources/LastLoginSource.php:89"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The plugin has no login times stored, there is nothing to transfer.",
-  "refs": [
-   "includes/Core/Migration/Sources/LastLoginSource.php:78"
+   "includes/Core/Migration/Smoke.php:556"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Only the time of the last login is copied. The login counters and history of the plugin have no equivalent.",
+  "id": "The post fails with a server error.",
   "refs": [
-   "includes/Core/Migration/Sources/LastLoginSource.php:81"
+   "includes/Core/Migration/Smoke.php:560"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The old plugin has maintenance or coming soon mode ON. Once the module is switched on, the site shows the maintenance page to visitors. Switch the old plugin off first and check the page in the preview.",
+  "id": "The comment form is still on the post.",
   "refs": [
-   "includes/Core/Migration/Sources/MaintenanceSource.php:85"
+   "includes/Core/Migration/Smoke.php:566"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The background image of the plugin is not transferred, only a background colour. Set the image in the module.",
+  "id": "The comment form is not on the post.",
   "refs": [
-   "includes/Core/Migration/Sources/MaintenanceSource.php:131"
+   "includes/Core/Migration/Smoke.php:568"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Countdown, subscribe form, social links, contact form, chat bot, GDPR notice, custom CSS and \\\"let search engine bots in\\\" of the plugin are not transferred.",
+  "id": "No custom login address is set.",
   "refs": [
-   "includes/Core/Migration/Sources/MaintenanceSource.php:133"
+   "includes/Core/Migration/Smoke.php:581"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Who may still see the site: roles from the plugin; administrators always can. With no role listed only administrators get through.",
+  "id": "The new login address fails with a server error.",
   "refs": [
-   "includes/Core/Migration/Sources/MaintenanceSource.php:134"
+   "includes/Core/Migration/Smoke.php:585"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The page was designed in the SeedProd editor. The module shows that page as an existing page; check in the preview that it looks right. Access rules by role and the bypass link are not transferred.",
+  "id": "The new login address %1$s does not show the login form (HTTP %2$d).",
   "refs": [
-   "includes/Core/Migration/Sources/MaintenanceSource.php:168"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The layout, colours, countdown, passwords and per-address rules of the plugin are not transferred; only the on / off state and the headline.",
-  "refs": [
-   "includes/Core/Migration/Sources/MaintenanceSource.php:197"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The theme, social links, analytics code, custom CSS and the list of allowed users of the plugin are not transferred.",
-  "refs": [
-   "includes/Core/Migration/Sources/MaintenanceSource.php:225"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Menu icons",
-  "refs": [
-   "includes/Core/Migration/Sources/MenuIconsSource.php:75"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "No menu item has an icon, there is nothing to transfer.",
-  "refs": [
-   "includes/Core/Migration/Sources/MenuIconsSource.php:166"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "%d image icons point to a file that no longer exists and are not transferred.",
-  "refs": [
-   "includes/Core/Migration/Sources/MenuIconsSource.php:177"
+   "includes/Core/Migration/Smoke.php:591"
   ],
   "comments": [
-   "#. translators: %d: number of icons."
+   "#. translators: 1: address, 2: HTTP status."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "%d icons had their own size or vertical alignment. The module uses the single icon size from its settings.",
+  "id": "wp-login.php should redirect, but answers %d.",
   "refs": [
-   "includes/Core/Migration/Sources/MenuIconsSource.php:185"
+   "includes/Core/Migration/Smoke.php:600"
   ],
   "comments": [
-   "#. translators: %d: number of icons."
+   "#. translators: %d: HTTP status."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "These font icons have no counterpart among the icons of the module, so the menu items get no icon: %s.",
+  "id": "wp-login.php should answer 404, but answers %d.",
   "refs": [
-   "includes/Core/Migration/Sources/MenuIconsSource.php:195"
+   "includes/Core/Migration/Smoke.php:603"
   ],
   "comments": [
-   "#. translators: %s: list of icon names."
+   "#. translators: %d: HTTP status."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Font icons are replaced by the nearest Lucide icon. Pick a different one on the menu screen if it does not fit.",
+  "id": "The login form is at %s and wp-login.php is closed as set.",
   "refs": [
-   "includes/Core/Migration/Sources/MenuIconsSource.php:200"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Icons replaced by a Lucide icon",
-  "refs": [
-   "includes/Core/Migration/Sources/MenuIconsSource.php:217"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Image and SVG icons",
-  "refs": [
-   "includes/Core/Migration/Sources/MenuIconsSource.php:222"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Menu item visibility",
-  "refs": [
-   "includes/Core/Migration/Sources/MenuVisibilitySource.php:44"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "No menu item has a visibility rule, there is nothing to transfer.",
-  "refs": [
-   "includes/Core/Migration/Sources/MenuVisibilitySource.php:157"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The module only knows \\\"logged in\\\" and \\\"logged out\\\", not roles. These items were visible only for some roles, they become visible for every logged-in visitor: %s.",
-  "refs": [
-   "includes/Core/Migration/Sources/MenuVisibilitySource.php:164"
+   "includes/Core/Migration/Smoke.php:605"
   ],
   "comments": [
-   "#. translators: %s: list of menu items with their roles."
+   "#. translators: %s: login address."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "These items were hidden for certain roles. The module cannot hide an item for a role, so they are not transferred and stay visible to everybody: %s.",
+  "id": "The preview did not take effect on this request.",
   "refs": [
-   "includes/Core/Migration/Sources/MenuVisibilitySource.php:173"
+   "includes/Core/Migration/Smoke.php:631",
+   "includes/Core/Migration/Smoke.php:665"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The test e-mail could not be requested (HTTP %d). Is the SMTP module available?",
+  "refs": [
+   "includes/Core/Migration/Smoke.php:635"
   ],
   "comments": [
-   "#. translators: %s: list of menu items with their roles."
+   "#. translators: %d: HTTP status."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "%d menu items combine several rules (AND / OR). The module has one rule per item, they are not transferred.",
+  "id": "The test e-mail was not sent: %s",
   "refs": [
-   "includes/Core/Migration/Sources/MenuVisibilitySource.php:183"
+   "includes/Core/Migration/Smoke.php:639"
   ],
   "comments": [
-   "#. translators: %d: number of menu items."
+   "#. translators: %s: error message."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "%d menu items are controlled by a PHP expression. The module cannot run expressions, only logged in / logged out, so they are not transferred.",
+  "id": "A test e-mail was sent to %s through the module.",
   "refs": [
-   "includes/Core/Migration/Sources/MenuVisibilitySource.php:191"
+   "includes/Core/Migration/Smoke.php:641"
   ],
   "comments": [
-   "#. translators: %d: number of menu items."
+   "#. translators: %s: e-mail address."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "%1$d menu items depend on the condition \\\"%2$s\\\", which the module does not have. They are not transferred.",
+  "id": "The editor settings could not be read (HTTP %d).",
   "refs": [
-   "includes/Core/Migration/Sources/MenuVisibilitySource.php:199"
+   "includes/Core/Migration/Smoke.php:670"
   ],
   "comments": [
-   "#. translators: 1: number of menu items, 2: condition id."
+   "#. translators: %d: HTTP status."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Menu items visible only to logged-in visitors",
+  "id": "The block editor is still on for: %s",
   "refs": [
-   "includes/Core/Migration/Sources/MenuVisibilitySource.php:222"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Menu items visible only to logged-out visitors",
-  "refs": [
-   "includes/Core/Migration/Sources/MenuVisibilitySource.php:227"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Drag and drop ordering on the archive pages of the front end is not transferred; the module orders in the admin lists.",
-  "refs": [
-   "includes/Core/Migration/Sources/PostTypeOrderSource.php:48"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Ordering of terms (%s) has no equivalent in the module. The term order stays in the database but is not used.",
-  "refs": [
-   "includes/Core/Migration/Sources/PostTypeOrderSource.php:58"
+   "includes/Core/Migration/Smoke.php:679"
   ],
   "comments": [
-   "#. translators: %s: list of taxonomies."
+   "#. translators: %s: post types."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The order of the posts itself is not copied, because the module uses the same menu order field as the plugin.",
+  "id": "The classic editor is used for %d post type.",
   "refs": [
-   "includes/Core/Migration/Sources/PostTypeOrderSource.php:70"
+   "includes/Core/Migration/Smoke.php:685"
+  ],
+  "comments": [
+   "#. translators: %d: number of post types."
+  ],
+  "plural": "The classic editor is used for all %d post types."
+ },
+ {
+  "ctx": null,
+  "id": "The page %s fails with the snippets switched on.",
+  "refs": [
+   "includes/Core/Migration/Smoke.php:713"
+  ],
+  "comments": [
+   "#. translators: %s: address."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The pages render without errors with the snippets switched on.",
+  "refs": [
+   "includes/Core/Migration/Smoke.php:719"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The plugin has no redirect rules stored, there is nothing to transfer.",
+  "id": "The classic editor replaces the block editor",
   "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:329"
+   "includes/Core/Migration/Sources/ClassicEditorSource.php:34"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "rules that redirect a whole domain (server match)",
+  "id": "Pages render with the snippets switched on",
   "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:334"
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:351"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "rules that depend on the visitor being logged in",
+  "id": "Comments are disabled (no comment form on a post)",
   "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:335"
+   "includes/Core/Migration/Sources/DisableCommentsSource.php:41"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "rules that depend on the referring page",
+  "id": "New login address works, wp-login.php is closed",
   "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:336"
+   "includes/Core/Migration/Sources/LoginSource.php:47"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "rules that depend on the browser",
-  "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:337"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "rules that depend on a cookie",
-  "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:338"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "rules that depend on the user role",
-  "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:339"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "rules that depend on the IP address",
-  "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:340"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "rules that depend on the language",
-  "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:341"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "rules that depend on an HTTP header",
-  "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:342"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "rules with a custom filter",
-  "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:343"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "rules that depend on the page type",
-  "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:344"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "rules that depend on the HTTP request",
-  "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:345"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "rules that pick a random target",
+  "id": "Sample of redirects behaves like the old plugin",
   "refs": [
    "includes/Core/Migration/Sources/RedirectsSource.php:346"
   ],
@@ -1226,346 +570,104 @@
  },
  {
   "ctx": null,
-  "id": "pass-through rules",
+  "id": "Test e-mail through the SMTP module",
   "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:347"
+   "includes/Core/Migration/Sources/SmtpSource.php:311"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "rules that answer with an error other than 410",
+  "id": "This run is already switched on.",
   "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:348"
+   "includes/Core/Migration/Switcher.php:212"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "rules that do nothing",
+  "id": "The migration had errors. Undo it and run it again before switching.",
   "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:349"
+   "includes/Core/Migration/Switcher.php:219",
+   "build/index.35c7c8167bea179c3aa4.js:23"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "rules without a target",
+  "id": "There is nothing to switch.",
   "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:350"
+   "includes/Core/Migration/Switcher.php:225"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "rules answering 403 Forbidden",
+  "id": "Run the safe preview and its tests first.",
   "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:351"
+   "includes/Core/Migration/Switcher.php:233",
+   "build/index.35c7c8167bea179c3aa4.js:23"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "rules answering 404 Not Found",
+  "id": "The tests of the safe preview are incomplete or older than a day. Run them again.",
   "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:352"
+   "includes/Core/Migration/Switcher.php:238",
+   "build/index.35c7c8167bea179c3aa4.js:23"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "rules with * that never matched, because wildcards were switched off in the plugin",
+  "id": "Some preview tests failed. Fix the cause, or confirm that you want to switch anyway.",
   "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:353"
+   "includes/Core/Migration/Switcher.php:243"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "rules with an empty source or target",
+  "id": "The safe preview is not available here. Switch without it only if you confirm that you accept the risk.",
   "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:354"
+   "includes/Core/Migration/Switcher.php:249"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "rules with the same address as an earlier rule (only the first one could ever match, the module keeps one rule per address)",
+  "id": "Save the new login address and tick the box to confirm it.",
   "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:355"
+   "includes/Core/Migration/Switcher.php:255",
+   "build/index.35c7c8167bea179c3aa4.js:23"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "%1$d %2$s have no equivalent in the module and are not transferred.",
+  "id": "The module registry is not available.",
   "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:361"
-  ],
-  "comments": [
-   "#. translators: 1: number of rules, 2: kind of rules."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "%d rules were case sensitive. The module ignores letter case in addresses.",
-  "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:371"
-  ],
-  "comments": [
-   "#. translators: %d: number of rules."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "%d rules had their own handling of the query string (ignore or pass on). The module uses its own setting \\\"pass query string\\\".",
-  "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:380"
-  ],
-  "comments": [
-   "#. translators: %d: number of rules."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "%d rules forced https. The module redirects to the address as written.",
-  "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:389"
-  ],
-  "comments": [
-   "#. translators: %d: number of rules."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Hit counters, the redirect log and the 404 log of the plugin are not transferred (the module starts counting from zero).",
-  "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:395"
+   "includes/Core/Migration/Switcher.php:290",
+   "includes/Core/Migration/Switcher.php:532"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Rules ending with * become regular-expression rules (the part after the prefix is passed to the target as $1).",
+  "id": "The module \\\"%s\\\" could not be switched on.",
   "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:398"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The module \\\"Redirects\\\" is already on, so the rules are created switched off. They are switched on at the switch, after the safe preview, so two plugins never redirect the same address.",
-  "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:401"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "of them switched off in the plugin",
-  "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:436"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "of them regular expressions",
-  "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:441"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "of them 410 Gone",
-  "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:446"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "A different rule for this address already exists in UX Studio, it is kept.",
-  "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:539",
-   "includes/Core/Migration/Sources/RedirectsSource.php:579"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The rule could not be saved.",
-  "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:595"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The rules table does not exist yet.",
-  "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:613"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "UX Studio has a different rule for this address.",
-  "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:633"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The rule is not in UX Studio.",
-  "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:634"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The \\\"return path\\\" setting (bounce address) has no counterpart in the module.",
-  "refs": [
-   "includes/Core/Migration/Sources/SmtpSource.php:192"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The e-mail log of the plugin and its tracking are not transferred. Use the Email Log module.",
-  "refs": [
-   "includes/Core/Migration/Sources/SmtpSource.php:195"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The SMTP server used OAuth 2.0 sign-in. The module uses a user name and password, so enter them again.",
-  "refs": [
-   "includes/Core/Migration/Sources/SmtpSource.php:240"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The fallback SMTP server of the plugin has no equivalent.",
-  "refs": [
-   "includes/Core/Migration/Sources/SmtpSource.php:243"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The plugin was set not to send e-mail (log only or ignore). The module will send e-mail normally once it is on.",
-  "refs": [
-   "includes/Core/Migration/Sources/SmtpSource.php:246"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The plugin had %d connections (several senders). The module has one, so only the default connection is transferred.",
-  "refs": [
-   "includes/Core/Migration/Sources/SmtpSource.php:297"
-  ],
-  "comments": [
-   "#. translators: %d: number of connections."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The plugin sent e-mail with the PHP mail function, which has no counterpart. The module keeps the WordPress default until you enter an SMTP server; the sender is transferred.",
-  "refs": [
-   "includes/Core/Migration/Sources/SmtpSource.php:318"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The sending method \\\"%s\\\" is not available in the module (SMTP, Brevo and Gmail are). Only the sender is transferred; set up the connection in the module.",
-  "refs": [
-   "includes/Core/Migration/Sources/SmtpSource.php:323"
-  ],
-  "comments": [
-   "#. translators: %s: name of the sending service."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The plugin sent without logging in to the server. The module always logs in, so a server that needs no login will not work with it.",
-  "refs": [
-   "includes/Core/Migration/Sources/SmtpSource.php:344"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The Gmail sign-in (access and refresh token) belongs to the old plugin and is not transferred. Open the module and use \\\"Connect to Google\\\" once.",
-  "refs": [
-   "includes/Core/Migration/Sources/SmtpSource.php:351"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The stored password or key could not be decrypted (the encryption key of the plugin is missing). Enter it again in the module.",
-  "refs": [
-   "includes/Core/Migration/Sources/SmtpSource.php:354"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Once the module is on, all e-mail of the site is sent with these settings. Send a test message in the module before you deactivate the old plugin.",
-  "refs": [
-   "includes/Core/Migration/Sources/SmtpSource.php:359"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Module \\\"%s\\\" is not available, its prepared settings were not applied.",
-  "refs": [
-   "includes/Core/Migration/Staging.php:267"
+   "includes/Core/Migration/Switcher.php:351"
   ],
   "comments": [
    "#. translators: %s: module id."
@@ -1574,71 +676,232 @@
  },
  {
   "ctx": null,
-  "id": "Of the data of \\\"%1$s\\\", %2$d of %3$d items were switched on, the rest could not be switched on (check the permissions and the logs).",
+  "id": "The module \\\"%1$s\\\" could not finish switching on: %2$s",
   "refs": [
-   "includes/Core/Migration/Staging.php:293"
+   "includes/Core/Migration/Switcher.php:367"
   ],
   "comments": [
-   "#. translators: 1: plugin slug, 2: number switched on, 3: number prepared."
+   "#. translators: 1: module id, 2: error message."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The data of \\\"%s\\\" could not be switched on.",
+  "id": "The switch failed and was undone: %s",
   "refs": [
-   "includes/Core/Migration/Staging.php:302"
+   "includes/Core/Migration/Switcher.php:396"
   ],
   "comments": [
-   "#. translators: %s: plugin slug."
+   "#. translators: %s: error message."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "%1$d × %2$s",
+  "id": "The site did not work after the switch (%s), so the switch was undone automatically.",
   "refs": [
-   "build/index.2c95a680c29b69c0fa18.js:14"
+   "includes/Core/Migration/Switcher.php:429"
   ],
   "comments": [
-   "#. translators: 1: number of objects, 2: what they are (\"Redirects\")."
+   "#. translators: %s: what failed."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The module is already on, so this is only prepared: the objects are created switched off and start working at the switch, after the safe preview.",
+  "id": "home page",
   "refs": [
-   "build/index.2c95a680c29b69c0fa18.js:14"
+   "includes/Core/Migration/Switcher.php:471"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Prepared",
+  "id": "%1$s: HTTP %2$d",
   "refs": [
-   "build/index.2c95a680c29b69c0fa18.js:14"
+   "includes/Core/Migration/Switcher.php:476"
+  ],
+  "comments": [
+   "#. translators: 1: page, 2: HTTP status."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "This run is not switched on, or the undo information has expired.",
+  "refs": [
+   "includes/Core/Migration/Switcher.php:528"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "%d prepared for the switch",
+  "id": "The plugin %1$s could not be reactivated: %2$s",
   "refs": [
-   "build/index.2c95a680c29b69c0fa18.js:15"
+   "includes/Core/Migration/Switcher.php:550"
   ],
   "comments": [
-   "#. translators: %d: number of prepared values and objects."
+   "#. translators: 1: plugin file, 2: error message."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "UX Studio goes back exactly to how it was before the run from %s: settings, and everything the run created. Changes made in these modules since then are lost.",
+  "id": "The module \\\"%1$s\\\" could not restore its state: %2$s",
   "refs": [
-   "build/index.2c95a680c29b69c0fa18.js:17"
+   "includes/Core/Migration/Switcher.php:581"
+  ],
+  "comments": [
+   "#. translators: 1: module id, 2: error message."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The .htaccess file is not identical to how it was before the switch. Check it.",
+  "refs": [
+   "includes/Core/Migration/Switcher.php:610"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The .htaccess file is not written during a preview.",
+  "refs": [
+   "includes/Modules/SecurityOptimization/HtaccessWriter.php:165"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%d ms",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:14"
+  ],
+  "comments": [
+   "#. translators: %d: milliseconds."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%1$d of %2$d tests failed.",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:15"
+  ],
+  "comments": [
+   "#. translators: 1: number of failed tests, 2: number of tests."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "All %2$d tests passed, %1$d with a warning.",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:16"
+  ],
+  "comments": [
+   "#. translators: 1: number of tests with a warning, 2: number of tests."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The test passed.",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:16"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "All %d tests passed.",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:17"
+  ],
+  "comments": [
+   "#. translators: %d: number of tests."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Switched",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:17"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Switch undone",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:17"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The switch can be undone until %s",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:19"
+  ],
+  "comments": [
+   "#. translators: %s: date until which the switch can be undone."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Undo the switch",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:19",
+   "build/index.35c7c8167bea179c3aa4.js:21",
+   "build/index.35c7c8167bea179c3aa4.js:29"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Preview and switch",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:19"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The run is switched on, so the switch is undone first: the old plugins are activated again and the modules it turned on go off.",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:21"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Undo the switch?",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:21",
+   "build/index.35c7c8167bea179c3aa4.js:29"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The old plugins of the run from %s are activated again, the modules the switch turned on go off, and settings and data return to how they were before the switch. Changes made in these modules since then are lost.",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:22"
   ],
   "comments": [
    "#. translators: %s: date and time of the run."
@@ -1647,102 +910,619 @@
  },
  {
   "ctx": null,
-  "id": "Copy the settings and data of other plugins (redirects, snippets, folders, mail settings ...) into the matching UX Studio modules, check that nothing got lost and keep the option to go back.",
+  "id": "No migration to work on",
   "refs": [
-   "build/index.2c95a680c29b69c0fa18.js:18"
+   "build/index.35c7c8167bea179c3aa4.js:23"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "%1$s all carry settings for the module \\\"%2$s\\\". The one migrated last overwrites the others, so tick only the plugin you actually use.",
+  "id": "The preview and the switch work on a finished migration. Run one first, or continue a run from the run history below.",
   "refs": [
-   "build/index.2c95a680c29b69c0fa18.js:22"
-  ],
-  "comments": [
-   "#. translators: 1: plugin names, 2: UX Studio module name."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Working… %1$d / %2$d",
-  "refs": [
-   "build/index.2c95a680c29b69c0fa18.js:24"
-  ],
-  "comments": [
-   "#. translators: 1: objects handled so far, 2: objects in total."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "%1$d written, %2$d of them only prepared (they take effect after the switch)",
-  "refs": [
-   "build/index.2c95a680c29b69c0fa18.js:25"
-  ],
-  "comments": [
-   "#. translators: 1: number of values written, 2: number of values only prepared."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Prepared - takes effect after the switch",
-  "refs": [
-   "build/index.2c95a680c29b69c0fa18.js:27"
+   "build/index.35c7c8167bea179c3aa4.js:23"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The UX Studio settings go back exactly to how they were before the migration, and everything the migration created (rules, snippets, folders, menu fields) is removed. The old plugins are not touched.",
+  "id": "Start a migration",
   "refs": [
-   "build/index.2c95a680c29b69c0fa18.js:27"
+   "build/index.35c7c8167bea179c3aa4.js:23"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "UX Studio is back to how it was before. The old plugins were never changed.",
+  "id": "Only your browser sees the site without the old plugins, for 30 minutes. Visitors keep getting the old plugins the whole time.",
   "refs": [
-   "build/index.2c95a680c29b69c0fa18.js:27"
+   "build/index.35c7c8167bea179c3aa4.js:23"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "%1$d plugin(s) processed, %2$d item(s) written to UX Studio.",
+  "id": "Nothing is saved while you look: no .htaccess, no schedule, no module data. The preview ends by itself after 30 minutes, or when you end it.",
   "refs": [
-   "build/index.2c95a680c29b69c0fa18.js:28"
+   "build/index.35c7c8167bea179c3aa4.js:23"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The tests compare the site now with the site in the preview and stop the switch when something breaks.",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:23"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Safe preview",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:23"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "See the site the way it will work after the switch, before anything is switched.",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:23"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The preview is not available on this server",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:23"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "You can still switch without a preview, but then nothing has been tested before the old plugins are deactivated. Everything can be undone for 30 days.",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:23"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The preview ends",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:23"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "It has ended",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:23"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Switched off in the preview",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:23"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "No active plugin",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:23"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Switched on in the preview",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:23"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The preview has ended. Start it again to test or look at the site.",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:23"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Fix the cause, or switch anyway only if you accept the risk.",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:23"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Starting…",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:23"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Start the safe preview",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:23"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Open the site in the preview",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:23"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Run the tests again",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:23",
+   "build/index.35c7c8167bea179c3aa4.js:29"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "End the preview",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:23"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Continue without the preview",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:23"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Continue to the switch",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:23"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Copy the address",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:23"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Some preview tests failed. Fix the cause, or confirm below that you want to switch anyway.",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:23"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The safe preview is not available here. Confirm below that you want to switch without it.",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:23"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Switch to UX Studio",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:23"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "UX Studio modules take over and the old plugins are deactivated. Nothing is deleted, and you can undo it all for 30 days.",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:23"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "These plugins will be deactivated",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:23"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "None of the migrated plugins is active, so nothing is deactivated.",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:23"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "These modules will be switched on",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:23"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "already on",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:23"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "No module needs to be switched on.",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:23"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "What happens",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:23"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The prepared values go live: %1$d settings and %2$d objects (rules, snippets, menu fields) are switched on.",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:24"
   ],
   "comments": [
-   "#. translators: 1: number of plugins, 2: number of settings written."
+   "#. translators: 1: number of prepared settings, 2: number of prepared objects (rules, snippets ...)."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The old plugins still run and nothing was switched on - the site behaves exactly as before.",
+  "id": "The old plugins are deactivated the normal WordPress way, so their own deactivation steps run. Their files and data stay where they are.",
   "refs": [
-   "build/index.2c95a680c29b69c0fa18.js:28"
+   "build/index.35c7c8167bea179c3aa4.js:24"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "%d value was only prepared, because its module is already on. It takes effect at the switch, after the safe preview.",
+  "id": "Right after that the home page is checked from outside. If it fails, everything is undone automatically.",
   "refs": [
-   "build/index.2c95a680c29b69c0fa18.js:29"
+   "build/index.35c7c8167bea179c3aa4.js:24"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "You can undo the whole switch with one click for %d day.",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:25"
   ],
   "comments": [
-   "#. translators: %d: number of values only prepared."
+   "#. translators: %d: number of days."
   ],
-  "plural": "%d values were only prepared, because their modules are already on. They take effect at the switch, after the safe preview."
+  "plural": "You can undo the whole switch with one click for %d days."
+ },
+ {
+  "ctx": null,
+  "id": "The login address changes",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:25"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "After the switch you log in at this address. The old one stops working for everybody. Save it now.",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:25"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "I have saved the new login address",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:25"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Locked out anyway? Add define( '%s', true ); to wp-config.php and the normal wp-login.php works again.",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:26"
+  ],
+  "comments": [
+   "#. translators: %s: PHP constant name."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Switch anyway, I accept that these tests failed",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:26"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Back to the preview tests",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:26"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "No safe preview on this server",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:26"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Switch without a preview, I accept the risk",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:26"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Go to the safe preview",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:26"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Switch now",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:26"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Switch to UX Studio now?",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:26"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Switching…",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:26"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%1$d plugin(s) will be deactivated and %2$d module(s) switched on. The site is checked right after, and you can undo the switch from the run history.",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:27"
+  ],
+  "comments": [
+   "#. translators: 1: number of plugins, 2: number of modules."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "New login address:",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:27"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "UX Studio has taken over",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:27"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%1$d plugin(s) deactivated, %2$d module(s) switched on. The site is being tested now, from outside, without the preview.",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:28"
+  ],
+  "comments": [
+   "#. translators: 1: number of deactivated plugins, 2: number of modules switched on."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The login address is now",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:28"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "You can undo the switch below.",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:28"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "You can undo the switch until %s.",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:29"
+  ],
+  "comments": [
+   "#. translators: %s: date until which the switch can be undone."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The old plugins are activated again, the modules the switch turned on go off, and the settings and data return to how they were before the switch. Changes made in these modules since then are lost. The migrated values stay prepared.",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:29"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The switch was undone",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:29"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The old plugins are active again and the modules are as they were before. The migrated values are prepared again: you can preview and switch once more, or undo the migration from the run history.",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:29"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Back to the preview",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:29"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "It only reads the plugins. Nothing in them changes, and nothing is switched on or deactivated until you confirm the switch.",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:29"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Switching to the module and deactivating the old plugin is a separate step that comes after a safe preview of the site without the old plugins.",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:29"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Continue to the safe preview",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:38",
+   "build/index.35c7c8167bea179c3aa4.js:40"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "To switch, open the safe preview (the site without the old plugins, only for you), then the switch. You can do that later from the run history.",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:40"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Switch",
+  "refs": [
+   "build/index.35c7c8167bea179c3aa4.js:40"
+  ],
+  "comments": [],
+  "plural": null
  }
 ]

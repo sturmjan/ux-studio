@@ -1,7 +1,8 @@
 /**
  * What the wizard shell hands to every step.
  */
-import type { Check, RunState, ScanSource, SourcePlan } from './types';
+import type { PreviewFlow, SwitchFlow } from './flows';
+import type { Check, RunState, ScanSource, SourcePlan, WizardTarget } from './types';
 
 export interface WizardCtx {
 	/** Ids of the sources the admin ticked. */
@@ -37,6 +38,13 @@ export interface WizardCtx {
 	rolledBack: boolean;
 	rollbackBusy: boolean;
 	rollback: () => void;
+
+	/** The migrated run the preview and the switch work on (the one just finished, or one continued from the history). */
+	target: WizardTarget | null;
+	/** Step 7: the safe preview and its tests. */
+	preview: PreviewFlow;
+	/** Steps 8 and 9: the switch, the live tests, the undo. */
+	sw: SwitchFlow;
 
 	/** Navigation. */
 	next: () => void;

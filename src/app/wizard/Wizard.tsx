@@ -9,11 +9,12 @@ import { ApiError, api, queryClient } from '../api';
 import { refreshOverlaps } from '../Overlaps';
 import { hashParam } from '../route';
 import type { WizardCtx } from './context';
+import { usePreview, useSwitch } from './flows';
 import { pause } from './parts';
 import { RunHistory } from './RunHistory';
 import { Stepper } from './Stepper';
 import { getSteps } from './steps';
-import type { Check, RunState, ScanSource, SourcePlan } from './types';
+import type { Check, HistoryRun, RunState, ScanSource, SourcePlan, WizardTarget } from './types';
 
 const post = ( path: string, body: Record< string, unknown > ): Promise< { run: RunState } > =>
 	api< { run: RunState } >( path, { method: 'POST', body: JSON.stringify( body ) } );
@@ -48,6 +49,17 @@ export function Wizard(): JSX.Element {
 	const [ verifyError, setVerifyError ] = useState< string | null >( null );
 	const [ rolledBack, setRolledBack ] = useState( false );
 	const [ rollbackBusy, setRollbackBusy ] = useState( false );
+
+	// A finished run picked from the history (to preview and switch it later).
+	const [ picked, setPicked ] = useState< WizardTarget | null >( null );
+	const finished = useMemo(
+		(): WizardTarget | null =>
+			run && 'done' === run.status && ! run.dry_run ? { id: run.id, sources: run.sources.map( ( id ) => ( { id, label: run.per_source[ id ]?.label ?? id } ) ) } : null,
+		[ run ]
+	);
+	const target = picked ?? finished;
+	const preview = usePreview( target?.id ?? null );
+	const sw = useSwitch( target?.id ?? null );
 
 	// Only the newest loop may talk to the server; an abandoned one must not advance a later run.
 	const token = useRef( 0 );
@@ -191,6 +203,7 @@ export function Wizard(): JSX.Element {
 		setRunBusy( true );
 		setRunError( null );
 		setRun( null );
+		setPicked( null );
 		setVerify( null );
 		setRolledBack( false );
 		try {
@@ -283,6 +296,9 @@ export function Wizard(): JSX.Element {
 		rolledBack,
 		rollbackBusy,
 		rollback: () => void rollback(),
+		target,
+		preview,
+		sw,
 		next: () => setIndex( ( i ) => Math.min( i + 1, steps.length - 1 ) ),
 		back: () => setIndex( ( i ) => Math.max( i - 1, 0 ) ),
 		goTo: ( id ) => setIndex( Math.max( 0, steps.findIndex( ( s ) => s.id === id ) ) ),
@@ -290,6 +306,7 @@ export function Wizard(): JSX.Element {
 			token.current++;
 			setDry( null );
 			setRun( null );
+			setPicked( null );
 			setVerify( null );
 			setRolledBack( false );
 			setRunError( null );
@@ -312,6 +329,20 @@ export function Wizard(): JSX.Element {
 				onRolledBack={ ( id ) => {
 					if ( run?.id === id ) {
 						setRolledBack( true );
+					}
+					if ( target?.id === id ) {
+						setPicked( null );
+					}
+				} }
+				onContinue={ ( item: HistoryRun ) => {
+					setPicked( { id: item.id, sources: item.sources.filter( ( s ) => 'done' === s.status ).map( ( s ) => ( { id: s.id, label: s.label } ) ) } );
+					setRolledBack( false );
+					setIndex( steps.findIndex( ( s ) => 'preview' === s.id ) );
+					window.scrollTo( { top: 0, behavior: 'auto' } );
+				} }
+				onReverted={ ( id ) => {
+					if ( target?.id === id ) {
+						sw.clear();
 					}
 				} }
 			/>

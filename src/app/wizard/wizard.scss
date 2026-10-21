@@ -592,8 +592,116 @@
 .uxs-wiz-runs__main,
 .uxs-wiz-runs__side { display: flex; flex-wrap: wrap; align-items: center; gap: var(--uxs-sp-3); }
 
+/* -- F4: safe preview, switch, live tests -- */
+.uxs-wiz-tests { display: grid; gap: var(--uxs-sp-2); margin: 0 0 var(--uxs-sp-4); padding: 0; list-style: none; }
+
+.uxs-wiz-trow {
+	display: grid;
+	grid-template-columns: 24px minmax(0, 1fr) auto;
+	align-items: center;
+	gap: var(--uxs-sp-3);
+	margin: 0;
+	padding: var(--uxs-sp-2) var(--uxs-sp-4);
+	border: 1px solid var(--uxs-border);
+	border-radius: var(--uxs-radius-s);
+	background: var(--uxs-bg);
+	color: var(--uxs-text);
+	animation: uxs-wiz-pop var(--uxs-motion-slow) var(--uxs-ease) both;
+	animation-delay: calc(var(--i, 0) * 45ms);
+	transition: border-color var(--uxs-motion) var(--uxs-ease), background var(--uxs-motion) var(--uxs-ease);
+
+	&.is-pending { opacity: 0.6; }
+	&.is-running { border-color: var(--uxs-brand); background: var(--uxs-brand-soft); }
+	&.is-ok { border-color: color-mix(in srgb, var(--uxs-success) 45%, var(--uxs-border)); }
+	&.is-warn { border-color: color-mix(in srgb, var(--uxs-warning) 60%, var(--uxs-border)); }
+	&.is-error { border-color: var(--uxs-danger); }
+}
+
+[data-theme="dark"] .uxs-wiz-trow.is-running { background: color-mix(in srgb, var(--uxs-brand) 22%, transparent); }
+
+.uxs-wiz-trow__body { display: flex; flex-direction: column; min-width: 0; span { word-break: break-word; } }
+.uxs-wiz-trow__ms { white-space: nowrap; }
+
+.uxs-wiz-facts {
+	display: grid;
+	gap: var(--uxs-sp-2);
+	margin: 0 0 var(--uxs-sp-4);
+	padding: var(--uxs-sp-3) var(--uxs-sp-4);
+	background: var(--uxs-surface-2);
+	border-radius: var(--uxs-radius-s);
+
+	> div { display: grid; grid-template-columns: minmax(150px, 30%) minmax(0, 1fr); gap: var(--uxs-sp-3); }
+	dt { color: var(--uxs-text-soft); }
+	dd { margin: 0; color: var(--uxs-text); font-weight: 600; word-break: break-word; }
+}
+
+.uxs-wiz-callout {
+	display: flex;
+	gap: var(--uxs-sp-3);
+	align-items: flex-start;
+	margin: 0 0 var(--uxs-sp-4);
+	padding: var(--uxs-sp-4);
+	border: 1px solid var(--uxs-border);
+	border-radius: var(--uxs-radius);
+	background: var(--uxs-surface-2);
+	color: var(--uxs-text);
+
+	> svg { flex-shrink: 0; margin-top: 2px; }
+	> div { min-width: 0; }
+	p { margin: var(--uxs-sp-1) 0 0; }
+	&.is-warn { border-color: color-mix(in srgb, var(--uxs-warning) 60%, var(--uxs-border)); background: color-mix(in srgb, var(--uxs-warning) 10%, var(--uxs-surface)); > svg { color: var(--uxs-warning); } }
+}
+
+.uxs-wiz-address {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--uxs-sp-3);
+	margin: var(--uxs-sp-3) 0;
+
+	code { padding: var(--uxs-sp-2) var(--uxs-sp-3); font-size: var(--uxs-fs-m); font-weight: 700; word-break: break-all; border: 1px dashed var(--uxs-border); }
+}
+
+.uxs-wiz-checkrow {
+	display: flex;
+	align-items: center;
+	gap: var(--uxs-sp-2);
+	margin: var(--uxs-sp-2) 0;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.uxs-wiz-twocols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--uxs-sp-4); margin-bottom: var(--uxs-sp-4); }
+.uxs-wiz-box { padding: var(--uxs-sp-4); border: 1px solid var(--uxs-border); border-radius: var(--uxs-radius-s); background: var(--uxs-bg); }
+
+.uxs-wiz-plain {
+	display: grid;
+	gap: var(--uxs-sp-2);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+
+	li { display: flex; align-items: center; gap: var(--uxs-sp-2); margin: 0; color: var(--uxs-text); }
+	svg { flex-shrink: 0; color: var(--uxs-text-soft); }
+}
+
+.uxs-wiz-next.is-wide { max-width: none; margin: 0 0 var(--uxs-sp-4); }
+
+.uxs-wiz-finish__mini {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 48px;
+	height: 48px;
+	border-radius: 50%;
+	background: var(--uxs-success);
+	color: #fff;
+}
+
 @media (max-width: 782px) {
 	.uxs-wiz-step__title { display: none; }
+	.uxs-wiz-twocols { grid-template-columns: 1fr; }
+	.uxs-wiz-facts > div { grid-template-columns: 1fr; gap: 0; }
 	.uxs-wiz-prow { grid-template-columns: 24px minmax(0, 1fr); .uxs-wiz-bar { grid-column: 1 / -1; } }
 }
 

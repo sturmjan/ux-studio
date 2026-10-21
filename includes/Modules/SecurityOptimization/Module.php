@@ -1680,7 +1680,13 @@ final class Module extends BaseModule {
 
 	private function current_path(): string {
 		$uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
-		return trim( (string) wp_parse_url( $uri, PHP_URL_PATH ), '/' );
+		$path = trim( (string) wp_parse_url( $uri, PHP_URL_PATH ), '/' );
+		// A site in a subdirectory (example.com/blog): the slug is relative to the site address.
+		$base = trim( (string) wp_parse_url( home_url(), PHP_URL_PATH ), '/' );
+		if ( '' !== $base && ( $path === $base || 0 === strpos( $path, $base . '/' ) ) ) {
+			$path = trim( substr( $path, strlen( $base ) ), '/' );
+		}
+		return $path;
 	}
 
 	/**
@@ -1692,12 +1698,18 @@ final class Module extends BaseModule {
 		if ( in_array( $slug, array( 'wp-admin', 'wp-login', 'wp-login.php', 'wp-content', 'wp-includes', 'wp-json' ), true ) ) {
 			return true;
 		}
-		if ( null !== get_page_by_path( $slug ) ) {
+		if ( null !== get_page_by_path( $slug, OBJECT, array( 'page', 'post' ) ) ) {
 			return true;
 		}
 		$rules = get_option( 'rewrite_rules' );
 		if ( is_array( $rules ) ) {
-			foreach ( array_keys( $rules ) as $pattern ) {
+			foreach ( $rules as $pattern => $target ) {
+				// The catch-all rules for pages, posts and attachments match every slug; real pages and posts are
+				// checked above, so only the specific rules (category, feed, a custom post type ...) count.
+				$target = (string) $target;
+				if ( 0 === strpos( $target, 'index.php?pagename=' ) || 0 === strpos( $target, 'index.php?name=' ) || false !== strpos( $target, 'attachment=' ) ) {
+					continue;
+				}
 				if ( '' !== $pattern && @preg_match( '#^' . $pattern . '$#', $slug ) === 1 ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors
 					return true;
 				}

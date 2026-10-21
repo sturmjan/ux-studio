@@ -1,14 +1,15 @@
 /**
- * The wizard steps. `STEPS` is the ordered list the shell renders - to add a step
- * (the safe preview and the deactivation come in phase F4) append an entry here;
- * nothing else needs to know how many steps there are.
+ * The wizard steps. `getSteps()` is the ordered list the shell renders - to add a step
+ * insert an entry there; nothing else needs to know how many steps there are.
+ * The safe preview, the switch and the finish of a switched run are in steps-preview.tsx.
  */
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { ArrowRight, Camera, ChevronDown, CircleCheck, History as HistoryIcon, Radar, ShieldCheck, Undo2, Wand2 } from 'lucide-react';
 import { navigate } from '../route';
 import type { WizardCtx } from './context';
-import { ChangeTable, DataCounts, DrawnCheck, MatchBadge, PlanDetails, SourceIcon, StateIcon, StatusBadge, Warnings, reducedMotion, sourceSummary } from './parts';
+import { ChangeTable, DataCounts, DrawnCheck, ErrorLine, MatchBadge, PlanDetails, SourceIcon, StateIcon, StatusBadge, StepHead, Warnings, reducedMotion, sourceSummary } from './parts';
+import { PreviewStep, RevertedDone, SwitchStep, SwitchedDone } from './steps-preview';
 import type { RunSource, ScanSource } from './types';
 
 export interface WizardStep {
@@ -17,33 +18,12 @@ export interface WizardStep {
 	render: ( ctx: WizardCtx ) => JSX.Element;
 }
 
-/** Heading + lead paragraph of a step. */
-function StepHead( { icon, title, children }: { icon?: ReactNode; title: string; children?: ReactNode } ): JSX.Element {
-	return (
-		<header className="uxs-wiz-stephead">
-			{ icon && <span className="uxs-wiz-stephead__icon">{ icon }</span> }
-			<div>
-				<h2>{ title }</h2>
-				{ children && <p>{ children }</p> }
-			</div>
-		</header>
-	);
-}
-
-function ErrorLine( { text }: { text: string | null } ): JSX.Element | null {
-	return text ? (
-		<p className="uxs-wiz-error" role="alert">
-			{ text }
-		</p>
-	) : null;
-}
-
 /* ── 1 Welcome ── */
 
 function WelcomeStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 	const points: { icon: JSX.Element; text: string }[] = [
 		{ icon: <Radar size={ 18 } aria-hidden />, text: __( 'The wizard finds plugins on this site whose job a UX Studio module does as well.', 'ux-studio' ) },
-		{ icon: <ShieldCheck size={ 18 } aria-hidden />, text: __( 'It only reads the plugins. Nothing in them changes, and nothing is switched on or deactivated.', 'ux-studio' ) },
+		{ icon: <ShieldCheck size={ 18 } aria-hidden />, text: __( 'It only reads the plugins. Nothing in them changes, and nothing is switched on or deactivated until you confirm the switch.', 'ux-studio' ) },
 		{ icon: <Camera size={ 18 } aria-hidden />, text: __( 'Before the first write it saves a snapshot, so you can undo the whole migration for 30 days.', 'ux-studio' ) },
 	];
 	return (
@@ -59,7 +39,7 @@ function WelcomeStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 					</li>
 				) ) }
 			</ul>
-			<p className="uxs-wiz-muted">{ __( 'Switching to the module and deactivating the old plugin is a separate step that comes after a safe preview of the site (next version).', 'ux-studio' ) }</p>
+			<p className="uxs-wiz-muted">{ __( 'Switching to the module and deactivating the old plugin is a separate step that comes after a safe preview of the site without the old plugins.', 'ux-studio' ) }</p>
 			<div className="uxs-wiz-actions">
 				<button type="button" className="button button-primary" onClick={ ctx.next }>
 					{ __( 'Scan the site', 'ux-studio' ) } <ArrowRight size={ 16 } aria-hidden />
@@ -543,7 +523,7 @@ function VerifyStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 					<Undo2 size={ 16 } aria-hidden /> { __( 'Undo the migration', 'ux-studio' ) }
 				</button>
 				<button type="button" className="button button-primary" disabled={ ! verify } onClick={ ctx.next }>
-					{ __( 'Continue', 'ux-studio' ) } <ArrowRight size={ 16 } aria-hidden />
+					{ __( 'Continue to the safe preview', 'ux-studio' ) } <ArrowRight size={ 16 } aria-hidden />
 				</button>
 			</div>
 
@@ -575,7 +555,7 @@ function VerifyStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 	);
 }
 
-/* ── 7 Done ── */
+/* ── 9 Done ── */
 
 function DoneStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 	const rows = Object.values( ctx.run?.per_source ?? {} );
@@ -600,6 +580,12 @@ function DoneStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 				</div>
 			</section>
 		);
+	}
+	if ( ctx.sw.reverted ) {
+		return <RevertedDone ctx={ ctx } />;
+	}
+	if ( ctx.sw.result ) {
+		return <SwitchedDone ctx={ ctx } />;
 	}
 
 	return (
@@ -634,7 +620,7 @@ function DoneStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 							) }
 						</li>
 					) }
-					<li>{ __( 'Switching to the module and deactivating the plugin will follow in the next version, after a safe preview of the site without the old plugins.', 'ux-studio' ) }</li>
+					<li>{ __( 'To switch, open the safe preview (the site without the old plugins, only for you), then the switch. You can do that later from the run history.', 'ux-studio' ) }</li>
 					<li>{ __( 'Until then you can undo this migration from the run history for 30 days.', 'ux-studio' ) }</li>
 				</ul>
 			</div>
@@ -649,8 +635,11 @@ function DoneStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 				>
 					<HistoryIcon size={ 16 } aria-hidden /> { __( 'Run history', 'ux-studio' ) }
 				</a>
-				<button type="button" className="button button-primary" onClick={ () => navigate( '' ) }>
+				<button type="button" className="button" onClick={ () => navigate( '' ) }>
 					{ __( 'Back to modules', 'ux-studio' ) }
+				</button>
+				<button type="button" className="button button-primary" onClick={ () => ctx.goTo( 'preview' ) }>
+					{ __( 'Continue to the safe preview', 'ux-studio' ) } <ArrowRight size={ 16 } aria-hidden />
 				</button>
 			</div>
 		</section>
@@ -659,7 +648,7 @@ function DoneStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 
 /**
  * Ordered steps (a function, so the titles are translated when the wizard opens,
- * not when the bundle loads). Phase F4 inserts "preview" and "deactivate" before `done`.
+ * not when the bundle loads).
  */
 export function getSteps(): WizardStep[] {
 	return [
@@ -669,6 +658,8 @@ export function getSteps(): WizardStep[] {
 		{ id: 'check', title: __( 'Check', 'ux-studio' ), render: ( ctx ) => <CheckStep ctx={ ctx } /> },
 		{ id: 'migrate', title: __( 'Migration', 'ux-studio' ), render: ( ctx ) => <MigrateStep ctx={ ctx } /> },
 		{ id: 'verify', title: __( 'Verification', 'ux-studio' ), render: ( ctx ) => <VerifyStep ctx={ ctx } /> },
+		{ id: 'preview', title: __( 'Preview', 'ux-studio' ), render: ( ctx ) => <PreviewStep ctx={ ctx } /> },
+		{ id: 'switch', title: __( 'Switch', 'ux-studio' ), render: ( ctx ) => <SwitchStep ctx={ ctx } /> },
 		{ id: 'done', title: __( 'Done', 'ux-studio' ), render: ( ctx ) => <DoneStep ctx={ ctx } /> },
 	];
 }

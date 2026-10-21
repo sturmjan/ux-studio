@@ -1,12 +1,14 @@
 /**
  * Small building blocks shared by the wizard steps.
  */
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { CircleX, TriangleAlert, Info } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { api, type ModuleInfo } from '../api';
 import { ModuleIcon } from '../moduleIcons';
-import type { DataRow, PlanItem, ScanSource, SourcePlan } from './types';
+import type { SmokeRun } from './flows';
+import type { DataRow, PlanItem, ScanSource, SmokeCounts, SmokeResult, SourcePlan } from './types';
 
 /** True when the user asked the system for less motion. */
 export function reducedMotion(): boolean {
@@ -220,5 +222,152 @@ export function ChangeTable( { items }: { items: PlanItem[] } ): JSX.Element {
 				) ) }
 			</tbody>
 		</table>
+	);
+}
+
+/** Heading + lead paragraph of a step. */
+export function StepHead( { icon, title, children }: { icon?: ReactNode; title: string; children?: ReactNode } ): JSX.Element {
+	return (
+		<header className="uxs-wiz-stephead">
+			{ icon && <span className="uxs-wiz-stephead__icon">{ icon }</span> }
+			<div>
+				<h2>{ title }</h2>
+				{ children && <p>{ children }</p> }
+			</div>
+		</header>
+	);
+}
+
+export function ErrorLine( { text }: { text: string | null } ): JSX.Element | null {
+	return text ? (
+		<p className="uxs-wiz-error" role="alert">
+			{ text }
+		</p>
+	) : null;
+}
+
+/** Current time in ms, refreshed on an interval (for "ends at" and expiry hints). */
+export function useNow( every = 20000 ): number {
+	const [ now, setNow ] = useState( () => Date.now() );
+	useEffect( () => {
+		const timer = window.setInterval( () => setNow( Date.now() ), every );
+		return () => window.clearInterval( timer );
+	}, [ every ] );
+	return now;
+}
+
+function rowState( result: SmokeResult | undefined, running: boolean ): 'pending' | 'running' | 'ok' | 'error' | 'warn' {
+	if ( ! result ) {
+		return running ? 'running' : 'pending';
+	}
+	return 'fail' === result.status ? 'error' : 'warn' === result.status ? 'warn' : 'ok';
+}
+
+/** Test rows that fill in one by one (CSS animation only; static under reduced motion). */
+export function TestRows( { run, labels }: { run: SmokeRun; labels?: Record< string, string > } ): JSX.Element {
+	return (
+		<ul className="uxs-wiz-tests" aria-live="polite">
+			{ run.plan.map( ( item, index ) => {
+				const result = run.results[ item.id ];
+				const state = rowState( result, run.current === item.id );
+				return (
+					<li key={ item.id } className={ `uxs-wiz-trow is-${ state }` } style={ { '--i': index } as React.CSSProperties }>
+						<StateIcon state={ state } />
+						<div className="uxs-wiz-trow__body">
+							<strong>{ item.label }</strong>
+							{ 'site' !== item.group && labels?.[ item.group ] && <span className="uxs-wiz-muted">{ labels[ item.group ] }</span> }
+							{ result && '' !== result.detail && <span className={ 'fail' === result.status ? 'uxs-wiz-error-text' : 'uxs-wiz-muted' }>{ result.detail }</span> }
+						</div>
+						{ result && result.ms > 0 && <span className="uxs-wiz-muted uxs-wiz-trow__ms">{ sprintf( /* translators: %d: milliseconds. */ __( '%d ms', 'ux-studio' ), result.ms ) }</span> }
+					</li>
+				);
+			} ) }
+		</ul>
+	);
+}
+
+/** Totals of a finished test run as one line. */
+export function summarize( results: SmokeResult[] ): SmokeCounts {
+	const out: SmokeCounts = { ok: 0, warn: 0, fail: 0, info: 0 };
+	results.forEach( ( r ) => {
+		out[ r.status ] += 1;
+	} );
+	return out;
+}
+
+export function testsSentence( counts: SmokeCounts, total: number ): string {
+	if ( counts.fail > 0 ) {
+		return sprintf(
+			/* translators: 1: number of failed tests, 2: number of tests. */
+			__( '%1$d of %2$d tests failed.', 'ux-studio' ),
+			counts.fail,
+			total
+		);
+	}
+	if ( counts.warn > 0 ) {
+		return sprintf(
+			/* translators: 1: number of tests with a warning, 2: number of tests. */
+			__( 'All %2$d tests passed, %1$d with a warning.', 'ux-studio' ),
+			counts.warn,
+			total
+		);
+	}
+	if ( 1 === total ) {
+		return __( 'The test passed.', 'ux-studio' );
+	}
+	return sprintf(
+		/* translators: %d: number of tests. */
+		__( 'All %d tests passed.', 'ux-studio' ),
+		total
+	);
+}
+
+/** Confirmation dialog (Escape cancels, focus goes to the confirm button). */
+export function ConfirmModal( {
+	id,
+	title,
+	confirmLabel,
+	busy = false,
+	error = null,
+	onConfirm,
+	onCancel,
+	children,
+}: {
+	id: string;
+	title: string;
+	confirmLabel: string;
+	busy?: boolean;
+	error?: string | null;
+	onConfirm: () => void;
+	onCancel: () => void;
+	children: ReactNode;
+} ): JSX.Element {
+	const confirmRef = useRef< HTMLButtonElement >( null );
+	useEffect( () => {
+		confirmRef.current?.focus();
+		const onKey = ( e: KeyboardEvent ): void => {
+			if ( 'Escape' === e.key && ! busy ) {
+				onCancel();
+			}
+		};
+		window.addEventListener( 'keydown', onKey );
+		return () => window.removeEventListener( 'keydown', onKey );
+	}, [ busy, onCancel ] );
+	return (
+		<div className="uxs-overlay">
+			<div className="uxs-modal" role="dialog" aria-modal="true" aria-labelledby={ id }>
+				<h2 id={ id }>{ title }</h2>
+				{ children }
+				<ErrorLine text={ error } />
+				<div className="uxs-modal__actions">
+					<button type="button" className="button" disabled={ busy } onClick={ onCancel }>
+						{ __( 'Cancel', 'ux-studio' ) }
+					</button>
+					<button ref={ confirmRef } type="button" className="button button-primary" disabled={ busy } onClick={ onConfirm }>
+						{ confirmLabel }
+					</button>
+				</div>
+			</div>
+		</div>
 	);
 }

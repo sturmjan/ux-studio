@@ -133,4 +133,93 @@ export interface HistoryRun {
 	/** Values and data prepared for the switch (not yet applied). */
 	staging?: { settings: number; secrets: number; activations: number; modules: string[] };
 	applied?: number;
+	/** The switch (F4): when it happened, when it was undone, and whether it can be undone now. */
+	switched?: number;
+	switch_reverted?: number;
+	switch_active?: boolean;
+	can_revert_switch?: boolean;
+	revert_until?: string;
+	/** Totals of the last safe-preview tests. */
+	preview?: { at: number; counts: SmokeCounts } | null;
+	switch_live?: SmokeCounts | null;
+}
+
+/* ── Safe preview and switch (F4) ── */
+
+export type SmokeStatus = 'ok' | 'warn' | 'fail' | 'info';
+
+export interface SmokeCounts {
+	ok: number;
+	warn: number;
+	fail: number;
+	info: number;
+}
+
+/** One test of the plan (POST migration/smoke without `check`). */
+export interface SmokePlanItem {
+	id: string;
+	label: string;
+	/** `site` or the id of the source the test belongs to. */
+	group: string;
+}
+
+export interface SmokeResult extends SmokePlanItem {
+	status: SmokeStatus;
+	detail: string;
+	ms: number;
+}
+
+export interface PreviewAvailability {
+	ok: boolean;
+	reason: string;
+	path: string;
+}
+
+export interface PreviewEntry {
+	run_id: string;
+	expires: number;
+	expires_at: string;
+	plugins: string[];
+	modules: { id: string; name: string }[];
+	results: Record< string, SmokeResult >;
+	enter_url: string;
+	exit_url: string;
+}
+
+/** GET / POST migration/preview. */
+export interface PreviewPayload {
+	available: PreviewAvailability;
+	entry: PreviewEntry | null;
+	plan?: SmokePlanItem[];
+}
+
+/** GET migration/switch-plan. */
+export interface SwitchPlan {
+	run_id: string;
+	switched: boolean;
+	plugins: { basename: string; name: string; source: string }[];
+	modules: { id: string; name: string; enabled: boolean }[];
+	staging: { settings: number; secrets: number; activations: number; modules: string[] };
+	login: { changes: boolean; url: string; slug: string; now_url: string };
+	errors: number;
+	preview: { available: PreviewAvailability; tested: boolean; fresh: boolean; complete: boolean; counts: SmokeCounts; total: number };
+	kill_switch: string;
+	revert_days: number;
+}
+
+/** POST migration/switch. */
+export interface SwitchResult {
+	run_id: string;
+	enabled: string[];
+	deactivated: string[];
+	errors: string[];
+	revert_until: string;
+	live_plan: SmokePlanItem[];
+	runs: HistoryRun[];
+}
+
+/** The migrated run the preview and the switch work on. */
+export interface WizardTarget {
+	id: string;
+	sources: { id: string; label: string }[];
 }
