@@ -417,6 +417,10 @@ abstract class AbstractSource implements Source {
 		return array();
 	}
 
+	public function smoke_checks(): array {
+		return array();
+	}
+
 	public function options(): array {
 		return array();
 	}

@@ -322,6 +322,34 @@ final class RedirectsSource extends AbstractSource implements Activatable {
 		}
 	}
 
+	public function smoke_checks(): array {
+		$paths = array();
+		foreach ( $this->collect()['items'] as $item ) {
+			if ( 'exact' !== ( $item['match_type'] ?? '' ) || empty( $item['enabled'] ) || 410 === (int) ( $item['code'] ?? 0 ) ) {
+				continue;
+			}
+			$parsed = \UxStudio\Modules\Redirects\Url::parse_source( (string) $item['source'] );
+			if ( '' === $parsed['path'] || '' !== $parsed['query'] || '/' === $parsed['path'] ) {
+				continue;
+			}
+			$paths[ $parsed['path'] ] = true;
+			if ( count( $paths ) >= 20 ) {
+				break;
+			}
+		}
+		if ( ! $paths ) {
+			return array();
+		}
+		return array(
+			array(
+				'id'    => 'redirects',
+				'label' => __( 'Sample of redirects behaves like the old plugin', 'ux-studio' ),
+				'type'  => 'redirect_sample',
+				'paths' => array_keys( $paths ),
+			),
+		);
+	}
+
 	protected function map( bool $active ): Mapping {
 		$m = new Mapping();
 		$c = $this->collect();
@@ -648,5 +676,19 @@ final class RedirectsSource extends AbstractSource implements Activatable {
 		Repository::refresh_state();
 		// Rules that were already on count as switched on too.
 		return max( $count, (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE id IN ({$in}) AND enabled = 1", ...$ids ) ) ); // phpcs:ignore WordPress.DB
+	}
+
+	public function deactivate( string $kind, array $ids, array $data = array() ): int {
+		global $wpdb;
+		$ids = array_values( array_filter( array_map( 'intval', $ids ) ) );
+		if ( 'redirect' !== $kind || ! $ids ) {
+			return 0;
+		}
+		$table = Repository::table();
+		$in    = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+		$count = (int) $wpdb->query( $wpdb->prepare( "UPDATE {$table} SET enabled = 0, updated_at = %s WHERE id IN ({$in}) AND enabled = 1", current_time( 'mysql' ), ...$ids ) );
+		Repository::refresh_state();
+		return $count;
 	}
 }

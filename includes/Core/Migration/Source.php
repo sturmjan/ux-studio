@@ -88,4 +88,15 @@ interface Source {
 	 * @return array<int, array{id:string,label:string,ok:bool,detail:string}>
 	 */
 	public function verify(): array;
+
+	/**
+	 * Optional automated checks for the safe preview and the live test after the switch
+	 * (PLAN.md 26.10). Each entry: `id` (unique within the source), `label`, `type` (one of
+	 * `redirect_sample`, `comment_form_absent`, `login_slug`, `smtp_test`, `block_editor_off`,
+	 * `pages_clean`) and the parameters of that type; `replaces` lists generic checks the source
+	 * makes pointless (`wp-login`). Empty = nothing source specific to check.
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	public function smoke_checks(): array;
 }

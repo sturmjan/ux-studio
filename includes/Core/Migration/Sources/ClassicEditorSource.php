@@ -23,6 +23,21 @@ final class ClassicEditorSource extends AbstractSource {
 		return array( 'classic-editor-replace', 'classic-editor-allow-users' );
 	}
 
+	public function smoke_checks(): array {
+		$settings = $this->mapping()->settings['classic-editor'] ?? null;
+		if ( null === $settings ) {
+			return array();
+		}
+		return array(
+			array(
+				'id'         => 'editor',
+				'label'      => __( 'The classic editor replaces the block editor', 'ux-studio' ),
+				'type'       => 'block_editor_off',
+				'post_types' => array_values( (array) ( $settings['post_types'] ?? array() ) ),
+			),
+		);
+	}
+
 	protected function map( bool $active ): Mapping {
 		$m       = new Mapping();
 		$replace = $this->opt( 'classic-editor-replace' );

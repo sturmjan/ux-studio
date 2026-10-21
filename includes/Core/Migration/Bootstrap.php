@@ -27,6 +27,9 @@ final class Bootstrap {
 			}
 		);
 		add_action( self::PURGE_HOOK, array( Snapshot::class, 'purge_expired' ) );
+		add_action( self::PURGE_HOOK, array( Switcher::class, 'purge_expired' ) );
+		add_action( self::PURGE_HOOK, array( Preview::class, 'purge_expired' ) );
+		Preview::register();
 		add_action( 'admin_init', array( self::class, 'admin_init' ) );
 	}
 
@@ -35,6 +38,7 @@ final class Bootstrap {
 	 */
 	public static function admin_init(): void {
 		MigrationMap::ensure_table();
+		Preview::purge_expired();
 		if ( ! wp_next_scheduled( self::PURGE_HOOK ) ) {
 			wp_schedule_event( time() + HOUR_IN_SECONDS, 'daily', self::PURGE_HOOK );
 		}
@@ -45,5 +49,6 @@ final class Bootstrap {
 	 */
 	public static function deactivate(): void {
 		wp_clear_scheduled_hook( self::PURGE_HOOK );
+		Preview::stop_all();
 	}
 }

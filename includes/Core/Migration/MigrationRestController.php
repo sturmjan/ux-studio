@@ -74,6 +74,200 @@ final class MigrationRestController extends Controller {
 			)
 		);
 		$this->route( '/migration/runs', 'GET', array( $this, 'runs' ) );
+
+		// F4: safe preview, tests, switch.
+		$run_arg = array(
+			'run_id' => array(
+				'required'          => true,
+				'type'              => 'string',
+				'sanitize_callback' => static fn( $v ): string => Snapshot::clean_id( (string) $v ),
+			),
+		);
+		$flag    = static fn(): array => array(
+			'required'          => false,
+			'type'              => 'boolean',
+			'default'           => false,
+			'sanitize_callback' => 'rest_sanitize_boolean',
+		);
+		$this->route( '/migration/preview', 'GET', array( $this, 'preview_status' ), $run_arg );
+		$this->route( '/migration/preview', 'POST', array( $this, 'preview_start' ), $run_arg );
+		$this->route( '/migration/preview/end', 'POST', array( $this, 'preview_end' ), $run_arg );
+		$this->route_readonly(
+			'/migration/smoke',
+			array( $this, 'smoke' ),
+			$run_arg + array(
+				'mode'  => array(
+					'required' => true,
+					'type'     => 'string',
+					'enum'     => array( Smoke::MODE_PREVIEW, Smoke::MODE_LIVE ),
+				),
+				'check' => array(
+					'required'          => false,
+					'type'              => 'string',
+					'default'           => '',
+					'sanitize_callback' => static fn( $v ): string => (string) preg_replace( '/[^a-zA-Z0-9_:\-]/', '', (string) $v ),
+				),
+			)
+		);
+		$this->route( '/migration/switch-plan', 'GET', array( $this, 'switch_plan' ), $run_arg );
+		$this->route(
+			'/migration/switch',
+			'POST',
+			array( $this, 'switch_on' ),
+			$run_arg + array(
+				'ack_login'         => $flag(),
+				'override_failures' => $flag(),
+				'no_preview'        => $flag(),
+			)
+		);
+		$this->route( '/migration/revert-switch', 'POST', array( $this, 'revert_switch' ), $run_arg );
+		$this->route( '/migration/probe', 'GET', array( $this, 'probe' ) );
+	}
+
+	/**
+	 * Entry of a preview as the wizard needs it.
+	 *
+	 * @param string $run_id Run id.
+	 * @return array<string, mixed>
+	 */
+	private function preview_payload( string $run_id ): array {
+		Preview::purge_expired();
+		$entry = Preview::entry( $run_id );
+		$out   = array(
+			'available' => Preview::availability(),
+			'entry'     => null,
+		);
+		if ( $entry && (int) $entry['expires'] > time() ) {
+			$out['entry'] = array(
+				'run_id'     => $entry['run_id'],
+				'expires'    => (int) $entry['expires'],
+				'expires_at' => Runner::mysql_time( (int) $entry['expires'] ),
+				'plugins'    => $entry['plugins'],
+				'modules'    => array_map(
+					static fn( string $id ): array => array(
+						'id'   => $id,
+						'name' => ActivationGuard::module_name( $id ),
+					),
+					$entry['modules']
+				),
+				'results'    => $entry['results'],
+				'enter_url'  => Preview::enter_url( $run_id ),
+				'exit_url'   => Preview::exit_url( $run_id ),
+			);
+			$out['plan']  = array_map(
+				static fn( array $c ): array => array_intersect_key( $c, array_flip( array( 'id', 'label', 'group' ) ) ),
+				Smoke::plan( $run_id )
+			);
+		}
+		return $out;
+	}
+
+	/**
+	 * GET preview.
+	 */
+	public function preview_status( WP_REST_Request $request ): WP_REST_Response {
+		return $this->ok( $this->preview_payload( (string) $request['run_id'] ) );
+	}
+
+	/**
+	 * POST preview: start.
+	 */
+	public function preview_start( WP_REST_Request $request ) {
+		$result = Preview::start( (string) $request['run_id'], (int) get_current_user_id() );
+		return is_wp_error( $result ) ? $result : $this->ok( $this->preview_payload( (string) $request['run_id'] ) );
+	}
+
+	/**
+	 * POST preview/end.
+	 */
+	public function preview_end( WP_REST_Request $request ): WP_REST_Response {
+		Preview::stop( (string) $request['run_id'] );
+		Preview::clear_cookie();
+		return $this->ok( $this->preview_payload( (string) $request['run_id'] ) );
+	}
+
+	/**
+	 * POST smoke: without `check` the list of checks, with it the result of that one.
+	 */
+	public function smoke( WP_REST_Request $request ) {
+		$run_id = (string) $request['run_id'];
+		if ( '' === (string) $request['check'] ) {
+			return $this->ok(
+				array(
+					'plan' => array_map(
+						static fn( array $c ): array => array_intersect_key( $c, array_flip( array( 'id', 'label', 'group' ) ) ),
+						Smoke::plan( $run_id )
+					),
+				)
+			);
+		}
+		$result = Smoke::run( $run_id, (string) $request['check'], (string) $request['mode'] );
+		return is_wp_error( $result ) ? $result : $this->ok( array( 'result' => $result ) );
+	}
+
+	/**
+	 * GET switch-plan.
+	 */
+	public function switch_plan( WP_REST_Request $request ) {
+		$plan = Switcher::plan( (string) $request['run_id'] );
+		return is_wp_error( $plan ) ? $plan : $this->ok( $plan );
+	}
+
+	/**
+	 * POST switch.
+	 */
+	public function switch_on( WP_REST_Request $request ) {
+		$result = Switcher::switch_on(
+			(string) $request['run_id'],
+			array(
+				'ack_login'         => (bool) $request['ack_login'],
+				'override_failures' => (bool) $request['override_failures'],
+				'no_preview'        => (bool) $request['no_preview'],
+			),
+			(int) get_current_user_id()
+		);
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+		// The preview is over: from now on everybody gets the new setup.
+		Preview::stop( (string) $request['run_id'] );
+		Preview::clear_cookie();
+		PluginInfo::flush();
+		return $this->ok( $result + array( 'runs' => Runner::history() ) );
+	}
+
+	/**
+	 * POST revert-switch.
+	 */
+	public function revert_switch( WP_REST_Request $request ) {
+		$result = Switcher::revert( (string) $request['run_id'] );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+		PluginInfo::flush();
+		return $this->ok( $result + array( 'runs' => Runner::history() ) );
+	}
+
+	/**
+	 * GET probe: facts the smoke tests cannot see from the outside (which editor each post type gets).
+	 * Answered by whatever setup this very request runs with, so in a preview request it shows the preview.
+	 */
+	public function probe( WP_REST_Request $request ): WP_REST_Response {
+		if ( ! function_exists( 'use_block_editor_for_post_type' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/post.php';
+		}
+		$map = array();
+		foreach ( array_keys( get_post_types( array( 'public' => true, 'show_ui' => true ) ) ) as $type ) {
+			$map[ (string) $type ] = (bool) use_block_editor_for_post_type( (string) $type );
+		}
+		return $this->ok(
+			array(
+				'preview'        => Preview::is_active(),
+				'block_editor'   => $map,
+				'active_plugins' => array_values( (array) get_option( 'active_plugins', array() ) ),
+				'modules'        => array_values( (array) get_option( 'uxstudio_active_modules', array() ) ),
+			)
+		);
 	}
 
 	/**

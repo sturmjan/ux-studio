@@ -341,6 +341,19 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 		}
 	}
 
+	public function smoke_checks(): array {
+		if ( $this->data_total( $this->default_options() ) < 1 ) {
+			return array();
+		}
+		return array(
+			array(
+				'id'    => 'snippets',
+				'label' => __( 'Pages render with the snippets switched on', 'ux-studio' ),
+				'type'  => 'pages_clean',
+			),
+		);
+	}
+
 	protected function map( bool $active ): Mapping {
 		$m = new Mapping();
 		$c = $this->collect();
@@ -593,6 +606,19 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 		$count = 0;
 		foreach ( $ids as $id ) {
 			if ( $this->manager()->setSnippetEnabled( (string) $id, true ) ) {
+				++$count;
+			}
+		}
+		return $count;
+	}
+
+	public function deactivate( string $kind, array $ids, array $data = array() ): int {
+		if ( 'snippet' !== $kind ) {
+			return 0;
+		}
+		$count = 0;
+		foreach ( $ids as $id ) {
+			if ( $this->manager()->setSnippetEnabled( (string) $id, false ) ) {
 				++$count;
 			}
 		}

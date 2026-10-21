@@ -86,24 +86,67 @@ final class Snapshot {
 		self::create( $run_id );
 		$snap     = (array) get_option( self::option_name( $run_id ), array() );
 		$captured = (array) ( $snap['options'] ?? array() );
-		$missing  = new \stdClass();
+		$wanted   = array_values( array_filter( array_unique( array_map( 'strval', $names ) ), static fn( string $name ): bool => '' !== $name && ! array_key_exists( $name, $captured ) ) );
+		$captured = array_merge( $captured, self::read_options( $wanted ) );
+		$snap['options'] = $captured;
+		update_option( self::option_name( $run_id ), $snap, false );
+	}
+
+	/**
+	 * Current state of options, in the format the snapshots store (and `restore_options()` reads).
+	 *
+	 * @param string[] $names Option names.
+	 * @return array<string, array{exists:bool,value?:mixed,autoload?:bool|null}>
+	 */
+	public static function read_options( array $names ): array {
+		$out     = array();
+		$missing = new \stdClass();
 		foreach ( array_unique( array_map( 'strval', $names ) ) as $name ) {
-			if ( '' === $name || array_key_exists( $name, $captured ) ) {
+			if ( '' === $name ) {
 				continue;
 			}
 			$value = get_option( $name, $missing );
 			if ( $value === $missing ) {
-				$captured[ $name ] = array( 'exists' => false );
+				$out[ $name ] = array( 'exists' => false );
 			} else {
-				$captured[ $name ] = array(
+				$out[ $name ] = array(
 					'exists'   => true,
 					'value'    => $value,
 					'autoload' => self::autoload_of( $name ),
 				);
 			}
 		}
-		$snap['options'] = $captured;
-		update_option( self::option_name( $run_id ), $snap, false );
+		return $out;
+	}
+
+	/**
+	 * Put options back to a state read with `read_options()`: old value again, or deleted when
+	 * the option did not exist.
+	 *
+	 * @param array<string, array<string, mixed>> $captured State.
+	 * @return array{restored:int,deleted:int}
+	 */
+	public static function restore_options( array $captured ): array {
+		$out = array(
+			'restored' => 0,
+			'deleted'  => 0,
+		);
+		foreach ( $captured as $name => $state ) {
+			if ( ! empty( $state['exists'] ) ) {
+				$autoload = $state['autoload'] ?? null;
+				// Only touch the autoload flag when it really differs (WordPress stores `yes` and `on` for the same thing).
+				if ( null !== $autoload && self::autoload_of( (string) $name ) === (bool) $autoload ) {
+					$autoload = null;
+				}
+				// update_option() skips the write when the value looks unchanged, which is exactly right.
+				update_option( (string) $name, $state['value'], null === $autoload ? null : (bool) $autoload );
+				++$out['restored'];
+			} elseif ( false !== get_option( (string) $name, false ) ) {
+				delete_option( (string) $name );
+				++$out['deleted'];
+			}
+		}
+		return $out;
 	}
 
 	/**
@@ -191,17 +234,9 @@ final class Snapshot {
 			'reverted' => 0,
 			'errors'   => array(),
 		);
-		foreach ( (array) ( $snap['options'] ?? array() ) as $name => $state ) {
-			if ( ! empty( $state['exists'] ) ) {
-				$autoload = $state['autoload'] ?? null;
-				// update_option() skips the write when the value looks unchanged, which is exactly right.
-				update_option( (string) $name, $state['value'], null === $autoload ? null : (bool) $autoload );
-				++$out['restored'];
-			} elseif ( false !== get_option( (string) $name, false ) ) {
-				delete_option( (string) $name );
-				++$out['deleted'];
-			}
-		}
+		$restored        = self::restore_options( (array) ( $snap['options'] ?? array() ) );
+		$out['restored'] = $restored['restored'];
+		$out['deleted']  = $restored['deleted'];
 		foreach ( (array) ( $snap['tables'] ?? array() ) as $table => $state ) {
 			if ( self::restore_table( (string) $table, (array) $state ) ) {
 				++$out['tables'];

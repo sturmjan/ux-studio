@@ -301,6 +301,19 @@ final class SmtpSource extends AbstractSource {
 		return $out;
 	}
 
+	public function smoke_checks(): array {
+		if ( $this->mapping()->is_empty() ) {
+			return array();
+		}
+		return array(
+			array(
+				'id'    => 'mail',
+				'label' => __( 'Test e-mail through the SMTP module', 'ux-studio' ),
+				'type'  => 'smtp_test',
+			),
+		);
+	}
+
 	protected function map( bool $active ): Mapping {
 		$m = new Mapping();
 		$c = $this->read();

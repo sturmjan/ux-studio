@@ -25,4 +25,15 @@ interface Activatable {
 	 * @return int How many objects were switched on.
 	 */
 	public function activate( string $kind, array $ids, array $data = array() ): int;
+
+	/**
+	 * Switch the objects off again (undo of the switch). Called with the same ids and payload
+	 * `activate()` got; must only touch what `activate()` switched on.
+	 *
+	 * @param string                 $kind Kind of object the source registered.
+	 * @param array<int, int|string> $ids  Target ids as the source recorded them.
+	 * @param array<string, mixed>   $data Payload per id the source stored with them.
+	 * @return int How many objects were switched off.
+	 */
+	public function deactivate( string $kind, array $ids, array $data = array() ): int;
 }

@@ -239,6 +239,23 @@ final class Module extends BaseModule {
 	 * ------------------------------------------------------------------ */
 
 	/**
+	 * @return string[]
+	 */
+	public function switch_options(): array {
+		return array( self::HASH_OPTION );
+	}
+
+	/**
+	 * Mu-plugin, `.htaccess` block and watch event in line with the settings the switch wrote (no push to
+	 * the central app: that is the admin's decision in the module).
+	 */
+	public function after_migration_switch(): void {
+		parent::after_migration_switch();
+		$this->sync_filesystem( true );
+		$this->ensure_watch_scheduled();
+	}
+
+	/**
 	 * Push the cron config to the central app and record the outcome.
 	 *
 	 * @param bool $enabled Whether the central app should run wp-cron.php.
@@ -708,6 +725,10 @@ final class Module extends BaseModule {
 	 * @param bool $force Re-write even if the mode hash is unchanged.
 	 */
 	private function sync_filesystem( bool $force = false ): void {
+		// A preview request persists nothing.
+		if ( \UxStudio\Core\Migration\Preview::is_active() ) {
+			return;
+		}
 		$mode = $this->get_mode();
 		$hash = md5( $mode . '|' . home_url() . '|' . (string) $this->settings->get( 'central_allowed_ips', '' ) . '|' . self::MU_PLUGIN_VERSION );
 

@@ -185,6 +185,13 @@ final class AutoUnpublishSource extends AbstractMetaSource {
 		);
 	}
 
+	protected function after_unwrite( int $id, array $item ): void {
+		$ts = wp_next_scheduled( self::CRON_HOOK, array( $id ) );
+		if ( $ts ) {
+			wp_unschedule_event( $ts, self::CRON_HOOK, array( $id ) );
+		}
+	}
+
 	protected function after_write( int $id, array $item, array &$maps ): void {
 		$extra = (array) ( $item['extra'] ?? array() );
 		$ts    = (int) ( $extra['ts'] ?? 0 );

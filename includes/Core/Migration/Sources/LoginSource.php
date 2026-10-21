@@ -32,6 +32,28 @@ final class LoginSource extends AbstractSource {
 		}
 	}
 
+	public function smoke_checks(): array {
+		if ( 'wps-hide-login' !== $this->slug ) {
+			return array();
+		}
+		$settings = (array) ( $this->mapping()->settings[ self::MODULE ] ?? array() );
+		$slug     = trim( (string) ( $settings['login_url'] ?? '' ), '/' );
+		if ( empty( $settings['login_url_enabled'] ) || '' === $slug ) {
+			return array();
+		}
+		return array(
+			array(
+				'id'       => 'login',
+				'label'    => __( 'New login address works, wp-login.php is closed', 'ux-studio' ),
+				'type'     => 'login_slug',
+				'slug'     => $slug,
+				'behavior' => (string) ( $settings['disabled_behavior'] ?? '404' ),
+				'redirect' => (string) ( $settings['url_redirect'] ?? '' ),
+				'replaces' => array( 'wp-login' ),
+			),
+		);
+	}
+
 	protected function map( bool $active ): Mapping {
 		switch ( $this->slug ) {
 			case 'wps-hide-login':

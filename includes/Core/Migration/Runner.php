@@ -353,8 +353,16 @@ final class Runner {
 			return new \WP_Error( 'uxstudio_migration_no_snapshot', __( 'This run has no snapshot to restore.', 'ux-studio' ), array( 'status' => 404 ) );
 		}
 		if ( ! empty( $record['applied'] ) ) {
-			// The switch wrote prepared values and switched data on; the snapshot no longer describes the site.
-			return new \WP_Error( 'uxstudio_migration_applied', __( 'This run has already been switched on, so the snapshot no longer matches the site. Undo the switch first.', 'ux-studio' ), array( 'status' => 409 ) );
+			// The switch wrote prepared values and switched data on; the snapshot no longer describes the
+			// site. With the switch record at hand, undo the switch first, then roll back as usual.
+			if ( ! Switcher::has_switch( $run_id ) ) {
+				return new \WP_Error( 'uxstudio_migration_applied', __( 'This run has already been switched on, so the snapshot no longer matches the site. Undo the switch first.', 'ux-studio' ), array( 'status' => 409 ) );
+			}
+			$reverted = Switcher::revert( $run_id );
+			if ( is_wp_error( $reverted ) ) {
+				return $reverted;
+			}
+			$record = History::find( $run_id ) ?? $record;
 		}
 		if ( ! empty( $record['rolled_back'] ) ) {
 			return new \WP_Error( 'uxstudio_migration_rolled_back', __( 'This run was already rolled back.', 'ux-studio' ), array( 'status' => 409 ) );
@@ -364,6 +372,7 @@ final class Runner {
 		}
 		$result = Snapshot::rollback( $run_id );
 		Staging::discard( $run_id );
+		Preview::stop( $run_id );
 		if ( null === $result ) {
 			return new \WP_Error( 'uxstudio_migration_no_snapshot', __( 'This run has no snapshot to restore.', 'ux-studio' ), array( 'status' => 404 ) );
 		}
@@ -388,8 +397,15 @@ final class Runner {
 		foreach ( History::all() as $run ) {
 			$run['rollback_until'] = self::mysql_time( Snapshot::expires( (int) ( $run['started'] ?? 0 ) ) );
 			$run['staging']        = Staging::summary( (string) $run['id'] );
-			$run['can_rollback']   = ! empty( $run['snapshot'] ) && empty( $run['rolled_back'] ) && empty( $run['snapshot_purged'] ) && empty( $run['applied'] )
+			$run['switch_active']    = ! empty( $run['switched'] ) && empty( $run['switch_reverted'] );
+			$run['can_revert_switch'] = $run['switch_active'] && Switcher::can_revert( (string) $run['id'] );
+			$run['revert_until']     = $run['can_revert_switch'] ? self::mysql_time( (int) Switcher::record( (string) $run['id'] )['created'] + Switcher::KEEP_DAYS * DAY_IN_SECONDS ) : '';
+			$run['preview_ready']    = Preview::entry( (string) $run['id'] ) !== null;
+			$run['can_rollback']   = ! empty( $run['snapshot'] ) && empty( $run['rolled_back'] ) && empty( $run['snapshot_purged'] ) && ( empty( $run['applied'] ) || $run['can_revert_switch'] )
 				&& Snapshot::expires( (int) ( $run['started'] ?? 0 ) ) > time() && Snapshot::exists( (string) $run['id'] );
+			// The wizard only needs the totals of the test results, not every row.
+			$run['preview']     = isset( $run['preview'] ) ? array_intersect_key( (array) $run['preview'], array_flip( array( 'at', 'counts' ) ) ) : null;
+			$run['switch_live'] = isset( $run['switch_live'] ) ? Preview::counts( (array) $run['switch_live'] ) : null;
 			$out[]                 = $run;
 		}
 		return $out;

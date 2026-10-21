@@ -152,6 +152,7 @@ abstract class AbstractMetaSource extends AbstractSource implements Activatable 
 				'payload'  => array(
 					'meta'  => $item['meta'],
 					'extra' => $item['extra'] ?? null,
+					'type'  => $this->meta_type(),
 				),
 			);
 		}
@@ -241,4 +242,38 @@ abstract class AbstractMetaSource extends AbstractSource implements Activatable 
 		}
 		return $count;
 	}
+
+	/**
+	 * Undo of activate(): remove the meta the switch wrote (only when it still holds the value the
+	 * switch wrote, a value changed since then is the admin's and stays).
+	 */
+	public function deactivate( string $kind, array $ids, array $data = array() ): int {
+		if ( $kind !== $this->data_kind() ) {
+			return 0;
+		}
+		$count = 0;
+		foreach ( $ids as $id ) {
+			$payload = $data[ (string) $id ] ?? null;
+			if ( ! is_array( $payload ) || ! isset( $payload['meta'] ) ) {
+				continue;
+			}
+			foreach ( (array) $payload['meta'] as $key => $value ) {
+				if ( metadata_exists( $this->meta_type(), (int) $id, (string) $key )
+					&& (string) get_metadata( $this->meta_type(), (int) $id, (string) $key, true ) === (string) $value ) {
+					'user' === $this->meta_type() ? delete_user_meta( (int) $id, (string) $key ) : delete_post_meta( (int) $id, (string) $key );
+				}
+			}
+			$this->after_unwrite( (int) $id, array( 'extra' => $payload['extra'] ?? null ) );
+			++$count;
+		}
+		return $count;
+	}
+
+	/**
+	 * Called after the meta of an item was removed again (unschedule an event ...).
+	 *
+	 * @param int                  $id   Object id.
+	 * @param array<string, mixed> $item Item (with `extra`).
+	 */
+	protected function after_unwrite( int $id, array $item ): void {}
 }

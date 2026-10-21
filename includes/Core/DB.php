@@ -42,6 +42,10 @@ final class DB {
 	 * Upgrade path on normal boot (after plugin update).
 	 */
 	public static function maybe_upgrade(): void {
+		// A safe-preview request persists nothing (no repair, no schema upgrade).
+		if ( \UxStudio\Core\Migration\Preview::is_active() ) {
+			return;
+		}
 		// One-time settings key remap for sites migrated before the remaps existed.
 		Migrator::maybe_repair_settings();
 
@@ -88,7 +92,7 @@ final class DB {
 	 */
 	public static function ensure_module_tables( string $module_id, int $version, callable $migrator ): void {
 		$current = self::module_version( $module_id );
-		if ( $current >= $version ) {
+		if ( $current >= $version || \UxStudio\Core\Migration\Preview::is_active() ) {
 			return;
 		}
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';

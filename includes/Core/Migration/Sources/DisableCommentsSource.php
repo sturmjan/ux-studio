@@ -26,6 +26,24 @@ final class DisableCommentsSource extends AbstractSource {
 		return array( 'disable_comments_options' );
 	}
 
+	public function smoke_checks(): array {
+		$settings = (array) ( $this->mapping()->settings[ self::MODULE ] ?? array() );
+		if ( empty( $settings['disable_comments'] ) ) {
+			return array();
+		}
+		// With "selected types" the comment form only has to go from a post when posts are among them.
+		if ( 'selected' === ( $settings['disable_comments_scope'] ?? 'all' ) && ! in_array( 'post', (array) ( $settings['disable_comments_post_types'] ?? array() ), true ) ) {
+			return array();
+		}
+		return array(
+			array(
+				'id'    => 'comments',
+				'label' => __( 'Comments are disabled (no comment form on a post)', 'ux-studio' ),
+				'type'  => 'comment_form_absent',
+			),
+		);
+	}
+
 	protected function map( bool $active ): Mapping {
 		$m = new Mapping();
 		$o = $this->opt( 'disable_comments_options' );

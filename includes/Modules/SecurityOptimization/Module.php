@@ -1602,6 +1602,35 @@ final class Module extends BaseModule {
 	   ═══════════════════════════════════════════════════ */
 
 	/**
+	 * The hash of the last written `.htaccess` block changes with a switch.
+	 *
+	 * @return string[]
+	 */
+	public function switch_options(): array {
+		return array( HtaccessWriter::HASH_OPTION );
+	}
+
+	/**
+	 * What save_settings() does after storing, for the migration switch: rewrite the `.htaccess`
+	 * block (the hash is cleared first, so it is written even when the hash looks current) and sync
+	 * the country bans.
+	 */
+	public function after_migration_switch(): void {
+		parent::after_migration_switch();
+		delete_option( HtaccessWriter::HASH_OPTION );
+		delete_transient( self::HTACCESS_BACKOFF );
+		$writer   = $this->htaccess_writer();
+		$settings = $this->htaccess_settings();
+		if ( $writer->matches_file( $settings ) ) {
+			// Nothing to change in the file: leave it byte for byte as it is.
+			$writer->remember( $settings );
+		} else {
+			$this->maybe_update_htaccess();
+		}
+		$this->sync_country_blocklist();
+	}
+
+	/**
 	 * Remove this module's .htaccess block and unschedule its cron events.
 	 * May run on an instance that was never booted - reads settings only.
 	 * Data (tables, options, findings) is kept.

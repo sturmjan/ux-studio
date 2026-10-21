@@ -315,6 +315,24 @@ final class Staging {
 	}
 
 	/**
+	 * Put a run's entry back after the switch was undone: the values are prepared again and the run
+	 * no longer counts as applied.
+	 *
+	 * @param string               $run_id Run id.
+	 * @param array<string, mixed> $entry  The entry `apply()` consumed.
+	 */
+	public static function restore( string $run_id, array $entry ): void {
+		$run_id = Snapshot::clean_id( $run_id );
+		$all    = self::all();
+		if ( '' === $run_id || ! $entry ) {
+			return;
+		}
+		$all[ $run_id ] = $entry;
+		self::save( $all );
+		History::update( $run_id, array( 'applied' => 0 ) );
+	}
+
+	/**
 	 * Throw a run's staged values away (rollback). The inactive data itself is removed by the
 	 * snapshot restore of its tables.
 	 *
