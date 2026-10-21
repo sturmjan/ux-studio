@@ -6,6 +6,7 @@ import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
 import { TabsNav } from '../../app/SubNav';
+import { formatDate } from '../../app/date';
 
 type Tab = 'send' | 'subscribers' | 'segments' | 'analytics' | 'settings';
 
@@ -208,7 +209,7 @@ function SendTab(): JSX.Element {
 								<td>{ n.title }</td>
 								<td>
 									<span className={ `uxs-badge ${ n.status === 'sent' ? 'is-success' : '' }` }>{ statusLabel( n.status ) }</span>
-									{ n.status === 'scheduled' && n.scheduled_at ? <div style={ { fontSize: 12 } }>{ n.scheduled_at }</div> : null }
+									{ n.status === 'scheduled' && n.scheduled_at ? <div style={ { fontSize: 12 } }>{ formatDate( n.scheduled_at ) }</div> : null }
 								</td>
 								<td>{ n.status === 'sent' ? `${ n.delivered_count } / ${ n.sent_count }` : '—' }</td>
 								<td>
@@ -306,7 +307,7 @@ function SubscribersTab(): JSX.Element {
 			<tbody>
 				{ data.map( ( s ) => (
 					<tr key={ s.id }>
-						<td>{ s.created_at }</td>
+						<td>{ formatDate( s.created_at ) }</td>
 						<td>{ s.user_agent || '—' }</td>
 						<td>
 							{ s.segments.map( ( slug ) => (

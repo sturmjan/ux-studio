@@ -5,6 +5,7 @@ import { ArrowLeft, LoaderCircle, Wrench } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { TabsNav } from '../../app/SubNav';
+import { formatDate } from '../../app/date';
 
 type Tab = 'analyze' | 'history';
 
@@ -167,7 +168,7 @@ function HistoryTab(): JSX.Element {
 			<tbody>
 				{ data.map( ( row ) => (
 					<tr key={ row.id }>
-						<td>{ row.created_at }</td>
+						<td>{ formatDate( row.created_at ) }</td>
 						<td>{ row.score }</td>
 					</tr>
 				) ) }

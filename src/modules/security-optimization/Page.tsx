@@ -9,6 +9,7 @@ import { TopicSettings, inSections } from '../../app/TopicSettings';
 import { CspTab } from './CspTab';
 import { UploadGuardTab } from './UploadGuardTab';
 import { TabsNav } from '../../app/SubNav';
+import { formatDate } from '../../app/date';
 
 const MODULE = 'security-optimization';
 
@@ -187,7 +188,7 @@ function LoginAttemptsTab(): JSX.Element {
 									</span>
 								</td>
 								<td>{ row.locktime }</td>
-								<td>{ row.date }</td>
+								<td>{ formatDate( row.date ) }</td>
 								<td>
 									{ !! row.status && (
 										<button

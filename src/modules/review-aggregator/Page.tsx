@@ -6,6 +6,7 @@ import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
 import { TabsNav } from '../../app/SubNav';
+import { formatDate } from '../../app/date';
 
 type Tab = 'reviews' | 'stats' | 'settings';
 
@@ -153,7 +154,7 @@ function ReviewsTab(): JSX.Element {
 										) ) }
 									</td>
 									<td>{ review.text }</td>
-									<td>{ review.review_date ?? '' }</td>
+									<td>{ formatDate( review.review_date ) }</td>
 									<td>
 										<span className={ `uxs-badge ${ review.visible ? 'is-success' : '' }` }>
 											{ review.visible ? __( 'Yes', 'ux-studio' ) : __( 'No', 'ux-studio' ) }

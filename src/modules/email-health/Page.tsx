@@ -4,6 +4,7 @@ import { ArrowLeft, Check, LoaderCircle, Send } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { formatDate } from '../../app/date';
 
 interface HealthResult {
 	success: boolean;
@@ -32,7 +33,7 @@ function LastResult( { result }: { result: HealthResult | null | undefined } ): 
 				{ ' · ' }
 				{ __( 'Recipient:', 'ux-studio' ) } { result.recipient }
 				{ ' · ' }
-				{ __( 'Time:', 'ux-studio' ) } { result.tested_at }
+				{ __( 'Time:', 'ux-studio' ) } { formatDate( result.tested_at ) }
 			</span>
 			{ ! result.success && result.error ? (
 				<span className="uxs-form__help" style={ { display: 'block' } }>

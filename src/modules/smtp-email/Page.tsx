@@ -7,6 +7,7 @@ import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
 import { TopicSettings, withKeys } from '../../app/TopicSettings';
 import { TabsNav } from '../../app/SubNav';
+import { formatDate } from '../../app/date';
 
 type Tab = 'settings' | 'log';
 
@@ -191,7 +192,7 @@ function LogTable(): JSX.Element {
 				<tbody>
 					{ data.items.map( ( row ) => (
 						<tr key={ row.id }>
-							<td>{ row.created_at }</td>
+							<td>{ formatDate( row.created_at ) }</td>
 							<td>{ row.to_email }</td>
 							<td>{ row.subject }</td>
 							<td>

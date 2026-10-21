@@ -6,6 +6,7 @@ import { api } from '../../app/api';
 import { navigate } from '../../app/route';
 import { TopicSettings, inSections } from '../../app/TopicSettings';
 import { TabsNav } from '../../app/SubNav';
+import { formatDate } from '../../app/date';
 
 
 interface Subscriber {
@@ -61,7 +62,7 @@ function SubscribersTable(): JSX.Element {
 					<tbody>
 						{ data.map( ( row ) => (
 							<tr key={ row.id }>
-								<td>{ row.created_at }</td>
+								<td>{ formatDate( row.created_at ) }</td>
 								<td>{ row.email }</td>
 								<td>{ row.page_url }</td>
 							</tr>

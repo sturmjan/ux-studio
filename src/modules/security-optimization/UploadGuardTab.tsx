@@ -4,6 +4,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { Archive, Check, LoaderCircle, ScanSearch, Trash2 } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { TopicSettings, inSections } from '../../app/TopicSettings';
+import { formatDate } from '../../app/date';
 
 interface Finding {
 	id: number;
@@ -155,7 +156,7 @@ export function UploadGuardTab(): JSX.Element {
 					{ isRunning
 						? progress
 						: scanStatus.data?.stats.last_scan_at
-						? `${ __( 'Last scan:', 'ux-studio' ) } ${ scanStatus.data.stats.last_scan_at } · ${ __( 'files scanned:', 'ux-studio' ) } ${ scanStatus.data.stats.files_scanned ?? 0 } · ${ __( 'detections:', 'ux-studio' ) } ${ scanStatus.data.stats.detections_found ?? 0 }`
+						? `${ __( 'Last scan:', 'ux-studio' ) } ${ formatDate( scanStatus.data.stats.last_scan_at ) } · ${ __( 'files scanned:', 'ux-studio' ) } ${ scanStatus.data.stats.files_scanned ?? 0 } · ${ __( 'detections:', 'ux-studio' ) } ${ scanStatus.data.stats.detections_found ?? 0 }`
 						: __( 'No scan has run yet.', 'ux-studio' ) }
 				</p>
 			) }
@@ -223,7 +224,7 @@ export function UploadGuardTab(): JSX.Element {
 									) }
 								</td>
 								<td>{ row.status }</td>
-								<td>{ row.scanned_at ?? row.created_at }</td>
+								<td>{ formatDate( row.scanned_at ?? row.created_at ) }</td>
 								<td style={ { display: 'flex', gap: 'var(--uxs-sp-2)' } }>
 									{ row.status !== 'approved' && row.status !== 'deleted' && (
 										<button

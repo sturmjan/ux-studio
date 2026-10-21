@@ -10,6 +10,7 @@ import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { TopicSettings, withKeys } from '../../app/TopicSettings';
 import { TabsNav } from '../../app/SubNav';
+import { formatDate } from '../../app/date';
 
 type Tab = 'cache' | 'log' | 'settings';
 
@@ -99,7 +100,7 @@ function CacheTab(): JSX.Element {
 						{ ( rows ?? [] ).map( ( row ) => (
 							<tr key={ row.post_id }>
 								<td>{ row.title }</td>
-								<td>{ row.generated_at }</td>
+								<td>{ formatDate( row.generated_at ) }</td>
 								<td>
 									<button
 										type="button"
@@ -354,7 +355,7 @@ function LogTab(): JSX.Element {
 									<td>
 										<code>{ row.ip_address || '—' }</code>
 									</td>
-									<td>{ row.created_at }</td>
+									<td>{ formatDate( row.created_at ) }</td>
 								</tr>
 							) ) }
 						</tbody>

@@ -11,6 +11,7 @@ import { api } from '../../app/api';
 import { navigate } from '../../app/route';
 import { TopicSettings, withKeys } from '../../app/TopicSettings';
 import { TabsNav } from '../../app/SubNav';
+import { formatDate } from '../../app/date';
 
 type Tab = 'events' | 'schedules' | 'watch' | 'settings';
 
@@ -408,7 +409,7 @@ function WatchList( { title, entries, tone }: { title: string; entries: WatchEnt
 					{ entries.map( ( e ) => (
 						<tr key={ `${ e.hook }-${ e.next_run_ts }` }>
 							<td><code>{ e.hook }</code></td>
-							<td><small>{ e.next_run }</small></td>
+							<td><small>{ formatDate( e.next_run ) }</small></td>
 							<td>{ e.note }</td>
 							<td>
 								<code style={ { fontSize: '11px' } }>
@@ -456,7 +457,7 @@ function WatchView(): JSX.Element {
 			) : (
 				<>
 					<p className="uxs-form__help" style={ { marginTop: 0 } }>
-						{ __( 'Last scan:', 'ux-studio' ) } { data.scanned_at } · { data.total_events } { __( 'events', 'ux-studio' ) } ·{ ' ' }
+						{ __( 'Last scan:', 'ux-studio' ) } { formatDate( data.scanned_at ) } · { data.total_events } { __( 'events', 'ux-studio' ) } ·{ ' ' }
 						{ data.unknown.length } { __( 'unknown', 'ux-studio' ) } · { data.suspicious.length } { __( 'suspicious', 'ux-studio' ) }
 						{ data.autoremove ? ` · ${ __( 'auto-remove ON', 'ux-studio' ) }` : '' }
 					</p>

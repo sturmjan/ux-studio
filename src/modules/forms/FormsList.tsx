@@ -8,6 +8,7 @@ import { ArrowLeft, Archive, Copy, Inbox, LoaderCircle, Plus, Trash2 } from 'luc
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import type { FormListItem } from './types';
+import { formatDate } from '../../app/date';
 
 const STATUS_LABELS: Record< FormListItem[ 'status' ], string > = {
 	active: __( 'Active', 'ux-studio' ),
@@ -152,7 +153,7 @@ export default function FormsList( { onOpen }: { onOpen: ( id: number ) => void 
 											: form.submissions }
 									</button>
 								</td>
-								<td>{ form.updated_at }</td>
+								<td>{ formatDate( form.updated_at ) }</td>
 								<td>
 									<button
 										type="button"

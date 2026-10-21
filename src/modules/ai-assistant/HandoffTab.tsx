@@ -11,6 +11,7 @@ import { __ } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { LoaderCircle, Send, UserCheck, X } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
+import { formatDate } from '../../app/date';
 
 interface QueueItem {
 	id: number;
@@ -99,7 +100,7 @@ function QueueList( { selectedId, onSelect }: { selectedId: number | null; onSel
 			{ item.last_user_message ? <div className="uxs-handoff-queue-item__msg">{ item.last_user_message }</div> : null }
 			<div className="uxs-handoff-queue-item__meta">
 				{ ! isPending && item.assigned_to ? `${ item.assigned_to } · ` : '' }
-				{ isPending ? item.requested_at : item.last_message_at }
+				{ formatDate( isPending ? item.requested_at : item.last_message_at ) }
 			</div>
 		</button>
 	);

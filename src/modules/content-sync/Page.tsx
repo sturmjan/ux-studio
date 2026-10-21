@@ -7,6 +7,7 @@ import { navigate } from '../../app/route';
 import { useModuleSettings } from '../../app/SettingsForm';
 import { TopicSettings, withKeys } from '../../app/TopicSettings';
 import { TabsNav } from '../../app/SubNav';
+import { formatDate } from '../../app/date';
 
 type Tab = 'sites' | 'push' | 'remote' | 'log' | 'settings' | 'sso';
 
@@ -465,7 +466,7 @@ function RemoteTab(): JSX.Element {
 											<td>{ p.title || __( '(no title)', 'ux-studio' ) }</td>
 											<td>{ p.post_type }</td>
 											<td><StatusBadge status={ p.status } /></td>
-											<td>{ p.date }</td>
+											<td>{ formatDate( p.date ) }</td>
 											<td>
 												<button type="button" className="button" title={ __( 'Edit', 'ux-studio' ) } onClick={ () => edit.mutate( p.id ) }>
 													<Pencil size={ 14 } />
@@ -568,7 +569,7 @@ function LogTab(): JSX.Element {
 			<tbody>
 				{ data.map( ( row ) => (
 					<tr key={ row.id }>
-						<td>{ row.created_at }</td>
+						<td>{ formatDate( row.created_at ) }</td>
 						<td>{ row.site_name || ( row.site_id ? `#${ row.site_id }` : '—' ) }</td>
 						<td>{ row.action }</td>
 						<td>{ row.object_title || ( row.object_id ? `#${ row.object_id }` : '' ) }</td>

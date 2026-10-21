@@ -6,6 +6,7 @@ import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { TopicSettings, withKeys } from '../../app/TopicSettings';
 import { TabsNav } from '../../app/SubNav';
+import { formatDate } from '../../app/date';
 
 type Tab = 'notices' | 'categories' | 'subscribers';
 
@@ -351,8 +352,8 @@ function NoticesTab(): JSX.Element {
 							<tr key={ n.id }>
 								<td>{ n.title }</td>
 								<td>{ n.category || '—' }</td>
-								<td>{ n.publish_date || '—' }</td>
-								<td>{ n.expiry_date || '—' }</td>
+								<td>{ formatDate( n.publish_date ) || '—' }</td>
+								<td>{ formatDate( n.expiry_date ) || '—' }</td>
 								<td>{ n.attachments.length }</td>
 								<td>
 									<span className={ `uxs-badge ${ n.is_archived ? '' : 'is-success' }` }>
@@ -517,7 +518,7 @@ function SubscribersTab(): JSX.Element {
 			<tbody>
 				{ data.map( ( s ) => (
 					<tr key={ s.id }>
-						<td>{ s.created_at }</td>
+						<td>{ formatDate( s.created_at ) }</td>
 						<td>{ s.email }</td>
 						<td>{ s.categories.length > 0 ? s.categories.join( ', ' ) : __( 'All', 'ux-studio' ) }</td>
 						<td>

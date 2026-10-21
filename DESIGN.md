@@ -79,3 +79,12 @@ společném chunku - žádná duplikace knihoven.
   a zaoblení `--uxs-radius-s`. Malé tlačítko asi 32 px.
 - Výběry nestylovat zkratkou `background:` bez obrázku - šipku dodává globální pravidlo
   přes `background-image`; používat `background-color`.
+
+## 11. Data a časy (2026-10-21)
+
+- Datum z REST/DB (`2026-10-19 08:09:01`) se nikdy nevypisuje surově - vždy `formatDate()`
+  ze `src/app/date.ts`. Formát se řídí jazykem uživatele administrace (cs_CZ: `19. 10. 2026 8:09`).
+- Sloupce uložené v UTC (`gmdate`, např. CSP, DNS log) volat s `{ utc: true }`, hodnota
+  s příponou ` UTC` se pozná sama. Jen datum bez času: `{ dateOnly: true }`.
+- V PHP (e-maily, widgety na nástěnce) `mysql2date( get_option( 'date_format' ), … )` nebo
+  `wp_date()`, ne surový řetězec.

@@ -10,6 +10,7 @@ import { api } from '../../app/api';
 import { navigate } from '../../app/route';
 import { TopicSettings, withKeys } from '../../app/TopicSettings';
 import { TabsNav } from '../../app/SubNav';
+import { formatDate } from '../../app/date';
 
 type Tab = 'overview' | 'impact';
 
@@ -155,7 +156,7 @@ function OverviewTab(): JSX.Element {
 				<tbody>
 					{ ( log ?? [] ).map( ( row ) => (
 						<tr key={ row.id }>
-							<td>{ row.created_at }</td>
+							<td>{ formatDate( row.created_at ) }</td>
 							<td>{ row.url }</td>
 							<td>{ row.load_time_ms }</td>
 							<td>{ row.query_count }</td>
@@ -250,7 +251,7 @@ function ImpactTab(): JSX.Element {
 				<tbody>
 					{ ( data?.events ?? [] ).map( ( row ) => (
 						<tr key={ row.id }>
-							<td>{ row.created_at }</td>
+							<td>{ formatDate( row.created_at ) }</td>
 							<td>{ row.plugin_name }</td>
 							<td>{ row.event_type }</td>
 							<td>{ row.benchmark_before ?? '—' }</td>

@@ -6,6 +6,7 @@ import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { TopicSettings, withKeys } from '../../app/TopicSettings';
 import { TabsNav } from '../../app/SubNav';
+import { formatDate } from '../../app/date';
 
 type Tab = 'connection' | 'media' | 'feeds';
 
@@ -142,7 +143,7 @@ function ConnectionTab(): JSX.Element {
 					</p>
 					{ data.token_expires_at ? (
 						<p className="uxs-form__help">
-							{ __( 'Token expires:', 'ux-studio' ) } { data.token_expires_at } { __( '(auto-refreshed by cron)', 'ux-studio' ) }
+							{ __( 'Token expires:', 'ux-studio' ) } { formatDate( data.token_expires_at ) } { __( '(auto-refreshed by cron)', 'ux-studio' ) }
 						</p>
 					) : null }
 					<p className="uxs-form__help">

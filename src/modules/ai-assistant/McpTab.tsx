@@ -17,6 +17,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { Copy, KeyRound, LoaderCircle, Trash2 } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { useModuleSettings } from '../../app/SettingsForm';
+import { formatDate } from '../../app/date';
 
 interface JwtToken {
 	jti: string;
@@ -192,8 +193,8 @@ function TokensTable(): JSX.Element {
 					<tr key={ t.jti }>
 						<td><code>{ t.jti }</code></td>
 						<td>{ t.user }</td>
-						<td>{ t.issued_at }</td>
-						<td>{ t.expires_at }</td>
+						<td>{ formatDate( t.issued_at ) }</td>
+						<td>{ formatDate( t.expires_at ) }</td>
 						<td>
 							<button
 								type="button"

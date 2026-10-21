@@ -5,6 +5,7 @@ import { AlertTriangle, Check, CheckCheck, LoaderCircle, RefreshCw, ShieldAlert,
 import { api, queryClient } from '../../app/api';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
 import { pushToast } from '../../app/notify';
+import { formatDate } from '../../app/date';
 
 type Level = 'high' | 'medium' | 'unknown' | 'known' | 'self';
 type Mode = 'off' | 'audit' | 'report-only' | 'enforce';
@@ -590,7 +591,7 @@ export function CspTab(): JSX.Element {
 										<span className="uxs-badge is-warning">{ __( 'Waiting', 'ux-studio' ) }</span>
 									) }
 								</td>
-								<td>{ row.last_seen }</td>
+								<td>{ formatDate( row.last_seen, { utc: true } ) }</td>
 								<td>
 									<div style={ { display: 'flex', gap: 'var(--uxs-sp-2)' } }>
 									{ row.status !== 'resolved' && row.source !== '' && ! row.allowed && (

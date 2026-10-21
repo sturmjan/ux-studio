@@ -7,6 +7,7 @@ import { navigate } from '../../app/route';
 import { useModuleSettings } from '../../app/SettingsForm';
 import { TopicSettings, inSections } from '../../app/TopicSettings';
 import { TabsNav } from '../../app/SubNav';
+import { formatDate } from '../../app/date';
 
 type Tab = 'tasks' | 'hidden' | 'custom' | 'modules' | 'layout' | 'keys';
 
@@ -140,7 +141,7 @@ function ActivityList(): JSX.Element {
 			<tbody>
 				{ data.map( ( row, i ) => (
 					<tr key={ i }>
-						<td>{ row.created_at }</td>
+						<td>{ formatDate( row.created_at ) }</td>
 						<td>{ row.module }</td>
 						<td>{ row.action }</td>
 						<td>{ row.object_type ? `${ row.object_type } #${ row.object_id }` : '' }</td>
