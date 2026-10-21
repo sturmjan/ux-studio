@@ -10,6 +10,7 @@ namespace UxStudio;
 use UxStudio\Core\Admin;
 use UxStudio\Core\DB;
 use UxStudio\Core\GithubUpdater;
+use UxStudio\Core\Mcp\Bootstrap as McpBootstrap;
 use UxStudio\Core\Megamenu;
 use UxStudio\Core\Migration\ActivationGuard;
 use UxStudio\Core\Migration\Bootstrap as MigrationBootstrap;
@@ -52,6 +53,7 @@ final class Plugin {
 		( new Rest( $this->modules ) )->register();
 		ActivationGuard::register();
 		MigrationBootstrap::register();
+		McpBootstrap::register();
 
 		if ( is_admin() ) {
 			( new Admin( $this->modules ) )->register();

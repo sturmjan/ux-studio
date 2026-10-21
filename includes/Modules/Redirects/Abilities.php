@@ -25,6 +25,13 @@ final class Abilities {
 	private const CATEGORY = 'redirects';
 
 	/**
+	 * Definitions collected by ability() while the list is built.
+	 *
+	 * @var array<int, array<string, mixed>>
+	 */
+	private static array $defs = array();
+
+	/**
 	 * Hook registration (abilities API fires its own init actions).
 	 */
 	public static function register(): void {
@@ -55,7 +62,47 @@ final class Abilities {
 		if ( ! function_exists( 'wp_register_ability' ) ) {
 			return;
 		}
+		foreach ( self::definitions() as $def ) {
+			wp_register_ability(
+				self::CATEGORY . '/' . $def['slug'],
+				array(
+					'label'               => $def['label'],
+					'description'         => $def['description'],
+					'category'            => self::CATEGORY,
+					'input_schema'        => $def['schema'],
+					'execute_callback'    => static fn ( $input = null ): array => ( $def['callback'] )( is_array( $input ) ? $input : array() ),
+					'permission_callback' => static fn (): bool => current_user_can( 'manage_options' ),
+					'meta'                => array(
+						'show_in_rest' => true,
+						'public'       => true,
+						'mcp'          => array(
+							'public' => true,
+							'type'   => 'tool',
+						),
+						'annotations'  => $def['annotations'] + array( 'title' => $def['label'] ),
+					),
+				)
+			);
+		}
+	}
 
+	/**
+	 * The abilities as plain definitions (slug, label, description, schema, callback, annotations),
+	 * independent of the WordPress Abilities API, so the UX Studio MCP server can expose them on
+	 * WordPress versions that do not have it (it only arrived in 6.9).
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	public static function definitions(): array {
+		self::$defs = array();
+		self::build();
+		return self::$defs;
+	}
+
+	/**
+	 * Build the definitions (each ability() call appends one).
+	 */
+	private static function build(): void {
 		$rule_item = array(
 			'type'       => 'object',
 			'properties' => array(
@@ -223,7 +270,7 @@ final class Abilities {
 	}
 
 	/**
-	 * Register one ability.
+	 * Collect one ability definition.
 	 *
 	 * @param string                              $slug        Name without category.
 	 * @param string                              $label       Label.
@@ -244,25 +291,13 @@ final class Abilities {
 		if ( $required ) {
 			$schema['required'] = $required;
 		}
-		wp_register_ability(
-			self::CATEGORY . '/' . $slug,
-			array(
-				'label'               => $label,
-				'description'         => $description,
-				'category'            => self::CATEGORY,
-				'input_schema'        => $schema,
-				'execute_callback'    => static fn ( $input = null ): array => $callback( is_array( $input ) ? $input : array() ),
-				'permission_callback' => static fn (): bool => current_user_can( 'manage_options' ),
-				'meta'                => array(
-					'show_in_rest' => true,
-					'public'       => true,
-					'mcp'          => array(
-						'public' => true,
-						'type'   => 'tool',
-					),
-					'annotations'  => $annotations + array( 'title' => $label ),
-				),
-			)
+		self::$defs[] = array(
+			'slug'        => $slug,
+			'label'       => $label,
+			'description' => $description,
+			'schema'      => $schema,
+			'callback'    => $callback,
+			'annotations' => $annotations,
 		);
 	}
 }

@@ -1,1607 +1,771 @@
 [
  {
   "ctx": null,
-  "id": "No admin screens to look at.",
+  "id": "Modules, settings and migration from other plugins.",
   "refs": [
-   "includes/Core/Migration/Smoke.php:639"
+   "includes/Core/Mcp/Bootstrap.php:50"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "the preview did not take effect on this page",
+  "id": "Site overview",
   "refs": [
-   "includes/Core/Migration/Smoke.php:653"
+   "includes/Core/Mcp/CoreAbilities.php:39"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "server error",
+  "id": "List modules",
   "refs": [
-   "includes/Core/Migration/Smoke.php:658"
+   "includes/Core/Mcp/CoreAbilities.php:49"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "redirected (HTTP %d), the session was not accepted",
+  "id": "Get module settings",
   "refs": [
-   "includes/Core/Migration/Smoke.php:662"
+   "includes/Core/Mcp/CoreAbilities.php:63"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "List plugin overlaps",
+  "refs": [
+   "includes/Core/Mcp/CoreAbilities.php:73"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "CSP inventory",
+  "refs": [
+   "includes/Core/Mcp/CoreAbilities.php:83"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Query the Activity Log",
+  "refs": [
+   "includes/Core/Mcp/CoreAbilities.php:99"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Search the e-mail log",
+  "refs": [
+   "includes/Core/Mcp/CoreAbilities.php:116"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Enable a module",
+  "refs": [
+   "includes/Core/Mcp/CoreAbilities.php:133"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Disable a module",
+  "refs": [
+   "includes/Core/Mcp/CoreAbilities.php:146"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Update module settings",
+  "refs": [
+   "includes/Core/Mcp/CoreAbilities.php:156"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Ignore plugin overlaps",
+  "refs": [
+   "includes/Core/Mcp/CoreAbilities.php:171"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Show ignored overlaps again",
+  "refs": [
+   "includes/Core/Mcp/CoreAbilities.php:181"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "AI Assistant token (old)",
+  "refs": [
+   "includes/Core/Mcp/LegacyJwt.php:62"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Scan for migratable plugins",
+  "refs": [
+   "includes/Core/Mcp/MigrationAbilities.php:49"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Plan a migration",
+  "refs": [
+   "includes/Core/Mcp/MigrationAbilities.php:59"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Migration status",
+  "refs": [
+   "includes/Core/Mcp/MigrationAbilities.php:69"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Migration history",
+  "refs": [
+   "includes/Core/Mcp/MigrationAbilities.php:79"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Plan the switch",
+  "refs": [
+   "includes/Core/Mcp/MigrationAbilities.php:89"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Preview status",
+  "refs": [
+   "includes/Core/Mcp/MigrationAbilities.php:99"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Run a migration",
+  "refs": [
+   "includes/Core/Mcp/MigrationAbilities.php:110"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Verify a migration",
+  "refs": [
+   "includes/Core/Mcp/MigrationAbilities.php:124"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "End the safe preview",
+  "refs": [
+   "includes/Core/Mcp/MigrationAbilities.php:144"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Run smoke tests",
+  "refs": [
+   "includes/Core/Mcp/MigrationAbilities.php:154"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Switch a migration on",
+  "refs": [
+   "includes/Core/Mcp/MigrationAbilities.php:168"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Roll a migration back",
+  "refs": [
+   "includes/Core/Mcp/MigrationAbilities.php:198"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Give the token a name of up to 60 characters.",
+  "refs": [
+   "includes/Core/Mcp/Tokens.php:55"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Choose at least one scope.",
+  "refs": [
+   "includes/Core/Mcp/Tokens.php:58"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The token must expire in 1 to 90 days.",
+  "refs": [
+   "includes/Core/Mcp/Tokens.php:61"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Some IP addresses are not valid.",
+  "refs": [
+   "includes/Core/Mcp/Tokens.php:64"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The MCP server is now part of UX Studio itself and no longer depends on this module. Switch it on, create access tokens with their own permissions and copy the client configuration in Settings. The content tools of this module (posts, pages, media, shop, SEO) are offered to MCP clients while the module is enabled.",
+  "refs": [
+   "build/295.a870471d1a0caf081ee0.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Open MCP server settings",
+  "refs": [
+   "build/295.a870471d1a0caf081ee0.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Read access",
+  "refs": [
+   "build/index.84d9f56be4c28c89bacf.js:11"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "View modules, settings (never secrets), plugin overlaps, logs and the state of migrations.",
+  "refs": [
+   "build/index.84d9f56be4c28c89bacf.js:11"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Write access",
+  "refs": [
+   "build/index.84d9f56be4c28c89bacf.js:11"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Enable and disable modules, change module settings, manage redirects. Includes Read.",
+  "refs": [
+   "build/index.84d9f56be4c28c89bacf.js:11"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Migration access",
+  "refs": [
+   "build/index.84d9f56be4c28c89bacf.js:11"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Run, verify, preview and switch on migrations from other plugins, and undo them. Includes Read.",
+  "refs": [
+   "build/index.84d9f56be4c28c89bacf.js:11"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Admin access",
+  "refs": [
+   "build/index.84d9f56be4c28c89bacf.js:11"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Everything above, and the only scope that may set credentials. Also accepted by third party MCP adapters.",
+  "refs": [
+   "build/index.84d9f56be4c28c89bacf.js:11"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Run this in a terminal.",
+  "refs": [
+   "build/index.84d9f56be4c28c89bacf.js:11"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Add to claude_desktop_config.json (needs Node.js; mcp-remote connects the app to the server).",
+  "refs": [
+   "build/index.84d9f56be4c28c89bacf.js:11"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Add to ~/.cursor/mcp.json (or .cursor/mcp.json in a project).",
+  "refs": [
+   "build/index.84d9f56be4c28c89bacf.js:11"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Token created",
+  "refs": [
+   "build/index.84d9f56be4c28c89bacf.js:11"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Copy the token now.",
+  "refs": [
+   "build/index.84d9f56be4c28c89bacf.js:11"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "It is shown only once and cannot be displayed again. If you lose it, revoke it and create a new one.",
+  "refs": [
+   "build/index.84d9f56be4c28c89bacf.js:11"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Token",
+  "refs": [
+   "build/index.84d9f56be4c28c89bacf.js:11"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Connect a client",
+  "refs": [
+   "build/index.84d9f56be4c28c89bacf.js:11",
+   "build/index.84d9f56be4c28c89bacf.js:15"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Create token",
+  "refs": [
+   "build/index.84d9f56be4c28c89bacf.js:11",
+   "build/index.84d9f56be4c28c89bacf.js:13",
+   "build/index.84d9f56be4c28c89bacf.js:15"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "For example the client that will use it: \\\"Claude Code on my laptop\\\".",
+  "refs": [
+   "build/index.84d9f56be4c28c89bacf.js:11"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Scopes",
+  "refs": [
+   "build/index.84d9f56be4c28c89bacf.js:11",
+   "build/index.84d9f56be4c28c89bacf.js:13"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Valid for",
+  "refs": [
+   "build/index.84d9f56be4c28c89bacf.js:11"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%d days",
+  "refs": [
+   "build/index.84d9f56be4c28c89bacf.js:12"
   ],
   "comments": [
-   "#. translators: %d: HTTP status."
+   "#. translators: %d: number of days."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "refused in the preview (HTTP %d), but open on the current site",
+  "id": "A token always expires, after %d days at most.",
   "refs": [
-   "includes/Core/Migration/Smoke.php:673"
-  ],
-  "comments": [
-   "#. translators: %d: HTTP status."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "refused here already before the migration (the old plugins or the role limit it)",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:675"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "refused (HTTP %d)",
-  "refs": [
-   "includes/Core/Migration/Smoke.php:678"
+   "build/index.84d9f56be4c28c89bacf.js:13"
   ],
   "comments": [
-   "#. translators: %d: HTTP status."
+   "#. translators: %d: maximum number of days."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "%1$d of %2$d admin screens open for the administrator.",
+  "id": "Allowed IP addresses",
   "refs": [
-   "includes/Core/Migration/Smoke.php:692"
-  ],
-  "comments": [
-   "#. translators: 1: number of screens opened, 2: number of screens checked."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The item \\\"%1$s\\\" is hidden from %2$s in the plugin. The Menu Organizer always shows every item to users who can manage options, so it stays visible to them.",
-  "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:177"
-  ],
-  "comments": [
-   "#. translators: 1: menu item, 2: roles."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Group %d",
-  "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:210"
-  ],
-  "comments": [
-   "#. translators: %d: group number."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The groups of the old menu (the parts between its separators) become categories \\\"Group 1, 2 ...\\\" of the Menu Organizer, in the same order. Items the plugin does not know about land in \\\"Other\\\".",
-  "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:225"
+   "build/index.84d9f56be4c28c89bacf.js:13"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Menu",
+  "id": "Optional. One address or range (CIDR) per line. Empty = the token works from anywhere.",
   "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:228"
+   "build/index.84d9f56be4c28c89bacf.js:13"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The menu already has an arrangement (categories and order), so only the hidden items and the role limits were added to it.",
+  "id": "Whoever holds this token can make changes to the site as an administrator within these scopes. Store it like a password.",
   "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:236"
+   "build/index.84d9f56be4c28c89bacf.js:13"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Icons of these items (image, SVG or an icon that is not in the Menu Organizer set) are not transferred: %s.",
+  "id": "Creating…",
   "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:266"
-  ],
-  "comments": [
-   "#. translators: %s: menu items."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The rule that hides \\\"%s\\\" was not transferred: the migration never hides UX Studio, Plugins, Users or Settings from administrators, so that nobody locks themselves out.",
-  "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:297"
+   "build/index.84d9f56be4c28c89bacf.js:13"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The rule that limits \\\"%s\\\" to some roles was not transferred: it would have taken the screen away from the current user.",
+  "id": "No tokens yet.",
   "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:298"
+   "build/index.84d9f56be4c28c89bacf.js:13"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Menu: categories",
+  "id": "Last used",
   "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:323"
+   "build/index.84d9f56be4c28c89bacf.js:13"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Menu: order of categories",
+  "id": "IP addresses",
   "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:324"
+   "build/index.84d9f56be4c28c89bacf.js:13"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Menu: item to category",
+  "id": "old",
   "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:325"
+   "build/index.84d9f56be4c28c89bacf.js:13"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Menu: order of items",
+  "id": "expired",
   "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:326"
+   "build/index.84d9f56be4c28c89bacf.js:13"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Menu: renamed items",
+  "id": "never",
   "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:327"
+   "build/index.84d9f56be4c28c89bacf.js:13"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Menu: item icons",
+  "id": "any",
   "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:328"
+   "build/index.84d9f56be4c28c89bacf.js:13"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Menu: items limited to roles",
+  "id": "Revoke the token \\\"%s\\\"? Clients using it stop working immediately.",
   "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:329"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Menu: hidden items",
-  "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:330"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Menu: sub-items moved to the top level",
-  "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:331"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Menu: custom links",
-  "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:332"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The Menu Organizer only hides menu items. A page hidden from a role can still be opened with its address, whereas a plugin that changes capabilities blocks it. If the old plugin protected pages, check that before you switch.",
-  "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:343"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Admin Menu Editor, Adminimize and Adminify all write the same Menu Organizer configuration. If you migrate more than one of them, the one processed later overwrites the same parts of the earlier one.",
-  "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:344"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": " and %d more",
-  "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:389"
+   "build/index.84d9f56be4c28c89bacf.js:13"
   ],
   "comments": [
-   "#. translators: %d: how many more."
+   "#. translators: %s: token name."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Menu for the role \\\"%s\\\"",
+  "id": "%d tools offered",
   "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:534"
-  ],
-  "comments": [
-   "#. translators: %s: role name."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The plugin has no hidden items or role limits in its menu, so there is nothing to compare for this role.",
-  "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:541"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "%1$d menu items with a rule of the plugin agree, %2$d known differences (listed as not transferred).",
-  "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:544"
+   "build/index.84d9f56be4c28c89bacf.js:14"
   ],
   "comments": [
-   "#. translators: 1: number of menu items with a rule of the plugin on which both menus agree, 2: number of known differences."
+   "#. translators: %d: number of tools."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The old plugin and UX Studio disagree about: %s.",
+  "id": "Scope",
   "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:550"
-  ],
-  "comments": [
-   "#. translators: %s: menu items."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The administrator can still open Plugins, Users, Settings and UX Studio",
-  "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:573"
+   "build/index.84d9f56be4c28c89bacf.js:14"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The Dashboard Widgets module does not know these widgets yet, so they were not transferred. Open the dashboard once so the module learns them, then run the check again: %s.",
+  "id": "needs confirmation",
   "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:612"
-  ],
-  "comments": [
-   "#. translators: %s: widget ids."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The module \\\"%s\\\" is switched on together with Admin Customiser, because some settings belong to it.",
-  "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:630"
-  ],
-  "comments": [
-   "#. translators: %s: module name."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The plugin has no saved column settings, there is nothing to transfer.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminColumnsSource.php:165"
+   "build/index.84d9f56be4c28c89bacf.js:14"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "List columns: %s",
+  "id": "read only",
   "refs": [
-   "includes/Core/Migration/Sources/AdminColumnsSource.php:286"
-  ],
-  "comments": [
-   "#. translators: %s: content type."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Column types that UX Studio does not have (they are left out): %s. The module offers default columns, custom fields, taxonomies, the ID and the featured image.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminColumnsSource.php:298"
-  ],
-  "comments": [
-   "#. translators: %s: column types."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Custom field display types without an equivalent are shown as plain text: %s.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminColumnsSource.php:307"
-  ],
-  "comments": [
-   "#. translators: %s: value types."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "List screens the module does not cover (taxonomies, network screens): %s.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminColumnsSource.php:316"
-  ],
-  "comments": [
-   "#. translators: %s: list names."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Several layouts of one list or layouts limited to roles or users (Admin Columns Pro): only the first layout of each list is transferred, for everybody.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminColumnsSource.php:322"
+   "build/index.84d9f56be4c28c89bacf.js:14"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Sorting, filtering, inline editing and bulk editing set on the columns, saved search segments and the column set per user.",
+  "id": "MCP (Model Context Protocol) lets AI tools such as Claude Code, Claude Desktop or Cursor work with this site: list and switch modules, read settings and move settings over from other plugins with the migration wizard. Every call is recorded in the Activity Log.",
   "refs": [
-   "includes/Core/Migration/Sources/AdminColumnsSource.php:324"
+   "build/index.84d9f56be4c28c89bacf.js:14"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Native columns added by other plugins (SEO, shop ...) that you hid in Admin Columns stay visible: UX Studio knows only the WordPress columns.",
+  "id": "MCP server",
   "refs": [
-   "includes/Core/Migration/Sources/AdminColumnsSource.php:325"
+   "build/index.84d9f56be4c28c89bacf.js:14",
+   "build/index.84d9f56be4c28c89bacf.js:15"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Items with their own link (the item points somewhere else than WordPress made it): %s.",
+  "id": "Off by default. While it is off the endpoint does not exist and no token works.",
   "refs": [
-   "includes/Core/Migration/Sources/AdminifySource.php:180"
+   "build/index.84d9f56be4c28c89bacf.js:14"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Disable the MCP server",
+  "refs": [
+   "build/index.84d9f56be4c28c89bacf.js:14"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Enable the MCP server",
+  "refs": [
+   "build/index.84d9f56be4c28c89bacf.js:14"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Endpoint",
+  "refs": [
+   "build/index.84d9f56be4c28c89bacf.js:14"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Endpoint URL",
+  "refs": [
+   "build/index.84d9f56be4c28c89bacf.js:14"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Streamable HTTP, JSON-RPC over POST. Clients send the token as \\\"Authorization: Bearer\\\". At most %d calls per minute per token.",
+  "refs": [
+   "build/index.84d9f56be4c28c89bacf.js:15"
   ],
   "comments": [
-   "#. translators: %s: menu items."
+   "#. translators: %d: calls per minute."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Menu items hidden for single users or capabilities (the Menu Organizer only knows roles): %s.",
+  "id": "The WordPress MCP Adapter plugin is active too. It keeps working with admin tokens; this endpoint is the one that applies scopes.",
   "refs": [
-   "includes/Core/Migration/Sources/AdminifySource.php:187"
+   "build/index.84d9f56be4c28c89bacf.js:15"
   ],
-  "comments": [
-   "#. translators: %s: names."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Renamed, relinked, hidden or own sub-menu items (the Menu Organizer changes only top-level items): %s.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminifySource.php:194"
-  ],
-  "comments": [
-   "#. translators: %s: menu items."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The horizontal menu layout of Adminify (the Menu Organizer has its own horizontal layout built from categories, which is not the same).",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminifySource.php:200"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The footer text is still the one Adminify ships (\\\"Developed by WP Adminify\\\"), so it was not copied. Set your own in Admin Customiser.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminifySource.php:213"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The changed or removed \\\"Howdy\\\" greeting in the admin bar.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminifySource.php:216"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Hide notices only for users who are not administrators (UX Studio hides or tucks away notices for everybody).",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminifySource.php:221"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Removed sidebar widgets (widget types the plugin takes away from the Widgets screen).",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminifySource.php:235"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "its own admin interface (theme, colours, fonts, dark mode switch, favicons)",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminifySource.php:241"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "custom help tabs",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminifySource.php:244"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "custom list columns (set them up again in Admin Columns)",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminifySource.php:247"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "security, performance and redirect settings (UX Studio has its own modules for them, they are not read here)",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminifySource.php:250"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Not transferred from Adminify: %s.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminifySource.php:255"
-  ],
-  "comments": [
-   "#. translators: %s: list."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Adminify Pro modules (admin pages, redirects) are not transferred.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminifySource.php:260"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The plugin keeps only its defaults, there is nothing to transfer.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminifySource.php:266",
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:283"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The plugin has no per-role settings, there is nothing to transfer.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminimizeSource.php:97"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Sub-menu items hidden for a role (the Menu Organizer cannot hide a single sub-item, it appears when its parent appears): %s.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminimizeSource.php:175"
-  ],
-  "comments": [
-   "#. translators: %s: menu items."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The option \\\"Prevent page access\\\" blocks the hidden pages even when their address is typed in. UX Studio only hides the menu items, so those pages stay reachable by address.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminimizeSource.php:182"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The option for users with several roles (an item is hidden only when every role hides it) is not transferred: UX Studio shows an item when any role of the user may see it.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminimizeSource.php:185"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Hide the admin bar for roles",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminimizeSource.php:207",
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:194"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "\\\"%1$s\\\" is switched on for everybody in UX Studio, the plugin applied it only to some roles. %2$s lose it as well.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminimizeSource.php:225"
-  ],
-  "comments": [
-   "#. translators: 1: setting, 2: roles that lose the feature."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Items hidden in the screens of the admin that UX Studio has no setting for (or that the plugin hid only for roles other than administrators): %s.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminimizeSource.php:242"
-  ],
-  "comments": [
-   "#. translators: %s: list of items."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "front end",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminimizeSource.php:277"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Admin bar items UX Studio cannot hide, or can hide only for everybody and not for the roles named (the module hides: WordPress logo, updates, customize, comments, new): %s.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminimizeSource.php:286"
-  ],
-  "comments": [
-   "#. translators: %s: admin bar items."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The module hides dashboard widgets for every role, the plugin did it only for some roles. Roles that kept these widgets lose them: %s.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminimizeSource.php:321"
-  ],
-  "comments": [
-   "#. translators: %s: widgets."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Dashboard widgets hidden only for roles other than administrators (the module hides widgets for every role at once): %s.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminimizeSource.php:330"
-  ],
-  "comments": [
-   "#. translators: %s: widgets."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Hidden meta boxes and fields on the edit screens of posts, pages and other types (UX Studio has no setting for it).",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminimizeSource.php:344"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Hidden options on the screens for links, menus (appearance) and widgets.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminimizeSource.php:348"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "hidden admin footer",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminimizeSource.php:354"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "hidden admin header",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminimizeSource.php:355"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "changed user info in the admin bar",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminimizeSource.php:356"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "thickbox window size",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminimizeSource.php:357"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "full category list",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminimizeSource.php:358"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "dashboard redirect",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminimizeSource.php:359"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "redirect to the user profile",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminimizeSource.php:360"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "advice text in the footer",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminimizeSource.php:361"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Other tweaks of the plugin without an equivalent: %s.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminimizeSource.php:368"
-  ],
-  "comments": [
-   "#. translators: %s: list of tweaks."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Own CSS selectors the plugin hides (the \\\"own options\\\" fields).",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminimizeSource.php:372"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The plugin has no saved custom menu, there is nothing to transfer.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminMenuEditorSource.php:73"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "A required capability set for the item (the access level is changed in the plugin, so the page stays blocked for users without it, whereas UX Studio does not change capabilities): %s.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminMenuEditorSource.php:306"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Access rules for one user instead of a role (the Menu Organizer only knows roles): %s.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminMenuEditorSource.php:307"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The plugin grants a role access to an item that role would not have by itself (UX Studio never gives a role capabilities it lacks): %s.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminMenuEditorSource.php:308"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Renamed sub-menu items (the Menu Organizer renames only top-level items): %s.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminMenuEditorSource.php:309"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Sub-menu items moved under another parent: %s.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminMenuEditorSource.php:310"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Custom items without a usable link (HTML, JavaScript, empty address): %s.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminMenuEditorSource.php:311"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Hidden sub-menu items or sub-menu items hidden for a role (the Menu Organizer cannot hide a single sub-item, it appears when its parent appears): %s.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminMenuEditorSource.php:312"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Individual colours of menu items: %s.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminMenuEditorSource.php:313"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Items that open a page inside the admin (iframe, embedded page): %s.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminMenuEditorSource.php:314"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Menus kept always open: %s.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminMenuEditorSource.php:315"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Own CSS classes of menu items: %s.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminMenuEditorSource.php:316"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Which role sees an item is decided in the plugin by \\\"show for\\\" / \\\"hide for\\\" rules together with the role capabilities; UX Studio shows an item to the roles that remain after the rules are applied, and always to users who can manage options.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminMenuEditorSource.php:323"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Per-site menus of a multisite network, menu presets and the plugin's own tools (menu backup, import and export) are not transferred.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminMenuEditorSource.php:324"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "%d menu item belongs to a plugin that is no longer installed and was skipped.",
-  "refs": [
-   "includes/Core/Migration/Sources/AdminMenuEditorSource.php:329"
-  ],
-  "comments": [
-   "#. translators: %d: number of menu items."
-  ],
-  "plural": "%d menu items belong to plugins that are no longer installed and were skipped."
- },
- {
-  "ctx": null,
-  "id": "The login logo %s is not in the media library of this site, so no attachment could be linked. Upload it and choose it in the Admin Customiser settings.",
-  "refs": [
-   "includes/Core/Migration/Sources/LoginPressSource.php:62",
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:83"
-  ],
-  "comments": [
-   "#. translators: %s: file address."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The colour \\\"%1$s\\\" (%2$s) is not a plain hex colour and was not transferred.",
-  "refs": [
-   "includes/Core/Migration/Sources/LoginPressSource.php:90",
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:105"
-  ],
-  "comments": [
-   "#. translators: 1: setting, 2: value."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The separate messages for the lost password and registration screens (the module shows one message on every login screen).",
-  "refs": [
-   "includes/Core/Migration/Sources/LoginPressSource.php:109"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "background image",
-  "refs": [
-   "includes/Core/Migration/Sources/LoginPressSource.php:118",
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:119"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "background gallery",
-  "refs": [
-   "includes/Core/Migration/Sources/LoginPressSource.php:119"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "rotating background images",
-  "refs": [
-   "includes/Core/Migration/Sources/LoginPressSource.php:120"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "mobile background",
-  "refs": [
-   "includes/Core/Migration/Sources/LoginPressSource.php:121"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "background video",
-  "refs": [
-   "includes/Core/Migration/Sources/LoginPressSource.php:122"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "form background image",
-  "refs": [
-   "includes/Core/Migration/Sources/LoginPressSource.php:123"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "logo size",
-  "refs": [
-   "includes/Core/Migration/Sources/LoginPressSource.php:124",
-   "includes/Core/Migration/Sources/LoginPressSource.php:125",
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:122",
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:123"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "form width and padding",
-  "refs": [
-   "includes/Core/Migration/Sources/LoginPressSource.php:126",
-   "includes/Core/Migration/Sources/LoginPressSource.php:127"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "button hover colours",
-  "refs": [
-   "includes/Core/Migration/Sources/LoginPressSource.php:128",
-   "includes/Core/Migration/Sources/LoginPressSource.php:129",
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:125",
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:126"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "button border",
-  "refs": [
-   "includes/Core/Migration/Sources/LoginPressSource.php:130"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "custom \\\"Lost your password?\\\" text",
-  "refs": [
-   "includes/Core/Migration/Sources/LoginPressSource.php:131"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "footer copyright text",
-  "refs": [
-   "includes/Core/Migration/Sources/LoginPressSource.php:132"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "own CSS",
-  "refs": [
-   "includes/Core/Migration/Sources/LoginPressSource.php:133"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "shadows",
-  "refs": [
-   "includes/Core/Migration/Sources/LoginPressSource.php:134"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "button corner radius",
-  "refs": [
-   "includes/Core/Migration/Sources/LoginPressSource.php:135"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Login screen settings without a target in the module: %s.",
-  "refs": [
-   "includes/Core/Migration/Sources/LoginPressSource.php:144",
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:142"
-  ],
-  "comments": [
-   "#. translators: %s: list.",
-   "#. translators: %s: list of login screen settings."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "login with user name or e-mail",
-  "refs": [
-   "includes/Core/Migration/Sources/LoginPressSource.php:150"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "password field on registration",
-  "refs": [
-   "includes/Core/Migration/Sources/LoginPressSource.php:151"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "session length per role",
-  "refs": [
-   "includes/Core/Migration/Sources/LoginPressSource.php:152"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "automatic login after registration",
-  "refs": [
-   "includes/Core/Migration/Sources/LoginPressSource.php:153"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "privacy policy checkbox",
-  "refs": [
-   "includes/Core/Migration/Sources/LoginPressSource.php:154"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "custom error messages",
-  "refs": [
-   "includes/Core/Migration/Sources/LoginPressSource.php:155"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Behaviour settings of the plugin are not transferred (UX Studio keeps the login behaviour in Security Optimization): %s.",
-  "refs": [
-   "includes/Core/Migration/Sources/LoginPressSource.php:165"
-  ],
-  "comments": [
-   "#. translators: %s: list."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "LoginPress presets and templates are not transferred, only the values saved in the customizer.",
-  "refs": [
-   "includes/Core/Migration/Sources/LoginPressSource.php:169"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "full screen background",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:120"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "retina logo",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:121"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "space under the logo",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:124"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "link hover colour",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:127"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "privacy link colours",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:128",
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:129"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "hidden \\\"Lost your password\\\" links",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:130"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "hidden \\\"Back to the site\\\" link",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:131"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "own CSS of the login screen",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:132"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "own JavaScript of the login screen",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:133"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The option \\\"Hide WordPress logo and links\\\" also removes the WordPress links from the footer and changes the exit icon in the block editor; UX Studio only hides the WordPress logo in the admin bar.",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:150"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The admin bar logo of the plugin is an extra item with its own link and size; in UX Studio it replaces the WordPress logo icon (the link and the alt text are not transferred).",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:157"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The admin bar logo %s is not in the media library of this site, so no attachment could be linked.",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:161"
-  ],
-  "comments": [
-   "#. translators: %s: file address."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The footer is HTML in the plugin; only its text is transferred, links and formatting are lost.",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:170"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The footer link and the footer image are not transferred.",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:175"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The plugin empties the admin footer; UX Studio keeps the default footer text when no own text is set.",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:178"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The plugin only removed the WordPress update notice. UX Studio's \\\"hide admin notices\\\" moves every notice of the admin into a tray (nothing is deleted).",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:190"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The plugin hides the admin bar for everybody except its own \\\"administrators\\\" (chosen users); UX Studio hides it for all roles except the administrator role.",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:196"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The module hides dashboard widgets for every role at once; the plugin hid them only for some roles. These roles lose the widgets too: %s.",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:218"
-  ],
-  "comments": [
-   "#. translators: %s: role names."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The plugin hides dashboard widgets only for these roles, not for administrators (the module hides them for every role at once): %s.",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:225"
-  ],
-  "comments": [
-   "#. translators: %s: role names."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "%d custom welcome panel of the dashboard (text, page, Elementor or Beaver Builder template).",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:240"
-  ],
-  "comments": [
-   "#. translators: %d: number of panels."
-  ],
-  "plural": "%d custom welcome panels of the dashboard (text, page, Elementor or Beaver Builder templates)."
- },
- {
-  "ctx": null,
-  "id": "The own RSS widget of the dashboard.",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:245"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The changed title and icon of the dashboard page.",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:248"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "admin page title suffix",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:254"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "hidden WordPress version in the footer",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:255"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "text of the greeting in the admin bar",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:256"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "logo above the admin menu",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:257"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "developer icon",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:258"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "developer logo above the menu",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:259"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "own CSS of the admin",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:260"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "editor stylesheet",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:261"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "exit icon of the block editor",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:262"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "the plugin's own admin menu and admin bar editor",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:269"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Branding without a target in UX Studio: %s.",
-  "refs": [
-   "includes/Core/Migration/Sources/WhiteLabelCmsSource.php:274"
-  ],
-  "comments": [
-   "#. translators: %s: list of branding settings."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Partial match: check the list of what will not be transferred.",
-  "refs": [
-   "build/index.d9393f2199a7d0a56d7c.js:14"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Checked, you can tick it.",
-  "refs": [
-   "build/index.d9393f2199a7d0a56d7c.js:14"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Show the list",
-  "refs": [
-   "build/index.d9393f2199a7d0a56d7c.js:14"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "+ %d more",
-  "refs": [
-   "build/index.d9393f2199a7d0a56d7c.js:14"
-  ],
-  "comments": [
-   "#. translators: %d: how many more."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Menu by role",
-  "refs": [
-   "build/index.d9393f2199a7d0a56d7c.js:14"
-  ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Hidden now (old plugin)",
+  "id": "Access tokens",
   "refs": [
-   "build/index.d9393f2199a7d0a56d7c.js:14"
+   "build/index.84d9f56be4c28c89bacf.js:15"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Hidden after migration",
+  "id": "A token lets an AI client act on this site as an administrator, within its scopes. Give it only the scopes it needs, keep it secret and revoke it when it is no longer used.",
   "refs": [
-   "build/index.d9393f2199a7d0a56d7c.js:14"
+   "build/index.84d9f56be4c28c89bacf.js:15"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "No role has a menu item hidden, before or after.",
+  "id": "Replace YOUR_TOKEN with a token from above. A freshly created token is filled in for you when it is created.",
   "refs": [
-   "build/index.d9393f2199a7d0a56d7c.js:14"
+   "build/index.84d9f56be4c28c89bacf.js:15"
   ],
   "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Nothing is hidden, before or after, for: %s.",
-  "refs": [
-   "build/index.d9393f2199a7d0a56d7c.js:15"
-  ],
-  "comments": [
-   "#. translators: %s: role names."
-  ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Open the list of what is not transferred first.",
+  "id": "Includes the content tools of the AI Assistant module (posts, pages, media, shop, SEO).",
   "refs": [
-   "build/index.d9393f2199a7d0a56d7c.js:33"
+   "build/index.84d9f56be4c28c89bacf.js:15"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Tick the plugins whose settings should be copied. Inactive plugins can be migrated too. Open \\\"What moves over\\\" to see exactly what is and is not transferred. Partial matches can only be ticked once you have opened that list.",
+  "id": "Content tools (posts, pages, media) appear here when the AI Assistant module is enabled.",
   "refs": [
-   "build/index.d9393f2199a7d0a56d7c.js:33"
+   "build/index.84d9f56be4c28c89bacf.js:15"
   ],
   "comments": [],
   "plural": null

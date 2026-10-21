@@ -1,0 +1,79 @@
+/* ============================================================
+   MCP server screen (src/app/McpSettings.tsx, PLAN.md 26.6).
+   Only --uxs-* tokens, so light and dark mode follow.
+   ============================================================ */
+
+.uxs-mcp {
+	max-width: 1000px;
+
+	.uxs-group__item { margin-bottom: var(--uxs-sp-5); }
+	.uxs-tile__name { color: var(--uxs-text); margin: 0 0 var(--uxs-sp-1); font-size: var(--uxs-fs-m); }
+	.uxs-tile__desc { color: var(--uxs-text-soft); }
+	.uxs-section-title { margin-top: var(--uxs-sp-6); }
+	.uxs-form__help { color: var(--uxs-text-soft); font-size: var(--uxs-fs-s); margin: var(--uxs-sp-2) 0; }
+	code { font-size: var(--uxs-fs-s); background: var(--uxs-surface-2); border-radius: var(--uxs-radius-s); padding: 1px 6px; color: var(--uxs-text); }
+}
+
+.uxs-mcp-warn {
+	max-width: none;
+	margin: var(--uxs-sp-3) 0 var(--uxs-sp-4);
+
+	p { margin: 0; }
+	svg { vertical-align: -2px; margin-right: var(--uxs-sp-1); color: var(--uxs-warning); }
+}
+
+.uxs-mcp-actions { margin: 0 0 var(--uxs-sp-4); }
+
+.uxs-mcp-badges { display: inline-flex; flex-wrap: wrap; gap: var(--uxs-sp-1); }
+
+/* Read-only field next to a copy button. */
+.uxs-mcp-token {
+	display: flex;
+	gap: var(--uxs-sp-3);
+	align-items: center;
+	margin: var(--uxs-sp-3) 0;
+
+	input {
+		flex: 1 1 auto;
+		min-width: 0;
+		font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+		font-size: var(--uxs-fs-s);
+		background: var(--uxs-surface);
+		color: var(--uxs-text);
+		border: 1px solid var(--uxs-border);
+		border-radius: var(--uxs-radius-s);
+		padding: var(--uxs-sp-3) var(--uxs-sp-4);
+	}
+}
+
+.uxs-mcp-code {
+	background: var(--uxs-surface-2);
+	color: var(--uxs-text);
+	border: 1px solid var(--uxs-border);
+	border-radius: var(--uxs-radius-s);
+	padding: var(--uxs-sp-4);
+	margin: var(--uxs-sp-3) 0;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: var(--uxs-fs-s);
+	line-height: 1.5;
+	white-space: pre-wrap;
+	word-break: break-all;
+	max-height: 260px;
+	overflow: auto;
+}
+
+.uxs-mcp-scopes { display: flex; flex-direction: column; gap: var(--uxs-sp-3); }
+.uxs-mcp-scope { display: flex; flex-direction: column; gap: var(--uxs-sp-1); }
+.uxs-mcp-scope .uxs-form__help { margin: 0 0 0 28px; }
+
+.uxs-mcp-modal {
+	max-width: 720px;
+
+	h3 { margin: var(--uxs-sp-4) 0 var(--uxs-sp-2); font-size: var(--uxs-fs-m); color: var(--uxs-text); }
+	.uxs-form__row { padding: var(--uxs-sp-3) 0; }
+	textarea { width: 100%; box-sizing: border-box; }
+}
+
+.uxs-mcp-abilities {
+	summary { cursor: pointer; font-weight: 600; margin-bottom: var(--uxs-sp-3); color: var(--uxs-text); }
+}

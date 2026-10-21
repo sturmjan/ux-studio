@@ -1,8 +1,8 @@
 <?php
 /**
  * Registers every MCP tool/resource ability for the AI Assistant module.
- * Called from McpBootstrap::register_abilities(), only when "mcp_enabled" is
- * on and the WP Abilities API is available.
+ * Called from McpBootstrap::register_abilities(), only while the MCP server
+ * (core setting) is on and the WP Abilities API is available.
  *
  * @package UxStudio
  */
