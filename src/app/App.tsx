@@ -203,10 +203,14 @@ export function App(): JSX.Element {
 						{ '' === item.route && ! treeGroup && current ? (
 							<div className="uxs-tree" role="group" aria-label={ current.name }>
 								<span className="uxs-tree__group">
-									<ModuleIcon name={ current.icon } size={ 14 } />
+									<span className="uxs-tree__icon">
+										<ModuleIcon name={ current.icon } size={ 20 } />
+									</span>
 									{ current.name }
 								</span>
-								<div ref={ setSubNavSlot } className="uxs-subnav" />
+								<div className="uxs-tree__children">
+									<div ref={ setSubNavSlot } className="uxs-subnav" />
+								</div>
 							</div>
 						) : null }
 						{ '' === item.route && treeGroup ? (
@@ -219,9 +223,12 @@ export function App(): JSX.Element {
 										navigate( 'module', { id: treeGroup.id } );
 									} }
 								>
-									<ModuleIcon name={ treeGroup.icon } size={ 14 } />
+									<span className="uxs-tree__icon">
+										<ModuleIcon name={ treeGroup.icon } size={ 20 } />
+									</span>
 									{ treeGroup.name }
 								</a>
+								<div className="uxs-tree__children">
 								{ treeFeatures.map( ( f ) => {
 									const views = FEATURE_VIEWS[ f.id ] ?? [];
 									const featureActive = f.id === treeActive;
@@ -251,6 +258,7 @@ export function App(): JSX.Element {
 										</div>
 									);
 								} ) }
+								</div>
 							</div>
 						) : null }
 					</div>
