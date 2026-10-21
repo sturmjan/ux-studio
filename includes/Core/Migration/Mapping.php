@@ -18,7 +18,7 @@ final class Mapping {
 	/** @var array<string, array<string, mixed>> Module id => key => raw value. */
 	public array $settings = array();
 
-	/** @var array<string, array{value:string,label:string}> Secret option => value. */
+	/** @var array<string, array{value:string,label:string,module:string}> Secret option => value (`module` = the module that reads it, decides direct write vs staging). */
 	public array $secrets = array();
 
 	/** @var array<int, array{module:string,key:string,label:string,value:string,secret:bool,origin:string}> */
@@ -62,11 +62,13 @@ final class Mapping {
 	 * @param string $value  Plain value.
 	 * @param string $label  Translated label.
 	 * @param string $origin Origin of the value.
+	 * @param string $module Module that reads the secret; empty = the source's target module.
 	 */
-	public function secret( string $option, string $value, string $label, string $origin = '' ): self {
+	public function secret( string $option, string $value, string $label, string $origin = '', string $module = '' ): self {
 		$this->secrets[ $option ] = array(
-			'value' => $value,
-			'label' => $label,
+			'value'  => $value,
+			'label'  => $label,
+			'module' => $module,
 		);
 		$this->items[]            = array(
 			'module' => '',

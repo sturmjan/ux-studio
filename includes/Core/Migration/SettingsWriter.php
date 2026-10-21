@@ -18,6 +18,10 @@ defined( 'ABSPATH' ) || exit;
  * side effects (Security Optimization rewrites the .htaccess block, syncs country
  * bans, provisions CAPTCHA keys) and the migration must stay a pure settings copy
  * until the module is switched on in a later, confirmed step.
+ *
+ * A DISABLED target module cannot act on its option, so the values are written there. An
+ * ENABLED one would act on them at once (custom login URL next to the old login plugin =
+ * lockout), so they go to the Staging area and `Staging::apply()` writes them at the switch.
  */
 final class SettingsWriter {
 
@@ -97,16 +101,22 @@ final class SettingsWriter {
 				);
 				continue;
 			}
+			$live             = (array) get_option( self::option_name( $module ), array() );
 			$clean[ $module ] = array(
 				'values'   => Settings::clean( $input, $schema ),
-				'stored'   => (array) get_option( self::option_name( $module ), array() ),
+				'live'     => $live,
+				// What the site will have: the live option with the values already prepared by earlier runs on top.
+				'stored'   => array_merge( $live, Staging::pending_settings( $module ) ),
 				'defaults' => self::defaults( $schema ),
+				'enabled'  => Staging::module_enabled( $module ),
 			);
 		}
 		foreach ( $mapping->items as $item ) {
 			if ( $item['secret'] ) {
-				$current = Security::get_secret( (string) $item['key'] );
+				$live    = Security::get_secret( (string) $item['key'] );
+				$current = Staging::pending_secret( (string) $item['key'] ) ?? $live;
 				$new     = $mapping->secrets[ $item['key'] ]['value'] ?? '';
+				$smodule = (string) ( $mapping->secrets[ $item['key'] ]['module'] ?? '' );
 				$items[] = array(
 					'module'  => '',
 					'key'     => $item['key'],
@@ -117,6 +127,7 @@ final class SettingsWriter {
 					'changed' => '' !== $new && $current !== $new,
 					'write'   => '' !== $new && $current !== $new,
 					'dropped' => false,
+					'staged'  => '' !== $new && Staging::module_enabled( $smodule ) && $live !== $new,
 					'origin'  => $item['origin'],
 					'target'  => $item['key'],
 				);
@@ -132,6 +143,8 @@ final class SettingsWriter {
 			$current = $has ? $stored[ $key ] : ( $clean[ $module ]['defaults'][ $key ] ?? null );
 			$exists  = array_key_exists( $key, $clean[ $module ]['values'] );
 			$new     = $exists ? $clean[ $module ]['values'][ $key ] : null;
+			$live    = $clean[ $module ]['live'];
+			$live_v  = array_key_exists( $key, $live ) ? $live[ $key ] : ( $clean[ $module ]['defaults'][ $key ] ?? null );
 			$items[] = array(
 				'module'  => $module,
 				'key'     => $key,
@@ -142,6 +155,8 @@ final class SettingsWriter {
 				'changed' => $exists && ! Mapping::same( $current, $new ),
 				'write'   => $exists && ( ! $has || ! Mapping::same( $stored[ $key ], $new ) ),
 				'dropped' => ! $exists || ! Mapping::same( $mapping->settings[ $module ][ $key ], $new ),
+				// The module is on and the live value differs: the new value waits in the staging area.
+				'staged'  => $exists && $clean[ $module ]['enabled'] && ! Mapping::same( $live_v, $new ),
 				'origin'  => $item['origin'],
 				'target'  => self::option_name( $module ) . ':' . $key,
 			);
@@ -155,27 +170,37 @@ final class SettingsWriter {
 	/**
 	 * Write a mapping. Secrets go through Security::store_secret, and only when the
 	 * value differs (a fresh IV on every call would make a re-run look like a change).
+	 * Values for a module that is switched ON go to the staging area instead of the live option.
 	 *
 	 * @param Mapping $mapping Collected mapping.
-	 * @return array{items:array<int,array<string,mixed>>,errors:string[],written:int,unchanged:int}
+	 * @param string  $run_id  Run that writes (the staging entry is keyed by it).
+	 * @return array{items:array<int,array<string,mixed>>,errors:string[],written:int,unchanged:int,staged:int}
 	 */
-	public static function apply( Mapping $mapping ): array {
+	public static function apply( Mapping $mapping, string $run_id = '' ): array {
 		$preview = self::preview( $mapping );
 		$written = 0;
+		$staged  = 0;
+		$run_id  = '' !== Snapshot::clean_id( $run_id ) ? $run_id : 'rnorun';
 
 		foreach ( $mapping->settings as $module => $input ) {
 			$schema = self::schema( $module );
 			if ( null === $schema ) {
 				continue;
 			}
-			$needs = false;
+			$keys = array();
 			foreach ( $preview['items'] as $row ) {
 				if ( $row['module'] === $module && $row['write'] ) {
-					$needs = true;
+					$keys[] = (string) $row['key'];
 					++$written;
 				}
 			}
-			if ( $needs ) {
+			if ( ! $keys ) {
+				continue;
+			}
+			if ( Staging::module_enabled( (string) $module ) ) {
+				Staging::put_settings( $run_id, (string) $module, array_intersect_key( Settings::clean( $input, $schema ), array_flip( $keys ) ) );
+				$staged += count( $keys );
+			} else {
 				( new Settings( self::option_name( $module ) ) )->save( $input, $schema );
 			}
 		}
@@ -183,10 +208,17 @@ final class SettingsWriter {
 			if ( '' === $secret['value'] ) {
 				continue;
 			}
-			if ( Security::get_secret( $option ) !== $secret['value'] ) {
-				Security::store_secret( $option, $secret['value'] );
-				++$written;
+			$current = Staging::pending_secret( $option ) ?? Security::get_secret( $option );
+			if ( $current === $secret['value'] ) {
+				continue;
 			}
+			if ( Staging::module_enabled( (string) ( $secret['module'] ?? '' ) ) && Security::get_secret( $option ) !== $secret['value'] ) {
+				Staging::put_secret( $run_id, (string) $secret['module'], $option, $secret['value'] );
+				++$staged;
+			} else {
+				Security::store_secret( $option, $secret['value'] );
+			}
+			++$written;
 		}
 
 		return array(
@@ -194,6 +226,7 @@ final class SettingsWriter {
 			'errors'    => $preview['errors'],
 			'written'   => $written,
 			'unchanged' => max( 0, count( $preview['items'] ) - $written ),
+			'staged'    => $staged,
 		);
 	}
 
@@ -208,7 +241,7 @@ final class SettingsWriter {
 		foreach ( self::preview( $mapping )['items'] as $row ) {
 			$id = $row['target'];
 			if ( $row['secret'] ) {
-				$stored   = Security::get_secret( (string) $row['key'] );
+				$stored   = Staging::pending_secret( (string) $row['key'] ) ?? Security::get_secret( (string) $row['key'] );
 				$expected = $mapping->secrets[ $row['key'] ]['value'] ?? '';
 				if ( '' === $expected ) {
 					$checks[] = array(
@@ -224,7 +257,10 @@ final class SettingsWriter {
 					'id'     => $id,
 					'label'  => $row['label'],
 					'ok'     => $ok,
-					'detail' => $ok ? __( 'The key is stored encrypted.', 'ux-studio' ) : __( 'The key is not stored in UX Studio.', 'ux-studio' ),
+					'staged' => $ok && $row['staged'],
+					'detail' => $ok
+						? ( $row['staged'] ? __( 'The key is prepared encrypted, it takes effect after the switch.', 'ux-studio' ) : __( 'The key is stored encrypted.', 'ux-studio' ) )
+						: __( 'The key is not stored in UX Studio.', 'ux-studio' ),
 				);
 				continue;
 			}
@@ -241,12 +277,13 @@ final class SettingsWriter {
 				);
 				continue;
 			}
-			$stored = (array) get_option( self::option_name( (string) $row['module'] ), array() );
+			$stored = array_merge( (array) get_option( self::option_name( (string) $row['module'] ), array() ), Staging::pending_settings( (string) $row['module'] ) );
 			$ok     = array_key_exists( $row['key'], $stored ) && ! $row['write'];
 			$checks[] = array(
 				'id'     => $id,
 				'label'  => $row['label'],
 				'ok'     => $ok,
+				'staged' => $ok && $row['staged'],
 				'detail' => $ok
 					? $row['to']
 					: sprintf(

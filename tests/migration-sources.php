@@ -78,6 +78,7 @@ function add_option( $name, $value = '', $dep = '', $autoload = null ) {
 }
 function delete_option( $name ) { unset( $GLOBALS['uxs_options'][ $name ] ); return true; }
 function apply_filters( $hook, $value, ...$args ) { return $value; }
+function do_action( $hook, ...$args ) { $GLOBALS['uxs_actions'][] = $hook; }
 function __( $text, $domain = '' ) { return $text; }
 function is_wp_error( $x ) { return $x instanceof WP_Error; }
 function current_time( $type ) { return '2026-10-21 12:00:00'; }
@@ -124,6 +125,7 @@ use UxStudio\Core\Migration\Runner;
 use UxStudio\Core\Migration\SettingsWriter;
 use UxStudio\Core\Migration\Snapshot;
 use UxStudio\Core\Migration\SourceRegistry;
+use UxStudio\Core\Migration\Staging;
 use UxStudio\Core\Security;
 
 $failures = 0;
@@ -534,6 +536,71 @@ $assert( 'rollback after purge is refused', is_wp_error( $gone ) );
 // Unknown / empty input.
 $assert( 'unknown source id is rejected', is_wp_error( Runner::start( array( 'nonsense' ), true ) ) && is_wp_error( Runner::start( array(), true ) ) );
 $assert( 'run ids are cleaned before they reach an option name', 'rabc123' === Snapshot::clean_id( 'rAbC1../23;' ) );
+
+/* ── Staging: target module already ENABLED ── */
+
+$site(
+	array( 'wps-hide-login', 'simple-cloudflare-turnstile' ),
+	array( 'wps-hide-login', 'simple-cloudflare-turnstile' ),
+	array(
+		'whl_page' => 'tajne', 'cfturnstile_key' => 'K9', 'cfturnstile_secret' => 'S3CRETX', 'cfturnstile_login' => 'on',
+		'uxstudio_active_modules' => array( 'activity-log', 'security-optimization' ),
+		'uxstudio_security_optimization' => array( 'login_url_enabled' => false, 'login_url' => '', 'max_attempts' => 9 ),
+	)
+);
+$live_before = $GLOBALS['uxs_options']['uxstudio_security_optimization'];
+$p = SourceRegistry::get( 'wps-hide-login' )->plan();
+$assert( 'staging: plan rows are marked staged and the warning says "prepared"', ! empty( $p['transfer'][0]['staged'] ) && false !== strpos( implode( ' ', $p['warnings'] ), 'only prepared' ), json_encode( $p['warnings'] ) );
+$run = Runner::start( array( 'wps-hide-login', 'simple-cloudflare-turnstile' ), false );
+Runner::step();
+$done = Runner::step();
+$rid  = $run['id'];
+$assert( 'staging: live module option is UNCHANGED while the module is on', $GLOBALS['uxs_options']['uxstudio_security_optimization'] === $live_before, json_encode( $GLOBALS['uxs_options']['uxstudio_security_optimization'] ) );
+$assert( 'staging: secret option was not written to the live secret', '' === Security::get_secret( 'uxstudio_secret_security_optimization_captcha_secret_key' ) );
+$entry = Staging::entry( $rid );
+$assert( 'staging: values wait in the staging area (login url, captcha keys)', 'tajne' === ( $entry['settings']['security-optimization']['login_url'] ?? null ) && true === $entry['settings']['security-optimization']['login_url_enabled'] && 'K9' === $entry['settings']['security-optimization']['captcha_site_key'], json_encode( $entry ) );
+$assert( 'staging: secret is sealed, never plain text', isset( $entry['secrets'] ) && 1 === count( $entry['secrets'] ) && false === strpos( json_encode( $GLOBALS['uxs_options'][ Staging::OPTION ] ), 'S3CRETX' ) && 'S3CRETX' === Staging::pending_secret( 'uxstudio_secret_security_optimization_captcha_secret_key' ) );
+$assert( 'staging: Runner counts staged values per source and in history', $done['per_source']['wps-hide-login']['staged'] > 0 && History::all()[0]['sources'][0]['staged'] > 0 && Staging::summary( $rid )['settings'] > 0, json_encode( array( $done['per_source']['wps-hide-login']['staged'] ?? null, History::all()[0]['sources'] ?? null, Staging::summary( $rid ) ) ) );
+$ver = Runner::verify();
+$all_ok = true; $staged_flag = false;
+foreach ( $ver as $checks ) { foreach ( $checks as $c ) { $all_ok = $all_ok && $c['ok']; $staged_flag = $staged_flag || ! empty( $c['staged'] ); } }
+$assert( 'staging: verify compares source with the staged values (ok + staged flag)', $all_ok && $staged_flag, json_encode( $ver ) );
+$snap_opts = $snapshot_options();
+$second = SourceRegistry::get( 'wps-hide-login' )->migrate( array( 'run_id' => 'rsecond' ), false );
+$assert( 'staging: a second run writes and stages nothing new (idempotent)', 0 === $second['written'] && 0 === $second['staged'] && $snap_opts === $snapshot_options() && null === Staging::entry( 'rsecond' ) );
+
+$res = Staging::apply( $rid );
+$sec = $GLOBALS['uxs_options']['uxstudio_security_optimization'];
+$assert( 'Staging::apply writes the values into the live option and keeps foreign keys', true === $sec['login_url_enabled'] && 'tajne' === $sec['login_url'] && 9 === $sec['max_attempts'] && $res['settings'] > 0 && 1 === $res['secrets'], json_encode( $res ) );
+$assert( 'Staging::apply stores the secret encrypted for the module', 'S3CRETX' === Security::get_secret( 'uxstudio_secret_security_optimization_captcha_secret_key' ) && str_starts_with( (string) $opt( 'uxstudio_secret_security_optimization_captcha_secret_key' ), 'uxs1:' ) );
+$assert( 'Staging::apply removes the entry, marks the history and announces itself', null === Staging::entry( $rid ) && ! empty( History::find( $rid )['applied'] ) && in_array( 'uxstudio_migration_staged_applied', $GLOBALS['uxs_actions'], true ) && ! array_key_exists( Staging::OPTION, $GLOBALS['uxs_options'] ) );
+$again = Staging::apply( $rid );
+$assert( 'Staging::apply is idempotent (second call does nothing)', 0 === $again['settings'] && 0 === $again['secrets'] );
+$ver = Runner::verify();
+$assert( 'verify after apply: ok and no longer staged', array() === array_filter( $ver, static fn( $checks ) => array_filter( $checks, static fn( $c ) => ! $c['ok'] || ! empty( $c['staged'] ) ) ) );
+
+// Discard (rollback) path.
+$site(
+	array( 'wps-hide-login' ), array( 'wps-hide-login' ),
+	array( 'whl_page' => 'jina', 'uxstudio_active_modules' => array( 'activity-log', 'security-optimization' ), 'uxstudio_security_optimization' => array( 'max_attempts' => 9 ) )
+);
+$before = $snapshot_options();
+$run    = Runner::start( array( 'wps-hide-login' ), false );
+Runner::step();
+$rid = $run['id'];
+$assert( 'staging (rollback case): something is staged', Staging::summary( $rid )['settings'] > 0 );
+$rb = Runner::rollback( $rid );
+$assert( 'rollback discards the staged values; options are as before', ! is_wp_error( $rb ) && null === Staging::entry( $rid ) && array_diff_key( $snapshot_options(), $own ) === $before );
+$assert( 'Staging::discard of an unknown run is harmless', false === Staging::discard( 'rnope' ) );
+
+// Disabled target module: direct write, nothing staged.
+$site( array( 'wps-hide-login' ), array( 'wps-hide-login' ), array( 'whl_page' => 'prima' ) );
+SourceRegistry::get( 'wps-hide-login' )->migrate( array( 'run_id' => 'rdirect' ), false );
+$assert( 'disabled target module: written directly, staging stays empty', 'prima' === ( $opt( 'uxstudio_security_optimization' )['login_url'] ?? null ) && array() === Staging::all() );
+
+// Old staged entries expire with the snapshot window.
+$GLOBALS['uxs_options'][ Staging::OPTION ] = array( 'rold' => array( 'created' => time() - 31 * 86400, 'settings' => array( 'x' => array( 'a' => 1 ) ), 'secrets' => array(), 'activations' => array() ) );
+$assert( 'staged entries older than the snapshot window are purged', array( 'rold' ) === Staging::purge_expired( time() ) && array() === Staging::all() );
 
 /* ── WP Extended (reuses Migrator, settings only) ── */
 

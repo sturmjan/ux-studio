@@ -7,6 +7,8 @@
 
 namespace UxStudio\Core\Migration;
 
+use UxStudio\Core\DB;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -137,6 +139,10 @@ final class Snapshot {
 		if ( isset( $snap['tables'][ $table ] ) ) {
 			return true;
 		}
+		// The module's table-version record goes back with the table: a table dropped by the
+		// rollback must not stay "installed" in it.
+		self::capture_options( $run_id, array( DB::MODULE_VERSIONS_OPTION ) );
+		$snap = (array) get_option( self::option_name( $run_id ), array() );
 
 		$real = $wpdb->prefix . $table;
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- backup of a fixed, validated table name.
@@ -273,6 +279,7 @@ final class Snapshot {
 	public static function purge_expired( ?int $now = null ): array {
 		$now    = $now ?? time();
 		$purged = array();
+		Staging::purge_expired( $now );
 		foreach ( self::stored_ids() as $id ) {
 			$snap = get_option( self::option_name( $id ), null );
 			if ( ! is_array( $snap ) ) {

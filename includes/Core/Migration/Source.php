@@ -58,12 +58,27 @@ interface Source {
 	public function target_options(): array;
 
 	/**
+	 * UX Studio tables (name WITHOUT the WordPress prefix) the migration may write into. The
+	 * Snapshot copies them before the first write and the rollback restores them.
+	 *
+	 * @return string[]
+	 */
+	public function target_tables(): array;
+
+	/**
+	 * Options the user can choose per source (shown in the wizard), e.g. "also move the history".
+	 *
+	 * @return array<int, array{key:string,label:string,help:string,default:bool}>
+	 */
+	public function options(): array;
+
+	/**
 	 * One batch of the migration. F2 sources finish in one batch; sources with
 	 * data (later phases) use `$state['cursor']` and return `done => false`.
 	 *
-	 * @param array<string, mixed> $state   Per-source state saved by the Runner (`cursor`, ...).
+	 * @param array<string, mixed> $state   Per-source state saved by the Runner (`run_id`, `cursor`, `options`).
 	 * @param bool                 $dry_run Compute and report, write nothing.
-	 * @return array{done:bool,progress:int,cursor?:mixed,items:array<int,array<string,mixed>>,written:int,unchanged:int,errors:string[]}
+	 * @return array{done:bool,progress:int,cursor?:mixed,total?:int,processed?:int,staged?:int,items:array<int,array<string,mixed>>,written:int,unchanged:int,errors:string[]}
 	 */
 	public function migrate( array $state, bool $dry_run ): array;
 

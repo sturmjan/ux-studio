@@ -139,10 +139,15 @@ abstract class AbstractSource implements Source {
 				$mapping->warn(
 					sprintf(
 						/* translators: %s: module name. */
-						__( 'The module "%s" is already switched on, so the transferred settings take effect immediately.', 'ux-studio' ),
+						__( 'The module "%s" is already switched on, so the transferred settings are only prepared. They take effect at the switch, after the safe preview.', 'ux-studio' ),
 						ActivationGuard::module_name( $module )
 					)
 				);
+			}
+			foreach ( $mapping->secrets as $option => $secret ) {
+				if ( '' === $secret['module'] ) {
+					$mapping->secrets[ $option ]['module'] = $module;
+				}
 			}
 			$this->mapping = $mapping;
 		}
@@ -244,6 +249,14 @@ abstract class AbstractSource implements Source {
 		);
 	}
 
+	public function target_tables(): array {
+		return array();
+	}
+
+	public function options(): array {
+		return array();
+	}
+
 	public function target_options(): array {
 		$mapping = $this->mapping();
 		$names   = array();
@@ -261,9 +274,11 @@ abstract class AbstractSource implements Source {
 		if ( $dry_run ) {
 			$preview = SettingsWriter::preview( $mapping );
 			$write   = 0;
+			$staged  = 0;
 			foreach ( $preview['items'] as $row ) {
 				if ( $row['write'] ) {
 					++$write;
+					$staged += $row['staged'] ? 1 : 0;
 				}
 			}
 			return array(
@@ -272,12 +287,13 @@ abstract class AbstractSource implements Source {
 				'items'     => $preview['items'],
 				'written'   => $write,
 				'unchanged' => count( $preview['items'] ) - $write,
+				'staged'    => $staged,
 				'errors'    => $preview['errors'],
 			);
 		}
 
-		$result = SettingsWriter::apply( $mapping );
 		$run_id = (string) ( $state['run_id'] ?? '' );
+		$result = SettingsWriter::apply( $mapping, $run_id );
 		if ( '' !== $run_id ) {
 			foreach ( $result['items'] as $row ) {
 				MigrationMap::put( $this->slug, (string) $row['origin'] . ' > ' . (string) $row['key'], 'setting', (string) $row['target'], $run_id );
@@ -291,6 +307,7 @@ abstract class AbstractSource implements Source {
 			'items'     => $result['items'],
 			'written'   => $result['written'],
 			'unchanged' => $result['unchanged'],
+			'staged'    => $result['staged'],
 			'errors'    => $result['errors'],
 		);
 	}

@@ -2033,3 +2033,17 @@ Neověří: chování jen pro návštěvníky z cizí IP, cron běhy, e-maily sk
 - Pokud je cílový modul (např. Security Optimization) už zapnutý, přenesená nastavení se projeví hned - plán na to upozorní u každého zdroje.
 - Neověřeno proti skutečnému pluginu: `redirect-404-to-homepage` (slug na wordpress.org neexistuje, bere se jako plugin bez nastavení); formáty pluginů, které nejsou lokálně nainstalované, jsou čtené z kódu stažených zipů, ne z živých dat.
 
+
+### 26.8 Staging: nic se nezapne, dokud neběží přepnutí (F3, priorita 0)
+
+Revize po F2 našla chybu: `SettingsWriter` psal přenesené hodnoty rovnou do živého nastavení modulu. U už zapnutého modulu
+(Security Optimization je zapnutá skoro všude) se tak migrace WPS Hide Login projevila hned vlastní login URL vedle
+WPS Hide Login (hrozba vyzamčení), totéž CAPTCHA. Porušovalo to pravidlo „modul přebírá práci až při přepnutí po náhledu".
+
+- **Modul vypnutý** → nastavení se zapíše přímo do `uxstudio_<modul>` (bez účinku, dokud se modul nezapne).
+- **Modul zapnutý** → hodnoty jdou do `Core\Migration\Staging` (option `uxstudio_migration_staged`, bez autoloadu): `run_id → {created, settings[modul][klíč], secrets[option]{modul, sealed}, activations[]{source, kind, ids}}`. Tajné hodnoty jen zašifrované (`Security::seal`, AES-256-GCM jako `store_secret`), nikdy čistý text.
+- Náhled, zkušební běh i `verify()` skládají **živá nastavení + čekající staging** (nejnovější běh vyhrává), takže druhý běh stejného zdroje nezapíše nic nového (idempotence) a ověření srovnává zdroj s tím, co bude platit.
+- `Staging::apply( run_id )` (použije přepnutí ve F4): zapíše staged hodnoty přes `Settings::save` (ne přes `save_settings` modulu, jeho vedlejší účinky – `.htaccess`, bany, provisioning klíčů – spustí přepnutí po zapnutí modulu), odešle tajné hodnoty přes `Security::store_secret`, zapne data vytvořená neaktivní (rozhraní `Activatable`), smaže záznam, zapíše `applied` do historie, Activity Log a vyvolá akci `uxstudio_migration_staged_applied( run_id, moduly )`. Druhé volání nic nedělá.
+- `Staging::discard( run_id )` volá `Runner::rollback` (a denní purge maže záznamy starší než okno snímku, 30 dní). Neaktivní data odstraní obnova tabulek ze snímku.
+- `migration/status` vrací `staging` (počty hodnot, tajných hodnot a aktivací čekajících na přepnutí), historie `staging` a `applied`. Průvodce: „Připraveno, začne platit po přepnutí" místo „Zapsáno" (kontrola, migrace, ověření, hotovo).
+- **Pravidlo pro data (F3):** co mění chování webu, dokud běží starý plugin (přesměrování, snippety, viditelnost menu, přihlášení, CAPTCHA, režim údržby, plánování expirace, externí odkazy), vzniká **neaktivní** a aktivuje se přes `Staging::apply`. Neškodné (složky médií, last-login meta, historie e-mailů, definice cron intervalů) se zapisuje přímo.

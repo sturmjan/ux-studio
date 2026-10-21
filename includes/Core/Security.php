@@ -49,6 +49,25 @@ final class Security {
 	}
 
 	/**
+	 * Encrypt a value for storage outside of a secret option (the migration staging area).
+	 * Same scheme as store_secret(), so the value is never plain text at rest.
+	 *
+	 * @param string $value Plain value.
+	 */
+	public static function seal( string $value ): string {
+		return self::encrypt( $value );
+	}
+
+	/**
+	 * Inverse of seal().
+	 *
+	 * @param string $stored Sealed value.
+	 */
+	public static function unseal( string $stored ): string {
+		return self::decrypt( $stored );
+	}
+
+	/**
 	 * AES-256-GCM using WP salts as key material; falls back to plain storage
 	 * only if OpenSSL is unavailable (logged once).
 	 */

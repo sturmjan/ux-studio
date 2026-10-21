@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  *   GET  migration/scan      installed or leftover sources
  *   POST migration/plan      plan of the selected sources (nothing written)
  *   POST migration/run       start (sources[], dry_run) or continue (continue=true) a run
- *   GET  migration/status    state of the current / last run (a reload resumes from it)
+ *   GET  migration/status    state of the current / last run (a reload resumes from it) + what is staged for it
  *   POST migration/verify    compare source and UX Studio
  *   POST migration/rollback  restore the snapshot of a run (run_id)
  *   GET  migration/runs      history
@@ -110,7 +110,7 @@ final class MigrationRestController extends Controller {
 		if ( (bool) $request['continue'] ) {
 			$state = Runner::step();
 		} else {
-			$state = Runner::start( (array) $request['sources'], (bool) $request['dry_run'] );
+			$state = Runner::start( (array) $request['sources'], (bool) $request['dry_run'], (array) $request['options'] );
 			if ( ! is_wp_error( $state ) ) {
 				$state = Runner::step();
 			}
@@ -122,7 +122,33 @@ final class MigrationRestController extends Controller {
 	 * GET status.
 	 */
 	public function status( WP_REST_Request $request ): WP_REST_Response {
-		return $this->ok( array( 'run' => Runner::state() ) );
+		$run = Runner::state();
+		return $this->ok(
+			array(
+				'run'     => $run,
+				'staging' => $run ? Staging::summary( (string) $run['id'] ) : null,
+			)
+		);
+	}
+
+	/**
+	 * `options` = { source id: { option key: bool } } - anything else is dropped (the Runner
+	 * keeps only the keys each source declares).
+	 *
+	 * @param mixed $value Raw request value.
+	 * @return array<string, array<string, bool>>
+	 */
+	public static function sanitize_options( $value ): array {
+		$out = array();
+		foreach ( is_array( $value ) ? $value : array() as $source => $options ) {
+			if ( ! is_array( $options ) ) {
+				continue;
+			}
+			foreach ( $options as $key => $flag ) {
+				$out[ sanitize_key( (string) $source ) ][ sanitize_key( (string) $key ) ] = rest_sanitize_boolean( $flag );
+			}
+		}
+		return $out;
 	}
 
 	/**

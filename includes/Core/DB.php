@@ -23,7 +23,7 @@ final class DB {
 	 * `uxstudio_dbv_<slug>` options, which were not autoloaded and cost one
 	 * SELECT per enabled module on every request.
 	 */
-	private const MODULE_VERSIONS_OPTION = 'uxstudio_module_db_versions';
+	public const MODULE_VERSIONS_OPTION = 'uxstudio_module_db_versions';
 
 	/** Prefix of the pre-v2 per-module schema version options. */
 	private const LEGACY_DBV_PREFIX = 'uxstudio_dbv_';

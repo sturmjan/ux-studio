@@ -165,6 +165,7 @@ export function ChangeTable( { items }: { items: PlanItem[] } ): JSX.Element {
 						<td>
 							<code>{ '' === item.to ? '-' : item.to }</code>
 							{ ! item.changed && <span className="uxs-wiz-muted"> { __( 'no change', 'ux-studio' ) }</span> }
+							{ item.staged && item.write && <span className="uxs-badge is-info">{ __( 'Prepared', 'ux-studio' ) }</span> }
 							{ item.dropped && (
 								<span className="uxs-wiz-dropped" title={ __( 'The module does not accept the whole value.', 'ux-studio' ) }>
 									<TriangleAlert size={ 13 } aria-hidden />

@@ -356,6 +356,14 @@ function resultText( row: RunSource | undefined ): string {
 	if ( 0 === row.written ) {
 		return __( 'Nothing to change', 'ux-studio' );
 	}
+	if ( ( row.staged ?? 0 ) > 0 ) {
+		return sprintf(
+			/* translators: 1: number of values written, 2: number of values only prepared. */
+			__( '%1$d written, %2$d of them only prepared (they take effect after the switch)', 'ux-studio' ),
+			row.written,
+			row.staged ?? 0
+		);
+	}
 	return sprintf(
 		/* translators: %d: number of settings written. */
 		_n( '%d setting written', '%d settings written', row.written, 'ux-studio' ),
@@ -472,6 +480,7 @@ function VerifyStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 										<StateIcon state={ c.ok ? 'ok' : 'error' } />
 										<span>{ c.label }</span>
 										{ c.detail && <span className="uxs-wiz-muted">{ c.detail }</span> }
+										{ c.staged && <span className="uxs-badge is-info">{ __( 'Prepared - takes effect after the switch', 'ux-studio' ) }</span> }
 									</li>
 								) ) }
 							</ul>
@@ -521,6 +530,7 @@ function VerifyStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 function DoneStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 	const rows = Object.values( ctx.run?.per_source ?? {} );
 	const written = rows.reduce( ( sum, r ) => sum + r.written, 0 );
+	const staged = rows.reduce( ( sum, r ) => sum + ( r.staged ?? 0 ), 0 );
 
 	if ( ctx.rolledBack ) {
 		return (
@@ -559,7 +569,21 @@ function DoneStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 			<div className="uxs-wiz-next">
 				<h3>{ __( 'What happens next', 'ux-studio' ) }</h3>
 				<ul>
-					<li>{ __( 'The modules are still switched off and the old plugins still run - the site behaves exactly as before.', 'ux-studio' ) }</li>
+					<li>{ __( 'The old plugins still run and nothing was switched on - the site behaves exactly as before.', 'ux-studio' ) }</li>
+					{ staged > 0 && (
+						<li>
+							{ sprintf(
+								/* translators: %d: number of values only prepared. */
+								_n(
+									'%d value was only prepared, because its module is already on. It takes effect at the switch, after the safe preview.',
+									'%d values were only prepared, because their modules are already on. They take effect at the switch, after the safe preview.',
+									staged,
+									'ux-studio'
+								),
+								staged
+							) }
+						</li>
+					) }
 					<li>{ __( 'Switching to the module and deactivating the plugin will follow in the next version, after a safe preview of the site without the old plugins.', 'ux-studio' ) }</li>
 					<li>{ __( 'Until then you can undo this migration from the run history for 30 days.', 'ux-studio' ) }</li>
 				</ul>

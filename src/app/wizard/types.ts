@@ -37,6 +37,8 @@ export interface PlanItem {
 	write: boolean;
 	/** The module did not accept the whole value (e.g. unknown post type). */
 	dropped: boolean;
+	/** The module is already on: the value waits in the staging area until the switch. */
+	staged?: boolean;
 	target: string;
 }
 
@@ -63,6 +65,8 @@ export interface RunSource {
 	progress: number;
 	written: number;
 	unchanged: number;
+	/** How many of the written values were only prepared (module already on). */
+	staged?: number;
 	items: PlanItem[];
 	errors: string[];
 }
@@ -72,6 +76,8 @@ export interface Check {
 	label: string;
 	ok: boolean;
 	detail: string;
+	/** Correct, but prepared only: takes effect after the switch. */
+	staged?: boolean;
 }
 
 /** State of the resumable runner (`uxstudio_migration_run`). */
@@ -93,11 +99,14 @@ export interface HistoryRun {
 	id: string;
 	started_at: string;
 	finished: number;
-	sources: { id: string; label: string; status: string; written: number }[];
+	sources: { id: string; label: string; status: string; written: number; staged?: number }[];
 	errors: number;
 	snapshot: boolean;
 	rolled_back: number;
 	snapshot_purged?: boolean;
 	rollback_until: string;
 	can_rollback: boolean;
+	/** Values and data prepared for the switch (not yet applied). */
+	staging?: { settings: number; secrets: number; activations: number; modules: string[] };
+	applied?: number;
 }

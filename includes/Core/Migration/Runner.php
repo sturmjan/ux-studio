@@ -60,13 +60,30 @@ final class Runner {
 	}
 
 	/**
+	 * Keep only the options a source declares, as booleans (defaults for the rest).
+	 *
+	 * @param Source               $source Source.
+	 * @param array<string, mixed> $given  What the client sent.
+	 * @return array<string, bool>
+	 */
+	public static function clean_options( Source $source, array $given ): array {
+		$out = array();
+		foreach ( $source->options() as $option ) {
+			$key         = (string) $option['key'];
+			$out[ $key ] = array_key_exists( $key, $given ) ? (bool) $given[ $key ] : (bool) $option['default'];
+		}
+		return $out;
+	}
+
+	/**
 	 * Begin a run. A real run takes the snapshot before anything is written.
 	 *
-	 * @param string[] $ids     Source ids.
-	 * @param bool     $dry_run Compute only.
+	 * @param string[]                           $ids     Source ids.
+	 * @param bool                               $dry_run Compute only.
+	 * @param array<string, array<string, bool>> $options Per-source options (`source id => key => bool`).
 	 * @return array<string, mixed>|\WP_Error
 	 */
-	public static function start( array $ids, bool $dry_run ) {
+	public static function start( array $ids, bool $dry_run, array $options = array() ) {
 		$ids = array_values( array_unique( array_map( 'strval', $ids ) ) );
 		if ( ! $ids ) {
 			return new \WP_Error( 'uxstudio_migration_empty', __( 'Select at least one plugin to migrate.', 'ux-studio' ), array( 'status' => 400 ) );
@@ -115,8 +132,12 @@ final class Runner {
 				'module_name' => ActivationGuard::module_name( $source->target_module() ),
 				'cursor'      => null,
 				'progress'    => 0,
+				'processed'   => 0,
+				'total'       => 0,
 				'written'     => 0,
 				'unchanged'   => 0,
+				'staged'      => 0,
+				'options'     => self::clean_options( $source, (array) ( $options[ $id ] ?? array() ) ),
 				'items'       => array(),
 				'errors'      => array(),
 			);
@@ -124,12 +145,29 @@ final class Runner {
 
 		if ( ! $dry_run ) {
 			// 1) Snapshot of every option any selected source may write.
-			$names = array();
+			$names  = array();
+			$tables = array();
 			foreach ( $sources as $source ) {
-				$names = array_merge( $names, $source->target_options() );
+				$names  = array_merge( $names, $source->target_options() );
+				$tables = array_merge( $tables, $source->target_tables() );
 			}
 			Snapshot::create( $run_id );
 			Snapshot::capture_options( $run_id, $names );
+			foreach ( array_unique( $tables ) as $table ) {
+				if ( ! Snapshot::capture_table( $run_id, (string) $table ) ) {
+					// No backup, no write: undo what the snapshot already holds and refuse the run.
+					Snapshot::rollback( $run_id );
+					return new \WP_Error(
+						'uxstudio_migration_backup_failed',
+						sprintf(
+							/* translators: %s: table name. */
+							__( 'The backup of the table "%s" failed, nothing was changed.', 'ux-studio' ),
+							(string) $table
+						),
+						array( 'status' => 500 )
+					);
+				}
+			}
 			$state['snapshot'] = true;
 
 			ActivityLog::log( 'core', 'migration_started', 'migration', 0, array( 'run' => $run_id, 'sources' => $ids ) );
@@ -170,15 +208,19 @@ final class Runner {
 			try {
 				$result = $source->migrate(
 					array(
-						'run_id' => $state['id'],
-						'cursor' => $row['cursor'],
+						'run_id'  => $state['id'],
+						'cursor'  => $row['cursor'],
+						'options' => (array) ( $row['options'] ?? array() ),
 					),
 					(bool) $state['dry_run']
 				);
 				$row['progress']  = (int) ( $result['progress'] ?? 0 );
 				$row['cursor']    = $result['cursor'] ?? null;
 				$row['written']  += (int) ( $result['written'] ?? 0 );
-				$row['unchanged'] = (int) ( $result['unchanged'] ?? 0 );
+				$row['staged']    = (int) ( $row['staged'] ?? 0 ) + (int) ( $result['staged'] ?? 0 );
+				$row['total']     = (int) ( $result['total'] ?? $row['total'] ?? 0 );
+				$row['processed'] = (int) ( $result['processed'] ?? $row['processed'] ?? 0 );
+				$row['unchanged'] = (int) ( $row['unchanged'] ?? 0 ) + (int) ( $result['unchanged'] ?? 0 );
 				$row['items']     = array_merge( (array) $row['items'], (array) ( $result['items'] ?? array() ) );
 				$row['errors']    = array_merge( (array) $row['errors'], array_map( 'strval', (array) ( $result['errors'] ?? array() ) ) );
 				if ( ! empty( $result['done'] ) ) {
@@ -221,6 +263,7 @@ final class Runner {
 				'label'   => (string) $row['label'],
 				'status'  => (string) $row['status'],
 				'written' => (int) $row['written'],
+				'staged'  => (int) ( $row['staged'] ?? 0 ),
 			);
 			$errors   += 'error' === $row['status'] ? 1 : 0;
 		}
@@ -305,6 +348,7 @@ final class Runner {
 			return new \WP_Error( 'uxstudio_migration_expired', __( 'The snapshot of this run has expired.', 'ux-studio' ), array( 'status' => 410 ) );
 		}
 		$result = Snapshot::rollback( $run_id );
+		Staging::discard( $run_id );
 		if ( null === $result ) {
 			return new \WP_Error( 'uxstudio_migration_no_snapshot', __( 'This run has no snapshot to restore.', 'ux-studio' ), array( 'status' => 404 ) );
 		}
@@ -328,6 +372,7 @@ final class Runner {
 		$out = array();
 		foreach ( History::all() as $run ) {
 			$run['rollback_until'] = self::mysql_time( Snapshot::expires( (int) ( $run['started'] ?? 0 ) ) );
+			$run['staging']        = Staging::summary( (string) $run['id'] );
 			$run['can_rollback']   = ! empty( $run['snapshot'] ) && empty( $run['rolled_back'] ) && empty( $run['snapshot_purged'] )
 				&& Snapshot::expires( (int) ( $run['started'] ?? 0 ) ) > time() && Snapshot::exists( (string) $run['id'] );
 			$out[]                 = $run;
