@@ -24,6 +24,13 @@ final class Mapping {
 	/** @var array<int, array{module:string,key:string,label:string,value:string,secret:bool,origin:string}> */
 	public array $items = array();
 
+	/**
+	 * Whether values for an already-enabled module wait in the staging area (default). A source
+	 * whose settings cannot change how the site behaves (log retention ...) sets this to false and
+	 * its values are written directly.
+	 */
+	public bool $stage = true;
+
 	/** @var string[] What does not move over. */
 	public array $lossy = array();
 

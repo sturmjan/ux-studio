@@ -43,10 +43,22 @@ final class Module extends BaseModule {
 	public function boot(): void {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 
+		self::ensure_tables();
+
+		add_filter( 'wp_mail', array( $this, 'capture' ), 999 );
+		add_action( 'wp_mail_succeeded', array( $this, 'log_success' ) );
+		add_action( 'wp_mail_failed', array( $this, 'log_failure' ) );
+	}
+
+	/**
+	 * Create / upgrade the log table. Also called by the migration wizard, which copies old
+	 * log history while the module is still off.
+	 */
+	public static function ensure_tables(): void {
 		\UxStudio\Core\DB::ensure_module_tables(
 			'email-log',
 			self::DB_VERSION,
-			function ( int $from ): void {
+			static function ( int $from ): void {
 				global $wpdb;
 				$charset = $wpdb->get_charset_collate();
 				// dbDelta() diffs this definition against the live table and
@@ -70,10 +82,6 @@ final class Module extends BaseModule {
 				);
 			}
 		);
-
-		add_filter( 'wp_mail', array( $this, 'capture' ), 999 );
-		add_action( 'wp_mail_succeeded', array( $this, 'log_success' ) );
-		add_action( 'wp_mail_failed', array( $this, 'log_failure' ) );
 	}
 
 	/**

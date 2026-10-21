@@ -32,15 +32,7 @@ final class Module extends BaseModule {
 	 * Register hooks.
 	 */
 	public function boot(): void {
-		DB::ensure_module_tables(
-			'redirects',
-			1,
-			static function (): void {
-				dbDelta( Repository::schema() );
-				dbDelta( NotFoundLog::schema() );
-				Repository::refresh_state();
-			}
-		);
+		self::ensure_tables();
 
 		( new Engine( $this->settings ) )->register();
 		Abilities::register();
@@ -55,6 +47,22 @@ final class Module extends BaseModule {
 
 		Retention::ensure_scheduled( self::CLEANUP_HOOK );
 		add_action( self::CLEANUP_HOOK, array( $this, 'cleanup' ) );
+	}
+
+	/**
+	 * Create / upgrade the module's tables. Also called by the migration wizard, which fills the
+	 * rules table while the module is still off.
+	 */
+	public static function ensure_tables(): void {
+		DB::ensure_module_tables(
+			'redirects',
+			1,
+			static function (): void {
+				dbDelta( Repository::schema() );
+				dbDelta( NotFoundLog::schema() );
+				Repository::refresh_state();
+			}
+		);
 	}
 
 	/**

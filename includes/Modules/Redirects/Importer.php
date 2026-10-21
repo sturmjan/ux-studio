@@ -84,31 +84,113 @@ final class Importer {
 			return array( 'summary' => array(), 'results' => array() );
 		}
 		global $wpdb;
-		$table = $wpdb->prefix . 'redirection_items';
+		$table  = $wpdb->prefix . 'redirection_items';
+		$groups = self::redirection_group_status();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table} WHERE match_type = 'url' ORDER BY position ASC, id ASC LIMIT %d", self::MAX_ROWS ), ARRAY_A );
 
 		$items = array();
 		foreach ( is_array( $rows ) ? $rows : array() as $row ) {
-			$code = (int) $row['action_code'];
-			if ( 'url' === $row['action_type'] ) {
-				$target = (string) $row['action_data'];
-			} elseif ( 'error' === $row['action_type'] && 410 === $code ) {
-				$target = '';
-			} else {
-				continue;
+			$item = self::redirection_item( $row, $groups );
+			if ( is_array( $item ) ) {
+				$items[] = $item;
 			}
-			$items[] = array(
-				'source'     => (string) $row['url'],
-				'match_type' => (int) $row['regex'] ? 'regex' : 'exact',
-				'target'     => $target,
-				'code'       => in_array( $code, Repository::CODES, true ) ? $code : 301,
-				'enabled'    => 'enabled' === $row['status'],
-				'note'       => (string) ( $row['title'] ?? '' ),
-				'position'   => (int) $row['position'],
-			);
 		}
 		return self::run( $items, $on_conflict, $dry_run );
+	}
+
+	/**
+	 * Status of the Redirection groups (`id => enabled`). A rule in a disabled group does not
+	 * redirect in the plugin, so it must not become active here either.
+	 *
+	 * @return array<int, bool>
+	 */
+	public static function redirection_group_status(): array {
+		global $wpdb;
+		$table = $wpdb->prefix . 'redirection_groups';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$rows = $wpdb->get_results( "SELECT id, status FROM {$table}", ARRAY_A );
+		$out  = array();
+		foreach ( is_array( $rows ) ? $rows : array() as $row ) {
+			$out[ (int) $row['id'] ] = 'enabled' === $row['status'];
+		}
+		return $out;
+	}
+
+	/**
+	 * One Redirection row as a rule input, or the reason it has no equivalent here
+	 * (`match:<type>` for conditions such as login or referrer, `action:<type>` for random and
+	 * pass-through targets).
+	 *
+	 * @param array<string, mixed> $row    Row of `redirection_items`.
+	 * @param array<int, bool>     $groups Group id => enabled.
+	 * @return array<string, mixed>|string
+	 */
+	public static function redirection_item( array $row, array $groups = array() ) {
+		if ( 'url' !== (string) $row['match_type'] ) {
+			return 'match:' . (string) $row['match_type'];
+		}
+		$code = (int) $row['action_code'];
+		if ( 'url' === $row['action_type'] ) {
+			$target = (string) $row['action_data'];
+		} elseif ( 'error' === $row['action_type'] && 410 === $code ) {
+			$target = '';
+		} else {
+			return 'action:' . (string) $row['action_type'];
+		}
+		$data  = json_decode( (string) ( $row['match_data'] ?? '' ), true );
+		$flags = is_array( $data ) && isset( $data['source'] ) && is_array( $data['source'] ) ? $data['source'] : array();
+		$group = (int) ( $row['group_id'] ?? 0 );
+		return array(
+			'key'        => 'item:' . (int) $row['id'],
+			'label'      => (string) $row['url'],
+			'source'     => (string) $row['url'],
+			'match_type' => (int) $row['regex'] ? 'regex' : 'exact',
+			'target'     => $target,
+			'code'       => in_array( $code, Repository::CODES, true ) ? $code : ( 303 === $code ? 302 : 301 ),
+			'enabled'    => 'enabled' === $row['status'] && ( ! isset( $groups[ $group ] ) || $groups[ $group ] ),
+			'note'       => (string) ( $row['title'] ?? '' ),
+			'position'   => (int) $row['position'],
+			// What the plugin matched on that this module does not (reported by the migration).
+			'flag_case'  => ! empty( $flags['flag_case'] ),
+			'flag_query' => (string) ( $flags['flag_query'] ?? 'exact' ),
+		);
+	}
+
+	/**
+	 * A page of Redirection rows for the migration wizard (by id, so a batch can resume).
+	 *
+	 * @param int $after_id Last id of the previous page (0 = start).
+	 * @param int $limit    Rows per page.
+	 * @return array{items:array<int, array<string, mixed>>,skipped:array<string, int>,last:int,done:bool}
+	 */
+	public static function redirection_page( int $after_id, int $limit ): array {
+		$out = array(
+			'items'   => array(),
+			'skipped' => array(),
+			'last'    => $after_id,
+			'done'    => true,
+		);
+		if ( ! self::redirection_available() ) {
+			return $out;
+		}
+		global $wpdb;
+		$table  = $wpdb->prefix . 'redirection_items';
+		$groups = self::redirection_group_status();
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table} WHERE id > %d ORDER BY id ASC LIMIT %d", $after_id, $limit ), ARRAY_A );
+		$rows = is_array( $rows ) ? $rows : array();
+		foreach ( $rows as $row ) {
+			$out['last'] = (int) $row['id'];
+			$item        = self::redirection_item( $row, $groups );
+			if ( is_array( $item ) ) {
+				$out['items'][] = $item;
+			} else {
+				$out['skipped'][ $item ] = ( $out['skipped'][ $item ] ?? 0 ) + 1;
+			}
+		}
+		$out['done'] = count( $rows ) < $limit;
+		return $out;
 	}
 
 	/**

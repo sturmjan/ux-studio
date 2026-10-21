@@ -108,7 +108,7 @@ final class SettingsWriter {
 				// What the site will have: the live option with the values already prepared by earlier runs on top.
 				'stored'   => array_merge( $live, Staging::pending_settings( $module ) ),
 				'defaults' => self::defaults( $schema ),
-				'enabled'  => Staging::module_enabled( $module ),
+				'enabled'  => $mapping->stage && Staging::module_enabled( $module ),
 			);
 		}
 		foreach ( $mapping->items as $item ) {
@@ -127,7 +127,7 @@ final class SettingsWriter {
 					'changed' => '' !== $new && $current !== $new,
 					'write'   => '' !== $new && $current !== $new,
 					'dropped' => false,
-					'staged'  => '' !== $new && Staging::module_enabled( $smodule ) && $live !== $new,
+					'staged'  => '' !== $new && $mapping->stage && Staging::module_enabled( $smodule ) && $live !== $new,
 					'origin'  => $item['origin'],
 					'target'  => $item['key'],
 				);
@@ -197,7 +197,7 @@ final class SettingsWriter {
 			if ( ! $keys ) {
 				continue;
 			}
-			if ( Staging::module_enabled( (string) $module ) ) {
+			if ( $mapping->stage && Staging::module_enabled( (string) $module ) ) {
 				Staging::put_settings( $run_id, (string) $module, array_intersect_key( Settings::clean( $input, $schema ), array_flip( $keys ) ) );
 				$staged += count( $keys );
 			} else {
@@ -212,7 +212,7 @@ final class SettingsWriter {
 			if ( $current === $secret['value'] ) {
 				continue;
 			}
-			if ( Staging::module_enabled( (string) ( $secret['module'] ?? '' ) ) && Security::get_secret( $option ) !== $secret['value'] ) {
+			if ( $mapping->stage && Staging::module_enabled( (string) ( $secret['module'] ?? '' ) ) && Security::get_secret( $option ) !== $secret['value'] ) {
 				Staging::put_secret( $run_id, (string) $secret['module'], $option, $secret['value'] );
 				++$staged;
 			} else {

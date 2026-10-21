@@ -7,16 +7,30 @@
 
 namespace UxStudio\Core\Migration;
 
+use UxStudio\Core\Migration\Sources\ActivityLogSource;
 use UxStudio\Core\Migration\Sources\AutoImageUploadSource;
+use UxStudio\Core\Migration\Sources\AutoUnpublishSource;
 use UxStudio\Core\Migration\Sources\CaptchaSource;
 use UxStudio\Core\Migration\Sources\ClassicEditorSource;
+use UxStudio\Core\Migration\Sources\CodeSnippetsSource;
+use UxStudio\Core\Migration\Sources\CronSource;
 use UxStudio\Core\Migration\Sources\DisableCommentsSource;
 use UxStudio\Core\Migration\Sources\DuplicatePostSource;
+use UxStudio\Core\Migration\Sources\EmailLogSource;
 use UxStudio\Core\Migration\Sources\ExternalLinksSource;
+use UxStudio\Core\Migration\Sources\ExternalPermalinksSource;
+use UxStudio\Core\Migration\Sources\FolderSource;
 use UxStudio\Core\Migration\Sources\HideAdminBarSource;
+use UxStudio\Core\Migration\Sources\LastLoginSource;
 use UxStudio\Core\Migration\Sources\LoginSource;
+use UxStudio\Core\Migration\Sources\MaintenanceSource;
+use UxStudio\Core\Migration\Sources\MenuIconsSource;
+use UxStudio\Core\Migration\Sources\MenuVisibilitySource;
 use UxStudio\Core\Migration\Sources\NoSettingsSource;
+use UxStudio\Core\Migration\Sources\PostTypeOrderSource;
 use UxStudio\Core\Migration\Sources\Redirect404Source;
+use UxStudio\Core\Migration\Sources\RedirectsSource;
+use UxStudio\Core\Migration\Sources\SmtpSource;
 use UxStudio\Core\Migration\Sources\SvgSource;
 use UxStudio\Core\Migration\Sources\UpdatesSource;
 use UxStudio\Core\Migration\Sources\WpExtendedSource;
@@ -26,9 +40,8 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * The slug => class map below is the single place that decides which plugins the wizard
- * can migrate in phase F2. Every slug must also be in the Catalog (tests/migration-sources.php
+ * can migrate (F2 settings, F3 data). Every slug must also be in the Catalog (tests/migration-sources.php
  * checks it), so the overlap guard and the wizard speak about the same plugins.
- * Phase F3+ adds the sources that carry data.
  */
 final class SourceRegistry {
 
@@ -65,6 +78,21 @@ final class SourceRegistry {
 			AutoImageUploadSource::class  => array( 'auto-upload-images' ),
 			ExternalLinksSource::class    => array( 'wp-external-links' ),
 			WpExtendedSource::class       => array( 'wpextended' ),
+			// F3: sources with data.
+			RedirectsSource::class        => array( 'redirection', 'safe-redirect-manager', 'simple-301-redirects', '301-redirects' ),
+			CodeSnippetsSource::class     => array( 'code-snippets', 'insert-headers-and-footers', 'header-footer-code-manager' ),
+			FolderSource::class           => array( 'filebird', 'folders', 'real-media-library-lite', 'wicked-folders' ),
+			ExternalPermalinksSource::class => array( 'page-links-to' ),
+			AutoUnpublishSource::class    => array( 'post-expirator' ),
+			MenuIconsSource::class        => array( 'menu-icons' ),
+			MenuVisibilitySource::class   => array( 'nav-menu-roles', 'if-menu', 'menu-items-visibility-control' ),
+			LastLoginSource::class        => array( 'when-last-login', 'wp-last-login' ),
+			SmtpSource::class             => array( 'wp-mail-smtp', 'easy-wp-smtp', 'post-smtp', 'fluent-smtp' ),
+			EmailLogSource::class         => array( 'wp-mail-logging', 'email-log' ),
+			CronSource::class             => array( 'wp-crontrol' ),
+			MaintenanceSource::class      => array( 'wp-maintenance-mode', 'coming-soon', 'maintenance', 'under-construction-page' ),
+			ActivityLogSource::class      => array( 'simple-history', 'wp-security-audit-log', 'aryo-activity-log', 'adminify-activity-logs' ),
+			PostTypeOrderSource::class    => array( 'post-types-order', 'intuitive-custom-post-order' ),
 		) as $class => $slugs ) {
 			foreach ( $slugs as $slug ) {
 				$map[ $slug ] = $class;

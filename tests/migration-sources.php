@@ -19,6 +19,7 @@ define( 'MINUTE_IN_SECONDS', 60 );
 define( 'HOUR_IN_SECONDS', 3600 );
 define( 'DAY_IN_SECONDS', 86400 );
 define( 'KB_IN_BYTES', 1024 );
+define( 'ARRAY_A', 'ARRAY_A' );
 
 $root = dirname( __DIR__ );
 define( 'UXSTUDIO_PATH', $root . '/' );
@@ -43,6 +44,12 @@ class WP_Error {
 class FakeWpdb {
 	public $prefix  = 'wp_';
 	public $options = 'wp_options';
+	public $posts = 'wp_posts';
+	public $postmeta = 'wp_postmeta';
+	public $usermeta = 'wp_usermeta';
+	public $terms = 'wp_terms';
+	public $term_taxonomy = 'wp_term_taxonomy';
+	public $term_relationships = 'wp_term_relationships';
 	public $map     = array();
 	public function insert( $table, $data ) { $GLOBALS['uxs_log'][] = $data; return 1; }
 	public function replace( $table, $data ) {
@@ -58,10 +65,22 @@ class FakeWpdb {
 		}
 		return 1;
 	}
-	public function prepare( $sql, ...$args ) { return $sql; }
+	public function prepare( $sql, ...$args ) {
+		if ( 1 === count( $args ) && is_array( $args[0] ) ) { $args = $args[0]; }
+		$i = 0;
+		return preg_replace_callback( '/%[sd]/', static function ( $m ) use ( &$i, $args ) {
+			$v = $args[ $i++ ] ?? '';
+			return '%d' === $m[0] ? (string) (int) $v : "'" . addslashes( (string) $v ) . "'";
+		}, $sql );
+	}
 	public function get_var( $sql ) { return null; }
 	public function get_col( $sql ) { return array(); }
-	public function get_results( $sql ) { return array(); }
+	public function get_results( $sql, $output = null ) {
+		if ( false !== strpos( $sql, 'uxstudio_migration_map' ) && preg_match( "/run_id = '([^']*)'/", $sql, $m ) ) {
+			return array_values( array_filter( $this->map, static fn( $row ) => $row['run_id'] === $m[1] ) );
+		}
+		return array();
+	}
 	public function query( $sql ) { return 0; }
 	public function esc_like( $s ) { return $s; }
 }
@@ -597,6 +616,14 @@ $assert( 'Staging::discard of an unknown run is harmless', false === Staging::di
 $site( array( 'wps-hide-login' ), array( 'wps-hide-login' ), array( 'whl_page' => 'prima' ) );
 SourceRegistry::get( 'wps-hide-login' )->migrate( array( 'run_id' => 'rdirect' ), false );
 $assert( 'disabled target module: written directly, staging stays empty', 'prima' === ( $opt( 'uxstudio_security_optimization' )['login_url'] ?? null ) && array() === Staging::all() );
+
+// A run that was switched on (Staging::apply) can no longer be rolled back from its snapshot.
+$site( array( 'wps-hide-login' ), array( 'wps-hide-login' ), array( 'whl_page' => 'jina', 'uxstudio_active_modules' => array( 'activity-log', 'security-optimization' ) ) );
+$run = Runner::start( array( 'wps-hide-login' ), false );
+Runner::step();
+Staging::apply( $run['id'] );
+$refused = Runner::rollback( $run['id'] );
+$assert( 'rollback of an already switched-on run is refused (409)', is_wp_error( $refused ) && 'uxstudio_migration_applied' === $refused->get_error_code(), is_wp_error( $refused ) ? $refused->get_error_code() : 'no error' );
 
 // Old staged entries expire with the snapshot window.
 $GLOBALS['uxs_options'][ Staging::OPTION ] = array( 'rold' => array( 'created' => time() - 31 * 86400, 'settings' => array( 'x' => array( 'a' => 1 ) ), 'secrets' => array(), 'activations' => array() ) );

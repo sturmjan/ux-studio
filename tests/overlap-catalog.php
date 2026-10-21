@@ -205,7 +205,7 @@ $assert( 'full overlap blocks', 'blocked' === $d['result'] && 1 === count( $d['b
 $e = ActivationGuard::check( array( 'cron-control' ) );
 $data = $e instanceof WP_Error ? $e->get_error_data() : array();
 $assert( 'refusal is WP_Error uxstudio_plugin_overlap, HTTP 409', $e instanceof WP_Error && 'uxstudio_plugin_overlap' === $e->get_error_code() && 409 === ( $data['status'] ?? 0 ), json_encode( $e ) );
-$assert( 'refusal tells the UI the slug and whether the wizard can migrate it', 'wp-crontrol' === ( $data['plugins'][0]['slug'] ?? '' ) && false === ( $data['plugins'][0]['migratable'] ?? null ), json_encode( $data ) );
+$assert( 'refusal tells the UI the slug and whether the wizard can migrate it (WP Crontrol has a source since F3)', 'wp-crontrol' === ( $data['plugins'][0]['slug'] ?? '' ) && true === ( $data['plugins'][0]['migratable'] ?? null ), json_encode( $data ) );
 $assert( 'refusal lists name, basename, type', 'wp-crontrol/wp-crontrol.php' === ( $data['plugins'][0]['basename'] ?? '' ) && 'WP Crontrol' === ( $data['plugins'][0]['name'] ?? '' ) && 'full' === ( $data['plugins'][0]['type'] ?? '' ) && false === ( $data['requires_confirmation'] ?? null ), json_encode( $data ) );
 $assert( 'confirm_overlap does NOT override a full overlap', 'blocked' === ActivationGuard::decide( array( 'cron-control' ), true )['result'] );
 $assert( 'unrelated module is allowed', 'allow' === ActivationGuard::decide( array( 'activity-log' ) )['result'] );

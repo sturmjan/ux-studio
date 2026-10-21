@@ -177,7 +177,7 @@ final class Snapshot {
 	 * deleted when they did not exist), tables are rebuilt from the backup.
 	 *
 	 * @param string $run_id Run id.
-	 * @return array{restored:int,deleted:int,tables:int,errors:string[]}|null Null when there is no snapshot.
+	 * @return array{restored:int,deleted:int,tables:int,reverted:int,errors:string[]}|null Null when there is no snapshot.
 	 */
 	public static function rollback( string $run_id ): ?array {
 		$snap = get_option( self::option_name( $run_id ), null );
@@ -188,6 +188,7 @@ final class Snapshot {
 			'restored' => 0,
 			'deleted'  => 0,
 			'tables'   => 0,
+			'reverted' => 0,
 			'errors'   => array(),
 		);
 		foreach ( (array) ( $snap['options'] ?? array() ) as $name => $state ) {
@@ -212,6 +213,7 @@ final class Snapshot {
 				);
 			}
 		}
+		$out['reverted'] = Revert::run( $run_id );
 		MigrationMap::delete_run( $run_id );
 		self::delete( $run_id );
 		return $out;

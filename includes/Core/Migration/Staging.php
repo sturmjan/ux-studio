@@ -143,8 +143,9 @@ final class Staging {
 	 * @param string                 $source Source id (plugin slug) that implements Activatable.
 	 * @param string                 $kind   Object kind.
 	 * @param array<int, int|string> $ids    Target ids.
+	 * @param array<string, mixed>   $data   Optional payload per id (what to write at the switch, e.g. a meta value).
 	 */
-	public static function put_activation( string $run_id, string $source, string $kind, array $ids ): void {
+	public static function put_activation( string $run_id, string $source, string $kind, array $ids, array $data = array() ): void {
 		$run_id = Snapshot::clean_id( $run_id );
 		$ids    = array_values( array_unique( array_map( 'strval', $ids ) ) );
 		if ( '' === $run_id || ! $ids ) {
@@ -155,8 +156,9 @@ final class Staging {
 		$found = false;
 		foreach ( $entry['activations'] as $i => $row ) {
 			if ( $row['source'] === $source && $row['kind'] === $kind ) {
-				$entry['activations'][ $i ]['ids'] = array_values( array_unique( array_merge( (array) $row['ids'], $ids ) ) );
-				$found                             = true;
+				$entry['activations'][ $i ]['ids']  = array_values( array_unique( array_merge( (array) $row['ids'], $ids ) ) );
+				$entry['activations'][ $i ]['data'] = array_merge( (array) ( $row['data'] ?? array() ), $data );
+				$found                              = true;
 			}
 		}
 		if ( ! $found ) {
@@ -164,6 +166,7 @@ final class Staging {
 				'source' => $source,
 				'kind'   => $kind,
 				'ids'    => $ids,
+				'data'   => $data,
 			);
 		}
 		$all[ $run_id ] = $entry;
@@ -282,7 +285,17 @@ final class Staging {
 		foreach ( (array) $entry['activations'] as $row ) {
 			$source = SourceRegistry::get( (string) $row['source'] );
 			if ( $source instanceof Activatable ) {
-				$out['activated'] += $source->activate( (string) $row['kind'], (array) $row['ids'] );
+				$done = $source->activate( (string) $row['kind'], (array) $row['ids'], (array) ( $row['data'] ?? array() ) );
+				$out['activated'] += $done;
+				if ( $done < count( (array) $row['ids'] ) ) {
+					$out['errors'][] = sprintf(
+						/* translators: 1: plugin slug, 2: number switched on, 3: number prepared. */
+						__( 'Of the data of "%1$s", %2$d of %3$d items were switched on, the rest could not be switched on (check the permissions and the logs).', 'ux-studio' ),
+						(string) $row['source'],
+						$done,
+						count( (array) $row['ids'] )
+					);
+				}
 			} else {
 				$out['errors'][] = sprintf(
 					/* translators: %s: plugin slug. */

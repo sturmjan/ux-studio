@@ -20,8 +20,9 @@ interface Activatable {
 	 * Switch the staged objects on.
 	 *
 	 * @param string $kind Kind of object the source registered (`redirect`, `snippet` ...).
-	 * @param array<int, int|string> $ids Target ids as the source recorded them.
+	 * @param array<int, int|string> $ids  Target ids as the source recorded them.
+	 * @param array<string, mixed>   $data Payload per id the source stored with them (may be empty).
 	 * @return int How many objects were switched on.
 	 */
-	public function activate( string $kind, array $ids ): int;
+	public function activate( string $kind, array $ids, array $data = array() ): int;
 }

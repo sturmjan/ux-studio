@@ -102,6 +102,24 @@ final class MigrationMap {
 	}
 
 	/**
+	 * Rows a run wrote (the rollback walks them to undo objects that live in core tables).
+	 *
+	 * @param string $run_id Run id.
+	 * @return array<int, array{source_plugin:string,source_key:string,target_type:string,target_id:string}>
+	 */
+	public static function rows_of_run( string $run_id ): array {
+		global $wpdb;
+		if ( ! isset( $wpdb ) || ! is_object( $wpdb ) || ! method_exists( $wpdb, 'get_results' ) ) {
+			return array();
+		}
+		self::ensure_table();
+		$table = self::table();
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- own table.
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT source_plugin, source_key, target_type, target_id FROM {$table} WHERE run_id = %s ORDER BY id DESC", substr( $run_id, 0, 32 ) ), ARRAY_A );
+		return is_array( $rows ) ? $rows : array();
+	}
+
+	/**
 	 * Forget the rows a run wrote (after its rollback they would describe data that is gone).
 	 *
 	 * @param string $run_id Run id.

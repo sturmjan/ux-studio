@@ -245,6 +245,17 @@ final class Runner {
 	}
 
 	/**
+	 * Options chosen for a source in the current / last run (empty when there is none).
+	 *
+	 * @param string $id Source id.
+	 * @return array<string, bool>
+	 */
+	public static function options_of( string $id ): array {
+		$state = self::state();
+		return $state ? (array) ( $state['per_source'][ $id ]['options'] ?? array() ) : array();
+	}
+
+	/**
 	 * Close a run, record it in the history.
 	 *
 	 * @param array<string, mixed> $state State.
@@ -340,6 +351,10 @@ final class Runner {
 		$record = History::find( $run_id );
 		if ( ! $record || empty( $record['snapshot'] ) ) {
 			return new \WP_Error( 'uxstudio_migration_no_snapshot', __( 'This run has no snapshot to restore.', 'ux-studio' ), array( 'status' => 404 ) );
+		}
+		if ( ! empty( $record['applied'] ) ) {
+			// The switch wrote prepared values and switched data on; the snapshot no longer describes the site.
+			return new \WP_Error( 'uxstudio_migration_applied', __( 'This run has already been switched on, so the snapshot no longer matches the site. Undo the switch first.', 'ux-studio' ), array( 'status' => 409 ) );
 		}
 		if ( ! empty( $record['rolled_back'] ) ) {
 			return new \WP_Error( 'uxstudio_migration_rolled_back', __( 'This run was already rolled back.', 'ux-studio' ), array( 'status' => 409 ) );
