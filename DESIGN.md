@@ -69,3 +69,13 @@ společném chunku - žádná duplikace knihoven.
 - Témata se vybírají podle přeložené sekce (`inSections`) nebo klíčů (`withKeys`). Když se
   název sekce z PHP začne používat i v JS, spustit `languages/.build/po-refs.py`, jinak ho
   aplikace nepřeloží a téma zůstane prázdné.
+
+## 10. Tlačítka a výběry (2026-10-21)
+
+- Moduly používají třídy WordPressu (`button`, `button-primary`, `button-small`, `button-link`,
+  `button-link-delete`); vzhled jim dává `#ux-studio-root` v `src/style.scss`. Vlastní styly
+  tlačítek v modulech nepsat a nepřepisovat je inline (padding/výška).
+- Tlačítko, pole i výběr mají stejnou výšku 46 px (padding 12 px, řádek 20 px, rámeček 1 px)
+  a zaoblení `--uxs-radius-s`. Malé tlačítko asi 32 px.
+- Výběry nestylovat zkratkou `background:` bez obrázku - šipku dodává globální pravidlo
+  přes `background-image`; používat `background-color`.
