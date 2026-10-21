@@ -1211,6 +1211,43 @@
 	gap: var(--uxs-sp-3);
 }
 
+/* ---- Migration wizard hint on the Modules screen (src/app/WizardHint.tsx) ---- */
+.uxs-wizhint {
+	display: flex;
+	align-items: center;
+	gap: var(--uxs-sp-3);
+	margin-bottom: var(--uxs-sp-4);
+	padding: var(--uxs-sp-3) var(--uxs-sp-4);
+	background: var(--uxs-brand-soft);
+	border: 1px solid color-mix(in srgb, var(--uxs-brand) 35%, var(--uxs-border));
+	border-radius: var(--uxs-radius-s);
+	color: var(--uxs-text);
+
+	> svg { flex-shrink: 0; color: var(--uxs-brand); }
+	p { flex: 1; min-width: 0; margin: 0; }
+}
+
+.uxs-wizhint__close {
+	display: inline-flex;
+	flex-shrink: 0;
+	padding: var(--uxs-sp-1);
+	background: none;
+	border: 0;
+	border-radius: var(--uxs-radius-s);
+	color: var(--uxs-text-soft);
+	cursor: pointer;
+
+	&:hover { color: var(--uxs-text); }
+	&:focus-visible { outline: 2px solid var(--uxs-brand); outline-offset: 2px; }
+}
+
+[data-theme="dark"] .uxs-wizhint { background: color-mix(in srgb, var(--uxs-brand) 18%, transparent); }
+
+@media (max-width: 600px) {
+	.uxs-wizhint { flex-wrap: wrap; }
+	.uxs-wizhint p { flex-basis: 100%; }
+}
+
 /* ---- Plugin conflicts (src/app/Overlaps.tsx) ---- */
 .uxs-overlaps {
 	margin-bottom: var(--uxs-sp-4);

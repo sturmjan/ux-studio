@@ -5,10 +5,10 @@
  */
 import { useEffect, useState } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { ArrowRight, Camera, ChevronDown, CircleCheck, History as HistoryIcon, Radar, ShieldCheck, Undo2, Wand2 } from 'lucide-react';
+import { ArrowRight, Camera, ChevronDown, CircleCheck, Eye, History as HistoryIcon, Power, Radar, ShieldCheck, Undo2, Wand2 } from 'lucide-react';
 import { navigate } from '../route';
 import type { WizardCtx } from './context';
-import { ChangeTable, DataCounts, DrawnCheck, ErrorLine, MatchBadge, MenuRoleTable, PartialNote, PlanDetails, SourceIcon, StateIcon, StatusBadge, StepHead, Warnings, reducedMotion, sourceSummary } from './parts';
+import { ChangeTable, DataCounts, DetailRows, DrawnCheck, ErrorLine, MatchBadge, MenuRoleTable, PartialNote, PlanDetails, SourceIcon, StateIcon, StatusBadge, StepHead, Warnings, reducedMotion, sourceSummary } from './parts';
 import { PreviewStep, RevertedDone, SwitchStep, SwitchedDone } from './steps-preview';
 import type { RunSource, ScanSource } from './types';
 
@@ -25,6 +25,8 @@ function WelcomeStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 		{ icon: <Radar size={ 18 } aria-hidden />, text: __( 'The wizard finds plugins on this site whose job a UX Studio module does as well.', 'ux-studio' ) },
 		{ icon: <ShieldCheck size={ 18 } aria-hidden />, text: __( 'It only reads the plugins. Nothing in them changes, and nothing is switched on or deactivated until you confirm the switch.', 'ux-studio' ) },
 		{ icon: <Camera size={ 18 } aria-hidden />, text: __( 'Before the first write it saves a snapshot, so you can undo the whole migration for 30 days.', 'ux-studio' ) },
+		{ icon: <Eye size={ 18 } aria-hidden />, text: __( 'Before the switch you can look at the site without the old plugins in a safe preview that only your browser sees. Visitors keep the old plugins the whole time.', 'ux-studio' ) },
+		{ icon: <Power size={ 18 } aria-hidden />, text: __( 'No old plugin is ever deactivated automatically. You decide at the end, and even then you can go back.', 'ux-studio' ) },
 	];
 	return (
 		<section className="uxs-wiz-panel uxs-wiz-welcome">
@@ -525,8 +527,13 @@ function VerifyStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 									<li key={ c.id } className={ c.ok ? 'is-ok' : 'is-bad' }>
 										<StateIcon state={ c.ok ? 'ok' : 'error' } />
 										<span>{ c.label }</span>
-										{ c.detail && <span className="uxs-wiz-muted">{ c.detail }</span> }
+										{ c.detail && <span className="uxs-wiz-muted uxs-wiz-checks__detail">{ c.detail }</span> }
 										{ c.staged && <span className="uxs-badge is-info">{ __( 'Prepared - takes effect after the switch', 'ux-studio' ) }</span> }
+										{ c.rows && c.rows.length > 0 && (
+											<div className="uxs-wiz-checks__rows">
+												<DetailRows rows={ c.rows } />
+											</div>
+										) }
 									</li>
 								) ) }
 							</ul>

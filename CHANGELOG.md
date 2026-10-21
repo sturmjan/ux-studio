@@ -1,5 +1,43 @@
 # Changelog
 
+## 0.6.0 (unreleased)
+
+- New - Migration wizard (Migration wizard in the menu): finds plugins whose job a
+  UX Studio module does, copies their settings and data (36 plugins in 14 sources,
+  including Admin Menu Editor, Adminimize, White Label CMS, Adminify, LoginPress and
+  Admin Columns), checks the result, lets you look at the site without the old
+  plugins in a safe preview (only your browser, 30 minutes), runs live tests and
+  switches only when you confirm. The old plugins are only read, a snapshot keeps
+  the whole migration reversible for 30 days, and no plugin is deactivated
+  automatically. The first activation of UX Studio from the Plugins screen opens the
+  wizard once when something can be taken over (not on bulk, network or WP-CLI
+  activation); the Modules screen shows a dismissible hint until a migration ran.
+- New - The check and verify steps print complex values (menu configuration, list
+  columns, lists of slugs) as a short summary ("6 categories", "3 renamed items")
+  with an expandable detail that uses labels instead of internal ids.
+- New - Overlap guard: enabling a module while a plugin that does the same job is
+  active is refused with an offer to start the wizard; activating such a plugin
+  later only warns. Nothing is switched off for you.
+- New - MCP server in the core (Settings > MCP server): works without the AI module,
+  tokens with scopes (read, write, migration, admin), expiry, IP allowlist and
+  rate limit, every call is in the Activity Log, ready-made configuration for
+  Claude Code, Claude Desktop and Cursor.
+- New - Security: Content-Security-Policy inventory of sources with a risk rating,
+  a mandatory dashboard widget and a gate before switching to Enforce.
+- Change - Module pages are organised by topic (data and its settings together),
+  buttons and selects look the same everywhere, dates and numbers use the Czech
+  format.
+- Fix - Security: the custom login URL now really activates on sites in a
+  subdirectory, and the slug collision check no longer blocks a free slug. Sites that
+  had "Enable custom login URL" switched on while it silently did nothing will now have
+  wp-login.php blocked after this update, so the first admin page load shows every
+  administrator a notice with the new address (copy button, link to turn it off) and
+  sends ONE e-mail with it to the site e-mail. The setting is never changed
+  automatically; `define( 'UXSTUDIO_DISABLE_LOGIN_LOCK', true );` in wp-config.php
+  still switches the feature off.
+- Dev - Tests: `tests/{mcp-core,migration-sources,migration-data-sources,migration-preview,migration-admin-sources,overlap-catalog,csp-logic,wizard-autostart,login-url-notice}.php`
+  (standalone, `php tests/<name>.php`).
+
 ## 0.5.0
 
 - New - Admin UI: the module overview is a list only; grouped modules list their

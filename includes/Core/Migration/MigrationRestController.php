@@ -122,6 +122,25 @@ final class MigrationRestController extends Controller {
 		);
 		$this->route( '/migration/revert-switch', 'POST', array( $this, 'revert_switch' ), $run_arg );
 		$this->route( '/migration/probe', 'GET', array( $this, 'probe' ) );
+
+		// F7: the hint on the Modules screen ("we found N plugins UX Studio can take over").
+		$this->route( '/migration/hint', 'GET', array( $this, 'hint' ) );
+		$this->route( '/migration/hint/dismiss', 'POST', array( $this, 'hint_dismiss' ) );
+	}
+
+	/**
+	 * GET hint: whether to offer the wizard on the Modules screen, and how many plugins it could take over.
+	 */
+	public function hint( WP_REST_Request $request ): WP_REST_Response {
+		return $this->ok( AutoStart::hint( get_current_user_id() ) );
+	}
+
+	/**
+	 * POST hint/dismiss: this user does not want to see the hint again.
+	 */
+	public function hint_dismiss( WP_REST_Request $request ): WP_REST_Response {
+		AutoStart::dismiss_hint( get_current_user_id() );
+		return $this->ok( array( 'show' => false ) );
 	}
 
 	/**

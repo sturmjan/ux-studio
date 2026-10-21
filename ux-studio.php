@@ -35,6 +35,8 @@ require_once UXSTUDIO_PATH . 'includes/Autoloader.php';
 // deactivate ux1 + offer to delete it). Registered BEFORE the conflict guard so
 // it always runs on activation, even while ux1 is still active.
 register_activation_hook( __FILE__, array( '\UxStudio\Core\Handoff', 'on_activation' ) );
+// Queue the one-time offer of the migration wizard (single activation from the Plugins screen only).
+register_activation_hook( __FILE__, array( '\UxStudio\Core\Migration\AutoStart', 'on_activation' ) );
 
 // Deactivation: undo side effects that would otherwise outlive the plugin
 // (Cron Control mu-plugin + wp-cron deny, .htaccess blocks, cron events).

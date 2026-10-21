@@ -188,10 +188,17 @@ final class Module extends BaseModule {
 			add_filter( 'wp_is_application_passwords_available', '__return_false' );
 		}
 
+		/* ── Release safety: tell administrators once that the custom login address is really in force ── */
+		LoginUrlNotice::register( $this );
+
 		/* ── Custom login URL (with kill-switch + collision fail-open guard) ── */
 		if ( ! $this->login_lock_disabled() && $this->setting( 'login_url_enabled', false ) && '' !== trim( (string) $this->setting( 'login_url', '' ) ) ) {
 			add_action( 'login_init', array( $this, 'block_direct_wp_login' ), 1 );
 			add_action( 'init', array( $this, 'handle_custom_login_url' ), 0 );
+			// The login form, "lost password" and every redirect to the login must use the custom address too:
+			// a POST to wp-login.php is denied by block_direct_wp_login().
+			add_filter( 'site_url', array( $this, 'filter_login_site_url' ), 10, 4 );
+			add_filter( 'network_site_url', array( $this, 'filter_login_site_url' ), 10, 3 );
 		}
 
 		/* ── Login rate limiting - lockout checked at priority 5, BEFORE core
@@ -1676,6 +1683,59 @@ final class Module extends BaseModule {
 
 	private function login_slug(): string {
 		return trim( (string) $this->setting( 'login_url', '' ), '/' );
+	}
+
+	/**
+	 * Is the custom login address really in force on this site right now? The same conditions as the hooks
+	 * above (setting on, slug set, no kill switch) plus the fail-open collision check.
+	 *
+	 * @return array{active:bool,slug:string,url:string,reason:string} `reason`: why not (`off`, `empty`, `kill_switch`, `collision`) or ''.
+	 */
+	public function login_lock_status(): array {
+		$slug   = $this->login_slug();
+		$reason = '';
+		if ( ! $this->setting( 'login_url_enabled', false ) ) {
+			$reason = 'off';
+		} elseif ( '' === $slug ) {
+			$reason = 'empty';
+		} elseif ( $this->login_lock_disabled() ) {
+			$reason = 'kill_switch';
+		} elseif ( $this->login_slug_collides( $slug ) ) {
+			$reason = 'collision';
+		}
+		return array(
+			'active' => '' === $reason,
+			'slug'   => $slug,
+			'url'    => '' === $slug ? '' : home_url( '/' . $slug . '/' ),
+			'reason' => $reason,
+		);
+	}
+
+	/** @var array{active:bool,slug:string,url:string,reason:string}|null Per request cache of login_lock_status(). */
+	private ?array $lock_status = null;
+
+	/**
+	 * Filter for site_url / network_site_url: wp-login.php -> the custom login address (while it is in force).
+	 *
+	 * @param string      $url    URL.
+	 * @param string      $path   Path relative to the site URL.
+	 * @param string|null $scheme Scheme.
+	 * @return string
+	 */
+	public function filter_login_site_url( $url, $path = '', $scheme = null ): string {
+		$url  = (string) $url;
+		$path = (string) $path;
+		if ( 0 !== strpos( ltrim( $path, '/' ), 'wp-login.php' ) ) {
+			return $url;
+		}
+		if ( null === $this->lock_status ) {
+			$this->lock_status = $this->login_lock_status();
+		}
+		if ( ! $this->lock_status['active'] ) {
+			return $url;
+		}
+		$swapped = LoginUrl::swap( $url, $path, $this->lock_status['url'] );
+		return $swapped === $url ? $url : set_url_scheme( $swapped );
 	}
 
 	private function current_path(): string {

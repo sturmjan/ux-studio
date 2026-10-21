@@ -337,6 +337,15 @@ $GLOBALS['uxs_plugins'] = array(
 	'disable-comments/disable-comments.php'   => array( 'Name' => 'Disable Comments', 'Version' => '2.5' ),
 );
 $assert( 'the preview is available when the mu-plugin folder is writable', true === Preview::availability()['ok'] );
+
+// A folder that cannot be written (a host filter / read-only file system): the unavailable path must be complete.
+$GLOBALS['uxs_filters']['uxstudio_preview_mu_writable'][] = static fn( $writable, $path ) => false;
+$un = Preview::availability();
+$assert( 'not writable: availability says no, names the folder and keeps the path for the UI', false === $un['ok'] && false !== strpos( $un['reason'], $mu_dir ) && false !== strpos( $un['reason'], 'not writable' ) && $mu_dir === $un['path'], json_encode( $un ) );
+$res = Preview::install_mu_plugin();
+$assert( 'not writable: installing the mu-plugin is refused with the 409 "unavailable" error and writes nothing', $res instanceof WP_Error && 'uxstudio_preview_unavailable' === $res->get_error_code() && 409 === $res->get_error_data()['status'] && ! is_file( Preview::mu_path() ), $res instanceof WP_Error ? $res->get_error_message() : 'true' );
+unset( $GLOBALS['uxs_filters']['uxstudio_preview_mu_writable'] );
+$assert( 'writable again after the filter is gone', true === Preview::availability()['ok'] );
 $src = Preview::mu_source( 'ux-studio/ux-studio.php' );
 file_put_contents( $mu_dir . '/lint.php', $src );
 $lint = shell_exec( escapeshellarg( PHP_BINARY ) . ' -l ' . escapeshellarg( $mu_dir . '/lint.php' ) . ' 2>&1' );
@@ -347,6 +356,10 @@ $assert( 'the mu-plugin does nothing without a token and when UX Studio is not a
 // A run in the history, migrated, with prepared values.
 History::put( array( 'id' => 'rrun1', 'started' => time() - 60, 'started_at' => '2026-10-21 12:00:00', 'finished' => time() - 30, 'user_id' => 7, 'sources' => array( array( 'id' => 'classic-editor', 'label' => 'Classic Editor', 'status' => 'done', 'written' => 1, 'staged' => 0 ), array( 'id' => 'disable-comments', 'label' => 'Disable Comments', 'status' => 'done', 'written' => 3, 'staged' => 3 ) ), 'errors' => 0, 'snapshot' => true, 'rolled_back' => 0 ) );
 Staging::put_settings( 'rrun1', 'security-optimization', array( 'disable_comments' => true ) );
+$GLOBALS['uxs_filters']['uxstudio_preview_mu_writable'][] = static fn( $writable, $path ) => false;
+$started = Preview::start( 'rrun1', 7 );
+$assert( 'not writable: starting a preview of a real run is refused with the "unavailable" error (the UI shows the reason and the no-preview way)', $started instanceof WP_Error && 'uxstudio_preview_unavailable' === $started->get_error_code() && array() === Preview::runs(), $started instanceof WP_Error ? $started->get_error_code() : 'started' );
+unset( $GLOBALS['uxs_filters']['uxstudio_preview_mu_writable'] );
 
 $started = Preview::start( 'rrun1', 7 );
 $assert( 'start installs the mu-plugin and stores the preview', ! is_wp_error( $started ) && is_file( Preview::mu_path() ) && null !== Preview::entry( 'rrun1' ), is_wp_error( $started ) ? $started->get_error_message() : '' );

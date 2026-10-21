@@ -97,6 +97,8 @@ final class AdminMenuEditorSource extends AbstractAdminSource {
 			'groups'       => array( array() ),
 			'subs'         => array(),
 			'titles'       => array(),
+			// Slug => the title WordPress (or the plugin) gives the item by default: lets the plan name the ids.
+			'defaults'     => array(),
 			'icons'        => array(),
 			'hidden'       => array(),
 			'denied'       => array(),
@@ -173,6 +175,10 @@ final class AdminMenuEditorSource extends AbstractAdminSource {
 			}
 
 			$slug = $file;
+			$default_title = $this->plain( (string) ( $defaults['menu_title'] ?? '' ) );
+			if ( '' !== $default_title ) {
+				$model['defaults'][ $slug ] = $default_title;
+			}
 			$model['tops'][]             = $slug;
 			$model['groups'][ $group ][] = $slug;
 			if ( '' !== $parent && $parent !== $slug ) {

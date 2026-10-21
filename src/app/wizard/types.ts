@@ -38,6 +38,12 @@ export interface SourceOption {
 	default: boolean;
 }
 
+/** One row of the expandable detail of a complex value. */
+export interface DetailRow {
+	label: string;
+	value: string;
+}
+
 /** One value a source would write (plan / dry run / result). */
 export interface PlanItem {
 	module: string;
@@ -46,6 +52,9 @@ export interface PlanItem {
 	secret: boolean;
 	from: string;
 	to: string;
+	/** Complex values only: label/value rows for the expandable "Show detail". */
+	from_detail?: DetailRow[];
+	to_detail?: DetailRow[];
 	/** The effective value differs from what UX Studio has now. */
 	changed: boolean;
 	/** The key is missing or differs, so a write is needed. */
@@ -114,6 +123,8 @@ export interface Check {
 	detail: string;
 	/** Correct, but prepared only: takes effect after the switch. */
 	staged?: boolean;
+	/** Complex values: what the value holds, label by label. */
+	rows?: DetailRow[];
 }
 
 /** State of the resumable runner (`uxstudio_migration_run`). */

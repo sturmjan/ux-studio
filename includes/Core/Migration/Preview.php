@@ -137,6 +137,13 @@ final class Preview {
 		} else {
 			$writable = is_dir( dirname( $path ) ) && is_writable( dirname( $path ) );
 		}
+		/**
+		 * Lets a host (or a test) say that the must-use folder is not writable although PHP thinks so.
+		 *
+		 * @param bool   $writable Whether the folder (or its parent, if it does not exist yet) is writable.
+		 * @param string $path     The must-use plugins folder.
+		 */
+		$writable = (bool) apply_filters( 'uxstudio_preview_mu_writable', $writable, $path );
 		if ( ! $writable ) {
 			return array(
 				'ok'     => false,

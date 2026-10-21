@@ -144,6 +144,7 @@ require_once $root . '/includes/Autoloader.php';
 
 use UxStudio\Core\Migration\Catalog;
 use UxStudio\Core\Migration\Mapping;
+use UxStudio\Core\Migration\Describe;
 use UxStudio\Core\Migration\MenuSimulator;
 use UxStudio\Core\Migration\PluginInfo;
 use UxStudio\Core\Migration\Runner;
@@ -322,6 +323,42 @@ $ver = array_column( $r['verify'], null, 'id' );
 $assert( 'AME (synthetic): verify for author shows the known difference, not a failure', ! empty( $ver['menu-role:author']['ok'] ), $j( $ver['menu-role:author'] ?? null ) );
 $tbl = array_column( $plan['menu_table'], null, 'role' );
 $assert( 'AME (synthetic): per-role table: Author loses Blog after, had it hidden before', in_array( 'Blog', $tbl['author']['before'], true ) && in_array( 'Blog', $tbl['author']['after'], true ), $j( $tbl['author'] ?? null ) );
+
+/* Readable values in the check step: counts, labels instead of ids, expandable detail. */
+$rows = array_column( $plan['transfer'], null, 'key' );
+$dump_free = true;
+foreach ( $plan['transfer'] as $row ) {
+	foreach ( array( 'from', 'to' ) as $side ) {
+		if ( preg_match( '/(^|, )[a-z0-9_.\-]+(\.php|group-\d)[a-z0-9_.?=&\-]*: /i', (string) $row[ $side ] ) ) { $dump_free = false; }
+	}
+}
+$assert( 'check: no "slug: value" dump in any from/to text', $dump_free, $j( array_column( $plan['transfer'], 'to', 'key' ) ) );
+$assert( 'check: categories are summarised by count and listed by name in the detail', 1 === preg_match( '/^\d+ categor/', $rows['categories']['to'] ) && ! empty( $rows['categories']['to_detail'] ) && 'Group 1' === $rows['categories']['to_detail'][0]['value'], $j( $rows['categories'] ?? null ) );
+$assert( 'check: renamed items say how many, detail shows the old title (as the source knows it) -> new title', 1 === preg_match( '/^\d+ renamed item/', $rows['item_titles']['to'] ) && 'Edit.php' === $rows['item_titles']['to_detail'][0]['label'] && 'Blog' === $rows['item_titles']['to_detail'][0]['value'], $j( $rows['item_titles'] ?? null ) );
+$assert( 'check: hidden items are listed by their title, not by slug', false !== strpos( $rows['hidden_items']['to'], 'Tools' ) && false === strpos( $rows['hidden_items']['to'], 'tools.php' ), $j( $rows['hidden_items'] ?? null ) );
+$assert( 'check: item_roles detail names the item and the roles', ! empty( $rows['item_roles']['to_detail'] ) && false === strpos( $rows['item_roles']['to_detail'][0]['label'], '.php' ), $j( $rows['item_roles'] ?? null ) );
+$assert( 'check: custom links show title -> address', ! empty( $rows['custom_links']['to_detail'] ) && 'Docs' === $rows['custom_links']['to_detail'][0]['label'] && 0 === strpos( $rows['custom_links']['to_detail'][0]['value'], 'https://docs.example.test' ), $j( $rows['custom_links'] ?? null ) );
+
+$d = Describe::value( range( 1, 10 ), 'x' );
+$assert( 'Describe: a long scalar list is cut with "+ N more" and the full list sits in the detail', '1, 2, 3, 4, 5, 6 + 4 more' === $d['text'] && 10 === count( $d['detail'] ), $j( $d ) );
+$d = Describe::value( array( 'a', 'b' ), 'x' );
+$assert( 'Describe: a short list stays a plain line without detail', 'a, b' === $d['text'] && array() === $d['detail'] );
+$d = Describe::value( array( 'shop' => array( 'edit.php', 'upload.php' ), 'blog' => array( 'index.php' ) ), 'order', array( 'shop' => 'Shop', 'blog' => 'Blog' ) );
+$assert( 'Describe: order -> items and categories counted, rows use labels', '3 items, 2 categories' === $d['text'] && 'Shop' === $d['detail'][0]['label'] && 'Posts, Media' === $d['detail'][0]['value'], $j( $d ) );
+$d = Describe::value( array( array( 'key' => 'title', 'label' => 'Title', 'type' => 'default', 'enabled' => true, 'width' => '' ), array( 'key' => 'date', 'label' => '', 'type' => 'default', 'enabled' => false, 'width' => '80px' ) ), 'post' );
+$assert( 'Describe: list columns -> count, hidden count, label or key per row', '2 columns, 1 hidden' === $d['text'] && 'Title' === $d['detail'][0]['label'] && 'date' === $d['detail'][1]['label'] && false !== strpos( $d['detail'][1]['value'], 'hidden' ), $j( $d ) );
+$d = Describe::value( array( 'edit.php' => 'Blog', 'upload.php' => 'Files' ), 'item_titles', array( 'orig:upload.php' => 'Library' ) );
+$assert( 'Describe: renamed items show the title before the rename (source, then WordPress core), never the new title as label', 'Posts' === $d['detail'][0]['label'] && 'Library' === $d['detail'][1]['label'] && 'Blog' === $d['detail'][0]['value'], $j( $d ) );
+$d = Describe::value( array( 'wc-orders' => array( 'parent' => 'woocommerce', 'title' => 'Orders', 'icon' => 'dashicons-cart', 'category' => 'g2' ) ), 'promoted_subs', array( 'woocommerce' => 'WooCommerce', 'g2' => 'Shop' ) );
+$assert( 'Describe: a moved sub-item reads "Parent / title (category)"', 'WooCommerce / Orders (Shop)' === $d['detail'][0]['value'], $j( $d ) );
+$pl = new ReflectionMethod( AbstractAdminSource::class, 'plain' );
+$pl->setAccessible( true );
+$src_obj = SourceRegistry::get( 'admin-menu-editor' );
+$assert( 'menu titles lose their notification bubbles (comments, updates, orders)', 'Comments' === $pl->invoke( $src_obj, 'Comments <span class="awaiting-mod count-0"><span class="pending-count">0</span><span class="comments-in-moderation-text screen-reader-text">0 comments</span></span>' ) && 'Plugins' === $pl->invoke( $src_obj, 'Plugins <span class="update-plugins count-16"><span class="plugin-count">16</span></span>' ) && 'Orders' === $pl->invoke( $src_obj, 'Orders <span class="awaiting-mod">651</span>' ) && 'Plain & title' === $pl->invoke( $src_obj, '<b>Plain &amp; title</b>' ) );
+$d = Describe::value( 'plain', 'k' );
+$assert( 'Describe: scalars are unchanged', 'plain' === $d['text'] && array() === $d['detail'] && '✓' === Describe::value( true )['text'] );
+$long = Describe::value( array_fill_keys( array_map( fn( $i ) => 'k' . $i, range( 1, 300 ) ), 'v' ), 'x' );
+$assert( 'Describe: the detail is capped', Describe::DETAIL_MAX + 1 === count( $long['detail'] ) && false !== strpos( end( $long['detail'] )['value'], '180' ) );
 
 /* AME Pro uses its own option and is read the same way. */
 $site( array( 'admin-menu-editor-pro' ), array( 'admin-menu-editor-pro' ), array( 'ws_menu_editor_pro' => $tree( array( 'index.php' => array(), 'edit.php' => array( 'menu_title' => 'Clanky' ) ) )['ws_menu_editor'] ) );

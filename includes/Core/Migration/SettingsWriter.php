@@ -91,6 +91,7 @@ final class SettingsWriter {
 		$items  = array();
 		$errors = array();
 		$clean  = array();
+		$names  = array_merge( Describe::base_names(), $mapping->names );
 		foreach ( $mapping->settings as $module => $input ) {
 			$schema = self::schema( $module );
 			if ( null === $schema ) {
@@ -113,7 +114,7 @@ final class SettingsWriter {
 		}
 		foreach ( $mapping->items as $item ) {
 			if ( isset( $item['option'] ) ) {
-				$items[] = self::option_row( $mapping, $item );
+				$items[] = self::option_row( $mapping, $item, $names );
 				continue;
 			}
 			if ( $item['secret'] ) {
@@ -149,13 +150,11 @@ final class SettingsWriter {
 			$new     = $exists ? $clean[ $module ]['values'][ $key ] : null;
 			$live    = $clean[ $module ]['live'];
 			$live_v  = array_key_exists( $key, $live ) ? $live[ $key ] : ( $clean[ $module ]['defaults'][ $key ] ?? null );
-			$items[] = array(
+			$items[] = self::with_text( array(
 				'module'  => $module,
 				'key'     => $key,
 				'label'   => $item['label'],
 				'secret'  => false,
-				'from'    => Mapping::display( $current ),
-				'to'      => Mapping::display( $new ),
 				'changed' => $exists && ! Mapping::same( $current, $new ),
 				'write'   => $exists && ( ! $has || ! Mapping::same( $stored[ $key ], $new ) ),
 				'dropped' => ! $exists || ! Mapping::same( $mapping->settings[ $module ][ $key ], $new ),
@@ -163,7 +162,7 @@ final class SettingsWriter {
 				'staged'  => $exists && $clean[ $module ]['enabled'] && ! Mapping::same( $live_v, $new ),
 				'origin'  => $item['origin'],
 				'target'  => self::option_name( $module ) . ':' . $key,
-			);
+			), $key, $current, $new, $names, $names );
 		}
 		return array(
 			'items'  => $items,
@@ -176,9 +175,10 @@ final class SettingsWriter {
 	 *
 	 * @param Mapping              $mapping Mapping.
 	 * @param array<string, mixed> $item    Item with `option`.
+	 * @param array<string, string> $names  Id => label for the readable form of the values.
 	 * @return array<string, mixed>
 	 */
-	private static function option_row( Mapping $mapping, array $item ): array {
+	private static function option_row( Mapping $mapping, array $item, array $names = array() ): array {
 		$option = (string) $item['option'];
 		$key    = (string) $item['key'];
 		$module = (string) $mapping->options[ $option ]['module'];
@@ -189,13 +189,15 @@ final class SettingsWriter {
 		$has    = array_key_exists( $key, $stored );
 		$cur    = $has ? $stored[ $key ] : null;
 		$live_v = array_key_exists( $key, $live ) ? $live[ $key ] : null;
-		return array(
+		// The menu config names its own categories: use them to label the ids in the lists (old names for
+		// the old value, new names for the new one).
+		$names_from = array_merge( $names, self::scalar_map( $stored['categories'] ?? null ) );
+		$names_to   = array_merge( $names, self::scalar_map( $mapping->options[ $option ]['values']['categories'] ?? null ) );
+		return self::with_text( array(
 			'module'  => $module,
 			'key'     => $key,
 			'label'   => $item['label'],
 			'secret'  => false,
-			'from'    => Mapping::display( $cur ),
-			'to'      => Mapping::display( $new ),
 			'changed' => ! Mapping::same_deep( $cur, $new ),
 			'write'   => ! $has || ! Mapping::same_deep( $stored[ $key ], $new ),
 			'dropped' => false,
@@ -203,7 +205,49 @@ final class SettingsWriter {
 			'origin'  => $item['origin'],
 			'target'  => $option . ':' . $key,
 			'option'  => $option,
-		);
+		), $key, $cur, $new, $names_from, $names_to );
+	}
+
+	/**
+	 * Scalar entries of a map as strings (labels), anything else dropped.
+	 *
+	 * @param mixed $map Value.
+	 * @return array<string, string>
+	 */
+	private static function scalar_map( $map ): array {
+		$out = array();
+		foreach ( is_array( $map ) ? $map : array() as $id => $label ) {
+			if ( is_scalar( $label ) ) {
+				$out[ (string) $id ] = (string) $label;
+			}
+		}
+		return $out;
+	}
+
+	/**
+	 * Add the readable form of the before/after values to a preview row: `from`/`to` (one line) and, for
+	 * complex values, `from_detail`/`to_detail` (label/value rows for the expandable detail).
+	 *
+	 * @param array<string, mixed>  $row   Row without from/to.
+	 * @param string                $key   Setting key.
+	 * @param mixed                 $from  Value now.
+	 * @param mixed                 $to    Value after.
+	 * @param array<string, string> $names_from Id => label for the old value.
+	 * @param array<string, string> $names_to   Id => label for the new value.
+	 * @return array<string, mixed>
+	 */
+	private static function with_text( array $row, string $key, $from, $to, array $names_from, array $names_to ): array {
+		$a = Describe::value( $from, $key, $names_from );
+		$b = Describe::value( $to, $key, $names_to );
+		// Keys keep their order in the JSON that way the table reads from/to next to the label.
+		$out = array_slice( $row, 0, 4, true ) + array( 'from' => $a['text'], 'to' => $b['text'] ) + array_slice( $row, 4, null, true );
+		if ( $a['detail'] ) {
+			$out['from_detail'] = $a['detail'];
+		}
+		if ( $b['detail'] ) {
+			$out['to_detail'] = $b['detail'];
+		}
+		return $out;
 	}
 
 	/**
@@ -348,7 +392,7 @@ final class SettingsWriter {
 					'detail' => sprintf(
 						/* translators: %s: value that the module did not accept. */
 						__( 'The module does not accept the value "%s" (for example a post type or role that does not exist), it was not transferred.', 'ux-studio' ),
-						Mapping::display( $mapping->settings[ $row['module'] ][ $row['key'] ] ?? '' )
+						Describe::value( $mapping->settings[ $row['module'] ][ $row['key'] ] ?? '', (string) $row['key'], $mapping->names )['text']
 					),
 				);
 				continue;
@@ -368,6 +412,8 @@ final class SettingsWriter {
 						$row['to'],
 						$row['from']
 					),
+				// The expandable detail of a complex value (what it holds, label by label).
+				'rows'   => $row['to_detail'] ?? array(),
 			);
 		}
 		return $checks;

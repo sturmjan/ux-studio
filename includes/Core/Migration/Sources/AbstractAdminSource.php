@@ -245,6 +245,12 @@ abstract class AbstractAdminSource extends AbstractSource {
 			}
 		}
 		$input['item_titles'] = $titles;
+		// Labels for the ids the plan prints inside the lists (menu slug -> the title the user sees).
+		$originals = array_map( fn( $t ): string => $this->plain( (string) $t ), array_merge( (array) ( $model['titles'] ?? array() ), (array) ( $model['defaults'] ?? array() ) ) );
+		// Defaults first, the titles the user sees now on top (the "orig:" copy is the title before any rename).
+		$m->names( array_map( fn( $t ): string => $this->plain( (string) $t ), (array) ( $model['defaults'] ?? array() ) ) );
+		$m->names( array_map( fn( $t ): string => $this->plain( (string) $t ), (array) ( $model['titles'] ?? array() ) ) );
+		$m->names( array_combine( array_map( static fn( $k ): string => 'orig:' . $k, array_keys( $originals ) ), array_values( $originals ) ) ?: array() );
 
 		$icons = array();
 		$bad_icons = array();
@@ -370,6 +376,9 @@ abstract class AbstractAdminSource extends AbstractSource {
 	 * @param string $text Text.
 	 */
 	protected function plain( string $text ): string {
+		// Notification bubbles ("Comments 3", "Orders 651") and their screen-reader text are not part of the title.
+		$text = (string) preg_replace( '#<span[^>]*class="[^"]*(?:plugin-count|screen-reader-text|count-\d+)[^"]*"[^>]*>.*?</span>#is', '', $text );
+		$text = (string) preg_replace( '#<span[^>]*class="[^"]*(?:update-plugins|awaiting-mod|pending-count|wc-count|count)[^"]*"[^>]*>.*?</span>#is', '', $text );
 		return trim( preg_replace( '/\s+/', ' ', html_entity_decode( strip_tags( $text ), ENT_QUOTES ) ) );
 	}
 

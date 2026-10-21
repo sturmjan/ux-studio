@@ -12,6 +12,7 @@ import { ChevronRight, LoaderCircle, PowerOff } from 'lucide-react';
 import { api, queryClient, type ApiError, type ModuleInfo } from './api';
 import { isOverlapError, OverlapModal, OverlapPanel, refreshOverlaps } from './Overlaps';
 import { ModuleIcon } from './moduleIcons';
+import { WizardHint } from './WizardHint';
 import { navigate } from './route';
 
 /** meta.json `group` values in display order. */
@@ -149,6 +150,7 @@ export function ModuleGrid(): JSX.Element {
 					</button>
 				</div>
 			</header>
+			<WizardHint />
 			<OverlapPanel />
 			<div className="uxs-modulefilter">
 				<input

@@ -8,7 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import { api, type ModuleInfo } from '../api';
 import { ModuleIcon } from '../moduleIcons';
 import type { SmokeRun } from './flows';
-import type { DataRow, MenuRoleRow, PlanItem, ScanSource, SmokeCounts, SmokeResult, SourcePlan } from './types';
+import type { DataRow, DetailRow, MenuRoleRow, PlanItem, ScanSource, SmokeCounts, SmokeResult, SourcePlan } from './types';
 
 /** True when the user asked the system for less motion. */
 export function reducedMotion(): boolean {
@@ -265,38 +265,70 @@ export function Warnings( { warnings }: { warnings: string[] } ): JSX.Element | 
 	);
 }
 
+/** Expandable "Show detail" list for a complex value: label, value; never raw internal ids. */
+export function DetailRows( { rows }: { rows: DetailRow[] } ): JSX.Element | null {
+	if ( 0 === rows.length ) {
+		return null;
+	}
+	return (
+		<details className="uxs-wiz-detail">
+			<summary>{ __( 'Show detail', 'ux-studio' ) }</summary>
+			<dl>
+				{ rows.map( ( row, i ) => (
+					<div key={ `${ i }-${ row.label }` }>
+						{ '' !== row.label && <dt>{ row.label }</dt> }
+						<dd>{ row.value }</dd>
+					</div>
+				) ) }
+			</dl>
+		</details>
+	);
+}
+
+/** One value of the change table: short text, plus the expandable detail for complex values. */
+function ValueCell( { text, rows }: { text: string; rows?: DetailRow[] } ): JSX.Element {
+	return (
+		<>
+			<code>{ '' === text ? '-' : text }</code>
+			{ rows && <DetailRows rows={ rows } /> }
+		</>
+	);
+}
+
 /** "now -> new" table used by the dry run. */
 export function ChangeTable( { items }: { items: PlanItem[] } ): JSX.Element {
 	return (
-		<table className="uxs-wiz-changes">
-			<thead>
-				<tr>
-					<th>{ __( 'Setting', 'ux-studio' ) }</th>
-					<th>{ __( 'Now in UX Studio', 'ux-studio' ) }</th>
-					<th>{ __( 'After migration', 'ux-studio' ) }</th>
-				</tr>
-			</thead>
-			<tbody>
-				{ items.map( ( item ) => (
-					<tr key={ item.target } className={ item.changed ? 'is-changed' : 'is-same' }>
-						<td>{ item.label }</td>
-						<td>
-							<code>{ '' === item.from ? '-' : item.from }</code>
-						</td>
-						<td>
-							<code>{ '' === item.to ? '-' : item.to }</code>
-							{ ! item.changed && <span className="uxs-wiz-muted"> { __( 'no change', 'ux-studio' ) }</span> }
-							{ item.staged && item.write && <span className="uxs-badge is-info">{ __( 'Prepared', 'ux-studio' ) }</span> }
-							{ item.dropped && (
-								<span className="uxs-wiz-dropped" title={ __( 'The module does not accept the whole value.', 'ux-studio' ) }>
-									<TriangleAlert size={ 13 } aria-hidden />
-								</span>
-							) }
-						</td>
+		<div className="uxs-wiz-tablewrap">
+			<table className="uxs-wiz-changes">
+				<thead>
+					<tr>
+						<th>{ __( 'Setting', 'ux-studio' ) }</th>
+						<th>{ __( 'Now in UX Studio', 'ux-studio' ) }</th>
+						<th>{ __( 'After migration', 'ux-studio' ) }</th>
 					</tr>
-				) ) }
-			</tbody>
-		</table>
+				</thead>
+				<tbody>
+					{ items.map( ( item ) => (
+						<tr key={ item.target } className={ item.changed ? 'is-changed' : 'is-same' }>
+							<td className="uxs-wiz-changes__label">{ item.label }</td>
+							<td data-col={ __( 'Now in UX Studio', 'ux-studio' ) }>
+								<ValueCell text={ item.from } rows={ item.from_detail } />
+							</td>
+							<td data-col={ __( 'After migration', 'ux-studio' ) }>
+								<ValueCell text={ item.to } rows={ item.to_detail } />
+								{ ! item.changed && <span className="uxs-wiz-muted"> { __( 'no change', 'ux-studio' ) }</span> }
+								{ item.staged && item.write && <span className="uxs-badge is-info">{ __( 'Prepared', 'ux-studio' ) }</span> }
+								{ item.dropped && (
+									<span className="uxs-wiz-dropped" title={ __( 'The module does not accept the whole value.', 'ux-studio' ) }>
+										<TriangleAlert size={ 13 } aria-hidden />
+									</span>
+								) }
+							</td>
+						</tr>
+					) ) }
+				</tbody>
+			</table>
+		</div>
 	);
 }
 

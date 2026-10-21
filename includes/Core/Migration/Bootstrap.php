@@ -30,6 +30,7 @@ final class Bootstrap {
 		add_action( self::PURGE_HOOK, array( Switcher::class, 'purge_expired' ) );
 		add_action( self::PURGE_HOOK, array( Preview::class, 'purge_expired' ) );
 		Preview::register();
+		AutoStart::register();
 		add_action( 'admin_init', array( self::class, 'admin_init' ) );
 	}
 

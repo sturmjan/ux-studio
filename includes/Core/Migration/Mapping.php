@@ -39,6 +39,14 @@ final class Mapping {
 	 */
 	public bool $stage = true;
 
+	/**
+	 * Labels of internal ids that appear inside complex values (menu slugs -> menu titles ...), so the
+	 * check step can say "Dashboard" instead of `index.php`.
+	 *
+	 * @var array<string, string>
+	 */
+	public array $names = array();
+
 	/** @var string[] What does not move over. */
 	public array $lossy = array();
 
@@ -123,6 +131,20 @@ final class Mapping {
 			'secret' => true,
 			'origin' => '' !== $origin ? $origin : $option,
 		);
+		return $this;
+	}
+
+	/**
+	 * Teach the plan the labels of ids used in complex values.
+	 *
+	 * @param array<string, string> $names Id => label.
+	 */
+	public function names( array $names ): self {
+		foreach ( $names as $id => $label ) {
+			if ( is_scalar( $label ) && '' !== trim( (string) $label ) ) {
+				$this->names[ (string) $id ] = trim( (string) $label );
+			}
+		}
 		return $this;
 	}
 
