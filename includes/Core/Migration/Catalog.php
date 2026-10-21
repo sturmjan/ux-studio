@@ -383,6 +383,23 @@ final class Catalog {
 	}
 
 	/**
+	 * Catalog entry that lists a plugin slug (first match). The migration sources
+	 * use it to take type (full / partial), target module and display name from
+	 * one place.
+	 *
+	 * @param string $slug Folder slug.
+	 * @return array<string, mixed>|null
+	 */
+	public static function entry_for_slug( string $slug ): ?array {
+		foreach ( self::entries() as $entry ) {
+			if ( isset( $entry['plugins'][ $slug ] ) ) {
+				return $entry;
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * Folder slug of a plugin basename: `wpforms-lite/wpforms.php` => `wpforms-lite`,
 	 * single-file `hello.php` => `hello`.
 	 *

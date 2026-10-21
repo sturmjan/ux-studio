@@ -48,6 +48,7 @@ register_deactivation_hook(
 		if ( isset( $plugin->modules ) ) {
 			$plugin->modules->cleanup_for_plugin_deactivation();
 		}
+		\UxStudio\Core\Migration\Bootstrap::deactivate();
 	}
 );
 

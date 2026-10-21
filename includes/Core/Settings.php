@@ -55,6 +55,22 @@ final class Settings {
 	 * @param array $schema Module settings schema (see BaseModule::settings_schema).
 	 */
 	public function save( array $input, array $schema ): array {
+		$clean        = self::clean( $input, $schema );
+		$this->values = array_merge( $this->all(), $clean );
+		update_option( $this->option, $this->values, self::should_autoload( $this->values ) );
+		return $this->values;
+	}
+
+	/**
+	 * Sanitize input against a schema without storing anything (what save()
+	 * would write). Keys the schema does not know are dropped. Used by the
+	 * migration wizard to preview and verify values.
+	 *
+	 * @param array $input  Raw input.
+	 * @param array $schema Module settings schema.
+	 * @return array<string, mixed>
+	 */
+	public static function clean( array $input, array $schema ): array {
 		$clean = array();
 		foreach ( $schema as $field ) {
 			$key = $field['key'];
@@ -63,9 +79,7 @@ final class Settings {
 			}
 			$clean[ $key ] = self::sanitize_field( $input[ $key ], $field );
 		}
-		$this->values = array_merge( $this->all(), $clean );
-		update_option( $this->option, $this->values, self::should_autoload( $this->values ) );
-		return $this->values;
+		return $clean;
 	}
 
 	/**
