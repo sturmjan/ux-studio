@@ -73,6 +73,15 @@ export function RunHistory( { onRolledBack }: { onRolledBack?: ( runId: string )
 								<strong>{ formatDate( run.started_at ) }</strong>
 								{ statusBadge( run ) }
 								<span className="uxs-wiz-muted">{ run.sources.map( ( s ) => s.label ).join( ', ' ) }</span>
+								{ run.staging && ! run.applied && run.staging.settings + run.staging.secrets + run.staging.activations > 0 && (
+									<span className="uxs-badge is-info">
+										{ sprintf(
+											/* translators: %d: number of prepared values and objects. */
+											__( '%d prepared for the switch', 'ux-studio' ),
+											run.staging.settings + run.staging.secrets + run.staging.activations
+										) }
+									</span>
+								) }
 							</div>
 							<div className="uxs-wiz-runs__side">
 								{ run.can_rollback ? (
@@ -106,7 +115,7 @@ export function RunHistory( { onRolledBack }: { onRolledBack?: ( runId: string )
 						<p>
 							{ sprintf(
 								/* translators: %s: date and time of the run. */
-								__( 'UX Studio settings go back exactly to how they were before the run from %s. Changes made in these modules since then are lost.', 'ux-studio' ),
+								__( 'UX Studio goes back exactly to how it was before the run from %s: settings, and everything the run created. Changes made in these modules since then are lost.', 'ux-studio' ),
 								formatDate( target.started_at )
 							) }
 						</p>

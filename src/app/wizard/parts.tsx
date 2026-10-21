@@ -6,7 +6,7 @@ import { CircleX, TriangleAlert, Info } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { api, type ModuleInfo } from '../api';
 import { ModuleIcon } from '../moduleIcons';
-import type { PlanItem, ScanSource, SourcePlan } from './types';
+import type { DataRow, PlanItem, ScanSource, SourcePlan } from './types';
 
 /** True when the user asked the system for less motion. */
 export function reducedMotion(): boolean {
@@ -64,6 +64,38 @@ export function settingsLabel( count: number ): string {
 	);
 }
 
+/** "12 settings, 338 redirects": what a plugin holds, for the compact scan and selection cards. */
+export function sourceSummary( summary: ScanSource[ 'summary' ] ): string {
+	const first: DataRow | undefined = summary.data?.[ 0 ];
+	if ( ! first ) {
+		return settingsLabel( summary.settings );
+	}
+	const data = sprintf(
+		/* translators: 1: number of objects, 2: what they are ("Redirects"). */
+		__( '%1$d × %2$s', 'ux-studio' ),
+		first.count,
+		first.label
+	);
+	return 0 === summary.settings ? data : `${ settingsLabel( summary.settings ) }, ${ data }`;
+}
+
+/** The counts of the objects a plugin holds, as one line ("338 Redirects, 12 of them switched off"). */
+export function DataCounts( { rows }: { rows: DataRow[] } ): JSX.Element | null {
+	if ( 0 === rows.length ) {
+		return null;
+	}
+	return (
+		<p className="uxs-wiz-datacounts">
+			{ rows.map( ( row, i ) => (
+				<span key={ row.key }>
+					<strong>{ row.count }</strong> { row.label }
+					{ i < rows.length - 1 ? ', ' : '' }
+				</span>
+			) ) }
+		</p>
+	);
+}
+
 /** Active / inactive / leftover-data badge. */
 export function StatusBadge( { source }: { source: Pick< ScanSource, 'status' > } ): JSX.Element {
 	if ( 'active' === source.status ) {
@@ -91,12 +123,18 @@ export function PlanDetails( { plan }: { plan: SourcePlan } ): JSX.Element {
 			<div className="uxs-wiz-plan__cols">
 				<div>
 					<h4 className="uxs-wiz-plan__title is-yes">{ __( 'Will be transferred', 'ux-studio' ) }</h4>
-					{ plan.transfer.length > 0 ? (
+					{ plan.transfer.length > 0 || plan.data.length > 0 ? (
 						<ul className="uxs-wiz-plan__list">
 							{ plan.transfer.map( ( item ) => (
 								<li key={ item.target }>
 									<span>{ item.label }</span>
 									{ '' !== item.to && <code>{ item.to }</code> }
+								</li>
+							) ) }
+							{ plan.data.map( ( row ) => (
+								<li key={ `data-${ row.key }` }>
+									<span>{ row.label }</span>
+									<code>{ row.count }</code>
 								</li>
 							) ) }
 						</ul>
@@ -117,7 +155,13 @@ export function PlanDetails( { plan }: { plan: SourcePlan } ): JSX.Element {
 					) }
 				</div>
 			</div>
-			{ plan.transfer.length > 0 && plan.notes.length > 0 && (
+			{ plan.staged && plan.data.length > 0 && (
+				<p className="uxs-wiz-note">
+					<Info size={ 14 } aria-hidden />{ ' ' }
+					{ __( 'The module is already on, so this is only prepared: the objects are created switched off and start working at the switch, after the safe preview.', 'ux-studio' ) }
+				</p>
+			) }
+			{ ( plan.transfer.length > 0 || plan.data.length > 0 ) && plan.notes.length > 0 && (
 				<p className="uxs-wiz-note">
 					<Info size={ 14 } aria-hidden /> { plan.notes.join( ' ' ) }
 				</p>

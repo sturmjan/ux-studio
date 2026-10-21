@@ -134,7 +134,22 @@
 }
 
 [data-theme="dark"] .uxs-wiz-stephead__icon,
-[data-theme="dark"] .uxs-wiz-sourceicon { color: #c7d2fe; }
+[data-theme="dark"] /* Per-source extra choices (e.g. "Also move the history") and the counts of a plugin's objects. */
+.uxs-wiz-options { display: flex; flex-direction: column; gap: var(--uxs-sp-1); margin-top: var(--uxs-sp-2); }
+.uxs-wiz-option {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: var(--uxs-sp-2);
+	font-size: var(--uxs-fs-s);
+	cursor: pointer;
+
+	input { margin: 0; }
+	input:disabled + span { color: var(--uxs-text-soft); }
+}
+.uxs-wiz-datacounts { margin: var(--uxs-sp-1) 0 var(--uxs-sp-2); color: var(--uxs-text-soft); font-size: var(--uxs-fs-s); strong { color: var(--uxs-text); } }
+
+.uxs-wiz-sourceicon { color: #c7d2fe; }
 
 .uxs-wiz-actions {
 	display: flex;

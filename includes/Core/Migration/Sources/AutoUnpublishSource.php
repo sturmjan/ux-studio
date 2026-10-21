@@ -145,17 +145,31 @@ final class AutoUnpublishSource extends AbstractMetaSource {
 		}
 		foreach ( $c['skipped'] as $reason => $n ) {
 			if ( 'past' === $reason ) {
-				$text = __( '%d scheduled actions are already in the past and are not transferred (they would unpublish the post at once).', 'ux-studio' );
+				$m->lossy(
+					sprintf(
+						/* translators: %d: number of scheduled actions. */
+						__( '%d scheduled actions are already in the past and are not transferred (they would unpublish the post at once).', 'ux-studio' ),
+						$n
+					)
+				);
 			} elseif ( 'missing' === $reason ) {
-				$text = __( '%d scheduled actions belong to posts that no longer exist.', 'ux-studio' );
+				$m->lossy(
+					sprintf(
+						/* translators: %d: number of scheduled actions. */
+						__( '%d scheduled actions belong to posts that no longer exist.', 'ux-studio' ),
+						$n
+					)
+				);
 			} else {
-				$text = sprintf(
-					/* translators: %s: action of the plugin; the number goes in the next placeholder. */
-					__( '%%d scheduled actions "%s" have no equivalent: the module only moves a post to draft.', 'ux-studio' ),
-					substr( $reason, 7 )
+				$m->lossy(
+					sprintf(
+						/* translators: 1: number of scheduled actions, 2: action of the plugin. */
+						__( '%1$d scheduled actions "%2$s" have no equivalent: the module only moves a post to draft.', 'ux-studio' ),
+						$n,
+						substr( $reason, 7 )
+					)
 				);
 			}
-			$m->lossy( sprintf( $text, $n ) );
 		}
 		$m->note( __( 'Each date is copied to the post as the module keeps it. With the module on it is only prepared and written at the switch.', 'ux-studio' ) );
 		return $m;

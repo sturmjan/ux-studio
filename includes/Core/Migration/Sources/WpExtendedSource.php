@@ -85,6 +85,7 @@ final class WpExtendedSource extends AbstractSource {
 		$detect                       = parent::detect();
 		$detect['module_name']        = __( 'All UX Studio modules', 'ux-studio' );
 		$detect['summary']['settings'] = 'absent' === $detect['status'] ? 0 : count( $this->pairs() );
+		$detect['summary']['data']     = array();
 		return $detect;
 	}
 
@@ -113,6 +114,9 @@ final class WpExtendedSource extends AbstractSource {
 			'module'      => '*',
 			'module_name' => __( 'All UX Studio modules', 'ux-studio' ),
 			'transfer'    => $rows,
+			'data'        => array(),
+			'options'     => array(),
+			'staged'      => false,
 			'lossy'       => $lossy,
 			'warnings'    => $warn,
 			'notes'       => $notes,
@@ -120,6 +124,7 @@ final class WpExtendedSource extends AbstractSource {
 				'transfer' => count( $rows ),
 				'changed'  => $new,
 				'lossy'    => count( $lossy ),
+				'data'     => 0,
 			),
 		);
 	}

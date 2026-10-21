@@ -146,7 +146,7 @@ final class EmailLogSource extends AbstractSource {
 		return array(
 			array(
 				'key'   => 'email',
-				'label' => __( 'Logged e-mails in the old plugin (copied only if you tick "Also move the history")', 'ux-studio' ),
+				'label' => __( 'Logged e-mails', 'ux-studio' ),
 				'count' => $this->count_rows(),
 			),
 		);

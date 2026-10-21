@@ -20,7 +20,22 @@ export interface ScanSource {
 	basename: string;
 	has_data: boolean;
 	status: SourceStatus;
-	summary: { settings: number };
+	summary: { settings: number; data: DataRow[] };
+}
+
+/** One count of what the foreign plugin holds ("338 redirects", "12 of them switched off"). */
+export interface DataRow {
+	key: string;
+	label: string;
+	count: number;
+}
+
+/** An extra choice a source offers (e.g. "Also move the history"). */
+export interface SourceOption {
+	key: string;
+	label: string;
+	help: string;
+	default: boolean;
 }
 
 /** One value a source would write (plan / dry run / result). */
@@ -50,10 +65,15 @@ export interface SourcePlan {
 	module_name: string;
 	status: SourceStatus;
 	transfer: PlanItem[];
+	/** Objects (rules, snippets, folders ...) with their counts. */
+	data: DataRow[];
+	options: SourceOption[];
+	/** The target module is on: values and data are only prepared, they start at the switch. */
+	staged: boolean;
 	lossy: string[];
 	warnings: string[];
 	notes: string[];
-	counts: { transfer: number; changed: number; lossy: number };
+	counts: { transfer: number; changed: number; lossy: number; data: number };
 }
 
 export type RunSourceStatus = 'pending' | 'running' | 'done' | 'error';
@@ -63,6 +83,10 @@ export interface RunSource {
 	label: string;
 	module_name: string;
 	progress: number;
+	/** Objects handled so far / in total (sources that go through their data in batches). */
+	processed?: number;
+	total?: number;
+	options?: Record< string, boolean >;
 	written: number;
 	unchanged: number;
 	/** How many of the written values were only prepared (module already on). */

@@ -77,8 +77,9 @@ final class MaintenanceSource extends AbstractSource {
 			}
 		}
 		if ( null !== $c['roles'] ) {
+			// Administrators always get through in the module, so they are not a role to list.
 			$m->set( self::MODULE, 'auth_type', 'roles', __( 'Authentication type', 'ux-studio' ), $origin );
-			$m->set( self::MODULE, 'access_roles', $c['roles'], __( 'Allowed roles', 'ux-studio' ), $origin );
+			$m->set( self::MODULE, 'access_roles', array_values( array_diff( $c['roles'], array( 'administrator' ) ) ), __( 'Allowed roles', 'ux-studio' ), $origin );
 		}
 		if ( 'disabled' !== $c['mode'] ) {
 			$m->warn( __( 'The old plugin has maintenance or coming soon mode ON. Once the module is switched on, the site shows the maintenance page to visitors. Switch the old plugin off first and check the page in the preview.', 'ux-studio' ) );

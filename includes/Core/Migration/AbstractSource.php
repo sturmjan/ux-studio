@@ -570,8 +570,9 @@ abstract class AbstractSource implements Source {
 			if ( ! $dry_run && 'created' === $status && '' !== $run_id ) {
 				// Only objects this run CREATED are recorded: the rollback removes exactly those.
 				$maps = isset( $res['maps'] ) ? (array) $res['maps'] : ( ! empty( $res['map_type'] ) ? array( array( (string) $res['map_type'], (string) ( $res['map_id'] ?? '' ) ) ) : array() );
-				foreach ( $maps as $map ) {
-					MigrationMap::put( $this->slug, (string) $item['key'], (string) $map[0], (string) $map[1], $run_id );
+				foreach ( array_values( $maps ) as $n => $map ) {
+					// The mapping key is unique per (plugin, key, type): several rows of one type need distinct keys.
+					MigrationMap::put( $this->slug, (string) $item['key'] . ( $n > 0 ? '#' . $n : '' ), (string) $map[0], (string) $map[1], $run_id );
 				}
 			}
 			if ( ! $dry_run && ! empty( $res['activate'] ) ) {

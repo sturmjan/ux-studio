@@ -388,7 +388,7 @@ final class Runner {
 		foreach ( History::all() as $run ) {
 			$run['rollback_until'] = self::mysql_time( Snapshot::expires( (int) ( $run['started'] ?? 0 ) ) );
 			$run['staging']        = Staging::summary( (string) $run['id'] );
-			$run['can_rollback']   = ! empty( $run['snapshot'] ) && empty( $run['rolled_back'] ) && empty( $run['snapshot_purged'] )
+			$run['can_rollback']   = ! empty( $run['snapshot'] ) && empty( $run['rolled_back'] ) && empty( $run['snapshot_purged'] ) && empty( $run['applied'] )
 				&& Snapshot::expires( (int) ( $run['started'] ?? 0 ) ) > time() && Snapshot::exists( (string) $run['id'] );
 			$out[]                 = $run;
 		}

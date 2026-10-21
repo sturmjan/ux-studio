@@ -2014,8 +2014,7 @@ Neověří: chování jen pro návštěvníky z cizí IP, cron běhy, e-maily sk
 
 - [x] F1 Catalog + detekce + ActivationGuard + upozornění (bez migrace) - hotovo 2026-10-21: `includes/Core/Migration/{Catalog,Overlaps,ActivationGuard}.php`, REST `overlaps` + `overlaps/ignore|unignore`, 409 `uxstudio_plugin_overlap` na `modules/{id}` (filtr `uxstudio_overlap_guard_enabled` vypíná kontrolu jen na REST cestě, WP-CLI a `Modules::set_enabled()` zůstávají volné), panel na Modulech, modal 409, lišta na stránce modulu, wp-admin notice; test `tests/overlap-catalog.php`
 - [x] F2 Průvodce (UI) + sken + plán + zkušební běh + Snapshot/rollback + zdroje jen s nastavením - hotovo 2026-10-21 (viz „F2 poznámky“ pod seznamem)
-- [ ] F3 Zdroje s daty: Redirection, Code Snippets/WPCode/HFCM, FileBird/Folders, Page Links To,
-      PublishPress Future, Menu Icons/Nav Menu Roles, last login, WP Mail SMTP (vč. hesla), WP Mail Logging
+- [x] F3 Zdroje s daty (36 pluginů ve 14 zdrojích) + staging - hotovo 2026-10-21 (viz „F3 poznámky“ na konci §26)
 - [ ] F4 Bezpečný náhled + smoke testy + krok deaktivace
 - [ ] F5 Admin Customiser zdroje (Admin Menu Editor, Adminimize, White Label CMS) + Admin Columns
 - [ ] F6 MCP v jádru + abilities + scope tokenů + UI pro připojení klienta
@@ -2047,3 +2046,35 @@ WPS Hide Login (hrozba vyzamčení), totéž CAPTCHA. Porušovalo to pravidlo �
 - `Staging::discard( run_id )` volá `Runner::rollback` (a denní purge maže záznamy starší než okno snímku, 30 dní). Neaktivní data odstraní obnova tabulek ze snímku.
 - `migration/status` vrací `staging` (počty hodnot, tajných hodnot a aktivací čekajících na přepnutí), historie `staging` a `applied`. Průvodce: „Připraveno, začne platit po přepnutí" místo „Zapsáno" (kontrola, migrace, ověření, hotovo).
 - **Pravidlo pro data (F3):** co mění chování webu, dokud běží starý plugin (přesměrování, snippety, viditelnost menu, přihlášení, CAPTCHA, režim údržby, plánování expirace, externí odkazy), vzniká **neaktivní** a aktivuje se přes `Staging::apply`. Neškodné (složky médií, last-login meta, historie e-mailů, definice cron intervalů) se zapisuje přímo.
+
+### 26.9 F3 poznámky: zdroje s daty (2026-10-21)
+
+**Kód.** `AbstractSource` dostal datovou fázi: první volání `migrate()` zapíše nastavení, další čtou foreign úložiště po dávkách (500, kurzor, `processed / total` v `uxstudio_migration_run`), zkušební běh projde vše jedním průchodem bez zápisu. Zdroj implementuje `read_batch`, `apply_item`, `preview_item`, `verify_item` (+ `target_tables()`, `options()`). `AbstractMetaSource` je základ pro zdroje zapisující post/user meta. Zápis jde vždy přes API modulu (`Repository::save`, `SnippetManager::createSnippet`, termová API, `Security::store_secret`), nikdy přímo do souborů nebo tabulek modulu mimo jeho logiku. Snímek umí tabulky (`target_tables()`, záloha `CREATE TABLE ... LIKE` + zároveň záloha verzí tabulek `uxstudio_module_db_versions`, aby po vrácení smazaná tabulka nezůstala „nainstalovaná“). Objekty v core tabulkách (termy složek, meta, cron události, soubory snippetů) maže `Revert` podle mapovací tabulky: zapisují se jen objekty, které běh VYTVOŘIL (nikdy existující), takže vrácení nic cizího nesmaže. Po `Staging::apply` už vrácení ze snímku neprojde (409 `uxstudio_migration_applied`, doladí F4 s krokem „zrušit přepnutí“).
+
+**Volby zdroje** (`Source::options()`, REST `migration/run` parametr `options`): zatím jen „Přenést i historii“ u logů e-mailů (výchozí vypnuto). Plán vrací `data[]` (počty objektů, např. 313 přesměrování), `options[]`, `staged`.
+
+**Klasifikace (přímo = neškodné, staged = mění chování webu, dokud běží starý plugin).** Pro modul vypnutý se vše zapisuje přímo (bez účinku do zapnutí), kromě snippetů.
+
+| Zdroj | Cíl | Zacházení při zapnutém modulu |
+|---|---|---|
+| Redirection, Safe Redirect Manager, Simple 301, 301 Redirects | redirects | pravidla vzniknou NEAKTIVNÍ, aktivní z pluginu se aktivují přes `Staging::apply` |
+| Code Snippets, WPCode, HFCM | code-snippets | VŽDY vypnuté (i při vypnutém modulu); zapnou se v `apply`; snippety se ztrátou pravidel (podmínky, cílení, zařízení) zůstanou vypnuté k revizi |
+| Page Links To | external-permalinks | nastavení `post_types` staged (adresy zůstávají v postmeta `_links_to`, modul čte totéž pole) |
+| PublishPress Future | auto-unpublish | data čekají ve stagingu, `apply` zapíše meta a naplánuje událost |
+| Menu Icons, Nav Menu Roles, If Menu, Menu Items Visibility Control | menu-icons, menu-visibility | meta čeká ve stagingu, `apply` zapíše |
+| WP Mail SMTP, Easy WP SMTP, Post SMTP, FluentSMTP | smtp-email | nastavení i zašifrované heslo/klíče staged |
+| WP Maintenance Mode, Coming Soon (SeedProd), Maintenance, Under Construction | maintenance-mode | vše vč. `mode` staged |
+| Simple History, WP Activity Log, Activity Log (Aryo), Adminify | activity-log | `retention_days` staged (kratší doba = mazání dat) |
+| Post Types Order, Intuitive CPO | post-type-order | `post_types` staged |
+| FileBird, Folders, Real Media Library, Wicked Folders | folder-manager | PŘÍMO (jen organizace médií) |
+| When Last Login, WP Last Login | user-last-login | PŘÍMO |
+| WP Mail Logging, Email Log | email-log | PŘÍMO (retence + volitelně historie) |
+| WP Crontrol | cron-control | PŘÍMO (definice intervalů do `uxstudio_cron_schedules`, modul je registruje) |
+
+**Ztrátové části (výběr, přesné texty jsou v plánech):** Redirection - server/login/referrer/agent/cookie/role/IP pravidla, náhodné a pass-through cíle, rozlišování velikosti písmen a práce s query, počítadla a logy; duplicitní adresa (modul má jedno pravidlo na adresu, platí první); SRM - 403/404, force https, wildcard `*` se převede na regex s `$1`; Simple 301 - pravidla s `*` při vypnutém wildcardu nikdy nefungovala, přeskočí se. Snippety - shortcode (content), run-once, condition, text/universal/blocks, umístění před/za příspěvkem, on demand; HFCM vždy jako typ html (jeho JS/CSS nese vlastní značky), cílení stránek/zařízení = revize. Složky - jen média (složky příspěvků/stránek se hlásí), kolekce/galerie/zkratky RML, ruční pořadí, barvy. Menu - role se u Nav Menu Roles zúží na „přihlášený“ a vypíší se po položkách, „skrýt pro roli“ a více pravidel If Menu a PHP výrazy se nepřenášejí; ikony se mapují na nejbližší Lucide z povolené sady (nemapované se vypíší jménem). SMTP - OAuth tokeny Gmail/Outlook se nekopírují („připojit znovu“, přenese se client id/secret), nepodporované mailery (SendGrid, Mailgun ...) se jmenují, vícenásobné připojení FluentSMTP jen výchozí; heslo se dešifruje schématem pluginu (libsodium / base64 / AES-CTR), konstanty `WPMS_*` z wp-config jsou efektivní hodnoty. Cron - PHP a URL události Crontrolu a pozastavené hooky se jen počítají. Activity Log - historie se NEimportuje (formáty událostí se liší), jen retence. Údržba - pozadí obrázkem, odpočet, přihlášení, per-URL pravidla.
+
+**Cron Control** dostal minimální podporu vlastních intervalů (`uxstudio_cron_schedules` + filtr `cron_schedules`), jinak by události s intervalem z Crontrolu po jeho odinstalaci zůstaly viset.
+
+**Past:** u více vybraných pluginů se stejným cílovým modulem s nastavením se přenášejí po sobě a později zpracovaný přepíše dřívější (výběr v průvodci na to upozorní); data (přesměrování, snippety, složky) se naopak sčítají.
+
+**Ověřeno živě** (pobyty, kopie s reálnými daty + fixtury pro neinstalované pluginy): 338 řádků Redirection → 313 pravidel (25 duplicit), 4 snippety z tabulky `snippets`, heslo WP Mail SMTP (dešifrované a uložené zašifrovaně), 1 e-mail z `wpml_mails`; WPS Hide Login proti zapnuté Security Optimization zůstal ve stagingu (živá volba beze změny, `wp-login.php` běží, vlastní URL neaktivní); druhý běh nezapsal nic; vrácení obnovilo tabulky, volby, soubory snippetů i meta. Testy `tests/migration-sources.php`, `tests/migration-data-sources.php`.

@@ -270,11 +270,11 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 	 * @param string $taxonomy Taxonomy.
 	 */
 	private function first_term( int $post_id, string $taxonomy ): string {
-		if ( ! function_exists( 'wp_get_post_terms' ) ) {
-			return '';
-		}
-		$terms = wp_get_post_terms( $post_id, $taxonomy, array( 'fields' => 'slugs' ) );
-		return is_array( $terms ) && $terms ? (string) reset( $terms ) : '';
+		global $wpdb;
+		// SQL on purpose: with WPCode deactivated its taxonomies are not registered and the term API refuses them.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$slug = $wpdb->get_var( $wpdb->prepare( "SELECT t.slug FROM {$wpdb->term_relationships} tr JOIN {$wpdb->term_taxonomy} tt ON tt.term_taxonomy_id = tr.term_taxonomy_id JOIN {$wpdb->terms} t ON t.term_id = tt.term_id WHERE tr.object_id = %d AND tt.taxonomy = %s ORDER BY t.term_id ASC LIMIT 1", $post_id, $taxonomy ) );
+		return null === $slug ? '' : (string) $slug;
 	}
 
 	/**

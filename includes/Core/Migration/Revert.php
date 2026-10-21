@@ -44,6 +44,10 @@ final class Revert {
 				++$count;
 			}
 		}
+		// WordPress keeps the folder hierarchy of a taxonomy in a cache option; it is rebuilt when needed.
+		if ( function_exists( 'delete_option' ) ) {
+			delete_option( self::FOLDER_TAXONOMY . '_children' );
+		}
 		return $count;
 	}
 

@@ -29,6 +29,7 @@ export function Wizard(): JSX.Element {
 	// Coming from a plugin conflict skips the welcome page: the intent is already clear.
 	const [ index, setIndex ] = useState( preselect.length > 0 ? 1 : 0 );
 	const [ selected, setSelected ] = useState< string[] >( [] );
+	const [ options, setOptions ] = useState< Record< string, Record< string, boolean > > >( {} );
 
 	const [ scan, setScan ] = useState< ScanSource[] | undefined >();
 	const [ scanError, setScanError ] = useState< string | null >( null );
@@ -85,6 +86,7 @@ export function Wizard(): JSX.Element {
 				}
 				const mine = ++token.current;
 				setSelected( current.sources );
+				setOptions( Object.fromEntries( current.sources.map( ( id ) => [ id, current.per_source[ id ]?.options ?? {} ] ) ) );
 				setRun( current );
 				setIndex( steps.findIndex( ( s ) => 'migrate' === s.id ) );
 				setRunBusy( true );
@@ -166,13 +168,13 @@ export function Wizard(): JSX.Element {
 		setDryError( null );
 		setDry( null );
 		try {
-			await drive( post( 'migration/run', { sources: selected, dry_run: true } ), mine, setDry );
+			await drive( post( 'migration/run', { sources: selected, dry_run: true, options } ), mine, setDry );
 		} catch ( e ) {
 			setDryError( message( e ) );
 		} finally {
 			setDryBusy( false );
 		}
-	}, [ drive, selected ] );
+	}, [ drive, options, selected ] );
 
 	useEffect( () => {
 		if ( 'check' === stepId ) {
@@ -192,7 +194,7 @@ export function Wizard(): JSX.Element {
 		setVerify( null );
 		setRolledBack( false );
 		try {
-			let first = post( 'migration/run', { sources: selected, dry_run: false } );
+			let first = post( 'migration/run', { sources: selected, dry_run: false, options } );
 			try {
 				await first;
 			} catch ( e ) {
@@ -210,7 +212,7 @@ export function Wizard(): JSX.Element {
 		} finally {
 			setRunBusy( false );
 		}
-	}, [ drive, finishedRun, selected, steps ] );
+	}, [ drive, finishedRun, options, selected, steps ] );
 
 	/* Step 6: verify when entered. */
 	useEffect( () => {
@@ -262,6 +264,8 @@ export function Wizard(): JSX.Element {
 		selected,
 		setSelected,
 		toggle: ( id ) => setSelected( ( cur ) => ( cur.includes( id ) ? cur.filter( ( x ) => x !== id ) : [ ...cur, id ] ) ),
+		options,
+		setOption: ( sourceId, key, value ) => setOptions( ( cur ) => ( { ...cur, [ sourceId ]: { ...( cur[ sourceId ] ?? {} ), [ key ]: value } } ) ),
 		scan,
 		scanError,
 		plans,
@@ -290,6 +294,7 @@ export function Wizard(): JSX.Element {
 			setRolledBack( false );
 			setRunError( null );
 			setSelected( [] );
+			setOptions( {} );
 			setIndex( 0 );
 		},
 	};

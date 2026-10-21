@@ -8,7 +8,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { ArrowRight, Camera, ChevronDown, CircleCheck, History as HistoryIcon, Radar, ShieldCheck, Undo2, Wand2 } from 'lucide-react';
 import { navigate } from '../route';
 import type { WizardCtx } from './context';
-import { ChangeTable, DrawnCheck, MatchBadge, PlanDetails, SourceIcon, StateIcon, StatusBadge, Warnings, reducedMotion, settingsLabel } from './parts';
+import { ChangeTable, DataCounts, DrawnCheck, MatchBadge, PlanDetails, SourceIcon, StateIcon, StatusBadge, Warnings, reducedMotion, sourceSummary } from './parts';
 import type { RunSource, ScanSource } from './types';
 
 export interface WizardStep {
@@ -49,7 +49,7 @@ function WelcomeStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 	return (
 		<section className="uxs-wiz-panel uxs-wiz-welcome">
 			<StepHead icon={ <Wand2 size={ 26 } aria-hidden /> } title={ __( 'Move your settings to UX Studio', 'ux-studio' ) }>
-				{ __( 'Copy the settings of other plugins into the matching UX Studio modules, check that nothing got lost and keep the option to go back.', 'ux-studio' ) }
+				{ __( 'Copy the settings and data of other plugins (redirects, snippets, folders, mail settings ...) into the matching UX Studio modules, check that nothing got lost and keep the option to go back.', 'ux-studio' ) }
 			</StepHead>
 			<ul className="uxs-wiz-points">
 				{ points.map( ( p ) => (
@@ -89,7 +89,7 @@ function ScanCard( { source, index }: { source: ScanSource; index: number } ): J
 						/* translators: 1: UX Studio module name, 2: "12 settings". */
 						__( 'Module: %1$s - %2$s', 'ux-studio' ),
 						source.module_name,
-						settingsLabel( source.summary.settings )
+						sourceSummary( source.summary )
 					) }
 				</p>
 			</div>
@@ -205,8 +205,24 @@ function SelectCard( { source, ctx }: { source: ScanSource; ctx: WizardCtx } ): 
 					<div className="uxs-wiz-badges">
 						<StatusBadge source={ source } />
 						<MatchBadge match={ source.match } />
-						<span className="uxs-wiz-muted">{ settingsLabel( source.summary.settings ) }</span>
+						<span className="uxs-wiz-muted">{ sourceSummary( source.summary ) }</span>
 					</div>
+					{ plan && plan.options.length > 0 && (
+						<div className="uxs-wiz-options">
+							{ plan.options.map( ( option ) => (
+								<label key={ option.key } className="uxs-wiz-option" title={ option.help }>
+									<input
+										type="checkbox"
+										disabled={ ! checked }
+										checked={ ctx.options[ source.id ]?.[ option.key ] ?? option.default }
+										onChange={ ( e ) => ctx.setOption( source.id, option.key, e.target.checked ) }
+									/>
+									<span>{ option.label }</span>
+									<span className="uxs-wiz-muted">{ option.help }</span>
+								</label>
+							) ) }
+						</div>
+					) }
 				</div>
 				<button type="button" className="button-link uxs-wiz-expand" aria-expanded={ open } aria-controls={ bodyId } onClick={ () => setOpen( ! open ) }>
 					{ __( 'What moves over', 'ux-studio' ) }
@@ -225,6 +241,14 @@ function SelectCard( { source, ctx }: { source: ScanSource; ctx: WizardCtx } ): 
 function SelectStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 	const sources = ctx.scan ?? [];
 	const all = sources.map( ( s ) => s.id );
+
+	// Two selected plugins that both carry SETTINGS for one module overwrite each other (the later one wins).
+	const clashes = Object.values(
+		sources
+			.filter( ( s ) => ctx.selected.includes( s.id ) && s.summary.settings > 0 && '*' !== s.module )
+			.reduce< Record< string, ScanSource[] > >( ( acc, s ) => ( { ...acc, [ s.module ]: [ ...( acc[ s.module ] ?? [] ), s ] } ), {} )
+	).filter( ( group ) => group.length > 1 );
+
 	return (
 		<section className="uxs-wiz-panel">
 			<StepHead title={ __( 'Choose what to migrate', 'ux-studio' ) }>
@@ -243,6 +267,16 @@ function SelectStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 					<SelectCard key={ s.id } source={ s } ctx={ ctx } />
 				) ) }
 			</ul>
+			<Warnings
+				warnings={ clashes.map( ( group ) =>
+					sprintf(
+						/* translators: 1: plugin names, 2: UX Studio module name. */
+						__( '%1$s all carry settings for the module "%2$s". The one migrated last overwrites the others, so tick only the plugin you actually use.', 'ux-studio' ),
+						group.map( ( s ) => s.label ).join( ', ' ),
+						group[ 0 ]?.module_name ?? ''
+					)
+				) }
+			/>
 			<div className="uxs-wiz-actions">
 				<button type="button" className="button" onClick={ ctx.back }>
 					{ __( 'Back', 'ux-studio' ) }
@@ -296,6 +330,12 @@ function CheckStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 							</div>
 							<StateIcon state={ ! result ? 'pending' : 'error' === result.status ? 'error' : 'done' === result.status ? 'ok' : 'running' } />
 						</header>
+						{ plan && <DataCounts rows={ plan.data } /> }
+						{ plan && plan.options.map( ( option ) => (
+							<p key={ option.key } className="uxs-wiz-muted">
+								{ option.label }: <strong>{ ( ctx.options[ id ]?.[ option.key ] ?? option.default ) ? __( 'yes', 'ux-studio' ) : __( 'no', 'ux-studio' ) }</strong>
+							</p>
+						) ) }
 						{ result && result.items.length > 0 && <ChangeTable items={ result.items } /> }
 						{ result && 0 === result.items.length && <p className="uxs-wiz-muted">{ plan?.notes[ 0 ] ?? __( 'Nothing to transfer.', 'ux-studio' ) }</p> }
 						{ result && result.errors.length > 0 && <Warnings warnings={ result.errors } /> }
@@ -351,7 +391,17 @@ function resultText( row: RunSource | undefined ): string {
 		return row.errors[ 0 ] ?? __( 'Failed', 'ux-studio' );
 	}
 	if ( 'done' !== row.status ) {
-		return 'pending' === row.status ? __( 'Waiting', 'ux-studio' ) : __( 'Working…', 'ux-studio' );
+		if ( 'pending' === row.status ) {
+			return __( 'Waiting', 'ux-studio' );
+		}
+		return ( row.total ?? 0 ) > 0
+			? sprintf(
+					/* translators: 1: objects handled so far, 2: objects in total. */
+					__( 'Working… %1$d / %2$d', 'ux-studio' ),
+					row.processed ?? 0,
+					row.total ?? 0
+			  )
+			: __( 'Working…', 'ux-studio' );
 	}
 	if ( 0 === row.written ) {
 		return __( 'Nothing to change', 'ux-studio' );
@@ -501,7 +551,7 @@ function VerifyStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 				<div className="uxs-overlay">
 					<div className="uxs-modal" role="dialog" aria-modal="true" aria-labelledby="uxs-wiz-undo-title">
 						<h2 id="uxs-wiz-undo-title">{ __( 'Undo this migration?', 'ux-studio' ) }</h2>
-						<p>{ __( 'The UX Studio settings go back exactly to how they were before the migration. The old plugins are not touched.', 'ux-studio' ) }</p>
+						<p>{ __( 'The UX Studio settings go back exactly to how they were before the migration, and everything the migration created (rules, snippets, folders, menu fields) is removed. The old plugins are not touched.', 'ux-studio' ) }</p>
 						<div className="uxs-modal__actions">
 							<button type="button" className="button" disabled={ ctx.rollbackBusy } onClick={ () => setConfirm( false ) }>
 								{ __( 'Cancel', 'ux-studio' ) }
@@ -539,7 +589,7 @@ function DoneStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 					<Undo2 size={ 30 } aria-hidden />
 				</span>
 				<h2>{ __( 'The migration was undone', 'ux-studio' ) }</h2>
-				<p>{ __( 'UX Studio settings are back to how they were before. The old plugins were never changed.', 'ux-studio' ) }</p>
+				<p>{ __( 'UX Studio is back to how it was before. The old plugins were never changed.', 'ux-studio' ) }</p>
 				<div className="uxs-wiz-actions is-center">
 					<button type="button" className="button" onClick={ ctx.restart }>
 						{ __( 'Start over', 'ux-studio' ) }
@@ -561,7 +611,7 @@ function DoneStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 			<p>
 				{ sprintf(
 					/* translators: 1: number of plugins, 2: number of settings written. */
-					__( '%1$d plugin(s) processed, %2$d setting(s) written to UX Studio.', 'ux-studio' ),
+					__( '%1$d plugin(s) processed, %2$d item(s) written to UX Studio.', 'ux-studio' ),
 					rows.length,
 					written
 				) }

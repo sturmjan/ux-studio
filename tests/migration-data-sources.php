@@ -146,7 +146,6 @@ function get_posts( $args ) {
 	$stat  = (array) ( $args['post_status'] ?? array( 'publish' ) );
 	return array_values( array_filter( $GLOBALS['uxs_posts'], static fn( $p ) => in_array( $p->post_type, $types, true ) && in_array( $p->post_status, $stat, true ) ) );
 }
-function wp_get_post_terms( $id, $tax, $args = array() ) { return $GLOBALS['uxs_terms'][ $id ][ $tax ] ?? array(); }
 function get_userdata( $id ) { return (object) array( 'user_login' => 'user' . $id ); }
 function metadata_exists( $type, $id, $key ) { return isset( $GLOBALS['uxs_meta'][ $type ][ $id ][ $key ] ); }
 function get_metadata( $type, $id, $key, $single = false ) {
@@ -247,6 +246,8 @@ $site = static function ( array $plugins = array(), array $active = array(), arr
 	$GLOBALS['uxs_sql']    = array();
 	$GLOBALS['uxs_cron']   = array();
 	$GLOBALS['wpdb']->map  = array();
+	// Terms of a post (WPCode type / location): the sources read them with SQL.
+	$GLOBALS['uxs_sql'][] = array( "/SELECT t\\.slug FROM wp_term_relationships tr .* tr\\.object_id = (\\d+) AND tt\\.taxonomy = '([a-z_]+)'/", static fn( $m ) => array( ( $GLOBALS['uxs_terms'][ (int) $m[1] ][ $m[2] ] ?? array( null ) )[0] ) );
 	AbstractSource::set_data_double( null );
 	PluginInfo::flush();
 };
@@ -354,6 +355,19 @@ foreach ( $classification as $kind => $slugs ) {
 }
 $assert( 'plan classifies every source: behaviour-changing = staged when the module is on, harmless = direct', array() === $wrong, implode( ',', $wrong ) );
 
+// The SPA relies on every plan / scan row having the same shape, whichever source it comes from.
+$site( array(), array() );
+$shape = array();
+foreach ( array_keys( SourceRegistry::classes() ) as $slug ) {
+	$src  = SourceRegistry::get( (string) $slug );
+	$plan = $src->plan();
+	$det  = $src->detect();
+	if ( ! isset( $plan['data'], $plan['options'], $plan['staged'], $plan['counts']['data'], $det['summary']['data'] ) || ! is_array( $plan['data'] ) || ! is_array( $det['summary']['data'] ) ) {
+		$shape[] = $slug;
+	}
+}
+$assert( 'every source returns data / options / staged in its plan and data rows in the scan summary', array() === $shape, implode( ',', $shape ) );
+
 /* ═══ 1 Redirects ═══ */
 
 $site( array( 'redirection' ), array( 'redirection' ) );
@@ -372,6 +386,7 @@ $redir_rows = array(
 	$redir( 8, '/prihlasen', 'login', 'url', 301, '/y' ),
 	$redir( 9, '/velke', 'url', 'url', 301, '/male', 0, 'enabled', 1, '{"source":{"flag_query":"ignore","flag_case":true}}' ),
 	$redir( 10, '/see-other', 'url', 'url', 303, '/z' ),
+	$redir( 11, 'https://old.test/Stara/', 'url', 'url', 301, '/jinde' ), // same address as rule 1 (case, slash, host): never reached
 );
 $sql( '/SELECT id, status FROM wp_redirection_groups/', static fn() => array( array( 'id' => 1, 'status' => 'enabled' ), array( 'id' => 2, 'status' => 'disabled' ) ) );
 $sql( '/SELECT COUNT\(\*\) FROM wp_redirection_items/', static fn() => array( count( $redir_rows ) ) );
@@ -382,6 +397,7 @@ $plan = SourceRegistry::get( 'redirection' )->plan();
 $assert( 'redirection: 7 convertible rules (4 skipped: server, random, login, + counted)', 7 === $data_count( $plan, 'redirect' ), json_encode( $plan['data'] ) );
 $assert( 'redirection: disabled rule and rule in a disabled group count as inactive', 2 === $data_count( $plan, 'inactive' ), json_encode( $plan['data'] ) );
 $assert( 'redirection: 1 regex, 1 gone', 1 === $data_count( $plan, 'regex' ) && 1 === $data_count( $plan, 'gone' ) );
+$assert( 'redirection: a rule with the same address as an earlier one is dropped (the first one wins) and reported', $lossy_has( $plan, 'same address as an earlier rule' ) && 7 === $data_count( $plan, 'redirect' ), json_encode( $plan['lossy'] ) );
 $assert( 'redirection: lossy lists server / random / login rules, case + query flags, counters', $lossy_has( $plan, 'whole domain' ) && $lossy_has( $plan, 'random target' ) && $lossy_has( $plan, 'logged in' ) && $lossy_has( $plan, 'case sensitive' ) && $lossy_has( $plan, 'query string' ) && $lossy_has( $plan, 'Hit counters' ), json_encode( $plan['lossy'] ) );
 $items = $items_of( 'redirection' );
 $by    = array_column( $items, null, 'key' );
@@ -642,6 +658,15 @@ $plan  = SourceRegistry::get( 'menu-icons' )->plan();
 $assert( 'menu-icons: font icons -> Lucide, hide label -> "only", after -> "after", svg attachment -> media', 'house' === $by[31]['meta']['_uxstudio_menu_item_icon_value'] && 'only' === $by[32]['meta']['_uxstudio_menu_item_icon_position'] && 'media' === $by[34]['meta']['_uxstudio_menu_item_icon_type'] && 'after' === $by[34]['meta']['_uxstudio_menu_item_icon_position'] && 3 === count( $items ), json_encode( array_keys( $by ) ) );
 $assert( 'menu-icons: the icon without a counterpart is named, an image whose file is gone is reported', $lossy_has( $plan, 'fa: fa-bed' ) && $lossy_has( $plan, 'no longer exists' ), json_encode( $plan['lossy'] ) );
 
+// One item, three metas of the same type: every one is recorded in the mapping table and removed by the rollback.
+$run = Runner::start( array( 'menu-icons' ), false );
+$drive();
+$rows32 = array_filter( $GLOBALS['wpdb']->map, static fn( $r ) => 'postmeta' === $r['target_type'] && 0 === strpos( $r['target_id'], '32|' ) );
+$assert( 'menu-icons: item 32 writes type + value + position and records all three', 3 === count( $rows32 ) && 'only' === get_post_meta( 32, '_uxstudio_menu_item_icon_position', true ), json_encode( array_column( $rows32, 'target_id' ) ) );
+$rb = Runner::rollback( $run['id'] );
+$left = array_filter( array( 31, 32, 34 ), static fn( $id ) => metadata_exists( 'post', $id, '_uxstudio_menu_item_icon_type' ) || metadata_exists( 'post', $id, '_uxstudio_menu_item_icon_value' ) || metadata_exists( 'post', $id, '_uxstudio_menu_item_icon_position' ) );
+$assert( 'menu-icons: rollback leaves none of the migrated meta behind', ! is_wp_error( $rb ) && array() === $left, json_encode( $left ) );
+
 $site( array( 'nav-menu-roles' ), array( 'nav-menu-roles' ) );
 $sql( '/SELECT DISTINCT m\.post_id FROM wp_postmeta m JOIN wp_posts p ON p\.ID = m\.post_id WHERE m\.meta_key = \'_nav_menu_role\'/', static fn() => array( 41, 42, 43, 44, 45, 46 ) );
 foreach ( array( 41, 42, 43, 44, 45, 46 ) as $pid ) { $post( $pid, 'nav_menu_item', 'publish', "Menu $pid" ); }
@@ -843,7 +868,7 @@ $to = array_column( SourceRegistry::get( 'maintenance' )->plan()['transfer'], 't
 $assert( 'maintenance (WebFactory): status + header text', 'maintenance' === $to['mode'] && 'Probíhá údržba' === $to['headline_text'] );
 $site( array( 'under-construction-page' ), array( 'under-construction-page' ), array( 'ucp_options' => array( 'status' => '0', 'heading1' => 'Stavime', 'content' => 'Text', 'whitelisted_roles' => array( 'administrator', 'editor' ) ) ) );
 $to = array_column( SourceRegistry::get( 'under-construction-page' )->plan()['transfer'], 'to', 'key' );
-$assert( 'under-construction-page: off stays disabled, roles map', 'disabled' === $to['mode'] && 'administrator, editor' === $to['access_roles'] );
+$assert( 'under-construction-page: off stays disabled, roles map (administrators always pass, so they are not listed)', 'disabled' === $to['mode'] && 'editor' === $to['access_roles'], json_encode( $to ) );
 
 /* ═══ 11 Activity log ═══ */
 

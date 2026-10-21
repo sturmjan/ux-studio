@@ -8,6 +8,9 @@ export interface WizardCtx {
 	selected: string[];
 	toggle: ( id: string ) => void;
 	setSelected: ( ids: string[] ) => void;
+	/** Per-source extra choices (`source id` => `option key` => on / off), only for the selected sources. */
+	options: Record< string, Record< string, boolean > >;
+	setOption: ( sourceId: string, key: string, value: boolean ) => void;
 
 	/** Step 2. */
 	scan: ScanSource[] | undefined;

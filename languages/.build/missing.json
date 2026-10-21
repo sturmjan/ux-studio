@@ -1,0 +1,1748 @@
+[
+ {
+  "ctx": null,
+  "id": "UX Studio already has a different value here, it is kept.",
+  "refs": [
+   "includes/Core/Migration/AbstractMetaSource.php:124",
+   "includes/Core/Migration/AbstractMetaSource.php:140"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Needs a manual check.",
+  "refs": [
+   "includes/Core/Migration/AbstractMetaSource.php:147"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "UX Studio has a different value here.",
+  "refs": [
+   "includes/Core/Migration/AbstractMetaSource.php:202"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The value is not in UX Studio.",
+  "refs": [
+   "includes/Core/Migration/AbstractMetaSource.php:203"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The module \\\"%s\\\" is already switched on, so the transferred settings are only prepared. They take effect at the switch, after the safe preview.",
+  "refs": [
+   "includes/Core/Migration/AbstractSource.php:143"
+  ],
+  "comments": [
+   "#. translators: %s: module name."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "An item could not be written.",
+  "refs": [
+   "includes/Core/Migration/AbstractSource.php:568"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "created",
+  "refs": [
+   "includes/Core/Migration/AbstractSource.php:640"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "already there",
+  "refs": [
+   "includes/Core/Migration/AbstractSource.php:642"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%1$d of %2$d found in UX Studio",
+  "refs": [
+   "includes/Core/Migration/AbstractSource.php:739"
+  ],
+  "comments": [
+   "#. translators: 1: number of objects found in UX Studio, 2: number of objects in the old plugin."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The backup of the table \\\"%s\\\" failed, nothing was changed.",
+  "refs": [
+   "includes/Core/Migration/Runner.php:164"
+  ],
+  "comments": [
+   "#. translators: %s: table name."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "This run has already been switched on, so the snapshot no longer matches the site. Undo the switch first.",
+  "refs": [
+   "includes/Core/Migration/Runner.php:357"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The key is prepared encrypted, it takes effect after the switch.",
+  "refs": [
+   "includes/Core/Migration/SettingsWriter.php:262"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Keeping only the latest N events has no equivalent; the module deletes entries by age only.",
+  "refs": [
+   "includes/Core/Migration/Sources/ActivityLogSource.php:78"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The plugin keeps its default retention, there is nothing to transfer.",
+  "refs": [
+   "includes/Core/Migration/Sources/ActivityLogSource.php:95"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The recorded history of the plugin is not imported (the event formats differ), the new log starts when the module is on. Notifications, filters and exports of the old plugin are not transferred.",
+  "refs": [
+   "includes/Core/Migration/Sources/ActivityLogSource.php:99"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Scheduled unpublishing",
+  "refs": [
+   "includes/Core/Migration/Sources/AutoUnpublishSource.php:46",
+   "includes/Core/Migration/Sources/AutoUnpublishSource.php:182"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The plugin has no scheduled actions stored, there is nothing to transfer.",
+  "refs": [
+   "includes/Core/Migration/Sources/AutoUnpublishSource.php:143"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%d scheduled actions are already in the past and are not transferred (they would unpublish the post at once).",
+  "refs": [
+   "includes/Core/Migration/Sources/AutoUnpublishSource.php:151"
+  ],
+  "comments": [
+   "#. translators: %d: number of scheduled actions."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%d scheduled actions belong to posts that no longer exist.",
+  "refs": [
+   "includes/Core/Migration/Sources/AutoUnpublishSource.php:159"
+  ],
+  "comments": [
+   "#. translators: %d: number of scheduled actions."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%1$d scheduled actions \\\"%2$s\\\" have no equivalent: the module only moves a post to draft.",
+  "refs": [
+   "includes/Core/Migration/Sources/AutoUnpublishSource.php:167"
+  ],
+  "comments": [
+   "#. translators: 1: number of scheduled actions, 2: action of the plugin."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Each date is copied to the post as the module keeps it. With the module on it is only prepared and written at the switch.",
+  "refs": [
+   "includes/Core/Migration/Sources/AutoUnpublishSource.php:174"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Tags: %s",
+  "refs": [
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:146"
+  ],
+  "comments": [
+   "#. translators: %s: comma separated tags."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Header scripts (from WPCode)",
+  "refs": [
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:259"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Footer scripts (from WPCode)",
+  "refs": [
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:260"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Body scripts (from WPCode)",
+  "refs": [
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:261"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The plugin has no snippets stored, there is nothing to transfer.",
+  "refs": [
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:348"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "shortcode snippets (content)",
+  "refs": [
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:352"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "run-once snippets",
+  "refs": [
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:353"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "condition snippets",
+  "refs": [
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:354"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "plain text snippets",
+  "refs": [
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:355"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "universal (PHP + HTML) snippets",
+  "refs": [
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:356"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "block snippets",
+  "refs": [
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:357"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "SCSS snippets",
+  "refs": [
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:358"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "snippets of an unknown type",
+  "refs": [
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:359"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "snippets that run only through a shortcode or on demand",
+  "refs": [
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:360"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "snippets inserted before or after posts",
+  "refs": [
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:361"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%1$d %2$s are not transferred, the module has no equivalent.",
+  "refs": [
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:367"
+  ],
+  "comments": [
+   "#. translators: 1: number of snippets, 2: kind of snippets."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "snippets inserted at \\\"%s\\\"",
+  "refs": [
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:371"
+  ],
+  "comments": [
+   "#. translators: %s: place name used by the plugin."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%d snippet used conditions, device or schedule rules or page targeting that the module does not have. It is created switched off so you can review it before it runs everywhere.",
+  "refs": [
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:381"
+  ],
+  "comments": [
+   "#. translators: %d: number of snippets."
+  ],
+  "plural": "%d snippets used conditions, device or schedule rules or page targeting that the module does not have. They are created switched off so you can review them before they run everywhere."
+ },
+ {
+  "ctx": null,
+  "id": "Every snippet is created switched off, because it is code. Snippets that were on in the old plugin are switched on at the switch, after the safe preview.",
+  "refs": [
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:391"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Code snippets",
+  "refs": [
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:404",
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:420"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "of them will be switched on at the switch",
+  "refs": [
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:425"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "of them stay off for your review",
+  "refs": [
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:430"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "A snippet with this name already exists in UX Studio, it is kept.",
+  "refs": [
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:498",
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:526"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The snippet has no code.",
+  "refs": [
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:504"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The snippet is not in UX Studio.",
+  "refs": [
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:568"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "UX Studio has a snippet with this name but different code.",
+  "refs": [
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:574"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The integrity check of the snippet file failed.",
+  "refs": [
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:580"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The plugin has no custom schedules or events stored, there is nothing to transfer.",
+  "refs": [
+   "includes/Core/Migration/Sources/CronSource.php:93"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%d cron events run PHP code entered in WP Crontrol. The module cannot create them. Re-create them as a Code Snippet that hooks into a scheduled event.",
+  "refs": [
+   "includes/Core/Migration/Sources/CronSource.php:100"
+  ],
+  "comments": [
+   "#. translators: %d: number of events."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%d cron events call a URL on a schedule. The module cannot create them; set up the call at your hosting or in the central app instead.",
+  "refs": [
+   "includes/Core/Migration/Sources/CronSource.php:109"
+  ],
+  "comments": [
+   "#. translators: %d: number of events."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%d paused hooks stay as they are in WordPress, but the module has no pause function to show or change that.",
+  "refs": [
+   "includes/Core/Migration/Sources/CronSource.php:118"
+  ],
+  "comments": [
+   "#. translators: %d: number of hooks."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Events themselves live in WordPress and keep running; only the custom intervals need to be moved so they survive the removal of WP Crontrol.",
+  "refs": [
+   "includes/Core/Migration/Sources/CronSource.php:123"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Cron intervals",
+  "refs": [
+   "includes/Core/Migration/Sources/CronSource.php:132"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Custom cron intervals",
+  "refs": [
+   "includes/Core/Migration/Sources/CronSource.php:144"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "PHP events (not transferred)",
+  "refs": [
+   "includes/Core/Migration/Sources/CronSource.php:149"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "URL events (not transferred)",
+  "refs": [
+   "includes/Core/Migration/Sources/CronSource.php:154"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "UX Studio already has an interval with this name and a different length, it is kept.",
+  "refs": [
+   "includes/Core/Migration/Sources/CronSource.php:195"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The interval is not in UX Studio.",
+  "refs": [
+   "includes/Core/Migration/Sources/CronSource.php:220"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Also move the history",
+  "refs": [
+   "includes/Core/Migration/Sources/EmailLogSource.php:85"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Copies the e-mails already logged by the old plugin. Mails older than the retention period are skipped, because the module would delete them at once.",
+  "refs": [
+   "includes/Core/Migration/Sources/EmailLogSource.php:86"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The plugin kept the log without deleting old entries. The module deletes entries after its retention period (30 days by default); change it in the module settings.",
+  "refs": [
+   "includes/Core/Migration/Sources/EmailLogSource.php:115"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Keeping only the latest N entries has no equivalent; the module deletes entries by age only.",
+  "refs": [
+   "includes/Core/Migration/Sources/EmailLogSource.php:118"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The logged e-mails can be copied too: tick \\\"Also move the history\\\" for this plugin.",
+  "refs": [
+   "includes/Core/Migration/Sources/EmailLogSource.php:123"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The plugin has no settings or logged e-mails, there is nothing to transfer.",
+  "refs": [
+   "includes/Core/Migration/Sources/EmailLogSource.php:125"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The free plugin has no settings that map to the module. IP address and attachment content of the logged mails are not copied.",
+  "refs": [
+   "includes/Core/Migration/Sources/EmailLogSource.php:128"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Logged e-mails",
+  "refs": [
+   "includes/Core/Migration/Sources/EmailLogSource.php:138",
+   "includes/Core/Migration/Sources/EmailLogSource.php:149"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "A logged e-mail could not be copied.",
+  "refs": [
+   "includes/Core/Migration/Sources/EmailLogSource.php:284"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The e-mail is not in the UX Studio log.",
+  "refs": [
+   "includes/Core/Migration/Sources/EmailLogSource.php:298"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "No post or page has an external address set by this plugin, there is nothing to transfer.",
+  "refs": [
+   "includes/Core/Migration/Sources/ExternalPermalinksSource.php:74"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Post types with external permalinks",
+  "refs": [
+   "includes/Core/Migration/Sources/ExternalPermalinksSource.php:77"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The addresses stay in the posts, because the module reads the same field as the plugin. Only the list of content types is set.",
+  "refs": [
+   "includes/Core/Migration/Sources/ExternalPermalinksSource.php:78"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%d links were set to open in a new tab. The module has no such option, they open in the same tab.",
+  "refs": [
+   "includes/Core/Migration/Sources/ExternalPermalinksSource.php:83"
+  ],
+  "comments": [
+   "#. translators: %d: number of links."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%d links redirected permanently (301). The module redirects temporarily (302).",
+  "refs": [
+   "includes/Core/Migration/Sources/ExternalPermalinksSource.php:92"
+  ],
+  "comments": [
+   "#. translators: %d: number of links."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Posts with an external address (%s)",
+  "refs": [
+   "includes/Core/Migration/Sources/ExternalPermalinksSource.php:107"
+  ],
+  "comments": [
+   "#. translators: %s: post type name."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The plugin has no folders stored, there is nothing to transfer.",
+  "refs": [
+   "includes/Core/Migration/Sources/FolderSource.php:199"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%1$d folders of other content types (%2$s) are not transferred. This step moves the media library folders only.",
+  "refs": [
+   "includes/Core/Migration/Sources/FolderSource.php:207"
+  ],
+  "comments": [
+   "#. translators: 1: number of folders, 2: taxonomy name."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%d collections, galleries or special entries are not transferred, only ordinary folders.",
+  "refs": [
+   "includes/Core/Migration/Sources/FolderSource.php:216"
+  ],
+  "comments": [
+   "#. translators: %d: number of entries."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%d shortcuts (the same file in more than one folder) are not transferred. A file sits in one folder.",
+  "refs": [
+   "includes/Core/Migration/Sources/FolderSource.php:224"
+  ],
+  "comments": [
+   "#. translators: %d: number of shortcuts."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The manual order of folders and their colours or icons are not transferred.",
+  "refs": [
+   "includes/Core/Migration/Sources/FolderSource.php:230"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Files are not moved on disk, only the folder structure and which file is in which folder are copied. A file that is already in a UX Studio folder stays there.",
+  "refs": [
+   "includes/Core/Migration/Sources/FolderSource.php:231"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "files placed in them",
+  "refs": [
+   "includes/Core/Migration/Sources/FolderSource.php:257"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The parent folder could not be created.",
+  "refs": [
+   "includes/Core/Migration/Sources/FolderSource.php:354"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The folder is not in UX Studio.",
+  "refs": [
+   "includes/Core/Migration/Sources/FolderSource.php:408"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%d files are not in any UX Studio folder.",
+  "refs": [
+   "includes/Core/Migration/Sources/FolderSource.php:419"
+  ],
+  "comments": [
+   "#. translators: %d: number of files."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Last login times",
+  "refs": [
+   "includes/Core/Migration/Sources/LastLoginSource.php:39",
+   "includes/Core/Migration/Sources/LastLoginSource.php:89"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The plugin has no login times stored, there is nothing to transfer.",
+  "refs": [
+   "includes/Core/Migration/Sources/LastLoginSource.php:78"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Only the time of the last login is copied. The login counters and history of the plugin have no equivalent.",
+  "refs": [
+   "includes/Core/Migration/Sources/LastLoginSource.php:81"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The old plugin has maintenance or coming soon mode ON. Once the module is switched on, the site shows the maintenance page to visitors. Switch the old plugin off first and check the page in the preview.",
+  "refs": [
+   "includes/Core/Migration/Sources/MaintenanceSource.php:85"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The background image of the plugin is not transferred, only a background colour. Set the image in the module.",
+  "refs": [
+   "includes/Core/Migration/Sources/MaintenanceSource.php:131"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Countdown, subscribe form, social links, contact form, chat bot, GDPR notice, custom CSS and \\\"let search engine bots in\\\" of the plugin are not transferred.",
+  "refs": [
+   "includes/Core/Migration/Sources/MaintenanceSource.php:133"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Who may still see the site: roles from the plugin; administrators always can. With no role listed only administrators get through.",
+  "refs": [
+   "includes/Core/Migration/Sources/MaintenanceSource.php:134"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The page was designed in the SeedProd editor. The module shows that page as an existing page; check in the preview that it looks right. Access rules by role and the bypass link are not transferred.",
+  "refs": [
+   "includes/Core/Migration/Sources/MaintenanceSource.php:168"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The layout, colours, countdown, passwords and per-address rules of the plugin are not transferred; only the on / off state and the headline.",
+  "refs": [
+   "includes/Core/Migration/Sources/MaintenanceSource.php:197"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The theme, social links, analytics code, custom CSS and the list of allowed users of the plugin are not transferred.",
+  "refs": [
+   "includes/Core/Migration/Sources/MaintenanceSource.php:225"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Menu icons",
+  "refs": [
+   "includes/Core/Migration/Sources/MenuIconsSource.php:75"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "No menu item has an icon, there is nothing to transfer.",
+  "refs": [
+   "includes/Core/Migration/Sources/MenuIconsSource.php:166"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%d image icons point to a file that no longer exists and are not transferred.",
+  "refs": [
+   "includes/Core/Migration/Sources/MenuIconsSource.php:177"
+  ],
+  "comments": [
+   "#. translators: %d: number of icons."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%d icons had their own size or vertical alignment. The module uses the single icon size from its settings.",
+  "refs": [
+   "includes/Core/Migration/Sources/MenuIconsSource.php:185"
+  ],
+  "comments": [
+   "#. translators: %d: number of icons."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "These font icons have no counterpart among the icons of the module, so the menu items get no icon: %s.",
+  "refs": [
+   "includes/Core/Migration/Sources/MenuIconsSource.php:195"
+  ],
+  "comments": [
+   "#. translators: %s: list of icon names."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Font icons are replaced by the nearest Lucide icon. Pick a different one on the menu screen if it does not fit.",
+  "refs": [
+   "includes/Core/Migration/Sources/MenuIconsSource.php:200"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Icons replaced by a Lucide icon",
+  "refs": [
+   "includes/Core/Migration/Sources/MenuIconsSource.php:217"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Image and SVG icons",
+  "refs": [
+   "includes/Core/Migration/Sources/MenuIconsSource.php:222"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Menu item visibility",
+  "refs": [
+   "includes/Core/Migration/Sources/MenuVisibilitySource.php:44"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "No menu item has a visibility rule, there is nothing to transfer.",
+  "refs": [
+   "includes/Core/Migration/Sources/MenuVisibilitySource.php:157"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The module only knows \\\"logged in\\\" and \\\"logged out\\\", not roles. These items were visible only for some roles, they become visible for every logged-in visitor: %s.",
+  "refs": [
+   "includes/Core/Migration/Sources/MenuVisibilitySource.php:164"
+  ],
+  "comments": [
+   "#. translators: %s: list of menu items with their roles."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "These items were hidden for certain roles. The module cannot hide an item for a role, so they are not transferred and stay visible to everybody: %s.",
+  "refs": [
+   "includes/Core/Migration/Sources/MenuVisibilitySource.php:173"
+  ],
+  "comments": [
+   "#. translators: %s: list of menu items with their roles."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%d menu items combine several rules (AND / OR). The module has one rule per item, they are not transferred.",
+  "refs": [
+   "includes/Core/Migration/Sources/MenuVisibilitySource.php:183"
+  ],
+  "comments": [
+   "#. translators: %d: number of menu items."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%d menu items are controlled by a PHP expression. The module cannot run expressions, only logged in / logged out, so they are not transferred.",
+  "refs": [
+   "includes/Core/Migration/Sources/MenuVisibilitySource.php:191"
+  ],
+  "comments": [
+   "#. translators: %d: number of menu items."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%1$d menu items depend on the condition \\\"%2$s\\\", which the module does not have. They are not transferred.",
+  "refs": [
+   "includes/Core/Migration/Sources/MenuVisibilitySource.php:199"
+  ],
+  "comments": [
+   "#. translators: 1: number of menu items, 2: condition id."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Menu items visible only to logged-in visitors",
+  "refs": [
+   "includes/Core/Migration/Sources/MenuVisibilitySource.php:222"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Menu items visible only to logged-out visitors",
+  "refs": [
+   "includes/Core/Migration/Sources/MenuVisibilitySource.php:227"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Drag and drop ordering on the archive pages of the front end is not transferred; the module orders in the admin lists.",
+  "refs": [
+   "includes/Core/Migration/Sources/PostTypeOrderSource.php:48"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Ordering of terms (%s) has no equivalent in the module. The term order stays in the database but is not used.",
+  "refs": [
+   "includes/Core/Migration/Sources/PostTypeOrderSource.php:58"
+  ],
+  "comments": [
+   "#. translators: %s: list of taxonomies."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The order of the posts itself is not copied, because the module uses the same menu order field as the plugin.",
+  "refs": [
+   "includes/Core/Migration/Sources/PostTypeOrderSource.php:70"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The plugin has no redirect rules stored, there is nothing to transfer.",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:329"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "rules that redirect a whole domain (server match)",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:334"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "rules that depend on the visitor being logged in",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:335"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "rules that depend on the referring page",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:336"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "rules that depend on the browser",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:337"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "rules that depend on a cookie",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:338"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "rules that depend on the user role",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:339"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "rules that depend on the IP address",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:340"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "rules that depend on the language",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:341"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "rules that depend on an HTTP header",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:342"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "rules with a custom filter",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:343"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "rules that depend on the page type",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:344"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "rules that depend on the HTTP request",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:345"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "rules that pick a random target",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:346"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "pass-through rules",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:347"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "rules that answer with an error other than 410",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:348"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "rules that do nothing",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:349"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "rules without a target",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:350"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "rules answering 403 Forbidden",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:351"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "rules answering 404 Not Found",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:352"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "rules with * that never matched, because wildcards were switched off in the plugin",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:353"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "rules with an empty source or target",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:354"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "rules with the same address as an earlier rule (only the first one could ever match, the module keeps one rule per address)",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:355"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%1$d %2$s have no equivalent in the module and are not transferred.",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:361"
+  ],
+  "comments": [
+   "#. translators: 1: number of rules, 2: kind of rules."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%d rules were case sensitive. The module ignores letter case in addresses.",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:371"
+  ],
+  "comments": [
+   "#. translators: %d: number of rules."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%d rules had their own handling of the query string (ignore or pass on). The module uses its own setting \\\"pass query string\\\".",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:380"
+  ],
+  "comments": [
+   "#. translators: %d: number of rules."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%d rules forced https. The module redirects to the address as written.",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:389"
+  ],
+  "comments": [
+   "#. translators: %d: number of rules."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Hit counters, the redirect log and the 404 log of the plugin are not transferred (the module starts counting from zero).",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:395"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Rules ending with * become regular-expression rules (the part after the prefix is passed to the target as $1).",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:398"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The module \\\"Redirects\\\" is already on, so the rules are created switched off. They are switched on at the switch, after the safe preview, so two plugins never redirect the same address.",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:401"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "of them switched off in the plugin",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:436"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "of them regular expressions",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:441"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "of them 410 Gone",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:446"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "A different rule for this address already exists in UX Studio, it is kept.",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:539",
+   "includes/Core/Migration/Sources/RedirectsSource.php:579"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The rule could not be saved.",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:595"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The rules table does not exist yet.",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:613"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "UX Studio has a different rule for this address.",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:633"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The rule is not in UX Studio.",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:634"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The \\\"return path\\\" setting (bounce address) has no counterpart in the module.",
+  "refs": [
+   "includes/Core/Migration/Sources/SmtpSource.php:192"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The e-mail log of the plugin and its tracking are not transferred. Use the Email Log module.",
+  "refs": [
+   "includes/Core/Migration/Sources/SmtpSource.php:195"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The SMTP server used OAuth 2.0 sign-in. The module uses a user name and password, so enter them again.",
+  "refs": [
+   "includes/Core/Migration/Sources/SmtpSource.php:240"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The fallback SMTP server of the plugin has no equivalent.",
+  "refs": [
+   "includes/Core/Migration/Sources/SmtpSource.php:243"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The plugin was set not to send e-mail (log only or ignore). The module will send e-mail normally once it is on.",
+  "refs": [
+   "includes/Core/Migration/Sources/SmtpSource.php:246"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The plugin had %d connections (several senders). The module has one, so only the default connection is transferred.",
+  "refs": [
+   "includes/Core/Migration/Sources/SmtpSource.php:297"
+  ],
+  "comments": [
+   "#. translators: %d: number of connections."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The plugin sent e-mail with the PHP mail function, which has no counterpart. The module keeps the WordPress default until you enter an SMTP server; the sender is transferred.",
+  "refs": [
+   "includes/Core/Migration/Sources/SmtpSource.php:318"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The sending method \\\"%s\\\" is not available in the module (SMTP, Brevo and Gmail are). Only the sender is transferred; set up the connection in the module.",
+  "refs": [
+   "includes/Core/Migration/Sources/SmtpSource.php:323"
+  ],
+  "comments": [
+   "#. translators: %s: name of the sending service."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The plugin sent without logging in to the server. The module always logs in, so a server that needs no login will not work with it.",
+  "refs": [
+   "includes/Core/Migration/Sources/SmtpSource.php:344"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The Gmail sign-in (access and refresh token) belongs to the old plugin and is not transferred. Open the module and use \\\"Connect to Google\\\" once.",
+  "refs": [
+   "includes/Core/Migration/Sources/SmtpSource.php:351"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The stored password or key could not be decrypted (the encryption key of the plugin is missing). Enter it again in the module.",
+  "refs": [
+   "includes/Core/Migration/Sources/SmtpSource.php:354"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Once the module is on, all e-mail of the site is sent with these settings. Send a test message in the module before you deactivate the old plugin.",
+  "refs": [
+   "includes/Core/Migration/Sources/SmtpSource.php:359"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Module \\\"%s\\\" is not available, its prepared settings were not applied.",
+  "refs": [
+   "includes/Core/Migration/Staging.php:267"
+  ],
+  "comments": [
+   "#. translators: %s: module id."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Of the data of \\\"%1$s\\\", %2$d of %3$d items were switched on, the rest could not be switched on (check the permissions and the logs).",
+  "refs": [
+   "includes/Core/Migration/Staging.php:293"
+  ],
+  "comments": [
+   "#. translators: 1: plugin slug, 2: number switched on, 3: number prepared."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The data of \\\"%s\\\" could not be switched on.",
+  "refs": [
+   "includes/Core/Migration/Staging.php:302"
+  ],
+  "comments": [
+   "#. translators: %s: plugin slug."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%1$d × %2$s",
+  "refs": [
+   "build/index.2c95a680c29b69c0fa18.js:14"
+  ],
+  "comments": [
+   "#. translators: 1: number of objects, 2: what they are (\"Redirects\")."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The module is already on, so this is only prepared: the objects are created switched off and start working at the switch, after the safe preview.",
+  "refs": [
+   "build/index.2c95a680c29b69c0fa18.js:14"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Prepared",
+  "refs": [
+   "build/index.2c95a680c29b69c0fa18.js:14"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%d prepared for the switch",
+  "refs": [
+   "build/index.2c95a680c29b69c0fa18.js:15"
+  ],
+  "comments": [
+   "#. translators: %d: number of prepared values and objects."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "UX Studio goes back exactly to how it was before the run from %s: settings, and everything the run created. Changes made in these modules since then are lost.",
+  "refs": [
+   "build/index.2c95a680c29b69c0fa18.js:17"
+  ],
+  "comments": [
+   "#. translators: %s: date and time of the run."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Copy the settings and data of other plugins (redirects, snippets, folders, mail settings ...) into the matching UX Studio modules, check that nothing got lost and keep the option to go back.",
+  "refs": [
+   "build/index.2c95a680c29b69c0fa18.js:18"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%1$s all carry settings for the module \\\"%2$s\\\". The one migrated last overwrites the others, so tick only the plugin you actually use.",
+  "refs": [
+   "build/index.2c95a680c29b69c0fa18.js:22"
+  ],
+  "comments": [
+   "#. translators: 1: plugin names, 2: UX Studio module name."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Working… %1$d / %2$d",
+  "refs": [
+   "build/index.2c95a680c29b69c0fa18.js:24"
+  ],
+  "comments": [
+   "#. translators: 1: objects handled so far, 2: objects in total."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%1$d written, %2$d of them only prepared (they take effect after the switch)",
+  "refs": [
+   "build/index.2c95a680c29b69c0fa18.js:25"
+  ],
+  "comments": [
+   "#. translators: 1: number of values written, 2: number of values only prepared."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Prepared - takes effect after the switch",
+  "refs": [
+   "build/index.2c95a680c29b69c0fa18.js:27"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The UX Studio settings go back exactly to how they were before the migration, and everything the migration created (rules, snippets, folders, menu fields) is removed. The old plugins are not touched.",
+  "refs": [
+   "build/index.2c95a680c29b69c0fa18.js:27"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "UX Studio is back to how it was before. The old plugins were never changed.",
+  "refs": [
+   "build/index.2c95a680c29b69c0fa18.js:27"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%1$d plugin(s) processed, %2$d item(s) written to UX Studio.",
+  "refs": [
+   "build/index.2c95a680c29b69c0fa18.js:28"
+  ],
+  "comments": [
+   "#. translators: 1: number of plugins, 2: number of settings written."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The old plugins still run and nothing was switched on - the site behaves exactly as before.",
+  "refs": [
+   "build/index.2c95a680c29b69c0fa18.js:28"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%d value was only prepared, because its module is already on. It takes effect at the switch, after the safe preview.",
+  "refs": [
+   "build/index.2c95a680c29b69c0fa18.js:29"
+  ],
+  "comments": [
+   "#. translators: %d: number of values only prepared."
+  ],
+  "plural": "%d values were only prepared, because their modules are already on. They take effect at the switch, after the safe preview."
+ }
+]

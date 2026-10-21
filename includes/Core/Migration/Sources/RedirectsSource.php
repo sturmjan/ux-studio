@@ -123,8 +123,56 @@ final class RedirectsSource extends AbstractSource implements Activatable {
 				$this->collect_ts( $out );
 				break;
 		}
+		$out['items'] = $this->first_wins( $out['items'], $out['skipped'] );
 		$this->collected = $out;
 		return $out;
+	}
+
+	/**
+	 * The module keeps ONE rule per address. When the old plugin had several exact rules for the same
+	 * address, only the first one that applies could ever match, so only that one is migrated (an enabled
+	 * rule wins over a disabled one); the others are counted as `duplicate`.
+	 *
+	 * @param array<int, array<string, mixed>> $items   Rules in the plugin's order.
+	 * @param array<string, int>               $skipped Counts of left-out rules (extended).
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function first_wins( array $items, array &$skipped ): array {
+		usort(
+			$items,
+			static fn( array $a, array $b ): int => array( (int) $a['position'], $a['key'] ) <=> array( (int) $b['position'], $b['key'] )
+		);
+		$chosen = array();
+		foreach ( $items as $i => $item ) {
+			if ( 'exact' !== $item['match_type'] ) {
+				continue;
+			}
+			$k = $this->address_key( (string) $item['source'] );
+			if ( ! isset( $chosen[ $k ] ) || ( ! $items[ $chosen[ $k ] ]['enabled'] && $item['enabled'] ) ) {
+				$chosen[ $k ] = $i;
+			}
+		}
+		$out = array();
+		foreach ( $items as $i => $item ) {
+			if ( 'exact' === $item['match_type'] && $chosen[ $this->address_key( (string) $item['source'] ) ] !== $i ) {
+				$skipped['duplicate'] = ( $skipped['duplicate'] ?? 0 ) + 1;
+				continue;
+			}
+			$out[] = $item;
+		}
+		return $out;
+	}
+
+	/**
+	 * Approximation of the module's match key: path and query without host, decoded, lower case, no trailing slash.
+	 *
+	 * @param string $source Source as the plugin stored it.
+	 */
+	private function address_key( string $source ): string {
+		$parts = parse_url( trim( $source ) );
+		$path  = false === $parts ? $source : (string) ( $parts['path'] ?? '/' ) . ( isset( $parts['query'] ) ? '?' . $parts['query'] : '' );
+		$path  = strtolower( rawurldecode( str_replace( '+', ' ', $path ) ) );
+		return '/' === $path ? '/' : rtrim( $path, '/' );
 	}
 
 	/**
@@ -304,6 +352,7 @@ final class RedirectsSource extends AbstractSource implements Activatable {
 			'status:404'       => __( 'rules answering 404 Not Found', 'ux-studio' ),
 			'wildcard_off'     => __( 'rules with * that never matched, because wildcards were switched off in the plugin', 'ux-studio' ),
 			'empty'            => __( 'rules with an empty source or target', 'ux-studio' ),
+			'duplicate'        => __( 'rules with the same address as an earlier rule (only the first one could ever match, the module keeps one rule per address)', 'ux-studio' ),
 		);
 		foreach ( $c['skipped'] as $reason => $n ) {
 			$m->lossy(
@@ -487,7 +536,7 @@ final class RedirectsSource extends AbstractSource implements Activatable {
 			case 'would_update':
 				return array(
 					'status'  => 'skipped',
-					'message' => __( 'UX Studio already has a different rule for this address, it is kept.', 'ux-studio' ),
+					'message' => __( 'A different rule for this address already exists in UX Studio, it is kept.', 'ux-studio' ),
 				);
 			default:
 				return array(
@@ -527,7 +576,7 @@ final class RedirectsSource extends AbstractSource implements Activatable {
 		if ( 'would_update' === $cmp['status'] ) {
 			return array(
 				'status'  => 'skipped',
-				'message' => __( 'UX Studio already has a different rule for this address, it is kept.', 'ux-studio' ),
+				'message' => __( 'A different rule for this address already exists in UX Studio, it is kept.', 'ux-studio' ),
 			);
 		}
 		if ( 'would_create' !== $cmp['status'] ) {
