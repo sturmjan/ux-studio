@@ -6,8 +6,6 @@
    ============================================================ */
 
 .uxs-wiz {
-	max-width: 1000px;
-
 	.uxs-wiz-muted { color: var(--uxs-text-soft); font-size: var(--uxs-fs-s); }
 	code { font-size: var(--uxs-fs-s); background: var(--uxs-surface-2); border-radius: var(--uxs-radius-s); padding: 1px 6px; color: var(--uxs-text); }
 }
@@ -262,7 +260,7 @@
 	list-style: none;
 }
 
-.uxs-wiz-scangrid { grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); }
+.uxs-wiz-scangrid { grid-template-columns: repeat(auto-fill, minmax(min(360px, 100%), 1fr)); }
 
 .uxs-wiz-scancard,
 .uxs-wiz-choice {
