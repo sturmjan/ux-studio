@@ -1943,3 +1943,80 @@ přibudou aspoň 3 nové blokované zdroje typu skript/připojení/rámec s aspo
 - [ ] Ověřit na živém webu, co dorazí do prohlížeče (Hostinger přepisuje CSP - self-test to ukáže)
 - [ ] F6 Aktivní sken (WP-cron stáhne homepage, sitemapu, košík) - později
 - [ ] F7 Reputační broker v CA (Safe Browsing / URLhaus) - později
+
+## 26. Průvodce migrací z cizích pluginů + hlídání překryvů + MCP (2026-10-21, NÁVRH)
+
+Zadání: u pluginů s plnou shodou (seznam schválený 21. 10., skupina A) + Admin Customiser
+umět přenést nastavení a data, ověřit, že přenos proběhl, otestovat v bezpečném prostředí
+a teprve pak nabídnout deaktivaci. Průvodce se spustí po instalaci nebo ručně z menu.
+Modul nejde zapnout, když běží plugin, který dělá totéž. Součástí MCP server, který umí
+s UX Studiem pracovat nativně.
+
+### 26.1 Principy
+
+- **Zdroj se nikdy nemění.** Migrace data cizího pluginu jen čte; zapisuje jen do UX Studia.
+  Rollback = obnovit snímek našich dat + znovu aktivovat plugin.
+- **Nic automaticky.** Deaktivace jen po ověření a potvrzení uživatelem (stejně jako Upload Guard).
+- **Idempotence.** Mapovací tabulka `uxstudio_migration_map` (zdroj → cílové ID), opakovaný
+  běh nic nezdvojí. Velká data po dávkách, stav v `uxstudio_migration_run`, jde navázat.
+- **Ztrátové části se říkají předem.** Plán každého zdroje vypíše „přenese se / nepřenese se".
+
+### 26.2 Architektura (`includes/Core/Migration/`)
+
+- `Catalog` - registr zdrojů (slug pluginu, cílový modul, typ plná/částečná).
+- `Source` (rozhraní) - `detect()` (nainstalováno, aktivní, verze, počty), `plan()`,
+  `migrate( batch, dry_run )`, `verify()`, `smoke_urls()`.
+- `Sources/*` - jeden soubor na plugin, Redirection reuse `Redirects\Importer`, WP Extended reuse `Migrator`.
+- `Snapshot` - záloha cílových options/tabulek před zápisem, rollback 30 dní.
+- `Runner` - stavový automat, dávky, obnovení po timeoutu.
+- `PreviewSandbox` + mu-plugin `uxstudio-preview.php` - bezpečný náhled (26.4).
+- `ActivationGuard` - blokace zapnutí modulu (26.5).
+- REST `uxstudio/v1/migration/{scan,plan,run,status,verify,preview,deactivate,rollback}`.
+
+### 26.3 Průvodce (SPA `#/wizard`)
+
+1 Vítejte → 2 Sken webu → 3 Výběr → 4 Kontrola (snímek + zkušební běh) → 5 Migrace →
+6 Ověření a bezpečný náhled → 7 Deaktivace → 8 Hotovo (report do Activity Logu).
+Spouští se po aktivaci pluginu (Handoff redirect, jednou) a ručně z menu „Průvodce migrací".
+Animace jen CSS (krokový pruh, radar skenu, postupné karty, kreslené fajfky), lucide ikony,
+respektuje `prefers-reduced-motion`.
+
+### 26.4 Bezpečný náhled (sandbox v rámci session)
+
+Mu-plugin (načte se před pluginy) při platném podepsaném cookie/hlavičce (HMAC na `wp_salt`,
+user ID, expirace 30 min) přes `option_active_plugins` vypne pro TENTO požadavek staré pluginy
+a zapne cílové moduly. Návštěvníci dál jedou na starých pluginech. Automatické smoke testy
+loopbackem s tokenem: homepage 200 bez fatal erroru, klíčové stránky, wp-admin, plus testy
+zdrojů (vzorek přesměrování → shodný Location/kód, testovací e-mail přes nové SMTP adminovi,
+formulář komentářů zmizel, nová login URL odpovídá, snippety bez chyby…). Admin může web
+v náhledu proklikat sám (lišta „Náhled bez starých pluginů").
+Neověří: chování jen pro návštěvníky z cizí IP, cron běhy, e-maily skutečným příjemcům.
+
+### 26.5 Hlídání překryvů
+
+- Zapnutí modulu, když je aktivní plugin ze skupiny A → REST 409 `uxstudio_plugin_overlap`,
+  UI nabídne průvodce s předvybraným pluginem. Admin Customiser (částečná) → varování + potvrzení.
+- Aktivace cizího pluginu při zapnutém modulu (`activated_plugin`) → upozornění, nic se nevypne.
+- Skupina B jen upozorňuje (bez migrace a bez deaktivace).
+
+### 26.6 MCP server UX Studia
+
+- Přesun MCP z AI Assistantu do jádra (`Core/Mcp`), běží i bez AI modulu.
+- Transport Streamable HTTP přes WordPress MCP Adapter (přibalit composerem) + Abilities API.
+- Abilities `uxstudio/*`: moduly (seznam, zapnout/vypnout přes guard), nastavení (podle schématu,
+  tajné hodnoty nikdy ven), migrace (scan/plan/run s `dry_run`=true výchozí/verify/deactivate
+  jen s `confirm`), CSP inventura, IP bany, Activity Log, e-mail log, přesměrování (už existují).
+- Tokeny se scope (read / write / admin / migration), expirace, každé volání do Activity Logu.
+- UI vygeneruje příkaz pro Claude Code / konfiguraci pro Claude Desktop a Cursor.
+- Později: CA jako agregátor - jeden MCP pro celou flotilu.
+
+### 26.7 Fáze
+
+- [ ] F1 Catalog + detekce + ActivationGuard + upozornění (bez migrace)
+- [ ] F2 Průvodce (UI) + sken + plán + zkušební běh + Snapshot/rollback + zdroje jen s nastavením
+- [ ] F3 Zdroje s daty: Redirection, Code Snippets/WPCode/HFCM, FileBird/Folders, Page Links To,
+      PublishPress Future, Menu Icons/Nav Menu Roles, last login, WP Mail SMTP (vč. hesla), WP Mail Logging
+- [ ] F4 Bezpečný náhled + smoke testy + krok deaktivace
+- [ ] F5 Admin Customiser zdroje (Admin Menu Editor, Adminimize, White Label CMS) + Admin Columns
+- [ ] F6 MCP v jádru + abilities + scope tokenů + UI pro připojení klienta
+- [ ] F7 Automatické spuštění po instalaci, položka v menu, překlady, dokumentace
