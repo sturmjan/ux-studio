@@ -2573,12 +2573,16 @@ final class Module extends BaseModule {
 	private function current_rest_route(): string {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only routing lookup.
 		if ( isset( $_GET['rest_route'] ) ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$route = sanitize_text_field( wp_unslash( $_GET['rest_route'] ) );
+			// Raw on purpose: sanitize_text_field() strips percent-encoded octets (%2e%2e), which would hide a
+			// dot-segment from is_public_rest_route(). The value is only compared, never output.
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			$route = is_string( $_GET['rest_route'] ) ? (string) wp_unslash( $_GET['rest_route'] ) : '';
 			return '/' . ltrim( $route, '/' );
 		}
 
-		$uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+		// Raw for the same reason (comparison only).
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$uri = isset( $_SERVER['REQUEST_URI'] ) ? (string) wp_unslash( $_SERVER['REQUEST_URI'] ) : '';
 		if ( '' === $uri ) {
 			return '';
 		}
