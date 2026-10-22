@@ -2,6 +2,19 @@
 
 ## 0.6.0 (unreleased)
 
+- New - Security: two-step verification (authenticator app, 6-digit code, recovery
+  codes) that every user switches on in their own profile; optional requirement per
+  role with a grace period (nobody is locked out), reset by an administrator on the
+  Users screen, rescue constant `UXSTUDIO_DISABLE_2FA` in wp-config.php. Application
+  passwords are not affected.
+- New - Security: lockouts can grow with every repeated lockout of the same IP within
+  24 hours (up to a maximum), and the lockout e-mail can go to its own address.
+- New - Security: CAPTCHA also for comments and for WooCommerce login, registration,
+  lost password and checkout, with a choice of widget theme and size.
+- New - Migration: allow and block IP lists of Limit Login Attempts Reloaded and
+  Loginizer go to the Firewall (blocked addresses wait for the switch), together with
+  progressive lockouts and the notification address; the CAPTCHA plugins' comment and
+  WooCommerce forms and widget look are transferred too.
 - New - Migration wizard (Migration wizard in the menu): finds plugins whose job a
   UX Studio module does, copies their settings and data (36 plugins in 14 sources,
   including Admin Menu Editor, Adminimize, White Label CMS, Adminify, LoginPress and

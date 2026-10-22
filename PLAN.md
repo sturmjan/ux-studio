@@ -2153,9 +2153,11 @@ přibudou testy a živé ověření na pobyty. Větev `feature/module-gaps-a` na
 
 ### 27.1 Vlna A
 
-- [ ] A1 Zabezpečení: dvoufázové ověření TOTP (vzor z Centrální aplikace), prodlužované blokace
+- [x] A1 Zabezpečení: dvoufázové ověření TOTP (vzor z Centrální aplikace), prodlužované blokace
       po opakovaných pokusech, vlastní e-mail pro upozornění, CAPTCHA pro komentáře a formuláře
       WooCommerce + vzhled widgetu; migrace: IP seznamy z Limit Login / Loginizer do Firewallu
+      (hotovo 22. 10. 2026 lokálně, poznámky v 27.4; komentáře a pokladnu WooCommerce na pobyty
+      nešlo ověřit živě, viz „Neověřeno")
 - [ ] A2 Přesměrování: podmínky pravidel (přihlášený/role, referrer, user agent, IP, cookie),
       víc pravidel na adresu; Úryvky kódu: snippet jako shortcode, spuštění jednou, umístění
       před/za obsahem
@@ -2176,3 +2178,67 @@ přihlášení; meta boxy podle role; filtry a řazení sloupců; volby Auto Upl
 PHP výrazy v podmínkách menu a PHP události cronu (spouštění kódu z nastavení), celé UI
 Adminify, inline editace a Pro sloupce Admin Columns, import historie Activity Logu,
 Rewrite & Republish, kolekce a galerie Real Media Library.
+
+### 27.4 A1 poznámky: Zabezpečení (2026-10-22)
+
+**Dvoufázové ověření (TOTP).** `Core\Totp` (RFC 6238, SHA1, 30 s, 6 číslic, okno plus minus 1, test se vektory z přílohy B),
+`SecurityOptimization\TwoFactorStore` (data uživatele, žádný výstup) a `TwoFactor` (přihlášení, profil, role). Nastavení modulu:
+`two_factor_enabled` (výchozí vypnuto), `two_factor_required_roles`, `two_factor_grace_logins` (výchozí 3); téma „Dvoufázové ověření“
+v menu modulu s přehledem (kdo ho má, kdo ho má povinné a ještě nemá, záchranný přepínač).
+- **Průběh přihlášení.** Filtr `authenticate` na PHP_INT_MAX, zaregistrovaný až po zámku pokusů a CAPTCHA (stejná priorita = pořadí
+  registrace), takže druhý krok uvidí jen uživatel, který prošel zámkem, CAPTCHA i heslem. Správné heslo uživatele s 2FA nenastaví
+  cookie ani nespustí `wp_login`: zobrazí se druhý krok uvnitř wp-login.php (`login_header`), čekající přihlášení je jen hash tokenu
+  v user meta (10 minut). Formulář jde na `?action=uxstudio_2fa` (`login_form_uxstudio_2fa`), takže vlastní adresa přihlášení funguje
+  beze změny (`wp_login_url()` je přes `site_url` filtr přepsané). Správný kód nebo záložní kód nastaví cookie, spustí `wp_login`
+  (čítače zámku se nulují až teď) a `login_redirect`. Každý jiný přihlašovací pokus heslem pro účet s 2FA (formulář WooCommerce,
+  AJAX, XML-RPC s heslem) se odmítne (fail closed). Hesla aplikací (REST, XML-RPC) se nijak nemění: core je jen označí
+  (`application_password_did_authenticate`) a my je propustíme; pozor, `protect_login` je u modulu stejně vypíná.
+- **Bezpečnost.** Tajný klíč zašifrovaný `Security::seal`, záložní kódy jen jako HMAC hash (sůl `auth`, vázané na uživatele), jednorázové,
+  konstantní porovnání. Kód z jednoho 30s kroku jde použít jen jednou (replay), jinak by sniffnutý kód platil až 90 s. Limit 5 chybných
+  kódů za 10 minut na uživatele, pak se ani správný kód nevyhodnotí do konce okna; zapsáno `two_factor_locked`. Vypnutí a nové záložní
+  kódy vyžadují heslo nebo platný kód. Admin zruší cizí 2FA řádkovou akcí na Uživatelích, v profilu nebo tlačítkem v přehledu (nonce,
+  `edit_users` + `edit_user`). Události v Activity Logu: `two_factor_enabled|disabled|reset|failed|locked|recovery_used|recovery_regenerated|grace_used|setup_forced`.
+  Konstanta `UXSTUDIO_DISABLE_2FA` v wp-config.php vypne celé druhé kolo i profil; je popsaná v nastavení i v přehledu.
+- **Povinné role.** Po přihlášení bez nastavené 2FA: `login_gate` spotřebuje jedno odložení a pošle na profil (`profile.php?uxstudio_2fa_setup=1`);
+  po vyčerpání je nastavení povinné: `admin_init` pošle každou stránku administrace na profil (profil, admin-post a async-upload zůstávají,
+  AJAX a odhlášení také), uživatel se nikdy nezamkne potichu a může si ji kdykoli nastavit. Nastavení 2FA čítač odložení nevrací
+  (vypnutí a nové přihlášení hned vynutí). Není to bezpečnostní hranice (REST s cookie jde dál), je to nucení k nastavení.
+- QR kód se negeneruje (žádná závislost): klíč po čtveřicích s tlačítkem Kopírovat a odkaz `otpauth://` pro telefon.
+
+**Prodlužované blokace a e-mail.** `lockout_progressive` (výchozí vypnuto), `lockout_multiplier` (1 až 10, výchozí 2), `lockout_max_hours` (1 až 168,
+výchozí 24), `lockout_notify_email` (prázdné = e-mail správce, neplatný se zahodí). Délka další blokace = základ krát faktor na počet blokací
+téže IP s `status = 1` za posledních 24 h (ruční „Odemknout“ je nepočítá), strop = maximum (`AttemptsHandler::progressive_minutes`, čistá
+funkce včetně přetečení na INF). Zpráva „zkuste to za N minut“ ukazuje skutečný zbytek jen při zapnutém prodlužování (výchozí chování se nemění).
+
+**CAPTCHA mimo přihlášení.** `captcha_forms` rozšířeno o `comment`, `woo_login`, `woo_register`, `woo_lostpassword`, `woo_checkout` (výchozí seznam beze změny),
+třída `CaptchaForms` funguje u obou umístění (brána existuje jen pro wp-login.php). Každý formulář se ověřuje na serveru: komentáře `pre_comment_on_post` plus
+anonymní REST komentář (`rest_pre_insert_comment`, token v parametru), WooCommerce `woocommerce_process_login_errors`, `..._registration_errors`,
+`lostpassword_post` (jen formulář WC), `woocommerce_checkout_process`. Přihlášení návštěvníci se u komentářů a pokladny nevyhodnocují, wp-admin se netýká.
+Token je u poskytovatele jednorázový, proto `CaptchaVerifier::verify_token` pamatuje verdikt na požadavek (dva handlery na jeden požadavek). Vzhled: `captcha_theme`
+(auto, light, dark) a `captcha_size` (normal, compact, flexible; reCAPTCHA bere flexible jako normal a auto jako light).
+
+**Migrace.** `LoginSource` (Limit Login Attempts Reloaded, Loginizer): seznam povolených IP se sloučí do `ip_firewall_allowlist` (stávající řádky první, bez duplicit,
+zohledňuje i staging), blokované IP vzniknou jako bany s `origin = migration` v datové fázi (`IpEntries`: adresa, CIDR, rozsah od-do rozřezaný na přesné bloky,
+zástupné `*`, bloky širší než /8 a /16 se hlásí a nepřenášejí), při zapnutém modulu NEAKTIVNÍ a zapne je `Staging::apply` (`Activatable`), s nimi se staged zapne
+`ip_firewall_enabled`; idempotentní podle hodnoty (`IpBanStore::find_by_value`) a mapování, vrácení ze snímku (`uxstudio_ip_bans`, `uxstudio_ip_ban_ranges`, příznak
+`uxstudio_ip_bans_active`). Prodlužování se mapuje přibližně (faktor = (dlouhá/základní)^(1/N), strop = dlouhá doba) a plán to říká jako poznámku. Vlastní e-mail
+(`admin_notify_email`, `notify_email_address`). Z „nepřenese se“ zmizelo: delší blokace, seznamy IP, vlastní adresa upozornění; zůstává: seznamy uživatelských jmen,
+cloud LLAR, CAPTCHA/passwordless/sociální přihlášení Loginizeru a 2FA (tajné klíče nejdou přenést, „uživatelé si 2FA nastaví znovu“). `CaptchaSource`: komentáře a formuláře
+WooCommerce, motiv a velikost; zůstává jazyk widgetu, záložní režim a výjimky, nově se hlásí formuláře jiných pluginů (CF7, WPForms, Elementor ...).
+Správa banů (přepnout, smazat) smí i `migration` původ, v seznamu je štítek „Přeneseno“.
+
+**Testy.** `tests/security-2fa.php` (vektory RFC 6238, okno, záložní kódy, replay, limit, token, grace, vypínač), `tests/security-lockout.php`, rozšířené
+`tests/migration-sources.php` a `tests/migration-data-sources.php`; všech 11 testů zelených.
+
+**Ověřeno živě (pobyty, dočasný uživatel, vše vráceno).** Heslo, druhý krok, špatný kód odmítnut, správný kód a záložní kód (podruhé odmítnut), replay odmítnut,
+5 chybných kódů zamkne a správný kód se pak neuzná, vypínač v wp-config (vráceno byte po bytu), povinná role s grace 2 (profil, potom vynucení, odhlášení dostupné,
+po nastavení volno), přehled v nastavení a řádková akce na Uživatelích (špatný nonce 403), prodlužování (v tabulce zámků 1 a potom 3 minuty), widget Turnstile s testovacími
+klíči u formulářů WooCommerce (téma, velikost, token projde, bez tokenu odmítnuto, lost-password také), skutečný zapisovač banů migrace (vytvořit neaktivní, aktivovat,
+deaktivovat, druhé volání beze změny, smazat).
+
+**Neověřeno / otevřené.** Komentáře a pokladna WooCommerce živě: na pobyty je aktivní Disable Comments (formulář se nevykresluje, odeslání končí „komentáře nejsou povoleny“),
+pokladna potřebuje košík; server-side kód je stejný jako u ověřených formulářů, ale vykreslení widgetu v komentářích a na pokladně jsem neviděl. E-mail o blokaci
+(vlastní adresa) se neposílal (na pobyty ho blokuje Disable Emails), ověřeno jen uložení a validace. Formáty voleb `cfturnstile_size`, `captcha_theme`/`captcha_size`
+WP Captcha a `admin_notify_email` LLAR vycházejí z kódu pluginů, ne z reálných dat. Při zapnuté CSP (Enforce) musí politika pustit `challenges.cloudflare.com`
+(frame i script), jinak se Turnstile v prohlížeči nezobrazí; na pobyty běží CSP jen v režimu Report only a hlásí to. Pozor při testování: zámek pokusů se počítá na IP
+(127.0.0.1), každý test se špatným heslem zamkne lokální přihlášení všem, včetně správce.

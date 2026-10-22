@@ -223,6 +223,11 @@ $schemas = array(
 		$rich( 'body_text' ), $col( 'body_colour' ), $col( 'background_colour' ),
 	),
 );
+$schemas['security-optimization'] = array(
+	$tog( 'limit_login_attempts' ), $num( 'max_attempts', 3 ), $num( 'lockout_time', 30 ), $tog( 'notify_admin' ),
+	$txt( 'lockout_notify_email' ), $tog( 'lockout_progressive' ), $num( 'lockout_multiplier', 2 ), $num( 'lockout_max_hours', 24 ),
+	$tog( 'ip_firewall_enabled' ), array( 'key' => 'ip_firewall_allowlist', 'type' => 'textarea', 'default' => '' ),
+);
 SettingsWriter::set_schema_resolver( static fn( string $m ) => $schemas[ $m ] ?? null );
 
 /** Reset the fake site. */
@@ -938,6 +943,52 @@ $plan = SourceRegistry::get( 'wp-mail-smtp' )->plan();
 $assert( 'wp-mail-smtp: constants of wp-config (WPMS_ON) are the effective values', 'konstanta.firma.cz' === array_column( $plan['transfer'], 'to', 'key' )['host'] );
 SourceRegistry::get( 'wp-mail-smtp' )->migrate( array( 'run_id' => 'rs2' ), false );
 $assert( 'wp-mail-smtp: password constant is transferred even without the encryption key', 'z-konstanty' === Security::get_secret( 'uxstudio_secret_smtp_password' ) );
+
+/* ═══ 10 IP block lists of Limit Login Attempts Reloaded and Loginizer -> Firewall bans (PLAN.md 27, A1) ═══ */
+
+$bl_loginizer = array( 'loginizer_options' => array( 'max_retries' => 3 ), 'loginizer_blacklist' => array(
+	1 => array( 'start' => '203.0.113.5', 'end' => '203.0.113.5' ),
+	2 => array( 'start' => '198.51.100.0', 'end' => '198.51.100.255' ),
+	3 => array( 'start' => '203.0.113.5', 'end' => '203.0.113.5' ), // duplicate of 1
+	4 => array( 'start' => 'garbage', 'end' => 'garbage' ),
+) );
+$site( array( 'loginizer' ), array( 'loginizer' ), $bl_loginizer, array( 'activity-log', 'security-optimization' ) );
+$assert( 'ip bans: both sources can switch bans on and off (Activatable)', SourceRegistry::get( 'loginizer' ) instanceof \UxStudio\Core\Migration\Activatable && SourceRegistry::get( 'limit-login-attempts-reloaded' ) instanceof \UxStudio\Core\Migration\Activatable );
+$items = $items_of( 'loginizer' );
+$assert( 'ip bans: entries are normalized, duplicates and garbage left out', 2 === count( $items ) && 'single' === $items[0]['type'] && '203.0.113.5' === $items[0]['value'] && 'cidr' === $items[1]['type'] && '198.51.100.0/24' === $items[1]['value'], json_encode( $items ) );
+$plan = SourceRegistry::get( 'loginizer' )->plan();
+$assert( 'ip bans: plan counts 2 bans and reports the garbage entry', 2 === $data_count( $plan, 'ip_ban' ) && $lossy_has( $plan, '1 IP list entries could not be transferred' ), json_encode( $plan['lossy'] ) );
+
+// Module on: bans are created switched off and wait for the switch; the Firewall setting waits in staging too.
+$store     = array();
+$module_on = true;
+$install_double( $store, static function () use ( &$module_on ) { return $module_on; } );
+$run   = Runner::start( array( 'loginizer' ), false );
+$r1    = $drive();
+$entry = Staging::entry( $run['id'] );
+$act   = $entry['activations'][0] ?? array();
+$assert( 'ip bans (module on): both bans wait for the switch under kind ip_ban', 'ip_ban' === ( $act['kind'] ?? '' ) && 'loginizer' === ( $act['source'] ?? '' ) && 2 === count( $act['ids'] ?? array() ), json_encode( $entry ) );
+$assert( 'ip bans (module on): Firewall setting is staged, not live', true === ( $entry['settings']['security-optimization']['ip_firewall_enabled'] ?? null ) && ! isset( ( $opt( 'uxstudio_security_optimization' ) ?? array() )['ip_firewall_enabled'] ), json_encode( $entry['settings'] ?? null ) );
+$assert( 'ip bans: only created bans get map rows (rollback target)', 2 === count( array_filter( $GLOBALS['wpdb']->map, static fn( $r ) => 'testobj' === $r['target_type'] ) ) );
+$run2 = Runner::start( array( 'loginizer' ), false );
+$r2   = $drive();
+$assert( 'ip bans: a second run creates nothing new (idempotent)', 0 === $r2['per_source']['loginizer']['written'] && 0 === $r2['per_source']['loginizer']['staged'], json_encode( $r2['per_source']['loginizer'] ) );
+$ver = Runner::verify();
+$assert( 'ip bans: verify finds both and marks them staged', array() === array_filter( $ver['loginizer'], static fn( $c ) => ! $c['ok'] ) && ! empty( array_filter( $ver['loginizer'], static fn( $c ) => ! empty( $c['staged'] ) ) ), json_encode( $ver['loginizer'] ) );
+Runner::rollback( $run['id'] );
+$assert( 'ip bans: rollback discards the waiting activations', null === Staging::entry( $run['id'] ) );
+
+// Module off: created directly (they have no effect until the module is on), nothing staged.
+$site( array( 'limit-login-attempts-reloaded' ), array( 'limit-login-attempts-reloaded' ), array( 'limit_login_blacklist' => array( '203.0.113.9', '198.51.100.7-198.51.100.8' ), 'limit_login_whitelist' => array( '192.0.2.1' ) ), array( 'activity-log' ) );
+$store     = array();
+$module_on = false;
+$install_double( $store, static function () use ( &$module_on ) { return $module_on; } );
+$plan = SourceRegistry::get( 'limit-login-attempts-reloaded' )->plan();
+$assert( 'llar: 2 bans + 2 CIDR blocks of the range', 3 === $data_count( $plan, 'ip_ban' ), json_encode( $plan['data'] ) );
+$run = Runner::start( array( 'limit-login-attempts-reloaded' ), false );
+$r1  = $drive();
+$assert( 'llar (module off): bans created directly, nothing staged, allow list written to the module option', 3 === count( $store['limit-login-attempts-reloaded'] ) && array() === Staging::all() && "192.0.2.1" === ( $opt( 'uxstudio_security_optimization' )['ip_firewall_allowlist'] ?? null ) && true === ( $opt( 'uxstudio_security_optimization' )['ip_firewall_enabled'] ?? null ), json_encode( array( $opt( 'uxstudio_security_optimization' ), array_keys( $store ) ) ) );
+AbstractSource::set_data_double( null );
 
 echo PHP_EOL . ( $failures ? "$failures FAILED" : 'ALL PASSED' ) . PHP_EOL;
 exit( $failures ? 1 : 0 );

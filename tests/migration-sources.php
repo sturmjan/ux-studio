@@ -99,6 +99,7 @@ function delete_option( $name ) { unset( $GLOBALS['uxs_options'][ $name ] ); ret
 function apply_filters( $hook, $value, ...$args ) { return $value; }
 function do_action( $hook, ...$args ) { $GLOBALS['uxs_actions'][] = $hook; }
 function __( $text, $domain = '' ) { return $text; }
+function _n( $single, $plural, $n, $domain = '' ) { return 1 === $n ? $single : $plural; }
 function is_wp_error( $x ) { return $x instanceof WP_Error; }
 function current_time( $type ) { return '2026-10-21 12:00:00'; }
 function get_current_user_id() { return 1; }
@@ -161,6 +162,7 @@ $tog = static fn( string $key, $def = false ) => array( 'key' => $key, 'type' =>
 $txt = static fn( string $key, $def = '' ) => array( 'key' => $key, 'type' => 'text', 'default' => $def );
 $num = static fn( string $key, $def = 0 ) => array( 'key' => $key, 'type' => 'number', 'default' => $def );
 $mul = static fn( string $key, array $opts, $def = array() ) => array( 'key' => $key, 'type' => 'multiselect', 'options' => array_fill_keys( $opts, '' ), 'default' => $def );
+$area = static fn( string $key, $def = '' ) => array( 'key' => $key, 'type' => 'textarea', 'default' => $def );
 $all_roles = array( 'administrator', 'editor', 'author', 'subscriber' );
 
 $schemas = array(
@@ -187,10 +189,13 @@ $schemas = array(
 		$mul( 'disable_comments_post_types', array( 'post', 'page' ) ), $tog( 'disable_comments_hide_existing', true ),
 		$tog( 'disable_comments_admin_ui', true ), $tog( 'disable_comments_block_endpoints', true ),
 		$tog( 'limit_login_attempts' ), $num( 'max_attempts', 3 ), $num( 'lockout_time', 30 ), $tog( 'notify_admin' ),
+		$txt( 'lockout_notify_email' ), $tog( 'lockout_progressive' ), $num( 'lockout_multiplier', 2 ), $num( 'lockout_max_hours', 24 ),
+		$tog( 'ip_firewall_enabled' ), $area( 'ip_firewall_allowlist' ),
 		$tog( 'login_url_enabled' ), $txt( 'login_url' ), $sel( 'disabled_behavior', array( '404', 'home', 'url_redirect', 'existing_page', 'message' ), '404' ), $txt( 'url_redirect' ),
 		$tog( 'captcha_enabled' ), $sel( 'captcha_provider', array( 'turnstile', 'recaptcha_v2', 'recaptcha_v3' ), 'turnstile' ),
 		$sel( 'captcha_placement', array( 'inline', 'gate' ), 'gate' ), $sel( 'captcha_mode', array( 'always', 'adaptive' ), 'always' ),
-		$mul( 'captcha_forms', array( 'login', 'register', 'lostpassword' ), array( 'login', 'register', 'lostpassword' ) ),
+		$mul( 'captcha_forms', array( 'login', 'register', 'lostpassword', 'comment', 'woo_login', 'woo_register', 'woo_lostpassword', 'woo_checkout' ), array( 'login', 'register', 'lostpassword' ) ),
+		$sel( 'captcha_theme', array( 'auto', 'light', 'dark' ), 'auto' ), $sel( 'captcha_size', array( 'normal', 'compact', 'flexible' ), 'normal' ),
 		$txt( 'captcha_site_key' ), $sel( 'captcha_key_source', array( 'manual', 'ca', 'self_api' ), 'manual' ),
 		$tog( 'disable_xmlrpc', true ), $tog( 'disable_emojis' ), $tog( 'disable_rss_feeds' ),
 	),
@@ -356,8 +361,8 @@ $cases = array(
 	),
 	'limit-login-attempts-reloaded' => array(
 		'limit-login-attempts-reloaded', true,
-		array( 'limit_login_allowed_retries' => 5, 'limit_login_lockout_duration' => 3600, 'limit_login_lockout_notify' => 'log,email', 'limit_login_allowed_lockouts' => 2, 'limit_login_whitelist' => array( '1.2.3.4' ) ),
-		array( 'uxstudio_security_optimization' => array( 'limit_login_attempts' => true, 'max_attempts' => 5, 'lockout_time' => 60, 'notify_admin' => true ) ),
+		array( 'limit_login_allowed_retries' => 5, 'limit_login_lockout_duration' => 3600, 'limit_login_lockout_notify' => 'log,email', 'limit_login_allowed_lockouts' => 2, 'limit_login_long_duration' => 14400, 'admin_notify_email' => 'ops@example.test', 'limit_login_whitelist' => array( '1.2.3.4', '10.0.0.1-10.0.0.3' ) ),
+		array( 'uxstudio_security_optimization' => array( 'limit_login_attempts' => true, 'max_attempts' => 5, 'lockout_time' => 60, 'notify_admin' => true, 'lockout_notify_email' => 'ops@example.test', 'lockout_progressive' => true, 'lockout_multiplier' => 2.0, 'lockout_max_hours' => 4, 'ip_firewall_allowlist' => "1.2.3.4\n10.0.0.1\n10.0.0.2/31" ) ),
 	),
 	'wps-hide-login'               => array(
 		'wps-hide-login', true, array( 'whl_page' => 'administrace', 'whl_redirect_admin' => 'neexistuje' ),
@@ -368,18 +373,18 @@ $cases = array(
 		array( 'uxstudio_security_optimization' => array( 'login_url_enabled' => true, 'login_url' => 'login', 'disabled_behavior' => '404' ) ),
 	),
 	'loginizer'                    => array(
-		'loginizer', true, array( 'loginizer_options' => array( 'max_retries' => 4, 'lockout_time' => 600, 'notify_email' => 1 ) ),
-		array( 'uxstudio_security_optimization' => array( 'limit_login_attempts' => true, 'max_attempts' => 4, 'lockout_time' => 10, 'notify_admin' => true ) ),
+		'loginizer', true, array( 'loginizer_options' => array( 'max_retries' => 4, 'lockout_time' => 600, 'notify_email' => 1, 'notify_email_address' => 'ops@example.test', 'max_lockouts' => 3, 'lockouts_extend' => 7200 ), 'loginizer_whitelist' => array( 1 => array( 'start' => '5.5.5.5', 'end' => '5.5.5.5', 'time' => 1 ), 2 => array( 'start' => '192.168.1.0', 'end' => '192.168.1.255', 'time' => 1 ) ) ),
+		array( 'uxstudio_security_optimization' => array( 'limit_login_attempts' => true, 'max_attempts' => 4, 'lockout_time' => 10, 'notify_admin' => true, 'lockout_notify_email' => 'ops@example.test', 'lockout_progressive' => true, 'lockout_multiplier' => 2.3, 'lockout_max_hours' => 2, 'ip_firewall_allowlist' => "5.5.5.5\n192.168.1.0/24" ) ),
 	),
 	'simple-cloudflare-turnstile'  => array(
 		'simple-cloudflare-turnstile', true,
-		array( 'cfturnstile_key' => 'SITEKEY', 'cfturnstile_secret' => 'SECRETKEY', 'cfturnstile_login' => 'on', 'cfturnstile_reset' => 'on', 'cfturnstile_comment' => 'on' ),
-		array( 'uxstudio_security_optimization' => array( 'captcha_provider' => 'turnstile', 'captcha_site_key' => 'SITEKEY', 'captcha_placement' => 'inline', 'captcha_forms' => array( 'login', 'lostpassword' ), 'captcha_enabled' => true, 'captcha_key_source' => 'manual' ) ),
+		array( 'cfturnstile_key' => 'SITEKEY', 'cfturnstile_secret' => 'SECRETKEY', 'cfturnstile_login' => 'on', 'cfturnstile_reset' => 'on', 'cfturnstile_comment' => 'on', 'cfturnstile_woo_login' => 'on', 'cfturnstile_woo_register' => 'on', 'cfturnstile_woo_reset' => 'on', 'cfturnstile_woo_checkout' => 'on', 'cfturnstile_theme' => 'dark', 'cfturnstile_size' => 'flexible' ),
+		array( 'uxstudio_security_optimization' => array( 'captcha_provider' => 'turnstile', 'captcha_site_key' => 'SITEKEY', 'captcha_placement' => 'inline', 'captcha_forms' => array( 'login', 'lostpassword', 'comment', 'woo_login', 'woo_register', 'woo_lostpassword', 'woo_checkout' ), 'captcha_enabled' => true, 'captcha_key_source' => 'manual', 'captcha_theme' => 'dark', 'captcha_size' => 'flexible' ) ),
 	),
 	'advanced-google-recaptcha'    => array(
 		'advanced-google-recaptcha', true,
-		array( 'wpcaptcha_options' => array( 'captcha' => 'recaptchav3', 'captcha_site_key' => 'SK', 'captcha_secret_key' => 'SS', 'captcha_show_login' => 1, 'captcha_show_wp_registration' => 0, 'captcha_show_wp_lost_password' => 1 ) ),
-		array( 'uxstudio_security_optimization' => array( 'captcha_provider' => 'recaptcha_v3', 'captcha_site_key' => 'SK', 'captcha_forms' => array( 'login', 'lostpassword' ), 'captcha_enabled' => true ) ),
+		array( 'wpcaptcha_options' => array( 'captcha' => 'recaptchav2', 'captcha_site_key' => 'SK', 'captcha_secret_key' => 'SS', 'captcha_show_login' => 1, 'captcha_show_wp_registration' => 0, 'captcha_show_wp_lost_password' => 1, 'captcha_show_wp_comment' => 1, 'captcha_show_woo_checkout' => 1, 'captcha_theme' => 'dark', 'captcha_size' => 'compact' ) ),
+		array( 'uxstudio_security_optimization' => array( 'captcha_provider' => 'recaptcha_v2', 'captcha_site_key' => 'SK', 'captcha_forms' => array( 'login', 'lostpassword', 'comment', 'woo_checkout' ), 'captcha_enabled' => true, 'captcha_theme' => 'dark', 'captcha_size' => 'compact' ) ),
 	),
 	'disable-xml-rpc'              => array(
 		'disable-xml-rpc', true, array(),
@@ -421,6 +426,76 @@ $assert( 'secret is stored encrypted (uxs1:) and decrypts to the source value', 
 $plan = SourceRegistry::get( 'simple-cloudflare-turnstile' )->plan();
 $assert( 'plan never shows the secret value', false === strpos( json_encode( $plan ), 'S3CRET' ) );
 $assert( 'secret option name matches the module code', 1 === preg_match( '/SECRET_CAPTCHA\s*=\s*\'uxstudio_secret_security_optimization_captcha_secret_key\'/', (string) file_get_contents( $root . '/includes/Modules/SecurityOptimization/Module.php' ) ) );
+
+/* ── A1: lockout, notification e-mail, IP lists, CAPTCHA forms and look (PLAN.md 27) ── */
+
+$lossy_of = static fn( string $slug ): string => implode( ' | ', SourceRegistry::get( $slug )->plan()['lossy'] );
+$notes_of = static fn( string $slug ): string => implode( ' | ', SourceRegistry::get( $slug )->plan()['notes'] );
+
+$site( array( 'limit-login-attempts-reloaded' ), array( 'limit-login-attempts-reloaded' ), array( 'limit_login_allowed_retries' => 5, 'limit_login_whitelist' => array( '1.2.3.4' ), 'limit_login_whitelist_usernames' => array( 'jan' ) ) );
+$assert( 'llar: progressive lockout is transferred, no longer listed as lost', false === stripos( $lossy_of( 'limit-login-attempts-reloaded' ), 'longer lockouts' ) && false !== stripos( $notes_of( 'limit-login-attempts-reloaded' ), 'Repeated lockouts' ), $lossy_of( 'limit-login-attempts-reloaded' ) );
+$assert( 'llar: the IP list is no longer lost, only the user name lists are', false === stripos( $lossy_of( 'limit-login-attempts-reloaded' ), 'lists of allowed and blocked IP' ) && false !== stripos( $lossy_of( 'limit-login-attempts-reloaded' ), 'user names' ), $lossy_of( 'limit-login-attempts-reloaded' ) );
+// LLAR defaults when the plugin never stored the values: 20 min lockout, 4 lockouts -> 24 h.
+$p = SourceRegistry::get( 'limit-login-attempts-reloaded' )->plan();
+$rows = array_column( $p['transfer'], 'to', 'key' );
+$assert( 'llar: plugin defaults give a progressive lockout of 2.9 x up to 24 h', '2.9' === ( $rows['lockout_multiplier'] ?? '' ) && '24' === ( $rows['lockout_max_hours'] ?? '' ), json_encode( $rows ) );
+
+$site( array( 'limit-login-attempts-reloaded' ), array( 'limit-login-attempts-reloaded' ), array( 'limit_login_allowed_retries' => 3, 'limit_login_allowed_lockouts' => 4, 'limit_login_lockout_duration' => 1200, 'limit_login_long_duration' => 1200, 'admin_notify_email' => 'not-an-email' ) );
+$p = SourceRegistry::get( 'limit-login-attempts-reloaded' )->plan();
+$keys = array_column( $p['transfer'], 'key' );
+$assert( 'llar: no long lockout configured => no progressive keys', ! in_array( 'lockout_progressive', $keys, true ) && ! in_array( 'lockout_multiplier', $keys, true ) );
+$assert( 'llar: an invalid notification address is not transferred and says so', ! in_array( 'lockout_notify_email', $keys, true ) && false !== stripos( $lossy_of( 'limit-login-attempts-reloaded' ), 'e-mail address for lockout notices' ), $lossy_of( 'limit-login-attempts-reloaded' ) );
+
+// The allow list is merged with what the module already has (and with what an earlier run prepared), without duplicates.
+$site( array( 'limit-login-attempts-reloaded' ), array( 'limit-login-attempts-reloaded' ), array( 'limit_login_whitelist' => array( '1.2.3.4', '9.9.9.9' ), 'uxstudio_security_optimization' => array( 'ip_firewall_allowlist' => "9.9.9.9\n8.8.8.8" ) ) );
+SourceRegistry::get( 'limit-login-attempts-reloaded' )->migrate( array( 'run_id' => 'rallow' ), false );
+$assert( 'allow list: existing lines stay first, new ones are added once', "9.9.9.9\n8.8.8.8\n1.2.3.4" === ( $opt( 'uxstudio_security_optimization' )['ip_firewall_allowlist'] ?? null ), json_encode( $opt( 'uxstudio_security_optimization' ) ) );
+SourceRegistry::get( 'limit-login-attempts-reloaded' )->migrate( array( 'run_id' => 'rallow2' ), false );
+$assert( 'allow list: a second run changes nothing', "9.9.9.9\n8.8.8.8\n1.2.3.4" === ( $opt( 'uxstudio_security_optimization' )['ip_firewall_allowlist'] ?? null ) );
+
+// Entries the Firewall cannot take are reported, not silently dropped.
+$site( array( 'limit-login-attempts-reloaded' ), array( 'limit-login-attempts-reloaded' ), array( 'limit_login_whitelist' => array( '1.2.3.4', 'not-an-ip', '0.0.0.0/0' ) ) );
+$assert( 'llar: unusable list entries (invalid, catch-all) are reported', false !== stripos( $lossy_of( 'limit-login-attempts-reloaded' ), '2 IP list entries could not be transferred' ) && false !== strpos( $lossy_of( 'limit-login-attempts-reloaded' ), 'not-an-ip' ), $lossy_of( 'limit-login-attempts-reloaded' ) );
+
+// Blocked addresses: Firewall switched on with them, shown as data of the plan.
+$site( array( 'loginizer' ), array( 'loginizer' ), array( 'loginizer_options' => array( 'max_retries' => 3 ), 'loginizer_blacklist' => array( 1 => array( 'start' => '203.0.113.5', 'end' => '203.0.113.5' ), 2 => array( 'start' => '198.51.100.0', 'end' => '198.51.100.255' ) ) ) );
+$p = SourceRegistry::get( 'loginizer' )->plan();
+$rows = array_column( $p['transfer'], 'to', 'key' );
+$assert( 'loginizer: blocked addresses turn the Firewall on and are listed as data (2)', '✓' === ( $rows['ip_firewall_enabled'] ?? '' ) && 2 === $p['counts']['data'] && 'ip_ban' === $p['data'][0]['key'], json_encode( $p['data'] ) );
+$assert( 'loginizer: warns that the Firewall starts blocking with the module', false !== stripos( implode( ' ', $p['warnings'] ), 'Firewall' ) );
+$assert( 'loginizer: bans and the active flag are in the snapshot', array( 'uxstudio_ip_bans', 'uxstudio_ip_ban_ranges' ) === SourceRegistry::get( 'loginizer' )->target_tables() && in_array( 'uxstudio_ip_bans_active', SourceRegistry::get( 'loginizer' )->target_options(), true ) );
+$assert( 'loginizer: two-step verification is reported as not movable, users set it up again', false !== stripos( $lossy_of( 'loginizer' ), 'set it up again' ) && false === stripos( $lossy_of( 'loginizer' ), 'lists of allowed and blocked IP' ), $lossy_of( 'loginizer' ) );
+$site( array( 'wps-hide-login' ), array( 'wps-hide-login' ), array( 'whl_page' => 'x' ) );
+$assert( 'wps-hide-login: no firewall tables in the snapshot', array() === SourceRegistry::get( 'wps-hide-login' )->target_tables() && 0 === SourceRegistry::get( 'wps-hide-login' )->plan()['counts']['data'] );
+
+// CAPTCHA: comments, WooCommerce and the look are no longer lost; other plugins' forms still are.
+$site( array( 'simple-cloudflare-turnstile' ), array( 'simple-cloudflare-turnstile' ), array( 'cfturnstile_key' => 'K', 'cfturnstile_secret' => 'S', 'cfturnstile_comment' => 'on', 'cfturnstile_woo_login' => 'on', 'cfturnstile_theme' => 'light', 'cfturnstile_wpforms' => 'on', 'cfturnstile_cf7' => 'on' ) );
+$assert( 'turnstile: comment and WooCommerce forms are transferred, not listed as lost', false === stripos( $lossy_of( 'simple-cloudflare-turnstile' ), 'comment form' ) && false === stripos( $lossy_of( 'simple-cloudflare-turnstile' ), 'WooCommerce' ), $lossy_of( 'simple-cloudflare-turnstile' ) );
+$assert( 'turnstile: forms of other plugins are still reported', false !== strpos( $lossy_of( 'simple-cloudflare-turnstile' ), 'Contact Form 7' ) && false !== strpos( $lossy_of( 'simple-cloudflare-turnstile' ), 'WPForms' ), $lossy_of( 'simple-cloudflare-turnstile' ) );
+$assert( 'turnstile: the appearance is no longer listed as lost (only language, failsafe, allow lists)', false !== stripos( $lossy_of( 'simple-cloudflare-turnstile' ), 'widget language' ) && false === stripos( $lossy_of( 'simple-cloudflare-turnstile' ), 'theme' ), $lossy_of( 'simple-cloudflare-turnstile' ) );
+$site( array( 'simple-cloudflare-turnstile' ), array( 'simple-cloudflare-turnstile' ), array( 'cfturnstile_key' => 'K', 'cfturnstile_secret' => 'S', 'cfturnstile_login' => 'on' ) );
+$keys = array_column( SourceRegistry::get( 'simple-cloudflare-turnstile' )->plan()['transfer'], 'key' );
+$assert( 'turnstile: no theme/size in the plugin => the module look is left alone', ! in_array( 'captcha_theme', $keys, true ) && ! in_array( 'captcha_size', $keys, true ) );
+$site( array( 'advanced-google-recaptcha' ), array( 'advanced-google-recaptcha' ), array( 'wpcaptcha_options' => array( 'captcha' => 'recaptchav2', 'captcha_site_key' => 'A', 'captcha_secret_key' => 'B', 'captcha_show_wp_comment' => 1, 'captcha_show_woo_registration' => 1 ) ) );
+$assert( 'recaptcha plugin: comments and WooCommerce registration no longer lost', false === stripos( $lossy_of( 'advanced-google-recaptcha' ), 'comments' ) && false === stripos( $lossy_of( 'advanced-google-recaptcha' ), 'WooCommerce' ), $lossy_of( 'advanced-google-recaptcha' ) );
+
+// The real module offers every form id and look value the sources write.
+$mod = (string) file_get_contents( $root . '/includes/Modules/SecurityOptimization/Module.php' );
+foreach ( array( 'comment', 'woo_login', 'woo_register', 'woo_lostpassword', 'woo_checkout' ) as $form ) {
+	$assert( "Module offers the captcha form '$form'", false !== strpos( $mod, "'$form'" ) );
+}
+foreach ( array( 'captcha_theme', 'captcha_size', 'lockout_progressive', 'lockout_multiplier', 'lockout_max_hours', 'lockout_notify_email', 'ip_firewall_allowlist', 'ip_firewall_enabled' ) as $key ) {
+	$assert( "Module has the setting '$key'", false !== strpos( $mod, "'key'     => '$key'" ) );
+}
+
+/* IP entries: what the Firewall takes. */
+$ip = static fn( string $raw ): array => \UxStudio\Core\Migration\IpEntries::convert( $raw );
+$assert( 'ip: single address, CIDR, IPv6', array( '1.2.3.4' ) === $ip( '1.2.3.4' )['entries'] && array( '1.2.3.0/24' ) === $ip( '1.2.3.0/24' )['entries'] && array( '2001:db8::/32' ) === $ip( '2001:db8::/32' )['entries'] && array( '2001:db8::1' ) === $ip( '2001:db8::1' )['entries'] );
+$assert( 'ip: start-end range is cut into exact CIDR blocks', array( '1.2.3.1', '1.2.3.2/31', '1.2.3.4/30', '1.2.3.8/29', '1.2.3.16/28', '1.2.3.32/28', '1.2.3.48/31', '1.2.3.50' ) === $ip( '1.2.3.1-1.2.3.50' )['entries'] );
+$assert( 'ip: a range that is one address or a whole /24 stays short', array( '1.2.3.4' ) === $ip( '1.2.3.4 - 1.2.3.4' )['entries'] && array( '10.1.2.0/24' ) === $ip( '10.1.2.0-10.1.2.255' )['entries'] );
+$assert( 'ip: wildcards', array( '10.1.2.0/24' ) === $ip( '10.1.2.*' )['entries'] && array( '10.1.0.0/16' ) === $ip( '10.1.*.*' )['entries'] );
+$assert( 'ip: nonsense, reversed range, too wide, bad prefix are refused', ! $ip( 'bad' )['ok'] && ! $ip( '10.0.0.9-10.0.0.1' )['ok'] && ! $ip( '0.0.0.0/0' )['ok'] && ! $ip( '10.0.0.0/7' )['ok'] && ! $ip( '1.2.3.0/33' )['ok'] && ! $ip( '0.0.0.0-255.255.255.255' )['ok'] );
+$assert( 'ip: merge_lines keeps order, drops duplicates and blank lines', "a\nb\nc" === \UxStudio\Core\Migration\IpEntries::merge_lines( "a\n\nb,a", array( 'b', 'c' ) ) );
 
 /* Nothing-to-transfer sources. */
 foreach ( array( 'classic-widgets', 'duplicate-menu', 'enable-media-replace', 'post-type-switcher', 'user-switching', 'wp-rollback', 'instant-images', 'reveal-ids-for-wp-admin-25', 'show-ids', 'simple-page-ordering', 'redirect-404-to-homepage' ) as $slug ) {
