@@ -70,6 +70,30 @@ final class RestController extends Controller {
 		);
 
 		$this->route( '/code-snippets/snippets/(?P<id>\d+)', 'DELETE', array( $this, 'delete_snippet' ) );
+
+		$this->route( '/code-snippets/options', 'GET', array( $this, 'get_options' ) );
+	}
+
+	/**
+	 * What the editor offers: the public post types a before / after-content snippet can apply to.
+	 */
+	public function get_options( WP_REST_Request $request ) {
+		$types = array();
+		foreach ( get_post_types( array( 'public' => true ), 'objects' ) as $name => $object ) {
+			if ( 'attachment' !== $name ) {
+				$types[] = array(
+					'name'  => (string) $name,
+					'label' => (string) $object->labels->singular_name,
+				);
+			}
+		}
+		return $this->ok(
+			array(
+				'post_types'         => $types,
+				'default_post_types' => SnippetManager::DEFAULT_POST_TYPES,
+				'shortcode_tag'      => SnippetRenderer::SHORTCODE,
+			)
+		);
 	}
 
 	/**
@@ -110,6 +134,11 @@ final class RestController extends Controller {
 				'required'          => false,
 				'type'              => 'integer',
 				'sanitize_callback' => 'absint',
+			),
+			'post_types'   => array(
+				'required' => false,
+				'type'     => 'array',
+				'items'    => array( 'type' => 'string' ),
 			),
 		);
 	}
@@ -225,6 +254,7 @@ final class RestController extends Controller {
 			'description'  => (string) $request->get_param( 'description' ),
 			'run_location' => (string) $request->get_param( 'run_location' ),
 			'priority'     => (int) $request->get_param( 'priority' ),
+			'post_types'   => (array) $request->get_param( 'post_types' ),
 		);
 	}
 }

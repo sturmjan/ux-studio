@@ -2,6 +2,19 @@
 
 ## 0.6.0 (unreleased)
 
+- New - Redirects: a rule can have conditions (logged in / logged out, role or capability, referrer,
+  user agent, IP address or CIDR range, cookie, domain, HTTP header; text conditions are "contains",
+  "is exactly" or a regex, each can be inverted). One old URL can have several rules, the first one
+  whose conditions hold wins and a rule without conditions is the fallback. The URL tester can
+  simulate a visitor, the AI tools and the MCP server take the same fields.
+- New - Code Snippets: a snippet can be a shortcode [uxstudio_snippet id="N"], can be inserted before
+  or after the post content (for chosen post types) or can run once (on the next admin page, then it
+  switches itself off and stores the result). PHP never runs in REST, AJAX or cron requests.
+- New - Migration: Redirection login / role / referrer / agent / cookie / IP / server / header rules
+  become rules with conditions; Code Snippets "content" and "single-use", WPCode manual and
+  before / after content, Header Footer Code Manager before / after content and shortcode snippets
+  are transferred (run-once snippets are never switched on automatically).
+
 - New - Security: two-step verification (authenticator app, 6-digit code, recovery
   codes) that every user switches on in their own profile; optional requirement per
   role with a grace period (nobody is locked out), reset by an administrator on the

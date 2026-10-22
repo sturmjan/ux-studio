@@ -30,6 +30,13 @@ final class Repository {
 	public const BULK_MAX = 500;
 
 	/**
+	 * Ids passed over by the last match() because their conditions did not hold.
+	 *
+	 * @var int[]
+	 */
+	private static array $skipped = array();
+
+	/**
 	 * Rules table name.
 	 */
 	public static function table(): string {
@@ -49,6 +56,8 @@ final class Repository {
 			source VARCHAR(2000) NOT NULL DEFAULT '',
 			source_key VARCHAR(2000) NOT NULL DEFAULT '',
 			source_hash CHAR(40) NOT NULL,
+			conditions TEXT NULL,
+			cond_key CHAR(40) NOT NULL DEFAULT '',
 			match_type VARCHAR(10) NOT NULL DEFAULT 'exact',
 			target VARCHAR(2000) NOT NULL DEFAULT '',
 			target_post_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
@@ -63,7 +72,8 @@ final class Repository {
 			created_at DATETIME NOT NULL,
 			updated_at DATETIME NOT NULL,
 			PRIMARY KEY  (id),
-			UNIQUE KEY source_hash (source_hash),
+			UNIQUE KEY source_cond (source_hash,cond_key),
+			KEY source_hash (source_hash),
 			KEY target_hash (target_hash),
 			KEY target_post_id (target_post_id),
 			KEY match_enabled (match_type, enabled)
@@ -159,11 +169,12 @@ final class Repository {
 	 * @param string $query Normalised query.
 	 * @return array{rule:array<string, mixed>, target:string}|null Rule row + resolved absolute target ('' for 410).
 	 */
-	public static function match( string $path, string $query ): ?array {
-		$state = self::state();
+	public static function match( string $path, string $query, ?array $context = null ): ?array {
+		$state         = self::state();
+		self::$skipped = array();
 
 		if ( $state['exact'] > 0 ) {
-			$rule = self::find_exact( $path, $query, true );
+			$rule = self::first_matching( self::find_exact_rules( $path, $query, true ), $context );
 			if ( $rule ) {
 				return array( 'rule' => $rule, 'target' => self::resolve_target( $rule ) );
 			}
@@ -173,6 +184,10 @@ final class Repository {
 		foreach ( $state['regex'] as $rule ) {
 			$matches = array();
 			if ( 1 === @preg_match( self::delimit( (string) $rule['source_key'] ), $subject, $matches ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- pattern validated on save; a bad one must not break the site.
+				if ( ! self::conditions_hold( $rule, $context ) ) {
+					self::$skipped[] = (int) $rule['id'];
+					continue;
+				}
 				return array( 'rule' => $rule, 'target' => self::resolve_target( $rule, $matches ) );
 			}
 		}
@@ -180,7 +195,49 @@ final class Repository {
 	}
 
 	/**
-	 * Exact-rule lookup by key hashes.
+	 * Ids of the rules the last match() passed over because their conditions did not hold (the URL itself matched).
+	 *
+	 * @return int[]
+	 */
+	public static function last_skipped(): array {
+		return self::$skipped;
+	}
+
+	/**
+	 * First rule of an ordered list whose conditions hold. Conditions are only read for rules whose URL has
+	 * already matched, and the request context is built only when such a rule is met.
+	 *
+	 * @param array<int, array<string, mixed>> $rules   Rules of one URL, in order.
+	 * @param array<string, mixed>|null        $context Visitor (null = the current request).
+	 * @return array<string, mixed>|null
+	 */
+	private static function first_matching( array $rules, ?array $context ): ?array {
+		foreach ( $rules as $rule ) {
+			if ( self::conditions_hold( $rule, $context ) ) {
+				return $rule;
+			}
+			self::$skipped[] = (int) $rule['id'];
+		}
+		return null;
+	}
+
+	/**
+	 * Whether the visitor meets the rule's conditions (no conditions = always).
+	 *
+	 * @param array<string, mixed>      $rule    Rule row.
+	 * @param array<string, mixed>|null $context Visitor (null = the current request).
+	 */
+	private static function conditions_hold( array $rule, ?array $context ): bool {
+		$stored = $rule['conditions'] ?? '';
+		if ( ! is_string( $stored ) || '' === $stored ) {
+			return true;
+		}
+		$conditions = Conditions::decode( $stored );
+		return ! $conditions || Conditions::matches( $conditions, $context ?? Conditions::request_context() );
+	}
+
+	/**
+	 * First exact rule for a path + query, ignoring conditions (existence checks, chain follow-up).
 	 *
 	 * @param string $path         Normalised path.
 	 * @param string $query        Normalised query.
@@ -188,6 +245,20 @@ final class Repository {
 	 * @return array<string, mixed>|null
 	 */
 	public static function find_exact( string $path, string $query, bool $enabled_only ): ?array {
+		$rules = self::find_exact_rules( $path, $query, $enabled_only );
+		return $rules ? $rules[0] : null;
+	}
+
+	/**
+	 * Every exact rule for a path + query in the order the engine tries them: a rule on the path WITH the query
+	 * beats one on the bare path, then lower position first, then older first. One indexed query.
+	 *
+	 * @param string $path         Normalised path.
+	 * @param string $query        Normalised query.
+	 * @param bool   $enabled_only Ignore disabled rules.
+	 * @return array<int, array<string, mixed>>
+	 */
+	public static function find_exact_rules( string $path, string $query, bool $enabled_only ): array {
 		global $wpdb;
 		$hashes = array( Url::hash( 'exact', $path ) );
 		if ( '' !== $query ) {
@@ -202,8 +273,8 @@ final class Repository {
 			$where = ' AND (enabled = 1 OR id IN (' . implode( ',', self::preview_ids() ) . '))';
 		}
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
-		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE source_hash IN ({$in}){$where} ORDER BY CHAR_LENGTH(source_key) DESC LIMIT 1", ...$hashes ), ARRAY_A );
-		return is_array( $row ) ? $row : null;
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table} WHERE source_hash IN ({$in}){$where} ORDER BY CHAR_LENGTH(source_key) DESC, (cond_key = '') ASC, position ASC, id ASC LIMIT 50", ...$hashes ), ARRAY_A );
+		return is_array( $rows ) ? array_values( $rows ) : array();
 	}
 
 	/**
@@ -342,6 +413,9 @@ final class Repository {
 			$where[]  = 'enabled = %d';
 			$params[] = rest_sanitize_boolean( $args['enabled'] ) ? 1 : 0;
 		}
+		if ( isset( $args['conditional'] ) && '' !== $args['conditional'] && null !== $args['conditional'] ) {
+			$where[] = rest_sanitize_boolean( $args['conditional'] ) ? "(conditions IS NOT NULL AND conditions <> '')" : "(conditions IS NULL OR conditions = '')";
+		}
 
 		$orderby = in_array( $args['orderby'] ?? '', array( 'id', 'source', 'hits', 'last_hit', 'created_at', 'updated_at', 'code' ), true ) ? $args['orderby'] : 'id';
 		$order   = 'asc' === strtolower( (string) ( $args['order'] ?? '' ) ) ? 'ASC' : 'DESC';
@@ -381,6 +455,8 @@ final class Repository {
 			'target_post_id'    => $post_id,
 			'target_post_title' => $post_id > 0 ? get_the_title( $post_id ) : '',
 			'code'              => (int) $row['code'],
+			'conditions'        => Conditions::decode( $row['conditions'] ?? '' ),
+			'position'          => (int) ( $row['position'] ?? 0 ),
 			'enabled'           => (bool) (int) $row['enabled'],
 			'hits'              => (int) $row['hits'],
 			'last_hit'          => $row['last_hit'],
@@ -427,6 +503,7 @@ final class Repository {
 				'enabled'        => $existing['enabled'],
 				'note'           => $existing['note'],
 				'origin'         => $existing['origin'],
+				'conditions'     => Conditions::decode( $existing['conditions'] ?? '' ),
 			);
 			if ( ! array_key_exists( 'target', $input ) && ! array_key_exists( 'target_post_id', $input ) ) {
 				$input['target']         = $existing['target'];
@@ -445,6 +522,12 @@ final class Repository {
 		if ( ! in_array( $code, self::CODES, true ) ) {
 			$errors[] = self::issue( 'invalid_code', __( 'code must be one of 301, 302, 307, 308, 410.', 'ux-studio' ) );
 		}
+
+		// --- Conditions -------------------------------------------------
+		$normalized = Conditions::normalize( $input['conditions'] ?? array() );
+		$conditions = $normalized['conditions'];
+		$cond_key   = Conditions::key( $conditions );
+		$errors     = array_merge( $errors, $normalized['errors'] );
 
 		// --- Source -----------------------------------------------------
 		$source_key  = '';
@@ -525,10 +608,30 @@ final class Repository {
 				}
 				$visited[ $tkey ] = true;
 				$parts            = explode( '?', $tkey, 2 );
-				$next             = self::find_exact( $parts[0], $parts[1] ?? '', true );
-				if ( ! $next || ( $existing && (int) $next['id'] === (int) $existing['id'] ) ) {
+				$nexts            = array_values(
+					array_filter(
+						self::find_exact_rules( $parts[0], $parts[1] ?? '', true ),
+						static fn ( array $r ): bool => ! $existing || (int) $r['id'] !== (int) $existing['id']
+					)
+				);
+				if ( ! $nexts ) {
 					break;
 				}
+				// The target has several rules or one with conditions: which one applies depends on the visitor,
+				// so the chain cannot be flattened. A way back to this source is only a warning here (a pair like
+				// /members -> /login for guests and /login -> /members for members is legitimate).
+				if ( count( $nexts ) > 1 || '' !== (string) ( $nexts[0]['cond_key'] ?? '' ) ) {
+					foreach ( $nexts as $candidate ) {
+						$back = self::resolve_target( $candidate );
+						if ( '' !== $back && Url::target_key( $back ) === $source_key ) {
+							$warnings[] = self::issue( 'conditional_loop', __( 'The target has conditional rules and one of them leads back to this source. Make sure their conditions exclude each other, otherwise visitors loop.', 'ux-studio' ) );
+							break;
+						}
+					}
+					$warnings[] = self::issue( 'target_conditional', __( 'The target itself has conditional redirects, so the chain is not flattened.', 'ux-studio' ) );
+					break;
+				}
+				$next = $nexts[0];
 				if ( 410 === (int) $next['code'] ) {
 					$warnings[] = self::issue( 'target_is_gone', __( 'The target itself is marked 410 Gone - pick a live page or use 410 for this source too.', 'ux-studio' ) );
 					break;
@@ -564,13 +667,13 @@ final class Repository {
 
 		// --- Duplicate source -------------------------------------------
 		if ( ! $errors ) {
-			$dupe = self::find_by_hash( $source_hash );
+			$dupe = self::find_by_hash( $source_hash, $cond_key );
 			if ( $dupe && ( ! $existing || (int) $dupe['id'] !== (int) $existing['id'] ) ) {
 				if ( $existing || 'error' === $on_conflict ) {
 					/* translators: %d: rule id */
-					$errors[] = self::issue( 'duplicate', sprintf( __( 'Another rule (#%d) already handles this source.', 'ux-studio' ), (int) $dupe['id'] ) );
+					$errors[] = self::issue( 'duplicate', sprintf( __( 'Another rule (#%d) already handles this source with the same conditions.', 'ux-studio' ), (int) $dupe['id'] ) );
 				} elseif ( 'skip' === $on_conflict ) {
-					return self::result( 'skipped', (int) $dupe['id'], $source, self::resolve_target( $dupe ), array(), array( self::issue( 'duplicate', __( 'Source already has a rule - skipped.', 'ux-studio' ) ) ) );
+					return self::result( 'skipped', (int) $dupe['id'], $source, self::resolve_target( $dupe ), array(), array( self::issue( 'duplicate', __( 'Source already has a rule with the same conditions - skipped.', 'ux-studio' ) ) ) );
 				} else {
 					$existing = $dupe;
 				}
@@ -588,6 +691,8 @@ final class Repository {
 			'source'         => $source,
 			'source_key'     => $source_key,
 			'source_hash'    => $source_hash,
+			'conditions'     => Conditions::encode( $conditions ),
+			'cond_key'       => $cond_key,
 			'match_type'     => $match_type,
 			'target'         => $target,
 			'target_post_id' => $post_id,
@@ -622,7 +727,9 @@ final class Repository {
 		}
 		// phpcs:enable
 
-		if ( 'exact' === $match_type ) {
+		// Only a lone, unconditional rule is "the" way out of its source, so only then can older rules that point
+		// at this source skip it.
+		if ( 'exact' === $match_type && '' === $cond_key && 1 === self::count_by_hash( $source_hash ) ) {
 			$repointed = self::repoint_upstream( $rule_id, $source_key, $data );
 			if ( $repointed > 0 ) {
 				/* translators: %d: number of rules */
@@ -687,22 +794,40 @@ final class Repository {
 	 * @param string $path Normalised path.
 	 */
 	public static function delete_by_source_path( string $path ): int {
-		$rule = self::find_exact( $path, '', false );
-		return $rule && Url::key( $path ) === $rule['source_key'] ? self::delete( array( (int) $rule['id'] ) ) : 0;
+		$ids = array();
+		foreach ( self::find_exact_rules( $path, '', false ) as $rule ) {
+			if ( Url::key( $path ) === $rule['source_key'] ) {
+				$ids[] = (int) $rule['id'];
+			}
+		}
+		return $ids ? self::delete( $ids ) : 0;
 	}
 
 	/**
-	 * Rule by source hash.
+	 * Rule by source hash + condition set.
 	 *
-	 * @param string $hash Source hash.
+	 * @param string $hash     Source hash.
+	 * @param string $cond_key Condition key ('' = no conditions).
 	 * @return array<string, mixed>|null
 	 */
-	private static function find_by_hash( string $hash ): ?array {
+	private static function find_by_hash( string $hash, string $cond_key = '' ): ?array {
 		global $wpdb;
 		$table = self::table();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE source_hash = %s", $hash ), ARRAY_A );
+		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE source_hash = %s AND cond_key = %s", $hash, $cond_key ), ARRAY_A );
 		return is_array( $row ) ? $row : null;
+	}
+
+	/**
+	 * Number of rules (any state) that share a source.
+	 *
+	 * @param string $hash Source hash.
+	 */
+	private static function count_by_hash( string $hash ): int {
+		global $wpdb;
+		$table = self::table();
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE source_hash = %s", $hash ) );
 	}
 
 	/**
@@ -747,7 +872,7 @@ final class Repository {
 	 */
 	private static function unchanged( array $row, array $data ): bool {
 		foreach ( $data as $key => $value ) {
-			if ( (string) $row[ $key ] !== (string) $value ) {
+			if ( (string) ( $row[ $key ] ?? '' ) !== (string) $value ) {
 				return false;
 			}
 		}

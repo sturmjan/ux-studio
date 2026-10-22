@@ -1924,3 +1924,93 @@
 
 	> h3 { margin-top: 0; color: var(--uxs-text); }
 }
+
+/* ---- Redirects: conditions of a rule, simulated visitor (modules/redirects) ---- */
+.uxs-rd-cond {
+	display: flex;
+	flex-direction: column;
+	gap: var(--uxs-sp-3);
+	margin-top: var(--uxs-sp-4);
+	padding-top: var(--uxs-sp-4);
+	border-top: 1px solid var(--uxs-border);
+
+	&__head { display: flex; flex-direction: column; gap: var(--uxs-sp-1); }
+	&__help { color: var(--uxs-text-soft); font-size: var(--uxs-fs-s); }
+
+	&__row {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--uxs-sp-3);
+
+		> select { flex: 0 1 190px; }
+		> input[type="text"] { flex: 0 1 200px; min-width: 0; }
+		> .uxs-rd-cond__value { flex: 1 1 260px; }
+	}
+
+	&__negate { display: inline-flex; align-items: center; gap: var(--uxs-sp-2); white-space: nowrap; }
+
+	&__order {
+		display: flex;
+		align-items: center;
+		gap: var(--uxs-sp-3);
+		margin-top: var(--uxs-sp-3);
+
+		input[type="number"] { max-width: 120px; }
+	}
+}
+
+.uxs-rd-visitor {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--uxs-sp-3);
+	margin-top: var(--uxs-sp-3);
+
+	> input[type="text"] { flex: 1 1 180px; min-width: 0; }
+}
+
+/* ---- Code snippets: place badges and run-once result ---- */
+.uxs-cs-place {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--uxs-sp-2);
+
+	code { user-select: all; }
+}
+
+.uxs-cs-result {
+	margin: 0;
+	color: var(--uxs-text-soft);
+	font-size: var(--uxs-fs-s);
+}
+
+.uxs-cs-types {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--uxs-sp-4);
+}
+
+.uxs-rd-cond,
+.uxs-rd-visitor {
+	input[type="text"],
+	input[type="number"] {
+		background: var(--uxs-surface);
+		color: var(--uxs-text);
+		border: 1px solid var(--uxs-border);
+		border-radius: var(--uxs-radius-s);
+		padding: var(--uxs-sp-3) var(--uxs-sp-4);
+		font-family: var(--uxs-font);
+		font-size: var(--uxs-fs);
+
+		&:focus { outline: none; border-color: var(--uxs-brand); box-shadow: 0 0 0 3px var(--uxs-brand-soft); }
+	}
+}
+.uxs-rd-cond__order input[type="number"] {
+	background: var(--uxs-surface);
+	color: var(--uxs-text);
+	border: 1px solid var(--uxs-border);
+	border-radius: var(--uxs-radius-s);
+	padding: var(--uxs-sp-3) var(--uxs-sp-4);
+}

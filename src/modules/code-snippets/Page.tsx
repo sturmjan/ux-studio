@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { ArrowLeft, LoaderCircle, Pencil, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Check, Copy, LoaderCircle, Pencil, Plus, Trash2 } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
+import { formatDate } from '../../app/date';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
 import { TabsNav } from '../../app/SubNav';
@@ -19,6 +20,10 @@ interface SnippetListItem {
 	description: string;
 	run_location: string;
 	priority: number;
+	post_types: string[];
+	shortcode: string;
+	last_run: string | null;
+	run_result: { ok: boolean; message: string; output: string } | null;
 	is_valid: boolean;
 	has_integrity_issue: boolean;
 	created_at: string;
@@ -31,13 +36,33 @@ interface SnippetDetail extends SnippetListItem {
 	code: string;
 }
 
+interface EditorOptions {
+	post_types: { name: string; label: string }[];
+	default_post_types: string[];
+	shortcode_tag: string;
+}
+
 const SNIPPETS_QUERY_KEY = [ 'code-snippets', 'snippets' ];
+
+const SHORTCODE = 'shortcode';
+const BEFORE_CONTENT = 'before_content';
+const AFTER_CONTENT = 'after_content';
+const RUN_ONCE = 'run_once';
+
+/** Places that print into the page content or run on demand, available for every type (run once: PHP only). */
+const CONTENT_LOCATIONS: Record< string, string > = {
+	[ SHORTCODE ]: __( 'Shortcode (insert it where you want the output)', 'ux-studio' ),
+	[ BEFORE_CONTENT ]: __( 'Before the post content', 'ux-studio' ),
+	[ AFTER_CONTENT ]: __( 'After the post content', 'ux-studio' ),
+};
 
 const RUN_LOCATIONS: Record< SnippetType, Record< string, string > > = {
 	php: {
 		everywhere: __( 'Everywhere (frontend & admin)', 'ux-studio' ),
 		admin_only: __( 'Admin only', 'ux-studio' ),
 		frontend_only: __( 'Frontend only', 'ux-studio' ),
+		...CONTENT_LOCATIONS,
+		[ RUN_ONCE ]: __( 'Run once (on the next admin page, then it switches itself off)', 'ux-studio' ),
 	},
 	css: {
 		everywhere: __( 'Everywhere (frontend & admin)', 'ux-studio' ),
@@ -45,6 +70,7 @@ const RUN_LOCATIONS: Record< SnippetType, Record< string, string > > = {
 		site_footer: __( 'Frontend footer', 'ux-studio' ),
 		admin_header: __( 'Admin header', 'ux-studio' ),
 		admin_footer: __( 'Admin footer', 'ux-studio' ),
+		...CONTENT_LOCATIONS,
 	},
 	js: {
 		everywhere: __( 'Everywhere (frontend & admin)', 'ux-studio' ),
@@ -52,6 +78,7 @@ const RUN_LOCATIONS: Record< SnippetType, Record< string, string > > = {
 		site_footer: __( 'Frontend footer', 'ux-studio' ),
 		admin_header: __( 'Admin header', 'ux-studio' ),
 		admin_footer: __( 'Admin footer', 'ux-studio' ),
+		...CONTENT_LOCATIONS,
 	},
 	html: {
 		everywhere: __( 'Everywhere (frontend & admin)', 'ux-studio' ),
@@ -60,6 +87,7 @@ const RUN_LOCATIONS: Record< SnippetType, Record< string, string > > = {
 		site_footer: __( 'Frontend footer', 'ux-studio' ),
 		admin_header: __( 'Admin header', 'ux-studio' ),
 		admin_footer: __( 'Admin footer', 'ux-studio' ),
+		...CONTENT_LOCATIONS,
 	},
 };
 
@@ -76,10 +104,64 @@ const EMPTY_DRAFT = {
 	code: '',
 	description: '',
 	run_location: DEFAULT_RUN_LOCATION.php,
+	post_types: [] as string[],
 	enabled: false,
 };
 
 type Draft = typeof EMPTY_DRAFT;
+
+/** Place and, for run once, the last result: badges for the list. */
+function PlaceBadges( { snippet }: { snippet: SnippetListItem } ): JSX.Element | null {
+	const where = snippet.run_location;
+	if ( where === SHORTCODE ) {
+		return (
+			<div className="uxs-cs-place">
+				<span className="uxs-badge is-info">{ __( 'Shortcode', 'ux-studio' ) }</span>
+				<code>{ snippet.shortcode }</code>
+			</div>
+		);
+	}
+	if ( where === BEFORE_CONTENT || where === AFTER_CONTENT ) {
+		return (
+			<div className="uxs-cs-place">
+				<span className="uxs-badge is-info">{ where === BEFORE_CONTENT ? __( 'Before content', 'ux-studio' ) : __( 'After content', 'ux-studio' ) }</span>
+				<span className="uxs-cs-result">{ snippet.post_types.join( ', ' ) }</span>
+			</div>
+		);
+	}
+	if ( where === RUN_ONCE ) {
+		return (
+			<div className="uxs-cs-place">
+				<span className="uxs-badge is-info">{ __( 'Run once', 'ux-studio' ) }</span>
+				{ snippet.last_run && snippet.run_result && (
+					<span className={ `uxs-badge ${ snippet.run_result.ok ? 'is-success' : 'is-danger' }` } title={ snippet.run_result.message || snippet.run_result.output }>
+						{ snippet.run_result.ok ? __( 'Ran', 'ux-studio' ) : __( 'Failed', 'ux-studio' ) } { formatDate( snippet.last_run ) }
+					</span>
+				) }
+				{ ! snippet.last_run && snippet.enabled && <span className="uxs-cs-result">{ __( 'Waiting for the next admin page', 'ux-studio' ) }</span> }
+			</div>
+		);
+	}
+	return null;
+}
+
+function CopyShortcode( { text }: { text: string } ): JSX.Element {
+	const [ copied, setCopied ] = useState( false );
+	return (
+		<button
+			type="button"
+			className="button button-small"
+			onClick={ () => {
+				void navigator.clipboard?.writeText( text ).then( () => {
+					setCopied( true );
+					window.setTimeout( () => setCopied( false ), 1500 );
+				} );
+			} }
+		>
+			{ copied ? <Check size={ 14 } /> : <Copy size={ 14 } /> } { copied ? __( 'Copied', 'ux-studio' ) : __( 'Copy', 'ux-studio' ) }
+		</button>
+	);
+}
 
 function SnippetsTable( {
 	snippets,
@@ -126,6 +208,7 @@ function SnippetsTable( {
 						<tr>
 							<th>{ __( 'Name', 'ux-studio' ) }</th>
 							<th>{ __( 'Type', 'ux-studio' ) }</th>
+							<th>{ __( 'Where', 'ux-studio' ) }</th>
 							<th>{ __( 'Status', 'ux-studio' ) }</th>
 							<th></th>
 						</tr>
@@ -147,6 +230,9 @@ function SnippetsTable( {
 									) }
 								</td>
 								<td>{ snippet.type.toUpperCase() }</td>
+								<td>
+									<PlaceBadges snippet={ snippet } />
+								</td>
 								<td>
 									<span className={ `uxs-badge ${ snippet.enabled ? 'is-success' : '' }` }>
 										{ snippet.enabled ? __( 'Enabled', 'ux-studio' ) : __( 'Disabled', 'ux-studio' ) }
@@ -196,8 +282,13 @@ function SnippetEditor( { id, onDone }: { id: string | null; onDone: () => void 
 	const [ draft, setDraft ] = useState< Draft >( EMPTY_DRAFT );
 	const [ error, setError ] = useState( '' );
 
-	const query = useQuery( {
-		queryKey: [ 'code-snippets', 'snippet', id ],
+	const options = useQuery( {
+	queryKey: [ 'code-snippets', 'options' ],
+	queryFn: () => api< EditorOptions >( 'code-snippets/options' ),
+} );
+
+const query = useQuery( {
+	queryKey: [ 'code-snippets', 'snippet', id ],
 		queryFn: () => api< SnippetDetail >( `code-snippets/snippets/${ id }` ),
 		enabled: id !== null,
 	} );
@@ -210,6 +301,7 @@ function SnippetEditor( { id, onDone }: { id: string | null; onDone: () => void 
 				code: query.data.code,
 				description: query.data.description,
 				run_location: query.data.run_location,
+				post_types: query.data.post_types,
 				enabled: query.data.enabled,
 			} );
 		}
@@ -305,6 +397,65 @@ function SnippetEditor( { id, onDone }: { id: string | null; onDone: () => void 
 							) ) }
 						</select>
 					</div>
+					{ ( draft.run_location === BEFORE_CONTENT || draft.run_location === AFTER_CONTENT ) && (
+						<div className="uxs-form__row">
+							<label>{ __( 'Post types', 'ux-studio' ) }</label>
+							<div className="uxs-cs-types">
+								{ ( options.data?.post_types ?? [] ).map( ( type ) => {
+									const chosen = draft.post_types.length ? draft.post_types : options.data?.default_post_types ?? [];
+									return (
+										<label key={ type.name }>
+											<input
+												type="checkbox"
+												checked={ chosen.includes( type.name ) }
+												onChange={ ( e ) =>
+													setDraft( ( d ) => ( {
+														...d,
+														post_types: e.target.checked ? [ ...chosen, type.name ] : chosen.filter( ( n ) => n !== type.name ),
+													} ) )
+												}
+											/>{ ' ' }
+											{ type.label }
+										</label>
+									);
+								} ) }
+							</div>
+							<p className="uxs-form__help">
+								{ __( 'Inserted around the content of a single post or page (not in lists of posts), only for the chosen post types.', 'ux-studio' ) }
+							</p>
+						</div>
+					) }
+					{ draft.run_location === SHORTCODE && (
+						<div className="uxs-form__row">
+							<label>{ __( 'Shortcode', 'ux-studio' ) }</label>
+							{ query.data?.shortcode ? (
+								<div className="uxs-cs-place">
+									<code>{ query.data.shortcode }</code>
+									<CopyShortcode text={ query.data.shortcode } />
+								</div>
+							) : (
+								<p className="uxs-form__help">{ __( 'The shortcode appears after the snippet is saved: [uxstudio_snippet id="..."]. PHP snippets get the shortcode attributes as $atts and the enclosed text as $content, and do not run in REST, AJAX or cron requests.', 'ux-studio' ) }</p>
+							) }
+						</div>
+					) }
+					{ draft.run_location === RUN_ONCE && (
+						<div className="uxs-form__row">
+							<label>{ __( 'Run once', 'ux-studio' ) }</label>
+							<div>
+								<p className="uxs-form__help">
+									{ __( 'When you enable the snippet, its code runs one time on the next page of wp-admin and the snippet switches itself off. Enable it again to run it once more.', 'ux-studio' ) }
+								</p>
+								{ query.data?.last_run && query.data.run_result && (
+									<p className="uxs-cs-result">
+										<span className={ `uxs-badge ${ query.data.run_result.ok ? 'is-success' : 'is-danger' }` }>
+											{ query.data.run_result.ok ? __( 'Ran', 'ux-studio' ) : __( 'Failed', 'ux-studio' ) } { formatDate( query.data.last_run ) }
+										</span>{ ' ' }
+										{ query.data.run_result.message || query.data.run_result.output }
+									</p>
+								) }
+							</div>
+						</div>
+					) }
 					<div className="uxs-form__row">
 						<label htmlFor="uxs-cs-enabled">{ __( 'Enable snippet', 'ux-studio' ) }</label>
 						<button

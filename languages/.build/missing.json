@@ -1,13 +1,761 @@
 [
  {
   "ctx": null,
-  "id": "UX Studio has been updated and the custom login address you set up earlier is now really in force.\\n\\nLog in here from now on:\\n%1$s\\n\\nThe usual address (wp-login.php) no longer shows the login form. Save the new address in your password manager.\\n\\nIf you do not want this, switch it off in UX Studio > Security > Login:\\n%2$s\\n\\nIf you cannot log in at all, add this line to wp-config.php and the old address works again:\\ndefine( 'UXSTUDIO_DISABLE_LOGIN_LOCK', true );",
+  "id": "%d snippet is used through a shortcode. In UX Studio it is inserted as [uxstudio_snippet id=\\\"...\\\"] (the exact shortcode is shown in the snippet list). Shortcodes already written in posts and pages are NOT rewritten, replace them by hand.",
   "refs": [
-   "includes/Modules/SecurityOptimization/LoginUrlNotice.php:157"
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:459"
   ],
   "comments": [
-   "#. translators: 1: new login address, 2: link to the setting."
+   "#. translators: %d: number of snippets."
   ],
+  "plural": "%d snippets are used through a shortcode. In UX Studio they are inserted as [uxstudio_snippet id=\\\"...\\\"] (the exact shortcode is shown in the snippet list). Shortcodes already written in posts and pages are NOT rewritten, replace them by hand."
+ },
+ {
+  "ctx": null,
+  "id": "%d snippet is inserted before or after the post content. It starts on posts and pages; change the post types in the snippet if it should appear on other content. The module inserts around the content of a single post or page, not in lists of posts.",
+  "refs": [
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:473"
+  ],
+  "comments": [
+   "#. translators: %d: number of snippets."
+  ],
+  "plural": "%d snippets are inserted before or after the post content. They start on posts and pages; change the post types in the snippet if they should appear on other content. The module inserts around the content of a single post or page, not in lists of posts."
+ },
+ {
+  "ctx": null,
+  "id": "%d run-once snippet is created switched off and is NOT switched on at the switch. It executes its code one time on the next page of wp-admin after you switch it on, then switches itself off.",
+  "refs": [
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:487"
+  ],
+  "comments": [
+   "#. translators: %d: number of snippets."
+  ],
+  "plural": "%d run-once snippets are created switched off and are NOT switched on at the switch. Each executes its code one time on the next page of wp-admin after you switch it on, then switches itself off."
+ },
+ {
+  "ctx": null,
+  "id": "of them are run-once snippets that you switch on yourself",
+  "refs": [
+   "includes/Core/Migration/Sources/CodeSnippetsSource.php:540"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "rules with the same address and the same conditions as an earlier rule (only the first one could ever match)",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:391"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%d rule depends on who is asking (logged in, role, referrer, browser, cookie, IP address, domain or HTTP header). It becomes a rule with conditions. A rule with a \\\"not matched\\\" target becomes a second rule with the opposite condition.",
+  "refs": [
+   "includes/Core/Migration/Sources/RedirectsSource.php:407"
+  ],
+  "comments": [
+   "#. translators: %d: number of rules."
+  ],
+  "plural": "%d rules depend on who is asking (logged in, role, referrer, browser, cookie, IP address, domain or HTTP header). They become rules with conditions. A rule with a \\\"not matched\\\" target becomes a second rule with the opposite condition."
+ },
+ {
+  "ctx": null,
+  "id": "The integrity check failed or the code is not valid, so the snippet was not run.",
+  "refs": [
+   "includes/Modules/CodeSnippets/SnippetExecutor.php:218"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Snippet \\\"%1$s\\\" ran once and switched itself off.",
+  "refs": [
+   "includes/Modules/CodeSnippets/SnippetExecutor.php:285"
+  ],
+  "comments": [
+   "#. translators: 1: snippet name, 2: error message or empty."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Snippet \\\"%1$s\\\" was run once and switched itself off, but it failed: %2$s",
+  "refs": [
+   "includes/Modules/CodeSnippets/SnippetExecutor.php:285"
+  ],
+  "comments": [
+   "#. translators: 1: snippet name, 2: error message or empty."
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Only PHP snippets can run once.",
+  "refs": [
+   "includes/Modules/CodeSnippets/SnippetManager.php:249"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Invalid run location for this snippet type",
+  "refs": [
+   "includes/Modules/CodeSnippets/SnippetManager.php:250"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The target has conditional rules and one of them leads back to this source. Make sure their conditions exclude each other, otherwise visitors loop.",
+  "refs": [
+   "includes/Modules/Redirects/Repository.php:627"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The target itself has conditional redirects, so the chain is not flattened.",
+  "refs": [
+   "includes/Modules/Redirects/Repository.php:631"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Another rule (#%d) already handles this source with the same conditions.",
+  "refs": [
+   "includes/Modules/Redirects/Repository.php:674"
+  ],
+  "comments": [
+   "#. translators: %d: rule id"
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Source already has a rule with the same conditions - skipped.",
+  "refs": [
+   "includes/Modules/Redirects/Repository.php:676"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Login state",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:1",
+   "build/395.fa88dbc85414b5b804d7.js:6"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Cookie",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Domain (host)",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "HTTP header",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "is exactly",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "matches regex",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "referrer contains \\\"%s\\\"",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "referrer is \\\"%s\\\"",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "referrer matches \\\"%s\\\"",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "browser contains \\\"%s\\\"",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "browser is \\\"%s\\\"",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "browser matches \\\"%s\\\"",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "domain contains \\\"%s\\\"",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "domain is \\\"%s\\\"",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "domain matches \\\"%s\\\"",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "cookie %s is set",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "cookie %1$s contains \\\"%2$s\\\"",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "cookie %1$s is \\\"%2$s\\\"",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "cookie %1$s matches \\\"%2$s\\\"",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "header %s is sent",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "header %1$s contains \\\"%2$s\\\"",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "header %1$s is \\\"%2$s\\\"",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "header %1$s matches \\\"%2$s\\\"",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "logged in",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "logged out",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "role %s",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:3"
+  ],
+  "comments": [
+   "#. translators: %s: role names"
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "IP %s",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:5"
+  ],
+  "comments": [
+   "#. translators: %s: IP addresses or ranges"
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "not: %s",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:6"
+  ],
+  "comments": [
+   "#. translators: %s: a condition in words, negated"
+  ],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Conditions (optional)",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:6"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The redirect applies only to visitors who meet all conditions. A redirect without conditions is the fallback and is tried last. Several redirects can share one old URL.",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:6"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Condition type",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:6"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Cookie name",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:6"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Header name",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:6"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "cookie name",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:6"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Comparison",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:6"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Logged in",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:6"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Logged out",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:6"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "value (empty = only has to exist)",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:6"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Invert",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:6"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Remove condition",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:6"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Add condition",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:6"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "As a specific visitor",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:6"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "role, e.g. editor",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:6"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "referrer URL",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:6"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "user agent",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:6"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Cookie value",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:6"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "cookie value",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:6"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "%d rule(s) for this URL skipped, their conditions do not hold for this visitor",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:6"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Order among redirects of this URL (lower first)",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:6"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Condition",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:6"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "This URL has several redirects. This one has no condition, so it is the fallback and is tried last.",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:6"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Fallback",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:6"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "One redirect per line: source, target, code, note. Header row optional, comma or semicolon separated. Empty target = 410 Gone. The export also has \\\"conditions\\\" (JSON) and \\\"position\\\" columns; the import reads them.",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:6"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Copies URL redirects, 410 rules and rules that depend on login, role, referrer, browser, cookie, IP address, domain or HTTP header (they become redirects with conditions). Matches on language or a custom filter are skipped. Deactivate Redirection afterwards so the two do not compete.",
+  "refs": [
+   "build/395.fa88dbc85414b5b804d7.js:6"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Shortcode (insert it where you want the output)",
+  "refs": [
+   "build/866.8aecd8e6992fc9913442.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Before the post content",
+  "refs": [
+   "build/866.8aecd8e6992fc9913442.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "After the post content",
+  "refs": [
+   "build/866.8aecd8e6992fc9913442.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Run once (on the next admin page, then it switches itself off)",
+  "refs": [
+   "build/866.8aecd8e6992fc9913442.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Before content",
+  "refs": [
+   "build/866.8aecd8e6992fc9913442.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "After content",
+  "refs": [
+   "build/866.8aecd8e6992fc9913442.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Run once",
+  "refs": [
+   "build/866.8aecd8e6992fc9913442.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Ran",
+  "refs": [
+   "build/866.8aecd8e6992fc9913442.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Waiting for the next admin page",
+  "refs": [
+   "build/866.8aecd8e6992fc9913442.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Where",
+  "refs": [
+   "build/866.8aecd8e6992fc9913442.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Inserted around the content of a single post or page (not in lists of posts), only for the chosen post types.",
+  "refs": [
+   "build/866.8aecd8e6992fc9913442.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "The shortcode appears after the snippet is saved: [uxstudio_snippet id=\\\"...\\\"]. PHP snippets get the shortcode attributes as $atts and the enclosed text as $content, and do not run in REST, AJAX or cron requests.",
+  "refs": [
+   "build/866.8aecd8e6992fc9913442.js:1"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "When you enable the snippet, its code runs one time on the next page of wp-admin and the snippet switches itself off. Enable it again to run it once more.",
+  "refs": [
+   "build/866.8aecd8e6992fc9913442.js:1"
+  ],
+  "comments": [],
   "plural": null
  }
 ]

@@ -22,17 +22,22 @@ final class Tester {
 	 * Resolve a URL through the rules (no HTTP), optionally also follow it
 	 * over HTTP and report every hop's real status code.
 	 *
-	 * @param string $url  Old URL (any host) or path.
-	 * @param bool   $live Also request it over HTTP.
+	 * @param string                    $url     Old URL (any host) or path.
+	 * @param bool                      $live    Also request it over HTTP.
+	 * @param array<string, mixed>|null $context Simulated visitor (logged_in, roles, referrer, agent, ip, host, cookies,
+	 *                                           headers); null = an anonymous visitor with no headers. Rules with
+	 *                                           conditions apply only when this visitor meets them.
 	 * @return array<string, mixed>
 	 */
-	public static function test( string $url, bool $live = false ): array {
+	public static function test( string $url, bool $live = false, ?array $context = null ): array {
 		$parsed  = Url::parse_source( $url );
 		$path    = $parsed['path'];
 		$query   = $parsed['query'];
 		$steps   = array();
 		$visited = array();
 		$loop    = false;
+		$visitor = Conditions::sanitize_context( $context );
+		$passed  = array();
 
 		for ( $hop = 0; $hop < self::MAX_HOPS && '' !== $path; $hop++ ) {
 			$key = Url::key( $path, $query );
@@ -42,15 +47,17 @@ final class Tester {
 			}
 			$visited[ $key ] = true;
 
-			$match = Repository::match( $path, $query );
+			$match  = Repository::match( $path, $query, $visitor );
+			$passed = array_merge( $passed, Repository::last_skipped() );
 			if ( ! $match ) {
 				break;
 			}
 			$steps[] = array(
-				'from'    => home_url( $key ),
-				'code'    => (int) $match['rule']['code'],
-				'to'      => $match['target'],
-				'rule_id' => (int) $match['rule']['id'],
+				'from'        => home_url( $key ),
+				'code'        => (int) $match['rule']['code'],
+				'to'          => $match['target'],
+				'rule_id'     => (int) $match['rule']['id'],
+				'conditional' => '' !== (string) ( $match['rule']['cond_key'] ?? '' ),
 			);
 			if ( '' === $match['target'] || ! Url::is_internal( $match['target'] ) ) {
 				break;
@@ -82,6 +89,8 @@ final class Tester {
 			'loop'       => $loop,
 			'steps'      => $steps,
 			'issues'     => $issues,
+			// Rules for this URL that were passed over because the (simulated) visitor does not meet their conditions.
+			'skipped_rule_ids' => array_values( array_unique( $passed ) ),
 		);
 		if ( $live ) {
 			$result['live'] = self::follow( $result['tested_url'] );

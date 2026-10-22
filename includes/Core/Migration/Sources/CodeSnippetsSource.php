@@ -28,17 +28,24 @@ defined( 'ABSPATH' ) || exit;
  * after the safe preview (Activatable::activate). Snippets that lost rules on the way (WPCode
  * conditional logic, HFCM page targeting ...) stay off for the admin to review.
  *
- *  - Code Snippets: table `{prefix}snippets` (name, code, scope, active, priority, tags).
+ *  - Code Snippets: table `{prefix}snippets` (name, code, scope, active, priority, tags). Scope `content` becomes a
+ *    shortcode snippet, `single-use` a run-once snippet (created switched off and NOT switched on at the switch: it runs
+ *    code once, so the admin decides when).
  *  - WPCode: posts of type `wpcode` (code = content, type = taxonomy `wpcode_type`, place = taxonomy
- *    `wpcode_location`) and the legacy header / footer / body boxes (options `ihaf_insert_*`).
- *  - Header Footer Code Manager: table `{prefix}hfcm_scripts` (code with its own tags, placed in the header or footer).
+ *    `wpcode_location`) and the legacy header / footer / body boxes (options `ihaf_insert_*`). Manual snippets (used
+ *    through `[wpcode id=..]`) become shortcode snippets, "before / after post / content" a placement around the content.
+ *  - Header Footer Code Manager: table `{prefix}hfcm_scripts` (code with its own tags, placed in the header or footer,
+ *    before / after the content, or by shortcode).
  */
 final class CodeSnippetsSource extends AbstractSource implements Activatable {
 
 	private ?SnippetManager $manager = null;
 
-	/** @var array{items:array<int, array<string, mixed>>,skipped:array<string, int>,review:int}|null */
+	/** @var array{items:array<int, array<string, mixed>>,skipped:array<string, int>,review:int,manual:int}|null */
 	private ?array $collected = null;
+
+	/** Run locations that need a plan note of their own. */
+	private const PLACEMENTS = array( SnippetManager::LOCATION_BEFORE_CONTENT, SnippetManager::LOCATION_AFTER_CONTENT );
 
 	protected function option_names(): array {
 		return 'insert-headers-and-footers' === $this->slug ? array( 'ihaf_insert_header', 'ihaf_insert_footer', 'ihaf_insert_body' ) : array();
@@ -61,7 +68,7 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 	/**
 	 * Every convertible snippet, plus counts of what has no equivalent.
 	 *
-	 * @return array{items:array<int, array<string, mixed>>,skipped:array<string, int>,review:int}
+	 * @return array{items:array<int, array<string, mixed>>,skipped:array<string, int>,review:int,manual:int}
 	 */
 	private function collect(): array {
 		if ( null !== $this->collected ) {
@@ -71,6 +78,7 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 			'items'   => array(),
 			'skipped' => array(),
 			'review'  => 0,
+			'manual'  => 0,
 		);
 		switch ( $this->slug ) {
 			case 'code-snippets':
@@ -85,6 +93,7 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 		}
 		foreach ( $out['items'] as $item ) {
 			$out['review'] += $item['review'] ? 1 : 0;
+			$out['manual'] += ! empty( $item['keep_off'] ) ? 1 : 0;
 		}
 		$this->collected = $out;
 		return $out;
@@ -110,6 +119,8 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 		'head-content'   => array( 'html', 'site_header' ),
 		'body-content'   => array( 'html', 'site_body_open' ),
 		'footer-content' => array( 'html', 'site_footer' ),
+		'content'        => array( 'html', SnippetManager::LOCATION_SHORTCODE ),
+		'single-use'     => array( 'php', SnippetManager::LOCATION_RUN_ONCE ),
 		'admin-css'      => array( 'css', 'admin_header' ),
 		'site-css'       => array( 'css', 'site_header' ),
 		'site-head-js'   => array( 'js', 'site_header' ),
@@ -134,7 +145,11 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 			}
 			list( $type, $place ) = self::CS_SCOPES[ $scope ];
 			$code                 = (string) $row['code'];
-			if ( 'php' === $type ) {
+			if ( 'content' === $scope ) {
+				// A content snippet is HTML that may carry PHP tags. Without PHP it is a plain HTML shortcode snippet;
+				// with PHP it keeps working as a PHP snippet that starts in HTML mode.
+				list( $type, $code ) = $this->content_snippet( $code );
+			} elseif ( 'php' === $type ) {
 				// A leading open tag was never part of the stored code, but be safe with exports.
 				$code = (string) preg_replace( '/^\s*<\?php\s*/i', '', $code );
 			}
@@ -158,8 +173,29 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 				'priority'     => (int) ( $row['priority'] ?? 10 ),
 				'enabled'      => ! empty( $row['active'] ),
 				'review'       => false,
+				// A run-once snippet executes code when it is switched on, so only the admin does that.
+				'keep_off'     => SnippetManager::LOCATION_RUN_ONCE === $place,
+				'post_types'   => array(),
 			);
 		}
+	}
+
+	/**
+	 * Type and code of a Code Snippets "content" snippet.
+	 *
+	 * @param string $code Stored code.
+	 * @return array{0:string,1:string}
+	 */
+	private function content_snippet( string $code ): array {
+		if ( 1 !== preg_match( '/<\?(?:php|=)|\?>/i', $code ) ) {
+			return array( 'html', $code );
+		}
+		$code = ltrim( $code );
+		if ( 1 === preg_match( '/^<\?php\s*/i', $code ) ) {
+			return array( 'php', (string) preg_replace( '/^<\?php\s*/i', '', $code ) );
+		}
+		// HTML first, PHP inside: the snippet file starts with a close tag so the HTML is printed as it is.
+		return array( 'php', "?>\n" . $code );
 	}
 
 	/**
@@ -186,6 +222,8 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 				'priority'     => 10,
 				'enabled'      => true,
 				'review'       => false,
+				'keep_off'     => false,
+				'post_types'   => array(),
 			);
 		}
 		if ( ! function_exists( 'get_posts' ) ) {
@@ -210,11 +248,8 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 				continue;
 			}
 			$auto = (int) get_post_meta( $id, '_wpcode_auto_insert', true );
-			if ( ! $auto ) {
-				$this->skip( $out, 'manual' );
-				continue;
-			}
-			$place  = $this->wpcode_place( $type, $where );
+			// Not inserted automatically: it appears where `[wpcode id=..]` is put, which is a shortcode snippet here.
+			$place  = $auto ? $this->wpcode_place( $type, $where ) : SnippetManager::LOCATION_SHORTCODE;
 			$review = false;
 			if ( null === $place ) {
 				$this->skip( $out, 'place:' . ( '' === $where ? 'none' : $where ) );
@@ -245,6 +280,8 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 				'priority'     => '' === (string) $priority ? 10 : (int) $priority,
 				'enabled'      => 'publish' === $post->post_status,
 				'review'       => $review,
+				'keep_off'     => false,
+				'post_types'   => in_array( $place, self::PLACEMENTS, true ) ? SnippetManager::DEFAULT_POST_TYPES : array(),
 			);
 		}
 	}
@@ -297,6 +334,12 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 			'site_wide_header' => 'site_header',
 			'site_wide_body'   => 'site_body_open',
 			'site_wide_footer' => 'site_footer',
+			// "Before / after post" is approximated by the same place as "before / after content": around the post
+			// content of the page (WPCode puts "post" next to the title / loop item, the module only has the content).
+			'before_content'   => SnippetManager::LOCATION_BEFORE_CONTENT,
+			'before_post'      => SnippetManager::LOCATION_BEFORE_CONTENT,
+			'after_content'    => SnippetManager::LOCATION_AFTER_CONTENT,
+			'after_post'       => SnippetManager::LOCATION_AFTER_CONTENT,
 		);
 		return $map[ $where ] ?? null;
 	}
@@ -313,19 +356,22 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 		$rows = $wpdb->get_results( "SELECT * FROM {$table} ORDER BY script_id ASC", ARRAY_A ); // phpcs:ignore WordPress.DB
 		foreach ( is_array( $rows ) ? $rows : array() as $row ) {
 			$place = array(
-				'header' => 'site_header',
-				'footer' => 'site_footer',
+				'header'         => 'site_header',
+				'footer'         => 'site_footer',
+				'before_content' => SnippetManager::LOCATION_BEFORE_CONTENT,
+				'after_content'  => SnippetManager::LOCATION_AFTER_CONTENT,
 			)[ (string) $row['location'] ] ?? null;
 			if ( null === $place ) {
 				$this->skip( $out, 'place:' . (string) $row['location'] );
 				continue;
 			}
-			if ( 'manual' === (string) $row['display_on'] ) {
-				$this->skip( $out, 'manual' );
-				continue;
+			// `[hfcm id=..]` snippets are used by hand: a shortcode snippet here.
+			$manual = 'manual' === (string) $row['display_on'];
+			if ( $manual ) {
+				$place = SnippetManager::LOCATION_SHORTCODE;
 			}
 			// The plugin prints the stored text as it is (its JS and CSS snippets carry their own tags).
-			$review = 'All' !== (string) $row['display_on'] || 'both' !== (string) ( $row['device_type'] ?? 'both' );
+			$review = ( ! $manual && 'All' !== (string) $row['display_on'] ) || 'both' !== (string) ( $row['device_type'] ?? 'both' );
 			$out['items'][] = array(
 				'key'          => 'hfcm:' . (int) $row['script_id'],
 				'label'        => trim( (string) $row['name'] ),
@@ -337,6 +383,8 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 				'priority'     => 10,
 				'enabled'      => 'active' === (string) $row['status'],
 				'review'       => $review,
+				'keep_off'     => false,
+				'post_types'   => in_array( $place, self::PLACEMENTS, true ) ? SnippetManager::DEFAULT_POST_TYPES : array(),
 			);
 		}
 	}
@@ -362,17 +410,13 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 			return $m;
 		}
 		$labels = array(
-			'scope:content'          => __( 'shortcode snippets (content)', 'ux-studio' ),
-			'scope:single-use'       => __( 'run-once snippets', 'ux-studio' ),
 			'scope:condition'        => __( 'condition snippets', 'ux-studio' ),
 			'type:text'              => __( 'plain text snippets', 'ux-studio' ),
 			'type:universal'         => __( 'universal (PHP + HTML) snippets', 'ux-studio' ),
 			'type:blocks'            => __( 'block snippets', 'ux-studio' ),
 			'type:scss'              => __( 'SCSS snippets', 'ux-studio' ),
 			'type:unknown'           => __( 'snippets of an unknown type', 'ux-studio' ),
-			'manual'                 => __( 'snippets that run only through a shortcode or on demand', 'ux-studio' ),
-			'place:before_post'      => __( 'snippets inserted before or after posts', 'ux-studio' ),
-		);
+);
 		foreach ( $c['skipped'] as $reason => $n ) {
 			$m->lossy(
 				sprintf(
@@ -402,6 +446,54 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 			);
 		}
 		$m->note( __( 'Every snippet is created switched off, because it is code. Snippets that were on in the old plugin are switched on at the switch, after the safe preview.', 'ux-studio' ) );
+		$shortcodes = 0;
+		$placements = 0;
+		foreach ( $c['items'] as $item ) {
+			$shortcodes += SnippetManager::LOCATION_SHORTCODE === $item['run_location'] ? 1 : 0;
+			$placements += in_array( $item['run_location'], self::PLACEMENTS, true ) ? 1 : 0;
+		}
+		if ( $shortcodes > 0 ) {
+			$m->note(
+				sprintf(
+					/* translators: %d: number of snippets. */
+					_n(
+						'%d snippet is used through a shortcode. In UX Studio it is inserted as [uxstudio_snippet id="..."] (the exact shortcode is shown in the snippet list). Shortcodes already written in posts and pages are NOT rewritten, replace them by hand.',
+						'%d snippets are used through a shortcode. In UX Studio they are inserted as [uxstudio_snippet id="..."] (the exact shortcode is shown in the snippet list). Shortcodes already written in posts and pages are NOT rewritten, replace them by hand.',
+						$shortcodes,
+						'ux-studio'
+					),
+					$shortcodes
+				)
+			);
+		}
+		if ( $placements > 0 ) {
+			$m->note(
+				sprintf(
+					/* translators: %d: number of snippets. */
+					_n(
+						'%d snippet is inserted before or after the post content. It starts on posts and pages; change the post types in the snippet if it should appear on other content. The module inserts around the content of a single post or page, not in lists of posts.',
+						'%d snippets are inserted before or after the post content. They start on posts and pages; change the post types in the snippet if they should appear on other content. The module inserts around the content of a single post or page, not in lists of posts.',
+						$placements,
+						'ux-studio'
+					),
+					$placements
+				)
+			);
+		}
+		if ( $c['manual'] > 0 ) {
+			$m->warn(
+				sprintf(
+					/* translators: %d: number of snippets. */
+					_n(
+						'%d run-once snippet is created switched off and is NOT switched on at the switch. It executes its code one time on the next page of wp-admin after you switch it on, then switches itself off.',
+						'%d run-once snippets are created switched off and are NOT switched on at the switch. Each executes its code one time on the next page of wp-admin after you switch it on, then switches itself off.',
+						$c['manual'],
+						'ux-studio'
+					),
+					$c['manual']
+				)
+			);
+		}
 		$block = SnippetManager::editBlockReason();
 		if ( '' !== $block ) {
 			$m->warn( $block );
@@ -425,7 +517,7 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 		$items   = $this->collect()['items'];
 		$enabled = 0;
 		foreach ( $items as $item ) {
-			$enabled += ( $item['enabled'] && ! $item['review'] ) ? 1 : 0;
+			$enabled += ( $item['enabled'] && ! $item['review'] && empty( $item['keep_off'] ) ) ? 1 : 0;
 		}
 		return array(
 			array(
@@ -442,6 +534,11 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 				'key'   => 'review',
 				'label' => __( 'of them stay off for your review', 'ux-studio' ),
 				'count' => $this->collect()['review'],
+			),
+			array(
+				'key'   => 'manual',
+				'label' => __( 'of them are run-once snippets that you switch on yourself', 'ux-studio' ),
+				'count' => $this->collect()['manual'],
 			),
 		);
 	}
@@ -547,6 +644,7 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 				'description'  => $item['description'],
 				'run_location' => $item['run_location'],
 				'priority'     => $item['priority'],
+				'post_types'   => $item['post_types'] ?? array(),
 				'enabled'      => false,
 			)
 		);
@@ -567,7 +665,7 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 				array( 'snippet_file', basename( $snippet->getFilePath() ) ),
 			),
 		);
-		if ( $item['enabled'] && ! $item['review'] ) {
+		if ( $item['enabled'] && ! $item['review'] && empty( $item['keep_off'] ) ) {
 			$out['activate'] = $id;
 		}
 		return $out;

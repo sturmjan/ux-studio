@@ -386,12 +386,20 @@ $redir_rows = array(
 	$redir( 3, '/smazano', 'url', 'error', 410, '' ),
 	$redir( 4, '/vypnuto', 'url', 'url', 302, '/jinam', 0, 'disabled' ),
 	$redir( 5, '/ve-skupine', 'url', 'url', 301, '/x', 0, 'enabled', 2 ),
-	$redir( 6, '/', 'server', 'url', 301, 'https://nova.test' ),
+	$redir( 6, '/', 'server', 'url', 301, serialize( array( 'url_from' => 'https://nova.test', 'url_notfrom' => '', 'server' => 'https://old.test' ) ) ),
 	$redir( 7, '/nahoda', 'url', 'random', 301, '' ),
-	$redir( 8, '/prihlasen', 'login', 'url', 301, '/y' ),
+	$redir( 8, '/prihlasen', 'login', 'url', 301, serialize( array( 'logged_in' => '/y', 'logged_out' => '/gost' ) ) ),
 	$redir( 9, '/velke', 'url', 'url', 301, '/male', 0, 'enabled', 1, '{"source":{"flag_query":"ignore","flag_case":true}}' ),
 	$redir( 10, '/see-other', 'url', 'url', 303, '/z' ),
 	$redir( 11, 'https://old.test/Stara/', 'url', 'url', 301, '/jinde' ), // same address as rule 1 (case, slash, host): never reached
+	// Match types: one rule per state that has a target ("matched" / "not matched"), both on the SAME address as rule 1 here.
+	$redir( 12, '/stara', 'referrer', 'url', 301, serialize( array( 'url_from' => '/z-google', 'url_notfrom' => '/bez-google', 'regex' => true, 'referrer' => 'google\\.' ) ) ),
+	$redir( 13, '/jazyk', 'language', 'url', 301, serialize( array( 'language' => 'cs', 'url_from' => '/cs', 'url_notfrom' => '' ) ) ),
+	$redir( 14, '/bot', 'agent', 'url', 301, serialize( array( 'url_from' => '/bot-stranka', 'url_notfrom' => '', 'regex' => false, 'agent' => 'Googlebot' ) ) ),
+	$redir( 15, '/cookie', 'cookie', 'url', 301, serialize( array( 'url_from' => '/vip', 'url_notfrom' => '', 'name' => 'vip', 'value' => '1', 'regex' => false ) ) ),
+	$redir( 16, '/role', 'role', 'url', 301, serialize( array( 'url_from' => '/redakce', 'url_notfrom' => '', 'role' => 'editor' ) ) ),
+	$redir( 17, '/ip', 'ip', 'url', 301, serialize( array( 'url_from' => '/kancelar', 'url_notfrom' => '', 'ip' => array( '203.0.113.5', '10.0.0.1' ) ) ) ),
+	$redir( 18, '/hlavicka', 'header', 'url', 301, serialize( array( 'url_from' => '/h', 'url_notfrom' => '', 'name' => 'X-Foo', 'value' => 'bar', 'regex' => false ) ) ),
 );
 $sql( '/SELECT id, status FROM wp_redirection_groups/', static fn() => array( array( 'id' => 1, 'status' => 'enabled' ), array( 'id' => 2, 'status' => 'disabled' ) ) );
 $sql( '/SELECT COUNT\(\*\) FROM wp_redirection_items/', static fn() => array( count( $redir_rows ) ) );
@@ -399,14 +407,22 @@ $sql( '/FROM wp_redirection_items WHERE id > (\d+) ORDER BY id ASC LIMIT (\d+)/'
 	return array_slice( array_values( array_filter( $redir_rows, static fn( $r ) => $r['id'] > (int) $m[1] ) ), 0, (int) $m[2] );
 } );
 $plan = SourceRegistry::get( 'redirection' )->plan();
-$assert( 'redirection: 7 convertible rules (4 skipped: server, random, login, + counted)', 7 === $data_count( $plan, 'redirect' ), json_encode( $plan['data'] ) );
+$assert( 'redirection: 17 rules (7 plain + server 1 + login 2 + referrer 2 + agent / cookie / role / IP / header 5); language and random skipped', 17 === $data_count( $plan, 'redirect' ), json_encode( $plan['data'] ) );
 $assert( 'redirection: disabled rule and rule in a disabled group count as inactive', 2 === $data_count( $plan, 'inactive' ), json_encode( $plan['data'] ) );
 $assert( 'redirection: 1 regex, 1 gone', 1 === $data_count( $plan, 'regex' ) && 1 === $data_count( $plan, 'gone' ) );
-$assert( 'redirection: a rule with the same address as an earlier one is dropped (the first one wins) and reported', $lossy_has( $plan, 'same address as an earlier rule' ) && 7 === $data_count( $plan, 'redirect' ), json_encode( $plan['lossy'] ) );
-$assert( 'redirection: lossy lists server / random / login rules, case + query flags, counters', $lossy_has( $plan, 'whole domain' ) && $lossy_has( $plan, 'random target' ) && $lossy_has( $plan, 'logged in' ) && $lossy_has( $plan, 'case sensitive' ) && $lossy_has( $plan, 'query string' ) && $lossy_has( $plan, 'Hit counters' ), json_encode( $plan['lossy'] ) );
+$assert( 'redirection: a rule with the same address AND the same conditions as an earlier one is still dropped (the first one wins) and reported', $lossy_has( $plan, 'same address and the same conditions' ) && 17 === $data_count( $plan, 'redirect' ), json_encode( $plan['lossy'] ) );
+$assert( 'redirection: a rule with the same address but other conditions is NOT a duplicate (several rules per address)', isset( array_column( $items_of( 'redirection' ), null, 'key' )['item:12'], array_column( $items_of( 'redirection' ), null, 'key' )['item:12:else'], array_column( $items_of( 'redirection' ), null, 'key' )['item:1'] ) && '/stara' === array_column( $items_of( 'redirection' ), null, 'key' )['item:12']['source'] );
+$assert( 'redirection: lossy no longer lists server / login / referrer / agent / cookie / role / IP / header rules; it lists random target, language, case + query flags, counters', ! $lossy_has( $plan, 'whole domain' ) && ! $lossy_has( $plan, 'logged in' ) && ! $lossy_has( $plan, 'referring page' ) && ! $lossy_has( $plan, 'cookie' ) && ! $lossy_has( $plan, 'IP address' ) && ! $lossy_has( $plan, 'HTTP header' ) && $lossy_has( $plan, 'random target' ) && $lossy_has( $plan, 'depend on the language' ) && $lossy_has( $plan, 'case sensitive' ) && $lossy_has( $plan, 'query string' ) && $lossy_has( $plan, 'Hit counters' ), json_encode( $plan['lossy'] ) );
+$assert( 'redirection: the plan says how many rules became conditional rules', false !== strpos( implode( ' ', $plan['notes'] ), '10 rules depend on who is asking' ), json_encode( $plan['notes'] ) );
 $items = $items_of( 'redirection' );
 $by    = array_column( $items, null, 'key' );
 $assert( 'redirection: 303 becomes 302, 410 has no target, regex keeps match type', 302 === $by['item:10']['code'] && '' === $by['item:3']['target'] && 410 === $by['item:3']['code'] && 'regex' === $by['item:2']['match_type'] );
+$cond = static fn( string $key ): array => $by[ $key ]['conditions'];
+$assert( 'redirection: login -> two rules, logged in / logged out, each with its own target', array( array( 'type' => 'login', 'value' => 'in' ) ) === $cond( 'item:8' ) && '/y' === $by['item:8']['target'] && array( array( 'type' => 'login', 'value' => 'out' ) ) === $cond( 'item:8:else' ) && '/gost' === $by['item:8:else']['target'] );
+$assert( 'redirection: referrer regex -> matched rule + negated "not matched" rule on the same address, order kept by position', array( array( 'type' => 'referrer', 'op' => 'regex', 'value' => 'google\\.' ) ) === $cond( 'item:12' ) && true === $cond( 'item:12:else' )[0]['negate'] && '/z-google' === $by['item:12']['target'] && '/bez-google' === $by['item:12:else']['target'] && 12 === $by['item:12']['position'] );
+$assert( 'redirection: a state without a target makes no rule (the plugin does nothing there)', ! isset( $by['item:14:else'], $by['item:6:else'], $by['item:15:else'] ) );
+$assert( 'redirection: agent / cookie / role / IP / header / server map to their conditions', array( array( 'type' => 'agent', 'op' => 'equals', 'value' => 'Googlebot' ) ) === $cond( 'item:14' ) && array( array( 'type' => 'cookie', 'name' => 'vip', 'op' => 'equals', 'value' => '1' ) ) === $cond( 'item:15' ) && array( array( 'type' => 'role', 'value' => 'editor' ) ) === $cond( 'item:16' ) && array( array( 'type' => 'ip', 'value' => array( '203.0.113.5', '10.0.0.1' ) ) ) === $cond( 'item:17' ) && array( array( 'type' => 'header', 'name' => 'X-Foo', 'op' => 'equals', 'value' => 'bar' ) ) === $cond( 'item:18' ) && array( array( 'type' => 'host', 'op' => 'equals', 'value' => 'https://old.test' ) ) === $cond( 'item:6' ) && 'https://nova.test' === $by['item:6']['target'] );
+$assert( 'redirection: plain rules carry no conditions', array() === $cond( 'item:1' ) && array() === $cond( 'item:2' ) );
 $assert( 'redirection: enabled flag follows rule status and group status', true === $by['item:1']['enabled'] && false === $by['item:4']['enabled'] && false === $by['item:5']['enabled'] );
 $assert( 'scan shows data rows for the plugin', array() !== SourceRegistry::get( 'redirection' )->detect()['summary']['data'] && 'active' === SourceRegistry::get( 'redirection' )->detect()['status'] );
 
@@ -416,14 +432,14 @@ $module_on = false;
 $install_double( $store, static function () use ( &$module_on ) { return $module_on; } );
 $run = Runner::start( array( 'redirection' ), false );
 $r1  = $drive();
-$assert( 'redirects (module off): 7 created, nothing staged, map rows only for created objects', 'done' === $r1['status'] && 7 === count( $store['redirection'] ) && array() === Staging::all() && 7 === count( $GLOBALS['wpdb']->map ), json_encode( array_map( static fn( $r ) => $r['target_type'], $GLOBALS['wpdb']->map ) ) );
+$assert( 'redirects (module off): 17 created, nothing staged, map rows only for created objects', 'done' === $r1['status'] && 17 === count( $store['redirection'] ) && array() === Staging::all() && 17 === count( $GLOBALS['wpdb']->map ), json_encode( array_map( static fn( $r ) => $r['target_type'], $GLOBALS['wpdb']->map ) ) );
 $rows = $r1['per_source']['redirection']['items'];
-$assert( 'redirects: report row says how many were created', 'Redirects' === $rows[0]['label'] && false !== strpos( $rows[0]['to'], '7 created' ), json_encode( $rows ) );
-$assert( 'redirects: state has total and processed for the n / total progress', 7 === $r1['per_source']['redirection']['total'] && 7 === $r1['per_source']['redirection']['processed'], json_encode( $r1['per_source']['redirection'] ) );
+$assert( 'redirects: report row says how many were created', 'Redirects' === $rows[0]['label'] && false !== strpos( $rows[0]['to'], '17 created' ), json_encode( $rows ) );
+$assert( 'redirects: state has total and processed for the n / total progress', 17 === $r1['per_source']['redirection']['total'] && 17 === $r1['per_source']['redirection']['processed'], json_encode( $r1['per_source']['redirection'] ) );
 $map_before = count( $GLOBALS['wpdb']->map );
 $run2 = Runner::start( array( 'redirection' ), false );
 $r2   = $drive();
-$assert( 'redirects: second real run writes 0 (idempotent) and adds no map rows', 0 === $r2['per_source']['redirection']['written'] && 7 === $r2['per_source']['redirection']['unchanged'] && count( $GLOBALS['wpdb']->map ) === $map_before );
+$assert( 'redirects: second real run writes 0 (idempotent) and adds no map rows', 0 === $r2['per_source']['redirection']['written'] && 17 === $r2['per_source']['redirection']['unchanged'] && count( $GLOBALS['wpdb']->map ) === $map_before );
 $rb = Runner::rollback( $run['id'] );
 $assert( 'redirects: rollback removes the run\'s map rows', ! is_wp_error( $rb ) && 0 === count( $GLOBALS['wpdb']->map ) );
 
@@ -442,10 +458,10 @@ $assert( 'redirects (module on): plan says rules are created switched off', true
 $run = Runner::start( array( 'redirection' ), false );
 $r1  = $drive();
 $entry = Staging::entry( $run['id'] );
-$assert( 'redirects (module on): the 5 rules that were active wait for the switch', 5 === count( $entry['activations'][0]['ids'] ) && 'redirect' === $entry['activations'][0]['kind'] && 'redirection' === $entry['activations'][0]['source'] && 5 === $r1['per_source']['redirection']['staged'], json_encode( $entry ) );
+$assert( 'redirects (module on): the 15 rules that were active wait for the switch', 15 === count( $entry['activations'][0]['ids'] ) && 'redirect' === $entry['activations'][0]['kind'] && 'redirection' === $entry['activations'][0]['source'] && 15 === $r1['per_source']['redirection']['staged'], json_encode( $entry ) );
 $assert( 'redirects (module on): summary says N waiting + staged flag on the report row', true === $r1['per_source']['redirection']['items'][0]['staged'] );
 $ver = Runner::verify();
-$assert( 'redirects: verify finds all 7 and marks them staged (waiting for the switch)', array() === array_filter( $ver['redirection'], static fn( $c ) => ! $c['ok'] ) && ! empty( array_filter( $ver['redirection'], static fn( $c ) => ! empty( $c['staged'] ) ) ), json_encode( $ver ) );
+$assert( 'redirects: verify finds all 17 and marks them staged (waiting for the switch)', array() === array_filter( $ver['redirection'], static fn( $c ) => ! $c['ok'] ) && ! empty( array_filter( $ver['redirection'], static fn( $c ) => ! empty( $c['staged'] ) ) ), json_encode( $ver ) );
 $run2 = Runner::start( array( 'redirection' ), false );
 $r2   = $drive();
 $assert( 'redirects (module on): second run stages nothing new', 0 === $r2['per_source']['redirection']['staged'] && null === Staging::entry( $run2['id'] ), json_encode( Staging::all() ) );
@@ -496,22 +512,28 @@ $sql( '/FROM wp_snippets ORDER BY id ASC/', static fn() => array(
 	array( 'id' => 4, 'name' => 'Pixel', 'description' => '', 'code' => '<script>x()</script>', 'tags' => '', 'scope' => 'head-content', 'priority' => 10, 'active' => 1 ),
 	array( 'id' => 5, 'name' => 'CSS', 'description' => '', 'code' => 'body{margin:0}', 'tags' => '', 'scope' => 'site-css', 'priority' => 10, 'active' => 1 ),
 	array( 'id' => 6, 'name' => 'JS', 'description' => '', 'code' => 'console.log(1)', 'tags' => '', 'scope' => 'site-footer-js', 'priority' => 10, 'active' => 0 ),
-	array( 'id' => 7, 'name' => 'Jednou', 'description' => '', 'code' => 'run();', 'tags' => '', 'scope' => 'single-use', 'priority' => 10, 'active' => 0 ),
+	array( 'id' => 7, 'name' => 'Jednou', 'description' => '', 'code' => 'run();', 'tags' => '', 'scope' => 'single-use', 'priority' => 10, 'active' => 1 ),
+	array( 'id' => 8, 'name' => 'Obsah s PHP', 'description' => '', 'code' => '<p>Rok <?php echo date("Y"); ?></p>', 'tags' => '', 'scope' => 'content', 'priority' => 10, 'active' => 1 ),
+	array( 'id' => 9, 'name' => 'Obsah jen PHP', 'description' => '', 'code' => '<?php echo "x";', 'tags' => '', 'scope' => 'content', 'priority' => 10, 'active' => 0 ),
+	array( 'id' => 10, 'name' => 'Podminka', 'description' => '', 'code' => 'x', 'tags' => '', 'scope' => 'condition', 'priority' => 10, 'active' => 1 ),
 ) );
 $items = $items_of( 'code-snippets' );
 $by    = array_column( $items, null, 'key' );
 $plan  = SourceRegistry::get( 'code-snippets' )->plan();
-$assert( 'code-snippets: 5 snippets convert, shortcode (content) and run-once are reported as lost', 5 === count( $items ) && $lossy_has( $plan, 'shortcode snippets' ) && $lossy_has( $plan, 'run-once' ), json_encode( $plan['lossy'] ) );
+$assert( 'code-snippets: 9 snippets convert (content -> shortcode, single-use -> run once); only the condition scope is lost', 9 === count( $items ) && ! $lossy_has( $plan, 'shortcode snippets' ) && ! $lossy_has( $plan, 'run-once' ) && $lossy_has( $plan, 'condition snippets' ), json_encode( $plan['lossy'] ) );
+$assert( 'code-snippets: content snippet without PHP -> html shortcode, with PHP tags -> php shortcode that starts in HTML mode, PHP-only content -> php shortcode', 'html' === $by['cs:3']['type'] && 'shortcode' === $by['cs:3']['run_location'] && 'php' === $by['cs:8']['type'] && 'shortcode' === $by['cs:8']['run_location'] && "?>\n<p>Rok <?php echo date(\"Y\"); ?></p>" === $by['cs:8']['code'] && 'php' === $by['cs:9']['type'] && 'echo "x";' === $by['cs:9']['code'] && 'shortcode' === $by['cs:9']['run_location'] );
+$assert( 'code-snippets: single-use -> php, run once, and it is NEVER switched on by the switch (keep_off)', 'php' === $by['cs:7']['type'] && 'run_once' === $by['cs:7']['run_location'] && true === $by['cs:7']['keep_off'] && false === $by['cs:3']['keep_off'] );
+$assert( 'code-snippets: the plan explains shortcodes and the run-once rule', false !== strpos( implode( ' ', $plan['notes'] ), 'uxstudio_snippet' ) && false !== strpos( implode( ' ', $plan['warnings'] ), 'run-once snippet' ) && 1 === $data_count( $plan, 'manual' ), json_encode( array( $plan['notes'], $plan['warnings'], $plan['data'] ) ) );
 $assert( 'code-snippets: scopes map to type + place', 'php' === $by['cs:1']['type'] && 'everywhere' === $by['cs:1']['run_location'] && 'frontend_only' === $by['cs:2']['run_location'] && 'html' === $by['cs:4']['type'] && 'site_header' === $by['cs:4']['run_location'] && 'css' === $by['cs:5']['type'] && 'js' === $by['cs:6']['type'] && 'site_footer' === $by['cs:6']['run_location'] );
 $assert( 'code-snippets: name is trimmed, tags go into the description, active flag is kept', 'WooCommerce kategorie 580' === $by['cs:1']['name'] && false !== strpos( $by['cs:1']['description'], 'sample, woo' ) && true === $by['cs:1']['enabled'] && false === $by['cs:2']['enabled'] );
-$assert( 'code-snippets: plan says every snippet is created switched off', false !== strpos( implode( ' ', $plan['notes'] ), 'switched off' ) && 3 === $data_count( $plan, 'enable' ), json_encode( $plan['data'] ) );
+$assert( 'code-snippets: plan says every snippet is created switched off', false !== strpos( implode( ' ', $plan['notes'] ), 'switched off' ) && 5 === $data_count( $plan, 'enable' ), json_encode( $plan['data'] ) );
 // Always disabled + activation staged, also with the module OFF.
 $store = array();
 $install_double( $store, static fn() => true );
 $run = Runner::start( array( 'code-snippets' ), false );
 $r1  = $drive();
 $entry = Staging::entry( $run['id'] );
-$assert( 'code-snippets: snippets that were active wait for the switch, whatever the module state', 3 === count( $entry['activations'][0]['ids'] ) && 'snippet' === $entry['activations'][0]['kind'] );
+$assert( 'code-snippets: snippets that were active wait for the switch (not the run-once one), whatever the module state', 6 === count( $entry['activations'][0]['ids'] ) && 'snippet' === $entry['activations'][0]['kind'], json_encode( $entry ) );
 
 $site( array( 'insert-headers-and-footers' ), array( 'insert-headers-and-footers' ), array( 'ihaf_insert_header' => '<meta name="x">', 'ihaf_insert_footer' => '', 'ihaf_insert_body' => '<noscript>y</noscript>' ) );
 $post( 20, 'wpcode', 'publish', 'GA kod', "<script>ga()</script>" );
@@ -529,13 +551,22 @@ $meta( 'post', 23, '_wpcode_auto_insert', 1 );
 $post( 24, 'wpcode', 'publish', 'Pred prispevkem', '<p>x</p>' );
 $GLOBALS['uxs_terms'][24] = array( 'wpcode_type' => array( 'html' ), 'wpcode_location' => array( 'before_post' ) );
 $meta( 'post', 24, '_wpcode_auto_insert', 1 );
+$post( 25, 'wpcode', 'publish', 'Za obsahem', '<p>za</p>' );
+$GLOBALS['uxs_terms'][25] = array( 'wpcode_type' => array( 'html' ), 'wpcode_location' => array( 'after_content' ) );
+$meta( 'post', 25, '_wpcode_auto_insert', 1 );
+$post( 26, 'wpcode', 'publish', 'Mezi odstavci', '<p>mezi</p>' );
+$GLOBALS['uxs_terms'][26] = array( 'wpcode_type' => array( 'html' ), 'wpcode_location' => array( 'before_paragraph' ) );
+$meta( 'post', 26, '_wpcode_auto_insert', 1 );
 $items = $items_of( 'insert-headers-and-footers' );
 $by    = array_column( $items, null, 'key' );
 $plan  = SourceRegistry::get( 'insert-headers-and-footers' )->plan();
-$assert( 'wpcode: legacy header + body boxes (footer empty) and 2 snippet posts convert', 4 === count( $items ) && isset( $by['ihaf:header'], $by['ihaf:body'], $by['wpcode:20'], $by['wpcode:21'] ), implode( ',', array_keys( $by ) ) );
+$assert( 'wpcode: legacy header + body boxes (footer empty) and 5 snippet posts convert (manual and before / after content are new)', 7 === count( $items ) && isset( $by['ihaf:header'], $by['ihaf:body'], $by['wpcode:20'], $by['wpcode:21'], $by['wpcode:22'], $by['wpcode:24'], $by['wpcode:25'] ), implode( ',', array_keys( $by ) ) );
+$assert( 'wpcode: a snippet that is not inserted automatically becomes a shortcode snippet (a draft stays off)', 'shortcode' === $by['wpcode:22']['run_location'] && 'php' === $by['wpcode:22']['type'] && false === $by['wpcode:22']['enabled'] && false === $by['wpcode:22']['keep_off'] );
+$assert( 'wpcode: before post / before content -> before the content, after content -> after, with posts and pages as the default post types; other snippets have none', 'before_content' === $by['wpcode:24']['run_location'] && 'after_content' === $by['wpcode:25']['run_location'] && array( 'post', 'page' ) === $by['wpcode:24']['post_types'] && array( 'post', 'page' ) === $by['wpcode:25']['post_types'] && array() === $by['wpcode:20']['post_types'] );
 $assert( 'wpcode: header box -> html in the site header, body box -> after the opening body tag', 'html' === $by['ihaf:header']['type'] && 'site_header' === $by['ihaf:header']['run_location'] && 'site_body_open' === $by['ihaf:body']['run_location'] );
 $assert( 'wpcode: priority and note are kept; conditional logic marks the snippet for review (stays off)', 3 === $by['wpcode:20']['priority'] && 'Analytika' === $by['wpcode:20']['description'] && true === $by['wpcode:21']['review'] && false === $by['wpcode:20']['review'] );
-$assert( 'wpcode: shortcode-only, text type and "before post" place are reported as not transferred', $lossy_has( $plan, 'shortcode or on demand' ) && $lossy_has( $plan, 'plain text' ) && $lossy_has( $plan, 'before or after posts' ) && $lossy_has( $plan, 'conditions' ), json_encode( $plan['lossy'] ) );
+$assert( 'wpcode: text type, a place the module lacks (before paragraph) and conditions are reported; shortcode-only and before / after content are not', $lossy_has( $plan, 'plain text' ) && $lossy_has( $plan, 'before_paragraph' ) && $lossy_has( $plan, 'conditions' ) && ! $lossy_has( $plan, 'shortcode or on demand' ) && ! $lossy_has( $plan, 'before or after posts' ), json_encode( $plan['lossy'] ) );
+$assert( 'wpcode: notes tell about the shortcode and the placement around the content', false !== strpos( implode( ' ', $plan['notes'] ), '[uxstudio_snippet' ) && false !== strpos( implode( ' ', $plan['notes'] ), 'before or after the post content' ), json_encode( $plan['notes'] ) );
 $assert( 'wpcode: 1 snippet in review is not counted among those switched on at the switch', 1 === $data_count( $plan, 'review' ), json_encode( $plan['data'] ) );
 
 $site( array( 'header-footer-code-manager' ), array( 'header-footer-code-manager' ) );
@@ -549,8 +580,9 @@ $sql( '/FROM wp_hfcm_scripts ORDER BY script_id ASC/', static fn() => array(
 $items = $items_of( 'header-footer-code-manager' );
 $by    = array_column( $items, null, 'key' );
 $plan  = SourceRegistry::get( 'header-footer-code-manager' )->plan();
-$assert( 'hfcm: code is decoded and kept as html (its js / css carry their own tags)', 2 === count( $items ) && 'html' === $by['hfcm:1']['type'] && '<script>fbq()</script>' === $by['hfcm:1']['code'] && 'site_footer' === $by['hfcm:2']['run_location'] );
-$assert( 'hfcm: page / device targeting marks a snippet for review; after-content and shortcode snippets are reported', true === $by['hfcm:2']['review'] && false === $by['hfcm:1']['review'] && $lossy_has( $plan, 'after_content' ) && $lossy_has( $plan, 'shortcode' ), json_encode( $plan['lossy'] ) );
+$assert( 'hfcm: code is decoded and kept as html (its js / css carry their own tags); all 4 snippets convert', 4 === count( $items ) && 'html' === $by['hfcm:1']['type'] && '<script>fbq()</script>' === $by['hfcm:1']['code'] && 'site_footer' === $by['hfcm:2']['run_location'] );
+$assert( 'hfcm: after content -> placement after the content, manual -> shortcode snippet (inactive stays off)', 'after_content' === $by['hfcm:3']['run_location'] && array( 'post', 'page' ) === $by['hfcm:3']['post_types'] && false === $by['hfcm:3']['review'] && 'shortcode' === $by['hfcm:4']['run_location'] && false === $by['hfcm:4']['enabled'] && false === $by['hfcm:4']['review'] );
+$assert( 'hfcm: page / device targeting still marks a snippet for review; after-content and shortcode snippets are no longer reported as lost', true === $by['hfcm:2']['review'] && false === $by['hfcm:1']['review'] && ! $lossy_has( $plan, 'after_content' ) && ! $lossy_has( $plan, 'shortcode' ), json_encode( $plan['lossy'] ) );
 
 /* ═══ 3 Folders ═══ */
 

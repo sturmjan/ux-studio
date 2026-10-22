@@ -2158,9 +2158,9 @@ přibudou testy a živé ověření na pobyty. Větev `feature/module-gaps-a` na
       WooCommerce + vzhled widgetu; migrace: IP seznamy z Limit Login / Loginizer do Firewallu
       (hotovo 22. 10. 2026 lokálně, poznámky v 27.4; komentáře a pokladnu WooCommerce na pobyty
       nešlo ověřit živě, viz „Neověřeno")
-- [ ] A2 Přesměrování: podmínky pravidel (přihlášený/role, referrer, user agent, IP, cookie),
+- [x] A2 Přesměrování: podmínky pravidel (přihlášený/role, referrer, user agent, IP, cookie),
       víc pravidel na adresu; Úryvky kódu: snippet jako shortcode, spuštění jednou, umístění
-      před/za obsahem
+      před/za obsahem (hotovo 22. 10. 2026 lokálně, poznámky v 27.5)
 - [ ] A3 Úpravy administrace: skutečné zablokování stránek skrytých v menu podle role;
       Viditelnost menu: zobrazit/skrýt podle role, víc pravidel na položku
 
@@ -2242,3 +2242,54 @@ pokladna potřebuje košík; server-side kód je stejný jako u ověřených for
 WP Captcha a `admin_notify_email` LLAR vycházejí z kódu pluginů, ne z reálných dat. Při zapnuté CSP (Enforce) musí politika pustit `challenges.cloudflare.com`
 (frame i script), jinak se Turnstile v prohlížeči nezobrazí; na pobyty běží CSP jen v režimu Report only a hlásí to. Pozor při testování: zámek pokusů se počítá na IP
 (127.0.0.1), každý test se špatným heslem zamkne lokální přihlášení všem, včetně správce.
+
+### 27.5 A2 poznámky: podmínky přesměrování a funkce úryvků (2026-10-22)
+
+**Podmínky pravidel.** `Redirects\Conditions` (čisté PHP, bez WP volání v ověřování a shodě): typy `login` (in/out), `role` (role i capability,
+jako `current_user_can` v Redirection), `referrer`, `agent`, `host`, `cookie`, `header` (operátor equals/contains/regex, regex bez oddělovačů, vždy
+bez ohledu na velikost), `ip` (adresy a CIDR, IPv4 i IPv6, `ClientIp::in_ranges`); každá podmínka jde obrátit (`negate`), až 5 podmínek na pravidlo,
+platí všechny (AND). Uloženo jako kanonický JSON (`conditions`) + `cond_key` (sha1, '' = bez podmínek). Validace na serveru (kompilace regexu,
+parsování CIDR, délky, počty). Redirection „cíl při shodě / při neshodě" = dvě pravidla, druhé s obrácenou podmínkou.
+- **Více pravidel na adresu.** Tabulka v2 (`DB::ensure_module_tables`, verze 2): `UNIQUE source_hash` se před dbDelta zahodí (dbDelta neumí změnit
+  unikátní klíč na běžný), přibude `UNIQUE (source_hash, cond_key)` a sloupce `conditions`, `cond_key`; stávající řádky zůstávají beze změny.
+  Pořadí: delší klíč (adresa s query) první, pak pravidla s podmínkami (position, id), na konci pravidlo bez podmínek (záložní, bez ohledu na pozici).
+  Pořád jeden indexovaný dotaz (LIMIT 50); podmínky se čtou jen u pravidel, jejichž adresa sedí, kontext požadavku se staví líně a jednou.
+  Regexová pravidla v autoloadovaném stavu nesou `conditions` taky.
+- **Ochrana smyček a řetězů.** Smyčka na sebe a regex, který chytá vlastní cíl, zůstává chyba i u podmíněných pravidel. Řetěz se zploští jen přes
+  jedno nepodmíněné pravidlo; cíl s podmíněnými pravidly se neslučuje (varování `target_conditional`) a cesta zpět na zdroj je jen varování
+  `conditional_loop` (dvojice /members -> /login pro hosty a /login -> /members pro přihlášené je legitimní). `repoint_upstream` jen pro osamělé
+  nepodmíněné pravidlo. Odpověď podmíněného pravidla jde s `nocache_headers()`.
+- **Tester a AI.** `Tester::test( url, live, visitor )`: bez `visitor` je to anonym bez hlaviček, `skipped_rule_ids` říká, která pravidla se přeskočila;
+  `live=true` jde ze serveru, takže se podmínky vyhodnotí pro ten požadavek. Abilities `upsert-rules` (conditions, position), `list-rules` (filtr
+  `conditional`), `test-url` (visitor); MCP je bere z `Abilities::definitions()`, validace přes `Core\Mcp\Schema` ověřena v testu. Upsert stejného zdroje s
+  jinými podmínkami PŘIDÁ pravidlo, změna existujícího jde přes `id`. 404 log počítá „vyřešeno" pro anonyma. CSV export/import má sloupce `conditions` (JSON) a `position`.
+- **SPA.** Editor podmínek ve formuláři pravidla (`modules/redirects/Conditions.tsx`), štítek „Podmínka" + popis v seznamu, štítek „Záložní" u pravidla bez
+  podmínky na adrese s víc pravidly, pole pořadí, test URL „jako konkrétní návštěvník".
+
+**Úryvky kódu.** Tabulka v2: `post_types`, `last_run`, `run_result`. Nová umístění (`run_location`): `shortcode`, `before_content`, `after_content`,
+`run_once` (jen PHP); `SnippetManager::allowedLocations()` je vynucuje na serveru (dřív neznámé umístění PHP znamenalo „všude").
+- **Shortcode / umístění kolem obsahu** (`SnippetRenderer`): snippet jde jen cestou, kterou říká jeho umístění; stejné kontroly jako Executor (zapnutý, platný,
+  cesta v adresáři snippetů, integrita těsně před include, safe mode); PHP se nikdy nespouští v REST/AJAX/cron a ve wp-admin jen pro `manage_options`;
+  HTML/CSS/JS jsou uložený text, takže se vykreslí všude, kde se shortcode rozbaluje. Výstup PHP přes ob_start, výjimka = prázdný výstup, `$atts` a `$content`
+  ve statické closure. Rekurze a hloubka (3) hlídané. Umístění: `the_content` priorita 12, jen hlavní smyčka jednotlivého příspěvku (`is_singular`,
+  `in_the_loop`, `is_main_query`, `get_the_ID() == get_queried_object_id()`), ne feed/REST/admin, jen vybrané typy (výchozí post+page). Pozor: WordPress páruje
+  stejné shortcode tagy, samostatné se píšou `[uxstudio_snippet id="1" /]`.
+- **Spustit jednou** (`SnippetExecutor::runOnceSnippets`, `admin_init`): jen GET na stránce wp-admin (ne AJAX/admin-post), jen `manage_options`, ne v bezpečném
+  náhledu ani v safe mode. Snippet se NEJDŘÍV atomicky vypne (`UPDATE ... WHERE enabled = 1 AND run_location = 'run_once'`, uspěje jen jeden požadavek, pád kódu ho
+  nezacyklí), pak běží pod stejnou kontrolou cesty a integrity; výsledek (ok, výjimka, fatální chyba přes shutdown, co vytiskl) je u snippetu, v seznamu a v Activity Logu.
+  Opětovné zapnutí ho znovu „nabije".
+
+**Migrace.** Redirection: login/role/referrer/agent/cookie/IP/server/header -> podmínky (jazyk, vlastní filtr, typ stránky zůstávají ztrátové); duplicitní adresa se
+zahazuje jen při stejných podmínkách, jinak vznikne víc pravidel. Pořadí se mění jen u degenerovaných konfigurací (nepodmíněné pravidlo před podmíněným je teď vždy
+poslední). Code Snippets: `content` -> shortcode (HTML bez PHP značek jako html, jinak php začínající `?>`), `single-use` -> run once; WPCode: ruční snippety ->
+shortcode, before/after post/content -> before/after content (post+page), ostatní místa (odstavce, mezi příspěvky) zůstávají ztrátová; HFCM: before/after content a `manual` ->
+shortcode. Run-once snippet se NIKDY nezapne při přepnutí (`keep_off`), plán to říká; shortcody `[wpcode id]`, `[code_snippet id]`, `[hfcm id]` v příspěvcích se nepřepisují (plán upozorní).
+
+**Ověřeno živě (pobyty, dočasný admin a odběratel, vše vráceno).** Upgrade tabulky v1 -> v2 se třemi řádky (unikát zrušen, nový klíč, řádky beze změny, curl 301/302/410 jako dřív);
+41 curl případů (každý typ podmínky + negace, AND, pořadí, záložní, 410, regex s $1, falešná cookie, POST). Redirection (338 + 3 řádky): 316 pravidel (313 + 3 s podmínkou
+host; předtím 313, server pravidla se vyhazovala), 25 duplicit zůstává (stejná adresa i podmínky, v Redirection by platilo jen první; 10 z nich má stejný cíl, 15 jiný),
+suchý běh, ostrý běh se zapnutým i vypnutým modulem, ověření, druhý běh nic nezapíše, vrácení. Snippety: shortcode (HTML i PHP s atributy), umístění před/za obsahem,
+safe mode, REST s přihlášením (PHP nic, HTML ano), run-once (náhled ho nespustí ani nezabere, běžná stránka administrace ho spustí právě jednou, front-end/odběratel/AJAX/POST ne),
+fixtury Code Snippets a HFCM přes průvodce (staging, náhled s hlavičkou, vrácení).
+**Neověřeno / otevřené.** WPCode (taxonomie) jen v jednotkových testech; `tests/rest-public-routes.php` hlásí 1 selhání (Complianz `/%2e%2e/` route) mimo rozsah A2.
+Vrácení staršího běhu průvodce po novějším (stejná tabulka) vrátí snímek toho novějšího, vracet je třeba od nejnovějšího (starší chování F3).
