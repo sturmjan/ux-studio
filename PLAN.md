@@ -2101,7 +2101,7 @@ WPS Hide Login (hrozba vyzamčení), totéž CAPTCHA. Porušovalo to pravidlo �
 
 **Mapování.** AME (`ws_menu_editor[_pro]`): skupiny mezi oddělovači = kategorie Skupina N + Ostatní, pořadí, přejmenování, dashicony, skryté položky, role (hidden_from_actor, grant_access=false) = whitelist `item_roles`, přesunuté podpoložky = `promoted_subs`, vlastní odkazy. Adminimize: per-role menu = `item_roles`/`hidden_items` (jedna kategorie, nepřeskupuje menu; existující uspořádání z AME zůstane), `.show-admin-bar` per role = Hide Admin Bar (přesně), admin bar uzly, obrazovkové volby a widgety nástěnky jen když je plugin skrývá správcům (modul je globální, varování o ostatních rolích). WLCMS: přihlášení (logo URL -> ID přílohy, barvy), logo admin lišty, skrytí loga WP, patička, nápověda, volby obrazovky, nag, widgety nástěnky. Adminify: menu editor (`_wpadminify_menu_settings`), patička (ne výchozí reklamní), hledání, oznámení, widgety. LoginPress: login_* klíče. Admin Columns: tabulka `admin_columns` (AC 4+) i `cpac_options_*`, typy default/meta/thumbnail/ID/taxonomie, odstraněné nativní sloupce = `enabled:false`.
 
-**Nepřenese se (výběr, přesné texty v plánech).** AME: požadovaná oprávnění (`extra_capability`), pravidla pro jednotlivé uživatele, grant roli bez oprávnění, přejmenování/skrytí/přesun podpoložek, iframe/HTML položky, barvy, multisite. Organizér jen skrývá, stránka zůstává dostupná adresou (plánové varování); uživatelům s `manage_options` ukazuje vždy vše. Adminimize: meta boxy, patička/hlavička, vlastní selektory, položky skryté jen jiným rolím. WLCMS: pozadí, hover barvy, vlastní CSS/JS, uvítací panely, RSS, titulek stránky. Adminify: vlastní UI/motiv, horizontální menu, Pro moduly. LoginPress: pozadí, hover, CSS, chování. AC: Pro typy, filtry/řazení/editace, layouty per role.
+**Nepřenese se (výběr, přesné texty v plánech).** AME: požadovaná oprávnění (`extra_capability`), pravidla pro jednotlivé uživatele, grant roli bez oprávnění, přejmenování/skrytí/přesun podpoložek, iframe/HTML položky, barvy, multisite. Organizér jen skrývá, stránka zůstává dostupná adresou (plánové varování; od A3 ji volitelně blokuje přepínač „Zablokovat přístup ke skrytým stránkám“, viz 27.6); uživatelům s `manage_options` ukazuje vždy vše. Adminimize: meta boxy, patička/hlavička, vlastní selektory, položky skryté jen jiným rolím. WLCMS: pozadí, hover barvy, vlastní CSS/JS, uvítací panely, RSS, titulek stránky. Adminify: vlastní UI/motiv, horizontální menu, Pro moduly. LoginPress: pozadí, hover, CSS, chování. AC: Pro typy, filtry/řazení/editace, layouty per role.
 
 **Pravidlo proti vyzamčení.** `MenuSimulator::enforce_access`: po mapování se pro roli administrator a aktuálního uživatele simuluje menu; pravidlo, které by skrylo UX Studio, Pluginy, Uživatele nebo Nastavení, se zahodí a hlásí se v plánu (warning + lossy) i při ověření. Smoke `admin_access` otevře ta 4 menu v náhledu i po přepnutí (odmítnutí poznává jen podle chybové obrazovky WP: skutečný web má stejné věty v přeložených JS řetězcích, první verze měla falešné poplachy).
 
@@ -2161,8 +2161,10 @@ přibudou testy a živé ověření na pobyty. Větev `feature/module-gaps-a` na
 - [x] A2 Přesměrování: podmínky pravidel (přihlášený/role, referrer, user agent, IP, cookie),
       víc pravidel na adresu; Úryvky kódu: snippet jako shortcode, spuštění jednou, umístění
       před/za obsahem (hotovo 22. 10. 2026 lokálně, poznámky v 27.5)
-- [ ] A3 Úpravy administrace: skutečné zablokování stránek skrytých v menu podle role;
+- [x] A3 Úpravy administrace: skutečné zablokování stránek skrytých v menu podle role;
       Viditelnost menu: zobrazit/skrýt podle role, víc pravidel na položku
+      (hotovo 22. 10. 2026 lokálně, poznámky v 27.6; blokaci zapíná výchozí vypnutý přepínač, Adminimize
+      ve výchozím stavu stránky blokuje, takže jeho migrace přepínač zapne)
 
 ### 27.2 Vlna B (později)
 
@@ -2293,3 +2295,61 @@ safe mode, REST s přihlášením (PHP nic, HTML ano), run-once (náhled ho nesp
 fixtury Code Snippets a HFCM přes průvodce (staging, náhled s hlavičkou, vrácení).
 **Neověřeno / otevřené.** WPCode (taxonomie) jen v jednotkových testech; `tests/rest-public-routes.php` hlásí 1 selhání (Complianz `/%2e%2e/` route) mimo rozsah A2.
 Vrácení staršího běhu průvodce po novějším (stejná tabulka) vrátí snímek toho novějšího, vracet je třeba od nejnovějšího (starší chování F3).
+
+### 27.6 A3 poznámky: blokace skrytých stránek a pravidla viditelnosti menu (2026-10-22)
+
+**Blokace přístupu (Úpravy administrace).** Nastavení `menu_lock_enabled` (Boční menu, výchozí VYPNUTO, takže stávající weby dál jen skrývají), potřebuje zapnutý
+Organizér menu. Rozhodování je čistá funkce `MenuSimulator::request_blocked()` (stejná, kterou používá migrace pro kontrolu), napojená v `MenuLock` na `admin_init`
+(priorita 1: Organizér už zaznamenal původní menu na `admin_menu` 99999 a WordPress svou kontrolu oprávnění udělal dřív v `wp-admin/includes/menu.php`; zámek tedy jen
+přidává odmítnutí, nikdy nic nepovolí). Odmítnutí je přesně to, co WordPress ukazuje u zakázané stránky: `wp_die( 'Sorry, you are not allowed to access this page.', 403 )`
+(hláška z jádra, přeložená WordPressem), plus akce `uxstudio_menu_lock_blocked( $top, $user_id )`.
+- **Jak se požadavek přiřadí k položce menu** (`MenuSimulator::resolve_request`, bez WP): z původního `$menu` / `$submenu` před úpravou Organizérem. `page=` se porovná se slugem položky
+  (stránky pluginů, `admin.php?page=x`, `tools.php?page=x`), jinak soubor a query argumenty položky (`edit.php?post_type=page`, `edit-tags.php?taxonomy=category`, `post-new.php?post_type=page`), vítězí
+  položka s nejvíc shodnými argumenty. Editace (`post.php`, `term.php`) patří k seznamu stejného typu příspěvku / taxonomie (typ se čte z `$_REQUEST`, u `post.php` z ID příspěvku, aby uložení stránky
+  nepatřilo k Příspěvkům). Požadavek, který nesedí na žádnou položku (např. blok `wp_block` bez menu), se NIKDY neblokuje: zámek odmítá jen to, co pozitivně pozná.
+- **Co se blokuje.** Položka, kterou Organizér pro uživatele skrývá: `hidden_items` (skryto všem), `item_roles` (bílá listina rolí), `category_roles` (celá skupina; kategorie se určuje stejně jako při vykreslení:
+  přiřazení, jinak automatický odhad, jinak záložní; dřív to simulátor uměl jen s ručním přiřazením). Uživatel s víc rolemi projde, když jedna role položku smí. **Skrytá nadřazená položka = její vlastní adresa i adresy
+  všech jejích podpoložek** (Organizér neumí skrýt jedinou podpoložku, podpoložka je tam, kde je nadřazená), **kromě** podpoložky přesunuté na nejvyšší úroveň (`promoted_subs`), kterou Organizér tomuto uživateli ukazuje.
+- **Co se neblokuje nikdy:** uživatel s `manage_options` (Organizér mu ukazuje vše; `hidden_items` skrývá i správci, ale nezablokuje ho), soubory `index.php` (nástěnka), `profile.php`, `admin-ajax.php`, `admin-post.php`,
+  `async-upload.php`, `options.php`, `load-scripts.php`, `load-styles.php`, REST, cron a WP-CLI (zámek hlídá jen načtení stránek administrace), čtyři chráněné obrazovky (UX Studio, Pluginy, Uživatelé, Nastavení) a
+  všechno pod nimi (`MenuSimulator::protected_screens`, stejné pravidlo proti vyzamčení jako při migraci), požadavek bez odpovídající položky menu.
+- **Záchranný přepínač** `define( 'UXSTUDIO_DISABLE_MENU_LOCK', true );` v wp-config.php vypne blokování pro všechny (napsáno v nápovědě nastavení). Záložka Organizér menu upozorňuje, že skrytí samo stránku neblokuje.
+- Pozor: skrytí `edit.php` (Příspěvky) před rolí s právem upravovat příspěvky zablokuje i editaci příspěvků (`post.php`) té role; „skrytá stránka“ je i její editace.
+
+**Viditelnost menu (pravidla).** Položka má seznam pravidel a zobrazí se, jen když platí VŠECHNA (AND, jako If Menu): `in` (přihlášený), `out` (odhlášený), `role` (má aspoň jednu z rolí; odhlášený nemá žádnou, takže neprojde),
+`not_role` (nemá žádnou z rolí; odhlášený projde). Čistá logika `MenuVisibility\Rules` (normalizace, vyhodnocení, kanonický zápis, `keep()` pro potomky). Uložení je zpětně kompatibilní: jediné pravidlo přihlášený / odhlášený se
+dál píše jako `_uxstudio_menu_item_visible` = `1` / `2` (starší kód i migrace), vše ostatní jako kanonický JSON v `_uxstudio_menu_item_rules` (`[{"t":"in"},{"t":"role","r":["editor"]}]`, bez zpětných lomítek, protože
+`update_post_meta` je odstraňuje); JSON má přednost, starý klíč `_wpext_menu_item_visible` se čte dál. Front-end filtr na `wp_get_nav_menu_items` (ne v administraci): **děti skryté položky se skryjí s ní** (dřív by vyplavaly
+na nejvyšší úroveň). Editor na Vzhled > Menu: řádky podmínek (výběr typu + zaškrtávací políčka rolí, Přidat podmínku / Odebrat) s JSON ve skrytém poli; JS (`assets/menu-visibility.js`) staví řádky ze skrytého pole a funguje i u
+položek přidaných AJAXem; nonce a `edit_theme_options` jako dřív, starý formulář s radii se na serveru pořád přijme. Blokovou navigaci (`wp_navigation`) modul nepodporuje a nefiltruje (nepoužívá položky menu). Pozor na
+stránkové cache (výsledek závisí na přihlášení / roli, stejně jako dřív u přihlášen / odhlášen).
+
+**Migrace.**
+- *Admin Menu Editor:* blokuje jen „Přístup“ odškrtnutý pro roli (`grant_access` = false); „Skrýt“ (`hidden_from_actor`, `hidden`) je jen skrytí bez blokace. `model['blocked']` → přepínač se zapne, když aspoň jedna položka v Organizéru
+  zůstala a plugin ji pro roli (kromě správců) blokuje. Položky, které plugin jen skryl, se při zapnutém přepínači blokují taky (jeden přepínač na celé menu), plán je jmenuje (varování + lossy „zablokují se i...“).
+- *Adminimize:* **volba `mw_adminimize_prevent_page_access` je „Allow Page Access“, hodnota 1 blokaci VYPÍNÁ** (výchozí 0 = skryté stránky se blokují). F5 to četl obráceně (lossy „Prevent page access blokuje“ při hodnotě 1), opraveno:
+  `block_all` = volba prázdná → přepínač se zapne (na pobyty je volba 0, takže se zapne a varování „Organizér jen skrývá“ zmizí). Skryté podpoložky plugin blokuje taky, Organizér ne (lossy to říká).
+- *Adminify:* jen skrývá (`hidden_for`), přepínač se nezapne.
+- Kde se přepínač nezapne, zůstává varování „Organizér položky jen skrývá“ (s radou přepínač zapnout); kde se zapne, nahradí ho poznámka. Chráněné obrazovky, které plugin blokuje, zůstanou otevřené (lossy je jmenuje).
+  Ověření má novou kontrolu `menu-lock` (každá dvojice položka + role, kterou plugin blokoval, je blokovaná i v cíli, také ze staging konfigurace).
+- *Nav Menu Roles:* `in` / `out` s režimem show / hide přesně, seznam rolí = `role`, „skrýt pro role“ = `not_role` (plugin vyhodnocení otáčí, odhlášený položku vidí), neexistující role (plugin bere i oprávnění) se vynechají a jmenují.
+- *If Menu:* podmínky `user-logged-in` a `user-is-<role>` (show / hide), víc podmínek spojených AND, NEBO z „uživatel je <role>“ = jedno pravidlo rolí; jakékoli jiné NEBO a jiné podmínky (stránky, data, WooCommerce) zůstávají ztrátové a počítají se.
+- *Menu Items Visibility Control:* výraz v PHP plugin spouští přes `eval`, UX Studio ho nikdy nespustí. Jen pevné jednoduché tvary se rozpoznají vzorem (`is_user_logged_in()`, `!is_user_logged_in()`, `current_user_can('<role>')`, negace, spojené `&&`, role musí na webu existovat),
+  nic se nevykonává; cokoli jiného (oprávnění, `||`, jiné funkce, vložený kód) je ztrátové (PLAN 27.3 C platí). Zdroj porovnává existující pravidlo významem (`meta_state` přes `Rules::same`), takže položka s jiným pravidlem se zachová a nahlásí.
+  Staging: při zapnutém modulu čekají meta ve staging oblasti, náhled je překrývá (`get_post_metadata`), rollback maže jen to, co běh zapsal.
+
+**Vedlejší opravy.** (1) `SecurityOptimization\Module::current_rest_route()` posílal cestu přes `sanitize_text_field()`, která maže procentem kódované znaky, takže hlídač dot-segmentů v `is_public_rest_route()` nikdy neviděl `%2e%2e`
+(nevyužitelné, WP odpovídá 404, ale hlídač musí držet): cesta i `rest_route` se čtou surové (jen se porovnávají, nic se nevypisuje), kontrola tečkových segmentů běží na surové i dekódované podobě; `Core\Mcp\Auth::request_route()` už surová byla.
+`tests/rest-public-routes.php` je celý zelený. (2) Překlad e-mailu o vlastní přihlašovací adrese (`LoginUrlNotice`) měl v `.po` msgstr s doslovnými zalomeními řádků uvnitř uvozovek (neplatná syntaxe PO, `make-mo` ho zahodil jako prázdný),
+přepsáno s `\n`, `.mo` přegenerováno.
+
+**Testy.** `tests/admin-menu-lock.php` (122 kontrol: resolver, matice role x požadavek, chráněné obrazovky, `manage_options`, víc rolí, kategorie, přepínače a záchranná konstanta), `tests/menu-visibility-rules.php`,
+rozšířené `tests/migration-admin-sources.php` a `tests/migration-data-sources.php`; všech 15 samostatných testů a obě WP-CLI testy (`tests/rest-public-routes.php`, `tests/redirects-cpt-target.php`) zelené.
+
+**Ověřeno živě (pobyty, dočasní uživatelé editor / shop_manager / subscriber / vlastní role bez `manage_options` / administrátor, vše vráceno).** Zámek vypnutý: nic se nemění; zapnutý (Média jen pro správce a autory, WooCommerce jen pro správce a editory,
+Stránky skryté všem): editor 403 u Médií, Stránek, Nové stránky a editace stránky (`post.php`), Příspěvky a profil dál 200; shop_manager 403 u `wc-orders`, `wc-reports`, Médií, Stránek, ale seznam Produktů 200 (bez pravidla); vlastní role s právy
+`activate_plugins` a `list_users` bez `manage_options` otevře Pluginy a Uživatele, přestože je `item_roles` vylučuje; administrátor nikdy 403; záchranná konstanta v wp-config.php (dočasně, vráceno byte po bytu) vrátí matici stejnou jako vypnutý zámek. Viditelnost menu:
+kombinace pravidel x 6 návštěvníků (nepřihlášený, odběratel, editor, správce obchodu, vlastní role, administrátor), potomek skryté položky zmizí s ní, uložení z editoru (kanonický JSON, starý klíč se smaže, položka přidaná AJAXem má editor).
+Migrace: AME + Adminimize (skutečná data pobyty; modul vypnutý: přímý zápis, zapnutý: staging, `menu_lock_enabled` se zapnul jen u Adminimize), suchý běh nic nezapsal, ověření bez chyby vč. `menu-lock`, náhled 11/11 (admin_access 4/4), rollback přesně
+(`uxstudio_admin_customiser` md5 shodné); fixtury Nav Menu Roles, If Menu a Menu Items Visibility Control (skutečné kódy pluginů, neaktivní): přímý zápis, staging, náhled překrývá meta jen správci s cookie, rollback.
+**Neověřeno / otevřené.** Multisite; položka menu přidaná pluginem po `admin_init` priority 1 se v původním menu nenajde, takže se nezablokuje; blokové navigace; editor pravidel v Customizeru (jen klasická obrazovka Vzhled > Menu).

@@ -1,759 +1,226 @@
 [
  {
   "ctx": null,
-  "id": "%d snippet is used through a shortcode. In UX Studio it is inserted as [uxstudio_snippet id=\\\"...\\\"] (the exact shortcode is shown in the snippet list). Shortcodes already written in posts and pages are NOT rewritten, replace them by hand.",
+  "id": "The plugin blocks these screens for some roles. UX Studio never blocks UX Studio, Plugins, Users and Settings (nobody may be locked out), so they stay reachable by address: %s.",
   "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:459"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:352"
   ],
   "comments": [
-   "#. translators: %d: number of snippets."
+   "#. translators: %s: screens."
   ],
-  "plural": "%d snippets are used through a shortcode. In UX Studio they are inserted as [uxstudio_snippet id=\\\"...\\\"] (the exact shortcode is shown in the snippet list). Shortcodes already written in posts and pages are NOT rewritten, replace them by hand."
+  "plural": null
  },
  {
   "ctx": null,
-  "id": "%d snippet is inserted before or after the post content. It starts on posts and pages; change the post types in the snippet if it should appear on other content. The module inserts around the content of a single post or page, not in lists of posts.",
+  "id": "Block access to hidden pages",
   "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:473"
-  ],
-  "comments": [
-   "#. translators: %d: number of snippets."
-  ],
-  "plural": "%d snippets are inserted before or after the post content. They start on posts and pages; change the post types in the snippet if they should appear on other content. The module inserts around the content of a single post or page, not in lists of posts."
- },
- {
-  "ctx": null,
-  "id": "%d run-once snippet is created switched off and is NOT switched on at the switch. It executes its code one time on the next page of wp-admin after you switch it on, then switches itself off.",
-  "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:487"
-  ],
-  "comments": [
-   "#. translators: %d: number of snippets."
-  ],
-  "plural": "%d run-once snippets are created switched off and are NOT switched on at the switch. Each executes its code one time on the next page of wp-admin after you switch it on, then switches itself off."
- },
- {
-  "ctx": null,
-  "id": "of them are run-once snippets that you switch on yourself",
-  "refs": [
-   "includes/Core/Migration/Sources/CodeSnippetsSource.php:540"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:357",
+   "includes/Modules/AdminCustomiser/Module.php:291"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "rules with the same address and the same conditions as an earlier rule (only the first one could ever match)",
+  "id": "The plugin only hid these items without blocking their pages. \\\"Block access to hidden pages\\\" is one switch for the whole menu, so in UX Studio they are blocked for the roles that do not see them as well: %s.",
   "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:391"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "%d rule depends on who is asking (logged in, role, referrer, browser, cookie, IP address, domain or HTTP header). It becomes a rule with conditions. A rule with a \\\"not matched\\\" target becomes a second rule with the opposite condition.",
-  "refs": [
-   "includes/Core/Migration/Sources/RedirectsSource.php:407"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:361"
   ],
   "comments": [
-   "#. translators: %d: number of rules."
+   "#. translators: %s: menu items."
   ],
-  "plural": "%d rules depend on who is asking (logged in, role, referrer, browser, cookie, IP address, domain or HTTP header). They become rules with conditions. A rule with a \\\"not matched\\\" target becomes a second rule with the opposite condition."
+  "plural": null
  },
  {
   "ctx": null,
-  "id": "The integrity check failed or the code is not valid, so the snippet was not run.",
+  "id": "A page hidden from a role is also refused when its address is typed in (\\\"Block access to hidden pages\\\" is switched on). Users who can manage options, the dashboard, profile, UX Studio, Plugins, Users and Settings are never blocked.",
   "refs": [
-   "includes/Modules/CodeSnippets/SnippetExecutor.php:218"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:367"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Snippet \\\"%1$s\\\" ran once and switched itself off.",
+  "id": "The Menu Organizer only hides menu items. A page hidden from a role can still be opened with its address, whereas a plugin that changes capabilities blocks it. If the old plugin protected pages, check that before you switch (the setting \\\"Block access to hidden pages\\\" in Admin Customiser blocks them).",
   "refs": [
-   "includes/Modules/CodeSnippets/SnippetExecutor.php:285"
-  ],
-  "comments": [
-   "#. translators: 1: snippet name, 2: error message or empty."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Snippet \\\"%1$s\\\" was run once and switched itself off, but it failed: %2$s",
-  "refs": [
-   "includes/Modules/CodeSnippets/SnippetExecutor.php:285"
-  ],
-  "comments": [
-   "#. translators: 1: snippet name, 2: error message or empty."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Only PHP snippets can run once.",
-  "refs": [
-   "includes/Modules/CodeSnippets/SnippetManager.php:249"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:369"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Invalid run location for this snippet type",
+  "id": "Pages the old plugin blocked are blocked in UX Studio",
   "refs": [
-   "includes/Modules/CodeSnippets/SnippetManager.php:250"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:648"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The target has conditional rules and one of them leads back to this source. Make sure their conditions exclude each other, otherwise visitors loop.",
+  "id": "%d menu item blocked for the roles the plugin blocked it for.",
   "refs": [
-   "includes/Modules/Redirects/Repository.php:627"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The target itself has conditional redirects, so the chain is not flattened.",
-  "refs": [
-   "includes/Modules/Redirects/Repository.php:631"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Another rule (#%d) already handles this source with the same conditions.",
-  "refs": [
-   "includes/Modules/Redirects/Repository.php:674"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:654"
   ],
   "comments": [
-   "#. translators: %d: rule id"
+   "#. translators: %d: number of menu items."
   ],
-  "plural": null
+  "plural": "%d menu items blocked for the roles the plugin blocked them for."
  },
  {
   "ctx": null,
-  "id": "Source already has a rule with the same conditions - skipped.",
+  "id": "Not blocked in UX Studio: %s.",
   "refs": [
-   "includes/Modules/Redirects/Repository.php:676"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Login state",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:1",
-   "build/395.fa88dbc85414b5b804d7.js:6"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Cookie",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Domain (host)",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "HTTP header",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "is exactly",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "matches regex",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "referrer contains \\\"%s\\\"",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "referrer is \\\"%s\\\"",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "referrer matches \\\"%s\\\"",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "browser contains \\\"%s\\\"",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "browser is \\\"%s\\\"",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "browser matches \\\"%s\\\"",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "domain contains \\\"%s\\\"",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "domain is \\\"%s\\\"",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "domain matches \\\"%s\\\"",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "cookie %s is set",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "cookie %1$s contains \\\"%2$s\\\"",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "cookie %1$s is \\\"%2$s\\\"",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "cookie %1$s matches \\\"%2$s\\\"",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "header %s is sent",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "header %1$s contains \\\"%2$s\\\"",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "header %1$s is \\\"%2$s\\\"",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "header %1$s matches \\\"%2$s\\\"",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "logged in",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "logged out",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "role %s",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:3"
+   "includes/Core/Migration/Sources/AbstractAdminSource.php:659"
   ],
   "comments": [
-   "#. translators: %s: role names"
+   "#. translators: %s: menu items with roles."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "IP %s",
+  "id": "Sub-menu items hidden for a role. The plugin also blocks their pages, but the Menu Organizer cannot hide or block a single sub-item (it appears, and opens, when its parent does): %s.",
   "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:5"
+   "includes/Core/Migration/Sources/AdminimizeSource.php:178"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "These items name roles (or capabilities) that do not exist on this site. The unknown names are left out of the rule: %s.",
+  "refs": [
+   "includes/Core/Migration/Sources/MenuVisibilitySource.php:320"
   ],
   "comments": [
-   "#. translators: %s: IP addresses or ranges"
+   "#. translators: %s: list of menu items with their roles."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "not: %s",
+  "id": "%d menu items combine rules with OR. The module needs all conditions to hold (AND) and writes only an OR of \\\"user is <role>\\\" as one role rule, so these are not transferred.",
   "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:6"
+   "includes/Core/Migration/Sources/MenuVisibilitySource.php:330"
   ],
   "comments": [
-   "#. translators: %s: a condition in words, negated"
+   "#. translators: %d: number of menu items."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Conditions (optional)",
+  "id": "%d menu items are limited to roles or capabilities that do not exist on this site, they are not transferred.",
   "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:6"
+   "includes/Core/Migration/Sources/MenuVisibilitySource.php:338"
   ],
-  "comments": [],
+  "comments": [
+   "#. translators: %d: number of menu items."
+  ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "The redirect applies only to visitors who meet all conditions. A redirect without conditions is the fallback and is tried last. Several redirects can share one old URL.",
+  "id": "%d menu items are controlled by a PHP expression. UX Studio never runs code from a setting; only logged in / logged out and \\\"user can <role>\\\" (joined by &&) are recognized, so these are not transferred.",
   "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:6"
+   "includes/Core/Migration/Sources/MenuVisibilitySource.php:346"
   ],
-  "comments": [],
+  "comments": [
+   "#. translators: %d: number of menu items."
+  ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Condition type",
+  "id": "%1$d menu items depend on the role \\\"%2$s\\\", which this site does not have. They are not transferred.",
   "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:6"
+   "includes/Core/Migration/Sources/MenuVisibilitySource.php:354"
   ],
-  "comments": [],
+  "comments": [
+   "#. translators: 1: number of menu items, 2: role."
+  ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Cookie name",
+  "id": "Menu items with roles or several conditions",
   "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:6"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Header name",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:6"
+   "includes/Core/Migration/Sources/MenuVisibilitySource.php:400"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "cookie name",
+  "id": "Off: the Menu Organizer only hides menu items, a hidden page still opens when its address is typed in. On: a page that is hidden from a user (limited to other roles, or hidden for everybody) is refused with \\\"Sorry, you are not allowed to access this page\\\" for users who cannot manage options. Sub-items follow their parent item, except a sub-item moved to the top level that the user can see. Never blocked: users who can manage options, the dashboard, the profile, UX Studio, Plugins, Users and Settings, AJAX and REST. Needs the menu organizer to be on. Rescue switch: define UXSTUDIO_DISABLE_MENU_LOCK as true in wp-config.php to switch the blocking off for everybody.",
   "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:6"
+   "includes/Modules/AdminCustomiser/Module.php:292"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Comparison",
+  "id": "Visitor is logged in",
   "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:6"
+   "includes/Modules/MenuVisibility/Module.php:96"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Logged in",
+  "id": "Visitor is logged out",
   "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:6"
+   "includes/Modules/MenuVisibility/Module.php:97"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Logged out",
+  "id": "Visitor has one of the roles",
   "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:6"
+   "includes/Modules/MenuVisibility/Module.php:98"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "value (empty = only has to exist)",
+  "id": "Visitor has none of the roles",
   "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:6"
+   "includes/Modules/MenuVisibility/Module.php:99"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Invert",
+  "id": "Everyone (no condition).",
   "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:6"
+   "includes/Modules/MenuVisibility/Module.php:129"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Remove condition",
+  "id": "The item is shown only when all conditions are met.",
   "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:6"
+   "includes/Modules/MenuVisibility/Module.php:134"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Add condition",
+  "id": "Hiding an item only removes it from the menu: the page still opens when its address is typed in. To refuse it too, switch on \\\"Block access to hidden pages\\\" in the Settings tab (users who can manage options are never blocked).",
   "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:6"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "As a specific visitor",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:6"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "role, e.g. editor",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:6"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "referrer URL",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:6"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "user agent",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:6"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Cookie value",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:6"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "cookie value",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:6"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "%d rule(s) for this URL skipped, their conditions do not hold for this visitor",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:6"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Order among redirects of this URL (lower first)",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:6"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Condition",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:6"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "This URL has several redirects. This one has no condition, so it is the fallback and is tried last.",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:6"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Fallback",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:6"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "One redirect per line: source, target, code, note. Header row optional, comma or semicolon separated. Empty target = 410 Gone. The export also has \\\"conditions\\\" (JSON) and \\\"position\\\" columns; the import reads them.",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:6"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Copies URL redirects, 410 rules and rules that depend on login, role, referrer, browser, cookie, IP address, domain or HTTP header (they become redirects with conditions). Matches on language or a custom filter are skipped. Deactivate Redirection afterwards so the two do not compete.",
-  "refs": [
-   "build/395.fa88dbc85414b5b804d7.js:6"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Shortcode (insert it where you want the output)",
-  "refs": [
-   "build/866.8aecd8e6992fc9913442.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Before the post content",
-  "refs": [
-   "build/866.8aecd8e6992fc9913442.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "After the post content",
-  "refs": [
-   "build/866.8aecd8e6992fc9913442.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Run once (on the next admin page, then it switches itself off)",
-  "refs": [
-   "build/866.8aecd8e6992fc9913442.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Before content",
-  "refs": [
-   "build/866.8aecd8e6992fc9913442.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "After content",
-  "refs": [
-   "build/866.8aecd8e6992fc9913442.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Run once",
-  "refs": [
-   "build/866.8aecd8e6992fc9913442.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Ran",
-  "refs": [
-   "build/866.8aecd8e6992fc9913442.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Waiting for the next admin page",
-  "refs": [
-   "build/866.8aecd8e6992fc9913442.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Where",
-  "refs": [
-   "build/866.8aecd8e6992fc9913442.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Inserted around the content of a single post or page (not in lists of posts), only for the chosen post types.",
-  "refs": [
-   "build/866.8aecd8e6992fc9913442.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The shortcode appears after the snippet is saved: [uxstudio_snippet id=\\\"...\\\"]. PHP snippets get the shortcode attributes as $atts and the enclosed text as $content, and do not run in REST, AJAX or cron requests.",
-  "refs": [
-   "build/866.8aecd8e6992fc9913442.js:1"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "When you enable the snippet, its code runs one time on the next page of wp-admin and the snippet switches itself off. Enable it again to run it once more.",
-  "refs": [
-   "build/866.8aecd8e6992fc9913442.js:1"
+   "build/70.04ac775fcc9da17cfded.js:1"
   ],
   "comments": [],
   "plural": null

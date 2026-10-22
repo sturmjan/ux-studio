@@ -705,40 +705,71 @@ $left = array_filter( array( 31, 32, 34 ), static fn( $id ) => metadata_exists( 
 $assert( 'menu-icons: rollback leaves none of the migrated meta behind', ! is_wp_error( $rb ) && array() === $left, json_encode( $left ) );
 
 $site( array( 'nav-menu-roles' ), array( 'nav-menu-roles' ) );
-$sql( '/SELECT DISTINCT m\.post_id FROM wp_postmeta m JOIN wp_posts p ON p\.ID = m\.post_id WHERE m\.meta_key = \'_nav_menu_role\'/', static fn() => array( 41, 42, 43, 44, 45, 46 ) );
-foreach ( array( 41, 42, 43, 44, 45, 46 ) as $pid ) { $post( $pid, 'nav_menu_item', 'publish', "Menu $pid" ); }
+$sql( '/SELECT DISTINCT m\.post_id FROM wp_postmeta m JOIN wp_posts p ON p\.ID = m\.post_id WHERE m\.meta_key = \'_nav_menu_role\'/', static fn() => array( 41, 42, 43, 44, 45, 46, 47, 48 ) );
+foreach ( array( 41, 42, 43, 44, 45, 46, 47, 48 ) as $pid ) { $post( $pid, 'nav_menu_item', 'publish', "Menu $pid" ); }
 $meta( 'post', 41, '_nav_menu_role', 'in' );
 $meta( 'post', 42, '_nav_menu_role', 'out' );
 $meta( 'post', 43, '_nav_menu_role', 'in' ); $meta( 'post', 43, '_nav_menu_role_display_mode', 'hide' );
 $meta( 'post', 44, '_nav_menu_role', array( 'administrator', 'editor' ) );
 $meta( 'post', 45, '_nav_menu_role', array( 'subscriber' ) ); $meta( 'post', 45, '_nav_menu_role_display_mode', 'hide' );
 $meta( 'post', 46, '_nav_menu_role', array() );
+$meta( 'post', 47, '_nav_menu_role', array( 'ghost' ) );
+$meta( 'post', 48, '_nav_menu_role', array( 'editor', 'edit_posts' ) );
 $items = $items_of( 'nav-menu-roles' );
 $by    = array_column( $items, null, 'id' );
 $plan  = SourceRegistry::get( 'nav-menu-roles' )->plan();
 $vis   = static fn( int $id ) => $by[ $id ]['meta']['_uxstudio_menu_item_visible'] ?? null;
+$rules = static fn( int $id ) => isset( $by[ $id ]['meta']['_uxstudio_menu_item_rules'] ) ? json_decode( $by[ $id ]['meta']['_uxstudio_menu_item_rules'], true ) : null;
 $assert( 'nav-menu-roles: in / out / hide-for-logged-in map exactly; no rule = nothing', '1' === $vis( 41 ) && '2' === $vis( 42 ) && '2' === $vis( 43 ) && ! isset( $by[46] ) );
-$assert( 'nav-menu-roles: a role list is narrowed to "logged in" and named; hide-for-role is skipped and named', '1' === $vis( 44 ) && ! isset( $by[45] ) && $lossy_has( $plan, 'Menu 44 (administrator, editor)' ) && $lossy_has( $plan, 'Menu 45 (subscriber)' ), json_encode( $plan['lossy'] ) );
+$assert( 'nav-menu-roles: a role list becomes a "has one of the roles" rule (no longer narrowed to logged in)', array( array( 't' => 'role', 'r' => array( 'administrator', 'editor' ) ) ) === $rules( 44 ) && null === $vis( 44 ), json_encode( $by[44]['meta'] ?? null ) );
+$assert( 'nav-menu-roles: hide-for-roles becomes "has none of the roles" (nothing is skipped any more)', array( array( 't' => 'not_role', 'r' => array( 'subscriber' ) ) ) === $rules( 45 ) && ! $lossy_has( $plan, 'Menu 45 (subscriber)' ), json_encode( $plan['lossy'] ) );
+$assert( 'nav-menu-roles: a role the site does not have is skipped when it is the only one, and named when only part of the list is unknown', ! isset( $by[47] ) && array( array( 't' => 'role', 'r' => array( 'editor' ) ) ) === $rules( 48 ) && $lossy_has( $plan, 'Menu 48 (edit_posts)' ) && $lossy_has( $plan, 'Menu 47 (ghost)' ) && $lossy_has( $plan, 'do not exist on this site' ), json_encode( $plan['lossy'] ) );
+$assert( 'nav-menu-roles: the old "narrowed to logged in" and "cannot hide for a role" sentences are gone', ! $lossy_has( $plan, 'only knows "logged in"' ) && ! $lossy_has( $plan, 'cannot hide an item for a role' ) );
 
 $site( array( 'if-menu' ), array( 'if-menu' ) );
-$sql( '/m\.meta_key = \'if_menu_enable\'/', static fn() => array( 51, 52, 53, 54 ) );
-foreach ( array( 51, 52, 53, 54 ) as $pid ) { $post( $pid, 'nav_menu_item', 'publish', "Item $pid" ); }
+$sql( '/m\.meta_key = \'if_menu_enable\'/', static fn() => array( 51, 52, 53, 54, 55, 56, 57, 58, 59 ) );
+foreach ( array( 51, 52, 53, 54, 55, 56, 57, 58, 59 ) as $pid ) { $post( $pid, 'nav_menu_item', 'publish', "Item $pid" ); }
 $meta( 'post', 51, 'if_menu_enable', '1' ); $meta( 'post', 51, 'if_menu_condition', 'user-logged-in' ); $meta( 'post', 51, 'if_menu_condition_type', 'show' );
 $meta( 'post', 52, 'if_menu_enable', '1' ); $meta( 'post', 52, 'if_menu_condition', 'user-logged-in' ); $meta( 'post', 52, 'if_menu_condition_type', 'hide' );
 $meta( 'post', 53, 'if_menu_enable', '1' ); $meta( 'post', 53, 'if_menu_condition', 'is-front-page' ); $meta( 'post', 53, 'if_menu_condition_type', 'show' );
 $GLOBALS['uxs_meta']['post'][54]['if_menu_enable'] = array( '1', 'and' ); $GLOBALS['uxs_meta']['post'][54]['if_menu_condition'] = array( 'user-logged-in', 'is-front-page' ); $GLOBALS['uxs_meta']['post'][54]['if_menu_condition_type'] = array( 'show', 'show' );
+$im = static function ( int $id, array $enable, array $conds, array $types ): void {
+	$GLOBALS['uxs_meta']['post'][ $id ]['if_menu_enable']         = $enable;
+	$GLOBALS['uxs_meta']['post'][ $id ]['if_menu_condition']      = $conds;
+	$GLOBALS['uxs_meta']['post'][ $id ]['if_menu_condition_type'] = $types;
+};
+$im( 55, array( '1', 'and' ), array( 'user-logged-in', 'user-is-editor' ), array( 'show', 'show' ) );                       // logged in AND editor
+$im( 56, array( '1', 'or' ), array( 'user-is-editor', 'user-is-author' ), array( 'show', 'show' ) );                         // editor OR author
+$im( 57, array( '1', 'and', 'and' ), array( 'user-logged-in', 'user-is-subscriber', 'user-is-editor' ), array( 'show', 'hide', 'hide' ) ); // logged in AND not subscriber AND not editor
+$im( 58, array( '1', 'or' ), array( 'user-logged-in', 'user-is-editor' ), array( 'show', 'show' ) );                       // logged in OR editor (not expressible)
+$im( 59, array( '1' ), array( 'user-is-ghost' ), array( 'show' ) );                                                           // role the site lacks
 $items = $items_of( 'if-menu' );
 $by    = array_column( $items, null, 'id' );
 $plan  = SourceRegistry::get( 'if-menu' )->plan();
-$assert( 'if-menu: single "logged in" rules map (hide = logged out); other conditions and several rules are counted', '1' === $by[51]['meta']['_uxstudio_menu_item_visible'] && '2' === $by[52]['meta']['_uxstudio_menu_item_visible'] && 2 === count( $items ) && $lossy_has( $plan, '"is-front-page"' ) && $lossy_has( $plan, 'several rules' ), json_encode( $plan['lossy'] ) );
+$rules = static fn( int $id ) => isset( $by[ $id ]['meta']['_uxstudio_menu_item_rules'] ) ? json_decode( $by[ $id ]['meta']['_uxstudio_menu_item_rules'], true ) : null;
+$assert( 'if-menu: single "logged in" rules map (hide = logged out); a page condition is counted', '1' === $by[51]['meta']['_uxstudio_menu_item_visible'] && '2' === $by[52]['meta']['_uxstudio_menu_item_visible'] && ! isset( $by[53] ) && ! isset( $by[54] ) && $lossy_has( $plan, '"is-front-page"' ), json_encode( $plan['lossy'] ) );
+$assert( 'if-menu: several rules joined by AND are transferred (logged in AND role editor)', array( array( 't' => 'in' ), array( 't' => 'role', 'r' => array( 'editor' ) ) ) === $rules( 55 ), json_encode( $by[55]['meta'] ?? null ) );
+$assert( 'if-menu: OR of "user is <role>" becomes one role rule', array( array( 't' => 'role', 'r' => array( 'author', 'editor' ) ) ) === $rules( 56 ), json_encode( $by[56]['meta'] ?? null ) );
+$assert( 'if-menu: show + hide terms mix (logged in, not subscriber, not editor)', array( array( 't' => 'in' ), array( 't' => 'not_role', 'r' => array( 'editor' ) ), array( 't' => 'not_role', 'r' => array( 'subscriber' ) ) ) === $rules( 57 ), json_encode( $by[57]['meta'] ?? null ) );
+$assert( 'if-menu: any other OR and a role the site lacks are skipped and counted', ! isset( $by[58] ) && ! isset( $by[59] ) && $lossy_has( $plan, 'combine rules with OR' ) && $lossy_has( $plan, 'role "ghost"' ), json_encode( $plan['lossy'] ) );
+$assert( 'if-menu: the old "several rules are not transferred" sentence is gone', ! $lossy_has( $plan, 'several rules' ) );
 
 $site( array( 'menu-items-visibility-control' ), array( 'menu-items-visibility-control' ) );
-$sql( '/m\.meta_key = \'_menu_item_visibility\'/', static fn() => array( 61, 62, 63 ) );
-foreach ( array( 61, 62, 63 ) as $pid ) { $post( $pid, 'nav_menu_item', 'publish', "Logic $pid" ); }
+$sql( '/m\.meta_key = \'_menu_item_visibility\'/', static fn() => array( 61, 62, 63, 64, 65, 66, 67, 68 ) );
+foreach ( array( 61, 62, 63, 64, 65, 66, 67, 68 ) as $pid ) { $post( $pid, 'nav_menu_item', 'publish', "Logic $pid" ); }
 $meta( 'post', 61, '_menu_item_visibility', 'is_user_logged_in()' ); $meta( 'post', 62, '_menu_item_visibility', '! is_user_logged_in()' ); $meta( 'post', 63, '_menu_item_visibility', 'is_front_page() && current_user_can("edit_posts")' );
+$meta( 'post', 64, '_menu_item_visibility', "is_user_logged_in() && current_user_can('editor')" );
+$meta( 'post', 65, '_menu_item_visibility', '!current_user_can( "subscriber" );' );
+$meta( 'post', 66, '_menu_item_visibility', "current_user_can('edit_posts')" );
+$meta( 'post', 67, '_menu_item_visibility', "current_user_can('editor') || current_user_can('author')" );
+$meta( 'post', 68, '_menu_item_visibility', "wp_get_current_user()->ID == 1; system('id')" );
 $items = $items_of( 'menu-items-visibility-control' );
 $by    = array_column( $items, null, 'id' );
-$assert( 'menu-items-visibility-control: only is_user_logged_in() and its negation map, PHP expressions are reported', '1' === $by[61]['meta']['_uxstudio_menu_item_visible'] && '2' === $by[62]['meta']['_uxstudio_menu_item_visible'] && 2 === count( $items ) && $lossy_has( SourceRegistry::get( 'menu-items-visibility-control' )->plan(), 'PHP expression' ) );
+$plan  = SourceRegistry::get( 'menu-items-visibility-control' )->plan();
+$rules = static fn( int $id ) => isset( $by[ $id ]['meta']['_uxstudio_menu_item_rules'] ) ? json_decode( $by[ $id ]['meta']['_uxstudio_menu_item_rules'], true ) : null;
+$assert( 'menu-items-visibility-control: is_user_logged_in() and its negation map to logged in / out', '1' === $by[61]['meta']['_uxstudio_menu_item_visible'] && '2' === $by[62]['meta']['_uxstudio_menu_item_visible'] );
+$assert( 'menu-items-visibility-control: fixed forms with roles map (current_user_can(role), negation, &&), pattern only, nothing executed', array( array( 't' => 'in' ), array( 't' => 'role', 'r' => array( 'editor' ) ) ) === $rules( 64 ) && array( array( 't' => 'not_role', 'r' => array( 'subscriber' ) ) ) === $rules( 65 ), json_encode( array( $by[64]['meta'] ?? null, $by[65]['meta'] ?? null ) ) );
+$assert( 'menu-items-visibility-control: capabilities, ||, other functions and injected code stay lossy (5 expressions)', ! isset( $by[63] ) && ! isset( $by[66] ) && ! isset( $by[67] ) && ! isset( $by[68] ) && 4 === count( $items ) && $lossy_has( $plan, '4 menu items are controlled by a PHP expression' ), json_encode( $plan['lossy'] ) );
 
 // Real meta writers on the menu visibility source: module off => written, module on => staged then written; idempotent; rollback.
 $site( array( 'nav-menu-roles' ), array( 'nav-menu-roles' ) );
@@ -753,6 +784,22 @@ $ver = Runner::verify();
 $assert( 'menu visibility: verify flags the item that kept a different value', 1 === count( array_filter( $ver['nav-menu-roles'], static fn( $c ) => ! $c['ok'] && 0 === strpos( $c['id'], 'data-bad:' ) ) ), json_encode( $ver ) );
 $rb = Runner::rollback( $run['id'] );
 $assert( 'menu visibility: rollback deletes the meta the run created and leaves the older value', ! metadata_exists( 'post', 41, '_uxstudio_menu_item_visible' ) && '1' === get_post_meta( 42, '_uxstudio_menu_item_visible', true ) );
+
+// Rules meta (roles): written as JSON, compared by meaning, an item with another rule is kept, rollback removes only what the run wrote.
+$site( array( 'nav-menu-roles' ), array( 'nav-menu-roles' ) );
+$sql( '/SELECT DISTINCT m\.post_id FROM wp_postmeta m JOIN wp_posts p ON p\.ID = m\.post_id WHERE m\.meta_key = \'_nav_menu_role\'/', static fn() => array( 71, 72, 73 ) );
+foreach ( array( 71, 72, 73 ) as $pid ) { $post( $pid, 'nav_menu_item', 'publish', "Roles $pid" ); }
+$meta( 'post', 71, '_nav_menu_role', array( 'editor', 'author' ) );
+$meta( 'post', 72, '_nav_menu_role', array( 'editor' ) ); $meta( 'post', 72, '_uxstudio_menu_item_visible', '2' ); // another rule already there
+$meta( 'post', 73, '_nav_menu_role', array( 'subscriber' ) ); $meta( 'post', 73, '_uxstudio_menu_item_rules', '[{"t":"role","r":["subscriber"]}]' ); // the same rule, already there
+$run = Runner::start( array( 'nav-menu-roles' ), false );
+$r1  = $drive();
+$assert( 'menu visibility rules: the role rule is written as canonical JSON', '[{"t":"role","r":["author","editor"]}]' === get_post_meta( 71, '_uxstudio_menu_item_rules', true ), (string) get_post_meta( 71, '_uxstudio_menu_item_rules', true ) );
+$assert( 'menu visibility rules: another rule on the item is kept (skipped, reported), the same rule counts as unchanged', '2' === get_post_meta( 72, '_uxstudio_menu_item_visible', true ) && ! metadata_exists( 'post', 72, '_uxstudio_menu_item_rules' ) && false !== strpos( json_encode( $r1['per_source']['nav-menu-roles']['items'] ), 'different value' ), json_encode( $r1['per_source']['nav-menu-roles']['items'] ) );
+$ver = Runner::verify();
+$assert( 'menu visibility rules: verify flags only the item that kept another rule', 1 === count( array_filter( $ver['nav-menu-roles'], static fn( $c ) => ! $c['ok'] && 0 === strpos( $c['id'], 'data-bad:' ) ) ), json_encode( $ver ) );
+$rb = Runner::rollback( $run['id'] );
+$assert( 'menu visibility rules: rollback removes the rules meta the run created and keeps the others', ! metadata_exists( 'post', 71, '_uxstudio_menu_item_rules' ) && metadata_exists( 'post', 73, '_uxstudio_menu_item_rules' ) && '2' === get_post_meta( 72, '_uxstudio_menu_item_visible', true ) );
 
 /* ═══ 6 Last login ═══ */
 

@@ -162,6 +162,8 @@ final class AdminimizeSource extends AbstractAdminSource {
 			'hidden'      => array(),
 			'denied'      => $denied,
 			'denied_subs' => $denied_subs,
+			// Adminimize blocks the pages it hides unless "Allow Page Access" is ticked (stored as `mw_adminimize_prevent_page_access` = 1).
+			'block_all'   => empty( $o['mw_adminimize_prevent_page_access'] ),
 			'lossy'       => array(),
 		);
 		foreach ( $subs_default as $parent => $rows ) {
@@ -172,15 +174,14 @@ final class AdminimizeSource extends AbstractAdminSource {
 		if ( $sub_lines ) {
 			$model['lossy'][] = sprintf(
 				/* translators: %s: menu items. */
-				__( 'Sub-menu items hidden for a role (the Menu Organizer cannot hide a single sub-item, it appears when its parent appears): %s.', 'ux-studio' ),
+				$model['block_all']
+					? __( 'Sub-menu items hidden for a role. The plugin also blocks their pages, but the Menu Organizer cannot hide or block a single sub-item (it appears, and opens, when its parent does): %s.', 'ux-studio' )
+					: __( 'Sub-menu items hidden for a role (the Menu Organizer cannot hide a single sub-item, it appears when its parent appears): %s.', 'ux-studio' ),
 				$this->list_text( array_keys( $sub_lines ), 10 )
 			);
 		}
 		if ( $denied || $denied_subs ) {
 			$this->map_menu( $m, $model, 'mw_adminimize:menu', false );
-			if ( ! empty( $o['mw_adminimize_prevent_page_access'] ) ) {
-				$m->lossy( __( 'The option "Prevent page access" blocks the hidden pages even when their address is typed in. UX Studio only hides the menu items, so those pages stay reachable by address.', 'ux-studio' ) );
-			}
 			if ( ! empty( $o['mw_adminimize_multiple_roles'] ) ) {
 				$m->lossy( __( 'The option for users with several roles (an item is hidden only when every role hides it) is not transferred: UX Studio shows an item when any role of the user may see it.', 'ux-studio' ) );
 			}

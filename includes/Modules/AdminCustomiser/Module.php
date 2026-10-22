@@ -40,6 +40,7 @@ final class Module extends BaseModule {
 	 */
 	public function boot(): void {
 		MenuOrganizerBootstrap::register();
+		MenuLock::register();
 		MiscBootstrap::register();
 	}
 
@@ -281,6 +282,14 @@ final class Module extends BaseModule {
 				'type'    => 'toggle',
 				'label'   => __( 'Enable menu organizer', 'ux-studio' ),
 				'help'    => __( 'Reorganizes the WordPress admin menu into custom categories. Configure categories, item order and overrides in the Menu Organizer tab.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'menu_lock_enabled',
+				'section' => __( 'Sidebar menu', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Block access to hidden pages', 'ux-studio' ),
+				'help'    => __( 'Off: the Menu Organizer only hides menu items, a hidden page still opens when its address is typed in. On: a page that is hidden from a user (limited to other roles, or hidden for everybody) is refused with "Sorry, you are not allowed to access this page" for users who cannot manage options. Sub-items follow their parent item, except a sub-item moved to the top level that the user can see. Never blocked: users who can manage options, the dashboard, the profile, UX Studio, Plugins, Users and Settings, AJAX and REST. Needs the menu organizer to be on. Rescue switch: define UXSTUDIO_DISABLE_MENU_LOCK as true in wp-config.php to switch the blocking off for everybody.', 'ux-studio' ),
 				'default' => false,
 			),
 			array(

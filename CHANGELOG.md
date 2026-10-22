@@ -2,6 +2,24 @@
 
 ## 0.6.0 (unreleased)
 
+- New - Admin Customiser: "Block access to hidden pages" (off by default). A menu item the Menu Organizer
+  hides from a role (limited to other roles, hidden for everybody, or in a group limited to roles) is also
+  refused when its address is typed in ("Sorry, you are not allowed to access this page", 403). Sub-items
+  follow their parent, except a sub-item moved to the top level that the user can see. Never blocked: users
+  who can manage options, the dashboard, profile, UX Studio, Plugins, Users and Settings, AJAX, REST. Rescue
+  constant `UXSTUDIO_DISABLE_MENU_LOCK` in wp-config.php.
+- New - Menu Visibility: besides logged in / logged out an item can be shown only to some roles or hidden
+  from some roles, and several conditions can be combined (all must hold). Children of a hidden item are
+  hidden with it. Existing settings keep working.
+- New - Migration: Admin Menu Editor and Adminimize switch the access lock on when the old plugin really
+  blocked the pages (Adminimize does by default, "Allow Page Access" turns it off); Nav Menu Roles, If Menu
+  and Menu Items Visibility Control roles and combined rules become Menu Visibility rules (PHP expressions
+  stay lossy, only a few fixed forms are recognized without running anything).
+- Fixed - Adminimize migration read "Allow Page Access" the wrong way round.
+- Fixed - Security: a percent-encoded dot segment (`/complianz/v1/%2e%2e/wp/v2/users`) is recognised again
+  when the REST API is restricted (the route was sanitized before the check).
+- Fixed - The Czech translation of the e-mail about a changed login address was missing.
+
 - New - Redirects: a rule can have conditions (logged in / logged out, role or capability, referrer,
   user agent, IP address or CIDR range, cookie, domain, HTTP header; text conditions are "contains",
   "is exactly" or a regex, each can be inverted). One old URL can have several rules, the first one

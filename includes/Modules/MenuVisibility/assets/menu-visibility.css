@@ -1,0 +1,35 @@
+.uxs-mv .uxs-mv-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px 12px;
+	margin: 0 0 8px;
+	padding: 6px 8px;
+	border: 1px solid #dcdcde;
+	border-radius: 3px;
+	background: #fff;
+}
+
+.uxs-mv .uxs-mv-row select {
+	max-width: 100%;
+}
+
+.uxs-mv .uxs-mv-roles {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 12px;
+}
+
+.uxs-mv .uxs-mv-roles[hidden],
+.uxs-mv .uxs-mv-empty[hidden] {
+	display: none;
+}
+
+.uxs-mv .uxs-mv-remove {
+	margin-left: auto;
+	color: #b32d2e;
+}
+
+.uxs-mv .uxs-mv-actions {
+	margin: 4px 0;
+}

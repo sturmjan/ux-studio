@@ -104,6 +104,7 @@ final class AdminMenuEditorSource extends AbstractAdminSource {
 			'denied'       => array(),
 			'denied_subs'  => array(),
 			'hidden_subs'  => array(),
+			'blocked'      => array(),
 			'promoted'     => array(),
 			'custom_links' => array(),
 			'lossy'        => array(),
@@ -259,13 +260,16 @@ final class AdminMenuEditorSource extends AbstractAdminSource {
 	 * @param bool                 $sub   Sub-menu item.
 	 */
 	private function collect_access( array $item, string $key, string $label, array &$model, array &$lossy, bool $sub ): void {
-		$other  = array();
-		$denied = array();
+		$other   = array();
+		$denied  = array();
+		$blocked = array();
 		foreach ( $this->actor_roles( (array) ( $item['hidden_from_actor'] ?? array() ), true, $other ) as $role ) {
 			$denied[] = $role;
 		}
+		// "Access" unticked for a role: AME takes the page away (it is blocked, not only hidden). "Hide" alone hides without blocking.
 		foreach ( $this->actor_roles( (array) ( $item['grant_access'] ?? array() ), false, $other ) as $role ) {
-			$denied[] = $role;
+			$denied[]  = $role;
+			$blocked[] = $role;
 		}
 		$granted_other = array();
 		$granted       = $this->actor_roles( (array) ( $item['grant_access'] ?? array() ), true, $granted_other );
@@ -293,6 +297,9 @@ final class AdminMenuEditorSource extends AbstractAdminSource {
 				$lossy['sub_hidden'][]        = $label;
 			} else {
 				$model['denied'][ $key ] = $denied;
+				if ( $blocked ) {
+					$model['blocked'][ $key ] = array_values( array_unique( $blocked ) );
+				}
 			}
 		}
 		if ( ! empty( $item['extra_capability'] ) || ! empty( $item['access_level'] ) ) {

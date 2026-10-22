@@ -1339,6 +1339,36 @@ final class MenuOrganizer {
 	   ═══════════════════════════════════════════════════ */
 
 	/**
+	 * The admin menu as WordPress built it before the Organizer changed it: top-level slugs and the sub-item
+	 * slugs of each. Empty while the Organizer has not run (then there is nothing to lock).
+	 *
+	 * @return array{tops:string[],subs:array<string,string[]>}|array{}
+	 */
+	public function menu_structure(): array {
+		if ( ! is_array( $this->menu_snapshot ) ) {
+			return array();
+		}
+		$tops = array();
+		$subs = array();
+		foreach ( $this->menu_snapshot as $item ) {
+			if ( ! is_array( $item ) || empty( $item[2] ) || ( isset( $item[4] ) && str_contains( (string) $item[4], 'wp-menu-separator' ) ) ) {
+				continue;
+			}
+			$slug   = (string) $item[2];
+			$tops[] = $slug;
+			foreach ( (array) ( $this->submenu_snapshot[ $slug ] ?? array() ) as $sub ) {
+				if ( is_array( $sub ) && ! empty( $sub[2] ) ) {
+					$subs[ $slug ][] = (string) $sub[2];
+				}
+			}
+		}
+		return array(
+			'tops' => $tops,
+			'subs' => $subs,
+		);
+	}
+
+	/**
 	 * Return the current top-level admin menu items (slug, title, icon,
 	 * native children), read from the pre-reorganization snapshot so the
 	 * editor's source list always reflects real top-level items.

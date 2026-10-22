@@ -319,6 +319,14 @@ $lossy = implode( ' | ', $plan['lossy'] );
 $assert( 'AME (synthetic): lossy names the user rule, the capability, the sub-item hide/rename, the iframe item', false !== strpos( $lossy, 'bob' ) && false !== strpos( $lossy, 'Tools' ) && false !== strpos( $lossy, 'General' ) && false !== strpos( $lossy, 'Psaní' ) && false !== strpos( $lossy, 'Frame' ), $lossy );
 $assert( 'AME (synthetic): users who can manage options keep seeing items AME hid from administrators (lossy)', false !== strpos( $lossy, 'always shows every item to users who can manage options' ), $lossy );
 $common( 'AME (synthetic)', $r );
+$st  = (array) $opt( 'uxstudio_admin_customiser' );
+$ver = array_column( $r['verify'], null, 'id' );
+$assert( 'AME (synthetic): "Access" unticked for roles (grant_access=false) means the page is blocked: lock switched on', true === ( $st['menu_lock_enabled'] ?? null ), $j( $st ) );
+$assert( 'AME (synthetic): no "only hides" warning when the lock covers it', ! (bool) preg_grep( '/only hides menu items/', $plan['warnings'] ) );
+$assert( 'AME (synthetic): items the plugin only hid (Blog for author, Tools) are named as "blocked now as well"', (bool) preg_grep( '/only hid these items.*Blog.*tools\.php/', $plan['warnings'] ) && (bool) preg_grep( '/only hid these items.*Blog.*tools\.php/', $plan['lossy'] ), $j( $plan['warnings'] ) );
+$assert( 'AME (synthetic): Users blocked for shop_manager in AME stays open in UX Studio (protected screen), lossy says so', (bool) preg_grep( '/never blocks UX Studio, Plugins, Users and Settings.*Users/', $plan['lossy'] ), $j( $plan['lossy'] ) );
+$assert( 'AME (synthetic): verify menu-lock ok; Media blocked for editor and subscriber, not for author', ! empty( $ver['menu-lock']['ok'] ) && in_array( 'upload.php', MenuSimulator::blocked_matrix( $cfg, array( 'upload.php' ), array( 'editor', 'subscriber', 'author' ), array( 'administrator' ) )['editor'], true ) && array() === MenuSimulator::blocked_matrix( $cfg, array( 'upload.php' ), array( 'author' ), array( 'administrator' ) )['author'], $j( $ver['menu-lock'] ?? null ) );
+
 $ver = array_column( $r['verify'], null, 'id' );
 $assert( 'AME (synthetic): verify for author shows the known difference, not a failure', ! empty( $ver['menu-role:author']['ok'] ), $j( $ver['menu-role:author'] ?? null ) );
 $tbl = array_column( $plan['menu_table'], null, 'role' );
@@ -380,6 +388,8 @@ $assert( 'Adminimize (real): hidden for editor and shop manager -> whitelist wit
 $assert( 'Adminimize (real): 20 items limited, slugs with query strings intact', 20 === count( $cfg['item_roles'] ) && isset( $cfg['item_roles']['edit.php?post_type=alertni-lista'] ), (string) count( $cfg['item_roles'] ) );
 $assert( 'Adminimize (real): hide-only config keeps the native order in ONE category (no regrouping)', array( 'other' ) === array_keys( $cfg['categories'] ) && array() === $cfg['order'] && array() === $cfg['assignments'] && array() === $cfg['hidden_items'], $j( $cfg['categories'] ) );
 $assert( 'Adminimize (real): Menu Organizer switched on', true === ( $opt( 'uxstudio_admin_customiser' )['menu_organizer_enabled'] ?? false ) );
+$assert( 'Adminimize (real): "Allow Page Access" is off (0) on the real site, so the plugin blocks hidden pages: the lock is switched on', true === ( $opt( 'uxstudio_admin_customiser' )['menu_lock_enabled'] ?? null ) && ! (bool) preg_grep( '/only hides menu items/', $r['plan']['warnings'] ), $j( $r['plan']['warnings'] ) );
+$assert( 'Adminimize (real): the lock check in verify is ok and the blocked set matches the 20 limited items for editor', ! empty( array_column( $r['verify'], null, 'id' )['menu-lock']['ok'] ) && 20 === count( array_diff( MenuSimulator::blocked_matrix( $cfg, array_keys( $cfg['item_roles'] ), array( 'editor' ), array( 'administrator' ) )['editor'], array() ) ), $j( array_column( $r['verify'], null, 'id' )['menu-lock'] ?? null ) );
 $assert( 'Adminimize (real): no module besides Admin Customiser needed', array() === SourceRegistry::get( 'adminimize' )->extra_modules() );
 $ver = array_column( $r['verify'], null, 'id' );
 $assert( 'Adminimize (real): editor menu agrees (known differences only)', ! empty( $ver['menu-role:editor']['ok'] ), $j( $ver['menu-role:editor'] ?? null ) );
@@ -440,8 +450,27 @@ $assert( 'Adminimize (synthetic): screen options hidden for administrators -> gl
 $assert( 'Adminimize (synthetic): help tab / notices only for non-admin roles are NOT switched on globally', empty( $st['hide_help_tab'] ) && empty( $st['hide_notices_enabled'] ) && (bool) preg_grep( '/contextual-help-link-wrap|admin-notices/', $plan['lossy'] ), $j( $plan['lossy'] ) );
 $assert( 'Adminimize (synthetic): dashboard widget hidden for administrators and editors -> hidden_widgets with a lossy remark about the other roles', array( 'dashboard_primary' ) === ( $opt( 'uxstudio_dashboard_widgets' )['hidden_widgets'] ?? null ) && (bool) preg_grep( '/dashboard_primary/', $plan['lossy'] ), $j( array( $opt( 'uxstudio_dashboard_widgets' ), $plan['lossy'] ) ) );
 $lossy = implode( ' | ', $plan['lossy'] );
-$assert( 'Adminimize (synthetic): lossy lists meta boxes, hidden footer, sub-menu hiding, prevent page access', false !== strpos( $lossy, 'meta boxes' ) && false !== strpos( $lossy, 'hidden admin footer' ) && false !== strpos( $lossy, 'Settings / Writing' ) && false !== strpos( $lossy, 'Prevent page access' ), $lossy );
+$assert( 'Adminimize (synthetic): lossy lists meta boxes, hidden footer, sub-menu hiding, prevent page access', false !== strpos( $lossy, 'meta boxes' ) && false !== strpos( $lossy, 'hidden admin footer' ) && false !== strpos( $lossy, 'Settings / Writing' ), $lossy );
+$assert( 'Adminimize (synthetic): "Allow Page Access" ticked (option = 1) means the plugin does NOT block: lock stays off, the "only hides" warning stays', empty( $st['menu_lock_enabled'] ) && (bool) preg_grep( '/only hides menu items/', $plan['warnings'] ) && ! (bool) preg_grep( '/Prevent page access/', $plan['lossy'] ), $j( array( $st, $plan['warnings'] ) ) );
 $common( 'Adminimize (synthetic)', $r );
+
+/* Adminimize with its default (option 0: hidden pages are blocked): the lock is switched on. */
+$syn_block = $syn;
+$syn_block['mw_adminimize_prevent_page_access'] = 0;
+$syn_block['mw_adminimize_disabled_menu_editor_items'] = array_merge( (array) $syn_block['mw_adminimize_disabled_menu_editor_items'], array( 'edit-comments.php' ) );
+$site( array( 'adminimize' ), array( 'adminimize' ), array( 'mw_adminimize' => $syn_block ) );
+$plan = SourceRegistry::get( 'adminimize' )->plan();
+$r    = $exercise( 'adminimize' );
+$cfg  = $menu_cfg();
+$st   = (array) $opt( 'uxstudio_admin_customiser' );
+$ver  = array_column( $r['verify'], null, 'id' );
+$assert( 'Adminimize (synthetic, blocking): menu_lock_enabled is switched on', true === ( $st['menu_lock_enabled'] ?? null ), $j( $st ) );
+$assert( 'Adminimize (synthetic, blocking): the "only hides" warning is gone, a note says pages are blocked', ! (bool) preg_grep( '/only hides menu items/', $plan['warnings'] ) && (bool) preg_grep( '/Block access to hidden pages/', $plan['notes'] ), $j( array( $plan['warnings'], $plan['notes'] ) ) );
+$assert( 'Adminimize (synthetic, blocking): the plan lists the setting in the transfer rows', (bool) array_filter( $plan['transfer'], static fn( $row ) => 'menu_lock_enabled' === ( $row['key'] ?? '' ) ), $j( array_column( $plan['transfer'], 'key' ) ) );
+$assert( 'Adminimize (synthetic, blocking): the sub-menu lossy line says the plugin also blocked their pages', (bool) preg_grep( '/also blocks their pages/', $plan['lossy'] ), $j( $plan['lossy'] ) );
+$assert( 'Adminimize (synthetic, blocking): verify has a menu-lock check and it is ok', ! empty( $ver['menu-lock']['ok'] ), $j( $ver['menu-lock'] ?? null ) );
+$assert( 'Adminimize (synthetic, blocking): the runtime decision agrees: a subscriber is refused Users? NO, Users is a protected screen, so it stays open', ! MenuSimulator::request_blocked( $cfg, 'users.php', array(), array( 'users.php', 'plugins.php' ), array(), array( 'subscriber' ), false )['blocked'] && (bool) preg_grep( '/never blocks UX Studio, Plugins, Users and Settings/', $plan['lossy'] ), $j( $plan['lossy'] ) );
+$common( 'Adminimize (synthetic, blocking)', $r );
 
 /* ══ White Label CMS: the real configuration of pobyty ══ */
 
@@ -674,6 +703,23 @@ $assert( 'smoke admin_access: live site, Czech refusal text -> fail', 'fail' ===
 $assert( 'Smoke::is_denied recognises 403 and the WordPress error screen in both languages', Smoke::is_denied( array( 'code' => 403, 'body' => '' ) ) && Smoke::is_denied( array( 'code' => 200, 'body' => '<body id="error-page"><div class="wp-die-message">Sorry, you are not allowed to access this page.</div></body>' ) ) && Smoke::is_denied( array( 'code' => 200, 'body' => '<body id="error-page"><div class="wp-die-message">Nemáte dostatečná oprávnění</div>' ) ) && ! Smoke::is_denied( array( 'code' => 200, 'body' => '<h1>Plugins</h1>' ) ) );
 $assert( 'Smoke::is_denied is NOT fooled by the same sentence inside a translated JavaScript string of a normal admin page (found live on pobyty)', ! Smoke::is_denied( array( 'code' => 200, 'body' => '<body class="wp-admin"><script>var s={"%s: Sorry, you are not allowed to upload this file type.":["Nemáte dostatečná oprávnění"]}</script></body>' ) ) );
 Smoke::set_transport( null );
+
+/* AME with "Hide" only (hidden_from_actor): nothing is blocked in the plugin, so the lock stays off. */
+$site(
+	array( 'admin-menu-editor' ), array( 'admin-menu-editor' ),
+	$tree(
+		array(
+			'index.php' => array(),
+			'edit.php'  => array( 'hidden_from_actor' => array( 'role:author' => true ) ),
+			'upload.php' => array( 'hidden' => true ),
+		)
+	)
+);
+$plan = SourceRegistry::get( 'admin-menu-editor' )->plan();
+$r    = $exercise( 'admin-menu-editor' );
+$st   = (array) $opt( 'uxstudio_admin_customiser' );
+$assert( 'AME (hide only): lock stays off and the plan warns that hidden pages stay reachable by address', empty( $st['menu_lock_enabled'] ) && (bool) preg_grep( '/only hides menu items/', $plan['warnings'] ) && (bool) preg_grep( '/Block access to hidden pages/', $plan['warnings'] ), $j( array( $st, $plan['warnings'] ) ) );
+$common( 'AME (hide only)', $r );
 
 /* ── Typo guard: every Admin Customiser key written exists in the real schema ── */
 
