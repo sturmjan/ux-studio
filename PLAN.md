@@ -2143,3 +2143,36 @@ WPS Hide Login (hrozba vyzamčení), totéž CAPTCHA. Porušovalo to pravidlo �
 **Nález při živém ověření (login).** Se zapnutou vlastní adresou se formulář na ní odesílal na `wp-login.php`, které modul sám zavírá (`block_direct_wp_login`), takže přihlášení neprošlo (stránka se zobrazila, přihlášení ne). Oprava: filtry `site_url`/`network_site_url` (`Module::filter_login_site_url`, čistá funkce `LoginUrl::swap`) přesměrují akci formuláře, "zapomenuté heslo" i přesměrování na přihlášení na vlastní adresu; po opravě živý test prošel (formulář na nové adrese, přihlášení OK, přímé `wp-login.php` = 302). Test `tests/login-url-notice.php`.
 
 **Živě (pobyty).** Aktivace/deaktivace z obrazovky Pluginy: první aktivace přesměrovala na `#/wizard`, druhá ne. Moduly: pruh "Našli jsme 15 pluginů ...". Kontrola s AME + Adminimize + WLCMS: souhrny a rozbalitelný detail se jmény místo ID, popisky se nelámou, nepřetéká ani na 600 px; Ověření stejně. Nedostupný náhled (odpověď serveru nahrazena v prohlížeči, kód je pokryt testem) se vykreslí celý. E-mail s adresou: Disable Emails ho zablokoval, stav `mail: failed` a záznam v Activity Logu to hlásí. Pozn.: `url_redirect` na pobyty (`http://localhost/pobyty/administrace`) skládá `home_url` na `/pobyty/pobyty/administrace` (stávající chování normalizace, F7 se ho nedotkl).
+
+## 27. Doplnění modulů, aby šly přenést funkce cizích pluginů (2026-10-22)
+
+Návrh z 21. 10. (seznamy „nepřenese se" ze zdrojů §26.9, §26.11, F2), priority schválené
+uživatelem 22. 10.: A = časté / bezpečnost (teď), B = užitečné (později), C = nedělat.
+Ke každé nové funkci se upraví i zdroj migrace (položka přejde z „nepřenese se" do „přenese se"),
+přibudou testy a živé ověření na pobyty. Větev `feature/module-gaps-a` nad `feature/migration-wizard`.
+
+### 27.1 Vlna A
+
+- [ ] A1 Zabezpečení: dvoufázové ověření TOTP (vzor z Centrální aplikace), prodlužované blokace
+      po opakovaných pokusech, vlastní e-mail pro upozornění, CAPTCHA pro komentáře a formuláře
+      WooCommerce + vzhled widgetu; migrace: IP seznamy z Limit Login / Loginizer do Firewallu
+- [ ] A2 Přesměrování: podmínky pravidel (přihlášený/role, referrer, user agent, IP, cookie),
+      víc pravidel na adresu; Úryvky kódu: snippet jako shortcode, spuštění jednou, umístění
+      před/za obsahem
+- [ ] A3 Úpravy administrace: skutečné zablokování stránek skrytých v menu podle role;
+      Viditelnost menu: zobrazit/skrýt podle role, víc pravidel na položku
+
+### 27.2 Vlna B (později)
+
+Podpoložky menu a pravidla pro uživatele (AME); počítadlo a volby přesměrování; podmínky
+spuštění snippetů; Dashicons v ikonách menu; výjimky Zákazu komentářů; volby Duplikace;
+pravidla externích odkazů; volba editoru per uživatel; obrázek/odpočet/výjimky údržby; složky
+příspěvků a stránek; SendGrid/Mailgun/Postmark/SES; skrytí upozornění na aktualizace; URL
+události cronu; widgety nástěnky podle role a uvítací panel; vlastní CSS administrace a
+přihlášení; meta boxy podle role; filtry a řazení sloupců; volby Auto Upload Images.
+
+### 27.3 Nedělat (C)
+
+PHP výrazy v podmínkách menu a PHP události cronu (spouštění kódu z nastavení), celé UI
+Adminify, inline editace a Pro sloupce Admin Columns, import historie Activity Logu,
+Rewrite & Republish, kolekce a galerie Real Media Library.
