@@ -17,3 +17,11 @@
 	max-width: 24px;
 	max-height: 24px;
 }
+
+.field-uxstudio-menu-icons .uxs-dashicon-preview {
+	display: inline-block;
+	margin-top: 6px;
+	font-size: 24px;
+	width: 24px;
+	height: 24px;
+}

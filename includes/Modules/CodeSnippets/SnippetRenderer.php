@@ -142,6 +142,10 @@ final class SnippetRenderer {
 		if ( ! $snippet->isEnabled() || ! $snippet->canExecute() || ! $snippet->verifyIntegrity() ) {
 			return '';
 		}
+		// Run conditions (page type, visitor, device, schedule) narrow even a shortcode: judged now, at the place it appears.
+		if ( ! SnippetConditions::hold( $snippet->getConditions() ) ) {
+			return '';
+		}
 		$id = $snippet->getId();
 		if ( isset( self::$active[ $id ] ) || count( self::$active ) >= self::MAX_DEPTH ) {
 			return '';

@@ -188,6 +188,8 @@ $schemas = array(
 		$tog( 'disable_comments' ), $sel( 'disable_comments_scope', array( 'all', 'selected' ), 'all' ),
 		$mul( 'disable_comments_post_types', array( 'post', 'page' ) ), $tog( 'disable_comments_hide_existing', true ),
 		$tog( 'disable_comments_admin_ui', true ), $tog( 'disable_comments_block_endpoints', true ),
+		$mul( 'disable_comments_allowed_roles', array_merge( $all_roles, array( 'logged-out-users' ) ) ), $mul( 'disable_comments_allowed_types', array( 'pingback', 'trackback' ) ),
+		$mul( 'comments_blocked_types', array( 'pingback', 'trackback', 'review' ) ), $num( 'comments_close_after_days', 0 ),
 		$tog( 'limit_login_attempts' ), $num( 'max_attempts', 3 ), $num( 'lockout_time', 30 ), $tog( 'notify_admin' ),
 		$txt( 'lockout_notify_email' ), $tog( 'lockout_progressive' ), $num( 'lockout_multiplier', 2 ), $num( 'lockout_max_hours', 24 ),
 		$tog( 'ip_firewall_enabled' ), $area( 'ip_firewall_allowlist' ),
@@ -324,6 +326,30 @@ $cases = array(
 		'disable-comments', true,
 		array( 'disable_comments_options' => array( 'remove_everywhere' => true, 'show_existing_comments' => true, 'remove_xmlrpc_comments' => 1 ) ),
 		array( 'uxstudio_security_optimization' => array( 'disable_comments' => true, 'disable_comments_scope' => 'all', 'disable_comments_hide_existing' => false, 'disable_comments_admin_ui' => true, 'disable_comments_block_endpoints' => true ) ),
+	),
+	'disable-comments / exceptions' => array(
+		'disable-comments', true,
+		array( 'disable_comments_options' => array(
+			'remove_everywhere' => true, 'show_existing_comments' => false,
+			'enable_exclude_by_role' => '1', 'exclude_by_role' => array( 'editor', 'logged-out-users', 'shop_manager' ),
+			'allowed_comment_types' => array( 'pingback', 'note' ), 'blocked_comment_types' => array( 'review', 'trackback' ),
+			'enable_conditional_rules' => '1', 'auto_close_days' => 45,
+		) ),
+		array( 'uxstudio_security_optimization' => array(
+			'disable_comments' => true, 'disable_comments_scope' => 'all', 'disable_comments_hide_existing' => true,
+			'disable_comments_allowed_roles' => array( 'editor', 'logged-out-users' ), 'disable_comments_allowed_types' => array( 'pingback' ),
+			'comments_blocked_types' => array( 'trackback', 'review' ), 'comments_close_after_days' => 45,
+		) ),
+	),
+	'disable-comments / old posts only' => array(
+		'disable-comments', true,
+		array( 'disable_comments_options' => array(
+			'remove_everywhere' => false, 'disabled_post_types' => array(),
+			'enable_conditional_rules' => '1', 'auto_close_days' => 30, 'enable_exclude_by_role' => '1', 'exclude_by_role' => array( 'administrator' ),
+		) ),
+		array( 'uxstudio_security_optimization' => array(
+			'comments_close_after_days' => 30, 'disable_comments_allowed_roles' => array( 'administrator' ),
+		) ),
 	),
 	'hide-admin-bar / roles'       => array(
 		'hide-admin-bar', true, array( 'hab_admin_bar_settings' => array( 'remove_by_roles' => array( 'subscriber', 'author' ) ) ),
@@ -518,6 +544,19 @@ $site( array( 'classic-editor' ), array( 'classic-editor' ), array( 'classic-edi
 $r = $exercise( 'classic-editor' );
 $common( 'classic-editor / block default', $r, false );
 $assert( 'classic-editor / block default: nothing written, user-choice reported lossy', 0 === $r['plan']['counts']['transfer'] && 1 === $r['plan']['counts']['lossy'] && null === $opt( 'uxstudio_classic_editor' ) );
+
+/* disable-comments exceptions: what is transferred and what is named as lost. */
+$site( array( 'disable-comments' ), array( 'disable-comments' ), array( 'disable_comments_options' => array(
+	'remove_everywhere' => true, 'show_existing_comments' => false,
+	'enable_exclude_by_role' => '1', 'exclude_by_role' => array( 'editor', 'logged-out-users', 'shop_manager' ),
+	'allowed_comment_types' => array( 'pingback', 'note' ), 'blocked_comment_types' => array( 'review', 'trackback' ),
+	'enable_conditional_rules' => '1', 'auto_close_days' => 45, 'conditional_rules' => array( array( 'type' => 'taxonomy', 'taxonomy' => 'category', 'terms' => array( 3 ), 'action' => 'enable' ) ),
+) ) );
+$p = SourceRegistry::get( 'disable-comments' )->plan();
+$lossy = implode( ' | ', $p['lossy'] );
+$assert( 'disable-comments exceptions: roles (existing ones + logged-out visitors), ping types, refused types and the closing days are transferred (not lossy any more)', false === strpos( $lossy, 'Exceptions by user role' ) && false === strpos( $lossy, 'closing comments after a number of days' ) && false === strpos( $lossy, 'single comment types' ), $lossy );
+$assert( 'disable-comments exceptions: a role that no longer exists is named', false !== strpos( $lossy, 'no longer exist on the site and are not transferred: shop_manager' ), $lossy );
+$assert( 'disable-comments exceptions: a comment type the module cannot allow (note) is named, taxonomy / template rules are still lossy, existing comments of closed posts stay visible', false !== strpos( $lossy, 'not transferred: note' ) && false !== strpos( $lossy, 'taxonomy term or page template' ) && false !== strpos( $lossy, 'existing comments stay visible' ), $lossy );
 
 /* disable-comments with comments disabled nowhere. */
 $site( array( 'disable-comments' ), array( 'disable-comments' ), array( 'disable_comments_options' => array( 'remove_everywhere' => false, 'disabled_post_types' => array() ) ) );

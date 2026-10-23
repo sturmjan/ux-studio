@@ -7,6 +7,7 @@ import { formatDate } from '../../app/date';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
 import { TabsNav } from '../../app/SubNav';
+import { type ApiCondition, type ConditionDraft, ConditionsEditor, fromApi, toPayload } from './Conditions';
 
 type Tab = 'snippets' | 'settings';
 type View = 'list' | 'editor';
@@ -21,6 +22,8 @@ interface SnippetListItem {
 	run_location: string;
 	priority: number;
 	post_types: string[];
+	conditions: ApiCondition[];
+	conditions_summary: string;
 	shortcode: string;
 	last_run: string | null;
 	run_result: { ok: boolean; message: string; output: string } | null;
@@ -40,6 +43,8 @@ interface EditorOptions {
 	post_types: { name: string; label: string }[];
 	default_post_types: string[];
 	shortcode_tag: string;
+	roles: { name: string; label: string }[];
+	max_conditions: number;
 }
 
 const SNIPPETS_QUERY_KEY = [ 'code-snippets', 'snippets' ];
@@ -105,6 +110,7 @@ const EMPTY_DRAFT = {
 	description: '',
 	run_location: DEFAULT_RUN_LOCATION.php,
 	post_types: [] as string[],
+	conditions: [] as ConditionDraft[],
 	enabled: false,
 };
 
@@ -232,6 +238,12 @@ function SnippetsTable( {
 								<td>{ snippet.type.toUpperCase() }</td>
 								<td>
 									<PlaceBadges snippet={ snippet } />
+									{ snippet.conditions_summary && (
+										<div className="uxs-cs-place" title={ __( 'Run conditions', 'ux-studio' ) }>
+											<span className="uxs-badge is-warning">{ __( 'Conditions', 'ux-studio' ) }</span>
+											<span className="uxs-cs-result">{ snippet.conditions_summary }</span>
+										</div>
+									) }
 								</td>
 								<td>
 									<span className={ `uxs-badge ${ snippet.enabled ? 'is-success' : '' }` }>
@@ -302,6 +314,7 @@ const query = useQuery( {
 				description: query.data.description,
 				run_location: query.data.run_location,
 				post_types: query.data.post_types,
+				conditions: ( query.data.conditions ?? [] ).map( fromApi ),
 				enabled: query.data.enabled,
 			} );
 		}
@@ -309,7 +322,7 @@ const query = useQuery( {
 
 	const save = useMutation( {
 		mutationFn: () => {
-			const body = JSON.stringify( draft );
+			const body = JSON.stringify( { ...draft, conditions: toPayload( draft.conditions ) } );
 			return id
 				? api( `code-snippets/snippets/${ id }`, { method: 'PUT', body } )
 				: api( 'code-snippets/snippets', { method: 'POST', body } );
@@ -456,6 +469,7 @@ const query = useQuery( {
 							</div>
 						</div>
 					) }
+					<ConditionsEditor conditions={ draft.conditions } choices={ options.data } onChange={ ( conditions ) => setDraft( ( d ) => ( { ...d, conditions } ) ) } />
 					<div className="uxs-form__row">
 						<label htmlFor="uxs-cs-enabled">{ __( 'Enable snippet', 'ux-studio' ) }</label>
 						<button

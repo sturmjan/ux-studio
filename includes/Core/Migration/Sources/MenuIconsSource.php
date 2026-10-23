@@ -14,13 +14,14 @@ use UxStudio\Modules\MenuIcons\IconLibrary;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Target module `menu-icons`: the menu item gets `_uxstudio_menu_item_icon_type` (lucide | media),
+ * Target module `menu-icons`: the menu item gets `_uxstudio_menu_item_icon_type` (dashicons | lucide | media),
  * `_uxstudio_menu_item_icon_value` and, when not "before", `_uxstudio_menu_item_icon_position`.
  *
  * Menu Icons keeps one array in the meta `menu-icons` per menu item: `type` (dashicons, fa, genericon,
  * image, svg ...), `icon` (class name or, for image and svg, an attachment id), `hide_label`, `position`.
- * The module draws only icons from its curated Lucide list (IconLibrary), so a font icon is mapped to the
- * nearest Lucide icon on that list; an icon without a counterpart is reported by name and the item gets no icon.
+ * A Dashicon stays the same Dashicon: the module has the whole WordPress core set and stores the class name, 1:1.
+ * Any other font icon (Font Awesome, Genericons ...) is mapped to the nearest icon of the module's curated Lucide list
+ * (IconLibrary); an icon without a counterpart is reported by name and the item gets no icon.
  * Image and SVG icons become media icons.
  *
  * Visual change, but a second icon next to the old plugin's would look broken, so it follows the same rule:
@@ -76,6 +77,21 @@ final class MenuIconsSource extends AbstractMetaSource {
 	}
 
 	/**
+	 * The Dashicon class ("dashicons-admin-home") in the class list the plugin stored, or null when it is not on the core
+	 * list of the module (for example a name from a newer or older WordPress); such an icon falls back to the nearest Lucide.
+	 *
+	 * @param string $icon Class name(s) stored by the plugin.
+	 */
+	public static function dashicon_for( string $icon ): ?string {
+		foreach ( preg_split( '/\s+/', trim( $icon ) ) ?: array() as $token ) {
+			if ( 0 === strpos( $token, 'dashicons-' ) ) {
+				return IconLibrary::dashicon_exists( $token ) ? $token : null;
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * Lucide name for a font icon, or null.
 	 *
 	 * @param string $type Menu Icons font type (`dashicons`, `fa`, ...).
@@ -127,14 +143,20 @@ final class MenuIconsSource extends AbstractMetaSource {
 				$meta['_uxstudio_menu_item_icon_type']  = 'media';
 				$meta['_uxstudio_menu_item_icon_value'] = (string) (int) $icon['icon'];
 			} else {
-				$lucide = self::lucide_for( $type, (string) $icon['icon'] );
-				if ( null === $lucide || ! IconLibrary::exists( $lucide ) ) {
-					$label                           = $type . ': ' . trim( (string) $icon['icon'] );
-					$out['skipped'][ 'icon:' . $label ] = ( $out['skipped'][ 'icon:' . $label ] ?? 0 ) + 1;
-					continue;
+				$dashicon = 'dashicons' === $type ? self::dashicon_for( (string) $icon['icon'] ) : null;
+				if ( null !== $dashicon ) {
+					$meta['_uxstudio_menu_item_icon_type']  = 'dashicons';
+					$meta['_uxstudio_menu_item_icon_value'] = $dashicon;
+				} else {
+					$lucide = self::lucide_for( $type, (string) $icon['icon'] );
+					if ( null === $lucide || ! IconLibrary::exists( $lucide ) ) {
+						$label                           = $type . ': ' . trim( (string) $icon['icon'] );
+						$out['skipped'][ 'icon:' . $label ] = ( $out['skipped'][ 'icon:' . $label ] ?? 0 ) + 1;
+						continue;
+					}
+					$meta['_uxstudio_menu_item_icon_type']  = 'lucide';
+					$meta['_uxstudio_menu_item_icon_value'] = $lucide;
 				}
-				$meta['_uxstudio_menu_item_icon_type']  = 'lucide';
-				$meta['_uxstudio_menu_item_icon_value'] = $lucide;
 			}
 			if ( ! empty( $icon['hide_label'] ) ) {
 				$meta['_uxstudio_menu_item_icon_position'] = 'only';
@@ -197,21 +219,46 @@ final class MenuIconsSource extends AbstractMetaSource {
 				)
 			);
 		}
-		$m->note( __( 'Font icons are replaced by the nearest Lucide icon. Pick a different one on the menu screen if it does not fit.', 'ux-studio' ) );
+		$dash = 0;
+		$font = 0;
+		foreach ( $c['items'] as $item ) {
+			$dash += 'dashicons' === $item['meta']['_uxstudio_menu_item_icon_type'] ? 1 : 0;
+			$font += 'lucide' === $item['meta']['_uxstudio_menu_item_icon_type'] ? 1 : 0;
+		}
+		if ( $dash > 0 ) {
+			$m->note(
+				sprintf(
+					/* translators: %d: number of icons. */
+					__( '%d Dashicons are transferred as they are (the module has the whole WordPress Dashicons set).', 'ux-studio' ),
+					$dash
+				)
+			);
+		}
+		if ( $font > 0 ) {
+			$m->note( __( 'Other font icons (for example Font Awesome) are replaced by the nearest Lucide icon. Pick a different one on the menu screen if it does not fit.', 'ux-studio' ) );
+		}
 		return $m;
 	}
 
 	protected function data_plan( array $options ): array {
 		$lucide = 0;
+		$dash   = 0;
 		$media  = 0;
 		foreach ( $this->collect()['items'] as $item ) {
 			if ( 'lucide' === $item['meta']['_uxstudio_menu_item_icon_type'] ) {
 				++$lucide;
+			} elseif ( 'dashicons' === $item['meta']['_uxstudio_menu_item_icon_type'] ) {
+				++$dash;
 			} else {
 				++$media;
 			}
 		}
 		return array(
+			array(
+				'key'   => 'dashicons',
+				'label' => __( 'Dashicons kept as they are', 'ux-studio' ),
+				'count' => $dash,
+			),
 			array(
 				'key'   => 'lucide',
 				'label' => __( 'Icons replaced by a Lucide icon', 'ux-studio' ),

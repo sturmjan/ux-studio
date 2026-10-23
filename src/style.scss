@@ -2078,3 +2078,12 @@
 		select { width: 100%; }
 	}
 }
+
+/* ---- Redirects: per-rule match options (PLAN 27.8) ---- */
+.uxs-rd-options {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--uxs-sp-3);
+	margin-top: var(--uxs-sp-3);
+}

@@ -41,6 +41,8 @@ final class Snippet {
 	private string $lastRun = '';
 	/** Outcome of the last run-once execution (JSON: ok, message, output). */
 	private string $runResult = '';
+	/** @var array<int, array<string, mixed>> Run conditions (SnippetConditions); empty = no restriction. */
+	private array $conditions = array();
 
 	/**
 	 * @param string $id          Snippet id (numeric, from the metadata table).
@@ -389,7 +391,9 @@ final class Snippet {
 			'run_location'        => $this->runLocation,
 			'priority'            => $this->priority,
 			'post_types'          => $this->postTypes,
-			'shortcode'           => SnippetManager::LOCATION_SHORTCODE === $this->runLocation ? '[uxstudio_snippet id="' . $this->id . '"]' : '',
+			'conditions'          => $this->conditions,
+			'conditions_summary'  => SnippetConditions::summary( $this->conditions ),
+			'shortcode'         => SnippetManager::LOCATION_SHORTCODE === $this->runLocation ? '[uxstudio_snippet id="' . $this->id . '"]' : '',
 			'last_run'            => $this->lastRun,
 			'run_result'          => $this->getRunResult(),
 			'is_valid'            => $this->isValid,
@@ -478,11 +482,22 @@ final class Snippet {
 	 * @param string[] $postTypes Post types of a before/after-content snippet.
 	 * @param string   $lastRun   Last run-once execution (MySQL datetime) or ''.
 	 * @param string   $runResult JSON outcome of that run or ''.
+	 * @param string   $conditions Stored run conditions (JSON) or ''.
 	 */
-	public function setMeta( array $postTypes, string $lastRun, string $runResult ): void {
-		$this->postTypes = array_values( array_filter( array_map( 'sanitize_key', $postTypes ) ) );
-		$this->lastRun   = $lastRun;
-		$this->runResult = $runResult;
+	public function setMeta( array $postTypes, string $lastRun, string $runResult, string $conditions = '' ): void {
+		$this->postTypes  = array_values( array_filter( array_map( 'sanitize_key', $postTypes ) ) );
+		$this->lastRun    = $lastRun;
+		$this->runResult  = $runResult;
+		$this->conditions = SnippetConditions::decode( $conditions );
+	}
+
+	/**
+	 * Run conditions (empty = the snippet is not restricted by anything but its place).
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	public function getConditions(): array {
+		return $this->conditions;
 	}
 
 	public function getMetadata(): array {

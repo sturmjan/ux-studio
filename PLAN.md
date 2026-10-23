@@ -2174,9 +2174,10 @@ přibudou testy a živé ověření na pobyty. Větev `feature/module-gaps-a` na
       přihlášení (WLCMS, LoginPress); meta boxy v editoru podle role (Adminimize); filtry a řazení
       podle sloupců (Admin Columns)
       (hotovo 23. 10. 2026 lokálně, poznámky v 27.7)
-- [ ] B2 Obsah I: počítadlo zásahů, velikost písmen a parametry v adrese (Redirection); podmínky
+- [x] B2 Obsah I: počítadlo zásahů, velikost písmen a parametry v adrese (Redirection); podmínky
       spuštění snippetů - typ stránky, přihlášený, zařízení (WPCode, HFCM); Dashicons v ikonách menu
       (Menu Icons); výjimky Zákazu komentářů - role, typy komentářů, zavírání po N dnech
+      (hotovo 23. 10. 2026 lokálně, poznámky v 27.8)
 - [ ] B3 Obsah II: volby Duplikace - stav kopie, vynechaná pole a taxonomie, oprávnění podle role,
       všechny typy obsahu (Yoast Duplicate Post); pravidla externích odkazů - target/rel podle domény,
       výjimky, ikona (WP External Links); volba editoru pro uživatele (Classic Editor); obrázek,
@@ -2398,3 +2399,66 @@ WLCMS: pozadí, hover barvy, vlastní CSS přihlášení a administrace, widgety
 vlastní CSS (injekce `</style><script>` odstraněna, 112 KB oříznuto, front end bez CSS, přihlášení s pozadím a hover); meta boxy podle role a typu (Yoast, Woodmart, katalog se učí); widgety podle role a uvítací panel; řazení a filtry proti SQL (vlastní pole nahoru i dolů, autor, kategorie, filtry, kombinace);
 migrace AME / Adminimize / WLCMS (přímý zápis i staging, suchý běh, ověření, náhled s `admin_access` 4/4, rollback bajt po bajtu). Opraveno při ověření: přesun podpoložky mizel kvůli AME na `submenu_file`, řazení podle pole, `convert_to_screen()` v REST návrhu klíčů sloupců.
 **Neověřeno / otevřené.** LoginPress a Admin Columns nejsou nainstalované (fixtury z kódu); Adminimize na pobyty nemá data podpoložek, widgetů ani meta boxů (jen fixtury); meta boxy v blokovém editoru nejsou ověřené (pobyty používá klasický); sloupce jen `edit.php`; podpoložky se mění až při vykreslení, takže kód čtoucí `$submenu` dříve vidí původní menu.
+
+### 27.8 B2 poznámky: obsah I (2026-10-23)
+
+**Přesměrování.** Tabulka v3 (`DB::ensure_module_tables`, dbDelta přidá sloupce, stávající řádky dostanou výchozí hodnoty = chování beze změny; ověřeno na tabulce
+v2 s řádky: sloupce shozené a při prvním požadavku znovu přidané): `case_sensitive`, `query_mode` ('' = výchozí), `source_cs` (zdroj s písmeny, jak je zadán, jen u pravidla
+s rozlišováním). Sloupce `hits` a `last_hit` existovaly od v1.
+- **Počítadlo.** `Repository::queue_hit()` jen poznamená zásah do paměti a jednou za požadavek zaregistruje `shutdown` (nejnižší priorita); `flush_hits()` pak zapíše jeden
+  `UPDATE hits = hits + N, last_hit = ...` na pravidlo (po `fastcgi_finish_request()`, pokud ho PHP má). Žádný SELECT navíc, před přesměrováním se nic nezapisuje. POZOR: pod mod_php
+  (lokální Apache) `fastcgi_finish_request` neexistuje, odpověď se tam dokončí až po zápisu, jde o jediný krátký UPDATE. Nastavení `track_hits` platí dál. Seznam ukazuje počet i
+  poslední zásah (`formatDate`), `orderby=hits|last_hit` v API, vynulování po pravidlech i všech (`POST redirects/rules/reset-hits`, ability `redirects/reset-hits`, v MCP označená jako
+  destruktivní = vyžaduje potvrzení). CSV export má sloupce `case_sensitive`, `query_mode`, `last_hit` (+ `hits`); import čte počitadla JEN u nových pravidel, živá počitadla
+  existujícího pravidla nikdy nepřepíše, a co CSV neříká o volbách (`case_sensitive`, `query_mode`), se u existujícího pravidla nemění.
+- **Velikost písmen.** Výchozí je beze změny (písmena se ignorují). `case_sensitive` platí pro přesná pravidla i regex: u přesného se po nalezení podle hashe (malá písmena) porovná `source_cs`
+  s cestou, jak ji návštěvník napsal (`Url::request()['path_cs']`, `Repository::applies()`), u regexu se vynechá příznak `i` a použije se `path_cs`. Pravidlo `/Foo` -> `/foo` je tak platné
+  (kanonizace písmen; bez příznaku je to smyčka), Engine i kontrola smyček porovnávají písmena, jak jsou. Omezení: jedna adresa se stejnými podmínkami může mít jen jedno pravidlo bez ohledu
+  na písmena (UNIQUE `source_hash + cond_key` vychází z malých písmen), takže `/Foo` a `/foo` jako dvě různá pravidla nejdou. Hodnoty v parametrech zůstávají citlivé na velikost, klíče parametrů malé.
+- **Parametry.** `query_mode`: `default` (jako dosud: zdroj bez parametrů bere libovolné, předávání řídí nastavení modulu; zdroj s parametry jen přesně ty), `exact` (zdroj bez parametrů nebere požadavek
+  s jakýmkoli parametrem, jako „přesná shoda“ v Redirection), `ignore` (cesta stačí, parametry se nepředají), `pass` (cesta stačí, parametry se vždy předají). `ignore` a `pass` vyžadují zdroj BEZ
+  parametrů (chyba `query_mode_source_query`), u regexu se volba ignoruje s varováním. Rozhodnutí o předání je `Engine::passes_query()`. Podmínky A2 se vyhodnocují až po `applies()`: pravidlo, které
+  `exact` vyřadí, se nehlásí jako „přeskočeno kvůli podmínkám“.
+- **Migrace Redirection.** Příznaky se čtou z `match_data.source`, jinak z globálních voleb pluginu (`redirection_options`). POZOR na název: `flag_case = true` znamená „ignorovat velikost písmen“, výchozí
+  (false) je citlivé (starý text „N pravidel bylo citlivých na velikost“ to měl obráceně, opraveno). `flag_query`: exact -> `exact`, exactorder -> `exact` (pořadí se neřeší, hlásí se), ignore / pass ->
+  `ignore` / `pass`; u zdroje, který sám uvádí parametry, nejde subset shoda (hlásí se, platí přesná shoda). `last_count` -> `hits`, `last_access` (UTC) -> `last_hit` v čase webu, epocha = nikdy. Přenáší se i
+  `flag_trailing = false` jako ztrátové (modul lomítko na konci vždy ignoruje). Ztrátové dál: logy, duplicitní adresa se stejnými podmínkami. Plán říká, kolik pravidel bere jen adresu
+  BEZ parametrů (jako v pluginu), takže `?utm_source=` na staré adrese s výchozím „exact“ přesměrování nespustí (v Redirection také ne).
+
+**Úryvky kódu: podmínky spuštění.** Nový `SnippetConditions` (čistá logika + sestavení kontextu), sloupec `conditions` (JSON) v tabulce metadat v3 (jako umístění: mění je jen přístup do DB). Až 6 podmínek, platí
+všechny (AND), každá jde obrátit: typ stránky (každý požadavek má JEDEN druh v pořadí admin, úvodní, stránka příspěvků, jednotlivý obsah, autor, archiv, vyhledávání, 404 - stejné pořadí jako „type of page“
+ve WPCode, takže se mapuje 1:1; statická úvodní stránka je „úvodní“, ne „jednotlivá“), typ obsahu (jednotlivý / archiv / obojí), konkrétní ID, přihlášený / odhlášený, role, zařízení (`wp_is_mobile()`), časové okno
+(čas webu, oba konce včetně). Podmínky jen zužují, nic nerozšiřují; nerozpoznaná podmínka snippet nikdy nespustí; stránková podmínka před zpracováním požadavku nesedí ani negovaná.
+- **Kdy se vyhodnocují.** Vložený HTML / CSS / JS a umístění `before/after_content` a shortcode až při výpisu (stránka i uživatel už známé). PHP snippet bez stránkové podmínky se posoudí při načítání (uživatel,
+  zařízení, čas, wp-admin jsou známé hned), PHP s podmínkou stránky / příspěvku se načte na akci `wp` (priorita 0), takže háčky dřív (init, wp_loaded) v něm nevyběhnou; editor na to upozorňuje.
+  PHP se v REST / AJAX / cron nikdy nespouští (beze změny, ověřeno živě i s podmínkou), „spustit jednou“ ve wp-admin se bez splněných podmínek nezabere.
+- **Migrace.** WPCode: jedna skupina podmínek (AND) typu type_of_page (= / !=), post_type, logged_in, user_role; `show: hide` jen u jediného pravidla (otočí se), `_wpcode_device_type` desktop / mobile; vše ostatní
+  (více OR skupin, page_url, referrer, taxonomie, user_meta, plán `_wpcode_schedule` - Pro funkce, formát nešlo ověřit) zůstává ztrátové a snippet vypnutý k revizi. HFCM: `All` (+ vyloučené stránky a příspěvky),
+  `s_pages`, `s_posts`, `s_custom_posts` (+ `spt_display_on`), `s_is_home`, `s_is_archive`, `s_is_search`, zařízení; kategorie, štítky, nejnovější příspěvky zůstávají k revizi. `CodeSnippetsSource::collect()` nakonec
+  projde každou sadu normalizérem modulu (neprojde = revize bez podmínek).
+
+**Ikony menu: Dashicons.** Celá sada z jádra (350 tříd z `dashicons.css`, uložená jako seznam v `IconLibrary` = zároveň whitelist), typ ikony „Dashicons (WordPress)“ ve výběru, hodnota se ukládá jako třída
+(`dashicons-admin-home`, stejně jako Menu Icons). Na front endu `wp_enqueue_style('dashicons')` jen při vykreslení položky s Dashicon (styl zařazený po `wp_head` jde do patičky); přihlášení návštěvníci ho mají
+kvůli admin baru. Neznámá třída se při uložení zahodí, při výpisu vynechá. Migrace: Dashicon 1:1 (třída z pluginu musí být v sadě, jinak nejbližší Lucide jako dřív), Font Awesome / Genericons / obrázky beze změny.
+
+**Zákaz komentářů: výjimky.** Nastavení v Zabezpečení > Obsah: `disable_comments_allowed_roles` (role + „návštěvníci bez přihlášení“; takový uživatel není dotčen zákazem ani zavíráním, včetně nástrojů v administraci,
+tras REST a počítadel), `disable_comments_allowed_types` (pingback / trackback zůstanou povolené při zákazu), `comments_blocked_types` (pingback, trackback, review odmítnout i bez zákazu, `preprocess_comment` -> 403),
+`comments_close_after_days`. **Rozhodnutí: modul filtruje `comments_open` / `pings_open`, volby jádra `close_comments_for_old_posts` a `close_comments_days_old` nikdy nezapisuje** (po vypnutí modulu je stav jako dřív,
+ověřeno: volby zůstaly 0 / 14). Výjimka rolí platí pro zákaz i pro zavírání starých příspěvků (jako v pluginu); rozhoduje se při každém požadavku, takže pro stránkovou cache platí upozornění v nápovědě.
+Příspěvek, který je sám zavřený (`comment_status`), výjimka neotevře. POZOR: pingbacky chodí přes XML-RPC a „Zakázat XML-RPC“ (výchozí zapnuto) zavírá `pings_open` globálně, takže povolený pingback potřebuje
+vypnuté „Zakázat XML-RPC“ (nápověda to říká). Migrace Disable Comments: `exclude_by_role` (jen existující role + `logged-out-users`, neexistující se jmenují), `allowed_comment_types` (pingback / trackback),
+`blocked_comment_types` (pingback / trackback / review), `auto_close_days`; ztrátové: ostatní typy (note, vlastní), podmíněná pravidla podle taxonomie / šablony, skrytí existujících komentářů u starých příspěvků.
+Kontrola `comment_form_absent` v průvodci se vynechá, když smí komentovat nepřihlášení.
+
+**Testy.** `tests/content-b2.php` (nový, 120 kontrol: počítadlo, matice písmena x parametry x podmínky, CSV round trip, schémata abilities + MCP validátor, matice podmínek snippetů, Dashicons, výjimky komentářů přes
+reflexi modulu, žádný zápis voleb jádra), rozšířené `tests/migration-sources.php`, `tests/migration-data-sources.php`, `tests/mcp-core.php`; všech 17 samostatných testů zelených.
+
+**Ověřeno živě (pobyty, dočasní uživatelé admin / editor / odběratel, vše vráceno).** Redirects: upgrade tabulky v2 -> v3 se třemi řádky (beze změny, hity), 20 curl případů (písmena, parametry, regex s písmeny, podmínky),
+REST (seznam, vynulování, export), abilities přes `/wp-abilities/v1`. Snippety: 7 druhů stránek x 5 návštěvníků (hosté, mobil, odběratel, editor, admin) pro 16 snippetů, wp-admin jen pro administrátora, PHP v REST
+ticho, časová okna, PHP s časnou podmínkou (přihlášený, role, mobil). Ikony menu: výběr v Vzhled > Menu, uložení, zahození podvržené hodnoty, vykreslení, Dashicons CSS jen na stránce s menu. Komentáře (plugin Disable
+Comments dočasně vypnutý): role, REST, odeslání, trackback povolený / odmítnutý, zavírání po dnech, jádro beze změny. Migrace: skutečná data Redirection (316 pravidel, 41 550 zásahů, 314 s posledním zásahem, čas převeden UTC ->
+Praha, druhý běh 0 zapsáno, ověření 316 z 316, vrácení) a fixtury WPCode, HFCM, Menu Icons, Disable Comments (staging, náhled s podmínkami v praxi, vrácení).
+
+**Neověřeno / otevřené.** Autorské archivy na pobyty přesměrovává web sám, proto se druh „autor“ živě neověřil (jen jednotkově). Odmítnutí typu `review` (WooCommerce) živě nešlo (stejná cesta jako trackback, ověřený),
+formulář komentářů téma na šabloně příspěvku nevykresluje (ověřeno přes `comments_open()` a odeslání). WPCode / HFCM / Menu Icons nejsou na pobyty nainstalované (fixtury z kódu pluginů ve `plugin-src`). Zápis zásahů
+po odeslání odpovědi funguje jen na PHP-FPM / FastCGI. Přesměrování migrací s vypnutým modulem (přímý zápis) se živě neopakovalo (kód stejný, jednotkově ověřen).

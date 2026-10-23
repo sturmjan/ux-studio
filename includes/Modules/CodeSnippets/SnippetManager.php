@@ -252,8 +252,19 @@ final class SnippetManager {
 			);
 		}
 
+		$conditions = SnippetConditions::normalize( $data['conditions'] ?? array() );
+		if ( $conditions['errors'] ) {
+			return array(
+				'valid'          => false,
+				'message'        => implode( ' ', $conditions['errors'] ),
+				'sanitized_data' => array(),
+			);
+		}
+
 		$sanitized = array(
-			'name'         => $name,
+			'name'             => $name,
+			'conditions'       => $conditions['conditions'],
+			'conditions_given' => array_key_exists( 'conditions', $data ),
 			'type'         => $type,
 			'code'         => $code,
 			'enabled'      => isset( $data['enabled'] ) ? (bool) $data['enabled'] : false,
@@ -495,12 +506,13 @@ final class SnippetManager {
 				'type'         => $sanitized['type'],
 				'run_location' => $sanitized['run_location'],
 				'post_types'   => implode( ',', $sanitized['post_types'] ),
+				'conditions'   => SnippetConditions::encode( $sanitized['conditions'] ),
 				'enabled'      => $sanitized['enabled'] ? 1 : 0,
 				'file_path'    => '',
 				'created_at'   => $now,
 				'updated_at'   => $now,
 			),
-			array( '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s' )
+			array( '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s' )
 		);
 
 		if ( ! $inserted ) {
@@ -545,7 +557,7 @@ final class SnippetManager {
 		}
 
 		$wpdb->update( $table, array( 'file_path' => $file_path ), array( 'id' => $id ), array( '%s' ), array( '%d' ) );
-		$snippet->setMeta( $sanitized['post_types'], '', '' );
+		$snippet->setMeta( $sanitized['post_types'], '', '', SnippetConditions::encode( $sanitized['conditions'] ) );
 
 		ActivityLog::log( 'code-snippets', 'create', 'snippet', (int) $id, array( 'name' => $sanitized['name'], 'type' => $sanitized['type'] ) );
 
@@ -641,6 +653,8 @@ final class SnippetManager {
 			);
 		}
 
+		// A caller that does not mention conditions (an older client) keeps the ones the snippet has.
+		$conditions_json = $sanitized['conditions_given'] ? SnippetConditions::encode( $sanitized['conditions'] ) : (string) ( $row['conditions'] ?? '' );
 		$wpdb->update(
 			$table,
 			array(
@@ -648,14 +662,15 @@ final class SnippetManager {
 				'type'         => $sanitized['type'],
 				'run_location' => $sanitized['run_location'],
 				'post_types'   => implode( ',', $sanitized['post_types'] ),
+				'conditions'   => $conditions_json,
 				'enabled'      => $sanitized['enabled'] ? 1 : 0,
 				'updated_at'   => current_time( 'mysql' ),
 			),
 			array( 'id' => $id ),
-			array( '%s', '%s', '%s', '%s', '%d', '%s' ),
+			array( '%s', '%s', '%s', '%s', '%s', '%d', '%s' ),
 			array( '%d' )
 		);
-		$snippet->setMeta( $sanitized['post_types'], (string) ( $row['last_run'] ?? '' ), (string) ( $row['run_result'] ?? '' ) );
+		$snippet->setMeta( $sanitized['post_types'], (string) ( $row['last_run'] ?? '' ), (string) ( $row['run_result'] ?? '' ), $conditions_json );
 
 		ActivityLog::log( 'code-snippets', 'update', 'snippet', (int) $id, array( 'name' => $sanitized['name'], 'type' => $sanitized['type'] ) );
 
@@ -854,7 +869,8 @@ final class SnippetManager {
 		$snippet->setMeta(
 			'' === (string) ( $row['post_types'] ?? '' ) ? array() : explode( ',', (string) $row['post_types'] ),
 			(string) ( $row['last_run'] ?? '' ),
-			(string) ( $row['run_result'] ?? '' )
+			(string) ( $row['run_result'] ?? '' ),
+			(string) ( $row['conditions'] ?? '' )
 		);
 
 		return $snippet;

@@ -38,3 +38,15 @@
 	clip: rect(1px, 1px, 1px, 1px);
 	white-space: nowrap;
 }
+
+/* Dashicons: the glyph is drawn by core's dashicons stylesheet, here it only gets centred in its box. */
+.uxs-menu-icon-dashicons {
+	line-height: 1;
+	text-decoration: none;
+}
+
+.uxs-menu-icon-dashicons:before {
+	font-size: inherit;
+	width: 1em;
+	height: 1em;
+}

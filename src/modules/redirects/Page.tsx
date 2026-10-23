@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Download, ListFilter, LoaderCircle, Pencil, Play, Trash2, Upload } from 'lucide-react';
+import { ArrowLeft, Download, ListFilter, LoaderCircle, Pencil, Play, RotateCcw, Trash2, Upload } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
@@ -12,6 +12,7 @@ import { type ApiCondition, type ConditionDraft, ConditionsEditor, describeCondi
 type Tab = 'rules' | '404' | 'audit' | 'import' | 'settings';
 type Code = 301 | 302 | 307 | 308 | 410;
 type MatchType = 'exact' | 'regex';
+type QueryMode = 'default' | 'exact' | 'ignore' | 'pass';
 
 interface Rule {
 	id: number;
@@ -29,6 +30,8 @@ interface Rule {
 	note: string;
 	conditions: ApiCondition[];
 	position: number;
+	case_sensitive: boolean;
+	query_mode: QueryMode;
 }
 
 interface Issue {
@@ -88,10 +91,12 @@ interface Draft {
 	note: string;
 	conditions: ConditionDraft[];
 	position: number;
+	case_sensitive: boolean;
+	query_mode: QueryMode;
 }
 
 const PAGE_SIZE = 50;
-const EMPTY_DRAFT: Draft = { id: null, source: '', target: '', code: 301, match_type: 'exact', note: '', conditions: [], position: 0 };
+const EMPTY_DRAFT: Draft = { id: null, source: '', target: '', code: 301, match_type: 'exact', note: '', conditions: [], position: 0, case_sensitive: false, query_mode: 'default' };
 
 interface Visitor {
 	logged_in: boolean;
@@ -125,6 +130,13 @@ function visitorPayload( v: Visitor ): Record< string, unknown > {
 	}
 	return out;
 }
+
+const QUERY_LABELS: Record< QueryMode, string > = {
+	default: __( 'By the module setting (default)', 'ux-studio' ),
+	exact: __( 'Exact: no other parameters allowed', 'ux-studio' ),
+	ignore: __( 'Ignore parameters', 'ux-studio' ),
+	pass: __( 'Ignore and pass on to the new URL', 'ux-studio' ),
+};
 
 const CODE_LABELS: Record< Code, string > = {
 	301: __( '301 Moved permanently (recommended)', 'ux-studio' ),
@@ -265,6 +277,8 @@ function RuleForm( { draft, setDraft }: { draft: Draft; setDraft: ( d: Draft ) =
 				note: draft.note,
 				conditions: toPayload( draft.conditions ),
 				position: draft.position,
+				case_sensitive: draft.case_sensitive,
+				query_mode: draft.query_mode,
 			};
 			if ( draft.id ) {
 				return api< SaveResult >( `redirects/rules/${ draft.id }`, { method: 'POST', body: JSON.stringify( { ...payload, target_post_id: 0 } ) } );
@@ -336,6 +350,21 @@ function RuleForm( { draft, setDraft }: { draft: Draft; setDraft: ( d: Draft ) =
 					</button>
 				) }
 			</div>
+			{ draft.match_type === 'exact' && (
+				<div className="uxs-rd-options">
+					<label>
+						<input type="checkbox" checked={ draft.case_sensitive } onChange={ ( e ) => setDraft( { ...draft, case_sensitive: e.target.checked } ) } /> { __( 'Case sensitive', 'ux-studio' ) }
+					</label>
+					<label htmlFor="uxs-rd-query">{ __( 'Query string', 'ux-studio' ) }</label>
+					<select id="uxs-rd-query" value={ draft.query_mode } onChange={ ( e ) => setDraft( { ...draft, query_mode: e.target.value as QueryMode } ) }>
+						{ ( Object.keys( QUERY_LABELS ) as QueryMode[] ).map( ( m ) => (
+							<option key={ m } value={ m }>
+								{ QUERY_LABELS[ m ] }
+							</option>
+						) ) }
+					</select>
+				</div>
+			) }
 			<ConditionsEditor conditions={ draft.conditions } onChange={ ( conditions ) => setDraft( { ...draft, conditions } ) } />
 			{ draft.conditions.length > 0 && (
 				<div className="uxs-rd-cond__order">
@@ -378,6 +407,10 @@ function RulesTab( { draft, setDraft }: { draft: Draft; setDraft: ( d: Draft ) =
 		mutationFn: ( id: number ) => api( 'redirects/rules', { method: 'DELETE', body: JSON.stringify( { ids: [ id ] } ) } ),
 		onSuccess: invalidate,
 	} );
+	const resetHits = useMutation( {
+		mutationFn: ( ids: number[] | null ) => api( 'redirects/rules/reset-hits', { method: 'POST', body: JSON.stringify( ids ? { ids } : { all: true } ) } ),
+		onSuccess: invalidate,
+	} );
 
 	return (
 		<>
@@ -402,6 +435,23 @@ function RulesTab( { draft, setDraft }: { draft: Draft; setDraft: ( d: Draft ) =
 					} }
 				/>
 			</div>
+			{ rules.data && rules.data.some( ( r ) => r.hits > 0 ) && (
+				<p style={ { marginBottom: 'var(--uxs-sp-3)' } }>
+					<button
+						type="button"
+						className="button button-small"
+						disabled={ resetHits.isPending }
+						onClick={ () => {
+							// eslint-disable-next-line no-alert
+							if ( window.confirm( __( 'Reset the hit counters of ALL redirects to zero?', 'ux-studio' ) ) ) {
+								resetHits.mutate( null );
+							}
+						} }
+					>
+						<RotateCcw size={ 14 } /> { __( 'Reset all hit counters', 'ux-studio' ) }
+					</button>
+				</p>
+			) }
 			{ rules.isLoading && <Loading /> }
 			{ rules.data && rules.data.length === 0 && <p>{ __( 'No redirects yet.', 'ux-studio' ) }</p> }
 			{ rules.data && rules.data.length > 0 && (
@@ -413,6 +463,7 @@ function RulesTab( { draft, setDraft }: { draft: Draft; setDraft: ( d: Draft ) =
 								<th>{ __( 'New URL', 'ux-studio' ) }</th>
 								<th>{ __( 'Code', 'ux-studio' ) }</th>
 								<th>{ __( 'Hits', 'ux-studio' ) }</th>
+								<th>{ __( 'Last hit', 'ux-studio' ) }</th>
 								<th>{ __( 'Origin', 'ux-studio' ) }</th>
 								<th>{ __( 'Active', 'ux-studio' ) }</th>
 								<th />
@@ -424,6 +475,13 @@ function RulesTab( { draft, setDraft }: { draft: Draft; setDraft: ( d: Draft ) =
 													<td>
 														<code>{ rule.source }</code>
 														{ rule.match_type === 'regex' && <span className="uxs-badge is-info"> regex</span> }
+														{ rule.case_sensitive && <span className="uxs-badge" style={ { marginLeft: 4 } }>{ __( 'Case sensitive', 'ux-studio' ) }</span> }
+														{ rule.query_mode !== 'default' && (
+															<span className="uxs-badge" style={ { marginLeft: 4 } } title={ QUERY_LABELS[ rule.query_mode ] }>
+																{ /* translators: %s: how the query string is handled (exact, ignore, pass) */ }
+																{ sprintf( __( 'Parameters: %s', 'ux-studio' ), rule.query_mode ) }
+															</span>
+														) }
 														{ rule.conditions.length > 0 && (
 															<span className="uxs-badge is-warning" style={ { marginLeft: 4 } } title={ describeConditions( rule.conditions ) }>
 																<ListFilter size={ 12 } /> { __( 'Condition', 'ux-studio' ) }
@@ -443,6 +501,7 @@ function RulesTab( { draft, setDraft }: { draft: Draft; setDraft: ( d: Draft ) =
 									</td>
 									<td>{ codeBadge( rule.code ) }</td>
 									<td>{ rule.hits }</td>
+									<td style={ { whiteSpace: 'nowrap' } }>{ rule.last_hit ? formatDate( rule.last_hit ) : '-' }</td>
 									<td>{ rule.origin }</td>
 									<td>
 										<input type="checkbox" checked={ rule.enabled } onChange={ () => toggle.mutate( rule ) } aria-label={ __( 'Active', 'ux-studio' ) } />
@@ -462,11 +521,20 @@ function RulesTab( { draft, setDraft }: { draft: Draft; setDraft: ( d: Draft ) =
 													note: rule.note,
 													conditions: rule.conditions.map( fromApi ),
 													position: rule.position,
+													case_sensitive: rule.case_sensitive,
+													query_mode: rule.query_mode,
 												} )
 											}
 										>
 											<Pencil size={ 14 } />
 										</button>{ ' ' }
+										{ ( rule.hits > 0 || rule.last_hit ) && (
+											<>
+												<button type="button" className="button button-small" aria-label={ __( 'Reset hit counter', 'ux-studio' ) } title={ __( 'Reset hit counter', 'ux-studio' ) } disabled={ resetHits.isPending } onClick={ () => resetHits.mutate( [ rule.id ] ) }>
+													<RotateCcw size={ 14 } />
+												</button>{ ' ' }
+											</>
+										) }
 										<button
 											type="button"
 											className="button button-small"
@@ -706,7 +774,7 @@ function ImportTab(): JSX.Element {
 		<>
 			<h3>{ __( 'CSV import', 'ux-studio' ) }</h3>
 			<p style={ { color: 'var(--uxs-text-soft)' } }>
-				{ __( 'One redirect per line: source, target, code, note. Header row optional, comma or semicolon separated. Empty target = 410 Gone. The export also has "conditions" (JSON) and "position" columns; the import reads them.', 'ux-studio' ) }
+				{ __( 'One redirect per line: source, target, code, note. Header row optional, comma or semicolon separated. Empty target = 410 Gone. The export also has "conditions" (JSON), "position", "case_sensitive", "query_mode", "hits" and "last_hit" columns; the import reads them (counters only for new redirects).', 'ux-studio' ) }
 			</p>
 			<textarea
 				rows={ 8 }

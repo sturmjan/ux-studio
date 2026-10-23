@@ -105,10 +105,20 @@ final class RedirectsSource extends AbstractSource implements Activatable {
 						if ( ! empty( $item['conditions'] ) ) {
 							$out['flags']['conditions'] = ( $out['flags']['conditions'] ?? 0 ) + 1;
 						}
-						foreach ( array( 'flag_case' => 'case', 'flag_query' => 'query' ) as $key => $name ) {
-							if ( ( 'flag_case' === $key && ! empty( $item[ $key ] ) ) || ( 'flag_query' === $key && 'exact' !== $item[ $key ] ) ) {
+						// Match flags the module cannot express exactly (the ones it can are transferred, see rule_input()).
+						foreach ( array( 'query_unmapped', 'query_order', 'trailing_slash' ) as $name ) {
+							if ( ! empty( $item[ $name ] ) ) {
 								$out['flags'][ $name ] = ( $out['flags'][ $name ] ?? 0 ) + 1;
 							}
+						}
+						if ( 'exact' === ( $item['query_mode'] ?? '' ) && 'exact' === $item['match_type'] && ! str_contains( (string) $item['source'], '?' ) ) {
+							$out['flags']['query_strict'] = ( $out['flags']['query_strict'] ?? 0 ) + 1;
+						}
+						if ( ! empty( $item['case_sensitive'] ) ) {
+							$out['flags']['case_sensitive'] = ( $out['flags']['case_sensitive'] ?? 0 ) + 1;
+						}
+						if ( (int) ( $item['hits'] ?? 0 ) > 0 ) {
+							$out['flags']['hits'] = ( $out['flags']['hits'] ?? 0 ) + 1;
 						}
 					}
 					foreach ( $page['skipped'] as $reason => $n ) {
@@ -414,21 +424,42 @@ final class RedirectsSource extends AbstractSource implements Activatable {
 				)
 			);
 		}
-		if ( ! empty( $c['flags']['case'] ) ) {
-			$m->lossy(
+		if ( 'redirection' === $this->slug ) {
+			$m->note( __( 'Letter case and query string handling are transferred rule by rule (the plugin\'s own default applies to rules without their own settings): case sensitive or not, and for the query string exact match, ignore, or ignore and pass on to the target.', 'ux-studio' ) );
+		}
+		if ( ! empty( $c['flags']['query_strict'] ) ) {
+			$m->note(
 				sprintf(
 					/* translators: %d: number of rules. */
-					__( '%d rules were case sensitive. The module ignores letter case in addresses.', 'ux-studio' ),
-					$c['flags']['case']
+					__( '%d rules match only an address WITHOUT extra parameters, exactly as in the plugin: a link like /old?utm_source=x does not redirect. Change the rule to "Ignore" or "Ignore and pass on" if it should.', 'ux-studio' ),
+					$c['flags']['query_strict']
 				)
 			);
 		}
-		if ( ! empty( $c['flags']['query'] ) ) {
+		if ( ! empty( $c['flags']['query_unmapped'] ) ) {
 			$m->lossy(
 				sprintf(
 					/* translators: %d: number of rules. */
-					__( '%d rules had their own handling of the query string (ignore or pass on). The module uses its own setting "pass query string".', 'ux-studio' ),
-					$c['flags']['query']
+					__( '%d rules name parameters in the old address and let other parameters through (ignore or pass on). The module compares the parameters exactly for such a rule.', 'ux-studio' ),
+					$c['flags']['query_unmapped']
+				)
+			);
+		}
+		if ( ! empty( $c['flags']['query_order'] ) ) {
+			$m->lossy(
+				sprintf(
+					/* translators: %d: number of rules. */
+					__( '%d rules compared the parameters in the order written. The module compares them in any order.', 'ux-studio' ),
+					$c['flags']['query_order']
+				)
+			);
+		}
+		if ( ! empty( $c['flags']['trailing_slash'] ) ) {
+			$m->lossy(
+				sprintf(
+					/* translators: %d: number of rules. */
+					__( '%d rules treated an address with a slash at the end as a different address. The module ignores the trailing slash.', 'ux-studio' ),
+					$c['flags']['trailing_slash']
 				)
 			);
 		}
@@ -442,7 +473,16 @@ final class RedirectsSource extends AbstractSource implements Activatable {
 			);
 		}
 		if ( 'redirection' === $this->slug ) {
-			$m->lossy( __( 'Hit counters, the redirect log and the 404 log of the plugin are not transferred (the module starts counting from zero).', 'ux-studio' ) );
+			if ( ! empty( $c['flags']['hits'] ) ) {
+				$m->note(
+					sprintf(
+						/* translators: %d: number of rules. */
+						__( 'The hit counter and the time of the last hit of %d rules are transferred, so you can see which old addresses still get traffic.', 'ux-studio' ),
+						$c['flags']['hits']
+					)
+				);
+			}
+			$m->lossy( __( 'The redirect log and the 404 log of the plugin are not transferred.', 'ux-studio' ) );
 		}
 		if ( 'safe-redirect-manager' === $this->slug ) {
 			$m->note( __( 'Rules ending with * become regular-expression rules (the part after the prefix is passed to the target as $1).', 'ux-studio' ) );
@@ -541,6 +581,11 @@ final class RedirectsSource extends AbstractSource implements Activatable {
 			'position'   => $item['position'],
 			'conditions' => $item['conditions'] ?? array(),
 			'origin'     => 'import',
+			// Redirection only: the rule's match flags and its counters (other sources have none, the defaults apply).
+			'case_sensitive' => ! empty( $item['case_sensitive'] ),
+			'query_mode'     => (string) ( $item['query_mode'] ?? 'default' ),
+			'hits'           => (int) ( $item['hits'] ?? 0 ),
+			'last_hit'       => (string) ( $item['last_hit'] ?? '' ),
 		);
 	}
 

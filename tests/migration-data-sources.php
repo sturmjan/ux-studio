@@ -382,15 +382,15 @@ $redir = static function ( int $id, string $url, string $match, string $atype, i
 };
 $redir_rows = array(
 	$redir( 1, '/stara', 'url', 'url', 301, '/nova' ),
-	$redir( 2, '/blog/(.*)', 'url', 'url', 301, '/novy-blog/$1', 1 ),
+	$redir( 2, '/blog/(.*)', 'url', 'url', 301, '/novy-blog/$1', 1, 'enabled', 1, '{"source":{"flag_regex":true,"flag_case":true}}' ),
 	$redir( 3, '/smazano', 'url', 'error', 410, '' ),
-	$redir( 4, '/vypnuto', 'url', 'url', 302, '/jinam', 0, 'disabled' ),
+	$redir( 4, '/vypnuto', 'url', 'url', 302, '/jinam', 0, 'disabled', 1, '{"source":{"flag_query":"exactorder"}}' ),
 	$redir( 5, '/ve-skupine', 'url', 'url', 301, '/x', 0, 'enabled', 2 ),
 	$redir( 6, '/', 'server', 'url', 301, serialize( array( 'url_from' => 'https://nova.test', 'url_notfrom' => '', 'server' => 'https://old.test' ) ) ),
 	$redir( 7, '/nahoda', 'url', 'random', 301, '' ),
 	$redir( 8, '/prihlasen', 'login', 'url', 301, serialize( array( 'logged_in' => '/y', 'logged_out' => '/gost' ) ) ),
-	$redir( 9, '/velke', 'url', 'url', 301, '/male', 0, 'enabled', 1, '{"source":{"flag_query":"ignore","flag_case":true}}' ),
-	$redir( 10, '/see-other', 'url', 'url', 303, '/z' ),
+	$redir( 9, '/velke', 'url', 'url', 301, '/male', 0, 'enabled', 1, '{"source":{"flag_query":"ignore","flag_case":true,"flag_trailing":false}}' ),
+	$redir( 10, '/see-other?x=1', 'url', 'url', 303, '/z', 0, 'enabled', 1, '{"source":{"flag_query":"pass","flag_case":true,"flag_trailing":true}}' ),
 	$redir( 11, 'https://old.test/Stara/', 'url', 'url', 301, '/jinde' ), // same address as rule 1 (case, slash, host): never reached
 	// Match types: one rule per state that has a target ("matched" / "not matched"), both on the SAME address as rule 1 here.
 	$redir( 12, '/stara', 'referrer', 'url', 301, serialize( array( 'url_from' => '/z-google', 'url_notfrom' => '/bez-google', 'regex' => true, 'referrer' => 'google\\.' ) ) ),
@@ -401,6 +401,9 @@ $redir_rows = array(
 	$redir( 17, '/ip', 'ip', 'url', 301, serialize( array( 'url_from' => '/kancelar', 'url_notfrom' => '', 'ip' => array( '203.0.113.5', '10.0.0.1' ) ) ) ),
 	$redir( 18, '/hlavicka', 'header', 'url', 301, serialize( array( 'url_from' => '/h', 'url_notfrom' => '', 'name' => 'X-Foo', 'value' => 'bar', 'regex' => false ) ) ),
 );
+$redir_rows[0]['last_count']  = 12;
+$redir_rows[0]['last_access'] = '2026-03-17 08:18:11';
+$redir_rows[1]['last_count']  = 3;
 $sql( '/SELECT id, status FROM wp_redirection_groups/', static fn() => array( array( 'id' => 1, 'status' => 'enabled' ), array( 'id' => 2, 'status' => 'disabled' ) ) );
 $sql( '/SELECT COUNT\(\*\) FROM wp_redirection_items/', static fn() => array( count( $redir_rows ) ) );
 $sql( '/FROM wp_redirection_items WHERE id > (\d+) ORDER BY id ASC LIMIT (\d+)/', static function ( $m ) use ( $redir_rows ) {
@@ -412,11 +415,17 @@ $assert( 'redirection: disabled rule and rule in a disabled group count as inact
 $assert( 'redirection: 1 regex, 1 gone', 1 === $data_count( $plan, 'regex' ) && 1 === $data_count( $plan, 'gone' ) );
 $assert( 'redirection: a rule with the same address AND the same conditions as an earlier one is still dropped (the first one wins) and reported', $lossy_has( $plan, 'same address and the same conditions' ) && 17 === $data_count( $plan, 'redirect' ), json_encode( $plan['lossy'] ) );
 $assert( 'redirection: a rule with the same address but other conditions is NOT a duplicate (several rules per address)', isset( array_column( $items_of( 'redirection' ), null, 'key' )['item:12'], array_column( $items_of( 'redirection' ), null, 'key' )['item:12:else'], array_column( $items_of( 'redirection' ), null, 'key' )['item:1'] ) && '/stara' === array_column( $items_of( 'redirection' ), null, 'key' )['item:12']['source'] );
-$assert( 'redirection: lossy no longer lists server / login / referrer / agent / cookie / role / IP / header rules; it lists random target, language, case + query flags, counters', ! $lossy_has( $plan, 'whole domain' ) && ! $lossy_has( $plan, 'logged in' ) && ! $lossy_has( $plan, 'referring page' ) && ! $lossy_has( $plan, 'cookie' ) && ! $lossy_has( $plan, 'IP address' ) && ! $lossy_has( $plan, 'HTTP header' ) && $lossy_has( $plan, 'random target' ) && $lossy_has( $plan, 'depend on the language' ) && $lossy_has( $plan, 'case sensitive' ) && $lossy_has( $plan, 'query string' ) && $lossy_has( $plan, 'Hit counters' ), json_encode( $plan['lossy'] ) );
+$assert( 'redirection: lossy no longer lists server / login / referrer / agent / cookie / role / IP / header rules, nor case flags and counters (transferred); it lists random target, language, the query flags the module cannot express, trailing slash and the logs', ! $lossy_has( $plan, 'whole domain' ) && ! $lossy_has( $plan, 'logged in' ) && ! $lossy_has( $plan, 'referring page' ) && ! $lossy_has( $plan, 'cookie' ) && ! $lossy_has( $plan, 'IP address' ) && ! $lossy_has( $plan, 'HTTP header' ) && $lossy_has( $plan, 'random target' ) && $lossy_has( $plan, 'depend on the language' ) && ! $lossy_has( $plan, 'were case sensitive' ) && ! $lossy_has( $plan, 'Hit counters' ) && $lossy_has( $plan, 'let other parameters through' ) && $lossy_has( $plan, 'in the order written' ) && $lossy_has( $plan, 'slash at the end' ) && $lossy_has( $plan, 'redirect log and the 404 log' ), json_encode( $plan['lossy'] ) );
+$assert( 'redirection: the plan says that case, query handling and hit counters are transferred', false !== strpos( implode( ' ', $plan['notes'] ), 'Letter case and query string handling are transferred' ) && false !== strpos( implode( ' ', $plan['notes'] ), 'hit counter and the time of the last hit of 2 rules' ), json_encode( $plan['notes'] ) );
 $assert( 'redirection: the plan says how many rules became conditional rules', false !== strpos( implode( ' ', $plan['notes'] ), '10 rules depend on who is asking' ), json_encode( $plan['notes'] ) );
 $items = $items_of( 'redirection' );
 $by    = array_column( $items, null, 'key' );
 $assert( 'redirection: 303 becomes 302, 410 has no target, regex keeps match type', 302 === $by['item:10']['code'] && '' === $by['item:3']['target'] && 410 === $by['item:3']['code'] && 'regex' === $by['item:2']['match_type'] );
+$assert( 'redirection: Redirection\'s default (no flag_case) is case SENSITIVE, flag_case=true means case insensitive', true === $by['item:1']['case_sensitive'] && false === $by['item:9']['case_sensitive'] && false === $by['item:2']['case_sensitive'] );
+$assert( 'redirection: query handling: default exact -> exact, ignore -> ignore, regex -> default, exactorder -> exact', 'exact' === $by['item:1']['query_mode'] && 'ignore' === $by['item:9']['query_mode'] && 'default' === $by['item:2']['query_mode'] && 'exact' === $by['item:4']['query_mode'] && true === $by['item:4']['query_order'] );
+$assert( 'redirection: "pass" with parameters in the source cannot be expressed: default mode and counted as unmapped', 'default' === $by['item:10']['query_mode'] && true === $by['item:10']['query_unmapped'] && false === $by['item:9']['query_unmapped'] );
+$assert( 'redirection: trailing slash flag false is reported only for exact rules', true === $by['item:1']['trailing_slash'] && true === $by['item:9']['trailing_slash'] && false === $by['item:10']['trailing_slash'] && false === $by['item:2']['trailing_slash'] );
+$assert( 'redirection: hits and last access travel (UTC converted to site time when WordPress can), the epoch means never', 12 === $by['item:1']['hits'] && '2026-03-17 08:18:11' === $by['item:1']['last_hit'] && 3 === $by['item:2']['hits'] && '' === $by['item:2']['last_hit'] && 0 === $by['item:9']['hits'] );
 $cond = static fn( string $key ): array => $by[ $key ]['conditions'];
 $assert( 'redirection: login -> two rules, logged in / logged out, each with its own target', array( array( 'type' => 'login', 'value' => 'in' ) ) === $cond( 'item:8' ) && '/y' === $by['item:8']['target'] && array( array( 'type' => 'login', 'value' => 'out' ) ) === $cond( 'item:8:else' ) && '/gost' === $by['item:8:else']['target'] );
 $assert( 'redirection: referrer regex -> matched rule + negated "not matched" rule on the same address, order kept by position', array( array( 'type' => 'referrer', 'op' => 'regex', 'value' => 'google\\.' ) ) === $cond( 'item:12' ) && true === $cond( 'item:12:else' )[0]['negate'] && '/z-google' === $by['item:12']['target'] && '/bez-google' === $by['item:12:else']['target'] && 12 === $by['item:12']['position'] );
@@ -557,10 +566,17 @@ $meta( 'post', 25, '_wpcode_auto_insert', 1 );
 $post( 26, 'wpcode', 'publish', 'Mezi odstavci', '<p>mezi</p>' );
 $GLOBALS['uxs_terms'][26] = array( 'wpcode_type' => array( 'html' ), 'wpcode_location' => array( 'before_paragraph' ) );
 $meta( 'post', 26, '_wpcode_auto_insert', 1 );
+$post( 27, 'wpcode', 'publish', 'Jen uvodni', '<p>uvod</p>' );
+$GLOBALS['uxs_terms'][27] = array( 'wpcode_type' => array( 'html' ), 'wpcode_location' => array( 'site_wide_footer' ) );
+$meta( 'post', 27, '_wpcode_auto_insert', 1 ); $meta( 'post', 27, '_wpcode_conditional_logic_enabled', 1 ); $meta( 'post', 27, '_wpcode_device_type', 'desktop' );
+$meta( 'post', 27, '_wpcode_conditional_logic', array( 'show' => 'show', 'groups' => array( array(
+	array( 'type' => 'page', 'option' => 'type_of_page', 'relation' => '=', 'value' => 'is_front_page' ),
+	array( 'type' => 'user', 'option' => 'logged_in', 'relation' => '=', 'value' => '1' ),
+) ) ) );
 $items = $items_of( 'insert-headers-and-footers' );
 $by    = array_column( $items, null, 'key' );
 $plan  = SourceRegistry::get( 'insert-headers-and-footers' )->plan();
-$assert( 'wpcode: legacy header + body boxes (footer empty) and 5 snippet posts convert (manual and before / after content are new)', 7 === count( $items ) && isset( $by['ihaf:header'], $by['ihaf:body'], $by['wpcode:20'], $by['wpcode:21'], $by['wpcode:22'], $by['wpcode:24'], $by['wpcode:25'] ), implode( ',', array_keys( $by ) ) );
+$assert( 'wpcode: legacy header + body boxes (footer empty) and 5 snippet posts convert (manual and before / after content are new)', 8 === count( $items ) && isset( $by['ihaf:header'], $by['ihaf:body'], $by['wpcode:27'], $by['wpcode:20'], $by['wpcode:21'], $by['wpcode:22'], $by['wpcode:24'], $by['wpcode:25'] ), implode( ',', array_keys( $by ) ) );
 $assert( 'wpcode: a snippet that is not inserted automatically becomes a shortcode snippet (a draft stays off)', 'shortcode' === $by['wpcode:22']['run_location'] && 'php' === $by['wpcode:22']['type'] && false === $by['wpcode:22']['enabled'] && false === $by['wpcode:22']['keep_off'] );
 $assert( 'wpcode: before post / before content -> before the content, after content -> after, with posts and pages as the default post types; other snippets have none', 'before_content' === $by['wpcode:24']['run_location'] && 'after_content' === $by['wpcode:25']['run_location'] && array( 'post', 'page' ) === $by['wpcode:24']['post_types'] && array( 'post', 'page' ) === $by['wpcode:25']['post_types'] && array() === $by['wpcode:20']['post_types'] );
 $assert( 'wpcode: header box -> html in the site header, body box -> after the opening body tag', 'html' === $by['ihaf:header']['type'] && 'site_header' === $by['ihaf:header']['run_location'] && 'site_body_open' === $by['ihaf:body']['run_location'] );
@@ -568,6 +584,28 @@ $assert( 'wpcode: priority and note are kept; conditional logic marks the snippe
 $assert( 'wpcode: text type, a place the module lacks (before paragraph) and conditions are reported; shortcode-only and before / after content are not', $lossy_has( $plan, 'plain text' ) && $lossy_has( $plan, 'before_paragraph' ) && $lossy_has( $plan, 'conditions' ) && ! $lossy_has( $plan, 'shortcode or on demand' ) && ! $lossy_has( $plan, 'before or after posts' ), json_encode( $plan['lossy'] ) );
 $assert( 'wpcode: notes tell about the shortcode and the placement around the content', false !== strpos( implode( ' ', $plan['notes'] ), '[uxstudio_snippet' ) && false !== strpos( implode( ' ', $plan['notes'] ), 'before or after the post content' ), json_encode( $plan['notes'] ) );
 $assert( 'wpcode: 1 snippet in review is not counted among those switched on at the switch', 1 === $data_count( $plan, 'review' ), json_encode( $plan['data'] ) );
+$assert( 'wpcode: conditional logic (front page AND logged in) and the device become run conditions, the snippet is NOT held for review', false === $by['wpcode:27']['review'] && array(
+	array( 'type' => 'page', 'value' => array( 'front_page' ), 'negate' => false ),
+	array( 'type' => 'login', 'value' => 'in', 'negate' => false ),
+	array( 'type' => 'device', 'value' => 'desktop', 'negate' => false ),
+) === $by['wpcode:27']['conditions'], json_encode( $by['wpcode:27']['conditions'] ) );
+$assert( 'wpcode: logic that is enabled but has no readable rules still holds the snippet for review (no conditions are guessed)', true === $by['wpcode:21']['review'] && array() === $by['wpcode:21']['conditions'] );
+// The WPCode logic matrix: what maps exactly and what stays for review.
+$wp = SourceRegistry::get( 'insert-headers-and-footers' );
+$row = static fn( string $type, string $option, string $rel, $value ): array => array( 'type' => $type, 'option' => $option, 'relation' => $rel, 'value' => $value );
+$rules = static fn( string $show, array ...$groups ): array => array( 'show' => $show, 'groups' => $groups );
+$kinds = array( 'is_front_page' => 'front_page', 'is_home' => 'blog_home', 'is_single' => 'singular', 'is_author' => 'author', 'is_archive' => 'archive', 'is_search' => 'search', 'is_404' => '404' );
+$kind_ok = true;
+foreach ( $kinds as $wp_value => $kind ) {
+	$got = $wp->wpcode_conditions( $rules( 'show', array( $row( 'page', 'type_of_page', '=', $wp_value ) ) ) );
+	$neg = $wp->wpcode_conditions( $rules( 'show', array( $row( 'page', 'type_of_page', '!=', $wp_value ) ) ) );
+	$kind_ok = $kind_ok && array( array( 'type' => 'page', 'value' => array( $kind ), 'negate' => false ) ) === $got && true === $neg[0]['negate'];
+}
+$assert( 'wpcode logic: every "type of page" maps to its page kind, "!=" negates', $kind_ok );
+$assert( 'wpcode logic: logged in true / false / "!=", user role = / !=, post type', array( array( 'type' => 'login', 'value' => 'in', 'negate' => false ) ) === $wp->wpcode_conditions( $rules( 'show', array( $row( 'user', 'logged_in', '=', true ) ) ) ) && 'out' === $wp->wpcode_conditions( $rules( 'show', array( $row( 'user', 'logged_in', '=', '' ) ) ) )[0]['value'] && 'out' === $wp->wpcode_conditions( $rules( 'show', array( $row( 'user', 'logged_in', '!=', '1' ) ) ) )[0]['value'] && array( array( 'type' => 'role', 'value' => array( 'editor' ), 'negate' => true ) ) === $wp->wpcode_conditions( $rules( 'show', array( $row( 'user', 'user_role', '!=', 'editor' ) ) ) ) && array( array( 'type' => 'post_type', 'value' => array( 'product' ), 'scope' => 'single', 'negate' => false ) ) === $wp->wpcode_conditions( $rules( 'show', array( $row( 'page', 'post_type', '=', 'product' ) ) ) ) );
+$assert( 'wpcode logic: "hide" on one rule is that rule turned around, "hide" on several rules cannot be written (review)', true === $wp->wpcode_conditions( $rules( 'hide', array( $row( 'page', 'type_of_page', '=', 'is_404' ) ) ) )[0]['negate'] && 'out' === $wp->wpcode_conditions( $rules( 'hide', array( $row( 'user', 'logged_in', '=', '1' ) ) ) )[0]['value'] && null === $wp->wpcode_conditions( $rules( 'hide', array( $row( 'page', 'type_of_page', '=', 'is_404' ), $row( 'user', 'logged_in', '=', '1' ) ) ) ) );
+$assert( 'wpcode logic: several OR groups, other relations, page URL / referrer / taxonomy rules, unknown options and a missing "show" are NOT guessed (review)', null === $wp->wpcode_conditions( $rules( 'show', array( $row( 'user', 'logged_in', '=', '1' ) ), array( $row( 'page', 'type_of_page', '=', 'is_404' ) ) ) ) && null === $wp->wpcode_conditions( $rules( 'show', array( $row( 'page', 'page_url', 'contains', '/shop' ) ) ) ) && null === $wp->wpcode_conditions( $rules( 'show', array( $row( 'page', 'page_url', '=', '/shop/' ) ) ) ) && null === $wp->wpcode_conditions( $rules( 'show', array( $row( 'page', 'referrer', '=', 'x' ) ) ) ) && null === $wp->wpcode_conditions( $rules( 'show', array( $row( 'page', 'taxonomy_term', '=', array( 3 ) ) ) ) ) && null === $wp->wpcode_conditions( $rules( 'show', array( $row( 'user', 'user_meta', '=', 'x' ) ) ) ) && null === $wp->wpcode_conditions( array( 'groups' => array( array( $row( 'user', 'logged_in', '=', '1' ) ) ) ) ) && null === $wp->wpcode_conditions( array( 'show' => 'show', 'groups' => array() ) ) && null === $wp->wpcode_conditions( '' ) );
+$assert( 'wpcode: the plan tells how many snippets became run conditions', false !== strpos( implode( ' ', $plan['notes'] ), '1 snippet used page, user, role or device targeting' ), json_encode( $plan['notes'] ) );
 
 $site( array( 'header-footer-code-manager' ), array( 'header-footer-code-manager' ) );
 $table( 'hfcm_scripts' );
@@ -576,13 +614,27 @@ $sql( '/FROM wp_hfcm_scripts ORDER BY script_id ASC/', static fn() => array(
 	array( 'script_id' => 2, 'name' => 'Jen produkty', 'snippet' => '<style>a{}</style>', 'snippet_type' => 'css', 'device_type' => 'mobile', 'location' => 'footer', 'display_on' => 's_posts', 'status' => 'active' ),
 	array( 'script_id' => 3, 'name' => 'Za obsahem', 'snippet' => '<b>x</b>', 'snippet_type' => 'html', 'device_type' => 'both', 'location' => 'after_content', 'display_on' => 'All', 'status' => 'active' ),
 	array( 'script_id' => 4, 'name' => 'Shortcode', 'snippet' => 'x', 'snippet_type' => 'html', 'device_type' => 'both', 'location' => 'header', 'display_on' => 'manual', 'status' => 'inactive' ),
+	array( 'script_id' => 5, 'name' => 'Stranky', 'snippet' => '<i>p</i>', 'snippet_type' => 'html', 'device_type' => 'desktop', 'location' => 'header', 'display_on' => 's_pages', 's_pages' => '["12","45"]', 'status' => 'active' ),
+	array( 'script_id' => 6, 'name' => 'Vsude krome', 'snippet' => '<i>v</i>', 'snippet_type' => 'html', 'device_type' => 'both', 'location' => 'footer', 'display_on' => 'All', 'ex_pages' => '["7"]', 'ex_posts' => '["9"]', 'status' => 'active' ),
+	array( 'script_id' => 7, 'name' => 'Typy', 'snippet' => '<i>t</i>', 'snippet_type' => 'html', 'device_type' => 'both', 'location' => 'footer', 'display_on' => 's_custom_posts', 's_custom_posts' => '["product"]', 'spt_display_on' => 'archives', 'status' => 'active' ),
+	array( 'script_id' => 8, 'name' => 'Kategorie', 'snippet' => '<i>c</i>', 'snippet_type' => 'html', 'device_type' => 'both', 'location' => 'footer', 'display_on' => 's_categories', 's_categories' => '["3"]', 'status' => 'active' ),
 ) );
 $items = $items_of( 'header-footer-code-manager' );
 $by    = array_column( $items, null, 'key' );
 $plan  = SourceRegistry::get( 'header-footer-code-manager' )->plan();
-$assert( 'hfcm: code is decoded and kept as html (its js / css carry their own tags); all 4 snippets convert', 4 === count( $items ) && 'html' === $by['hfcm:1']['type'] && '<script>fbq()</script>' === $by['hfcm:1']['code'] && 'site_footer' === $by['hfcm:2']['run_location'] );
+$assert( 'hfcm: code is decoded and kept as html (its js / css carry their own tags); all 8 snippets convert', 8 === count( $items ) && 'html' === $by['hfcm:1']['type'] && '<script>fbq()</script>' === $by['hfcm:1']['code'] && 'site_footer' === $by['hfcm:2']['run_location'] );
 $assert( 'hfcm: after content -> placement after the content, manual -> shortcode snippet (inactive stays off)', 'after_content' === $by['hfcm:3']['run_location'] && array( 'post', 'page' ) === $by['hfcm:3']['post_types'] && false === $by['hfcm:3']['review'] && 'shortcode' === $by['hfcm:4']['run_location'] && false === $by['hfcm:4']['enabled'] && false === $by['hfcm:4']['review'] );
-$assert( 'hfcm: page / device targeting still marks a snippet for review; after-content and shortcode snippets are no longer reported as lost', true === $by['hfcm:2']['review'] && false === $by['hfcm:1']['review'] && ! $lossy_has( $plan, 'after_content' ) && ! $lossy_has( $plan, 'shortcode' ), json_encode( $plan['lossy'] ) );
+$assert( 'hfcm: specific pages + desktop -> post condition + device condition, no review', false === $by['hfcm:5']['review'] && array(
+	array( 'type' => 'post', 'value' => array( 12, 45 ), 'negate' => false ),
+	array( 'type' => 'device', 'value' => 'desktop', 'negate' => false ),
+) === $by['hfcm:5']['conditions'] && 'site_header' === $by['hfcm:5']['run_location'], json_encode( $by['hfcm:5']['conditions'] ) );
+$assert( 'hfcm: site wide with exclusions -> one negated post condition; post types (archives only) -> post type condition with scope', array(
+	array( 'type' => 'post', 'value' => array( 7, 9 ), 'negate' => true ),
+) === $by['hfcm:6']['conditions'] && false === $by['hfcm:6']['review'] && array(
+	array( 'type' => 'post_type', 'value' => array( 'product' ), 'scope' => 'archive', 'negate' => false ),
+) === $by['hfcm:7']['conditions'], json_encode( array( $by['hfcm:6']['conditions'], $by['hfcm:7']['conditions'] ) ) );
+$assert( 'hfcm: categories (no matching condition) and a mobile snippet with unreadable targeting stay for review, without conditions', true === $by['hfcm:8']['review'] && array() === $by['hfcm:8']['conditions'] && true === $by['hfcm:2']['review'] && array() === $by['hfcm:2']['conditions'] );
+$assert( 'hfcm: page / device targeting that cannot be expressed still marks a snippet for review; after-content and shortcode snippets are no longer reported as lost', true === $by['hfcm:2']['review'] && false === $by['hfcm:1']['review'] && 2 === $data_count( $plan, 'review' ) && ! $lossy_has( $plan, 'after_content' ) && ! $lossy_has( $plan, 'shortcode' ), json_encode( $plan['lossy'] ) );
 
 /* ═══ 3 Folders ═══ */
 
@@ -693,6 +745,9 @@ $items = $items_of( 'menu-icons' );
 $by    = array_column( $items, null, 'id' );
 $plan  = SourceRegistry::get( 'menu-icons' )->plan();
 $assert( 'menu-icons: font icons -> Lucide, hide label -> "only", after -> "after", svg attachment -> media', 'house' === $by[31]['meta']['_uxstudio_menu_item_icon_value'] && 'only' === $by[32]['meta']['_uxstudio_menu_item_icon_position'] && 'media' === $by[34]['meta']['_uxstudio_menu_item_icon_type'] && 'after' === $by[34]['meta']['_uxstudio_menu_item_icon_position'] && 3 === count( $items ), json_encode( array_keys( $by ) ) );
+$assert( 'menu-icons: a Dashicon stays that Dashicon (not the nearest Lucide), the other font icon still becomes Lucide', 'dashicons' === $by[32]['meta']['_uxstudio_menu_item_icon_type'] && 'dashicons-phone' === $by[32]['meta']['_uxstudio_menu_item_icon_value'] && 'lucide' === $by[31]['meta']['_uxstudio_menu_item_icon_type'], json_encode( $by[32]['meta'] ) );
+$assert( 'menu-icons: dashicon_for takes the dashicons- class out of a class list and refuses names that are not core Dashicons', 'dashicons-admin-home' === MenuIconsSource::dashicon_for( 'dashicons dashicons-admin-home' ) && null === MenuIconsSource::dashicon_for( 'dashicons-not-a-real-icon' ) && null === MenuIconsSource::dashicon_for( 'fa fa-home' ) );
+$assert( 'menu-icons: the plan counts Dashicons and tells they are kept', 1 === $data_count( $plan, 'dashicons' ) && false !== strpos( implode( ' ', $plan['notes'] ), 'Dashicons are transferred as they are' ), json_encode( $plan['data'] ) );
 $assert( 'menu-icons: the icon without a counterpart is named, an image whose file is gone is reported', $lossy_has( $plan, 'fa: fa-bed' ) && $lossy_has( $plan, 'no longer exists' ), json_encode( $plan['lossy'] ) );
 
 // One item, three metas of the same type: every one is recorded in the mapping table and removed by the rollback.

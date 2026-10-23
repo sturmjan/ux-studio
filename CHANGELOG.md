@@ -2,6 +2,31 @@
 
 ## 0.6.0 (unreleased)
 
+- New - Redirects: every rule counts its hits and remembers the time of the last one (shown in the list, sortable
+  through the API, can be reset per rule or for all). The count is written after the redirect is sent, so it never
+  delays it. A rule can be case sensitive (default: letter case is ignored) and can handle the query string in its
+  own way: by the module setting (default), exact (a request with other parameters does not match), ignore, or
+  ignore and pass on to the new URL. Existing rules behave exactly as before. CSV, REST, the AI tools and the MCP
+  server take the new fields (a new tool resets the counters).
+- New - Code Snippets: run conditions per snippet (all must hold): type of page (front page, posts page, single,
+  archive, author, search, 404, wp-admin), post type, specific posts, logged in / out, role, mobile / desktop and a
+  time window. They narrow where a snippet runs, never widen it; PHP still never runs in REST, AJAX or cron. A PHP
+  snippet with a page or post condition is loaded at the `wp` action.
+- New - Menu Icons: the whole WordPress Dashicons set next to Lucide, picked on Appearance > Menus. The stylesheet
+  comes with WordPress and is loaded on the front end only on pages whose menu uses a Dashicon.
+- New - Security: exceptions to "Disable comments": roles that may still comment (and visitors who are not logged
+  in), pingbacks / trackbacks that stay allowed, comment types to refuse (pingback, trackback, product review) even
+  without disabling comments, and closing comments on posts older than N days. The module filters whether comments
+  are open; the WordPress options for closing old posts are never written.
+- New - Migration: Redirection case sensitivity, query string handling and hit counters with the last hit; WPCode
+  conditional logic (one AND group; "hide" on a single rule) and device type, Header Footer Code Manager targeting
+  (site wide with exclusions, specific posts and pages, post types, home, archives, search, device); Menu Icons
+  Dashicons 1:1; Disable Comments role exceptions, allowed and refused comment types and closing after N days.
+  What cannot be expressed (several OR groups, taxonomy terms, page URLs, categories, schedules) stays reported and
+  the snippet stays switched off for review.
+- Fixed - Migration: the plan said Redirection rules with "case insensitive" were case sensitive (the plugin's
+  flag means the opposite).
+
 - New - Admin Customiser, Menu Organizer: sub-items can be renamed, hidden for chosen roles (or everybody), moved under
   another parent and re-ordered; every item and sub-item can require a capability and be shown or hidden for single
   users (by login). Hidden sub-items are refused by address with "Block access to hidden pages" like top-level items;

@@ -65,7 +65,7 @@ final class Engine {
 		}
 
 		$request = Url::request();
-		$match   = Repository::match( $request['path'], $request['query'] );
+		$match   = Repository::match( $request['path'], $request['query'], null, $request['path_cs'] );
 		if ( ! $match ) {
 			return;
 		}
@@ -74,7 +74,8 @@ final class Engine {
 		$code = (int) $rule['code'];
 
 		if ( (bool) $this->settings->get( 'track_hits', true ) ) {
-			Repository::record_hit( (int) $rule['id'] );
+			// Written at the end of the request (see Repository::queue_hit), never before the redirect is sent.
+			Repository::queue_hit( (int) $rule['id'] );
 		}
 
 		if ( 410 === $code ) {
@@ -92,13 +93,18 @@ final class Engine {
 		// matched on its own query or the target already defines one.
 		$rule_has_query = str_contains( (string) $rule['source_key'], '?' );
 		$raw_query      = (string) wp_parse_url( (string) wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ), PHP_URL_QUERY ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- passed through wp_redirect's sanitiser.
-		if ( '' !== $raw_query && ! $rule_has_query && 'regex' !== $rule['match_type'] && (bool) $this->settings->get( 'pass_query', true ) ) {
+		// The rule's own query mode wins over the module setting: "pass" always carries the query, "ignore" and "exact"
+		// never do, "default" follows the setting.
+		$pass = self::passes_query( (string) ( $rule['query_mode'] ?? '' ), (bool) $this->settings->get( 'pass_query', true ) );
+		if ( '' !== $raw_query && ! $rule_has_query && 'regex' !== $rule['match_type'] && $pass ) {
 			$target .= ( str_contains( $target, '?' ) ? '&' : '?' ) . $raw_query;
 		}
 
 		// Last-line loop guard: never redirect a URL to itself.
-		$target_key = Url::target_key( $target );
-		if ( '' !== $target_key && Url::key( $request['path'], $request['query'] ) === $target_key ) {
+		// (A case sensitive rule may send /Foo to /foo, so it compares the letters as typed.)
+		$sensitive  = ! empty( $rule['case_sensitive'] ) && 'exact' === $rule['match_type'];
+		$target_key = Url::target_key( $target, $sensitive );
+		if ( '' !== $target_key && Url::key( $sensitive ? $request['path_cs'] : $request['path'], $request['query'] ) === $target_key ) {
 			return;
 		}
 
@@ -118,6 +124,17 @@ final class Engine {
 		add_filter( 'x_redirect_by', static fn (): string => 'UX Studio Redirects' );
 		wp_redirect( $target, $code ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- admin-defined targets may be on another domain.
 		exit;
+	}
+
+	/**
+	 * Whether the visitor's query string is appended to the target: the rule's own query mode wins over the module
+	 * setting ("pass" always, "ignore" and "exact" never, default / empty follows the setting).
+	 *
+	 * @param string $query_mode Stored query mode of the rule ('' = default).
+	 * @param bool   $setting    The module setting "Keep the query string".
+	 */
+	public static function passes_query( string $query_mode, bool $setting ): bool {
+		return 'pass' === $query_mode || ( '' === $query_mode && $setting );
 	}
 
 	/**
