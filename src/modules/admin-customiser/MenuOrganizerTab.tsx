@@ -22,6 +22,7 @@ import {
 	Upload,
 } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
+import { MenuLockBadge, useMenuLock } from './menuLock';
 
 interface MenuChild {
 	slug: string;
@@ -120,6 +121,8 @@ export function MenuOrganizerTab(): JSX.Element {
 		queryKey: [ 'admin-customiser', 'menu-organizer', 'conflicts' ],
 		queryFn: () => api< Conflict[] >( 'admin-customiser/menu-organizer/detect-conflicts', { method: 'POST' } ),
 	} );
+
+	const lockQuery = useMenuLock();
 
 	const [ draft, setDraft ] = useState< MenuConfig | null >( null );
 	const [ newCategoryName, setNewCategoryName ] = useState( '' );
@@ -374,6 +377,16 @@ export function MenuOrganizerTab(): JSX.Element {
 					) ) }
 				</div>
 			) }
+
+			{ lockQuery.data && (
+				<p style={ { marginBottom: 'var(--uxs-sp-3)' } }>
+					<MenuLockBadge state={ lockQuery.data } />
+				</p>
+			) }
+
+			<p className="uxs-form__help" style={ { marginBottom: 'var(--uxs-sp-4)' } }>
+				{ __( 'Hiding an item only removes it from the menu: the page still opens when its address is typed in. To refuse it too, switch on "Block access to hidden pages" in the Settings tab (users who can manage options are never blocked).', 'ux-studio' ) }
+			</p>
 
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-amo-layout">{ __( 'Layout', 'ux-studio' ) }</label>

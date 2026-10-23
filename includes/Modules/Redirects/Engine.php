@@ -104,7 +104,11 @@ final class Engine {
 
 		self::$handled = true;
 
-		if ( in_array( $code, array( 301, 308 ), true ) ) {
+		if ( '' !== (string) ( $rule['cond_key'] ?? '' ) ) {
+			// The answer depends on who asks (login, cookie, referrer ...): neither a browser nor a shared cache
+			// may serve it to somebody else or keep it after the visitor changes.
+			nocache_headers();
+		} elseif ( in_array( $code, array( 301, 308 ), true ) ) {
 			$ttl = max( 0, (int) $this->settings->get( 'permanent_cache_ttl', HOUR_IN_SECONDS ) );
 			header( 'Cache-Control: ' . ( $ttl > 0 ? 'public, max-age=' . $ttl : 'no-cache' ) );
 		} else {

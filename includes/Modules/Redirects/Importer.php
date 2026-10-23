@@ -56,6 +56,10 @@ final class Importer {
 			if ( empty( $item['code'] ) ) {
 				$item['code'] = '' === ( $item['target'] ?? '' ) ? 410 : 301;
 			}
+			// Conditions travel as one JSON cell (the export writes them the same way).
+			if ( isset( $item['conditions'] ) ) {
+				$item['conditions'] = '' === trim( (string) $item['conditions'] ) ? array() : (array) json_decode( (string) $item['conditions'], true );
+			}
 			$items[] = $item;
 		}
 		return self::run( $items, $on_conflict, $dry_run );
@@ -71,9 +75,9 @@ final class Importer {
 	}
 
 	/**
-	 * Import URL redirects (and 410s) from the Redirection plugin. Rules with
-	 * login/referrer/IP/cookie conditions are skipped - they have no
-	 * equivalent here and are not SEO redirects.
+	 * Import URL redirects (and 410s) from the Redirection plugin. Its login / role / referrer / agent / cookie /
+	 * IP / server / HTTP header match types become rules with conditions; language, custom filter and page type
+	 * matches have no equivalent and are skipped.
 	 *
 	 * @param string $on_conflict update|skip|error.
 	 * @param bool   $dry_run     Validate only.
@@ -87,14 +91,11 @@ final class Importer {
 		$table  = $wpdb->prefix . 'redirection_items';
 		$groups = self::redirection_group_status();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table} WHERE match_type = 'url' ORDER BY position ASC, id ASC LIMIT %d", self::MAX_ROWS ), ARRAY_A );
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table} ORDER BY position ASC, id ASC LIMIT %d", self::MAX_ROWS ), ARRAY_A );
 
 		$items = array();
 		foreach ( is_array( $rows ) ? $rows : array() as $row ) {
-			$item = self::redirection_item( $row, $groups );
-			if ( is_array( $item ) ) {
-				$items[] = $item;
-			}
+			$items = array_merge( $items, self::redirection_rules( $row, $groups )['items'] );
 		}
 		return self::run( $items, $on_conflict, $dry_run );
 	}
@@ -118,43 +119,106 @@ final class Importer {
 	}
 
 	/**
-	 * One Redirection row as a rule input, or the reason it has no equivalent here
-	 * (`match:<type>` for conditions such as login or referrer, `action:<type>` for random and
-	 * pass-through targets).
+	 * One Redirection row as rule inputs. A plain URL rule is one rule. A rule with a match type (login, role,
+	 * referrer, user agent, cookie, IP, server, HTTP header) has a target for "matched" and one for "not matched";
+	 * each becomes its own rule with the condition (the second one negated), and a state without a target makes no
+	 * rule, exactly as the plugin then does nothing. `skipped` names the reason when the row has no equivalent here
+	 * (`match:<type>` for language, custom filter and page type, `action:<type>` for random and pass-through
+	 * targets, `empty` for a conditional rule without any target).
 	 *
 	 * @param array<string, mixed> $row    Row of `redirection_items`.
 	 * @param array<int, bool>     $groups Group id => enabled.
-	 * @return array<string, mixed>|string
+	 * @return array{items:array<int, array<string, mixed>>, skipped:string}
 	 */
-	public static function redirection_item( array $row, array $groups = array() ) {
-		if ( 'url' !== (string) $row['match_type'] ) {
-			return 'match:' . (string) $row['match_type'];
-		}
-		$code = (int) $row['action_code'];
-		if ( 'url' === $row['action_type'] ) {
-			$target = (string) $row['action_data'];
-		} elseif ( 'error' === $row['action_type'] && 410 === $code ) {
-			$target = '';
-		} else {
-			return 'action:' . (string) $row['action_type'];
-		}
+	public static function redirection_rules( array $row, array $groups = array() ): array {
+		$match = (string) $row['match_type'];
+		$code  = (int) $row['action_code'];
+		$atype = (string) $row['action_type'];
 		$data  = json_decode( (string) ( $row['match_data'] ?? '' ), true );
 		$flags = is_array( $data ) && isset( $data['source'] ) && is_array( $data['source'] ) ? $data['source'] : array();
 		$group = (int) ( $row['group_id'] ?? 0 );
-		return array(
+		$base  = array(
 			'key'        => 'item:' . (int) $row['id'],
 			'label'      => (string) $row['url'],
 			'source'     => (string) $row['url'],
 			'match_type' => (int) $row['regex'] ? 'regex' : 'exact',
-			'target'     => $target,
+			'target'     => '',
 			'code'       => in_array( $code, Repository::CODES, true ) ? $code : ( 303 === $code ? 302 : 301 ),
 			'enabled'    => 'enabled' === $row['status'] && ( ! isset( $groups[ $group ] ) || $groups[ $group ] ),
 			'note'       => (string) ( $row['title'] ?? '' ),
 			'position'   => (int) $row['position'],
+			'conditions' => array(),
 			// What the plugin matched on that this module does not (reported by the migration).
 			'flag_case'  => ! empty( $flags['flag_case'] ),
 			'flag_query' => (string) ( $flags['flag_query'] ?? 'exact' ),
 		);
+
+		if ( 'url' === $match ) {
+			if ( 'url' === $atype ) {
+				$base['target'] = (string) $row['action_data'];
+			} elseif ( ! ( 'error' === $atype && 410 === $code ) ) {
+				return array( 'items' => array(), 'skipped' => 'action:' . $atype );
+			}
+			return array( 'items' => array( $base ), 'skipped' => '' );
+		}
+
+		if ( ! in_array( $match, array( 'login', 'role', 'referrer', 'agent', 'cookie', 'header', 'ip', 'server' ), true ) ) {
+			return array( 'items' => array(), 'skipped' => 'match:' . $match );
+		}
+		if ( 'url' !== $atype ) {
+			return array( 'items' => array(), 'skipped' => 'action:' . $atype );
+		}
+		$extra = @unserialize( (string) $row['action_data'], array( 'allowed_classes' => false ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize -- the plugin's own storage format, no objects allowed.
+		if ( ! is_array( $extra ) ) {
+			return array( 'items' => array(), 'skipped' => 'empty' );
+		}
+		$op = ! empty( $extra['regex'] ) ? 'regex' : 'equals';
+		switch ( $match ) {
+			case 'login':
+				$pairs = array(
+					array( array( 'type' => 'login', 'value' => 'in' ), (string) ( $extra['logged_in'] ?? '' ) ),
+					array( array( 'type' => 'login', 'value' => 'out' ), (string) ( $extra['logged_out'] ?? '' ) ),
+				);
+				break;
+			default:
+				switch ( $match ) {
+					case 'referrer':
+						$cond = array( 'type' => 'referrer', 'op' => $op, 'value' => (string) ( $extra['referrer'] ?? '' ) );
+						break;
+					case 'agent':
+						$cond = array( 'type' => 'agent', 'op' => $op, 'value' => (string) ( $extra['agent'] ?? '' ) );
+						break;
+					case 'cookie':
+					case 'header':
+						$cond = array( 'type' => $match, 'name' => (string) ( $extra['name'] ?? '' ), 'op' => $op, 'value' => (string) ( $extra['value'] ?? '' ) );
+						break;
+					case 'role':
+						$cond = array( 'type' => 'role', 'value' => (string) ( $extra['role'] ?? '' ) );
+						break;
+					case 'ip':
+						$cond = array( 'type' => 'ip', 'value' => (array) ( $extra['ip'] ?? array() ) );
+						break;
+					default: // server.
+						$cond = array( 'type' => 'host', 'op' => 'equals', 'value' => (string) ( $extra['server'] ?? '' ) );
+				}
+				$pairs = array(
+					array( $cond, (string) ( $extra['url_from'] ?? '' ) ),
+					array( $cond + array( 'negate' => true ), (string) ( $extra['url_notfrom'] ?? '' ) ),
+				);
+		}
+
+		$items = array();
+		foreach ( $pairs as $n => $pair ) {
+			if ( '' === trim( $pair[1] ) ) {
+				continue; // The plugin does nothing in this state.
+			}
+			$item               = $base;
+			$item['key']        = $base['key'] . ( $n > 0 ? ':else' : '' );
+			$item['target']     = trim( $pair[1] );
+			$item['conditions'] = array( $pair[0] );
+			$items[]            = $item;
+		}
+		return array( 'items' => $items, 'skipped' => $items ? '' : 'empty' );
 	}
 
 	/**
@@ -182,11 +246,12 @@ final class Importer {
 		$rows = is_array( $rows ) ? $rows : array();
 		foreach ( $rows as $row ) {
 			$out['last'] = (int) $row['id'];
-			$item        = self::redirection_item( $row, $groups );
-			if ( is_array( $item ) ) {
+			$converted   = self::redirection_rules( $row, $groups );
+			foreach ( $converted['items'] as $item ) {
 				$out['items'][] = $item;
-			} else {
-				$out['skipped'][ $item ] = ( $out['skipped'][ $item ] ?? 0 ) + 1;
+			}
+			if ( '' !== $converted['skipped'] ) {
+				$out['skipped'][ $converted['skipped'] ] = ( $out['skipped'][ $converted['skipped'] ] ?? 0 ) + 1;
 			}
 		}
 		$out['done'] = count( $rows ) < $limit;
@@ -203,10 +268,10 @@ final class Importer {
 		$rows = $wpdb->get_results( "SELECT * FROM {$table} ORDER BY id ASC", ARRAY_A );
 
 		$out = fopen( 'php://temp', 'r+' );
-		fputcsv( $out, array( 'source', 'target', 'code', 'note', 'match_type', 'enabled', 'hits' ), ',', '"', '' );
+		fputcsv( $out, array( 'source', 'target', 'code', 'note', 'match_type', 'enabled', 'hits', 'conditions', 'position' ), ',', '"', '' );
 		foreach ( is_array( $rows ) ? $rows : array() as $row ) {
 			$target = 410 === (int) $row['code'] ? '' : ( 'regex' === $row['match_type'] ? (string) $row['target'] : Repository::resolve_target( $row ) );
-			fputcsv( $out, Csv::safe_row( array( $row['source'], $target, $row['code'], $row['note'], $row['match_type'], $row['enabled'], $row['hits'] ) ), ',', '"', '' );
+			fputcsv( $out, Csv::safe_row( array( $row['source'], $target, $row['code'], $row['note'], $row['match_type'], $row['enabled'], $row['hits'], (string) ( $row['conditions'] ?? '' ), $row['position'] ) ), ',', '"', '' );
 		}
 		rewind( $out );
 		$csv = (string) stream_get_contents( $out );

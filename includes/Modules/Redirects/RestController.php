@@ -105,7 +105,9 @@ final class RestController extends Controller {
 	public function test( WP_REST_Request $request ) {
 		$live = rest_sanitize_boolean( $request->get_param( 'live' ) ?? false );
 		$urls = array_slice( array_filter( array_map( 'strval', (array) $request->get_param( 'urls' ) ) ), 0, 50 );
-		return $this->ok( array_map( static fn ( string $url ): array => Tester::test( $url, $live ), $urls ) );
+		$visitor = $request->get_param( 'visitor' );
+		$visitor = is_array( $visitor ) ? $visitor : null;
+		return $this->ok( array_map( static fn ( string $url ): array => Tester::test( $url, $live, $visitor ), $urls ) );
 	}
 
 	/**

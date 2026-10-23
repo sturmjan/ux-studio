@@ -5,6 +5,7 @@
  * to embed a "Settings" tab identical in look to every other module.
  */
 import { useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { api, queryClient } from './api';
@@ -213,10 +214,13 @@ export function SettingsFields( {
 	schema,
 	draft,
 	setDraft,
+	notes,
 }: {
 	schema: Field[];
 	draft: Record< string, Value >;
 	setDraft: ( updater: ( d: Record< string, Value > ) => Record< string, Value > ) => void;
+	/** Extra content under the help text of a field, by field key (a state note, a link). */
+	notes?: Record< string, ReactNode >;
 } ): JSX.Element {
 	const general = __( 'General', 'ux-studio' );
 	const sections: string[] = [];
@@ -244,6 +248,7 @@ export function SettingsFields( {
 						onChange={ ( v ) => setDraft( ( d ) => ( { ...d, [ field.key ]: v } ) ) }
 					/>
 					{ field.help ? <p className="uxs-form__help">{ field.help }</p> : null }
+					{ notes?.[ field.key ] ?? null }
 				</div>
 			) ) }
 		</div>

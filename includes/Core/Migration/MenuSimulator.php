@@ -7,6 +7,8 @@
 
 namespace UxStudio\Core\Migration;
 
+use UxStudio\Modules\AdminCustomiser\MenuOrganizer;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -64,12 +66,243 @@ final class MenuSimulator {
 		if ( $required && ! array_intersect( array_map( 'strval', $required ), $roles ) ) {
 			return false;
 		}
-		$cat      = (string) ( $config['assignments'][ $slug ] ?? '' );
+		$cat      = self::category_of( $config, $slug );
 		$cat_need = '' !== $cat ? (array) ( $config['category_roles'][ $cat ] ?? array() ) : array();
 		if ( $cat_need && ! array_intersect( array_map( 'strval', $cat_need ), $roles ) ) {
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * Category of a top-level slug exactly as `MenuOrganizer::reorganize_admin_menu()` resolves it:
+	 * the assignment, else the automatic guess, else the fallback category ("other", or the first one).
+	 *
+	 * @param array<string, mixed> $config Menu Organizer config.
+	 * @param string               $slug   Slug.
+	 */
+	public static function category_of( array $config, string $slug ): string {
+		$cats = (array) ( $config['categories'] ?? array() );
+		$cat  = (string) ( $config['assignments'][ $slug ] ?? MenuOrganizer::auto_categorize( $slug ) );
+		if ( ! $cats || isset( $cats[ $cat ] ) ) {
+			return $cat;
+		}
+		if ( isset( $cats['other'] ) ) {
+			return 'other';
+		}
+		$keys = array_keys( $cats );
+		return (string) $keys[0];
+	}
+
+	/* ── Access blocking (PLAN.md 27.6): which request is refused to whom ── */
+
+	/**
+	 * Admin files that are never blocked, whatever the menu says (everybody needs them to work in the admin).
+	 *
+	 * @return string[]
+	 */
+	public static function lock_exempt_files(): array {
+		return array( 'index.php', 'profile.php', 'admin-ajax.php', 'admin-post.php', 'async-upload.php', 'options.php', 'load-scripts.php', 'load-styles.php' );
+	}
+
+	/**
+	 * Which menu entry does a request belong to? Pure: works on the menu as WordPress built it before the Organizer
+	 * changed it (top-level slugs, and sub-item slugs per parent).
+	 *
+	 * `page` (plugin pages) is compared to the entry slug; otherwise the file and the query args of the entry must
+	 * match the request (`edit.php?post_type=page`, `edit-tags.php?taxonomy=category`), the entry with the most
+	 * matching args wins. `post.php` / `term.php` (editing) belong to the list screen of the same post type / taxonomy.
+	 * A request that fits nothing is `null`: it is never blocked.
+	 *
+	 * @param string                  $file Admin file of the request (`edit.php`).
+	 * @param array<string, string>   $args Relevant query args: page, post_type, taxonomy.
+	 * @param string[]                $tops Top-level slugs.
+	 * @param array<string, string[]> $subs Parent slug => sub-item slugs.
+	 * @return array{top:string,sub:?string}|null
+	 */
+	public static function resolve_request( string $file, array $args, array $tops, array $subs ): ?array {
+		$file = strtolower( basename( $file ) );
+		if ( 'post.php' === $file ) {
+			$file = 'edit.php';
+		} elseif ( 'term.php' === $file ) {
+			$file = 'edit-tags.php';
+		}
+		$page    = (string) ( $args['page'] ?? '' );
+		$typed   = in_array( $file, array( 'edit.php', 'post-new.php', 'edit-tags.php' ), true );
+		$request = array(
+			'post_type' => (string) ( $args['post_type'] ?? '' ),
+			'taxonomy'  => (string) ( $args['taxonomy'] ?? '' ),
+		);
+		if ( $typed && '' === $request['post_type'] ) {
+			$request['post_type'] = 'post';
+		}
+
+		$entries = array();
+		foreach ( $tops as $top ) {
+			$entries[] = array( (string) $top, null, (string) $top );
+			foreach ( (array) ( $subs[ $top ] ?? array() ) as $sub ) {
+				$entries[] = array( (string) $top, (string) $sub, (string) $sub );
+			}
+		}
+
+		$best  = null;
+		$score = -1;
+		foreach ( $entries as $entry ) {
+			$slug   = html_entity_decode( $entry[2], ENT_QUOTES );
+			$base   = $slug;
+			$params = array();
+			$q      = strpos( $slug, '?' );
+			if ( false !== $q ) {
+				$base = substr( $slug, 0, $q );
+				parse_str( substr( $slug, $q + 1 ), $params );
+			}
+			$is_file = (bool) preg_match( '/\.php$/i', $base );
+			if ( '' !== $page ) {
+				// Plugin page: the slug is the page, or `admin.php?page=<slug>`; a core parent file (`tools.php`) is preferred as the parent.
+				$entry_page = isset( $params['page'] ) ? (string) $params['page'] : ( $is_file ? '' : $base );
+				if ( '' === $entry_page || $entry_page !== $page ) {
+					continue;
+				}
+				$hit = 1 + ( $entry[0] === $file ? 1 : 0 );
+			} else {
+				if ( ! $is_file || strtolower( $base ) !== $file || isset( $params['page'] ) ) {
+					continue;
+				}
+				$hit = 1;
+				if ( $typed ) {
+					$want_type = (string) ( $params['post_type'] ?? 'post' );
+					if ( $want_type !== $request['post_type'] ) {
+						continue;
+					}
+					$hit += isset( $params['post_type'] ) ? 1 : 0;
+					if ( isset( $params['taxonomy'] ) ) {
+						if ( (string) $params['taxonomy'] !== $request['taxonomy'] ) {
+							continue;
+						}
+						++$hit;
+					}
+				} else {
+					$ok = true;
+					foreach ( $params as $name => $value ) {
+						if ( (string) ( $args[ $name ] ?? '' ) !== (string) $value ) {
+							$ok = false;
+							break;
+						}
+						++$hit;
+					}
+					if ( ! $ok ) {
+						continue;
+					}
+				}
+			}
+			if ( $hit > $score ) {
+				$score = $hit;
+				$best  = array(
+					'top' => $entry[0],
+					'sub' => $entry[1],
+				);
+			}
+		}
+		return $best;
+	}
+
+	/**
+	 * Is a request refused? The one place that decides, used by the runtime and by the migration check.
+	 *
+	 * Never refused: users who can manage options (the Organizer shows them everything), the files in
+	 * lock_exempt_files(), the four protected screens (and everything under them), a request that fits no menu entry.
+	 * Otherwise refused when the top-level item the request belongs to is hidden for this user (hidden_items, item_roles,
+	 * category_roles), except when the request is a sub-item that the Organizer moved to the top level and shows to the user.
+	 *
+	 * @param array<string, mixed>    $config Menu Organizer config.
+	 * @param string                  $file   Admin file of the request.
+	 * @param array<string, string>   $args   Relevant query args (page, post_type, taxonomy).
+	 * @param string[]                $tops   Top-level slugs of the original menu.
+	 * @param array<string, string[]> $subs   Parent slug => sub-item slugs of the original menu.
+	 * @param string[]                $roles  Roles of the user.
+	 * @param bool                    $bypass Whether the user can `manage_options`.
+	 * @return array{blocked:bool,reason:string,top:?string}
+	 */
+	public static function request_blocked( array $config, string $file, array $args, array $tops, array $subs, array $roles, bool $bypass ): array {
+		$file = strtolower( basename( $file ) );
+		if ( $bypass ) {
+			return array(
+				'blocked' => false,
+				'reason'  => 'bypass',
+				'top'     => null,
+			);
+		}
+		if ( in_array( $file, self::lock_exempt_files(), true ) ) {
+			return array(
+				'blocked' => false,
+				'reason'  => 'exempt-file',
+				'top'     => null,
+			);
+		}
+		$hit = self::resolve_request( $file, $args, $tops, $subs );
+		if ( null === $hit ) {
+			return array(
+				'blocked' => false,
+				'reason'  => 'no-entry',
+				'top'     => null,
+			);
+		}
+		$top       = $hit['top'];
+		$sub       = $hit['sub'];
+		$protected = self::protected_screens();
+		if ( isset( $protected[ $top ] ) || ( null !== $sub && isset( $protected[ $sub ] ) ) ) {
+			return array(
+				'blocked' => false,
+				'reason'  => 'protected',
+				'top'     => $top,
+			);
+		}
+		if ( self::visible( $config, $top, $roles, false ) ) {
+			return array(
+				'blocked' => false,
+				'reason'  => 'visible',
+				'top'     => $top,
+			);
+		}
+		if ( null !== $sub && isset( $config['promoted_subs'][ $sub ] ) && self::visible( $config, $sub, $roles, false ) ) {
+			return array(
+				'blocked' => false,
+				'reason'  => 'promoted',
+				'top'     => $top,
+			);
+		}
+		return array(
+			'blocked' => true,
+			'reason'  => 'hidden',
+			'top'     => $top,
+		);
+	}
+
+	/**
+	 * Per role: the top-level slugs (from a list) whose pages are refused with the lock on.
+	 *
+	 * @param array<string, mixed> $config Menu Organizer config.
+	 * @param string[]             $tops   Top-level slugs.
+	 * @param string[]             $roles  Role ids.
+	 * @param string[]             $bypass Roles that can manage options.
+	 * @return array<string, string[]> Role => blocked slugs.
+	 */
+	public static function blocked_matrix( array $config, array $tops, array $roles, array $bypass ): array {
+		$out       = array();
+		$protected = self::protected_screens();
+		foreach ( $roles as $role ) {
+			$list = array();
+			if ( ! in_array( $role, $bypass, true ) ) {
+				foreach ( $tops as $slug ) {
+					if ( ! isset( $protected[ $slug ] ) && ! self::visible( $config, (string) $slug, array( $role ), false ) ) {
+						$list[] = (string) $slug;
+					}
+				}
+			}
+			sort( $list );
+			$out[ $role ] = $list;
+		}
+		return $out;
 	}
 
 	/**

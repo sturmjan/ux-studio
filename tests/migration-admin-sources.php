@@ -319,6 +319,14 @@ $lossy = implode( ' | ', $plan['lossy'] );
 $assert( 'AME (synthetic): lossy names the user rule, the capability, the sub-item hide/rename, the iframe item', false !== strpos( $lossy, 'bob' ) && false !== strpos( $lossy, 'Tools' ) && false !== strpos( $lossy, 'General' ) && false !== strpos( $lossy, 'Psaní' ) && false !== strpos( $lossy, 'Frame' ), $lossy );
 $assert( 'AME (synthetic): users who can manage options keep seeing items AME hid from administrators (lossy)', false !== strpos( $lossy, 'always shows every item to users who can manage options' ), $lossy );
 $common( 'AME (synthetic)', $r );
+$st  = (array) $opt( 'uxstudio_admin_customiser' );
+$ver = array_column( $r['verify'], null, 'id' );
+$assert( 'AME (synthetic): "Access" unticked for roles (grant_access=false) means the page is blocked: lock switched on', true === ( $st['menu_lock_enabled'] ?? null ), $j( $st ) );
+$assert( 'AME (synthetic): no "only hides" warning when the lock covers it', ! (bool) preg_grep( '/only hides menu items/', $plan['warnings'] ) );
+$assert( 'AME (synthetic): items the plugin only hid (Blog for author, Tools) are named as "blocked now as well"', (bool) preg_grep( '/only hid these items.*Blog.*tools\.php/', $plan['warnings'] ) && (bool) preg_grep( '/only hid these items.*Blog.*tools\.php/', $plan['lossy'] ), $j( $plan['warnings'] ) );
+$assert( 'AME (synthetic): Users blocked for shop_manager in AME stays open in UX Studio (protected screen), lossy says so', (bool) preg_grep( '/never blocks UX Studio, Plugins, Users and Settings.*Users/', $plan['lossy'] ), $j( $plan['lossy'] ) );
+$assert( 'AME (synthetic): verify menu-lock ok; Media blocked for editor and subscriber, not for author', ! empty( $ver['menu-lock']['ok'] ) && in_array( 'upload.php', MenuSimulator::blocked_matrix( $cfg, array( 'upload.php' ), array( 'editor', 'subscriber', 'author' ), array( 'administrator' ) )['editor'], true ) && array() === MenuSimulator::blocked_matrix( $cfg, array( 'upload.php' ), array( 'author' ), array( 'administrator' ) )['author'], $j( $ver['menu-lock'] ?? null ) );
+
 $ver = array_column( $r['verify'], null, 'id' );
 $assert( 'AME (synthetic): verify for author shows the known difference, not a failure', ! empty( $ver['menu-role:author']['ok'] ), $j( $ver['menu-role:author'] ?? null ) );
 $tbl = array_column( $plan['menu_table'], null, 'role' );
@@ -380,6 +388,8 @@ $assert( 'Adminimize (real): hidden for editor and shop manager -> whitelist wit
 $assert( 'Adminimize (real): 20 items limited, slugs with query strings intact', 20 === count( $cfg['item_roles'] ) && isset( $cfg['item_roles']['edit.php?post_type=alertni-lista'] ), (string) count( $cfg['item_roles'] ) );
 $assert( 'Adminimize (real): hide-only config keeps the native order in ONE category (no regrouping)', array( 'other' ) === array_keys( $cfg['categories'] ) && array() === $cfg['order'] && array() === $cfg['assignments'] && array() === $cfg['hidden_items'], $j( $cfg['categories'] ) );
 $assert( 'Adminimize (real): Menu Organizer switched on', true === ( $opt( 'uxstudio_admin_customiser' )['menu_organizer_enabled'] ?? false ) );
+$assert( 'Adminimize (real): "Allow Page Access" is off (0) on the real site, so the plugin blocks hidden pages: the lock is switched on', true === ( $opt( 'uxstudio_admin_customiser' )['menu_lock_enabled'] ?? null ) && ! (bool) preg_grep( '/only hides menu items/', $r['plan']['warnings'] ), $j( $r['plan']['warnings'] ) );
+$assert( 'Adminimize (real): the lock check in verify is ok and the blocked set matches the 20 limited items for editor', ! empty( array_column( $r['verify'], null, 'id' )['menu-lock']['ok'] ) && 20 === count( array_diff( MenuSimulator::blocked_matrix( $cfg, array_keys( $cfg['item_roles'] ), array( 'editor' ), array( 'administrator' ) )['editor'], array() ) ), $j( array_column( $r['verify'], null, 'id' )['menu-lock'] ?? null ) );
 $assert( 'Adminimize (real): no module besides Admin Customiser needed', array() === SourceRegistry::get( 'adminimize' )->extra_modules() );
 $ver = array_column( $r['verify'], null, 'id' );
 $assert( 'Adminimize (real): editor menu agrees (known differences only)', ! empty( $ver['menu-role:editor']['ok'] ), $j( $ver['menu-role:editor'] ?? null ) );
@@ -440,8 +450,27 @@ $assert( 'Adminimize (synthetic): screen options hidden for administrators -> gl
 $assert( 'Adminimize (synthetic): help tab / notices only for non-admin roles are NOT switched on globally', empty( $st['hide_help_tab'] ) && empty( $st['hide_notices_enabled'] ) && (bool) preg_grep( '/contextual-help-link-wrap|admin-notices/', $plan['lossy'] ), $j( $plan['lossy'] ) );
 $assert( 'Adminimize (synthetic): dashboard widget hidden for administrators and editors -> hidden_widgets with a lossy remark about the other roles', array( 'dashboard_primary' ) === ( $opt( 'uxstudio_dashboard_widgets' )['hidden_widgets'] ?? null ) && (bool) preg_grep( '/dashboard_primary/', $plan['lossy'] ), $j( array( $opt( 'uxstudio_dashboard_widgets' ), $plan['lossy'] ) ) );
 $lossy = implode( ' | ', $plan['lossy'] );
-$assert( 'Adminimize (synthetic): lossy lists meta boxes, hidden footer, sub-menu hiding, prevent page access', false !== strpos( $lossy, 'meta boxes' ) && false !== strpos( $lossy, 'hidden admin footer' ) && false !== strpos( $lossy, 'Settings / Writing' ) && false !== strpos( $lossy, 'Prevent page access' ), $lossy );
+$assert( 'Adminimize (synthetic): lossy lists meta boxes, hidden footer, sub-menu hiding, prevent page access', false !== strpos( $lossy, 'meta boxes' ) && false !== strpos( $lossy, 'hidden admin footer' ) && false !== strpos( $lossy, 'Settings / Writing' ), $lossy );
+$assert( 'Adminimize (synthetic): "Allow Page Access" ticked (option = 1) means the plugin does NOT block: lock stays off, the "only hides" warning stays', empty( $st['menu_lock_enabled'] ) && (bool) preg_grep( '/only hides menu items/', $plan['warnings'] ) && ! (bool) preg_grep( '/Prevent page access/', $plan['lossy'] ), $j( array( $st, $plan['warnings'] ) ) );
 $common( 'Adminimize (synthetic)', $r );
+
+/* Adminimize with its default (option 0: hidden pages are blocked): the lock is switched on. */
+$syn_block = $syn;
+$syn_block['mw_adminimize_prevent_page_access'] = 0;
+$syn_block['mw_adminimize_disabled_menu_editor_items'] = array_merge( (array) $syn_block['mw_adminimize_disabled_menu_editor_items'], array( 'edit-comments.php' ) );
+$site( array( 'adminimize' ), array( 'adminimize' ), array( 'mw_adminimize' => $syn_block ) );
+$plan = SourceRegistry::get( 'adminimize' )->plan();
+$r    = $exercise( 'adminimize' );
+$cfg  = $menu_cfg();
+$st   = (array) $opt( 'uxstudio_admin_customiser' );
+$ver  = array_column( $r['verify'], null, 'id' );
+$assert( 'Adminimize (synthetic, blocking): menu_lock_enabled is switched on', true === ( $st['menu_lock_enabled'] ?? null ), $j( $st ) );
+$assert( 'Adminimize (synthetic, blocking): the "only hides" warning is gone, a note says pages are blocked', ! (bool) preg_grep( '/only hides menu items/', $plan['warnings'] ) && (bool) preg_grep( '/Block access to hidden pages/', $plan['notes'] ), $j( array( $plan['warnings'], $plan['notes'] ) ) );
+$assert( 'Adminimize (synthetic, blocking): the plan lists the setting in the transfer rows', (bool) array_filter( $plan['transfer'], static fn( $row ) => 'menu_lock_enabled' === ( $row['key'] ?? '' ) ), $j( array_column( $plan['transfer'], 'key' ) ) );
+$assert( 'Adminimize (synthetic, blocking): the sub-menu lossy line says the plugin also blocked their pages', (bool) preg_grep( '/also blocks their pages/', $plan['lossy'] ), $j( $plan['lossy'] ) );
+$assert( 'Adminimize (synthetic, blocking): verify has a menu-lock check and it is ok', ! empty( $ver['menu-lock']['ok'] ), $j( $ver['menu-lock'] ?? null ) );
+$assert( 'Adminimize (synthetic, blocking): the runtime decision agrees: a subscriber is refused Users? NO, Users is a protected screen, so it stays open', ! MenuSimulator::request_blocked( $cfg, 'users.php', array(), array( 'users.php', 'plugins.php' ), array(), array( 'subscriber' ), false )['blocked'] && (bool) preg_grep( '/never blocks UX Studio, Plugins, Users and Settings/', $plan['lossy'] ), $j( $plan['lossy'] ) );
+$common( 'Adminimize (synthetic, blocking)', $r );
 
 /* ══ White Label CMS: the real configuration of pobyty ══ */
 
@@ -632,6 +661,62 @@ $assert( 'module off: menu config is written directly', array() !== $menu_cfg() 
 $rb = Runner::rollback( $run['id'] );
 $assert( 'rollback removes the menu config and the module settings again', ! is_wp_error( $rb ) && array_diff_key( $state(), $own ) === $before );
 
+/* ══ Where the switched-on access lock came from (MenuLockOrigin) ══ */
+
+use UxStudio\Core\Migration\MenuLockOrigin;
+
+if ( ! function_exists( 'get_post_types' ) ) { function get_post_types( $a = array(), $o = 'names' ) { return array(); } }
+// Direct write (module off): the note is recorded with the source, its label and the run; a dry run records nothing.
+$site( array( 'adminimize' ), array( 'adminimize' ), array( 'mw_adminimize' => $syn_block ) );
+$before = $state();
+SourceRegistry::get( 'adminimize' )->migrate( array( 'run_id' => 'rdry' ), true );
+$assert( 'lock origin: a dry run records nothing', $before === $state() && null === MenuLockOrigin::get() );
+$run = Runner::start( array( 'adminimize' ), false );
+Runner::step();
+$o = MenuLockOrigin::get();
+$assert( 'lock origin: the migration records source, label, run and time (module off, direct write)', true === ( $opt( 'uxstudio_admin_customiser' )['menu_lock_enabled'] ?? null ) && 'adminimize' === ( $o['source'] ?? '' ) && 'Plugin adminimize' === ( $o['label'] ?? '' ) && $run['id'] === ( $o['run'] ?? '' ) && ( $o['time'] ?? 0 ) > 0, $j( $o ) );
+// Hand-made change of the setting: kept when saved unchanged, cleared when switched off or on again.
+$mod = new \UxStudio\Modules\AdminCustomiser\Module( 'admin-customiser', array() );
+$mod->save_settings( array( 'primary_color' => '#123456' ) );
+$assert( 'lock origin: a settings save that leaves the lock as it is keeps the note', null !== MenuLockOrigin::get() && true === $opt( 'uxstudio_admin_customiser' )['menu_lock_enabled'] );
+$mod = new \UxStudio\Modules\AdminCustomiser\Module( 'admin-customiser', array() );
+$mod->save_settings( array( 'menu_lock_enabled' => false ) );
+$assert( 'lock origin: switching the lock off by hand clears the note', null === MenuLockOrigin::get() && false === $opt( 'uxstudio_admin_customiser' )['menu_lock_enabled'] );
+MenuLockOrigin::record( 'adminimize', 'Adminimize', 'rx' );
+$mod = new \UxStudio\Modules\AdminCustomiser\Module( 'admin-customiser', array() );
+$mod->save_settings( array( 'menu_lock_enabled' => true ) );
+$assert( 'lock origin: switching the lock on by hand (from off) clears a stale note', null === MenuLockOrigin::get() );
+// Rollback of the run puts everything back, the note included.
+$site( array( 'adminimize' ), array( 'adminimize' ), array( 'mw_adminimize' => $syn_block ) );
+$before = $state();
+$run = Runner::start( array( 'adminimize' ), false );
+Runner::step();
+$assert( 'lock origin: the run set the note', null !== MenuLockOrigin::get() );
+$rb = Runner::rollback( $run['id'] );
+$assert( 'lock origin: rollback removes the note and everything else (options as before)', ! is_wp_error( $rb ) && null === MenuLockOrigin::get() && array_diff_key( $state(), $own ) === $before, is_wp_error( $rb ) ? $rb->get_error_message() : $j( array_keys( array_diff_key( $state(), $own ) ) ) );
+// A source that does not switch the lock on leaves no note, and the snapshot does not list the option.
+$site( array( 'adminimize' ), array( 'adminimize' ), array( 'mw_adminimize' => $syn ) );
+Runner::start( array( 'adminimize' ), false );
+Runner::step();
+$assert( 'lock origin: Adminimize with "Allow Page Access" ticked leaves no note', null === MenuLockOrigin::get() && ! in_array( MenuLockOrigin::OPTION, SourceRegistry::get( 'adminimize' )->target_options(), true ) );
+// Staging (Admin Customiser already on): the note waits with the values, the switch writes it, rollback removes it.
+$site( array( 'adminimize' ), array( 'adminimize' ), array( 'mw_adminimize' => $syn_block, 'uxstudio_active_modules' => array( 'activity-log', 'admin-customiser' ) ) );
+$before = $state();
+$run = Runner::start( array( 'adminimize' ), false );
+Runner::step();
+$entry = Staging::entry( $run['id'] );
+$assert( 'lock origin (staged): the note waits in the staging area, nothing is live yet', null === MenuLockOrigin::get() && 'adminimize' === ( $entry['lock_origin']['source'] ?? '' ) && empty( $opt( 'uxstudio_admin_customiser' )['menu_lock_enabled'] ), $j( $entry ) );
+Staging::apply( $run['id'] );
+$assert( 'lock origin (staged): Staging::apply writes the note together with the setting', 'adminimize' === ( MenuLockOrigin::get()['source'] ?? '' ) && true === $opt( 'uxstudio_admin_customiser' )['menu_lock_enabled'] && $run['id'] === MenuLockOrigin::get()['run'] );
+// A staged run rolled back before the switch leaves no note and no staging entry.
+$site( array( 'adminimize' ), array( 'adminimize' ), array( 'mw_adminimize' => $syn_block, 'uxstudio_active_modules' => array( 'activity-log', 'admin-customiser' ) ) );
+$before = $state();
+$run = Runner::start( array( 'adminimize' ), false );
+Runner::step();
+$rb = Runner::rollback( $run['id'] );
+$assert( 'lock origin (staged): rollback before the switch leaves no note and no staging entry', ! is_wp_error( $rb ) && null === MenuLockOrigin::get() && null === Staging::entry( $run['id'] ) && array_diff_key( $state(), $own ) === $before, is_wp_error( $rb ) ? $rb->get_error_message() : '' );
+$assert( 'lock origin: clean() rejects garbage and sanitises the run id', array() === MenuLockOrigin::clean( 'x' ) && array() === MenuLockOrigin::clean( array( 'label' => 'x' ) ) && 'rabc' === MenuLockOrigin::clean( array( 'source' => 's', 'run' => 'R-abc!' ) )['run'] );
+
 /* ══ Lockout rule as a pure function ══ */
 
 $cfg_bad = array( 'hidden_items' => array( 'plugins.php', 'edit.php' ), 'item_roles' => array( 'users.php' => array( 'editor' ), 'tools.php' => array( 'editor' ) ) );
@@ -674,6 +759,23 @@ $assert( 'smoke admin_access: live site, Czech refusal text -> fail', 'fail' ===
 $assert( 'Smoke::is_denied recognises 403 and the WordPress error screen in both languages', Smoke::is_denied( array( 'code' => 403, 'body' => '' ) ) && Smoke::is_denied( array( 'code' => 200, 'body' => '<body id="error-page"><div class="wp-die-message">Sorry, you are not allowed to access this page.</div></body>' ) ) && Smoke::is_denied( array( 'code' => 200, 'body' => '<body id="error-page"><div class="wp-die-message">Nemáte dostatečná oprávnění</div>' ) ) && ! Smoke::is_denied( array( 'code' => 200, 'body' => '<h1>Plugins</h1>' ) ) );
 $assert( 'Smoke::is_denied is NOT fooled by the same sentence inside a translated JavaScript string of a normal admin page (found live on pobyty)', ! Smoke::is_denied( array( 'code' => 200, 'body' => '<body class="wp-admin"><script>var s={"%s: Sorry, you are not allowed to upload this file type.":["Nemáte dostatečná oprávnění"]}</script></body>' ) ) );
 Smoke::set_transport( null );
+
+/* AME with "Hide" only (hidden_from_actor): nothing is blocked in the plugin, so the lock stays off. */
+$site(
+	array( 'admin-menu-editor' ), array( 'admin-menu-editor' ),
+	$tree(
+		array(
+			'index.php' => array(),
+			'edit.php'  => array( 'hidden_from_actor' => array( 'role:author' => true ) ),
+			'upload.php' => array( 'hidden' => true ),
+		)
+	)
+);
+$plan = SourceRegistry::get( 'admin-menu-editor' )->plan();
+$r    = $exercise( 'admin-menu-editor' );
+$st   = (array) $opt( 'uxstudio_admin_customiser' );
+$assert( 'AME (hide only): lock stays off and the plan warns that hidden pages stay reachable by address', empty( $st['menu_lock_enabled'] ) && (bool) preg_grep( '/only hides menu items/', $plan['warnings'] ) && (bool) preg_grep( '/Block access to hidden pages/', $plan['warnings'] ), $j( array( $st, $plan['warnings'] ) ) );
+$common( 'AME (hide only)', $r );
 
 /* ── Typo guard: every Admin Customiser key written exists in the real schema ── */
 

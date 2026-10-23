@@ -2101,7 +2101,7 @@ WPS Hide Login (hrozba vyzamčení), totéž CAPTCHA. Porušovalo to pravidlo �
 
 **Mapování.** AME (`ws_menu_editor[_pro]`): skupiny mezi oddělovači = kategorie Skupina N + Ostatní, pořadí, přejmenování, dashicony, skryté položky, role (hidden_from_actor, grant_access=false) = whitelist `item_roles`, přesunuté podpoložky = `promoted_subs`, vlastní odkazy. Adminimize: per-role menu = `item_roles`/`hidden_items` (jedna kategorie, nepřeskupuje menu; existující uspořádání z AME zůstane), `.show-admin-bar` per role = Hide Admin Bar (přesně), admin bar uzly, obrazovkové volby a widgety nástěnky jen když je plugin skrývá správcům (modul je globální, varování o ostatních rolích). WLCMS: přihlášení (logo URL -> ID přílohy, barvy), logo admin lišty, skrytí loga WP, patička, nápověda, volby obrazovky, nag, widgety nástěnky. Adminify: menu editor (`_wpadminify_menu_settings`), patička (ne výchozí reklamní), hledání, oznámení, widgety. LoginPress: login_* klíče. Admin Columns: tabulka `admin_columns` (AC 4+) i `cpac_options_*`, typy default/meta/thumbnail/ID/taxonomie, odstraněné nativní sloupce = `enabled:false`.
 
-**Nepřenese se (výběr, přesné texty v plánech).** AME: požadovaná oprávnění (`extra_capability`), pravidla pro jednotlivé uživatele, grant roli bez oprávnění, přejmenování/skrytí/přesun podpoložek, iframe/HTML položky, barvy, multisite. Organizér jen skrývá, stránka zůstává dostupná adresou (plánové varování); uživatelům s `manage_options` ukazuje vždy vše. Adminimize: meta boxy, patička/hlavička, vlastní selektory, položky skryté jen jiným rolím. WLCMS: pozadí, hover barvy, vlastní CSS/JS, uvítací panely, RSS, titulek stránky. Adminify: vlastní UI/motiv, horizontální menu, Pro moduly. LoginPress: pozadí, hover, CSS, chování. AC: Pro typy, filtry/řazení/editace, layouty per role.
+**Nepřenese se (výběr, přesné texty v plánech).** AME: požadovaná oprávnění (`extra_capability`), pravidla pro jednotlivé uživatele, grant roli bez oprávnění, přejmenování/skrytí/přesun podpoložek, iframe/HTML položky, barvy, multisite. Organizér jen skrývá, stránka zůstává dostupná adresou (plánové varování; od A3 ji volitelně blokuje přepínač „Zablokovat přístup ke skrytým stránkám“, viz 27.6); uživatelům s `manage_options` ukazuje vždy vše. Adminimize: meta boxy, patička/hlavička, vlastní selektory, položky skryté jen jiným rolím. WLCMS: pozadí, hover barvy, vlastní CSS/JS, uvítací panely, RSS, titulek stránky. Adminify: vlastní UI/motiv, horizontální menu, Pro moduly. LoginPress: pozadí, hover, CSS, chování. AC: Pro typy, filtry/řazení/editace, layouty per role.
 
 **Pravidlo proti vyzamčení.** `MenuSimulator::enforce_access`: po mapování se pro roli administrator a aktuálního uživatele simuluje menu; pravidlo, které by skrylo UX Studio, Pluginy, Uživatele nebo Nastavení, se zahodí a hlásí se v plánu (warning + lossy) i při ověření. Smoke `admin_access` otevře ta 4 menu v náhledu i po přepnutí (odmítnutí poznává jen podle chybové obrazovky WP: skutečný web má stejné věty v přeložených JS řetězcích, první verze měla falešné poplachy).
 
@@ -2143,3 +2143,215 @@ WPS Hide Login (hrozba vyzamčení), totéž CAPTCHA. Porušovalo to pravidlo �
 **Nález při živém ověření (login).** Se zapnutou vlastní adresou se formulář na ní odesílal na `wp-login.php`, které modul sám zavírá (`block_direct_wp_login`), takže přihlášení neprošlo (stránka se zobrazila, přihlášení ne). Oprava: filtry `site_url`/`network_site_url` (`Module::filter_login_site_url`, čistá funkce `LoginUrl::swap`) přesměrují akci formuláře, "zapomenuté heslo" i přesměrování na přihlášení na vlastní adresu; po opravě živý test prošel (formulář na nové adrese, přihlášení OK, přímé `wp-login.php` = 302). Test `tests/login-url-notice.php`.
 
 **Živě (pobyty).** Aktivace/deaktivace z obrazovky Pluginy: první aktivace přesměrovala na `#/wizard`, druhá ne. Moduly: pruh "Našli jsme 15 pluginů ...". Kontrola s AME + Adminimize + WLCMS: souhrny a rozbalitelný detail se jmény místo ID, popisky se nelámou, nepřetéká ani na 600 px; Ověření stejně. Nedostupný náhled (odpověď serveru nahrazena v prohlížeči, kód je pokryt testem) se vykreslí celý. E-mail s adresou: Disable Emails ho zablokoval, stav `mail: failed` a záznam v Activity Logu to hlásí. Pozn.: `url_redirect` na pobyty (`http://localhost/pobyty/administrace`) skládá `home_url` na `/pobyty/pobyty/administrace` (stávající chování normalizace, F7 se ho nedotkl).
+
+## 27. Doplnění modulů, aby šly přenést funkce cizích pluginů (2026-10-22)
+
+Návrh z 21. 10. (seznamy „nepřenese se" ze zdrojů §26.9, §26.11, F2), priority schválené
+uživatelem 22. 10.: A = časté / bezpečnost (teď), B = užitečné (později), C = nedělat.
+Ke každé nové funkci se upraví i zdroj migrace (položka přejde z „nepřenese se" do „přenese se"),
+přibudou testy a živé ověření na pobyty. Větev `feature/module-gaps-a` nad `feature/migration-wizard`.
+
+### 27.1 Vlna A
+
+- [x] A1 Zabezpečení: dvoufázové ověření TOTP (vzor z Centrální aplikace), prodlužované blokace
+      po opakovaných pokusech, vlastní e-mail pro upozornění, CAPTCHA pro komentáře a formuláře
+      WooCommerce + vzhled widgetu; migrace: IP seznamy z Limit Login / Loginizer do Firewallu
+      (hotovo 22. 10. 2026 lokálně, poznámky v 27.4; komentáře a pokladnu WooCommerce na pobyty
+      nešlo ověřit živě, viz „Neověřeno")
+- [x] A2 Přesměrování: podmínky pravidel (přihlášený/role, referrer, user agent, IP, cookie),
+      víc pravidel na adresu; Úryvky kódu: snippet jako shortcode, spuštění jednou, umístění
+      před/za obsahem (hotovo 22. 10. 2026 lokálně, poznámky v 27.5)
+- [x] A3 Úpravy administrace: skutečné zablokování stránek skrytých v menu podle role;
+      Viditelnost menu: zobrazit/skrýt podle role, víc pravidel na položku
+      (hotovo 22. 10. 2026 lokálně, poznámky v 27.6; blokaci zapíná výchozí vypnutý přepínač, Adminimize
+      ve výchozím stavu stránky blokuje, takže jeho migrace přepínač zapne)
+
+### 27.2 Vlna B (později)
+
+Podpoložky menu a pravidla pro uživatele (AME); počítadlo a volby přesměrování; podmínky
+spuštění snippetů; Dashicons v ikonách menu; výjimky Zákazu komentářů; volby Duplikace;
+pravidla externích odkazů; volba editoru per uživatel; obrázek/odpočet/výjimky údržby; složky
+příspěvků a stránek; SendGrid/Mailgun/Postmark/SES; skrytí upozornění na aktualizace; URL
+události cronu; widgety nástěnky podle role a uvítací panel; vlastní CSS administrace a
+přihlášení; meta boxy podle role; filtry a řazení sloupců; volby Auto Upload Images.
+
+### 27.3 Nedělat (C)
+
+PHP výrazy v podmínkách menu a PHP události cronu (spouštění kódu z nastavení), celé UI
+Adminify, inline editace a Pro sloupce Admin Columns, import historie Activity Logu,
+Rewrite & Republish, kolekce a galerie Real Media Library.
+
+### 27.4 A1 poznámky: Zabezpečení (2026-10-22)
+
+**Dvoufázové ověření (TOTP).** `Core\Totp` (RFC 6238, SHA1, 30 s, 6 číslic, okno plus minus 1, test se vektory z přílohy B),
+`SecurityOptimization\TwoFactorStore` (data uživatele, žádný výstup) a `TwoFactor` (přihlášení, profil, role). Nastavení modulu:
+`two_factor_enabled` (výchozí vypnuto), `two_factor_required_roles`, `two_factor_grace_logins` (výchozí 3); téma „Dvoufázové ověření“
+v menu modulu s přehledem (kdo ho má, kdo ho má povinné a ještě nemá, záchranný přepínač).
+- **Průběh přihlášení.** Filtr `authenticate` na PHP_INT_MAX, zaregistrovaný až po zámku pokusů a CAPTCHA (stejná priorita = pořadí
+  registrace), takže druhý krok uvidí jen uživatel, který prošel zámkem, CAPTCHA i heslem. Správné heslo uživatele s 2FA nenastaví
+  cookie ani nespustí `wp_login`: zobrazí se druhý krok uvnitř wp-login.php (`login_header`), čekající přihlášení je jen hash tokenu
+  v user meta (10 minut). Formulář jde na `?action=uxstudio_2fa` (`login_form_uxstudio_2fa`), takže vlastní adresa přihlášení funguje
+  beze změny (`wp_login_url()` je přes `site_url` filtr přepsané). Správný kód nebo záložní kód nastaví cookie, spustí `wp_login`
+  (čítače zámku se nulují až teď) a `login_redirect`. Každý jiný přihlašovací pokus heslem pro účet s 2FA (formulář WooCommerce,
+  AJAX, XML-RPC s heslem) se odmítne (fail closed). Hesla aplikací (REST, XML-RPC) se nijak nemění: core je jen označí
+  (`application_password_did_authenticate`) a my je propustíme; pozor, `protect_login` je u modulu stejně vypíná.
+- **Bezpečnost.** Tajný klíč zašifrovaný `Security::seal`, záložní kódy jen jako HMAC hash (sůl `auth`, vázané na uživatele), jednorázové,
+  konstantní porovnání. Kód z jednoho 30s kroku jde použít jen jednou (replay), jinak by sniffnutý kód platil až 90 s. Limit 5 chybných
+  kódů za 10 minut na uživatele, pak se ani správný kód nevyhodnotí do konce okna; zapsáno `two_factor_locked`. Vypnutí a nové záložní
+  kódy vyžadují heslo nebo platný kód. Admin zruší cizí 2FA řádkovou akcí na Uživatelích, v profilu nebo tlačítkem v přehledu (nonce,
+  `edit_users` + `edit_user`). Události v Activity Logu: `two_factor_enabled|disabled|reset|failed|locked|recovery_used|recovery_regenerated|grace_used|setup_forced`.
+  Konstanta `UXSTUDIO_DISABLE_2FA` v wp-config.php vypne celé druhé kolo i profil; je popsaná v nastavení i v přehledu.
+- **Povinné role.** Po přihlášení bez nastavené 2FA: `login_gate` spotřebuje jedno odložení a pošle na profil (`profile.php?uxstudio_2fa_setup=1`);
+  po vyčerpání je nastavení povinné: `admin_init` pošle každou stránku administrace na profil (profil, admin-post a async-upload zůstávají,
+  AJAX a odhlášení také), uživatel se nikdy nezamkne potichu a může si ji kdykoli nastavit. Nastavení 2FA čítač odložení nevrací
+  (vypnutí a nové přihlášení hned vynutí). Není to bezpečnostní hranice (REST s cookie jde dál), je to nucení k nastavení.
+- QR kód se negeneruje (žádná závislost): klíč po čtveřicích s tlačítkem Kopírovat a odkaz `otpauth://` pro telefon.
+
+**Prodlužované blokace a e-mail.** `lockout_progressive` (výchozí vypnuto), `lockout_multiplier` (1 až 10, výchozí 2), `lockout_max_hours` (1 až 168,
+výchozí 24), `lockout_notify_email` (prázdné = e-mail správce, neplatný se zahodí). Délka další blokace = základ krát faktor na počet blokací
+téže IP s `status = 1` za posledních 24 h (ruční „Odemknout“ je nepočítá), strop = maximum (`AttemptsHandler::progressive_minutes`, čistá
+funkce včetně přetečení na INF). Zpráva „zkuste to za N minut“ ukazuje skutečný zbytek jen při zapnutém prodlužování (výchozí chování se nemění).
+
+**CAPTCHA mimo přihlášení.** `captcha_forms` rozšířeno o `comment`, `woo_login`, `woo_register`, `woo_lostpassword`, `woo_checkout` (výchozí seznam beze změny),
+třída `CaptchaForms` funguje u obou umístění (brána existuje jen pro wp-login.php). Každý formulář se ověřuje na serveru: komentáře `pre_comment_on_post` plus
+anonymní REST komentář (`rest_pre_insert_comment`, token v parametru), WooCommerce `woocommerce_process_login_errors`, `..._registration_errors`,
+`lostpassword_post` (jen formulář WC), `woocommerce_checkout_process`. Přihlášení návštěvníci se u komentářů a pokladny nevyhodnocují, wp-admin se netýká.
+Token je u poskytovatele jednorázový, proto `CaptchaVerifier::verify_token` pamatuje verdikt na požadavek (dva handlery na jeden požadavek). Vzhled: `captcha_theme`
+(auto, light, dark) a `captcha_size` (normal, compact, flexible; reCAPTCHA bere flexible jako normal a auto jako light).
+
+**Migrace.** `LoginSource` (Limit Login Attempts Reloaded, Loginizer): seznam povolených IP se sloučí do `ip_firewall_allowlist` (stávající řádky první, bez duplicit,
+zohledňuje i staging), blokované IP vzniknou jako bany s `origin = migration` v datové fázi (`IpEntries`: adresa, CIDR, rozsah od-do rozřezaný na přesné bloky,
+zástupné `*`, bloky širší než /8 a /16 se hlásí a nepřenášejí), při zapnutém modulu NEAKTIVNÍ a zapne je `Staging::apply` (`Activatable`), s nimi se staged zapne
+`ip_firewall_enabled`; idempotentní podle hodnoty (`IpBanStore::find_by_value`) a mapování, vrácení ze snímku (`uxstudio_ip_bans`, `uxstudio_ip_ban_ranges`, příznak
+`uxstudio_ip_bans_active`). Prodlužování se mapuje přibližně (faktor = (dlouhá/základní)^(1/N), strop = dlouhá doba) a plán to říká jako poznámku. Vlastní e-mail
+(`admin_notify_email`, `notify_email_address`). Z „nepřenese se“ zmizelo: delší blokace, seznamy IP, vlastní adresa upozornění; zůstává: seznamy uživatelských jmen,
+cloud LLAR, CAPTCHA/passwordless/sociální přihlášení Loginizeru a 2FA (tajné klíče nejdou přenést, „uživatelé si 2FA nastaví znovu“). `CaptchaSource`: komentáře a formuláře
+WooCommerce, motiv a velikost; zůstává jazyk widgetu, záložní režim a výjimky, nově se hlásí formuláře jiných pluginů (CF7, WPForms, Elementor ...).
+Správa banů (přepnout, smazat) smí i `migration` původ, v seznamu je štítek „Přeneseno“.
+
+**Testy.** `tests/security-2fa.php` (vektory RFC 6238, okno, záložní kódy, replay, limit, token, grace, vypínač), `tests/security-lockout.php`, rozšířené
+`tests/migration-sources.php` a `tests/migration-data-sources.php`; všech 11 testů zelených.
+
+**Ověřeno živě (pobyty, dočasný uživatel, vše vráceno).** Heslo, druhý krok, špatný kód odmítnut, správný kód a záložní kód (podruhé odmítnut), replay odmítnut,
+5 chybných kódů zamkne a správný kód se pak neuzná, vypínač v wp-config (vráceno byte po bytu), povinná role s grace 2 (profil, potom vynucení, odhlášení dostupné,
+po nastavení volno), přehled v nastavení a řádková akce na Uživatelích (špatný nonce 403), prodlužování (v tabulce zámků 1 a potom 3 minuty), widget Turnstile s testovacími
+klíči u formulářů WooCommerce (téma, velikost, token projde, bez tokenu odmítnuto, lost-password také), skutečný zapisovač banů migrace (vytvořit neaktivní, aktivovat,
+deaktivovat, druhé volání beze změny, smazat).
+
+**Neověřeno / otevřené.** Komentáře a pokladna WooCommerce živě: na pobyty je aktivní Disable Comments (formulář se nevykresluje, odeslání končí „komentáře nejsou povoleny“),
+pokladna potřebuje košík; server-side kód je stejný jako u ověřených formulářů, ale vykreslení widgetu v komentářích a na pokladně jsem neviděl. E-mail o blokaci
+(vlastní adresa) se neposílal (na pobyty ho blokuje Disable Emails), ověřeno jen uložení a validace. Formáty voleb `cfturnstile_size`, `captcha_theme`/`captcha_size`
+WP Captcha a `admin_notify_email` LLAR vycházejí z kódu pluginů, ne z reálných dat. Při zapnuté CSP (Enforce) musí politika pustit `challenges.cloudflare.com`
+(frame i script), jinak se Turnstile v prohlížeči nezobrazí; na pobyty běží CSP jen v režimu Report only a hlásí to. Pozor při testování: zámek pokusů se počítá na IP
+(127.0.0.1), každý test se špatným heslem zamkne lokální přihlášení všem, včetně správce.
+
+### 27.5 A2 poznámky: podmínky přesměrování a funkce úryvků (2026-10-22)
+
+**Podmínky pravidel.** `Redirects\Conditions` (čisté PHP, bez WP volání v ověřování a shodě): typy `login` (in/out), `role` (role i capability,
+jako `current_user_can` v Redirection), `referrer`, `agent`, `host`, `cookie`, `header` (operátor equals/contains/regex, regex bez oddělovačů, vždy
+bez ohledu na velikost), `ip` (adresy a CIDR, IPv4 i IPv6, `ClientIp::in_ranges`); každá podmínka jde obrátit (`negate`), až 5 podmínek na pravidlo,
+platí všechny (AND). Uloženo jako kanonický JSON (`conditions`) + `cond_key` (sha1, '' = bez podmínek). Validace na serveru (kompilace regexu,
+parsování CIDR, délky, počty). Redirection „cíl při shodě / při neshodě" = dvě pravidla, druhé s obrácenou podmínkou.
+- **Více pravidel na adresu.** Tabulka v2 (`DB::ensure_module_tables`, verze 2): `UNIQUE source_hash` se před dbDelta zahodí (dbDelta neumí změnit
+  unikátní klíč na běžný), přibude `UNIQUE (source_hash, cond_key)` a sloupce `conditions`, `cond_key`; stávající řádky zůstávají beze změny.
+  Pořadí: delší klíč (adresa s query) první, pak pravidla s podmínkami (position, id), na konci pravidlo bez podmínek (záložní, bez ohledu na pozici).
+  Pořád jeden indexovaný dotaz (LIMIT 50); podmínky se čtou jen u pravidel, jejichž adresa sedí, kontext požadavku se staví líně a jednou.
+  Regexová pravidla v autoloadovaném stavu nesou `conditions` taky.
+- **Ochrana smyček a řetězů.** Smyčka na sebe a regex, který chytá vlastní cíl, zůstává chyba i u podmíněných pravidel. Řetěz se zploští jen přes
+  jedno nepodmíněné pravidlo; cíl s podmíněnými pravidly se neslučuje (varování `target_conditional`) a cesta zpět na zdroj je jen varování
+  `conditional_loop` (dvojice /members -> /login pro hosty a /login -> /members pro přihlášené je legitimní). `repoint_upstream` jen pro osamělé
+  nepodmíněné pravidlo. Odpověď podmíněného pravidla jde s `nocache_headers()`.
+- **Tester a AI.** `Tester::test( url, live, visitor )`: bez `visitor` je to anonym bez hlaviček, `skipped_rule_ids` říká, která pravidla se přeskočila;
+  `live=true` jde ze serveru, takže se podmínky vyhodnotí pro ten požadavek. Abilities `upsert-rules` (conditions, position), `list-rules` (filtr
+  `conditional`), `test-url` (visitor); MCP je bere z `Abilities::definitions()`, validace přes `Core\Mcp\Schema` ověřena v testu. Upsert stejného zdroje s
+  jinými podmínkami PŘIDÁ pravidlo, změna existujícího jde přes `id`. 404 log počítá „vyřešeno" pro anonyma. CSV export/import má sloupce `conditions` (JSON) a `position`.
+- **SPA.** Editor podmínek ve formuláři pravidla (`modules/redirects/Conditions.tsx`), štítek „Podmínka" + popis v seznamu, štítek „Záložní" u pravidla bez
+  podmínky na adrese s víc pravidly, pole pořadí, test URL „jako konkrétní návštěvník".
+
+**Úryvky kódu.** Tabulka v2: `post_types`, `last_run`, `run_result`. Nová umístění (`run_location`): `shortcode`, `before_content`, `after_content`,
+`run_once` (jen PHP); `SnippetManager::allowedLocations()` je vynucuje na serveru (dřív neznámé umístění PHP znamenalo „všude").
+- **Shortcode / umístění kolem obsahu** (`SnippetRenderer`): snippet jde jen cestou, kterou říká jeho umístění; stejné kontroly jako Executor (zapnutý, platný,
+  cesta v adresáři snippetů, integrita těsně před include, safe mode); PHP se nikdy nespouští v REST/AJAX/cron a ve wp-admin jen pro `manage_options`;
+  HTML/CSS/JS jsou uložený text, takže se vykreslí všude, kde se shortcode rozbaluje. Výstup PHP přes ob_start, výjimka = prázdný výstup, `$atts` a `$content`
+  ve statické closure. Rekurze a hloubka (3) hlídané. Umístění: `the_content` priorita 12, jen hlavní smyčka jednotlivého příspěvku (`is_singular`,
+  `in_the_loop`, `is_main_query`, `get_the_ID() == get_queried_object_id()`), ne feed/REST/admin, jen vybrané typy (výchozí post+page). Pozor: WordPress páruje
+  stejné shortcode tagy, samostatné se píšou `[uxstudio_snippet id="1" /]`.
+- **Spustit jednou** (`SnippetExecutor::runOnceSnippets`, `admin_init`): jen GET na stránce wp-admin (ne AJAX/admin-post), jen `manage_options`, ne v bezpečném
+  náhledu ani v safe mode. Snippet se NEJDŘÍV atomicky vypne (`UPDATE ... WHERE enabled = 1 AND run_location = 'run_once'`, uspěje jen jeden požadavek, pád kódu ho
+  nezacyklí), pak běží pod stejnou kontrolou cesty a integrity; výsledek (ok, výjimka, fatální chyba přes shutdown, co vytiskl) je u snippetu, v seznamu a v Activity Logu.
+  Opětovné zapnutí ho znovu „nabije".
+
+**Migrace.** Redirection: login/role/referrer/agent/cookie/IP/server/header -> podmínky (jazyk, vlastní filtr, typ stránky zůstávají ztrátové); duplicitní adresa se
+zahazuje jen při stejných podmínkách, jinak vznikne víc pravidel. Pořadí se mění jen u degenerovaných konfigurací (nepodmíněné pravidlo před podmíněným je teď vždy
+poslední). Code Snippets: `content` -> shortcode (HTML bez PHP značek jako html, jinak php začínající `?>`), `single-use` -> run once; WPCode: ruční snippety ->
+shortcode, before/after post/content -> before/after content (post+page), ostatní místa (odstavce, mezi příspěvky) zůstávají ztrátová; HFCM: before/after content a `manual` ->
+shortcode. Run-once snippet se NIKDY nezapne při přepnutí (`keep_off`), plán to říká; shortcody `[wpcode id]`, `[code_snippet id]`, `[hfcm id]` v příspěvcích se nepřepisují (plán upozorní).
+
+**Ověřeno živě (pobyty, dočasný admin a odběratel, vše vráceno).** Upgrade tabulky v1 -> v2 se třemi řádky (unikát zrušen, nový klíč, řádky beze změny, curl 301/302/410 jako dřív);
+41 curl případů (každý typ podmínky + negace, AND, pořadí, záložní, 410, regex s $1, falešná cookie, POST). Redirection (338 + 3 řádky): 316 pravidel (313 + 3 s podmínkou
+host; předtím 313, server pravidla se vyhazovala), 25 duplicit zůstává (stejná adresa i podmínky, v Redirection by platilo jen první; 10 z nich má stejný cíl, 15 jiný),
+suchý běh, ostrý běh se zapnutým i vypnutým modulem, ověření, druhý běh nic nezapíše, vrácení. Snippety: shortcode (HTML i PHP s atributy), umístění před/za obsahem,
+safe mode, REST s přihlášením (PHP nic, HTML ano), run-once (náhled ho nespustí ani nezabere, běžná stránka administrace ho spustí právě jednou, front-end/odběratel/AJAX/POST ne),
+fixtury Code Snippets a HFCM přes průvodce (staging, náhled s hlavičkou, vrácení).
+**Neověřeno / otevřené.** WPCode (taxonomie) jen v jednotkových testech; `tests/rest-public-routes.php` hlásí 1 selhání (Complianz `/%2e%2e/` route) mimo rozsah A2.
+Vrácení staršího běhu průvodce po novějším (stejná tabulka) vrátí snímek toho novějšího, vracet je třeba od nejnovějšího (starší chování F3).
+
+### 27.6 A3 poznámky: blokace skrytých stránek a pravidla viditelnosti menu (2026-10-22)
+
+**Blokace přístupu (Úpravy administrace).** Nastavení `menu_lock_enabled` (Boční menu, výchozí VYPNUTO, takže stávající weby dál jen skrývají), potřebuje zapnutý
+Organizér menu. Rozhodování je čistá funkce `MenuSimulator::request_blocked()` (stejná, kterou používá migrace pro kontrolu), napojená v `MenuLock` na `admin_init`
+(priorita 1: Organizér už zaznamenal původní menu na `admin_menu` 99999 a WordPress svou kontrolu oprávnění udělal dřív v `wp-admin/includes/menu.php`; zámek tedy jen
+přidává odmítnutí, nikdy nic nepovolí). Odmítnutí je přesně to, co WordPress ukazuje u zakázané stránky: `wp_die( 'Sorry, you are not allowed to access this page.', 403 )`
+(hláška z jádra, přeložená WordPressem), plus akce `uxstudio_menu_lock_blocked( $top, $user_id )`.
+- **Jak se požadavek přiřadí k položce menu** (`MenuSimulator::resolve_request`, bez WP): z původního `$menu` / `$submenu` před úpravou Organizérem. `page=` se porovná se slugem položky
+  (stránky pluginů, `admin.php?page=x`, `tools.php?page=x`), jinak soubor a query argumenty položky (`edit.php?post_type=page`, `edit-tags.php?taxonomy=category`, `post-new.php?post_type=page`), vítězí
+  položka s nejvíc shodnými argumenty. Editace (`post.php`, `term.php`) patří k seznamu stejného typu příspěvku / taxonomie (typ se čte z `$_REQUEST`, u `post.php` z ID příspěvku, aby uložení stránky
+  nepatřilo k Příspěvkům). Požadavek, který nesedí na žádnou položku (např. blok `wp_block` bez menu), se NIKDY neblokuje: zámek odmítá jen to, co pozitivně pozná.
+- **Co se blokuje.** Položka, kterou Organizér pro uživatele skrývá: `hidden_items` (skryto všem), `item_roles` (bílá listina rolí), `category_roles` (celá skupina; kategorie se určuje stejně jako při vykreslení:
+  přiřazení, jinak automatický odhad, jinak záložní; dřív to simulátor uměl jen s ručním přiřazením). Uživatel s víc rolemi projde, když jedna role položku smí. **Skrytá nadřazená položka = její vlastní adresa i adresy
+  všech jejích podpoložek** (Organizér neumí skrýt jedinou podpoložku, podpoložka je tam, kde je nadřazená), **kromě** podpoložky přesunuté na nejvyšší úroveň (`promoted_subs`), kterou Organizér tomuto uživateli ukazuje.
+- **Co se neblokuje nikdy:** uživatel s `manage_options` (Organizér mu ukazuje vše; `hidden_items` skrývá i správci, ale nezablokuje ho), soubory `index.php` (nástěnka), `profile.php`, `admin-ajax.php`, `admin-post.php`,
+  `async-upload.php`, `options.php`, `load-scripts.php`, `load-styles.php`, REST, cron a WP-CLI (zámek hlídá jen načtení stránek administrace), čtyři chráněné obrazovky (UX Studio, Pluginy, Uživatelé, Nastavení) a
+  všechno pod nimi (`MenuSimulator::protected_screens`, stejné pravidlo proti vyzamčení jako při migraci), požadavek bez odpovídající položky menu.
+- **Záchranný přepínač** `define( 'UXSTUDIO_DISABLE_MENU_LOCK', true );` v wp-config.php vypne blokování pro všechny (napsáno v nápovědě nastavení). Záložka Organizér menu upozorňuje, že skrytí samo stránku neblokuje.
+- Pozor: skrytí `edit.php` (Příspěvky) před rolí s právem upravovat příspěvky zablokuje i editaci příspěvků (`post.php`) té role; „skrytá stránka“ je i její editace.
+
+**Viditelnost menu (pravidla).** Položka má seznam pravidel a zobrazí se, jen když platí VŠECHNA (AND, jako If Menu): `in` (přihlášený), `out` (odhlášený), `role` (má aspoň jednu z rolí; odhlášený nemá žádnou, takže neprojde),
+`not_role` (nemá žádnou z rolí; odhlášený projde). Čistá logika `MenuVisibility\Rules` (normalizace, vyhodnocení, kanonický zápis, `keep()` pro potomky). Uložení je zpětně kompatibilní: jediné pravidlo přihlášený / odhlášený se
+dál píše jako `_uxstudio_menu_item_visible` = `1` / `2` (starší kód i migrace), vše ostatní jako kanonický JSON v `_uxstudio_menu_item_rules` (`[{"t":"in"},{"t":"role","r":["editor"]}]`, bez zpětných lomítek, protože
+`update_post_meta` je odstraňuje); JSON má přednost, starý klíč `_wpext_menu_item_visible` se čte dál. Front-end filtr na `wp_get_nav_menu_items` (ne v administraci): **děti skryté položky se skryjí s ní** (dřív by vyplavaly
+na nejvyšší úroveň). Editor na Vzhled > Menu: řádky podmínek (výběr typu + zaškrtávací políčka rolí, Přidat podmínku / Odebrat) s JSON ve skrytém poli; JS (`assets/menu-visibility.js`) staví řádky ze skrytého pole a funguje i u
+položek přidaných AJAXem; nonce a `edit_theme_options` jako dřív, starý formulář s radii se na serveru pořád přijme. Blokovou navigaci (`wp_navigation`) modul nepodporuje a nefiltruje (nepoužívá položky menu). Pozor na
+stránkové cache (výsledek závisí na přihlášení / roli, stejně jako dřív u přihlášen / odhlášen).
+
+**Migrace.**
+- *Admin Menu Editor:* blokuje jen „Přístup“ odškrtnutý pro roli (`grant_access` = false); „Skrýt“ (`hidden_from_actor`, `hidden`) je jen skrytí bez blokace. `model['blocked']` → přepínač se zapne, když aspoň jedna položka v Organizéru
+  zůstala a plugin ji pro roli (kromě správců) blokuje. Položky, které plugin jen skryl, se při zapnutém přepínači blokují taky (jeden přepínač na celé menu), plán je jmenuje (varování + lossy „zablokují se i...“).
+- *Adminimize:* **volba `mw_adminimize_prevent_page_access` je „Allow Page Access“, hodnota 1 blokaci VYPÍNÁ** (výchozí 0 = skryté stránky se blokují). F5 to četl obráceně (lossy „Prevent page access blokuje“ při hodnotě 1), opraveno:
+  `block_all` = volba prázdná → přepínač se zapne (na pobyty je volba 0, takže se zapne a varování „Organizér jen skrývá“ zmizí). Skryté podpoložky plugin blokuje taky, Organizér ne (lossy to říká).
+- *Adminify:* jen skrývá (`hidden_for`), přepínač se nezapne.
+- Kde se přepínač nezapne, zůstává varování „Organizér položky jen skrývá“ (s radou přepínač zapnout); kde se zapne, nahradí ho poznámka. Chráněné obrazovky, které plugin blokuje, zůstanou otevřené (lossy je jmenuje).
+  Ověření má novou kontrolu `menu-lock` (každá dvojice položka + role, kterou plugin blokoval, je blokovaná i v cíli, také ze staging konfigurace).
+- *Nav Menu Roles:* `in` / `out` s režimem show / hide přesně, seznam rolí = `role`, „skrýt pro role“ = `not_role` (plugin vyhodnocení otáčí, odhlášený položku vidí), neexistující role (plugin bere i oprávnění) se vynechají a jmenují.
+- *If Menu:* podmínky `user-logged-in` a `user-is-<role>` (show / hide), víc podmínek spojených AND, NEBO z „uživatel je <role>“ = jedno pravidlo rolí; jakékoli jiné NEBO a jiné podmínky (stránky, data, WooCommerce) zůstávají ztrátové a počítají se.
+- *Menu Items Visibility Control:* výraz v PHP plugin spouští přes `eval`, UX Studio ho nikdy nespustí. Jen pevné jednoduché tvary se rozpoznají vzorem (`is_user_logged_in()`, `!is_user_logged_in()`, `current_user_can('<role>')`, negace, spojené `&&`, role musí na webu existovat),
+  nic se nevykonává; cokoli jiného (oprávnění, `||`, jiné funkce, vložený kód) je ztrátové (PLAN 27.3 C platí). Zdroj porovnává existující pravidlo významem (`meta_state` přes `Rules::same`), takže položka s jiným pravidlem se zachová a nahlásí.
+  Staging: při zapnutém modulu čekají meta ve staging oblasti, náhled je překrývá (`get_post_metadata`), rollback maže jen to, co běh zapsal.
+
+**Vedlejší opravy.** (1) `SecurityOptimization\Module::current_rest_route()` posílal cestu přes `sanitize_text_field()`, která maže procentem kódované znaky, takže hlídač dot-segmentů v `is_public_rest_route()` nikdy neviděl `%2e%2e`
+(nevyužitelné, WP odpovídá 404, ale hlídač musí držet): cesta i `rest_route` se čtou surové (jen se porovnávají, nic se nevypisuje), kontrola tečkových segmentů běží na surové i dekódované podobě; `Core\Mcp\Auth::request_route()` už surová byla.
+`tests/rest-public-routes.php` je celý zelený. (2) Překlad e-mailu o vlastní přihlašovací adrese (`LoginUrlNotice`) měl v `.po` msgstr s doslovnými zalomeními řádků uvnitř uvozovek (neplatná syntaxe PO, `make-mo` ho zahodil jako prázdný),
+přepsáno s `\n`, `.mo` přegenerováno.
+
+**Testy.** `tests/admin-menu-lock.php` (122 kontrol: resolver, matice role x požadavek, chráněné obrazovky, `manage_options`, víc rolí, kategorie, přepínače a záchranná konstanta), `tests/menu-visibility-rules.php`,
+rozšířené `tests/migration-admin-sources.php` a `tests/migration-data-sources.php`; všech 15 samostatných testů a obě WP-CLI testy (`tests/rest-public-routes.php`, `tests/redirects-cpt-target.php`) zelené.
+
+**Ověřeno živě (pobyty, dočasní uživatelé editor / shop_manager / subscriber / vlastní role bez `manage_options` / administrátor, vše vráceno).** Zámek vypnutý: nic se nemění; zapnutý (Média jen pro správce a autory, WooCommerce jen pro správce a editory,
+Stránky skryté všem): editor 403 u Médií, Stránek, Nové stránky a editace stránky (`post.php`), Příspěvky a profil dál 200; shop_manager 403 u `wc-orders`, `wc-reports`, Médií, Stránek, ale seznam Produktů 200 (bez pravidla); vlastní role s právy
+`activate_plugins` a `list_users` bez `manage_options` otevře Pluginy a Uživatele, přestože je `item_roles` vylučuje; administrátor nikdy 403; záchranná konstanta v wp-config.php (dočasně, vráceno byte po bytu) vrátí matici stejnou jako vypnutý zámek. Viditelnost menu:
+kombinace pravidel x 6 návštěvníků (nepřihlášený, odběratel, editor, správce obchodu, vlastní role, administrátor), potomek skryté položky zmizí s ní, uložení z editoru (kanonický JSON, starý klíč se smaže, položka přidaná AJAXem má editor).
+Migrace: AME + Adminimize (skutečná data pobyty; modul vypnutý: přímý zápis, zapnutý: staging, `menu_lock_enabled` se zapnul jen u Adminimize), suchý běh nic nezapsal, ověření bez chyby vč. `menu-lock`, náhled 11/11 (admin_access 4/4), rollback přesně
+(`uxstudio_admin_customiser` md5 shodné); fixtury Nav Menu Roles, If Menu a Menu Items Visibility Control (skutečné kódy pluginů, neaktivní): přímý zápis, staging, náhled překrývá meta jen správci s cookie, rollback.
+**Původ zapnuté blokace.** Když migrace zapne `menu_lock_enabled`, zapíše volbu `uxstudio_menu_lock_origin` = `{ source, label, run, time }` (`Core\Migration\MenuLockOrigin`): přímý zápis v `AbstractSource::migrate_settings`, u zapnutého modulu leží poznámka ve stagingu (`lock_origin`) a zapíše ji `Staging::apply`. Rollback ji odstraní snapshotem (`target_options`), zrušení přepnutí `Switcher` záznamem voleb; ruční změna přepínače (`Module::save_settings`) ji smaže. UI: informační callout pod přepínačem (Úpravy administrace, Boční menu) s datem a odkazem do historie průvodce, odznak na kartě Organizér menu (`GET admin-customiser/menu-lock`), a text kroku Kontrola říká, kde se nastavení najde a že jde vypnout. Ověřeno na skutečných datech pobyty (Adminimize, modul vypnutý): poznámka zapsána, světlý i tmavý režim, rollback ji vrátil, vše obnoveno z dumpu.
+
+**Neověřeno / otevřené.** Multisite; položka menu přidaná pluginem po `admin_init` priority 1 se v původním menu nenajde, takže se nezablokuje; blokové navigace; editor pravidel v Customizeru (jen klasická obrazovka Vzhled > Menu).

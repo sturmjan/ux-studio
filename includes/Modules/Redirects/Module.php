@@ -56,8 +56,23 @@ final class Module extends BaseModule {
 	public static function ensure_tables(): void {
 		DB::ensure_module_tables(
 			'redirects',
-			1,
-			static function (): void {
+			2,
+			static function ( int $from ): void {
+				global $wpdb;
+				// v2 (A2): several rules per source, told apart by their conditions. The v1 table had a UNIQUE key on
+				// the source alone; dbDelta cannot turn it into a plain key, so it is dropped first. Existing rows keep
+				// working unchanged (no conditions, cond_key '').
+				if ( $from >= 1 ) {
+					$table = Repository::table();
+					// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$was    = $wpdb->suppress_errors( true );
+					$unique = $wpdb->get_results( "SHOW INDEX FROM {$table} WHERE Key_name = 'source_hash' AND Non_unique = 0" );
+					if ( $unique ) {
+						$wpdb->query( "ALTER TABLE {$table} DROP INDEX source_hash" );
+					}
+					$wpdb->suppress_errors( $was );
+					// phpcs:enable
+				}
 				dbDelta( Repository::schema() );
 				dbDelta( NotFoundLog::schema() );
 				Repository::refresh_state();

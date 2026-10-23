@@ -114,18 +114,21 @@ final class Abilities {
 				'code'           => array( 'type' => 'integer', 'enum' => Repository::CODES, 'description' => '301 permanent (default), 308 permanent keeping method, 302/307 temporary, 410 gone (no target; content removed with no equivalent).' ),
 				'enabled'        => array( 'type' => 'boolean' ),
 				'note'           => array( 'type' => 'string', 'description' => 'Why the redirect exists (shown in admin).' ),
+				'conditions'     => self::conditions_schema(),
+				'position'       => array( 'type' => 'integer', 'description' => 'Order among the rules of ONE source (lower first, then older first). The first rule whose conditions hold wins; a rule without conditions is the fallback: it is always tried after the rules with conditions, whatever the positions.' ),
 			),
 		);
 
 		self::ability(
 			'list-rules',
 			__( 'List redirects', 'ux-studio' ),
-			'List redirect rules with filters and paging. Returns items + total.',
+			'List redirect rules with filters and paging. Returns items + total; every item carries its conditions (empty = applies to everybody) and position.',
 			array(
 				'search'     => array( 'type' => 'string' ),
 				'code'       => array( 'type' => 'integer', 'enum' => Repository::CODES ),
 				'origin'     => array( 'type' => 'string', 'enum' => Repository::ORIGINS ),
 				'match_type' => array( 'type' => 'string', 'enum' => Repository::MATCH_TYPES ),
+				'conditional' => array( 'type' => 'boolean', 'description' => 'true = only rules with conditions, false = only rules without.' ),
 				'orderby'    => array( 'type' => 'string', 'enum' => array( 'id', 'source', 'hits', 'last_hit', 'created_at', 'updated_at', 'code' ) ),
 				'order'      => array( 'type' => 'string', 'enum' => array( 'asc', 'desc' ) ),
 				'limit'      => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => Repository::BULK_MAX, 'default' => 50 ),
@@ -139,7 +142,7 @@ final class Abilities {
 		self::ability(
 			'upsert-rules',
 			__( 'Create or update redirects', 'ux-studio' ),
-			'Create/update up to ' . Repository::BULK_MAX . ' rules in one call. Enforces SEO rules: rejects loops, self-redirects and WordPress system paths; flattens chains (A->B + B->C becomes A->C); binds same-site targets to the post. Returns per-item status (created|updated|unchanged|skipped|would_create|would_update|error) with errors[] and warnings[] (homepage_target = soft-404 risk, temporary_code, target_unverified, source_has_content, chain_flattened). ALWAYS run with dry_run=true first.',
+			'Create/update up to ' . Repository::BULK_MAX . ' rules in one call. Enforces SEO rules: rejects loops, self-redirects and WordPress system paths; flattens chains (A->B + B->C becomes A->C); binds same-site targets to the post. Returns per-item status (created|updated|unchanged|skipped|would_create|would_update|error) with errors[] and warnings[] (homepage_target = soft-404 risk, temporary_code, target_unverified, source_has_content, chain_flattened, target_conditional, conditional_loop). ALWAYS run with dry_run=true first. A source can have SEVERAL rules told apart by their conditions (login state, role, referrer, user agent, IP/CIDR, cookie, host, HTTP header): the first rule (by position, then id) whose conditions all hold wins, a rule without conditions is the fallback. Upserting a source with different conditions therefore ADDS a rule; to change an existing one pass its id. Conditional rules are never flattened into chains and are answered with no-cache headers.',
 			array(
 				'items'       => array( 'type' => 'array', 'items' => $rule_item, 'minItems' => 1, 'maxItems' => Repository::BULK_MAX ),
 				'dry_run'     => array( 'type' => 'boolean', 'default' => true, 'description' => 'Validate only, write nothing. Defaults to true.' ),
@@ -176,14 +179,29 @@ final class Abilities {
 		self::ability(
 			'test-url',
 			__( 'Test a URL', 'ux-studio' ),
-			'Resolve one or more old URLs through the rules: hops, final URL/code, loop, issues (loop|chain|temporary|live_check_failed). live=true also follows each over HTTP and reports real status codes (ok = 200 in max 1 hop, or a direct 410).',
+			'Resolve one or more old URLs through the rules: hops, final URL/code, loop, issues (loop|chain|temporary|live_check_failed). live=true also follows each over HTTP and reports real status codes (ok = 200 in max 1 hop, or a direct 410). Rules with conditions are evaluated for the visitor given in "visitor" (default: anonymous, no headers, no cookies); skipped_rule_ids lists the rules of the URL whose conditions did not hold. live=true requests from the server itself, so conditions are evaluated for that request.',
 			array(
-				'urls' => array( 'type' => 'array', 'items' => array( 'type' => 'string' ), 'minItems' => 1, 'maxItems' => 50 ),
-				'live' => array( 'type' => 'boolean', 'default' => false ),
+				'urls'    => array( 'type' => 'array', 'items' => array( 'type' => 'string' ), 'minItems' => 1, 'maxItems' => 50 ),
+				'live'    => array( 'type' => 'boolean', 'default' => false ),
+				'visitor' => array(
+					'type'                 => 'object',
+					'description'          => 'Simulated visitor for rules with conditions.',
+					'properties'           => array(
+						'logged_in' => array( 'type' => 'boolean' ),
+						'roles'     => array( 'type' => 'string', 'description' => 'Comma separated roles of the logged-in user.' ),
+						'referrer'  => array( 'type' => 'string' ),
+						'agent'     => array( 'type' => 'string', 'description' => 'User agent.' ),
+						'ip'        => array( 'type' => 'string' ),
+						'host'      => array( 'type' => 'string' ),
+						'cookies'   => array( 'type' => 'object', 'additionalProperties' => array( 'type' => 'string' ) ),
+						'headers'   => array( 'type' => 'object', 'additionalProperties' => array( 'type' => 'string' ) ),
+					),
+					'additionalProperties' => false,
+				),
 			),
 			array( 'urls' ),
 			static fn ( array $in ): array => array_map(
-				static fn ( $url ): array => Tester::test( (string) $url, (bool) ( $in['live'] ?? false ) ),
+				static fn ( $url ): array => Tester::test( (string) $url, (bool) ( $in['live'] ?? false ), isset( $in['visitor'] ) && is_array( $in['visitor'] ) ? $in['visitor'] : null ),
 				array_slice( (array) $in['urls'], 0, 50 )
 			),
 			array( 'readonly' => true )
@@ -266,6 +284,30 @@ final class Abilities {
 				array_slice( (array) $in['items'], 0, 50 )
 			),
 			array( 'readonly' => true )
+		);
+	}
+
+	/**
+	 * Input schema of a rule's conditions (shared by upsert-rules).
+	 *
+	 * @return array<string, mixed>
+	 */
+	private static function conditions_schema(): array {
+		return array(
+			'type'        => 'array',
+			'maxItems'    => Conditions::MAX,
+			'description' => 'Optional. The rule applies only to visitors who meet ALL conditions (empty or omitted = everybody; on a partial update an empty array removes them). type: login (value "in" or "out"), role (value: comma separated roles or capabilities, e.g. "administrator,editor"; logged-out visitors never match), referrer / agent / host (value + op equals|contains|regex, default contains, host default equals), ip (value: comma or newline separated IPs and CIDR ranges), cookie / header (name + optional value; no value = only has to exist; op equals|contains|regex). negate=true inverts a condition ("not logged in", "referrer does not contain"). Regexes are case-insensitive, without delimiters.',
+			'items'       => array(
+				'type'       => 'object',
+				'properties' => array(
+					'type'   => array( 'type' => 'string', 'enum' => Conditions::TYPES ),
+					'op'     => array( 'type' => 'string', 'enum' => Conditions::OPS ),
+					'name'   => array( 'type' => 'string', 'description' => 'Cookie or HTTP header name.' ),
+					'value'  => array( 'type' => 'string' ),
+					'negate' => array( 'type' => 'boolean' ),
+				),
+				'required'   => array( 'type' ),
+			),
 		);
 	}
 

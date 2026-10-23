@@ -114,7 +114,7 @@ final class NotFoundLog {
 		$items = array();
 		foreach ( is_array( $rows ) ? $rows : array() as $row ) {
 			$parts = explode( '?', (string) $row['url'], 2 );
-			$match = Repository::match( $parts[0], $parts[1] ?? '' );
+			$match = Repository::match( $parts[0], $parts[1] ?? '', Conditions::blank_context() );
 			if ( $unres && $match ) {
 				continue;
 			}

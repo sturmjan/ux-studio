@@ -69,23 +69,53 @@ final class CaptchaVerifier {
 	}
 
 	/**
+	 * Widget look chosen in the settings: theme (`auto` | `light` | `dark`) and size (`normal` | `compact` | `flexible`).
+	 * Only the visible widgets use it (Turnstile, reCAPTCHA v2); `flexible` exists only in Turnstile and
+	 * reCAPTCHA falls back to `normal`; reCAPTCHA has no `auto` theme and keeps its default (light).
+	 *
+	 * @return array{theme:string,size:string}
+	 */
+	public static function appearance( Module $module ): array {
+		$theme = (string) $module->setting( 'captcha_theme', 'auto' );
+		$size  = (string) $module->setting( 'captcha_size', 'normal' );
+		$theme = in_array( $theme, array( 'auto', 'light', 'dark' ), true ) ? $theme : 'auto';
+		$size  = in_array( $size, array( 'normal', 'compact', 'flexible' ), true ) ? $size : 'normal';
+		if ( 'turnstile' !== self::provider( $module ) ) {
+			$theme = 'auto' === $theme ? 'light' : $theme;
+			$size  = 'flexible' === $size ? 'normal' : $size;
+		}
+		return array(
+			'theme' => $theme,
+			'size'  => $size,
+		);
+	}
+
+	/**
 	 * Widget markup (checkbox / invisible token field, depending on provider).
 	 */
 	public static function render_widget( Module $module ): void {
 		$provider = self::provider( $module );
 		$site_key = self::site_key( $module );
+		$look     = self::appearance( $module );
 
 		echo '<div class="uxstudio-captcha-field">';
 
 		if ( 'recaptcha_v2' === $provider ) {
-			printf( '<div class="g-recaptcha" data-sitekey="%s"></div>', esc_attr( $site_key ) );
+			printf( '<div class="g-recaptcha" data-sitekey="%s" data-theme="%s" data-size="%s"></div>', esc_attr( $site_key ), esc_attr( $look['theme'] ), esc_attr( $look['size'] ) );
 		} elseif ( 'recaptcha_v3' === $provider ) {
 			echo '<input type="hidden" name="g-recaptcha-response" class="uxstudio-recaptcha-v3-token" value="">';
 		} else {
-			printf( '<div class="cf-turnstile" data-sitekey="%s"></div>', esc_attr( $site_key ) );
+			printf( '<div class="cf-turnstile" data-sitekey="%s" data-theme="%s" data-size="%s"></div>', esc_attr( $site_key ), esc_attr( $look['theme'] ), esc_attr( $look['size'] ) );
 		}
 
 		echo '</div>';
+	}
+
+	/**
+	 * Name of the form field / request parameter that carries the token of the chosen provider.
+	 */
+	public static function token_field( Module $module ): string {
+		return 'turnstile' === self::provider( $module ) ? 'cf-turnstile-response' : 'g-recaptcha-response';
 	}
 
 	/**
@@ -120,22 +150,47 @@ final class CaptchaVerifier {
 	 * Verify the token from $_POST against the provider's siteverify endpoint.
 	 * Fails OPEN on a provider outage (5xx / network error) - a CAPTCHA outage
 	 * must never turn into a site-wide login lockout.
+	 *
+	 * @param Module      $module Security module.
+	 * @param string|null $token  Token to check; null = the one posted by the widget (form field of the provider).
 	 */
-	public static function verify_token( Module $module ): bool {
+	public static function verify_token( Module $module, ?string $token = null ): bool {
 		$provider = self::provider( $module );
 
 		if ( 'turnstile' === $provider ) {
-			$token    = isset( $_POST['cf-turnstile-response'] ) ? sanitize_text_field( wp_unslash( $_POST['cf-turnstile-response'] ) ) : '';
+			$field    = 'cf-turnstile-response';
 			$endpoint = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 		} else {
-			$token    = isset( $_POST['g-recaptcha-response'] ) ? sanitize_text_field( wp_unslash( $_POST['g-recaptcha-response'] ) ) : '';
+			$field    = 'g-recaptcha-response';
 			$endpoint = 'https://www.google.com/recaptcha/api/siteverify';
+		}
+		if ( null === $token ) {
+			$token = isset( $_POST[ $field ] ) ? sanitize_text_field( wp_unslash( $_POST[ $field ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		}
 
 		if ( '' === $token ) {
 			return false;
 		}
 
+		// A token is single use at the provider: when two handlers check the same request (for example the
+		// login form handler and a WooCommerce form), the second one must see the first one's verdict.
+		static $verdicts = array();
+		$key             = md5( $provider . '|' . $token );
+		if ( ! isset( $verdicts[ $key ] ) ) {
+			$verdicts[ $key ] = self::siteverify( $module, $provider, $token, $endpoint );
+		}
+		return $verdicts[ $key ];
+	}
+
+	/**
+	 * One call to the provider's siteverify endpoint.
+	 *
+	 * @param Module $module   Security module.
+	 * @param string $provider Provider id.
+	 * @param string $token    Token from the widget.
+	 * @param string $endpoint Siteverify URL.
+	 */
+	private static function siteverify( Module $module, string $provider, string $token, string $endpoint ): bool {
 		$response = wp_remote_post(
 			$endpoint,
 			array(

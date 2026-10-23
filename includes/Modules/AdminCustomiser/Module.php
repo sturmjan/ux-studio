@@ -10,6 +10,7 @@
 
 namespace UxStudio\Modules\AdminCustomiser;
 
+use UxStudio\Core\Migration\MenuLockOrigin;
 use UxStudio\Modules\BaseModule;
 
 defined( 'ABSPATH' ) || exit;
@@ -40,6 +41,7 @@ final class Module extends BaseModule {
 	 */
 	public function boot(): void {
 		MenuOrganizerBootstrap::register();
+		MenuLock::register();
 		MiscBootstrap::register();
 	}
 
@@ -76,6 +78,22 @@ final class Module extends BaseModule {
 			$values['hide_sidebar_icons'] = true === $values['hide_sidebar_icons'] || 1 === $values['hide_sidebar_icons'] || '1' === $values['hide_sidebar_icons'];
 		}
 
+		return $values;
+	}
+
+	/**
+	 * A hand-made change of "Block access to hidden pages" ends the note that a migration switched it on.
+	 *
+	 * @param array $input Raw input.
+	 * @return array<string, mixed>
+	 */
+	public function save_settings( array $input ): array {
+		$before = (bool) $this->settings->get( 'menu_lock_enabled', false );
+		$values = parent::save_settings( $input );
+		$after  = ! empty( $values['menu_lock_enabled'] );
+		if ( $before !== $after || ! $after ) {
+			MenuLockOrigin::clear();
+		}
 		return $values;
 	}
 
@@ -281,6 +299,14 @@ final class Module extends BaseModule {
 				'type'    => 'toggle',
 				'label'   => __( 'Enable menu organizer', 'ux-studio' ),
 				'help'    => __( 'Reorganizes the WordPress admin menu into custom categories. Configure categories, item order and overrides in the Menu Organizer tab.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'menu_lock_enabled',
+				'section' => __( 'Sidebar menu', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Block access to hidden pages', 'ux-studio' ),
+				'help'    => __( 'Off: the Menu Organizer only hides menu items, a hidden page still opens when its address is typed in. On: a page that is hidden from a user (limited to other roles, or hidden for everybody) is refused with "Sorry, you are not allowed to access this page" for users who cannot manage options. Sub-items follow their parent item, except a sub-item moved to the top level that the user can see. Never blocked: users who can manage options, the dashboard, the profile, UX Studio, Plugins, Users and Settings, AJAX and REST. Needs the menu organizer to be on. Rescue switch: define UXSTUDIO_DISABLE_MENU_LOCK as true in wp-config.php to switch the blocking off for everybody.', 'ux-studio' ),
 				'default' => false,
 			),
 			array(

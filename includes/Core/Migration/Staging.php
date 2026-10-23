@@ -30,6 +30,7 @@ defined( 'ABSPATH' ) || exit;
  *   options[option] = { module, values }   (top-level keys merged into an option outside the settings schema,
  *                                           e.g. the Menu Organizer config; values are clean already),
  *   activations[] = { source, kind, ids[] } (data created inactive, see Activatable)
+ *   lock_origin   = { source, label, run, time } (optional; the switch writes it as MenuLockOrigin::OPTION)
  *
  * Pending entries are laid over the live option when previewing and verifying, so a second
  * run of the same source compares with what is already prepared and writes nothing new.
@@ -113,6 +114,25 @@ final class Staging {
 		$entry                               = self::fresh( $all, $run_id );
 		$entry['settings'][ $module ]        = array_merge( (array) ( $entry['settings'][ $module ] ?? array() ), $values );
 		$all[ $run_id ]                      = $entry;
+		self::save( $all );
+	}
+
+	/**
+	 * Stage the note about where the switched-on access lock came from (see MenuLockOrigin).
+	 *
+	 * @param string               $run_id Run id.
+	 * @param array<string, mixed> $note   Note.
+	 */
+	public static function put_lock_origin( string $run_id, array $note ): void {
+		$run_id = Snapshot::clean_id( $run_id );
+		$note   = MenuLockOrigin::clean( $note );
+		if ( '' === $run_id || ! $note ) {
+			return;
+		}
+		$all                     = self::all();
+		$entry                   = self::fresh( $all, $run_id );
+		$entry['lock_origin']    = $note;
+		$all[ $run_id ]          = $entry;
 		self::save( $all );
 	}
 
@@ -357,6 +377,10 @@ final class Staging {
 					(string) $row['source']
 				);
 			}
+		}
+
+		if ( ! empty( $entry['lock_origin'] ) ) {
+			MenuLockOrigin::write( (array) $entry['lock_origin'] );
 		}
 
 		unset( $all[ $run_id ] );

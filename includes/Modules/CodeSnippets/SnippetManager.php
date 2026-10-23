@@ -22,6 +22,18 @@ defined( 'ABSPATH' ) || exit;
  */
 final class SnippetManager {
 
+	/** Run locations beyond the WordPress hooks (A2): output through [uxstudio_snippet], around the post content, once. */
+	public const LOCATION_SHORTCODE      = 'shortcode';
+	public const LOCATION_BEFORE_CONTENT = 'before_content';
+	public const LOCATION_AFTER_CONTENT  = 'after_content';
+	public const LOCATION_RUN_ONCE       = 'run_once';
+
+	/** Locations that are never run early or printed on a hook by the executor. */
+	public const SPECIAL_LOCATIONS = array( self::LOCATION_SHORTCODE, self::LOCATION_BEFORE_CONTENT, self::LOCATION_AFTER_CONTENT, self::LOCATION_RUN_ONCE );
+
+	/** Post types a before/after-content snippet gets when none is chosen. */
+	public const DEFAULT_POST_TYPES = array( 'post', 'page' );
+
 	private string $snippetsDir;
 
 	/** @var Snippet[]|null Per-request memo of enabled snippets (runtime path). */
@@ -132,6 +144,44 @@ final class SnippetManager {
 	}
 
 	/**
+	 * Run locations a snippet type can have.
+	 *
+	 * @return string[]
+	 */
+	public static function allowedLocations( string $type ): array {
+		$map     = array(
+			'php'  => array( 'everywhere', 'admin_only', 'frontend_only' ),
+			'html' => array( 'everywhere', 'site_header', 'site_body_open', 'site_footer', 'admin_header', 'admin_footer' ),
+			'css'  => array( 'everywhere', 'site_header', 'site_footer', 'admin_header', 'admin_footer' ),
+			'js'   => array( 'everywhere', 'site_header', 'site_footer', 'admin_header', 'admin_footer' ),
+		);
+		$special = self::SPECIAL_LOCATIONS;
+		if ( 'php' !== $type ) {
+			// Executing once is for PHP only: there is nothing to "run" in HTML, CSS or JavaScript.
+			$special = array_values( array_diff( $special, array( self::LOCATION_RUN_ONCE ) ) );
+		}
+		return array_merge( $map[ $type ] ?? array(), $special );
+	}
+
+	/**
+	 * Post types as a clean list: only existing ones; the default pair when none is given.
+	 *
+	 * @param mixed $value Array or comma separated string.
+	 * @return string[]
+	 */
+	public static function sanitizePostTypes( $value ): array {
+		$items = is_array( $value ) ? $value : explode( ',', (string) $value );
+		$out   = array();
+		foreach ( $items as $item ) {
+			$key = sanitize_key( (string) $item );
+			if ( '' !== $key && ( ! function_exists( 'post_type_exists' ) || post_type_exists( $key ) ) ) {
+				$out[ $key ] = $key;
+			}
+		}
+		return array_values( $out ) ?: self::DEFAULT_POST_TYPES;
+	}
+
+	/**
 	 * Default run_location per snippet type (used when the client omits it).
 	 */
 	private function getDefaultRunLocation( string $type ): string {
@@ -189,16 +239,30 @@ final class SnippetManager {
 			}
 		}
 
+		$run_location = isset( $data['run_location'] ) && '' !== $data['run_location']
+			? sanitize_key( $data['run_location'] )
+			: $this->getDefaultRunLocation( $type );
+		if ( ! in_array( $run_location, self::allowedLocations( $type ), true ) ) {
+			return array(
+				'valid'          => false,
+				'message'        => self::LOCATION_RUN_ONCE === $run_location
+					? __( 'Only PHP snippets can run once.', 'ux-studio' )
+					: __( 'Invalid run location for this snippet type', 'ux-studio' ),
+				'sanitized_data' => array(),
+			);
+		}
+
 		$sanitized = array(
 			'name'         => $name,
 			'type'         => $type,
 			'code'         => $code,
 			'enabled'      => isset( $data['enabled'] ) ? (bool) $data['enabled'] : false,
 			'description'  => isset( $data['description'] ) ? sanitize_textarea_field( $data['description'] ) : '',
-			'run_location' => isset( $data['run_location'] ) && '' !== $data['run_location']
-				? sanitize_key( $data['run_location'] )
-				: $this->getDefaultRunLocation( $type ),
+			'run_location' => $run_location,
 			'priority'     => isset( $data['priority'] ) ? (int) $data['priority'] : 10,
+			'post_types'   => in_array( $run_location, array( self::LOCATION_BEFORE_CONTENT, self::LOCATION_AFTER_CONTENT ), true )
+				? self::sanitizePostTypes( $data['post_types'] ?? array() )
+				: array(),
 		);
 
 		return array(
@@ -430,12 +494,13 @@ final class SnippetManager {
 				'title'        => $sanitized['name'],
 				'type'         => $sanitized['type'],
 				'run_location' => $sanitized['run_location'],
+				'post_types'   => implode( ',', $sanitized['post_types'] ),
 				'enabled'      => $sanitized['enabled'] ? 1 : 0,
 				'file_path'    => '',
 				'created_at'   => $now,
 				'updated_at'   => $now,
 			),
-			array( '%s', '%s', '%s', '%d', '%s', '%s', '%s' )
+			array( '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s' )
 		);
 
 		if ( ! $inserted ) {
@@ -480,6 +545,7 @@ final class SnippetManager {
 		}
 
 		$wpdb->update( $table, array( 'file_path' => $file_path ), array( 'id' => $id ), array( '%s' ), array( '%d' ) );
+		$snippet->setMeta( $sanitized['post_types'], '', '' );
 
 		ActivityLog::log( 'code-snippets', 'create', 'snippet', (int) $id, array( 'name' => $sanitized['name'], 'type' => $sanitized['type'] ) );
 
@@ -581,13 +647,15 @@ final class SnippetManager {
 				'title'        => $sanitized['name'],
 				'type'         => $sanitized['type'],
 				'run_location' => $sanitized['run_location'],
+				'post_types'   => implode( ',', $sanitized['post_types'] ),
 				'enabled'      => $sanitized['enabled'] ? 1 : 0,
 				'updated_at'   => current_time( 'mysql' ),
 			),
 			array( 'id' => $id ),
-			array( '%s', '%s', '%s', '%d', '%s' ),
+			array( '%s', '%s', '%s', '%s', '%d', '%s' ),
 			array( '%d' )
 		);
+		$snippet->setMeta( $sanitized['post_types'], (string) ( $row['last_run'] ?? '' ), (string) ( $row['run_result'] ?? '' ) );
 
 		ActivityLog::log( 'code-snippets', 'update', 'snippet', (int) $id, array( 'name' => $sanitized['name'], 'type' => $sanitized['type'] ) );
 
@@ -649,6 +717,55 @@ final class SnippetManager {
 		ActivityLog::log( 'code-snippets', $enabled ? 'enable' : 'disable', 'snippet', (int) $id );
 
 		return true;
+	}
+
+	/**
+	 * Take a run-once snippet for execution: switches it OFF in one atomic statement and reports whether THIS
+	 * request did it. Two admin requests at the same time cannot both get true, and a snippet that crashes the
+	 * request half way is already off, so it never loops. Nothing is claimed in a safe preview (writes to the
+	 * snippets table are discarded there anyway).
+	 *
+	 * @param string $id Snippet id.
+	 */
+	public function claimRunOnce( string $id ): bool {
+		if ( \UxStudio\Core\Migration\Preview::is_active() ) {
+			return false;
+		}
+		global $wpdb;
+		self::$enabledCache = null;
+		$table              = $this->table();
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name only; values are bound.
+		$changed = $wpdb->query( $wpdb->prepare( "UPDATE {$table} SET enabled = 0, updated_at = %s WHERE id = %d AND enabled = 1 AND run_location = %s", current_time( 'mysql' ), (int) $id, self::LOCATION_RUN_ONCE ) );
+		return 1 === (int) $changed;
+	}
+
+	/**
+	 * Store the outcome of a run-once execution.
+	 *
+	 * @param string $id      Snippet id.
+	 * @param bool   $ok      Whether the code ran without an error.
+	 * @param string $message Error message or a short note.
+	 * @param string $output  What the snippet printed (cut).
+	 */
+	public function recordRun( string $id, bool $ok, string $message, string $output = '' ): void {
+		global $wpdb;
+		$wpdb->update(
+			$this->table(),
+			array(
+				'last_run'   => current_time( 'mysql' ),
+				'run_result' => (string) wp_json_encode(
+					array(
+						'ok'      => $ok,
+						'message' => mb_substr( $message, 0, 500 ),
+						'output'  => mb_substr( $output, 0, 1000 ),
+					)
+				),
+			),
+			array( 'id' => (int) $id ),
+			array( '%s', '%s' ),
+			array( '%d' )
+		);
+		ActivityLog::log( 'code-snippets', $ok ? 'run_once' : 'run_once_failed', 'snippet', (int) $id, array( 'message' => mb_substr( $message, 0, 200 ) ) );
 	}
 
 	/**
@@ -734,6 +851,11 @@ final class SnippetManager {
 		if ( ! $snippet->verifyIntegrity() ) {
 			$snippet->setIntegrityIssue( true );
 		}
+		$snippet->setMeta(
+			'' === (string) ( $row['post_types'] ?? '' ) ? array() : explode( ',', (string) $row['post_types'] ),
+			(string) ( $row['last_run'] ?? '' ),
+			(string) ( $row['run_result'] ?? '' )
+		);
 
 		return $snippet;
 	}

@@ -51,76 +51,7 @@ final class Module extends BaseModule {
 	 * Register hooks.
 	 */
 	public function boot(): void {
-		\UxStudio\Core\DB::ensure_module_tables(
-			'security-optimization',
-			1,
-			function ( int $from ): void {
-				global $wpdb;
-				$charset = $wpdb->get_charset_collate();
-
-				dbDelta(
-					"CREATE TABLE {$wpdb->prefix}uxstudio_login_failed (
-						id bigint(20) NOT NULL AUTO_INCREMENT,
-						username varchar(100) NOT NULL,
-						ip varchar(45) NOT NULL,
-						country varchar(60) NULL,
-						status tinyint(1) NOT NULL DEFAULT 0,
-						locktime int(11) NOT NULL DEFAULT 30,
-						locklimit int(11) NOT NULL DEFAULT 3,
-						date datetime NOT NULL DEFAULT current_timestamp(),
-						PRIMARY KEY  (id),
-						KEY ip (ip),
-						KEY status (status)
-					) {$charset};"
-				);
-
-				dbDelta(
-					"CREATE TABLE {$wpdb->prefix}uxstudio_login_attempt (
-						id bigint(20) NOT NULL AUTO_INCREMENT,
-						attempt int(11) NOT NULL DEFAULT 1,
-						ip varchar(45) NOT NULL,
-						date datetime NOT NULL DEFAULT current_timestamp(),
-						PRIMARY KEY  (id),
-						KEY ip (ip)
-					) {$charset};"
-				);
-
-				dbDelta(
-					"CREATE TABLE {$wpdb->prefix}uxstudio_ip_bans (
-						id bigint(20) NOT NULL AUTO_INCREMENT,
-						type varchar(10) NOT NULL DEFAULT 'single',
-						value varchar(64) NOT NULL,
-						label varchar(120) NULL,
-						note text NULL,
-						origin varchar(10) NOT NULL DEFAULT 'local',
-						central_id bigint(20) NULL,
-						is_active tinyint(1) NOT NULL DEFAULT 1,
-						expires_at datetime NULL,
-						hit_count bigint(20) NOT NULL DEFAULT 0,
-						last_hit_at datetime NULL,
-						created_by bigint(20) NULL,
-						created_at datetime NOT NULL DEFAULT current_timestamp(),
-						PRIMARY KEY  (id),
-						UNIQUE KEY origin_value (origin,value),
-						KEY is_active (is_active),
-						KEY origin (origin)
-					) {$charset};"
-				);
-
-				dbDelta(
-					"CREATE TABLE {$wpdb->prefix}uxstudio_ip_ban_ranges (
-						id bigint(20) NOT NULL AUTO_INCREMENT,
-						ban_id bigint(20) NOT NULL,
-						ip_version tinyint(1) NOT NULL DEFAULT 4,
-						start_ip varbinary(16) NOT NULL,
-						end_ip varbinary(16) NOT NULL,
-						PRIMARY KEY  (id),
-						KEY ban_id (ban_id),
-						KEY lookup (ip_version,start_ip)
-					) {$charset};"
-				);
-			}
-		);
+		\UxStudio\Core\DB::ensure_module_tables( 'security-optimization', 1, array( self::class, 'create_tables' ) );
 
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 
@@ -232,7 +163,14 @@ final class Module extends BaseModule {
 			} else {
 				new CaptchaHandler( $this );
 			}
+			// Comments and WooCommerce forms: not part of wp-login.php, so independent of the placement.
+			new CaptchaForms( $this );
 		}
+
+		/* ── Two-step verification: last `authenticate` filter, so it must be hooked after the lockout and
+		 * CAPTCHA filters above (same priority runs in registration order). Off by default; kill switch
+		 * UXSTUDIO_DISABLE_2FA in wp-config.php. ── */
+		TwoFactor::register( $this );
 
 		/* ── Block reserved usernames ── */
 		if ( $this->setting( 'block_usernames', false ) ) {
@@ -289,6 +227,78 @@ final class Module extends BaseModule {
 		 * scanner honours its enable toggle; CSP violation collection is always on
 		 * so the report-uri sink keeps working regardless. ── */
 		CspUploadGuardBootstrap::register( (bool) $this->setting( 'upload_guard_enabled', true ) );
+	}
+
+	/**
+	 * Create the module tables (also used by the migration wizard before it writes IP bans).
+	 *
+	 * @param int $from Installed schema version (0 = none).
+	 */
+	public static function create_tables( int $from = 0 ): void {
+		global $wpdb;
+		$charset = $wpdb->get_charset_collate();
+
+		dbDelta(
+			"CREATE TABLE {$wpdb->prefix}uxstudio_login_failed (
+				id bigint(20) NOT NULL AUTO_INCREMENT,
+				username varchar(100) NOT NULL,
+				ip varchar(45) NOT NULL,
+				country varchar(60) NULL,
+				status tinyint(1) NOT NULL DEFAULT 0,
+				locktime int(11) NOT NULL DEFAULT 30,
+				locklimit int(11) NOT NULL DEFAULT 3,
+				date datetime NOT NULL DEFAULT current_timestamp(),
+				PRIMARY KEY  (id),
+				KEY ip (ip),
+				KEY status (status)
+			) {$charset};"
+		);
+
+		dbDelta(
+			"CREATE TABLE {$wpdb->prefix}uxstudio_login_attempt (
+				id bigint(20) NOT NULL AUTO_INCREMENT,
+				attempt int(11) NOT NULL DEFAULT 1,
+				ip varchar(45) NOT NULL,
+				date datetime NOT NULL DEFAULT current_timestamp(),
+				PRIMARY KEY  (id),
+				KEY ip (ip)
+			) {$charset};"
+		);
+
+		dbDelta(
+			"CREATE TABLE {$wpdb->prefix}uxstudio_ip_bans (
+				id bigint(20) NOT NULL AUTO_INCREMENT,
+				type varchar(10) NOT NULL DEFAULT 'single',
+				value varchar(64) NOT NULL,
+				label varchar(120) NULL,
+				note text NULL,
+				origin varchar(10) NOT NULL DEFAULT 'local',
+				central_id bigint(20) NULL,
+				is_active tinyint(1) NOT NULL DEFAULT 1,
+				expires_at datetime NULL,
+				hit_count bigint(20) NOT NULL DEFAULT 0,
+				last_hit_at datetime NULL,
+				created_by bigint(20) NULL,
+				created_at datetime NOT NULL DEFAULT current_timestamp(),
+				PRIMARY KEY  (id),
+				UNIQUE KEY origin_value (origin,value),
+				KEY is_active (is_active),
+				KEY origin (origin)
+			) {$charset};"
+		);
+
+		dbDelta(
+			"CREATE TABLE {$wpdb->prefix}uxstudio_ip_ban_ranges (
+				id bigint(20) NOT NULL AUTO_INCREMENT,
+				ban_id bigint(20) NOT NULL,
+				ip_version tinyint(1) NOT NULL DEFAULT 4,
+				start_ip varbinary(16) NOT NULL,
+				end_ip varbinary(16) NOT NULL,
+				PRIMARY KEY  (id),
+				KEY ban_id (ban_id),
+				KEY lookup (ip_version,start_ip)
+			) {$charset};"
+		);
 	}
 
 	/**
@@ -645,6 +655,65 @@ final class Module extends BaseModule {
 				'label'   => __( 'Email admin on lockout', 'ux-studio' ),
 				'default' => false,
 			),
+			array(
+				'key'     => 'lockout_notify_email',
+				'section' => __( 'Login', 'ux-studio' ),
+				'type'    => 'text',
+				'label'   => __( 'Lockout e-mail address', 'ux-studio' ),
+				'help'    => __( 'Where the lockout e-mail goes. Leave empty to use the site administrator address.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'lockout_progressive',
+				'section' => __( 'Login', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Lengthen repeated lockouts', 'ux-studio' ),
+				'help'    => __( 'Every new lockout of the same IP address within 24 hours lasts longer than the previous one: the lockout time is multiplied by the factor below, up to the maximum. Off = every lockout lasts the same time.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'lockout_multiplier',
+				'section' => __( 'Login', 'ux-studio' ),
+				'type'    => 'number',
+				'label'   => __( 'Lockout multiplier', 'ux-studio' ),
+				'help'    => __( 'Factor per repeated lockout, for example 2 turns 30, 60, 120 minutes. From 1 to 10.', 'ux-studio' ),
+				'default' => 2,
+			),
+			array(
+				'key'     => 'lockout_max_hours',
+				'section' => __( 'Login', 'ux-studio' ),
+				'type'    => 'number',
+				'label'   => __( 'Longest lockout (hours)', 'ux-studio' ),
+				'help'    => __( 'A lockout never lasts longer than this, from 1 to 168 hours.', 'ux-studio' ),
+				'default' => 24,
+			),
+
+			// Two-step verification (TOTP).
+			array(
+				'key'     => 'two_factor_enabled',
+				'section' => __( 'Two-step verification', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Enable two-step verification', 'ux-studio' ),
+				'help'    => __( 'Lets users protect their account with a code from an authenticator app (Google Authenticator, Authy, 1Password ...). Everybody sets it up in their own profile; recovery codes cover a lost phone. Application passwords (REST API) are not affected. Rescue switch: define UXSTUDIO_DISABLE_2FA as true in wp-config.php to switch the second step off for everybody if you get locked out. Switching this off stops the second step for all users; their settings stay saved.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'two_factor_required_roles',
+				'section' => __( 'Two-step verification', 'ux-studio' ),
+				'type'    => 'multiselect',
+				'label'   => __( 'Require for roles', 'ux-studio' ),
+				'help'    => __( 'Users with these roles are asked to set up two-step verification after logging in. Nobody is locked out: they can postpone it for the number of logins below, then only their profile page is open until the setup is done.', 'ux-studio' ),
+				'options' => self::role_options(),
+				'default' => array(),
+			),
+			array(
+				'key'     => 'two_factor_grace_logins',
+				'section' => __( 'Two-step verification', 'ux-studio' ),
+				'type'    => 'number',
+				'label'   => __( 'Logins that may skip the setup', 'ux-studio' ),
+				'help'    => __( 'For roles that must use two-step verification. 0 = the setup is compulsory from the first login.', 'ux-studio' ),
+				'default' => TwoFactorStore::DEFAULT_GRACE,
+			),
 
 			// Block usernames.
 			array(
@@ -736,14 +805,45 @@ final class Module extends BaseModule {
 				'key'     => 'captcha_forms',
 				'section' => __( 'CAPTCHA', 'ux-studio' ),
 				'type'    => 'multiselect',
-				'label'   => __( 'Protected forms (inline placement only)', 'ux-studio' ),
-				'help'    => __( 'Which forms show and verify the CAPTCHA widget. The standalone gate always covers login and lost password.', 'ux-studio' ),
+				'label'   => __( 'Protected forms', 'ux-studio' ),
+				'help'    => __( 'Which forms show and verify the CAPTCHA widget. The standalone gate always covers login and lost password on wp-login.php; registration, comments and WooCommerce forms are protected with either placement. Logged-in visitors are never asked on comments and checkout. WooCommerce checkout means the classic checkout (the block checkout has no place for the widget).', 'ux-studio' ),
 				'options' => array(
-					'login'        => __( 'Login', 'ux-studio' ),
-					'register'     => __( 'Registration', 'ux-studio' ),
-					'lostpassword' => __( 'Lost password', 'ux-studio' ),
+					'login'            => __( 'Login', 'ux-studio' ),
+					'register'         => __( 'Registration', 'ux-studio' ),
+					'lostpassword'     => __( 'Lost password', 'ux-studio' ),
+					'comment'          => __( 'Comments', 'ux-studio' ),
+					'woo_login'        => __( 'WooCommerce login', 'ux-studio' ),
+					'woo_register'     => __( 'WooCommerce registration', 'ux-studio' ),
+					'woo_lostpassword' => __( 'WooCommerce lost password', 'ux-studio' ),
+					'woo_checkout'     => __( 'WooCommerce checkout', 'ux-studio' ),
 				),
 				'default' => array( 'login', 'register', 'lostpassword' ),
+			),
+			array(
+				'key'     => 'captcha_theme',
+				'section' => __( 'CAPTCHA', 'ux-studio' ),
+				'type'    => 'select',
+				'label'   => __( 'Widget theme', 'ux-studio' ),
+				'help'    => __( 'For Cloudflare Turnstile and reCAPTCHA v2. reCAPTCHA has no automatic theme and shows the light one.', 'ux-studio' ),
+				'options' => array(
+					'auto'  => __( 'Automatic (follows the visitor)', 'ux-studio' ),
+					'light' => __( 'Light', 'ux-studio' ),
+					'dark'  => __( 'Dark', 'ux-studio' ),
+				),
+				'default' => 'auto',
+			),
+			array(
+				'key'     => 'captcha_size',
+				'section' => __( 'CAPTCHA', 'ux-studio' ),
+				'type'    => 'select',
+				'label'   => __( 'Widget size', 'ux-studio' ),
+				'help'    => __( 'For Cloudflare Turnstile and reCAPTCHA v2. Flexible (Turnstile only) fills the width of the form; reCAPTCHA shows it as normal.', 'ux-studio' ),
+				'options' => array(
+					'normal'   => __( 'Normal', 'ux-studio' ),
+					'compact'  => __( 'Compact', 'ux-studio' ),
+					'flexible' => __( 'Flexible', 'ux-studio' ),
+				),
+				'default' => 'normal',
 			),
 			array(
 				'key'     => 'captcha_site_key',
@@ -1051,6 +1151,21 @@ final class Module extends BaseModule {
 	}
 
 	/**
+	 * Roles of the site for the "require two-step verification" setting.
+	 *
+	 * @return array<string,string>
+	 */
+	private static function role_options(): array {
+		$options = array();
+		if ( function_exists( 'wp_roles' ) ) {
+			foreach ( wp_roles()->get_names() as $id => $name ) {
+				$options[ (string) $id ] = translate_user_role( $name );
+			}
+		}
+		return $options;
+	}
+
+	/**
 	 * CSP preset checkbox labels (keys match CspServices::preset_sources()).
 	 *
 	 * @return array<string,string>
@@ -1101,6 +1216,19 @@ final class Module extends BaseModule {
 		}
 		if ( array_key_exists( 'url_redirect', $input ) ) {
 			$input['url_redirect'] = self::normalize_redirect_path( (string) $input['url_redirect'] );
+		}
+		if ( array_key_exists( 'lockout_multiplier', $input ) ) {
+			$input['lockout_multiplier'] = round( max( 1.0, min( 10.0, (float) $input['lockout_multiplier'] ) ), 1 );
+		}
+		if ( array_key_exists( 'lockout_max_hours', $input ) ) {
+			$input['lockout_max_hours'] = max( 1, min( 168, (int) $input['lockout_max_hours'] ) );
+		}
+		if ( array_key_exists( 'lockout_notify_email', $input ) ) {
+			$email                         = sanitize_email( (string) $input['lockout_notify_email'] );
+			$input['lockout_notify_email'] = is_email( $email ) ? $email : '';
+		}
+		if ( array_key_exists( 'two_factor_grace_logins', $input ) ) {
+			$input['two_factor_grace_logins'] = max( 0, min( 30, (int) $input['two_factor_grace_logins'] ) );
 		}
 
 		// Regexes must not pass through the generic textarea sanitizer, which
@@ -2445,12 +2573,16 @@ final class Module extends BaseModule {
 	private function current_rest_route(): string {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only routing lookup.
 		if ( isset( $_GET['rest_route'] ) ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$route = sanitize_text_field( wp_unslash( $_GET['rest_route'] ) );
+			// Raw on purpose: sanitize_text_field() strips percent-encoded octets (%2e%2e), which would hide a
+			// dot-segment from is_public_rest_route(). The value is only compared, never output.
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			$route = is_string( $_GET['rest_route'] ) ? (string) wp_unslash( $_GET['rest_route'] ) : '';
 			return '/' . ltrim( $route, '/' );
 		}
 
-		$uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+		// Raw for the same reason (comparison only).
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$uri = isset( $_SERVER['REQUEST_URI'] ) ? (string) wp_unslash( $_SERVER['REQUEST_URI'] ) : '';
 		if ( '' === $uri ) {
 			return '';
 		}

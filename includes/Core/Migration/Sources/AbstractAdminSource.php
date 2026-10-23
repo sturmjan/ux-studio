@@ -32,6 +32,8 @@ defined( 'ABSPATH' ) || exit;
  *   denied        array<string,string[]>       top-level slug => roles that must not see it
  *   denied_subs   array<string,string[]>       `parent>sub` => roles that must not see it
  *   hidden_subs   string[]                     `parent>sub` hidden for everybody
+ *   blocked       array<string,string[]>       top-level slug => roles whose access the plugin takes away (page blocked, not only hidden)
+ *   block_all     bool                         every item in `denied` is blocked for its roles (Adminimize without "Allow Page Access")
  *   promoted      array<string,array>          sub slug => parent, title, icon (moved to the top level)
  *   custom_links  array<int,array>             id, title, url, icon, target
  *   lossy         string[]                     further sentences for the lossy list
@@ -341,12 +343,37 @@ abstract class AbstractAdminSource extends AbstractSource {
 		);
 		$m->set( self::MODULE, 'menu_organizer_enabled', true, __( 'Enable menu organizer', 'ux-studio' ), $origin );
 
+		// Pages the plugin really blocks (not only hides): "Block access to hidden pages" does the same in UX Studio.
+		$lock = $this->lock_plan( $model, $clean, $bypass );
+		if ( $lock['open'] ) {
+			$labels   = MenuSimulator::protected_screens();
+			$lossy[] = sprintf(
+				/* translators: %s: screens. */
+				__( 'The plugin blocks these screens for some roles. UX Studio never blocks UX Studio, Plugins, Users and Settings (nobody may be locked out), so they stay reachable by address: %s.', 'ux-studio' ),
+				$this->list_text( array_map( static fn( string $s ): string => (string) ( $labels[ $s ] ?? $s ), $lock['open'] ) )
+			);
+		}
+		if ( $lock['on'] ) {
+			$m->set( self::MODULE, 'menu_lock_enabled', true, __( 'Block access to hidden pages', 'ux-studio' ), $origin );
+			if ( $lock['stricter'] ) {
+				$text = sprintf(
+					/* translators: %s: menu items. */
+					__( 'The plugin only hid these items without blocking their pages. "Block access to hidden pages" is one switch for the whole menu, so in UX Studio they are blocked for the roles that do not see them as well: %s.', 'ux-studio' ),
+					$this->list_text( array_map( fn( string $s ): string => $this->title_of( $model, $s ), $lock['stricter'] ) )
+				);
+				$m->warn( $text );
+				$lossy[] = $text;
+			}
+			$m->note( __( 'A page hidden from a role is also refused when its address is typed in ("Block access to hidden pages" is switched on). Users who can manage options, the dashboard, profile, UX Studio, Plugins, Users and Settings are never blocked. You will see the setting, with a note that it came from this migration, in UX Studio under Admin Customiser, Sidebar menu, "Block access to hidden pages", and you can switch it off there.', 'ux-studio' ) );
+		} else {
+			$m->warn( __( 'The Menu Organizer only hides menu items. A page hidden from a role can still be opened with its address, whereas a plugin that changes capabilities blocks it. If the old plugin protected pages, check that before you switch (the setting "Block access to hidden pages" in Admin Customiser blocks them).', 'ux-studio' ) );
+		}
+
 		foreach ( $lossy as $line ) {
 			if ( ! in_array( $line, $m->lossy, true ) ) {
 				$m->lossy( $line );
 			}
 		}
-		$m->warn( __( 'The Menu Organizer only hides menu items. A page hidden from a role can still be opened with its address, whereas a plugin that changes capabilities blocks it. If the old plugin protected pages, check that before you switch.', 'ux-studio' ) );
 		$m->note( __( 'Admin Menu Editor, Adminimize and Adminify all write the same Menu Organizer configuration. If you migrate more than one of them, the one processed later overwrites the same parts of the earlier one.', 'ux-studio' ) );
 
 		$this->menu_expect = array(
@@ -356,6 +383,51 @@ abstract class AbstractAdminSource extends AbstractSource {
 			'explain' => array_values( array_unique( $explain ) ),
 			'config'  => array_merge( $input, array( 'hidden_items' => $clean['hidden_items'], 'item_roles' => $clean['item_roles'], 'assignments' => $clean['assignments'] ) ),
 			'dropped' => $safe['dropped'],
+			'lock'    => $lock['pairs'],
+		);
+	}
+
+	/**
+	 * Does the plugin block (not only hide) pages that end up in the Menu Organizer config? Then the lock is switched on.
+	 *
+	 * @param array<string, mixed> $model  Model.
+	 * @param array<string, mixed> $clean  Cleaned Menu Organizer config the mapping writes.
+	 * @param string[]             $bypass Roles that can manage options (never blocked).
+	 * @return array{on:bool,pairs:array<string,string[]>,stricter:string[],open:string[]} Pairs: slug => roles the plugin blocks; stricter: items the lock blocks although the plugin only hid them; open: protected screens the plugin blocks but UX Studio never does.
+	 */
+	protected function lock_plan( array $model, array $clean, array $bypass ): array {
+		$open    = array();
+		$ruled   = array_values( array_unique( array_merge( array_keys( (array) $clean['item_roles'] ), array_map( 'strval', (array) $clean['hidden_items'] ) ) ) );
+		$blocked = array();
+		foreach ( (array) ( $model['denied'] ?? array() ) as $slug => $denied ) {
+			$roles = ! empty( $model['block_all'] ) ? (array) $denied : (array) ( $model['blocked'][ $slug ] ?? array() );
+			$roles = array_values( array_diff( array_map( 'strval', $roles ), $bypass ) );
+			if ( ! $roles || ! in_array( (string) $slug, $ruled, true ) ) {
+				continue;
+			}
+			if ( isset( MenuSimulator::protected_screens()[ (string) $slug ] ) ) {
+				// UX Studio, Plugins, Users and Settings are never blocked, so nobody can lock themselves out.
+				$open[] = (string) $slug;
+				continue;
+			}
+			$blocked[ (string) $slug ] = $roles;
+		}
+		$stricter = array();
+		if ( $blocked ) {
+			$everybody = array_map( 'strval', (array) ( $model['hidden'] ?? array() ) );
+			foreach ( $ruled as $slug ) {
+				$denied = array_values( array_diff( array_map( 'strval', (array) ( $model['denied'][ $slug ] ?? array() ) ), $bypass ) );
+				$gap    = array_diff( $denied, $blocked[ $slug ] ?? array() );
+				if ( $gap || ( in_array( $slug, $everybody, true ) && ! isset( $blocked[ $slug ] ) ) ) {
+					$stricter[] = $slug;
+				}
+			}
+		}
+		return array(
+			'on'       => (bool) $blocked,
+			'pairs'    => $blocked,
+			'stricter' => $stricter,
+			'open'     => $open,
 		);
 	}
 
@@ -558,6 +630,34 @@ abstract class AbstractAdminSource extends AbstractSource {
 						/* translators: %s: menu items. */
 						__( 'The old plugin and UX Studio disagree about: %s.', 'ux-studio' ),
 						$this->list_text( array_map( fn( string $s ): string => $this->title_of( $model, $s ), $unexplained ) )
+					),
+			);
+		}
+		if ( ! empty( $this->menu_expect['lock'] ) ) {
+			$matrix  = MenuSimulator::blocked_matrix( $this->effective_menu_config(), array_map( 'strval', (array) $model['tops'] ), (array) $this->menu_expect['roles'], (array) $this->menu_expect['bypass'] );
+			$missing = array();
+			foreach ( (array) $this->menu_expect['lock'] as $slug => $blocked_roles ) {
+				foreach ( (array) $blocked_roles as $role ) {
+					if ( ! in_array( (string) $slug, $matrix[ $role ] ?? array(), true ) ) {
+						$missing[] = $this->title_of( $model, (string) $slug ) . ' (' . $this->role_label( (string) $role ) . ')';
+					}
+				}
+			}
+			$checks[] = array(
+				'id'     => 'menu-lock',
+				'label'  => __( 'Pages the old plugin blocked are blocked in UX Studio', 'ux-studio' ),
+				'ok'     => array() === $missing,
+				'staged' => array() === $missing && $this->menu_is_staged(),
+				'detail' => array() === $missing
+					? sprintf(
+						/* translators: %d: number of menu items. */
+						_n( '%d menu item blocked for the roles the plugin blocked it for.', '%d menu items blocked for the roles the plugin blocked them for.', count( (array) $this->menu_expect['lock'] ), 'ux-studio' ),
+						count( (array) $this->menu_expect['lock'] )
+					)
+					: sprintf(
+						/* translators: %s: menu items with roles. */
+						__( 'Not blocked in UX Studio: %s.', 'ux-studio' ),
+						$this->list_text( $missing )
 					),
 			);
 		}

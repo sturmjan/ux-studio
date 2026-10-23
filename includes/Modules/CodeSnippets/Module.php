@@ -54,6 +54,10 @@ final class Module extends BaseModule {
 
 		self::ensure_tables();
 
+		// The shortcode and the before / after-content placement work in every request that expands content; the
+		// renderer itself refuses PHP in REST, AJAX and cron requests (see SnippetRenderer).
+		( new SnippetRenderer( $this->settings ) )->register();
+
 		// Same request-context guard as the legacy Bootstrap: skip entirely
 		// before ever touching the filesystem/DB for REST/AJAX/CRON requests.
 		// SnippetExecutor performs the same check again internally.
@@ -69,7 +73,7 @@ final class Module extends BaseModule {
 	public static function ensure_tables(): void {
 		DB::ensure_module_tables(
 			'code-snippets',
-			1,
+			2,
 			static function ( int $from ): void {
 				global $wpdb;
 				$charset = $wpdb->get_charset_collate();
@@ -79,8 +83,11 @@ final class Module extends BaseModule {
 						title VARCHAR(191) NOT NULL DEFAULT '',
 						type VARCHAR(20) NOT NULL DEFAULT 'php',
 						run_location VARCHAR(50) NOT NULL DEFAULT '',
+						post_types VARCHAR(255) NOT NULL DEFAULT '',
 						enabled TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
 						file_path VARCHAR(500) NOT NULL DEFAULT '',
+						last_run DATETIME NULL,
+						run_result TEXT NULL,
 						created_at DATETIME NOT NULL,
 						updated_at DATETIME NOT NULL,
 						PRIMARY KEY  (id),

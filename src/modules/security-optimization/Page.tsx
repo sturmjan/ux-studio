@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { ArrowLeft, LoaderCircle, Lock, Plus, RefreshCw, Trash2, Unlock } from 'lucide-react';
+import { ArrowLeft, KeyRound, LoaderCircle, Lock, Plus, RefreshCw, Trash2, Unlock } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { hashParam, navigate } from '../../app/route';
 import { useModuleSettings } from '../../app/SettingsForm';
@@ -18,11 +18,12 @@ const MODULE = 'security-optimization';
  * its data (ban list, login attempts, CSP inventory, scan findings). CSP and
  * Upload Guard pages live in CspTab.tsx/UploadGuardTab.tsx.
  */
-type TabId = 'firewall' | 'login' | 'captcha' | 'headers' | 'csp' | 'upload-guard' | 'hardening' | 'performance' | 'content';
+type TabId = 'firewall' | 'login' | 'two-factor' | 'captcha' | 'headers' | 'csp' | 'upload-guard' | 'hardening' | 'performance' | 'content';
 
 const TABS: { id: TabId; label: string }[] = [
 	{ id: 'firewall', label: __( 'Firewall & IP bans', 'ux-studio' ) },
 	{ id: 'login', label: __( 'Login', 'ux-studio' ) },
+	{ id: 'two-factor', label: __( 'Two-step verification', 'ux-studio' ) },
 	{ id: 'captcha', label: __( 'CAPTCHA', 'ux-studio' ) },
 	{ id: 'headers', label: __( 'HTTPS & headers', 'ux-studio' ) },
 	{ id: 'csp', label: __( 'CSP', 'ux-studio' ) },
@@ -56,7 +57,7 @@ interface IpBanRow {
 	value: string;
 	label: string | null;
 	note: string | null;
-	origin: 'local' | 'central';
+	origin: 'local' | 'central' | 'migration';
 	is_active: number;
 	expires_at: string | null;
 	hit_count: number;
@@ -210,6 +211,147 @@ function LoginAttemptsTab(): JSX.Element {
 	);
 }
 
+interface TwoFactorUser {
+	id: number;
+	login: string;
+	name: string;
+	roles: string;
+	recovery_left: number;
+}
+
+interface TwoFactorMissing {
+	id: number;
+	login: string;
+	name: string;
+	roles: string;
+	grace_left: number;
+	forced: boolean;
+}
+
+interface TwoFactorStatus {
+	feature: boolean;
+	killed: boolean;
+	kill_switch: string;
+	users: TwoFactorUser[];
+	missing: TwoFactorMissing[];
+}
+
+/** Who has two-step verification, who still has to set it up, and the rescue switch. */
+function TwoFactorData(): JSX.Element {
+	const status = useQuery( {
+		queryKey: [ MODULE, 'two-factor' ],
+		queryFn: () => api< TwoFactorStatus >( 'security-optimization/two-factor' ),
+	} );
+
+	const reset = useMutation( {
+		mutationFn: ( id: number ) => api( `security-optimization/two-factor/reset/${ id }`, { method: 'POST' } ),
+		onSuccess: () => void queryClient.invalidateQueries( { queryKey: [ MODULE, 'two-factor' ] } ),
+	} );
+
+	const data = status.data;
+	if ( status.isLoading || ! data ) {
+		return (
+			<div className="uxs-loading">
+				<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />
+			</div>
+		);
+	}
+
+	return (
+		<>
+			{ data.killed && (
+				<p>
+					<span className="uxs-badge is-warning">
+						<KeyRound size={ 12 } />{ ' ' }
+						{ __( 'The rescue switch is set in wp-config.php: the second step is off for everybody.', 'ux-studio' ) }
+					</span>
+				</p>
+			) }
+			{ ! data.feature && ! data.killed && <p>{ __( 'Two-step verification is switched off. Switch it on above and save; every user then sets it up in their own profile.', 'ux-studio' ) }</p> }
+			<p>
+				{ __( 'If you get locked out, add this line to wp-config.php, then remove it again after you log in:', 'ux-studio' ) } <code>{ `define( '${ data.kill_switch }', true );` }</code>
+			</p>
+
+			<h4>{ __( 'Users with two-step verification', 'ux-studio' ) }</h4>
+			{ data.users.length === 0 ? (
+				<p>{ __( 'Nobody has set it up yet.', 'ux-studio' ) }</p>
+			) : (
+				<table className="uxs-table">
+					<thead>
+						<tr>
+							<th>{ __( 'User', 'ux-studio' ) }</th>
+							<th>{ __( 'Role', 'ux-studio' ) }</th>
+							<th>{ __( 'Unused recovery codes', 'ux-studio' ) }</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody>
+						{ data.users.map( ( u ) => (
+							<tr key={ u.id }>
+								<td>
+									{ u.name } <code>{ u.login }</code>
+								</td>
+								<td>{ u.roles }</td>
+								<td>{ u.recovery_left }</td>
+								<td>
+									<button
+										type="button"
+										className="button button-small"
+										disabled={ reset.isPending }
+										onClick={ () => {
+											if ( window.confirm( __( 'Reset two-step verification of this user? They will log in with the password only until they set it up again.', 'ux-studio' ) ) ) {
+												reset.mutate( u.id );
+											}
+										} }
+									>
+										{ __( 'Turn off for this user', 'ux-studio' ) }
+									</button>
+								</td>
+							</tr>
+						) ) }
+					</tbody>
+				</table>
+			) }
+
+			{ data.missing.length > 0 && (
+				<>
+					<h4>{ __( 'Required, not set up yet', 'ux-studio' ) }</h4>
+					<table className="uxs-table">
+						<thead>
+							<tr>
+								<th>{ __( 'User', 'ux-studio' ) }</th>
+								<th>{ __( 'Role', 'ux-studio' ) }</th>
+								<th>{ __( 'Status', 'ux-studio' ) }</th>
+							</tr>
+						</thead>
+						<tbody>
+							{ data.missing.map( ( u ) => (
+								<tr key={ u.id }>
+									<td>
+										{ u.name } <code>{ u.login }</code>
+									</td>
+									<td>{ u.roles }</td>
+									<td>
+										<span className={ `uxs-badge ${ u.forced || u.grace_left === 0 ? 'is-danger' : 'is-warning' }` }>
+											{ u.forced || u.grace_left === 0
+												? __( 'Setup is compulsory', 'ux-studio' )
+												: sprintf(
+														/* translators: %d: number of logins. */
+														_n( '%d login left to postpone', '%d logins left to postpone', u.grace_left, 'ux-studio' ),
+														u.grace_left
+												  ) }
+										</span>
+									</td>
+								</tr>
+							) ) }
+						</tbody>
+					</table>
+				</>
+			) }
+		</>
+	);
+}
+
 function IpBansTab(): JSX.Element {
 	const [ type, setType ] = useState< 'single' | 'cidr' | 'country' >( 'single' );
 	const [ value, setValue ] = useState( '' );
@@ -321,10 +463,15 @@ function IpBansTab(): JSX.Element {
 											{ __( 'Central', 'ux-studio' ) }
 										</span>
 									) : null }
+									{ row.origin === 'migration' ? (
+										<span className="uxs-badge is-info" style={ { marginLeft: 'var(--uxs-sp-1)' } }>
+											{ __( 'Migrated', 'ux-studio' ) }
+										</span>
+									) : null }
 								</td>
 								<td>{ row.hit_count }</td>
 								<td>
-									{ row.origin === 'local' && (
+									{ ( row.origin === 'local' || row.origin === 'migration' ) && (
 										<>
 											<button
 												type="button"
@@ -395,6 +542,14 @@ export default function Page(): JSX.Element {
 					<TopicSettings moduleId={ MODULE } include={ inSections( __( 'Login', 'ux-studio' ) ) } />
 					<TopicData title={ __( 'Login attempts', 'ux-studio' ) }>
 						<LoginAttemptsTab />
+					</TopicData>
+				</>
+			) }
+			{ tab === 'two-factor' && (
+				<>
+					<TopicSettings moduleId={ MODULE } include={ inSections( __( 'Two-step verification', 'ux-studio' ) ) } onSaved={ () => void queryClient.invalidateQueries( { queryKey: [ MODULE, 'two-factor' ] } ) } />
+					<TopicData title={ __( 'Overview', 'ux-studio' ) }>
+						<TwoFactorData />
 					</TopicData>
 				</>
 			) }

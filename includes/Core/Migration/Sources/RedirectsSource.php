@@ -11,6 +11,7 @@ use UxStudio\Core\Migration\AbstractSource;
 use UxStudio\Core\Migration\Activatable;
 use UxStudio\Core\Migration\Mapping;
 use UxStudio\Core\Migration\Staging;
+use UxStudio\Modules\Redirects\Conditions;
 use UxStudio\Modules\Redirects\Importer;
 use UxStudio\Modules\Redirects\Module as RedirectsModule;
 use UxStudio\Modules\Redirects\NotFoundLog;
@@ -101,6 +102,9 @@ final class RedirectsSource extends AbstractSource implements Activatable {
 					$page = Importer::redirection_page( $after, 1000 );
 					foreach ( $page['items'] as $item ) {
 						$out['items'][] = $item;
+						if ( ! empty( $item['conditions'] ) ) {
+							$out['flags']['conditions'] = ( $out['flags']['conditions'] ?? 0 ) + 1;
+						}
 						foreach ( array( 'flag_case' => 'case', 'flag_query' => 'query' ) as $key => $name ) {
 							if ( ( 'flag_case' === $key && ! empty( $item[ $key ] ) ) || ( 'flag_query' === $key && 'exact' !== $item[ $key ] ) ) {
 								$out['flags'][ $name ] = ( $out['flags'][ $name ] ?? 0 ) + 1;
@@ -129,8 +133,9 @@ final class RedirectsSource extends AbstractSource implements Activatable {
 	}
 
 	/**
-	 * The module keeps ONE rule per address. When the old plugin had several exact rules for the same
-	 * address, only the first one that applies could ever match, so only that one is migrated (an enabled
+	 * The module keeps one rule per address AND set of conditions (several rules per address are fine when their
+	 * conditions differ). When the old plugin had several exact rules for the same address with the same conditions
+	 * (usually none), only the first one that applies could ever match, so only that one is migrated (an enabled
 	 * rule wins over a disabled one); the others are counted as `duplicate`.
 	 *
 	 * @param array<int, array<string, mixed>> $items   Rules in the plugin's order.
@@ -147,20 +152,30 @@ final class RedirectsSource extends AbstractSource implements Activatable {
 			if ( 'exact' !== $item['match_type'] ) {
 				continue;
 			}
-			$k = $this->address_key( (string) $item['source'] );
+			$k = $this->rule_identity( $item );
 			if ( ! isset( $chosen[ $k ] ) || ( ! $items[ $chosen[ $k ] ]['enabled'] && $item['enabled'] ) ) {
 				$chosen[ $k ] = $i;
 			}
 		}
 		$out = array();
 		foreach ( $items as $i => $item ) {
-			if ( 'exact' === $item['match_type'] && $chosen[ $this->address_key( (string) $item['source'] ) ] !== $i ) {
+			if ( 'exact' === $item['match_type'] && $chosen[ $this->rule_identity( $item ) ] !== $i ) {
 				$skipped['duplicate'] = ( $skipped['duplicate'] ?? 0 ) + 1;
 				continue;
 			}
 			$out[] = $item;
 		}
 		return $out;
+	}
+
+	/**
+	 * Address plus the set of conditions: two rules with the same identity cannot both exist in the module.
+	 *
+	 * @param array<string, mixed> $item Normalized rule.
+	 */
+	private function rule_identity( array $item ): string {
+		$conditions = Conditions::normalize( $item['conditions'] ?? array() )['conditions'];
+		return $this->address_key( (string) $item['source'] ) . '|' . Conditions::key( $conditions );
 	}
 
 	/**
@@ -325,7 +340,8 @@ final class RedirectsSource extends AbstractSource implements Activatable {
 	public function smoke_checks(): array {
 		$paths = array();
 		foreach ( $this->collect()['items'] as $item ) {
-			if ( 'exact' !== ( $item['match_type'] ?? '' ) || empty( $item['enabled'] ) || 410 === (int) ( $item['code'] ?? 0 ) ) {
+			// Rules with conditions depend on the visitor, the loopback check is anonymous.
+			if ( 'exact' !== ( $item['match_type'] ?? '' ) || empty( $item['enabled'] ) || 410 === (int) ( $item['code'] ?? 0 ) || ! empty( $item['conditions'] ) ) {
 				continue;
 			}
 			$parsed = \UxStudio\Modules\Redirects\Url::parse_source( (string) $item['source'] );
@@ -359,15 +375,7 @@ final class RedirectsSource extends AbstractSource implements Activatable {
 		}
 
 		$labels = array(
-			'match:server'     => __( 'rules that redirect a whole domain (server match)', 'ux-studio' ),
-			'match:login'      => __( 'rules that depend on the visitor being logged in', 'ux-studio' ),
-			'match:referrer'   => __( 'rules that depend on the referring page', 'ux-studio' ),
-			'match:agent'      => __( 'rules that depend on the browser', 'ux-studio' ),
-			'match:cookie'     => __( 'rules that depend on a cookie', 'ux-studio' ),
-			'match:role'       => __( 'rules that depend on the user role', 'ux-studio' ),
-			'match:ip'         => __( 'rules that depend on the IP address', 'ux-studio' ),
 			'match:language'   => __( 'rules that depend on the language', 'ux-studio' ),
-			'match:header'     => __( 'rules that depend on an HTTP header', 'ux-studio' ),
 			'match:custom'     => __( 'rules with a custom filter', 'ux-studio' ),
 			'match:page'       => __( 'rules that depend on the page type', 'ux-studio' ),
 			'match:http'       => __( 'rules that depend on the HTTP request', 'ux-studio' ),
@@ -380,7 +388,7 @@ final class RedirectsSource extends AbstractSource implements Activatable {
 			'status:404'       => __( 'rules answering 404 Not Found', 'ux-studio' ),
 			'wildcard_off'     => __( 'rules with * that never matched, because wildcards were switched off in the plugin', 'ux-studio' ),
 			'empty'            => __( 'rules with an empty source or target', 'ux-studio' ),
-			'duplicate'        => __( 'rules with the same address as an earlier rule (only the first one could ever match, the module keeps one rule per address)', 'ux-studio' ),
+			'duplicate'        => __( 'rules with the same address and the same conditions as an earlier rule (only the first one could ever match)', 'ux-studio' ),
 		);
 		foreach ( $c['skipped'] as $reason => $n ) {
 			$m->lossy(
@@ -389,6 +397,20 @@ final class RedirectsSource extends AbstractSource implements Activatable {
 					__( '%1$d %2$s have no equivalent in the module and are not transferred.', 'ux-studio' ),
 					$n,
 					$labels[ $reason ] ?? $reason
+				)
+			);
+		}
+		if ( ! empty( $c['flags']['conditions'] ) ) {
+			$m->note(
+				sprintf(
+					/* translators: %d: number of rules. */
+					_n(
+						'%d rule depends on who is asking (logged in, role, referrer, browser, cookie, IP address, domain or HTTP header). It becomes a rule with conditions. A rule with a "not matched" target becomes a second rule with the opposite condition.',
+						'%d rules depend on who is asking (logged in, role, referrer, browser, cookie, IP address, domain or HTTP header). They become rules with conditions. A rule with a "not matched" target becomes a second rule with the opposite condition.',
+						$c['flags']['conditions'],
+						'ux-studio'
+					),
+					$c['flags']['conditions']
 				)
 			);
 		}
@@ -517,6 +539,7 @@ final class RedirectsSource extends AbstractSource implements Activatable {
 			'enabled'    => $enabled,
 			'note'       => $item['note'],
 			'position'   => $item['position'],
+			'conditions' => $item['conditions'] ?? array(),
 			'origin'     => 'import',
 		);
 	}
