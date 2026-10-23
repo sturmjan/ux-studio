@@ -8,6 +8,8 @@
 
 namespace UxStudio\Modules\AdminCustomiser;
 
+use UxStudio\Core\Migration\MenuLockOrigin;
+use UxStudio\Core\Settings;
 use UxStudio\Rest\Controller;
 use WP_REST_Request;
 
@@ -19,6 +21,7 @@ defined( 'ABSPATH' ) || exit;
  * GET  uxstudio/v1/admin-customiser/menu-organizer/current-menu      - native admin menu tree (editor source list)
  * POST uxstudio/v1/admin-customiser/menu-organizer/export-default    - export current config as JSON
  * POST uxstudio/v1/admin-customiser/menu-organizer/detect-conflicts  - detected conflicting menu-editor plugins
+ * GET  uxstudio/v1/admin-customiser/menu-lock                         - state of "Block access to hidden pages" + migration origin
  */
 final class MenuOrganizerRestController extends Controller {
 
@@ -58,6 +61,13 @@ final class MenuOrganizerRestController extends Controller {
 			'manage_options'
 		);
 		$this->route(
+			'/admin-customiser/menu-lock',
+			'GET',
+			array( $this, 'menu_lock' ),
+			array(),
+			'manage_options'
+		);
+		$this->route(
 			'/admin-customiser/menu-organizer/detect-conflicts',
 			'POST',
 			array( $this, 'detect_conflicts' ),
@@ -85,6 +95,16 @@ final class MenuOrganizerRestController extends Controller {
 
 	public function export_default( WP_REST_Request $request ) {
 		return $this->ok( $this->organizer->export_default_config() );
+	}
+
+	public function menu_lock( WP_REST_Request $request ) {
+		$on = (bool) ( new Settings( 'uxstudio_admin_customiser' ) )->get( 'menu_lock_enabled', false );
+		return $this->ok(
+			array(
+				'enabled' => $on,
+				'origin'  => $on ? MenuLockOrigin::get() : null,
+			)
+		);
 	}
 
 	public function detect_conflicts( WP_REST_Request $request ) {

@@ -661,6 +661,62 @@ $assert( 'module off: menu config is written directly', array() !== $menu_cfg() 
 $rb = Runner::rollback( $run['id'] );
 $assert( 'rollback removes the menu config and the module settings again', ! is_wp_error( $rb ) && array_diff_key( $state(), $own ) === $before );
 
+/* ══ Where the switched-on access lock came from (MenuLockOrigin) ══ */
+
+use UxStudio\Core\Migration\MenuLockOrigin;
+
+if ( ! function_exists( 'get_post_types' ) ) { function get_post_types( $a = array(), $o = 'names' ) { return array(); } }
+// Direct write (module off): the note is recorded with the source, its label and the run; a dry run records nothing.
+$site( array( 'adminimize' ), array( 'adminimize' ), array( 'mw_adminimize' => $syn_block ) );
+$before = $state();
+SourceRegistry::get( 'adminimize' )->migrate( array( 'run_id' => 'rdry' ), true );
+$assert( 'lock origin: a dry run records nothing', $before === $state() && null === MenuLockOrigin::get() );
+$run = Runner::start( array( 'adminimize' ), false );
+Runner::step();
+$o = MenuLockOrigin::get();
+$assert( 'lock origin: the migration records source, label, run and time (module off, direct write)', true === ( $opt( 'uxstudio_admin_customiser' )['menu_lock_enabled'] ?? null ) && 'adminimize' === ( $o['source'] ?? '' ) && 'Plugin adminimize' === ( $o['label'] ?? '' ) && $run['id'] === ( $o['run'] ?? '' ) && ( $o['time'] ?? 0 ) > 0, $j( $o ) );
+// Hand-made change of the setting: kept when saved unchanged, cleared when switched off or on again.
+$mod = new \UxStudio\Modules\AdminCustomiser\Module( 'admin-customiser', array() );
+$mod->save_settings( array( 'primary_color' => '#123456' ) );
+$assert( 'lock origin: a settings save that leaves the lock as it is keeps the note', null !== MenuLockOrigin::get() && true === $opt( 'uxstudio_admin_customiser' )['menu_lock_enabled'] );
+$mod = new \UxStudio\Modules\AdminCustomiser\Module( 'admin-customiser', array() );
+$mod->save_settings( array( 'menu_lock_enabled' => false ) );
+$assert( 'lock origin: switching the lock off by hand clears the note', null === MenuLockOrigin::get() && false === $opt( 'uxstudio_admin_customiser' )['menu_lock_enabled'] );
+MenuLockOrigin::record( 'adminimize', 'Adminimize', 'rx' );
+$mod = new \UxStudio\Modules\AdminCustomiser\Module( 'admin-customiser', array() );
+$mod->save_settings( array( 'menu_lock_enabled' => true ) );
+$assert( 'lock origin: switching the lock on by hand (from off) clears a stale note', null === MenuLockOrigin::get() );
+// Rollback of the run puts everything back, the note included.
+$site( array( 'adminimize' ), array( 'adminimize' ), array( 'mw_adminimize' => $syn_block ) );
+$before = $state();
+$run = Runner::start( array( 'adminimize' ), false );
+Runner::step();
+$assert( 'lock origin: the run set the note', null !== MenuLockOrigin::get() );
+$rb = Runner::rollback( $run['id'] );
+$assert( 'lock origin: rollback removes the note and everything else (options as before)', ! is_wp_error( $rb ) && null === MenuLockOrigin::get() && array_diff_key( $state(), $own ) === $before, is_wp_error( $rb ) ? $rb->get_error_message() : $j( array_keys( array_diff_key( $state(), $own ) ) ) );
+// A source that does not switch the lock on leaves no note, and the snapshot does not list the option.
+$site( array( 'adminimize' ), array( 'adminimize' ), array( 'mw_adminimize' => $syn ) );
+Runner::start( array( 'adminimize' ), false );
+Runner::step();
+$assert( 'lock origin: Adminimize with "Allow Page Access" ticked leaves no note', null === MenuLockOrigin::get() && ! in_array( MenuLockOrigin::OPTION, SourceRegistry::get( 'adminimize' )->target_options(), true ) );
+// Staging (Admin Customiser already on): the note waits with the values, the switch writes it, rollback removes it.
+$site( array( 'adminimize' ), array( 'adminimize' ), array( 'mw_adminimize' => $syn_block, 'uxstudio_active_modules' => array( 'activity-log', 'admin-customiser' ) ) );
+$before = $state();
+$run = Runner::start( array( 'adminimize' ), false );
+Runner::step();
+$entry = Staging::entry( $run['id'] );
+$assert( 'lock origin (staged): the note waits in the staging area, nothing is live yet', null === MenuLockOrigin::get() && 'adminimize' === ( $entry['lock_origin']['source'] ?? '' ) && empty( $opt( 'uxstudio_admin_customiser' )['menu_lock_enabled'] ), $j( $entry ) );
+Staging::apply( $run['id'] );
+$assert( 'lock origin (staged): Staging::apply writes the note together with the setting', 'adminimize' === ( MenuLockOrigin::get()['source'] ?? '' ) && true === $opt( 'uxstudio_admin_customiser' )['menu_lock_enabled'] && $run['id'] === MenuLockOrigin::get()['run'] );
+// A staged run rolled back before the switch leaves no note and no staging entry.
+$site( array( 'adminimize' ), array( 'adminimize' ), array( 'mw_adminimize' => $syn_block, 'uxstudio_active_modules' => array( 'activity-log', 'admin-customiser' ) ) );
+$before = $state();
+$run = Runner::start( array( 'adminimize' ), false );
+Runner::step();
+$rb = Runner::rollback( $run['id'] );
+$assert( 'lock origin (staged): rollback before the switch leaves no note and no staging entry', ! is_wp_error( $rb ) && null === MenuLockOrigin::get() && null === Staging::entry( $run['id'] ) && array_diff_key( $state(), $own ) === $before, is_wp_error( $rb ) ? $rb->get_error_message() : '' );
+$assert( 'lock origin: clean() rejects garbage and sanitises the run id', array() === MenuLockOrigin::clean( 'x' ) && array() === MenuLockOrigin::clean( array( 'label' => 'x' ) ) && 'rabc' === MenuLockOrigin::clean( array( 'source' => 's', 'run' => 'R-abc!' ) )['run'] );
+
 /* ══ Lockout rule as a pure function ══ */
 
 $cfg_bad = array( 'hidden_items' => array( 'plugins.php', 'edit.php' ), 'item_roles' => array( 'users.php' => array( 'editor' ), 'tools.php' => array( 'editor' ) ) );

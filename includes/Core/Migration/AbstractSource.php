@@ -437,6 +437,10 @@ abstract class AbstractSource implements Source {
 		foreach ( array_keys( $mapping->options ) as $option ) {
 			$names[] = (string) $option;
 		}
+		// A migration that switches the access lock on leaves a note about it; the rollback takes it away again.
+		if ( ! empty( $mapping->settings['admin-customiser']['menu_lock_enabled'] ) ) {
+			$names[] = MenuLockOrigin::OPTION;
+		}
 		return array_values( array_unique( array_merge( $names, $this->extra_target_options() ) ) );
 	}
 
@@ -522,6 +526,7 @@ abstract class AbstractSource implements Source {
 
 		$run_id = (string) ( $state['run_id'] ?? '' );
 		$result = SettingsWriter::apply( $mapping, $run_id );
+		$this->note_menu_lock( $result['items'], $run_id );
 		if ( '' !== $run_id ) {
 			foreach ( $result['items'] as $row ) {
 				MigrationMap::put( $this->slug, (string) $row['origin'] . ' > ' . (string) $row['key'], 'setting', (string) $row['target'], $run_id );
@@ -538,6 +543,32 @@ abstract class AbstractSource implements Source {
 			'staged'    => $result['staged'],
 			'errors'    => $result['errors'],
 		);
+	}
+
+	/**
+	 * The migration switched "Block access to hidden pages" on: remember where it came from (live, or in the staging
+	 * area when Admin Customiser is already on and the switch applies the values later).
+	 *
+	 * @param array<int, array<string, mixed>> $items  Rows `SettingsWriter::apply()` returned.
+	 * @param string                           $run_id Run id.
+	 */
+	private function note_menu_lock( array $items, string $run_id ): void {
+		foreach ( $items as $row ) {
+			if ( 'admin-customiser' !== ( $row['module'] ?? '' ) || 'menu_lock_enabled' !== ( $row['key'] ?? '' ) || empty( $row['write'] ) ) {
+				continue;
+			}
+			$note = array(
+				'source' => $this->slug,
+				'label'  => $this->label(),
+				'run'    => $run_id,
+				'time'   => time(),
+			);
+			if ( ! empty( $row['staged'] ) ) {
+				Staging::put_lock_origin( $run_id, $note );
+			} else {
+				MenuLockOrigin::write( $note );
+			}
+		}
 	}
 
 	/**

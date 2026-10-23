@@ -1,39 +1,7 @@
 [
  {
   "ctx": null,
-  "id": "The plugin blocks these screens for some roles. UX Studio never blocks UX Studio, Plugins, Users and Settings (nobody may be locked out), so they stay reachable by address: %s.",
-  "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:352"
-  ],
-  "comments": [
-   "#. translators: %s: screens."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Block access to hidden pages",
-  "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:357",
-   "includes/Modules/AdminCustomiser/Module.php:291"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The plugin only hid these items without blocking their pages. \\\"Block access to hidden pages\\\" is one switch for the whole menu, so in UX Studio they are blocked for the roles that do not see them as well: %s.",
-  "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:361"
-  ],
-  "comments": [
-   "#. translators: %s: menu items."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "A page hidden from a role is also refused when its address is typed in (\\\"Block access to hidden pages\\\" is switched on). Users who can manage options, the dashboard, profile, UX Studio, Plugins, Users and Settings are never blocked.",
+  "id": "A page hidden from a role is also refused when its address is typed in (\\\"Block access to hidden pages\\\" is switched on). Users who can manage options, the dashboard, profile, UX Studio, Plugins, Users and Settings are never blocked. You will see the setting, with a note that it came from this migration, in UX Studio under Admin Customiser, Sidebar menu, \\\"Block access to hidden pages\\\", and you can switch it off there.",
   "refs": [
    "includes/Core/Migration/Sources/AbstractAdminSource.php:367"
   ],
@@ -42,185 +10,49 @@
  },
  {
   "ctx": null,
-  "id": "The Menu Organizer only hides menu items. A page hidden from a role can still be opened with its address, whereas a plugin that changes capabilities blocks it. If the old plugin protected pages, check that before you switch (the setting \\\"Block access to hidden pages\\\" in Admin Customiser blocks them).",
+  "id": "Switched on by the migration from the plugin %1$s (%2$s). %1$s blocked hidden pages, so the lock is switched on here too. You can switch it off.",
   "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:369"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Pages the old plugin blocked are blocked in UX Studio",
-  "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:648"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "%d menu item blocked for the roles the plugin blocked it for.",
-  "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:654"
+   "build/53.a57ab4123156e0417750.js:2"
   ],
   "comments": [
-   "#. translators: %d: number of menu items."
+   "#. translators: 1: plugin name (Adminimize), 2: date of the migration."
   ],
-  "plural": "%d menu items blocked for the roles the plugin blocked them for."
+  "plural": null
  },
  {
   "ctx": null,
-  "id": "Not blocked in UX Studio: %s.",
+  "id": "Open the migration history",
   "refs": [
-   "includes/Core/Migration/Sources/AbstractAdminSource.php:659"
+   "build/53.a57ab4123156e0417750.js:2"
+  ],
+  "comments": [],
+  "plural": null
+ },
+ {
+  "ctx": null,
+  "id": "Blocking of hidden pages: on (from the migration of %s)",
+  "refs": [
+   "build/53.a57ab4123156e0417750.js:3"
   ],
   "comments": [
-   "#. translators: %s: menu items with roles."
+   "#. translators: %s: plugin name (Adminimize)."
   ],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "Sub-menu items hidden for a role. The plugin also blocks their pages, but the Menu Organizer cannot hide or block a single sub-item (it appears, and opens, when its parent does): %s.",
+  "id": "Blocking of hidden pages: on",
   "refs": [
-   "includes/Core/Migration/Sources/AdminimizeSource.php:178"
+   "build/53.a57ab4123156e0417750.js:3"
   ],
   "comments": [],
   "plural": null
  },
  {
   "ctx": null,
-  "id": "These items name roles (or capabilities) that do not exist on this site. The unknown names are left out of the rule: %s.",
+  "id": "Blocking of hidden pages: off",
   "refs": [
-   "includes/Core/Migration/Sources/MenuVisibilitySource.php:320"
-  ],
-  "comments": [
-   "#. translators: %s: list of menu items with their roles."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "%d menu items combine rules with OR. The module needs all conditions to hold (AND) and writes only an OR of \\\"user is <role>\\\" as one role rule, so these are not transferred.",
-  "refs": [
-   "includes/Core/Migration/Sources/MenuVisibilitySource.php:330"
-  ],
-  "comments": [
-   "#. translators: %d: number of menu items."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "%d menu items are limited to roles or capabilities that do not exist on this site, they are not transferred.",
-  "refs": [
-   "includes/Core/Migration/Sources/MenuVisibilitySource.php:338"
-  ],
-  "comments": [
-   "#. translators: %d: number of menu items."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "%d menu items are controlled by a PHP expression. UX Studio never runs code from a setting; only logged in / logged out and \\\"user can <role>\\\" (joined by &&) are recognized, so these are not transferred.",
-  "refs": [
-   "includes/Core/Migration/Sources/MenuVisibilitySource.php:346"
-  ],
-  "comments": [
-   "#. translators: %d: number of menu items."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "%1$d menu items depend on the role \\\"%2$s\\\", which this site does not have. They are not transferred.",
-  "refs": [
-   "includes/Core/Migration/Sources/MenuVisibilitySource.php:354"
-  ],
-  "comments": [
-   "#. translators: 1: number of menu items, 2: role."
-  ],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Menu items with roles or several conditions",
-  "refs": [
-   "includes/Core/Migration/Sources/MenuVisibilitySource.php:400"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Off: the Menu Organizer only hides menu items, a hidden page still opens when its address is typed in. On: a page that is hidden from a user (limited to other roles, or hidden for everybody) is refused with \\\"Sorry, you are not allowed to access this page\\\" for users who cannot manage options. Sub-items follow their parent item, except a sub-item moved to the top level that the user can see. Never blocked: users who can manage options, the dashboard, the profile, UX Studio, Plugins, Users and Settings, AJAX and REST. Needs the menu organizer to be on. Rescue switch: define UXSTUDIO_DISABLE_MENU_LOCK as true in wp-config.php to switch the blocking off for everybody.",
-  "refs": [
-   "includes/Modules/AdminCustomiser/Module.php:292"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Visitor is logged in",
-  "refs": [
-   "includes/Modules/MenuVisibility/Module.php:96"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Visitor is logged out",
-  "refs": [
-   "includes/Modules/MenuVisibility/Module.php:97"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Visitor has one of the roles",
-  "refs": [
-   "includes/Modules/MenuVisibility/Module.php:98"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Visitor has none of the roles",
-  "refs": [
-   "includes/Modules/MenuVisibility/Module.php:99"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Everyone (no condition).",
-  "refs": [
-   "includes/Modules/MenuVisibility/Module.php:129"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "The item is shown only when all conditions are met.",
-  "refs": [
-   "includes/Modules/MenuVisibility/Module.php:134"
-  ],
-  "comments": [],
-  "plural": null
- },
- {
-  "ctx": null,
-  "id": "Hiding an item only removes it from the menu: the page still opens when its address is typed in. To refuse it too, switch on \\\"Block access to hidden pages\\\" in the Settings tab (users who can manage options are never blocked).",
-  "refs": [
-   "build/70.04ac775fcc9da17cfded.js:1"
+   "build/53.a57ab4123156e0417750.js:3"
   ],
   "comments": [],
   "plural": null

@@ -1,0 +1,8 @@
+[
+ "Stránka skrytá před rolí je odmítnuta i po zadání její adresy (je zapnuté „Zablokovat přístup ke skrytým stránkám“). Uživatelé, kteří smějí spravovat nastavení, nástěnka, profil, UX Studio, Pluginy, Uživatelé a Nastavení se neblokují nikdy. Nastavení uvidíte, i s poznámkou, že pochází z této migrace, v UX Studiu v Úpravách administrace, v sekci Boční menu, u položky „Zablokovat přístup ke skrytým stránkám“, a můžete ho tam vypnout.",
+ "Zapnuto migrací z pluginu %1$s (%2$s). %1$s skryté stránky blokoval, proto je blokace zapnutá i tady. Můžete ji vypnout.",
+ "Otevřít historii migrací",
+ "Blokace skrytých stránek: zapnuta (z migrace %s)",
+ "Blokace skrytých stránek: zapnuta",
+ "Blokace skrytých stránek: vypnuta"
+]

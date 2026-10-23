@@ -15,6 +15,11 @@
   blocked the pages (Adminimize does by default, "Allow Page Access" turns it off); Nav Menu Roles, If Menu
   and Menu Items Visibility Control roles and combined rules become Menu Visibility rules (PHP expressions
   stay lossy, only a few fixed forms are recognized without running anything).
+- New - Migration: when Adminimize (or Admin Menu Editor with "Access" unticked) switches "Block access to hidden pages" on,
+  UX Studio remembers where it came from. Admin Customiser shows a note under the toggle ("Switched on by the
+  migration from the plugin Adminimize ... You can switch it off") with a link to the migration history, the
+  Menu Organizer tab shows a badge with the state, and the migration check says where the setting is. The note
+  disappears on rollback, when the switch is undone, or when you change the setting yourself.
 - Fixed - Adminimize migration read "Allow Page Access" the wrong way round.
 - Fixed - Security: a percent-encoded dot segment (`/complianz/v1/%2e%2e/wp/v2/users`) is recognised again
   when the REST API is restricted (the route was sanitized before the check).

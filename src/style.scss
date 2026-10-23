@@ -943,6 +943,23 @@
 	&.is-info { background: color-mix(in srgb, var(--uxs-info) 15%, transparent); color: var(--uxs-info); }
 }
 
+/* ---- Callout: a short note under a field (info) ---- */
+.uxs-callout {
+	display: flex;
+	gap: var(--uxs-sp-2);
+	align-items: flex-start;
+	margin: var(--uxs-sp-2) 0 0;
+	padding: var(--uxs-sp-3);
+	background: color-mix(in srgb, var(--uxs-info) 10%, transparent);
+	border-left: 3px solid var(--uxs-info);
+	border-radius: var(--uxs-radius-s);
+	color: var(--uxs-text);
+	font-size: var(--uxs-fs-s);
+
+	svg { flex-shrink: 0; margin-top: 2px; color: var(--uxs-info); }
+	p { margin: 0; }
+}
+
 /* ---- Loading ---- */
 .uxs-loading {
 	display: flex;

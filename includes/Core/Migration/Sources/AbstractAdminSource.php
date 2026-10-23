@@ -364,7 +364,7 @@ abstract class AbstractAdminSource extends AbstractSource {
 				$m->warn( $text );
 				$lossy[] = $text;
 			}
-			$m->note( __( 'A page hidden from a role is also refused when its address is typed in ("Block access to hidden pages" is switched on). Users who can manage options, the dashboard, profile, UX Studio, Plugins, Users and Settings are never blocked.', 'ux-studio' ) );
+			$m->note( __( 'A page hidden from a role is also refused when its address is typed in ("Block access to hidden pages" is switched on). Users who can manage options, the dashboard, profile, UX Studio, Plugins, Users and Settings are never blocked. You will see the setting, with a note that it came from this migration, in UX Studio under Admin Customiser, Sidebar menu, "Block access to hidden pages", and you can switch it off there.', 'ux-studio' ) );
 		} else {
 			$m->warn( __( 'The Menu Organizer only hides menu items. A page hidden from a role can still be opened with its address, whereas a plugin that changes capabilities blocks it. If the old plugin protected pages, check that before you switch (the setting "Block access to hidden pages" in Admin Customiser blocks them).', 'ux-studio' ) );
 		}

@@ -10,6 +10,7 @@
 
 namespace UxStudio\Modules\AdminCustomiser;
 
+use UxStudio\Core\Migration\MenuLockOrigin;
 use UxStudio\Modules\BaseModule;
 
 defined( 'ABSPATH' ) || exit;
@@ -77,6 +78,22 @@ final class Module extends BaseModule {
 			$values['hide_sidebar_icons'] = true === $values['hide_sidebar_icons'] || 1 === $values['hide_sidebar_icons'] || '1' === $values['hide_sidebar_icons'];
 		}
 
+		return $values;
+	}
+
+	/**
+	 * A hand-made change of "Block access to hidden pages" ends the note that a migration switched it on.
+	 *
+	 * @param array $input Raw input.
+	 * @return array<string, mixed>
+	 */
+	public function save_settings( array $input ): array {
+		$before = (bool) $this->settings->get( 'menu_lock_enabled', false );
+		$values = parent::save_settings( $input );
+		$after  = ! empty( $values['menu_lock_enabled'] );
+		if ( $before !== $after || ! $after ) {
+			MenuLockOrigin::clear();
+		}
 		return $values;
 	}
 

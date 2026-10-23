@@ -22,6 +22,7 @@ import {
 	Upload,
 } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
+import { MenuLockBadge, useMenuLock } from './menuLock';
 
 interface MenuChild {
 	slug: string;
@@ -120,6 +121,8 @@ export function MenuOrganizerTab(): JSX.Element {
 		queryKey: [ 'admin-customiser', 'menu-organizer', 'conflicts' ],
 		queryFn: () => api< Conflict[] >( 'admin-customiser/menu-organizer/detect-conflicts', { method: 'POST' } ),
 	} );
+
+	const lockQuery = useMenuLock();
 
 	const [ draft, setDraft ] = useState< MenuConfig | null >( null );
 	const [ newCategoryName, setNewCategoryName ] = useState( '' );
@@ -373,6 +376,12 @@ export function MenuOrganizerTab(): JSX.Element {
 						</p>
 					) ) }
 				</div>
+			) }
+
+			{ lockQuery.data && (
+				<p style={ { marginBottom: 'var(--uxs-sp-3)' } }>
+					<MenuLockBadge state={ lockQuery.data } />
+				</p>
 			) }
 
 			<p className="uxs-form__help" style={ { marginBottom: 'var(--uxs-sp-4)' } }>

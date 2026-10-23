@@ -306,6 +306,9 @@ final class Switcher {
 		foreach ( array_keys( (array) ( $entry['options'] ?? array() ) ) as $option ) {
 			$names[] = (string) $option;
 		}
+		if ( ! empty( $entry['lock_origin'] ) ) {
+			$names[] = MenuLockOrigin::OPTION;
+		}
 		foreach ( $targets['modules'] as $module ) {
 			$instance = $modules_api->instance( $module );
 			if ( $instance ) {
