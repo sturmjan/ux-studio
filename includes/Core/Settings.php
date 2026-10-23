@@ -123,6 +123,11 @@ final class Settings {
 				return CssSanitizer::clean( $value );
 			case 'media':
 				return absint( $value );
+			case 'datetime':
+				// A date and time of the site as the browser's datetime-local input writes it: YYYY-MM-DDTHH:MM, or empty.
+				return preg_match( '/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::\d{2})?$/', trim( (string) $value ), $m ) && checkdate( (int) $m[2], (int) $m[3], (int) $m[1] ) && (int) $m[4] < 24 && (int) $m[5] < 60
+					? sprintf( '%s-%s-%sT%s:%s', $m[1], $m[2], $m[3], $m[4], $m[5] )
+					: '';
 			case 'text':
 			default:
 				return sanitize_text_field( (string) $value );

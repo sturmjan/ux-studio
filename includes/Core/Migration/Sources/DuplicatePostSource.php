@@ -9,12 +9,14 @@ namespace UxStudio\Core\Migration\Sources;
 
 use UxStudio\Core\Migration\AbstractSource;
 use UxStudio\Core\Migration\Mapping;
+use UxStudio\Modules\DuplicatePost\DuplicateRules;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Target module `duplicate-post`: post types, status after duplicating, redirect,
- * elements to copy and the title format.
+ * Target module `duplicate-post`: post types (or all types with a list screen), status after duplicating (fixed or
+ * the status of the original), redirect, elements to copy, the title format, custom fields and taxonomies that are not
+ * copied (wildcards) and the roles that may duplicate.
  */
 final class DuplicatePostSource extends AbstractSource {
 
@@ -38,6 +40,30 @@ final class DuplicatePostSource extends AbstractSource {
 					'duplicate_post_title_suffix',
 				);
 		}
+	}
+
+	/**
+	 * Roles (other than administrator, who always may) that hold a capability the plugin granted to them.
+	 * null = no role holds it at all, so the capability cannot tell who was allowed.
+	 *
+	 * @param string $cap Capability (`copy_posts` of Yoast, `duplicate_posts` of Post Duplicator).
+	 * @return string[]|null
+	 */
+	private function grant_roles( string $cap ): ?array {
+		if ( ! function_exists( 'wp_roles' ) ) {
+			return null;
+		}
+		$found = false;
+		$roles = array();
+		foreach ( (array) wp_roles()->roles as $name => $role ) {
+			if ( ! empty( $role['capabilities'][ $cap ] ) ) {
+				$found = true;
+				if ( 'administrator' !== $name ) {
+					$roles[] = (string) $name;
+				}
+			}
+		}
+		return $found ? $roles : null;
 	}
 
 	protected function map( bool $active ): Mapping {
@@ -92,7 +118,9 @@ final class DuplicatePostSource extends AbstractSource {
 			$m->set( self::MODULE, 'custom_title', false, __( 'Customise post title', 'ux-studio' ), 'duplicate_page_options:duplicate_post_suffix' );
 		}
 
-		$m->lossy( __( 'The plugin offers duplication for every post type with a list screen; the module offers it only for the post types selected in its settings (default: posts and pages). Check the list after switching over.', 'ux-studio' ) );
+		// The plugin adds its link to every post type that has a list screen.
+		$m->set( self::MODULE, 'all_post_types', true, __( 'Offer duplication for all post types', 'ux-studio' ), 'duplicate_page_options' );
+		$m->note( __( 'The plugin offers duplication for every post type with a list screen; the module is set to do the same.', 'ux-studio' ) );
 	}
 
 	/**
@@ -104,13 +132,16 @@ final class DuplicatePostSource extends AbstractSource {
 		$o = (array) $this->opt( 'mtphr_post_duplicator_settings' );
 
 		$status = (string) ( $o['status'] ?? 'draft' );
-		if ( in_array( $status, self::STATUSES, true ) ) {
+		if ( 'same' === $status ) {
+			$m->set( self::MODULE, 'keep_status', true, __( 'Keep the status of the original', 'ux-studio' ), 'mtphr_post_duplicator_settings:status' );
+		} elseif ( in_array( $status, self::STATUSES, true ) ) {
+			$m->set( self::MODULE, 'keep_status', false, __( 'Keep the status of the original', 'ux-studio' ), 'mtphr_post_duplicator_settings:status' );
 			$m->set( self::MODULE, 'post_status', $status, __( 'Post status', 'ux-studio' ), 'mtphr_post_duplicator_settings:status' );
 		} else {
 			$m->lossy(
 				sprintf(
-					/* translators: %s: post status or "same". */
-					__( 'The copy status "%s" (same as the original or scheduled) does not exist in the module, it uses a fixed status.', 'ux-studio' ),
+					/* translators: %s: post status. */
+					__( 'The copy status "%s" does not exist in the module, it keeps its own setting.', 'ux-studio' ),
 					$status
 				)
 			);
@@ -128,13 +159,29 @@ final class DuplicatePostSource extends AbstractSource {
 		}
 
 		if ( isset( $o['post_types_config'] ) && is_array( $o['post_types_config'] ) ) {
-			$types = array();
+			$types   = array();
+			$refused = 0;
 			foreach ( $o['post_types_config'] as $type => $cfg ) {
 				if ( is_array( $cfg ) && ! empty( $cfg['allow_duplication'] ) ) {
 					$types[] = (string) $type;
+				} else {
+					++$refused;
 				}
 			}
+			// Every listed type allowed = the plugin duplicates everything with a list screen.
+			$m->set( self::MODULE, 'all_post_types', 0 === $refused && array() !== $types, __( 'Offer duplication for all post types', 'ux-studio' ), 'mtphr_post_duplicator_settings:post_types_config' );
 			$m->set( self::MODULE, 'post_types', $types, __( 'Post types', 'ux-studio' ), 'mtphr_post_duplicator_settings:post_types_config' );
+		}
+
+		$meta = DuplicateRules::parse_list( (string) ( $o['excluded_meta_keys'] ?? '' ) );
+		if ( array() !== $meta ) {
+			$m->set( self::MODULE, 'excluded_meta', implode( "\n", $meta ), __( 'Custom fields that are not copied', 'ux-studio' ), 'mtphr_post_duplicator_settings:excluded_meta_keys' );
+		}
+
+		$roles = $this->grant_roles( 'duplicate_posts' );
+		if ( null !== $roles ) {
+			$m->set( self::MODULE, 'allowed_roles', $roles, __( 'Roles that may duplicate', 'ux-studio' ), 'roles with the duplicate_posts capability' );
+			$m->note( __( 'Roles that may duplicate are the roles that hold the plugin capability; administrators always may in the module. The plugin also has a separate permission for copying posts of other authors, the module has none.', 'ux-studio' ) );
 		}
 
 		$lost = array();
@@ -173,6 +220,8 @@ final class DuplicatePostSource extends AbstractSource {
 		}
 
 		$on = fn( string $name ): bool => ! empty( $this->opt( 'duplicate_post_' . $name ) );
+		// A switch the plugin never stored keeps the default the plugin sets on activation.
+		$flag = fn( string $name, bool $default ): bool => null === $this->opt( 'duplicate_post_' . $name ) ? $default : $on( $name );
 
 		$elements = array();
 		if ( $on( 'copycontent' ) ) {
@@ -206,8 +255,40 @@ final class DuplicatePostSource extends AbstractSource {
 		}
 
 		if ( $on( 'copystatus' ) ) {
-			$m->lossy( __( 'The plugin gives the copy the same status as the original. The module uses one fixed status (draft unless you change it).', 'ux-studio' ) );
+			$m->set( self::MODULE, 'keep_status', true, __( 'Keep the status of the original', 'ux-studio' ), 'duplicate_post_copystatus' );
+		} else {
+			$m->set( self::MODULE, 'keep_status', false, __( 'Keep the status of the original', 'ux-studio' ), 'duplicate_post_copystatus' );
+			$m->set( self::MODULE, 'post_status', 'draft', __( 'Post status', 'ux-studio' ), 'duplicate_post_copystatus' );
 		}
+
+		// Custom fields that are not copied: the list of the plugin plus the fields its "copy template" switch holds back.
+		$meta = DuplicateRules::parse_list( (string) $this->opt( 'duplicate_post_blacklist' ) );
+		if ( ! $flag( 'copytemplate', true ) && ! in_array( '_wp_page_template', $meta, true ) ) {
+			$meta[] = '_wp_page_template';
+		}
+		if ( array() !== $meta ) {
+			$m->set( self::MODULE, 'excluded_meta', implode( "\n", $meta ), __( 'Custom fields that are not copied', 'ux-studio' ), 'duplicate_post_blacklist' );
+			if ( false !== strpos( implode( '', $meta ), '*' ) ) {
+				$m->note( __( 'A * in the list of fields matches any characters in the module (the plugin: letters, digits and underscores). For ordinary field names the result is the same.', 'ux-studio' ) );
+			}
+		}
+
+		$taxonomies = $this->opt( 'duplicate_post_taxonomies_blacklist' );
+		$taxonomies = is_array( $taxonomies ) ? array_values( array_map( 'strval', $taxonomies ) ) : ( '' !== trim( (string) $taxonomies ) ? array( trim( (string) $taxonomies ) ) : array() );
+		if ( ! $flag( 'copyformat', true ) && ! in_array( 'post_format', $taxonomies, true ) ) {
+			$taxonomies[] = 'post_format';
+		}
+		if ( array() !== $taxonomies ) {
+			$m->set( self::MODULE, 'excluded_taxonomies', $taxonomies, __( 'Taxonomies that are not copied', 'ux-studio' ), 'duplicate_post_taxonomies_blacklist' );
+		}
+
+		// Who may copy: the plugin gives the capability `copy_posts` to roles (administrator and editor by default).
+		$roles = $this->grant_roles( 'copy_posts' );
+		if ( null !== $roles ) {
+			$m->set( self::MODULE, 'allowed_roles', $roles, __( 'Roles that may duplicate', 'ux-studio' ), 'roles with the copy_posts capability' );
+			$m->note( __( 'Roles that may duplicate are the roles that hold the plugin capability copy_posts; administrators always may in the module.', 'ux-studio' ) );
+		}
+
 		$extra = array();
 		foreach ( array(
 			'copydate'        => __( 'publish date', 'ux-studio' ),
@@ -233,15 +314,9 @@ final class DuplicatePostSource extends AbstractSource {
 				)
 			);
 		}
-		if ( '' !== trim( (string) $this->opt( 'duplicate_post_blacklist' ) ) ) {
-			$m->lossy( __( 'The list of custom fields that are not copied is not transferred - the module copies all custom fields.', 'ux-studio' ) );
-		}
-		if ( ! empty( $this->opt( 'duplicate_post_taxonomies_blacklist' ) ) ) {
-			$m->lossy( __( 'The list of taxonomies that are not copied is not transferred - the module copies all taxonomies.', 'ux-studio' ) );
-		}
 		if ( (int) $this->opt( 'duplicate_post_increase_menu_order_by' ) > 0 ) {
 			$m->lossy( __( 'Increasing the menu order of copies is not available in the module.', 'ux-studio' ) );
 		}
-		$m->lossy( __( 'Permissions by role, "Rewrite & Republish" and the "original item" references of the plugin do not exist in the module.', 'ux-studio' ) );
+		$m->lossy( __( '"Rewrite & Republish" and the "original item" references of the plugin do not exist in the module.', 'ux-studio' ) );
 	}
 }

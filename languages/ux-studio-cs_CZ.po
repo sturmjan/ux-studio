@@ -177,12 +177,12 @@ msgstr "Nástěnka"
 #: includes/Modules/ExitPopup/Module.php:144
 #: includes/Modules/ExitPopup/Module.php:152
 #: includes/Modules/ExportPosts/Module.php:503
-#: includes/Modules/MaintenanceMode/Module.php:432
-#: includes/Modules/MaintenanceMode/Module.php:439
-#: includes/Modules/MaintenanceMode/Module.php:446
-#: includes/Modules/MaintenanceMode/Module.php:453
-#: includes/Modules/MaintenanceMode/Module.php:460
-#: includes/Modules/MaintenanceMode/Module.php:467
+#: includes/Modules/MaintenanceMode/Module.php:570
+#: includes/Modules/MaintenanceMode/Module.php:577
+#: includes/Modules/MaintenanceMode/Module.php:584
+#: includes/Modules/MaintenanceMode/Module.php:591
+#: includes/Modules/MaintenanceMode/Module.php:598
+#: includes/Modules/MaintenanceMode/Module.php:605
 #: includes/Modules/SecurityOptimization/Module.php:926
 #: includes/Modules/SecurityOptimization/Module.php:980
 #: includes/Modules/SecurityOptimization/Module.php:988
@@ -200,7 +200,7 @@ msgstr "Nástěnka"
 #: build/508.0ddf734b7e9092d61d10.js:17
 #: build/508.0ddf734b7e9092d61d10.js:18
 #: build/585.f2f2b136411f943af5e3.js:2
-#: build/index.a7ec759b7f8102833709.js:11
+#: build/index.c815c1cf214ea80e7185.js:11
 msgid "Content"
 msgstr "Obsah"
 
@@ -209,7 +209,7 @@ msgstr "Obsah"
 #: includes/Modules/AdminCustomiser/MenuOrganizer.php:89
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:253
 #: build/321.27f7b55ace3bb36082e1.js:1
-#: build/index.a7ec759b7f8102833709.js:11
+#: build/index.c815c1cf214ea80e7185.js:11
 msgid "Media"
 msgstr "Média"
 
@@ -220,16 +220,16 @@ msgstr "Média"
 #: includes/Modules/ExitPopup/Module.php:181
 #: includes/Modules/ExitPopup/Module.php:188
 #: includes/Modules/ExitPopup/Module.php:195
-#: includes/Modules/MaintenanceMode/Module.php:474
-#: includes/Modules/MaintenanceMode/Module.php:485
-#: includes/Modules/MaintenanceMode/Module.php:493
-#: includes/Modules/MaintenanceMode/Module.php:500
-#: includes/Modules/MaintenanceMode/Module.php:507
-#: includes/Modules/MaintenanceMode/Module.php:514
-#: includes/Modules/MaintenanceMode/Module.php:521
+#: includes/Modules/MaintenanceMode/Module.php:612
+#: includes/Modules/MaintenanceMode/Module.php:623
+#: includes/Modules/MaintenanceMode/Module.php:631
+#: includes/Modules/MaintenanceMode/Module.php:638
+#: includes/Modules/MaintenanceMode/Module.php:645
+#: includes/Modules/MaintenanceMode/Module.php:652
+#: includes/Modules/MaintenanceMode/Module.php:659
 #: build/157.d8fa880947f2665fc819.js:1
 #: build/585.f2f2b136411f943af5e3.js:3
-#: build/index.a7ec759b7f8102833709.js:16
+#: build/index.c815c1cf214ea80e7185.js:16
 msgid "Appearance"
 msgstr "Vzhled"
 
@@ -376,7 +376,7 @@ msgid "Enable login screen customization"
 msgstr "Zapnout přizpůsobení přihlašovací obrazovky"
 
 #: includes/Modules/AdminCustomiser/QuickSearch.php:55
-#: build/index.a7ec759b7f8102833709.js:2
+#: build/index.c815c1cf214ea80e7185.js:2
 msgid "Search..."
 msgstr "Hledat…"
 
@@ -441,7 +441,7 @@ msgstr "Typy obsahu"
 
 #: includes/Modules/AdminCustomiser/QuickSearch/ThirdPartyIntegrations.php:69
 #: includes/Modules/AiMarkdown/Module.php:179
-#: includes/Modules/DuplicatePost/Module.php:372
+#: includes/Modules/DuplicatePost/Module.php:417
 msgid "Taxonomies"
 msgstr "Taxonomie"
 
@@ -579,7 +579,7 @@ msgstr "Nová zpráva z chatu AI asistenta"
 #: build/81.95b5f8bd70979be35f73.js:1
 #: build/81.95b5f8bd70979be35f73.js:3
 #: build/81.95b5f8bd70979be35f73.js:4
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 #: build/136.2d2b8a524db81ae05028.js:1
 #: build/190.5788ca3cb621407aa780.js:1
 #: build/230.32739baf79a789ffbbf2.js:1
@@ -589,8 +589,8 @@ msgstr "Nová zpráva z chatu AI asistenta"
 #: build/475.b8dc4db2ebfa829c08cd.js:1
 #: build/587.ac5f331947080b90a85e.js:1
 #: build/760.a403a73181fc3646da3e.js:1
-#: build/index.a7ec759b7f8102833709.js:12
-#: build/index.a7ec759b7f8102833709.js:14
+#: build/index.c815c1cf214ea80e7185.js:12
+#: build/index.c815c1cf214ea80e7185.js:14
 msgid "Name"
 msgstr "Jméno"
 
@@ -1820,14 +1820,15 @@ msgstr "403 Forbidden"
 msgid "429 Too Many Requests"
 msgstr "429 Too Many Requests"
 
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:137
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:172
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:173
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:219
+#: includes/Core/Migration/Sources/FolderSource.php:402
 #: includes/Core/Migration/Sources/PostTypeOrderSource.php:69
-#: includes/Modules/ClassicEditor/Module.php:87
+#: includes/Modules/ClassicEditor/Module.php:505
 #: includes/Modules/DownloadFiles/Module.php:362
-#: includes/Modules/DuplicatePost/Module.php:407
+#: includes/Modules/DuplicatePost/Module.php:452
 #: includes/Modules/ExternalPermalinks/Module.php:354
-#: includes/Modules/FolderManager/Module.php:127
+#: includes/Modules/FolderManager/Module.php:133
 #: includes/Modules/PostGallery/Module.php:491
 #: includes/Modules/PostIdDisplay/Module.php:65
 #: includes/Modules/PostTypeOrder/Module.php:414
@@ -1838,7 +1839,7 @@ msgstr "429 Too Many Requests"
 msgid "Post types"
 msgstr "Typy obsahu"
 
-#: includes/Modules/ClassicEditor/Module.php:88
+#: includes/Modules/ClassicEditor/Module.php:506
 msgid "Select the post types to enable the classic editor for. Leave empty to enable it for all post types."
 msgstr "Vyberte typy obsahu, pro které se má zapnout klasický editor. Ponechte prázdné pro zapnutí u všech typů obsahu."
 
@@ -1868,7 +1869,7 @@ msgstr "Biografické údaje"
 
 #: includes/Modules/CleanProfiles/Module.php:41
 #: build/508.0ddf734b7e9092d61d10.js:17
-#: build/index.a7ec759b7f8102833709.js:19
+#: build/index.c815c1cf214ea80e7185.js:19
 msgid "Role"
 msgstr "Role"
 
@@ -2339,9 +2340,9 @@ msgstr "Soubor se nepodařilo zpřístupnit."
 msgid "Failed to duplicate menu. The menu name may already exist."
 msgstr "Nepodařilo se duplikovat menu. Název menu možná již existuje."
 
-#: includes/Modules/DuplicatePost/Duplicator.php:46
+#: includes/Modules/DuplicatePost/Duplicator.php:55
 #: includes/Modules/DuplicatePost/Module.php:92
-#: includes/Modules/DuplicatePost/Module.php:280
+#: includes/Modules/DuplicatePost/Module.php:315
 #: includes/Modules/DuplicatePost/RestController.php:67
 #: includes/Modules/PostTypeSwitcher/Module.php:120
 #: includes/Modules/QuickImage/RestController.php:60
@@ -2350,119 +2351,121 @@ msgstr "Neplatné ID příspěvku."
 
 #. translators: %s: post type singular label
 #. translators: %s: post title
-#: includes/Modules/DuplicatePost/Module.php:153
-#: includes/Modules/DuplicatePost/Module.php:254
+#: includes/Modules/DuplicatePost/Module.php:188
+#: includes/Modules/DuplicatePost/Module.php:289
 #, php-format
 msgid "Duplicate %s"
 msgstr "Duplikovat %s"
 
-#: includes/Modules/DuplicatePost/Module.php:150
-#: includes/Modules/DuplicatePost/Module.php:258
+#: includes/Modules/DuplicatePost/Module.php:185
+#: includes/Modules/DuplicatePost/Module.php:293
 msgid "Duplicate"
 msgstr "Duplikovat"
 
-#: includes/Modules/DuplicatePost/Module.php:271
+#: includes/Modules/DuplicatePost/Module.php:306
 #: includes/Modules/ExportPosts/Module.php:340
 #: includes/Modules/ExportUsers/Module.php:209
 msgid "Security check failed."
 msgstr "Bezpečnostní kontrola selhala."
 
-#: includes/Modules/DuplicatePost/Module.php:275
+#: includes/Modules/DuplicatePost/Module.php:95
+#: includes/Modules/DuplicatePost/Module.php:310
 #: includes/Modules/DuplicatePost/RestController.php:71
 msgid "Sorry, you are not allowed to duplicate this post."
 msgstr "Je nám líto, nemáte oprávnění duplikovat tento příspěvek."
 
-#: includes/Modules/DuplicatePost/Module.php:334
-#: includes/Modules/DuplicatePost/Module.php:447
+#: includes/Modules/DuplicatePost/Module.php:375
+#: includes/Modules/DuplicatePost/Module.php:529
 msgid "[Duplicate] {post_title}"
 msgstr "[Kopie] {post_title}"
 
-#: includes/Modules/DuplicatePost/Module.php:369
+#: includes/Modules/DuplicatePost/Module.php:414
 msgid "Post Content"
 msgstr "Obsah příspěvku"
 
-#: includes/Modules/DuplicatePost/Module.php:370
+#: includes/Modules/DuplicatePost/Module.php:415
 msgid "Post Excerpt"
 msgstr "Zkrácený obsah příspěvku"
 
-#: includes/Modules/DuplicatePost/Module.php:371
+#: includes/Modules/DuplicatePost/Module.php:416
 #: includes/Modules/ExportPosts/Module.php:510
 msgid "Featured Image"
 msgstr "Náhledový obrázek"
 
 #: includes/Modules/AdminCustomiser/MetaBoxRules.php:55
-#: includes/Modules/DuplicatePost/Module.php:373
+#: includes/Modules/DuplicatePost/Module.php:418
 msgid "Custom Fields"
 msgstr "Vlastní pole"
 
-#: includes/Modules/DuplicatePost/Module.php:374
+#: includes/Modules/DuplicatePost/Module.php:419
 #: includes/Modules/ExportPosts/Module.php:512
 msgid "Menu Order"
 msgstr "Pořadí v menu"
 
-#: includes/Modules/DuplicatePost/Module.php:375
+#: includes/Modules/DuplicatePost/Module.php:420
 msgid "Post Parent"
 msgstr "Nadřazený příspěvek"
 
-#: includes/Modules/DuplicatePost/Module.php:379
+#: includes/Modules/DuplicatePost/Module.php:424
 msgid "Product Gallery"
 msgstr "Galerie produktu"
 
-#: includes/Modules/DuplicatePost/Module.php:408
+#: includes/Modules/DuplicatePost/Module.php:453
 msgid "Select the post types that can be duplicated."
 msgstr "Vyberte typy obsahu, které lze duplikovat."
 
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:84
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:127
-#: includes/Modules/DuplicatePost/Module.php:415
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:110
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:158
+#: includes/Modules/DuplicatePost/Module.php:475
 msgid "Redirect to post"
 msgstr "Přesměrovat na příspěvek"
 
-#: includes/Modules/DuplicatePost/Module.php:416
+#: includes/Modules/DuplicatePost/Module.php:476
 msgid "Redirect to the post edit screen after duplication."
 msgstr "Po duplikaci přesměrovat na obrazovku úprav příspěvku."
 
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:72
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:108
-#: includes/Modules/DuplicatePost/Module.php:422
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:98
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:139
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:261
+#: includes/Modules/DuplicatePost/Module.php:482
 #: build/295.a870471d1a0caf081ee0.js:1
 msgid "Post status"
 msgstr "Stav příspěvku"
 
-#: includes/Modules/DuplicatePost/Module.php:423
+#: includes/Modules/DuplicatePost/Module.php:483
 msgid "Select the status of the duplicated post."
 msgstr "Vyberte stav duplikovaného příspěvku."
 
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:196
-#: includes/Modules/DuplicatePost/Module.php:430
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:245
+#: includes/Modules/DuplicatePost/Module.php:497
 msgid "Elements to duplicate"
 msgstr "Prvky k duplikaci"
 
-#: includes/Modules/DuplicatePost/Module.php:431
+#: includes/Modules/DuplicatePost/Module.php:498
 msgid "Select which elements are copied when duplicating a post."
 msgstr "Vyberte, které prvky se při duplikaci příspěvku zkopírují."
 
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:89
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:92
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:121
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:202
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:205
-#: includes/Modules/DuplicatePost/Module.php:438
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:115
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:118
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:152
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:251
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:254
+#: includes/Modules/DuplicatePost/Module.php:520
 msgid "Customise post title"
 msgstr "Přizpůsobit název příspěvku"
 
-#: includes/Modules/DuplicatePost/Module.php:439
+#: includes/Modules/DuplicatePost/Module.php:521
 msgid "Enable this to use a custom format for the duplicated post title."
 msgstr "Zapnutím této volby použijete vlastní formát názvu duplikovaného příspěvku."
 
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:90
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:122
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:203
-#: includes/Modules/DuplicatePost/Module.php:445
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:116
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:153
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:252
+#: includes/Modules/DuplicatePost/Module.php:527
 msgid "Post title format"
 msgstr "Formát názvu příspěvku"
 
-#: includes/Modules/DuplicatePost/Module.php:446
+#: includes/Modules/DuplicatePost/Module.php:528
 msgid "Use {post_title} to insert the original post title."
 msgstr "Pomocí {post_title} vložíte původní název příspěvku."
 
@@ -2591,7 +2594,7 @@ msgstr "Zobrazit na"
 msgid "Post types on which the exit popup can appear."
 msgstr "Typy obsahu, na kterých se může zobrazit vyskakovací okno při odchodu."
 
-#: includes/Core/Migration/Sources/MaintenanceSource.php:64
+#: includes/Core/Migration/Sources/MaintenanceSource.php:66
 #: includes/Modules/ExitPopup/Module.php:91
 msgid "Headline"
 msgstr "Nadpis"
@@ -2624,8 +2627,8 @@ msgstr "Odebírat"
 #: build/295.a870471d1a0caf081ee0.js:1
 #: build/367.76ca1c322e0aa70c5367.js:1
 #: build/585.f2f2b136411f943af5e3.js:2
-#: build/index.a7ec759b7f8102833709.js:10
-#: build/index.a7ec759b7f8102833709.js:17
+#: build/index.c815c1cf214ea80e7185.js:10
+#: build/index.c815c1cf214ea80e7185.js:17
 msgid "Close"
 msgstr "Zavřít"
 
@@ -2733,7 +2736,7 @@ msgstr "Zkrácený obsah"
 #: build/587.ac5f331947080b90a85e.js:1
 #: build/760.a403a73181fc3646da3e.js:1
 #: build/831.23583f4e1125feffb1f7.js:1
-#: build/index.a7ec759b7f8102833709.js:12
+#: build/index.c815c1cf214ea80e7185.js:12
 msgid "Status"
 msgstr "Stav"
 
@@ -3034,8 +3037,8 @@ msgstr "Nemáte přístup ke Správci souborů. Přidejte svůj účet do seznam
 #: build/831.23583f4e1125feffb1f7.js:1
 #: build/860.706222a29a2791eece0d.js:1
 #: build/907.84f5bdf7cee41491c2d9.js:1
-#: build/index.a7ec759b7f8102833709.js:16
-#: build/index.a7ec759b7f8102833709.js:46
+#: build/index.c815c1cf214ea80e7185.js:16
+#: build/index.c815c1cf214ea80e7185.js:46
 msgid "Settings"
 msgstr "Nastavení"
 
@@ -3076,7 +3079,7 @@ msgid "Save settings"
 msgstr "Uložit nastavení"
 
 #: includes/Modules/FileManager/Module.php:332
-#: build/index.a7ec759b7f8102833709.js:1
+#: build/index.c815c1cf214ea80e7185.js:1
 msgid "Settings saved."
 msgstr "Nastavení bylo uloženo."
 
@@ -3109,83 +3112,86 @@ msgstr "Přístup odepřen"
 msgid "Invalid credentials."
 msgstr "Neplatné přihlašovací údaje."
 
-#: includes/Core/Migration/Sources/FolderSource.php:240
-#: includes/Core/Migration/Sources/FolderSource.php:252
+#: includes/Core/Migration/Sources/FolderSource.php:437
+#: includes/Core/Migration/Sources/FolderSource.php:449
 #: includes/Modules/FolderManager/AdminIntegration.php:181
-#: includes/Modules/FolderManager/AdminIntegration.php:404
-#: includes/Modules/FolderManager/Module.php:218
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: includes/Modules/FolderManager/AdminIntegration.php:408
+#: includes/Modules/FolderManager/Module.php:224
+#: build/93.9dedf701b8e9ee0662b2.js:1
 msgid "Folders"
 msgstr "Složky"
 
-#: includes/Modules/FolderManager/AdminIntegration.php:354
-#: includes/Modules/FolderManager/AdminIntegration.php:466
-#: includes/Modules/FolderManager/AdminIntegration.php:472
-#: includes/Modules/FolderManager/Module.php:219
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: includes/Modules/FolderManager/AdminIntegration.php:358
+#: includes/Modules/FolderManager/AdminIntegration.php:470
+#: includes/Modules/FolderManager/AdminIntegration.php:476
+#: includes/Modules/FolderManager/Module.php:225
+#: build/93.9dedf701b8e9ee0662b2.js:1
 msgid "Folder"
 msgstr "Složka"
 
-#: includes/Modules/FolderManager/Module.php:220
+#: includes/Modules/FolderManager/Module.php:226
 msgid "Search Folders"
 msgstr "Hledat složky"
 
 #: includes/Modules/FolderManager/AdminIntegration.php:182
-#: includes/Modules/FolderManager/Module.php:221
+#: includes/Modules/FolderManager/Module.php:227
 msgid "All Folders"
 msgstr "Všechny složky"
 
-#: includes/Modules/FolderManager/Module.php:222
+#: includes/Modules/FolderManager/Module.php:228
 msgid "Parent Folder"
 msgstr "Nadřazená složka"
 
-#: includes/Modules/FolderManager/Module.php:223
+#: includes/Modules/FolderManager/Module.php:229
 msgid "Parent Folder:"
 msgstr "Nadřazená složka:"
 
-#: includes/Modules/FolderManager/Module.php:224
+#: includes/Modules/FolderManager/Module.php:230
 msgid "Edit Folder"
 msgstr "Upravit složku"
 
-#: includes/Modules/FolderManager/Module.php:225
+#: includes/Modules/FolderManager/Module.php:231
 msgid "Update Folder"
 msgstr "Aktualizovat složku"
 
-#: includes/Modules/FolderManager/Module.php:226
+#: includes/Modules/FolderManager/Module.php:232
 msgid "Add New Folder"
 msgstr "Přidat novou složku"
 
-#: includes/Modules/FolderManager/Module.php:227
+#: includes/Modules/FolderManager/Module.php:233
 msgid "New Folder Name"
 msgstr "Název nové složky"
 
-#: includes/Modules/FolderManager/Module.php:228
+#: includes/Modules/FolderManager/Module.php:234
 msgid "No folders found"
 msgstr "Nebyly nalezeny žádné složky"
 
-#: includes/Modules/FolderManager/Module.php:427
-#: includes/Modules/FolderManager/Module.php:536
+#: includes/Modules/FolderManager/Module.php:597
+#: includes/Modules/FolderManager/Module.php:708
 msgid "Folder name is required."
 msgstr "Název složky je povinný."
 
-#: includes/Modules/FolderManager/Module.php:441
-#: includes/Modules/FolderManager/Module.php:588
+#: includes/Modules/FolderManager/Module.php:611
+#: includes/Modules/FolderManager/Module.php:760
 msgid "Parent folder does not exist."
 msgstr "Nadřazená složka neexistuje."
 
-#: includes/Modules/FolderManager/Module.php:482
-#: includes/Modules/FolderManager/Module.php:531
-#: includes/Modules/FolderManager/Module.php:578
-#: includes/Modules/FolderManager/Module.php:624
-#: includes/Modules/FolderManager/Module.php:711
+#: includes/Modules/FolderManager/Module.php:478
+#: includes/Modules/FolderManager/Module.php:511
+#: includes/Modules/FolderManager/Module.php:539
+#: includes/Modules/FolderManager/Module.php:654
+#: includes/Modules/FolderManager/Module.php:703
+#: includes/Modules/FolderManager/Module.php:750
+#: includes/Modules/FolderManager/Module.php:800
+#: includes/Modules/FolderManager/Module.php:887
 msgid "Folder not found."
 msgstr "Složka nebyla nalezena."
 
-#: includes/Modules/FolderManager/Module.php:487
+#: includes/Modules/FolderManager/Module.php:659
 msgid "Could not delete folder."
 msgstr "Nepodařilo se smazat složku."
 
-#: includes/Modules/FolderManager/Module.php:701
+#: includes/Modules/FolderManager/Module.php:877
 msgid "Attachment not found."
 msgstr "Příloha nebyla nalezena."
 
@@ -3326,16 +3332,16 @@ msgid "Search Engines Discouraged"
 msgstr "Vyhledávače odrazovány"
 
 #. translators: appended to the aria-label of external links opening in a new tab.
-#: includes/Modules/LinkManager/Module.php:257
+#: includes/Modules/LinkManager/Module.php:363
 msgid " opens in a new tab"
 msgstr " otevře se v nové kartě"
 
-#: includes/Core/Migration/Sources/ExternalLinksSource.php:39
-#: includes/Modules/LinkManager/Module.php:432
+#: includes/Core/Migration/Sources/ExternalLinksSource.php:81
+#: includes/Modules/LinkManager/Module.php:596
 msgid "Exclude classes"
 msgstr "Vyloučit třídy"
 
-#: includes/Modules/LinkManager/Module.php:433
+#: includes/Modules/LinkManager/Module.php:597
 msgid "Comma-separated list of CSS classes to exclude from external link processing. Built-in per-link classes: wpe-exclude--link, wpe-exclude--arrow, wpe-exclude--rel, wpe-exclude--new-tab, wpe-exclude--aria-label."
 msgstr "Seznam CSS tříd oddělených čárkami, které se mají vyloučit ze zpracování externích odkazů. Vestavěné třídy pro jednotlivé odkazy: wpe-exclude--link, wpe-exclude--arrow, wpe-exclude--rel, wpe-exclude--new-tab, wpe-exclude--aria-label."
 
@@ -3348,250 +3354,250 @@ msgstr "Zakázat šipku u externích odkazů"
 msgid "Not recommended as it may cause accessibility issues."
 msgstr "Nedoporučuje se, může to způsobit problémy s přístupností."
 
-#: includes/Modules/LinkManager/Module.php:449
+#: includes/Modules/LinkManager/Module.php:630
 msgid "Disable speculative loading"
 msgstr "Zakázat spekulativní načítání"
 
-#: includes/Modules/LinkManager/Module.php:450
+#: includes/Modules/LinkManager/Module.php:631
 msgid "Completely disable the WordPress 6.8+ speculative loading feature."
 msgstr "Zcela zakázat funkci spekulativního načítání ve WordPressu 6.8+."
 
-#: includes/Modules/LinkManager/Module.php:456
+#: includes/Modules/LinkManager/Module.php:637
 msgid "Loading mode"
 msgstr "Režim načítání"
 
-#: includes/Modules/LinkManager/Module.php:457
+#: includes/Modules/LinkManager/Module.php:638
 msgid "Choose how aggressively to preload links."
 msgstr "Zvolte, jak agresivně přednačítat odkazy."
 
-#: includes/Modules/LinkManager/Module.php:459
-#: includes/Modules/LinkManager/Module.php:471
+#: includes/Modules/LinkManager/Module.php:640
+#: includes/Modules/LinkManager/Module.php:652
 msgid "Auto (WordPress default)"
 msgstr "Automaticky (výchozí WordPress)"
 
-#: includes/Modules/LinkManager/Module.php:460
+#: includes/Modules/LinkManager/Module.php:641
 msgid "Prefetch"
 msgstr "Prefetch"
 
-#: includes/Modules/LinkManager/Module.php:461
+#: includes/Modules/LinkManager/Module.php:642
 msgid "Prerender"
 msgstr "Prerender"
 
-#: includes/Modules/LinkManager/Module.php:468
+#: includes/Modules/LinkManager/Module.php:649
 msgid "Loading eagerness"
 msgstr "Dychtivost načítání"
 
-#: includes/Modules/LinkManager/Module.php:469
+#: includes/Modules/LinkManager/Module.php:650
 msgid "Choose how early to start preloading links."
 msgstr "Zvolte, jak brzy začít přednačítat odkazy."
 
-#: includes/Modules/LinkManager/Module.php:472
+#: includes/Modules/LinkManager/Module.php:653
 msgid "Conservative"
 msgstr "Konzervativní"
 
-#: includes/Modules/LinkManager/Module.php:473
+#: includes/Modules/LinkManager/Module.php:654
 msgid "Moderate"
 msgstr "Mírná"
 
-#: includes/Modules/LinkManager/Module.php:474
+#: includes/Modules/LinkManager/Module.php:655
 msgid "Eager"
 msgstr "Dychtivá"
 
-#: includes/Modules/LinkManager/Module.php:481
+#: includes/Modules/LinkManager/Module.php:662
 msgid "Exclude paths"
 msgstr "Vyloučit cesty"
 
-#: includes/Modules/LinkManager/Module.php:482
+#: includes/Modules/LinkManager/Module.php:663
 msgid "URL patterns to exclude from speculative loading, one per line (e.g. /cart/*, /checkout/*)."
 msgstr "Vzory URL, které se mají vyloučit ze spekulativního načítání, jeden na řádek (např. /cart/*, /checkout/*)."
 
-#: includes/Modules/LinkManager/Module.php:488
+#: includes/Modules/LinkManager/Module.php:669
 msgid "Exclude from prerender"
 msgstr "Vyloučit z prerenderingu"
 
-#: includes/Modules/LinkManager/Module.php:489
+#: includes/Modules/LinkManager/Module.php:670
 msgid "URL patterns to exclude only from prerendering, one per line (e.g. /personalized-area/*)."
 msgstr "Vzory URL, které se mají vyloučit pouze z prerenderingu, jeden na řádek (např. /personalized-area/*)."
 
-#: includes/Modules/MaintenanceMode/Module.php:218
+#: includes/Modules/MaintenanceMode/Module.php:277
 msgid "Logo"
 msgstr "Logo"
 
-#: includes/Modules/MaintenanceMode/Module.php:223
-#: includes/Modules/MaintenanceMode/Module.php:242
-#: includes/Modules/MaintenanceMode/Module.php:435
+#: includes/Modules/MaintenanceMode/Module.php:282
+#: includes/Modules/MaintenanceMode/Module.php:302
+#: includes/Modules/MaintenanceMode/Module.php:573
 msgid "Maintenance Mode"
 msgstr "Režim údržby"
 
-#: includes/Modules/MaintenanceMode/Module.php:227
-#: includes/Modules/MaintenanceMode/Module.php:449
+#: includes/Modules/MaintenanceMode/Module.php:286
+#: includes/Modules/MaintenanceMode/Module.php:587
 msgid "Site will be available soon. Thank you for your patience!"
 msgstr "Web bude brzy dostupný. Děkujeme za trpělivost!"
 
-#: includes/Modules/MaintenanceMode/Module.php:243
+#: includes/Modules/MaintenanceMode/Module.php:303
 msgid "We are currently performing scheduled maintenance. Please check back soon."
 msgstr "Momentálně provádíme plánovanou údržbu. Zkuste to prosím brzy znovu."
 
-#: includes/Modules/MaintenanceMode/Module.php:301
+#: includes/Modules/MaintenanceMode/Module.php:381
 msgid "Coming Soon Active"
 msgstr "Připravujeme aktivní"
 
-#: includes/Modules/MaintenanceMode/Module.php:302
+#: includes/Modules/MaintenanceMode/Module.php:382
 msgid "Maintenance Mode Active"
 msgstr "Režim údržby aktivní"
 
-#: includes/Modules/MaintenanceMode/Module.php:311
+#: includes/Modules/MaintenanceMode/Module.php:394
 msgid "Open preview"
 msgstr "Otevřít náhled"
 
-#: includes/Modules/MaintenanceMode/Module.php:320
+#: includes/Modules/MaintenanceMode/Module.php:403
 #: build/585.f2f2b136411f943af5e3.js:2
-#: build/index.a7ec759b7f8102833709.js:46
+#: build/index.c815c1cf214ea80e7185.js:46
 msgid "Preview"
 msgstr "Náhled"
 
-#: includes/Core/Migration/Sources/MaintenanceSource.php:57
-#: includes/Modules/MaintenanceMode/Module.php:366
+#: includes/Core/Migration/Sources/MaintenanceSource.php:59
+#: includes/Modules/MaintenanceMode/Module.php:449
 #: build/190.5788ca3cb621407aa780.js:1
 #: build/563.7ca83152d7afec524ae9.js:1
 msgid "Mode"
 msgstr "Režim"
 
-#: includes/Modules/MaintenanceMode/Module.php:367
+#: includes/Modules/MaintenanceMode/Module.php:450
 msgid "Select the maintenance mode type."
 msgstr "Vyberte typ režimu údržby."
 
 #: includes/Modules/ContentSync/Module.php:267
-#: includes/Modules/MaintenanceMode/Module.php:369
+#: includes/Modules/MaintenanceMode/Module.php:452
 #: includes/Modules/SecurityOptimization/Module.php:948
 #: build/190.5788ca3cb621407aa780.js:1
 #: build/295.a870471d1a0caf081ee0.js:1
 #: build/508.0ddf734b7e9092d61d10.js:18
 #: build/760.a403a73181fc3646da3e.js:1
-#: build/index.a7ec759b7f8102833709.js:15
-#: build/index.a7ec759b7f8102833709.js:17
+#: build/index.c815c1cf214ea80e7185.js:15
+#: build/index.c815c1cf214ea80e7185.js:17
 msgid "Disabled"
 msgstr "Vypnuto"
 
-#: includes/Modules/MaintenanceMode/Module.php:370
+#: includes/Modules/MaintenanceMode/Module.php:453
 msgid "Maintenance Mode (503)"
 msgstr "Režim údržby (503)"
 
-#: includes/Modules/MaintenanceMode/Module.php:371
+#: includes/Modules/MaintenanceMode/Module.php:454
 msgid "Coming Soon (200)"
 msgstr "Připravujeme (200)"
 
-#: includes/Core/Migration/Sources/MaintenanceSource.php:59
-#: includes/Core/Migration/Sources/MaintenanceSource.php:62
-#: includes/Modules/MaintenanceMode/Module.php:379
+#: includes/Core/Migration/Sources/MaintenanceSource.php:61
+#: includes/Core/Migration/Sources/MaintenanceSource.php:64
+#: includes/Modules/MaintenanceMode/Module.php:462
 msgid "Layout type"
 msgstr "Typ rozvržení"
 
-#: includes/Modules/MaintenanceMode/Module.php:380
+#: includes/Modules/MaintenanceMode/Module.php:463
 msgid "Choose how to display the maintenance page."
 msgstr "Zvolte, jak zobrazit stránku údržby."
 
-#: includes/Modules/MaintenanceMode/Module.php:382
+#: includes/Modules/MaintenanceMode/Module.php:465
 msgid "Custom Layout"
 msgstr "Vlastní rozvržení"
 
-#: includes/Modules/MaintenanceMode/Module.php:383
+#: includes/Modules/MaintenanceMode/Module.php:466
 msgid "Existing Page"
 msgstr "Existující stránka"
 
-#: includes/Modules/MaintenanceMode/Module.php:391
+#: includes/Modules/MaintenanceMode/Module.php:474
 msgid "Choose layout"
 msgstr "Zvolte rozvržení"
 
-#: includes/Modules/MaintenanceMode/Module.php:392
+#: includes/Modules/MaintenanceMode/Module.php:475
 msgid "Which built-in layout to use for the maintenance page."
 msgstr "Které vestavěné rozvržení použít pro stránku údržby."
 
-#: includes/Modules/MaintenanceMode/Module.php:394
+#: includes/Modules/MaintenanceMode/Module.php:477
 msgid "Layout 1 (centered card)"
 msgstr "Rozvržení 1 (vycentrovaná karta)"
 
-#: includes/Modules/MaintenanceMode/Module.php:395
+#: includes/Modules/MaintenanceMode/Module.php:478
 msgid "Layout 2 (split, image right)"
 msgstr "Rozvržení 2 (rozdělené, obrázek vpravo)"
 
-#: includes/Modules/MaintenanceMode/Module.php:396
+#: includes/Modules/MaintenanceMode/Module.php:479
 msgid "Layout 3 (split, image left)"
 msgstr "Rozvržení 3 (rozdělené, obrázek vlevo)"
 
-#: includes/Core/Migration/Sources/MaintenanceSource.php:60
-#: includes/Modules/MaintenanceMode/Module.php:404
+#: includes/Core/Migration/Sources/MaintenanceSource.php:62
+#: includes/Modules/MaintenanceMode/Module.php:487
 #: includes/Modules/SecurityOptimization/Module.php:598
 msgid "Existing page"
 msgstr "Existující stránka"
 
-#: includes/Modules/MaintenanceMode/Module.php:405
+#: includes/Modules/MaintenanceMode/Module.php:488
 msgid "Page displayed when the layout type is \"Existing Page\"."
 msgstr "Stránka zobrazená, když je typ rozvržení nastaven na „Existující stránka“."
 
-#: includes/Core/Migration/Sources/MaintenanceSource.php:81
-#: includes/Modules/MaintenanceMode/Module.php:413
+#: includes/Core/Migration/Sources/MaintenanceSource.php:83
+#: includes/Modules/MaintenanceMode/Module.php:496
 msgid "Authentication type"
 msgstr "Typ ověření"
 
-#: includes/Modules/MaintenanceMode/Module.php:414
+#: includes/Modules/MaintenanceMode/Module.php:497
 msgid "Who is allowed to access the site while maintenance mode is active. Administrators always have access."
 msgstr "Kdo má povolen přístup na web, když je aktivní režim údržby. Administrátoři mají přístup vždy."
 
-#: includes/Modules/MaintenanceMode/Module.php:416
+#: includes/Modules/MaintenanceMode/Module.php:499
 msgid "Logged In Users"
 msgstr "Přihlášení uživatelé"
 
-#: includes/Modules/MaintenanceMode/Module.php:417
+#: includes/Modules/MaintenanceMode/Module.php:500
 msgid "By User Role"
 msgstr "Podle role uživatele"
 
-#: includes/Core/Migration/Sources/MaintenanceSource.php:82
+#: includes/Core/Migration/Sources/MaintenanceSource.php:84
 #: includes/Core/Migration/Sources/SvgSource.php:46
 #: includes/Core/Migration/Sources/SvgSource.php:74
-#: includes/Modules/MaintenanceMode/Module.php:425
+#: includes/Modules/MaintenanceMode/Module.php:508
 #: includes/Modules/SvgUpload/Module.php:230
 #: includes/Modules/ThirdPartyLogin/Module.php:193
 msgid "Allowed roles"
 msgstr "Povolené role"
 
-#: includes/Modules/MaintenanceMode/Module.php:426
+#: includes/Modules/MaintenanceMode/Module.php:509
 msgid "Roles allowed to access the site when authentication is by role."
 msgstr "Role s povoleným přístupem na web, když je ověření podle role."
 
-#: includes/Modules/MaintenanceMode/Module.php:434
+#: includes/Modules/MaintenanceMode/Module.php:572
 msgid "Headline text"
 msgstr "Text nadpisu"
 
-#: includes/Core/Migration/Sources/MaintenanceSource.php:70
+#: includes/Core/Migration/Sources/MaintenanceSource.php:72
 #: includes/Modules/ExitPopup/Module.php:169
-#: includes/Modules/MaintenanceMode/Module.php:441
+#: includes/Modules/MaintenanceMode/Module.php:579
 msgid "Headline colour"
 msgstr "Barva nadpisu"
 
-#: includes/Modules/MaintenanceMode/Module.php:448
+#: includes/Modules/MaintenanceMode/Module.php:586
 msgid "Body text"
 msgstr "Text těla"
 
-#: includes/Modules/MaintenanceMode/Module.php:455
+#: includes/Modules/MaintenanceMode/Module.php:593
 msgid "Body colour"
 msgstr "Barva těla"
 
-#: includes/Modules/MaintenanceMode/Module.php:462
+#: includes/Modules/MaintenanceMode/Module.php:600
 msgid "Footer text"
 msgstr "Text zápatí"
 
-#: includes/Modules/MaintenanceMode/Module.php:469
+#: includes/Modules/MaintenanceMode/Module.php:607
 msgid "Footer colour"
 msgstr "Barva zápatí"
 
-#: includes/Modules/MaintenanceMode/Module.php:476
+#: includes/Modules/MaintenanceMode/Module.php:614
 msgid "Enable logo"
 msgstr "Zapnout logo"
 
 #: includes/Modules/AdminColumns/FieldRenderer.php:134
 #: includes/Modules/Forms/EmailTemplateRenderer.php:181
-#: includes/Modules/MaintenanceMode/Module.php:478
+#: includes/Modules/MaintenanceMode/Module.php:616
 #: build/50.e6fd5487ddbf550186c9.js:1
 #: build/244.8601386a2d8cadd7df59.js:1
 #: build/585.f2f2b136411f943af5e3.js:2
@@ -3601,7 +3607,7 @@ msgstr "Ne"
 
 #: includes/Modules/AdminColumns/FieldRenderer.php:128
 #: includes/Modules/Forms/EmailTemplateRenderer.php:181
-#: includes/Modules/MaintenanceMode/Module.php:479
+#: includes/Modules/MaintenanceMode/Module.php:617
 #: build/50.e6fd5487ddbf550186c9.js:1
 #: build/190.5788ca3cb621407aa780.js:1
 #: build/244.8601386a2d8cadd7df59.js:1
@@ -3611,40 +3617,42 @@ msgstr "Ne"
 msgid "Yes"
 msgstr "Ano"
 
-#: includes/Modules/MaintenanceMode/Module.php:487
+#: includes/Modules/MaintenanceMode/Module.php:625
 msgid "Logo image"
 msgstr "Obrázek loga"
 
-#: includes/Modules/MaintenanceMode/Module.php:488
+#: includes/Modules/MaintenanceMode/Module.php:626
 msgid "Logo image shown on the maintenance page."
 msgstr "Obrázek loga zobrazený na stránce údržby."
 
-#: includes/Modules/MaintenanceMode/Module.php:495
+#: includes/Modules/MaintenanceMode/Module.php:633
 msgid "Logo width (px)"
 msgstr "Šířka loga (px)"
 
-#: includes/Core/Migration/Sources/MaintenanceSource.php:76
+#: includes/Core/Migration/Sources/MaintenanceSource.php:78
 #: includes/Modules/ExitPopup/Module.php:162
-#: includes/Modules/MaintenanceMode/Module.php:502
+#: includes/Modules/MaintenanceMode/Module.php:640
 #: includes/Modules/TopBar/Module.php:133
 msgid "Background colour"
 msgstr "Barva pozadí"
 
-#: includes/Modules/MaintenanceMode/Module.php:509
+#: includes/Core/Migration/Sources/MaintenanceSource.php:90
+#: includes/Modules/MaintenanceMode/Module.php:647
 msgid "Enable background image"
 msgstr "Zapnout obrázek pozadí"
 
-#: includes/Modules/MaintenanceMode/Module.php:516
+#: includes/Core/Migration/Sources/MaintenanceSource.php:91
+#: includes/Modules/MaintenanceMode/Module.php:654
 msgid "Background image"
 msgstr "Obrázek pozadí"
 
 #: includes/Modules/AdminCustomiser/Module.php:623
 #: includes/Modules/AdminCustomiser/Module.php:631
-#: includes/Modules/MaintenanceMode/Module.php:523
+#: includes/Modules/MaintenanceMode/Module.php:661
 msgid "Custom CSS"
 msgstr "Vlastní CSS"
 
-#: includes/Modules/MaintenanceMode/Module.php:524
+#: includes/Modules/MaintenanceMode/Module.php:662
 msgid "Custom CSS for the maintenance page. Useful classes: .uxstudio__card, .uxstudio__headline, .uxstudio__description, .uxstudio__footer, .uxstudio__logo."
 msgstr "Vlastní CSS pro stránku údržby. Užitečné třídy: .uxstudio__card, .uxstudio__headline, .uxstudio__description, .uxstudio__footer, .uxstudio__logo."
 
@@ -3874,8 +3882,8 @@ msgstr "Galerie"
 #: includes/Modules/MenuVisibility/Module.php:103
 #: includes/Modules/PostGallery/Module.php:96
 #: build/309.af5b27ff658fb2c18892.js:1
-#: build/index.a7ec759b7f8102833709.js:1
-#: build/index.a7ec759b7f8102833709.js:2
+#: build/index.c815c1cf214ea80e7185.js:1
+#: build/index.c815c1cf214ea80e7185.js:2
 #: includes/Modules/DownloadFiles/assets/js/download-files-admin.js:49
 #: includes/Modules/PostGallery/assets/js/post-gallery-admin.js:48
 msgid "Remove"
@@ -4871,7 +4879,7 @@ msgstr "Text zobrazený v horní liště. Pokud je širší než obrazovka, auto
 msgid "Background colour of the bar."
 msgstr "Barva pozadí lišty."
 
-#: includes/Core/Migration/Sources/MaintenanceSource.php:73
+#: includes/Core/Migration/Sources/MaintenanceSource.php:75
 #: includes/Modules/AiAssistant/Module.php:593
 #: includes/Modules/ExitPopup/Module.php:176
 #: includes/Modules/TopBar/Module.php:140
@@ -5088,6 +5096,7 @@ msgstr "Požadavky botů (24 h)"
 msgid "Open now"
 msgstr "Nyní otevřeno"
 
+#: includes/Modules/ClassicEditor/Module.php:401
 #: includes/Modules/ContentSync/Module.php:207
 #: build/826.7911d876933d2eb1b5d2.js:3
 msgid "Editor"
@@ -5100,13 +5109,13 @@ msgstr "Přispěvatel"
 
 #: includes/Modules/ServiceRequests/Sync.php:467
 #: build/321.27f7b55ace3bb36082e1.js:1
-#: build/index.a7ec759b7f8102833709.js:16
+#: build/index.c815c1cf214ea80e7185.js:16
 msgid "Theme"
 msgstr "Vzhled"
 
 #: includes/Modules/ServiceRequests/Sync.php:468
 #: build/194.e6770cd4d469e3197bae.js:1
-#: build/index.a7ec759b7f8102833709.js:16
+#: build/index.c815c1cf214ea80e7185.js:16
 msgid "Language"
 msgstr "Jazyk"
 
@@ -5129,7 +5138,7 @@ msgid "Admin Tools"
 msgstr "Nástroje administrace"
 
 #: includes/Core/Megamenu.php:172
-#: build/index.a7ec759b7f8102833709.js:11
+#: build/index.c815c1cf214ea80e7185.js:11
 msgid "Security"
 msgstr "Zabezpečení"
 
@@ -5141,12 +5150,12 @@ msgstr "Zabezpečení"
 #: includes/Modules/SecurityOptimization/Module.php:962
 #: build/508.0ddf734b7e9092d61d10.js:17
 #: build/508.0ddf734b7e9092d61d10.js:18
-#: build/index.a7ec759b7f8102833709.js:11
+#: build/index.c815c1cf214ea80e7185.js:11
 msgid "Performance"
 msgstr "Výkon"
 
 #: includes/Core/Megamenu.php:176
-#: build/index.a7ec759b7f8102833709.js:11
+#: build/index.c815c1cf214ea80e7185.js:11
 msgid "Developer"
 msgstr "Vývojářské nástroje"
 
@@ -5664,7 +5673,7 @@ msgstr "název hooku vypadá jako base64"
 
 #: includes/Modules/DashboardWidgets/Module.php:203
 #: includes/Modules/DashboardWidgets/RoleWidgets.php:167
-#: build/index.a7ec759b7f8102833709.js:46
+#: build/index.c815c1cf214ea80e7185.js:46
 msgid "Welcome"
 msgstr "Vítejte"
 
@@ -6019,33 +6028,33 @@ msgstr "Jeden na řádek: ID stránky nebo fragment URL (např. /checkout)."
 msgid "Hide for logged-in users"
 msgstr "Skrýt pro přihlášené uživatele"
 
-#: includes/Modules/FolderManager/Module.php:431
-#: includes/Modules/FolderManager/Module.php:540
+#: includes/Modules/FolderManager/Module.php:601
+#: includes/Modules/FolderManager/Module.php:712
 msgid "Folder name cannot exceed 200 characters."
 msgstr "Název složky nesmí přesáhnout 200 znaků."
 
-#: includes/Modules/FolderManager/Module.php:449
-#: includes/Modules/FolderManager/Module.php:545
+#: includes/Modules/FolderManager/Module.php:619
+#: includes/Modules/FolderManager/Module.php:717
 msgid "A folder with this name already exists at this level."
 msgstr "Složka s tímto názvem na této úrovni již existuje."
 
-#: includes/Modules/FolderManager/Module.php:583
+#: includes/Modules/FolderManager/Module.php:755
 msgid "A folder cannot be its own parent."
 msgstr "Složka nemůže být svým vlastním nadřazeným prvkem."
 
-#: includes/Modules/FolderManager/Module.php:596
+#: includes/Modules/FolderManager/Module.php:768
 msgid "Cannot move folder: would create a circular reference."
 msgstr "Složku nelze přesunout: vznikl by cyklický odkaz."
 
-#: includes/Modules/FolderManager/Module.php:637
+#: includes/Modules/FolderManager/Module.php:813
 msgid "No valid attachment IDs provided."
 msgstr "Nebyla zadána žádná platná ID příloh."
 
-#: includes/Modules/FolderManager/Module.php:662
+#: includes/Modules/FolderManager/Module.php:838
 msgid "No attachments were moved. Check the IDs and your permissions."
 msgstr "Nebyly přesunuty žádné přílohy. Zkontrolujte ID a svá oprávnění."
 
-#: includes/Modules/FolderManager/Module.php:827
+#: includes/Modules/FolderManager/Module.php:1005
 msgid "Folder could not be reloaded."
 msgstr "Složku se nepodařilo znovu načíst."
 
@@ -7599,12 +7608,12 @@ msgid "Submitted at"
 msgstr "Odesláno"
 
 #: includes/Modules/Forms/Csv.php:92
-#: build/index.a7ec759b7f8102833709.js:40
+#: build/index.c815c1cf214ea80e7185.js:40
 msgid "yes"
 msgstr "ano"
 
 #: includes/Modules/Forms/Csv.php:92
-#: build/index.a7ec759b7f8102833709.js:40
+#: build/index.c815c1cf214ea80e7185.js:40
 msgid "no"
 msgstr "ne"
 
@@ -7804,12 +7813,12 @@ msgid "Thank you, your submission has been received."
 msgstr "Děkujeme, vaše odeslání bylo přijato."
 
 #: includes/Modules/Forms/PublicRenderer.php:58
-#: build/index.a7ec759b7f8102833709.js:29
-#: build/index.a7ec759b7f8102833709.js:32
-#: build/index.a7ec759b7f8102833709.js:36
-#: build/index.a7ec759b7f8102833709.js:37
-#: build/index.a7ec759b7f8102833709.js:39
-#: build/index.a7ec759b7f8102833709.js:40
+#: build/index.c815c1cf214ea80e7185.js:29
+#: build/index.c815c1cf214ea80e7185.js:32
+#: build/index.c815c1cf214ea80e7185.js:36
+#: build/index.c815c1cf214ea80e7185.js:37
+#: build/index.c815c1cf214ea80e7185.js:39
+#: build/index.c815c1cf214ea80e7185.js:40
 msgid "Back"
 msgstr "Zpět"
 
@@ -7842,7 +7851,7 @@ msgid "Leave this field empty"
 msgstr "Toto pole nechte prázdné"
 
 #: includes/Modules/Forms/PublicRenderer.php:227
-#: build/index.a7ec759b7f8102833709.js:2
+#: build/index.c815c1cf214ea80e7185.js:2
 msgid "Choose…"
 msgstr "Vyberte…"
 
@@ -7861,6 +7870,7 @@ msgid "Drag & drop a file here, or click to choose."
 msgstr "Přetáhněte sem soubor nebo klikněte pro výběr."
 
 #: includes/Modules/Forms/PublicRenderer.php:329
+#: build/index.c815c1cf214ea80e7185.js:1
 msgid "Clear"
 msgstr "Vymazat"
 
@@ -8005,7 +8015,7 @@ msgstr "Ikona Lucide"
 msgid "Custom SVG"
 msgstr "Vlastní SVG"
 
-#: includes/Modules/FolderManager/Module.php:152
+#: includes/Modules/FolderManager/Module.php:158
 #: includes/Modules/MenuIcons/Module.php:90
 msgid "Media Library"
 msgstr "Knihovna médií"
@@ -8031,6 +8041,8 @@ msgstr "Při uložení se sanitizuje; zachovají se jen základní tvarové prvk
 msgid "Choose from Media Library"
 msgstr "Vybrat z knihovny médií"
 
+#: includes/Core/Migration/Sources/ExternalLinksSource.php:166
+#: includes/Modules/LinkManager/Module.php:577
 #: includes/Modules/MenuIcons/Module.php:139
 msgid "Icon position"
 msgstr "Pozice ikony"
@@ -8169,7 +8181,7 @@ msgstr "Typ"
 
 #: includes/Modules/SecurityOptimization/DashboardWidget.php:69
 #: build/475.b8dc4db2ebfa829c08cd.js:1
-#: build/index.a7ec759b7f8102833709.js:14
+#: build/index.c815c1cf214ea80e7185.js:14
 msgid "Expires"
 msgstr "Vyprší"
 
@@ -8391,7 +8403,7 @@ msgstr "Vyřešeno"
 #: build/475.b8dc4db2ebfa829c08cd.js:1
 #: build/508.0ddf734b7e9092d61d10.js:15
 #: build/508.0ddf734b7e9092d61d10.js:17
-#: build/index.a7ec759b7f8102833709.js:12
+#: build/index.c815c1cf214ea80e7185.js:12
 msgid "All"
 msgstr "Vše"
 
@@ -8401,7 +8413,7 @@ msgstr "Vše"
 #: build/71.7b812f6de6543e50daa3.js:4
 #: build/81.95b5f8bd70979be35f73.js:1
 #: build/84.7487a6fa6a05af521dcd.js:1
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 #: build/136.2d2b8a524db81ae05028.js:2
 #: build/148.9b3ad52ed565b681be7b.js:1
 #: build/157.d8fa880947f2665fc819.js:1
@@ -8438,14 +8450,14 @@ msgstr "Vše"
 #: build/860.706222a29a2791eece0d.js:1
 #: build/907.84f5bdf7cee41491c2d9.js:1
 #: build/976.585e9fadda2603544ab3.js:1
-#: build/index.a7ec759b7f8102833709.js:11
-#: build/index.a7ec759b7f8102833709.js:12
-#: build/index.a7ec759b7f8102833709.js:15
-#: build/index.a7ec759b7f8102833709.js:16
-#: build/index.a7ec759b7f8102833709.js:17
-#: build/index.a7ec759b7f8102833709.js:29
-#: build/index.a7ec759b7f8102833709.js:38
-#: build/index.a7ec759b7f8102833709.js:46
+#: build/index.c815c1cf214ea80e7185.js:11
+#: build/index.c815c1cf214ea80e7185.js:12
+#: build/index.c815c1cf214ea80e7185.js:15
+#: build/index.c815c1cf214ea80e7185.js:16
+#: build/index.c815c1cf214ea80e7185.js:17
+#: build/index.c815c1cf214ea80e7185.js:29
+#: build/index.c815c1cf214ea80e7185.js:38
+#: build/index.c815c1cf214ea80e7185.js:46
 msgid "Loading…"
 msgstr "Načítání…"
 
@@ -8478,7 +8490,7 @@ msgstr "Označit jako vyřešené"
 
 #: includes/Modules/DashboardWidgets/ExtraWidgets.php:270
 #: build/81.95b5f8bd70979be35f73.js:4
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 #: build/190.5788ca3cb621407aa780.js:1
 #: build/244.8601386a2d8cadd7df59.js:1
 #: build/295.a870471d1a0caf081ee0.js:1
@@ -8531,7 +8543,7 @@ msgstr "Nebyla nahlášena žádná porušení CSP."
 #: build/860.706222a29a2791eece0d.js:1
 #: build/907.84f5bdf7cee41491c2d9.js:1
 #: build/976.585e9fadda2603544ab3.js:1
-#: build/index.a7ec759b7f8102833709.js:12
+#: build/index.c815c1cf214ea80e7185.js:12
 msgid "Saved"
 msgstr "Uloženo"
 
@@ -8655,7 +8667,7 @@ msgstr "Tajný klíč CAPTCHA zatím není nastaven."
 #: build/860.706222a29a2791eece0d.js:1
 #: build/907.84f5bdf7cee41491c2d9.js:1
 #: build/976.585e9fadda2603544ab3.js:1
-#: build/index.a7ec759b7f8102833709.js:12
+#: build/index.c815c1cf214ea80e7185.js:12
 msgid "Save changes"
 msgstr "Uložit změny"
 
@@ -8732,7 +8744,7 @@ msgstr "Cíl"
 #: build/508.0ddf734b7e9092d61d10.js:18
 #: build/585.f2f2b136411f943af5e3.js:1
 #: build/585.f2f2b136411f943af5e3.js:2
-#: build/index.a7ec759b7f8102833709.js:19
+#: build/index.c815c1cf214ea80e7185.js:19
 msgid "Active"
 msgstr "Aktivní"
 
@@ -8759,7 +8771,7 @@ msgstr "Zatím žádné blokace IP."
 #: build/71.7b812f6de6543e50daa3.js:4
 #: build/81.95b5f8bd70979be35f73.js:4
 #: build/84.7487a6fa6a05af521dcd.js:1
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 #: build/136.2d2b8a524db81ae05028.js:2
 #: build/148.9b3ad52ed565b681be7b.js:1
 #: build/157.d8fa880947f2665fc819.js:1
@@ -8793,11 +8805,11 @@ msgstr "Zatím žádné blokace IP."
 #: build/907.84f5bdf7cee41491c2d9.js:1
 #: build/976.585e9fadda2603544ab3.js:1
 #: build/999.e3a9e917913d7f31633a.js:1
-#: build/index.a7ec759b7f8102833709.js:12
-#: build/index.a7ec759b7f8102833709.js:16
-#: build/index.a7ec759b7f8102833709.js:35
-#: build/index.a7ec759b7f8102833709.js:44
-#: build/index.a7ec759b7f8102833709.js:46
+#: build/index.c815c1cf214ea80e7185.js:12
+#: build/index.c815c1cf214ea80e7185.js:16
+#: build/index.c815c1cf214ea80e7185.js:35
+#: build/index.c815c1cf214ea80e7185.js:44
+#: build/index.c815c1cf214ea80e7185.js:46
 msgid "Back to modules"
 msgstr "Zpět na moduly"
 
@@ -8865,7 +8877,7 @@ msgid "Next-gen delivery (.htaccess)"
 msgstr "Doručování moderních formátů (.htaccess)"
 
 #: build/31.ed3571227e8fda6fdba7.js:1
-#: build/index.a7ec759b7f8102833709.js:19
+#: build/index.c815c1cf214ea80e7185.js:19
 msgid "Inactive"
 msgstr "Neaktivní"
 
@@ -9117,18 +9129,18 @@ msgid "No popups yet."
 msgstr "Zatím žádná vyskakovací okna."
 
 #: includes/Modules/FolderManager/AdminIntegration.php:188
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 msgid "Folder name"
 msgstr "Název složky"
 
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 msgid "Save name"
 msgstr "Uložit název"
 
-#: includes/Modules/DuplicatePost/Module.php:162
+#: includes/Modules/DuplicatePost/Module.php:197
 #: includes/Modules/SecurityOptimization/TwoFactor.php:441
 #: build/81.95b5f8bd70979be35f73.js:3
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 #: build/295.a870471d1a0caf081ee0.js:1
 #: build/309.af5b27ff658fb2c18892.js:1
 #: build/321.27f7b55ace3bb36082e1.js:1
@@ -9136,130 +9148,130 @@ msgstr "Uložit název"
 #: build/475.b8dc4db2ebfa829c08cd.js:1
 #: build/508.0ddf734b7e9092d61d10.js:10
 #: build/585.f2f2b136411f943af5e3.js:3
-#: build/index.a7ec759b7f8102833709.js:14
-#: build/index.a7ec759b7f8102833709.js:23
-#: build/index.a7ec759b7f8102833709.js:27
-#: build/index.a7ec759b7f8102833709.js:44
+#: build/index.c815c1cf214ea80e7185.js:14
+#: build/index.c815c1cf214ea80e7185.js:23
+#: build/index.c815c1cf214ea80e7185.js:27
+#: build/index.c815c1cf214ea80e7185.js:44
 msgid "Cancel"
 msgstr "Zrušit"
 
 #: includes/Modules/FolderManager/AdminIntegration.php:186
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 msgid "Rename folder"
 msgstr "Přejmenovat složku"
 
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 msgid "Could not rename folder."
 msgstr "Složku se nepodařilo přejmenovat."
 
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 msgid "Move folder under"
 msgstr "Přesunout složku pod"
 
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 msgid "— Top level —"
 msgstr "— Nejvyšší úroveň —"
 
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 msgid "Could not move folder."
 msgstr "Složku se nepodařilo přesunout."
 
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 msgid "Delete this folder? Attachments in it will become unassigned."
 msgstr "Smazat tuto složku? Přílohy v ní zůstanou bez přiřazení."
 
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 msgid "No folders yet. Create one below, then assign attachments to it — either one by one, or in bulk from the \"Bulk move attachments\" panel."
 msgstr "Zatím žádné složky. Vytvořte jednu níže a pak do ní přiřaďte přílohy — buď jednotlivě, nebo hromadně v panelu „Hromadný přesun příloh“."
 
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 #: build/367.76ca1c322e0aa70c5367.js:1
 #: build/475.b8dc4db2ebfa829c08cd.js:1
 #: build/585.f2f2b136411f943af5e3.js:2
 msgid "Attachments"
 msgstr "Přílohy"
 
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 #: build/826.7911d876933d2eb1b5d2.js:3
 msgid "Move under"
 msgstr "Přesunout pod"
 
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 msgid "Folder Manager"
 msgstr "Správce složek"
 
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 msgid "Add folder"
 msgstr "Přidat složku"
 
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 msgid "Parent folder"
 msgstr "Nadřazená složka"
 
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 msgid "— None (top level) —"
 msgstr "— Žádná (nejvyšší úroveň) —"
 
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 msgid "Could not create folder."
 msgstr "Složku se nepodařilo vytvořit."
 
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 msgid "Assign attachment to a folder"
 msgstr "Přiřadit přílohu do složky"
 
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 msgid "Folders are assigned to media via the standard WordPress media library - select attachments there and use this taxonomy, or assign a single attachment by id here."
 msgstr "Složky se k médiím přiřazují přes standardní knihovnu médií WordPressu - vyberte tam přílohy a použijte tuto taxonomii, nebo zde přiřaďte jednu přílohu podle ID."
 
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 msgid "Attachment ID"
 msgstr "ID přílohy"
 
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 msgid "— Unassigned —"
 msgstr "— Nepřiřazeno —"
 
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 msgid "Assign"
 msgstr "Přiřadit"
 
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 msgid "Assigned."
 msgstr "Přiřazeno."
 
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 msgid "Could not assign attachment."
 msgstr "Přílohu se nepodařilo přiřadit."
 
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 msgid "Bulk move attachments"
 msgstr "Hromadný přesun příloh"
 
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 msgid "Paste multiple attachment IDs (separated by spaces, commas or new lines) and move them all to one folder at once. Choose \"Unassigned\" to remove them from any folder."
 msgstr "Vložte více ID příloh (oddělených mezerami, čárkami nebo novými řádky) a přesuňte je všechny najednou do jedné složky. Zvolte „Nepřiřazeno“ pro jejich odebrání ze všech složek."
 
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 msgid "Attachment IDs"
 msgstr "ID příloh"
 
 #. translators: %d: number of attachments selected.
-#: build/93.efc4d3d112fbe74aa180.js:4
+#: build/93.9dedf701b8e9ee0662b2.js:4
 msgid "Move"
 msgstr "Přesunout"
 
 #. translators: %d: number of attachments moved.
-#: build/93.efc4d3d112fbe74aa180.js:6
+#: build/93.9dedf701b8e9ee0662b2.js:6
 msgid "Moved"
 msgstr "Přesunuto"
 
 #: includes/Core/Migration/AbstractSource.php:718
-#: build/93.efc4d3d112fbe74aa180.js:6
+#: build/93.9dedf701b8e9ee0662b2.js:6
 msgid "Skipped"
 msgstr "Přeskočeno"
 
-#: build/93.efc4d3d112fbe74aa180.js:6
+#: build/93.9dedf701b8e9ee0662b2.js:6
 msgid "Could not move attachments."
 msgstr "Přílohy se nepodařilo přesunout."
 
@@ -9320,7 +9332,7 @@ msgstr "Příspěvky v mezipaměti"
 msgid "Regenerate all"
 msgstr "Znovu vygenerovat vše"
 
-#: includes/Modules/DuplicatePost/Module.php:154
+#: includes/Modules/DuplicatePost/Module.php:189
 #: build/148.9b3ad52ed565b681be7b.js:1
 #: build/244.8601386a2d8cadd7df59.js:1
 #: build/295.a870471d1a0caf081ee0.js:1
@@ -9379,7 +9391,7 @@ msgid "Re-run analysis"
 msgstr "Spustit analýzu znovu"
 
 #: build/158.a38037a721ac17323fc3.js:1
-#: build/index.a7ec759b7f8102833709.js:46
+#: build/index.c815c1cf214ea80e7185.js:46
 msgid "Check"
 msgstr "Kontrola"
 
@@ -9602,8 +9614,8 @@ msgstr "DISABLE_WP_CRON"
 #: build/213.eff6d51a1a2b43f3cce0.js:1
 #: build/295.a870471d1a0caf081ee0.js:1
 #: build/760.a403a73181fc3646da3e.js:1
-#: build/index.a7ec759b7f8102833709.js:15
-#: build/index.a7ec759b7f8102833709.js:17
+#: build/index.c815c1cf214ea80e7185.js:15
+#: build/index.c815c1cf214ea80e7185.js:17
 msgid "Enabled"
 msgstr "Zapnuto"
 
@@ -9697,7 +9709,7 @@ msgstr "Argumenty"
 #: build/474.12fceb2e478085fb674a.js:1
 #: build/475.b8dc4db2ebfa829c08cd.js:1
 #: build/718.4fd39daff4cb161baabb.js:2
-#: build/index.a7ec759b7f8102833709.js:14
+#: build/index.c815c1cf214ea80e7185.js:14
 msgid "Actions"
 msgstr "Akce"
 
@@ -9800,7 +9812,7 @@ msgstr "Vlastní pole (meta)"
 msgid "Taxonomy"
 msgstr "Taxonomie"
 
-#: includes/Core/Migration/Sources/MaintenanceSource.php:67
+#: includes/Core/Migration/Sources/MaintenanceSource.php:69
 #: build/213.eff6d51a1a2b43f3cce0.js:1
 #: build/295.a870471d1a0caf081ee0.js:1
 #: build/585.f2f2b136411f943af5e3.js:2
@@ -10031,8 +10043,8 @@ msgstr "Vyžadováno přihlášení"
 #: includes/Modules/SecurityOptimization/TwoFactor.php:437
 #: build/244.8601386a2d8cadd7df59.js:1
 #: build/760.a403a73181fc3646da3e.js:1
-#: build/index.a7ec759b7f8102833709.js:12
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:12
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "Copied"
 msgstr "Zkopírováno"
 
@@ -10352,7 +10364,7 @@ msgstr "AI"
 
 #: build/295.a870471d1a0caf081ee0.js:1
 #: build/508.0ddf734b7e9092d61d10.js:16
-#: build/index.a7ec759b7f8102833709.js:40
+#: build/index.c815c1cf214ea80e7185.js:40
 msgid "Waiting"
 msgstr "Čeká"
 
@@ -10511,7 +10523,7 @@ msgstr "Zkopírujte text výše do pole popisu produktu."
 msgid "Bulk SEO fix"
 msgstr "Hromadná oprava SEO"
 
-#: build/93.efc4d3d112fbe74aa180.js:1
+#: build/93.9dedf701b8e9ee0662b2.js:1
 #: build/295.a870471d1a0caf081ee0.js:1
 #: build/585.f2f2b136411f943af5e3.js:2
 #: build/760.a403a73181fc3646da3e.js:1
@@ -10598,7 +10610,7 @@ msgstr "Vygenerovat popisky"
 #: build/585.f2f2b136411f943af5e3.js:2
 #: build/718.4fd39daff4cb161baabb.js:2
 #: build/760.a403a73181fc3646da3e.js:1
-#: build/index.a7ec759b7f8102833709.js:12
+#: build/index.c815c1cf214ea80e7185.js:12
 msgid "Copy"
 msgstr "Kopírovat"
 
@@ -10970,7 +10982,7 @@ msgstr "ID tokenu"
 msgid "User"
 msgstr "Uživatel"
 
-#: build/index.a7ec759b7f8102833709.js:14
+#: build/index.c815c1cf214ea80e7185.js:14
 msgid "Revoke"
 msgstr "Odvolat"
 
@@ -10998,11 +11010,11 @@ msgstr "Registrované nástroje a zdroje"
 msgid "These WordPress REST API endpoints are automatically exposed as MCP tools and resources. Tools let the AI perform actions (CRUD operations). Resources provide read-only context about the site."
 msgstr "Tyto endpointy WordPress REST API jsou automaticky zpřístupněny jako MCP nástroje a zdroje. Nástroje umožňují AI provádět akce (operace CRUD). Zdroje poskytují kontext o webu jen pro čtení."
 
-#: build/index.a7ec759b7f8102833709.js:16
+#: build/index.c815c1cf214ea80e7185.js:16
 msgid "Tools"
 msgstr "Nástroje"
 
-#: build/index.a7ec759b7f8102833709.js:15
+#: build/index.c815c1cf214ea80e7185.js:15
 msgid "Tool"
 msgstr "Nástroj"
 
@@ -11343,22 +11355,22 @@ msgstr "Přetáhněte sem soubor"
 msgid "Choose file(s)"
 msgstr "Vyberte soubor(y)"
 
-#: build/index.a7ec759b7f8102833709.js:1
+#: build/index.c815c1cf214ea80e7185.js:1
 msgid "Choose options"
 msgstr "Vyberte možnosti"
 
 #. translators: %d: number of selected options.
-#: build/index.a7ec759b7f8102833709.js:2
+#: build/index.c815c1cf214ea80e7185.js:2
 #, js-format
 msgid "%d selected"
 msgstr "Vybráno: %d"
 
 #: build/585.f2f2b136411f943af5e3.js:2
-#: build/index.a7ec759b7f8102833709.js:2
+#: build/index.c815c1cf214ea80e7185.js:2
 msgid "Options"
 msgstr "Možnosti"
 
-#: build/index.a7ec759b7f8102833709.js:2
+#: build/index.c815c1cf214ea80e7185.js:2
 msgid "Selected options"
 msgstr "Vybrané možnosti"
 
@@ -11480,8 +11492,8 @@ msgid "Add option"
 msgstr "Přidat možnost"
 
 #: build/585.f2f2b136411f943af5e3.js:2
-#: build/index.a7ec759b7f8102833709.js:1
-#: build/index.a7ec759b7f8102833709.js:16
+#: build/index.c815c1cf214ea80e7185.js:1
+#: build/index.c815c1cf214ea80e7185.js:16
 msgid "General"
 msgstr "Obecné"
 
@@ -12027,7 +12039,7 @@ msgstr "Odesláno"
 #: build/587.ac5f331947080b90a85e.js:1
 #: build/760.a403a73181fc3646da3e.js:1
 #: build/831.23583f4e1125feffb1f7.js:1
-#: build/index.a7ec759b7f8102833709.js:40
+#: build/index.c815c1cf214ea80e7185.js:40
 msgid "Failed"
 msgstr "Selhalo"
 
@@ -12184,7 +12196,7 @@ msgid "(reference)"
 msgstr "(reference)"
 
 #: build/457.86c22dc1788b1667e28e.js:1
-#: build/index.a7ec759b7f8102833709.js:11
+#: build/index.c815c1cf214ea80e7185.js:11
 msgid "Dismiss"
 msgstr "Skrýt"
 
@@ -13199,6 +13211,7 @@ msgid "e.g. Reports"
 msgstr "např. Reporty"
 
 #: includes/Modules/ReviewAggregator/Module.php:222
+#: build/93.9dedf701b8e9ee0662b2.js:1
 #: build/826.7911d876933d2eb1b5d2.js:3
 msgid "Order"
 msgstr "Pořadí"
@@ -13251,7 +13264,7 @@ msgstr "Popisek (volitelné)"
 msgid "(no label)"
 msgstr "(bez popisku)"
 
-#: build/index.a7ec759b7f8102833709.js:16
+#: build/index.c815c1cf214ea80e7185.js:16
 msgid "Menu Organizer"
 msgstr "Organizátor menu"
 
@@ -13298,7 +13311,7 @@ msgstr "Nový úkol…"
 
 #: includes/Modules/DashboardWidgets/ExtraWidgets.php:65
 #: build/976.585e9fadda2603544ab3.js:1
-#: build/index.a7ec759b7f8102833709.js:15
+#: build/index.c815c1cf214ea80e7185.js:15
 msgid "Notes"
 msgstr "Poznámky"
 
@@ -13352,24 +13365,24 @@ msgstr "AI panel spravuje dočasná oprávnění ke vzdálenému přístupu na v
 msgid "Open AI Panel"
 msgstr "Otevřít AI panel"
 
-#: build/index.a7ec759b7f8102833709.js:1
+#: build/index.c815c1cf214ea80e7185.js:1
 msgid "Select image"
 msgstr "Vybrat obrázek"
 
-#: build/index.a7ec759b7f8102833709.js:1
+#: build/index.c815c1cf214ea80e7185.js:1
 msgid "Change image"
 msgstr "Změnit obrázek"
 
-#: build/index.a7ec759b7f8102833709.js:1
+#: build/index.c815c1cf214ea80e7185.js:1
 msgid "— Select —"
 msgstr "— Vyberte —"
 
-#: build/index.a7ec759b7f8102833709.js:11
+#: build/index.c815c1cf214ea80e7185.js:11
 msgid "Failed to load modules."
 msgstr "Moduly se nepodařilo načíst."
 
-#: build/index.a7ec759b7f8102833709.js:11
-#: build/index.a7ec759b7f8102833709.js:46
+#: build/index.c815c1cf214ea80e7185.js:11
+#: build/index.c815c1cf214ea80e7185.js:46
 msgid "Modules"
 msgstr "Moduly"
 
@@ -13382,7 +13395,7 @@ msgid "List view"
 msgstr "Zobrazení seznamu"
 
 #. translators: %d: number of currently active modules.
-#: build/index.a7ec759b7f8102833709.js:12
+#: build/index.c815c1cf214ea80e7185.js:12
 #, js-format
 msgid "Deactivate %d active module?"
 msgid_plural "Deactivate all %d active modules?"
@@ -13390,18 +13403,18 @@ msgstr[0] "Deaktivovat %d aktivní modul?"
 msgstr[1] "Deaktivovat všechny %d aktivní moduly?"
 msgstr[2] "Deaktivovat všech %d aktivních modulů?"
 
-#: build/index.a7ec759b7f8102833709.js:12
+#: build/index.c815c1cf214ea80e7185.js:12
 msgid "Deactivate all modules"
 msgstr "Deaktivovat všechny moduly"
 
-#: build/index.a7ec759b7f8102833709.js:12
-#: build/index.a7ec759b7f8102833709.js:17
+#: build/index.c815c1cf214ea80e7185.js:12
+#: build/index.c815c1cf214ea80e7185.js:17
 msgid "Disable module"
 msgstr "Vypnout modul"
 
-#: build/index.a7ec759b7f8102833709.js:12
-#: build/index.a7ec759b7f8102833709.js:17
-#: build/index.a7ec759b7f8102833709.js:46
+#: build/index.c815c1cf214ea80e7185.js:12
+#: build/index.c815c1cf214ea80e7185.js:17
+#: build/index.c815c1cf214ea80e7185.js:46
 msgid "Enable module"
 msgstr "Zapnout modul"
 
@@ -13410,23 +13423,23 @@ msgstr "Zapnout modul"
 msgid "Configure"
 msgstr "Nastavit"
 
-#: build/index.a7ec759b7f8102833709.js:16
+#: build/index.c815c1cf214ea80e7185.js:16
 msgid "Switch to light mode"
 msgstr "Přepnout na světlý režim"
 
-#: build/index.a7ec759b7f8102833709.js:16
+#: build/index.c815c1cf214ea80e7185.js:16
 msgid "Switch to dark mode"
 msgstr "Přepnout na tmavý režim"
 
-#: build/index.a7ec759b7f8102833709.js:16
+#: build/index.c815c1cf214ea80e7185.js:16
 msgid "About"
 msgstr "O pluginu"
 
-#: build/index.a7ec759b7f8102833709.js:16
+#: build/index.c815c1cf214ea80e7185.js:16
 msgid "Plugin version"
 msgstr "Verze pluginu"
 
-#: build/index.a7ec759b7f8102833709.js:16
+#: build/index.c815c1cf214ea80e7185.js:16
 msgid "API version"
 msgstr "Verze API"
 
@@ -13434,19 +13447,19 @@ msgstr "Verze API"
 msgid "This module is turned off. Enable it on the Modules screen to use its settings."
 msgstr "Tento modul je vypnutý. Pro použití jeho nastavení jej zapněte na obrazovce Moduly."
 
-#: build/index.a7ec759b7f8102833709.js:46
+#: build/index.c815c1cf214ea80e7185.js:46
 msgid "Toggle dark mode"
 msgstr "Přepnout tmavý režim"
 
-#: build/index.a7ec759b7f8102833709.js:46
+#: build/index.c815c1cf214ea80e7185.js:46
 msgid "Light mode"
 msgstr "Světlý režim"
 
-#: build/index.a7ec759b7f8102833709.js:46
+#: build/index.c815c1cf214ea80e7185.js:46
 msgid "Dark mode"
 msgstr "Tmavý režim"
 
-#: build/index.a7ec759b7f8102833709.js:46
+#: build/index.c815c1cf214ea80e7185.js:46
 msgid "UX Studio navigation"
 msgstr "Navigace UX Studio"
 
@@ -14859,40 +14872,40 @@ msgstr "Pouze pro přihlášené uživatele"
 msgid "Files are listed at the end of the content automatically, or place them with %s."
 msgstr "Soubory se vypíšou automaticky na konci obsahu, nebo je umístěte pomocí %s."
 
-#: includes/Modules/DuplicatePost/Module.php:156
+#: includes/Modules/DuplicatePost/Module.php:191
 #: build/541.46ac39317ab1a5a12a26.js:1
 msgid "Duplicating..."
 msgstr "Duplikuji..."
 
-#: includes/Modules/DuplicatePost/Module.php:157
+#: includes/Modules/DuplicatePost/Module.php:192
 msgid "Post duplicated successfully"
 msgstr "Příspěvek byl úspěšně duplikován"
 
-#: includes/Modules/DuplicatePost/Module.php:158
+#: includes/Modules/DuplicatePost/Module.php:193
 msgid "Duplication failed. Please try again."
 msgstr "Duplikace se nezdařila. Zkuste to prosím znovu."
 
-#: includes/Modules/DuplicatePost/Module.php:159
+#: includes/Modules/DuplicatePost/Module.php:194
 msgid "Invalid response from server"
 msgstr "Neplatná odpověď ze serveru"
 
-#: includes/Modules/DuplicatePost/Module.php:160
+#: includes/Modules/DuplicatePost/Module.php:195
 msgid "Duplicate Options"
 msgstr "Možnosti duplikace"
 
-#: includes/Modules/DuplicatePost/Module.php:161
+#: includes/Modules/DuplicatePost/Module.php:196
 msgid "Select which elements to include in the duplicate."
 msgstr "Vyberte, které prvky se mají zahrnout do kopie."
 
-#: includes/Modules/DuplicatePost/Module.php:163
+#: includes/Modules/DuplicatePost/Module.php:198
 msgid "Select All"
 msgstr "Vybrat vše"
 
-#: includes/Modules/DuplicatePost/Module.php:164
+#: includes/Modules/DuplicatePost/Module.php:199
 msgid "Deselect All"
 msgstr "Zrušit výběr"
 
-#: includes/Modules/DuplicatePost/Module.php:221
+#: includes/Modules/DuplicatePost/Module.php:256
 msgid "Duplicate Product"
 msgstr "Duplikovat produkt"
 
@@ -14939,8 +14952,8 @@ msgid "Exporting..."
 msgstr "Exportuji..."
 
 #: includes/Modules/FolderManager/AdminIntegration.php:183
-#: includes/Modules/FolderManager/AdminIntegration.php:491
-#: includes/Modules/FolderManager/AdminIntegration.php:667
+#: includes/Modules/FolderManager/AdminIntegration.php:495
+#: includes/Modules/FolderManager/AdminIntegration.php:671
 msgid "Uncategorized"
 msgstr "Nezařazeno"
 
@@ -14980,16 +14993,16 @@ msgstr "Sbalit"
 msgid "Folder to move the selected items to"
 msgstr "Složka, do které se přesunou vybrané položky"
 
-#: includes/Modules/FolderManager/AdminIntegration.php:422
+#: includes/Modules/FolderManager/AdminIntegration.php:426
 msgid "Select a folder for this item."
 msgstr "Vyberte složku pro tuto položku."
 
-#: includes/Modules/FolderManager/AdminIntegration.php:523
+#: includes/Modules/FolderManager/AdminIntegration.php:527
 msgid "Move to folder"
 msgstr "Přesunout do složky"
 
 #. translators: %d: number of items.
-#: includes/Modules/FolderManager/AdminIntegration.php:581
+#: includes/Modules/FolderManager/AdminIntegration.php:585
 #, php-format
 msgid "%d item moved to the folder."
 msgid_plural "%d items moved to the folder."
@@ -14998,7 +15011,7 @@ msgstr[1] "%d položky byly přesunuty do složky."
 msgstr[2] "%d položek bylo přesunuto do složky."
 
 #. translators: %d: number of items.
-#: includes/Modules/FolderManager/AdminIntegration.php:594
+#: includes/Modules/FolderManager/AdminIntegration.php:598
 #, php-format
 msgid "%d item could not be moved."
 msgid_plural "%d items could not be moved."
@@ -15006,34 +15019,34 @@ msgstr[0] "%d položku se nepodařilo přesunout."
 msgstr[1] "%d položky se nepodařilo přesunout."
 msgstr[2] "%d položek se nepodařilo přesunout."
 
-#: includes/Modules/FolderManager/Module.php:128
+#: includes/Modules/FolderManager/Module.php:134
 msgid "Select which post types get a folder tree. Each post type has its own, independent folders."
 msgstr "Vyberte, které typy obsahu dostanou strom složek. Každý typ obsahu má vlastní, nezávislé složky."
 
-#: includes/Modules/FolderManager/Module.php:135
+#: includes/Modules/FolderManager/Module.php:141
 msgid "Show folder counts"
 msgstr "Zobrazit počty ve složkách"
 
-#: includes/Modules/FolderManager/Module.php:136
+#: includes/Modules/FolderManager/Module.php:142
 msgid "Display item counts next to folder names."
 msgstr "Zobrazit počty položek vedle názvů složek."
 
-#: includes/Modules/FolderManager/Module.php:435
-#: includes/Modules/FolderManager/RestController.php:204
+#: includes/Modules/FolderManager/Module.php:605
+#: includes/Modules/FolderManager/RestController.php:261
 msgid "Folders are not enabled for this post type."
 msgstr "Složky nejsou pro tento typ obsahu zapnuté."
 
-#: includes/Modules/FolderManager/Module.php:444
-#: includes/Modules/FolderManager/Module.php:592
+#: includes/Modules/FolderManager/Module.php:614
+#: includes/Modules/FolderManager/Module.php:764
 msgid "Parent folder must belong to the same post type."
 msgstr "Nadřazená složka musí patřit ke stejnému typu obsahu."
 
-#: includes/Modules/FolderManager/Module.php:705
+#: includes/Modules/FolderManager/Module.php:881
 #: includes/Modules/ImageOptimizer/MediaLibrary.php:375
 msgid "You are not allowed to edit this item."
 msgstr "Nemáte oprávnění upravit tuto položku."
 
-#: includes/Modules/FolderManager/Module.php:714
+#: includes/Modules/FolderManager/Module.php:890
 msgid "Selected folder does not belong to this post type."
 msgstr "Vybraná složka nepatří k tomuto typu obsahu."
 
@@ -15195,7 +15208,7 @@ msgid "Filter"
 msgstr "Filtrovat"
 
 #: includes/Modules/NoticeBoard/Module.php:1399
-#: build/index.a7ec759b7f8102833709.js:1
+#: build/index.c815c1cf214ea80e7185.js:1
 msgid "Reset"
 msgstr "Obnovit"
 
@@ -16301,12 +16314,15 @@ msgstr "Sběr e-mailů"
 msgid "Targeting"
 msgstr "Cílení"
 
-#: includes/Modules/MaintenanceMode/Module.php:364
-#: includes/Modules/MaintenanceMode/Module.php:377
-#: includes/Modules/MaintenanceMode/Module.php:389
-#: includes/Modules/MaintenanceMode/Module.php:402
-#: includes/Modules/MaintenanceMode/Module.php:411
-#: includes/Modules/MaintenanceMode/Module.php:423
+#: includes/Modules/MaintenanceMode/Module.php:447
+#: includes/Modules/MaintenanceMode/Module.php:460
+#: includes/Modules/MaintenanceMode/Module.php:472
+#: includes/Modules/MaintenanceMode/Module.php:485
+#: includes/Modules/MaintenanceMode/Module.php:494
+#: includes/Modules/MaintenanceMode/Module.php:506
+#: includes/Modules/MaintenanceMode/Module.php:515
+#: includes/Modules/MaintenanceMode/Module.php:523
+#: includes/Modules/MaintenanceMode/Module.php:531
 msgid "Access"
 msgstr "Přístup"
 
@@ -16378,48 +16394,48 @@ msgstr "Editoři a administrátoři"
 msgid "Anyone who can publish (incl. Authors)"
 msgstr "Kdokoli, kdo smí publikovat (vč. autorů)"
 
-#: build/index.a7ec759b7f8102833709.js:1
+#: build/index.c815c1cf214ea80e7185.js:1
 msgid "Default"
 msgstr "Výchozí"
 
-#: build/index.a7ec759b7f8102833709.js:11
+#: build/index.c815c1cf214ea80e7185.js:11
 msgid "Administration"
 msgstr "Administrace"
 
-#: build/index.a7ec759b7f8102833709.js:12
+#: build/index.c815c1cf214ea80e7185.js:12
 msgid "Search modules…"
 msgstr "Hledat moduly…"
 
-#: build/index.a7ec759b7f8102833709.js:12
+#: build/index.c815c1cf214ea80e7185.js:12
 msgid "Search modules"
 msgstr "Hledat moduly"
 
-#: build/index.a7ec759b7f8102833709.js:12
+#: build/index.c815c1cf214ea80e7185.js:12
 msgid "Module group"
 msgstr "Skupina modulů"
 
-#: build/index.a7ec759b7f8102833709.js:12
+#: build/index.c815c1cf214ea80e7185.js:12
 msgid "All statuses"
 msgstr "Všechny stavy"
 
 #. translators: %d: number of enabled modules.
-#: build/index.a7ec759b7f8102833709.js:12
+#: build/index.c815c1cf214ea80e7185.js:12
 #, js-format
 msgid "Enabled (%d)"
 msgstr "Zapnuté (%d)"
 
 #. translators: %d: number of disabled modules.
-#: build/index.a7ec759b7f8102833709.js:12
+#: build/index.c815c1cf214ea80e7185.js:12
 #, js-format
 msgid "Disabled (%d)"
 msgstr "Vypnuté (%d)"
 
-#: build/index.a7ec759b7f8102833709.js:12
+#: build/index.c815c1cf214ea80e7185.js:12
 msgid "No module matches the filter."
 msgstr "Filtru neodpovídá žádný modul."
 
 #. translators: 1: enabled features, 2: all features in the group.
-#: build/index.a7ec759b7f8102833709.js:17
+#: build/index.c815c1cf214ea80e7185.js:17
 #, js-format
 msgid "%1$d of %2$d on"
 msgstr "%1$d z %2$d zapnuto"
@@ -16593,7 +16609,7 @@ msgstr "Nejprve potvrďte, že rozumíte rizikům změny DNS."
 msgid "To change DNS, please log in again (your last login is older than 15 minutes)."
 msgstr "Pro změnu DNS se prosím znovu přihlaste (poslední přihlášení je starší než 15 minut)."
 
-#: includes/Modules/DuplicatePost/Duplicator.php:75
+#: includes/Modules/DuplicatePost/Duplicator.php:84
 msgid "Invalid post type."
 msgstr "Neplatný typ obsahu."
 
@@ -16689,8 +16705,8 @@ msgstr "Pro potvrzení opište název záznamu: %s"
 #: includes/Modules/DashboardWidgets/ExtraWidgets.php:271
 #: build/81.95b5f8bd70979be35f73.js:3
 #: build/508.0ddf734b7e9092d61d10.js:10
-#: build/index.a7ec759b7f8102833709.js:1
-#: build/index.a7ec759b7f8102833709.js:43
+#: build/index.c815c1cf214ea80e7185.js:1
+#: build/index.c815c1cf214ea80e7185.js:43
 msgid "Saving…"
 msgstr "Ukládám…"
 
@@ -18000,7 +18016,7 @@ msgid "No AI bot has accessed the markdown endpoints yet."
 msgstr "Žádný AI bot zatím markdown verze nenavštívil."
 
 #: build/148.9b3ad52ed565b681be7b.js:1
-#: build/index.a7ec759b7f8102833709.js:38
+#: build/index.c815c1cf214ea80e7185.js:38
 msgid "Select all"
 msgstr "Vybrat vše"
 
@@ -18538,12 +18554,12 @@ msgstr "Zatím nic nesesbíráno. Přepněte CSP na Inventuru a zjistěte, co we
 msgid "No sources reported yet. Browsers report them as visitors open pages - give it a few hours."
 msgstr "Zatím nebyl nahlášen žádný zdroj. Prohlížeče je hlásí, jak návštěvníci otevírají stránky - počkejte pár hodin."
 
-#: build/index.a7ec759b7f8102833709.js:46
+#: build/index.c815c1cf214ea80e7185.js:46
 msgid "This module is turned off. Enable it to use its settings."
 msgstr "Tento modul je vypnutý. Zapněte ho, abyste mohli použít jeho nastavení."
 
-#: build/index.a7ec759b7f8102833709.js:10
-#: build/index.a7ec759b7f8102833709.js:46
+#: build/index.c815c1cf214ea80e7185.js:10
+#: build/index.c815c1cf214ea80e7185.js:46
 msgid "Enabling…"
 msgstr "Zapínám…"
 
@@ -18674,86 +18690,86 @@ msgstr "CAPTCHA při přihlášení"
 msgid "HTTPS & security headers"
 msgstr "HTTPS a bezpečnostní hlavičky"
 
-#: build/index.a7ec759b7f8102833709.js:2
+#: build/index.c815c1cf214ea80e7185.js:2
 msgid "Full overlap"
 msgstr "Úplné překrytí"
 
-#: build/index.a7ec759b7f8102833709.js:2
+#: build/index.c815c1cf214ea80e7185.js:2
 msgid "Partial overlap, can be migrated"
 msgstr "Částečné překrytí, lze migrovat"
 
-#: build/index.a7ec759b7f8102833709.js:2
+#: build/index.c815c1cf214ea80e7185.js:2
 msgid "Partial overlap"
 msgstr "Částečné překrytí"
 
 #. translators: 1: plugin name, 2: UX Studio module name.
-#: build/index.a7ec759b7f8102833709.js:3
+#: build/index.c815c1cf214ea80e7185.js:3
 msgid "%1$s does the same job as the module \"%2$s\". Running both can conflict - deactivate the plugin or switch the module off."
 msgstr "%1$s dělá stejnou práci jako modul \"%2$s\". Souběh obou může způsobit konflikt - deaktivujte plugin, nebo modul vypněte."
 
 #. translators: 1: plugin name, 2: UX Studio module name.
-#: build/index.a7ec759b7f8102833709.js:4
+#: build/index.c815c1cf214ea80e7185.js:4
 msgid "%1$s covers part of what the module \"%2$s\" does. Both can run, but check that they do not change the same screens."
 msgstr "%1$s pokrývá část toho, co dělá modul \"%2$s\". Oba mohou běžet, ale ověřte, že nemění stejné obrazovky."
 
 #. translators: 1: plugin name, 2: UX Studio module name.
-#: build/index.a7ec759b7f8102833709.js:5
+#: build/index.c815c1cf214ea80e7185.js:5
 msgid "%1$s overlaps only partly with the module \"%2$s\". Both can run side by side; this is for your information."
 msgstr "%1$s se s modulem \"%2$s\" překrývá jen částečně. Oba mohou běžet vedle sebe, uvádíme to pro vaši informaci."
 
-#: build/index.a7ec759b7f8102833709.js:5
+#: build/index.c815c1cf214ea80e7185.js:5
 msgid "Plugin conflicts"
 msgstr "Konflikty pluginů"
 
-#: build/index.a7ec759b7f8102833709.js:5
-#: build/index.a7ec759b7f8102833709.js:8
-#: build/index.a7ec759b7f8102833709.js:10
+#: build/index.c815c1cf214ea80e7185.js:5
+#: build/index.c815c1cf214ea80e7185.js:8
+#: build/index.c815c1cf214ea80e7185.js:10
 msgid "Open plugins"
 msgstr "Otevřít pluginy"
 
-#: build/index.a7ec759b7f8102833709.js:5
-#: build/index.a7ec759b7f8102833709.js:8
+#: build/index.c815c1cf214ea80e7185.js:5
+#: build/index.c815c1cf214ea80e7185.js:8
 msgid "Ignore"
 msgstr "Ignorovat"
 
 #. translators: %d: number of ignored plugin conflicts.
-#: build/index.a7ec759b7f8102833709.js:6
+#: build/index.c815c1cf214ea80e7185.js:6
 msgid "Ignored conflicts (%d)"
 msgstr "Ignorované konflikty (%d)"
 
-#: build/index.a7ec759b7f8102833709.js:6
+#: build/index.c815c1cf214ea80e7185.js:6
 msgid "Show again"
 msgstr "Zobrazit znovu"
 
 #. translators: %s: comma-separated plugin names.
-#: build/index.a7ec759b7f8102833709.js:7
+#: build/index.c815c1cf214ea80e7185.js:7
 msgid "An active plugin does the same job as this module: %s. Running both can conflict."
 msgstr "Aktivní plugin dělá stejnou práci jako tento modul: %s. Souběh obou může způsobit konflikt."
 
 #. translators: %s: comma-separated plugin names.
-#: build/index.a7ec759b7f8102833709.js:8
+#: build/index.c815c1cf214ea80e7185.js:8
 msgid "An active plugin partly overlaps with this module: %s."
 msgstr "Aktivní plugin se s tímto modulem částečně překrývá: %s."
 
-#: build/index.a7ec759b7f8102833709.js:8
+#: build/index.c815c1cf214ea80e7185.js:8
 msgid "This module overlaps with an active plugin"
 msgstr "Tento modul se překrývá s aktivním pluginem"
 
-#: build/index.a7ec759b7f8102833709.js:8
+#: build/index.c815c1cf214ea80e7185.js:8
 msgid "The module cannot be enabled yet"
 msgstr "Modul zatím nelze zapnout"
 
 #. translators: %s: module name.
-#: build/index.a7ec759b7f8102833709.js:9
+#: build/index.c815c1cf214ea80e7185.js:9
 msgid "The module \"%s\" covers part of what the plugin below already does. You can enable it anyway, but both will run and may change the same screens."
 msgstr "Modul \"%s\" pokrývá část toho, co už dělá plugin níže. Můžete ho zapnout i tak, ale poběží oba a mohou měnit stejné obrazovky."
 
 #. translators: %s: module name.
-#: build/index.a7ec759b7f8102833709.js:10
+#: build/index.c815c1cf214ea80e7185.js:10
 msgid "The module \"%s\" does the same job as the plugin below. Two things doing one job conflict with each other, so UX Studio did not enable it. Deactivate the plugin first, then enable the module."
 msgstr "Modul \"%s\" dělá stejnou práci jako plugin níže. Dvě věci s jedním úkolem se navzájem ruší, proto UX Studio modul nezapnulo. Nejdřív plugin deaktivujte, pak modul zapněte."
 
-#: build/index.a7ec759b7f8102833709.js:10
+#: build/index.c815c1cf214ea80e7185.js:10
 msgid "Enable anyway"
 msgstr "Zapnout i tak"
 
@@ -18907,18 +18923,18 @@ msgstr "Vzhled widgetu (motiv, velikost, jazyk), záložní režim a seznamy vý
 #: includes/Core/Migration/Sources/AdminifySource.php:65
 #: includes/Core/Migration/Sources/AdminimizeSource.php:95
 #: includes/Core/Migration/Sources/CaptchaSource.php:146
-#: includes/Core/Migration/Sources/ClassicEditorSource.php:48
+#: includes/Core/Migration/Sources/ClassicEditorSource.php:49
 #: includes/Core/Migration/Sources/DisableCommentsSource.php:55
-#: includes/Core/Migration/Sources/ExternalLinksSource.php:34
+#: includes/Core/Migration/Sources/ExternalLinksSource.php:39
 #: includes/Core/Migration/Sources/HideAdminBarSource.php:34
 #: includes/Core/Migration/Sources/LoginPressSource.php:46
 #: includes/Core/Migration/Sources/LoginSource.php:103
 #: includes/Core/Migration/Sources/LoginSource.php:145
 #: includes/Core/Migration/Sources/LoginSource.php:310
-#: includes/Core/Migration/Sources/MaintenanceSource.php:109
-#: includes/Core/Migration/Sources/MaintenanceSource.php:145
-#: includes/Core/Migration/Sources/MaintenanceSource.php:179
-#: includes/Core/Migration/Sources/MaintenanceSource.php:207
+#: includes/Core/Migration/Sources/MaintenanceSource.php:161
+#: includes/Core/Migration/Sources/MaintenanceSource.php:264
+#: includes/Core/Migration/Sources/MaintenanceSource.php:313
+#: includes/Core/Migration/Sources/MaintenanceSource.php:378
 #: includes/Core/Migration/Sources/PostTypeOrderSource.php:66
 #: includes/Core/Migration/Sources/SmtpSource.php:321
 #: includes/Core/Migration/Sources/SvgSource.php:38
@@ -18953,15 +18969,16 @@ msgstr "Vlastní přihlašovací adresa tohoto pluginu se nepřenáší."
 msgid "The country blocking of this plugin is not transferred, set it in the Firewall of Security Optimization."
 msgstr "Blokování zemí tohoto pluginu se nepřenáší, nastavte ho ve Firewallu v modulu Zabezpečení."
 
-#: includes/Core/Migration/Sources/ClassicEditorSource.php:55
+#: includes/Core/Migration/Sources/ClassicEditorSource.php:67
 msgid "The plugin keeps the block editor as the default editor. The module would force the classic editor, so nothing is transferred - do not switch the module on if you want to keep the block editor."
 msgstr "Plugin ponechává jako výchozí blokový editor. Modul by vynutil klasický editor, proto se nic nepřenáší - modul nezapínejte, pokud chcete blokový editor zachovat."
 
-#: includes/Core/Migration/Sources/ClassicEditorSource.php:57
+#: includes/Core/Migration/Sources/ClassicEditorSource.php:60
+#: includes/Core/Migration/Sources/ClassicEditorSource.php:69
 msgid "Post types (none selected = all)"
 msgstr "Typy obsahu (nevybráno = všechny)"
 
-#: includes/Core/Migration/Sources/ClassicEditorSource.php:58
+#: includes/Core/Migration/Sources/ClassicEditorSource.php:72
 msgid "The plugin replaces the block editor everywhere; the module does the same for all post types."
 msgstr "Plugin nahrazuje blokový editor všude, modul dělá totéž pro všechny typy obsahu."
 
@@ -18997,12 +19014,12 @@ msgstr "Pravidla pro jednotlivé typy komentářů (pingbacky, trackbacky, vlast
 msgid "Network (multisite) settings are not transferred."
 msgstr "Nastavení sítě (multisite) se nepřenáší."
 
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:46
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:72
 msgid "The plugin has no stored settings, the module keeps its defaults."
 msgstr "Plugin nemá uložená žádná nastavení, modul zůstává na výchozích hodnotách."
 
 #. translators: %s: post status.
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:77
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:103
 msgid "The status \"%s\" is not offered by the module, the module keeps its own."
 msgstr "Stav „%s“ modul nenabízí, ponechá si vlastní."
 
@@ -19015,24 +19032,24 @@ msgstr "Plugin nabízí duplikaci u každého typu obsahu s výpisem, modul jen 
 msgid "The copy status \"%s\" (same as the original or scheduled) does not exist in the module, it uses a fixed status."
 msgstr "Stav kopie „%s“ (stejný jako originál nebo naplánováno) v modulu neexistuje, používá pevný stav."
 
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:142
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:189
 msgid "post type of the copy"
 msgstr "typ obsahu kopie"
 
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:145
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:192
 msgid "date of the copy"
 msgstr "datum kopie"
 
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:148
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:195
 msgid "author of the copy"
 msgstr "autor kopie"
 
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:151
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:198
 msgid "suffix of the slug"
 msgstr "přípona odkazu (slug)"
 
 #. translators: %s: comma-separated list of plugin features.
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:157
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:204
 #: includes/Core/Migration/Sources/SvgSource.php:95
 msgid "Not available in the module: %s."
 msgstr "V modulu nedostupné: %s."
@@ -19041,44 +19058,44 @@ msgstr "V modulu nedostupné: %s."
 msgid "The plugin gives the copy the same status as the original. The module uses one fixed status (draft unless you change it)."
 msgstr "Plugin dává kopii stejný stav jako má originál. Modul používá jeden pevný stav (koncept, pokud ho nezměníte)."
 
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:213
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:294
 msgid "publish date"
 msgstr "datum publikace"
 
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:214
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:295
 msgid "slug"
 msgstr "odkaz (slug)"
 
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:215
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:296
 msgid "author"
 msgstr "autor"
 
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:216
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:297
 msgid "password"
 msgstr "heslo"
 
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:217
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:298
 msgid "post format"
 msgstr "formát příspěvku"
 
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:218
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:299
 msgid "page template"
 msgstr "šablona stránky"
 
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:219
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:300
 msgid "attachments"
 msgstr "přílohy"
 
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:220
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:301
 msgid "child pages"
 msgstr "podřízené stránky"
 
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:221
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:302
 msgid "comments"
 msgstr "komentáře"
 
 #. translators: %s: comma-separated list of things the plugin copies.
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:231
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:312
 msgid "The plugin also copies these, the module does not: %s."
 msgstr "Plugin kopíruje i toto, modul ne: %s."
 
@@ -19090,7 +19107,7 @@ msgstr "Seznam vlastních polí, která se nekopírují, se nepřenáší - modu
 msgid "The list of taxonomies that are not copied is not transferred - the module copies all taxonomies."
 msgstr "Seznam taxonomií, které se nekopírují, se nepřenáší - modul kopíruje všechny taxonomie."
 
-#: includes/Core/Migration/Sources/DuplicatePostSource.php:243
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:318
 msgid "Increasing the menu order of copies is not available in the module."
 msgstr "Zvyšování pořadí v menu u kopií modul nenabízí."
 
@@ -19285,113 +19302,113 @@ msgstr "Vypínání jednotlivých metod XML-RPC modul nenabízí, vypíná XML-R
 msgid "The .htaccess protection and the IP lists of the plugin are not transferred."
 msgstr "Ochrana přes .htaccess a seznamy IP adres z pluginu se nepřenášejí."
 
-#: build/index.a7ec759b7f8102833709.js:2
+#: build/index.c815c1cf214ea80e7185.js:2
 msgid "Start the migration wizard"
 msgstr "Spustit průvodce migrací"
 
-#: build/index.a7ec759b7f8102833709.js:17
+#: build/index.c815c1cf214ea80e7185.js:17
 msgid "No settings to transfer"
 msgstr "Žádná nastavení k přenesení"
 
 #. translators: %d: number of settings.
-#: build/index.a7ec759b7f8102833709.js:18
+#: build/index.c815c1cf214ea80e7185.js:18
 msgid "%d setting"
 msgid_plural "%d settings"
 msgstr[0] "%d nastavení"
 msgstr[1] "%d nastavení"
 msgstr[2] "%d nastavení"
 
-#: build/index.a7ec759b7f8102833709.js:19
+#: build/index.c815c1cf214ea80e7185.js:19
 msgid "Plugin removed, settings remain"
 msgstr "Plugin odstraněn, nastavení zůstala"
 
-#: build/index.a7ec759b7f8102833709.js:19
+#: build/index.c815c1cf214ea80e7185.js:19
 msgid "Full match"
 msgstr "Plná shoda"
 
-#: build/index.a7ec759b7f8102833709.js:19
+#: build/index.c815c1cf214ea80e7185.js:19
 msgid "Partial match"
 msgstr "Částečná shoda"
 
-#: build/index.a7ec759b7f8102833709.js:19
+#: build/index.c815c1cf214ea80e7185.js:19
 msgid "Will be transferred"
 msgstr "Přenese se"
 
-#: build/index.a7ec759b7f8102833709.js:19
-#: build/index.a7ec759b7f8102833709.js:40
+#: build/index.c815c1cf214ea80e7185.js:19
+#: build/index.c815c1cf214ea80e7185.js:40
 msgid "Nothing to transfer."
 msgstr "Není co přenášet."
 
-#: build/index.a7ec759b7f8102833709.js:19
-#: build/index.a7ec759b7f8102833709.js:40
+#: build/index.c815c1cf214ea80e7185.js:19
+#: build/index.c815c1cf214ea80e7185.js:40
 msgid "Will not be transferred"
 msgstr "Nepřenese se"
 
-#: build/index.a7ec759b7f8102833709.js:19
+#: build/index.c815c1cf214ea80e7185.js:19
 msgid "Nothing is lost."
 msgstr "Nic se neztratí."
 
-#: build/index.a7ec759b7f8102833709.js:20
+#: build/index.c815c1cf214ea80e7185.js:20
 msgid "Setting"
 msgstr "Nastavení"
 
-#: build/index.a7ec759b7f8102833709.js:20
+#: build/index.c815c1cf214ea80e7185.js:20
 msgid "Now in UX Studio"
 msgstr "Teď v UX Studiu"
 
-#: build/index.a7ec759b7f8102833709.js:20
+#: build/index.c815c1cf214ea80e7185.js:20
 msgid "After migration"
 msgstr "Po migraci"
 
-#: build/index.a7ec759b7f8102833709.js:20
+#: build/index.c815c1cf214ea80e7185.js:20
 msgid "no change"
 msgstr "beze změny"
 
-#: build/index.a7ec759b7f8102833709.js:20
+#: build/index.c815c1cf214ea80e7185.js:20
 msgid "The module does not accept the whole value."
 msgstr "Modul nepřijímá celou hodnotu."
 
-#: build/index.a7ec759b7f8102833709.js:23
+#: build/index.c815c1cf214ea80e7185.js:23
 msgid "Undone"
 msgstr "Vráceno"
 
-#: build/index.a7ec759b7f8102833709.js:23
+#: build/index.c815c1cf214ea80e7185.js:23
 msgid "With errors"
 msgstr "S chybami"
 
-#: build/index.a7ec759b7f8102833709.js:23
+#: build/index.c815c1cf214ea80e7185.js:23
 msgid "Finished"
 msgstr "Dokončeno"
 
-#: build/index.a7ec759b7f8102833709.js:23
-#: build/index.a7ec759b7f8102833709.js:35
-#: build/index.a7ec759b7f8102833709.js:46
+#: build/index.c815c1cf214ea80e7185.js:23
+#: build/index.c815c1cf214ea80e7185.js:35
+#: build/index.c815c1cf214ea80e7185.js:46
 msgid "Run history"
 msgstr "Historie běhů"
 
-#: build/index.a7ec759b7f8102833709.js:23
+#: build/index.c815c1cf214ea80e7185.js:23
 msgid "No migration has been run yet."
 msgstr "Zatím nebyla spuštěna žádná migrace."
 
 #. translators: %s: date until which the migration can be undone.
-#: build/index.a7ec759b7f8102833709.js:26
+#: build/index.c815c1cf214ea80e7185.js:26
 msgid "Can be undone until %s"
 msgstr "Lze vrátit do %s"
 
-#: build/index.a7ec759b7f8102833709.js:26
+#: build/index.c815c1cf214ea80e7185.js:26
 msgid "Undo"
 msgstr "Vrátit"
 
-#: build/index.a7ec759b7f8102833709.js:26
+#: build/index.c815c1cf214ea80e7185.js:26
 msgid "Settings restored"
 msgstr "Nastavení obnovena"
 
-#: build/index.a7ec759b7f8102833709.js:26
+#: build/index.c815c1cf214ea80e7185.js:26
 msgid "The snapshot is no longer kept"
 msgstr "Snímek se už neuchovává"
 
-#: build/index.a7ec759b7f8102833709.js:26
-#: build/index.a7ec759b7f8102833709.js:44
+#: build/index.c815c1cf214ea80e7185.js:26
+#: build/index.c815c1cf214ea80e7185.js:44
 msgid "Undo this migration?"
 msgstr "Vrátit tuto migraci?"
 
@@ -19400,27 +19417,27 @@ msgstr "Vrátit tuto migraci?"
 msgid "UX Studio settings go back exactly to how they were before the run from %s. Changes made in these modules since then are lost."
 msgstr "Nastavení UX Studia se vrátí přesně do stavu před během z %s. Změny provedené v těchto modulech od té doby se ztratí."
 
-#: build/index.a7ec759b7f8102833709.js:27
-#: build/index.a7ec759b7f8102833709.js:35
-#: build/index.a7ec759b7f8102833709.js:44
+#: build/index.c815c1cf214ea80e7185.js:27
+#: build/index.c815c1cf214ea80e7185.js:35
+#: build/index.c815c1cf214ea80e7185.js:44
 msgid "Restoring…"
 msgstr "Obnovuji…"
 
-#: build/index.a7ec759b7f8102833709.js:27
-#: build/index.a7ec759b7f8102833709.js:44
+#: build/index.c815c1cf214ea80e7185.js:27
+#: build/index.c815c1cf214ea80e7185.js:44
 msgid "Undo the migration"
 msgstr "Vrátit migraci"
 
-#: build/index.a7ec759b7f8102833709.js:28
+#: build/index.c815c1cf214ea80e7185.js:28
 msgid "Migration steps"
 msgstr "Kroky migrace"
 
 #. translators: 1: step number, 2: step name.
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "Step %1$d: %2$s"
 msgstr "Krok %1$d: %2$s"
 
-#: build/index.a7ec759b7f8102833709.js:35
+#: build/index.c815c1cf214ea80e7185.js:35
 msgid "The wizard finds plugins on this site whose job a UX Studio module does as well."
 msgstr "Průvodce na tomto webu najde pluginy, jejichž práci umí i modul UX Studia."
 
@@ -19428,11 +19445,11 @@ msgstr "Průvodce na tomto webu najde pluginy, jejichž práci umí i modul UX S
 msgid "It only reads the plugins. Nothing in them changes, and nothing is switched on or deactivated."
 msgstr "Pluginy jen čte. Nic se v nich nemění a nic se nezapíná ani nevypíná."
 
-#: build/index.a7ec759b7f8102833709.js:35
+#: build/index.c815c1cf214ea80e7185.js:35
 msgid "Before the first write it saves a snapshot, so you can undo the whole migration for 30 days."
 msgstr "Před prvním zápisem uloží snímek, takže celou migraci můžete 30 dní vrátit zpět."
 
-#: build/index.a7ec759b7f8102833709.js:35
+#: build/index.c815c1cf214ea80e7185.js:35
 msgid "Move your settings to UX Studio"
 msgstr "Přeneste svá nastavení do UX Studia"
 
@@ -19444,58 +19461,58 @@ msgstr "Zkopírujte nastavení jiných pluginů do odpovídajících modulů UX 
 msgid "Switching to the module and deactivating the old plugin is a separate step that comes after a safe preview of the site (next version)."
 msgstr "Přepnutí na modul a vypnutí starého pluginu je samostatný krok, který přijde po bezpečném náhledu webu (příští verze)."
 
-#: build/index.a7ec759b7f8102833709.js:35
+#: build/index.c815c1cf214ea80e7185.js:35
 msgid "Scan the site"
 msgstr "Prohledat web"
 
 #. translators: 1: UX Studio module name, 2: "12 settings".
-#: build/index.a7ec759b7f8102833709.js:36
+#: build/index.c815c1cf214ea80e7185.js:36
 msgid "Module: %1$s - %2$s"
 msgstr "Modul: %1$s - %2$s"
 
-#: build/index.a7ec759b7f8102833709.js:36
+#: build/index.c815c1cf214ea80e7185.js:36
 msgid "Scan failed"
 msgstr "Prohledání selhalo"
 
-#: build/index.a7ec759b7f8102833709.js:36
+#: build/index.c815c1cf214ea80e7185.js:36
 msgid "Scanning the site…"
 msgstr "Prohledávám web…"
 
-#: build/index.a7ec759b7f8102833709.js:36
+#: build/index.c815c1cf214ea80e7185.js:36
 msgid "Looking for plugins UX Studio can take over from."
 msgstr "Hledám pluginy, od kterých může UX Studio práci převzít."
 
-#: build/index.a7ec759b7f8102833709.js:36
+#: build/index.c815c1cf214ea80e7185.js:36
 msgid "No plugin to migrate found"
 msgstr "Nenalezen žádný plugin k migraci"
 
 #. translators: %d: number of plugins found.
-#: build/index.a7ec759b7f8102833709.js:37
+#: build/index.c815c1cf214ea80e7185.js:37
 msgid "Found %d plugin"
 msgid_plural "Found %d plugins"
 msgstr[0] "Nalezen %d plugin"
 msgstr[1] "Nalezeny %d pluginy"
 msgstr[2] "Nalezeno %d pluginů"
 
-#: build/index.a7ec759b7f8102833709.js:37
+#: build/index.c815c1cf214ea80e7185.js:37
 msgid "None of the plugins UX Studio can migrate is installed here, and no leftover settings of them were found."
 msgstr "Žádný z pluginů, které UX Studio umí migrovat, tu není nainstalovaný a nebyla nalezena ani jejich zbylá nastavení."
 
-#: build/index.a7ec759b7f8102833709.js:37
+#: build/index.c815c1cf214ea80e7185.js:37
 msgid "These plugins (or their leftover settings) have a matching UX Studio module."
 msgstr "Tyto pluginy (nebo jejich zbylá nastavení) mají odpovídající modul UX Studia."
 
-#: build/index.a7ec759b7f8102833709.js:37
-#: build/index.a7ec759b7f8102833709.js:38
+#: build/index.c815c1cf214ea80e7185.js:37
+#: build/index.c815c1cf214ea80e7185.js:38
 msgid "Choose what to migrate"
 msgstr "Vyberte, co migrovat"
 
 #. translators: %s: plugin name.
-#: build/index.a7ec759b7f8102833709.js:38
+#: build/index.c815c1cf214ea80e7185.js:38
 msgid "Migrate %s"
 msgstr "Migrovat %s"
 
-#: build/index.a7ec759b7f8102833709.js:38
+#: build/index.c815c1cf214ea80e7185.js:38
 msgid "What moves over"
 msgstr "Co se přenese"
 
@@ -19503,96 +19520,96 @@ msgstr "Co se přenese"
 msgid "Tick the plugins whose settings should be copied. Inactive plugins can be migrated too. Open \"What moves over\" to see exactly what is and is not transferred."
 msgstr "Zaškrtněte pluginy, jejichž nastavení se mají zkopírovat. Migrovat jde i neaktivní pluginy. Otevřením „Co se přenese“ uvidíte přesně, co se přenese a co ne."
 
-#: build/index.a7ec759b7f8102833709.js:38
+#: build/index.c815c1cf214ea80e7185.js:38
 msgid "Clear selection"
 msgstr "Zrušit výběr"
 
 #. translators: %d: number of selected plugins.
-#: build/index.a7ec759b7f8102833709.js:40
+#: build/index.c815c1cf214ea80e7185.js:40
 msgid "Check %d plugin"
 msgid_plural "Check %d plugins"
 msgstr[0] "Zkontrolovat %d plugin"
 msgstr[1] "Zkontrolovat %d pluginy"
 msgstr[2] "Zkontrolovat %d pluginů"
 
-#: build/index.a7ec759b7f8102833709.js:40
+#: build/index.c815c1cf214ea80e7185.js:40
 msgid "Check before writing"
 msgstr "Kontrola před zápisem"
 
-#: build/index.a7ec759b7f8102833709.js:40
+#: build/index.c815c1cf214ea80e7185.js:40
 msgid "This is a trial run: nothing has been written. Below is what each plugin would change in UX Studio."
 msgstr "Toto je zkušební běh: nic se nezapsalo. Níže je, co by každý plugin v UX Studiu změnil."
 
-#: build/index.a7ec759b7f8102833709.js:40
+#: build/index.c815c1cf214ea80e7185.js:40
 msgid "When you start the migration, a snapshot of the current UX Studio settings is saved first. You can restore it for 30 days."
 msgstr "Po spuštění migrace se nejdřív uloží snímek aktuálních nastavení UX Studia. Obnovit ho můžete 30 dní."
 
-#: build/index.a7ec759b7f8102833709.js:40
+#: build/index.c815c1cf214ea80e7185.js:40
 msgid "Running the trial…"
 msgstr "Probíhá zkušební běh…"
 
-#: build/index.a7ec759b7f8102833709.js:40
+#: build/index.c815c1cf214ea80e7185.js:40
 msgid "Try again"
 msgstr "Zkusit znovu"
 
-#: build/index.a7ec759b7f8102833709.js:40
+#: build/index.c815c1cf214ea80e7185.js:40
 msgid "Start the migration"
 msgstr "Spustit migraci"
 
-#: build/index.a7ec759b7f8102833709.js:41
+#: build/index.c815c1cf214ea80e7185.js:41
 msgid "Working…"
 msgstr "Pracuji…"
 
-#: build/index.a7ec759b7f8102833709.js:41
+#: build/index.c815c1cf214ea80e7185.js:41
 msgid "Nothing to change"
 msgstr "Není co měnit"
 
 #. translators: %d: number of settings written.
-#: build/index.a7ec759b7f8102833709.js:43
+#: build/index.c815c1cf214ea80e7185.js:43
 msgid "%d setting written"
 msgid_plural "%d settings written"
 msgstr[0] "Zapsáno %d nastavení"
 msgstr[1] "Zapsána %d nastavení"
 msgstr[2] "Zapsáno %d nastavení"
 
-#: build/index.a7ec759b7f8102833709.js:43
+#: build/index.c815c1cf214ea80e7185.js:43
 msgid "Migration finished"
 msgstr "Migrace dokončena"
 
-#: build/index.a7ec759b7f8102833709.js:43
+#: build/index.c815c1cf214ea80e7185.js:43
 msgid "Migrating…"
 msgstr "Migruji…"
 
-#: build/index.a7ec759b7f8102833709.js:43
+#: build/index.c815c1cf214ea80e7185.js:43
 msgid "Please keep this page open. If it closes, come back to the wizard and it will carry on."
 msgstr "Nechte tuto stránku otevřenou. Pokud se zavře, vraťte se do průvodce a naváže tam, kde skončil."
 
-#: build/index.a7ec759b7f8102833709.js:43
+#: build/index.c815c1cf214ea80e7185.js:43
 msgid "Snapshot of the current settings"
 msgstr "Snímek aktuálních nastavení"
 
-#: build/index.a7ec759b7f8102833709.js:43
+#: build/index.c815c1cf214ea80e7185.js:43
 msgid "Saved - can be restored for 30 days"
 msgstr "Uloženo - lze obnovit 30 dní"
 
-#: build/index.a7ec759b7f8102833709.js:43
+#: build/index.c815c1cf214ea80e7185.js:43
 msgid "Verify the result"
 msgstr "Ověřit výsledek"
 
-#: build/index.a7ec759b7f8102833709.js:43
+#: build/index.c815c1cf214ea80e7185.js:43
 msgid "The old plugin settings are compared with what is now stored in UX Studio."
 msgstr "Stará nastavení pluginů se porovnávají s tím, co je teď uloženo v UX Studiu."
 
-#: build/index.a7ec759b7f8102833709.js:43
+#: build/index.c815c1cf214ea80e7185.js:43
 msgid "Comparing…"
 msgstr "Porovnávám…"
 
-#: build/index.a7ec759b7f8102833709.js:43
+#: build/index.c815c1cf214ea80e7185.js:43
 msgid "Everything matches."
 msgstr "Vše souhlasí."
 
 #. translators: %d: number of differences.
-#: build/index.a7ec759b7f8102833709.js:44
+#: build/index.c815c1cf214ea80e7185.js:44
 msgid "%d difference found. You can undo the migration or continue and fix it by hand."
 msgid_plural "%d differences found. You can undo the migration or continue and fix them by hand."
 msgstr[0] "Nalezen %d rozdíl. Migraci můžete vrátit, nebo pokračovat a opravit ho ručně."
@@ -19603,7 +19620,7 @@ msgstr[2] "Nalezeno %d rozdílů. Migraci můžete vrátit, nebo pokračovat a o
 msgid "The UX Studio settings go back exactly to how they were before the migration. The old plugins are not touched."
 msgstr "Nastavení UX Studia se vrátí přesně do stavu před migrací. Staré pluginy se nemění."
 
-#: build/index.a7ec759b7f8102833709.js:44
+#: build/index.c815c1cf214ea80e7185.js:44
 msgid "The migration was undone"
 msgstr "Migrace byla vrácena"
 
@@ -19611,11 +19628,11 @@ msgstr "Migrace byla vrácena"
 msgid "UX Studio settings are back to how they were before. The old plugins were never changed."
 msgstr "Nastavení UX Studia jsou zpět ve stavu před migrací. Staré pluginy se nikdy neměnily."
 
-#: build/index.a7ec759b7f8102833709.js:44
+#: build/index.c815c1cf214ea80e7185.js:44
 msgid "Start over"
 msgstr "Začít znovu"
 
-#: build/index.a7ec759b7f8102833709.js:44
+#: build/index.c815c1cf214ea80e7185.js:44
 msgid "Settings migrated"
 msgstr "Nastavení přenesena"
 
@@ -19624,7 +19641,7 @@ msgstr "Nastavení přenesena"
 msgid "%1$d plugin(s) processed, %2$d setting(s) written to UX Studio."
 msgstr "Zpracováno pluginů: %1$d, zapsáno nastavení do UX Studia: %2$d."
 
-#: build/index.a7ec759b7f8102833709.js:45
+#: build/index.c815c1cf214ea80e7185.js:45
 msgid "What happens next"
 msgstr "Co bude dál"
 
@@ -19636,34 +19653,34 @@ msgstr "Moduly jsou stále vypnuté a staré pluginy dál běží - web se chov�
 msgid "Switching to the module and deactivating the plugin will follow in the next version, after a safe preview of the site without the old plugins."
 msgstr "Přepnutí na modul a vypnutí pluginu přijde v příští verzi, po bezpečném náhledu webu bez starých pluginů."
 
-#: build/index.a7ec759b7f8102833709.js:46
+#: build/index.c815c1cf214ea80e7185.js:46
 msgid "Until then you can undo this migration from the run history for 30 days."
 msgstr "Do té doby můžete tuto migraci 30 dní vrátit z historie běhů."
 
-#: build/index.a7ec759b7f8102833709.js:46
+#: build/index.c815c1cf214ea80e7185.js:46
 msgid "Scan"
 msgstr "Sken"
 
-#: build/index.a7ec759b7f8102833709.js:46
+#: build/index.c815c1cf214ea80e7185.js:46
 msgid "Selection"
 msgstr "Výběr"
 
-#: build/index.a7ec759b7f8102833709.js:46
+#: build/index.c815c1cf214ea80e7185.js:46
 msgid "Migration"
 msgstr "Migrace"
 
-#: build/index.a7ec759b7f8102833709.js:46
+#: build/index.c815c1cf214ea80e7185.js:46
 msgid "Verification"
 msgstr "Ověření"
 
 #: includes/Modules/SecurityOptimization/TwoFactor.php:443
-#: build/index.a7ec759b7f8102833709.js:12
-#: build/index.a7ec759b7f8102833709.js:46
+#: build/index.c815c1cf214ea80e7185.js:12
+#: build/index.c815c1cf214ea80e7185.js:46
 msgid "Done"
 msgstr "Hotovo"
 
-#: build/index.a7ec759b7f8102833709.js:10
-#: build/index.a7ec759b7f8102833709.js:46
+#: build/index.c815c1cf214ea80e7185.js:10
+#: build/index.c815c1cf214ea80e7185.js:46
 msgid "Migration wizard"
 msgstr "Průvodce migrací"
 
@@ -19991,7 +20008,7 @@ msgstr "%d odkazů přesměrovávalo trvale (301). Modul přesměrovává dočas
 msgid "Posts with an external address (%s)"
 msgstr "Příspěvky s externí adresou (%s)"
 
-#: includes/Core/Migration/Sources/FolderSource.php:199
+#: includes/Core/Migration/Sources/FolderSource.php:362
 msgid "The plugin has no folders stored, there is nothing to transfer."
 msgstr "Plugin nemá uložené žádné složky, není co přenášet."
 
@@ -20001,12 +20018,12 @@ msgid "%1$d folders of other content types (%2$s) are not transferred. This step
 msgstr "%1$d složek jiných typů obsahu (%2$s) se nepřenáší. Tento krok přenáší jen složky knihovny médií."
 
 #. translators: %d: number of entries.
-#: includes/Core/Migration/Sources/FolderSource.php:216
+#: includes/Core/Migration/Sources/FolderSource.php:379
 msgid "%d collections, galleries or special entries are not transferred, only ordinary folders."
 msgstr "%d kolekcí, galerií nebo zvláštních položek se nepřenáší, jen běžné složky."
 
 #. translators: %d: number of shortcuts.
-#: includes/Core/Migration/Sources/FolderSource.php:224
+#: includes/Core/Migration/Sources/FolderSource.php:387
 msgid "%d shortcuts (the same file in more than one folder) are not transferred. A file sits in one folder."
 msgstr "%d zástupců (týž soubor ve více složkách) se nepřenáší. Soubor leží v jedné složce."
 
@@ -20014,19 +20031,19 @@ msgstr "%d zástupců (týž soubor ve více složkách) se nepřenáší. Soubo
 msgid "The manual order of folders and their colours or icons are not transferred."
 msgstr "Ruční pořadí složek a jejich barvy či ikony se nepřenášejí."
 
-#: includes/Core/Migration/Sources/FolderSource.php:231
+#: includes/Core/Migration/Sources/FolderSource.php:428
 msgid "Files are not moved on disk, only the folder structure and which file is in which folder are copied. A file that is already in a UX Studio folder stays there."
 msgstr "Soubory se na disku nepřesouvají, kopíruje se jen struktura složek a to, který soubor je v které složce. Soubor, který už je ve složce UX Studia, v ní zůstane."
 
-#: includes/Core/Migration/Sources/FolderSource.php:257
+#: includes/Core/Migration/Sources/FolderSource.php:454
 msgid "files placed in them"
 msgstr "souborů do nich zařazených"
 
-#: includes/Core/Migration/Sources/FolderSource.php:354
+#: includes/Core/Migration/Sources/FolderSource.php:553
 msgid "The parent folder could not be created."
 msgstr "Nadřazenou složku se nepodařilo vytvořit."
 
-#: includes/Core/Migration/Sources/FolderSource.php:408
+#: includes/Core/Migration/Sources/FolderSource.php:613
 msgid "The folder is not in UX Studio."
 msgstr "Složka v UX Studiu chybí."
 
@@ -20048,7 +20065,7 @@ msgstr "Plugin nemá uložené žádné časy přihlášení, není co přenáš
 msgid "Only the time of the last login is copied. The login counters and history of the plugin have no equivalent."
 msgstr "Zkopíruje se jen čas posledního přihlášení. Počítadla přihlášení a historie pluginu nemají ekvivalent."
 
-#: includes/Core/Migration/Sources/MaintenanceSource.php:85
+#: includes/Core/Migration/Sources/MaintenanceSource.php:137
 msgid "The old plugin has maintenance or coming soon mode ON. Once the module is switched on, the site shows the maintenance page to visitors. Switch the old plugin off first and check the page in the preview."
 msgstr "Starý plugin má zapnutý režim údržby nebo „brzy otevíráme“. Po zapnutí modulu web ukáže návštěvníkům stránku údržby. Nejdřív vypněte starý plugin a stránku zkontrolujte v náhledu."
 
@@ -20060,7 +20077,7 @@ msgstr "Obrázek na pozadí z pluginu se nepřenáší, jen barva pozadí. Obrá
 msgid "Countdown, subscribe form, social links, contact form, chat bot, GDPR notice, custom CSS and \"let search engine bots in\" of the plugin are not transferred."
 msgstr "Odpočet, formulář odběru, sociální odkazy, kontaktní formulář, chatbot, upozornění GDPR, vlastní CSS a „pustit dovnitř vyhledávací roboty“ z pluginu se nepřenášejí."
 
-#: includes/Core/Migration/Sources/MaintenanceSource.php:134
+#: includes/Core/Migration/Sources/MaintenanceSource.php:214
 msgid "Who may still see the site: roles from the plugin; administrators always can. With no role listed only administrators get through."
 msgstr "Kdo smí web dál vidět: role z pluginu, správci vždy. Bez uvedené role projdou jen správci."
 
@@ -20072,7 +20089,7 @@ msgstr "Stránka byla navržena v editoru SeedProd. Modul ji ukáže jako existu
 msgid "The layout, colours, countdown, passwords and per-address rules of the plugin are not transferred; only the on / off state and the headline."
 msgstr "Rozvržení, barvy, odpočet, hesla a pravidla pro jednotlivé adresy z pluginu se nepřenášejí, jen stav zapnuto / vypnuto a nadpis."
 
-#: includes/Core/Migration/Sources/MaintenanceSource.php:225
+#: includes/Core/Migration/Sources/MaintenanceSource.php:409
 msgid "The theme, social links, analytics code, custom CSS and the list of allowed users of the plugin are not transferred."
 msgstr "Motiv, sociální odkazy, analytický kód, vlastní CSS a seznam povolených uživatelů z pluginu se nepřenášejí."
 
@@ -20388,70 +20405,70 @@ msgid "The data of \"%s\" could not be switched on."
 msgstr "Data pluginu „%s“ se nepodařilo zapnout."
 
 #. translators: 1: number of objects, 2: what they are ("Redirects").
-#: build/index.a7ec759b7f8102833709.js:19
+#: build/index.c815c1cf214ea80e7185.js:19
 msgid "%1$d × %2$s"
 msgstr "%1$d × %2$s"
 
-#: build/index.a7ec759b7f8102833709.js:19
+#: build/index.c815c1cf214ea80e7185.js:19
 msgid "The module is already on, so this is only prepared: the objects are created switched off and start working at the switch, after the safe preview."
 msgstr "Modul je už zapnutý, proto se to jen připraví: objekty se vytvoří vypnuté a začnou fungovat při přepnutí, po bezpečném náhledu."
 
-#: build/index.a7ec759b7f8102833709.js:20
+#: build/index.c815c1cf214ea80e7185.js:20
 msgid "Prepared"
 msgstr "Připraveno"
 
 #. translators: %d: number of prepared values and objects.
-#: build/index.a7ec759b7f8102833709.js:24
+#: build/index.c815c1cf214ea80e7185.js:24
 msgid "%d prepared for the switch"
 msgstr "%d připraveno k přepnutí"
 
 #. translators: %s: date and time of the run.
-#: build/index.a7ec759b7f8102833709.js:27
+#: build/index.c815c1cf214ea80e7185.js:27
 msgid "UX Studio goes back exactly to how it was before the run from %s: settings, and everything the run created. Changes made in these modules since then are lost."
 msgstr "UX Studio se vrátí přesně do stavu před během z %s: nastavení i vše, co běh vytvořil. Změny provedené v těchto modulech od té doby se ztratí."
 
-#: build/index.a7ec759b7f8102833709.js:35
+#: build/index.c815c1cf214ea80e7185.js:35
 msgid "Copy the settings and data of other plugins (redirects, snippets, folders, mail settings ...) into the matching UX Studio modules, check that nothing got lost and keep the option to go back."
 msgstr "Zkopírujte nastavení a data jiných pluginů (přesměrování, snippety, složky, nastavení pošty ...) do odpovídajících modulů UX Studia, ověřte, že nic nechybí, a nechte si možnost vrátit se zpět."
 
 #. translators: 1: plugin names, 2: UX Studio module name.
-#: build/index.a7ec759b7f8102833709.js:39
+#: build/index.c815c1cf214ea80e7185.js:39
 msgid "%1$s all carry settings for the module \"%2$s\". The one migrated last overwrites the others, so tick only the plugin you actually use."
 msgstr "%1$s mají všechny nastavení pro modul „%2$s“. Naposledy přenesený přepíše ostatní, proto zaškrtněte jen plugin, který skutečně používáte."
 
 #. translators: 1: objects handled so far, 2: objects in total.
-#: build/index.a7ec759b7f8102833709.js:41
+#: build/index.c815c1cf214ea80e7185.js:41
 msgid "Working… %1$d / %2$d"
 msgstr "Probíhá… %1$d / %2$d"
 
 #. translators: 1: number of values written, 2: number of values only prepared.
-#: build/index.a7ec759b7f8102833709.js:42
+#: build/index.c815c1cf214ea80e7185.js:42
 msgid "%1$d written, %2$d of them only prepared (they take effect after the switch)"
 msgstr "%1$d zapsáno, z toho %2$d jen připraveno (začnou platit po přepnutí)"
 
-#: build/index.a7ec759b7f8102833709.js:44
+#: build/index.c815c1cf214ea80e7185.js:44
 msgid "Prepared - takes effect after the switch"
 msgstr "Připraveno - začne platit po přepnutí"
 
-#: build/index.a7ec759b7f8102833709.js:44
+#: build/index.c815c1cf214ea80e7185.js:44
 msgid "The UX Studio settings go back exactly to how they were before the migration, and everything the migration created (rules, snippets, folders, menu fields) is removed. The old plugins are not touched."
 msgstr "Nastavení UX Studia se vrátí přesně do stavu před migrací a vše, co migrace vytvořila (pravidla, snippety, složky, pole menu), se odstraní. Staré pluginy se nemění."
 
-#: build/index.a7ec759b7f8102833709.js:44
+#: build/index.c815c1cf214ea80e7185.js:44
 msgid "UX Studio is back to how it was before. The old plugins were never changed."
 msgstr "UX Studio je zpět ve stavu, v jakém bylo. Staré pluginy se nikdy nezměnily."
 
 #. translators: 1: number of plugins, 2: number of settings written.
-#: build/index.a7ec759b7f8102833709.js:45
+#: build/index.c815c1cf214ea80e7185.js:45
 msgid "%1$d plugin(s) processed, %2$d item(s) written to UX Studio."
 msgstr "Zpracováno pluginů: %1$d, do UX Studia zapsáno položek: %2$d."
 
-#: build/index.a7ec759b7f8102833709.js:45
+#: build/index.c815c1cf214ea80e7185.js:45
 msgid "The old plugins still run and nothing was switched on - the site behaves exactly as before."
 msgstr "Staré pluginy stále běží a nic se nezapnulo - web se chová přesně jako dřív."
 
 #. translators: %d: number of values only prepared.
-#: build/index.a7ec759b7f8102833709.js:46
+#: build/index.c815c1cf214ea80e7185.js:46
 msgid "%d value was only prepared, because its module is already on. It takes effect at the switch, after the safe preview."
 msgid_plural "%d values were only prepared, because their modules are already on. They take effect at the switch, after the safe preview."
 msgstr[0] "%d hodnota byla jen připravena, protože její modul je už zapnutý. Začne platit při přepnutí, po bezpečném náhledu."
@@ -20707,7 +20724,7 @@ msgstr "Stránka %s končí chybou při zapnutých snippetech."
 msgid "The pages render without errors with the snippets switched on."
 msgstr "Stránky se se zapnutými snippety vykreslují bez chyb."
 
-#: includes/Core/Migration/Sources/ClassicEditorSource.php:34
+#: includes/Core/Migration/Sources/ClassicEditorSource.php:35
 msgid "The classic editor replaces the block editor"
 msgstr "Klasický editor nahrazuje blokový editor"
 
@@ -20736,7 +20753,7 @@ msgid "This run is already switched on."
 msgstr "Tento běh je už přepnutý."
 
 #: includes/Core/Migration/Switcher.php:219
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "The migration had errors. Undo it and run it again before switching."
 msgstr "Migrace měla chyby. Před přepnutím ji vraťte a spusťte znovu."
 
@@ -20745,12 +20762,12 @@ msgid "There is nothing to switch."
 msgstr "Není co přepínat."
 
 #: includes/Core/Migration/Switcher.php:233
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "Run the safe preview and its tests first."
 msgstr "Nejdřív spusťte bezpečný náhled a jeho testy."
 
 #: includes/Core/Migration/Switcher.php:238
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "The tests of the safe preview are incomplete or older than a day. Run them again."
 msgstr "Testy bezpečného náhledu jsou neúplné nebo starší než den. Spusťte je znovu."
 
@@ -20763,7 +20780,7 @@ msgid "The safe preview is not available here. Switch without it only if you con
 msgstr "Bezpečný náhled tu není dostupný. Bez něj přepněte, jen když potvrdíte, že přijímáte riziko."
 
 #: includes/Core/Migration/Switcher.php:255
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "Save the new login address and tick the box to confirm it."
 msgstr "Uložte si novou adresu přihlášení a potvrďte to zaškrtnutím."
 
@@ -20824,345 +20841,345 @@ msgid "The .htaccess file is not written during a preview."
 msgstr "Soubor .htaccess se během náhledu nezapisuje."
 
 #. translators: %d: milliseconds.
-#: build/index.a7ec759b7f8102833709.js:20
+#: build/index.c815c1cf214ea80e7185.js:20
 msgid "%d ms"
 msgstr "%d ms"
 
 #. translators: 1: number of failed tests, 2: number of tests.
-#: build/index.a7ec759b7f8102833709.js:21
+#: build/index.c815c1cf214ea80e7185.js:21
 msgid "%1$d of %2$d tests failed."
 msgstr "%1$d z %2$d testů selhalo."
 
 #. translators: 1: number of tests with a warning, 2: number of tests.
-#: build/index.a7ec759b7f8102833709.js:22
+#: build/index.c815c1cf214ea80e7185.js:22
 msgid "All %2$d tests passed, %1$d with a warning."
 msgstr "Všech %2$d testů prošlo, z toho %1$d s varováním."
 
-#: build/index.a7ec759b7f8102833709.js:22
+#: build/index.c815c1cf214ea80e7185.js:22
 msgid "The test passed."
 msgstr "Test prošel."
 
 #. translators: %d: number of tests.
-#: build/index.a7ec759b7f8102833709.js:23
+#: build/index.c815c1cf214ea80e7185.js:23
 msgid "All %d tests passed."
 msgstr "Všech %d testů prošlo."
 
-#: build/index.a7ec759b7f8102833709.js:23
+#: build/index.c815c1cf214ea80e7185.js:23
 msgid "Switched"
 msgstr "Přepnuto"
 
-#: build/index.a7ec759b7f8102833709.js:23
+#: build/index.c815c1cf214ea80e7185.js:23
 msgid "Switch undone"
 msgstr "Přepnutí vráceno"
 
 #. translators: %s: date until which the switch can be undone.
-#: build/index.a7ec759b7f8102833709.js:25
+#: build/index.c815c1cf214ea80e7185.js:25
 msgid "The switch can be undone until %s"
 msgstr "Přepnutí lze vrátit do %s"
 
 #: includes/Core/Mcp/MigrationAbilities.php:185
-#: build/index.a7ec759b7f8102833709.js:25
-#: build/index.a7ec759b7f8102833709.js:27
-#: build/index.a7ec759b7f8102833709.js:35
+#: build/index.c815c1cf214ea80e7185.js:25
+#: build/index.c815c1cf214ea80e7185.js:27
+#: build/index.c815c1cf214ea80e7185.js:35
 msgid "Undo the switch"
 msgstr "Vrátit přepnutí"
 
-#: build/index.a7ec759b7f8102833709.js:25
+#: build/index.c815c1cf214ea80e7185.js:25
 msgid "Preview and switch"
 msgstr "Náhled a přepnutí"
 
-#: build/index.a7ec759b7f8102833709.js:27
+#: build/index.c815c1cf214ea80e7185.js:27
 msgid "The run is switched on, so the switch is undone first: the old plugins are activated again and the modules it turned on go off."
 msgstr "Běh je přepnutý, proto se nejdřív vrátí přepnutí: staré pluginy se znovu aktivují a moduly, které přepnutí zapnulo, se vypnou."
 
-#: build/index.a7ec759b7f8102833709.js:27
-#: build/index.a7ec759b7f8102833709.js:35
+#: build/index.c815c1cf214ea80e7185.js:27
+#: build/index.c815c1cf214ea80e7185.js:35
 msgid "Undo the switch?"
 msgstr "Vrátit přepnutí?"
 
 #. translators: %s: date and time of the run.
-#: build/index.a7ec759b7f8102833709.js:28
+#: build/index.c815c1cf214ea80e7185.js:28
 msgid "The old plugins of the run from %s are activated again, the modules the switch turned on go off, and settings and data return to how they were before the switch. Changes made in these modules since then are lost."
 msgstr "Staré pluginy z běhu ze dne %s se znovu aktivují, moduly, které přepnutí zapnulo, se vypnou a nastavení i data se vrátí do stavu před přepnutím. Změny provedené od té doby v těchto modulech se ztratí."
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "No migration to work on"
 msgstr "Není s čím pracovat"
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "The preview and the switch work on a finished migration. Run one first, or continue a run from the run history below."
 msgstr "Náhled a přepnutí pracují s dokončenou migrací. Nejdřív nějakou spusťte, nebo pokračujte v běhu z historie níže."
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "Start a migration"
 msgstr "Spustit migraci"
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "Only your browser sees the site without the old plugins, for 30 minutes. Visitors keep getting the old plugins the whole time."
 msgstr "Web bez starých pluginů uvidí jen váš prohlížeč, a to 30 minut. Návštěvníci mezitím dál dostávají staré pluginy."
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "Nothing is saved while you look: no .htaccess, no schedule, no module data. The preview ends by itself after 30 minutes, or when you end it."
 msgstr "Při prohlížení se nic neukládá: žádný .htaccess, žádný plán úloh, žádná data modulů. Náhled sám skončí po 30 minutách, nebo ho ukončíte ručně."
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "The tests compare the site now with the site in the preview and stop the switch when something breaks."
 msgstr "Testy porovnávají web teď s webem v náhledu a zastaví přepnutí, když se něco rozbije."
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "Safe preview"
 msgstr "Bezpečný náhled"
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "See the site the way it will work after the switch, before anything is switched."
 msgstr "Podívejte se na web tak, jak bude fungovat po přepnutí, dřív než se cokoli přepne."
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "The preview is not available on this server"
 msgstr "Náhled na tomto serveru není dostupný"
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "You can still switch without a preview, but then nothing has been tested before the old plugins are deactivated. Everything can be undone for 30 days."
 msgstr "Přepnout můžete i bez náhledu, ale pak se před deaktivací starých pluginů nic neotestuje. Vše lze 30 dní vrátit."
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "The preview ends"
 msgstr "Náhled končí"
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "It has ended"
 msgstr "Už skončil"
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "Switched off in the preview"
 msgstr "V náhledu vypnuto"
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "No active plugin"
 msgstr "Žádný aktivní plugin"
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "Switched on in the preview"
 msgstr "V náhledu zapnuto"
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "The preview has ended. Start it again to test or look at the site."
 msgstr "Náhled skončil. Spusťte ho znovu, chcete-li web testovat nebo si ho prohlédnout."
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "Fix the cause, or switch anyway only if you accept the risk."
 msgstr "Opravte příčinu, nebo přepněte i tak, jen když přijímáte riziko."
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "Starting…"
 msgstr "Spouštím…"
 
 #: includes/Core/Mcp/MigrationAbilities.php:134
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "Start the safe preview"
 msgstr "Spustit bezpečný náhled"
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "Open the site in the preview"
 msgstr "Otevřít web v náhledu"
 
-#: build/index.a7ec759b7f8102833709.js:29
-#: build/index.a7ec759b7f8102833709.js:35
+#: build/index.c815c1cf214ea80e7185.js:29
+#: build/index.c815c1cf214ea80e7185.js:35
 msgid "Run the tests again"
 msgstr "Spustit testy znovu"
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "End the preview"
 msgstr "Ukončit náhled"
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "Continue without the preview"
 msgstr "Pokračovat bez náhledu"
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "Continue to the switch"
 msgstr "Pokračovat k přepnutí"
 
 #: includes/Modules/SecurityOptimization/LoginUrlNotice.php:186
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "Copy the address"
 msgstr "Zkopírovat adresu"
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "Some preview tests failed. Fix the cause, or confirm below that you want to switch anyway."
 msgstr "Některé testy náhledu selhaly. Opravte příčinu, nebo níže potvrďte, že chcete přepnout i tak."
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "The safe preview is not available here. Confirm below that you want to switch without it."
 msgstr "Bezpečný náhled tu není dostupný. Níže potvrďte, že chcete přepnout bez něj."
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "Switch to UX Studio"
 msgstr "Přepnout na UX Studio"
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "UX Studio modules take over and the old plugins are deactivated. Nothing is deleted, and you can undo it all for 30 days."
 msgstr "Moduly UX Studia převezmou práci a staré pluginy se deaktivují. Nic se nemaže a vše můžete 30 dní vrátit."
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "These plugins will be deactivated"
 msgstr "Tyto pluginy se deaktivují"
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "None of the migrated plugins is active, so nothing is deactivated."
 msgstr "Žádný z přenesených pluginů není aktivní, nic se tedy nedeaktivuje."
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "These modules will be switched on"
 msgstr "Tyto moduly se zapnou"
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "already on"
 msgstr "už zapnuto"
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "No module needs to be switched on."
 msgstr "Žádný modul není třeba zapínat."
 
-#: build/index.a7ec759b7f8102833709.js:29
+#: build/index.c815c1cf214ea80e7185.js:29
 msgid "What happens"
 msgstr "Co se stane"
 
 #. translators: 1: number of prepared settings, 2: number of prepared objects (rules, snippets ...).
-#: build/index.a7ec759b7f8102833709.js:30
+#: build/index.c815c1cf214ea80e7185.js:30
 msgid "The prepared values go live: %1$d settings and %2$d objects (rules, snippets, menu fields) are switched on."
 msgstr "Připravené hodnoty se zapnou: %1$d nastavení a %2$d objektů (pravidla, snippety, pole menu)."
 
-#: build/index.a7ec759b7f8102833709.js:30
+#: build/index.c815c1cf214ea80e7185.js:30
 msgid "The old plugins are deactivated the normal WordPress way, so their own deactivation steps run. Their files and data stay where they are."
 msgstr "Staré pluginy se deaktivují běžným způsobem WordPressu, takže proběhnou jejich vlastní deaktivační kroky. Jejich soubory a data zůstanou, kde jsou."
 
-#: build/index.a7ec759b7f8102833709.js:30
+#: build/index.c815c1cf214ea80e7185.js:30
 msgid "Right after that the home page is checked from outside. If it fails, everything is undone automatically."
 msgstr "Hned potom se zvenku zkontroluje úvodní stránka. Když selže, vše se automaticky vrátí."
 
 #. translators: %d: number of days.
-#: build/index.a7ec759b7f8102833709.js:31
+#: build/index.c815c1cf214ea80e7185.js:31
 msgid "You can undo the whole switch with one click for %d day."
 msgid_plural "You can undo the whole switch with one click for %d days."
 msgstr[0] "Celé přepnutí můžete jedním kliknutím vrátit po dobu %d dne."
 msgstr[1] "Celé přepnutí můžete jedním kliknutím vrátit po dobu %d dnů."
 msgstr[2] "Celé přepnutí můžete jedním kliknutím vrátit po dobu %d dnů."
 
-#: build/index.a7ec759b7f8102833709.js:31
+#: build/index.c815c1cf214ea80e7185.js:31
 msgid "The login address changes"
 msgstr "Adresa přihlášení se mění"
 
-#: build/index.a7ec759b7f8102833709.js:31
+#: build/index.c815c1cf214ea80e7185.js:31
 msgid "After the switch you log in at this address. The old one stops working for everybody. Save it now."
 msgstr "Po přepnutí se přihlašujete na této adrese. Stará přestane fungovat pro všechny. Uložte si ji teď."
 
-#: build/index.a7ec759b7f8102833709.js:31
+#: build/index.c815c1cf214ea80e7185.js:31
 msgid "I have saved the new login address"
 msgstr "Uložil(a) jsem si novou adresu přihlášení"
 
 #. translators: %s: PHP constant name.
-#: build/index.a7ec759b7f8102833709.js:32
+#: build/index.c815c1cf214ea80e7185.js:32
 msgid "Locked out anyway? Add define( '%s', true ); to wp-config.php and the normal wp-login.php works again."
 msgstr "Nemůžete se přesto přihlásit? Přidejte do wp-config.php řádek define( '%s', true ); a běžné wp-login.php zase funguje."
 
-#: build/index.a7ec759b7f8102833709.js:32
+#: build/index.c815c1cf214ea80e7185.js:32
 msgid "Switch anyway, I accept that these tests failed"
 msgstr "Přepnout i tak, beru na vědomí, že tyto testy selhaly"
 
-#: build/index.a7ec759b7f8102833709.js:32
+#: build/index.c815c1cf214ea80e7185.js:32
 msgid "Back to the preview tests"
 msgstr "Zpět na testy náhledu"
 
-#: build/index.a7ec759b7f8102833709.js:32
+#: build/index.c815c1cf214ea80e7185.js:32
 msgid "No safe preview on this server"
 msgstr "Na tomto serveru není bezpečný náhled"
 
-#: build/index.a7ec759b7f8102833709.js:32
+#: build/index.c815c1cf214ea80e7185.js:32
 msgid "Switch without a preview, I accept the risk"
 msgstr "Přepnout bez náhledu, přijímám riziko"
 
-#: build/index.a7ec759b7f8102833709.js:32
+#: build/index.c815c1cf214ea80e7185.js:32
 msgid "Go to the safe preview"
 msgstr "Přejít na bezpečný náhled"
 
-#: build/index.a7ec759b7f8102833709.js:32
+#: build/index.c815c1cf214ea80e7185.js:32
 msgid "Switch now"
 msgstr "Přepnout teď"
 
-#: build/index.a7ec759b7f8102833709.js:32
+#: build/index.c815c1cf214ea80e7185.js:32
 msgid "Switch to UX Studio now?"
 msgstr "Přepnout na UX Studio teď?"
 
-#: build/index.a7ec759b7f8102833709.js:32
+#: build/index.c815c1cf214ea80e7185.js:32
 msgid "Switching…"
 msgstr "Přepínám…"
 
 #. translators: 1: number of plugins, 2: number of modules.
-#: build/index.a7ec759b7f8102833709.js:33
+#: build/index.c815c1cf214ea80e7185.js:33
 msgid "%1$d plugin(s) will be deactivated and %2$d module(s) switched on. The site is checked right after, and you can undo the switch from the run history."
 msgstr "Počet pluginů k deaktivaci: %1$d, počet modulů k zapnutí: %2$d. Hned potom se web zkontroluje a přepnutí můžete vrátit z historie běhů."
 
-#: build/index.a7ec759b7f8102833709.js:33
+#: build/index.c815c1cf214ea80e7185.js:33
 msgid "New login address:"
 msgstr "Nová adresa přihlášení:"
 
-#: build/index.a7ec759b7f8102833709.js:33
+#: build/index.c815c1cf214ea80e7185.js:33
 msgid "UX Studio has taken over"
 msgstr "UX Studio převzalo práci"
 
 #. translators: 1: number of deactivated plugins, 2: number of modules switched on.
-#: build/index.a7ec759b7f8102833709.js:34
+#: build/index.c815c1cf214ea80e7185.js:34
 msgid "%1$d plugin(s) deactivated, %2$d module(s) switched on. The site is being tested now, from outside, without the preview."
 msgstr "Deaktivovaných pluginů: %1$d, zapnutých modulů: %2$d. Web se právě testuje zvenku, bez náhledu."
 
-#: build/index.a7ec759b7f8102833709.js:34
+#: build/index.c815c1cf214ea80e7185.js:34
 msgid "The login address is now"
 msgstr "Adresa přihlášení je nyní"
 
-#: build/index.a7ec759b7f8102833709.js:34
+#: build/index.c815c1cf214ea80e7185.js:34
 msgid "You can undo the switch below."
 msgstr "Přepnutí můžete vrátit níže."
 
 #. translators: %s: date until which the switch can be undone.
-#: build/index.a7ec759b7f8102833709.js:35
+#: build/index.c815c1cf214ea80e7185.js:35
 msgid "You can undo the switch until %s."
 msgstr "Přepnutí můžete vrátit do %s."
 
-#: build/index.a7ec759b7f8102833709.js:35
+#: build/index.c815c1cf214ea80e7185.js:35
 msgid "The old plugins are activated again, the modules the switch turned on go off, and the settings and data return to how they were before the switch. Changes made in these modules since then are lost. The migrated values stay prepared."
 msgstr "Staré pluginy se znovu aktivují, moduly, které přepnutí zapnulo, se vypnou a nastavení i data se vrátí do stavu před přepnutím. Změny provedené od té doby v těchto modulech se ztratí. Přenesené hodnoty zůstanou připravené."
 
-#: build/index.a7ec759b7f8102833709.js:35
+#: build/index.c815c1cf214ea80e7185.js:35
 msgid "The switch was undone"
 msgstr "Přepnutí bylo vráceno"
 
-#: build/index.a7ec759b7f8102833709.js:35
+#: build/index.c815c1cf214ea80e7185.js:35
 msgid "The old plugins are active again and the modules are as they were before. The migrated values are prepared again: you can preview and switch once more, or undo the migration from the run history."
 msgstr "Staré pluginy jsou zase aktivní a moduly jsou jako dřív. Přenesené hodnoty jsou znovu připravené: můžete znovu otevřít náhled a přepnout, nebo migraci vrátit z historie běhů."
 
-#: build/index.a7ec759b7f8102833709.js:35
+#: build/index.c815c1cf214ea80e7185.js:35
 msgid "Back to the preview"
 msgstr "Zpět na náhled"
 
-#: build/index.a7ec759b7f8102833709.js:35
+#: build/index.c815c1cf214ea80e7185.js:35
 msgid "It only reads the plugins. Nothing in them changes, and nothing is switched on or deactivated until you confirm the switch."
 msgstr "Pluginy jen čte. Nic se v nich nemění a nic se nezapne ani nedeaktivuje, dokud nepotvrdíte přepnutí."
 
-#: build/index.a7ec759b7f8102833709.js:35
+#: build/index.c815c1cf214ea80e7185.js:35
 msgid "Switching to the module and deactivating the old plugin is a separate step that comes after a safe preview of the site without the old plugins."
 msgstr "Přepnutí na modul a deaktivace starého pluginu je samostatný krok, který následuje po bezpečném náhledu webu bez starých pluginů."
 
-#: build/index.a7ec759b7f8102833709.js:44
-#: build/index.a7ec759b7f8102833709.js:46
+#: build/index.c815c1cf214ea80e7185.js:44
+#: build/index.c815c1cf214ea80e7185.js:46
 msgid "Continue to the safe preview"
 msgstr "Pokračovat k bezpečnému náhledu"
 
-#: build/index.a7ec759b7f8102833709.js:46
+#: build/index.c815c1cf214ea80e7185.js:46
 msgid "To switch, open the safe preview (the site without the old plugins, only for you), then the switch. You can do that later from the run history."
 msgstr "Chcete-li přepnout, otevřete bezpečný náhled (web bez starých pluginů, jen pro vás) a potom přepnutí. Můžete to udělat později z historie běhů."
 
-#: build/index.a7ec759b7f8102833709.js:46
+#: build/index.c815c1cf214ea80e7185.js:46
 msgid "Switch"
 msgstr "Přepnutí"
 
@@ -21853,51 +21870,51 @@ msgstr "vlastní editor menu a admin lišty v pluginu"
 msgid "Branding without a target in UX Studio: %s."
 msgstr "Branding bez cíle v UX Studiu: %s."
 
-#: build/index.a7ec759b7f8102833709.js:19
+#: build/index.c815c1cf214ea80e7185.js:19
 msgid "Partial match: check the list of what will not be transferred."
 msgstr "Částečná shoda: zkontrolujte seznam toho, co se nepřenese."
 
-#: build/index.a7ec759b7f8102833709.js:19
+#: build/index.c815c1cf214ea80e7185.js:19
 msgid "Checked, you can tick it."
 msgstr "Zkontrolováno, můžete ji zaškrtnout."
 
-#: build/index.a7ec759b7f8102833709.js:19
+#: build/index.c815c1cf214ea80e7185.js:19
 msgid "Show the list"
 msgstr "Zobrazit seznam"
 
 #. translators: %d: how many more.
 #: includes/Core/Migration/Describe.php:164
 #: includes/Core/Migration/Describe.php:255
-#: build/index.a7ec759b7f8102833709.js:19
+#: build/index.c815c1cf214ea80e7185.js:19
 msgid "+ %d more"
 msgstr "+ %d dalších"
 
-#: build/index.a7ec759b7f8102833709.js:19
+#: build/index.c815c1cf214ea80e7185.js:19
 msgid "Menu by role"
 msgstr "Menu podle rolí"
 
-#: build/index.a7ec759b7f8102833709.js:19
+#: build/index.c815c1cf214ea80e7185.js:19
 msgid "Hidden now (old plugin)"
 msgstr "Skryto nyní (starý plugin)"
 
-#: build/index.a7ec759b7f8102833709.js:19
+#: build/index.c815c1cf214ea80e7185.js:19
 msgid "Hidden after migration"
 msgstr "Skryto po migraci"
 
-#: build/index.a7ec759b7f8102833709.js:19
+#: build/index.c815c1cf214ea80e7185.js:19
 msgid "No role has a menu item hidden, before or after."
 msgstr "Žádné roli není skrytá žádná položka menu, ani před, ani po."
 
 #. translators: %s: role names.
-#: build/index.a7ec759b7f8102833709.js:20
+#: build/index.c815c1cf214ea80e7185.js:20
 msgid "Nothing is hidden, before or after, for: %s."
 msgstr "Nic není skryto, ani před, ani po, pro: %s."
 
-#: build/index.a7ec759b7f8102833709.js:38
+#: build/index.c815c1cf214ea80e7185.js:38
 msgid "Open the list of what is not transferred first."
 msgstr "Nejdřív otevřete seznam toho, co se nepřenese."
 
-#: build/index.a7ec759b7f8102833709.js:38
+#: build/index.c815c1cf214ea80e7185.js:38
 msgid "Tick the plugins whose settings should be copied. Inactive plugins can be migrated too. Open \"What moves over\" to see exactly what is and is not transferred. Partial matches can only be ticked once you have opened that list."
 msgstr "Zaškrtněte pluginy, jejichž nastavení se má zkopírovat. Přenést jde i neaktivní pluginy. Otevřete „Co se přenese“ a uvidíte přesně, co se přenese a co ne. Částečnou shodu lze zaškrtnout, až když tento seznam otevřete."
 
@@ -22029,221 +22046,221 @@ msgstr "MCP server je nově součástí samotného UX Studia a na tomto modulu u
 msgid "Open MCP server settings"
 msgstr "Otevřít nastavení MCP serveru"
 
-#: build/index.a7ec759b7f8102833709.js:12
+#: build/index.c815c1cf214ea80e7185.js:12
 msgid "Read access"
 msgstr "Čtení"
 
-#: build/index.a7ec759b7f8102833709.js:12
+#: build/index.c815c1cf214ea80e7185.js:12
 msgid "View modules, settings (never secrets), plugin overlaps, logs and the state of migrations."
 msgstr "Zobrazit moduly, nastavení (nikdy ne tajné hodnoty), překryvy pluginů, logy a stav migrací."
 
-#: build/index.a7ec759b7f8102833709.js:12
+#: build/index.c815c1cf214ea80e7185.js:12
 msgid "Write access"
 msgstr "Zápis"
 
-#: build/index.a7ec759b7f8102833709.js:12
+#: build/index.c815c1cf214ea80e7185.js:12
 msgid "Enable and disable modules, change module settings, manage redirects. Includes Read."
 msgstr "Zapínat a vypínat moduly, měnit nastavení modulů, spravovat přesměrování. Zahrnuje Čtení."
 
-#: build/index.a7ec759b7f8102833709.js:12
+#: build/index.c815c1cf214ea80e7185.js:12
 msgid "Migration access"
 msgstr "Migrace"
 
-#: build/index.a7ec759b7f8102833709.js:12
+#: build/index.c815c1cf214ea80e7185.js:12
 msgid "Run, verify, preview and switch on migrations from other plugins, and undo them. Includes Read."
 msgstr "Spouštět, ověřovat, zkoušet a přepínat migrace z jiných pluginů a vracet je zpět. Zahrnuje Čtení."
 
-#: build/index.a7ec759b7f8102833709.js:12
+#: build/index.c815c1cf214ea80e7185.js:12
 msgid "Admin access"
 msgstr "Správa"
 
-#: build/index.a7ec759b7f8102833709.js:12
+#: build/index.c815c1cf214ea80e7185.js:12
 msgid "Everything above, and the only scope that may set credentials. Also accepted by third party MCP adapters."
 msgstr "Vše výše a jako jediný rozsah smí nastavovat přihlašovací údaje. Přijímají ho i adaptéry MCP třetích stran."
 
-#: build/index.a7ec759b7f8102833709.js:12
+#: build/index.c815c1cf214ea80e7185.js:12
 msgid "Run this in a terminal."
 msgstr "Spusťte v terminálu."
 
-#: build/index.a7ec759b7f8102833709.js:12
+#: build/index.c815c1cf214ea80e7185.js:12
 msgid "Add to claude_desktop_config.json (needs Node.js; mcp-remote connects the app to the server)."
 msgstr "Přidejte do claude_desktop_config.json (vyžaduje Node.js, mcp-remote spojí aplikaci se serverem)."
 
-#: build/index.a7ec759b7f8102833709.js:12
+#: build/index.c815c1cf214ea80e7185.js:12
 msgid "Add to ~/.cursor/mcp.json (or .cursor/mcp.json in a project)."
 msgstr "Přidejte do ~/.cursor/mcp.json (nebo .cursor/mcp.json v projektu)."
 
-#: build/index.a7ec759b7f8102833709.js:12
+#: build/index.c815c1cf214ea80e7185.js:12
 msgid "Token created"
 msgstr "Token vytvořen"
 
-#: build/index.a7ec759b7f8102833709.js:12
+#: build/index.c815c1cf214ea80e7185.js:12
 msgid "Copy the token now."
 msgstr "Zkopírujte token hned."
 
-#: build/index.a7ec759b7f8102833709.js:12
+#: build/index.c815c1cf214ea80e7185.js:12
 msgid "It is shown only once and cannot be displayed again. If you lose it, revoke it and create a new one."
 msgstr "Zobrazí se jen jednou a znovu ho zobrazit nejde. Když ho ztratíte, odvolejte ho a vytvořte nový."
 
-#: build/index.a7ec759b7f8102833709.js:12
+#: build/index.c815c1cf214ea80e7185.js:12
 msgid "Token"
 msgstr "Token"
 
-#: build/index.a7ec759b7f8102833709.js:12
-#: build/index.a7ec759b7f8102833709.js:16
+#: build/index.c815c1cf214ea80e7185.js:12
+#: build/index.c815c1cf214ea80e7185.js:16
 msgid "Connect a client"
 msgstr "Připojení klienta"
 
-#: build/index.a7ec759b7f8102833709.js:12
-#: build/index.a7ec759b7f8102833709.js:14
-#: build/index.a7ec759b7f8102833709.js:16
+#: build/index.c815c1cf214ea80e7185.js:12
+#: build/index.c815c1cf214ea80e7185.js:14
+#: build/index.c815c1cf214ea80e7185.js:16
 msgid "Create token"
 msgstr "Vytvořit token"
 
-#: build/index.a7ec759b7f8102833709.js:12
+#: build/index.c815c1cf214ea80e7185.js:12
 msgid "For example the client that will use it: \"Claude Code on my laptop\"."
 msgstr "Například klient, který ho bude používat: „Claude Code na mém notebooku“."
 
-#: build/index.a7ec759b7f8102833709.js:12
-#: build/index.a7ec759b7f8102833709.js:14
+#: build/index.c815c1cf214ea80e7185.js:12
+#: build/index.c815c1cf214ea80e7185.js:14
 msgid "Scopes"
 msgstr "Rozsahy"
 
-#: build/index.a7ec759b7f8102833709.js:12
+#: build/index.c815c1cf214ea80e7185.js:12
 msgid "Valid for"
 msgstr "Platnost"
 
 #. translators: %d: number of days.
-#: build/index.a7ec759b7f8102833709.js:13
+#: build/index.c815c1cf214ea80e7185.js:13
 msgid "%d days"
 msgstr "%d dnů"
 
 #. translators: %d: maximum number of days.
-#: build/index.a7ec759b7f8102833709.js:14
+#: build/index.c815c1cf214ea80e7185.js:14
 msgid "A token always expires, after %d days at most."
 msgstr "Token vždy vyprší, nejpozději za %d dnů."
 
-#: build/index.a7ec759b7f8102833709.js:14
+#: build/index.c815c1cf214ea80e7185.js:14
 msgid "Allowed IP addresses"
 msgstr "Povolené IP adresy"
 
-#: build/index.a7ec759b7f8102833709.js:14
+#: build/index.c815c1cf214ea80e7185.js:14
 msgid "Optional. One address or range (CIDR) per line. Empty = the token works from anywhere."
 msgstr "Volitelné. Jedna adresa nebo rozsah (CIDR) na řádek. Prázdné = token funguje odkudkoli."
 
-#: build/index.a7ec759b7f8102833709.js:14
+#: build/index.c815c1cf214ea80e7185.js:14
 msgid "Whoever holds this token can make changes to the site as an administrator within these scopes. Store it like a password."
 msgstr "Kdo má tento token, může na webu provádět změny jako správce v rámci těchto rozsahů. Uložte ho jako heslo."
 
-#: build/index.a7ec759b7f8102833709.js:14
+#: build/index.c815c1cf214ea80e7185.js:14
 msgid "Creating…"
 msgstr "Vytvářím…"
 
-#: build/index.a7ec759b7f8102833709.js:14
+#: build/index.c815c1cf214ea80e7185.js:14
 msgid "No tokens yet."
 msgstr "Zatím žádné tokeny."
 
-#: build/index.a7ec759b7f8102833709.js:14
+#: build/index.c815c1cf214ea80e7185.js:14
 msgid "Last used"
 msgstr "Naposledy použit"
 
-#: build/index.a7ec759b7f8102833709.js:14
+#: build/index.c815c1cf214ea80e7185.js:14
 msgid "IP addresses"
 msgstr "IP adresy"
 
-#: build/index.a7ec759b7f8102833709.js:14
+#: build/index.c815c1cf214ea80e7185.js:14
 msgid "old"
 msgstr "starý"
 
-#: build/index.a7ec759b7f8102833709.js:14
+#: build/index.c815c1cf214ea80e7185.js:14
 msgid "expired"
 msgstr "vypršel"
 
-#: build/index.a7ec759b7f8102833709.js:14
+#: build/index.c815c1cf214ea80e7185.js:14
 msgid "never"
 msgstr "nikdy"
 
-#: build/index.a7ec759b7f8102833709.js:14
+#: build/index.c815c1cf214ea80e7185.js:14
 msgid "any"
 msgstr "jakákoli"
 
 #. translators: %s: token name.
-#: build/index.a7ec759b7f8102833709.js:14
+#: build/index.c815c1cf214ea80e7185.js:14
 msgid "Revoke the token \"%s\"? Clients using it stop working immediately."
 msgstr "Odvolat token „%s“? Klienti, kteří ho používají, přestanou okamžitě fungovat."
 
 #. translators: %d: number of tools.
-#: build/index.a7ec759b7f8102833709.js:15
+#: build/index.c815c1cf214ea80e7185.js:15
 msgid "%d tools offered"
 msgstr "Nabízených nástrojů: %d"
 
-#: build/index.a7ec759b7f8102833709.js:15
+#: build/index.c815c1cf214ea80e7185.js:15
 msgid "Scope"
 msgstr "Rozsah"
 
-#: build/index.a7ec759b7f8102833709.js:15
+#: build/index.c815c1cf214ea80e7185.js:15
 msgid "needs confirmation"
 msgstr "vyžaduje potvrzení"
 
-#: build/index.a7ec759b7f8102833709.js:15
+#: build/index.c815c1cf214ea80e7185.js:15
 msgid "read only"
 msgstr "jen čtení"
 
-#: build/index.a7ec759b7f8102833709.js:15
+#: build/index.c815c1cf214ea80e7185.js:15
 msgid "MCP (Model Context Protocol) lets AI tools such as Claude Code, Claude Desktop or Cursor work with this site: list and switch modules, read settings and move settings over from other plugins with the migration wizard. Every call is recorded in the Activity Log."
 msgstr "MCP (Model Context Protocol) umožňuje nástrojům s AI, například Claude Code, Claude Desktop nebo Cursor, pracovat s tímto webem: vypisovat a přepínat moduly, číst nastavení a přenášet nastavení z jiných pluginů průvodcem migrace. Každé volání se zapisuje do Logu aktivit."
 
-#: build/index.a7ec759b7f8102833709.js:15
-#: build/index.a7ec759b7f8102833709.js:16
+#: build/index.c815c1cf214ea80e7185.js:15
+#: build/index.c815c1cf214ea80e7185.js:16
 msgid "MCP server"
 msgstr "MCP server"
 
-#: build/index.a7ec759b7f8102833709.js:15
+#: build/index.c815c1cf214ea80e7185.js:15
 msgid "Off by default. While it is off the endpoint does not exist and no token works."
 msgstr "Ve výchozím stavu vypnuto. Dokud je vypnutý, koncový bod neexistuje a žádný token nefunguje."
 
-#: build/index.a7ec759b7f8102833709.js:15
+#: build/index.c815c1cf214ea80e7185.js:15
 msgid "Disable the MCP server"
 msgstr "Vypnout MCP server"
 
-#: build/index.a7ec759b7f8102833709.js:15
+#: build/index.c815c1cf214ea80e7185.js:15
 msgid "Enable the MCP server"
 msgstr "Zapnout MCP server"
 
-#: build/index.a7ec759b7f8102833709.js:15
+#: build/index.c815c1cf214ea80e7185.js:15
 msgid "Endpoint"
 msgstr "Koncový bod"
 
-#: build/index.a7ec759b7f8102833709.js:15
+#: build/index.c815c1cf214ea80e7185.js:15
 msgid "Endpoint URL"
 msgstr "URL koncového bodu"
 
 #. translators: %d: calls per minute.
-#: build/index.a7ec759b7f8102833709.js:16
+#: build/index.c815c1cf214ea80e7185.js:16
 msgid "Streamable HTTP, JSON-RPC over POST. Clients send the token as \"Authorization: Bearer\". At most %d calls per minute per token."
 msgstr "Streamable HTTP, JSON-RPC přes POST. Klienti posílají token jako „Authorization: Bearer“. Nejvýše %d volání za minutu na token."
 
-#: build/index.a7ec759b7f8102833709.js:16
+#: build/index.c815c1cf214ea80e7185.js:16
 msgid "The WordPress MCP Adapter plugin is active too. It keeps working with admin tokens; this endpoint is the one that applies scopes."
 msgstr "Plugin WordPress MCP Adapter je také aktivní. S tokeny správce funguje dál, rozsahy ale uplatňuje tento koncový bod."
 
-#: build/index.a7ec759b7f8102833709.js:16
+#: build/index.c815c1cf214ea80e7185.js:16
 msgid "Access tokens"
 msgstr "Přístupové tokeny"
 
-#: build/index.a7ec759b7f8102833709.js:16
+#: build/index.c815c1cf214ea80e7185.js:16
 msgid "A token lets an AI client act on this site as an administrator, within its scopes. Give it only the scopes it needs, keep it secret and revoke it when it is no longer used."
 msgstr "Token umožňuje AI klientovi jednat na tomto webu jako správce, v rámci svých rozsahů. Dejte mu jen rozsahy, které potřebuje, držte ho v tajnosti a odvolejte ho, až ho nikdo nepoužívá."
 
-#: build/index.a7ec759b7f8102833709.js:16
+#: build/index.c815c1cf214ea80e7185.js:16
 msgid "Replace YOUR_TOKEN with a token from above. A freshly created token is filled in for you when it is created."
 msgstr "Nahraďte YOUR_TOKEN tokenem z výše uvedeného seznamu. Čerstvě vytvořený token se doplní sám při jeho vytvoření."
 
-#: build/index.a7ec759b7f8102833709.js:16
+#: build/index.c815c1cf214ea80e7185.js:16
 msgid "Includes the content tools of the AI Assistant module (posts, pages, media, shop, SEO)."
 msgstr "Zahrnuje obsahové nástroje modulu AI Asistent (příspěvky, stránky, média, e-shop, SEO)."
 
-#: build/index.a7ec759b7f8102833709.js:16
+#: build/index.c815c1cf214ea80e7185.js:16
 msgid "Content tools (posts, pages, media) appear here when the AI Assistant module is enabled."
 msgstr "Obsahové nástroje (příspěvky, stránky, média) se zde objeví, když je zapnutý modul AI Asistent."
 
@@ -22367,26 +22384,26 @@ msgid "I have saved it, hide this notice"
 msgstr "Uložil(a) jsem si ji, skrýt toto upozornění"
 
 #. translators: %d: number of plugins.
-#: build/index.a7ec759b7f8102833709.js:11
+#: build/index.c815c1cf214ea80e7185.js:11
 msgid "We found %d plugin that UX Studio can take over, with its settings and data."
 msgid_plural "We found %d plugins that UX Studio can take over, with their settings and data."
 msgstr[0] "Našli jsme %d plugin, který může UX Studio převzít i s jeho nastavením a daty."
 msgstr[1] "Našli jsme %d pluginy, které může UX Studio převzít i s jejich nastavením a daty."
 msgstr[2] "Našli jsme %d pluginů, které může UX Studio převzít i s jejich nastavením a daty."
 
-#: build/index.a7ec759b7f8102833709.js:11
+#: build/index.c815c1cf214ea80e7185.js:11
 msgid "Start the wizard"
 msgstr "Spustit průvodce"
 
-#: build/index.a7ec759b7f8102833709.js:20
+#: build/index.c815c1cf214ea80e7185.js:20
 msgid "Show detail"
 msgstr "Zobrazit detail"
 
-#: build/index.a7ec759b7f8102833709.js:35
+#: build/index.c815c1cf214ea80e7185.js:35
 msgid "Before the switch you can look at the site without the old plugins in a safe preview that only your browser sees. Visitors keep the old plugins the whole time."
 msgstr "Před přepnutím se můžete na web podívat bez starých pluginů v bezpečném náhledu, který vidí jen váš prohlížeč. Návštěvníci mají celou dobu staré pluginy."
 
-#: build/index.a7ec759b7f8102833709.js:35
+#: build/index.c815c1cf214ea80e7185.js:35
 msgid "No old plugin is ever deactivated automatically. You decide at the end, and even then you can go back."
 msgstr "Žádný starý plugin se nikdy nedeaktivuje automaticky. Rozhodnete až na konci a i potom se můžete vrátit zpět."
 
@@ -23889,6 +23906,9 @@ msgstr "počítač"
 msgid "Dashicons (WordPress)"
 msgstr "Dashicons (WordPress)"
 
+#: includes/Core/Migration/Sources/ExternalLinksSource.php:160
+#: includes/Modules/LinkManager/Module.php:559
+#: includes/Modules/LinkManager/Module.php:568
 #: includes/Modules/MenuIcons/Module.php:108
 msgid "Dashicon"
 msgstr "Dashicon"
@@ -24064,3 +24084,521 @@ msgstr "Podmínky spuštění"
 #: build/395.b69494e996fd55a376ef.js:6
 msgid "Parameters: %s"
 msgstr "Parametry: %s"
+
+#: includes/Core/Migration/Sources/ClassicEditorSource.php:57
+#: includes/Core/Migration/Sources/ClassicEditorSource.php:71
+#: includes/Modules/ClassicEditor/Module.php:513
+msgid "Users can choose their editor"
+msgstr "Uživatelé si mohou zvolit editor"
+
+#: includes/Core/Migration/Sources/ClassicEditorSource.php:58
+#: includes/Core/Migration/Sources/ClassicEditorSource.php:70
+#: includes/Modules/ClassicEditor/Module.php:520
+msgid "Site default editor"
+msgstr "Výchozí editor webu"
+
+#: includes/Core/Migration/Sources/ClassicEditorSource.php:62
+msgid "Users choose their editor, as in the plugin. The default editor of each user (user option classic-editor-settings) and the editor remembered for each post (post meta classic-editor-remember) are stored under the same keys, so the module uses them as they are."
+msgstr "Uživatelé si volí editor jako v pluginu. Výchozí editor každého uživatele (uživatelská volba classic-editor-settings) a editor zapamatovaný u každého příspěvku (post meta classic-editor-remember) jsou uložené pod stejnými klíči, takže je modul používá tak, jak jsou."
+
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:122
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:172
+#: includes/Modules/DuplicatePost/Module.php:460
+msgid "Offer duplication for all post types"
+msgstr "Nabízet duplikaci pro všechny typy obsahu"
+
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:123
+msgid "The plugin offers duplication for every post type with a list screen; the module is set to do the same."
+msgstr "Plugin nabízí duplikaci u každého typu obsahu, který má v administraci seznam; modul je nastaven stejně."
+
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:136
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:138
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:258
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:260
+#: includes/Modules/DuplicatePost/Module.php:490
+msgid "Keep the status of the original"
+msgstr "Ponechat stav originálu"
+
+#. translators: %s: post status.
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:144
+msgid "The copy status \"%s\" does not exist in the module, it keeps its own setting."
+msgstr "Stav kopie \"%s\" modul nemá, ponechává si vlastní nastavení."
+
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:178
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:270
+#: includes/Modules/DuplicatePost/Module.php:505
+msgid "Custom fields that are not copied"
+msgstr "Vlastní pole, která se nekopírují"
+
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:183
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:288
+#: includes/Modules/DuplicatePost/Module.php:467
+msgid "Roles that may duplicate"
+msgstr "Role, které smí duplikovat"
+
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:184
+msgid "Roles that may duplicate are the roles that hold the plugin capability; administrators always may in the module. The plugin also has a separate permission for copying posts of other authors, the module has none."
+msgstr "Role, které smí duplikovat, jsou role s oprávněním pluginu; administrátoři smí v modulu vždy. Plugin má navíc zvláštní oprávnění pro kopírování příspěvků jiných autorů, modul ho nemá."
+
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:272
+msgid "A * in the list of fields matches any characters in the module (the plugin: letters, digits and underscores). For ordinary field names the result is the same."
+msgstr "Hvězdička v seznamu polí znamená v modulu libovolné znaky (v pluginu písmena, číslice a podtržítka). U běžných názvů polí je výsledek stejný."
+
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:282
+#: includes/Modules/DuplicatePost/Module.php:512
+msgid "Taxonomies that are not copied"
+msgstr "Taxonomie, které se nekopírují"
+
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:289
+msgid "Roles that may duplicate are the roles that hold the plugin capability copy_posts; administrators always may in the module."
+msgstr "Role, které smí duplikovat, jsou role s oprávněním copy_posts z pluginu; administrátoři smí v modulu vždy."
+
+#: includes/Core/Migration/Sources/DuplicatePostSource.php:320
+msgid "\"Rewrite & Republish\" and the \"original item\" references of the plugin do not exist in the module."
+msgstr "\"Rewrite & Republish\" a odkazy na \"původní položku\" z pluginu v modulu nejsou."
+
+#: includes/Core/Migration/Sources/ExternalLinksSource.php:51
+msgid "the settings for internal links"
+msgstr "nastavení vnitřních odkazů"
+
+#: includes/Core/Migration/Sources/ExternalLinksSource.php:52
+msgid "the link titles and added CSS classes"
+msgstr "titulky odkazů a přidané třídy CSS"
+
+#: includes/Core/Migration/Sources/ExternalLinksSource.php:53
+msgid "the exit confirmation"
+msgstr "potvrzení odchodu"
+
+#: includes/Core/Migration/Sources/ExternalLinksSource.php:57
+msgid "the addresses that are always treated as external"
+msgstr "adresy, které se vždy berou jako externí"
+
+#: includes/Core/Migration/Sources/ExternalLinksSource.php:60
+msgid "the list of posts to skip"
+msgstr "seznam přeskočených příspěvků"
+
+#. translators: %s: comma-separated list of plugin features.
+#: includes/Core/Migration/Sources/ExternalLinksSource.php:66
+msgid "Not transferred: %s. The module changes links in the content of posts and pages only (the plugin also reaches comments and widgets)."
+msgstr "Nepřenese se: %s. Modul upravuje odkazy jen v obsahu příspěvků a stránek (plugin sahá i na komentáře a widgety)."
+
+#: includes/Core/Migration/Sources/ExternalLinksSource.php:84
+#: includes/Modules/LinkManager/Module.php:620
+msgid "Subdomains of this site are internal"
+msgstr "Subdomény tohoto webu jsou vnitřní"
+
+#: includes/Core/Migration/Sources/ExternalLinksSource.php:96
+#: includes/Modules/LinkManager/Module.php:612
+msgid "Never treat as external"
+msgstr "Nikdy nepovažovat za externí"
+
+#: includes/Core/Migration/Sources/ExternalLinksSource.php:97
+msgid "Each excluded URL of the plugin matches anywhere in the address; it became a pattern with a star on both sides."
+msgstr "Každá vyloučená adresa z pluginu se hledá kdekoli v adrese; stala se vzorem s hvězdičkou na obou stranách."
+
+#: includes/Core/Migration/Sources/ExternalLinksSource.php:113
+#: includes/Core/Migration/Sources/ExternalLinksSource.php:121
+#: includes/Modules/LinkManager/Module.php:535
+msgid "External links open"
+msgstr "Externí odkazy se otevírají"
+
+#: includes/Core/Migration/Sources/ExternalLinksSource.php:114
+#: includes/Core/Migration/Sources/ExternalLinksSource.php:150
+#: includes/Modules/LinkManager/Module.php:547
+msgid "rel attribute of external links"
+msgstr "Atribut rel externích odkazů"
+
+#: includes/Core/Migration/Sources/ExternalLinksSource.php:115
+#: includes/Core/Migration/Sources/ExternalLinksSource.php:157
+#: includes/Core/Migration/Sources/ExternalLinksSource.php:159
+#: includes/Core/Migration/Sources/ExternalLinksSource.php:162
+#: includes/Modules/LinkManager/Module.php:555
+msgid "Icon of external links"
+msgstr "Ikona externích odkazů"
+
+#: includes/Core/Migration/Sources/ExternalLinksSource.php:116
+msgid "The plugin has the settings for external links switched off, so the module does not change them either (no new tab, no rel, no icon)."
+msgstr "Plugin má nastavení pro externí odkazy vypnuté, takže je modul také nemění (bez nové karty, bez rel, bez ikony)."
+
+#. translators: %s: target value of the plugin.
+#: includes/Core/Migration/Sources/ExternalLinksSource.php:126
+msgid "The target \"%s\" does not exist in the module; links keep the target the author set."
+msgstr "Cíl \"%s\" modul nemá, odkazy si ponechají cíl, který nastavil autor."
+
+#: includes/Core/Migration/Sources/ExternalLinksSource.php:152
+msgid "The plugin adds rel=\"follow\" to external links; that value does not exist in HTML and the module does not add it."
+msgstr "Plugin přidává k externím odkazům rel=\"follow\"; taková hodnota v HTML neexistuje a modul ji nepřidává."
+
+#: includes/Core/Migration/Sources/ExternalLinksSource.php:163
+msgid "The icon of the plugin (an image or a Font Awesome icon) is replaced by the arrow of the module; the Dashicon option is available in the module if you prefer a Dashicon."
+msgstr "Ikona z pluginu (obrázek nebo ikona Font Awesome) se nahradí šipkou modulu; v modulu lze vybrat i Dashicon."
+
+#: includes/Core/Migration/Sources/ExternalLinksSource.php:167
+#: includes/Modules/LinkManager/Module.php:588
+msgid "No icon on links that contain an image"
+msgstr "Bez ikony u odkazů s obrázkem"
+
+#. translators: 1: number of folders, 2: taxonomy name.
+#: includes/Core/Migration/Sources/FolderSource.php:370
+msgid "%1$d folders of the taxonomy %2$s are not transferred: it belongs to a content type this site does not have."
+msgstr "%1$d složek taxonomie %2$s se nepřenáší: patří k typu obsahu, který tento web nemá."
+
+#: includes/Core/Migration/Sources/FolderSource.php:403
+msgid "Folders of posts, pages and other content types are transferred too; the module is set to offer folders for these post types."
+msgstr "Přenášejí se i složky příspěvků, stránek a dalších typů obsahu; modul se nastaví tak, aby pro tyto typy složky nabízel."
+
+#. translators: 1: number of folders with a colour, 2: number of folders with a manual position.
+#: includes/Core/Migration/Sources/FolderSource.php:412
+msgid "Folder colours (%1$d) and the manual order (%2$d folders with a position) are carried over to the folders created by this step."
+msgstr "Barvy složek (%1$d) a ruční pořadí (%2$d složek s pozicí) se přenesou do složek, které tento krok vytvoří."
+
+#. translators: %d: number of folders.
+#: includes/Core/Migration/Sources/FolderSource.php:422
+msgid "%d folders belong to a single user in the plugin; in the module all folders are shared."
+msgstr "%d složek patří v pluginu jednomu uživateli; v modulu jsou všechny složky sdílené."
+
+#: includes/Core/Migration/Sources/FolderSource.php:427
+msgid "Folder icons and the other flags of the plugin (sticky, locked or high priority folders) are not transferred."
+msgstr "Ikony složek a další příznaky pluginu (připnuté, zamčené nebo prioritní složky) se nepřenášejí."
+
+#. translators: %d: number of files.
+#: includes/Core/Migration/Sources/FolderSource.php:624
+msgid "%d items are not in any UX Studio folder."
+msgstr "%d položek není v žádné složce UX Studia."
+
+#. translators: %s: address of the image.
+#: includes/Core/Migration/Sources/MaintenanceSource.php:96
+msgid "The background image %s is not in the media library, so it cannot be used. Add it to the library and select it in the module."
+msgstr "Obrázek na pozadí %s není v knihovně médií, proto ho nelze použít. Přidejte ho do knihovny a vyberte v modulu."
+
+#: includes/Core/Migration/Sources/MaintenanceSource.php:104
+#: includes/Modules/MaintenanceMode/Module.php:549
+msgid "Countdown ends"
+msgstr "Odpočet končí"
+
+#: includes/Core/Migration/Sources/MaintenanceSource.php:105
+#: includes/Modules/MaintenanceMode/Module.php:541
+msgid "Show a countdown"
+msgstr "Zobrazit odpočet"
+
+#: includes/Core/Migration/Sources/MaintenanceSource.php:106
+#: includes/Modules/MaintenanceMode/Module.php:564
+msgid "Open the site when the countdown ends"
+msgstr "Otevřít web, když odpočet skončí"
+
+#: includes/Core/Migration/Sources/MaintenanceSource.php:110
+#: includes/Modules/MaintenanceMode/Module.php:517
+msgid "Addresses that stay open"
+msgstr "Adresy, které zůstanou otevřené"
+
+#: includes/Core/Migration/Sources/MaintenanceSource.php:124
+#: includes/Modules/MaintenanceMode/Module.php:533
+msgid "IP addresses that see the site"
+msgstr "IP adresy, které vidí web"
+
+#. translators: %s: comma-separated list of entries.
+#: includes/Core/Migration/Sources/MaintenanceSource.php:130
+msgid "These entries of the list of addresses are not valid IP addresses and are not transferred: %s."
+msgstr "Tyto položky seznamu adres nejsou platné IP adresy a nepřenášejí se: %s."
+
+#: includes/Core/Migration/Sources/MaintenanceSource.php:205
+msgid "The ready-made background image of the plugin is not transferred. Select your own image in the module."
+msgstr "Připravený obrázek na pozadí z pluginu se nepřenáší. V modulu vyberte vlastní obrázek."
+
+#: includes/Core/Migration/Sources/MaintenanceSource.php:208
+msgid "The countdown of the plugin counts from its start time; it was read as the time of the site and turned into the end date."
+msgstr "Odpočet z pluginu počítá od svého počátečního času; byl přečten jako čas webu a převeden na datum konce."
+
+#: includes/Core/Migration/Sources/MaintenanceSource.php:211
+msgid "The plugin lets through every address that contains one of the listed texts; each became a pattern with a star on both sides. The module looks at the path only, not at the query string."
+msgstr "Plugin propouští každou adresu, která obsahuje některý z vypsaných textů; každý se stal vzorem s hvězdičkou na obou stranách. Modul sleduje jen cestu, ne parametry v adrese."
+
+#: includes/Core/Migration/Sources/MaintenanceSource.php:213
+msgid "Subscribe form, social links, contact form, chat bot, GDPR notice, custom CSS, redirection and \"let search engine bots in\" of the plugin are not transferred."
+msgstr "Formulář pro odběr, sociální sítě, kontaktní formulář, chat, oznámení GDPR, vlastní CSS, přesměrování a \"pustit vyhledávací roboty\" z pluginu se nepřenášejí."
+
+#: includes/Core/Migration/Sources/MaintenanceSource.php:300
+msgid "The addresses the page leaves open (privacy, imprint, login, admin, dashboard, account) became one pattern of addresses that stay open. The plugin looks at the whole address, the module at the path."
+msgstr "Adresy, které stránka nechává otevřené (privacy, imprint, login, admin, dashboard, account), se staly jedním vzorem adres, které zůstanou otevřené. Plugin posuzuje celou adresu, modul cestu."
+
+#: includes/Core/Migration/Sources/MaintenanceSource.php:302
+msgid "The page was designed in the SeedProd editor. The module shows that page as an existing page; check in the preview that it looks right. The bypass link, the redirect mode and the countdown block of the page are not transferred."
+msgstr "Stránka byla navržena v editoru SeedProd. Modul ji ukáže jako existující stránku; v náhledu zkontrolujte, že vypadá správně. Obejití odkazem, režim přesměrování a blok s odpočtem na stránce se nepřenášejí."
+
+#: includes/Core/Migration/Sources/MaintenanceSource.php:363
+msgid "The planned end date of the plugin is used for the Retry-After header of the maintenance page; no countdown is shown (the plugin shows none in this version)."
+msgstr "Plánované datum konce z pluginu se použije pro hlavičku Retry-After stránky údržby; odpočet se nezobrazuje (plugin ho v této verzi nemá)."
+
+#: includes/Core/Migration/Sources/MaintenanceSource.php:366
+msgid "The plugin applies maintenance mode only to the listed addresses; the module cannot do that, it applies to the whole site except for the addresses that stay open. Nothing of this list was transferred."
+msgstr "Plugin používá režim údržby jen pro vypsané adresy; modul to neumí, platí pro celý web kromě adres, které zůstanou otevřené. Nic z tohoto seznamu se nepřeneslo."
+
+#: includes/Core/Migration/Sources/MaintenanceSource.php:368
+msgid "The layout, colours, background, passwords, the secret access link and the search engine rules of the plugin are not transferred; the on / off state, the headline, the planned end, the addresses that stay open and the IP addresses are."
+msgstr "Rozvržení, barvy, pozadí, hesla, tajný odkaz a pravidla pro vyhledávače z pluginu se nepřenášejí; přenáší se stav zapnuto / vypnuto, nadpis, plánovaný konec, adresy, které zůstanou otevřené, a IP adresy."
+
+#: includes/Core/Migration/Sources/MaintenanceSource.php:407
+msgid "The plugin ends the under construction page at its end date; the module is set to open the site then (the saved mode stays, it is only ignored after the end)."
+msgstr "Plugin stránku ve výstavbě na konci ukončí; modul se nastaví, aby web v ten čas otevřel (uložený režim zůstane, po konci se jen ignoruje)."
+
+#. translators: %s: post title
+#: includes/Modules/ClassicEditor/Module.php:302
+msgid "Edit \"%s\" in the block editor"
+msgstr "Upravit \"%s\" v blokovém editoru"
+
+#: includes/Modules/ClassicEditor/Module.php:303
+msgid "Edit (block editor)"
+msgstr "Upravit (blokový editor)"
+
+#. translators: %s: post title
+#: includes/Modules/ClassicEditor/Module.php:309
+msgid "Edit \"%s\" in the classic editor"
+msgstr "Upravit \"%s\" v klasickém editoru"
+
+#: includes/Modules/ClassicEditor/Module.php:310
+msgid "Edit (classic editor)"
+msgstr "Upravit (klasický editor)"
+
+#: includes/Modules/ClassicEditor/Module.php:352
+#: includes/Modules/ClassicEditor/Module.php:464
+#: includes/Modules/ClassicEditor/Module.php:523
+msgid "Classic editor"
+msgstr "Klasický editor"
+
+#: includes/Modules/ClassicEditor/Module.php:352
+#: includes/Modules/ClassicEditor/Module.php:465
+#: includes/Modules/ClassicEditor/Module.php:524
+msgid "Block editor"
+msgstr "Blokový editor"
+
+#: includes/Modules/ClassicEditor/Module.php:354
+msgid "classic editor"
+msgstr "klasický editor"
+
+#: includes/Modules/ClassicEditor/Module.php:354
+msgid "block editor"
+msgstr "blokový editor"
+
+#: includes/Modules/ClassicEditor/Module.php:406
+msgid "Switch to block editor"
+msgstr "Přepnout na blokový editor"
+
+#: includes/Modules/ClassicEditor/Module.php:437
+msgid "Switch to classic editor"
+msgstr "Přepnout na klasický editor"
+
+#: includes/Modules/ClassicEditor/Module.php:460
+msgid "Default editor"
+msgstr "Výchozí editor"
+
+#: includes/Modules/ClassicEditor/Module.php:463
+msgid "As set for the site"
+msgstr "Podle nastavení webu"
+
+#: includes/Modules/ClassicEditor/Module.php:514
+msgid "Every user gets a Default editor setting in the profile, the list of posts offers \"Edit (classic editor)\" and \"Edit (block editor)\", and the editor a post was last opened in is remembered. The post types above are the site default for users who have not chosen."
+msgstr "Každý uživatel dostane v profilu nastavení Výchozí editor, seznam příspěvků nabídne \"Upravit (klasický editor)\" a \"Upravit (blokový editor)\" a pamatuje se, v jakém editoru byl příspěvek naposledy otevřen. Typy obsahu výše jsou výchozí pro uživatele, kteří si nevybrali."
+
+#: includes/Modules/ClassicEditor/Module.php:521
+msgid "The editor users get when they have not chosen one. \"Block editor\" only makes sense together with the switch above."
+msgstr "Editor, který uživatelé dostanou, pokud si žádný nevybrali. \"Blokový editor\" dává smysl jen společně s přepínačem výše."
+
+#: includes/Modules/DuplicatePost/Module.php:461
+msgid "Add the Duplicate link to every post type that has a list screen in the administration, regardless of the selection above."
+msgstr "Přidat odkaz Duplikovat ke každému typu obsahu, který má v administraci seznam, bez ohledu na výběr výše."
+
+#: includes/Modules/DuplicatePost/Module.php:468
+msgid "Only these roles see the Duplicate link. Leave empty to let everybody who can edit the post duplicate it. Administrators can always duplicate."
+msgstr "Odkaz Duplikovat vidí jen tyto role. Nechte prázdné, aby mohl duplikovat každý, kdo smí příspěvek upravit. Administrátoři mohou duplikovat vždy."
+
+#: includes/Modules/DuplicatePost/Module.php:491
+msgid "The copy gets the same status as the original (published, private, pending or draft) instead of the status above. A scheduled post becomes a draft, and a user who cannot publish always gets a pending copy."
+msgstr "Kopie dostane stejný stav jako originál (publikovaný, soukromý, čekající nebo koncept) místo stavu výše. Naplánovaný příspěvek se stane konceptem a uživatel, který nesmí publikovat, dostane vždy kopii čekající na schválení."
+
+#: includes/Modules/DuplicatePost/Module.php:506
+msgid "One custom field key per line (or separated by commas). Use * for any characters, for example _edit_* or *_cache. Lines starting with # are comments. The edit lock and Elementor caches are never copied."
+msgstr "Jeden klíč vlastního pole na řádek (nebo oddělené čárkami). * znamená libovolné znaky, například _edit_* nebo *_cache. Řádky začínající # jsou komentáře. Zámek úprav a cache Elementoru se nekopírují nikdy."
+
+#: includes/Modules/DuplicatePost/Module.php:513
+msgid "The copy does not get terms of the selected taxonomies."
+msgstr "Kopie nedostane termíny vybraných taxonomií."
+
+#: includes/Modules/FolderManager/AdminIntegration.php:196
+#: build/93.9dedf701b8e9ee0662b2.js:1
+msgid "Folder colour"
+msgstr "Barva složky"
+
+#: includes/Modules/FolderManager/AdminIntegration.php:197
+#: build/93.9dedf701b8e9ee0662b2.js:1
+msgid "Remove folder colour"
+msgstr "Odebrat barvu složky"
+
+#: includes/Modules/FolderManager/AdminIntegration.php:198
+#: build/93.9dedf701b8e9ee0662b2.js:1
+msgid "Move folder up"
+msgstr "Posunout složku nahoru"
+
+#: includes/Modules/FolderManager/AdminIntegration.php:199
+#: build/93.9dedf701b8e9ee0662b2.js:1
+msgid "Move folder down"
+msgstr "Posunout složku dolů"
+
+#: includes/Modules/FolderManager/Module.php:487
+msgid "The colour must be a hex value such as #2271b1."
+msgstr "Barva musí být hodnota hex, například #2271b1."
+
+#: includes/Modules/FolderManager/Module.php:506
+msgid "No folders to order."
+msgstr "Žádné složky k seřazení."
+
+#: includes/Modules/FolderManager/Module.php:519
+msgid "Folders can only be ordered among folders of the same level and post type."
+msgstr "Složky lze řadit jen mezi složkami stejné úrovně a stejného typu obsahu."
+
+#: includes/Modules/FolderManager/Module.php:542
+msgid "The direction must be up or down."
+msgstr "Směr musí být nahoru nebo dolů."
+
+#: includes/Modules/LinkManager/Module.php:526
+msgid "Links"
+msgstr "Odkazy"
+
+#: includes/Modules/LinkManager/Module.php:527
+msgid "Rules"
+msgstr "Pravidla"
+
+#: includes/Modules/LinkManager/Module.php:528
+msgid "Speculative loading"
+msgstr "Spekulativní načítání"
+
+#: includes/Modules/LinkManager/Module.php:536
+msgid "Where external links open. \"Keep as is\" leaves the target the author set."
+msgstr "Kde se externí odkazy otevírají. \"Ponechat beze změny\" nechá cíl, který nastavil autor."
+
+#: includes/Modules/LinkManager/Module.php:538
+msgid "In a new tab"
+msgstr "V nové kartě"
+
+#: includes/Modules/LinkManager/Module.php:539
+msgid "Keep as is"
+msgstr "Ponechat beze změny"
+
+#: includes/Modules/LinkManager/Module.php:548
+msgid "Tokens added to external links, separated by spaces: noopener, noreferrer, nofollow, sponsored, ugc, external. Leave empty to add nothing."
+msgstr "Hodnoty přidané k externím odkazům, oddělené mezerami: noopener, noreferrer, nofollow, sponsored, ugc, external. Nechte prázdné, aby se nepřidalo nic."
+
+#: includes/Modules/LinkManager/Module.php:556
+msgid "The arrow of the module, a Dashicon of your choice, or no icon. Not recommended to switch it off: it may cause accessibility issues."
+msgstr "Šipka modulu, Dashicon podle vašeho výběru, nebo žádná ikona. Vypnutí se nedoporučuje: může způsobit problémy s přístupností."
+
+#: includes/Modules/LinkManager/Module.php:558
+msgid "Arrow"
+msgstr "Šipka"
+
+#: includes/Modules/LinkManager/Module.php:560
+msgid "No icon"
+msgstr "Bez ikony"
+
+#: includes/Modules/LinkManager/Module.php:569
+msgid "Used when the icon is a Dashicon."
+msgstr "Použije se, když je ikona Dashicon."
+
+#: includes/Modules/LinkManager/Module.php:579
+msgid "After the link text"
+msgstr "Za textem odkazu"
+
+#: includes/Modules/LinkManager/Module.php:580
+msgid "Before the link text"
+msgstr "Před textem odkazu"
+
+#: includes/Modules/LinkManager/Module.php:589
+msgid "Image links (logos, banners) do not get the icon."
+msgstr "Odkazy kolem obrázků (loga, bannery) ikonu nedostanou."
+
+#: includes/Modules/LinkManager/Module.php:604
+msgid "Rules per domain"
+msgstr "Pravidla podle domény"
+
+#: includes/Modules/LinkManager/Module.php:605
+msgid "One rule per line: an address, then any of tab=yes|no (open in a new tab), rel=tokens separated by commas (exactly these are added, none = nothing) and icon=yes|no. The first matching line wins. Examples: partner.example tab=no rel=none / *.shop.example rel=sponsored,nofollow / example.org/affiliate/* rel=sponsored icon=no. An address without a star is that host (www is ignored), *.example.com covers its subdomains, a slash makes it a path. Lines starting with # are comments."
+msgstr "Jedno pravidlo na řádek: adresa a za ní libovolné z tab=ano|ne (otevřít v nové kartě), rel=hodnoty oddělené čárkami (přidají se přesně tyto, none = nic) a icon=ano|ne. Vyhrává první odpovídající řádek. Příklady: partner.example tab=ne rel=none / *.shop.example rel=sponsored,nofollow / example.org/affiliate/* rel=sponsored icon=ne. Adresa bez hvězdičky je právě ten host (www se ignoruje), *.example.com pokrývá jeho subdomény, lomítko z ní dělá cestu. Řádky začínající # jsou komentáře."
+
+#: includes/Modules/LinkManager/Module.php:613
+msgid "Addresses that are not processed as external links, for example your own other domains and subdomains. One per line or separated by commas, * stands for any characters: shop.example.com, *.example.com, example.org/blog/*."
+msgstr "Adresy, které se nezpracovávají jako externí odkazy, například vaše další domény a subdomény. Jedna na řádek nebo oddělené čárkami, * znamená libovolné znaky: shop.example.com, *.example.com, example.org/blog/*."
+
+#: includes/Modules/LinkManager/Module.php:621
+msgid "Links to any subdomain of the domain of this site are not treated as external."
+msgstr "Odkazy na jakoukoli subdoménu domény tohoto webu se nepovažují za externí."
+
+#: includes/Modules/MaintenanceMode/layouts/content.php:47
+msgid "days"
+msgstr "dní"
+
+#: includes/Modules/MaintenanceMode/layouts/content.php:48
+msgid "hours"
+msgstr "hodin"
+
+#: includes/Modules/MaintenanceMode/layouts/content.php:49
+msgid "minutes"
+msgstr "minut"
+
+#: includes/Modules/MaintenanceMode/layouts/content.php:50
+msgid "seconds"
+msgstr "sekund"
+
+#: includes/Modules/MaintenanceMode/Module.php:331
+#: includes/Modules/MaintenanceMode/Module.php:558
+msgid "We will be back in"
+msgstr "Vrátíme se za"
+
+#: includes/Modules/MaintenanceMode/Module.php:384
+msgid "Countdown ended, the site is open"
+msgstr "Odpočet skončil, web je otevřený"
+
+#: includes/Modules/MaintenanceMode/Module.php:518
+msgid "Visitors can still open these addresses. One per line: /contact is that page only, /contact/* the page and everything below it (* stands for any characters), regex:^/(en|de)/ is a regular expression on the path. Lines starting with # are comments."
+msgstr "Návštěvníci mohou tyto adresy dál otevřít. Jedna na řádek: /kontakt je jen tato stránka, /kontakt/* stránka a vše pod ní (* znamená libovolné znaky), regex:^/(en|de)/ je regulární výraz na cestu. Řádky začínající # jsou komentáře."
+
+#: includes/Modules/MaintenanceMode/Module.php:525
+msgid "Keep RSS feeds open"
+msgstr "Nechat otevřené kanály RSS"
+
+#: includes/Modules/MaintenanceMode/Module.php:526
+msgid "Feeds of posts and comments are not replaced by the maintenance page."
+msgstr "Kanály příspěvků a komentářů stránka údržby nenahradí."
+
+#: includes/Modules/MaintenanceMode/Module.php:534
+msgid "Visitors from these addresses or ranges (203.0.113.7, 203.0.113.0/24, IPv6 too) see the normal site. One per line. Be careful with behind-proxy sites: the address is the one WordPress sees."
+msgstr "Návštěvníci z těchto adres nebo rozsahů (203.0.113.7, 203.0.113.0/24, také IPv6) vidí běžný web. Jedna na řádek. Pozor u webů za proxy: platí adresa, kterou vidí WordPress."
+
+#: includes/Modules/MaintenanceMode/Module.php:539
+#: includes/Modules/MaintenanceMode/Module.php:547
+#: includes/Modules/MaintenanceMode/Module.php:555
+#: includes/Modules/MaintenanceMode/Module.php:562
+msgid "Countdown"
+msgstr "Odpočet"
+
+#: includes/Modules/MaintenanceMode/Module.php:542
+msgid "Counts down to the date below on the page (not on an existing WordPress page). Without JavaScript the date is shown as text."
+msgstr "Odpočítává na stránce k datu níže (ne na existující stránce WordPressu). Bez JavaScriptu se datum zobrazí jako text."
+
+#: includes/Modules/MaintenanceMode/Module.php:550
+msgid "Date and time of the site. Search engines also learn from it when to come back (Retry-After of the 503 page), even without the countdown shown."
+msgstr "Datum a čas webu. Z něj se vyhledávače dozvědí také, kdy se mají vrátit (Retry-After stránky 503), i když se odpočet nezobrazuje."
+
+#: includes/Modules/MaintenanceMode/Module.php:557
+msgid "Text above the countdown"
+msgstr "Text nad odpočtem"
+
+#: includes/Modules/MaintenanceMode/Module.php:565
+msgid "The maintenance page stops being shown at the end time. The mode in the settings is not changed, it is only ignored from then on. Off by default."
+msgstr "Stránka údržby se od času konce přestane zobrazovat. Režim v nastavení se nemění, jen se od té doby ignoruje. Ve výchozím stavu vypnuto."
+
+#: build/93.9dedf701b8e9ee0662b2.js:1
+msgid "Could not change the colour."
+msgstr "Barvu se nepodařilo změnit."
+
+#: build/93.9dedf701b8e9ee0662b2.js:1
+msgid "Colour"
+msgstr "Barva"

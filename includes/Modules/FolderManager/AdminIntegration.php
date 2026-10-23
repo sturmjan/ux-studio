@@ -193,6 +193,10 @@ final class AdminIntegration {
 					'collapse'        => __( 'Collapse', 'ux-studio' ),
 					'error'           => __( 'An error occurred.', 'ux-studio' ),
 					'moveFolderLabel' => __( 'Folder to move the selected items to', 'ux-studio' ),
+					'folderColor'     => __( 'Folder colour', 'ux-studio' ),
+					'clearColor'      => __( 'Remove folder colour', 'ux-studio' ),
+					'moveUp'          => __( 'Move folder up', 'ux-studio' ),
+					'moveDown'        => __( 'Move folder down', 'ux-studio' ),
 				),
 			)
 		);

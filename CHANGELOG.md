@@ -2,6 +2,40 @@
 
 ## 0.6.0 (unreleased)
 
+- New - Duplicate Post: the copy can keep the status of the original (published, private, pending, draft; a scheduled
+  post becomes a draft, a user who cannot publish always gets a pending copy), custom fields that are not copied
+  (one per line, `*` as wildcard, for example `_edit_*`) and taxonomies that are not copied, the roles that may
+  duplicate (empty = everybody who can edit the post, administrators always) and the link for every post type
+  that has a list screen. The role check also covers the edit screens and the REST route.
+- New - Link Manager: rules per domain (host, `*.sub.example`, or a path) with new tab yes / no, the exact rel tokens
+  (nofollow, sponsored, ugc, noopener, noreferrer, external) and icon yes / no; a list of addresses that are never
+  external; "subdomains of this site are internal"; the default target and rel for all external links; the icon is
+  the arrow, a Dashicon (before or after the text) or none, and image links can go without it. The content is parsed
+  once per `the_content` and not at all when it has no link; the decision for an address is cached for the request.
+  Fixed: a relative address without a leading slash and `//host` links were treated as internal / external wrongly,
+  `mailto:`, `tel:`, `javascript:` and other schemes are skipped, http / https and www of the own host count as internal.
+  Sites that had "Disable external link arrow" keep it (shown as "No icon").
+- New - Classic Editor: "Users can choose their editor". Every user has a Default editor in the profile, the list of
+  posts offers Edit (classic editor) / Edit (block editor), the editor each post was last opened in is remembered, the
+  classic edit screen has a link to the block editor and the block editor a menu item for the classic one. The stored
+  values are those of the Classic Editor plugin (user option `classic-editor-settings`, post meta
+  `classic-editor-remember`), so a site that used the plugin keeps every choice. New setting "Site default editor".
+- New - Maintenance Mode: countdown on the page (days / hours / minutes / seconds, no external script) to a date and
+  time of the site; the end also sets Retry-After of the 503 page; optionally the site opens by itself at the end (off
+  by default, the saved mode is not changed, only ignored after the end); addresses that stay open (exact path,
+  `/section/*`, `*text*` or `regex:`), RSS feeds, and IP addresses / ranges that see the normal site. The background
+  image that was already there is used by the migration.
+- New - Folder Manager: folder colours and manual order (up / down in the sidebar and on the settings screen, explicit
+  order through the API); folders for posts, pages and other post types keep one tree per type, as before.
+- New - Settings: a date and time field type.
+- New - Migration: Yoast Duplicate Post (status of the copy, excluded fields incl. the template switch, excluded
+  taxonomies incl. the format switch, roles with copy_posts), Duplicate Page (all post types), Post Duplicator (same
+  status, excluded fields, all types, roles with duplicate_posts); WP External Links (target, rel tokens, Dashicon and
+  its position, skip images, subdomains, excluded URLs, "switched off" state); Classic Editor ("users choose" and the
+  block default); WP Maintenance Mode (background image from the library, countdown end, excluded addresses and IPs),
+  Under Construction (end date opens the site), Maintenance (planned end, whitelisted URLs and IPs), SeedProd (access
+  by role and the open addresses of the page); FileBird, Folders and Wicked Folders (colours, order, folders of posts,
+  pages and other post types, FileBird post type taxonomies), Real Media Library (order).
 - New - Redirects: every rule counts its hits and remembers the time of the last one (shown in the list, sortable
   through the API, can be reset per rule or for all). The count is written after the redirect is sent, so it never
   delays it. A rule can be case sensitive (default: letter case is ignored) and can handle the query string in its

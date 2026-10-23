@@ -121,9 +121,9 @@ function absint( $v ) { return abs( (int) $v ); }
 function wp_roles() {
 	return (object) array(
 		'roles' => array(
-			'administrator' => array( 'capabilities' => array( 'upload_files' => true ) ),
-			'editor'        => array( 'capabilities' => array( 'upload_files' => true ) ),
-			'author'        => array( 'capabilities' => array( 'upload_files' => true ) ),
+			'administrator' => array( 'capabilities' => array( 'upload_files' => true, 'copy_posts' => true ) ),
+			'editor'        => array( 'capabilities' => array( 'upload_files' => true, 'copy_posts' => true ) ),
+			'author'        => array( 'capabilities' => array( 'upload_files' => true, 'duplicate_posts' => true ) ),
 			'subscriber'    => array( 'capabilities' => array() ),
 		),
 	);
@@ -166,7 +166,7 @@ $area = static fn( string $key, $def = '' ) => array( 'key' => $key, 'type' => '
 $all_roles = array( 'administrator', 'editor', 'author', 'subscriber' );
 
 $schemas = array(
-	'classic-editor'        => array( $mul( 'post_types', array( 'post', 'page' ) ) ),
+	'classic-editor'        => array( $mul( 'post_types', array( 'post', 'page' ) ), $tog( 'allow_users' ), $sel( 'default_editor', array( 'classic', 'block' ), 'classic' ) ),
 	'duplicate-post'        => array(
 		$mul( 'post_types', array( 'post', 'page' ), array( 'post', 'page' ) ),
 		$tog( 'post_redirect', true ),
@@ -174,6 +174,8 @@ $schemas = array(
 		$mul( 'duplicate_elements', array( 'post_content', 'post_excerpt', 'featured_image', 'taxonomies', 'meta_fields', 'menu_order', 'post_parent' ) ),
 		$tog( 'custom_title' ),
 		$txt( 'custom_title_format', '[Duplicate] {post_title}' ),
+		$tog( 'all_post_types' ), $tog( 'keep_status' ), $mul( 'allowed_roles', array( 'editor', 'author', 'subscriber' ) ),
+		$area( 'excluded_meta' ), $mul( 'excluded_taxonomies', array( 'category', 'post_tag', 'post_format' ) ),
 	),
 	'hide-admin-bar'        => array( $mul( 'roles', $all_roles ) ),
 	'svg-upload'            => array( $mul( 'allowed_roles', $all_roles, array( 'administrator' ) ) ),
@@ -183,7 +185,11 @@ $schemas = array(
 		$tog( 'disable_theme_updates', true ), $sel( 'theme_update_type', array( 'all', 'specific' ), 'all' ),
 		$tog( 'disable_translation_updates', true ),
 	),
-	'link-manager'          => array( $txt( 'exclude_classes' ), $tog( 'disable_arrow' ) ),
+	'link-manager'          => array(
+		$txt( 'exclude_classes' ), $sel( 'default_target', array( 'new_tab', 'keep' ), 'new_tab' ), $txt( 'default_rel', 'noopener noreferrer nofollow' ),
+		$sel( 'icon_type', array( 'arrow', 'dashicon', 'none' ), 'arrow' ), $sel( 'icon_dashicon', array( 'dashicons-external', 'dashicons-admin-links' ), 'dashicons-external' ),
+		$sel( 'icon_position', array( 'right', 'left' ), 'right' ), $tog( 'icon_skip_images' ), $area( 'link_rules' ), $area( 'internal_domains' ), $tog( 'subdomains_internal' ),
+	),
 	'security-optimization' => array(
 		$tog( 'disable_comments' ), $sel( 'disable_comments_scope', array( 'all', 'selected' ), 'all' ),
 		$mul( 'disable_comments_post_types', array( 'post', 'page' ) ), $tog( 'disable_comments_hide_existing', true ),
@@ -292,12 +298,20 @@ $seen_keys = array();
 $cases = array(
 	'classic-editor / classic'     => array(
 		'classic-editor', true, array( 'classic-editor-replace' => 'classic', 'classic-editor-allow-users' => 'disallow' ),
-		array( 'uxstudio_classic_editor' => array( 'post_types' => array() ) ),
+		array( 'uxstudio_classic_editor' => array( 'post_types' => array(), 'default_editor' => 'classic', 'allow_users' => false ) ),
+	),
+	'classic-editor / users choose, classic default' => array(
+		'classic-editor', true, array( 'classic-editor-replace' => 'classic', 'classic-editor-allow-users' => 'allow' ),
+		array( 'uxstudio_classic_editor' => array( 'post_types' => array(), 'default_editor' => 'classic', 'allow_users' => true ) ),
+	),
+	'classic-editor / users choose, block default' => array(
+		'classic-editor', true, array( 'classic-editor-replace' => 'block', 'classic-editor-allow-users' => 'allow' ),
+		array( 'uxstudio_classic_editor' => array( 'default_editor' => 'block', 'allow_users' => true ) ),
 	),
 	'duplicate-page'               => array(
 		'duplicate-page', false,
 		array( 'duplicate_page_options' => array( 'duplicate_post_status' => 'private', 'duplicate_post_redirect' => 'to_page', 'duplicate_post_suffix' => 'copy', 'duplicate_post_editor' => 'classic' ) ),
-		array( 'uxstudio_duplicate_post' => array( 'post_status' => 'private', 'post_redirect' => true, 'custom_title' => true, 'custom_title_format' => '{post_title} -- copy' ) ),
+		array( 'uxstudio_duplicate_post' => array( 'post_status' => 'private', 'post_redirect' => true, 'custom_title' => true, 'custom_title_format' => '{post_title} -- copy', 'all_post_types' => true ) ),
 	),
 	'duplicate-post (Yoast)'       => array(
 		'duplicate-post', true,
@@ -305,17 +319,26 @@ $cases = array(
 			'duplicate_post_types_enabled' => array( 'post', 'page' ), 'duplicate_post_copytitle' => 1, 'duplicate_post_copycontent' => 1,
 			'duplicate_post_copyexcerpt' => 0, 'duplicate_post_copythumbnail' => 1, 'duplicate_post_copymenuorder' => 0,
 			'duplicate_post_title_prefix' => 'Copy of', 'duplicate_post_title_suffix' => '(dup)', 'duplicate_post_copydate' => 1,
+			'duplicate_post_copystatus' => 0, 'duplicate_post_copytemplate' => 0, 'duplicate_post_copyformat' => 0,
+			'duplicate_post_blacklist' => '_secret, _cache_*', 'duplicate_post_taxonomies_blacklist' => array( 'post_tag' ),
 		),
 		array( 'uxstudio_duplicate_post' => array(
 			'post_types' => array( 'post', 'page' ),
 			'duplicate_elements' => array( 'post_content', 'featured_image', 'taxonomies', 'meta_fields', 'post_parent' ),
 			'custom_title' => true, 'custom_title_format' => 'Copy of {post_title} (dup)',
+			'keep_status' => false, 'post_status' => 'draft', 'excluded_meta' => "_secret\n_cache_*\n_wp_page_template", 'excluded_taxonomies' => array( 'post_tag', 'post_format' ),
+			'allowed_roles' => array( 'editor' ),
 		) ),
 	),
 	'post-duplicator'              => array(
 		'post-duplicator', true,
-		array( 'mtphr_post_duplicator_settings' => array( 'status' => 'publish', 'title' => 'Copy', 'single_after_duplication_action' => 'new_tab', 'post_types_config' => array( 'post' => array( 'allow_duplication' => true ), 'page' => array( 'allow_duplication' => false ) ) ) ),
-		array( 'uxstudio_duplicate_post' => array( 'post_status' => 'publish', 'custom_title' => true, 'custom_title_format' => '{post_title} Copy', 'post_redirect' => true, 'post_types' => array( 'post' ) ) ),
+		array( 'mtphr_post_duplicator_settings' => array( 'status' => 'publish', 'title' => 'Copy', 'single_after_duplication_action' => 'new_tab', 'excluded_meta_keys' => "_a\n_b", 'post_types_config' => array( 'post' => array( 'allow_duplication' => true ), 'page' => array( 'allow_duplication' => false ) ) ) ),
+		array( 'uxstudio_duplicate_post' => array( 'keep_status' => false, 'post_status' => 'publish', 'custom_title' => true, 'custom_title_format' => '{post_title} Copy', 'post_redirect' => true, 'post_types' => array( 'post' ), 'all_post_types' => false, 'excluded_meta' => "_a\n_b", 'allowed_roles' => array( 'author' ) ) ),
+	),
+	'post-duplicator / same status, all types' => array(
+		'post-duplicator', true,
+		array( 'mtphr_post_duplicator_settings' => array( 'status' => 'same', 'post_types_config' => array( 'post' => array( 'allow_duplication' => true ), 'page' => array( 'allow_duplication' => true ) ) ) ),
+		array( 'uxstudio_duplicate_post' => array( 'keep_status' => true, 'all_post_types' => true, 'post_types' => array( 'post', 'page' ), 'allowed_roles' => array( 'author' ) ) ),
 	),
 	'disable-comments / selected'  => array(
 		'disable-comments', true,
@@ -423,7 +446,20 @@ $cases = array(
 	'wp-external-links'            => array(
 		'wp-external-links', true,
 		array( 'wpel-external-link-settings' => array( 'icon_type' => '', 'target' => '_blank' ), 'wpel-exceptions-settings' => array( 'ignore_classes' => 'no-ext, skip' ) ),
-		array( 'uxstudio_link_manager' => array( 'disable_arrow' => true, 'exclude_classes' => 'no-ext, skip' ) ),
+		array( 'uxstudio_link_manager' => array( 'icon_type' => 'none', 'default_target' => 'new_tab', 'default_rel' => 'noopener noreferrer external', 'exclude_classes' => 'no-ext, skip' ) ),
+	),
+	'wp-external-links / rules'    => array(
+		'wp-external-links', true,
+		array(
+			'wpel-external-link-settings' => array( 'apply_settings' => '1', 'target' => '_self', 'rel_follow' => 'nofollow', 'rel_noopener' => '1', 'rel_noreferrer' => '', 'rel_external' => '', 'rel_sponsored' => '1', 'icon_type' => 'dashicon', 'icon_dashicon' => 'dashicons-external', 'icon_position' => 'left', 'no_icon_for_img' => '1' ),
+			'wpel-exceptions-settings'    => array( 'subdomains_as_internal_links' => '1', 'exclude_urls' => "shop.example.com\npartner.example/go/" ),
+		),
+		array( 'uxstudio_link_manager' => array( 'default_target' => 'keep', 'default_rel' => 'noopener nofollow sponsored', 'icon_type' => 'dashicon', 'icon_dashicon' => 'dashicons-external', 'icon_position' => 'left', 'icon_skip_images' => true, 'subdomains_internal' => true, 'internal_domains' => "*shop.example.com*\n*partner.example/go/*" ) ),
+	),
+	'wp-external-links / switched off' => array(
+		'wp-external-links', true,
+		array( 'wpel-external-link-settings' => array( 'apply_settings' => '' ) ),
+		array( 'uxstudio_link_manager' => array( 'default_target' => 'keep', 'default_rel' => '', 'icon_type' => 'none' ) ),
 	),
 );
 
@@ -539,11 +575,18 @@ $site( array( 'all-404-redirect-to-homepage' ), array( 'all-404-redirect-to-home
 $p = SourceRegistry::get( 'all-404-redirect-to-homepage' )->plan();
 $assert( 'all-404: warns when switched off, lossy when a custom target is used', 1 === count( $p['warnings'] ) && count( $p['lossy'] ) >= 2, json_encode( $p ) );
 
-/* classic-editor on the block editor transfers nothing and notes it. */
-$site( array( 'classic-editor' ), array( 'classic-editor' ), array( 'classic-editor-replace' => 'block', 'classic-editor-allow-users' => 'allow' ) );
+/* classic-editor on the block editor with users NOT choosing transfers nothing and notes it. */
+$site( array( 'classic-editor' ), array( 'classic-editor' ), array( 'classic-editor-replace' => 'block', 'classic-editor-allow-users' => 'disallow' ) );
 $r = $exercise( 'classic-editor' );
 $common( 'classic-editor / block default', $r, false );
-$assert( 'classic-editor / block default: nothing written, user-choice reported lossy', 0 === $r['plan']['counts']['transfer'] && 1 === $r['plan']['counts']['lossy'] && null === $opt( 'uxstudio_classic_editor' ) );
+$assert( 'classic-editor / block default: nothing written, only a note', 0 === $r['plan']['counts']['transfer'] && null === $opt( 'uxstudio_classic_editor' ) );
+
+/* ... but the same default with users choosing becomes the site default editor + the switch (B3). */
+$site( array( 'classic-editor' ), array( 'classic-editor' ), array( 'classic-editor-replace' => 'no-replace', 'classic-editor-allow-users' => 'allow' ) );
+$r = $exercise( 'classic-editor' );
+$common( 'classic-editor / block default, users choose', $r );
+$assert( 'classic-editor / block default, users choose: nothing about the choice is lossy, the stored keys are named in a note', 0 === $r['plan']['counts']['lossy'] && array( 'default_editor' => 'block', 'allow_users' => true ) == $opt( 'uxstudio_classic_editor' ) && false !== strpos( json_encode( $r['plan']['notes'] ), 'classic-editor-remember' ), json_encode( $opt( 'uxstudio_classic_editor' ) ) );
+$assert( 'classic-editor / users choose: no smoke test of a single editor', array() === SourceRegistry::get( 'classic-editor' )->smoke_checks() );
 
 /* disable-comments exceptions: what is transferred and what is named as lost. */
 $site( array( 'disable-comments' ), array( 'disable-comments' ), array( 'disable_comments_options' => array(

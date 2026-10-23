@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Check, FolderInput, FolderPlus, LoaderCircle, Pencil, Trash2, X } from 'lucide-react';
+import { ArrowDown, ArrowLeft, ArrowUp, Check, FolderInput, FolderPlus, LoaderCircle, Pencil, Trash2, X } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { TabsNav } from '../../app/SubNav';
@@ -12,6 +12,8 @@ interface Folder {
 	parent: number;
 	count: number;
 	post_type?: string;
+	color?: string;
+	order?: number;
 }
 
 interface EnabledPostType {
@@ -22,6 +24,8 @@ interface EnabledPostType {
 interface FolderNode extends Folder {
 	children: FolderNode[];
 	depth: number;
+	canUp: boolean;
+	canDown: boolean;
 }
 
 interface BulkMoveResult {
@@ -48,8 +52,8 @@ function buildTree( folders: Folder[] ): FolderNode[] {
 	const flat: FolderNode[] = [];
 	const walk = ( parentId: number, depth: number ): void => {
 		const siblings = byParent.get( parentId ) ?? [];
-		siblings.forEach( ( folder ) => {
-			flat.push( { ...folder, depth, children: [] } );
+		siblings.forEach( ( folder, index ) => {
+			flat.push( { ...folder, depth, children: [], canUp: index > 0, canDown: index < siblings.length - 1 } );
 			walk( folder.id, depth + 1 );
 		} );
 	};
@@ -114,8 +118,26 @@ function FolderRow( { row, folders }: { row: FolderNode; folders: Folder[] } ): 
 		onSuccess: invalidate,
 	} );
 
+	const recolor = useMutation( {
+		mutationFn: ( color: string ) =>
+			api< Folder >( `folder-manager/folders/${ row.id }/color`, {
+				method: 'POST',
+				body: JSON.stringify( { color } ),
+			} ),
+		onSuccess: invalidate,
+	} );
+
+	const shift = useMutation( {
+		mutationFn: ( direction: 'up' | 'down' ) =>
+			api( `folder-manager/folders/${ row.id }/position`, {
+				method: 'POST',
+				body: JSON.stringify( { direction } ),
+			} ),
+		onSuccess: invalidate,
+	} );
+
 	const blocked = useMemo( () => selfAndDescendants( folders, row.id ), [ folders, row.id ] );
-	const busy = rename.isPending || reparent.isPending || remove.isPending;
+	const busy = rename.isPending || reparent.isPending || remove.isPending || recolor.isPending || shift.isPending;
 
 	return (
 		<tr>
@@ -186,6 +208,56 @@ function FolderRow( { row, folders }: { row: FolderNode; folders: Folder[] } ): 
 				<span className="uxs-badge">{ row.count }</span>
 			</td>
 			<td>
+				<span style={ { display: 'inline-flex', gap: 'var(--uxs-sp-2)', alignItems: 'center' } }>
+					<input
+						type="color"
+						value={ row.color || '#2271b1' }
+						disabled={ busy }
+						aria-label={ __( 'Folder colour', 'ux-studio' ) }
+						style={ row.color ? undefined : { opacity: 0.35 } }
+						onChange={ ( e ) => recolor.mutate( e.target.value ) }
+					/>
+					{ row.color ? (
+						<button
+							type="button"
+							className="button-link"
+							disabled={ busy }
+							aria-label={ __( 'Remove folder colour', 'ux-studio' ) }
+							onClick={ () => recolor.mutate( '' ) }
+						>
+							<X size={ 14 } />
+						</button>
+					) : null }
+				</span>
+				{ recolor.isError && (
+					<span className="uxs-badge is-danger" style={ { marginLeft: 'var(--uxs-sp-2)' } }>
+						{ recolor.error instanceof Error ? recolor.error.message : __( 'Could not change the colour.', 'ux-studio' ) }
+					</span>
+				) }
+			</td>
+			<td>
+				<span style={ { display: 'inline-flex', gap: 'var(--uxs-sp-1, 4px)' } }>
+					<button
+						type="button"
+						className="button"
+						disabled={ busy || ! row.canUp }
+						aria-label={ __( 'Move folder up', 'ux-studio' ) }
+						onClick={ () => shift.mutate( 'up' ) }
+					>
+						<ArrowUp size={ 14 } />
+					</button>
+					<button
+						type="button"
+						className="button"
+						disabled={ busy || ! row.canDown }
+						aria-label={ __( 'Move folder down', 'ux-studio' ) }
+						onClick={ () => shift.mutate( 'down' ) }
+					>
+						<ArrowDown size={ 14 } />
+					</button>
+				</span>
+			</td>
+			<td>
 				<select
 					value={ row.parent }
 					disabled={ busy }
@@ -245,6 +317,8 @@ function FolderTree( { folders }: { folders: Folder[] } ): JSX.Element {
 				<tr>
 					<th>{ __( 'Name', 'ux-studio' ) }</th>
 					<th>{ __( 'Attachments', 'ux-studio' ) }</th>
+					<th>{ __( 'Colour', 'ux-studio' ) }</th>
+					<th>{ __( 'Order', 'ux-studio' ) }</th>
 					<th>{ __( 'Move under', 'ux-studio' ) }</th>
 					<th></th>
 				</tr>

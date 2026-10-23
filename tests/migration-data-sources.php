@@ -147,6 +147,13 @@ function get_posts( $args ) {
 	return array_values( array_filter( $GLOBALS['uxs_posts'], static fn( $p ) => in_array( $p->post_type, $types, true ) && in_array( $p->post_status, $stat, true ) ) );
 }
 function get_userdata( $id ) { return (object) array( 'user_login' => 'user' . $id ); }
+function wp_timezone() { return new DateTimeZone( 'UTC' ); }
+function attachment_url_to_postid( $url ) { return $GLOBALS['uxs_attachments'][ $url ] ?? 0; }
+$GLOBALS['uxs_attachments'] = array();
+function post_type_exists( $type ) { return in_array( $type, array( 'post', 'page', 'attachment', 'product' ), true ); }
+function get_post_type( $id ) { $p = get_post( $id ); return $p ? $p->post_type : false; }
+function get_term_meta( $term_id, $key, $single = false ) { return $GLOBALS['uxs_termmeta'][ $term_id ][ $key ] ?? ''; }
+$GLOBALS['uxs_termmeta'] = array();
 function metadata_exists( $type, $id, $key ) { return isset( $GLOBALS['uxs_meta'][ $type ][ $id ][ $key ] ); }
 function get_metadata( $type, $id, $key, $single = false ) {
 	$vals = $GLOBALS['uxs_meta'][ $type ][ $id ][ $key ] ?? array();
@@ -221,7 +228,11 @@ $schemas = array(
 		$sel( 'existing_page', array( '7', '8' ), '' ), $sel( 'auth_type', array( 'logged_in', 'roles' ), 'logged_in' ),
 		$mul( 'access_roles', array( 'administrator', 'editor', 'author', 'subscriber' ) ), $txt( 'headline_text' ), $col( 'headline_colour' ),
 		$rich( 'body_text' ), $col( 'body_colour' ), $col( 'background_colour' ),
+		$tog( 'enable_background_image' ), array( 'key' => 'background_image', 'type' => 'media', 'default' => 0 ),
+		$tog( 'countdown_enabled' ), array( 'key' => 'countdown_end', 'type' => 'datetime', 'default' => '' ), $tog( 'countdown_auto_disable' ),
+		array( 'key' => 'exclude_paths', 'type' => 'textarea', 'default' => '' ), array( 'key' => 'bypass_ips', 'type' => 'textarea', 'default' => '' ),
 	),
+	'folder-manager'      => array( $mul( 'post_types', array( 'attachment', 'post', 'page', 'product' ), array( 'attachment' ) ) ),
 );
 $schemas['security-optimization'] = array(
 	$tog( 'limit_login_attempts' ), $num( 'max_attempts', 3 ), $num( 'lockout_time', 30 ), $tog( 'notify_admin' ),
@@ -661,17 +672,44 @@ $plan = SourceRegistry::get( 'real-media-library-lite' )->plan();
 $assert( 'real-media-library: only ordinary folders, galleries and shortcuts are reported', 1 === $data_count( $plan, 'folder' ) && 10 === $data_count( $plan, 'items' ) && $lossy_has( $plan, 'shortcuts' ) && $lossy_has( $plan, 'collections, galleries' ), json_encode( $plan['lossy'] ) );
 
 $site( array( 'wicked-folders' ), array( 'wicked-folders' ) );
+$GLOBALS['uxs_termmeta'] = array( 5 => array( 'wf_order' => '2', 'wf_color' => '#ff0000' ), 6 => array( 'wf_order' => '1' ), 8 => array( 'wf_order' => '3', 'wf_color' => 'zle' ) );
 $sql( '/tt\.taxonomy = \'wf_attachment_folders\' ORDER BY/', static fn() => array( array( 'id' => 11, 'name' => 'Media', 'parent' => 0, 'term_id' => 5 ), array( 'id' => 12, 'name' => 'Podslozka', 'parent' => 5, 'term_id' => 6 ) ) );
+$sql( '/tt\.taxonomy = \'wf_page_folders\' ORDER BY/', static fn() => array( array( 'id' => 31, 'name' => 'Stranky', 'parent' => 0, 'term_id' => 8 ) ) );
 $sql( '/SELECT COUNT\(\*\) FROM wp_term_relationships/', static fn() => array( 7 ) );
-$sql( '/GROUP BY taxonomy/', static fn() => array( array( 'taxonomy' => 'wf_page_folders', 'n' => 4 ) ) );
+$sql( '/GROUP BY taxonomy/', static fn() => array( array( 'taxonomy' => 'wf_page_folders', 'n' => 1 ), array( 'taxonomy' => 'wf_book_folders', 'n' => 4 ) ) );
 $items = $items_of( 'wicked-folders' );
+$by    = array_column( $items, null, 'id' );
 $plan  = SourceRegistry::get( 'wicked-folders' )->plan();
-$assert( 'wicked-folders: attachment folders with hierarchy; page folders reported as other content types', 2 === count( $items ) && '11' === $items[1]['parent'] && $lossy_has( $plan, 'wf_page_folders' ), json_encode( $items ) );
+$assert( 'wicked-folders: attachment folders with hierarchy, order and colour; page folders are read as folders of pages', 3 === count( $items ) && '11' === $by['12']['parent'] && 'attachment' === $by['11']['post_type'] && 'page' === $by['31']['post_type'] && '#ff0000' === $by['11']['color'] && 2 === $by['11']['order'] && '' === $by['12']['color'] && '' === $by['31']['color'], json_encode( $items ) );
+$assert( 'wicked-folders: the folders of a post type this site does not have are named, the others are no longer lost; the module is told to offer folders for pages', $lossy_has( $plan, 'wf_book_folders' ) && ! $lossy_has( $plan, 'wf_page_folders' ) && array( 'attachment', 'page' ) == array_values( (array) array_column( $plan['transfer'], 'to', 'key' )['post_types'] ? explode( ', ', array_column( $plan['transfer'], 'to', 'key' )['post_types'] ) : array() ) && 3 === $data_count( $plan, 'folder' ), json_encode( array( $plan['lossy'], $plan['transfer'] ) ) );
 
 $site( array( 'folders' ), array( 'folders' ) );
+$GLOBALS['uxs_termmeta'] = array( 9 => array( 'wcp_custom_order' => '4', 'folder_info' => array( 'has_color' => '#00aa00' ) ), 10 => array( 'wcp_custom_order' => '1' ), 12 => array( 'wcp_custom_order' => '2' ) );
 $sql( '/tt\.taxonomy = \'media_folder\' ORDER BY/', static fn() => array( array( 'id' => 21, 'name' => 'Fotky', 'parent' => 0, 'term_id' => 9 ) ) );
+$sql( '/tt\.taxonomy = \'folder\' ORDER BY/', static fn() => array( array( 'id' => 41, 'name' => 'Firma', 'parent' => 0, 'term_id' => 10 ) ) );
+$sql( '/tt\.taxonomy = \'post_folder\' ORDER BY/', static fn() => array( array( 'id' => 51, 'name' => 'Novinky', 'parent' => 0, 'term_id' => 12 ) ) );
 $sql( '/SELECT COUNT\(\*\) FROM wp_term_relationships/', static fn() => array( 3 ) );
-$assert( 'folders (Premio): media_folder terms are read', 1 === count( $items_of( 'folders' ) ) );
+$sql( '/OR taxonomy = \'folder\'\) AND taxonomy <> \'media_folder\' GROUP BY taxonomy/', static fn() => array( array( 'taxonomy' => 'folder', 'n' => 1 ), array( 'taxonomy' => 'post_folder', 'n' => 1 ), array( 'taxonomy' => 'folders4plugins_folder', 'n' => 2 ) ) );
+$items = $items_of( 'folders' );
+$by    = array_column( $items, null, 'id' );
+$assert( 'folders (Premio): media_folder, folder (pages) and post_folder are read with post type, colour (folder_info) and order (wcp_custom_order)', 3 === count( $items ) && 'attachment' === $by['21']['post_type'] && '#00aa00' === $by['21']['color'] && 4 === $by['21']['order'] && 'page' === $by['41']['post_type'] && 'post' === $by['51']['post_type'] && 2 === $by['51']['order'], json_encode( $items ) );
+$assert( 'folders (Premio): the folders of other plugins (folders4plugins) are named, not moved', $lossy_has( SourceRegistry::get( 'folders' )->plan(), 'folders4plugins_folder' ) );
+
+// FileBird: colours from the option, order from the ord column, folders of post types from fbv_pt_tax_* taxonomies.
+$site( array( 'filebird' ), array( 'filebird' ), array( 'fbv_folder_colors' => array( 1 => '#123456', 2 => 'nope' ) ) );
+$GLOBALS['uxs_termmeta'] = array( 77 => array( 'fbv_tax_order' => '5' ) );
+$table( 'fbv' ); $table( 'fbv_attachment_folder' );
+$sql( '/FROM wp_fbv ORDER BY id ASC/', static fn() => array(
+	array( 'id' => 1, 'name' => 'Hotely', 'parent' => 0, 'type' => 0, 'ord' => 3, 'created_by' => 0 ),
+	array( 'id' => 2, 'name' => 'Lazne', 'parent' => 1, 'type' => 0, 'ord' => 0, 'created_by' => 4 ),
+) );
+$sql( '/tt\.taxonomy = \'fbv_pt_tax_page\' ORDER BY/', static fn() => array( array( 'id' => 1500, 'name' => 'Obsah', 'parent' => 0, 'term_id' => 77 ) ) );
+$sql( '/GROUP BY taxonomy/', static fn() => array( array( 'taxonomy' => 'fbv_pt_tax_page', 'n' => 1 ) ) );
+$items = $items_of( 'filebird' );
+$by    = array_column( $items, null, 'id' );
+$plan  = SourceRegistry::get( 'filebird' )->plan();
+$assert( 'filebird: colours (option), order (ord) and the folders of pages (ids prefixed so they cannot meet the fbv ids)', 3 === count( $items ) && '#123456' === $by['1']['color'] && '' === $by['2']['color'] && 3 === $by['1']['order'] && 'page' === $by['t1500']['post_type'] && 5 === $by['t1500']['order'], json_encode( $items ) );
+$assert( 'filebird: folders of one user are reported as shared in the module', $lossy_has( $plan, 'belong to a single user' ), json_encode( $plan['lossy'] ) );
 
 /* ═══ 4 Page Links To, Post Expirator ═══ */
 
@@ -987,7 +1025,7 @@ $assert( 'wp-crontrol: rollback restores the option (it did not exist before)', 
 
 $site( array( 'wp-maintenance-mode' ), array( 'wp-maintenance-mode' ), array( 'wpmm_settings' => array(
 	'general' => array( 'status' => 1, 'frontend_role' => array( 'editor' ) ),
-	'design'  => array( 'heading' => '<b>Pracujeme</b>', 'text' => '<p>Brzy budeme zpet.</p>', 'heading_color' => '#112233', 'text_color' => '#445566', 'bg_type' => 'custom', 'bg_color' => '#ffffff' ),
+	'design'  => array( 'heading' => '<b>Pracujeme</b>', 'text' => '<p>Brzy budeme zpet.</p>', 'heading_color' => '#112233', 'text_color' => '#445566', 'bg_type' => 'custom', 'bg_color' => '#ffffff', 'bg_custom' => 'https://example.test/uploads/bg.jpg' ),
 ) ), array( 'activity-log', 'maintenance-mode' ) );
 $plan = SourceRegistry::get( 'wp-maintenance-mode' )->plan();
 $to   = array_column( $plan['transfer'], 'to', 'key' );
@@ -1008,6 +1046,45 @@ $assert( 'maintenance (WebFactory): status + header text', 'maintenance' === $to
 $site( array( 'under-construction-page' ), array( 'under-construction-page' ), array( 'ucp_options' => array( 'status' => '0', 'heading1' => 'Stavime', 'content' => 'Text', 'whitelisted_roles' => array( 'administrator', 'editor' ) ) ) );
 $to = array_column( SourceRegistry::get( 'under-construction-page' )->plan()['transfer'], 'to', 'key' );
 $assert( 'under-construction-page: off stays disabled, roles map (administrators always pass, so they are not listed)', 'disabled' === $to['mode'] && 'editor' === $to['access_roles'], json_encode( $to ) );
+
+/* B3: background image, countdown, addresses and IPs that stay open */
+$GLOBALS['uxs_attachments']['https://example.test/uploads/bg.jpg'] = 55;
+$site( array( 'wp-maintenance-mode' ), array( 'wp-maintenance-mode' ), array( 'wpmm_settings' => array(
+	'general' => array( 'status' => 1, 'frontend_role' => array(), 'exclude' => array( 'feed', 'wp-login', '/kontakt', '203.0.113.7', '192.168.1.*', '# comment' ) ),
+	'design'  => array( 'heading' => 'Pracujeme', 'bg_type' => 'custom', 'bg_custom' => 'https://example.test/uploads/bg.jpg' ),
+	'modules' => array( 'countdown_status' => 1, 'countdown_start' => '2026-11-01 08:00:00', 'countdown_details' => array( 'days' => 2, 'hours' => 3, 'minutes' => 30 ) ),
+) ), array( 'activity-log' ) );
+$plan = SourceRegistry::get( 'wp-maintenance-mode' )->plan();
+$to   = array_column( $plan['transfer'], 'to', 'key' );
+$assert( 'wp-maintenance-mode: background image from the library, countdown end = start + 2 d 3 h 30 min', '55' === (string) $to['background_image'] && '✓' === $to['enable_background_image'] && '2026-11-03T11:30' === $to['countdown_end'] && '✓' === $to['countdown_enabled'] && '✗' === $to['countdown_auto_disable'], json_encode( $to ) );
+$assert( 'wp-maintenance-mode: exceptions split into addresses (substring -> star pattern) and IPs (wildcard -> range)', "*feed*\n*wp-login*\n*/kontakt*" === $to['exclude_paths'] && "203.0.113.7\n192.168.1.0/24" === $to['bypass_ips'], json_encode( $to ) );
+$assert( 'wp-maintenance-mode: countdown, background and exceptions are no longer reported as lost', ! $lossy_has( $plan, 'Countdown,' ) && ! $lossy_has( $plan, 'background image of the plugin' ), json_encode( $plan['lossy'] ) );
+$GLOBALS['uxs_attachments'] = array();
+$plan = SourceRegistry::get( 'wp-maintenance-mode' )->plan();
+$assert( 'wp-maintenance-mode: a background image that is not in the media library is named and left out', $lossy_has( $plan, 'bg.jpg is not in the media library' ) && ! isset( array_column( $plan['transfer'], 'to', 'key' )['background_image'] ), json_encode( $plan['lossy'] ) );
+
+$site( array( 'under-construction-page' ), array( 'under-construction-page' ), array( 'ucp_options' => array( 'status' => '1', 'heading1' => 'Stavime', 'whitelisted_roles' => array( 'administrator' ), 'end_date' => '2026-12-24 18:00' ) ) );
+$plan = SourceRegistry::get( 'under-construction-page' )->plan();
+$to   = array_column( $plan['transfer'], 'to', 'key' );
+$assert( 'under-construction-page: the end date becomes the countdown end and the site opens at its end (as the plugin does)', '2026-12-24T18:00' === $to['countdown_end'] && '✓' === $to['countdown_auto_disable'] && '✗' === $to['countdown_enabled'], json_encode( $to ) );
+
+$site( array( 'maintenance' ), array( 'maintenance' ), array( 'mtnc-options' => array( 'options' => array(
+	'status' => '1', 'header_text' => 'X', 'mode' => 'layout', 'expiry_date_end' => '2026-11-10', 'expiry_time_end' => '10:00 am',
+	'per_url_settings' => 'whitelist', 'per_url_enable_disable' => "/kontakt/\n/o-nas/", 'ip_whitelist' => "198.51.100.4\nnonsense",
+) ) ) );
+$plan = SourceRegistry::get( 'maintenance' )->plan();
+$to   = array_column( $plan['transfer'], 'to', 'key' );
+$assert( 'maintenance (WebFactory): planned end, whitelisted URLs and IPs; an invalid IP entry is named', '2026-11-10T10:00' === $to['countdown_end'] && '✗' === $to['countdown_enabled'] && "/kontakt/\n/o-nas/" === $to['exclude_paths'] && '198.51.100.4' === $to['bypass_ips'] && $lossy_has( $plan, 'nonsense' ), json_encode( $to ) );
+$site( array( 'maintenance' ), array( 'maintenance' ), array( 'mtnc-options' => array( 'options' => array( 'status' => '1', 'per_url_settings' => 'blacklist', 'per_url_enable_disable' => '/x/' ) ) ) );
+$plan = SourceRegistry::get( 'maintenance' )->plan();
+$assert( 'maintenance (WebFactory): "only listed URLs" mode cannot be written and is reported', $lossy_has( $plan, 'only to the listed addresses' ) && ! isset( array_column( $plan['transfer'], 'to', 'key' )['exclude_paths'] ), json_encode( $plan['lossy'] ) );
+
+$site( array( 'coming-soon' ), array( 'coming-soon' ), array( 'seedprod_settings' => json_encode( array( 'enable_coming_soon_mode' => true ) ), 'seedprod_coming_soon_page_id' => 7 ) );
+$post( 7, 'page', 'publish', 'Brzy' );
+$GLOBALS['uxs_posts'][7]->post_content_filtered = json_encode( array( 'access_by_role' => array( 'Editor', 'Author' ), 'disable_default_excluded_urls' => true ) );
+$plan = SourceRegistry::get( 'coming-soon' )->plan();
+$to   = array_column( $plan['transfer'], 'to', 'key' );
+$assert( 'coming-soon (SeedProd): access by role of the page and its default open addresses are read', 'roles' === $to['auth_type'] && 'editor, author' === $to['access_roles'] && 'regex:privacy|imprint|login|admin|dashboard|account' === $to['exclude_paths'], json_encode( $to ) );
 
 /* ═══ 11 Activity log ═══ */
 
@@ -1046,7 +1123,8 @@ $check = array(
 	'activity-log'        => array( 'retention_days' ),
 	'external-permalinks' => array( 'post_types' ),
 	'post-type-order'     => array( 'post_types' ),
-	'maintenance-mode'    => array( 'mode', 'layout_type', 'existing_page', 'auth_type', 'access_roles', 'headline_text', 'headline_colour', 'body_text', 'body_colour', 'background_colour' ),
+	'maintenance-mode'    => array( 'mode', 'layout_type', 'existing_page', 'auth_type', 'access_roles', 'headline_text', 'headline_colour', 'body_text', 'body_colour', 'background_colour', 'enable_background_image', 'background_image', 'countdown_enabled', 'countdown_end', 'countdown_auto_disable', 'exclude_paths', 'bypass_ips' ),
+	'folder-manager'      => array( 'post_types' ),
 );
 foreach ( $check as $module => $keys ) {
 	$code = (string) file_get_contents( $root . '/includes/Modules/' . str_replace( ' ', '', ucwords( str_replace( '-', ' ', $module ) ) ) . '/Module.php' );

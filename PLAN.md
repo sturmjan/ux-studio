@@ -2178,11 +2178,12 @@ přibudou testy a živé ověření na pobyty. Větev `feature/module-gaps-a` na
       spuštění snippetů - typ stránky, přihlášený, zařízení (WPCode, HFCM); Dashicons v ikonách menu
       (Menu Icons); výjimky Zákazu komentářů - role, typy komentářů, zavírání po N dnech
       (hotovo 23. 10. 2026 lokálně, poznámky v 27.8)
-- [ ] B3 Obsah II: volby Duplikace - stav kopie, vynechaná pole a taxonomie, oprávnění podle role,
+- [x] B3 Obsah II: volby Duplikace - stav kopie, vynechaná pole a taxonomie, oprávnění podle role,
       všechny typy obsahu (Yoast Duplicate Post); pravidla externích odkazů - target/rel podle domény,
       výjimky, ikona (WP External Links); volba editoru pro uživatele (Classic Editor); obrázek,
       odpočet a výjimky údržby (WP Maintenance Mode, SeedProd); složky příspěvků a stránek, barvy,
       ruční řazení (FileBird, Folders)
+      (hotovo 23. 10. 2026 lokálně, poznámky v 27.9)
 - [ ] B4 Technika: SendGrid, Mailgun, Postmark, Amazon SES + záložní spojení (WP Mail SMTP, FluentSMTP);
       skrytí upozornění a vypnutí kontroly aktualizací + výjimka pro bezpečnostní (Easy Updates Manager);
       URL události cronu (WP Crontrol); volby Auto Upload Images
@@ -2462,3 +2463,91 @@ Praha, druhý běh 0 zapsáno, ověření 316 z 316, vrácení) a fixtury WPCode
 **Neověřeno / otevřené.** Autorské archivy na pobyty přesměrovává web sám, proto se druh „autor“ živě neověřil (jen jednotkově). Odmítnutí typu `review` (WooCommerce) živě nešlo (stejná cesta jako trackback, ověřený),
 formulář komentářů téma na šabloně příspěvku nevykresluje (ověřeno přes `comments_open()` a odeslání). WPCode / HFCM / Menu Icons nejsou na pobyty nainstalované (fixtury z kódu pluginů ve `plugin-src`). Zápis zásahů
 po odeslání odpovědi funguje jen na PHP-FPM / FastCGI. Přesměrování migrací s vypnutým modulem (přímý zápis) se živě neopakovalo (kód stejný, jednotkově ověřen).
+
+### 27.9 B3 poznámky: obsah II (2026-10-23)
+
+**Duplikace.** Nastavení modulu: `keep_status` (kopie má stav originálu: publikovaný / soukromý / čekající / koncept; naplánovaný příspěvek dává koncept,
+protože datum se nekopíruje a WordPress by ho hned publikoval; uživatel bez práva publikovat dostane vždy „čeká na schválení“, jako dřív), `excluded_meta`
+(textarea, jedno pole na řádek nebo čárkou, `*` = libovolné znaky, `#` komentář; vestavěný seznam `_edit_lock`, `_edit_last`, cache Elementoru platí dál),
+`excluded_taxonomies` (veřejné taxonomie a taxonomie s editorem), `allowed_roles` (prázdné = kdo smí příspěvek upravit, administrátoři vždy; kontrola je v odkazu
+v seznamu, na editačních obrazovkách, v `admin-post` i v REST) a `all_post_types` (každý typ s `show_ui`, kromě pevného vyloučení attachment / elementor_library
+...; výběr typů se pak ignoruje). Čistá logika je v `DuplicateRules` (seznam, shoda s hvězdičkou, stav kopie, role), `Duplicator` dostal vyloučené taxonomie.
+Hvězdička Yoastu znamená `[a-zA-Z0-9_]*`, v modulu „cokoli“; u běžných názvů polí je výsledek stejný (migrace to uvádí v poznámce).
+
+**Odkazy.** `LinkRules` (čisté): řádek pravidla `adresa tab=ano|ne rel=tokeny|none icon=ano|ne` (první shodný vyhrává, chybné řádky se hlásí s číslem), vzory
+adres (`host` = tento host bez `www`, `*.sub.host`, cokoli s lomítkem se porovnává s `host/cesta`, hvězdička kdekoli), `classify` (druh odkazu: přeskočit /
+kotva / vnitřní / vnější). Nastavení: `default_target` (nová karta / ponechat), `default_rel` (uložený prázdný řetězec = nic, nikdy neuložené = původní tři
+tokeny), `icon_type` (šipka / Dashicon z celé sady `IconLibrary` / žádná), `icon_dashicon`, `icon_position`, `icon_skip_images`, `link_rules`,
+`internal_domains`, `subdomains_internal`. Staré „Zakázat šipku“ (`disable_arrow`) se čte dál, když `icon_type` nikdy nebyl uložen, a v nastavení se ukáže jako
+„Bez ikony“. **Výkon:** `the_content` bez odkazu se vůbec neparsuje, jinak jeden `DOMDocument` na volání, rozhodnutí o adrese se pamatuje po dobu požadavku
+(max. 2000 položek), pravidla se parsují jednou za požadavek. **Změna chování (oprava):** relativní adresa bez lomítka na začátku a `//host` se dřív
+klasifikovaly obráceně, `mailto:` / `tel:` / `javascript:` a jiná schémata se přeskakují, shoda hostu ignoruje schéma a `www`; poznámka „otevře se v nové kartě“
+se do `aria-label` přidává jen tam, kde odkaz v nové kartě opravdu je.
+
+**Editor.** `EditorChoice` (čisté) zrcadlí logiku pluginu Classic Editor: Přidat nový = výchozí editor uživatele (volba v profilu, jinak web), existující příspěvek =
+zapamatovaný editor, jinak podle obsahu (bez bloků = klasický), `?classic-editor__forget` = výslovná volba (s `?classic-editor` klasický). **Uložené hodnoty jsou
+klíče pluginu**: uživatelská volba `classic-editor-settings` (`update_user_option`, tedy s prefixem tabulek), post meta `classic-editor-remember`. Migrace proto
+nic nekopíruje a žádná volba nezmizí. V režimu „uživatelé si volí“ modul NEfiltruje `use_block_editor_for_post_type` (to by přebilo volbu u příspěvku), ale
+`use_block_editor_for_post` s prioritou 100. Nové nastavení `allow_users` a `default_editor` (klasický / blokový; blokový dává smysl jen s přepínačem, `post_types`
+je pak výchozí jen pro klasický). Profil: řádek „Výchozí editor“ se třemi volbami (jako web / klasický / blokový; „jako web“ volbu maže). Seznam příspěvků:
+„Upravit (klasický editor)“ / „Upravit (blokový editor)“ místo „Upravit“, stav „Klasický / Blokový editor“ u názvu; klasická obrazovka má box Editor s odkazem, blokový
+položku „Přepnout na klasický editor“ (`assets/block-editor-switch.js`).
+
+**Údržba.** Obrázek na pozadí už modul měl (médium + přepínač), migrace ho teď použije. Nové: `countdown_enabled`, `countdown_end` (nový typ pole `datetime`, čas webu,
+uložený `YYYY-MM-DDTHH:MM`), `countdown_label`, `countdown_auto_disable` (**rozhodnutí: výchozí vypnuto; po konci se režim jen ignoruje při každém požadavku, uložené
+nastavení se nemění a nic se nezapisuje ani neplánuje**, admin lišta ukáže „Odpočet skončil, web je otevřený“), `exclude_paths`, `allow_feeds`, `bypass_ips`.
+Odpočet: stránka dostane zbývající sekundy ze serveru a tiká podle hodin prohlížeče od načtení (hodiny návštěvníka se neberou v úvahu), bez JS ukáže datum;
+po nule se při zapnutém auto-vypnutí stránka jednou znovu načte (zámek v `sessionStorage` na konec odpočtu). Konec odpočtu řídí i `Retry-After` stránky 503
+(max. 30 dní, jinak hodina) i bez zobrazeného odpočtu; na existující stránce WordPressu se odpočet nezobrazuje. Výjimky adres (`MaintenanceRules`): přesná cesta
+(bez ohledu na lomítko a velikost písmen), `/sekce/*` (stránka i vše pod ní), `*text*`, `regex:` (zkouší se cesta s koncovým lomítkem i bez; chybný výraz se
+hlásí a ignoruje); porovnává se jen cesta bez dotazu a bez adresáře webu. IP: `ClientIp::get('auto')` a `ClientIp::in_ranges` (IP i CIDR, IPv6), propouští i do
+administrace. Stránka údržby volá `wp_head()`, takže SEO pluginy do ní dávají popis požadované stránky (stávající chování, neměněno).
+
+**Složky.** **Rozhodnutí: jedna sdílená taxonomie `uxstudio_media_folder` s typem objektu v term meta `uxstudio_folder_post_type`** (modul to tak měl už před B3: složky
+příspěvků, stránek i CPT, filtr přes `?uxstudio_folder=`, strom v postranním panelu, hromadné „Přesunout do složky“, metabox; důvod: jedna registrace, žádná migrace
+taxonomií při zapnutí dalšího typu, strom každého typu je nezávislý). Nové term meta: `uxstudio_folder_color` (`#rgb` / `#rrggbb`, jen validovaná hodnota) a
+`uxstudio_folder_order` (pozice mezi sourozenci 1, 2, 3 ...; chybějící = 0, řadí se podle názvu, takže staré složky vypadají beze změny). Seznam složek je řazen
+(pozice, název), nová složka a přesunutá složka jdou na konec úrovně. REST: `POST folders/{id}/color`, `POST folders/{id}/position` (`up` / `down`), `POST
+folders/reorder` (`ids[]`, jen složky jedné úrovně a jednoho typu). Panel na seznamech: barevná ikona, šipky nahoru / dolů, výběr barvy a odebrání barvy; stránka modulu
+v SPA: sloupce Barva a Pořadí. Média zůstávají beze změny (bez barvy, pořadí 0 u starých složek).
+
+**Migrace.** Přesun z „nepřenese se“ do „přenese se“: Yoast Duplicate Post (stav kopie, vynechaná pole vč. přepínače šablony, vynechané taxonomie vč. přepínače formátu,
+role s `copy_posts`), Duplicate Page (všechny typy), Post Duplicator (stav „stejný“, vynechaná pole, všechny typy, role s `duplicate_posts`); WP External Links (cíl, tokeny rel
+vč. sponsored / ugc / external, Dashicon a jeho pozice, bez ikony u obrázků, podřízené domény, vyloučené URL jako vzory `*text*`, stav „vypnuto“ = bez zásahu do odkazů);
+Classic Editor (`allow-users` = přepínač + výchozí editor, blokový výchozí s volbou uživatelů; bez volby uživatelů a s blokovým editorem se dál nepřenáší nic); WP Maintenance Mode
+(obrázek z knihovny médií přes URL, konec odpočtu = start + dny / hodiny / minuty, výjimky adres jako `*text*`, IP včetně `1.2.3.*` jako rozsah), Under Construction (`end_date` =
+konec + auto-vypnutí, přesně jako v pluginu), Maintenance (plánovaný konec jen pro Retry-After, whitelist URL přesně, IP), SeedProd (role stránky, výchozí otevřené adresy);
+FileBird (barvy z `fbv_folder_colors`, `ord`, taxonomie `fbv_pt_tax_<typ>` s `fbv_tax_order`), Folders (`media_folder`, `folder` = stránky, `post_folder`, `<typ>_folder`; `wcp_custom_order`,
+`folder_info.has_color`), Wicked Folders (`wf_<typ>_folders`, `wf_order`, `wf_color`), Real Media Library (pořadí; plugin barvy nemá). Typy příspěvků, které dostaly složky, se přidají
+do `post_types` modulu (sjednocení s tím, co modul má; zapisuje se přímo, jen organizuje). Barva a pořadí se píší jen u složek, které běh VYTVOŘIL (existující složka se stejným jménem,
+nadřazenou složkou a typem se jen znovu použije), takže vrácení smaže přesně to, co přibylo. Pořadí se ukládá jako `ord + 1` (0 je „nikdy neřazeno“). Chování měnící věci
+(údržba, výchozí stav duplikace, pravidla odkazů, editor) se při zapnutém cílovém modulu drží ve stagingu (§26.8), složky se zapisují přímo.
+
+**Zůstává ztrátové.** Duplikace: zvýšení menu order, Rewrite & Republish a reference na originál, kopírování data / slugu / autora / hesla / komentářů / potomků / příloh,
+oprávnění „kopírovat cizí“ (Post Duplicator), typ / datum / autor / přípona slugu kopie. Odkazy: titulky a třídy přidávané odkazům, nastavení vnitřních odkazů, potvrzení odchodu, vždy
+externí adresy (`include_urls`), přeskočené příspěvky, komentáře a widgety (modul upravuje obsah příspěvků), ikona-obrázek a Font Awesome (nahradí šipka nebo Dashicon), `_new` / `_top`
+(odkaz si ponechá cíl). Editor: nic. Údržba: předvolené obrázky pozadí WPMM, formulář pro odběr, sociální sítě, kontaktní formulář, chat, GDPR, redirect, „pustit roboty“, režim
+„jen vybrané adresy“ pluginu Maintenance, tajný odkaz, barvy / rozložení cizích pluginů, odpočet stránky SeedProd. Složky: ikony složek, příznaky připnuté / zamčené / s prioritou,
+složky jednoho uživatele (v modulu jsou sdílené), kolekce a galerie, zkratky RML, složky typů, které web nemá.
+
+**Testy.** `tests/content-b3.php` (nový, 80 kontrol: pravidla duplikace, motor (pole, taxonomie), modul (stav, role, typy), pravidla odkazů, obsah přes DOM, výkon, matice editoru, modul editoru,
+výjimky a odpočet údržby, model složek v paměťovém úložišti termů), rozšířené `tests/migration-sources.php` a `tests/migration-data-sources.php`; všech 18 samostatných testů zelených.
+
+**Ověřeno živě (pobyty, dočasní uživatelé admin / editor / autor / odběratel, vše vráceno z dumpu v `D:\parity-test-pobyty\gaps-b3_20261023-2115`).** Duplikace (curl + Playwright, 21 kontrol):
+kopie jako koncept, ponechaný stav (publikovaný, soukromý, naplánovaný = koncept), pole s hvězdičkou a taxonomie, role (autor odkaz nevidí, starý odkaz dá 403, REST 403, editor a administrátor ano),
+všechny typy (`reference` ano, `elementor_library` ne). Odkazy (13 kontrol na veřejném článku): výchozí chování, pravidlo podle domény, podřízené domény, cesta, seznam „nikdy externí“, odkaz bez
+lomítka a `mailto`, `//host`, třída vyloučení, Dashicon vlevo, bez ikony u obrázku, ikona žádná, starý web s `disable_arrow`. Editor (Playwright, 21 kontrol; plugin Classic Editor při tom dočasně
+vypnutý): Přidat nový, existující příspěvek, profil, volba bloku, zapamatování v obou směrech, „podle webu“, výchozí blokový, vypnutý přepínač = dřívější chování, odkazy v seznamu. Údržba (návštěvník bez
+přihlášení, `Retry-After`, výjimky, IP, odpočet tikající v prohlížeči, pozadí z knihovny, auto-vypnutí, admin lišta, obě rozložení; kanály RSS po dočasném povolení v Zabezpečení, které web vypíná): na konci
+režim vypnutý a volba smazaná. Složky (REST + Playwright): stromy stránek a příspěvků nezávislé na médiích, barvy, pořadí (šipka nahoru v panelu ověřena zvlášť s čekáním na překreslení), filtr, hromadný přesun
+z obrazovky, SPA bez chyb v konzoli. Migrace přes `Runner` s dry-run, skutečným během, opakovaným během, ověřením a rollbackem (po každém běhu stav shodný): Classic Editor se skutečnými daty webu (replace=classic,
+allow=disallow; vypnutý i zapnutý modul = staging; varianty allow a block dočasně přepsané a vrácené), Yoast, Duplicate Page, Post Duplicator, WP External Links, WPMM, Under Construction, Maintenance, SeedProd
+a FileBird / Folders / Wicked / RML s fixturami se skutečnými schématy (tabulky `fbv`, `realmedialibrary`, taxonomie, term meta; testovací přílohy, po testu smazané). Při ověření nalezeno a opraveno: `array_splice`
+přečísloval klíče odkazů v seznamu (CSS třídy), Maintenance čte datum v čase webu (posun o hodinu), taxonomie `folder` pluginu Folders nešla najít přes `LIKE`. Obrázky v `C:\Users\sturm\.claude\screenshots\b3-*.png`
+(česky, SPA světle i tmavě, konzole čistá).
+
+**Neověřeno / otevřené.** Zdroje WP External Links, Yoast Duplicate Post, Duplicate Page (nainstalován, neaktivní), Post Duplicator, WPMM, UCP, Maintenance, SeedProd, FileBird, Folders, Wicked Folders a RML nejsou
+na pobyty aktivní, formáty jsou z kódu stažených zipů a z fixtur (jen Classic Editor běžel nad skutečnými daty). Dashicony ve WPEL (`icon_dashicon`) se berou jako třídy `dashicons-*`. Obsah jiných stránek
+v nové kartě po auto-vypnutí údržby u stránkových cache záleží na cache pluginu. Přepínač „klasický editor“ v blokovém editoru se ověřil jen zjištěním adresy v `uxStudioEditorSwitch` (menu samotné se nekliklo).
+Pole `exclude_urls` WPEL se v modulu porovnává s hostem nebo `host/cesta`, ne s celým řetězcem adresy (hvězdičky na obou stranách to nahrazují). Hvězdička v seznamu vynechaných polí není shodná s Yoastem (viz výše).
+`languages/ux-studio-cs_CZ-883112...json` a `-40aeb3...json` jsou JSON překlady pro nový hash buildu (`index.c815c1cf214ea80e7185.js`).
