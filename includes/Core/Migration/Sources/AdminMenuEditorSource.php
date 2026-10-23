@@ -19,7 +19,8 @@ defined( 'ABSPATH' ) || exit;
  * `extra_capability`, `access_level`, `custom`, `url`, `open_in`, `items` (sub-menu, same shape).
  *
  * Target: Admin Customiser Menu Organizer config (order, categories, renames, icons, hidden items,
- * per-role visibility, promoted sub-items, custom links) plus `menu_organizer_enabled`.
+ * per-role visibility, promoted sub-items, custom links; B1: renamed, hidden and moved sub-items, required
+ * capabilities, rules for single users) plus `menu_organizer_enabled`.
  */
 final class AdminMenuEditorSource extends AbstractAdminSource {
 
@@ -105,6 +106,12 @@ final class AdminMenuEditorSource extends AbstractAdminSource {
 			'denied_subs'  => array(),
 			'hidden_subs'  => array(),
 			'blocked'      => array(),
+			'blocked_subs' => array(),
+			'sub_titles'   => array(),
+			'sub_moves'    => array(),
+			'sub_origin'   => array(),
+			'item_caps'    => array(),
+			'item_users'   => array(),
 			'promoted'     => array(),
 			'custom_links' => array(),
 			'lossy'        => array(),
@@ -113,10 +120,7 @@ final class AdminMenuEditorSource extends AbstractAdminSource {
 			'caps'       => array(),
 			'users'      => array(),
 			'grant'      => array(),
-			'sub_title'  => array(),
-			'sub_moved'  => array(),
 			'sub_custom' => array(),
-			'sub_hidden' => array(),
 			'colors'     => array(),
 			'iframe'     => array(),
 			'always'     => array(),
@@ -228,13 +232,16 @@ final class AdminMenuEditorSource extends AbstractAdminSource {
 					$lossy['sub_custom'][] = $slabel;
 					continue;
 				}
-				if ( '' !== $sparent && $sparent !== $slug ) {
-					$lossy['sub_moved'][] = $slabel;
-				}
 				$model['subs'][ $slug ][] = $sfile;
 				$skey                     = $slug . '>' . $sfile;
-				if ( ! empty( $sub['menu_title'] ) && $this->plain( (string) $sub['menu_title'] ) !== $this->plain( (string) ( $sdef['menu_title'] ?? '' ) ) ) {
-					$lossy['sub_title'][] = $slabel;
+				if ( '' !== $sparent && $sparent !== $slug ) {
+					// Moved under another parent: the key of the config is the parent the page was registered under.
+					$model['sub_origin'][ $skey ] = $sparent . '>' . $sfile;
+					$model['sub_moves'][ $skey ]  = $slug;
+				}
+				$new_title = $this->plain( (string) ( $sub['menu_title'] ?? '' ) );
+				if ( '' !== $new_title && $new_title !== $this->plain( (string) ( $sdef['menu_title'] ?? '' ) ) ) {
+					$model['sub_titles'][ $skey ] = $new_title;
 				}
 				$this->collect_access( $sub, $skey, $slabel, $model, $lossy, true );
 			}
@@ -276,9 +283,29 @@ final class AdminMenuEditorSource extends AbstractAdminSource {
 		if ( $granted ) {
 			$lossy['grant'][] = $label;
 		}
+
+		// Single users (`user:<login>`): hidden / denied = never show, granted = always show (never more than un-hiding).
+		$users = array(
+			'show' => array(),
+			'hide' => array(),
+		);
+		foreach ( (array) ( $item['hidden_from_actor'] ?? array() ) as $actor => $v ) {
+			if ( $v && 0 === strpos( (string) $actor, 'user:' ) ) {
+				$users['hide'][] = substr( (string) $actor, 5 );
+			}
+		}
+		foreach ( (array) ( $item['grant_access'] ?? array() ) as $actor => $v ) {
+			if ( 0 === strpos( (string) $actor, 'user:' ) ) {
+				$users[ $v ? 'show' : 'hide' ][] = substr( (string) $actor, 5 );
+			}
+		}
+		$users = array_filter( array_map( 'array_values', array_map( 'array_unique', $users ) ) );
+		if ( $users ) {
+			$model['item_users'][ $key ] = $users;
+		}
 		foreach ( array_merge( $other, $granted_other ) as $actor ) {
-			if ( 0 === strpos( $actor, 'user:' ) ) {
-				$lossy['users'][] = $label . ' (' . substr( $actor, 5 ) . ')';
+			if ( 0 !== strpos( $actor, 'user:' ) ) {
+				$lossy['users'][] = $label . ' (' . $actor . ')';
 			}
 		}
 		$denied = array_values( array_unique( $denied ) );
@@ -286,7 +313,6 @@ final class AdminMenuEditorSource extends AbstractAdminSource {
 		if ( ! empty( $item['hidden'] ) ) {
 			if ( $sub ) {
 				$model['hidden_subs'][] = $key;
-				$lossy['sub_hidden'][]  = $label;
 			} else {
 				$model['hidden'][] = $key;
 			}
@@ -294,7 +320,9 @@ final class AdminMenuEditorSource extends AbstractAdminSource {
 		if ( $denied ) {
 			if ( $sub ) {
 				$model['denied_subs'][ $key ] = $denied;
-				$lossy['sub_hidden'][]        = $label;
+				if ( $blocked ) {
+					$model['blocked_subs'][ $key ] = array_values( array_unique( $blocked ) );
+				}
 			} else {
 				$model['denied'][ $key ] = $denied;
 				if ( $blocked ) {
@@ -302,7 +330,12 @@ final class AdminMenuEditorSource extends AbstractAdminSource {
 				}
 			}
 		}
-		if ( ! empty( $item['extra_capability'] ) || ! empty( $item['access_level'] ) ) {
+		// The extra capability is required ON TOP of the capability WordPress asks for, exactly what UX Studio's rule does.
+		$cap = preg_replace( '/[^A-Za-z0-9_\-]/', '', (string) ( $item['extra_capability'] ?? '' ) );
+		if ( '' !== $cap ) {
+			$model['item_caps'][ $key ] = $cap;
+		}
+		if ( ! empty( $item['access_level'] ) && $item['access_level'] !== ( $item['defaults']['access_level'] ?? null ) ) {
 			$lossy['caps'][] = $label;
 		}
 	}
@@ -316,13 +349,10 @@ final class AdminMenuEditorSource extends AbstractAdminSource {
 	 */
 	private function lossy_lines( Mapping $m, array $lossy, int $missing ): void {
 		$texts = array(
-			'caps'       => __( 'A required capability set for the item (the access level is changed in the plugin, so the page stays blocked for users without it, whereas UX Studio does not change capabilities): %s.', 'ux-studio' ),
-			'users'      => __( 'Access rules for one user instead of a role (the Menu Organizer only knows roles): %s.', 'ux-studio' ),
+			'caps'       => __( 'A different required capability (access level) set on the item. UX Studio only adds a requirement on top of the capability WordPress asks for and never changes capabilities: %s.', 'ux-studio' ),
+			'users'      => __( 'Access rules for special actors that are not a role or a single user (for example the super admin): %s.', 'ux-studio' ),
 			'grant'      => __( 'The plugin grants a role access to an item that role would not have by itself (UX Studio never gives a role capabilities it lacks): %s.', 'ux-studio' ),
-			'sub_title'  => __( 'Renamed sub-menu items (the Menu Organizer renames only top-level items): %s.', 'ux-studio' ),
-			'sub_moved'  => __( 'Sub-menu items moved under another parent: %s.', 'ux-studio' ),
 			'sub_custom' => __( 'Custom items without a usable link (HTML, JavaScript, empty address): %s.', 'ux-studio' ),
-			'sub_hidden' => __( 'Hidden sub-menu items or sub-menu items hidden for a role (the Menu Organizer cannot hide a single sub-item, it appears when its parent appears): %s.', 'ux-studio' ),
 			'colors'     => __( 'Individual colours of menu items: %s.', 'ux-studio' ),
 			'iframe'     => __( 'Items that open a page inside the admin (iframe, embedded page): %s.', 'ux-studio' ),
 			'always'     => __( 'Menus kept always open: %s.', 'ux-studio' ),

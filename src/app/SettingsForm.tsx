@@ -20,6 +20,7 @@ export interface Field {
 		| 'toggle'
 		| 'text'
 		| 'textarea'
+		| 'css'
 		| 'number'
 		| 'select'
 		| 'multiselect'
@@ -37,7 +38,7 @@ export interface Field {
 }
 
 /** Field types whose input needs a full grid row to stay readable. */
-const WIDE_TYPES: ReadonlyArray< Field[ 'type' ] > = [ 'textarea', 'richtext', 'multiselect' ];
+const WIDE_TYPES: ReadonlyArray< Field[ 'type' ] > = [ 'textarea', 'css', 'richtext', 'multiselect' ];
 
 export interface SettingsPayload {
 	name: string;
@@ -184,6 +185,16 @@ export function FieldInput( {
 			);
 		case 'media':
 			return <MediaField value={ Number( value ?? 0 ) } onChange={ onChange } />;
+		case 'css':
+			return (
+				<textarea
+					rows={ 10 }
+					className="uxs-code-editor"
+					spellCheck={ false }
+					value={ String( value ?? '' ) }
+					onChange={ ( e ) => onChange( e.target.value ) }
+				/>
+			);
 		case 'textarea':
 		case 'richtext':
 			return (

@@ -77,6 +77,8 @@ final class LoginPressSource extends AbstractAdminSource {
 			'custom_button_color'       => array( 'login_button_bg_color', __( 'Login button background color', 'ux-studio' ) ),
 			'button_text_color'         => array( 'login_button_text_color', __( 'Login button text color', 'ux-studio' ) ),
 			'login_footer_color'        => array( 'login_text_color', __( 'Login screen text color', 'ux-studio' ) ),
+			'button_hover_color'        => array( 'login_button_hover_bg_color', __( 'Login button background color on hover', 'ux-studio' ) ),
+			'button_hover_text_color'   => array( 'login_button_hover_text_color', __( 'Login button text color on hover', 'ux-studio' ) ),
 		);
 		foreach ( $map as $key => $target ) {
 			$raw = $this->str( $o, $key );
@@ -109,13 +111,33 @@ final class LoginPressSource extends AbstractAdminSource {
 				$lossy[] = __( 'The separate messages for the lost password and registration screens (the module shows one message on every login screen).', 'ux-studio' );
 			}
 		}
+		// Background image (the plugin shows it full screen).
+		$bg = $this->str( $o, 'setting_background' );
+		if ( '' !== $bg ) {
+			$bg_id = $this->attachment_id( $bg );
+			if ( $bg_id > 0 ) {
+				$m->set( self::MODULE, 'login_background_image', $bg_id, __( 'Login screen background image', 'ux-studio' ), $origin . ':setting_background' );
+				$m->set( self::MODULE, 'login_background_style', 'cover', __( 'Login screen background image: fit', 'ux-studio' ), $origin . ':setting_background' );
+				++$count;
+			} else {
+				$lossy[] = sprintf(
+					/* translators: %s: file address. */
+					__( 'The login background image %s is not in the media library of this site, so no attachment could be linked. Upload it and choose it in the Admin Customiser settings.', 'ux-studio' ),
+					$bg
+				);
+			}
+		}
+		$custom_css = $this->str( $o, 'loginpress_custom_css' );
+		if ( '' !== $custom_css ) {
+			$m->set( self::MODULE, 'login_custom_css', $custom_css, __( 'Custom CSS of the login page', 'ux-studio' ), $origin . ':loginpress_custom_css' );
+			$lossy[] = __( 'The own CSS of the login screen is copied as it is; UX Studio removes HTML tags from it and cuts it at 50 KB, so check the login screen after the switch.', 'ux-studio' );
+		}
 		if ( $count ) {
 			$m->set( self::MODULE, 'login_customization_enabled', true, __( 'Enable login screen customization', 'ux-studio' ), $origin );
 		}
 
 		$lost = array();
 		foreach ( array(
-			'setting_background'          => __( 'background image', 'ux-studio' ),
 			'gallery_background'          => __( 'background gallery', 'ux-studio' ),
 			'lp_random_bg_img_check'      => __( 'rotating background images', 'ux-studio' ),
 			'mobile_background'           => __( 'mobile background', 'ux-studio' ),
@@ -125,12 +147,9 @@ final class LoginPressSource extends AbstractAdminSource {
 			'customize_logo_height'       => __( 'logo size', 'ux-studio' ),
 			'customize_form_width'        => __( 'form width and padding', 'ux-studio' ),
 			'customize_form_padding'      => __( 'form width and padding', 'ux-studio' ),
-			'button_hover_color'          => __( 'button hover colours', 'ux-studio' ),
-			'button_hover_text_color'     => __( 'button hover colours', 'ux-studio' ),
 			'button_border_color'         => __( 'button border', 'ux-studio' ),
 			'login_footer_text'           => __( 'custom "Lost your password?" text', 'ux-studio' ),
 			'login_footer_copy_right'     => __( 'footer copyright text', 'ux-studio' ),
-			'loginpress_custom_css'       => __( 'own CSS', 'ux-studio' ),
 			'customize_form_shadow'       => __( 'shadows', 'ux-studio' ),
 			'login_button_radius'         => __( 'button corner radius', 'ux-studio' ),
 		) as $key => $name ) {

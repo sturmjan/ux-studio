@@ -9,6 +9,7 @@
 namespace UxStudio\Modules\DashboardWidgets;
 
 use UxStudio\Core\Security;
+use UxStudio\Modules\AdminCustomiser\MenuOrganizer;
 use UxStudio\Modules\BaseModule;
 
 defined( 'ABSPATH' ) || exit;
@@ -65,6 +66,7 @@ final class Module extends BaseModule {
 		// Priority 1000: after apply_hidden_widgets, so a widget added here is
 		// never itself hidden by a stale "hidden_widgets" settings snapshot.
 		add_action( 'wp_dashboard_setup', array( $this, 'register_content_widgets' ), 1000 );
+		add_action( 'wp_dashboard_setup', array( $this, 'register_welcome_panel' ), 1001 );
 
 		add_action( self::CRON_DISK_USAGE, array( $this, 'compute_disk_usage' ) );
 
@@ -150,6 +152,19 @@ final class Module extends BaseModule {
 		}
 
 		$hidden = (array) $this->settings->get( 'hidden_widgets', array() );
+		// B1: widgets hidden for the roles of the current user, on top of the ones hidden for everybody.
+		$user   = wp_get_current_user();
+		$hidden = array_values(
+			array_unique(
+				array_merge(
+					$hidden,
+					RoleWidgets::hidden_for(
+						RoleWidgets::rules( $this->settings, MenuOrganizer::role_list() ),
+						array_map( 'strval', (array) $user->roles )
+					)
+				)
+			)
+		);
 		if ( empty( $hidden ) ) {
 			return;
 		}
@@ -168,6 +183,13 @@ final class Module extends BaseModule {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Add the custom welcome panel for the users it is meant for (after the hiding, so it is never removed by it).
+	 */
+	public function register_welcome_panel(): void {
+		RoleWidgets::register_welcome( $this->settings );
 	}
 
 	/**
@@ -355,6 +377,10 @@ final class Module extends BaseModule {
 				'default' => '',
 			),
 		);
+
+		// B1: hidden widgets per role (one multi-select per role) and the custom welcome panel go after the global list.
+		$at = (int) array_search( 'hidden_widgets', array_column( $rows, 'key' ), true );
+		array_splice( $rows, $at + 1, 0, RoleWidgets::schema( $this->available_widgets(), MenuOrganizer::role_list() ) );
 
 		// Toggles for the widgets other modules add go right after this
 		// module's own widgets, so all widget switches sit together.

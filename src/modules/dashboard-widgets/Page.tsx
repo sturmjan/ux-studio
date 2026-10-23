@@ -9,7 +9,7 @@ import { TopicSettings, inSections } from '../../app/TopicSettings';
 import { TabsNav } from '../../app/SubNav';
 import { formatDate } from '../../app/date';
 
-type Tab = 'tasks' | 'hidden' | 'custom' | 'modules' | 'layout' | 'keys';
+type Tab = 'tasks' | 'hidden' | 'welcome' | 'custom' | 'modules' | 'layout' | 'keys';
 
 interface Task {
 	id: string;
@@ -294,6 +294,7 @@ const MODULE = 'dashboard-widgets';
 /** Settings sections are menu items of their own, next to the overview. */
 const SECTION_TABS: { id: Tab; label: string }[] = [
 	{ id: 'hidden', label: __( 'Hidden widgets', 'ux-studio' ) },
+	{ id: 'welcome', label: __( 'Welcome panel', 'ux-studio' ) },
 	{ id: 'custom', label: __( 'Custom widgets', 'ux-studio' ) },
 	{ id: 'modules', label: __( 'Widgets from other modules', 'ux-studio' ) },
 	{ id: 'layout', label: __( 'Layout', 'ux-studio' ) },

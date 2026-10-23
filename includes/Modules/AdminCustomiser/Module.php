@@ -111,7 +111,7 @@ final class Module extends BaseModule {
 			$post_type_options[ $post_type->name ] = $post_type->labels->name ?? $post_type->name;
 		}
 
-		return array(
+		$schema = array(
 			array(
 				'key'     => 'primary_color',
 				'section' => __( 'Admin screens', 'ux-studio' ),
@@ -575,6 +575,68 @@ final class Module extends BaseModule {
 				'label'   => __( 'Enable login screen customization', 'ux-studio' ),
 				'default' => false,
 			),
+			array(
+				'key'     => 'login_background_image',
+				'section' => __( 'Login page', 'ux-studio' ),
+				'type'    => 'media',
+				'label'   => __( 'Login screen background image', 'ux-studio' ),
+				'help'    => __( 'Shown behind the classic login layout (the split layout has its own media panel). The background color above shows where the image does not reach.', 'ux-studio' ),
+				'default' => 0,
+			),
+			array(
+				'key'     => 'login_background_style',
+				'section' => __( 'Login page', 'ux-studio' ),
+				'type'    => 'select',
+				'label'   => __( 'Login screen background image: fit', 'ux-studio' ),
+				'options' => array(
+					'cover'   => __( 'Cover the whole screen', 'ux-studio' ),
+					'contain' => __( 'Fit inside the screen', 'ux-studio' ),
+					'center'  => __( 'Original size, centered', 'ux-studio' ),
+					'repeat'  => __( 'Repeat (tile)', 'ux-studio' ),
+				),
+				'default' => 'cover',
+			),
+			array(
+				'key'     => 'login_button_hover_bg_color',
+				'section' => __( 'Login page', 'ux-studio' ),
+				'type'    => 'color',
+				'label'   => __( 'Login button background color on hover', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'login_button_hover_text_color',
+				'section' => __( 'Login page', 'ux-studio' ),
+				'type'    => 'color',
+				'label'   => __( 'Login button text color on hover', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'login_link_hover_color',
+				'section' => __( 'Login page', 'ux-studio' ),
+				'type'    => 'color',
+				'label'   => __( 'Login screen link color on hover', 'ux-studio' ),
+				'help'    => __( 'The links under the form ("Lost your password?", "Back to the site").', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'login_custom_css',
+				'section' => __( 'Custom CSS', 'ux-studio' ),
+				'type'    => 'css',
+				'label'   => __( 'Custom CSS of the login page', 'ux-studio' ),
+				'help'    => __( 'Printed in the head of the login, lost-password and registration screens, also when login screen customization above is off. Plain CSS only: HTML tags are stripped and the size is limited to 50 KB. It is never printed on the front end of the site.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'admin_custom_css',
+				'section' => __( 'Custom CSS', 'ux-studio' ),
+				'type'    => 'css',
+				'label'   => __( 'Custom CSS of the admin area', 'ux-studio' ),
+				'help'    => __( 'Printed in the head of every admin screen, after the other admin styles. Plain CSS only: HTML tags are stripped and the size is limited to 50 KB. It is never printed on the front end of the site. Own JavaScript for the admin is not supported on purpose.', 'ux-studio' ),
+				'default' => '',
+			),
 		);
+
+		// B1: meta boxes hidden per role on the edit screens (one multi-select per role).
+		return array_merge( $schema, MetaBoxRules::schema() );
 	}
 }

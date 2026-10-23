@@ -75,7 +75,7 @@ abstract class BaseModule {
 
 	/**
 	 * Settings schema for the generic SPA settings renderer. Field types:
-	 * toggle | text | textarea | number | select | multiselect | color | media | richtext.
+	 * toggle | text | textarea | css | number | select | multiselect | color | media | richtext.
 	 * Empty array = module has no settings screen.
 	 *
 	 * @return array<int, array{key:string,type:string,label:string,default?:mixed,options?:array,help?:string}>

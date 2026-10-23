@@ -10,6 +10,7 @@ namespace UxStudio\Core\Migration\Sources;
 use UxStudio\Core\Migration\AbstractSource;
 use UxStudio\Core\Migration\Mapping;
 use UxStudio\Core\Migration\Staging;
+use UxStudio\Modules\AdminColumns\ColumnQuery;
 use UxStudio\Modules\AdminColumns\Module as ColumnsModule;
 
 defined( 'ABSPATH' ) || exit;
@@ -22,7 +23,8 @@ defined( 'ABSPATH' ) || exit;
  * `label`, `width` + `width_unit`, and type specific fields (`field`, `field_type`, `taxonomy`).
  *
  * Target: option `uxstudio_admin_columns` of the Admin Columns module, keyed by content type
- * (post type, `attachment`, `users`, `comments`); each column is `key, label, type, field_type, enabled, width`.
+ * (post type, `attachment`, `users`, `comments`); each column is `key, label, type, field_type, enabled, width, sortable,
+ * filterable` (the `sort` / `filter` settings of a column are carried over for the lists of post types).
  * A native column the plugin removed becomes a column with `enabled => false`.
  */
 final class AdminColumnsSource extends AbstractSource {
@@ -115,6 +117,15 @@ final class AdminColumnsSource extends AbstractSource {
 		return $out;
 	}
 
+	/**
+	 * An Admin Columns on / off setting (`on`, `1`, true).
+	 *
+	 * @param mixed $value Stored value.
+	 */
+	private function flag( $value ): bool {
+		return true === $value || 1 === $value || in_array( strtolower( (string) $value ), array( 'on', '1', 'yes', 'true' ), true );
+	}
+
 	protected function has_data(): bool {
 		foreach ( $this->read_lists() as $list ) {
 			if ( ! empty( $list['columns'] ) ) {
@@ -174,6 +185,7 @@ final class AdminColumnsSource extends AbstractSource {
 		$per_role      = false;
 		$unsupported   = array();
 		$field_lost    = array();
+		$sf_lost       = array();
 		$seen          = array();
 
 		foreach ( $lists as $list ) {
@@ -260,6 +272,21 @@ final class AdminColumnsSource extends AbstractSource {
 					$unsupported[ $ctype ] = true;
 					continue;
 				}
+				// Sorting and filtering (post type lists only).
+				$want_sort           = $this->flag( $c['sort'] ?? '' );
+				$want_filter         = $this->flag( $c['filter'] ?? '' );
+				$is_list             = ! in_array( $type, array( 'attachment', 'users', 'comments' ), true );
+				$entry['sortable']   = $want_sort && $is_list && ColumnQuery::can_sort( $entry );
+				$entry['filterable'] = $want_filter && $is_list && ColumnQuery::can_filter( $entry );
+				if ( ( $want_sort && ! $entry['sortable'] ) || ( $want_filter && ! $entry['filterable'] ) ) {
+					$what      = array_filter(
+						array(
+							$want_sort && ! $entry['sortable'] ? __( 'sorting', 'ux-studio' ) : '',
+							$want_filter && ! $entry['filterable'] ? __( 'filtering', 'ux-studio' ) : '',
+						)
+					);
+					$sf_lost[] = $type . ': ' . ( '' !== $label ? $label : $ctype ) . ' (' . implode( ', ', $what ) . ')';
+				}
 				$entry = ColumnsModule::clean_column( $entry );
 				if ( '' === $entry['key'] || isset( $used[ $entry['key'] ] ) ) {
 					continue;
@@ -321,7 +348,16 @@ final class AdminColumnsSource extends AbstractSource {
 		if ( $extra_layouts || $per_role ) {
 			$m->lossy( __( 'Several layouts of one list or layouts limited to roles or users (Admin Columns Pro): only the first layout of each list is transferred, for everybody.', 'ux-studio' ) );
 		}
-		$m->lossy( __( 'Sorting, filtering, inline editing and bulk editing set on the columns, saved search segments and the column set per user.', 'ux-studio' ) );
+		if ( $sf_lost ) {
+			$m->lossy(
+				sprintf(
+					/* translators: %s: list of columns. */
+					__( 'Sorting or filtering set on columns that the module can not sort or filter (the users, comments and media lists, column kinds without a stored value): %s.', 'ux-studio' ),
+					implode( '; ', array_slice( array_unique( $sf_lost ), 0, 10 ) )
+				)
+			);
+		}
+		$m->lossy( __( 'Inline editing and bulk editing set on the columns, saved search segments and the column set per user.', 'ux-studio' ) );
 		$m->lossy( __( 'Native columns added by other plugins (SEO, shop ...) that you hid in Admin Columns stay visible: UX Studio knows only the WordPress columns.', 'ux-studio' ) );
 		return $m;
 	}

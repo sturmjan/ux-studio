@@ -119,6 +119,8 @@ final class Settings {
 				return wp_kses_post( (string) $value );
 			case 'textarea':
 				return sanitize_textarea_field( (string) $value );
+			case 'css':
+				return CssSanitizer::clean( $value );
 			case 'media':
 				return absint( $value );
 			case 'text':
