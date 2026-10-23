@@ -276,11 +276,17 @@ final class SnippetManager {
 		}
 		global $wpdb;
 		$table = $this->table();
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name only, no user input.
-		$rows = $wpdb->get_results( "SELECT * FROM {$table} WHERE enabled = 1 ORDER BY id ASC", ARRAY_A );
+		// A safe-preview request also runs the snippets the migration created switched off.
+		$staged = array_values( array_filter( array_map( 'intval', \UxStudio\Core\Migration\Preview::ids( 'snippet' ) ) ) );
+		$where  = $staged ? '(enabled = 1 OR id IN (' . implode( ',', $staged ) . '))' : 'enabled = 1';
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name and integer ids only, no user input.
+		$rows   = $wpdb->get_results( "SELECT * FROM {$table} WHERE {$where} ORDER BY id ASC", ARRAY_A );
 
 		$snippets = array();
 		foreach ( (array) $rows as $row ) {
+			if ( $staged && in_array( (int) $row['id'], $staged, true ) ) {
+				$row['enabled'] = 1;
+			}
 			$snippet = $this->loadSnippetFromRow( $row );
 			if ( $snippet ) {
 				$snippets[] = $snippet;

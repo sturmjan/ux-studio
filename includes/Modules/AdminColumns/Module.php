@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
 final class Module extends BaseModule {
 
 	/** Option holding the whole configuration, keyed by content type. */
-	private const OPTION = 'uxstudio_admin_columns';
+	public const OPTION = 'uxstudio_admin_columns';
 
 	/** Legacy option (wpextended) read as a fallback. */
 	private const LEGACY_OPTION = 'wpextended__admin-columns';
@@ -128,6 +128,16 @@ final class Module extends BaseModule {
 	 * @return array{key:string,label:string,type:string,field_type:string,enabled:bool,width:string}
 	 */
 	public function normalize_column( array $column ): array {
+		return self::clean_column( $column );
+	}
+
+	/**
+	 * Pure form of normalize_column() (no option, no module instance), shared with the migration wizard.
+	 *
+	 * @param array $column Raw column.
+	 * @return array{key:string,label:string,type:string,field_type:string,enabled:bool,width:string}
+	 */
+	public static function clean_column( array $column ): array {
 		$allowed_types = array( 'default', 'meta', 'taxonomy', 'post_id', 'thumbnail' );
 		$type          = isset( $column['type'] ) && in_array( $column['type'], $allowed_types, true )
 			? $column['type']

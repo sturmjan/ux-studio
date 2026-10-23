@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { LoaderCircle, Pause, Play, Plus, Sparkles, Trash2 } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
+import { formatDate } from '../../app/date';
 
 interface ArticleType {
 	name: string;
@@ -441,7 +442,7 @@ function GeneratorsSection(): JSX.Element {
 								</td>
 								<td>{ SCHEDULE_TYPES.find( ( s ) => s.id === g.schedule_type )?.label ?? g.schedule_type }</td>
 								<td>{ g.total_posts }</td>
-								<td>{ g.next_run ?? '—' }</td>
+								<td>{ formatDate( g.next_run ) || '—' }</td>
 								<td>
 									<span className={ `uxs-badge ${ g.status === 'active' ? 'is-success' : '' }` }>{ g.status }</span>
 								</td>
@@ -560,7 +561,7 @@ function GeneratedPostsSection(): JSX.Element {
 									<td>{ p.article_type }</td>
 									<td>{ p.wp_status }</td>
 									<td>{ p.tokens_used }</td>
-									<td>{ p.created_at }</td>
+									<td>{ formatDate( p.created_at ) }</td>
 								</tr>
 							) ) }
 						</tbody>

@@ -6,6 +6,7 @@ import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
 import { TabsNav } from '../../app/SubNav';
+import { formatDate } from '../../app/date';
 
 type Tab = 'settings' | 'log';
 
@@ -100,7 +101,7 @@ function LogTable(): JSX.Element {
 						<tbody>
 							{ query.data.map( ( row ) => (
 								<tr key={ row.id }>
-									<td>{ row.created_at }</td>
+									<td>{ formatDate( row.created_at ) }</td>
 									<td>{ row.user_id }</td>
 									<td>{ row.module }</td>
 									<td>{ row.action }</td>

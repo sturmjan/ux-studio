@@ -10,6 +10,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { History, LoaderCircle, RotateCcw } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import type { FormDefinition, FormRevision } from './types';
+import { formatDate } from '../../app/date';
 
 export default function RevisionsTab( { form }: { form: FormDefinition } ): JSX.Element {
 	const [ confirmId, setConfirmId ] = useState< number | null >( null );
@@ -66,7 +67,7 @@ export default function RevisionsTab( { form }: { form: FormDefinition } ): JSX.
 						<td>{ rev.title || __( '(untitled form)', 'ux-studio' ) }</td>
 						<td>{ rev.field_count }</td>
 						<td>{ rev.created_by_name }</td>
-						<td>{ rev.created_at }</td>
+						<td>{ formatDate( rev.created_at ) }</td>
 						<td>
 							{ confirmId === rev.id ? (
 								<span style={ { display: 'inline-flex', gap: 'var(--uxs-sp-2)', alignItems: 'center' } }>

@@ -11,6 +11,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { Download, LoaderCircle, Mail, Paperclip, RotateCcw, Search, Trash2, X } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { FILE_LIKE_TYPES, type ActionLogEntry, type SubmissionDetail, type SubmissionFile, type SubmissionListItem, type SubmissionStatus } from './types';
+import { formatDate } from '../../app/date';
 
 const PAGE_SIZE = 20;
 
@@ -113,7 +114,7 @@ function DetailModal( { id, onClose }: { id: number; onClose: () => void } ): JS
 								</tr>
 								<tr>
 									<th style={ { textAlign: 'left' } }>{ __( 'Submitted', 'ux-studio' ) }</th>
-									<td>{ detail.created_at }</td>
+									<td>{ formatDate( detail.created_at ) }</td>
 								</tr>
 								{ Object.entries( detail.fields_snapshot ).map( ( [ key, meta ] ) => {
 									const value = detail.values[ key ];
@@ -155,7 +156,7 @@ function DetailModal( { id, onClose }: { id: number; onClose: () => void } ): JS
 								{ detail.action_log.map( ( entry ) => (
 									<li key={ entry.id }>
 										<span className={ `uxs-badge ${ entry.status === 'ok' ? 'is-success' : 'is-danger' }` }>{ entry.action_type }</span>{ ' ' }
-										{ entry.detail } <span className="uxs-form__help">({ entry.created_at })</span>
+										{ entry.detail } <span className="uxs-form__help">({ formatDate( entry.created_at ) })</span>
 									</li>
 								) ) }
 							</ul>
@@ -292,7 +293,7 @@ export default function ArchiveTab( { formId, formTitle, initialStatus }: { form
 											{ STATUS_LABELS[ row.status ] }
 										</span>
 									</td>
-									<td>{ row.created_at }</td>
+									<td>{ formatDate( row.created_at ) }</td>
 									<td>
 										<button
 											type="button"

@@ -87,6 +87,40 @@ final class Repository {
 		if ( ! is_array( $state ) || ! isset( $state['exact'], $state['regex'] ) ) {
 			$state = self::refresh_state();
 		}
+		return self::with_preview_rules( $state );
+	}
+
+	/**
+	 * Ids of rules the migration created switched off that a safe-preview request treats as on.
+	 *
+	 * @return int[]
+	 */
+	private static function preview_ids(): array {
+		return array_values( array_filter( array_map( 'intval', \UxStudio\Core\Migration\Preview::ids( 'redirect' ) ) ) );
+	}
+
+	/**
+	 * In a safe-preview request the staged (still switched off) rules count as on.
+	 *
+	 * @param array{exact:int, regex:array<int, array<string, mixed>>} $state Engine snapshot.
+	 * @return array{exact:int, regex:array<int, array<string, mixed>>}
+	 */
+	private static function with_preview_rules( array $state ): array {
+		$ids = self::preview_ids();
+		if ( ! $ids ) {
+			return $state;
+		}
+		global $wpdb;
+		$table = self::table();
+		$in    = implode( ',', $ids );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- own table, ids are integers.
+		$state['exact'] += (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} WHERE enabled = 0 AND match_type = 'exact' AND id IN ({$in})" );
+		$extra           = $wpdb->get_results( "SELECT * FROM {$table} WHERE enabled = 0 AND match_type = 'regex' AND id IN ({$in})", ARRAY_A );
+		// phpcs:enable
+		if ( is_array( $extra ) && $extra ) {
+			$state['regex'] = array_merge( $state['regex'], $extra );
+			usort( $state['regex'], static fn( array $a, array $b ): int => array( (int) $a['position'], (int) $a['id'] ) <=> array( (int) $b['position'], (int) $b['id'] ) );
+		}
 		return $state;
 	}
 
@@ -161,7 +195,12 @@ final class Repository {
 		}
 		$table = self::table();
 		$in    = implode( ',', array_fill( 0, count( $hashes ), '%s' ) );
-		$where = $enabled_only ? ' AND enabled = 1' : '';
+		$where = ' AND enabled = 1';
+		if ( ! $enabled_only ) {
+			$where = '';
+		} elseif ( self::preview_ids() ) {
+			$where = ' AND (enabled = 1 OR id IN (' . implode( ',', self::preview_ids() ) . '))';
+		}
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE source_hash IN ({$in}){$where} ORDER BY CHAR_LENGTH(source_key) DESC LIMIT 1", ...$hashes ), ARRAY_A );
 		return is_array( $row ) ? $row : null;

@@ -1857,3 +1857,289 @@ na token - bohatě stačí. Výpis záznamů cache v CA 60 s, invalidace po záp
       přes vás? (výchozí: zamčené, odemyká admin v CA)
 - O4: Vyžadovat před zápisem znovu heslo / passkey? (výchozí: ano, pokud přihlášení starší
       než 15 min)
+
+## 25. CSP - inventura, hodnocení rizika, widget a bezpečný přechod na Enforce (2026-10-20)
+
+Zadání uživatele: zapnutí CSP musí upozornit, že může rozbít web; výchozí cesta je
+Content-Security-Policy-Report-Only s povinným reportováním; modul musí umět projít celý web
+a správně povolit všechny služby; povinný widget na nástěnce ukazuje všechno, co se načítá,
+a zvýrazní podezřelé zdroje. Navazuje na `PLAN-strazce-integrity.md` (incident seco-traktory:
+škodlivá byla jen cizí doména ve `<script src>`), sdílí s ním hodnocení domén.
+
+### 25.1 Nálezy v původní implementaci
+
+- Report-Only s dosavadní politikou (`unsafe-inline`, `img-src https:`, povolené presety)
+  nehlásí nic, co politika povoluje - tedy neukáže, co web načítá. Pro inventuru je potřeba
+  záměrně přísná politika pro cizí původy.
+- Report endpoint byl veřejný bez tokenu a bez kontroly `document-uri` (kdokoli mohl plnit
+  tabulku), nefiltroval šum z rozšíření prohlížeče, `sample_ip` se ukládal syrově (komentář
+  tvrdil opak), URL včetně query stringu (tokeny, e-maily).
+- Chyběl `report-to` / `Reporting-Endpoints`, varování při zapnutí, kontrola, že hlavička
+  vůbec dorazí (Hostinger ji přepisuje, viz paměť `hostinger-prepisuje-csp`), a brána
+  před Enforce. `csp_custom_allowlist` se přidává do všech direktiv najednou.
+
+### 25.2 Režimy (`csp_mode`)
+
+| Režim | Hlavička | Politika | Účel |
+|---|---|---|---|
+| `off` | žádná | - | výchozí |
+| `audit` (nový) | Report-Only | inventurní: cizí původy zakázané, inline/eval povolené | zjistit, co web načítá |
+| `report-only` | Report-Only | kandidátní (presety + schválené zdroje) | test před ostrým režimem |
+| `enforce` | CSP | kandidátní | blokuje |
+
+- Inventura povoluje `unsafe-inline` / `unsafe-eval`: inline skripty a `style=""` jsou ve WP
+  na každé stránce desítky, report za každý by zahltil server. Cílem jsou cizí domény
+  (načtení skriptu, exfiltrace přes connect/img/frame) - ty se nahlásí vždy.
+- Hlavička se neposílá v náhledech page builderů a Customizeru a nikdy ve wp-admin.
+- Vzorkování `csp_sample_rate` (% zobrazení stránek s Report-Only hlavičkou, výchozí 100)
+  + automatická pojistka: nad 600 reportů za hodinu se Report-Only hlavička na zbytek hodiny
+  pozastaví (Enforce se nevzorkuje nikdy).
+- Nouzový vypínač `define( 'UXSTUDIO_CSP_DISABLE', true );` ve wp-config.php.
+
+### 25.3 Reporty a data
+
+- `report-uri` + `report-to` (`Reporting-Endpoints`), URL nese token z `wp_salt()` a značku
+  politiky. Bez tokenu, s cizím `document-uri` nebo ze schématu rozšíření prohlížeče se
+  report zahodí (204).
+- Tabulka `uxstudio_csp_violations` v5: `policy`, `script_sample`, `line_number`, `pages`
+  (až 10 cest), `risk_level`, `risk_score`, `risk_reasons`, `service`, `domain_created`,
+  `risk_checked_at`. URL bez query stringu, IP se neukládá.
+- Retence: vyřešené starší 90 dní a všechny starší 180 dní se mažou (denní údržba).
+
+### 25.4 Hodnocení rizika (`CspRisk`, `CspServices`, `CspRdap`)
+
+- Vlastní doména a subdomény = vlastní; katalog známých služeb (presety + běžná CDN,
+  analytika, platby, české služby) = známá služba.
+- Signály: `http://`, IP místo domény, punycode, riziková TLD, překlep známé domény
+  (Levenshtein), tunely / pastebiny / dynamické DNS, náhodně vypadající název, doména mladší
+  30 / 180 dní (RDAP, bez klíče, cache 30 dní). Skript/připojení/rámec váží víc než
+  obrázek/font.
+- Úroveň: `high` (červeně, e-mail adminovi max. 1× za 6 h), `medium`, `unknown` (neznámá
+  služba bez signálu), `known`, `self`.
+- Reputační služby (Safe Browsing / Web Risk, URLhaus) až přes broker v CA - mimo tuto fázi.
+
+### 25.5 Brána pro Enforce a rollback
+
+Enforce jde zapnout, až když: (1) self-test potvrdí, že hlavička opravdu dorazí do prohlížeče,
+(2) režim `report-only` běží aspoň 7 dní, (3) není otevřený nález z testovací politiky
+za posledních 7 dní, (4) není otevřený nález s vysokým rizikem. Jinak jen s výslovným
+„rozumím riziku" (`csp_enforce_override`, neukládá se). Server bránu vynucuje i bez UI.
+Automatický návrat do `report-only` (`csp_auto_rollback`): během 72 h po zapnutí Enforce
+přibudou aspoň 3 nové blokované zdroje typu skript/připojení/rámec s aspoň 3 hlášeními
+→ zpět na test + e-mail.
+
+### 25.6 Postup
+
+- [x] F1 Inventurní politika, report-to, token, filtr šumu, soukromí, vzorkování a pojistka, varovný dialog
+- [x] F2 DB v5, nové sloupce, retence
+- [x] F3 Povinný widget na nástěnce (nejde skrýt ani přes Dashboard Widgets)
+- [x] F4 Lokální heuristiky + RDAP, e-mail u vysokého rizika
+- [x] F5 Self-test hlavičky, brána pro Enforce, automatický rollback
+- [x] Ověřeno 2026-10-20 na lokálním pobyty (worktree napojený junction, po testu vráceno):
+      reporty s tokenem/bez tokenu/cizí dokument/rozšíření, query string a IP se neukládají,
+      kjhg.lol = vysoké riziko (RDAP: registrace 2026-09-05), dialog pro Inventuru a Enforce,
+      serverová brána (`csp_gate_blocked`), Schválit všechny bezpečné (jen pro danou direktivu),
+      widget na nástěnce, e-mail, automatický návrat z Enforce. Testy logiky: `php tests/csp-logic.php`.
+- [ ] Ověřit na živém webu, co dorazí do prohlížeče (Hostinger přepisuje CSP - self-test to ukáže)
+- [ ] F6 Aktivní sken (WP-cron stáhne homepage, sitemapu, košík) - později
+- [ ] F7 Reputační broker v CA (Safe Browsing / URLhaus) - později
+
+## 26. Průvodce migrací z cizích pluginů + hlídání překryvů + MCP (2026-10-21, NÁVRH)
+
+Zadání: u pluginů s plnou shodou (seznam schválený 21. 10., skupina A) + Admin Customiser
+umět přenést nastavení a data, ověřit, že přenos proběhl, otestovat v bezpečném prostředí
+a teprve pak nabídnout deaktivaci. Průvodce se spustí po instalaci nebo ručně z menu.
+Modul nejde zapnout, když běží plugin, který dělá totéž. Součástí MCP server, který umí
+s UX Studiem pracovat nativně.
+
+### 26.1 Principy
+
+- **Zdroj se nikdy nemění.** Migrace data cizího pluginu jen čte; zapisuje jen do UX Studia.
+  Rollback = obnovit snímek našich dat + znovu aktivovat plugin.
+- **Nic automaticky.** Deaktivace jen po ověření a potvrzení uživatelem (stejně jako Upload Guard).
+- **Idempotence.** Mapovací tabulka `uxstudio_migration_map` (zdroj → cílové ID), opakovaný
+  běh nic nezdvojí. Velká data po dávkách, stav v `uxstudio_migration_run`, jde navázat.
+- **Ztrátové části se říkají předem.** Plán každého zdroje vypíše „přenese se / nepřenese se".
+
+### 26.2 Architektura (`includes/Core/Migration/`)
+
+- `Catalog` - registr zdrojů (slug pluginu, cílový modul, typ plná/částečná).
+- `Source` (rozhraní) - `detect()` (nainstalováno, aktivní, verze, počty), `plan()`,
+  `migrate( batch, dry_run )`, `verify()`, `smoke_urls()`.
+- `Sources/*` - jeden soubor na plugin, Redirection reuse `Redirects\Importer`, WP Extended reuse `Migrator`.
+- `Snapshot` - záloha cílových options/tabulek před zápisem, rollback 30 dní.
+- `Runner` - stavový automat, dávky, obnovení po timeoutu.
+- `PreviewSandbox` + mu-plugin `uxstudio-preview.php` - bezpečný náhled (26.4).
+- `ActivationGuard` - blokace zapnutí modulu (26.5).
+- REST `uxstudio/v1/migration/{scan,plan,run,status,verify,preview,deactivate,rollback}`.
+
+### 26.3 Průvodce (SPA `#/wizard`)
+
+1 Vítejte → 2 Sken webu → 3 Výběr → 4 Kontrola (snímek + zkušební běh) → 5 Migrace →
+6 Ověření a bezpečný náhled → 7 Deaktivace → 8 Hotovo (report do Activity Logu).
+Spouští se po aktivaci pluginu (Handoff redirect, jednou) a ručně z menu „Průvodce migrací".
+Animace jen CSS (krokový pruh, radar skenu, postupné karty, kreslené fajfky), lucide ikony,
+respektuje `prefers-reduced-motion`.
+
+### 26.4 Bezpečný náhled (sandbox v rámci session)
+
+Mu-plugin (načte se před pluginy) při platném podepsaném cookie/hlavičce (HMAC na `wp_salt`,
+user ID, expirace 30 min) přes `option_active_plugins` vypne pro TENTO požadavek staré pluginy
+a zapne cílové moduly. Návštěvníci dál jedou na starých pluginech. Automatické smoke testy
+loopbackem s tokenem: homepage 200 bez fatal erroru, klíčové stránky, wp-admin, plus testy
+zdrojů (vzorek přesměrování → shodný Location/kód, testovací e-mail přes nové SMTP adminovi,
+formulář komentářů zmizel, nová login URL odpovídá, snippety bez chyby…). Admin může web
+v náhledu proklikat sám (lišta „Náhled bez starých pluginů").
+Neověří: chování jen pro návštěvníky z cizí IP, cron běhy, e-maily skutečným příjemcům.
+
+### 26.5 Hlídání překryvů
+
+- Zapnutí modulu, když je aktivní plugin ze skupiny A → REST 409 `uxstudio_plugin_overlap`,
+  UI nabídne průvodce s předvybraným pluginem. Admin Customiser (částečná) → varování + potvrzení.
+- Aktivace cizího pluginu při zapnutém modulu (`activated_plugin`) → upozornění, nic se nevypne.
+- Skupina B jen upozorňuje (bez migrace a bez deaktivace).
+
+### 26.6 MCP server UX Studia
+
+- Přesun MCP z AI Assistantu do jádra (`Core/Mcp`), běží i bez AI modulu.
+- Transport Streamable HTTP přes WordPress MCP Adapter (přibalit composerem) + Abilities API.
+- Abilities `uxstudio/*`: moduly (seznam, zapnout/vypnout přes guard), nastavení (podle schématu,
+  tajné hodnoty nikdy ven), migrace (scan/plan/run s `dry_run`=true výchozí/verify/deactivate
+  jen s `confirm`), CSP inventura, IP bany, Activity Log, e-mail log, přesměrování (už existují).
+- Tokeny se scope (read / write / admin / migration), expirace, každé volání do Activity Logu.
+- UI vygeneruje příkaz pro Claude Code / konfiguraci pro Claude Desktop a Cursor.
+- Později: CA jako agregátor - jeden MCP pro celou flotilu.
+
+### 26.7 Fáze
+
+- [x] F1 Catalog + detekce + ActivationGuard + upozornění (bez migrace) - hotovo 2026-10-21: `includes/Core/Migration/{Catalog,Overlaps,ActivationGuard}.php`, REST `overlaps` + `overlaps/ignore|unignore`, 409 `uxstudio_plugin_overlap` na `modules/{id}` (filtr `uxstudio_overlap_guard_enabled` vypíná kontrolu jen na REST cestě, WP-CLI a `Modules::set_enabled()` zůstávají volné), panel na Modulech, modal 409, lišta na stránce modulu, wp-admin notice; test `tests/overlap-catalog.php`
+- [x] F2 Průvodce (UI) + sken + plán + zkušební běh + Snapshot/rollback + zdroje jen s nastavením - hotovo 2026-10-21 (viz „F2 poznámky“ pod seznamem)
+- [x] F3 Zdroje s daty (36 pluginů ve 14 zdrojích) + staging - hotovo 2026-10-21 (viz „F3 poznámky“ na konci §26)
+- [x] F4 Bezpečný náhled + smoke testy + přepnutí + vrácení přepnutí - hotovo 2026-10-21 (viz „F4 poznámky“ §26.10); sandbox je mu-plugin `uxstudio-preview.php` + `PreviewBoot`, testy `tests/migration-preview.php`
+- [x] F5 Admin Customiser zdroje (AME, Adminimize, White Label CMS, Adminify, LoginPress) + Admin Columns - hotovo 2026-10-21 (viz §26.11); testy `tests/migration-admin-sources.php`
+- [x] F6 MCP v jádru + abilities + scope tokenů + UI pro připojení klienta - hotovo 2026-10-21 (viz §26.12); testy `tests/mcp-core.php`
+- [x] F7 Automatické spuštění po instalaci, položka v menu, překlady, dokumentace - hotovo 2026-10-21 (viz §26.13); testy `tests/wizard-autostart.php`, `tests/login-url-notice.php`
+
+**F2 poznámky (2026-10-21).**
+- Kód: `includes/Core/Migration/` - `Source` (rozhraní), `AbstractSource` (detekce, plán, zkušební běh, zápis, ověření; zdroj implementuje jen `map()`), `Mapping`, `SettingsWriter`, `Snapshot`, `Runner`, `History`, `MigrationMap`, `PluginInfo`, `SourceRegistry`, `MigrationRestController`, `Bootstrap`, `Sources/*` (14 tříd, 32 pluginů). SPA `src/app/wizard/` (krok = položka v `getSteps()`, F4 jen přidá další), styl `wizard.scss`. Test `tests/migration-sources.php`.
+- Zápis jde přes `Settings::clean()` (schéma modulu), ne přes `BaseModule::save_settings()`: ta má vedlejší účinky (přepis bloku v `.htaccess`, bany zemí, provisioning CAPTCHA) a migrace smí být jen kopie nastavení. Tajné hodnoty přes `Security::store_secret`, a jen když se liší (náhodný IV by jinak dělal z opakovaného běhu změnu).
+- Plugin s uloženým nastavením se přenáší i neaktivní (s varováním); plugin, který funguje jen svou přítomností (WPS Hide Login, Hide Admin Bar, Disable XML-RPC, Disable WordPress Updates, Classic Editor), se přenáší jen když je aktivní, jeho výchozí hodnoty se berou jako efektivní nastavení.
+- Sken hlásí i „plugin odstraněn, ale nastavení zůstala“ (`data_only`); je volitelný, nepředvybraný.
+- Hodnota, kterou modul neumí (neexistující typ obsahu, role), se v plánu označí a `verify()` ji hlásí jako rozdíl - nikdy se tiše neztratí. Lokálně např. `e-landing-page` u Disable Comments.
+- Mapovací tabulka: řádek na dvojici (zdrojový klíč > cílový klíč), unikátní klíč `source_plugin+source_key+target_type`; rollback řádky běhu maže.
+- Snímek: option `uxstudio_migration_snapshot_<run>`; tabulky (`capture_table`) jsou připravené pro F3, v F2 nepoužité (WP Extended běží v režimu `settings_only`, tabulky a import activity logu zůstávají F3). Snímek se po vrácení maže, jinak po 30 dnech (denní cron `uxstudio_migration_purge`). Vrácení obnovuje jen volby/tabulky cíle, ne `uxstudio_migration_run(s)`.
+- Krok Kontrola dělá zkušební běh (bez zápisu, bez snímku); snímek vzniká až na začátku skutečného běhu (první řádek kroku Migrace). Rozdělaný zkušební běh nikdy neblokuje nový běh, rozdělaný skutečný ano (409).
+- Pokud je cílový modul (např. Security Optimization) už zapnutý, přenesená nastavení se projeví hned - plán na to upozorní u každého zdroje.
+- Neověřeno proti skutečnému pluginu: `redirect-404-to-homepage` (slug na wordpress.org neexistuje, bere se jako plugin bez nastavení); formáty pluginů, které nejsou lokálně nainstalované, jsou čtené z kódu stažených zipů, ne z živých dat.
+
+
+### 26.8 Staging: nic se nezapne, dokud neběží přepnutí (F3, priorita 0)
+
+Revize po F2 našla chybu: `SettingsWriter` psal přenesené hodnoty rovnou do živého nastavení modulu. U už zapnutého modulu
+(Security Optimization je zapnutá skoro všude) se tak migrace WPS Hide Login projevila hned vlastní login URL vedle
+WPS Hide Login (hrozba vyzamčení), totéž CAPTCHA. Porušovalo to pravidlo „modul přebírá práci až při přepnutí po náhledu".
+
+- **Modul vypnutý** → nastavení se zapíše přímo do `uxstudio_<modul>` (bez účinku, dokud se modul nezapne).
+- **Modul zapnutý** → hodnoty jdou do `Core\Migration\Staging` (option `uxstudio_migration_staged`, bez autoloadu): `run_id → {created, settings[modul][klíč], secrets[option]{modul, sealed}, activations[]{source, kind, ids}}`. Tajné hodnoty jen zašifrované (`Security::seal`, AES-256-GCM jako `store_secret`), nikdy čistý text.
+- Náhled, zkušební běh i `verify()` skládají **živá nastavení + čekající staging** (nejnovější běh vyhrává), takže druhý běh stejného zdroje nezapíše nic nového (idempotence) a ověření srovnává zdroj s tím, co bude platit.
+- `Staging::apply( run_id )` (použije přepnutí ve F4): zapíše staged hodnoty přes `Settings::save` (ne přes `save_settings` modulu, jeho vedlejší účinky – `.htaccess`, bany, provisioning klíčů – spustí přepnutí po zapnutí modulu), odešle tajné hodnoty přes `Security::store_secret`, zapne data vytvořená neaktivní (rozhraní `Activatable`), smaže záznam, zapíše `applied` do historie, Activity Log a vyvolá akci `uxstudio_migration_staged_applied( run_id, moduly )`. Druhé volání nic nedělá.
+- `Staging::discard( run_id )` volá `Runner::rollback` (a denní purge maže záznamy starší než okno snímku, 30 dní). Neaktivní data odstraní obnova tabulek ze snímku.
+- `migration/status` vrací `staging` (počty hodnot, tajných hodnot a aktivací čekajících na přepnutí), historie `staging` a `applied`. Průvodce: „Připraveno, začne platit po přepnutí" místo „Zapsáno" (kontrola, migrace, ověření, hotovo).
+- **Pravidlo pro data (F3):** co mění chování webu, dokud běží starý plugin (přesměrování, snippety, viditelnost menu, přihlášení, CAPTCHA, režim údržby, plánování expirace, externí odkazy), vzniká **neaktivní** a aktivuje se přes `Staging::apply`. Neškodné (složky médií, last-login meta, historie e-mailů, definice cron intervalů) se zapisuje přímo.
+
+### 26.9 F3 poznámky: zdroje s daty (2026-10-21)
+
+**Kód.** `AbstractSource` dostal datovou fázi: první volání `migrate()` zapíše nastavení, další čtou foreign úložiště po dávkách (500, kurzor, `processed / total` v `uxstudio_migration_run`), zkušební běh projde vše jedním průchodem bez zápisu. Zdroj implementuje `read_batch`, `apply_item`, `preview_item`, `verify_item` (+ `target_tables()`, `options()`). `AbstractMetaSource` je základ pro zdroje zapisující post/user meta. Zápis jde vždy přes API modulu (`Repository::save`, `SnippetManager::createSnippet`, termová API, `Security::store_secret`), nikdy přímo do souborů nebo tabulek modulu mimo jeho logiku. Snímek umí tabulky (`target_tables()`, záloha `CREATE TABLE ... LIKE` + zároveň záloha verzí tabulek `uxstudio_module_db_versions`, aby po vrácení smazaná tabulka nezůstala „nainstalovaná“). Objekty v core tabulkách (termy složek, meta, cron události, soubory snippetů) maže `Revert` podle mapovací tabulky: zapisují se jen objekty, které běh VYTVOŘIL (nikdy existující), takže vrácení nic cizího nesmaže. Po `Staging::apply` už vrácení ze snímku neprojde (409 `uxstudio_migration_applied`, doladí F4 s krokem „zrušit přepnutí“).
+
+**Volby zdroje** (`Source::options()`, REST `migration/run` parametr `options`): zatím jen „Přenést i historii“ u logů e-mailů (výchozí vypnuto). Plán vrací `data[]` (počty objektů, např. 313 přesměrování), `options[]`, `staged`.
+
+**Klasifikace (přímo = neškodné, staged = mění chování webu, dokud běží starý plugin).** Pro modul vypnutý se vše zapisuje přímo (bez účinku do zapnutí), kromě snippetů.
+
+| Zdroj | Cíl | Zacházení při zapnutém modulu |
+|---|---|---|
+| Redirection, Safe Redirect Manager, Simple 301, 301 Redirects | redirects | pravidla vzniknou NEAKTIVNÍ, aktivní z pluginu se aktivují přes `Staging::apply` |
+| Code Snippets, WPCode, HFCM | code-snippets | VŽDY vypnuté (i při vypnutém modulu); zapnou se v `apply`; snippety se ztrátou pravidel (podmínky, cílení, zařízení) zůstanou vypnuté k revizi |
+| Page Links To | external-permalinks | nastavení `post_types` staged (adresy zůstávají v postmeta `_links_to`, modul čte totéž pole) |
+| PublishPress Future | auto-unpublish | data čekají ve stagingu, `apply` zapíše meta a naplánuje událost |
+| Menu Icons, Nav Menu Roles, If Menu, Menu Items Visibility Control | menu-icons, menu-visibility | meta čeká ve stagingu, `apply` zapíše |
+| WP Mail SMTP, Easy WP SMTP, Post SMTP, FluentSMTP | smtp-email | nastavení i zašifrované heslo/klíče staged |
+| WP Maintenance Mode, Coming Soon (SeedProd), Maintenance, Under Construction | maintenance-mode | vše vč. `mode` staged |
+| Simple History, WP Activity Log, Activity Log (Aryo), Adminify | activity-log | `retention_days` staged (kratší doba = mazání dat) |
+| Post Types Order, Intuitive CPO | post-type-order | `post_types` staged |
+| FileBird, Folders, Real Media Library, Wicked Folders | folder-manager | PŘÍMO (jen organizace médií) |
+| When Last Login, WP Last Login | user-last-login | PŘÍMO |
+| WP Mail Logging, Email Log | email-log | PŘÍMO (retence + volitelně historie) |
+| WP Crontrol | cron-control | PŘÍMO (definice intervalů do `uxstudio_cron_schedules`, modul je registruje) |
+
+**Ztrátové části (výběr, přesné texty jsou v plánech):** Redirection - server/login/referrer/agent/cookie/role/IP pravidla, náhodné a pass-through cíle, rozlišování velikosti písmen a práce s query, počítadla a logy; duplicitní adresa (modul má jedno pravidlo na adresu, platí první); SRM - 403/404, force https, wildcard `*` se převede na regex s `$1`; Simple 301 - pravidla s `*` při vypnutém wildcardu nikdy nefungovala, přeskočí se. Snippety - shortcode (content), run-once, condition, text/universal/blocks, umístění před/za příspěvkem, on demand; HFCM vždy jako typ html (jeho JS/CSS nese vlastní značky), cílení stránek/zařízení = revize. Složky - jen média (složky příspěvků/stránek se hlásí), kolekce/galerie/zkratky RML, ruční pořadí, barvy. Menu - role se u Nav Menu Roles zúží na „přihlášený“ a vypíší se po položkách, „skrýt pro roli“ a více pravidel If Menu a PHP výrazy se nepřenášejí; ikony se mapují na nejbližší Lucide z povolené sady (nemapované se vypíší jménem). SMTP - OAuth tokeny Gmail/Outlook se nekopírují („připojit znovu“, přenese se client id/secret), nepodporované mailery (SendGrid, Mailgun ...) se jmenují, vícenásobné připojení FluentSMTP jen výchozí; heslo se dešifruje schématem pluginu (libsodium / base64 / AES-CTR), konstanty `WPMS_*` z wp-config jsou efektivní hodnoty. Cron - PHP a URL události Crontrolu a pozastavené hooky se jen počítají. Activity Log - historie se NEimportuje (formáty událostí se liší), jen retence. Údržba - pozadí obrázkem, odpočet, přihlášení, per-URL pravidla.
+
+**Cron Control** dostal minimální podporu vlastních intervalů (`uxstudio_cron_schedules` + filtr `cron_schedules`), jinak by události s intervalem z Crontrolu po jeho odinstalaci zůstaly viset.
+
+**Past:** u více vybraných pluginů se stejným cílovým modulem s nastavením se přenášejí po sobě a později zpracovaný přepíše dřívější (výběr v průvodci na to upozorní); data (přesměrování, snippety, složky) se naopak sčítají.
+
+**Ověřeno živě** (pobyty, kopie s reálnými daty + fixtury pro neinstalované pluginy): 338 řádků Redirection → 313 pravidel (25 duplicit), 4 snippety z tabulky `snippets`, heslo WP Mail SMTP (dešifrované a uložené zašifrovaně), 1 e-mail z `wpml_mails`; WPS Hide Login proti zapnuté Security Optimization zůstal ve stagingu (živá volba beze změny, `wp-login.php` běží, vlastní URL neaktivní); druhý běh nezapsal nic; vrácení obnovilo tabulky, volby, soubory snippetů i meta. Testy `tests/migration-sources.php`, `tests/migration-data-sources.php`.
+
+### 26.10 F4 poznámky: bezpečný náhled, smoke testy, přepnutí (2026-10-21)
+
+**Kód.** `includes/Core/Migration/`: `PreviewBoot` (rané jádro, načítá ho mu-plugin), `Preview` (stav, mu-plugin, cookie, lišta, enter/exit), `Smoke` (testy loopbackem), `Switcher` (přepnutí a vrácení). REST `migration/{preview,preview/end,smoke,switch-plan,switch,revert-switch,probe}`; `Source::smoke_checks()` (nepovinné, default prázdné); `Activatable::deactivate()` (opak `activate`); `BaseModule::switch_options()` + `after_migration_switch()` (Security: přepis `.htaccess` jen když se obsah bloku liší, bany zemí; Cron Control: mu-plugin/htaccess/watch). SPA: kroky Náhled, Přepnutí, Hotovo (`steps-preview.tsx`, `flows.ts`), historie běhů ukazuje Přepnuto / Přepnutí vráceno, „Náhled a přepnutí“ pro pokračování a „Vrátit přepnutí“.
+
+**Náhled.** Při startu se zapíše `wp-content/mu-plugins/uxstudio-preview.php` (malý, bez tokenu nic nedělá, bez UX Studia nic nedělá, po posledním náhledu se maže; nezapisovatelná složka = náhled „není dostupný“ a průvodce nabídne přepnutí bez náhledu jen s výslovným potvrzením). Token `<run>.<uid>.<exp>.<scope>.<hmac>`, klíč AUTH_KEY+AUTH_SALT (stejná hodnota jako `wp_salt('auth')` bez filtru `salt`; mu-plugin běží před `pluggable.php`, `wp_salt()` tam není), platnost 30 min. Cookie `uxstudio_preview` (scope c) je svázané se session tokenem z cookie `wordpress_logged_in_*`: cizí session nebo bez přihlášení nic. Hlavička `X-UXS-Preview` (scope h) je jen pro loopback testy. Cookie se nastaví až odkazem „Otevřít web v náhledu“ (`admin-post.php?action=uxstudio_preview_enter`); wizardové REST routy `uxstudio/v1/migration/*` a admin-post enter/exit se cookie nikdy nepovažují za náhled (jinak by se náhled nedal ukončit ani přepnout). V náhledu: starý plugin pryč z `active_plugins` (i síťového seznamu), cílové moduly přidané do `uxstudio_active_modules`, staged hodnoty složené přes `option_uxstudio_<modul>` a `default_option_`, staged tajné hodnoty přes `pre_option_` (už zašifrované stejným formátem), staged neaktivní data přes `Preview::ids()/includes()` (Redirects `Repository::state/find_exact`, Code Snippets `getEnabledSnippets`) a překryv `get_post_metadata` pro meta menu. Hlavička `X-UXS-Preview-Active` dokazuje, že se náhled opravdu uplatnil.
+
+**Nic se neukládá.** `DISABLE_WP_CRON` + `DONOTCACHEPAGE`, `pre_schedule_event` a spol. vracejí false, filtr `query` zahazuje každý zápis (INSERT/UPDATE/DELETE/CREATE...), který míří na volbu, transient, meta klíč nebo tabulku `uxstudio_*` / `uxsmb_*` nebo na `active_plugins`; navíc výslovné kontroly v `HtaccessWriter`, `ImageOptimizer\HtaccessDelivery`, `CronControl::sync_filesystem`, `DB::maybe_upgrade/ensure_module_tables`. **Nejde izolovat:** zápisy cizího kódu (aktivní pluginy, které zůstávají, ukládají cokoli chtějí: session tokeny, transienty, příspěvky, pokud admin v náhledu něco uloží), odchozí HTTP volání a e-maily (test SMTP posílá skutečný e-mail adminovi), zápisy do souborů mimo naše moduly, chování jen pro návštěvníky z cizí IP, cron běhy; meta a data, která potřebují cron (PublishPress Future), se v náhledu neprojeví.
+
+**Smoke testy.** Úvodní stránka, 3 poslední příspěvky + 3 stránky, wp-login.php, wp-admin (s cookies přihlášeného), + testy zdrojů: vzorek ≤ 20 přesměrování (stejný stav a Location jako starý plugin v baseline), snippety (stránky bez fatalu), Disable Comments (formulář komentářů pryč), WPS Hide Login (nová adresa 200 + formulář, wp-login.php dle nastavení; generický test wp-login se pak vynechá), SMTP (testovací e-mail přes REST modulu), Classic Editor (`migration/probe` vrací `use_block_editor_for_post_type`). Každý test = jedno volání, baseline bez hlavičky vs. s ní, `redirection=0`, cache buster, `https_local_ssl_verify`. Fatal = 5xx nebo značky „critical error / Fatal error / Uncaught“. Výsledky ok/warn/fail/info se ukládají do historie běhu (platí 24 h); fail blokuje tlačítko Přepnout, dokud admin nezaškrtne „přepnout i tak“.
+
+**Přepnutí** (`Switcher::switch_on`, vždy za celý běh): záznam `uxstudio_migration_switch_<run>` (volby před, staging, seznam pluginů a modulů, hash `.htaccess`) → `Staging::apply` → zapnutí cílových modulů (guard z F1 obejitý a zalogovaný) → `after_migration_switch()` → `deactivate_plugins()` (ne tiše) → rychlá kontrola úvodní stránky zvenku, při pádu se vše hned vrátí. Změna adresy přihlášení se musí potvrdit zaškrtnutím (nová adresa s tlačítkem Kopírovat, zmínka `UXSTUDIO_DISABLE_LOGIN_LOCK`). **Vrácení:** moduly zapnuté přepnutím pryč → pluginy zpět (`activate_plugin`, hooky běží) → volby přesně zpět (vč. pořadí `active_plugins`) → `Activatable::deactivate` → `after_migration_switch` u modulů, co zůstávají → staging zpátky. Dostupné 30 dní. `Runner::rollback` u přepnutého běhu nejdřív vrátí přepnutí. Vše v Activity Logu (`migration_switched`, `migration_module_enabled`, `migration_switch_reverted` ...).
+
+**Nalezeno při ověření (opraveno):** modul Security neuměl vlastní adresu přihlášení v podadresáři (`current_path()` nebral v potaz `/pobyty`) a kontrola kolize slugu se vždy trefila do catch-all pravidla stránek `(.?.+?)...`, takže vlastní adresa přihlášení se nikdy neaktivovala; smoke test to odhalil. Obojí opraveno v `SecurityOptimization\Module`. `Snapshot::restore_options` nově nemění autoload flag, když se sémanticky neliší (`yes` vs `on`).
+
+**Ověřeno živě (pobyty):** Classic Editor + Disable Comments: migrace, 11/11 testů v náhledu, cookie jen pro danou session, návštěvník bez cookie dál na starých pluginech, po sérii náhledových požadavků beze změny všech `uxstudio_*` voleb, `.htaccess`, počtu řádků Activity Logu; přepnutí (pluginy deaktivované, modul classic-editor zapnutý, 11/11 live testů) a vrácení přesně zpět (všechny sledované volby, `.htaccess` byte po bytu); WPS Hide Login (fixture): náhled, přepnutí (`wp-login.php` 404, `/pobyty/f4-login/` 200), vrácení (`wp-login.php` 200). Testy `tests/migration-preview.php` (149 kontrol).
+
+### 26.11 F5 poznámky: Admin Customiser a Admin Columns (2026-10-21)
+
+**Kód.** `Sources/{AbstractAdminSource,AdminMenuEditorSource,AdminimizeSource,WhiteLabelCmsSource,AdminifySource,LoginPressSource,AdminColumnsSource}.php`, `MenuSimulator` (čisté funkce: kdo vidí kterou položku, pravidlo proti vyzamčení). Jádro dostalo čtvrtý druh hodnot: **celé volby mimo schéma modulu** (`Mapping::option`, `Staging::put_options|pending_options`, přehrání v `PreviewBoot`, `Switcher` je zálohuje a vrací) - pro konfiguraci Menu Organizeru (`uxstudio_admin_customiser_menu_config`) a sloupce (`uxstudio_admin_columns`). `MenuOrganizer::clean_config()` a `AdminColumns\Module::clean_column()` jsou čisté sanitizéry sdílené s migrací. `Source::extra_modules()` (Hide Admin Bar, Dashboard Widgets se zapnou spolu s Admin Customiser). Smoke typ `admin_access`.
+
+**Mapování.** AME (`ws_menu_editor[_pro]`): skupiny mezi oddělovači = kategorie Skupina N + Ostatní, pořadí, přejmenování, dashicony, skryté položky, role (hidden_from_actor, grant_access=false) = whitelist `item_roles`, přesunuté podpoložky = `promoted_subs`, vlastní odkazy. Adminimize: per-role menu = `item_roles`/`hidden_items` (jedna kategorie, nepřeskupuje menu; existující uspořádání z AME zůstane), `.show-admin-bar` per role = Hide Admin Bar (přesně), admin bar uzly, obrazovkové volby a widgety nástěnky jen když je plugin skrývá správcům (modul je globální, varování o ostatních rolích). WLCMS: přihlášení (logo URL -> ID přílohy, barvy), logo admin lišty, skrytí loga WP, patička, nápověda, volby obrazovky, nag, widgety nástěnky. Adminify: menu editor (`_wpadminify_menu_settings`), patička (ne výchozí reklamní), hledání, oznámení, widgety. LoginPress: login_* klíče. Admin Columns: tabulka `admin_columns` (AC 4+) i `cpac_options_*`, typy default/meta/thumbnail/ID/taxonomie, odstraněné nativní sloupce = `enabled:false`.
+
+**Nepřenese se (výběr, přesné texty v plánech).** AME: požadovaná oprávnění (`extra_capability`), pravidla pro jednotlivé uživatele, grant roli bez oprávnění, přejmenování/skrytí/přesun podpoložek, iframe/HTML položky, barvy, multisite. Organizér jen skrývá, stránka zůstává dostupná adresou (plánové varování); uživatelům s `manage_options` ukazuje vždy vše. Adminimize: meta boxy, patička/hlavička, vlastní selektory, položky skryté jen jiným rolím. WLCMS: pozadí, hover barvy, vlastní CSS/JS, uvítací panely, RSS, titulek stránky. Adminify: vlastní UI/motiv, horizontální menu, Pro moduly. LoginPress: pozadí, hover, CSS, chování. AC: Pro typy, filtry/řazení/editace, layouty per role.
+
+**Pravidlo proti vyzamčení.** `MenuSimulator::enforce_access`: po mapování se pro roli administrator a aktuálního uživatele simuluje menu; pravidlo, které by skrylo UX Studio, Pluginy, Uživatele nebo Nastavení, se zahodí a hlásí se v plánu (warning + lossy) i při ověření. Smoke `admin_access` otevře ta 4 menu v náhledu i po přepnutí (odmítnutí poznává jen podle chybové obrazovky WP: skutečný web má stejné věty v přeložených JS řetězcích, první verze měla falešné poplachy).
+
+**Ověření (menu).** Ověření porovnává per role množinu viditelných položek ze zdroje a z cíle, jen u položek, na které má plugin pravidlo (jiné může skrývat druhý plugin); známé rozdíly se vypíšou, nevysvětlené selžou. Krok Kontrola ukazuje tabulku role: skryto před/po. Průvodce: částečná shoda se dá zaškrtnout až po otevření seznamu „co se nepřenese“ (předvybrání z URL se u ní ignoruje).
+
+**Živě (pobyty).** AME + Adminimize + WLCMS: náhled 11/11 (vč. admin_access 4/4), menu v náhledu podle AME, přepnutí (pluginy vypnuty, moduly zapnuty, živé testy 11/11) a vrácení: `active_plugins` byte po bytu, `.htaccess` shodný, volby shodné kromě `mw_adminimize` (Adminimize si sám obnovuje cache uzlů admin lišty při každé návštěvě admina). Past: widgety nástěnky přijme modul až po první návštěvě nástěnky (cache transientu), plán to říká. Fixtury AME/Adminimize/WLCMS/Adminify jsou skutečné hodnoty (oříznuté); LoginPress a AC vychází z kódu pluginů.
+
+### 26.12 F6 poznámky: MCP server v jádru (2026-10-21)
+
+**Co se našlo.** `/mcp/` v AI Assistantu nikdy neobsluhoval žádný vlastní transport: `McpBootstrap` jen ověřoval JWT a registroval abilities do WP Abilities API, vlastní endpoint měl dodat samostatný plugin WordPress MCP Adapter (v `vendor/` ani v `composer.json` nebyl, lokálně není nainstalovaný). Lokální WP je 7.1.3, Abilities API v jádru je (od 6.9), ale plugin deklaruje `Requires at least: 6.5`, takže se na něj spolehnout nejde.
+
+**Rozhodnutí: vlastní minimální transport místo přibalení adaptéru.** Důvody: (1) adaptér potřebuje Abilities API, tedy bychom museli přibalit i jeho balíček nebo polyfill; (2) scope tokenů, filtrování `tools/list` podle scope, limit volání a IP allowlist se do cizího transportu dají dostat jen oklikou přes jeho permission callback; (3) v prostředí není composer a `vendor/*` je v gitu ignorovaný (jen `plugin-update-checker` se verzuje), release workflow by musel vendor sestavovat. Proto `includes/Core/Mcp/` obsahuje JSON-RPC 2.0 server (Streamable HTTP, JSON režim: `initialize`, `ping`, `tools/list|call`, `resources/list|read|templates/list`, `prompts/list|get`, protokoly 2025-06-18, 2025-03-26, 2024-11-05) na `POST uxstudio/v1/mcp`. Bez sessions, GET odpovídá 405, žádné CORS hlavičky, cizí `Origin` = 403. Souběh s adaptérem: adaptér dál obsluhuje `/mcp/` a `/wp-abilities/` a přijímá jen tokeny se scope `admin`; naše abilities `uxstudio/*` se (kde Abilities API je) zrcadlí do `wp_register_ability`, takže je adaptér vidí taky.
+
+**Moduly.** `Config` (volba `uxstudio_mcp`, výchozí vypnuto, starý `mcp_enabled` z AI Assistantu se zkopíruje jednou při prvním čtení; pole v AI modulu zůstává, řídí tool calling chatu), `Auth` (filtr `determine_current_user`, bearer jen na `uxstudio/v1/mcp` a na prefixech `/mcp/`, `/wp-abilities/`), `Tokens` (`uxsmcp_<id>_<secret>`, uložen jen SHA-256, scope read/write/migration/admin, expirace povinná max 90 dnů, IP allowlist včetně CIDR a IPv6, odvolání, `last_used`, vázaný na heslo uživatele jako starý JWT, limit 120 volání/min na token = 429 + `Retry-After`), `LegacyJwt` (staré tokeny AI Assistantu platí dál jako `admin` do svého vypršení), `Registry` + `CoreAbilities` + `MigrationAbilities` + `Bridge` (redirects a obsahové nástroje AI Assistantu), `Protocol`, `Server`, `Prompts`, `AdminRest` (`uxstudio/v1/mcp-admin*`), `Secrets`, `Schema`. Abilities nepřepisují logiku, volají tytéž REST routy jako UI (`Internal::rest`), takže platí guard překryvů (F1), snapshot, pravidla přepnutí (F4) a validace nastavení modulu beze změny.
+
+**Scope.** `read` (site-overview, modules-list, module-settings-get, overlaps-list, csp-inventory, activity-log-query, email-log-search, migration-scan/plan/status/runs/switch-plan/preview-status, redirects list/test/404/site-urls/find-target, AI čtecí nástroje), `write` (module-enable/disable, module-settings-update, overlap-ignore/unignore, redirects upsert/delete/audit, AI zapisovací nástroje), `migration` (migration-run, verify, preview-start/end, smoke, switch, revert, rollback). `write` a `migration` zahrnují `read`, `admin` všechno. Nástroje, které potřebují modul (redirects, email log, CSP, AI), se nabízejí jen při zapnutém modulu. Destruktivní nástroje (`destructive` v anotacích, i `destructiveHint` AI nástrojů) a switch/revert/rollback vyžadují `confirm: true`; bez něj se nic neděje a odpověď popíše důsledky (u switche i změnu přihlašovací adresy, pak je potřeba i `ack_login`). `override: true` (jen s `confirm`) odemkne přepnutí při neúspěšných nebo nedostupných testech náhledu. `migration-run` má `dry_run` výchozí true.
+
+**Tajemství.** `module-settings-get` nahrazuje hodnoty klíčů typu password/secret/token/api_key... příznakem `has_<klíč>` (a zapečetěné `uxs1:` hodnoty vždy), výstup každého nástroje prochází `Secrets::scrub`. `module-settings-update` odmítne klíče vypadající jako přihlašovací údaje, pokud token nemá `admin` a volání `allow_secrets: true`, a klíče mimo schéma. Do Activity Logu (modul `mcp`, `token_id`, `ip`) se zapisují jen názvy argumentů a bezpečné příznaky, nikdy hodnoty.
+
+**UI.** Nastavení, záložka „MCP server“ (`src/app/McpSettings.tsx`, `mcp.scss`): přepínač, endpoint, tabulka tokenů (scope, expirace, naposledy použit, IP, odvolání, staré tokeny označené), dialog vytvoření (token se ukáže jednou) a hotové konfigurace pro Claude Code, Claude Desktop (`mcp-remote`) a Cursor. Záložka MCP v AI Assistantu jen odkazuje.
+
+**Ověřeno.** `tests/mcp-core.php` (matice scope, tokeny, hash, expirace, IP, odvolání, limit, confirm, maskování, guard, staré JWT, výchozí vypnutí). Živě na pobyty přes curl i skutečného klienta (`claude mcp add --transport http`, ✔ Connected, certifikát nevadil): initialize, tools/list podle scope (12/17/20/25, s AI modulem 41/76), site-overview, modules-list, overlaps-list, scan, plan, dry run, reálný běh + verify + náhled + smoke `all` 10/10 + switch bez confirm (popis) + switch + revert + rollback, `module-enable cron-control` odmítnut guardem, 403 read tokenem na write, 401 u odvolaného i prošlého, 403 IP, 429 po 120 voláních. Nalezené a opravené: nekonečná rekurze v `determine_current_user` (zápis volby vyvolá hook, který se ptá na uživatele), AI nástroje s `destructiveHint` obcházely `confirm`.
+
+**Neověřeno / otevřené.** Přibalený MCP Adapter plugin nebyl proti našim routám zkoušen (není nainstalovaný). Smoke testy z MCP nemají cookies relace, admin kontroly běží přes loopback token náhledu. Volba `uxstudio_mcp` se vytvoří při prvním požadavku (jednorázová migrace starého příznaku).
+
+### 26.13 F7 poznámky: dokončení (2026-10-21)
+
+**Stav §26 (souhrn).** F1-F7 hotové lokálně na větvi `feature/migration-wizard`, nepushnuto, verze pluginu nezvýšena (CHANGELOG má položku 0.6.0 "unreleased", vydání je zvláštní rozhodnutí). Hotovo: hlídání překryvů (409 + upozornění), průvodce o devíti krocích, 36 pluginů ve 14 zdrojích + Admin Customiser + Admin Columns, snímek a vrácení na 30 dní, staging pro již zapnuté moduly, bezpečný náhled s testy, přepnutí a vrácení přepnutí, MCP server v jádru. Otevřené: přibalený MCP Adapter plugin nezkoušen (§26.12), smoke testy z MCP nemají cookies relace, formáty neinstalovaných pluginů čtené z kódu (§26.7 F2).
+
+**Automatické spuštění.** `Core/Migration/AutoStart`: aktivační hook jen zařadí nabídku (volba `uxstudio_wizard_autostart` = `pending` + `_user`), a to jen při kliknutí na "Aktivovat" u jednoho pluginu na obrazovce Pluginy (ne hromadně `activate-selected`/`activate-multi`, ne WP-CLI, ne síťově, ne AJAX). Přesměrování na `#/wizard` provede až další běžný požadavek správce (`admin_init`, priorita 20) a jen když sken najde alespoň jeden plugin aktivní nebo s daty; nabídka se spotřebuje i bez přesměrování (`done` / `skipped`), takže se neopakuje. Po Handoffu z UX1 se nepřesměrovává (nepřekrýt upozornění "smazat starý plugin"), upozornění má vedle tlačítka odkaz "Otevřít průvodce migrací". Webům, které jen aktualizují (aktivace neproběhne), a po spotřebované nabídce ukazuje Moduly malý zavíratelný pruh "Našli jsme N pluginů ..." (REST `migration/hint`, zavření per uživatel v user meta), dokud neproběhla žádná migrace. Položka "Průvodce migrací" v menu zůstává.
+
+**Čitelná Kontrola.** `Core/Migration/Describe` (čisté funkce): složité hodnoty = jednořádkové shrnutí (počty, krátký seznam jmen, "+ N dalších") a rozbalitelný detail `label -> hodnota` (`from_detail`/`to_detail`, u ověření `rows`); ID se nahrazují jmény z `Mapping::names()` (tituly položek menu ze zdroje), z jádra WP (Nástěnka, Příspěvky ...) a z rolí webu. Tabulka: první sloupec `min-width` a `overflow-wrap: normal` (příčina rozbitých slov bylo `overflow-wrap: anywhere` právě v prvním sloupci), hodnoty `anywhere`, tabulka se na úzkém displeji posouvá v rámečku; stejné pravidlo v seznamu Ověření.
+
+**Přihlašovací adresa (release safety).** `Modules/SecurityOptimization/LoginUrlNotice` + `Module::login_lock_status()`: při prvním načtení administrace po aktualizaci, kdy je modul zapnutý, se zapíše stav (`uxstudio_login_url_notice`) a je-li zámek skutečně v platnosti (zapnuto, slug, bez `UXSTUDIO_DISABLE_LOGIN_LOCK`, bez kolize slugu), odejde JEDEN e-mail na e-mail webu (stav se zapíše před odesláním, výsledek `sent`/`failed` v něm a v Activity Logu) a každý správce vidí trvalé upozornění s adresou, tlačítkem Kopírovat a odkazem na Zabezpečení > Přihlášení; skrývá se per uživatel (`admin-post`). Nastavení se nikdy nemění. Zámek zapnutý později uživatelem nic neposílá.
+
+**Náhled nedostupný.** Filtr `uxstudio_preview_mu_writable` (test i hostitel), test odmítnutí 409 `uxstudio_preview_unavailable`; v UI se cesta v důvodu láme uvnitř rámečku.
+
+
+**Nález při živém ověření (login).** Se zapnutou vlastní adresou se formulář na ní odesílal na `wp-login.php`, které modul sám zavírá (`block_direct_wp_login`), takže přihlášení neprošlo (stránka se zobrazila, přihlášení ne). Oprava: filtry `site_url`/`network_site_url` (`Module::filter_login_site_url`, čistá funkce `LoginUrl::swap`) přesměrují akci formuláře, "zapomenuté heslo" i přesměrování na přihlášení na vlastní adresu; po opravě živý test prošel (formulář na nové adrese, přihlášení OK, přímé `wp-login.php` = 302). Test `tests/login-url-notice.php`.
+
+**Živě (pobyty).** Aktivace/deaktivace z obrazovky Pluginy: první aktivace přesměrovala na `#/wizard`, druhá ne. Moduly: pruh "Našli jsme 15 pluginů ...". Kontrola s AME + Adminimize + WLCMS: souhrny a rozbalitelný detail se jmény místo ID, popisky se nelámou, nepřetéká ani na 600 px; Ověření stejně. Nedostupný náhled (odpověď serveru nahrazena v prohlížeči, kód je pokryt testem) se vykreslí celý. E-mail s adresou: Disable Emails ho zablokoval, stav `mail: failed` a záznam v Activity Logu to hlásí. Pozn.: `url_redirect` na pobyty (`http://localhost/pobyty/administrace`) skládá `home_url` na `/pobyty/pobyty/administrace` (stávající chování normalizace, F7 se ho nedotkl).

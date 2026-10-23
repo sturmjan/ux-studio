@@ -4,6 +4,9 @@
  * shadows or motion; they only consume --uxs-* tokens.
  */
 
+@use './app/wizard/wizard';
+@use './app/mcp';
+
 #ux-studio-root,
 .uxs-portal {
 	/* Brand */
@@ -86,7 +89,7 @@
 }
 
 .uxs-sidebar {
-	width: 256px;
+	width: 288px;
 	flex-shrink: 0;
 	background: var(--uxs-surface);
 	border-right: 1px solid var(--uxs-border);
@@ -121,14 +124,35 @@
 	}
 }
 
-/* Sidebar tree: features of the open module group, nested under "Modules". */
+/* Sidebar tree: the open module (icon + name) and, under it, its menu
+   items joined by a vertical line that starts below the module name. */
 .uxs-tree {
 	display: flex;
 	flex-direction: column;
-	gap: var(--uxs-sp-1);
-	margin: var(--uxs-sp-1) 0 var(--uxs-sp-3) var(--uxs-sp-4);
-	padding-left: var(--uxs-sp-2);
-	border-left: 2px solid var(--uxs-border);
+	gap: var(--uxs-sp-2);
+	margin: var(--uxs-sp-2) 0 var(--uxs-sp-3);
+
+	.uxs-tree__children {
+		display: flex;
+		flex-direction: column;
+		gap: var(--uxs-sp-1);
+		/* Line runs under the middle of the module icon. */
+		margin-left: calc(var(--uxs-sp-3) + 17px);
+		padding-left: var(--uxs-sp-2);
+		border-left: 2px solid var(--uxs-border);
+	}
+
+	.uxs-tree__icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		width: 36px;
+		height: 36px;
+		border-radius: var(--uxs-radius-s);
+		background: var(--uxs-brand-soft);
+		color: var(--uxs-brand);
+	}
 
 	a {
 		display: flex;
@@ -143,7 +167,7 @@
 		&:hover { background: var(--uxs-surface-2); color: var(--uxs-text); }
 	}
 
-	.uxs-tree__group { display: flex; align-items: center; gap: var(--uxs-sp-2); padding: var(--uxs-sp-1) var(--uxs-sp-3); font-size: var(--uxs-fs-m); font-weight: 700; color: var(--uxs-text); text-decoration: none; }
+	.uxs-tree__group { display: flex; align-items: center; gap: var(--uxs-sp-3); padding: var(--uxs-sp-1) var(--uxs-sp-3); font-size: var(--uxs-fs-m); font-weight: 700; line-height: 1.3; color: var(--uxs-text); text-decoration: none; }
 	.uxs-tree__feature { display: flex; flex-direction: column; gap: var(--uxs-sp-1); }
 	.uxs-tree__item.is-active { background: var(--uxs-brand); color: #fff; font-weight: 600; }
 }
@@ -357,11 +381,124 @@
 	gap: var(--uxs-sp-3);
 }
 
-/* Buttons carrying a leading lucide icon (deactivate-all, save, theme…). */
-.uxs-content .button {
-	display: inline-flex;
-	align-items: center;
-	gap: var(--uxs-sp-1);
+/* ---- Buttons: one look across the plugin ----
+ * Modules use WordPress' .button / .button-primary / .button-small /
+ * .button-link classes; inside the app they are restyled to match the form
+ * fields (same height, font and radius). Scoped to the root id so the rules
+ * beat .wp-core-ui and never leak to the rest of wp-admin. */
+#ux-studio-root {
+	.button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--uxs-sp-2);
+		height: auto;
+		min-height: 0;
+		/* Same padding, border and content line as the inputs = same height (46px). */
+		padding: var(--uxs-sp-3) var(--uxs-sp-5);
+		font-family: var(--uxs-font);
+		font-size: var(--uxs-fs);
+		font-weight: 600;
+		line-height: 20px;
+		white-space: nowrap;
+		vertical-align: middle;
+		text-decoration: none;
+		background: var(--uxs-surface);
+		color: var(--uxs-text);
+		border: 1px solid var(--uxs-border);
+		border-radius: var(--uxs-radius-s);
+		box-shadow: none;
+		cursor: pointer;
+		transition: background var(--uxs-motion-fast) var(--uxs-ease), border-color var(--uxs-motion-fast) var(--uxs-ease), color var(--uxs-motion-fast) var(--uxs-ease), box-shadow var(--uxs-motion-fast) var(--uxs-ease);
+
+		svg { flex-shrink: 0; }
+
+		&:hover { background: var(--uxs-surface-2); border-color: var(--uxs-brand); color: var(--uxs-brand); }
+		&:focus,
+		&:focus-visible { outline: none; border-color: var(--uxs-brand); box-shadow: 0 0 0 3px var(--uxs-brand-soft); }
+		&:active { transform: translateY(1px); }
+
+		&:disabled,
+		&[disabled],
+		&.disabled {
+			background: var(--uxs-surface);
+			border-color: var(--uxs-border);
+			color: var(--uxs-text-soft);
+			opacity: 0.6;
+			cursor: not-allowed;
+			transform: none;
+		}
+	}
+
+	.button.button-primary {
+		background: var(--uxs-brand);
+		border-color: var(--uxs-brand);
+		color: #fff;
+
+		&:hover { background: var(--uxs-brand-strong); border-color: var(--uxs-brand-strong); color: #fff; }
+
+		&:disabled,
+		&[disabled],
+		&.disabled { background: var(--uxs-brand); border-color: var(--uxs-brand); color: #fff; opacity: 0.5; }
+	}
+
+	.button.button-small {
+		gap: var(--uxs-sp-1);
+		padding: calc(var(--uxs-sp-1) + 2px) var(--uxs-sp-3);
+		font-size: var(--uxs-fs-s);
+	}
+
+	.button.button-link-delete {
+		color: var(--uxs-danger);
+
+		&:hover { border-color: var(--uxs-danger); color: var(--uxs-danger); background: color-mix(in srgb, var(--uxs-danger) 8%, transparent); }
+	}
+
+	/* Selects keep the padding of their context (form row, toolbar, table)
+	 * but get the same line height and a chevron - module rules use the
+	 * `background` shorthand, which wiped the native WP arrow. */
+	select:not([multiple]) {
+		appearance: none;
+		min-height: 0;
+		line-height: 20px;
+		padding-right: 40px;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2397a2b3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+		background-repeat: no-repeat;
+		background-position: right 12px center;
+		background-size: 16px 16px;
+		cursor: pointer;
+	}
+
+	/* Stand-alone selects (list filters above a table) had no style of their
+	 * own - give them the form-field look so they match the buttons. */
+	.uxs-content select:not([multiple]):not(:where(.uxs-form__row, .uxs-dns-toolbar, .uxs-table) select) {
+		padding: var(--uxs-sp-3) 40px var(--uxs-sp-3) var(--uxs-sp-4);
+		font-size: var(--uxs-fs);
+		color: var(--uxs-text);
+		background-color: var(--uxs-surface);
+		border: 1px solid var(--uxs-border);
+		border-radius: var(--uxs-radius-s);
+
+		&:focus { outline: none; border-color: var(--uxs-brand); box-shadow: 0 0 0 3px var(--uxs-brand-soft); }
+	}
+
+	/* Icon / text actions in tables and notes. */
+	.button-link {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--uxs-sp-1);
+		padding: var(--uxs-sp-1);
+		border-radius: var(--uxs-radius-s);
+		color: var(--uxs-text-soft);
+		text-decoration: none;
+		box-shadow: none;
+		transition: background var(--uxs-motion-fast) var(--uxs-ease), color var(--uxs-motion-fast) var(--uxs-ease);
+
+		&:hover { background: var(--uxs-surface-2); color: var(--uxs-brand); }
+		&:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--uxs-brand-soft); }
+		&:disabled,
+		&[disabled] { opacity: 0.5; cursor: not-allowed; background: none; }
+	}
 }
 
 /* ---- Accordion (e.g. Admin Columns: one collapsible section per content type) ---- */
@@ -554,10 +691,11 @@
 		color: var(--uxs-text);
 		border: 1px solid var(--uxs-border);
 		border-radius: var(--uxs-radius-s);
-		padding: 0 var(--uxs-sp-3);
-		height: 38px;
-		min-height: 38px;
-		line-height: 36px;
+		/* Same height as the form fields and buttons (46px). */
+		padding: var(--uxs-sp-3) var(--uxs-sp-4);
+		height: auto;
+		min-height: 0;
+		line-height: 20px;
 		font-size: var(--uxs-fs);
 
 		&:focus { outline: none; border-color: var(--uxs-brand); box-shadow: 0 0 0 3px var(--uxs-brand-soft); }
@@ -1063,6 +1201,150 @@
 		margin: 0 0 var(--uxs-sp-3);
 		color: var(--uxs-text-soft);
 	}
+
+	.uxs-notice__error { color: var(--uxs-danger); }
+}
+
+.uxs-notice__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--uxs-sp-3);
+}
+
+/* ---- Migration wizard hint on the Modules screen (src/app/WizardHint.tsx) ---- */
+.uxs-wizhint {
+	display: flex;
+	align-items: center;
+	gap: var(--uxs-sp-3);
+	margin-bottom: var(--uxs-sp-4);
+	padding: var(--uxs-sp-3) var(--uxs-sp-4);
+	background: var(--uxs-brand-soft);
+	border: 1px solid color-mix(in srgb, var(--uxs-brand) 35%, var(--uxs-border));
+	border-radius: var(--uxs-radius-s);
+	color: var(--uxs-text);
+
+	> svg { flex-shrink: 0; color: var(--uxs-brand); }
+	p { flex: 1; min-width: 0; margin: 0; }
+}
+
+.uxs-wizhint__close {
+	display: inline-flex;
+	flex-shrink: 0;
+	padding: var(--uxs-sp-1);
+	background: none;
+	border: 0;
+	border-radius: var(--uxs-radius-s);
+	color: var(--uxs-text-soft);
+	cursor: pointer;
+
+	&:hover { color: var(--uxs-text); }
+	&:focus-visible { outline: 2px solid var(--uxs-brand); outline-offset: 2px; }
+}
+
+[data-theme="dark"] .uxs-wizhint { background: color-mix(in srgb, var(--uxs-brand) 18%, transparent); }
+
+@media (max-width: 600px) {
+	.uxs-wizhint { flex-wrap: wrap; }
+	.uxs-wizhint p { flex-basis: 100%; }
+}
+
+/* ---- Plugin conflicts (src/app/Overlaps.tsx) ---- */
+.uxs-overlaps {
+	margin-bottom: var(--uxs-sp-4);
+
+	.uxs-overlaps__title {
+		display: flex;
+		align-items: center;
+		gap: var(--uxs-sp-2);
+		margin: 0 0 var(--uxs-sp-3);
+		font-size: var(--uxs-fs-m);
+		color: var(--uxs-text);
+
+		svg { color: var(--uxs-warning); }
+	}
+}
+
+.uxs-overlaps__list {
+	display: grid;
+	gap: var(--uxs-sp-2);
+	margin: 0 0 var(--uxs-sp-3);
+	padding: 0;
+	list-style: none;
+
+	&.is-muted { opacity: 0.8; }
+}
+
+.uxs-overlaps__item {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--uxs-sp-3);
+	margin: 0;
+	padding: var(--uxs-sp-3) var(--uxs-sp-4);
+	background: var(--uxs-surface);
+	border: 1px solid var(--uxs-border);
+	border-left: 3px solid var(--uxs-info);
+	border-radius: var(--uxs-radius-s);
+
+	&.is-full { border-left-color: var(--uxs-danger); }
+	&.is-customiser { border-left-color: var(--uxs-warning); }
+
+	p {
+		margin: var(--uxs-sp-1) 0 0;
+		color: var(--uxs-text-soft);
+	}
+
+	code { color: var(--uxs-text-soft); }
+}
+
+.uxs-overlaps__icon {
+	display: inline-flex;
+	padding-top: 2px;
+	color: var(--uxs-text-soft);
+
+	.is-full > & { color: var(--uxs-danger); }
+	.is-customiser > & { color: var(--uxs-warning); }
+}
+
+.uxs-overlaps__body { flex: 1; min-width: 0; }
+
+.uxs-overlaps__head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--uxs-sp-2);
+	color: var(--uxs-text);
+}
+
+.uxs-overlaps__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--uxs-sp-2);
+	flex-shrink: 0;
+}
+
+.uxs-overlaps__ignored .button-link {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--uxs-sp-1);
+	color: var(--uxs-text-soft);
+}
+
+.uxs-overlapbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--uxs-sp-3);
+	margin-bottom: var(--uxs-sp-4);
+	padding: var(--uxs-sp-2) var(--uxs-sp-4);
+	background: var(--uxs-surface);
+	color: var(--uxs-text);
+	border: 1px solid var(--uxs-border);
+	border-left: 3px solid var(--uxs-info);
+	border-radius: var(--uxs-radius-s);
+
+	&.is-full { border-left-color: var(--uxs-danger); }
+
+	> span { flex: 1; min-width: 200px; }
 }
 
 /* ============================================================
@@ -1485,7 +1767,8 @@
 	ul { margin: var(--uxs-sp-2) 0 0 var(--uxs-sp-4); padding: 0; }
 }
 
-.uxs-dns-overlay {
+.uxs-dns-overlay,
+.uxs-overlay {
 	position: fixed;
 	inset: 0;
 	z-index: 100000;
@@ -1496,7 +1779,8 @@
 	padding: var(--uxs-sp-4);
 }
 
-.uxs-dns-modal {
+.uxs-dns-modal,
+.uxs-modal {
 	background: var(--uxs-surface);
 	color: var(--uxs-text);
 	border: 1px solid var(--uxs-border);
@@ -1524,7 +1808,8 @@
 	.is-new { color: var(--uxs-success); font-weight: 600; }
 }
 
-.uxs-dns-actions {
+.uxs-dns-actions,
+.uxs-modal__actions {
 	display: flex;
 	justify-content: flex-end;
 	gap: var(--uxs-sp-3);
@@ -1543,8 +1828,99 @@
 		color: var(--uxs-text);
 		border: 1px solid var(--uxs-border);
 		border-radius: var(--uxs-radius-s);
-		padding: var(--uxs-sp-2) var(--uxs-sp-3);
+		/* Same height as the buttons next to them (46px). */
+		padding: var(--uxs-sp-3) var(--uxs-sp-4);
+		font-size: var(--uxs-fs);
+		line-height: 20px;
 	}
 }
 
 .uxs-dns-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; word-break: break-all; }
+
+/* ---- Security: CSP inventory (CspTab.tsx) ---- */
+.uxs-csp-status {
+	background: var(--uxs-surface);
+	border: 1px solid var(--uxs-border);
+	border-radius: var(--uxs-radius);
+	padding: var(--uxs-sp-4);
+	margin-bottom: var(--uxs-sp-4);
+
+	h4 { margin: var(--uxs-sp-3) 0 var(--uxs-sp-2); }
+	p { margin: var(--uxs-sp-2) 0; }
+}
+
+.uxs-csp-status__row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--uxs-sp-3);
+	margin: var(--uxs-sp-2) 0;
+}
+
+.uxs-csp-status__soft,
+.uxs-csp-soft { color: var(--uxs-text-soft); font-size: var(--uxs-fs-s); }
+.uxs-csp-status__warn { color: var(--uxs-warning); font-size: var(--uxs-fs-s); }
+
+.uxs-csp-alert {
+	border-left: 3px solid var(--uxs-warning);
+	background: color-mix(in srgb, var(--uxs-warning) 12%, transparent);
+	padding: var(--uxs-sp-2) var(--uxs-sp-3);
+	border-radius: var(--uxs-radius-s);
+}
+
+.uxs-csp-checks {
+	list-style: none;
+	margin: var(--uxs-sp-2) 0;
+	padding: 0;
+
+	li { display: flex; align-items: center; gap: 6px; margin: 4px 0; }
+	.is-ok { color: var(--uxs-success); }
+	.is-fail { color: var(--uxs-danger); }
+}
+
+.uxs-csp-confirm {
+	display: flex;
+	gap: 8px;
+	align-items: flex-start;
+	margin: var(--uxs-sp-3) 0;
+
+	input { margin-top: 3px; }
+	&.is-danger { color: var(--uxs-danger); }
+}
+
+.uxs-csp-settings {
+	margin-bottom: var(--uxs-sp-5);
+
+	summary { cursor: pointer; font-weight: 600; margin-bottom: var(--uxs-sp-3); }
+}
+
+.uxs-csp-table {
+	.is-risk-high td { background: color-mix(in srgb, var(--uxs-danger) 12%, transparent); }
+	.is-risk-high strong { color: var(--uxs-danger); }
+	.is-risk-medium td { background: color-mix(in srgb, var(--uxs-warning) 12%, transparent); }
+	.is-risk-self td { opacity: 0.7; }
+}
+
+.uxs-csp-uri { word-break: break-all; }
+.uxs-csp-new { margin-left: 6px; }
+.uxs-csp-reasons { color: var(--uxs-danger); font-size: var(--uxs-fs-s); }
+.uxs-csp-sample { display: block; margin-top: 2px; font-size: var(--uxs-fs-s); word-break: break-all; }
+
+/* ---- Topic pages: settings of a topic, then its data (TopicSettings.tsx) ---- */
+.uxs-topic-settings {
+	margin-bottom: var(--uxs-sp-5);
+
+	> .button-primary { margin-top: var(--uxs-sp-3); }
+
+	&--collapsible > summary { cursor: pointer; font-weight: 600; margin-bottom: var(--uxs-sp-3); }
+}
+
+.uxs-topic-data {
+	margin-top: var(--uxs-sp-6, 32px);
+	padding-top: var(--uxs-sp-5);
+	border-top: 1px solid var(--uxs-border);
+
+	color: var(--uxs-text);
+
+	> h3 { margin-top: 0; color: var(--uxs-text); }
+}

@@ -153,12 +153,16 @@ final class Migrator {
 	/**
 	 * Run the migration once (safe to call on every activation).
 	 *
-	 * @param bool $dry_run When true, only log what would happen.
+	 * @param bool $dry_run       When true, only log what would happen.
+	 * @param bool $force         Run again although the DONE flag is set (migration wizard; every
+	 *                            step only adds missing values, so this never overwrites UX Studio settings).
+	 * @param bool $settings_only Skip the table copies and the activity log import (the wizard
+	 *                            migrates options only; tables belong to a later phase).
 	 * @return string[] Log lines.
 	 */
-	public static function run( bool $dry_run = false ): array {
+	public static function run( bool $dry_run = false, bool $force = false, bool $settings_only = false ): array {
 		$log = array();
-		if ( get_option( self::DONE_OPTION ) && ! $dry_run ) {
+		if ( get_option( self::DONE_OPTION ) && ! $dry_run && ! $force ) {
 			return array( 'already-migrated' );
 		}
 
@@ -208,7 +212,7 @@ final class Migrator {
 		}
 
 		// 4) Tables (copy, never move - the legacy plugin stays as fallback).
-		foreach ( self::TABLE_MAP as $old => $new ) {
+		foreach ( $settings_only ? array() : self::TABLE_MAP as $old => $new ) {
 			$old_table = $wpdb->prefix . $old;
 			$new_table = $wpdb->prefix . $new;
 			$exists    = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $old_table ) );
@@ -228,7 +232,9 @@ final class Migrator {
 		// 4b) Data tables whose new schema DIFFERS from legacy - column-mapped copy
 		// (a blind INSERT SELECT would fail on the mismatched columns). Each runs
 		// only when its target table is empty, so re-running never duplicates.
-		self::migrate_activity_log( $log, $dry_run );
+		if ( ! $settings_only ) {
+			self::migrate_activity_log( $log, $dry_run );
+		}
 
 		// 4c) Fix up settings blobs whose inner keys were renamed in the port
 		// (the framework migration copies the blob verbatim, so renamed inner
@@ -251,6 +257,51 @@ final class Migrator {
 			update_option( self::DONE_OPTION, gmdate( 'c' ), false );
 		}
 		return $log;
+	}
+
+	/**
+	 * Legacy option => UX Studio option for the plain copies run() makes in steps
+	 * 1 and 2 (module settings blobs and the standalone keys). Read-only data for
+	 * the migration wizard (plan / verify).
+	 *
+	 * @return array<string, string>
+	 */
+	public static function option_pairs(): array {
+		$pairs = array();
+		foreach ( self::MODULE_IDS as $id ) {
+			$pairs[ 'wpextended__' . $id . '_settings' ] = 'uxstudio_' . str_replace( '-', '_', $id );
+		}
+		return array_merge( $pairs, self::OPTION_MAP );
+	}
+
+	/**
+	 * Every option run() may create or change (before it runs, the migration
+	 * wizard saves their previous values so the step can be rolled back):
+	 * the copies above, the options the key remaps and secret copies touch and
+	 * the DONE flag.
+	 *
+	 * @return string[]
+	 */
+	public static function target_options(): array {
+		$names = array_values( self::option_pairs() );
+		$names = array_merge(
+			$names,
+			array(
+				'uxstudio_dashboard_tasks',
+				'uxstudio_dashboard_notes',
+				'uxstudio_secret_stock_pexels',
+				'uxstudio_secret_stock_pixabay',
+				'uxstudio_secret_stock_unsplash',
+				'uxstudio_secret_stock_flickr',
+				'uxstudio_secret_stock_mapillary',
+				'uxstudio_secret_stock_giphy',
+				'uxstudio_secret_ai_assistant_claude_api_key',
+				'uxstudio_secret_ai_assistant_openai_api_key',
+				'uxstudio_secret_ai_assistant_deepseek_api_key',
+				self::DONE_OPTION,
+			)
+		);
+		return array_values( array_unique( $names ) );
 	}
 
 	/**

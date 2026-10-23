@@ -52,10 +52,25 @@ final class Module extends BaseModule {
 	public function boot(): void {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 
+		self::ensure_tables();
+
+		// Same request-context guard as the legacy Bootstrap: skip entirely
+		// before ever touching the filesystem/DB for REST/AJAX/CRON requests.
+		// SnippetExecutor performs the same check again internally.
+		if ( ! $this->shouldSkipSnippetExecution() ) {
+			new SnippetExecutor( $this->settings );
+		}
+	}
+
+	/**
+	 * Create / upgrade the metadata table. Also called by the migration wizard, which creates
+	 * (disabled) snippets while the module is still off.
+	 */
+	public static function ensure_tables(): void {
 		DB::ensure_module_tables(
 			'code-snippets',
 			1,
-			function ( int $from ): void {
+			static function ( int $from ): void {
 				global $wpdb;
 				$charset = $wpdb->get_charset_collate();
 				dbDelta(
@@ -74,13 +89,6 @@ final class Module extends BaseModule {
 				);
 			}
 		);
-
-		// Same request-context guard as the legacy Bootstrap: skip entirely
-		// before ever touching the filesystem/DB for REST/AJAX/CRON requests.
-		// SnippetExecutor performs the same check again internally.
-		if ( ! $this->shouldSkipSnippetExecution() ) {
-			new SnippetExecutor( $this->settings );
-		}
 	}
 
 	/**

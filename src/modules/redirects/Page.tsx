@@ -6,6 +6,7 @@ import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
 import { TabsNav } from '../../app/SubNav';
+import { formatDate } from '../../app/date';
 
 type Tab = 'rules' | '404' | 'audit' | 'import' | 'settings';
 type Code = 301 | 302 | 307 | 308 | 410;
@@ -458,7 +459,7 @@ function NotFoundTab( { onRedirect }: { onRedirect: ( url: string ) => void } ):
 										{ row.resolved_by && <span className="uxs-badge is-success"> #{ row.resolved_by }</span> }
 									</td>
 									<td>{ row.hits }</td>
-									<td>{ row.last_seen }</td>
+									<td>{ formatDate( row.last_seen ) }</td>
 									<td style={ { maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }>{ row.referrer }</td>
 									<td style={ { whiteSpace: 'nowrap' } }>
 										{ ! row.resolved_by && (

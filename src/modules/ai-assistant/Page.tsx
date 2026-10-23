@@ -5,6 +5,7 @@ import { ArrowLeft, LoaderCircle } from 'lucide-react';
 import { api } from '../../app/api';
 import { hashParam, navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { TopicSettings } from '../../app/TopicSettings';
 import { ChatTab } from './ChatTab';
 import { KnowledgeHubTab } from './KnowledgeHubTab';
 import { RagTrainingTab } from './RagTrainingTab';
@@ -89,8 +90,20 @@ const isWidgetKey = ( key: string ): boolean => key.startsWith( 'widget_' );
 const isInternalChatKey = ( key: string ): boolean => key.startsWith( 'chatbot_' ) || key.startsWith( 'internal_' );
 const isContentKey = ( key: string ): boolean => [ 'default_tone', 'default_length', 'content_language' ].includes( key );
 const isIndexKey = ( key: string ): boolean => key.startsWith( 'index_' );
+const isUsageKey = ( key: string ): boolean =>
+	[ 'monthly_token_limit', 'daily_request_limit', 'user_daily_request_limit', 'usage_retention_days' ].includes( key );
+const isHandoffKey = ( key: string ): boolean =>
+	[ 'operator_notifications_enabled', 'operator_notification_email', 'contact_email', 'notification_email_hourly_limit' ].includes( key );
+const isMcpKey = ( key: string ): boolean => 'mcp_enabled' === key;
+const isInternalChatTopicKey = ( key: string ): boolean => isInternalChatKey( key ) || 'chat_history_retention_days' === key;
 const isGeneralKey = ( key: string ): boolean =>
-	! isWidgetKey( key ) && ! isInternalChatKey( key ) && ! isContentKey( key ) && ! isIndexKey( key );
+	! isWidgetKey( key ) &&
+	! isInternalChatTopicKey( key ) &&
+	! isContentKey( key ) &&
+	! isIndexKey( key ) &&
+	! isUsageKey( key ) &&
+	! isHandoffKey( key ) &&
+	! isMcpKey( key );
 
 export function SettingsTab( {
 	filter = isGeneralKey,
@@ -136,14 +149,7 @@ export function SettingsTab( {
 
 /** Collapsible settings slice shown above a feature tab. */
 function SettingsPanel( { title, filter }: { title: string; filter: ( key: string ) => boolean } ): JSX.Element {
-	return (
-		<details style={ { marginBottom: 'var(--uxs-sp-5)' } }>
-			<summary style={ { cursor: 'pointer', fontWeight: 600 } }>{ title }</summary>
-			<div style={ { marginTop: 'var(--uxs-sp-3)' } }>
-				<SettingsTab filter={ filter } />
-			</div>
-		</details>
-	);
+	return <TopicSettings moduleId="ai-assistant" include={ ( f ) => filter( f.key ) } collapsible={ title } />;
 }
 
 function LimitBar( { id, status }: { id: string; status: LimitStatus } ): JSX.Element {
@@ -288,9 +294,19 @@ export default function Page(): JSX.Element {
 			</TabsNav>
 			{ tab === 'settings' && <SettingsTab showKeyStatus /> }
 			{ tab === 'widget' && <SettingsTab filter={ isWidgetKey } /> }
-			{ tab === 'usage' && <UsageTab /> }
+			{ tab === 'usage' && (
+				<>
+					<SettingsPanel title={ __( 'Limits and retention', 'ux-studio' ) } filter={ isUsageKey } />
+					<UsageTab />
+				</>
+			) }
 			{ tab === 'conversations' && <ChatTab /> }
-			{ tab === 'handoff' && <HandoffTab /> }
+			{ tab === 'handoff' && (
+				<>
+					<SettingsPanel title={ __( 'Notifications and contact e-mail', 'ux-studio' ) } filter={ isHandoffKey } />
+					<HandoffTab />
+				</>
+			) }
 			{ tab === 'knowledge' && <KnowledgeHubTab /> }
 			{ tab === 'rag' && (
 				<>
@@ -307,11 +323,16 @@ export default function Page(): JSX.Element {
 			{ tab === 'blog-pilot' && <BlogPilotTab /> }
 			{ tab === 'internal-chat' && (
 				<>
-					<SettingsPanel title={ __( 'Internal chatbot settings', 'ux-studio' ) } filter={ isInternalChatKey } />
+					<SettingsPanel title={ __( 'Internal chatbot settings', 'ux-studio' ) } filter={ isInternalChatTopicKey } />
 					<InternalChatTab />
 				</>
 			) }
-			{ tab === 'mcp' && <McpTab /> }
+			{ tab === 'mcp' && (
+				<>
+					<TopicSettings moduleId="ai-assistant" include={ ( f ) => isMcpKey( f.key ) } />
+					<McpTab />
+				</>
+			) }
 		</>
 	);
 }

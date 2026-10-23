@@ -6,6 +6,7 @@ import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
 import { TabsNav } from '../../app/SubNav';
+import { formatDate } from '../../app/date';
 
 type Tab = 'requests' | 'settings';
 type Status = 'open' | 'in_progress' | 'done';
@@ -279,7 +280,7 @@ function RequestDetail( { item, onClose }: { item: ServiceRequest; onClose: () =
 				{ item.title }
 			</h2>
 			<p className="uxs-form__help">
-				{ statusLabel( item ) } · { item.created_at }
+				{ statusLabel( item ) } · { formatDate( item.created_at ) }
 				{ item.page_url ? ' · ' : '' }
 				{ item.page_url ? (
 					<a href={ item.page_url } target="_blank" rel="noreferrer">
@@ -321,7 +322,7 @@ function RequestDetail( { item, onClose }: { item: ServiceRequest; onClose: () =
 					{ item.thread.map( ( message ) => (
 						<li key={ message.id } style={ { marginBottom: 'var(--uxs-sp-3)' } }>
 							<strong>{ message.author }</strong>{ ' ' }
-							<span className="uxs-form__help">{ message.created_at }</span>
+							<span className="uxs-form__help">{ formatDate( message.created_at ) }</span>
 							<div style={ { whiteSpace: 'pre-wrap' } }>{ message.body }</div>
 						</li>
 					) ) }
@@ -422,7 +423,7 @@ function RequestsTable(): JSX.Element {
 										</span>
 									) : null }
 								</td>
-								<td>{ item.created_at }</td>
+								<td>{ formatDate( item.created_at ) }</td>
 								<td>
 									<button
 										type="button"

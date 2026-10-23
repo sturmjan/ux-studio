@@ -4,10 +4,11 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, LoaderCircle, Pencil, Plus, Trash2, X } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
-import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { TopicSettings, withKeys } from '../../app/TopicSettings';
 import { TabsNav } from '../../app/SubNav';
+import { formatDate } from '../../app/date';
 
-type Tab = 'notices' | 'categories' | 'subscribers' | 'settings';
+type Tab = 'notices' | 'categories' | 'subscribers';
 
 interface Attachment {
 	id: number;
@@ -351,8 +352,8 @@ function NoticesTab(): JSX.Element {
 							<tr key={ n.id }>
 								<td>{ n.title }</td>
 								<td>{ n.category || '—' }</td>
-								<td>{ n.publish_date || '—' }</td>
-								<td>{ n.expiry_date || '—' }</td>
+								<td>{ formatDate( n.publish_date ) || '—' }</td>
+								<td>{ formatDate( n.expiry_date ) || '—' }</td>
 								<td>{ n.attachments.length }</td>
 								<td>
 									<span className={ `uxs-badge ${ n.is_archived ? '' : 'is-success' }` }>
@@ -517,7 +518,7 @@ function SubscribersTab(): JSX.Element {
 			<tbody>
 				{ data.map( ( s ) => (
 					<tr key={ s.id }>
-						<td>{ s.created_at }</td>
+						<td>{ formatDate( s.created_at ) }</td>
 						<td>{ s.email }</td>
 						<td>{ s.categories.length > 0 ? s.categories.join( ', ' ) : __( 'All', 'ux-studio' ) }</td>
 						<td>
@@ -548,7 +549,6 @@ function SubscribersTab(): JSX.Element {
 
 export default function Page(): JSX.Element {
 	const [ tab, setTab ] = useState< Tab >( 'notices' );
-	const { data, isLoading, draft, setDraft, save, saved } = useModuleSettings( 'notice-board' );
 
 	return (
 		<>
@@ -575,24 +575,18 @@ export default function Page(): JSX.Element {
 				<button className={ tab === 'subscribers' ? 'is-active' : '' } onClick={ () => setTab( 'subscribers' ) }>
 					{ __( 'Subscribers', 'ux-studio' ) }
 				</button>
-				<button className={ tab === 'settings' ? 'is-active' : '' } onClick={ () => setTab( 'settings' ) }>
-					{ __( 'Settings', 'ux-studio' ) }
-				</button>
 			</TabsNav>
-			{ tab === 'notices' && <NoticesTab /> }
-			{ tab === 'categories' && <CategoriesTab /> }
-			{ tab === 'subscribers' && <SubscribersTab /> }
-			{ tab === 'settings' && ( isLoading || ! data ) && (
-				<div className="uxs-loading">
-					<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />
-				</div>
-			) }
-			{ tab === 'settings' && data && (
+			{ tab === 'notices' && (
 				<>
-					<SettingsFields schema={ data.schema } draft={ draft } setDraft={ setDraft } />
-					<button type="button" className="button button-primary" onClick={ () => save.mutate() }>
-						{ saved ? __( 'Saved', 'ux-studio' ) : __( 'Save changes', 'ux-studio' ) }
-					</button>
+					<TopicSettings moduleId="notice-board" include={ withKeys( 'per_page', 'retention_days' ) } collapsible={ __( 'Display and archive settings', 'ux-studio' ) } />
+					<NoticesTab />
+				</>
+			) }
+			{ tab === 'categories' && <CategoriesTab /> }
+			{ tab === 'subscribers' && (
+				<>
+					<TopicSettings moduleId="notice-board" include={ withKeys( 'notify_on_publish', 'from_email' ) } collapsible={ __( 'E-mail settings', 'ux-studio' ) } />
+					<SubscribersTab />
 				</>
 			) }
 		</>

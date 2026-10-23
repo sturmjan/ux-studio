@@ -64,6 +64,12 @@ final class Module extends BaseModule {
 	 */
 	private const MU_PLUGIN_VERSION = 2;
 
+	/**
+	 * Option with the site's own cron intervals, `name => { interval (s), display }`. The migration wizard
+	 * fills it from WP Crontrol; the module registers them with WordPress while it is on.
+	 */
+	public const SCHEDULES_OPTION = 'uxstudio_cron_schedules';
+
 	/** Daily watcher event hook. */
 	private const WATCH_HOOK = 'uxstudio_cron_watch_daily';
 
@@ -93,6 +99,9 @@ final class Module extends BaseModule {
 
 		// Keep the filesystem (mu-plugin + .htaccess) in sync with the mode.
 		$this->sync_filesystem();
+
+		// Custom intervals (a schedule that disappears would leave its events stuck).
+		add_filter( 'cron_schedules', array( $this, 'filter_cron_schedules' ) );
 
 		// Daily watcher.
 		add_action( self::WATCH_HOOK, array( $this, 'run_watch' ) );
@@ -228,6 +237,23 @@ final class Module extends BaseModule {
 	/* ------------------------------------------------------------------ *
 	 * Central app sync (both directions)
 	 * ------------------------------------------------------------------ */
+
+	/**
+	 * @return string[]
+	 */
+	public function switch_options(): array {
+		return array( self::HASH_OPTION );
+	}
+
+	/**
+	 * Mu-plugin, `.htaccess` block and watch event in line with the settings the switch wrote (no push to
+	 * the central app: that is the admin's decision in the module).
+	 */
+	public function after_migration_switch(): void {
+		parent::after_migration_switch();
+		$this->sync_filesystem( true );
+		$this->ensure_watch_scheduled();
+	}
 
 	/**
 	 * Push the cron config to the central app and record the outcome.
@@ -494,6 +520,43 @@ final class Module extends BaseModule {
 	}
 
 	/**
+	 * Add the site's own intervals to WordPress' schedules (existing names are never replaced).
+	 *
+	 * @param array<string, array<string, mixed>> $schedules Schedules known to WordPress.
+	 * @return array<string, array<string, mixed>>
+	 */
+	public function filter_cron_schedules( $schedules ) {
+		$schedules = is_array( $schedules ) ? $schedules : array();
+		foreach ( self::custom_schedules() as $name => $schedule ) {
+			if ( ! isset( $schedules[ $name ] ) ) {
+				$schedules[ $name ] = $schedule;
+			}
+		}
+		return $schedules;
+	}
+
+	/**
+	 * The stored custom intervals, only well-formed ones.
+	 *
+	 * @return array<string, array{interval:int,display:string}>
+	 */
+	public static function custom_schedules(): array {
+		$out = array();
+		foreach ( (array) get_option( self::SCHEDULES_OPTION, array() ) as $name => $schedule ) {
+			$name     = sanitize_key( (string) $name );
+			$interval = is_array( $schedule ) ? (int) ( $schedule['interval'] ?? 0 ) : 0;
+			if ( '' === $name || $interval < 1 ) {
+				continue;
+			}
+			$out[ $name ] = array(
+				'interval' => $interval,
+				'display'  => sanitize_text_field( (string) ( $schedule['display'] ?? $name ) ),
+			);
+		}
+		return $out;
+	}
+
+	/**
 	 * List the registered cron schedules (display name + interval).
 	 *
 	 * @return array<int, array{name:string,display:string,interval:int}>
@@ -662,6 +725,10 @@ final class Module extends BaseModule {
 	 * @param bool $force Re-write even if the mode hash is unchanged.
 	 */
 	private function sync_filesystem( bool $force = false ): void {
+		// A preview request persists nothing.
+		if ( \UxStudio\Core\Migration\Preview::is_active() ) {
+			return;
+		}
 		$mode = $this->get_mode();
 		$hash = md5( $mode . '|' . home_url() . '|' . (string) $this->settings->get( 'central_allowed_ips', '' ) . '|' . self::MU_PLUGIN_VERSION );
 

@@ -10,6 +10,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { LoaderCircle, Star, Trash2, X } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
+import { formatDate } from '../../app/date';
 
 interface ConversationListItem {
 	id: number;
@@ -252,7 +253,7 @@ export function ChatTab(): JSX.Element {
 								<td>
 									<RatingStars rating={ c.rating } />
 								</td>
-								<td>{ c.updated_at }</td>
+								<td>{ formatDate( c.updated_at ) }</td>
 								<td>
 									<button
 										type="button"
