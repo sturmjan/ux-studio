@@ -2168,11 +2168,12 @@ přibudou testy a živé ověření na pobyty. Větev `feature/module-gaps-a` na
 
 ### 27.2 Vlna B (spuštěna 2026-10-23, větev `feature/module-gaps-b` nad `feature/module-gaps-a`)
 
-- [ ] B1 Administrace: podpoložky menu (přejmenování, skrytí, přesun), pravidla pro konkrétní
+- [x] B1 Administrace: podpoložky menu (přejmenování, skrytí, přesun), pravidla pro konkrétní
       uživatele a vlastní oprávnění položky (AME); widgety nástěnky podle role + vlastní uvítací
       panel (Adminimize, WLCMS); vlastní CSS administrace a přihlášení, pozadí a hover barvy
       přihlášení (WLCMS, LoginPress); meta boxy v editoru podle role (Adminimize); filtry a řazení
       podle sloupců (Admin Columns)
+      (hotovo 23. 10. 2026 lokálně, poznámky v 27.7)
 - [ ] B2 Obsah I: počítadlo zásahů, velikost písmen a parametry v adrese (Redirection); podmínky
       spuštění snippetů - typ stránky, přihlášený, zařízení (WPCode, HFCM); Dashicons v ikonách menu
       (Menu Icons); výjimky Zákazu komentářů - role, typy komentářů, zavírání po N dnech
@@ -2365,3 +2366,35 @@ Migrace: AME + Adminimize (skutečná data pobyty; modul vypnutý: přímý záp
 **Původ zapnuté blokace.** Když migrace zapne `menu_lock_enabled`, zapíše volbu `uxstudio_menu_lock_origin` = `{ source, label, run, time }` (`Core\Migration\MenuLockOrigin`): přímý zápis v `AbstractSource::migrate_settings`, u zapnutého modulu leží poznámka ve stagingu (`lock_origin`) a zapíše ji `Staging::apply`. Rollback ji odstraní snapshotem (`target_options`), zrušení přepnutí `Switcher` záznamem voleb; ruční změna přepínače (`Module::save_settings`) ji smaže. UI: informační callout pod přepínačem (Úpravy administrace, Boční menu) s datem a odkazem do historie průvodce, odznak na kartě Organizér menu (`GET admin-customiser/menu-lock`), a text kroku Kontrola říká, kde se nastavení najde a že jde vypnout. Ověřeno na skutečných datech pobyty (Adminimize, modul vypnutý): poznámka zapsána, světlý i tmavý režim, rollback ji vrátil, vše obnoveno z dumpu.
 
 **Neověřeno / otevřené.** Multisite; položka menu přidaná pluginem po `admin_init` priority 1 se v původním menu nenajde, takže se nezablokuje; blokové navigace; editor pravidel v Customizeru (jen klasická obrazovka Vzhled > Menu).
+
+### 27.7 B1 poznámky: administrace (2026-10-23)
+
+**Model.** Config Organizéru (`uxstudio_admin_customiser_menu_config`) má nové klíče: `sub_titles`, `sub_hidden` (role, `*` = všichni), `sub_moves`, `sub_order`
+(klíč podpoložky je `původní rodič>slug`), `item_caps` a `item_users` (`{show, hide}` přihlašovacích jmen; platí i pro nejvyšší úroveň). Jediné místo, které rozhoduje, je
+`MenuSimulator` (`pass`, `sub_own_visible`, `sub_visible`, `request_blocked`), stejně ho používá běh menu, zámek i migrace. Pravidla: hide uživatele a chybějící oprávnění položku
+skryjí (kromě čtyř chráněných obrazovek pro uživatele s `manage_options`), show uživatele přebije seznam rolí a rolí kategorie, ne oprávnění (show nikdy nedává práva);
+uživatel s víc rolemi má podpoložku skrytou jen když ji skrývá každá jeho role. Skrytí podpoložky platí i pro správce (jako `hidden_items`), zámek správce nikdy neblokuje.
+První podpoložka menu má stejný slug jako menu: `request_blocked` ji bere jako podpoložku (jinak by pravidlo na „Přehled příspěvků“ nikdy nezabralo).
+**Past (nalezeno živě):** podpoložky se mění až na filtru `submenu_file` (priorita 99999), ne při `admin_menu`: WordPress rozhoduje o přístupu ke stránce hned po `admin_menu`
+podle původní struktury (odebraná nebo přesunutá podpoložka pluginu by dala „nemáte oprávnění“ i bez zámku) a Admin Menu Editor celé `$menu` / `$submenu` vyměňuje na `submenu_file`
+(priorita 1001), takže dřívější změna by zmizela. Přesunutá podpoložka dostane adresu stránky, kterou otevírá (`tools.php?page=x`), zvýraznění nového rodiče řeší `parent_file` /
+`submenu_file` (priorita 100000, mapa přesunů se počítá ze snímku původního menu). Horizontální rozvržení dostává transformovaný `$submenu` jen pro flyouty. Pořadí podpoložek: `sub_order[rodič]`
+(přesunuté se řadí na konec, pokud nejsou uvedené). Editor: sekce „Podpoložky a pokročilá pravidla“ v záložce Organizér menu (karta na podpoložku, výběr rolí, přihlašovací jména s našeptávačem
+z `GET .../menu-organizer/people`).
+**Vlastní CSS.** `Core\CssSanitizer` (typ pole `css`): odstraní `<style`, `</style`, `<script`, komentáře HTML, `expression(`, `javascript:`, `-moz-binding`, zbylé `<` před písmenem, `/` nebo `!` přepíše na `\3C `, limit 50 KB (ořez za poslední `}`);
+sanitizuje se při uložení i při výpisu. Výpis jen `admin_head` / `login_head` (`CustomCss`), žádný hook na front endu; CSS přihlášení se vypisuje i bez zapnutého přizpůsobení přihlášení. Vlastní JS administrace zůstává mimo rozsah (ztrátové).
+Přihlášení: `login_background_image` + `login_background_style` (cover / contain / center / repeat; jen klasické rozvržení), `login_button_hover_bg_color`, `login_button_hover_text_color`, `login_link_hover_color`.
+**Meta boxy a widgety podle role.** Pole schématu se generují na roli (`hidden_metaboxes_<role>` s hodnotami `post_type|box_id`, `hidden_widgets_<role>`), takže funguje obecný formulář i staging. Katalog boxů: jádro (seed) + zachycení z `$wp_meta_boxes`
+na `do_meta_boxes` (priorita 9999, nejdřív zachycení, potom `remove_meta_box`), uložený v `uxstudio_metabox_catalog` (bez autoloadu, max. 200 na typ); box Publikovat (`submitdiv`) se nenabízí. Co modul nezná, schéma zahodí, proto zdroje
+neznámé boxy a widgety jmenují (otevřete jednou obrazovku úprav / nástěnku) a zapisují jen známé (`known_widgets`), aby kontrola nehlásila falešnou chybu. Uvítací panel: `welcome_panel_*` (box `uxstudio_welcome_panel` nahoře v prvním sloupci, `wp_kses_post` při uložení i výpisu, role prázdné = všichni).
+**Sloupce.** `sortable` / `filterable` ve sloupci; `ColumnQuery`: řazení vlastního pole, první kategorie a autora jde přes SQL v `posts_clauses` (podotázka na vlastní řádek pole, chybějící hodnoty vždy na konec). **Past (nalezeno živě):** `meta_key` / `meta_query` s OR „existuje / neexistuje“
+řadí příspěvky bez pole podle hodnoty JINÉHO meta řádku. Filtry: `uxs_f_<klíč>` (pole = rovná se, taxonomie podle term_id, autor), jen seznamy typů příspěvků (uživatelé, komentáře, média ne).
+**Migrace.** AME: přejmenované / skryté / přesunuté podpoložky, `extra_capability` (v AME se přidává k výchozímu oprávnění, stejně jako u nás), pravidla `user:<login>` (grant = show, který jen odkrývá). Adminimize: podpoložky podle role (záznamy jen podle slugu zůstávají ztrátové), widgety podle role, meta boxy `mw_adminimize_disabled_metaboxes_<typ>_<role>_items` (jen `#id` boxů).
+WLCMS: pozadí, hover barvy, vlastní CSS přihlášení a administrace, widgety podle `dashboard_widgets_visibility_roles` (přesně pro uvedené role), první aktivní textový uvítací panel. LoginPress: pozadí, hover, CSS. AC: `sort` / `filter` sloupců. Zámek: podpoložky pod chráněnými obrazovkami se nikdy neblokují (ztrátová věta to říká);
+`enforce_access` zahazuje user-hide, oprávnění a skrytí chráněných obrazovek (hlásí se jedna příčina na slug).
+**Zůstává ztrátové:** vlastní JS (WLCMS, LoginPress), další uvítací panely a panely ze stránky / Elementoru, přihlašovací pozadí s jinou pozicí / jednosměrným opakováním, `access_level` jiný než výchozí, aktéři `special:` v AME, řazení a filtry v seznamech uživatelů / komentářů / médií a u sloupců bez hodnoty, inline editace, položky Adminimize bez rodiče, části editační obrazovky, které nejsou meta boxy.
+**Testy.** `tests/admin-b1.php` (nový), rozšířený `tests/migration-admin-sources.php`; všech 16 samostatných testů zelených.
+**Ověřeno živě (pobyty, dočasní uživatelé admin / editor / shop_manager / author, vše vráceno z dumpu).** Přejmenování, pořadí, skrytí podle role / `*`, show a hide uživatele, oprávnění, přesun pluginové podpoložky WooCommerce pod Produkty (stránka se otevře, zvýrazněná); bez zámku 200, se zámkem 403 jen u skrytých, správce a chráněné obrazovky nikdy;
+vlastní CSS (injekce `</style><script>` odstraněna, 112 KB oříznuto, front end bez CSS, přihlášení s pozadím a hover); meta boxy podle role a typu (Yoast, Woodmart, katalog se učí); widgety podle role a uvítací panel; řazení a filtry proti SQL (vlastní pole nahoru i dolů, autor, kategorie, filtry, kombinace);
+migrace AME / Adminimize / WLCMS (přímý zápis i staging, suchý běh, ověření, náhled s `admin_access` 4/4, rollback bajt po bajtu). Opraveno při ověření: přesun podpoložky mizel kvůli AME na `submenu_file`, řazení podle pole, `convert_to_screen()` v REST návrhu klíčů sloupců.
+**Neověřeno / otevřené.** LoginPress a Admin Columns nejsou nainstalované (fixtury z kódu); Adminimize na pobyty nemá data podpoložek, widgetů ani meta boxů (jen fixtury); meta boxy v blokovém editoru nejsou ověřené (pobyty používá klasický); sloupce jen `edit.php`; podpoložky se mění až při vykreslení, takže kód čtoucí `$submenu` dříve vidí původní menu.

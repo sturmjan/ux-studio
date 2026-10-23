@@ -2,6 +2,21 @@
 
 ## 0.6.0 (unreleased)
 
+- New - Admin Customiser, Menu Organizer: sub-items can be renamed, hidden for chosen roles (or everybody), moved under
+  another parent and re-ordered; every item and sub-item can require a capability and be shown or hidden for single
+  users (by login). Hidden sub-items are refused by address with "Block access to hidden pages" like top-level items;
+  users who can manage options and UX Studio, Plugins, Users and Settings stay protected.
+- New - Admin Customiser: own CSS for the admin area and for the login page (plain CSS, HTML tags stripped, 50 KB,
+  never printed on the front end), login background image with fit, hover colours of the button and the links, hidden
+  meta boxes on the edit screens per post type and role (the list of boxes is learned from the edit screens you open).
+- New - Dashboard Widgets: widgets hidden per role (on top of the global list) and a custom welcome panel (text with
+  basic HTML, optionally only for some roles).
+- New - Admin Columns: columns of post type lists can be sortable and filterable (custom field, taxonomy, author, ID).
+- New - Migration: Admin Menu Editor (renamed, hidden and moved sub-items, extra capability, rules for single users),
+  Adminimize (sub-menu items and dashboard widgets per role, meta boxes per post type and role), White Label CMS
+  (login background, hover colours, own CSS of login and admin, widgets per role, welcome panel), LoginPress
+  (background image, hover colours, own CSS) and Admin Columns (sorting and filtering) now transfer what they could not.
+- Fixed - Admin Columns: the column key suggestions failed with an error on some requests.
 - New - Admin Customiser: "Block access to hidden pages" (off by default). A menu item the Menu Organizer
   hides from a role (limited to other roles, hidden for everybody, or in a group limited to roles) is also
   refused when its address is typed in ("Sorry, you are not allowed to access this page", 403). Sub-items

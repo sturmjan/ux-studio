@@ -258,16 +258,21 @@ final class WhiteLabelCmsSource extends AbstractAdminSource {
 		if ( $widgets ) {
 			if ( ! $by_roles ) {
 				// No role limit in the plugin: hidden for everybody.
-				$m->set( 'dashboard-widgets', 'hidden_widgets', $widgets, __( 'Hide specific dashboard widgets', 'ux-studio' ), $origin . ':dashboard_widgets' );
+				if ( $this->known_widgets( $widgets ) ) {
+					$m->set( 'dashboard-widgets', 'hidden_widgets', $this->known_widgets( $widgets ), __( 'Hide specific dashboard widgets', 'ux-studio' ), $origin . ':dashboard_widgets' );
+				}
 			} else {
 				foreach ( $d_roles as $role ) {
 					if ( $site_roles && ! in_array( $role, $site_roles, true ) ) {
 						continue;
 					}
+					if ( ! $this->known_widgets( $widgets ) ) {
+						continue;
+					}
 					$m->set(
 						'dashboard-widgets',
 						RoleWidgets::key( $role ),
-						$widgets,
+						$this->known_widgets( $widgets ),
 						sprintf(
 							/* translators: %s: role name. */
 							__( 'Hide dashboard widgets for the role: %s', 'ux-studio' ),

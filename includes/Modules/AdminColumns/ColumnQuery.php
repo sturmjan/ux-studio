@@ -203,69 +203,46 @@ final class ColumnQuery {
 	}
 
 	/**
-	 * Query variables for a sort that a WP_Query can express itself (custom field, ID); other kinds return the variables
-	 * unchanged and are done in the SQL (see order_sql()).
+	 * Query variables for a sort: the ID order is a plain WP_Query order, every other kind is done in the SQL (see order_sql()) and
+	 * only gets a harmless `orderby` here so WordPress builds the rest of the query as usual.
 	 *
-	 * A custom field sort keeps the posts that do not have the field (an OR of "exists" and "not exists" clauses), which a plain
-	 * `meta_key` + `orderby=meta_value` would silently drop from the list.
+	 * A custom field is NOT sorted through `meta_key` / `meta_query`: with an OR of "exists" and "not exists" WordPress sorts the
+	 * posts that lack the field by the value of some OTHER meta row of the post (its first JOIN is not limited to the key).
 	 *
-	 * @param array<string, mixed>  $vars  Current query variables (meta_query, orderby ...).
+	 * @param array<string, mixed>  $vars  Current query variables.
 	 * @param array<string, string> $spec  Sort spec.
 	 * @param string                $order Direction.
 	 * @return array<string, mixed>
 	 */
 	public static function sort_vars( array $vars, array $spec, string $order ): array {
 		$order = self::direction( $order );
-		switch ( $spec['kind'] ) {
-			case 'meta':
-				$group = array(
-					'relation'         => 'OR',
-					'uxs_sort'         => array(
-						'key'     => $spec['key'],
-						'compare' => 'EXISTS',
-						'type'    => $spec['meta_type'] ?? 'CHAR',
-					),
-					'uxs_sort_missing' => array(
-						'key'     => $spec['key'],
-						'compare' => 'NOT EXISTS',
-					),
-				);
-				$query = array( 'relation' => 'AND' );
-				if ( ! empty( $vars['meta_query'] ) && is_array( $vars['meta_query'] ) ) {
-					$query[] = $vars['meta_query'];
-				}
-				$query['uxs_sort_group'] = $group;
-				$vars['meta_query']      = $query;
-				$vars['orderby']         = array(
-					'uxs_sort' => $order,
-					'ID'       => 'DESC',
-				);
-				break;
-			case 'id':
-				$vars['orderby'] = array( 'ID' => $order );
-				break;
-			case 'taxonomy':
-			case 'author':
-				// Ordered in the SQL; keep WordPress from complaining about an unknown orderby.
-				$vars['orderby'] = 'date';
-				break;
+		if ( 'id' === $spec['kind'] ) {
+			$vars['orderby'] = array( 'ID' => $order );
+		} else {
+			$vars['orderby'] = 'date';
 		}
 		$vars['order'] = $order;
 		return $vars;
 	}
 
 	/**
-	 * `ORDER BY` expression for the kinds a WP_Query cannot order by (first term name, author name).
+	 * `ORDER BY` expression for the kinds a WP_Query cannot order by right (custom field, first term name, author name).
 	 *
 	 * @param array<string, string>      $spec    Sort spec.
 	 * @param string                     $order   Direction.
-	 * @param array<string, string>      $tables  Table names: posts, users, term_relationships, term_taxonomy, terms.
+	 * @param array<string, string>      $tables  Table names: posts, postmeta, users, term_relationships, term_taxonomy, terms.
 	 * @param callable                   $quote   callable(string): string, SQL-quotes a string literal.
 	 * @return string Empty when the kind is not an SQL one.
 	 */
 	public static function order_sql( array $spec, string $order, array $tables, callable $quote ): string {
 		$order = self::direction( $order );
 		$posts = $tables['posts'];
+		if ( 'meta' === $spec['kind'] ) {
+			// Value of the first row of the field of THIS post; posts without the field (NULL) go last in both directions.
+			$cast  = 'NUMERIC' === ( $spec['meta_type'] ?? 'CHAR' ) ? 'CAST(uxs_pm.meta_value AS DECIMAL(30,10))' : 'uxs_pm.meta_value';
+			$value = '( SELECT ' . $cast . ' FROM ' . $tables['postmeta'] . ' uxs_pm WHERE uxs_pm.post_id = ' . $posts . '.ID AND uxs_pm.meta_key = ' . call_user_func( $quote, $spec['key'] ) . ' ORDER BY uxs_pm.meta_id ASC LIMIT 1 )';
+			return $value . ' IS NULL ASC, ' . $value . ' ' . $order . ', ' . $posts . '.ID DESC';
+		}
 		if ( 'taxonomy' === $spec['kind'] ) {
 			return '( SELECT MIN(uxs_t.name) FROM ' . $tables['term_relationships'] . ' uxs_tr INNER JOIN ' . $tables['term_taxonomy'] . ' uxs_tt ON uxs_tt.term_taxonomy_id = uxs_tr.term_taxonomy_id INNER JOIN ' . $tables['terms'] . ' uxs_t ON uxs_t.term_id = uxs_tt.term_id WHERE uxs_tr.object_id = ' . $posts . '.ID AND uxs_tt.taxonomy = ' . call_user_func( $quote, $spec['key'] ) . ' ) ' . $order . ', ' . $posts . '.ID DESC';
 		}
@@ -421,7 +398,7 @@ final class ColumnQuery {
 		$spec = self::sort_spec( $this->columns, $orderby );
 		if ( null !== $spec ) {
 			$vars = self::sort_vars( $vars + array( 'orderby' => '' ), $spec, $order );
-			if ( in_array( $spec['kind'], array( 'taxonomy', 'author' ), true ) ) {
+			if ( in_array( $spec['kind'], array( 'meta', 'taxonomy', 'author' ), true ) ) {
 				$this->pending = array(
 					'spec'  => $spec,
 					'order' => $order,
@@ -434,7 +411,7 @@ final class ColumnQuery {
 	}
 
 	/**
-	 * Order by the first term or the author name (SQL only).
+	 * Order by a custom field, the first term or the author name (SQL only).
 	 *
 	 * @param mixed     $clauses Query clauses.
 	 * @param \WP_Query $query   Query.
@@ -450,6 +427,7 @@ final class ColumnQuery {
 			$this->pending['order'],
 			array(
 				'posts'              => $wpdb->posts,
+				'postmeta'           => $wpdb->postmeta,
 				'users'              => $wpdb->users,
 				'term_relationships' => $wpdb->term_relationships,
 				'term_taxonomy'      => $wpdb->term_taxonomy,

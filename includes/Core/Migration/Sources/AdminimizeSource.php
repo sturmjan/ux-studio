@@ -307,10 +307,14 @@ final class AdminimizeSource extends AbstractAdminSource {
 		}
 		$all_widgets = array();
 		foreach ( $by_role as $role => $ids ) {
+			$accepted = $this->known_widgets( $ids );
+			if ( ! $accepted ) {
+				continue;
+			}
 			$m->set(
 				'dashboard-widgets',
 				RoleWidgets::key( $role ),
-				$ids,
+				$accepted,
 				sprintf(
 					/* translators: %s: role name. */
 					__( 'Hide dashboard widgets for the role: %s', 'ux-studio' ),

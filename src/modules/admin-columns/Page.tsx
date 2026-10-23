@@ -360,6 +360,7 @@ function AccordionSection( {
 									<th>{ __( 'Type', 'ux-studio' ) }</th>
 									<th>{ __( 'Key', 'ux-studio' ) }</th>
 									<th>{ __( 'Width', 'ux-studio' ) }</th>
+									<th>{ __( 'Sort and filter', 'ux-studio' ) }</th>
 									<th>{ __( 'Enabled', 'ux-studio' ) }</th>
 									<th></th>
 								</tr>

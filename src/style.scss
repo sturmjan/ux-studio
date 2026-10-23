@@ -2031,3 +2031,50 @@
 	border-radius: var(--uxs-radius-s);
 	padding: var(--uxs-sp-3) var(--uxs-sp-4);
 }
+
+/* ---- Menu Organizer: sub-items and advanced rules (PLAN 27.7) ---- */
+.uxs-sub-rules {
+	display: flex;
+	flex-direction: column;
+	gap: var(--uxs-sp-2);
+	margin-bottom: var(--uxs-sp-4);
+}
+
+.uxs-sub-rule {
+	border: 1px solid var(--uxs-border);
+	border-radius: var(--uxs-radius-s);
+	background: var(--uxs-surface);
+	padding: var(--uxs-sp-3) var(--uxs-sp-4);
+
+	&__head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--uxs-sp-3);
+		margin-bottom: var(--uxs-sp-3);
+	}
+
+	&__title {
+		font-weight: 600;
+
+		code { margin-left: var(--uxs-sp-2); font-weight: 400; }
+	}
+
+	&__fields {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+		gap: var(--uxs-sp-3);
+	}
+
+	&__field {
+		display: flex;
+		flex-direction: column;
+		gap: var(--uxs-sp-1);
+		min-width: 0;
+		font-size: var(--uxs-fs-s);
+		color: var(--uxs-text-soft);
+
+		input[type='text'],
+		select { width: 100%; }
+	}
+}

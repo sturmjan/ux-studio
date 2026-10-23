@@ -59,6 +59,9 @@ final class MenuOrganizer {
 	 */
 	private array $moved_subs = array();
 
+	/** @var array<string, array<string, string>>|null The same, worked out from the snapshot (null = not yet). */
+	private ?array $moved_computed = null;
+
 	/* ═══════════════════════════════════════════════════
 	   Enable state
 	   ═══════════════════════════════════════════════════ */
@@ -1006,7 +1009,11 @@ final class MenuOrganizer {
 	 * @param mixed $value Filter value, passed through unmodified.
 	 */
 	public function reorganize_at_render( $value ) {
-		$this->apply_submenu_rules();
+		// Sub-item rules go on the LAST menu filter (submenu_file): Admin Menu Editor swaps the whole $menu / $submenu on it
+		// (priority 1001), whatever was changed before would be replaced by its copy.
+		if ( 'submenu_file' === current_filter() ) {
+			$this->apply_submenu_rules();
+		}
 		$this->reorganize_admin_menu();
 		return $value;
 	}
@@ -1127,7 +1134,17 @@ final class MenuOrganizer {
 	}
 
 	/**
-	 * Apply the sub-item rules to the global $submenu. Runs at render time (hooked on parent_file / submenu_file), NOT while
+	 * The user's context for the sub-item rules (roles, manage_options, login, capability check).
+	 *
+	 * @return array{0:string[],1:bool,2:array<string,mixed>}
+	 */
+	private function rule_context(): array {
+		$user = wp_get_current_user();
+		return array( array_map( 'strval', (array) $user->roles ), current_user_can( 'manage_options' ), MenuSimulator::current_ctx() );
+	}
+
+	/**
+	 * Apply the sub-item rules to the global $submenu. Runs at render time (on `submenu_file`, the last menu filter), NOT while
 	 * the menu is built: WordPress decides whether the user may open a page right after `admin_menu`, from the structure it
 	 * was registered with, and a sub-item taken out of (or moved in) $submenu by then would turn a hidden or moved plugin
 	 * page into a "not allowed" screen even with the access lock off.
@@ -1143,18 +1160,32 @@ final class MenuOrganizer {
 		if ( ! self::has_sub_rules( $config ) ) {
 			return;
 		}
-		$structure = $this->menu_structure();
-		$user      = wp_get_current_user();
-		$result    = self::transform_submenu(
-			$submenu,
-			$config,
-			$structure['tops'] ?? array(),
-			array_map( 'strval', (array) $user->roles ),
-			current_user_can( 'manage_options' ),
-			MenuSimulator::current_ctx()
-		);
+		$structure        = $this->menu_structure();
+		list( $roles, $bypass, $ctx ) = $this->rule_context();
+		$result           = self::transform_submenu( $submenu, $config, $structure['tops'] ?? array(), $roles, $bypass, $ctx );
 		$submenu          = $result['submenu'];
-		$this->moved_subs = $result['moved'];
+		$this->moved_subs = array_merge( $this->moved_subs, $result['moved'] );
+	}
+
+	/**
+	 * Which sub-items the rules move for this user, worked out from the menu as WordPress registered it (the snapshot), so
+	 * the highlight of the current page is known before the menu is drawn (the `parent_file` filter comes first).
+	 *
+	 * @return array<string, array<string, string>>
+	 */
+	private function moved_map(): array {
+		if ( null === $this->moved_computed ) {
+			$this->moved_computed = array();
+			if ( $this->is_enabled() && is_array( $this->submenu_snapshot ) ) {
+				$config = $this->get_config();
+				if ( ! empty( $config['sub_moves'] ) ) {
+					$structure = $this->menu_structure();
+					list( $roles, $bypass, $ctx ) = $this->rule_context();
+					$this->moved_computed          = self::transform_submenu( $this->submenu_snapshot, $config, $structure['tops'] ?? array(), $roles, $bypass, $ctx )['moved'];
+				}
+			}
+		}
+		return $this->moved_computed;
 	}
 
 	/**
@@ -1163,7 +1194,8 @@ final class MenuOrganizer {
 	 * @return array<string, string>|null
 	 */
 	private function current_moved_sub(): ?array {
-		if ( ! $this->moved_subs ) {
+		$moved = $this->moved_map();
+		if ( ! $moved ) {
 			return null;
 		}
 		$structure = $this->menu_structure();
@@ -1179,7 +1211,7 @@ final class MenuOrganizer {
 		if ( null === $sub && in_array( $hit['top'], array_map( 'strval', (array) ( $structure['subs'][ $hit['top'] ] ?? array() ) ), true ) ) {
 			$sub = $hit['top'];
 		}
-		return null === $sub ? null : ( $this->moved_subs[ MenuSimulator::sub_key( $hit['top'], $sub ) ] ?? null );
+		return null === $sub ? null : ( $moved[ MenuSimulator::sub_key( $hit['top'], $sub ) ] ?? null );
 	}
 
 	/**

@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { __, sprintf } from '@wordpress/i18n';
 import { ArrowDown, ArrowUp } from 'lucide-react';
 import { api } from '../../app/api';
+import MultiSelectField from '../../components/MultiSelectField';
 import type { MenuConfig, MenuItem } from './MenuOrganizerTab';
 
 interface People {
@@ -17,6 +18,12 @@ interface People {
 type SetConfig = ( updater: ( d: MenuConfig ) => MenuConfig ) => void;
 
 const subKey = ( parent: string, sub: string ): string => `${ parent }>${ sub }`;
+
+const parseLogins = ( raw: string ): string[] =>
+	raw
+		.split( /[\s,;]+/ )
+		.map( ( l ) => l.trim() )
+		.filter( ( l ) => '' !== l );
 
 /** Comma separated logins <-> list, keeping what the user is typing. */
 function LoginsInput( {
@@ -31,13 +38,8 @@ function LoginsInput( {
 	listId: string;
 } ): JSX.Element {
 	const [ text, setText ] = useState( value.join( ', ' ) );
-	const parse = ( raw: string ): string[] =>
-		raw
-			.split( /[\s,;]+/ )
-			.map( ( l ) => l.trim() )
-			.filter( ( l ) => '' !== l );
 	useEffect( () => {
-		if ( parse( text ).join( ',' ) !== value.join( ',' ) ) {
+		if ( parseLogins( text ).join( ',' ) !== value.join( ',' ) ) {
 			setText( value.join( ', ' ) );
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -51,7 +53,7 @@ function LoginsInput( {
 			placeholder={ __( 'user logins, comma separated', 'ux-studio' ) }
 			onChange={ ( e ) => {
 				setText( e.target.value );
-				onChange( parse( e.target.value ) );
+				onChange( parseLogins( e.target.value ) );
 			} }
 		/>
 	);
@@ -84,11 +86,11 @@ function ItemRules( {
 		} );
 	return (
 		<>
-			<td>
+			<label className="uxs-sub-rule__field">
+				<span>{ __( 'Required capability', 'ux-studio' ) }</span>
 				<input
 					type="text"
 					value={ draft.item_caps[ itemKey ] ?? '' }
-					aria-label={ __( 'Required capability', 'ux-studio' ) }
 					placeholder="edit_others_posts"
 					onChange={ ( e ) =>
 						setConfig( ( d ) => {
@@ -102,23 +104,25 @@ function ItemRules( {
 						} )
 					}
 				/>
-			</td>
-			<td>
+			</label>
+			<label className="uxs-sub-rule__field">
+				<span>{ __( 'Always show to these users', 'ux-studio' ) }</span>
 				<LoginsInput
 					value={ users.show ?? [] }
 					onChange={ ( next ) => setUsers( 'show', next ) }
 					label={ __( 'Always show to these users', 'ux-studio' ) }
 					listId="uxs-amo-logins"
 				/>
-			</td>
-			<td>
+			</label>
+			<label className="uxs-sub-rule__field">
+				<span>{ __( 'Never show to these users', 'ux-studio' ) }</span>
 				<LoginsInput
 					value={ users.hide ?? [] }
 					onChange={ ( next ) => setUsers( 'hide', next ) }
 					label={ __( 'Never show to these users', 'ux-studio' ) }
 					listId="uxs-amo-logins"
 				/>
-			</td>
+			</label>
 		</>
 	);
 }
@@ -146,7 +150,10 @@ export function SubmenuRules( {
 		queryKey: [ 'admin-customiser', 'menu-organizer', 'people' ],
 		queryFn: () => api< People >( 'admin-customiser/menu-organizer/people' ),
 	} );
-	const roles = people.data?.roles ?? {};
+	const roleOptions = [
+		{ value: '*', label: __( 'Everybody', 'ux-studio' ) },
+		...Object.entries( people.data?.roles ?? {} ).map( ( [ value, label ] ) => ( { value, label } ) ),
+	];
 
 	const setMap = ( field: 'sub_titles' | 'sub_moves', key: string, value: string ): void =>
 		setConfig( ( d ) => {
@@ -159,15 +166,10 @@ export function SubmenuRules( {
 			return field === 'sub_titles' ? { ...d, sub_titles: next } : { ...d, sub_moves: next };
 		} );
 
-	const toggleRole = ( key: string, role: string, on: boolean ): void =>
+	const setHidden = ( key: string, picked: string[] ): void =>
 		setConfig( ( d ) => {
-			const current = d.sub_hidden[ key ] ?? [];
-			let next: string[];
-			if ( '*' === role ) {
-				next = on ? [ '*' ] : [];
-			} else {
-				next = on ? [ ...current.filter( ( r ) => '*' !== r ), role ] : current.filter( ( r ) => r !== role );
-			}
+			// "Everybody" replaces the single roles.
+			const next = picked.includes( '*' ) ? ( ( d.sub_hidden[ key ] ?? [] ).includes( '*' ) ? picked.filter( ( r ) => '*' !== r ) : [ '*' ] ) : picked;
 			const sub_hidden = { ...d.sub_hidden };
 			if ( 0 === next.length ) {
 				delete sub_hidden[ key ];
@@ -222,96 +224,28 @@ export function SubmenuRules( {
 							{ item.title } <code>{ item.slug }</code>
 							{ count > 0 && <span className="uxs-badge">{ count }</span> }
 						</summary>
-						<table className="uxs-table">
-							<thead>
-								<tr>
-									<th>{ __( 'Item', 'ux-studio' ) }</th>
-									<th>{ __( 'Rename', 'ux-studio' ) }</th>
-									<th>{ __( 'Move under', 'ux-studio' ) }</th>
-									<th>{ __( 'Hidden for roles', 'ux-studio' ) }</th>
-									<th>{ __( 'Required capability', 'ux-studio' ) }</th>
-									<th>{ __( 'Always show to users', 'ux-studio' ) }</th>
-									<th>{ __( 'Never show to users', 'ux-studio' ) }</th>
-									<th>{ __( 'Order', 'ux-studio' ) }</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td>
-										{ item.title }
-										<br />
-										<em>{ __( 'the item itself', 'ux-studio' ) }</em>
-									</td>
-									<td></td>
-									<td></td>
-									<td></td>
+						<div className="uxs-sub-rules">
+							<div className="uxs-sub-rule">
+								<div className="uxs-sub-rule__head">
+									<span className="uxs-sub-rule__title">{ __( 'The item itself', 'ux-studio' ) }</span>
+								</div>
+								<div className="uxs-sub-rule__fields">
 									<ItemRules itemKey={ item.slug } draft={ draft } setConfig={ setConfig } />
-									<td></td>
-								</tr>
-								{ rows.map( ( slug, index ) => {
-									const child = item.children.find( ( c ) => c.slug === slug );
-									if ( ! child ) {
-										return null;
-									}
-									const key = subKey( item.slug, slug );
-									const hidden = draft.sub_hidden[ key ] ?? [];
-									return (
-										<tr key={ key }>
-											<td>
-												{ child.title }
-												<br />
-												<code>{ slug }</code>
-											</td>
-											<td>
-												<input
-													type="text"
-													value={ draft.sub_titles[ key ] ?? '' }
-													placeholder={ child.title }
-													aria-label={ sprintf( /* translators: %s: sub-item title. */ __( 'New title of %s', 'ux-studio' ), child.title ) }
-													onChange={ ( e ) => setMap( 'sub_titles', key, e.target.value ) }
-												/>
-											</td>
-											<td>
-												<select
-													value={ draft.sub_moves[ key ] ?? '' }
-													aria-label={ sprintf( /* translators: %s: sub-item title. */ __( 'Move %s under', 'ux-studio' ), child.title ) }
-													onChange={ ( e ) => setMap( 'sub_moves', key, e.target.value ) }
-												>
-													<option value="">{ __( '(stays here)', 'ux-studio' ) }</option>
-													{ items
-														.filter( ( other ) => other.slug !== item.slug )
-														.map( ( other ) => (
-															<option key={ other.slug } value={ other.slug }>
-																{ other.title }
-															</option>
-														) ) }
-												</select>
-											</td>
-											<td>
-												<div className="uxs-checklist">
-													<label className="uxs-checklist__item">
-														<input
-															type="checkbox"
-															checked={ hidden.includes( '*' ) }
-															onChange={ ( e ) => toggleRole( key, '*', e.target.checked ) }
-														/>
-														{ __( 'Everybody', 'ux-studio' ) }
-													</label>
-													{ Object.entries( roles ).map( ( [ role, label ] ) => (
-														<label key={ role } className="uxs-checklist__item">
-															<input
-																type="checkbox"
-																disabled={ hidden.includes( '*' ) }
-																checked={ hidden.includes( role ) }
-																onChange={ ( e ) => toggleRole( key, role, e.target.checked ) }
-															/>
-															{ label }
-														</label>
-													) ) }
-												</div>
-											</td>
-											<ItemRules itemKey={ key } draft={ draft } setConfig={ setConfig } />
-											<td>
+								</div>
+							</div>
+							{ rows.map( ( slug, index ) => {
+								const child = item.children.find( ( c ) => c.slug === slug );
+								if ( ! child ) {
+									return null;
+								}
+								const key = subKey( item.slug, slug );
+								return (
+									<div key={ key } className="uxs-sub-rule">
+										<div className="uxs-sub-rule__head">
+											<span className="uxs-sub-rule__title">
+												{ child.title } <code>{ slug }</code>
+											</span>
+											<span>
 												<button
 													type="button"
 													className="button button-small"
@@ -330,12 +264,53 @@ export function SubmenuRules( {
 												>
 													<ArrowDown size={ 12 } />
 												</button>
-											</td>
-										</tr>
-									);
-								} ) }
-							</tbody>
-						</table>
+											</span>
+										</div>
+										<div className="uxs-sub-rule__fields">
+											<label className="uxs-sub-rule__field">
+												<span>{ __( 'Rename', 'ux-studio' ) }</span>
+												<input
+													type="text"
+													value={ draft.sub_titles[ key ] ?? '' }
+													placeholder={ child.title }
+													aria-label={ sprintf( /* translators: %s: sub-item title. */ __( 'New title of %s', 'ux-studio' ), child.title ) }
+													onChange={ ( e ) => setMap( 'sub_titles', key, e.target.value ) }
+												/>
+											</label>
+											<label className="uxs-sub-rule__field">
+												<span>{ __( 'Move under', 'ux-studio' ) }</span>
+												<select
+													value={ draft.sub_moves[ key ] ?? '' }
+													aria-label={ sprintf( /* translators: %s: sub-item title. */ __( 'Move %s under', 'ux-studio' ), child.title ) }
+													onChange={ ( e ) => setMap( 'sub_moves', key, e.target.value ) }
+												>
+													<option value="">{ __( '(stays here)', 'ux-studio' ) }</option>
+													{ items
+														.filter( ( other ) => other.slug !== item.slug )
+														.map( ( other ) => (
+															<option key={ other.slug } value={ other.slug }>
+																{ other.title }
+															</option>
+														) ) }
+												</select>
+											</label>
+											<div className="uxs-sub-rule__field">
+												<span>{ __( 'Hidden for roles', 'ux-studio' ) }</span>
+												<MultiSelectField
+													id={ `uxs-amo-hidden-${ key }` }
+													options={ roleOptions }
+													value={ draft.sub_hidden[ key ] ?? [] }
+													onChange={ ( picked ) => setHidden( key, picked ) }
+													placeholder={ __( 'Nobody', 'ux-studio' ) }
+													searchable={ false }
+												/>
+											</div>
+											<ItemRules itemKey={ key } draft={ draft } setConfig={ setConfig } />
+										</div>
+									</div>
+								);
+							} ) }
+						</div>
 					</details>
 				);
 			} ) }

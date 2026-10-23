@@ -817,6 +817,23 @@ abstract class AbstractAdminSource extends AbstractSource {
 	}
 
 	/**
+	 * The dashboard widgets from a list that the Dashboard Widgets module accepts (the ones it has seen on a dashboard).
+	 * The rest is named by note_unknown_widgets(); writing them anyway would only make the check fail afterwards.
+	 *
+	 * @param string[] $ids Widget ids.
+	 * @return string[]
+	 */
+	protected function known_widgets( array $ids ): array {
+		foreach ( (array) SettingsWriter::schema( 'dashboard-widgets' ) as $field ) {
+			if ( 'hidden_widgets' === ( $field['key'] ?? '' ) ) {
+				$known = array_map( 'strval', array_keys( (array) ( $field['options'] ?? array() ) ) );
+				return array_values( array_intersect( $ids, $known ) );
+			}
+		}
+		return $ids;
+	}
+
+	/**
 	 * Hidden dashboard widgets: the module takes only widgets it has seen on the dashboard. Say which
 	 * ones it does not know yet, so the admin knows to open the dashboard once and check again.
 	 *
