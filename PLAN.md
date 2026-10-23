@@ -2166,14 +2166,24 @@ přibudou testy a živé ověření na pobyty. Větev `feature/module-gaps-a` na
       (hotovo 22. 10. 2026 lokálně, poznámky v 27.6; blokaci zapíná výchozí vypnutý přepínač, Adminimize
       ve výchozím stavu stránky blokuje, takže jeho migrace přepínač zapne)
 
-### 27.2 Vlna B (později)
+### 27.2 Vlna B (spuštěna 2026-10-23, větev `feature/module-gaps-b` nad `feature/module-gaps-a`)
 
-Podpoložky menu a pravidla pro uživatele (AME); počítadlo a volby přesměrování; podmínky
-spuštění snippetů; Dashicons v ikonách menu; výjimky Zákazu komentářů; volby Duplikace;
-pravidla externích odkazů; volba editoru per uživatel; obrázek/odpočet/výjimky údržby; složky
-příspěvků a stránek; SendGrid/Mailgun/Postmark/SES; skrytí upozornění na aktualizace; URL
-události cronu; widgety nástěnky podle role a uvítací panel; vlastní CSS administrace a
-přihlášení; meta boxy podle role; filtry a řazení sloupců; volby Auto Upload Images.
+- [ ] B1 Administrace: podpoložky menu (přejmenování, skrytí, přesun), pravidla pro konkrétní
+      uživatele a vlastní oprávnění položky (AME); widgety nástěnky podle role + vlastní uvítací
+      panel (Adminimize, WLCMS); vlastní CSS administrace a přihlášení, pozadí a hover barvy
+      přihlášení (WLCMS, LoginPress); meta boxy v editoru podle role (Adminimize); filtry a řazení
+      podle sloupců (Admin Columns)
+- [ ] B2 Obsah I: počítadlo zásahů, velikost písmen a parametry v adrese (Redirection); podmínky
+      spuštění snippetů - typ stránky, přihlášený, zařízení (WPCode, HFCM); Dashicons v ikonách menu
+      (Menu Icons); výjimky Zákazu komentářů - role, typy komentářů, zavírání po N dnech
+- [ ] B3 Obsah II: volby Duplikace - stav kopie, vynechaná pole a taxonomie, oprávnění podle role,
+      všechny typy obsahu (Yoast Duplicate Post); pravidla externích odkazů - target/rel podle domény,
+      výjimky, ikona (WP External Links); volba editoru pro uživatele (Classic Editor); obrázek,
+      odpočet a výjimky údržby (WP Maintenance Mode, SeedProd); složky příspěvků a stránek, barvy,
+      ruční řazení (FileBird, Folders)
+- [ ] B4 Technika: SendGrid, Mailgun, Postmark, Amazon SES + záložní spojení (WP Mail SMTP, FluentSMTP);
+      skrytí upozornění a vypnutí kontroly aktualizací + výjimka pro bezpečnostní (Easy Updates Manager);
+      URL události cronu (WP Crontrol); volby Auto Upload Images
 
 ### 27.3 Nedělat (C)
 
