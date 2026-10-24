@@ -352,8 +352,9 @@ $GLOBALS['wpdb']->tables['wp_uxstudio_redirects'][1][2] = '/zzz';
 $assert( 'an edited row (same row count) is caught by the checksum', true === Snapshot::drift( 'rdrift1' )['changed'] );
 $assert( 'no snapshot: no drift record', null === Snapshot::drift( 'rnone' ) );
 
-$ui = $src( 'src/app/wizard/RunHistory.tsx' ) . $src( 'src/app/wizard/steps.tsx' );
-$assert( 'UI: both undo confirmations load the impact and require a tick when something changed', substr_count( $ui, 'rollback-impact' ) >= 2 && substr_count( $ui, 'needs_ack' ) >= 2 );
+$parts = $src( 'src/app/wizard/parts.tsx' );
+$assert( 'UI: the shared undo dialog loads the impact and demands a tick when something changed or cannot be told', false !== strpos( $parts, 'rollback-impact?run_id=' ) && false !== strpos( $parts, 'needs_ack' ) && false !== strpos( $parts, 'needsAck && ! acked' ) );
+$assert( 'UI: both the history list and the verify step use that dialog', false !== strpos( $src( 'src/app/wizard/RunHistory.tsx' ), '<UndoMigrationModal' ) && false !== strpos( $src( 'src/app/wizard/steps.tsx' ), '<UndoMigrationModal' ) );
 
 /* ═══ 6. Wizard hint is cached ═══ */
 
