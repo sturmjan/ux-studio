@@ -52,10 +52,24 @@ class FakeWpdb {
 		}
 		return $sql;
 	}
+	/** @var array<string, array<int, mixed>> Fake tables for the snapshot checks: real name => rows. */
+	public $tables = array();
 	public function get_var( $sql ) {
 		$this->queries[] = $sql;
 		if ( false !== strpos( $sql, 'MAX(id)' ) ) {
 			return $this->rows ? max( array_keys( $this->rows ) ) : null;
+		}
+		if ( preg_match( '/^SHOW TABLES LIKE (\S+)$/', $sql, $m ) ) {
+			return isset( $this->tables[ $m[1] ] ) ? $m[1] : null;
+		}
+		if ( preg_match( '/^SELECT COUNT\(\*\) FROM (\S+)$/', $sql, $m ) ) {
+			return count( $this->tables[ $m[1] ] ?? array() );
+		}
+		return null;
+	}
+	public function get_row( $sql, $output = null ) {
+		if ( preg_match( '/^CHECKSUM TABLE (\S+)$/', $sql, $m ) ) {
+			return array( 'Table' => $m[1], 'Checksum' => (string) crc32( serialize( $this->tables[ $m[1] ] ?? array() ) ) );
 		}
 		return null;
 	}
@@ -296,6 +310,50 @@ $GLOBALS['uxs_options']['uxstudio_security_optimization']['csp_mode'] = 'off';
 unset( $GLOBALS['uxs_options']['uxstudio_csp_state'] );
 Upgrade::run();
 $assert( 'run: the second boot does nothing again', false === get_option( 'uxstudio_csp_state', false ) );
+
+/* ═══ 4. Rollback of a migration run: what changed since the run ═══ */
+
+use UxStudio\Core\Migration\Snapshot;
+$reset();
+$GLOBALS['wpdb']->tables['wp_uxstudio_redirects'] = array( array( 1, '/a', '/b' ), array( 2, '/c', '/d' ) );
+$GLOBALS['uxs_options']['uxstudio_redirects']        = array( 'enabled' => true );
+$GLOBALS['uxs_options']['uxstudio_snippets']         = array( 'x' => 1 );
+$GLOBALS['uxs_options'][ DB::MODULE_VERSIONS_OPTION ] = array( 'redirects' => 1 );
+// The snapshot as capture_options()/capture_table() leave it (state from BEFORE the run).
+update_option(
+	Snapshot::option_name( 'rdrift1' ),
+	array(
+		'run_id'  => 'rdrift1',
+		'created' => time(),
+		'options' => array(
+			'uxstudio_redirects'        => array( 'exists' => true, 'value' => array() ),
+			'uxstudio_snippets'         => array( 'exists' => false ),
+			DB::MODULE_VERSIONS_OPTION  => array( 'exists' => true, 'value' => array() ),
+		),
+		'tables'  => array( 'uxstudio_redirects' => array( 'existed' => true, 'backup' => 'wp_uxsmb_rdrift1_uxstudio_redirects' ) ),
+	)
+);
+$before = Snapshot::drift( 'rdrift1' );
+$assert( 'run not yet sealed (no fingerprint): reported as unsealed, the stronger warning applies', false === $before['sealed'] && array() === $before['options'] && array( 'uxstudio_redirects', 'uxstudio_snippets' ) === $before['all_options'] && array( 'uxstudio_redirects' ) === $before['all_tables'] );
+Snapshot::seal( 'rdrift1' );
+$d = Snapshot::drift( 'rdrift1' );
+$assert( 'sealed right after the run: nothing changed since', true === $d['sealed'] && false === $d['changed'] && array() === $d['options'] && array() === $d['tables'], json_encode( $d ) );
+$GLOBALS['uxs_options'][ DB::MODULE_VERSIONS_OPTION ]['other'] = 3;
+$assert( 'the module-version bookkeeping option never counts as a change', false === Snapshot::drift( 'rdrift1' )['changed'] );
+$GLOBALS['uxs_options']['uxstudio_redirects'] = array( 'enabled' => false );
+$d = Snapshot::drift( 'rdrift1' );
+$assert( 'a setting changed after the run is reported (by option name)', true === $d['changed'] && array( 'uxstudio_redirects' ) === $d['options'] && array() === $d['tables'], json_encode( $d ) );
+$GLOBALS['uxs_options']['uxstudio_redirects'] = array( 'enabled' => true );
+$GLOBALS['wpdb']->tables['wp_uxstudio_redirects'][] = array( 3, '/e', '/f' );
+$d = Snapshot::drift( 'rdrift1' );
+$assert( 'a row added to a snapshotted table after the run is reported with the row counts', true === $d['changed'] && array() === $d['options'] && 'uxstudio_redirects' === $d['tables'][0]['name'] && 2 === $d['tables'][0]['rows_then'] && 3 === $d['tables'][0]['rows_now'], json_encode( $d ) );
+array_pop( $GLOBALS['wpdb']->tables['wp_uxstudio_redirects'] );
+$GLOBALS['wpdb']->tables['wp_uxstudio_redirects'][1][2] = '/zzz';
+$assert( 'an edited row (same row count) is caught by the checksum', true === Snapshot::drift( 'rdrift1' )['changed'] );
+$assert( 'no snapshot: no drift record', null === Snapshot::drift( 'rnone' ) );
+
+$ui = $src( 'src/app/wizard/RunHistory.tsx' ) . $src( 'src/app/wizard/steps.tsx' );
+$assert( 'UI: both undo confirmations load the impact and require a tick when something changed', substr_count( $ui, 'rollback-impact' ) >= 2 && substr_count( $ui, 'needs_ack' ) >= 2 );
 
 /* ═══ 6. Wizard hint is cached ═══ */
 

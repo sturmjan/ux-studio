@@ -478,3 +478,136 @@ export function ConfirmModal( {
 		</div>
 	);
 }
+
+/* ── Undo of a migration: what is restored and what would be lost ── */
+
+/** GET migration/rollback-impact. */
+export interface RollbackImpact {
+	run_id: string;
+	modules: { id: string; name: string }[];
+	tables: string[];
+	/** False when no fingerprint of the state right after the run exists, so changes cannot be told. */
+	sealed: boolean;
+	changed: boolean;
+	needs_ack: boolean;
+	changed_settings: string[];
+	changed_tables: { name: string; rows_then: number; rows_now: number }[];
+}
+
+/**
+ * Confirmation of an undo. An undo puts the state from BEFORE the run back, so anything changed in the same
+ * modules and tables since the run is lost. The dialog lists what is restored and, when a setting or table was
+ * changed after the run (or that cannot be told), asks for an explicit tick before the button works.
+ */
+export function UndoMigrationModal( {
+	id,
+	runId,
+	title,
+	confirmLabel,
+	busy,
+	error,
+	onConfirm,
+	onCancel,
+	children,
+}: {
+	id: string;
+	runId: string;
+	title: string;
+	confirmLabel: string;
+	busy: boolean;
+	error: string | null;
+	onConfirm: () => void;
+	onCancel: () => void;
+	children: ReactNode;
+} ): JSX.Element {
+	const [ acked, setAcked ] = useState( false );
+	const q = useQuery( {
+		queryKey: [ 'migration', 'rollback-impact', runId ],
+		queryFn: () => api< RollbackImpact >( `migration/rollback-impact?run_id=${ encodeURIComponent( runId ) }` ),
+		staleTime: 0,
+		gcTime: 0,
+		retry: false,
+	} );
+	const impact = q.data;
+	// If the check itself fails we cannot rule out lost changes, so the tick is required.
+	const needsAck = q.isError || ( impact?.needs_ack ?? false );
+	const ready = ! q.isLoading;
+	return (
+		<ConfirmModal
+			id={ id }
+			title={ title }
+			confirmLabel={ confirmLabel }
+			busy={ busy || ! ready || ( needsAck && ! acked ) }
+			error={ error }
+			onCancel={ onCancel }
+			onConfirm={ onConfirm }
+		>
+			{ children }
+			<p>
+				<strong>{ __( 'Everything changed after the migration in the places below is lost.', 'ux-studio' ) }</strong>{ ' ' }
+				{ __( 'The undo does not merge, it puts back the state from before the migration.', 'ux-studio' ) }
+			</p>
+			{ q.isLoading && <p className="uxs-wiz-muted">{ __( 'Checking what the undo would restore…', 'ux-studio' ) }</p> }
+			{ impact && (
+				<ul className="uxs-wiz-checks">
+					{ impact.modules.length > 0 && (
+						<li>
+							<span>
+								{ sprintf(
+									/* translators: %s: names of modules. */
+									__( 'Modules whose settings are restored: %s', 'ux-studio' ),
+									impact.modules.map( ( m ) => m.name ).join( ', ' )
+								) }
+							</span>
+						</li>
+					) }
+					{ impact.tables.length > 0 && (
+						<li>
+							<span>
+								{ sprintf(
+									/* translators: %s: names of database tables. */
+									__( 'Tables rebuilt from the backup: %s', 'ux-studio' ),
+									impact.tables.join( ', ' )
+								) }
+							</span>
+						</li>
+					) }
+				</ul>
+			) }
+			{ needsAck && ! q.isLoading && (
+				<div className="uxs-wiz-banner is-bad" role="alert">
+					<TriangleAlert size={ 16 } aria-hidden />
+					<div>
+						{ q.isError && <p>{ __( 'It could not be checked whether anything changed since the migration.', 'ux-studio' ) }</p> }
+						{ impact && ! impact.sealed && <p>{ __( 'It cannot be told whether anything changed since the migration.', 'ux-studio' ) }</p> }
+						{ impact && impact.changed_settings.length > 0 && (
+							<p>
+								{ sprintf(
+									/* translators: %s: names of modules or settings. */
+									__( 'Changed since the migration: settings of %s.', 'ux-studio' ),
+									impact.changed_settings.join( ', ' )
+								) }
+							</p>
+						) }
+						{ impact &&
+							impact.changed_tables.map( ( t ) => (
+								<p key={ t.name }>
+									{ sprintf(
+										/* translators: 1: table name, 2: rows after the migration, 3: rows now. */
+										__( 'Changed since the migration: table %1$s (%2$d rows after the migration, %3$d now).', 'ux-studio' ),
+										t.name,
+										t.rows_then,
+										t.rows_now
+									) }
+								</p>
+							) ) }
+						<label className="uxs-wiz-ack">
+							<input type="checkbox" checked={ acked } onChange={ ( e ) => setAcked( e.target.checked ) } />{ ' ' }
+							{ __( 'I understand that these later changes will be lost.', 'ux-studio' ) }
+						</label>
+					</div>
+				</div>
+			) }
+		</ConfirmModal>
+	);
+}

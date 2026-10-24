@@ -195,6 +195,9 @@
 	&.is-bad { background: color-mix(in srgb, var(--uxs-warning) 16%, transparent); svg { color: var(--uxs-warning); } }
 }
 
+.uxs-wiz-banner p { margin: 0 0 var(--uxs-sp-2); }
+.uxs-wiz-ack { display: block; margin-top: var(--uxs-sp-2); font-weight: 600; }
+
 [data-theme="dark"] .uxs-wiz-banner:not(.is-ok):not(.is-bad) { background: color-mix(in srgb, var(--uxs-brand) 22%, transparent); }
 
 .uxs-wiz-error { margin: 0 0 var(--uxs-sp-3); color: var(--uxs-danger); }

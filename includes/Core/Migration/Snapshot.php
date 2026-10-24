@@ -216,6 +216,126 @@ final class Snapshot {
 	}
 
 	/**
+	 * Options that change on their own (bookkeeping), so they never count as "changed since the run".
+	 *
+	 * @return string[]
+	 */
+	private static function volatile_options(): array {
+		return array( DB::MODULE_VERSIONS_OPTION );
+	}
+
+	/**
+	 * Fingerprint of a stored option value (what drift() compares).
+	 *
+	 * @param string $name Option name.
+	 */
+	private static function option_fingerprint( string $name ): string {
+		$missing = new \stdClass();
+		$value   = get_option( $name, $missing );
+		return $value === $missing ? 'absent' : md5( serialize( $value ) );
+	}
+
+	/**
+	 * Row count and checksum of a live table (checksum '' when the server cannot give one).
+	 *
+	 * @param string $table Table name WITHOUT the WordPress prefix.
+	 * @return array{exists:bool,rows:int,checksum:string}
+	 */
+	private static function table_fingerprint( string $table ): array {
+		global $wpdb;
+		$real = $wpdb->prefix . $table;
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- read-only look at a table of ours, validated name.
+		if ( ! $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $real ) ) ) {
+			return array(
+				'exists'   => false,
+				'rows'     => 0,
+				'checksum' => '',
+			);
+		}
+		$rows = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$real}" );
+		$sum  = $wpdb->get_row( "CHECKSUM TABLE {$real}", ARRAY_A );
+		// phpcs:enable
+		return array(
+			'exists'   => true,
+			'rows'     => $rows,
+			'checksum' => is_array( $sum ) && isset( $sum['Checksum'] ) && null !== $sum['Checksum'] ? (string) $sum['Checksum'] : '',
+		);
+	}
+
+	/**
+	 * Remember how everything the snapshot covers looks right after the run, so that a later rollback can tell
+	 * whether somebody changed it since (the rollback puts the BEFORE state back and drops those changes).
+	 *
+	 * @param string $run_id Run id.
+	 */
+	public static function seal( string $run_id ): void {
+		$snap = get_option( self::option_name( $run_id ), null );
+		if ( ! is_array( $snap ) ) {
+			return;
+		}
+		$options = array();
+		foreach ( array_keys( (array) ( $snap['options'] ?? array() ) ) as $name ) {
+			if ( ! in_array( (string) $name, self::volatile_options(), true ) ) {
+				$options[ (string) $name ] = self::option_fingerprint( (string) $name );
+			}
+		}
+		$tables = array();
+		foreach ( array_keys( (array) ( $snap['tables'] ?? array() ) ) as $table ) {
+			$tables[ (string) $table ] = self::table_fingerprint( (string) $table );
+		}
+		$snap['sealed'] = array(
+			'time'    => time(),
+			'options' => $options,
+			'tables'  => $tables,
+		);
+		update_option( self::option_name( $run_id ), $snap, false );
+	}
+
+	/**
+	 * What a rollback of the run would overwrite or drop that changed AFTER the run.
+	 *
+	 * @param string $run_id Run id.
+	 * @return array{sealed:bool,options:string[],tables:array<int,array{name:string,rows_then:int,rows_now:int}>,changed:bool,all_options:string[],all_tables:string[]}|null Null when there is no snapshot.
+	 */
+	public static function drift( string $run_id ): ?array {
+		$snap = get_option( self::option_name( $run_id ), null );
+		if ( ! is_array( $snap ) ) {
+			return null;
+		}
+		$all_options = array_values( array_diff( array_map( 'strval', array_keys( (array) ( $snap['options'] ?? array() ) ) ), self::volatile_options() ) );
+		$all_tables  = array_map( 'strval', array_keys( (array) ( $snap['tables'] ?? array() ) ) );
+		$out         = array(
+			'sealed'      => is_array( $snap['sealed'] ?? null ),
+			'options'     => array(),
+			'tables'      => array(),
+			'changed'     => false,
+			'all_options' => $all_options,
+			'all_tables'  => $all_tables,
+		);
+		if ( ! $out['sealed'] ) {
+			return $out;
+		}
+		foreach ( (array) $snap['sealed']['options'] as $name => $fingerprint ) {
+			if ( self::option_fingerprint( (string) $name ) !== $fingerprint ) {
+				$out['options'][] = (string) $name;
+			}
+		}
+		foreach ( (array) $snap['sealed']['tables'] as $table => $then ) {
+			$now = self::table_fingerprint( (string) $table );
+			$was = (array) $then;
+			if ( $now['exists'] !== ! empty( $was['exists'] ) || $now['rows'] !== (int) ( $was['rows'] ?? 0 ) || ( '' !== $now['checksum'] && '' !== (string) ( $was['checksum'] ?? '' ) && $now['checksum'] !== (string) $was['checksum'] ) ) {
+				$out['tables'][] = array(
+					'name'      => (string) $table,
+					'rows_then' => (int) ( $was['rows'] ?? 0 ),
+					'rows_now'  => $now['rows'],
+				);
+			}
+		}
+		$out['changed'] = array() !== $out['options'] || array() !== $out['tables'];
+		return $out;
+	}
+
+	/**
 	 * Restore everything the snapshot holds: options get their old value back (or are
 	 * deleted when they did not exist), tables are rebuilt from the backup.
 	 *

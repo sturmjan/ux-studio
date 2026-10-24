@@ -8,7 +8,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { ArrowRight, Camera, ChevronDown, CircleCheck, Eye, History as HistoryIcon, Power, Radar, ShieldCheck, Undo2, Wand2 } from 'lucide-react';
 import { navigate } from '../route';
 import type { WizardCtx } from './context';
-import { ChangeTable, DataCounts, DetailRows, DrawnCheck, ErrorLine, MatchBadge, MenuRoleTable, PartialNote, PlanDetails, SourceIcon, StateIcon, StatusBadge, StepHead, Warnings, reducedMotion, sourceSummary } from './parts';
+import { ChangeTable, DataCounts, DetailRows, DrawnCheck, ErrorLine, MatchBadge, MenuRoleTable, PartialNote, PlanDetails, SourceIcon, StateIcon, StatusBadge, StepHead, UndoMigrationModal, Warnings, reducedMotion, sourceSummary } from './parts';
 import { PreviewStep, RevertedDone, SwitchStep, SwitchedDone } from './steps-preview';
 import type { RunSource, ScanSource } from './types';
 
@@ -480,19 +480,6 @@ function VerifyStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 	const failed = verify ? Object.values( verify ).flat().filter( ( c ) => ! c.ok ).length : 0;
 	const labels = ctx.run?.per_source ?? {};
 
-	useEffect( () => {
-		if ( ! confirm ) {
-			return undefined;
-		}
-		const onKey = ( e: KeyboardEvent ): void => {
-			if ( 'Escape' === e.key && ! ctx.rollbackBusy ) {
-				setConfirm( false );
-			}
-		};
-		window.addEventListener( 'keydown', onKey );
-		return () => window.removeEventListener( 'keydown', onKey );
-	}, [ confirm, ctx.rollbackBusy ] );
-
 	return (
 		<section className="uxs-wiz-panel">
 			<StepHead icon={ <ShieldCheck size={ 26 } aria-hidden /> } title={ __( 'Verify the result', 'ux-studio' ) }>
@@ -550,29 +537,22 @@ function VerifyStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 				</button>
 			</div>
 
-			{ confirm && (
-				<div className="uxs-overlay">
-					<div className="uxs-modal" role="dialog" aria-modal="true" aria-labelledby="uxs-wiz-undo-title">
-						<h2 id="uxs-wiz-undo-title">{ __( 'Undo this migration?', 'ux-studio' ) }</h2>
-						<p>{ __( 'The UX Studio settings go back exactly to how they were before the migration, and everything the migration created (rules, snippets, folders, menu fields) is removed. The old plugins are not touched.', 'ux-studio' ) }</p>
-						<div className="uxs-modal__actions">
-							<button type="button" className="button" disabled={ ctx.rollbackBusy } onClick={ () => setConfirm( false ) }>
-								{ __( 'Cancel', 'ux-studio' ) }
-							</button>
-							<button
-								type="button"
-								className="button button-primary"
-								disabled={ ctx.rollbackBusy }
-								onClick={ () => {
-									ctx.rollback();
-									setConfirm( false );
-								} }
-							>
-								{ ctx.rollbackBusy ? __( 'Restoring…', 'ux-studio' ) : __( 'Undo the migration', 'ux-studio' ) }
-							</button>
-						</div>
-					</div>
-				</div>
+			{ confirm && ctx.run && (
+				<UndoMigrationModal
+					id="uxs-wiz-undo-title"
+					runId={ ctx.run.id }
+					title={ __( 'Undo this migration?', 'ux-studio' ) }
+					confirmLabel={ ctx.rollbackBusy ? __( 'Restoring…', 'ux-studio' ) : __( 'Undo the migration', 'ux-studio' ) }
+					busy={ ctx.rollbackBusy }
+					error={ null }
+					onCancel={ () => setConfirm( false ) }
+					onConfirm={ () => {
+						ctx.rollback();
+						setConfirm( false );
+					} }
+				>
+					<p>{ __( 'The UX Studio settings go back exactly to how they were before the migration, and everything the migration created (rules, snippets, folders, menu fields) is removed. The old plugins are not touched.', 'ux-studio' ) }</p>
+				</UndoMigrationModal>
 			) }
 		</section>
 	);

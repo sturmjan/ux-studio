@@ -2,14 +2,14 @@
  * Small list of finished real runs with a rollback button while the snapshot is
  * still kept (30 days).
  */
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { __, sprintf } from '@wordpress/i18n';
 import { ArrowRight, History as HistoryIcon, Undo2 } from 'lucide-react';
 import { api, queryClient } from '../api';
 import { formatDate } from '../date';
 import { refreshOverlaps } from '../Overlaps';
-import { ConfirmModal } from './parts';
+import { ConfirmModal, UndoMigrationModal } from './parts';
 import type { HistoryRun } from './types';
 
 const KEY = [ 'migration', 'runs' ];
@@ -71,19 +71,6 @@ export function RunHistory( {
 			onRolledBack?.( runId );
 		},
 	} );
-
-	useEffect( () => {
-		if ( ! target ) {
-			return undefined;
-		}
-		const onKey = ( e: KeyboardEvent ): void => {
-			if ( 'Escape' === e.key && ! rollback.isPending ) {
-				setTarget( null );
-			}
-		};
-		window.addEventListener( 'keydown', onKey );
-		return () => window.removeEventListener( 'keydown', onKey );
-	}, [ target, rollback.isPending ] );
 
 	const runs = data?.runs ?? [];
 
@@ -159,28 +146,25 @@ export function RunHistory( {
 			) }
 
 			{ target && (
-				<div className="uxs-overlay">
-					<div className="uxs-modal" role="dialog" aria-modal="true" aria-labelledby="uxs-wiz-hist-undo">
-						<h2 id="uxs-wiz-hist-undo">{ __( 'Undo this migration?', 'ux-studio' ) }</h2>
-						<p>
-							{ sprintf(
-								/* translators: %s: date and time of the run. */
-								__( 'UX Studio goes back exactly to how it was before the run from %s: settings, and everything the run created. Changes made in these modules since then are lost.', 'ux-studio' ),
-								formatDate( target.started_at )
-							) }
-						</p>
-						{ target.switch_active && <p>{ __( 'The run is switched on, so the switch is undone first: the old plugins are activated again and the modules it turned on go off.', 'ux-studio' ) }</p> }
-						{ rollback.isError && <p className="uxs-wiz-error">{ ( rollback.error as Error ).message }</p> }
-						<div className="uxs-modal__actions">
-							<button type="button" className="button" disabled={ rollback.isPending } onClick={ () => setTarget( null ) }>
-								{ __( 'Cancel', 'ux-studio' ) }
-							</button>
-							<button type="button" className="button button-primary" disabled={ rollback.isPending } onClick={ () => rollback.mutate( target.id ) }>
-								{ rollback.isPending ? __( 'Restoring…', 'ux-studio' ) : __( 'Undo the migration', 'ux-studio' ) }
-							</button>
-						</div>
-					</div>
-				</div>
+				<UndoMigrationModal
+					id="uxs-wiz-hist-undo"
+					runId={ target.id }
+					title={ __( 'Undo this migration?', 'ux-studio' ) }
+					confirmLabel={ rollback.isPending ? __( 'Restoring…', 'ux-studio' ) : __( 'Undo the migration', 'ux-studio' ) }
+					busy={ rollback.isPending }
+					error={ rollback.isError ? ( rollback.error as Error ).message : null }
+					onCancel={ () => setTarget( null ) }
+					onConfirm={ () => rollback.mutate( target.id ) }
+				>
+					<p>
+						{ sprintf(
+							/* translators: %s: date and time of the run. */
+							__( 'UX Studio goes back exactly to how it was before the run from %s: settings, and everything the run created. Changes made in these modules since then are lost.', 'ux-studio' ),
+							formatDate( target.started_at )
+						) }
+					</p>
+					{ target.switch_active && <p>{ __( 'The run is switched on, so the switch is undone first: the old plugins are activated again and the modules it turned on go off.', 'ux-studio' ) }</p> }
+				</UndoMigrationModal>
 			) }
 
 			{ revertTarget && (

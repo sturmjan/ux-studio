@@ -89,6 +89,7 @@ final class MigrationRestController extends Controller {
 			'default'           => false,
 			'sanitize_callback' => 'rest_sanitize_boolean',
 		);
+		$this->route( '/migration/rollback-impact', 'GET', array( $this, 'rollback_impact' ), $run_arg );
 		$this->route( '/migration/preview', 'GET', array( $this, 'preview_status' ), $run_arg );
 		$this->route( '/migration/preview', 'POST', array( $this, 'preview_start' ), $run_arg );
 		$this->route( '/migration/preview/end', 'POST', array( $this, 'preview_end' ), $run_arg );
@@ -387,6 +388,14 @@ final class MigrationRestController extends Controller {
 				'runs'   => Runner::history(),
 			)
 		);
+	}
+
+	/**
+	 * GET rollback-impact: what an undo would restore and what changed since the run (the confirmation shows it).
+	 */
+	public function rollback_impact( WP_REST_Request $request ) {
+		$result = Runner::rollback_impact( (string) $request['run_id'] );
+		return is_wp_error( $result ) ? $result : $this->ok( $result );
 	}
 
 	/**

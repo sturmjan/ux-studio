@@ -282,6 +282,8 @@ final class Runner {
 			ActivityLog::log( 'core', 'migration_dry_run', 'migration', 0, array( 'run' => $state['id'], 'sources' => $state['sources'], 'errors' => $errors ) );
 			return $state;
 		}
+		// How the covered options and tables look NOW: a later rollback compares against it.
+		Snapshot::seal( (string) $state['id'] );
 		History::put(
 			array(
 				'id'         => $state['id'],
@@ -385,6 +387,53 @@ final class Runner {
 		}
 		ActivityLog::log( 'core', 'migration_rolled_back', 'migration', 0, array( 'run' => $run_id ) + $result );
 		return $result;
+	}
+
+	/**
+	 * What undoing a run would cost: the modules and tables it restores, and whether any of it changed after the
+	 * run (a rollback puts the state from BEFORE the run back, so later changes in the same places are lost).
+	 *
+	 * @param string $run_id Run id.
+	 * @return array<string, mixed>|\WP_Error
+	 */
+	public static function rollback_impact( string $run_id ) {
+		$run_id = Snapshot::clean_id( $run_id );
+		$record = History::find( $run_id );
+		$drift  = Snapshot::drift( $run_id );
+		if ( ! $record || null === $drift ) {
+			return new \WP_Error( 'uxstudio_migration_no_snapshot', __( 'This run has no snapshot to restore.', 'ux-studio' ), array( 'status' => 404 ) );
+		}
+		$modules = array();
+		foreach ( (array) ( $record['sources'] ?? array() ) as $row ) {
+			$source = SourceRegistry::get( (string) ( $row['id'] ?? '' ) );
+			if ( $source ) {
+				$id             = $source->target_module();
+				$modules[ $id ] = array(
+					'id'   => $id,
+					'name' => ActivationGuard::module_name( $id ),
+				);
+			}
+		}
+		// Option names of module settings are `uxstudio_<module id with underscores>`: show the module's name.
+		$by_option = array();
+		foreach ( \UxStudio\Core\Modules::module_ids() as $module_id ) {
+			$by_option[ 'uxstudio_' . str_replace( '-', '_', $module_id ) ] = ActivationGuard::module_name( $module_id );
+		}
+		$changed_settings = array();
+		foreach ( $drift['options'] as $name ) {
+			$changed_settings[ $by_option[ $name ] ?? $name ] = true;
+		}
+		return array(
+			'run_id'           => $run_id,
+			'modules'          => array_values( $modules ),
+			'tables'           => $drift['all_tables'],
+			'sealed'           => $drift['sealed'],
+			'changed'          => $drift['changed'],
+			// Unknown (no fingerprint stored) is treated as possibly changed: the stronger warning applies.
+			'needs_ack'        => ! $drift['sealed'] || $drift['changed'],
+			'changed_settings' => array_keys( $changed_settings ),
+			'changed_tables'   => $drift['tables'],
+		);
 	}
 
 	/**
