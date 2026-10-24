@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { AlertTriangle, Check, CheckCheck, LoaderCircle, RefreshCw, ShieldAlert, ShieldCheck, Trash2 } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
@@ -21,6 +21,7 @@ interface CspViolation {
 	script_sample: string;
 	pages: string[];
 	hit_count: number;
+	reporters: number;
 	status: 'open' | 'resolved';
 	risk_level: Level;
 	risk_score: number;
@@ -456,7 +457,7 @@ export function CspTab(): JSX.Element {
 				'success',
 				sprintf(
 					/* translators: %d: number of sources */
-					__( '%d sources approved. Suspicious and high-risk ones stay for your decision.', 'ux-studio' ),
+					__( '%d sources approved. Unknown, suspicious and high-risk ones stay for your decision.', 'ux-studio' ),
 					data.resolved
 				)
 			);
@@ -475,7 +476,7 @@ export function CspTab(): JSX.Element {
 	const onApproveSafe = (): void => {
 		if (
 			window.confirm(
-				__( 'Approve every open source without any risk signal (own subdomains, known services, unknown hosts with no warning)? Suspicious and high-risk sources are left for you.', 'ux-studio' )
+				__( 'Approve every open source of your own domains and known services without any risk signal? Unknown, suspicious and high-risk sources are left for you; approve those one by one.', 'ux-studio' )
 			)
 		) {
 			approveSafe.mutate();
@@ -581,7 +582,22 @@ export function CspTab(): JSX.Element {
 								<td>
 									<span className={ `uxs-badge ${ LEVELS[ row.risk_level ]?.cls ?? '' }` }>{ LEVELS[ row.risk_level ]?.label ?? row.risk_level }</span>
 								</td>
-								<td>{ row.hit_count }</td>
+								<td>
+									{ row.hit_count }
+									{ row.reporters > 0 && (
+										<span
+											className="uxs-csp-sub"
+											title={ __( 'Distinct visitor browsers that reported this source. One reporter with many hits can be a forged report.', 'ux-studio' ) }
+										>
+											{ ' ' }
+											{ sprintf(
+												/* translators: %d: number of distinct reporting browsers */
+												_n( '(%d reporter)', '(%d reporters)', row.reporters, 'ux-studio' ),
+												row.reporters
+											) }
+										</span>
+									) }
+								</td>
 								<td>
 									{ row.allowed ? (
 										<span className="uxs-badge is-success">{ __( 'Allowed by policy', 'ux-studio' ) }</span>
@@ -610,6 +626,12 @@ export function CspTab(): JSX.Element {
 												if (
 													( row.risk_level === 'high' || row.risk_level === 'medium' ) &&
 													! window.confirm( __( 'This source is rated as suspicious. Approve it only if you know who added it and why. Approve anyway?', 'ux-studio' ) )
+												) {
+													return;
+												}
+												if (
+													row.risk_level === 'unknown' &&
+													! window.confirm( __( 'This source is not a known service. Anyone can send a report for it, so approve it only if you recognise it and know why the website loads it. Approve anyway?', 'ux-studio' ) )
 												) {
 													return;
 												}

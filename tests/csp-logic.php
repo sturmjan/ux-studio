@@ -17,6 +17,7 @@ define( 'ABSPATH', __DIR__ . '/' );
 define( 'DAY_IN_SECONDS', 86400 );
 define( 'HOUR_IN_SECONDS', 3600 );
 define( 'MINUTE_IN_SECONDS', 60 );
+define( 'ARRAY_A', 'ARRAY_A' );
 
 $GLOBALS['uxs_options'] = array();
 
@@ -148,6 +149,67 @@ $assert( 'img https: allows any image host', $policy->candidate_allows( 'img-src
 $assert( 'base directive', 'script-src' === CspPolicy::base_directive( 'script-src-elem' ) && 'style-src' === CspPolicy::base_directive( 'style-src-attr' ) && 'img-src' === CspPolicy::base_directive( 'img-src' ) );
 $assert( 'report url carries token and tag', str_contains( CspPolicy::report_url( 't' ), 'k=' . CspPolicy::report_token() ) && str_contains( CspPolicy::report_url( 't' ), 'p=t' ) );
 $assert( 'probe token differs from report token', CspPolicy::probe_token() !== CspPolicy::report_token() );
+
+
+/* ── Signed policy tag (finding 1): a plain letter in the URL is never trusted ── */
+
+$GLOBALS['uxs_options']['uxstudio_csp_state'] = array( 'mode' => 'enforce', 'since' => 1000, 'enforce_since' => 1000, 'paused_until' => 0 );
+$tag_e = CspPolicy::report_tag( 'e' );
+$assert( 'tag is the letter plus a 12 hex MAC', 1 === preg_match( '/^e[0-9a-f]{12}$/', $tag_e ), $tag_e );
+$assert( 'report url carries the signed tag', str_contains( CspPolicy::report_url( 'e' ), 'p=' . $tag_e ) );
+$assert( 'valid tag of the active mode verifies', 'e' === CspPolicy::verify_report_tag( $tag_e, 'enforce' ) );
+$assert( 'bare letter p=e is rejected', '' === CspPolicy::verify_report_tag( 'e', 'enforce' ) );
+$assert( 'forged MAC is rejected', '' === CspPolicy::verify_report_tag( 'e' . str_repeat( '0', 12 ), 'enforce' ) );
+$assert( 'tag of another policy is rejected while enforce is active', '' === CspPolicy::verify_report_tag( CspPolicy::report_tag( 't' ), 'enforce' ) );
+$assert( 'letter swapped onto a valid MAC is rejected', '' === CspPolicy::verify_report_tag( 't' . substr( $tag_e, 1 ), 'enforce' ) );
+$assert( 'tag is dropped when CSP is off', '' === CspPolicy::verify_report_tag( $tag_e, 'off' ) );
+$assert( 'tag of enforce does not verify in report-only mode', '' === CspPolicy::verify_report_tag( $tag_e, 'report-only' ) );
+$GLOBALS['uxs_options']['uxstudio_csp_state']['since'] = 2000;
+$assert( 'tag of an earlier mode period is dropped after the mode was switched again', '' === CspPolicy::verify_report_tag( $tag_e, 'enforce' ) );
+$assert( 'the new period has a new valid tag', 'e' === CspPolicy::verify_report_tag( CspPolicy::report_tag( 'e' ), 'enforce' ) );
+$assert( 'audit and report-only tags differ', CspPolicy::report_tag( 'a' ) !== CspPolicy::report_tag( 't' ) );
+
+/* ── Distinct reporters (finding 1) ── */
+
+$h1 = CspLogger::reporter_hash( '203.0.113.1', 'UA-1' );
+$h2 = CspLogger::reporter_hash( '203.0.113.2', 'UA-1' );
+$assert( 'reporter hash is short, hex and stable', 1 === preg_match( '/^[0-9a-f]{8}$/', $h1 ) && $h1 === CspLogger::reporter_hash( '203.0.113.1', 'UA-1' ) );
+$assert( 'reporter hash differs per client and does not contain the IP', $h1 !== $h2 && ! str_contains( $h1, '203' ) );
+$list = CspLogger::merge_reporters( '', $h1 );
+$list = CspLogger::merge_reporters( json_encode( $list ), $h1 );
+$assert( 'the same reporter is counted once', array( $h1 ) === $list );
+$list = CspLogger::merge_reporters( json_encode( $list ), $h2 );
+$assert( 'a second client adds a reporter', 2 === count( $list ) );
+$assert( 'empty reporter is ignored', 2 === count( CspLogger::merge_reporters( json_encode( $list ), '' ) ) );
+$many = array();
+for ( $i = 0; $i < 30; $i++ ) {
+	$many = CspLogger::merge_reporters( json_encode( $many ), 'r' . $i );
+}
+$assert( 'the stored list is capped', CspLogger::MAX_REPORTERS === count( $many ) );
+$assert( 'garbage JSON gives no reporters', array() === CspLogger::reporter_list( 'not json' ) );
+
+class Uxs_Fake_Wpdb {
+	public $prefix = 'wp_';
+	public $queries = array();
+	public $rows = array();
+	public function prepare( $sql, ...$args ) { $args = is_array( $args[0] ?? null ) ? $args[0] : $args; return vsprintf( str_replace( array( '%s', '%d' ), array( "'%s'", '%d' ), $sql ), $args ); }
+	public function get_results( $sql, $mode = null ) { $this->queries[] = $sql; return $this->rows; }
+}
+$GLOBALS['wpdb'] = new Uxs_Fake_Wpdb();
+$GLOBALS['wpdb']->rows = array(
+	array( 'id' => 1, 'reporters' => json_encode( array( 'a', 'b', 'c' ) ) ),
+	array( 'id' => 2, 'reporters' => json_encode( array( 'a' ) ) ),
+	array( 'id' => 3, 'reporters' => null ),
+);
+$kept = CspLogger::blocked_since( '2026-01-01 00:00:00', 3, 3 );
+$assert( 'rollback rows need >= 3 distinct reporters each', 1 === count( $kept ) && 1 === (int) $kept[0]['id'] );
+$assert( 'without a reporter minimum every row passes', 3 === count( CspLogger::blocked_since( '2026-01-01 00:00:00', 3 ) ) );
+
+/* ── Bulk approval never includes unknown hosts (finding 2) ── */
+
+CspLogger::safe_open_rows();
+$sql = end( $GLOBALS['wpdb']->queries );
+$assert( 'safe_open_rows selects only known/self', str_contains( $sql, "('known', 'self')" ) && ! str_contains( $sql, 'unknown' ), $sql );
 
 /* ── Privacy ── */
 

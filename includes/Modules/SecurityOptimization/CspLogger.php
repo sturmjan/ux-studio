@@ -49,9 +49,10 @@ final class CspLogger {
 	 * @param array  $report     Normalized report ('effective-directive'/'violated-directive', 'blocked-uri', 'document-uri', 'source-file', 'line-number', 'script-sample').
 	 * @param string $policy     Policy tag of the report URL: a (audit), t (test), e (enforce).
 	 * @param string $user_agent Client user agent.
+	 * @param string $reporter   Salted short hash of the reporting client (see reporter_hash()), '' when unknown.
 	 * @return array{id:int,new:bool,level:string}|null Null when the report was not usable.
 	 */
-	public static function record( array $report, string $policy = 'a', string $user_agent = '' ): ?array {
+	public static function record( array $report, string $policy = 'a', string $user_agent = '', string $reporter = '' ): ?array {
 		global $wpdb;
 
 		$directive    = CspPolicy::base_directive( self::clean( (string) ( $report['effective-directive'] ?? $report['violated-directive'] ?? '' ), 64 ) );
@@ -78,22 +79,23 @@ final class CspLogger {
 		$now         = gmdate( 'Y-m-d H:i:s' );
 		$page        = self::page_path( $document_uri );
 		$candidate   = 'a' !== $policy;
+		$reporters   = $candidate ? self::merge_reporters( '', $reporter ) : array();
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is a fixed, code-controlled identifier.
-		$existing = $wpdb->get_row( $wpdb->prepare( "SELECT id, pages, status, risk_level FROM {$table} WHERE fingerprint = %s", $fingerprint ), ARRAY_A );
+		$existing = $wpdb->get_row( $wpdb->prepare( "SELECT id, pages, status, risk_level, reporters FROM {$table} WHERE fingerprint = %s", $fingerprint ), ARRAY_A );
 
 		if ( ! is_array( $existing ) ) {
 			$rating   = CspRisk::rate( $blocked_uri, $directive, self::site_host(), $sample );
 			$inserted = $wpdb->query(
 				$wpdb->prepare(
 					"INSERT IGNORE INTO {$table}
-						(fingerprint, directive, blocked_host, blocked_uri, document_uri, source_file, line_number, script_sample, pages, policy_last, candidate_seen,
+						(fingerprint, directive, blocked_host, blocked_uri, document_uri, source_file, line_number, script_sample, pages, policy_last, candidate_seen, reporters,
 						 sample_user_agent, sample_ip, hit_count, status, risk_level, risk_score, risk_reasons, service, first_seen, last_seen)
-					 VALUES (%s, %s, %s, %s, %s, %s, %d, %s, %s, %s, " . ( $candidate ? '%s' : 'NULL' ) . ", %s, '', 1, 'open', %s, %d, %s, %s, %s, %s)",
+					 VALUES (%s, %s, %s, %s, %s, %s, %d, %s, %s, %s, " . ( $candidate ? '%s' : 'NULL' ) . ", %s, %s, '', 1, 'open', %s, %d, %s, %s, %s, %s)",
 					array_merge(
 						array( $fingerprint, $directive, $blocked_host, $blocked_uri, $document_uri, $source_file, $line, $sample, wp_json_encode( '' === $page ? array() : array( $page ) ), $policy ),
 						$candidate ? array( $now ) : array(),
-						array( self::clean( $user_agent, 500 ), $rating['level'], $rating['score'], wp_json_encode( $rating['reasons'] ), $rating['service'], $now, $now )
+						array( wp_json_encode( $reporters ), self::clean( $user_agent, 500 ), $rating['level'], $rating['score'], wp_json_encode( $rating['reasons'] ), $rating['service'], $now, $now )
 					)
 				)
 			);
@@ -105,7 +107,7 @@ final class CspLogger {
 				);
 			}
 			// Lost a race with a parallel report of the same resource - update instead.
-			$existing = $wpdb->get_row( $wpdb->prepare( "SELECT id, pages, status, risk_level FROM {$table} WHERE fingerprint = %s", $fingerprint ), ARRAY_A );
+			$existing = $wpdb->get_row( $wpdb->prepare( "SELECT id, pages, status, risk_level, reporters FROM {$table} WHERE fingerprint = %s", $fingerprint ), ARRAY_A );
 			if ( ! is_array( $existing ) ) {
 				return null;
 			}
@@ -120,16 +122,19 @@ final class CspLogger {
 		// An approved resource reported again by the test/enforce policy means
 		// the approval does not cover it (other directive, other host) - reopen.
 		$status = ( $candidate && 'resolved' === $existing['status'] ) ? 'open' : (string) $existing['status'];
+		if ( $candidate ) {
+			$reporters = self::merge_reporters( (string) ( $existing['reporters'] ?? '' ), $reporter );
+		}
 
 		$wpdb->query(
 			$wpdb->prepare(
 				"UPDATE {$table} SET hit_count = hit_count + 1, last_seen = %s, blocked_uri = %s, document_uri = %s, source_file = %s,
 					line_number = %d, script_sample = %s, pages = %s, policy_last = %s, sample_user_agent = %s, status = %s"
-					. ( $candidate ? ', candidate_seen = %s' : '' ) .
+					. ( $candidate ? ', candidate_seen = %s, reporters = %s' : '' ) .
 				' WHERE id = %d',
 				array_merge(
 					array( $now, $blocked_uri, $document_uri, $source_file, $line, $sample, wp_json_encode( $pages ), $policy, self::clean( $user_agent, 500 ), $status ),
-					$candidate ? array( $now ) : array(),
+					$candidate ? array( $now, wp_json_encode( $reporters ) ) : array(),
 					array( (int) $existing['id'] )
 				)
 			)
@@ -203,6 +208,7 @@ final class CspLogger {
 		$row['line_number']  = (int) ( $row['line_number'] ?? 0 );
 		$row['risk_reasons'] = is_array( $reasons ) ? array_values( $reasons ) : array();
 		$row['pages']        = is_array( $pages ) ? array_values( $pages ) : array();
+		$row['reporters']    = count( self::reporter_list( (string) ( $row['reporters'] ?? '' ) ) );
 		$row['source']       = self::uri_to_source( (string) $row['blocked_uri'] );
 		unset( $row['sample_ip'], $row['fingerprint'] );
 		return $row;
@@ -336,12 +342,50 @@ final class CspLogger {
 	 *
 	 * @return array<int,array<string,mixed>>
 	 */
-	public static function blocked_since( string $since_utc, int $min_hits ): array {
+	public static function blocked_since( string $since_utc, int $min_hits, int $min_reporters = 0 ): array {
 		global $wpdb;
 		$table = self::table();
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table} WHERE status = 'open' AND policy_last = 'e' AND candidate_seen >= %s AND hit_count >= %d AND directive IN ('script-src', 'connect-src', 'frame-src', 'worker-src') AND risk_level <> 'high'", $since_utc, $min_hits ), ARRAY_A );
-		return $rows ?: array();
+		return array_values(
+			array_filter(
+				$rows ?: array(),
+				static fn( array $row ): bool => count( self::reporter_list( (string) ( $row['reporters'] ?? '' ) ) ) >= $min_reporters
+			)
+		);
+	}
+
+	/**
+	 * Salted short hash identifying a reporting client (IP + user agent). Only
+	 * used to count DISTINCT reporters per row; neither the IP nor the UA can
+	 * be recovered from it and it is never shown.
+	 */
+	public static function reporter_hash( string $ip, string $user_agent ): string {
+		return substr( hash_hmac( 'sha256', 'uxstudio-csp-reporter|' . $ip . '|' . $user_agent, wp_salt( 'auth' ) ), 0, 8 );
+	}
+
+	/** Distinct reporters stored per row (a small count is all the rollback needs). */
+	public const MAX_REPORTERS = 10;
+
+	/**
+	 * @return string[] Stored reporter hashes of a row.
+	 */
+	public static function reporter_list( string $json ): array {
+		$list = '' === $json ? array() : json_decode( $json, true );
+		return is_array( $list ) ? array_values( array_filter( array_map( 'strval', $list ) ) ) : array();
+	}
+
+	/**
+	 * Add a reporter to the stored list (distinct, capped).
+	 *
+	 * @return string[]
+	 */
+	public static function merge_reporters( string $json, string $reporter ): array {
+		$list = self::reporter_list( $json );
+		if ( '' !== $reporter && ! in_array( $reporter, $list, true ) && count( $list ) < self::MAX_REPORTERS ) {
+			$list[] = $reporter;
+		}
+		return $list;
 	}
 
 	/**
@@ -410,8 +454,11 @@ final class CspLogger {
 	}
 
 	/**
-	 * Open rows that can be approved in bulk: external origin, rated known
-	 * or unknown without any risk signal.
+	 * Open rows that can be approved in bulk: only the site's own domains and
+	 * catalogue services (`known`/`self`) without any risk signal. `unknown`
+	 * hosts are never bulk-approved - a forged report with the public token
+	 * could otherwise get an attacker domain allowlisted; they need a
+	 * decision per row.
 	 *
 	 * @return array<int,array<string,mixed>>
 	 */
@@ -419,7 +466,7 @@ final class CspLogger {
 		global $wpdb;
 		$table = self::table();
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$rows = $wpdb->get_results( "SELECT * FROM {$table} WHERE status = 'open' AND risk_level IN ('known', 'self', 'unknown') AND risk_score = 0", ARRAY_A );
+		$rows = $wpdb->get_results( "SELECT * FROM {$table} WHERE status = 'open' AND risk_level IN ('known', 'self') AND risk_score = 0", ARRAY_A );
 		return $rows ?: array();
 	}
 

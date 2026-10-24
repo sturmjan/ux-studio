@@ -34,6 +34,9 @@ final class CspMaintenance {
 	private const ROLLBACK_ROWS   = 3;
 	private const ROLLBACK_HITS   = 3;
 
+	/** Distinct reporting clients each rolled-back row (and the set overall) needs. */
+	private const ROLLBACK_REPORTERS = 3;
+
 	/** Settings option of the Security module. */
 	private const SETTINGS_OPTION = 'uxstudio_security_optimization';
 
@@ -128,8 +131,18 @@ final class CspMaintenance {
 			return;
 		}
 
-		$rows = CspLogger::blocked_since( gmdate( 'Y-m-d H:i:s', $state['enforce_since'] ), self::ROLLBACK_HITS );
+		// The report token is public (it is in every response header), so one
+		// client can inflate hit counts. Only rows reported by several distinct
+		// clients count, and the rows together need that many as well.
+		$rows = CspLogger::blocked_since( gmdate( 'Y-m-d H:i:s', $state['enforce_since'] ), self::ROLLBACK_HITS, self::ROLLBACK_REPORTERS );
 		if ( count( $rows ) < self::ROLLBACK_ROWS ) {
+			return;
+		}
+		$all = array();
+		foreach ( $rows as $row ) {
+			$all = array_merge( $all, CspLogger::reporter_list( (string) ( $row['reporters'] ?? '' ) ) );
+		}
+		if ( count( array_unique( $all ) ) < self::ROLLBACK_REPORTERS ) {
 			return;
 		}
 

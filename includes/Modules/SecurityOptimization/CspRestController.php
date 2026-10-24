@@ -115,15 +115,23 @@ final class CspRestController extends Controller {
 			return new WP_REST_Response( null, 204 );
 		}
 
-		$policy = sanitize_key( (string) $request->get_param( 'p' ) );
-		$ua     = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( (string) $_SERVER['HTTP_USER_AGENT'] ) ) : '';
+		// The policy is never taken from the request as a plain letter: the tag
+		// is signed for the active mode period, anything else is dropped.
+		$settings = (array) get_option( 'uxstudio_security_optimization', array() );
+		$policy   = CspPolicy::verify_report_tag( (string) $request->get_param( 'p' ), (string) ( $settings['csp_mode'] ?? 'off' ) );
+		if ( '' === $policy ) {
+			return new WP_REST_Response( null, 204 );
+		}
+
+		$ua       = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( (string) $_SERVER['HTTP_USER_AGENT'] ) ) : '';
+		$reporter = CspLogger::reporter_hash( $ip, $ua );
 		$notify = false;
 
 		foreach ( array_slice( $reports, 0, 20 ) as $report ) {
 			if ( ! $this->is_own_document( (string) ( $report['document-uri'] ?? '' ) ) || $this->is_noise( $report ) ) {
 				continue;
 			}
-			$result = CspLogger::record( $report, $policy, $ua );
+			$result = CspLogger::record( $report, $policy, $ua, $reporter );
 			if ( null !== $result && $result['new'] && CspRisk::LEVEL_HIGH === $result['level'] ) {
 				$notify = true;
 			}
@@ -209,9 +217,9 @@ final class CspRestController extends Controller {
 	}
 
 	/**
-	 * Approve every open row without any risk signal (own subdomains, known
-	 * services, unknown hosts with score 0). Anything rated medium/high stays
-	 * for a human decision.
+	 * Approve every open row of the site's own domains and known services
+	 * without a risk signal. Unknown hosts (even with score 0) and anything
+	 * rated medium/high stay for a per-row decision.
 	 */
 	public function approve_safe() {
 		$approved = 0;

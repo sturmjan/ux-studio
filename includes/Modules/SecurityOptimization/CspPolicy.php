@@ -121,18 +121,61 @@ final class CspPolicy {
 	}
 
 	/**
-	 * Report sink URL with the anti-spam token and policy tag.
+	 * Report sink URL with the anti-spam token and the signed policy tag.
+	 *
+	 * @param string $tag Policy letter (a, t, e) of the mode that sends the header.
 	 */
 	public static function report_url( string $tag ): string {
 		return esc_url_raw(
 			add_query_arg(
 				array(
 					'k' => self::report_token(),
-					'p' => $tag,
+					'p' => self::report_tag( $tag ),
 				),
 				rest_url( 'uxstudio/v1/security-optimization/csp-report' )
 			)
 		);
+	}
+
+	/**
+	 * Policy tag of the report URL: the policy letter plus an HMAC over
+	 * (letter, mode, since of that mode). The receiver never trusts a plain
+	 * letter from the request - a report counts for a policy only while that
+	 * exact mode period is active, so tags of an earlier period (and forged
+	 * ones) are dropped. The tag is still visible in the response header, so
+	 * it only proves WHICH period a report claims, not who sent it; the
+	 * rollback therefore also demands distinct reporters.
+	 *
+	 * @param string $letter Policy letter (a, t, e).
+	 * @param int    $since  Start of the active mode period (default: state).
+	 */
+	public static function report_tag( string $letter, int $since = -1 ): string {
+		$modes = array(
+			'a' => 'audit',
+			't' => 'report-only',
+			'e' => 'enforce',
+		);
+		$letter = isset( $modes[ $letter ] ) ? $letter : 'a';
+		$since  = $since < 0 ? self::state()['since'] : $since;
+		return $letter . substr( hash_hmac( 'sha256', 'uxstudio-csp-tag|' . $letter . '|' . $modes[ $letter ] . '|' . $since, wp_salt( 'auth' ) ), 0, 12 );
+	}
+
+	/**
+	 * Policy letter of a report-URL tag, or '' when the tag is forged, from
+	 * an earlier mode period, or does not belong to the active mode.
+	 *
+	 * @param string $tag  Value of the `p` request parameter.
+	 * @param string $mode Currently active mode (csp_mode setting).
+	 */
+	public static function verify_report_tag( string $tag, string $mode ): string {
+		if ( 'off' === $mode || strlen( $tag ) !== 13 ) {
+			return '';
+		}
+		$letter = self::policy_tag( $mode );
+		if ( ! hash_equals( self::report_tag( $letter ), $tag ) ) {
+			return '';
+		}
+		return $letter;
 	}
 
 	/**

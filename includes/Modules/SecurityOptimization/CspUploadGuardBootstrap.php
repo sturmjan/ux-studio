@@ -32,7 +32,7 @@ final class CspUploadGuardBootstrap {
 	 * v4: file_size/file_mtime in the hash cache (unchanged files are not read).
 	 * v5: CSP inventory - risk rating, pages, policy, sample; raw IPs dropped.
 	 */
-	private const DB_VERSION   = 5;
+	private const DB_VERSION   = 6;
 
 	/** Bump when the nightly slot logic changes, so existing events move. */
 	private const CRON_SLOT_VERSION = 3;
@@ -114,6 +114,7 @@ final class CspUploadGuardBootstrap {
 						pages text NULL,
 						policy_last char(1) NOT NULL DEFAULT 'a',
 						candidate_seen datetime NULL,
+						reporters text NULL,
 						sample_user_agent varchar(500) DEFAULT '',
 						sample_ip varchar(45) DEFAULT '',
 						hit_count int(11) UNSIGNED NOT NULL DEFAULT 1,
