@@ -24,6 +24,9 @@ final class Tokens {
 	public const RATE_PER_MINUTE = 120;
 	public const TOUCH_EVERY     = 60;
 
+	/** Option (not autoloaded) per token with its last use: touching must never rewrite the token list. */
+	public const USED_PREFIX = 'uxstudio_mcp_used_';
+
 	/** @var callable|null Test seam: fn( int $user_id ): ?array{pwh:string,admin:bool}. */
 	private static $user_resolver = null;
 
@@ -135,32 +138,44 @@ final class Tokens {
 	 */
 	public static function touch( string $id, string $ip, ?int $now = null ): void {
 		$now = $now ?? time();
-		$all = self::stored();
-		if ( ! isset( $all[ $id ] ) || (int) $all[ $id ]['last_used'] > $now - self::TOUCH_EVERY ) {
+		if ( 1 !== preg_match( '/^[a-f0-9]{12}$/', $id ) || ! isset( self::stored()[ $id ] ) ) {
 			return;
 		}
-		$all[ $id ]['last_used'] = $now;
-		$all[ $id ]['last_ip']   = $ip;
-		update_option( self::OPTION, $all, false );
+		// Written to an option of its own, never to the token list: a concurrent revoke() rewrites
+		// that list and a touch() read-modify-write of the same option could bring a revoked token back.
+		$used = get_option( self::USED_PREFIX . $id, array() );
+		if ( is_array( $used ) && (int) ( $used['t'] ?? 0 ) > $now - self::TOUCH_EVERY ) {
+			return;
+		}
+		update_option(
+			self::USED_PREFIX . $id,
+			array(
+				't'  => $now,
+				'ip' => $ip,
+			),
+			false
+		);
 	}
 
 	/**
 	 * Count one call against the token's per-minute budget.
 	 *
-	 * @param string   $id  Token id.
-	 * @param int|null $now Test seam.
+	 * @param string   $id   Token id.
+	 * @param int|null $now  Test seam.
+	 * @param int      $cost Calls to count (a batch counts every message).
 	 * @return array{ok:bool,retry_after:int,limit:int}
 	 */
-	public static function hit( string $id, ?int $now = null ): array {
+	public static function hit( string $id, ?int $now = null, int $cost = 1 ): array {
+		$cost   = max( 1, $cost );
 		$now    = $now ?? time();
 		$limit  = (int) apply_filters( 'uxstudio_mcp_rate_limit', self::RATE_PER_MINUTE );
 		$bucket = (int) floor( $now / 60 );
 		$key    = 'uxstudio_mcprl_' . substr( md5( $id ), 0, 16 ) . '_' . $bucket;
 		$count  = (int) get_transient( $key );
-		if ( $count >= $limit ) {
+		if ( $count + $cost > $limit ) {
 			return array( 'ok' => false, 'retry_after' => max( 1, ( $bucket + 1 ) * 60 - $now ), 'limit' => $limit );
 		}
-		set_transient( $key, $count + 1, 120 );
+		set_transient( $key, $count + $cost, 120 );
 		return array( 'ok' => true, 'retry_after' => 0, 'limit' => $limit );
 	}
 
@@ -176,6 +191,7 @@ final class Tokens {
 		}
 		unset( $all[ $id ] );
 		update_option( self::OPTION, $all, false );
+		delete_option( self::USED_PREFIX . $id );
 		return true;
 	}
 
@@ -202,6 +218,9 @@ final class Tokens {
 		$keep = array_filter( $all, static fn( array $r ): bool => (int) $r['expires_at'] > $now - 7 * 86400 );
 		if ( count( $keep ) !== count( $all ) ) {
 			update_option( self::OPTION, $keep, false );
+			foreach ( array_diff_key( $all, $keep ) as $dropped => $unused ) {
+				delete_option( self::USED_PREFIX . $dropped );
+			}
 		}
 		$out = array_map( static fn( array $r ): array => self::public_record( $r, $now ), array_values( $keep ) );
 		usort( $out, static fn( array $a, array $b ): int => strcmp( (string) $b['created_at'], (string) $a['created_at'] ) );
@@ -218,6 +237,11 @@ final class Tokens {
 	public static function public_record( array $r, ?int $now = null ): array {
 		$now  = $now ?? time();
 		$user = function_exists( 'get_user_by' ) ? get_user_by( 'id', (int) $r['user_id'] ) : false;
+		$used = get_option( self::USED_PREFIX . (string) $r['id'], array() );
+		if ( is_array( $used ) && (int) ( $used['t'] ?? 0 ) > 0 ) {
+			$r['last_used'] = (int) $used['t'];
+			$r['last_ip']   = (string) ( $used['ip'] ?? '' );
+		}
 		return array(
 			'id'         => (string) $r['id'],
 			'label'      => (string) $r['label'],

@@ -154,7 +154,7 @@ final class CoreAbilities {
 			Registry::define(
 				'uxstudio/module-settings-update',
 				__( 'Update module settings', 'ux-studio' ),
-				'Change settings of a module through its own save path (validated against its schema, with its side effects such as .htaccess rewrites). Only keys from module-settings-get are accepted; others are refused. Keys that look like credentials are refused unless the token has the admin scope and allow_secrets=true. Use dry_run=true to see what would change.',
+				'Change settings of a module through its own save path (validated against its schema, with its side effects such as .htaccess rewrites). Only keys from module-settings-get are accepted; others are refused. Keys that look like credentials are refused unless the token has the admin scope and allow_secrets=true. Settings that decide where stored credentials or data are sent (SMTP host and regions, central app address, AI provider, notification recipients) or that guard the site (login address, firewall, 2FA, CSP, bypass lists) need the admin scope; the refusal lists them. Use dry_run=true to see what would change.',
 				$W,
 				array(
 					'module'        => self::MODULE_ID + array( 'description' => 'Module id.' ),
@@ -289,13 +289,23 @@ final class CoreAbilities {
 	public static function settings_get( array $in ): array {
 		$id   = self::module_id( (string) $in['module'] );
 		$data = (array) Internal::data( 'GET', '/settings/' . $id );
-		$mask = Secrets::mask_settings( (array) ( $data['values'] ?? array() ) );
+		$mask   = Secrets::mask_settings( (array) ( $data['values'] ?? array() ) );
+		$schema = (array) ( $data['schema'] ?? array() );
+		$values = $mask['values'];
+		$hidden = array();
+		if ( ! in_array( Scopes::ADMIN, self::caller_scopes(), true ) ) {
+			// Values that are not credentials but weaken the protection when known (secret login address, bypass IPs).
+			$hide   = Sensitive::hide_values( $id, $schema, $values );
+			$values = $hide['values'];
+			$hidden = $hide['hidden'];
+		}
 		return array(
 			'module'        => $id,
 			'name'          => $data['name'] ?? $id,
-			'schema'        => $data['schema'] ?? array(),
-			'values'        => $mask['values'],
+			'schema'        => $schema,
+			'values'        => $values,
 			'redacted_keys' => $mask['redacted'],
+			'hidden_keys'   => $hidden,
 		);
 	}
 
@@ -434,6 +444,16 @@ final class CoreAbilities {
 		$current = (array) Internal::data( 'GET', '/settings/' . $id );
 		$schema  = (array) ( $current['schema'] ?? array() );
 		$known   = array_column( $schema, 'key' );
+
+		// Keys that decide where credentials/data go or that guard the site: admin scope only.
+		$admin_keys = Sensitive::admin_write_keys( $id, $schema, array_map( 'strval', array_keys( $values ) ) );
+		if ( $admin_keys && ! in_array( Scopes::ADMIN, self::caller_scopes(), true ) ) {
+			throw new McpError(
+				'admin_scope_required',
+				'These settings decide where stored credentials or data are sent, or protect the site, so only a token with the admin scope may change them over MCP: ' . implode( ', ', $admin_keys ) . '.',
+				array( 'keys' => $admin_keys, 'required_scope' => Scopes::ADMIN )
+			);
+		}
 		$unknown = array_values( array_diff( array_map( 'strval', array_keys( $values ) ), $known, $secret_keys ) );
 		if ( $unknown ) {
 			throw new McpError(
@@ -479,7 +499,7 @@ final class CoreAbilities {
 			'module'  => $id,
 			'saved'   => true,
 			'changed' => $changed_keys,
-			'values'  => $mask['values'],
+			'values'  => in_array( Scopes::ADMIN, self::caller_scopes(), true ) ? $mask['values'] : Sensitive::hide_values( $id, $schema, $mask['values'] )['values'],
 		);
 	}
 

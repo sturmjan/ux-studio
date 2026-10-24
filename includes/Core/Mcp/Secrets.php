@@ -17,7 +17,7 @@ final class Secrets {
 
 	public const MARK = '[redacted]';
 
-	private const PATTERN = '/(pass(word|wd)?|secret|token|api[_-]?key|private[_-]?key|credential|hmac|salt|bearer|authorization|auth[_-]?key|license[_-]?key)/i';
+	private const PATTERN = '/(pass(word|wd)?|secret|token|api[_-]?key|private[_-]?key|credential|hmac|salt|bearer|authorization|auth[_-]?key|license[_-]?key|access[_-]?key|signing[_-]?key|encryption[_-]?key|session[_-]?key|service[_-]?account|webhook[_-]?(url|secret|key)|jwt)/i';
 
 	/**
 	 * Does this key name look like a credential?

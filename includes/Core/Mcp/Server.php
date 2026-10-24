@@ -26,6 +26,9 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Server {
 
+	/** Seconds a batch may keep working before the remaining messages are answered with an error. */
+	private const BATCH_SECONDS = 20.0;
+
 	/**
 	 * Hook the route (only while the server is on).
 	 */
@@ -89,8 +92,29 @@ final class Server {
 		if ( count( $body ) > 20 ) {
 			return self::reply( 400, Protocol::error( null, Protocol::ERR_REQUEST, 'A batch may hold at most 20 messages.' ) );
 		}
-		$out = array();
+		// The request itself was counted once by Auth; every further message of the batch costs one
+		// call of the per-minute budget too, and the whole batch is refused when the budget is short.
+		if ( count( $body ) > 1 && ! empty( $ctx['id'] ) ) {
+			$hit = Tokens::hit( (string) $ctx['id'], null, count( $body ) - 1 );
+			if ( ! $hit['ok'] ) {
+				return self::reply(
+					429,
+					Protocol::error( null, -32029, 'This batch is larger than the remaining call budget of the token. Retry in ' . $hit['retry_after'] . ' seconds or send fewer messages.', array( 'retry_after' => $hit['retry_after'] ) ),
+					array( 'Retry-After' => (string) $hit['retry_after'] )
+				);
+			}
+		}
+		$out      = array();
+		$deadline = microtime( true ) + self::BATCH_SECONDS;
 		foreach ( $body as $message ) {
+			if ( microtime( true ) > $deadline ) {
+				// Time cap: the rest is answered with an error instead of holding the PHP worker.
+				$id = is_array( $message ) && array_key_exists( 'id', $message ) ? $message['id'] : null;
+				if ( is_array( $message ) && array_key_exists( 'id', $message ) ) {
+					$out[] = Protocol::error( $id, Protocol::ERR_INTERNAL, 'The batch ran out of time; send this message again.' );
+				}
+				continue;
+			}
 			$result = $protocol->handle( $message );
 			if ( null !== $result['response'] ) {
 				$out[] = $result['response'];

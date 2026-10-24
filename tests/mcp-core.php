@@ -35,7 +35,8 @@ class WP_Error {
 }
 
 function get_option( $name, $default = false ) { return $GLOBALS['uxs_options'][ $name ] ?? $default; }
-function update_option( $name, $value, $autoload = null ) { $GLOBALS['uxs_options'][ $name ] = $value; return true; }
+function update_option( $name, $value, $autoload = null ) { $GLOBALS['uxs_options'][ $name ] = $value; $GLOBALS['uxs_option_writes'][ $name ] = ( $GLOBALS['uxs_option_writes'][ $name ] ?? 0 ) + 1; return true; }
+function delete_option( $name ) { unset( $GLOBALS['uxs_options'][ $name ] ); return true; }
 function get_transient( $k ) { return $GLOBALS['uxs_transients'][ $k ] ?? false; }
 function set_transient( $k, $v, $ttl = 0 ) { $GLOBALS['uxs_transients'][ $k ] = $v; return true; }
 function apply_filters( $hook, $value, ...$args ) {
@@ -67,6 +68,7 @@ use UxStudio\Core\Mcp\Registry;
 use UxStudio\Core\Mcp\Schema;
 use UxStudio\Core\Mcp\Scopes;
 use UxStudio\Core\Mcp\Secrets;
+use UxStudio\Core\Mcp\Sensitive;
 use UxStudio\Core\Mcp\Tokens;
 
 $failures = 0;
@@ -84,8 +86,7 @@ Tokens::set_user_resolver( static fn( int $id ): ?array => 7 === $id ? $GLOBALS[
 Registry::set_module_checker( static fn( string $id ): bool => true );
 
 $calls = array();
-Internal::set_transport(
-	static function ( string $method, string $route, array $params ) use ( &$calls ): array {
+$transport = static function ( string $method, string $route, array $params ) use ( &$calls ): array {
 		$calls[] = array( $method, $route, $params );
 		if ( 'POST' === $method && '/modules/cron-control' === $route && ! empty( $params['enabled'] ) ) {
 			throw new McpError( 'uxstudio_plugin_overlap', 'The module was not enabled: an active plugin already does the same job (WP Crontrol).', array( 'plugins' => array( array( 'slug' => 'wp-crontrol', 'migratable' => true ) ) ) );
@@ -98,6 +99,8 @@ Internal::set_transport(
 						array( 'key' => 'host', 'type' => 'text', 'label' => 'Host' ),
 						array( 'key' => 'port', 'type' => 'number', 'label' => 'Port' ),
 						array( 'key' => 'password', 'type' => 'text', 'label' => 'Password' ),
+						array( 'key' => 'from_name', 'type' => 'text', 'label' => 'From name' ),
+						array( 'key' => 'note', 'type' => 'text', 'label' => 'Note', 'sensitive' => true ),
 					),
 					'values' => array( 'host' => 'smtp.example.test', 'port' => 587, 'password' => 'S3cr3t-value', 'api_key' => 'KEY-123', 'has_other' => true ),
 				),
@@ -121,8 +124,8 @@ Internal::set_transport(
 			);
 		}
 		return array( 'data' => array( 'route' => $route, 'params' => $params ), 'meta' => array() );
-	}
-);
+	};
+Internal::set_transport( $transport );
 
 $log   = array();
 $proto = static function ( array $scopes ) use ( &$log ): Protocol {
@@ -232,8 +235,54 @@ Auth::reset( array( 'state' => 'ok', 'scopes' => array( 'write' ) ) );
 $r = $call( $proto( array( 'write' ) ), 'uxstudio-module-settings-update', array( 'module' => 'smtp-email', 'values' => array( 'hostt' => 'x' ) ) );
 $assert( 'unknown settings keys are refused', 'unknown_setting' === ( json_decode( $text( $r ), true )['error']['code'] ?? '' ), $text( $r ) );
 $calls = array();
-$r     = $call( $proto( array( 'write' ) ), 'uxstudio-module-settings-update', array( 'module' => 'smtp-email', 'values' => array( 'host' => 'mail.example.test' ), 'dry_run' => true ) );
-$assert( 'dry_run writes nothing and shows the change', ! array_filter( $calls, static fn( array $c ): bool => 'POST' === $c[0] ) && false !== strpos( $text( $r ), 'mail.example.test' ), $text( $r ) );
+$r     = $call( $proto( array( 'write' ) ), 'uxstudio-module-settings-update', array( 'module' => 'smtp-email', 'values' => array( 'from_name' => 'Shop' ), 'dry_run' => true ) );
+$assert( 'dry_run writes nothing and shows the change', ! array_filter( $calls, static fn( array $c ): bool => 'POST' === $c[0] ) && false !== strpos( $text( $r ), 'Shop' ), $text( $r ) );
+
+/* ── Sensitive settings: destinations of credentials need the admin scope (finding 4) ── */
+
+$calls = array();
+foreach ( array( 'host', 'port', 'note' ) as $k ) { // host/port: central list, note: flagged `sensitive` in the schema.
+	$r = $call( $proto( array( 'write' ) ), 'uxstudio-module-settings-update', array( 'module' => 'smtp-email', 'values' => array( $k => 'x' ) ) );
+	$assert( "write token cannot change $k (admin_scope_required)", 'admin_scope_required' === ( json_decode( $text( $r ), true )['error']['code'] ?? '' ) && ! array_filter( $calls, static fn( array $c ): bool => 'POST' === $c[0] ), $text( $r ) );
+}
+$r = $call( $proto( array( 'write' ) ), 'uxstudio-module-settings-update', array( 'module' => 'smtp-email', 'values' => array( 'host' => 'evil.example', 'from_name' => 'x' ), 'dry_run' => true ) );
+$assert( 'mixing a sensitive key with a normal one is refused as a whole, also as dry run', 'admin_scope_required' === ( json_decode( $text( $r ), true )['error']['code'] ?? '' ) );
+Auth::reset( array( 'state' => 'ok', 'scopes' => array( 'admin' ) ) );
+$r = $call( $proto( array( 'admin' ) ), 'uxstudio-module-settings-update', array( 'module' => 'smtp-email', 'values' => array( 'host' => 'mail.example.test2' ) ) );
+$assert( 'an admin token may change the host', (bool) array_filter( $calls, static fn( array $c ): bool => 'POST' === $c[0] && '/settings/smtp-email' === $c[1] ), $text( $r ) );
+Auth::reset( array( 'state' => 'ok', 'scopes' => array( 'write' ) ) );
+$sec_keys = Sensitive::admin_write_keys( 'security-optimization', array(), array( 'two_factor_enabled', 'login_url', 'ip_firewall_allowlist', 'csp_mode', 'heartbeat_control', 'hide_wp_version' ) );
+$assert( 'sensitive: exact and prefix entries (two_factor_*, ip_firewall_*, csp_*) match, ordinary keys stay open', array( 'two_factor_enabled', 'login_url', 'ip_firewall_allowlist', 'csp_mode' ) === $sec_keys, json_encode( $sec_keys ) );
+$assert( 'sensitive: ordinary keys of other modules stay open', array() === Sensitive::admin_write_keys( 'smtp-email', array(), array( 'from_name', 'retention_days' ) ) );
+$assert( 'sensitive: central app and SSO keys are admin only', array( 'central_app_url', 'sso_allow_admin' ) === Sensitive::admin_write_keys( 'content-sync', array(), array( 'central_app_url', 'sso_allow_admin', 'retention_days' ) ) );
+
+/* ── Read scope hides non-secret values that weaken protection ── */
+
+$hid = Sensitive::hide_values( 'security-optimization', array(), array( 'login_url' => 'my-secret-door', 'ip_firewall_allowlist' => '1.2.3.4', 'hide_wp_version' => true, 'upload_guard_whitelist_paths' => '' ) );
+$assert( 'login URL and allowlists are hidden from read callers, empty values are left', Sensitive::HIDDEN === $hid['values']['login_url'] && Sensitive::HIDDEN === $hid['values']['ip_firewall_allowlist'] && true === $hid['values']['hide_wp_version'] && '' === $hid['values']['upload_guard_whitelist_paths'] && array( 'login_url', 'ip_firewall_allowlist' ) === $hid['hidden'] );
+$assert( 'maintenance bypass IPs hidden, schema flag mcp_hidden honoured', Sensitive::HIDDEN === Sensitive::hide_values( 'maintenance-mode', array(), array( 'bypass_ips' => '1.1.1.1' ) )['values']['bypass_ips'] && Sensitive::HIDDEN === Sensitive::hide_values( 'x', array( array( 'key' => 'foo', 'mcp_hidden' => true ) ), array( 'foo' => 'bar' ) )['values']['foo'] );
+Internal::set_transport(
+	static function ( string $method, string $route, array $params ): array {
+		return array( 'data' => array( 'name' => 'Sec', 'schema' => array(), 'values' => array( 'login_url' => 'my-secret-door', 'heartbeat_control' => 'allow' ) ), 'meta' => array() );
+	}
+);
+Auth::reset( array( 'state' => 'ok', 'scopes' => array( 'read' ) ) );
+$out = $text( $call( $proto( array( 'read' ) ), 'uxstudio-module-settings-get', array( 'module' => 'security-optimization' ) ) );
+$assert( 'settings-get with read scope does not leak the secret login URL', false === strpos( $out, 'my-secret-door' ) && false !== strpos( $out, '"heartbeat_control": "allow"' ) && false !== strpos( $out, 'hidden_keys' ), $out );
+Auth::reset( array( 'state' => 'ok', 'scopes' => array( 'admin' ) ) );
+$out = $text( $call( $proto( array( 'admin' ) ), 'uxstudio-module-settings-get', array( 'module' => 'security-optimization' ) ) );
+$assert( 'an admin token sees it', false !== strpos( $out, 'my-secret-door' ), $out );
+Auth::reset( array( 'state' => 'ok', 'scopes' => array( 'write' ) ) );
+Internal::set_transport( $transport );
+
+/* ── Secret key names (finding 4) ── */
+
+foreach ( array( 'ses_access_key', 'aws_access-key', 'signing_key', 'ga_service_account_json', 'webhook_url', 'jwt_token' ) as $k ) {
+	$assert( "secret key pattern matches $k", Secrets::is_secret_key( $k ) );
+}
+foreach ( array( 'footprint', 'access_roles', 'webhook_events', 'host', 'key_count' ) as $k ) {
+	$assert( "secret key pattern leaves $k alone", ! Secrets::is_secret_key( $k ) );
+}
 $r = $call( $proto( array( 'write' ) ), 'uxstudio-module-settings-get', array( 'module' => 'smtp-email' ) );
 $assert( 'write token includes read abilities', ! isset( $r['response']['error'] ) );
 
@@ -364,7 +413,16 @@ $GLOBALS['uxs_user']['admin'] = true;
 $id = $t['record']['id'];
 Tokens::touch( $id, '203.0.113.9', $now + 100 );
 $assert( 'last used is recorded', gmdate( 'Y-m-d H:i:s', $now + 100 ) === Tokens::find( $id )['last_used'] && '203.0.113.9' === Tokens::find( $id )['last_ip'] );
+$list_writes = $GLOBALS['uxs_option_writes'][ Tokens::OPTION ] ?? 0;
+Tokens::touch( $id, '203.0.113.9', $now + 400 );
+$assert( 'touch never rewrites the token list (no lost revoke), last use lives in its own option', ( $GLOBALS['uxs_option_writes'][ Tokens::OPTION ] ?? 0 ) === $list_writes && isset( $GLOBALS['uxs_options'][ Tokens::USED_PREFIX . $id ] ) );
+$gone = Tokens::create( array( 'label' => 'race', 'user_id' => 7, 'scopes' => array( 'read' ), 'days' => 5 ), $now );
+$rid  = $gone['record']['id'];
+Tokens::revoke( $rid );
+Tokens::touch( $rid, '203.0.113.9', $now + 10 );
+$assert( 'a touch after revoke neither brings the token back nor leaves a record', ! isset( $GLOBALS['uxs_options'][ Tokens::OPTION ][ $rid ] ) && ! isset( $GLOBALS['uxs_options'][ Tokens::USED_PREFIX . $rid ] ) && 'unknown' === Tokens::verify( $gone['token'], '203.0.113.9', $now )['code'] );
 $assert( 'revoke works and is immediate', Tokens::revoke( $id ) && 'unknown' === Tokens::verify( $t['token'], '203.0.113.9', $now )['code'] && ! Tokens::revoke( $id ) );
+$assert( 'revoke removes the last-use option too', ! isset( $GLOBALS['uxs_options'][ Tokens::USED_PREFIX . $id ] ) );
 
 foreach ( array(
 	'no label'        => array( 'label' => '', 'scopes' => array( 'read' ), 'days' => 5 ),
@@ -402,6 +460,11 @@ $hit = Tokens::hit( 'abc', $now );
 $assert( 'refusal says when to retry', ! $hit['ok'] && $hit['retry_after'] >= 1 && $hit['retry_after'] <= 60 );
 $assert( 'the next minute starts fresh', Tokens::hit( 'abc', $now + 60 )['ok'] );
 $assert( 'other tokens are not affected', Tokens::hit( 'other', $now )['ok'] );
+$GLOBALS['uxs_transients'] = array();
+$assert( 'batch cost: a batch of 20 counts 20 calls against the budget', Tokens::hit( 'batch', $now, 20 )['ok'] );
+for ( $i = 0; $i < 4; $i++ ) { Tokens::hit( 'batch', $now, 20 ); }
+$assert( 'batch cost: with 100 of 120 used a batch of 30 is refused as a whole, one of 20 still fits', ! Tokens::hit( 'batch', $now, 30 )['ok'] && Tokens::hit( 'batch', $now, 20 )['ok'] );
+$assert( 'batch cost: then the budget is used up', ! Tokens::hit( 'batch', $now )['ok'] );
 
 /* ── Auth: routes, scopes per route ── */
 
@@ -431,6 +494,8 @@ unset( $GLOBALS['uxs_filters']['uxstudio_mcp_rate_limit'] );
 // Old AI Assistant JWT tokens keep working, with the admin scope.
 function wp_salt( $scheme = 'auth' ) { return 'test-salt-' . $scheme; }
 function get_userdata( $id ) { return 7 === (int) $id ? (object) array( 'ID' => 7, 'user_pass' => 'hash7' ) : false; }
+$GLOBALS['uxs_jwt_admin'] = true;
+function user_can( $user, $cap ) { return 'manage_options' === $cap && $GLOBALS['uxs_jwt_admin']; }
 $b64   = static fn( string $s ): string => rtrim( strtr( base64_encode( $s ), '+/', '-_' ), '=' );
 $jti   = '11111111-2222-4333-8444-555555555555';
 $pwh   = substr( hash_hmac( 'sha256', 'pwh|7|hash7', wp_salt( 'secure_auth' ) ), 0, 32 );
@@ -443,6 +508,11 @@ $c = Auth::evaluate( $jwt, Auth::KIND_ENDPOINT, '203.0.113.5' );
 $assert( 'old JWT tokens still authenticate, as admin', 'ok' === $c['state'] && array( 'admin' ) === $c['scopes'] && 7 === $c['user_id'], json_encode( $c ) );
 $c = Auth::evaluate( $jwt, Auth::KIND_LEGACY, '203.0.113.5' );
 $assert( 'and on the old adapter routes', 'ok' === $c['state'] );
+$GLOBALS['uxs_jwt_admin'] = false;
+$GLOBALS['uxs_transients'] = array();
+$assert( 'an old JWT of a user who lost manage_options is refused', 'denied' === Auth::evaluate( $jwt, Auth::KIND_ENDPOINT, '203.0.113.5' )['state'] );
+$GLOBALS['uxs_jwt_admin'] = true;
+$GLOBALS['uxs_transients'] = array();
 $assert( 'they are listed in the token list as admin', array( 'admin' ) === \UxStudio\Core\Mcp\LegacyJwt::all()[0]['scopes'] && $jti === \UxStudio\Core\Mcp\LegacyJwt::all()[0]['id'] );
 $assert( 'legacy ids are recognised', \UxStudio\Core\Mcp\LegacyJwt::is_legacy_id( $jti ) && ! \UxStudio\Core\Mcp\LegacyJwt::is_legacy_id( 'abcdef123456' ) );
 \UxStudio\Core\Mcp\LegacyJwt::revoke( $jti );

@@ -40,6 +40,11 @@ final class LegacyJwt {
 		if ( '' === $fingerprint || ! hash_equals( $fingerprint, (string) $payload['pwh'] ) ) {
 			return null;
 		}
+		// The token grants the admin scope: the user must still be an administrator (demoted or
+		// deleted users lose it at once, like with the new tokens).
+		if ( ! self::user_is_admin( (int) $payload['user_id'] ) ) {
+			return null;
+		}
 		return $payload;
 	}
 
@@ -97,6 +102,16 @@ final class LegacyJwt {
 		unset( $registry[ $jti ] );
 		update_option( self::REGISTRY, $registry );
 		return true;
+	}
+
+	/**
+	 * Does the user still have manage_options?
+	 *
+	 * @param int $user_id User id.
+	 */
+	private static function user_is_admin( int $user_id ): bool {
+		$user = $user_id > 0 ? get_userdata( $user_id ) : false;
+		return $user && user_can( $user, 'manage_options' );
 	}
 
 	/**
