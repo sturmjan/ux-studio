@@ -2694,3 +2694,45 @@ Nezávislá revize našla 12 věcí. Opraveno na větvi `feature/release-fixes`,
 ### 28.3 Ověření
 
 Živě na `https://127.0.0.1/pobyty` (dočasné uživatele, tokeny a zapnuté moduly vrátit z dumpu): viz výsledky v závěrečné zprávě.
+
+### 28.4 Dopad aktualizace (2026-10-24)
+
+Nezávislá revize „co se stane na ~97 klientských webech po automatické aktualizaci z 0.5.0". Opraveno (commity na `feature/release-fixes`):
+
+1. **Balíček neobsahoval jen plugin.** `release.yml` teď vynechává `tests/`, `bin/`, `PLAN*.md`, `DESIGN.md`, `AUDIT.md`, `PARITY.md`, `languages/.build`, `.gitignore`, `.editorconfig`,
+   `package*.json`, `webpack.config.js`, `tsconfig.json`, `composer.*` (kořenové cesty, `vendor/` se nedotkne); `bin/merge-json-translations.php` běží v CI PŘED sestavením zipu. Krok v témže
+   kroku shodí vydání, když se některá z těchto cest v `dist/ux-studio` objeví nebo chybí `ux-studio.php`, `build/`, `vendor/plugin-update-checker`. Každý soubor v `tests/` začíná
+   `if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }`. Za běhu se nic z vyřazeného nečte (ověřeno hledáním v `includes/` a `ux-studio.php`; odkazy na PLAN.md jsou jen komentáře).
+2. **Vlastní přihlašovací adresa.** Nová třída `Core\Upgrade` (spouští ji `Plugin::boot()` hned po `DB::maybe_upgrade()`, před startem modulů) zapíše option `uxstudio_login_lock_pre060`
+   (`configured`) z nastavení, jak je zanechala 0.5.0; e-mail a oznámení `LoginUrlNotice` jdou jen tam, kde bylo `configured` (web, který adresu nastaví až po aktualizaci, nic nedostane),
+   s neutrálním zněním. `postpass` (`LoginUrl::is_public_action`) nikdy neblokuje `block_direct_wp_login()` a `site_url` filtr ho nepřepisuje. `login_lock_status()` má důvod
+   `no_pretty_permalinks` (prázdná struktura nebo `/index.php/...`): zámek se neuplatní (`block_direct_wp_login`, filtr i obsluha slugu používají tentýž stav, počítaný jednou za požadavek) a správce
+   vidí oznámení. Kolize slugu se do Activity Logu zapisuje nejvýš 1x denně (transient). **Chování WordPressu:** `logout`, `rp`, `resetpass`, `confirmaction`, `lostpassword` a formuláře
+   se generují přes `site_url`/`network_site_url`, filtr je přepíše na tajnou adresu a tam fungují (`?action=...` bez přesměrování); přímé volání `wp-login.php?action=...` je blokované stejně
+   jako přihlášení (včetně odkazů z e-mailů odeslaných před zapnutím zámku). **Změna oproti 0.5.0:** na webu s prostými trvalými odkazy, kde 0.5.0 zavřelo `wp-login.php` a adresu neobsloužilo,
+   se zámek nově nepoužije (selže otevřeně).
+3. **CSP schéma v5.** `CspUploadGuardBootstrap` v migraci jen mění strukturu, maže IP (`WHERE sample_ip <> ''`) a volá `CspRerate::start()`: zapamatuje nejvyšší `id` (option
+   `uxstudio_csp_legacy_max_id`, trvale) a stav práce. Přehodnocení po 200 řádcích běží z WP-Cron (`uxstudio_csp_rerate`, jednorázová událost za 20 s, hlídaná při každém startu), zámek je atomický
+   `add_option` (zastaralý po 300 s se přebírá), řádek po přehodnocení má `risk_checked_at = NULL`, aby ho znovu zjemnila kontrola stáří domény. E-mail o vysokém riziku se pro řádky s `id` ≤ legacy
+   nikdy neposílá (eskalace v `rate_domain_ages` ani `notify_high_risk`). v6 (sloupec `reporters`) je jen nullable sloupec přes dbDelta, žádný datový krok. Řádky starší než 180 dní (a vyřešené starší 90 dní)
+   maže denní údržba `CspLogger::purge()` (přidáno do CHANGELOGu).
+4. **Vrácení migrace.** `Snapshot::seal()` na konci reálného běhu uloží otisk (hash hodnot optionů, počet řádků a `CHECKSUM TABLE` tabulek); `Runner::rollback_impact()` +
+   `GET migration/rollback-impact` vrátí moduly, tabulky a co se od běhu změnilo. Společný dialog `UndoMigrationModal` (historie běhů i krok Ověření) vypíše obnovované moduly a tabulky, napíše,
+   že pozdější změny v nich se ztratí, a při změně nebo při nemožnosti to zjistit (včetně chyby dotazu) drží tlačítko vypnuté, dokud uživatel nezaškrtne souhlas. Průvodce 0.5.0 nebyl, takže žádný
+   běh bez otisku nevzniká; bez otisku se přesto bere jako „možná změněno".
+5. **`DB::ensure_module_tables`.** Po migrátoru se hledá neúspěšný `CREATE`/`ALTER` (nárůst `$EZSQL_ERROR`, který wpdb plní i při potlačených chybách, a `last_error` posledního dotazu, pokud šlo o CREATE/ALTER).
+   Neúspěch = verze se nezapíše, transient `uxstudio_dbfail_<modul>` 15 min brání opakování v každém požadavku, `error_log` a jednou denně Activity Log `db_migration_failed` se skutečnou chybou.
+   `DESCRIBE` a datové dotazy se nepočítají (dbDelta na neexistující tabulce vždy ohlásí selhání `DESCRIBE`). Úspěšná cesta je beze změny.
+6. **Nápověda průvodce na Modulech.** Počet se cachuje v transientu 1 h (`uxstudio_wizard_hint_count`), maže ho `activated_plugin`/`deactivated_plugin`/`deleted_plugin` a zápis do historie běhů.
+   `has_data()` e-mail logu a přesměrování používá `SELECT 1 ... LIMIT 1`. **Zbývá:** `FolderSource::has_data()` stále čte celou kolekci složek (počty se v plánu průvodce používají); cache to řeší na 1x za hodinu.
+7. **CSP `since`.** `Upgrade::record_csp_state()`: je-li `csp_mode` audit/report-only/enforce a stav nemá `since` (nebo jiný režim), zapíše se `mode`, `since = now`. Enforce ze 0.5.0 dostane
+   `enforce_since = 0`, tedy bez automatického vrácení (dokumentováno v CHANGELOGu). Pozn.: `since` vstupuje do podpisu značky `p` v adrese hlášení; stránky v cache s hlavičkou bez značky (0.5.0 značku
+   neposílalo) se hlášení zahodí, dokud se cache neobnoví.
+8. **`KEY match_enabled` u přesměrování.** Ověřeno na tabulce ve tvaru 0.5.0 v databázi `pobyty_scratch`: dbDelta po upgradu nepřidá duplicitní index (mezera v `(match_type, enabled)` nevadí),
+   vznikne `source_cond` a prostý `source_hash`; druhý běh nic nemění. Zjištěno mimochodem: dbDelta při každém běhu hlásí „Changed type" u `BIGINT UNSIGNED`/`SMALLINT UNSIGNED`/`INT` (jen kosmetický ALTER na MariaDB,
+   neškodné, neřešeno).
+
+**Co je simulované (`pobyty_upd`):** kopie lokální databáze s aktivním jen tímto pluginem, schématem CSP vráceným do tvaru 0.5.0 (3000 řádků), verzí `security_optimization_csp_upload = 4`, zapnutým
+vlastním přihlášením a `csp_mode = report-only`, spuštěno jako CLI požadavek (`DB_NAME` přepsán před `wp-load.php`, `DISABLE_WP_CRON`, odchozí HTTP zablokováno). Výsledek: první načtení WordPressu
+včetně migrace ~0,9 s, 0 řádků přehodnoceno, pak 16 dávek (nejdelší ~1 s), staré řádky bez e-mailu, nový řádek vysokého rizika = 1 e-mail, oznámení o přihlašovací adrese = 1 e-mail a podruhé nic. Nesimulováno:
+skutečné stažení balíčku přes plugin-update-checker a pomalé sdílené hostingy (dávka 200 řádků trvala ~1 s na lokálním stroji).

@@ -179,8 +179,35 @@
   administrator a notice with the new address (copy button, link to turn it off) and
   sends ONE e-mail with it to the site e-mail. The setting is never changed
   automatically; `define( 'UXSTUDIO_DISABLE_LOGIN_LOCK', true );` in wp-config.php
-  still switches the feature off.
-- Dev - Tests: `tests/{mcp-core,migration-sources,migration-data-sources,migration-preview,migration-admin-sources,overlap-catalog,csp-logic,wizard-autostart,login-url-notice}.php`
+  still switches the feature off. Refinements after the update review: the e-mail and the notice are only sent to
+  sites that had the address configured BEFORE this release (an upgrade routine records that on the first request of
+  the new code, so setting it up later never triggers them) and are worded neutrally ("is in force", not "has
+  changed"); the password form of protected posts (`wp-login.php?action=postpass`) is never blocked and never
+  rewritten to the secret address (it would have leaked the slug into every public page); on a site with plain
+  or `/index.php/` permalinks the address cannot be served, so the lock is NOT enforced (wp-login.php stays open) and
+  administrators get a notice to choose pretty permalinks (before, wp-login.php was closed for good there); the
+  slug-collision entry in the Activity Log is written at most once a day (it used to be one row per request).
+- Change - Update from 0.5.0, Security / CSP: the schema step of the violation table no longer rates every stored row
+  in the first request after the update. The structure (dbDelta) is changed at once, the old rows are re-rated 200 at a
+  time by a short WP-Cron chain protected by a lock. Rows that existed before the update never trigger the high-risk
+  e-mail, only new reports do. CSP rows are still purged automatically: resolved ones after 90 days, any after 180
+  days. A site that already ran report-only or audit in 0.5.0 starts counting the days for the Enforce gate from the
+  update (before, the gate showed "0 days" forever). A site that already ran Enforce keeps `enforce_since = 0`, so the
+  72 hour auto-rollback does not apply to a policy that was enforced before the rollback existed.
+- Fix - Module tables: a module's schema version is no longer recorded when a CREATE / ALTER TABLE failed (the missing
+  table or column would never have been created again). The failure is retried every 15 minutes, written to the PHP
+  error log and, once a day, to the Activity Log (`db_migration_failed`). Behaviour on success is unchanged.
+- Change - Migration wizard: the undo dialog lists the modules and tables it restores and states that everything changed
+  there after the migration is lost; when a setting or table changed since the run (or that cannot be told) the button
+  stays off until the user ticks that they understand it. A fingerprint of the covered options and tables is taken when
+  the run finishes.
+- Change - Migration wizard: the hint on the Modules screen reuses its scan for an hour (cleared when a plugin is
+  activated, deactivated or deleted, or a migration runs) instead of scanning every foreign plugin on each visit, and
+  the "has data" checks of the e-mail log and redirect sources use `LIMIT 1` instead of `COUNT(*)`.
+- Dev - Release package: the zip no longer contains `tests/`, `bin/`, the internal documents (PLAN, DESIGN, AUDIT,
+  PARITY), `languages/.build` and build configuration, and the workflow fails when any of them slips in. Every test
+  file exits unless run from the command line or WP-CLI.
+- Dev - Tests: `tests/{mcp-core,migration-sources,migration-data-sources,migration-preview,migration-admin-sources,overlap-catalog,csp-logic,wizard-autostart,login-url-notice,update-impact}.php`
   (standalone, `php tests/<name>.php`).
 
 ## 0.5.0
