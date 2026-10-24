@@ -2638,3 +2638,59 @@ Easy WP SMTP a Auto Upload Images; snímky `b4-*` světlý i tmavý.
 SES (oblasti `eusc-*` a `cn-*` se nenabízejí). Nepřenáší se druhé a další připojení FluentSMTP. Disable WordPress Updates nebyl nainstalovaný (jen fixtura a test, v živé migraci vyšel
 „neaktivní = nic“). Hlídač Cron Control může po zapnutí modulu hlásit staré události Crontrolu jako cizí. Po `wp_delete_attachment` zůstávaly na této instalaci náhledy v uploads (nesouvisí s B4,
 uklizeno ručně). Pro nový příspěvek jsou `%postname%` a `%post_id%` prázdné.
+
+
+## 28. Bezpečnostní revize před 0.6.0 (2026-10-24)
+
+Nezávislá revize našla 12 věcí. Opraveno na větvi `feature/release-fixes`, každá skupina je samostatný commit. Standalone testy: `csp-logic`, `security-2fa`, `mcp-core`, `admin-menu-lock`,
+`safe-regex` (nový), `pinned-http` (nový), `tech-b4`.
+
+### 28.1 Opraveno
+
+1. **CSP: padělané zprávy mohly vypnout Enforce (vysoká).** Token `k` v adrese zpráv je veřejný (je v každé hlavičce odpovědi), `p` se bralo z požadavku. Teď `p` = písmeno politiky + 12 znaků HMAC
+   přes (písmeno, režim, `since` aktuálního režimu), přijímá se jen štítek aktivního režimu (`CspPolicy::report_tag` / `verify_report_tag`); starý nebo padělaný štítek se zahodí (204). U každého
+   řádku se ukládá krátký seznam až 10 solených hashů (IP + UA, `CspLogger::reporter_hash`), sloupec `reporters` (DB verze 6), v UI se ukazuje počet oznamovatelů. Automatický rollback chce 3 řádky,
+   každý s alespoň 3 různými oznamovateli, a alespoň 3 různé oznamovatele dohromady. Kontrola „bez testovacích porušení“ v bráně Enforce se **nemění**: otrávená brána jen zdrží zapnutí
+   (selže bezpečně, správce může řádky vyřešit nebo smazat, případně vědomě přepsat), nikdy nic nevypne. **Akceptováno:** útočník s třemi různými IP a platným štítkem aktivního režimu rollback
+   spustit umí; štítek je veřejný, takže neprokazuje odesílatele. Další obrana by byla jen sledování zdroje (nespolehlivé).
+2. **CSP: „Schválit všechny bezpečné“ schvalovalo i neznámé domény (střední).** `safe_open_rows` bere jen `known` a `self`; `unknown` se schvaluje po jednom (nové potvrzení v UI).
+3. **2FA selhávalo otevřeně při nečitelném tajném klíči (střední).** `is_enabled` čte jen příznak; nečitelný klíč (změněné soli) = přihlášení heslem samotným neprojde, projde jen
+   uložený hash obnovovacího kódu, jinak správce resetuje faktor. Záznam `two_factor_secret_unreadable` do Activity Logu (max. 1x za hodinu na uživatele) a červené oznámení pro správce.
+   **Zdokumentováno, ne změněno:** tajné klíče i hashe obnovovacích kódů jsou odvozené z `wp_salt('auth')`, takže po změně solí obnovovací kódy také přestanou platit (správce resetuje faktor
+   v Uživatelích, při vlastním zamčení konstanta `UXSTUDIO_DISABLE_2FA`). Samostatný klíč v DB by nebyl zpětně kompatibilní a ležel by vedle zašifrovaných dat.
+4. **MCP: `write` mohl přesměrovat uložená tajemství (střední).** Nová třída `Mcp\Sensitive`: seznam klíčů po modulech (`ADMIN_WRITE`, předpony `ip_firewall_*`, `two_factor_*`, `csp_*`, `sso_*`
+   atd.) a příznak `'sensitive' => true` ve schématu pole; zápis jen s rozsahem `admin`, odmítnutí vrací kód `admin_scope_required` se seznamem klíčů (i pro `dry_run`). Pro `read` se maskují
+   nesecret hodnoty, jejichž znalost oslabuje ochranu (`READ_HIDDEN`: tajná adresa přihlášení, allowlisty IP, výjimky Upload Guardu, bypass IP údržby, `node_allowed_ips`,
+   `central_allowed_ips`, BotThrottle `whitelist_*`); příznak `'mcp_hidden' => true` ve schématu. E-mailové adresy příjemců nejsou maskované (nejsou přihlašovací údaje). Webhooky formulářů nejsou
+   v nastavení modulů, MCP se jich nedotkne. `Secrets::PATTERN` rozšířen o `access_key`, `signing_key`, `encryption_key`, `session_key`, `service_account`, `webhook_url/secret/key`, `jwt`.
+5. **Zámek menu: obejití přes `post_type` na `post.php` (nízká až střední).** Na `post.php` se typ určuje vždy z ID příspěvku (`post_ID` před `post`), argument požadavku se ignoruje; na `edit.php`,
+   `post-new.php` a podobných se bere jen registrovaný typ.
+6. **MCP: závod revoke a touch (nízká).** `last_used` a `last_ip` jsou v samostatném neautoloadovaném optionu `uxstudio_mcp_used_<id>`; `touch` už seznam tokenů nepřepisuje, `revoke` option maže.
+7. **MCP: dávka obcházela limit (nízká).** Každá zpráva dávky stojí jedno volání (`Tokens::hit($id, $now, $cost)`), nevejde-li se dávka do zbytku rozpočtu, je odmítnuta celá (429), celkový
+   časový strop dávky 20 s (zbylé zprávy dostanou chybu).
+8. **Starý JWT (nízká).** `LegacyJwt::validate` ověřuje `manage_options` uživatele.
+9. **ReDoS (nízká).** `Core\SafeRegex`: subjekt max. 1024 B (na hranici znaku), dočasně snížený `pcre.backtrack_limit` (20000, po volání vrácen), chyba = nepasuje. Použito u podmínek přesměrování,
+   pravidel přesměrování, výjimek údržby (`regex:` i zástupné znaky), pravidel odkazů a vzorů duplikace. Při uložení `SafeRegex::probe` odmítne vzor, který na sadě záludných řetězců narazí na limit
+   (heuristika, žádný důkaz; runtime limity jsou skutečná ochrana). Důsledek: regex pravidla přesměrování vidí jen prvních 1024 B adresy.
+10. **Výjimky údržby (nízká).** `request_path` sjednotí `//` a `\`, `path_excepted` nikdy nepovolí cestu se segmentem `..` (ani zakódovaným, ani dvojitě zakódovaným).
+11. **2FA zbytky.** (a) Pokusy o kód a obnovovací kódy běží pod zámkem na uživatele (`INSERT IGNORE` řádku v `wp_options`, TTL 15 s, čekání max. 2 s, při neúspěchu zámku se pokus nepřijme),
+    takže limit 5 pokusů a jednorázové kódy nejdou předběhnout paralelními požadavky; (b) uživatel po konci odkladu dostane 403 na `admin-ajax.php` (mimo `uxstudio_2fa` a `heartbeat`) a na
+    zapisující REST požadavky (mimo `/wp/v2/users/me`; čtení povolena); (c) přihlášení 2FA účtu mimo formulář (XML-RPC, WooCommerce, AJAX) vrací stejnou chybu jako špatné heslo (a počítá se
+    jako neúspěšné přihlášení).
+12. **DNS rebinding (URL události cronu, Auto Image Upload).** `Core\PinnedHttp`: host se přeloží jednou, všechny adresy musí projít kontrolou, cURL se připne na kontrolovanou adresu
+    (`CURLOPT_RESOLVE` přes `http_api_curl`), přesměrování se sledují ručně a každý skok se znovu přeloží, zkontroluje a připne. **Omezení:** bez transportu cURL (jen streams) se připnutí
+    neprovede, požadavek jde přes `wp_safe_remote_request` jako dřív. Cron s adresou otevřenou filtrem `uxstudio_cron_url_allow_private` zůstává bez připnutí (záměrně otevřeno kódem).
+
+### 28.2 Akceptováno nebo jen zdokumentováno
+
+- **Ochrana trvalosti náhledu migrace** (`PreviewBoot::guard_query`) zahazuje zápisy do SQL, které se týkají tabulek `uxstudio_*` / `uxsmb_*`, optionů `uxstudio_*` a seznamů
+  `active_plugins` (rozpoznání regulárním výrazem nad textem dotazu). Nechrání data jiných pluginů a jádra (příspěvky, uživatelé, objednávky vzniklé při návštěvě stránky v náhledu) a nemusí chytit
+  dotaz, kde název optionu vznikne jinak než jako uvozený řetězec. Náhled proto zůstává nástrojem důvěryhodného správce na webu, kde se nepracuje s produkčními daty, ne bezpečnostní hranicí.
+- **Zástupce snippetu `$atts`.** PHP úryvky dostávají atributy shortcodu, které může psát každý, kdo smí do příspěvku shortcode vložit. V editoru úryvků je u shortcodového umístění varování
+  (nepředávat do `eval`, SQL ani neescapovaného výstupu).
+- **Rozsah `migration`** může zapnout importované PHP úryvky, tedy odpovídá spuštění kódu na webu. Napsáno u rozsahu v dialogu tokenu MCP; tokeny s tímto rozsahem se mají vydávat jako admin.
+- **Jednoduchý limit REST/MCP** je počítadlo v transientu (ne atomické); při souběhu může propustit pár volání navíc.
+
+### 28.3 Ověření
+
+Živě na `https://127.0.0.1/pobyty` (dočasné uživatele, tokeny a zapnuté moduly vrátit z dumpu): viz výsledky v závěrečné zprávě.

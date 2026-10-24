@@ -449,6 +449,11 @@ const query = useQuery( {
 							) : (
 								<p className="uxs-form__help">{ __( 'The shortcode appears after the snippet is saved: [uxstudio_snippet id="..."]. PHP snippets get the shortcode attributes as $atts and the enclosed text as $content, and do not run in REST, AJAX or cron requests.', 'ux-studio' ) }</p>
 							) }
+							{ draft.type === 'php' && (
+								<p className="uxs-form__help uxs-cs-warn">
+									{ __( 'Warning: $atts holds text typed by whoever can write the shortcode into a post (authors, contributors). Never pass it to eval(), include, SQL, shell commands or unescaped output; validate and escape every value first.', 'ux-studio' ) }
+								</p>
+							) }
 						</div>
 					) }
 					{ draft.run_location === RUN_ONCE && (

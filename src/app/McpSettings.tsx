@@ -65,17 +65,17 @@ const SCOPES: { id: Scope; label: string; help: string }[] = [
 	{
 		id: 'write',
 		label: __( 'Write access', 'ux-studio' ),
-		help: __( 'Enable and disable modules, change module settings, manage redirects. Includes Read.', 'ux-studio' ),
+		help: __( 'Enable and disable modules, change ordinary module settings, manage redirects. Settings that decide where credentials or data are sent (mail server, central app, AI provider, recipients) or that guard the site (login address, firewall, 2FA, CSP) need Admin. Includes Read.', 'ux-studio' ),
 	},
 	{
 		id: 'migration',
 		label: __( 'Migration access', 'ux-studio' ),
-		help: __( 'Run, verify, preview and switch on migrations from other plugins, and undo them. Includes Read.', 'ux-studio' ),
+		help: __( 'Run, verify, preview and switch on migrations from other plugins, and undo them. Includes Read. A migration can enable imported PHP snippets, so this scope is equivalent to running code on the site.', 'ux-studio' ),
 	},
 	{
 		id: 'admin',
 		label: __( 'Admin access', 'ux-studio' ),
-		help: __( 'Everything above, and the only scope that may set credentials. Also accepted by third party MCP adapters.', 'ux-studio' ),
+		help: __( 'Everything above, and the only scope that may set credentials and security-relevant settings, and see the hidden values (login address, allowlists). Also accepted by third party MCP adapters.', 'ux-studio' ),
 	},
 ];
 
