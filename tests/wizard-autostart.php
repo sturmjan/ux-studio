@@ -59,6 +59,9 @@ function get_option( $name, $default = false ) { return array_key_exists( $name,
 function update_option( $name, $value, $autoload = null ) { $GLOBALS['uxs_options'][ $name ] = $value; return true; }
 function add_option( $name, $value = '', $dep = '', $autoload = null ) { if ( array_key_exists( $name, $GLOBALS['uxs_options'] ) ) { return false; } $GLOBALS['uxs_options'][ $name ] = $value; return true; }
 function delete_option( $name ) { unset( $GLOBALS['uxs_options'][ $name ] ); return true; }
+function get_transient( $k ) { return $GLOBALS['uxs_transients'][ $k ] ?? false; }
+function set_transient( $k, $v, $ttl = 0 ) { $GLOBALS['uxs_transients'][ $k ] = $v; return true; }
+function delete_transient( $k ) { unset( $GLOBALS['uxs_transients'][ $k ] ); return true; }
 function get_user_meta( $uid, $key, $single = false ) { return $GLOBALS['uxs_meta'][ $uid ][ $key ] ?? ''; }
 function update_user_meta( $uid, $key, $value ) { $GLOBALS['uxs_meta'][ $uid ][ $key ] = $value; return true; }
 function apply_filters( $hook, $value, ...$args ) { return $value; }
@@ -231,6 +234,7 @@ $GLOBALS['uxs_ajax'] = false;
 /* ── 4) The hint on the Modules screen ── */
 
 $site( array() );
+$GLOBALS['uxs_transients'] = array();
 $hint = AutoStart::hint( 5 );
 $assert( 'hint: shown when a plugin can be taken over and no migration ever ran', $hint['show'] && $hint['count'] >= 1, json_encode( $hint ) );
 AutoStart::dismiss_hint( 5 );
@@ -239,6 +243,7 @@ History::put( array( 'id' => 'r1', 'started' => time(), 'sources' => array() ) )
 $assert( 'hint: hidden for everybody once a migration ran', ! AutoStart::hint( 6 )['show'] );
 $site( array( 'active_plugins' => array( 'ux-studio/ux-studio.php' ) ) );
 $GLOBALS['uxs_plugins'] = array();
+AutoStart::flush_hint_cache(); // A plugin was deactivated or deleted: the cached count is dropped.
 $assert( 'hint: hidden when there is nothing to take over', ! AutoStart::hint( 7 )['show'] );
 
 echo PHP_EOL . ( $failures ? "$failures FAILED" : 'ALL PASSED' ) . PHP_EOL;
