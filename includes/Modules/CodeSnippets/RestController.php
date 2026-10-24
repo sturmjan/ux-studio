@@ -87,11 +87,20 @@ final class RestController extends Controller {
 				);
 			}
 		}
+		$roles = array();
+		foreach ( wp_roles()->get_names() as $slug => $name ) {
+			$roles[] = array(
+				'name'  => (string) $slug,
+				'label' => translate_user_role( $name ),
+			);
+		}
 		return $this->ok(
 			array(
 				'post_types'         => $types,
 				'default_post_types' => SnippetManager::DEFAULT_POST_TYPES,
 				'shortcode_tag'      => SnippetRenderer::SHORTCODE,
+				'roles'              => $roles,
+				'max_conditions'     => SnippetConditions::MAX,
 			)
 		);
 	}
@@ -139,6 +148,12 @@ final class RestController extends Controller {
 				'required' => false,
 				'type'     => 'array',
 				'items'    => array( 'type' => 'string' ),
+			),
+			// Run conditions (SnippetConditions). Validated in SnippetManager; left out = unchanged on update.
+			'conditions'   => array(
+				'required' => false,
+				'type'     => 'array',
+				'items'    => array( 'type' => 'object' ),
 			),
 		);
 	}
@@ -246,7 +261,7 @@ final class RestController extends Controller {
 	 * Build the raw payload array SnippetManager expects from a request.
 	 */
 	private function payload( WP_REST_Request $request ): array {
-		return array(
+		$payload = array(
 			'name'         => (string) $request->get_param( 'name' ),
 			'type'         => (string) $request->get_param( 'type' ),
 			'code'         => (string) $request->get_param( 'code' ),
@@ -256,5 +271,9 @@ final class RestController extends Controller {
 			'priority'     => (int) $request->get_param( 'priority' ),
 			'post_types'   => (array) $request->get_param( 'post_types' ),
 		);
+		if ( $request->has_param( 'conditions' ) ) {
+			$payload['conditions'] = (array) $request->get_param( 'conditions' );
+		}
+		return $payload;
 	}
 }

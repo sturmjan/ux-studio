@@ -20,11 +20,13 @@ export interface Field {
 		| 'toggle'
 		| 'text'
 		| 'textarea'
+		| 'css'
 		| 'number'
 		| 'select'
 		| 'multiselect'
 		| 'color'
 		| 'media'
+		| 'datetime'
 		| 'richtext';
 	label: string;
 	help?: string;
@@ -37,7 +39,7 @@ export interface Field {
 }
 
 /** Field types whose input needs a full grid row to stay readable. */
-const WIDE_TYPES: ReadonlyArray< Field[ 'type' ] > = [ 'textarea', 'richtext', 'multiselect' ];
+const WIDE_TYPES: ReadonlyArray< Field[ 'type' ] > = [ 'textarea', 'css', 'richtext', 'multiselect' ];
 
 export interface SettingsPayload {
 	name: string;
@@ -184,6 +186,33 @@ export function FieldInput( {
 			);
 		case 'media':
 			return <MediaField value={ Number( value ?? 0 ) } onChange={ onChange } />;
+		case 'datetime':
+			// Date and time of the site, stored as YYYY-MM-DDTHH:MM (what datetime-local writes).
+			return (
+				<span className="uxs-datetime">
+					<input
+						type="datetime-local"
+						id={ `uxs-${ field.key }` }
+						value={ String( value ?? '' ) }
+						onChange={ ( e ) => onChange( e.target.value ) }
+					/>
+					{ value ? (
+						<button type="button" className="button-link" onClick={ () => onChange( '' ) }>
+							{ __( 'Clear', 'ux-studio' ) }
+						</button>
+					) : null }
+				</span>
+			);
+		case 'css':
+			return (
+				<textarea
+					rows={ 10 }
+					className="uxs-code-editor"
+					spellCheck={ false }
+					value={ String( value ?? '' ) }
+					onChange={ ( e ) => onChange( e.target.value ) }
+				/>
+			);
 		case 'textarea':
 		case 'richtext':
 			return (

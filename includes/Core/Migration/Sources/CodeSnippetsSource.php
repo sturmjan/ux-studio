@@ -13,6 +13,7 @@ use UxStudio\Core\Migration\Mapping;
 use UxStudio\Modules\CodeSnippets\Module as SnippetsModule;
 use UxStudio\Modules\CodeSnippets\PhpValidator;
 use UxStudio\Modules\CodeSnippets\Snippet;
+use UxStudio\Modules\CodeSnippets\SnippetConditions;
 use UxStudio\Modules\CodeSnippets\SnippetManager;
 
 defined( 'ABSPATH' ) || exit;
@@ -79,6 +80,7 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 			'skipped' => array(),
 			'review'  => 0,
 			'manual'  => 0,
+			'conditioned' => 0,
 		);
 		switch ( $this->slug ) {
 			case 'code-snippets':
@@ -91,9 +93,23 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 				$this->collect_hfcm( $out );
 				break;
 		}
+		// The module's own normaliser has the last word on every condition (ids as numbers, one canonical form); a set it
+		// refuses means the snippet cannot be trusted to run only where it did before, so it goes to review without them.
+		foreach ( $out['items'] as $i => $item ) {
+			if ( ! empty( $item['conditions'] ) ) {
+				$normalized = SnippetConditions::normalize( $item['conditions'] );
+				if ( $normalized['errors'] ) {
+					$out['items'][ $i ]['conditions'] = array();
+					$out['items'][ $i ]['review']     = true;
+				} else {
+					$out['items'][ $i ]['conditions'] = $normalized['conditions'];
+				}
+			}
+		}
 		foreach ( $out['items'] as $item ) {
 			$out['review'] += $item['review'] ? 1 : 0;
 			$out['manual'] += ! empty( $item['keep_off'] ) ? 1 : 0;
+			$out['conditioned'] += empty( $item['conditions'] ) ? 0 : 1;
 		}
 		$this->collected = $out;
 		return $out;
@@ -176,6 +192,7 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 				// A run-once snippet executes code when it is switched on, so only the admin does that.
 				'keep_off'     => SnippetManager::LOCATION_RUN_ONCE === $place,
 				'post_types'   => array(),
+				'conditions'   => array(),
 			);
 		}
 	}
@@ -224,6 +241,7 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 				'review'       => false,
 				'keep_off'     => false,
 				'post_types'   => array(),
+				'conditions'   => array(),
 			);
 		}
 		if ( ! function_exists( 'get_posts' ) ) {
@@ -258,15 +276,35 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 			if ( 'frontend_cl' === $where ) {
 				$review = true;
 			}
+			// Conditional logic and the device type become run conditions where the module can express them exactly; a
+			// snippet that uses anything else (taxonomy terms, page URLs, referrers, several OR groups ...) stays off for review.
+			$conditions = array();
 			if ( get_post_meta( $id, '_wpcode_conditional_logic_enabled', true ) ) {
-				$review = true;
+				$mapped = $this->wpcode_conditions( get_post_meta( $id, '_wpcode_conditional_logic', true ) );
+				if ( null === $mapped ) {
+					$review = true;
+				} else {
+					$conditions = $mapped;
+				}
 			}
 			$device = (string) get_post_meta( $id, '_wpcode_device_type', true );
-			if ( '' !== $device && 'any' !== $device ) {
+			if ( in_array( $device, array( 'desktop', 'mobile' ), true ) ) {
+				$conditions[] = array(
+					'type'  => 'device',
+					'value' => $device,
+				);
+			} elseif ( '' !== $device && 'any' !== $device ) {
 				$review = true;
 			}
+			if ( count( $conditions ) > SnippetConditions::MAX ) {
+				$review = true;
+			}
+			// The schedule is a Pro feature of WPCode and its stored format cannot be checked here: review.
 			if ( get_post_meta( $id, '_wpcode_schedule', true ) ) {
 				$review = true;
+			}
+			if ( $review ) {
+				$conditions = array();
 			}
 			$priority = get_post_meta( $id, '_wpcode_priority', true );
 			$out['items'][] = array(
@@ -282,8 +320,109 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 				'review'       => $review,
 				'keep_off'     => false,
 				'post_types'   => in_array( $place, self::PLACEMENTS, true ) ? SnippetManager::DEFAULT_POST_TYPES : array(),
+				'conditions'   => $conditions,
 			);
 		}
+	}
+
+	/**
+	 * WPCode conditional logic as run conditions, or null when the module cannot express it exactly.
+	 *
+	 * WPCode: `{ show: show|hide, groups: [ [ row, row ... ], ... ] }`, the rows of a group are ANDed, the groups ORed; a
+	 * row is `{ type: page|user, option, relation, value }`. Only one group (AND) is mapped; "hide" is mapped only for a
+	 * single row (it negates it). Rows: type of page (= / !=), post type (= / !=), logged in (true / false), user role (= / !=).
+	 *
+	 * @param mixed $rules Value of the meta `_wpcode_conditional_logic`.
+	 * @return array<int, array<string, mixed>>|null
+	 */
+	public function wpcode_conditions( $rules ): ?array {
+		if ( ! is_array( $rules ) || ! isset( $rules['show'] ) || ! in_array( $rules['show'], array( 'show', 'hide' ), true ) ) {
+			return null;
+		}
+		$groups = array_values( (array) ( $rules['groups'] ?? array() ) );
+		if ( 1 !== count( $groups ) || ! is_array( $groups[0] ) || ! $groups[0] ) {
+			return null;
+		}
+		$kinds = array(
+			'is_front_page' => 'front_page',
+			'is_home'       => 'blog_home',
+			'is_single'     => 'singular',
+			'is_author'     => 'author',
+			'is_archive'    => 'archive',
+			'is_search'     => 'search',
+			'is_404'        => '404',
+		);
+		$out = array();
+		foreach ( array_values( $groups[0] ) as $row ) {
+			if ( ! is_array( $row ) ) {
+				return null;
+			}
+			$type     = (string) ( $row['type'] ?? '' );
+			$option   = (string) ( $row['option'] ?? '' );
+			$relation = (string) ( $row['relation'] ?? '' );
+			$value    = $row['value'] ?? '';
+			if ( ! in_array( $relation, array( '=', '!=' ), true ) ) {
+				return null;
+			}
+			$negate = '!=' === $relation;
+			if ( 'page' === $type && 'type_of_page' === $option && is_string( $value ) && isset( $kinds[ $value ] ) ) {
+				$out[] = array(
+					'type'   => 'page',
+					'value'  => array( $kinds[ $value ] ),
+					'negate' => $negate,
+				);
+			} elseif ( 'page' === $type && 'post_type' === $option && is_string( $value ) && '' !== $value ) {
+				// WPCode asks get_post_type() before a loop, which names the type of a single post only.
+				$out[] = array(
+					'type'   => 'post_type',
+					'value'  => array( $value ),
+					'scope'  => 'single',
+					'negate' => $negate,
+				);
+			} elseif ( 'user' === $type && 'logged_in' === $option ) {
+				$text = strtolower( is_bool( $value ) ? ( $value ? '1' : '' ) : (string) $value );
+				if ( ! in_array( $text, array( '1', 'true', 'yes', 'on', '', '0', 'false', 'no', 'off' ), true ) ) {
+					return null;
+				}
+				$on    = in_array( $text, array( '1', 'true', 'yes', 'on' ), true );
+				$out[] = array(
+					'type'  => 'login',
+					'value' => ( $on xor $negate ) ? 'in' : 'out',
+				);
+			} elseif ( 'user' === $type && 'user_role' === $option && ( is_string( $value ) || is_array( $value ) ) && array() !== (array) $value && '' !== $value ) {
+				$out[] = array(
+					'type'   => 'role',
+					'value'  => array_values( (array) $value ),
+					'negate' => $negate,
+				);
+			} else {
+				return null;
+			}
+		}
+		if ( 'hide' === $rules['show'] ) {
+			// NOT (a AND b) cannot be written as a list of ANDed conditions; NOT (a) can.
+			if ( 1 !== count( $out ) ) {
+				return null;
+			}
+			$out[0] = $this->invert( $out[0] );
+		}
+		$normalized = SnippetConditions::normalize( $out );
+		return $normalized['errors'] ? null : $normalized['conditions'];
+	}
+
+	/**
+	 * A condition turned around.
+	 *
+	 * @param array<string, mixed> $condition Condition.
+	 * @return array<string, mixed>
+	 */
+	private function invert( array $condition ): array {
+		if ( 'login' === $condition['type'] ) {
+			$condition['value'] = 'in' === $condition['value'] ? 'out' : 'in';
+		} else {
+			$condition['negate'] = empty( $condition['negate'] );
+		}
+		return $condition;
 	}
 
 	/**
@@ -370,8 +509,19 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 			if ( $manual ) {
 				$place = SnippetManager::LOCATION_SHORTCODE;
 			}
+			// Targeting becomes run conditions where the module can express it exactly (site wide with exclusions, specific
+			// posts and pages, post types, home, archives, search, device); categories, tags and "latest posts" stay for review.
+			$conditions = $manual ? array() : $this->hfcm_conditions( $row );
+			$device     = (string) ( $row['device_type'] ?? 'both' );
+			if ( in_array( $device, array( 'desktop', 'mobile' ), true ) && is_array( $conditions ) ) {
+				$conditions[] = array(
+					'type'  => 'device',
+					'value' => $device,
+				);
+			}
 			// The plugin prints the stored text as it is (its JS and CSS snippets carry their own tags).
-			$review = ( ! $manual && 'All' !== (string) $row['display_on'] ) || 'both' !== (string) ( $row['device_type'] ?? 'both' );
+			$review     = null === $conditions || ! in_array( $device, array( 'both', 'desktop', 'mobile' ), true );
+			$conditions = is_array( $conditions ) ? $conditions : array();
 			$out['items'][] = array(
 				'key'          => 'hfcm:' . (int) $row['script_id'],
 				'label'        => trim( (string) $row['name'] ),
@@ -385,7 +535,79 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 				'review'       => $review,
 				'keep_off'     => false,
 				'post_types'   => in_array( $place, self::PLACEMENTS, true ) ? SnippetManager::DEFAULT_POST_TYPES : array(),
+				'conditions'   => $review ? array() : $conditions,
 			);
+		}
+	}
+
+	/**
+	 * Header Footer Code Manager targeting (`display_on` and the lists next to it) as run conditions, or null when the
+	 * module cannot express it exactly. The device is added by the caller.
+	 *
+	 * @param array<string, mixed> $row Row of `hfcm_scripts`.
+	 * @return array<int, array<string, mixed>>|null
+	 */
+	public function hfcm_conditions( array $row ): ?array {
+		$list = static function ( $json ): array {
+			$data = json_decode( (string) $json, true );
+			return is_array( $data ) ? array_values( array_filter( array_map( 'strval', $data ), static fn( string $v ): bool => '' !== $v ) ) : array();
+		};
+		switch ( (string) ( $row['display_on'] ?? '' ) ) {
+			case 'All':
+				$excluded = array_merge( $list( $row['ex_pages'] ?? '' ), $list( $row['ex_posts'] ?? '' ) );
+				return $excluded ? array(
+					array(
+						'type'   => 'post',
+						'value'  => $excluded,
+						'negate' => true,
+					),
+				) : array();
+			case 's_pages':
+			case 's_posts':
+				$ids = $list( $row[ (string) $row['display_on'] ] ?? '' );
+				return $ids ? array(
+					array(
+						'type'  => 'post',
+						'value' => $ids,
+					),
+				) : null;
+			case 's_custom_posts':
+				$types = $list( $row['s_custom_posts'] ?? '' );
+				$scope = array(
+					'both'     => 'both',
+					'posts'    => 'single',
+					'archives' => 'archive',
+				)[ (string) ( $row['spt_display_on'] ?? 'both' ) ] ?? null;
+				return $types && null !== $scope ? array(
+					array(
+						'type'  => 'post_type',
+						'value' => $types,
+						'scope' => $scope,
+					),
+				) : null;
+			case 's_is_home':
+				return array(
+					array(
+						'type'  => 'page',
+						'value' => array( 'front_page', 'blog_home' ),
+					),
+				);
+			case 's_is_archive':
+				return array(
+					array(
+						'type'  => 'page',
+						'value' => array( 'archive', 'author' ),
+					),
+				);
+			case 's_is_search':
+				return array(
+					array(
+						'type'  => 'page',
+						'value' => array( 'search' ),
+					),
+				);
+			default: // s_categories, s_tags, latest_posts.
+				return null;
 		}
 	}
 
@@ -436,12 +658,26 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 				sprintf(
 					/* translators: %d: number of snippets. */
 					_n(
-						'%d snippet used conditions, device or schedule rules or page targeting that the module does not have. It is created switched off so you can review it before it runs everywhere.',
-						'%d snippets used conditions, device or schedule rules or page targeting that the module does not have. They are created switched off so you can review them before they run everywhere.',
+						'%d snippet used a schedule or targeting that the run conditions of the module cannot express (for example several OR groups, taxonomy terms, page URLs, a referrer, categories or tags, latest posts). It is created switched off so you can review it before it runs everywhere.',
+						'%d snippets used a schedule or targeting that the run conditions of the module cannot express (for example several OR groups, taxonomy terms, page URLs, a referrer, categories or tags, latest posts). They are created switched off so you can review them before they run everywhere.',
 						$c['review'],
 						'ux-studio'
 					),
 					$c['review']
+				)
+			);
+		}
+		if ( $c['conditioned'] > 0 ) {
+			$m->note(
+				sprintf(
+					/* translators: %d: number of snippets. */
+					_n(
+						'%d snippet used page, user, role or device targeting. It is transferred as run conditions (page type, post type, specific posts, logged in or out, role, device), so it runs only where it did before.',
+						'%d snippets used page, user, role or device targeting. They are transferred as run conditions (page type, post type, specific posts, logged in or out, role, device), so they run only where they did before.',
+						$c['conditioned'],
+						'ux-studio'
+					),
+					$c['conditioned']
 				)
 			);
 		}
@@ -645,6 +881,7 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 				'run_location' => $item['run_location'],
 				'priority'     => $item['priority'],
 				'post_types'   => $item['post_types'] ?? array(),
+				'conditions'   => $item['conditions'] ?? array(),
 				'enabled'      => false,
 			)
 		);

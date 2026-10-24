@@ -77,7 +77,8 @@ final class MenuLock {
 			$structure['tops'],
 			$structure['subs'],
 			array_map( 'strval', (array) $user->roles ),
-			current_user_can( 'manage_options' )
+			current_user_can( 'manage_options' ),
+			MenuSimulator::current_ctx()
 		);
 		if ( ! $out['blocked'] ) {
 			return;
@@ -102,7 +103,7 @@ final class MenuLock {
 	 * @param string $file Admin file of the request.
 	 * @return array<string, string>
 	 */
-	private static function request_args( string $file ): array {
+	public static function request_args( string $file ): array {
 		$args = array();
 		// $_REQUEST like WordPress itself ($typenow): saving a post sends post_type / post_ID in the body.
 		// phpcs:disable WordPress.Security.NonceVerification

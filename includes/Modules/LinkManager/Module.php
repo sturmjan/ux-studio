@@ -8,13 +8,18 @@
 namespace UxStudio\Modules\LinkManager;
 
 use UxStudio\Modules\BaseModule;
+use UxStudio\Modules\MenuIcons\IconLibrary;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
  * Processes the_content to make external links safer (rel, target, aria-label,
- * arrow icon) and configures WordPress 6.8+ speculative loading. Ported from
+ * icon) and configures WordPress 6.8+ speculative loading. Ported from
  * the legacy module (free + pro merged, no licence gates).
+ *
+ * Rules (B3): default target / rel / icon, rules per domain (first matching line wins), a list of addresses that
+ * are never external. The content is parsed ONCE (one DOMDocument per the_content call, and none at all for content
+ * without a link); the decision for an address is cached for the request.
  */
 final class Module extends BaseModule {
 
@@ -26,9 +31,28 @@ final class Module extends BaseModule {
 	private array $exclude_classes = array();
 
 	/**
-	 * Whether any arrow was added on the current request.
+	 * Whether any SVG arrow was added on the current request.
 	 */
 	private bool $arrows_added = false;
+
+	/**
+	 * Whether any Dashicon was added on the current request.
+	 */
+	private bool $dashicons_added = false;
+
+	/**
+	 * Configuration read once per request: null until first use.
+	 *
+	 * @var array<string, mixed>|null
+	 */
+	private ?array $config = null;
+
+	/**
+	 * Decision cache per href.
+	 *
+	 * @var array<string, array<string, mixed>>
+	 */
+	private array $decisions = array();
 
 	/**
 	 * Register hooks.
@@ -69,12 +93,67 @@ final class Module extends BaseModule {
 	}
 
 	/**
+	 * The effective configuration (settings parsed once per request).
+	 *
+	 * @return array<string, mixed>
+	 */
+	public function config(): array {
+		if ( null !== $this->config ) {
+			return $this->config;
+		}
+
+		$icon = (string) $this->settings->get( 'icon_type', '' );
+		if ( ! in_array( $icon, array( 'arrow', 'none', 'dashicon' ), true ) ) {
+			// Sites saved before the icon choice existed only had the "disable arrow" switch.
+			$icon = $this->settings->get( 'disable_arrow', false ) ? 'none' : 'arrow';
+		}
+		$dashicon = (string) $this->settings->get( 'icon_dashicon', 'dashicons-external' );
+		if ( ! IconLibrary::dashicon_exists( $dashicon ) ) {
+			$dashicon = 'dashicons-external';
+		}
+
+		$stored_rel = $this->settings->get( 'default_rel', null );
+		$rel        = null === $stored_rel ? LinkRules::DEFAULT_REL : LinkRules::parse_rel( (string) $stored_rel );
+
+		$home = LinkRules::parts( home_url() );
+
+		$this->config = array(
+			'icon'          => $icon,
+			'dashicon'      => $dashicon,
+			'icon_position' => 'left' === $this->settings->get( 'icon_position', 'right' ) ? 'left' : 'right',
+			'skip_images'   => (bool) $this->settings->get( 'icon_skip_images', false ),
+			'new_tab'       => 'keep' !== $this->settings->get( 'default_target', 'new_tab' ),
+			'rel'           => $rel,
+			'rules'         => LinkRules::parse_rules( (string) $this->settings->get( 'link_rules', '' ) )['rules'],
+			'internal'      => LinkRules::parse_patterns( (string) $this->settings->get( 'internal_domains', '' ) ),
+			'subdomains'    => (bool) $this->settings->get( 'subdomains_internal', false ),
+			'home_host'     => $home ? $home['host'] : '',
+		);
+
+		return $this->config;
+	}
+
+	/**
+	 * Settings values; a site saved before the icon choice existed shows its old "disable arrow" as icon "none".
+	 *
+	 * @return array<string, mixed>
+	 */
+	public function settings_values(): array {
+		$values = parent::settings_values();
+		if ( '' === (string) $this->settings->get( 'icon_type', '' ) && $this->settings->get( 'disable_arrow', false ) ) {
+			$values['icon_type'] = 'none';
+		}
+		return $values;
+	}
+
+	/**
 	 * Process HTML content, modifying external links.
 	 *
 	 * @param string $content Post content.
 	 */
 	public function process_content( string $content ): string {
-		if ( '' === $content ) {
+		// No link, nothing to do: skip the DOM parser altogether.
+		if ( '' === $content || 1 !== preg_match( '/<a[\s>]/i', $content ) ) {
 			return $content;
 		}
 
@@ -115,19 +194,47 @@ final class Module extends BaseModule {
 				continue;
 			}
 
-			if ( $this->should_skip_link( $link, $href ) ) {
+			$decision = $this->decide( $href );
+			if ( $this->should_skip_link( $link, $decision ) ) {
 				continue;
 			}
 
 			$has_window_open = $this->has_window_open_onclick( $link );
 			if (
 				'_blank' === $link->getAttribute( 'target' ) ||
-				! $this->is_internal_url( $href ) ||
+				'external' === $decision['kind'] ||
 				$has_window_open
 			) {
-				$this->modify_link( $link, $href, $has_window_open );
+				$this->modify_link( $link, $decision, $has_window_open );
 			}
 		}
+	}
+
+	/**
+	 * What to do with an address: its kind and the matching rule. Cached per href for the request.
+	 *
+	 * @param string $href Href.
+	 * @return array{kind:string,rule:?array<string,mixed>}
+	 */
+	public function decide( string $href ): array {
+		if ( isset( $this->decisions[ $href ] ) ) {
+			return $this->decisions[ $href ];
+		}
+
+		$config = $this->config();
+		$info   = LinkRules::classify( $href, (string) $config['home_host'], (bool) $config['subdomains'], (array) $config['internal'] );
+		$rule   = 'external' === $info['kind'] ? LinkRules::find_rule( (array) $config['rules'], $info['host'], $info['host_path'] ) : null;
+
+		// Bound the cache: a page with thousands of different addresses must not grow it without limit.
+		if ( count( $this->decisions ) > 2000 ) {
+			$this->decisions = array();
+		}
+		$this->decisions[ $href ] = array(
+			'kind' => $info['kind'],
+			'rule' => $rule,
+		);
+
+		return $this->decisions[ $href ];
 	}
 
 	/**
@@ -177,17 +284,15 @@ final class Module extends BaseModule {
 	/**
 	 * Whether a link should be skipped entirely.
 	 *
-	 * @param \DOMElement $link Link.
-	 * @param string      $href Href.
+	 * @param \DOMElement                              $link     Link.
+	 * @param array{kind:string,rule:?array<string,mixed>} $decision What the address is.
 	 */
-	private function should_skip_link( \DOMElement $link, string $href ): bool {
-		if ( 0 === strpos( $href, 'mailto:' ) ) {
+	private function should_skip_link( \DOMElement $link, array $decision ): bool {
+		// mailto:, tel:, javascript:, anchors and every other non-web address.
+		if ( in_array( $decision['kind'], array( 'skip', 'anchor' ), true ) ) {
 			return true;
 		}
-		if ( 0 === strpos( $href, 'tel:' ) ) {
-			return true;
-		}
-		if ( $this->is_internal_url( $href ) && '_blank' !== $link->getAttribute( 'target' ) ) {
+		if ( 'internal' === $decision['kind'] && '_blank' !== $link->getAttribute( 'target' ) ) {
 			return true;
 		}
 		return $this->has_exclusion_class( $link, 'all' );
@@ -196,51 +301,52 @@ final class Module extends BaseModule {
 	/**
 	 * Apply attributes/elements to an external link.
 	 *
-	 * @param \DOMElement $link            Link.
-	 * @param string      $href            Href.
-	 * @param bool        $has_window_open Whether it has window.open onclick.
+	 * @param \DOMElement                              $link            Link.
+	 * @param array{kind:string,rule:?array<string,mixed>} $decision        What the address is.
+	 * @param bool                                     $has_window_open Whether it has window.open onclick.
 	 */
-	private function modify_link( \DOMElement $link, string $href, bool $has_window_open = false ): void {
-		if ( ! $this->has_exclusion_class( $link, 'rel' ) && ! $this->is_internal_url( $href ) ) {
-			$this->add_rel_attributes( $link );
+	private function modify_link( \DOMElement $link, array $decision, bool $has_window_open = false ): void {
+		$config   = $this->config();
+		$external = 'external' === $decision['kind'];
+		$rule     = $decision['rule'];
+
+		if ( $external && ! $this->has_exclusion_class( $link, 'rel' ) ) {
+			$tokens = null !== $rule && null !== $rule['rel'] ? (array) $rule['rel'] : (array) $config['rel'];
+			$this->add_rel_attributes( $link, $tokens );
 		}
 
+		$new_tab = null !== $rule && null !== $rule['tab'] ? (bool) $rule['tab'] : (bool) $config['new_tab'];
 		if (
 			! $this->has_exclusion_class( $link, 'new-tab' ) &&
-			( $has_window_open || ! $this->is_internal_url( $href ) ) &&
+			( $has_window_open || $external ) &&
+			$new_tab &&
 			'_blank' !== $link->getAttribute( 'target' )
 		) {
 			$link->setAttribute( 'target', '_blank' );
 		}
 
-		$this->add_aria_label( $link );
+		// The note "opens in a new tab" only where the link really does.
+		if ( '_blank' === $link->getAttribute( 'target' ) ) {
+			$this->add_aria_label( $link );
+		}
 
-		if ( ! $this->settings->get( 'disable_arrow', false ) && ! $this->has_exclusion_class( $link, 'arrow' ) ) {
-			$this->add_svg_arrow( $link );
+		$icon_on = null !== $rule && null !== $rule['icon'] ? (bool) $rule['icon'] : 'none' !== $config['icon'];
+		if ( $icon_on && ! $this->has_exclusion_class( $link, 'arrow' ) && ! ( $config['skip_images'] && $link->getElementsByTagName( 'img' )->length > 0 ) ) {
+			$this->add_icon( $link );
 		}
 	}
 
 	/**
-	 * Add rel="noopener noreferrer nofollow".
+	 * Add the rel tokens (existing tokens stay).
 	 *
-	 * @param \DOMElement $link Link.
+	 * @param \DOMElement $link   Link.
+	 * @param string[]    $tokens Tokens to add.
 	 */
-	private function add_rel_attributes( \DOMElement $link ): void {
-		if ( $this->has_exclusion_class( $link, 'rel' ) ) {
+	private function add_rel_attributes( \DOMElement $link, array $tokens ): void {
+		if ( array() === $tokens ) {
 			return;
 		}
-
-		$rel_attributes = array( 'noopener', 'noreferrer', 'nofollow' );
-		$current_rel    = $link->getAttribute( 'rel' );
-		$current_array  = '' === $current_rel ? array() : explode( ' ', $current_rel );
-
-		foreach ( $rel_attributes as $attr ) {
-			if ( ! in_array( $attr, $current_array, true ) ) {
-				$current_array[] = $attr;
-			}
-		}
-
-		$link->setAttribute( 'rel', implode( ' ', $current_array ) );
+		$link->setAttribute( 'rel', LinkRules::merge_rel( $link->getAttribute( 'rel' ), $tokens ) );
 	}
 
 	/**
@@ -270,67 +376,51 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Append the SVG arrow icon inside the link.
+	 * Add the icon (arrow or Dashicon) inside the link, once.
 	 *
 	 * @param \DOMElement $link Link.
 	 */
-	private function add_svg_arrow( \DOMElement $link ): void {
-		$xpath           = new \DOMXPath( $link->ownerDocument );
-		$existing_arrows = $xpath->query( './/svg[contains(@class, "uxstudio-external-link")]', $link );
+	private function add_icon( \DOMElement $link ): void {
+		$config = $this->config();
+		$doc    = $link->ownerDocument;
 
-		if ( $existing_arrows && $existing_arrows->length > 0 ) {
-			return;
+		foreach ( $link->childNodes as $child ) {
+			// Already has one of ours (content filtered twice, saved by hand).
+			if ( $child instanceof \DOMElement && false !== strpos( $child->getAttribute( 'class' ), 'uxstudio-external-link' ) ) {
+				return;
+			}
 		}
 
-		$svg = $link->ownerDocument->createElement( 'svg' );
-		$svg->setAttribute( 'class', 'uxstudio-external-link' );
-		$svg->setAttribute( 'aria-hidden', 'true' );
-
-		$use = $link->ownerDocument->createElement( 'use' );
-		$use->setAttribute( 'xlink:href', '#uxstudio-external-link' );
-
-		$svg->appendChild( $use );
-		$link->appendChild( $svg );
-
-		$this->arrows_added = true;
-	}
-
-	/**
-	 * Whether a URL points to this site.
-	 *
-	 * @param string $url URL.
-	 */
-	private function is_internal_url( string $url ): bool {
-		$url = trim( $url );
-
-		if ( 0 === strpos( $url, '#' ) || 0 === strpos( $url, '/' ) || 0 === strpos( $url, '?' ) ) {
-			return true;
+		if ( 'dashicon' === $config['icon'] ) {
+			$icon = $doc->createElement( 'span' );
+			$icon->setAttribute( 'class', 'uxstudio-external-link uxstudio-external-dashicon dashicons ' . $config['dashicon'] );
+			$icon->setAttribute( 'aria-hidden', 'true' );
+			$this->dashicons_added = true;
+			if ( ! wp_style_is( 'dashicons', 'enqueued' ) ) {
+				wp_enqueue_style( 'dashicons' );
+			}
+		} else {
+			$icon = $doc->createElement( 'svg' );
+			$icon->setAttribute( 'class', 'uxstudio-external-link' );
+			$icon->setAttribute( 'aria-hidden', 'true' );
+			$use = $doc->createElement( 'use' );
+			$use->setAttribute( 'xlink:href', '#uxstudio-external-link' );
+			$icon->appendChild( $use );
+			$this->arrows_added = true;
 		}
 
-		$parsed_url      = wp_parse_url( $url );
-		$home_url        = home_url();
-		$parsed_home_url = wp_parse_url( $home_url );
-
-		if ( ! isset( $parsed_url['scheme'], $parsed_url['host'] ) ) {
-			return false;
+		if ( 'left' === $config['icon_position'] && $link->firstChild ) {
+			$link->insertBefore( $icon, $link->firstChild );
+		} else {
+			$link->appendChild( $icon );
 		}
-
-		if (
-			isset( $parsed_home_url['host'], $parsed_home_url['scheme'] ) &&
-			$parsed_url['host'] === $parsed_home_url['host'] &&
-			$parsed_url['scheme'] === $parsed_home_url['scheme']
-		) {
-			return true;
-		}
-
-		return 0 === strpos( $url, $home_url );
 	}
 
 	/**
 	 * Output the shared SVG arrow symbol in the footer (only if used).
 	 */
 	public function maybe_render_arrow(): void {
-		if ( ! $this->arrows_added || $this->settings->get( 'disable_arrow', false ) ) {
+		if ( ! $this->arrows_added && ! $this->dashicons_added ) {
 			return;
 		}
 		?>
@@ -339,12 +429,20 @@ final class Module extends BaseModule {
 				width: 1em;
 				height: 1em;
 			}
+			.uxstudio-external-dashicon {
+				font-size: 1em;
+				line-height: 1;
+				vertical-align: -0.1em;
+				text-decoration: none;
+			}
 		</style>
+		<?php if ( $this->arrows_added ) : ?>
 		<svg class="uxstudio-external-link" aria-hidden="true" style="position: absolute; width: 0; height: 0; overflow: hidden;">
 			<symbol viewBox="0 0 256 256" id="uxstudio-external-link">
 				<path fill="currentColor" d="M200 64v104a8 8 0 0 1-16 0V83.31L69.66 197.66a8 8 0 0 1-11.32-11.32L172.69 72H88a8 8 0 0 1 0-16h104a8 8 0 0 1 8 8"></path>
 			</symbol>
 		</svg>
+		<?php endif; ?>
 		<?php
 	}
 
@@ -425,19 +523,102 @@ final class Module extends BaseModule {
 	 * Settings schema for the generic renderer.
 	 */
 	public function settings_schema(): array {
+		$general = __( 'Links', 'ux-studio' );
+		$rules   = __( 'Rules', 'ux-studio' );
+		$spec    = __( 'Speculative loading', 'ux-studio' );
+
 		$schema = array(
 			array(
+				'key'     => 'default_target',
+				'section' => $general,
+				'type'    => 'select',
+				'label'   => __( 'External links open', 'ux-studio' ),
+				'help'    => __( 'Where external links open. "Keep as is" leaves the target the author set.', 'ux-studio' ),
+				'options' => array(
+					'new_tab' => __( 'In a new tab', 'ux-studio' ),
+					'keep'    => __( 'Keep as is', 'ux-studio' ),
+				),
+				'default' => 'new_tab',
+			),
+			array(
+				'key'     => 'default_rel',
+				'section' => $general,
+				'type'    => 'text',
+				'label'   => __( 'rel attribute of external links', 'ux-studio' ),
+				'help'    => __( 'Tokens added to external links, separated by spaces: noopener, noreferrer, nofollow, sponsored, ugc, external. Leave empty to add nothing.', 'ux-studio' ),
+				'default' => implode( ' ', LinkRules::DEFAULT_REL ),
+			),
+			array(
+				'key'     => 'icon_type',
+				'section' => $general,
+				'type'    => 'select',
+				'label'   => __( 'Icon of external links', 'ux-studio' ),
+				'help'    => __( 'The arrow of the module, a Dashicon of your choice, or no icon. Not recommended to switch it off: it may cause accessibility issues.', 'ux-studio' ),
+				'options' => array(
+					'arrow'    => __( 'Arrow', 'ux-studio' ),
+					'dashicon' => __( 'Dashicon', 'ux-studio' ),
+					'none'     => __( 'No icon', 'ux-studio' ),
+				),
+				'default' => 'arrow',
+			),
+			array(
+				'key'     => 'icon_dashicon',
+				'section' => $general,
+				'type'    => 'select',
+				'label'   => __( 'Dashicon', 'ux-studio' ),
+				'help'    => __( 'Used when the icon is a Dashicon.', 'ux-studio' ),
+				'options' => IconLibrary::dashicon_choices(),
+				'default' => 'dashicons-external',
+			),
+			array(
+				'key'     => 'icon_position',
+				'section' => $general,
+				'type'    => 'select',
+				'label'   => __( 'Icon position', 'ux-studio' ),
+				'options' => array(
+					'right' => __( 'After the link text', 'ux-studio' ),
+					'left'  => __( 'Before the link text', 'ux-studio' ),
+				),
+				'default' => 'right',
+			),
+			array(
+				'key'     => 'icon_skip_images',
+				'section' => $general,
+				'type'    => 'toggle',
+				'label'   => __( 'No icon on links that contain an image', 'ux-studio' ),
+				'help'    => __( 'Image links (logos, banners) do not get the icon.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
 				'key'     => 'exclude_classes',
+				'section' => $general,
 				'type'    => 'text',
 				'label'   => __( 'Exclude classes', 'ux-studio' ),
 				'help'    => __( 'Comma-separated list of CSS classes to exclude from external link processing. Built-in per-link classes: wpe-exclude--link, wpe-exclude--arrow, wpe-exclude--rel, wpe-exclude--new-tab, wpe-exclude--aria-label.', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
-				'key'     => 'disable_arrow',
+				'key'     => 'link_rules',
+				'section' => $rules,
+				'type'    => 'textarea',
+				'label'   => __( 'Rules per domain', 'ux-studio' ),
+				'help'    => __( 'One rule per line: an address, then any of tab=yes|no (open in a new tab), rel=tokens separated by commas (exactly these are added, none = nothing) and icon=yes|no. The first matching line wins. Examples: partner.example tab=no rel=none / *.shop.example rel=sponsored,nofollow / example.org/affiliate/* rel=sponsored icon=no. An address without a star is that host (www is ignored), *.example.com covers its subdomains, a slash makes it a path. Lines starting with # are comments.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'internal_domains',
+				'section' => $rules,
+				'type'    => 'textarea',
+				'label'   => __( 'Never treat as external', 'ux-studio' ),
+				'help'    => __( 'Addresses that are not processed as external links, for example your own other domains and subdomains. One per line or separated by commas, * stands for any characters: shop.example.com, *.example.com, example.org/blog/*.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'subdomains_internal',
+				'section' => $rules,
 				'type'    => 'toggle',
-				'label'   => __( 'Disable external link arrow', 'ux-studio' ),
-				'help'    => __( 'Not recommended as it may cause accessibility issues.', 'ux-studio' ),
+				'label'   => __( 'Subdomains of this site are internal', 'ux-studio' ),
+				'help'    => __( 'Links to any subdomain of the domain of this site are not treated as external.', 'ux-studio' ),
 				'default' => false,
 			),
 		);
@@ -489,6 +670,12 @@ final class Module extends BaseModule {
 				'help'    => __( 'URL patterns to exclude only from prerendering, one per line (e.g. /personalized-area/*).', 'ux-studio' ),
 				'default' => '',
 			);
+		}
+
+		foreach ( $schema as $i => $field ) {
+			if ( ! isset( $field['section'] ) ) {
+				$schema[ $i ]['section'] = $spec;
+			}
 		}
 
 		return $schema;

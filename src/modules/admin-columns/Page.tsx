@@ -55,6 +55,8 @@ interface Column {
 	field_type: FieldType;
 	enabled: boolean;
 	width: string;
+	sortable?: boolean;
+	filterable?: boolean;
 }
 
 interface KeySuggestion {
@@ -103,7 +105,7 @@ const KEY_HELP: Record< Column[ 'type' ], string > = {
 };
 
 function emptyColumn(): Column {
-	return { key: '', label: '', type: 'default', field_type: 'text', enabled: true, width: '' };
+	return { key: '', label: '', type: 'default', field_type: 'text', enabled: true, width: '', sortable: false, filterable: false };
 }
 
 function ColumnRow( {
@@ -115,6 +117,7 @@ function ColumnRow( {
 	isLast,
 	datalistId,
 	suggestions,
+	listColumns,
 }: {
 	column: Column;
 	onChange: ( next: Column ) => void;
@@ -124,6 +127,8 @@ function ColumnRow( {
 	isLast: boolean;
 	datalistId: string;
 	suggestions: KeySuggestion[];
+	/** Sorting and filtering exist for the lists of post types only (not users, comments, media). */
+	listColumns: boolean;
 } ): JSX.Element {
 	const keyMissing = column.key.trim() === '';
 
@@ -206,6 +211,26 @@ function ColumnRow( {
 					style={ { width: '90px' } }
 					onChange={ ( e ) => onChange( { ...column, width: e.target.value } ) }
 				/>
+			</td>
+			<td>
+				<label className="uxs-checklist__item">
+					<input
+						type="checkbox"
+						disabled={ ! listColumns }
+						checked={ !! column.sortable }
+						onChange={ ( e ) => onChange( { ...column, sortable: e.target.checked } ) }
+					/>
+					{ __( 'Sortable', 'ux-studio' ) }
+				</label>
+				<label className="uxs-checklist__item">
+					<input
+						type="checkbox"
+						disabled={ ! listColumns }
+						checked={ !! column.filterable }
+						onChange={ ( e ) => onChange( { ...column, filterable: e.target.checked } ) }
+					/>
+					{ __( 'Filter', 'ux-studio' ) }
+				</label>
 			</td>
 			<td>
 				<button
@@ -335,6 +360,7 @@ function AccordionSection( {
 									<th>{ __( 'Type', 'ux-studio' ) }</th>
 									<th>{ __( 'Key', 'ux-studio' ) }</th>
 									<th>{ __( 'Width', 'ux-studio' ) }</th>
+									<th>{ __( 'Sort and filter', 'ux-studio' ) }</th>
 									<th>{ __( 'Enabled', 'ux-studio' ) }</th>
 									<th></th>
 								</tr>
@@ -352,10 +378,19 @@ function AccordionSection( {
 										isLast={ index === draft.length - 1 }
 										datalistId={ `uxs-ac-keys-${ type.id }-${ index }` }
 										suggestions={ suggestions.data?.[ column.type ] ?? [] }
+										listColumns={ ! [ 'users', 'comments', 'attachment' ].includes( type.id ) }
 									/>
 								) ) }
 							</tbody>
 						</table>
+					) }
+					{ draft.length > 0 && (
+						<p className="uxs-form__help">
+							{ __(
+								'Sortable adds a clickable column header, Filter a dropdown above the list. Both work for custom fields, taxonomies, the author and the ID in the lists of posts, pages and other post types (not in the users, comments and media lists).',
+								'ux-studio'
+							) }
+						</p>
 					) }
 					<div style={ { display: 'flex', gap: 'var(--uxs-sp-3)', marginTop: 'var(--uxs-sp-4)' } }>
 						<button type="button" className="button" onClick={ () => setDraft( ( rows ) => [ ...rows, emptyColumn() ] ) }>

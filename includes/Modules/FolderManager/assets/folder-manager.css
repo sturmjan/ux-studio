@@ -249,3 +249,13 @@
 		left: 0;
 	}
 }
+
+.uxs-fm-color-input {
+	position: absolute;
+	width: 0;
+	height: 0;
+	padding: 0;
+	border: 0;
+	opacity: 0;
+	pointer-events: none;
+}

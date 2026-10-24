@@ -12,8 +12,9 @@ import { navigate } from '../../app/route';
 import { TopicSettings, withKeys } from '../../app/TopicSettings';
 import { TabsNav } from '../../app/SubNav';
 import { formatDate } from '../../app/date';
+import UrlEventsView from './UrlEvents';
 
-type Tab = 'events' | 'schedules' | 'watch' | 'settings';
+type Tab = 'events' | 'urls' | 'schedules' | 'watch' | 'settings';
 
 interface CronEvent {
 	hook: string;
@@ -502,6 +503,9 @@ export default function Page(): JSX.Element {
 				<button className={ tab === 'events' ? 'is-active' : '' } onClick={ () => setTab( 'events' ) }>
 					{ __( 'Events', 'ux-studio' ) }
 				</button>
+				<button className={ tab === 'urls' ? 'is-active' : '' } onClick={ () => setTab( 'urls' ) }>
+					{ __( 'URL events', 'ux-studio' ) }
+				</button>
 				<button className={ tab === 'schedules' ? 'is-active' : '' } onClick={ () => setTab( 'schedules' ) }>
 					{ __( 'Schedules', 'ux-studio' ) }
 				</button>
@@ -513,6 +517,7 @@ export default function Page(): JSX.Element {
 				</button>
 			</TabsNav>
 			{ tab === 'events' && <EventsTable /> }
+			{ tab === 'urls' && <UrlEventsView /> }
 			{ tab === 'schedules' && <SchedulesTable /> }
 			{ tab === 'watch' && (
 				<>

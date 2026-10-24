@@ -33,11 +33,28 @@ final class Processor {
 	private string $site_host;
 
 	/**
-	 * @param int $max_bytes Max file size in bytes.
+	 * Options (PLAN.md 27.10): base_url ('' = the address WordPress gives), file_pattern, alt_pattern, max_width, max_height
+	 * (0 = no limit) and excluded_domains (list of hosts, `*.example.com` for subdomains).
+	 *
+	 * @var array{base_url:string,file_pattern:string,alt_pattern:string,max_width:int,max_height:int,excluded_domains:string[]}
 	 */
-	public function __construct( int $max_bytes = 10485760 ) {
+	private array $opts;
+
+	/**
+	 * @param int                  $max_bytes Max file size in bytes.
+	 * @param array<string, mixed> $opts      Options, see above.
+	 */
+	public function __construct( int $max_bytes = 10485760, array $opts = array() ) {
 		$this->max_bytes = $max_bytes > 0 ? $max_bytes : 10485760;
 		$this->site_host = strtolower( (string) wp_parse_url( home_url(), PHP_URL_HOST ) );
+		$this->opts      = array(
+			'base_url'         => trim( (string) ( $opts['base_url'] ?? '' ) ),
+			'file_pattern'     => '' !== trim( (string) ( $opts['file_pattern'] ?? '' ) ) ? trim( (string) $opts['file_pattern'] ) : '%filename%',
+			'alt_pattern'      => '' !== trim( (string) ( $opts['alt_pattern'] ?? '' ) ) ? trim( (string) $opts['alt_pattern'] ) : '%image_alt%',
+			'max_width'        => max( 0, (int) ( $opts['max_width'] ?? 0 ) ),
+			'max_height'       => max( 0, (int) ( $opts['max_height'] ?? 0 ) ),
+			'excluded_domains' => array_values( array_filter( array_map( 'strval', (array) ( $opts['excluded_domains'] ?? array() ) ) ) ),
+		);
 	}
 
 	/**
@@ -56,16 +73,17 @@ final class Processor {
 
 		$map       = $this->load_url_map();
 		$processed = 0;
+		$post      = $this->post_context( $post_id );
 
 		$content = preg_replace_callback(
 			'#<img\b([^>]*)\bsrc=(["\'])([^"\']+)\2([^>]*)>#i',
-			function ( $m ) use ( &$map, &$processed, $post_id, $max_images ) {
+			function ( $m ) use ( &$map, &$processed, $post_id, $max_images, $post ) {
 				$before = $m[1];
 				$quote  = $m[2];
 				$src    = $m[3];
 				$after  = $m[4];
 
-				if ( ! $this->is_external( $src ) ) {
+				if ( ! $this->is_external( $src ) || $this->is_excluded( $src ) ) {
 					return $m[0];
 				}
 
@@ -73,11 +91,15 @@ final class Processor {
 					return $m[0];
 				}
 
+				// The alt text the tag had, for the %image_alt% placeholder of the pattern.
+				$alt_before = preg_match( '#\balt=(["\'])([^"\']*)\1#i', $m[1] . ' ' . $m[4], $alt_match ) ? html_entity_decode( $alt_match[2], ENT_QUOTES ) : '';
+				$alt_new    = trim( self::resolve_pattern( $this->opts['alt_pattern'], $this->pattern_context( $src, $alt_before, $post ) ) );
+
 				$key = md5( $src );
 				if ( isset( $map[ $key ] ) ) {
 					$new_url = $map[ $key ];
 				} else {
-					$result = $this->sideload( $src, $post_id );
+					$result = $this->sideload( $src, $post_id, $alt_before );
 					if ( is_wp_error( $result ) || empty( $result['url'] ) ) {
 						return $m[0];
 					}
@@ -93,8 +115,14 @@ final class Processor {
 				$combined = preg_replace( '#\s+data-lazy-srcset=(["\'])[^"\']*\1#i', '', $combined );
 				$combined = preg_replace( '#\s+data-src=(["\'])[^"\']*\1#i', '', $combined );
 				$combined = rtrim( $combined );
+				if ( '' !== $alt_new && $alt_new !== $alt_before ) {
+					$alt_attr = ' alt="' . esc_attr( $alt_new ) . '"';
+					$combined = preg_match( '#\salt=(["\'])[^"\']*\1#i', $combined )
+						? (string) preg_replace( '#\salt=(["\'])[^"\']*\1#i', $alt_attr, $combined, 1 )
+						: $combined . $alt_attr;
+				}
 
-				return '<img ' . trim( $combined ) . ' src=' . $quote . esc_url( $new_url ) . $quote . '>';
+				return '<img ' . trim( $combined ) . ' src=' . $quote . esc_url( $this->public_url( $new_url ) ) . $quote . '>';
 			},
 			$content
 		);
@@ -141,20 +169,35 @@ final class Processor {
 	 *
 	 * @param string $url     Source URL.
 	 * @param int    $post_id Post ID to attach to.
+	 * @param string $alt     Alt text the image had where it was found (for the alt pattern).
 	 * @return array|WP_Error { id, url, source_url } on success.
 	 */
-	public function sideload( string $url, int $post_id = 0 ) {
+	public function sideload( string $url, int $post_id = 0, string $alt = '' ) {
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 		require_once ABSPATH . 'wp-admin/includes/image.php';
 		require_once ABSPATH . 'wp-admin/includes/media.php';
+
+		if ( $this->is_excluded( $url ) ) {
+			return new WP_Error( 'excluded_domain', __( 'Images from this domain are excluded.', 'ux-studio' ) );
+		}
 
 		$result = $this->fetch_to_temp_file( $url );
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
 
+		$post     = $this->post_context( $post_id );
+		$ctx      = $this->pattern_context( $url, $alt, $post );
+		$new_name = self::file_name( $this->opts['file_pattern'], $result['name'], $ctx );
+		$alt_text = trim( self::resolve_pattern( $this->opts['alt_pattern'], $ctx ) );
+
+		$resized = $this->resize_file( $result['path'], $new_name );
+		if ( null !== $resized ) {
+			$result['path'] = $resized;
+		}
+
 		$file_array = array(
-			'name'     => $result['name'],
+			'name'     => $new_name,
 			'tmp_name' => $result['path'],
 		);
 
@@ -164,7 +207,8 @@ final class Processor {
 			return new WP_Error( 'invalid_type', __( 'The file is not an allowed image format.', 'ux-studio' ) );
 		}
 
-		$attachment_id = media_handle_sideload( $file_array, $post_id );
+		$post_data     = '' !== $alt_text ? array( 'post_title' => $alt_text ) : array();
+		$attachment_id = media_handle_sideload( $file_array, $post_id, null, $post_data );
 		if ( is_wp_error( $attachment_id ) ) {
 			@unlink( $file_array['tmp_name'] ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 			return $attachment_id;
@@ -172,12 +216,246 @@ final class Processor {
 
 		$new_url = wp_get_attachment_url( $attachment_id );
 		update_post_meta( $attachment_id, self::SOURCE_META_KEY, esc_url_raw( $url ) );
+		if ( '' !== $alt_text ) {
+			update_post_meta( $attachment_id, '_wp_attachment_image_alt', $alt_text );
+		}
 
 		return array(
 			'id'         => (int) $attachment_id,
 			'url'        => $new_url,
 			'source_url' => $url,
 		);
+	}
+
+	/**
+	 * The address an uploaded image is written into the content with: the base address setting replaces scheme and host of
+	 * what WordPress gives (a CDN in front of the uploads folder), `/` leaves only the path.
+	 *
+	 * @param string $url Address of the attachment.
+	 */
+	public function public_url( string $url ): string {
+		$base = $this->opts['base_url'];
+		if ( '' === $base ) {
+			return $url;
+		}
+		$path = (string) wp_parse_url( $url, PHP_URL_PATH );
+		$qs   = wp_parse_url( $url, PHP_URL_QUERY );
+		if ( '' === $path ) {
+			return $url;
+		}
+		if ( '/' === $base ) {
+			return $path . ( $qs ? '?' . $qs : '' );
+		}
+		if ( ! preg_match( '#^https?://[^/\s]+#i', $base ) ) {
+			return $url;
+		}
+		return rtrim( $base, '/' ) . $path . ( $qs ? '?' . $qs : '' );
+	}
+
+	/**
+	 * Is the host of an address on the exclusion list?
+	 *
+	 * @param string $url Image address.
+	 */
+	public function is_excluded( string $url ): bool {
+		if ( array() === $this->opts['excluded_domains'] || 0 === stripos( $url, 'data:' ) ) {
+			return false;
+		}
+		$host = self::bare_host( $url );
+		if ( '' === $host ) {
+			return false;
+		}
+		foreach ( $this->opts['excluded_domains'] as $entry ) {
+			$entry = strtolower( trim( $entry ) );
+			if ( 0 === strpos( $entry, '*.' ) ) {
+				$suffix = substr( $entry, 1 );
+				if ( substr( $host, -strlen( $suffix ) ) === $suffix ) {
+					return true;
+				}
+				continue;
+			}
+			if ( self::bare_host( $entry ) === $host ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Host of an address (or of a bare domain) without `www.`, lower case, with a port when there is one.
+	 *
+	 * @param string $url Address or domain.
+	 */
+	public static function bare_host( string $url ): string {
+		$url   = trim( $url );
+		$parts = wp_parse_url( preg_match( '#^[a-z][a-z0-9+.-]*://#i', $url ) || 0 === strpos( $url, '//' ) ? $url : '//' . $url );
+		$host  = strtolower( (string) ( $parts['host'] ?? '' ) );
+		if ( '' === $host ) {
+			return '';
+		}
+		$host = (string) preg_replace( '/^www\d?\./', '', $host );
+		return isset( $parts['port'] ) ? $host . ':' . $parts['port'] : $host;
+	}
+
+	/**
+	 * What the %post_*% placeholders need.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return array{id:int,name:string,date:int}
+	 */
+	private function post_context( int $post_id ): array {
+		$post = $post_id > 0 ? get_post( $post_id ) : null;
+		$gmt  = $post && ! empty( $post->post_date_gmt ) && '0000-00-00 00:00:00' !== $post->post_date_gmt ? strtotime( $post->post_date_gmt . ' UTC' ) : 0;
+		return array(
+			'id'   => $post_id,
+			'name' => $post ? (string) $post->post_name : '',
+			'date' => $gmt ? (int) $gmt : 0,
+		);
+	}
+
+	/**
+	 * Values for the placeholders of a pattern.
+	 *
+	 * @param string                                  $url  Source address of the image.
+	 * @param string                                  $alt  Alt text the image had.
+	 * @param array{id:int,name:string,date:int}      $post Post values.
+	 * @return array<string, mixed>
+	 */
+	private function pattern_context( string $url, string $alt, array $post ): array {
+		$path = 0 === stripos( $url, 'data:' ) ? '' : (string) wp_parse_url( $url, PHP_URL_PATH );
+		$name = '' !== $path ? pathinfo( $path, PATHINFO_FILENAME ) : '';
+		return array(
+			'filename'  => sanitize_file_name( $name ),
+			'alt'       => $alt,
+			'host'      => self::bare_host( home_url() ),
+			'post_id'   => $post['id'],
+			'post_name' => $post['name'],
+			'post_date' => $post['date'],
+			'now'       => time(),
+		);
+	}
+
+	/**
+	 * Fill in the placeholders of a pattern. Same placeholders as Auto Upload Images (so a migrated pattern keeps working):
+	 * %filename% %image_alt% %date% %today_date% %year% %month% %day% %today_day% %post_date% %post_year% %post_month%
+	 * %post_day% %url% %random% %timestamp% %post_id% %postname%. An unknown %word% stays as it is. Plain str_replace.
+	 *
+	 * @param string               $pattern Pattern.
+	 * @param array<string, mixed> $ctx     filename, alt, host, post_id, post_name, post_date (timestamp, 0 = now), now.
+	 */
+	public static function resolve_pattern( string $pattern, array $ctx ): string {
+		$now  = (int) ( $ctx['now'] ?? time() );
+		$post = (int) ( $ctx['post_date'] ?? 0 ) ?: $now;
+		$map  = array(
+			'%filename%'   => (string) ( $ctx['filename'] ?? '' ),
+			'%image_alt%'  => (string) ( $ctx['alt'] ?? '' ),
+			'%date%'       => gmdate( 'Y-m-j', $now ),
+			'%today_date%' => gmdate( 'Y-m-j', $now ),
+			'%year%'       => gmdate( 'Y', $now ),
+			'%month%'      => gmdate( 'm', $now ),
+			'%day%'        => gmdate( 'j', $now ),
+			'%today_day%'  => gmdate( 'j', $now ),
+			'%post_date%'  => gmdate( 'Y-m-j', $post ),
+			'%post_year%'  => gmdate( 'Y', $post ),
+			'%post_month%' => gmdate( 'm', $post ),
+			'%post_day%'   => gmdate( 'j', $post ),
+			'%url%'        => (string) ( $ctx['host'] ?? '' ),
+			'%random%'     => uniqid( 'img_', false ),
+			'%timestamp%'  => (string) $now,
+			'%post_id%'    => (string) (int) ( $ctx['post_id'] ?? 0 ),
+			'%postname%'   => (string) ( $ctx['post_name'] ?? '' ),
+		);
+		return strtr( $pattern, $map );
+	}
+
+	/**
+	 * The file name an image gets: the pattern with the extension of the downloaded file. The default pattern keeps the name.
+	 *
+	 * @param string               $pattern  File name pattern.
+	 * @param string               $original Name of the downloaded file (with extension).
+	 * @param array<string, mixed> $ctx      Placeholder values.
+	 */
+	public static function file_name( string $pattern, string $original, array $ctx ): string {
+		if ( '%filename%' === trim( $pattern ) ) {
+			return $original;
+		}
+		$ext = strtolower( pathinfo( $original, PATHINFO_EXTENSION ) );
+		if ( '' === (string) ( $ctx['filename'] ?? '' ) ) {
+			// The address says nothing about a file name (a pasted image, a script that serves images): use the generated one.
+			$ctx['filename'] = pathinfo( $original, PATHINFO_FILENAME );
+		}
+		$base = trim( self::resolve_pattern( $pattern, $ctx ) );
+		$base = function_exists( 'sanitize_file_name' ) ? sanitize_file_name( $base ) : $base;
+		$base = (string) preg_replace( '/\.(jpe?g|png|gif|webp|svg|bmp|avif)$/i', '', $base );
+		if ( '' === $base || '-' === $base ) {
+			$base = uniqid( 'img_', false );
+		}
+		return $base . ( '' !== $ext ? '.' . $ext : '' );
+	}
+
+	/**
+	 * Size an image has to be scaled to so it fits in the box, keeping its proportions; null when it already fits (or no box).
+	 *
+	 * @param int $width      Image width.
+	 * @param int $height     Image height.
+	 * @param int $max_width  Largest width, 0 = no limit.
+	 * @param int $max_height Largest height, 0 = no limit.
+	 * @return array{0:int,1:int}|null
+	 */
+	public static function fit_size( int $width, int $height, int $max_width, int $max_height ): ?array {
+		if ( $width < 1 || $height < 1 || ( $max_width < 1 && $max_height < 1 ) ) {
+			return null;
+		}
+		$ratio = 1.0;
+		if ( $max_width > 0 && $width > $max_width ) {
+			$ratio = min( $ratio, $max_width / $width );
+		}
+		if ( $max_height > 0 && $height > $max_height ) {
+			$ratio = min( $ratio, $max_height / $height );
+		}
+		if ( $ratio >= 1.0 ) {
+			return null;
+		}
+		return array( max( 1, (int) round( $width * $ratio ) ), max( 1, (int) round( $height * $ratio ) ) );
+	}
+
+	/**
+	 * Scale the downloaded file down to the size limit (never up). The original size is not kept.
+	 *
+	 * @param string $path File on disk (no extension).
+	 * @param string $name Name the file will have (the extension tells the format).
+	 * @return string|null Path of the resized file, null when nothing was done.
+	 */
+	private function resize_file( string $path, string $name ): ?string {
+		if ( $this->opts['max_width'] < 1 && $this->opts['max_height'] < 1 ) {
+			return null;
+		}
+		$ext = strtolower( pathinfo( $name, PATHINFO_EXTENSION ) );
+		if ( in_array( $ext, array( 'svg', 'gif' ), true ) || ! function_exists( 'wp_get_image_editor' ) ) {
+			return null; // Vector images need no scaling and a GIF would lose its frames.
+		}
+		$target = $path . '.' . $ext;
+		if ( ! @copy( $path, $target ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			return null;
+		}
+		$editor = wp_get_image_editor( $target );
+		if ( is_wp_error( $editor ) ) {
+			@unlink( $target ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			return null;
+		}
+		$size = $editor->get_size();
+		$fit  = self::fit_size( (int) ( $size['width'] ?? 0 ), (int) ( $size['height'] ?? 0 ), $this->opts['max_width'], $this->opts['max_height'] );
+		if ( null === $fit || is_wp_error( $editor->resize( $fit[0], $fit[1], false ) ) ) {
+			@unlink( $target ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			return null;
+		}
+		$saved = $editor->save( $target );
+		if ( is_wp_error( $saved ) || empty( $saved['path'] ) ) {
+			@unlink( $target ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			return null;
+		}
+		@unlink( $path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		return (string) $saved['path'];
 	}
 
 	/**

@@ -25,7 +25,8 @@ final class ClassicEditorSource extends AbstractSource {
 
 	public function smoke_checks(): array {
 		$settings = $this->mapping()->settings['classic-editor'] ?? null;
-		if ( null === $settings ) {
+		// With the choice left to the users there is no single editor to probe.
+		if ( null === $settings || ! empty( $settings['allow_users'] ) ) {
 			return array();
 		}
 		return array(
@@ -51,15 +52,24 @@ final class ClassicEditorSource extends AbstractSource {
 			$replace = 'classic'; // The plugin's own default on activation.
 		}
 
-		if ( in_array( (string) $replace, array( 'block', 'no-replace' ), true ) ) {
+		$block = in_array( (string) $replace, array( 'block', 'no-replace' ), true );
+		if ( 'allow' === $allow ) {
+			$m->set( 'classic-editor', 'allow_users', true, __( 'Users can choose their editor', 'ux-studio' ), 'classic-editor-allow-users' );
+			$m->set( 'classic-editor', 'default_editor', $block ? 'block' : 'classic', __( 'Site default editor', 'ux-studio' ), 'classic-editor-replace' );
+			if ( ! $block ) {
+				$m->set( 'classic-editor', 'post_types', array(), __( 'Post types (none selected = all)', 'ux-studio' ), 'classic-editor-replace' );
+			}
+			$m->note( __( 'Users choose their editor, as in the plugin. The default editor of each user (user option classic-editor-settings) and the editor remembered for each post (post meta classic-editor-remember) are stored under the same keys, so the module uses them as they are.', 'ux-studio' ) );
+			return $m;
+		}
+
+		if ( $block ) {
 			$m->note( __( 'The plugin keeps the block editor as the default editor. The module would force the classic editor, so nothing is transferred - do not switch the module on if you want to keep the block editor.', 'ux-studio' ) );
 		} else {
 			$m->set( 'classic-editor', 'post_types', array(), __( 'Post types (none selected = all)', 'ux-studio' ), 'classic-editor-replace' );
+			$m->set( 'classic-editor', 'default_editor', 'classic', __( 'Site default editor', 'ux-studio' ), 'classic-editor-replace' );
+			$m->set( 'classic-editor', 'allow_users', false, __( 'Users can choose their editor', 'ux-studio' ), 'classic-editor-allow-users' );
 			$m->note( __( 'The plugin replaces the block editor everywhere; the module does the same for all post types.', 'ux-studio' ) );
-		}
-
-		if ( 'allow' === $allow ) {
-			$m->lossy( __( 'The plugin lets each user choose their editor (and remembers the choice per post). The module has no per-user choice.', 'ux-studio' ) );
 		}
 		return $m;
 	}

@@ -80,7 +80,8 @@ final class RestController extends Controller {
 			return new WP_Error( 'uxstudio_forbidden', __( 'You are not allowed to edit this post.', 'ux-studio' ), array( 'status' => 403 ) );
 		}
 
-		$result =$this->module->processor()->sideload( $url, $post_id );
+		$processor = $this->module->processor();
+		$result    = $processor->sideload( $url, $post_id );
 		if ( is_wp_error( $result ) ) {
 			return new WP_Error( 'uxstudio_sideload_failed', $result->get_error_message(), array( 'status' => 400 ) );
 		}
@@ -88,7 +89,7 @@ final class RestController extends Controller {
 		return $this->ok(
 			array(
 				'id'         => (int) $result['id'],
-				'url'        => (string) $result['url'],
+				'url'        => $processor->public_url( (string) $result['url'] ),
 				'source_url' => (string) $result['source_url'],
 			)
 		);

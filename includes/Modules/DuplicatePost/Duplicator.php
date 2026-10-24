@@ -23,10 +23,19 @@ final class Duplicator {
 	private array $excluded_meta;
 
 	/**
-	 * @param string[] $excluded_meta Meta keys never copied.
+	 * Taxonomies never copied.
+	 *
+	 * @var string[]
 	 */
-	public function __construct( array $excluded_meta ) {
-		$this->excluded_meta = $excluded_meta;
+	private array $excluded_taxonomies;
+
+	/**
+	 * @param string[] $excluded_meta       Meta keys never copied (exact keys or patterns with `*`).
+	 * @param string[] $excluded_taxonomies Taxonomies never copied.
+	 */
+	public function __construct( array $excluded_meta, array $excluded_taxonomies = array() ) {
+		$this->excluded_meta       = $excluded_meta;
+		$this->excluded_taxonomies = $excluded_taxonomies;
 	}
 
 	/**
@@ -124,7 +133,7 @@ final class Duplicator {
 		$excluded_meta = apply_filters( 'ux_studio/duplicate_post/excluded_meta_keys', $excluded_meta, $source_id, $target_id, $elements );
 
 		foreach ( $meta as $key => $values ) {
-			if ( in_array( $key, $excluded_meta, true ) ) {
+			if ( DuplicateRules::matches( (string) $key, $excluded_meta ) ) {
 				continue;
 			}
 
@@ -173,7 +182,7 @@ final class Duplicator {
 			return;
 		}
 
-		$excluded_taxonomies = apply_filters( 'ux_studio/duplicate_post/excluded_taxonomies', array(), $source_id, $target_id );
+		$excluded_taxonomies = apply_filters( 'ux_studio/duplicate_post/excluded_taxonomies', $this->excluded_taxonomies, $source_id, $target_id );
 
 		foreach ( $taxonomies as $taxonomy ) {
 			if ( in_array( $taxonomy, $excluded_taxonomies, true ) ) {

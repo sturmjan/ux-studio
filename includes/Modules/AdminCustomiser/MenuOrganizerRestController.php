@@ -21,6 +21,7 @@ defined( 'ABSPATH' ) || exit;
  * GET  uxstudio/v1/admin-customiser/menu-organizer/current-menu      - native admin menu tree (editor source list)
  * POST uxstudio/v1/admin-customiser/menu-organizer/export-default    - export current config as JSON
  * POST uxstudio/v1/admin-customiser/menu-organizer/detect-conflicts  - detected conflicting menu-editor plugins
+ * GET  uxstudio/v1/admin-customiser/menu-organizer/people          - roles and user logins for the rule pickers (B1)
  * GET  uxstudio/v1/admin-customiser/menu-lock                         - state of "Block access to hidden pages" + migration origin
  */
 final class MenuOrganizerRestController extends Controller {
@@ -68,6 +69,13 @@ final class MenuOrganizerRestController extends Controller {
 			'manage_options'
 		);
 		$this->route(
+			'/admin-customiser/menu-organizer/people',
+			'GET',
+			array( $this, 'people' ),
+			array(),
+			'manage_options'
+		);
+		$this->route(
 			'/admin-customiser/menu-organizer/detect-conflicts',
 			'POST',
 			array( $this, 'detect_conflicts' ),
@@ -103,6 +111,31 @@ final class MenuOrganizerRestController extends Controller {
 			array(
 				'enabled' => $on,
 				'origin'  => $on ? MenuLockOrigin::get() : null,
+			)
+		);
+	}
+
+	/**
+	 * Roles (id => name) and user logins (a few hundred at most) for the per-user and per-role pickers of the rules.
+	 */
+	public function people( WP_REST_Request $request ) {
+		$users = array();
+		foreach ( get_users(
+			array(
+				'number'  => 300,
+				'orderby' => 'login',
+				'fields'  => array( 'user_login', 'display_name' ),
+			)
+		) as $user ) {
+			$users[] = array(
+				'login' => (string) $user->user_login,
+				'name'  => (string) $user->display_name,
+			);
+		}
+		return $this->ok(
+			array(
+				'roles' => MenuOrganizer::role_list(),
+				'users' => $users,
 			)
 		);
 	}

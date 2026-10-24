@@ -19,6 +19,13 @@
 		syncIconFields( $( this ).closest( '.field-uxstudio-menu-icons' ) );
 	} );
 
+	// Live preview of the chosen Dashicon (the admin already loads the dashicons stylesheet).
+	$( document ).on( 'change', '.field-uxstudio-menu-icons .uxs-dashicon-select', function () {
+		var $select = $( this );
+		var $preview = $select.closest( '.uxs-icon-field' ).find( '.uxs-dashicon-preview' );
+		$preview.attr( 'class', 'dashicons uxs-dashicon-preview ' + ( $select.val() || '' ) );
+	} );
+
 	$( document ).on( 'click', '.field-uxstudio-menu-icons .uxs-media-pick', function ( e ) {
 		e.preventDefault();
 

@@ -101,6 +101,7 @@ function sanitize_text_field( $s ) { return trim( strip_tags( (string) $s ) ); }
 function sanitize_textarea_field( $s ) { return trim( strip_tags( (string) $s ) ); }
 function sanitize_hex_color( $s ) { return preg_match( '/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i', (string) $s ) ? (string) $s : ''; }
 function sanitize_key( $s ) { return strtolower( preg_replace( '/[^a-z0-9_\-]/i', '', (string) $s ) ); }
+function sanitize_user( $s, $strict = false ) { return trim( preg_replace( '/[^a-zA-Z0-9 _.\-@]/', '', strip_tags( (string) $s ) ) ); }
 function esc_url_raw( $s ) { return preg_match( '#^https?://#i', (string) $s ) ? (string) $s : ''; }
 function wp_kses_post( $s ) { return (string) $s; }
 function maybe_serialize( $v ) { return is_scalar( $v ) ? (string) $v : serialize( $v ); }
@@ -172,9 +173,13 @@ $ac_schema = $ac_module->settings_schema();
 $schemas   = array(
 	'admin-customiser'  => $ac_schema,
 	'hide-admin-bar'    => array( array( 'key' => 'roles', 'type' => 'multiselect', 'options' => array_fill_keys( array_keys( wp_roles()->roles ), '' ), 'default' => array() ) ),
-	'dashboard-widgets' => array(
-		array( 'key' => 'disable_all_widgets', 'type' => 'toggle', 'default' => false ),
-		array( 'key' => 'hidden_widgets', 'type' => 'multiselect', 'options' => array_fill_keys( array( 'dashboard_welcome', 'dashboard_right_now', 'dashboard_activity', 'dashboard_quick_press', 'dashboard_primary', 'e-dashboard-overview', 'wordfence_activity_report_widget', 'wpseo-dashboard-overview', 'wpseo-wincher-dashboard-overview' ), '' ), 'default' => array() ),
+	'dashboard-widgets' => array_merge(
+		array(
+			array( 'key' => 'disable_all_widgets', 'type' => 'toggle', 'default' => false ),
+			array( 'key' => 'hidden_widgets', 'type' => 'multiselect', 'options' => array_fill_keys( array( 'dashboard_welcome', 'dashboard_right_now', 'dashboard_activity', 'dashboard_quick_press', 'dashboard_primary', 'e-dashboard-overview', 'wordfence_activity_report_widget', 'wpseo-dashboard-overview', 'wpseo-wincher-dashboard-overview' ), '' ), 'default' => array() ),
+		),
+		// B1: the real per-role fields and the welcome panel fields of the module.
+		\UxStudio\Modules\DashboardWidgets\RoleWidgets::schema( array_fill_keys( array( 'dashboard_welcome', 'dashboard_right_now', 'dashboard_activity', 'dashboard_quick_press', 'dashboard_primary', 'e-dashboard-overview', 'wordfence_activity_report_widget', 'wpseo-dashboard-overview', 'wpseo-wincher-dashboard-overview' ), '' ), MenuOrganizer::role_list() )
 	),
 );
 SettingsWriter::set_schema_resolver( static fn( string $m ) => $schemas[ $m ] ?? null );
@@ -264,7 +269,7 @@ $assert( 'AME (real): dashicons of promoted items survive (cart)', 'dashicons-ca
 $assert( 'AME (real): the menu organizer is switched on in the module settings', true === ( $opt( 'uxstudio_admin_customiser' )['menu_organizer_enabled'] ?? false ) );
 $assert( 'AME (real): nothing hidden, nothing role-limited (the real config has no such rule); empty keys are not written', array() === $cfg['hidden_items'] && array() === $cfg['item_roles'] && ! array_key_exists( 'hidden_items', (array) $opt( MenuOrganizer::CONFIG_OPTION ) ) );
 $assert( 'AME (real): plan carries a per-role table', 8 === count( $plan['menu_table'] ?? array() ) && 'administrator' === $plan['menu_table'][0]['role'], $j( $plan['menu_table'][0] ?? null ) );
-$assert( 'AME (real): lossy list names moved sub-items and the capability model', (bool) preg_grep( '/moved under another parent/', $plan['lossy'] ) && (bool) preg_grep( '/show for/', $plan['lossy'] ), $j( $plan['lossy'] ) );
+$assert( 'AME (real): B1 - the sub-item moved under Products and its new name are transferred (keyed by the original parent), no longer lossy', 'edit.php?post_type=product' === ( $cfg['sub_moves']['rwpp-page>rwpp-sortby-categories-page'] ?? '' ) && 'Řazení produktů' === ( $cfg['sub_titles']['rwpp-page>rwpp-sortby-categories-page'] ?? '' ) && ! (bool) preg_grep( '/moved under another parent|Renamed sub-menu/', $plan['lossy'] ) && (bool) preg_grep( '/show for/', $plan['lossy'] ), $j( array( $cfg['sub_moves'] ?? null, $cfg['sub_titles'] ?? null, $plan['lossy'] ) ) );
 $assert( 'AME (real): plan warns the Organizer only hides (no capability change)', (bool) preg_grep( '/only hides menu items/', $plan['warnings'] ) );
 $verify_roles = array_filter( $r['verify'], static fn( $c ) => 0 === strpos( $c['id'], 'menu-role:' ) );
 $assert( 'AME (real): verify compares every role (8 role rows)', 8 === count( $verify_roles ), (string) count( $verify_roles ) );
@@ -316,7 +321,8 @@ $assert( 'AME (synthetic): grant_access=false for editor+subscriber limits Media
 $assert( 'AME (synthetic): rename and icon', 'Blog' === ( $cfg['item_titles']['edit.php'] ?? '' ) && 'dashicons-admin-post' === ( $cfg['item_icons']['edit.php'] ?? '' ) );
 $assert( 'AME (synthetic): custom link with a new-window target', 1 === count( $cfg['custom_links'] ) && 'Docs' === $cfg['custom_links'][0]['title'] && '_blank' === $cfg['custom_links'][0]['target'], $j( $cfg['custom_links'] ) );
 $lossy = implode( ' | ', $plan['lossy'] );
-$assert( 'AME (synthetic): lossy names the user rule, the capability, the sub-item hide/rename, the iframe item', false !== strpos( $lossy, 'bob' ) && false !== strpos( $lossy, 'Tools' ) && false !== strpos( $lossy, 'General' ) && false !== strpos( $lossy, 'Psaní' ) && false !== strpos( $lossy, 'Frame' ), $lossy );
+$assert( 'AME (synthetic): B1 - the user grant (bob), the extra capability (Tools) and the sub-item rename (Psaní) are transferred, only the iframe item stays lossy', array( 'show' => array( 'bob' ) ) === ( $cfg['item_users']['upload.php'] ?? null ) && 'manage_tools_x' === ( $cfg['item_caps']['tools.php'] ?? '' ) && 'Psaní' === ( $cfg['sub_titles']['options-general.php>options-writing.php'] ?? '' ) && false !== strpos( $lossy, 'Frame' ) && false === strpos( $lossy, 'bob' ) && false === strpos( $lossy, 'Psaní' ), $lossy . ' / ' . $j( array( $cfg['item_users'] ?? null, $cfg['item_caps'] ?? null, $cfg['sub_titles'] ?? null ) ) );
+$assert( 'AME (synthetic): B1 - hiding the sub-item "General" of Settings is a protected screen: dropped with a warning (lockout rule)', ! isset( $cfg['sub_hidden']['options-general.php>options-general.php'] ) && (bool) preg_grep( '/hides the sub-item "Settings"/', $plan['warnings'] ), $j( array( $cfg['sub_hidden'] ?? null, $plan['warnings'] ) ) );
 $assert( 'AME (synthetic): users who can manage options keep seeing items AME hid from administrators (lossy)', false !== strpos( $lossy, 'always shows every item to users who can manage options' ), $lossy );
 $common( 'AME (synthetic)', $r );
 $st  = (array) $opt( 'uxstudio_admin_customiser' );
@@ -448,9 +454,10 @@ $assert( 'Adminimize (synthetic): admin bar for subscribers -> Hide Admin Bar mo
 $assert( 'Adminimize (synthetic): WordPress logo and comments hidden everywhere -> hidden elements', array( 'wp_logo', 'comments' ) === ( $st['hide_admin_bar_elements'] ?? null ), $j( $st['hide_admin_bar_elements'] ?? null ) );
 $assert( 'Adminimize (synthetic): screen options hidden for administrators -> global switch with a warning', true === ( $st['hide_screen_options'] ?? false ) && (bool) preg_grep( '/Screen Options.*everybody/', $plan['warnings'] ), $j( $plan['warnings'] ) );
 $assert( 'Adminimize (synthetic): help tab / notices only for non-admin roles are NOT switched on globally', empty( $st['hide_help_tab'] ) && empty( $st['hide_notices_enabled'] ) && (bool) preg_grep( '/contextual-help-link-wrap|admin-notices/', $plan['lossy'] ), $j( $plan['lossy'] ) );
-$assert( 'Adminimize (synthetic): dashboard widget hidden for administrators and editors -> hidden_widgets with a lossy remark about the other roles', array( 'dashboard_primary' ) === ( $opt( 'uxstudio_dashboard_widgets' )['hidden_widgets'] ?? null ) && (bool) preg_grep( '/dashboard_primary/', $plan['lossy'] ), $j( array( $opt( 'uxstudio_dashboard_widgets' ), $plan['lossy'] ) ) );
+$dw = (array) $opt( 'uxstudio_dashboard_widgets' );
+$assert( 'Adminimize (synthetic): B1 - dashboard widgets are hidden per role (administrator, editor), nothing global, nothing lossy', array( 'dashboard_primary' ) === ( $dw['hidden_widgets_administrator'] ?? null ) && array( 'dashboard_primary', 'dashboard_activity' ) === ( $dw['hidden_widgets_editor'] ?? null ) && empty( $dw['hidden_widgets'] ) && ! (bool) preg_grep( '/dashboard_primary|dashboard widgets/i', $plan['lossy'] ), $j( array( $dw, $plan['lossy'] ) ) );
 $lossy = implode( ' | ', $plan['lossy'] );
-$assert( 'Adminimize (synthetic): lossy lists meta boxes, hidden footer, sub-menu hiding, prevent page access', false !== strpos( $lossy, 'meta boxes' ) && false !== strpos( $lossy, 'hidden admin footer' ) && false !== strpos( $lossy, 'Settings / Writing' ), $lossy );
+$assert( 'Adminimize (synthetic): B1 - the meta box of the editor role is transferred per post type and role; the sub-menu item (Settings / Writing) is hidden for editors; footer stays lossy', array( 'post|commentstatusdiv' ) === ( $st['hidden_metaboxes_editor'] ?? null ) && array( 'editor' ) === ( $cfg['sub_hidden']['options-general.php>options-writing.php'] ?? null ) && false !== strpos( $lossy, 'hidden admin footer' ) && false === strpos( $lossy, 'meta boxes' ) && false === strpos( $lossy, 'Settings / Writing' ), $lossy . ' / ' . $j( array( $st['hidden_metaboxes_editor'] ?? null, $cfg['sub_hidden'] ?? null ) ) );
 $assert( 'Adminimize (synthetic): "Allow Page Access" ticked (option = 1) means the plugin does NOT block: lock stays off, the "only hides" warning stays', empty( $st['menu_lock_enabled'] ) && (bool) preg_grep( '/only hides menu items/', $plan['warnings'] ) && ! (bool) preg_grep( '/Prevent page access/', $plan['lossy'] ), $j( array( $st, $plan['warnings'] ) ) );
 $common( 'Adminimize (synthetic)', $r );
 
@@ -467,7 +474,7 @@ $ver  = array_column( $r['verify'], null, 'id' );
 $assert( 'Adminimize (synthetic, blocking): menu_lock_enabled is switched on', true === ( $st['menu_lock_enabled'] ?? null ), $j( $st ) );
 $assert( 'Adminimize (synthetic, blocking): the "only hides" warning is gone, a note says pages are blocked', ! (bool) preg_grep( '/only hides menu items/', $plan['warnings'] ) && (bool) preg_grep( '/Block access to hidden pages/', $plan['notes'] ), $j( array( $plan['warnings'], $plan['notes'] ) ) );
 $assert( 'Adminimize (synthetic, blocking): the plan lists the setting in the transfer rows', (bool) array_filter( $plan['transfer'], static fn( $row ) => 'menu_lock_enabled' === ( $row['key'] ?? '' ) ), $j( array_column( $plan['transfer'], 'key' ) ) );
-$assert( 'Adminimize (synthetic, blocking): the sub-menu lossy line says the plugin also blocked their pages', (bool) preg_grep( '/also blocks their pages/', $plan['lossy'] ), $j( $plan['lossy'] ) );
+$assert( 'Adminimize (synthetic, blocking): B1 - the hidden sub-menu item is carried over as a sub-item rule (under protected Settings the page itself is never blocked: lossy says so)', array( 'editor' ) === ( $cfg['sub_hidden']['options-general.php>options-writing.php'] ?? null ) && (bool) preg_grep( '/never blocks UX Studio, Plugins, Users and Settings/', $plan['lossy'] ), $j( array( $cfg['sub_hidden'] ?? null, $plan['lossy'] ) ) );
 $assert( 'Adminimize (synthetic, blocking): verify has a menu-lock check and it is ok', ! empty( $ver['menu-lock']['ok'] ), $j( $ver['menu-lock'] ?? null ) );
 $assert( 'Adminimize (synthetic, blocking): the runtime decision agrees: a subscriber is refused Users? NO, Users is a protected screen, so it stays open', ! MenuSimulator::request_blocked( $cfg, 'users.php', array(), array( 'users.php', 'plugins.php' ), array(), array( 'subscriber' ), false )['blocked'] && (bool) preg_grep( '/never blocks UX Studio, Plugins, Users and Settings/', $plan['lossy'] ), $j( $plan['lossy'] ) );
 $common( 'Adminimize (synthetic, blocking)', $r );
@@ -483,8 +490,11 @@ $st   = (array) $opt( 'uxstudio_admin_customiser' );
 $plan = $r['plan'];
 $assert( 'WLCMS (real): login logo URL becomes an attachment id (media field)', 321 === ( $st['login_logo'] ?? null ), $j( $st['login_logo'] ?? null ) );
 $assert( 'WLCMS (real): login colours', '#000000' === ( $st['login_background_color'] ?? '' ) && '#999999' === ( $st['login_button_bg_color'] ?? '' ) && '#ffffff' === ( $st['login_button_text_color'] ?? '' ) && '#999999' === ( $st['login_text_color'] ?? '' ), $j( $st ) );
+$assert( 'WLCMS (real): B1 - hover colours of the button and of the links are transferred', '#000000' === ( $st['login_button_hover_bg_color'] ?? '' ) && '#ffffff' === ( $st['login_button_hover_text_color'] ?? '' ) && '#ffffff' === ( $st['login_link_hover_color'] ?? '' ) && ! (bool) preg_grep( '/button hover colours|link hover colour/', $plan['lossy'] ), $j( array( $st, $plan['lossy'] ) ) );
 $assert( 'WLCMS (real): login customization switched on, hide WordPress logo -> hidden element', true === ( $st['login_customization_enabled'] ?? false ) && array( 'wp_logo' ) === ( $st['hide_admin_bar_elements'] ?? null ) );
-$assert( 'WLCMS (real): dashboard widgets hidden for administrators -> Dashboard Widgets module gets the ids; roles not covered are reported', array( 'e-dashboard-overview', 'wordfence_activity_report_widget', 'wpseo-dashboard-overview', 'wpseo-wincher-dashboard-overview', 'dashboard_primary' ) === ( $opt( 'uxstudio_dashboard_widgets' )['hidden_widgets'] ?? null ) && (bool) preg_grep( '/Shop manager/', $plan['lossy'] ), $j( array( $opt( 'uxstudio_dashboard_widgets' ), $plan['lossy'] ) ) );
+$dw = (array) $opt( 'uxstudio_dashboard_widgets' );
+$wl_ids = array( 'e-dashboard-overview', 'wordfence_activity_report_widget', 'wpseo-dashboard-overview', 'wpseo-wincher-dashboard-overview', 'dashboard_primary' );
+$assert( 'WLCMS (real): B1 - dashboard widgets are hidden exactly for the roles the plugin lists (the five core roles), not for shop_manager, nothing lossy about other roles', $wl_ids === ( $dw['hidden_widgets_administrator'] ?? null ) && $wl_ids === ( $dw['hidden_widgets_subscriber'] ?? null ) && empty( $dw['hidden_widgets_shop_manager'] ) && empty( $dw['hidden_widgets'] ) && ! (bool) preg_grep( '/Shop manager/', $plan['lossy'] ), $j( array( $dw, $plan['lossy'] ) ) );
 $assert( 'WLCMS (real): lossy lists the hidden "Back to site" link, the page title and the footer', (bool) preg_grep( '/hidden "Back to the site" link/', $plan['lossy'] ) && (bool) preg_grep( '/admin page title suffix/', $plan['lossy'] ) && (bool) preg_grep( '/empties the admin footer/', $plan['lossy'] ), $j( $plan['lossy'] ) );
 $assert( 'WLCMS (real): extra modules for the dashboard widgets', array( 'dashboard-widgets' ) === SourceRegistry::get( 'white-label-cms' )->extra_modules() );
 // Widgets the module has not seen on a dashboard yet are named, not silently dropped.
@@ -508,8 +518,11 @@ $wl2['hide_screen_options'] = '1';
 $wl2['hide_nag_messages'] = '1';
 $wl2['hide_admin_bar_all'] = '1';
 $wl2['dashboard_widgets_visibility_roles'] = array( 'editor' );
-$wl2['welcome_panel'] = array( array( 'title' => 'Hi', 'description' => 'Hello' ) );
+$wl2['welcome_panel'] = array( array( 'is_active' => '1', 'template_type' => 'html', 'title' => 'Hi', 'description' => '<p>Hello <b>editors</b></p><script>x()</script>', 'visible_to' => array( 'editor', 'author' ) ), array( 'title' => 'Off', 'description' => 'inactive', 'template_type' => 'html', 'visible_to' => array( 'editor' ) ) );
 $wl2['login_custom_css'] = 'body{}';
+$wl2['settings_custom_css_admin'] = '#wpadminbar{display:none}';
+$wl2['background_image'] = 'https://example.test/site/wp-content/uploads/bg.jpg';
+$wl2['full_screen_background_image'] = '1';
 $site( array( 'white-label-cms' ), array( 'white-label-cms' ), array( 'wlcms_options' => $wl2 ) );
 AbstractAdminSource::set_media_double( static fn( string $url ): int => 55 );
 $p = SourceRegistry::get( 'white-label-cms' )->plan();
@@ -519,7 +532,10 @@ $assert( 'WLCMS (synthetic): footer HTML is reduced to text, with a lossy line',
 $assert( 'WLCMS (synthetic): admin bar logo -> attachment', 55 === ( $st['admin_bar_logo'] ?? null ) );
 $assert( 'WLCMS (synthetic): help, screen options, nag messages', true === ( $st['hide_help_tab'] ?? false ) && true === ( $st['hide_screen_options'] ?? false ) && true === ( $st['hide_notices_enabled'] ?? false ) && array( 'core' ) === ( $st['global__update_notifications'] ?? null ) );
 $assert( 'WLCMS (synthetic): hide admin bar for everybody but the administrator role', array_values( array_diff( $roles8, array( 'administrator' ) ) ) === ( $opt( 'uxstudio_hide_admin_bar' )['roles'] ?? null ) );
-$assert( 'WLCMS (synthetic): dashboard hidden only for editors is NOT applied globally; welcome panel and custom CSS are lossy', empty( $opt( 'uxstudio_dashboard_widgets' )['hidden_widgets'] ) && (bool) preg_grep( '/custom welcome panel/', $p['lossy'] ) && (bool) preg_grep( '/own CSS of the login screen/', $p['lossy'] ), $j( $p['lossy'] ) );
+$dw = (array) $opt( 'uxstudio_dashboard_widgets' );
+$assert( 'WLCMS (synthetic): dashboard hidden only for editors is NOT applied globally, it is hidden for the editor role', empty( $dw['hidden_widgets'] ) && count( $dw['hidden_widgets_editor'] ?? array() ) === 5 && empty( $dw['hidden_widgets_administrator'] ), $j( $dw ) );
+$assert( 'WLCMS (synthetic): B1 - the active text welcome panel becomes the custom welcome panel (title, text, roles); the inactive one is counted as not transferred', true === ( $dw['welcome_panel_enabled'] ?? false ) && 'Hi' === ( $dw['welcome_panel_title'] ?? '' ) && false !== strpos( (string) ( $dw['welcome_panel_content'] ?? '' ), 'Hello' ) && array( 'editor', 'author' ) === ( $dw['welcome_panel_roles'] ?? null ) && (bool) preg_grep( '/1 more welcome panel/', $p['lossy'] ), $j( array( $dw, $p['lossy'] ) ) );
+$assert( 'WLCMS (synthetic): B1 - own CSS of the login screen and of the admin, and the background image (full screen = cover) are transferred', 'body{}' === ( $st['login_custom_css'] ?? '' ) && '#wpadminbar{display:none}' === ( $st['admin_custom_css'] ?? '' ) && 55 === ( $st['login_background_image'] ?? null ) && 'cover' === ( $st['login_background_style'] ?? '' ), $j( $st ) );
 
 /* ══ Adminify: the real configuration of pobyty ══ */
 
@@ -555,7 +571,7 @@ $st   = (array) $opt( 'uxstudio_admin_customiser' );
 $plan = $r['plan'];
 $assert( 'LoginPress: logo, colours, radius, message, enabled flag', 900 === $st['login_logo'] && '#101820' === $st['login_background_color'] && '#ff6600' === $st['login_button_bg_color'] && '#ffffff' === $st['login_button_text_color'] && '#ffffff' === $st['login_form_bg_color'] && '#f4f4f4' === $st['login_input_bg_color'] && '#222222' === $st['login_input_text_color'] && '#333333' === $st['login_form_text_color'] && 12 === $st['login_form_border_radius'] && 'Vítejte zpět' === $st['login_message'] && true === $st['login_customization_enabled'], $j( $st ) );
 $assert( 'LoginPress: a non-hex colour (rgba) is reported, not written', empty( $st['login_text_color'] ) && (bool) preg_grep( '/not a plain hex colour/', $plan['lossy'] ) );
-$assert( 'LoginPress: lossy lists background image, hover colours, own CSS and the behaviour settings', (bool) preg_grep( '/background image.*button hover colours|button hover colours.*background image|background image/', $plan['lossy'] ) && (bool) preg_grep( '/Behaviour settings/', $plan['lossy'] ), $j( $plan['lossy'] ) );
+$assert( 'LoginPress: B1 - background image, hover colours and own CSS are transferred; rotating backgrounds and the behaviour settings stay lossy', 900 === ( $st['login_background_image'] ?? null ) && 'cover' === ( $st['login_background_style'] ?? '' ) && '#cc5200' === ( $st['login_button_hover_bg_color'] ?? '' ) && '.x{}' === ( $st['login_custom_css'] ?? '' ) && (bool) preg_grep( '/rotating background images/', $plan['lossy'] ) && (bool) preg_grep( '/Behaviour settings/', $plan['lossy'] ), $j( array( $st, $plan['lossy'] ) ) );
 $site( array( 'loginpress' ), array( 'loginpress' ), array( 'loginpress_customization' => array( 'setting_logo' => 'https://example.test/x.png', 'setting_logo_display' => 0 ) ) );
 AbstractAdminSource::set_media_double( static fn( string $url ): int => 5 );
 SourceRegistry::get( 'loginpress' )->migrate( array( 'run_id' => 'rlp' ), false );
@@ -568,11 +584,11 @@ $lists = array(
 		'list_key' => 'post', 'list_id' => 'abc', 'title' => 'Original', 'status' => '', 'settings' => array(),
 		'columns'  => array(
 			'cb'    => array( 'type' => 'cb', 'label' => '' ),
-			'title' => array( 'type' => 'title', 'label' => 'Nadpis', 'width' => '30', 'width_unit' => '%' ),
-			'5f1'   => array( 'type' => 'column-meta', 'label' => 'Cena', 'field' => '_price', 'field_type' => 'numeric', 'width' => '90', 'width_unit' => 'px' ),
-			'5f2'   => array( 'type' => 'column-featured_image', 'label' => 'Obrázek' ),
-			'5f3'   => array( 'type' => 'column-postid', 'label' => 'ID' ),
-			'5f4'   => array( 'type' => 'column-taxonomy', 'label' => 'Téma', 'taxonomy' => 'topic' ),
+			'title' => array( 'type' => 'title', 'label' => 'Nadpis', 'width' => '30', 'width_unit' => '%', 'sort' => 'on' ),
+			'5f1'   => array( 'type' => 'column-meta', 'label' => 'Cena', 'field' => '_price', 'field_type' => 'numeric', 'width' => '90', 'width_unit' => 'px', 'sort' => 'on', 'filter' => 'on' ),
+			'5f2'   => array( 'type' => 'column-featured_image', 'label' => 'Obrázek', 'sort' => 'on' ),
+			'5f3'   => array( 'type' => 'column-postid', 'label' => 'ID', 'sort' => 'on' ),
+			'5f4'   => array( 'type' => 'column-taxonomy', 'label' => 'Téma', 'taxonomy' => 'topic', 'filter' => 'on', 'sort' => 'off' ),
 			'5f5'   => array( 'type' => 'column-word_count', 'label' => 'Slova' ),
 			'5f6'   => array( 'type' => 'column-meta', 'label' => 'Pole', 'field' => 'acf_arr', 'field_type' => 'array' ),
 			'date'  => array( 'type' => 'date', 'label' => 'Datum' ),
@@ -584,7 +600,7 @@ $lists = array(
 	),
 	array(
 		'list_key' => 'wp-users', 'list_id' => 'u1', 'title' => 'Users', 'status' => '', 'settings' => array(),
-		'columns'  => array( 'username' => array( 'type' => 'username', 'label' => 'Login' ), 'email' => array( 'type' => 'email', 'label' => 'Mail' ), '5u' => array( 'type' => 'column-user_id', 'label' => '#' ) ),
+		'columns'  => array( 'username' => array( 'type' => 'username', 'label' => 'Login' ), 'email' => array( 'type' => 'email', 'label' => 'Mail' ), '5u' => array( 'type' => 'column-user_id', 'label' => '#', 'sort' => 'on' ) ),
 	),
 	array( 'list_key' => 'wp-taxonomy_category', 'list_id' => 't1', 'title' => 'Categories', 'status' => '', 'settings' => array(), 'columns' => array( 'name' => array( 'type' => 'name' ) ) ),
 );
@@ -603,6 +619,8 @@ $assert( 'Admin Columns: featured image, ID and taxonomy columns', 'thumbnail' =
 $assert( 'Admin Columns: native columns Admin Columns removed are switched off (author, categories, tags, comments)', ! $post['author']['enabled'] && ! $post['categories']['enabled'] && ! $post['tags']['enabled'] && ! $post['comments']['enabled'] && $post['title']['enabled'] );
 $assert( 'Admin Columns: users list is mapped (wp-users -> users) and the other native columns are off', 'users' === ( array_keys( $ac )[1] ?? '' ) && ! ( $by_key( $ac['users'] )['role']['enabled'] ?? true ) && 'post_id' === $by_key( $ac['users'] )['item_id']['type'], $j( array_keys( $ac ) ) );
 $assert( 'Admin Columns: unsupported types, unknown display types, taxonomy screens and extra layouts are lossy', (bool) preg_grep( '/column-word_count/', $plan['lossy'] ) && (bool) preg_grep( '/array/', $plan['lossy'] ) && (bool) preg_grep( '/wp-taxonomy_category/', $plan['lossy'] ) && (bool) preg_grep( '/Several layouts/', $plan['lossy'] ), $j( $plan['lossy'] ) );
+$assert( 'Admin Columns: B1 - sorting and filtering flags of the columns are carried over (meta: both, taxonomy: filter, ID and native title: sort)', ! empty( $post['_price']['sortable'] ) && ! empty( $post['_price']['filterable'] ) && ! empty( $post['topic']['filterable'] ) && empty( $post['topic']['sortable'] ) && ! empty( $post['item_id']['sortable'] ) && ! empty( $post['title']['sortable'] ) && empty( $post['title']['filterable'] ), $j( $post ) );
+$assert( 'Admin Columns: B1 - sorting a thumbnail column and a column of the users list is lossy, the generic sorting/filtering sentence is gone', (bool) preg_grep( '/can not sort or filter.*post: Obrázek \(sorting\).*users: #/', $plan['lossy'] ) && ! (bool) preg_grep( '/^Sorting, filtering/', $plan['lossy'] ) && (bool) preg_grep( '/^Inline editing and bulk editing/', $plan['lossy'] ), $j( $plan['lossy'] ) );
 $assert( 'Admin Columns: snapshot covers the module option', in_array( 'uxstudio_admin_columns', SourceRegistry::get( 'codepress-admin-columns' )->target_options(), true ) );
 $assert( 'Admin Columns: a stored value rendered back by the module normalizer is identical (round trip)', $ac['post'] === array_map( array( \UxStudio\Modules\AdminColumns\Module::class, 'clean_column' ), $ac['post'] ) );
 // Old storage (cpac_options_*) through the same path.
@@ -785,6 +803,15 @@ foreach ( array( 'login_logo', 'login_background_color', 'login_text_color', 'lo
 	if ( ! in_array( $k, $ac_keys, true ) ) { $bad[] = $k; }
 }
 $assert( 'every Admin Customiser key the F5 sources write is in the real schema', array() === $bad, implode( ',', $bad ) );
+$b1 = array();
+foreach ( array( 'login_background_image', 'login_background_style', 'login_button_hover_bg_color', 'login_button_hover_text_color', 'login_link_hover_color', 'login_custom_css', 'admin_custom_css', 'hidden_metaboxes_editor' ) as $k ) {
+	if ( ! in_array( $k, $ac_keys, true ) ) { $b1[] = $k; }
+}
+$dw_keys = array_column( $schemas['dashboard-widgets'], 'key' );
+foreach ( array( 'hidden_widgets_editor', 'welcome_panel_enabled', 'welcome_panel_title', 'welcome_panel_content', 'welcome_panel_roles' ) as $k ) {
+	if ( ! in_array( $k, $dw_keys, true ) ) { $b1[] = $k; }
+}
+$assert( 'B1: every new key the sources write (login background, hover, own CSS, meta boxes per role, widgets per role, welcome panel) exists in the real schemas', array() === $b1, implode( ',', $b1 ) );
 $assert( 'hide-admin-bar.roles and dashboard-widgets keys exist in their module code', $key_in_module( 'hide-admin-bar', 'roles' ) && $key_in_module( 'dashboard-widgets', 'hidden_widgets' ) && $key_in_module( 'dashboard-widgets', 'disable_all_widgets' ) );
 $assert( 'the Menu Organizer and Admin Columns option names match the module code', 1 === preg_match( "/CONFIG_OPTION = 'uxstudio_admin_customiser_menu_config'/", (string) file_get_contents( $root . '/includes/Modules/AdminCustomiser/MenuOrganizer.php' ) ) && 1 === preg_match( "/OPTION = 'uxstudio_admin_columns'/", (string) file_get_contents( $root . '/includes/Modules/AdminColumns/Module.php' ) ) );
 

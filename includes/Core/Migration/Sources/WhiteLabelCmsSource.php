@@ -8,6 +8,7 @@
 namespace UxStudio\Core\Migration\Sources;
 
 use UxStudio\Core\Migration\Mapping;
+use UxStudio\Modules\DashboardWidgets\RoleWidgets;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -18,8 +19,9 @@ defined( 'ABSPATH' ) || exit;
  * `hide_admin_bar_all`; dashboard: `dashboard_widgets` (ids hidden for the roles in
  * `dashboard_widgets_visibility_roles`), `hide_all_dashboard_panels`, `welcome_panel[]`.
  *
- * Target: Admin Customiser (login screen, admin bar, footer, screens), plus Hide Admin Bar and
- * Dashboard Widgets for the two settings that belong to those modules.
+ * Target: Admin Customiser (login screen incl. background image, hover colours and own CSS, admin bar, footer,
+ * screens, own CSS of the admin), plus Hide Admin Bar and Dashboard Widgets (widgets hidden per role, the custom
+ * welcome panel) for the settings that belong to those modules.
  */
 final class WhiteLabelCmsSource extends AbstractAdminSource {
 
@@ -92,6 +94,9 @@ final class WhiteLabelCmsSource extends AbstractAdminSource {
 			'form_button_color'           => array( 'login_button_bg_color', __( 'Login button background color', 'ux-studio' ) ),
 			'form_button_text_color'      => array( 'login_button_text_color', __( 'Login button text color', 'ux-studio' ) ),
 			'back_to_register_link_color' => array( 'login_text_color', __( 'Login screen text color', 'ux-studio' ) ),
+			'form_button_hover_color'     => array( 'login_button_hover_bg_color', __( 'Login button background color on hover', 'ux-studio' ) ),
+			'form_button_text_hover_color' => array( 'login_button_hover_text_color', __( 'Login button text color on hover', 'ux-studio' ) ),
+			'back_to_register_link_hover_color' => array( 'login_link_hover_color', __( 'Login screen link color on hover', 'ux-studio' ) ),
 		);
 		foreach ( $colors as $key => $target ) {
 			$raw = $this->str( $o, $key );
@@ -111,25 +116,53 @@ final class WhiteLabelCmsSource extends AbstractAdminSource {
 			$m->set( self::MODULE, $target[0], $hex, $target[1], $origin . ':' . $key );
 			++$login;
 		}
+		// Background image: size and repeat map to the module's "fit" choice.
+		$bg = $this->str( $o, 'background_image' );
+		if ( '' !== $bg ) {
+			$id = $this->attachment_id( $bg );
+			if ( $id > 0 ) {
+				$repeat = $this->str( $o, 'background_repeat' );
+				$style  = $this->on( $o, 'full_screen_background_image' ) ? 'cover' : ( in_array( $repeat, array( 'repeat', 'repeat-x', 'repeat-y' ), true ) ? 'repeat' : 'center' );
+				$m->set( self::MODULE, 'login_background_image', $id, __( 'Login screen background image', 'ux-studio' ), $origin . ':background_image' );
+				$m->set( self::MODULE, 'login_background_style', $style, __( 'Login screen background image: fit', 'ux-studio' ), $origin . ':background_repeat' );
+				++$login;
+				$position = $this->str( $o, 'background_positions' );
+				if ( 'cover' !== $style && '' !== $position && 'center center' !== $position ) {
+					$lossy[] = sprintf(
+						/* translators: %s: CSS position. */
+						__( 'The position of the login background image (%s): UX Studio centres it.', 'ux-studio' ),
+						$position
+					);
+				}
+				if ( in_array( $repeat, array( 'repeat-x', 'repeat-y' ), true ) ) {
+					$lossy[] = __( 'The login background repeats in one direction only in the plugin; UX Studio repeats it both ways.', 'ux-studio' );
+				}
+			} else {
+				$lossy[] = sprintf(
+					/* translators: %s: file address. */
+					__( 'The login background image %s is not in the media library of this site, so no attachment could be linked. Upload it and choose it in the Admin Customiser settings.', 'ux-studio' ),
+					$bg
+				);
+			}
+		}
+		$login_css = $this->str( $o, 'login_custom_css' );
+		if ( '' !== $login_css ) {
+			$m->set( self::MODULE, 'login_custom_css', $login_css, __( 'Custom CSS of the login page', 'ux-studio' ), $origin . ':login_custom_css' );
+			$lossy[] = __( 'The own CSS of the login screen is copied as it is; UX Studio removes HTML tags from it and cuts it at 50 KB, so check the login screen after the switch.', 'ux-studio' );
+		}
 		if ( $login ) {
 			$m->set( self::MODULE, 'login_customization_enabled', true, __( 'Enable login screen customization', 'ux-studio' ), $origin );
 		}
 		$login_lost = array();
 		foreach ( array(
-			'background_image'             => __( 'background image', 'ux-studio' ),
-			'full_screen_background_image' => __( 'full screen background', 'ux-studio' ),
 			'retina_login_logo'            => __( 'retina logo', 'ux-studio' ),
 			'logo_width'                   => __( 'logo size', 'ux-studio' ),
 			'logo_height'                  => __( 'logo size', 'ux-studio' ),
 			'logo_bottom_margin'           => __( 'space under the logo', 'ux-studio' ),
-			'form_button_hover_color'      => __( 'button hover colours', 'ux-studio' ),
-			'form_button_text_hover_color' => __( 'button hover colours', 'ux-studio' ),
-			'back_to_register_link_hover_color' => __( 'link hover colour', 'ux-studio' ),
 			'privacy_policy_link_color'    => __( 'privacy link colours', 'ux-studio' ),
 			'privacy_policy_link_hover_color' => __( 'privacy link colours', 'ux-studio' ),
 			'hide_register_lost_password'  => __( 'hidden "Lost your password" links', 'ux-studio' ),
 			'hide_back_to_link'            => __( 'hidden "Back to the site" link', 'ux-studio' ),
-			'login_custom_css'             => __( 'own CSS of the login screen', 'ux-studio' ),
 			'login_custom_js'              => __( 'own JavaScript of the login screen', 'ux-studio' ),
 		) as $key => $name ) {
 			if ( ! empty( $o[ $key ] ) && '0' !== (string) $o[ $key ] ) {
@@ -197,50 +230,70 @@ final class WhiteLabelCmsSource extends AbstractAdminSource {
 		}
 
 		/* ── Dashboard ── */
-		$widgets = array_values( array_filter( array_map( 'strval', (array) ( $o['dashboard_widgets'] ?? array() ) ) ) );
-		$all     = $this->on( $o, 'hide_all_dashboard_panels' );
-		$d_roles = $this->on( $o, 'dashboard_role_stat' ) ? array_map( 'strval', (array) ( $o['dashboard_widgets_visibility_roles'] ?? array() ) ) : array();
-		if ( $all || $widgets ) {
-			$site_roles = $this->role_ids();
-			if ( ! $this->on( $o, 'dashboard_role_stat' ) || $this->covers_admin( $d_roles ) ) {
-				if ( $all ) {
-					$m->set( 'dashboard-widgets', 'disable_all_widgets', true, __( 'Hide all dashboard widgets', 'ux-studio' ), $origin . ':hide_all_dashboard_panels' );
-				}
-				if ( $widgets ) {
-					$m->set( 'dashboard-widgets', 'hidden_widgets', $widgets, __( 'Hide specific dashboard widgets', 'ux-studio' ), $origin . ':dashboard_widgets' );
-				}
+		$widgets    = array_values( array_filter( array_map( 'strval', (array) ( $o['dashboard_widgets'] ?? array() ) ) ) );
+		$all        = $this->on( $o, 'hide_all_dashboard_panels' );
+		$by_roles   = $this->on( $o, 'dashboard_role_stat' );
+		$d_roles    = $by_roles ? array_map( 'strval', (array) ( $o['dashboard_widgets_visibility_roles'] ?? array() ) ) : array();
+		$site_roles = $this->role_ids();
+		if ( $all ) {
+			if ( ! $by_roles || $this->covers_admin( $d_roles ) ) {
+				$m->set( 'dashboard-widgets', 'disable_all_widgets', true, __( 'Hide all dashboard widgets', 'ux-studio' ), $origin . ':hide_all_dashboard_panels' );
 				$this->note_extra_module( $m, 'dashboard-widgets', __( 'Dashboard Widgets', 'ux-studio' ) );
-				$this->note_unknown_widgets( $m, $widgets );
 				$rest = $d_roles ? array_values( array_diff( $site_roles, $d_roles ) ) : array();
 				if ( $rest ) {
 					$lossy[] = sprintf(
 						/* translators: %s: role names. */
-						__( 'The module hides dashboard widgets for every role at once; the plugin hid them only for some roles. These roles lose the widgets too: %s.', 'ux-studio' ),
+						__( 'The module hides all dashboard widgets for every role at once; the plugin hid them only for some roles. These roles lose the widgets too: %s.', 'ux-studio' ),
 						$this->role_names( $rest )
 					);
 				}
 			} else {
 				$lossy[] = sprintf(
 					/* translators: %s: role names. */
-					__( 'The plugin hides dashboard widgets only for these roles, not for administrators (the module hides them for every role at once): %s.', 'ux-studio' ),
+					__( 'The plugin hides all dashboard widgets only for these roles, not for administrators (the module hides them for every role at once): %s.', 'ux-studio' ),
 					$this->role_names( $d_roles )
 				);
 			}
 		}
-		$panels = 0;
-		foreach ( (array) ( $o['welcome_panel'] ?? array() ) as $panel ) {
-			$panel = (array) $panel;
-			if ( ! empty( $panel['title'] ) || ! empty( $panel['description'] ) || ! empty( $panel['page_id_page'] ) || ! empty( $panel['page_id_elementor'] ) || ! empty( $panel['page_id_beaver'] ) ) {
-				++$panels;
+		if ( $widgets ) {
+			if ( ! $by_roles ) {
+				// No role limit in the plugin: hidden for everybody.
+				if ( $this->known_widgets( $widgets ) ) {
+					$m->set( 'dashboard-widgets', 'hidden_widgets', $this->known_widgets( $widgets ), __( 'Hide specific dashboard widgets', 'ux-studio' ), $origin . ':dashboard_widgets' );
+				}
+			} else {
+				foreach ( $d_roles as $role ) {
+					if ( $site_roles && ! in_array( $role, $site_roles, true ) ) {
+						continue;
+					}
+					if ( ! $this->known_widgets( $widgets ) ) {
+						continue;
+					}
+					$m->set(
+						'dashboard-widgets',
+						RoleWidgets::key( $role ),
+						$this->known_widgets( $widgets ),
+						sprintf(
+							/* translators: %s: role name. */
+							__( 'Hide dashboard widgets for the role: %s', 'ux-studio' ),
+							$this->role_label( $role )
+						),
+						$origin . ':dashboard_widgets'
+					);
+				}
+				$missing_roles = $site_roles ? array_values( array_diff( $d_roles, $site_roles ) ) : array();
+				if ( $missing_roles ) {
+					$lossy[] = sprintf(
+						/* translators: %s: role names. */
+						__( 'Dashboard widgets are hidden in the plugin for roles that do not exist on this site: %s.', 'ux-studio' ),
+						implode( ', ', $missing_roles )
+					);
+				}
 			}
+			$this->note_extra_module( $m, 'dashboard-widgets', __( 'Dashboard Widgets', 'ux-studio' ) );
+			$this->note_unknown_widgets( $m, $widgets );
 		}
-		if ( $panels ) {
-			$lossy[] = sprintf(
-				/* translators: %d: number of panels. */
-				_n( '%d custom welcome panel of the dashboard (text, page, Elementor or Beaver Builder template).', '%d custom welcome panels of the dashboard (text, page, Elementor or Beaver Builder templates).', $panels, 'ux-studio' ),
-				$panels
-			);
-		}
+		$this->map_welcome_panels( $m, $o, $origin, $site_roles, $lossy );
 		if ( $this->on( $o, 'add_own_rss_panel' ) && '' !== $this->str( $o, 'rss_feed_address' ) ) {
 			$lossy[] = __( 'The own RSS widget of the dashboard.', 'ux-studio' );
 		}
@@ -249,6 +302,11 @@ final class WhiteLabelCmsSource extends AbstractAdminSource {
 		}
 
 		/* ── Other branding the module has no setting for ── */
+		$admin_css = $this->str( $o, 'settings_custom_css_admin' );
+		if ( '' !== $admin_css ) {
+			$m->set( self::MODULE, 'admin_custom_css', $admin_css, __( 'Custom CSS of the admin area', 'ux-studio' ), $origin . ':settings_custom_css_admin' );
+			$lossy[] = __( 'The own CSS of the admin is copied as it is; UX Studio removes HTML tags from it and cuts it at 50 KB, so check the admin screens after the switch.', 'ux-studio' );
+		}
 		$other = array();
 		foreach ( array(
 			'custom_page_title'           => __( 'admin page title suffix', 'ux-studio' ),
@@ -257,7 +315,6 @@ final class WhiteLabelCmsSource extends AbstractAdminSource {
 			'side_menu_image'             => __( 'logo above the admin menu', 'ux-studio' ),
 			'developer_icon'              => __( 'developer icon', 'ux-studio' ),
 			'developer_side_menu_image'   => __( 'developer logo above the menu', 'ux-studio' ),
-			'settings_custom_css_admin'   => __( 'own CSS of the admin', 'ux-studio' ),
 			'settings_custom_css_url'     => __( 'editor stylesheet', 'ux-studio' ),
 			'gutenberg_exit_custom_icon'  => __( 'exit icon of the block editor', 'ux-studio' ),
 		) as $key => $name ) {
@@ -283,5 +340,63 @@ final class WhiteLabelCmsSource extends AbstractAdminSource {
 			$m->note( __( 'The plugin keeps only its defaults, there is nothing to transfer.', 'ux-studio' ) );
 		}
 		return $m;
+	}
+
+	/**
+	 * Welcome panels of the dashboard. The module has one panel (title, HTML, roles), so the first active HTML panel is
+	 * transferred and the others, and the panels built from a page or a page builder, are named as not transferred.
+	 *
+	 * @param Mapping              $m          Mapping.
+	 * @param array<string, mixed> $o          Options.
+	 * @param string               $origin     Origin text.
+	 * @param string[]             $site_roles Roles of this site.
+	 * @param string[]             $lossy      Lossy collector (by reference).
+	 */
+	private function map_welcome_panels( Mapping $m, array $o, string $origin, array $site_roles, array &$lossy ): void {
+		$html_panels = array();
+		$other       = 0;
+		foreach ( (array) ( $o['welcome_panel'] ?? array() ) as $panel ) {
+			$panel  = (array) $panel;
+			$active = isset( $panel['is_active'] ) && ( true === $panel['is_active'] || 1 === $panel['is_active'] || '1' === $panel['is_active'] );
+			$type   = (string) ( $panel['template_type'] ?? 'html' );
+			$has    = ! empty( $panel['title'] ) || ! empty( $panel['description'] ) || ! empty( $panel['page_id_page'] ) || ! empty( $panel['page_id_elementor'] ) || ! empty( $panel['page_id_beaver'] );
+			if ( ! $has ) {
+				continue;
+			}
+			if ( $active && ( 'html' === $type || '' === $type ) && '' !== trim( strip_tags( (string) ( $panel['description'] ?? '' ) ) ) ) {
+				$html_panels[] = $panel;
+			} else {
+				++$other;
+			}
+		}
+		if ( $html_panels ) {
+			$panel   = $html_panels[0];
+			$visible = array_values( array_filter( array_map( 'strval', (array) ( $panel['visible_to'] ?? array() ) ) ) );
+			$visible = $site_roles ? array_values( array_intersect( $visible, $site_roles ) ) : $visible;
+			// Every role of the site (or none named) = everybody.
+			if ( ! $site_roles || ! array_diff( $site_roles, $visible ) ) {
+				$visible = array();
+			}
+			$m->set( 'dashboard-widgets', 'welcome_panel_enabled', true, __( 'Show a custom welcome panel on the dashboard', 'ux-studio' ), $origin . ':welcome_panel' );
+			$m->set( 'dashboard-widgets', 'welcome_panel_title', trim( strip_tags( (string) ( $panel['title'] ?? '' ) ) ), __( 'Welcome panel title', 'ux-studio' ), $origin . ':welcome_panel' );
+			$m->set( 'dashboard-widgets', 'welcome_panel_content', (string) ( $panel['description'] ?? '' ), __( 'Welcome panel content', 'ux-studio' ), $origin . ':welcome_panel' );
+			$m->set( 'dashboard-widgets', 'welcome_panel_roles', $visible, __( 'Show the welcome panel to these roles', 'ux-studio' ), $origin . ':welcome_panel' );
+			$this->note_extra_module( $m, 'dashboard-widgets', __( 'Dashboard Widgets', 'ux-studio' ) );
+			$m->note( __( 'The welcome panel becomes a box at the top of the dashboard. The text is kept with basic HTML only (scripts and unsafe markup are removed).', 'ux-studio' ) );
+			if ( ! empty( $panel['is_fullwidth'] ) ) {
+				$lossy[] = __( 'The welcome panel was full width in the plugin; in UX Studio it is a normal dashboard box.', 'ux-studio' );
+			}
+			if ( ! empty( $panel['dismissible'] ) ) {
+				$lossy[] = __( 'The welcome panel could be dismissed in the plugin; in UX Studio it can not.', 'ux-studio' );
+			}
+			$other += count( $html_panels ) - 1;
+		}
+		if ( $other ) {
+			$lossy[] = sprintf(
+				/* translators: %d: number of panels. */
+				_n( '%d more welcome panel of the dashboard is not transferred (the module has one panel; panels built from a page, Elementor or Beaver Builder template, inactive and further text panels are left out).', '%d more welcome panels of the dashboard are not transferred (the module has one panel; panels built from a page, Elementor or Beaver Builder template, inactive and further text panels are left out).', $other, 'ux-studio' ),
+				$other
+			);
+		}
 	}
 }

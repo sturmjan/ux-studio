@@ -157,8 +157,37 @@ final class SnippetExecutor {
 				continue;
 			}
 			if ( 'php' === $snippet->getType() ) {
-				$this->includePhpSnippet( $snippet );
+				$this->includePhpWhenConditionsHold( $snippet );
 			}
+		}
+	}
+
+	/**
+	 * Include a PHP snippet if its run conditions hold. A snippet whose conditions need the parsed request (page type,
+	 * post) cannot be judged while plugins load, so it is included at the `wp` action instead: hooks it registers
+	 * earlier than that (init, wp_loaded ...) never fire, which is why the editor warns about it. All the other
+	 * conditions (logged in, role, device, schedule, wp-admin) are judged right away.
+	 */
+	private function includePhpWhenConditionsHold( Snippet $snippet ): void {
+		$conditions = $snippet->getConditions();
+		if ( ! $conditions ) {
+			$this->includePhpSnippet( $snippet );
+			return;
+		}
+		if ( SnippetConditions::needs_query( $conditions ) && ! is_admin() && ! did_action( 'wp' ) ) {
+			add_action(
+				'wp',
+				function () use ( $snippet, $conditions ): void {
+					if ( SnippetConditions::hold( $conditions ) ) {
+						$this->includePhpSnippet( $snippet );
+					}
+				},
+				0
+			);
+			return;
+		}
+		if ( SnippetConditions::hold( $conditions ) ) {
+			$this->includePhpSnippet( $snippet );
 		}
 	}
 
@@ -199,7 +228,7 @@ final class SnippetExecutor {
 			return;
 		}
 		foreach ( $this->snippetManager->getEnabledSnippets() as $snippet ) {
-			if ( SnippetManager::LOCATION_RUN_ONCE === $snippet->getRunLocation() && 'php' === $snippet->getType() ) {
+			if ( SnippetManager::LOCATION_RUN_ONCE === $snippet->getRunLocation() && 'php' === $snippet->getType() && SnippetConditions::hold( $snippet->getConditions() ) ) {
 				$this->runOnce( $snippet );
 			}
 		}
@@ -454,7 +483,10 @@ final class SnippetExecutor {
 			return;
 		}
 		foreach ( $this->snippetQueue[ $hook ] as $item ) {
-			$this->outputSnippet( $item['snippet'], $item['code'] );
+			// Judged when the snippet is printed, so the page type and the visitor are known.
+			if ( SnippetConditions::hold( $item['snippet']->getConditions() ) ) {
+				$this->outputSnippet( $item['snippet'], $item['code'] );
+			}
 		}
 	}
 

@@ -143,6 +143,9 @@ final class RestController extends Controller {
 		if ( ! function_exists( 'get_column_headers' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/screen.php';
 		}
+		if ( ! function_exists( 'convert_to_screen' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/template.php';
+		}
 
 		switch ( $content_type ) {
 			case 'users':

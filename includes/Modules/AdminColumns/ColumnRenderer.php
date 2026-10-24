@@ -18,7 +18,7 @@ final class ColumnRenderer {
 
 	private string $content_type;
 
-	/** @var array<int, array{key:string,label:string,type:string,field_type:string,enabled:bool,width:string}> */
+	/** @var array<int, array{key:string,label:string,type:string,field_type:string,enabled:bool,width:string,sortable:bool,filterable:bool}> */
 	private array $columns;
 
 	private FieldRenderer $fields;
@@ -53,6 +53,8 @@ final class ColumnRenderer {
 			add_filter( "manage_edit-{$this->content_type}_columns", array( $this, 'filter_columns' ), 9999 );
 			add_action( "manage_{$this->content_type}_posts_custom_column", array( $this, 'render_post_column' ), 20, 2 );
 			add_action( 'admin_head-edit.php', array( $this, 'print_styles' ) );
+			// B1: sortable headers and filter dropdowns for the post type lists.
+			( new ColumnQuery( $this->content_type, $this->columns ) )->register();
 		}
 	}
 

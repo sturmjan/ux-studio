@@ -217,6 +217,7 @@ final class Module extends BaseModule {
 		if ( $this->setting( 'disable_comments', false ) ) {
 			$this->init_disable_comments();
 		}
+		$this->init_comment_rules();
 		if ( $this->setting( 'disable_blog', false ) ) {
 			$this->init_disable_blog();
 		}
@@ -1026,6 +1027,41 @@ final class Module extends BaseModule {
 				'label'   => __( 'Block comment endpoints', 'ux-studio' ),
 				'help'    => __( 'Removes the REST API comment routes, XML-RPC comment/pingback methods, the X-Pingback header and comment feeds. Applies only when disabling everywhere.', 'ux-studio' ),
 				'default' => true,
+			),
+			array(
+				'key'     => 'disable_comments_allowed_roles',
+				'section' => __( 'Content', 'ux-studio' ),
+				'type'    => 'multiselect',
+				'label'   => __( 'Roles that may still comment', 'ux-studio' ),
+				'help'    => __( 'Users with these roles (and visitors who are not logged in, when that is ticked) are not affected by "Disable comments" or by closing comments on old posts: for them comments, the comment tools in the admin and the REST routes work as in WordPress. The choice is made per request, so a page served from a page cache looks the same to everybody; keep pages with a comment form out of the cache.', 'ux-studio' ),
+				'options' => self::comment_exception_roles(),
+				'default' => array(),
+			),
+			array(
+				'key'     => 'disable_comments_allowed_types',
+				'section' => __( 'Content', 'ux-studio' ),
+				'type'    => 'multiselect',
+				'label'   => __( 'Comment types that stay allowed', 'ux-studio' ),
+				'help'    => __( 'Pingbacks and trackbacks (notices from other sites) can stay on although comments are disabled. Used only while "Disable comments" is on; a type that is not ticked is refused. Pingbacks travel through XML-RPC, so they also need "Disable XML-RPC" to be off, otherwise pings stay closed.', 'ux-studio' ),
+				'options' => self::comment_ping_types(),
+				'default' => array(),
+			),
+			array(
+				'key'     => 'comments_blocked_types',
+				'section' => __( 'Content', 'ux-studio' ),
+				'type'    => 'multiselect',
+				'label'   => __( 'Comment types to refuse', 'ux-studio' ),
+				'help'    => __( 'New comments of these types are refused even where comments are open (for example pingbacks, or product reviews while ordinary comments stay open). Existing comments are not touched. Works without "Disable comments".', 'ux-studio' ),
+				'options' => self::comment_ping_types() + array( 'review' => __( 'Product reviews', 'ux-studio' ) ),
+				'default' => array(),
+			),
+			array(
+				'key'     => 'comments_close_after_days',
+				'section' => __( 'Content', 'ux-studio' ),
+				'type'    => 'number',
+				'label'   => __( 'Close comments on posts older than (days)', 'ux-studio' ),
+				'help'    => __( '0 = never. Comments and pingbacks are closed on content published more than this many days ago. The module does this itself (it filters whether comments are open); the WordPress option "Automatically close comments on old posts" is not changed, so switching the module off restores the earlier state. Existing comments stay visible.', 'ux-studio' ),
+				'default' => 0,
 			),
 			array(
 				'key'     => 'disable_blog',
@@ -2212,7 +2248,7 @@ final class Module extends BaseModule {
 	private function init_disable_comments(): void {
 		add_action( 'init', array( $this, 'remove_comment_support' ), 100 );
 		add_filter( 'comments_open', array( $this, 'filter_comments_open' ), 20, 2 );
-		add_filter( 'pings_open', array( $this, 'filter_comments_open' ), 20, 2 );
+		add_filter( 'pings_open', array( $this, 'filter_pings_open' ), 20, 2 );
 		add_action( 'pre_comment_on_post', array( $this, 'block_comment_submission' ) );
 
 		if ( $this->setting( 'disable_comments_hide_existing', true ) ) {
@@ -2255,6 +2291,138 @@ final class Module extends BaseModule {
 	}
 
 	/**
+	 * Rules that work with or without "Disable comments": comment types to refuse and closing old posts.
+	 * Nothing here touches the WordPress discussion options (close_comments_for_old_posts, close_comments_days_old):
+	 * the module filters whether comments are open, so with the module off (or the days at 0) WordPress behaves exactly as
+	 * its own settings say, and the module never leaves a changed core option behind.
+	 */
+	private function init_comment_rules(): void {
+		if ( self::close_days( $this->setting( 'comments_close_after_days', 0 ) ) > 0 ) {
+			add_filter( 'comments_open', array( $this, 'filter_old_posts_open' ), 21, 2 );
+			add_filter( 'pings_open', array( $this, 'filter_old_posts_open' ), 21, 2 );
+		}
+		if ( $this->effective_blocked_types() ) {
+			add_filter( 'preprocess_comment', array( $this, 'refuse_blocked_types' ), 20 );
+			// Both ping types refused by choice: close the door early, with the normal "pings are closed" answer.
+			if ( ! array_diff( array( 'pingback', 'trackback' ), self::list_setting( $this->setting( 'comments_blocked_types', array() ) ) ) ) {
+				add_filter( 'pings_open', '__return_false', 22 );
+			}
+		}
+	}
+
+	/**
+	 * Comment types refused: the ones chosen, plus (while comments are disabled and only one ping type is allowed) the other
+	 * ping type, which `pings_open` cannot tell apart.
+	 *
+	 * @return string[]
+	 */
+	private function effective_blocked_types(): array {
+		$blocked = self::list_setting( $this->setting( 'comments_blocked_types', array() ) );
+		if ( $this->setting( 'disable_comments', false ) ) {
+			$allowed = self::list_setting( $this->setting( 'disable_comments_allowed_types', array() ) );
+			foreach ( array( 'pingback', 'trackback' ) as $type ) {
+				if ( ! in_array( $type, $allowed, true ) ) {
+					$blocked[] = $type;
+				}
+			}
+		}
+		return array_values( array_unique( $blocked ) );
+	}
+
+	/**
+	 * Refuse a new comment of a blocked type (pingback, trackback, product review ...).
+	 *
+	 * @param array<string, mixed> $commentdata Comment data.
+	 */
+	public function refuse_blocked_types( $commentdata ) {
+		$type = is_array( $commentdata ) ? (string) ( $commentdata['comment_type'] ?? '' ) : '';
+		$type = '' === $type ? 'comment' : $type;
+		if ( in_array( $type, $this->effective_blocked_types(), true ) ) {
+			wp_die( esc_html__( 'This type of comment is not accepted.', 'ux-studio' ), '', array( 'response' => 403 ) );
+		}
+		return $commentdata;
+	}
+
+	/**
+	 * Comments and pings closed on content older than the chosen number of days (published posts only).
+	 *
+	 * @param bool         $open    Current state.
+	 * @param int|\WP_Post $post_id Post.
+	 */
+	public function filter_old_posts_open( $open, $post_id ) {
+		if ( ! $open || $this->comments_exempt() ) {
+			return $open;
+		}
+		$days = self::close_days( $this->setting( 'comments_close_after_days', 0 ) );
+		$post = get_post( $post_id );
+		if ( $days < 1 || ! $post || 'publish' !== $post->post_status ) {
+			return $open;
+		}
+		$published = (int) get_post_time( 'U', true, $post );
+		return ( $published > 0 && ( time() - $published ) > $days * DAY_IN_SECONDS ) ? false : $open;
+	}
+
+	/**
+	 * Whether the current visitor is one of the roles that may still comment (see the setting). Decided per request.
+	 */
+	private function comments_exempt(): bool {
+		$allowed = self::list_setting( $this->setting( 'disable_comments_allowed_roles', array() ) );
+		if ( ! $allowed ) {
+			return false;
+		}
+		if ( ! is_user_logged_in() ) {
+			return in_array( 'logged-out-users', $allowed, true );
+		}
+		$user = wp_get_current_user();
+		return (bool) array_intersect( $allowed, (array) $user->roles ) || ( in_array( 'administrator', $allowed, true ) && is_super_admin() );
+	}
+
+	/**
+	 * A setting holding a list as a clean list of strings.
+	 *
+	 * @param mixed $value Stored value.
+	 * @return string[]
+	 */
+	private static function list_setting( $value ): array {
+		return array_values( array_filter( array_map( 'strval', (array) $value ), static fn ( string $v ): bool => '' !== $v ) );
+	}
+
+	/**
+	 * Whole days from the setting (0 = off), bounded.
+	 *
+	 * @param mixed $value Stored value.
+	 */
+	private static function close_days( $value ): int {
+		return max( 0, min( 3650, (int) $value ) );
+	}
+
+	/**
+	 * Roles that can be exempt from the comment rules, plus visitors who are not logged in.
+	 *
+	 * @return array<string,string>
+	 */
+	private static function comment_exception_roles(): array {
+		$roles = array();
+		foreach ( wp_roles()->get_names() as $slug => $name ) {
+			$roles[ (string) $slug ] = translate_user_role( $name );
+		}
+		$roles['logged-out-users'] = __( 'Visitors who are not logged in', 'ux-studio' );
+		return $roles;
+	}
+
+	/**
+	 * Notices from other sites.
+	 *
+	 * @return array<string,string>
+	 */
+	private static function comment_ping_types(): array {
+		return array(
+			'pingback'  => __( 'Pingbacks', 'ux-studio' ),
+			'trackback' => __( 'Trackbacks', 'ux-studio' ),
+		);
+	}
+
+	/**
 	 * Selectable post types for the per-type scope.
 	 *
 	 * @return array<string,string>
@@ -2268,6 +2436,9 @@ final class Module extends BaseModule {
 	}
 
 	public function remove_comment_support(): void {
+		if ( $this->comments_exempt() ) {
+			return;
+		}
 		foreach ( get_post_types( array(), 'names' ) as $post_type ) {
 			if ( ! $this->comments_disabled_for( $post_type ) ) {
 				continue;
@@ -2282,8 +2453,25 @@ final class Module extends BaseModule {
 	 * @param int|\WP_Post $post_id Post.
 	 */
 	public function filter_comments_open( $open, $post_id ) {
+		if ( $this->comments_exempt() ) {
+			return $open;
+		}
 		$post_type = get_post_type( $post_id );
 		return ( $post_type && $this->comments_disabled_for( $post_type ) ) ? false : $open;
+	}
+
+	/**
+	 * Pingbacks and trackbacks while comments are disabled: still closed unless one of the two types is allowed.
+	 * (`pings_open` does not say which of the two it is; the other one is refused when it arrives, see refuse_blocked_types().)
+	 *
+	 * @param bool         $open    Current state.
+	 * @param int|\WP_Post $post_id Post.
+	 */
+	public function filter_pings_open( $open, $post_id ) {
+		if ( array_intersect( array( 'pingback', 'trackback' ), self::list_setting( $this->setting( 'disable_comments_allowed_types', array() ) ) ) ) {
+			return $open;
+		}
+		return $this->filter_comments_open( $open, $post_id );
 	}
 
 	/**
@@ -2292,6 +2480,9 @@ final class Module extends BaseModule {
 	 * @param int|string $post_id Post ID.
 	 */
 	public function block_comment_submission( $post_id ): void {
+		if ( $this->comments_exempt() ) {
+			return;
+		}
 		$post_type = get_post_type( (int) $post_id );
 		if ( $post_type && $this->comments_disabled_for( $post_type ) ) {
 			wp_die( esc_html__( 'Comments are disabled.', 'ux-studio' ), '', array( 'response' => 403 ) );
@@ -2303,6 +2494,9 @@ final class Module extends BaseModule {
 	 * @param int   $post_id  Post ID.
 	 */
 	public function filter_comments_array( $comments, $post_id ) {
+		if ( $this->comments_exempt() ) {
+			return $comments;
+		}
 		$post_type = get_post_type( $post_id );
 		return ( $post_type && $this->comments_disabled_for( $post_type ) ) ? array() : $comments;
 	}
@@ -2312,17 +2506,26 @@ final class Module extends BaseModule {
 	 * @param int        $post_id Post ID.
 	 */
 	public function filter_comments_number( $count, $post_id ) {
+		if ( $this->comments_exempt() ) {
+			return $count;
+		}
 		$post_type = get_post_type( $post_id );
 		return ( $post_type && $this->comments_disabled_for( $post_type ) ) ? 0 : $count;
 	}
 
 	public function remove_comments_admin_menus(): void {
+		if ( $this->comments_exempt() ) {
+			return;
+		}
 		remove_menu_page( 'edit-comments.php' );
 		remove_submenu_page( 'options-general.php', 'options-discussion.php' );
 	}
 
 	public function block_comments_admin_screens(): void {
 		global $pagenow;
+		if ( $this->comments_exempt() ) {
+			return;
+		}
 		if ( in_array( $pagenow, array( 'edit-comments.php', 'comment.php', 'options-discussion.php' ), true ) ) {
 			wp_safe_redirect( admin_url() );
 			exit;
@@ -2332,17 +2535,23 @@ final class Module extends BaseModule {
 	}
 
 	public function remove_comments_dashboard_widget(): void {
+		if ( $this->comments_exempt() ) {
+			return;
+		}
 		remove_meta_box( 'dashboard_recent_comments', 'dashboard', 'normal' );
 	}
 
 	public function remove_comments_admin_bar_node(): void {
 		global $wp_admin_bar;
-		if ( $wp_admin_bar instanceof \WP_Admin_Bar ) {
+		if ( ! $this->comments_exempt() && $wp_admin_bar instanceof \WP_Admin_Bar ) {
 			$wp_admin_bar->remove_node( 'comments' );
 		}
 	}
 
 	public function remove_comments_widget(): void {
+		if ( $this->comments_exempt() ) {
+			return;
+		}
 		unregister_widget( 'WP_Widget_Recent_Comments' );
 	}
 
@@ -2350,6 +2559,9 @@ final class Module extends BaseModule {
 	 * @param array $endpoints Registered REST routes.
 	 */
 	public function filter_comment_rest_endpoints( $endpoints ) {
+		if ( $this->comments_exempt() ) {
+			return $endpoints;
+		}
 		foreach ( array_keys( (array) $endpoints ) as $route ) {
 			if ( 0 === strpos( (string) $route, '/wp/v2/comments' ) ) {
 				unset( $endpoints[ $route ] );
@@ -2362,6 +2574,9 @@ final class Module extends BaseModule {
 	 * @param array $methods XML-RPC methods.
 	 */
 	public function filter_comment_xmlrpc_methods( $methods ) {
+		if ( $this->comments_exempt() ) {
+			return $methods;
+		}
 		$remove = array(
 			'wp.newComment',
 			'wp.getComment',
@@ -2380,7 +2595,7 @@ final class Module extends BaseModule {
 	}
 
 	public function redirect_comment_feeds(): void {
-		if ( is_comment_feed() ) {
+		if ( ! $this->comments_exempt() && is_comment_feed() ) {
 			wp_safe_redirect( home_url( '/' ), 301 );
 			exit;
 		}
@@ -2392,7 +2607,10 @@ final class Module extends BaseModule {
 	 * @param array|object $counts  Incoming counts (unused).
 	 * @param int          $post_id Post ID (unused).
 	 */
-	public function zero_comment_count( $counts, $post_id ): object {
+	public function zero_comment_count( $counts, $post_id ) {
+		if ( $this->comments_exempt() ) {
+			return $counts;
+		}
 		return (object) array(
 			'approved'            => 0,
 			'awaiting_moderation' => 0,

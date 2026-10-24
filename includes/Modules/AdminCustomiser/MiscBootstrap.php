@@ -37,6 +37,10 @@ final class MiscBootstrap {
 		add_action( 'admin_head', array( self::class, 'print_css_variables' ), 10 );
 		add_action( 'login_head', array( self::class, 'print_css_variables' ), 10 );
 
+		// Own CSS of the admin and of the login page (never on the front end), meta boxes hidden per role.
+		CustomCss::register();
+		MetaBoxRules::register();
+
 		add_action( 'admin_head', array( self::class, 'handle_admin_features_visibility' ) );
 		add_filter( 'admin_footer_text', array( self::class, 'custom_admin_footer_text' ), 11 );
 

@@ -134,6 +134,11 @@ function get_plugins() { return $GLOBALS['uxs_plugins']; }
 $GLOBALS['uxs_plugins'] = array();
 
 function _get_cron_array() { return $GLOBALS['uxs_cron']; }
+function wp_parse_url( $url, $component = -1 ) { return parse_url( $url, $component ); }
+function esc_url_raw( $url, $protocols = null ) { $url = trim( (string) $url ); return preg_match( '#^https?://#i', $url ) ? $url : ''; }
+function wp_get_schedules() { return array( 'hourly' => array( 'interval' => 3600, 'display' => 'Hourly' ), 'daily' => array( 'interval' => 86400, 'display' => 'Daily' ) ); }
+function wp_get_scheduled_event( $hook, $args = array() ) { foreach ( $GLOBALS['uxs_cron'] as $ts => $events ) { if ( isset( $events[ $hook ][ md5( serialize( $args ) ) ] ) ) { $e = $events[ $hook ][ md5( serialize( $args ) ) ]; return (object) array( 'hook' => $hook, 'timestamp' => $ts, 'schedule' => $e['schedule'] ?? false, 'args' => $args ); } } return false; }
+function wp_schedule_event( $ts, $recurrence, $hook, $args = array() ) { if ( ! in_array( $recurrence, array( 'hourly', 'daily', 'every_5' ), true ) ) { return false; } $GLOBALS['uxs_cron'][ $ts ][ $hook ][ md5( serialize( $args ) ) ] = array( 'args' => $args, 'schedule' => $recurrence ); return true; }
 function wp_next_scheduled( $hook, $args = array() ) { foreach ( $GLOBALS['uxs_cron'] as $ts => $events ) { if ( isset( $events[ $hook ][ md5( serialize( $args ) ) ] ) || ( ! $args && isset( $events[ $hook ] ) ) ) { return $ts; } } return false; }
 function wp_schedule_single_event( $ts, $hook, $args = array() ) { $GLOBALS['uxs_cron'][ $ts ][ $hook ][ md5( serialize( $args ) ) ] = array( 'args' => $args ); return true; }
 function wp_unschedule_event( $ts, $hook, $args = array() ) { unset( $GLOBALS['uxs_cron'][ $ts ][ $hook ][ md5( serialize( $args ) ) ] ); if ( empty( $GLOBALS['uxs_cron'][ $ts ][ $hook ] ) ) { unset( $GLOBALS['uxs_cron'][ $ts ][ $hook ] ); } return true; }
@@ -147,6 +152,13 @@ function get_posts( $args ) {
 	return array_values( array_filter( $GLOBALS['uxs_posts'], static fn( $p ) => in_array( $p->post_type, $types, true ) && in_array( $p->post_status, $stat, true ) ) );
 }
 function get_userdata( $id ) { return (object) array( 'user_login' => 'user' . $id ); }
+function wp_timezone() { return new DateTimeZone( 'UTC' ); }
+function attachment_url_to_postid( $url ) { return $GLOBALS['uxs_attachments'][ $url ] ?? 0; }
+$GLOBALS['uxs_attachments'] = array();
+function post_type_exists( $type ) { return in_array( $type, array( 'post', 'page', 'attachment', 'product' ), true ); }
+function get_post_type( $id ) { $p = get_post( $id ); return $p ? $p->post_type : false; }
+function get_term_meta( $term_id, $key, $single = false ) { return $GLOBALS['uxs_termmeta'][ $term_id ][ $key ] ?? ''; }
+$GLOBALS['uxs_termmeta'] = array();
 function metadata_exists( $type, $id, $key ) { return isset( $GLOBALS['uxs_meta'][ $type ][ $id ][ $key ] ); }
 function get_metadata( $type, $id, $key, $single = false ) {
 	$vals = $GLOBALS['uxs_meta'][ $type ][ $id ][ $key ] ?? array();
@@ -209,8 +221,11 @@ $rich = static fn( string $key ) => array( 'key' => $key, 'type' => 'richtext', 
 
 $schemas = array(
 	'smtp-email'          => array(
-		$sel( 'mailer', array( 'smtp', 'brevo', 'gmail' ), 'smtp' ), $txt( 'from_email' ), $tog( 'force_from_email' ), $txt( 'from_name' ), $tog( 'force_from_name' ),
+		$sel( 'mailer', array( 'smtp', 'brevo', 'gmail', 'sendgrid', 'mailgun', 'postmark', 'ses' ), 'smtp' ), $sel( 'fallback_mailer', array( 'none', 'smtp', 'brevo', 'gmail', 'sendgrid', 'mailgun', 'postmark', 'ses' ), 'none' ),
+		$txt( 'from_email' ), $tog( 'force_from_email' ), $txt( 'from_name' ), $tog( 'force_from_name' ),
 		$txt( 'host' ), $num( 'port', 587 ), $sel( 'encryption', array( 'tls', 'ssl', 'none' ), 'tls' ), $txt( 'username' ), $txt( 'gmail_client_id' ),
+		$sel( 'sendgrid_region', array( 'global', 'eu' ), 'global' ), $txt( 'mailgun_domain' ), $sel( 'mailgun_region', array( 'us', 'eu' ), 'us' ),
+		$txt( 'postmark_message_stream' ), $sel( 'ses_region', \UxStudio\Modules\SmtpEmail\Providers::SES_REGIONS, 'us-east-1' ),
 	),
 	'email-log'           => array( $num( 'retention_days', 30 ), $tog( 'detect_source', true ) ),
 	'activity-log'        => array( $num( 'retention_days', 180 ), $tog( 'alert_new_ip' ) ),
@@ -221,7 +236,11 @@ $schemas = array(
 		$sel( 'existing_page', array( '7', '8' ), '' ), $sel( 'auth_type', array( 'logged_in', 'roles' ), 'logged_in' ),
 		$mul( 'access_roles', array( 'administrator', 'editor', 'author', 'subscriber' ) ), $txt( 'headline_text' ), $col( 'headline_colour' ),
 		$rich( 'body_text' ), $col( 'body_colour' ), $col( 'background_colour' ),
+		$tog( 'enable_background_image' ), array( 'key' => 'background_image', 'type' => 'media', 'default' => 0 ),
+		$tog( 'countdown_enabled' ), array( 'key' => 'countdown_end', 'type' => 'datetime', 'default' => '' ), $tog( 'countdown_auto_disable' ),
+		array( 'key' => 'exclude_paths', 'type' => 'textarea', 'default' => '' ), array( 'key' => 'bypass_ips', 'type' => 'textarea', 'default' => '' ),
 	),
+	'folder-manager'      => array( $mul( 'post_types', array( 'attachment', 'post', 'page', 'product' ), array( 'attachment' ) ) ),
 );
 $schemas['security-optimization'] = array(
 	$tog( 'limit_login_attempts' ), $num( 'max_attempts', 3 ), $num( 'lockout_time', 30 ), $tog( 'notify_admin' ),
@@ -382,15 +401,15 @@ $redir = static function ( int $id, string $url, string $match, string $atype, i
 };
 $redir_rows = array(
 	$redir( 1, '/stara', 'url', 'url', 301, '/nova' ),
-	$redir( 2, '/blog/(.*)', 'url', 'url', 301, '/novy-blog/$1', 1 ),
+	$redir( 2, '/blog/(.*)', 'url', 'url', 301, '/novy-blog/$1', 1, 'enabled', 1, '{"source":{"flag_regex":true,"flag_case":true}}' ),
 	$redir( 3, '/smazano', 'url', 'error', 410, '' ),
-	$redir( 4, '/vypnuto', 'url', 'url', 302, '/jinam', 0, 'disabled' ),
+	$redir( 4, '/vypnuto', 'url', 'url', 302, '/jinam', 0, 'disabled', 1, '{"source":{"flag_query":"exactorder"}}' ),
 	$redir( 5, '/ve-skupine', 'url', 'url', 301, '/x', 0, 'enabled', 2 ),
 	$redir( 6, '/', 'server', 'url', 301, serialize( array( 'url_from' => 'https://nova.test', 'url_notfrom' => '', 'server' => 'https://old.test' ) ) ),
 	$redir( 7, '/nahoda', 'url', 'random', 301, '' ),
 	$redir( 8, '/prihlasen', 'login', 'url', 301, serialize( array( 'logged_in' => '/y', 'logged_out' => '/gost' ) ) ),
-	$redir( 9, '/velke', 'url', 'url', 301, '/male', 0, 'enabled', 1, '{"source":{"flag_query":"ignore","flag_case":true}}' ),
-	$redir( 10, '/see-other', 'url', 'url', 303, '/z' ),
+	$redir( 9, '/velke', 'url', 'url', 301, '/male', 0, 'enabled', 1, '{"source":{"flag_query":"ignore","flag_case":true,"flag_trailing":false}}' ),
+	$redir( 10, '/see-other?x=1', 'url', 'url', 303, '/z', 0, 'enabled', 1, '{"source":{"flag_query":"pass","flag_case":true,"flag_trailing":true}}' ),
 	$redir( 11, 'https://old.test/Stara/', 'url', 'url', 301, '/jinde' ), // same address as rule 1 (case, slash, host): never reached
 	// Match types: one rule per state that has a target ("matched" / "not matched"), both on the SAME address as rule 1 here.
 	$redir( 12, '/stara', 'referrer', 'url', 301, serialize( array( 'url_from' => '/z-google', 'url_notfrom' => '/bez-google', 'regex' => true, 'referrer' => 'google\\.' ) ) ),
@@ -401,6 +420,9 @@ $redir_rows = array(
 	$redir( 17, '/ip', 'ip', 'url', 301, serialize( array( 'url_from' => '/kancelar', 'url_notfrom' => '', 'ip' => array( '203.0.113.5', '10.0.0.1' ) ) ) ),
 	$redir( 18, '/hlavicka', 'header', 'url', 301, serialize( array( 'url_from' => '/h', 'url_notfrom' => '', 'name' => 'X-Foo', 'value' => 'bar', 'regex' => false ) ) ),
 );
+$redir_rows[0]['last_count']  = 12;
+$redir_rows[0]['last_access'] = '2026-03-17 08:18:11';
+$redir_rows[1]['last_count']  = 3;
 $sql( '/SELECT id, status FROM wp_redirection_groups/', static fn() => array( array( 'id' => 1, 'status' => 'enabled' ), array( 'id' => 2, 'status' => 'disabled' ) ) );
 $sql( '/SELECT COUNT\(\*\) FROM wp_redirection_items/', static fn() => array( count( $redir_rows ) ) );
 $sql( '/FROM wp_redirection_items WHERE id > (\d+) ORDER BY id ASC LIMIT (\d+)/', static function ( $m ) use ( $redir_rows ) {
@@ -412,11 +434,17 @@ $assert( 'redirection: disabled rule and rule in a disabled group count as inact
 $assert( 'redirection: 1 regex, 1 gone', 1 === $data_count( $plan, 'regex' ) && 1 === $data_count( $plan, 'gone' ) );
 $assert( 'redirection: a rule with the same address AND the same conditions as an earlier one is still dropped (the first one wins) and reported', $lossy_has( $plan, 'same address and the same conditions' ) && 17 === $data_count( $plan, 'redirect' ), json_encode( $plan['lossy'] ) );
 $assert( 'redirection: a rule with the same address but other conditions is NOT a duplicate (several rules per address)', isset( array_column( $items_of( 'redirection' ), null, 'key' )['item:12'], array_column( $items_of( 'redirection' ), null, 'key' )['item:12:else'], array_column( $items_of( 'redirection' ), null, 'key' )['item:1'] ) && '/stara' === array_column( $items_of( 'redirection' ), null, 'key' )['item:12']['source'] );
-$assert( 'redirection: lossy no longer lists server / login / referrer / agent / cookie / role / IP / header rules; it lists random target, language, case + query flags, counters', ! $lossy_has( $plan, 'whole domain' ) && ! $lossy_has( $plan, 'logged in' ) && ! $lossy_has( $plan, 'referring page' ) && ! $lossy_has( $plan, 'cookie' ) && ! $lossy_has( $plan, 'IP address' ) && ! $lossy_has( $plan, 'HTTP header' ) && $lossy_has( $plan, 'random target' ) && $lossy_has( $plan, 'depend on the language' ) && $lossy_has( $plan, 'case sensitive' ) && $lossy_has( $plan, 'query string' ) && $lossy_has( $plan, 'Hit counters' ), json_encode( $plan['lossy'] ) );
+$assert( 'redirection: lossy no longer lists server / login / referrer / agent / cookie / role / IP / header rules, nor case flags and counters (transferred); it lists random target, language, the query flags the module cannot express, trailing slash and the logs', ! $lossy_has( $plan, 'whole domain' ) && ! $lossy_has( $plan, 'logged in' ) && ! $lossy_has( $plan, 'referring page' ) && ! $lossy_has( $plan, 'cookie' ) && ! $lossy_has( $plan, 'IP address' ) && ! $lossy_has( $plan, 'HTTP header' ) && $lossy_has( $plan, 'random target' ) && $lossy_has( $plan, 'depend on the language' ) && ! $lossy_has( $plan, 'were case sensitive' ) && ! $lossy_has( $plan, 'Hit counters' ) && $lossy_has( $plan, 'let other parameters through' ) && $lossy_has( $plan, 'in the order written' ) && $lossy_has( $plan, 'slash at the end' ) && $lossy_has( $plan, 'redirect log and the 404 log' ), json_encode( $plan['lossy'] ) );
+$assert( 'redirection: the plan says that case, query handling and hit counters are transferred', false !== strpos( implode( ' ', $plan['notes'] ), 'Letter case and query string handling are transferred' ) && false !== strpos( implode( ' ', $plan['notes'] ), 'hit counter and the time of the last hit of 2 rules' ), json_encode( $plan['notes'] ) );
 $assert( 'redirection: the plan says how many rules became conditional rules', false !== strpos( implode( ' ', $plan['notes'] ), '10 rules depend on who is asking' ), json_encode( $plan['notes'] ) );
 $items = $items_of( 'redirection' );
 $by    = array_column( $items, null, 'key' );
 $assert( 'redirection: 303 becomes 302, 410 has no target, regex keeps match type', 302 === $by['item:10']['code'] && '' === $by['item:3']['target'] && 410 === $by['item:3']['code'] && 'regex' === $by['item:2']['match_type'] );
+$assert( 'redirection: Redirection\'s default (no flag_case) is case SENSITIVE, flag_case=true means case insensitive', true === $by['item:1']['case_sensitive'] && false === $by['item:9']['case_sensitive'] && false === $by['item:2']['case_sensitive'] );
+$assert( 'redirection: query handling: default exact -> exact, ignore -> ignore, regex -> default, exactorder -> exact', 'exact' === $by['item:1']['query_mode'] && 'ignore' === $by['item:9']['query_mode'] && 'default' === $by['item:2']['query_mode'] && 'exact' === $by['item:4']['query_mode'] && true === $by['item:4']['query_order'] );
+$assert( 'redirection: "pass" with parameters in the source cannot be expressed: default mode and counted as unmapped', 'default' === $by['item:10']['query_mode'] && true === $by['item:10']['query_unmapped'] && false === $by['item:9']['query_unmapped'] );
+$assert( 'redirection: trailing slash flag false is reported only for exact rules', true === $by['item:1']['trailing_slash'] && true === $by['item:9']['trailing_slash'] && false === $by['item:10']['trailing_slash'] && false === $by['item:2']['trailing_slash'] );
+$assert( 'redirection: hits and last access travel (UTC converted to site time when WordPress can), the epoch means never', 12 === $by['item:1']['hits'] && '2026-03-17 08:18:11' === $by['item:1']['last_hit'] && 3 === $by['item:2']['hits'] && '' === $by['item:2']['last_hit'] && 0 === $by['item:9']['hits'] );
 $cond = static fn( string $key ): array => $by[ $key ]['conditions'];
 $assert( 'redirection: login -> two rules, logged in / logged out, each with its own target', array( array( 'type' => 'login', 'value' => 'in' ) ) === $cond( 'item:8' ) && '/y' === $by['item:8']['target'] && array( array( 'type' => 'login', 'value' => 'out' ) ) === $cond( 'item:8:else' ) && '/gost' === $by['item:8:else']['target'] );
 $assert( 'redirection: referrer regex -> matched rule + negated "not matched" rule on the same address, order kept by position', array( array( 'type' => 'referrer', 'op' => 'regex', 'value' => 'google\\.' ) ) === $cond( 'item:12' ) && true === $cond( 'item:12:else' )[0]['negate'] && '/z-google' === $by['item:12']['target'] && '/bez-google' === $by['item:12:else']['target'] && 12 === $by['item:12']['position'] );
@@ -557,10 +585,17 @@ $meta( 'post', 25, '_wpcode_auto_insert', 1 );
 $post( 26, 'wpcode', 'publish', 'Mezi odstavci', '<p>mezi</p>' );
 $GLOBALS['uxs_terms'][26] = array( 'wpcode_type' => array( 'html' ), 'wpcode_location' => array( 'before_paragraph' ) );
 $meta( 'post', 26, '_wpcode_auto_insert', 1 );
+$post( 27, 'wpcode', 'publish', 'Jen uvodni', '<p>uvod</p>' );
+$GLOBALS['uxs_terms'][27] = array( 'wpcode_type' => array( 'html' ), 'wpcode_location' => array( 'site_wide_footer' ) );
+$meta( 'post', 27, '_wpcode_auto_insert', 1 ); $meta( 'post', 27, '_wpcode_conditional_logic_enabled', 1 ); $meta( 'post', 27, '_wpcode_device_type', 'desktop' );
+$meta( 'post', 27, '_wpcode_conditional_logic', array( 'show' => 'show', 'groups' => array( array(
+	array( 'type' => 'page', 'option' => 'type_of_page', 'relation' => '=', 'value' => 'is_front_page' ),
+	array( 'type' => 'user', 'option' => 'logged_in', 'relation' => '=', 'value' => '1' ),
+) ) ) );
 $items = $items_of( 'insert-headers-and-footers' );
 $by    = array_column( $items, null, 'key' );
 $plan  = SourceRegistry::get( 'insert-headers-and-footers' )->plan();
-$assert( 'wpcode: legacy header + body boxes (footer empty) and 5 snippet posts convert (manual and before / after content are new)', 7 === count( $items ) && isset( $by['ihaf:header'], $by['ihaf:body'], $by['wpcode:20'], $by['wpcode:21'], $by['wpcode:22'], $by['wpcode:24'], $by['wpcode:25'] ), implode( ',', array_keys( $by ) ) );
+$assert( 'wpcode: legacy header + body boxes (footer empty) and 5 snippet posts convert (manual and before / after content are new)', 8 === count( $items ) && isset( $by['ihaf:header'], $by['ihaf:body'], $by['wpcode:27'], $by['wpcode:20'], $by['wpcode:21'], $by['wpcode:22'], $by['wpcode:24'], $by['wpcode:25'] ), implode( ',', array_keys( $by ) ) );
 $assert( 'wpcode: a snippet that is not inserted automatically becomes a shortcode snippet (a draft stays off)', 'shortcode' === $by['wpcode:22']['run_location'] && 'php' === $by['wpcode:22']['type'] && false === $by['wpcode:22']['enabled'] && false === $by['wpcode:22']['keep_off'] );
 $assert( 'wpcode: before post / before content -> before the content, after content -> after, with posts and pages as the default post types; other snippets have none', 'before_content' === $by['wpcode:24']['run_location'] && 'after_content' === $by['wpcode:25']['run_location'] && array( 'post', 'page' ) === $by['wpcode:24']['post_types'] && array( 'post', 'page' ) === $by['wpcode:25']['post_types'] && array() === $by['wpcode:20']['post_types'] );
 $assert( 'wpcode: header box -> html in the site header, body box -> after the opening body tag', 'html' === $by['ihaf:header']['type'] && 'site_header' === $by['ihaf:header']['run_location'] && 'site_body_open' === $by['ihaf:body']['run_location'] );
@@ -568,6 +603,28 @@ $assert( 'wpcode: priority and note are kept; conditional logic marks the snippe
 $assert( 'wpcode: text type, a place the module lacks (before paragraph) and conditions are reported; shortcode-only and before / after content are not', $lossy_has( $plan, 'plain text' ) && $lossy_has( $plan, 'before_paragraph' ) && $lossy_has( $plan, 'conditions' ) && ! $lossy_has( $plan, 'shortcode or on demand' ) && ! $lossy_has( $plan, 'before or after posts' ), json_encode( $plan['lossy'] ) );
 $assert( 'wpcode: notes tell about the shortcode and the placement around the content', false !== strpos( implode( ' ', $plan['notes'] ), '[uxstudio_snippet' ) && false !== strpos( implode( ' ', $plan['notes'] ), 'before or after the post content' ), json_encode( $plan['notes'] ) );
 $assert( 'wpcode: 1 snippet in review is not counted among those switched on at the switch', 1 === $data_count( $plan, 'review' ), json_encode( $plan['data'] ) );
+$assert( 'wpcode: conditional logic (front page AND logged in) and the device become run conditions, the snippet is NOT held for review', false === $by['wpcode:27']['review'] && array(
+	array( 'type' => 'page', 'value' => array( 'front_page' ), 'negate' => false ),
+	array( 'type' => 'login', 'value' => 'in', 'negate' => false ),
+	array( 'type' => 'device', 'value' => 'desktop', 'negate' => false ),
+) === $by['wpcode:27']['conditions'], json_encode( $by['wpcode:27']['conditions'] ) );
+$assert( 'wpcode: logic that is enabled but has no readable rules still holds the snippet for review (no conditions are guessed)', true === $by['wpcode:21']['review'] && array() === $by['wpcode:21']['conditions'] );
+// The WPCode logic matrix: what maps exactly and what stays for review.
+$wp = SourceRegistry::get( 'insert-headers-and-footers' );
+$row = static fn( string $type, string $option, string $rel, $value ): array => array( 'type' => $type, 'option' => $option, 'relation' => $rel, 'value' => $value );
+$rules = static fn( string $show, array ...$groups ): array => array( 'show' => $show, 'groups' => $groups );
+$kinds = array( 'is_front_page' => 'front_page', 'is_home' => 'blog_home', 'is_single' => 'singular', 'is_author' => 'author', 'is_archive' => 'archive', 'is_search' => 'search', 'is_404' => '404' );
+$kind_ok = true;
+foreach ( $kinds as $wp_value => $kind ) {
+	$got = $wp->wpcode_conditions( $rules( 'show', array( $row( 'page', 'type_of_page', '=', $wp_value ) ) ) );
+	$neg = $wp->wpcode_conditions( $rules( 'show', array( $row( 'page', 'type_of_page', '!=', $wp_value ) ) ) );
+	$kind_ok = $kind_ok && array( array( 'type' => 'page', 'value' => array( $kind ), 'negate' => false ) ) === $got && true === $neg[0]['negate'];
+}
+$assert( 'wpcode logic: every "type of page" maps to its page kind, "!=" negates', $kind_ok );
+$assert( 'wpcode logic: logged in true / false / "!=", user role = / !=, post type', array( array( 'type' => 'login', 'value' => 'in', 'negate' => false ) ) === $wp->wpcode_conditions( $rules( 'show', array( $row( 'user', 'logged_in', '=', true ) ) ) ) && 'out' === $wp->wpcode_conditions( $rules( 'show', array( $row( 'user', 'logged_in', '=', '' ) ) ) )[0]['value'] && 'out' === $wp->wpcode_conditions( $rules( 'show', array( $row( 'user', 'logged_in', '!=', '1' ) ) ) )[0]['value'] && array( array( 'type' => 'role', 'value' => array( 'editor' ), 'negate' => true ) ) === $wp->wpcode_conditions( $rules( 'show', array( $row( 'user', 'user_role', '!=', 'editor' ) ) ) ) && array( array( 'type' => 'post_type', 'value' => array( 'product' ), 'scope' => 'single', 'negate' => false ) ) === $wp->wpcode_conditions( $rules( 'show', array( $row( 'page', 'post_type', '=', 'product' ) ) ) ) );
+$assert( 'wpcode logic: "hide" on one rule is that rule turned around, "hide" on several rules cannot be written (review)', true === $wp->wpcode_conditions( $rules( 'hide', array( $row( 'page', 'type_of_page', '=', 'is_404' ) ) ) )[0]['negate'] && 'out' === $wp->wpcode_conditions( $rules( 'hide', array( $row( 'user', 'logged_in', '=', '1' ) ) ) )[0]['value'] && null === $wp->wpcode_conditions( $rules( 'hide', array( $row( 'page', 'type_of_page', '=', 'is_404' ), $row( 'user', 'logged_in', '=', '1' ) ) ) ) );
+$assert( 'wpcode logic: several OR groups, other relations, page URL / referrer / taxonomy rules, unknown options and a missing "show" are NOT guessed (review)', null === $wp->wpcode_conditions( $rules( 'show', array( $row( 'user', 'logged_in', '=', '1' ) ), array( $row( 'page', 'type_of_page', '=', 'is_404' ) ) ) ) && null === $wp->wpcode_conditions( $rules( 'show', array( $row( 'page', 'page_url', 'contains', '/shop' ) ) ) ) && null === $wp->wpcode_conditions( $rules( 'show', array( $row( 'page', 'page_url', '=', '/shop/' ) ) ) ) && null === $wp->wpcode_conditions( $rules( 'show', array( $row( 'page', 'referrer', '=', 'x' ) ) ) ) && null === $wp->wpcode_conditions( $rules( 'show', array( $row( 'page', 'taxonomy_term', '=', array( 3 ) ) ) ) ) && null === $wp->wpcode_conditions( $rules( 'show', array( $row( 'user', 'user_meta', '=', 'x' ) ) ) ) && null === $wp->wpcode_conditions( array( 'groups' => array( array( $row( 'user', 'logged_in', '=', '1' ) ) ) ) ) && null === $wp->wpcode_conditions( array( 'show' => 'show', 'groups' => array() ) ) && null === $wp->wpcode_conditions( '' ) );
+$assert( 'wpcode: the plan tells how many snippets became run conditions', false !== strpos( implode( ' ', $plan['notes'] ), '1 snippet used page, user, role or device targeting' ), json_encode( $plan['notes'] ) );
 
 $site( array( 'header-footer-code-manager' ), array( 'header-footer-code-manager' ) );
 $table( 'hfcm_scripts' );
@@ -576,13 +633,27 @@ $sql( '/FROM wp_hfcm_scripts ORDER BY script_id ASC/', static fn() => array(
 	array( 'script_id' => 2, 'name' => 'Jen produkty', 'snippet' => '<style>a{}</style>', 'snippet_type' => 'css', 'device_type' => 'mobile', 'location' => 'footer', 'display_on' => 's_posts', 'status' => 'active' ),
 	array( 'script_id' => 3, 'name' => 'Za obsahem', 'snippet' => '<b>x</b>', 'snippet_type' => 'html', 'device_type' => 'both', 'location' => 'after_content', 'display_on' => 'All', 'status' => 'active' ),
 	array( 'script_id' => 4, 'name' => 'Shortcode', 'snippet' => 'x', 'snippet_type' => 'html', 'device_type' => 'both', 'location' => 'header', 'display_on' => 'manual', 'status' => 'inactive' ),
+	array( 'script_id' => 5, 'name' => 'Stranky', 'snippet' => '<i>p</i>', 'snippet_type' => 'html', 'device_type' => 'desktop', 'location' => 'header', 'display_on' => 's_pages', 's_pages' => '["12","45"]', 'status' => 'active' ),
+	array( 'script_id' => 6, 'name' => 'Vsude krome', 'snippet' => '<i>v</i>', 'snippet_type' => 'html', 'device_type' => 'both', 'location' => 'footer', 'display_on' => 'All', 'ex_pages' => '["7"]', 'ex_posts' => '["9"]', 'status' => 'active' ),
+	array( 'script_id' => 7, 'name' => 'Typy', 'snippet' => '<i>t</i>', 'snippet_type' => 'html', 'device_type' => 'both', 'location' => 'footer', 'display_on' => 's_custom_posts', 's_custom_posts' => '["product"]', 'spt_display_on' => 'archives', 'status' => 'active' ),
+	array( 'script_id' => 8, 'name' => 'Kategorie', 'snippet' => '<i>c</i>', 'snippet_type' => 'html', 'device_type' => 'both', 'location' => 'footer', 'display_on' => 's_categories', 's_categories' => '["3"]', 'status' => 'active' ),
 ) );
 $items = $items_of( 'header-footer-code-manager' );
 $by    = array_column( $items, null, 'key' );
 $plan  = SourceRegistry::get( 'header-footer-code-manager' )->plan();
-$assert( 'hfcm: code is decoded and kept as html (its js / css carry their own tags); all 4 snippets convert', 4 === count( $items ) && 'html' === $by['hfcm:1']['type'] && '<script>fbq()</script>' === $by['hfcm:1']['code'] && 'site_footer' === $by['hfcm:2']['run_location'] );
+$assert( 'hfcm: code is decoded and kept as html (its js / css carry their own tags); all 8 snippets convert', 8 === count( $items ) && 'html' === $by['hfcm:1']['type'] && '<script>fbq()</script>' === $by['hfcm:1']['code'] && 'site_footer' === $by['hfcm:2']['run_location'] );
 $assert( 'hfcm: after content -> placement after the content, manual -> shortcode snippet (inactive stays off)', 'after_content' === $by['hfcm:3']['run_location'] && array( 'post', 'page' ) === $by['hfcm:3']['post_types'] && false === $by['hfcm:3']['review'] && 'shortcode' === $by['hfcm:4']['run_location'] && false === $by['hfcm:4']['enabled'] && false === $by['hfcm:4']['review'] );
-$assert( 'hfcm: page / device targeting still marks a snippet for review; after-content and shortcode snippets are no longer reported as lost', true === $by['hfcm:2']['review'] && false === $by['hfcm:1']['review'] && ! $lossy_has( $plan, 'after_content' ) && ! $lossy_has( $plan, 'shortcode' ), json_encode( $plan['lossy'] ) );
+$assert( 'hfcm: specific pages + desktop -> post condition + device condition, no review', false === $by['hfcm:5']['review'] && array(
+	array( 'type' => 'post', 'value' => array( 12, 45 ), 'negate' => false ),
+	array( 'type' => 'device', 'value' => 'desktop', 'negate' => false ),
+) === $by['hfcm:5']['conditions'] && 'site_header' === $by['hfcm:5']['run_location'], json_encode( $by['hfcm:5']['conditions'] ) );
+$assert( 'hfcm: site wide with exclusions -> one negated post condition; post types (archives only) -> post type condition with scope', array(
+	array( 'type' => 'post', 'value' => array( 7, 9 ), 'negate' => true ),
+) === $by['hfcm:6']['conditions'] && false === $by['hfcm:6']['review'] && array(
+	array( 'type' => 'post_type', 'value' => array( 'product' ), 'scope' => 'archive', 'negate' => false ),
+) === $by['hfcm:7']['conditions'], json_encode( array( $by['hfcm:6']['conditions'], $by['hfcm:7']['conditions'] ) ) );
+$assert( 'hfcm: categories (no matching condition) and a mobile snippet with unreadable targeting stay for review, without conditions', true === $by['hfcm:8']['review'] && array() === $by['hfcm:8']['conditions'] && true === $by['hfcm:2']['review'] && array() === $by['hfcm:2']['conditions'] );
+$assert( 'hfcm: page / device targeting that cannot be expressed still marks a snippet for review; after-content and shortcode snippets are no longer reported as lost', true === $by['hfcm:2']['review'] && false === $by['hfcm:1']['review'] && 2 === $data_count( $plan, 'review' ) && ! $lossy_has( $plan, 'after_content' ) && ! $lossy_has( $plan, 'shortcode' ), json_encode( $plan['lossy'] ) );
 
 /* ═══ 3 Folders ═══ */
 
@@ -609,17 +680,44 @@ $plan = SourceRegistry::get( 'real-media-library-lite' )->plan();
 $assert( 'real-media-library: only ordinary folders, galleries and shortcuts are reported', 1 === $data_count( $plan, 'folder' ) && 10 === $data_count( $plan, 'items' ) && $lossy_has( $plan, 'shortcuts' ) && $lossy_has( $plan, 'collections, galleries' ), json_encode( $plan['lossy'] ) );
 
 $site( array( 'wicked-folders' ), array( 'wicked-folders' ) );
+$GLOBALS['uxs_termmeta'] = array( 5 => array( 'wf_order' => '2', 'wf_color' => '#ff0000' ), 6 => array( 'wf_order' => '1' ), 8 => array( 'wf_order' => '3', 'wf_color' => 'zle' ) );
 $sql( '/tt\.taxonomy = \'wf_attachment_folders\' ORDER BY/', static fn() => array( array( 'id' => 11, 'name' => 'Media', 'parent' => 0, 'term_id' => 5 ), array( 'id' => 12, 'name' => 'Podslozka', 'parent' => 5, 'term_id' => 6 ) ) );
+$sql( '/tt\.taxonomy = \'wf_page_folders\' ORDER BY/', static fn() => array( array( 'id' => 31, 'name' => 'Stranky', 'parent' => 0, 'term_id' => 8 ) ) );
 $sql( '/SELECT COUNT\(\*\) FROM wp_term_relationships/', static fn() => array( 7 ) );
-$sql( '/GROUP BY taxonomy/', static fn() => array( array( 'taxonomy' => 'wf_page_folders', 'n' => 4 ) ) );
+$sql( '/GROUP BY taxonomy/', static fn() => array( array( 'taxonomy' => 'wf_page_folders', 'n' => 1 ), array( 'taxonomy' => 'wf_book_folders', 'n' => 4 ) ) );
 $items = $items_of( 'wicked-folders' );
+$by    = array_column( $items, null, 'id' );
 $plan  = SourceRegistry::get( 'wicked-folders' )->plan();
-$assert( 'wicked-folders: attachment folders with hierarchy; page folders reported as other content types', 2 === count( $items ) && '11' === $items[1]['parent'] && $lossy_has( $plan, 'wf_page_folders' ), json_encode( $items ) );
+$assert( 'wicked-folders: attachment folders with hierarchy, order and colour; page folders are read as folders of pages', 3 === count( $items ) && '11' === $by['12']['parent'] && 'attachment' === $by['11']['post_type'] && 'page' === $by['31']['post_type'] && '#ff0000' === $by['11']['color'] && 2 === $by['11']['order'] && '' === $by['12']['color'] && '' === $by['31']['color'], json_encode( $items ) );
+$assert( 'wicked-folders: the folders of a post type this site does not have are named, the others are no longer lost; the module is told to offer folders for pages', $lossy_has( $plan, 'wf_book_folders' ) && ! $lossy_has( $plan, 'wf_page_folders' ) && array( 'attachment', 'page' ) == array_values( (array) array_column( $plan['transfer'], 'to', 'key' )['post_types'] ? explode( ', ', array_column( $plan['transfer'], 'to', 'key' )['post_types'] ) : array() ) && 3 === $data_count( $plan, 'folder' ), json_encode( array( $plan['lossy'], $plan['transfer'] ) ) );
 
 $site( array( 'folders' ), array( 'folders' ) );
+$GLOBALS['uxs_termmeta'] = array( 9 => array( 'wcp_custom_order' => '4', 'folder_info' => array( 'has_color' => '#00aa00' ) ), 10 => array( 'wcp_custom_order' => '1' ), 12 => array( 'wcp_custom_order' => '2' ) );
 $sql( '/tt\.taxonomy = \'media_folder\' ORDER BY/', static fn() => array( array( 'id' => 21, 'name' => 'Fotky', 'parent' => 0, 'term_id' => 9 ) ) );
+$sql( '/tt\.taxonomy = \'folder\' ORDER BY/', static fn() => array( array( 'id' => 41, 'name' => 'Firma', 'parent' => 0, 'term_id' => 10 ) ) );
+$sql( '/tt\.taxonomy = \'post_folder\' ORDER BY/', static fn() => array( array( 'id' => 51, 'name' => 'Novinky', 'parent' => 0, 'term_id' => 12 ) ) );
 $sql( '/SELECT COUNT\(\*\) FROM wp_term_relationships/', static fn() => array( 3 ) );
-$assert( 'folders (Premio): media_folder terms are read', 1 === count( $items_of( 'folders' ) ) );
+$sql( '/OR taxonomy = \'folder\'\) AND taxonomy <> \'media_folder\' GROUP BY taxonomy/', static fn() => array( array( 'taxonomy' => 'folder', 'n' => 1 ), array( 'taxonomy' => 'post_folder', 'n' => 1 ), array( 'taxonomy' => 'folders4plugins_folder', 'n' => 2 ) ) );
+$items = $items_of( 'folders' );
+$by    = array_column( $items, null, 'id' );
+$assert( 'folders (Premio): media_folder, folder (pages) and post_folder are read with post type, colour (folder_info) and order (wcp_custom_order)', 3 === count( $items ) && 'attachment' === $by['21']['post_type'] && '#00aa00' === $by['21']['color'] && 4 === $by['21']['order'] && 'page' === $by['41']['post_type'] && 'post' === $by['51']['post_type'] && 2 === $by['51']['order'], json_encode( $items ) );
+$assert( 'folders (Premio): the folders of other plugins (folders4plugins) are named, not moved', $lossy_has( SourceRegistry::get( 'folders' )->plan(), 'folders4plugins_folder' ) );
+
+// FileBird: colours from the option, order from the ord column, folders of post types from fbv_pt_tax_* taxonomies.
+$site( array( 'filebird' ), array( 'filebird' ), array( 'fbv_folder_colors' => array( 1 => '#123456', 2 => 'nope' ) ) );
+$GLOBALS['uxs_termmeta'] = array( 77 => array( 'fbv_tax_order' => '5' ) );
+$table( 'fbv' ); $table( 'fbv_attachment_folder' );
+$sql( '/FROM wp_fbv ORDER BY id ASC/', static fn() => array(
+	array( 'id' => 1, 'name' => 'Hotely', 'parent' => 0, 'type' => 0, 'ord' => 3, 'created_by' => 0 ),
+	array( 'id' => 2, 'name' => 'Lazne', 'parent' => 1, 'type' => 0, 'ord' => 0, 'created_by' => 4 ),
+) );
+$sql( '/tt\.taxonomy = \'fbv_pt_tax_page\' ORDER BY/', static fn() => array( array( 'id' => 1500, 'name' => 'Obsah', 'parent' => 0, 'term_id' => 77 ) ) );
+$sql( '/GROUP BY taxonomy/', static fn() => array( array( 'taxonomy' => 'fbv_pt_tax_page', 'n' => 1 ) ) );
+$items = $items_of( 'filebird' );
+$by    = array_column( $items, null, 'id' );
+$plan  = SourceRegistry::get( 'filebird' )->plan();
+$assert( 'filebird: colours (option), order (ord) and the folders of pages (ids prefixed so they cannot meet the fbv ids)', 3 === count( $items ) && '#123456' === $by['1']['color'] && '' === $by['2']['color'] && 3 === $by['1']['order'] && 'page' === $by['t1500']['post_type'] && 5 === $by['t1500']['order'], json_encode( $items ) );
+$assert( 'filebird: folders of one user are reported as shared in the module', $lossy_has( $plan, 'belong to a single user' ), json_encode( $plan['lossy'] ) );
 
 /* ═══ 4 Page Links To, Post Expirator ═══ */
 
@@ -693,6 +791,9 @@ $items = $items_of( 'menu-icons' );
 $by    = array_column( $items, null, 'id' );
 $plan  = SourceRegistry::get( 'menu-icons' )->plan();
 $assert( 'menu-icons: font icons -> Lucide, hide label -> "only", after -> "after", svg attachment -> media', 'house' === $by[31]['meta']['_uxstudio_menu_item_icon_value'] && 'only' === $by[32]['meta']['_uxstudio_menu_item_icon_position'] && 'media' === $by[34]['meta']['_uxstudio_menu_item_icon_type'] && 'after' === $by[34]['meta']['_uxstudio_menu_item_icon_position'] && 3 === count( $items ), json_encode( array_keys( $by ) ) );
+$assert( 'menu-icons: a Dashicon stays that Dashicon (not the nearest Lucide), the other font icon still becomes Lucide', 'dashicons' === $by[32]['meta']['_uxstudio_menu_item_icon_type'] && 'dashicons-phone' === $by[32]['meta']['_uxstudio_menu_item_icon_value'] && 'lucide' === $by[31]['meta']['_uxstudio_menu_item_icon_type'], json_encode( $by[32]['meta'] ) );
+$assert( 'menu-icons: dashicon_for takes the dashicons- class out of a class list and refuses names that are not core Dashicons', 'dashicons-admin-home' === MenuIconsSource::dashicon_for( 'dashicons dashicons-admin-home' ) && null === MenuIconsSource::dashicon_for( 'dashicons-not-a-real-icon' ) && null === MenuIconsSource::dashicon_for( 'fa fa-home' ) );
+$assert( 'menu-icons: the plan counts Dashicons and tells they are kept', 1 === $data_count( $plan, 'dashicons' ) && false !== strpos( implode( ' ', $plan['notes'] ), 'Dashicons are transferred as they are' ), json_encode( $plan['data'] ) );
 $assert( 'menu-icons: the icon without a counterpart is named, an image whose file is gone is reported', $lossy_has( $plan, 'fa: fa-bed' ) && $lossy_has( $plan, 'no longer exists' ), json_encode( $plan['lossy'] ) );
 
 // One item, three metas of the same type: every one is recorded in the mapping table and removed by the rollback.
@@ -844,9 +945,9 @@ Staging::apply( $run['id'] );
 $assert( 'wp-mail-smtp: Staging::apply makes the mail settings live', 'smtp.firma.cz' === $opt( 'uxstudio_smtp_email' )['host'] && 'Heslo#1' === Security::get_secret( 'uxstudio_secret_smtp_password' ) );
 
 // Unreadable password + unsupported mailer.
-$site( array( 'wp-mail-smtp' ), array( 'wp-mail-smtp' ), array( 'wp_mail_smtp' => array( 'mail' => array( 'mailer' => 'sendgrid', 'from_email' => 'a@b.cz' ), 'smtp' => array( 'pass' => $enc( 'x' ) ) ) ) );
+$site( array( 'wp-mail-smtp' ), array( 'wp-mail-smtp' ), array( 'wp_mail_smtp' => array( 'mail' => array( 'mailer' => 'mailjet', 'from_email' => 'a@b.cz' ), 'smtp' => array( 'pass' => $enc( 'x' ) ) ) ) );
 $plan = SourceRegistry::get( 'wp-mail-smtp' )->plan();
-$assert( 'wp-mail-smtp: an unsupported mailer is named and only the sender moves', $lossy_has( $plan, '"sendgrid"' ) && 'smtp' === array_column( $plan['transfer'], 'to', 'key' )['mailer'] );
+$assert( 'wp-mail-smtp: an unsupported mailer is named and only the sender moves', $lossy_has( $plan, '"mailjet"' ) && 'smtp' === array_column( $plan['transfer'], 'to', 'key' )['mailer'] && ! $lossy_has( $plan, 'could not be decrypted' ), json_encode( $plan['lossy'] ) );
 $site( array( 'wp-mail-smtp' ), array( 'wp-mail-smtp' ), array( 'wp_mail_smtp' => array( 'mail' => array( 'mailer' => 'smtp' ), 'smtp' => array( 'host' => 'h', 'user' => 'u', 'pass' => $enc( 'x' ) ) ) ) );
 $assert( 'wp-mail-smtp: a password that cannot be decrypted (no key) is reported', $lossy_has( SourceRegistry::get( 'wp-mail-smtp' )->plan(), 'could not be decrypted' ) );
 $site( array( 'wp-mail-smtp' ), array( 'wp-mail-smtp' ), array( 'wp_mail_smtp' => array( 'mail' => array( 'mailer' => 'gmail' ), 'gmail' => array( 'client_id' => 'cid', 'client_secret' => $enc( 'csec' ), 'refresh_token' => 'REFRESH-TOKEN-VALUE' ) ), 'wp_mail_smtp_mail_key' => base64_encode( $key ) ) );
@@ -857,7 +958,7 @@ $assert( 'wp-mail-smtp (Gmail): client id + secret move, the OAuth token does no
 $site( array( 'easy-wp-smtp' ), array( 'easy-wp-smtp' ), array( 'easy_wp_smtp' => array( 'mail' => array( 'mailer' => 'smtp', 'from_email' => 'e@x.cz' ), 'smtp' => array( 'host' => 'easy.host', 'port' => 587, 'encryption' => 'tls', 'user' => 'u', 'pass' => $enc( 'easy-pass' ) ) ), 'easy_wp_smtp_mail_key' => base64_encode( $key ) ) );
 SourceRegistry::get( 'easy-wp-smtp' )->migrate( array( 'run_id' => 'rs3' ), false );
 $assert( 'easy-wp-smtp: own option + key option decrypt', 'easy.host' === $opt( 'uxstudio_smtp_email' )['host'] && 'easy-pass' === Security::get_secret( 'uxstudio_secret_smtp_password' ) );
-$site( array( 'post-smtp' ), array( 'post-smtp' ), array( 'postman_options' => array( 'transport_type' => 'smtp', 'sender_email' => 'p@x.cz', 'sender_name' => 'P', 'hostname' => 'post.host', 'port' => 25, 'enc_type' => 'none', 'auth_type' => 'plain', 'basic_auth_username' => 'pu', 'basic_auth_password' => base64_encode( 'post-pass' ), 'prevent_sender_email_override' => 'true', 'fallback_smtp_enabled' => 'true' ) ) );
+$site( array( 'post-smtp' ), array( 'post-smtp' ), array( 'postman_options' => array( 'transport_type' => 'smtp', 'sender_email' => 'p@x.cz', 'sender_name' => 'P', 'hostname' => 'post.host', 'port' => 25, 'enc_type' => 'none', 'auth_type' => 'plain', 'basic_auth_username' => 'pu', 'basic_auth_password' => base64_encode( 'post-pass' ), 'prevent_sender_email_override' => 'true', 'fallback_smtp_enabled' => 'true', 'fallback_smtp_hostname' => 'fallback.host' ) ) );
 $plan = SourceRegistry::get( 'post-smtp' )->plan();
 SourceRegistry::get( 'post-smtp' )->migrate( array( 'run_id' => 'rs4' ), false );
 $assert( 'post-smtp: base64 password, force sender and fallback server (reported)', 'post-pass' === Security::get_secret( 'uxstudio_secret_smtp_password' ) && true === $opt( 'uxstudio_smtp_email' )['force_from_email'] && 'none' === $opt( 'uxstudio_smtp_email' )['encryption'] && $lossy_has( $plan, 'fallback' ) );
@@ -873,6 +974,67 @@ $site( array( 'fluent-smtp' ), array( 'fluent-smtp' ), array( 'fluentmail-settin
 $plan = SourceRegistry::get( 'fluent-smtp' )->plan();
 SourceRegistry::get( 'fluent-smtp' )->migrate( array( 'run_id' => 'rs5' ), false );
 $assert( 'fluent-smtp: the default connection is used, its secret decrypted; several connections reported', 'fl.host' === $opt( 'uxstudio_smtp_email' )['host'] && 'fl-pass' === Security::get_secret( 'uxstudio_secret_smtp_password' ) && $lossy_has( $plan, '2 connections' ) );
+
+/* B4 (PLAN.md 27.10): SendGrid, Mailgun, Postmark, Amazon SES and the fallback connection. */
+
+$col  = static fn( array $plan ): array => array_column( $plan['transfer'], 'to', 'key' );
+$smtp = static fn(): array => (array) $opt( 'uxstudio_smtp_email' );
+$sec  = static fn( string $name ): string => Security::get_secret( 'uxstudio_secret_smtp_' . $name );
+
+$site( array( 'wp-mail-smtp' ), array( 'wp-mail-smtp' ), array( 'wp_mail_smtp' => array( 'mail' => array( 'mailer' => 'sendgrid', 'from_email' => 'a@b.cz' ), 'sendgrid' => array( 'api_key' => 'SG.plain.key' ) ) ) );
+$plan = SourceRegistry::get( 'wp-mail-smtp' )->plan();
+$assert( 'wp-mail-smtp (SendGrid): mailer and key are planned, the key is never shown, nothing lossy', 'sendgrid' === $col( $plan )['mailer'] && '********' === $col( $plan )['uxstudio_secret_smtp_sendgrid_api_key'] && false === strpos( json_encode( $plan ), 'SG.plain.key' ) && array() === $plan['lossy'], json_encode( $plan['lossy'] ) );
+SourceRegistry::get( 'wp-mail-smtp' )->migrate( array( 'run_id' => 'rb1' ), false );
+$assert( 'wp-mail-smtp (SendGrid): written; the key sits in the secret, not in the settings', 'sendgrid' === $smtp()['mailer'] && 'SG.plain.key' === $sec( 'sendgrid_api_key' ) && ! isset( $smtp()['sendgrid_api_key'] ) );
+
+$site( array( 'wp-mail-smtp' ), array( 'wp-mail-smtp' ), array( 'wp_mail_smtp' => array( 'mail' => array( 'mailer' => 'mailgun' ), 'mailgun' => array( 'api_key' => $enc( 'key-mg-1' ), 'domain' => 'mg.firma.cz', 'region' => 'EU' ) ), 'wp_mail_smtp_mail_key' => base64_encode( $key ) ) );
+SourceRegistry::get( 'wp-mail-smtp' )->migrate( array( 'run_id' => 'rb2' ), false );
+$assert( 'wp-mail-smtp (Mailgun): an encrypted key is decrypted, domain and EU region move', 'mailgun' === $smtp()['mailer'] && 'key-mg-1' === $sec( 'mailgun_api_key' ) && 'mg.firma.cz' === $smtp()['mailgun_domain'] && 'eu' === $smtp()['mailgun_region'], json_encode( $smtp() ) );
+
+$site( array( 'wp-mail-smtp' ), array( 'wp-mail-smtp' ), array( 'wp_mail_smtp' => array( 'mail' => array( 'mailer' => 'postmark' ), 'postmark' => array( 'server_api_token' => 'pm-token-1', 'message_stream' => 'broadcast' ) ) ) );
+SourceRegistry::get( 'wp-mail-smtp' )->migrate( array( 'run_id' => 'rb3' ), false );
+$assert( 'wp-mail-smtp (Postmark): token and message stream', 'postmark' === $smtp()['mailer'] && 'pm-token-1' === $sec( 'postmark_server_token' ) && 'broadcast' === $smtp()['postmark_message_stream'] );
+
+$site( array( 'wp-mail-smtp' ), array( 'wp-mail-smtp' ), array( 'wp_mail_smtp' => array( 'mail' => array( 'mailer' => 'amazonses' ), 'amazonses' => array( 'client_id' => 'AKIAEXAMPLE', 'client_secret' => 'wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY', 'region' => 'eu-central-1' ) ), 'wp_mail_smtp_mail_key' => base64_encode( $key ) ) );
+$plan = SourceRegistry::get( 'wp-mail-smtp' )->plan();
+SourceRegistry::get( 'wp-mail-smtp' )->migrate( array( 'run_id' => 'rb4' ), false );
+$assert( 'wp-mail-smtp (Amazon SES): the 40-character secret (looks like base64) stays intact, region moves', 'ses' === $smtp()['mailer'] && 'AKIAEXAMPLE' === $sec( 'ses_access_key' ) && 'wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY' === $sec( 'ses_secret_key' ) && 'eu-central-1' === $smtp()['ses_region'] && false === strpos( json_encode( $plan ), 'wJalrXUtnFEMI' ) && array() === $plan['lossy'], json_encode( $plan['lossy'] ) );
+$site( array( 'wp-mail-smtp' ), array( 'wp-mail-smtp' ), array( 'wp_mail_smtp' => array( 'mail' => array( 'mailer' => 'amazonses' ), 'amazonses' => array( 'client_id' => 'AK', 'client_secret' => 'S', 'region' => 'eusc-de-east-1' ) ) ) );
+$plan = SourceRegistry::get( 'wp-mail-smtp' )->plan();
+$assert( 'wp-mail-smtp (Amazon SES): a region the module does not offer is reported', $lossy_has( $plan, 'region "eusc-de-east-1"' ) && 'us-east-1' === $col( $plan )['ses_region'], json_encode( $plan['lossy'] ) );
+
+// Easy WP SMTP has the same groups under its own option and constants.
+$site( array( 'easy-wp-smtp' ), array( 'easy-wp-smtp' ), array( 'easy_wp_smtp' => array( 'mail' => array( 'mailer' => 'sendgrid' ), 'sendgrid' => array( 'api_key' => 'SG.easy' ) ) ) );
+SourceRegistry::get( 'easy-wp-smtp' )->migrate( array( 'run_id' => 'rb5' ), false );
+$assert( 'easy-wp-smtp (SendGrid): same scheme, own option', 'sendgrid' === $smtp()['mailer'] && 'SG.easy' === $sec( 'sendgrid_api_key' ) );
+
+// Post SMTP: API transports with base64 keys; its fallback SMTP server becomes the fallback connection.
+$site( array( 'post-smtp' ), array( 'post-smtp' ), array( 'postman_options' => array( 'transport_type' => 'mailgun_api', 'sender_email' => 'p@x.cz', 'mailgun_api_key' => base64_encode( 'key-post' ), 'mailgun_domain_name' => 'mg.post.cz', 'mailgun_region' => 'on', 'fallback_smtp_enabled' => 'true', 'fallback_smtp_hostname' => 'fb.post.cz', 'fallback_smtp_port' => '2525', 'fallback_smtp_security' => 'ssl', 'fallback_smtp_use_auth' => 'true', 'fallback_smtp_username' => 'fbu', 'fallback_smtp_password' => base64_encode( base64_encode( 'fb-secret' ) ) ) ) );
+$plan = SourceRegistry::get( 'post-smtp' )->plan();
+SourceRegistry::get( 'post-smtp' )->migrate( array( 'run_id' => 'rb6' ), false );
+$assert( 'post-smtp (Mailgun + fallback SMTP): primary, fallback_mailer, fallback server and its (double base64) password', 'mailgun' === $smtp()['mailer'] && 'key-post' === $sec( 'mailgun_api_key' ) && 'eu' === $smtp()['mailgun_region'] && 'smtp' === $smtp()['fallback_mailer'] && 'fb.post.cz' === $smtp()['host'] && 2525 === (int) $smtp()['port'] && 'ssl' === $smtp()['encryption'] && 'fbu' === $smtp()['username'] && 'fb-secret' === $sec( 'password' ) && array() === $plan['lossy'], json_encode( $plan['lossy'] ) . json_encode( $smtp() ) );
+$site( array( 'post-smtp' ), array( 'post-smtp' ), array( 'postman_options' => array( 'transport_type' => 'sendgrid_api', 'sendgrid_api_key' => base64_encode( 'SG.post' ), 'sendgrid_region' => 'EU' ) ) );
+SourceRegistry::get( 'post-smtp' )->migrate( array( 'run_id' => 'rb7' ), false );
+$assert( 'post-smtp (SendGrid, EU region)', 'sendgrid' === $smtp()['mailer'] && 'SG.post' === $sec( 'sendgrid_api_key' ) && 'eu' === $smtp()['sendgrid_region'] );
+$site( array( 'post-smtp' ), array( 'post-smtp' ), array( 'postman_options' => array( 'transport_type' => 'postmark_api', 'postmark_api_key' => base64_encode( 'pm-post' ) ) ) );
+SourceRegistry::get( 'post-smtp' )->migrate( array( 'run_id' => 'rb8' ), false );
+$assert( 'post-smtp (Postmark)', 'postmark' === $smtp()['mailer'] && 'pm-post' === $sec( 'postmark_server_token' ) );
+
+// FluentSMTP: default connection = primary, `misc.fallback_connection` = fallback, the rest is reported.
+$fl = static fn( array $extra = array() ): array => array( 'fluentmail-settings' => array_merge( array( 'use_encrypt' => 'yes', 'misc' => array( 'default_connection' => 'a', 'fallback_connection' => 'b' ), 'connections' => array(
+	'a' => array( 'provider_settings' => array( 'provider' => 'ses', 'access_key' => $fenc( 'AKIAFLUENT' ), 'secret_key' => $fenc( 'fl-ses-secret' ), 'region' => 'eu-west-1', 'sender_email' => 'f@x.cz' ) ),
+	'b' => array( 'provider_settings' => array( 'provider' => 'sendgrid', 'api_key' => $fenc( 'SG.fluent' ), 'sender_email' => 'g@x.cz' ) ),
+	'c' => array( 'provider_settings' => array( 'provider' => 'smtp', 'host' => 'third.host' ) ),
+) ), $extra ) );
+$site( array( 'fluent-smtp' ), array( 'fluent-smtp' ), $fl() );
+$plan = SourceRegistry::get( 'fluent-smtp' )->plan();
+SourceRegistry::get( 'fluent-smtp' )->migrate( array( 'run_id' => 'rb9' ), false );
+$assert( 'fluent-smtp (SES + SendGrid fallback, third connection reported)', 'ses' === $smtp()['mailer'] && 'sendgrid' === $smtp()['fallback_mailer'] && 'AKIAFLUENT' === $sec( 'ses_access_key' ) && 'fl-ses-secret' === $sec( 'ses_secret_key' ) && 'eu-west-1' === $smtp()['ses_region'] && 'SG.fluent' === $sec( 'sendgrid_api_key' ) && $lossy_has( $plan, '3 connections' ), json_encode( $plan['lossy'] ) . json_encode( $smtp() ) );
+$same = $fl();
+$same['fluentmail-settings']['connections']['b']['provider_settings'] = array( 'provider' => 'ses', 'access_key' => $fenc( 'other' ), 'secret_key' => $fenc( 'other' ), 'region' => 'us-east-1' );
+$site( array( 'fluent-smtp' ), array( 'fluent-smtp' ), $same );
+$plan = SourceRegistry::get( 'fluent-smtp' )->plan();
+$assert( 'fluent-smtp: a fallback of the same service as the primary is reported, not transferred', $lossy_has( $plan, 'second "ses" account' ) && ! isset( $col( $plan )['fallback_mailer'] ), json_encode( $plan['lossy'] ) );
 
 /* ═══ 8 E-mail log ═══ */
 
@@ -913,26 +1075,48 @@ $assert( 'email-log: result 0 = error, attachment path reduced to the file name'
 /* ═══ 9 Cron ═══ */
 
 $site( array( 'wp-crontrol' ), array( 'wp-crontrol' ), array( 'crontrol_schedules' => array( 'every_5' => array( 'interval' => 300, 'display' => 'Co 5 minut' ), 'bad' => array( 'interval' => 0 ) ), 'wp_crontrol_paused' => array( 'moje_akce' => true ) ), array( 'activity-log', 'cron-control' ) );
-$GLOBALS['uxs_cron'] = array( time() + 60 => array( 'crontrol_cron_job' => array( 'a' => array( 'args' => array() ), 'b' => array( 'args' => array() ) ), 'crontrol_url_cron_job' => array( 'c' => array( 'args' => array() ) ), 'jina_akce' => array( 'd' => array() ) ) );
+$url_t = time() + 3600;
+$GLOBALS['uxs_cron'] = array( time() + 60 => array(
+	'crontrol_cron_job'     => array( 'a' => array( 'args' => array() ), 'b' => array( 'args' => array() ) ),
+	'crontrol_url_cron_job' => array(
+		'c' => array( 'schedule' => 'every_5', 'args' => array( array( 'url' => 'https://93.184.216.34/ping', 'method' => 'GET', 'name' => 'Ping' ) ) ),
+		'd' => array( 'schedule' => false, 'args' => array( array( 'url' => 'http://192.168.1.5/internal', 'method' => 'POST' ) ) ),
+		'e' => array( 'schedule' => 'nonsense', 'args' => array( array( 'url' => 'https://93.184.216.34/other', 'method' => 'GET' ) ) ),
+	),
+	'jina_akce'             => array( 'd' => array() ),
+) );
 $plan = SourceRegistry::get( 'wp-crontrol' )->plan();
-$assert( 'wp-crontrol: 1 valid interval; PHP and URL events and paused hooks are counted precisely', 1 === $data_count( $plan, 'schedule' ) && 2 === $data_count( $plan, 'php' ) && 1 === $data_count( $plan, 'url' ) && $lossy_has( $plan, '2 cron events run PHP code' ) && $lossy_has( $plan, '1 cron events call a URL' ) && $lossy_has( $plan, '1 paused hooks' ), json_encode( $plan ) );
-$assert( 'wp-crontrol: harmless, written directly even with the module on', false === $plan['staged'] );
+$assert( 'wp-crontrol: 1 valid interval, 3 URL events; PHP events and paused hooks are counted precisely', 1 === $data_count( $plan, 'schedule' ) && 2 === $data_count( $plan, 'php' ) && 3 === $data_count( $plan, 'url' ) && $lossy_has( $plan, '2 cron events run PHP code' ) && $lossy_has( $plan, '1 paused hooks' ), json_encode( $plan ) );
+$assert( 'wp-crontrol: URL events are behaviour-changing, so they wait for the switch', true === $plan['staged'] && ! $lossy_has( $plan, 'call a URL' ) );
 $store = array();
 AbstractSource::set_data_double( null );
 $run = Runner::start( array( 'wp-crontrol' ), false );
 $r1  = $drive();
-$assert( 'wp-crontrol: the interval lands in the module option (real writer)', 300 === ( $opt( 'uxstudio_cron_schedules' )['every_5']['interval'] ?? 0 ) && 1 === $r1['per_source']['wp-crontrol']['written'] );
+$ev  = \UxStudio\Modules\CronControl\UrlEvents::all();
+$ping_id = substr( md5( 'crontrol|url:' . substr( md5( 'https://93.184.216.34/ping|GET|every_5' ), 0, 12 ) ), 0, 8 );
+$assert( 'wp-crontrol: the interval lands in the module option (real writer)', 300 === ( $opt( 'uxstudio_cron_schedules' )['every_5']['interval'] ?? 0 ) );
+$assert( 'wp-crontrol: the public URL event is stored SWITCHED OFF and not scheduled; the private-network and the unknown-interval ones are skipped', 1 === count( $ev ) && isset( $ev[ $ping_id ] ) && false === $ev[ $ping_id ]['enabled'] && 'every_5' === $ev[ $ping_id ]['schedule'] && false === wp_get_scheduled_event( 'uxstudio_cron_url_event', array( $ping_id ) ), json_encode( $ev ) );
+$entry = Staging::entry( $run['id'] );
+$assert( 'wp-crontrol: the activation waits in staging', 1 === count( $entry['activations'] ?? array() ) && array( $ping_id ) === array_values( (array) $entry['activations'][0]['ids'] ), json_encode( $entry['activations'] ?? null ) );
+$assert( 'wp-crontrol: 1 interval + 1 event created, 2 events skipped (reasons given)', 2 === $r1['per_source']['wp-crontrol']['written'] && false !== strpos( json_encode( $r1 ), 'private network' ), json_encode( $r1['per_source']['wp-crontrol'] ) );
 $r2 = Runner::start( array( 'wp-crontrol' ), false );
 $r2 = $drive();
 $assert( 'wp-crontrol: second run is idempotent', 0 === $r2['per_source']['wp-crontrol']['written'] );
 Runner::rollback( $run['id'] );
-$assert( 'wp-crontrol: rollback restores the option (it did not exist before)', null === $opt( 'uxstudio_cron_schedules' ) );
+$assert( 'wp-crontrol: rollback restores both options (they did not exist before)', null === $opt( 'uxstudio_cron_schedules' ) && null === $opt( 'uxstudio_cron_url_events' ) );
+$run = Runner::start( array( 'wp-crontrol' ), false );
+$drive();
+Staging::apply( $run['id'] );
+$sched = wp_get_scheduled_event( 'uxstudio_cron_url_event', array( $ping_id ) );
+$assert( 'wp-crontrol: Staging::apply switches the URL event on and schedules it with its interval and first run', true === \UxStudio\Modules\CronControl\UrlEvents::get( $ping_id )['enabled'] && $sched && 'every_5' === $sched->schedule, json_encode( $sched ) );
+$src = SourceRegistry::get( 'wp-crontrol' );
+$assert( 'wp-crontrol: deactivate (undo of the switch) turns it off and unschedules it', 1 === $src->deactivate( 'cron', array( $ping_id ) ) && false === \UxStudio\Modules\CronControl\UrlEvents::get( $ping_id )['enabled'] && false === wp_get_scheduled_event( 'uxstudio_cron_url_event', array( $ping_id ) ) );
 
 /* ═══ 10 Maintenance ═══ */
 
 $site( array( 'wp-maintenance-mode' ), array( 'wp-maintenance-mode' ), array( 'wpmm_settings' => array(
 	'general' => array( 'status' => 1, 'frontend_role' => array( 'editor' ) ),
-	'design'  => array( 'heading' => '<b>Pracujeme</b>', 'text' => '<p>Brzy budeme zpet.</p>', 'heading_color' => '#112233', 'text_color' => '#445566', 'bg_type' => 'custom', 'bg_color' => '#ffffff' ),
+	'design'  => array( 'heading' => '<b>Pracujeme</b>', 'text' => '<p>Brzy budeme zpet.</p>', 'heading_color' => '#112233', 'text_color' => '#445566', 'bg_type' => 'custom', 'bg_color' => '#ffffff', 'bg_custom' => 'https://example.test/uploads/bg.jpg' ),
 ) ), array( 'activity-log', 'maintenance-mode' ) );
 $plan = SourceRegistry::get( 'wp-maintenance-mode' )->plan();
 $to   = array_column( $plan['transfer'], 'to', 'key' );
@@ -953,6 +1137,45 @@ $assert( 'maintenance (WebFactory): status + header text', 'maintenance' === $to
 $site( array( 'under-construction-page' ), array( 'under-construction-page' ), array( 'ucp_options' => array( 'status' => '0', 'heading1' => 'Stavime', 'content' => 'Text', 'whitelisted_roles' => array( 'administrator', 'editor' ) ) ) );
 $to = array_column( SourceRegistry::get( 'under-construction-page' )->plan()['transfer'], 'to', 'key' );
 $assert( 'under-construction-page: off stays disabled, roles map (administrators always pass, so they are not listed)', 'disabled' === $to['mode'] && 'editor' === $to['access_roles'], json_encode( $to ) );
+
+/* B3: background image, countdown, addresses and IPs that stay open */
+$GLOBALS['uxs_attachments']['https://example.test/uploads/bg.jpg'] = 55;
+$site( array( 'wp-maintenance-mode' ), array( 'wp-maintenance-mode' ), array( 'wpmm_settings' => array(
+	'general' => array( 'status' => 1, 'frontend_role' => array(), 'exclude' => array( 'feed', 'wp-login', '/kontakt', '203.0.113.7', '192.168.1.*', '# comment' ) ),
+	'design'  => array( 'heading' => 'Pracujeme', 'bg_type' => 'custom', 'bg_custom' => 'https://example.test/uploads/bg.jpg' ),
+	'modules' => array( 'countdown_status' => 1, 'countdown_start' => '2026-11-01 08:00:00', 'countdown_details' => array( 'days' => 2, 'hours' => 3, 'minutes' => 30 ) ),
+) ), array( 'activity-log' ) );
+$plan = SourceRegistry::get( 'wp-maintenance-mode' )->plan();
+$to   = array_column( $plan['transfer'], 'to', 'key' );
+$assert( 'wp-maintenance-mode: background image from the library, countdown end = start + 2 d 3 h 30 min', '55' === (string) $to['background_image'] && '✓' === $to['enable_background_image'] && '2026-11-03T11:30' === $to['countdown_end'] && '✓' === $to['countdown_enabled'] && '✗' === $to['countdown_auto_disable'], json_encode( $to ) );
+$assert( 'wp-maintenance-mode: exceptions split into addresses (substring -> star pattern) and IPs (wildcard -> range)', "*feed*\n*wp-login*\n*/kontakt*" === $to['exclude_paths'] && "203.0.113.7\n192.168.1.0/24" === $to['bypass_ips'], json_encode( $to ) );
+$assert( 'wp-maintenance-mode: countdown, background and exceptions are no longer reported as lost', ! $lossy_has( $plan, 'Countdown,' ) && ! $lossy_has( $plan, 'background image of the plugin' ), json_encode( $plan['lossy'] ) );
+$GLOBALS['uxs_attachments'] = array();
+$plan = SourceRegistry::get( 'wp-maintenance-mode' )->plan();
+$assert( 'wp-maintenance-mode: a background image that is not in the media library is named and left out', $lossy_has( $plan, 'bg.jpg is not in the media library' ) && ! isset( array_column( $plan['transfer'], 'to', 'key' )['background_image'] ), json_encode( $plan['lossy'] ) );
+
+$site( array( 'under-construction-page' ), array( 'under-construction-page' ), array( 'ucp_options' => array( 'status' => '1', 'heading1' => 'Stavime', 'whitelisted_roles' => array( 'administrator' ), 'end_date' => '2026-12-24 18:00' ) ) );
+$plan = SourceRegistry::get( 'under-construction-page' )->plan();
+$to   = array_column( $plan['transfer'], 'to', 'key' );
+$assert( 'under-construction-page: the end date becomes the countdown end and the site opens at its end (as the plugin does)', '2026-12-24T18:00' === $to['countdown_end'] && '✓' === $to['countdown_auto_disable'] && '✗' === $to['countdown_enabled'], json_encode( $to ) );
+
+$site( array( 'maintenance' ), array( 'maintenance' ), array( 'mtnc-options' => array( 'options' => array(
+	'status' => '1', 'header_text' => 'X', 'mode' => 'layout', 'expiry_date_end' => '2026-11-10', 'expiry_time_end' => '10:00 am',
+	'per_url_settings' => 'whitelist', 'per_url_enable_disable' => "/kontakt/\n/o-nas/", 'ip_whitelist' => "198.51.100.4\nnonsense",
+) ) ) );
+$plan = SourceRegistry::get( 'maintenance' )->plan();
+$to   = array_column( $plan['transfer'], 'to', 'key' );
+$assert( 'maintenance (WebFactory): planned end, whitelisted URLs and IPs; an invalid IP entry is named', '2026-11-10T10:00' === $to['countdown_end'] && '✗' === $to['countdown_enabled'] && "/kontakt/\n/o-nas/" === $to['exclude_paths'] && '198.51.100.4' === $to['bypass_ips'] && $lossy_has( $plan, 'nonsense' ), json_encode( $to ) );
+$site( array( 'maintenance' ), array( 'maintenance' ), array( 'mtnc-options' => array( 'options' => array( 'status' => '1', 'per_url_settings' => 'blacklist', 'per_url_enable_disable' => '/x/' ) ) ) );
+$plan = SourceRegistry::get( 'maintenance' )->plan();
+$assert( 'maintenance (WebFactory): "only listed URLs" mode cannot be written and is reported', $lossy_has( $plan, 'only to the listed addresses' ) && ! isset( array_column( $plan['transfer'], 'to', 'key' )['exclude_paths'] ), json_encode( $plan['lossy'] ) );
+
+$site( array( 'coming-soon' ), array( 'coming-soon' ), array( 'seedprod_settings' => json_encode( array( 'enable_coming_soon_mode' => true ) ), 'seedprod_coming_soon_page_id' => 7 ) );
+$post( 7, 'page', 'publish', 'Brzy' );
+$GLOBALS['uxs_posts'][7]->post_content_filtered = json_encode( array( 'access_by_role' => array( 'Editor', 'Author' ), 'disable_default_excluded_urls' => true ) );
+$plan = SourceRegistry::get( 'coming-soon' )->plan();
+$to   = array_column( $plan['transfer'], 'to', 'key' );
+$assert( 'coming-soon (SeedProd): access by role of the page and its default open addresses are read', 'roles' === $to['auth_type'] && 'editor, author' === $to['access_roles'] && 'regex:privacy|imprint|login|admin|dashboard|account' === $to['exclude_paths'], json_encode( $to ) );
 
 /* ═══ 11 Activity log ═══ */
 
@@ -986,12 +1209,13 @@ $assert( 'intuitive-custom-post-order: post types + taxonomies reported as lost'
 // Every key a mapping writes exists in the real module code (typo guard for the settings written by F3 sources).
 $typos = array();
 $check = array(
-	'smtp-email'          => array( 'mailer', 'from_email', 'force_from_email', 'from_name', 'force_from_name', 'host', 'port', 'encryption', 'username', 'gmail_client_id' ),
+	'smtp-email'          => array( 'mailer', 'fallback_mailer', 'from_email', 'force_from_email', 'from_name', 'force_from_name', 'host', 'port', 'encryption', 'username', 'gmail_client_id', 'sendgrid_region', 'mailgun_domain', 'mailgun_region', 'postmark_message_stream', 'ses_region' ),
 	'email-log'           => array( 'retention_days' ),
 	'activity-log'        => array( 'retention_days' ),
 	'external-permalinks' => array( 'post_types' ),
 	'post-type-order'     => array( 'post_types' ),
-	'maintenance-mode'    => array( 'mode', 'layout_type', 'existing_page', 'auth_type', 'access_roles', 'headline_text', 'headline_colour', 'body_text', 'body_colour', 'background_colour' ),
+	'maintenance-mode'    => array( 'mode', 'layout_type', 'existing_page', 'auth_type', 'access_roles', 'headline_text', 'headline_colour', 'body_text', 'body_colour', 'background_colour', 'enable_background_image', 'background_image', 'countdown_enabled', 'countdown_end', 'countdown_auto_disable', 'exclude_paths', 'bypass_ips' ),
+	'folder-manager'      => array( 'post_types' ),
 );
 foreach ( $check as $module => $keys ) {
 	$code = (string) file_get_contents( $root . '/includes/Modules/' . str_replace( ' ', '', ucwords( str_replace( '-', ' ', $module ) ) ) . '/Module.php' );

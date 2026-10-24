@@ -107,7 +107,7 @@ final class Abilities {
 			'type'       => 'object',
 			'properties' => array(
 				'id'             => array( 'type' => 'integer', 'description' => 'Existing rule id to update (partial update: omitted fields keep their value).' ),
-				'source'         => array( 'type' => 'string', 'description' => 'Old URL. Full URL of the old domain, of this site, or a path relative to this site\'s home URL ("/old-page.html?id=3"). Case, trailing slash and query parameter order are ignored; a source without query matches any query.' ),
+				'source'         => array( 'type' => 'string', 'description' => 'Old URL. Full URL of the old domain, of this site, or a path relative to this site\'s home URL ("/old-page.html?id=3"). Case (unless case_sensitive), trailing slash and query parameter order are ignored; a source without query matches any query (see query_mode).' ),
 				'match_type'     => array( 'type' => 'string', 'enum' => Repository::MATCH_TYPES, 'description' => 'exact (default) or regex. Regex is matched case-insensitively against "/path?sorted=query", without delimiters, e.g. "^/blog/(\\d+)-(.*)$".' ),
 				'target'         => array( 'type' => 'string', 'description' => 'New URL: path on this site ("/new-page/") or absolute http(s) URL. Regex targets may use $1..$9.' ),
 				'target_post_id' => array( 'type' => 'integer', 'description' => 'Preferred over target: the rule then follows the post\'s permalink forever.' ),
@@ -115,6 +115,8 @@ final class Abilities {
 				'enabled'        => array( 'type' => 'boolean' ),
 				'note'           => array( 'type' => 'string', 'description' => 'Why the redirect exists (shown in admin).' ),
 				'conditions'     => self::conditions_schema(),
+				'case_sensitive' => array( 'type' => 'boolean', 'default' => false, 'description' => 'true = the letter case of the path must match exactly (/About does not match /about). Default false: case is ignored. Exact rules only; use it e.g. to send /Foo to /foo.' ),
+				'query_mode'     => array( 'type' => 'string', 'enum' => Repository::QUERY_MODES, 'default' => 'default', 'description' => 'Query string handling of an exact rule. default = a source without query matches any query (carried to the target unless the module setting "Keep the query string" is off), a source with a query matches only that query. exact = a request with ANY query the source does not name does not match (like Redirection\'s "exact match"). ignore = match on the path, never pass the visitor\'s query on. pass = match on the path and always append the visitor\'s query to the target. ignore/pass need a source WITHOUT query; regex rules ignore this field.' ),
 				'position'       => array( 'type' => 'integer', 'description' => 'Order among the rules of ONE source (lower first, then older first). The first rule whose conditions hold wins; a rule without conditions is the fallback: it is always tried after the rules with conditions, whatever the positions.' ),
 			),
 		);
@@ -122,7 +124,7 @@ final class Abilities {
 		self::ability(
 			'list-rules',
 			__( 'List redirects', 'ux-studio' ),
-			'List redirect rules with filters and paging. Returns items + total; every item carries its conditions (empty = applies to everybody) and position.',
+			'List redirect rules with filters and paging. Returns items + total; every item carries its conditions (empty = applies to everybody), position, case_sensitive, query_mode and the hit counter (hits, last_hit = time of the last redirect served by the rule, null = never). orderby hits/last_hit finds the rules that still get traffic or are dead.',
 			array(
 				'search'     => array( 'type' => 'string' ),
 				'code'       => array( 'type' => 'integer', 'enum' => Repository::CODES ),
@@ -158,6 +160,28 @@ final class Abilities {
 				return $result;
 			},
 			array( 'readonly' => false, 'destructive' => false, 'idempotent' => true )
+		);
+
+		self::ability(
+			'reset-hits',
+			__( 'Reset redirect hit counters', 'ux-studio' ),
+			'Zero the hit counter and the last-hit time of the given rules (ids) or of every rule (all=true). The counters show which old URLs still get traffic; reset them after a change to start counting from now. Rules are not changed otherwise.',
+			array(
+				'ids' => array( 'type' => 'array', 'items' => array( 'type' => 'integer' ), 'minItems' => 1, 'maxItems' => Repository::BULK_MAX ),
+				'all' => array( 'type' => 'boolean', 'default' => false, 'description' => 'true = every rule (then ids is ignored).' ),
+			),
+			array(),
+			static function ( array $in ): array {
+				$all = (bool) ( $in['all'] ?? false );
+				$ids = array_values( array_filter( array_map( 'intval', (array) ( $in['ids'] ?? array() ) ) ) );
+				if ( ! $all && ! $ids ) {
+					return array( 'reset' => 0, 'error' => 'Pass ids, or all=true.' );
+				}
+				$reset = Repository::reset_hits( $all ? null : $ids );
+				ActivityLog::log( 'redirects', 'ai_reset_hits', '', 0, array( 'reset' => $reset, 'all' => $all ) );
+				return array( 'reset' => $reset );
+			},
+			array( 'readonly' => false, 'destructive' => true, 'idempotent' => true )
 		);
 
 		self::ability(

@@ -151,7 +151,7 @@ $assert( 'no scopes allow nothing', ! Scopes::allows( array(), 'read' ) );
 
 $expected = array(
 	'read'      => array( 'uxstudio-site-overview', 'uxstudio-modules-list', 'uxstudio-module-settings-get', 'uxstudio-overlaps-list', 'uxstudio-csp-inventory', 'uxstudio-activity-log-query', 'uxstudio-email-log-search', 'uxstudio-migration-scan', 'uxstudio-migration-plan', 'uxstudio-migration-status', 'uxstudio-migration-runs', 'uxstudio-migration-switch-plan', 'uxstudio-migration-preview-status', 'redirects-list-rules', 'redirects-test-url', 'redirects-list-404', 'redirects-list-site-urls', 'redirects-find-target' ),
-	'write'     => array( 'uxstudio-module-enable', 'uxstudio-module-disable', 'uxstudio-module-settings-update', 'uxstudio-overlap-ignore', 'uxstudio-overlap-unignore', 'redirects-upsert-rules', 'redirects-delete-rules', 'redirects-audit' ),
+	'write'     => array( 'uxstudio-module-enable', 'uxstudio-module-disable', 'uxstudio-module-settings-update', 'uxstudio-overlap-ignore', 'uxstudio-overlap-unignore', 'redirects-upsert-rules', 'redirects-delete-rules', 'redirects-reset-hits', 'redirects-audit' ),
 	'migration' => array( 'uxstudio-migration-run', 'uxstudio-migration-verify', 'uxstudio-migration-preview-start', 'uxstudio-migration-preview-end', 'uxstudio-migration-smoke', 'uxstudio-migration-switch', 'uxstudio-migration-revert', 'uxstudio-migration-rollback' ),
 );
 $all_tools = array_map( static fn( array $d ): string => $d['tool'], array_values( Registry::all() ) );

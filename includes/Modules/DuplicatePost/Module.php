@@ -91,6 +91,9 @@ final class Module extends BaseModule {
 		if ( ! $post || ! $this->is_allowed_post_type( $post->post_type ) ) {
 			return new \WP_Error( 'uxstudio_invalid_post', __( 'Invalid post ID.', 'ux-studio' ), array( 'status' => 404 ) );
 		}
+		if ( ! $this->user_may_duplicate() ) {
+			return new \WP_Error( 'uxstudio_forbidden', __( 'Sorry, you are not allowed to duplicate this post.', 'ux-studio' ), array( 'status' => 403 ) );
+		}
 
 		$available = array_keys( $this->get_available_elements() );
 		$elements  = array_values( array_intersect( array_map( 'strval', $elements ), $available ) );
@@ -98,7 +101,7 @@ final class Module extends BaseModule {
 			$elements = $this->get_default_elements();
 		}
 
-		$duplicator = new Duplicator( $this->excluded_meta );
+		$duplicator = $this->make_duplicator();
 
 		return $duplicator->duplicate(
 			$post_id,
@@ -117,7 +120,39 @@ final class Module extends BaseModule {
 		return $post instanceof \WP_Post
 			&& 'auto-draft' !== $post->post_status
 			&& $this->is_allowed_post_type( $post->post_type )
+			&& $this->user_may_duplicate()
 			&& current_user_can( 'edit_post', $post->ID );
+	}
+
+	/**
+	 * Roles allowed to duplicate (setting `allowed_roles`, empty = everybody who may edit the post).
+	 *
+	 * @return string[]
+	 */
+	public function allowed_roles(): array {
+		return array_values( array_map( 'strval', (array) $this->settings->get( 'allowed_roles', array() ) ) );
+	}
+
+	/**
+	 * Whether the current user's role may duplicate. Administrators always may.
+	 */
+	public function user_may_duplicate(): bool {
+		$user = wp_get_current_user();
+
+		return DuplicateRules::role_allowed( (array) $user->roles, $this->allowed_roles(), current_user_can( 'manage_options' ) );
+	}
+
+	/**
+	 * The engine configured by the settings: fields and taxonomies that are never copied.
+	 */
+	private function make_duplicator(): Duplicator {
+		$meta = array_merge(
+			$this->excluded_meta,
+			DuplicateRules::parse_list( (string) $this->settings->get( 'excluded_meta', '' ) )
+		);
+		$taxonomies = array_values( array_map( 'strval', (array) $this->settings->get( 'excluded_taxonomies', array() ) ) );
+
+		return new Duplicator( $meta, $taxonomies );
 	}
 
 	/**
@@ -230,7 +265,7 @@ final class Module extends BaseModule {
 	 * @return array
 	 */
 	public function add_duplicate_link( array $actions, \WP_Post $post ): array {
-		if ( ! $this->is_allowed_post_type( $post->post_type ) || ! current_user_can( 'edit_post', $post->ID ) ) {
+		if ( ! $this->is_allowed_post_type( $post->post_type ) || ! $this->user_may_duplicate() || ! current_user_can( 'edit_post', $post->ID ) ) {
 			return $actions;
 		}
 
@@ -271,7 +306,7 @@ final class Module extends BaseModule {
 			wp_die( esc_html__( 'Security check failed.', 'ux-studio' ), '', array( 'response' => 403 ) );
 		}
 
-		if ( ! current_user_can( 'edit_posts' ) || ! current_user_can( 'edit_post', $post_id ) ) {
+		if ( ! current_user_can( 'edit_posts' ) || ! current_user_can( 'edit_post', $post_id ) || ! $this->user_may_duplicate() ) {
 			wp_die( esc_html__( 'Sorry, you are not allowed to duplicate this post.', 'ux-studio' ), '', array( 'response' => 403 ) );
 		}
 
@@ -280,7 +315,7 @@ final class Module extends BaseModule {
 			wp_die( esc_html__( 'Invalid post ID.', 'ux-studio' ), '', array( 'response' => 404 ) );
 		}
 
-		$duplicator = new Duplicator( $this->excluded_meta );
+		$duplicator = $this->make_duplicator();
 		$duplicate  = $duplicator->duplicate(
 			$post_id,
 			$this->get_default_elements(),
@@ -314,8 +349,14 @@ final class Module extends BaseModule {
 			return false;
 		}
 
-		$post_types = (array) $this->settings->get( 'post_types', array( 'post', 'page' ) );
-		$enabled    = in_array( $post_type, $post_types, true );
+		if ( $this->settings->get( 'all_post_types', false ) ) {
+			// Every type with a list screen in the administration.
+			$object  = get_post_type_object( $post_type );
+			$enabled = $object && $object->show_ui;
+		} else {
+			$post_types = (array) $this->settings->get( 'post_types', array( 'post', 'page' ) );
+			$enabled    = in_array( $post_type, $post_types, true );
+		}
 
 		return (bool) apply_filters( 'ux_studio/duplicate_post/is_enabled', $enabled, $post_type );
 	}
@@ -345,7 +386,11 @@ final class Module extends BaseModule {
 	 * @param int $post_id Source post ID.
 	 */
 	private function get_post_status( int $post_id ): string {
-		$status = (string) $this->settings->get( 'post_status', 'draft' );
+		$status = DuplicateRules::copy_status(
+			(string) get_post_status( $post_id ),
+			(string) $this->settings->get( 'post_status', 'draft' ),
+			(bool) $this->settings->get( 'keep_status', false )
+		);
 		$status = (string) apply_filters( 'ux_studio/duplicate_post/post_status', $status, $post_id );
 
 		// wp_insert_post() does not check capabilities: never let a duplicate
@@ -410,6 +455,21 @@ final class Module extends BaseModule {
 				'default' => array( 'post', 'page' ),
 			),
 			array(
+				'key'     => 'all_post_types',
+				'type'    => 'toggle',
+				'label'   => __( 'Offer duplication for all post types', 'ux-studio' ),
+				'help'    => __( 'Add the Duplicate link to every post type that has a list screen in the administration, regardless of the selection above.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'allowed_roles',
+				'type'    => 'multiselect',
+				'label'   => __( 'Roles that may duplicate', 'ux-studio' ),
+				'help'    => __( 'Only these roles see the Duplicate link. Leave empty to let everybody who can edit the post duplicate it. Administrators can always duplicate.', 'ux-studio' ),
+				'options' => $this->get_role_options(),
+				'default' => array(),
+			),
+			array(
 				'key'     => 'post_redirect',
 				'type'    => 'toggle',
 				'label'   => __( 'Redirect to post', 'ux-studio' ),
@@ -425,12 +485,34 @@ final class Module extends BaseModule {
 				'default' => 'draft',
 			),
 			array(
+				'key'     => 'keep_status',
+				'type'    => 'toggle',
+				'label'   => __( 'Keep the status of the original', 'ux-studio' ),
+				'help'    => __( 'The copy gets the same status as the original (published, private, pending or draft) instead of the status above. A scheduled post becomes a draft, and a user who cannot publish always gets a pending copy.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
 				'key'     => 'duplicate_elements',
 				'type'    => 'multiselect',
 				'label'   => __( 'Elements to duplicate', 'ux-studio' ),
 				'help'    => __( 'Select which elements are copied when duplicating a post.', 'ux-studio' ),
 				'options' => $this->get_available_elements(),
 				'default' => array_keys( $this->get_available_elements() ),
+			),
+			array(
+				'key'     => 'excluded_meta',
+				'type'    => 'textarea',
+				'label'   => __( 'Custom fields that are not copied', 'ux-studio' ),
+				'help'    => __( 'One custom field key per line (or separated by commas). Use * for any characters, for example _edit_* or *_cache. Lines starting with # are comments. The edit lock and Elementor caches are never copied.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'excluded_taxonomies',
+				'type'    => 'multiselect',
+				'label'   => __( 'Taxonomies that are not copied', 'ux-studio' ),
+				'help'    => __( 'The copy does not get terms of the selected taxonomies.', 'ux-studio' ),
+				'options' => $this->get_taxonomy_options(),
+				'default' => array(),
 			),
 			array(
 				'key'     => 'custom_title',
@@ -447,6 +529,34 @@ final class Module extends BaseModule {
 				'default' => __( '[Duplicate] {post_title}', 'ux-studio' ),
 			),
 		);
+	}
+
+	/**
+	 * Roles that can be selected (administrators always may duplicate, so they are not listed).
+	 *
+	 * @return array<string, string>
+	 */
+	private function get_role_options(): array {
+		$roles = wp_roles()->get_names();
+		unset( $roles['administrator'] );
+
+		return array_map( 'translate_user_role', $roles );
+	}
+
+	/**
+	 * Taxonomies with a public face or an editing screen.
+	 *
+	 * @return array<string, string>
+	 */
+	private function get_taxonomy_options(): array {
+		$options = array();
+		foreach ( get_taxonomies( array(), 'objects' ) as $taxonomy ) {
+			if ( $taxonomy->public || $taxonomy->show_ui ) {
+				$options[ $taxonomy->name ] = $taxonomy->label;
+			}
+		}
+
+		return $options;
 	}
 
 	/**

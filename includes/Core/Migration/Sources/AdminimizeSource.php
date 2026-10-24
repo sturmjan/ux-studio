@@ -8,6 +8,8 @@
 namespace UxStudio\Core\Migration\Sources;
 
 use UxStudio\Core\Migration\Mapping;
+use UxStudio\Modules\AdminCustomiser\MetaBoxRules;
+use UxStudio\Modules\DashboardWidgets\RoleWidgets;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -21,8 +23,9 @@ defined( 'ABSPATH' ) || exit;
  *   mw_adminimize_disabled_metaboxes_<type>_<role>_items meta boxes of an edit screen
  * and the snapshots `mw_adminimize_default_menu` / `mw_adminimize_default_submenu` of the menu it was set up against.
  *
- * Targets: Menu Organizer (hidden items, per-role items), Admin Customiser (hidden admin bar elements,
- * screen options, help tab, notices), Hide Admin Bar (per role, exact), Dashboard Widgets (hidden widgets).
+ * Targets: Menu Organizer (hidden items, per-role items, hidden sub-items per role), Admin Customiser (hidden admin bar
+ * elements, screen options, help tab, notices, meta boxes per post type and role), Hide Admin Bar (per role, exact),
+ * Dashboard Widgets (widgets hidden per role).
  */
 final class AdminimizeSource extends AbstractAdminSource {
 
@@ -133,8 +136,8 @@ final class AdminimizeSource extends AbstractAdminSource {
 				$denied[ $slug ][] = $role;
 			}
 		}
-		$sub_lines   = array();
 		$denied_subs = array();
+		$unresolved  = array();
 		foreach ( $this->per_role( $o, $roles, 'mw_adminimize_disabled_submenu_' ) as $role => $entries ) {
 			foreach ( $entries as $entry ) {
 				$entry = html_entity_decode( $entry, ENT_QUOTES );
@@ -145,11 +148,15 @@ final class AdminimizeSource extends AbstractAdminSource {
 					$key                    = $parent . '>' . ( $sub ? $sub['slug'] : $index );
 					$label                  = ( $menu_titles[ $parent ] ?? $parent ) . ' / ' . ( $sub ? $sub['title'] : $index );
 				} else {
-					$key   = '>' . $entry;
-					$label = $entry;
+					// Only the slug is known, not the menu it belongs to: it cannot be placed.
+					$unresolved[ $entry ] = true;
+					continue;
 				}
-				$denied_subs[ $key ][] = $role;
-				$sub_lines[ $label ]   = true;
+				if ( $sub ) {
+					$denied_subs[ $key ][] = $role;
+				} else {
+					$unresolved[ $label ] = true;
+				}
 			}
 		}
 
@@ -171,13 +178,11 @@ final class AdminimizeSource extends AbstractAdminSource {
 				$model['subs'][ $parent ][] = $row['slug'];
 			}
 		}
-		if ( $sub_lines ) {
+		if ( $unresolved ) {
 			$model['lossy'][] = sprintf(
 				/* translators: %s: menu items. */
-				$model['block_all']
-					? __( 'Sub-menu items hidden for a role. The plugin also blocks their pages, but the Menu Organizer cannot hide or block a single sub-item (it appears, and opens, when its parent does): %s.', 'ux-studio' )
-					: __( 'Sub-menu items hidden for a role (the Menu Organizer cannot hide a single sub-item, it appears when its parent appears): %s.', 'ux-studio' ),
-				$this->list_text( array_keys( $sub_lines ), 10 )
+				__( 'Sub-menu items hidden for a role that could not be matched to a menu of this site (the plugin stored them by position or by name only): %s.', 'ux-studio' ),
+				$this->list_text( array_keys( $unresolved ), 10 )
 			);
 		}
 		if ( $denied || $denied_subs ) {
@@ -290,60 +295,53 @@ final class AdminimizeSource extends AbstractAdminSource {
 			);
 		}
 
-		/* ── Dashboard widgets ── */
-		$widgets = array();
+		/* ── Dashboard widgets: hidden per role ── */
+		$by_role = array();
+		$lost_w  = array();
 		foreach ( $this->per_role( $o, $roles, 'mw_adminimize_disabled_dashboard_option_' ) as $role => $ids ) {
-			foreach ( $ids as $id ) {
-				$widgets[ $id ][] = $role;
+			if ( $site_roles && ! in_array( $role, $site_roles, true ) ) {
+				$lost_w[] = implode( ', ', $ids ) . ' (' . $role . ')';
+				continue;
 			}
+			$by_role[ $role ] = $ids;
 		}
-		$hide_widgets = array();
-		$skipped      = array();
-		$lost_w       = array();
-		foreach ( $widgets as $id => $w_roles ) {
-			if ( $this->covers_admin( $w_roles ) ) {
-				$hide_widgets[] = $id;
-				if ( array_diff( $site_roles, $w_roles ) ) {
-					$skipped[] = $id;
-				}
-			} else {
-				$lost_w[] = $id . ' (' . $this->role_names( $w_roles ) . ')';
+		$all_widgets = array();
+		foreach ( $by_role as $role => $ids ) {
+			$accepted = $this->known_widgets( $ids );
+			if ( ! $accepted ) {
+				continue;
 			}
-		}
-		if ( $hide_widgets ) {
-			$m->set( 'dashboard-widgets', 'hidden_widgets', $hide_widgets, __( 'Hide specific dashboard widgets', 'ux-studio' ), 'mw_adminimize_disabled_dashboard_option_*' );
-			$this->note_extra_module( $m, 'dashboard-widgets', __( 'Dashboard Widgets', 'ux-studio' ) );
-			$this->note_unknown_widgets( $m, $hide_widgets );
-		}
-		if ( $skipped ) {
-			$m->lossy(
+			$m->set(
+				'dashboard-widgets',
+				RoleWidgets::key( $role ),
+				$accepted,
 				sprintf(
-					/* translators: %s: widgets. */
-					__( 'The module hides dashboard widgets for every role, the plugin did it only for some roles. Roles that kept these widgets lose them: %s.', 'ux-studio' ),
-					$this->list_text( $skipped, 10 )
-				)
+					/* translators: %s: role name. */
+					__( 'Hide dashboard widgets for the role: %s', 'ux-studio' ),
+					$this->role_label( $role )
+				),
+				'mw_adminimize_disabled_dashboard_option_' . $role . '_items'
 			);
+			$all_widgets = array_merge( $all_widgets, $ids );
+		}
+		if ( $by_role ) {
+			$this->note_extra_module( $m, 'dashboard-widgets', __( 'Dashboard Widgets', 'ux-studio' ) );
+			$this->note_unknown_widgets( $m, array_values( array_unique( $all_widgets ) ) );
 		}
 		if ( $lost_w ) {
 			$m->lossy(
 				sprintf(
 					/* translators: %s: widgets. */
-					__( 'Dashboard widgets hidden only for roles other than administrators (the module hides widgets for every role at once): %s.', 'ux-studio' ),
+					__( 'Dashboard widgets hidden for roles that do not exist on this site: %s.', 'ux-studio' ),
 					$this->list_text( $lost_w, 10 )
 				)
 			);
 		}
 
+		/* ── Meta boxes of the edit screens: per post type and role ── */
+		$this->map_meta_boxes( $m, $o, $roles, $site_roles );
+
 		/* ── Everything else Adminimize does ── */
-		$meta = 0;
-		foreach ( $o as $key => $value ) {
-			if ( 0 === strpos( (string) $key, 'mw_adminimize_disabled_metaboxes_' ) && is_array( $value ) && $value ) {
-				++$meta;
-			}
-		}
-		if ( $meta ) {
-			$m->lossy( __( 'Hidden meta boxes and fields on the edit screens of posts, pages and other types (UX Studio has no setting for it).', 'ux-studio' ) );
-		}
 		foreach ( array( 'mw_adminimize_disabled_link_option_', 'mw_adminimize_disabled_nav_menu_option_', 'mw_adminimize_disabled_widget_option_' ) as $prefix ) {
 			if ( $this->per_role( $o, $roles, $prefix ) ) {
 				$m->lossy( __( 'Hidden options on the screens for links, menus (appearance) and widgets.', 'ux-studio' ) );
@@ -375,5 +373,107 @@ final class AdminimizeSource extends AbstractAdminSource {
 			}
 		}
 		return $m;
+	}
+
+	/**
+	 * Meta boxes hidden per post type and role (`mw_adminimize_disabled_metaboxes_<type>_<role>_items`, entries like `#authordiv`)
+	 * become the per-role lists of the Admin Customiser (`post_type|box_id`). Only boxes the module already knows (the core ones
+	 * and the ones captured from the edit screens you opened) can be transferred, the rest is named in the lossy list.
+	 *
+	 * @param Mapping              $m          Mapping.
+	 * @param array<string, mixed> $o          Option.
+	 * @param string[]             $roles      Roles Adminimize keeps settings for.
+	 * @param string[]             $site_roles Roles of this site.
+	 */
+	private function map_meta_boxes( Mapping $m, array $o, array $roles, array $site_roles ): void {
+		$prefix   = 'mw_adminimize_disabled_metaboxes_';
+		$known    = array_map( 'strval', array_keys( MetaBoxRules::options() ) );
+		$by_role  = array();
+		$unknown  = array();
+		$other    = array();
+		$lost_for = array();
+		// Longest role id first: "shop_manager" must not be read as role "manager" of type "..._shop".
+		usort( $roles, static fn( string $a, string $b ): int => strlen( $b ) <=> strlen( $a ) );
+		foreach ( $o as $key => $value ) {
+			$key = (string) $key;
+			if ( 0 !== strpos( $key, $prefix ) || '_items' !== substr( $key, -6 ) || ! is_array( $value ) || ! $value ) {
+				continue;
+			}
+			$rest = substr( $key, strlen( $prefix ), -6 );
+			$role = '';
+			$type = '';
+			foreach ( $roles as $candidate ) {
+				$tail = '_' . $candidate;
+				if ( strlen( $rest ) > strlen( $tail ) && substr( $rest, -strlen( $tail ) ) === $tail ) {
+					$role = $candidate;
+					$type = substr( $rest, 0, -strlen( $tail ) );
+					break;
+				}
+			}
+			if ( '' === $role || '' === $type ) {
+				$other[ $key ] = true;
+				continue;
+			}
+			if ( $site_roles && ! in_array( $role, $site_roles, true ) ) {
+				$lost_for[ $role ] = true;
+				continue;
+			}
+			foreach ( $value as $entry ) {
+				$entry = trim( (string) $entry );
+				if ( 1 !== preg_match( '/^#([A-Za-z0-9_\-]+)$/', $entry, $mm ) ) {
+					$other[ $type . ': ' . $entry ] = true;
+					continue;
+				}
+				$id = $type . '|' . $mm[1];
+				if ( in_array( $id, $known, true ) ) {
+					$by_role[ $role ][] = $id;
+				} else {
+					$unknown[ $type . ': ' . $mm[1] ] = true;
+				}
+			}
+		}
+		foreach ( $by_role as $role => $ids ) {
+			$m->set(
+				self::MODULE,
+				MetaBoxRules::key( $role ),
+				array_values( array_unique( $ids ) ),
+				sprintf(
+					/* translators: %s: role name. */
+					__( 'Hide meta boxes on edit screens for the role: %s', 'ux-studio' ),
+					$this->role_label( $role )
+				),
+				$prefix . '*_' . $role . '_items'
+			);
+		}
+		if ( $by_role ) {
+			$m->note( __( 'Meta boxes are hidden per post type and role on the edit screens (Admin Customiser, Meta boxes). A user with several roles has a box hidden only when every role hides it.', 'ux-studio' ) );
+		}
+		if ( $unknown ) {
+			$m->lossy(
+				sprintf(
+					/* translators: %s: meta boxes. */
+					__( 'Meta boxes the module does not know yet, so they were not transferred. Open the edit screen of that post type once so the module learns its boxes, then run the check again: %s.', 'ux-studio' ),
+					$this->list_text( array_keys( $unknown ), 10 )
+				)
+			);
+		}
+		if ( $other ) {
+			$m->lossy(
+				sprintf(
+					/* translators: %s: items. */
+					__( 'Parts of the edit screens that Adminimize hides and that are not meta boxes (title, editor, permalink and other fields): %s.', 'ux-studio' ),
+					$this->list_text( array_keys( $other ), 10 )
+				)
+			);
+		}
+		if ( $lost_for ) {
+			$m->lossy(
+				sprintf(
+					/* translators: %s: roles. */
+					__( 'Meta boxes hidden for roles that do not exist on this site: %s.', 'ux-studio' ),
+					implode( ', ', array_keys( $lost_for ) )
+				)
+			);
+		}
 	}
 }

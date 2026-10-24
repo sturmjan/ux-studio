@@ -73,10 +73,11 @@ final class Module extends BaseModule {
 	public static function ensure_tables(): void {
 		DB::ensure_module_tables(
 			'code-snippets',
-			2,
+			3,
 			static function ( int $from ): void {
 				global $wpdb;
 				$charset = $wpdb->get_charset_collate();
+				// v3 (B2): `conditions` (JSON, see SnippetConditions); existing snippets get NULL = no conditions.
 				dbDelta(
 					"CREATE TABLE {$wpdb->prefix}uxstudio_code_snippets (
 						id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -84,6 +85,7 @@ final class Module extends BaseModule {
 						type VARCHAR(20) NOT NULL DEFAULT 'php',
 						run_location VARCHAR(50) NOT NULL DEFAULT '',
 						post_types VARCHAR(255) NOT NULL DEFAULT '',
+						conditions TEXT NULL,
 						enabled TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
 						file_path VARCHAR(500) NOT NULL DEFAULT '',
 						last_run DATETIME NULL,

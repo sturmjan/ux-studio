@@ -18,6 +18,9 @@ defined( 'ABSPATH' ) || exit;
  * POST   uxstudio/v1/folder-manager/folders            - create a folder {name, parent?}
  * PUT    uxstudio/v1/folder-manager/folders/{id}       - rename a folder {name}
  * POST   uxstudio/v1/folder-manager/folders/{id}/move  - reparent a folder {parent}
+ * POST   uxstudio/v1/folder-manager/folders/{id}/color - set (or clear with '') the colour {color}
+ * POST   uxstudio/v1/folder-manager/folders/{id}/position - one place up / down among siblings {direction}
+ * POST   uxstudio/v1/folder-manager/folders/reorder    - order the folders of one level {ids[]}
  * DELETE uxstudio/v1/folder-manager/folders/{id}       - delete a folder
  * POST   uxstudio/v1/folder-manager/assign             - assign/clear an attachment's folder {attachment_id, folder_id}
  * POST   uxstudio/v1/folder-manager/items/move         - bulk-move attachments {attachment_ids[], folder_id}
@@ -120,6 +123,60 @@ final class RestController extends Controller {
 					'type'              => 'integer',
 					'default'           => 0,
 					'sanitize_callback' => 'absint',
+				),
+			),
+			$manage
+		);
+
+		$this->route(
+			'/folder-manager/folders/(?P<id>\d+)/color',
+			'POST',
+			array( $this, 'set_color' ),
+			array(
+				'id'    => array(
+					'required'          => true,
+					'type'              => 'integer',
+					'sanitize_callback' => 'absint',
+				),
+				'color' => array(
+					'required'          => false,
+					'type'              => 'string',
+					'default'           => '',
+					'sanitize_callback' => 'sanitize_text_field',
+				),
+			),
+			$manage
+		);
+
+		$this->route(
+			'/folder-manager/folders/(?P<id>\d+)/position',
+			'POST',
+			array( $this, 'move_folder' ),
+			array(
+				'id'        => array(
+					'required'          => true,
+					'type'              => 'integer',
+					'sanitize_callback' => 'absint',
+				),
+				'direction' => array(
+					'required'          => true,
+					'type'              => 'string',
+					'enum'              => array( 'up', 'down' ),
+					'sanitize_callback' => 'sanitize_key',
+				),
+			),
+			$manage
+		);
+
+		$this->route(
+			'/folder-manager/folders/reorder',
+			'POST',
+			array( $this, 'reorder_folders' ),
+			array(
+				'ids' => array(
+					'required' => true,
+					'type'     => 'array',
+					'items'    => array( 'type' => 'integer' ),
 				),
 			),
 			$manage
@@ -275,6 +332,39 @@ final class RestController extends Controller {
 		}
 
 		return $this->ok( $result );
+	}
+
+	/**
+	 * Set or clear the colour of a folder.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function set_color( WP_REST_Request $request ) {
+		$result = $this->module->set_color( (int) $request->get_param( 'id' ), (string) $request->get_param( 'color' ) );
+
+		return is_wp_error( $result ) ? $result : $this->ok( $result );
+	}
+
+	/**
+	 * Move a folder one place up or down among its siblings.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function move_folder( WP_REST_Request $request ) {
+		$result = $this->module->move_folder( (int) $request->get_param( 'id' ), (string) $request->get_param( 'direction' ) );
+
+		return is_wp_error( $result ) ? $result : $this->ok( $result );
+	}
+
+	/**
+	 * Put the folders of one level in the given order.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function reorder_folders( WP_REST_Request $request ) {
+		$result = $this->module->reorder_folders( (array) $request->get_param( 'ids' ) );
+
+		return is_wp_error( $result ) ? $result : $this->ok( $result );
 	}
 
 	/**

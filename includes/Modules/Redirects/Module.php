@@ -56,9 +56,11 @@ final class Module extends BaseModule {
 	public static function ensure_tables(): void {
 		DB::ensure_module_tables(
 			'redirects',
-			2,
+			3,
 			static function ( int $from ): void {
 				global $wpdb;
+				// v3 (B2): per-rule `case_sensitive`, `query_mode` and `source_cs` (dbDelta adds the columns; existing rules get
+				// the defaults, which behave exactly as before). The hit counter columns (`hits`, `last_hit`) have existed since v1.
 				// v2 (A2): several rules per source, told apart by their conditions. The v1 table had a UNIQUE key on
 				// the source alone; dbDelta cannot turn it into a plain key, so it is dropped first. Existing rows keep
 				// working unchanged (no conditions, cond_key '').

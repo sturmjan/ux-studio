@@ -101,6 +101,23 @@ final class Importer {
 	}
 
 	/**
+	 * The plugin's global defaults for the match flags (rules that do not carry their own `match_data` use them).
+	 * Without saved options the plugin itself falls back to: case sensitive, trailing slash significant, exact query.
+	 *
+	 * @return array{flag_case:bool, flag_trailing:bool, flag_query:string}
+	 */
+	public static function redirection_flag_defaults(): array {
+		$options = get_option( 'redirection_options', array() );
+		$options = is_array( $options ) ? $options : array();
+		$query   = (string) ( $options['flag_query'] ?? 'exact' );
+		return array(
+			'flag_case'     => ! empty( $options['flag_case'] ),
+			'flag_trailing' => ! empty( $options['flag_trailing'] ),
+			'flag_query'    => in_array( $query, array( 'exact', 'exactorder', 'ignore', 'pass' ), true ) ? $query : 'exact',
+		);
+	}
+
+	/**
 	 * Status of the Redirection groups (`id => enabled`). A rule in a disabled group does not
 	 * redirect in the plugin, so it must not become active here either.
 	 *
@@ -130,27 +147,55 @@ final class Importer {
 	 * @param array<int, bool>     $groups Group id => enabled.
 	 * @return array{items:array<int, array<string, mixed>>, skipped:string}
 	 */
-	public static function redirection_rules( array $row, array $groups = array() ): array {
-		$match = (string) $row['match_type'];
-		$code  = (int) $row['action_code'];
-		$atype = (string) $row['action_type'];
-		$data  = json_decode( (string) ( $row['match_data'] ?? '' ), true );
-		$flags = is_array( $data ) && isset( $data['source'] ) && is_array( $data['source'] ) ? $data['source'] : array();
-		$group = (int) ( $row['group_id'] ?? 0 );
-		$base  = array(
-			'key'        => 'item:' . (int) $row['id'],
-			'label'      => (string) $row['url'],
-			'source'     => (string) $row['url'],
-			'match_type' => (int) $row['regex'] ? 'regex' : 'exact',
-			'target'     => '',
-			'code'       => in_array( $code, Repository::CODES, true ) ? $code : ( 303 === $code ? 302 : 301 ),
-			'enabled'    => 'enabled' === $row['status'] && ( ! isset( $groups[ $group ] ) || $groups[ $group ] ),
-			'note'       => (string) ( $row['title'] ?? '' ),
-			'position'   => (int) $row['position'],
-			'conditions' => array(),
-			// What the plugin matched on that this module does not (reported by the migration).
-			'flag_case'  => ! empty( $flags['flag_case'] ),
-			'flag_query' => (string) ( $flags['flag_query'] ?? 'exact' ),
+	public static function redirection_rules( array $row, array $groups = array(), ?array $defaults = null ): array {
+		$match    = (string) $row['match_type'];
+		$code     = (int) $row['action_code'];
+		$atype    = (string) $row['action_type'];
+		$data     = json_decode( (string) ( $row['match_data'] ?? '' ), true );
+		$flags    = is_array( $data ) && isset( $data['source'] ) && is_array( $data['source'] ) ? $data['source'] : array();
+		$group    = (int) ( $row['group_id'] ?? 0 );
+		$defaults = $defaults ?? self::redirection_flag_defaults();
+		$regex    = (bool) (int) $row['regex'];
+
+		// The plugin's flags: a rule's own `match_data.source`, otherwise the plugin's global default. NOTE the naming:
+		// `flag_case` = true means "ignore case" (case INsensitive), the plugin's default (false) is case sensitive.
+		$ignore_case = array_key_exists( 'flag_case', $flags ) && is_bool( $flags['flag_case'] ) ? $flags['flag_case'] : $defaults['flag_case'];
+		$trailing    = array_key_exists( 'flag_trailing', $flags ) && is_bool( $flags['flag_trailing'] ) ? $flags['flag_trailing'] : $defaults['flag_trailing'];
+		$query       = isset( $flags['flag_query'] ) && in_array( $flags['flag_query'], array( 'exact', 'exactorder', 'ignore', 'pass' ), true ) ? (string) $flags['flag_query'] : $defaults['flag_query'];
+		$mode        = 'default';
+		$unmapped    = false;
+		if ( ! $regex ) {
+			// exact / exactorder -> exact (the order of the parameters is not compared, see the plan), ignore / pass as they are.
+			// A source that itself names parameters is compared parameter by parameter by the plugin (extra ones allowed
+			// with ignore / pass); the module has no such subset match, so it keeps its exact comparison there.
+			$mode = in_array( $query, array( 'ignore', 'pass' ), true ) ? $query : 'exact';
+			if ( in_array( $mode, array( 'ignore', 'pass' ), true ) && str_contains( (string) $row['url'], '?' ) ) {
+				$mode     = 'default';
+				$unmapped = true;
+			}
+		}
+		$last_access = (string) ( $row['last_access'] ?? '' );
+		$last_hit    = Repository::clean_datetime( function_exists( 'get_date_from_gmt' ) && '' !== $last_access ? get_date_from_gmt( $last_access ) : $last_access );
+
+		$base = array(
+			'key'            => 'item:' . (int) $row['id'],
+			'label'          => (string) $row['url'],
+			'source'         => (string) $row['url'],
+			'match_type'     => $regex ? 'regex' : 'exact',
+			'target'         => '',
+			'code'           => in_array( $code, Repository::CODES, true ) ? $code : ( 303 === $code ? 302 : 301 ),
+			'enabled'        => 'enabled' === $row['status'] && ( ! isset( $groups[ $group ] ) || $groups[ $group ] ),
+			'note'           => (string) ( $row['title'] ?? '' ),
+			'position'       => (int) $row['position'],
+			'conditions'     => array(),
+			'case_sensitive' => ! $ignore_case,
+			'query_mode'     => $mode,
+			'hits'           => max( 0, (int) ( $row['last_count'] ?? 0 ) ),
+			'last_hit'       => $last_hit,
+			// What the plugin matched on that the module still does not (counted by the migration plan).
+			'query_unmapped' => $unmapped,
+			'query_order'    => ! $regex && 'exactorder' === $query,
+			'trailing_slash' => ! $regex && ! $trailing,
 		);
 
 		if ( 'url' === $match ) {
@@ -268,10 +313,11 @@ final class Importer {
 		$rows = $wpdb->get_results( "SELECT * FROM {$table} ORDER BY id ASC", ARRAY_A );
 
 		$out = fopen( 'php://temp', 'r+' );
-		fputcsv( $out, array( 'source', 'target', 'code', 'note', 'match_type', 'enabled', 'hits', 'conditions', 'position' ), ',', '"', '' );
+		fputcsv( $out, array( 'source', 'target', 'code', 'note', 'match_type', 'enabled', 'hits', 'conditions', 'position', 'case_sensitive', 'query_mode', 'last_hit' ), ',', '"', '' );
 		foreach ( is_array( $rows ) ? $rows : array() as $row ) {
 			$target = 410 === (int) $row['code'] ? '' : ( 'regex' === $row['match_type'] ? (string) $row['target'] : Repository::resolve_target( $row ) );
-			fputcsv( $out, Csv::safe_row( array( $row['source'], $target, $row['code'], $row['note'], $row['match_type'], $row['enabled'], $row['hits'], (string) ( $row['conditions'] ?? '' ), $row['position'] ) ), ',', '"', '' );
+			$mode   = '' === (string) ( $row['query_mode'] ?? '' ) ? 'default' : (string) $row['query_mode'];
+			fputcsv( $out, Csv::safe_row( array( $row['source'], $target, $row['code'], $row['note'], $row['match_type'], $row['enabled'], $row['hits'], (string) ( $row['conditions'] ?? '' ), $row['position'], (int) ( $row['case_sensitive'] ?? 0 ), $mode, (string) ( $row['last_hit'] ?? '' ) ) ), ',', '"', '' );
 		}
 		rewind( $out );
 		$csv = (string) stream_get_contents( $out );

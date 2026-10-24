@@ -2,6 +2,102 @@
 
 ## 0.6.0 (unreleased)
 
+- New - SMTP Email: SendGrid (global / EU), Mailgun (US / EU), Postmark (message stream) and Amazon SES (the SES v2 HTTPS
+  API signed with Signature Version 4 in PHP, no SDK) next to SMTP, Brevo and Gmail. They send HTML or plain text, Cc /
+  Bcc, Reply-To and attachments; keys are encrypted and never sent back to the browser. Optional FALLBACK connection used
+  when the primary send fails or is not set up; both attempts are in the log (new columns connection and attempt). Each
+  service has its own tab with a test button that sends through that connection only. The migration moves SendGrid,
+  Mailgun, Postmark and Amazon SES from WP Mail SMTP and Easy WP SMTP, Post SMTP and FluentSMTP, and the fallback
+  connection of Post SMTP (its fallback SMTP server) and FluentSMTP; only more than a primary and a fallback is reported.
+  Fixed: the Brevo mailer of WP Mail SMTP / Post SMTP / FluentSMTP was written with a value the module rejected.
+- New - Disable Auto Updates: hide the update notices per type (WordPress, plugins, themes) from everybody except the
+  listed users, stop the update check per type (cron events, load-time checks and the requests to api.wordpress.org),
+  and an exception that still installs security (minor) core releases. All off by default, with a clear warning that
+  this hides security fixes. The migration takes it from Disable WordPress Updates (Security Mode) and Easy Updates
+  Manager (off, excluded users).
+- New - Cron Control: events that call a URL (GET or POST, any interval, timeout, last result and HTTP status). No event
+  runs PHP code. Private, loopback and link-local addresses are blocked (checked when saving and at every run) unless a
+  developer opens one address with the filter `uxstudio_cron_url_allow_private`. The migration turns the URL events of
+  WP Crontrol into these events, switched off until the switch so nothing is called twice.
+- New - Auto Image Upload: address of the uploaded images (CDN), file name and alt text patterns with the placeholders of
+  Auto Upload Images, largest width / height, excluded domains and content types, custom fields with HTML. The migration
+  moves all of them.
+- Changed - Menu Organizer: every item of the sub-item editor is a collapsed row with a one-line summary of its rules
+  ("Renamed to X, hidden for Editor, never shown to: jan"); the fields open under it. Shorter placeholders, hints below.
+- New - Duplicate Post: the copy can keep the status of the original (published, private, pending, draft; a scheduled
+  post becomes a draft, a user who cannot publish always gets a pending copy), custom fields that are not copied
+  (one per line, `*` as wildcard, for example `_edit_*`) and taxonomies that are not copied, the roles that may
+  duplicate (empty = everybody who can edit the post, administrators always) and the link for every post type
+  that has a list screen. The role check also covers the edit screens and the REST route.
+- New - Link Manager: rules per domain (host, `*.sub.example`, or a path) with new tab yes / no, the exact rel tokens
+  (nofollow, sponsored, ugc, noopener, noreferrer, external) and icon yes / no; a list of addresses that are never
+  external; "subdomains of this site are internal"; the default target and rel for all external links; the icon is
+  the arrow, a Dashicon (before or after the text) or none, and image links can go without it. The content is parsed
+  once per `the_content` and not at all when it has no link; the decision for an address is cached for the request.
+  Fixed: a relative address without a leading slash and `//host` links were treated as internal / external wrongly,
+  `mailto:`, `tel:`, `javascript:` and other schemes are skipped, http / https and www of the own host count as internal.
+  Sites that had "Disable external link arrow" keep it (shown as "No icon").
+- New - Classic Editor: "Users can choose their editor". Every user has a Default editor in the profile, the list of
+  posts offers Edit (classic editor) / Edit (block editor), the editor each post was last opened in is remembered, the
+  classic edit screen has a link to the block editor and the block editor a menu item for the classic one. The stored
+  values are those of the Classic Editor plugin (user option `classic-editor-settings`, post meta
+  `classic-editor-remember`), so a site that used the plugin keeps every choice. New setting "Site default editor".
+- New - Maintenance Mode: countdown on the page (days / hours / minutes / seconds, no external script) to a date and
+  time of the site; the end also sets Retry-After of the 503 page; optionally the site opens by itself at the end (off
+  by default, the saved mode is not changed, only ignored after the end); addresses that stay open (exact path,
+  `/section/*`, `*text*` or `regex:`), RSS feeds, and IP addresses / ranges that see the normal site. The background
+  image that was already there is used by the migration.
+- New - Folder Manager: folder colours and manual order (up / down in the sidebar and on the settings screen, explicit
+  order through the API); folders for posts, pages and other post types keep one tree per type, as before.
+- New - Settings: a date and time field type.
+- New - Migration: Yoast Duplicate Post (status of the copy, excluded fields incl. the template switch, excluded
+  taxonomies incl. the format switch, roles with copy_posts), Duplicate Page (all post types), Post Duplicator (same
+  status, excluded fields, all types, roles with duplicate_posts); WP External Links (target, rel tokens, Dashicon and
+  its position, skip images, subdomains, excluded URLs, "switched off" state); Classic Editor ("users choose" and the
+  block default); WP Maintenance Mode (background image from the library, countdown end, excluded addresses and IPs),
+  Under Construction (end date opens the site), Maintenance (planned end, whitelisted URLs and IPs), SeedProd (access
+  by role and the open addresses of the page); FileBird, Folders and Wicked Folders (colours, order, folders of posts,
+  pages and other post types, FileBird post type taxonomies), Real Media Library (order).
+- New - Redirects: every rule counts its hits and remembers the time of the last one (shown in the list, sortable
+  through the API, can be reset per rule or for all). The count is written after the redirect is sent, so it never
+  delays it. A rule can be case sensitive (default: letter case is ignored) and can handle the query string in its
+  own way: by the module setting (default), exact (a request with other parameters does not match), ignore, or
+  ignore and pass on to the new URL. Existing rules behave exactly as before. CSV, REST, the AI tools and the MCP
+  server take the new fields (a new tool resets the counters).
+- New - Code Snippets: run conditions per snippet (all must hold): type of page (front page, posts page, single,
+  archive, author, search, 404, wp-admin), post type, specific posts, logged in / out, role, mobile / desktop and a
+  time window. They narrow where a snippet runs, never widen it; PHP still never runs in REST, AJAX or cron. A PHP
+  snippet with a page or post condition is loaded at the `wp` action.
+- New - Menu Icons: the whole WordPress Dashicons set next to Lucide, picked on Appearance > Menus. The stylesheet
+  comes with WordPress and is loaded on the front end only on pages whose menu uses a Dashicon.
+- New - Security: exceptions to "Disable comments": roles that may still comment (and visitors who are not logged
+  in), pingbacks / trackbacks that stay allowed, comment types to refuse (pingback, trackback, product review) even
+  without disabling comments, and closing comments on posts older than N days. The module filters whether comments
+  are open; the WordPress options for closing old posts are never written.
+- New - Migration: Redirection case sensitivity, query string handling and hit counters with the last hit; WPCode
+  conditional logic (one AND group; "hide" on a single rule) and device type, Header Footer Code Manager targeting
+  (site wide with exclusions, specific posts and pages, post types, home, archives, search, device); Menu Icons
+  Dashicons 1:1; Disable Comments role exceptions, allowed and refused comment types and closing after N days.
+  What cannot be expressed (several OR groups, taxonomy terms, page URLs, categories, schedules) stays reported and
+  the snippet stays switched off for review.
+- Fixed - Migration: the plan said Redirection rules with "case insensitive" were case sensitive (the plugin's
+  flag means the opposite).
+
+- New - Admin Customiser, Menu Organizer: sub-items can be renamed, hidden for chosen roles (or everybody), moved under
+  another parent and re-ordered; every item and sub-item can require a capability and be shown or hidden for single
+  users (by login). Hidden sub-items are refused by address with "Block access to hidden pages" like top-level items;
+  users who can manage options and UX Studio, Plugins, Users and Settings stay protected.
+- New - Admin Customiser: own CSS for the admin area and for the login page (plain CSS, HTML tags stripped, 50 KB,
+  never printed on the front end), login background image with fit, hover colours of the button and the links, hidden
+  meta boxes on the edit screens per post type and role (the list of boxes is learned from the edit screens you open).
+- New - Dashboard Widgets: widgets hidden per role (on top of the global list) and a custom welcome panel (text with
+  basic HTML, optionally only for some roles).
+- New - Admin Columns: columns of post type lists can be sortable and filterable (custom field, taxonomy, author, ID).
+- New - Migration: Admin Menu Editor (renamed, hidden and moved sub-items, extra capability, rules for single users),
+  Adminimize (sub-menu items and dashboard widgets per role, meta boxes per post type and role), White Label CMS
+  (login background, hover colours, own CSS of login and admin, widgets per role, welcome panel), LoginPress
+  (background image, hover colours, own CSS) and Admin Columns (sorting and filtering) now transfer what they could not.
+- Fixed - Admin Columns: the column key suggestions failed with an error on some requests.
 - New - Admin Customiser: "Block access to hidden pages" (off by default). A menu item the Menu Organizer
   hides from a role (limited to other roles, hidden for everybody, or in a group limited to roles) is also
   refused when its address is typed in ("Sorry, you are not allowed to access this page", 403). Sub-items

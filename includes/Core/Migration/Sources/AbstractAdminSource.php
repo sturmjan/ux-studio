@@ -32,6 +32,12 @@ defined( 'ABSPATH' ) || exit;
  *   denied        array<string,string[]>       top-level slug => roles that must not see it
  *   denied_subs   array<string,string[]>       `parent>sub` => roles that must not see it
  *   hidden_subs   string[]                     `parent>sub` hidden for everybody
+ *   blocked_subs  array<string,string[]>       `parent>sub` => roles whose access the plugin takes away (page blocked, not only hidden)
+ *   sub_titles    array<string,string>         `parent>sub` => new title (B1)
+ *   sub_moves     array<string,string>         `parent>sub` => top-level slug it is shown under instead (B1); the key uses the DISPLAY parent unless `sub_origin` says otherwise
+ *   sub_origin    array<string,string>         display `parent>sub` => `original parent>sub` for moved sub-items (B1)
+ *   item_caps     array<string,string>         slug or `parent>sub` => extra capability the item requires (B1)
+ *   item_users    array<string,array>          slug or `parent>sub` => { show: logins, hide: logins } (B1)
  *   blocked       array<string,string[]>       top-level slug => roles whose access the plugin takes away (page blocked, not only hidden)
  *   block_all     bool                         every item in `denied` is blocked for its roles (Adminimize without "Allow Page Access")
  *   promoted      array<string,array>          sub slug => parent, title, icon (moved to the top level)
@@ -198,6 +204,36 @@ abstract class AbstractAdminSource extends AbstractSource {
 			'item_roles'   => $item_roles,
 		);
 
+		// B1: rules of sub-items, capabilities and single users. Model keys of sub-items are the DISPLAY position,
+		// the config keys the ORIGINAL parent (the one WordPress registered the page under).
+		$origin_of = static fn( string $key ): string => (string) ( $model['sub_origin'][ $key ] ?? $key );
+		$sub_hidden = array();
+		foreach ( (array) ( $model['hidden_subs'] ?? array() ) as $key ) {
+			$sub_hidden[ $origin_of( (string) $key ) ] = array( '*' );
+		}
+		foreach ( (array) ( $model['denied_subs'] ?? array() ) as $key => $denied ) {
+			$denied = array_values( array_unique( array_map( 'strval', (array) $denied ) ) );
+			$known  = $roles ? array_values( array_intersect( $denied, $roles ) ) : $denied;
+			$okey   = $origin_of( (string) $key );
+			if ( ! $known || array( '*' ) === ( $sub_hidden[ $okey ] ?? null ) ) {
+				continue;
+			}
+			// Every role of the site: the only way to say that is "everybody".
+			$sub_hidden[ $okey ] = $roles && ! array_diff( $roles, $known ) ? array( '*' ) : $known;
+		}
+		$input['sub_hidden'] = $sub_hidden;
+		$map_keys = static function ( array $map ) use ( $origin_of ): array {
+			$out = array();
+			foreach ( $map as $key => $value ) {
+				$out[ $origin_of( (string) $key ) ] = $value;
+			}
+			return $out;
+		};
+		$input['sub_titles'] = $map_keys( (array) ( $model['sub_titles'] ?? array() ) );
+		$input['sub_moves']  = $map_keys( (array) ( $model['sub_moves'] ?? array() ) );
+		$input['item_caps']  = $map_keys( (array) ( $model['item_caps'] ?? array() ) );
+		$input['item_users'] = $map_keys( (array) ( $model['item_users'] ?? array() ) );
+
 		if ( $own_order ) {
 			$groups   = (array) ( $model['groups'] ?? array( $tops ) );
 			$cats     = array();
@@ -299,21 +335,28 @@ abstract class AbstractAdminSource extends AbstractSource {
 		foreach ( $safe['dropped'] as $slug => $why ) {
 			$explain[] = (string) $slug;
 			$labels    = MenuSimulator::protected_screens();
-			$warning   = sprintf(
+			$texts     = array(
 				/* translators: %s: screen name. */
-				'hidden' === $why
-					? __( 'The rule that hides "%s" was not transferred: the migration never hides UX Studio, Plugins, Users or Settings from administrators, so that nobody locks themselves out.', 'ux-studio' )
-					: __( 'The rule that limits "%s" to some roles was not transferred: it would have taken the screen away from the current user.', 'ux-studio' ),
-				$labels[ $slug ] ?? $slug
+				'hidden' => __( 'The rule that hides "%s" was not transferred: the migration never hides UX Studio, Plugins, Users or Settings from administrators, so that nobody locks themselves out.', 'ux-studio' ),
+				/* translators: %s: screen name. */
+				'roles'  => __( 'The rule that limits "%s" to some roles was not transferred: it would have taken the screen away from the current user.', 'ux-studio' ),
+				/* translators: %s: screen name. */
+				'user'   => __( 'The rule that hides "%s" from a single user was not transferred: UX Studio, Plugins, Users and Settings are never hidden by rules of users, so that nobody locks themselves out.', 'ux-studio' ),
+				/* translators: %s: screen name. */
+				'cap'    => __( 'The required capability on "%s" was not transferred: UX Studio, Plugins, Users and Settings never depend on an extra capability, so that nobody locks themselves out.', 'ux-studio' ),
+				/* translators: %s: screen name. */
+				'sub'    => __( 'The rule that hides the sub-item "%s" was not transferred: UX Studio, Plugins, Users and Settings are never hidden, so that nobody locks themselves out.', 'ux-studio' ),
 			);
+			$warning   = sprintf( $texts[ $why ] ?? $texts['hidden'], $labels[ $slug ] ?? $slug );
 			$m->warn( $warning );
 			$lossy[] = $warning;
 		}
 
 		$clean = MenuOrganizer::clean_config( $input, MenuOrganizer::default_config() );
-		$keys  = array( 'categories', 'category_order', 'assignments', 'order', 'item_titles', 'item_icons', 'item_roles', 'hidden_items', 'promoted_subs', 'custom_links' );
+		$sub_keys = array( 'sub_titles', 'sub_hidden', 'sub_moves', 'item_caps', 'item_users' );
+		$keys     = array_merge( array( 'categories', 'category_order', 'assignments', 'order', 'item_titles', 'item_icons', 'item_roles', 'hidden_items', 'promoted_subs', 'custom_links' ), $sub_keys );
 		if ( ! $own_order ) {
-			$keys = $keep_layout ? array( 'item_roles', 'hidden_items' ) : array( 'categories', 'category_order', 'item_roles', 'hidden_items' );
+			$keys = array_merge( $keep_layout ? array( 'item_roles', 'hidden_items' ) : array( 'categories', 'category_order', 'item_roles', 'hidden_items' ), $sub_keys );
 		}
 		// Keys the plugin left empty are not written: they would wipe what is already set up in the module.
 		$always = array( 'categories', 'category_order' );
@@ -338,13 +381,18 @@ abstract class AbstractAdminSource extends AbstractSource {
 				'hidden_items'   => __( 'Menu: hidden items', 'ux-studio' ),
 				'promoted_subs'  => __( 'Menu: sub-items moved to the top level', 'ux-studio' ),
 				'custom_links'   => __( 'Menu: custom links', 'ux-studio' ),
+				'sub_titles'     => __( 'Menu: renamed sub-items', 'ux-studio' ),
+				'sub_hidden'     => __( 'Menu: hidden sub-items', 'ux-studio' ),
+				'sub_moves'      => __( 'Menu: sub-items moved under another parent', 'ux-studio' ),
+				'item_caps'      => __( 'Menu: required capabilities', 'ux-studio' ),
+				'item_users'     => __( 'Menu: rules for single users', 'ux-studio' ),
 			),
 			$origin
 		);
 		$m->set( self::MODULE, 'menu_organizer_enabled', true, __( 'Enable menu organizer', 'ux-studio' ), $origin );
 
 		// Pages the plugin really blocks (not only hides): "Block access to hidden pages" does the same in UX Studio.
-		$lock = $this->lock_plan( $model, $clean, $bypass );
+		$lock = $this->lock_plan( $model, $clean, $bypass, $origin_of );
 		if ( $lock['open'] ) {
 			$labels   = MenuSimulator::protected_screens();
 			$lossy[] = sprintf(
@@ -381,24 +429,60 @@ abstract class AbstractAdminSource extends AbstractSource {
 			'roles'   => $roles,
 			'bypass'  => $bypass,
 			'explain' => array_values( array_unique( $explain ) ),
-			'config'  => array_merge( $input, array( 'hidden_items' => $clean['hidden_items'], 'item_roles' => $clean['item_roles'], 'assignments' => $clean['assignments'] ) ),
+			'config'  => array_merge(
+				$input,
+				array(
+					'hidden_items' => $clean['hidden_items'],
+					'item_roles'   => $clean['item_roles'],
+					'assignments'  => $clean['assignments'],
+					'sub_titles'   => $clean['sub_titles'],
+					'sub_hidden'   => $clean['sub_hidden'],
+					'sub_moves'    => $clean['sub_moves'],
+					'item_caps'    => $clean['item_caps'],
+					'item_users'   => $clean['item_users'],
+				)
+			),
 			'dropped' => $safe['dropped'],
 			'lock'    => $lock['pairs'],
+			'subs'    => $this->original_subs( $model, $origin_of ),
+			'caps'    => MenuSimulator::role_caps( $roles ),
 		);
+	}
+
+	/**
+	 * Sub-items of the model by their ORIGINAL parent (the parent WordPress registered them under), for the comparison.
+	 *
+	 * @param array<string, mixed> $model     Model.
+	 * @param callable             $origin_of display `parent>sub` => original `parent>sub`.
+	 * @return array<string, string[]>
+	 */
+	protected function original_subs( array $model, callable $origin_of ): array {
+		$out = array();
+		foreach ( (array) ( $model['subs'] ?? array() ) as $parent => $children ) {
+			foreach ( (array) $children as $sub ) {
+				$key = (string) call_user_func( $origin_of, $parent . '>' . $sub );
+				$pos = strpos( $key, '>' );
+				$top = false === $pos || 0 === $pos ? (string) $parent : substr( $key, 0, $pos );
+				$out[ $top ][] = (string) $sub;
+			}
+		}
+		return $out;
 	}
 
 	/**
 	 * Does the plugin block (not only hide) pages that end up in the Menu Organizer config? Then the lock is switched on.
 	 *
-	 * @param array<string, mixed> $model  Model.
-	 * @param array<string, mixed> $clean  Cleaned Menu Organizer config the mapping writes.
-	 * @param string[]             $bypass Roles that can manage options (never blocked).
-	 * @return array{on:bool,pairs:array<string,string[]>,stricter:string[],open:string[]} Pairs: slug => roles the plugin blocks; stricter: items the lock blocks although the plugin only hid them; open: protected screens the plugin blocks but UX Studio never does.
+	 * @param array<string, mixed> $model     Model.
+	 * @param array<string, mixed> $clean     Cleaned Menu Organizer config the mapping writes.
+	 * @param string[]             $bypass    Roles that can manage options (never blocked).
+	 * @param callable|null        $origin_of display `parent>sub` => original `parent>sub` (sub-items; null = same).
+	 * @return array{on:bool,pairs:array<string,string[]>,stricter:string[],open:string[]} Pairs: slug (or `parent>sub`) => roles the plugin blocks; stricter: items the lock blocks although the plugin only hid them; open: protected screens the plugin blocks but UX Studio never does.
 	 */
-	protected function lock_plan( array $model, array $clean, array $bypass ): array {
-		$open    = array();
-		$ruled   = array_values( array_unique( array_merge( array_keys( (array) $clean['item_roles'] ), array_map( 'strval', (array) $clean['hidden_items'] ) ) ) );
-		$blocked = array();
+	protected function lock_plan( array $model, array $clean, array $bypass, ?callable $origin_of = null ): array {
+		$origin_of = $origin_of ?? static fn( string $key ): string => $key;
+		$open      = array();
+		$ruled     = array_values( array_unique( array_merge( array_keys( (array) $clean['item_roles'] ), array_map( 'strval', (array) $clean['hidden_items'] ) ) ) );
+		$blocked   = array();
 		foreach ( (array) ( $model['denied'] ?? array() ) as $slug => $denied ) {
 			$roles = ! empty( $model['block_all'] ) ? (array) $denied : (array) ( $model['blocked'][ $slug ] ?? array() );
 			$roles = array_values( array_diff( array_map( 'strval', $roles ), $bypass ) );
@@ -412,6 +496,23 @@ abstract class AbstractAdminSource extends AbstractSource {
 			}
 			$blocked[ (string) $slug ] = $roles;
 		}
+		// Sub-items (B1): the same, keyed `original parent>sub`.
+		$ruled_subs = array_map( 'strval', array_keys( (array) ( $clean['sub_hidden'] ?? array() ) ) );
+		foreach ( (array) ( $model['denied_subs'] ?? array() ) as $dkey => $denied ) {
+			$key   = (string) call_user_func( $origin_of, (string) $dkey );
+			$roles = ! empty( $model['block_all'] ) ? (array) $denied : (array) ( $model['blocked_subs'][ $dkey ] ?? array() );
+			$roles = array_values( array_diff( array_map( 'strval', $roles ), $bypass ) );
+			if ( ! $roles || ! in_array( $key, $ruled_subs, true ) ) {
+				continue;
+			}
+			// Everything under UX Studio, Plugins, Users and Settings is never blocked (the same rule as the lock itself).
+			$parent_of = substr( $key, 0, (int) strpos( $key, '>' ) );
+			if ( MenuSimulator::is_protected_key( $key ) || isset( MenuSimulator::protected_screens()[ $parent_of ] ) ) {
+				$open[] = $parent_of;
+				continue;
+			}
+			$blocked[ $key ] = $roles;
+		}
 		$stricter = array();
 		if ( $blocked ) {
 			$everybody = array_map( 'strval', (array) ( $model['hidden'] ?? array() ) );
@@ -422,12 +523,22 @@ abstract class AbstractAdminSource extends AbstractSource {
 					$stricter[] = $slug;
 				}
 			}
+			foreach ( (array) ( $model['denied_subs'] ?? array() ) as $dkey => $denied ) {
+				$key = (string) call_user_func( $origin_of, (string) $dkey );
+				if ( ! in_array( $key, $ruled_subs, true ) ) {
+					continue;
+				}
+				$denied = array_values( array_diff( array_map( 'strval', (array) $denied ), $bypass ) );
+				if ( array_diff( $denied, $blocked[ $key ] ?? array() ) ) {
+					$stricter[] = (string) $dkey;
+				}
+			}
 		}
 		return array(
 			'on'       => (bool) $blocked,
 			'pairs'    => $blocked,
-			'stricter' => $stricter,
-			'open'     => $open,
+			'stricter' => array_values( array_unique( $stricter ) ),
+			'open'     => array_values( array_unique( $open ) ),
 		);
 	}
 
@@ -477,25 +588,31 @@ abstract class AbstractAdminSource extends AbstractSource {
 	/**
 	 * What the foreign plugin shows to each role: role => sorted keys (`slug` and `parent>sub`).
 	 *
-	 * @param array<string, mixed> $model Model.
-	 * @param string[]             $roles Role ids.
+	 * @param array<string, mixed>         $model Model.
+	 * @param string[]                     $roles Role ids.
+	 * @param array<string, string[]>|null $caps  Role => capabilities (an item with a required capability is not shown to a role without it).
 	 * @return array<string, string[]>
 	 */
-	protected function source_matrix( array $model, array $roles ): array {
+	protected function source_matrix( array $model, array $roles, ?array $caps = null ): array {
 		$out    = array();
 		$hidden = array_flip( array_map( 'strval', (array) ( $model['hidden'] ?? array() ) ) );
 		$hsubs  = array_flip( array_map( 'strval', (array) ( $model['hidden_subs'] ?? array() ) ) );
 		foreach ( $roles as $role ) {
+			$have = null === $caps ? null : array_map( 'strval', (array) ( $caps[ $role ] ?? array() ) );
+			$lack = static function ( string $key ) use ( $model, $have ): bool {
+				$cap = (string) ( $model['item_caps'][ $key ] ?? '' );
+				return '' !== $cap && null !== $have && ! in_array( $cap, $have, true );
+			};
 			$seen = array();
 			foreach ( (array) ( $model['tops'] ?? array() ) as $slug ) {
 				$slug = (string) $slug;
-				if ( isset( $hidden[ $slug ] ) || in_array( $role, (array) ( $model['denied'][ $slug ] ?? array() ), true ) ) {
+				if ( isset( $hidden[ $slug ] ) || in_array( $role, (array) ( $model['denied'][ $slug ] ?? array() ), true ) || $lack( $slug ) ) {
 					continue;
 				}
 				$seen[] = $slug;
 				foreach ( (array) ( $model['subs'][ $slug ] ?? array() ) as $sub ) {
 					$key = $slug . '>' . $sub;
-					if ( isset( $hsubs[ $key ] ) || in_array( $role, (array) ( $model['denied_subs'][ $key ] ?? array() ), true ) ) {
+					if ( isset( $hsubs[ $key ] ) || in_array( $role, (array) ( $model['denied_subs'][ $key ] ?? array() ), true ) || $lack( $key ) ) {
 						continue;
 					}
 					$seen[] = $key;
@@ -537,8 +654,9 @@ abstract class AbstractAdminSource extends AbstractSource {
 		}
 		$model = (array) $e['model'];
 		$roles = (array) $e['roles'];
-		$src   = $this->source_matrix( $model, $roles );
-		$dst   = MenuSimulator::target_matrix( $planned ? array_merge( MenuOrganizer::default_config(), (array) $e['config'] ) : $this->effective_menu_config(), array_map( 'strval', (array) $model['tops'] ), (array) ( $model['subs'] ?? array() ), $roles, (array) $e['bypass'] );
+		$caps  = isset( $e['caps'] ) ? (array) $e['caps'] : null;
+		$src   = $this->source_matrix( $model, $roles, $caps );
+		$dst   = MenuSimulator::target_matrix( $planned ? array_merge( MenuOrganizer::default_config(), (array) $e['config'] ) : $this->effective_menu_config(), array_map( 'strval', (array) $model['tops'] ), (array) ( $e['subs'] ?? $model['subs'] ?? array() ), $roles, (array) $e['bypass'], $caps );
 		$diff  = array();
 		$unex  = array();
 		$exp   = array_flip( (array) $e['explain'] );
@@ -547,7 +665,9 @@ abstract class AbstractAdminSource extends AbstractSource {
 			array_map( 'strval', (array) ( $model['hidden'] ?? array() ) ),
 			array_map( 'strval', array_keys( (array) ( $model['denied'] ?? array() ) ) ),
 			array_map( 'strval', (array) ( $model['hidden_subs'] ?? array() ) ),
-			array_map( 'strval', array_keys( (array) ( $model['denied_subs'] ?? array() ) ) )
+			array_map( 'strval', array_keys( (array) ( $model['denied_subs'] ?? array() ) ) ),
+			array_map( 'strval', array_keys( (array) ( $model['sub_moves'] ?? array() ) ) ),
+			array_map( 'strval', array_keys( (array) ( $model['item_caps'] ?? array() ) ) )
 		);
 		foreach ( $roles as $role ) {
 			$a = array_values( array_intersect( $src[ $role ] ?? array(), $ruled ) );
@@ -560,8 +680,8 @@ abstract class AbstractAdminSource extends AbstractSource {
 					$d,
 					static function ( string $key ) use ( $exp ): bool {
 						$top = false === strpos( $key, '>' ) ? $key : substr( $key, 0, (int) strpos( $key, '>' ) );
-						// Sub-items cannot be hidden one by one: a difference below a visible parent is a known loss.
-						return ! isset( $exp[ $key ] ) && ! isset( $exp[ $top ] ) && false === strpos( $key, '>' );
+						// A difference on an item the migration deliberately left out (protected screens, rules for administrators) is explained.
+						return ! isset( $exp[ $key ] ) && ! isset( $exp[ $top ] );
 					}
 				)
 			);
@@ -634,7 +754,7 @@ abstract class AbstractAdminSource extends AbstractSource {
 			);
 		}
 		if ( ! empty( $this->menu_expect['lock'] ) ) {
-			$matrix  = MenuSimulator::blocked_matrix( $this->effective_menu_config(), array_map( 'strval', (array) $model['tops'] ), (array) $this->menu_expect['roles'], (array) $this->menu_expect['bypass'] );
+			$matrix  = MenuSimulator::blocked_matrix( $this->effective_menu_config(), array_map( 'strval', (array) $model['tops'] ), (array) $this->menu_expect['roles'], (array) $this->menu_expect['bypass'], (array) ( $this->menu_expect['subs'] ?? array() ), (array) ( $this->menu_expect['caps'] ?? array() ) );
 			$missing = array();
 			foreach ( (array) $this->menu_expect['lock'] as $slug => $blocked_roles ) {
 				foreach ( (array) $blocked_roles as $role ) {
@@ -694,6 +814,23 @@ abstract class AbstractAdminSource extends AbstractSource {
 			}
 		}
 		return $out;
+	}
+
+	/**
+	 * The dashboard widgets from a list that the Dashboard Widgets module accepts (the ones it has seen on a dashboard).
+	 * The rest is named by note_unknown_widgets(); writing them anyway would only make the check fail afterwards.
+	 *
+	 * @param string[] $ids Widget ids.
+	 * @return string[]
+	 */
+	protected function known_widgets( array $ids ): array {
+		foreach ( (array) SettingsWriter::schema( 'dashboard-widgets' ) as $field ) {
+			if ( 'hidden_widgets' === ( $field['key'] ?? '' ) ) {
+				$known = array_map( 'strval', array_keys( (array) ( $field['options'] ?? array() ) ) );
+				return array_values( array_intersect( $ids, $known ) );
+			}
+		}
+		return $ids;
 	}
 
 	/**

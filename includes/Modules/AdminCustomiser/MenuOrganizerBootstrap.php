@@ -30,6 +30,9 @@ final class MenuOrganizerBootstrap {
 		add_action( 'admin_init', array( $organizer, 'disarm_conflicts' ), 999 );
 		add_filter( 'parent_file', array( $organizer, 'reorganize_at_render' ), 99999 );
 		add_filter( 'submenu_file', array( $organizer, 'reorganize_at_render' ), 99999 );
+		// B1: after the reorganization, point the highlight at the new parent of a moved sub-item.
+		add_filter( 'parent_file', array( $organizer, 'filter_parent_file' ), 100000 );
+		add_filter( 'submenu_file', array( $organizer, 'filter_submenu_file' ), 100000 );
 		add_action( 'admin_head', array( $organizer, 'output_menu_styles' ), 999 );
 		add_filter( 'admin_body_class', array( $organizer, 'add_body_class' ) );
 		add_action( 'admin_footer', array( $organizer, 'output_custom_link_script' ), 99 );
