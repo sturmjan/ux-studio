@@ -170,7 +170,7 @@ final class Conditions {
 					return sprintf( 'Condition %d: op must be equals, contains or regex.', $n );
 				}
 				if ( 'regex' === $op && ! self::regex_ok( $text ) ) {
-					return sprintf( 'Condition %d: the value is not a valid regular expression.', $n );
+					return sprintf( 'Condition %d: the value is not a valid regular expression, or it is too slow (avoid nested repeats such as (a+)+).', $n );
 				}
 				return $cond + array( 'op' => $op, 'value' => $text, 'negate' => $negate );
 
@@ -193,7 +193,7 @@ final class Conditions {
 					}
 				}
 				if ( 'regex' === $op && ! self::regex_ok( $text ) ) {
-					return sprintf( 'Condition %d: the value is not a valid regular expression.', $n );
+					return sprintf( 'Condition %d: the value is not a valid regular expression, or it is too slow (avoid nested repeats such as (a+)+).', $n );
 				}
 				return array( 'type' => $type, 'op' => $op, 'value' => $text, 'negate' => $negate );
 		}
@@ -356,8 +356,9 @@ final class Conditions {
 		$subject = substr( $subject, 0, self::MAX_SUBJECT );
 		switch ( $c['op'] ?? 'equals' ) {
 			case 'regex':
-				// Validated on save; a pattern that fails at run time (backtrack limit) simply does not match.
-				return 1 === @preg_match( self::delimit( $wanted ), $subject ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				// Validated on save; run with a short subject and a low backtrack limit (ReDoS): a pattern that
+				// fails at run time simply does not match.
+				return \UxStudio\Core\SafeRegex::match( self::delimit( $wanted ), $subject );
 			case 'contains':
 				return $ignorecase ? false !== stripos( $subject, $wanted ) : false !== strpos( $subject, $wanted );
 			default:
@@ -503,7 +504,7 @@ final class Conditions {
 	 * @param string $pattern Pattern without delimiters.
 	 */
 	public static function regex_ok( string $pattern ): bool {
-		return false !== @preg_match( self::delimit( $pattern ), '' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		return \UxStudio\Core\SafeRegex::probe( self::delimit( $pattern ) );
 	}
 
 	/**

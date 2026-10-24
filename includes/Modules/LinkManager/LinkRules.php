@@ -179,7 +179,7 @@ final class LinkRules {
 			return $subject === $pattern;
 		}
 		$regex = '/^' . str_replace( '\*', '.*', preg_quote( $pattern, '/' ) ) . '$/s';
-		return 1 === preg_match( $regex, $subject );
+		return \UxStudio\Core\SafeRegex::match( $regex, $subject );
 	}
 
 	/**

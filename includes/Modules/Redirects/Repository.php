@@ -206,7 +206,7 @@ final class Repository {
 			$matches = array();
 			// A case sensitive regex rule sees the path as the visitor typed it (and has no `i` flag).
 			$sensitive = ! empty( $rule['case_sensitive'] );
-			if ( 1 === @preg_match( self::delimit( (string) $rule['source_key'], $sensitive ), $sensitive ? Url::key( $path_cs ?? $path, $query ) : $subject, $matches ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- pattern validated on save; a bad one must not break the site.
+			if ( \UxStudio\Core\SafeRegex::match( self::delimit( (string) $rule['source_key'], $sensitive ), $sensitive ? Url::key( $path_cs ?? $path, $query ) : $subject, $matches ) ) { // Pattern validated on save; short subject + low backtrack limit (ReDoS), a bad one never breaks the site.
 				if ( ! self::conditions_hold( $rule, $context ) ) {
 					self::$skipped[] = (int) $rule['id'];
 					continue;
@@ -668,6 +668,8 @@ final class Repository {
 		} elseif ( 'regex' === $match_type ) {
 			if ( false === @preg_match( self::delimit( $source ), '' ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- validating user regex.
 				$errors[] = self::issue( 'invalid_regex', __( 'Source is not a valid regular expression.', 'ux-studio' ) );
+			} elseif ( ! \UxStudio\Core\SafeRegex::probe( self::delimit( $source ) ) ) {
+				$errors[] = self::issue( 'unsafe_regex', __( 'Source regular expression is too slow (it backtracks catastrophically). Avoid nested repeats such as (a+)+.', 'ux-studio' ) );
 			}
 			$source_key = $source;
 		} else {
@@ -741,7 +743,7 @@ final class Repository {
 				// The rule would match its own target: a query-less source
 				// matches any query (unless its query mode is "exact"), a regex may match the target path.
 				$self_match = 'regex' === $match_type
-					? 1 === @preg_match( self::delimit( $source_key ), $tkey ) // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+					? \UxStudio\Core\SafeRegex::match( self::delimit( $source_key ), $tkey )
 					: ( ! str_contains( $source_key, '?' ) && ! ( 'exact' === $query_mode && str_contains( $tkey, '?' ) ) && explode( '?', $tkey, 2 )[0] === ( $cs_mode ? $source_cs : $source_key ) );
 				if ( isset( $visited[ $tkey ] ) || $self_match ) {
 					$errors[] = self::issue( 'loop', __( 'This redirect would create a loop (the target leads back to the source).', 'ux-studio' ) );

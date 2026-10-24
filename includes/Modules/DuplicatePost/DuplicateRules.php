@@ -58,7 +58,7 @@ final class DuplicateRules {
 				continue;
 			}
 			$regex = '/^' . str_replace( '\*', '.*', preg_quote( $pattern, '/' ) ) . '$/s';
-			if ( 1 === preg_match( $regex, $key ) ) {
+			if ( \UxStudio\Core\SafeRegex::match( $regex, $key ) ) {
 				return true;
 			}
 		}

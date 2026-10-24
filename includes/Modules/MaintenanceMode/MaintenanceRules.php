@@ -101,7 +101,7 @@ final class MaintenanceRules {
 	 * @param string $pattern Pattern without delimiters.
 	 */
 	private static function regex_ok( string $pattern ): bool {
-		return false !== @preg_match( self::delimit( $pattern ), '' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		return \UxStudio\Core\SafeRegex::probe( self::delimit( $pattern ) );
 	}
 
 	/**
@@ -122,6 +122,7 @@ final class MaintenanceRules {
 		$path = (string) parse_url( $request_uri, PHP_URL_PATH );
 		$path = rawurldecode( $path );
 		$home = rtrim( $home_path, '/' );
+		$path = (string) preg_replace( '~/{2,}~', '/', str_replace( '\\', '/', $path ) );
 		if ( '' !== $home && ( $path === $home || 0 === strpos( $path, $home . '/' ) ) ) {
 			$path = substr( $path, strlen( $home ) );
 		}
@@ -136,6 +137,11 @@ final class MaintenanceRules {
 	 * @param array<int,array{type:string,value:string}> $rules Parsed rules.
 	 */
 	public static function path_excepted( string $path, array $rules ): bool {
+		// A path with `..` segments or doubled slashes is not what the exceptions were written for
+		// (`/kontakt/../admin` must not ride on `/kontakt/*`): never excepted.
+		if ( 1 === preg_match( '~(^|/)\.\.?(/|$)|//~', $path ) || false !== strpos( $path, '\\' ) || false !== strpos( rawurldecode( $path ), '..' ) ) {
+			return false;
+		}
 		foreach ( $rules as $rule ) {
 			switch ( $rule['type'] ) {
 				case 'exact':
@@ -147,13 +153,13 @@ final class MaintenanceRules {
 					$regex = '/^' . str_replace( '\*', '.*', preg_quote( $rule['value'], '/' ) ) . '$/s';
 					// `/kontakt/*` also covers `/kontakt` itself.
 					$base = '/*' === substr( $rule['value'], -2 ) ? substr( $rule['value'], 0, -2 ) : null;
-					if ( 1 === preg_match( $regex, $path ) || ( null !== $base && '' !== $base && $path === $base ) ) {
+					if ( \UxStudio\Core\SafeRegex::match( $regex, $path ) || ( null !== $base && '' !== $base && $path === $base ) ) {
 						return true;
 					}
 					break;
 				case 'regex':
 					// The path has no trailing slash; a pattern such as ^/en/ should still see the section address /en/.
-					if ( 1 === @preg_match( self::delimit( $rule['value'] ), $path ) || 1 === @preg_match( self::delimit( $rule['value'] ), $path . '/' ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+					if ( \UxStudio\Core\SafeRegex::match( self::delimit( $rule['value'] ), $path ) || \UxStudio\Core\SafeRegex::match( self::delimit( $rule['value'] ), $path . '/' ) ) {
 						return true;
 					}
 					break;
