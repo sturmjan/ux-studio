@@ -172,6 +172,13 @@ final class DB {
 		}
 		set_transient( self::FAIL_TRANSIENT_PREFIX . 'logged_' . $slug, 1, DAY_IN_SECONDS );
 		$error = (string) ( $wpdb->last_error ?? '' );
+		// last_error only knows the last query; the failed CREATE/ALTER may have been an earlier one.
+		foreach ( array_reverse( (array) ( $GLOBALS['EZSQL_ERROR'] ?? array() ) ) as $entry ) {
+			if ( is_array( $entry ) && self::is_structural_sql( (string) ( $entry['query'] ?? '' ) ) ) {
+				$error = (string) ( $entry['error_str'] ?? $error );
+				break;
+			}
+		}
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		error_log( sprintf( 'UX Studio: database upgrade of module %s (%d -> %d) failed, will retry: %s', $module_id, $from, $version, $error ) );
 		ActivityLog::log(
