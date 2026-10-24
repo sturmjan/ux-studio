@@ -27,7 +27,8 @@ def unescape(s):
 
 
 def escape(s):
-    return s.replace('\\', '\\\\').replace('"', '\\"')
+    # A real newline in the Czech text becomes the PO escape \n (it keeps msgid and msgstr in step).
+    return s.replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n')
 
 
 bad = []

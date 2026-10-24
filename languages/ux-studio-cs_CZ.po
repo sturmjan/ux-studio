@@ -25297,3 +25297,77 @@ msgstr "Spouštět, ověřovat, zobrazovat náhled a zapínat migrace z jiných 
 #: build/index.2f9eac38f7c168b5c18d.js:12
 msgid "Everything above, and the only scope that may set credentials and security-relevant settings, and see the hidden values (login address, allowlists). Also accepted by third party MCP adapters."
 msgstr "Vše výše, a jako jediný rozsah smí nastavovat přihlašovací údaje a nastavení důležitá pro bezpečnost a vidí skryté hodnoty (adresa přihlášení, seznamy povolených). Přijímá ho také MCP adaptéry třetích stran."
+
+#. translators: %s: site name.
+#: includes/Modules/SecurityOptimization/LoginUrlNotice.php:169
+msgid "[%s] Your custom login address is in force"
+msgstr "[%s] Vaše vlastní přihlašovací adresa platí"
+
+#. translators: 1: new login address, 2: link to the setting.
+#: includes/Modules/SecurityOptimization/LoginUrlNotice.php:174
+msgid "UX Studio has been updated. The custom login address you set up earlier is in force.\n\nLog in here:\n%1$s\n\nThe usual address (wp-login.php) does not show the login form. If you already log in this way, nothing changes for you. Save the address in your password manager.\n\nIf you do not want this, switch it off in UX Studio > Security > Login:\n%2$s\n\nIf you cannot log in at all, add this line to wp-config.php and the old address works again:\ndefine( 'UXSTUDIO_DISABLE_LOGIN_LOCK', true );"
+msgstr "UX Studio bylo aktualizováno. Vlastní přihlašovací adresa, kterou jste dříve nastavili, platí.\n\nPřihlaste se tady:\n%1$s\n\nObvyklá adresa (wp-login.php) přihlašovací formulář neukazuje. Pokud se už takto přihlašujete, pro vás se nic nemění. Adresu si uložte do správce hesel.\n\nPokud to nechcete, vypněte to v UX Studio > Zabezpečení > Přihlášení:\n%2$s\n\nPokud se nemůžete přihlásit vůbec, přidejte do wp-config.php tento řádek a stará adresa bude zase fungovat:\ndefine( 'UXSTUDIO_DISABLE_LOGIN_LOCK', true );"
+
+#: includes/Modules/SecurityOptimization/LoginUrlNotice.php:200
+msgid "The custom login address of this site is in force."
+msgstr "Vlastní přihlašovací adresa tohoto webu platí."
+
+#: includes/Modules/SecurityOptimization/LoginUrlNotice.php:201
+msgid "The custom login address set in UX Studio is in force. The usual wp-login.php does not show the login form. Log in here and save the address:"
+msgstr "Vlastní přihlašovací adresa nastavená v UX Studiu platí. Obvyklý wp-login.php přihlašovací formulář neukazuje. Přihlaste se tady a adresu si uložte:"
+
+#: includes/Modules/SecurityOptimization/LoginUrlNotice.php:219
+msgid "The custom login address is switched on, but it is not enforced."
+msgstr "Vlastní přihlašovací adresa je zapnutá, ale neuplatňuje se."
+
+#: includes/Modules/SecurityOptimization/LoginUrlNotice.php:220
+msgid "This site uses plain permalinks, where the custom login address cannot work. To keep you from being locked out, wp-login.php stays open. Choose a pretty permalink structure (for example Post name) and the custom address starts to apply."
+msgstr "Tento web používá prosté trvalé odkazy, u kterých vlastní přihlašovací adresa fungovat nemůže. Aby se nikdo nezamkl venku, zůstává wp-login.php otevřený. Zvolte hezkou strukturu trvalých odkazů (například Název příspěvku) a vlastní adresa se začne uplatňovat."
+
+#: includes/Modules/SecurityOptimization/LoginUrlNotice.php:221
+msgid "Open Settings > Permalinks"
+msgstr "Otevřít Nastavení > Trvalé odkazy"
+
+#: build/index.431c4a1e4d89cc1a2f08.js:23
+msgid "Everything changed after the migration in the places below is lost."
+msgstr "Všechno, co se po migraci změnilo v místech uvedených níže, se ztratí."
+
+#: build/index.431c4a1e4d89cc1a2f08.js:23
+msgid "The undo does not merge, it puts back the state from before the migration."
+msgstr "Vrácení nic neslučuje, vrací stav před migrací."
+
+#: build/index.431c4a1e4d89cc1a2f08.js:23
+msgid "Checking what the undo would restore…"
+msgstr "Kontroluje se, co by vrácení obnovilo…"
+
+#. translators: %s: names of modules.
+#: build/index.431c4a1e4d89cc1a2f08.js:24
+msgid "Modules whose settings are restored: %s"
+msgstr "Moduly, jejichž nastavení se obnoví: %s"
+
+#. translators: %s: names of database tables.
+#: build/index.431c4a1e4d89cc1a2f08.js:25
+msgid "Tables rebuilt from the backup: %s"
+msgstr "Tabulky obnovené ze zálohy: %s"
+
+#: build/index.431c4a1e4d89cc1a2f08.js:25
+msgid "It could not be checked whether anything changed since the migration."
+msgstr "Nepodařilo se zjistit, zda se od migrace něco změnilo."
+
+#: build/index.431c4a1e4d89cc1a2f08.js:25
+msgid "It cannot be told whether anything changed since the migration."
+msgstr "Nelze zjistit, zda se od migrace něco změnilo."
+
+#. translators: %s: names of modules or settings.
+#: build/index.431c4a1e4d89cc1a2f08.js:26
+msgid "Changed since the migration: settings of %s."
+msgstr "Od migrace se změnilo: nastavení modulů %s."
+
+#. translators: 1: table name, 2: rows after the migration, 3: rows now.
+#: build/index.431c4a1e4d89cc1a2f08.js:27
+msgid "Changed since the migration: table %1$s (%2$d rows after the migration, %3$d now)."
+msgstr "Od migrace se změnilo: tabulka %1$s (%2$d řádků po migraci, nyní %3$d)."
+
+#: build/index.431c4a1e4d89cc1a2f08.js:27
+msgid "I understand that these later changes will be lost."
+msgstr "Rozumím, že tyto pozdější změny se ztratí."
