@@ -1845,15 +1845,18 @@ final class Module extends BaseModule {
 		return defined( self::LOGIN_LOCK_CONST ) && constant( self::LOGIN_LOCK_CONST );
 	}
 
+	/** Transient that limits the collision log entry to one a day. */
+	private const COLLISION_LOG_TRANSIENT = 'uxstudio_login_url_collision';
+
 	private function login_slug(): string {
 		return trim( (string) $this->setting( 'login_url', '' ), '/' );
 	}
 
 	/**
 	 * Is the custom login address really in force on this site right now? The same conditions as the hooks
-	 * above (setting on, slug set, no kill switch) plus the fail-open collision check.
+	 * above (setting on, slug set, no kill switch) plus pretty permalinks and the fail-open collision check.
 	 *
-	 * @return array{active:bool,slug:string,url:string,reason:string} `reason`: why not (`off`, `empty`, `kill_switch`, `collision`) or ''.
+	 * @return array{active:bool,slug:string,url:string,reason:string} `reason`: why not (`off`, `empty`, `kill_switch`, `no_pretty_permalinks`, `collision`) or ''.
 	 */
 	public function login_lock_status(): array {
 		$slug   = $this->login_slug();
@@ -1864,6 +1867,10 @@ final class Module extends BaseModule {
 			$reason = 'empty';
 		} elseif ( $this->login_lock_disabled() ) {
 			$reason = 'kill_switch';
+		} elseif ( ! LoginUrl::permalinks_are_pretty( (string) get_option( 'permalink_structure', '' ) ) ) {
+			// Without pretty permalinks the slug is not routed (the address would be a 404 and the lock would
+			// close wp-login.php for good), so fail open and let the admin know.
+			$reason = 'no_pretty_permalinks';
 		} elseif ( $this->login_slug_collides( $slug ) ) {
 			$reason = 'collision';
 		}
@@ -1873,6 +1880,19 @@ final class Module extends BaseModule {
 			'url'    => '' === $slug ? '' : home_url( '/' . $slug . '/' ),
 			'reason' => $reason,
 		);
+	}
+
+	/**
+	 * login_lock_status() computed once per request (the collision check queries the database and walks the
+	 * rewrite rules).
+	 *
+	 * @return array{active:bool,slug:string,url:string,reason:string}
+	 */
+	private function lock_status_cached(): array {
+		if ( null === $this->lock_status ) {
+			$this->lock_status = $this->login_lock_status();
+		}
+		return $this->lock_status;
 	}
 
 	/** @var array{active:bool,slug:string,url:string,reason:string}|null Per request cache of login_lock_status(). */
@@ -1892,13 +1912,16 @@ final class Module extends BaseModule {
 		if ( 0 !== strpos( ltrim( $path, '/' ), 'wp-login.php' ) ) {
 			return $url;
 		}
-		if ( null === $this->lock_status ) {
-			$this->lock_status = $this->login_lock_status();
-		}
-		if ( ! $this->lock_status['active'] ) {
+		// The password form of a protected post posts to wp-login.php?action=postpass for every visitor: it stays
+		// there, so the secret address is never printed into public pages (and that action is never blocked).
+		if ( LoginUrl::is_public_action( $path ) ) {
 			return $url;
 		}
-		$swapped = LoginUrl::swap( $url, $path, $this->lock_status['url'] );
+		$status = $this->lock_status_cached();
+		if ( ! $status['active'] ) {
+			return $url;
+		}
+		$swapped = LoginUrl::swap( $url, $path, $status['url'] );
 		return $swapped === $url ? $url : set_url_scheme( $swapped );
 	}
 
@@ -1949,8 +1972,14 @@ final class Module extends BaseModule {
 	 */
 	public function handle_custom_login_url(): void {
 		$slug = $this->login_slug();
-		if ( '' === $slug || $this->login_slug_collides( $slug ) ) {
-			if ( '' !== $slug ) {
+		if ( '' === $slug ) {
+			return;
+		}
+		$status = $this->lock_status_cached();
+		if ( ! $status['active'] ) {
+			// At most one Activity Log row a day: this runs on every request of the site.
+			if ( 'collision' === $status['reason'] && false === get_transient( self::COLLISION_LOG_TRANSIENT ) ) {
+				set_transient( self::COLLISION_LOG_TRANSIENT, 1, DAY_IN_SECONDS );
 				ActivityLog::log( 'security-optimization', 'login_url_collision', 'setting', 0, array( 'slug' => $slug ) );
 			}
 			return;
@@ -1982,8 +2011,14 @@ final class Module extends BaseModule {
 			return;
 		}
 
-		$slug = $this->login_slug();
-		if ( '' === $slug || $this->login_slug_collides( $slug ) ) {
+		// The password form of protected posts (and nothing else) may always reach wp-login.php.
+		$action = isset( $_REQUEST['action'] ) ? sanitize_key( wp_unslash( (string) $_REQUEST['action'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( LoginUrl::is_public_action( 'wp-login.php?action=' . $action ) ) {
+			return;
+		}
+
+		// Fail open (kill switch, collision, no pretty permalinks): the usual address keeps working.
+		if ( ! $this->lock_status_cached()['active'] ) {
 			return;
 		}
 

@@ -8,6 +8,7 @@
 namespace UxStudio\Modules\SecurityOptimization;
 
 use UxStudio\Core\ActivityLog;
+use UxStudio\Core\Upgrade;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -74,20 +75,35 @@ final class LoginUrlNotice {
 				}
 			}
 		);
+		add_action(
+			'admin_notices',
+			static function () use ( $module ): void {
+				if ( ! current_user_can( 'manage_options' ) ) {
+					return;
+				}
+				$status = $module->login_lock_status();
+				if ( 'no_pretty_permalinks' === $status['reason'] ) {
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside render_permalinks_notice().
+					echo self::render_permalinks_notice( admin_url( 'options-permalink.php' ), self::settings_url() );
+				}
+			}
+		);
 		add_action( 'admin_post_' . self::ACTION, array( self::class, 'handle_dismiss' ) );
 	}
 
 	/**
 	 * What to do with the current state of the lock.
 	 *
-	 * @param array{handled:bool,active:bool} $ctx `handled`: the state option exists, `active`: the lock is in force.
+	 * @param array{handled:bool,active:bool,legacy:bool} $ctx `handled`: the state option exists, `active`: the lock is in force, `legacy`: the address was configured before this release.
 	 * @return string `done` (already handled), `record` (nothing to warn about, just remember we looked), `notify`.
 	 */
 	public static function decide( array $ctx ): string {
 		if ( ! empty( $ctx['handled'] ) ) {
 			return 'done';
 		}
-		return ! empty( $ctx['active'] ) ? 'notify' : 'record';
+		// Only a site that had the address configured BEFORE this release is told about it; a site that sets
+		// it up after the update did it on purpose and knows the address.
+		return ( ! empty( $ctx['active'] ) && ! empty( $ctx['legacy'] ) ) ? 'notify' : 'record';
 	}
 
 	/**
@@ -101,6 +117,7 @@ final class LoginUrlNotice {
 			array(
 				'handled' => false !== get_option( self::STATE, false ),
 				'active'  => ! empty( $status['active'] ),
+				'legacy'  => Upgrade::login_lock_was_configured(),
 			)
 		);
 		if ( 'done' === $decision ) {
@@ -149,13 +166,13 @@ final class LoginUrlNotice {
 		$to      = (string) get_option( 'admin_email', '' );
 		$subject = sprintf(
 			/* translators: %s: site name. */
-			__( '[%s] The login address of your site has changed', 'ux-studio' ),
+			__( '[%s] Your custom login address is in force', 'ux-studio' ),
 			wp_specialchars_decode( (string) get_option( 'blogname', '' ), ENT_QUOTES )
 		);
 		$body = sprintf(
 			/* translators: 1: new login address, 2: link to the setting. */
 			__(
-				"UX Studio has been updated and the custom login address you set up earlier is now really in force.\n\nLog in here from now on:\n%1\$s\n\nThe usual address (wp-login.php) no longer shows the login form. Save the new address in your password manager.\n\nIf you do not want this, switch it off in UX Studio > Security > Login:\n%2\$s\n\nIf you cannot log in at all, add this line to wp-config.php and the old address works again:\ndefine( 'UXSTUDIO_DISABLE_LOGIN_LOCK', true );",
+				"UX Studio has been updated. The custom login address you set up earlier is in force.\n\nLog in here:\n%1\$s\n\nThe usual address (wp-login.php) does not show the login form. If you already log in this way, nothing changes for you. Save the address in your password manager.\n\nIf you do not want this, switch it off in UX Studio > Security > Login:\n%2\$s\n\nIf you cannot log in at all, add this line to wp-config.php and the old address works again:\ndefine( 'UXSTUDIO_DISABLE_LOGIN_LOCK', true );",
 				'ux-studio'
 			),
 			$url,
@@ -180,13 +197,29 @@ final class LoginUrlNotice {
 	public static function render( string $url, string $dismiss_url, string $settings_url ): string {
 		// `below-h2` keeps WordPress and the Admin Customiser from moving or hiding this one: it must be seen.
 		return '<div id="uxstudio-login-url-notice" class="notice notice-warning below-h2 uxstudio-login-url-notice">'
-			. '<p><strong>' . esc_html__( 'The login address of this site has changed.', 'ux-studio' ) . '</strong></p>'
-			. '<p>' . esc_html__( 'The custom login address set in UX Studio is now really in force. The usual wp-login.php no longer shows the login form. Log in here from now on and save the address:', 'ux-studio' ) . '</p>'
+			. '<p><strong>' . esc_html__( 'The custom login address of this site is in force.', 'ux-studio' ) . '</strong></p>'
+			. '<p>' . esc_html__( 'The custom login address set in UX Studio is in force. The usual wp-login.php does not show the login form. Log in here and save the address:', 'ux-studio' ) . '</p>'
 			. '<p><code class="uxstudio-login-url-notice__url">' . esc_html( $url ) . '</code> '
 			. '<button type="button" class="button" data-copy="' . esc_attr( $url ) . '" data-done="' . esc_attr__( 'Copied', 'ux-studio' ) . '">' . esc_html__( 'Copy the address', 'ux-studio' ) . '</button></p>'
 			. '<p>' . esc_html__( 'You did not want this? Switch it off in the settings. Nothing was changed automatically.', 'ux-studio' ) . '</p>'
 			. '<p><a class="button button-primary" href="' . esc_url( $settings_url ) . '">' . esc_html__( 'Open Security > Login', 'ux-studio' ) . '</a> '
 			. '<a class="button" href="' . esc_url( $dismiss_url ) . '">' . esc_html__( 'I have saved it, hide this notice', 'ux-studio' ) . '</a></p>'
+			. '</div>';
+	}
+
+	/**
+	 * Warning that the custom login address is switched on but NOT enforced because the site has plain
+	 * permalinks (the address would be a 404 and wp-login.php would close for good). Everything escaped.
+	 *
+	 * @param string $permalinks_url Link to Settings > Permalinks.
+	 * @param string $settings_url   Link to Security > Login.
+	 */
+	public static function render_permalinks_notice( string $permalinks_url, string $settings_url ): string {
+		return '<div id="uxstudio-login-url-permalinks" class="notice notice-warning below-h2">'
+			. '<p><strong>' . esc_html__( 'The custom login address is switched on, but it is not enforced.', 'ux-studio' ) . '</strong></p>'
+			. '<p>' . esc_html__( 'This site uses plain permalinks, where the custom login address cannot work. To keep you from being locked out, wp-login.php stays open. Choose a pretty permalink structure (for example Post name) and the custom address starts to apply.', 'ux-studio' ) . '</p>'
+			. '<p><a class="button button-primary" href="' . esc_url( $permalinks_url ) . '">' . esc_html__( 'Open Settings > Permalinks', 'ux-studio' ) . '</a> '
+			. '<a class="button" href="' . esc_url( $settings_url ) . '">' . esc_html__( 'Open Security > Login', 'ux-studio' ) . '</a></p>'
 			. '</div>';
 	}
 

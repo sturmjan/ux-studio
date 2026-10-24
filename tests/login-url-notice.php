@@ -53,6 +53,8 @@ require_once $root . '/includes/Autoloader.php';
 \UxStudio\Autoloader::register();
 
 use UxStudio\Modules\SecurityOptimization\LoginUrlNotice;
+use UxStudio\Core\Upgrade;
+use UxStudio\Modules\SecurityOptimization\LoginUrl;
 
 $failures = 0;
 $assert   = static function ( string $name, bool $ok, string $detail = '' ) use ( &$failures ): void {
@@ -70,7 +72,8 @@ LoginUrlNotice::set_mailer(
 	}
 );
 $reset = static function () use ( &$mails ): void {
-	$GLOBALS['uxs_options'] = array( 'admin_email' => 'owner@example.test', 'blogname' => 'Test &amp; site' );
+	// A site that had the custom login address configured BEFORE this release (the upgrade routine recorded it).
+	$GLOBALS['uxs_options'] = array( 'admin_email' => 'owner@example.test', 'blogname' => 'Test &amp; site', Upgrade::LOGIN_LOCK_OPTION => array( 'configured' => true, 'time' => 1 ) );
 	$GLOBALS['uxs_meta']    = array();
 	$GLOBALS['uxs_log']     = array();
 	$mails                  = array();
@@ -80,9 +83,10 @@ $off    = array( 'active' => false, 'slug' => '', 'url' => '', 'reason' => 'off'
 
 /* ── Decision ── */
 
-$assert( 'decide: first load with the lock in force -> notify', 'notify' === LoginUrlNotice::decide( array( 'handled' => false, 'active' => true ) ) );
-$assert( 'decide: first load with the lock off (or fail-open collision, or kill switch) -> only record', 'record' === LoginUrlNotice::decide( array( 'handled' => false, 'active' => false ) ) );
-$assert( 'decide: after the first load -> done, whatever the lock does', 'done' === LoginUrlNotice::decide( array( 'handled' => true, 'active' => true ) ) && 'done' === LoginUrlNotice::decide( array( 'handled' => true, 'active' => false ) ) );
+$assert( 'decide: first load with the lock in force -> notify', 'notify' === LoginUrlNotice::decide( array( 'handled' => false, 'active' => true, 'legacy' => true ) ) );
+$assert( 'decide: first load with the lock off (or fail-open collision, or kill switch) -> only record', 'record' === LoginUrlNotice::decide( array( 'handled' => false, 'active' => false, 'legacy' => true ) ) );
+$assert( 'decide: after the first load -> done, whatever the lock does', 'done' === LoginUrlNotice::decide( array( 'handled' => true, 'active' => true, 'legacy' => true ) ) && 'done' === LoginUrlNotice::decide( array( 'handled' => true, 'active' => false ) ) );
+$assert( 'decide: lock set up for the first time AFTER the update (not configured before) -> only record, no e-mail', 'record' === LoginUrlNotice::decide( array( 'handled' => false, 'active' => true, 'legacy' => false ) ) );
 
 /* ── Once-only e-mail ── */
 
@@ -122,6 +126,37 @@ LoginUrlNotice::set_mailer(
 	}
 );
 
+/* ── Only sites that had the address configured before the update ── */
+
+$reset();
+unset( $GLOBALS['uxs_options'][ Upgrade::LOGIN_LOCK_OPTION ] );
+$assert( 'no upgrade marker (fresh 0.6.0 site): the first load with the lock in force sends nothing', 'record' === LoginUrlNotice::handle_first_load( $active ) && 0 === count( $mails ) && ! LoginUrlNotice::visible_for( 1 ) );
+
+// The upgrade routine reads the settings as the PREVIOUS release left them.
+$reset();
+unset( $GLOBALS['uxs_options'][ Upgrade::LOGIN_LOCK_OPTION ] );
+$GLOBALS['uxs_options']['uxstudio_security_optimization'] = array( 'login_url_enabled' => true, 'login_url' => 'moje-prihlaseni' );
+Upgrade::record_login_lock();
+$assert( 'upgrade routine: lock configured before the update is remembered', true === Upgrade::login_lock_was_configured() );
+$GLOBALS['uxs_options']['uxstudio_security_optimization'] = array( 'login_url_enabled' => false, 'login_url' => '' );
+Upgrade::record_login_lock();
+$assert( 'upgrade routine: the marker is written once, a later change of the setting does not rewrite it', true === Upgrade::login_lock_was_configured() );
+
+$reset();
+unset( $GLOBALS['uxs_options'][ Upgrade::LOGIN_LOCK_OPTION ] );
+$GLOBALS['uxs_options']['uxstudio_security_optimization'] = array( 'login_url_enabled' => true, 'login_url' => '/' );
+Upgrade::record_login_lock();
+$assert( 'upgrade routine: enabled but empty slug counts as not configured', false === Upgrade::login_lock_was_configured() );
+$GLOBALS['uxs_options']['uxstudio_security_optimization'] = array( 'login_url_enabled' => true, 'login_url' => 'moje' );
+$assert( 'user configures the lock AFTER the update: still no e-mail (marker says not configured before)', 'record' === LoginUrlNotice::handle_first_load( $active ) && 0 === count( $mails ) );
+
+/* ── Wording is neutral (the lock may already have worked in 0.5.0) ── */
+
+$reset();
+LoginUrlNotice::handle_first_load( $active );
+$assert( 'mail: does not claim the address changed', false === stripos( $mails[0]['subject'] . $mails[0]['body'], 'changed' ) && false !== strpos( $mails[0]['body'], 'nothing changes for you' ), $mails[0]['subject'] );
+$assert( 'notice: does not claim the address changed', false === stripos( LoginUrlNotice::render( $active['url'], '#', '#' ), 'has changed' ) );
+
 /* ── Who sees the notice ── */
 
 $reset();
@@ -144,19 +179,29 @@ $assert( 'the notice script exists and only touches the notice', is_file( $root 
 
 /* ── The login form must post to the custom address (found live: it posted to the closed wp-login.php) ── */
 
-use UxStudio\Modules\SecurityOptimization\LoginUrl;
 $base = 'https://example.test/pobyty/moje-prihlaseni/';
 $assert( 'login url: the form action wp-login.php goes to the custom address', $base === LoginUrl::swap( 'https://example.test/pobyty/wp-login.php', 'wp-login.php', $base ) );
 $assert( 'login url: query strings stay (lost password, checkemail, redirect_to)', $base . '?action=lostpassword' === LoginUrl::swap( 'x', 'wp-login.php?action=lostpassword', $base ) && $base . '?redirect_to=a%2Fb' === LoginUrl::swap( 'x', '/wp-login.php?redirect_to=a%2Fb', $base ) );
 $assert( 'login url: other paths and look-alikes are untouched', 'U' === LoginUrl::swap( 'U', 'wp-admin/admin-ajax.php', $base ) && 'U' === LoginUrl::swap( 'U', 'wp-login.php.bak', $base ) && 'U' === LoginUrl::swap( 'U', 'xwp-login.php', $base ) );
 $assert( 'login url: without a custom address nothing is rewritten', 'U' === LoginUrl::swap( 'U', 'wp-login.php', '' ) );
 
+/* ── Public wp-login.php actions and permalinks ── */
+
+$assert( 'postpass (password form of a protected post) is a public action, with or without a leading slash', LoginUrl::is_public_action( 'wp-login.php?action=postpass' ) && LoginUrl::is_public_action( '/wp-login.php?action=postpass' ) && LoginUrl::is_public_action( 'wp-login.php?foo=1&action=postpass' ) );
+$assert( 'logout, lostpassword, rp, resetpass, confirmaction and the plain login are NOT public (they are rewritten to the custom address)', ! LoginUrl::is_public_action( 'wp-login.php?action=logout' ) && ! LoginUrl::is_public_action( 'wp-login.php?action=rp' ) && ! LoginUrl::is_public_action( 'wp-login.php?action=resetpass' ) && ! LoginUrl::is_public_action( 'wp-login.php?action=confirmaction' ) && ! LoginUrl::is_public_action( 'wp-login.php?action=lostpassword' ) && ! LoginUrl::is_public_action( 'wp-login.php' ) );
+$assert( 'look-alikes of postpass and other files are not public', ! LoginUrl::is_public_action( 'wp-login.php?action=postpass2' ) && ! LoginUrl::is_public_action( 'wp-login.php?action[]=postpass' ) && ! LoginUrl::is_public_action( 'wp-admin/admin-ajax.php?action=postpass' ) );
+$assert( 'pretty permalinks: /%postname%/ yes; plain and /index.php/ (PATHINFO) no', LoginUrl::permalinks_are_pretty( '/%postname%/' ) && LoginUrl::permalinks_are_pretty( '/blog/%year%/%postname%/' ) && ! LoginUrl::permalinks_are_pretty( '' ) && ! LoginUrl::permalinks_are_pretty( '/index.php/%postname%/' ) && ! LoginUrl::permalinks_are_pretty( '  ' ) );
+$permalinks = LoginUrlNotice::render_permalinks_notice( 'https://example.test/wp-admin/options-permalink.php', LoginUrlNotice::settings_url() );
+$assert( 'plain permalinks notice: explains it, links to Permalinks and to Security > Login, escapes', false !== strpos( $permalinks, 'options-permalink.php' ) && false !== strpos( $permalinks, 'tab=login' ) && false !== strpos( $permalinks, 'not enforced' ) && false === strpos( LoginUrlNotice::render_permalinks_notice( '"><script>', '#' ), '<script>' ) );
+
 /* ── The module decides "in force" with the same conditions as its hooks ── */
 
 $src = (string) file_get_contents( $root . '/includes/Modules/SecurityOptimization/Module.php' );
 $assert( 'module: status function exists and the notice is registered from the module boot', 1 === preg_match( '/function login_lock_status\(\): array/', $src ) && false !== strpos( $src, 'LoginUrlNotice::register( $this )' ) );
 $assert( 'module: the site_url filters that send the form to the custom address are hooked together with the lock', false !== strpos( $src, "add_filter( 'site_url', array( \$this, 'filter_login_site_url'" ) && false !== strpos( $src, "add_filter( 'network_site_url'" ) );
-$assert( 'module: status covers off, empty slug, kill switch and the fail-open collision', 1 === preg_match( "/'off'.*'empty'.*'kill_switch'.*'collision'/s", substr( $src, (int) strpos( $src, 'function login_lock_status' ), 900 ) ) );
+$assert( 'module: status covers off, empty slug, kill switch, plain permalinks and the fail-open collision', 1 === preg_match( "/'off'.*'empty'.*'kill_switch'.*'no_pretty_permalinks'.*'collision'/s", substr( $src, (int) strpos( $src, 'function login_lock_status' ), 1500 ) ) );
+$assert( 'module: the direct-login block uses the same status (fails open on plain permalinks), lets postpass through, never filters postpass', false !== strpos( $src, '! $this->lock_status_cached()' . "['active']" ) && 1 === preg_match( '/function block_direct_wp_login.*is_public_action.*lock_status_cached/s', $src ) && 1 === preg_match( '/function filter_login_site_url.*is_public_action/s', $src ) );
+$assert( 'module: the collision is logged at most once a day (transient)', 1 === preg_match( '/COLLISION_LOG_TRANSIENT.*DAY_IN_SECONDS.*login_url_collision/s', substr( $src, (int) strpos( $src, 'function handle_custom_login_url' ), 1200 ) ) );
 
 echo PHP_EOL . ( $failures ? "$failures FAILED" : 'ALL PASSED' ) . PHP_EOL;
 exit( $failures ? 1 : 0 );
