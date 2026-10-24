@@ -134,6 +134,11 @@ function get_plugins() { return $GLOBALS['uxs_plugins']; }
 $GLOBALS['uxs_plugins'] = array();
 
 function _get_cron_array() { return $GLOBALS['uxs_cron']; }
+function wp_parse_url( $url, $component = -1 ) { return parse_url( $url, $component ); }
+function esc_url_raw( $url, $protocols = null ) { $url = trim( (string) $url ); return preg_match( '#^https?://#i', $url ) ? $url : ''; }
+function wp_get_schedules() { return array( 'hourly' => array( 'interval' => 3600, 'display' => 'Hourly' ), 'daily' => array( 'interval' => 86400, 'display' => 'Daily' ) ); }
+function wp_get_scheduled_event( $hook, $args = array() ) { foreach ( $GLOBALS['uxs_cron'] as $ts => $events ) { if ( isset( $events[ $hook ][ md5( serialize( $args ) ) ] ) ) { $e = $events[ $hook ][ md5( serialize( $args ) ) ]; return (object) array( 'hook' => $hook, 'timestamp' => $ts, 'schedule' => $e['schedule'] ?? false, 'args' => $args ); } } return false; }
+function wp_schedule_event( $ts, $recurrence, $hook, $args = array() ) { if ( ! in_array( $recurrence, array( 'hourly', 'daily', 'every_5' ), true ) ) { return false; } $GLOBALS['uxs_cron'][ $ts ][ $hook ][ md5( serialize( $args ) ) ] = array( 'args' => $args, 'schedule' => $recurrence ); return true; }
 function wp_next_scheduled( $hook, $args = array() ) { foreach ( $GLOBALS['uxs_cron'] as $ts => $events ) { if ( isset( $events[ $hook ][ md5( serialize( $args ) ) ] ) || ( ! $args && isset( $events[ $hook ] ) ) ) { return $ts; } } return false; }
 function wp_schedule_single_event( $ts, $hook, $args = array() ) { $GLOBALS['uxs_cron'][ $ts ][ $hook ][ md5( serialize( $args ) ) ] = array( 'args' => $args ); return true; }
 function wp_unschedule_event( $ts, $hook, $args = array() ) { unset( $GLOBALS['uxs_cron'][ $ts ][ $hook ][ md5( serialize( $args ) ) ] ); if ( empty( $GLOBALS['uxs_cron'][ $ts ][ $hook ] ) ) { unset( $GLOBALS['uxs_cron'][ $ts ][ $hook ] ); } return true; }
@@ -216,8 +221,11 @@ $rich = static fn( string $key ) => array( 'key' => $key, 'type' => 'richtext', 
 
 $schemas = array(
 	'smtp-email'          => array(
-		$sel( 'mailer', array( 'smtp', 'brevo', 'gmail' ), 'smtp' ), $txt( 'from_email' ), $tog( 'force_from_email' ), $txt( 'from_name' ), $tog( 'force_from_name' ),
+		$sel( 'mailer', array( 'smtp', 'brevo', 'gmail', 'sendgrid', 'mailgun', 'postmark', 'ses' ), 'smtp' ), $sel( 'fallback_mailer', array( 'none', 'smtp', 'brevo', 'gmail', 'sendgrid', 'mailgun', 'postmark', 'ses' ), 'none' ),
+		$txt( 'from_email' ), $tog( 'force_from_email' ), $txt( 'from_name' ), $tog( 'force_from_name' ),
 		$txt( 'host' ), $num( 'port', 587 ), $sel( 'encryption', array( 'tls', 'ssl', 'none' ), 'tls' ), $txt( 'username' ), $txt( 'gmail_client_id' ),
+		$sel( 'sendgrid_region', array( 'global', 'eu' ), 'global' ), $txt( 'mailgun_domain' ), $sel( 'mailgun_region', array( 'us', 'eu' ), 'us' ),
+		$txt( 'postmark_message_stream' ), $sel( 'ses_region', \UxStudio\Modules\SmtpEmail\Providers::SES_REGIONS, 'us-east-1' ),
 	),
 	'email-log'           => array( $num( 'retention_days', 30 ), $tog( 'detect_source', true ) ),
 	'activity-log'        => array( $num( 'retention_days', 180 ), $tog( 'alert_new_ip' ) ),
@@ -937,9 +945,9 @@ Staging::apply( $run['id'] );
 $assert( 'wp-mail-smtp: Staging::apply makes the mail settings live', 'smtp.firma.cz' === $opt( 'uxstudio_smtp_email' )['host'] && 'Heslo#1' === Security::get_secret( 'uxstudio_secret_smtp_password' ) );
 
 // Unreadable password + unsupported mailer.
-$site( array( 'wp-mail-smtp' ), array( 'wp-mail-smtp' ), array( 'wp_mail_smtp' => array( 'mail' => array( 'mailer' => 'sendgrid', 'from_email' => 'a@b.cz' ), 'smtp' => array( 'pass' => $enc( 'x' ) ) ) ) );
+$site( array( 'wp-mail-smtp' ), array( 'wp-mail-smtp' ), array( 'wp_mail_smtp' => array( 'mail' => array( 'mailer' => 'mailjet', 'from_email' => 'a@b.cz' ), 'smtp' => array( 'pass' => $enc( 'x' ) ) ) ) );
 $plan = SourceRegistry::get( 'wp-mail-smtp' )->plan();
-$assert( 'wp-mail-smtp: an unsupported mailer is named and only the sender moves', $lossy_has( $plan, '"sendgrid"' ) && 'smtp' === array_column( $plan['transfer'], 'to', 'key' )['mailer'] );
+$assert( 'wp-mail-smtp: an unsupported mailer is named and only the sender moves', $lossy_has( $plan, '"mailjet"' ) && 'smtp' === array_column( $plan['transfer'], 'to', 'key' )['mailer'] && ! $lossy_has( $plan, 'could not be decrypted' ), json_encode( $plan['lossy'] ) );
 $site( array( 'wp-mail-smtp' ), array( 'wp-mail-smtp' ), array( 'wp_mail_smtp' => array( 'mail' => array( 'mailer' => 'smtp' ), 'smtp' => array( 'host' => 'h', 'user' => 'u', 'pass' => $enc( 'x' ) ) ) ) );
 $assert( 'wp-mail-smtp: a password that cannot be decrypted (no key) is reported', $lossy_has( SourceRegistry::get( 'wp-mail-smtp' )->plan(), 'could not be decrypted' ) );
 $site( array( 'wp-mail-smtp' ), array( 'wp-mail-smtp' ), array( 'wp_mail_smtp' => array( 'mail' => array( 'mailer' => 'gmail' ), 'gmail' => array( 'client_id' => 'cid', 'client_secret' => $enc( 'csec' ), 'refresh_token' => 'REFRESH-TOKEN-VALUE' ) ), 'wp_mail_smtp_mail_key' => base64_encode( $key ) ) );
@@ -950,7 +958,7 @@ $assert( 'wp-mail-smtp (Gmail): client id + secret move, the OAuth token does no
 $site( array( 'easy-wp-smtp' ), array( 'easy-wp-smtp' ), array( 'easy_wp_smtp' => array( 'mail' => array( 'mailer' => 'smtp', 'from_email' => 'e@x.cz' ), 'smtp' => array( 'host' => 'easy.host', 'port' => 587, 'encryption' => 'tls', 'user' => 'u', 'pass' => $enc( 'easy-pass' ) ) ), 'easy_wp_smtp_mail_key' => base64_encode( $key ) ) );
 SourceRegistry::get( 'easy-wp-smtp' )->migrate( array( 'run_id' => 'rs3' ), false );
 $assert( 'easy-wp-smtp: own option + key option decrypt', 'easy.host' === $opt( 'uxstudio_smtp_email' )['host'] && 'easy-pass' === Security::get_secret( 'uxstudio_secret_smtp_password' ) );
-$site( array( 'post-smtp' ), array( 'post-smtp' ), array( 'postman_options' => array( 'transport_type' => 'smtp', 'sender_email' => 'p@x.cz', 'sender_name' => 'P', 'hostname' => 'post.host', 'port' => 25, 'enc_type' => 'none', 'auth_type' => 'plain', 'basic_auth_username' => 'pu', 'basic_auth_password' => base64_encode( 'post-pass' ), 'prevent_sender_email_override' => 'true', 'fallback_smtp_enabled' => 'true' ) ) );
+$site( array( 'post-smtp' ), array( 'post-smtp' ), array( 'postman_options' => array( 'transport_type' => 'smtp', 'sender_email' => 'p@x.cz', 'sender_name' => 'P', 'hostname' => 'post.host', 'port' => 25, 'enc_type' => 'none', 'auth_type' => 'plain', 'basic_auth_username' => 'pu', 'basic_auth_password' => base64_encode( 'post-pass' ), 'prevent_sender_email_override' => 'true', 'fallback_smtp_enabled' => 'true', 'fallback_smtp_hostname' => 'fallback.host' ) ) );
 $plan = SourceRegistry::get( 'post-smtp' )->plan();
 SourceRegistry::get( 'post-smtp' )->migrate( array( 'run_id' => 'rs4' ), false );
 $assert( 'post-smtp: base64 password, force sender and fallback server (reported)', 'post-pass' === Security::get_secret( 'uxstudio_secret_smtp_password' ) && true === $opt( 'uxstudio_smtp_email' )['force_from_email'] && 'none' === $opt( 'uxstudio_smtp_email' )['encryption'] && $lossy_has( $plan, 'fallback' ) );
@@ -966,6 +974,67 @@ $site( array( 'fluent-smtp' ), array( 'fluent-smtp' ), array( 'fluentmail-settin
 $plan = SourceRegistry::get( 'fluent-smtp' )->plan();
 SourceRegistry::get( 'fluent-smtp' )->migrate( array( 'run_id' => 'rs5' ), false );
 $assert( 'fluent-smtp: the default connection is used, its secret decrypted; several connections reported', 'fl.host' === $opt( 'uxstudio_smtp_email' )['host'] && 'fl-pass' === Security::get_secret( 'uxstudio_secret_smtp_password' ) && $lossy_has( $plan, '2 connections' ) );
+
+/* B4 (PLAN.md 27.10): SendGrid, Mailgun, Postmark, Amazon SES and the fallback connection. */
+
+$col  = static fn( array $plan ): array => array_column( $plan['transfer'], 'to', 'key' );
+$smtp = static fn(): array => (array) $opt( 'uxstudio_smtp_email' );
+$sec  = static fn( string $name ): string => Security::get_secret( 'uxstudio_secret_smtp_' . $name );
+
+$site( array( 'wp-mail-smtp' ), array( 'wp-mail-smtp' ), array( 'wp_mail_smtp' => array( 'mail' => array( 'mailer' => 'sendgrid', 'from_email' => 'a@b.cz' ), 'sendgrid' => array( 'api_key' => 'SG.plain.key' ) ) ) );
+$plan = SourceRegistry::get( 'wp-mail-smtp' )->plan();
+$assert( 'wp-mail-smtp (SendGrid): mailer and key are planned, the key is never shown, nothing lossy', 'sendgrid' === $col( $plan )['mailer'] && '********' === $col( $plan )['uxstudio_secret_smtp_sendgrid_api_key'] && false === strpos( json_encode( $plan ), 'SG.plain.key' ) && array() === $plan['lossy'], json_encode( $plan['lossy'] ) );
+SourceRegistry::get( 'wp-mail-smtp' )->migrate( array( 'run_id' => 'rb1' ), false );
+$assert( 'wp-mail-smtp (SendGrid): written; the key sits in the secret, not in the settings', 'sendgrid' === $smtp()['mailer'] && 'SG.plain.key' === $sec( 'sendgrid_api_key' ) && ! isset( $smtp()['sendgrid_api_key'] ) );
+
+$site( array( 'wp-mail-smtp' ), array( 'wp-mail-smtp' ), array( 'wp_mail_smtp' => array( 'mail' => array( 'mailer' => 'mailgun' ), 'mailgun' => array( 'api_key' => $enc( 'key-mg-1' ), 'domain' => 'mg.firma.cz', 'region' => 'EU' ) ), 'wp_mail_smtp_mail_key' => base64_encode( $key ) ) );
+SourceRegistry::get( 'wp-mail-smtp' )->migrate( array( 'run_id' => 'rb2' ), false );
+$assert( 'wp-mail-smtp (Mailgun): an encrypted key is decrypted, domain and EU region move', 'mailgun' === $smtp()['mailer'] && 'key-mg-1' === $sec( 'mailgun_api_key' ) && 'mg.firma.cz' === $smtp()['mailgun_domain'] && 'eu' === $smtp()['mailgun_region'], json_encode( $smtp() ) );
+
+$site( array( 'wp-mail-smtp' ), array( 'wp-mail-smtp' ), array( 'wp_mail_smtp' => array( 'mail' => array( 'mailer' => 'postmark' ), 'postmark' => array( 'server_api_token' => 'pm-token-1', 'message_stream' => 'broadcast' ) ) ) );
+SourceRegistry::get( 'wp-mail-smtp' )->migrate( array( 'run_id' => 'rb3' ), false );
+$assert( 'wp-mail-smtp (Postmark): token and message stream', 'postmark' === $smtp()['mailer'] && 'pm-token-1' === $sec( 'postmark_server_token' ) && 'broadcast' === $smtp()['postmark_message_stream'] );
+
+$site( array( 'wp-mail-smtp' ), array( 'wp-mail-smtp' ), array( 'wp_mail_smtp' => array( 'mail' => array( 'mailer' => 'amazonses' ), 'amazonses' => array( 'client_id' => 'AKIAEXAMPLE', 'client_secret' => 'wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY', 'region' => 'eu-central-1' ) ), 'wp_mail_smtp_mail_key' => base64_encode( $key ) ) );
+$plan = SourceRegistry::get( 'wp-mail-smtp' )->plan();
+SourceRegistry::get( 'wp-mail-smtp' )->migrate( array( 'run_id' => 'rb4' ), false );
+$assert( 'wp-mail-smtp (Amazon SES): the 40-character secret (looks like base64) stays intact, region moves', 'ses' === $smtp()['mailer'] && 'AKIAEXAMPLE' === $sec( 'ses_access_key' ) && 'wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY' === $sec( 'ses_secret_key' ) && 'eu-central-1' === $smtp()['ses_region'] && false === strpos( json_encode( $plan ), 'wJalrXUtnFEMI' ) && array() === $plan['lossy'], json_encode( $plan['lossy'] ) );
+$site( array( 'wp-mail-smtp' ), array( 'wp-mail-smtp' ), array( 'wp_mail_smtp' => array( 'mail' => array( 'mailer' => 'amazonses' ), 'amazonses' => array( 'client_id' => 'AK', 'client_secret' => 'S', 'region' => 'eusc-de-east-1' ) ) ) );
+$plan = SourceRegistry::get( 'wp-mail-smtp' )->plan();
+$assert( 'wp-mail-smtp (Amazon SES): a region the module does not offer is reported', $lossy_has( $plan, 'region "eusc-de-east-1"' ) && 'us-east-1' === $col( $plan )['ses_region'], json_encode( $plan['lossy'] ) );
+
+// Easy WP SMTP has the same groups under its own option and constants.
+$site( array( 'easy-wp-smtp' ), array( 'easy-wp-smtp' ), array( 'easy_wp_smtp' => array( 'mail' => array( 'mailer' => 'sendgrid' ), 'sendgrid' => array( 'api_key' => 'SG.easy' ) ) ) );
+SourceRegistry::get( 'easy-wp-smtp' )->migrate( array( 'run_id' => 'rb5' ), false );
+$assert( 'easy-wp-smtp (SendGrid): same scheme, own option', 'sendgrid' === $smtp()['mailer'] && 'SG.easy' === $sec( 'sendgrid_api_key' ) );
+
+// Post SMTP: API transports with base64 keys; its fallback SMTP server becomes the fallback connection.
+$site( array( 'post-smtp' ), array( 'post-smtp' ), array( 'postman_options' => array( 'transport_type' => 'mailgun_api', 'sender_email' => 'p@x.cz', 'mailgun_api_key' => base64_encode( 'key-post' ), 'mailgun_domain_name' => 'mg.post.cz', 'mailgun_region' => 'on', 'fallback_smtp_enabled' => 'true', 'fallback_smtp_hostname' => 'fb.post.cz', 'fallback_smtp_port' => '2525', 'fallback_smtp_security' => 'ssl', 'fallback_smtp_use_auth' => 'true', 'fallback_smtp_username' => 'fbu', 'fallback_smtp_password' => base64_encode( base64_encode( 'fb-secret' ) ) ) ) );
+$plan = SourceRegistry::get( 'post-smtp' )->plan();
+SourceRegistry::get( 'post-smtp' )->migrate( array( 'run_id' => 'rb6' ), false );
+$assert( 'post-smtp (Mailgun + fallback SMTP): primary, fallback_mailer, fallback server and its (double base64) password', 'mailgun' === $smtp()['mailer'] && 'key-post' === $sec( 'mailgun_api_key' ) && 'eu' === $smtp()['mailgun_region'] && 'smtp' === $smtp()['fallback_mailer'] && 'fb.post.cz' === $smtp()['host'] && 2525 === (int) $smtp()['port'] && 'ssl' === $smtp()['encryption'] && 'fbu' === $smtp()['username'] && 'fb-secret' === $sec( 'password' ) && array() === $plan['lossy'], json_encode( $plan['lossy'] ) . json_encode( $smtp() ) );
+$site( array( 'post-smtp' ), array( 'post-smtp' ), array( 'postman_options' => array( 'transport_type' => 'sendgrid_api', 'sendgrid_api_key' => base64_encode( 'SG.post' ), 'sendgrid_region' => 'EU' ) ) );
+SourceRegistry::get( 'post-smtp' )->migrate( array( 'run_id' => 'rb7' ), false );
+$assert( 'post-smtp (SendGrid, EU region)', 'sendgrid' === $smtp()['mailer'] && 'SG.post' === $sec( 'sendgrid_api_key' ) && 'eu' === $smtp()['sendgrid_region'] );
+$site( array( 'post-smtp' ), array( 'post-smtp' ), array( 'postman_options' => array( 'transport_type' => 'postmark_api', 'postmark_api_key' => base64_encode( 'pm-post' ) ) ) );
+SourceRegistry::get( 'post-smtp' )->migrate( array( 'run_id' => 'rb8' ), false );
+$assert( 'post-smtp (Postmark)', 'postmark' === $smtp()['mailer'] && 'pm-post' === $sec( 'postmark_server_token' ) );
+
+// FluentSMTP: default connection = primary, `misc.fallback_connection` = fallback, the rest is reported.
+$fl = static fn( array $extra = array() ): array => array( 'fluentmail-settings' => array_merge( array( 'use_encrypt' => 'yes', 'misc' => array( 'default_connection' => 'a', 'fallback_connection' => 'b' ), 'connections' => array(
+	'a' => array( 'provider_settings' => array( 'provider' => 'ses', 'access_key' => $fenc( 'AKIAFLUENT' ), 'secret_key' => $fenc( 'fl-ses-secret' ), 'region' => 'eu-west-1', 'sender_email' => 'f@x.cz' ) ),
+	'b' => array( 'provider_settings' => array( 'provider' => 'sendgrid', 'api_key' => $fenc( 'SG.fluent' ), 'sender_email' => 'g@x.cz' ) ),
+	'c' => array( 'provider_settings' => array( 'provider' => 'smtp', 'host' => 'third.host' ) ),
+) ), $extra ) );
+$site( array( 'fluent-smtp' ), array( 'fluent-smtp' ), $fl() );
+$plan = SourceRegistry::get( 'fluent-smtp' )->plan();
+SourceRegistry::get( 'fluent-smtp' )->migrate( array( 'run_id' => 'rb9' ), false );
+$assert( 'fluent-smtp (SES + SendGrid fallback, third connection reported)', 'ses' === $smtp()['mailer'] && 'sendgrid' === $smtp()['fallback_mailer'] && 'AKIAFLUENT' === $sec( 'ses_access_key' ) && 'fl-ses-secret' === $sec( 'ses_secret_key' ) && 'eu-west-1' === $smtp()['ses_region'] && 'SG.fluent' === $sec( 'sendgrid_api_key' ) && $lossy_has( $plan, '3 connections' ), json_encode( $plan['lossy'] ) . json_encode( $smtp() ) );
+$same = $fl();
+$same['fluentmail-settings']['connections']['b']['provider_settings'] = array( 'provider' => 'ses', 'access_key' => $fenc( 'other' ), 'secret_key' => $fenc( 'other' ), 'region' => 'us-east-1' );
+$site( array( 'fluent-smtp' ), array( 'fluent-smtp' ), $same );
+$plan = SourceRegistry::get( 'fluent-smtp' )->plan();
+$assert( 'fluent-smtp: a fallback of the same service as the primary is reported, not transferred', $lossy_has( $plan, 'second "ses" account' ) && ! isset( $col( $plan )['fallback_mailer'] ), json_encode( $plan['lossy'] ) );
 
 /* ═══ 8 E-mail log ═══ */
 
@@ -1006,20 +1075,42 @@ $assert( 'email-log: result 0 = error, attachment path reduced to the file name'
 /* ═══ 9 Cron ═══ */
 
 $site( array( 'wp-crontrol' ), array( 'wp-crontrol' ), array( 'crontrol_schedules' => array( 'every_5' => array( 'interval' => 300, 'display' => 'Co 5 minut' ), 'bad' => array( 'interval' => 0 ) ), 'wp_crontrol_paused' => array( 'moje_akce' => true ) ), array( 'activity-log', 'cron-control' ) );
-$GLOBALS['uxs_cron'] = array( time() + 60 => array( 'crontrol_cron_job' => array( 'a' => array( 'args' => array() ), 'b' => array( 'args' => array() ) ), 'crontrol_url_cron_job' => array( 'c' => array( 'args' => array() ) ), 'jina_akce' => array( 'd' => array() ) ) );
+$url_t = time() + 3600;
+$GLOBALS['uxs_cron'] = array( time() + 60 => array(
+	'crontrol_cron_job'     => array( 'a' => array( 'args' => array() ), 'b' => array( 'args' => array() ) ),
+	'crontrol_url_cron_job' => array(
+		'c' => array( 'schedule' => 'every_5', 'args' => array( array( 'url' => 'https://93.184.216.34/ping', 'method' => 'GET', 'name' => 'Ping' ) ) ),
+		'd' => array( 'schedule' => false, 'args' => array( array( 'url' => 'http://192.168.1.5/internal', 'method' => 'POST' ) ) ),
+		'e' => array( 'schedule' => 'nonsense', 'args' => array( array( 'url' => 'https://93.184.216.34/other', 'method' => 'GET' ) ) ),
+	),
+	'jina_akce'             => array( 'd' => array() ),
+) );
 $plan = SourceRegistry::get( 'wp-crontrol' )->plan();
-$assert( 'wp-crontrol: 1 valid interval; PHP and URL events and paused hooks are counted precisely', 1 === $data_count( $plan, 'schedule' ) && 2 === $data_count( $plan, 'php' ) && 1 === $data_count( $plan, 'url' ) && $lossy_has( $plan, '2 cron events run PHP code' ) && $lossy_has( $plan, '1 cron events call a URL' ) && $lossy_has( $plan, '1 paused hooks' ), json_encode( $plan ) );
-$assert( 'wp-crontrol: harmless, written directly even with the module on', false === $plan['staged'] );
+$assert( 'wp-crontrol: 1 valid interval, 3 URL events; PHP events and paused hooks are counted precisely', 1 === $data_count( $plan, 'schedule' ) && 2 === $data_count( $plan, 'php' ) && 3 === $data_count( $plan, 'url' ) && $lossy_has( $plan, '2 cron events run PHP code' ) && $lossy_has( $plan, '1 paused hooks' ), json_encode( $plan ) );
+$assert( 'wp-crontrol: URL events are behaviour-changing, so they wait for the switch', true === $plan['staged'] && ! $lossy_has( $plan, 'call a URL' ) );
 $store = array();
 AbstractSource::set_data_double( null );
 $run = Runner::start( array( 'wp-crontrol' ), false );
 $r1  = $drive();
-$assert( 'wp-crontrol: the interval lands in the module option (real writer)', 300 === ( $opt( 'uxstudio_cron_schedules' )['every_5']['interval'] ?? 0 ) && 1 === $r1['per_source']['wp-crontrol']['written'] );
+$ev  = \UxStudio\Modules\CronControl\UrlEvents::all();
+$ping_id = substr( md5( 'crontrol|url:' . substr( md5( 'https://93.184.216.34/ping|GET|every_5' ), 0, 12 ) ), 0, 8 );
+$assert( 'wp-crontrol: the interval lands in the module option (real writer)', 300 === ( $opt( 'uxstudio_cron_schedules' )['every_5']['interval'] ?? 0 ) );
+$assert( 'wp-crontrol: the public URL event is stored SWITCHED OFF and not scheduled; the private-network and the unknown-interval ones are skipped', 1 === count( $ev ) && isset( $ev[ $ping_id ] ) && false === $ev[ $ping_id ]['enabled'] && 'every_5' === $ev[ $ping_id ]['schedule'] && false === wp_get_scheduled_event( 'uxstudio_cron_url_event', array( $ping_id ) ), json_encode( $ev ) );
+$entry = Staging::entry( $run['id'] );
+$assert( 'wp-crontrol: the activation waits in staging', 1 === count( $entry['activations'] ?? array() ) && array( $ping_id ) === array_values( (array) $entry['activations'][0]['ids'] ), json_encode( $entry['activations'] ?? null ) );
+$assert( 'wp-crontrol: 1 interval + 1 event created, 2 events skipped (reasons given)', 2 === $r1['per_source']['wp-crontrol']['written'] && false !== strpos( json_encode( $r1 ), 'private network' ), json_encode( $r1['per_source']['wp-crontrol'] ) );
 $r2 = Runner::start( array( 'wp-crontrol' ), false );
 $r2 = $drive();
 $assert( 'wp-crontrol: second run is idempotent', 0 === $r2['per_source']['wp-crontrol']['written'] );
 Runner::rollback( $run['id'] );
-$assert( 'wp-crontrol: rollback restores the option (it did not exist before)', null === $opt( 'uxstudio_cron_schedules' ) );
+$assert( 'wp-crontrol: rollback restores both options (they did not exist before)', null === $opt( 'uxstudio_cron_schedules' ) && null === $opt( 'uxstudio_cron_url_events' ) );
+$run = Runner::start( array( 'wp-crontrol' ), false );
+$drive();
+Staging::apply( $run['id'] );
+$sched = wp_get_scheduled_event( 'uxstudio_cron_url_event', array( $ping_id ) );
+$assert( 'wp-crontrol: Staging::apply switches the URL event on and schedules it with its interval and first run', true === \UxStudio\Modules\CronControl\UrlEvents::get( $ping_id )['enabled'] && $sched && 'every_5' === $sched->schedule, json_encode( $sched ) );
+$src = SourceRegistry::get( 'wp-crontrol' );
+$assert( 'wp-crontrol: deactivate (undo of the switch) turns it off and unschedules it', 1 === $src->deactivate( 'cron', array( $ping_id ) ) && false === \UxStudio\Modules\CronControl\UrlEvents::get( $ping_id )['enabled'] && false === wp_get_scheduled_event( 'uxstudio_cron_url_event', array( $ping_id ) ) );
 
 /* ═══ 10 Maintenance ═══ */
 
@@ -1118,7 +1209,7 @@ $assert( 'intuitive-custom-post-order: post types + taxonomies reported as lost'
 // Every key a mapping writes exists in the real module code (typo guard for the settings written by F3 sources).
 $typos = array();
 $check = array(
-	'smtp-email'          => array( 'mailer', 'from_email', 'force_from_email', 'from_name', 'force_from_name', 'host', 'port', 'encryption', 'username', 'gmail_client_id' ),
+	'smtp-email'          => array( 'mailer', 'fallback_mailer', 'from_email', 'force_from_email', 'from_name', 'force_from_name', 'host', 'port', 'encryption', 'username', 'gmail_client_id', 'sendgrid_region', 'mailgun_domain', 'mailgun_region', 'postmark_message_stream', 'ses_region' ),
 	'email-log'           => array( 'retention_days' ),
 	'activity-log'        => array( 'retention_days' ),
 	'external-permalinks' => array( 'post_types' ),

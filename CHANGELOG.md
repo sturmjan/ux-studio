@@ -2,6 +2,28 @@
 
 ## 0.6.0 (unreleased)
 
+- New - SMTP Email: SendGrid (global / EU), Mailgun (US / EU), Postmark (message stream) and Amazon SES (the SES v2 HTTPS
+  API signed with Signature Version 4 in PHP, no SDK) next to SMTP, Brevo and Gmail. They send HTML or plain text, Cc /
+  Bcc, Reply-To and attachments; keys are encrypted and never sent back to the browser. Optional FALLBACK connection used
+  when the primary send fails or is not set up; both attempts are in the log (new columns connection and attempt). Each
+  service has its own tab with a test button that sends through that connection only. The migration moves SendGrid,
+  Mailgun, Postmark and Amazon SES from WP Mail SMTP and Easy WP SMTP, Post SMTP and FluentSMTP, and the fallback
+  connection of Post SMTP (its fallback SMTP server) and FluentSMTP; only more than a primary and a fallback is reported.
+  Fixed: the Brevo mailer of WP Mail SMTP / Post SMTP / FluentSMTP was written with a value the module rejected.
+- New - Disable Auto Updates: hide the update notices per type (WordPress, plugins, themes) from everybody except the
+  listed users, stop the update check per type (cron events, load-time checks and the requests to api.wordpress.org),
+  and an exception that still installs security (minor) core releases. All off by default, with a clear warning that
+  this hides security fixes. The migration takes it from Disable WordPress Updates (Security Mode) and Easy Updates
+  Manager (off, excluded users).
+- New - Cron Control: events that call a URL (GET or POST, any interval, timeout, last result and HTTP status). No event
+  runs PHP code. Private, loopback and link-local addresses are blocked (checked when saving and at every run) unless a
+  developer opens one address with the filter `uxstudio_cron_url_allow_private`. The migration turns the URL events of
+  WP Crontrol into these events, switched off until the switch so nothing is called twice.
+- New - Auto Image Upload: address of the uploaded images (CDN), file name and alt text patterns with the placeholders of
+  Auto Upload Images, largest width / height, excluded domains and content types, custom fields with HTML. The migration
+  moves all of them.
+- Changed - Menu Organizer: every item of the sub-item editor is a collapsed row with a one-line summary of its rules
+  ("Renamed to X, hidden for Editor, never shown to: jan"); the fields open under it. Shorter placeholders, hints below.
 - New - Duplicate Post: the copy can keep the status of the original (published, private, pending, draft; a scheduled
   post becomes a draft, a user who cannot publish always gets a pending copy), custom fields that are not copied
   (one per line, `*` as wildcard, for example `_edit_*`) and taxonomies that are not copied, the roles that may

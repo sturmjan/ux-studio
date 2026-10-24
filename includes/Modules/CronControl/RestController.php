@@ -21,6 +21,10 @@ defined( 'ABSPATH' ) || exit;
  * GET    uxstudio/v1/cron-control/watch     - last watcher result
  * POST   uxstudio/v1/cron-control/watch     - run the watcher now
  * POST   uxstudio/v1/cron-control/central/resync - re-send cron config to the central app
+ * GET    uxstudio/v1/cron-control/url-events        - events that call a URL (with the last result)
+ * POST   uxstudio/v1/cron-control/url-events        - create or change one (body `id` to change)
+ * DELETE uxstudio/v1/cron-control/url-events        - delete one (`id`)
+ * POST   uxstudio/v1/cron-control/url-events/run    - call the address now (`id`)
  *
  * The run/delete endpoints take the event identity (hook, timestamp, args) as
  * body params rather than a {hook} URL path segment: hook names can contain
@@ -64,6 +68,133 @@ final class RestController extends Controller {
 		$this->route( '/cron-control/watch', 'POST', array( $this, 'run_watch' ) );
 
 		$this->route( '/cron-control/central/resync', 'POST', array( $this, 'resync_central' ) );
+
+		$id_arg = array(
+			'id' => array(
+				'required'          => true,
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_key',
+			),
+		);
+		$this->route( '/cron-control/url-events', 'GET', array( $this, 'url_events' ) );
+		$this->route(
+			'/cron-control/url-events',
+			'POST',
+			array( $this, 'save_url_event' ),
+			array(
+				'id'        => array(
+					'required'          => false,
+					'type'              => 'string',
+					'default'           => '',
+					'sanitize_callback' => 'sanitize_key',
+				),
+				'name'      => array(
+					'type'              => 'string',
+					'sanitize_callback' => 'sanitize_text_field',
+				),
+				'url'       => array(
+					'required' => true,
+					'type'     => 'string',
+				),
+				'method'    => array(
+					'type'    => 'string',
+					'enum'    => array( 'GET', 'POST' ),
+					'default' => 'GET',
+				),
+				'body'      => array(
+					'type'    => 'string',
+					'default' => '',
+				),
+				'schedule'  => array(
+					'type'              => 'string',
+					'default'           => '',
+					'sanitize_callback' => 'sanitize_key',
+				),
+				'timeout'   => array(
+					'type'    => 'integer',
+					'default' => 15,
+				),
+				'enabled'   => array(
+					'type'    => 'boolean',
+					'default' => true,
+				),
+				'first_run' => array(
+					'type'        => 'string',
+					'default'     => '',
+					'description' => 'Site time as YYYY-MM-DDTHH:MM, empty = in a minute.',
+				),
+			)
+		);
+		$this->route( '/cron-control/url-events', 'DELETE', array( $this, 'delete_url_event' ), $id_arg );
+		$this->route( '/cron-control/url-events/run', 'POST', array( $this, 'run_url_event' ), $id_arg );
+	}
+
+	/**
+	 * Events that call a URL.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function url_events( WP_REST_Request $request ) {
+		return $this->ok( $this->module->get_url_events() );
+	}
+
+	/**
+	 * Create or change a URL event.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function save_url_event( WP_REST_Request $request ) {
+		$input = array(
+			'name'      => (string) $request->get_param( 'name' ),
+			'url'       => (string) $request->get_param( 'url' ),
+			'method'    => (string) $request->get_param( 'method' ),
+			'body'      => (string) $request->get_param( 'body' ),
+			'schedule'  => (string) $request->get_param( 'schedule' ),
+			'timeout'   => (int) $request->get_param( 'timeout' ),
+			'enabled'   => (bool) $request->get_param( 'enabled' ),
+			'first_run' => self::site_time_to_timestamp( (string) $request->get_param( 'first_run' ) ),
+		);
+		$event = $this->module->save_url_event( $input, (string) $request->get_param( 'id' ) );
+		return is_wp_error( $event ) ? $event : $this->ok( $event );
+	}
+
+	/**
+	 * Delete a URL event.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function delete_url_event( WP_REST_Request $request ) {
+		return $this->ok( array( 'deleted' => $this->module->delete_url_event( (string) $request->get_param( 'id' ) ) ) );
+	}
+
+	/**
+	 * Call the address of a URL event now.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function run_url_event( WP_REST_Request $request ) {
+		$result = $this->module->run_url_event( (string) $request->get_param( 'id' ) );
+		if ( null === $result ) {
+			return new \WP_Error( 'uxstudio_not_found', __( 'That event does not exist.', 'ux-studio' ), array( 'status' => 404 ) );
+		}
+		return $this->ok( $result );
+	}
+
+	/**
+	 * `YYYY-MM-DDTHH:MM` of the site's time zone to a Unix timestamp (0 for an empty or malformed value).
+	 *
+	 * @param string $value Value from the datetime field.
+	 */
+	private static function site_time_to_timestamp( string $value ): int {
+		if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}/', $value ) ) {
+			return 0;
+		}
+		try {
+			$date = new \DateTimeImmutable( substr( str_replace( 'T', ' ', $value ), 0, 16 ), wp_timezone() );
+		} catch ( \Exception $e ) {
+			return 0;
+		}
+		return $date->getTimestamp();
 	}
 
 	/**

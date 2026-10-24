@@ -1,11 +1,14 @@
 /**
  * Sub-items and advanced rules of the Menu Organizer (PLAN.md 27.7): rename, hide per role, move under another parent and
  * re-order sub-items, plus a required capability and show/hide rules for single users on every item and sub-item.
+ *
+ * Every item is a collapsed row with a one-line summary of its rules ("Renamed to X · hidden for Editor"); the six fields open
+ * under it (PLAN.md 27.10), so a large menu stays one short page.
  */
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { __, sprintf } from '@wordpress/i18n';
-import { ArrowDown, ArrowUp } from 'lucide-react';
+import { ArrowDown, ArrowUp, ChevronRight } from 'lucide-react';
 import { api } from '../../app/api';
 import MultiSelectField from '../../components/MultiSelectField';
 import type { MenuConfig, MenuItem } from './MenuOrganizerTab';
@@ -50,7 +53,7 @@ function LoginsInput( {
 			list={ listId }
 			value={ text }
 			aria-label={ label }
-			placeholder={ __( 'user logins, comma separated', 'ux-studio' ) }
+			placeholder="jan, eva"
 			onChange={ ( e ) => {
 				setText( e.target.value );
 				onChange( parseLogins( e.target.value ) );
@@ -113,6 +116,7 @@ function ItemRules( {
 					label={ __( 'Always show to these users', 'ux-studio' ) }
 					listId="uxs-amo-logins"
 				/>
+				<small className="uxs-sub-rule__hint">{ __( 'User logins, separated by commas.', 'ux-studio' ) }</small>
 			</label>
 			<label className="uxs-sub-rule__field">
 				<span>{ __( 'Never show to these users', 'ux-studio' ) }</span>
@@ -122,8 +126,95 @@ function ItemRules( {
 					label={ __( 'Never show to these users', 'ux-studio' ) }
 					listId="uxs-amo-logins"
 				/>
+				<small className="uxs-sub-rule__hint">{ __( 'User logins, separated by commas.', 'ux-studio' ) }</small>
 			</label>
 		</>
+	);
+}
+
+/**
+ * One line that says what rules an item or sub-item has ("Renamed to X · hidden for Editor · never for: jan"), '' for none.
+ *
+ * @param key       `slug` of a top-level item or `parent>sub`.
+ * @param draft     Menu config being edited.
+ * @param roleNames Role slug -> label.
+ * @param parents   Titles of the top-level items by slug (for "moved under").
+ */
+export function summarizeRules( key: string, draft: MenuConfig, roleNames: Record< string, string >, parents: Record< string, string > ): string {
+	const parts: string[] = [];
+	const title = draft.sub_titles[ key ];
+	if ( title ) {
+		parts.push( sprintf( /* translators: %s: new title. */ __( 'Renamed to %s', 'ux-studio' ), title ) );
+	}
+	const moved = draft.sub_moves[ key ];
+	if ( moved ) {
+		parts.push( sprintf( /* translators: %s: title of the new parent menu. */ __( 'moved under %s', 'ux-studio' ), parents[ moved ] ?? moved ) );
+	}
+	const hidden = draft.sub_hidden[ key ] ?? [];
+	if ( hidden.length > 0 ) {
+		parts.push(
+			hidden.includes( '*' )
+				? __( 'hidden for everybody', 'ux-studio' )
+				: sprintf( /* translators: %s: role names. */ __( 'hidden for %s', 'ux-studio' ), hidden.map( ( r ) => roleNames[ r ] ?? r ).join( ', ' ) )
+		);
+	}
+	const cap = draft.item_caps[ key ];
+	if ( cap ) {
+		parts.push( sprintf( /* translators: %s: capability. */ __( 'needs %s', 'ux-studio' ), cap ) );
+	}
+	const users = draft.item_users[ key ] ?? {};
+	if ( users.show?.length ) {
+		parts.push( sprintf( /* translators: %s: user logins. */ __( 'always shown to: %s', 'ux-studio' ), users.show.join( ', ' ) ) );
+	}
+	if ( users.hide?.length ) {
+		parts.push( sprintf( /* translators: %s: user logins. */ __( 'never shown to: %s', 'ux-studio' ), users.hide.join( ', ' ) ) );
+	}
+	return parts.join( ' · ' );
+}
+
+/** A collapsed row: the title and the one-line summary are the button that opens the fields. */
+function RuleRow( {
+	rowId,
+	title,
+	code,
+	summary,
+	actions,
+	children,
+}: {
+	rowId: string;
+	title: string;
+	code?: string;
+	summary: string;
+	actions?: JSX.Element;
+	children: JSX.Element | JSX.Element[];
+} ): JSX.Element {
+	const [ open, setOpen ] = useState( false );
+	const bodyId = `uxs-rule-${ rowId.replace( /[^a-zA-Z0-9_-]/g, '_' ) }`;
+	return (
+		<div className={ `uxs-sub-rule${ open ? ' is-open' : '' }${ summary ? ' has-rules' : '' }` }>
+			<div className="uxs-sub-rule__head">
+				<button
+					type="button"
+					className="uxs-sub-rule__toggle"
+					aria-expanded={ open }
+					aria-controls={ bodyId }
+					onClick={ () => setOpen( ! open ) }
+				>
+					<ChevronRight size={ 14 } className="uxs-sub-rule__chevron" aria-hidden="true" />
+					<span className="uxs-sub-rule__title">
+						{ title }
+						{ code ? <code>{ code }</code> : null }
+					</span>
+					<span className={ `uxs-sub-rule__summary${ summary ? '' : ' is-empty' }` }>{ summary || __( 'No changes', 'ux-studio' ) }</span>
+				</button>
+				{ actions }
+			</div>
+			{ open ? (
+				<div id={ bodyId } className="uxs-sub-rule__fields">
+					{ children }
+				</div>
+			) : null }
+		</div>
 	);
 }
 
@@ -154,6 +245,8 @@ export function SubmenuRules( {
 		{ value: '*', label: __( 'Everybody', 'ux-studio' ) },
 		...Object.entries( people.data?.roles ?? {} ).map( ( [ value, label ] ) => ( { value, label } ) ),
 	];
+	const roleNames = people.data?.roles ?? {};
+	const parents: Record< string, string > = Object.fromEntries( items.map( ( i ) => [ i.slug, i.title ] ) );
 
 	const setMap = ( field: 'sub_titles' | 'sub_moves', key: string, value: string ): void =>
 		setConfig( ( d ) => {
@@ -225,14 +318,13 @@ export function SubmenuRules( {
 							{ count > 0 && <span className="uxs-badge">{ count }</span> }
 						</summary>
 						<div className="uxs-sub-rules">
-							<div className="uxs-sub-rule">
-								<div className="uxs-sub-rule__head">
-									<span className="uxs-sub-rule__title">{ __( 'The item itself', 'ux-studio' ) }</span>
-								</div>
-								<div className="uxs-sub-rule__fields">
-									<ItemRules itemKey={ item.slug } draft={ draft } setConfig={ setConfig } />
-								</div>
-							</div>
+							<RuleRow
+								rowId={ item.slug }
+								title={ __( 'The item itself', 'ux-studio' ) }
+								summary={ summarizeRules( item.slug, draft, roleNames, parents ) }
+							>
+								<ItemRules itemKey={ item.slug } draft={ draft } setConfig={ setConfig } />
+							</RuleRow>
 							{ rows.map( ( slug, index ) => {
 								const child = item.children.find( ( c ) => c.slug === slug );
 								if ( ! child ) {
@@ -240,17 +332,19 @@ export function SubmenuRules( {
 								}
 								const key = subKey( item.slug, slug );
 								return (
-									<div key={ key } className="uxs-sub-rule">
-										<div className="uxs-sub-rule__head">
-											<span className="uxs-sub-rule__title">
-												{ child.title } <code>{ slug }</code>
-											</span>
-											<span>
+									<RuleRow
+										key={ key }
+										rowId={ key }
+										title={ child.title }
+										code={ slug }
+										summary={ summarizeRules( key, draft, roleNames, parents ) }
+										actions={
+											<span className="uxs-sub-rule__move">
 												<button
 													type="button"
 													className="button button-small"
 													disabled={ 0 === index }
-													aria-label={ __( 'Move up', 'ux-studio' ) }
+													aria-label={ sprintf( /* translators: %s: sub-item title. */ __( 'Move %s up', 'ux-studio' ), child.title ) }
 													onClick={ () => moveChild( item, slug, -1 ) }
 												>
 													<ArrowUp size={ 12 } />
@@ -259,55 +353,54 @@ export function SubmenuRules( {
 													type="button"
 													className="button button-small"
 													disabled={ index === rows.length - 1 }
-													aria-label={ __( 'Move down', 'ux-studio' ) }
+													aria-label={ sprintf( /* translators: %s: sub-item title. */ __( 'Move %s down', 'ux-studio' ), child.title ) }
 													onClick={ () => moveChild( item, slug, 1 ) }
 												>
 													<ArrowDown size={ 12 } />
 												</button>
 											</span>
+										}
+									>
+										<label className="uxs-sub-rule__field">
+											<span>{ __( 'Rename', 'ux-studio' ) }</span>
+											<input
+												type="text"
+												value={ draft.sub_titles[ key ] ?? '' }
+												placeholder={ child.title }
+												aria-label={ sprintf( /* translators: %s: sub-item title. */ __( 'New title of %s', 'ux-studio' ), child.title ) }
+												onChange={ ( e ) => setMap( 'sub_titles', key, e.target.value ) }
+											/>
+										</label>
+										<label className="uxs-sub-rule__field">
+											<span>{ __( 'Move under', 'ux-studio' ) }</span>
+											<select
+												value={ draft.sub_moves[ key ] ?? '' }
+												aria-label={ sprintf( /* translators: %s: sub-item title. */ __( 'Move %s under', 'ux-studio' ), child.title ) }
+												onChange={ ( e ) => setMap( 'sub_moves', key, e.target.value ) }
+											>
+												<option value="">{ __( '(stays here)', 'ux-studio' ) }</option>
+												{ items
+													.filter( ( other ) => other.slug !== item.slug )
+													.map( ( other ) => (
+														<option key={ other.slug } value={ other.slug }>
+															{ other.title }
+														</option>
+													) ) }
+											</select>
+										</label>
+										<div className="uxs-sub-rule__field">
+											<span>{ __( 'Hidden for roles', 'ux-studio' ) }</span>
+											<MultiSelectField
+												id={ `uxs-amo-hidden-${ key }` }
+												options={ roleOptions }
+												value={ draft.sub_hidden[ key ] ?? [] }
+												onChange={ ( picked ) => setHidden( key, picked ) }
+												placeholder={ __( 'Nobody', 'ux-studio' ) }
+												searchable={ false }
+											/>
 										</div>
-										<div className="uxs-sub-rule__fields">
-											<label className="uxs-sub-rule__field">
-												<span>{ __( 'Rename', 'ux-studio' ) }</span>
-												<input
-													type="text"
-													value={ draft.sub_titles[ key ] ?? '' }
-													placeholder={ child.title }
-													aria-label={ sprintf( /* translators: %s: sub-item title. */ __( 'New title of %s', 'ux-studio' ), child.title ) }
-													onChange={ ( e ) => setMap( 'sub_titles', key, e.target.value ) }
-												/>
-											</label>
-											<label className="uxs-sub-rule__field">
-												<span>{ __( 'Move under', 'ux-studio' ) }</span>
-												<select
-													value={ draft.sub_moves[ key ] ?? '' }
-													aria-label={ sprintf( /* translators: %s: sub-item title. */ __( 'Move %s under', 'ux-studio' ), child.title ) }
-													onChange={ ( e ) => setMap( 'sub_moves', key, e.target.value ) }
-												>
-													<option value="">{ __( '(stays here)', 'ux-studio' ) }</option>
-													{ items
-														.filter( ( other ) => other.slug !== item.slug )
-														.map( ( other ) => (
-															<option key={ other.slug } value={ other.slug }>
-																{ other.title }
-															</option>
-														) ) }
-												</select>
-											</label>
-											<div className="uxs-sub-rule__field">
-												<span>{ __( 'Hidden for roles', 'ux-studio' ) }</span>
-												<MultiSelectField
-													id={ `uxs-amo-hidden-${ key }` }
-													options={ roleOptions }
-													value={ draft.sub_hidden[ key ] ?? [] }
-													onChange={ ( picked ) => setHidden( key, picked ) }
-													placeholder={ __( 'Nobody', 'ux-studio' ) }
-													searchable={ false }
-												/>
-											</div>
-											<ItemRules itemKey={ key } draft={ draft } setConfig={ setConfig } />
-										</div>
-									</div>
+										<ItemRules itemKey={ key } draft={ draft } setConfig={ setConfig } />
+									</RuleRow>
 								);
 							} ) }
 						</div>

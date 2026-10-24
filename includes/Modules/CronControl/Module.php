@@ -103,6 +103,18 @@ final class Module extends BaseModule {
 		// Custom intervals (a schedule that disappears would leave its events stuck).
 		add_filter( 'cron_schedules', array( $this, 'filter_cron_schedules' ) );
 
+		// Events that call a URL (PLAN.md 27.10): the handler, and WP-Cron kept in line with the definitions.
+		add_action( UrlEvents::HOOK, array( UrlEvents::class, 'execute' ) );
+		add_action(
+			'init',
+			static function (): void {
+				if ( is_admin() || wp_doing_cron() || ( defined( 'WP_CLI' ) && WP_CLI ) ) {
+					UrlEvents::sync();
+				}
+			},
+			30
+		);
+
 		// Daily watcher.
 		add_action( self::WATCH_HOOK, array( $this, 'run_watch' ) );
 		$this->ensure_watch_scheduled();
@@ -130,6 +142,8 @@ final class Module extends BaseModule {
 		}
 		$this->remove_htaccess_block();
 		wp_clear_scheduled_hook( self::WATCH_HOOK );
+		// The definitions of URL events stay; their WP-Cron entries go (they come back when the module is on again).
+		UrlEvents::unschedule_all();
 		delete_option( self::HASH_OPTION );
 	}
 
@@ -253,6 +267,7 @@ final class Module extends BaseModule {
 		parent::after_migration_switch();
 		$this->sync_filesystem( true );
 		$this->ensure_watch_scheduled();
+		UrlEvents::sync();
 	}
 
 	/**
@@ -517,6 +532,79 @@ final class Module extends BaseModule {
 		);
 
 		return $events;
+	}
+
+	/* ------------------------------------------------------------------ *
+	 * URL events (PLAN.md 27.10)
+	 * ------------------------------------------------------------------ */
+
+	/**
+	 * The URL events with their next run and the name of their interval.
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	public function get_url_events(): array {
+		$schedules = wp_get_schedules();
+		$out       = array();
+		foreach ( UrlEvents::all() as $id => $event ) {
+			$next                   = wp_next_scheduled( UrlEvents::HOOK, array( $id ) );
+			$event['next_run']      = false === $next ? 0 : (int) $next;
+			$event['schedule_name'] = '' === $event['schedule'] ? '' : (string) ( $schedules[ $event['schedule'] ]['display'] ?? $event['schedule'] );
+			$out[]                  = $event;
+		}
+		return $out;
+	}
+
+	/**
+	 * Create or change a URL event.
+	 *
+	 * @param array<string, mixed> $input Fields (see UrlEvents::save()).
+	 * @param string               $id    Id of the event to change, '' for a new one.
+	 * @return array<string, mixed>|\WP_Error
+	 */
+	public function save_url_event( array $input, string $id = '' ) {
+		$event = UrlEvents::save( $input, $id );
+		if ( ! is_wp_error( $event ) ) {
+			ActivityLog::log( 'cron-control', '' === $id ? 'create_url_event' : 'update_url_event', 'cron_url_event', 0, array( 'url' => $event['url'] ) );
+		}
+		return $event;
+	}
+
+	/**
+	 * Delete a URL event.
+	 *
+	 * @param string $id Event id.
+	 */
+	public function delete_url_event( string $id ): bool {
+		$event = UrlEvents::get( $id );
+		$done  = UrlEvents::delete( $id );
+		if ( $done && $event ) {
+			ActivityLog::log( 'cron-control', 'delete_url_event', 'cron_url_event', 0, array( 'url' => $event['url'] ) );
+		}
+		return $done;
+	}
+
+	/**
+	 * Call the address of an event now.
+	 *
+	 * @param string $id Event id.
+	 * @return array{status:string,code:int,error:string,ms:int}|null
+	 */
+	public function run_url_event( string $id ): ?array {
+		$result = UrlEvents::execute( $id );
+		if ( null !== $result ) {
+			ActivityLog::log(
+				'cron-control',
+				'run_url_event',
+				'cron_url_event',
+				0,
+				array(
+					'status' => $result['status'],
+					'code'   => $result['code'],
+				)
+			);
+		}
+		return $result;
 	}
 
 	/**

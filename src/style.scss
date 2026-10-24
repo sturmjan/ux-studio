@@ -2044,26 +2044,73 @@
 	border: 1px solid var(--uxs-border);
 	border-radius: var(--uxs-radius-s);
 	background: var(--uxs-surface);
-	padding: var(--uxs-sp-3) var(--uxs-sp-4);
+	padding: var(--uxs-sp-2) var(--uxs-sp-4);
 
+	&.is-open { border-color: var(--uxs-brand); }
+
+	// Collapsed row: a button with the title and a one-line summary, the move arrows next to it.
 	&__head {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		gap: var(--uxs-sp-3);
-		margin-bottom: var(--uxs-sp-3);
 	}
 
+	&.is-open &__head { margin-bottom: var(--uxs-sp-3); }
+
+	&__toggle {
+		display: flex;
+		flex: 1;
+		align-items: center;
+		gap: var(--uxs-sp-3);
+		min-width: 0;
+		padding: var(--uxs-sp-2) 0;
+		border: 0;
+		border-radius: var(--uxs-radius-s);
+		background: none;
+		color: inherit;
+		font: inherit;
+		text-align: left;
+		cursor: pointer;
+
+		&:focus-visible { outline: 2px solid var(--uxs-brand); outline-offset: 2px; }
+	}
+
+	&__chevron { flex: none; color: var(--uxs-text-soft); transition: transform 0.12s ease; }
+	&.is-open &__chevron { transform: rotate(90deg); }
+
 	&__title {
+		flex: none;
+		max-width: 45%;
+		overflow: hidden;
 		font-weight: 600;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 
 		code { margin-left: var(--uxs-sp-2); font-weight: 400; }
 	}
+
+	&__summary {
+		flex: 1;
+		min-width: 0;
+		overflow: hidden;
+		color: var(--uxs-text);
+		font-size: var(--uxs-fs-s);
+		text-overflow: ellipsis;
+		white-space: nowrap;
+
+		&.is-empty { color: var(--uxs-text-soft); }
+	}
+
+	&__move { flex: none; white-space: nowrap; }
+
+	&__hint { color: var(--uxs-text-soft); font-size: var(--uxs-fs-xs, 12px); }
 
 	&__fields {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 		gap: var(--uxs-sp-3);
+		padding-bottom: var(--uxs-sp-2);
 	}
 
 	&__field {
@@ -2087,3 +2134,43 @@
 	gap: var(--uxs-sp-3);
 	margin-top: var(--uxs-sp-3);
 }
+
+/* ---- Cron Control: URL events, SMTP Email: test per connection (PLAN 27.10) ---- */
+.uxs-url-event__url {
+	display: inline-block;
+	max-width: 36em;
+	overflow: hidden;
+	font-size: 11px;
+	text-overflow: ellipsis;
+	vertical-align: bottom;
+	white-space: nowrap;
+}
+
+.uxs-url-event__error { color: var(--uxs-danger); }
+
+.uxs-url-event-form {
+	max-width: 760px;
+	margin-bottom: var(--uxs-sp-5);
+	padding: var(--uxs-sp-4);
+	border: 1px solid var(--uxs-border);
+	border-radius: var(--uxs-radius-s);
+	background: var(--uxs-surface);
+
+	input[type='url'],
+	input[type='text'],
+	input[type='number'],
+	input[type='datetime-local'],
+	select,
+	textarea {
+		background: var(--uxs-surface);
+		color: var(--uxs-text);
+		border: 1px solid var(--uxs-border);
+		border-radius: var(--uxs-radius-s);
+		padding: var(--uxs-sp-3) var(--uxs-sp-4);
+	}
+
+	input[type='url'],
+	textarea { width: 100%; }
+}
+
+.uxs-mailer-test { margin-top: var(--uxs-sp-3); }

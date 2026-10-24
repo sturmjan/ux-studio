@@ -2184,9 +2184,10 @@ přibudou testy a živé ověření na pobyty. Větev `feature/module-gaps-a` na
       odpočet a výjimky údržby (WP Maintenance Mode, SeedProd); složky příspěvků a stránek, barvy,
       ruční řazení (FileBird, Folders)
       (hotovo 23. 10. 2026 lokálně, poznámky v 27.9)
-- [ ] B4 Technika: SendGrid, Mailgun, Postmark, Amazon SES + záložní spojení (WP Mail SMTP, FluentSMTP);
+- [x] B4 Technika: SendGrid, Mailgun, Postmark, Amazon SES + záložní spojení (WP Mail SMTP, FluentSMTP);
       skrytí upozornění a vypnutí kontroly aktualizací + výjimka pro bezpečnostní (Easy Updates Manager);
-      URL události cronu (WP Crontrol); volby Auto Upload Images
+      URL události cronu (WP Crontrol); volby Auto Upload Images; sbalené řádky editoru podpoložek menu
+      (hotovo 24. 10. 2026 lokálně, poznámky v 27.10)
 
 ### 27.3 Nedělat (C)
 
@@ -2551,3 +2552,89 @@ na pobyty aktivní, formáty jsou z kódu stažených zipů a z fixtur (jen Clas
 v nové kartě po auto-vypnutí údržby u stránkových cache záleží na cache pluginu. Přepínač „klasický editor“ v blokovém editoru se ověřil jen zjištěním adresy v `uxStudioEditorSwitch` (menu samotné se nekliklo).
 Pole `exclude_urls` WPEL se v modulu porovnává s hostem nebo `host/cesta`, ne s celým řetězcem adresy (hvězdičky na obou stranách to nahrazují). Hvězdička v seznamu vynechaných polí není shodná s Yoastem (viz výše).
 `languages/ux-studio-cs_CZ-883112...json` a `-40aeb3...json` jsou JSON překlady pro nový hash buildu (`index.c815c1cf214ea80e7185.js`).
+
+### 27.10 B4 poznámky: technika (2026-10-24)
+
+**E-mail (SMTP Email).** Nové třídy `MailMessage` (zpráva z argumentů `wp_mail()` stejně jako jádro: adresy i `Jméno <adresa>`, hlavičky From / Cc / Bcc /
+Reply-To / Content-Type, filtry `wp_mail_from`, `wp_mail_from_name`, `wp_mail_content_type` až po hlavičkách, přílohy načtené do paměti do 25 MB), `Providers`
+(čisté funkce `request()` a `verdict()` na poskytovatele + `send()` přes HTTP API WordPressu, takže jde mockovat `pre_http_request`) a `SigV4`. Hostitelé jsou
+pevní; Mailgun doména se ověřuje regexem po štítcích (jinak se žádný požadavek nesestaví), region SES je ze seznamu 23 hodnot.
+- **Rozhodnutí: SES přes HTTPS API v2 (`/v2/email/outbound-emails`), SigV4 v PHP, ne přes SMTP přihlašovací údaje.** Důvod: nepotřebuje SMTP spojení (sdílené hostingy
+  blokují porty), nemá druhou sadu údajů (SMTP heslo se odvozuje z tajného klíče) a vrací skutečný text chyby. Bez přílohy jde `Content.Simple`, s přílohou `Content.Raw`
+  (vlastní MIME, Bcc jen v obálce). Access key id i secret jdou přes `Security::store_secret`. SigV4 ověřen vektory z dokumentace AWS (get-vanilla, post-vanilla,
+  příklad IAM, odvozený podpisový klíč) a živě nezávislou implementací v Pythonu nad skutečnými požadavky.
+- **Záložní spojení.** `pre_wp_mail` handler (`handle_pre_wp_mail`) se zavěsí, kdykoli primární není SMTP nebo je zvolené záložní; čisté SMTP bez záložního zůstává na
+  výchozí cestě WordPressu. `send_chain()` zkusí primární, potom záložní; každý pokus je řádek logu (`mailer`, `attempt` = primary / fallback / test, tabulka v2). Nenastavené
+  primární se přeskočí (řádek „Toto připojení není nastavené“); bez záložního se chová jako dřív (Brevo a nové služby `null` = výchozí přenos WordPressu, Gmail `false`).
+  Záložní shodné s primárním se ignoruje (i při uložení). SMTP jako primární i záložní běží přes **vnitřní volání `wp_mail()`** s příznakem `forced_smtp` (handler ho pustí
+  dál, `phpmailer_init` nastaví SMTP i když SMTP není primární); filtr `wp_mail` se pro vnitřní volání odpojí a vrátí (běžel už jednou, patičky pluginů by se zdvojily).
+  Chyba SMTP se bere z `wp_mail_failed`. Hooky se volí při startu podle uložených nastavení (změna platí od dalšího požadavku; testovací tlačítko volá přenos přímo).
+- **Test po spojení:** `POST smtp-email/test` s `mailer` pošle přes přesně to spojení bez záložního (log `attempt = test`); bez `mailer` jako web (primární, záložní).
+  Záložka každé služby má tlačítko, nastavení musí být uložené. Secret pole nikdy nejdou do REST (`has_*`, `mailers_ready`).
+- **Brevo a Gmail se nezměnily** (Brevo dál posílá `htmlContent = wpautop(zpráva)` bez příloh a Cc; Gmail jak byl), jen jsou za společným řetězem.
+- **Migrace.** WP Mail SMTP / Easy WP SMTP: skupiny `sendgrid`, `mailgun` (region US / EU), `postmark` (+ message stream), `amazonses` (client_id = access key, client_secret,
+  region); klíče API se v pluginu ukládají tak, jak jsou, šifrované je jen SMTP heslo, proto `sodium_decrypt` vrací prostou hodnotu beze změny (40znakový tajný klíč AWS
+  vypadá jako base64 a zůstane celý, ověřeno testem); konstanty `WPMS_*`. Post SMTP: `sendgrid_api` (+ `sendgrid_region` Global / EU), `mailgun_api` (region je zaškrtávátko
+  „Evropa“), `postmark_api`, klíče base64; jeho záložní SMTP server (možná 2x base64 heslo) se stane `fallback_mailer = smtp`, když je primární jiná služba, jinak (druhý
+  SMTP) se hlásí. FluentSMTP: výchozí připojení = primární, `misc.fallback_connection` = záložní (poskytovatelé smtp, sendinblue, gmail, sendgrid, mailgun, postmark, ses),
+  další připojení se hlásí s počtem. Záložní stejné služby jako primární se nepřenáší a hlásí se. Oprava: `sendinblue` se mapoval na neexistující hodnotu `mailer`.
+  Z „nepřenese se“ zmizelo: SendGrid, Mailgun, Postmark, SES, záložní připojení; zůstává: mailery bez protějšku (Mailjet, Outlook, Zoho ...), OAuth tokeny Gmailu,
+  bounce adresa, log pluginu, více než dvě připojení FluentSMTP, SES oblasti mimo seznam (hlásí se). WP Mail SMTP Lite nemá záložní připojení (je to Pro funkce, formát
+  jsem nemohl ověřit).
+
+**Aktualizace (Disable Auto Updates).** Nová nastavení (vše vypnuto): `hide_notices_core|plugins|themes`, `updates_visible_to` (přihlašovací jména),
+`disable_checks_core|plugins|themes`, `allow_security_core`.
+- **Rozhodnutí: skrytí je pro VŠECHNY včetně administrátorů, výjimkou jsou jen vyjmenovaní uživatelé** (agenturní případ: klient je také admin). Prázdný seznam = nevidí nikdo.
+  Skrývání zeslabí to, co vrací `get_site_transient( 'update_core|plugins|themes' )` (filtr `site_transient_*` s prioritou `PHP_INT_MAX - 10`): oznámení, bublina v menu, admin
+  lišta, řádky pluginů i stránka Aktualizace utichnou naráz. **Cron a WP-CLI vidí vždy skutečné nabídky** (automatický updater a `wp plugin update` je potřebují).
+- **Vypnutí kontroly:** `pre_site_transient_update_*` vrací „zkontrolováno právě teď, nic nového“, odstraní se akce `wp_update_*`, `_maybe_update_*`, `load-*` a při `init`
+  se smažou cron události dané kategorie; požadavky na `api.wordpress.org` (`/core/version-check/`, `/plugins/update-check/`, `/themes/update-check/`) vrací `WP_Error`
+  (samotná transient by nestačila, `wp_update_plugins` bez `checked` by šel na síť). Po vypnutí modulu core cron události vytvoří znovu.
+- **Výjimka pro bezpečnostní (minor) aktualizace jádra:** `allow_minor_auto_core_updates` na prioritě 20 true, major a dev false, `automatic_updater_disabled` se
+  nenastaví ani když je vypnuto vše, a kontrola jádra se NEvypne (nabídky jsou zdroj bezpečnostních vydání), i když je `disable_checks_core` zapnuto. Nápověda i varování
+  říkají, že skrytí a vypnutí kontroly skrývá bezpečnostní opravy.
+- **Migrace.** Disable WordPress Updates (aktivní): vše vypnout + skrýt + zastavit kontrolu; `osdwp_security_mode` = `allow_security_core` a jádro se neskrývá ani nezastavuje (plugin
+  v tom režimu nechává kontrolu i oznámení jádra). Easy Updates Manager: `all_updates = off` nebo `core|plugin|theme_updates = off` = skrýt + zastavit kontrolu u dané
+  kategorie; `advanced.excluded_users` (ID) -> `updates_visible_to` (přihlašovací jména) a pak se kontrola nezastavuje, jen se skrývá (vyloučení uživatelé musí aktualizace vidět).
+  Zůstává ztrátové: e-mailová upozornění, log aktualizací, vývojové verze, indikátor v admin liště a skryté testy Stavu webu, aktualizace po jedné (`individual`).
+
+**URL události cronu.** `UrlEvents` (definice v option `uxstudio_cron_url_events` bez autoloadu, WP-Cron hook `uxstudio_cron_url_event` s id jako jediným argumentem, `sync()` drží cron
+v souladu při `init` v administraci / cronu / CLI, po vypnutí modulu se záznamy odeberou a definice zůstanou). Pole: jméno, adresa, GET / POST (tělo jako JSON, je-li platný), interval
+(core i vlastní z `uxstudio_cron_schedules`, nebo jednorázově v čas webu), timeout 1 až 60 s, zapnuto, poslední výsledek (čas, HTTP kód, `ok` = 2xx / `error` / `blocked`, text, ms; tělo
+odpovědi se neukládá). Jednorázová událost se po spuštění sama vypne. Nikdy PHP události (27.3 C).
+- **SSRF:** adresa je http(s) bez přihlašovacích údajů; každá IP, na kterou se host přeloží (A i AAAA), musí být veřejná (soukromé, loopback, link-local vč. 169.254.169.254, CGNAT,
+  multicast, rezervované, IPv4-mapped IPv6, 6to4 a Teredo se skrytou neveřejnou IPv4). Kontrola je při uložení **i při každém spuštění**, požadavek jde přes `wp_safe_remote_request`
+  (znovu ověří adresu i přesměrování, jen porty 80, 443, 8080). Jedinou adresu lze otevřít filtrem `uxstudio_cron_url_allow_private( false, $url, $host )`; takový požadavek nesleduje přesměrování.
+  Zbytkové riziko: přeložení DNS mezi kontrolou a požadavkem (`wp_safe_remote_request` ověřuje znovu).
+- **Migrace WP Crontrol:** události `crontrol_url_cron_job` (args[0] = `url`, `method`, `name`; interval a čas dalšího běhu z WP-Cron záznamu) vzniknou **vypnuté** (modul zapnutý i vypnutý, jako
+  snippety) a seznam čeká ve stagingu; `Staging::apply` je zapne a naplánuje se stejným intervalem a prvním během (`CronSource` implementuje `Activatable`). Neveřejná adresa a neexistující
+  interval se přeskočí s důvodem (ověření je pak červené u této položky, jako u přeskočeného intervalu). PHP události a pozastavené hooky zůstávají ztrátové. Originální události Crontrolu zůstávají
+  v WP-Cron a bez pluginu nic nedělají.
+
+**Auto Image Upload.** Nová nastavení: `base_url` (adresa v obsahu místo domény webu, `/` = jen cesta), `file_name_pattern`, `alt_pattern` (zástupné znaky Auto Upload Images: `%filename% %image_alt%
+%postname% %post_id% %post_date% %post_year% %post_month% %post_day% %today_date% %year% %month% %today_day% %url% %timestamp% %random%`, formát dat `Y-m-j` jako v pluginu, výchozí vzor
+nemění nic), `max_width` / `max_height` (zmenšení souboru se zachováním poměru stran, nikdy zvětšení, ne SVG ani GIF), `excluded_domains` (host bez www, `*.domena` pro subdomény),
+`excluded_post_types`, `custom_fields` (post meta s HTML, po uložení příspěvku). Pro nový příspěvek je `%postname%` a `%post_id%` prázdné (WordPress je při filtru ještě nemá, plugin stejně).
+`%date%` a `%day%` by Settings sanitizer snědl jako oktet (`%da`), proto je migrace přejmenuje na `%today_date%` a `%today_day%`. Migrace přenáší všechno; ztrátové zůstává, že plugin používal zmenšenou
+kopii a nechával originál (modul zmenšuje soubor samotný) a že plugin znovu použil shodný soubor (modul si pamatuje stažené adresy).
+
+**Editor podpoložek menu.** Každá položka a podpoložka je sbalený řádek: tlačítko s názvem, kódem a jednořádkovým souhrnem pravidel (`summarizeRules`: přejmenováno, přesunuto, skryto pro role,
+vyžaduje oprávnění, vždy / nikdy zobrazeno uživatelům; bez pravidel „Beze změn“), `aria-expanded` + `aria-controls`, Enter i mezerník, šipky řazení vedle (mimo tlačítko). Placeholder „jan, eva“,
+nápověda pod poli.
+
+**Testy.** `tests/tech-b4.php` (nový, 123 kontrol: vektory SigV4, zpráva, požadavky a verdikty všech čtyř služeb, řetěz s fallbackem a log, SMTP přes vnitřní `wp_mail`, matice skrývání / kontroly /
+výjimky, matice SSRF, uložení a běh URL událostí, vzory a zmenšení obrázků, `process_content`), rozšířené `tests/migration-sources.php` a `tests/migration-data-sources.php`; všech 19 samostatných testů zelených.
+
+**Ověřeno živě (pobyty, dočasní uživatelé, vše vráceno z dumpu).** Mock poskytovatelů přes dočasný mu-plugin: všechny čtyři služby (hlavička, tělo, Cc / Bcc / Reply-To, příloha), fallback (500 -> Mailgun EU,
+401 + timeout, Postmark 200 s ErrorCode 406, SES 403), nenastavené spojení, per-mailer test; podpisy SES nad skutečnými požadavky shodné s nezávislým Pythonem (jednoduchý i raw MIME); skutečný PHPMailer
+(dočasně definovaný skutečný `wp_mail`, web má Disable Emails a motiv blokuje poštu filtrem) k `127.0.0.1:1`: SMTP selže -> SendGrid, SendGrid selže -> SMTP; skrytí oznámení v prohlížeči (klient bez
+oznámení, vyjmenovaný vidí 3 pluginy, admin lišta, bublina), zastavení kontroly (žádný požadavek na plugins / themes update-check, cron události pryč), bezpečnostní výjimka; URL události přes REST
+(vytvoření, 8 blokovaných cílů, neznámý interval, jednorázová v čas webu, spuštění, `wp cron event run` s 503 a chybou přenosu, skutečné volání lokálního endpointu otevřeného filtrem a zablokované po jeho
+odebrání); Auto Image Upload na skutečném obrázku (zmenšeno 600x400 -> 200x133, název, alt, CDN adresa, vyloučená doména a typ, vlastní pole, REST cesta); migrace skutečných dat WP Mail SMTP (heslo shodné
+s dešifrovaným pluginu, rollback a `Staging::apply`), WP Crontrol (skutečné intervaly + fixtura URL událostí, aktivace naplánuje události) a Easy Updates Manager (skutečná data), fixtury Post SMTP, FluentSMTP,
+Easy WP SMTP a Auto Upload Images; snímky `b4-*` světlý i tmavý.
+
+**Neověřeno / otevřené.** Skutečný klíč žádného poskytovatele neexistoval, odpovědi jsou z mocku (tvar požadavků podle dokumentace poskytovatelů a kódu WP Mail SMTP / FluentSMTP). Nastavení
+SES (oblasti `eusc-*` a `cn-*` se nenabízejí). Nepřenáší se druhé a další připojení FluentSMTP. Disable WordPress Updates nebyl nainstalovaný (jen fixtura a test, v živé migraci vyšel
+„neaktivní = nic“). Hlídač Cron Control může po zapnutí modulu hlásit staré události Crontrolu jako cizí. Po `wp_delete_attachment` zůstávaly na této instalaci náhledy v uploads (nesouvisí s B4,
+uklizeno ručně). Pro nový příspěvek jsou `%postname%` a `%post_id%` prázdné.

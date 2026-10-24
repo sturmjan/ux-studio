@@ -18,6 +18,23 @@ interface SmtpLog {
 	subject: string;
 	status: string;
 	error: string | null;
+	mailer?: string;
+	attempt?: string;
+}
+
+/** Names of the transports as the log shows them (`wp` = the WordPress default transport, used when nothing was set up). */
+function mailerName( id: string ): string {
+	const names: Record< string, string > = {
+		smtp: __( 'SMTP', 'ux-studio' ),
+		brevo: __( 'Brevo API', 'ux-studio' ),
+		gmail: __( 'Gmail API (OAuth)', 'ux-studio' ),
+		sendgrid: __( 'SendGrid API', 'ux-studio' ),
+		mailgun: __( 'Mailgun API', 'ux-studio' ),
+		postmark: __( 'Postmark API', 'ux-studio' ),
+		ses: __( 'Amazon SES API', 'ux-studio' ),
+		wp: __( 'WordPress default', 'ux-studio' ),
+	};
+	return names[ id ] ?? id;
 }
 
 interface TestResult {
@@ -66,6 +83,72 @@ function BrevoVerify( { hasKey, stored }: { hasKey: boolean; stored?: BrevoStatu
 					{ status.checked ? <span className="uxs-form__help"> { status.checked }</span> : null }
 				</p>
 			) }
+		</div>
+	);
+}
+
+/** Test send through exactly one connection (saved settings, no fallback). */
+function MailerTest( { mailer, ready, to }: { mailer: string; ready: boolean; to: string } ): JSX.Element {
+	const test = useMutation( {
+		mutationFn: () =>
+			api< TestResult >( 'smtp-email/test', {
+				method: 'POST',
+				body: JSON.stringify( to ? { to, mailer } : { mailer } ),
+			} ),
+		onSuccess: () => void queryClient.invalidateQueries( { queryKey: [ 'smtp-email', 'logs' ] } ),
+	} );
+	return (
+		<div className="uxs-mailer-test">
+			<button type="button" className="button" disabled={ ! ready || test.isPending } onClick={ () => test.mutate() }>
+				<Send size={ 14 } /> { __( 'Send a test email through this connection', 'ux-studio' ) }
+			</button>{ ' ' }
+			{ ! ready && (
+				<span className="uxs-form__help">{ __( 'Fill in and save the settings of this connection first.', 'ux-studio' ) }</span>
+			) }
+			{ test.error && <p className="uxs-badge is-danger">{ ( test.error as Error ).message }</p> }
+			{ test.data && (
+				<p>
+					{ test.data.success ? (
+						<span className="uxs-badge is-success">
+							<Check size={ 12 } /> { __( 'Sent to', 'ux-studio' ) } { test.data.to }
+						</span>
+					) : (
+						<span className="uxs-badge is-danger">
+							{ __( 'Failed:', 'ux-studio' ) } { test.data.error || __( 'Unknown error', 'ux-studio' ) }
+						</span>
+					) }
+				</p>
+			) }
+		</div>
+	);
+}
+
+/** Connect / disconnect of the Gmail OAuth account (full-page redirects handled by the module). */
+function GmailConnect( { draft }: { draft: Record< string, unknown > } ): JSX.Element {
+	return (
+		<div className="uxs-form" style={ { marginTop: 'var(--uxs-sp-3)' } }>
+			<p className="uxs-form__help">
+				{ __( 'Redirect URI to register in your Google Cloud OAuth client:', 'ux-studio' ) } <code>{ String( draft.gmail_redirect_uri ?? '' ) }</code>
+			</p>
+			{ draft.gmail_connected ? (
+				<p>
+					<span className="uxs-badge is-success">
+						<Check size={ 12 } /> { __( 'Connected', 'ux-studio' ) }
+						{ draft.gmail_email ? ` (${ String( draft.gmail_email ) })` : '' }
+					</span>{ ' ' }
+					<a className="button" href={ String( draft.gmail_disconnect_url ?? '' ) }>
+						{ __( 'Disconnect Gmail', 'ux-studio' ) }
+					</a>
+				</p>
+			) : (
+				<p>
+					<a className="button" href={ String( draft.gmail_connect_url ?? '' ) }>
+						{ __( 'Connect Gmail account', 'ux-studio' ) }
+					</a>{ ' ' }
+					<span className="uxs-form__help">{ __( 'Save the client ID and secret first, then connect.', 'ux-studio' ) }</span>
+				</p>
+			) }
+			{ draft.gmail_last_error ? <p className="uxs-badge is-danger">{ String( draft.gmail_last_error ) }</p> : null }
 		</div>
 	);
 }
@@ -185,6 +268,7 @@ function LogTable(): JSX.Element {
 						<th>{ __( 'Date', 'ux-studio' ) }</th>
 						<th>{ __( 'To', 'ux-studio' ) }</th>
 						<th>{ __( 'Subject', 'ux-studio' ) }</th>
+						<th>{ __( 'Connection', 'ux-studio' ) }</th>
 						<th>{ __( 'Status', 'ux-studio' ) }</th>
 						<th>{ __( 'Error', 'ux-studio' ) }</th>
 					</tr>
@@ -195,6 +279,11 @@ function LogTable(): JSX.Element {
 							<td>{ formatDate( row.created_at ) }</td>
 							<td>{ row.to_email }</td>
 							<td>{ row.subject }</td>
+							<td>
+								{ row.mailer ? mailerName( row.mailer ) : '' }
+								{ row.attempt === 'fallback' && <span className="uxs-badge"> { __( 'Fallback', 'ux-studio' ) }</span> }
+								{ row.attempt === 'test' && <span className="uxs-badge"> { __( 'Test', 'ux-studio' ) }</span> }
+							</td>
 							<td>
 								<span className={ `uxs-badge ${ row.status === 'success' ? 'is-success' : 'is-danger' }` }>
 									{ row.status === 'success' ? __( 'Sent', 'ux-studio' ) : __( 'Failed', 'ux-studio' ) }
@@ -244,6 +333,25 @@ export default function Page(): JSX.Element {
 			} ),
 	} );
 
+	const ready = ( draft.mailers_ready ?? {} ) as unknown as Record< string, boolean >;
+
+	/** Whether a secret is stored (never its value). */
+	const secretNote = ( key: string ): JSX.Element => (
+		<p className="uxs-form__help">
+			{ draft[ `has_${ key }` ] ? (
+				<span className="uxs-badge is-success">
+					<Check size={ 12 } /> { __( 'Saved. It is stored encrypted and never shown again.', 'ux-studio' ) }
+				</span>
+			) : (
+				<span className="uxs-badge">{ __( 'Not set yet.', 'ux-studio' ) }</span>
+			) }
+		</p>
+	);
+
+	/** A warning under the mailer / fallback choice when the chosen connection is not set up. */
+	const notReady = ( id: string, text: string ): JSX.Element | null =>
+		id && id !== 'none' && ! ready[ id ] ? <p className="uxs-badge is-danger">{ text }</p> : null;
+
 	return (
 		<>
 			<header className="uxs-pagehead">
@@ -274,64 +382,47 @@ export default function Page(): JSX.Element {
 			) }
 			{ tab === 'settings' && data && (
 				<>
-					<SettingsFields schema={ data.schema.filter( ( f ) => ! isLogKey( f ) ) } draft={ draft } setDraft={ setDraft } />
-					<p>
-						{ draft.has_password
-							? __( 'A SMTP password is currently set.', 'ux-studio' )
-							: __( 'No SMTP password set yet.', 'ux-studio' ) }
-						{ ' · ' }
-						{ draft.has_brevo_api_key
-							? __( 'A Brevo API key is currently set.', 'ux-studio' )
-							: __( 'No Brevo API key set yet.', 'ux-studio' ) }
-						{ ' · ' }
-						{ draft.has_gmail_client_secret
-							? __( 'A Gmail client secret is currently set.', 'ux-studio' )
-							: __( 'No Gmail client secret set yet.', 'ux-studio' ) }
-					</p>
+					<SettingsFields
+						schema={ data.schema.filter( ( f ) => ! isLogKey( f ) ) }
+						draft={ draft }
+						setDraft={ setDraft }
+						notes={ {
+							mailer: notReady( String( draft.mailer ?? '' ), __( 'This connection is not set up yet. Until it is, WordPress sends the mail its own way (or through the fallback).', 'ux-studio' ) ),
+							fallback_mailer: notReady( String( draft.fallback_mailer ?? '' ), __( 'The fallback connection is not set up yet, so it cannot take over.', 'ux-studio' ) ),
+							password: (
+								<>
+									{ secretNote( 'password' ) }
+									<MailerTest mailer="smtp" ready={ Boolean( ready.smtp ) } to={ testTo } />
+								</>
+							),
+							brevo_api_key: (
+								<>
+									{ secretNote( 'brevo_api_key' ) }
+									<BrevoVerify hasKey={ Boolean( draft.has_brevo_api_key ) } stored={ draft.brevo_status as BrevoStatus | undefined } />
+									<MailerTest mailer="brevo" ready={ Boolean( ready.brevo ) } to={ testTo } />
+								</>
+							),
+							gmail_client_secret: (
+								<>
+									{ secretNote( 'gmail_client_secret' ) }
+									<GmailConnect draft={ draft } />
+									<MailerTest mailer="gmail" ready={ Boolean( ready.gmail ) } to={ testTo } />
+								</>
+							),
+							sendgrid_api_key: secretNote( 'sendgrid_api_key' ),
+							sendgrid_region: <MailerTest mailer="sendgrid" ready={ Boolean( ready.sendgrid ) } to={ testTo } />,
+							mailgun_api_key: secretNote( 'mailgun_api_key' ),
+							mailgun_region: <MailerTest mailer="mailgun" ready={ Boolean( ready.mailgun ) } to={ testTo } />,
+							postmark_server_token: secretNote( 'postmark_server_token' ),
+							postmark_message_stream: <MailerTest mailer="postmark" ready={ Boolean( ready.postmark ) } to={ testTo } />,
+							ses_access_key: secretNote( 'ses_access_key' ),
+							ses_secret_key: secretNote( 'ses_secret_key' ),
+							ses_region: <MailerTest mailer="ses" ready={ Boolean( ready.ses ) } to={ testTo } />,
+						} }
+					/>
 					<button type="button" className="button button-primary" onClick={ () => save.mutate() }>
 						{ saved ? __( 'Saved', 'ux-studio' ) : __( 'Save changes', 'ux-studio' ) }
 					</button>
-
-					{ draft.mailer === 'brevo' && (
-						<BrevoVerify
-							hasKey={ Boolean( draft.has_brevo_api_key ) }
-							stored={ draft.brevo_status as BrevoStatus | undefined }
-						/>
-					) }
-
-					{ draft.mailer === 'gmail' && (
-						<div className="uxs-form" style={ { marginTop: 'var(--uxs-sp-5)' } }>
-							<p className="uxs-form__help">
-								{ __( 'Redirect URI to register in your Google Cloud OAuth client:', 'ux-studio' ) }{ ' ' }
-								<code>{ String( draft.gmail_redirect_uri ?? '' ) }</code>
-							</p>
-							{ draft.gmail_connected ? (
-								<p>
-									<span className="uxs-badge is-success">
-										<Check size={ 12 } />{ ' ' }
-										{ __( 'Connected', 'ux-studio' ) }
-										{ draft.gmail_email ? ` (${ String( draft.gmail_email ) })` : '' }
-									</span>{ ' ' }
-									<a className="button" href={ String( draft.gmail_disconnect_url ?? '' ) }>
-										{ __( 'Disconnect Gmail', 'ux-studio' ) }
-									</a>
-								</p>
-							) : (
-								<p>
-									<a className="button" href={ String( draft.gmail_connect_url ?? '' ) }>
-										{ __( 'Connect Gmail account', 'ux-studio' ) }
-									</a>
-									{ ' ' }
-									<span className="uxs-form__help">
-										{ __( 'Save the client ID and secret first, then connect.', 'ux-studio' ) }
-									</span>
-								</p>
-							) }
-							{ draft.gmail_last_error ? (
-								<p className="uxs-badge is-danger">{ String( draft.gmail_last_error ) }</p>
-							) : null }
-						</div>
-					) }
 
 					<div className="uxs-form" style={ { marginTop: 'var(--uxs-sp-5)' } }>
 						<div className="uxs-form__row">
@@ -343,22 +434,15 @@ export default function Page(): JSX.Element {
 								value={ testTo }
 								onChange={ ( e ) => setTestTo( e.target.value ) }
 							/>
+							<p className="uxs-form__help">
+								{ __( 'The first button sends the way the site sends (mailer, then fallback); each tab has its own button for one connection.', 'ux-studio' ) }
+							</p>
 						</div>
-						<button
-							type="button"
-							className="button"
-							disabled={ test.isPending }
-							onClick={ () => test.mutate() }
-						>
+						<button type="button" className="button" disabled={ test.isPending } onClick={ () => test.mutate() }>
 							<Send size={ 14 } /> { __( 'Send test email', 'ux-studio' ) }
 						</button>
 						{ ' ' }
-						<button
-							type="button"
-							className="button"
-							disabled={ resend.isPending || ! draft.has_last_message }
-							onClick={ () => resend.mutate() }
-						>
+						<button type="button" className="button" disabled={ resend.isPending || ! draft.has_last_message } onClick={ () => resend.mutate() }>
 							<Send size={ 14 } /> { __( 'Resend last message', 'ux-studio' ) }
 						</button>
 						{ test.data && (

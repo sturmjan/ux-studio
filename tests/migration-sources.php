@@ -183,7 +183,13 @@ $schemas = array(
 		$tog( 'disable_core_updates', true ), $sel( 'core_update_type', array( 'all', 'major', 'minor' ), 'all' ),
 		$tog( 'disable_plugin_updates', true ), $sel( 'plugin_update_type', array( 'all', 'specific' ), 'all' ),
 		$tog( 'disable_theme_updates', true ), $sel( 'theme_update_type', array( 'all', 'specific' ), 'all' ),
-		$tog( 'disable_translation_updates', true ),
+		$tog( 'disable_translation_updates', true ), $tog( 'allow_security_core' ), $txt( 'updates_visible_to' ),
+		$tog( 'hide_notices_core' ), $tog( 'hide_notices_plugins' ), $tog( 'hide_notices_themes' ),
+		$tog( 'disable_checks_core' ), $tog( 'disable_checks_plugins' ), $tog( 'disable_checks_themes' ),
+	),
+	'auto-image-upload'     => array(
+		$txt( 'base_url' ), $txt( 'file_name_pattern', '%filename%' ), $txt( 'alt_pattern', '%image_alt%' ), $num( 'max_width' ), $num( 'max_height' ),
+		$area( 'excluded_domains' ), $mul( 'excluded_post_types', array( 'post', 'page', 'product' ) ), $area( 'custom_fields' ),
 	),
 	'link-manager'          => array(
 		$txt( 'exclude_classes' ), $sel( 'default_target', array( 'new_tab', 'keep' ), 'new_tab' ), $txt( 'default_rel', 'noopener noreferrer nofollow' ),
@@ -396,12 +402,21 @@ $cases = array(
 	),
 	'disable-wordpress-updates'    => array(
 		'disable-wordpress-updates', true, array(),
-		array( 'uxstudio_disable_auto_updates' => array( 'disable_core_updates' => true, 'core_update_type' => 'all', 'disable_plugin_updates' => true, 'disable_theme_updates' => true, 'disable_translation_updates' => true ) ),
+		array( 'uxstudio_disable_auto_updates' => array( 'disable_core_updates' => true, 'core_update_type' => 'all', 'disable_plugin_updates' => true, 'disable_theme_updates' => true, 'disable_translation_updates' => true, 'hide_notices_core' => true, 'disable_checks_core' => true, 'hide_notices_plugins' => true, 'disable_checks_plugins' => true, 'hide_notices_themes' => true, 'disable_checks_themes' => true ) ),
+	),
+	'disable-wordpress-updates / Security Mode' => array(
+		'disable-wordpress-updates', true, array( 'osdwp_security_mode' => 1 ),
+		array( 'uxstudio_disable_auto_updates' => array( 'allow_security_core' => true, 'hide_notices_plugins' => true, 'disable_checks_plugins' => true, 'hide_notices_themes' => true, 'disable_checks_themes' => true ) ),
 	),
 	'stops-core (Easy Updates) off' => array(
 		'stops-core-theme-and-plugin-updates', false,
 		array( 'MPSUM' => array( 'core' => array( 'all_updates' => 'off' ) ) ),
-		array( 'uxstudio_disable_auto_updates' => array( 'disable_core_updates' => true, 'core_update_type' => 'all', 'disable_plugin_updates' => true, 'disable_theme_updates' => true, 'disable_translation_updates' => true ) ),
+		array( 'uxstudio_disable_auto_updates' => array( 'disable_core_updates' => true, 'core_update_type' => 'all', 'disable_plugin_updates' => true, 'disable_theme_updates' => true, 'disable_translation_updates' => true, 'hide_notices_core' => true, 'disable_checks_core' => true, 'hide_notices_plugins' => true, 'disable_checks_plugins' => true, 'hide_notices_themes' => true, 'disable_checks_themes' => true ) ),
+	),
+	'stops-core (Easy Updates) plugins off only' => array(
+		'stops-core-theme-and-plugin-updates', true,
+		array( 'MPSUM' => array( 'core' => array( 'all_updates' => 'on', 'core_updates' => 'on', 'plugin_updates' => 'off', 'theme_updates' => 'on', 'translation_updates' => 'on' ) ) ),
+		array( 'uxstudio_disable_auto_updates' => array( 'hide_notices_plugins' => true, 'disable_checks_plugins' => true ) ),
 	),
 	'stops-core (Easy Updates) mixed' => array(
 		'stops-core-theme-and-plugin-updates', true,
@@ -566,10 +581,15 @@ foreach ( array( 'classic-widgets', 'duplicate-menu', 'enable-media-replace', 'p
 	$common( "$slug (no settings)", $r, false );
 	$assert( "$slug: plan transfers nothing and says so", 0 === $r['plan']['counts']['transfer'] && array() !== $r['plan']['notes'], json_encode( $r['plan']['counts'] ) );
 }
-$site( array( 'auto-upload-images' ), array( 'auto-upload-images' ), array( 'aui-setting' => array( 'image_name' => '%filename%-x', 'alt_name' => '%image_alt%', 'max_width' => '1200', 'exclude_urls' => 'a.test' ) ) );
+$site( array( 'auto-upload-images' ), array( 'auto-upload-images' ), array( 'aui-setting' => array( 'base_url' => 'https://cdn.example.test/', 'image_name' => '%postname%-%date%', 'alt_name' => '%image_alt% (%day%)', 'max_width' => '1200', 'max_height' => '800', 'exclude_urls' => "a.test\nhttps://b.test", 'exclude_post_types' => array( 'product', 'gone' ), 'custom_fields' => array( 'acf_text', 'extra' ) ) ) );
 $r = $exercise( 'auto-upload-images' );
-$common( 'auto-upload-images', $r, false );
-$assert( 'auto-upload-images: nothing transferred, lossy lists what the plugin had', 0 === $r['plan']['counts']['transfer'] && 1 === $r['plan']['counts']['lossy'] && false !== strpos( $r['plan']['lossy'][0], '%filename%-x' ), json_encode( $r['plan']['lossy'] ) );
+$common( 'auto-upload-images', $r );
+$aui = $r['state1']['uxstudio_auto_image_upload'] ?? array();
+$assert( 'auto-upload-images: base address, patterns (deprecated %date% / %day% renamed), size, exclusions and fields are transferred', 'https://cdn.example.test/' === ( $aui['base_url'] ?? '' ) && '%postname%-%today_date%' === ( $aui['file_name_pattern'] ?? '' ) && '%image_alt% (%today_day%)' === ( $aui['alt_pattern'] ?? '' ) && 1200 === (int) ( $aui['max_width'] ?? 0 ) && 800 === (int) ( $aui['max_height'] ?? 0 ) && "a.test\nhttps://b.test" === ( $aui['excluded_domains'] ?? '' ) && "acf_text\nextra" === ( $aui['custom_fields'] ?? '' ), json_encode( $aui ) );
+$assert( 'auto-upload-images: the plain "resized copy" difference is the only lossy item (plus a type that does not exist here)', 2 === $r['plan']['counts']['lossy'] && false !== strpos( implode( ' ', $r['plan']['lossy'] ), 'gone' ) && false !== strpos( implode( ' ', $r['plan']['lossy'] ), 'COPY' ), json_encode( $r['plan']['lossy'] ) );
+$site( array( 'auto-upload-images' ), array( 'auto-upload-images' ), array( 'aui-setting' => array( 'base_url' => 'https://www.example.test', 'image_name' => '%filename%', 'alt_name' => '%image_alt%' ) ) );
+$r2 = $exercise( 'auto-upload-images' );
+$assert( 'auto-upload-images: the plugin default (its own site address) means "no replacement"', '' === ( $r2['state1']['uxstudio_auto_image_upload']['base_url'] ?? 'x' ), json_encode( $r2['state1']['uxstudio_auto_image_upload'] ?? null ) );
 
 $site( array( 'all-404-redirect-to-homepage' ), array( 'all-404-redirect-to-homepage' ), array( 'options-404-redirect-group' => array( 'p404_status' => '2', 'p404_redirect_to' => 'https://elsewhere.test/' ) ) );
 $p = SourceRegistry::get( 'all-404-redirect-to-homepage' )->plan();
