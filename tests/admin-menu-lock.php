@@ -19,6 +19,12 @@ $GLOBALS['uxs_options'] = array();
 
 function __( $text, $domain = '' ) { return $text; }
 function get_post_types( $a = array(), $o = 'names' ) { return array(); }
+function wp_unslash( $v ) { return $v; }
+function sanitize_text_field( $v ) { return trim( strip_tags( (string) $v ) ); }
+function absint( $v ) { return abs( (int) $v ); }
+$GLOBALS['uxs_posts'] = array( 5 => 'page', 6 => 'post', 7 => 'product' );
+function get_post_type( $id ) { return $GLOBALS['uxs_posts'][ (int) $id ] ?? false; }
+function post_type_exists( $t ) { return in_array( $t, array( 'post', 'page', 'product' ), true ); }
 
 require_once dirname( __DIR__ ) . '/includes/Autoloader.php';
 \UxStudio\Autoloader::register();
@@ -181,6 +187,20 @@ foreach ( array( 'editor', 'shop_manager', 'subscriber' ) as $role ) {
 $assert( 'blocked_matrix agrees with the per-request decision', $ok );
 $assert( 'blocked_matrix never lists a protected screen or an administrator', ! array_intersect( array_keys( S::protected_screens() ), $matrix['editor'] ) && array() === $matrix['administrator'] );
 $assert( 'blocked_matrix: editor is refused hidden items, shop_manager the editor-only page', in_array( 'edit-comments.php', $matrix['editor'], true ) && in_array( 'edit.php?post_type=page', $matrix['shop_manager'], true ) && ! in_array( 'edit.php?post_type=page', $matrix['editor'], true ) );
+
+/* ── post.php: the post type comes from the post, never from the request (finding 5) ── */
+$assert( 'request_args: post.php?post=<page> with a forged post_type=post still resolves to page', array( 'post_type' => 'page' ) === MenuLock::request_args( 'post.php', array( 'post' => '5', 'post_type' => 'post' ) ) );
+$assert( 'request_args: a save (post_ID in the body) ignores the forged post_type too', array( 'post_type' => 'page' ) === MenuLock::request_args( 'post.php', array( 'post_ID' => '5', 'post_type' => 'post', 'action' => 'editpost' ) ) );
+$assert( 'request_args: post.php without a post id gets no post type from the request', array() === MenuLock::request_args( 'post.php', array( 'post_type' => 'page' ) ) );
+$assert( 'request_args: a forged post_type for an unknown post id is dropped', array() === MenuLock::request_args( 'post.php', array( 'post' => '999', 'post_type' => 'page' ) ) );
+$assert( 'request_args: edit.php keeps a registered post_type', array( 'post_type' => 'page' ) === MenuLock::request_args( 'edit.php', array( 'post_type' => 'page' ) ) );
+$assert( 'request_args: post-new.php keeps it too, an unregistered type is dropped', array( 'post_type' => 'product' ) === MenuLock::request_args( 'post-new.php', array( 'post_type' => 'product' ) ) && array() === MenuLock::request_args( 'post-new.php', array( 'post_type' => 'bogus' ) ) );
+$assert( 'request_args: page and taxonomy pass through', array( 'page' => 'wc-settings' ) === MenuLock::request_args( 'admin.php', array( 'page' => 'wc-settings' ) ) && array( 'taxonomy' => 'product_cat', 'post_type' => 'product' ) === MenuLock::request_args( 'edit-tags.php', array( 'taxonomy' => 'product_cat', 'post_type' => 'product' ) ) );
+// The full bypass: Pages are limited to editors; a shop manager opens the page with a forged post_type=post.
+$bypass_args = MenuLock::request_args( 'post.php', array( 'post' => '5', 'post_type' => 'post' ) );
+$assert( 'bypass attempt (edit a hidden Page via post.php?post_type=post) is refused for shop_manager and allowed for editor', S::request_blocked( $config, 'post.php', $bypass_args, $tops, $subs, array( 'shop_manager' ), false )['blocked'] && ! S::request_blocked( $config, 'post.php', $bypass_args, $tops, $subs, array( 'editor' ), false )['blocked'] );
+$forged = array( 'post_type' => 'post' ); // What the old code passed on: Posts, which the shop manager may open.
+$assert( 'the old (request-trusting) args would have let the shop manager through', ! S::request_blocked( $config, 'post.php', $forged, $tops, $subs, array( 'shop_manager' ), false )['blocked'] );
 
 /* ── Switches: setting off by default, kill constant ── */
 $GLOBALS['uxs_options'] = array();

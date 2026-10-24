@@ -100,26 +100,40 @@ final class MenuLock {
 	/**
 	 * The query args that decide which menu entry a request is (read only, compared, never output).
 	 *
-	 * @param string $file Admin file of the request.
+	 * On `post.php` the post type is NEVER taken from the request: it is the type of the post being
+	 * opened or saved (`post_ID` / `post`). Otherwise `post.php?post=<hidden page>&post_type=post` would
+	 * be filed under Posts and slip past a lock on Pages. On `edit.php`, `post-new.php` and the like the
+	 * `post_type` argument does name the screen, so it is kept - but only when it is a registered type.
+	 *
+	 * @param string                    $file    Admin file of the request.
+	 * @param array<string, mixed>|null $request Request values (tests); null reads $_REQUEST.
 	 * @return array<string, string>
 	 */
-	public static function request_args( string $file ): array {
+	public static function request_args( string $file, ?array $request = null ): array {
 		$args = array();
 		// $_REQUEST like WordPress itself ($typenow): saving a post sends post_type / post_ID in the body.
 		// phpcs:disable WordPress.Security.NonceVerification
-		foreach ( array( 'page', 'post_type', 'taxonomy' ) as $key ) {
-			if ( isset( $_REQUEST[ $key ] ) && is_string( $_REQUEST[ $key ] ) ) {
-				$args[ $key ] = sanitize_text_field( wp_unslash( $_REQUEST[ $key ] ) );
+		$request = $request ?? $_REQUEST;
+		$get     = static function ( string $key ) use ( $request ): string {
+			return isset( $request[ $key ] ) && is_string( $request[ $key ] ) ? sanitize_text_field( wp_unslash( $request[ $key ] ) ) : '';
+		};
+		foreach ( array( 'page', 'taxonomy' ) as $key ) {
+			if ( '' !== $get( $key ) ) {
+				$args[ $key ] = $get( $key );
 			}
 		}
-		if ( 'post.php' === $file && empty( $args['post_type'] ) ) {
-			$id = isset( $_REQUEST['post'] ) ? absint( wp_unslash( $_REQUEST['post'] ) ) : ( isset( $_REQUEST['post_ID'] ) ? absint( wp_unslash( $_REQUEST['post_ID'] ) ) : 0 );
+		if ( 'post.php' === $file ) {
+			// The saved post (post_ID, a POST body) wins over the opened one (post); WordPress itself dies on a mismatch.
+			$raw = '' !== $get( 'post_ID' ) ? $get( 'post_ID' ) : $get( 'post' );
+			$id  = absint( $raw );
 			if ( $id > 0 ) {
 				$type = get_post_type( $id );
 				if ( $type ) {
 					$args['post_type'] = (string) $type;
 				}
 			}
+		} elseif ( '' !== $get( 'post_type' ) && post_type_exists( $get( 'post_type' ) ) ) {
+			$args['post_type'] = $get( 'post_type' );
 		}
 		// phpcs:enable
 		return $args;
