@@ -1,4 +1,6 @@
 <?php
+// Test only: never runs over HTTP (the release zip also excludes tests/).
+if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
  * Standalone test of the snippet features of PLAN.md 27, A2: the [uxstudio_snippet] shortcode, the placement before / after
  * the post content and run once. Real snippet files (header, integrity hash) are written to a scratch folder and rendered

@@ -1,4 +1,6 @@
 <?php
+// Test only: never runs over HTTP (the release zip also excludes tests/).
+if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
  * Standalone test of the redirect rule conditions (PLAN.md 27, A2): the validation and the matching matrix of every
  * condition type, several rules for one source (order, first match wins, fallback), the engine lookup on a small

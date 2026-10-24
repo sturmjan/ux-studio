@@ -1,4 +1,6 @@
 <?php
+// Test only: never runs over HTTP (the release zip also excludes tests/).
+if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
  * Standalone test of PLAN.md 27.9 (B3, "Obsah II"): the options of Duplicate Post (status of the copy, excluded fields with
  * wildcards, excluded taxonomies, roles, all post types), the rules of Link Manager (per domain, never external, icons, one

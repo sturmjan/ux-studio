@@ -1,4 +1,6 @@
 <?php
+// Test only: never runs over HTTP (the release zip also excludes tests/).
+if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
  * Standalone test of PLAN.md 27.7 (B1): sub-items of the Menu Organizer (rename, hide per role, move, order), per-user rules
  * and required capabilities, the access lock and the lockout rule with them, custom CSS sanitizer and output, meta boxes per

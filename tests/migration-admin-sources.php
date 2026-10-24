@@ -1,4 +1,6 @@
 <?php
+// Test only: never runs over HTTP (the release zip also excludes tests/).
+if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
  * Standalone test of migration phase F5 (PLAN.md 26.11): the Admin Customiser sources
  * (Admin Menu Editor, Adminimize, White Label CMS, Adminify, LoginPress) and Admin Columns.

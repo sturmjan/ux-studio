@@ -1,4 +1,6 @@
 <?php
+// Test only: never runs over HTTP (the release zip also excludes tests/).
+if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
  * Standalone test of PinnedHttp (PLAN.md 28): the checked IP is pinned for the connection (no DNS rebinding),
  * redirects are followed hop by hop and each hop is resolved, checked and pinned again.

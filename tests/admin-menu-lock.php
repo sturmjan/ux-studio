@@ -1,4 +1,6 @@
 <?php
+// Test only: never runs over HTTP (the release zip also excludes tests/).
+if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
  * Standalone test of the Menu Organizer access lock (PLAN.md 27.6): which admin request is refused to whom.
  * Pure: roles x hidden items x protected screens x manage_options x kill switch.

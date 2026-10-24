@@ -1,4 +1,6 @@
 <?php
+// Test only: never runs over HTTP (the release zip also excludes tests/).
+if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
  * Standalone test of the plugin-overlap catalog, detection and activation guard
  * (PLAN.md 26.5). Needs no WordPress and no database:

@@ -1,4 +1,6 @@
 <?php
+// Test only: never runs over HTTP (the release zip also excludes tests/).
+if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
  * Standalone test of the Menu Visibility rules (PLAN.md 27.6): login state and roles, several rules per item
  * (all must hold), backward compatible storage, children of hidden items.

@@ -1,4 +1,6 @@
 <?php
+// Test only: never runs over HTTP (the release zip also excludes tests/).
+if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
  * Standalone test of PLAN.md 27.10 (B4, "Technika"): the API mailers (SendGrid, Mailgun, Postmark, Amazon SES with SigV4 in PHP),
  * the fallback connection and its log, the update notices / checks / security exception of Disable Auto Updates, the URL

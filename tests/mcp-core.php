@@ -1,4 +1,6 @@
 <?php
+// Test only: never runs over HTTP (the release zip also excludes tests/).
+if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
  * Standalone test of the MCP server core (PLAN.md 26.6): scope matrix, tokens, confirmations,
  * secret masking, guard refusals. Needs no WordPress and no database:

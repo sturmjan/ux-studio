@@ -1,4 +1,6 @@
 <?php
+// Test only: never runs over HTTP (the release zip also excludes tests/).
+if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
  * Standalone test of the safe preview and the switch (PLAN.md 26, phase F4): token signing, what a preview
  * request changes (plugins, modules, staged options, persistence guards), the smoke checks against a fake

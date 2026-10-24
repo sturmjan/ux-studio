@@ -1,4 +1,6 @@
 <?php
+// Test only: never runs over HTTP (the release zip also excludes tests/).
+if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
  * Standalone test of the two-step verification (PLAN.md 27, A1): the TOTP algorithm against the RFC 6238
  * Appendix B vectors, the window, recovery codes (hashed, one time), replay guard, the rate limit of code

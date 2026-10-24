@@ -1,4 +1,6 @@
 <?php
+// Test only: never runs over HTTP (the release zip also excludes tests/).
+if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
  * Standalone test of the release-safety notice for the custom login address (Security module, phase F7):
  * when it is raised, that the e-mail goes out exactly once per site, who sees the notice and how a user

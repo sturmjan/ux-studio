@@ -1,4 +1,6 @@
 <?php
+// Test only: never runs over HTTP (the release zip also excludes tests/).
+if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
  * Standalone test of the progressive lockout rule (PLAN.md 27, A1): the lockout time grows with every repeated
  * lockout of the same IP within 24 hours, never below the base time and never above the maximum. Needs no

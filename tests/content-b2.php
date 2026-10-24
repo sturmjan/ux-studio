@@ -1,4 +1,6 @@
 <?php
+// Test only: never runs over HTTP (the release zip also excludes tests/).
+if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
  * Standalone test of PLAN.md 27, B2 ("Obsah I"): the redirect hit counter and the per-rule options (letter case, query
  * string handling) with their interplay with conditions, CSV round trip, ability schemas; the code snippet run

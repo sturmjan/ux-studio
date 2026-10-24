@@ -1,4 +1,6 @@
 <?php
+// Test only: never runs over HTTP (the release zip also excludes tests/).
+if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
  * Standalone test of the migration wizard backend (PLAN.md 26, phase F2): every
  * settings-only source maps its fixture options to the expected UX Studio values,

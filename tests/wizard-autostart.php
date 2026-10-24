@@ -1,4 +1,6 @@
 <?php
+// Test only: never runs over HTTP (the release zip also excludes tests/).
+if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
  * Standalone test of the one-time start of the migration wizard after activation (PLAN.md 26, phase F7):
  * decision matrix (single / bulk / WP-CLI / network / AJAX activation, spent flag, other administrator, Handoff,

@@ -1,4 +1,6 @@
 <?php
+// Test only: never runs over HTTP (the release zip also excludes tests/).
+if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
  * Standalone test of the migration wizard sources with DATA (PLAN.md 26, phase F3): every source reads
  * its fixture in the real format of the foreign plugin, maps it, reports what is lost, the batch engine is
