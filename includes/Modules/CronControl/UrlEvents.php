@@ -7,6 +7,7 @@
 
 namespace UxStudio\Modules\CronControl;
 
+use UxStudio\Core\PinnedHttp;
 use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
@@ -322,7 +323,9 @@ final class UrlEvents {
 			$args['reject_unsafe_urls'] = false;
 			$response                   = wp_remote_request( $url, $args );
 		} else {
-			$response = wp_safe_remote_request( $url, $args );
+			// The host was resolved and checked in check_url(); the request connects to exactly the checked
+			// address (no DNS rebinding between the check and the connection), redirects re-checked hop by hop.
+			$response = PinnedHttp::request( (string) $event['method'], $url, $args, array( self::class, 'is_public_ip' ) );
 		}
 
 		if ( is_wp_error( $response ) ) {

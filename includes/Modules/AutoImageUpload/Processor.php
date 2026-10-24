@@ -7,6 +7,7 @@
 
 namespace UxStudio\Modules\AutoImageUpload;
 
+use UxStudio\Core\PinnedHttp;
 use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
@@ -509,16 +510,18 @@ final class Processor {
 			return new WP_Error( 'blocked_host', __( 'This target is not allowed.', 'ux-studio' ) );
 		}
 
-		// SSRF: use wp_safe_remote_get with reject_unsafe_urls so WP re-validates the
-		// URL and each redirect target against private/reserved ranges.
-		$response = wp_safe_remote_get(
+		// SSRF: wp_safe_remote_* with reject_unsafe_urls re-validates the URL, and PinnedHttp connects to exactly
+		// the address that was checked (no DNS rebinding between the check and the download) and follows
+		// redirects itself, each hop checked and pinned again.
+		$response = PinnedHttp::request(
+			'GET',
 			$url,
 			array(
 				'timeout'             => 30,
-				'redirection'         => 3,
 				'reject_unsafe_urls'  => true,
 				'limit_response_size' => $this->max_bytes + 1024,
-			)
+			),
+			static fn( string $ip ): bool => false !== filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE )
 		);
 		if ( is_wp_error( $response ) ) {
 			return $response;

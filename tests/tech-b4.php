@@ -124,6 +124,7 @@ function wp_get_current_user() { return $GLOBALS['uxs_user'] ?? new FakeUser(); 
 function get_post( $id ) { return $GLOBALS['uxs_posts'][ (int) $id ] ?? null; }
 function wp_get_schedules() { return array( 'hourly' => array( 'interval' => 3600, 'display' => 'Hourly' ), 'daily' => array( 'interval' => 86400, 'display' => 'Daily' ) ); }
 function wp_remote_retrieve_response_code( $r ) { return is_array( $r ) ? ( $r['response']['code'] ?? 0 ) : 0; }
+function wp_remote_retrieve_header( $r, $h ) { return is_array( $r ) ? ( $r['headers'][ $h ] ?? '' ) : ''; }
 function wp_remote_retrieve_body( $r ) { return is_array( $r ) ? ( $r['body'] ?? '' ) : ''; }
 function wp_remote_post( $url, $args = array() ) { return wp_remote_request( $url, $args + array( 'method' => 'POST' ) ); }
 
