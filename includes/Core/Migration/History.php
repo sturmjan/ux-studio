@@ -40,6 +40,10 @@ final class History {
 		);
 		array_unshift( $list, $run );
 		update_option( self::OPTION, array_slice( $list, 0, self::MAX ), false );
+		// A migration ran: the Modules screen hint (cached count) is obsolete.
+		if ( function_exists( 'delete_transient' ) ) {
+			AutoStart::flush_hint_cache();
+		}
 	}
 
 	/**

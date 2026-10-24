@@ -95,13 +95,97 @@ final class DB {
 		if ( $current >= $version || \UxStudio\Core\Migration\Preview::is_active() ) {
 			return;
 		}
+		// A failed attempt is retried later, not on every request.
+		if ( false !== get_transient( self::FAIL_TRANSIENT_PREFIX . str_replace( '-', '_', $module_id ) ) ) {
+			return;
+		}
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		global $wpdb;
+		$wpdb->last_error = ''; // A stale error of an earlier, unrelated query must not count.
+		$errors_before = self::structural_error_count();
 		$migrator( $current );
+		if ( self::structural_error_count() > $errors_before || self::last_query_failed_structurally() ) {
+			// dbDelta()/CREATE/ALTER failed (permissions, a full disk, a broken index ...): do NOT record the
+			// version, otherwise the missing table/column would never be created again.
+			self::report_failed_migration( $module_id, $current, $version );
+			return;
+		}
 		self::set_module_version( $module_id, $version );
 
 		// A module's tables now exist. If legacy ux1 data for this module is
 		// present and the new table is still empty, import it now (idempotent).
 		Migrator::maybe_migrate_module_data( $module_id );
+	}
+
+	/** Transient prefix: a module whose schema step failed is not retried for FAIL_RETRY seconds. */
+	private const FAIL_TRANSIENT_PREFIX = 'uxstudio_dbfail_';
+
+	/** Retry delay after a failed schema step. */
+	private const FAIL_RETRY = 15 * MINUTE_IN_SECONDS;
+
+	/**
+	 * Is this SQL a structural statement (the ones whose failure leaves a table or column missing)? dbDelta()
+	 * itself runs a DESCRIBE on tables that do not exist yet, which fails by design, so only CREATE/ALTER count.
+	 *
+	 * @param string $sql SQL text.
+	 */
+	private static function is_structural_sql( string $sql ): bool {
+		return 1 === preg_match( '/^\s*(CREATE|ALTER)\s/i', $sql );
+	}
+
+	/**
+	 * How many CREATE/ALTER statements have failed so far in this request (wpdb keeps every failed query in
+	 * the global $EZSQL_ERROR, also when errors are suppressed).
+	 */
+	private static function structural_error_count(): int {
+		$count = 0;
+		foreach ( (array) ( $GLOBALS['EZSQL_ERROR'] ?? array() ) as $entry ) {
+			if ( is_array( $entry ) && self::is_structural_sql( (string) ( $entry['query'] ?? '' ) ) ) {
+				++$count;
+			}
+		}
+		return $count;
+	}
+
+	/**
+	 * Did the very last query of the schema step fail, and was it a CREATE/ALTER?
+	 */
+	private static function last_query_failed_structurally(): bool {
+		global $wpdb;
+		return '' !== (string) ( $wpdb->last_error ?? '' ) && self::is_structural_sql( (string) ( $wpdb->last_query ?? '' ) );
+	}
+
+	/**
+	 * A schema step failed: remember it for a while (so it is retried later, not on every request) and say so
+	 * once a day in the Activity Log and in the PHP error log.
+	 *
+	 * @param string $module_id Module id.
+	 * @param int    $from      Version it was at.
+	 * @param int    $version   Version it wanted to reach.
+	 */
+	private static function report_failed_migration( string $module_id, int $from, int $version ): void {
+		global $wpdb;
+		$slug = str_replace( '-', '_', $module_id );
+		set_transient( self::FAIL_TRANSIENT_PREFIX . $slug, 1, self::FAIL_RETRY );
+		if ( false !== get_transient( self::FAIL_TRANSIENT_PREFIX . 'logged_' . $slug ) ) {
+			return;
+		}
+		set_transient( self::FAIL_TRANSIENT_PREFIX . 'logged_' . $slug, 1, DAY_IN_SECONDS );
+		$error = (string) ( $wpdb->last_error ?? '' );
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		error_log( sprintf( 'UX Studio: database upgrade of module %s (%d -> %d) failed, will retry: %s', $module_id, $from, $version, $error ) );
+		ActivityLog::log(
+			'core',
+			'db_migration_failed',
+			'module',
+			0,
+			array(
+				'module' => $module_id,
+				'from'   => $from,
+				'to'     => $version,
+				'error'  => $error,
+			)
+		);
 	}
 
 	/**

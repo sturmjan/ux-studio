@@ -41,6 +41,35 @@ final class AutoStart {
 	 */
 	public static function register(): void {
 		add_action( 'admin_init', array( self::class, 'maybe_redirect' ), 20 );
+		// The cached hint count goes stale when plugins come and go.
+		foreach ( array( 'activated_plugin', 'deactivated_plugin', 'deleted_plugin' ) as $hook ) {
+			add_action( $hook, array( self::class, 'flush_hint_cache' ) );
+		}
+	}
+
+	/** Transient with the count behind the Modules screen hint. */
+	public const HINT_TRANSIENT = 'uxstudio_wizard_hint_count';
+
+	/** How long the count is reused. */
+	private const HINT_TTL = HOUR_IN_SECONDS;
+
+	/** @var callable|null Test seam: replaces SourceRegistry::scan() for the hint. */
+	private static $scanner = null;
+
+	/**
+	 * Replace the scan used by hint() (tests only).
+	 *
+	 * @param callable|null $scanner Returns the rows of a scan.
+	 */
+	public static function set_scanner( ?callable $scanner ): void {
+		self::$scanner = $scanner;
+	}
+
+	/**
+	 * Forget the cached count (a plugin was (de)activated or deleted, or a migration ran).
+	 */
+	public static function flush_hint_cache(): void {
+		delete_transient( self::HINT_TRANSIENT );
 	}
 
 	/* ── Pure decisions ── */
@@ -199,7 +228,14 @@ final class AutoStart {
 				'count' => 0,
 			);
 		}
-		$count = self::count_migratable( SourceRegistry::scan() );
+		// The full scan reads the data of every known foreign plugin; the Modules screen asks on every visit, so
+		// the answer is reused for an hour (flushed when plugins change or a migration runs).
+		$count = get_transient( self::HINT_TRANSIENT );
+		if ( false === $count ) {
+			$count = self::count_migratable( null !== self::$scanner ? ( self::$scanner )() : SourceRegistry::scan() );
+			set_transient( self::HINT_TRANSIENT, $count, self::HINT_TTL );
+		}
+		$count = (int) $count;
 		return array(
 			'show'  => $count > 0,
 			'count' => $count,

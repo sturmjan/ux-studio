@@ -74,8 +74,17 @@ final class EmailLogSource extends AbstractSource {
 		return $this->table_exists( $table ) ? (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" ) : 0; // phpcs:ignore WordPress.DB
 	}
 
+	/**
+	 * Is there at least one mail in the foreign log? (LIMIT 1 instead of counting a table of any size.)
+	 */
+	private function has_rows(): bool {
+		global $wpdb;
+		$table = $this->table();
+		return $this->table_exists( $table ) && null !== $wpdb->get_var( "SELECT 1 FROM {$table} LIMIT 1" ); // phpcs:ignore WordPress.DB
+	}
+
 	protected function has_data(): bool {
-		return $this->count_rows() > 0 || parent::has_data();
+		return $this->has_rows() || parent::has_data();
 	}
 
 	public function options(): array {

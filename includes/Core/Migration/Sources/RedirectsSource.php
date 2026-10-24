@@ -53,7 +53,20 @@ final class RedirectsSource extends AbstractSource implements Activatable {
 	}
 
 	protected function has_data(): bool {
-		return $this->collect_count() > 0 || parent::has_data();
+		return $this->has_foreign_rows() || parent::has_data();
+	}
+
+	/** Is there at least one row in the foreign storage? (LIMIT 1 instead of counting.) */
+	private function has_foreign_rows(): bool {
+		global $wpdb;
+		switch ( $this->slug ) {
+			case 'redirection':
+				return Importer::redirection_available() && null !== $wpdb->get_var( "SELECT 1 FROM {$wpdb->prefix}redirection_items LIMIT 1" ); // phpcs:ignore WordPress.DB
+			case '301-redirects':
+				return $this->table_exists( $wpdb->prefix . 'ts_redirects' ) && null !== $wpdb->get_var( "SELECT 1 FROM {$wpdb->prefix}ts_redirects LIMIT 1" ); // phpcs:ignore WordPress.DB
+			default:
+				return $this->collect_count() > 0;
+		}
 	}
 
 	/** Rows in the foreign storage, cheap (no normalising). */

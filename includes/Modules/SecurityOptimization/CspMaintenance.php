@@ -110,7 +110,8 @@ final class CspMaintenance {
 			$rating  = CspRisk::with_domain_age( $rating, $created, (string) $row['directive'] );
 			CspLogger::update_rating( (int) $row['id'], $rating, $created );
 
-			if ( CspRisk::LEVEL_HIGH === $rating['level'] && CspRisk::LEVEL_HIGH !== $row['risk_level'] && 'open' === $row['status'] ) {
+			// Rows that existed before the update never e-mail (only reports received after it do).
+			if ( CspRisk::LEVEL_HIGH === $rating['level'] && CspRisk::LEVEL_HIGH !== $row['risk_level'] && 'open' === $row['status'] && (int) $row['id'] > CspRerate::legacy_max_id() ) {
 				$escalated = true;
 			}
 		}
@@ -189,7 +190,7 @@ final class CspMaintenance {
 					'per_page' => 50,
 				)
 			),
-			static fn( array $row ): bool => (string) ( $row['risk_checked_at'] ?? '' ) >= $since || (string) $row['first_seen'] >= $since
+			static fn( array $row ): bool => (int) $row['id'] > CspRerate::legacy_max_id() && ( (string) ( $row['risk_checked_at'] ?? '' ) >= $since || (string) $row['first_seen'] >= $since )
 		);
 		if ( empty( $rows ) ) {
 			return;

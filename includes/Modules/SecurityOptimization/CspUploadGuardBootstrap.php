@@ -30,7 +30,8 @@ final class CspUploadGuardBootstrap {
 	 * v2: full-scan worklist moved from one big option to the scan_queue table.
 	 * v3: keyword scoring replaced by token analysis + WordPress.org checksums.
 	 * v4: file_size/file_mtime in the hash cache (unchanged files are not read).
-	 * v5: CSP inventory - risk rating, pages, policy, sample; raw IPs dropped.
+	 * v5: CSP inventory - risk rating, pages, policy, sample; raw IPs dropped; old rows re-rated in batches (CspRerate).
+	 * v6: reporters column (distinct reporting clients, for the auto-rollback).
 	 */
 	private const DB_VERSION   = 6;
 
@@ -57,6 +58,10 @@ final class CspUploadGuardBootstrap {
 		self::$registered = true;
 
 		self::ensure_tables();
+
+		// Old rows are rated in batches (see CspRerate) - registered always, the CSP data exists whatever the mode.
+		add_action( CspRerate::HOOK, array( CspRerate::class, 'run_batch' ) );
+		CspRerate::ensure_scheduled();
 
 		add_action( 'rest_api_init', array( self::class, 'register_rest_routes' ) );
 
@@ -183,26 +188,15 @@ final class CspUploadGuardBootstrap {
 				}
 
 				if ( $from < 5 && $from > 0 ) {
-					// Raw IPs were stored despite the docs saying otherwise.
-					$wpdb->query( "UPDATE {$wpdb->prefix}uxstudio_csp_violations SET sample_ip = ''" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-					// Rate the rows collected before the rating existed.
-					$site = CspLogger::site_host();
-					$rows = $wpdb->get_results( "SELECT id, blocked_uri, directive FROM {$wpdb->prefix}uxstudio_csp_violations", ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-					foreach ( (array) $rows as $row ) {
-						$rating = CspRisk::rate( (string) $row['blocked_uri'], (string) $row['directive'], $site );
-						$wpdb->update(
-							"{$wpdb->prefix}uxstudio_csp_violations",
-							array(
-								'risk_level'   => $rating['level'],
-								'risk_score'   => $rating['score'],
-								'risk_reasons' => wp_json_encode( $rating['reasons'] ),
-								'service'      => $rating['service'],
-								'directive'    => CspPolicy::base_directive( (string) strtok( (string) $row['directive'], ' ' ) ),
-							),
-							array( 'id' => (int) $row['id'] )
-						);
-					}
+					// Raw IPs were stored despite the docs saying otherwise (one statement, only rows that have one).
+					$wpdb->query( "UPDATE {$wpdb->prefix}uxstudio_csp_violations SET sample_ip = '' WHERE sample_ip <> ''" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					// Rating of the rows collected before the rating existed is NOT done here: a long history
+					// would hold the first request after the update. CspRerate rates them in batches of 200 from
+					// WP-Cron, and marks them as old so they never trigger the high-risk e-mail.
+					CspRerate::start();
 				}
+				// v6 only adds the `reporters` column (dbDelta above, a nullable column, no data step): old rows
+				// simply have no reporters yet.
 
 				if ( $from < 3 ) {
 					// Open findings of the old keyword engine were mostly false
