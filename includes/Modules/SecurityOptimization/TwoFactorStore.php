@@ -97,7 +97,20 @@ final class TwoFactorStore {
 	 * @param int $uid User id.
 	 */
 	public static function is_enabled( int $uid ): bool {
-		return '1' === (string) get_user_meta( $uid, self::META . 'enabled', true ) && '' !== self::secret( $uid );
+		// Only the flag decides. If the secret cannot be decrypted (the WordPress salts
+		// changed), the factor must NOT silently switch off - see secret_unreadable().
+		return '1' === (string) get_user_meta( $uid, self::META . 'enabled', true );
+	}
+
+	/**
+	 * The factor is on, but its secret cannot be read (salts rotated, OpenSSL missing, corrupt value).
+	 * Such an account cannot pass the second step with an app code; the recovery codes are keyed with
+	 * the same salt, so an administrator has to reset the factor (fail closed, never password-only).
+	 *
+	 * @param int $uid User id.
+	 */
+	public static function secret_unreadable( int $uid ): bool {
+		return self::is_enabled( $uid ) && '' === self::secret( $uid );
 	}
 
 	/**
@@ -151,6 +164,15 @@ final class TwoFactorStore {
 	 * @return string[]|null The recovery codes (shown once), or null when the code was wrong or the account is locked.
 	 */
 	public static function confirm_setup( int $uid, string $code ): ?array {
+		return self::locked(
+			$uid,
+			static function () use ( $uid, $code ): ?array {
+				return self::confirm_setup_unlocked( $uid, $code );
+			}
+		);
+	}
+
+	private static function confirm_setup_unlocked( int $uid, string $code ): ?array {
 		$secret = self::pending_secret( $uid );
 		if ( '' === $secret || self::lock_remaining( $uid ) > 0 ) {
 			return null;
@@ -306,6 +328,94 @@ final class TwoFactorStore {
 	 *         method: `totp` or `recovery` on success, '' otherwise. `remaining`: wrong tries left before the lockout.
 	 */
 	public static function attempt( int $uid, string $input ): array {
+		$out = self::locked(
+			$uid,
+			static function () use ( $uid, $input ): array {
+				return self::attempt_unlocked( $uid, $input );
+			}
+		);
+		return $out ?? array(
+			'ok'          => false,
+			'method'      => '',
+			'locked'      => false,
+			'just_locked' => false,
+			'remaining'   => 0,
+			'retry_in'    => 0,
+		);
+	}
+
+	/** Seconds a stale lock lives (a crashed request must not block the account forever). */
+	private const LOCK_TTL = 15;
+
+	/** @var array<string,int> In-process locks (no database, tests). */
+	private static array $mem_locks = array();
+
+	/**
+	 * Run a callback with a per-user mutex, so concurrent code attempts cannot both read the same
+	 * failure counter or the same recovery-code list (the 5-attempt limit and one-time codes hold
+	 * under parallel requests). The mutex is an `INSERT IGNORE` of a unique option row: atomic in MySQL.
+	 *
+	 * @param int      $uid User id.
+	 * @param callable $fn  Work to do while holding the lock.
+	 * @return mixed|null Result of the callback, or null when the lock could not be taken (fail closed).
+	 */
+	private static function locked( int $uid, callable $fn ) {
+		$name     = 'uxstudio_2fa_lock_' . $uid;
+		$deadline = microtime( true ) + 2.0;
+		while ( ! self::lock_try( $name ) ) {
+			if ( microtime( true ) >= $deadline ) {
+				return null;
+			}
+			usleep( 40000 );
+		}
+		try {
+			if ( function_exists( 'wp_cache_delete' ) ) {
+				// Meta read before the lock may be stale now.
+				wp_cache_delete( $uid, 'user_meta' );
+			}
+			return $fn();
+		} finally {
+			self::lock_release( $name );
+		}
+	}
+
+	private static function lock_try( string $name ): bool {
+		global $wpdb;
+		$now = self::now();
+		if ( ! is_object( $wpdb ) || ! isset( $wpdb->options ) ) {
+			if ( ( self::$mem_locks[ $name ] ?? 0 ) > $now ) {
+				return false;
+			}
+			self::$mem_locks[ $name ] = $now + self::LOCK_TTL;
+			return true;
+		}
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery
+		$inserted = $wpdb->query( $wpdb->prepare( "INSERT IGNORE INTO {$wpdb->options} (option_name, option_value, autoload) VALUES (%s, %s, 'no')", $name, (string) ( $now + self::LOCK_TTL ) ) );
+		if ( 1 === (int) $inserted ) {
+			return true;
+		}
+		$until = (string) $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM {$wpdb->options} WHERE option_name = %s", $name ) );
+		if ( '' !== $until && (int) $until < $now ) {
+			// Stale (crashed request): drop exactly this value, the next round takes the lock.
+			$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name = %s AND option_value = %s", $name, $until ) );
+		}
+		// phpcs:enable
+		return false;
+	}
+
+	private static function lock_release( string $name ): void {
+		global $wpdb;
+		if ( ! is_object( $wpdb ) || ! isset( $wpdb->options ) ) {
+			unset( self::$mem_locks[ $name ] );
+			return;
+		}
+		$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name = %s", $name ) ); // phpcs:ignore WordPress.DB
+	}
+
+	/**
+	 * @return array{ok:bool,method:string,locked:bool,just_locked:bool,remaining:int,retry_in:int}
+	 */
+	private static function attempt_unlocked( int $uid, string $input ): array {
 		$out = array(
 			'ok'          => false,
 			'method'      => '',

@@ -222,6 +222,91 @@ $assert( 'the requirement being lifted clears the forced flag', (function () use
 Store::disable( $u );
 $assert( 'switching the factor off again does not give a fresh grace (the used logins stay used)', 0 === Store::grace_left( $u, 3 ) );
 
+/* ── Unreadable secret fails closed (finding 3) ── */
+
+$now = 1800600000;
+$bad_user = 30;
+$sec2     = Store::begin_setup( $bad_user );
+$codes2   = Store::confirm_setup( $bad_user, Totp::code( $sec2, $now ) );
+$assert( 'prepared user with a working factor', is_array( $codes2 ) && Store::is_enabled( $bad_user ) && ! Store::secret_unreadable( $bad_user ) );
+update_user_meta( $bad_user, 'uxstudio_2fa_secret', 'uxs1:' . base64_encode( str_repeat( 'x', 40 ) ) ); // Sealed with another salt.
+$assert( 'secret unreadable: is_enabled STAYS true (no silent password-only login)', Store::is_enabled( $bad_user ) && '' === Store::secret( $bad_user ) && Store::secret_unreadable( $bad_user ) );
+$now += 100;
+$r = Store::attempt( $bad_user, Totp::code( $sec2, $now ) );
+$assert( 'secret unreadable: an app code cannot pass', ! $r['ok'] );
+Store::clear_failures( $bad_user );
+$r = Store::attempt( $bad_user, $codes2[0] );
+$assert( 'secret unreadable: a hashed recovery code still verifies', $r['ok'] && 'recovery' === $r['method'] );
+$assert( 'a user without the flag is not "unreadable"', ! Store::secret_unreadable( 777 ) && ! Store::is_enabled( 777 ) );
+$assert( 'disable() clears an unreadable factor (admin reset)', (function () use ( $bad_user ) {
+	Store::disable( $bad_user );
+	return ! Store::is_enabled( $bad_user ) && ! Store::secret_unreadable( $bad_user );
+})() );
+
+/* ── Atomic attempts: per-user lock (finding 11a) ── */
+
+class Uxs_Fake_Wpdb {
+	public $options = 'wp_options';
+	public $rows = array();
+	public $queries = 0;
+	public function prepare( $sql, ...$args ) { return vsprintf( str_replace( array( '%s', '%d' ), array( "'%s'", '%d' ), $sql ), $args ); }
+	public function query( $sql ) {
+		++$this->queries;
+		if ( preg_match( "/INSERT IGNORE INTO \S+ \(.*?\) VALUES \('([^']+)', '([^']+)'/", $sql, $m ) ) {
+			if ( isset( $this->rows[ $m[1] ] ) ) { return 0; }
+			$this->rows[ $m[1] ] = $m[2];
+			return 1;
+		}
+		if ( preg_match( "/DELETE FROM \S+ WHERE option_name = '([^']+)' AND option_value = '([^']+)'/", $sql, $m ) ) {
+			if ( ( $this->rows[ $m[1] ] ?? null ) === $m[2] ) { unset( $this->rows[ $m[1] ] ); return 1; }
+			return 0;
+		}
+		if ( preg_match( "/DELETE FROM \S+ WHERE option_name = '([^']+)'/", $sql, $m ) ) {
+			$had = isset( $this->rows[ $m[1] ] ); unset( $this->rows[ $m[1] ] ); return $had ? 1 : 0;
+		}
+		return 0;
+	}
+	public function get_var( $sql ) {
+		return preg_match( "/option_name = '([^']+)'/", $sql, $m ) ? ( $this->rows[ $m[1] ] ?? null ) : null;
+	}
+}
+$GLOBALS['wpdb'] = new Uxs_Fake_Wpdb();
+$race     = 31;
+$sec3     = Store::begin_setup( $race );
+$now      = 1800700000;
+$codes3   = Store::confirm_setup( $race, Totp::code( $sec3, $now ) );
+$assert( 'with the DB lock: confirm_setup works and releases the lock', is_array( $codes3 ) && array() === $GLOBALS['wpdb']->rows );
+$now += 100;
+$GLOBALS['wpdb']->rows['uxstudio_2fa_lock_31'] = (string) ( $now + 10 ); // A parallel request holds the lock.
+$t0 = microtime( true );
+$r  = Store::attempt( $race, $codes3[0] );
+$assert( 'a held lock fails closed: a valid recovery code is NOT accepted without the lock', ! $r['ok'] && 10 === Store::recovery_left( $race ) );
+$assert( 'waiting for the lock is bounded (about 2 s)', microtime( true ) - $t0 < 4.0 );
+$assert( 'the foreign lock row is untouched', isset( $GLOBALS['wpdb']->rows['uxstudio_2fa_lock_31'] ) );
+$GLOBALS['wpdb']->rows['uxstudio_2fa_lock_31'] = (string) ( $now - 5 ); // A crashed request left a stale lock.
+$r = Store::attempt( $race, $codes3[0] );
+$assert( 'a stale lock is cleaned and the attempt goes through; the lock is released', $r['ok'] && 'recovery' === $r['method'] && array() === $GLOBALS['wpdb']->rows );
+$r = Store::attempt( $race, $codes3[0] );
+$assert( 'the used recovery code stays one-time', ! $r['ok'] && 9 === Store::recovery_left( $race ) );
+$GLOBALS['wpdb'] = null;
+
+/* ── Forced setup: ajax and REST (finding 11b), same answer as a wrong password (11c) ── */
+
+if ( ! class_exists( 'WP_Error' ) ) {
+	class WP_Error { public $code; public $message; public function __construct( $c = '', $m = '' ) { $this->code = $c; $this->message = $m; } public function get_error_code() { return $this->code; } public function get_error_message() { return $this->message; } }
+}
+if ( ! function_exists( '__' ) ) { function __( $t, $d = '' ) { return $t; } }
+if ( ! function_exists( 'esc_url' ) ) { function esc_url( $u ) { return $u; } }
+if ( ! function_exists( 'wp_lostpassword_url' ) ) { function wp_lostpassword_url() { return 'https://example.com/wp-login.php?action=lostpassword'; } }
+use UxStudio\Modules\SecurityOptimization\TwoFactor;
+$assert( 'forced: the 2FA ajax action and heartbeat stay reachable', TwoFactor::forced_request_allowed( 'ajax', 'uxstudio_2fa' ) && TwoFactor::forced_request_allowed( 'ajax', 'heartbeat' ) );
+$assert( 'forced: any other admin-ajax action is refused', ! TwoFactor::forced_request_allowed( 'ajax', 'delete-post' ) && ! TwoFactor::forced_request_allowed( 'ajax', '' ) );
+$assert( 'forced: REST reads are allowed', TwoFactor::forced_request_allowed( 'rest', 'GET', '/wp/v2/posts' ) && TwoFactor::forced_request_allowed( 'rest', 'OPTIONS', '/uxstudio/v1/modules' ) );
+$assert( 'forced: REST writes are refused', ! TwoFactor::forced_request_allowed( 'rest', 'POST', '/wp/v2/posts' ) && ! TwoFactor::forced_request_allowed( 'rest', 'DELETE', '/uxstudio/v1/modules/x' ) && ! TwoFactor::forced_request_allowed( 'rest', 'POST', '/wp/v2/users/1' ) );
+$assert( 'forced: the own profile endpoint stays reachable', TwoFactor::forced_request_allowed( 'rest', 'POST', '/wp/v2/users/me' ) && TwoFactor::forced_request_allowed( 'rest', 'POST', '/wp/v2/users/me/' ) );
+$err = TwoFactor::wrong_password_error( 'jan' );
+$assert( 'non-form login of a 2FA user: core wrong-password code and text, no hint about 2FA', 'incorrect_password' === $err->get_error_code() && str_contains( $err->get_error_message(), 'The password you entered for the username <strong>jan</strong> is incorrect.' ) && ! stripos( $err->get_error_message(), 'two-step' ) && ! stripos( $err->get_error_message(), '2fa' ) );
+
 /* ── Kill switch ── */
 
 $assert( 'active: setting on and no kill switch', Store::active( true ) && ! Store::active( false ) && ! Store::killed() );

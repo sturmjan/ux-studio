@@ -66,6 +66,8 @@ final class TwoFactor {
 		add_filter( 'login_redirect', array( $self, 'login_redirect' ), 99, 3 );
 
 		add_action( 'admin_init', array( $self, 'enforce_setup' ) );
+		add_filter( 'rest_pre_dispatch', array( $self, 'enforce_setup_rest' ), 10, 3 );
+		add_action( 'admin_notices', array( $self, 'unreadable_notice' ) );
 		add_action( 'admin_notices', array( $self, 'setup_notice' ) );
 		add_action( 'admin_notices', array( $self, 'reset_notice' ) );
 
@@ -105,6 +107,7 @@ final class TwoFactor {
 	 */
 	public static function reset_user( int $uid, bool $by_admin ): void {
 		TwoFactorStore::disable( $uid );
+		delete_transient( self::UNREADABLE_TRANSIENT );
 		self::log( $by_admin ? 'two_factor_reset' : 'two_factor_disabled', $uid, $by_admin ? array( 'by' => get_current_user_id() ) : array() );
 	}
 
@@ -130,16 +133,39 @@ final class TwoFactor {
 			return $user;
 		}
 
+		if ( TwoFactorStore::secret_unreadable( $user->ID ) ) {
+			self::note_unreadable( $user->ID );
+		}
+
 		if ( ! $this->is_login_form_post() ) {
-			return new WP_Error(
-				'uxstudio_2fa_required',
-				__( '<strong>Error:</strong> This account uses two-step verification. Sign in on the WordPress login page.', 'ux-studio' )
-			);
+			// Same answer as a wrong password: this path must not tell that the password was right
+			// or that the account has a second factor. It counts as a failed login (wp_login_failed).
+			return self::wrong_password_error( $user->user_login );
 		}
 
 		$token = TwoFactorStore::issue_login_token( $user->ID );
 		$this->render_challenge( $user, $token, null );
 		exit;
+	}
+
+	/**
+	 * The error core gives for a wrong password (same text, so non-form logins of 2FA accounts
+	 * are indistinguishable from a wrong password).
+	 *
+	 * @param string $login User name that was typed.
+	 */
+	public static function wrong_password_error( string $login ): WP_Error {
+		return new WP_Error(
+			'incorrect_password',
+			sprintf(
+				/* translators: %s: User name. */
+				__( '<strong>Error:</strong> The password you entered for the username %s is incorrect.' ), // phpcs:ignore WordPress.WP.I18n.MissingArgDomain -- core string on purpose.
+				'<strong>' . $login . '</strong>'
+			) .
+			' <a href="' . esc_url( wp_lostpassword_url() ) . '">' .
+			__( 'Lost your password?' ) . // phpcs:ignore WordPress.WP.I18n.MissingArgDomain
+			'</a>'
+		);
 	}
 
 	/**
@@ -313,16 +339,18 @@ final class TwoFactor {
 	 * The user can always finish the setup or log out; nobody is locked out silently.
 	 */
 	public function enforce_setup(): void {
-		if ( wp_doing_ajax() || wp_doing_cron() || ! is_user_logged_in() ) {
+		if ( wp_doing_cron() || ! is_user_logged_in() ) {
 			return;
 		}
-		$uid = get_current_user_id();
-		if ( ! TwoFactorStore::is_forced( $uid ) ) {
+		if ( 0 === $this->forced_user_id() ) {
 			return;
 		}
-		$user = wp_get_current_user();
-		if ( ! TwoFactorStore::role_requires( (array) $user->roles, $this->required_roles() ) ) {
-			TwoFactorStore::login_gate( $uid, (array) $user->roles, array(), 0 ); // The requirement was lifted: clear the flag.
+		if ( wp_doing_ajax() ) {
+			// admin-ajax.php is reachable for the setup (and the heartbeat), nothing else.
+			$action = isset( $_REQUEST['action'] ) ? sanitize_key( wp_unslash( $_REQUEST['action'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( ! self::forced_request_allowed( 'ajax', $action ) ) {
+				wp_send_json_error( array( 'message' => self::forced_message() ), 403 );
+			}
 			return;
 		}
 		global $pagenow;
@@ -331,6 +359,130 @@ final class TwoFactor {
 		}
 		wp_safe_redirect( admin_url( 'profile.php?uxstudio_2fa_setup=1#uxstudio-2fa' ) );
 		exit;
+	}
+
+	/**
+	 * REST requests of a user who is past the grace period: reads stay possible (the admin
+	 * screens need them), every state-changing request is refused with a clear message,
+	 * except the own profile (`/wp/v2/users/me`).
+	 *
+	 * @param mixed $result  Short-circuit value.
+	 * @param mixed $server  REST server.
+	 * @param mixed $request REST request.
+	 * @return mixed
+	 */
+	public function enforce_setup_rest( $result, $server = null, $request = null ) {
+		if ( null !== $result || ! is_object( $request ) || ! is_user_logged_in() || 0 === $this->forced_user_id() ) {
+			return $result;
+		}
+		if ( self::forced_request_allowed( 'rest', strtoupper( (string) $request->get_method() ), (string) $request->get_route() ) ) {
+			return $result;
+		}
+		return new WP_Error( 'uxstudio_2fa_setup_required', self::forced_message(), array( 'status' => 403 ) );
+	}
+
+	/**
+	 * May a user in the forced setup state make this request?
+	 *
+	 * @param string $kind  `ajax` or `rest`.
+	 * @param string $what  ajax: the action; rest: the HTTP method.
+	 * @param string $route rest: the route.
+	 */
+	public static function forced_request_allowed( string $kind, string $what, string $route = '' ): bool {
+		if ( 'ajax' === $kind ) {
+			return in_array( $what, array( 'uxstudio_2fa', 'heartbeat' ), true );
+		}
+		if ( in_array( $what, array( 'GET', 'HEAD', 'OPTIONS' ), true ) ) {
+			return true;
+		}
+		return '/wp/v2/users/me' === rtrim( $route, '/' );
+	}
+
+	private static function forced_message(): string {
+		return __( 'Your role requires two-step verification. Set it up in your profile to continue.', 'ux-studio' );
+	}
+
+	/**
+	 * The current user when they are in the forced setup state and their role still requires 2FA (0 otherwise).
+	 */
+	private function forced_user_id(): int {
+		$uid = get_current_user_id();
+		if ( ! $uid || ! TwoFactorStore::is_forced( $uid ) ) {
+			return 0;
+		}
+		$user = wp_get_current_user();
+		if ( ! TwoFactorStore::role_requires( (array) $user->roles, $this->required_roles() ) ) {
+			TwoFactorStore::login_gate( $uid, (array) $user->roles, array(), 0 ); // The requirement was lifted: clear the flag.
+			return 0;
+		}
+		return $uid;
+	}
+
+	/* ── An unreadable secret (salts changed) ── */
+
+	private const UNREADABLE_TRANSIENT = 'uxstudio_2fa_unreadable';
+
+	/**
+	 * A login met an account whose secret cannot be decrypted: log it (at most hourly per user)
+	 * and refresh the admin notice.
+	 *
+	 * @param int $uid User id.
+	 */
+	private static function note_unreadable( int $uid ): void {
+		$key = 'uxstudio_2fa_unr_' . $uid;
+		if ( false === get_transient( $key ) ) {
+			set_transient( $key, 1, HOUR_IN_SECONDS );
+			self::log( 'two_factor_secret_unreadable', $uid );
+		}
+		delete_transient( self::UNREADABLE_TRANSIENT );
+	}
+
+	/**
+	 * Users whose second factor is on but unreadable (cached 15 minutes).
+	 *
+	 * @return int[]
+	 */
+	public static function unreadable_users(): array {
+		$cached = get_transient( self::UNREADABLE_TRANSIENT );
+		if ( is_array( $cached ) ) {
+			return array_map( 'intval', $cached );
+		}
+		$ids = array();
+		foreach ( get_users( array( 'meta_key' => 'uxstudio_2fa_enabled', 'meta_value' => '1', 'number' => 500, 'fields' => 'ID' ) ) as $id ) { // phpcs:ignore WordPress.DB.SlowDBQuery
+			if ( TwoFactorStore::secret_unreadable( (int) $id ) ) {
+				$ids[] = (int) $id;
+			}
+		}
+		set_transient( self::UNREADABLE_TRANSIENT, $ids, 15 * MINUTE_IN_SECONDS );
+		return $ids;
+	}
+
+	/**
+	 * Warning for administrators: accounts that can no longer pass the second step.
+	 */
+	public function unreadable_notice(): void {
+		if ( ! current_user_can( 'edit_users' ) ) {
+			return;
+		}
+		$ids = self::unreadable_users();
+		if ( ! $ids ) {
+			return;
+		}
+		$names = array();
+		foreach ( array_slice( $ids, 0, 5 ) as $id ) {
+			$user = get_userdata( $id );
+			if ( $user ) {
+				$names[] = $user->user_login;
+			}
+		}
+		echo '<div class="notice notice-error"><p><strong>' . esc_html__( 'Two-step verification cannot be checked for some accounts.', 'ux-studio' ) . '</strong> ' . esc_html(
+			sprintf(
+				/* translators: 1: number of accounts, 2: user names. */
+				__( 'The stored secret of %1$d account(s) cannot be decrypted (the WordPress security keys probably changed): %2$s. They cannot log in until you reset their two-step verification (Users, "Reset 2FA"). If you are locked out yourself, define UXSTUDIO_DISABLE_2FA in wp-config.php.', 'ux-studio' ),
+				count( $ids ),
+				implode( ', ', $names )
+			)
+		) . '</p></div>'; // phpcs:ignore WordPress.Security.EscapeOutput
 	}
 
 	/**
