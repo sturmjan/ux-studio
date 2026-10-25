@@ -188,6 +188,37 @@ final class LoginUrlNotice {
 	}
 
 	/**
+	 * The onboarding confirmed the new login address: tell the site e-mail where to log in from now on.
+	 *
+	 * @param string $url New login address.
+	 * @return bool Whether the mail was sent.
+	 */
+	public static function send_confirmed_mail( string $url ): bool {
+		$to      = (string) get_option( 'admin_email', '' );
+		$subject = sprintf(
+			/* translators: %s: site name. */
+			__( '[%s] Your new login address is active', 'ux-studio' ),
+			wp_specialchars_decode( (string) get_option( 'blogname', '' ), ENT_QUOTES )
+		);
+		$body = sprintf(
+			/* translators: 1: new login address, 2: link to the setting. */
+			__(
+				"The new login address of your site is active.\n\nLog in here:\n%1\$s\n\nThe usual address (wp-login.php) no longer shows the login form. Save the new address in your password manager.\n\nYou can change or switch it off in UX Studio > Security > Login:\n%2\$s\n\nIf you cannot log in at all, add this line to wp-config.php and the old address works again:\ndefine( 'UXSTUDIO_DISABLE_LOGIN_LOCK', true );",
+				'ux-studio'
+			),
+			$url,
+			self::settings_url()
+		);
+		if ( '' === $to ) {
+			return false;
+		}
+		if ( null !== self::$mailer ) {
+			return (bool) ( self::$mailer )( $to, $subject, $body );
+		}
+		return (bool) wp_mail( $to, $subject, $body );
+	}
+
+	/**
 	 * HTML of the notice (everything escaped).
 	 *
 	 * @param string $url          New login address.
