@@ -26,6 +26,10 @@ defined( 'ABSPATH' ) || exit;
  *                      plugin only when the matching feature is switched on.
  *  - `feature`       : short English name of the overlapping feature, shown when
  *                      `when` is used.
+ *  - `foreign_when`  : optional list of conditions on the FOREIGN plugin's own options or files (see
+ *                      Overlaps::foreign_condition_met()). The entry keeps its type only while at least one
+ *                      holds, that is while the foreign feature is really ON. Otherwise it is downgraded to
+ *                      partial (information only) or, with `foreign_else` => `none`, not reported at all.
  *  - module `*`      : "any UX Studio module" (WP Extended overlaps with all).
  *
  * Plugins are matched by FOLDER slug: `wpforms-lite` matches
@@ -274,6 +278,93 @@ final class Catalog {
 					'feature' => __( 'Disable XML-RPC', 'ux-studio' ),
 				)
 			),
+			$full(
+				'image-optimizer',
+				array(
+					'ewww-image-optimizer'       => 'EWWW Image Optimizer',
+					'ewww-image-optimizer-cloud' => 'EWWW Image Optimizer Cloud',
+					'wp-smushit'                 => 'Smush',
+					'wp-smush-pro'               => 'Smush Pro',
+					'shortpixel-image-optimiser' => 'ShortPixel Image Optimizer',
+					'imagify'                    => 'Imagify',
+					'webp-converter-for-media'   => 'Converter for Media',
+					'optimole-wp'                => 'Optimole',
+				)
+			),
+			// Only while the foreign plugin really optimises images / serves WebP; otherwise not reported.
+			$full(
+				'image-optimizer',
+				array( 'litespeed-cache' => 'LiteSpeed Cache' ),
+				array(
+					'foreign_when' => array(
+						array( 'option' => 'litespeed.conf.img_optm-auto' ),
+						array( 'option' => 'litespeed.conf.img_optm-webp' ),
+					),
+					'foreign_else' => 'none',
+					'feature'      => __( 'Image optimization', 'ux-studio' ),
+				)
+			),
+			$full(
+				'image-optimizer',
+				array( 'jetpack' => 'Jetpack' ),
+				array(
+					'foreign_when' => array(
+						array(
+							'option'   => 'jetpack_active_modules',
+							'contains' => array( 'photon', 'image-cdn' ),
+						),
+					),
+					'foreign_else' => 'none',
+					'feature'      => __( 'Image CDN', 'ux-studio' ),
+				)
+			),
+			// llms.txt: blocking only while the SEO plugin really serves its own llms.txt (its option is on, or the
+			// file it writes into the site root exists); otherwise just a note that both exist.
+			$full(
+				'ai-markdown',
+				array( 'wordpress-seo' => 'Yoast SEO', 'wordpress-seo-premium' => 'Yoast SEO Premium' ),
+				array(
+					'foreign_when' => array(
+						array( 'option' => 'wpseo', 'key' => 'enable_llms_txt' ),
+						array( 'file' => 'llms.txt' ),
+					),
+					'foreign_else' => 'partial',
+					'feature'      => __( 'llms.txt', 'ux-studio' ),
+				)
+			),
+			$full(
+				'ai-markdown',
+				array( 'seo-by-rank-math' => 'Rank Math SEO', 'seo-by-rank-math-pro' => 'Rank Math SEO Pro' ),
+				array(
+					'foreign_when' => array(
+						array( 'option' => 'rank_math_modules', 'contains' => array( 'llms-txt', 'llms_txt', 'llms' ) ),
+						array( 'file' => 'llms.txt' ),
+					),
+					'foreign_else' => 'partial',
+					'feature'      => __( 'llms.txt', 'ux-studio' ),
+				)
+			),
+			$full(
+				'ai-markdown',
+				array( 'all-in-one-seo-pack' => 'All in One SEO', 'all-in-one-seo-pack-pro' => 'All in One SEO Pro' ),
+				array(
+					'foreign_when' => array( array( 'file' => 'llms.txt' ) ),
+					'foreign_else' => 'partial',
+					'feature'      => __( 'llms.txt', 'ux-studio' ),
+				)
+			),
+			// Security: the plugin silences the same update e-mails (information only, never blocks).
+			$part(
+				'security-optimization',
+				array(
+					'disable-auto-update-email-notifications' => 'Disable Auto-Update Email Notifications',
+					'manage-notification-emails'              => 'Manage Notification E-mails',
+				),
+				array(
+					'when'    => array( 'suppress_update_emails' ),
+					'feature' => __( 'Silence update e-mails', 'ux-studio' ),
+				)
+			),
 			// WP Extended is a whole suite of tiny modules. The legacy ux1 plugin
 			// is deliberately absent: Ux1Lock already deals with it.
 			$full( self::ANY_MODULE, array( 'wpextended' => 'WP Extended' ) ),
@@ -313,16 +404,7 @@ final class Catalog {
 					'feature' => __( 'HTTPS & security headers', 'ux-studio' ),
 				)
 			),
-			$part(
-				'image-optimizer',
-				array(
-					'ewww-image-optimizer'        => 'EWWW Image Optimizer',
-					'wp-smushit'                  => 'Smush',
-					'shortpixel-image-optimiser'  => 'ShortPixel Image Optimizer',
-					'imagify'                     => 'Imagify',
-					'webp-express'                => 'WebP Express',
-				)
-			),
+			$part( 'image-optimizer', array( 'webp-express' => 'WebP Express' ) ),
 			$part(
 				'pixel-tag-manager',
 				array(
