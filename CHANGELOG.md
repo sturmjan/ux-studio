@@ -120,6 +120,14 @@
 - Fixed - Security: a percent-encoded dot segment (`/complianz/v1/%2e%2e/wp/v2/users`) is recognised again
   when the REST API is restricted (the route was sanitized before the check).
 - Fixed - The Czech translation of the e-mail about a changed login address was missing.
+- Fixed - Security: the custom login address could be bypassed with a look-alike `action` (`POSTPASS`, `post.pass`);
+  only a real password form of a protected post (POST, `action=postpass`) is let through.
+- Fixed - Security: CSP auto rollback counts reporting networks (IPv4 /24, IPv6 /64) instead of IP and user agent;
+  "approve all safe" no longer approves hosts on shared or user-content domains (CDNs, buckets) for scripts, frames and workers.
+- Fixed - Security: the Menu Organizer lock reads the post id and page the way WordPress does (query string `post`, body `post_ID`).
+- Fixed - Security: over MCP, enabling or disabling a security module needs the admin scope; more settings that guard the site are admin-write.
+- Fixed - Security: one shared check for public IP addresses in all places that download from a visitor-supplied URL.
+- Fixed - A harmless duplicate key or column error no longer blocks a module's database upgrade; the expected tables are verified.
 
 - New - Redirects: a rule can have conditions (logged in / logged out, role or capability, referrer,
   user agent, IP address or CIDR range, cookie, domain, HTTP header; text conditions are "contains",

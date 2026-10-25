@@ -2736,3 +2736,28 @@ Nezávislá revize „co se stane na ~97 klientských webech po automatické akt
 vlastním přihlášením a `csp_mode = report-only`, spuštěno jako CLI požadavek (`DB_NAME` přepsán před `wp-load.php`, `DISABLE_WP_CRON`, odchozí HTTP zablokováno). Výsledek: první načtení WordPressu
 včetně migrace ~0,9 s, 0 řádků přehodnoceno, pak 16 dávek (nejdelší ~1 s), staré řádky bez e-mailu, nový řádek vysokého rizika = 1 e-mail, oznámení o přihlašovací adrese = 1 e-mail a podruhé nic. Nesimulováno:
 skutečné stažení balíčku přes plugin-update-checker a pomalé sdílené hostingy (dávka 200 řádků trvala ~1 s na lokálním stroji).
+
+### 28.5 Druhá revize (2026-10-25)
+
+Opraveno (commity na `feature/release-fixes`):
+
+1. **Zámek `wp-login.php` šel obejít (vysoká).** `block_direct_wp_login()` normalizoval `action` přes `sanitize_key()`, takže `POSTPASS` nebo `post.pass` vypadalo jako `postpass`, ale WordPress
+   porovnává surovou hodnotu a neznámou akci vrátí na přihlašovací formulář. Teď `LoginUrl::is_public_request()`: výjimka jen pro přesně `postpass`, metodu POST a přítomné `post_password`.
+   `is_public_action()` a filtr `site_url` pracují s adresou, kterou sestavuje kód (ne s požadavkem návštěvníka), takže tam stejný problém není.
+2. **CSP: počítání oznamovatelů (středně vysoká).** `CspLogger::reporter_hash()` hashuje jen síť (IPv4 /24, IPv6 /64), UA se nepoužívá. Automatický rollback z Enforce tedy chce 3 různé sítě.
+3. **Zámek menu četl `$_REQUEST` (střední).** `MenuLock::request_args()` bere GET a POST zvlášť jako jádro: `post.php` otevře `$_GET['post']`, jinak `$_POST['post_ID']` (`post_ID` v URL se ignoruje);
+   `page` jen z GET; `taxonomy` a `post_type` z `$_REQUEST` jako `edit-tags.php` a `$typenow`.
+4. **CSP: „schválit bezpečné“ u sdílených domén (střední).** `CspLogger::bulk_approvable()`: pro `script-src*`, `worker-src`, `frame-src`, `child-src`, `object-src` a `default-src` jen vlastní web nebo
+   host z katalogu, který není na sdílené doméně (`CspServices::shared_domains()`: CloudFront, googleusercontent, googleapis, jsDelivr, unpkg, cdnjs, wordpress.com, github.io, appspot a další).
+   Ruční schválení jednoho řádku zůstává.
+5. **MCP: zapnutí a vypnutí bezpečnostních modulů (střední).** `module-enable` a `module-disable` chtějí rozsah `admin` pro moduly z `Sensitive::SECURITY_MODULES`. Celý modul Security a Disable Auto Updates je
+   zapisovatelný jen s `admin`; `Sensitive::ADMIN_WRITE` rozšířeno o další klíče (pixely, systémové prompty, údržba, bot throttle, CSS přihlášení a další), `READ_HIDDEN` o uživatele SMTP a Gmail client id.
+6. **`DB::ensure_module_tables` (střední, neověřeno).** Empiricky (dbDelta dvakrát na všech 25 schématech modulů, tabulky s prefixem `zzt_`, pak smazány): druhý běh nevyvolal žádnou chybu,
+   předpoklad „neškodný ALTER při každém běhu“ se na lokálním MariaDB nepotvrdil. Přesto: duplicitní klíč nebo sloupec (1060, 1061, 1050, 1091) verzi neblokuje a po kroku se ověří, že každá tabulka
+   z `CREATE TABLE` (filtr `dbdelta_create_queries`) existuje.
+7. **SSRF u Auto Image Upload (střední).** Jedna sdílená kontrola `PinnedHttp::is_public_ip()` (CGNAT, 0.0.0.0/8, multicast, 6to4, Teredo, mapované adresy); používá ji Cron URL události, Auto Image Upload,
+   Elementor Import a Stock Photos.
+8. **Migrace (nízká).** `Runner` zapíše záznam historie před `Snapshot::seal()` (a po zapečetění doplní `sealed`); u tabulek nad 200 000 řádků se `CHECKSUM TABLE` vynechá, otisk je jen počet řádků.
+9. **SafeRegex (nízká).** Selže-li `ini_set('pcre.backtrack_limit')`, zapíše se to jednou za požadavek do `error_log`. **Zdokumentováno:** předmět delší než 1024 B se ořízne, takže záporná podmínka
+   (neodpovídá vzoru) nad delším předmětem vyhodnotí oříznutou část; neshoda se bere jako „nesplněno“.
+10. **CSP přehodnocení (nízká).** `CspRerate::run_batch()` obalí řádek do `try/catch Throwable` a posune `last_id` před zpracováním, takže jedna vadná řádka nezastaví další dávky.
