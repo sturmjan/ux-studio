@@ -450,8 +450,8 @@ final class TwoFactor {
 	}
 
 	/**
-	 * Is the referer a page inside the admin? Scheme is ignored; a missing referer is not
-	 * admin (browsers always send one for same-origin admin requests; tooling is handled by the caller).
+	 * Is the referer a page inside the admin? Scheme is ignored. A missing referer is not a page
+	 * inside the admin here; admin_context() treats it as admin all the same (fail closed).
 	 *
 	 * @param string $referer   Referer header.
 	 * @param string $admin_url admin_url() of this site.
@@ -463,7 +463,9 @@ final class TwoFactor {
 
 	private function admin_context(): bool {
 		$referer = isset( $_SERVER['HTTP_REFERER'] ) ? (string) wp_unslash( $_SERVER['HTTP_REFERER'] ) : '';
-		return self::referer_in_admin( $referer, admin_url() );
+		// No referer counts as admin: browsers send one for same-origin requests (our Referrer-Policy keeps it),
+		// so only a script would drop it - and dropping it must not lift the lock.
+		return '' === $referer || self::referer_in_admin( $referer, admin_url() );
 	}
 
 	private static function forced_message(): string {
