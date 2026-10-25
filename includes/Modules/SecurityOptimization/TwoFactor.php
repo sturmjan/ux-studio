@@ -8,6 +8,7 @@
 namespace UxStudio\Modules\SecurityOptimization;
 
 use UxStudio\Core\ActivityLog;
+use UxStudio\Core\Mcp\Auth;
 use UxStudio\Core\Totp;
 use WP_Error;
 use WP_User;
@@ -138,9 +139,7 @@ final class TwoFactor {
 		}
 
 		if ( ! $this->is_login_form_post() ) {
-			// Same answer as a wrong password: this path must not tell that the password was right
-			// or that the account has a second factor. It counts as a failed login (wp_login_failed).
-			return self::wrong_password_error( $user->user_login );
+			return self::non_form_login_error( $user->user_login, defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST );
 		}
 
 		$token = TwoFactorStore::issue_login_token( $user->ID );
@@ -149,8 +148,44 @@ final class TwoFactor {
 	}
 
 	/**
-	 * The error core gives for a wrong password (same text, so non-form logins of 2FA accounts
-	 * are indistinguishable from a wrong password).
+	 * Error code of a non-form login (WooCommerce my-account, wp_signon) of a 2FA account.
+	 */
+	public const NON_FORM_CODE = 'uxstudio_2fa_non_form';
+
+	/**
+	 * Answer to a login that cannot show the second step. XML-RPC keeps the wrong-password answer
+	 * (counted as a failed login), so a bot there does not learn that the password was right.
+	 * Elsewhere the password is already verified, so the user is told where to log in; that error
+	 * is not a failed login (see is_non_form_error()).
+	 *
+	 * @param string $login  User name that was typed.
+	 * @param bool   $xmlrpc Whether this is an XML-RPC request.
+	 */
+	public static function non_form_login_error( string $login, bool $xmlrpc ): WP_Error {
+		if ( $xmlrpc ) {
+			return self::wrong_password_error( $login );
+		}
+		return new WP_Error(
+			self::NON_FORM_CODE,
+			'<strong>' . __( 'Error:', 'ux-studio' ) . '</strong> ' .
+			__( 'This account uses two-step verification.', 'ux-studio' ) .
+			' <a href="' . esc_url( wp_login_url() ) . '">' .
+			__( 'Log in on the standard login page.', 'ux-studio' ) .
+			'</a>'
+		);
+	}
+
+	/**
+	 * Is this the non-form 2FA error? The login limiters skip it: the password was right.
+	 *
+	 * @param mixed $error Error passed to `wp_login_failed`.
+	 */
+	public static function is_non_form_error( $error ): bool {
+		return $error instanceof WP_Error && in_array( self::NON_FORM_CODE, $error->get_error_codes(), true );
+	}
+
+	/**
+	 * The error core gives for a wrong password (kept for XML-RPC logins of 2FA accounts).
 	 *
 	 * @param string $login User name that was typed.
 	 */
@@ -346,9 +381,15 @@ final class TwoFactor {
 			return;
 		}
 		if ( wp_doing_ajax() ) {
-			// admin-ajax.php is reachable for the setup (and the heartbeat), nothing else.
+			// admin-ajax.php is reachable for the setup (and the heartbeat), nothing else, but only for
+			// requests that come from the admin. The gate keeps the user out of the admin; the public
+			// site (WooCommerce cart, wc-ajax, forms) works as for any logged-in visitor.
 			$action = isset( $_REQUEST['action'] ) ? sanitize_key( wp_unslash( $_REQUEST['action'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			if ( ! self::forced_request_allowed( 'ajax', $action ) ) {
+			if ( 'heartbeat' === $action ) {
+				// Heartbeat stays, but its autosave would be a write: drop core's handler for this request.
+				remove_filter( 'heartbeat_received', 'heartbeat_autosave', 500 );
+			}
+			if ( ! self::forced_request_allowed( 'ajax', $action, '', $this->admin_context() ) ) {
 				wp_send_json_error( array( 'message' => self::forced_message() ), 403 );
 			}
 			return;
@@ -375,7 +416,10 @@ final class TwoFactor {
 		if ( null !== $result || ! is_object( $request ) || ! is_user_logged_in() || 0 === $this->forced_user_id() ) {
 			return $result;
 		}
-		if ( self::forced_request_allowed( 'rest', strtoupper( (string) $request->get_method() ), (string) $request->get_route() ) ) {
+		// Admin tooling (application passwords, UX Studio MCP tokens) always counts as admin context.
+		$mcp     = Auth::context();
+		$context = self::$app_password || ( is_array( $mcp ) && 'ok' === ( $mcp['state'] ?? '' ) ) || $this->admin_context();
+		if ( self::forced_request_allowed( 'rest', strtoupper( (string) $request->get_method() ), (string) $request->get_route(), $context ) ) {
 			return $result;
 		}
 		return new WP_Error( 'uxstudio_2fa_setup_required', self::forced_message(), array( 'status' => 403 ) );
@@ -384,11 +428,18 @@ final class TwoFactor {
 	/**
 	 * May a user in the forced setup state make this request?
 	 *
-	 * @param string $kind  `ajax` or `rest`.
-	 * @param string $what  ajax: the action; rest: the HTTP method.
-	 * @param string $route rest: the route.
+	 * Only requests from the admin are limited (the point is to keep the user out of the admin
+	 * until 2FA is set up); the same logged-in user on the public site is not.
+	 *
+	 * @param string $kind          `ajax` or `rest`.
+	 * @param string $what          ajax: the action; rest: the HTTP method.
+	 * @param string $route         rest: the route.
+	 * @param bool   $admin_context Whether the request comes from the admin or from admin tooling.
 	 */
-	public static function forced_request_allowed( string $kind, string $what, string $route = '' ): bool {
+	public static function forced_request_allowed( string $kind, string $what, string $route = '', bool $admin_context = true ): bool {
+		if ( ! $admin_context ) {
+			return true;
+		}
 		if ( 'ajax' === $kind ) {
 			return in_array( $what, array( 'uxstudio_2fa', 'heartbeat' ), true );
 		}
@@ -396,6 +447,23 @@ final class TwoFactor {
 			return true;
 		}
 		return '/wp/v2/users/me' === rtrim( $route, '/' );
+	}
+
+	/**
+	 * Is the referer a page inside the admin? Scheme is ignored; a missing referer is not
+	 * admin (browsers always send one for same-origin admin requests; tooling is handled by the caller).
+	 *
+	 * @param string $referer   Referer header.
+	 * @param string $admin_url admin_url() of this site.
+	 */
+	public static function referer_in_admin( string $referer, string $admin_url ): bool {
+		$strip = static fn( string $u ): string => strtolower( (string) preg_replace( '#^https?:#i', '', $u ) );
+		return '' !== $referer && str_starts_with( $strip( $referer ), $strip( $admin_url ) );
+	}
+
+	private function admin_context(): bool {
+		$referer = isset( $_SERVER['HTTP_REFERER'] ) ? (string) wp_unslash( $_SERVER['HTTP_REFERER'] ) : '';
+		return self::referer_in_admin( $referer, admin_url() );
 	}
 
 	private static function forced_message(): string {

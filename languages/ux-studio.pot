@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-24T16:39:02+00:00\n"
+"POT-Creation-Date: 2026-10-25T09:02:22+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: ux-studio\n"
@@ -635,7 +635,7 @@ msgstr ""
 #: includes/Core/Migration/MigrationRestController.php:310
 #: includes/Core/Migration/Runner.php:95
 #: includes/Core/Migration/Runner.php:205
-#: includes/Core/Migration/Runner.php:323
+#: includes/Core/Migration/Runner.php:326
 msgid "Unknown migration source."
 msgstr ""
 
@@ -665,7 +665,7 @@ msgid "This migration run does not exist."
 msgstr ""
 
 #: includes/Core/Migration/Preview.php:342
-#: includes/Core/Migration/Runner.php:370
+#: includes/Core/Migration/Runner.php:373
 #: includes/Core/Migration/Switcher.php:117
 msgid "This run was already rolled back."
 msgstr ""
@@ -698,7 +698,7 @@ msgid "End preview"
 msgstr ""
 
 #: includes/Core/Migration/Runner.php:89
-#: includes/Core/Migration/Runner.php:316
+#: includes/Core/Migration/Runner.php:319
 msgid "Select at least one plugin to migrate."
 msgstr ""
 
@@ -716,21 +716,21 @@ msgstr ""
 msgid "No migration is running."
 msgstr ""
 
-#: includes/Core/Migration/Runner.php:331
+#: includes/Core/Migration/Runner.php:334
 msgid "Verification failed"
 msgstr ""
 
-#: includes/Core/Migration/Runner.php:355
-#: includes/Core/Migration/Runner.php:379
-#: includes/Core/Migration/Runner.php:404
+#: includes/Core/Migration/Runner.php:358
+#: includes/Core/Migration/Runner.php:382
+#: includes/Core/Migration/Runner.php:407
 msgid "This run has no snapshot to restore."
 msgstr ""
 
-#: includes/Core/Migration/Runner.php:361
+#: includes/Core/Migration/Runner.php:364
 msgid "This run has already been switched on, so the snapshot no longer matches the site. Undo the switch first."
 msgstr ""
 
-#: includes/Core/Migration/Runner.php:373
+#: includes/Core/Migration/Runner.php:376
 msgid "The snapshot of this run has expired."
 msgstr ""
 
@@ -1030,7 +1030,7 @@ msgid "The pages render without errors with the snippets switched on."
 msgstr ""
 
 #. translators: %s: table name.
-#: includes/Core/Migration/Snapshot.php:366
+#: includes/Core/Migration/Snapshot.php:370
 #, php-format
 msgid "Table \"%s\" could not be restored."
 msgstr ""
@@ -9606,7 +9606,7 @@ msgid "Select which elements to include in the duplicate."
 msgstr ""
 
 #: includes/Modules/DuplicatePost/Module.php:197
-#: includes/Modules/SecurityOptimization/TwoFactor.php:593
+#: includes/Modules/SecurityOptimization/TwoFactor.php:661
 #: build/81.95b5f8bd70979be35f73.js:3
 #: build/93.9dedf701b8e9ee0662b2.js:1
 #: build/295.a870471d1a0caf081ee0.js:1
@@ -10192,7 +10192,7 @@ msgstr ""
 
 #: includes/Modules/ExitPopup/Module.php:594
 #: includes/Modules/SecurityOptimization/LoginUrlNotice.php:245
-#: includes/Modules/SecurityOptimization/TwoFactor.php:786
+#: includes/Modules/SecurityOptimization/TwoFactor.php:854
 #: includes/Modules/SmtpEmail/Module.php:1432
 msgid "You are not allowed to do this."
 msgstr ""
@@ -13710,7 +13710,7 @@ msgstr ""
 
 #. translators: %d: minutes
 #: includes/Modules/SecurityOptimization/AttemptsHandler.php:99
-#: includes/Modules/SecurityOptimization/AttemptsHandler.php:195
+#: includes/Modules/SecurityOptimization/AttemptsHandler.php:202
 #, php-format
 msgid "Too many failed login attempts from this IP. Please try again in %d minutes."
 msgstr ""
@@ -13722,38 +13722,38 @@ msgid "Too many failed login attempts. Please try again in %d minutes."
 msgstr ""
 
 #. translators: %s: site name
-#: includes/Modules/SecurityOptimization/AttemptsHandler.php:394
+#: includes/Modules/SecurityOptimization/AttemptsHandler.php:401
 #, php-format
 msgid "[%s] IP Address Blocked"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/AttemptsHandler.php:399
+#: includes/Modules/SecurityOptimization/AttemptsHandler.php:406
 msgid "An IP address has been blocked due to too many failed login attempts:"
 msgstr ""
 
 #. translators: %s: IP address
-#: includes/Modules/SecurityOptimization/AttemptsHandler.php:401
+#: includes/Modules/SecurityOptimization/AttemptsHandler.php:408
 #, php-format
 msgid "IP Address: %s"
 msgstr ""
 
 #. translators: %s: username
-#: includes/Modules/SecurityOptimization/AttemptsHandler.php:403
+#: includes/Modules/SecurityOptimization/AttemptsHandler.php:410
 #, php-format
 msgid "Username: %s"
 msgstr ""
 
 #. translators: %d: minutes
-#: includes/Modules/SecurityOptimization/AttemptsHandler.php:405
+#: includes/Modules/SecurityOptimization/AttemptsHandler.php:412
 #, php-format
 msgid "Block Duration: %d minutes"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/AttemptsHandler.php:408
+#: includes/Modules/SecurityOptimization/AttemptsHandler.php:415
 msgid "This IP was locked repeatedly within 24 hours, so the lock is longer than usual."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/AttemptsHandler.php:411
+#: includes/Modules/SecurityOptimization/AttemptsHandler.php:418
 msgid "You can unblock this IP address from the plugin admin screen."
 msgstr ""
 
@@ -13776,11 +13776,12 @@ msgid "and %d more…"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/CaptchaForms.php:150
-#: includes/Modules/SecurityOptimization/CaptchaHandler.php:171
+#: includes/Modules/SecurityOptimization/CaptchaHandler.php:174
 msgid "CAPTCHA verification failed. Please try again."
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/CaptchaForms.php:161
+#: includes/Modules/SecurityOptimization/TwoFactor.php:170
 msgid "Error:"
 msgstr ""
 
@@ -13813,7 +13814,7 @@ msgid "Please confirm you are not a robot before continuing to the login page."
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/CaptchaGate.php:256
-#: includes/Modules/SecurityOptimization/TwoFactor.php:599
+#: includes/Modules/SecurityOptimization/TwoFactor.php:667
 msgid "Continue"
 msgstr ""
 
@@ -13823,8 +13824,8 @@ msgstr ""
 msgid "&larr; Go to %s"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/CaptchaHandler.php:196
-#: includes/Modules/SecurityOptimization/CaptchaHandler.php:209
+#: includes/Modules/SecurityOptimization/CaptchaHandler.php:199
+#: includes/Modules/SecurityOptimization/CaptchaHandler.php:212
 msgid "<strong>Error:</strong> CAPTCHA verification failed. Please try again."
 msgstr ""
 
@@ -14243,7 +14244,7 @@ msgid "The custom login address set in UX Studio is in force. The usual wp-login
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/LoginUrlNotice.php:203
-#: includes/Modules/SecurityOptimization/TwoFactor.php:589
+#: includes/Modules/SecurityOptimization/TwoFactor.php:657
 #: build/244.8601386a2d8cadd7df59.js:1
 #: build/760.a5a844330e84eee089b7.js:1
 #: build/index.431c4a1e4d89cc1a2f08.js:12
@@ -14565,7 +14566,7 @@ msgid "Used with \"Custom message (403)\". Plain text shown to the visitor."
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/Module.php:626
-#: includes/Modules/SecurityOptimization/Module.php:2069
+#: includes/Modules/SecurityOptimization/Module.php:2070
 msgid "This has been disabled."
 msgstr ""
 
@@ -14592,8 +14593,8 @@ msgstr ""
 #: includes/Modules/SecurityOptimization/Module.php:695
 #: includes/Modules/SecurityOptimization/Module.php:703
 #: includes/Modules/SecurityOptimization/Module.php:712
-#: includes/Modules/SecurityOptimization/TwoFactor.php:191
-#: includes/Modules/SecurityOptimization/TwoFactor.php:540
+#: includes/Modules/SecurityOptimization/TwoFactor.php:226
+#: includes/Modules/SecurityOptimization/TwoFactor.php:608
 #: build/508.e859042f45a9cd046790.js:18
 #: build/508.e859042f45a9cd046790.js:19
 msgid "Two-step verification"
@@ -15059,8 +15060,8 @@ msgid "Your IP address has been blocked."
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/Module.php:1522
-#: includes/Modules/SecurityOptimization/Module.php:2072
-#: includes/Modules/SecurityOptimization/Module.php:2197
+#: includes/Modules/SecurityOptimization/Module.php:2073
+#: includes/Modules/SecurityOptimization/Module.php:2198
 msgid "403 Forbidden"
 msgstr ""
 
@@ -15072,44 +15073,44 @@ msgstr ""
 msgid "XML-RPC is disabled."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:2064
+#: includes/Modules/SecurityOptimization/Module.php:2065
 msgid "Not found."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:2119
+#: includes/Modules/SecurityOptimization/Module.php:2120
 msgid "This username is not allowed for security reasons. Please choose another."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:2134
-#: includes/Modules/SecurityOptimization/Module.php:2147
+#: includes/Modules/SecurityOptimization/Module.php:2135
+#: includes/Modules/SecurityOptimization/Module.php:2148
 msgid "This username is not allowed for security reasons."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:2196
+#: includes/Modules/SecurityOptimization/Module.php:2197
 msgid "RSS feeds are disabled on this site."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:2376
+#: includes/Modules/SecurityOptimization/Module.php:2377
 msgid "This type of comment is not accepted."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:2444
+#: includes/Modules/SecurityOptimization/Module.php:2445
 msgid "Visitors who are not logged in"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:2455
+#: includes/Modules/SecurityOptimization/Module.php:2456
 msgid "Pingbacks"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:2456
+#: includes/Modules/SecurityOptimization/Module.php:2457
 msgid "Trackbacks"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:2523
+#: includes/Modules/SecurityOptimization/Module.php:2524
 msgid "Comments are disabled."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:2726
+#: includes/Modules/SecurityOptimization/Module.php:2727
 msgid "REST API access is restricted to logged-in users."
 msgstr ""
 
@@ -15147,125 +15148,133 @@ msgstr ""
 msgid "Cloudflare API returned HTTP %1$d: %2$s"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:192
+#: includes/Modules/SecurityOptimization/TwoFactor.php:171
+msgid "This account uses two-step verification."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/TwoFactor.php:173
+msgid "Log in on the standard login page."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/TwoFactor.php:227
 msgid "Enter the 6-digit code from your authenticator app. Lost the phone? Use one of your recovery codes instead."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:198
+#: includes/Modules/SecurityOptimization/TwoFactor.php:233
 msgid "Code or recovery code"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:208
+#: includes/Modules/SecurityOptimization/TwoFactor.php:243
 msgid "Verify"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:211
+#: includes/Modules/SecurityOptimization/TwoFactor.php:246
 msgid "Back to the login"
 msgstr ""
 
 #. translators: %d: minutes.
-#: includes/Modules/SecurityOptimization/TwoFactor.php:249
+#: includes/Modules/SecurityOptimization/TwoFactor.php:284
 #, php-format
 msgid "<strong>Error:</strong> Too many wrong codes. Try again in %d minutes."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:252
+#: includes/Modules/SecurityOptimization/TwoFactor.php:287
 msgid "<strong>Error:</strong> The code is not correct."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:284
+#: includes/Modules/SecurityOptimization/TwoFactor.php:319
 msgid "The verification took too long or was interrupted. Sign in again."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:402
+#: includes/Modules/SecurityOptimization/TwoFactor.php:470
 msgid "Your role requires two-step verification. Set it up in your profile to continue."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:478
+#: includes/Modules/SecurityOptimization/TwoFactor.php:546
 msgid "Two-step verification cannot be checked for some accounts."
 msgstr ""
 
 #. translators: 1: number of accounts, 2: user names.
-#: includes/Modules/SecurityOptimization/TwoFactor.php:481
+#: includes/Modules/SecurityOptimization/TwoFactor.php:549
 #, php-format
 msgid "The stored secret of %1$d account(s) cannot be decrypted (the WordPress security keys probably changed): %2$s. They cannot log in until you reset their two-step verification (Users, \"Reset 2FA\"). If you are locked out yourself, define UXSTUDIO_DISABLE_2FA in wp-config.php."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:498
+#: includes/Modules/SecurityOptimization/TwoFactor.php:566
 msgid "Set it up now"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:500
+#: includes/Modules/SecurityOptimization/TwoFactor.php:568
 msgid "Your role requires two-step verification. Set it up to continue using the administration."
 msgstr ""
 
 #. translators: %d: number of logins.
-#: includes/Modules/SecurityOptimization/TwoFactor.php:505
+#: includes/Modules/SecurityOptimization/TwoFactor.php:573
 #, php-format
 msgid "Your role requires two-step verification. You can postpone it for %d more login."
 msgid_plural "Your role requires two-step verification. You can postpone it for %d more logins."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:517
+#: includes/Modules/SecurityOptimization/TwoFactor.php:585
 msgid "Two-step verification of the user was reset. They can set it up again in their profile."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:543
+#: includes/Modules/SecurityOptimization/TwoFactor.php:611
 msgid "Authenticator app"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:547
+#: includes/Modules/SecurityOptimization/TwoFactor.php:615
 msgid "On."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:547
+#: includes/Modules/SecurityOptimization/TwoFactor.php:615
 msgid "Off."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:552
-#: includes/Modules/SecurityOptimization/TwoFactor.php:806
+#: includes/Modules/SecurityOptimization/TwoFactor.php:620
+#: includes/Modules/SecurityOptimization/TwoFactor.php:874
 #: build/508.e859042f45a9cd046790.js:18
 msgid "Reset two-step verification of this user? They will log in with the password only until they set it up again."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:553
+#: includes/Modules/SecurityOptimization/TwoFactor.php:621
 msgid "Reset two-step verification"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:554
+#: includes/Modules/SecurityOptimization/TwoFactor.php:622
 msgid "For a user who lost the phone and the recovery codes."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:563
+#: includes/Modules/SecurityOptimization/TwoFactor.php:631
 msgid "Your role requires two-step verification. Set it up below to continue."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:563
+#: includes/Modules/SecurityOptimization/TwoFactor.php:631
 msgid "Your role requires two-step verification. Set it up below."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:583
+#: includes/Modules/SecurityOptimization/TwoFactor.php:651
 msgid "Two-step verification is off. With it, a stolen password alone is not enough to log in."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:584
+#: includes/Modules/SecurityOptimization/TwoFactor.php:652
 msgid "Two-step verification is on."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:585
+#: includes/Modules/SecurityOptimization/TwoFactor.php:653
 msgid "Unused recovery codes:"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:586
+#: includes/Modules/SecurityOptimization/TwoFactor.php:654
 msgid "Set up"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:587
+#: includes/Modules/SecurityOptimization/TwoFactor.php:655
 msgid "1. In your authenticator app (Google Authenticator, Microsoft Authenticator, Authy, 1Password ...) add an account and enter this key:"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:588
+#: includes/Modules/SecurityOptimization/TwoFactor.php:656
 #: build/295.a870471d1a0caf081ee0.js:1
 #: build/585.f2f2b136411f943af5e3.js:2
 #: build/718.4fd39daff4cb161baabb.js:2
@@ -15274,88 +15283,88 @@ msgstr ""
 msgid "Copy"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:590
+#: includes/Modules/SecurityOptimization/TwoFactor.php:658
 msgid "On the phone you can also open this link:"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:591
+#: includes/Modules/SecurityOptimization/TwoFactor.php:659
 msgid "2. Enter the 6-digit code the app shows:"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:592
+#: includes/Modules/SecurityOptimization/TwoFactor.php:660
 msgid "Confirm and turn on"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:594
+#: includes/Modules/SecurityOptimization/TwoFactor.php:662
 msgid "Recovery codes. Each works once and they are shown only now. Store them somewhere safe (a password manager, paper)."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:595
+#: includes/Modules/SecurityOptimization/TwoFactor.php:663
 #: build/index.431c4a1e4d89cc1a2f08.js:12
 #: build/index.431c4a1e4d89cc1a2f08.js:50
 msgid "Done"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:596
+#: includes/Modules/SecurityOptimization/TwoFactor.php:664
 msgid "New recovery codes"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:597
+#: includes/Modules/SecurityOptimization/TwoFactor.php:665
 msgid "Turn off"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:598
+#: includes/Modules/SecurityOptimization/TwoFactor.php:666
 msgid "Enter your password or a code from the app:"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:600
+#: includes/Modules/SecurityOptimization/TwoFactor.php:668
 msgid "Working ..."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:601
+#: includes/Modules/SecurityOptimization/TwoFactor.php:669
 msgid "It did not work. Reload the page and try again."
 msgstr ""
 
 #. translators: %d: minutes.
-#: includes/Modules/SecurityOptimization/TwoFactor.php:693
-#: includes/Modules/SecurityOptimization/TwoFactor.php:748
+#: includes/Modules/SecurityOptimization/TwoFactor.php:761
+#: includes/Modules/SecurityOptimization/TwoFactor.php:816
 #, php-format
 msgid "Too many wrong attempts. Try again in %d minutes."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:707
+#: includes/Modules/SecurityOptimization/TwoFactor.php:775
 msgid "The password or the code is not correct."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:717
+#: includes/Modules/SecurityOptimization/TwoFactor.php:785
 msgid "You are not logged in."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:726
+#: includes/Modules/SecurityOptimization/TwoFactor.php:794
 msgid "Two-step verification is already on."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:749
+#: includes/Modules/SecurityOptimization/TwoFactor.php:817
 msgid "The code is not correct. Check the time on your phone and try the next code."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:761
+#: includes/Modules/SecurityOptimization/TwoFactor.php:829
 msgid "Two-step verification is not on."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:776
+#: includes/Modules/SecurityOptimization/TwoFactor.php:844
 msgid "Unknown action."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:807
+#: includes/Modules/SecurityOptimization/TwoFactor.php:875
 msgid "Reset 2FA"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:820
+#: includes/Modules/SecurityOptimization/TwoFactor.php:888
 msgid "2FA"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/TwoFactor.php:834
+#: includes/Modules/SecurityOptimization/TwoFactor.php:902
 msgid "On"
 msgstr ""
 

@@ -295,7 +295,7 @@ $GLOBALS['wpdb'] = null;
 /* ── Forced setup: ajax and REST (finding 11b), same answer as a wrong password (11c) ── */
 
 if ( ! class_exists( 'WP_Error' ) ) {
-	class WP_Error { public $code; public $message; public function __construct( $c = '', $m = '' ) { $this->code = $c; $this->message = $m; } public function get_error_code() { return $this->code; } public function get_error_message() { return $this->message; } }
+	class WP_Error { public $code; public $message; public function __construct( $c = '', $m = '' ) { $this->code = $c; $this->message = $m; } public function get_error_code() { return $this->code; } public function get_error_codes() { return array( $this->code ); } public function get_error_message() { return $this->message; } }
 }
 if ( ! function_exists( '__' ) ) { function __( $t, $d = '' ) { return $t; } }
 if ( ! function_exists( 'esc_url' ) ) { function esc_url( $u ) { return $u; } }
@@ -308,6 +308,21 @@ $assert( 'forced: REST writes are refused', ! TwoFactor::forced_request_allowed(
 $assert( 'forced: the own profile endpoint stays reachable', TwoFactor::forced_request_allowed( 'rest', 'POST', '/wp/v2/users/me' ) && TwoFactor::forced_request_allowed( 'rest', 'POST', '/wp/v2/users/me/' ) );
 $err = TwoFactor::wrong_password_error( 'jan' );
 $assert( 'non-form login of a 2FA user: core wrong-password code and text, no hint about 2FA', 'incorrect_password' === $err->get_error_code() && str_contains( $err->get_error_message(), 'The password you entered for the username <strong>jan</strong> is incorrect.' ) && ! stripos( $err->get_error_message(), 'two-step' ) && ! stripos( $err->get_error_message(), '2fa' ) );
+
+/* ── Non-form login, frontend requests of a forced user ── */
+
+if ( ! function_exists( 'wp_login_url' ) ) { function wp_login_url() { return 'https://example.com/wp-login.php'; } }
+$nf = TwoFactor::non_form_login_error( 'jan', false );
+$assert( 'non-form login: clear message with a link to the login page', TwoFactor::NON_FORM_CODE === $nf->get_error_code() && str_contains( $nf->get_error_message(), 'two-step verification' ) && str_contains( $nf->get_error_message(), 'href="https://example.com/wp-login.php"' ) );
+$assert( 'non-form login: the limiters skip exactly that error', TwoFactor::is_non_form_error( $nf ) && ! TwoFactor::is_non_form_error( TwoFactor::wrong_password_error( 'jan' ) ) && ! TwoFactor::is_non_form_error( null ) && ! TwoFactor::is_non_form_error( 'x' ) );
+$xr = TwoFactor::non_form_login_error( 'jan', true );
+$assert( 'XML-RPC keeps the wrong-password answer (counted as a failure)', 'incorrect_password' === $xr->get_error_code() && ! TwoFactor::is_non_form_error( $xr ) );
+$assert( 'forced: frontend ajax and REST writes pass', TwoFactor::forced_request_allowed( 'ajax', 'woocommerce_add_to_cart', '', false ) && TwoFactor::forced_request_allowed( 'rest', 'POST', '/contact-form-7/v1/contact-forms/1/feedback', false ) );
+$assert( 'forced: from the admin (or tooling) they are still refused', ! TwoFactor::forced_request_allowed( 'ajax', 'woocommerce_add_to_cart', '', true ) && ! TwoFactor::forced_request_allowed( 'rest', 'POST', '/wp/v2/posts', true ) );
+$assert( 'forced: setup ajax works in the admin context', TwoFactor::forced_request_allowed( 'ajax', 'uxstudio_2fa', '', true ) );
+$au = 'https://example.com/wp-admin/';
+$assert( 'referer in the admin: wp-admin pages, either scheme, case-insensitive', TwoFactor::referer_in_admin( 'https://example.com/wp-admin/post.php?post=1', $au ) && TwoFactor::referer_in_admin( 'http://EXAMPLE.com/wp-admin/', $au ) );
+$assert( 'referer outside the admin: frontend, empty, lookalike host', ! TwoFactor::referer_in_admin( 'https://example.com/cart/', $au ) && ! TwoFactor::referer_in_admin( '', $au ) && ! TwoFactor::referer_in_admin( 'https://example.com.evil.test/wp-admin/', $au ) && ! TwoFactor::referer_in_admin( 'https://example.com/?x=/wp-admin/', $au ) );
 
 /* ── Kill switch ── */
 

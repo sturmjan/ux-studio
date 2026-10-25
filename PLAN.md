@@ -2761,3 +2761,7 @@ Opraveno (commity na `feature/release-fixes`):
 9. **SafeRegex (nízká).** Selže-li `ini_set('pcre.backtrack_limit')`, zapíše se to jednou za požadavek do `error_log`. **Zdokumentováno:** předmět delší než 1024 B se ořízne, takže záporná podmínka
    (neodpovídá vzoru) nad delším předmětem vyhodnotí oříznutou část; neshoda se bere jako „nesplněno“.
 10. **CSP přehodnocení (nízká).** `CspRerate::run_batch()` obalí řádek do `try/catch Throwable` a posune `last_id` před zpracováním, takže jedna vadná řádka nezastaví další dávky.
+11. **2FA: zbylé nálezy (střední).** (a) Přihlášení mimo `wp-login.php` (WooCommerce, `wp_signon`) uživatele s 2FA dostane po ověřeném hesle jasnou hlášku s odkazem na přihlašovací stránku
+    (`TwoFactor::non_form_login_error()`, kód `uxstudio_2fa_non_form`) a limiter ani adaptivní CAPTCHA to nepočítají jako neúspěch (`is_non_form_error()` v `AttemptsHandler` a `CaptchaHandler`);
+    XML-RPC dál dostane odpověď jako při špatném hesle. (b) Vynucené nastavení po odkladu blokuje AJAX a zápisy REST jen pro požadavky z adminu (referer v `admin_url()`) a pro nástroje
+    (aplikační hesla, MCP tokeny); veřejný web přihlášeného uživatele (wc-ajax, formuláře) funguje. (c) Pro vynuceného uživatele se z heartbeatu vyřadí `heartbeat_autosave`, takže přes něj nejde zapsat.

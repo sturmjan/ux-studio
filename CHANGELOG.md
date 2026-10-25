@@ -146,7 +146,10 @@
   codes) that every user switches on in their own profile; optional requirement per
   role with a grace period (nobody is locked out), reset by an administrator on the
   Users screen, rescue constant `UXSTUDIO_DISABLE_2FA` in wp-config.php. Application
-  passwords are not affected.
+  passwords are not affected. A login outside wp-login.php (for example WooCommerce) of
+  an account with 2FA says so and points to the login page, and it is not counted as a
+  failed login. Before the setup is done, only requests from the admin are blocked; the
+  public site keeps working, and heartbeat can no longer autosave.
 - New - Security: lockouts can grow with every repeated lockout of the same IP within
   24 hours (up to a maximum), and the lockout e-mail can go to its own address.
 - New - Security: CAPTCHA also for comments and for WooCommerce login, registration,

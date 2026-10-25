@@ -140,7 +140,7 @@ final class Module extends BaseModule {
 			$this->attempts = new AttemptsHandler( $this );
 			add_filter( 'authenticate', array( $this->attempts, 'check_attempted_login' ), 5, 3 );
 			add_filter( 'authenticate', array( $this->attempts, 'enforce_lockout' ), PHP_INT_MAX, 1 );
-			add_action( 'wp_login_failed', array( $this->attempts, 'handle_failed_login' ), 10, 1 );
+			add_action( 'wp_login_failed', array( $this->attempts, 'handle_failed_login' ), 10, 2 );
 			add_action( 'wp_login', array( $this->attempts, 'handle_successful_login' ), 10, 1 );
 			// Before handle_failed_login (10), so that one sees the lock and adds no second row.
 			if ( $this->setting( 'block_usernames', false ) && $this->setting( 'block_username_attempts', false ) ) {

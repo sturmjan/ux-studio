@@ -141,9 +141,13 @@ final class AttemptsHandler {
 	}
 
 	/**
-	 * @param string $username Attempted username.
+	 * @param string        $username Attempted username.
+	 * @param WP_Error|null $error    Login error (WP 5.4+).
 	 */
-	public function handle_failed_login( $username ): void {
+	public function handle_failed_login( $username, $error = null ): void {
+		if ( TwoFactor::is_non_form_error( $error ) ) {
+			return; // Right password, 2FA account on a form without the second step: not a failure.
+		}
 		$username    = (string) $username;
 		$ip          = $this->get_client_ip();
 		$ip_attempts = $this->increment_ip_attempts( $ip );
@@ -172,6 +176,9 @@ final class AttemptsHandler {
 	 * @param WP_Error|null $error    Login error shown on the form (WP 5.4+).
 	 */
 	public function handle_blocked_username_login( $username, $error = null ): void {
+		if ( TwoFactor::is_non_form_error( $error ) ) {
+			return;
+		}
 		$username = (string) $username;
 		if ( ! $this->module->is_blocked_username( $username ) ) {
 			return;
