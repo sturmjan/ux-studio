@@ -192,12 +192,18 @@ $assert( 'blocked_matrix: editor is refused hidden items, shop_manager the edito
 
 /* ── post.php: the post type comes from the post, never from the request (finding 5) ── */
 $assert( 'request_args: post.php?post=<page> with a forged post_type=post still resolves to page', array( 'post_type' => 'page' ) === MenuLock::request_args( 'post.php', array( 'post' => '5', 'post_type' => 'post' ) ) );
-$assert( 'request_args: a save (post_ID in the body) ignores the forged post_type too', array( 'post_type' => 'page' ) === MenuLock::request_args( 'post.php', array( 'post_ID' => '5', 'post_type' => 'post', 'action' => 'editpost' ) ) );
+$assert( 'request_args: a save (post_ID in the body) ignores the forged post_type too', array( 'post_type' => 'page' ) === MenuLock::request_args( 'post.php', array(), array( 'post_ID' => '5', 'post_type' => 'post', 'action' => 'editpost' ) ) );
 $assert( 'request_args: post.php without a post id gets no post type from the request', array() === MenuLock::request_args( 'post.php', array( 'post_type' => 'page' ) ) );
 $assert( 'request_args: a forged post_type for an unknown post id is dropped', array() === MenuLock::request_args( 'post.php', array( 'post' => '999', 'post_type' => 'page' ) ) );
 $assert( 'request_args: edit.php keeps a registered post_type', array( 'post_type' => 'page' ) === MenuLock::request_args( 'edit.php', array( 'post_type' => 'page' ) ) );
 $assert( 'request_args: post-new.php keeps it too, an unregistered type is dropped', array( 'post_type' => 'product' ) === MenuLock::request_args( 'post-new.php', array( 'post_type' => 'product' ) ) && array() === MenuLock::request_args( 'post-new.php', array( 'post_type' => 'bogus' ) ) );
 $assert( 'request_args: page and taxonomy pass through', array( 'page' => 'wc-settings' ) === MenuLock::request_args( 'admin.php', array( 'page' => 'wc-settings' ) ) && array( 'taxonomy' => 'product_cat', 'post_type' => 'product' ) === MenuLock::request_args( 'edit-tags.php', array( 'taxonomy' => 'product_cat', 'post_type' => 'product' ) ) );
+$GLOBALS['uxs_posts'][6] = 'post';
+$assert( 'request_args: post.php?post=<page>&post_ID=<post> in the QUERY string resolves to the opened page (core opens GET post)', array( 'post_type' => 'page' ) === MenuLock::request_args( 'post.php', array( 'post' => '5', 'post_ID' => '6' ) ) );
+$assert( 'request_args: a post_ID in the query string alone is not an id (core reads $_POST only)', array() === MenuLock::request_args( 'post.php', array( 'post_ID' => '5' ) ) );
+$assert( 'request_args: GET post wins over a differing POST post_ID', array( 'post_type' => 'page' ) === MenuLock::request_args( 'post.php', array( 'post' => '5' ), array( 'post_ID' => '6' ) ) );
+$assert( 'request_args: page is read from the query string only, a body value cannot override it', array( 'page' => 'wc-settings' ) === MenuLock::request_args( 'admin.php', array( 'page' => 'wc-settings' ), array( 'page' => 'other' ) ) && array() === MenuLock::request_args( 'admin.php', array(), array( 'page' => 'other' ) ) );
+$assert( 'request_args: taxonomy and post_type still follow $_REQUEST', array( 'taxonomy' => 'product_cat', 'post_type' => 'product' ) === MenuLock::request_args( 'edit-tags.php', array(), array( 'taxonomy' => 'product_cat', 'post_type' => 'product' ) ) );
 // The full bypass: Pages are limited to editors; a shop manager opens the page with a forged post_type=post.
 $bypass_args = MenuLock::request_args( 'post.php', array( 'post' => '5', 'post_type' => 'post' ) );
 $assert( 'bypass attempt (edit a hidden Page via post.php?post_type=post) is refused for shop_manager and allowed for editor', S::request_blocked( $config, 'post.php', $bypass_args, $tops, $subs, array( 'shop_manager' ), false )['blocked'] && ! S::request_blocked( $config, 'post.php', $bypass_args, $tops, $subs, array( 'editor' ), false )['blocked'] );

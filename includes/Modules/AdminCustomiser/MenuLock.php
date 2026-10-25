@@ -105,26 +105,36 @@ final class MenuLock {
 	 * be filed under Posts and slip past a lock on Pages. On `edit.php`, `post-new.php` and the like the
 	 * `post_type` argument does name the screen, so it is kept - but only when it is a registered type.
 	 *
-	 * @param string                    $file    Admin file of the request.
-	 * @param array<string, mixed>|null $request Request values (tests); null reads $_REQUEST.
+	 * Each value is read from the same superglobal core reads it from: `page` from the query string only
+	 * (`$plugin_page`), the post id of `post.php` from `$_GET['post']`, else `$_POST['post_ID']` (core dies when
+	 * both are set and differ), `taxonomy` and `post_type` from `$_REQUEST` like `edit-tags.php` / `$typenow`.
+	 *
+	 * @param string                    $file Admin file of the request.
+	 * @param array<string, mixed>|null $get  Query values (tests); null reads $_GET.
+	 * @param array<string, mixed>|null $post Body values (tests); null reads $_POST.
 	 * @return array<string, string>
 	 */
-	public static function request_args( string $file, ?array $request = null ): array {
+	public static function request_args( string $file, ?array $get = null, ?array $post = null ): array {
 		$args = array();
-		// $_REQUEST like WordPress itself ($typenow): saving a post sends post_type / post_ID in the body.
 		// phpcs:disable WordPress.Security.NonceVerification
-		$request = $request ?? $_REQUEST;
-		$get     = static function ( string $key ) use ( $request ): string {
-			return isset( $request[ $key ] ) && is_string( $request[ $key ] ) ? sanitize_text_field( wp_unslash( $request[ $key ] ) ) : '';
+		if ( null === $get ) {
+			$get  = $_GET;
+			$post = $post ?? $_POST;
+		}
+		$post    = $post ?? array();
+		$request = array_merge( $get, $post );
+		$read    = static function ( array $source, string $key ): string {
+			return isset( $source[ $key ] ) && is_string( $source[ $key ] ) ? sanitize_text_field( wp_unslash( $source[ $key ] ) ) : '';
 		};
-		foreach ( array( 'page', 'taxonomy' ) as $key ) {
-			if ( '' !== $get( $key ) ) {
-				$args[ $key ] = $get( $key );
-			}
+		if ( '' !== $read( $get, 'page' ) ) {
+			$args['page'] = $read( $get, 'page' );
+		}
+		if ( '' !== $read( $request, 'taxonomy' ) ) {
+			$args['taxonomy'] = $read( $request, 'taxonomy' );
 		}
 		if ( 'post.php' === $file ) {
-			// The saved post (post_ID, a POST body) wins over the opened one (post); WordPress itself dies on a mismatch.
-			$raw = '' !== $get( 'post_ID' ) ? $get( 'post_ID' ) : $get( 'post' );
+			// Core opens the query-string post when there is one (a mismatch with post_ID dies there), else the saved one.
+			$raw = '' !== $read( $get, 'post' ) ? $read( $get, 'post' ) : $read( $post, 'post_ID' );
 			$id  = absint( $raw );
 			if ( $id > 0 ) {
 				$type = get_post_type( $id );
@@ -132,8 +142,8 @@ final class MenuLock {
 					$args['post_type'] = (string) $type;
 				}
 			}
-		} elseif ( '' !== $get( 'post_type' ) && post_type_exists( $get( 'post_type' ) ) ) {
-			$args['post_type'] = $get( 'post_type' );
+		} elseif ( '' !== $read( $request, 'post_type' ) && post_type_exists( $read( $request, 'post_type' ) ) ) {
+			$args['post_type'] = $read( $request, 'post_type' );
 		}
 		// phpcs:enable
 		return $args;
