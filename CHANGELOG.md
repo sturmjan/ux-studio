@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.6.0 (unreleased)
+## 0.6.0
 
 - New - SMTP Email: SendGrid (global / EU), Mailgun (US / EU), Postmark (message stream) and Amazon SES (the SES v2 HTTPS
   API signed with Signature Version 4 in PHP, no SDK) next to SMTP, Brevo and Gmail. They send HTML or plain text, Cc /
