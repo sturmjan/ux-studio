@@ -2765,3 +2765,61 @@ Opraveno (commity na `feature/release-fixes`):
     (`TwoFactor::non_form_login_error()`, kód `uxstudio_2fa_non_form`) a limiter ani adaptivní CAPTCHA to nepočítají jako neúspěch (`is_non_form_error()` v `AttemptsHandler` a `CaptchaHandler`);
     XML-RPC dál dostane odpověď jako při špatném hesle. (b) Vynucené nastavení po odkladu blokuje AJAX a zápisy REST jen pro požadavky z adminu (referer v `admin_url()`, chybějící referer se bere jako admin) a pro nástroje
     (aplikační hesla, MCP tokeny); veřejný web přihlášeného uživatele (wc-ajax, formuláře) funguje. (c) Pro vynuceného uživatele se z heartbeatu vyřadí `heartbeat_autosave`, takže přes něj nejde zapsat.
+
+## 29. Úvodní průvodce pro nový web (0.7.0)
+
+Zadání (schváleno 2026-10-25): na zcela novém webu, kde není co migrovat, se průvodce otevře po aktivaci
+také a nabídne „startovací balíček“ modulů vhodných pro každý WordPress, rovnou přednastavených.
+Když jsou k převzetí cizí pluginy, zůstává migrace (§26) a startovací balíček se nabídne i po ní.
+
+### 29.1 Princip
+
+- **Nic mimo whitelist.** Položky balíčku mají pevné id (`StarterPack::ids()`); REST bere jen id z whitelistu,
+  hodnoty čistí schéma nastavení daného modulu.
+- **Žádné obcházení hlídání překryvů.** Moduly se zapínají přes `ActivationGuard`, nastavení se ukládají přes
+  `BaseModule::save_settings()` (stejná cesta jako `POST /settings/{id}`, takže se provedou vedlejší efekty,
+  třeba zápis `.htaccess`). Nastavení, které už dělá cizí plugin (Disable Comments, Limit Login Attempts a jiné),
+  se z přednastavení vynechá, ne zdvojí (`Overlaps::blocked_settings()`).
+- **Snímek před změnou.** Jedna volba `uxstudio_starter_snapshot`: předchozí seznam modulů a předchozí hodnoty
+  voleb všech dotčených modulů. `revert` vrátí přesně toto, vypne zapnuté moduly (spustí se jejich `on_disable`,
+  tedy i odstranění bloku v `.htaccess`) a znovu spustí vedlejší efekty u modulů, které zůstaly zapnuté.
+- **Přihlašovací adresa ve dvou krocích, nikdy bez záchrany.** Krok A uloží `/administrace` a přihlašovací
+  formulář tam funguje, ale `wp-login.php` zůstává otevřený (stav `uxstudio_login_url_pending`). Krok B
+  (`onboarding/login-url/confirm`) stav zruší, ověří, že zámek opravdu platí, a pošle e-mail s adresou.
+  Nepotvrzený stav po 24 hodinách jen hlásí „expired“, do zablokování nikdy nepřejde.
+- **Detekce.** WooCommerce, Cloudflare (`HTTP_CF_CONNECTING_IP`), proxy (`HTTP_X_FORWARDED_FOR`), typ serveru
+  (`SERVER_SOFTWARE`), zapisovatelnost `.htaccess`, hezké trvalé odkazy, kolize slugu, logo webu.
+
+### 29.2 Obsah balíčku
+
+Předzaškrtnuto: Security (komentáře, editor souborů, XML-RPC, verze WP, bezpečnostní hlavičky, limit přihlášení
+5 pokusů/15 min progresivně, revize 10, Heartbeat pomalu, emoji), e-maily o aktualizacích (nové nastavení),
+Skrýt WordPress (admin bar, patička, nápověda, přihlašovací stránka s logem webu, odkazy v `<head>`),
+klasický editor + widgety, čisté profily, widgety nástěnky (poznámky, aktivita), duplikace příspěvků + menu,
+externí odkazy, AI Markdown, Bot Throttle (120 req/min, Ahrefs a Semrush mimo seznam), optimalizace obrázků
+(WebP, kvalita 82), koš médií, stock fotky, skener zranitelností, activity log (90 dní), upozornění na
+indexaci, vlastní přihlašovací adresa `/administrace` (poslední, jen jako pending).
+Nezaškrtnuto: SMTP (potřebuje údaje), e-mail log (14 dní), přesměrování + 404 log, výměna médií, poslední
+přihlášení uživatelů, skrytí admin lišty pro zákazníky, CSP inventura (`audit`, vzorkování 20 %).
+Nikdy: vynucené 2FA, IP firewall, blokování zemí, vynucení HTTPS, HSTS, omezení REST API, ochrana přihlášení,
+blokování výčtu uživatelů, CSP Enforce, modul Disable Auto Updates.
+
+### 29.3 Nová pravidla překryvů
+
+- `ai-markdown` x llms.txt SEO pluginů (Yoast, Rank Math, All in One SEO): plný překryv jen když je funkce
+  cizího pluginu zapnutá (jeho volba, nebo fyzický `llms.txt` v kořeni), jinak jen informace.
+  Katalog má nové klíče `foreign_when` (podmínky na volby a soubory cizího pluginu) a `foreign_else` (`partial`|`none`).
+- `image-optimizer` x EWWW, Smush, ShortPixel, Imagify, Converter for Media, Optimole: plný překryv;
+  LiteSpeed Cache jen při zapnuté optimalizaci obrázků/WebP, Jetpack jen se zapnutým obrazovým CDN (Photon).
+
+### 29.4 Fáze
+
+- [x] F1 Backend: `StarterPack`, `Environment`, `Applier`, REST `uxstudio/v1/onboarding/*` (starter, apply, revert, login-url/confirm), snímek a vrácení
+- [x] F1 AutoStart: rozhodnutí `new` (nový web bez čeho migrovat) a příznak `starter` v nápovědě na obrazovce Moduly
+- [x] F1 Security: nová nastavení `hide_wp_head_links`, `suppress_update_emails`, stav `pending` přihlašovací adresy
+- [x] F1 Nová pravidla překryvů (ai-markdown, image-optimizer) a testy `tests/onboarding-starter.php`, `tests/overlap-catalog.php`
+- [x] F1 Překlady nových řetězců PHP (cs_CZ)
+- [ ] F2 Kontrola verze PHP (varování před aktivací průvodce, když PHP nevyhovuje požadavkům balíčku)
+- [ ] F3 UI průvodce: režim `#/wizard?mode=new`, výběr položek, přednastavení slovy, potvrzení přihlašovací adresy, vrácení změn
+- [ ] F4 Napojení na centrální aplikaci (strana pluginu; strana CA se dělá zvlášť v centrani-app)
+- [ ] F5 Překlady JS, QA na čistém webu (Apache, nginx, Cloudflare, WooCommerce) a vydání 0.7.0
