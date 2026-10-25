@@ -1,28 +1,44 @@
 import { useState } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { ArrowLeft, LoaderCircle, Lock, Plus, RefreshCw, Trash2, Unlock } from 'lucide-react';
+import { ArrowLeft, KeyRound, LoaderCircle, Lock, Plus, RefreshCw, Trash2, Unlock } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
-import { navigate } from '../../app/route';
-import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { hashParam, navigate } from '../../app/route';
+import { useModuleSettings } from '../../app/SettingsForm';
+import { TopicSettings, inSections } from '../../app/TopicSettings';
 import { CspTab } from './CspTab';
 import { UploadGuardTab } from './UploadGuardTab';
 import { TabsNav } from '../../app/SubNav';
+import { formatDate } from '../../app/date';
+
+const MODULE = 'security-optimization';
 
 /**
- * Tab registry for this module's page: "Settings", "Login Attempts" and
- * "IP Bans" (access-control domain, this file) plus "CSP" and "Upload Guard"
- * (malware scanner, ported separately - see CspTab.tsx/UploadGuardTab.tsx).
+ * One menu item per topic; each page shows the topic's settings and, below,
+ * its data (ban list, login attempts, CSP inventory, scan findings). CSP and
+ * Upload Guard pages live in CspTab.tsx/UploadGuardTab.tsx.
  */
-type TabId = 'settings' | 'login-attempts' | 'ip-bans' | 'csp' | 'upload-guard';
+type TabId = 'firewall' | 'login' | 'two-factor' | 'captcha' | 'headers' | 'csp' | 'upload-guard' | 'hardening' | 'performance' | 'content';
 
 const TABS: { id: TabId; label: string }[] = [
-	{ id: 'settings', label: __( 'Settings', 'ux-studio' ) },
-	{ id: 'login-attempts', label: __( 'Login Attempts', 'ux-studio' ) },
-	{ id: 'ip-bans', label: __( 'IP Bans', 'ux-studio' ) },
-	{ id: 'csp', label: __( 'CSP Violations', 'ux-studio' ) },
-	{ id: 'upload-guard', label: __( 'Upload Guard', 'ux-studio' ) },
+	{ id: 'firewall', label: __( 'Firewall & IP bans', 'ux-studio' ) },
+	{ id: 'login', label: __( 'Login', 'ux-studio' ) },
+	{ id: 'two-factor', label: __( 'Two-step verification', 'ux-studio' ) },
+	{ id: 'captcha', label: __( 'CAPTCHA', 'ux-studio' ) },
+	{ id: 'headers', label: __( 'HTTPS & headers', 'ux-studio' ) },
+	{ id: 'csp', label: __( 'CSP', 'ux-studio' ) },
+	{ id: 'upload-guard', label: __( 'Upload protection', 'ux-studio' ) },
+	{ id: 'hardening', label: __( 'Site hardening', 'ux-studio' ) },
+	{ id: 'performance', label: __( 'Performance', 'ux-studio' ) },
+	{ id: 'content', label: __( 'Content', 'ux-studio' ) },
 ];
+
+/** Tab ids of the old layout, still used by links in e-mails and bookmarks. */
+const LEGACY_TABS: Record< string, TabId > = {
+	settings: 'firewall',
+	'ip-bans': 'firewall',
+	'login-attempts': 'login',
+};
 
 interface LoginAttemptRow {
 	id: number;
@@ -41,7 +57,7 @@ interface IpBanRow {
 	value: string;
 	label: string | null;
 	note: string | null;
-	origin: 'local' | 'central';
+	origin: 'local' | 'central' | 'migration';
 	is_active: number;
 	expires_at: string | null;
 	hit_count: number;
@@ -55,64 +71,59 @@ interface HtaccessStatus {
 	current_hash: string;
 }
 
-function SettingsTab(): JSX.Element {
-	const { data, isLoading, draft, setDraft, save, saved } = useModuleSettings( 'security-optimization' );
-
+/**
+ * State of the module's .htaccess block - shown on the topics whose settings
+ * are written there (HTTPS & headers, Site hardening).
+ */
+function HtaccessStatusBox(): JSX.Element {
 	const htaccess = useQuery( {
-		queryKey: [ 'security-optimization', 'htaccess-status' ],
+		queryKey: [ MODULE, 'htaccess-status' ],
 		queryFn: () => api< HtaccessStatus >( 'security-optimization/htaccess/status' ),
 	} );
 
 	const applyHtaccess = useMutation( {
 		mutationFn: () => api( 'security-optimization/htaccess/apply', { method: 'POST' } ),
-		onSuccess: () => void queryClient.invalidateQueries( { queryKey: [ 'security-optimization', 'htaccess-status' ] } ),
+		onSuccess: () => void queryClient.invalidateQueries( { queryKey: [ MODULE, 'htaccess-status' ] } ),
 	} );
 
-	if ( isLoading || ! data ) {
-		return (
-			<div className="uxs-loading">
-				<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />
-			</div>
-		);
-	}
-
-	// Upload Guard settings live on their own tab (UploadGuardTab); keep them out
-	// of the generic settings grid to avoid showing the same fields twice.
-	const schema = data.schema.filter( ( f ) => ! f.key.startsWith( 'upload_guard' ) );
-
 	return (
-		<>
-			<SettingsFields schema={ schema } draft={ draft } setDraft={ setDraft } />
-			<p>
-				{ draft.has_captcha_secret_key
-					? __( 'A CAPTCHA secret key is currently set.', 'ux-studio' )
-					: __( 'No CAPTCHA secret key set yet.', 'ux-studio' ) }
-			</p>
-			<button type="button" className="button button-primary" onClick={ () => save.mutate() }>
-				{ saved ? __( 'Saved', 'ux-studio' ) : __( 'Save changes', 'ux-studio' ) }
+		<div style={ { marginTop: 'var(--uxs-sp-5)' } }>
+			<h3>{ __( '.htaccess rules', 'ux-studio' ) }</h3>
+			{ htaccess.data && (
+				<p>
+					<span className={ `uxs-badge ${ htaccess.data.applied ? 'is-success' : 'is-warning' }` }>
+						{ htaccess.data.applied
+							? __( 'Applied and up to date', 'ux-studio' )
+							: __( 'Out of date - re-apply to write current settings', 'ux-studio' ) }
+					</span>
+				</p>
+			) }
+			<button type="button" className="button" disabled={ applyHtaccess.isPending } onClick={ () => applyHtaccess.mutate() }>
+				<RefreshCw size={ 14 } /> { __( 'Apply .htaccess rules', 'ux-studio' ) }
 			</button>
+		</div>
+	);
+}
 
-			<div style={ { marginTop: 'var(--uxs-sp-5)' } }>
-				<h3>{ __( '.htaccess rules', 'ux-studio' ) }</h3>
-				{ htaccess.data && (
-					<p>
-						<span className={ `uxs-badge ${ htaccess.data.applied ? 'is-success' : 'is-warning' }` }>
-							{ htaccess.data.applied
-								? __( 'Applied and up to date', 'ux-studio' )
-								: __( 'Out of date - re-apply to write current settings', 'ux-studio' ) }
-						</span>
-					</p>
-				) }
-				<button
-					type="button"
-					className="button"
-					disabled={ applyHtaccess.isPending }
-					onClick={ () => applyHtaccess.mutate() }
-				>
-					<RefreshCw size={ 14 } /> { __( 'Apply .htaccess rules', 'ux-studio' ) }
-				</button>
-			</div>
-		</>
+/** Whether the CAPTCHA secret is stored (it is never sent back to the browser). */
+function CaptchaSecretNote(): JSX.Element {
+	const { draft } = useModuleSettings( MODULE );
+	return (
+		<p>
+			{ draft.has_captcha_secret_key
+				? __( 'A CAPTCHA secret key is currently set.', 'ux-studio' )
+				: __( 'No CAPTCHA secret key set yet.', 'ux-studio' ) }
+		</p>
+	);
+}
+
+/** A data block under the topic's settings. */
+function TopicData( { title, children }: { title: string; children: JSX.Element } ): JSX.Element {
+	return (
+		<section className="uxs-topic-data">
+			<h3>{ title }</h3>
+			{ children }
+		</section>
 	);
 }
 
@@ -178,7 +189,7 @@ function LoginAttemptsTab(): JSX.Element {
 									</span>
 								</td>
 								<td>{ row.locktime }</td>
-								<td>{ row.date }</td>
+								<td>{ formatDate( row.date ) }</td>
 								<td>
 									{ !! row.status && (
 										<button
@@ -195,6 +206,147 @@ function LoginAttemptsTab(): JSX.Element {
 						) ) }
 					</tbody>
 				</table>
+			) }
+		</>
+	);
+}
+
+interface TwoFactorUser {
+	id: number;
+	login: string;
+	name: string;
+	roles: string;
+	recovery_left: number;
+}
+
+interface TwoFactorMissing {
+	id: number;
+	login: string;
+	name: string;
+	roles: string;
+	grace_left: number;
+	forced: boolean;
+}
+
+interface TwoFactorStatus {
+	feature: boolean;
+	killed: boolean;
+	kill_switch: string;
+	users: TwoFactorUser[];
+	missing: TwoFactorMissing[];
+}
+
+/** Who has two-step verification, who still has to set it up, and the rescue switch. */
+function TwoFactorData(): JSX.Element {
+	const status = useQuery( {
+		queryKey: [ MODULE, 'two-factor' ],
+		queryFn: () => api< TwoFactorStatus >( 'security-optimization/two-factor' ),
+	} );
+
+	const reset = useMutation( {
+		mutationFn: ( id: number ) => api( `security-optimization/two-factor/reset/${ id }`, { method: 'POST' } ),
+		onSuccess: () => void queryClient.invalidateQueries( { queryKey: [ MODULE, 'two-factor' ] } ),
+	} );
+
+	const data = status.data;
+	if ( status.isLoading || ! data ) {
+		return (
+			<div className="uxs-loading">
+				<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />
+			</div>
+		);
+	}
+
+	return (
+		<>
+			{ data.killed && (
+				<p>
+					<span className="uxs-badge is-warning">
+						<KeyRound size={ 12 } />{ ' ' }
+						{ __( 'The rescue switch is set in wp-config.php: the second step is off for everybody.', 'ux-studio' ) }
+					</span>
+				</p>
+			) }
+			{ ! data.feature && ! data.killed && <p>{ __( 'Two-step verification is switched off. Switch it on above and save; every user then sets it up in their own profile.', 'ux-studio' ) }</p> }
+			<p>
+				{ __( 'If you get locked out, add this line to wp-config.php, then remove it again after you log in:', 'ux-studio' ) } <code>{ `define( '${ data.kill_switch }', true );` }</code>
+			</p>
+
+			<h4>{ __( 'Users with two-step verification', 'ux-studio' ) }</h4>
+			{ data.users.length === 0 ? (
+				<p>{ __( 'Nobody has set it up yet.', 'ux-studio' ) }</p>
+			) : (
+				<table className="uxs-table">
+					<thead>
+						<tr>
+							<th>{ __( 'User', 'ux-studio' ) }</th>
+							<th>{ __( 'Role', 'ux-studio' ) }</th>
+							<th>{ __( 'Unused recovery codes', 'ux-studio' ) }</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody>
+						{ data.users.map( ( u ) => (
+							<tr key={ u.id }>
+								<td>
+									{ u.name } <code>{ u.login }</code>
+								</td>
+								<td>{ u.roles }</td>
+								<td>{ u.recovery_left }</td>
+								<td>
+									<button
+										type="button"
+										className="button button-small"
+										disabled={ reset.isPending }
+										onClick={ () => {
+											if ( window.confirm( __( 'Reset two-step verification of this user? They will log in with the password only until they set it up again.', 'ux-studio' ) ) ) {
+												reset.mutate( u.id );
+											}
+										} }
+									>
+										{ __( 'Turn off for this user', 'ux-studio' ) }
+									</button>
+								</td>
+							</tr>
+						) ) }
+					</tbody>
+				</table>
+			) }
+
+			{ data.missing.length > 0 && (
+				<>
+					<h4>{ __( 'Required, not set up yet', 'ux-studio' ) }</h4>
+					<table className="uxs-table">
+						<thead>
+							<tr>
+								<th>{ __( 'User', 'ux-studio' ) }</th>
+								<th>{ __( 'Role', 'ux-studio' ) }</th>
+								<th>{ __( 'Status', 'ux-studio' ) }</th>
+							</tr>
+						</thead>
+						<tbody>
+							{ data.missing.map( ( u ) => (
+								<tr key={ u.id }>
+									<td>
+										{ u.name } <code>{ u.login }</code>
+									</td>
+									<td>{ u.roles }</td>
+									<td>
+										<span className={ `uxs-badge ${ u.forced || u.grace_left === 0 ? 'is-danger' : 'is-warning' }` }>
+											{ u.forced || u.grace_left === 0
+												? __( 'Setup is compulsory', 'ux-studio' )
+												: sprintf(
+														/* translators: %d: number of logins. */
+														_n( '%d login left to postpone', '%d logins left to postpone', u.grace_left, 'ux-studio' ),
+														u.grace_left
+												  ) }
+										</span>
+									</td>
+								</tr>
+							) ) }
+						</tbody>
+					</table>
+				</>
 			) }
 		</>
 	);
@@ -311,10 +463,15 @@ function IpBansTab(): JSX.Element {
 											{ __( 'Central', 'ux-studio' ) }
 										</span>
 									) : null }
+									{ row.origin === 'migration' ? (
+										<span className="uxs-badge is-info" style={ { marginLeft: 'var(--uxs-sp-1)' } }>
+											{ __( 'Migrated', 'ux-studio' ) }
+										</span>
+									) : null }
 								</td>
 								<td>{ row.hit_count }</td>
 								<td>
-									{ row.origin === 'local' && (
+									{ ( row.origin === 'local' || row.origin === 'migration' ) && (
 										<>
 											<button
 												type="button"
@@ -343,7 +500,11 @@ function IpBansTab(): JSX.Element {
 }
 
 export default function Page(): JSX.Element {
-	const [ tab, setTab ] = useState< TabId >( 'settings' );
+	// Deep links (dashboard widget, e-mails) open a topic directly: #/module?id=…&tab=csp.
+	const [ tab, setTab ] = useState< TabId >( () => {
+		const wanted = hashParam( 'tab' ) ?? '';
+		return TABS.find( ( t ) => t.id === wanted )?.id ?? LEGACY_TABS[ wanted ] ?? 'firewall';
+	} );
 
 	return (
 		<>
@@ -367,11 +528,52 @@ export default function Page(): JSX.Element {
 					</button>
 				) ) }
 			</TabsNav>
-			{ tab === 'settings' && <SettingsTab /> }
-			{ tab === 'login-attempts' && <LoginAttemptsTab /> }
-			{ tab === 'ip-bans' && <IpBansTab /> }
+			<h2 className="uxs-form__section">{ TABS.find( ( t ) => t.id === tab )?.label }</h2>
+			{ tab === 'firewall' && (
+				<>
+					<TopicSettings moduleId={ MODULE } include={ inSections( __( 'Firewall', 'ux-studio' ) ) } />
+					<TopicData title={ __( 'Blocked IP addresses', 'ux-studio' ) }>
+						<IpBansTab />
+					</TopicData>
+				</>
+			) }
+			{ tab === 'login' && (
+				<>
+					<TopicSettings moduleId={ MODULE } include={ inSections( __( 'Login', 'ux-studio' ) ) } />
+					<TopicData title={ __( 'Login attempts', 'ux-studio' ) }>
+						<LoginAttemptsTab />
+					</TopicData>
+				</>
+			) }
+			{ tab === 'two-factor' && (
+				<>
+					<TopicSettings moduleId={ MODULE } include={ inSections( __( 'Two-step verification', 'ux-studio' ) ) } onSaved={ () => void queryClient.invalidateQueries( { queryKey: [ MODULE, 'two-factor' ] } ) } />
+					<TopicData title={ __( 'Overview', 'ux-studio' ) }>
+						<TwoFactorData />
+					</TopicData>
+				</>
+			) }
+			{ tab === 'captcha' && (
+				<TopicSettings moduleId={ MODULE } include={ inSections( __( 'CAPTCHA', 'ux-studio' ) ) }>
+					<CaptchaSecretNote />
+				</TopicSettings>
+			) }
+			{ tab === 'headers' && (
+				<>
+					<TopicSettings moduleId={ MODULE } include={ inSections( __( 'HTTPS & headers', 'ux-studio' ) ) } />
+					<HtaccessStatusBox />
+				</>
+			) }
 			{ tab === 'csp' && <CspTab /> }
 			{ tab === 'upload-guard' && <UploadGuardTab /> }
+			{ tab === 'hardening' && (
+				<>
+					<TopicSettings moduleId={ MODULE } include={ inSections( __( 'Hardening', 'ux-studio' ) ) } />
+					<HtaccessStatusBox />
+				</>
+			) }
+			{ tab === 'performance' && <TopicSettings moduleId={ MODULE } include={ inSections( __( 'Performance', 'ux-studio' ) ) } /> }
+			{ tab === 'content' && <TopicSettings moduleId={ MODULE } include={ inSections( __( 'Content', 'ux-studio' ) ) } /> }
 		</>
 	);
 }

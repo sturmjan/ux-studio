@@ -35,6 +35,15 @@ final class Snippet {
 	private bool $hasIntegrityIssue = false;
 	private array $metadata;
 
+	/** @var string[] Post types a before/after-content snippet applies to. */
+	private array $postTypes = array();
+	/** When a run-once snippet last ran ('' = never). */
+	private string $lastRun = '';
+	/** Outcome of the last run-once execution (JSON: ok, message, output). */
+	private string $runResult = '';
+	/** @var array<int, array<string, mixed>> Run conditions (SnippetConditions); empty = no restriction. */
+	private array $conditions = array();
+
 	/**
 	 * @param string $id          Snippet id (numeric, from the metadata table).
 	 * @param string $name        Snippet title.
@@ -381,6 +390,12 @@ final class Snippet {
 			'description'         => $this->getDescription(),
 			'run_location'        => $this->runLocation,
 			'priority'            => $this->priority,
+			'post_types'          => $this->postTypes,
+			'conditions'          => $this->conditions,
+			'conditions_summary'  => SnippetConditions::summary( $this->conditions ),
+			'shortcode'         => SnippetManager::LOCATION_SHORTCODE === $this->runLocation ? '[uxstudio_snippet id="' . $this->id . '"]' : '',
+			'last_run'            => $this->lastRun,
+			'run_result'          => $this->getRunResult(),
 			'is_valid'            => $this->isValid,
 			'has_integrity_issue' => $this->hasIntegrityIssue,
 			'created_at'          => $this->metadata['created_at'] ?? '',
@@ -428,6 +443,61 @@ final class Snippet {
 
 	public function isValid(): bool {
 		return $this->isValid;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getPostTypes(): array {
+		return $this->postTypes;
+	}
+
+	public function getLastRun(): string {
+		return $this->lastRun;
+	}
+
+	/**
+	 * Outcome of the last run-once execution.
+	 *
+	 * @return array{ok:bool,message:string,output:string}|null
+	 */
+	public function getRunResult(): ?array {
+		if ( '' === $this->runResult ) {
+			return null;
+		}
+		$data = json_decode( $this->runResult, true );
+		if ( ! is_array( $data ) ) {
+			return null;
+		}
+		return array(
+			'ok'      => ! empty( $data['ok'] ),
+			'message' => (string) ( $data['message'] ?? '' ),
+			'output'  => (string) ( $data['output'] ?? '' ),
+		);
+	}
+
+	/**
+	 * Placement + run info that live in the metadata table, not in the file.
+	 *
+	 * @param string[] $postTypes Post types of a before/after-content snippet.
+	 * @param string   $lastRun   Last run-once execution (MySQL datetime) or ''.
+	 * @param string   $runResult JSON outcome of that run or ''.
+	 * @param string   $conditions Stored run conditions (JSON) or ''.
+	 */
+	public function setMeta( array $postTypes, string $lastRun, string $runResult, string $conditions = '' ): void {
+		$this->postTypes  = array_values( array_filter( array_map( 'sanitize_key', $postTypes ) ) );
+		$this->lastRun    = $lastRun;
+		$this->runResult  = $runResult;
+		$this->conditions = SnippetConditions::decode( $conditions );
+	}
+
+	/**
+	 * Run conditions (empty = the snippet is not restricted by anything but its place).
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	public function getConditions(): array {
+		return $this->conditions;
 	}
 
 	public function getMetadata(): array {

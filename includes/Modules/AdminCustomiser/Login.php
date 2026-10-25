@@ -138,6 +138,7 @@ final class Login {
 		}
 
 		$css .= $this->color_rule( 'body.login', 'background-color', 'login_background_color' );
+		$css .= $this->background_image_css();
 		$css .= $this->color_rule( 'body.login, body.login #nav a, body.login #backtoblog a', 'color', 'login_text_color' );
 		$css .= $this->color_rule( '#login form', 'background-color', 'login_form_bg_color' );
 		$css .= $this->color_rule( '#login form, #login form label', 'color', 'login_form_text_color' );
@@ -166,6 +167,10 @@ final class Login {
 		$css .= $this->color_rule( '.wp-core-ui .button-primary', 'background-color', 'login_button_bg_color' );
 		$css .= $this->color_rule( '.wp-core-ui .button-primary', 'border-color', 'login_button_bg_color' );
 		$css .= $this->color_rule( '.wp-core-ui .button-primary', 'color', 'login_button_text_color' );
+		$css .= $this->color_rule( 'body.login .wp-core-ui .button-primary:hover, body.login .wp-core-ui .button-primary:focus', 'background-color', 'login_button_hover_bg_color' );
+		$css .= $this->color_rule( 'body.login .wp-core-ui .button-primary:hover, body.login .wp-core-ui .button-primary:focus', 'border-color', 'login_button_hover_bg_color' );
+		$css .= $this->color_rule( 'body.login .wp-core-ui .button-primary:hover, body.login .wp-core-ui .button-primary:focus', 'color', 'login_button_hover_text_color' );
+		$css .= $this->color_rule( 'body.login #nav a:hover, body.login #nav a:focus, body.login #backtoblog a:hover, body.login #backtoblog a:focus, body.login .privacy-policy-page-link a:hover', 'color', 'login_link_hover_color' );
 
 		if ( $this->is_split() ) {
 			$css .= $this->split_layout_css();
@@ -179,6 +184,38 @@ final class Login {
 		}
 
 		printf( '<style id="uxstudio-login-customiser">%s</style>', $css ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+
+	/**
+	 * Background image of the classic layout (`login_background_image`, fit in `login_background_style`).
+	 * The split layout paints its own panel, so the image is left out there.
+	 */
+	private function background_image_css(): string {
+		if ( $this->is_split() ) {
+			return '';
+		}
+		$id  = (int) $this->settings->get( 'login_background_image', 0 );
+		$url = $id > 0 ? (string) wp_get_attachment_image_url( $id, 'full' ) : '';
+		if ( '' === $url ) {
+			return '';
+		}
+		// A URL inside url("...") in a <style>: nothing that could end the string or the element.
+		$url   = str_replace( array( '"', '\\', '<', '>', "\n", "\r" ), '', esc_url_raw( $url ) );
+		$style = (string) $this->settings->get( 'login_background_style', 'cover' );
+		switch ( $style ) {
+			case 'contain':
+				$fit = 'background-size: contain; background-repeat: no-repeat; background-position: center;';
+				break;
+			case 'center':
+				$fit = 'background-size: auto; background-repeat: no-repeat; background-position: center;';
+				break;
+			case 'repeat':
+				$fit = 'background-size: auto; background-repeat: repeat; background-position: top left;';
+				break;
+			default:
+				$fit = 'background-size: cover; background-repeat: no-repeat; background-position: center; background-attachment: fixed;';
+		}
+		return 'body.login { background-image: url("' . $url . '"); ' . $fit . ' }';
 	}
 
 	/** Emits `$selector { $property: <hex>; }` when the given color setting is a valid hex value. */

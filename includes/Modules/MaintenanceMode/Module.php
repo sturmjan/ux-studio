@@ -7,6 +7,7 @@
 
 namespace UxStudio\Modules\MaintenanceMode;
 
+use UxStudio\Core\ClientIp;
 use UxStudio\Modules\BaseModule;
 
 defined( 'ABSPATH' ) || exit;
@@ -83,8 +84,41 @@ final class Module extends BaseModule {
 		if ( 'disabled' === $this->get_mode() ) {
 			return false;
 		}
+		if ( $this->request_excepted() ) {
+			return false;
+		}
 
 		return ! $this->user_has_access();
+	}
+
+	/**
+	 * Whether this request is one of the addresses that stay available (the list of paths, feeds).
+	 */
+	private function request_excepted(): bool {
+		if ( $this->settings->get( 'allow_feeds', false ) && is_feed() ) {
+			return true;
+		}
+
+		$parsed = MaintenanceRules::parse_paths( (string) $this->settings->get( 'exclude_paths', '' ) );
+		if ( array() === $parsed['rules'] ) {
+			return false;
+		}
+		$uri  = isset( $_SERVER['REQUEST_URI'] ) ? (string) wp_unslash( $_SERVER['REQUEST_URI'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$home = (string) wp_parse_url( home_url(), PHP_URL_PATH );
+
+		return MaintenanceRules::path_excepted( MaintenanceRules::request_path( $uri, $home ), $parsed['rules'] );
+	}
+
+	/**
+	 * Whether the visitor's address is on the list of addresses that always see the site.
+	 */
+	private function ip_bypassed(): bool {
+		$entries = MaintenanceRules::parse_ips( (string) $this->settings->get( 'bypass_ips', '' ) );
+		if ( array() === $entries ) {
+			return false;
+		}
+
+		return ClientIp::in_ranges( ClientIp::get( 'auto' ), $entries );
 	}
 
 	/**
@@ -93,6 +127,9 @@ final class Module extends BaseModule {
 	private function user_has_access(): bool {
 		// Administrators (and anyone who can manage the plugin) always bypass.
 		if ( current_user_can( 'manage_options' ) ) {
+			return true;
+		}
+		if ( $this->ip_bypassed() ) {
 			return true;
 		}
 
@@ -119,11 +156,33 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Configured mode: maintenance | coming_soon | disabled.
+	 * The mode as saved in the settings: maintenance | coming_soon | disabled.
 	 */
-	private function get_mode(): string {
+	private function configured_mode(): string {
 		$mode = (string) $this->settings->get( 'mode', 'disabled' );
 		return in_array( $mode, array( 'maintenance', 'coming_soon', 'disabled' ), true ) ? $mode : 'disabled';
+	}
+
+	/**
+	 * The mode in force now: the saved one, or disabled once the countdown ran out and "switch off at the end" is on.
+	 * Decided at every request, nothing is written (the saved mode stays so the administrator sees what ended).
+	 */
+	private function get_mode(): string {
+		return $this->countdown_over() ? 'disabled' : $this->configured_mode();
+	}
+
+	/**
+	 * End of the countdown (Unix time) or null.
+	 */
+	private function end_timestamp(): ?int {
+		return MaintenanceRules::parse_end( (string) $this->settings->get( 'countdown_end', '' ), wp_timezone() );
+	}
+
+	/**
+	 * The countdown ran out and the mode is set to switch itself off.
+	 */
+	private function countdown_over(): bool {
+		return MaintenanceRules::expired( $this->end_timestamp(), (bool) $this->settings->get( 'countdown_auto_disable', false ), time() );
 	}
 
 	/**
@@ -141,7 +200,7 @@ final class Module extends BaseModule {
 		status_header( $status );
 
 		if ( 503 === $status ) {
-			header( 'Retry-After: 3600' );
+			header( 'Retry-After: ' . MaintenanceRules::retry_after( $this->end_timestamp(), time() ) );
 		}
 		header( 'Cache-Control: no-store, no-cache, must-revalidate, max-age=0' );
 	}
@@ -237,6 +296,7 @@ final class Module extends BaseModule {
 				'image'        => $bg_image_on ? (string) wp_get_attachment_url( $bg_image_id ) : '',
 				'enable_image' => $bg_image_on,
 			),
+			'countdown'  => $this->countdown_data( 'page' === $layout_type ),
 			'custom_css' => (string) $this->settings->get( 'custom_css', '' ),
 			'meta'       => array(
 				'title'       => sprintf( '%s - %s', get_bloginfo( 'name' ), __( 'Maintenance Mode', 'ux-studio' ) ),
@@ -252,6 +312,26 @@ final class Module extends BaseModule {
 		}
 
 		return $data;
+	}
+
+	/**
+	 * What the countdown block of the page needs (the page of an existing WordPress page has no countdown).
+	 *
+	 * @param bool $existing_page The page is an existing WordPress page.
+	 * @return array{enabled:bool,end:int,remaining:int,label:string,end_label:string,reload:bool}
+	 */
+	private function countdown_data( bool $existing_page ): array {
+		$end = $this->end_timestamp();
+		$on  = ! $existing_page && null !== $end && (bool) $this->settings->get( 'countdown_enabled', false );
+
+		return array(
+			'enabled'   => $on,
+			'end'       => (int) $end,
+			'remaining' => null === $end ? 0 : max( 0, $end - time() ),
+			'label'     => (string) $this->settings->get( 'countdown_label', __( 'We will be back in', 'ux-studio' ) ),
+			'end_label' => null === $end ? '' : wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $end ),
+			'reload'    => (bool) $this->settings->get( 'countdown_auto_disable', false ),
+		);
 	}
 
 	/**
@@ -284,7 +364,7 @@ final class Module extends BaseModule {
 		if ( ! current_user_can( 'manage_options' ) || ! is_admin_bar_showing() ) {
 			return false;
 		}
-		return 'disabled' !== $this->get_mode();
+		return 'disabled' !== $this->configured_mode();
 	}
 
 	/**
@@ -297,9 +377,12 @@ final class Module extends BaseModule {
 			return;
 		}
 
-		$title = 'coming_soon' === $this->get_mode()
+		$title = 'coming_soon' === $this->configured_mode()
 			? __( 'Coming Soon Active', 'ux-studio' )
 			: __( 'Maintenance Mode Active', 'ux-studio' );
+		if ( $this->countdown_over() ) {
+			$title = __( 'Countdown ended, the site is open', 'ux-studio' );
+		}
 
 		$wp_admin_bar->add_node(
 			array(
@@ -426,6 +509,61 @@ final class Module extends BaseModule {
 				'help'    => __( 'Roles allowed to access the site when authentication is by role.', 'ux-studio' ),
 				'options' => $this->get_role_options(),
 				'default' => array(),
+			),
+			array(
+				'key'     => 'exclude_paths',
+				'section' => __( 'Access', 'ux-studio' ),
+				'type'    => 'textarea',
+				'label'   => __( 'Addresses that stay open', 'ux-studio' ),
+				'help'    => __( 'Visitors can still open these addresses. One per line: /contact is that page only, /contact/* the page and everything below it (* stands for any characters), regex:^/(en|de)/ is a regular expression on the path. Lines starting with # are comments.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'allow_feeds',
+				'section' => __( 'Access', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Keep RSS feeds open', 'ux-studio' ),
+				'help'    => __( 'Feeds of posts and comments are not replaced by the maintenance page.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'bypass_ips',
+				'section' => __( 'Access', 'ux-studio' ),
+				'type'    => 'textarea',
+				'label'   => __( 'IP addresses that see the site', 'ux-studio' ),
+				'help'    => __( 'Visitors from these addresses or ranges (203.0.113.7, 203.0.113.0/24, IPv6 too) see the normal site. One per line. Be careful with behind-proxy sites: the address is the one WordPress sees.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'countdown_enabled',
+				'section' => __( 'Countdown', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Show a countdown', 'ux-studio' ),
+				'help'    => __( 'Counts down to the date below on the page (not on an existing WordPress page). Without JavaScript the date is shown as text.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'countdown_end',
+				'section' => __( 'Countdown', 'ux-studio' ),
+				'type'    => 'datetime',
+				'label'   => __( 'Countdown ends', 'ux-studio' ),
+				'help'    => __( 'Date and time of the site. Search engines also learn from it when to come back (Retry-After of the 503 page), even without the countdown shown.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'countdown_label',
+				'section' => __( 'Countdown', 'ux-studio' ),
+				'type'    => 'text',
+				'label'   => __( 'Text above the countdown', 'ux-studio' ),
+				'default' => __( 'We will be back in', 'ux-studio' ),
+			),
+			array(
+				'key'     => 'countdown_auto_disable',
+				'section' => __( 'Countdown', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Open the site when the countdown ends', 'ux-studio' ),
+				'help'    => __( 'The maintenance page stops being shown at the end time. The mode in the settings is not changed, it is only ignored from then on. Off by default.', 'ux-studio' ),
+				'default' => false,
 			),
 			array(
 				'key'     => 'headline_text',

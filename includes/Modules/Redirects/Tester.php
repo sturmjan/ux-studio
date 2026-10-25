@@ -22,17 +22,23 @@ final class Tester {
 	 * Resolve a URL through the rules (no HTTP), optionally also follow it
 	 * over HTTP and report every hop's real status code.
 	 *
-	 * @param string $url  Old URL (any host) or path.
-	 * @param bool   $live Also request it over HTTP.
+	 * @param string                    $url     Old URL (any host) or path.
+	 * @param bool                      $live    Also request it over HTTP.
+	 * @param array<string, mixed>|null $context Simulated visitor (logged_in, roles, referrer, agent, ip, host, cookies,
+	 *                                           headers); null = an anonymous visitor with no headers. Rules with
+	 *                                           conditions apply only when this visitor meets them.
 	 * @return array<string, mixed>
 	 */
-	public static function test( string $url, bool $live = false ): array {
+	public static function test( string $url, bool $live = false, ?array $context = null ): array {
 		$parsed  = Url::parse_source( $url );
 		$path    = $parsed['path'];
+		$path_cs = $parsed['path_cs'];
 		$query   = $parsed['query'];
 		$steps   = array();
 		$visited = array();
 		$loop    = false;
+		$visitor = Conditions::sanitize_context( $context );
+		$passed  = array();
 
 		for ( $hop = 0; $hop < self::MAX_HOPS && '' !== $path; $hop++ ) {
 			$key = Url::key( $path, $query );
@@ -42,22 +48,26 @@ final class Tester {
 			}
 			$visited[ $key ] = true;
 
-			$match = Repository::match( $path, $query );
+			$match  = Repository::match( $path, $query, $visitor, $path_cs );
+			$passed = array_merge( $passed, Repository::last_skipped() );
 			if ( ! $match ) {
 				break;
 			}
 			$steps[] = array(
-				'from'    => home_url( $key ),
-				'code'    => (int) $match['rule']['code'],
-				'to'      => $match['target'],
-				'rule_id' => (int) $match['rule']['id'],
+				'from'        => home_url( $key ),
+				'code'        => (int) $match['rule']['code'],
+				'to'          => $match['target'],
+				'rule_id'     => (int) $match['rule']['id'],
+				'conditional' => '' !== (string) ( $match['rule']['cond_key'] ?? '' ),
 			);
 			if ( '' === $match['target'] || ! Url::is_internal( $match['target'] ) ) {
 				break;
 			}
-			$next  = explode( '?', Url::target_key( $match['target'] ), 2 );
-			$path  = $next[0];
-			$query = $next[1] ?? '';
+			$next    = explode( '?', Url::target_key( $match['target'] ), 2 );
+			$next_cs = explode( '?', Url::target_key( $match['target'], true ), 2 );
+			$path    = $next[0];
+			$path_cs = $next_cs[0];
+			$query   = $next[1] ?? '';
 		}
 
 		$last   = $steps ? $steps[ count( $steps ) - 1 ] : null;
@@ -82,6 +92,8 @@ final class Tester {
 			'loop'       => $loop,
 			'steps'      => $steps,
 			'issues'     => $issues,
+			// Rules for this URL that were passed over because the (simulated) visitor does not meet their conditions.
+			'skipped_rule_ids' => array_values( array_unique( $passed ) ),
 		);
 		if ( $live ) {
 			$result['live'] = self::follow( $result['tested_url'] );
@@ -190,13 +202,15 @@ final class Tester {
 				$add( 'error', 'target_post_gone', __( 'The target post is no longer published - pick a new target or switch to 410.', 'ux-studio' ) );
 			}
 
-			$test = self::test( (string) $row['source_key'] );
+			// A case sensitive rule is reached only by its letters as typed.
+			$probe = '' !== (string) ( $row['source_cs'] ?? '' ) ? (string) $row['source_cs'] : (string) $row['source_key'];
+			$test  = self::test( $probe );
 			if ( $test['loop'] ) {
 				$add( 'error', 'loop', __( 'Redirect loop.', 'ux-studio' ) );
 			} elseif ( $test['hops'] > 1 ) {
 				if ( $fix ) {
 					$result = Repository::save( array( 'id' => $id ) );
-					if ( in_array( $result['status'], array( 'updated', 'unchanged' ), true ) && self::test( (string) $row['source_key'] )['hops'] <= 1 ) {
+					if ( in_array( $result['status'], array( 'updated', 'unchanged' ), true ) && self::test( $probe )['hops'] <= 1 ) {
 						++$fixed;
 						continue;
 					}

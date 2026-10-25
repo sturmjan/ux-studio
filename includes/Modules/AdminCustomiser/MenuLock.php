@@ -1,0 +1,151 @@
+<?php
+/**
+ * Menu Organizer access lock: a page hidden from a user's role is also refused when its address is typed in.
+ *
+ * @package UxStudio
+ */
+
+namespace UxStudio\Modules\AdminCustomiser;
+
+use UxStudio\Core\Migration\MenuSimulator;
+use UxStudio\Core\Settings;
+
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * Off by default (existing sites keep the "hide only" behaviour); the setting `menu_lock_enabled` of the module turns
+ * it on, and it needs the Menu Organizer to be on too. What is refused and what never is lives in
+ * `MenuSimulator::request_blocked()` (pure, tested), so the migration check and the runtime agree.
+ *
+ * Rescue switch: `define( 'UXSTUDIO_DISABLE_MENU_LOCK', true );` in wp-config.php switches the whole lock off.
+ *
+ * The lock only adds a refusal on top of WordPress' own capability checks, it never grants anything. It covers the
+ * admin screens (a request to `wp-admin/<file>.php`), not AJAX, REST, admin-post or cron.
+ */
+final class MenuLock {
+
+	public const KILL_SWITCH = 'UXSTUDIO_DISABLE_MENU_LOCK';
+
+	/**
+	 * Is the rescue constant defined?
+	 */
+	public static function killed(): bool {
+		return defined( self::KILL_SWITCH ) && constant( self::KILL_SWITCH );
+	}
+
+	/**
+	 * Hook it up. Called once from Module::boot().
+	 */
+	public static function register(): void {
+		// After the Organizer has recorded the original menu (admin_menu, 99999), before WordPress checks the page (after admin_init).
+		add_action( 'admin_init', array( self::class, 'enforce' ), 1 );
+	}
+
+	/**
+	 * Is the lock switched on (setting, Organizer on, no rescue constant)?
+	 */
+	public static function active(): bool {
+		if ( self::killed() ) {
+			return false;
+		}
+		$settings = new Settings( 'uxstudio_admin_customiser' );
+		return (bool) $settings->get( 'menu_lock_enabled', false ) && (bool) $settings->get( 'menu_organizer_enabled', false );
+	}
+
+	/**
+	 * Refuse the current admin request when it belongs to a menu item hidden from the user.
+	 */
+	public static function enforce(): void {
+		if ( wp_doing_ajax() || wp_doing_cron() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) || ( defined( 'WP_CLI' ) && WP_CLI ) ) {
+			return;
+		}
+		if ( ! is_user_logged_in() || ! self::active() ) {
+			return;
+		}
+		$organizer = MenuOrganizerBootstrap::organizer();
+		$structure = $organizer->menu_structure();
+		if ( ! $structure ) {
+			return;
+		}
+
+		global $pagenow;
+		$user = wp_get_current_user();
+		$out  = MenuSimulator::request_blocked(
+			$organizer->get_config(),
+			(string) $pagenow,
+			self::request_args( (string) $pagenow ),
+			$structure['tops'],
+			$structure['subs'],
+			array_map( 'strval', (array) $user->roles ),
+			current_user_can( 'manage_options' ),
+			MenuSimulator::current_ctx()
+		);
+		if ( ! $out['blocked'] ) {
+			return;
+		}
+
+		/**
+		 * Fires when the Menu Organizer lock refuses a request.
+		 *
+		 * @param string $top  Top-level menu slug the request belongs to.
+		 * @param int    $user Current user id.
+		 */
+		do_action( 'uxstudio_menu_lock_blocked', (string) $out['top'], (int) $user->ID );
+
+		// Exactly what WordPress shows (wp-admin/includes/menu.php) for a page the user may not open.
+		// phpcs:ignore WordPress.WP.I18n.MissingArgDomain
+		wp_die( esc_html__( 'Sorry, you are not allowed to access this page.' ), 403 );
+	}
+
+	/**
+	 * The query args that decide which menu entry a request is (read only, compared, never output).
+	 *
+	 * On `post.php` the post type is NEVER taken from the request: it is the type of the post being
+	 * opened or saved (`post_ID` / `post`). Otherwise `post.php?post=<hidden page>&post_type=post` would
+	 * be filed under Posts and slip past a lock on Pages. On `edit.php`, `post-new.php` and the like the
+	 * `post_type` argument does name the screen, so it is kept - but only when it is a registered type.
+	 *
+	 * Each value is read from the same superglobal core reads it from: `page` from the query string only
+	 * (`$plugin_page`), the post id of `post.php` from `$_GET['post']`, else `$_POST['post_ID']` (core dies when
+	 * both are set and differ), `taxonomy` and `post_type` from `$_REQUEST` like `edit-tags.php` / `$typenow`.
+	 *
+	 * @param string                    $file Admin file of the request.
+	 * @param array<string, mixed>|null $get  Query values (tests); null reads $_GET.
+	 * @param array<string, mixed>|null $post Body values (tests); null reads $_POST.
+	 * @return array<string, string>
+	 */
+	public static function request_args( string $file, ?array $get = null, ?array $post = null ): array {
+		$args = array();
+		// phpcs:disable WordPress.Security.NonceVerification
+		if ( null === $get ) {
+			$get  = $_GET;
+			$post = $post ?? $_POST;
+		}
+		$post    = $post ?? array();
+		$request = array_merge( $get, $post );
+		$read    = static function ( array $source, string $key ): string {
+			return isset( $source[ $key ] ) && is_string( $source[ $key ] ) ? sanitize_text_field( wp_unslash( $source[ $key ] ) ) : '';
+		};
+		if ( '' !== $read( $get, 'page' ) ) {
+			$args['page'] = $read( $get, 'page' );
+		}
+		if ( '' !== $read( $request, 'taxonomy' ) ) {
+			$args['taxonomy'] = $read( $request, 'taxonomy' );
+		}
+		if ( 'post.php' === $file ) {
+			// Core opens the query-string post when there is one (a mismatch with post_ID dies there), else the saved one.
+			$raw = '' !== $read( $get, 'post' ) ? $read( $get, 'post' ) : $read( $post, 'post_ID' );
+			$id  = absint( $raw );
+			if ( $id > 0 ) {
+				$type = get_post_type( $id );
+				if ( $type ) {
+					$args['post_type'] = (string) $type;
+				}
+			}
+		} elseif ( '' !== $read( $request, 'post_type' ) && post_type_exists( $read( $request, 'post_type' ) ) ) {
+			$args['post_type'] = $read( $request, 'post_type' );
+		}
+		// phpcs:enable
+		return $args;
+	}
+}

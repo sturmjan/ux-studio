@@ -3,7 +3,8 @@ import { __ } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Archive, Check, LoaderCircle, ScanSearch, Trash2 } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
-import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { TopicSettings, inSections } from '../../app/TopicSettings';
+import { formatDate } from '../../app/date';
 
 interface Finding {
 	id: number;
@@ -57,34 +58,6 @@ const SEVERITY_BADGE: Record< string, string > = {
  * Named export (not default) - composed into the module's shared Page.tsx
  * as one tab among others.
  */
-/**
- * Upload Guard configuration sub-form: the scanner enable toggle and email
- * notification options (schema keys prefixed "upload_guard"). These are hidden
- * from the generic Settings tab and surfaced here next to the findings they
- * govern.
- */
-function UploadGuardConfig(): JSX.Element | null {
-	const { data, isLoading, draft, setDraft, save, saved } = useModuleSettings( 'security-optimization' );
-
-	if ( isLoading || ! data ) {
-		return null;
-	}
-
-	const schema = data.schema.filter( ( f ) => f.key.startsWith( 'upload_guard' ) );
-	if ( schema.length === 0 ) {
-		return null;
-	}
-
-	return (
-		<div style={ { marginBottom: 'var(--uxs-sp-5)' } }>
-			<SettingsFields schema={ schema } draft={ draft } setDraft={ setDraft } />
-			<button type="button" className="button button-primary" onClick={ () => save.mutate() }>
-				{ saved ? __( 'Saved', 'ux-studio' ) : __( 'Save Upload Guard settings', 'ux-studio' ) }
-			</button>
-		</div>
-	);
-}
-
 export function UploadGuardTab(): JSX.Element {
 	const [ statusFilter, setStatusFilter ] = useState< string >( 'scanned' );
 
@@ -153,7 +126,7 @@ export function UploadGuardTab(): JSX.Element {
 
 	return (
 		<>
-			<UploadGuardConfig />
+			<TopicSettings moduleId="security-optimization" include={ inSections( __( 'Uploads', 'ux-studio' ) ) } />
 
 			<div
 				style={ {
@@ -183,7 +156,7 @@ export function UploadGuardTab(): JSX.Element {
 					{ isRunning
 						? progress
 						: scanStatus.data?.stats.last_scan_at
-						? `${ __( 'Last scan:', 'ux-studio' ) } ${ scanStatus.data.stats.last_scan_at } · ${ __( 'files scanned:', 'ux-studio' ) } ${ scanStatus.data.stats.files_scanned ?? 0 } · ${ __( 'detections:', 'ux-studio' ) } ${ scanStatus.data.stats.detections_found ?? 0 }`
+						? `${ __( 'Last scan:', 'ux-studio' ) } ${ formatDate( scanStatus.data.stats.last_scan_at ) } · ${ __( 'files scanned:', 'ux-studio' ) } ${ scanStatus.data.stats.files_scanned ?? 0 } · ${ __( 'detections:', 'ux-studio' ) } ${ scanStatus.data.stats.detections_found ?? 0 }`
 						: __( 'No scan has run yet.', 'ux-studio' ) }
 				</p>
 			) }
@@ -251,7 +224,7 @@ export function UploadGuardTab(): JSX.Element {
 									) }
 								</td>
 								<td>{ row.status }</td>
-								<td>{ row.scanned_at ?? row.created_at }</td>
+								<td>{ formatDate( row.scanned_at ?? row.created_at ) }</td>
 								<td style={ { display: 'flex', gap: 'var(--uxs-sp-2)' } }>
 									{ row.status !== 'approved' && row.status !== 'deleted' && (
 										<button

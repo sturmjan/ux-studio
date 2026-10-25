@@ -21,6 +21,8 @@ defined( 'ABSPATH' ) || exit;
  * POST   uxstudio/v1/security-optimization/ip-bans              - create/update a local ban
  * DELETE uxstudio/v1/security-optimization/ip-bans/{id}         - delete a local ban
  * POST   uxstudio/v1/security-optimization/ip-bans/{id}/toggle  - enable/disable a local ban
+ * GET    uxstudio/v1/security-optimization/two-factor           - 2FA overview (users with 2FA, users missing it)
+ * POST   uxstudio/v1/security-optimization/two-factor/reset/{id} - remove a user's 2FA (capability edit_users)
  * GET    uxstudio/v1/security-optimization/countries            - country code => name list
  * GET    uxstudio/v1/security-optimization/htaccess/status      - applied?/hash
  * POST   uxstudio/v1/security-optimization/htaccess/apply       - regenerate + write .htaccess rules
@@ -79,6 +81,15 @@ final class RestController extends Controller {
 			'POST',
 			array( $this, 'toggle_ip_ban' ),
 			array( 'id' => array( 'required' => true, 'sanitize_callback' => 'absint' ) )
+		);
+
+		$this->route( '/security-optimization/two-factor', 'GET', array( $this, 'two_factor_status' ) );
+		$this->route(
+			'/security-optimization/two-factor/reset/(?P<id>\d+)',
+			'POST',
+			array( $this, 'two_factor_reset' ),
+			array( 'id' => array( 'required' => true, 'sanitize_callback' => 'absint' ) ),
+			'edit_users'
 		);
 
 		$this->route( '/security-optimization/countries', 'GET', array( $this, 'countries' ) );
@@ -180,6 +191,26 @@ final class RestController extends Controller {
 			return $result;
 		}
 		return $this->ok( $result );
+	}
+
+	/* ═══════════════════════════════════════════════════
+	   Two-step verification
+	   ═══════════════════════════════════════════════════ */
+
+	public function two_factor_status( WP_REST_Request $request ) {
+		return $this->ok( TwoFactor::status( $this->module ) );
+	}
+
+	/**
+	 * An administrator removes the second factor of a user who lost the phone and the recovery codes.
+	 */
+	public function two_factor_reset( WP_REST_Request $request ) {
+		$id = (int) $request['id'];
+		if ( $id < 1 || ! get_userdata( $id ) || ! current_user_can( 'edit_user', $id ) ) {
+			return new WP_Error( 'uxstudio_user_not_found', __( 'User not found.', 'ux-studio' ), array( 'status' => 404 ) );
+		}
+		TwoFactor::reset_user( $id, true );
+		return $this->ok( array( 'id' => $id ) );
 	}
 
 	/* ═══════════════════════════════════════════════════

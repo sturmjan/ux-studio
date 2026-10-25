@@ -29,7 +29,7 @@ final class Module extends BaseModule {
 	private const FIELD_BASE   = 'uxstudio_menu_icons';
 
 	private const STATUSES  = array( 'visible', 'hidden', 'disabled' );
-	private const ICON_TYPES = array( 'none', 'lucide', 'svg', 'media' );
+	private const ICON_TYPES = array( 'none', 'lucide', 'dashicons', 'svg', 'media' );
 	private const POSITIONS = array( 'before', 'after', 'only' );
 
 	/**
@@ -85,6 +85,7 @@ final class Module extends BaseModule {
 				<select class="widefat uxs-icon-type" name="<?php echo esc_attr( $field( 'icon_type' ) ); ?>">
 					<option value="none" <?php selected( 'none', $icon_type ); ?>><?php esc_html_e( 'None', 'ux-studio' ); ?></option>
 					<option value="lucide" <?php selected( 'lucide', $icon_type ); ?>><?php esc_html_e( 'Lucide icon', 'ux-studio' ); ?></option>
+					<option value="dashicons" <?php selected( 'dashicons', $icon_type ); ?>><?php esc_html_e( 'Dashicons (WordPress)', 'ux-studio' ); ?></option>
 					<option value="svg" <?php selected( 'svg', $icon_type ); ?>><?php esc_html_e( 'Custom SVG', 'ux-studio' ); ?></option>
 					<option value="media" <?php selected( 'media', $icon_type ); ?>><?php esc_html_e( 'Media Library', 'ux-studio' ); ?></option>
 				</select>
@@ -100,6 +101,19 @@ final class Module extends BaseModule {
 						<?php endforeach; ?>
 					</select>
 				</label>
+			</p>
+
+			<p class="description uxs-icon-field uxs-icon-field-dashicons">
+				<label>
+					<?php esc_html_e( 'Dashicon', 'ux-studio' ); ?><br />
+					<select class="widefat uxs-dashicon-select" name="<?php echo esc_attr( $field( 'icon_dashicons' ) ); ?>">
+						<option value=""><?php esc_html_e( '— choose —', 'ux-studio' ); ?></option>
+						<?php foreach ( IconLibrary::dashicon_choices() as $value => $label ) : ?>
+							<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $value, 'dashicons' === $icon_type ? $icon_value : '' ); ?>><?php echo esc_html( $label ); ?></option>
+						<?php endforeach; ?>
+					</select>
+				</label>
+				<span class="dashicons <?php echo 'dashicons' === $icon_type && IconLibrary::dashicon_exists( $icon_value ) ? esc_attr( $icon_value ) : ''; ?> uxs-dashicon-preview" aria-hidden="true"></span>
 			</p>
 
 			<p class="description uxs-icon-field uxs-icon-field-svg">
@@ -177,6 +191,10 @@ final class Module extends BaseModule {
 			case 'lucide':
 				$candidate = sanitize_key( $get( 'icon_lucide' ) );
 				$icon_value = IconLibrary::exists( $candidate ) ? $candidate : '';
+				break;
+			case 'dashicons':
+				$candidate  = sanitize_html_class( $get( 'icon_dashicons' ) );
+				$icon_value = IconLibrary::dashicon_exists( $candidate ) ? $candidate : '';
 				break;
 			case 'svg':
 				$icon_value = SvgSanitizer::sanitize( (string) $get( 'icon_svg' ) );
@@ -343,6 +361,16 @@ final class Module extends BaseModule {
 					return '';
 				}
 				return '<span class="uxs-menu-icon uxs-menu-icon-lucide">' . IconLibrary::svg_markup( $value, $size ) . '</span>';
+
+			case 'dashicons':
+				// Only a class from the core list is ever printed. The stylesheet comes with WordPress and is requested
+				// here, so the front end loads it only on a page whose menu really uses a Dashicon (a logged-in visitor
+				// has it anyway for the admin bar). A style requested after wp_head is printed in the footer.
+				if ( ! IconLibrary::dashicon_exists( $value ) ) {
+					return '';
+				}
+				wp_enqueue_style( 'dashicons' );
+				return '<span class="uxs-menu-icon uxs-menu-icon-dashicons dashicons ' . esc_attr( $value ) . '" style="font-size:' . $size . 'px;width:' . $size . 'px;height:' . $size . 'px" aria-hidden="true"></span>';
 
 			case 'svg':
 				// Re-sanitize on every render: defence in depth if postmeta was ever

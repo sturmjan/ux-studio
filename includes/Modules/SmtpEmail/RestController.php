@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  * POST uxstudio/v1/smtp-email/logs/clear      - delete the whole delivery log
  * GET  uxstudio/v1/smtp-email/logs/export-url - nonce-signed CSV export URL
  * POST uxstudio/v1/smtp-email/brevo/verify    - check the stored Brevo API key
- * POST uxstudio/v1/smtp-email/test            - send a test email through the configured transport
+ * POST uxstudio/v1/smtp-email/test            - send a test email (body `mailer`: through exactly that transport, else primary + fallback)
  * POST uxstudio/v1/smtp-email/resend          - resend the last message that went through wp_mail()
  */
 final class RestController extends Controller {
@@ -69,6 +69,12 @@ final class RestController extends Controller {
 					'required'          => false,
 					'type'              => 'string',
 					'sanitize_callback' => 'sanitize_email',
+				),
+				'mailer' => array(
+					'required'          => false,
+					'type'              => 'string',
+					'default'           => '',
+					'sanitize_callback' => 'sanitize_key',
 				),
 			)
 		);
@@ -123,8 +129,9 @@ final class RestController extends Controller {
 	 * @param WP_REST_Request $request Request.
 	 */
 	public function test( WP_REST_Request $request ) {
-		$to = (string) $request->get_param( 'to' );
-		return $this->ok( $this->module->send_test( $to ) );
+		$to     = (string) $request->get_param( 'to' );
+		$mailer = (string) $request->get_param( 'mailer' );
+		return $this->ok( $this->module->send_test( $to, $mailer ) );
 	}
 
 	/**

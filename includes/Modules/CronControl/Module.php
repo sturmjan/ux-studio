@@ -64,6 +64,12 @@ final class Module extends BaseModule {
 	 */
 	private const MU_PLUGIN_VERSION = 2;
 
+	/**
+	 * Option with the site's own cron intervals, `name => { interval (s), display }`. The migration wizard
+	 * fills it from WP Crontrol; the module registers them with WordPress while it is on.
+	 */
+	public const SCHEDULES_OPTION = 'uxstudio_cron_schedules';
+
 	/** Daily watcher event hook. */
 	private const WATCH_HOOK = 'uxstudio_cron_watch_daily';
 
@@ -94,6 +100,21 @@ final class Module extends BaseModule {
 		// Keep the filesystem (mu-plugin + .htaccess) in sync with the mode.
 		$this->sync_filesystem();
 
+		// Custom intervals (a schedule that disappears would leave its events stuck).
+		add_filter( 'cron_schedules', array( $this, 'filter_cron_schedules' ) );
+
+		// Events that call a URL (PLAN.md 27.10): the handler, and WP-Cron kept in line with the definitions.
+		add_action( UrlEvents::HOOK, array( UrlEvents::class, 'execute' ) );
+		add_action(
+			'init',
+			static function (): void {
+				if ( is_admin() || wp_doing_cron() || ( defined( 'WP_CLI' ) && WP_CLI ) ) {
+					UrlEvents::sync();
+				}
+			},
+			30
+		);
+
 		// Daily watcher.
 		add_action( self::WATCH_HOOK, array( $this, 'run_watch' ) );
 		$this->ensure_watch_scheduled();
@@ -121,6 +142,8 @@ final class Module extends BaseModule {
 		}
 		$this->remove_htaccess_block();
 		wp_clear_scheduled_hook( self::WATCH_HOOK );
+		// The definitions of URL events stay; their WP-Cron entries go (they come back when the module is on again).
+		UrlEvents::unschedule_all();
 		delete_option( self::HASH_OPTION );
 	}
 
@@ -228,6 +251,24 @@ final class Module extends BaseModule {
 	/* ------------------------------------------------------------------ *
 	 * Central app sync (both directions)
 	 * ------------------------------------------------------------------ */
+
+	/**
+	 * @return string[]
+	 */
+	public function switch_options(): array {
+		return array( self::HASH_OPTION );
+	}
+
+	/**
+	 * Mu-plugin, `.htaccess` block and watch event in line with the settings the switch wrote (no push to
+	 * the central app: that is the admin's decision in the module).
+	 */
+	public function after_migration_switch(): void {
+		parent::after_migration_switch();
+		$this->sync_filesystem( true );
+		$this->ensure_watch_scheduled();
+		UrlEvents::sync();
+	}
 
 	/**
 	 * Push the cron config to the central app and record the outcome.
@@ -493,6 +534,116 @@ final class Module extends BaseModule {
 		return $events;
 	}
 
+	/* ------------------------------------------------------------------ *
+	 * URL events (PLAN.md 27.10)
+	 * ------------------------------------------------------------------ */
+
+	/**
+	 * The URL events with their next run and the name of their interval.
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	public function get_url_events(): array {
+		$schedules = wp_get_schedules();
+		$out       = array();
+		foreach ( UrlEvents::all() as $id => $event ) {
+			$next                   = wp_next_scheduled( UrlEvents::HOOK, array( $id ) );
+			$event['next_run']      = false === $next ? 0 : (int) $next;
+			$event['schedule_name'] = '' === $event['schedule'] ? '' : (string) ( $schedules[ $event['schedule'] ]['display'] ?? $event['schedule'] );
+			$out[]                  = $event;
+		}
+		return $out;
+	}
+
+	/**
+	 * Create or change a URL event.
+	 *
+	 * @param array<string, mixed> $input Fields (see UrlEvents::save()).
+	 * @param string               $id    Id of the event to change, '' for a new one.
+	 * @return array<string, mixed>|\WP_Error
+	 */
+	public function save_url_event( array $input, string $id = '' ) {
+		$event = UrlEvents::save( $input, $id );
+		if ( ! is_wp_error( $event ) ) {
+			ActivityLog::log( 'cron-control', '' === $id ? 'create_url_event' : 'update_url_event', 'cron_url_event', 0, array( 'url' => $event['url'] ) );
+		}
+		return $event;
+	}
+
+	/**
+	 * Delete a URL event.
+	 *
+	 * @param string $id Event id.
+	 */
+	public function delete_url_event( string $id ): bool {
+		$event = UrlEvents::get( $id );
+		$done  = UrlEvents::delete( $id );
+		if ( $done && $event ) {
+			ActivityLog::log( 'cron-control', 'delete_url_event', 'cron_url_event', 0, array( 'url' => $event['url'] ) );
+		}
+		return $done;
+	}
+
+	/**
+	 * Call the address of an event now.
+	 *
+	 * @param string $id Event id.
+	 * @return array{status:string,code:int,error:string,ms:int}|null
+	 */
+	public function run_url_event( string $id ): ?array {
+		$result = UrlEvents::execute( $id );
+		if ( null !== $result ) {
+			ActivityLog::log(
+				'cron-control',
+				'run_url_event',
+				'cron_url_event',
+				0,
+				array(
+					'status' => $result['status'],
+					'code'   => $result['code'],
+				)
+			);
+		}
+		return $result;
+	}
+
+	/**
+	 * Add the site's own intervals to WordPress' schedules (existing names are never replaced).
+	 *
+	 * @param array<string, array<string, mixed>> $schedules Schedules known to WordPress.
+	 * @return array<string, array<string, mixed>>
+	 */
+	public function filter_cron_schedules( $schedules ) {
+		$schedules = is_array( $schedules ) ? $schedules : array();
+		foreach ( self::custom_schedules() as $name => $schedule ) {
+			if ( ! isset( $schedules[ $name ] ) ) {
+				$schedules[ $name ] = $schedule;
+			}
+		}
+		return $schedules;
+	}
+
+	/**
+	 * The stored custom intervals, only well-formed ones.
+	 *
+	 * @return array<string, array{interval:int,display:string}>
+	 */
+	public static function custom_schedules(): array {
+		$out = array();
+		foreach ( (array) get_option( self::SCHEDULES_OPTION, array() ) as $name => $schedule ) {
+			$name     = sanitize_key( (string) $name );
+			$interval = is_array( $schedule ) ? (int) ( $schedule['interval'] ?? 0 ) : 0;
+			if ( '' === $name || $interval < 1 ) {
+				continue;
+			}
+			$out[ $name ] = array(
+				'interval' => $interval,
+				'display'  => sanitize_text_field( (string) ( $schedule['display'] ?? $name ) ),
+			);
+		}
+		return $out;
+	}
+
 	/**
 	 * List the registered cron schedules (display name + interval).
 	 *
@@ -662,6 +813,10 @@ final class Module extends BaseModule {
 	 * @param bool $force Re-write even if the mode hash is unchanged.
 	 */
 	private function sync_filesystem( bool $force = false ): void {
+		// A preview request persists nothing.
+		if ( \UxStudio\Core\Migration\Preview::is_active() ) {
+			return;
+		}
 		$mode = $this->get_mode();
 		$hash = md5( $mode . '|' . home_url() . '|' . (string) $this->settings->get( 'central_allowed_ips', '' ) . '|' . self::MU_PLUGIN_VERSION );
 

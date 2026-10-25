@@ -32,15 +32,7 @@ final class Module extends BaseModule {
 	 * Register hooks.
 	 */
 	public function boot(): void {
-		DB::ensure_module_tables(
-			'redirects',
-			1,
-			static function (): void {
-				dbDelta( Repository::schema() );
-				dbDelta( NotFoundLog::schema() );
-				Repository::refresh_state();
-			}
-		);
+		self::ensure_tables();
 
 		( new Engine( $this->settings ) )->register();
 		Abilities::register();
@@ -55,6 +47,39 @@ final class Module extends BaseModule {
 
 		Retention::ensure_scheduled( self::CLEANUP_HOOK );
 		add_action( self::CLEANUP_HOOK, array( $this, 'cleanup' ) );
+	}
+
+	/**
+	 * Create / upgrade the module's tables. Also called by the migration wizard, which fills the
+	 * rules table while the module is still off.
+	 */
+	public static function ensure_tables(): void {
+		DB::ensure_module_tables(
+			'redirects',
+			3,
+			static function ( int $from ): void {
+				global $wpdb;
+				// v3 (B2): per-rule `case_sensitive`, `query_mode` and `source_cs` (dbDelta adds the columns; existing rules get
+				// the defaults, which behave exactly as before). The hit counter columns (`hits`, `last_hit`) have existed since v1.
+				// v2 (A2): several rules per source, told apart by their conditions. The v1 table had a UNIQUE key on
+				// the source alone; dbDelta cannot turn it into a plain key, so it is dropped first. Existing rows keep
+				// working unchanged (no conditions, cond_key '').
+				if ( $from >= 1 ) {
+					$table = Repository::table();
+					// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$was    = $wpdb->suppress_errors( true );
+					$unique = $wpdb->get_results( "SHOW INDEX FROM {$table} WHERE Key_name = 'source_hash' AND Non_unique = 0" );
+					if ( $unique ) {
+						$wpdb->query( "ALTER TABLE {$table} DROP INDEX source_hash" );
+					}
+					$wpdb->suppress_errors( $was );
+					// phpcs:enable
+				}
+				dbDelta( Repository::schema() );
+				dbDelta( NotFoundLog::schema() );
+				Repository::refresh_state();
+			}
+		);
 	}
 
 	/**

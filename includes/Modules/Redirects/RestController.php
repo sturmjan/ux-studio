@@ -18,6 +18,7 @@ defined( 'ABSPATH' ) || exit;
  * GET    uxstudio/v1/redirects/rules             - paged list
  * POST   uxstudio/v1/redirects/rules             - bulk upsert {items, dry_run, on_conflict}
  * POST   uxstudio/v1/redirects/rules/(?P<id>\d+) - partial update of one rule
+ * POST   uxstudio/v1/redirects/rules/reset-hits  - zero the hit counters {ids} or {all: true}
  * DELETE uxstudio/v1/redirects/rules             - delete {ids}
  * POST   uxstudio/v1/redirects/test              - resolve URLs {urls, live}
  * POST   uxstudio/v1/redirects/audit             - audit {live, fix_chains}
@@ -40,6 +41,7 @@ final class RestController extends Controller {
 		$this->route( '/redirects/rules', 'GET', array( $this, 'list_rules' ) );
 		$this->route( '/redirects/rules', 'POST', array( $this, 'upsert' ) );
 		$this->route( '/redirects/rules/(?P<id>\d+)', 'POST', array( $this, 'update_one' ) );
+		$this->route( '/redirects/rules/reset-hits', 'POST', array( $this, 'reset_hits' ) );
 		$this->route( '/redirects/rules', 'DELETE', array( $this, 'delete_rules' ) );
 		$this->route_readonly( '/redirects/test', array( $this, 'test' ) );
 		$this->route( '/redirects/audit', 'POST', array( $this, 'audit' ) );
@@ -100,12 +102,30 @@ final class RestController extends Controller {
 	}
 
 	/**
+	 * Zero the hit counters of some rules ({ids}) or of all of them ({all: true}).
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function reset_hits( WP_REST_Request $request ) {
+		$all = rest_sanitize_boolean( $request->get_param( 'all' ) ?? false );
+		$ids = array_values( array_filter( array_map( 'intval', (array) $request->get_param( 'ids' ) ) ) );
+		if ( ! $all && ! $ids ) {
+			return new WP_Error( 'uxstudio_redirects_ids', __( 'Pass ids, or all=true to reset every counter.', 'ux-studio' ), array( 'status' => 400 ) );
+		}
+		$reset = Repository::reset_hits( $all ? null : $ids );
+		ActivityLog::log( 'redirects', 'reset_hits', '', 0, array( 'reset' => $reset, 'all' => $all ) );
+		return $this->ok( array( 'reset' => $reset ) );
+	}
+
+	/**
 	 * @param WP_REST_Request $request Request.
 	 */
 	public function test( WP_REST_Request $request ) {
 		$live = rest_sanitize_boolean( $request->get_param( 'live' ) ?? false );
 		$urls = array_slice( array_filter( array_map( 'strval', (array) $request->get_param( 'urls' ) ) ), 0, 50 );
-		return $this->ok( array_map( static fn ( string $url ): array => Tester::test( $url, $live ), $urls ) );
+		$visitor = $request->get_param( 'visitor' );
+		$visitor = is_array( $visitor ) ? $visitor : null;
+		return $this->ok( array_map( static fn ( string $url ): array => Tester::test( $url, $live, $visitor ), $urls ) );
 	}
 
 	/**

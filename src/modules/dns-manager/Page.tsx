@@ -6,6 +6,7 @@ import { api, ApiError, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
 import { TabsNav } from '../../app/SubNav';
+import { formatDate } from '../../app/date';
 
 type Tab = 'records' | 'history' | 'settings';
 type RecType = 'A' | 'AAAA' | 'CNAME' | 'MX' | 'TXT' | 'SRV' | 'CAA';
@@ -899,7 +900,7 @@ function HistoryTab( { status, zone }: { status: DnsStatus; zone: string } ): JS
 							const revertable = ok && [ 'create', 'update', 'delete', 'revert' ].includes( r.action ) && ! r.reverted_by && log.data?.source === 'central';
 							return (
 								<tr key={ r.id } style={ ok ? undefined : { opacity: 0.85 } }>
-									<td style={ { whiteSpace: 'nowrap' } }>{ new Date( `${ r.created_at.replace( ' ', 'T' ) }Z` ).toLocaleString() }</td>
+									<td style={ { whiteSpace: 'nowrap' } }>{ formatDate( r.created_at, { utc: true } ) }</td>
 									<td>{ r.wp_user_name || r.wp_user_login }</td>
 									<td>
 										<span className={ `uxs-badge ${ ok ? 'is-success' : r.status === 'denied' ? 'is-warning' : 'is-danger' }` }>{ ACTION_LABELS[ r.action ] ?? r.action }</span>

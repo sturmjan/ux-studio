@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Download, LoaderCircle, Pencil, Play, Trash2, Upload } from 'lucide-react';
+import { ArrowLeft, Download, ListFilter, LoaderCircle, Pencil, Play, RotateCcw, Trash2, Upload } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
 import { TabsNav } from '../../app/SubNav';
+import { formatDate } from '../../app/date';
+import { type ApiCondition, type ConditionDraft, ConditionsEditor, describeConditions, fromApi, toPayload } from './Conditions';
 
 type Tab = 'rules' | '404' | 'audit' | 'import' | 'settings';
 type Code = 301 | 302 | 307 | 308 | 410;
 type MatchType = 'exact' | 'regex';
+type QueryMode = 'default' | 'exact' | 'ignore' | 'pass';
 
 interface Rule {
 	id: number;
@@ -25,6 +28,10 @@ interface Rule {
 	last_hit: string | null;
 	origin: string;
 	note: string;
+	conditions: ApiCondition[];
+	position: number;
+	case_sensitive: boolean;
+	query_mode: QueryMode;
 }
 
 interface Issue {
@@ -55,6 +62,8 @@ interface TestResult {
 	final_code: number | null;
 	loop: boolean;
 	issues: string[];
+	skipped_rule_ids?: number[];
+	steps?: { rule_id: number; conditional: boolean }[];
 	live?: { ok: boolean; final_status: number; hops: number; chain: { url: string; status: number }[]; error?: string };
 }
 
@@ -80,10 +89,54 @@ interface Draft {
 	code: Code;
 	match_type: MatchType;
 	note: string;
+	conditions: ConditionDraft[];
+	position: number;
+	case_sensitive: boolean;
+	query_mode: QueryMode;
 }
 
 const PAGE_SIZE = 50;
-const EMPTY_DRAFT: Draft = { id: null, source: '', target: '', code: 301, match_type: 'exact', note: '' };
+const EMPTY_DRAFT: Draft = { id: null, source: '', target: '', code: 301, match_type: 'exact', note: '', conditions: [], position: 0, case_sensitive: false, query_mode: 'default' };
+
+interface Visitor {
+	logged_in: boolean;
+	roles: string;
+	referrer: string;
+	agent: string;
+	ip: string;
+	cookie_name: string;
+	cookie_value: string;
+}
+const EMPTY_VISITOR: Visitor = { logged_in: false, roles: '', referrer: '', agent: '', ip: '', cookie_name: '', cookie_value: '' };
+
+/** The simulated visitor in the shape the REST route takes; empty fields are left out. */
+function visitorPayload( v: Visitor ): Record< string, unknown > {
+	const out: Record< string, unknown > = {};
+	if ( v.logged_in || v.roles.trim() ) {
+		out.logged_in = true;
+		out.roles = v.roles;
+	}
+	if ( v.referrer.trim() ) {
+		out.referrer = v.referrer.trim();
+	}
+	if ( v.agent.trim() ) {
+		out.agent = v.agent.trim();
+	}
+	if ( v.ip.trim() ) {
+		out.ip = v.ip.trim();
+	}
+	if ( v.cookie_name.trim() ) {
+		out.cookies = { [ v.cookie_name.trim() ]: v.cookie_value };
+	}
+	return out;
+}
+
+const QUERY_LABELS: Record< QueryMode, string > = {
+	default: __( 'By the module setting (default)', 'ux-studio' ),
+	exact: __( 'Exact: no other parameters allowed', 'ux-studio' ),
+	ignore: __( 'Ignore parameters', 'ux-studio' ),
+	pass: __( 'Ignore and pass on to the new URL', 'ux-studio' ),
+};
 
 const CODE_LABELS: Record< Code, string > = {
 	301: __( '301 Moved permanently (recommended)', 'ux-studio' ),
@@ -131,8 +184,14 @@ function Issues( { result }: { result: SaveResult } ): JSX.Element | null {
 function TestBox(): JSX.Element {
 	const [ url, setUrl ] = useState( '' );
 	const [ live, setLive ] = useState( false );
+	const [ showVisitor, setShowVisitor ] = useState( false );
+	const [ visitor, setVisitor ] = useState< Visitor >( EMPTY_VISITOR );
 	const test = useMutation( {
-		mutationFn: () => api< TestResult[] >( 'redirects/test', { method: 'POST', body: JSON.stringify( { urls: [ url ], live } ) } ),
+		mutationFn: () =>
+			api< TestResult[] >( 'redirects/test', {
+				method: 'POST',
+				body: JSON.stringify( { urls: [ url ], live, ...( showVisitor ? { visitor: visitorPayload( visitor ) } : {} ) } ),
+			} ),
 	} );
 	const result = test.data?.[ 0 ];
 
@@ -146,10 +205,26 @@ function TestBox(): JSX.Element {
 				<label style={ { whiteSpace: 'nowrap' } }>
 					<input type="checkbox" checked={ live } onChange={ ( e ) => setLive( e.target.checked ) } /> { __( 'Live HTTP check', 'ux-studio' ) }
 				</label>
+				<label style={ { whiteSpace: 'nowrap' } }>
+					<input type="checkbox" checked={ showVisitor } onChange={ ( e ) => setShowVisitor( e.target.checked ) } /> { __( 'As a specific visitor', 'ux-studio' ) }
+				</label>
 				<button type="button" className="button" disabled={ ! url || test.isPending } onClick={ () => test.mutate() }>
 					<Play size={ 14 } /> { __( 'Test', 'ux-studio' ) }
 				</button>
 			</div>
+			{ showVisitor && (
+				<div className="uxs-rd-visitor">
+					<label>
+						<input type="checkbox" checked={ visitor.logged_in } onChange={ ( e ) => setVisitor( { ...visitor, logged_in: e.target.checked } ) } /> { __( 'Logged in', 'ux-studio' ) }
+					</label>
+					<input type="text" aria-label={ __( 'User role', 'ux-studio' ) } placeholder={ __( 'role, e.g. editor', 'ux-studio' ) } value={ visitor.roles } onChange={ ( e ) => setVisitor( { ...visitor, roles: e.target.value } ) } />
+					<input type="text" aria-label={ __( 'Referrer', 'ux-studio' ) } placeholder={ __( 'referrer URL', 'ux-studio' ) } value={ visitor.referrer } onChange={ ( e ) => setVisitor( { ...visitor, referrer: e.target.value } ) } />
+					<input type="text" aria-label={ __( 'User agent', 'ux-studio' ) } placeholder={ __( 'user agent', 'ux-studio' ) } value={ visitor.agent } onChange={ ( e ) => setVisitor( { ...visitor, agent: e.target.value } ) } />
+					<input type="text" aria-label={ __( 'IP address', 'ux-studio' ) } placeholder={ __( 'IP address', 'ux-studio' ) } value={ visitor.ip } onChange={ ( e ) => setVisitor( { ...visitor, ip: e.target.value } ) } />
+					<input type="text" aria-label={ __( 'Cookie name', 'ux-studio' ) } placeholder={ __( 'cookie name', 'ux-studio' ) } value={ visitor.cookie_name } onChange={ ( e ) => setVisitor( { ...visitor, cookie_name: e.target.value } ) } />
+					<input type="text" aria-label={ __( 'Cookie value', 'ux-studio' ) } placeholder={ __( 'cookie value', 'ux-studio' ) } value={ visitor.cookie_value } onChange={ ( e ) => setVisitor( { ...visitor, cookie_value: e.target.value } ) } />
+				</div>
+			) }
 			{ test.isError && <p className="uxs-badge is-danger">{ ( test.error as Error ).message }</p> }
 			{ result && (
 				<div style={ { marginTop: 'var(--uxs-sp-3)' } }>
@@ -168,6 +243,12 @@ function TestBox(): JSX.Element {
 							{ issue }
 						</span>
 					) ) }
+					{ ( result.skipped_rule_ids?.length ?? 0 ) > 0 && (
+						<span className="uxs-badge is-info">
+							{ /* translators: %d: number of rules */ }
+							{ sprintf( __( '%d rule(s) for this URL skipped, their conditions do not hold for this visitor', 'ux-studio' ), result.skipped_rule_ids?.length ?? 0 ) }
+						</span>
+					) }
 					{ result.live && (
 						<ol style={ { marginTop: 'var(--uxs-sp-2)' } }>
 							{ result.live.chain.map( ( hop ) => (
@@ -194,6 +275,10 @@ function RuleForm( { draft, setDraft }: { draft: Draft; setDraft: ( d: Draft ) =
 				code: draft.code,
 				match_type: draft.match_type,
 				note: draft.note,
+				conditions: toPayload( draft.conditions ),
+				position: draft.position,
+				case_sensitive: draft.case_sensitive,
+				query_mode: draft.query_mode,
 			};
 			if ( draft.id ) {
 				return api< SaveResult >( `redirects/rules/${ draft.id }`, { method: 'POST', body: JSON.stringify( { ...payload, target_post_id: 0 } ) } );
@@ -265,6 +350,28 @@ function RuleForm( { draft, setDraft }: { draft: Draft; setDraft: ( d: Draft ) =
 					</button>
 				) }
 			</div>
+			{ draft.match_type === 'exact' && (
+				<div className="uxs-rd-options">
+					<label>
+						<input type="checkbox" checked={ draft.case_sensitive } onChange={ ( e ) => setDraft( { ...draft, case_sensitive: e.target.checked } ) } /> { __( 'Case sensitive', 'ux-studio' ) }
+					</label>
+					<label htmlFor="uxs-rd-query">{ __( 'Query string', 'ux-studio' ) }</label>
+					<select id="uxs-rd-query" value={ draft.query_mode } onChange={ ( e ) => setDraft( { ...draft, query_mode: e.target.value as QueryMode } ) }>
+						{ ( Object.keys( QUERY_LABELS ) as QueryMode[] ).map( ( m ) => (
+							<option key={ m } value={ m }>
+								{ QUERY_LABELS[ m ] }
+							</option>
+						) ) }
+					</select>
+				</div>
+			) }
+			<ConditionsEditor conditions={ draft.conditions } onChange={ ( conditions ) => setDraft( { ...draft, conditions } ) } />
+			{ draft.conditions.length > 0 && (
+				<div className="uxs-rd-cond__order">
+					<label htmlFor="uxs-rd-position">{ __( 'Order among redirects of this URL (lower first)', 'ux-studio' ) }</label>
+					<input id="uxs-rd-position" type="number" value={ draft.position } onChange={ ( e ) => setDraft( { ...draft, position: Number( e.target.value ) || 0 } ) } />
+				</div>
+			) }
 			{ save.isError && <p className="uxs-badge is-danger">{ ( save.error as Error ).message }</p> }
 			{ result && (
 				<>
@@ -285,6 +392,12 @@ function RulesTab( { draft, setDraft }: { draft: Draft; setDraft: ( d: Draft ) =
 		queryFn: () => api< Rule[] >( `redirects/rules?search=${ encodeURIComponent( search ) }&limit=${ PAGE_SIZE }&offset=${ page * PAGE_SIZE }` ),
 	} );
 
+	// How many rules of the shown page share one old URL (the ones without a condition among them are fallbacks).
+	const sharedSources = new Map< string, number >();
+	for ( const rule of rules.data ?? [] ) {
+		sharedSources.set( rule.source, ( sharedSources.get( rule.source ) ?? 0 ) + 1 );
+	}
+
 	const invalidate = () => void queryClient.invalidateQueries( { queryKey: [ 'redirects' ] } );
 	const toggle = useMutation( {
 		mutationFn: ( rule: Rule ) => api( `redirects/rules/${ rule.id }`, { method: 'POST', body: JSON.stringify( { enabled: ! rule.enabled } ) } ),
@@ -292,6 +405,10 @@ function RulesTab( { draft, setDraft }: { draft: Draft; setDraft: ( d: Draft ) =
 	} );
 	const remove = useMutation( {
 		mutationFn: ( id: number ) => api( 'redirects/rules', { method: 'DELETE', body: JSON.stringify( { ids: [ id ] } ) } ),
+		onSuccess: invalidate,
+	} );
+	const resetHits = useMutation( {
+		mutationFn: ( ids: number[] | null ) => api( 'redirects/rules/reset-hits', { method: 'POST', body: JSON.stringify( ids ? { ids } : { all: true } ) } ),
 		onSuccess: invalidate,
 	} );
 
@@ -318,6 +435,23 @@ function RulesTab( { draft, setDraft }: { draft: Draft; setDraft: ( d: Draft ) =
 					} }
 				/>
 			</div>
+			{ rules.data && rules.data.some( ( r ) => r.hits > 0 ) && (
+				<p style={ { marginBottom: 'var(--uxs-sp-3)' } }>
+					<button
+						type="button"
+						className="button button-small"
+						disabled={ resetHits.isPending }
+						onClick={ () => {
+							// eslint-disable-next-line no-alert
+							if ( window.confirm( __( 'Reset the hit counters of ALL redirects to zero?', 'ux-studio' ) ) ) {
+								resetHits.mutate( null );
+							}
+						} }
+					>
+						<RotateCcw size={ 14 } /> { __( 'Reset all hit counters', 'ux-studio' ) }
+					</button>
+				</p>
+			) }
 			{ rules.isLoading && <Loading /> }
 			{ rules.data && rules.data.length === 0 && <p>{ __( 'No redirects yet.', 'ux-studio' ) }</p> }
 			{ rules.data && rules.data.length > 0 && (
@@ -329,6 +463,7 @@ function RulesTab( { draft, setDraft }: { draft: Draft; setDraft: ( d: Draft ) =
 								<th>{ __( 'New URL', 'ux-studio' ) }</th>
 								<th>{ __( 'Code', 'ux-studio' ) }</th>
 								<th>{ __( 'Hits', 'ux-studio' ) }</th>
+								<th>{ __( 'Last hit', 'ux-studio' ) }</th>
 								<th>{ __( 'Origin', 'ux-studio' ) }</th>
 								<th>{ __( 'Active', 'ux-studio' ) }</th>
 								<th />
@@ -336,18 +471,37 @@ function RulesTab( { draft, setDraft }: { draft: Draft; setDraft: ( d: Draft ) =
 						</thead>
 						<tbody>
 							{ rules.data.map( ( rule ) => (
-								<tr key={ rule.id } style={ rule.enabled ? undefined : { opacity: 0.55 } }>
-									<td>
-										<code>{ rule.source }</code>
-										{ rule.match_type === 'regex' && <span className="uxs-badge is-info"> regex</span> }
-										{ rule.note && <div style={ { color: 'var(--uxs-text-soft)', fontSize: 'var(--uxs-fs-s)' } }>{ rule.note }</div> }
-									</td>
+												<tr key={ rule.id } style={ rule.enabled ? undefined : { opacity: 0.55 } }>
+													<td>
+														<code>{ rule.source }</code>
+														{ rule.match_type === 'regex' && <span className="uxs-badge is-info"> regex</span> }
+														{ rule.case_sensitive && <span className="uxs-badge" style={ { marginLeft: 4 } }>{ __( 'Case sensitive', 'ux-studio' ) }</span> }
+														{ rule.query_mode !== 'default' && (
+															<span className="uxs-badge" style={ { marginLeft: 4 } } title={ QUERY_LABELS[ rule.query_mode ] }>
+																{ /* translators: %s: how the query string is handled (exact, ignore, pass) */ }
+																{ sprintf( __( 'Parameters: %s', 'ux-studio' ), rule.query_mode ) }
+															</span>
+														) }
+														{ rule.conditions.length > 0 && (
+															<span className="uxs-badge is-warning" style={ { marginLeft: 4 } } title={ describeConditions( rule.conditions ) }>
+																<ListFilter size={ 12 } /> { __( 'Condition', 'ux-studio' ) }
+															</span>
+														) }
+														{ rule.conditions.length === 0 && ( sharedSources.get( rule.source ) ?? 0 ) > 1 && (
+															<span className="uxs-badge" style={ { marginLeft: 4 } } title={ __( 'This URL has several redirects. This one has no condition, so it is the fallback and is tried last.', 'ux-studio' ) }>
+																{ __( 'Fallback', 'ux-studio' ) }
+															</span>
+														) }
+														{ rule.conditions.length > 0 && <div style={ { color: 'var(--uxs-text-soft)', fontSize: 'var(--uxs-fs-s)' } }>{ describeConditions( rule.conditions ) }</div> }
+														{ rule.note && <div style={ { color: 'var(--uxs-text-soft)', fontSize: 'var(--uxs-fs-s)' } }>{ rule.note }</div> }
+													</td>
 									<td>
 										{ rule.code === 410 ? '-' : rule.target_url }
 										{ rule.target_post_id > 0 && <div style={ { color: 'var(--uxs-text-soft)', fontSize: 'var(--uxs-fs-s)' } }>{ rule.target_post_title }</div> }
 									</td>
 									<td>{ codeBadge( rule.code ) }</td>
 									<td>{ rule.hits }</td>
+									<td style={ { whiteSpace: 'nowrap' } }>{ rule.last_hit ? formatDate( rule.last_hit ) : '-' }</td>
 									<td>{ rule.origin }</td>
 									<td>
 										<input type="checkbox" checked={ rule.enabled } onChange={ () => toggle.mutate( rule ) } aria-label={ __( 'Active', 'ux-studio' ) } />
@@ -365,11 +519,22 @@ function RulesTab( { draft, setDraft }: { draft: Draft; setDraft: ( d: Draft ) =
 													code: rule.code,
 													match_type: rule.match_type,
 													note: rule.note,
+													conditions: rule.conditions.map( fromApi ),
+													position: rule.position,
+													case_sensitive: rule.case_sensitive,
+													query_mode: rule.query_mode,
 												} )
 											}
 										>
 											<Pencil size={ 14 } />
 										</button>{ ' ' }
+										{ ( rule.hits > 0 || rule.last_hit ) && (
+											<>
+												<button type="button" className="button button-small" aria-label={ __( 'Reset hit counter', 'ux-studio' ) } title={ __( 'Reset hit counter', 'ux-studio' ) } disabled={ resetHits.isPending } onClick={ () => resetHits.mutate( [ rule.id ] ) }>
+													<RotateCcw size={ 14 } />
+												</button>{ ' ' }
+											</>
+										) }
 										<button
 											type="button"
 											className="button button-small"
@@ -458,7 +623,7 @@ function NotFoundTab( { onRedirect }: { onRedirect: ( url: string ) => void } ):
 										{ row.resolved_by && <span className="uxs-badge is-success"> #{ row.resolved_by }</span> }
 									</td>
 									<td>{ row.hits }</td>
-									<td>{ row.last_seen }</td>
+									<td>{ formatDate( row.last_seen ) }</td>
 									<td style={ { maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }>{ row.referrer }</td>
 									<td style={ { whiteSpace: 'nowrap' } }>
 										{ ! row.resolved_by && (
@@ -609,7 +774,7 @@ function ImportTab(): JSX.Element {
 		<>
 			<h3>{ __( 'CSV import', 'ux-studio' ) }</h3>
 			<p style={ { color: 'var(--uxs-text-soft)' } }>
-				{ __( 'One redirect per line: source, target, code, note. Header row optional, comma or semicolon separated. Empty target = 410 Gone.', 'ux-studio' ) }
+				{ __( 'One redirect per line: source, target, code, note. Header row optional, comma or semicolon separated. Empty target = 410 Gone. The export also has "conditions" (JSON), "position", "case_sensitive", "query_mode", "hits" and "last_hit" columns; the import reads them (counters only for new redirects).', 'ux-studio' ) }
 			</p>
 			<textarea
 				rows={ 8 }
@@ -633,7 +798,7 @@ function ImportTab(): JSX.Element {
 				<>
 					<h3>{ __( 'Import from the Redirection plugin', 'ux-studio' ) }</h3>
 					<p style={ { color: 'var(--uxs-text-soft)' } }>
-						{ __( 'Copies URL redirects and 410 rules. Rules with login, referrer or IP conditions are skipped. Deactivate Redirection afterwards so the two do not compete.', 'ux-studio' ) }
+						{ __( 'Copies URL redirects, 410 rules and rules that depend on login, role, referrer, browser, cookie, IP address, domain or HTTP header (they become redirects with conditions). Matches on language or a custom filter are skipped. Deactivate Redirection afterwards so the two do not compete.', 'ux-studio' ) }
 					</p>
 					<div style={ { display: 'flex', gap: 'var(--uxs-sp-3)' } }>
 						<button type="button" className="button" disabled={ importRedirection.isPending } onClick={ () => importRedirection.mutate( true ) }>

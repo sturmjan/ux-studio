@@ -18,6 +18,7 @@
 
 namespace UxStudio\Modules\AdminCustomiser;
 
+use UxStudio\Core\Migration\MenuSimulator;
 use UxStudio\Core\Settings;
 
 defined( 'ABSPATH' ) || exit;
@@ -25,7 +26,7 @@ defined( 'ABSPATH' ) || exit;
 final class MenuOrganizer {
 
 	/** Single WP option holding the entire menu-organizer config (JSON-shaped array). */
-	private const CONFIG_OPTION = 'uxstudio_admin_customiser_menu_config';
+	public const CONFIG_OPTION = 'uxstudio_admin_customiser_menu_config';
 
 	/** Shared module settings option (schema-based, owns the master enable toggle). */
 	private const SETTINGS_OPTION = 'uxstudio_admin_customiser';
@@ -47,6 +48,19 @@ final class MenuOrganizer {
 	 * @var array|null
 	 */
 	private ?array $submenu_snapshot = null;
+
+	/** Whether the sub-item rules (rename, hide, move, order) were applied to the global $submenu in this request. */
+	private bool $subs_applied = false;
+
+	/**
+	 * Sub-items this request moved to another parent: `orig parent>orig slug` => parent, slug (the new one), orig_parent, orig_slug.
+	 *
+	 * @var array<string, array<string, string>>
+	 */
+	private array $moved_subs = array();
+
+	/** @var array<string, array<string, string>>|null The same, worked out from the snapshot (null = not yet). */
+	private ?array $moved_computed = null;
 
 	/* ═══════════════════════════════════════════════════
 	   Enable state
@@ -239,17 +253,12 @@ final class MenuOrganizer {
 	   ═══════════════════════════════════════════════════ */
 
 	/**
-	 * Load saved menu config, merged over defaults. Does NOT include the
-	 * `enabled` flag - that lives in the shared module settings row
-	 * (`menu_organizer_enabled`), see is_enabled().
+	 * Defaults every stored config is merged over.
+	 *
+	 * @return array<string, mixed>
 	 */
-	public function get_config(): array {
-		$config = get_option( self::CONFIG_OPTION, array() );
-		if ( ! is_array( $config ) ) {
-			$config = array();
-		}
-
-		$defaults = array(
+	public static function default_config(): array {
+		return array(
 			'layout'            => 'vertical',
 			'categories'        => self::default_categories(),
 			'category_order'    => array(),
@@ -265,14 +274,32 @@ final class MenuOrganizer {
 			'promoted_subs'     => array(),
 			'separators'        => array(),
 			'hidden_items'      => array(),
+			'item_caps'         => array(),
+			'item_users'        => array(),
+			'sub_titles'        => array(),
+			'sub_hidden'        => array(),
+			'sub_moves'         => array(),
+			'sub_order'         => array(),
 			'show_icons_level1' => true,
 			'show_icons_level2' => true,
 			'show_icons_level3' => true,
 			'native_flyouts'    => true,
 			'seen_slugs'        => array(),
 		);
+	}
 
-		$config = array_merge( $defaults, $config );
+	/**
+	 * Load saved menu config, merged over defaults. Does NOT include the
+	 * `enabled` flag - that lives in the shared module settings row
+	 * (`menu_organizer_enabled`), see is_enabled().
+	 */
+	public function get_config(): array {
+		$config = get_option( self::CONFIG_OPTION, array() );
+		if ( ! is_array( $config ) ) {
+			$config = array();
+		}
+
+		$config = array_merge( self::default_config(), $config );
 
 		if ( empty( $config['categories'] ) || ! is_array( $config['categories'] ) ) {
 			$config['categories'] = self::default_categories();
@@ -289,8 +316,26 @@ final class MenuOrganizer {
 	 * @param array $input Raw input (already decoded JSON).
 	 */
 	public function save_config( array $input ): array {
-		$config = $this->get_config();
+		$config = self::clean_config( $input, $this->get_config() );
 
+		// Baseline snapshot for new-plugin detection.
+		$current               = $this->get_current_menu_items();
+		$config['seen_slugs'] = array_values( array_map( static fn( $it ) => $it['slug'], $current ) );
+
+		update_option( self::CONFIG_OPTION, $config );
+
+		return $config;
+	}
+
+	/**
+	 * The pure part of save_config(): sanitize a payload and lay it over a base config. Touches no
+	 * option and no menu global, so the migration wizard uses it to prepare a config it can stage.
+	 *
+	 * @param array $input  Raw payload (same shape as the REST body).
+	 * @param array $config Base config (what get_config() returns).
+	 * @return array The merged config.
+	 */
+	public static function clean_config( array $input, array $config ): array {
 		if ( isset( $input['layout'] ) ) {
 			$config['layout'] = 'horizontal' === $input['layout'] ? 'horizontal' : 'vertical';
 		}
@@ -351,7 +396,7 @@ final class MenuOrganizer {
 		if ( isset( $input['category_icons'] ) && is_array( $input['category_icons'] ) ) {
 			$clean_ci = array();
 			foreach ( $input['category_icons'] as $cat => $icon ) {
-				$clean_ci[ sanitize_key( (string) $cat ) ] = $this->sanitize_icon_value( $icon );
+				$clean_ci[ sanitize_key( (string) $cat ) ] = self::sanitize_icon_value( $icon );
 			}
 			$config['category_icons'] = array_filter( $clean_ci, static fn( $v ) => '' !== $v );
 		}
@@ -372,7 +417,7 @@ final class MenuOrganizer {
 		if ( isset( $input['item_icons'] ) && is_array( $input['item_icons'] ) ) {
 			$clean_ii = array();
 			foreach ( $input['item_icons'] as $slug => $icon ) {
-				$icon = $this->sanitize_icon_value( $icon );
+				$icon = self::sanitize_icon_value( $icon );
 				if ( '' !== $icon ) {
 					$clean_ii[ sanitize_text_field( (string) $slug ) ] = $icon;
 				}
@@ -509,7 +554,7 @@ final class MenuOrganizer {
 					'id'       => $id,
 					'title'    => $title,
 					'url'      => $url,
-					'icon'     => isset( $cl['icon'] ) ? $this->sanitize_icon_value( $cl['icon'] ) : '',
+					'icon'     => isset( $cl['icon'] ) ? self::sanitize_icon_value( $cl['icon'] ) : '',
 					'target'   => isset( $cl['target'] ) && '_blank' === $cl['target'] ? '_blank' : '',
 					'category' => isset( $cl['category'] ) ? sanitize_key( (string) $cl['category'] ) : 'other',
 				);
@@ -533,7 +578,7 @@ final class MenuOrganizer {
 				$clean_ps[ $sub_slug ] = array(
 					'parent'   => $parent,
 					'title'    => $title,
-					'icon'     => isset( $ps['icon'] ) ? $this->sanitize_icon_value( $ps['icon'] ) : '',
+					'icon'     => isset( $ps['icon'] ) ? self::sanitize_icon_value( $ps['icon'] ) : '',
 					'category' => isset( $ps['category'] ) ? sanitize_key( (string) $ps['category'] ) : 'other',
 				);
 			}
@@ -552,13 +597,135 @@ final class MenuOrganizer {
 		}
 		$config['hidden_items'] = array_values( array_keys( $clean_hi ) );
 
-		// Baseline snapshot for new-plugin detection.
-		$current               = $this->get_current_menu_items();
-		$config['seen_slugs'] = array_values( array_map( static fn( $it ) => $it['slug'], $current ) );
+		// B1 (PLAN.md 27.7): rules of single items and sub-items. Keys are a top-level slug or `parent>sub`.
+		$valid_roles_or_all = array_merge( $valid_roles, array( '*' ) );
 
-		update_option( self::CONFIG_OPTION, $config );
+		// item_caps: key => required capability (an extra condition on top of what WordPress checks).
+		if ( isset( $input['item_caps'] ) && is_array( $input['item_caps'] ) ) {
+			$clean_caps = array();
+			foreach ( $input['item_caps'] as $key => $cap ) {
+				$key = sanitize_text_field( (string) $key );
+				$cap = preg_replace( '/[^A-Za-z0-9_\-]/', '', is_string( $cap ) ? $cap : '' );
+				if ( '' !== $key && '' !== $cap ) {
+					$clean_caps[ $key ] = $cap;
+				}
+			}
+			$config['item_caps'] = $clean_caps;
+		}
+
+		// item_users: key => { show: [logins], hide: [logins] }.
+		if ( isset( $input['item_users'] ) && is_array( $input['item_users'] ) ) {
+			$clean_users = array();
+			foreach ( $input['item_users'] as $key => $rule ) {
+				$key = sanitize_text_field( (string) $key );
+				if ( '' === $key || ! is_array( $rule ) ) {
+					continue;
+				}
+				$entry = array();
+				foreach ( array( 'show', 'hide' ) as $kind ) {
+					$logins = self::clean_logins( $rule[ $kind ] ?? array() );
+					if ( $logins ) {
+						$entry[ $kind ] = $logins;
+					}
+				}
+				if ( $entry ) {
+					$clean_users[ $key ] = $entry;
+				}
+			}
+			$config['item_users'] = $clean_users;
+		}
+
+		// sub_titles: `parent>sub` => new title.
+		if ( isset( $input['sub_titles'] ) && is_array( $input['sub_titles'] ) ) {
+			$clean_st = array();
+			foreach ( $input['sub_titles'] as $key => $title ) {
+				$title = sanitize_text_field( is_string( $title ) ? $title : '' );
+				$key   = sanitize_text_field( (string) $key );
+				if ( '' !== $key && '' !== $title ) {
+					$clean_st[ $key ] = $title;
+				}
+			}
+			$config['sub_titles'] = $clean_st;
+		}
+
+		// sub_hidden: `parent>sub` => roles the sub-item is hidden for (`*` = everybody).
+		if ( isset( $input['sub_hidden'] ) && is_array( $input['sub_hidden'] ) ) {
+			$clean_sh = array();
+			foreach ( $input['sub_hidden'] as $key => $roles ) {
+				if ( ! is_array( $roles ) ) {
+					continue;
+				}
+				$picked = array();
+				foreach ( $roles as $r ) {
+					$r = '*' === $r ? '*' : sanitize_key( (string) $r );
+					if ( in_array( $r, $valid_roles_or_all, true ) ) {
+						$picked[] = $r;
+					}
+				}
+				if ( $picked ) {
+					$clean_sh[ sanitize_text_field( (string) $key ) ] = in_array( '*', $picked, true ) ? array( '*' ) : array_values( array_unique( $picked ) );
+				}
+			}
+			$config['sub_hidden'] = $clean_sh;
+		}
+
+		// sub_moves: `parent>sub` => the top-level slug it is shown under instead of its own parent.
+		if ( isset( $input['sub_moves'] ) && is_array( $input['sub_moves'] ) ) {
+			$clean_sm = array();
+			foreach ( $input['sub_moves'] as $key => $to ) {
+				$key = sanitize_text_field( (string) $key );
+				$to  = sanitize_text_field( is_string( $to ) ? $to : '' );
+				$pos = strpos( $key, '>' );
+				if ( '' === $to || false === $pos || 0 === $pos || substr( $key, 0, $pos ) === $to ) {
+					continue;
+				}
+				$clean_sm[ $key ] = $to;
+			}
+			$config['sub_moves'] = $clean_sm;
+		}
+
+		// sub_order: top-level slug => sub-item slugs in the wanted order.
+		if ( isset( $input['sub_order'] ) && is_array( $input['sub_order'] ) ) {
+			$clean_so = array();
+			foreach ( $input['sub_order'] as $parent => $slugs ) {
+				if ( ! is_array( $slugs ) ) {
+					continue;
+				}
+				$list = array();
+				foreach ( $slugs as $slug ) {
+					$slug = sanitize_text_field( (string) $slug );
+					if ( '' !== $slug ) {
+						$list[] = $slug;
+					}
+				}
+				if ( $list ) {
+					$clean_so[ sanitize_text_field( (string) $parent ) ] = array_values( array_unique( $list ) );
+				}
+			}
+			$config['sub_order'] = $clean_so;
+		}
 
 		return $config;
+	}
+
+	/**
+	 * User logins from a list or from a comma / space / newline separated string, cleaned and de-duplicated (case-insensitive).
+	 *
+	 * @param mixed $value Raw value.
+	 * @return string[]
+	 */
+	public static function clean_logins( $value ): array {
+		if ( is_string( $value ) ) {
+			$value = preg_split( '/[\s,;]+/', $value ) ?: array();
+		}
+		$out = array();
+		foreach ( (array) $value as $login ) {
+			$login = sanitize_user( is_string( $login ) ? $login : '', true );
+			if ( '' !== $login && ! isset( $out[ strtolower( $login ) ] ) ) {
+				$out[ strtolower( $login ) ] = $login;
+			}
+		}
+		return array_values( $out );
 	}
 
 	/**
@@ -597,8 +764,6 @@ final class MenuOrganizer {
 		$item_titles    = $config['item_titles'];
 		$item_icons     = $config['item_icons'];
 		$item_urls      = $config['item_urls'];
-		$item_roles_cfg = $config['item_roles'];
-		$cat_roles_cfg  = $config['category_roles'];
 		$custom_links   = $config['custom_links'];
 		$promoted_subs  = $config['promoted_subs'];
 		$separators     = $config['separators'];
@@ -608,26 +773,11 @@ final class MenuOrganizer {
 		$user_roles = ( $user && is_array( $user->roles ) ) ? $user->roles : array();
 		$bypass     = current_user_can( 'manage_options' );
 
-		$can_see_slug = static function ( string $slug ) use ( $item_roles_cfg, $user_roles, $bypass ): bool {
-			if ( $bypass ) {
-				return true;
-			}
-			$req = isset( $item_roles_cfg[ $slug ] ) ? (array) $item_roles_cfg[ $slug ] : array();
-			if ( empty( $req ) ) {
-				return true;
-			}
-			return (bool) array_intersect( $req, $user_roles );
-		};
-		$can_see_cat = static function ( string $cat ) use ( $cat_roles_cfg, $user_roles, $bypass ): bool {
-			if ( $bypass ) {
-				return true;
-			}
-			$req = isset( $cat_roles_cfg[ $cat ] ) ? (array) $cat_roles_cfg[ $cat ] : array();
-			if ( empty( $req ) ) {
-				return true;
-			}
-			return (bool) array_intersect( $req, $user_roles );
-		};
+		// One decision for runtime and migration (MenuSimulator): hidden items are handled by the caller, here the role,
+		// category, per-user and required-capability rules of an item.
+		$ctx          = MenuSimulator::current_ctx();
+		$can_see_slug = static fn( string $slug, string $cat ): bool => MenuSimulator::pass( $config, $slug, $cat, $user_roles, $bypass, $ctx );
+		$can_see_cat  = static fn( string $cat ): bool => MenuSimulator::category_pass( $config, $cat, $user_roles, $bypass );
 
 		// Idempotency guard: don't re-bucket already-reorganized synthetic entries
 		// (this hook runs on admin_menu, parent_file and submenu_file).
@@ -685,7 +835,7 @@ final class MenuOrganizer {
 				$cat = $fallback_cat;
 			}
 
-			if ( ! $can_see_slug( $slug ) || ! $can_see_cat( $cat ) ) {
+			if ( ! $can_see_slug( $slug, $cat ) ) {
 				continue;
 			}
 
@@ -712,7 +862,7 @@ final class MenuOrganizer {
 				}
 				$cat = $fallback_cat;
 			}
-			if ( ! $can_see_slug( $cl_slug ) || ! $can_see_cat( $cat ) ) {
+			if ( ! $can_see_slug( $cl_slug, $cat ) ) {
 				continue;
 			}
 			$cl_icon  = ! empty( $cl['icon'] ) ? $cl['icon'] : 'dashicons-admin-links';
@@ -743,7 +893,7 @@ final class MenuOrganizer {
 				}
 				$cat = $fallback_cat;
 			}
-			if ( ! $can_see_slug( $sub_slug ) || ! $can_see_cat( $cat ) ) {
+			if ( ! $can_see_slug( $sub_slug, $cat ) ) {
 				continue;
 			}
 
@@ -859,8 +1009,229 @@ final class MenuOrganizer {
 	 * @param mixed $value Filter value, passed through unmodified.
 	 */
 	public function reorganize_at_render( $value ) {
+		// Sub-item rules go on the LAST menu filter (submenu_file): Admin Menu Editor swaps the whole $menu / $submenu on it
+		// (priority 1001), whatever was changed before would be replaced by its copy.
+		if ( 'submenu_file' === current_filter() ) {
+			$this->apply_submenu_rules();
+		}
 		$this->reorganize_admin_menu();
 		return $value;
+	}
+
+	/* ═══════════════════════════════════════════════════
+	   Sub-items (B1): rename, hide, move, order
+	   ═══════════════════════════════════════════════════ */
+
+	/**
+	 * Do any of the config's rules concern sub-items (rename, hide, move, order, per-user, capability)?
+	 *
+	 * @param array<string, mixed> $config Menu Organizer config.
+	 */
+	public static function has_sub_rules( array $config ): bool {
+		foreach ( array( 'sub_titles', 'sub_hidden', 'sub_moves', 'sub_order' ) as $map ) {
+			if ( ! empty( $config[ $map ] ) ) {
+				return true;
+			}
+		}
+		foreach ( array( 'item_users', 'item_caps' ) as $map ) {
+			foreach ( array_keys( (array) ( $config[ $map ] ?? array() ) ) as $key ) {
+				if ( false !== strpos( (string) $key, '>' ) ) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Address a sub-item has when it is shown under another parent: the page it opens does not change, only where the
+	 * menu lists it (WordPress checks access to a plugin page against the parent it was registered under).
+	 *
+	 * @param string $parent Original parent slug.
+	 * @param string $slug   Sub-item slug.
+	 */
+	public static function sub_url( string $parent, string $slug ): string {
+		if ( false !== strpos( $slug, '.php' ) ) {
+			return $slug;
+		}
+		$base = (string) strtok( $parent, '?' );
+		if ( 1 === preg_match( '/^[A-Za-z0-9_\-]+\.php$/', $base ) ) {
+			return $parent . ( false === strpos( $parent, '?' ) ? '?' : '&' ) . 'page=' . rawurlencode( $slug );
+		}
+		return 'admin.php?page=' . rawurlencode( $slug );
+	}
+
+	/**
+	 * The pure part: a $submenu with the sub-item rules applied for one user. Renamed, hidden (for this user), moved and
+	 * re-ordered; a parent left without sub-items disappears from the array.
+	 *
+	 * @param array<string, array>    $submenu WordPress $submenu (parent slug => rows [title, capability, slug, ...]).
+	 * @param array<string, mixed>    $config  Menu Organizer config.
+	 * @param string[]                $tops    Slugs of the top-level items a sub-item may be moved under.
+	 * @param string[]                $roles   Roles of the user.
+	 * @param bool                    $bypass  Whether the user can `manage_options`.
+	 * @param array<string, mixed>    $ctx     login, can.
+	 * @return array{submenu:array<string,array>,moved:array<string,array<string,string>>}
+	 */
+	public static function transform_submenu( array $submenu, array $config, array $tops, array $roles, bool $bypass, array $ctx = array() ): array {
+		if ( ! self::has_sub_rules( $config ) ) {
+			return array(
+				'submenu' => $submenu,
+				'moved'   => array(),
+			);
+		}
+		$kept  = array();
+		$moved = array();
+		foreach ( $submenu as $parent => $rows ) {
+			$parent = (string) $parent;
+			foreach ( (array) $rows as $row ) {
+				if ( ! is_array( $row ) || ! isset( $row[2] ) ) {
+					$kept[ $parent ][] = array( $row, '' );
+					continue;
+				}
+				$slug = (string) $row[2];
+				if ( ! MenuSimulator::sub_own_visible( $config, $parent, $slug, $roles, $bypass, $ctx ) ) {
+					continue;
+				}
+				$key = MenuSimulator::sub_key( $parent, $slug );
+				$to  = MenuSimulator::effective_parent( $config, $parent, $slug );
+				if ( $to !== $parent && ! in_array( $to, $tops, true ) ) {
+					$to = $parent;
+				}
+				if ( ! empty( $config['sub_titles'][ $key ] ) ) {
+					$row[0] = (string) $config['sub_titles'][ $key ];
+				}
+				if ( $to !== $parent ) {
+					$row[2]        = self::sub_url( $parent, $slug );
+					$moved[ $key ] = array(
+						'parent'      => $to,
+						'slug'        => $row[2],
+						'orig_parent' => $parent,
+						'orig_slug'   => $slug,
+					);
+				}
+				$kept[ $to ][] = array( $row, $slug );
+			}
+		}
+		$out = array();
+		foreach ( $kept as $parent => $list ) {
+			$order = array_flip( array_map( 'strval', (array) ( $config['sub_order'][ $parent ] ?? array() ) ) );
+			if ( $order ) {
+				$decorated = array();
+				foreach ( $list as $pos => $pair ) {
+					$decorated[] = array( $order[ $pair[1] ] ?? PHP_INT_MAX, $pos, $pair[0] );
+				}
+				usort( $decorated, static fn( array $a, array $b ): int => array( $a[0], $a[1] ) <=> array( $b[0], $b[1] ) );
+				$out[ $parent ] = array_column( $decorated, 2 );
+			} else {
+				$out[ $parent ] = array_column( $list, 0 );
+			}
+		}
+		return array(
+			'submenu' => $out,
+			'moved'   => $moved,
+		);
+	}
+
+	/**
+	 * The user's context for the sub-item rules (roles, manage_options, login, capability check).
+	 *
+	 * @return array{0:string[],1:bool,2:array<string,mixed>}
+	 */
+	private function rule_context(): array {
+		$user = wp_get_current_user();
+		return array( array_map( 'strval', (array) $user->roles ), current_user_can( 'manage_options' ), MenuSimulator::current_ctx() );
+	}
+
+	/**
+	 * Apply the sub-item rules to the global $submenu. Runs at render time (on `submenu_file`, the last menu filter), NOT while
+	 * the menu is built: WordPress decides whether the user may open a page right after `admin_menu`, from the structure it
+	 * was registered with, and a sub-item taken out of (or moved in) $submenu by then would turn a hidden or moved plugin
+	 * page into a "not allowed" screen even with the access lock off.
+	 */
+	public function apply_submenu_rules(): void {
+		global $submenu;
+
+		if ( $this->subs_applied || ! $this->is_enabled() || ! is_array( $submenu ) || ! is_array( $this->submenu_snapshot ) ) {
+			return;
+		}
+		$this->subs_applied = true;
+		$config             = $this->get_config();
+		if ( ! self::has_sub_rules( $config ) ) {
+			return;
+		}
+		$structure        = $this->menu_structure();
+		list( $roles, $bypass, $ctx ) = $this->rule_context();
+		$result           = self::transform_submenu( $submenu, $config, $structure['tops'] ?? array(), $roles, $bypass, $ctx );
+		$submenu          = $result['submenu'];
+		$this->moved_subs = array_merge( $this->moved_subs, $result['moved'] );
+	}
+
+	/**
+	 * Which sub-items the rules move for this user, worked out from the menu as WordPress registered it (the snapshot), so
+	 * the highlight of the current page is known before the menu is drawn (the `parent_file` filter comes first).
+	 *
+	 * @return array<string, array<string, string>>
+	 */
+	private function moved_map(): array {
+		if ( null === $this->moved_computed ) {
+			$this->moved_computed = array();
+			if ( $this->is_enabled() && is_array( $this->submenu_snapshot ) ) {
+				$config = $this->get_config();
+				if ( ! empty( $config['sub_moves'] ) ) {
+					$structure = $this->menu_structure();
+					list( $roles, $bypass, $ctx ) = $this->rule_context();
+					$this->moved_computed          = self::transform_submenu( $this->submenu_snapshot, $config, $structure['tops'] ?? array(), $roles, $bypass, $ctx )['moved'];
+				}
+			}
+		}
+		return $this->moved_computed;
+	}
+
+	/**
+	 * The entry of the sub-item the current request is, when this request moved it to another parent.
+	 *
+	 * @return array<string, string>|null
+	 */
+	private function current_moved_sub(): ?array {
+		$moved = $this->moved_map();
+		if ( ! $moved ) {
+			return null;
+		}
+		$structure = $this->menu_structure();
+		if ( ! $structure ) {
+			return null;
+		}
+		global $pagenow;
+		$hit = MenuSimulator::resolve_request( (string) $pagenow, MenuLock::request_args( (string) $pagenow ), $structure['tops'], $structure['subs'] );
+		if ( null === $hit ) {
+			return null;
+		}
+		$sub = $hit['sub'];
+		if ( null === $sub && in_array( $hit['top'], array_map( 'strval', (array) ( $structure['subs'][ $hit['top'] ] ?? array() ) ), true ) ) {
+			$sub = $hit['top'];
+		}
+		return null === $sub ? null : ( $moved[ MenuSimulator::sub_key( $hit['top'], $sub ) ] ?? null );
+	}
+
+	/**
+	 * Highlight the new parent of the page when its sub-item was moved there. Hooked on `parent_file`, after the reorganization.
+	 *
+	 * @param mixed $parent_file Current parent file.
+	 */
+	public function filter_parent_file( $parent_file ) {
+		$moved = $this->current_moved_sub();
+		return null !== $moved ? $moved['parent'] : $parent_file;
+	}
+
+	/**
+	 * Highlight the moved sub-item under its new parent. Hooked on `submenu_file`, after the reorganization.
+	 *
+	 * @param mixed $submenu_file Current submenu file.
+	 */
+	public function filter_submenu_file( $submenu_file ) {
+		$moved = $this->current_moved_sub();
+		return null !== $moved ? $moved['slug'] : $submenu_file;
 	}
 
 	/**
@@ -876,6 +1247,12 @@ final class MenuOrganizer {
 		$flyouts = empty( $config['native_flyouts'] ) ? false : true;
 
 		$native_subs = is_array( $submenu ) ? $submenu : array();
+		if ( self::has_sub_rules( $config ) ) {
+			// The sub-item rules reach the flyouts too (the real $submenu is changed later, at render time).
+			$user        = wp_get_current_user();
+			$structure   = $this->menu_structure();
+			$native_subs = self::transform_submenu( $native_subs, $config, $structure['tops'] ?? array(), array_map( 'strval', (array) $user->roles ), current_user_can( 'manage_options' ), MenuSimulator::current_ctx() )['submenu'];
+		}
 
 		$new_menu = array();
 		$pos      = 0;
@@ -1320,6 +1697,36 @@ final class MenuOrganizer {
 	   ═══════════════════════════════════════════════════ */
 
 	/**
+	 * The admin menu as WordPress built it before the Organizer changed it: top-level slugs and the sub-item
+	 * slugs of each. Empty while the Organizer has not run (then there is nothing to lock).
+	 *
+	 * @return array{tops:string[],subs:array<string,string[]>}|array{}
+	 */
+	public function menu_structure(): array {
+		if ( ! is_array( $this->menu_snapshot ) ) {
+			return array();
+		}
+		$tops = array();
+		$subs = array();
+		foreach ( $this->menu_snapshot as $item ) {
+			if ( ! is_array( $item ) || empty( $item[2] ) || ( isset( $item[4] ) && str_contains( (string) $item[4], 'wp-menu-separator' ) ) ) {
+				continue;
+			}
+			$slug   = (string) $item[2];
+			$tops[] = $slug;
+			foreach ( (array) ( $this->submenu_snapshot[ $slug ] ?? array() ) as $sub ) {
+				if ( is_array( $sub ) && ! empty( $sub[2] ) ) {
+					$subs[ $slug ][] = (string) $sub[2];
+				}
+			}
+		}
+		return array(
+			'tops' => $tops,
+			'subs' => $subs,
+		);
+	}
+
+	/**
 	 * Return the current top-level admin menu items (slug, title, icon,
 	 * native children), read from the pre-reorganization snapshot so the
 	 * editor's source list always reflects real top-level items.
@@ -1521,7 +1928,7 @@ final class MenuOrganizer {
 	 *
 	 * @param mixed $icon Raw icon value.
 	 */
-	private function sanitize_icon_value( $icon ): string {
+	public static function sanitize_icon_value( $icon ): string {
 		if ( ! is_string( $icon ) ) {
 			return '';
 		}

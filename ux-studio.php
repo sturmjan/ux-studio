@@ -3,7 +3,7 @@
  * Plugin Name:       UX Studio
  * Plugin URI:        https://github.com/sturmjan/ux-studio
  * Description:       Modular WordPress admin platform: one consistent SPA for all site tools.
- * Version:           0.5.0
+ * Version:           0.6.0
  * Requires at least: 6.5
  * Requires PHP:      8.1
  * Author:            UX One
@@ -18,7 +18,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'UXSTUDIO_VERSION', '0.5.0' );
+define( 'UXSTUDIO_VERSION', '0.6.0' );
 // Public Extension API version (contract for add-on plugins: `ux_studio/modules`
 // filter, BaseModule, REST namespace, window.uxStudio.registerPage). An add-on
 // declares a minimum version; on mismatch it is skipped safely.
@@ -35,6 +35,8 @@ require_once UXSTUDIO_PATH . 'includes/Autoloader.php';
 // deactivate ux1 + offer to delete it). Registered BEFORE the conflict guard so
 // it always runs on activation, even while ux1 is still active.
 register_activation_hook( __FILE__, array( '\UxStudio\Core\Handoff', 'on_activation' ) );
+// Queue the one-time offer of the migration wizard (single activation from the Plugins screen only).
+register_activation_hook( __FILE__, array( '\UxStudio\Core\Migration\AutoStart', 'on_activation' ) );
 
 // Deactivation: undo side effects that would otherwise outlive the plugin
 // (Cron Control mu-plugin + wp-cron deny, .htaccess blocks, cron events).
@@ -48,6 +50,7 @@ register_deactivation_hook(
 		if ( isset( $plugin->modules ) ) {
 			$plugin->modules->cleanup_for_plugin_deactivation();
 		}
+		\UxStudio\Core\Migration\Bootstrap::deactivate();
 	}
 );
 

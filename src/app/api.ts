@@ -103,3 +103,34 @@ export interface ModuleInfo {
 	/** Feature ids of a virtual group tile (empty for normal modules). */
 	children?: string[];
 }
+
+/** One overlap between an enabled UX Studio module and an active foreign plugin (GET /overlaps). */
+export interface OverlapRow {
+	/** `<plugin basename>><module id>` - identifies the pair for ignore/unignore. */
+	key: string;
+	basename: string;
+	slug: string;
+	name: string;
+	module: string;
+	module_name: string;
+	type: 'full' | 'partial';
+	group: 'full' | 'customiser' | 'partial';
+	confirm: boolean;
+	/** Overlapping feature of a broad module (e.g. "Disable comments"), or ''. */
+	feature: string;
+	/** The migration wizard has a source for this plugin. */
+	migratable?: boolean;
+}
+
+export interface OverlapsData {
+	full: OverlapRow[];
+	customiser: OverlapRow[];
+	partial: OverlapRow[];
+	ignored: OverlapRow[];
+}
+
+/** `data` of the 409 `uxstudio_plugin_overlap` error returned when enabling a module. */
+export interface OverlapErrorData {
+	plugins: { name: string; basename: string; slug?: string; migratable?: boolean; type: 'full' | 'partial'; module: string; module_name: string }[];
+	requires_confirmation: boolean;
+}

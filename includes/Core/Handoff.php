@@ -119,10 +119,13 @@ final class Handoff {
 			self::DELETE_ACTION
 		);
 		printf(
-			'<div class="notice notice-success"><p>%s</p><p><a href="%s" class="button button-primary">%s</a></p></div>',
+			'<div class="notice notice-success"><p>%s</p><p><a href="%s" class="button button-primary">%s</a> <a href="%s" class="button">%s</a></p></div>',
 			esc_html__( 'UX Studio has taken over from the legacy UX1 plugin and migrated its data. You can now delete the old plugin files - your data stays and keeps migrating as you enable modules.', 'ux-studio' ),
 			esc_url( $url ),
-			esc_html__( 'Delete old UX1 plugin', 'ux-studio' )
+			esc_html__( 'Delete old UX1 plugin', 'ux-studio' ),
+			// The migration wizard does not jump in front of this notice: it is offered here instead.
+			esc_url( admin_url( Migration\AutoStart::WIZARD_PATH ) ),
+			esc_html__( 'Open the migration wizard', 'ux-studio' )
 		);
 	}
 

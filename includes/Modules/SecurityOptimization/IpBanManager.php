@@ -88,7 +88,7 @@ final class IpBanManager {
 
 	public function delete_ban( int $id ): bool {
 		$ban = $this->store->get_ban( $id );
-		if ( ! $ban || 'local' !== $ban['origin'] ) {
+		if ( ! $ban || ! in_array( $ban['origin'], array( 'local', 'migration' ), true ) ) {
 			return false;
 		}
 
@@ -104,7 +104,7 @@ final class IpBanManager {
 	 */
 	public function toggle_ban( int $id ) {
 		$ban = $this->store->get_ban( $id );
-		if ( ! $ban || 'local' !== $ban['origin'] ) {
+		if ( ! $ban || ! in_array( $ban['origin'], array( 'local', 'migration' ), true ) ) {
 			return new WP_Error( 'uxstudio_not_found', __( 'Ban not found.', 'ux-studio' ), array( 'status' => 404 ) );
 		}
 

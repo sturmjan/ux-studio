@@ -26,7 +26,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class IpBanStore {
 
-	private const ACTIVE_OPTION = 'uxstudio_ip_bans_active';
+	public const ACTIVE_OPTION = 'uxstudio_ip_bans_active';
 
 	/** @var string */
 	private $bans;
@@ -51,7 +51,7 @@ final class IpBanStore {
 	/**
 	 * Create/update a ban and (re)expand its ranges.
 	 *
-	 * @param array $data type, value, label, note, expires_at, created_by, id, ranges (country only).
+	 * @param array $data type, value, label, note, expires_at, created_by, id, origin (`local` | `migration`), is_active, ranges (country only).
 	 * @return int|WP_Error Ban id or error.
 	 */
 	public function save_ban( array $data ) {
@@ -85,12 +85,16 @@ final class IpBanStore {
 			);
 		}
 
+		// `local` = added here by an administrator, `migration` = brought over from another plugin by the
+		// migration wizard (editable like a local ban). `central` bans only come from replace_central_bans().
+		$origin = 'migration' === ( $data['origin'] ?? '' ) ? 'migration' : 'local';
+
 		$row = array(
 			'type'       => $type,
 			'value'      => $value,
 			'label'      => isset( $data['label'] ) ? sanitize_text_field( (string) $data['label'] ) : null,
 			'note'       => isset( $data['note'] ) ? sanitize_textarea_field( (string) $data['note'] ) : null,
-			'origin'     => 'local',
+			'origin'     => $origin,
 			'is_active'  => isset( $data['is_active'] ) ? (int) (bool) $data['is_active'] : 1,
 			'expires_at' => $this->normalize_date( $data['expires_at'] ?? null ),
 			'created_by' => isset( $data['created_by'] ) ? (int) $data['created_by'] : get_current_user_id(),
@@ -101,7 +105,7 @@ final class IpBanStore {
 			$existing_id = $explicit_id;
 		} else {
 			$existing_id = (int) $wpdb->get_var(
-				$wpdb->prepare( "SELECT id FROM {$this->bans} WHERE origin = 'local' AND value = %s LIMIT 1", $value )
+				$wpdb->prepare( "SELECT id FROM {$this->bans} WHERE origin = %s AND value = %s LIMIT 1", $origin, $value )
 			);
 		}
 
@@ -180,6 +184,17 @@ final class IpBanStore {
 			'per_page'    => $per_page,
 			'total_pages' => (int) ceil( $total / $per_page ),
 		);
+	}
+
+	/**
+	 * A ban of any origin with exactly this value (an IP, a CIDR range or a country code), or null.
+	 *
+	 * @param string $value Ban value.
+	 */
+	public function find_by_value( string $value ): ?array {
+		global $wpdb;
+		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$this->bans} WHERE value = %s ORDER BY id ASC LIMIT 1", trim( $value ) ), ARRAY_A );
+		return $row ?: null;
 	}
 
 	public function delete_ban( int $id ): bool {

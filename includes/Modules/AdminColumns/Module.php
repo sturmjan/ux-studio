@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
 final class Module extends BaseModule {
 
 	/** Option holding the whole configuration, keyed by content type. */
-	private const OPTION = 'uxstudio_admin_columns';
+	public const OPTION = 'uxstudio_admin_columns';
 
 	/** Legacy option (wpextended) read as a fallback. */
 	private const LEGACY_OPTION = 'wpextended__admin-columns';
@@ -82,7 +82,7 @@ final class Module extends BaseModule {
 	 * wpextended format when we have nothing stored yet.
 	 *
 	 * @param string $content_type Post type, or 'users' | 'comments' | 'attachment'.
-	 * @return array<int, array{key:string,label:string,type:string,field_type:string,enabled:bool,width:string}>
+	 * @return array<int, array{key:string,label:string,type:string,field_type:string,enabled:bool,width:string,sortable:bool,filterable:bool}>
 	 */
 	public function get_config( string $content_type ): array {
 		$all = $this->all_config();
@@ -122,12 +122,23 @@ final class Module extends BaseModule {
 	 * taxonomy, the object ID, or the featured image). `field_type` is the
 	 * renderer applied to a meta value (text, number, boolean, date, image,
 	 * url, email, color, post relationship); it is ignored for non-meta sources
-	 * but always stored so the SPA round-trips it.
+	 * but always stored so the SPA round-trips it. `sortable` and `filterable` (B1) switch on a clickable header and a
+	 * dropdown above the list of a post type (see ColumnQuery).
 	 *
 	 * @param array $column Raw column.
-	 * @return array{key:string,label:string,type:string,field_type:string,enabled:bool,width:string}
+	 * @return array{key:string,label:string,type:string,field_type:string,enabled:bool,width:string,sortable:bool,filterable:bool}
 	 */
 	public function normalize_column( array $column ): array {
+		return self::clean_column( $column );
+	}
+
+	/**
+	 * Pure form of normalize_column() (no option, no module instance), shared with the migration wizard.
+	 *
+	 * @param array $column Raw column.
+	 * @return array{key:string,label:string,type:string,field_type:string,enabled:bool,width:string,sortable:bool,filterable:bool}
+	 */
+	public static function clean_column( array $column ): array {
 		$allowed_types = array( 'default', 'meta', 'taxonomy', 'post_id', 'thumbnail' );
 		$type          = isset( $column['type'] ) && in_array( $column['type'], $allowed_types, true )
 			? $column['type']
@@ -144,6 +155,8 @@ final class Module extends BaseModule {
 			'field_type' => $field_type,
 			'enabled'    => ! isset( $column['enabled'] ) || (bool) $column['enabled'],
 			'width'      => sanitize_text_field( (string) ( $column['width'] ?? '' ) ),
+			'sortable'   => ! empty( $column['sortable'] ),
+			'filterable' => ! empty( $column['filterable'] ),
 		);
 	}
 

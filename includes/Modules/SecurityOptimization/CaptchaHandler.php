@@ -53,7 +53,7 @@ final class CaptchaHandler {
 			add_filter( 'authenticate', array( $this, 'verify_login' ), 5, 3 );
 			add_filter( 'authenticate', array( $this, 'enforce_login' ), PHP_INT_MAX, 1 );
 
-			add_action( 'wp_login_failed', array( $this, 'record_failure' ) );
+			add_action( 'wp_login_failed', array( $this, 'record_failure' ), 10, 2 );
 			add_action( 'wp_login', array( $this, 'clear_failures' ), 10, 0 );
 		}
 
@@ -107,7 +107,10 @@ final class CaptchaHandler {
 		return (int) get_transient( $this->fail_transient_key() );
 	}
 
-	public function record_failure(): void {
+	public function record_failure( $username = '', $error = null ): void {
+		if ( TwoFactor::is_non_form_error( $error ) ) {
+			return;
+		}
 		if ( 'adaptive' !== (string) $this->module->setting( 'captcha_mode', 'always' ) ) {
 			return;
 		}

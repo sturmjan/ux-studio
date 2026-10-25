@@ -1197,7 +1197,7 @@ final class Module extends BaseModule {
 			$body .= '<p>' . esc_html__( 'Reference:', 'ux-studio' ) . ' ' . esc_html( (string) $notice['reference'] ) . '</p>';
 		}
 		if ( '' !== (string) $notice['publish_date'] ) {
-			$body .= '<p>' . esc_html__( 'Published:', 'ux-studio' ) . ' ' . esc_html( (string) $notice['publish_date'] ) . '</p>';
+			$body .= '<p>' . esc_html__( 'Published:', 'ux-studio' ) . ' ' . esc_html( mysql2date( (string) get_option( 'date_format' ), (string) $notice['publish_date'] ) ) . '</p>';
 		}
 		if ( '' !== (string) $notice['body'] ) {
 			$excerpt = wp_trim_words( wp_strip_all_tags( (string) $notice['body'] ), 50 );

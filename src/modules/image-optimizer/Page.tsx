@@ -6,6 +6,7 @@ import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
 import { TabsNav } from '../../app/SubNav';
+import { formatDate } from '../../app/date';
 
 type Tab = 'bulk' | 'scanner' | 'settings';
 
@@ -300,7 +301,7 @@ function ScannerTab(): JSX.Element {
 									) }
 								</td>
 								<td>{ formatSize( item.file_size ) }</td>
-								<td>{ item.upload_date.slice( 0, 10 ) }</td>
+								<td>{ formatDate( item.upload_date, { dateOnly: true } ) }</td>
 							</tr>
 						) ) }
 					</tbody>

@@ -31,6 +31,54 @@ final class Module extends BaseModule {
 		// Server-side safety net: rewrite external images on save.
 		if ( $this->settings->get( 'server_filter', true ) ) {
 			add_filter( 'wp_insert_post_data', array( $this, 'filter_post_on_save' ), 20, 2 );
+			// Chosen custom fields (HTML text) get the same treatment once the post is saved.
+			if ( array() !== $this->custom_fields() ) {
+				add_action( 'save_post', array( $this, 'filter_meta_on_save' ), 20, 2 );
+			}
+		}
+	}
+
+	/**
+	 * Meta keys whose HTML is processed on save (one per line in the setting).
+	 *
+	 * @return string[]
+	 */
+	public function custom_fields(): array {
+		return array_values( array_unique( array_filter( array_map( 'trim', preg_split( '/[\r\n,]+/', (string) $this->settings->get( 'custom_fields', '' ) ) ?: array() ) ) ) );
+	}
+
+	/**
+	 * Post types the module leaves alone (setting).
+	 *
+	 * @return string[]
+	 */
+	private function excluded_post_types(): array {
+		return array_values( array_map( 'strval', (array) $this->settings->get( 'excluded_post_types', array() ) ) );
+	}
+
+	/**
+	 * Rewrite external images inside the chosen custom fields after a post was saved.
+	 *
+	 * @param int      $post_id Post ID.
+	 * @param \WP_Post $post    Post.
+	 */
+	public function filter_meta_on_save( $post_id, $post ): void {
+		if ( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) || ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) ) {
+			return;
+		}
+		if ( in_array( (string) ( $post->post_type ?? '' ), array_merge( $this->excluded_post_types(), array( 'attachment', 'nav_menu_item' ) ), true ) ) {
+			return;
+		}
+		$max = max( 1, (int) $this->settings->get( 'max_images_per_save', 10 ) );
+		foreach ( $this->custom_fields() as $key ) {
+			$value = get_post_meta( $post_id, $key, true );
+			if ( ! is_string( $value ) || false === stripos( $value, '<img' ) ) {
+				continue;
+			}
+			$rewritten = $this->processor()->process_content( $value, (int) $post_id, $max );
+			if ( $rewritten !== $value ) {
+				update_post_meta( $post_id, $key, wp_slash( $rewritten ) );
+			}
 		}
 	}
 
@@ -122,7 +170,7 @@ final class Module extends BaseModule {
 		}
 
 		$post_type = $data['post_type'] ?? '';
-		if ( in_array( $post_type, array( 'revision', 'attachment', 'nav_menu_item', 'customize_changeset', 'oembed_cache', 'wp_block' ), true ) ) {
+		if ( in_array( $post_type, array_merge( array( 'revision', 'attachment', 'nav_menu_item', 'customize_changeset', 'oembed_cache', 'wp_block' ), $this->excluded_post_types() ), true ) ) {
 			return $data;
 		}
 
@@ -166,6 +214,20 @@ final class Module extends BaseModule {
 
 		$post_types = get_post_types( array( 'public' => true ), 'names' );
 		unset( $post_types['attachment'] );
+		foreach ( $this->excluded_post_types() as $excluded ) {
+			unset( $post_types[ $excluded ] );
+		}
+		if ( array() === $post_types ) {
+			return array(
+				'processed'   => 0,
+				'updated'     => 0,
+				'updated_ids' => array(),
+				'total'       => 0,
+				'done'        => 0,
+				'next_offset' => 0,
+				'is_complete' => true,
+			);
+		}
 
 		$query = new \WP_Query(
 			array(
@@ -230,7 +292,17 @@ final class Module extends BaseModule {
 	public function processor(): Processor {
 		if ( null === $this->processor ) {
 			$max_bytes       = (int) $this->settings->get( 'max_file_size_mb', 10 ) * 1024 * 1024;
-			$this->processor = new Processor( $max_bytes );
+			$this->processor = new Processor(
+				$max_bytes,
+				array(
+					'base_url'         => (string) $this->settings->get( 'base_url', '' ),
+					'file_pattern'     => (string) $this->settings->get( 'file_name_pattern', '%filename%' ),
+					'alt_pattern'      => (string) $this->settings->get( 'alt_pattern', '%image_alt%' ),
+					'max_width'        => (int) $this->settings->get( 'max_width', 0 ),
+					'max_height'       => (int) $this->settings->get( 'max_height', 0 ),
+					'excluded_domains' => self::lines( (string) $this->settings->get( 'excluded_domains', '' ) ),
+				)
+			);
 		}
 		return $this->processor;
 	}
@@ -272,6 +344,87 @@ final class Module extends BaseModule {
 				'help'    => __( 'How many images to download at most during a single post save. Prevents slow saves on bulk imports.', 'ux-studio' ),
 				'default' => 10,
 			),
+			array(
+				'key'     => 'base_url',
+				'type'    => 'text',
+				'label'   => __( 'Address of the uploaded images', 'ux-studio' ),
+				'help'    => __( 'Leave blank to use the address WordPress gives. Enter a CDN address (https://cdn.example.com) to write that instead of your own domain, or / for addresses without a domain. Only the address in the content changes, the file stays in the media library.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'file_name_pattern',
+				'type'    => 'text',
+				'label'   => __( 'File name', 'ux-studio' ),
+				'help'    => __( 'Placeholders: %filename%, %image_alt%, %postname%, %post_id%, %post_date%, %post_year%, %post_month%, %post_day%, %today_date%, %year%, %month%, %today_day%, %url%, %timestamp%, %random%. The extension is added.', 'ux-studio' ),
+				'default' => '%filename%',
+			),
+			array(
+				'key'     => 'alt_pattern',
+				'type'    => 'text',
+				'label'   => __( 'Alt text', 'ux-studio' ),
+				'help'    => __( 'The same placeholders. The result becomes the alt text of the image in the content and in the media library; blank result leaves the image as it was.', 'ux-studio' ),
+				'default' => '%image_alt%',
+			),
+			array(
+				'key'     => 'max_width',
+				'type'    => 'number',
+				'label'   => __( 'Largest width (px)', 'ux-studio' ),
+				'help'    => __( '0 = no limit. Larger images are scaled down while keeping their proportions; the original size is not kept. Needs the GD or Imagick extension of PHP.', 'ux-studio' ),
+				'default' => 0,
+			),
+			array(
+				'key'     => 'max_height',
+				'type'    => 'number',
+				'label'   => __( 'Largest height (px)', 'ux-studio' ),
+				'default' => 0,
+			),
+			array(
+				'key'     => 'excluded_domains',
+				'type'    => 'textarea',
+				'label'   => __( 'Excluded domains', 'ux-studio' ),
+				'help'    => __( 'Images from these domains stay where they are. One per line; www is ignored; *.example.com also covers subdomains.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'excluded_post_types',
+				'type'    => 'multiselect',
+				'label'   => __( 'Excluded content types', 'ux-studio' ),
+				'help'    => __( 'Images in these types of content are not downloaded.', 'ux-studio' ),
+				'options' => $this->post_type_options(),
+				'default' => array(),
+			),
+			array(
+				'key'     => 'custom_fields',
+				'type'    => 'textarea',
+				'label'   => __( 'Custom fields', 'ux-studio' ),
+				'help'    => __( 'Names of custom fields (post meta) with HTML text whose images are downloaded too when the post is saved. One per line. Needs the safety net on save.', 'ux-studio' ),
+				'default' => '',
+			),
 		);
+	}
+
+	/**
+	 * Public content types for the exclusion list.
+	 *
+	 * @return array<string, string>
+	 */
+	private function post_type_options(): array {
+		$out = array();
+		foreach ( get_post_types( array( 'public' => true ), 'objects' ) as $slug => $type ) {
+			if ( 'attachment' !== $slug ) {
+				$out[ (string) $slug ] = (string) ( $type->labels->name ?? $slug );
+			}
+		}
+		return $out;
+	}
+
+	/**
+	 * Non-empty trimmed lines of a text setting.
+	 *
+	 * @param string $text Text.
+	 * @return string[]
+	 */
+	public static function lines( string $text ): array {
+		return array_values( array_filter( array_map( 'trim', preg_split( '/\r\n|\n|\r/', $text ) ?: array() ) ) );
 	}
 }

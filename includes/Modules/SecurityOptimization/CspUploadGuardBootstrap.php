@@ -30,8 +30,10 @@ final class CspUploadGuardBootstrap {
 	 * v2: full-scan worklist moved from one big option to the scan_queue table.
 	 * v3: keyword scoring replaced by token analysis + WordPress.org checksums.
 	 * v4: file_size/file_mtime in the hash cache (unchanged files are not read).
+	 * v5: CSP inventory - risk rating, pages, policy, sample; raw IPs dropped; old rows re-rated in batches (CspRerate).
+	 * v6: reporters column (distinct reporting clients, for the auto-rollback).
 	 */
-	private const DB_VERSION   = 4;
+	private const DB_VERSION   = 6;
 
 	/** Bump when the nightly slot logic changes, so existing events move. */
 	private const CRON_SLOT_VERSION = 3;
@@ -56,6 +58,10 @@ final class CspUploadGuardBootstrap {
 		self::$registered = true;
 
 		self::ensure_tables();
+
+		// Old rows are rated in batches (see CspRerate) - registered always, the CSP data exists whatever the mode.
+		add_action( CspRerate::HOOK, array( CspRerate::class, 'run_batch' ) );
+		CspRerate::ensure_scheduled();
 
 		add_action( 'rest_api_init', array( self::class, 'register_rest_routes' ) );
 
@@ -108,16 +114,29 @@ final class CspUploadGuardBootstrap {
 						blocked_uri text NOT NULL,
 						document_uri text DEFAULT '',
 						source_file text DEFAULT '',
+						line_number int(11) UNSIGNED NOT NULL DEFAULT 0,
+						script_sample varchar(255) NOT NULL DEFAULT '',
+						pages text NULL,
+						policy_last char(1) NOT NULL DEFAULT 'a',
+						candidate_seen datetime NULL,
+						reporters text NULL,
 						sample_user_agent varchar(500) DEFAULT '',
 						sample_ip varchar(45) DEFAULT '',
 						hit_count int(11) UNSIGNED NOT NULL DEFAULT 1,
 						status varchar(20) NOT NULL DEFAULT 'open',
+						risk_level varchar(10) NOT NULL DEFAULT 'unknown',
+						risk_score tinyint(3) UNSIGNED NOT NULL DEFAULT 0,
+						risk_reasons text NULL,
+						service varchar(100) NOT NULL DEFAULT '',
+						domain_created date NULL,
+						risk_checked_at datetime NULL,
 						first_seen datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 						last_seen datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 						PRIMARY KEY  (id),
 						UNIQUE KEY uniq_fp (fingerprint),
 						KEY status (status),
-						KEY last_seen (last_seen)
+						KEY last_seen (last_seen),
+						KEY risk_level (risk_level)
 					) {$charset};"
 				);
 
@@ -167,6 +186,17 @@ final class CspUploadGuardBootstrap {
 					// stays `running`; the watchdog ends it as interrupted.
 					delete_option( UploadGuardScanner::LEGACY_WORKLIST_OPTION );
 				}
+
+				if ( $from < 5 && $from > 0 ) {
+					// Raw IPs were stored despite the docs saying otherwise (one statement, only rows that have one).
+					$wpdb->query( "UPDATE {$wpdb->prefix}uxstudio_csp_violations SET sample_ip = '' WHERE sample_ip <> ''" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					// Rating of the rows collected before the rating existed is NOT done here: a long history
+					// would hold the first request after the update. CspRerate rates them in batches of 200 from
+					// WP-Cron, and marks them as old so they never trigger the high-risk e-mail.
+					CspRerate::start();
+				}
+				// v6 only adds the `reporters` column (dbDelta above, a nullable column, no data step): old rows
+				// simply have no reporters yet.
 
 				if ( $from < 3 ) {
 					// Open findings of the old keyword engine were mostly false

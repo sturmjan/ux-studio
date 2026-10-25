@@ -6,6 +6,7 @@ import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
 import { TabsNav } from '../../app/SubNav';
+import { formatDate } from '../../app/date';
 
 type Tab = 'settings' | 'log';
 
@@ -101,7 +102,7 @@ function DetailModal( { id, onClose }: { id: number; onClose: () => void } ): JS
 								</tr>
 								<tr>
 									<th style={ { textAlign: 'left' } }>{ __( 'Date', 'ux-studio' ) }</th>
-									<td>{ detail.created_at }</td>
+									<td>{ formatDate( detail.created_at ) }</td>
 								</tr>
 								<tr>
 									<th style={ { textAlign: 'left' } }>{ __( 'To', 'ux-studio' ) }</th>
@@ -228,7 +229,7 @@ function LogTable(): JSX.Element {
 						<tbody>
 							{ query.data.map( ( row ) => (
 								<tr key={ row.id }>
-									<td>{ row.created_at }</td>
+									<td>{ formatDate( row.created_at ) }</td>
 									<td>{ row.to_email }</td>
 									<td>
 										<button

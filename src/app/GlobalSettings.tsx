@@ -6,7 +6,9 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { Moon, Sun } from 'lucide-react';
+import { McpSettings } from './McpSettings';
 import { getTheme, setTheme, type Theme } from './prefs';
+import { hashParam, navigate } from './route';
 
 function Row( { label, value }: { label: string; value: string } ): JSX.Element {
 	return (
@@ -21,12 +23,37 @@ export function GlobalSettings(): JSX.Element {
 	const boot = window.uxStudioBoot;
 	const [ theme, setThemeState ] = useState< Theme >( getTheme() );
 	const next: Theme = theme === 'dark' ? 'light' : 'dark';
+	const section = 'mcp' === hashParam( 'section' ) ? 'mcp' : 'general';
+
+	const tabs = (
+		<div className="uxs-tabs" role="tablist">
+			<button type="button" role="tab" aria-selected={ 'general' === section } className={ 'general' === section ? 'is-active' : '' } onClick={ () => navigate( 'settings' ) }>
+				{ __( 'General', 'ux-studio' ) }
+			</button>
+			<button type="button" role="tab" aria-selected={ 'mcp' === section } className={ 'mcp' === section ? 'is-active' : '' } onClick={ () => navigate( 'settings', { section: 'mcp' } ) }>
+				{ __( 'MCP server', 'ux-studio' ) }
+			</button>
+		</div>
+	);
+
+	if ( 'mcp' === section ) {
+		return (
+			<>
+				<header className="uxs-pagehead">
+					<h1>{ __( 'Settings', 'ux-studio' ) }</h1>
+				</header>
+				{ tabs }
+				<McpSettings />
+			</>
+		);
+	}
 
 	return (
 		<>
 			<header className="uxs-pagehead">
 				<h1>{ __( 'Settings', 'ux-studio' ) }</h1>
 			</header>
+			{ tabs }
 
 			<h2 className="uxs-section-title">{ __( 'Appearance', 'ux-studio' ) }</h2>
 			<div className="uxs-form">

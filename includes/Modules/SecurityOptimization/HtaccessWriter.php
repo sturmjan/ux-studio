@@ -119,11 +119,51 @@ final class HtaccessWriter {
 	}
 
 	/**
+	 * Does the block in `.htaccess` already hold exactly the rules these settings produce? (Comment lines
+	 * WordPress adds inside the block do not count.) Lets the migration switch leave the file untouched
+	 * when it changes nothing.
+	 *
+	 * @param array<string, mixed> $settings Settings the rules are built from.
+	 */
+	public function matches_file( array $settings ): bool {
+		if ( ! function_exists( 'extract_from_markers' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/misc.php';
+		}
+		if ( ! function_exists( 'get_home_path' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+		$htaccess = get_home_path() . '.htaccess';
+		if ( ! is_file( $htaccess ) || ! is_readable( $htaccess ) ) {
+			return false;
+		}
+		$clean = static fn( array $lines ): array => array_values(
+			array_filter(
+				array_map( 'trim', $lines ),
+				static fn( string $line ): bool => '' !== $line && '#' !== $line[0]
+			)
+		);
+		return $clean( extract_from_markers( $htaccess, self::MARKER ) ) === $clean( $this->build_rules( $settings ) );
+	}
+
+	/**
+	 * Store the hash of the rules that are in the file already.
+	 *
+	 * @param array<string, mixed> $settings Settings the rules were built from.
+	 */
+	public function remember( array $settings ): void {
+		update_option( self::HASH_OPTION, $this->compute_hash( $settings ), true );
+	}
+
+	/**
 	 * Write the current rules into .htaccess and store the new hash.
 	 *
 	 * @return true|\WP_Error
 	 */
 	public function apply( array $settings ) {
+		// A safe-preview request persists nothing.
+		if ( \UxStudio\Core\Migration\Preview::is_active() ) {
+			return new \WP_Error( 'uxstudio_preview_active', __( 'The .htaccess file is not written during a preview.', 'ux-studio' ) );
+		}
 		if ( ! function_exists( 'insert_with_markers' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/misc.php';
 		}
@@ -149,6 +189,9 @@ final class HtaccessWriter {
 	 * file is missing or unwritable.
 	 */
 	public function remove(): void {
+		if ( \UxStudio\Core\Migration\Preview::is_active() ) {
+			return;
+		}
 		if ( ! function_exists( 'insert_with_markers' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/misc.php';
 		}

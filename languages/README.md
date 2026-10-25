@@ -38,3 +38,18 @@ Files:
 - `ux-studio-cs_CZ.po` / `.mo` - Czech translation (PHP + JS source strings)
 - `ux-studio-cs_CZ-ux-studio-app.json` - Czech strings for the SPA bundle
 - `.build/` - translation pipeline scripts (dev only, not loaded at runtime)
+
+## Adding a few new strings (without update-po)
+
+`wp i18n update-po` drops the meta.json strings from the .po, so for a handful
+of new strings append them instead:
+
+```
+npm run build && npm run i18n:pot
+python languages/.build/po-missing.py          # -> .build/missing.json (+ list)
+#  write a JSON list of Czech strings in the same order
+python languages/.build/po-append.py my-cs.json  # checks %s/%d placeholders
+php wp-cli.phar i18n make-mo languages/ux-studio-cs_CZ.po languages/
+php wp-cli.phar i18n make-json languages/ux-studio-cs_CZ.po --no-purge
+php bin/merge-json-translations.php
+```

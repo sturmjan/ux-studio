@@ -23,7 +23,7 @@ final class DB {
 	 * `uxstudio_dbv_<slug>` options, which were not autoloaded and cost one
 	 * SELECT per enabled module on every request.
 	 */
-	private const MODULE_VERSIONS_OPTION = 'uxstudio_module_db_versions';
+	public const MODULE_VERSIONS_OPTION = 'uxstudio_module_db_versions';
 
 	/** Prefix of the pre-v2 per-module schema version options. */
 	private const LEGACY_DBV_PREFIX = 'uxstudio_dbv_';
@@ -42,6 +42,10 @@ final class DB {
 	 * Upgrade path on normal boot (after plugin update).
 	 */
 	public static function maybe_upgrade(): void {
+		// A safe-preview request persists nothing (no repair, no schema upgrade).
+		if ( \UxStudio\Core\Migration\Preview::is_active() ) {
+			return;
+		}
 		// One-time settings key remap for sites migrated before the remaps existed.
 		Migrator::maybe_repair_settings();
 
@@ -88,16 +92,161 @@ final class DB {
 	 */
 	public static function ensure_module_tables( string $module_id, int $version, callable $migrator ): void {
 		$current = self::module_version( $module_id );
-		if ( $current >= $version ) {
+		if ( $current >= $version || \UxStudio\Core\Migration\Preview::is_active() ) {
+			return;
+		}
+		// A failed attempt is retried later, not on every request.
+		if ( false !== get_transient( self::FAIL_TRANSIENT_PREFIX . str_replace( '-', '_', $module_id ) ) ) {
 			return;
 		}
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-		$migrator( $current );
+		global $wpdb;
+		$wpdb->last_error = ''; // A stale error of an earlier, unrelated query must not count.
+		$errors_before = self::structural_error_count();
+		// Tables dbDelta() was asked to create: after the step each of them must exist.
+		$expected = array();
+		$capture  = static function ( $queries ) use ( &$expected ) {
+			foreach ( (array) $queries as $query ) {
+				if ( 1 === preg_match( '/^\s*CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?`?([A-Za-z0-9_$]+)`?/i', (string) $query, $m ) ) {
+					$expected[] = $m[1];
+				}
+			}
+			return $queries;
+		};
+		add_filter( 'dbdelta_create_queries', $capture, PHP_INT_MAX );
+		try {
+			$migrator( $current );
+		} finally {
+			remove_filter( 'dbdelta_create_queries', $capture, PHP_INT_MAX );
+		}
+		if ( self::structural_error_count() > $errors_before || self::last_query_failed_structurally() || self::missing_table( $expected ) ) {
+			// dbDelta()/CREATE/ALTER failed (permissions, a full disk, a broken index ...): do NOT record the
+			// version, otherwise the missing table/column would never be created again.
+			self::report_failed_migration( $module_id, $current, $version );
+			return;
+		}
 		self::set_module_version( $module_id, $version );
 
 		// A module's tables now exist. If legacy ux1 data for this module is
 		// present and the new table is still empty, import it now (idempotent).
 		Migrator::maybe_migrate_module_data( $module_id );
+	}
+
+	/** Transient prefix: a module whose schema step failed is not retried for FAIL_RETRY seconds. */
+	private const FAIL_TRANSIENT_PREFIX = 'uxstudio_dbfail_';
+
+	/** Retry delay after a failed schema step. */
+	private const FAIL_RETRY = 15 * MINUTE_IN_SECONDS;
+
+	/**
+	 * Is this SQL a structural statement (the ones whose failure leaves a table or column missing)? dbDelta()
+	 * itself runs a DESCRIBE on tables that do not exist yet, which fails by design, so only CREATE/ALTER count.
+	 *
+	 * @param string $sql SQL text.
+	 */
+	private static function is_structural_sql( string $sql ): bool {
+		return 1 === preg_match( '/^\s*(CREATE|ALTER)\s/i', $sql );
+	}
+
+	/**
+	 * Is this MySQL error harmless for a repeated schema step? dbDelta() can emit a failing ALTER for a key or
+	 * column that is already there (1060, 1061, 1050, 1091); the end state is what the step wanted.
+	 *
+	 * @param string $error Error text.
+	 */
+	private static function is_benign_schema_error( string $error ): bool {
+		return 1 === preg_match( '/Duplicate (key name|column name)|already exists|check that (column|key)(\/key)? exists|Can.t DROP/i', $error );
+	}
+
+	/**
+	 * Is this failed statement a real schema failure (CREATE/ALTER with an error that matters)?
+	 *
+	 * @param string $sql   SQL text.
+	 * @param string $error Error text.
+	 */
+	private static function is_blocking_failure( string $sql, string $error ): bool {
+		return self::is_structural_sql( $sql ) && ! self::is_benign_schema_error( $error );
+	}
+
+	/**
+	 * First expected table that does not exist after the step, or ''. Skipped without a usable wpdb.
+	 *
+	 * @param string[] $tables Table names dbDelta() was asked to create.
+	 */
+	private static function missing_table( array $tables ): string {
+		global $wpdb;
+		if ( ! is_object( $wpdb ) || ! method_exists( $wpdb, 'get_var' ) || ! method_exists( $wpdb, 'esc_like' ) ) {
+			return '';
+		}
+		foreach ( array_unique( $tables ) as $table ) {
+			if ( $table !== $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $table ) ) ) ) {
+				return $table;
+			}
+		}
+		return '';
+	}
+
+	/**
+	 * How many CREATE/ALTER statements have failed so far in this request (wpdb keeps every failed query in
+	 * the global $EZSQL_ERROR, also when errors are suppressed).
+	 */
+	private static function structural_error_count(): int {
+		$count = 0;
+		foreach ( (array) ( $GLOBALS['EZSQL_ERROR'] ?? array() ) as $entry ) {
+			if ( is_array( $entry ) && self::is_blocking_failure( (string) ( $entry['query'] ?? '' ), (string) ( $entry['error_str'] ?? '' ) ) ) {
+				++$count;
+			}
+		}
+		return $count;
+	}
+
+	/**
+	 * Did the very last query of the schema step fail, and was it a CREATE/ALTER?
+	 */
+	private static function last_query_failed_structurally(): bool {
+		global $wpdb;
+		$error = (string) ( $wpdb->last_error ?? '' );
+		return '' !== $error && self::is_blocking_failure( (string) ( $wpdb->last_query ?? '' ), $error );
+	}
+
+	/**
+	 * A schema step failed: remember it for a while (so it is retried later, not on every request) and say so
+	 * once a day in the Activity Log and in the PHP error log.
+	 *
+	 * @param string $module_id Module id.
+	 * @param int    $from      Version it was at.
+	 * @param int    $version   Version it wanted to reach.
+	 */
+	private static function report_failed_migration( string $module_id, int $from, int $version ): void {
+		global $wpdb;
+		$slug = str_replace( '-', '_', $module_id );
+		set_transient( self::FAIL_TRANSIENT_PREFIX . $slug, 1, self::FAIL_RETRY );
+		if ( false !== get_transient( self::FAIL_TRANSIENT_PREFIX . 'logged_' . $slug ) ) {
+			return;
+		}
+		set_transient( self::FAIL_TRANSIENT_PREFIX . 'logged_' . $slug, 1, DAY_IN_SECONDS );
+		$error = (string) ( $wpdb->last_error ?? '' );
+		// last_error only knows the last query; the failed CREATE/ALTER may have been an earlier one.
+		foreach ( array_reverse( (array) ( $GLOBALS['EZSQL_ERROR'] ?? array() ) ) as $entry ) {
+			if ( is_array( $entry ) && self::is_blocking_failure( (string) ( $entry['query'] ?? '' ), (string) ( $entry['error_str'] ?? '' ) ) ) {
+				$error = (string) ( $entry['error_str'] ?? $error );
+				break;
+			}
+		}
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		error_log( sprintf( 'UX Studio: database upgrade of module %s (%d -> %d) failed, will retry: %s', $module_id, $from, $version, $error ) );
+		ActivityLog::log(
+			'core',
+			'db_migration_failed',
+			'module',
+			0,
+			array(
+				'module' => $module_id,
+				'from'   => $from,
+				'to'     => $version,
+				'error'  => $error,
+			)
+		);
 	}
 
 	/**

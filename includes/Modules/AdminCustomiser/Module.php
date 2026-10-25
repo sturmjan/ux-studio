@@ -10,6 +10,7 @@
 
 namespace UxStudio\Modules\AdminCustomiser;
 
+use UxStudio\Core\Migration\MenuLockOrigin;
 use UxStudio\Modules\BaseModule;
 
 defined( 'ABSPATH' ) || exit;
@@ -40,6 +41,7 @@ final class Module extends BaseModule {
 	 */
 	public function boot(): void {
 		MenuOrganizerBootstrap::register();
+		MenuLock::register();
 		MiscBootstrap::register();
 	}
 
@@ -80,6 +82,22 @@ final class Module extends BaseModule {
 	}
 
 	/**
+	 * A hand-made change of "Block access to hidden pages" ends the note that a migration switched it on.
+	 *
+	 * @param array $input Raw input.
+	 * @return array<string, mixed>
+	 */
+	public function save_settings( array $input ): array {
+		$before = (bool) $this->settings->get( 'menu_lock_enabled', false );
+		$values = parent::save_settings( $input );
+		$after  = ! empty( $values['menu_lock_enabled'] );
+		if ( $before !== $after || ! $after ) {
+			MenuLockOrigin::clear();
+		}
+		return $values;
+	}
+
+	/**
 	 * Settings schema shared by every Admin Customiser sub-feature. Fields
 	 * belonging to domains ported by the concurrent agent (admin bar, quick
 	 * search, login, icon replacer, hide notices, server clock, theming) are
@@ -93,7 +111,7 @@ final class Module extends BaseModule {
 			$post_type_options[ $post_type->name ] = $post_type->labels->name ?? $post_type->name;
 		}
 
-		return array(
+		$schema = array(
 			array(
 				'key'     => 'primary_color',
 				'section' => __( 'Admin screens', 'ux-studio' ),
@@ -281,6 +299,14 @@ final class Module extends BaseModule {
 				'type'    => 'toggle',
 				'label'   => __( 'Enable menu organizer', 'ux-studio' ),
 				'help'    => __( 'Reorganizes the WordPress admin menu into custom categories. Configure categories, item order and overrides in the Menu Organizer tab.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'menu_lock_enabled',
+				'section' => __( 'Sidebar menu', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Block access to hidden pages', 'ux-studio' ),
+				'help'    => __( 'Off: the Menu Organizer only hides menu items, a hidden page still opens when its address is typed in. On: a page that is hidden from a user (limited to other roles, or hidden for everybody) is refused with "Sorry, you are not allowed to access this page" for users who cannot manage options. Sub-items follow their parent item, except a sub-item moved to the top level that the user can see. Never blocked: users who can manage options, the dashboard, the profile, UX Studio, Plugins, Users and Settings, AJAX and REST. Needs the menu organizer to be on. Rescue switch: define UXSTUDIO_DISABLE_MENU_LOCK as true in wp-config.php to switch the blocking off for everybody.', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
@@ -549,6 +575,68 @@ final class Module extends BaseModule {
 				'label'   => __( 'Enable login screen customization', 'ux-studio' ),
 				'default' => false,
 			),
+			array(
+				'key'     => 'login_background_image',
+				'section' => __( 'Login page', 'ux-studio' ),
+				'type'    => 'media',
+				'label'   => __( 'Login screen background image', 'ux-studio' ),
+				'help'    => __( 'Shown behind the classic login layout (the split layout has its own media panel). The background color above shows where the image does not reach.', 'ux-studio' ),
+				'default' => 0,
+			),
+			array(
+				'key'     => 'login_background_style',
+				'section' => __( 'Login page', 'ux-studio' ),
+				'type'    => 'select',
+				'label'   => __( 'Login screen background image: fit', 'ux-studio' ),
+				'options' => array(
+					'cover'   => __( 'Cover the whole screen', 'ux-studio' ),
+					'contain' => __( 'Fit inside the screen', 'ux-studio' ),
+					'center'  => __( 'Original size, centered', 'ux-studio' ),
+					'repeat'  => __( 'Repeat (tile)', 'ux-studio' ),
+				),
+				'default' => 'cover',
+			),
+			array(
+				'key'     => 'login_button_hover_bg_color',
+				'section' => __( 'Login page', 'ux-studio' ),
+				'type'    => 'color',
+				'label'   => __( 'Login button background color on hover', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'login_button_hover_text_color',
+				'section' => __( 'Login page', 'ux-studio' ),
+				'type'    => 'color',
+				'label'   => __( 'Login button text color on hover', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'login_link_hover_color',
+				'section' => __( 'Login page', 'ux-studio' ),
+				'type'    => 'color',
+				'label'   => __( 'Login screen link color on hover', 'ux-studio' ),
+				'help'    => __( 'The links under the form ("Lost your password?", "Back to the site").', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'login_custom_css',
+				'section' => __( 'Custom CSS', 'ux-studio' ),
+				'type'    => 'css',
+				'label'   => __( 'Custom CSS of the login page', 'ux-studio' ),
+				'help'    => __( 'Printed in the head of the login, lost-password and registration screens, also when login screen customization above is off. Plain CSS only: HTML tags are stripped and the size is limited to 50 KB. It is never printed on the front end of the site.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'admin_custom_css',
+				'section' => __( 'Custom CSS', 'ux-studio' ),
+				'type'    => 'css',
+				'label'   => __( 'Custom CSS of the admin area', 'ux-studio' ),
+				'help'    => __( 'Printed in the head of every admin screen, after the other admin styles. Plain CSS only: HTML tags are stripped and the size is limited to 50 KB. It is never printed on the front end of the site. Own JavaScript for the admin is not supported on purpose.', 'ux-studio' ),
+				'default' => '',
+			),
 		);
+
+		// B1: meta boxes hidden per role on the edit screens (one multi-select per role).
+		return array_merge( $schema, MetaBoxRules::schema() );
 	}
 }

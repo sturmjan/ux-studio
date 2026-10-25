@@ -54,8 +54,28 @@ abstract class BaseModule {
 	}
 
 	/**
+	 * Options (besides the module settings) the module changes when its settings take effect, for example
+	 * the hash of the last written `.htaccess` block. The migration switch saves them first, so undoing the
+	 * switch restores them exactly.
+	 *
+	 * @return string[]
+	 */
+	public function switch_options(): array {
+		return array();
+	}
+
+	/**
+	 * Make newly written settings effective the way a normal settings save would: rewrite `.htaccess`
+	 * blocks, sync bans, schedule events. Called by the migration switch (and by its undo) AFTER the
+	 * module was switched on / the options were written. Default: just re-read the settings.
+	 */
+	public function after_migration_switch(): void {
+		$this->settings = new Settings( 'uxstudio_' . str_replace( '-', '_', $this->id ) );
+	}
+
+	/**
 	 * Settings schema for the generic SPA settings renderer. Field types:
-	 * toggle | text | textarea | number | select | multiselect | color | media | richtext.
+	 * toggle | text | textarea | css | number | select | multiselect | color | media | datetime | richtext.
 	 * Empty array = module has no settings screen.
 	 *
 	 * @return array<int, array{key:string,type:string,label:string,default?:mixed,options?:array,help?:string}>

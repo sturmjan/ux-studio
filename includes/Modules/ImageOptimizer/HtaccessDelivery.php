@@ -72,6 +72,9 @@ final class HtaccessDelivery {
 	 * @return bool True on success.
 	 */
 	public function write( bool $webp, bool $avif ): bool {
+		if ( \UxStudio\Core\Migration\Preview::is_active() ) {
+			return false;
+		}
 		if ( ! $webp && ! $avif ) {
 			return $this->remove();
 		}
@@ -101,6 +104,9 @@ final class HtaccessDelivery {
 	 * Remove our marker block, leaving any other rules intact.
 	 */
 	public function remove(): bool {
+		if ( \UxStudio\Core\Migration\Preview::is_active() ) {
+			return false;
+		}
 		$path = $this->htaccess_path();
 		if ( '' === $path || ! is_file( $path ) ) {
 			return true;

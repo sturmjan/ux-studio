@@ -8,10 +8,11 @@ import { __ } from '@wordpress/i18n';
 import { ArrowLeft, Check, LoaderCircle } from 'lucide-react';
 import { api } from '../../app/api';
 import { navigate } from '../../app/route';
-import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { TopicSettings, withKeys } from '../../app/TopicSettings';
 import { TabsNav } from '../../app/SubNav';
+import { formatDate } from '../../app/date';
 
-type Tab = 'overview' | 'impact' | 'settings';
+type Tab = 'overview' | 'impact';
 
 interface Summary {
 	avg_ms: number;
@@ -155,7 +156,7 @@ function OverviewTab(): JSX.Element {
 				<tbody>
 					{ ( log ?? [] ).map( ( row ) => (
 						<tr key={ row.id }>
-							<td>{ row.created_at }</td>
+							<td>{ formatDate( row.created_at ) }</td>
 							<td>{ row.url }</td>
 							<td>{ row.load_time_ms }</td>
 							<td>{ row.query_count }</td>
@@ -250,7 +251,7 @@ function ImpactTab(): JSX.Element {
 				<tbody>
 					{ ( data?.events ?? [] ).map( ( row ) => (
 						<tr key={ row.id }>
-							<td>{ row.created_at }</td>
+							<td>{ formatDate( row.created_at ) }</td>
 							<td>{ row.plugin_name }</td>
 							<td>{ row.event_type }</td>
 							<td>{ row.benchmark_before ?? '—' }</td>
@@ -270,9 +271,11 @@ function ImpactTab(): JSX.Element {
 	);
 }
 
+/** Benchmark settings belong to Plugin impact, the rest to the measurement overview. */
+const isBenchmarkKey = withKeys( 'benchmark_' );
+
 export default function Page(): JSX.Element {
 	const [ tab, setTab ] = useState< Tab >( 'overview' );
-	const { data, isLoading, draft, setDraft, save, saved } = useModuleSettings( 'page-load' );
 
 	return (
 		<>
@@ -288,48 +291,27 @@ export default function Page(): JSX.Element {
 					</button>{ ' ' }
 					{ __( 'Page Load', 'ux-studio' ) }
 				</h1>
-				{ tab === 'settings' && (
-					<button
-						type="button"
-						className="button button-primary"
-						disabled={ save.isPending }
-						onClick={ () => save.mutate() }
-					>
-						{ saved ? <Check size={ 14 } /> : null }
-						{ saved ? __( 'Saved', 'ux-studio' ) : __( 'Save changes', 'ux-studio' ) }
-					</button>
-				) }
 			</header>
 			<TabsNav>
-				<button
-					className={ tab === 'overview' ? 'is-active' : '' }
-					onClick={ () => setTab( 'overview' ) }
-				>
+				<button className={ tab === 'overview' ? 'is-active' : '' } onClick={ () => setTab( 'overview' ) }>
 					{ __( 'Overview', 'ux-studio' ) }
 				</button>
-				<button
-					className={ tab === 'impact' ? 'is-active' : '' }
-					onClick={ () => setTab( 'impact' ) }
-				>
+				<button className={ tab === 'impact' ? 'is-active' : '' } onClick={ () => setTab( 'impact' ) }>
 					{ __( 'Plugin impact', 'ux-studio' ) }
 				</button>
-				<button
-					className={ tab === 'settings' ? 'is-active' : '' }
-					onClick={ () => setTab( 'settings' ) }
-				>
-					{ __( 'Settings', 'ux-studio' ) }
-				</button>
 			</TabsNav>
-			{ tab === 'overview' && <OverviewTab /> }
-			{ tab === 'impact' && <ImpactTab /> }
-			{ tab === 'settings' &&
-				( isLoading || ! data ? (
-					<div className="uxs-loading">
-						<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />
-					</div>
-				) : (
-					<SettingsFields schema={ data.schema } draft={ draft } setDraft={ setDraft } />
-				) ) }
+			{ tab === 'overview' && (
+				<>
+					<TopicSettings moduleId="page-load" include={ ( f ) => ! isBenchmarkKey( f ) } collapsible={ __( 'Measurement settings', 'ux-studio' ) } />
+					<OverviewTab />
+				</>
+			) }
+			{ tab === 'impact' && (
+				<>
+					<TopicSettings moduleId="page-load" include={ isBenchmarkKey } collapsible={ __( 'Benchmark settings', 'ux-studio' ) } />
+					<ImpactTab />
+				</>
+			) }
 		</>
 	);
 }

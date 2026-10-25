@@ -143,6 +143,14 @@
 		api( '/folders/' + folder.id, 'PUT', { name: name.trim() } ).then( reloadAll ).catch( fail );
 	}
 
+	function setColor( folder, color ) {
+		api( '/folders/' + folder.id + '/color', 'POST', { color: color } ).then( reloadAll ).catch( fail );
+	}
+
+	function moveFolder( folder, direction ) {
+		api( '/folders/' + folder.id + '/position', 'POST', { direction: direction } ).then( reloadAll ).catch( fail );
+	}
+
 	function deleteFolder( folder, panel ) {
 		if ( ! window.confirm( i18n.confirmDelete ) ) {
 			return;
@@ -274,7 +282,11 @@
 			item.appendChild( h( 'span', { class: 'uxs-fm-toggle-space' } ) );
 		}
 
-		item.appendChild( icon( folder ? 'portfolio' : 'category' ) );
+		var folderIcon = icon( folder ? 'portfolio' : 'category' );
+		if ( folder && folder.color ) {
+			folderIcon.style.color = folder.color;
+		}
+		item.appendChild( folderIcon );
 		item.appendChild( h( 'span', { class: 'uxs-fm-name', text: label } ) );
 		if ( cfg.showCounts && count !== null ) {
 			item.appendChild( h( 'span', { class: 'uxs-fm-count', text: String( count ) } ) );
@@ -283,7 +295,33 @@
 		if ( folder ) {
 			item.setAttribute( 'data-drop', String( folder.id ) );
 			if ( cfg.canManage ) {
-				item.appendChild( h( 'span', { class: 'uxs-fm-actions' }, [
+				var siblings = childrenOf( folder.parent );
+				var pos = siblings.indexOf( folder );
+				var picker = h( 'input', { type: 'color', class: 'uxs-fm-color-input', tabindex: '-1', 'aria-hidden': 'true', value: folder.color || '#2271b1' } );
+				picker.addEventListener( 'click', function ( event ) {
+					event.stopPropagation();
+				} );
+				picker.addEventListener( 'change', function () {
+					setColor( folder, picker.value );
+				} );
+				var actions = [
+					pos > 0 ? this.button( 'arrow-up-alt2', i18n.moveUp, function ( event ) {
+						event.stopPropagation();
+						moveFolder( folder, 'up' );
+					} ) : null,
+					pos >= 0 && pos < siblings.length - 1 ? this.button( 'arrow-down-alt2', i18n.moveDown, function ( event ) {
+						event.stopPropagation();
+						moveFolder( folder, 'down' );
+					} ) : null,
+					this.button( 'admin-appearance', i18n.folderColor, function ( event ) {
+						event.stopPropagation();
+						picker.click();
+					} ),
+					folder.color ? this.button( 'dismiss', i18n.clearColor, function ( event ) {
+						event.stopPropagation();
+						setColor( folder, '' );
+					} ) : null,
+					picker,
 					this.button( 'plus', i18n.addChildFolder, function ( event ) {
 						event.stopPropagation();
 						createFolder( folder.id );
@@ -296,7 +334,8 @@
 						event.stopPropagation();
 						deleteFolder( folder, self );
 					} ),
-				] ) );
+				];
+				item.appendChild( h( 'span', { class: 'uxs-fm-actions' }, actions ) );
 			}
 		}
 

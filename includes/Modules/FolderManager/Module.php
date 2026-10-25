@@ -35,6 +35,12 @@ final class Module extends BaseModule {
 	/** Term meta holding the post type a folder belongs to. */
 	public const POST_TYPE_META = 'uxstudio_folder_post_type';
 
+	/** Term meta with the colour of a folder (`#rrggbb`, empty = none). */
+	public const COLOR_META = 'uxstudio_folder_color';
+
+	/** Term meta with the position of a folder among its siblings (1, 2, 3 ...; missing = 0, ordered by name). */
+	public const ORDER_META = 'uxstudio_folder_order';
+
 	/** Query var / request parameter used to filter lists by folder. */
 	public const FILTER_VAR = 'uxstudio_folder';
 
@@ -384,7 +390,172 @@ final class Module extends BaseModule {
 			return array();
 		}
 
-		return array_values( array_filter( $terms, static fn ( $term ): bool => $term instanceof WP_Term ) );
+		$terms = array_values( array_filter( $terms, static fn ( $term ): bool => $term instanceof WP_Term ) );
+
+		// Manual order first (folders never moved have 0 and stay alphabetical), then the name.
+		$lower = function_exists( 'mb_strtolower' ) ? 'mb_strtolower' : 'strtolower';
+		usort(
+			$terms,
+			fn ( WP_Term $a, WP_Term $b ): int => array( $this->folder_order( (int) $a->term_id ), $lower( $a->name ) ) <=> array( $this->folder_order( (int) $b->term_id ), $lower( $b->name ) )
+		);
+
+		return $terms;
+	}
+
+	/**
+	 * Position of a folder among its siblings (0 = never ordered by hand).
+	 *
+	 * @param int $term_id Folder term id.
+	 */
+	public function folder_order( int $term_id ): int {
+		return (int) get_term_meta( $term_id, self::ORDER_META, true );
+	}
+
+	/**
+	 * Colour of a folder, '' when it has none.
+	 *
+	 * @param int $term_id Folder term id.
+	 */
+	public function folder_color( int $term_id ): string {
+		return (string) sanitize_hex_color( (string) get_term_meta( $term_id, self::COLOR_META, true ) );
+	}
+
+	/**
+	 * Ids of the folders next to each other (same parent, same post type) in their current order.
+	 *
+	 * @param int    $parent    Parent folder id, 0 = top level.
+	 * @param string $post_type Post type slug.
+	 * @return int[]
+	 */
+	public function sibling_ids( int $parent, string $post_type ): array {
+		$ids = array();
+		foreach ( $this->folder_terms( $post_type ) as $term ) {
+			if ( (int) $term->parent === $parent ) {
+				$ids[] = (int) $term->term_id;
+			}
+		}
+
+		return $ids;
+	}
+
+	/**
+	 * Position for a folder added at the end of a level.
+	 *
+	 * @param int    $parent    Parent folder id, 0 = top level.
+	 * @param string $post_type Post type slug.
+	 */
+	private function next_order( int $parent, string $post_type ): int {
+		$max = 0;
+		foreach ( $this->sibling_ids( $parent, $post_type ) as $id ) {
+			$max = max( $max, $this->folder_order( $id ) );
+		}
+
+		return $max + 1;
+	}
+
+	/**
+	 * Write positions 1, 2, 3 ... in the given order.
+	 *
+	 * @param int[] $ordered_ids Folder ids, first to last.
+	 */
+	private function apply_order( array $ordered_ids ): void {
+		foreach ( array_values( $ordered_ids ) as $i => $id ) {
+			if ( $this->folder_order( (int) $id ) !== $i + 1 ) {
+				update_term_meta( (int) $id, self::ORDER_META, $i + 1 );
+			}
+		}
+	}
+
+	/**
+	 * Set or clear the colour of a folder.
+	 *
+	 * @param int    $id    Folder term id.
+	 * @param string $color `#rgb` / `#rrggbb`, '' = no colour.
+	 * @return array{id:int,name:string,parent:int,count:int,post_type:string,color:string,order:int}|WP_Error
+	 */
+	public function set_color( int $id, string $color ) {
+		$term = get_term( $id, self::TAXONOMY );
+		if ( is_wp_error( $term ) || ! $term instanceof WP_Term ) {
+			return new WP_Error( 'uxstudio_folder_not_found', __( 'Folder not found.', 'ux-studio' ), array( 'status' => 404 ) );
+		}
+
+		$color = trim( $color );
+		if ( '' === $color ) {
+			delete_term_meta( $id, self::COLOR_META );
+		} else {
+			$clean = sanitize_hex_color( $color );
+			if ( ! $clean ) {
+				return new WP_Error( 'uxstudio_invalid_color', __( 'The colour must be a hex value such as #2271b1.', 'ux-studio' ), array( 'status' => 400 ) );
+			}
+			update_term_meta( $id, self::COLOR_META, $clean );
+		}
+		ActivityLog::log( 'folder-manager', 'color', 'term', $id, array( 'color' => $color ) );
+
+		return $this->reload_folder( $id );
+	}
+
+	/**
+	 * Put folders of one level in a given order. Every folder must have the same parent and post type; siblings that
+	 * are not listed keep their relative order after the listed ones.
+	 *
+	 * @param array<int, mixed> $ids Folder ids, first to last.
+	 * @return array<int, array{id:int,name:string,parent:int,count:int,post_type:string,color:string,order:int}>|WP_Error
+	 */
+	public function reorder_folders( array $ids ) {
+		$ids = array_values( array_unique( array_filter( array_map( 'absint', $ids ) ) ) );
+		if ( array() === $ids ) {
+			return new WP_Error( 'uxstudio_no_items', __( 'No folders to order.', 'ux-studio' ), array( 'status' => 400 ) );
+		}
+
+		$first = get_term( $ids[0], self::TAXONOMY );
+		if ( is_wp_error( $first ) || ! $first instanceof WP_Term ) {
+			return new WP_Error( 'uxstudio_folder_not_found', __( 'Folder not found.', 'ux-studio' ), array( 'status' => 404 ) );
+		}
+		$parent    = (int) $first->parent;
+		$post_type = $this->folder_post_type( $ids[0] );
+		$siblings  = $this->sibling_ids( $parent, $post_type );
+
+		foreach ( $ids as $id ) {
+			if ( ! in_array( $id, $siblings, true ) ) {
+				return new WP_Error( 'uxstudio_invalid_parent', __( 'Folders can only be ordered among folders of the same level and post type.', 'ux-studio' ), array( 'status' => 400 ) );
+			}
+		}
+
+		$this->apply_order( array_merge( $ids, array_values( array_diff( $siblings, $ids ) ) ) );
+		ActivityLog::log( 'folder-manager', 'reorder', 'term', $ids[0], array( 'ids' => $ids ) );
+
+		return $this->list_folders( $post_type );
+	}
+
+	/**
+	 * Move a folder one place up or down among its siblings.
+	 *
+	 * @param int    $id        Folder term id.
+	 * @param string $direction `up` | `down`.
+	 * @return array<int, array{id:int,name:string,parent:int,count:int,post_type:string,color:string,order:int}>|WP_Error
+	 */
+	public function move_folder( int $id, string $direction ) {
+		$term = get_term( $id, self::TAXONOMY );
+		if ( is_wp_error( $term ) || ! $term instanceof WP_Term ) {
+			return new WP_Error( 'uxstudio_folder_not_found', __( 'Folder not found.', 'ux-studio' ), array( 'status' => 404 ) );
+		}
+		if ( ! in_array( $direction, array( 'up', 'down' ), true ) ) {
+			return new WP_Error( 'uxstudio_invalid_direction', __( 'The direction must be up or down.', 'ux-studio' ), array( 'status' => 400 ) );
+		}
+
+		$post_type = $this->folder_post_type( $id );
+		$siblings  = $this->sibling_ids( (int) $term->parent, $post_type );
+		$pos       = array_search( $id, $siblings, true );
+		if ( false !== $pos ) {
+			$swap = 'up' === $direction ? $pos - 1 : $pos + 1;
+			if ( isset( $siblings[ $swap ] ) ) {
+				list( $siblings[ $pos ], $siblings[ $swap ] ) = array( $siblings[ $swap ], $siblings[ $pos ] );
+				$this->apply_order( $siblings );
+				ActivityLog::log( 'folder-manager', 'reorder', 'term', $id, array( 'direction' => $direction ) );
+			}
+		}
+
+		return $this->list_folders( $post_type );
 	}
 
 	/**
@@ -449,7 +620,8 @@ final class Module extends BaseModule {
 			return new WP_Error( 'uxstudio_duplicate_name', __( 'A folder with this name already exists at this level.', 'ux-studio' ), array( 'status' => 400 ) );
 		}
 
-		$result = wp_insert_term(
+		$position = $this->next_order( $parent, $post_type );
+		$result   = wp_insert_term(
 			$name,
 			self::TAXONOMY,
 			array(
@@ -463,6 +635,7 @@ final class Module extends BaseModule {
 
 		$term_id = (int) $result['term_id'];
 		update_term_meta( $term_id, self::POST_TYPE_META, $post_type );
+		update_term_meta( $term_id, self::ORDER_META, $position );
 		ActivityLog::log( 'folder-manager', 'create', 'term', $term_id, array( 'name' => $name, 'parent' => $parent, 'post_type' => $post_type ) );
 
 		return $this->reload_folder( $term_id );
@@ -597,9 +770,13 @@ final class Module extends BaseModule {
 			}
 		}
 
-		$result = wp_update_term( $id, self::TAXONOMY, array( 'parent' => max( 0, $parent ) ) );
+		$position = (int) $term->parent === max( 0, $parent ) ? 0 : $this->next_order( max( 0, $parent ), $this->folder_post_type( $id ) );
+		$result   = wp_update_term( $id, self::TAXONOMY, array( 'parent' => max( 0, $parent ) ) );
 		if ( is_wp_error( $result ) ) {
 			return $result;
+		}
+		if ( $position > 0 ) {
+			update_term_meta( $id, self::ORDER_META, $position );
 		}
 
 		ActivityLog::log( 'folder-manager', 'reparent', 'term', $id, array( 'parent' => max( 0, $parent ) ) );
@@ -803,7 +980,7 @@ final class Module extends BaseModule {
 	 * @param WP_Term $term      Folder term.
 	 * @param int     $count     Direct item count.
 	 * @param string  $post_type Post type slug.
-	 * @return array{id:int,name:string,parent:int,count:int,post_type:string}
+	 * @return array{id:int,name:string,parent:int,count:int,post_type:string,color:string,order:int}
 	 */
 	private function shape( WP_Term $term, int $count, string $post_type ): array {
 		return array(
@@ -812,6 +989,8 @@ final class Module extends BaseModule {
 			'parent'    => (int) $term->parent,
 			'count'     => $count,
 			'post_type' => $post_type,
+			'color'     => $this->folder_color( (int) $term->term_id ),
+			'order'     => $this->folder_order( (int) $term->term_id ),
 		);
 	}
 

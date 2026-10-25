@@ -60,8 +60,26 @@ jobs:
       - name: Assemble distribution zip
         run: |
           mkdir -p dist/ux-studio
+          # Dev-only files never ship: tests (some define ABSPATH themselves and
+          # write files, so they must not be reachable over HTTP on client
+          # sites), CI helpers (bin/ - merge-json-translations.php already ran
+          # above), internal docs and build config. Anchored (/x) so vendor/
+          # and build/ content is never touched. Nothing here is read at runtime.
           rsync -a --exclude node_modules --exclude .git --exclude .github \
-                --exclude src --exclude dist --exclude "*.zip" ./ dist/ux-studio/
+                --exclude src --exclude dist --exclude "*.zip" \
+                --exclude /tests --exclude /bin --exclude "/PLAN*.md" \
+                --exclude /DESIGN.md --exclude /AUDIT.md --exclude /PARITY.md \
+                --exclude /languages/.build --exclude /.gitignore \
+                --exclude /.editorconfig --exclude "/package*.json" \
+                --exclude /webpack.config.js --exclude /tsconfig.json \
+                --exclude "/composer.*" ./ dist/ux-studio/
+          # Guard: fail the release if dev-only files slipped into the package.
+          for p in tests bin PLAN.md DESIGN.md AUDIT.md PARITY.md languages/.build package.json webpack.config.js; do
+            if [ -e "dist/ux-studio/$p" ]; then echo "Dev-only path in package: $p"; exit 1; fi
+          done
+          test -f dist/ux-studio/ux-studio.php
+          test -d dist/ux-studio/build
+          test -d dist/ux-studio/vendor/plugin-update-checker
           cd dist && zip -rq ux-studio.zip ux-studio
 
       # Detached Ed25519 signature over the zip's SHA-384 hash (base64), checked

@@ -55,3 +55,36 @@ schema-driven settings renderer.
 Společné utility (`api.ts`, `route.ts`, `prefs.ts`, datum/formátování) jsou v
 `src/app/`. Per-modul kód se lazy-loaduje, ale sdílené závislosti zůstávají ve
 společném chunku - žádná duplikace knihoven.
+
+## 9. Menu modulu podle témat (2026-10-20)
+
+- Položky menu modulu jsou **témata** (Firewall a blokace IP, Přihlášení, Log…), jedna úroveň.
+  Žádná položka „Nastavení" s podsekcemi vedle karet s daty o stejných věcech - téma pak bylo
+  v menu dvakrát (Firewall vs. Blokace IP).
+- Stránka tématu = jeho nastavení (`src/app/TopicSettings.tsx`, vlastní Uložit) a pod tím data.
+  Stránky, které začínají daty (log, chat), mají nastavení sbalené (`collapsible`).
+- Samostatná položka „Nastavení" je v pořádku jen pro obecné věci modulu, které nepatří
+  k žádnému tématu (poskytovatel AI a klíče, nastavení odesílání e-mailů).
+- Žádné texty typu „tento přepínač je na kartě Nastavení" - přepínač patří tam, kde se o něm mluví.
+- Témata se vybírají podle přeložené sekce (`inSections`) nebo klíčů (`withKeys`). Když se
+  název sekce z PHP začne používat i v JS, spustit `languages/.build/po-refs.py`, jinak ho
+  aplikace nepřeloží a téma zůstane prázdné.
+
+## 10. Tlačítka a výběry (2026-10-21)
+
+- Moduly používají třídy WordPressu (`button`, `button-primary`, `button-small`, `button-link`,
+  `button-link-delete`); vzhled jim dává `#ux-studio-root` v `src/style.scss`. Vlastní styly
+  tlačítek v modulech nepsat a nepřepisovat je inline (padding/výška).
+- Tlačítko, pole i výběr mají stejnou výšku 46 px (padding 12 px, řádek 20 px, rámeček 1 px)
+  a zaoblení `--uxs-radius-s`. Malé tlačítko asi 32 px.
+- Výběry nestylovat zkratkou `background:` bez obrázku - šipku dodává globální pravidlo
+  přes `background-image`; používat `background-color`.
+
+## 11. Data a časy (2026-10-21)
+
+- Datum z REST/DB (`2026-10-19 08:09:01`) se nikdy nevypisuje surově - vždy `formatDate()`
+  ze `src/app/date.ts`. Formát se řídí jazykem uživatele administrace (cs_CZ: `19. 10. 2026 8:09`).
+- Sloupce uložené v UTC (`gmdate`, např. CSP, DNS log) volat s `{ utc: true }`, hodnota
+  s příponou ` UTC` se pozná sama. Jen datum bez času: `{ dateOnly: true }`.
+- V PHP (e-maily, widgety na nástěnce) `mysql2date( get_option( 'date_format' ), … )` nebo
+  `wp_date()`, ne surový řetězec.

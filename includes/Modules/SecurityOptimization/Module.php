@@ -51,76 +51,7 @@ final class Module extends BaseModule {
 	 * Register hooks.
 	 */
 	public function boot(): void {
-		\UxStudio\Core\DB::ensure_module_tables(
-			'security-optimization',
-			1,
-			function ( int $from ): void {
-				global $wpdb;
-				$charset = $wpdb->get_charset_collate();
-
-				dbDelta(
-					"CREATE TABLE {$wpdb->prefix}uxstudio_login_failed (
-						id bigint(20) NOT NULL AUTO_INCREMENT,
-						username varchar(100) NOT NULL,
-						ip varchar(45) NOT NULL,
-						country varchar(60) NULL,
-						status tinyint(1) NOT NULL DEFAULT 0,
-						locktime int(11) NOT NULL DEFAULT 30,
-						locklimit int(11) NOT NULL DEFAULT 3,
-						date datetime NOT NULL DEFAULT current_timestamp(),
-						PRIMARY KEY  (id),
-						KEY ip (ip),
-						KEY status (status)
-					) {$charset};"
-				);
-
-				dbDelta(
-					"CREATE TABLE {$wpdb->prefix}uxstudio_login_attempt (
-						id bigint(20) NOT NULL AUTO_INCREMENT,
-						attempt int(11) NOT NULL DEFAULT 1,
-						ip varchar(45) NOT NULL,
-						date datetime NOT NULL DEFAULT current_timestamp(),
-						PRIMARY KEY  (id),
-						KEY ip (ip)
-					) {$charset};"
-				);
-
-				dbDelta(
-					"CREATE TABLE {$wpdb->prefix}uxstudio_ip_bans (
-						id bigint(20) NOT NULL AUTO_INCREMENT,
-						type varchar(10) NOT NULL DEFAULT 'single',
-						value varchar(64) NOT NULL,
-						label varchar(120) NULL,
-						note text NULL,
-						origin varchar(10) NOT NULL DEFAULT 'local',
-						central_id bigint(20) NULL,
-						is_active tinyint(1) NOT NULL DEFAULT 1,
-						expires_at datetime NULL,
-						hit_count bigint(20) NOT NULL DEFAULT 0,
-						last_hit_at datetime NULL,
-						created_by bigint(20) NULL,
-						created_at datetime NOT NULL DEFAULT current_timestamp(),
-						PRIMARY KEY  (id),
-						UNIQUE KEY origin_value (origin,value),
-						KEY is_active (is_active),
-						KEY origin (origin)
-					) {$charset};"
-				);
-
-				dbDelta(
-					"CREATE TABLE {$wpdb->prefix}uxstudio_ip_ban_ranges (
-						id bigint(20) NOT NULL AUTO_INCREMENT,
-						ban_id bigint(20) NOT NULL,
-						ip_version tinyint(1) NOT NULL DEFAULT 4,
-						start_ip varbinary(16) NOT NULL,
-						end_ip varbinary(16) NOT NULL,
-						PRIMARY KEY  (id),
-						KEY ban_id (ban_id),
-						KEY lookup (ip_version,start_ip)
-					) {$charset};"
-				);
-			}
-		);
+		\UxStudio\Core\DB::ensure_module_tables( 'security-optimization', 1, array( self::class, 'create_tables' ) );
 
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 
@@ -134,9 +65,14 @@ final class Module extends BaseModule {
 		add_action( 'admin_init', array( $this, 'send_security_headers' ) );
 
 		/* ── Content-Security-Policy - FRONT END ONLY (send_headers never fires in
-		 * wp-admin) so a bad policy can never lock the dashboard. Report-only and
-		 * enforce modes share one builder. ── */
+		 * wp-admin) so a bad policy can never lock the dashboard. See CspPolicy
+		 * for the modes; the dashboard widget is mandatory while CSP is on. ── */
 		add_action( 'send_headers', array( $this, 'maybe_send_csp_header' ) );
+		$csp_mode = $this->csp_policy()->mode();
+		CspMaintenance::register( $csp_mode );
+		if ( 'off' !== $csp_mode ) {
+			CspDashboardWidget::register();
+		}
 
 		/* ── .htaccess sync - written on settings save; admin_init only re-checks
 		 * the stored hash (cheap, no secrets decrypted) to heal drift, e.g. after
@@ -183,10 +119,17 @@ final class Module extends BaseModule {
 			add_filter( 'wp_is_application_passwords_available', '__return_false' );
 		}
 
+		/* ── Release safety: tell administrators once that the custom login address is really in force ── */
+		LoginUrlNotice::register( $this );
+
 		/* ── Custom login URL (with kill-switch + collision fail-open guard) ── */
 		if ( ! $this->login_lock_disabled() && $this->setting( 'login_url_enabled', false ) && '' !== trim( (string) $this->setting( 'login_url', '' ) ) ) {
 			add_action( 'login_init', array( $this, 'block_direct_wp_login' ), 1 );
 			add_action( 'init', array( $this, 'handle_custom_login_url' ), 0 );
+			// The login form, "lost password" and every redirect to the login must use the custom address too:
+			// a POST to wp-login.php is denied by block_direct_wp_login().
+			add_filter( 'site_url', array( $this, 'filter_login_site_url' ), 10, 4 );
+			add_filter( 'network_site_url', array( $this, 'filter_login_site_url' ), 10, 3 );
 		}
 
 		/* ── Login rate limiting - lockout checked at priority 5, BEFORE core
@@ -197,7 +140,7 @@ final class Module extends BaseModule {
 			$this->attempts = new AttemptsHandler( $this );
 			add_filter( 'authenticate', array( $this->attempts, 'check_attempted_login' ), 5, 3 );
 			add_filter( 'authenticate', array( $this->attempts, 'enforce_lockout' ), PHP_INT_MAX, 1 );
-			add_action( 'wp_login_failed', array( $this->attempts, 'handle_failed_login' ), 10, 1 );
+			add_action( 'wp_login_failed', array( $this->attempts, 'handle_failed_login' ), 10, 2 );
 			add_action( 'wp_login', array( $this->attempts, 'handle_successful_login' ), 10, 1 );
 			// Before handle_failed_login (10), so that one sees the lock and adds no second row.
 			if ( $this->setting( 'block_usernames', false ) && $this->setting( 'block_username_attempts', false ) ) {
@@ -220,7 +163,14 @@ final class Module extends BaseModule {
 			} else {
 				new CaptchaHandler( $this );
 			}
+			// Comments and WooCommerce forms: not part of wp-login.php, so independent of the placement.
+			new CaptchaForms( $this );
 		}
+
+		/* ── Two-step verification: last `authenticate` filter, so it must be hooked after the lockout and
+		 * CAPTCHA filters above (same priority runs in registration order). Off by default; kill switch
+		 * UXSTUDIO_DISABLE_2FA in wp-config.php. ── */
+		TwoFactor::register( $this );
 
 		/* ── Block reserved usernames ── */
 		if ( $this->setting( 'block_usernames', false ) ) {
@@ -267,6 +217,7 @@ final class Module extends BaseModule {
 		if ( $this->setting( 'disable_comments', false ) ) {
 			$this->init_disable_comments();
 		}
+		$this->init_comment_rules();
 		if ( $this->setting( 'disable_blog', false ) ) {
 			$this->init_disable_blog();
 		}
@@ -277,6 +228,78 @@ final class Module extends BaseModule {
 		 * scanner honours its enable toggle; CSP violation collection is always on
 		 * so the report-uri sink keeps working regardless. ── */
 		CspUploadGuardBootstrap::register( (bool) $this->setting( 'upload_guard_enabled', true ) );
+	}
+
+	/**
+	 * Create the module tables (also used by the migration wizard before it writes IP bans).
+	 *
+	 * @param int $from Installed schema version (0 = none).
+	 */
+	public static function create_tables( int $from = 0 ): void {
+		global $wpdb;
+		$charset = $wpdb->get_charset_collate();
+
+		dbDelta(
+			"CREATE TABLE {$wpdb->prefix}uxstudio_login_failed (
+				id bigint(20) NOT NULL AUTO_INCREMENT,
+				username varchar(100) NOT NULL,
+				ip varchar(45) NOT NULL,
+				country varchar(60) NULL,
+				status tinyint(1) NOT NULL DEFAULT 0,
+				locktime int(11) NOT NULL DEFAULT 30,
+				locklimit int(11) NOT NULL DEFAULT 3,
+				date datetime NOT NULL DEFAULT current_timestamp(),
+				PRIMARY KEY  (id),
+				KEY ip (ip),
+				KEY status (status)
+			) {$charset};"
+		);
+
+		dbDelta(
+			"CREATE TABLE {$wpdb->prefix}uxstudio_login_attempt (
+				id bigint(20) NOT NULL AUTO_INCREMENT,
+				attempt int(11) NOT NULL DEFAULT 1,
+				ip varchar(45) NOT NULL,
+				date datetime NOT NULL DEFAULT current_timestamp(),
+				PRIMARY KEY  (id),
+				KEY ip (ip)
+			) {$charset};"
+		);
+
+		dbDelta(
+			"CREATE TABLE {$wpdb->prefix}uxstudio_ip_bans (
+				id bigint(20) NOT NULL AUTO_INCREMENT,
+				type varchar(10) NOT NULL DEFAULT 'single',
+				value varchar(64) NOT NULL,
+				label varchar(120) NULL,
+				note text NULL,
+				origin varchar(10) NOT NULL DEFAULT 'local',
+				central_id bigint(20) NULL,
+				is_active tinyint(1) NOT NULL DEFAULT 1,
+				expires_at datetime NULL,
+				hit_count bigint(20) NOT NULL DEFAULT 0,
+				last_hit_at datetime NULL,
+				created_by bigint(20) NULL,
+				created_at datetime NOT NULL DEFAULT current_timestamp(),
+				PRIMARY KEY  (id),
+				UNIQUE KEY origin_value (origin,value),
+				KEY is_active (is_active),
+				KEY origin (origin)
+			) {$charset};"
+		);
+
+		dbDelta(
+			"CREATE TABLE {$wpdb->prefix}uxstudio_ip_ban_ranges (
+				id bigint(20) NOT NULL AUTO_INCREMENT,
+				ban_id bigint(20) NOT NULL,
+				ip_version tinyint(1) NOT NULL DEFAULT 4,
+				start_ip varbinary(16) NOT NULL,
+				end_ip varbinary(16) NOT NULL,
+				PRIMARY KEY  (id),
+				KEY ban_id (ban_id),
+				KEY lookup (ip_version,start_ip)
+			) {$charset};"
+		);
 	}
 
 	/**
@@ -461,23 +484,24 @@ final class Module extends BaseModule {
 				'default' => false,
 			),
 
-			// Content-Security-Policy.
+			// Content-Security-Policy (rendered on the CSP tab, not in the generic grid).
 			array(
 				'key'     => 'csp_mode',
-				'section' => __( 'HTTPS & headers', 'ux-studio' ),
+				'section' => __( 'CSP', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'Content-Security-Policy (CSP)', 'ux-studio' ),
-				'help'    => __( 'CSP tells the browser where scripts, styles, images and other content may load from, strongly reducing XSS risk. SAFETY: CSP is only ever sent on the front end - never in wp-admin - so it cannot lock you out of the dashboard. Start with "Report only" to see what would break (violations appear in the CSP Violations tab), then switch to "Enforce" once clean.', 'ux-studio' ),
+				'help'    => __( 'CSP tells the browser where scripts, styles, images and other content may load from. It can break parts of the website (payments, chat, maps, analytics, booking widgets) when a needed source is missing, so go step by step: Inventory finds out what the website loads, Policy test shows what Enforce would block, and only then Enforce blocks for real. Inventory and Policy test never block anything. CSP is never sent in wp-admin.', 'ux-studio' ),
 				'options' => array(
 					'off'         => __( 'Off', 'ux-studio' ),
-					'report-only' => __( 'Report only (recommended first - nothing is blocked)', 'ux-studio' ),
-					'enforce'     => __( 'Enforce (actively blocks disallowed sources)', 'ux-studio' ),
+					'audit'       => __( 'Inventory - find out what the website loads (Report only, recommended first)', 'ux-studio' ),
+					'report-only' => __( 'Policy test - report what Enforce would block (Report only)', 'ux-studio' ),
+					'enforce'     => __( 'Enforce - actively block disallowed sources', 'ux-studio' ),
 				),
 				'default' => 'off',
 			),
 			array(
 				'key'     => 'csp_level',
-				'section' => __( 'HTTPS & headers', 'ux-studio' ),
+				'section' => __( 'CSP', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'CSP strictness', 'ux-studio' ),
 				'help'    => __( 'Basic allows inline scripts and eval() so it stays compatible with most themes, plugins and visual editors. Strict removes eval() for tighter protection but may break page builders (Elementor, WPBakery, Divi).', 'ux-studio' ),
@@ -489,7 +513,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'csp_presets',
-				'section' => __( 'HTTPS & headers', 'ux-studio' ),
+				'section' => __( 'CSP', 'ux-studio' ),
 				'type'    => 'multiselect',
 				'label'   => __( 'CSP - allowed services', 'ux-studio' ),
 				'help'    => __( 'Select the external services the site uses. Matching domains are added to the policy so their scripts, styles, fonts and images keep working.', 'ux-studio' ),
@@ -498,11 +522,27 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'csp_custom_allowlist',
-				'section' => __( 'HTTPS & headers', 'ux-studio' ),
+				'section' => __( 'CSP', 'ux-studio' ),
 				'type'    => 'textarea',
 				'label'   => __( 'CSP - custom domain allowlist', 'ux-studio' ),
-				'help'    => __( 'One domain per line, added to script/style/img/font/connect/frame sources. Examples: https://cdn.example.com, https://*.example.com, wss://socket.example.com.', 'ux-studio' ),
+				'help'    => __( 'One domain per line, added to script/style/img/font/connect/frame sources. Examples: https://cdn.example.com, https://*.example.com, wss://socket.example.com. Sources approved in the inventory below are added only for the type they were seen with and do not need to be listed here.', 'ux-studio' ),
 				'default' => '',
+			),
+			array(
+				'key'     => 'csp_sample_rate',
+				'section' => __( 'CSP', 'ux-studio' ),
+				'type'    => 'number',
+				'label'   => __( 'Report-only sampling (% of page views)', 'ux-studio' ),
+				'help'    => __( 'Share of page views that carry the Report-only header in Inventory and Policy test. Every report is a small request to the website; lower this on very busy sites. Over 600 reports an hour collecting pauses until the next full hour automatically. Enforce is always sent on every page view.', 'ux-studio' ),
+				'default' => 100,
+			),
+			array(
+				'key'     => 'csp_auto_rollback',
+				'section' => __( 'CSP', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Switch back to Policy test automatically', 'ux-studio' ),
+				'help'    => __( 'When Enforce blocks several new scripts, connections or frames that visitors keep loading within 72 hours of switching it on, CSP goes back to Policy test (nothing blocked) and the administrator gets an e-mail.', 'ux-studio' ),
+				'default' => true,
 			),
 
 			// File protection (.htaccess).
@@ -616,6 +656,65 @@ final class Module extends BaseModule {
 				'label'   => __( 'Email admin on lockout', 'ux-studio' ),
 				'default' => false,
 			),
+			array(
+				'key'     => 'lockout_notify_email',
+				'section' => __( 'Login', 'ux-studio' ),
+				'type'    => 'text',
+				'label'   => __( 'Lockout e-mail address', 'ux-studio' ),
+				'help'    => __( 'Where the lockout e-mail goes. Leave empty to use the site administrator address.', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'lockout_progressive',
+				'section' => __( 'Login', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Lengthen repeated lockouts', 'ux-studio' ),
+				'help'    => __( 'Every new lockout of the same IP address within 24 hours lasts longer than the previous one: the lockout time is multiplied by the factor below, up to the maximum. Off = every lockout lasts the same time.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'lockout_multiplier',
+				'section' => __( 'Login', 'ux-studio' ),
+				'type'    => 'number',
+				'label'   => __( 'Lockout multiplier', 'ux-studio' ),
+				'help'    => __( 'Factor per repeated lockout, for example 2 turns 30, 60, 120 minutes. From 1 to 10.', 'ux-studio' ),
+				'default' => 2,
+			),
+			array(
+				'key'     => 'lockout_max_hours',
+				'section' => __( 'Login', 'ux-studio' ),
+				'type'    => 'number',
+				'label'   => __( 'Longest lockout (hours)', 'ux-studio' ),
+				'help'    => __( 'A lockout never lasts longer than this, from 1 to 168 hours.', 'ux-studio' ),
+				'default' => 24,
+			),
+
+			// Two-step verification (TOTP).
+			array(
+				'key'     => 'two_factor_enabled',
+				'section' => __( 'Two-step verification', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Enable two-step verification', 'ux-studio' ),
+				'help'    => __( 'Lets users protect their account with a code from an authenticator app (Google Authenticator, Authy, 1Password ...). Everybody sets it up in their own profile; recovery codes cover a lost phone. Application passwords (REST API) are not affected. Rescue switch: define UXSTUDIO_DISABLE_2FA as true in wp-config.php to switch the second step off for everybody if you get locked out. Switching this off stops the second step for all users; their settings stay saved.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'two_factor_required_roles',
+				'section' => __( 'Two-step verification', 'ux-studio' ),
+				'type'    => 'multiselect',
+				'label'   => __( 'Require for roles', 'ux-studio' ),
+				'help'    => __( 'Users with these roles are asked to set up two-step verification after logging in. Nobody is locked out: they can postpone it for the number of logins below, then only their profile page is open until the setup is done.', 'ux-studio' ),
+				'options' => self::role_options(),
+				'default' => array(),
+			),
+			array(
+				'key'     => 'two_factor_grace_logins',
+				'section' => __( 'Two-step verification', 'ux-studio' ),
+				'type'    => 'number',
+				'label'   => __( 'Logins that may skip the setup', 'ux-studio' ),
+				'help'    => __( 'For roles that must use two-step verification. 0 = the setup is compulsory from the first login.', 'ux-studio' ),
+				'default' => TwoFactorStore::DEFAULT_GRACE,
+			),
 
 			// Block usernames.
 			array(
@@ -707,14 +806,45 @@ final class Module extends BaseModule {
 				'key'     => 'captcha_forms',
 				'section' => __( 'CAPTCHA', 'ux-studio' ),
 				'type'    => 'multiselect',
-				'label'   => __( 'Protected forms (inline placement only)', 'ux-studio' ),
-				'help'    => __( 'Which forms show and verify the CAPTCHA widget. The standalone gate always covers login and lost password.', 'ux-studio' ),
+				'label'   => __( 'Protected forms', 'ux-studio' ),
+				'help'    => __( 'Which forms show and verify the CAPTCHA widget. The standalone gate always covers login and lost password on wp-login.php; registration, comments and WooCommerce forms are protected with either placement. Logged-in visitors are never asked on comments and checkout. WooCommerce checkout means the classic checkout (the block checkout has no place for the widget).', 'ux-studio' ),
 				'options' => array(
-					'login'        => __( 'Login', 'ux-studio' ),
-					'register'     => __( 'Registration', 'ux-studio' ),
-					'lostpassword' => __( 'Lost password', 'ux-studio' ),
+					'login'            => __( 'Login', 'ux-studio' ),
+					'register'         => __( 'Registration', 'ux-studio' ),
+					'lostpassword'     => __( 'Lost password', 'ux-studio' ),
+					'comment'          => __( 'Comments', 'ux-studio' ),
+					'woo_login'        => __( 'WooCommerce login', 'ux-studio' ),
+					'woo_register'     => __( 'WooCommerce registration', 'ux-studio' ),
+					'woo_lostpassword' => __( 'WooCommerce lost password', 'ux-studio' ),
+					'woo_checkout'     => __( 'WooCommerce checkout', 'ux-studio' ),
 				),
 				'default' => array( 'login', 'register', 'lostpassword' ),
+			),
+			array(
+				'key'     => 'captcha_theme',
+				'section' => __( 'CAPTCHA', 'ux-studio' ),
+				'type'    => 'select',
+				'label'   => __( 'Widget theme', 'ux-studio' ),
+				'help'    => __( 'For Cloudflare Turnstile and reCAPTCHA v2. reCAPTCHA has no automatic theme and shows the light one.', 'ux-studio' ),
+				'options' => array(
+					'auto'  => __( 'Automatic (follows the visitor)', 'ux-studio' ),
+					'light' => __( 'Light', 'ux-studio' ),
+					'dark'  => __( 'Dark', 'ux-studio' ),
+				),
+				'default' => 'auto',
+			),
+			array(
+				'key'     => 'captcha_size',
+				'section' => __( 'CAPTCHA', 'ux-studio' ),
+				'type'    => 'select',
+				'label'   => __( 'Widget size', 'ux-studio' ),
+				'help'    => __( 'For Cloudflare Turnstile and reCAPTCHA v2. Flexible (Turnstile only) fills the width of the form; reCAPTCHA shows it as normal.', 'ux-studio' ),
+				'options' => array(
+					'normal'   => __( 'Normal', 'ux-studio' ),
+					'compact'  => __( 'Compact', 'ux-studio' ),
+					'flexible' => __( 'Flexible', 'ux-studio' ),
+				),
+				'default' => 'normal',
 			),
 			array(
 				'key'     => 'captcha_site_key',
@@ -899,6 +1029,41 @@ final class Module extends BaseModule {
 				'default' => true,
 			),
 			array(
+				'key'     => 'disable_comments_allowed_roles',
+				'section' => __( 'Content', 'ux-studio' ),
+				'type'    => 'multiselect',
+				'label'   => __( 'Roles that may still comment', 'ux-studio' ),
+				'help'    => __( 'Users with these roles (and visitors who are not logged in, when that is ticked) are not affected by "Disable comments" or by closing comments on old posts: for them comments, the comment tools in the admin and the REST routes work as in WordPress. The choice is made per request, so a page served from a page cache looks the same to everybody; keep pages with a comment form out of the cache.', 'ux-studio' ),
+				'options' => self::comment_exception_roles(),
+				'default' => array(),
+			),
+			array(
+				'key'     => 'disable_comments_allowed_types',
+				'section' => __( 'Content', 'ux-studio' ),
+				'type'    => 'multiselect',
+				'label'   => __( 'Comment types that stay allowed', 'ux-studio' ),
+				'help'    => __( 'Pingbacks and trackbacks (notices from other sites) can stay on although comments are disabled. Used only while "Disable comments" is on; a type that is not ticked is refused. Pingbacks travel through XML-RPC, so they also need "Disable XML-RPC" to be off, otherwise pings stay closed.', 'ux-studio' ),
+				'options' => self::comment_ping_types(),
+				'default' => array(),
+			),
+			array(
+				'key'     => 'comments_blocked_types',
+				'section' => __( 'Content', 'ux-studio' ),
+				'type'    => 'multiselect',
+				'label'   => __( 'Comment types to refuse', 'ux-studio' ),
+				'help'    => __( 'New comments of these types are refused even where comments are open (for example pingbacks, or product reviews while ordinary comments stay open). Existing comments are not touched. Works without "Disable comments".', 'ux-studio' ),
+				'options' => self::comment_ping_types() + array( 'review' => __( 'Product reviews', 'ux-studio' ) ),
+				'default' => array(),
+			),
+			array(
+				'key'     => 'comments_close_after_days',
+				'section' => __( 'Content', 'ux-studio' ),
+				'type'    => 'number',
+				'label'   => __( 'Close comments on posts older than (days)', 'ux-studio' ),
+				'help'    => __( '0 = never. Comments and pingbacks are closed on content published more than this many days ago. The module does this itself (it filters whether comments are open); the WordPress option "Automatically close comments on old posts" is not changed, so switching the module off restores the earlier state. Existing comments stay visible.', 'ux-studio' ),
+				'default' => 0,
+			),
+			array(
 				'key'     => 'disable_blog',
 				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'toggle',
@@ -1022,7 +1187,22 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * CSP preset checkbox labels (keys match csp_preset_sources()).
+	 * Roles of the site for the "require two-step verification" setting.
+	 *
+	 * @return array<string,string>
+	 */
+	private static function role_options(): array {
+		$options = array();
+		if ( function_exists( 'wp_roles' ) ) {
+			foreach ( wp_roles()->get_names() as $id => $name ) {
+				$options[ (string) $id ] = translate_user_role( $name );
+			}
+		}
+		return $options;
+	}
+
+	/**
+	 * CSP preset checkbox labels (keys match CspServices::preset_sources()).
 	 *
 	 * @return array<string,string>
 	 */
@@ -1049,6 +1229,9 @@ final class Module extends BaseModule {
 	 * @param array $input Raw input.
 	 */
 	public function save_settings( array $input ): array {
+		$previous_csp_mode = $this->csp_policy()->mode();
+		[ $input, $csp_blocked, $csp_override ] = $this->apply_csp_gate( $input, $previous_csp_mode );
+
 		if ( array_key_exists( 'captcha_secret_key', $input ) && '' !== (string) $input['captcha_secret_key'] ) {
 			Security::store_secret( self::SECRET_CAPTCHA, (string) $input['captcha_secret_key'] );
 		}
@@ -1069,6 +1252,19 @@ final class Module extends BaseModule {
 		}
 		if ( array_key_exists( 'url_redirect', $input ) ) {
 			$input['url_redirect'] = self::normalize_redirect_path( (string) $input['url_redirect'] );
+		}
+		if ( array_key_exists( 'lockout_multiplier', $input ) ) {
+			$input['lockout_multiplier'] = round( max( 1.0, min( 10.0, (float) $input['lockout_multiplier'] ) ), 1 );
+		}
+		if ( array_key_exists( 'lockout_max_hours', $input ) ) {
+			$input['lockout_max_hours'] = max( 1, min( 168, (int) $input['lockout_max_hours'] ) );
+		}
+		if ( array_key_exists( 'lockout_notify_email', $input ) ) {
+			$email                         = sanitize_email( (string) $input['lockout_notify_email'] );
+			$input['lockout_notify_email'] = is_email( $email ) ? $email : '';
+		}
+		if ( array_key_exists( 'two_factor_grace_logins', $input ) ) {
+			$input['two_factor_grace_logins'] = max( 0, min( 30, (int) $input['two_factor_grace_logins'] ) );
 		}
 
 		// Regexes must not pass through the generic textarea sanitizer, which
@@ -1092,7 +1288,60 @@ final class Module extends BaseModule {
 		$this->maybe_update_htaccess();
 		$this->sync_country_blocklist();
 
+		$this->after_csp_save( $previous_csp_mode, $csp_override );
+		$result['csp_gate_blocked'] = $csp_blocked;
+
 		return $result;
+	}
+
+	/**
+	 * Enforce only when the gate is passed (CspGate) or the admin explicitly
+	 * overrides it in the confirmation dialog. The override flag is consumed
+	 * here and never stored. Returns [input, blocked, override].
+	 *
+	 * @param array  $input   Raw input.
+	 * @param string $current Mode before this save.
+	 * @return array{0:array,1:bool,2:bool}
+	 */
+	private function apply_csp_gate( array $input, string $current ): array {
+		$override = ! empty( $input['csp_enforce_override'] );
+		unset( $input['csp_enforce_override'] );
+
+		if ( array_key_exists( 'csp_sample_rate', $input ) ) {
+			$input['csp_sample_rate'] = max( 1, min( 100, (int) $input['csp_sample_rate'] ) );
+		}
+
+		$blocked = false;
+		if ( 'enforce' === (string) ( $input['csp_mode'] ?? '' ) && 'enforce' !== $current && ! $override && ! CspGate::ready() ) {
+			$input['csp_mode'] = $current;
+			$blocked           = true;
+		}
+		return array( $input, $blocked, $override );
+	}
+
+	/**
+	 * Bookkeeping after a save that changed the CSP mode.
+	 */
+	private function after_csp_save( string $previous, bool $override ): void {
+		$mode = $this->csp_policy()->mode();
+		if ( $mode === $previous ) {
+			return;
+		}
+		CspPolicy::record_mode( $mode );
+		if ( 'off' === $mode ) {
+			CspMaintenance::unschedule();
+		}
+		ActivityLog::log(
+			'security-optimization',
+			'csp_mode_changed',
+			'',
+			0,
+			array(
+				'from'          => $previous,
+				'to'            => $mode,
+				'gate_override' => $override && 'enforce' === $mode && ! CspGate::ready(),
+			)
+		);
 	}
 
 	/**
@@ -1305,189 +1554,14 @@ final class Module extends BaseModule {
 	   ═══════════════════════════════════════════════════ */
 
 	/**
-	 * Emit the CSP header on front-end requests. Report-only sends
-	 * Content-Security-Policy-Report-Only (nothing is blocked); enforce sends the
-	 * real Content-Security-Policy. Never runs in wp-admin (send_headers does not
-	 * fire there) so the dashboard can never be broken by a policy.
+	 * Emit the CSP header on front-end requests (see CspPolicy).
 	 */
 	public function maybe_send_csp_header(): void {
-		if ( headers_sent() || is_admin() ) {
-			return;
-		}
-
-		$mode = (string) $this->setting( 'csp_mode', 'off' );
-		if ( 'report-only' !== $mode && 'enforce' !== $mode ) {
-			return;
-		}
-
-		$policy = $this->build_csp_header();
-		if ( '' === $policy ) {
-			return;
-		}
-
-		$header = ( 'enforce' === $mode ) ? 'Content-Security-Policy' : 'Content-Security-Policy-Report-Only';
-		header( $header . ': ' . $policy );
+		$this->csp_policy()->send();
 	}
 
-	/**
-	 * Build the CSP header value from the configurable directive builder
-	 * (level + service presets + custom allowlist). Always appends a report-uri
-	 * pointing at the module's public CSP report sink so violations show up in
-	 * the CSP Violations tab. Individual directives can be filtered via
-	 * uxstudio_csp_<directive> and the whole map via uxstudio_csp_directives.
-	 */
-	private function build_csp_header(): string {
-		$level      = (string) $this->setting( 'csp_level', 'basic' );
-		$script_src = array( "'self'", "'unsafe-inline'" );
-		if ( 'basic' === $level ) {
-			$script_src[] = "'unsafe-eval'";
-		}
-
-		$directives = array(
-			'default-src'     => array( "'self'" ),
-			'script-src'      => $script_src,
-			'style-src'       => array( "'self'", "'unsafe-inline'" ),
-			'img-src'         => array( "'self'", 'data:', 'https:' ),
-			'font-src'        => array( "'self'", 'data:', 'https:' ),
-			'connect-src'     => array( "'self'" ),
-			'frame-src'       => array( "'self'" ),
-			'frame-ancestors' => array( "'self'" ),
-			'base-uri'        => array( "'self'" ),
-			'form-action'     => array( "'self'" ),
-		);
-
-		foreach ( (array) $this->setting( 'csp_presets', array() ) as $preset ) {
-			foreach ( $this->csp_preset_sources( (string) $preset ) as $directive => $sources ) {
-				$directives[ $directive ] = array_merge( $directives[ $directive ] ?? array(), $sources );
-			}
-		}
-
-		$custom = $this->parse_csp_allowlist( (string) $this->setting( 'csp_custom_allowlist', '' ) );
-		if ( ! empty( $custom ) ) {
-			foreach ( array( 'script-src', 'style-src', 'img-src', 'font-src', 'connect-src', 'frame-src' ) as $directive ) {
-				$directives[ $directive ] = array_merge( $directives[ $directive ] ?? array(), $custom );
-			}
-		}
-
-		foreach ( $directives as $name => $sources ) {
-			$hook               = 'uxstudio_csp_' . str_replace( '-', '_', $name );
-			$directives[ $name ] = apply_filters( $hook, $sources );
-		}
-
-		/**
-		 * Filter the full CSP directive map before it is serialized.
-		 *
-		 * @param array<string,array<int,string>> $directives Directive => sources.
-		 */
-		$directives = apply_filters( 'uxstudio_csp_directives', $directives );
-
-		$parts = array();
-		foreach ( $directives as $name => $sources ) {
-			$sources = array_values( array_unique( array_filter( array_map( 'trim', (array) $sources ), 'strlen' ) ) );
-			if ( empty( $sources ) ) {
-				continue;
-			}
-			$parts[] = $name . ' ' . implode( ' ', $sources );
-		}
-
-		$parts[] = 'report-uri ' . esc_url_raw( rest_url( 'uxstudio/v1/security-optimization/csp-report' ) );
-
-		return implode( '; ', $parts );
-	}
-
-	/**
-	 * Source allowlist for a single service preset key.
-	 *
-	 * @return array<string,array<int,string>>
-	 */
-	private function csp_preset_sources( string $preset ): array {
-		$map = array(
-			'google_fonts'   => array(
-				'style-src' => array( 'https://fonts.googleapis.com' ),
-				'font-src'  => array( 'https://fonts.gstatic.com' ),
-			),
-			'gtm_ga'         => array(
-				'script-src'  => array( 'https://www.googletagmanager.com', 'https://www.google-analytics.com', 'https://ssl.google-analytics.com' ),
-				'img-src'     => array( 'https://www.googletagmanager.com', 'https://www.google-analytics.com' ),
-				'connect-src' => array( 'https://www.google-analytics.com', 'https://*.analytics.google.com', 'https://*.g.doubleclick.net', 'https://www.googletagmanager.com' ),
-			),
-			'youtube'        => array(
-				'frame-src'  => array( 'https://www.youtube.com', 'https://www.youtube-nocookie.com' ),
-				'script-src' => array( 'https://www.youtube.com', 'https://s.ytimg.com' ),
-				'img-src'    => array( 'https://i.ytimg.com' ),
-			),
-			'vimeo'          => array(
-				'frame-src'  => array( 'https://player.vimeo.com' ),
-				'script-src' => array( 'https://player.vimeo.com' ),
-				'img-src'    => array( 'https://i.vimeocdn.com' ),
-			),
-			'smartsupp'      => array(
-				'script-src'  => array( 'https://www.smartsuppchat.com', 'https://*.smartsupp.com' ),
-				'connect-src' => array( 'https://*.smartsupp.com', 'wss://*.smartsupp.com' ),
-				'img-src'     => array( 'https://*.smartsupp.com' ),
-				'frame-src'   => array( 'https://*.smartsupp.com' ),
-			),
-			'recaptcha'      => array(
-				'script-src'  => array( 'https://www.google.com', 'https://www.gstatic.com' ),
-				'frame-src'   => array( 'https://www.google.com' ),
-				'connect-src' => array( 'https://www.google.com' ),
-			),
-			'cloudflare'     => array(
-				'script-src'  => array( 'https://*.cloudflare.com', 'https://*.cloudfront.net' ),
-				'style-src'   => array( 'https://*.cloudflare.com' ),
-				'connect-src' => array( 'https://*.cloudflare.com' ),
-			),
-			'mapy_cz'        => array(
-				'script-src'  => array( 'https://api.mapy.cz' ),
-				'style-src'   => array( 'https://api.mapy.cz' ),
-				'img-src'     => array( 'https://api.mapy.cz', 'https://mapy.cz', 'https://*.mapy.cz' ),
-				'connect-src' => array( 'https://api.mapy.cz', 'https://*.mapy.cz' ),
-			),
-			'google_maps'    => array(
-				'script-src'  => array( 'https://maps.googleapis.com', 'https://maps.gstatic.com' ),
-				'style-src'   => array( 'https://fonts.googleapis.com' ),
-				'img-src'     => array( 'https://maps.googleapis.com', 'https://maps.gstatic.com', 'https://*.googleusercontent.com' ),
-				'connect-src' => array( 'https://maps.googleapis.com' ),
-			),
-			'facebook_pixel' => array(
-				'script-src'  => array( 'https://connect.facebook.net' ),
-				'img-src'     => array( 'https://www.facebook.com' ),
-				'connect-src' => array( 'https://www.facebook.com' ),
-			),
-			'gravatar'       => array(
-				'img-src' => array( 'https://secure.gravatar.com', 'https://*.gravatar.com' ),
-			),
-		);
-		return $map[ $preset ] ?? array();
-	}
-
-	/**
-	 * Parse the newline/comma separated custom allowlist textarea into a list of
-	 * validated CSP source tokens (quoted keywords, scheme URLs, wildcard hosts).
-	 *
-	 * @return array<int,string>
-	 */
-	private function parse_csp_allowlist( string $raw ): array {
-		if ( '' === trim( $raw ) ) {
-			return array();
-		}
-		$out = array();
-		foreach ( preg_split( '/[\r\n,]+/', $raw ) as $line ) {
-			$line = trim( (string) $line );
-			if ( '' === $line || '#' === $line[0] ) {
-				continue;
-			}
-			if ( preg_match( "/^'[a-z0-9\-]+'$/i", $line ) ) {
-				$out[] = $line;
-				continue;
-			}
-			if ( preg_match( '#^(https?:|wss?:|data:|blob:)#i', $line )
-				|| preg_match( '#^\*\.[a-z0-9\-]+#i', $line )
-				|| preg_match( '#^[a-z0-9\-]+\.[a-z]#i', $line ) ) {
-				$out[] = $line;
-			}
-		}
-		return array_values( array_unique( $out ) );
+	public function csp_policy(): CspPolicy {
+		return new CspPolicy( array( $this, 'setting' ) );
 	}
 
 	/* ═══════════════════════════════════════════════════
@@ -1699,6 +1773,35 @@ final class Module extends BaseModule {
 	   ═══════════════════════════════════════════════════ */
 
 	/**
+	 * The hash of the last written `.htaccess` block changes with a switch.
+	 *
+	 * @return string[]
+	 */
+	public function switch_options(): array {
+		return array( HtaccessWriter::HASH_OPTION );
+	}
+
+	/**
+	 * What save_settings() does after storing, for the migration switch: rewrite the `.htaccess`
+	 * block (the hash is cleared first, so it is written even when the hash looks current) and sync
+	 * the country bans.
+	 */
+	public function after_migration_switch(): void {
+		parent::after_migration_switch();
+		delete_option( HtaccessWriter::HASH_OPTION );
+		delete_transient( self::HTACCESS_BACKOFF );
+		$writer   = $this->htaccess_writer();
+		$settings = $this->htaccess_settings();
+		if ( $writer->matches_file( $settings ) ) {
+			// Nothing to change in the file: leave it byte for byte as it is.
+			$writer->remember( $settings );
+		} else {
+			$this->maybe_update_htaccess();
+		}
+		$this->sync_country_blocklist();
+	}
+
+	/**
 	 * Remove this module's .htaccess block and unschedule its cron events.
 	 * May run on an instance that was never booted - reads settings only.
 	 * Data (tables, options, findings) is kept.
@@ -1712,6 +1815,7 @@ final class Module extends BaseModule {
 		// Upload Guard: nightly + chained batch events; a running full scan is
 		// ended so re-enabling later does not resume a stale worklist.
 		CspUploadGuardBootstrap::on_deactivate();
+		CspMaintenance::unschedule();
 		( new UploadGuardScanner() )->abort_full_scan();
 	}
 
@@ -1741,13 +1845,95 @@ final class Module extends BaseModule {
 		return defined( self::LOGIN_LOCK_CONST ) && constant( self::LOGIN_LOCK_CONST );
 	}
 
+	/** Transient that limits the collision log entry to one a day. */
+	private const COLLISION_LOG_TRANSIENT = 'uxstudio_login_url_collision';
+
 	private function login_slug(): string {
 		return trim( (string) $this->setting( 'login_url', '' ), '/' );
 	}
 
+	/**
+	 * Is the custom login address really in force on this site right now? The same conditions as the hooks
+	 * above (setting on, slug set, no kill switch) plus pretty permalinks and the fail-open collision check.
+	 *
+	 * @return array{active:bool,slug:string,url:string,reason:string} `reason`: why not (`off`, `empty`, `kill_switch`, `no_pretty_permalinks`, `collision`) or ''.
+	 */
+	public function login_lock_status(): array {
+		$slug   = $this->login_slug();
+		$reason = '';
+		if ( ! $this->setting( 'login_url_enabled', false ) ) {
+			$reason = 'off';
+		} elseif ( '' === $slug ) {
+			$reason = 'empty';
+		} elseif ( $this->login_lock_disabled() ) {
+			$reason = 'kill_switch';
+		} elseif ( ! LoginUrl::permalinks_are_pretty( (string) get_option( 'permalink_structure', '' ) ) ) {
+			// Without pretty permalinks the slug is not routed (the address would be a 404 and the lock would
+			// close wp-login.php for good), so fail open and let the admin know.
+			$reason = 'no_pretty_permalinks';
+		} elseif ( $this->login_slug_collides( $slug ) ) {
+			$reason = 'collision';
+		}
+		return array(
+			'active' => '' === $reason,
+			'slug'   => $slug,
+			'url'    => '' === $slug ? '' : home_url( '/' . $slug . '/' ),
+			'reason' => $reason,
+		);
+	}
+
+	/**
+	 * login_lock_status() computed once per request (the collision check queries the database and walks the
+	 * rewrite rules).
+	 *
+	 * @return array{active:bool,slug:string,url:string,reason:string}
+	 */
+	private function lock_status_cached(): array {
+		if ( null === $this->lock_status ) {
+			$this->lock_status = $this->login_lock_status();
+		}
+		return $this->lock_status;
+	}
+
+	/** @var array{active:bool,slug:string,url:string,reason:string}|null Per request cache of login_lock_status(). */
+	private ?array $lock_status = null;
+
+	/**
+	 * Filter for site_url / network_site_url: wp-login.php -> the custom login address (while it is in force).
+	 *
+	 * @param string      $url    URL.
+	 * @param string      $path   Path relative to the site URL.
+	 * @param string|null $scheme Scheme.
+	 * @return string
+	 */
+	public function filter_login_site_url( $url, $path = '', $scheme = null ): string {
+		$url  = (string) $url;
+		$path = (string) $path;
+		if ( 0 !== strpos( ltrim( $path, '/' ), 'wp-login.php' ) ) {
+			return $url;
+		}
+		// The password form of a protected post posts to wp-login.php?action=postpass for every visitor: it stays
+		// there, so the secret address is never printed into public pages (and that action is never blocked).
+		if ( LoginUrl::is_public_action( $path ) ) {
+			return $url;
+		}
+		$status = $this->lock_status_cached();
+		if ( ! $status['active'] ) {
+			return $url;
+		}
+		$swapped = LoginUrl::swap( $url, $path, $status['url'] );
+		return $swapped === $url ? $url : set_url_scheme( $swapped );
+	}
+
 	private function current_path(): string {
 		$uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
-		return trim( (string) wp_parse_url( $uri, PHP_URL_PATH ), '/' );
+		$path = trim( (string) wp_parse_url( $uri, PHP_URL_PATH ), '/' );
+		// A site in a subdirectory (example.com/blog): the slug is relative to the site address.
+		$base = trim( (string) wp_parse_url( home_url(), PHP_URL_PATH ), '/' );
+		if ( '' !== $base && ( $path === $base || 0 === strpos( $path, $base . '/' ) ) ) {
+			$path = trim( substr( $path, strlen( $base ) ), '/' );
+		}
+		return $path;
 	}
 
 	/**
@@ -1759,12 +1945,18 @@ final class Module extends BaseModule {
 		if ( in_array( $slug, array( 'wp-admin', 'wp-login', 'wp-login.php', 'wp-content', 'wp-includes', 'wp-json' ), true ) ) {
 			return true;
 		}
-		if ( null !== get_page_by_path( $slug ) ) {
+		if ( null !== get_page_by_path( $slug, OBJECT, array( 'page', 'post' ) ) ) {
 			return true;
 		}
 		$rules = get_option( 'rewrite_rules' );
 		if ( is_array( $rules ) ) {
-			foreach ( array_keys( $rules ) as $pattern ) {
+			foreach ( $rules as $pattern => $target ) {
+				// The catch-all rules for pages, posts and attachments match every slug; real pages and posts are
+				// checked above, so only the specific rules (category, feed, a custom post type ...) count.
+				$target = (string) $target;
+				if ( 0 === strpos( $target, 'index.php?pagename=' ) || 0 === strpos( $target, 'index.php?name=' ) || false !== strpos( $target, 'attachment=' ) ) {
+					continue;
+				}
 				if ( '' !== $pattern && @preg_match( '#^' . $pattern . '$#', $slug ) === 1 ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors
 					return true;
 				}
@@ -1780,8 +1972,14 @@ final class Module extends BaseModule {
 	 */
 	public function handle_custom_login_url(): void {
 		$slug = $this->login_slug();
-		if ( '' === $slug || $this->login_slug_collides( $slug ) ) {
-			if ( '' !== $slug ) {
+		if ( '' === $slug ) {
+			return;
+		}
+		$status = $this->lock_status_cached();
+		if ( ! $status['active'] ) {
+			// At most one Activity Log row a day: this runs on every request of the site.
+			if ( 'collision' === $status['reason'] && false === get_transient( self::COLLISION_LOG_TRANSIENT ) ) {
+				set_transient( self::COLLISION_LOG_TRANSIENT, 1, DAY_IN_SECONDS );
 				ActivityLog::log( 'security-optimization', 'login_url_collision', 'setting', 0, array( 'slug' => $slug ) );
 			}
 			return;
@@ -1813,8 +2011,15 @@ final class Module extends BaseModule {
 			return;
 		}
 
-		$slug = $this->login_slug();
-		if ( '' === $slug || $this->login_slug_collides( $slug ) ) {
+		// The password form of protected posts (and nothing else) may always reach wp-login.php.
+		$raw    = isset( $_REQUEST['action'] ) && is_string( $_REQUEST['action'] ) ? wp_unslash( $_REQUEST['action'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- compared exactly, never used.
+		$method = isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( (string) $_SERVER['REQUEST_METHOD'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		if ( LoginUrl::is_public_request( $raw, $method, isset( $_POST['post_password'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			return;
+		}
+
+		// Fail open (kill switch, collision, no pretty permalinks): the usual address keeps working.
+		if ( ! $this->lock_status_cached()['active'] ) {
 			return;
 		}
 
@@ -2079,7 +2284,7 @@ final class Module extends BaseModule {
 	private function init_disable_comments(): void {
 		add_action( 'init', array( $this, 'remove_comment_support' ), 100 );
 		add_filter( 'comments_open', array( $this, 'filter_comments_open' ), 20, 2 );
-		add_filter( 'pings_open', array( $this, 'filter_comments_open' ), 20, 2 );
+		add_filter( 'pings_open', array( $this, 'filter_pings_open' ), 20, 2 );
 		add_action( 'pre_comment_on_post', array( $this, 'block_comment_submission' ) );
 
 		if ( $this->setting( 'disable_comments_hide_existing', true ) ) {
@@ -2122,6 +2327,138 @@ final class Module extends BaseModule {
 	}
 
 	/**
+	 * Rules that work with or without "Disable comments": comment types to refuse and closing old posts.
+	 * Nothing here touches the WordPress discussion options (close_comments_for_old_posts, close_comments_days_old):
+	 * the module filters whether comments are open, so with the module off (or the days at 0) WordPress behaves exactly as
+	 * its own settings say, and the module never leaves a changed core option behind.
+	 */
+	private function init_comment_rules(): void {
+		if ( self::close_days( $this->setting( 'comments_close_after_days', 0 ) ) > 0 ) {
+			add_filter( 'comments_open', array( $this, 'filter_old_posts_open' ), 21, 2 );
+			add_filter( 'pings_open', array( $this, 'filter_old_posts_open' ), 21, 2 );
+		}
+		if ( $this->effective_blocked_types() ) {
+			add_filter( 'preprocess_comment', array( $this, 'refuse_blocked_types' ), 20 );
+			// Both ping types refused by choice: close the door early, with the normal "pings are closed" answer.
+			if ( ! array_diff( array( 'pingback', 'trackback' ), self::list_setting( $this->setting( 'comments_blocked_types', array() ) ) ) ) {
+				add_filter( 'pings_open', '__return_false', 22 );
+			}
+		}
+	}
+
+	/**
+	 * Comment types refused: the ones chosen, plus (while comments are disabled and only one ping type is allowed) the other
+	 * ping type, which `pings_open` cannot tell apart.
+	 *
+	 * @return string[]
+	 */
+	private function effective_blocked_types(): array {
+		$blocked = self::list_setting( $this->setting( 'comments_blocked_types', array() ) );
+		if ( $this->setting( 'disable_comments', false ) ) {
+			$allowed = self::list_setting( $this->setting( 'disable_comments_allowed_types', array() ) );
+			foreach ( array( 'pingback', 'trackback' ) as $type ) {
+				if ( ! in_array( $type, $allowed, true ) ) {
+					$blocked[] = $type;
+				}
+			}
+		}
+		return array_values( array_unique( $blocked ) );
+	}
+
+	/**
+	 * Refuse a new comment of a blocked type (pingback, trackback, product review ...).
+	 *
+	 * @param array<string, mixed> $commentdata Comment data.
+	 */
+	public function refuse_blocked_types( $commentdata ) {
+		$type = is_array( $commentdata ) ? (string) ( $commentdata['comment_type'] ?? '' ) : '';
+		$type = '' === $type ? 'comment' : $type;
+		if ( in_array( $type, $this->effective_blocked_types(), true ) ) {
+			wp_die( esc_html__( 'This type of comment is not accepted.', 'ux-studio' ), '', array( 'response' => 403 ) );
+		}
+		return $commentdata;
+	}
+
+	/**
+	 * Comments and pings closed on content older than the chosen number of days (published posts only).
+	 *
+	 * @param bool         $open    Current state.
+	 * @param int|\WP_Post $post_id Post.
+	 */
+	public function filter_old_posts_open( $open, $post_id ) {
+		if ( ! $open || $this->comments_exempt() ) {
+			return $open;
+		}
+		$days = self::close_days( $this->setting( 'comments_close_after_days', 0 ) );
+		$post = get_post( $post_id );
+		if ( $days < 1 || ! $post || 'publish' !== $post->post_status ) {
+			return $open;
+		}
+		$published = (int) get_post_time( 'U', true, $post );
+		return ( $published > 0 && ( time() - $published ) > $days * DAY_IN_SECONDS ) ? false : $open;
+	}
+
+	/**
+	 * Whether the current visitor is one of the roles that may still comment (see the setting). Decided per request.
+	 */
+	private function comments_exempt(): bool {
+		$allowed = self::list_setting( $this->setting( 'disable_comments_allowed_roles', array() ) );
+		if ( ! $allowed ) {
+			return false;
+		}
+		if ( ! is_user_logged_in() ) {
+			return in_array( 'logged-out-users', $allowed, true );
+		}
+		$user = wp_get_current_user();
+		return (bool) array_intersect( $allowed, (array) $user->roles ) || ( in_array( 'administrator', $allowed, true ) && is_super_admin() );
+	}
+
+	/**
+	 * A setting holding a list as a clean list of strings.
+	 *
+	 * @param mixed $value Stored value.
+	 * @return string[]
+	 */
+	private static function list_setting( $value ): array {
+		return array_values( array_filter( array_map( 'strval', (array) $value ), static fn ( string $v ): bool => '' !== $v ) );
+	}
+
+	/**
+	 * Whole days from the setting (0 = off), bounded.
+	 *
+	 * @param mixed $value Stored value.
+	 */
+	private static function close_days( $value ): int {
+		return max( 0, min( 3650, (int) $value ) );
+	}
+
+	/**
+	 * Roles that can be exempt from the comment rules, plus visitors who are not logged in.
+	 *
+	 * @return array<string,string>
+	 */
+	private static function comment_exception_roles(): array {
+		$roles = array();
+		foreach ( wp_roles()->get_names() as $slug => $name ) {
+			$roles[ (string) $slug ] = translate_user_role( $name );
+		}
+		$roles['logged-out-users'] = __( 'Visitors who are not logged in', 'ux-studio' );
+		return $roles;
+	}
+
+	/**
+	 * Notices from other sites.
+	 *
+	 * @return array<string,string>
+	 */
+	private static function comment_ping_types(): array {
+		return array(
+			'pingback'  => __( 'Pingbacks', 'ux-studio' ),
+			'trackback' => __( 'Trackbacks', 'ux-studio' ),
+		);
+	}
+
+	/**
 	 * Selectable post types for the per-type scope.
 	 *
 	 * @return array<string,string>
@@ -2135,6 +2472,9 @@ final class Module extends BaseModule {
 	}
 
 	public function remove_comment_support(): void {
+		if ( $this->comments_exempt() ) {
+			return;
+		}
 		foreach ( get_post_types( array(), 'names' ) as $post_type ) {
 			if ( ! $this->comments_disabled_for( $post_type ) ) {
 				continue;
@@ -2149,8 +2489,25 @@ final class Module extends BaseModule {
 	 * @param int|\WP_Post $post_id Post.
 	 */
 	public function filter_comments_open( $open, $post_id ) {
+		if ( $this->comments_exempt() ) {
+			return $open;
+		}
 		$post_type = get_post_type( $post_id );
 		return ( $post_type && $this->comments_disabled_for( $post_type ) ) ? false : $open;
+	}
+
+	/**
+	 * Pingbacks and trackbacks while comments are disabled: still closed unless one of the two types is allowed.
+	 * (`pings_open` does not say which of the two it is; the other one is refused when it arrives, see refuse_blocked_types().)
+	 *
+	 * @param bool         $open    Current state.
+	 * @param int|\WP_Post $post_id Post.
+	 */
+	public function filter_pings_open( $open, $post_id ) {
+		if ( array_intersect( array( 'pingback', 'trackback' ), self::list_setting( $this->setting( 'disable_comments_allowed_types', array() ) ) ) ) {
+			return $open;
+		}
+		return $this->filter_comments_open( $open, $post_id );
 	}
 
 	/**
@@ -2159,6 +2516,9 @@ final class Module extends BaseModule {
 	 * @param int|string $post_id Post ID.
 	 */
 	public function block_comment_submission( $post_id ): void {
+		if ( $this->comments_exempt() ) {
+			return;
+		}
 		$post_type = get_post_type( (int) $post_id );
 		if ( $post_type && $this->comments_disabled_for( $post_type ) ) {
 			wp_die( esc_html__( 'Comments are disabled.', 'ux-studio' ), '', array( 'response' => 403 ) );
@@ -2170,6 +2530,9 @@ final class Module extends BaseModule {
 	 * @param int   $post_id  Post ID.
 	 */
 	public function filter_comments_array( $comments, $post_id ) {
+		if ( $this->comments_exempt() ) {
+			return $comments;
+		}
 		$post_type = get_post_type( $post_id );
 		return ( $post_type && $this->comments_disabled_for( $post_type ) ) ? array() : $comments;
 	}
@@ -2179,17 +2542,26 @@ final class Module extends BaseModule {
 	 * @param int        $post_id Post ID.
 	 */
 	public function filter_comments_number( $count, $post_id ) {
+		if ( $this->comments_exempt() ) {
+			return $count;
+		}
 		$post_type = get_post_type( $post_id );
 		return ( $post_type && $this->comments_disabled_for( $post_type ) ) ? 0 : $count;
 	}
 
 	public function remove_comments_admin_menus(): void {
+		if ( $this->comments_exempt() ) {
+			return;
+		}
 		remove_menu_page( 'edit-comments.php' );
 		remove_submenu_page( 'options-general.php', 'options-discussion.php' );
 	}
 
 	public function block_comments_admin_screens(): void {
 		global $pagenow;
+		if ( $this->comments_exempt() ) {
+			return;
+		}
 		if ( in_array( $pagenow, array( 'edit-comments.php', 'comment.php', 'options-discussion.php' ), true ) ) {
 			wp_safe_redirect( admin_url() );
 			exit;
@@ -2199,17 +2571,23 @@ final class Module extends BaseModule {
 	}
 
 	public function remove_comments_dashboard_widget(): void {
+		if ( $this->comments_exempt() ) {
+			return;
+		}
 		remove_meta_box( 'dashboard_recent_comments', 'dashboard', 'normal' );
 	}
 
 	public function remove_comments_admin_bar_node(): void {
 		global $wp_admin_bar;
-		if ( $wp_admin_bar instanceof \WP_Admin_Bar ) {
+		if ( ! $this->comments_exempt() && $wp_admin_bar instanceof \WP_Admin_Bar ) {
 			$wp_admin_bar->remove_node( 'comments' );
 		}
 	}
 
 	public function remove_comments_widget(): void {
+		if ( $this->comments_exempt() ) {
+			return;
+		}
 		unregister_widget( 'WP_Widget_Recent_Comments' );
 	}
 
@@ -2217,6 +2595,9 @@ final class Module extends BaseModule {
 	 * @param array $endpoints Registered REST routes.
 	 */
 	public function filter_comment_rest_endpoints( $endpoints ) {
+		if ( $this->comments_exempt() ) {
+			return $endpoints;
+		}
 		foreach ( array_keys( (array) $endpoints ) as $route ) {
 			if ( 0 === strpos( (string) $route, '/wp/v2/comments' ) ) {
 				unset( $endpoints[ $route ] );
@@ -2229,6 +2610,9 @@ final class Module extends BaseModule {
 	 * @param array $methods XML-RPC methods.
 	 */
 	public function filter_comment_xmlrpc_methods( $methods ) {
+		if ( $this->comments_exempt() ) {
+			return $methods;
+		}
 		$remove = array(
 			'wp.newComment',
 			'wp.getComment',
@@ -2247,7 +2631,7 @@ final class Module extends BaseModule {
 	}
 
 	public function redirect_comment_feeds(): void {
-		if ( is_comment_feed() ) {
+		if ( ! $this->comments_exempt() && is_comment_feed() ) {
 			wp_safe_redirect( home_url( '/' ), 301 );
 			exit;
 		}
@@ -2259,7 +2643,10 @@ final class Module extends BaseModule {
 	 * @param array|object $counts  Incoming counts (unused).
 	 * @param int          $post_id Post ID (unused).
 	 */
-	public function zero_comment_count( $counts, $post_id ): object {
+	public function zero_comment_count( $counts, $post_id ) {
+		if ( $this->comments_exempt() ) {
+			return $counts;
+		}
 		return (object) array(
 			'approved'            => 0,
 			'awaiting_moderation' => 0,
@@ -2440,12 +2827,16 @@ final class Module extends BaseModule {
 	private function current_rest_route(): string {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only routing lookup.
 		if ( isset( $_GET['rest_route'] ) ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$route = sanitize_text_field( wp_unslash( $_GET['rest_route'] ) );
+			// Raw on purpose: sanitize_text_field() strips percent-encoded octets (%2e%2e), which would hide a
+			// dot-segment from is_public_rest_route(). The value is only compared, never output.
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			$route = is_string( $_GET['rest_route'] ) ? (string) wp_unslash( $_GET['rest_route'] ) : '';
 			return '/' . ltrim( $route, '/' );
 		}
 
-		$uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+		// Raw for the same reason (comparison only).
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$uri = isset( $_SERVER['REQUEST_URI'] ) ? (string) wp_unslash( $_SERVER['REQUEST_URI'] ) : '';
 		if ( '' === $uri ) {
 			return '';
 		}

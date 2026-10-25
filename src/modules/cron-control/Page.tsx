@@ -9,10 +9,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Check, LoaderCircle, Play, RefreshCw, Trash2 } from 'lucide-react';
 import { api } from '../../app/api';
 import { navigate } from '../../app/route';
-import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { TopicSettings, withKeys } from '../../app/TopicSettings';
 import { TabsNav } from '../../app/SubNav';
+import { formatDate } from '../../app/date';
+import UrlEventsView from './UrlEvents';
 
-type Tab = 'events' | 'schedules' | 'watch' | 'settings';
+type Tab = 'events' | 'urls' | 'schedules' | 'watch' | 'settings';
 
 interface CronEvent {
 	hook: string;
@@ -408,7 +410,7 @@ function WatchList( { title, entries, tone }: { title: string; entries: WatchEnt
 					{ entries.map( ( e ) => (
 						<tr key={ `${ e.hook }-${ e.next_run_ts }` }>
 							<td><code>{ e.hook }</code></td>
-							<td><small>{ e.next_run }</small></td>
+							<td><small>{ formatDate( e.next_run ) }</small></td>
 							<td>{ e.note }</td>
 							<td>
 								<code style={ { fontSize: '11px' } }>
@@ -456,7 +458,7 @@ function WatchView(): JSX.Element {
 			) : (
 				<>
 					<p className="uxs-form__help" style={ { marginTop: 0 } }>
-						{ __( 'Last scan:', 'ux-studio' ) } { data.scanned_at } · { data.total_events } { __( 'events', 'ux-studio' ) } ·{ ' ' }
+						{ __( 'Last scan:', 'ux-studio' ) } { formatDate( data.scanned_at ) } · { data.total_events } { __( 'events', 'ux-studio' ) } ·{ ' ' }
 						{ data.unknown.length } { __( 'unknown', 'ux-studio' ) } · { data.suspicious.length } { __( 'suspicious', 'ux-studio' ) }
 						{ data.autoremove ? ` · ${ __( 'auto-remove ON', 'ux-studio' ) }` : '' }
 					</p>
@@ -479,7 +481,8 @@ function WatchView(): JSX.Element {
 export default function Page(): JSX.Element {
 	const [ tab, setTab ] = useState< Tab >( 'events' );
 	const queryClient = useQueryClient();
-	const { data, isLoading, draft, setDraft, save, saved } = useModuleSettings( 'cron-control' );
+	// Mode + central app sync result change on save.
+	const refreshStatus = (): void => void queryClient.invalidateQueries( { queryKey: [ 'cron-control', 'status' ] } );
 
 	return (
 		<>
@@ -495,26 +498,13 @@ export default function Page(): JSX.Element {
 					</button>{ ' ' }
 					{ __( 'Cron Control', 'ux-studio' ) }
 				</h1>
-				{ tab === 'settings' && (
-					<button
-						type="button"
-						className="button button-primary"
-						disabled={ save.isPending }
-						onClick={ () =>
-							save.mutate( undefined, {
-								// Mode + central app sync result change on save.
-								onSuccess: () => queryClient.invalidateQueries( { queryKey: [ 'cron-control', 'status' ] } ),
-							} )
-						}
-					>
-						{ saved ? <Check size={ 14 } /> : null }
-						{ saved ? __( 'Saved', 'ux-studio' ) : __( 'Save changes', 'ux-studio' ) }
-					</button>
-				) }
 			</header>
 			<TabsNav>
 				<button className={ tab === 'events' ? 'is-active' : '' } onClick={ () => setTab( 'events' ) }>
 					{ __( 'Events', 'ux-studio' ) }
+				</button>
+				<button className={ tab === 'urls' ? 'is-active' : '' } onClick={ () => setTab( 'urls' ) }>
+					{ __( 'URL events', 'ux-studio' ) }
 				</button>
 				<button className={ tab === 'schedules' ? 'is-active' : '' } onClick={ () => setTab( 'schedules' ) }>
 					{ __( 'Schedules', 'ux-studio' ) }
@@ -523,26 +513,27 @@ export default function Page(): JSX.Element {
 					{ __( 'Watcher', 'ux-studio' ) }
 				</button>
 				<button className={ tab === 'settings' ? 'is-active' : '' } onClick={ () => setTab( 'settings' ) }>
-					{ __( 'Mode & Settings', 'ux-studio' ) }
+					{ __( 'Mode', 'ux-studio' ) }
 				</button>
 			</TabsNav>
 			{ tab === 'events' && <EventsTable /> }
+			{ tab === 'urls' && <UrlEventsView /> }
 			{ tab === 'schedules' && <SchedulesTable /> }
-			{ tab === 'watch' && <WatchView /> }
-			{ tab === 'settings' &&
-				( isLoading || ! data ? (
-					<div className="uxs-loading">
-						<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />
+			{ tab === 'watch' && (
+				<>
+					<TopicSettings moduleId="cron-control" include={ withKeys( 'cron_' ) } onSaved={ refreshStatus } />
+					<WatchView />
+				</>
+			) }
+			{ tab === 'settings' && (
+				<>
+					<StatusView />
+					<CentralSyncView />
+					<div style={ { marginTop: 'var(--uxs-sp-5)' } }>
+						<TopicSettings moduleId="cron-control" include={ withKeys( 'mode', 'central_allowed_ips' ) } onSaved={ refreshStatus } />
 					</div>
-				) : (
-					<>
-						<StatusView />
-						<CentralSyncView />
-						<div style={ { marginTop: 'var(--uxs-sp-5)' } }>
-							<SettingsFields schema={ data.schema } draft={ draft } setDraft={ setDraft } />
-						</div>
-					</>
-				) ) }
+				</>
+			) }
 		</>
 	);
 }

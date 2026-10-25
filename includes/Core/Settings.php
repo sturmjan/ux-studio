@@ -55,6 +55,22 @@ final class Settings {
 	 * @param array $schema Module settings schema (see BaseModule::settings_schema).
 	 */
 	public function save( array $input, array $schema ): array {
+		$clean        = self::clean( $input, $schema );
+		$this->values = array_merge( $this->all(), $clean );
+		update_option( $this->option, $this->values, self::should_autoload( $this->values ) );
+		return $this->values;
+	}
+
+	/**
+	 * Sanitize input against a schema without storing anything (what save()
+	 * would write). Keys the schema does not know are dropped. Used by the
+	 * migration wizard to preview and verify values.
+	 *
+	 * @param array $input  Raw input.
+	 * @param array $schema Module settings schema.
+	 * @return array<string, mixed>
+	 */
+	public static function clean( array $input, array $schema ): array {
 		$clean = array();
 		foreach ( $schema as $field ) {
 			$key = $field['key'];
@@ -63,9 +79,7 @@ final class Settings {
 			}
 			$clean[ $key ] = self::sanitize_field( $input[ $key ], $field );
 		}
-		$this->values = array_merge( $this->all(), $clean );
-		update_option( $this->option, $this->values, self::should_autoload( $this->values ) );
-		return $this->values;
+		return $clean;
 	}
 
 	/**
@@ -105,8 +119,15 @@ final class Settings {
 				return wp_kses_post( (string) $value );
 			case 'textarea':
 				return sanitize_textarea_field( (string) $value );
+			case 'css':
+				return CssSanitizer::clean( $value );
 			case 'media':
 				return absint( $value );
+			case 'datetime':
+				// A date and time of the site as the browser's datetime-local input writes it: YYYY-MM-DDTHH:MM, or empty.
+				return preg_match( '/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::\d{2})?$/', trim( (string) $value ), $m ) && checkdate( (int) $m[2], (int) $m[3], (int) $m[1] ) && (int) $m[4] < 24 && (int) $m[5] < 60
+					? sprintf( '%s-%s-%sT%s:%s', $m[1], $m[2], $m[3], $m[4], $m[5] )
+					: '';
 			case 'text':
 			default:
 				return sanitize_text_field( (string) $value );

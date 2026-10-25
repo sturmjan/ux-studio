@@ -26,6 +26,15 @@ final class SnippetExecutor {
 	private array $processedSnippets = array();
 	private array $snippetQueue = array();
 
+	/** Safe mode state of this request once an executor has worked it out (the renderer reads it). */
+	private static ?bool $safeModeState = null;
+
+	/** Id of the run-once snippet that is executing right now (for the fatal error hook). */
+	private ?string $runningOnce = null;
+
+	/** @var array<int, array{ok:bool,name:string,message:string}> Results to show in wp-admin. */
+	private array $onceNotices = array();
+
 	/**
 	 * @param Settings $settings Module settings (used for the persisted safe-mode default).
 	 */
@@ -40,7 +49,24 @@ final class SnippetExecutor {
 
 		$this->snippetManager = new SnippetManager();
 		$this->safeMode       = $this->isSafeMode();
+		self::$safeModeState  = $this->safeMode;
 		$this->init();
+	}
+
+	/**
+	 * Whether snippets are switched off for this request by safe mode (the persisted setting, or the admin's own
+	 * cookie). Read-only, for code that renders snippets without being the executor (shortcode, content placement).
+	 *
+	 * @param Settings $settings Module settings.
+	 */
+	public static function safeModeActive( Settings $settings ): bool {
+		if ( null !== self::$safeModeState ) {
+			return self::$safeModeState;
+		}
+		if ( (bool) $settings->get( 'safe_mode', false ) ) {
+			return true;
+		}
+		return is_user_logged_in() && current_user_can( 'manage_options' ) && isset( $_COOKIE['uxstudio_safe_mode'] ) && '1' === $_COOKIE['uxstudio_safe_mode'];
 	}
 
 	/**
@@ -98,6 +124,11 @@ final class SnippetExecutor {
 
 		$this->loadPhpSnippets();
 		$this->processNonPhpSnippets();
+
+		if ( is_admin() ) {
+			// Run-once snippets wait for the next page of wp-admin; they are never included early.
+			add_action( 'admin_init', array( $this, 'runOnceSnippets' ), 20 );
+		}
 	}
 
 	/**
@@ -122,12 +153,41 @@ final class SnippetExecutor {
 	 */
 	public function loadPhpSnippets(): void {
 		foreach ( $this->snippetManager->getEnabledSnippets() as $snippet ) {
-			if ( ! $snippet->isEnabled() || ! $snippet->canExecute() ) {
+			if ( ! $snippet->isEnabled() || ! $snippet->canExecute() || $this->isSpecialLocation( $snippet ) ) {
 				continue;
 			}
 			if ( 'php' === $snippet->getType() ) {
-				$this->includePhpSnippet( $snippet );
+				$this->includePhpWhenConditionsHold( $snippet );
 			}
+		}
+	}
+
+	/**
+	 * Include a PHP snippet if its run conditions hold. A snippet whose conditions need the parsed request (page type,
+	 * post) cannot be judged while plugins load, so it is included at the `wp` action instead: hooks it registers
+	 * earlier than that (init, wp_loaded ...) never fire, which is why the editor warns about it. All the other
+	 * conditions (logged in, role, device, schedule, wp-admin) are judged right away.
+	 */
+	private function includePhpWhenConditionsHold( Snippet $snippet ): void {
+		$conditions = $snippet->getConditions();
+		if ( ! $conditions ) {
+			$this->includePhpSnippet( $snippet );
+			return;
+		}
+		if ( SnippetConditions::needs_query( $conditions ) && ! is_admin() && ! did_action( 'wp' ) ) {
+			add_action(
+				'wp',
+				function () use ( $snippet, $conditions ): void {
+					if ( SnippetConditions::hold( $conditions ) ) {
+						$this->includePhpSnippet( $snippet );
+					}
+				},
+				0
+			);
+			return;
+		}
+		if ( SnippetConditions::hold( $conditions ) ) {
+			$this->includePhpSnippet( $snippet );
 		}
 	}
 
@@ -136,7 +196,7 @@ final class SnippetExecutor {
 	 */
 	private function processNonPhpSnippets(): void {
 		foreach ( $this->snippetManager->getEnabledSnippets() as $snippet ) {
-			if ( ! $snippet->isEnabled() || ! $snippet->canExecute() ) {
+			if ( ! $snippet->isEnabled() || ! $snippet->canExecute() || $this->isSpecialLocation( $snippet ) ) {
 				continue;
 			}
 			if ( 'php' !== $snippet->getType() ) {
@@ -144,6 +204,122 @@ final class SnippetExecutor {
 			}
 		}
 		$this->registerQueuedSnippetHooks();
+	}
+
+	/**
+	 * Snippets that do not run on their own: shortcode, before / after content (SnippetRenderer) and run once (below).
+	 */
+	private function isSpecialLocation( Snippet $snippet ): bool {
+		return in_array( $snippet->getRunLocation(), SnippetManager::SPECIAL_LOCATIONS, true );
+	}
+
+	/**
+	 * Execute the enabled run-once snippets on a page of wp-admin, one time each. Each one is switched off by an atomic
+	 * UPDATE BEFORE its code runs (so it cannot run twice, even if two admin pages load at once or the code crashes),
+	 * then included under the same path and integrity checks as every PHP snippet, and the outcome (OK, exception,
+	 * fatal error, what it printed) is stored on the snippet and shown as a notice. Never in a safe preview.
+	 */
+	public function runOnceSnippets(): void {
+		global $pagenow;
+		if ( $this->safeMode || \UxStudio\Core\Migration\Preview::is_active() || ! current_user_can( 'manage_options' ) || wp_doing_ajax() || ( defined( 'DOING_CRON' ) && DOING_CRON ) ) {
+			return;
+		}
+		if ( 'GET' !== strtoupper( (string) ( $_SERVER['REQUEST_METHOD'] ?? 'GET' ) ) || in_array( (string) $pagenow, array( 'admin-post.php', 'async-upload.php', 'admin-ajax.php', 'load-scripts.php', 'load-styles.php' ), true ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+			return;
+		}
+		foreach ( $this->snippetManager->getEnabledSnippets() as $snippet ) {
+			if ( SnippetManager::LOCATION_RUN_ONCE === $snippet->getRunLocation() && 'php' === $snippet->getType() && SnippetConditions::hold( $snippet->getConditions() ) ) {
+				$this->runOnce( $snippet );
+			}
+		}
+	}
+
+	/**
+	 * One run-once snippet.
+	 */
+	private function runOnce( Snippet $snippet ): void {
+		$id = $snippet->getId();
+		if ( ! $this->snippetManager->claimRunOnce( $id ) ) {
+			return; // Another request took it, or it is not switched on any more.
+		}
+		$file = $snippet->getFilePath();
+		if ( ! $snippet->canExecute() || ! $file || ! $this->isSnippetFileValid( $file ) || ! $snippet->verifyIntegrity() ) {
+			$message = __( 'The integrity check failed or the code is not valid, so the snippet was not run.', 'ux-studio' );
+			$this->snippetManager->recordRun( $id, false, $message );
+			$this->onceNotices[] = array( 'ok' => false, 'name' => $snippet->getName(), 'message' => $message );
+			$this->hookOnceNotice();
+			return;
+		}
+
+		$ok      = true;
+		$message = '';
+		$level   = ob_get_level();
+		$this->runningOnce = $id;
+		register_shutdown_function( array( $this, 'onShutdown' ) );
+		ob_start();
+		try {
+			( static function ( string $uxs_file ): void {
+				include $uxs_file;
+			} )( $file );
+		} catch ( \Throwable $e ) {
+			$ok      = false;
+			$message = $e->getMessage() . ' (' . basename( $e->getFile() ) . ':' . $e->getLine() . ')';
+		}
+		$output = '';
+		while ( ob_get_level() > $level ) {
+			$output = (string) ob_get_clean() . $output;
+		}
+		$this->runningOnce = null;
+
+		$this->snippetManager->recordRun( $id, $ok, $message, $output );
+		$this->onceNotices[] = array( 'ok' => $ok, 'name' => $snippet->getName(), 'message' => $message );
+		$this->hookOnceNotice();
+	}
+
+	/**
+	 * A run-once snippet that dies with a fatal error leaves no exception to catch: note it from the shutdown hook.
+	 */
+	public function onShutdown(): void {
+		if ( null === $this->runningOnce ) {
+			return;
+		}
+		$error = error_get_last();
+		if ( $error && in_array( $error['type'], array( E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR ), true ) ) {
+			$this->snippetManager->recordRun( $this->runningOnce, false, 'Fatal error: ' . $error['message'] . ' (' . basename( $error['file'] ) . ':' . $error['line'] . ')' );
+		} else {
+			$this->snippetManager->recordRun( $this->runningOnce, false, 'The request ended before the snippet finished.' );
+		}
+		$this->runningOnce = null;
+	}
+
+	/**
+	 * Print the run-once results on the page where they ran.
+	 */
+	private function hookOnceNotice(): void {
+		static $hooked = false;
+		if ( $hooked ) {
+			return;
+		}
+		$hooked = true;
+		add_action(
+			'admin_notices',
+			function (): void {
+				foreach ( $this->onceNotices as $notice ) {
+					printf(
+						'<div class="notice %1$s"><p>%2$s</p></div>',
+						$notice['ok'] ? 'notice-success' : 'notice-error',
+						esc_html(
+							sprintf(
+								/* translators: 1: snippet name, 2: error message or empty. */
+								$notice['ok'] ? __( 'Snippet "%1$s" ran once and switched itself off.', 'ux-studio' ) : __( 'Snippet "%1$s" was run once and switched itself off, but it failed: %2$s', 'ux-studio' ),
+								$notice['name'],
+								$notice['message']
+							)
+						)
+					);
+				}
+			}
+		);
 	}
 
 	/**
@@ -307,7 +483,10 @@ final class SnippetExecutor {
 			return;
 		}
 		foreach ( $this->snippetQueue[ $hook ] as $item ) {
-			$this->outputSnippet( $item['snippet'], $item['code'] );
+			// Judged when the snippet is printed, so the page type and the visitor are known.
+			if ( SnippetConditions::hold( $item['snippet']->getConditions() ) ) {
+				$this->outputSnippet( $item['snippet'], $item['code'] );
+			}
 		}
 	}
 

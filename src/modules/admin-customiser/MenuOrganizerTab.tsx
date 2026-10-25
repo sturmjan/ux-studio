@@ -22,13 +22,15 @@ import {
 	Upload,
 } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
+import { MenuLockBadge, useMenuLock } from './menuLock';
+import { SubmenuRules } from './SubmenuRules';
 
 interface MenuChild {
 	slug: string;
 	title: string;
 }
 
-interface MenuItem {
+export interface MenuItem {
 	slug: string;
 	title: string;
 	icon: string;
@@ -50,7 +52,7 @@ interface Separator {
 	category: string;
 }
 
-interface MenuConfig {
+export interface MenuConfig {
 	layout: 'vertical' | 'horizontal';
 	categories: Record< string, string >;
 	category_order: string[];
@@ -66,6 +68,15 @@ interface MenuConfig {
 	promoted_subs: Record< string, { parent: string; title: string; icon: string; category: string } >;
 	separators: Separator[];
 	hidden_items: string[];
+	/** B1: required capability per item (top-level slug or `parent>sub`). */
+	item_caps: Record< string, string >;
+	/** B1: logins that always / never see an item. */
+	item_users: Record< string, { show?: string[]; hide?: string[] } >;
+	/** B1: sub-item rules, keyed `parent>sub`. */
+	sub_titles: Record< string, string >;
+	sub_hidden: Record< string, string[] >;
+	sub_moves: Record< string, string >;
+	sub_order: Record< string, string[] >;
 	show_icons_level1: boolean;
 	show_icons_level2: boolean;
 	show_icons_level3: boolean;
@@ -120,6 +131,8 @@ export function MenuOrganizerTab(): JSX.Element {
 		queryKey: [ 'admin-customiser', 'menu-organizer', 'conflicts' ],
 		queryFn: () => api< Conflict[] >( 'admin-customiser/menu-organizer/detect-conflicts', { method: 'POST' } ),
 	} );
+
+	const lockQuery = useMenuLock();
 
 	const [ draft, setDraft ] = useState< MenuConfig | null >( null );
 	const [ newCategoryName, setNewCategoryName ] = useState( '' );
@@ -354,8 +367,9 @@ export function MenuOrganizerTab(): JSX.Element {
 		const reader = new FileReader();
 		reader.onload = () => {
 			try {
-				const parsed = JSON.parse( String( reader.result ) ) as MenuConfig;
-				setDraft( parsed );
+				const parsed = JSON.parse( String( reader.result ) ) as Partial< MenuConfig >;
+				// Keys an older export does not have (sub-item rules) keep what the editor has now.
+				setDraft( ( d ) => ( d ? { ...d, ...parsed } : d ) );
 			} catch {
 				// Ignore invalid JSON silently - user can retry with a valid export file.
 			}
@@ -374,6 +388,16 @@ export function MenuOrganizerTab(): JSX.Element {
 					) ) }
 				</div>
 			) }
+
+			{ lockQuery.data && (
+				<p style={ { marginBottom: 'var(--uxs-sp-3)' } }>
+					<MenuLockBadge state={ lockQuery.data } />
+				</p>
+			) }
+
+			<p className="uxs-form__help" style={ { marginBottom: 'var(--uxs-sp-4)' } }>
+				{ __( 'Hiding an item only removes it from the menu: the page still opens when its address is typed in. To refuse it too, switch on "Block access to hidden pages" in the Settings tab (users who can manage options are never blocked).', 'ux-studio' ) }
+			</p>
 
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-amo-layout">{ __( 'Layout', 'ux-studio' ) }</label>
@@ -548,6 +572,8 @@ export function MenuOrganizerTab(): JSX.Element {
 					</div>
 				</div>
 			) ) }
+
+			<SubmenuRules draft={ draft } items={ items } setConfig={ setConfig } />
 
 			<h3>{ __( 'Custom links', 'ux-studio' ) }</h3>
 			<div className="uxs-form__row">

@@ -42,35 +42,38 @@ final class Url {
 	 * subdirectory; a foreign-host URL (the old domain) keeps its path as is.
 	 *
 	 * @param string $raw Source as typed.
-	 * @return array{path:string, query:string}
+	 * @return array{path:string, path_cs:string, query:string} `path_cs` is the same path with its letter case kept.
 	 */
 	public static function parse_source( string $raw ): array {
 		$parts = wp_parse_url( trim( $raw ) );
 		if ( false === $parts ) {
-			return array( 'path' => '', 'query' => '' );
+			return array( 'path' => '', 'path_cs' => '', 'query' => '' );
 		}
 		$path = (string) ( $parts['path'] ?? '/' );
 		if ( isset( $parts['host'] ) && strtolower( (string) $parts['host'] ) === self::home_host() ) {
 			$path = self::strip_home_path( $path );
 		}
 		return array(
-			'path'  => self::normalize_path( $path ),
-			'query' => self::normalize_query( (string) ( $parts['query'] ?? '' ) ),
+			'path'    => self::normalize_path( $path ),
+			'path_cs' => self::normalize_path( $path, true ),
+			'query'   => self::normalize_query( (string) ( $parts['query'] ?? '' ) ),
 		);
 	}
 
 	/**
 	 * The current request as [path, query] relative to the site root.
 	 *
-	 * @return array{path:string, query:string}
+	 * @return array{path:string, path_cs:string, query:string}
 	 */
 	public static function request(): array {
 		$uri   = (string) wp_unslash( $_SERVER['REQUEST_URI'] ?? '/' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- normalised below, never output.
 		$path  = (string) wp_parse_url( $uri, PHP_URL_PATH );
 		$query = (string) wp_parse_url( $uri, PHP_URL_QUERY );
+		$path = self::strip_home_path( $path );
 		return array(
-			'path'  => self::normalize_path( self::strip_home_path( $path ) ),
-			'query' => self::normalize_query( $query ),
+			'path'    => self::normalize_path( $path ),
+			'path_cs' => self::normalize_path( $path, true ),
+			'query'   => self::normalize_query( $query ),
 		);
 	}
 
@@ -93,15 +96,16 @@ final class Url {
 	/**
 	 * Normalise a path into its match form.
 	 *
-	 * @param string $path Raw path.
+	 * @param string $path          Raw path.
+	 * @param bool   $keep_case     Keep the letter case (for rules that are case sensitive).
 	 */
-	public static function normalize_path( string $path ): string {
+	public static function normalize_path( string $path, bool $keep_case = false ): string {
 		$path = rawurldecode( $path );
 		$path = '/' . ltrim( (string) preg_replace( '~/{2,}~', '/', $path ), '/' );
 		if ( '/' !== $path ) {
 			$path = rtrim( $path, '/' );
 		}
-		return mb_strtolower( $path, 'UTF-8' );
+		return $keep_case ? $path : mb_strtolower( $path, 'UTF-8' );
 	}
 
 	/**
@@ -199,16 +203,17 @@ final class Url {
 	 * Match key of an internal target (for chain detection), or '' for
 	 * external targets.
 	 *
-	 * @param string $target Stored target.
+	 * @param string $target    Stored target.
+	 * @param bool   $keep_case Keep the letter case of the path (loop checks of case sensitive rules).
 	 */
-	public static function target_key( string $target ): string {
+	public static function target_key( string $target, bool $keep_case = false ): string {
 		if ( '' === $target || ! self::is_internal( $target ) ) {
 			return '';
 		}
 		$relative = self::to_relative( $target );
 		$parts    = wp_parse_url( $relative );
 		return self::key(
-			self::normalize_path( (string) ( $parts['path'] ?? '/' ) ),
+			self::normalize_path( (string) ( $parts['path'] ?? '/' ), $keep_case ),
 			self::normalize_query( (string) ( $parts['query'] ?? '' ) )
 		);
 	}

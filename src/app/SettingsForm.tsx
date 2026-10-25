@@ -5,6 +5,7 @@
  * to embed a "Settings" tab identical in look to every other module.
  */
 import { useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { api, queryClient } from './api';
@@ -19,11 +20,13 @@ export interface Field {
 		| 'toggle'
 		| 'text'
 		| 'textarea'
+		| 'css'
 		| 'number'
 		| 'select'
 		| 'multiselect'
 		| 'color'
 		| 'media'
+		| 'datetime'
 		| 'richtext';
 	label: string;
 	help?: string;
@@ -36,7 +39,7 @@ export interface Field {
 }
 
 /** Field types whose input needs a full grid row to stay readable. */
-const WIDE_TYPES: ReadonlyArray< Field[ 'type' ] > = [ 'textarea', 'richtext', 'multiselect' ];
+const WIDE_TYPES: ReadonlyArray< Field[ 'type' ] > = [ 'textarea', 'css', 'richtext', 'multiselect' ];
 
 export interface SettingsPayload {
 	name: string;
@@ -183,6 +186,33 @@ export function FieldInput( {
 			);
 		case 'media':
 			return <MediaField value={ Number( value ?? 0 ) } onChange={ onChange } />;
+		case 'datetime':
+			// Date and time of the site, stored as YYYY-MM-DDTHH:MM (what datetime-local writes).
+			return (
+				<span className="uxs-datetime">
+					<input
+						type="datetime-local"
+						id={ `uxs-${ field.key }` }
+						value={ String( value ?? '' ) }
+						onChange={ ( e ) => onChange( e.target.value ) }
+					/>
+					{ value ? (
+						<button type="button" className="button-link" onClick={ () => onChange( '' ) }>
+							{ __( 'Clear', 'ux-studio' ) }
+						</button>
+					) : null }
+				</span>
+			);
+		case 'css':
+			return (
+				<textarea
+					rows={ 10 }
+					className="uxs-code-editor"
+					spellCheck={ false }
+					value={ String( value ?? '' ) }
+					onChange={ ( e ) => onChange( e.target.value ) }
+				/>
+			);
 		case 'textarea':
 		case 'richtext':
 			return (
@@ -213,10 +243,13 @@ export function SettingsFields( {
 	schema,
 	draft,
 	setDraft,
+	notes,
 }: {
 	schema: Field[];
 	draft: Record< string, Value >;
 	setDraft: ( updater: ( d: Record< string, Value > ) => Record< string, Value > ) => void;
+	/** Extra content under the help text of a field, by field key (a state note, a link). */
+	notes?: Record< string, ReactNode >;
 } ): JSX.Element {
 	const general = __( 'General', 'ux-studio' );
 	const sections: string[] = [];
@@ -244,6 +277,7 @@ export function SettingsFields( {
 						onChange={ ( v ) => setDraft( ( d ) => ( { ...d, [ field.key ]: v } ) ) }
 					/>
 					{ field.help ? <p className="uxs-form__help">{ field.help }</p> : null }
+					{ notes?.[ field.key ] ?? null }
 				</div>
 			) ) }
 		</div>

@@ -97,7 +97,7 @@ final class AttemptsHandler {
 				sprintf(
 					/* translators: %d: minutes */
 					__( 'Too many failed login attempts from this IP. Please try again in %d minutes.', 'ux-studio' ),
-					$this->lockout_time()
+					$this->minutes_to_report( $ip )
 				)
 			);
 		} elseif ( '' !== $ip && $this->get_current_attempt_count( $ip ) >= $this->max_attempts() ) {
@@ -141,9 +141,13 @@ final class AttemptsHandler {
 	}
 
 	/**
-	 * @param string $username Attempted username.
+	 * @param string        $username Attempted username.
+	 * @param WP_Error|null $error    Login error (WP 5.4+).
 	 */
-	public function handle_failed_login( $username ): void {
+	public function handle_failed_login( $username, $error = null ): void {
+		if ( TwoFactor::is_non_form_error( $error ) ) {
+			return; // Right password, 2FA account on a form without the second step: not a failure.
+		}
 		$username    = (string) $username;
 		$ip          = $this->get_client_ip();
 		$ip_attempts = $this->increment_ip_attempts( $ip );
@@ -152,9 +156,9 @@ final class AttemptsHandler {
 			if ( $this->is_ip_blocked( $ip ) ) {
 				return; // Retry during an active lockout - don't stack lock rows / emails.
 			}
-			$this->block_ip( $ip, $username );
+			$minutes = $this->block_ip( $ip, $username );
 			if ( $this->module->setting( 'notify_admin', false ) ) {
-				$this->notify_admin( $ip, $username );
+				$this->notify_admin( $ip, $username, $minutes );
 			}
 		}
 	}
@@ -172,6 +176,9 @@ final class AttemptsHandler {
 	 * @param WP_Error|null $error    Login error shown on the form (WP 5.4+).
 	 */
 	public function handle_blocked_username_login( $username, $error = null ): void {
+		if ( TwoFactor::is_non_form_error( $error ) ) {
+			return;
+		}
 		$username = (string) $username;
 		if ( ! $this->module->is_blocked_username( $username ) ) {
 			return;
@@ -182,9 +189,9 @@ final class AttemptsHandler {
 			return;
 		}
 
-		$this->block_ip( $ip, $username );
+		$minutes = $this->block_ip( $ip, $username );
 		if ( $this->module->setting( 'notify_admin', false ) ) {
-			$this->notify_admin( $ip, $username );
+			$this->notify_admin( $ip, $username, $minutes );
 		}
 
 		if ( $error instanceof WP_Error ) {
@@ -193,7 +200,7 @@ final class AttemptsHandler {
 				sprintf(
 					/* translators: %d: minutes */
 					__( 'Too many failed login attempts from this IP. Please try again in %d minutes.', 'ux-studio' ),
-					$this->lockout_time()
+					$minutes
 				)
 			);
 		}
@@ -237,8 +244,12 @@ final class AttemptsHandler {
 		return 1;
 	}
 
-	private function block_ip( string $ip, string $username ): void {
+	/**
+	 * Lock an IP and return the length of the lock in minutes (longer after repeated locks when "progressive" is on).
+	 */
+	private function block_ip( string $ip, string $username ): int {
 		global $wpdb;
+		$minutes = $this->next_lockout_minutes( $ip );
 		$wpdb->insert(
 			$this->login_failed,
 			array(
@@ -246,12 +257,82 @@ final class AttemptsHandler {
 				'username'  => $username,
 				'country'   => null,
 				'status'    => 1,
-				'locktime'  => $this->lockout_time(),
+				'locktime'  => $minutes,
 				'locklimit' => $this->max_attempts(),
 				'date'      => $this->now(),
 			),
 			array( '%s', '%s', '%s', '%d', '%d', '%d', '%s' )
 		);
+		return $minutes;
+	}
+
+	/**
+	 * Length of the next lock of an IP: the base time, or - with "progressive" on - the base time multiplied
+	 * once for every lock of that IP within the last 24 hours, capped at the configured maximum.
+	 */
+	private function next_lockout_minutes( string $ip ): int {
+		$base = $this->lockout_time();
+		if ( ! $this->module->setting( 'lockout_progressive', false ) ) {
+			return $base;
+		}
+		return self::progressive_minutes(
+			$base,
+			$this->recent_lockouts( $ip ),
+			(float) $this->module->setting( 'lockout_multiplier', 2 ),
+			max( 1, (int) $this->module->setting( 'lockout_max_hours', 24 ) ) * 60
+		);
+	}
+
+	/**
+	 * The progressive rule, pure: base * multiplier^previous, never below the base, never above the cap.
+	 *
+	 * @param int   $base       Base lockout in minutes.
+	 * @param int   $previous   Locks of the same IP within the last 24 hours.
+	 * @param float $multiplier Factor per repeated lock (1 = no growth).
+	 * @param int   $max        Longest lock in minutes.
+	 */
+	public static function progressive_minutes( int $base, int $previous, float $multiplier, int $max ): int {
+		$base = max( 1, $base );
+		$cap  = max( $base, $max );
+		$raw  = $base * ( max( 1.0, $multiplier ) ** max( 0, $previous ) );
+		// A float that overflowed to INF (or just exceeds the cap) must land on the cap, not wrap around.
+		return is_finite( $raw ) && $raw < $cap ? max( $base, (int) round( $raw ) ) : $cap;
+	}
+
+	/**
+	 * Locks of one IP in the last 24 hours (an administrator's "unlock" resets the status, so those do not count).
+	 */
+	private function recent_lockouts( string $ip ): int {
+		global $wpdb;
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$this->login_failed} WHERE ip = %s AND status = 1 AND date > DATE_SUB(%s, INTERVAL 24 HOUR)",
+				$ip,
+				$this->now()
+			)
+		);
+	}
+
+	/**
+	 * Minutes shown in "try again in N minutes": the base time as always, or the real rest of the lock when
+	 * the lock length can vary.
+	 */
+	private function minutes_to_report( string $ip ): int {
+		if ( ! $this->module->setting( 'lockout_progressive', false ) ) {
+			return $this->lockout_time();
+		}
+		global $wpdb;
+		$left = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT CEIL(TIMESTAMPDIFF(SECOND, %s, DATE_ADD(date, INTERVAL locktime MINUTE)) / 60) FROM {$this->login_failed}
+				 WHERE ip = %s AND status = 1 AND date > DATE_SUB(%s, INTERVAL locktime MINUTE)
+				 ORDER BY date DESC LIMIT 1",
+				$this->now(),
+				$ip,
+				$this->now()
+			)
+		);
+		return null === $left ? $this->lockout_time() : max( 1, (int) $left );
 	}
 
 	public function is_ip_blocked( string $ip ): bool {
@@ -304,9 +385,16 @@ final class AttemptsHandler {
 		return ClientIp::get( $this->module->proxy_mode() );
 	}
 
-	private function notify_admin( string $ip, string $username ): void {
-		$admin_email = get_option( 'admin_email' );
-		$site_name   = get_bloginfo( 'name' );
+	/**
+	 * Recipient of the lockout e-mail: the address from the settings, or the site administrator.
+	 */
+	public function notification_email(): string {
+		$custom = sanitize_email( (string) $this->module->setting( 'lockout_notify_email', '' ) );
+		return '' !== $custom && is_email( $custom ) ? $custom : (string) get_option( 'admin_email' );
+	}
+
+	private function notify_admin( string $ip, string $username, int $minutes ): void {
+		$site_name = get_bloginfo( 'name' );
 
 		$subject = sprintf(
 			/* translators: %s: site name */
@@ -321,12 +409,15 @@ final class AttemptsHandler {
 			/* translators: %s: username */
 			'- ' . sprintf( __( 'Username: %s', 'ux-studio' ), $username ),
 			/* translators: %d: minutes */
-			'- ' . sprintf( __( 'Block Duration: %d minutes', 'ux-studio' ), $this->lockout_time() ),
-			'',
-			__( 'You can unblock this IP address from the plugin admin screen.', 'ux-studio' ),
+			'- ' . sprintf( __( 'Block Duration: %d minutes', 'ux-studio' ), $minutes ),
 		);
+		if ( $this->module->setting( 'lockout_progressive', false ) && $minutes > $this->lockout_time() ) {
+			$lines[] = '- ' . __( 'This IP was locked repeatedly within 24 hours, so the lock is longer than usual.', 'ux-studio' );
+		}
+		$lines[] = '';
+		$lines[] = __( 'You can unblock this IP address from the plugin admin screen.', 'ux-studio' );
 
-		wp_mail( $admin_email, $subject, implode( "\r\n", $lines ) );
+		wp_mail( $this->notification_email(), $subject, implode( "\r\n", $lines ) );
 	}
 
 	/**

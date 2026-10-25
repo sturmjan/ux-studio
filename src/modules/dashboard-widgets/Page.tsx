@@ -4,10 +4,12 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, LoaderCircle, Plus, Trash2 } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
-import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
+import { useModuleSettings } from '../../app/SettingsForm';
+import { TopicSettings, inSections } from '../../app/TopicSettings';
 import { TabsNav } from '../../app/SubNav';
+import { formatDate } from '../../app/date';
 
-type Tab = 'tasks' | 'settings';
+type Tab = 'tasks' | 'hidden' | 'welcome' | 'custom' | 'modules' | 'layout' | 'keys';
 
 interface Task {
 	id: string;
@@ -139,7 +141,7 @@ function ActivityList(): JSX.Element {
 			<tbody>
 				{ data.map( ( row, i ) => (
 					<tr key={ i }>
-						<td>{ row.created_at }</td>
+						<td>{ formatDate( row.created_at ) }</td>
 						<td>{ row.module }</td>
 						<td>{ row.action }</td>
 						<td>{ row.object_type ? `${ row.object_type } #${ row.object_id }` : '' }</td>
@@ -287,9 +289,42 @@ function SaveLayout( { summary }: { summary: string } ): JSX.Element {
 	);
 }
 
+const MODULE = 'dashboard-widgets';
+
+/** Settings sections are menu items of their own, next to the overview. */
+const SECTION_TABS: { id: Tab; label: string }[] = [
+	{ id: 'hidden', label: __( 'Hidden widgets', 'ux-studio' ) },
+	{ id: 'welcome', label: __( 'Welcome panel', 'ux-studio' ) },
+	{ id: 'custom', label: __( 'Custom widgets', 'ux-studio' ) },
+	{ id: 'modules', label: __( 'Widgets from other modules', 'ux-studio' ) },
+	{ id: 'layout', label: __( 'Layout', 'ux-studio' ) },
+	{ id: 'keys', label: __( 'API keys', 'ux-studio' ) },
+];
+
+/** Whether the API keys are stored (they are never sent back to the browser). */
+function KeysNote(): JSX.Element {
+	const { draft } = useModuleSettings( MODULE );
+	return (
+		<p>
+			{ draft.has_pagespeed_key
+				? __( 'A PageSpeed API key is currently set.', 'ux-studio' )
+				: __( 'No PageSpeed API key set yet.', 'ux-studio' ) }
+			{ ' · ' }
+			{ draft.has_ga_key
+				? __( 'A GA service-account JSON is currently set.', 'ux-studio' )
+				: __( 'No GA service-account JSON set yet.', 'ux-studio' ) }
+		</p>
+	);
+}
+
+function LayoutNote(): JSX.Element {
+	const { draft } = useModuleSettings( MODULE );
+	return <SaveLayout summary={ String( draft.saved_layout ?? '' ) } />;
+}
+
 export default function Page(): JSX.Element {
 	const [ tab, setTab ] = useState< Tab >( 'tasks' );
-	const { data, isLoading, draft, setDraft, save, saved } = useModuleSettings( 'dashboard-widgets' );
+	const section = SECTION_TABS.find( ( t ) => t.id === tab );
 
 	return (
 		<>
@@ -310,9 +345,11 @@ export default function Page(): JSX.Element {
 				<button className={ tab === 'tasks' ? 'is-active' : '' } onClick={ () => setTab( 'tasks' ) }>
 					{ __( 'Tasks', 'ux-studio' ) }
 				</button>
-				<button className={ tab === 'settings' ? 'is-active' : '' } onClick={ () => setTab( 'settings' ) }>
-					{ __( 'Settings', 'ux-studio' ) }
-				</button>
+				{ SECTION_TABS.map( ( t ) => (
+					<button key={ t.id } className={ tab === t.id ? 'is-active' : '' } onClick={ () => setTab( t.id ) }>
+						{ t.label }
+					</button>
+				) ) }
 			</TabsNav>
 			{ tab === 'tasks' && (
 				<>
@@ -324,28 +361,11 @@ export default function Page(): JSX.Element {
 					<TasksAndNotes />
 				</>
 			) }
-			{ tab === 'settings' && ( isLoading || ! data ) && (
-				<div className="uxs-loading">
-					<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />
-				</div>
-			) }
-			{ tab === 'settings' && data && (
-				<>
-					<SettingsFields schema={ data.schema } draft={ draft } setDraft={ setDraft } />
-					<p>
-						{ draft.has_pagespeed_key
-							? __( 'A PageSpeed API key is currently set.', 'ux-studio' )
-							: __( 'No PageSpeed API key set yet.', 'ux-studio' ) }
-						{ ' · ' }
-						{ draft.has_ga_key
-							? __( 'A GA service-account JSON is currently set.', 'ux-studio' )
-							: __( 'No GA service-account JSON set yet.', 'ux-studio' ) }
-					</p>
-					<SaveLayout summary={ String( draft.saved_layout ?? '' ) } />
-					<button type="button" className="button button-primary" onClick={ () => save.mutate() }>
-						{ saved ? __( 'Saved', 'ux-studio' ) : __( 'Save changes', 'ux-studio' ) }
-					</button>
-				</>
+			{ section && (
+				<TopicSettings key={ section.id } moduleId={ MODULE } include={ inSections( section.label ) }>
+					{ section.id === 'keys' && <KeysNote /> }
+					{ section.id === 'layout' && <LayoutNote /> }
+				</TopicSettings>
 			) }
 		</>
 	);

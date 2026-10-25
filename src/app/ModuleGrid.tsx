@@ -9,8 +9,10 @@ import { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { ChevronRight, LoaderCircle, PowerOff } from 'lucide-react';
-import { api, queryClient, type ModuleInfo } from './api';
+import { api, queryClient, type ApiError, type ModuleInfo } from './api';
+import { isOverlapError, OverlapModal, OverlapPanel, refreshOverlaps } from './Overlaps';
 import { ModuleIcon } from './moduleIcons';
+import { WizardHint } from './WizardHint';
 import { navigate } from './route';
 
 /** meta.json `group` values in display order. */
@@ -34,16 +36,19 @@ export function ModuleGrid(): JSX.Element {
 		queryFn: () => api< ModuleInfo[] >( 'modules' ),
 	} );
 
+	// Set when enabling was refused (409): the modal explains which plugin overlaps.
+	const [ blocked, setBlocked ] = useState< { m: ModuleInfo; error: ApiError } | null >( null );
+
 	const toggle = useMutation( {
-		mutationFn: ( m: ModuleInfo ) =>
+		mutationFn: ( { m, confirm }: { m: ModuleInfo; confirm?: boolean } ) =>
 			api( `modules/${ m.id }`, {
 				method: 'POST',
-				body: JSON.stringify( { enabled: ! m.enabled } ),
+				body: JSON.stringify( { enabled: ! m.enabled, ...( confirm ? { confirm_overlap: true } : {} ) } ),
 			} ),
 		// Optimistic: flip the switch immediately instead of waiting on a
 		// refetch, so the click has instant visible feedback. Rolls back the
 		// cache on failure.
-		onMutate: async ( m ) => {
+		onMutate: async ( { m } ) => {
 			await queryClient.cancelQueries( { queryKey: [ 'modules' ] } );
 			const previous = queryClient.getQueryData< ModuleInfo[] >( [ 'modules' ] );
 			queryClient.setQueryData< ModuleInfo[] >( [ 'modules' ], ( old ) =>
@@ -51,17 +56,28 @@ export function ModuleGrid(): JSX.Element {
 			);
 			return { previous };
 		},
-		onError: ( _err, _m, context ) => {
+		onSuccess: () => setBlocked( null ),
+		onError: ( err, { m }, context ) => {
+			// Revert the optimistic switch.
 			if ( context?.previous ) {
 				queryClient.setQueryData( [ 'modules' ], context.previous );
 			}
+			if ( isOverlapError( err ) ) {
+				setBlocked( { m, error: err } );
+			}
 		},
-		onSettled: () => void queryClient.invalidateQueries( { queryKey: [ 'modules' ] } ),
+		onSettled: () => {
+			void queryClient.invalidateQueries( { queryKey: [ 'modules' ] } );
+			void refreshOverlaps();
+		},
 	} );
 
 	const deactivateAll = useMutation( {
 		mutationFn: () => api( 'modules/deactivate-all', { method: 'POST' } ),
-		onSuccess: () => queryClient.invalidateQueries( { queryKey: [ 'modules' ] } ),
+		onSuccess: () => {
+			void refreshOverlaps();
+			return queryClient.invalidateQueries( { queryKey: [ 'modules' ] } );
+		},
 	} );
 
 	if ( isLoading ) {
@@ -134,6 +150,8 @@ export function ModuleGrid(): JSX.Element {
 					</button>
 				</div>
 			</header>
+			<WizardHint />
+			<OverlapPanel />
 			<div className="uxs-modulefilter">
 				<input
 					type="search"
@@ -170,11 +188,11 @@ export function ModuleGrid(): JSX.Element {
 					const subs = childrenOf( m );
 					return (
 						<div key={ m.id } className="uxs-rowgroup">
-							<ModuleRow m={ m } onToggle={ ( x ) => toggle.mutate( x ) } />
+							<ModuleRow m={ m } onToggle={ ( x ) => toggle.mutate( { m: x } ) } />
 							{ subs.length > 0 && (
 								<div className="uxs-rowgroup__subs">
 									{ subs.map( ( c ) => (
-										<ModuleRow key={ c.id } m={ c } sub onToggle={ ( x ) => toggle.mutate( x ) } />
+										<ModuleRow key={ c.id } m={ c } sub onToggle={ ( x ) => toggle.mutate( { m: x } ) } />
 									) ) }
 								</div>
 							) }
@@ -182,6 +200,15 @@ export function ModuleGrid(): JSX.Element {
 					);
 				} ) }
 			</div>
+			{ blocked && (
+				<OverlapModal
+					error={ blocked.error }
+					moduleName={ blocked.m.name }
+					busy={ toggle.isPending }
+					onClose={ () => setBlocked( null ) }
+					onConfirm={ () => toggle.mutate( { m: blocked.m, confirm: true } ) }
+				/>
+			) }
 		</>
 	);
 }

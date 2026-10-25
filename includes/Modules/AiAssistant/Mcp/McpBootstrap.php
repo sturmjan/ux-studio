@@ -1,160 +1,35 @@
 <?php
 /**
- * Wires up the MCP server: JWT token management REST routes (always
- * available, so tokens can be prepared ahead of time) and, gated by the
- * "mcp_enabled" setting, the WP Abilities API category + tools/resources
- * that expose this site to external MCP clients (Claude Desktop, Cursor,
- * Windsurf, ...). Called explicitly from Module::boot() once this wave is
- * integrated (not auto-registered here, so it can land independently).
+ * AI Assistant side of the MCP server: registers the content tools (posts, pages, media,
+ * WooCommerce, SEO, Elementor...) in the WordPress Abilities API, as one ability category
+ * ("ai-assistant"). The server itself (transport, tokens, scopes, UI) lives in the core,
+ * `UxStudio\Core\Mcp`, and works without this module; it lists these tools only while the
+ * module is on and the MCP server is enabled.
  *
  * @package UxStudio
  */
 
 namespace UxStudio\Modules\AiAssistant\Mcp;
 
-use UxStudio\Core\Settings;
+use UxStudio\Core\Mcp\Config;
 
 defined( 'ABSPATH' ) || exit;
 
 final class McpBootstrap {
 
 	/**
-	 * Registers the JWT REST routes and the MCP abilities/category hooks.
+	 * Hooks the category and the abilities (the Abilities API fires its own init actions).
 	 */
 	public static function register(): void {
-		add_action( 'rest_api_init', array( self::class, 'register_jwt_routes' ) );
-
 		add_action( 'wp_abilities_api_init', array( self::class, 'register_abilities' ) );
 		add_action( 'wp_abilities_api_categories_init', array( self::class, 'register_category' ) );
-
-		// Makes the JWT tokens issued/revoked above actually mean something:
-		// without this, generate_token()/revoke_token() only maintain a
-		// registry that nothing ever consults, and every ability's
-		// current_user_can('manage_options') check can only ever be satisfied
-		// by an already-logged-in cookie session or an Application Password -
-		// never by the bearer token the UI hands out. Priority 20 so it runs
-		// after WP core's own cookie/application-password resolution and only
-		// acts when nothing else has already authenticated the request.
-		add_filter( 'determine_current_user', array( self::class, 'authenticate_bearer_token' ), 20 );
 	}
 
 	/**
-	 * REST route prefixes a bearer token is accepted on: the MCP adapter's
-	 * server routes and the Abilities API. Everywhere else (wp/v2, wc/v3,
-	 * uxstudio/v1, wp-admin, ...) the token is ignored, so a leaked MCP token
-	 * is not a key to the whole site. Abilities that proxy wp/v2 routes use
-	 * rest_do_request() internally, which keeps the user resolved here.
-	 */
-	private const MCP_ROUTE_PREFIXES = array( '/mcp/', '/wp-abilities/' );
-
-	/**
-	 * `determine_current_user` filter: if the request carries a valid
-	 * `Authorization: Bearer <jwt>` header issued via JwtAuth::generate_token(),
-	 * authenticate as the WP user that token was issued for (the admin who
-	 * generated it, from the token payload's `user_id` - never a wildcard/
-	 * service account). Only while MCP is enabled and only on MCP routes (see
-	 * MCP_ROUTE_PREFIXES). Leaves `$user_id` untouched otherwise, including
-	 * when it is already set by an earlier authentication method.
-	 *
-	 * @param int|false $user_id Result so far from earlier `determine_current_user` filters.
-	 * @return int|false
-	 */
-	public static function authenticate_bearer_token( $user_id ) {
-		if ( $user_id ) {
-			return $user_id;
-		}
-		if ( ! self::mcp_enabled() || ! self::is_mcp_route() ) {
-			return $user_id;
-		}
-
-		$header = self::bearer_token_from_request();
-		if ( '' === $header ) {
-			return $user_id;
-		}
-
-		$payload = ( new JwtAuth() )->validate_token( $header );
-		if ( null === $payload || empty( $payload['user_id'] ) ) {
-			return $user_id;
-		}
-
-		$target_user_id = (int) $payload['user_id'];
-		if ( ! get_userdata( $target_user_id ) ) {
-			return $user_id;
-		}
-
-		return $target_user_id;
-	}
-
-	/**
-	 * Extracts the raw token from an `Authorization: Bearer <token>` header,
-	 * accounting for the `REDIRECT_` variant some SAPIs (mod_php/mod_fcgid)
-	 * use, the same fallback WP core's Application Passwords support uses.
-	 */
-	private static function bearer_token_from_request(): string {
-		$auth = '';
-		if ( ! empty( $_SERVER['HTTP_AUTHORIZATION'] ) ) {
-			$auth = (string) $_SERVER['HTTP_AUTHORIZATION']; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-		} elseif ( ! empty( $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ) ) {
-			$auth = (string) $_SERVER['REDIRECT_HTTP_AUTHORIZATION']; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-		}
-
-		if ( '' === $auth || 0 !== stripos( $auth, 'Bearer ' ) ) {
-			return '';
-		}
-
-		return trim( substr( $auth, 7 ) );
-	}
-
-	/**
-	 * Whether the current request targets an MCP REST route - both pretty
-	 * (/wp-json/mcp/...) and plain (?rest_route=/mcp/...) permalinks. Parsed
-	 * from the raw request because determine_current_user may run before
-	 * WP has parsed the REST route.
-	 */
-	private static function is_mcp_route(): bool {
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
-		if ( isset( $_GET['rest_route'] ) && is_string( $_GET['rest_route'] ) ) {
-			$route = (string) wp_unslash( $_GET['rest_route'] );
-		} else {
-			$path   = (string) wp_parse_url( (string) ( $_SERVER['REQUEST_URI'] ?? '' ), PHP_URL_PATH );
-			$prefix = '/' . trim( rest_get_url_prefix(), '/' ) . '/';
-			$pos    = strpos( $path, $prefix );
-			if ( false === $pos ) {
-				return false;
-			}
-			$route = substr( $path, $pos + strlen( $prefix ) - 1 );
-		}
-		// phpcs:enable
-
-		$route = '/' . ltrim( rawurldecode( $route ), '/' );
-		if ( str_contains( $route, '..' ) ) {
-			return false;
-		}
-
-		/**
-		 * Filters the REST route prefixes on which an MCP bearer token is accepted.
-		 *
-		 * @param array<int, string> $prefixes Route prefixes (leading slash).
-		 */
-		foreach ( (array) apply_filters( 'uxstudio_ai_assistant_mcp_route_prefixes', self::MCP_ROUTE_PREFIXES ) as $allowed ) {
-			if ( str_starts_with( $route . '/', (string) $allowed ) ) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public static function register_jwt_routes(): void {
-		( new JwtAuth() )->register_routes();
-	}
-
-	/**
-	 * Registers the "ai-assistant" ability category, only while MCP is
-	 * enabled - mirrors register_abilities()'s gating so the category never
-	 * appears without any abilities behind it.
+	 * Registers the "ai-assistant" ability category, only while the MCP server is on.
 	 */
 	public static function register_category(): void {
-		if ( ! self::mcp_enabled() || ! function_exists( 'wp_register_ability_category' ) ) {
+		if ( ! Config::enabled() || ! function_exists( 'wp_register_ability_category' ) ) {
 			return;
 		}
 
@@ -168,18 +43,14 @@ final class McpBootstrap {
 	}
 
 	/**
-	 * Registers all MCP tools/resources, only while MCP is enabled and the
-	 * WP Abilities API is available.
+	 * Registers all content tools/resources, only while the MCP server is on and the
+	 * Abilities API is available.
 	 */
 	public static function register_abilities(): void {
-		if ( ! self::mcp_enabled() || ! function_exists( 'wp_register_ability' ) ) {
+		if ( ! Config::enabled() || ! function_exists( 'wp_register_ability' ) ) {
 			return;
 		}
 
 		( new McpAbilitiesRegistry() )->register_all();
-	}
-
-	private static function mcp_enabled(): bool {
-		return (bool) ( new Settings( 'uxstudio_ai_assistant' ) )->get( 'mcp_enabled', false );
 	}
 }
