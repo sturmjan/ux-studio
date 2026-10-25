@@ -2012,8 +2012,9 @@ final class Module extends BaseModule {
 		}
 
 		// The password form of protected posts (and nothing else) may always reach wp-login.php.
-		$action = isset( $_REQUEST['action'] ) ? sanitize_key( wp_unslash( (string) $_REQUEST['action'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( LoginUrl::is_public_action( 'wp-login.php?action=' . $action ) ) {
+		$raw    = isset( $_REQUEST['action'] ) && is_string( $_REQUEST['action'] ) ? wp_unslash( $_REQUEST['action'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- compared exactly, never used.
+		$method = isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( (string) $_SERVER['REQUEST_METHOD'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		if ( LoginUrl::is_public_request( $raw, $method, isset( $_POST['post_password'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			return;
 		}
 

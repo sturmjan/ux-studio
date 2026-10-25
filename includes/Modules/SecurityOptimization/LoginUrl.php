@@ -41,6 +41,18 @@ final class LoginUrl {
 	}
 
 	/**
+	 * Is this live request the password form of a protected post? wp-login.php compares the raw action exactly,
+	 * so we do too: a normalised value (`POSTPASS`, `post.pass`) falls back to the login form in core and must stay locked.
+	 *
+	 * @param string $raw_action        Unslashed, unsanitised `action` value.
+	 * @param string $method            Request method.
+	 * @param bool   $has_post_password Whether `post_password` was submitted.
+	 */
+	public static function is_public_request( string $raw_action, string $method, bool $has_post_password ): bool {
+		return 'postpass' === $raw_action && 'POST' === $method && $has_post_password;
+	}
+
+	/**
 	 * Does the permalink structure give the custom address a route? An empty structure (plain `?p=123`) or
 	 * `/index.php/...` (PATHINFO) does not serve `/my-login/`.
 	 *
