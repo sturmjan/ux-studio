@@ -215,6 +215,22 @@ CspLogger::safe_open_rows();
 $sql = end( $GLOBALS['wpdb']->queries );
 $assert( 'safe_open_rows selects only known/self', str_contains( $sql, "('known', 'self')" ) && ! str_contains( $sql, 'unknown' ), $sql );
 
+$mk = static fn( string $dir, string $uri, string $level = 'known' ): array => array( 'directive' => $dir, 'blocked_uri' => $uri, 'risk_level' => $level );
+$GLOBALS['wpdb']->rows = array(
+	$mk( 'script-src-elem', 'https://d111.cloudfront.net/x.js' ),
+	$mk( 'script-src', 'https://evil.s3.amazonaws.com/x.js' ),
+	$mk( 'script-src', 'https://cdn.jsdelivr.net/npm/x.js' ),
+	$mk( 'worker-src', 'https://foo.github.io/w.js' ),
+	$mk( 'frame-src', 'https://lh3.googleusercontent.com/x' ),
+	$mk( 'script-src', 'https://www.googletagmanager.com/gtm.js' ),
+	$mk( 'script-src', 'https://example.test/a.js', 'self' ),
+	$mk( 'img-src', 'https://d111.cloudfront.net/x.png' ),
+	$mk( 'font-src', 'https://foo.github.io/f.woff2' ),
+);
+$out = array_column( CspLogger::safe_open_rows(), 'blocked_uri' );
+$assert( 'bulk approve skips shared / user-content hosts for script-like directives', array( 'https://www.googletagmanager.com/gtm.js', 'https://example.test/a.js', 'https://d111.cloudfront.net/x.png', 'https://foo.github.io/f.woff2' ) === $out, implode( ' | ', $out ) );
+$assert( 'shared host list matches suffixes only', CspServices::is_shared_host( 'a.b.cloudfront.net' ) && ! CspServices::is_shared_host( 'evilcloudfront.net' ) && ! CspServices::is_shared_host( 'www.googletagmanager.com' ) );
+
 /* ── Privacy ── */
 
 $assert( 'query string stripped', 'https://www.pobyty.cz/kosik/' === CspLogger::strip_query( 'https://www.pobyty.cz/kosik/?email=a@b.cz#x' ) );

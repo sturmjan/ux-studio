@@ -206,6 +206,65 @@ final class CspServices {
 	}
 
 	/**
+	 * Domains anyone can publish content on (buckets, user content, public package CDNs, hosting subdomains).
+	 * A catalogue match on these says nothing about WHO controls the file, so they are never approved in bulk
+	 * for script-like directives (see CspLogger::safe_open_rows()). A suffix match, like the catalogue.
+	 *
+	 * @return string[]
+	 */
+	public static function shared_domains(): array {
+		return array(
+			'cloudfront.net',
+			'googleusercontent.com',
+			'googleapis.com',
+			'google.com',
+			'cdnjs.cloudflare.com',
+			'jsdelivr.net',
+			'unpkg.com',
+			'wordpress.com',
+			'wp.com',
+			'github.io',
+			'githubusercontent.com',
+			'appspot.com',
+			'amazonaws.com',
+			'blogspot.com',
+			'firebaseapp.com',
+			'web.app',
+			'netlify.app',
+			'vercel.app',
+			'pages.dev',
+			'workers.dev',
+			'herokuapp.com',
+			'azurewebsites.net',
+			'glitch.me',
+			'onrender.com',
+			'fbcdn.net',
+			'cdninstagram.com',
+			'twimg.com',
+			'pinimg.com',
+			'licdn.com',
+			'vimeocdn.com',
+		);
+	}
+
+	/**
+	 * Is the host on (or under) a domain that anyone can publish to?
+	 */
+	public static function is_shared_host( string $host ): bool {
+		$host = strtolower( trim( $host, ". 	
+ " ) );
+		if ( '' === $host ) {
+			return false;
+		}
+		foreach ( self::shared_domains() as $domain ) {
+			if ( $host === $domain || str_ends_with( $host, '.' . $domain ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Service label for a host from the catalogue, or '' when unknown.
 	 */
 	public static function label_for_host( string $host ): string {

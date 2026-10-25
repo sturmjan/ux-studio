@@ -467,7 +467,9 @@ final class CspLogger {
 	 * catalogue services (`known`/`self`) without any risk signal. `unknown`
 	 * hosts are never bulk-approved - a forged report with the public token
 	 * could otherwise get an attacker domain allowlisted; they need a
-	 * decision per row.
+	 * decision per row. Catalogue hosts on shared / user-content domains
+	 * (CloudFront, googleusercontent, jsDelivr, github.io ...) are not bulk-approved
+	 * for script-like directives either: anyone can publish there.
 	 *
 	 * @return array<int,array<string,mixed>>
 	 */
@@ -476,7 +478,27 @@ final class CspLogger {
 		$table = self::table();
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$rows = $wpdb->get_results( "SELECT * FROM {$table} WHERE status = 'open' AND risk_level IN ('known', 'self') AND risk_score = 0", ARRAY_A );
-		return $rows ?: array();
+		return array_values( array_filter( $rows ?: array(), array( self::class, 'bulk_approvable' ) ) );
+	}
+
+	/** Directives where an allowlisted host can run or embed attacker code. */
+	private const SCRIPT_LIKE = array( 'script-src', 'script-src-elem', 'script-src-attr', 'worker-src', 'frame-src', 'child-src', 'object-src', 'default-src' );
+
+	/**
+	 * May this row be approved by the bulk button? Always for non-script-like directives; for script-like ones
+	 * only the site itself or a catalogue host that is not on a shared / user-content domain.
+	 *
+	 * @param array<string,mixed> $row Violation row.
+	 */
+	public static function bulk_approvable( array $row ): bool {
+		if ( ! in_array( CspPolicy::base_directive( (string) ( $row['directive'] ?? '' ) ), self::SCRIPT_LIKE, true ) ) {
+			return true;
+		}
+		if ( CspRisk::LEVEL_SELF === ( $row['risk_level'] ?? '' ) ) {
+			return true;
+		}
+		$host = (string) wp_parse_url( (string) ( $row['blocked_uri'] ?? '' ), PHP_URL_HOST );
+		return '' !== $host && '' !== CspServices::label_for_host( $host ) && ! CspServices::is_shared_host( $host );
 	}
 
 	/**
