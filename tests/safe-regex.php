@@ -92,5 +92,8 @@ $assert( 'exception: doubled slashes are normalised, a legitimate path still wor
 $assert( 'exception: path_excepted itself refuses a raw .. path', ! M::path_excepted( '/blog/../x', $pr['rules'] ) && ! M::path_excepted( '/blog//x', $pr['rules'] ) );
 $assert( 'exception: a name that merely contains dots is fine', M::path_excepted( '/blog/a.b', $pr['rules'] ) );
 
+$rx_src = (string) file_get_contents( dirname( __DIR__ ) . '/includes/Core/SafeRegex.php' );
+$assert( 'safe regex: a failing ini_set is reported once, matching semantics unchanged', 1 === preg_match( '/! \$lowered && ! self::\$ini_warned.*error_log/s', $rx_src ) );
+
 echo PHP_EOL . ( $failures ? "$failures FAILED" : 'ALL PASSED' ) . PHP_EOL;
 exit( $failures ? 1 : 0 );

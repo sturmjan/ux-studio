@@ -86,7 +86,9 @@ class FakeWpdb {
 		}
 		return array();
 	}
+	public $poison = 0;
 	public function update( $table, $data, $where ) {
+		if ( $this->poison && (int) $where['id'] === $this->poison ) { throw new RuntimeException( 'poison row' ); }
 		$GLOBALS['uxs_updates'][] = array( $where['id'], $data );
 		return 1;
 	}
@@ -272,6 +274,17 @@ $ids = array_map( static fn( $u ) => $u[0], $GLOBALS['uxs_updates'] );
 $assert( 'every old row was rated exactly once, in id order', $ids === range( 1, 450 ) );
 $assert( 'finished: nothing more to do and no leftover lock', 0 === CspRerate::run_batch() && false === get_option( CspRerate::LOCK_OPTION, false ) );
 $assert( 'finished: the legacy marker stays for good', 450 === CspRerate::legacy_max_id() );
+
+// A row that makes the rating throw is skipped, the later rows are still rated.
+$GLOBALS['uxs_updates'] = array();
+$GLOBALS['wpdb']->poison = 3;
+CspRerate::start();
+$p1 = CspRerate::run_batch();
+$p2 = CspRerate::run_batch();
+$p3 = CspRerate::run_batch();
+$GLOBALS['wpdb']->poison = 0;
+$ids = array_map( static fn( $u ) => $u[0], $GLOBALS['uxs_updates'] );
+$assert( 'poison row: skipped, every other row rated, the work finishes', ! CspRerate::pending() && 449 === count( $ids ) && ! in_array( 3, $ids, true ) && in_array( 450, $ids, true ) );
 
 // The structural migration code no longer rates rows itself.
 $boot = $src( 'includes/Modules/SecurityOptimization/CspUploadGuardBootstrap.php' );

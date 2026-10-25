@@ -112,21 +112,26 @@ final class CspRerate {
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery
 		$rows = (array) $wpdb->get_results( $wpdb->prepare( "SELECT id, blocked_uri, directive FROM {$table} WHERE id > %d AND id <= %d ORDER BY id ASC LIMIT %d", $last, $max, self::BATCH ), ARRAY_A );
 		foreach ( $rows as $row ) {
-			$rating = CspRisk::rate( (string) $row['blocked_uri'], (string) $row['directive'], $site );
-			$wpdb->update(
-				$table,
-				array(
-					'risk_level'      => $rating['level'],
-					'risk_score'      => $rating['score'],
-					'risk_reasons'    => wp_json_encode( $rating['reasons'] ),
-					'service'         => $rating['service'],
-					'directive'       => CspPolicy::base_directive( (string) strtok( (string) $row['directive'], ' ' ) ),
-					// The domain-age check refines the rating again; it must not be skipped for this row.
-					'risk_checked_at' => null,
-				),
-				array( 'id' => (int) $row['id'] )
-			);
+			// Advance past the row first: one poison row must not stall every later batch.
 			$last = (int) $row['id'];
+			try {
+				$rating = CspRisk::rate( (string) $row['blocked_uri'], (string) $row['directive'], $site );
+				$wpdb->update(
+					$table,
+					array(
+						'risk_level'      => $rating['level'],
+						'risk_score'      => $rating['score'],
+						'risk_reasons'    => wp_json_encode( $rating['reasons'] ),
+						'service'         => $rating['service'],
+						'directive'       => CspPolicy::base_directive( (string) strtok( (string) $row['directive'], ' ' ) ),
+						// The domain-age check refines the rating again; it must not be skipped for this row.
+						'risk_checked_at' => null,
+					),
+					array( 'id' => (int) $row['id'] )
+				);
+			} catch ( \Throwable $e ) {
+				error_log( sprintf( 'UX Studio: CSP re-rating skipped row %d: %s', $last, $e->getMessage() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			}
 		}
 		if ( count( $rows ) < self::BATCH ) {
 			delete_option( self::STATE_OPTION );

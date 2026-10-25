@@ -34,6 +34,9 @@ final class SafeRegex {
 	/** Backtrack limit of the save-time probe. */
 	public const PROBE_LIMIT = 10000;
 
+	/** @var bool Whether the "ini_set failed" notice was already written in this request. */
+	private static bool $ini_warned = false;
+
 	/**
 	 * Cut a subject to the maximum length without splitting a multi-byte character.
 	 *
@@ -73,6 +76,11 @@ final class SafeRegex {
 		$lowered  = false;
 		if ( false !== $previous && (int) $previous > $limit ) {
 			$lowered = false !== ini_set( 'pcre.backtrack_limit', (string) $limit ); // phpcs:ignore WordPress.PHP.IniSet.Risky
+			if ( ! $lowered && ! self::$ini_warned ) {
+				// Matching goes on under the server default limit: say so once instead of failing silently.
+				self::$ini_warned = true;
+				error_log( 'UX Studio: ini_set(pcre.backtrack_limit) is disabled on this server, admin-written patterns run with the default limit.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			}
 		}
 		try {
 			$result = @preg_match( $regex, $subject, $matches ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- a bad pattern must not break the site.
