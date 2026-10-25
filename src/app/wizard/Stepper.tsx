@@ -10,9 +10,9 @@ export interface StepperItem {
 	title: string;
 }
 
-export function Stepper( { steps, current }: { steps: StepperItem[]; current: number } ): JSX.Element {
+export function Stepper( { steps, current, label }: { steps: StepperItem[]; current: number; label?: string } ): JSX.Element {
 	return (
-		<ol className="uxs-wiz-steps" aria-label={ __( 'Migration steps', 'ux-studio' ) }>
+		<ol className="uxs-wiz-steps" aria-label={ label ?? __( 'Migration steps', 'ux-studio' ) }>
 			{ steps.map( ( step, index ) => {
 				const state = index < current ? 'done' : index === current ? 'current' : 'todo';
 				return (

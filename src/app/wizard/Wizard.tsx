@@ -12,6 +12,7 @@ import type { WizardCtx } from './context';
 import { usePreview, useSwitch } from './flows';
 import { pause } from './parts';
 import { RunHistory } from './RunHistory';
+import { StarterWizard } from './StarterWizard';
 import { Stepper } from './Stepper';
 import { getSteps } from './steps';
 import type { Check, HistoryRun, RunState, ScanSource, SourcePlan, WizardTarget } from './types';
@@ -23,7 +24,15 @@ function message( e: unknown ): string {
 	return e instanceof Error ? e.message : String( e );
 }
 
+/**
+ * `#/wizard` is the migration wizard; `#/wizard?mode=new` is the set-up of a new site (PLAN.md 29). The parent
+ * re-renders on every hash change, so switching between them is a plain re-render and the other one starts fresh.
+ */
 export function Wizard(): JSX.Element {
+	return 'new' === hashParam( 'mode' ) ? <StarterWizard /> : <MigrationWizard />;
+}
+
+function MigrationWizard(): JSX.Element {
 	const steps = useMemo( getSteps, [] );
 	const preselect = useMemo( () => ( hashParam( 'plugin' ) ?? '' ).split( ',' ).map( ( s ) => s.trim() ).filter( Boolean ), [] );
 

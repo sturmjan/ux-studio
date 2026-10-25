@@ -70,6 +70,7 @@ $site = static function ( array $plugins, array $modules, array $settings = arra
 		'uxstudio_active_modules' => $modules,
 	);
 	$GLOBALS['uxs_filters']                = array();
+	Overlaps::set_foreign_reader( null );
 	Overlaps::set_settings_resolver( static fn( string $id ): array => $settings[ $id ] ?? array() );
 };
 
@@ -236,6 +237,117 @@ $assert( 'conditional entry allows when the setting is off', 'allow' === Activat
 
 $site( array( 'wp-crontrol/wp-crontrol.php', 'admin-menu-editor/menu-editor.php' ), array() );
 $assert( 'group of modules: one blocked child blocks the group', 'blocked' === ActivationGuard::decide( array( 'cron-control', 'admin-customiser' ), true )['result'] );
+
+/* ── Image optimizer: other optimisers fully overlap (onboarding starter pack) ── */
+
+foreach ( array(
+	'ewww-image-optimizer/ewww-image-optimizer.php',
+	'wp-smushit/wp-smush.php',
+	'shortpixel-image-optimiser/wp-shortpixel.php',
+	'imagify/imagify.php',
+	'webp-converter-for-media/webp-converter-for-media.php',
+	'optimole-wp/optimole-wp.php',
+) as $basename ) {
+	$site( array( $basename ), array() );
+	$d = ActivationGuard::decide( array( 'image-optimizer' ) );
+	$assert( "image-optimizer is blocked by $basename", 'blocked' === $d['result'] && 1 === count( $d['blocking'] ), json_encode( $d ) );
+}
+$site( array( 'webp-express/webp-express.php' ), array() );
+$assert( 'WebP Express stays a note (partial), it does not block', 'allow' === ActivationGuard::decide( array( 'image-optimizer' ) )['result'] && 'partial' === Overlaps::for_module( 'image-optimizer' )[0]['group'] );
+
+// LiteSpeed Cache: only while its image optimisation / WebP replacement is on.
+$litespeed = static function ( array $on ): callable {
+	return static fn( array $cond ): bool => isset( $cond['option'] ) && in_array( $cond['option'], $on, true );
+};
+$site( array( 'litespeed-cache/litespeed-cache.php' ), array() );
+Overlaps::set_foreign_reader( $litespeed( array() ) );
+$assert( 'LiteSpeed Cache with image optimisation off: no overlap at all', array() === Overlaps::for_module( 'image-optimizer' ) && 'allow' === ActivationGuard::decide( array( 'image-optimizer' ) )['result'] );
+Overlaps::set_foreign_reader( $litespeed( array( 'litespeed.conf.img_optm-webp' ) ) );
+$assert( 'LiteSpeed Cache with WebP replacement on: full overlap', 'blocked' === ActivationGuard::decide( array( 'image-optimizer' ) )['result'] );
+Overlaps::set_foreign_reader( $litespeed( array( 'litespeed.conf.img_optm-auto' ) ) );
+$assert( 'LiteSpeed Cache with automatic image optimisation on: full overlap', 'blocked' === ActivationGuard::decide( array( 'image-optimizer' ) )['result'] );
+
+// Jetpack: only with the image CDN (Photon) module active.
+$site( array( 'jetpack/jetpack.php' ), array() );
+Overlaps::set_foreign_reader( static fn( array $c ): bool => false );
+$assert( 'Jetpack without the image CDN: no overlap', array() === Overlaps::for_module( 'image-optimizer' ) );
+Overlaps::set_foreign_reader( static fn( array $c ): bool => 'jetpack_active_modules' === ( $c['option'] ?? '' ) && in_array( 'photon', $c['contains'] ?? array(), true ) );
+$assert( 'Jetpack with the image CDN (photon): full overlap', 'blocked' === ActivationGuard::decide( array( 'image-optimizer' ) )['result'] );
+
+/* ── ai-markdown: llms.txt of an SEO plugin blocks only while that feature is ON ── */
+
+$site( array( 'wordpress-seo/wp-seo.php' ), array( 'ai-markdown' ) );
+Overlaps::set_foreign_reader( static fn( array $c ): bool => false );
+$c = Overlaps::current();
+$assert( 'Yoast SEO with llms.txt off: only a note (partial), it does not block', 1 === count( $c ) && 'partial' === $c[0]['group'] && 'allow' === ActivationGuard::decide( array( 'ai-markdown' ) )['result'], json_encode( $c ) );
+Overlaps::set_foreign_reader( static fn( array $c ): bool => 'wpseo' === ( $c['option'] ?? '' ) && 'enable_llms_txt' === ( $c['key'] ?? '' ) );
+$c = Overlaps::current();
+$assert( 'Yoast SEO with llms.txt on: full overlap, enabling is refused', 1 === count( $c ) && 'full' === $c[0]['group'] && 'blocked' === ActivationGuard::decide( array( 'ai-markdown' ) )['result'], json_encode( $c ) );
+Overlaps::set_foreign_reader( static fn( array $c ): bool => isset( $c['file'] ) && 'llms.txt' === $c['file'] );
+$assert( 'Yoast SEO: a physical llms.txt in the site root counts as the feature being on', 'blocked' === ActivationGuard::decide( array( 'ai-markdown' ) )['result'] );
+
+$site( array( 'seo-by-rank-math/rank-math.php' ), array() );
+Overlaps::set_foreign_reader( static fn( array $c ): bool => false );
+$assert( 'Rank Math with llms.txt off: note only', 'allow' === ActivationGuard::decide( array( 'ai-markdown' ) )['result'] && 1 === count( Overlaps::for_module( 'ai-markdown' ) ) );
+Overlaps::set_foreign_reader( static fn( array $c ): bool => 'rank_math_modules' === ( $c['option'] ?? '' ) && in_array( 'llms-txt', $c['contains'] ?? array(), true ) );
+$assert( 'Rank Math with its llms.txt module on: full overlap', 'blocked' === ActivationGuard::decide( array( 'ai-markdown' ) )['result'] );
+
+$site( array( 'all-in-one-seo-pack/all_in_one_seo_pack.php' ), array() );
+Overlaps::set_foreign_reader( static fn( array $c ): bool => false );
+$assert( 'All in One SEO without an llms.txt file: note only', 'allow' === ActivationGuard::decide( array( 'ai-markdown' ) )['result'] );
+Overlaps::set_foreign_reader( static fn( array $c ): bool => isset( $c['file'] ) );
+$assert( 'All in One SEO with an llms.txt file: full overlap', 'blocked' === ActivationGuard::decide( array( 'ai-markdown' ) )['result'] );
+
+$site( array( 'website-llms-txt/website-llms-txt.php' ), array() );
+Overlaps::set_foreign_reader( static fn( array $c ): bool => false );
+$assert( 'dedicated llms.txt plugins still block without any condition', 'blocked' === ActivationGuard::decide( array( 'ai-markdown' ) )['result'] );
+
+// The real reader: options (plain, array key, JSON, list) and files.
+$site( array(), array() );
+$GLOBALS['uxs_options']['wpseo']                        = array( 'enable_llms_txt' => true );
+$GLOBALS['uxs_options']['litespeed.conf.img_optm-webp'] = '1';
+$GLOBALS['uxs_options']['litespeed.conf.img_optm-auto'] = '0';
+$GLOBALS['uxs_options']['rank_math_modules']            = array( 'sitemap', 'llms-txt' );
+$GLOBALS['uxs_options']['aioseo_options']               = json_encode( array( 'llms' => array( 'enabled' => true ) ) );
+$assert( 'foreign option with a key', Overlaps::foreign_condition_met( array( 'option' => 'wpseo', 'key' => 'enable_llms_txt' ) ) && ! Overlaps::foreign_condition_met( array( 'option' => 'wpseo', 'key' => 'other' ) ) );
+$GLOBALS['uxs_options']['wpseo'] = array( 'enable_llms_txt' => false );
+$assert( 'foreign option key off', ! Overlaps::foreign_condition_met( array( 'option' => 'wpseo', 'key' => 'enable_llms_txt' ) ) );
+$assert( 'foreign plain option: "1" is on, "0" is off, missing is off', Overlaps::foreign_condition_met( array( 'option' => 'litespeed.conf.img_optm-webp' ) ) && ! Overlaps::foreign_condition_met( array( 'option' => 'litespeed.conf.img_optm-auto' ) ) && ! Overlaps::foreign_condition_met( array( 'option' => 'nope' ) ) );
+$assert( 'foreign list contains', Overlaps::foreign_condition_met( array( 'option' => 'rank_math_modules', 'contains' => array( 'llms-txt' ) ) ) && ! Overlaps::foreign_condition_met( array( 'option' => 'rank_math_modules', 'contains' => array( 'photon' ) ) ) );
+$assert( 'foreign JSON option is decoded before the key is looked up', Overlaps::foreign_condition_met( array( 'option' => 'aioseo_options', 'key' => 'llms' ) ) );
+$assert( 'a condition without option or file is false', ! Overlaps::foreign_condition_met( array() ) );
+$probe = ABSPATH . 'llms.txt';
+$assert( 'foreign file missing', ! Overlaps::foreign_condition_met( array( 'file' => 'llms.txt' ) ) );
+file_put_contents( $probe, "# test\n" );
+$assert( 'foreign file in the site root', Overlaps::foreign_condition_met( array( 'file' => 'llms.txt' ) ) );
+unlink( $probe );
+
+$bad = array();
+foreach ( Catalog::entries() as $e ) {
+	foreach ( $e['foreign_when'] ?? array() as $cond ) {
+		if ( ! is_array( $cond ) || ( ! isset( $cond['option'] ) && ! isset( $cond['file'] ) ) ) {
+			$bad[] = $e['module'];
+		}
+	}
+	if ( isset( $e['foreign_else'] ) && ! in_array( $e['foreign_else'], array( 'partial', 'none' ), true ) ) {
+		$bad[] = $e['module'];
+	}
+}
+$assert( 'every foreign_when condition has an option or a file, foreign_else is partial|none', array() === $bad, implode( ',', $bad ) );
+
+/* ── blocked_settings: what the starter pack must leave out ── */
+
+$site( array(), array() );
+$assert( 'blocked_settings: nothing without foreign plugins', array() === Overlaps::blocked_settings( 'security-optimization' ) );
+$site( array( 'disable-comments/disable-comments.php', 'wordfence/wordfence.php' ), array() );
+$b = Overlaps::blocked_settings( 'security-optimization' );
+$assert( 'blocked_settings: Disable Comments blocks disable_comments, Wordfence (partial) blocks nothing', array( 'disable_comments' ) === array_keys( $b ) && array( 'Disable Comments' ) === $b['disable_comments'], json_encode( $b ) );
+$site( array( 'limit-login-attempts-reloaded/limit-login-attempts-reloaded.php' ), array() );
+$b = Overlaps::blocked_settings( 'security-optimization' );
+$assert( 'blocked_settings: a login protection plugin blocks both login limiting and the custom login address', isset( $b['limit_login_attempts'] ) && isset( $b['login_url_enabled'] ), json_encode( $b ) );
+$site( array( 'disable-auto-update-email-notifications/x.php' ), array() );
+$assert( 'update e-mail plugins are only a note: they never block', array() === Overlaps::blocked_settings( 'security-optimization' ) );
+
 
 echo PHP_EOL . ( $failures ? "$failures FAILED" : 'ALL PASSED' ) . PHP_EOL;
 exit( $failures ? 1 : 0 );

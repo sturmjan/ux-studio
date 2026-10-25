@@ -70,6 +70,10 @@ final class Module extends BaseModule {
 		add_action( 'send_headers', array( $this, 'maybe_send_csp_header' ) );
 		$csp_mode = $this->csp_policy()->mode();
 		CspMaintenance::register( $csp_mode );
+
+		/* ── PHP version check: widget, notice, daily refresh + e-mail (the REST route is core and always on) ── */
+		PhpVersionNotice::register();
+		PhpVersionMaintenance::register();
 		if ( 'off' !== $csp_mode ) {
 			CspDashboardWidget::register();
 		}
@@ -93,6 +97,16 @@ final class Module extends BaseModule {
 			add_filter( 'the_generator', '__return_false' );
 			add_filter( 'style_loader_src', array( $this, 'remove_version_query_arg' ), 9999 );
 			add_filter( 'script_loader_src', array( $this, 'remove_version_query_arg' ), 9999 );
+		}
+
+		/* ── Hide the other WordPress fingerprints of the page head (RSD, wlwmanifest, shortlink, REST link) ── */
+		if ( $this->setting( 'hide_wp_head_links', false ) ) {
+			HeadLinks::register();
+		}
+
+		/* ── No success e-mails after automatic updates (the updates themselves still run) ── */
+		if ( $this->setting( 'suppress_update_emails', false ) ) {
+			UpdateEmails::register();
 		}
 
 		/* ── Disable theme/plugin file editor (define early, before wp-admin caps) ── */
@@ -906,6 +920,22 @@ final class Module extends BaseModule {
 				'type'    => 'toggle',
 				'label'   => __( 'Hide WordPress version', 'ux-studio' ),
 				'default' => true,
+			),
+			array(
+				'key'     => 'hide_wp_head_links',
+				'section' => __( 'Hardening', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Hide WordPress links in the page head', 'ux-studio' ),
+				'help'    => __( 'Removes the RSD, Windows Live Writer, short link and REST API address links from the page head and the matching HTTP headers, so the site does not announce that it runs on WordPress. The REST API itself keeps working. Use together with "Hide WordPress version".', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'suppress_update_emails',
+				'section' => __( 'Hardening', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'No e-mails about successful automatic updates', 'ux-studio' ),
+				'help'    => __( 'Stops the e-mails WordPress sends after automatic updates of plugins, themes and core. Updates keep running. E-mails about failed or critical core updates and manual-action messages are still sent.', 'ux-studio' ),
+				'default' => false,
 			),
 			array(
 				'key'     => 'disable_emojis',
@@ -1816,6 +1846,7 @@ final class Module extends BaseModule {
 		// ended so re-enabling later does not resume a stale worklist.
 		CspUploadGuardBootstrap::on_deactivate();
 		CspMaintenance::unschedule();
+		PhpVersionMaintenance::unschedule();
 		( new UploadGuardScanner() )->abort_full_scan();
 	}
 
@@ -1856,7 +1887,9 @@ final class Module extends BaseModule {
 	 * Is the custom login address really in force on this site right now? The same conditions as the hooks
 	 * above (setting on, slug set, no kill switch) plus pretty permalinks and the fail-open collision check.
 	 *
-	 * @return array{active:bool,slug:string,url:string,reason:string} `reason`: why not (`off`, `empty`, `kill_switch`, `no_pretty_permalinks`, `collision`) or ''.
+	 * @return array{active:bool,slug:string,url:string,reason:string} `reason`: why not (`off`, `empty`, `kill_switch`, `no_pretty_permalinks`, `collision`, `pending`) or ''.
+	 *         `pending`: the onboarding set the address but the administrator has not confirmed it yet, so the address works
+	 *         and wp-login.php stays open (see LoginUrlPending).
 	 */
 	public function login_lock_status(): array {
 		$slug   = $this->login_slug();
@@ -1873,6 +1906,8 @@ final class Module extends BaseModule {
 			$reason = 'no_pretty_permalinks';
 		} elseif ( $this->login_slug_collides( $slug ) ) {
 			$reason = 'collision';
+		} elseif ( LoginUrlPending::is_pending( $slug ) ) {
+			$reason = 'pending';
 		}
 		return array(
 			'active' => '' === $reason,
@@ -1941,7 +1976,7 @@ final class Module extends BaseModule {
 	 * an existing page or rewrite rule - better to leave wp-login.php working
 	 * than break the site.
 	 */
-	private function login_slug_collides( string $slug ): bool {
+	public function login_slug_collides( string $slug ): bool {
 		if ( in_array( $slug, array( 'wp-admin', 'wp-login', 'wp-login.php', 'wp-content', 'wp-includes', 'wp-json' ), true ) ) {
 			return true;
 		}
@@ -1976,7 +2011,8 @@ final class Module extends BaseModule {
 			return;
 		}
 		$status = $this->lock_status_cached();
-		if ( ! $status['active'] ) {
+		// A pending address (onboarding, not yet confirmed) is served like an active one, only wp-login.php is not closed.
+		if ( ! $status['active'] && 'pending' !== $status['reason'] ) {
 			// At most one Activity Log row a day: this runs on every request of the site.
 			if ( 'collision' === $status['reason'] && false === get_transient( self::COLLISION_LOG_TRANSIENT ) ) {
 				set_transient( self::COLLISION_LOG_TRANSIENT, 1, DAY_IN_SECONDS );

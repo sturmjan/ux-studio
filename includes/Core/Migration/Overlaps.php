@@ -49,6 +49,9 @@ final class Overlaps {
 	/** @var callable|null Test seam: module id => settings array. */
 	private static $settings_resolver = null;
 
+	/** @var callable|null Test seam: foreign condition (array) => bool. */
+	private static $foreign_reader = null;
+
 	/**
 	 * Forget everything cached for this request (after plugins/modules/settings changed).
 	 */
@@ -68,6 +71,118 @@ final class Overlaps {
 	public static function set_settings_resolver( ?callable $resolver ): void {
 		self::$settings_resolver = $resolver;
 		self::flush();
+	}
+
+	/**
+	 * Replace how conditions on a foreign plugin's options / files are read (tests only).
+	 *
+	 * @param callable|null $reader Receives a condition array, returns whether it holds.
+	 */
+	public static function set_foreign_reader( ?callable $reader ): void {
+		self::$foreign_reader = $reader;
+		self::flush();
+	}
+
+	/**
+	 * Does one condition on a foreign plugin hold? Shapes:
+	 *  - `array( 'option' => 'x' )`                         the option is truthy,
+	 *  - `array( 'option' => 'x', 'key' => 'k' )`           the option is an array (or JSON) with a truthy `k`,
+	 *  - `array( 'option' => 'x', 'contains' => array(..) )` the option is a list holding any of the values,
+	 *  - `array( 'file' => 'llms.txt' )`                     the file exists in the site root.
+	 *
+	 * @param array<string, mixed> $cond Condition.
+	 */
+	public static function foreign_condition_met( array $cond ): bool {
+		if ( null !== self::$foreign_reader ) {
+			return (bool) call_user_func( self::$foreign_reader, $cond );
+		}
+		if ( isset( $cond['file'] ) ) {
+			return defined( 'ABSPATH' ) && '' !== (string) $cond['file'] && file_exists( ABSPATH . ltrim( (string) $cond['file'], '/' ) );
+		}
+		if ( ! isset( $cond['option'] ) ) {
+			return false;
+		}
+		$value = get_option( (string) $cond['option'], null );
+		if ( is_string( $value ) && '' !== $value && '{' === $value[0] ) {
+			$decoded = json_decode( $value, true );
+			$value   = is_array( $decoded ) ? $decoded : $value;
+		}
+		if ( isset( $cond['contains'] ) ) {
+			return is_array( $value ) && (bool) array_intersect( array_map( 'strval', (array) $cond['contains'] ), array_map( 'strval', $value ) );
+		}
+		if ( isset( $cond['key'] ) ) {
+			return is_array( $value ) && isset( $value[ $cond['key'] ] ) && self::truthy( $value[ $cond['key'] ] );
+		}
+		return self::truthy( $value );
+	}
+
+	/**
+	 * Option values meaning "on" in the wild: true, 1, '1', 'on', 'yes', 'true'.
+	 *
+	 * @param mixed $value Stored value.
+	 */
+	private static function truthy( $value ): bool {
+		if ( is_array( $value ) ) {
+			return array() !== $value;
+		}
+		return in_array( strtolower( (string) $value ), array( '1', 'on', 'yes', 'true', 'enabled' ), true );
+	}
+
+	/**
+	 * Apply the foreign-feature condition of an entry: the entry as it counts right now, or null when it
+	 * does not apply at all. Entries without `foreign_when` are returned unchanged.
+	 *
+	 * @param array<string, mixed> $entry Catalog entry.
+	 * @return array<string, mixed>|null
+	 */
+	private static function effective_entry( array $entry ): ?array {
+		if ( empty( $entry['foreign_when'] ) ) {
+			return $entry;
+		}
+		foreach ( (array) $entry['foreign_when'] as $cond ) {
+			if ( is_array( $cond ) && self::foreign_condition_met( $cond ) ) {
+				return $entry;
+			}
+		}
+		if ( 'none' === ( $entry['foreign_else'] ?? 'partial' ) ) {
+			return null;
+		}
+		$entry['type'] = Catalog::TYPE_PARTIAL;
+		return $entry;
+	}
+
+	/**
+	 * Settings of a module that an active foreign plugin blocks, as setting keys: the `when` keys of full
+	 * catalog entries whose plugin is active (and whose foreign feature is on). The onboarding starter pack
+	 * leaves these settings out instead of creating an overlap the activation guard would have refused.
+	 *
+	 * @param string $module_id Module id.
+	 * @return array<string, string[]> Setting key => names of the plugins that block it.
+	 */
+	public static function blocked_settings( string $module_id ): array {
+		$active = self::active_by_slug();
+		$out    = array();
+		if ( ! $active ) {
+			return $out;
+		}
+		foreach ( Catalog::entries() as $entry ) {
+			if ( $entry['module'] !== $module_id || Catalog::TYPE_FULL !== $entry['type'] || empty( $entry['when'] ) ) {
+				continue;
+			}
+			$entry = self::effective_entry( $entry );
+			if ( null === $entry || Catalog::TYPE_FULL !== $entry['type'] ) {
+				continue;
+			}
+			foreach ( array_keys( $entry['plugins'] ) as $slug ) {
+				if ( ! isset( $active[ (string) $slug ] ) ) {
+					continue;
+				}
+				foreach ( (array) $entry['when'] as $key ) {
+					$out[ (string) $key ][] = self::plugin_name( $active[ (string) $slug ], (string) $entry['plugins'][ $slug ] );
+				}
+			}
+		}
+		return $out;
 	}
 
 	/**
@@ -225,6 +340,10 @@ final class Overlaps {
 				if ( ! self::condition_met( $entry ) ) {
 					continue;
 				}
+				$entry = self::effective_entry( $entry );
+				if ( null === $entry ) {
+					continue;
+				}
 				foreach ( array_keys( $entry['plugins'] ) as $slug ) {
 					if ( isset( $active[ (string) $slug ] ) ) {
 						$rows[] = self::row( $entry, (string) $slug, $active[ (string) $slug ] );
@@ -257,6 +376,10 @@ final class Overlaps {
 				// The condition looks at the module the guard is about, not at the wildcard.
 				$probe = Catalog::ANY_MODULE === $entry['module'] ? array_merge( $entry, array( 'module' => $module_id ) ) : $entry;
 				if ( ! self::condition_met( $probe ) ) {
+					continue;
+				}
+				$entry = self::effective_entry( $entry );
+				if ( null === $entry ) {
 					continue;
 				}
 				foreach ( array_keys( $entry['plugins'] ) as $slug ) {

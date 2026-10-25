@@ -2765,3 +2765,158 @@ Opraveno (commity na `feature/release-fixes`):
     (`TwoFactor::non_form_login_error()`, kód `uxstudio_2fa_non_form`) a limiter ani adaptivní CAPTCHA to nepočítají jako neúspěch (`is_non_form_error()` v `AttemptsHandler` a `CaptchaHandler`);
     XML-RPC dál dostane odpověď jako při špatném hesle. (b) Vynucené nastavení po odkladu blokuje AJAX a zápisy REST jen pro požadavky z adminu (referer v `admin_url()`, chybějící referer se bere jako admin) a pro nástroje
     (aplikační hesla, MCP tokeny); veřejný web přihlášeného uživatele (wc-ajax, formuláře) funguje. (c) Pro vynuceného uživatele se z heartbeatu vyřadí `heartbeat_autosave`, takže přes něj nejde zapsat.
+
+## 29. Úvodní průvodce pro nový web (0.7.0)
+
+Zadání (schváleno 2026-10-25): na zcela novém webu, kde není co migrovat, se průvodce otevře po aktivaci
+také a nabídne „startovací balíček“ modulů vhodných pro každý WordPress, rovnou přednastavených.
+Když jsou k převzetí cizí pluginy, zůstává migrace (§26) a startovací balíček se nabídne i po ní.
+
+### 29.1 Princip
+
+- **Nic mimo whitelist.** Položky balíčku mají pevné id (`StarterPack::ids()`); REST bere jen id z whitelistu,
+  hodnoty čistí schéma nastavení daného modulu.
+- **Žádné obcházení hlídání překryvů.** Moduly se zapínají přes `ActivationGuard`, nastavení se ukládají přes
+  `BaseModule::save_settings()` (stejná cesta jako `POST /settings/{id}`, takže se provedou vedlejší efekty,
+  třeba zápis `.htaccess`). Nastavení, které už dělá cizí plugin (Disable Comments, Limit Login Attempts a jiné),
+  se z přednastavení vynechá, ne zdvojí (`Overlaps::blocked_settings()`).
+- **Snímek před změnou.** Jedna volba `uxstudio_starter_snapshot`: předchozí seznam modulů a předchozí hodnoty
+  voleb všech dotčených modulů. `revert` vrátí přesně toto, vypne zapnuté moduly (spustí se jejich `on_disable`,
+  tedy i odstranění bloku v `.htaccess`) a znovu spustí vedlejší efekty u modulů, které zůstaly zapnuté.
+- **Přihlašovací adresa ve dvou krocích, nikdy bez záchrany.** Krok A uloží `/administrace` a přihlašovací
+  formulář tam funguje, ale `wp-login.php` zůstává otevřený (stav `uxstudio_login_url_pending`). Krok B
+  (`onboarding/login-url/confirm`) stav zruší, ověří, že zámek opravdu platí, a pošle e-mail s adresou.
+  Nepotvrzený stav po 24 hodinách jen hlásí „expired“, do zablokování nikdy nepřejde.
+- **Detekce.** WooCommerce, Cloudflare (`HTTP_CF_CONNECTING_IP`), proxy (`HTTP_X_FORWARDED_FOR`), typ serveru
+  (`SERVER_SOFTWARE`), zapisovatelnost `.htaccess`, hezké trvalé odkazy, kolize slugu, logo webu.
+
+### 29.2 Obsah balíčku
+
+Předzaškrtnuto: Security (komentáře, editor souborů, XML-RPC, verze WP, bezpečnostní hlavičky, limit přihlášení
+5 pokusů/15 min progresivně, revize 10, Heartbeat pomalu, emoji), e-maily o aktualizacích (nové nastavení),
+Skrýt WordPress (admin bar, patička, nápověda, přihlašovací stránka s logem webu, odkazy v `<head>`),
+klasický editor + widgety, čisté profily, widgety nástěnky (poznámky, aktivita), duplikace příspěvků + menu,
+externí odkazy, AI Markdown, Bot Throttle (120 req/min, Ahrefs a Semrush mimo seznam), optimalizace obrázků
+(WebP, kvalita 82), koš médií, stock fotky, skener zranitelností, activity log (90 dní), upozornění na
+indexaci, vlastní přihlašovací adresa `/administrace` (poslední, jen jako pending).
+Nezaškrtnuto: SMTP (potřebuje údaje), e-mail log (14 dní), přesměrování + 404 log, výměna médií, poslední
+přihlášení uživatelů, skrytí admin lišty pro zákazníky, CSP inventura (`audit`, vzorkování 20 %).
+Nikdy: vynucené 2FA, IP firewall, blokování zemí, vynucení HTTPS, HSTS, omezení REST API, ochrana přihlášení,
+blokování výčtu uživatelů, CSP Enforce, modul Disable Auto Updates.
+
+### 29.3 Nová pravidla překryvů
+
+- `ai-markdown` x llms.txt SEO pluginů (Yoast, Rank Math, All in One SEO): plný překryv jen když je funkce
+  cizího pluginu zapnutá (jeho volba, nebo fyzický `llms.txt` v kořeni), jinak jen informace.
+  Katalog má nové klíče `foreign_when` (podmínky na volby a soubory cizího pluginu) a `foreign_else` (`partial`|`none`).
+- `image-optimizer` x EWWW, Smush, ShortPixel, Imagify, Converter for Media, Optimole: plný překryv;
+  LiteSpeed Cache jen při zapnuté optimalizaci obrázků/WebP, Jetpack jen se zapnutým obrazovým CDN (Photon).
+
+### 29.4 Fáze
+
+- [x] F1 Backend: `StarterPack`, `Environment`, `Applier`, REST `uxstudio/v1/onboarding/*` (starter, apply, revert, login-url/confirm), snímek a vrácení
+- [x] F1 AutoStart: rozhodnutí `new` (nový web bez čeho migrovat) a příznak `starter` v nápovědě na obrazovce Moduly
+- [x] F1 Security: nová nastavení `hide_wp_head_links`, `suppress_update_emails`, stav `pending` přihlašovací adresy
+- [x] F1 Nová pravidla překryvů (ai-markdown, image-optimizer) a testy `tests/onboarding-starter.php`, `tests/overlap-catalog.php`
+- [x] F1 Překlady nových řetězců PHP (cs_CZ)
+- [x] F2 Kontrola verze PHP (kritická zranitelnost / konec podpory; popis v 29.5; průvodce ji čte z `GET uxstudio/v1/security/php-version`)
+- [x] F3 UI průvodce: režim `#/wizard?mode=new`, výběr položek, přednastavení slovy, potvrzení přihlašovací adresy, vrácení změn
+- [x] F4 Napojení na centrální aplikaci (strana pluginu; strana CA se dělá zvlášť v centrani-app)
+- [x] F5 Překlady JS (build `index.dc3d7fb3086a456127fe.js` má svůj JSON v `languages/`)
+- [x] F5 Živé QA na čistém webu (vrajt, Apache, bez WooCommerce, bez proxy): aktivace otevře `#/wizard?mode=new`; použito 17 z 17 položek; `/administrace/` ukáže přihlašovací formulář; potvrzení zavře `wp-login.php` (404) a `wp-admin` přesměruje na novou adresu; skutečné přihlášení touto adresou funguje; selhání e-mailu skončí hláškou; vrácení obnoví moduly, nastavení i `wp-login.php`; krok Centrální aplikace: podepsaný POST přijala lokální CA (podpis i živá výzva prošly, CA ukázala přihlášení)
+- [x] F5 Opravy z QA: bez loga webu se na přihlášení skryje i logo WordPressu (`form_options` = `hide_login_logo`); po vrácení se z `.htaccess` odstraní celý blok `UX Studio Security` včetně komentářů (`HtaccessWriter::strip_block()`, platí i pro `on_disable` a prázdná pravidla)
+- [ ] F5 Živé QA: nginx, Cloudflare, WooCommerce
+- [ ] F5 Živě: registrační stránka v CA (čeká na nasazení CA) a produkční `turnstile_provision` v CA
+- [ ] F5 Vydání 0.7.0
+
+### 29.5 Kontrola verze PHP (F2)
+
+**Proč.** 2026-10-21 vyšlo php.net bezpečnostní upozornění (CVE-2026-109618 a CVE-2026-109619, vzdálené spuštění kódu
+bez přihlášení, CVSS 4.0 9.2), opraveno v 8.5.12, 8.4.27, 8.3.36 a 8.2.35. Web na starší verzi je zranitelný a
+majitel to z administrace nepozná. Třídy v `includes/Modules/SecurityOptimization/`:
+
+- `PhpVersionCheck` (čistá logika, bez WordPressu): vestavěná tabulka `BASELINE` (větev -> nejnižší bezpečná verze a
+  konec bezpečnostní podpory) a `ADVISORIES` (CVE, adresa, první opravená verze po větvích), `parse()`, `evaluate()`,
+  `normalize_remote()`, `merge()`, `snoozed()`, `mail_due()`.
+- `PhpVersionMaintenance`: denní WP-Cron `uxstudio_php_version_refresh`, stažení z php.net, uložení, e-mail, `result()`
+  a `payload()`.
+- `PhpVersionNotice`: widget na nástěnce (nahoře, nejde skrýt) a upozornění na všech obrazovkách administrace.
+- `PhpVersionRestController`: `GET uxstudio/v1/security/php-version`.
+
+**Formát API php.net (ověřeno 2026-10-25, bez klíče, JSON).**
+
+- `GET /releases/states` (strojově čitelná podpora větví): `{"8":{"8.4":{"state":"stable","initial_release":"2024-11-21T00:00:00+00:00","active_support_end":"...","security_support_end":"2028-12-31T00:00:00+00:00"},...}}`.
+  `state` je `stable`, `security` nebo `eol`. Obsahuje i větve 7.x a 5.6.
+- `GET /releases/?json&version=8.4&max=10`: `{"8.4.27":{"announcement":true,"tags":["security"],"date":"21 Oct 2026","source":[...]},"8.4.26":{...},"8.4.25":{"tags":[""],...}}`.
+  Bezpečnostní vydání má v `tags` hodnotu `security`, běžné má prázdný řetězec. Bez `max` vrací jediné (nejnovější) vydání
+  bez klíče s verzí (`...,"version":"8.4.27"`).
+- `GET /releases/active` (a `/releases/active.php`): `{"8":{"8.2":{"version":"8.2.35","tags":["security"],"date":...},...}}`,
+  jen poslední vydání podporovaných větví. `GET /releases/?json` je to samé po hlavních verzích (`supported_versions`).
+  Pro kontrolu se nepoužívá: poslední vydání nemusí být bezpečnostní, takže se bere `states` (konec podpory) a pro každou
+  podporovanou větev `?json&version=<větev>&max=10` (nejvyšší vydání se štítkem `security` = nejnižší bezpečná verze).
+
+**Pravidla rozhodnutí** (`evaluate(PHP_VERSION, tabulka, dnes)` -> `level` ok|warning|critical, `reason`
+outdated|unsupported|eol_soon|unknown, `branch`, `current`, `minimum`, `eol`, `days_to_eol`, `cves`, `advisory_url`,
+`distro_build`, `recommended`). V tomto pořadí:
+
+1. Nečitelná verze nebo prázdná tabulka: ok, `unknown` (nehádáme).
+2. Větev nižší než nejnižší v tabulce (8.1 a starší) nebo po konci podpory (`dnes > eol`): critical, `unsupported`.
+3. Větev novější než tabulka (8.6 RC a dál): ok.
+4. Verze pod nejnižší bezpečnou verzí větve: critical, `outdated`; CVE a adresa upozornění jen když je pokrývá známé
+   upozornění (`fixed` po větvích).
+5. Konec podpory do 90 dnů (včetně): warning, `eol_soon`.
+6. Jinak ok.
+
+Z `8.1.2-1ubuntu2.20` se bere číselný začátek `8.1.2` a nastaví se `distro_build` (distribuce často opravuje bez změny
+čísla, proto je u upozornění věta o zpětných opravách).
+
+**Vzdálená data.** Stahuje jen denní cron při zapnutém modulu Zabezpečení (`wp_safe_remote_get`, timeout 5 s, 128 kB na
+odpověď, nejvýš 8 větví, celkem do 20 s). Při chybě zůstanou poslední dobrá data (volba `uxstudio_php_version_remote`)
+a vestavěná tabulka. Platí jen to, co projde kontrolou (`^\d+\.\d+\.\d+\z`, větev sedí, patch do 99, platné datum).
+Vzdálená data smějí nejnižší bezpečnou verzi jen ZVÝŠIT a konec podpory jen POSUNOUT dřív, nikdy opačně, a nesmí oživit
+větev, kterou vestavěná tabulka nezná jako starou. Zcela novou větev (8.6 po vydání) přidají.
+
+**Kde se zobrazuje (jen když `level` není ok).**
+
+- Widget nástěnky (červený/žlutý) a upozornění na všech obrazovkách pro `manage_options`. Upozornění nemá křížek; skryje ho
+  jen tlačítko „Ověřeno u hostingu, skrýt na 30 dní“ (nonce, volba `uxstudio_php_version_snooze` s časem a přesnou
+  `PHP_VERSION`; jiná verze upozornění vrátí). Widget zůstává.
+- E-mail na `admin_email`: jednou, když web zkritickne, pak nejvýš jednou za 7 dní (volba `uxstudio_php_version_mail`,
+  zapsaná před odesláním; po návratu z critical se smaže).
+- REST: `GET uxstudio/v1/security/php-version` (`manage_options`, bez HTTP požadavku) vrací výše uvedená pole plus
+  `php_full`, `checked`, `source` (bundled|php.net), `fetched_at`, `snoozed`. Totéž pole `php_version` (jen výsledek) je
+  v `GET security-optimization/scan-status`.
+
+**Bez modulu Zabezpečení.** REST a čistá funkce fungují vždy (průvodce F3 výsledek potřebuje i tam, kde Zabezpečení
+ještě není zapnuté; čte vestavěnou tabulku a dříve stažená data). Cron, widget, upozornění a e-mail jsou jen se zapnutým
+modulem, vypnutí modulu cron zruší.
+
+**Centrální aplikace.** `SecurityApiController::inventory()` (`?page=security_api&action=inventory`, podpis HMAC) čte z těla
+POST pole `php_version` a z něj číselný začátek ukládá do `sites.php_version`. Plugin ho do 0.6.0 neposílal, teď ho
+`CentralVulnerabilityClient::report()` přidává (`PHP_VERSION` beze změny) spolu s novým doplňkovým polem
+`php_check: {level, reason}` (starší CA ho ignoruje). Odesílá se při každém ručním i plánovaném skenu zranitelností.
+
+**Ověřeno.** `tests/php-version-check.php` (rozhodnutí pro 5.6 až 8.6, hranice 90 dnů a posledního dne podpory, přípony
+distribucí, vzdálená data zvyšující / snižující / neplatná, snooze, plán e-mailů). Živě na pobyty (XAMPP PHP 8.4.19):
+critical `outdated` se dvěma CVE, `refresh()` proti php.net uloží 8.2 až 8.5, REST 200.
+
+### 29.6 Napojení na centrální aplikaci (F4, strana pluginu)
+
+Třída `Core\Onboarding\CentralApp`, REST `onboarding/ca/prepare` (POST), `onboarding/ca/status` (GET), `onboarding/ca/captcha` (POST).
+
+- **Protokol (ověřeno proti `ConnectController` v CA, 2026-10-25).** Prohlížeč POSTuje na `{adresa CA}/?page=connect_site` pole
+  `site_url`, `site_name`, `api_key` (min. 32 znaků), `timestamp` (+-600 s), `site_type=wordpress`, `return_url` (stejný původ
+  jako `site_url`, jinak ho CA zahodí), `signature = HMAC-SHA256( site_url|site_name|timestamp|site_type , api_key )`
+  (`site_type` je v podepsaném textu, když se posílá). Podpis sám nic neprokazuje, CA proto zavolá podepsaný `ping` webu
+  (nejdřív protokol legacy, pak `uxstudio`), takže plugin musí mít Synchronizaci obsahu v režimu node a uložený klíč
+  PŘED přesměrováním. Zpět CA připojí `ux1_connected=1` (nebo `ux1_connect_cancelled=1`).
+- **prepare**: ověří adresu (https, `http` jen localhost/127.0.0.1/[::1]; bez přihlašovacích údajů, dotazu a fragmentu), odmítne
+  centrálu, která už spravuje jiné weby, uloží snímek (společný se startovacím balíčkem, `Applier::snapshot_for`), zapne modul přes
+  `ActivationGuard`, nastaví `mode=node`, `central_app_url`, `sso_allow_admin=false`, `node_allow_packages=false`, ponechá nebo
+  vytvoří `node_api_key`, ověří vlastní podepsaný ping (hlavička `X-UXS-Selfcheck`, nepočítá se jako ozvání CA) a vrátí
+  `{action, fields, ping, warnings, local}`. Klíč je jen v této odpovědi (`Cache-Control: no-store`), do logu nejde.
+- **status**: připraveno, kdy se CA naposledy ozvala (`uxstudio_node_last_ping`, zapisuje `NodeController::ping`), stav CAPTCHA.
+- **captcha**: `captcha_key_source=ca` + `captcha_enabled` přes uložení nastavení Zabezpečení (klíče získá
+  `TurnstileCaProvisioner`); při neúspěchu se CAPTCHA nevynucuje (žádné zamknutí), snímek umožní vrácení.
+- Adresa produkční CA: `https://app.ux1.cz/` (výchozí, lze přepsat v rozbalovacím poli "Pokročilé").
+- Testy: `tests/onboarding-central-app.php` (podpis proti nezávisle spočítané hodnotě, adresa, původ, pole formuláře).

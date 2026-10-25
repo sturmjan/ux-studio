@@ -5,7 +5,7 @@
  */
 import { useEffect, useState } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { ArrowRight, Camera, ChevronDown, CircleCheck, Eye, History as HistoryIcon, Power, Radar, ShieldCheck, Undo2, Wand2 } from 'lucide-react';
+import { ArrowRight, Camera, ChevronDown, CircleCheck, Eye, History as HistoryIcon, Power, Radar, ShieldCheck, Sparkles, Undo2, Wand2 } from 'lucide-react';
 import { navigate } from '../route';
 import type { WizardCtx } from './context';
 import { ChangeTable, DataCounts, DetailRows, DrawnCheck, ErrorLine, MatchBadge, MenuRoleTable, PartialNote, PlanDetails, SourceIcon, StateIcon, StatusBadge, StepHead, UndoMigrationModal, Warnings, reducedMotion, sourceSummary } from './parts';
@@ -640,6 +640,9 @@ function DoneStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 				</a>
 				<button type="button" className="button" onClick={ () => navigate( '' ) }>
 					{ __( 'Back to modules', 'ux-studio' ) }
+				</button>
+				<button type="button" className="button" onClick={ () => navigate( 'wizard', { mode: 'new' } ) }>
+					<Sparkles size={ 16 } aria-hidden /> { __( 'Continue with the recommended modules', 'ux-studio' ) }
 				</button>
 				<button type="button" className="button button-primary" onClick={ () => ctx.goTo( 'preview' ) }>
 					{ __( 'Continue to the safe preview', 'ux-studio' ) } <ArrowRight size={ 16 } aria-hidden />

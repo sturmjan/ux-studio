@@ -7,6 +7,8 @@
 
 namespace UxStudio\Core\Migration;
 
+use UxStudio\Core\Onboarding\StarterPack;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -16,8 +18,9 @@ defined( 'ABSPATH' ) || exit;
  *     (option flag `pending`) when this really is somebody clicking "Activate" on one plugin: not WP-CLI,
  *     not a bulk activation, not a network-wide one. Like core plugins do, it never redirects there.
  *  2. The next admin request (the Plugins screen the activation redirects to) looks at the flag, scans the
- *     site and sends the administrator to `#/wizard` ONCE, when at least one plugin can be taken over. The flag
- *     is spent on that request whatever the answer is, so the redirect never repeats.
+ *     site and sends the administrator to `#/wizard` ONCE, when at least one plugin can be taken over, or to
+ *     `#/wizard?mode=new` (the starter pack) on a site with nothing to take over. The flag is spent on that
+ *     request whatever the answer is, so the redirect never repeats.
  *
  * When the activation also took over from the legacy UX1 plugin (Handoff), the wizard does not jump in front of
  * its "delete the old plugin" notice: the redirect is skipped and the notice links to the wizard instead.
@@ -30,6 +33,9 @@ final class AutoStart {
 	public const FLAG = 'uxstudio_wizard_autostart';
 
 	public const WIZARD_PATH = 'admin.php?page=ux-studio#/wizard';
+
+	/** The wizard in its "set up a new site" mode (nothing to migrate: the starter pack). */
+	public const NEW_PATH = 'admin.php?page=ux-studio#/wizard?mode=new';
 
 	private const DISMISS_META = 'uxstudio_wizard_hint_dismissed';
 
@@ -111,7 +117,8 @@ final class AutoStart {
 	 *
 	 * @param array<string, mixed> $ctx flag, can_manage, ajax, cron, rest, cli, network_admin, same_user, activate_multi,
 	 *                                  handoff (bool), ran (bool: a migration ever ran), count (int|callable: sources that can be taken over).
-	 * @return string `none` (nothing queued), `wait` (not a suitable request, keep the offer), `drop` (spend it without redirect), `go`.
+	 * @return string `none` (nothing queued), `wait` (not a suitable request, keep the offer), `drop` (spend it without redirect),
+	 *                `go` (migration wizard) or `new` (nothing to migrate: the starter pack for a new site).
 	 */
 	public static function decide_redirect( array $ctx ): string {
 		if ( 'pending' !== (string) ( $ctx['flag'] ?? '' ) ) {
@@ -126,11 +133,11 @@ final class AutoStart {
 		if ( empty( $ctx['can_manage'] ) || ( array_key_exists( 'same_user', $ctx ) && ! $ctx['same_user'] ) ) {
 			return 'wait';
 		}
-		if ( ! empty( $ctx['activate_multi'] ) || ! empty( $ctx['handoff'] ) || ! empty( $ctx['ran'] ) ) {
+		if ( ! empty( $ctx['activate_multi'] ) || ! empty( $ctx['handoff'] ) || ! empty( $ctx['ran'] ) || ! empty( $ctx['starter_applied'] ) ) {
 			return 'drop';
 		}
 		$count = is_callable( $ctx['count'] ?? null ) ? (int) $ctx['count']() : (int) ( $ctx['count'] ?? 0 );
-		return $count > 0 ? 'go' : 'drop';
+		return $count > 0 ? 'go' : 'new';
 	}
 
 	/**
@@ -200,6 +207,7 @@ final class AutoStart {
 				'activate_multi' => isset( $_GET['activate-multi'] ), // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				'handoff'        => '1' === get_option( self::HANDOFF_OPTION ),
 				'ran'            => array() !== History::all(),
+				'starter_applied' => false !== get_option( StarterPack::APPLIED_OPTION, false ),
 				'count'          => static fn(): int => self::count_migratable( SourceRegistry::scan() ),
 			)
 		);
@@ -207,25 +215,29 @@ final class AutoStart {
 			return;
 		}
 		// Spent now, whatever happens next: it must never repeat.
-		update_option( self::FLAG, 'go' === $decision ? 'done' : 'skipped', false );
+		update_option( self::FLAG, in_array( $decision, array( 'go', 'new' ), true ) ? 'done' : 'skipped', false );
 		delete_option( self::FLAG . '_user' );
-		if ( 'go' === $decision ) {
-			wp_safe_redirect( admin_url( self::WIZARD_PATH ) );
+		if ( 'go' === $decision || 'new' === $decision ) {
+			wp_safe_redirect( admin_url( 'new' === $decision ? self::NEW_PATH : self::WIZARD_PATH ) );
 			exit;
 		}
 	}
 
 	/**
-	 * Hint for the Modules screen: how many plugins can be taken over, when no migration ever ran.
+	 * Hint for the Modules screen: how many plugins can be taken over, when no migration ever ran, and whether
+	 * to offer "Set up new site" (the starter pack was never applied; offered after a migration too).
 	 *
 	 * @param int $user_id User who looks at the screen.
-	 * @return array{show:bool,count:int}
+	 * @return array{show:bool,count:int,starter:bool}
 	 */
 	public static function hint( int $user_id ): array {
-		if ( array() !== History::all() || '' !== (string) get_user_meta( $user_id, self::DISMISS_META, true ) ) {
+		$dismissed = '' !== (string) get_user_meta( $user_id, self::DISMISS_META, true );
+		$starter   = ! $dismissed && false === get_option( StarterPack::APPLIED_OPTION, false );
+		if ( array() !== History::all() || $dismissed ) {
 			return array(
-				'show'  => false,
-				'count' => 0,
+				'show'    => false,
+				'count'   => 0,
+				'starter' => $starter,
 			);
 		}
 		// The full scan reads the data of every known foreign plugin; the Modules screen asks on every visit, so
@@ -237,8 +249,9 @@ final class AutoStart {
 		}
 		$count = (int) $count;
 		return array(
-			'show'  => $count > 0,
-			'count' => $count,
+			'show'    => $count > 0,
+			'count'   => $count,
+			'starter' => $starter,
 		);
 	}
 
