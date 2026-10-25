@@ -4,7 +4,7 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { ArrowLeftRight, ArrowRight, Check, CircleCheck, Copy, ExternalLink, Eye, History as HistoryIcon, KeyRound, PlugZap, RefreshCw, ShieldAlert, Undo2 } from 'lucide-react';
+import { ArrowLeftRight, ArrowRight, Check, CircleCheck, Copy, ExternalLink, Eye, History as HistoryIcon, KeyRound, PlugZap, RefreshCw, ShieldAlert, Sparkles, Undo2 } from 'lucide-react';
 import { formatDate } from '../date';
 import { navigate } from '../route';
 import type { WizardCtx } from './context';
@@ -12,7 +12,7 @@ import { ConfirmModal, DrawnCheck, ErrorLine, StepHead, TestRows, Warnings, redu
 import type { SmokeCounts, WizardTarget } from './types';
 
 /** Copy text to the clipboard; resolves with whether it worked. */
-async function copyText( text: string ): Promise< boolean > {
+export async function copyText( text: string ): Promise< boolean > {
 	try {
 		await navigator.clipboard.writeText( text );
 		return true;
@@ -181,7 +181,7 @@ export function PreviewStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 /* ── 8 Switch ── */
 
 /** The new login address, big, with a copy button. */
-function LoginAddress( { url }: { url: string } ): JSX.Element {
+export function LoginAddress( { url }: { url: string } ): JSX.Element {
 	const [ copied, setCopied ] = useState( false );
 	return (
 		<div className="uxs-wiz-address">
@@ -499,6 +499,9 @@ export function SwitchedDone( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 				>
 					<HistoryIcon size={ 16 } aria-hidden /> { __( 'Run history', 'ux-studio' ) }
 				</a>
+				<button type="button" className="button" onClick={ () => navigate( 'wizard', { mode: 'new' } ) }>
+					<Sparkles size={ 16 } aria-hidden /> { __( 'Continue with the recommended modules', 'ux-studio' ) }
+				</button>
 				<button type="button" className={ bad ? 'button' : 'button button-primary' } onClick={ () => navigate( '' ) }>
 					{ __( 'Back to modules', 'ux-studio' ) }
 				</button>

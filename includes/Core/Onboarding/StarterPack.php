@@ -424,17 +424,22 @@ final class StarterPack {
 	 * @param string                              $description Description.
 	 * @param string[]                            $modules     Module ids.
 	 * @param array<string, array<string, mixed>> $settings    Preset.
-	 * @param array<int, array{0:string,1:string}> $warnings    Code and message pairs.
+	 * @param array<int, array{0:string,1:string,2?:array<string, mixed>}> $warnings Code, message and optional machine data.
 	 * @param bool                                $optional    Not in the pre-checked core.
 	 * @return array<string, mixed>
 	 */
 	private static function build( string $id, string $title, string $description, array $modules, array $settings, array $warnings, bool $optional ): array {
 		$rows = array();
 		foreach ( $warnings as $w ) {
-			$rows[] = array(
+			$row = array(
 				'code'    => $w[0],
 				'message' => $w[1],
 			);
+			if ( isset( $w[2] ) ) {
+				// Machine readable details (the wizard words them from the module schema).
+				$row['data'] = $w[2];
+			}
+			$rows[] = $row;
 		}
 		return array(
 			'id'          => $id,
@@ -560,6 +565,10 @@ final class StarterPack {
 					__( 'Left out: %1$s, because %2$s already does it.', 'ux-studio' ),
 					$key,
 					implode( ', ', array_map( 'strval', (array) $plugins ) )
+				),
+				array(
+					'key'     => (string) $key,
+					'plugins' => array_values( array_map( 'strval', (array) $plugins ) ),
 				),
 			);
 		}

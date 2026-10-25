@@ -34,6 +34,9 @@ final class NodeController {
 	private const NS   = 'uxstudio/v1';
 	private const BASE = '/content-sync/node';
 
+	/** Option: unix time of the last signed ping from the hub / central app. */
+	public const LAST_PING_OPTION = 'uxstudio_node_last_ping';
+
 	/**
 	 * Register node routes.
 	 */
@@ -586,6 +589,11 @@ final class NodeController {
 	 * @param WP_REST_Request $request Request.
 	 */
 	public function ping( WP_REST_Request $request ): WP_REST_Response {
+		// When the central app last called (the onboarding wizard shows it). The site's own self-check does not count.
+		if ( '' === (string) $request->get_header( 'X-UXS-Selfcheck' ) ) {
+			update_option( self::LAST_PING_OPTION, time(), false );
+		}
+
 		$authors = get_users(
 			array(
 				'role__in' => array( 'administrator', 'editor', 'author' ),

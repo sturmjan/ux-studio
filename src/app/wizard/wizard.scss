@@ -131,8 +131,9 @@
 	color: var(--uxs-brand);
 }
 
-[data-theme="dark"] .uxs-wiz-stephead__icon,
-[data-theme="dark"] /* Per-source extra choices (e.g. "Also move the history") and the counts of a plugin's objects. */
+[data-theme="dark"] .uxs-wiz-stephead__icon { color: #c7d2fe; }
+
+/* Per-source extra choices (e.g. "Also move the history") and the counts of a plugin's objects. */
 .uxs-wiz-options { display: flex; flex-direction: column; gap: var(--uxs-sp-1); margin-top: var(--uxs-sp-2); }
 .uxs-wiz-option {
 	display: flex;
@@ -775,7 +776,88 @@
 	color: #fff;
 }
 
+/* -- New site wizard (PLAN.md 29): environment, PHP card, recommended modules, Central App -- */
+.uxs-wiz-env {
+	display: grid;
+	gap: var(--uxs-sp-2);
+	margin: 0 0 var(--uxs-sp-4);
+	padding: 0;
+	list-style: none;
+
+	li {
+		display: grid;
+		grid-template-columns: 24px minmax(110px, 18%) minmax(0, 1fr);
+		align-items: center;
+		gap: var(--uxs-sp-3);
+		margin: 0;
+		padding: var(--uxs-sp-2) var(--uxs-sp-4);
+		border: 1px solid var(--uxs-border);
+		border-radius: var(--uxs-radius-s);
+		background: var(--uxs-bg);
+		color: var(--uxs-text);
+		font-size: var(--uxs-fs-s);
+	}
+	li > svg { justify-self: center; color: var(--uxs-text-soft); }
+	li > span { overflow-wrap: anywhere; }
+}
+
+.uxs-wiz-phpcard {
+	display: flex;
+	gap: var(--uxs-sp-3);
+	align-items: flex-start;
+	margin: 0 0 var(--uxs-sp-4);
+	padding: var(--uxs-sp-4);
+	border: 1px solid var(--uxs-border);
+	border-radius: var(--uxs-radius);
+	background: var(--uxs-surface-2);
+	color: var(--uxs-text);
+
+	> svg { flex-shrink: 0; margin-top: 2px; }
+	> div { min-width: 0; }
+	p { margin: var(--uxs-sp-1) 0 0; overflow-wrap: anywhere; }
+	a { display: inline-flex; align-items: center; gap: var(--uxs-sp-1); }
+	&.is-ok { border-color: color-mix(in srgb, var(--uxs-success) 45%, var(--uxs-border)); background: color-mix(in srgb, var(--uxs-success) 10%, var(--uxs-surface)); > svg { color: var(--uxs-success); } }
+	&.is-warning { border-color: color-mix(in srgb, var(--uxs-warning) 60%, var(--uxs-border)); background: color-mix(in srgb, var(--uxs-warning) 12%, var(--uxs-surface)); > svg { color: var(--uxs-warning); } }
+	&.is-critical { border-color: var(--uxs-danger); background: color-mix(in srgb, var(--uxs-danger) 12%, var(--uxs-surface)); > svg { color: var(--uxs-danger); } > div > strong { color: var(--uxs-danger); } }
+}
+
+.uxs-wiz-packgroup { margin-top: var(--uxs-sp-5); }
+.uxs-wiz-packgroup__title {
+	display: flex;
+	align-items: center;
+	gap: var(--uxs-sp-2);
+	margin: 0 0 var(--uxs-sp-3);
+	color: var(--uxs-text);
+	svg { color: var(--uxs-brand); }
+}
+
+[data-theme="dark"] .uxs-wiz-packgroup__title svg { color: #a5b4fc; }
+
+.uxs-wiz-pack {
+	&.is-disabled { opacity: 0.8; background: var(--uxs-surface-2); }
+	&.is-disabled .uxs-wiz-sourceicon { opacity: 0.6; }
+	.uxs-wiz-choice__row { align-items: flex-start; }
+	.uxs-wiz-tick { margin-top: 8px; }
+}
+.uxs-wiz-pack__desc { margin: var(--uxs-sp-1) 0 0; }
+.uxs-wiz-pack__address { margin: var(--uxs-sp-2) 0 0; font-size: var(--uxs-fs-s); color: var(--uxs-text-soft); code { color: var(--uxs-text); font-weight: 600; } }
+.uxs-wiz-preset { margin-top: var(--uxs-sp-2); }
+
+.uxs-wiz-advanced {
+	margin: 0 0 var(--uxs-sp-4);
+	summary { cursor: pointer; color: var(--uxs-brand); font-weight: 600; &:focus-visible { outline: 2px solid var(--uxs-brand); outline-offset: 2px; border-radius: var(--uxs-radius-s); } }
+	label { display: block; margin: var(--uxs-sp-3) 0 var(--uxs-sp-1); font-weight: 600; color: var(--uxs-text); }
+	input[type="url"] { width: 100%; max-width: 520px; }
+}
+
+[data-theme="dark"] .uxs-wiz-advanced summary { color: #a5b4fc; }
+
+.uxs-wiz-hidden-form { display: none; }
+.uxs-wiz-captcha { margin-top: var(--uxs-sp-4); }
+.uxs-wiz-modulelinks { display: flex; flex-wrap: wrap; gap: var(--uxs-sp-2); }
+
 @media (max-width: 782px) {
+	.uxs-wiz-env li { grid-template-columns: 24px minmax(0, 1fr); > span { grid-column: 2; } }
 	.uxs-wiz-step__title { display: none; }
 	.uxs-wiz-twocols { grid-template-columns: 1fr; }
 	.uxs-wiz-facts > div { grid-template-columns: 1fr; gap: 0; }

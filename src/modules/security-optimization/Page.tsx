@@ -105,6 +105,65 @@ function HtaccessStatusBox(): JSX.Element {
 	);
 }
 
+interface PhpVersionStatus {
+	level: 'ok' | 'warning' | 'critical';
+	php_full: string;
+	message: string;
+	advisory_url: string;
+	backport_note: string;
+}
+
+/**
+ * Result of the PHP version check (same row style as the .htaccess state): a badge, the sentence of the admin
+ * notice and the advisory link. Shown on the hardening topic, next to the other server-side state.
+ */
+function PhpVersionStatusBox(): JSX.Element | null {
+	const php = useQuery( {
+		queryKey: [ MODULE, 'php-version' ],
+		queryFn: () => api< PhpVersionStatus >( 'security/php-version' ),
+	} );
+	const data = php.data;
+	if ( ! data ) {
+		return null;
+	}
+	const badge = 'ok' === data.level ? 'is-success' : 'warning' === data.level ? 'is-warning' : 'is-danger';
+	return (
+		<div style={ { marginTop: 'var(--uxs-sp-5)' } }>
+			<h3>{ __( 'PHP version', 'ux-studio' ) }</h3>
+			<p>
+				<span className={ `uxs-badge ${ badge }` }>
+					{ 'ok' === data.level
+						? sprintf(
+								/* translators: %s: PHP version. */
+								__( 'PHP %s is up to date', 'ux-studio' ),
+								data.php_full
+						  )
+						: 'warning' === data.level
+						? sprintf(
+								/* translators: %s: PHP version. */
+								__( 'PHP %s will soon lose security support', 'ux-studio' ),
+								data.php_full
+						  )
+						: sprintf(
+								/* translators: %s: PHP version. */
+								__( 'PHP %s is not safe', 'ux-studio' ),
+								data.php_full
+						  ) }
+				</span>
+			</p>
+			{ '' !== data.message && <p>{ data.message }</p> }
+			{ '' !== data.backport_note && <p className="description">{ data.backport_note }</p> }
+			{ '' !== data.advisory_url && (
+				<p>
+					<a href={ data.advisory_url } target="_blank" rel="noopener noreferrer">
+						{ __( 'Security advisory on php.net', 'ux-studio' ) }
+					</a>
+				</p>
+			) }
+		</div>
+	);
+}
+
 /** Whether the CAPTCHA secret is stored (it is never sent back to the browser). */
 function CaptchaSecretNote(): JSX.Element {
 	const { draft } = useModuleSettings( MODULE );
@@ -570,6 +629,7 @@ export default function Page(): JSX.Element {
 				<>
 					<TopicSettings moduleId={ MODULE } include={ inSections( __( 'Hardening', 'ux-studio' ) ) } />
 					<HtaccessStatusBox />
+					<PhpVersionStatusBox />
 				</>
 			) }
 			{ tab === 'performance' && <TopicSettings moduleId={ MODULE } include={ inSections( __( 'Performance', 'ux-studio' ) ) } /> }

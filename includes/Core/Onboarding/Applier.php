@@ -66,8 +66,9 @@ final class Applier {
 					'overlap' => $this->overlap_of( $module ),
 				);
 			}
-			$item['modules'] = $mods;
-			$item['preset']  = $this->describe_preset( (array) $item['settings'] );
+			$item['modules']  = $mods;
+			$item['warnings'] = $this->word_warnings( (array) $item['warnings'] );
+			$item['preset']   = $this->describe_preset( (array) $item['settings'] );
 			unset( $item['settings'] );
 			$items[] = $item;
 		}
@@ -85,6 +86,8 @@ final class Applier {
 				'pretty_permalinks'   => $env['pretty_permalinks'],
 				'login_slug_collides' => $env['login_slug_collides'],
 				'login_logo'          => (int) $env['login_logo_id'] > 0,
+				'site_name'           => (string) $env['site_name'],
+				'site_url'            => home_url( '/' ),
 			),
 			'items'      => $items,
 			'applied'    => (int) get_option( StarterPack::APPLIED_OPTION, 0 ),
@@ -96,6 +99,38 @@ final class Applier {
 				'url'   => '' === (string) ( $record['slug'] ?? $slug ) ? '' : home_url( '/' . ( $record['slug'] ?? $slug ) . '/' ),
 			),
 		);
+	}
+
+	/**
+	 * "Left out: <setting key>" becomes "Left out: <label of the setting>" (the label comes from the module schema).
+	 *
+	 * @param array<int, array<string, mixed>> $warnings Warnings of one item.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function word_warnings( array $warnings ): array {
+		foreach ( $warnings as $i => $warning ) {
+			if ( 'blocked_feature' !== ( $warning['code'] ?? '' ) || empty( $warning['data']['key'] ) ) {
+				continue;
+			}
+			$key      = (string) $warning['data']['key'];
+			$label    = $key;
+			$security = $this->modules->instance( 'security-optimization' );
+			if ( $security ) {
+				foreach ( $security->settings_schema() as $field ) {
+					if ( $field['key'] === $key ) {
+						$label = (string) ( $field['label'] ?? $key );
+						break;
+					}
+				}
+			}
+			$warnings[ $i ]['message'] = sprintf(
+				/* translators: 1: setting key, 2: plugin names. */
+				__( 'Left out: %1$s, because %2$s already does it.', 'ux-studio' ),
+				$label,
+				implode( ', ', array_map( 'strval', (array) ( $warning['data']['plugins'] ?? array() ) ) )
+			);
+		}
+		return array_values( $warnings );
 	}
 
 	/**
@@ -315,7 +350,7 @@ final class Applier {
 	 * @param bool   $confirmed Partial overlap confirmed.
 	 * @return array{status:string,plugins:string[]} status: enabled | already | blocked | confirm | unknown.
 	 */
-	private function enable( string $module, bool $confirmed ): array {
+	public function enable( string $module, bool $confirmed ): array {
 		if ( ! isset( $this->modules->all()[ $module ] ) ) {
 			return array(
 				'status'  => 'unknown',
@@ -351,12 +386,23 @@ final class Applier {
 	}
 
 	/**
+	 * Snapshot for something other than the item list (the Central App connection), same store, same revert.
+	 *
+	 * @param string[] $modules       Module ids that are about to change.
+	 * @param string[] $extra_options Further option names (secrets and markers) the change touches.
+	 */
+	public function snapshot_for( array $modules, array $extra_options = array() ): void {
+		$this->remember( array_values( array_unique( array_map( 'strval', $modules ) ) ), $extra_options );
+	}
+
+	/**
 	 * Store the snapshot (merged with an earlier one, so the original state is never overwritten).
 	 *
-	 * @param string[] $touched Module ids the pack may touch.
+	 * @param string[] $touched       Module ids the pack may touch.
+	 * @param string[] $extra_options Further option names to remember.
 	 */
-	private function remember( array $touched ): void {
-		$names = array( 'uxstudio_active_modules', LoginUrlPending::OPTION, StarterPack::APPLIED_OPTION, HtaccessWriter::HASH_OPTION );
+	private function remember( array $touched, array $extra_options = array() ): void {
+		$names = array_merge( array( 'uxstudio_active_modules', LoginUrlPending::OPTION, StarterPack::APPLIED_OPTION, HtaccessWriter::HASH_OPTION ), $extra_options );
 		foreach ( $touched as $module ) {
 			$names[] = 'uxstudio_' . str_replace( '-', '_', (string) $module );
 		}

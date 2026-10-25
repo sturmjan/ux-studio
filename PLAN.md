@@ -2820,8 +2820,8 @@ blokování výčtu uživatelů, CSP Enforce, modul Disable Auto Updates.
 - [x] F1 Nová pravidla překryvů (ai-markdown, image-optimizer) a testy `tests/onboarding-starter.php`, `tests/overlap-catalog.php`
 - [x] F1 Překlady nových řetězců PHP (cs_CZ)
 - [x] F2 Kontrola verze PHP (kritická zranitelnost / konec podpory; popis v 29.5; průvodce ji čte z `GET uxstudio/v1/security/php-version`)
-- [ ] F3 UI průvodce: režim `#/wizard?mode=new`, výběr položek, přednastavení slovy, potvrzení přihlašovací adresy, vrácení změn
-- [ ] F4 Napojení na centrální aplikaci (strana pluginu; strana CA se dělá zvlášť v centrani-app)
+- [x] F3 UI průvodce: režim `#/wizard?mode=new`, výběr položek, přednastavení slovy, potvrzení přihlašovací adresy, vrácení změn
+- [x] F4 Napojení na centrální aplikaci (strana pluginu; strana CA se dělá zvlášť v centrani-app)
 - [ ] F5 Překlady JS, QA na čistém webu (Apache, nginx, Cloudflare, WooCommerce) a vydání 0.7.0
 
 ### 29.5 Kontrola verze PHP (F2)
@@ -2894,3 +2894,24 @@ POST pole `php_version` a z něj číselný začátek ukládá do `sites.php_ver
 **Ověřeno.** `tests/php-version-check.php` (rozhodnutí pro 5.6 až 8.6, hranice 90 dnů a posledního dne podpory, přípony
 distribucí, vzdálená data zvyšující / snižující / neplatná, snooze, plán e-mailů). Živě na pobyty (XAMPP PHP 8.4.19):
 critical `outdated` se dvěma CVE, `refresh()` proti php.net uloží 8.2 až 8.5, REST 200.
+
+### 29.6 Napojení na centrální aplikaci (F4, strana pluginu)
+
+Třída `Core\Onboarding\CentralApp`, REST `onboarding/ca/prepare` (POST), `onboarding/ca/status` (GET), `onboarding/ca/captcha` (POST).
+
+- **Protokol (ověřeno proti `ConnectController` v CA, 2026-10-25).** Prohlížeč POSTuje na `{adresa CA}/?page=connect_site` pole
+  `site_url`, `site_name`, `api_key` (min. 32 znaků), `timestamp` (+-600 s), `site_type=wordpress`, `return_url` (stejný původ
+  jako `site_url`, jinak ho CA zahodí), `signature = HMAC-SHA256( site_url|site_name|timestamp|site_type , api_key )`
+  (`site_type` je v podepsaném textu, když se posílá). Podpis sám nic neprokazuje, CA proto zavolá podepsaný `ping` webu
+  (nejdřív protokol legacy, pak `uxstudio`), takže plugin musí mít Synchronizaci obsahu v režimu node a uložený klíč
+  PŘED přesměrováním. Zpět CA připojí `ux1_connected=1` (nebo `ux1_connect_cancelled=1`).
+- **prepare**: ověří adresu (https, `http` jen localhost/127.0.0.1/[::1]; bez přihlašovacích údajů, dotazu a fragmentu), odmítne
+  centrálu, která už spravuje jiné weby, uloží snímek (společný se startovacím balíčkem, `Applier::snapshot_for`), zapne modul přes
+  `ActivationGuard`, nastaví `mode=node`, `central_app_url`, `sso_allow_admin=false`, `node_allow_packages=false`, ponechá nebo
+  vytvoří `node_api_key`, ověří vlastní podepsaný ping (hlavička `X-UXS-Selfcheck`, nepočítá se jako ozvání CA) a vrátí
+  `{action, fields, ping, warnings, local}`. Klíč je jen v této odpovědi (`Cache-Control: no-store`), do logu nejde.
+- **status**: připraveno, kdy se CA naposledy ozvala (`uxstudio_node_last_ping`, zapisuje `NodeController::ping`), stav CAPTCHA.
+- **captcha**: `captcha_key_source=ca` + `captcha_enabled` přes uložení nastavení Zabezpečení (klíče získá
+  `TurnstileCaProvisioner`); při neúspěchu se CAPTCHA nevynucuje (žádné zamknutí), snímek umožní vrácení.
+- Adresa produkční CA: `https://app.ux1.cz/` (výchozí, lze přepsat v rozbalovacím poli "Pokročilé").
+- Testy: `tests/onboarding-central-app.php` (podpis proti nezávisle spočítané hodnotě, adresa, původ, pole formuláře).

@@ -2,6 +2,16 @@
 
 ## 0.7.0 (unreleased)
 
+- New - Wizard for a new site (`#/wizard?mode=new`, also offered after a migration and as a hint on the Modules screen):
+  welcome with the detected environment (server, Cloudflare, proxy, WooCommerce, permalinks) and the PHP version check,
+  the recommended modules by topic with every preset value in words (modules a foreign plugin already covers are
+  disabled or leave out just that setting), applying item by item with progress, the custom login address in two steps
+  (the old wp-login.php stays open until you confirm that you saw the login form) and "Undo everything" from one
+  snapshot. The PHP version result is also shown in Security > Site hardening.
+- New - Connect the site to the Central App from the wizard (one-click connect): switches Content Sync to node mode,
+  keeps or creates the node key, checks that the site answers the signed ping and posts the signed connect form to the
+  Central App (key in the POST only, never logged). Optional CAPTCHA with Turnstile keys from the Central App (off by
+  default). Administrator sign-in and package installation from the Central App stay off.
 - New - PHP version check in Security: tells administrators when the PHP version of the site has a known critical
   vulnerability (the php.net advisory of 2026-10-21, CVE-2026-109618 and CVE-2026-109619, fixed in 8.5.12, 8.4.27,
   8.3.36 and 8.2.35), is no longer supported (8.1 and older, or past the end of security support) or loses support within

@@ -98,9 +98,13 @@ final class PhpVersionMaintenance {
 	public static function payload(): array {
 		$remote = get_option( self::OPTION_REMOTE, array() );
 		$remote = is_array( $remote ) ? $remote : array();
+		$result = self::result();
 		return array_merge(
-			self::result(),
+			$result,
 			array(
+				// The sentence the admin notice shows (translated here, so the wizard says the same thing).
+				'message'       => 'ok' === $result['level'] ? '' : PhpVersionNotice::message( $result ),
+				'backport_note' => ! empty( $result['distro_build'] ) && 'ok' !== $result['level'] ? PhpVersionNotice::backport_note() : '',
 				'php_full'   => PHP_VERSION,
 				'checked'    => gmdate( 'Y-m-d' ),
 				'source'     => ! empty( $remote['ok'] ) ? 'php.net' : 'bundled',
