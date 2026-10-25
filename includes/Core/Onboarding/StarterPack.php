@@ -623,12 +623,14 @@ final class StarterPack {
 		}
 		$warnings = array();
 		if ( (int) $env['login_logo_id'] <= 0 ) {
-			$warnings[] = array( 'no_logo', __( 'The site has no logo or site icon yet, so the login page keeps the WordPress logo (it links to the home page). Set a logo in Admin Customiser later.', 'ux-studio' ) );
+			// No logo of our own: show none instead of the big WordPress one (LoginExtras::logo_hidden()).
+			$admin['form_options'] = array( 'hide_login_logo' );
+			$warnings[]            = array( 'no_logo', __( 'The site has no logo or site icon yet, so the login page shows no logo at all. Set a logo in Admin Customiser later and untick "Hide login logo".', 'ux-studio' ) );
 		}
 		return self::simple(
 			'hide-wordpress',
 			__( 'Hide WordPress', 'ux-studio' ),
-			__( 'Removes the WordPress logo from the admin bar, replaces the admin footer text with the site name, hides the Help tab, shows the site logo on the login page and removes the generator and other WordPress links from the page head.', 'ux-studio' ),
+			__( 'Removes the WordPress logo from the admin bar, replaces the admin footer text with the site name, hides the Help tab, shows the site logo on the login page (or no logo when the site has none) and removes the generator and other WordPress links from the page head.', 'ux-studio' ),
 			array( 'admin-customiser', 'security-optimization' ),
 			array(
 				'admin-customiser'      => $admin,

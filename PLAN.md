@@ -2822,7 +2822,12 @@ blokování výčtu uživatelů, CSP Enforce, modul Disable Auto Updates.
 - [x] F2 Kontrola verze PHP (kritická zranitelnost / konec podpory; popis v 29.5; průvodce ji čte z `GET uxstudio/v1/security/php-version`)
 - [x] F3 UI průvodce: režim `#/wizard?mode=new`, výběr položek, přednastavení slovy, potvrzení přihlašovací adresy, vrácení změn
 - [x] F4 Napojení na centrální aplikaci (strana pluginu; strana CA se dělá zvlášť v centrani-app)
-- [ ] F5 Překlady JS, QA na čistém webu (Apache, nginx, Cloudflare, WooCommerce) a vydání 0.7.0
+- [x] F5 Překlady JS (build `index.dc3d7fb3086a456127fe.js` má svůj JSON v `languages/`)
+- [x] F5 Živé QA na čistém webu (vrajt, Apache, bez WooCommerce, bez proxy): aktivace otevře `#/wizard?mode=new`; použito 17 z 17 položek; `/administrace/` ukáže přihlašovací formulář; potvrzení zavře `wp-login.php` (404) a `wp-admin` přesměruje na novou adresu; skutečné přihlášení touto adresou funguje; selhání e-mailu skončí hláškou; vrácení obnoví moduly, nastavení i `wp-login.php`; krok Centrální aplikace: podepsaný POST přijala lokální CA (podpis i živá výzva prošly, CA ukázala přihlášení)
+- [x] F5 Opravy z QA: bez loga webu se na přihlášení skryje i logo WordPressu (`form_options` = `hide_login_logo`); po vrácení se z `.htaccess` odstraní celý blok `UX Studio Security` včetně komentářů (`HtaccessWriter::strip_block()`, platí i pro `on_disable` a prázdná pravidla)
+- [ ] F5 Živé QA: nginx, Cloudflare, WooCommerce
+- [ ] F5 Živě: registrační stránka v CA (čeká na nasazení CA) a produkční `turnstile_provision` v CA
+- [ ] F5 Vydání 0.7.0
 
 ### 29.5 Kontrola verze PHP (F2)
 

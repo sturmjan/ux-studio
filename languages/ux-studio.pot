@@ -4496,7 +4496,7 @@ msgid "Stops the e-mails after successful automatic updates. Updates keep runnin
 msgstr ""
 
 #: includes/Core/Onboarding/StarterPack.php:626
-msgid "The site has no logo or site icon yet, so the login page keeps the WordPress logo (it links to the home page). Set a logo in Admin Customiser later."
+msgid "The site has no logo or site icon yet, so the login page shows no logo at all. Set a logo in Admin Customiser later and untick \"Hide login logo\"."
 msgstr ""
 
 #: includes/Core/Onboarding/StarterPack.php:630
@@ -4504,7 +4504,7 @@ msgid "Hide WordPress"
 msgstr ""
 
 #: includes/Core/Onboarding/StarterPack.php:631
-msgid "Removes the WordPress logo from the admin bar, replaces the admin footer text with the site name, hides the Help tab, shows the site logo on the login page and removes the generator and other WordPress links from the page head."
+msgid "Removes the WordPress logo from the admin bar, replaces the admin footer text with the site name, hides the Help tab, shows the site logo on the login page (or no logo when the site has none) and removes the generator and other WordPress links from the page head."
 msgstr ""
 
 #: includes/Core/Onboarding/StarterPack.php:652

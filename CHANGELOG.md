@@ -2,16 +2,25 @@
 
 ## 0.7.0 (unreleased)
 
-- New - Wizard for a new site (`#/wizard?mode=new`, also offered after a migration and as a hint on the Modules screen):
-  welcome with the detected environment (server, Cloudflare, proxy, WooCommerce, permalinks) and the PHP version check,
-  the recommended modules by topic with every preset value in words (modules a foreign plugin already covers are
-  disabled or leave out just that setting), applying item by item with progress, the custom login address in two steps
-  (the old wp-login.php stays open until you confirm that you saw the login form) and "Undo everything" from one
-  snapshot. The PHP version result is also shown in Security > Site hardening.
-- New - Connect the site to the Central App from the wizard (one-click connect): switches Content Sync to node mode,
-  keeps or creates the node key, checks that the site answers the signed ping and posts the signed connect form to the
-  Central App (key in the POST only, never logged). Optional CAPTCHA with Turnstile keys from the Central App (off by
-  default). Administrator sign-in and package installation from the Central App stay off.
+- New - Wizard for a new site: on a fresh WordPress the plugin opens `#/wizard?mode=new` right after activation (it is
+  also offered after a migration and as a hint on the Modules screen). It shows the detected environment (server,
+  Cloudflare, proxy, WooCommerce, permalinks) and the PHP version check, then the recommended modules by topic with every
+  preset value in words. Modules a foreign plugin already covers are left alone (or just that one setting is left out).
+  Everything is applied item by item with progress, and "Undo everything" restores modules, settings and the
+  login address from one snapshot taken before the first change.
+- New - Starter pack: Security hardening (comments, file editor, XML-RPC, WordPress version, security headers, login
+  attempt limit, revisions, Heartbeat, emoji), update e-mails, Hide WordPress, classic editor and widgets, tidy profiles,
+  dashboard widgets, duplicate posts and menus, external links, AI readable site (llms.txt and Markdown), Bot Throttle
+  (Ahrefs and Semrush are never slowed down), image optimization, media trash, stock photos, vulnerability scanner,
+  activity log, indexing notice, SMTP and e-mail log, redirects, media replace, last login, hidden admin bar for
+  subscribers and the CSP audit. Every item can be unticked; WooCommerce sites keep product reviews working.
+- New - Custom login address `/administrace` in two steps: first the login form also works on the new address while
+  wp-login.php stays open, and only when you confirm that you saw the form is wp-login.php closed (404) and wp-admin
+  redirected to the new address. The address is e-mailed to the administrator. An unconfirmed address never locks you out.
+- New - Hide WordPress: removes the WordPress logo from the admin bar, replaces the admin footer text with the site name,
+  hides the Help tab, shows the site logo on the login page (no logo at all when the site has none) and removes the
+  generator and other WordPress links from the page head (Security > Hide WordPress links in the head).
+- New - Update e-mails: Security can switch off the automatic update e-mails WordPress sends to the administrator.
 - New - PHP version check in Security: tells administrators when the PHP version of the site has a known critical
   vulnerability (the php.net advisory of 2026-10-21, CVE-2026-109618 and CVE-2026-109619, fixed in 8.5.12, 8.4.27,
   8.3.36 and 8.2.35), is no longer supported (8.1 and older, or past the end of security support) or loses support within
@@ -19,8 +28,17 @@
   30 days with "Verified with hosting" (a different PHP version shows it again, useful for distribution builds that
   backport fixes). One e-mail when the site first turns critical, then at most weekly. The bundled table is refreshed
   daily from php.net (short timeout, size limit, validated; it can only make the verdict stricter, and the last good data
-  is kept on a failure). REST `GET uxstudio/v1/security/php-version` for the onboarding wizard; the site's exact PHP version
-  and the verdict are also sent to the central app with the software inventory.
+  is kept on a failure). The result is also shown in Security > Site hardening and in the wizard, and the exact PHP
+  version and the verdict are sent to the central app with the software inventory.
+- New - Overlap rules: AI Markdown against the llms.txt of Yoast, Rank Math and All in One SEO (a full overlap only when
+  their llms.txt is switched on) and Image optimization against EWWW, Smush, ShortPixel, Imagify, Converter for Media,
+  Optimole (and LiteSpeed Cache or Jetpack when their image optimization is on).
+- New - Connect the site to the Central App from the wizard (one-click connect): switches Content Sync to node mode,
+  keeps or creates the node key, checks that the site answers the signed ping and posts the signed connect form to the
+  Central App (key in the POST only, never logged). Optional CAPTCHA with Turnstile keys from the Central App (off by
+  default). Administrator sign-in and package installation from the Central App stay off.
+- Fixed - Undoing the starter pack (or switching Security off) now removes the whole `UX Studio Security` block from
+  .htaccess, including the empty marker lines WordPress leaves behind.
 
 ## 0.6.0
 

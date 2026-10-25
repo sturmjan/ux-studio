@@ -177,7 +177,12 @@ final class HtaccessWriter {
 		}
 
 		$rules = $this->build_rules( $settings );
-		insert_with_markers( $htaccess, self::MARKER, $rules );
+		if ( array() === $rules ) {
+			// Nothing to write: leave no empty marker block (and its WordPress comment lines) behind.
+			$this->remove_block_from_file( $htaccess );
+		} else {
+			insert_with_markers( $htaccess, self::MARKER, $rules );
+		}
 		update_option( self::HASH_OPTION, $this->compute_hash( $settings ), true );
 
 		return true;
@@ -205,11 +210,64 @@ final class HtaccessWriter {
 		if ( ! is_file( $htaccess ) || ! is_writable( $htaccess ) ) {
 			return;
 		}
-		// Only touch the file if our block is actually in it.
-		if ( array() === extract_from_markers( $htaccess, self::MARKER ) ) {
+		$this->remove_block_from_file( $htaccess );
+	}
+
+	/**
+	 * Take our whole marked section out of the file (markers and the comment lines WordPress adds included).
+	 * Does not touch the file when the section is not in it.
+	 *
+	 * @param string $path Absolute path of the .htaccess file.
+	 */
+	private function remove_block_from_file( string $path ): void {
+		$content = file_get_contents( $path );
+		if ( false === $content ) {
 			return;
 		}
-		insert_with_markers( $htaccess, self::MARKER, array() );
+		$clean = self::strip_block( $content );
+		if ( $clean !== $content ) {
+			file_put_contents( $path, $clean, LOCK_EX );
+		}
+	}
+
+	/**
+	 * Pure: file content without our `# BEGIN ... # END ...` section. A blank line that only separated the
+	 * section from the rest is dropped with it, so a file the section was appended to comes back as it was
+	 * (a trailing newline may differ). Content without the section is returned unchanged.
+	 *
+	 * @param string $content .htaccess content.
+	 */
+	public static function strip_block( string $content ): string {
+		$begin = '# BEGIN ' . self::MARKER;
+		$end   = '# END ' . self::MARKER;
+		$lines = preg_split( '/\R/', $content );
+		$out   = array();
+		$skip  = false;
+		$at    = -1;
+		foreach ( $lines as $line ) {
+			$trim = trim( $line );
+			if ( ! $skip && -1 === $at && $trim === $begin ) {
+				$skip = true;
+				$at   = count( $out );
+				continue;
+			}
+			if ( $skip ) {
+				if ( $trim === $end ) {
+					$skip = false;
+				}
+				continue;
+			}
+			$out[] = $line;
+		}
+		if ( -1 === $at || $skip ) {
+			return $content;
+		}
+		// A blank line that only separated the removed section from its neighbour goes with it.
+		if ( $at > 0 && '' === trim( $out[ $at - 1 ] ) && ( ! isset( $out[ $at ] ) || '' === trim( $out[ $at ] ) ) ) {
+			array_splice( $out, $at - 1, 1 );
+		}
+		$text = rtrim( implode( "\n", $out ) );
+		return '' === $text ? '' : $text . "\n";
 	}
 
 	/**

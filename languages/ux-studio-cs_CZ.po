@@ -25639,16 +25639,16 @@ msgid "Stops the e-mails after successful automatic updates. Updates keep runnin
 msgstr "Zastaví e-maily po úspěšných automatických aktualizacích. Aktualizace dál probíhají a e-maily o neúspěšných nebo kritických aktualizacích stále chodí."
 
 #: includes/Core/Onboarding/StarterPack.php:626
-msgid "The site has no logo or site icon yet, so the login page keeps the WordPress logo (it links to the home page). Set a logo in Admin Customiser later."
-msgstr "Web zatím nemá logo ani ikonu webu, takže přihlašovací stránka zůstává s logem WordPressu (odkazuje na úvodní stránku). Logo nastavíte později v Přizpůsobení administrace."
+msgid "The site has no logo or site icon yet, so the login page shows no logo at all. Set a logo in Admin Customiser later and untick \"Hide login logo\"."
+msgstr "Web zatím nemá logo ani ikonu webu, takže přihlašovací stránka nezobrazuje žádné logo. Logo nastavíte později v Přizpůsobení administrace a zrušíte zatržení „Skrýt logo na přihlašovací stránce“."
 
 #: includes/Core/Onboarding/StarterPack.php:630
 msgid "Hide WordPress"
 msgstr "Skrýt WordPress"
 
 #: includes/Core/Onboarding/StarterPack.php:631
-msgid "Removes the WordPress logo from the admin bar, replaces the admin footer text with the site name, hides the Help tab, shows the site logo on the login page and removes the generator and other WordPress links from the page head."
-msgstr "Odstraní logo WordPressu z admin lišty, text v patičce administrace nahradí názvem webu, skryje záložku Nápověda, na přihlašovací stránce ukáže logo webu a z hlavičky stránky odstraní generator a další odkazy prozrazující WordPress."
+msgid "Removes the WordPress logo from the admin bar, replaces the admin footer text with the site name, hides the Help tab, shows the site logo on the login page (or no logo when the site has none) and removes the generator and other WordPress links from the page head."
+msgstr "Odstraní logo WordPressu z admin lišty, text v patičce administrace nahradí názvem webu, skryje záložku Nápověda, na přihlašovací stránce ukáže logo webu (nebo žádné logo, když ho web nemá) a z hlavičky stránky odstraní generator a další odkazy prozrazující WordPress."
 
 #: includes/Core/Onboarding/StarterPack.php:652
 msgid "Useful dashboard widgets"

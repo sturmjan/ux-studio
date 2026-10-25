@@ -199,8 +199,21 @@ $assert( 'hide WordPress: the quick search that comes with the module is switche
 $assert( 'hide WordPress: generator and head links in Security', true === $hw['settings']['security-optimization']['hide_wp_head_links'] && true === $hw['settings']['security-optimization']['hide_wp_version'] );
 $nl = $by_id( array() )['hide-wordpress'];
 $assert( 'hide WordPress: no logo = no login_logo key and a warning', ! isset( $nl['settings']['admin-customiser']['login_logo'] ) && in_array( 'no_logo', array_column( $nl['warnings'], 'code' ), true ) );
+$assert( 'hide WordPress: no logo = the login logo is hidden (form_options) with the login customization on', array( 'hide_login_logo' ) === $nl['settings']['admin-customiser']['form_options'] && true === $nl['settings']['admin-customiser']['login_customization_enabled'] );
+$assert( 'hide WordPress: with a logo the login logo is not hidden', ! isset( $ac['form_options'] ) );
 $assert( 'hide WordPress: the admin bar customization (Howdy) is not enabled', ! isset( $ac['admin_bar_enabled'] ) && ! isset( $ac['hide_howdy_name'] ) );
 $assert( 'head links: the six core callbacks are removed, none of them is below wp-content', 6 === count( HeadLinks::actions() ) && in_array( array( 'wp_head', 'rsd_link', 10 ), HeadLinks::actions(), true ) && in_array( array( 'template_redirect', 'rest_output_link_header', 11 ), HeadLinks::actions(), true ) );
+
+/* ── .htaccess block removal (pure) ── */
+
+$hw_cls = '\UxStudio\Modules\SecurityOptimization\HtaccessWriter';
+$block  = "# BEGIN UX Studio Security\n# The directives (lines) between \"BEGIN UX Studio Security\" and \"END UX Studio Security\" are\n# dynamically generated.\n# END UX Studio Security";
+$wp     = "# BEGIN WordPress\nRewriteEngine On\n# END WordPress";
+$assert( 'htaccess: an appended empty block is removed completely', $wp . "\n" === $hw_cls::strip_block( $wp . "\n\n" . $block . "\n" ) );
+$assert( 'htaccess: a block in the middle goes with one separating blank line', $wp . "\n\nOptions -Indexes\n" === $hw_cls::strip_block( $wp . "\n\n" . $block . "\n\nOptions -Indexes\n" ) );
+$assert( 'htaccess: a file without the block is returned unchanged', $wp === $hw_cls::strip_block( $wp ) );
+$assert( 'htaccess: a file that held only the block becomes empty', '' === $hw_cls::strip_block( $block . "\n" ) );
+$assert( 'htaccess: an unterminated block is left alone', $wp . "\n# BEGIN UX Studio Security\nx" === $hw_cls::strip_block( $wp . "\n# BEGIN UX Studio Security\nx" ) );
 
 /* ── Bot Throttle ── */
 
