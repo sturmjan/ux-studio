@@ -129,9 +129,9 @@ $r   = static fn( array $over ): string => AutoStart::decide_redirect( $over + $
 
 $assert( 'redirect: queued, administrator, something to migrate -> go', 'go' === $r( array() ) );
 $assert( 'redirect: nothing queued -> none', 'none' === $r( array( 'flag' => '' ) ) && 'none' === $r( array( 'flag' => 'done' ) ) && 'none' === $r( array( 'flag' => 'skipped' ) ) );
-$assert( 'redirect: nothing to migrate -> offer spent without redirect', 'drop' === $r( array( 'count' => 0 ) ) );
+$assert( 'redirect: nothing to migrate -> the new-site starter pack (mode=new)', 'new' === $r( array( 'count' => 0 ) ) );
 $assert( 'redirect: the scan is lazy, it is not run for requests that cannot redirect', 'wait' === $r( array( 'ajax' => true, 'count' => static function (): int { throw new RuntimeException( 'scan must not run' ); } ) ) );
-$assert( 'redirect: the scan is a callable and its answer counts', 'go' === $r( array( 'count' => static fn(): int => 2 ) ) && 'drop' === $r( array( 'count' => static fn(): int => 0 ) ) );
+$assert( 'redirect: the scan is a callable and its answer counts', 'go' === $r( array( 'count' => static fn(): int => 2 ) ) && 'new' === $r( array( 'count' => static fn(): int => 0 ) ) );
 foreach ( array( 'ajax', 'cron', 'rest', 'cli', 'network_admin' ) as $kind ) {
 	$assert( "redirect: a $kind request waits (offer kept for a normal admin page)", 'wait' === $r( array( $kind => true ) ) );
 }
@@ -140,6 +140,7 @@ $assert( 'redirect: another administrator than the one who activated waits', 'wa
 $assert( 'redirect: the bulk-activation screen (activate-multi) spends the offer without redirect', 'drop' === $r( array( 'activate_multi' => true ) ) );
 $assert( 'redirect: Handoff just took over from UX1 -> no redirect, its notice links to the wizard instead', 'drop' === $r( array( 'handoff' => true ) ) );
 $assert( 'redirect: a migration ran before -> no redirect', 'drop' === $r( array( 'ran' => true ) ) );
+$assert( 'redirect: the starter pack was applied before -> no redirect', 'drop' === $r( array( 'starter_applied' => true, 'count' => 0 ) ) );
 
 $assert( 'count_migratable: active plugins and plugins that hold data count, inactive empty and data-only settings do not', 2 === AutoStart::count_migratable( array(
 	array( 'status' => 'active', 'has_data' => false ),
@@ -208,7 +209,22 @@ try {
 } catch ( UxsRedirect $e ) {
 	$target = $e->getMessage();
 }
-$assert( 'glue: a site with nothing to migrate gets no redirect', '' === $target && 'skipped' === get_option( AutoStart::FLAG ) );
+$assert( 'glue: a site with nothing to migrate is sent to the new-site wizard, once', 'https://example.test/wp-admin/admin.php?page=ux-studio#/wizard?mode=new' === $target && 'done' === get_option( AutoStart::FLAG ), $target );
+$target = '';
+try {
+	AutoStart::maybe_redirect();
+} catch ( UxsRedirect $e ) {
+	$target = $e->getMessage();
+}
+$assert( 'glue: ... and not again', '' === $target );
+$site( array( AutoStart::FLAG => 'pending', AutoStart::FLAG . '_user' => 5, 'active_plugins' => array( 'ux-studio/ux-studio.php' ), 'uxstudio_starter_applied' => 123 ) );
+$target = '';
+try {
+	AutoStart::maybe_redirect();
+} catch ( UxsRedirect $e ) {
+	$target = $e->getMessage();
+}
+$assert( 'glue: an applied starter pack means no redirect', '' === $target && 'skipped' === get_option( AutoStart::FLAG ) );
 $GLOBALS['uxs_plugins'] = array( 'classic-editor/classic-editor.php' => array( 'Name' => 'Classic Editor', 'Version' => '1.6' ) );
 
 $site( array( AutoStart::FLAG => 'pending', AutoStart::FLAG . '_user' => 9 ) );
@@ -245,6 +261,10 @@ $site( array( 'active_plugins' => array( 'ux-studio/ux-studio.php' ) ) );
 $GLOBALS['uxs_plugins'] = array();
 AutoStart::flush_hint_cache(); // A plugin was deactivated or deleted: the cached count is dropped.
 $assert( 'hint: hidden when there is nothing to take over', ! AutoStart::hint( 7 )['show'] );
+$assert( 'hint: offers the starter pack ("Set up new site") while it was never applied, also after a migration', true === AutoStart::hint( 7 )['starter'] && true === AutoStart::hint( 6 )['starter'] );
+$assert( 'hint: a user who dismissed the hint is not offered the starter pack either', false === AutoStart::hint( 5 )['starter'] );
+update_option( 'uxstudio_starter_applied', time() );
+$assert( 'hint: no starter offer once the pack was applied', false === AutoStart::hint( 7 )['starter'] );
 
 echo PHP_EOL . ( $failures ? "$failures FAILED" : 'ALL PASSED' ) . PHP_EOL;
 exit( $failures ? 1 : 0 );

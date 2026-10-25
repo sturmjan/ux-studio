@@ -24,6 +24,7 @@ final class Bootstrap {
 			'rest_api_init',
 			static function (): void {
 				( new MigrationRestController() )->register_routes();
+				( new \UxStudio\Core\Onboarding\RestController() )->register_routes();
 			}
 		);
 		add_action( self::PURGE_HOOK, array( Snapshot::class, 'purge_expired' ) );
