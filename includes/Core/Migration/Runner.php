@@ -282,8 +282,7 @@ final class Runner {
 			ActivityLog::log( 'core', 'migration_dry_run', 'migration', 0, array( 'run' => $state['id'], 'sources' => $state['sources'], 'errors' => $errors ) );
 			return $state;
 		}
-		// How the covered options and tables look NOW: a later rollback compares against it.
-		Snapshot::seal( (string) $state['id'] );
+		// The history record first: a timeout while sealing must not lose the ability to roll back.
 		History::put(
 			array(
 				'id'         => $state['id'],
@@ -295,8 +294,12 @@ final class Runner {
 				'errors'     => $errors,
 				'snapshot'   => (bool) $state['snapshot'],
 				'rolled_back' => 0,
+				'sealed'     => false,
 			)
 		);
+		// How the covered options and tables look NOW: a later rollback compares against it.
+		Snapshot::seal( (string) $state['id'] );
+		History::update( (string) $state['id'], array( 'sealed' => true ) );
 		ActivityLog::log( 'core', 'migration_finished', 'migration', 0, array( 'run' => $state['id'], 'sources' => $state['sources'], 'errors' => $errors ) );
 		return $state;
 	}

@@ -235,6 +235,9 @@ final class Snapshot {
 		return $value === $missing ? 'absent' : md5( serialize( $value ) );
 	}
 
+	/** Above this many rows the checksum is skipped (CHECKSUM TABLE reads the whole table). */
+	private const CHECKSUM_MAX_ROWS = 200000;
+
 	/**
 	 * Row count and checksum of a live table (checksum '' when the server cannot give one).
 	 *
@@ -253,7 +256,8 @@ final class Snapshot {
 			);
 		}
 		$rows = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$real}" );
-		$sum  = $wpdb->get_row( "CHECKSUM TABLE {$real}", ARRAY_A );
+		// CHECKSUM TABLE reads the whole table: on a big one the row count has to do.
+		$sum = $rows > self::CHECKSUM_MAX_ROWS ? null : $wpdb->get_row( "CHECKSUM TABLE {$real}", ARRAY_A );
 		// phpcs:enable
 		return array(
 			'exists'   => true,

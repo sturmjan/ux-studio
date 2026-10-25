@@ -366,6 +366,17 @@ $assert( 'a row added to a snapshotted table after the run is reported with the 
 array_pop( $GLOBALS['wpdb']->tables['wp_uxstudio_redirects'] );
 $GLOBALS['wpdb']->tables['wp_uxstudio_redirects'][1][2] = '/zzz';
 $assert( 'an edited row (same row count) is caught by the checksum', true === Snapshot::drift( 'rdrift1' )['changed'] );
+// A big table is fingerprinted by its row count only (CHECKSUM TABLE would read it all).
+$GLOBALS['wpdb']->tables['wp_uxstudio_big'] = array_fill( 0, 200001, 1 );
+update_option( Snapshot::option_name( 'rbig' ), array( 'created' => time(), 'options' => array(), 'tables' => array( 'uxstudio_big' => array( 'existed' => true, 'backup' => 'x' ) ) ), false );
+Snapshot::seal( 'rbig' );
+$sealed_big = get_option( Snapshot::option_name( 'rbig' ) )['sealed']['tables']['uxstudio_big'];
+$assert( 'seal: a table above 200k rows gets a row count and no checksum', 200001 === $sealed_big['rows'] && '' === $sealed_big['checksum'], json_encode( $sealed_big ) );
+$assert( 'seal: the big table still reports no drift while the count is unchanged', false === Snapshot::drift( 'rbig' )['changed'] );
+$GLOBALS['wpdb']->tables['wp_uxstudio_big'][] = 1;
+$assert( 'seal: a changed row count of the big table is still a drift', true === Snapshot::drift( 'rbig' )['changed'] );
+$src_runner = $src( 'includes/Core/Migration/Runner.php' );
+$assert( 'runner: the history record is written before the snapshot is sealed', strpos( $src_runner, 'History::put(' ) < strpos( $src_runner, 'Snapshot::seal(' ) );
 $assert( 'no snapshot: no drift record', null === Snapshot::drift( 'rnone' ) );
 
 $parts = $src( 'src/app/wizard/parts.tsx' );
