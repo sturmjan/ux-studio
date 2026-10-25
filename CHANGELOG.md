@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.7.0 (unreleased)
+## 0.7.0
 
 - New - Wizard for a new site: on a fresh WordPress the plugin opens `#/wizard?mode=new` right after activation (it is
   also offered after a migration and as a hint on the Modules screen). It shows the detected environment (server,
