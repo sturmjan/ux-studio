@@ -131,7 +131,7 @@ final class CoreAbilities {
 			Registry::define(
 				'uxstudio/module-enable',
 				__( 'Enable a module', 'ux-studio' ),
-				'Enable a UX Studio module. Goes through the plugin-overlap guard: when an active plugin already does the same job the call is refused with code uxstudio_plugin_overlap and the plugins listed in data.plugins - use the migration tools to move them over and deactivate them first. A partial overlap needs confirm_overlap=true.',
+				'Enable a UX Studio module (security-relevant modules need the admin scope). Goes through the plugin-overlap guard: when an active plugin already does the same job the call is refused with code uxstudio_plugin_overlap and the plugins listed in data.plugins - use the migration tools to move them over and deactivate them first. A partial overlap needs confirm_overlap=true.',
 				$W,
 				array(
 					'module'          => self::MODULE_ID + array( 'description' => 'Module id.' ),
@@ -144,7 +144,7 @@ final class CoreAbilities {
 			Registry::define(
 				'uxstudio/module-disable',
 				__( 'Disable a module', 'ux-studio' ),
-				'Disable a UX Studio module. Its settings stay stored; the module runs its own clean-up (cron events, .htaccess blocks).',
+				'Disable a UX Studio module (security-relevant modules need the admin scope). Its settings stay stored; the module runs its own clean-up (cron events, .htaccess blocks).',
 				$W,
 				array( 'module' => self::MODULE_ID + array( 'description' => 'Module id.' ) ),
 				array( 'module' ),
@@ -410,6 +410,13 @@ final class CoreAbilities {
 	 */
 	public static function toggle( string $id, bool $enabled, bool $confirm_overlap ): array {
 		$id = self::module_id( $id );
+		if ( Sensitive::is_security_module( $id ) && ! in_array( Scopes::ADMIN, self::caller_scopes(), true ) ) {
+			throw new McpError(
+				'admin_scope_required',
+				'Switching this module on or off changes how the site is protected or where data goes, so only a token with the admin scope may do it over MCP: ' . $id . '.',
+				array( 'module' => $id, 'required_scope' => Scopes::ADMIN )
+			);
+		}
 		return (array) Internal::data(
 			'POST',
 			'/modules/' . $id,

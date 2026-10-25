@@ -35,47 +35,24 @@ final class Sensitive {
 		'content-sync'          => array( 'mode', 'central_app_url', 'node_allowed_ips', 'node_allow_packages', 'node_default_author', 'sso_*' ),
 		'third-party-login'     => array( 'central_app_url', 'enabled_providers', 'allowed_roles', 'auto_create_enabled', 'auto_create_role' ),
 		'cron-control'          => array( 'mode', 'central_allowed_ips', 'cron_whitelist_extra' ),
-		'bot-throttle'          => array( 'enabled', 'whitelist_ip', 'whitelist_ua', 'verify_rdns' ),
+		'bot-throttle'          => array( 'enabled', 'whitelist_ip', 'whitelist_ua', 'verify_rdns', 'requests_per_minute', 'blacklist_ua' ),
 		'vulnerability-scanner' => array( 'report_to_central' ),
-		'ai-assistant'          => array( 'default_provider', 'chatbot_provider', 'mcp_enabled', 'operator_notification_email', 'contact_email' ),
-		'activity-log'          => array( 'alert_email' ),
+		'ai-assistant'          => array( 'default_provider', 'chatbot_provider', 'mcp_enabled', 'operator_notification_email', 'contact_email', 'custom_system_prompt', 'chatbot_system_prompt', 'internal_rag_enabled', 'internal_guide_enabled', 'index_post_types', 'chatbot_enabled' ),
+		'activity-log'          => array( 'alert_email', 'alert_*', 'retention_days' ),
 		'service-requests'      => array( 'delivery_email' ),
 		'email-health'          => array( 'test_recipient' ),
-		'maintenance-mode'      => array( 'bypass_ips', 'auth_type', 'access_roles', 'exclude_paths', 'allow_feeds' ),
-		'security-optimization' => array(
-			'ip_firewall_*',
-			'country_blocklist_enabled',
-			'blocked_countries',
-			'canonical_redirect',
-			'force_https',
-			'security_headers',
-			'csp_*',
-			'protect_wp_config',
-			'block_sensitive_files',
-			'login_url_enabled',
-			'login_url',
-			'disabled_behavior',
-			'url_redirect',
-			'existing_page',
-			'limit_login_attempts',
-			'max_attempts',
-			'lockout_time',
-			'lockout_notify_email',
-			'lockout_progressive',
-			'lockout_max_hours',
-			'notify_admin',
-			'two_factor_*',
-			'block_usernames',
-			'blocked_usernames_extra',
-			'captcha_*',
-			'disable_xmlrpc',
-			'restrict_rest_api',
-			'block_user_enumeration',
-			'disable_file_editing',
-			'protect_login',
-			'restrict_mime_types',
-			'upload_guard_*',
-		),
+		'maintenance-mode'      => array( 'mode', 'bypass_ips', 'auth_type', 'access_roles', 'exclude_paths', 'allow_feeds', 'custom_layout', 'custom_css', 'existing_page' ),
+		// The whole module guards the site (login lock, firewall, CSP, headers, lockout): every key is admin-write.
+		'security-optimization' => array( '*' ),
+		'disable-auto-updates'  => array( '*' ),
+		'pixel-tag-manager'     => array( 'google_analytics', 'facebook_pixel', 'pinterest_tag' ),
+		'dns-manager'           => array( 'manage_user_ids' ),
+		'svg-upload'            => array( 'allowed_roles' ),
+		'download-files'        => array( 'require_login_default' ),
+		'google-review-request' => array( 'google_review_url', 'email_body', 'email_subject' ),
+		'admin-customiser'      => array( 'login_custom_css', 'login_message', 'admin_custom_css', 'menu_lock_enabled' ),
+		'image-optimizer'       => array( 'htaccess_delivery' ),
+		'notice-board'          => array( 'from_email' ),
 	);
 
 	/**
@@ -85,12 +62,42 @@ final class Sensitive {
 	 * @var array<string, string[]>
 	 */
 	public const READ_HIDDEN = array(
+		'smtp-email'            => array( 'username', 'gmail_client_id' ),
 		'security-optimization' => array( 'login_url', 'ip_firewall_allowlist', 'upload_guard_whitelist_paths', 'upload_guard_custom_patterns', 'blocked_usernames_extra' ),
 		'maintenance-mode'      => array( 'bypass_ips', 'exclude_paths' ),
 		'bot-throttle'          => array( 'whitelist_ip', 'whitelist_ua' ),
 		'content-sync'          => array( 'node_allowed_ips' ),
 		'cron-control'          => array( 'central_allowed_ips' ),
 	);
+
+	/**
+	 * Modules whose on/off state is itself a security decision: enabling or disabling them over MCP needs the
+	 * `admin` scope (a write token could otherwise switch the login lock, logging or throttling off).
+	 *
+	 * @var string[]
+	 */
+	public const SECURITY_MODULES = array(
+		'security-optimization',
+		'activity-log',
+		'bot-throttle',
+		'smtp-email',
+		'cron-control',
+		'code-snippets',
+		'file-manager',
+		'user-switching',
+		'admin-customiser',
+		'maintenance-mode',
+		'disable-auto-updates',
+		'dns-manager',
+		'svg-upload',
+		'ai-assistant',
+		'pixel-tag-manager',
+	);
+
+	/** Does toggling this module need the admin scope? */
+	public static function is_security_module( string $module ): bool {
+		return in_array( $module, self::SECURITY_MODULES, true );
+	}
 
 	/** Marker shown instead of a hidden value. */
 	public const HIDDEN = '[admin scope required]';

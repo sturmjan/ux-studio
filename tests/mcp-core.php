@@ -254,7 +254,10 @@ $r = $call( $proto( array( 'admin' ) ), 'uxstudio-module-settings-update', array
 $assert( 'an admin token may change the host', (bool) array_filter( $calls, static fn( array $c ): bool => 'POST' === $c[0] && '/settings/smtp-email' === $c[1] ), $text( $r ) );
 Auth::reset( array( 'state' => 'ok', 'scopes' => array( 'write' ) ) );
 $sec_keys = Sensitive::admin_write_keys( 'security-optimization', array(), array( 'two_factor_enabled', 'login_url', 'ip_firewall_allowlist', 'csp_mode', 'heartbeat_control', 'hide_wp_version' ) );
-$assert( 'sensitive: exact and prefix entries (two_factor_*, ip_firewall_*, csp_*) match, ordinary keys stay open', array( 'two_factor_enabled', 'login_url', 'ip_firewall_allowlist', 'csp_mode' ) === $sec_keys, json_encode( $sec_keys ) );
+$assert( 'sensitive: the whole security-optimization module is admin-write', array( 'two_factor_enabled', 'login_url', 'ip_firewall_allowlist', 'csp_mode', 'heartbeat_control', 'hide_wp_version' ) === $sec_keys, json_encode( $sec_keys ) );
+$assert( 'sensitive: prefix entries (activity-log alert_*) and module-wide disable-auto-updates', array( 'alert_new_ip', 'retention_days' ) === Sensitive::admin_write_keys( 'activity-log', array(), array( 'alert_new_ip', 'retention_days', 'log_logins' ) ) && array( 'disable_core_updates' ) === Sensitive::admin_write_keys( 'disable-auto-updates', array(), array( 'disable_core_updates' ) ) );
+$assert( 'sensitive: newly covered fields (pixels, system prompts, maintenance mode, bot throttle, login CSS)', array( 'google_analytics' ) === Sensitive::admin_write_keys( 'pixel-tag-manager', array(), array( 'google_analytics' ) ) && array( 'custom_system_prompt', 'chatbot_enabled' ) === Sensitive::admin_write_keys( 'ai-assistant', array(), array( 'custom_system_prompt', 'chatbot_enabled' ) ) && array( 'mode', 'custom_css' ) === Sensitive::admin_write_keys( 'maintenance-mode', array(), array( 'mode', 'custom_css' ) ) && array( 'requests_per_minute', 'blacklist_ua' ) === Sensitive::admin_write_keys( 'bot-throttle', array(), array( 'requests_per_minute', 'blacklist_ua' ) ) && array( 'login_custom_css', 'menu_lock_enabled' ) === Sensitive::admin_write_keys( 'admin-customiser', array(), array( 'login_custom_css', 'menu_lock_enabled' ) ) );
+$assert( 'sensitive: SMTP username and Gmail client id are hidden from read tokens', Sensitive::is_read_hidden( 'smtp-email', array(), 'username' ) && Sensitive::is_read_hidden( 'smtp-email', array(), 'gmail_client_id' ) );
 $assert( 'sensitive: ordinary keys of other modules stay open', array() === Sensitive::admin_write_keys( 'smtp-email', array(), array( 'from_name', 'retention_days' ) ) );
 $assert( 'sensitive: central app and SSO keys are admin only', array( 'central_app_url', 'sso_allow_admin' ) === Sensitive::admin_write_keys( 'content-sync', array(), array( 'central_app_url', 'sso_allow_admin', 'retention_days' ) ) );
 
@@ -290,14 +293,25 @@ $assert( 'write token includes read abilities', ! isset( $r['response']['error']
 
 /* ── Guard refusal surfaced ── */
 
-$r    = $call( $proto( array( 'write' ) ), 'uxstudio-module-enable', array( 'module' => 'cron-control' ) );
+Auth::reset( array( 'state' => 'ok', 'scopes' => array( 'admin' ) ) );
+$r    = $call( $proto( array( 'admin' ) ), 'uxstudio-module-enable', array( 'module' => 'cron-control' ) );
 $body = json_decode( $text( $r ), true );
 $assert( 'module-enable refused by the overlap guard: structured error', true === ( $r['response']['result']['isError'] ?? false ) && 'uxstudio_plugin_overlap' === ( $body['error']['code'] ?? '' ) && 'wp-crontrol' === ( $body['error']['data']['plugins'][0]['slug'] ?? '' ), $text( $r ) );
+Auth::reset( array( 'state' => 'ok', 'scopes' => array( 'write' ) ) );
 $r = $call( $proto( array( 'write' ) ), 'uxstudio-module-enable', array( 'module' => 'Bad Id!' ) );
 $assert( 'module id is validated', 'invalid_input' === ( json_decode( $text( $r ), true )['error']['code'] ?? '' ) );
 $calls = array();
-$r     = $call( $proto( array( 'write' ) ), 'uxstudio-module-enable', array( 'module' => 'activity-log' ) );
-$assert( 'module-enable posts to the same route as the UI', array_filter( $calls, static fn( array $c ): bool => '/modules/activity-log' === $c[1] && true === $c[2]['enabled'] ) && false === ( $r['response']['result']['isError'] ?? false ) );
+$r     = $call( $proto( array( 'write' ) ), 'uxstudio-module-enable', array( 'module' => 'duplicate-post' ) );
+$assert( 'module-enable posts to the same route as the UI', array_filter( $calls, static fn( array $c ): bool => '/modules/duplicate-post' === $c[1] && true === $c[2]['enabled'] ) && false === ( $r['response']['result']['isError'] ?? false ) );
+$calls = array();
+foreach ( array( 'uxstudio-module-enable', 'uxstudio-module-disable' ) as $ability ) {
+	$r = $call( $proto( array( 'write' ) ), $ability, array( 'module' => 'security-optimization' ) );
+	$assert( "write token cannot use $ability on a security module (admin_scope_required)", 'admin_scope_required' === ( json_decode( $text( $r ), true )['error']['code'] ?? '' ) && ! array_filter( $calls, static fn( array $c ): bool => 'POST' === $c[0] ), $text( $r ) );
+}
+Auth::reset( array( 'state' => 'ok', 'scopes' => array( 'admin' ) ) );
+$r = $call( $proto( array( 'admin' ) ), 'uxstudio-module-disable', array( 'module' => 'activity-log' ) );
+Auth::reset( array( 'state' => 'ok', 'scopes' => array( 'write' ) ) );
+$assert( 'an admin token may disable a security module', (bool) array_filter( $calls, static fn( array $c ): bool => '/modules/activity-log' === $c[1] && false === $c[2]['enabled'] ), $text( $r ) );
 
 /* ── Confirmations ── */
 
