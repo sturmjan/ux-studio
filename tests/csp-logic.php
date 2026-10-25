@@ -173,9 +173,11 @@ $assert( 'audit and report-only tags differ', CspPolicy::report_tag( 'a' ) !== C
 
 /* ── Distinct reporters (finding 1) ── */
 
-$h1 = CspLogger::reporter_hash( '203.0.113.1', 'UA-1' );
-$h2 = CspLogger::reporter_hash( '203.0.113.2', 'UA-1' );
-$assert( 'reporter hash is short, hex and stable', 1 === preg_match( '/^[0-9a-f]{8}$/', $h1 ) && $h1 === CspLogger::reporter_hash( '203.0.113.1', 'UA-1' ) );
+$h1 = CspLogger::reporter_hash( '203.0.113.1' );
+$h2 = CspLogger::reporter_hash( '198.51.100.2' );
+$assert( 'same /24 is one reporter, another /24 another', $h1 === CspLogger::reporter_hash( '203.0.113.200' ) && $h1 !== CspLogger::reporter_hash( '203.0.114.1' ) );
+$assert( 'same IPv6 /64 is one reporter, another /64 another', CspLogger::reporter_hash( '2001:db8:1:2::1' ) === CspLogger::reporter_hash( '2001:db8:1:2:ffff::9' ) && CspLogger::reporter_hash( '2001:db8:1:2::1' ) !== CspLogger::reporter_hash( '2001:db8:1:3::1' ) );
+$assert( 'reporter hash is short, hex and stable', 1 === preg_match( '/^[0-9a-f]{8}$/', $h1 ) && $h1 === CspLogger::reporter_hash( '203.0.113.1' ) );
 $assert( 'reporter hash differs per client and does not contain the IP', $h1 !== $h2 && ! str_contains( $h1, '203' ) );
 $list = CspLogger::merge_reporters( '', $h1 );
 $list = CspLogger::merge_reporters( json_encode( $list ), $h1 );

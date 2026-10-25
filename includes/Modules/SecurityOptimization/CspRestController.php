@@ -124,7 +124,7 @@ final class CspRestController extends Controller {
 		}
 
 		$ua       = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( (string) $_SERVER['HTTP_USER_AGENT'] ) ) : '';
-		$reporter = CspLogger::reporter_hash( $ip, $ua );
+		$reporter = CspLogger::reporter_hash( $ip );
 		$notify = false;
 
 		foreach ( array_slice( $reports, 0, 20 ) as $report ) {

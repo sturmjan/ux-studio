@@ -356,12 +356,21 @@ final class CspLogger {
 	}
 
 	/**
-	 * Salted short hash identifying a reporting client (IP + user agent). Only
-	 * used to count DISTINCT reporters per row; neither the IP nor the UA can
-	 * be recovered from it and it is never shown.
+	 * Salted short hash identifying a reporting network (IPv4 /24, IPv6 /64). Only
+	 * used to count DISTINCT reporters per row; the user agent is deliberately
+	 * left out (one client can vary it freely), neither the IP nor the network
+	 * can be recovered from the hash and it is never shown.
 	 */
-	public static function reporter_hash( string $ip, string $user_agent ): string {
-		return substr( hash_hmac( 'sha256', 'uxstudio-csp-reporter|' . $ip . '|' . $user_agent, wp_salt( 'auth' ) ), 0, 8 );
+	public static function reporter_hash( string $ip ): string {
+		$packed = @inet_pton( $ip ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		if ( false === $packed ) {
+			$network = $ip;
+		} elseif ( 4 === strlen( $packed ) ) {
+			$network = bin2hex( substr( $packed, 0, 3 ) ) . '/24';
+		} else {
+			$network = bin2hex( substr( $packed, 0, 8 ) ) . '/64';
+		}
+		return substr( hash_hmac( 'sha256', 'uxstudio-csp-reporter|' . $network, wp_salt( 'auth' ) ), 0, 8 );
 	}
 
 	/** Distinct reporters stored per row (a small count is all the rollback needs). */

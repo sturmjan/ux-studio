@@ -2649,9 +2649,9 @@ Nezávislá revize našla 12 věcí. Opraveno na větvi `feature/release-fixes`,
 
 1. **CSP: padělané zprávy mohly vypnout Enforce (vysoká).** Token `k` v adrese zpráv je veřejný (je v každé hlavičce odpovědi), `p` se bralo z požadavku. Teď `p` = písmeno politiky + 12 znaků HMAC
    přes (písmeno, režim, `since` aktuálního režimu), přijímá se jen štítek aktivního režimu (`CspPolicy::report_tag` / `verify_report_tag`); starý nebo padělaný štítek se zahodí (204). U každého
-   řádku se ukládá krátký seznam až 10 solených hashů (IP + UA, `CspLogger::reporter_hash`), sloupec `reporters` (DB verze 6), v UI se ukazuje počet oznamovatelů. Automatický rollback chce 3 řádky,
+   řádku se ukládá krátký seznam až 10 solených hashů (síť IP: IPv4 /24 nebo IPv6 /64, bez UA, `CspLogger::reporter_hash`), sloupec `reporters` (DB verze 6), v UI se ukazuje počet oznamovatelů. Automatický rollback chce 3 řádky,
    každý s alespoň 3 různými oznamovateli, a alespoň 3 různé oznamovatele dohromady. Kontrola „bez testovacích porušení“ v bráně Enforce se **nemění**: otrávená brána jen zdrží zapnutí
-   (selže bezpečně, správce může řádky vyřešit nebo smazat, případně vědomě přepsat), nikdy nic nevypne. **Akceptováno:** útočník s třemi různými IP a platným štítkem aktivního režimu rollback
+   (selže bezpečně, správce může řádky vyřešit nebo smazat, případně vědomě přepsat), nikdy nic nevypne. **Akceptováno:** útočník se třemi různými sítěmi (/24 nebo /64) a platným štítkem aktivního režimu rollback
    spustit umí; štítek je veřejný, takže neprokazuje odesílatele. Další obrana by byla jen sledování zdroje (nespolehlivé).
 2. **CSP: „Schválit všechny bezpečné“ schvalovalo i neznámé domény (střední).** `safe_open_rows` bere jen `known` a `self`; `unknown` se schvaluje po jednom (nové potvrzení v UI).
 3. **2FA selhávalo otevřeně při nečitelném tajném klíči (střední).** `is_enabled` čte jen příznak; nečitelný klíč (změněné soli) = přihlášení heslem samotným neprojde, projde jen
