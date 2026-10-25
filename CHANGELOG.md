@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.7.0 (unreleased)
+
+- New - PHP version check in Security: tells administrators when the PHP version of the site has a known critical
+  vulnerability (the php.net advisory of 2026-10-21, CVE-2026-109618 and CVE-2026-109619, fixed in 8.5.12, 8.4.27,
+  8.3.36 and 8.2.35), is no longer supported (8.1 and older, or past the end of security support) or loses support within
+  90 days. A dashboard widget (red or yellow) and an admin notice without a close button; the notice can be hidden for
+  30 days with "Verified with hosting" (a different PHP version shows it again, useful for distribution builds that
+  backport fixes). One e-mail when the site first turns critical, then at most weekly. The bundled table is refreshed
+  daily from php.net (short timeout, size limit, validated; it can only make the verdict stricter, and the last good data
+  is kept on a failure). REST `GET uxstudio/v1/security/php-version` for the onboarding wizard; the site's exact PHP version
+  and the verdict are also sent to the central app with the software inventory.
+
 ## 0.6.0
 
 - New - SMTP Email: SendGrid (global / EU), Mailgun (US / EU), Postmark (message stream) and Amazon SES (the SES v2 HTTPS

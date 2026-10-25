@@ -3,13 +3,13 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: UX Studio 0.6.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/_uxs-wt-csp\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/ux-studio\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-25T14:55:50+00:00\n"
+"POT-Creation-Date: 2026-10-25T15:07:08+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: ux-studio\n"
@@ -52,7 +52,7 @@ msgstr ""
 #: includes/Modules/ReviewAggregator/CentralReviewsClient.php:229
 #: includes/Modules/SecurityOptimization/TurnstileCaProvisioner.php:84
 #: includes/Modules/ServiceRequests/CentralClient.php:119
-#: includes/Modules/VulnerabilityScanner/CentralVulnerabilityClient.php:94
+#: includes/Modules/VulnerabilityScanner/CentralVulnerabilityClient.php:106
 #, php-format
 msgid "Central app returned HTTP %d."
 msgstr ""
@@ -263,18 +263,18 @@ msgstr ""
 #: includes/Modules/MaintenanceMode/Module.php:591
 #: includes/Modules/MaintenanceMode/Module.php:598
 #: includes/Modules/MaintenanceMode/Module.php:605
-#: includes/Modules/SecurityOptimization/Module.php:952
-#: includes/Modules/SecurityOptimization/Module.php:1006
-#: includes/Modules/SecurityOptimization/Module.php:1014
-#: includes/Modules/SecurityOptimization/Module.php:1026
-#: includes/Modules/SecurityOptimization/Module.php:1035
-#: includes/Modules/SecurityOptimization/Module.php:1043
-#: includes/Modules/SecurityOptimization/Module.php:1051
-#: includes/Modules/SecurityOptimization/Module.php:1059
-#: includes/Modules/SecurityOptimization/Module.php:1068
-#: includes/Modules/SecurityOptimization/Module.php:1077
-#: includes/Modules/SecurityOptimization/Module.php:1086
-#: includes/Modules/SecurityOptimization/Module.php:1094
+#: includes/Modules/SecurityOptimization/Module.php:956
+#: includes/Modules/SecurityOptimization/Module.php:1010
+#: includes/Modules/SecurityOptimization/Module.php:1018
+#: includes/Modules/SecurityOptimization/Module.php:1030
+#: includes/Modules/SecurityOptimization/Module.php:1039
+#: includes/Modules/SecurityOptimization/Module.php:1047
+#: includes/Modules/SecurityOptimization/Module.php:1055
+#: includes/Modules/SecurityOptimization/Module.php:1063
+#: includes/Modules/SecurityOptimization/Module.php:1072
+#: includes/Modules/SecurityOptimization/Module.php:1081
+#: includes/Modules/SecurityOptimization/Module.php:1090
+#: includes/Modules/SecurityOptimization/Module.php:1098
 #: build/157.d8fa880947f2665fc819.js:1
 #: build/295.a870471d1a0caf081ee0.js:1
 #: build/508.e859042f45a9cd046790.js:18
@@ -303,11 +303,11 @@ msgid "Security"
 msgstr ""
 
 #: includes/Core/Megamenu.php:174
-#: includes/Modules/SecurityOptimization/Module.php:938
-#: includes/Modules/SecurityOptimization/Module.php:945
-#: includes/Modules/SecurityOptimization/Module.php:967
-#: includes/Modules/SecurityOptimization/Module.php:980
-#: includes/Modules/SecurityOptimization/Module.php:988
+#: includes/Modules/SecurityOptimization/Module.php:942
+#: includes/Modules/SecurityOptimization/Module.php:949
+#: includes/Modules/SecurityOptimization/Module.php:971
+#: includes/Modules/SecurityOptimization/Module.php:984
+#: includes/Modules/SecurityOptimization/Module.php:992
 #: build/508.e859042f45a9cd046790.js:18
 #: build/508.e859042f45a9cd046790.js:19
 #: build/index.431c4a1e4d89cc1a2f08.js:11
@@ -460,7 +460,7 @@ msgstr ""
 #: includes/Core/Migration/Catalog.php:96
 #: includes/Core/Migration/Sources/DisableCommentsSource.php:65
 #: includes/Core/Migration/Sources/DisableCommentsSource.php:74
-#: includes/Modules/SecurityOptimization/Module.php:1008
+#: includes/Modules/SecurityOptimization/Module.php:1012
 msgid "Disable comments"
 msgstr ""
 
@@ -474,7 +474,7 @@ msgstr ""
 
 #: includes/Core/Migration/Catalog.php:278
 #: includes/Core/Migration/Sources/XmlRpcSource.php:34
-#: includes/Modules/SecurityOptimization/Module.php:910
+#: includes/Modules/SecurityOptimization/Module.php:914
 msgid "Disable XML-RPC"
 msgstr ""
 
@@ -1781,52 +1781,52 @@ msgid "Each date is copied to the post as the module keeps it. With the module o
 msgstr ""
 
 #: includes/Core/Migration/Sources/CaptchaSource.php:60
-#: includes/Modules/SecurityOptimization/Module.php:768
+#: includes/Modules/SecurityOptimization/Module.php:772
 msgid "CAPTCHA provider"
 msgstr ""
 
 #: includes/Core/Migration/Sources/CaptchaSource.php:61
-#: includes/Modules/SecurityOptimization/Module.php:879
+#: includes/Modules/SecurityOptimization/Module.php:883
 msgid "Key source"
 msgstr ""
 
 #: includes/Core/Migration/Sources/CaptchaSource.php:62
-#: includes/Modules/SecurityOptimization/Module.php:863
+#: includes/Modules/SecurityOptimization/Module.php:867
 msgid "Site key"
 msgstr ""
 
 #: includes/Core/Migration/Sources/CaptchaSource.php:63
-#: includes/Modules/SecurityOptimization/Module.php:871
+#: includes/Modules/SecurityOptimization/Module.php:875
 msgid "Secret key"
 msgstr ""
 
 #: includes/Core/Migration/Sources/CaptchaSource.php:64
-#: includes/Modules/SecurityOptimization/Module.php:788
+#: includes/Modules/SecurityOptimization/Module.php:792
 msgid "Placement"
 msgstr ""
 
 #: includes/Core/Migration/Sources/CaptchaSource.php:65
-#: includes/Modules/SecurityOptimization/Module.php:800
+#: includes/Modules/SecurityOptimization/Module.php:804
 msgid "Enforcement mode (inline placement only)"
 msgstr ""
 
 #: includes/Core/Migration/Sources/CaptchaSource.php:66
-#: includes/Modules/SecurityOptimization/Module.php:819
+#: includes/Modules/SecurityOptimization/Module.php:823
 msgid "Protected forms"
 msgstr ""
 
 #: includes/Core/Migration/Sources/CaptchaSource.php:68
-#: includes/Modules/SecurityOptimization/Module.php:837
+#: includes/Modules/SecurityOptimization/Module.php:841
 msgid "Widget theme"
 msgstr ""
 
 #: includes/Core/Migration/Sources/CaptchaSource.php:71
-#: includes/Modules/SecurityOptimization/Module.php:850
+#: includes/Modules/SecurityOptimization/Module.php:854
 msgid "Widget size"
 msgstr ""
 
 #: includes/Core/Migration/Sources/CaptchaSource.php:73
-#: includes/Modules/SecurityOptimization/Module.php:760
+#: includes/Modules/SecurityOptimization/Module.php:764
 msgid "Enable CAPTCHA"
 msgstr ""
 
@@ -2120,17 +2120,17 @@ msgstr ""
 
 #: includes/Core/Migration/Sources/DisableCommentsSource.php:66
 #: includes/Core/Migration/Sources/DisableCommentsSource.php:75
-#: includes/Modules/SecurityOptimization/Module.php:1016
+#: includes/Modules/SecurityOptimization/Module.php:1020
 msgid "Where to disable comments"
 msgstr ""
 
 #: includes/Core/Migration/Sources/DisableCommentsSource.php:67
-#: includes/Modules/SecurityOptimization/Module.php:1045
+#: includes/Modules/SecurityOptimization/Module.php:1049
 msgid "Remove comment tools from the admin"
 msgstr ""
 
 #: includes/Core/Migration/Sources/DisableCommentsSource.php:68
-#: includes/Modules/SecurityOptimization/Module.php:1053
+#: includes/Modules/SecurityOptimization/Module.php:1057
 msgid "Block comment endpoints"
 msgstr ""
 
@@ -2139,7 +2139,7 @@ msgid "The plugin leaves the XML-RPC comment methods alone, the module blocks th
 msgstr ""
 
 #: includes/Core/Migration/Sources/DisableCommentsSource.php:76
-#: includes/Modules/SecurityOptimization/Module.php:1028
+#: includes/Modules/SecurityOptimization/Module.php:1032
 msgid "Post types without comments"
 msgstr ""
 
@@ -2152,12 +2152,12 @@ msgid "The plugin currently disables comments nowhere, so the module setting is 
 msgstr ""
 
 #: includes/Core/Migration/Sources/DisableCommentsSource.php:95
-#: includes/Modules/SecurityOptimization/Module.php:1037
+#: includes/Modules/SecurityOptimization/Module.php:1041
 msgid "Hide existing comments"
 msgstr ""
 
 #: includes/Core/Migration/Sources/DisableCommentsSource.php:105
-#: includes/Modules/SecurityOptimization/Module.php:1061
+#: includes/Modules/SecurityOptimization/Module.php:1065
 msgid "Roles that may still comment"
 msgstr ""
 
@@ -2168,12 +2168,12 @@ msgid "These roles of the exceptions no longer exist on the site and are not tra
 msgstr ""
 
 #: includes/Core/Migration/Sources/DisableCommentsSource.php:121
-#: includes/Modules/SecurityOptimization/Module.php:1070
+#: includes/Modules/SecurityOptimization/Module.php:1074
 msgid "Comment types that stay allowed"
 msgstr ""
 
 #: includes/Core/Migration/Sources/DisableCommentsSource.php:124
-#: includes/Modules/SecurityOptimization/Module.php:1079
+#: includes/Modules/SecurityOptimization/Module.php:1083
 msgid "Comment types to refuse"
 msgstr ""
 
@@ -2184,7 +2184,7 @@ msgid "The module can allow or refuse only pingbacks, trackbacks and (refuse) pr
 msgstr ""
 
 #: includes/Core/Migration/Sources/DisableCommentsSource.php:139
-#: includes/Modules/SecurityOptimization/Module.php:1088
+#: includes/Modules/SecurityOptimization/Module.php:1092
 msgid "Close comments on posts older than (days)"
 msgstr ""
 
@@ -2871,20 +2871,20 @@ msgid "custom error messages"
 msgstr ""
 
 #: includes/Core/Migration/Sources/LoginPressSource.php:175
-#: includes/Modules/SecurityOptimization/Module.php:758
-#: includes/Modules/SecurityOptimization/Module.php:766
-#: includes/Modules/SecurityOptimization/Module.php:778
-#: includes/Modules/SecurityOptimization/Module.php:786
-#: includes/Modules/SecurityOptimization/Module.php:798
-#: includes/Modules/SecurityOptimization/Module.php:809
-#: includes/Modules/SecurityOptimization/Module.php:817
-#: includes/Modules/SecurityOptimization/Module.php:835
-#: includes/Modules/SecurityOptimization/Module.php:848
-#: includes/Modules/SecurityOptimization/Module.php:861
-#: includes/Modules/SecurityOptimization/Module.php:869
-#: includes/Modules/SecurityOptimization/Module.php:877
-#: includes/Modules/SecurityOptimization/Module.php:890
-#: includes/Modules/SecurityOptimization/Module.php:898
+#: includes/Modules/SecurityOptimization/Module.php:762
+#: includes/Modules/SecurityOptimization/Module.php:770
+#: includes/Modules/SecurityOptimization/Module.php:782
+#: includes/Modules/SecurityOptimization/Module.php:790
+#: includes/Modules/SecurityOptimization/Module.php:802
+#: includes/Modules/SecurityOptimization/Module.php:813
+#: includes/Modules/SecurityOptimization/Module.php:821
+#: includes/Modules/SecurityOptimization/Module.php:839
+#: includes/Modules/SecurityOptimization/Module.php:852
+#: includes/Modules/SecurityOptimization/Module.php:865
+#: includes/Modules/SecurityOptimization/Module.php:873
+#: includes/Modules/SecurityOptimization/Module.php:881
+#: includes/Modules/SecurityOptimization/Module.php:894
+#: includes/Modules/SecurityOptimization/Module.php:902
 #: build/508.e859042f45a9cd046790.js:18
 #: build/508.e859042f45a9cd046790.js:19
 #: build/585.f2f2b136411f943af5e3.js:2
@@ -2907,25 +2907,25 @@ msgstr ""
 
 #: includes/Core/Migration/Sources/LoginSource.php:110
 #: includes/Core/Migration/Sources/LoginSource.php:151
-#: includes/Modules/SecurityOptimization/Module.php:644
+#: includes/Modules/SecurityOptimization/Module.php:648
 msgid "Limit login attempts"
 msgstr ""
 
 #: includes/Core/Migration/Sources/LoginSource.php:111
 #: includes/Core/Migration/Sources/LoginSource.php:152
-#: includes/Modules/SecurityOptimization/Module.php:652
+#: includes/Modules/SecurityOptimization/Module.php:656
 msgid "Max attempts"
 msgstr ""
 
 #: includes/Core/Migration/Sources/LoginSource.php:112
 #: includes/Core/Migration/Sources/LoginSource.php:153
-#: includes/Modules/SecurityOptimization/Module.php:659
+#: includes/Modules/SecurityOptimization/Module.php:663
 msgid "Lockout time (minutes)"
 msgstr ""
 
 #: includes/Core/Migration/Sources/LoginSource.php:113
 #: includes/Core/Migration/Sources/LoginSource.php:154
-#: includes/Modules/SecurityOptimization/Module.php:666
+#: includes/Modules/SecurityOptimization/Module.php:670
 msgid "Email admin on lockout"
 msgstr ""
 
@@ -2946,22 +2946,22 @@ msgid "The e-mail address for lockout notices in the plugin is not valid, so the
 msgstr ""
 
 #: includes/Core/Migration/Sources/LoginSource.php:186
-#: includes/Modules/SecurityOptimization/Module.php:673
+#: includes/Modules/SecurityOptimization/Module.php:677
 msgid "Lockout e-mail address"
 msgstr ""
 
 #: includes/Core/Migration/Sources/LoginSource.php:205
-#: includes/Modules/SecurityOptimization/Module.php:681
+#: includes/Modules/SecurityOptimization/Module.php:685
 msgid "Lengthen repeated lockouts"
 msgstr ""
 
 #: includes/Core/Migration/Sources/LoginSource.php:206
-#: includes/Modules/SecurityOptimization/Module.php:689
+#: includes/Modules/SecurityOptimization/Module.php:693
 msgid "Lockout multiplier"
 msgstr ""
 
 #: includes/Core/Migration/Sources/LoginSource.php:207
-#: includes/Modules/SecurityOptimization/Module.php:697
+#: includes/Modules/SecurityOptimization/Module.php:701
 msgid "Longest lockout (hours)"
 msgstr ""
 
@@ -2972,12 +2972,12 @@ msgid "Repeated lockouts: the plugin switches to a long lockout of %2$d h after 
 msgstr ""
 
 #: includes/Core/Migration/Sources/LoginSource.php:233
-#: includes/Modules/SecurityOptimization/Module.php:421
+#: includes/Modules/SecurityOptimization/Module.php:425
 msgid "Allowlist (never block)"
 msgstr ""
 
 #: includes/Core/Migration/Sources/LoginSource.php:238
-#: includes/Modules/SecurityOptimization/Module.php:400
+#: includes/Modules/SecurityOptimization/Module.php:404
 msgid "Enable IP firewall"
 msgstr ""
 
@@ -2996,23 +2996,23 @@ msgid "%1$d IP list entries could not be transferred (not a valid address or ran
 msgstr ""
 
 #: includes/Core/Migration/Sources/LoginSource.php:320
-#: includes/Modules/SecurityOptimization/Module.php:586
+#: includes/Modules/SecurityOptimization/Module.php:590
 msgid "Enable custom login URL"
 msgstr ""
 
 #: includes/Core/Migration/Sources/LoginSource.php:321
-#: includes/Modules/SecurityOptimization/Module.php:594
+#: includes/Modules/SecurityOptimization/Module.php:598
 msgid "Custom login slug"
 msgstr ""
 
 #: includes/Core/Migration/Sources/LoginSource.php:323
 #: includes/Core/Migration/Sources/LoginSource.php:325
-#: includes/Modules/SecurityOptimization/Module.php:602
+#: includes/Modules/SecurityOptimization/Module.php:606
 msgid "Direct wp-login.php behavior"
 msgstr ""
 
 #: includes/Core/Migration/Sources/LoginSource.php:326
-#: includes/Modules/SecurityOptimization/Module.php:617
+#: includes/Modules/SecurityOptimization/Module.php:621
 msgid "Redirect path"
 msgstr ""
 
@@ -3052,7 +3052,7 @@ msgstr ""
 
 #: includes/Core/Migration/Sources/MaintenanceSource.php:62
 #: includes/Modules/MaintenanceMode/Module.php:487
-#: includes/Modules/SecurityOptimization/Module.php:608
+#: includes/Modules/SecurityOptimization/Module.php:612
 msgid "Existing page"
 msgstr ""
 
@@ -4116,7 +4116,7 @@ msgid "Disable emojis"
 msgstr ""
 
 #: includes/Core/Migration/Sources/XmlRpcSource.php:42
-#: includes/Modules/SecurityOptimization/Module.php:954
+#: includes/Modules/SecurityOptimization/Module.php:958
 msgid "Disable RSS feeds"
 msgstr ""
 
@@ -4256,7 +4256,7 @@ msgstr ""
 
 #: includes/Core/Onboarding/Applier.php:162
 #: includes/Modules/AiMarkdown/Module.php:249
-#: includes/Modules/SecurityOptimization/Module.php:505
+#: includes/Modules/SecurityOptimization/Module.php:509
 #: build/508.e859042f45a9cd046790.js:10
 #: build/892.43c65c58f210e9c6c97c.js:1
 msgid "Off"
@@ -4637,7 +4637,7 @@ msgstr ""
 
 #: includes/Modules/AdminColumns/RestController.php:99
 #: includes/Modules/AdminCustomiser/MetaBoxRules.php:57
-#: includes/Modules/SecurityOptimization/Module.php:825
+#: includes/Modules/SecurityOptimization/Module.php:829
 msgid "Comments"
 msgstr ""
 
@@ -8257,7 +8257,7 @@ msgid "search results"
 msgstr ""
 
 #: includes/Modules/CodeSnippets/SnippetConditions.php:409
-#: includes/Modules/SecurityOptimization/Module.php:605
+#: includes/Modules/SecurityOptimization/Module.php:609
 #: build/760.a5a844330e84eee089b7.js:1
 msgid "404 page"
 msgstr ""
@@ -8531,7 +8531,7 @@ msgstr ""
 
 #: includes/Modules/ContentSync/Module.php:267
 #: includes/Modules/MaintenanceMode/Module.php:452
-#: includes/Modules/SecurityOptimization/Module.php:974
+#: includes/Modules/SecurityOptimization/Module.php:978
 #: build/295.a870471d1a0caf081ee0.js:1
 #: build/508.e859042f45a9cd046790.js:19
 #: build/760.a5a844330e84eee089b7.js:1
@@ -10469,6 +10469,7 @@ msgstr ""
 
 #: includes/Modules/ExitPopup/Module.php:594
 #: includes/Modules/SecurityOptimization/LoginUrlNotice.php:276
+#: includes/Modules/SecurityOptimization/PhpVersionNotice.php:190
 #: includes/Modules/SecurityOptimization/TwoFactor.php:856
 #: includes/Modules/SmtpEmail/Module.php:1432
 msgid "You are not allowed to do this."
@@ -11322,7 +11323,7 @@ msgstr ""
 
 #: includes/Modules/Forms/ElementorWidget.php:188
 #: includes/Modules/Forms/ElementorWidget.php:287
-#: includes/Modules/SecurityOptimization/Module.php:853
+#: includes/Modules/SecurityOptimization/Module.php:857
 #: build/474.12fceb2e478085fb674a.js:1
 msgid "Normal"
 msgstr ""
@@ -11962,7 +11963,7 @@ msgid "Twice daily"
 msgstr ""
 
 #: includes/Modules/InstagramFeed/Module.php:157
-#: includes/Modules/SecurityOptimization/Module.php:1151
+#: includes/Modules/SecurityOptimization/Module.php:1155
 #: build/295.a870471d1a0caf081ee0.js:1
 msgid "Daily"
 msgstr ""
@@ -13117,7 +13118,7 @@ msgid "Enter a Google tracking ID, e.g. G-XXXXXXXXXX."
 msgstr ""
 
 #: includes/Modules/PixelTagManager/Module.php:169
-#: includes/Modules/SecurityOptimization/Module.php:1246
+#: includes/Modules/SecurityOptimization/Module.php:1250
 msgid "Facebook Pixel"
 msgstr ""
 
@@ -14583,319 +14584,319 @@ msgstr ""
 msgid "Open Settings > Permalinks"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:398
-#: includes/Modules/SecurityOptimization/Module.php:406
-#: includes/Modules/SecurityOptimization/Module.php:419
-#: includes/Modules/SecurityOptimization/Module.php:427
-#: includes/Modules/SecurityOptimization/Module.php:437
-#: includes/Modules/SecurityOptimization/Module.php:445
+#: includes/Modules/SecurityOptimization/Module.php:402
+#: includes/Modules/SecurityOptimization/Module.php:410
+#: includes/Modules/SecurityOptimization/Module.php:423
+#: includes/Modules/SecurityOptimization/Module.php:431
+#: includes/Modules/SecurityOptimization/Module.php:441
+#: includes/Modules/SecurityOptimization/Module.php:449
 #: build/508.e859042f45a9cd046790.js:19
 msgid "Firewall"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:401
+#: includes/Modules/SecurityOptimization/Module.php:405
 msgid "Blocks every request (frontend, login, admin, REST) from banned IPs/ranges/countries. Logged-in administrators and allowlisted IPs are never blocked."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:408
+#: includes/Modules/SecurityOptimization/Module.php:412
 msgid "Client IP source"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:409
+#: includes/Modules/SecurityOptimization/Module.php:413
 msgid "Forwarded headers are only trusted in the selected mode (otherwise spoofable). Choose Cloudflare if the site is behind Cloudflare."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:411
+#: includes/Modules/SecurityOptimization/Module.php:415
 msgid "Direct connection (REMOTE_ADDR) - safe default"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:412
+#: includes/Modules/SecurityOptimization/Module.php:416
 msgid "Behind Cloudflare (CF-Connecting-IP)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:413
+#: includes/Modules/SecurityOptimization/Module.php:417
 msgid "Behind a reverse proxy (X-Forwarded-For)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:422
+#: includes/Modules/SecurityOptimization/Module.php:426
 msgid "IP addresses or CIDR ranges that are never blocked, one per line. Loopback is always allowed."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:429
+#: includes/Modules/SecurityOptimization/Module.php:433
 msgid "Block page message"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:430
+#: includes/Modules/SecurityOptimization/Module.php:434
 msgid "Optional message shown to a blocked visitor (403)."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:439
+#: includes/Modules/SecurityOptimization/Module.php:443
 msgid "Enable country blocklist"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:440
+#: includes/Modules/SecurityOptimization/Module.php:444
 msgid "Blocks visitors from the selected countries via the IP firewall (downloads aggregated IP ranges per country)."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:447
+#: includes/Modules/SecurityOptimization/Module.php:451
 msgid "Blocked countries"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:448
+#: includes/Modules/SecurityOptimization/Module.php:452
 msgid "Selecting a country here creates/refreshes a country-type IP ban the next time settings are saved."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:456
-#: includes/Modules/SecurityOptimization/Module.php:464
-#: includes/Modules/SecurityOptimization/Module.php:474
-#: includes/Modules/SecurityOptimization/Module.php:482
-#: includes/Modules/SecurityOptimization/Module.php:490
+#: includes/Modules/SecurityOptimization/Module.php:460
+#: includes/Modules/SecurityOptimization/Module.php:468
+#: includes/Modules/SecurityOptimization/Module.php:478
+#: includes/Modules/SecurityOptimization/Module.php:486
+#: includes/Modules/SecurityOptimization/Module.php:494
 #: build/508.e859042f45a9cd046790.js:18
 #: build/508.e859042f45a9cd046790.js:19
 msgid "HTTPS & headers"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:458
+#: includes/Modules/SecurityOptimization/Module.php:462
 msgid "Force canonical URL redirect"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:459
+#: includes/Modules/SecurityOptimization/Module.php:463
 msgid "Writes .htaccess rules that redirect every request to a single canonical version of the site, based on Settings -> General -> Site Address."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:466
+#: includes/Modules/SecurityOptimization/Module.php:470
 msgid "Force HTTPS"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:467
+#: includes/Modules/SecurityOptimization/Module.php:471
 msgid "Redirects all HTTP requests to HTTPS. Only enable with a working SSL certificate on the whole site. Ignored when canonical URL redirect is on (it already covers this)."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:476
+#: includes/Modules/SecurityOptimization/Module.php:480
 msgid "Security headers"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:477
+#: includes/Modules/SecurityOptimization/Module.php:481
 msgid "Sends X-Frame-Options, X-Content-Type-Options and Referrer-Policy, both via .htaccess and as a PHP fallback."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:484
+#: includes/Modules/SecurityOptimization/Module.php:488
 msgid "HSTS (Strict-Transport-Security)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:485
+#: includes/Modules/SecurityOptimization/Module.php:489
 msgid "Tells browsers to only ever connect over HTTPS for a year. Only enable with a valid SSL certificate everywhere on the site."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:492
+#: includes/Modules/SecurityOptimization/Module.php:496
 msgid "Permissions-Policy"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:493
+#: includes/Modules/SecurityOptimization/Module.php:497
 msgid "Disables browser access to camera, microphone, geolocation, payment and USB APIs by default."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:500
-#: includes/Modules/SecurityOptimization/Module.php:514
-#: includes/Modules/SecurityOptimization/Module.php:526
-#: includes/Modules/SecurityOptimization/Module.php:535
-#: includes/Modules/SecurityOptimization/Module.php:543
-#: includes/Modules/SecurityOptimization/Module.php:551
+#: includes/Modules/SecurityOptimization/Module.php:504
+#: includes/Modules/SecurityOptimization/Module.php:518
+#: includes/Modules/SecurityOptimization/Module.php:530
+#: includes/Modules/SecurityOptimization/Module.php:539
+#: includes/Modules/SecurityOptimization/Module.php:547
+#: includes/Modules/SecurityOptimization/Module.php:555
 #: build/508.e859042f45a9cd046790.js:18
 msgid "CSP"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:502
+#: includes/Modules/SecurityOptimization/Module.php:506
 msgid "Content-Security-Policy (CSP)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:503
+#: includes/Modules/SecurityOptimization/Module.php:507
 msgid "CSP tells the browser where scripts, styles, images and other content may load from. It can break parts of the website (payments, chat, maps, analytics, booking widgets) when a needed source is missing, so go step by step: Inventory finds out what the website loads, Policy test shows what Enforce would block, and only then Enforce blocks for real. Inventory and Policy test never block anything. CSP is never sent in wp-admin."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:506
+#: includes/Modules/SecurityOptimization/Module.php:510
 msgid "Inventory - find out what the website loads (Report only, recommended first)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:507
+#: includes/Modules/SecurityOptimization/Module.php:511
 msgid "Policy test - report what Enforce would block (Report only)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:508
+#: includes/Modules/SecurityOptimization/Module.php:512
 msgid "Enforce - actively block disallowed sources"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:516
+#: includes/Modules/SecurityOptimization/Module.php:520
 msgid "CSP strictness"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:517
+#: includes/Modules/SecurityOptimization/Module.php:521
 msgid "Basic allows inline scripts and eval() so it stays compatible with most themes, plugins and visual editors. Strict removes eval() for tighter protection but may break page builders (Elementor, WPBakery, Divi)."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:519
+#: includes/Modules/SecurityOptimization/Module.php:523
 msgid "Basic (recommended - allows eval)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:520
+#: includes/Modules/SecurityOptimization/Module.php:524
 msgid "Strict (no eval)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:528
+#: includes/Modules/SecurityOptimization/Module.php:532
 msgid "CSP - allowed services"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:529
+#: includes/Modules/SecurityOptimization/Module.php:533
 msgid "Select the external services the site uses. Matching domains are added to the policy so their scripts, styles, fonts and images keep working."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:537
+#: includes/Modules/SecurityOptimization/Module.php:541
 msgid "CSP - custom domain allowlist"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:538
+#: includes/Modules/SecurityOptimization/Module.php:542
 msgid "One domain per line, added to script/style/img/font/connect/frame sources. Examples: https://cdn.example.com, https://*.example.com, wss://socket.example.com. Sources approved in the inventory below are added only for the type they were seen with and do not need to be listed here."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:545
+#: includes/Modules/SecurityOptimization/Module.php:549
 msgid "Report-only sampling (% of page views)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:546
+#: includes/Modules/SecurityOptimization/Module.php:550
 msgid "Share of page views that carry the Report-only header in Inventory and Policy test. Every report is a small request to the website; lower this on very busy sites. Over 600 reports an hour collecting pauses until the next full hour automatically. Enforce is always sent on every page view."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:553
+#: includes/Modules/SecurityOptimization/Module.php:557
 msgid "Switch back to Policy test automatically"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:554
+#: includes/Modules/SecurityOptimization/Module.php:558
 msgid "When Enforce blocks several new scripts, connections or frames that visitors keep loading within 72 hours of switching it on, CSP goes back to Policy test (nothing blocked) and the administrator gets an e-mail."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:561
-#: includes/Modules/SecurityOptimization/Module.php:568
-#: includes/Modules/SecurityOptimization/Module.php:575
-#: includes/Modules/SecurityOptimization/Module.php:908
-#: includes/Modules/SecurityOptimization/Module.php:915
-#: includes/Modules/SecurityOptimization/Module.php:922
-#: includes/Modules/SecurityOptimization/Module.php:930
-#: includes/Modules/SecurityOptimization/Module.php:959
-#: includes/Modules/SecurityOptimization/Module.php:1104
-#: includes/Modules/SecurityOptimization/Module.php:1112
-#: includes/Modules/SecurityOptimization/Module.php:1120
+#: includes/Modules/SecurityOptimization/Module.php:565
+#: includes/Modules/SecurityOptimization/Module.php:572
+#: includes/Modules/SecurityOptimization/Module.php:579
+#: includes/Modules/SecurityOptimization/Module.php:912
+#: includes/Modules/SecurityOptimization/Module.php:919
+#: includes/Modules/SecurityOptimization/Module.php:926
+#: includes/Modules/SecurityOptimization/Module.php:934
+#: includes/Modules/SecurityOptimization/Module.php:963
+#: includes/Modules/SecurityOptimization/Module.php:1108
+#: includes/Modules/SecurityOptimization/Module.php:1116
+#: includes/Modules/SecurityOptimization/Module.php:1124
 #: build/508.e859042f45a9cd046790.js:19
 msgid "Hardening"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:563
+#: includes/Modules/SecurityOptimization/Module.php:567
 msgid "Protect wp-config.php"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:570
+#: includes/Modules/SecurityOptimization/Module.php:574
 msgid "Disable directory listing"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:577
+#: includes/Modules/SecurityOptimization/Module.php:581
 msgid "Block readme.html / license.txt"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:584
-#: includes/Modules/SecurityOptimization/Module.php:592
-#: includes/Modules/SecurityOptimization/Module.php:600
-#: includes/Modules/SecurityOptimization/Module.php:615
-#: includes/Modules/SecurityOptimization/Module.php:623
-#: includes/Modules/SecurityOptimization/Module.php:632
-#: includes/Modules/SecurityOptimization/Module.php:642
-#: includes/Modules/SecurityOptimization/Module.php:650
-#: includes/Modules/SecurityOptimization/Module.php:657
-#: includes/Modules/SecurityOptimization/Module.php:664
-#: includes/Modules/SecurityOptimization/Module.php:671
-#: includes/Modules/SecurityOptimization/Module.php:679
-#: includes/Modules/SecurityOptimization/Module.php:687
-#: includes/Modules/SecurityOptimization/Module.php:695
-#: includes/Modules/SecurityOptimization/Module.php:732
-#: includes/Modules/SecurityOptimization/Module.php:740
-#: includes/Modules/SecurityOptimization/Module.php:748
-#: includes/Modules/SecurityOptimization/Module.php:822
-#: includes/Modules/SecurityOptimization/Module.php:1128
+#: includes/Modules/SecurityOptimization/Module.php:588
+#: includes/Modules/SecurityOptimization/Module.php:596
+#: includes/Modules/SecurityOptimization/Module.php:604
+#: includes/Modules/SecurityOptimization/Module.php:619
+#: includes/Modules/SecurityOptimization/Module.php:627
+#: includes/Modules/SecurityOptimization/Module.php:636
+#: includes/Modules/SecurityOptimization/Module.php:646
+#: includes/Modules/SecurityOptimization/Module.php:654
+#: includes/Modules/SecurityOptimization/Module.php:661
+#: includes/Modules/SecurityOptimization/Module.php:668
+#: includes/Modules/SecurityOptimization/Module.php:675
+#: includes/Modules/SecurityOptimization/Module.php:683
+#: includes/Modules/SecurityOptimization/Module.php:691
+#: includes/Modules/SecurityOptimization/Module.php:699
+#: includes/Modules/SecurityOptimization/Module.php:736
+#: includes/Modules/SecurityOptimization/Module.php:744
+#: includes/Modules/SecurityOptimization/Module.php:752
+#: includes/Modules/SecurityOptimization/Module.php:826
+#: includes/Modules/SecurityOptimization/Module.php:1132
 #: build/508.e859042f45a9cd046790.js:18
 #: build/508.e859042f45a9cd046790.js:19
 msgid "Login"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:587
+#: includes/Modules/SecurityOptimization/Module.php:591
 msgid "Rescue switch: define UXSTUDIO_DISABLE_LOGIN_LOCK in wp-config.php to bypass this feature entirely if you get locked out."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:595
+#: includes/Modules/SecurityOptimization/Module.php:599
 msgid "New slug for the login page. Direct visitors to wp-login.php get the response chosen below. If the slug collides with an existing page/rewrite rule, the redirect is automatically NOT activated (fail-open) and a warning is logged."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:603
+#: includes/Modules/SecurityOptimization/Module.php:607
 msgid "What a visitor who opens wp-login.php (or wp-admin while logged out) directly gets once the custom login URL is active."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:606
+#: includes/Modules/SecurityOptimization/Module.php:610
 msgid "Homepage"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:607
+#: includes/Modules/SecurityOptimization/Module.php:611
 msgid "Custom path on this site"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:609
+#: includes/Modules/SecurityOptimization/Module.php:613
 msgid "Custom message (403)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:618
+#: includes/Modules/SecurityOptimization/Module.php:622
 msgid "Used with \"Custom path on this site\". A slug or path on the current domain, e.g. about-us or contact/address. The domain is added automatically, so the redirect keeps working after a domain move."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:625
+#: includes/Modules/SecurityOptimization/Module.php:629
 msgid "Redirect page"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:626
+#: includes/Modules/SecurityOptimization/Module.php:630
 msgid "Used with \"Existing page\"."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:634
+#: includes/Modules/SecurityOptimization/Module.php:638
 msgid "Access denied message"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:635
+#: includes/Modules/SecurityOptimization/Module.php:639
 msgid "Used with \"Custom message (403)\". Plain text shown to the visitor."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:636
-#: includes/Modules/SecurityOptimization/Module.php:2101
+#: includes/Modules/SecurityOptimization/Module.php:640
+#: includes/Modules/SecurityOptimization/Module.php:2106
 msgid "This has been disabled."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:645
+#: includes/Modules/SecurityOptimization/Module.php:649
 msgid "Blocks an IP/username after too many failed login attempts (brute-force protection)."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:674
+#: includes/Modules/SecurityOptimization/Module.php:678
 msgid "Where the lockout e-mail goes. Leave empty to use the site administrator address."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:682
+#: includes/Modules/SecurityOptimization/Module.php:686
 msgid "Every new lockout of the same IP address within 24 hours lasts longer than the previous one: the lockout time is multiplied by the factor below, up to the maximum. Off = every lockout lasts the same time."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:690
+#: includes/Modules/SecurityOptimization/Module.php:694
 msgid "Factor per repeated lockout, for example 2 turns 30, 60, 120 minutes. From 1 to 10."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:698
+#: includes/Modules/SecurityOptimization/Module.php:702
 msgid "A lockout never lasts longer than this, from 1 to 168 hours."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:705
-#: includes/Modules/SecurityOptimization/Module.php:713
-#: includes/Modules/SecurityOptimization/Module.php:722
+#: includes/Modules/SecurityOptimization/Module.php:709
+#: includes/Modules/SecurityOptimization/Module.php:717
+#: includes/Modules/SecurityOptimization/Module.php:726
 #: includes/Modules/SecurityOptimization/TwoFactor.php:226
 #: includes/Modules/SecurityOptimization/TwoFactor.php:610
 #: build/508.e859042f45a9cd046790.js:18
@@ -14903,534 +14904,610 @@ msgstr ""
 msgid "Two-step verification"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:707
+#: includes/Modules/SecurityOptimization/Module.php:711
 msgid "Enable two-step verification"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:708
+#: includes/Modules/SecurityOptimization/Module.php:712
 msgid "Lets users protect their account with a code from an authenticator app (Google Authenticator, Authy, 1Password ...). Everybody sets it up in their own profile; recovery codes cover a lost phone. Application passwords (REST API) are not affected. Rescue switch: define UXSTUDIO_DISABLE_2FA as true in wp-config.php to switch the second step off for everybody if you get locked out. Switching this off stops the second step for all users; their settings stay saved."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:715
+#: includes/Modules/SecurityOptimization/Module.php:719
 msgid "Require for roles"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:716
+#: includes/Modules/SecurityOptimization/Module.php:720
 msgid "Users with these roles are asked to set up two-step verification after logging in. Nobody is locked out: they can postpone it for the number of logins below, then only their profile page is open until the setup is done."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:724
+#: includes/Modules/SecurityOptimization/Module.php:728
 msgid "Logins that may skip the setup"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:725
+#: includes/Modules/SecurityOptimization/Module.php:729
 msgid "For roles that must use two-step verification. 0 = the setup is compulsory from the first login."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:734
+#: includes/Modules/SecurityOptimization/Module.php:738
 msgid "Block reserved usernames"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:735
+#: includes/Modules/SecurityOptimization/Module.php:739
 msgid "Prevents registering/renaming to reserved names such as admin, administrator, root, test."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:742
+#: includes/Modules/SecurityOptimization/Module.php:746
 msgid "Additional blocked usernames"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:743
+#: includes/Modules/SecurityOptimization/Module.php:747
 msgid "One per line, added on top of the built-in reserved list (admin, administrator, root, test)."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:750
+#: includes/Modules/SecurityOptimization/Module.php:754
 msgid "Lock out IPs that try a blocked username"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:751
+#: includes/Modules/SecurityOptimization/Module.php:755
 msgid "A failed login with a reserved username locks the IP out immediately (for the lockout time above) instead of after the maximum number of attempts. Requires \"Limit login attempts\" and \"Block reserved usernames\"."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:761
+#: includes/Modules/SecurityOptimization/Module.php:765
 msgid "Adds CAPTCHA verification to login, registration and lost-password forms. Without both keys set, nothing is enforced."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:770
+#: includes/Modules/SecurityOptimization/Module.php:774
 msgid "Cloudflare Turnstile"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:771
+#: includes/Modules/SecurityOptimization/Module.php:775
 msgid "Google reCAPTCHA v2 (checkbox)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:772
+#: includes/Modules/SecurityOptimization/Module.php:776
 msgid "Google reCAPTCHA v3 (score)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:780
+#: includes/Modules/SecurityOptimization/Module.php:784
 msgid "reCAPTCHA v3 minimum score"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:781
+#: includes/Modules/SecurityOptimization/Module.php:785
 msgid "Only for Google reCAPTCHA v3. Score from 0.0 (bot) to 1.0 (human); requests below it are rejected. Recommended 0.5."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:789
+#: includes/Modules/SecurityOptimization/Module.php:793
 msgid "Inline shows the widget inside the login/register/lost-password form itself. Standalone gate shows a dedicated \"verify you're not a robot\" page before the form is reachable at all - since WordPress redirects every logged-out admin request to wp-login.php, this also protects the whole admin, not just the login form. The gate ignores enforcement mode below and always applies (adaptive mode only affects the inline widget)."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:791
+#: includes/Modules/SecurityOptimization/Module.php:795
 msgid "Inline widget in the form"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:792
+#: includes/Modules/SecurityOptimization/Module.php:796
 msgid "Standalone page before login (also gates wp-admin)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:802
+#: includes/Modules/SecurityOptimization/Module.php:806
 msgid "Always"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:803
+#: includes/Modules/SecurityOptimization/Module.php:807
 msgid "Adaptive (after repeated failures)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:811
+#: includes/Modules/SecurityOptimization/Module.php:815
 msgid "Adaptive mode threshold"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:812
+#: includes/Modules/SecurityOptimization/Module.php:816
 msgid "Only for adaptive mode: after how many failed attempts from one IP the CAPTCHA starts being required (1-20)."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:820
+#: includes/Modules/SecurityOptimization/Module.php:824
 msgid "Which forms show and verify the CAPTCHA widget. The standalone gate always covers login and lost password on wp-login.php; registration, comments and WooCommerce forms are protected with either placement. Logged-in visitors are never asked on comments and checkout. WooCommerce checkout means the classic checkout (the block checkout has no place for the widget)."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:823
+#: includes/Modules/SecurityOptimization/Module.php:827
 msgid "Registration"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:824
+#: includes/Modules/SecurityOptimization/Module.php:828
 msgid "Lost password"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:826
+#: includes/Modules/SecurityOptimization/Module.php:830
 msgid "WooCommerce login"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:827
+#: includes/Modules/SecurityOptimization/Module.php:831
 msgid "WooCommerce registration"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:828
+#: includes/Modules/SecurityOptimization/Module.php:832
 msgid "WooCommerce lost password"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:829
+#: includes/Modules/SecurityOptimization/Module.php:833
 msgid "WooCommerce checkout"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:838
+#: includes/Modules/SecurityOptimization/Module.php:842
 msgid "For Cloudflare Turnstile and reCAPTCHA v2. reCAPTCHA has no automatic theme and shows the light one."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:840
+#: includes/Modules/SecurityOptimization/Module.php:844
 msgid "Automatic (follows the visitor)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:841
+#: includes/Modules/SecurityOptimization/Module.php:845
 msgid "Light"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:842
+#: includes/Modules/SecurityOptimization/Module.php:846
 msgid "Dark"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:851
+#: includes/Modules/SecurityOptimization/Module.php:855
 msgid "For Cloudflare Turnstile and reCAPTCHA v2. Flexible (Turnstile only) fills the width of the form; reCAPTCHA shows it as normal."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:854
+#: includes/Modules/SecurityOptimization/Module.php:858
 msgid "Compact"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:855
+#: includes/Modules/SecurityOptimization/Module.php:859
 msgid "Flexible"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:864
+#: includes/Modules/SecurityOptimization/Module.php:868
 msgid "Public key, safe to expose in the page markup."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:872
+#: includes/Modules/SecurityOptimization/Module.php:876
 msgid "Stored encrypted server-side. Leave blank to keep the current key."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:880
+#: includes/Modules/SecurityOptimization/Module.php:884
 msgid "Manual: paste site/secret key yourself. Central app: this site (already paired via Content Sync) gets a key automatically from a shared Turnstile widget managed by the central app. Own Cloudflare API token: this site manages its own Turnstile widget directly, using an API token you paste below."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:882
+#: includes/Modules/SecurityOptimization/Module.php:886
 msgid "Manual (paste keys below)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:883
+#: includes/Modules/SecurityOptimization/Module.php:887
 msgid "Automatic via central app"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:884
+#: includes/Modules/SecurityOptimization/Module.php:888
 msgid "Automatic via own Cloudflare API token"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:892
+#: includes/Modules/SecurityOptimization/Module.php:896
 msgid "Cloudflare account ID"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:893
+#: includes/Modules/SecurityOptimization/Module.php:897
 msgid "Used only for \"own Cloudflare API token\" key source."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:900
+#: includes/Modules/SecurityOptimization/Module.php:904
 msgid "Cloudflare API token"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:901
+#: includes/Modules/SecurityOptimization/Module.php:905
 msgid "Scope it to Account > Turnstile > Edit only, nothing else. Stored encrypted server-side. Leave blank to keep the current token."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:917
+#: includes/Modules/SecurityOptimization/Module.php:921
 msgid "Hide WordPress version"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:924
+#: includes/Modules/SecurityOptimization/Module.php:928
 msgid "Hide WordPress links in the page head"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:925
+#: includes/Modules/SecurityOptimization/Module.php:929
 msgid "Removes the RSD, Windows Live Writer, short link and REST API address links from the page head and the matching HTTP headers, so the site does not announce that it runs on WordPress. The REST API itself keeps working. Use together with \"Hide WordPress version\"."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:932
+#: includes/Modules/SecurityOptimization/Module.php:936
 msgid "No e-mails about successful automatic updates"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:933
+#: includes/Modules/SecurityOptimization/Module.php:937
 msgid "Stops the e-mails WordPress sends after automatic updates of plugins, themes and core. Updates keep running. E-mails about failed or critical core updates and manual-action messages are still sent."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:940
+#: includes/Modules/SecurityOptimization/Module.php:944
 msgid "Disable emoji scripts"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:947
+#: includes/Modules/SecurityOptimization/Module.php:951
 msgid "Disable embeds script"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:961
+#: includes/Modules/SecurityOptimization/Module.php:965
 msgid "Restrict REST API to logged-in users"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:962
+#: includes/Modules/SecurityOptimization/Module.php:966
 msgid "Blocks the WordPress REST API for anonymous visitors. Common public endpoints (oEmbed, WooCommerce, Contact Form 7, WPForms, Elementor, site health) stay reachable so front-end features keep working."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:969
+#: includes/Modules/SecurityOptimization/Module.php:973
 msgid "Heartbeat API"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:970
+#: includes/Modules/SecurityOptimization/Module.php:974
 msgid "Heartbeat periodically talks to the server in the background (autosave, post locking, session checks). Slowing it down reduces server load on busy admins. Ignored when WP Rocket, LiteSpeed Cache, Heartbeat Control or Perfmatters already manage Heartbeat."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:972
+#: includes/Modules/SecurityOptimization/Module.php:976
 msgid "Default (15 s)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:973
+#: includes/Modules/SecurityOptimization/Module.php:977
 msgid "Slowed down (60 s)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:982
+#: includes/Modules/SecurityOptimization/Module.php:986
 msgid "Limit post revisions"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:983
+#: includes/Modules/SecurityOptimization/Module.php:987
 msgid "Limits how many revisions are kept for each post."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:990
+#: includes/Modules/SecurityOptimization/Module.php:994
 msgid "Maximum number of revisions"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:991
+#: includes/Modules/SecurityOptimization/Module.php:995
 msgid "Recommended value is 3-10. Setting 0 disables revisions entirely."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:996
-#: includes/Modules/SecurityOptimization/Module.php:1138
-#: includes/Modules/SecurityOptimization/Module.php:1158
-#: includes/Modules/SecurityOptimization/Module.php:1166
-#: includes/Modules/SecurityOptimization/Module.php:1174
-#: includes/Modules/SecurityOptimization/Module.php:1182
+#: includes/Modules/SecurityOptimization/Module.php:1000
+#: includes/Modules/SecurityOptimization/Module.php:1142
+#: includes/Modules/SecurityOptimization/Module.php:1162
+#: includes/Modules/SecurityOptimization/Module.php:1170
+#: includes/Modules/SecurityOptimization/Module.php:1178
+#: includes/Modules/SecurityOptimization/Module.php:1186
 #: build/508.e859042f45a9cd046790.js:18
 msgid "Uploads"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:998
+#: includes/Modules/SecurityOptimization/Module.php:1002
 msgid "Restrict uploadable file types"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:999
+#: includes/Modules/SecurityOptimization/Module.php:1003
 msgid "Allows only common images, documents (PDF, Office), ZIP, MP3/MP4/WebM and web fonts. SVG stays allowed only if the SVG Upload module permits it."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1009
+#: includes/Modules/SecurityOptimization/Module.php:1013
 msgid "Completely disables comments site-wide - closes comments on all content types, removes the Comments section from wp-admin and hides the comment counter from the admin bar. Existing comments stay in the database but are not displayed."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1017
+#: includes/Modules/SecurityOptimization/Module.php:1021
 msgid "Everywhere closes comments on all content and removes the comment tools from the admin. For selected post types only those post types are affected."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1019
+#: includes/Modules/SecurityOptimization/Module.php:1023
 msgid "Everywhere"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1020
+#: includes/Modules/SecurityOptimization/Module.php:1024
 msgid "Only for selected post types"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1029
+#: includes/Modules/SecurityOptimization/Module.php:1033
 msgid "Used when \"Only for selected post types\" is chosen."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1038
+#: includes/Modules/SecurityOptimization/Module.php:1042
 msgid "Existing comments are hidden on the site but not deleted - switching this off shows them again."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1046
+#: includes/Modules/SecurityOptimization/Module.php:1050
 msgid "Hides the Comments menu, the Discussion settings page, the dashboard widget, the admin bar bubble and the Recent Comments widget. Applies only when disabling everywhere."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1054
+#: includes/Modules/SecurityOptimization/Module.php:1058
 msgid "Removes the REST API comment routes, XML-RPC comment/pingback methods, the X-Pingback header and comment feeds. Applies only when disabling everywhere."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1062
+#: includes/Modules/SecurityOptimization/Module.php:1066
 msgid "Users with these roles (and visitors who are not logged in, when that is ticked) are not affected by \"Disable comments\" or by closing comments on old posts: for them comments, the comment tools in the admin and the REST routes work as in WordPress. The choice is made per request, so a page served from a page cache looks the same to everybody; keep pages with a comment form out of the cache."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1071
+#: includes/Modules/SecurityOptimization/Module.php:1075
 msgid "Pingbacks and trackbacks (notices from other sites) can stay on although comments are disabled. Used only while \"Disable comments\" is on; a type that is not ticked is refused. Pingbacks travel through XML-RPC, so they also need \"Disable XML-RPC\" to be off, otherwise pings stay closed."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1080
+#: includes/Modules/SecurityOptimization/Module.php:1084
 msgid "New comments of these types are refused even where comments are open (for example pingbacks, or product reviews while ordinary comments stay open). Existing comments are not touched. Works without \"Disable comments\"."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1081
+#: includes/Modules/SecurityOptimization/Module.php:1085
 msgid "Product reviews"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1089
+#: includes/Modules/SecurityOptimization/Module.php:1093
 msgid "0 = never. Comments and pingbacks are closed on content published more than this many days ago. The module does this itself (it filters whether comments are open); the WordPress option \"Automatically close comments on old posts\" is not changed, so switching the module off restores the earlier state. Existing comments stay visible."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1096
+#: includes/Modules/SecurityOptimization/Module.php:1100
 msgid "Disable blog"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1097
+#: includes/Modules/SecurityOptimization/Module.php:1101
 msgid "Removes blog features - hides \"Posts\" from the admin menu, redirects blog posts and archives to the homepage and hides the Quick Draft dashboard widget. Suitable for presentation sites without a blog."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1106
+#: includes/Modules/SecurityOptimization/Module.php:1110
 msgid "Block user enumeration"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1107
+#: includes/Modules/SecurityOptimization/Module.php:1111
 msgid "Stops attackers harvesting usernames via ?author=N redirects and the public /wp/v2/users REST route. Logged-in users keep full access."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1114
+#: includes/Modules/SecurityOptimization/Module.php:1118
 msgid "Hide author slugs"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1115
+#: includes/Modules/SecurityOptimization/Module.php:1119
 msgid "Replaces usernames in author archive URLs and REST API responses with an encrypted ID, so the login name cannot be read from the URL. Use instead of or together with blocking user enumeration."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1122
+#: includes/Modules/SecurityOptimization/Module.php:1126
 msgid "Disable theme/plugin file editor"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1123
+#: includes/Modules/SecurityOptimization/Module.php:1127
 msgid "Defines DISALLOW_FILE_EDIT so nobody can edit theme or plugin PHP from wp-admin - a common way attackers turn a stolen admin login into code execution."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1130
+#: includes/Modules/SecurityOptimization/Module.php:1134
 msgid "Harden the login page"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1131
+#: includes/Modules/SecurityOptimization/Module.php:1135
 msgid "Hides detailed login error messages (so an attacker cannot tell which of username/password was wrong) and disables Application Passwords."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1140
+#: includes/Modules/SecurityOptimization/Module.php:1144
 msgid "Enable Upload Guard scanner"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1141
+#: includes/Modules/SecurityOptimization/Module.php:1145
 msgid "Checks new uploads and runs a scheduled night scan of uploads, plugins and themes. It only reports - files are never moved or deleted automatically. Plugin files identical to the official WordPress.org version count as clean. Turning this off stops all scanning (existing findings are kept). CSP violation reporting is unaffected."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1147
+#: includes/Modules/SecurityOptimization/Module.php:1151
 msgid "Full scan frequency"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1148
+#: includes/Modules/SecurityOptimization/Module.php:1152
 msgid "Automatic full scans run only at night, in a 4-hour window starting between 01:00 and 03:00 site time (different for each site), in small batches with pauses, and wait when the server is busy. Unchanged files are skipped without being read; every 4th run reads everything. New uploads are always checked right away."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1150
+#: includes/Modules/SecurityOptimization/Module.php:1154
 msgid "Weekly (recommended)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1152
+#: includes/Modules/SecurityOptimization/Module.php:1156
 msgid "Only when I click \"Scan now\""
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1160
+#: includes/Modules/SecurityOptimization/Module.php:1164
 msgid "Email admin on detections"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1161
+#: includes/Modules/SecurityOptimization/Module.php:1165
 msgid "Sends a throttled summary email when new high/critical findings appear (at most one per 15 minutes)."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1168
+#: includes/Modules/SecurityOptimization/Module.php:1172
 #: includes/Modules/ServiceRequests/Module.php:134
 msgid "Notification email"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1169
+#: includes/Modules/SecurityOptimization/Module.php:1173
 msgid "Where to send Upload Guard alerts. Leave blank to use the site admin email."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1176
+#: includes/Modules/SecurityOptimization/Module.php:1180
 msgid "Custom patterns (advanced)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1177
+#: includes/Modules/SecurityOptimization/Module.php:1181
 msgid "Your own regular expressions for suspicious code, one per line, e.g. /malicious_function\\s*\\(/i. Lines starting with # are comments. Each matching pattern adds 25 points to the file score. Invalid expressions are commented out on save and never used."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1184
+#: includes/Modules/SecurityOptimization/Module.php:1188
 msgid "Skipped paths"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1185
+#: includes/Modules/SecurityOptimization/Module.php:1189
 msgid "Files under these paths are never scanned, one per line. Either an absolute path or a path relative to the site, e.g. wp-content/plugins/cache-plugin/. Useful for a trusted plugin that legitimately uses eval() or base64_decode()."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1237
+#: includes/Modules/SecurityOptimization/Module.php:1241
 msgid "Google Fonts"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1238
+#: includes/Modules/SecurityOptimization/Module.php:1242
 msgid "Google Tag Manager + Analytics"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1239
+#: includes/Modules/SecurityOptimization/Module.php:1243
 msgid "YouTube (embedded videos)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1240
+#: includes/Modules/SecurityOptimization/Module.php:1244
 msgid "Vimeo (embedded videos)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1241
+#: includes/Modules/SecurityOptimization/Module.php:1245
 msgid "Smartsupp (chat)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1242
+#: includes/Modules/SecurityOptimization/Module.php:1246
 msgid "Google reCAPTCHA"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1243
+#: includes/Modules/SecurityOptimization/Module.php:1247
 msgid "Cloudflare / CloudFront CDN"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1244
+#: includes/Modules/SecurityOptimization/Module.php:1248
 msgid "Mapy.cz"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1245
+#: includes/Modules/SecurityOptimization/Module.php:1249
 msgid "Google Maps"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1247
+#: includes/Modules/SecurityOptimization/Module.php:1251
 msgid "Gravatar (comment avatars)"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1547
+#: includes/Modules/SecurityOptimization/Module.php:1551
 msgid "Your IP address has been blocked."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1548
-#: includes/Modules/SecurityOptimization/Module.php:2104
-#: includes/Modules/SecurityOptimization/Module.php:2229
+#: includes/Modules/SecurityOptimization/Module.php:1552
+#: includes/Modules/SecurityOptimization/Module.php:2109
+#: includes/Modules/SecurityOptimization/Module.php:2234
 msgid "403 Forbidden"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1707
+#: includes/Modules/SecurityOptimization/Module.php:1711
 msgid "Invalid login credentials. Please check both the username and the password."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:1862
+#: includes/Modules/SecurityOptimization/Module.php:1867
 msgid "XML-RPC is disabled."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:2096
+#: includes/Modules/SecurityOptimization/Module.php:2101
 msgid "Not found."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:2151
+#: includes/Modules/SecurityOptimization/Module.php:2156
 msgid "This username is not allowed for security reasons. Please choose another."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:2166
-#: includes/Modules/SecurityOptimization/Module.php:2179
+#: includes/Modules/SecurityOptimization/Module.php:2171
+#: includes/Modules/SecurityOptimization/Module.php:2184
 msgid "This username is not allowed for security reasons."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:2228
+#: includes/Modules/SecurityOptimization/Module.php:2233
 msgid "RSS feeds are disabled on this site."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:2408
+#: includes/Modules/SecurityOptimization/Module.php:2413
 msgid "This type of comment is not accepted."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:2476
+#: includes/Modules/SecurityOptimization/Module.php:2481
 msgid "Visitors who are not logged in"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:2487
+#: includes/Modules/SecurityOptimization/Module.php:2492
 msgid "Pingbacks"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:2488
+#: includes/Modules/SecurityOptimization/Module.php:2493
 msgid "Trackbacks"
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:2555
+#: includes/Modules/SecurityOptimization/Module.php:2560
 msgid "Comments are disabled."
 msgstr ""
 
-#: includes/Modules/SecurityOptimization/Module.php:2758
+#: includes/Modules/SecurityOptimization/Module.php:2763
 msgid "REST API access is restricted to logged-in users."
+msgstr ""
+
+#. translators: %s: site name.
+#: includes/Modules/SecurityOptimization/PhpVersionMaintenance.php:232
+#, php-format
+msgid "[%s] Critical: the PHP version of your website is not safe"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/PhpVersionMaintenance.php:237
+msgid "The PHP version of your website is not safe"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/PhpVersionMaintenance.php:240
+#: includes/Modules/SecurityOptimization/PhpVersionNotice.php:141
+#: includes/Modules/SecurityOptimization/PhpVersionNotice.php:176
+msgid "Security advisory on php.net"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/PhpVersionMaintenance.php:245
+msgid "Open the administration"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/PhpVersionNotice.php:51
+msgid "Security - PHP version"
+msgstr ""
+
+#. translators: 1: current PHP version, 2: recommended PHP version.
+#: includes/Modules/SecurityOptimization/PhpVersionNotice.php:86
+#, php-format
+msgid "This website runs on PHP %1$s. This version no longer receives security updates, so every newly found vulnerability stays open and an attacker may be able to run code on the server. Switch to PHP %2$s or newer in your hosting administration."
+msgstr ""
+
+#. translators: 1: current PHP version, 2: CVE identifiers, 3: first safe PHP version.
+#: includes/Modules/SecurityOptimization/PhpVersionNotice.php:94
+#, php-format
+msgid "This website runs on PHP %1$s. This version contains a critical vulnerability (%2$s): an attacker can run code on the server without logging in. Switch to PHP %3$s or newer in your hosting administration."
+msgstr ""
+
+#. translators: 1: current PHP version, 2: first safe PHP version.
+#: includes/Modules/SecurityOptimization/PhpVersionNotice.php:103
+#, php-format
+msgid "This website runs on PHP %1$s. A security update is available for this version. Switch to PHP %2$s or newer in your hosting administration."
+msgstr ""
+
+#. translators: 1: current PHP version, 2: PHP branch, 3: end date, 4: days left, 5: recommended PHP version.
+#: includes/Modules/SecurityOptimization/PhpVersionNotice.php:110
+#, php-format
+msgid "This website runs on PHP %1$s. Security support for PHP %2$s ends on %3$s (in %4$d days). Plan a switch to PHP %5$s or newer in your hosting administration."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/PhpVersionNotice.php:123
+msgid "Hosting providers that ship their own PHP build (Debian, Ubuntu and others) often fix security flaws without changing the version number. If your hosting confirms that the fix is in your build, you can hide this notice."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/PhpVersionNotice.php:132
+#: build/230.32739baf79a789ffbbf2.js:1
+#: build/457.86c22dc1788b1667e28e.js:1
+msgid "Critical"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/PhpVersionNotice.php:132
+#: build/230.32739baf79a789ffbbf2.js:1
+#: build/395.b69494e996fd55a376ef.js:6
+msgid "Warning"
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/PhpVersionNotice.php:173
+msgid "Critical: the PHP version of this website is not safe."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/PhpVersionNotice.php:173
+msgid "The PHP version of this website will soon lose security support."
+msgstr ""
+
+#: includes/Modules/SecurityOptimization/PhpVersionNotice.php:181
+msgid "Verified with hosting, hide for 30 days"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/RestController.php:128
@@ -18331,16 +18408,6 @@ msgstr ""
 
 #: build/230.32739baf79a789ffbbf2.js:1
 msgid "Info"
-msgstr ""
-
-#: build/230.32739baf79a789ffbbf2.js:1
-#: build/395.b69494e996fd55a376ef.js:6
-msgid "Warning"
-msgstr ""
-
-#: build/230.32739baf79a789ffbbf2.js:1
-#: build/457.86c22dc1788b1667e28e.js:1
-msgid "Critical"
 msgstr ""
 
 #: build/230.32739baf79a789ffbbf2.js:1

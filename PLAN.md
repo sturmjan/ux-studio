@@ -2819,7 +2819,78 @@ blokování výčtu uživatelů, CSP Enforce, modul Disable Auto Updates.
 - [x] F1 Security: nová nastavení `hide_wp_head_links`, `suppress_update_emails`, stav `pending` přihlašovací adresy
 - [x] F1 Nová pravidla překryvů (ai-markdown, image-optimizer) a testy `tests/onboarding-starter.php`, `tests/overlap-catalog.php`
 - [x] F1 Překlady nových řetězců PHP (cs_CZ)
-- [ ] F2 Kontrola verze PHP (varování před aktivací průvodce, když PHP nevyhovuje požadavkům balíčku)
+- [x] F2 Kontrola verze PHP (kritická zranitelnost / konec podpory; popis v 29.5; průvodce ji čte z `GET uxstudio/v1/security/php-version`)
 - [ ] F3 UI průvodce: režim `#/wizard?mode=new`, výběr položek, přednastavení slovy, potvrzení přihlašovací adresy, vrácení změn
 - [ ] F4 Napojení na centrální aplikaci (strana pluginu; strana CA se dělá zvlášť v centrani-app)
 - [ ] F5 Překlady JS, QA na čistém webu (Apache, nginx, Cloudflare, WooCommerce) a vydání 0.7.0
+
+### 29.5 Kontrola verze PHP (F2)
+
+**Proč.** 2026-10-21 vyšlo php.net bezpečnostní upozornění (CVE-2026-109618 a CVE-2026-109619, vzdálené spuštění kódu
+bez přihlášení, CVSS 4.0 9.2), opraveno v 8.5.12, 8.4.27, 8.3.36 a 8.2.35. Web na starší verzi je zranitelný a
+majitel to z administrace nepozná. Třídy v `includes/Modules/SecurityOptimization/`:
+
+- `PhpVersionCheck` (čistá logika, bez WordPressu): vestavěná tabulka `BASELINE` (větev -> nejnižší bezpečná verze a
+  konec bezpečnostní podpory) a `ADVISORIES` (CVE, adresa, první opravená verze po větvích), `parse()`, `evaluate()`,
+  `normalize_remote()`, `merge()`, `snoozed()`, `mail_due()`.
+- `PhpVersionMaintenance`: denní WP-Cron `uxstudio_php_version_refresh`, stažení z php.net, uložení, e-mail, `result()`
+  a `payload()`.
+- `PhpVersionNotice`: widget na nástěnce (nahoře, nejde skrýt) a upozornění na všech obrazovkách administrace.
+- `PhpVersionRestController`: `GET uxstudio/v1/security/php-version`.
+
+**Formát API php.net (ověřeno 2026-10-25, bez klíče, JSON).**
+
+- `GET /releases/states` (strojově čitelná podpora větví): `{"8":{"8.4":{"state":"stable","initial_release":"2024-11-21T00:00:00+00:00","active_support_end":"...","security_support_end":"2028-12-31T00:00:00+00:00"},...}}`.
+  `state` je `stable`, `security` nebo `eol`. Obsahuje i větve 7.x a 5.6.
+- `GET /releases/?json&version=8.4&max=10`: `{"8.4.27":{"announcement":true,"tags":["security"],"date":"21 Oct 2026","source":[...]},"8.4.26":{...},"8.4.25":{"tags":[""],...}}`.
+  Bezpečnostní vydání má v `tags` hodnotu `security`, běžné má prázdný řetězec. Bez `max` vrací jediné (nejnovější) vydání
+  bez klíče s verzí (`...,"version":"8.4.27"`).
+- `GET /releases/active` (a `/releases/active.php`): `{"8":{"8.2":{"version":"8.2.35","tags":["security"],"date":...},...}}`,
+  jen poslední vydání podporovaných větví. `GET /releases/?json` je to samé po hlavních verzích (`supported_versions`).
+  Pro kontrolu se nepoužívá: poslední vydání nemusí být bezpečnostní, takže se bere `states` (konec podpory) a pro každou
+  podporovanou větev `?json&version=<větev>&max=10` (nejvyšší vydání se štítkem `security` = nejnižší bezpečná verze).
+
+**Pravidla rozhodnutí** (`evaluate(PHP_VERSION, tabulka, dnes)` -> `level` ok|warning|critical, `reason`
+outdated|unsupported|eol_soon|unknown, `branch`, `current`, `minimum`, `eol`, `days_to_eol`, `cves`, `advisory_url`,
+`distro_build`, `recommended`). V tomto pořadí:
+
+1. Nečitelná verze nebo prázdná tabulka: ok, `unknown` (nehádáme).
+2. Větev nižší než nejnižší v tabulce (8.1 a starší) nebo po konci podpory (`dnes > eol`): critical, `unsupported`.
+3. Větev novější než tabulka (8.6 RC a dál): ok.
+4. Verze pod nejnižší bezpečnou verzí větve: critical, `outdated`; CVE a adresa upozornění jen když je pokrývá známé
+   upozornění (`fixed` po větvích).
+5. Konec podpory do 90 dnů (včetně): warning, `eol_soon`.
+6. Jinak ok.
+
+Z `8.1.2-1ubuntu2.20` se bere číselný začátek `8.1.2` a nastaví se `distro_build` (distribuce často opravuje bez změny
+čísla, proto je u upozornění věta o zpětných opravách).
+
+**Vzdálená data.** Stahuje jen denní cron při zapnutém modulu Zabezpečení (`wp_safe_remote_get`, timeout 5 s, 128 kB na
+odpověď, nejvýš 8 větví, celkem do 20 s). Při chybě zůstanou poslední dobrá data (volba `uxstudio_php_version_remote`)
+a vestavěná tabulka. Platí jen to, co projde kontrolou (`^\d+\.\d+\.\d+\z`, větev sedí, patch do 99, platné datum).
+Vzdálená data smějí nejnižší bezpečnou verzi jen ZVÝŠIT a konec podpory jen POSUNOUT dřív, nikdy opačně, a nesmí oživit
+větev, kterou vestavěná tabulka nezná jako starou. Zcela novou větev (8.6 po vydání) přidají.
+
+**Kde se zobrazuje (jen když `level` není ok).**
+
+- Widget nástěnky (červený/žlutý) a upozornění na všech obrazovkách pro `manage_options`. Upozornění nemá křížek; skryje ho
+  jen tlačítko „Ověřeno u hostingu, skrýt na 30 dní“ (nonce, volba `uxstudio_php_version_snooze` s časem a přesnou
+  `PHP_VERSION`; jiná verze upozornění vrátí). Widget zůstává.
+- E-mail na `admin_email`: jednou, když web zkritickne, pak nejvýš jednou za 7 dní (volba `uxstudio_php_version_mail`,
+  zapsaná před odesláním; po návratu z critical se smaže).
+- REST: `GET uxstudio/v1/security/php-version` (`manage_options`, bez HTTP požadavku) vrací výše uvedená pole plus
+  `php_full`, `checked`, `source` (bundled|php.net), `fetched_at`, `snoozed`. Totéž pole `php_version` (jen výsledek) je
+  v `GET security-optimization/scan-status`.
+
+**Bez modulu Zabezpečení.** REST a čistá funkce fungují vždy (průvodce F3 výsledek potřebuje i tam, kde Zabezpečení
+ještě není zapnuté; čte vestavěnou tabulku a dříve stažená data). Cron, widget, upozornění a e-mail jsou jen se zapnutým
+modulem, vypnutí modulu cron zruší.
+
+**Centrální aplikace.** `SecurityApiController::inventory()` (`?page=security_api&action=inventory`, podpis HMAC) čte z těla
+POST pole `php_version` a z něj číselný začátek ukládá do `sites.php_version`. Plugin ho do 0.6.0 neposílal, teď ho
+`CentralVulnerabilityClient::report()` přidává (`PHP_VERSION` beze změny) spolu s novým doplňkovým polem
+`php_check: {level, reason}` (starší CA ho ignoruje). Odesílá se při každém ručním i plánovaném skenu zranitelností.
+
+**Ověřeno.** `tests/php-version-check.php` (rozhodnutí pro 5.6 až 8.6, hranice 90 dnů a posledního dne podpory, přípony
+distribucí, vzdálená data zvyšující / snižující / neplatná, snooze, plán e-mailů). Živě na pobyty (XAMPP PHP 8.4.19):
+critical `outdated` se dvěma CVE, `refresh()` proti php.net uloží 8.2 až 8.5, REST 200.

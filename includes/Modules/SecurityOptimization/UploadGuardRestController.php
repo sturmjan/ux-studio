@@ -269,6 +269,8 @@ final class UploadGuardRestController extends Controller {
 			array(
 				'status' => $scanner->get_status(),
 				'stats'  => $scanner->get_stats(),
+				// PLAN.md 29 F2: the PHP version verdict travels with the security overview.
+				'php_version' => PhpVersionMaintenance::result(),
 			)
 		);
 	}
