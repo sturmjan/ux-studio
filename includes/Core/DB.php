@@ -103,8 +103,23 @@ final class DB {
 		global $wpdb;
 		$wpdb->last_error = ''; // A stale error of an earlier, unrelated query must not count.
 		$errors_before = self::structural_error_count();
-		$migrator( $current );
-		if ( self::structural_error_count() > $errors_before || self::last_query_failed_structurally() ) {
+		// Tables dbDelta() was asked to create: after the step each of them must exist.
+		$expected = array();
+		$capture  = static function ( $queries ) use ( &$expected ) {
+			foreach ( (array) $queries as $query ) {
+				if ( 1 === preg_match( '/^\s*CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?`?([A-Za-z0-9_$]+)`?/i', (string) $query, $m ) ) {
+					$expected[] = $m[1];
+				}
+			}
+			return $queries;
+		};
+		add_filter( 'dbdelta_create_queries', $capture, PHP_INT_MAX );
+		try {
+			$migrator( $current );
+		} finally {
+			remove_filter( 'dbdelta_create_queries', $capture, PHP_INT_MAX );
+		}
+		if ( self::structural_error_count() > $errors_before || self::last_query_failed_structurally() || self::missing_table( $expected ) ) {
 			// dbDelta()/CREATE/ALTER failed (permissions, a full disk, a broken index ...): do NOT record the
 			// version, otherwise the missing table/column would never be created again.
 			self::report_failed_migration( $module_id, $current, $version );
@@ -134,13 +149,51 @@ final class DB {
 	}
 
 	/**
+	 * Is this MySQL error harmless for a repeated schema step? dbDelta() can emit a failing ALTER for a key or
+	 * column that is already there (1060, 1061, 1050, 1091); the end state is what the step wanted.
+	 *
+	 * @param string $error Error text.
+	 */
+	private static function is_benign_schema_error( string $error ): bool {
+		return 1 === preg_match( '/Duplicate (key name|column name)|already exists|check that (column|key)(\/key)? exists|Can.t DROP/i', $error );
+	}
+
+	/**
+	 * Is this failed statement a real schema failure (CREATE/ALTER with an error that matters)?
+	 *
+	 * @param string $sql   SQL text.
+	 * @param string $error Error text.
+	 */
+	private static function is_blocking_failure( string $sql, string $error ): bool {
+		return self::is_structural_sql( $sql ) && ! self::is_benign_schema_error( $error );
+	}
+
+	/**
+	 * First expected table that does not exist after the step, or ''. Skipped without a usable wpdb.
+	 *
+	 * @param string[] $tables Table names dbDelta() was asked to create.
+	 */
+	private static function missing_table( array $tables ): string {
+		global $wpdb;
+		if ( ! is_object( $wpdb ) || ! method_exists( $wpdb, 'get_var' ) || ! method_exists( $wpdb, 'esc_like' ) ) {
+			return '';
+		}
+		foreach ( array_unique( $tables ) as $table ) {
+			if ( $table !== $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $table ) ) ) ) {
+				return $table;
+			}
+		}
+		return '';
+	}
+
+	/**
 	 * How many CREATE/ALTER statements have failed so far in this request (wpdb keeps every failed query in
 	 * the global $EZSQL_ERROR, also when errors are suppressed).
 	 */
 	private static function structural_error_count(): int {
 		$count = 0;
 		foreach ( (array) ( $GLOBALS['EZSQL_ERROR'] ?? array() ) as $entry ) {
-			if ( is_array( $entry ) && self::is_structural_sql( (string) ( $entry['query'] ?? '' ) ) ) {
+			if ( is_array( $entry ) && self::is_blocking_failure( (string) ( $entry['query'] ?? '' ), (string) ( $entry['error_str'] ?? '' ) ) ) {
 				++$count;
 			}
 		}
@@ -152,7 +205,8 @@ final class DB {
 	 */
 	private static function last_query_failed_structurally(): bool {
 		global $wpdb;
-		return '' !== (string) ( $wpdb->last_error ?? '' ) && self::is_structural_sql( (string) ( $wpdb->last_query ?? '' ) );
+		$error = (string) ( $wpdb->last_error ?? '' );
+		return '' !== $error && self::is_blocking_failure( (string) ( $wpdb->last_query ?? '' ), $error );
 	}
 
 	/**
@@ -174,7 +228,7 @@ final class DB {
 		$error = (string) ( $wpdb->last_error ?? '' );
 		// last_error only knows the last query; the failed CREATE/ALTER may have been an earlier one.
 		foreach ( array_reverse( (array) ( $GLOBALS['EZSQL_ERROR'] ?? array() ) ) as $entry ) {
-			if ( is_array( $entry ) && self::is_structural_sql( (string) ( $entry['query'] ?? '' ) ) ) {
+			if ( is_array( $entry ) && self::is_blocking_failure( (string) ( $entry['query'] ?? '' ), (string) ( $entry['error_str'] ?? '' ) ) ) {
 				$error = (string) ( $entry['error_str'] ?? $error );
 				break;
 			}

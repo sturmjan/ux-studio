@@ -110,6 +110,8 @@ function home_url( $path = '' ) { return 'https://www.pobyty.cz' . $path; }
 function wp_salt( $scheme = 'auth' ) { return 'test-salt'; }
 function apply_filters( $hook, $value ) { return $value; }
 function sanitize_key( $key ) { return strtolower( preg_replace( '/[^a-z0-9_\-]/i', '', (string) $key ) ); }
+function add_filter( $h, $f, $p = 10, $a = 1 ) { return true; }
+function remove_filter( $h, $f, $p = 10 ) { return true; }
 function __( $text, $domain = '' ) { return $text; }
 function wp_next_scheduled( $hook ) { return $GLOBALS['uxs_events'][ $hook ] ?? false; }
 function wp_schedule_single_event( $ts, $hook ) { $GLOBALS['uxs_events'][ $hook ] = $ts; return true; }
@@ -202,11 +204,25 @@ DB::ensure_module_tables(
 	'zz-alt',
 	2,
 	static function ( int $from ): void {
-		$GLOBALS['wpdb']->last_error = 'Duplicate column name';
+		$GLOBALS['wpdb']->last_error = 'The table is full';
 		$GLOBALS['wpdb']->last_query = "\n  ALTER TABLE wp_t ADD COLUMN a int";
 	}
 );
 $assert( 'failed ALTER seen only through last_error is caught too', array() === (array) get_option( DB::MODULE_VERSIONS_OPTION, array() ) );
+// Harmless duplicate key / column errors of a repeated step do not block the version.
+foreach ( array( "Duplicate column name 'a'", "Duplicate key name 'k'", "Can't DROP 'k'; check that column/key exists" ) as $msg ) {
+	$reset();
+	DB::ensure_module_tables(
+		'zz-dup',
+		1,
+		static function ( int $from ) use ( $msg ): void {
+			$GLOBALS['EZSQL_ERROR'][]    = array( 'query' => 'ALTER TABLE wp_t ADD COLUMN a int', 'error_str' => $msg );
+			$GLOBALS['wpdb']->last_error = $msg;
+			$GLOBALS['wpdb']->last_query = 'ALTER TABLE wp_t ADD COLUMN a int';
+		}
+	);
+	$assert( "benign schema error is ignored: $msg", 1 === ( get_option( DB::MODULE_VERSIONS_OPTION )['zz_dup'] ?? 0 ) );
+}
 // A stale last_error of an unrelated earlier query is cleared before the migrator.
 $reset();
 $GLOBALS['wpdb']->last_error = 'old unrelated error';
