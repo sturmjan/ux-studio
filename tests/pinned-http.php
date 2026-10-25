@@ -124,5 +124,11 @@ for ( $i = 0; $i < 6; $i++ ) {
 $r = PinnedHttp::request( 'GET', 'https://a.example/0', array(), $public );
 $assert( 'redirect loops stop after 3 redirects', $r instanceof WP_Error && 'uxstudio_pinned_redirects' === $r->get_error_code() && 4 === count( $sent ) );
 
+/* ── Shared public-IP check ── */
+
+$bad = array_filter( array( '127.0.0.1', '10.0.0.1', '169.254.169.254', '100.64.0.1', '0.0.0.0', '224.0.0.1', '198.18.0.1', '192.0.0.8', '::1', '::', 'fe80::1', 'fc00::1', 'ff02::1', '::ffff:127.0.0.1', '2002:7f00:0001::', 'nope' ), array( PinnedHttp::class, 'is_public_ip' ) );
+$assert( 'is_public_ip refuses private, loopback, link-local, CGNAT, benchmark, multicast, mapped and 6to4 forms', array() === $bad, implode( ',', $bad ) );
+$assert( 'is_public_ip accepts public v4 and v6', PinnedHttp::is_public_ip( '93.184.216.34' ) && PinnedHttp::is_public_ip( '2606:2800:220:1:248:1893:25c8:1946' ) );
+
 echo PHP_EOL . ( $failures ? "$failures FAILED" : 'ALL PASSED' ) . PHP_EOL;
 exit( $failures ? 1 : 0 );

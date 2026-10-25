@@ -876,7 +876,7 @@ final class Module extends BaseModule {
 		}
 
 		foreach ( $ips as $ip ) {
-			if ( ! filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
+			if ( ! \UxStudio\Core\PinnedHttp::is_public_ip( (string) $ip ) ) {
 				return true;
 			}
 		}

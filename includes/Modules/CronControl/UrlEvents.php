@@ -421,51 +421,12 @@ final class UrlEvents {
 	}
 
 	/**
-	 * Public, routable address? Private, loopback, link-local (cloud metadata), CGNAT, multicast, reserved and IPv4-mapped /
-	 * 6to4 / Teredo forms of those are not.
+	 * Public, routable address? Shared check, see PinnedHttp::is_public_ip().
 	 *
 	 * @param string $ip IP address.
 	 */
 	public static function is_public_ip( string $ip ): bool {
-		if ( false === filter_var( $ip, FILTER_VALIDATE_IP ) ) {
-			return false;
-		}
-		if ( false === filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
-			return false;
-		}
-		if ( false !== filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
-			$n = ip2long( $ip );
-			foreach ( array(
-				array( '0.0.0.0', '0.255.255.255' ),
-				array( '100.64.0.0', '100.127.255.255' ),
-				array( '169.254.0.0', '169.254.255.255' ),
-				array( '192.0.0.0', '192.0.0.255' ),
-				array( '198.18.0.0', '198.19.255.255' ),
-				array( '224.0.0.0', '255.255.255.255' ),
-			) as $range ) {
-				if ( $n >= ip2long( $range[0] ) && $n <= ip2long( $range[1] ) ) {
-					return false;
-				}
-			}
-			return true;
-		}
-		$packed = inet_pton( $ip );
-		if ( false === $packed || 16 !== strlen( $packed ) ) {
-			return false;
-		}
-		// ::/8 (unspecified, loopback, IPv4-compatible and IPv4-mapped), fe80::/10 and fec0::/10, ff00::/8 multicast, fc00::/7 unique local.
-		$first = ord( $packed[0] );
-		if ( 0 === $first || 0xff === $first || 0xfc === ( $first & 0xfe ) || ( 0xfe === $first && 0x80 === ( ord( $packed[1] ) & 0x80 ) ) || ( 0xfe === $first && 0xc0 === ( ord( $packed[1] ) & 0xc0 ) ) ) {
-			return false;
-		}
-		// 6to4 (2002::/16) and Teredo (2001::/32) carry an IPv4 address that must be public too.
-		if ( "\x20\x02" === substr( $packed, 0, 2 ) ) {
-			return self::is_public_ip( (string) inet_ntop( substr( $packed, 2, 4 ) ) );
-		}
-		if ( "\x20\x01\x00\x00" === substr( $packed, 0, 4 ) ) {
-			return self::is_public_ip( (string) inet_ntop( ~substr( $packed, 12, 4 ) ) );
-		}
-		return true;
+		return PinnedHttp::is_public_ip( $ip );
 	}
 
 	/* ── WP-Cron entries ── */

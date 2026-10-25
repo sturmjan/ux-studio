@@ -521,7 +521,7 @@ final class Processor {
 				'reject_unsafe_urls'  => true,
 				'limit_response_size' => $this->max_bytes + 1024,
 			),
-			static fn( string $ip ): bool => false !== filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE )
+			array( PinnedHttp::class, 'is_public_ip' )
 		);
 		if ( is_wp_error( $response ) ) {
 			return $response;
@@ -615,7 +615,7 @@ final class Processor {
 		}
 
 		foreach ( $ips as $ip ) {
-			if ( ! filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
+			if ( ! PinnedHttp::is_public_ip( (string) $ip ) ) {
 				return true;
 			}
 		}
