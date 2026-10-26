@@ -2535,11 +2535,13 @@
 .uxs-track .uxs-mail__head { margin-bottom: var(--uxs-sp-3); }
 
 .uxs-track__pair {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	display: flex;
+	flex-wrap: wrap;
 	gap: var(--uxs-sp-4);
 
+	> div { flex: 1 1 140px; min-width: 0; max-width: 220px; }
 	label { display: block; margin-bottom: var(--uxs-sp-1); }
+	input { width: 100%; box-sizing: border-box; }
 }
 
 .uxs-code-editor .CodeMirror,

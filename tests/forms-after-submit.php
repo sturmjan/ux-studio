@@ -223,6 +223,11 @@ $assert( 'markup: the preview document is dark on request and has no script', $h
 $css = A::done_css();
 $assert( 'css: the ring (151) then the tick (40) draw in, reduced motion switches animation off', $has( $css, 'stroke-dasharray:151' ) && $has( $css, 'stroke-dasharray:40' ) && $has( $css, 'prefers-reduced-motion' ) );
 
+// The asserts compare the English source strings, so run them in English whatever the site locale is.
+if ( function_exists( 'switch_to_locale' ) ) {
+	switch_to_locale( 'en_US' );
+}
+
 $payload = Templates::payload( 'booking' );
 $assert( 'template: booking has its own thank-you title and message', is_array( $payload ) && $has( (string) $payload['settings']['after_submit']['title'], 'Reservation received' ) && $has( (string) $payload['settings']['after_submit']['message'], '<p>' ) && ! isset( $payload['settings']['thanks_title'] ) );
 foreach ( array( 'order' => 'Order sent', 'newsletter' => 'You are subscribed' ) as $id => $title ) {

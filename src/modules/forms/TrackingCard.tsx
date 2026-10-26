@@ -207,14 +207,16 @@ export default function TrackingCard( {
 									</button>
 								) }
 							</div>
-							<div className="uxs-form__row uxs-track__pair">
-								<div>
-									<label htmlFor={ scriptId + '-ads-value' }>{ __( 'Value (optional)', 'ux-studio' ) }</label>
-									<input id={ scriptId + '-ads-value' } type="number" min={ 0 } step="any" value={ value.ads.value ?? '' } onChange={ ( e ) => set( 'ads', { value: numberOrNull( e.target.value ) } ) } />
-								</div>
-								<div>
-									<label htmlFor={ scriptId + '-ads-cur' }>{ __( 'Currency', 'ux-studio' ) }</label>
-									<input id={ scriptId + '-ads-cur' } type="text" maxLength={ 3 } value={ value.ads.currency } onChange={ ( e ) => set( 'ads', { currency: e.target.value.toUpperCase() } ) } />
+							<div className="uxs-form__row">
+								<div className="uxs-track__pair">
+									<div>
+										<label htmlFor={ scriptId + '-ads-value' }>{ __( 'Value (optional)', 'ux-studio' ) }</label>
+										<input id={ scriptId + '-ads-value' } type="number" min={ 0 } step="any" value={ value.ads.value ?? '' } onChange={ ( e ) => set( 'ads', { value: numberOrNull( e.target.value ) } ) } />
+									</div>
+									<div>
+										<label htmlFor={ scriptId + '-ads-cur' }>{ __( 'Currency', 'ux-studio' ) }</label>
+										<input id={ scriptId + '-ads-cur' } type="text" maxLength={ 3 } value={ value.ads.currency } onChange={ ( e ) => set( 'ads', { currency: e.target.value.toUpperCase() } ) } />
+									</div>
 								</div>
 							</div>
 						</>

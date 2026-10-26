@@ -568,7 +568,7 @@ final class StarterPack {
 		return self::build(
 			'security-hardening',
 			__( 'Security hardening and cleanup', 'ux-studio' ),
-			__( 'Switches off comments, the file editor and XML-RPC, hides the WordPress version, sends security headers, limits login attempts, slows down Heartbeat, keeps 10 revisions, removes the emoji script and deletes unused default themes (Twenty*, the newest one stays as the fallback).', 'ux-studio' ),
+			__( 'Switches off comments, the file editor and XML-RPC, hides the WordPress version, sends security headers, limits login attempts, slows down Heartbeat, keeps 10 revisions, removes the emoji script and deletes unused default themes that WordPress itself brought (Twenty*, never a manually installed one, the newest one stays as the fallback).', 'ux-studio' ),
 			array( 'security-optimization' ),
 			array( 'security-optimization' => $set ),
 			$warnings,

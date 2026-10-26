@@ -1477,6 +1477,25 @@ skript poděkování nerozbije, vícekrokový formulář, přesměrování, rež
 **Otevřené:** nonce/hash pro inline skript v CSP modulu; zda se mají hodnoty polí volitelně posílat do `dataLayer`
 (zatím záměrně ne); Sklik: souhlas se bere jako pevná hodnota z nastavení, ne ze stavu lišty cookies.
 
+### 20.14 Smazání nepoužívaných výchozích šablon jen podle původu (0.7.3, 2026-10-26)
+
+Nastavení Security `remove_unused_default_themes` (commit 70c8d3a) maže jen šablony Twenty*, které přinesl sám WordPress.
+Původ každé z nich drží jedna volba `uxstudio_default_theme_origins` (`origins` slug => `initial|core|manual`, `snapshot`
+všech slugů šablon, `time`); logika je ve třídě `SecurityOptimization\DefaultThemes` (čisté `classify()` a
+`select_deletions()`, test `tests/default-themes-origin.php`).
+
+- `initial`: je tam od instalace, nebo když sledování začalo (první sync bez záznamu).
+- `core`: objevila se po aktualizaci jádra (`_core_updated_successfully`; fallback `upgrader_process_complete` type core).
+  `update_core()` kopíruje nové bundled šablony sám, mimo theme upgrader, proto diff proti snapshotu.
+- `manual`: `upgrader_process_complete` type theme + action install (ZIP, wordpress.org, WP-CLI; slug z
+  `$upgrader->result['destination_name']`, hromadně z `$options['themes']`), nebo se objevila mezi dvěma snapshoty bez
+  aktualizace jádra (FTP, správce souborů; zjistí denní běh).
+- `upgrader_pre_install` (bez typu / core) před aktualizací jádra obnoví snapshot, takže šablona nahraná přes FTP dřív se
+  nezamění za jádrovou. Hooky běží vždy, i s vypnutým nastavením; ActivityLog nezapisuje instalace šablon, proto
+  jediný důkaz o ruční instalaci je vlastní záznam `manual`.
+- Mazat se smí jen `initial` a `core`, nepoužité, mimo ochranná pravidla (aktivní, rodič, rodič jiné, nejnovější výchozí
+  jako záloha). `manual` a nezaznamenané se nemažou nikdy. ActivityLog nese `themes` a `origins`.
+
 ## 21. Audit bezpečnost / funkčnost / výkon (2026-09-30)
 
 Statický audit celého pluginu (73 modulů, ~110k ř. PHP) + měření na lokálu. Lint PHP 8.4

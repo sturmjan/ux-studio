@@ -2,6 +2,11 @@
 
 ## 0.7.3 (unreleased)
 
+- New - Security, "Delete unused default themes": removes unused Twenty* themes (the starter pack turns it on), but only
+  those WordPress itself brought - part of the install or copied by a core update. A Twenty* theme installed by hand
+  (upload, wordpress.org, WP-CLI, FTP) is never deleted; the origin of each default theme is tracked. The active theme,
+  its parent, parents of other themes and the newest default theme (the fallback) always stay.
+- Fixed - Form Builder, "Conversion tracking": the Google Ads fields Value and Currency now sit side by side.
 - New - Form Builder, "Actions after submit": a new card "After submit" decides what the visitor sees after sending the
   form - a thank-you that replaces the form (default), a message above the form, or a redirect to a page or address.
   The thank-you has a title, a message written in the WordPress editor (bold, links, images from the Media Library),

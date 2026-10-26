@@ -115,7 +115,9 @@ final class Module extends BaseModule {
 			define( 'DISALLOW_FILE_EDIT', true );
 		}
 
-		/* ── Remove unused bundled themes (Twenty*) - admin only, throttled ── */
+		/* ── Remove unused bundled themes (Twenty*) - admin only, throttled ──
+		   Origin tracking runs always, so the history is right when the setting is switched on later. */
+		DefaultThemes::register();
 		if ( $this->setting( 'remove_unused_default_themes', false ) ) {
 			add_action( 'admin_init', array( $this, 'maybe_remove_unused_default_themes' ) );
 		}
@@ -1122,7 +1124,7 @@ final class Module extends BaseModule {
 				'section' => __( 'Hardening', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Delete unused default themes', 'ux-studio' ),
-				'help'    => __( 'Deletes the bundled Twenty* themes (Twenty Twenty-Four etc.) that are not in use - an unused theme is only extra attack surface. Never touches the active theme, its parent/child, or any theme that is the parent of another installed theme. The newest default theme is always kept as the fallback WordPress switches to if the active theme breaks. Runs on save and then at most once a day while you are in the admin.', 'ux-studio' ),
+				'help'    => __( 'Deletes the default Twenty* themes (Twenty Twenty-Four etc.) that WordPress itself brought - with the install or with a core update - and that nothing uses; an unused theme is only extra attack surface. A Twenty* theme that somebody installed by hand (upload, wordpress.org, FTP) is never deleted. Also never touches the active theme, its parent/child, or any theme that is the parent of another installed theme. The newest default theme always stays as the fallback WordPress switches to if the active theme breaks. Runs on save and then at most once a day while you are in the admin.', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
@@ -1819,10 +1821,10 @@ final class Module extends BaseModule {
 	   ═══════════════════════════════════════════════════ */
 
 	/**
-	 * Delete installed WordPress-bundled Twenty* themes that nothing needs.
-	 * Kept: the active theme and its parent, every theme that is the parent of
-	 * another installed theme, and the newest default theme (WordPress' own
-	 * fallback when the active theme breaks).
+	 * Delete installed WordPress-bundled Twenty* themes that nothing needs AND that WordPress itself brought (part of
+	 * the install or copied by a core update, see DefaultThemes). A Twenty* theme somebody installed by hand is never
+	 * deleted. Kept: the active theme and its parent, every theme that is the parent of another installed theme, and
+	 * the newest default theme (WordPress' own fallback when the active theme breaks).
 	 */
 	public function maybe_remove_unused_default_themes(): void {
 		if ( ! $this->setting( 'remove_unused_default_themes', false ) || is_multisite() ) {
@@ -1842,8 +1844,35 @@ final class Module extends BaseModule {
 			return;
 		}
 
+		// Learn the origin of anything that appeared since the last run (no core update in between = manual).
+		$record = DefaultThemes::track( DefaultThemes::EVENT_SYNC );
 		$themes = wp_get_themes();
 
+		$plan = DefaultThemes::select_deletions( $record['origins'], self::bundled_default_slugs( $themes ), self::protected_theme_slugs( $themes ) );
+
+		$deleted = array();
+		$origins = array();
+		foreach ( $plan as $slug => $origin ) {
+			if ( true === delete_theme( $slug ) ) {
+				$deleted[]        = $slug;
+				$origins[ $slug ] = $origin;
+			}
+		}
+
+		if ( $deleted ) {
+			DefaultThemes::track( DefaultThemes::EVENT_SYNC ); // Drop the deleted ones from the record.
+			ActivityLog::log( 'security-optimization', 'default_themes_removed', 'theme', 0, array( 'themes' => $deleted, 'origins' => $origins ) );
+		}
+	}
+
+	/**
+	 * Slugs that must never be deleted: active theme and its parent, parents of installed themes and the newest
+	 * default theme (the fallback WordPress switches to).
+	 *
+	 * @param array<string,\WP_Theme> $themes Installed themes.
+	 * @return string[]
+	 */
+	private static function protected_theme_slugs( array $themes ): array {
 		$keep = array( get_stylesheet() => true, get_template() => true );
 		foreach ( $themes as $slug => $theme ) {
 			$parent = $theme->get_template();
@@ -1855,27 +1884,30 @@ final class Module extends BaseModule {
 		if ( $fallback instanceof \WP_Theme ) {
 			$keep[ $fallback->get_stylesheet() ] = true;
 		}
+		return array_map( 'strval', array_keys( $keep ) );
+	}
 
-		$deleted = array();
+	/**
+	 * Installed themes that look like genuine bundled default themes.
+	 *
+	 * @param array<string,\WP_Theme> $themes Installed themes.
+	 * @return string[]
+	 */
+	private static function bundled_default_slugs( array $themes ): array {
+		$out = array();
 		foreach ( $themes as $slug => $theme ) {
-			if ( isset( $keep[ $slug ] ) || ! self::is_bundled_default_theme( $slug, $theme ) ) {
-				continue;
-			}
-			if ( true === delete_theme( $slug ) ) {
-				$deleted[] = $slug;
+			if ( self::is_bundled_default_theme( (string) $slug, $theme ) ) {
+				$out[] = (string) $slug;
 			}
 		}
-
-		if ( $deleted ) {
-			ActivityLog::log( 'security-optimization', 'default_themes_removed', 'theme', 0, array( 'themes' => $deleted ) );
-		}
+		return $out;
 	}
 
 	/**
 	 * Slug looks like a Twenty* theme AND it is authored by the WordPress team.
 	 */
 	private static function is_bundled_default_theme( string $slug, \WP_Theme $theme ): bool {
-		return 1 === preg_match( '/^twenty[a-z]+$/', $slug )
+		return DefaultThemes::is_default_slug( $slug )
 			&& false !== stripos( wp_strip_all_tags( (string) $theme->get( 'Author' ) ), 'WordPress' );
 	}
 
