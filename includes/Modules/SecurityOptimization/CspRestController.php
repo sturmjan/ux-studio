@@ -277,7 +277,31 @@ final class CspRestController extends Controller {
 					'test_days' => CspGate::TEST_DAYS,
 				),
 				'approved'    => CspPolicy::approved_sources(),
+				'inline'      => $this->inline_scripts_status(),
 			)
+		);
+	}
+
+	/**
+	 * Which of UX Studio's own inline scripts a strict policy allows by hash. Third-party inline scripts are not in it.
+	 *
+	 * @return array{strict:bool,total:int,capped:bool,max:int,entries:array<int,array{label:string,hash:string}>}
+	 */
+	private function inline_scripts_status(): array {
+		$collected = CspInlineScripts::collect();
+		$policy    = $this->policy();
+		return array(
+			'strict'  => null !== $policy && CspPolicy::is_strict_script_policy( $policy->candidate_directives() ),
+			'total'   => $collected['total'],
+			'capped'  => $collected['capped'],
+			'max'     => CspInlineScripts::MAX,
+			'entries' => array_map(
+				static fn( array $e ): array => array(
+					'label' => $e['label'],
+					'hash'  => $e['hash'],
+				),
+				$collected['entries']
+			),
 		);
 	}
 

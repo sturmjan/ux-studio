@@ -37,6 +37,8 @@ final class Module extends BaseModule {
 
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'init', array( $this, 'register_shortcode' ) );
+		// After init, so the labels can be translated; the CSP header is sent later (send_headers).
+		add_action( 'init', array( InlineScripts::class, 'register' ) );
 		add_filter( 'uxstudio_rest_public_routes', array( $this, 'allow_public_routes' ) );
 		add_action( 'ux_studio/admin_assets', array( $this, 'enqueue_editor' ) );
 
@@ -248,6 +250,7 @@ final class Module extends BaseModule {
 		$id = (int) $wpdb->insert_id;
 		if ( $id > 0 ) {
 			ActivityLog::log( 'forms', 'create', 'form', $id );
+			InlineScripts::rebuild();
 		}
 		return $this->get_form( $id );
 	}
@@ -356,6 +359,7 @@ final class Module extends BaseModule {
 
 		$wpdb->update( "{$wpdb->prefix}uxstudio_forms", $update, array( 'id' => $id ), $format, array( '%d' ) );
 		ActivityLog::log( 'forms', 'update', 'form', $id );
+		InlineScripts::rebuild();
 
 		return $this->get_form( $id );
 	}
@@ -375,6 +379,7 @@ final class Module extends BaseModule {
 			// history has no value once the definition it documents is gone.
 			Revisions::delete_for_form( $id );
 			ActivityLog::log( 'forms', 'delete', 'form', $id );
+			InlineScripts::rebuild();
 		}
 		return $deleted;
 	}
@@ -432,6 +437,7 @@ final class Module extends BaseModule {
 		);
 
 		ActivityLog::log( 'forms', 'restore_revision', 'form', $form_id, array( 'revision_id' => $revision_id ) );
+		InlineScripts::rebuild();
 
 		return $this->get_form( $form_id );
 	}
