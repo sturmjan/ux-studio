@@ -60,13 +60,13 @@ function groups(): Group[] {
 			id: 'security',
 			title: __( 'Security', 'ux-studio' ),
 			icon: <ShieldCheck size={ 18 } aria-hidden />,
-			ids: [ 'security-hardening', 'update-emails', 'bot-throttle', 'vulnerability-scanner', 'activity-log', 'login-url' ],
+			ids: [ 'security-hardening', 'update-emails', 'bot-throttle', 'vulnerability-scanner', 'activity-log', 'csp-audit', 'login-url' ],
 		},
 		{
 			id: 'admin',
 			title: __( 'Administration', 'ux-studio' ),
 			icon: <LayoutDashboard size={ 18 } aria-hidden />,
-			ids: [ 'hide-wordpress', 'dashboard-widgets', 'clean-profiles' ],
+			ids: [ 'hide-wordpress', 'dashboard-widgets', 'clean-profiles', 'user-last-login', 'email-log' ],
 		},
 		{
 			id: 'content',
@@ -97,6 +97,8 @@ export function unavailableText( code: string ): string {
 		case 'no_pretty_permalinks':
 			return __( 'A custom login address needs pretty permalinks (Settings > Permalinks).', 'ux-studio' );
 		case 'already_set':
+		case 'csp_set':
+			return __( 'A Content Security Policy mode is already set, it stays as it is.', 'ux-studio' );
 			return __( 'A custom login address is already set.', 'ux-studio' );
 		case 'collision':
 			return __( 'The address /administrace is already used by a page, post or another rule of this site.', 'ux-studio' );
