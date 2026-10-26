@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.7.5 (unreleased)
+## 0.7.5
 
 - Changed - Admin Customiser, "Quick search": the dropdown is redesigned, light in every admin color scheme. Compact
   36 px rows with a type icon (post, page, product, other content, user, tag), a thumbnail for images and the avatar for
