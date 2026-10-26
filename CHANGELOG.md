@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.7.2 (unreleased)
+## 0.7.2
 
 - New - Form Builder: template gallery under "New form title" - nine ready-made forms (contact, service inquiry,
   booking, event registration, job application, order, newsletter signup, feedback and rating, complaint) with a live
