@@ -123,9 +123,25 @@ final class Templates {
 			'title'       => '' !== $title ? $title : (string) $tpl['title'],
 			'description' => (string) ( $tpl['form_description'] ?? '' ),
 			'fields'      => $fields,
-			'settings'    => $tpl['settings'],
+			'settings'    => self::with_thank_you( (array) $tpl['settings'] ),
 			'status'      => 'draft',
 		);
+	}
+
+	/**
+	 * A template's `thanks_title` + `success_text` become its "After submit" thank-you (title and message).
+	 *
+	 * @param array<string, mixed> $settings Template settings.
+	 * @return array<string, mixed>
+	 */
+	private static function with_thank_you( array $settings ): array {
+		$settings['after_submit'] = array(
+			'mode'    => 'replace',
+			'title'   => (string) ( $settings['thanks_title'] ?? '' ),
+			'message' => AfterSubmit::text_to_html( (string) ( $settings['success_text'] ?? '' ) ),
+		);
+		unset( $settings['thanks_title'] );
+		return $settings;
 	}
 
 	/**
@@ -285,6 +301,7 @@ final class Templates {
 				'progress_style' => 'none',
 				'submit_text'    => __( 'Send message', 'ux-studio' ),
 				'success_text'   => __( 'Thank you for your message. We will reply as soon as we can.', 'ux-studio' ),
+				'thanks_title'   => __( 'Message sent', 'ux-studio' ),
 				'actions'        => array(
 					self::admin_mail( __( 'New message: {subject}', 'ux-studio' ) ),
 					self::confirmation_mail(
@@ -338,6 +355,7 @@ final class Templates {
 				'progress_style' => 'numbers',
 				'submit_text'    => __( 'Send inquiry', 'ux-studio' ),
 				'success_text'   => __( 'Thank you, your inquiry was sent. We will contact you with an offer.', 'ux-studio' ),
+				'thanks_title'   => __( 'Inquiry sent', 'ux-studio' ),
 				'actions'        => array(
 					self::admin_mail( __( 'New inquiry from {name}', 'ux-studio' ) ),
 					self::confirmation_mail(
@@ -384,6 +402,7 @@ final class Templates {
 				'progress_style' => 'numbers',
 				'submit_text'    => __( 'Book the slot', 'ux-studio' ),
 				'success_text'   => __( 'Your booking request was sent. We will confirm it by e-mail.', 'ux-studio' ),
+				'thanks_title'   => __( 'Reservation received', 'ux-studio' ),
 				'actions'        => array(
 					self::admin_mail( __( 'New booking: {date} {time}', 'ux-studio' ) ),
 					self::confirmation_mail(
@@ -425,6 +444,7 @@ final class Templates {
 				'progress_style' => 'none',
 				'submit_text'    => __( 'Register', 'ux-studio' ),
 				'success_text'   => __( 'You are registered. We sent you a confirmation by e-mail.', 'ux-studio' ),
+				'thanks_title'   => __( 'You are registered', 'ux-studio' ),
 				'actions'        => array(
 					self::admin_mail( __( 'New registration: {name}', 'ux-studio' ) ),
 					self::confirmation_mail(
@@ -488,6 +508,7 @@ final class Templates {
 				'progress_style' => 'numbers',
 				'submit_text'    => __( 'Send application', 'ux-studio' ),
 				'success_text'   => __( 'Thank you, your application was sent. We will be in touch.', 'ux-studio' ),
+				'thanks_title'   => __( 'Application sent', 'ux-studio' ),
 				'actions'        => array(
 					self::admin_mail( __( 'New application: {first_name} {name}', 'ux-studio' ) ),
 					self::confirmation_mail(
@@ -558,6 +579,7 @@ final class Templates {
 				'progress_style'    => 'numbers',
 				'submit_text'       => __( 'Place order', 'ux-studio' ),
 				'success_text'      => __( 'Thank you, your order was received. We will confirm it by e-mail.', 'ux-studio' ),
+				'thanks_title'      => __( 'Order sent', 'ux-studio' ),
 				'actions'           => array(
 					self::admin_mail( __( 'New order from {name}', 'ux-studio' ) ),
 					self::confirmation_mail(
@@ -585,6 +607,7 @@ final class Templates {
 				'progress_style' => 'none',
 				'submit_text'    => __( 'Subscribe', 'ux-studio' ),
 				'success_text'   => __( 'Thank you for subscribing.', 'ux-studio' ),
+				'thanks_title'   => __( 'You are subscribed', 'ux-studio' ),
 				'actions'        => array(
 					self::admin_mail( __( 'New newsletter subscriber', 'ux-studio' ) ),
 					self::confirmation_mail(
@@ -639,6 +662,7 @@ final class Templates {
 				'progress_style' => 'none',
 				'submit_text'    => __( 'Send feedback', 'ux-studio' ),
 				'success_text'   => __( 'Thank you for your feedback.', 'ux-studio' ),
+				'thanks_title'   => __( 'Thank you for your feedback', 'ux-studio' ),
 				'actions'        => array(
 					self::admin_mail( __( 'New feedback: rating {rating}', 'ux-studio' ) ),
 				),
@@ -689,6 +713,7 @@ final class Templates {
 				'progress_style' => 'numbers',
 				'submit_text'    => __( 'Send complaint', 'ux-studio' ),
 				'success_text'   => __( 'Your complaint was received. We will respond within the legal deadline.', 'ux-studio' ),
+				'thanks_title'   => __( 'Complaint received', 'ux-studio' ),
 				'actions'        => array(
 					self::admin_mail( __( 'New complaint: order {order_number}', 'ux-studio' ) ),
 					self::confirmation_mail(

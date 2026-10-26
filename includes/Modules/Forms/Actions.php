@@ -49,12 +49,6 @@ final class Actions {
 				case 'webhook':
 					self::run_webhook( $form, $submission, $action );
 					break;
-				case 'redirect':
-					// The actual browser redirect is carried in the REST
-					// response (see RestController::submit()/redirect_url())
-					// - this just records that the action fired.
-					self::run_redirect( $submission, $action );
-					break;
 				case 'create_post':
 					self::run_create_post( $form, $submission, $action );
 					break;
@@ -63,6 +57,12 @@ final class Actions {
 					// skipped by the runner.
 					break;
 			}
+		}
+
+		// The redirect is a setting of the thank-you step now (AfterSubmit); the browser is sent there by the REST
+		// response, this only records it in the action log.
+		if ( 'redirect' === ( $form['settings']['after_submit']['mode'] ?? '' ) ) {
+			self::run_redirect( $submission, array( 'url' => AfterSubmit::redirect_url( $form ) ) );
 		}
 	}
 
@@ -241,17 +241,12 @@ final class Actions {
 	}
 
 	/**
-	 * First `redirect` action's URL in the chain, if any - used by
+	 * Target of the "redirect" thank-you mode, if any - used by
 	 * RestController::submit() to tell the public form runtime where to send
 	 * the browser after a successful submission (PLAN.md 20.11).
 	 */
 	public static function redirect_url( array $form ): string {
-		foreach ( (array) ( $form['settings']['actions'] ?? array() ) as $action ) {
-			if ( is_array( $action ) && 'redirect' === ( $action['type'] ?? '' ) ) {
-				return (string) ( $action['url'] ?? '' );
-			}
-		}
-		return '';
+		return AfterSubmit::redirect_url( $form );
 	}
 
 	/**

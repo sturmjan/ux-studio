@@ -72,7 +72,7 @@ function MergeTagSelect( { fields, onPick, label }: { fields: FormField[]; onPic
 	);
 }
 
-function ColorRow( {
+export function ColorRow( {
 	label,
 	help,
 	value,

@@ -45,6 +45,8 @@ final class RestController extends Controller {
 		$this->route( '/forms/options', 'GET', array( $this, 'list_form_options' ), array(), 'edit_posts' );
 		$this->route( '/forms', 'POST', array( $this, 'create_form' ), array(), $cap );
 		// Template gallery of the "new form" screen (PLAN.md 20.12): read-only catalog + creation from a template.
+		// Pages for the redirect picker, IDs already set in Pixel & Tag Manager, may this user edit the script (0.7.3).
+		$this->route( '/forms/after-submit-context', 'GET', array( $this, 'after_submit_context' ), array(), $cap );
 		$this->route( '/forms/templates', 'GET', array( $this, 'list_templates' ), array(), $cap );
 		$this->route(
 			'/forms/from-template',
@@ -61,6 +63,7 @@ final class RestController extends Controller {
 		$this->route( '/forms/(?P<id>\d+)', 'DELETE', array( $this, 'delete_form' ), $this->id_arg(), $cap );
 		$this->route( '/forms/(?P<id>\d+)/delete-with-submissions', 'POST', array( $this, 'delete_form_and_submissions' ), $this->id_arg(), $cap );
 		$this->route_readonly( '/forms/(?P<id>\d+)/preview-email', array( $this, 'preview_email' ), $this->id_arg(), $cap );
+		$this->route_readonly( '/forms/(?P<id>\d+)/preview-after-submit', array( $this, 'preview_after_submit' ), $this->id_arg(), $cap );
 		$this->route( '/forms/(?P<id>\d+)/revisions', 'GET', array( $this, 'list_revisions' ), $this->id_arg(), $cap );
 		$this->route(
 			'/forms/(?P<id>\d+)/revisions/(?P<revision_id>\d+)/restore',
@@ -189,6 +192,20 @@ final class RestController extends Controller {
 		}
 		$action = (array) $request->get_json_params();
 		return $this->ok( $this->module->preview_email( $form, $action ) );
+	}
+
+	public function after_submit_context(): WP_REST_Response {
+		return $this->ok( $this->module->after_submit_context() );
+	}
+
+	public function preview_after_submit( WP_REST_Request $request ) {
+		$form = $this->module->get_form( (int) $request->get_param( 'id' ) );
+		if ( null === $form ) {
+			return new WP_Error( 'uxstudio_forms_not_found', __( 'Form not found.', 'ux-studio' ), array( 'status' => 404 ) );
+		}
+		$body   = (array) $request->get_json_params();
+		$scheme = 'dark' === ( $body['scheme'] ?? '' ) ? 'dark' : 'light';
+		return $this->ok( $this->module->preview_after_submit( $form, (array) ( $body['config'] ?? array() ), $scheme ) );
 	}
 
 	// =====================================================================
@@ -386,13 +403,28 @@ final class RestController extends Controller {
 		$redirect = '';
 		if ( empty( $result['discarded'] ) ) {
 			Actions::run( $form, $result );
-			$redirect = Actions::redirect_url( $form );
+			$redirect = AfterSubmit::redirect_url( $form );
+		} else {
+			// A discarded (honeypot) submission looks like a success to the sender but is never counted as a conversion.
+			$result['id'] = 0;
+		}
+
+		$response = AfterSubmit::response( $form, $result );
+		if ( '' !== $redirect ) {
+			$response['mode'] = 'redirect';
+		} elseif ( 'redirect' === $response['mode'] ) {
+			// The redirect target is gone (trashed page, empty address): show the thank-you instead of nothing.
+			$response['mode'] = 'replace';
 		}
 
 		return $this->ok(
-			array(
-				'message'  => (string) ( $form['settings']['success_text'] ?? __( 'Thank you, your submission has been received.', 'ux-studio' ) ),
-				'redirect' => '' !== $redirect ? $redirect : null,
+			array_merge(
+				$response,
+				array(
+					// Plain text, as before 0.7.3, for anybody still reading `message`.
+					'message'  => (string) ( $form['settings']['success_text'] ?? AfterSubmit::default_message() ),
+					'redirect' => '' !== $redirect ? $redirect : null,
+				)
 			)
 		);
 	}

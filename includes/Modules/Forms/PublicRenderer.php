@@ -98,6 +98,7 @@ final class PublicRenderer {
 			<?php endif; ?>
 
 			<div class="uxs-fp-body">
+				<?php echo AfterSubmit::box_html( null ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				<div class="uxs-fp-progress" data-uxs-progress hidden></div>
 				<div class="uxs-fp-alert" data-uxs-alert role="alert" hidden></div>
 
@@ -106,10 +107,6 @@ final class PublicRenderer {
 					<?php echo $this->render_steps( $steps, $settings, $inline_nav ? $this->render_nav( $submit_text, true ) : '' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</div>
 
-				<div class="uxs-fp-done" data-uxs-done tabindex="-1" role="status" hidden>
-					<p class="uxs-fp-done__text" data-uxs-done-text></p>
-					<button type="button" class="uxs-fp-btn uxs-fp-btn--ghost" data-uxs-again><?php esc_html_e( 'Send another response', 'ux-studio' ); ?></button>
-				</div>
 			</div>
 
 			<?php if ( ! $inline_nav ) : ?>
@@ -127,6 +124,12 @@ final class PublicRenderer {
 		} )();
 		</script>
 		<?php
+		static $hooks_printed = array();
+		$tracking = (array) ( $settings['tracking'] ?? array() );
+		if ( empty( $hooks_printed[ (int) $form['id'] ] ) && '' !== trim( (string) ( $tracking['custom_js'] ?? '' ) ) ) {
+			$hooks_printed[ (int) $form['id'] ] = true;
+			echo AfterSubmit::hook_script( (int) $form['id'], (string) $tracking['custom_js'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- code of a user with unfiltered_html, script-escaped.
+		}
 		if ( ! wp_script_is( 'uxstudio-forms-public', 'done' ) ) {
 			$this->print_runtime();
 		}
@@ -181,7 +184,11 @@ final class PublicRenderer {
 			),
 			'labelDisplay'  => (string) ( $settings['label_display'] ?? 'visible' ),
 			'progressStyle' => (string) ( $settings['progress_style'] ?? 'steps' ),
-			'successText'   => (string) ( $settings['success_text'] ?? '' ) !== '' ? (string) $settings['success_text'] : __( 'Thank you, your submission has been received.', 'ux-studio' ),
+			'successText'   => (string) ( $settings['success_text'] ?? '' ) !== '' ? (string) $settings['success_text'] : AfterSubmit::default_message(),
+			'formId'        => (int) $form['id'],
+			'formTitle'     => (string) ( $form['title'] ?? '' ),
+			'iconSvg'       => AfterSubmit::ICON_SVG,
+			'tracking'      => AfterSubmit::client_tracking( (array) ( $settings['tracking'] ?? array() ) ),
 			'i18n'          => array(
 				'required'     => __( 'This field is required.', 'ux-studio' ),
 				'genericError' => __( 'Something went wrong, please try again.', 'ux-studio' ),
@@ -670,12 +677,11 @@ final class PublicRenderer {
 		.uxs-fp-btn:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(37,99,235,.35);}
 		.uxs-fp-btn:disabled{opacity:.6;cursor:not-allowed;}
 		.uxs-fp-alert{padding:10px 14px;border-radius:6px;margin-bottom:16px;font-size:14px;}
-		.uxs-fp-alert[hidden],.uxs-fp-done[hidden],.uxs-fp-progress[hidden]{display:none;}
+		.uxs-fp-alert[hidden],.uxs-fp-progress[hidden]{display:none;}
 		.uxs-fp-alert.is-error{background:#fef2f2;color:#991b1b;border:1px solid #fecaca;}
 		.uxs-fp-alert.is-success{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;}
-		.uxs-fp-done{text-align:center;padding:28px 12px;outline:none;}
-		.uxs-fp-done__text{margin:0 0 16px;font-size:16px;font-weight:600;color:#166534;}
-		.uxs-form-public.is-done .uxs-fp-steps,.uxs-form-public.is-done .uxs-fp-nav,.uxs-form-public.is-done .uxs-fp-progress{display:none;}
+		.uxs-form-public.is-done .uxs-fp-steps,.uxs-form-public.is-done .uxs-fp-nav,.uxs-form-public.is-done .uxs-fp-progress,.uxs-form-public.is-done .uxs-fp-alert,.uxs-form-public.is-done .uxs-fp-card__head{display:none;}
+		<?php echo AfterSubmit::done_css(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 
 		.uxs-fp-progress{margin-bottom:22px;}
 		.uxs-fp-progress__list{display:flex;gap:8px;list-style:none;margin:0;padding:0;}
@@ -1109,6 +1115,104 @@ final class PublicRenderer {
 				return step ? parseInt( step.getAttribute( 'data-uxs-step' ), 10 ) : 0;
 			}
 
+			/** Server-built thank-you (title as text, message as already sanitized and merged HTML) shown instead of, or above, the form. */
+			function showDone( form, cfg, d, goToStep, showFieldState, applyConditions, showAlert ) {
+				var done = form.querySelector( '[data-uxs-done]' );
+				if ( ! done ) { return; }
+				var inline = d.mode === 'message';
+				var iconEl = done.querySelector( '[data-uxs-done-icon]' );
+				var titleEl = done.querySelector( '[data-uxs-done-title]' );
+				var textEl = done.querySelector( '[data-uxs-done-text]' );
+				var again = done.querySelector( '[data-uxs-again]' );
+
+				done.className = 'uxs-fp-done' + ( inline ? ' uxs-fp-done--inline' : '' ) + ( d.icon === 'none' ? ' uxs-fp-done--no-icon' : '' );
+				if ( d.accent ) { done.style.setProperty( '--uxs-done', d.accent ); } else { done.style.removeProperty( '--uxs-done' ); }
+				if ( iconEl ) { iconEl.innerHTML = d.icon === 'none' ? '' : cfg.iconSvg; }
+				if ( titleEl ) { titleEl.textContent = d.title || ''; titleEl.hidden = ! d.title; }
+				if ( textEl ) {
+					if ( typeof d.html === 'string' && d.html !== '' ) { textEl.innerHTML = d.html; } else { textEl.textContent = d.message || cfg.successText; }
+				}
+				if ( again ) { again.hidden = inline || ! d.again; }
+
+				form.reset();
+				form.querySelectorAll( '[data-uxs-field]' ).forEach( function ( w ) { showFieldState( w, '' ); } );
+				applyConditions( form );
+				form.querySelectorAll( '[data-uxs-multiselect]' ).forEach( function ( s ) { s.dispatchEvent( new Event( 'change', { bubbles: true } ) ); } );
+				form.querySelectorAll( '[data-uxs-file-list]' ).forEach( function ( l ) { l.innerHTML = ''; } );
+				showAlert( form, 'error', '' );
+				goToStep( form, 0, cfg, false );
+
+				form.classList.toggle( 'is-done', ! inline );
+				form.classList.toggle( 'has-notice', inline );
+				done.hidden = false;
+				// Restart the entrance and the drawing of the check mark.
+				void done.offsetWidth;
+				done.classList.add( 'is-playing' );
+
+				var target = titleEl && ! titleEl.hidden ? titleEl : done;
+				target.focus( { preventScroll: true } );
+				if ( d.scroll !== false ) {
+					var top = done.getBoundingClientRect().top;
+					if ( top < 80 || top > window.innerHeight * 0.6 ) {
+						var calm = window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
+						done.scrollIntoView( { behavior: calm ? 'auto' : 'smooth', block: 'center' } );
+					}
+				}
+			}
+
+			/**
+			 * One successful, counted submission: a DOM event, the dataLayer, the configured trackers that are ALREADY on the
+			 * page (nothing is loaded here, consent tools stay in charge) and the custom script. No field values go anywhere.
+			 */
+			function track( form, cfg, detail, leaving ) {
+				var t = cfg.tracking || {};
+				var seen = form.getAttribute( 'data-uxs-tracked' ) || '';
+				if ( seen === String( detail.submissionId ) ) { return; }
+				form.setAttribute( 'data-uxs-tracked', String( detail.submissionId ) );
+
+				var frozen = Object.freeze( { formId: detail.formId, formTitle: detail.formTitle, submissionId: detail.submissionId } );
+				function safely( fn ) { try { fn(); } catch ( err ) { if ( window.console && console.error ) { console.error( 'UX Studio form tracking:', err ); } } }
+
+				safely( function () {
+					form.dispatchEvent( new CustomEvent( 'uxstudio:form-submitted', { bubbles: true, detail: frozen } ) );
+				} );
+				if ( t.datalayer ) {
+					safely( function () {
+						( window.dataLayer = window.dataLayer || [] ).push( { event: 'uxstudio_form_submit', form_id: detail.formId, form_title: detail.formTitle, submission_id: detail.submissionId } );
+					} );
+				}
+				var beacon = leaving ? { transport_type: 'beacon' } : {};
+				if ( t.ga4 && typeof window.gtag === 'function' ) {
+					safely( function () {
+						var p = { form_id: detail.formId, form_title: detail.formTitle };
+						if ( leaving ) { p.transport_type = 'beacon'; }
+						window.gtag( 'event', t.ga4.event, p );
+					} );
+				}
+				if ( t.ads && typeof window.gtag === 'function' ) {
+					safely( function () {
+						var p = { send_to: t.ads.sendTo };
+						if ( t.ads.value !== null && t.ads.value !== undefined ) { p.value = t.ads.value; p.currency = t.ads.currency; }
+						if ( beacon.transport_type ) { p.transport_type = 'beacon'; }
+						window.gtag( 'event', 'conversion', p );
+					} );
+				}
+				if ( t.meta && typeof window.fbq === 'function' ) {
+					safely( function () { window.fbq( t.meta.method, t.meta.event ); } );
+				}
+				if ( t.sklik && window.rc && typeof window.rc.conversionHit === 'function' ) {
+					safely( function () {
+						var c = { id: t.sklik.id, consent: t.sklik.consent };
+						if ( t.sklik.value !== null && t.sklik.value !== undefined ) { c.value = t.sklik.value; }
+						window.rc.conversionHit( c );
+					} );
+				}
+				safely( function () {
+					var hook = window.uxstudioFormHooks && window.uxstudioFormHooks[ detail.formId ];
+					if ( typeof hook === 'function' ) { hook( frozen ); }
+				} );
+			}
+
 			function init( form, cfg ) {
 				if ( ! form || form.getAttribute( 'data-uxs-inited' ) ) { return; }
 				form.setAttribute( 'data-uxs-inited', '1' );
@@ -1174,6 +1278,7 @@ final class PublicRenderer {
 
 				form.addEventListener( 'submit', function ( e ) {
 					e.preventDefault();
+					if ( form.getAttribute( 'aria-busy' ) || form.getAttribute( 'data-uxs-leaving' ) ) { return; }
 					if ( current() < last ) { goNext(); return; }
 
 					// Every step again, in order: the first one with a problem is shown.
@@ -1186,6 +1291,8 @@ final class PublicRenderer {
 					}
 					showAlert( form, 'error', '' );
 
+					var oldNotice = form.querySelector( '[data-uxs-done]' );
+					if ( oldNotice && form.classList.contains( 'has-notice' ) ) { oldNotice.hidden = true; form.classList.remove( 'has-notice' ); }
 					var submitBtn = form.querySelector( '[data-uxs-submit]' );
 					var values = collectValues( form );
 					// Start from every native form field (this is what carries the
@@ -1202,26 +1309,18 @@ final class PublicRenderer {
 						.then( function ( res ) { return res.json().then( function ( json ) { return { ok: res.ok, json: json }; } ); } )
 						.then( function ( result ) {
 							if ( result.ok ) {
-								var redirectUrl = result.json && result.json.data && result.json.data.redirect;
-								if ( redirectUrl ) {
-									window.location.href = redirectUrl;
+								var d = ( result.json && result.json.data ) || {};
+								var detail = { formId: cfg.formId, formTitle: d.form_title || cfg.formTitle, submissionId: parseInt( d.submission_id, 10 ) || 0 };
+								if ( d.redirect && /^(https?:\/\/|\/)/i.test( d.redirect ) ) {
+									form.setAttribute( 'data-uxs-leaving', '1' );
+									// Count the conversion first, then leave (gtag uses a beacon, so a short pause is enough).
+									if ( detail.submissionId > 0 ) { track( form, cfg, detail, true ); }
+									window.setTimeout( function () { window.location.href = d.redirect; }, detail.submissionId > 0 ? 200 : 0 );
 									return;
 								}
-								var done = form.querySelector( '[data-uxs-done]' );
-								var doneText = form.querySelector( '[data-uxs-done-text]' );
-								if ( done && doneText ) {
-									doneText.textContent = ( result.json.data && result.json.data.message ) || cfg.successText;
-									form.reset();
-									form.querySelectorAll( '[data-uxs-field]' ).forEach( function ( w ) { showFieldState( w, '' ); } );
-									applyConditions( form );
-									form.querySelectorAll( '[data-uxs-multiselect]' ).forEach( function ( s ) { s.dispatchEvent( new Event( 'change', { bubbles: true } ) ); } );
-									form.querySelectorAll( '[data-uxs-file-list]' ).forEach( function ( l ) { l.innerHTML = ''; } );
-									showAlert( form, 'error', '' );
-									goToStep( form, 0, cfg, false );
-									form.classList.add( 'is-done' );
-									done.hidden = false;
-									done.focus();
-								}
+								showDone( form, cfg, d, goToStep, showFieldState, applyConditions, showAlert );
+								// After the thank-you is on screen: a failing tracker or custom script must never take it away.
+								if ( detail.submissionId > 0 ) { track( form, cfg, detail, false ); }
 							} else {
 								var fieldErrors = result.json && result.json.data && result.json.data.fields;
 								var firstKey = '';
