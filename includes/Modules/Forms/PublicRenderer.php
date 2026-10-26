@@ -759,7 +759,7 @@ final class PublicRenderer {
 
 	/**
 	 * The text between <script> and </script> of the public runtime. Static (no per-request values), so the CSP
-	 * module hashes exactly this string (CspInlineScripts, PLAN.md 20.14); the printed script uses the same function.
+	 * module hashes exactly this string (CspInlineScripts, PLAN.md 20.15); the printed script uses the same function.
 	 */
 	public static function runtime_body(): string {
 		static $body = null;
@@ -767,7 +767,8 @@ final class PublicRenderer {
 			$detect = (string) file_get_contents( dirname( __DIR__, 3 ) . '/assets/js/forms-consent-detect.js' );
 			ob_start();
 			self::runtime_template( $detect );
-			$body = (string) ob_get_clean();
+			// LF only: the browser's HTML parser normalises line breaks before the CSP hash is taken.
+			$body = (string) preg_replace( '/\r\n?/', "\n", (string) ob_get_clean() );
 		}
 		return $body;
 	}

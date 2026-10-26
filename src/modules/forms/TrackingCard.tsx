@@ -339,7 +339,7 @@ export default function TrackingCard( {
 						) }
 						<p className="uxs-form__help">
 							{ __(
-								'Runs in the visitor\'s browser after a counted submit, as the body of a function with one read-only argument: detail = { formId, formTitle, submissionId }. An error in it never affects the thank-you. It is printed as an inline script, so a strict Content Security Policy must allow inline scripts (script-src \'unsafe-inline\' or a nonce) - eval is not used.',
+								'Runs in the visitor\'s browser after a counted submit, as the body of a function with one read-only argument: detail = { formId, formTitle, submissionId }. An error in it never affects the thank-you. It is printed as an inline script and eval is not used. With the UX Studio Content Security Policy in strict mode (no \'unsafe-inline\') it is allowed automatically through a hash; a policy set by another plugin or the server has to allow it itself.',
 								'ux-studio'
 							) }
 						</p>

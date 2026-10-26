@@ -10,7 +10,7 @@ namespace UxStudio\Modules\SecurityOptimization;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Why hashes and not nonces (PLAN.md 20.14): a nonce has to be new on every response, so a page cache that stores
+ * Why hashes and not nonces (PLAN.md 20.15): a nonce has to be new on every response, so a page cache that stores
  * the HTML would serve a stale nonce and the browser would block the script. A hash depends only on the script text,
  * which is the same in every response - cache safe.
  *

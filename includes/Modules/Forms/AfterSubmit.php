@@ -566,7 +566,7 @@ CSS;
 	/**
 	 * The custom script as an inline script that only REGISTERS a function (window.uxstudioFormHooks[formId]); the
 	 * runtime calls it after a successful submit. No eval / new Function, so a CSP without 'unsafe-eval' is fine.
-	 * A strict CSP allows it through a hash (hook_script_body() + CspInlineScripts, PLAN.md 20.14).
+	 * A strict CSP allows it through a hash (hook_script_body() + CspInlineScripts, PLAN.md 20.15).
 	 */
 	public static function hook_script( int $form_id, string $code ): string {
 		$body = self::hook_script_body( $form_id, $code );
@@ -581,6 +581,8 @@ CSS;
 		if ( '' === trim( $code ) ) {
 			return '';
 		}
+		// The HTML parser turns CRLF and a lone CR into LF before the browser hashes the text, so only LF may be hashed.
+		$code = (string) preg_replace( '/\r\n?/', "\n", $code );
 		return "\n(window.uxstudioFormHooks=window.uxstudioFormHooks||{})[" . (int) $form_id . "]=function(detail){\n" . self::escape_script( $code ) . "\n};\n";
 	}
 

@@ -2,7 +2,7 @@
 // Test only: never runs over HTTP (the release zip also excludes tests/).
 if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
- * WordPress-dependent test of the Forms side of the CSP hash allowance (PLAN.md 20.14): the hook-script hash cache is
+ * WordPress-dependent test of the Forms side of the CSP hash allowance (PLAN.md 20.15): the hook-script hash cache is
  * rebuilt when a form is saved or deleted, only ACTIVE forms count, the printed script equals the hashed text byte
  * for byte, and the shared runtime hash equals the printed runtime.
  *
@@ -48,6 +48,9 @@ try {
 	$body = AfterSubmit::hook_script_body( 7, $code );
 	$assert( 'hook: the printed element is exactly <script> + body + </script>', '<script>' . $body . "</script>\n" === AfterSubmit::hook_script( 7, $code ) );
 	$assert( 'hook: the closing tag inside the code is escaped', false === strpos( $body, '</script' ) );
+	$crlf = AfterSubmit::hook_script_body( 7, "a();\r\nb();\rc();" );
+	$assert( 'hook: CRLF and lone CR become LF (the HTML parser does that before the browser hashes the text)', false === strpos( $crlf, "\r" ) && false !== strpos( $crlf, "a();\nb();\nc();" ) );
+	$assert( 'runtime: no carriage return in the hashed text', false === strpos( PublicRenderer::runtime_body(), "\r" ) );
 	$assert( 'hook: an empty script produces nothing', '' === AfterSubmit::hook_script_body( 7, "  \n" ) && '' === AfterSubmit::hook_script( 7, '' ) );
 
 	/* ── cache rebuild on save / status / delete ── */
@@ -69,7 +72,8 @@ try {
 	$assert( 'edit: the hash changes with the script', CspInlineScripts::hash( AfterSubmit::hook_script_body( $ids[0], 'other();' ) ) === get_option( InlineScripts::OPTION )['hashes'][ $ids[0] ] );
 
 	$items = InlineScripts::hook_items();
-	$assert( 'provider: lists the hook hashes with a label', count( array_filter( $items, static fn( array $i ): bool => str_contains( $i['label'], '#' . $ids[0] ) ) ) === 1 );
+	$want  = CspInlineScripts::hash( AfterSubmit::hook_script_body( $ids[0], 'other();' ) );
+	$assert( 'provider: lists the hook hash with a label', 1 === count( array_filter( $items, static fn( array $i ): bool => $i['hash'] === $want && '' !== $i['label'] ) ) );
 
 	/* ── printed == hashed, through the real renderer ── */
 	$form = $module->get_form( $ids[0] );

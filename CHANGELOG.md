@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.7.4 (unreleased)
+
+- Changed - Form Builder, "Conversion tracking": the Sklik consent flag is no longer a fixed value. When the conversion
+  fires, the plugin reads the visitor's real choice from the cookie banner on the page (Complianz, CookieYes, Cookiebot,
+  Google Consent Mode `ad_storage`, or `window.uxstudioConsent.marketing`). The new setting "Consent for Sklik" is
+  "According to the cookie banner (recommended)", "Always 1" or "Always 0", with a fallback for pages where no banner is
+  found (default 0, so Sklik counts the conversion without personalization). Forms that had Sklik on keep their fixed
+  1 or 0; new forms use the banner. Meta Pixel and Google Ads are unchanged.
+- New - Security, Content Security Policy: UX Studio's own inline scripts (the shared form script and every active
+  form's custom "after submit" script) are allowed by a SHA-256 hash when the policy is strict, i.e. its `script-src`
+  has no `'unsafe-inline'`. Hashes are cache safe (unlike nonces) and are added only to a strict policy, because a browser
+  ignores `'unsafe-inline'` as soon as a hash is present. The CSP tab lists which scripts are covered; the list is limited
+  to 200 hashes.
+- Changed - Form Builder: the form configuration is printed as a JSON data block instead of an inline script per form,
+  so a strict CSP has nothing extra to allow for it.
+- Changed - Admin Customiser, "Quick search": one merged search control. A magnifier on the right side of the admin bar
+  grows into an inline field (Ctrl+K / Cmd+K, Esc or a click outside closes it) with a keyboard-driven results dropdown.
+  When quick search is on, WordPress's own command palette button is removed from the admin bar and Ctrl+K opens ours;
+  the last dropdown entry "WordPress commands..." opens the core palette. Works with light and dark admin color
+  schemes, and as a full-width row on small screens.
+- Fixed - Admin Customiser, "Quick search": on the front-end admin bar the field did nothing, because WordPress prints
+  the bar after the script ran.
+
 ## 0.7.3
 
 - New - Security, "Delete unused default themes": removes unused Twenty* themes (the starter pack turns it on), but only

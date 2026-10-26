@@ -338,7 +338,7 @@ function StatusPanel( { status, onProbe, probing }: { status: CspStatus; onProbe
 					<h4>{ __( 'Inline scripts of UX Studio', 'ux-studio' ) }</h4>
 					{ ! status.inline.strict ? (
 						<p className="uxs-csp-status__soft">
-							{ __( 'The policy allows inline scripts ('unsafe-inline'), so UX Studio's own inline scripts run without any extra entry. Hashes are added only to a strict policy without 'unsafe-inline', because a browser ignores 'unsafe-inline' as soon as a hash is present.', 'ux-studio' ) }
+							{ __( "The policy allows inline scripts ('unsafe-inline'), so UX Studio's own inline scripts run without any extra entry. Hashes are added only to a strict policy without 'unsafe-inline', because a browser ignores 'unsafe-inline' as soon as a hash is present.", 'ux-studio' ) }
 						</p>
 					) : (
 						<>
