@@ -63,12 +63,33 @@
 	box-shadow: inset 0 0 0 2px var(--uxs-admin-primary, #72aee6);
 }
 
-/* ── Field: grows out of the icon to the left ────────────────── */
+/* While the field is open and the bar is crowded, the server clock and then the user name step aside (see fitField in the script). */
+@media screen and (min-width: 783px) {
+	#wpadminbar.uxs-qs-tight #wp-admin-bar-uxstudio-server-clock {
+		display: none;
+	}
+
+	#wpadminbar.uxs-qs-tighter #wp-admin-bar-my-account > .ab-item {
+		font-size: 0;
+	}
+
+	/* No room at all: the field floats over the bar to the left of the magnifier. */
+	#wpadminbar.uxs-qs-overlay .uxstudio-qs__field {
+		position: absolute;
+		top: 2px;
+		right: 100%;
+	}
+}
+
+/* ── Field: grows out of the icon to the left ──────────────────
+ * In the flow of the control (before the magnifier), so the bar makes room for it and pushes the neighbouring items
+ * instead of being painted over them. On small screens it becomes an absolutely positioned row (see the media query).
+ */
 
 #wpadminbar .uxstudio-qs__field {
-	position: absolute;
-	top: 2px;
-	right: 100%;
+	position: relative;
+	order: -1;
+	flex: none;
 	display: flex;
 	align-items: center;
 	width: 0;
@@ -81,7 +102,7 @@
 }
 
 #wpadminbar .uxstudio-qs[data-collapsed="false"] .uxstudio-qs__field {
-	width: min(280px, 46vw);
+	width: var(--uxs-qs-w, min(280px, 46vw));
 	visibility: visible;
 	transition: width 0.22s var(--uxs-qs-ease), visibility 0s;
 }
@@ -143,7 +164,9 @@
 	z-index: 99999;
 	display: none;
 	box-sizing: border-box;
-	width: min(380px, 94vw);
+	width: max-content;
+	min-width: min(320px, calc(100vw - 16px));
+	max-width: min(560px, calc(100vw - 16px));
 	max-height: 70vh;
 	overflow-y: auto;
 	background: var(--uxs-qs-bg);
@@ -163,21 +186,33 @@
 	to { opacity: 1; transform: none; }
 }
 
+/* A column: every entry (heading or row) is its own full-width line, whatever the admin bar does to li elements. */
 #wpadminbar .uxstudio-qs__panel {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
 	margin: 0;
 	padding: 6px 0;
 	list-style: none;
 }
 
-/* WordPress floats every li inside the admin bar. */
+/* WordPress floats and sizes every li inside the admin bar; undo that for ours. */
 #wpadminbar .uxstudio-qs__panel > li {
 	float: none;
+	clear: both;
+	flex: 0 0 auto;
 	width: auto;
+	min-width: 0;
+	max-width: none;
 	height: auto;
+	min-height: 0;
 	box-sizing: border-box;
+	list-style: none;
+	text-align: left;
 }
 
-#wpadminbar .uxstudio-qs__group-heading {
+#wpadminbar .uxstudio-qs__panel > .uxstudio-qs__group-heading {
+	display: block;
 	margin: 0;
 	padding: 8px 12px 2px;
 	font-size: 10px;
@@ -224,17 +259,24 @@
 }
 
 #wpadminbar .uxstudio-qs__row-type {
+	flex: none;
 	font-size: 10px;
+	line-height: 1.5;
 	text-transform: uppercase;
+	white-space: nowrap;
 	opacity: 0.6;
 }
 
 #wpadminbar .uxstudio-qs__row-links {
 	display: flex;
+	flex: none;
 	gap: 8px;
+	white-space: nowrap;
 }
 
 #wpadminbar .uxstudio-qs__row-links a {
+	display: inline;
+	float: none;
 	height: auto;
 	padding: 0;
 	color: var(--uxs-qs-fg);
@@ -308,6 +350,8 @@
 
 	#wpadminbar .uxstudio-qs__field,
 	#wpadminbar .uxstudio-qs[data-collapsed="false"] .uxstudio-qs__field {
+		position: absolute;
+		order: 0;
 		top: 100%;
 		right: 0;
 		left: 0;
@@ -343,6 +387,8 @@
 		right: 0;
 		left: 0;
 		width: auto;
+		min-width: 0;
+		max-width: none;
 		max-height: calc(100vh - 110px);
 		border-radius: 0 0 6px 6px;
 	}

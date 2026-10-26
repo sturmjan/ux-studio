@@ -120,8 +120,47 @@
         return root.getAttribute('data-collapsed') === 'false';
     }
 
+    /**
+     * The field sits in the flow of the bar, so it must fit into the gap between the left-hand items and the right-hand
+     * group instead of covering them. When the gap is too small the server clock and then the user name (both purely
+     * informative) step aside while the field is open; on a really narrow bar the field floats over it instead; whatever room is left becomes the field width.
+     */
+    function fitField() {
+        var bar = document.getElementById('wpadminbar');
+        root.style.removeProperty('--uxs-qs-w');
+        if (bar) bar.classList.remove('uxs-qs-tight', 'uxs-qs-tighter', 'uxs-qs-overlay');
+        if (!bar || !field || (window.matchMedia && window.matchMedia('(max-width: 782px)').matches)) return;
+        var primary = document.getElementById('wp-admin-bar-root-default');
+        var secondary = document.getElementById('wp-admin-bar-top-secondary');
+        if (!primary || !secondary) return;
+        var current = field.getBoundingClientRect().width; // the room the field itself already takes
+        // The list itself may be stretched to the full bar width: its last visible item tells where the content ends.
+        function primaryEnd() {
+            var end = 0;
+            for (var i = 0; i < primary.children.length; i++) {
+                var box = primary.children[i].getBoundingClientRect();
+                if (box.width > 0) end = Math.max(end, box.right);
+            }
+            return end;
+        }
+        function room() {
+            return Math.floor(secondary.getBoundingClientRect().left + current - primaryEnd() - 12);
+        }
+        if (room() < 200) bar.classList.add('uxs-qs-tight');
+        if (room() < 200) bar.classList.add('uxs-qs-tighter');
+        if (room() < 140) {
+            // A really narrow bar: no room to push anything aside, so the field floats over the bar like a popover
+            // (pushing would drop the right-hand group below the bar).
+            bar.classList.remove('uxs-qs-tight', 'uxs-qs-tighter');
+            bar.classList.add('uxs-qs-overlay');
+            return;
+        }
+        root.style.setProperty('--uxs-qs-w', Math.min(280, room()) + 'px');
+    }
+
     function expand() {
         syncColors();
+        fitField();
         root.setAttribute('data-collapsed', 'false');
         toggle.setAttribute('aria-expanded', 'true');
         input.focus();
@@ -142,6 +181,8 @@
         if (spinner) spinner.hidden = true;
         root.setAttribute('data-collapsed', 'true');
         toggle.setAttribute('aria-expanded', 'false');
+        var bar = document.getElementById('wpadminbar');
+        if (bar) bar.classList.remove('uxs-qs-tight', 'uxs-qs-tighter', 'uxs-qs-overlay');
         input.value = '';
         lastGroups = null;
         hidePanel();
@@ -193,8 +234,28 @@
     // Panel + options
     // ---------------------------------------------------------------------------
 
+    /** The dropdown is right-aligned to the control; when it would stick out on the left, slide it back in. */
+    function fitPanel() {
+        if (!panel) return;
+        panel.style.right = '';
+        // Small screens: the CSS stretches it across the whole bar.
+        if (window.matchMedia && window.matchMedia('(max-width: 782px)').matches) return;
+        var left = panel.getBoundingClientRect().left;
+        if (left < 8) {
+            panel.style.right = (left - 8) + 'px';
+        }
+    }
+
+    window.addEventListener('resize', function() {
+        if (isExpanded()) fitField();
+        if (panel && panel.classList.contains('is-open')) fitPanel();
+    });
+
     function showPanel() {
-        if (panel) panel.classList.add('is-open');
+        if (panel) {
+            panel.classList.add('is-open');
+            fitPanel();
+        }
         input.setAttribute('aria-expanded', 'true');
     }
 
