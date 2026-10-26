@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.7.3 (unreleased)
+## 0.7.3
 
 - New - Security, "Delete unused default themes": removes unused Twenty* themes (the starter pack turns it on), but only
   those WordPress itself brought - part of the install or copied by a core update. A Twenty* theme installed by hand
