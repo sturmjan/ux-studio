@@ -1405,6 +1405,97 @@ přestavba obrazovky „Akce po odeslání → E-mailové oznámení" na dva slo
 
 Testy: `tests/forms-templates.php`, `tests/forms-email-renderer.php` (oba přes `wp eval-file`).
 
+### 20.13 Po odeslání a měření konverzí (0.7.3, 2026-10-26)
+
+Požadavek: po úspěšném odeslání má návštěvník vidět poděkování, které vypadá dobře (vzor: vlastní formulář na
+autoservisvydra.cz - formulář se nahradí zeleným kruhem s kreslenou fajfkou), a majitel webu má umět započítat konverzi
+do Google Analytics, Google Ads, Meta Pixelu a Skliku bez zásahu do kódu.
+
+**Nastavení** (záložka „Akce po odeslání", `settings.after_submit` a `settings.tracking`, třída `AfterSubmit.php`):
+- [x] Karta „Po odeslání" nahoře: režim `replace` (skrýt formulář a zobrazit poděkování, výchozí) / `message` (zpráva nad
+  formulářem, formulář zůstane a vymaže se) / `redirect` (stránka webu z výběru, nebo adresa).
+- [x] Obsah poděkování: nadpis (výchozí „Děkujeme"), zpráva ve WordPress editoru (`WpEditor`, tučné, odkazy, obrázek z
+  Knihovny médií), slučovací značky `{name}`, `{email}`, `{form_title}`; ikona „Animovaná fajfka" / „Bez ikony", barva
+  akcentu (prázdná = zelená `#1a7f37`; formulář sám barvu nemá), přepínače „Odeslat další odpověď" (výchozí vypnuto) a
+  „Posunout stránku na poděkování" (výchozí zapnuto).
+- [x] Živý náhled vedle nastavení (dva sloupce jako e-mail), světlé a tmavé pozadí, „Přehrát animaci znovu". Náhled
+  renderuje stejný PHP kód jako veřejný formulář (`POST forms/{id}/preview-after-submit`, sandboxovaný iframe bez skriptů).
+- [x] Migrace bez zásahu: starý `success_text` se čte dál (stává se zprávou, nadpis je výchozí), `success_text` se nadále
+  ukládá i jako prostý text zprávy. Textové pole „Zpráva o úspěchu" zmizelo ze záložky Vzhled.
+- [x] Jedno přesměrování na formulář: akce `redirect` už v seznamu akcí není. Starý formulář s akcí `redirect` se při čtení
+  převede na režim `redirect` s adresou (cizí web se povolí automaticky, dřív to fungovalo) a akce se z řetězu odstraní.
+  Na adresu mimo web se jinak nepřesměruje, dokud to editor výslovně nepovolí („Povolit adresu na jiném webu").
+- [x] Šablony z 0.7.2 mají vlastní nadpis poděkování (Rezervace přijata, Objednávka odeslána, Jste přihlášeni, ...).
+
+**Bezpečnost poděkování**
+- [x] Zpráva se čistí explicitním seznamem povolených značek (`AfterSubmit::sanitize_message()`, vzor
+  `EmailTemplateRenderer::sanitize_message()` upravený pro web): odkazy `http`, `https`, `mailto`, `tel`, obrázky jen
+  `http(s)`, žádný script, iframe, form, svg ani atribut `on*`, CSS jen z krátkého seznamu vlastností.
+- [x] Slučovací značky nahrazuje server (`AfterSubmit::merge()`), hodnoty se escapují (`esc_html`), neznámé značky zmizí a
+  hodnota, která vypadá jako značka, se nerozbalí podruhé. Prohlížeč nikdy nestaví HTML z hodnoty pole; do REST odpovědi
+  jde hotové `html`, nadpis jde jako prostý text a klient ho vkládá přes `textContent`.
+
+**Veřejný formulář** (`PublicRenderer`, sdílené CSS v `AfterSubmit::done_css()`)
+- [x] Box `role="status"` + `aria-live="polite"`, fokus na nadpis (`preventScroll`), vlastní plynulé posunutí jen když je box
+  mimo obraz (`prefers-reduced-motion` = skok), animace: box 0,4 s (posun 8 px), kruh 0,6 s se zpožděním 0,1 s
+  (`stroke-dasharray` 151), fajfka 0,4 s se zpožděním 0,6 s (40). `prefers-reduced-motion` animace vypíná a nechává
+  nakreslené. Funguje ve vícekrokovém formuláři, v shortcodu, bloku i widgetu Elementoru (všechny volají `render()`).
+- [x] Druhé odeslání, dokud běží první, se ignoruje; při přesměrování se formulář zamkne.
+
+**Měření konverzí** (karta „Měření konverzí", `settings.tracking`)
+- [x] Při každém započteném odeslání (ne při chybě validace, ne u honeypot spamu) se vyvolá `CustomEvent`
+  `uxstudio:form-submitted` na formuláři (bublá, `detail = { formId, formTitle, submissionId }`) a do `window.dataLayer` se
+  vloží `{ event: 'uxstudio_form_submit', form_id, form_title, submission_id }` (přepínač, výchozí zapnuto). Hodnoty polí
+  ani osobní údaje se neposílají nikdy. Jednou na odeslání (dedupe podle `submissionId`).
+- [x] Předvolby, každá s vlastním přepínačem a poli, spustí se jen když je sledovač už na stránce (funkce `gtag`, `fbq`,
+  `rc.conversionHit`); žádný cizí skript se nenačítá, takže lišta souhlasu zůstává pánem nad tím, co se načte:
+  GA4 `gtag('event', název, { form_id, form_title })` (výchozí `generate_lead`); Google Ads
+  `gtag('event','conversion',{ send_to:'AW-…/štítek', value, currency })`; Meta Pixel `fbq('track', 'Lead')` nebo vlastní
+  událost přes `trackCustom`; Sklik `rc.conversionHit({ id, value, consent })` podle oficiální nápovědy Seznamu
+  (napoveda.sklik.cz, kód konverze; od 8/2024 je povinný parametr `consent`, v nastavení se volí 1 nebo 0).
+- [x] Validace na serveru: Ads `^AW-\d+/[\w-]+$`, názvy událostí `^[A-Za-z][A-Za-z0-9_]{0,39}$` (Meta vlastní 50 znaků,
+  standardní jen ze seznamu), Sklik ID číslo, měna 3 písmena, hodnota nezáporná.
+- [x] Modul Pixel & Tag Manager: karta ukazuje nastavená ID, jeho `gtag` a `fbq` se používají tak, jak jsou; je-li jeho
+  Google tag `AW-…`, nabídne se jako začátek pole „ID a štítek konverze".
+- [x] Při přesměrování se měření spustí PŘED odchodem a `gtag` dostane `transport_type: 'beacon'`; odchod je o 200 ms
+  opožděn.
+- [x] „Vlastní skript po odeslání": pole s CodeMirrorem (`wp.codeEditor`, jinak textarea). **Zápis smí jen uživatel s
+  `unfiltered_html`, na multisite jen super admin** (`AfterSubmit::user_can_edit_script()`), vynuceno na serveru při
+  vytvoření, uložení i obnově revize (`Module::guard_settings()`); ostatní vidí pole jen ke čtení a uložená hodnota se jim
+  nikdy nepřepíše, ani když pošlou jinou. Skript se vypíše jako inline `<script>`, který jen zaregistruje funkci
+  `window.uxstudioFormHooks[formId] = function ( detail ) { … }` (žádné `eval` ani `new Function`, takže CSP bez
+  `unsafe-eval` stačí); `</script` a `<!--` se v kódu zneškodní. Volá se v `try/catch` až po zobrazení poděkování a
+  `detail` je zmrazený. **CSP:** inline skript potřebuje `script-src 'unsafe-inline'` (výchozí politiky našeho CSP modulu
+  ho obsahují, stejně jako runtime formuláře samotný); nonce ani hash pomocník modul CSP nemá, takže při přísné politice
+  bez `unsafe-inline` se skript zablokuje a v UI je to napsané.
+
+**Testy:** `tests/forms-after-submit.php` (WP): čištění zprávy, escapování značek, migrace `success_text` a akce
+`redirect`, cíl přesměrování, oprávnění k uložení skriptu, escapování skriptu, validace nastavení měření, šablony.
+Prohlížeč (Playwright, lokální pobyty): jedno `dataLayer` push, stub `gtag`/`fbq`/`rc` dostanou volání, hák proběhl, rozbitý
+skript poděkování nerozbije, vícekrokový formulář, přesměrování, režim zprávy, reduced motion.
+
+**Otevřené:** nonce/hash pro inline skript v CSP modulu; zda se mají hodnoty polí volitelně posílat do `dataLayer`
+(zatím záměrně ne); Sklik: souhlas se bere jako pevná hodnota z nastavení, ne ze stavu lišty cookies.
+
+### 20.14 Smazání nepoužívaných výchozích šablon jen podle původu (0.7.3, 2026-10-26)
+
+Nastavení Security `remove_unused_default_themes` (commit 70c8d3a) maže jen šablony Twenty*, které přinesl sám WordPress.
+Původ každé z nich drží jedna volba `uxstudio_default_theme_origins` (`origins` slug => `initial|core|manual`, `snapshot`
+všech slugů šablon, `time`); logika je ve třídě `SecurityOptimization\DefaultThemes` (čisté `classify()` a
+`select_deletions()`, test `tests/default-themes-origin.php`).
+
+- `initial`: je tam od instalace, nebo když sledování začalo (první sync bez záznamu).
+- `core`: objevila se po aktualizaci jádra (`_core_updated_successfully`; fallback `upgrader_process_complete` type core).
+  `update_core()` kopíruje nové bundled šablony sám, mimo theme upgrader, proto diff proti snapshotu.
+- `manual`: `upgrader_process_complete` type theme + action install (ZIP, wordpress.org, WP-CLI; slug z
+  `$upgrader->result['destination_name']`, hromadně z `$options['themes']`), nebo se objevila mezi dvěma snapshoty bez
+  aktualizace jádra (FTP, správce souborů; zjistí denní běh).
+- `upgrader_pre_install` (bez typu / core) před aktualizací jádra obnoví snapshot, takže šablona nahraná přes FTP dřív se
+  nezamění za jádrovou. Hooky běží vždy, i s vypnutým nastavením; ActivityLog nezapisuje instalace šablon, proto
+  jediný důkaz o ruční instalaci je vlastní záznam `manual`.
+- Mazat se smí jen `initial` a `core`, nepoužité, mimo ochranná pravidla (aktivní, rodič, rodič jiné, nejnovější výchozí
+  jako záloha). `manual` a nezaznamenané se nemažou nikdy. ActivityLog nese `themes` a `origins`.
+
 ## 21. Audit bezpečnost / funkčnost / výkon (2026-09-30)
 
 Statický audit celého pluginu (73 modulů, ~110k ř. PHP) + měření na lokálu. Lint PHP 8.4

@@ -31,7 +31,23 @@ export interface WpEditorSettings {
 	mediaButtons: boolean;
 }
 
+/** The part of CodeMirror 5 the script editor uses (loaded by wp_enqueue_code_editor()). */
+export interface CodeMirrorLike {
+	getValue: () => string;
+	setValue: ( value: string ) => void;
+	on: ( event: string, callback: () => void ) => void;
+	save: () => void;
+	toTextArea: () => void;
+	refresh: () => void;
+}
+
+export interface WpCodeEditorApi {
+	defaultSettings?: Record< string, unknown >;
+	initialize: ( textarea: HTMLTextAreaElement, settings?: Record< string, unknown > ) => { codemirror: CodeMirrorLike };
+}
+
 interface WpGlobal {
+	codeEditor?: WpCodeEditorApi;
 	media?: ( options: Record< string, unknown > ) => WpMediaFrame;
 	editor?: {
 		initialize: ( id: string, settings: WpEditorSettings ) => void;
@@ -78,4 +94,9 @@ export function pickImage( title: string ): Promise< WpAttachment | null > {
 		} );
 		frame.open();
 	} );
+}
+
+/** WordPress' CodeMirror editor, when the screen loaded it (the user may have syntax highlighting switched off). */
+export function codeEditorApi(): WpCodeEditorApi | undefined {
+	return w().wp?.codeEditor;
 }

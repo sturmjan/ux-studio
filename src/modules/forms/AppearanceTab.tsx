@@ -1,6 +1,6 @@
 /**
  * Appearance tab: look presets (card with header and footer, two columns, numbered sections), the form-wide
- * label display default, multi-step progress style, the text of the final button and the success message.
+ * label display default, multi-step progress style, and the text of the final button. The thank-you moved to the Actions tab.
  * Everything is a setting, nothing needs custom CSS.
  */
 import { useState } from 'react';
@@ -162,16 +162,9 @@ export default function AppearanceTab( { form }: { form: FormDefinition } ): JSX
 				/>
 			</div>
 
-			<div className="uxs-form__row">
-				<label htmlFor="uxs-fb-success">{ __( 'Success message', 'ux-studio' ) }</label>
-				<textarea
-					id="uxs-fb-success"
-					rows={ 3 }
-					value={ settings.success_text }
-					placeholder={ __( 'Thank you, your submission has been received.', 'ux-studio' ) }
-					onChange={ ( e ) => patch( { success_text: e.target.value } ) }
-				/>
-			</div>
+			<p className="uxs-form__help">
+				{ __( 'What the visitor sees after sending the form (thank-you, message or redirect) is set in the "Actions after submit" tab.', 'ux-studio' ) }
+			</p>
 
 			<button type="button" className="button button-primary" disabled={ ! dirty || save.isPending } onClick={ () => save.mutate() }>
 				{ save.isSuccess && ! dirty ? <Check size={ 14 } /> : <Save size={ 14 } /> }{ ' ' }

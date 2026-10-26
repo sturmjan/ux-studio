@@ -226,6 +226,8 @@ final class Module extends BaseModule {
 			return null;
 		}
 
+		$settings = $this->guard_settings( (array) ( $data['settings'] ?? array() ), array() );
+
 		global $wpdb;
 		$now = current_time( 'mysql' );
 		$wpdb->insert(
@@ -234,7 +236,7 @@ final class Module extends BaseModule {
 				'title'         => $title,
 				'description'   => sanitize_textarea_field( (string) ( $data['description'] ?? '' ) ),
 				'fields_json'   => wp_json_encode( Fields::sanitize_fields( $data['fields'] ?? array() ) ),
-				'settings_json' => wp_json_encode( $this->sanitize_settings( $data['settings'] ?? array() ) ),
+				'settings_json' => wp_json_encode( $this->sanitize_settings( $settings ) ),
 				'status'        => $this->sanitize_status( $data['status'] ?? 'draft' ),
 				'created_by'    => get_current_user_id(),
 				'created_at'    => $now,
@@ -248,6 +250,23 @@ final class Module extends BaseModule {
 			ActivityLog::log( 'forms', 'create', 'form', $id );
 		}
 		return $this->get_form( $id );
+	}
+
+	/**
+	 * Settings about to be written: the custom "after submit" script is only taken from a user who may add scripts
+	 * to the site (AfterSubmit::user_can_edit_script()); anybody else keeps the stored script, whatever they send.
+	 *
+	 * @param array $incoming Settings from the client (or a revision).
+	 * @param array $existing Stored settings, empty for a new form.
+	 * @return array<string, mixed>
+	 */
+	public function guard_settings( array $incoming, array $existing ): array {
+		$incoming['tracking'] = AfterSubmit::guard_tracking(
+			$incoming['tracking'] ?? null,
+			$existing['tracking'] ?? null,
+			AfterSubmit::user_can_edit_script()
+		);
+		return $incoming;
 	}
 
 	/**
@@ -283,6 +302,10 @@ final class Module extends BaseModule {
 	 */
 	public function enqueue_editor(): void {
 		wp_enqueue_editor();
+		// CodeMirror for the custom "after submit" script; false when the user turned syntax highlighting off.
+		if ( function_exists( 'wp_enqueue_code_editor' ) ) {
+			wp_enqueue_code_editor( array( 'type' => 'application/javascript' ) );
+		}
 	}
 
 	/**
@@ -323,7 +346,7 @@ final class Module extends BaseModule {
 			$format[]               = '%s';
 		}
 		if ( array_key_exists( 'settings', $data ) ) {
-			$update['settings_json'] = wp_json_encode( $this->sanitize_settings( $data['settings'] ) );
+			$update['settings_json'] = wp_json_encode( $this->sanitize_settings( $this->guard_settings( (array) $data['settings'], (array) $existing['settings'] ) ) );
 			$format[]                 = '%s';
 		}
 		if ( array_key_exists( 'status', $data ) ) {
@@ -400,7 +423,7 @@ final class Module extends BaseModule {
 			array(
 				'title'         => $revision['title'],
 				'fields_json'   => wp_json_encode( Fields::sanitize_fields( $revision['fields'] ) ),
-				'settings_json' => wp_json_encode( $this->sanitize_settings( $revision['settings'] ) ),
+				'settings_json' => wp_json_encode( $this->sanitize_settings( $this->guard_settings( (array) $revision['settings'], (array) $existing['settings'] ) ) ),
 				'updated_at'    => current_time( 'mysql' ),
 			),
 			array( 'id' => $form_id ),
@@ -611,6 +634,77 @@ final class Module extends BaseModule {
 	}
 
 	// =====================================================================
+	// "After submit" builder support (0.7.3)
+	// =====================================================================
+
+	/**
+	 * What the After submit / Conversion tracking cards need besides the form: the pages for the redirect picker,
+	 * the IDs already configured in the Pixel & Tag Manager module and whether this user may edit the script.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public function after_submit_context(): array {
+		$pages = array();
+		foreach ( get_posts( array( 'post_type' => 'page', 'post_status' => 'publish', 'numberposts' => 300, 'orderby' => 'title', 'order' => 'ASC', 'suppress_filters' => true ) ) as $page ) {
+			$pages[] = array(
+				'id'    => (int) $page->ID,
+				'title' => '' !== $page->post_title ? $page->post_title : '#' . $page->ID,
+			);
+		}
+
+		$modules = \UxStudio\Plugin::instance()->modules ?? null;
+		$active  = $modules && in_array( 'pixel-tag-manager', $modules->enabled_ids(), true );
+		$ga      = '';
+		$meta    = '';
+		if ( $active ) {
+			$settings = new \UxStudio\Core\Settings( 'uxstudio_pixel_tag_manager' );
+			$ga       = (string) $settings->get( 'google_analytics', '' );
+			$meta     = (string) $settings->get( 'facebook_pixel', '' );
+		}
+
+		return array(
+			'pages'           => $pages,
+			'can_edit_script' => AfterSubmit::user_can_edit_script(),
+			'pixel'           => array(
+				'active'  => $active,
+				'ga_id'   => $ga,
+				'ads_id'  => 0 === strpos( $ga, 'AW-' ) ? $ga : '',
+				'meta_id' => $meta,
+			),
+		);
+	}
+
+	/**
+	 * Renders the thank-you box for the builder's live preview: same sanitizer, same merge, same markup and CSS as
+	 * the public form, with sample values taken from the form's fields.
+	 *
+	 * @param array  $form   Full form array.
+	 * @param array  $config Unsaved `after_submit` settings from the builder.
+	 * @param string $scheme light|dark - the page colour behind the box.
+	 * @return array{document:string,redirect:string}
+	 */
+	public function preview_after_submit( array $form, array $config, string $scheme ): array {
+		$values = array();
+		foreach ( (array) $form['fields'] as $field ) {
+			$type = (string) ( $field['type'] ?? '' );
+			$key  = (string) ( $field['key'] ?? '' );
+			if ( '' === $key || in_array( $type, array( 'html', 'step', 'captcha', 'file', 'signature', 'password' ), true ) ) {
+				continue;
+			}
+			$values[ $key ] = $this->sample_value( $field );
+		}
+
+		$clean                            = AfterSubmit::sanitize( $config );
+		$form['settings']['after_submit'] = $clean;
+		$data                             = AfterSubmit::response( $form, array( 'id' => 0, 'values' => $values ) );
+
+		return array(
+			'document' => AfterSubmit::preview_document( $data, $scheme ),
+			'redirect' => 'redirect' === $clean['mode'] ? AfterSubmit::redirect_url( $form ) : '',
+		);
+	}
+
+	// =====================================================================
 	// Internal helpers
 	// =====================================================================
 
@@ -648,9 +742,11 @@ final class Module extends BaseModule {
 		$progress      = in_array( $settings['progress_style'] ?? 'steps', self::PROGRESS_STYLES, true ) ? $settings['progress_style'] : 'steps';
 		$layout        = in_array( $settings['layout'] ?? 'plain', self::LAYOUTS, true ) ? $settings['layout'] : 'plain';
 		$columns       = 2 === (int) ( $settings['columns'] ?? 1 ) ? 2 : 1;
-		$success_text  = sanitize_textarea_field( (string) ( $settings['success_text'] ?? __( 'Thank you, your submission has been received.', 'ux-studio' ) ) );
 
-		$actions = array();
+		// A redirect action of a form saved before 0.7.3 is folded into the "After submit" redirect mode (see
+		// AfterSubmit::sanitize()); the actions list itself no longer carries redirects, so two can never conflict.
+		$legacy_redirect = '';
+		$actions         = array();
 		foreach ( (array) ( $settings['actions'] ?? array() ) as $action ) {
 			if ( ! is_array( $action ) ) {
 				continue;
@@ -663,8 +759,10 @@ final class Module extends BaseModule {
 					$actions[] = $this->sanitize_webhook_action( $action );
 					break;
 				case 'redirect':
-					$actions[] = $this->sanitize_redirect_action( $action );
-					break;
+					if ( '' === $legacy_redirect ) {
+						$legacy_redirect = (string) ( $action['url'] ?? '' );
+					}
+					continue 2;
 				case 'create_post':
 					$actions[] = $this->sanitize_create_post_action( $action );
 					break;
@@ -677,6 +775,12 @@ final class Module extends BaseModule {
 			}
 		}
 
+		$after_submit = AfterSubmit::sanitize(
+			$settings['after_submit'] ?? null,
+			(string) ( $settings['success_text'] ?? '' ),
+			$legacy_redirect
+		);
+
 		return array(
 			'label_display'   => $label_display,
 			'progress_style'  => $progress,
@@ -688,7 +792,11 @@ final class Module extends BaseModule {
 			// Numbered section headings ("1", "2", ...) in front of every step title.
 			'numbered_sections' => ! empty( $settings['numbered_sections'] ),
 			'submit_text'       => mb_substr( sanitize_text_field( (string) ( $settings['submit_text'] ?? '' ) ), 0, 60 ),
-			'success_text'    => $success_text,
+			// Thank-you screen / redirect (0.7.3) and conversion tracking; `success_text` stays as the plain-text
+			// form of the message so older readers of the key keep working.
+			'after_submit'    => $after_submit,
+			'success_text'    => AfterSubmit::message_to_text( '' !== $after_submit['message'] ? $after_submit['message'] : '<p>' . esc_html( AfterSubmit::default_message() ) . '</p>' ),
+			'tracking'        => AfterSubmit::sanitize_tracking( $settings['tracking'] ?? null ),
 			'captcha_enabled' => ! empty( $settings['captcha_enabled'] ),
 			// Per-form HMAC secret for the webhook action (PLAN.md 20.2/20.8) -
 			// generated once and kept stable across saves; never accepted as
@@ -788,16 +896,6 @@ final class Module extends BaseModule {
 	private function sanitize_webhook_action( array $action ): array {
 		return array(
 			'type' => 'webhook',
-			'url'  => esc_url_raw( (string) ( $action['url'] ?? '' ) ),
-		);
-	}
-
-	/**
-	 * @param array $action { url }.
-	 */
-	private function sanitize_redirect_action( array $action ): array {
-		return array(
-			'type' => 'redirect',
 			'url'  => esc_url_raw( (string) ( $action['url'] ?? '' ) ),
 		);
 	}

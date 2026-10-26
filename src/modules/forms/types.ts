@@ -127,11 +127,6 @@ export interface WebhookAction {
 	url: string;
 }
 
-export interface RedirectAction {
-	type: 'redirect';
-	url: string;
-}
-
 export type PostStatus = 'draft' | 'pending' | 'private' | 'publish';
 
 export interface CreatePostAction {
@@ -144,11 +139,56 @@ export interface CreatePostAction {
 	author_id: number;
 }
 
-export type FormAction = EmailAction | WebhookAction | RedirectAction | CreatePostAction;
+export type FormAction = EmailAction | WebhookAction | CreatePostAction;
 
 export interface PostTypeOption {
 	id: string;
 	label: string;
+}
+
+/** Meta Pixel standard events the builder offers. Mirrors AfterSubmit::META_STANDARD_EVENTS. */
+export const META_STANDARD_EVENTS = [ 'Lead', 'CompleteRegistration', 'Contact', 'Subscribe', 'SubmitApplication', 'Schedule', 'StartTrial', 'Donate', 'FindLocation' ] as const;
+
+export type AfterSubmitMode = 'replace' | 'message' | 'redirect';
+
+/** What happens on the page after a successful submit. Mirrors AfterSubmit::defaults() in PHP. */
+export interface AfterSubmitSettings {
+	mode: AfterSubmitMode;
+	/** '' = the default "Thank you". Supports merge tags like {name}. */
+	title: string;
+	/** HTML from the WordPress editor, '' = the default sentence. Supports merge tags like {name}. */
+	message: string;
+	icon: 'check' | 'none';
+	/** #rrggbb, '' = the default green. */
+	accent: string;
+	again: boolean;
+	scroll: boolean;
+	redirect_type: 'page' | 'url';
+	redirect_page_id: number;
+	redirect_url: string;
+	/** Another website than this one may be the target. */
+	redirect_external: boolean;
+}
+
+export interface TrackingSettings {
+	datalayer: boolean;
+	ga4: { enabled: boolean; event: string };
+	ads: { enabled: boolean; send_to: string; value: number | null; currency: string };
+	meta: { enabled: boolean; custom: boolean; event: string };
+	sklik: { enabled: boolean; id: string; value: number | null; consent: 0 | 1 };
+	custom_js: string;
+}
+
+/** GET forms/after-submit-context. */
+export interface AfterSubmitContext {
+	pages: { id: number; title: string }[];
+	can_edit_script: boolean;
+	pixel: { active: boolean; ga_id: string; ads_id: string; meta_id: string };
+}
+
+export interface AfterSubmitPreview {
+	document: string;
+	redirect: string;
 }
 
 export type ProgressStyle = 'steps' | 'numbers' | 'bar' | 'none';
@@ -165,7 +205,10 @@ export interface FormSettings {
 	numbered_sections: boolean;
 	/** Text of the final button, '' = the default "Submit". */
 	submit_text: string;
+	/** Plain-text form of the thank-you message, kept for older readers - the editor writes `after_submit`. */
 	success_text: string;
+	after_submit: AfterSubmitSettings;
+	tracking: TrackingSettings;
 	captcha_enabled: boolean;
 	/** Per-form HMAC secret for the webhook action - server-generated, read-only. */
 	webhook_secret: string;
@@ -266,6 +309,33 @@ export function emptyField( type: FieldType, key: string ): FormField {
 	};
 }
 
+export function defaultAfterSubmit(): AfterSubmitSettings {
+	return {
+		mode: 'replace',
+		title: '',
+		message: '',
+		icon: 'check',
+		accent: '',
+		again: false,
+		scroll: true,
+		redirect_type: 'page',
+		redirect_page_id: 0,
+		redirect_url: '',
+		redirect_external: false,
+	};
+}
+
+export function defaultTracking(): TrackingSettings {
+	return {
+		datalayer: true,
+		ga4: { enabled: false, event: 'generate_lead' },
+		ads: { enabled: false, send_to: '', value: null, currency: 'CZK' },
+		meta: { enabled: false, custom: false, event: 'Lead' },
+		sklik: { enabled: false, id: '', value: null, consent: 1 },
+		custom_js: '',
+	};
+}
+
 export function defaultSettings(): FormSettings {
 	return {
 		label_display: 'visible',
@@ -275,6 +345,8 @@ export function defaultSettings(): FormSettings {
 		numbered_sections: false,
 		submit_text: '',
 		success_text: '',
+		after_submit: defaultAfterSubmit(),
+		tracking: defaultTracking(),
 		captcha_enabled: false,
 		webhook_secret: '',
 		actions: [],

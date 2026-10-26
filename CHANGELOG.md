@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.7.3
+
+- New - Security, "Delete unused default themes": removes unused Twenty* themes (the starter pack turns it on), but only
+  those WordPress itself brought - part of the install or copied by a core update. A Twenty* theme installed by hand
+  (upload, wordpress.org, WP-CLI, FTP) is never deleted; the origin of each default theme is tracked. The active theme,
+  its parent, parents of other themes and the newest default theme (the fallback) always stay.
+- Fixed - Form Builder, "Conversion tracking": the Google Ads fields Value and Currency now sit side by side.
+- New - Form Builder, "Actions after submit": a new card "After submit" decides what the visitor sees after sending the
+  form - a thank-you that replaces the form (default), a message above the form, or a redirect to a page or address.
+  The thank-you has a title, a message written in the WordPress editor (bold, links, images from the Media Library),
+  merge tags such as {name} (escaped on the server), an animated check mark or no icon, an accent color, a "Send another
+  response" button and scrolling to the thank-you. A live preview with a light and dark background and "Play animation
+  again" sits next to the settings. The animation respects "reduce motion", focus moves to the title for screen readers.
+- Changed - Form Builder: the success message moved from Appearance to the new card; existing forms keep their text
+  and their redirect action becomes the redirect mode (a form has one redirect, so two can no longer collide). Every
+  template has its own thank-you title.
+- New - Form Builder, "Conversion tracking": every counted submit fires a `uxstudio:form-submitted` DOM event and a
+  dataLayer push `uxstudio_form_submit` (form id, title and submission id, never field values). Optional presets for GA4,
+  Google Ads conversion, Meta Pixel and Sklik run only when that tracker is already on the page - the plugin loads no
+  third-party script, so your cookie consent tool stays in control. With a redirect the conversion is sent first.
+- New - Form Builder: a custom script after submit, edited with CodeMirror. Only a user with the `unfiltered_html`
+  capability (on multisite a super admin) can write or change it; it runs after the thank-you is shown, in a
+  `try/catch`, and needs a Content Security Policy that allows inline scripts.
+
 ## 0.7.2
 
 - New - Form Builder: template gallery under "New form title" - nine ready-made forms (contact, service inquiry,

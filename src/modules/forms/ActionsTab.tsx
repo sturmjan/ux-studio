@@ -11,10 +11,12 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { ArrowRight, Check, Copy, FilePlus2, Mail, Save, Trash2, Webhook as WebhookIcon } from 'lucide-react';
+import { Check, Copy, FilePlus2, Mail, Save, Trash2, Webhook as WebhookIcon } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
+import AfterSubmitCard from './AfterSubmitCard';
 import EmailActionEditor from './EmailActionEditor';
-import type { CreatePostAction, EmailAction, FormAction, FormDefinition, PostStatus, PostTypeOption, RedirectAction, WebhookAction } from './types';
+import TrackingCard from './TrackingCard';
+import type { AfterSubmitContext, AfterSubmitSettings, CreatePostAction, EmailAction, FormAction, FormDefinition, PostStatus, PostTypeOption, TrackingSettings, WebhookAction } from './types';
 
 const POST_STATUSES: { id: PostStatus; label: string }[] = [
 	{ id: 'draft', label: __( 'Draft', 'ux-studio' ) },
@@ -45,10 +47,6 @@ function emptyEmailAction(): EmailAction {
 
 function emptyWebhookAction(): WebhookAction {
 	return { type: 'webhook', url: '' };
-}
-
-function emptyRedirectAction(): RedirectAction {
-	return { type: 'redirect', url: '' };
 }
 
 function emptyCreatePostAction(): CreatePostAction {
@@ -114,42 +112,6 @@ function WebhookActionEditor( {
 							'ux-studio'
 						) }
 					</p>
-				</div>
-			</div>
-		</div>
-	);
-}
-
-function RedirectActionEditor( {
-	action,
-	onChange,
-	onRemove,
-}: {
-	action: RedirectAction;
-	onChange: ( patch: Partial< RedirectAction > ) => void;
-	onRemove: () => void;
-} ): JSX.Element {
-	return (
-		<div className="uxs-card" style={ { marginBottom: 'var(--uxs-sp-4)' } }>
-			<div style={ { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--uxs-sp-3)' } }>
-				<strong>
-					<ArrowRight size={ 14 } style={ { verticalAlign: 'middle', marginRight: 6 } } /> { __( 'Redirect', 'ux-studio' ) }
-				</strong>
-				<button type="button" className="button-link" onClick={ onRemove } aria-label={ __( 'Remove this action', 'ux-studio' ) }>
-					<Trash2 size={ 14 } />
-				</button>
-			</div>
-
-			<div className="uxs-form">
-				<div className="uxs-form__row">
-					<label>{ __( 'Redirect URL after submit', 'ux-studio' ) }</label>
-					<input
-						type="url"
-						value={ action.url }
-						placeholder="https://example.com/thank-you"
-						onChange={ ( e ) => onChange( { url: e.target.value } ) }
-					/>
-					<p className="uxs-form__help">{ __( 'Sends the visitor here instead of showing the inline success message.', 'ux-studio' ) }</p>
 				</div>
 			</div>
 		</div>
@@ -242,16 +204,26 @@ function CreatePostActionEditor( {
 
 export default function ActionsTab( { form }: { form: FormDefinition } ): JSX.Element {
 	const [ actions, setActions ] = useState< FormAction[] >( form.settings.actions );
+	const [ afterSubmit, setAfterSubmit ] = useState< AfterSubmitSettings >( form.settings.after_submit );
+	const [ tracking, setTracking ] = useState< TrackingSettings >( form.settings.tracking );
 	const [ dirty, setDirty ] = useState( false );
+
+	const context = useQuery( {
+		queryKey: [ 'forms', 'after-submit-context' ],
+		queryFn: () => api< AfterSubmitContext >( 'forms/after-submit-context' ),
+		staleTime: 60 * 1000,
+	} );
 
 	const save = useMutation( {
 		mutationFn: () =>
 			api< FormDefinition >( `forms/${ form.id }`, {
 				method: 'POST',
-				body: JSON.stringify( { settings: { ...form.settings, actions } } ),
+				body: JSON.stringify( { settings: { ...form.settings, actions, after_submit: afterSubmit, tracking } } ),
 			} ),
 		onSuccess: ( updated ) => {
 			setActions( updated.settings.actions );
+			setAfterSubmit( updated.settings.after_submit );
+			setTracking( updated.settings.tracking );
 			setDirty( false );
 			void queryClient.invalidateQueries( { queryKey: [ 'forms', 'form', form.id ] } );
 		},
@@ -264,6 +236,11 @@ export default function ActionsTab( { form }: { form: FormDefinition } ): JSX.El
 
 	function remove( index: number ) {
 		setActions( actions.filter( ( _, i ) => i !== index ) );
+		setDirty( true );
+	}
+
+	function patchAfterSubmit( patch: Partial< AfterSubmitSettings > ) {
+		setAfterSubmit( ( current ) => ( { ...current, ...patch } ) );
 		setDirty( true );
 	}
 
@@ -281,8 +258,11 @@ export default function ActionsTab( { form }: { form: FormDefinition } ): JSX.El
 				</button>
 			</div>
 
+			<AfterSubmitCard formId={ form.id } fields={ form.fields } value={ afterSubmit } context={ context.data } onChange={ patchAfterSubmit } />
+
+			<h3 className="uxs-fb-subhead">{ __( 'Actions', 'ux-studio' ) }</h3>
 			{ actions.length === 0 ? (
-				<div className="uxs-fb-empty">{ __( 'No actions yet - add one below (email, webhook, redirect or create a post).', 'ux-studio' ) }</div>
+			<div className="uxs-fb-empty">{ __( 'No actions yet - add one below (email, webhook or create a post).', 'ux-studio' ) }</div>
 			) : (
 				actions.map( ( action, i ) => {
 					if ( 'email' === action.type ) {
@@ -318,14 +298,7 @@ export default function ActionsTab( { form }: { form: FormDefinition } ): JSX.El
 							/>
 						);
 					}
-					return (
-						<RedirectActionEditor
-							key={ i }
-							action={ action }
-							onChange={ ( patch ) => update< RedirectAction >( i, patch ) }
-							onRemove={ () => remove( i ) }
-						/>
-					);
+					return null;
 				} )
 			) }
 
@@ -336,13 +309,20 @@ export default function ActionsTab( { form }: { form: FormDefinition } ): JSX.El
 				<button type="button" className="button" onClick={ () => add( emptyWebhookAction() ) }>
 					<WebhookIcon size={ 14 } /> { __( 'Add webhook', 'ux-studio' ) }
 				</button>
-				<button type="button" className="button" onClick={ () => add( emptyRedirectAction() ) }>
-					<ArrowRight size={ 14 } /> { __( 'Add redirect', 'ux-studio' ) }
-				</button>
 				<button type="button" className="button" onClick={ () => add( emptyCreatePostAction() ) }>
 					<FilePlus2 size={ 14 } /> { __( 'Add create post', 'ux-studio' ) }
 				</button>
 			</div>
+		
+			<TrackingCard
+				formId={ form.id }
+				value={ tracking }
+				context={ context.data }
+				onChange={ ( next ) => {
+					setTracking( next );
+					setDirty( true );
+				} }
+			/>
 		</>
 	);
 }
