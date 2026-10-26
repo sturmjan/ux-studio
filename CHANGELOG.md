@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.7.4 (unreleased)
+## 0.7.4
 
 - Changed - Form Builder, "Conversion tracking": the Sklik consent flag is no longer a fixed value. When the conversion
   fires, the plugin reads the visitor's real choice from the cookie banner on the page (Complianz, CookieYes, Cookiebot,
