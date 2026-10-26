@@ -42,6 +42,9 @@ final class Module extends BaseModule {
 	/** Set after a failed .htaccess write so an unwritable file isn't retried on every admin page. */
 	private const HTACCESS_BACKOFF = 'uxstudio_security_htaccess_backoff';
 
+	/** Throttle for the unused-default-theme cleanup (once a day). */
+	private const THEME_CLEANUP_THROTTLE = 'uxstudio_security_theme_cleanup_throttle';
+
 	private ?AttemptsHandler $attempts       = null;
 	private ?IpBanStore $ip_ban_store        = null;
 	private ?IpBanManager $ip_ban_manager    = null;
@@ -110,6 +113,11 @@ final class Module extends BaseModule {
 		/* ── Disable theme/plugin file editor (define early, before wp-admin caps) ── */
 		if ( $this->setting( 'disable_file_editing', false ) && ! defined( 'DISALLOW_FILE_EDIT' ) ) {
 			define( 'DISALLOW_FILE_EDIT', true );
+		}
+
+		/* ── Remove unused bundled themes (Twenty*) - admin only, throttled ── */
+		if ( $this->setting( 'remove_unused_default_themes', false ) ) {
+			add_action( 'admin_init', array( $this, 'maybe_remove_unused_default_themes' ) );
 		}
 
 		/* ── Block user enumeration ── */
@@ -1110,6 +1118,14 @@ final class Module extends BaseModule {
 				'default' => false,
 			),
 			array(
+				'key'     => 'remove_unused_default_themes',
+				'section' => __( 'Hardening', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Delete unused default themes', 'ux-studio' ),
+				'help'    => __( 'Deletes the bundled Twenty* themes (Twenty Twenty-Four etc.) that are not in use - an unused theme is only extra attack surface. Never touches the active theme, its parent/child, or any theme that is the parent of another installed theme. The newest default theme is always kept as the fallback WordPress switches to if the active theme breaks. Runs on save and then at most once a day while you are in the admin.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
 				'key'     => 'hide_author_slugs',
 				'section' => __( 'Hardening', 'ux-studio' ),
 				'type'    => 'toggle',
@@ -1315,6 +1331,8 @@ final class Module extends BaseModule {
 		delete_transient( self::HTACCESS_BACKOFF );
 		$this->maybe_update_htaccess();
 		$this->sync_country_blocklist();
+		delete_transient( self::THEME_CLEANUP_THROTTLE );
+		$this->maybe_remove_unused_default_themes();
 
 		$this->after_csp_save( $previous_csp_mode, $csp_override );
 		$result['csp_gate_blocked'] = $csp_blocked;
@@ -1794,6 +1812,71 @@ final class Module extends BaseModule {
 		}
 
 		set_transient( self::HTACCESS_BACKOFF, 1, HOUR_IN_SECONDS );
+	}
+
+	/* ═══════════════════════════════════════════════════
+	   Unused default themes
+	   ═══════════════════════════════════════════════════ */
+
+	/**
+	 * Delete installed WordPress-bundled Twenty* themes that nothing needs.
+	 * Kept: the active theme and its parent, every theme that is the parent of
+	 * another installed theme, and the newest default theme (WordPress' own
+	 * fallback when the active theme breaks).
+	 */
+	public function maybe_remove_unused_default_themes(): void {
+		if ( ! $this->setting( 'remove_unused_default_themes', false ) || is_multisite() ) {
+			return;
+		}
+		if ( wp_doing_ajax() || wp_doing_cron() || ! current_user_can( 'delete_themes' ) ) {
+			return;
+		}
+		if ( ( defined( 'DISALLOW_FILE_MODS' ) && DISALLOW_FILE_MODS ) || get_transient( self::THEME_CLEANUP_THROTTLE ) ) {
+			return;
+		}
+		set_transient( self::THEME_CLEANUP_THROTTLE, 1, DAY_IN_SECONDS );
+
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/theme.php';
+		if ( 'direct' !== get_filesystem_method() ) {
+			return;
+		}
+
+		$themes = wp_get_themes();
+
+		$keep = array( get_stylesheet() => true, get_template() => true );
+		foreach ( $themes as $slug => $theme ) {
+			$parent = $theme->get_template();
+			if ( $parent !== $slug ) {
+				$keep[ $parent ] = true;
+			}
+		}
+		$fallback = \WP_Theme::get_core_default_theme();
+		if ( $fallback instanceof \WP_Theme ) {
+			$keep[ $fallback->get_stylesheet() ] = true;
+		}
+
+		$deleted = array();
+		foreach ( $themes as $slug => $theme ) {
+			if ( isset( $keep[ $slug ] ) || ! self::is_bundled_default_theme( $slug, $theme ) ) {
+				continue;
+			}
+			if ( true === delete_theme( $slug ) ) {
+				$deleted[] = $slug;
+			}
+		}
+
+		if ( $deleted ) {
+			ActivityLog::log( 'security-optimization', 'default_themes_removed', 'theme', 0, array( 'themes' => $deleted ) );
+		}
+	}
+
+	/**
+	 * Slug looks like a Twenty* theme AND it is authored by the WordPress team.
+	 */
+	private static function is_bundled_default_theme( string $slug, \WP_Theme $theme ): bool {
+		return 1 === preg_match( '/^twenty[a-z]+$/', $slug )
+			&& false !== stripos( wp_strip_all_tags( (string) $theme->get( 'Author' ) ), 'WordPress' );
 	}
 
 	/* ═══════════════════════════════════════════════════
