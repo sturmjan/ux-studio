@@ -21,7 +21,7 @@ msgstr ""
 #: includes/Core/Megamenu.php:90
 #: includes/Core/Migration/Describe.php:104
 #: includes/Core/Migration/MenuSimulator.php:39
-#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:291
+#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:474
 msgid "UX Studio"
 msgstr "UX Studio"
 
@@ -155,7 +155,6 @@ msgstr "Přizpůsobit šablonu"
 
 #: includes/Modules/AdminCustomiser/HideAdminNotices.php:99
 #: includes/Modules/AdminCustomiser/HideAdminNotices.php:103
-#: includes/Modules/AdminCustomiser/HideAdminNotices.php:155
 #: build/587.ac5f331947080b90a85e.js:1
 msgid "Notifications"
 msgstr "Oznámení"
@@ -208,7 +207,7 @@ msgstr "Obsah"
 #: includes/Core/Megamenu.php:170
 #: includes/Modules/AdminColumns/RestController.php:97
 #: includes/Modules/AdminCustomiser/MenuOrganizer.php:89
-#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:253
+#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:422
 #: build/321.27f7b55ace3bb36082e1.js:1
 #: build/index.314d8e87a00960a5cda4.js:11
 #: build/index.314d8e87a00960a5cda4.js:50
@@ -247,7 +246,7 @@ msgstr "Marketing"
 #: includes/Core/Migration/MenuSimulator.php:41
 #: includes/Modules/AdminColumns/RestController.php:98
 #: includes/Modules/AdminCustomiser/MenuOrganizer.php:93
-#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:207
+#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:351
 msgid "Users"
 msgstr "Uživatelé"
 
@@ -385,10 +384,11 @@ msgstr "Zapnout přizpůsobení přihlašovací obrazovky"
 msgid "Search..."
 msgstr "Hledat…"
 
-#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:101
-#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:154
-#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:193
-#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:237
+#: includes/Modules/AdminCustomiser/QuickSearch.php:127
+#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:173
+#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:246
+#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:320
+#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:389
 #: build/81.c4c868e43458dd0b41fc.js:4
 #: build/295.a870471d1a0caf081ee0.js:1
 #: build/309.af5b27ff658fb2c18892.js:1
@@ -397,16 +397,18 @@ msgstr "Hledat…"
 msgid "Edit"
 msgstr "Upravit"
 
-#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:104
-#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:152
-#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:195
-#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:240
+#: includes/Modules/AdminCustomiser/QuickSearch.php:128
+#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:180
+#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:254
+#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:326
+#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:396
 #: build/295.a870471d1a0caf081ee0.js:1
 msgid "View"
 msgstr "Zobrazit"
 
 #. translators: %s: closing time (HH:MM).
-#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:284
+#: includes/Modules/AdminCustomiser/QuickSearch.php:129
+#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:466
 #: includes/Modules/AdminCustomiser/QuickSearch/ThirdPartyIntegrations.php:49
 #: includes/Modules/AdminCustomiser/QuickSearch/ThirdPartyIntegrations.php:50
 #: includes/Modules/AdminCustomiser/QuickSearch/ThirdPartyIntegrations.php:67
@@ -11272,6 +11274,7 @@ msgstr "Najít obsah k odeslání"
 msgid "Search posts…"
 msgstr "Hledat příspěvky…"
 
+#: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:191
 #: build/309.af5b27ff658fb2c18892.js:1
 msgid "(no title)"
 msgstr "(bez názvu)"
@@ -28150,3 +28153,33 @@ msgstr "Stav se čte ve chvíli, kdy se konverze odesílá, z Complianzu, Cookie
 #: build/631.c85302483897d8f7d1c2.js:5
 msgid "Runs in the visitor's browser after a counted submit, as the body of a function with one read-only argument: detail = { formId, formTitle, submissionId }. An error in it never affects the thank-you. It is printed as an inline script and eval is not used. With the UX Studio Content Security Policy in strict mode (no 'unsafe-inline') it is allowed automatically through a hash; a policy set by another plugin or the server has to allow it itself."
 msgstr "Spustí se v prohlížeči návštěvníka po započítaném odeslání, jako tělo funkce s jedním argumentem jen pro čtení: detail = { formId, formTitle, submissionId }. Chyba v něm nikdy neovlivní poděkování. Tiskne se jako inline skript a eval se nepoužívá. Když je CSP z UX Studia v přísném režimu (bez 'unsafe-inline'), povolí se automaticky přes hash. Politika nastavená jiným pluginem nebo serverem ho musí povolit sama."
+
+#: includes/Modules/AdminCustomiser/HideAdminNotices.php:131
+msgid "Show more"
+msgstr "Zobrazit více"
+
+#: includes/Modules/AdminCustomiser/HideAdminNotices.php:132
+msgid "Show less"
+msgstr "Zobrazit méně"
+
+#: includes/Modules/AdminCustomiser/HideAdminNotices.php:133
+msgid "Dismiss notice"
+msgstr "Zavřít upozornění"
+
+#: includes/Modules/AdminCustomiser/HideAdminNotices.php:164
+#: includes/Modules/AdminCustomiser/HideAdminNotices.php:166
+msgid "Admin notices"
+msgstr "Upozornění"
+
+#: includes/Modules/AdminCustomiser/HideAdminNotices.php:170
+msgid "No notices"
+msgstr "Žádná upozornění"
+
+#: includes/Modules/AdminCustomiser/QuickSearch.php:126
+msgid "Searching..."
+msgstr "Hledám..."
+
+#. translators: %d: number of matches.
+#: includes/Modules/AdminCustomiser/QuickSearch.php:131
+msgid "Show all (%d)"
+msgstr "Zobrazit všechny (%d)"

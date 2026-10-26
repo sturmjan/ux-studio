@@ -124,6 +124,15 @@ final class HideAdminNotices {
 
 		wp_enqueue_style( 'uxstudio-admin-customiser-notices', UXSTUDIO_URL . $css_rel, array(), $version );
 		wp_enqueue_script( 'uxstudio-admin-customiser-notices', UXSTUDIO_URL . $js_rel, array(), $version, true );
+		wp_localize_script(
+			'uxstudio-admin-customiser-notices',
+			'uxstudioNoticesI18n',
+			array(
+				'showMore' => __( 'Show more', 'ux-studio' ),
+				'showLess' => __( 'Show less', 'ux-studio' ),
+				'dismiss'  => __( 'Dismiss notice', 'ux-studio' ),
+			)
+		);
 	}
 
 	/**
@@ -146,13 +155,19 @@ final class HideAdminNotices {
 	}
 
 	/**
-	 * Empty panel markup - populated client-side by admin-customiser-notices.js,
-	 * which moves live `.notice` elements into it.
+	 * Panel markup: header (title + count), the list the live `.notice` elements are moved into by
+	 * admin-customiser-notices.js, and the empty state. The script moves the whole wrapper to <body> and places it
+	 * under the bell.
 	 */
 	public function render_panel(): void {
 		?>
-		<div id="uxstudio-notices__panel-wrap" class="uxstudio-notices">
-			<div id="uxstudio-notices__panel" class="hidden" tabindex="-1" aria-label="<?php echo esc_attr__( 'Notifications', 'ux-studio' ); ?>"></div>
+		<div id="uxstudio-notices__panel-wrap" class="uxstudio-notices is-empty wp-exclude-emoji" role="region" aria-label="<?php echo esc_attr__( 'Admin notices', 'ux-studio' ); ?>">
+			<div class="uxstudio-nc-head">
+				<span class="uxstudio-nc-head__title"><?php echo esc_html__( 'Admin notices', 'ux-studio' ); ?></span>
+				<span class="uxstudio-nc-head__count">0</span>
+			</div>
+			<div id="uxstudio-notices__panel" class="hidden" role="list" tabindex="-1"></div>
+			<div class="uxstudio-nc-empty"><?php echo esc_html__( 'No notices', 'ux-studio' ); ?></div>
 		</div>
 		<?php
 	}
