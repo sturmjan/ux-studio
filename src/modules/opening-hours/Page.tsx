@@ -243,14 +243,14 @@ function LocationsTab(): JSX.Element {
 	return (
 		<>
 			<div
-				className="uxs-form"
-				style={ { marginBottom: 'var(--uxs-sp-5)', flexDirection: 'row', alignItems: 'flex-end', gap: 'var(--uxs-sp-3)' } }
+				className="uxs-form uxs-form--inline"
+				style={ { marginBottom: 'var(--uxs-sp-5)' } }
 			>
-				<div className="uxs-form__row" style={ { flex: 1 } }>
+				<div className="uxs-form__row">
 					<label htmlFor="uxs-oh-title">{ __( 'Name', 'ux-studio' ) }</label>
 					<input id="uxs-oh-title" type="text" value={ newTitle } onChange={ ( e ) => setNewTitle( e.target.value ) } />
 				</div>
-				<div className="uxs-form__row" style={ { flex: 1 } }>
+				<div className="uxs-form__row">
 					<label htmlFor="uxs-oh-address">{ __( 'Address', 'ux-studio' ) }</label>
 					<input id="uxs-oh-address" type="text" value={ newAddress } onChange={ ( e ) => setNewAddress( e.target.value ) } />
 				</div>

@@ -864,6 +864,265 @@
 	.uxs-wiz-prow { grid-template-columns: 24px minmax(0, 1fr); .uxs-wiz-bar { grid-column: 1 / -1; } }
 }
 
+/* -- Central application step: presentation + the toolbar that sticks to the bottom edge of the screen -- */
+.uxs-wiz-ca {
+	.uxs-wiz-ca__h { margin: var(--uxs-sp-6) 0 var(--uxs-sp-3); font-size: var(--uxs-fs-m); }
+}
+
+.uxs-wiz-ca__hero {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--uxs-sp-5);
+	padding: var(--uxs-sp-5);
+	margin-bottom: var(--uxs-sp-4);
+	border-radius: var(--uxs-radius);
+	background: linear-gradient(135deg, var(--uxs-brand-soft), var(--uxs-surface-2));
+	border: 1px solid var(--uxs-border);
+
+	h2 { font-size: var(--uxs-fs-l); margin-top: var(--uxs-sp-2); }
+	p { margin: var(--uxs-sp-2) 0 0; max-width: 560px; color: var(--uxs-text); }
+}
+
+.uxs-wiz-ca__herotext { min-width: 0; }
+
+.uxs-wiz-ca__eyebrow {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--uxs-sp-1);
+	font-size: var(--uxs-fs-s);
+	font-weight: 600;
+	color: var(--uxs-brand);
+}
+
+[data-theme="dark"] .uxs-wiz-ca__eyebrow { color: #c7d2fe; }
+
+.uxs-wiz-ca__art {
+	position: relative;
+	flex-shrink: 0;
+	width: 200px;
+	height: 150px;
+}
+
+.uxs-wiz-ca__lines {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	color: var(--uxs-brand);
+
+	path {
+		stroke: currentcolor;
+		stroke-width: 1.5;
+		stroke-dasharray: 4 5;
+		opacity: 0.55;
+		animation: uxs-wiz-ca-flow 2.4s linear infinite;
+	}
+}
+
+.uxs-wiz-ca__hub,
+.uxs-wiz-ca__node {
+	position: absolute;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.uxs-wiz-ca__hub {
+	left: 50%;
+	top: 50%;
+	width: 68px;
+	height: 68px;
+	background: var(--uxs-brand);
+	color: #fff;
+	box-shadow: 0 0 0 8px color-mix(in srgb, var(--uxs-brand) 18%, transparent);
+	animation: uxs-wiz-ca-pulse 3.2s var(--uxs-ease) infinite;
+}
+
+.uxs-wiz-ca__node {
+	width: 34px;
+	height: 34px;
+	background: var(--uxs-surface);
+	border: 1px solid var(--uxs-border);
+	color: var(--uxs-brand);
+	box-shadow: var(--uxs-shadow-1);
+
+	&.is-a { left: 17%; top: 23%; }
+	&.is-b { left: 84%; top: 20%; }
+	&.is-c { left: 15%; top: 77%; }
+	&.is-d { left: 85%; top: 75%; }
+}
+
+[data-theme="dark"] .uxs-wiz-ca__node { color: #c7d2fe; }
+
+@keyframes uxs-wiz-ca-flow { to { stroke-dashoffset: -18; } }
+@keyframes uxs-wiz-ca-pulse {
+	0%, 100% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--uxs-brand) 18%, transparent); }
+	50% { box-shadow: 0 0 0 14px color-mix(in srgb, var(--uxs-brand) 8%, transparent); }
+}
+
+.uxs-wiz-ca__how {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: var(--uxs-sp-3);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+
+	li {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--uxs-sp-3);
+		margin: 0;
+		padding: var(--uxs-sp-3) var(--uxs-sp-4);
+		background: var(--uxs-surface-2);
+		border-radius: var(--uxs-radius-s);
+	}
+	strong { color: var(--uxs-text); }
+	p { margin: var(--uxs-sp-1) 0 0; color: var(--uxs-text-soft); font-size: var(--uxs-fs-s); }
+}
+
+.uxs-wiz-ca__num {
+	display: inline-flex;
+	flex-shrink: 0;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	background: var(--uxs-brand);
+	color: #fff;
+	font-weight: 700;
+}
+
+.uxs-wiz-ca__grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: var(--uxs-sp-3);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.uxs-wiz-ca__card {
+	margin: 0;
+	padding: var(--uxs-sp-4);
+	background: var(--uxs-surface);
+	border: 1px solid var(--uxs-border);
+	border-radius: var(--uxs-radius);
+	box-shadow: var(--uxs-shadow-1);
+	transition: transform var(--uxs-motion) var(--uxs-ease), box-shadow var(--uxs-motion) var(--uxs-ease);
+
+	h4 { margin: var(--uxs-sp-3) 0 var(--uxs-sp-1); }
+	p { margin: 0; color: var(--uxs-text-soft); font-size: var(--uxs-fs-s); line-height: 1.5; }
+
+	&:hover { transform: translateY(-2px); box-shadow: var(--uxs-shadow-2); }
+}
+
+.uxs-wiz-ca__cardicon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	border-radius: var(--uxs-radius-s);
+	background: var(--uxs-brand-soft);
+	color: var(--uxs-brand);
+}
+
+[data-theme="dark"] .uxs-wiz-ca__cardicon { color: #c7d2fe; }
+
+.uxs-wiz-ca__changes {
+	margin-top: var(--uxs-sp-5);
+	padding: var(--uxs-sp-4) var(--uxs-sp-5);
+	border: 1px solid color-mix(in srgb, var(--uxs-brand) 40%, var(--uxs-border));
+	border-radius: var(--uxs-radius);
+	background: color-mix(in srgb, var(--uxs-brand) 6%, var(--uxs-surface));
+
+	h3 { margin-bottom: var(--uxs-sp-3); }
+	ul { display: grid; gap: var(--uxs-sp-2); margin: 0; padding: 0; list-style: none; }
+	li { display: flex; align-items: flex-start; gap: var(--uxs-sp-3); margin: 0; color: var(--uxs-text); }
+	svg { flex-shrink: 0; margin-top: 2px; color: var(--uxs-brand); }
+}
+
+[data-theme="dark"] .uxs-wiz-ca__changes svg { color: #a5b4fc; }
+
+.uxs-wiz-ca__faqs { display: grid; gap: var(--uxs-sp-2); margin-bottom: var(--uxs-sp-4); }
+
+.uxs-wiz-ca__faq {
+	padding: var(--uxs-sp-3) var(--uxs-sp-4);
+	border: 1px solid var(--uxs-border);
+	border-radius: var(--uxs-radius-s);
+	background: var(--uxs-surface);
+
+	summary { cursor: pointer; font-weight: 600; color: var(--uxs-text); }
+	p { margin: var(--uxs-sp-2) 0 0; color: var(--uxs-text-soft); }
+}
+
+/* The toolbar sticks to the bottom edge of the screen while the step is taller than the window, and sits at the
+   end of the panel when scrolled down, so it never covers the last line. Its left edge is the content area, so the
+   WP menu (folded or not) is respected without any measuring. */
+.uxs-wiz-ca__bar {
+	position: sticky;
+	bottom: 0;
+	z-index: 20;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--uxs-sp-3);
+	margin: var(--uxs-sp-5) calc(-1 * var(--uxs-sp-5)) calc(-1 * var(--uxs-sp-5));
+	padding: var(--uxs-sp-3) var(--uxs-sp-5);
+	background: color-mix(in srgb, var(--uxs-surface) 86%, transparent);
+	-webkit-backdrop-filter: blur(10px);
+	backdrop-filter: blur(10px);
+	border-top: 1px solid var(--uxs-border);
+	border-radius: 0 0 var(--uxs-radius) var(--uxs-radius);
+	box-shadow: 0 -8px 24px rgb(16 24 40 / 10%);
+}
+
+[data-theme="dark"] .uxs-wiz-ca__bar { box-shadow: 0 -8px 24px rgb(0 0 0 / 45%); }
+
+.uxs-wiz-ca__barhint { color: var(--uxs-text-soft); font-size: var(--uxs-fs-s); }
+.uxs-wiz-ca__barbtns { display: flex; gap: var(--uxs-sp-3); margin-left: auto; }
+
+@media (max-width: 1100px) {
+	.uxs-wiz-ca__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+	.uxs-wiz-ca__how { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 782px) {
+	.uxs-wiz-ca__hero { flex-direction: column; align-items: flex-start; }
+	.uxs-wiz-ca__art { align-self: center; }
+	.uxs-wiz-ca__grid { grid-template-columns: 1fr; }
+	.uxs-wiz-ca__bar { margin: var(--uxs-sp-5) calc(-1 * var(--uxs-sp-4)) calc(-1 * var(--uxs-sp-4)); padding: var(--uxs-sp-3) var(--uxs-sp-4); }
+	.uxs-wiz-ca__barhint { display: none; }
+	.uxs-wiz-ca__barbtns { width: 100%; .button { flex: 1; justify-content: center; } }
+}
+
+/* -- Done step: the success badge scales in, then the check draws; summary and module boxes are apart; chips have icons -- */
+.uxs-wiz-finish__badge {
+	animation: uxs-wiz-badge 520ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+
+	&:not(.is-undo) { animation: uxs-wiz-badge 520ms cubic-bezier(0.34, 1.56, 0.64, 1) both, uxs-wiz-ring 900ms var(--uxs-ease) 380ms 1 both; }
+	.uxs-wiz-check path { animation-duration: 480ms; animation-delay: 320ms; }
+}
+
+@keyframes uxs-wiz-badge { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: none; } }
+@keyframes uxs-wiz-ring { from { box-shadow: 0 0 0 0 color-mix(in srgb, var(--uxs-success) 45%, transparent); } to { box-shadow: 0 0 0 18px transparent; } }
+
+.uxs-wiz-finish .uxs-wiz-next + .uxs-wiz-next { margin-top: var(--uxs-sp-5); }
+
+.uxs-wiz-modulelink {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--uxs-sp-2);
+}
+
+.uxs-wiz-modulelink__icon { display: inline-flex; color: var(--uxs-brand); }
+[data-theme="dark"] .uxs-wiz-modulelink__icon { color: #c7d2fe; }
+
 /* Reduced motion: no animation or transition anywhere in the wizard. */
 @media (prefers-reduced-motion: reduce) {
 	.uxs-wiz,

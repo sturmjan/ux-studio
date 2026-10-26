@@ -65,7 +65,8 @@ $assert( 'sanitize_ids of junk is empty', array() === StarterPack::sanitize_ids(
 
 $checked  = array_column( array_filter( $items, static fn( $i ) => $i['checked'] ), 'id' );
 $optional = array_column( array_filter( $items, static fn( $i ) => $i['optional'] ), 'id' );
-$assert( 'optional items: smtp, email log, redirects, media replace, last login, hide admin bar, CSP audit', array( 'smtp-email', 'email-log', 'redirects', 'media-replace', 'user-last-login', 'hide-admin-bar', 'csp-audit' ) === $optional, json_encode( $optional ) );
+$assert( 'optional items: smtp, redirects, media replace, hide admin bar', array( 'smtp-email', 'redirects', 'media-replace', 'hide-admin-bar' ) === $optional, json_encode( $optional ) );
+$assert( 'pre-checked since 0.7.1: e-mail log, last login, CSP inventory', 3 === count( array_intersect( array( 'email-log', 'user-last-login', 'csp-audit' ), $checked ) ), json_encode( $checked ) );
 $assert( 'optional items are not pre-checked, the others are', ! array_intersect( $optional, $checked ) && count( $checked ) === count( $ids ) - count( $optional ) );
 
 // The Disable auto-updates module would turn ALL updates off by default: never part of the pack.
@@ -127,7 +128,11 @@ foreach ( StarterPack::items( array( 'woocommerce' => true, 'cloudflare' => true
 	}
 }
 $assert( 'forced 2FA, IP firewall, country block, HTTPS forcing, HSTS, REST restriction, login hardening and user enumeration block are never set', array() === $found, implode( ',', $found ) );
-$assert( 'CSP is never enforced; the optional item only inventories (audit, 20 percent)', array( 'csp_mode' => 'audit', 'csp_sample_rate' => 20 ) === $by_id( array() )['csp-audit']['settings']['security-optimization'] && ! $by_id( array() )['csp-audit']['checked'] );
+$assert( 'CSP is never enforced; the optional item only inventories (audit, 20 percent)', array( 'csp_mode' => 'audit', 'csp_sample_rate' => 20 ) === $by_id( array() )['csp-audit']['settings']['security-optimization'] && $by_id( array() )['csp-audit']['checked'] );
+foreach ( array( 'audit', 'report-only', 'enforce' ) as $mode ) {
+	$csp = $by_id( array( 'csp_mode' => $mode ) )['csp-audit'];
+	$assert( "CSP item is left out when the mode is already $mode (never downgrades)", ! $csp['available'] && ! $csp['checked'] && 'csp_set' === $csp['unavailable'] );
+}
 
 /* ── Security preset ── */
 
@@ -195,6 +200,7 @@ $assert( 'module: the new Security settings exist with their hooks', false !== s
 $hw = $by_id( array( 'site_name' => 'Hotel Alfa', 'login_logo_id' => 77 ) )['hide-wordpress'];
 $ac = $hw['settings']['admin-customiser'];
 $assert( 'hide WordPress: admin bar logo hidden, footer = site name, help tab hidden, login branding on with the site logo', array( 'wp_logo' ) === $ac['hide_admin_bar_elements'] && 'Hotel Alfa' === $ac['admin_footer_text'] && true === $ac['hide_help_tab'] && true === $ac['login_customization_enabled'] && 77 === $ac['login_logo'] );
+$assert( 'hide WordPress: the WordPress version in the admin footer is hidden too', true === $ac['hide_footer_version'] );
 $assert( 'hide WordPress: the quick search that comes with the module is switched off', false === $ac['quick_search_enabled'] );
 $assert( 'hide WordPress: generator and head links in Security', true === $hw['settings']['security-optimization']['hide_wp_head_links'] && true === $hw['settings']['security-optimization']['hide_wp_version'] );
 $nl = $by_id( array() )['hide-wordpress'];
@@ -240,7 +246,8 @@ $assert( 'duplicate: posts as drafts, plus menus', 'draft' === $all['duplicate']
 $assert( 'image optimizer: WebP, quality 82, no .htaccess delivery, uploads untouched', array( 'quality' => 82, 'convert_to_webp' => true, 'htaccess_delivery' => false ) === $all['image-optimizer']['settings']['image-optimizer'] );
 $assert( 'activity log keeps 90 days', 90 === $all['activity-log']['settings']['activity-log']['retention_days'] );
 $assert( 'update e-mails item switches the Security setting on', array( 'suppress_update_emails' => true ) === $all['update-emails']['settings']['security-optimization'] );
-$assert( 'e-mail log keeps 14 days (optional)', 14 === $all['email-log']['settings']['email-log']['retention_days'] && $all['email-log']['optional'] );
+$assert( 'e-mail log keeps 14 days (pre-checked)', 14 === $all['email-log']['settings']['email-log']['retention_days'] && ! $all['email-log']['optional'] && $all['email-log']['checked'] );
+$assert( 'last login is pre-checked', ! $all['user-last-login']['optional'] && $all['user-last-login']['checked'] );
 $assert( 'SMTP has no preset and warns about credentials', array() === $all['smtp-email']['settings'] && in_array( 'smtp_credentials', array_column( $all['smtp-email']['warnings'], 'code' ), true ) );
 $assert( 'hide admin bar: only roles that exist (subscriber, customer)', array( 'subscriber' ) === $all['hide-admin-bar']['settings']['hide-admin-bar']['roles'] && array( 'subscriber', 'customer' ) === $by_id( array( 'roles' => array( 'administrator', 'customer', 'subscriber' ) ) )['hide-admin-bar']['settings']['hide-admin-bar']['roles'] );
 $assert( 'hide admin bar: no such role = unavailable', ! $by_id( array( 'roles' => array( 'administrator' ) ) )['hide-admin-bar']['available'] );

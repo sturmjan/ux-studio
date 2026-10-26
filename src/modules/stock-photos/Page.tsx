@@ -68,8 +68,8 @@ function SearchTab(): JSX.Element {
 	return (
 		<>
 			<div
-				className="uxs-form"
-				style={ { marginBottom: 'var(--uxs-sp-5)', flexDirection: 'row', alignItems: 'flex-end', gap: 'var(--uxs-sp-3)' } }
+				className="uxs-form uxs-form--inline"
+				style={ { marginBottom: 'var(--uxs-sp-5)' } }
 			>
 				<div className="uxs-form__row">
 					<label htmlFor="uxs-sp-provider">{ __( 'Provider', 'ux-studio' ) }</label>
@@ -81,7 +81,7 @@ function SearchTab(): JSX.Element {
 						) ) }
 					</select>
 				</div>
-				<div className="uxs-form__row" style={ { flex: 1 } }>
+				<div className="uxs-form__row">
 					<label htmlFor="uxs-sp-query">{ __( 'Search', 'ux-studio' ) }</label>
 					<input
 						id="uxs-sp-query"

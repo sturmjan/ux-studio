@@ -43,6 +43,9 @@ final class MiscBootstrap {
 
 		add_action( 'admin_head', array( self::class, 'handle_admin_features_visibility' ) );
 		add_filter( 'admin_footer_text', array( self::class, 'custom_admin_footer_text' ), 11 );
+		if ( $settings->get( 'hide_footer_version', false ) ) {
+			add_filter( 'update_footer', array( self::class, 'hide_footer_version' ), 11 );
+		}
 
 		// Admin page background, admin bar colors/logo/hidden elements and sidebar
 		// styling. Each rule is printed only for a configured value.
@@ -121,6 +124,22 @@ final class MiscBootstrap {
 			echo '<style>#screen-options-link-wrap { display: none !important; }</style>';
 			add_filter( 'screen_options_show_screen', '__return_false' );
 		}
+	}
+
+	/**
+	 * Drop the plain "Version x.y.z" text of the right admin footer. An update notice in that place (a link to
+	 * the update screen) is never touched: only the exact version text is replaced.
+	 *
+	 * @param mixed $content Right footer content.
+	 * @return mixed
+	 */
+	public static function hide_footer_version( $content ) {
+		if ( ! is_string( $content ) ) {
+			return $content;
+		}
+		/* translators: %s: WordPress version (core string "Version %s"). */
+		$plain = sprintf( __( 'Version %s' ), get_bloginfo( 'version', 'display' ) ); // phpcs:ignore WordPress.WP.I18n.MissingArgDomain -- core string.
+		return trim( wp_strip_all_tags( $content ) ) === $plain && false === strpos( $content, '<a ' ) ? '' : $content;
 	}
 
 	/**

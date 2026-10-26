@@ -26359,3 +26359,276 @@ msgstr "Server na tuto položku neodpověděl."
 #: build/index.dc3d7fb3086a456127fe.js:54
 msgid "Setup steps"
 msgstr "Kroky nastavení"
+
+#: includes/Core/Onboarding/StarterPack.php:625
+msgid "Removes the WordPress logo from the admin bar, replaces the admin footer text with the site name and hides the WordPress version there, hides the Help tab, shows the site logo on the login page (or no logo when the site has none) and removes the generator and other WordPress links from the page head."
+msgstr "Odstraní logo WordPressu z lišty administrace, nahradí text v patičce administrace názvem webu a skryje tam verzi WordPressu, skryje záložku Nápověda, na přihlašovací stránce ukáže logo webu (nebo žádné, když ho web nemá) a z hlavičky stránky odstraní generátor a další odkazy na WordPress."
+
+#: includes/Modules/AdminCustomiser/Module.php:286
+msgid "Hide the WordPress version in the admin footer"
+msgstr "Skrýt verzi WordPressu v patičce administrace"
+
+#: includes/Modules/Forms/Module.php:418
+msgid "The AI Assistant module is off. Switch it on to use AI form generation."
+msgstr "Modul AI asistent je vypnutý. Zapněte ho, abyste mohli generovat formuláře pomocí AI."
+
+#: includes/Modules/Forms/Module.php:419
+msgid "No API key is set for the AI Assistant. Add one in the AI Assistant settings to use AI form generation."
+msgstr "Pro AI asistenta není nastavený klíč API. Přidejte ho v nastavení AI asistenta, abyste mohli generovat formuláře pomocí AI."
+
+#. translators: %s: PHP version.
+#: includes/Modules/SecurityOptimization/PhpVersionNotice.php:120
+msgid "PHP %s: critical vulnerability"
+msgstr "PHP %s: kritická zranitelnost"
+
+#: includes/Modules/SecurityOptimization/PhpVersionNotice.php:121
+msgid "PHP: end of support"
+msgstr "PHP: konec podpory"
+
+#: includes/Modules/SecurityOptimization/PhpVersionNotice.php:302
+msgid "Hide this warning"
+msgstr "Skrýt toto upozornění"
+
+#: build/703.c248dd47c2cc607925a4.js:2
+msgid "AI is not set up yet"
+msgstr "AI zatím není nastavená"
+
+#: build/703.c248dd47c2cc607925a4.js:2
+msgid "The AI Assistant module is off. Switch it on and add an API key to generate form fields."
+msgstr "Modul AI asistent je vypnutý. Zapněte ho a přidejte klíč API, abyste mohli generovat pole formuláře."
+
+#: build/703.c248dd47c2cc607925a4.js:2
+msgid "No API key is set for the AI Assistant. Add one in its settings to generate form fields."
+msgstr "Pro AI asistenta není nastavený klíč API. Přidejte ho v jeho nastavení, abyste mohli generovat pole formuláře."
+
+#: build/703.c248dd47c2cc607925a4.js:2
+msgid "Open AI Assistant settings"
+msgstr "Otevřít nastavení AI asistenta"
+
+#: build/703.c248dd47c2cc607925a4.js:2
+msgid "Describe the form you need…"
+msgstr "Popište formulář, který potřebujete…"
+
+#: build/703.c248dd47c2cc607925a4.js:2
+msgid "Multi-step"
+msgstr "Vícekrokový"
+
+#: build/703.c248dd47c2cc607925a4.js:2
+msgid "Generating…"
+msgstr "Generuji…"
+
+#: build/703.c248dd47c2cc607925a4.js:2
+msgid "Generate (Ctrl+Enter)"
+msgstr "Vygenerovat (Ctrl+Enter)"
+
+#: build/703.c248dd47c2cc607925a4.js:2
+msgid "Examples"
+msgstr "Příklady"
+
+#: build/703.c248dd47c2cc607925a4.js:2
+msgid "Contact form"
+msgstr "Kontaktní formulář"
+
+#: build/703.c248dd47c2cc607925a4.js:2
+msgid "A contact form with name, e-mail, phone and a message, plus a GDPR consent checkbox."
+msgstr "Kontaktní formulář se jménem, e-mailem, telefonem a zprávou a se zaškrtávacím políčkem se souhlasem se zpracováním osobních údajů."
+
+#: build/703.c248dd47c2cc607925a4.js:2
+msgid "Event registration"
+msgstr "Registrace na akci"
+
+#: build/703.c248dd47c2cc607925a4.js:2
+msgid "Registration for an event with name, e-mail, number of attendees, a choice of ticket type and a note."
+msgstr "Registrace na akci se jménem, e-mailem, počtem účastníků, výběrem typu vstupenky a poznámkou."
+
+#: build/703.c248dd47c2cc607925a4.js:2
+msgid "Job application"
+msgstr "Žádost o zaměstnání"
+
+#: build/703.c248dd47c2cc607925a4.js:2
+msgid "A job application with name, e-mail, phone, the position applied for, a short cover letter, a CV upload and a consent to data processing."
+msgstr "Žádost o zaměstnání se jménem, e-mailem, telefonem, pozicí, o kterou se uchazeč uchází, krátkým motivačním dopisem, nahráním životopisu a souhlasem se zpracováním údajů."
+
+#: build/703.c248dd47c2cc607925a4.js:2
+msgid "Newsletter signup"
+msgstr "Přihlášení k newsletteru"
+
+#: build/703.c248dd47c2cc607925a4.js:2
+msgid "A newsletter signup with first name, e-mail and a consent checkbox."
+msgstr "Přihlášení k newsletteru s křestním jménem, e-mailem a zaškrtávacím políčkem se souhlasem."
+
+#: build/703.c248dd47c2cc607925a4.js:2
+msgid "Service enquiry"
+msgstr "Poptávka služby"
+
+#: build/703.c248dd47c2cc607925a4.js:2
+msgid "An enquiry for a service with name, e-mail, phone, type of service, a short description and the best time to call."
+msgstr "Poptávka služby se jménem, e-mailem, telefonem, druhem služby, krátkým popisem a nejvhodnější dobou, kdy zavolat."
+
+#: build/703.c248dd47c2cc607925a4.js:2
+msgid "Booking"
+msgstr "Rezervace termínu"
+
+#: build/703.c248dd47c2cc607925a4.js:2
+msgid "A booking form with name, e-mail, phone, preferred date and time, number of people and a note."
+msgstr "Formulář pro rezervaci se jménem, e-mailem, telefonem, požadovaným datem a časem, počtem osob a poznámkou."
+
+#: build/703.c248dd47c2cc607925a4.js:2
+msgid "Field settings"
+msgstr "Nastavení pole"
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:33
+msgid "One click here. The site proves who it is with a secret key."
+msgstr "Tady stačí jedno kliknutí. Web se prokáže tajným klíčem."
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:33
+msgid "Sign in or create an account"
+msgstr "Přihlaste se nebo si založte účet"
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:33
+msgid "You land in the central application, log in or sign up and confirm the connection."
+msgstr "Přejdete do centrální aplikace, přihlásíte se nebo zaregistrujete a připojení potvrdíte."
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:33
+msgid "Done, the site is watched"
+msgstr "Hotovo, web je pod dohledem"
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:33
+msgid "You come back here and the central application starts keeping an eye on the site."
+msgstr "Vrátíte se sem a centrální aplikace začne web hlídat."
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:33
+msgid "Optional step"
+msgstr "Nepovinný krok"
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:33
+msgid "One place to watch over all your websites. Connect this one and the central application keeps an eye on it for you: whether it runs, whether it is safe and fast, and whether anything is about to expire."
+msgstr "Jedno místo, odkud dohlédnete na všechny své weby. Připojte tento a centrální aplikace ho za vás hlídá: jestli běží, jestli je bezpečný a rychlý a jestli něco brzy nevyprší."
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:34
+msgid "How it works"
+msgstr "Jak to funguje"
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:34
+msgid "What you get"
+msgstr "Co z toho máte"
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:34
+msgid "Availability"
+msgstr "Dostupnost"
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:34
+msgid "Checks the site regularly, alerts you when it goes down and when it is back, and keeps the history of uptime and response time. It also tracks when the SSL certificate and the domain expire."
+msgstr "Web pravidelně kontroluje, dá vám vědět, když spadne i když se zase rozběhne, a uchovává historii dostupnosti a doby odezvy. Sleduje také, kdy vyprší certifikát SSL a doména."
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:34
+msgid "Known vulnerabilities"
+msgstr "Známé zranitelnosti"
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:34
+msgid "Compares the plugins, themes and WordPress version of the site with a vulnerability database and warns you when something installed is affected. Google Safe Browsing tells you if the site gets flagged as dangerous."
+msgstr "Porovnává pluginy, šablony a verzi WordPressu na webu s databází zranitelností a upozorní vás, když je něco nainstalovaného zasažené. Google Safe Browsing vám řekne, jestli je web označený jako nebezpečný."
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:34
+msgid "Outdated PHP"
+msgstr "Zastaralé PHP"
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:34
+msgid "Shows which PHP version the site runs on and warns you when it no longer gets security updates or has a critical vulnerability."
+msgstr "Ukáže, na jaké verzi PHP web běží, a upozorní vás, když už nedostává bezpečnostní aktualizace nebo má kritickou zranitelnost."
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:34
+msgid "Speed and SEO"
+msgstr "Rychlost a SEO"
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:34
+msgid "Measures the speed with Google PageSpeed regularly and keeps the history. A public SEO test and audit check the basics of search engine optimisation."
+msgstr "Pravidelně měří rychlost přes Google PageSpeed a uchovává historii. Veřejný test SEO a audit prověří základy optimalizace pro vyhledávače."
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:34
+msgid "Looks and accessibility"
+msgstr "Vzhled a přístupnost"
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:34
+msgid "Takes screenshots of key pages every day and compares them, so a broken layout does not go unnoticed. Once a month it scans the site for accessibility problems."
+msgstr "Každý den vyfotí klíčové stránky a porovná je, aby si nikdo nevšiml rozbitého vzhledu až od zákazníků. Jednou měsíčně web prověří z hlediska přístupnosti."
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:34
+msgid "Alerts and reports"
+msgstr "Upozornění a reporty"
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:34
+msgid "Alerts arrive by e-mail, Discord, Slack or as a notification on your phone or computer, with a daily digest if you prefer fewer messages. Regular e-mail reports sum up how the site is doing."
+msgstr "Upozornění chodí e-mailem, přes Discord, Slack nebo jako oznámení do telefonu či počítače, případně v denním souhrnu, když chcete méně zpráv. Pravidelné e-mailové reporty shrnou, jak se webu daří."
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:34
+msgid "Shared protection"
+msgstr "Společná ochrana"
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:34
+msgid "Ban an IP address, a range or a whole country once and it is blocked on every connected site. The central application also gives the site its CAPTCHA keys, so you set nothing up by hand."
+msgstr "Zakažte IP adresu, rozsah nebo celou zemi jednou a platí to na všech připojených webech. Centrální aplikace webu také dá klíče pro CAPTCHA, takže nic nenastavujete ručně."
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:34
+msgid "Support tickets"
+msgstr "Tickety podpory"
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:34
+msgid "Service requests from the site land in one ticket queue, with replies and response deadlines."
+msgstr "Požadavky na servis z webu přistanou v jedné frontě ticketů, s odpověďmi a termíny reakce."
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:34
+msgid "Content, social networks and reviews"
+msgstr "Obsah, sociální sítě a recenze"
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:34
+msgid "Edit posts, pages and media of the site from one place, plan posts for Facebook, Instagram and LinkedIn and get help from the AI assistant. Google reviews of the business are collected in one list."
+msgstr "Upravujte příspěvky, stránky a média webu z jednoho místa, plánujte příspěvky na Facebook, Instagram a LinkedIn a nechte si pomoct od AI asistenta. Recenze firmy na Googlu jsou v jednom seznamu."
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:34
+msgid "What changes on your site"
+msgstr "Co se na webu změní"
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:34
+msgid "The central application can then read the state of the site and work with its posts, pages and media. It cannot sign in as an administrator or install plugins."
+msgstr "Centrální aplikace pak může číst stav webu a pracovat s jeho příspěvky, stránkami a médii. Nemůže se přihlásit jako správce ani instalovat pluginy."
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:34
+msgid "Questions"
+msgstr "Otázky"
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:34
+msgid "What can the central application do on my site?"
+msgstr "Co smí centrální aplikace na mém webu?"
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:34
+msgid "It reads the state of the site and works with posts, pages and media through requests signed with the secret key. Signing in as an administrator and installing packages from the central application are switched off."
+msgstr "Čte stav webu a pracuje s příspěvky, stránkami a médii pomocí požadavků podepsaných tajným klíčem. Přihlášení jako správce a instalace balíčků z centrální aplikace zůstávají vypnuté."
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:34
+msgid "How do I disconnect the site?"
+msgstr "Jak web odpojím?"
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:34
+msgid "Switch off the Content Sync module and the central application can no longer reach the site. You can also remove the site from the list of websites in the central application."
+msgstr "Vypněte modul Synchronizace obsahu a centrální aplikace se k webu už nedostane. Web můžete také odebrat ze seznamu webů v centrální aplikaci."
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:34
+msgid "Can I do this later?"
+msgstr "Můžu to udělat později?"
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:34
+msgid "Yes. Skip this step now and connect later in the Content Sync module."
+msgstr "Ano. Tento krok teď přeskočte a připojte web později v modulu Synchronizace obsahu."
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:35
+msgid "Connect or skip"
+msgstr "Připojit nebo přeskočit"
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:35
+msgid "You can also connect later."
+msgstr "Připojit můžete i později."
+
+#: build/index.0bc6f721cd95b0a9b1d0.js:41
+msgid "A Content Security Policy mode is already set, it stays as it is."
+msgstr "Režim Content Security Policy už je nastavený, zůstane tak, jak je."

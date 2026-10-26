@@ -33,14 +33,15 @@ final class ElementorWidget extends \Elementor\Widget_Base {
 	/**
 	 * @param Module $module Forms module instance (for render + the form picker).
 	 */
-	public static function register( Module $module ): void {
+	/**
+	 * Called from Module's `elementor/widgets/register` callback, so this class is loaded only when Elementor is.
+	 *
+	 * @param Module $module          Forms module.
+	 * @param object $widgets_manager Elementor widgets manager.
+	 */
+	public static function register_with( Module $module, $widgets_manager ): void {
 		self::$module = $module;
-		add_action(
-			'elementor/widgets/register',
-			static function ( $widgets_manager ): void {
-				$widgets_manager->register( new self() );
-			}
-		);
+		$widgets_manager->register( new self() );
 	}
 
 	public function get_name(): string {

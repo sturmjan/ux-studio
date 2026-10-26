@@ -64,6 +64,8 @@ final class RestController extends Controller {
 		// but it does spend AI tokens - route(), not route_readonly() (see the
 		// docblock on route_readonly() for why that distinction matters).
 		$this->route( '/forms/(?P<id>\d+)/ai-generate', 'POST', array( $this, 'ai_generate' ), $this->id_arg(), $cap );
+		// Can the generator run here (module on, API key set)? Reads settings only, never calls the AI.
+		$this->route( '/forms/ai-status', 'GET', array( $this, 'ai_status' ), array(), $cap );
 
 		$this->route( '/forms/submissions', 'GET', array( $this, 'list_submissions' ), array(), $cap );
 		$this->route( '/forms/submissions/export', 'GET', array( $this, 'export_submissions' ), array(), $cap );
@@ -185,14 +187,18 @@ final class RestController extends Controller {
 	// AI-assisted field generation (PLAN.md 20.11/F3)
 	// =====================================================================
 
+	public function ai_status(): WP_REST_Response {
+		return $this->ok( Module::ai_status() );
+	}
+
 	public function ai_generate( WP_REST_Request $request ) {
 		$limit_error = UsageLimiter::check();
 		if ( null !== $limit_error ) {
 			return new WP_Error( 'uxstudio_usage_limited', $limit_error, array( 'status' => 429 ) );
 		}
 
-		$description = sanitize_textarea_field( (string) $request->get_param( 'description' ) );
-		$fields      = $this->module->generate_ai_fields( (int) $request->get_param( 'id' ), $description );
+		$description = mb_substr( sanitize_textarea_field( (string) $request->get_param( 'description' ) ), 0, \UxStudio\Modules\AiAssistant\ContentGenerator::FORM_PROMPT_MAX );
+		$fields      = $this->module->generate_ai_fields( (int) $request->get_param( 'id' ), $description, (bool) $request->get_param( 'multistep' ) );
 		if ( is_wp_error( $fields ) ) {
 			return $fields;
 		}

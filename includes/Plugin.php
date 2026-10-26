@@ -15,6 +15,7 @@ use UxStudio\Core\Megamenu;
 use UxStudio\Core\Migration\ActivationGuard;
 use UxStudio\Core\Migration\Bootstrap as MigrationBootstrap;
 use UxStudio\Core\Modules;
+use UxStudio\Core\PhpVersion\Bootstrap as PhpVersionBootstrap;
 use UxStudio\Core\Rest;
 use UxStudio\Core\Upgrade;
 
@@ -57,6 +58,7 @@ final class Plugin {
 		ActivationGuard::register();
 		MigrationBootstrap::register();
 		McpBootstrap::register();
+		PhpVersionBootstrap::register();
 
 		if ( is_admin() ) {
 			( new Admin( $this->modules ) )->register();

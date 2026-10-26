@@ -280,6 +280,13 @@ final class Module extends BaseModule {
 				'default' => '',
 			),
 			array(
+				'key'     => 'hide_footer_version',
+				'section' => __( 'Admin screens', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Hide the WordPress version in the admin footer', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
 				'key'     => 'hide_screen_options',
 				'section' => __( 'Admin screens', 'ux-studio' ),
 				'type'    => 'toggle',

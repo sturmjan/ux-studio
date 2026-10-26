@@ -14,8 +14,9 @@ defined( 'ABSPATH' ) || exit;
 /**
  * The WordPress side of PhpVersionCheck.
  *
- * Runs only while the Security module is on (cron, e-mail), but result() works without it: the onboarding wizard
- * and the REST route `uxstudio/v1/security/php-version` ask for it on a site that has not enabled Security yet.
+ * Part of the plugin core since 0.7.1 (Core\PhpVersion\Bootstrap): the cron, the e-mail, the notice and the admin bar
+ * node run with no module enabled, so a freshly installed site is warned too. The cron hook name is unchanged since
+ * 0.7.0, so a site that updates with Security on keeps its single schedule.
  *
  * php.net API (checked 2026-10-25, see PLAN.md 29.5):
  *  - GET https://www.php.net/releases/states  -> {"8":{"8.4":{"state":"stable","security_support_end":"2028-12-31T00:00:00+00:00",...}}}
@@ -52,17 +53,26 @@ final class PhpVersionMaintenance {
 	}
 
 	/**
-	 * Wire the cron job. Called from the Security module boot, i.e. only while the module is enabled.
+	 * Wire the cron job (plugin core, every request).
 	 */
 	public static function register(): void {
 		add_action( self::CRON_HOOK, array( self::class, 'run' ) );
+		self::schedule( 5 * MINUTE_IN_SECONDS );
+	}
+
+	/**
+	 * Make sure the daily job exists (never a second one).
+	 *
+	 * @param int $delay Seconds until the first run.
+	 */
+	public static function schedule( int $delay ): void {
 		if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
-			wp_schedule_event( time() + 5 * MINUTE_IN_SECONDS, 'daily', self::CRON_HOOK );
+			wp_schedule_event( time() + $delay, 'daily', self::CRON_HOOK );
 		}
 	}
 
 	/**
-	 * Module disabled: stop the cron. Stored data stays.
+	 * Plugin deactivated: stop the cron. Stored data stays.
 	 */
 	public static function unschedule(): void {
 		wp_clear_scheduled_hook( self::CRON_HOOK );

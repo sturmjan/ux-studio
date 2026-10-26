@@ -18,14 +18,14 @@ import {
 } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Check, GripVertical, LoaderCircle, Monitor, Plus, Save, Smartphone, Sparkles, Tablet, Trash2, X } from 'lucide-react';
+import { Check, GripVertical, Monitor, Plus, Save, Smartphone, Sparkles, Tablet, Trash2 } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import AnimatedCheckbox from '../../components/AnimatedCheckbox';
 import FileUploadField from '../../components/FileUploadField';
 import MultiSelectField, { type MultiSelectOption } from '../../components/MultiSelectField';
+import AiGenerateModal from './AiGenerateModal';
 import { fieldCatalog, fieldCatalogEntry, CATEGORY_LABELS, type FieldCatalogEntry } from './fieldCatalog';
 import { ALLOWED_WIDTHS, CHOICE_TYPES, LAYOUT_TYPES, emptyField, type FieldType, type FormDefinition, type FormField } from './types';
-import { TabsNav } from '../../app/SubNav';
 
 // Keep in sync with FileStorage::ALLOWED_TYPES (includes/Modules/Forms/FileStorage.php) -
 // the server is the source of truth for what actually gets accepted on upload.
@@ -212,29 +212,29 @@ function Inspector( {
 				</button>
 			</div>
 
-			<TabsNav>
-				<button className={ tab === 'general' ? 'is-active' : '' } onClick={ () => setTab( 'general' ) }>
+			<div className="uxs-fb-tabs" role="tablist" aria-label={ __( 'Field settings', 'ux-studio' ) }>
+				<button type="button" role="tab" aria-selected={ tab === 'general' } className={ tab === 'general' ? 'is-active' : '' } onClick={ () => setTab( 'general' ) }>
 					{ __( 'General', 'ux-studio' ) }
 				</button>
 				{ ! isLayout && (
-					<button className={ tab === 'validation' ? 'is-active' : '' } onClick={ () => setTab( 'validation' ) }>
+					<button type="button" role="tab" aria-selected={ tab === 'validation' } className={ tab === 'validation' ? 'is-active' : '' } onClick={ () => setTab( 'validation' ) }>
 						{ __( 'Validation', 'ux-studio' ) }
 					</button>
 				) }
 				{ ! isLayout && (
-					<button className={ tab === 'conditions' ? 'is-active' : '' } onClick={ () => setTab( 'conditions' ) }>
+					<button type="button" role="tab" aria-selected={ tab === 'conditions' } className={ tab === 'conditions' ? 'is-active' : '' } onClick={ () => setTab( 'conditions' ) }>
 						{ __( 'Conditions', 'ux-studio' ) }
 					</button>
 				) }
 				{ ! isLayout && (
-					<button className={ tab === 'width' ? 'is-active' : '' } onClick={ () => setTab( 'width' ) }>
+					<button type="button" role="tab" aria-selected={ tab === 'width' } className={ tab === 'width' ? 'is-active' : '' } onClick={ () => setTab( 'width' ) }>
 						{ __( 'Width', 'ux-studio' ) }
 					</button>
 				) }
-			</TabsNav>
+			</div>
 
 			{ tab === 'general' && (
-				<div className="uxs-form">
+				<div className="uxs-form uxs-form--stacked">
 					{ field.type === 'step' ? (
 						<div className="uxs-form__row">
 							<label>{ __( 'Step title', 'ux-studio' ) }</label>
@@ -334,7 +334,7 @@ function Inspector( {
 			) }
 
 			{ tab === 'validation' && ! isLayout && (
-				<div className="uxs-form">
+				<div className="uxs-form uxs-form--stacked">
 					{ field.type === 'number' && (
 						<>
 							<div className="uxs-form__row">
@@ -388,7 +388,7 @@ function Inspector( {
 			) }
 
 			{ tab === 'conditions' && ! isLayout && (
-				<div className="uxs-form">
+				<div className="uxs-form uxs-form--stacked">
 					<p className="uxs-form__help">
 						{ __( 'Show this field only when the rule(s) below match. Full AND/OR combinations are a later phase - one rule is fully supported today.', 'ux-studio' ) }
 					</p>
@@ -468,7 +468,7 @@ function Inspector( {
 			) }
 
 			{ tab === 'width' && ! isLayout && (
-				<div className="uxs-form">
+				<div className="uxs-form uxs-form--stacked">
 					{ BREAKPOINTS.map( ( bp ) => (
 						<div className="uxs-form__row" key={ bp.key }>
 							<label>{ bp.label }</label>
@@ -489,102 +489,6 @@ function Inspector( {
 					) ) }
 				</div>
 			) }
-		</div>
-	);
-}
-
-/**
- * "Generate with AI" (PLAN.md 20.11/F3): a plain-language description goes
- * through the shared AI core (AiAssistant\ContentGenerator, no bespoke AI
- * client) and comes back as a batch of already-sanitized fields, which the
- * admin still reviews/edits/reorders in the canvas before Save - the AI only
- * drafts, it never writes anything by itself.
- */
-function AiGenerateModal( {
-	formId,
-	onClose,
-	onGenerated,
-}: {
-	formId: number;
-	onClose: () => void;
-	onGenerated: ( fields: FormField[] ) => void;
-} ): JSX.Element {
-	const [ description, setDescription ] = useState( '' );
-
-	const generate = useMutation( {
-		mutationFn: () =>
-			api< { fields: FormField[] } >( `forms/${ formId }/ai-generate`, {
-				method: 'POST',
-				body: JSON.stringify( { description } ),
-			} ),
-		onSuccess: ( result ) => {
-			onGenerated( result.fields );
-			onClose();
-		},
-	} );
-
-	return (
-		<div
-			role="dialog"
-			aria-modal="true"
-			style={ {
-				position: 'fixed',
-				inset: 0,
-				background: 'rgba(0,0,0,0.5)',
-				display: 'flex',
-				alignItems: 'flex-start',
-				justifyContent: 'center',
-				padding: 'var(--uxs-sp-6, 24px)',
-				zIndex: 100000,
-				overflow: 'auto',
-			} }
-			onClick={ onClose }
-		>
-			<div
-				className="uxs-card"
-				style={ { background: 'var(--uxs-surface)', maxWidth: 560, width: '100%', padding: 'var(--uxs-sp-5, 20px)' } }
-				onClick={ ( e ) => e.stopPropagation() }
-			>
-				<div style={ { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--uxs-sp-4)' } }>
-					<h2 style={ { margin: 0 } }>
-						<Sparkles size={ 16 } style={ { verticalAlign: '-3px', marginRight: 6 } } /> { __( 'Generate fields with AI', 'ux-studio' ) }
-					</h2>
-					<button type="button" className="button-link" aria-label={ __( 'Close', 'ux-studio' ) } onClick={ onClose }>
-						<X size={ 18 } />
-					</button>
-				</div>
-
-				<div className="uxs-form">
-					<div className="uxs-form__row">
-						<label>{ __( 'Describe the form you want', 'ux-studio' ) }</label>
-						<textarea
-							rows={ 4 }
-							value={ description }
-							placeholder={ __( 'e.g. A contact form with name, email, phone and a message, plus a GDPR consent checkbox.', 'ux-studio' ) }
-							onChange={ ( e ) => setDescription( e.target.value ) }
-						/>
-					</div>
-
-					{ generate.isError && (
-						<p className="uxs-form__help" style={ { color: 'var(--uxs-danger, #dc2626)' } }>
-							{ ( generate.error as Error ).message }
-						</p>
-					) }
-
-					<p className="uxs-form__help">
-						{ __( 'Generated fields are appended to the canvas below for you to review, edit or remove - nothing is saved until you click "Save changes".', 'ux-studio' ) }
-					</p>
-
-					<button
-						type="button"
-						className="button button-primary"
-						disabled={ generate.isPending || description.trim().length < 10 }
-						onClick={ () => generate.mutate() }
-					>
-						{ generate.isPending ? <LoaderCircle size={ 14 } /> : <Sparkles size={ 14 } /> } { __( 'Generate', 'ux-studio' ) }
-					</button>
-				</div>
-			</div>
 		</div>
 	);
 }

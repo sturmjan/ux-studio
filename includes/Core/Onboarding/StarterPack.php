@@ -27,7 +27,8 @@ defined( 'ABSPATH' ) || exit;
  *   roles                string[] role slugs that exist,
  *   bot_blacklist        string  current Bot Throttle blacklist (one User-Agent per line),
  *   bot_whitelist        string  current Bot Throttle whitelist,
- *   blocked_settings     array   Security setting key => names of the foreign plugins that already do that job.
+ *   blocked_settings     array   Security setting key => names of the foreign plugins that already do that job,
+ *   csp_mode             string  current Content Security Policy mode of the Security module (off | audit | report-only | enforce).
  *
  * An item is one tick box in the wizard:
  *
@@ -109,6 +110,7 @@ final class StarterPack {
 			'bot_blacklist'       => "AhrefsBot\nSemrushBot\nMJ12bot\nDotBot\nPetalBot\nBLEXBot\nMegaIndex\nSerpstatBot\nrogerbot\nDataForSeoBot",
 			'bot_whitelist'       => '',
 			'blocked_settings'    => array(),
+			'csp_mode'            => 'off',
 		);
 	}
 
@@ -224,7 +226,7 @@ final class StarterPack {
 				array(),
 				array( array( 'smtp_credentials', __( 'Fill in the SMTP server and login in the module settings, otherwise e-mail keeps going through the default WordPress way.', 'ux-studio' ) ) )
 			),
-			self::optional(
+			self::simple(
 				'email-log',
 				__( 'E-mail log (14 days)', 'ux-studio' ),
 				__( 'Keeps a record of the e-mails the site sends for 14 days.', 'ux-studio' ),
@@ -244,25 +246,14 @@ final class StarterPack {
 				__( 'Replace a file in the media library without changing its address.', 'ux-studio' ),
 				array( 'media-replace' )
 			),
-			self::optional(
+			self::simple(
 				'user-last-login',
 				__( 'Last login of users', 'ux-studio' ),
 				__( 'Shows when each user last logged in.', 'ux-studio' ),
 				array( 'user-last-login' )
 			),
 			self::hide_admin_bar( $env ),
-			self::optional(
-				'csp-audit',
-				__( 'Content Security Policy inventory', 'ux-studio' ),
-				__( 'Starts only listing what the website loads (nothing is blocked), the first step to a Content Security Policy.', 'ux-studio' ),
-				array( 'security-optimization' ),
-				array(
-					'security-optimization' => array(
-						'csp_mode'        => 'audit',
-						'csp_sample_rate' => 20,
-					),
-				)
-			),
+			self::csp_audit( $env ),
 			self::login_url( $env ),
 		);
 		return $items;
@@ -611,6 +602,7 @@ final class StarterPack {
 		$admin = array(
 			'hide_admin_bar_elements'     => array( 'wp_logo' ),
 			'hide_help_tab'               => true,
+			'hide_footer_version'         => true,
 			// Enabling the module also turns the admin quick search on by default; nobody asked for that here.
 			'quick_search_enabled'        => false,
 			'login_customization_enabled' => true,
@@ -630,7 +622,7 @@ final class StarterPack {
 		return self::simple(
 			'hide-wordpress',
 			__( 'Hide WordPress', 'ux-studio' ),
-			__( 'Removes the WordPress logo from the admin bar, replaces the admin footer text with the site name, hides the Help tab, shows the site logo on the login page (or no logo when the site has none) and removes the generator and other WordPress links from the page head.', 'ux-studio' ),
+			__( 'Removes the WordPress logo from the admin bar, replaces the admin footer text with the site name and hides the WordPress version there, hides the Help tab, shows the site logo on the login page (or no logo when the site has none) and removes the generator and other WordPress links from the page head.', 'ux-studio' ),
 			array( 'admin-customiser', 'security-optimization' ),
 			array(
 				'admin-customiser'      => $admin,
@@ -685,6 +677,29 @@ final class StarterPack {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Content Security Policy inventory: audit only (nothing is blocked, never enforce). A site that already runs
+	 * any CSP mode keeps it: the item is left out instead of downgrading report-only or enforce to audit.
+	 *
+	 * @param array<string, mixed> $env Environment.
+	 * @return array<string, mixed>
+	 */
+	private static function csp_audit( array $env ): array {
+		$item = self::simple(
+			'csp-audit',
+			__( 'Content Security Policy inventory', 'ux-studio' ),
+			__( 'Starts only listing what the website loads (nothing is blocked), the first step to a Content Security Policy.', 'ux-studio' ),
+			array( 'security-optimization' ),
+			array(
+				'security-optimization' => array(
+					'csp_mode'        => 'audit',
+					'csp_sample_rate' => 20,
+				),
+			)
+		);
+		return 'off' !== (string) $env['csp_mode'] ? self::unavailable( $item, 'csp_set' ) : $item;
 	}
 
 	/**
