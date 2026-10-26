@@ -37,8 +37,15 @@ final class Module extends BaseModule {
 		GutenbergBlock::register( $this );
 		// Only ever fires when Elementor itself calls it - see ElementorWidget's
 		// class docblock for why that makes the `extends \Elementor\Widget_Base`
-		// safe without Elementor being present (PLAN.md 20.7/F3).
-		ElementorWidget::register( $this );
+		// safe without Elementor being present (PLAN.md 20.7/F3). The class must
+		// not be touched before that hook: loading it without Elementor's base
+		// class is a fatal error that disabled the whole module.
+		add_action(
+			'elementor/widgets/register',
+			function ( $widgets_manager ): void {
+				ElementorWidget::register_with( $this, $widgets_manager );
+			}
+		);
 
 		// Optional per-form GDPR/retention auto-cleanup (PLAN.md 20.2/20.6/F4) -
 		// archive stays permanent by default, this sweep only ever touches a
