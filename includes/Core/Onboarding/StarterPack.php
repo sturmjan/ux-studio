@@ -602,6 +602,7 @@ final class StarterPack {
 		$admin = array(
 			'hide_admin_bar_elements'     => array( 'wp_logo' ),
 			'hide_help_tab'               => true,
+			'hide_footer_version'         => true,
 			// Enabling the module also turns the admin quick search on by default; nobody asked for that here.
 			'quick_search_enabled'        => false,
 			'login_customization_enabled' => true,
@@ -621,7 +622,7 @@ final class StarterPack {
 		return self::simple(
 			'hide-wordpress',
 			__( 'Hide WordPress', 'ux-studio' ),
-			__( 'Removes the WordPress logo from the admin bar, replaces the admin footer text with the site name, hides the Help tab, shows the site logo on the login page (or no logo when the site has none) and removes the generator and other WordPress links from the page head.', 'ux-studio' ),
+			__( 'Removes the WordPress logo from the admin bar, replaces the admin footer text with the site name and hides the WordPress version there, hides the Help tab, shows the site logo on the login page (or no logo when the site has none) and removes the generator and other WordPress links from the page head.', 'ux-studio' ),
 			array( 'admin-customiser', 'security-optimization' ),
 			array(
 				'admin-customiser'      => $admin,
@@ -679,7 +680,6 @@ final class StarterPack {
 	}
 
 	/**
-	/**
 	 * Content Security Policy inventory: audit only (nothing is blocked, never enforce). A site that already runs
 	 * any CSP mode keeps it: the item is left out instead of downgrading report-only or enforce to audit.
 	 *
@@ -702,6 +702,7 @@ final class StarterPack {
 		return 'off' !== (string) $env['csp_mode'] ? self::unavailable( $item, 'csp_set' ) : $item;
 	}
 
+	/**
 	 * Hide the admin bar for visitors who log in as customers.
 	 *
 	 * @param array<string, mixed> $env Environment.

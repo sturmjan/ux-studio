@@ -200,6 +200,7 @@ $assert( 'module: the new Security settings exist with their hooks', false !== s
 $hw = $by_id( array( 'site_name' => 'Hotel Alfa', 'login_logo_id' => 77 ) )['hide-wordpress'];
 $ac = $hw['settings']['admin-customiser'];
 $assert( 'hide WordPress: admin bar logo hidden, footer = site name, help tab hidden, login branding on with the site logo', array( 'wp_logo' ) === $ac['hide_admin_bar_elements'] && 'Hotel Alfa' === $ac['admin_footer_text'] && true === $ac['hide_help_tab'] && true === $ac['login_customization_enabled'] && 77 === $ac['login_logo'] );
+$assert( 'hide WordPress: the WordPress version in the admin footer is hidden too', true === $ac['hide_footer_version'] );
 $assert( 'hide WordPress: the quick search that comes with the module is switched off', false === $ac['quick_search_enabled'] );
 $assert( 'hide WordPress: generator and head links in Security', true === $hw['settings']['security-optimization']['hide_wp_head_links'] && true === $hw['settings']['security-optimization']['hide_wp_version'] );
 $nl = $by_id( array() )['hide-wordpress'];
