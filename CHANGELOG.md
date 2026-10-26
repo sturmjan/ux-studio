@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.6
+
+- Fixed - Quick search: the field in the admin bar is dark again, like the rest of WordPress' bar (it takes the bar's
+  text color and a translucent tint of it); only the results dropdown stays light.
+- Fixed - Hidden admin notices: notices of plugins that use the Freemius SDK (their own "Dismiss / Skrýt" block) now get
+  the same cross as all other cards and can be closed from the panel; the plugin's own dismissal still runs. Other
+  plugins' dismiss links (buttons or links with "dismiss", "close" or "hide" classes) are recognised the same way.
+
 ## 0.7.5
 
 - Changed - Admin Customiser, "Quick search": the dropdown is redesigned, light in every admin color scheme. Compact

@@ -344,6 +344,8 @@ body.uxstudio-notices-active #wp-admin-bar-uxstudio-notifications {
 #uxstudio-notices__panel .uxstudio-nc__content .dashicons,
 #uxstudio-notices__panel .uxstudio-nc__content .notice-dismiss,
 #uxstudio-notices__panel .uxstudio-nc__content .e-notice__dismiss,
+#uxstudio-notices__panel .uxstudio-nc__content .fs-close,
+#uxstudio-notices__panel .uxstudio-nc__content [data-uxs-dismiss],
 #uxstudio-notices__panel .uxstudio-nc__content script,
 #uxstudio-notices__panel .uxstudio-nc__content style {
 	display: none !important;
