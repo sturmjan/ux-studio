@@ -1353,6 +1353,58 @@ integrace — je to jen další položka `wp_dashboard_setup`, přesně jako dne
       tomu, že Destima ho už používá se stejným stackem) prostě zkopírovat
       ověřenou verzi z `destima-obec/package.json`?
 
+### 20.12 Šablony formulářů, vícekrokový formulář a editor e-mailu (0.7.2, 2026-10-26)
+
+Požadavek: u „Název nového formuláře" galerie hotových šablon (vzor: knihovna shadcnspace, jen rozvržení, ne texty) a
+přestavba obrazovky „Akce po odeslání → E-mailové oznámení" na dva sloupce s živým náhledem a WYSIWYG zprávou.
+
+**Šablony** (`includes/Modules/Forms/Templates.php`, REST `GET forms/templates`, `POST forms/from-template`):
+- Šablona je PHP definice (anglické zdrojové texty přes `__()`, česky v `.po`). Vytvoření jde přes `Module::create_form()`,
+  tedy stejnou sanitizací jako běžné uložení (`Fields::sanitize_fields()`, `sanitize_settings()`); formulář vznikne jako
+  koncept. Souhlas se zpracováním osobních údajů (`consent`) dostane odkaz na stránku zásad ochrany soukromí webu.
+- Devět šablon: Kontaktní formulář (1 krok), Poptávka služby (2), Rezervace termínu (2), Registrace na akci (1), Žádost o
+  zaměstnání (3, nahrání životopisu), Objednávka (3, karty, číslované sekce), Přihlášení k newsletteru (jeden řádek),
+  Zpětná vazba a hodnocení (1, hodnocení 1-5, e-mail a souhlas jen na podmínku), Reklamace (2, nahrání fotek). Kategorie:
+  Kontakt, Poptávka, Rezervace, Událost, Kariéra, Obchod, Zpětná vazba.
+- Každá šablona se sběrem osobních údajů (pole e-mail/telefon) má povinný souhlas GDPR; oznámení správci vždy, potvrzení
+  odesílateli (`to: {email}`) tam, kde se e-mail vyplňuje vždy. Zpětná vazba potvrzení nemá (e-mail je volitelný).
+- Galerie: karta s živým náhledem z vlastních definic polí (`TemplateGallery.tsx`, žádné obrázky), počet polí, odznak
+  „Vícekrokový: N", filtr podle kategorie, „Prázdný formulář". Název z pole „Název nového formuláře", jinak název šablony.
+
+**Veřejný formulář** (`PublicRenderer`):
+- [x] Rozvržení přes 12sloupcovou mřížku: šířky desktop / tablet (do 1024 px) / mobil (do 782 px) se opravdu použijí (dřív
+      se mobilní šířka ignorovala a dva sloupce po 50 % se kvůli mezeře zalamovaly pod sebe).
+- [x] Vícekrokový: postup `steps` (proužky), `numbers` (číslované kroky s názvy, odškrtnuté hotové), `bar` (pruh s textem
+      „Krok X z Y"); legenda kroku je zaměřitelný nadpis (`tabindex=-1`), po Další/Zpět se na něj přesune fokus;
+      validace kroku před Další s chybou u pole (`aria-invalid`, `aria-describedby`) a souhrnem v `role=alert`; Enter ve
+      vícekrokovém formuláři postoupí o krok místo odeslání napůl vyplněného formuláře; chyba ze serveru přepne na krok
+      s chybným polem; po odeslání panel s poděkováním a „Odeslat další odpověď". Bez JavaScriptu jsou vidět všechny kroky.
+- [x] Nastavení vzhledu (záložka Vzhled): rámeček `layout` = plain | card (záhlaví s názvem a popisem, patička s tlačítky) |
+      inline (e-mail a tlačítko v jednom řádku), `columns` 1/2, `numbered_sections`, `submit_text`; předvolby „Karta se
+      záhlavím a patičkou", „Dva sloupce", „Číslované sekce". Nová pole: `choice_style` (list/cards/inline) u radio a
+      skupiny zaškrtávátek, `step_description` u zalomení kroku.
+
+**E-mailové oznámení** (`EmailActionEditor.tsx`, `WpEditor.tsx`, `EmailTemplateRenderer`):
+- [x] Dva sloupce: vlevo nastavení, vpravo živý náhled (lepkavý, Počítač/Mobil, zpoždění 600 ms). Náhled vykresluje
+      `EmailTemplateRenderer::build_html()`, tedy tentýž kód jako skutečné odeslání, v `iframe` se `srcdoc` a `sandbox=""`.
+      Odpověď nese i varování kontrastu a vyřešené výchozí barvy.
+- [x] Zpráva je editor WordPressu (`wp_enqueue_editor()` jen na obrazovce UX Studia a jen se zapnutými Formuláři,
+      `wp.editor.initialize`, TinyMCE + záložka Kód, „Přidat mediální soubor"). Slučovací značky z rozbalovací nabídky
+      (`{form_title}`, `{submission_date}`, `{submission_table}`, klíče polí) u zprávy i předmětu.
+- [x] Záhlaví per akce: logo z Knihovny médií (bez něj logo webu), pozice vlevo/střed/vpravo, šířka 40-400 px, barva
+      záhlaví a odkazů (`#rgb`/`#rrggbb` ověřeno na serveru), varování při kontrastu pod 4,5:1; barva textu v záhlaví se
+      volí automaticky. Stejná komponenta platí i pro potvrzení odesílateli (je to druhá e-mailová akce).
+- [x] Sanitizace zprávy `sanitize_message()`: výslovný seznam značek (text, nadpisy, seznamy, odkazy, obrázky), schémata
+      jen http/https/mailto/tel, `style` jen z bezpečného seznamu vlastností, celé bloky script/style/iframe/form/object
+      pryč i s obsahem. Po doplnění značek `finalize_html()`: relativní adresy obrázků a odkazů na web se zabsolutní,
+      `data:`/`javascript:` zmizí, odkazy dostanou barvu. Hodnoty polí se do těla HTML vkládají escapované.
+- [x] E-mailově bezpečné značkování: tabulky s `width`, `bgcolor`, `align`, `cellpadding`, tlačítko jako buňka tabulky,
+      obrázky s `width`/`border`, žádný flex/grid/position; `<style>` jen v podmíněném bloku pro Outlook.
+- [ ] Ruční zkouška skutečného doručení šablon do Outlooku a Gmailu (náhled v prohlížeči to nenahradí).
+- [ ] Rozhodnout, jestli má zpětná vazba dostávat potvrzení i s volitelným e-mailem (teď ne, aby neodcházela chybná akce).
+
+Testy: `tests/forms-templates.php`, `tests/forms-email-renderer.php` (oba přes `wp eval-file`).
+
 ## 21. Audit bezpečnost / funkčnost / výkon (2026-09-30)
 
 Statický audit celého pluginu (73 modulů, ~110k ř. PHP) + měření na lokálu. Lint PHP 8.4

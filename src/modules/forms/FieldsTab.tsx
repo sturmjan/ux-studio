@@ -25,7 +25,7 @@ import FileUploadField from '../../components/FileUploadField';
 import MultiSelectField, { type MultiSelectOption } from '../../components/MultiSelectField';
 import AiGenerateModal from './AiGenerateModal';
 import { fieldCatalog, fieldCatalogEntry, CATEGORY_LABELS, type FieldCatalogEntry } from './fieldCatalog';
-import { ALLOWED_WIDTHS, CHOICE_TYPES, LAYOUT_TYPES, emptyField, type FieldType, type FormDefinition, type FormField } from './types';
+import { ALLOWED_WIDTHS, CHOICE_TYPES, LAYOUT_TYPES, emptyField, type ChoiceStyle, type FieldType, type FormDefinition, type FormField } from './types';
 
 // Keep in sync with FileStorage::ALLOWED_TYPES (includes/Modules/Forms/FileStorage.php) -
 // the server is the source of truth for what actually gets accepted on upload.
@@ -239,6 +239,8 @@ function Inspector( {
 						<div className="uxs-form__row">
 							<label>{ __( 'Step title', 'ux-studio' ) }</label>
 							<input type="text" value={ field.step_title ?? '' } onChange={ ( e ) => onChange( { step_title: e.target.value } ) } />
+							<label style={ { marginTop: 'var(--uxs-sp-3)' } }>{ __( 'Step description (optional)', 'ux-studio' ) }</label>
+							<input type="text" value={ field.step_description ?? '' } onChange={ ( e ) => onChange( { step_description: e.target.value } ) } />
 						</div>
 					) : field.type === 'html' ? (
 						<div className="uxs-form__row">
@@ -282,6 +284,16 @@ function Inspector( {
 								<input type="text" value={ field.css_class } onChange={ ( e ) => onChange( { css_class: e.target.value } ) } />
 							</div>
 							{ isChoice && <OptionsEditor field={ field } onChange={ onChange } /> }
+							{ ( field.type === 'radio' || field.type === 'checkbox_group' ) && (
+								<div className="uxs-form__row">
+									<label>{ __( 'Options look', 'ux-studio' ) }</label>
+									<select value={ field.choice_style ?? 'list' } onChange={ ( e ) => onChange( { choice_style: e.target.value as ChoiceStyle } ) }>
+										<option value="list">{ __( 'List', 'ux-studio' ) }</option>
+										<option value="cards">{ __( 'Cards (bordered boxes)', 'ux-studio' ) }</option>
+										<option value="inline">{ __( 'Buttons in a row (e.g. a 1 to 5 rating)', 'ux-studio' ) }</option>
+									</select>
+								</div>
+							) }
 							{ field.type === 'signature' && (
 								<p className="uxs-form__help">
 									{ __( 'Visitors sign with their mouse or finger on a drawing pad - no extra settings for this field.', 'ux-studio' ) }

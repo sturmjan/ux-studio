@@ -39,6 +39,8 @@ export const ALLOWED_WIDTHS = [ 25, 33, 50, 66, 75, 100 ] as const;
 export type FieldWidth = ( typeof ALLOWED_WIDTHS )[ number ];
 
 export type LabelDisplay = 'inherit' | 'visible' | 'placeholder_only';
+/** How radio / checkbox-group options are drawn. Mirrors Fields::CHOICE_STYLES. */
+export type ChoiceStyle = 'list' | 'cards' | 'inline';
 export type ConditionOperator = 'equals' | 'not_equals' | 'contains' | 'empty' | 'not_empty' | 'greater' | 'less';
 export type ConditionLogic = 'all' | 'any';
 
@@ -70,6 +72,8 @@ export interface FormField {
 	options?: FieldOption[];
 	html?: string;
 	step_title?: string;
+	step_description?: string;
+	choice_style?: ChoiceStyle;
 	terms_url?: string;
 	min?: number | null;
 	max?: number | null;
@@ -94,6 +98,28 @@ export interface EmailAction {
 	cta_url: string;
 	/** Full hand-written HTML document, used only when template === 'custom'. */
 	custom_html: string;
+	/** Header logo from the Media Library (0 = the site logo). */
+	logo_id: number;
+	/** Read-only thumbnail URL derived by the server from logo_id. */
+	logo_url: string;
+	logo_position: LogoPosition;
+	/** Logo width in px, 40 to 400. */
+	logo_width: number;
+	/** #rrggbb, '' = the template's default accent. */
+	header_bg: string;
+	/** #rrggbb, '' = the template's default accent. */
+	link_color: string;
+}
+
+export type LogoPosition = 'left' | 'center' | 'right';
+
+/** Response of POST forms/{id}/preview-email. */
+export interface EmailPreview {
+	subject: string;
+	html: string;
+	warnings: { code: string; message: string }[];
+	/** Header and link colors the server resolved (the template default where the action sets none). */
+	layout?: { header_bg: string; link_color: string };
 }
 
 export interface WebhookAction {
@@ -125,11 +151,20 @@ export interface PostTypeOption {
 	label: string;
 }
 
-export type ProgressStyle = 'steps' | 'bar' | 'none';
+export type ProgressStyle = 'steps' | 'numbers' | 'bar' | 'none';
+export type FormLayout = 'plain' | 'card' | 'inline';
 
 export interface FormSettings {
 	label_display: 'visible' | 'placeholder_only';
 	progress_style: ProgressStyle;
+	/** plain | card (header with title and description, footer with the buttons) | inline (one-row signup). */
+	layout: FormLayout;
+	/** 2 = fields left at full width become two columns. */
+	columns: 1 | 2;
+	/** Numbered badge in front of every step title. */
+	numbered_sections: boolean;
+	/** Text of the final button, '' = the default "Submit". */
+	submit_text: string;
 	success_text: string;
 	captcha_enabled: boolean;
 	/** Per-form HMAC secret for the webhook action - server-generated, read-only. */
@@ -235,10 +270,31 @@ export function defaultSettings(): FormSettings {
 	return {
 		label_display: 'visible',
 		progress_style: 'steps',
+		layout: 'plain',
+		columns: 1,
+		numbered_sections: false,
+		submit_text: '',
 		success_text: '',
 		captcha_enabled: false,
 		webhook_secret: '',
 		actions: [],
 		retention_days: null,
 	};
+}
+
+/** One card of the template gallery (GET forms/templates). Fields are sanitized, used for the live mini preview. */
+export interface FormTemplate {
+	id: string;
+	category: string;
+	title: string;
+	description: string;
+	field_count: number;
+	step_count: number;
+	fields: FormField[];
+	settings: Pick< FormSettings, 'layout' | 'columns' | 'numbered_sections' | 'progress_style' | 'submit_text' >;
+}
+
+export interface TemplateCatalog {
+	categories: { id: string; label: string }[];
+	templates: FormTemplate[];
 }

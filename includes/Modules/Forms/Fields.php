@@ -59,6 +59,9 @@ final class Fields {
 
 	public const LABEL_DISPLAY = array( 'inherit', 'visible', 'placeholder_only' );
 
+	/** How radio / checkbox-group options are drawn: plain list, bordered cards, or inline pills (e.g. a 1-5 rating). */
+	public const CHOICE_STYLES = array( 'list', 'cards', 'inline' );
+
 	public const CONDITION_OPERATORS = array( 'equals', 'not_equals', 'contains', 'empty', 'not_empty', 'greater', 'less' );
 
 	public const CONDITION_LOGIC = array( 'all', 'any' );
@@ -144,7 +147,8 @@ final class Fields {
 		);
 
 		if ( 'step' === $type ) {
-			$clean['step_title'] = sanitize_text_field( (string) ( $field['step_title'] ?? $field['label'] ?? '' ) );
+			$clean['step_title']       = sanitize_text_field( (string) ( $field['step_title'] ?? $field['label'] ?? '' ) );
+			$clean['step_description'] = sanitize_text_field( (string) ( $field['step_description'] ?? '' ) );
 			$clean['width_mobile'] = 100;
 		}
 
@@ -154,6 +158,10 @@ final class Fields {
 
 		if ( in_array( $type, self::CHOICE_TYPES, true ) ) {
 			$clean['options'] = self::sanitize_options( $field['options'] ?? array() );
+		}
+
+		if ( in_array( $type, array( 'radio', 'checkbox_group' ), true ) ) {
+			$clean['choice_style'] = in_array( $field['choice_style'] ?? 'list', self::CHOICE_STYLES, true ) ? $field['choice_style'] : 'list';
 		}
 
 		if ( 'acceptance' === $type ) {
