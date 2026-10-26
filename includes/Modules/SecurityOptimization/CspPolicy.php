@@ -323,7 +323,49 @@ final class CspPolicy {
 		 *
 		 * @param array<string,array<int,string>> $directives Directive => sources.
 		 */
-		return (array) apply_filters( 'uxstudio_csp_directives', $directives );
+		return self::with_inline_hashes( (array) apply_filters( 'uxstudio_csp_directives', $directives ), array( CspInlineScripts::class, 'sources' ) );
+	}
+
+	/**
+	 * Is script-src (or default-src when script-src is missing) strict, i.e. without 'unsafe-inline'? Only then do our
+	 * own inline scripts need a hash. The built-in levels always carry 'unsafe-inline' (WordPress pages are full of
+	 * inline scripts), so this is true for a policy narrowed through the uxstudio_csp_* filters.
+	 *
+	 * @param array<string,array<int,string>> $directives Directive => sources.
+	 */
+	public static function is_strict_script_policy( array $directives ): bool {
+		$effective = $directives['script-src'] ?? ( $directives['default-src'] ?? array() );
+		return ! empty( $effective ) && ! in_array( "'unsafe-inline'", $effective, true );
+	}
+
+	/**
+	 * Adds the hashes of UX Studio's own inline scripts - and only when that is safe. A browser ignores
+	 * 'unsafe-inline' as soon as a hash or nonce is in the same directive, so a hash in a lenient policy would block
+	 * every other inline script of the site. Hence: no 'unsafe-inline' in the effective script-src, hashes are added;
+	 * otherwise the policy stays exactly as it was. An explicit script-src-elem is judged on its own.
+	 *
+	 * @param array<string,array<int,string>> $directives Directive => sources.
+	 * @param callable():array<int,string>    $hashes     Quoted hash sources (called lazily, only for a strict policy).
+	 * @return array<string,array<int,string>>
+	 */
+	public static function with_inline_hashes( array $directives, callable $hashes ): array {
+		$wants_script_src = self::is_strict_script_policy( $directives );
+		$wants_elem       = isset( $directives['script-src-elem'] ) && ! in_array( "'unsafe-inline'", (array) $directives['script-src-elem'], true ) && ! empty( $directives['script-src-elem'] );
+		if ( ! $wants_script_src && ! $wants_elem ) {
+			return $directives;
+		}
+		$list = array_values( array_filter( (array) $hashes(), 'is_string' ) );
+		if ( empty( $list ) ) {
+			return $directives;
+		}
+		if ( $wants_script_src ) {
+			$base                     = $directives['script-src'] ?? $directives['default-src'];
+			$directives['script-src'] = array_merge( (array) $base, $list );
+		}
+		if ( $wants_elem ) {
+			$directives['script-src-elem'] = array_merge( (array) $directives['script-src-elem'], $list );
+		}
+		return $directives;
 	}
 
 	/**

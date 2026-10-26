@@ -1496,6 +1496,58 @@ všech slugů šablon, `time`); logika je ve třídě `SecurityOptimization\Defa
 - Mazat se smí jen `initial` a `core`, nepoužité, mimo ochranná pravidla (aktivní, rodič, rodič jiné, nejnovější výchozí
   jako záloha). `manual` a nezaznamenané se nemažou nikdy. ActivityLog nese `themes` a `origins`.
 
+### 20.15 Souhlas pro Sklik z cookie lišty a CSP přes hashe (0.7.4, 2026-10-26)
+
+**Souhlas pro Sklik** (`AfterSubmit::sklik_consent_mode()`, `assets/js/forms-consent-detect.js`, veřejný runtime v `PublicRenderer`):
+- [x] `settings.tracking.sklik.consent` je `auto` (výchozí) | `1` | `0`, `consent_fallback` 0|1 (výchozí 0 = bez souhlasu).
+- [x] Detekce běží v prohlížeči ve chvíli odeslání konverze, první nástroj, který odpoví, vyhrává: Complianz
+  (`cmplz_has_consent('marketing')`, jinak cookie `cmplz_marketing` allow/deny), CookieYes
+  (`getCkyConsent().categories.advertisement`), Cookiebot (`Cookiebot.consent.marketing`), Google Consent Mode v2
+  (přehrání příkazů `consent default/update` z `dataLayer`, poslední `ad_storage` platí), `window.uxstudioConsent.marketing`
+  (budoucí vlastní modul consent). Přítomný nástroj bez souhlasu = 0; žádný známý nástroj = fallback.
+- [x] Ověřená API: viz hlavička souboru `forms-consent-detect.js` (zdroje). Real Cookie Banner a Borlabs Cookie
+  NEJSOU zahrnuty: jejich API se ptá na konkrétní službu (RCB `consentSync(typ, název, hostitel)`, Borlabs
+  `hasConsent(serviceId)`), nikoli na kategorii marketing; výchozí ID skupiny Borlabs v dokumentaci není. Doplnit,
+  až bude jasné, na co se ptát.
+- [x] Migrace: formulář se zapnutým Sklikem si ponechá uloženou 1/0 jako pevnou hodnotu; vypnutý Sklik s uloženou 1
+  (dřívější výchozí, ne rozhodnutí) se čte jako `auto`; uložená 0 zůstává 0; nový formulář = `auto`.
+- [x] Meta Pixel a Google Ads se nemění (spouštějí se jen když je tracker na stránce, to řídí CMP).
+- [x] Test: `tests/forms-consent-detect.mjs` (Node, stejný soubor jako v runtime), `tests/forms-after-submit.php`.
+- [ ] Doplnit další CMP (Real Cookie Banner, Borlabs, Cookie Notice, OneTrust), jakmile bude ověřené veřejné API.
+
+**CSP: vlastní inline skripty přes hashe** (`CspInlineScripts`, `CspPolicy::with_inline_hashes()`, `Forms\InlineScripts`):
+- [x] Proč hashe a ne nonce: nonce se musí měnit s každou odpovědí, takže stránka z cache by dostala starý nonce a
+  prohlížeč by skript zablokoval. Hash závisí jen na textu skriptu, ten je v každé odpovědi stejný. Nonce záměrně NEJSOU.
+- [x] Hlavička se posílá před obsahem, proto modul registruje PROVIDER, který vrací přesné texty všech skriptů, které
+  se mohou objevit (ne jen těch na aktuální stránce). Tisk i hash vycházejí z jedné funkce (`PublicRenderer::runtime_body()`,
+  `AfterSubmit::hook_script_body()`), takže se nemohou rozejít. Text je jen s LF: HTML parser převádí CRLF/CR na LF dřív,
+  než prohlížeč hash spočítá (past, na kterou jsme narazili v prohlížeči).
+- [x] Hashe se přidají JEN do přísného `script-src` (bez `'unsafe-inline'`, jinak by prohlížeč `'unsafe-inline'`
+  ignoroval a rozbil všechny cizí inline skripty). Vestavěné úrovně `basic`/`strict` `'unsafe-inline'` mají vždy, hashe se
+  tedy uplatní u politiky zúžené filtry `uxstudio_csp_script_src` / `uxstudio_csp_directives`. `script-src-elem` se posuzuje
+  zvlášť, chybí-li `script-src`, rozhoduje `default-src`. Audit (Report-Only inventura) hashe nikdy nedostane.
+- [x] Pokryto: společný skript formulářů (statický) a vlastní skript po odeslání každého AKTIVNÍHO formuláře (hashe v
+  autoloadované volbě `uxstudio_forms_hook_hashes`, přestavba při vytvoření, úpravě, obnovení revize a smazání formuláře,
+  a při změně verze pluginu). Konfigurace formuláře už není skript, ale `<script type="application/json">`.
+- [x] Strop 200 hashů (`CspInlineScripts::MAX`), při překročení záznam do error logu a varování v záložce CSP.
+- [x] Záložka CSP ukazuje seznam pokrytých skriptů a upozornění, že inline skripty jiných pluginů a šablony se řeší zvlášť.
+- [x] Test: `tests/csp-inline-scripts.php` (vektor `alert(1)`, registr, strop, přísný/volný script-src), `tests/forms-csp-hashes.php`
+  (přestavba cache, tištěný skript = hashovaný text, CRLF). Ověřeno v prohlížeči s vynuceným přísným CSP: skript
+  formuláře i vlastní skript proběhly bez porušení CSP.
+- [ ] Další moduly s vlastními inline skripty (Pixel & Tag Manager, Popup Manager, Analytics beacon, Push, Snippets) zatím
+  hashe nemají; vzor: `CspInlineScripts::register()` + jedna funkce pro text skriptu.
+- [ ] Přepínač „přísný režim bez unsafe-inline" v nastavení CSP (dnes jen přes filtr).
+
+**Rychlé hledání v liště administrace** (`AdminCustomiser/QuickSearch.php`, `assets/js|css/admin-customiser-quick-search.*`):
+- [x] Jedno sloučené ovládání: lupa vpravo, rozbalovací pole (animace 0,22 s, respektuje `prefers-reduced-motion`),
+  rozbalovací seznam jako ARIA combobox/listbox, klávesnice (šipky, Home/End, Enter, Esc, Tab), Ctrl+K / Cmd+K ve wp-admin.
+- [x] Při zapnutém hledání se odebere tlačítko příkazové palety jádra (WP 7.0+, uzel `command-palette`) a Ctrl+K převezme
+  naše pole (zachytávací fáze, jádro ho nevidí; ne v blokovém editoru). Poslední položka „Příkazy WordPressu..." otevře
+  `wp.data.dispatch('core/commands').open()` (jen když existuje). Předvyplnit dotaz API neumí.
+- [x] Barvy se berou z lišty (světlé i tmavé schéma), mobil: pole jako řádek přes celou šířku pod lištou.
+- [x] Oprava: na webu (front-end) lišta vznikala až po skriptu, hledání tam nereagovalo.
+- [ ] Ověřit na webu s blokovým editorem, že Ctrl+K v textu dál vkládá odkaz.
+
 ## 21. Audit bezpečnost / funkčnost / výkon (2026-09-30)
 
 Statický audit celého pluginu (73 modulů, ~110k ř. PHP) + měření na lokálu. Lint PHP 8.4

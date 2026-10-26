@@ -57,6 +57,7 @@ interface CspStatus {
 	probe: Probe;
 	stats: { total: number; open: number; high: number; medium: number; unknown: number; new_7d: number; candidate_open_7d: number };
 	gate: { ready: boolean; checks: GateCheck[]; test_days: number };
+	inline: { strict: boolean; total: number; capped: boolean; max: number; entries: { label: string; hash: string }[] };
 }
 
 const VIOLATIONS_KEY = [ 'security-optimization', 'csp-violations' ];
@@ -331,6 +332,44 @@ function StatusPanel( { status, onProbe, probing }: { status: CspStatus; onProbe
 					<RefreshCw size={ 12 } /> { probing ? __( 'Testing…', 'ux-studio' ) : __( 'Test again', 'ux-studio' ) }
 				</button>
 			</div>
+
+			{ ( status.mode === 'report-only' || status.mode === 'enforce' ) && status.inline && (
+				<>
+					<h4>{ __( 'Inline scripts of UX Studio', 'ux-studio' ) }</h4>
+					{ ! status.inline.strict ? (
+						<p className="uxs-csp-status__soft">
+							{ __( "The policy allows inline scripts ('unsafe-inline'), so UX Studio's own inline scripts run without any extra entry. Hashes are added only to a strict policy without 'unsafe-inline', because a browser ignores 'unsafe-inline' as soon as a hash is present.", 'ux-studio' ) }
+						</p>
+					) : (
+						<>
+							<p className="uxs-csp-status__soft">
+								{ sprintf(
+									/* translators: %d: number of allowed inline scripts. */
+									__( 'The policy is strict. These %d inline scripts of UX Studio are allowed by their hash. Inline scripts of other plugins and of your theme are not covered and must be handled separately.', 'ux-studio' ),
+									status.inline.entries.length
+								) }
+							</p>
+							{ status.inline.capped && (
+								<p className="uxs-csp-alert">
+									{ sprintf(
+										/* translators: 1: number of scripts, 2: limit. */
+										__( '%1$d inline scripts exist, only the first %2$d are allowed by hash.', 'ux-studio' ),
+										status.inline.total,
+										status.inline.max
+									) }
+								</p>
+							) }
+							<ul className="uxs-csp-checks">
+								{ status.inline.entries.map( ( e ) => (
+									<li key={ e.hash } className="is-ok">
+										<Check size={ 14 } /> { e.label } <code title={ e.hash }>{ e.hash.slice( 0, 14 ) }…</code>
+									</li>
+								) ) }
+							</ul>
+						</>
+					) }
+				</>
+			) }
 
 			{ ( status.mode === 'report-only' || status.mode === 'enforce' ) && (
 				<>

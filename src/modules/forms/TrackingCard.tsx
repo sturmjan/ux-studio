@@ -285,10 +285,15 @@ export default function TrackingCard( {
 								</div>
 							</div>
 							<div className="uxs-form__row">
-								<label htmlFor={ scriptId + '-sk-consent' }>{ __( 'Consent value', 'ux-studio' ) }</label>
-								<select id={ scriptId + '-sk-consent' } value={ value.sklik.consent } onChange={ ( e ) => set( 'sklik', { consent: Number( e.target.value ) === 0 ? 0 : 1 } ) }>
-									<option value={ 1 }>{ __( '1 - the visitor agreed (the Sklik code is loaded after consent)', 'ux-studio' ) }</option>
-									<option value={ 0 }>{ __( '0 - anonymous measurement', 'ux-studio' ) }</option>
+								<label htmlFor={ scriptId + '-sk-consent' }>{ __( 'Consent for Sklik', 'ux-studio' ) }</label>
+								<select
+									id={ scriptId + '-sk-consent' }
+									value={ String( value.sklik.consent ) }
+									onChange={ ( e ) => set( 'sklik', { consent: e.target.value === 'auto' ? 'auto' : e.target.value === '0' ? 0 : 1 } ) }
+								>
+									<option value="auto">{ __( 'According to the cookie banner (recommended)', 'ux-studio' ) }</option>
+									<option value="1">{ __( 'Always 1 (the visitor agreed)', 'ux-studio' ) }</option>
+									<option value="0">{ __( 'Always 0 (anonymous measurement)', 'ux-studio' ) }</option>
 								</select>
 								<p className="uxs-form__help">
 									{ sklikBad
@@ -296,6 +301,25 @@ export default function TrackingCard( {
 										: __( 'Calls rc.conversionHit({ id, value, consent }) when the Seznam script (rc.js) is on the page. Sklik requires the consent parameter.', 'ux-studio' ) }
 								</p>
 							</div>
+							{ value.sklik.consent === 'auto' && (
+								<div className="uxs-form__row">
+									<label htmlFor={ scriptId + '-sk-fallback' }>{ __( 'When no cookie banner is detected', 'ux-studio' ) }</label>
+									<select
+										id={ scriptId + '-sk-fallback' }
+										value={ String( value.sklik.consent_fallback ) }
+										onChange={ ( e ) => set( 'sklik', { consent_fallback: e.target.value === '1' ? 1 : 0 } ) }
+									>
+										<option value="0">{ __( '0 - no consent (recommended)', 'ux-studio' ) }</option>
+										<option value="1">{ __( '1 - consent given', 'ux-studio' ) }</option>
+									</select>
+									<p className="uxs-form__help">
+										{ __(
+											'The state is read when the conversion fires from Complianz, CookieYes, Cookiebot, Google Consent Mode (ad_storage) or window.uxstudioConsent.marketing. Without a recognised banner the value above is sent; with 0 Sklik still counts the conversion, only without personalization. Meta Pixel and Google Ads are not affected: they fire only if their tracker is already on the page, which your cookie banner controls.',
+											'ux-studio'
+										) }
+									</p>
+								</div>
+							) }
 						</>
 					) }
 				</fieldset>
@@ -315,7 +339,7 @@ export default function TrackingCard( {
 						) }
 						<p className="uxs-form__help">
 							{ __(
-								'Runs in the visitor\'s browser after a counted submit, as the body of a function with one read-only argument: detail = { formId, formTitle, submissionId }. An error in it never affects the thank-you. It is printed as an inline script, so a strict Content Security Policy must allow inline scripts (script-src \'unsafe-inline\' or a nonce) - eval is not used.',
+								'Runs in the visitor\'s browser after a counted submit, as the body of a function with one read-only argument: detail = { formId, formTitle, submissionId }. An error in it never affects the thank-you. It is printed as an inline script and eval is not used. With the UX Studio Content Security Policy in strict mode (no \'unsafe-inline\') it is allowed automatically through a hash; a policy set by another plugin or the server has to allow it itself.',
 								'ux-studio'
 							) }
 						</p>

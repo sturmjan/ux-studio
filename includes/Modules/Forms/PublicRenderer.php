@@ -113,16 +113,11 @@ final class PublicRenderer {
 				<?php echo $this->render_nav( $submit_text, false ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			<?php endif; ?>
 		</form>
-		<script>
-		( function () {
-			var cfg = <?php echo wp_json_encode( $this->client_config( $form, $steps ) ); ?>;
-			if ( window.UxStudioForms && typeof window.UxStudioForms.init === 'function' ) {
-				window.UxStudioForms.init( document.getElementById( <?php echo wp_json_encode( $uid ); ?> ), cfg );
-			} else {
-				( window.UxStudioFormsQueue = window.UxStudioFormsQueue || [] ).push( [ <?php echo wp_json_encode( $uid ); ?>, cfg ] );
-			}
-		} )();
-		</script>
+		<?php
+		// A JSON data block, not code: a strict CSP does not touch it, and it never has to be hashed. The runtime reads it.
+		echo '<script type="application/json" data-uxs-form-config="' . esc_attr( $uid ) . '">' . self::config_json( $this->client_config( $form, $steps ) ) . '</script>' . "
+"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON with the HEX_TAG flags.
+		?>
 		<?php
 		static $hooks_printed = array();
 		$tracking = (array) ( $settings['tracking'] ?? array() );
@@ -748,8 +743,43 @@ final class PublicRenderer {
 	private function print_runtime(): void {
 		wp_register_script( 'uxstudio-forms-public', false, array(), UXSTUDIO_VERSION, true );
 		wp_enqueue_script( 'uxstudio-forms-public' );
+		echo '<script>' . self::runtime_body() . '</script>' . "
+"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static plugin code.
+	}
+
+	/**
+	 * JSON for a data block inside a script element: < > & are escaped so the text can never close the element
+	 * or open an HTML comment.
+	 *
+	 * @param array<string, mixed> $config Client config.
+	 */
+	public static function config_json( array $config ): string {
+		return (string) wp_json_encode( $config, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
+	}
+
+	/**
+	 * The text between <script> and </script> of the public runtime. Static (no per-request values), so the CSP
+	 * module hashes exactly this string (CspInlineScripts, PLAN.md 20.15); the printed script uses the same function.
+	 */
+	public static function runtime_body(): string {
+		static $body = null;
+		if ( null === $body ) {
+			$detect = (string) file_get_contents( dirname( __DIR__, 3 ) . '/assets/js/forms-consent-detect.js' );
+			ob_start();
+			self::runtime_template( $detect );
+			// LF only: the browser's HTML parser normalises line breaks before the CSP hash is taken.
+			$body = (string) preg_replace( '/\r\n?/', "\n", (string) ob_get_clean() );
+		}
+		return $body;
+	}
+
+	/**
+	 * @param string $detect Source of assets/js/forms-consent-detect.js, inlined into the runtime.
+	 */
+	private static function runtime_template( string $detect ): void {
 		?>
-		<script>
+		<?php echo $detect; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- plugin file. ?>
+
 		window.UxStudioForms = ( function () {
 			function fmt( text, a, b ) {
 				return String( text ).replace( '%1$d', a ).replace( '%2$d', b ).replace( '%s', a );
@@ -1202,7 +1232,13 @@ final class PublicRenderer {
 				}
 				if ( t.sklik && window.rc && typeof window.rc.conversionHit === 'function' ) {
 					safely( function () {
-						var c = { id: t.sklik.id, consent: t.sklik.consent };
+						// 'auto': what the visitor's cookie banner says right now; the fallback only when no known banner is on the page.
+						var consent = t.sklik.consent;
+						if ( consent === 'auto' ) {
+							var seen = uxsDetectMarketingConsent( window );
+							consent = seen === null ? t.sklik.fallback : seen;
+						}
+						var c = { id: t.sklik.id, consent: consent };
 						if ( t.sklik.value !== null && t.sklik.value !== undefined ) { c.value = t.sklik.value; }
 						window.rc.conversionHit( c );
 					} );
@@ -1370,7 +1406,20 @@ final class PublicRenderer {
 				} catch ( err ) {}
 			}
 
-			var api = { init: init };
+			// Forms hand their config over as <script type="application/json" data-uxs-form-config="FORM-ELEMENT-ID">.
+			var CONFIG_SELECTOR = 'script[type="application/json"][data-uxs-form-config]';
+			function scan() {
+				document.querySelectorAll( CONFIG_SELECTOR ).forEach( function ( block ) {
+					if ( block.getAttribute( 'data-uxs-scanned' ) ) { return; }
+					block.setAttribute( 'data-uxs-scanned', '1' );
+					var el = document.getElementById( block.getAttribute( 'data-uxs-form-config' ) );
+					var cfg = null;
+					try { cfg = JSON.parse( block.textContent ); } catch ( err ) {}
+					if ( el && cfg ) { init( el, cfg ); }
+				} );
+			}
+
+			var api = { init: init, scan: scan };
 			if ( window.UxStudioFormsQueue ) {
 				window.UxStudioFormsQueue.forEach( function ( pair ) {
 					var el = document.getElementById( pair[ 0 ] );
@@ -1378,9 +1427,30 @@ final class PublicRenderer {
 				} );
 				window.UxStudioFormsQueue = [];
 			}
+			if ( document.readyState === 'loading' ) {
+				document.addEventListener( 'DOMContentLoaded', scan );
+			} else {
+				scan();
+			}
+			// A form added later (a popup, an AJAX-loaded block) brings its own config block.
+			if ( window.MutationObserver ) {
+				var queued = false;
+				new MutationObserver( function ( records ) {
+					if ( queued ) { return; }
+					for ( var i = 0; i < records.length; i++ ) {
+						for ( var j = 0; j < records[ i ].addedNodes.length; j++ ) {
+							var node = records[ i ].addedNodes[ j ];
+							if ( node.nodeType === 1 && ( ( node.matches && node.matches( CONFIG_SELECTOR ) ) || ( node.querySelector && node.querySelector( CONFIG_SELECTOR ) ) ) ) {
+								queued = true;
+								window.setTimeout( function () { queued = false; scan(); }, 0 );
+								return;
+							}
+						}
+					}
+				} ).observe( document.documentElement, { childList: true, subtree: true } );
+			}
 			return api;
 		} )();
-		</script>
 		<?php
 	}
 }

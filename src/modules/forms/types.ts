@@ -175,7 +175,8 @@ export interface TrackingSettings {
 	ga4: { enabled: boolean; event: string };
 	ads: { enabled: boolean; send_to: string; value: number | null; currency: string };
 	meta: { enabled: boolean; custom: boolean; event: string };
-	sklik: { enabled: boolean; id: string; value: number | null; consent: 0 | 1 };
+	/** consent: 'auto' reads the cookie banner in the browser; consent_fallback is used when no known banner is found. */
+	sklik: { enabled: boolean; id: string; value: number | null; consent: 'auto' | 0 | 1; consent_fallback: 0 | 1 };
 	custom_js: string;
 }
 
@@ -331,7 +332,7 @@ export function defaultTracking(): TrackingSettings {
 		ga4: { enabled: false, event: 'generate_lead' },
 		ads: { enabled: false, send_to: '', value: null, currency: 'CZK' },
 		meta: { enabled: false, custom: false, event: 'Lead' },
-		sklik: { enabled: false, id: '', value: null, consent: 1 },
+		sklik: { enabled: false, id: '', value: null, consent: 'auto', consent_fallback: 0 },
 		custom_js: '',
 	};
 }

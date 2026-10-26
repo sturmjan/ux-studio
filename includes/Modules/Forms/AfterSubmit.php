@@ -398,7 +398,7 @@ CSS;
 			'ga4'       => array( 'enabled' => false, 'event' => 'generate_lead' ),
 			'ads'       => array( 'enabled' => false, 'send_to' => '', 'value' => null, 'currency' => 'CZK' ),
 			'meta'      => array( 'enabled' => false, 'custom' => false, 'event' => 'Lead' ),
-			'sklik'     => array( 'enabled' => false, 'id' => '', 'value' => null, 'consent' => 1 ),
+			'sklik'     => array( 'enabled' => false, 'id' => '', 'value' => null, 'consent' => 'auto', 'consent_fallback' => 0 ),
 			'custom_js' => '',
 		);
 	}
@@ -442,12 +442,35 @@ CSS;
 		$id                     = trim( (string) ( $sklik['id'] ?? '' ) );
 		$out['sklik']['id']      = 1 === preg_match( '/^\d{1,12}$/', $id ) ? $id : '';
 		$out['sklik']['value']   = self::amount( $sklik['value'] ?? null );
-		$out['sklik']['consent'] = isset( $sklik['consent'] ) && 0 === (int) $sklik['consent'] ? 0 : 1;
+		$out['sklik']['consent']          = self::sklik_consent_mode( $sklik );
+		$out['sklik']['consent_fallback'] = isset( $sklik['consent_fallback'] ) && 1 === (int) $sklik['consent_fallback'] ? 1 : 0;
 
 		$js = str_replace( "\0", '', (string) ( $raw['custom_js'] ?? '' ) );
 		$out['custom_js'] = mb_substr( $js, 0, self::CUSTOM_JS_MAX );
 
 		return $out;
+	}
+
+	/**
+	 * Where the Sklik consent flag comes from: 'auto' (the visitor's cookie banner, read in the browser when the
+	 * conversion fires) or a fixed 1 / 0.
+	 *
+	 * Migration (0.7.4): before, the value was always stored as 1 or 0. A form that has Sklik switched on keeps its
+	 * fixed value, so nothing changes silently. For a form with Sklik off the stored 1 was only the old default, not a
+	 * decision, so it becomes 'auto'; a stored 0 and a missing key (new form) are handled the same way: 0 stays 0,
+	 * missing is 'auto'.
+	 *
+	 * @param array<string, mixed> $sklik Raw sklik settings.
+	 * @return string|int 'auto' | 1 | 0
+	 */
+	private static function sklik_consent_mode( array $sklik ) {
+		if ( ! array_key_exists( 'consent', $sklik ) || 'auto' === $sklik['consent'] ) {
+			return 'auto';
+		}
+		if ( 0 === (int) $sklik['consent'] ) {
+			return 0;
+		}
+		return empty( $sklik['enabled'] ) ? 'auto' : 1;
 	}
 
 	/** An event name: a letter, then letters, digits and underscores. Invalid input falls back to the default. */
@@ -534,21 +557,33 @@ CSS;
 			'sklik'     => ! empty( $t['sklik']['enabled'] ) && '' !== $t['sklik']['id'] ? array(
 				'id'      => (int) $t['sklik']['id'],
 				'value'   => $t['sklik']['value'],
-				'consent' => (int) $t['sklik']['consent'],
+				'consent'  => 'auto' === $t['sklik']['consent'] ? 'auto' : (int) $t['sklik']['consent'],
+				'fallback' => (int) $t['sklik']['consent_fallback'],
 			) : null,
 		);
 	}
 
 	/**
 	 * The custom script as an inline script that only REGISTERS a function (window.uxstudioFormHooks[formId]); the
-	 * runtime calls it after a successful submit. No eval / new Function, so a CSP without 'unsafe-eval' is fine
-	 * (an inline script still needs 'unsafe-inline' or a nonce/hash - see PLAN.md 20.13).
+	 * runtime calls it after a successful submit. No eval / new Function, so a CSP without 'unsafe-eval' is fine.
+	 * A strict CSP allows it through a hash (hook_script_body() + CspInlineScripts, PLAN.md 20.15).
 	 */
 	public static function hook_script( int $form_id, string $code ): string {
+		$body = self::hook_script_body( $form_id, $code );
+		return '' === $body ? '' : '<script>' . $body . "</script>\n";
+	}
+
+	/**
+	 * The exact text between <script> and </script> of the hook script. The printed element and the CSP hash are both
+	 * made from this one function, so they cannot drift apart.
+	 */
+	public static function hook_script_body( int $form_id, string $code ): string {
 		if ( '' === trim( $code ) ) {
 			return '';
 		}
-		return "<script>\n(window.uxstudioFormHooks=window.uxstudioFormHooks||{})[" . (int) $form_id . "]=function(detail){\n" . self::escape_script( $code ) . "\n};\n</script>\n";
+		// The HTML parser turns CRLF and a lone CR into LF before the browser hashes the text, so only LF may be hashed.
+		$code = (string) preg_replace( '/\r\n?/', "\n", $code );
+		return "\n(window.uxstudioFormHooks=window.uxstudioFormHooks||{})[" . (int) $form_id . "]=function(detail){\n" . self::escape_script( $code ) . "\n};\n";
 	}
 
 	/** Keeps script text from closing its own element or opening an HTML comment. */

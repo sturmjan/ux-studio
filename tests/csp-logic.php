@@ -37,6 +37,7 @@ function sanitize_key( $key ) { return strtolower( preg_replace( '/[^a-z0-9_\-]/
 
 $dir = dirname( __DIR__ ) . '/includes/Modules/SecurityOptimization/';
 require_once $dir . 'CspServices.php';
+require_once $dir . 'CspInlineScripts.php';
 require_once $dir . 'CspPolicy.php';
 require_once $dir . 'CspRisk.php';
 require_once $dir . 'CspLogger.php';

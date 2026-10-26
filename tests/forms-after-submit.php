@@ -204,7 +204,23 @@ $assert( 'meta: a hostile custom name falls back to Lead (standard)', 'Lead' ===
 $t = A::sanitize_tracking( array( 'sklik' => array( 'enabled' => true, 'id' => '1234567', 'consent' => 0 ) ) );
 $assert( 'sklik: a numeric id and consent 0 are kept', '1234567' === $t['sklik']['id'] && 0 === $t['sklik']['consent'] );
 $t = A::sanitize_tracking( array( 'sklik' => array( 'enabled' => true, 'id' => '12ab', 'consent' => 5 ) ) );
-$assert( 'sklik: a non-numeric id is dropped, consent defaults to 1', '' === $t['sklik']['id'] && 1 === $t['sklik']['consent'] );
+$assert( 'sklik: a non-numeric id is dropped, an enabled form with a stored 1 keeps "always 1"', '' === $t['sklik']['id'] && 1 === $t['sklik']['consent'] );
+$t = A::sanitize_tracking( array( 'sklik' => array( 'enabled' => true, 'id' => '1', 'consent' => 1 ) ) );
+$assert( 'sklik migration: enabled + stored 1 stays a fixed 1 (no silent change)', 1 === $t['sklik']['consent'] );
+$t = A::sanitize_tracking( array( 'sklik' => array( 'enabled' => false, 'consent' => 1 ) ) );
+$assert( 'sklik migration: disabled + the old default 1 becomes auto', 'auto' === $t['sklik']['consent'] );
+$t = A::sanitize_tracking( array( 'sklik' => array( 'enabled' => false, 'consent' => 0 ) ) );
+$assert( 'sklik migration: a stored 0 stays 0 even when disabled', 0 === $t['sklik']['consent'] );
+$t = A::sanitize_tracking( array( 'sklik' => array( 'enabled' => true, 'id' => '1' ) ) );
+$assert( 'sklik: a new form (no consent key) defaults to auto with fallback 0', 'auto' === $t['sklik']['consent'] && 0 === $t['sklik']['consent_fallback'] );
+$t = A::sanitize_tracking( array( 'sklik' => array( 'enabled' => true, 'id' => '1', 'consent' => 'auto', 'consent_fallback' => 1 ) ) );
+$assert( 'sklik: auto with fallback 1 is kept', 'auto' === $t['sklik']['consent'] && 1 === $t['sklik']['consent_fallback'] );
+$t = A::sanitize_tracking( array( 'sklik' => array( 'enabled' => true, 'id' => '1', 'consent' => 'auto', 'consent_fallback' => 'x' ) ) );
+$assert( 'sklik: a bad fallback becomes 0', 0 === $t['sklik']['consent_fallback'] );
+$c = A::client_tracking( $t );
+$assert( 'client config: sklik carries consent mode and fallback', 'auto' === $c['sklik']['consent'] && 0 === $c['sklik']['fallback'] );
+$c = A::client_tracking( A::sanitize_tracking( array( 'sklik' => array( 'enabled' => true, 'id' => '1', 'consent' => 0 ) ) ) );
+$assert( 'client config: a fixed 0 is sent as the integer 0', 0 === $c['sklik']['consent'] );
 
 $c = A::client_tracking( A::sanitize_tracking( array( 'ga4' => array( 'enabled' => true ), 'ads' => array( 'enabled' => true, 'send_to' => '' ), 'meta' => array( 'enabled' => true, 'custom' => true, 'event' => 'Foo' ), 'custom_js' => 'secret();' ) ) );
 $assert( 'client config: enabled presets only, an Ads preset without a target is left out', is_array( $c['ga4'] ) && null === $c['ads'] && 'trackCustom' === $c['meta']['method'] && null === $c['sklik'] );
