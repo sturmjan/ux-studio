@@ -82,8 +82,8 @@ export default function FormsList( { onOpen }: { onOpen: ( id: number ) => void 
 				</button>
 			</header>
 
-			<div className="uxs-form" style={ { marginBottom: 'var(--uxs-sp-5)', flexDirection: 'row', alignItems: 'flex-end', gap: 'var(--uxs-sp-3)' } }>
-				<div className="uxs-form__row" style={ { flex: 1 } }>
+			<div className="uxs-form uxs-form--inline" style={ { marginBottom: 'var(--uxs-sp-5)' } }>
+				<div className="uxs-form__row">
 					<label htmlFor="uxs-new-form-title">{ __( 'New form title', 'ux-studio' ) }</label>
 					<input
 						id="uxs-new-form-title"

@@ -197,7 +197,7 @@ function TestBox(): JSX.Element {
 
 	return (
 		<div className="uxs-form" style={ { maxWidth: 'none', marginBottom: 'var(--uxs-sp-4)' } }>
-			<div style={ { display: 'flex', alignItems: 'flex-end', gap: 'var(--uxs-sp-3)' } }>
+			<div className="uxs-form__line" style={ { display: 'flex', alignItems: 'flex-end', gap: 'var(--uxs-sp-3)' } }>
 				<div className="uxs-form__row" style={ { flex: 1 } }>
 					<label htmlFor="uxs-rd-test">{ __( 'Test a URL', 'ux-studio' ) }</label>
 					<input id="uxs-rd-test" type="text" value={ url } placeholder="/old-page.html" onChange={ ( e ) => setUrl( e.target.value ) } />
@@ -304,7 +304,7 @@ function RuleForm( { draft, setDraft }: { draft: Draft; setDraft: ( d: Draft ) =
 
 	return (
 		<div className="uxs-form" style={ { maxWidth: 'none', marginBottom: 'var(--uxs-sp-4)' } }>
-			<div style={ { display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', gap: 'var(--uxs-sp-3)' } }>
+			<div className="uxs-form__line" style={ { display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', gap: 'var(--uxs-sp-3)' } }>
 				<div className="uxs-form__row" style={ { flex: '1 1 220px' } }>
 					<label htmlFor="uxs-rd-source">{ __( 'Old URL', 'ux-studio' ) }</label>
 					<input id="uxs-rd-source" type="text" value={ draft.source } placeholder="/old-page.html" onChange={ ( e ) => setDraft( { ...draft, source: e.target.value } ) } />

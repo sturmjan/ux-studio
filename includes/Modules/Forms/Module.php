@@ -369,6 +369,36 @@ final class Module extends BaseModule {
 	// =====================================================================
 
 	/**
+	 * Can the generator run on this site right now? The AI Assistant module must be on and the default provider
+	 * must have an API key. Never calls the AI.
+	 *
+	 * @return array{available:bool,reason:string,provider:string} reason: '' | module_off | no_key.
+	 */
+	public static function ai_status(): array {
+		$modules = \UxStudio\Plugin::instance()->modules ?? null;
+		if ( ! $modules || ! in_array( 'ai-assistant', $modules->enabled_ids(), true ) ) {
+			return array(
+				'available' => false,
+				'reason'    => 'module_off',
+				'provider'  => '',
+			);
+		}
+		$provider = (string) ( new \UxStudio\Core\Settings( 'uxstudio_ai_assistant' ) )->get( 'default_provider', 'claude' );
+		if ( ! \UxStudio\Modules\AiAssistant\ProviderFactory::has_api_key( $provider ) ) {
+			return array(
+				'available' => false,
+				'reason'    => 'no_key',
+				'provider'  => $provider,
+			);
+		}
+		return array(
+			'available' => true,
+			'reason'    => '',
+			'provider'  => $provider,
+		);
+	}
+
+	/**
 	 * Drafts fields from a plain-language description via the plugin's
 	 * shared AI core (AiAssistant\ContentGenerator - no bespoke AI client
 	 * here) and sanitizes the result through the exact same allowlist real
@@ -379,12 +409,18 @@ final class Module extends BaseModule {
 	 *
 	 * @return array<int, array<string, mixed>>|\WP_Error Sanitized field definitions, or an error.
 	 */
-	public function generate_ai_fields( int $form_id, string $description ) {
-		if ( ! class_exists( \UxStudio\Modules\AiAssistant\ContentGenerator::class ) ) {
+	public function generate_ai_fields( int $form_id, string $description, bool $multistep = false ) {
+		$status = self::ai_status();
+		if ( ! $status['available'] ) {
 			return new \WP_Error(
 				'uxstudio_forms_ai_unavailable',
-				__( 'The AI Assistant module is not active - enable it to use AI form generation.', 'ux-studio' ),
-				array( 'status' => 424 )
+				'module_off' === $status['reason']
+					? __( 'The AI Assistant module is off. Switch it on to use AI form generation.', 'ux-studio' )
+					: __( 'No API key is set for the AI Assistant. Add one in the AI Assistant settings to use AI form generation.', 'ux-studio' ),
+				array(
+					'status' => 424,
+					'reason' => $status['reason'],
+				)
 			);
 		}
 
@@ -393,7 +429,7 @@ final class Module extends BaseModule {
 
 		try {
 			$generator = new \UxStudio\Modules\AiAssistant\ContentGenerator();
-			$result    = $generator->generate_form_fields( $description );
+			$result    = $generator->generate_form_fields( $description, $multistep );
 		} catch ( \Throwable $e ) {
 			return new \WP_Error( 'uxstudio_forms_ai_failed', $e->getMessage(), array( 'status' => 400 ) );
 		}

@@ -45,7 +45,7 @@ function LogTable(): JSX.Element {
 
 	return (
 		<>
-			<div className="uxs-form" style={ { marginBottom: 'var(--uxs-sp-4)', flexDirection: 'row', alignItems: 'flex-end', gap: 'var(--uxs-sp-4)' } }>
+			<div className="uxs-form uxs-form--inline" style={ { marginBottom: 'var(--uxs-sp-4)' } }>
 				<div className="uxs-form__row">
 					<label htmlFor="uxs-al-module">{ __( 'Module', 'ux-studio' ) }</label>
 					<input

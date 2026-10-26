@@ -118,8 +118,8 @@ export default function Page(): JSX.Element {
 
 			{ tab === 'popups' && (
 				<>
-					<div className="uxs-form" style={ { marginBottom: 'var(--uxs-sp-5)', flexDirection: 'row', alignItems: 'flex-end', gap: 'var(--uxs-sp-3)' } }>
-						<div className="uxs-form__row" style={ { flex: 1 } }>
+					<div className="uxs-form uxs-form--inline" style={ { marginBottom: 'var(--uxs-sp-5)' } }>
+						<div className="uxs-form__row">
 							<label htmlFor="uxs-new-popup-title">{ __( 'New popup title', 'ux-studio' ) }</label>
 							<input
 								id="uxs-new-popup-title"

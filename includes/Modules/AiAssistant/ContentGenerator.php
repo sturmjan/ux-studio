@@ -19,6 +19,9 @@ defined( 'ABSPATH' ) || exit;
 
 final class ContentGenerator {
 
+	/** Longest description of a form the generator accepts (characters). */
+	public const FORM_PROMPT_MAX = 1000;
+
 	private AiProviderInterface $provider;
 
 	private static ?Settings $settings = null;
@@ -314,8 +317,8 @@ final class ContentGenerator {
 	 *
 	 * @return array<string, mixed> { fields: array<int, array<string, mixed>> } plus _usage/_provider/_model.
 	 */
-	public function generate_form_fields( string $description ): array {
-		$description = sanitize_textarea_field( $description );
+	public function generate_form_fields( string $description, bool $multistep = false ): array {
+		$description = mb_substr( sanitize_textarea_field( $description ), 0, self::FORM_PROMPT_MAX );
 		if ( strlen( $description ) < 10 ) {
 			throw new \RuntimeException( __( 'Describe the form you want in at least 10 characters.', 'ux-studio' ) );
 		}
@@ -328,6 +331,9 @@ final class ContentGenerator {
 			. 'Return the answer strictly as JSON (no markdown code block wrapper), with exactly one key "fields": an array of objects, '
 			. 'each with keys "type" (one of the allowed types above), "label" (string), "required" (boolean), '
 			. 'and optionally "placeholder" (string) and "options" (array of strings, only for choice types).';
+		if ( $multistep ) {
+			$system_prompt .= "\nSplit the form into 2-4 steps: put an object with type \"step\" and a short \"label\" (the step title) before the fields of each step. Do not add a step object at the end.";
+		}
 		$user_prompt = sprintf(
 			/* translators: %s: plain-language description of the desired form. */
 			__( 'Build the field list for this form: %s', 'ux-studio' ),

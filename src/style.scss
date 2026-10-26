@@ -83,7 +83,8 @@
 	min-height: calc(100vh - 32px - 65px); /* admin bar + footer allowance */
 	background: var(--uxs-bg);
 	border-radius: var(--uxs-radius-l);
-	overflow: hidden;
+	/* clip, not hidden: same rounded corners, but no scroll container, so sticky children (wizard toolbar, builder inspector) stick to the window. */
+	overflow: clip;
 	margin: var(--uxs-sp-4) var(--uxs-sp-4) 0 0;
 	box-shadow: var(--uxs-shadow-1);
 }
@@ -853,6 +854,242 @@
 	}
 }
 
+/* ---- Form variants ----
+   .uxs-form--stacked: label above a full-width field, no card around it (dialogs, small panels).
+   .uxs-form--inline:  the same stacked rows next to an action button, one line, bottoms aligned (a field and its
+                       "Add" button); wraps under each other on a narrow screen.
+   .uxs-form__line:    an inner flex line (own inline styles) whose rows must be stacked the same way. */
+.uxs-form.uxs-form--stacked,
+.uxs-form.uxs-form--inline,
+.uxs-form .uxs-form__line {
+	.uxs-form__row {
+		grid-template-columns: minmax(0, 1fr);
+		padding: 0;
+		border-bottom: none;
+
+		> label { grid-column: 1; grid-row: auto; padding-top: 0; }
+		> :not(label) { grid-column: 1; }
+
+		input[type="text"],
+		input[type="url"],
+		input[type="email"],
+		input[type="password"],
+		select,
+		textarea { width: 100%; box-sizing: border-box; }
+	}
+}
+
+.uxs-form.uxs-form--stacked {
+	padding: 0;
+	border: 0;
+	background: transparent;
+}
+
+.uxs-form.uxs-form--inline {
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	gap: var(--uxs-sp-3);
+	padding: var(--uxs-sp-4) var(--uxs-sp-5);
+
+	.uxs-form__row { flex: 1 1 260px; min-width: 0; }
+	> .button { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; gap: var(--uxs-sp-2); }
+
+	@media (max-width: 600px) {
+		> .button { flex: 1 1 100%; }
+	}
+}
+
+/* A settings form in a narrow container (inspector, sidebar, dialog, small screen) stacks its rows by itself:
+   label above the field, full width, tight spacing, no dividers. Wide forms keep the two-column rows. */
+.uxs-form {
+	container-type: inline-size;
+	container-name: uxs-form;
+}
+
+@container uxs-form (max-width: 520px) {
+	.uxs-form__row {
+		grid-template-columns: minmax(0, 1fr);
+		padding: var(--uxs-sp-2) 0;
+		border-bottom: none;
+
+		> label { grid-column: 1; grid-row: auto; padding-top: 0; }
+		> :not(label) { grid-column: 1; }
+
+		input[type="text"],
+		input[type="url"],
+		input[type="email"],
+		input[type="password"],
+		select,
+		textarea { width: 100%; box-sizing: border-box; }
+	}
+}
+
+/* ---- AI prompt dialog (Form Builder "Generate fields with AI") ---- */
+.uxs-modal.uxs-aigen {
+	max-width: 720px;
+	display: flex;
+	flex-direction: column;
+	gap: var(--uxs-sp-3);
+
+	.uxs-aigen__head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--uxs-sp-3);
+
+		h2 { display: inline-flex; align-items: center; gap: var(--uxs-sp-2); margin: 0; color: var(--uxs-text); }
+		svg { color: var(--uxs-brand); }
+	}
+
+	.uxs-form__help { margin: 0; color: var(--uxs-text-soft); font-size: var(--uxs-fs-s); line-height: 1.5; }
+}
+
+.uxs-aigen__card {
+	display: flex;
+	flex-direction: column;
+	background: var(--uxs-surface);
+	border: 1px solid var(--uxs-border);
+	border-radius: var(--uxs-radius-l);
+	box-shadow: var(--uxs-shadow-1);
+	transition: border-color var(--uxs-motion-fast) var(--uxs-ease), box-shadow var(--uxs-motion-fast) var(--uxs-ease);
+
+	&:focus-within {
+		border-color: var(--uxs-brand);
+		box-shadow: 0 0 0 3px var(--uxs-brand-soft);
+	}
+
+	/* Borderless on purpose: the card carries the border and the focus ring. */
+	textarea {
+		display: block;
+		width: 100%;
+		min-height: 5.5em;
+		max-height: 15em;
+		box-sizing: border-box;
+		margin: 0;
+		padding: var(--uxs-sp-4) var(--uxs-sp-4) var(--uxs-sp-2);
+		border: 0;
+		border-radius: var(--uxs-radius-l) var(--uxs-radius-l) 0 0;
+		background: transparent;
+		box-shadow: none;
+		color: var(--uxs-text);
+		font: inherit;
+		line-height: 1.5;
+		resize: none;
+		overflow-y: auto;
+
+		&:focus { outline: none; box-shadow: none; }
+		&::placeholder { color: var(--uxs-text-soft); opacity: 1; }
+	}
+}
+
+.uxs-aigen__bar {
+	display: flex;
+	align-items: center;
+	gap: var(--uxs-sp-3);
+	padding: var(--uxs-sp-2) var(--uxs-sp-3) var(--uxs-sp-3) var(--uxs-sp-4);
+}
+
+.uxs-aigen__pill,
+.uxs-aigen__chip {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--uxs-sp-2);
+	padding: 6px 14px;
+	border: 1px solid var(--uxs-border);
+	border-radius: 999px;
+	background: var(--uxs-surface);
+	color: var(--uxs-text);
+	font: inherit;
+	font-size: var(--uxs-fs-s);
+	cursor: pointer;
+	transition: background var(--uxs-motion-fast) var(--uxs-ease), border-color var(--uxs-motion-fast) var(--uxs-ease), color var(--uxs-motion-fast) var(--uxs-ease);
+
+	&:hover:not(:disabled) { border-color: var(--uxs-brand); background: var(--uxs-brand-soft); }
+	&:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--uxs-brand-soft); }
+	&:disabled { opacity: 0.55; cursor: default; }
+}
+
+.uxs-aigen__pill.is-on {
+	border-color: var(--uxs-brand);
+	background: var(--uxs-brand-soft);
+	color: var(--uxs-brand);
+}
+
+[data-theme="dark"] .uxs-aigen__pill.is-on { color: #c7d2fe; }
+
+.uxs-aigen__count {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--uxs-sp-1);
+	margin-left: auto;
+	color: var(--uxs-text-soft);
+	font-size: var(--uxs-fs-s);
+	font-variant-numeric: tabular-nums;
+}
+
+/* The one icon-only round button of the builder (40-44 px by DESIGN.md exception). */
+.uxs-aigen__send {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	width: 42px;
+	height: 42px;
+	padding: 0;
+	border: 0;
+	border-radius: 50%;
+	background: var(--uxs-brand);
+	color: #fff;
+	cursor: pointer;
+	transition: background var(--uxs-motion-fast) var(--uxs-ease), opacity var(--uxs-motion-fast) var(--uxs-ease);
+
+	&:hover:not(:disabled) { background: var(--uxs-brand-hover, var(--uxs-brand)); filter: brightness(1.1); }
+	&:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--uxs-brand-soft); }
+	/* Disabled stays readable: dimmed brand colour, not the washed-out default. */
+	&:disabled { background: color-mix(in srgb, var(--uxs-brand) 45%, var(--uxs-surface)); color: #fff; cursor: default; }
+}
+
+.uxs-modal.uxs-aigen svg[class*="loader"] { animation: uxs-spin 0.9s linear infinite; }
+
+.uxs-aigen__chips { display: flex; flex-wrap: wrap; gap: var(--uxs-sp-2); }
+
+.uxs-aigen__error {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--uxs-sp-2);
+	margin: 0;
+	padding: var(--uxs-sp-3) var(--uxs-sp-4);
+	border-radius: var(--uxs-radius-s);
+	background: color-mix(in srgb, var(--uxs-danger) 10%, var(--uxs-surface));
+	border: 1px solid color-mix(in srgb, var(--uxs-danger) 45%, var(--uxs-border));
+	color: var(--uxs-text);
+
+	svg { flex-shrink: 0; margin-top: 2px; color: var(--uxs-danger); }
+}
+
+.uxs-aigen__empty {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--uxs-sp-3);
+	padding: var(--uxs-sp-4);
+	border-radius: var(--uxs-radius);
+	border: 1px solid color-mix(in srgb, var(--uxs-warning) 60%, var(--uxs-border));
+	background: color-mix(in srgb, var(--uxs-warning) 10%, var(--uxs-surface));
+	color: var(--uxs-text);
+
+	> svg { flex-shrink: 0; margin-top: 2px; color: var(--uxs-warning); }
+	p { margin: var(--uxs-sp-1) 0 var(--uxs-sp-3); color: var(--uxs-text-soft); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.uxs-aigen__card,
+	.uxs-aigen__pill,
+	.uxs-aigen__chip,
+	.uxs-aigen__send { transition: none; }
+	.uxs-modal.uxs-aigen svg[class*="loader"] { animation: none; }
+}
+
 /* ---- Code editor (plain textarea - no heavy code-editor dependency) ---- */
 .uxs-code-editor {
 	width: 100%;
@@ -1593,7 +1830,7 @@
 
 .uxs-fb-layout {
 	display: grid;
-	grid-template-columns: 220px 1fr 300px;
+	grid-template-columns: 220px minmax(0, 1fr) clamp(300px, 26vw, 360px);
 	gap: var(--uxs-sp-4);
 	align-items: start;
 }
@@ -1739,9 +1976,49 @@
 	border-radius: var(--uxs-radius);
 	padding: var(--uxs-sp-4);
 	position: sticky;
-	top: var(--uxs-sp-4);
-	max-height: calc(100vh - 160px);
-	overflow: auto;
+	/* Below the WordPress admin bar. */
+	top: calc(32px + var(--uxs-sp-4));
+	max-height: calc(100vh - 32px - 2 * var(--uxs-sp-4));
+	overflow-x: hidden;
+	overflow-y: auto;
+	min-width: 0;
+
+	.uxs-form__help { margin-top: 0; }
+}
+
+/* Segmented control for the tabs of the selected field (inside the inspector, not in the plugin sidebar). */
+.uxs-fb-tabs {
+	display: flex;
+	gap: 2px;
+	margin: 0 0 var(--uxs-sp-3);
+	padding: 3px;
+	background: var(--uxs-surface-2);
+	border-radius: var(--uxs-radius-s);
+
+	button {
+		flex: 1 1 0;
+		min-width: 0;
+		padding: 6px 4px;
+		border: 0;
+		border-radius: calc(var(--uxs-radius-s) - 2px);
+		background: transparent;
+		color: var(--uxs-text-soft);
+		font: inherit;
+		font-size: var(--uxs-fs-s);
+		cursor: pointer;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		transition: background var(--uxs-motion-fast) var(--uxs-ease), color var(--uxs-motion-fast) var(--uxs-ease);
+
+		&:hover { color: var(--uxs-text); }
+		&:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--uxs-brand-soft); }
+		&.is-active { background: var(--uxs-surface); color: var(--uxs-text); font-weight: 600; box-shadow: var(--uxs-shadow-1); }
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.uxs-fb-tabs button { transition: none; }
 }
 
 .uxs-fb-empty {

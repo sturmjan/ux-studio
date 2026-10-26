@@ -471,7 +471,7 @@ function RecordForm( {
 	return (
 		<div className="uxs-form" style={ { maxWidth: 'none', marginBottom: 'var(--uxs-sp-4)' } }>
 			<h3 style={ { marginTop: 0 } }>{ editing ? __( 'Edit record', 'ux-studio' ) : __( 'Add record', 'ux-studio' ) }</h3>
-			<div style={ { display: 'flex', flexWrap: 'wrap', gap: 'var(--uxs-sp-3)', alignItems: 'flex-end' } }>
+			<div className="uxs-form__line" style={ { display: 'flex', flexWrap: 'wrap', gap: 'var(--uxs-sp-3)', alignItems: 'flex-end' } }>
 				<div className="uxs-form__row">
 					<label htmlFor="uxs-dns-type">{ __( 'Type', 'ux-studio' ) }</label>
 					<select id="uxs-dns-type" value={ draft.type } disabled={ editing } onChange={ ( e ) => set( { type: e.target.value as RecType, proxied: false } ) }>
