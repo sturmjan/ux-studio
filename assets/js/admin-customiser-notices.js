@@ -86,9 +86,25 @@
         return 'info';
     }
 
+    // Core's button, Elementor's dismiss icon (an empty <i role="button">) and Freemius' "Dismiss" block (.fs-close,
+    // used by many plugins that ship the Freemius SDK; its own script binds the AJAX dismissal to that element).
+    var DISMISS = '.notice-dismiss, .e-notice__dismiss, .fs-close';
+    // Any other plugin: a small button or link named like a dismissal ("Hide", "Dismiss", "Close" classes).
+    var DISMISS_LIKE = /(^|[-_\s])(dismiss|close|hide)([-_\s]|$)/i;
+
     function dismissButton(el) {
-        // Core's button, or Elementor's own dismiss icon (an empty <i role="button">).
-        return el.querySelector('.notice-dismiss, .e-notice__dismiss');
+        var known = el.querySelector(DISMISS);
+        if (known) return known;
+        var found = null;
+        Array.prototype.some.call(el.querySelectorAll('a, button, [role="button"]'), function(node) {
+            if (!DISMISS_LIKE.test(typeof node.className === 'string' ? node.className : '')) return false;
+            if (node.textContent.trim().length > 25) return false;
+            found = node;
+            return true;
+        });
+        // Marked so the stylesheet can hide it: the card shows its own cross instead.
+        if (found) found.setAttribute('data-uxs-dismiss', '1');
+        return found;
     }
 
     function isDismissible(el) {
@@ -115,7 +131,7 @@
         });
 
         var first = notice.firstElementChild;
-        if (first && first.tagName !== 'P' && !/^H[1-6]$/.test(first.tagName) && !first.matches('.notice-dismiss, .e-notice__dismiss')
+        if (first && first.tagName !== 'P' && !/^H[1-6]$/.test(first.tagName) && !first.matches(DISMISS + ', [data-uxs-dismiss]')
             && first.querySelectorAll('a').length === 1 && first.textContent.trim().length < 60
             && (first.style.cssFloat === 'right' || /dismiss|hide|close/i.test(first.className))) {
             notice.appendChild(first);
@@ -124,7 +140,7 @@
         // Bottom-up: an element with no text and nothing to click is dropped.
         var nodes = Array.prototype.slice.call(notice.querySelectorAll('*')).reverse();
         nodes.forEach(function(node) {
-            if (!node.isConnected || node.matches('.notice-dismiss, .e-notice__dismiss')) return;
+            if (!node.isConnected || node.matches(DISMISS + ', [data-uxs-dismiss]')) return;
             if (!node.textContent.trim() && !node.matches(INTERACTIVE) && !node.querySelector(INTERACTIVE)) node.remove();
         });
     }

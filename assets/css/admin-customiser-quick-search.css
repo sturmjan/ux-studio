@@ -1,10 +1,11 @@
 /*
  * Quick Search - one merged search control in the admin bar (right side).
  *
- * Collapsed: a magnifier. Expanded: an inline field that grows out of the icon to the left (field and magnifier form
- * one light pill), with a light combobox dropdown below. The dropdown is deliberately light in every admin color
- * scheme (it is a reading surface, not part of the bar), so it does not read colors from the bar; only the accent bar
- * of the keyboard-active row follows the scheme.
+ * Collapsed: a magnifier. Expanded: an inline field that grows out of the icon to the left. The field and the
+ * magnifier stay part of the bar (they take the bar's text color and a translucent tint of it, like the rest of
+ * WordPress' bar); only the combobox dropdown below is a light surface in every admin color scheme (it is a reading
+ * surface, not part of the bar), so it does not read colors from the bar; only the accent bar of the keyboard-active
+ * row follows the scheme.
  *
  * Every rule is prefixed "#wpadminbar .uxstudio-qs" (specificity 1,2,0) on purpose: WordPress styles anything inside
  * the bar with "#wpadminbar *", "#wpadminbar .quicklinks a" and friends, and those must lose against ours.
@@ -83,13 +84,14 @@
 		right: 100%;
 	}
 
-	/* Expanded: the magnifier sits inside the light pill, as its right end. */
+	/* Expanded: the magnifier sits next to the field as its right end, same tint as the field. */
 	#wpadminbar .uxstudio-qs[data-collapsed="false"] .uxstudio-qs__toggle,
 	#wpadminbar .uxstudio-qs[data-collapsed="false"] .uxstudio-qs__toggle:hover {
 		height: 28px;
-		background: #fff;
+		background: rgba(128, 128, 128, 0.28);
+		background: color-mix(in srgb, currentColor 18%, transparent);
 		border-radius: 0 6px 6px 0;
-		color: #6b7280;
+		color: inherit;
 	}
 
 	#wpadminbar .uxstudio-qs[data-collapsed="false"] .uxstudio-qs__toggle:focus-visible {
@@ -112,7 +114,8 @@
 	height: 28px;
 	overflow: hidden;
 	visibility: hidden;
-	background: #fff;
+	background: rgba(128, 128, 128, 0.28);
+	background: color-mix(in srgb, currentColor 18%, transparent);
 	border-radius: 6px 0 0 6px;
 	transition: width 0.22s var(--uxs-qs-ease), visibility 0s linear 0.22s;
 }
@@ -135,13 +138,13 @@
 	border: 0;
 	border-radius: 6px 0 0 6px;
 	box-shadow: none;
-	color: #111827;
+	color: inherit;
 	font: 400 13px/28px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 #wpadminbar .uxstudio-qs .uxstudio-qs__input::placeholder {
-	color: #6b7280;
-	opacity: 1;
+	color: inherit;
+	opacity: 0.65;
 }
 
 #wpadminbar .uxstudio-qs .uxstudio-qs__input:focus {
@@ -149,7 +152,7 @@
 	border: 0;
 	box-shadow: none;
 	background: transparent;
-	color: #111827;
+	color: inherit;
 }
 
 #wpadminbar .uxstudio-qs .uxstudio-qs__field:focus-within {
@@ -578,8 +581,9 @@
 		width: auto;
 		height: 52px;
 		padding: 8px 10px;
-		background: #fff;
-		border-bottom: 1px solid #e5e7eb;
+		background: #2c3338;
+		color: #f0f0f1;
+		border-bottom: 1px solid #3c434a;
 		border-radius: 0;
 		box-shadow: 0 6px 14px rgba(15, 23, 42, 0.12);
 		opacity: 0;
@@ -600,16 +604,17 @@
 	#wpadminbar .uxstudio-qs .uxstudio-qs__input {
 		height: 36px;
 		padding: 0 34px 0 12px;
-		background: #f3f4f6;
-		border: 1px solid #e5e7eb;
+		background: rgba(255, 255, 255, 0.12);
+		border: 1px solid #50575e;
 		border-radius: 8px;
+		color: #f0f0f1;
 		font-size: 16px; /* below 16px iOS zooms the page on focus */
 		line-height: 34px;
 	}
 
 	#wpadminbar .uxstudio-qs .uxstudio-qs__input:focus {
 		border: 1px solid var(--uxs-qs-accent);
-		background: #fff;
+		background: rgba(255, 255, 255, 0.12);
 	}
 
 	#wpadminbar .uxstudio-qs .uxstudio-qs__spinner {
