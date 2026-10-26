@@ -194,5 +194,27 @@ $assert( 'the bundled minimums are valid versions of their branch', (static func
 	return true;
 })() );
 
+/* ── Where the warning shows (PhpVersionNotice::visibility) ── */
+
+use UxStudio\Modules\SecurityOptimization\PhpVersionNotice as N;
+
+$crit = $eval( '8.1.34' );
+$warn = $eval( '8.3.36', null, '2027-11-20' );
+$okr  = $eval( '8.4.30' );
+$assert( 'visibility fixtures: critical / warning / ok', 'critical' === $crit['level'] && 'warning' === $warn['level'] && 'ok' === $okr['level'], $crit['level'] . '/' . $warn['level'] . '/' . $okr['level'] );
+$vis = static fn( array $r, bool $can, $snooze, string $dis, string $v, string $ctx ): string => ( ( $x = N::visibility( $r, $can, $snooze, $dis, $v, $now, $ctx ) )['notice'] ? 'N' : '-' ) . ( $x['bar'] ? 'B' : '-' ) . ( $x['dismissible'] ? 'D' : '-' );
+
+$assert( 'visibility: administrator, critical, admin screen -> notice + bar, not dismissible', 'NB-' === $vis( $crit, true, array(), '', '8.1.34', 'admin' ) );
+$assert( 'visibility: administrator, critical, front end -> bar only', '-B-' === $vis( $crit, true, array(), '', '8.1.34', 'front' ) );
+$assert( 'visibility: not an administrator -> nothing, anywhere', '---' === $vis( $crit, false, array(), '', '8.1.34', 'admin' ) && '---' === $vis( $crit, false, array(), '', '8.1.34', 'front' ) );
+$assert( 'visibility: level ok -> nothing', '---' === $vis( $okr, true, array(), '', '8.4.30', 'admin' ) );
+$assert( 'visibility: warning -> notice + bar, dismissible', 'NBD' === $vis( $warn, true, array(), '', '8.3.36', 'admin' ) );
+$snz = array( 'until' => $now + 100, 'version' => '8.1.34' );
+$assert( 'visibility: snooze hides the notice and the bar', '---' === $vis( $crit, true, $snz, '', '8.1.34', 'admin' ) && '---' === $vis( $crit, true, $snz, '', '8.1.34', 'front' ) );
+$assert( 'visibility: snooze of another PHP version does not count', 'NB-' === $vis( $crit, true, $snz, '', '8.1.35', 'admin' ) );
+$assert( 'visibility: a hidden warning hides the notice only (bar stays)', '-BD' === $vis( $warn, true, array(), N::dismiss_key( $warn ), '8.3.36', 'admin' ) );
+$assert( 'visibility: a hidden warning for another end date comes back', 'NBD' === $vis( $warn, true, array(), '8.3|2020-01-01', '8.3.36', 'admin' ) );
+$assert( 'visibility: the critical notice cannot be dismissed away', 'NB-' === $vis( $crit, true, array(), N::dismiss_key( $crit ), '8.1.34', 'admin' ) );
+
 echo PHP_EOL . ( 0 === $failures ? 'ALL PASSED' : $failures . ' FAILED' ) . PHP_EOL;
 exit( 0 === $failures ? 0 : 1 );

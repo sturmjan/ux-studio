@@ -113,7 +113,8 @@ final class HideAdminNotices {
 	 */
 	public function enqueue_assets(): void {
 		if ( ! $this->relocate ) {
-			wp_add_inline_style( 'wp-admin', 'body.wp-admin .notice { display: none !important; }' );
+			// The PHP version notice (UX Studio core) is the one notice that is never hidden.
+			wp_add_inline_style( 'wp-admin', 'body.wp-admin .notice:not(#uxstudio-php-version-notice) { display: none !important; }' );
 			return;
 		}
 

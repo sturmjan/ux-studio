@@ -12,12 +12,17 @@ use UxStudio\Core\ActivityLog;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Shown to administrators whenever the PHP version is not ok. Registered from the Security module boot only.
+ * Shown to administrators whenever the PHP version is not ok. Registered by the plugin core
+ * (Core\PhpVersion\Bootstrap), so it works on a site that has not enabled any module.
  *
  *  - Dashboard widget, top of the main column, red (critical) or yellow (warning), impossible to hide (same
  *    pattern as CspDashboardWidget).
- *  - Admin notice on every admin screen. It has no close button; the only way to silence it is "verified with
- *    hosting, hide for 30 days", which is stored together with the PHP version, so a new version shows it again.
+ *  - Admin notice on every admin screen, also on the UX Studio page. While critical it has no close button; the
+ *    only way to silence it is "verified with hosting, hide for 30 days", which is stored together with the PHP
+ *    version, so a new version shows it again. The warning level (end of support soon) can also be hidden per user.
+ *  - Admin bar node (front end and admin) for administrators, red or yellow, hidden while snoozed.
+ *
+ * Nothing is ever printed for visitors or users without `manage_options`.
  */
 final class PhpVersionNotice {
 
@@ -25,12 +30,126 @@ final class PhpVersionNotice {
 
 	public const ACTION = 'uxstudio_php_version_snooze';
 
+	public const DISMISS_ACTION = 'uxstudio_php_version_dismiss';
+
+	/** User meta: `branch|eol` of the warning this user hid. */
+	public const DISMISS_META = 'uxstudio_php_version_dismissed';
+
+	public const BAR_NODE = 'uxstudio-php-version';
+
 	public const SNOOZE_DAYS = 30;
 
 	/**
-	 * Register the widget, the notice and the snooze handler.
+	 * Marker of one warning, so a hidden warning comes back when the end-of-support date changes.
+	 *
+	 * @param array $r Result of evaluate().
+	 */
+	public static function dismiss_key( array $r ): string {
+		return (string) $r['branch'] . '|' . (string) $r['eol'];
+	}
+
+	/**
+	 * Where to show what. Pure (no WordPress calls), so the tests can drive every case.
+	 *
+	 *  - Nothing for anybody without `manage_options`, and nothing when the level is ok.
+	 *  - A snooze (same PHP version, not expired) hides the notice AND the admin bar node.
+	 *  - The notice exists in the admin only. Critical: not dismissible. Warning: dismissible, and a user who
+	 *    dismissed this very warning does not get the notice again (the admin bar node stays).
+	 *
+	 * @param array  $r         Result of evaluate().
+	 * @param bool   $can       Whether the user has `manage_options`.
+	 * @param mixed  $snooze    Stored snooze option.
+	 * @param string $dismissed User meta value (see dismiss_key()).
+	 * @param string $version   PHP_VERSION.
+	 * @param int    $now       Unix time.
+	 * @param string $context   `admin` or `front`.
+	 * @return array{notice:bool,bar:bool,dismissible:bool}
+	 */
+	public static function visibility( array $r, bool $can, $snooze, string $dismissed, string $version, int $now, string $context ): array {
+		if ( ! $can || 'ok' === $r['level'] || PhpVersionCheck::snoozed( $snooze, $version, $now ) ) {
+			return array(
+				'notice'      => false,
+				'bar'         => false,
+				'dismissible' => false,
+			);
+		}
+		$warning = 'warning' === $r['level'];
+		return array(
+			'notice'      => 'admin' === $context && ! ( $warning && '' !== $dismissed && self::dismiss_key( $r ) === $dismissed ),
+			'bar'         => true,
+			'dismissible' => $warning,
+		);
+	}
+
+	/**
+	 * The decision for the current request and user.
+	 *
+	 * @return array{notice:bool,bar:bool,dismissible:bool}
+	 */
+	private static function current_visibility(): array {
+		$user = get_current_user_id();
+		return self::visibility(
+			PhpVersionMaintenance::result(),
+			current_user_can( 'manage_options' ),
+			get_option( PhpVersionMaintenance::OPTION_SNOOZE, array() ),
+			$user > 0 ? (string) get_user_meta( $user, self::DISMISS_META, true ) : '',
+			PHP_VERSION,
+			time(),
+			is_admin() ? 'admin' : 'front'
+		);
+	}
+
+	/**
+	 * Admin bar node (front end and admin) for administrators.
+	 *
+	 * @param \WP_Admin_Bar $bar Admin bar.
+	 */
+	public static function add_bar_node( $bar ): void {
+		if ( ! self::current_visibility()['bar'] ) {
+			return;
+		}
+		$r        = PhpVersionMaintenance::result();
+		$critical = 'critical' === $r['level'];
+		$external = $critical && '' !== $r['advisory_url'];
+		$bar->add_node(
+			array(
+				'id'    => self::BAR_NODE,
+				'title' => esc_html(
+					$critical
+						/* translators: %s: PHP version. */
+						? sprintf( __( 'PHP %s: critical vulnerability', 'ux-studio' ), PHP_VERSION )
+						: __( 'PHP: end of support', 'ux-studio' )
+				),
+				'href'  => $external ? $r['advisory_url'] : admin_url( 'admin.php?page=ux-studio#/module?id=security-optimization' ),
+				'meta'  => array(
+					'class'  => 'uxstudio-php-bar uxstudio-php-bar--' . ( $critical ? 'critical' : 'warning' ),
+					'target' => $external ? '_blank' : '',
+					'rel'    => $external ? 'noopener noreferrer' : '',
+				),
+			)
+		);
+	}
+
+	/**
+	 * Minimal CSS for the node, printed only when the node is shown.
+	 */
+	public static function print_bar_css(): void {
+		if ( ! is_admin_bar_showing() || ! self::current_visibility()['bar'] ) {
+			return;
+		}
+		echo '<style id="uxstudio-php-bar-css">#wpadminbar .uxstudio-php-bar--critical>.ab-item{background:#d63638!important;color:#fff!important;font-weight:600}'
+			. '#wpadminbar .uxstudio-php-bar--warning>.ab-item{background:#dba617!important;color:#1d2327!important;font-weight:600}'
+			. '#wpadminbar .uxstudio-php-bar>.ab-item:hover{opacity:.9}</style>' . "\n";
+	}
+
+	/**
+	 * Register the widget, the notice, the admin bar node and the snooze / dismiss handlers.
 	 */
 	public static function register(): void {
+		add_action( 'admin_post_' . self::DISMISS_ACTION, array( self::class, 'handle_dismiss' ) );
+		add_action( 'admin_bar_menu', array( self::class, 'add_bar_node' ), 999 );
+		add_action( 'wp_head', array( self::class, 'print_bar_css' ), 99 );
+		add_action( 'admin_head', array( self::class, 'print_bar_css' ), 99 );
 		add_action( 'wp_dashboard_setup', array( self::class, 'add_widget' ), 1000 );
 		add_filter( 'get_user_option_metaboxhidden_dashboard', array( self::class, 'never_hidden' ) );
 		add_filter( 'get_user_option_closedpostboxes_dashboard', array( self::class, 'never_hidden' ) );
@@ -159,16 +278,15 @@ final class PhpVersionNotice {
 	 * Admin notice (administrators, every admin screen).
 	 */
 	public static function render_notice(): void {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		$v = self::current_visibility();
+		if ( ! $v['notice'] ) {
 			return;
 		}
-		$r = PhpVersionMaintenance::result();
-		if ( ! self::should_show( $r, get_option( PhpVersionMaintenance::OPTION_SNOOZE, array() ), time() ) ) {
-			return;
-		}
+		$r     = PhpVersionMaintenance::result();
 		$class = 'critical' === $r['level'] ? 'notice-error' : 'notice-warning';
 		$url   = wp_nonce_url( admin_url( 'admin-post.php?action=' . self::ACTION ), self::ACTION );
-		// `below-h2` keeps WordPress and the Admin Customiser from moving or hiding this one: it must be seen.
+		// `below-h2` keeps WordPress and the Admin Customiser from moving it to the tray; the Admin Customiser
+		// "hide all notices" rule also leaves this id alone (HideAdminNotices). It must be seen.
 		echo '<div id="uxstudio-php-version-notice" class="notice ' . esc_attr( $class ) . ' below-h2">'
 			. '<p><strong>' . esc_html( 'critical' === $r['level'] ? __( 'Critical: the PHP version of this website is not safe.', 'ux-studio' ) : __( 'The PHP version of this website will soon lose security support.', 'ux-studio' ) ) . '</strong></p>'
 			. '<p>' . esc_html( self::message( $r ) ) . '</p>';
@@ -178,8 +296,28 @@ final class PhpVersionNotice {
 		if ( $r['distro_build'] ) {
 			echo '<p>' . esc_html( self::backport_note() ) . '</p>';
 		}
-		echo '<p><a class="button" href="' . esc_url( $url ) . '">' . esc_html__( 'Verified with hosting, hide for 30 days', 'ux-studio' ) . '</a></p>'
-			. '</div>';
+		echo '<p><a class="button" href="' . esc_url( $url ) . '">' . esc_html__( 'Verified with hosting, hide for 30 days', 'ux-studio' ) . '</a>';
+		if ( $v['dismissible'] ) {
+			$hide = wp_nonce_url( admin_url( 'admin-post.php?action=' . self::DISMISS_ACTION ), self::DISMISS_ACTION );
+			echo ' <a class="button-link" href="' . esc_url( $hide ) . '">' . esc_html__( 'Hide this warning', 'ux-studio' ) . '</a>';
+		}
+		echo '</p></div>';
+	}
+
+	/**
+	 * admin-post handler: a user hides the warning (not the critical notice) for themselves.
+	 */
+	public static function handle_dismiss(): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You are not allowed to do this.', 'ux-studio' ), '', array( 'response' => 403 ) );
+		}
+		check_admin_referer( self::DISMISS_ACTION );
+		$r = PhpVersionMaintenance::result();
+		if ( 'warning' === $r['level'] ) {
+			update_user_meta( get_current_user_id(), self::DISMISS_META, self::dismiss_key( $r ) );
+		}
+		wp_safe_redirect( wp_get_referer() ?: admin_url() );
+		exit;
 	}
 
 	/**

@@ -71,9 +71,7 @@ final class Module extends BaseModule {
 		$csp_mode = $this->csp_policy()->mode();
 		CspMaintenance::register( $csp_mode );
 
-		/* ── PHP version check: widget, notice, daily refresh + e-mail (the REST route is core and always on) ── */
-		PhpVersionNotice::register();
-		PhpVersionMaintenance::register();
+		/* ── PHP version check: runs from the plugin core (Core\PhpVersion\Bootstrap), not from this module ── */
 		if ( 'off' !== $csp_mode ) {
 			CspDashboardWidget::register();
 		}
@@ -1846,7 +1844,6 @@ final class Module extends BaseModule {
 		// ended so re-enabling later does not resume a stale worklist.
 		CspUploadGuardBootstrap::on_deactivate();
 		CspMaintenance::unschedule();
-		PhpVersionMaintenance::unschedule();
 		( new UploadGuardScanner() )->abort_full_scan();
 	}
 
