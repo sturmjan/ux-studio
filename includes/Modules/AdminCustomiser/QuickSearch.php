@@ -53,7 +53,7 @@ final class QuickSearch {
 					<input class="uxstudio-qs__input" id="uxstudio-qs-input" type="text" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="false" aria-controls="uxstudio-qs-results" autocomplete="off" spellcheck="false" placeholder="%2$s">
 					<span class="uxstudio-qs__spinner" aria-hidden="true" hidden></span>
 				</div>
-				<div class="uxstudio-qs__panel-container">
+				<div class="uxstudio-qs__panel-container wp-exclude-emoji">
 					<ul class="uxstudio-qs__panel" id="uxstudio-qs-results" role="listbox" aria-label="%3$s"></ul>
 					<span aria-live="polite" class="uxstudio-qs__message screen-reader-text" data-message-type=""></span>
 				</div>
@@ -123,6 +123,12 @@ final class QuickSearch {
 				'noResults' => __( 'No results.', 'ux-studio' ),
 				'error'     => __( 'Search failed.', 'ux-studio' ),
 				'commands'  => __( 'WordPress commands...', 'ux-studio' ),
+				'searching' => __( 'Searching...', 'ux-studio' ),
+				'edit'      => __( 'Edit', 'ux-studio' ),
+				'view'      => __( 'View', 'ux-studio' ),
+				'open'      => __( 'Open', 'ux-studio' ),
+				/* translators: %d: number of matches. */
+				'showAll'   => __( 'Show all (%d)', 'ux-studio' ),
 			)
 		);
 	}

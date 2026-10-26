@@ -1,9 +1,13 @@
 /*
  * Quick Search - one merged search control in the admin bar (right side).
  *
- * Collapsed: a magnifier. Expanded: an inline field that grows out of the icon to the left, with a combobox dropdown
- * below. Colours come from --uxs-qs-bg / --uxs-qs-fg, which the script copies from the admin bar itself, so every
- * admin colour scheme (light, dark, custom) stays readable.
+ * Collapsed: a magnifier. Expanded: an inline field that grows out of the icon to the left (field and magnifier form
+ * one light pill), with a light combobox dropdown below. The dropdown is deliberately light in every admin color
+ * scheme (it is a reading surface, not part of the bar), so it does not read colors from the bar; only the accent bar
+ * of the keyboard-active row follows the scheme.
+ *
+ * Every rule is prefixed "#wpadminbar .uxstudio-qs" (specificity 1,2,0) on purpose: WordPress styles anything inside
+ * the bar with "#wpadminbar *", "#wpadminbar .quicklinks a" and friends, and those must lose against ours.
  */
 
 #wpadminbar #wp-admin-bar-uxstudio-admin-bar-search {
@@ -18,25 +22,25 @@
 	cursor: default;
 }
 
+/* The li stays calm when hovered: only the magnifier reacts, the dropdown below is a separate surface. */
+#wpadminbar .ab-top-menu > #wp-admin-bar-uxstudio-admin-bar-search:hover > .ab-item,
+#wpadminbar .ab-top-menu > #wp-admin-bar-uxstudio-admin-bar-search > .ab-item:hover,
+#wpadminbar #wp-admin-bar-top-secondary > #wp-admin-bar-uxstudio-admin-bar-search:hover > .ab-item {
+	background: transparent;
+	color: inherit;
+}
+
 #wpadminbar .uxstudio-qs {
-	--uxs-qs-bg: #1d2327;
-	--uxs-qs-fg: #f0f0f1;
-	--uxs-qs-line: rgba(255, 255, 255, 0.18);
+	--uxs-qs-accent: var(--uxs-admin-primary, var(--wp-admin-theme-color, #2271b1));
 	--uxs-qs-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 	display: flex;
 	align-items: center;
 	height: 32px;
 }
 
-@supports (color: color-mix(in srgb, red 10%, transparent)) {
-	#wpadminbar .uxstudio-qs {
-		--uxs-qs-line: color-mix(in srgb, var(--uxs-qs-fg) 24%, transparent);
-	}
-}
-
 /* ── Magnifier ───────────────────────────────────────────────── */
 
-#wpadminbar .uxstudio-qs__toggle {
+#wpadminbar .uxstudio-qs .uxstudio-qs__toggle {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -52,15 +56,14 @@
 	box-shadow: none;
 }
 
-#wpadminbar .uxstudio-qs__toggle:hover,
-#wpadminbar .uxstudio-qs__toggle:focus-visible,
-#wpadminbar .uxstudio-qs[data-collapsed="false"] .uxstudio-qs__toggle {
+#wpadminbar .uxstudio-qs .uxstudio-qs__toggle:hover,
+#wpadminbar .uxstudio-qs .uxstudio-qs__toggle:focus-visible {
 	background: rgba(128, 128, 128, 0.22);
 	outline: none;
 }
 
-#wpadminbar .uxstudio-qs__toggle:focus-visible {
-	box-shadow: inset 0 0 0 2px var(--uxs-admin-primary, #72aee6);
+#wpadminbar .uxstudio-qs .uxstudio-qs__toggle:focus-visible {
+	box-shadow: inset 0 0 0 2px var(--uxs-qs-accent);
 }
 
 /* While the field is open and the bar is crowded, the server clock and then the user name step aside (see fitField in the script). */
@@ -79,6 +82,19 @@
 		top: 2px;
 		right: 100%;
 	}
+
+	/* Expanded: the magnifier sits inside the light pill, as its right end. */
+	#wpadminbar .uxstudio-qs[data-collapsed="false"] .uxstudio-qs__toggle,
+	#wpadminbar .uxstudio-qs[data-collapsed="false"] .uxstudio-qs__toggle:hover {
+		height: 28px;
+		background: #fff;
+		border-radius: 0 6px 6px 0;
+		color: #6b7280;
+	}
+
+	#wpadminbar .uxstudio-qs[data-collapsed="false"] .uxstudio-qs__toggle:focus-visible {
+		box-shadow: inset 0 0 0 2px var(--uxs-qs-accent);
+	}
 }
 
 /* ── Field: grows out of the icon to the left ──────────────────
@@ -86,7 +102,7 @@
  * instead of being painted over them. On small screens it becomes an absolutely positioned row (see the media query).
  */
 
-#wpadminbar .uxstudio-qs__field {
+#wpadminbar .uxstudio-qs .uxstudio-qs__field {
 	position: relative;
 	order: -1;
 	flex: none;
@@ -96,8 +112,8 @@
 	height: 28px;
 	overflow: hidden;
 	visibility: hidden;
-	background: var(--uxs-qs-bg);
-	border-radius: 4px 0 0 4px;
+	background: #fff;
+	border-radius: 6px 0 0 6px;
 	transition: width 0.22s var(--uxs-qs-ease), visibility 0s linear 0.22s;
 }
 
@@ -107,47 +123,51 @@
 	transition: width 0.22s var(--uxs-qs-ease), visibility 0s;
 }
 
-#wpadminbar .uxstudio-qs__input {
+#wpadminbar .uxstudio-qs .uxstudio-qs__input {
 	box-sizing: border-box;
 	flex: 1;
 	width: 100%;
 	min-width: 0;
 	height: 28px;
 	margin: 0;
-	padding: 0 10px;
-	background: rgba(128, 128, 128, 0.16);
-	border: 1px solid var(--uxs-qs-line);
-	border-radius: 4px 0 0 4px;
+	padding: 0 26px 0 10px;
+	background: transparent;
+	border: 0;
+	border-radius: 6px 0 0 6px;
 	box-shadow: none;
-	color: var(--uxs-qs-fg);
-	font-size: 13px;
-	line-height: 26px;
+	color: #111827;
+	font: 400 13px/28px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-#wpadminbar .uxstudio-qs__input::placeholder {
-	color: var(--uxs-qs-fg);
-	opacity: 0.6;
+#wpadminbar .uxstudio-qs .uxstudio-qs__input::placeholder {
+	color: #6b7280;
+	opacity: 1;
 }
 
-#wpadminbar .uxstudio-qs__input:focus {
+#wpadminbar .uxstudio-qs .uxstudio-qs__input:focus {
 	outline: none;
-	border-color: var(--uxs-admin-primary, #72aee6);
-	box-shadow: 0 0 0 1px var(--uxs-admin-primary, #72aee6);
-	background: rgba(128, 128, 128, 0.22);
+	border: 0;
+	box-shadow: none;
+	background: transparent;
+	color: #111827;
 }
 
-#wpadminbar .uxstudio-qs__spinner {
+#wpadminbar .uxstudio-qs .uxstudio-qs__field:focus-within {
+	box-shadow: inset 0 0 0 2px var(--uxs-qs-accent);
+}
+
+#wpadminbar .uxstudio-qs .uxstudio-qs__spinner {
 	position: absolute;
 	right: 8px;
 	width: 12px;
 	height: 12px;
-	border: 2px solid var(--uxs-qs-line);
-	border-top-color: var(--uxs-qs-fg);
+	border: 2px solid #d1d5db;
+	border-top-color: #6b7280;
 	border-radius: 50%;
 	animation: uxstudio-qs-spin 0.6s linear infinite;
 }
 
-#wpadminbar .uxstudio-qs__spinner[hidden] {
+#wpadminbar .uxstudio-qs .uxstudio-qs__spinner[hidden] {
 	display: none;
 }
 
@@ -157,47 +177,68 @@
 
 /* ── Dropdown ────────────────────────────────────────────────── */
 
-#wpadminbar .uxstudio-qs__panel-container {
+#wpadminbar .uxstudio-qs .uxstudio-qs__panel-container {
 	position: absolute;
-	top: 32px;
+	top: 38px;
 	right: 0;
 	z-index: 99999;
 	display: none;
 	box-sizing: border-box;
-	width: max-content;
-	min-width: min(320px, calc(100vw - 16px));
-	max-width: min(560px, calc(100vw - 16px));
-	max-height: 70vh;
+	float: none;
+	width: min(460px, calc(100vw - 16px));
+	height: auto;
+	max-height: min(70vh, 560px);
+	margin: 0;
+	padding: 0;
+	overflow-x: hidden;
 	overflow-y: auto;
-	background: var(--uxs-qs-bg);
-	border: 1px solid var(--uxs-qs-line);
-	border-radius: 6px;
-	box-shadow: 0 10px 28px rgba(0, 0, 0, 0.32);
-	color: var(--uxs-qs-fg);
+	overscroll-behavior: contain;
+	background: #fff;
+	border: 1px solid #e5e7eb;
+	border-radius: 12px;
+	box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14);
+	color: #111827;
+	color-scheme: light;
+	font: 400 13px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	letter-spacing: normal;
+	text-align: left;
+	text-shadow: none;
+	text-transform: none;
 	animation: uxstudio-qs-drop 0.14s ease-out;
 }
 
-#wpadminbar .uxstudio-qs__panel-container.is-open {
+#wpadminbar .uxstudio-qs .uxstudio-qs__panel-container.is-open {
 	display: block;
 }
 
 @keyframes uxstudio-qs-drop {
-	from { opacity: 0; transform: translateY(-4px); }
+	from { opacity: 0; transform: translateY(4px); }
 	to { opacity: 1; transform: none; }
 }
 
+/* WordPress gives every element in the bar its own line height (about 32px); take ours from the panel instead. */
+#wpadminbar .uxstudio-qs .uxstudio-qs__panel-container *,
+#wpadminbar .uxstudio-qs .uxstudio-qs__panel-container *::before,
+#wpadminbar .uxstudio-qs .uxstudio-qs__panel-container *::after {
+	box-sizing: border-box;
+	font-family: inherit;
+	letter-spacing: inherit;
+	line-height: inherit;
+	text-shadow: none;
+}
+
 /* A column: every entry (heading or row) is its own full-width line, whatever the admin bar does to li elements. */
-#wpadminbar .uxstudio-qs__panel {
+#wpadminbar .uxstudio-qs .uxstudio-qs__panel {
 	display: flex;
 	flex-direction: column;
 	align-items: stretch;
 	margin: 0;
-	padding: 6px 0;
+	padding: 0;
 	list-style: none;
 }
 
 /* WordPress floats and sizes every li inside the admin bar; undo that for ours. */
-#wpadminbar .uxstudio-qs__panel > li {
+#wpadminbar .uxstudio-qs .uxstudio-qs__panel > li {
 	float: none;
 	clear: both;
 	flex: 0 0 auto;
@@ -207,117 +248,292 @@
 	height: auto;
 	min-height: 0;
 	box-sizing: border-box;
+	z-index: auto; /* "#wpadminbar ul li" sets 99999, which would put the rows above the sticky headings and footer */
 	list-style: none;
 	text-align: left;
-}
-
-#wpadminbar .uxstudio-qs__panel > .uxstudio-qs__group-heading {
-	display: block;
-	margin: 0;
-	padding: 8px 12px 2px;
-	font-size: 10px;
-	font-weight: 600;
-	line-height: 1.4;
-	text-transform: uppercase;
-	letter-spacing: 0.06em;
-	color: var(--uxs-qs-fg);
-	opacity: 0.6;
-}
-
-#wpadminbar .uxstudio-qs__empty {
-	margin: 0;
-	padding: 8px 12px;
+	color: #111827;
+	font-family: inherit;
 	font-size: 13px;
-	line-height: 1.5;
-	opacity: 0.75;
+	font-weight: 400;
+	line-height: 1.4;
 }
 
-#wpadminbar .uxstudio-qs__row {
+#wpadminbar .uxstudio-qs .uxstudio-qs__panel > .uxstudio-qs__group-heading {
+	position: sticky;
+	top: 0;
+	z-index: 2;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: 8px;
 	margin: 0;
-	padding: 6px 12px;
-	font-size: 13px;
-	line-height: 1.5;
-	color: var(--uxs-qs-fg);
+	padding: 10px 12px 4px;
+	background: #fff;
+	color: #6b7280;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.05em;
+	line-height: 1.3;
+	text-transform: uppercase;
+}
+
+#wpadminbar .uxstudio-qs .uxstudio-qs__group-count {
+	color: #9ca3af;
+	font-weight: 500;
+	letter-spacing: 0;
+	font-variant-numeric: tabular-nums;
+}
+
+#wpadminbar .uxstudio-qs .uxstudio-qs__panel > .uxstudio-qs__empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 6px;
+	margin: 0;
+	padding: 22px 16px;
+	color: #6b7280;
+	text-align: center;
+}
+
+#wpadminbar .uxstudio-qs .uxstudio-qs__empty-icon {
+	color: #9ca3af;
+}
+
+/* Rows: 36px, the whole row is the primary action. */
+#wpadminbar .uxstudio-qs .uxstudio-qs__panel > .uxstudio-qs__row {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-height: 36px;
+	margin: 0;
+	padding: 0 8px 0 12px;
 	cursor: pointer;
 }
 
-#wpadminbar .uxstudio-qs__row.is-active {
-	background: rgba(128, 128, 128, 0.26);
-	box-shadow: inset 2px 0 0 var(--uxs-admin-primary, #72aee6);
+#wpadminbar .uxstudio-qs .uxstudio-qs__panel > .uxstudio-qs__row.is-active {
+	background: #f3f4f6;
+	box-shadow: inset 2px 0 0 var(--uxs-qs-accent);
 }
 
-#wpadminbar .uxstudio-qs__row-label {
+#wpadminbar .uxstudio-qs .uxstudio-qs__lead {
+	display: inline-flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	margin: 0;
+	padding: 0;
+	color: #6b7280;
+}
+
+#wpadminbar .uxstudio-qs .uxstudio-qs__thumb {
+	display: block;
+	width: 24px;
+	height: 24px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: 4px;
+	background: #f3f4f6;
+	object-fit: cover;
+}
+
+#wpadminbar .uxstudio-qs .uxstudio-qs__thumb.is-round {
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+}
+
+#wpadminbar .uxstudio-qs .uxstudio-qs__row-label {
 	flex: 1;
 	min-width: 0;
+	margin: 0;
+	padding: 0;
 	overflow: hidden;
+	color: #111827;
+	font-size: 13px;
+	font-weight: 500;
+	line-height: 1.4;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 
-#wpadminbar .uxstudio-qs__row-type {
-	flex: none;
-	font-size: 10px;
-	line-height: 1.5;
-	text-transform: uppercase;
-	white-space: nowrap;
-	opacity: 0.6;
+#wpadminbar .uxstudio-qs .uxstudio-qs__row-label mark {
+	margin: 0;
+	padding: 0 1px;
+	background: #fde68a;
+	border-radius: 2px;
+	color: inherit;
+	font-weight: 600;
 }
 
-#wpadminbar .uxstudio-qs__row-links {
+#wpadminbar .uxstudio-qs .uxstudio-qs__row-meta {
+	flex: none;
+	max-width: 110px;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	color: #6b7280;
+	font-size: 11px;
+	line-height: 1.4;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* Icon buttons: visible on hover / focus and on the keyboard-active row; their slot is reserved so nothing jumps. */
+#wpadminbar .uxstudio-qs .uxstudio-qs__actions {
 	display: flex;
 	flex: none;
-	gap: 8px;
-	white-space: nowrap;
-}
-
-#wpadminbar .uxstudio-qs__row-links a {
-	display: inline;
-	float: none;
-	height: auto;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 2px;
+	width: 50px;
+	margin: 0;
 	padding: 0;
-	color: var(--uxs-qs-fg);
-	font-size: 12px;
-	line-height: 1.5;
-	text-decoration: underline;
-	text-decoration-color: var(--uxs-admin-primary, #72aee6);
-	text-decoration-thickness: 2px;
-	text-underline-offset: 2px;
+	opacity: 0;
+	transition: opacity 0.1s ease-out;
 }
 
-#wpadminbar .uxstudio-qs__row-links a:hover,
-#wpadminbar .uxstudio-qs__row-links a:focus {
-	color: var(--uxs-qs-fg);
-	text-decoration-color: currentColor;
+#wpadminbar .uxstudio-qs .uxstudio-qs__row:hover .uxstudio-qs__actions,
+#wpadminbar .uxstudio-qs .uxstudio-qs__row.is-active .uxstudio-qs__actions,
+#wpadminbar .uxstudio-qs .uxstudio-qs__row:focus-within .uxstudio-qs__actions {
+	opacity: 1;
 }
 
-/* The way into the WordPress command palette: separated from the results. */
-#wpadminbar .uxstudio-qs__row--commands {
-	margin-top: 4px;
-	padding-top: 9px;
-	border-top: 1px solid var(--uxs-qs-line);
+@media (hover: none) {
+	#wpadminbar .uxstudio-qs .uxstudio-qs__actions {
+		opacity: 1;
+	}
 }
 
-#wpadminbar .uxstudio-qs__panel > .uxstudio-qs__row--commands:first-child {
-	margin-top: 0;
-	padding-top: 6px;
-	border-top: 0;
-}
-
-#wpadminbar .uxstudio-qs__kbd {
-	padding: 1px 6px;
-	border: 1px solid var(--uxs-qs-line);
-	border-radius: 3px;
+#wpadminbar .uxstudio-qs .uxstudio-qs__act {
+	display: inline-flex;
+	float: none;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	margin: 0;
+	padding: 0;
 	background: none;
+	border-radius: 6px;
+	color: #6b7280;
+	line-height: 1;
+	text-decoration: none;
+}
+
+#wpadminbar .uxstudio-qs .uxstudio-qs__act:hover,
+#wpadminbar .uxstudio-qs .uxstudio-qs__act:focus {
+	background: #e5e7eb;
+	color: #111827;
+	text-decoration: none;
+}
+
+#wpadminbar .uxstudio-qs .uxstudio-qs__act:focus-visible {
+	outline: 2px solid var(--uxs-qs-accent);
+	outline-offset: -2px;
+}
+
+#wpadminbar .uxstudio-qs .uxstudio-qs__act svg {
+	display: block;
+	width: 15px;
+	height: 15px;
+}
+
+/* "Show all (N)": a quiet row at the end of a group. */
+#wpadminbar .uxstudio-qs .uxstudio-qs__panel > .uxstudio-qs__row--more {
+	min-height: 30px;
+	padding-left: 46px;
+	color: #4b5563;
+}
+
+#wpadminbar .uxstudio-qs .uxstudio-qs__row--more .uxstudio-qs__row-label {
+	color: #4b5563;
+	font-size: 12px;
+	font-weight: 500;
+}
+
+#wpadminbar .uxstudio-qs .uxstudio-qs__row--more svg {
+	flex: none;
+	color: #9ca3af;
+}
+
+/* The way into the WordPress command palette: a footer that stays visible while the results scroll. */
+#wpadminbar .uxstudio-qs .uxstudio-qs__panel > .uxstudio-qs__row--commands {
+	position: sticky;
+	bottom: 0;
+	z-index: 2;
+	justify-content: space-between;
+	min-height: 38px;
+	margin-top: 6px;
+	padding: 0 12px;
+	background: #f9fafb;
+	border-top: 1px solid #e5e7eb;
 	box-shadow: none;
-	color: inherit;
-	font: inherit;
-	font-size: 11px;
-	line-height: 1.5;
-	opacity: 0.75;
+	color: #4b5563;
+}
+
+#wpadminbar .uxstudio-qs .uxstudio-qs__panel > .uxstudio-qs__row--commands.is-active {
+	background: #f3f4f6;
+	box-shadow: inset 2px 0 0 var(--uxs-qs-accent);
+}
+
+#wpadminbar .uxstudio-qs .uxstudio-qs__panel > .uxstudio-qs__row--commands:first-child {
+	margin-top: 0;
+}
+
+#wpadminbar .uxstudio-qs .uxstudio-qs__row--commands .uxstudio-qs__row-label {
+	color: #4b5563;
+	font-size: 12px;
+	font-weight: 400;
+}
+
+#wpadminbar .uxstudio-qs .uxstudio-qs__kbd {
+	margin: 0;
+	padding: 2px 6px;
+	background: #fff;
+	border: 1px solid #d1d5db;
+	border-bottom-width: 2px;
+	border-radius: 4px;
+	box-shadow: none;
+	color: #4b5563;
+	font: 500 11px/1.2 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Loading: skeleton rows. */
+#wpadminbar .uxstudio-qs .uxstudio-qs__panel > .uxstudio-qs__skeleton {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	height: 36px;
+	margin: 0;
+	padding: 0 12px;
+}
+
+#wpadminbar .uxstudio-qs .uxstudio-qs__skeleton-dot,
+#wpadminbar .uxstudio-qs .uxstudio-qs__skeleton-bar {
+	display: block;
+	background: linear-gradient(90deg, #eef0f3 25%, #f6f7f9 50%, #eef0f3 75%);
+	background-size: 200% 100%;
+	border-radius: 5px;
+	animation: uxstudio-qs-shimmer 1.2s ease-in-out infinite;
+}
+
+#wpadminbar .uxstudio-qs .uxstudio-qs__skeleton-dot {
+	flex: none;
+	width: 24px;
+	height: 14px;
+}
+
+#wpadminbar .uxstudio-qs .uxstudio-qs__skeleton-bar {
+	height: 10px;
+}
+
+@keyframes uxstudio-qs-shimmer {
+	from { background-position: 100% 0; }
+	to { background-position: -100% 0; }
 }
 
 /* ── Small screens: the field opens as a full-width row below the bar ── */
@@ -338,17 +554,17 @@
 		height: 46px;
 	}
 
-	#wpadminbar .uxstudio-qs__toggle {
+	#wpadminbar .uxstudio-qs .uxstudio-qs__toggle {
 		width: 42px;
 		height: 46px;
 	}
 
-	#wpadminbar .uxstudio-qs__toggle svg {
+	#wpadminbar .uxstudio-qs .uxstudio-qs__toggle svg {
 		width: 22px;
 		height: 22px;
 	}
 
-	#wpadminbar .uxstudio-qs__field,
+	#wpadminbar .uxstudio-qs .uxstudio-qs__field,
 	#wpadminbar .uxstudio-qs[data-collapsed="false"] .uxstudio-qs__field {
 		position: absolute;
 		order: 0;
@@ -359,8 +575,10 @@
 		width: auto;
 		height: 52px;
 		padding: 8px 10px;
+		background: #fff;
+		border-bottom: 1px solid #e5e7eb;
 		border-radius: 0;
-		box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+		box-shadow: 0 6px 14px rgba(15, 23, 42, 0.12);
 		opacity: 0;
 		transform: translateY(-8px);
 		transition: opacity 0.2s var(--uxs-qs-ease), transform 0.2s var(--uxs-qs-ease), visibility 0s linear 0.2s;
@@ -372,39 +590,57 @@
 		transition: opacity 0.2s var(--uxs-qs-ease), transform 0.2s var(--uxs-qs-ease), visibility 0s;
 	}
 
-	#wpadminbar .uxstudio-qs__input {
+	#wpadminbar .uxstudio-qs .uxstudio-qs__field:focus-within {
+		box-shadow: 0 6px 14px rgba(15, 23, 42, 0.12);
+	}
+
+	#wpadminbar .uxstudio-qs .uxstudio-qs__input {
 		height: 36px;
-		border-radius: 4px;
+		padding: 0 34px 0 12px;
+		background: #f3f4f6;
+		border: 1px solid #e5e7eb;
+		border-radius: 8px;
 		font-size: 16px; /* below 16px iOS zooms the page on focus */
+		line-height: 34px;
 	}
 
-	#wpadminbar .uxstudio-qs__spinner {
-		right: 20px;
+	#wpadminbar .uxstudio-qs .uxstudio-qs__input:focus {
+		border: 1px solid var(--uxs-qs-accent);
+		background: #fff;
 	}
 
-	#wpadminbar .uxstudio-qs__panel-container {
+	#wpadminbar .uxstudio-qs .uxstudio-qs__spinner {
+		right: 22px;
+	}
+
+	#wpadminbar .uxstudio-qs .uxstudio-qs__panel-container {
 		top: calc(100% + 52px);
 		right: 0;
 		left: 0;
 		width: auto;
-		min-width: 0;
-		max-width: none;
-		max-height: calc(100vh - 110px);
-		border-radius: 0 0 6px 6px;
+		max-height: calc(100vh - 120px);
+		border-top: 0;
+		border-radius: 0 0 12px 12px;
 	}
 
-	#wpadminbar .uxstudio-qs__row {
-		padding: 10px 14px;
+	#wpadminbar .uxstudio-qs .uxstudio-qs__panel > .uxstudio-qs__row {
+		min-height: 44px;
 	}
 }
 
 @media (prefers-reduced-motion: reduce) {
-	#wpadminbar .uxstudio-qs__field,
+	#wpadminbar .uxstudio-qs .uxstudio-qs__field,
 	#wpadminbar .uxstudio-qs[data-collapsed="false"] .uxstudio-qs__field {
 		transition: none;
 	}
 
-	#wpadminbar .uxstudio-qs__panel-container {
+	#wpadminbar .uxstudio-qs .uxstudio-qs__panel-container,
+	#wpadminbar .uxstudio-qs .uxstudio-qs__skeleton-dot,
+	#wpadminbar .uxstudio-qs .uxstudio-qs__skeleton-bar {
 		animation: none;
+	}
+
+	#wpadminbar .uxstudio-qs .uxstudio-qs__actions {
+		transition: none;
 	}
 }

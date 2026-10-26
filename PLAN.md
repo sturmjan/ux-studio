@@ -1548,6 +1548,29 @@ všech slugů šablon, `time`); logika je ve třídě `SecurityOptimization\Defa
 - [x] Oprava: na webu (front-end) lišta vznikala až po skriptu, hledání tam nereagovalo.
 - [ ] Ověřit na webu s blokovým editorem, že Ctrl+K v textu dál vkládá odkaz.
 
+### 20.16 Rozbalovací nabídky v liště: rychlé hledání a skrytá upozornění (0.7.5, 2026-10-26)
+
+Obě nabídky přepracované do jednoho světlého stylu (bílý panel, okraj #e5e7eb, poloměr 12 px, stín, 13 px, max výška
+`min(70vh, 560px)`, animace 140 ms s ohledem na `prefers-reduced-motion`), i v tmavých schématech administrace.
+- [x] Rychlé hledání (`QuickSearch/Integrations.php`, `MiscRestController`, `assets/js|css/admin-customiser-quick-search.*`):
+  řádek nese `kind` (ikona), `meta` (popisek typu z `singular_name`, přípona souboru u médií), `thumb`, odkazy s `action`
+  edit|view|open; odpověď má `meta.groups` (celkový počet a odkaz na seznam v administraci). Limit 5 řádků na skupinu,
+  celkem 40. Název se čistí na serveru (`Integrations::clean_title()`: bez značek, emoji `<img>` nahrazeno `alt`).
+  Dotaz na příspěvky teď běží přes `WP_Query` kvůli `found_posts`, s `suppress_filters` (jako dřív `get_posts`).
+- [x] Past: WordPress emoji skript (twemoji) přepisuje emoji znaky v nově přidaných uzlech na `<img>`; v nabídce je to
+  rozbitý obrázek. Třída `wp-exclude-emoji` musí být na každém přidaném uzlu (řádek, nadpis, název), na rodiči nestačí.
+- [x] Past: `#wpadminbar ul li` dává každému `li` `z-index: 99999`, což přebije lepivé nadpisy a patičku; řádky mají
+  `z-index: auto`. A `#wpadminbar *` dává prvkům vlastní řádkování (nadpis skupiny byl 46 px místo 31).
+- [x] Skrytá upozornění (`HideAdminNotices`, `assets/js|css/admin-customiser-notices.*`): panel se přesouvá do `<body>`
+  (pozice pod zvonkem z `getBoundingClientRect`), upozornění je karta (`.uxstudio-nc`) s typem z tříd původního
+  upozornění; původní prvek zůstává v kartě živý (cizí JS a AJAX dál fungují). Křížek klikne na původní `.notice-dismiss`.
+  "Skrýt vše" záměrně NENÍ: dosavadní funkce nic neodmítala a hromadné odmítnutí by trvale skrylo i důležitá hlášení.
+- [x] Past: jádro WordPressu při DOM ready přesouvá všechna `.notice` pod nadpis stránky, a to i z karet; karta, která o
+  upozornění přišla, si ho při dalším průchodu bere zpět (dřív se kopie na stránce smazala jako duplicita a karta zanikla).
+- [x] Úspěšná hlášení (`.notice-success`, `#message`) a `#uxstudio-php-version-notice` zůstávají na stránce (dosavadní pravidlo).
+- [x] Testy: všechny stávající zelené; vizuálně ověřeno na lokálním pobyty (Fresh, tmavé schéma, 600 px).
+- [ ] Vydání 0.7.5
+
 ## 21. Audit bezpečnost / funkčnost / výkon (2026-09-30)
 
 Statický audit celého pluginu (73 modulů, ~110k ř. PHP) + měření na lokálu. Lint PHP 8.4

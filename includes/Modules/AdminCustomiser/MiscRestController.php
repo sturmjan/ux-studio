@@ -55,8 +55,9 @@ final class MiscRestController extends Controller {
 
 		$post_types = (array) ( new Settings( 'uxstudio_admin_customiser' ) )->get( 'quick_search_post_types', array() );
 
-		$groups = array();
-		foreach ( ( new Integrations( $post_types ) )->search( $term ) as $key => $group ) {
+		$groups       = array();
+		$integrations = new Integrations( $post_types );
+		foreach ( $integrations->search( $term ) as $key => $group ) {
 			$filtered = $this->fuzzy_filter( $group, $term );
 			if ( ! empty( $filtered ) ) {
 				$groups[ $key ] = $filtered;
@@ -69,9 +70,12 @@ final class MiscRestController extends Controller {
 			}
 		}
 
-		$groups = $this->limit_results( $groups, $term, 8 );
+		$groups = $this->limit_results( $groups, $term, 5, 40 );
 
-		return $this->ok( $groups );
+		// Totals and the "show all" list screen per group; only for groups that are still in the answer.
+		$group_meta = array_intersect_key( $integrations->group_meta(), $groups );
+
+		return $this->ok( $groups, array( 'groups' => (object) $group_meta ) );
 	}
 
 	/**
@@ -102,13 +106,14 @@ final class MiscRestController extends Controller {
 	}
 
 	/**
-	 * Cap total results across all groups to $max, ranked by fuzzy score.
+	 * Cap results ranked by fuzzy score: at most $per_group rows per group and $max rows overall.
 	 *
 	 * @param array  $groups      Grouped results (label => rows).
 	 * @param string $search_term Search query.
+	 * @param int    $per_group   Max rows per group.
 	 * @param int    $max         Max total rows.
 	 */
-	private function limit_results( array $groups, string $search_term, int $max ): array {
+	private function limit_results( array $groups, string $search_term, int $per_group, int $max ): array {
 		$flat = array();
 		foreach ( $groups as $key => $rows ) {
 			foreach ( $rows as $row ) {
@@ -119,13 +124,19 @@ final class MiscRestController extends Controller {
 		}
 
 		usort( $flat, static fn( $a, $b ) => $b['_score'] <=> $a['_score'] );
-		$flat = array_slice( $flat, 0, $max );
 
 		$grouped = array();
+		$count   = 0;
 		foreach ( $flat as $row ) {
 			$key = $row['_group'];
 			unset( $row['_group'], $row['_score'] );
+			if ( count( $grouped[ $key ] ?? array() ) >= $per_group ) {
+				continue;
+			}
 			$grouped[ $key ][] = $row;
+			if ( ++$count >= $max ) {
+				break;
+			}
 		}
 
 		return $grouped;

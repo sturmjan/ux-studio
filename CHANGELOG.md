@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.7.5 (unreleased)
+
+- Changed - Admin Customiser, "Quick search": the dropdown is redesigned, light in every admin color scheme. Compact
+  36 px rows with a type icon (post, page, product, other content, user, tag), a thumbnail for images and the avatar for
+  users, the title as stored (markup stripped, emoji images replaced by their character, the match highlighted) and a
+  muted label on the right ("Page", "Product tag", "PNG"). The whole row opens the item (Edit when you may edit it,
+  otherwise View); small pencil and eye buttons appear on hover and on the keyboard-active row, Shift+Enter takes the
+  second action. Group headings stay at the top while scrolling and show the number of matches, at most 5 rows per
+  group, and "Show all (N)" opens the matching admin list with the search. Loading shows skeleton rows, empty results a
+  short message; "WordPress commands..." is a footer that stays visible. The open field is a light pill with the
+  magnifier inside.
+- Changed - Admin Customiser, "Hide admin notices" (tray in the admin bar): the notices dropdown is light and compact. Each
+  notice is a card with a bar by type (error red, warning amber, success green, info blue), the foreign plugin's
+  backgrounds, colors, labels, icons, logos and large paddings stripped, links and buttons restyled as small controls,
+  three lines with "Show more", and an "x" that triggers the plugin's own dismiss button (so its AJAX dismissal still
+  runs). Header with the count, empty state "No notices", a smaller bell badge. The panel now lives in the page body
+  under the bell, so it no longer inherits the admin bar's styles. The critical PHP version notice still stays on the
+  page.
+- Fixed - Admin Customiser, "Hide admin notices": notices that core or a plugin moved back into the page after they had
+  been moved to the tray (core does this for every notice on DOM ready) could disappear instead of staying in the tray.
+- Fixed - Admin Customiser, "Quick search": WordPress emoji images in a title no longer show as broken images.
+
 ## 0.7.4
 
 - Changed - Form Builder, "Conversion tracking": the Sklik consent flag is no longer a fixed value. When the conversion

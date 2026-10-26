@@ -46,7 +46,7 @@ final class ThirdPartyIntegrations {
 
 		return array(
 			__( 'WooCommerce', 'ux-studio' ) => array(
-				array( 'label' => __( 'Products', 'ux-studio' ), 'links' => array( array( 'label' => __( 'Open', 'ux-studio' ), 'url' => admin_url( 'edit.php?post_type=product' ) ) ) ),
+				array( 'kind' => 'product', 'label' => __( 'Products', 'ux-studio' ), 'links' => array( array( 'label' => __( 'Open', 'ux-studio' ), 'url' => admin_url( 'edit.php?post_type=product' ) ) ) ),
 				array( 'label' => __( 'Categories', 'ux-studio' ), 'links' => array( array( 'label' => __( 'Open', 'ux-studio' ), 'url' => admin_url( 'edit-tags.php?taxonomy=product_cat' ) ) ) ),
 			),
 		);
