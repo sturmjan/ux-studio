@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.7.1 (unreleased)
+
+- Changed - PHP version warning works with no module enabled: the daily refresh from php.net, the e-mail to the
+  administrator (once when the site first turns critical, then at most weekly), the dashboard widget and the admin notice
+  now run from the plugin core, so a freshly installed site is warned right after activation. The notice shows on every
+  admin screen, also on the UX Studio page, and the Admin Customiser option "hide admin notices" never hides it. While
+  critical it has no close button (only "Verified with hosting, hide for 30 days"); the end-of-support warning can be
+  hidden per user. Administrators also get a red (critical) or yellow (warning) node in the admin bar, on the site and in
+  the admin, hidden while the 30 day snooze is on. Visitors and users without `manage_options` get nothing. A site that
+  updates from 0.7.0 keeps its single schedule (same cron hook) and the Security module no longer registers a second copy.
+- Changed - Starter pack: the e-mail log (14 days), the last login of users and the Content Security Policy inventory
+  (audit only, 20 percent sample, never enforces) are now ticked by default. The CSP item is left out when a CSP mode is
+  already set, so report-only or enforce is never downgraded.
+- Changed - Wizard step "Central application" is now a short presentation of what the central application does (nine
+  cards, how it works, what changes on the site, questions) with a toolbar fixed to the bottom of the screen holding
+  "Connect" and a clear "Skip".
+- Fixed - Wizard last step: the success badge now animates in, the summary and module boxes are apart, and the module
+  buttons show the module icon.
+- Fixed - Form Builder: the "New form title" row (and the same row in Popup Manager, Opening Hours, Stock Photos,
+  Activity Log, Redirects and DNS Manager) is one aligned line with a 46 px field and button; new shared form variants
+  `uxs-form--stacked` and `uxs-form--inline`.
+- Changed - Form Builder "Generate fields with AI": prompt card with a growing text box, a multi-step option, a character
+  counter (1000 at most, also checked on the server), example chips and Ctrl+Enter. A clear message with a link to the AI
+  Assistant settings replaces the form when the module is off or no API key is set.
+- New - Admin Customiser: "Hide the WordPress version in the admin footer" (off by default), part of the starter pack item
+  "Hide WordPress". An update notice in the footer is never hidden.
+
 ## 0.7.0
 
 - New - Wizard for a new site: on a fresh WordPress the plugin opens `#/wizard?mode=new` right after activation (it is

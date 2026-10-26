@@ -2920,3 +2920,29 @@ Třída `Core\Onboarding\CentralApp`, REST `onboarding/ca/prepare` (POST), `onbo
   `TurnstileCaProvisioner`); při neúspěchu se CAPTCHA nevynucuje (žádné zamknutí), snímek umožní vrácení.
 - Adresa produkční CA: `https://app.ux1.cz/` (výchozí, lze přepsat v rozbalovacím poli "Pokročilé").
 - Testy: `tests/onboarding-central-app.php` (podpis proti nezávisle spočítané hodnotě, adresa, původ, pole formuláře).
+
+### 29.7 Vydání 0.7.1 (opravy po nasazení 0.7.0)
+
+- [x] Varování před verzí PHP běží z jádra pluginu (`Core\PhpVersion\Bootstrap`), ne z modulu Zabezpečení: denní cron
+  `uxstudio_php_version_refresh` (stejný název háčku jako v 0.7.0, takže při aktualizaci nevznikne druhý), e-mail
+  (poprvé při přechodu na kritický stav, pak nejvýše týdně), widget na nástěnce, upozornění na všech obrazovkách
+  administrace včetně stránky UX Studia a uzel v liště administrace (na webu i v administraci, jen `manage_options`).
+  Rozhodnutí kdo co vidí je čistá funkce `PhpVersionNotice::visibility()` (test v `tests/php-version-check.php`).
+  Kritické upozornění nejde zavřít (jen "Ověřeno u hostingu, skrýt na 30 dní", platí i pro uzel v liště); varování
+  o konci podpory jde skrýt pro jednoho uživatele (user meta `uxstudio_php_version_dismissed`). Volba "Skrýt upozornění
+  v administraci" v Admin Customiseru kritické upozornění neskrývá (`#uxstudio-php-version-notice` je výjimka,
+  přesun do zásobníku obchází třída `below-h2`). Zrušení pluginu cron odstraní (`Bootstrap::deactivate()`), vypnutí
+  modulu Zabezpečení už ne.
+- [x] Startovací balíček: e-mailový log (14 dní), poslední přihlášení a přehled CSP (jen `audit`, vzorek 20 %) jsou
+  zaškrtnuté. Přehled CSP se vynechá (`csp_set`), pokud je režim CSP už zapnutý; nikdy se nesníží report-only ani enforce.
+- [x] Krok Centrální aplikace v průvodci je prezentace (`src/app/wizard/ca-step.tsx`): devět karet, každá odpovídá
+  funkci v kódu centrální aplikace (viz zpráva k vydání), box "Co se na webu změní", otázky, přilepená lišta dole s
+  "Připojit" a "Přeskočit". Protokol připojení se nezměnil.
+- [x] Poslední krok průvodce: animace odznaku, odstup boxů, ikony modulů v odkazech.
+- [x] Sdílené rozvržení formulářů: varianty `uxs-form--stacked` a `uxs-form--inline`, řádek `uxs-form__line` a container
+  query (pod 520 px šířky formuláře se řádky skládají pod sebe samy). Inspektor Form Builderu má vlastní segmentované
+  záložky uvnitř panelu místo portálu do levého menu.
+- [x] Form Builder "Vygenerovat pole pomocí AI": karta s textovým polem, volba vícekrokového formuláře, počítadlo 1000
+  znaků (kontrola i na serveru), návrhy; `GET forms/ai-status` hlásí vypnutý modul / chybějící klíč.
+- [x] Admin Customiser: `hide_footer_version` (výchozí vypnuto) je součástí položky "Skrýt WordPress".
+- [ ] Vydání 0.7.1
