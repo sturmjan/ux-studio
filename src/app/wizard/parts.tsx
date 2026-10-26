@@ -54,6 +54,19 @@ export function SourceIcon( { module }: { module: string } ): JSX.Element {
 	);
 }
 
+/** Small icon of a module (the one the Modules screen shows), for links and chips. */
+export function ModuleLinkIcon( { module }: { module: string } ): JSX.Element {
+	const { data } = useQuery( {
+		queryKey: [ 'modules' ],
+		queryFn: () => api< ModuleInfo[] >( 'modules' ),
+	} );
+	return (
+		<span className="uxs-wiz-modulelink__icon">
+			<ModuleIcon name={ data?.find( ( m ) => m.id === module )?.icon ?? 'puzzle' } size={ 16 } />
+		</span>
+	);
+}
+
 /** "12 settings" / "No settings". */
 export function settingsLabel( count: number ): string {
 	if ( 0 === count ) {

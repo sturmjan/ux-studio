@@ -26,13 +26,14 @@ import {
 	Undo2,
 	FileText,
 } from 'lucide-react';
-import { ApiError, api, queryClient } from '../api';
+import { ApiError, api } from '../api';
 import { formatDate } from '../date';
-import { hashParam, navigate } from '../route';
-import { ConfirmModal, DrawnCheck, ErrorLine, SourceIcon, StateIcon, StepHead, Warnings } from './parts';
+import { navigate } from '../route';
+import { CaStep } from './ca-step';
+import { ConfirmModal, DrawnCheck, ErrorLine, ModuleLinkIcon, SourceIcon, StateIcon, StepHead, Warnings } from './parts';
 import { LoginAddress } from './steps-preview';
 import type { StarterCtx } from './starter-context';
-import type { CaPrepare, CaStatus, ConfirmLoginResponse, Detections, PhpVersionInfo, StarterItem } from './starter-types';
+import type { CaStatus, ConfirmLoginResponse, Detections, PhpVersionInfo, StarterItem } from './starter-types';
 
 export interface StarterStep {
 	id: string;
@@ -96,9 +97,9 @@ export function unavailableText( code: string ): string {
 			return __( 'This site has no subscriber or customer role.', 'ux-studio' );
 		case 'no_pretty_permalinks':
 			return __( 'A custom login address needs pretty permalinks (Settings > Permalinks).', 'ux-studio' );
-		case 'already_set':
 		case 'csp_set':
 			return __( 'A Content Security Policy mode is already set, it stays as it is.', 'ux-studio' );
+		case 'already_set':
 			return __( 'A custom login address is already set.', 'ux-studio' );
 		case 'collision':
 			return __( 'The address /administrace is already used by a page, post or another rule of this site.', 'ux-studio' );
@@ -782,238 +783,6 @@ function LoginStep( { ctx }: { ctx: StarterCtx } ): JSX.Element {
 	);
 }
 
-/* ── 5 Central App ── */
-
-function CaCaptcha( { status, onChange }: { status: CaStatus; onChange: () => void } ): JSX.Element {
-	const [ busy, setBusy ] = useState( false );
-	const [ error, setError ] = useState< string | null >( null );
-	const [ note, setNote ] = useState< string | null >( null );
-	const captcha = status.captcha;
-
-	const toggle = async ( enabled: boolean ): Promise< void > => {
-		setBusy( true );
-		setError( null );
-		setNote( null );
-		try {
-			const res = await api< CaStatus >( 'onboarding/ca/captcha', { method: 'POST', body: JSON.stringify( { enabled } ) } );
-			queryClient.setQueryData( [ 'onboarding', 'ca-status' ], res );
-			if ( enabled && ! res.captcha.has_keys ) {
-				setNote( __( 'The central application did not give this site CAPTCHA keys. The CAPTCHA is not enforced, so logging in works as before. You can add the keys by hand in Security > CAPTCHA.', 'ux-studio' ) );
-			}
-			onChange();
-		} catch ( e ) {
-			setError( message( e ) );
-		} finally {
-			setBusy( false );
-		}
-	};
-
-	return (
-		<div className="uxs-wiz-box uxs-wiz-captcha">
-			<label className="uxs-wiz-checkrow">
-				<input type="checkbox" checked={ captcha.enabled } disabled={ busy || ! captcha.security_enabled } onChange={ ( e ) => void toggle( e.target.checked ) } />
-				<span>{ __( 'CAPTCHA with keys from the central application', 'ux-studio' ) }</span>
-			</label>
-			<p className="uxs-wiz-muted">
-				{ __( 'Adds a Cloudflare Turnstile check to the login, registration and lost password forms. The central application gives the site its keys, so you paste nothing. If the keys do not arrive, the check is not enforced and nobody is locked out.', 'ux-studio' ) }
-			</p>
-			{ ! captcha.security_enabled && <p className="uxs-wiz-muted">{ __( 'The Security module is off. Switch it on to use the CAPTCHA.', 'ux-studio' ) }</p> }
-			{ captcha.enabled && captcha.has_keys && (
-				<p className="uxs-wiz-banner is-ok" role="status">
-					<CircleCheck size={ 16 } aria-hidden /> { __( 'The CAPTCHA is on with keys from the central application.', 'ux-studio' ) }
-				</p>
-			) }
-			{ note && (
-				<p className="uxs-wiz-banner is-bad" role="status">
-					<CircleAlert size={ 16 } aria-hidden /> { note }
-				</p>
-			) }
-			<ErrorLine text={ error } />
-		</div>
-	);
-}
-
-function CaStep( { ctx }: { ctx: StarterCtx } ): JSX.Element {
-	const returned = 'done' === hashParam( 'ca' );
-	const cancelled = '1' === hashParam( 'ux1_connect_cancelled' );
-	const connected = '1' === hashParam( 'ux1_connected' );
-	const status = useQuery( {
-		queryKey: [ 'onboarding', 'ca-status' ],
-		queryFn: () => api< CaStatus >( 'onboarding/ca/status' ),
-		staleTime: 0,
-		refetchOnMount: 'always',
-	} );
-	const [ url, setUrl ] = useState( '' );
-	const [ busy, setBusy ] = useState( false );
-	const [ error, setError ] = useState< string | null >( null );
-	const [ form, setForm ] = useState< CaPrepare | null >( null );
-	const [ go, setGo ] = useState( false );
-	const formRef = useRef< HTMLFormElement >( null );
-	const st = status.data;
-
-	// The address field starts with what is stored (or the production address).
-	useEffect( () => {
-		if ( st && '' === url ) {
-			setUrl( '' !== st.central_app_url ? st.central_app_url : st.default_url );
-		}
-	}, [ st, url ] );
-
-	// The browser leaves for the central application: a plain top-level POST, the only way to carry the key there.
-	useEffect( () => {
-		if ( go && form ) {
-			formRef.current?.submit();
-		}
-	}, [ go, form ] );
-
-	const prepare = async (): Promise< void > => {
-		setBusy( true );
-		setError( null );
-		try {
-			const res = await api< CaPrepare >( 'onboarding/ca/prepare', { method: 'POST', body: JSON.stringify( { url } ) } );
-			setForm( res );
-			if ( res.ping.ok && 0 === res.warnings.length ) {
-				setGo( true );
-			}
-		} catch ( e ) {
-			setError( message( e ) );
-		} finally {
-			setBusy( false );
-		}
-	};
-
-	const showSuccess = returned && connected && !! st?.ready;
-	const attention = !! form && ! go;
-
-	return (
-		<section className="uxs-wiz-panel">
-			<StepHead icon={ <PlugZap size={ 26 } aria-hidden /> } title={ __( 'Central application', 'ux-studio' ) }>
-				{ __( 'Connect the site to the UX1 central application: one place for all your websites, with monitoring of availability, updates and security.', 'ux-studio' ) }
-			</StepHead>
-
-			{ showSuccess && st && (
-				<>
-					<p className="uxs-wiz-banner is-ok" role="status">
-						<CircleCheck size={ 16 } aria-hidden />
-						{ __( 'The connection was completed in the central application.', 'ux-studio' ) }
-						{ st.contact_after && st.last_contact > 0 && (
-							<>
-								{ ' ' }
-								{ sprintf(
-									/* translators: %s: date and time. */
-									__( 'It last contacted the site on %s.', 'ux-studio' ),
-									formatDate( st.last_contact )
-								) }
-							</>
-						) }
-					</p>
-					<CaCaptcha status={ st } onChange={ () => void status.refetch() } />
-				</>
-			) }
-
-			{ returned && cancelled && (
-				<p className="uxs-wiz-banner is-bad" role="status">
-					<CircleAlert size={ 16 } aria-hidden /> { __( 'The connection was cancelled in the central application. Nothing is connected. You can try again.', 'ux-studio' ) }
-				</p>
-			) }
-
-			{ returned && ! cancelled && ! connected && st && (
-				<p className={ `uxs-wiz-banner ${ st.ready && st.contact_after ? 'is-ok' : 'is-bad' }` } role="status">
-					{ st.ready && st.contact_after ? <CircleCheck size={ 16 } aria-hidden /> : <CircleAlert size={ 16 } aria-hidden /> }
-					{ st.ready && st.contact_after
-						? __( 'The central application has contacted the site. The connection looks complete.', 'ux-studio' )
-						: __( 'The central application has not confirmed the connection yet. Try again if you did not finish it there.', 'ux-studio' ) }
-				</p>
-			) }
-
-			{ ! showSuccess && (
-				<>
-					<ul className="uxs-wiz-points">
-						<li>
-							<Info size={ 18 } aria-hidden />
-							<span>{ __( 'You are taken to the central application, where you log in or create an account. Then you confirm the connection and come back here.', 'ux-studio' ) }</span>
-						</li>
-						<li>
-							<Info size={ 18 } aria-hidden />
-							<span>{ __( 'The site must be reachable from the internet: the central application checks it while connecting.', 'ux-studio' ) }</span>
-						</li>
-						<li>
-							<Info size={ 18 } aria-hidden />
-							<span>{ __( 'This switches on Content Sync as a managed site and creates a secret key for it. Administrator sign-in and package installation from the central application stay off.', 'ux-studio' ) }</span>
-						</li>
-					</ul>
-
-					{ st?.local && (
-						<div className="uxs-wiz-callout is-warn" role="group">
-							<TriangleAlert size={ 20 } aria-hidden />
-							<div>
-								<strong>{ __( 'This site runs on your computer', 'ux-studio' ) }</strong>
-								<p>{ __( 'A central application on the internet cannot reach it, so the connection will fail, unless the central application runs on your computer too.', 'ux-studio' ) }</p>
-							</div>
-						</div>
-					) }
-
-					<details className="uxs-wiz-advanced">
-						<summary>{ __( 'Advanced', 'ux-studio' ) }</summary>
-						<label htmlFor="uxs-wiz-ca-url">{ __( 'Address of the central application', 'ux-studio' ) }</label>
-						<input id="uxs-wiz-ca-url" type="url" className="regular-text" value={ url } disabled={ busy || go } onChange={ ( e ) => setUrl( e.target.value ) } />
-						<p className="uxs-wiz-muted">{ __( 'Only https:// addresses work. http:// is accepted for localhost, for testing on your own computer.', 'ux-studio' ) }</p>
-					</details>
-
-					<ErrorLine text={ error } />
-
-					{ attention && form && (
-						<div className="uxs-wiz-callout is-warn" role="alert">
-							<TriangleAlert size={ 20 } aria-hidden />
-							<div>
-								<strong>{ __( 'Check before you continue', 'ux-studio' ) }</strong>
-								{ ! form.ping.ok && (
-									<p>
-										{ sprintf(
-											/* translators: %s: error detail. */
-											__( 'The site did not answer its own signed test request (%s). The central application will probably not be able to confirm the connection either.', 'ux-studio' ),
-											'' !== form.ping.error ? form.ping.error : `HTTP ${ form.ping.code }`
-										) }
-									</p>
-								) }
-								{ form.warnings.includes( 'return_url_origin' ) && (
-									<p>{ __( 'The administration address differs from the site address, so the central application cannot send you back here. Come back to this wizard by hand when you finish.', 'ux-studio' ) }</p>
-								) }
-								<div className="uxs-wiz-actions">
-									<button type="button" className="button" onClick={ () => setForm( null ) }>
-										{ __( 'Cancel', 'ux-studio' ) }
-									</button>
-									<button type="button" className="button button-primary" onClick={ () => setGo( true ) }>
-										{ __( 'Continue anyway', 'ux-studio' ) }
-									</button>
-								</div>
-							</div>
-						</div>
-					) }
-
-					{ form && (
-						<form ref={ formRef } method="post" action={ form.action } className="uxs-wiz-hidden-form">
-							{ Object.entries( form.fields ).map( ( [ name, value ] ) => (
-								<input key={ name } type="hidden" name={ name } value={ value } />
-							) ) }
-						</form>
-					) }
-				</>
-			) }
-
-			<div className="uxs-wiz-actions">
-				{ ! showSuccess && (
-					<button type="button" className="button button-primary" disabled={ busy || go || attention } onClick={ () => void prepare() }>
-						{ busy || go ? __( 'Connecting…', 'ux-studio' ) : __( 'Connect to the central application', 'ux-studio' ) }
-					</button>
-				) }
-				<button type="button" className={ showSuccess ? 'button button-primary' : 'button' } disabled={ go } onClick={ ctx.next }>
-					{ showSuccess ? __( 'Continue', 'ux-studio' ) : __( 'Skip', 'ux-studio' ) } <ArrowRight size={ 16 } aria-hidden />
-				</button>
-			</div>
-		</section>
-	);
-}
-
 /* ── 6 Done ── */
 
 function DoneStep( { ctx }: { ctx: StarterCtx } ): JSX.Element {
@@ -1108,8 +877,8 @@ function DoneStep( { ctx }: { ctx: StarterCtx } ): JSX.Element {
 					<h3>{ __( 'Open a module', 'ux-studio' ) }</h3>
 					<div className="uxs-wiz-modulelinks">
 						{ Array.from( modules.entries() ).map( ( [ id, name ] ) => (
-							<button key={ id } type="button" className="button button-small" onClick={ () => navigate( 'module', { id } ) }>
-								{ name }
+							<button key={ id } type="button" className="button button-small uxs-wiz-modulelink" onClick={ () => navigate( 'module', { id } ) }>
+								<ModuleLinkIcon module={ id } /> { name }
 							</button>
 						) ) }
 					</div>
