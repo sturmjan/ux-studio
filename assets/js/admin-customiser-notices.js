@@ -68,6 +68,8 @@
             if (panelWrap.contains(el)) return;
             if (el.id && /^setting-error-/.test(el.id)) return;
             if (el.closest('#wpadminbar')) return;
+            // A notice inside another notice (a plugin's own sub-box) belongs to its parent card.
+            if (el.parentElement && el.parentElement.closest(NOTICE_SELECTOR)) return;
             var content = (el.textContent || '').replace(/\s+/g, ' ').trim();
             if (!content) return;
             out.push(el);
@@ -85,7 +87,8 @@
     }
 
     function dismissButton(el) {
-        return el.querySelector('.notice-dismiss');
+        // Core's button, or Elementor's own dismiss icon (an empty <i role="button">).
+        return el.querySelector('.notice-dismiss, .e-notice__dismiss');
     }
 
     function isDismissible(el) {
@@ -99,7 +102,35 @@
         return node;
     }
 
+    var INTERACTIVE = 'a, button, input, select, textarea, [role="button"], br, hr';
+
+    /**
+     * Strip decoration and collapse what is left empty: logos and icons go, and so do the wrappers that held them
+     * (they keep their height otherwise). A plugin's "dismiss" link that comes first (usually floated right) is moved
+     * to the end, where it reads as an action instead of a stray line above the text.
+     */
+    function tidyNotice(notice) {
+        Array.prototype.slice.call(notice.querySelectorAll('img, svg, picture, video, iframe, .dashicons, i:not([role])')).forEach(function(node) {
+            if (!node.textContent.trim() || node.tagName === 'IMG' || node.tagName === 'SVG') node.remove();
+        });
+
+        var first = notice.firstElementChild;
+        if (first && first.tagName !== 'P' && !/^H[1-6]$/.test(first.tagName) && !first.matches('.notice-dismiss, .e-notice__dismiss')
+            && first.querySelectorAll('a').length === 1 && first.textContent.trim().length < 60
+            && (first.style.cssFloat === 'right' || /dismiss|hide|close/i.test(first.className))) {
+            notice.appendChild(first);
+        }
+
+        // Bottom-up: an element with no text and nothing to click is dropped.
+        var nodes = Array.prototype.slice.call(notice.querySelectorAll('*')).reverse();
+        nodes.forEach(function(node) {
+            if (!node.isConnected || node.matches('.notice-dismiss, .e-notice__dismiss')) return;
+            if (!node.textContent.trim() && !node.matches(INTERACTIVE) && !node.querySelector(INTERACTIVE)) node.remove();
+        });
+    }
+
     function buildCard(notice, key) {
+        tidyNotice(notice);
         var card = el('div', 'uxstudio-nc');
         card.setAttribute('role', 'listitem');
         card.setAttribute('data-type', noticeType(notice));

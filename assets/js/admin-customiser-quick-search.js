@@ -249,6 +249,10 @@
 
     function clearList() {
         list.innerHTML = '';
+        // The footer lives outside the scrolling list (a real row below it), so it is removed separately.
+        var footer = panel && panel.querySelector('.uxstudio-qs__row--commands');
+        if (footer) footer.remove();
+        list.removeAttribute('aria-owns');
         options = [];
         activeIndex = -1;
         input.removeAttribute('aria-activedescendant');
@@ -296,8 +300,8 @@
 
     function addCommandsOption() {
         if (!commandsStore()) return;
-        var item = document.createElement('li');
-        item.className = 'uxstudio-qs__row uxstudio-qs__row--commands';
+        var item = document.createElement('div');
+        item.className = 'uxstudio-qs__row uxstudio-qs__row--commands wp-exclude-emoji';
         var label = document.createElement('span');
         label.className = 'uxstudio-qs__row-label';
         label.textContent = text('commands', 'WordPress commands…');
@@ -308,7 +312,10 @@
             kbd.textContent = shortcutLabel;
             item.appendChild(kbd);
         }
-        list.appendChild(newOption(item, { type: 'commands' }, text('commands', 'WordPress commands…')));
+        newOption(item, { type: 'commands' }, text('commands', 'WordPress commands…'));
+        // Outside the <ul> so nothing scrolls under it; aria-owns keeps it a logical option of the listbox.
+        (panel || list).appendChild(item);
+        list.setAttribute('aria-owns', item.id);
     }
 
     /** Nothing typed yet: only the way into the WordPress command palette, if there is one. */

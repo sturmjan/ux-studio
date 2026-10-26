@@ -190,9 +190,7 @@
 	max-height: min(70vh, 560px);
 	margin: 0;
 	padding: 0;
-	overflow-x: hidden;
-	overflow-y: auto;
-	overscroll-behavior: contain;
+	overflow: hidden;
 	background: #fff;
 	border: 1px solid #e5e7eb;
 	border-radius: 12px;
@@ -208,7 +206,8 @@
 }
 
 #wpadminbar .uxstudio-qs .uxstudio-qs__panel-container.is-open {
-	display: block;
+	display: flex;
+	flex-direction: column;
 }
 
 @keyframes uxstudio-qs-drop {
@@ -230,10 +229,15 @@
 /* A column: every entry (heading or row) is its own full-width line, whatever the admin bar does to li elements. */
 #wpadminbar .uxstudio-qs .uxstudio-qs__panel {
 	display: flex;
+	flex: 1 1 auto;
 	flex-direction: column;
 	align-items: stretch;
+	min-height: 0;
 	margin: 0;
 	padding: 0;
+	overflow-x: hidden;
+	overflow-y: auto;
+	overscroll-behavior: contain;
 	list-style: none;
 }
 
@@ -460,28 +464,27 @@
 	color: #9ca3af;
 }
 
-/* The way into the WordPress command palette: a footer that stays visible while the results scroll. */
-#wpadminbar .uxstudio-qs .uxstudio-qs__panel > .uxstudio-qs__row--commands {
-	position: sticky;
-	bottom: 0;
-	z-index: 2;
+/* The way into the WordPress command palette: a real row below the scrolling list (not inside it). */
+#wpadminbar .uxstudio-qs .uxstudio-qs__panel-container > .uxstudio-qs__row--commands {
+	position: relative;
+	display: flex;
+	flex: none;
+	align-items: center;
 	justify-content: space-between;
+	gap: 10px;
 	min-height: 38px;
-	margin-top: 6px;
+	margin: 0;
 	padding: 0 12px;
 	background: #f9fafb;
 	border-top: 1px solid #e5e7eb;
 	box-shadow: none;
 	color: #4b5563;
+	cursor: pointer;
 }
 
-#wpadminbar .uxstudio-qs .uxstudio-qs__panel > .uxstudio-qs__row--commands.is-active {
+#wpadminbar .uxstudio-qs .uxstudio-qs__panel-container > .uxstudio-qs__row--commands.is-active {
 	background: #f3f4f6;
 	box-shadow: inset 2px 0 0 var(--uxs-qs-accent);
-}
-
-#wpadminbar .uxstudio-qs .uxstudio-qs__panel > .uxstudio-qs__row--commands:first-child {
-	margin-top: 0;
 }
 
 #wpadminbar .uxstudio-qs .uxstudio-qs__row--commands .uxstudio-qs__row-label {
@@ -623,7 +626,8 @@
 		border-radius: 0 0 12px 12px;
 	}
 
-	#wpadminbar .uxstudio-qs .uxstudio-qs__panel > .uxstudio-qs__row {
+	#wpadminbar .uxstudio-qs .uxstudio-qs__panel > .uxstudio-qs__row,
+	#wpadminbar .uxstudio-qs .uxstudio-qs__panel-container > .uxstudio-qs__row--commands {
 		min-height: 44px;
 	}
 }
