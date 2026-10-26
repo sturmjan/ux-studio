@@ -26,12 +26,19 @@ final class Module extends BaseModule {
 	/** Schema version for this module's own tables. */
 	private const DB_VERSION = 2;
 
+	/** Multi-step progress indicators: segments, numbered circles with titles, a filling bar, or none. */
+	public const PROGRESS_STYLES = array( 'steps', 'numbers', 'bar', 'none' );
+
+	/** Form shells, see sanitize_settings(). */
+	public const LAYOUTS = array( 'plain', 'card', 'inline' );
+
 	public function boot(): void {
 		DB::ensure_module_tables( 'forms', self::DB_VERSION, array( $this, 'migrate' ) );
 
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'init', array( $this, 'register_shortcode' ) );
 		add_filter( 'uxstudio_rest_public_routes', array( $this, 'allow_public_routes' ) );
+		add_action( 'ux_studio/admin_assets', array( $this, 'enqueue_editor' ) );
 
 		DashboardWidget::register();
 		GutenbergBlock::register( $this );
@@ -241,6 +248,41 @@ final class Module extends BaseModule {
 			ActivityLog::log( 'forms', 'create', 'form', $id );
 		}
 		return $this->get_form( $id );
+	}
+
+	/**
+	 * Gallery data for the "new form" screen (PLAN.md 20.12).
+	 *
+	 * @return array{categories:array,templates:array}
+	 */
+	public function list_templates(): array {
+		return array(
+			'categories' => Templates::categories(),
+			'templates'  => Templates::catalog(),
+		);
+	}
+
+	/**
+	 * Creates a form from a template through create_form(), so fields,
+	 * settings and actions pass the same sanitizing as any other save.
+	 *
+	 * @param string $template_id Template id.
+	 * @param string $title       Form name; '' = the template's title.
+	 */
+	public function create_from_template( string $template_id, string $title = '' ): ?array {
+		$payload = Templates::payload( sanitize_key( $template_id ), sanitize_text_field( $title ) );
+		if ( null === $payload ) {
+			return null;
+		}
+		return $this->create_form( $payload );
+	}
+
+	/**
+	 * WP's own editor (TinyMCE + media buttons) for the WYSIWYG message of the
+	 * e-mail actions, loaded on the UX Studio screen only while this module is on.
+	 */
+	public function enqueue_editor(): void {
+		wp_enqueue_editor();
 	}
 
 	/**
@@ -494,7 +536,7 @@ final class Module extends BaseModule {
 	 *
 	 * @param array $form   Full form array.
 	 * @param array $action Raw (unsaved) action config from the builder.
-	 * @return array{subject:string,html:string}
+	 * @return array{subject:string,html:string,warnings:array<int,array{code:string,message:string}>,layout:array{header_bg:string,link_color:string}}
 	 */
 	public function preview_email( array $form, array $action ): array {
 		$fields_snapshot = array();
@@ -519,39 +561,26 @@ final class Module extends BaseModule {
 			'values'          => $values,
 		);
 
-		$subject  = EmailTemplateRenderer::merge_tags( sanitize_text_field( (string) ( $action['subject'] ?? '' ) ) ?: (string) ( $form['title'] ?? '' ), $context );
-		$template = (string) ( $action['template'] ?? '' );
+		$subject = EmailTemplateRenderer::merge_tags( sanitize_text_field( (string) ( $action['subject'] ?? '' ) ) ?: (string) ( $form['title'] ?? '' ), $context );
 
-		// Custom template (PLAN.md 20.11/F3): the admin's own complete HTML
-		// document IS the email body - no built-in wrapper/layout is applied,
-		// same rule Actions::run_email() follows for the real send, so a
+		// Same builder as Actions::run_email() (custom template included), so a
 		// preview can never drift from what actually goes out.
-		if ( 'custom' === $template ) {
-			return array(
-				'subject' => $subject,
-				'html'    => EmailTemplateRenderer::merge_tags( EmailTemplateRenderer::sanitize_custom_html( (string) ( $action['custom_html'] ?? '' ) ), $context ),
-			);
-		}
+		$html = EmailTemplateRenderer::build_html( $action, (string) ( $form['title'] ?? '' ), $context );
 
-		$template  = EmailTemplateRenderer::is_valid_template( $template ) ? $template : 'branded';
-		$body_html = wpautop( EmailTemplateRenderer::merge_tags( wp_kses_post( (string) ( $action['message'] ?? '' ) ), $context ) );
-
-		$html = EmailTemplateRenderer::render(
-			$template,
-			array(
-				'heading'         => (string) ( $form['title'] ?? '' ),
-				'body_html'       => $body_html,
-				'include_table'   => ! isset( $action['include_table'] ) || ! empty( $action['include_table'] ),
-				'fields_snapshot' => $fields_snapshot,
-				'values'          => $values,
-				'cta_text'        => sanitize_text_field( (string) ( $action['cta_text'] ?? '' ) ),
-				'cta_url'         => esc_url_raw( (string) ( $action['cta_url'] ?? '' ) ),
-			)
-		);
+		$layout   = EmailTemplateRenderer::layout_options( $action );
+		$warnings = 'custom' !== (string) ( $action['template'] ?? '' )
+			? EmailTemplateRenderer::contrast_warnings( $layout['header_bg'], $layout['link_color'] )
+			: array();
 
 		return array(
-			'subject' => $subject,
-			'html'    => $html,
+			'subject'  => $subject,
+			'html'     => $html,
+			'warnings' => $warnings,
+			// Resolved colours (the template default where the action sets none), for the colour pickers.
+			'layout'   => array(
+				'header_bg'  => $layout['header_bg'],
+				'link_color' => $layout['link_color'],
+			),
 		);
 	}
 
@@ -616,7 +645,9 @@ final class Module extends BaseModule {
 		$settings = is_array( $settings ) ? $settings : array();
 
 		$label_display = in_array( $settings['label_display'] ?? 'visible', array( 'visible', 'placeholder_only' ), true ) ? $settings['label_display'] : 'visible';
-		$progress      = in_array( $settings['progress_style'] ?? 'steps', array( 'steps', 'bar', 'none' ), true ) ? $settings['progress_style'] : 'steps';
+		$progress      = in_array( $settings['progress_style'] ?? 'steps', self::PROGRESS_STYLES, true ) ? $settings['progress_style'] : 'steps';
+		$layout        = in_array( $settings['layout'] ?? 'plain', self::LAYOUTS, true ) ? $settings['layout'] : 'plain';
+		$columns       = 2 === (int) ( $settings['columns'] ?? 1 ) ? 2 : 1;
 		$success_text  = sanitize_textarea_field( (string) ( $settings['success_text'] ?? __( 'Thank you, your submission has been received.', 'ux-studio' ) ) );
 
 		$actions = array();
@@ -649,6 +680,14 @@ final class Module extends BaseModule {
 		return array(
 			'label_display'   => $label_display,
 			'progress_style'  => $progress,
+			// Look (set from the presets in the Appearance tab, no custom CSS needed):
+			// plain | card (header with title + description, footer with the buttons) | inline (one-row signup).
+			'layout'            => $layout,
+			// 2 = fields at full width become two columns (wide types such as textarea stay full width).
+			'columns'           => $columns,
+			// Numbered section headings ("1", "2", ...) in front of every step title.
+			'numbered_sections' => ! empty( $settings['numbered_sections'] ),
+			'submit_text'       => mb_substr( sanitize_text_field( (string) ( $settings['submit_text'] ?? '' ) ), 0, 60 ),
 			'success_text'    => $success_text,
 			'captcha_enabled' => ! empty( $settings['captcha_enabled'] ),
 			// Per-form HMAC secret for the webhook action (PLAN.md 20.2/20.8) -
@@ -707,18 +746,33 @@ final class Module extends BaseModule {
 	 * @param array $action { to, subject, message, template, include_table, cta_text, cta_url, custom_html }.
 	 */
 	private function sanitize_email_action( array $action ): array {
-		$template = (string) ( $action['template'] ?? '' );
+		$template  = (string) ( $action['template'] ?? '' );
 		$is_custom = 'custom' === $template;
+
+		$logo_id = max( 0, (int) ( $action['logo_id'] ?? 0 ) );
+		if ( $logo_id > 0 && ! wp_attachment_is_image( $logo_id ) ) {
+			$logo_id = 0;
+		}
+		$logo_position = (string) ( $action['logo_position'] ?? 'left' );
 
 		return array(
 			'type'          => 'email',
 			'to'            => sanitize_text_field( (string) ( $action['to'] ?? '' ) ),
 			'subject'       => sanitize_text_field( (string) ( $action['subject'] ?? '' ) ),
-			'message'       => wp_kses_post( (string) ( $action['message'] ?? '' ) ),
+			// WYSIWYG (TinyMCE) message: explicit allowlist incl. images and links, see EmailTemplateRenderer::sanitize_message().
+			'message'       => EmailTemplateRenderer::sanitize_message( (string) ( $action['message'] ?? '' ) ),
 			'template'      => $is_custom || EmailTemplateRenderer::is_valid_template( $template ) ? $template : 'branded',
 			'include_table' => ! isset( $action['include_table'] ) || ! empty( $action['include_table'] ),
 			'cta_text'      => sanitize_text_field( (string) ( $action['cta_text'] ?? '' ) ),
-			'cta_url'       => esc_url_raw( (string) ( $action['cta_url'] ?? '' ) ),
+			'cta_url'       => esc_url_raw( (string) ( $action['cta_url'] ?? '' ), array( 'http', 'https', 'mailto', 'tel' ) ),
+			// Header (stored per action): logo from the Media Library, its position and max width,
+			// header background and link colour ('' = the chosen template's default accent).
+			'logo_id'       => $logo_id,
+			'logo_url'      => $logo_id > 0 ? (string) wp_get_attachment_image_url( $logo_id, 'medium' ) : '',
+			'logo_position' => in_array( $logo_position, EmailTemplateRenderer::LOGO_POSITIONS, true ) ? $logo_position : 'left',
+			'logo_width'    => EmailTemplateRenderer::clamp_logo_width( $action['logo_width'] ?? EmailTemplateRenderer::LOGO_WIDTH_DEFAULT ),
+			'header_bg'     => EmailTemplateRenderer::sanitize_hex( $action['header_bg'] ?? '' ),
+			'link_color'    => EmailTemplateRenderer::sanitize_hex( $action['link_color'] ?? '' ),
 			// User-authored full HTML email document (PLAN.md 20.11/F3 "custom
 			// HTML template editor") - only ever used when template === 'custom'
 			// (Actions::run_email()/preview_email() below), but always

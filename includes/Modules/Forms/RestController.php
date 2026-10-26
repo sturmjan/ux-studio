@@ -44,6 +44,18 @@ final class RestController extends Controller {
 		// block must be able to choose a form even without full form-builder access.
 		$this->route( '/forms/options', 'GET', array( $this, 'list_form_options' ), array(), 'edit_posts' );
 		$this->route( '/forms', 'POST', array( $this, 'create_form' ), array(), $cap );
+		// Template gallery of the "new form" screen (PLAN.md 20.12): read-only catalog + creation from a template.
+		$this->route( '/forms/templates', 'GET', array( $this, 'list_templates' ), array(), $cap );
+		$this->route(
+			'/forms/from-template',
+			'POST',
+			array( $this, 'create_from_template' ),
+			array(
+				'template' => array( 'required' => true, 'type' => 'string' ),
+				'title'    => array( 'required' => false, 'type' => 'string' ),
+			),
+			$cap
+		);
 		$this->route( '/forms/(?P<id>\d+)', 'GET', array( $this, 'get_form' ), $this->id_arg(), $cap );
 		$this->route( '/forms/(?P<id>\d+)', 'POST', array( $this, 'update_form' ), $this->id_arg(), $cap );
 		$this->route( '/forms/(?P<id>\d+)', 'DELETE', array( $this, 'delete_form' ), $this->id_arg(), $cap );
@@ -122,6 +134,18 @@ final class RestController extends Controller {
 		$form = $this->module->create_form( (array) $request->get_json_params() );
 		if ( null === $form ) {
 			return new WP_Error( 'uxstudio_forms_invalid', __( 'A form title is required.', 'ux-studio' ), array( 'status' => 400 ) );
+		}
+		return $this->ok( $form );
+	}
+
+	public function list_templates(): WP_REST_Response {
+		return $this->ok( $this->module->list_templates() );
+	}
+
+	public function create_from_template( WP_REST_Request $request ) {
+		$form = $this->module->create_from_template( (string) $request->get_param( 'template' ), (string) $request->get_param( 'title' ) );
+		if ( null === $form ) {
+			return new WP_Error( 'uxstudio_forms_template_unknown', __( 'This template does not exist.', 'ux-studio' ), array( 'status' => 404 ) );
 		}
 		return $this->ok( $form );
 	}

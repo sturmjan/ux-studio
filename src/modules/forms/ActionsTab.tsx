@@ -1,7 +1,7 @@
 /**
  * Actions tab: the post-submit action chain (PLAN.md 20.2/20.11 F2/F4) - email
- * notification(s) with a built-in HTML template picker and live preview
- * (EmailTemplateRenderer, PLAN.md 20.9), webhook (HMAC-signed POST, PLAN.md
+ * notification(s) edited in EmailActionEditor (settings + live preview through
+ * EmailTemplateRenderer, PLAN.md 20.9/20.12), webhook (HMAC-signed POST, PLAN.md
  * 20.2/20.8), redirect and create-a-post (PLAN.md 20.11 F4). Multiple `email`
  * actions can coexist (e.g. one "branded" notification to the site owner plus
  * a second "minimal"/"card" autoresponder to the submitter via `to: {email}`)
@@ -11,9 +11,10 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { ArrowRight, Check, Copy, Eye, FilePlus2, Mail, Save, Trash2, Webhook as WebhookIcon } from 'lucide-react';
+import { ArrowRight, Check, Copy, FilePlus2, Mail, Save, Trash2, Webhook as WebhookIcon } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
-import type { CreatePostAction, EmailAction, EmailTemplate, FormAction, FormDefinition, PostStatus, PostTypeOption, RedirectAction, WebhookAction } from './types';
+import EmailActionEditor from './EmailActionEditor';
+import type { CreatePostAction, EmailAction, FormAction, FormDefinition, PostStatus, PostTypeOption, RedirectAction, WebhookAction } from './types';
 
 const POST_STATUSES: { id: PostStatus; label: string }[] = [
 	{ id: 'draft', label: __( 'Draft', 'ux-studio' ) },
@@ -21,22 +22,6 @@ const POST_STATUSES: { id: PostStatus; label: string }[] = [
 	{ id: 'private', label: __( 'Private', 'ux-studio' ) },
 	{ id: 'publish', label: __( 'Published', 'ux-studio' ) },
 ];
-
-const TEMPLATES: { id: EmailTemplate; label: string }[] = [
-	{ id: 'minimal', label: __( 'Minimal', 'ux-studio' ) },
-	{ id: 'card', label: __( 'Card', 'ux-studio' ) },
-	{ id: 'branded', label: __( 'Branded', 'ux-studio' ) },
-	{ id: 'custom', label: __( 'Custom HTML', 'ux-studio' ) },
-];
-
-const CUSTOM_HTML_PLACEHOLDER = `<!DOCTYPE html>
-<html>
-<body style="font-family:Arial,sans-serif;">
-  <h1 style="color:#2563eb;">{form_title}</h1>
-  <p>Hello, a new submission arrived on {submission_date}.</p>
-  {submission_table}
-</body>
-</html>`;
 
 function emptyEmailAction(): EmailAction {
 	return {
@@ -49,6 +34,12 @@ function emptyEmailAction(): EmailAction {
 		cta_text: '',
 		cta_url: '',
 		custom_html: '',
+		logo_id: 0,
+		logo_url: '',
+		logo_position: 'left',
+		logo_width: 160,
+		header_bg: '',
+		link_color: '',
 	};
 }
 
@@ -249,119 +240,6 @@ function CreatePostActionEditor( {
 	);
 }
 
-function EmailActionEditor( {
-	action,
-	formId,
-	onChange,
-	onRemove,
-}: {
-	action: EmailAction;
-	formId: number;
-	onChange: ( patch: Partial< EmailAction > ) => void;
-	onRemove: () => void;
-} ): JSX.Element {
-	const [ preview, setPreview ] = useState< { subject: string; html: string } | null >( null );
-
-	const previewMutation = useMutation( {
-		mutationFn: () => api< { subject: string; html: string } >( `forms/${ formId }/preview-email`, { method: 'POST', body: JSON.stringify( action ) } ),
-		onSuccess: ( result ) => setPreview( result ),
-	} );
-
-	return (
-		<div className="uxs-card" style={ { marginBottom: 'var(--uxs-sp-4)' } }>
-			<div style={ { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--uxs-sp-3)' } }>
-				<strong>{ __( 'Email notification', 'ux-studio' ) }</strong>
-				<button type="button" className="button-link" onClick={ onRemove } aria-label={ __( 'Remove this action', 'ux-studio' ) }>
-					<Trash2 size={ 14 } />
-				</button>
-			</div>
-
-			<div className="uxs-form">
-				<div className="uxs-form__row">
-					<label>{ __( 'Send to', 'ux-studio' ) }</label>
-					<input
-						type="text"
-						value={ action.to }
-						placeholder={ __( 'admin_email or {email}', 'ux-studio' ) }
-						onChange={ ( e ) => onChange( { to: e.target.value } ) }
-					/>
-					<p className="uxs-form__help">{ __( 'Leave empty to use the site admin email. Supports merge tags, e.g. {email}.', 'ux-studio' ) }</p>
-				</div>
-				<div className="uxs-form__row">
-					<label>{ __( 'Subject', 'ux-studio' ) }</label>
-					<input type="text" value={ action.subject } onChange={ ( e ) => onChange( { subject: e.target.value } ) } />
-				</div>
-				<div className="uxs-form__row">
-					<label>{ __( 'Template', 'ux-studio' ) }</label>
-					<select value={ action.template } onChange={ ( e ) => onChange( { template: e.target.value as EmailTemplate } ) }>
-						{ TEMPLATES.map( ( t ) => (
-							<option key={ t.id } value={ t.id }>
-								{ t.label }
-							</option>
-						) ) }
-					</select>
-				</div>
-
-				{ action.template === 'custom' ? (
-					<div className="uxs-form__row">
-						<label>{ __( 'Custom HTML', 'ux-studio' ) }</label>
-						<textarea
-							rows={ 12 }
-							style={ { fontFamily: 'monospace', fontSize: 'var(--uxs-fs-s)' } }
-							value={ action.custom_html }
-							placeholder={ CUSTOM_HTML_PLACEHOLDER }
-							onChange={ ( e ) => onChange( { custom_html: e.target.value } ) }
-						/>
-						<p className="uxs-form__help">
-							{ __(
-								'Your own complete HTML email - no built-in layout is added around it. Merge tags: {form_title}, {submission_date}, {submission_table}, and any field key like {email}. Use inline style="" attributes; most email clients ignore <style> blocks and external CSS.',
-								'ux-studio'
-							) }
-						</p>
-					</div>
-				) : (
-					<>
-						<div className="uxs-form__row">
-							<label>{ __( 'Message', 'ux-studio' ) }</label>
-							<textarea rows={ 5 } value={ action.message } onChange={ ( e ) => onChange( { message: e.target.value } ) } />
-							<p className="uxs-form__help">
-								{ __( 'Merge tags: {form_title}, {submission_date}, {submission_table}, and any field key like {email}.', 'ux-studio' ) }
-							</p>
-						</div>
-						<div className="uxs-form__row">
-							<label>
-								<input type="checkbox" checked={ action.include_table } onChange={ ( e ) => onChange( { include_table: e.target.checked } ) } />{ ' ' }
-								{ __( 'Include a table of all submitted fields', 'ux-studio' ) }
-							</label>
-						</div>
-						<div className="uxs-form__row">
-							<label>{ __( 'Button text (optional)', 'ux-studio' ) }</label>
-							<input type="text" value={ action.cta_text } onChange={ ( e ) => onChange( { cta_text: e.target.value } ) } />
-						</div>
-						<div className="uxs-form__row">
-							<label>{ __( 'Button URL', 'ux-studio' ) }</label>
-							<input type="url" value={ action.cta_url } onChange={ ( e ) => onChange( { cta_url: e.target.value } ) } />
-						</div>
-					</>
-				) }
-
-				<button type="button" className="button" disabled={ previewMutation.isPending } onClick={ () => previewMutation.mutate() }>
-					<Eye size={ 14 } /> { __( 'Preview', 'ux-studio' ) }
-				</button>
-
-				{ preview && (
-					<div className="uxs-fb-email-preview" style={ { marginTop: 'var(--uxs-sp-3)' } }>
-						<div style={ { padding: 'var(--uxs-sp-2) var(--uxs-sp-3)', fontSize: 'var(--uxs-fs-s)', color: 'var(--uxs-text-soft)' } }>
-							{ __( 'Subject:', 'ux-studio' ) } <strong>{ preview.subject }</strong>
-						</div>
-						<iframe title={ __( 'Email preview', 'ux-studio' ) } sandbox="" srcDoc={ preview.html } />
-					</div>
-				) }
-			</div>
-		</div>
-	);
-}
-
 export default function ActionsTab( { form }: { form: FormDefinition } ): JSX.Element {
 	const [ actions, setActions ] = useState< FormAction[] >( form.settings.actions );
 	const [ dirty, setDirty ] = useState( false );
@@ -413,6 +291,7 @@ export default function ActionsTab( { form }: { form: FormDefinition } ): JSX.El
 								key={ i }
 								action={ action }
 								formId={ form.id }
+								fields={ form.fields }
 								onChange={ ( patch ) => update< EmailAction >( i, patch ) }
 								onRemove={ () => remove( i ) }
 							/>

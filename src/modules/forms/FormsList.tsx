@@ -7,6 +7,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Archive, Copy, Inbox, LoaderCircle, Plus, Trash2 } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
+import TemplateGallery from './TemplateGallery';
 import type { FormListItem } from './types';
 import { formatDate } from '../../app/date';
 
@@ -102,6 +103,14 @@ export default function FormsList( { onOpen }: { onOpen: ( id: number ) => void 
 					{ create.isPending ? <LoaderCircle size={ 14 } /> : <Plus size={ 14 } /> } { __( 'Add form', 'ux-studio' ) }
 				</button>
 			</div>
+
+			<TemplateGallery
+				title={ newTitle.trim() }
+				onCreated={ ( id ) => {
+					setNewTitle( '' );
+					onOpen( id );
+				} }
+			/>
 
 			{ query.isLoading ? (
 				<div className="uxs-loading">
