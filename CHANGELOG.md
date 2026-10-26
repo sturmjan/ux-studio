@@ -1,7 +1,9 @@
 # Changelog
 
-## 0.7.1 (unreleased)
+## 0.7.1
 
+- Fixed - Forms: the module no longer fails to start on sites where Elementor is missing or not loaded yet (the
+  Elementor widget class was loaded too early, a fatal error that skipped the whole module since 0.4.0).
 - Changed - PHP version warning works with no module enabled: the daily refresh from php.net, the e-mail to the
   administrator (once when the site first turns critical, then at most weekly), the dashboard widget and the admin notice
   now run from the plugin core, so a freshly installed site is warned right after activation. The notice shows on every
