@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.7.2 (unreleased)
+
+- New - Form Builder: template gallery under "New form title" - nine ready-made forms (contact, service inquiry,
+  booking, event registration, job application, order, newsletter signup, feedback and rating, complaint) with a live
+  mini preview, field count, a "Multi-step" badge with the number of steps and category chips. A click creates the form
+  with fields, widths for desktop, tablet and mobile, step breaks, a required GDPR consent where personal data is
+  collected, an e-mail to the site admin and a confirmation to the sender, then opens the builder.
+- Changed - Form Builder, public form: multi-step forms now work properly. Numbered progress (or a bar), Back and
+  Next with validation of the current step, focus moves to the step heading, errors are announced and linked to their
+  field, Enter moves to the next step instead of sending a half-filled form, a server error takes the visitor to the
+  right step, and a thank-you panel replaces the form after sending.
+- Fixed - Form Builder, public form: the tablet and mobile widths set in the builder are used (a 12 column grid), and
+  two fields of 50 percent no longer wrap under each other.
+- New - Form Builder, Appearance: presets "Card with header and footer", "Two columns" and "Numbered sections",
+  frame (plain, card, one row), columns, section numbers and the text of the submit button. Radio and checkbox groups
+  can be drawn as cards or as a row of buttons (for example a 1 to 5 rating); a step can have a description.
+- New - Form Builder, e-mail notification: two columns with a live preview of the real e-mail (desktop and mobile),
+  the message in the WordPress editor with Add Media and a merge tag menu, a header with a logo from the Media Library
+  (left, center or right, width), header and link colors with a contrast warning. Works for the confirmation to the
+  sender too. Images are sent with absolute addresses; scripts, event handlers and `javascript:` links are removed, and
+  submitted values are escaped in the HTML body.
+
 ## 0.7.1
 
 - Fixed - Forms: the module no longer fails to start on sites where Elementor is missing or not loaded yet (the

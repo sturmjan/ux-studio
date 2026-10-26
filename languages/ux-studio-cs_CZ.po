@@ -26632,3 +26632,1047 @@ msgstr "Připojit můžete i později."
 #: build/index.0bc6f721cd95b0a9b1d0.js:41
 msgid "A Content Security Policy mode is already set, it stays as it is."
 msgstr "Režim Content Security Policy už je nastavený, zůstane tak, jak je."
+
+#. translators: %s: contrast ratio such as 3.4.
+#: includes/Modules/Forms/EmailTemplateRenderer.php:348
+msgid "The header text has low contrast on this background (%s:1, at least 4.5:1 is recommended). Pick a lighter or darker header color."
+msgstr "Text v záhlaví má na tomto pozadí nízký kontrast (%s:1, doporučeno je alespoň 4,5:1). Zvolte světlejší nebo tmavší barvu záhlaví."
+
+#. translators: %s: contrast ratio such as 3.4.
+#: includes/Modules/Forms/EmailTemplateRenderer.php:360
+msgid "The link color has low contrast on the white message body (%s:1, at least 4.5:1 is recommended). Pick a darker link color."
+msgstr "Barva odkazů má na bílém těle zprávy nízký kontrast (%s:1, doporučeno je alespoň 4,5:1). Zvolte tmavší barvu odkazů."
+
+#: includes/Modules/Forms/PublicRenderer.php:111
+msgid "Send another response"
+msgstr "Odeslat další odpověď"
+
+#: includes/Modules/Forms/PublicRenderer.php:189
+msgid "Enter a valid e-mail address."
+msgstr "Zadejte platnou e-mailovou adresu."
+
+#: includes/Modules/Forms/PublicRenderer.php:190
+msgid "Enter a valid web address, starting with https://."
+msgstr "Zadejte platnou webovou adresu, která začíná https://."
+
+#: includes/Modules/Forms/PublicRenderer.php:191
+msgid "Enter a number."
+msgstr "Zadejte číslo."
+
+#: includes/Modules/Forms/PublicRenderer.php:192
+msgid "The value must be at least %s."
+msgstr "Hodnota musí být alespoň %s."
+
+#: includes/Modules/Forms/PublicRenderer.php:193
+msgid "The value must be at most %s."
+msgstr "Hodnota může být nejvýše %s."
+
+#: includes/Modules/Forms/PublicRenderer.php:194
+msgid "Enter at least %s characters."
+msgstr "Zadejte alespoň %s znaků."
+
+#: includes/Modules/Forms/PublicRenderer.php:195
+msgid "Enter at most %s characters."
+msgstr "Zadejte nejvýše %s znaků."
+
+#: includes/Modules/Forms/PublicRenderer.php:196
+msgid "This value is not valid."
+msgstr "Tato hodnota není platná."
+
+#: includes/Modules/Forms/PublicRenderer.php:197
+msgid "Please check the highlighted fields (%s)."
+msgstr "Zkontrolujte prosím zvýrazněná pole (%s)."
+
+#. translators: 1: current step number, 2: number of steps.
+#: includes/Modules/Forms/PublicRenderer.php:199
+#: includes/Modules/Forms/PublicRenderer.php:262
+msgid "Step %1$d of %2$d"
+msgstr "Krok %1$d z %2$d"
+
+#: includes/Modules/Forms/PublicRenderer.php:200
+msgid "Form progress"
+msgstr "Postup vyplňování formuláře"
+
+#. translators: %d: step number.
+#: includes/Modules/Forms/PublicRenderer.php:241
+msgid "Step %d"
+msgstr "Krok %d"
+
+#: includes/Modules/Forms/RestController.php:148
+msgid "This template does not exist."
+msgstr "Tato šablona neexistuje."
+
+#: includes/Modules/Forms/Templates.php:32
+#: includes/Modules/Forms/Templates.php:307
+msgid "Contact"
+msgstr "Kontakt"
+
+#: includes/Modules/Forms/Templates.php:33
+msgid "Inquiry"
+msgstr "Poptávka"
+
+#: includes/Modules/Forms/Templates.php:36
+msgid "Careers"
+msgstr "Kariéra"
+
+#: includes/Modules/Forms/Templates.php:37
+msgid "Shop"
+msgstr "Obchod"
+
+#: includes/Modules/Forms/Templates.php:38
+msgid "Feedback"
+msgstr "Zpětná vazba"
+
+#: includes/Modules/Forms/Templates.php:221
+msgid "I agree to the processing of my personal data"
+msgstr "Souhlasím se zpracováním osobních údajů"
+
+#: includes/Modules/Forms/Templates.php:226
+msgid "I agree to the processing of my personal data for the purpose of handling this request."
+msgstr "Souhlasím se zpracováním svých osobních údajů za účelem vyřízení tohoto požadavku."
+
+#: includes/Modules/Forms/Templates.php:243
+msgid "A new submission arrived on {submission_date}."
+msgstr "Dne {submission_date} dorazilo nové odeslání."
+
+#: includes/Modules/Forms/Templates.php:274
+msgid "Name, e-mail, subject and message in a card with a header and footer."
+msgstr "Jméno, e-mail, předmět a zpráva v kartě se záhlavím a patičkou."
+
+#: includes/Modules/Forms/Templates.php:275
+msgid "Write to us and we will get back to you as soon as possible."
+msgstr "Napište nám a my se vám co nejdříve ozveme."
+
+#: includes/Modules/Forms/Templates.php:277
+msgid "Your name"
+msgstr "Vaše jméno"
+
+#: includes/Modules/Forms/Templates.php:278
+#: includes/Modules/Forms/Templates.php:310
+#: includes/Modules/Forms/Templates.php:377
+#: includes/Modules/Forms/Templates.php:407
+#: includes/Modules/Forms/Templates.php:450
+#: includes/Modules/Forms/Templates.php:512
+#: includes/Modules/Forms/Templates.php:580
+#: includes/Modules/Forms/Templates.php:661
+msgid "E-mail"
+msgstr "E-mail"
+
+#: includes/Modules/Forms/Templates.php:286
+msgid "Send message"
+msgstr "Odeslat zprávu"
+
+#: includes/Modules/Forms/Templates.php:287
+msgid "Thank you for your message. We will reply as soon as we can."
+msgstr "Děkujeme za vaši zprávu. Odpovíme vám, jakmile to půjde."
+
+#: includes/Modules/Forms/Templates.php:289
+msgid "New message: {subject}"
+msgstr "Nová zpráva: {subject}"
+
+#: includes/Modules/Forms/Templates.php:291
+msgid "We received your message"
+msgstr "Vaši zprávu jsme přijali"
+
+#: includes/Modules/Forms/Templates.php:292
+#: includes/Modules/Forms/Templates.php:345
+#: includes/Modules/Forms/Templates.php:391
+#: includes/Modules/Forms/Templates.php:432
+#: includes/Modules/Forms/Templates.php:565
+#: includes/Modules/Forms/Templates.php:696
+msgid "Hello {name},"
+msgstr "Dobrý den, {name},"
+
+#: includes/Modules/Forms/Templates.php:292
+msgid "thank you for your message. We will get back to you as soon as possible."
+msgstr "děkujeme za vaši zprávu. Ozveme se vám co nejdříve."
+
+#: includes/Modules/Forms/Templates.php:303
+msgid "Service inquiry"
+msgstr "Poptávka služby"
+
+#: includes/Modules/Forms/Templates.php:304
+msgid "Two steps: who you are, then what you need. Two columns."
+msgstr "Dva kroky: kdo jste a co potřebujete. Dva sloupce."
+
+#: includes/Modules/Forms/Templates.php:305
+msgid "Tell us what you need and we will prepare an offer."
+msgstr "Napište, co potřebujete, a my připravíme nabídku."
+
+#: includes/Modules/Forms/Templates.php:307
+msgid "How can we reach you?"
+msgstr "Jak vás můžeme zastihnout?"
+
+#: includes/Modules/Forms/Templates.php:308
+#: includes/Modules/Forms/Templates.php:375
+#: includes/Modules/Forms/Templates.php:406
+#: includes/Modules/Forms/Templates.php:511
+#: includes/Modules/Forms/Templates.php:660
+msgid "Name and surname"
+msgstr "Jméno a příjmení"
+
+#: includes/Modules/Forms/Templates.php:309
+msgid "Company"
+msgstr "Firma"
+
+#: includes/Modules/Forms/Templates.php:312
+msgid "Inquiry details"
+msgstr "Podrobnosti poptávky"
+
+#: includes/Modules/Forms/Templates.php:312
+msgid "What would you like us to do?"
+msgstr "Co pro vás máme udělat?"
+
+#: includes/Modules/Forms/Templates.php:316
+msgid "Service"
+msgstr "Služba"
+
+#: includes/Modules/Forms/Templates.php:319
+msgid "New project"
+msgstr "Nový projekt"
+
+#: includes/Modules/Forms/Templates.php:319
+msgid "Redesign"
+msgstr "Redesign"
+
+#: includes/Modules/Forms/Templates.php:319
+msgid "Maintenance and support"
+msgstr "Údržba a podpora"
+
+#: includes/Modules/Forms/Templates.php:319
+#: includes/Modules/Forms/Templates.php:369
+msgid "Consultation"
+msgstr "Konzultace"
+
+#: includes/Modules/Forms/Templates.php:319
+#: includes/Modules/Forms/Templates.php:670
+msgid "Something else"
+msgstr "Něco jiného"
+
+#: includes/Modules/Forms/Templates.php:326
+msgid "When do you need it?"
+msgstr "Kdy to potřebujete?"
+
+#: includes/Modules/Forms/Templates.php:328
+msgid "As soon as possible"
+msgstr "Co nejdříve"
+
+#: includes/Modules/Forms/Templates.php:328
+msgid "Within a month"
+msgstr "Do měsíce"
+
+#: includes/Modules/Forms/Templates.php:328
+msgid "Within three months"
+msgstr "Do tří měsíců"
+
+#: includes/Modules/Forms/Templates.php:328
+msgid "No rush"
+msgstr "Nespěchá to"
+
+#: includes/Modules/Forms/Templates.php:332
+msgid "Describe your inquiry"
+msgstr "Popište svou poptávku"
+
+#: includes/Modules/Forms/Templates.php:339
+msgid "Send inquiry"
+msgstr "Odeslat poptávku"
+
+#: includes/Modules/Forms/Templates.php:340
+msgid "Thank you, your inquiry was sent. We will contact you with an offer."
+msgstr "Děkujeme, vaše poptávka byla odeslána. Ozveme se vám s nabídkou."
+
+#: includes/Modules/Forms/Templates.php:342
+msgid "New inquiry from {name}"
+msgstr "Nová poptávka od {name}"
+
+#: includes/Modules/Forms/Templates.php:344
+msgid "We received your inquiry"
+msgstr "Vaši poptávku jsme přijali"
+
+#: includes/Modules/Forms/Templates.php:345
+msgid "thank you for your inquiry. We will review it and send you an offer soon."
+msgstr "děkujeme za vaši poptávku. Projdeme ji a brzy vám pošleme nabídku."
+
+#: includes/Modules/Forms/Templates.php:356
+msgid "Booking a time slot"
+msgstr "Rezervace termínu"
+
+#: includes/Modules/Forms/Templates.php:357
+msgid "Two steps: pick a date and time, then leave your details."
+msgstr "Dva kroky: vyberte datum a čas, pak zanechte své údaje."
+
+#: includes/Modules/Forms/Templates.php:358
+msgid "Choose a date that suits you. We confirm every booking by e-mail."
+msgstr "Vyberte datum, které vám vyhovuje. Každou rezervaci potvrzujeme e-mailem."
+
+#: includes/Modules/Forms/Templates.php:360
+msgid "When would you like to come?"
+msgstr "Kdy byste chtěli přijít?"
+
+#: includes/Modules/Forms/Templates.php:366
+msgid "What is it for?"
+msgstr "K čemu termín je?"
+
+#: includes/Modules/Forms/Templates.php:369
+msgid "First visit"
+msgstr "První návštěva"
+
+#: includes/Modules/Forms/Templates.php:369
+msgid "Follow-up visit"
+msgstr "Kontrolní návštěva"
+
+#: includes/Modules/Forms/Templates.php:373
+msgid "Number of people"
+msgstr "Počet osob"
+
+#: includes/Modules/Forms/Templates.php:374
+#: includes/Modules/Forms/Templates.php:510
+msgid "Your details"
+msgstr "Vaše údaje"
+
+#: includes/Modules/Forms/Templates.php:374
+msgid "Where do we send the confirmation?"
+msgstr "Kam pošleme potvrzení?"
+
+#: includes/Modules/Forms/Templates.php:385
+msgid "Book the slot"
+msgstr "Rezervovat termín"
+
+#: includes/Modules/Forms/Templates.php:386
+msgid "Your booking request was sent. We will confirm it by e-mail."
+msgstr "Vaše žádost o rezervaci byla odeslána. Termín potvrdíme e-mailem."
+
+#: includes/Modules/Forms/Templates.php:388
+msgid "New booking: {date} {time}"
+msgstr "Nová rezervace: {date} {time}"
+
+#: includes/Modules/Forms/Templates.php:390
+msgid "Your booking request"
+msgstr "Vaše žádost o rezervaci"
+
+#: includes/Modules/Forms/Templates.php:391
+msgid "we received your request for {date} at {time}. We will confirm the slot by e-mail shortly."
+msgstr "přijali jsme vaši žádost o termín {date} v {time}. Termín vám brzy potvrdíme e-mailem."
+
+#: includes/Modules/Forms/Templates.php:403
+msgid "Attendee details, number of seats and the way of attending, in two columns."
+msgstr "Údaje účastníka, počet míst a způsob účasti ve dvou sloupcích."
+
+#: includes/Modules/Forms/Templates.php:404
+msgid "Reserve your seat. Places are limited."
+msgstr "Zarezervujte si místo. Počet míst je omezený."
+
+#: includes/Modules/Forms/Templates.php:409
+msgid "Number of seats"
+msgstr "Počet míst"
+
+#: includes/Modules/Forms/Templates.php:413
+msgid "How will you attend?"
+msgstr "Jak se zúčastníte?"
+
+#: includes/Modules/Forms/Templates.php:417
+msgid "In person"
+msgstr "Osobně"
+
+#: includes/Modules/Forms/Templates.php:417
+msgid "Online"
+msgstr "Online"
+
+#: includes/Modules/Forms/Templates.php:420
+msgid "Questions or special requirements"
+msgstr "Dotazy nebo zvláštní požadavky"
+
+#: includes/Modules/Forms/Templates.php:426
+msgid "Register"
+msgstr "Zaregistrovat se"
+
+#: includes/Modules/Forms/Templates.php:427
+msgid "You are registered. We sent you a confirmation by e-mail."
+msgstr "Jste zaregistrováni. Potvrzení jsme vám poslali e-mailem."
+
+#: includes/Modules/Forms/Templates.php:429
+msgid "New registration: {name}"
+msgstr "Nová registrace: {name}"
+
+#: includes/Modules/Forms/Templates.php:431
+msgid "Your registration is confirmed"
+msgstr "Vaše registrace je potvrzena"
+
+#: includes/Modules/Forms/Templates.php:432
+msgid "your registration for {seats} seat(s) was received. We look forward to seeing you."
+msgstr "vaše registrace na {seats} míst(a) byla přijata. Těšíme se na vás."
+
+#: includes/Modules/Forms/Templates.php:444
+msgid "Three steps: personal details, experience, CV upload and consent."
+msgstr "Tři kroky: osobní údaje, zkušenosti, nahrání životopisu a souhlas."
+
+#: includes/Modules/Forms/Templates.php:445
+msgid "Join the team. Filling this in takes about five minutes."
+msgstr "Přidejte se k týmu. Vyplnění zabere zhruba pět minut."
+
+#: includes/Modules/Forms/Templates.php:447
+msgid "Personal details"
+msgstr "Osobní údaje"
+
+#: includes/Modules/Forms/Templates.php:447
+msgid "Tell us who you are."
+msgstr "Řekněte nám, kdo jste."
+
+#: includes/Modules/Forms/Templates.php:448
+msgid "First name"
+msgstr "Jméno"
+
+#: includes/Modules/Forms/Templates.php:449
+msgid "Surname"
+msgstr "Příjmení"
+
+#: includes/Modules/Forms/Templates.php:452
+#: includes/Modules/Forms/Templates.php:527
+msgid "City"
+msgstr "Město"
+
+#: includes/Modules/Forms/Templates.php:453
+msgid "Experience"
+msgstr "Zkušenosti"
+
+#: includes/Modules/Forms/Templates.php:453
+msgid "What have you done so far?"
+msgstr "Co jste dosud dělali?"
+
+#: includes/Modules/Forms/Templates.php:460
+msgid "Sales"
+msgstr "Obchod a prodej"
+
+#: includes/Modules/Forms/Templates.php:460
+msgid "Development"
+msgstr "Vývoj"
+
+#: includes/Modules/Forms/Templates.php:467
+msgid "Years of experience"
+msgstr "Roky praxe"
+
+#: includes/Modules/Forms/Templates.php:469
+msgid "No experience yet"
+msgstr "Zatím bez praxe"
+
+#: includes/Modules/Forms/Templates.php:469
+msgid "1 to 2 years"
+msgstr "1 až 2 roky"
+
+#: includes/Modules/Forms/Templates.php:469
+msgid "3 to 5 years"
+msgstr "3 až 5 let"
+
+#: includes/Modules/Forms/Templates.php:469
+msgid "More than 5 years"
+msgstr "Více než 5 let"
+
+#: includes/Modules/Forms/Templates.php:473
+msgid "Earliest start"
+msgstr "Nejdříve nastoupím"
+
+#: includes/Modules/Forms/Templates.php:474
+msgid "Profile or portfolio link"
+msgstr "Odkaz na profil nebo portfolio"
+
+#: includes/Modules/Forms/Templates.php:475
+msgid "Tell us about your experience"
+msgstr "Napište nám o svých zkušenostech"
+
+#: includes/Modules/Forms/Templates.php:476
+msgid "CV and consent"
+msgstr "Životopis a souhlas"
+
+#: includes/Modules/Forms/Templates.php:476
+msgid "Attach your CV and confirm the consent."
+msgstr "Přiložte životopis a potvrďte souhlas."
+
+#: includes/Modules/Forms/Templates.php:477
+msgid "CV"
+msgstr "Životopis"
+
+#: includes/Modules/Forms/Templates.php:478
+msgid "I agree to the processing of my personal data for the purpose of this selection procedure."
+msgstr "Souhlasím se zpracováním svých osobních údajů za účelem tohoto výběrového řízení."
+
+#: includes/Modules/Forms/Templates.php:482
+msgid "Keep my data for future vacancies"
+msgstr "Uschovat mé údaje pro budoucí pozice"
+
+#: includes/Modules/Forms/Templates.php:483
+msgid "You may keep my application for six months and contact me about other vacancies (optional)."
+msgstr "Mou přihlášku můžete šest měsíců uchovat a kontaktovat mě s jinými nabídkami práce (volitelné)."
+
+#: includes/Modules/Forms/Templates.php:489
+msgid "Send application"
+msgstr "Odeslat přihlášku"
+
+#: includes/Modules/Forms/Templates.php:490
+msgid "Thank you, your application was sent. We will be in touch."
+msgstr "Děkujeme, vaše přihláška byla odeslána. Ozveme se vám."
+
+#: includes/Modules/Forms/Templates.php:492
+msgid "New application: {first_name} {name}"
+msgstr "Nová přihláška: {first_name} {name}"
+
+#: includes/Modules/Forms/Templates.php:494
+msgid "We received your application"
+msgstr "Vaši přihlášku jsme přijali"
+
+#: includes/Modules/Forms/Templates.php:495
+msgid "Hello {first_name},"
+msgstr "Dobrý den, {first_name},"
+
+#: includes/Modules/Forms/Templates.php:495
+msgid "thank you for your interest in working with us. We will review your application and contact you."
+msgstr "děkujeme za zájem pracovat u nás. Přihlášku projdeme a budeme vás kontaktovat."
+
+#: includes/Modules/Forms/Templates.php:507
+msgid "Numbered sections like a checkout: details, delivery with cards, summary."
+msgstr "Číslované sekce jako v pokladně: údaje, doprava s kartami, shrnutí."
+
+#: includes/Modules/Forms/Templates.php:508
+msgid "Place an order in three short steps."
+msgstr "Objednejte ve třech krátkých krocích."
+
+#: includes/Modules/Forms/Templates.php:510
+msgid "Who is ordering?"
+msgstr "Kdo objednává?"
+
+#: includes/Modules/Forms/Templates.php:514
+msgid "Company (optional)"
+msgstr "Firma (nepovinné)"
+
+#: includes/Modules/Forms/Templates.php:515
+msgid "Delivery"
+msgstr "Doručení"
+
+#: includes/Modules/Forms/Templates.php:515
+msgid "How should we get it to you?"
+msgstr "Jak vám zboží doručíme?"
+
+#: includes/Modules/Forms/Templates.php:519
+msgid "Delivery method"
+msgstr "Způsob doručení"
+
+#: includes/Modules/Forms/Templates.php:523
+msgid "Courier to your door"
+msgstr "Kurýr až ke dveřím"
+
+#: includes/Modules/Forms/Templates.php:523
+msgid "Pickup point"
+msgstr "Výdejní místo"
+
+#: includes/Modules/Forms/Templates.php:523
+msgid "Personal pickup"
+msgstr "Osobní odběr"
+
+#: includes/Modules/Forms/Templates.php:526
+msgid "Street and number"
+msgstr "Ulice a číslo popisné"
+
+#: includes/Modules/Forms/Templates.php:528
+msgid "Postcode"
+msgstr "PSČ"
+
+#: includes/Modules/Forms/Templates.php:529
+msgid "Summary and consent"
+msgstr "Shrnutí a souhlas"
+
+#: includes/Modules/Forms/Templates.php:529
+msgid "Check the order and confirm."
+msgstr "Zkontrolujte objednávku a potvrďte ji."
+
+#: includes/Modules/Forms/Templates.php:530
+msgid "What are you ordering?"
+msgstr "Co objednáváte?"
+
+#: includes/Modules/Forms/Templates.php:530
+msgid "Product, variant and quantity"
+msgstr "Produkt, varianta a množství"
+
+#: includes/Modules/Forms/Templates.php:534
+msgid "Payment"
+msgstr "Platba"
+
+#: includes/Modules/Forms/Templates.php:538
+msgid "Bank transfer"
+msgstr "Bankovní převod"
+
+#: includes/Modules/Forms/Templates.php:538
+msgid "Card online"
+msgstr "Kartou online"
+
+#: includes/Modules/Forms/Templates.php:538
+msgid "Cash on delivery"
+msgstr "Dobírka"
+
+#: includes/Modules/Forms/Templates.php:541
+msgid "Note for the seller"
+msgstr "Poznámka pro prodejce"
+
+#: includes/Modules/Forms/Templates.php:545
+msgid "Terms and conditions"
+msgstr "Obchodní podmínky"
+
+#: includes/Modules/Forms/Templates.php:549
+msgid "I have read the terms and conditions and I agree with them."
+msgstr "Přečetl(a) jsem obchodní podmínky a souhlasím s nimi."
+
+#: includes/Modules/Forms/Templates.php:552
+msgid "I agree to the processing of my personal data for the purpose of handling this order."
+msgstr "Souhlasím se zpracováním svých osobních údajů za účelem vyřízení této objednávky."
+
+#: includes/Modules/Forms/Templates.php:559
+msgid "Place order"
+msgstr "Odeslat objednávku"
+
+#: includes/Modules/Forms/Templates.php:560
+msgid "Thank you, your order was received. We will confirm it by e-mail."
+msgstr "Děkujeme, objednávku jsme přijali. Potvrdíme ji e-mailem."
+
+#: includes/Modules/Forms/Templates.php:562
+msgid "New order from {name}"
+msgstr "Nová objednávka od {name}"
+
+#: includes/Modules/Forms/Templates.php:564
+msgid "We received your order"
+msgstr "Vaši objednávku jsme přijali"
+
+#: includes/Modules/Forms/Templates.php:565
+msgid "thank you for your order. We will confirm it and let you know when it ships."
+msgstr "děkujeme za objednávku. Potvrdíme ji a dáme vám vědět, až bude odeslána."
+
+#: includes/Modules/Forms/Templates.php:577
+msgid "Compact: e-mail and button in one row, consent underneath."
+msgstr "Stručně: e-mail a tlačítko v jednom řádku, souhlas pod nimi."
+
+#: includes/Modules/Forms/Templates.php:580
+msgid "Your e-mail address"
+msgstr "Vaše e-mailová adresa"
+
+#: includes/Modules/Forms/Templates.php:581
+msgid "I agree to receive the newsletter and to the processing of my e-mail address for that purpose."
+msgstr "Souhlasím se zasíláním newsletteru a se zpracováním své e-mailové adresy za tímto účelem."
+
+#: includes/Modules/Forms/Templates.php:587
+msgid "Thank you for subscribing."
+msgstr "Děkujeme za přihlášení."
+
+#: includes/Modules/Forms/Templates.php:589
+msgid "New newsletter subscriber"
+msgstr "Nový odběratel newsletteru"
+
+#: includes/Modules/Forms/Templates.php:591
+msgid "Welcome to our newsletter"
+msgstr "Vítejte v našem newsletteru"
+
+#: includes/Modules/Forms/Templates.php:592
+msgid "Thank you for subscribing. We will send you news only now and then."
+msgstr "Děkujeme za přihlášení. Novinky budeme posílat jen občas."
+
+#: includes/Modules/Forms/Templates.php:603
+msgid "Feedback and rating"
+msgstr "Zpětná vazba a hodnocení"
+
+#: includes/Modules/Forms/Templates.php:604
+msgid "A 1 to 5 rating, what worked and what did not, optional reply."
+msgstr "Hodnocení od 1 do 5, co se povedlo a co ne, volitelná odpověď."
+
+#: includes/Modules/Forms/Templates.php:605
+msgid "Your opinion helps us improve. It takes a minute."
+msgstr "Váš názor nám pomáhá zlepšovat se. Zabere to minutu."
+
+#: includes/Modules/Forms/Templates.php:610
+msgid "How satisfied are you? (1 = not at all, 5 = very)"
+msgstr "Jak jste spokojeni? (1 = vůbec, 5 = velmi)"
+
+#: includes/Modules/Forms/Templates.php:617
+msgid "What did you like?"
+msgstr "Co se vám líbilo?"
+
+#: includes/Modules/Forms/Templates.php:618
+msgid "What could we do better?"
+msgstr "Co bychom mohli dělat lépe?"
+
+#: includes/Modules/Forms/Templates.php:622
+msgid "Would you recommend us?"
+msgstr "Doporučili byste nás?"
+
+#: includes/Modules/Forms/Templates.php:623
+msgid "Maybe"
+msgstr "Možná"
+
+#: includes/Modules/Forms/Templates.php:625
+msgid "Reply"
+msgstr "Odpověď"
+
+#: includes/Modules/Forms/Templates.php:625
+msgid "I would like a reply to my feedback"
+msgstr "Chtěl(a) bych odpověď na svou zpětnou vazbu"
+
+#: includes/Modules/Forms/Templates.php:629
+msgid "E-mail for the reply"
+msgstr "E-mail pro odpověď"
+
+#: includes/Modules/Forms/Templates.php:640
+msgid "Send feedback"
+msgstr "Odeslat zpětnou vazbu"
+
+#: includes/Modules/Forms/Templates.php:641
+msgid "Thank you for your feedback."
+msgstr "Děkujeme za vaši zpětnou vazbu."
+
+#: includes/Modules/Forms/Templates.php:643
+msgid "New feedback: rating {rating}"
+msgstr "Nová zpětná vazba: hodnocení {rating}"
+
+#: includes/Modules/Forms/Templates.php:653
+msgid "Complaint"
+msgstr "Reklamace"
+
+#: includes/Modules/Forms/Templates.php:654
+msgid "Two steps: order and contact, then the problem with photos."
+msgstr "Dva kroky: objednávka a kontakt, pak problém s fotografiemi."
+
+#: includes/Modules/Forms/Templates.php:655
+msgid "Describe the problem and attach photos. We will resolve it quickly."
+msgstr "Popište problém a přiložte fotografie. Rychle ho vyřešíme."
+
+#: includes/Modules/Forms/Templates.php:657
+msgid "Order and contact"
+msgstr "Objednávka a kontakt"
+
+#: includes/Modules/Forms/Templates.php:657
+msgid "So we can find your purchase."
+msgstr "Abychom našli váš nákup."
+
+#: includes/Modules/Forms/Templates.php:658
+msgid "Order number"
+msgstr "Číslo objednávky"
+
+#: includes/Modules/Forms/Templates.php:659
+msgid "Date of purchase"
+msgstr "Datum nákupu"
+
+#: includes/Modules/Forms/Templates.php:662
+msgid "The problem"
+msgstr "Problém"
+
+#: includes/Modules/Forms/Templates.php:662
+msgid "What is wrong with the goods?"
+msgstr "Co je se zbožím špatně?"
+
+#: includes/Modules/Forms/Templates.php:667
+msgid "What happened?"
+msgstr "Co se stalo?"
+
+#: includes/Modules/Forms/Templates.php:670
+msgid "Arrived damaged"
+msgstr "Přišlo poškozené"
+
+#: includes/Modules/Forms/Templates.php:670
+msgid "Does not work"
+msgstr "Nefunguje"
+
+#: includes/Modules/Forms/Templates.php:670
+msgid "Differs from the description"
+msgstr "Liší se od popisu"
+
+#: includes/Modules/Forms/Templates.php:673
+msgid "Describe the problem"
+msgstr "Popište problém"
+
+#: includes/Modules/Forms/Templates.php:674
+msgid "Photos of the problem"
+msgstr "Fotografie problému"
+
+#: includes/Modules/Forms/Templates.php:678
+msgid "How would you like it resolved?"
+msgstr "Jak byste chtěli reklamaci vyřešit?"
+
+#: includes/Modules/Forms/Templates.php:682
+msgid "Refund"
+msgstr "Vrácení peněz"
+
+#: includes/Modules/Forms/Templates.php:682
+msgid "Replacement"
+msgstr "Výměna"
+
+#: includes/Modules/Forms/Templates.php:682
+msgid "Repair"
+msgstr "Oprava"
+
+#: includes/Modules/Forms/Templates.php:685
+msgid "I agree to the processing of my personal data for the purpose of handling this complaint."
+msgstr "Souhlasím se zpracováním svých osobních údajů za účelem vyřízení této reklamace."
+
+#: includes/Modules/Forms/Templates.php:690
+msgid "Send complaint"
+msgstr "Odeslat reklamaci"
+
+#: includes/Modules/Forms/Templates.php:691
+msgid "Your complaint was received. We will respond within the legal deadline."
+msgstr "Vaši reklamaci jsme přijali. Odpovíme v zákonné lhůtě."
+
+#: includes/Modules/Forms/Templates.php:693
+msgid "New complaint: order {order_number}"
+msgstr "Nová reklamace: objednávka {order_number}"
+
+#: includes/Modules/Forms/Templates.php:695
+msgid "We received your complaint"
+msgstr "Vaši reklamaci jsme přijali"
+
+#: includes/Modules/Forms/Templates.php:696
+msgid "we received your complaint for order {order_number} and will handle it as soon as possible."
+msgstr "přijali jsme vaši reklamaci k objednávce {order_number} a vyřídíme ji co nejdříve."
+
+#: build/963.2393b89aaa5ddefde9e6.js:1
+msgid "New form"
+msgstr "Nový formulář"
+
+#: build/963.2393b89aaa5ddefde9e6.js:1
+msgid "Start from a template"
+msgstr "Začněte ze šablony"
+
+#: build/963.2393b89aaa5ddefde9e6.js:1
+msgid "Template categories"
+msgstr "Kategorie šablon"
+
+#: build/963.2393b89aaa5ddefde9e6.js:1
+msgid "The form could not be created."
+msgstr "Formulář se nepodařilo vytvořit."
+
+#: build/963.2393b89aaa5ddefde9e6.js:1
+msgid "Blank form"
+msgstr "Prázdný formulář"
+
+#: build/963.2393b89aaa5ddefde9e6.js:1
+msgid "Start from scratch and add the fields yourself."
+msgstr "Začněte od nuly a pole si přidejte sami."
+
+#: build/963.2393b89aaa5ddefde9e6.js:1
+msgid "Creating the form…"
+msgstr "Vytváření formuláře…"
+
+#. translators: %d: number of fields of a form template.
+#: build/963.2393b89aaa5ddefde9e6.js:1
+msgid "Fields: %d"
+msgstr "Polí: %d"
+
+#. translators: %d: number of steps of a multi-step form template.
+#: build/963.2393b89aaa5ddefde9e6.js:1
+msgid "Multi-step: %d"
+msgstr "Vícekrokový: %d"
+
+#: build/963.2393b89aaa5ddefde9e6.js:2
+msgid "Step description (optional)"
+msgstr "Popis kroku (nepovinné)"
+
+#: build/963.2393b89aaa5ddefde9e6.js:2
+msgid "Options look"
+msgstr "Vzhled možností"
+
+#: build/963.2393b89aaa5ddefde9e6.js:2
+msgid "List"
+msgstr "Seznam"
+
+#: build/963.2393b89aaa5ddefde9e6.js:2
+msgid "Cards (bordered boxes)"
+msgstr "Karty (rámečky)"
+
+#: build/963.2393b89aaa5ddefde9e6.js:2
+msgid "Buttons in a row (e.g. a 1 to 5 rating)"
+msgstr "Tlačítka v řadě (např. hodnocení 1 až 5)"
+
+#: build/963.2393b89aaa5ddefde9e6.js:2
+msgid "Left"
+msgstr "Vlevo"
+
+#: build/963.2393b89aaa5ddefde9e6.js:2
+msgid "Right"
+msgstr "Vpravo"
+
+#: build/963.2393b89aaa5ddefde9e6.js:2
+msgid "Form title"
+msgstr "Název formuláře"
+
+#: build/963.2393b89aaa5ddefde9e6.js:2
+msgid "Submission date"
+msgstr "Datum odeslání"
+
+#: build/963.2393b89aaa5ddefde9e6.js:2
+msgid "Table of all submitted fields"
+msgstr "Tabulka všech odeslaných polí"
+
+#: build/963.2393b89aaa5ddefde9e6.js:2
+msgid "Insert a merge tag…"
+msgstr "Vložit slučovací značku…"
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "%s as a hex value"
+msgstr "%s jako hodnota hex"
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Template default"
+msgstr "Výchozí z šablony"
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Insert a merge tag into the subject"
+msgstr "Vložit slučovací značku do předmětu"
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Header"
+msgstr "Záhlaví"
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Select logo"
+msgstr "Vybrat logo"
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Change logo"
+msgstr "Změnit logo"
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Choose logo"
+msgstr "Vybrat logo"
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Use the site logo"
+msgstr "Použít logo webu"
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Choose or upload an image in the Media Library. Without one the site logo is used, if the theme has one."
+msgstr "Vyberte nebo nahrajte obrázek v Knihovně médií. Bez něj se použije logo webu, pokud ho šablona motivu má."
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Logo position"
+msgstr "Pozice loga"
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Logo width"
+msgstr "Šířka loga"
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Header color"
+msgstr "Barva záhlaví"
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "The title text switches to white or dark on its own so it stays readable."
+msgstr "Text nadpisu se sám přepne na bílou nebo tmavou, aby byl čitelný."
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Link color"
+msgstr "Barva odkazů"
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Used for links in the message and for the button."
+msgstr "Používá se pro odkazy ve zprávě a pro tlačítko."
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Insert a merge tag into the message"
+msgstr "Vložit slučovací značku do zprávy"
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Use Add Media to put an image from the Media Library into the message. Images are sent with their full web address."
+msgstr "Tlačítkem Přidat mediální soubor vložíte do zprávy obrázek z Knihovny médií. Obrázky se odesílají s úplnou webovou adresou."
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Enter a full address starting with https://, mailto: or tel:. Anything else is dropped when you save."
+msgstr "Zadejte úplnou adresu začínající https://, mailto: nebo tel:. Cokoli jiného se při uložení zahodí."
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Live preview"
+msgstr "Živý náhled"
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Updating the preview"
+msgstr "Aktualizace náhledu"
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Preview size"
+msgstr "Velikost náhledu"
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Plain"
+msgstr "Prostý"
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Just the fields, no frame around them."
+msgstr "Jen pole, bez rámečku kolem."
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Card with header and footer"
+msgstr "Karta se záhlavím a patičkou"
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Form title and description on top, the buttons in a footer bar."
+msgstr "Název a popis formuláře nahoře, tlačítka v liště patičky."
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Two columns"
+msgstr "Dva sloupce"
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Short fields that have the full width sit side by side."
+msgstr "Krátká pole s plnou šířkou stojí vedle sebe."
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Numbered sections"
+msgstr "Číslované sekce"
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Every step gets a number and the progress shows numbered steps, like a checkout."
+msgstr "Každý krok dostane číslo a postup ukazuje číslované kroky jako v pokladně."
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Look"
+msgstr "Vzhled"
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "A preset only sets the options below, you can fine-tune each of them."
+msgstr "Předvolba jen nastaví volby níže, každou z nich můžete doladit."
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Frame"
+msgstr "Rámeček"
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "None (just the fields)"
+msgstr "Žádný (jen pole)"
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "One row (e-mail and button next to each other)"
+msgstr "Jeden řádek (e-mail a tlačítko vedle sebe)"
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "The header shows the form title and description. The one-row layout suits a short signup form."
+msgstr "Záhlaví ukazuje název a popis formuláře. Jednořádkové rozvržení se hodí pro krátký přihlašovací formulář."
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "One column (widths from the Fields tab)"
+msgstr "Jeden sloupec (šířky z karty Pole)"
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Two columns for short fields"
+msgstr "Dva sloupce pro krátká pole"
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Fields you gave a narrower width in the Fields tab keep it. On a phone every field uses its mobile width."
+msgstr "Pole, kterým jste v kartě Pole dali užší šířku, si ji ponechají. Na telefonu každé pole použije svou mobilní šířku."
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Numbered steps with titles"
+msgstr "Číslované kroky s názvy"
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Section numbers"
+msgstr "Čísla sekcí"
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Show a number in front of every step title"
+msgstr "Zobrazit číslo před názvem každého kroku"
+
+#: build/963.2393b89aaa5ddefde9e6.js:3
+msgid "Submit button text"
+msgstr "Text tlačítka Odeslat"
