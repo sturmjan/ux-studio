@@ -43,6 +43,13 @@ final class Store {
 		global $wpdb;
 		$table = self::table();
 		self::$ready = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $table ) ) ) === $table; // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		if ( ! self::$ready && DB::module_schema_version( self::MODULE ) >= self::DB_VERSION && false === get_transient( 'uxstudio_admin_notices_repair' ) ) {
+			// The version says "created" but the table is gone (dropped by hand, restored backup): create it again.
+			set_transient( 'uxstudio_admin_notices_repair', 1, 15 * MINUTE_IN_SECONDS );
+			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+			self::migrate( 0 );
+			self::$ready = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $table ) ) ) === $table; // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		}
 		return self::$ready;
 	}
 
@@ -97,8 +104,9 @@ final class Store {
 		$wpdb->query( 'DROP TABLE IF EXISTS ' . self::table() ); // phpcs:ignore WordPress.DB
 		self::$ready = false;
 		$versions = get_option( DB::MODULE_VERSIONS_OPTION, array() );
-		if ( is_array( $versions ) && isset( $versions[ self::MODULE ] ) ) {
-			unset( $versions[ self::MODULE ] );
+		$slug     = str_replace( '-', '_', self::MODULE );
+		if ( is_array( $versions ) && isset( $versions[ $slug ] ) ) {
+			unset( $versions[ $slug ] );
 			update_option( DB::MODULE_VERSIONS_OPTION, $versions, true );
 		}
 	}
