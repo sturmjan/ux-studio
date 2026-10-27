@@ -5,9 +5,10 @@ import { ArrowLeft, LoaderCircle, Plus, Trash2 } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { useModuleSettings } from '../../app/SettingsForm';
-import { TopicSettings, inSections } from '../../app/TopicSettings';
+import { TopicSettings, inSections, withKeys } from '../../app/TopicSettings';
 import { TabsNav } from '../../app/SubNav';
 import { formatDate } from '../../app/date';
+import WidgetTable from './WidgetTable';
 
 type Tab = 'tasks' | 'hidden' | 'welcome' | 'custom' | 'modules' | 'layout' | 'keys';
 
@@ -322,6 +323,17 @@ function LayoutNote(): JSX.Element {
 	return <SaveLayout summary={ String( draft.saved_layout ?? '' ) } />;
 }
 
+/** Hide all widgets (a switch) above the table of every widget with its rule. */
+function HiddenTab(): JSX.Element {
+	const { data } = useModuleSettings( MODULE );
+	return (
+		<>
+			<TopicSettings moduleId={ MODULE } include={ withKeys( 'disable_all_widgets' ) } />
+			<WidgetTable hideAll={ !! data?.values.disable_all_widgets } />
+		</>
+	);
+}
+
 export default function Page(): JSX.Element {
 	const [ tab, setTab ] = useState< Tab >( 'tasks' );
 	const section = SECTION_TABS.find( ( t ) => t.id === tab );
@@ -361,7 +373,8 @@ export default function Page(): JSX.Element {
 					<TasksAndNotes />
 				</>
 			) }
-			{ section && (
+			{ tab === 'hidden' && <HiddenTab /> }
+			{ section && tab !== 'hidden' && (
 				<TopicSettings key={ section.id } moduleId={ MODULE } include={ inSections( section.label ) }>
 					{ section.id === 'keys' && <KeysNote /> }
 					{ section.id === 'layout' && <LayoutNote /> }
