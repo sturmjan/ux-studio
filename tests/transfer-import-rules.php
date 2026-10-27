@@ -246,6 +246,10 @@ $r = $apply( 'security-optimization', array( 'captcha_enabled' => true ), array(
 $assert( 'CAPTCHA: not switched on when this site has no keys', ! isset( $r['values']['captcha_enabled'] ) );
 $r = $apply( 'security-optimization', array( 'captcha_enabled' => true ), array( 'captcha_enabled' => false ), array( 'captcha_ready' => true ) );
 $assert( 'CAPTCHA: switched on when this site has keys', true === $r['values']['captcha_enabled'] );
+$r = $apply( 'security-optimization', array( 'captcha_enabled' => true, 'captcha_provider' => 'shield' ), array( 'captcha_enabled' => false ), array( 'captcha_ready' => false ) );
+$assert( 'CAPTCHA: the key-less Shield needs no keys, so it is switched on', true === $r['values']['captcha_enabled'] );
+$r = $apply( 'security-optimization', array( 'captcha_enabled' => true, 'captcha_provider' => 'turnstile' ), array( 'captcha_enabled' => false ), array( 'captcha_ready' => false ) );
+$assert( 'CAPTCHA: Turnstile without keys is still not switched on', ! isset( $r['values']['captcha_enabled'] ) );
 
 // 10. Own login in the blocked user names.
 $r = $apply( 'security-optimization', array( 'blocked_usernames_extra' => "admin\nJan\ntest" ), array() );

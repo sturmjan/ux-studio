@@ -155,8 +155,8 @@ final class ImportRules {
 				}
 
 				// 9. CAPTCHA.
-				if ( ! empty( $values['captcha_enabled'] ) && empty( $current['captcha_enabled'] ) && empty( $ctx['captcha_ready'] ) ) {
-					$drop( 'captcha_enabled', 'captcha', __( 'Skipped: this site has no CAPTCHA keys yet (they belong to a host name and are not transferred). Add them in the Security module first.', 'ux-studio' ) );
+				if ( ! empty( $values['captcha_enabled'] ) && empty( $current['captcha_enabled'] ) && empty( $ctx['captcha_ready'] ) && ! in_array( $values['captcha_provider'] ?? '', array( 'shield', 'auto' ), true ) ) {
+					$drop( 'captcha_enabled', 'captcha', __( 'Skipped: this site has no CAPTCHA keys yet (they belong to a host name and are not transferred). Add them in the Security module first, or choose the key-less Shield.', 'ux-studio' ) );
 				}
 
 				// 10. Blocked user names.
