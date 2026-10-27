@@ -125,6 +125,17 @@ final class Module extends BaseModule {
 	}
 
 	/**
+	 * One stored value of the module (also keys that are not in the schema, such as the migration marker).
+	 *
+	 * @param string $key     Key.
+	 * @param mixed  $default Fallback.
+	 * @return mixed
+	 */
+	public function settings_value( string $key, $default = null ) {
+		return $this->settings->get( $key, $default );
+	}
+
+	/**
 	 * Sanitize against the roles of the site and store the rules.
 	 *
 	 * @param array<string, array<string, mixed>> $rules Rules.
