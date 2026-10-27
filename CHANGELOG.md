@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.8.1 (unreleased)
+
+- Added - Notice history: the bell panel of hidden admin notices now remembers what it caught. A new page "Notice
+  history" (Admin appearance > Admin customiser > Notice history, and a "Show history" link in the panel footer) lists
+  every notice with its type, title, text, estimated source plugin, state (active, closed, gone), first and last
+  sighting, how many times it was shown and who closed it. Filter by state, type, source and period, search the text,
+  page through 20 at a time, delete one or many records, clear the whole history, export a CSV (safe to open in Excel)
+  and show a notice that was hidden by the panel again. Notices closed through the plugin's own control are marked
+  "closed by the plugin" and cannot be restored from here. A notice that has not been seen for 7 days is marked gone;
+  records are kept for 90 days after the last sighting (at most 1000). Only administrators can read it, nothing is
+  recorded while hiding of notices is off, and the history is never part of a settings export.
+- Changed - Notices that the panel's cross closes without a control of the plugin stay out of the panel until you show
+  them again on the history page (before, they came back on the next page load).
+
 ## 0.8.0
 
 - Added - Export and import of settings (Settings > "Export and import"). Export: tick the modules (grouped like the
