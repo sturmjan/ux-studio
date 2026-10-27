@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.8.6
+
+- Fixed - Custom login address: "Lost password" (and the registration confirmation) ended on a page that does not
+  exist. WordPress redirects to the relative `wp-login.php?checkemail=confirm`, which it resolves against the custom
+  address into `/administrace/wp-login.php`. Such redirects now land on the custom address
+  (`/administrace/?checkemail=confirm`); the protected-post password form and every other redirect are untouched.
+- Fixed - Shield CAPTCHA: the tick of the "I am not a robot" checkbox sat off the centre on the login page (WordPress
+  draws its own tick for a smaller box). The checkbox is now drawn by the plugin, centred, in light and dark mode.
+
 ## 0.8.5
 
 - Changed - The PHP version is shown only when there is a problem: the green "PHP x.y.z, no known security problem" card
