@@ -81,7 +81,7 @@ final class WidgetSnapshot {
 		// The welcome panel of WordPress is not a meta box; it is on the dashboard while its action is hooked.
 		if ( has_action( 'welcome_panel', 'wp_welcome_panel' ) ) {
 			$seen[ self::CORE_WELCOME ] = array(
-				'title'       => __( 'Welcome' ), // phpcs:ignore WordPress.WP.I18n.MissingArgDomain -- the title WordPress itself uses.
+				'title'       => __( 'Welcome', 'ux-studio' ),
 				'context'     => 'welcome',
 				'priority'    => 'high',
 				'source'      => 'core',

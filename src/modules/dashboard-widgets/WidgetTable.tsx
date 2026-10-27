@@ -9,7 +9,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Button, DialogTrigger, ListBox, ListBoxItem, Popover } from 'react-aria-components';
-import { ChevronDown, Info, LoaderCircle, RefreshCw, Search, Trash2, Undo2, X } from 'lucide-react';
+import { ChevronDown, Info, LoaderCircle, RefreshCw, Search, Trash2, Undo2 } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { formatDate } from '../../app/date';
 import { pushToast } from '../../app/notify';
@@ -106,6 +106,48 @@ function ruleOf( rules: Rules, id: string ): Rule {
 	return rules[ id ] ?? NO_RULE;
 }
 
+/**
+ * What the server will do with a request, applied to the screen at once (the answer of a heavy site may take a second).
+ * Mirrors WidgetRules on the server; the answer of the server replaces this when it arrives.
+ */
+function applyLocal( rules: Rules, body: RulesRequest, allRoles: string[] ): Rules {
+	if ( 'replace' === body.action ) {
+		return body.rules ?? rules;
+	}
+	const next: Rules = { ...rules };
+	const put = ( id: string, hidden: boolean, roles: string[] ): void => {
+		if ( hidden || roles.length > 0 ) {
+			next[ id ] = { hidden, roles };
+		} else {
+			delete next[ id ];
+		}
+	};
+	// A set of roles that covers every role of the site means everybody.
+	const norm = ( roles: string[] ): string[] => ( allRoles.length > 0 && allRoles.every( ( r ) => roles.includes( r ) ) ? [] : roles );
+	for ( const item of body.items ?? [] ) {
+		const cur = ruleOf( next, item.id );
+		put( item.id, item.hidden ?? cur.hidden, item.roles ? norm( item.roles ) : cur.roles );
+	}
+	for ( const id of body.ids ?? [] ) {
+		const cur = ruleOf( next, id );
+		switch ( body.action ) {
+			case 'hide':
+				put( id, true, cur.roles );
+				break;
+			case 'show':
+				put( id, false, cur.roles );
+				break;
+			case 'roles':
+				put( id, cur.hidden, norm( body.roles ?? [] ) );
+				break;
+			case 'reset':
+				delete next[ id ];
+				break;
+		}
+	}
+	return next;
+}
+
 /** Rules in a form that compares equal whatever the order (for "has anything changed"). */
 function fingerprint( rules: Rules ): string {
 	return JSON.stringify(
@@ -136,6 +178,9 @@ function RoleSelect( {
 	const names = new Map( roles.map( ( r ) => [ r.id, r.name ] ) );
 	const shown = value.slice( 0, 2 );
 	const rest = value.length - shown.length;
+	// A long allow list (what the conversion of the old per-role lists produces) reads better as "everybody except ...".
+	const excluded = roles.filter( ( r ) => ! value.includes( r.id ) );
+	const asExcept = value.length > 0 && excluded.length > 0 && excluded.length <= 2 && excluded.length < value.length;
 
 	return (
 		<DialogTrigger>
@@ -147,11 +192,28 @@ function RoleSelect( {
 					/* translators: 1: what the control is for, 2: roles chosen or "everybody". */
 					__( '%1$s: %2$s', 'ux-studio' ),
 					label,
-					value.length ? value.map( ( v ) => names.get( v ) ?? v ).join( ', ' ) : __( 'Everybody', 'ux-studio' )
+					asExcept
+						? sprintf(
+								/* translators: %s: role names. */
+								__( 'everybody except %s', 'ux-studio' ),
+								excluded.map( ( r ) => r.name ).join( ', ' )
+						  )
+						: value.length
+						? value.map( ( v ) => names.get( v ) ?? v ).join( ', ' )
+						: __( 'Everybody', 'ux-studio' )
 				) }
 			>
 				{ value.length === 0 ? (
 					<span className="uxs-wt__all">{ __( 'Everybody', 'ux-studio' ) }</span>
+				) : asExcept ? (
+					<span className="uxs-wt__chips">
+						<span className="uxs-wt__all">{ __( 'All except', 'ux-studio' ) }</span>
+						{ excluded.map( ( r ) => (
+							<span key={ r.id } className="uxs-wt__chip is-except">
+								{ r.name }
+							</span>
+						) ) }
+					</span>
 				) : (
 					<span className="uxs-wt__chips">
 						{ shown.map( ( v ) => (
@@ -173,6 +235,15 @@ function RoleSelect( {
 				onOpenChange={ setOpen }
 				className="uxs-multiselect__popover uxs-portal"
 			>
+				{ /* Escape would clear the whole selection of a multiple list; here it only closes the popover. */ }
+				<div
+					onKeyDownCapture={ ( e ) => {
+						if ( 'Escape' === e.key ) {
+							e.stopPropagation();
+							setOpen( false );
+						}
+					} }
+				>
 				<ListBox
 					aria-label={ label }
 					selectionMode="multiple"
@@ -186,6 +257,7 @@ function RoleSelect( {
 						</ListBoxItem>
 					) ) }
 				</ListBox>
+				</div>
 				<div className="uxs-wt__popfoot">
 					<button
 						type="button"
@@ -229,15 +301,41 @@ export default function WidgetTable( { hideAll }: { hideAll: boolean } ): JSX.El
 		}
 	}, [ data, rules ] );
 
+	const pending = useRef( 0 );
 	const save = useMutation( {
 		mutationFn: ( body: RulesRequest ) => api< RulesPayload >( 'dashboard-widgets/rules', { method: 'POST', body: JSON.stringify( body ) } ),
+		onMutate: async ( body ): Promise< { previous?: RulesPayload } > => {
+			pending.current += 1;
+			await queryClient.cancelQueries( { queryKey: KEY } );
+			const previous = queryClient.getQueryData< RulesPayload >( KEY );
+			if ( previous ) {
+				const current = previous.rules && ! Array.isArray( previous.rules ) ? previous.rules : {};
+				queryClient.setQueryData< RulesPayload >( KEY, {
+					...previous,
+					rules: applyLocal( current, body, previous.roles.map( ( r ) => r.id ) ),
+					notice: 'dismiss_notice' === body.action ? false : previous.notice,
+				} );
+			}
+			return { previous };
+		},
 		onSuccess: ( payload, body ) => {
-			queryClient.setQueryData( KEY, payload );
+			// With more requests on their way, the screen keeps its own picture until the last answer.
+			if ( pending.current <= 1 ) {
+				queryClient.setQueryData( KEY, payload );
+			}
 			if ( 'dismiss_notice' !== body.action ) {
 				setToast( pushToast( 'success', __( 'Saved.', 'ux-studio' ), toast ) );
 			}
 		},
-		onError: ( e ) => setToast( pushToast( 'error', e instanceof Error ? e.message : String( e ), toast ) ),
+		onError: ( e, _body, context ) => {
+			if ( context?.previous ) {
+				queryClient.setQueryData( KEY, context.previous );
+			}
+			setToast( pushToast( 'error', e instanceof Error ? e.message : String( e ), toast ) );
+		},
+		onSettled: () => {
+			pending.current -= 1;
+		},
 	} );
 
 	const forget = useMutation( {
@@ -335,7 +433,8 @@ export default function WidgetTable( { hideAll }: { hideAll: boolean } ): JSX.El
 		return <p className="uxs-badge is-danger">{ error instanceof Error ? error.message : __( 'The widget list could not be loaded.', 'ux-studio' ) }</p>;
 	}
 
-	const busy = save.isPending || forget.isPending;
+	// Changes are shown at once and saved in the background; only forgetting a widget waits for the server.
+	const busy = forget.isPending;
 	const changed = null !== baseline.current && baseline.current !== fingerprint( rules );
 	const ids = [ ...selected ];
 
@@ -362,7 +461,7 @@ export default function WidgetTable( { hideAll }: { hideAll: boolean } ): JSX.El
 						</p>
 					</div>
 					<button type="button" className="button" onClick={ () => save.mutate( { action: 'dismiss_notice' } ) }>
-						<X size={ 14 } aria-hidden /> { __( 'Dismiss', 'ux-studio' ) }
+						{ __( 'Got it', 'ux-studio' ) }
 					</button>
 				</div>
 			) : null }

@@ -3410,7 +3410,8 @@
 		align-items: center;
 		justify-content: space-between;
 		gap: var(--uxs-sp-2);
-		min-width: 160px;
+		width: 210px;
+		max-width: 100%;
 		min-height: 32px;
 		padding: 2px var(--uxs-sp-2);
 		font: inherit;
@@ -3427,7 +3428,7 @@
 	}
 
 	&__all { color: var(--uxs-text-soft); }
-	&__chips { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+	&__chips { display: inline-flex; align-items: center; flex-wrap: nowrap; gap: 4px; min-width: 0; overflow: hidden; }
 
 	&__chip {
 		padding: 2px 8px;
@@ -3437,7 +3438,10 @@
 		background: var(--uxs-brand-soft);
 		border-radius: 999px;
 
+		white-space: nowrap;
+
 		&.is-more { color: var(--uxs-text-soft); background: var(--uxs-surface-2); }
+		&.is-except { color: var(--uxs-text-soft); background: var(--uxs-surface-2); text-decoration: line-through; }
 	}
 
 	&__popfoot {
