@@ -826,6 +826,17 @@
 		align-items: center;
 		gap: var(--uxs-sp-3);
 
+		.uxs-media__preview {
+			display: block;
+			max-width: 120px;
+			max-height: 64px;
+			object-fit: contain;
+			border: 1px solid var(--uxs-border);
+			border-radius: var(--uxs-radius-sm, 4px);
+			background: var(--uxs-surface, #fff);
+			padding: var(--uxs-sp-1);
+		}
+
 		.uxs-media__clear {
 			color: var(--uxs-danger);
 			cursor: pointer;
