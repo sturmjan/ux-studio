@@ -210,8 +210,8 @@ export function ImportPanel( { status }: { status: TransferStatus } ): JSX.Eleme
 						{ sprintf(
 							/* translators: 1: date and time of the import, 2: date until the snapshot is kept. */
 							__( 'The last import (%1$s) can be undone until %2$s.', 'ux-studio' ),
-							formatDate( snapshot.time * 1000 ),
-							formatDate( snapshot.expires * 1000, { dateOnly: true } )
+							formatDate( snapshot.time ),
+							formatDate( snapshot.expires, { dateOnly: true } )
 						) }
 					</p>
 					<button type="button" className="button" onClick={ () => setAskUndo( true ) }>
