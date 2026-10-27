@@ -203,7 +203,7 @@ export function ImportPanel( { status }: { status: TransferStatus } ): JSX.Eleme
 
 	return (
 		<div className="uxs-tr">
-			{ snapshot.available && (
+			{ snapshot.available && ! result && (
 				<div className="uxs-tr-undo" role="status">
 					<Undo2 size={ 16 } aria-hidden />
 					<p>
