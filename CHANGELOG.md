@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.8.2 (unreleased)
+## 0.8.2
 
 - Added - Starter pack, item "Security hardening and cleanup": these protections are now switched on for a NEW site
   (sites that already applied the pack keep their settings; applies only when the pack is applied):
