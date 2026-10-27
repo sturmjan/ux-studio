@@ -156,6 +156,9 @@ final class Module extends BaseModule {
 			// a POST to wp-login.php is denied by block_direct_wp_login().
 			add_filter( 'site_url', array( $this, 'filter_login_site_url' ), 10, 4 );
 			add_filter( 'network_site_url', array( $this, 'filter_login_site_url' ), 10, 3 );
+			// wp-login.php redirects to relative targets (`wp-login.php?checkemail=confirm` after "lost password"), which
+			// WordPress resolves against the custom address into a 404: map them back (see LoginUrl::fix_redirect).
+			add_filter( 'wp_redirect', array( $this, 'filter_login_redirect' ), 1, 2 );
 		}
 
 		/* ── Login rate limiting - lockout checked at priority 5, BEFORE core
@@ -2250,6 +2253,28 @@ final class Module extends BaseModule {
 		}
 		$swapped = LoginUrl::swap( $url, $path, $status['url'] );
 		return $swapped === $url ? $url : set_url_scheme( $swapped );
+	}
+
+	/**
+	 * Filter for wp_redirect: a redirect back to wp-login.php must land on the custom login address.
+	 * The artifact `/<slug>/wp-login.php` is repaired whenever the custom address is served (also while it
+	 * is only pending confirmation); the bare relative `wp-login.php` only while wp-login.php itself is closed.
+	 *
+	 * @param string $location Redirect target.
+	 * @param int    $status   HTTP status (unused).
+	 * @return string
+	 */
+	public function filter_login_redirect( $location, $status = 302 ): string {
+		unset( $status );
+		$location = (string) $location;
+		if ( false === strpos( $location, 'wp-login.php' ) ) {
+			return $location;
+		}
+		$lock = $this->lock_status_cached();
+		if ( ! in_array( $lock['reason'], array( '', 'pending' ), true ) || '' === $lock['url'] ) {
+			return $location;
+		}
+		return LoginUrl::fix_redirect( $location, $lock['url'], $lock['active'] );
 	}
 
 	private function current_path(): string {

@@ -64,6 +64,50 @@ final class LoginUrl {
 	}
 
 	/**
+	 * Fix a redirect target that points back at wp-login.php while the custom address is in use.
+	 *
+	 * wp-login.php redirects to RELATIVE targets such as `wp-login.php?checkemail=confirm` (lost password) or
+	 * `wp-login.php?checkemail=registered`. WordPress resolves a relative target against the path of the current
+	 * request before it redirects, so a request served at `/administrace/` ends up at the non-existing
+	 * `/administrace/wp-login.php?checkemail=confirm` (a 404). Two shapes are mapped back to the custom address:
+	 *  - the artifact `<custom address>wp-login.php` (same host or none): it can never be a real file, so it is
+	 *    always safe to repair;
+	 *  - the bare relative `wp-login.php[?query]` (only when `$bare` is true, i.e. the lock is in force and
+	 *    wp-login.php itself is closed).
+	 * Public actions (the protected-post password form) and everything else stay untouched.
+	 *
+	 * @param string $location   Redirect target.
+	 * @param string $custom_url Full custom login address, e.g. `https://example.com/administrace/`.
+	 * @param bool   $bare       Also repair the bare relative `wp-login.php` form.
+	 * @return string The target to redirect to.
+	 */
+	public static function fix_redirect( string $location, string $custom_url, bool $bare = true ): string {
+		if ( '' === $location || '' === $custom_url ) {
+			return $location;
+		}
+		$parts  = parse_url( $location ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url -- pure helper, no WordPress needed.
+		$custom = parse_url( $custom_url ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+		if ( ! is_array( $parts ) || ! is_array( $custom ) ) {
+			return $location;
+		}
+		$path        = (string) ( $parts['path'] ?? '' );
+		$custom_path = rtrim( (string) ( $custom['path'] ?? '' ), '/' ) . '/';
+		$host        = isset( $parts['host'] ) ? strtolower( (string) $parts['host'] ) : '';
+		$custom_host = strtolower( (string) ( $custom['host'] ?? '' ) );
+		$is_bare     = $bare && '' === $host && ! isset( $parts['scheme'] ) && self::FILE === $path;
+		$is_artifact = ( '' === $host || $host === $custom_host ) && $custom_path . self::FILE === $path;
+		if ( ! $is_bare && ! $is_artifact ) {
+			return $location;
+		}
+		$query    = (string) ( $parts['query'] ?? '' );
+		$fragment = (string) ( $parts['fragment'] ?? '' );
+		if ( self::is_public_action( self::FILE . ( '' !== $query ? '?' . $query : '' ) ) ) {
+			return $location;
+		}
+		return rtrim( $custom_url, '/' ) . '/' . ( '' !== $query ? '?' . $query : '' ) . ( '' !== $fragment ? '#' . $fragment : '' );
+	}
+
+	/**
 	 * Replace the wp-login.php part of a site_url() result.
 	 *
 	 * @param string $url      Result of site_url() (unused unless nothing to replace).

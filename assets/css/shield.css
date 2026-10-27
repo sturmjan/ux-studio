@@ -55,13 +55,51 @@
 	outline: 2px solid var(--uxs-sh-accent);
 	outline-offset: 1px;
 }
+/* A checkbox drawn by us, not the native one: the login page loads WordPress' own form styles, which draw the tick
+   of a 16 px box with fixed negative margins, so in a 22 px box the tick sat off the centre. The tick is a pseudo
+   element centred with transforms, and the core mark (::before) is switched off. */
 .uxs-shield .uxs-shield__check {
+	-webkit-appearance: none;
+	appearance: none;
+	position: relative;
 	flex: none;
+	box-sizing: border-box;
 	width: 22px;
+	min-width: 22px;
 	height: 22px;
 	margin: 0;
-	accent-color: var(--uxs-sh-accent);
+	padding: 0;
+	float: none;
+	border: 2px solid var(--uxs-sh-soft);
+	border-radius: 5px;
+	background: var(--uxs-sh-bg);
+	box-shadow: none;
+	line-height: 1;
 	cursor: inherit;
+}
+.uxs-shield .uxs-shield__check::before {
+	content: none !important;
+	display: none !important;
+}
+.uxs-shield .uxs-shield__check:checked {
+	border-color: var(--uxs-sh-accent);
+	background: var(--uxs-sh-accent);
+}
+.uxs-shield .uxs-shield__check:checked::after {
+	content: "";
+	position: absolute;
+	left: 50%;
+	top: 46%;
+	box-sizing: content-box;
+	width: 5px;
+	height: 10px;
+	margin: 0;
+	border: solid var(--uxs-sh-bg);
+	border-width: 0 2.5px 2.5px 0;
+	transform: translate(-50%, -50%) rotate(45deg);
+}
+.uxs-shield .uxs-shield__check:disabled {
+	opacity: 0.65;
 }
 .uxs-shield .uxs-shield__label {
 	flex: 1 1 auto;
