@@ -765,6 +765,7 @@
 	display: flex;
 	flex-direction: column;
 	gap: var(--uxs-sp-4);
+	margin-bottom: var(--uxs-sp-4);
 }
 
 .uxs-form.uxs-group {
@@ -791,7 +792,7 @@
 	}
 
 	.uxs-group__titles { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-	.uxs-group__title { font-size: var(--uxs-fs-l); font-weight: 600; }
+	.uxs-group__title { font-size: var(--uxs-fs-m); font-weight: 600; }
 	.uxs-group__help { font-size: var(--uxs-fs); font-weight: 400; color: var(--uxs-text-soft); }
 	.uxs-group__chevron { flex: none; color: var(--uxs-text-soft); transition: transform var(--uxs-motion) var(--uxs-ease); }
 
