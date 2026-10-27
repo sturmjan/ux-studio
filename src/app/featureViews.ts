@@ -15,7 +15,10 @@ export interface FeatureView {
 }
 
 export const FEATURE_VIEWS: Record< string, FeatureView[] > = {
-	'admin-customiser': [ { id: 'menu-organizer', label: __( 'Menu Organizer', 'ux-studio' ), enabledKey: 'menu_organizer_enabled' } ],
+	'admin-customiser': [
+		{ id: 'menu-organizer', label: __( 'Menu Organizer', 'ux-studio' ), enabledKey: 'menu_organizer_enabled' },
+		{ id: 'notice-history', label: __( 'Notice history', 'ux-studio' ) },
+	],
 };
 
 interface SettingsData {
