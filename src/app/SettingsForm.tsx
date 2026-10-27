@@ -4,8 +4,9 @@
  * (src/modules/<id>/Page.tsx) reuse the same <SettingsFields> + useModuleSettings()
  * to embed a "Settings" tab identical in look to every other module.
  */
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
+import { ChevronDown } from 'lucide-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { api, queryClient } from './api';
@@ -13,6 +14,7 @@ import { TabsNav } from './SubNav';
 import MultiSelectField from '../components/MultiSelectField';
 import SettingExplain from '../components/SettingExplain';
 import type { Explain } from '../components/SettingExplain';
+import { type ShowIf, isEmptyValue, visibleKeys } from './showIf';
 
 export type Value = string | number | boolean | string[] | null;
 
@@ -39,6 +41,12 @@ export interface Field {
 	options?: Record< string, string >;
 	/** Optional group label; two or more distinct sections render as sub-tabs. */
 	section?: string;
+	/** Card of the sub-tab this field belongs to (title); fields of one group are drawn together under its heading. */
+	group?: string;
+	/** One-line description under the group heading (taken from the first field of the group that has one). */
+	group_help?: string;
+	/** Draw the field only while another field has a given value (see showIf.ts). The stored value is kept as is. */
+	show_if?: ShowIf;
 	/** Span the full row of the field grid (long text, checklists). */
 	wide?: boolean;
 	/** Edited by a screen of its own (not by the generic form): never drawn here and never sent back by the form's save. */
@@ -271,11 +279,91 @@ export function FieldInput( {
 	}
 }
 
+function prefersReducedMotion(): boolean {
+	return typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
+}
+
+/**
+ * Smooth expand / collapse. While `show` is false the children are not rendered at all (a hidden field has no input
+ * in the page), after the collapse animation they are unmounted. With reduced motion there is no animation.
+ */
+export function Reveal( { show, children }: { show: boolean; children: ReactNode } ): JSX.Element | null {
+	const [ mounted, setMounted ] = useState( show );
+	const [ open, setOpen ] = useState( show );
+	const [ settled, setSettled ] = useState( show );
+	useEffect( () => {
+		if ( prefersReducedMotion() ) {
+			setMounted( show );
+			setOpen( show );
+			setSettled( show );
+			return undefined;
+		}
+		if ( show ) {
+			setMounted( true );
+			const frame = window.requestAnimationFrame( () => window.requestAnimationFrame( () => setOpen( true ) ) );
+			return () => window.cancelAnimationFrame( frame );
+		}
+		setOpen( false );
+		setSettled( false );
+		const timer = window.setTimeout( () => setMounted( false ), 260 );
+		return () => window.clearTimeout( timer );
+	}, [ show ] );
+	if ( ! mounted ) {
+		return null;
+	}
+	return (
+		<div
+			className={ `uxs-reveal${ open ? ' is-open' : '' }${ settled ? ' is-settled' : '' }` }
+			onTransitionEnd={ ( e ) => {
+				if ( e.target === e.currentTarget && open ) {
+					setSettled( true );
+				}
+			} }
+		>
+			<div className="uxs-reveal__inner">{ children }</div>
+		</div>
+	);
+}
+
+/** Same value as the default? Empty things (null, '', 0, false, []) are all "not set". */
+function isDefault( field: Field, value: Value | undefined ): boolean {
+	const fallback = field.default ?? null;
+	if ( isEmptyValue( value ?? null ) && isEmptyValue( fallback ) ) {
+		return true;
+	}
+	return JSON.stringify( value ?? null ) === JSON.stringify( fallback );
+}
+
+interface FieldGroup {
+	key: string;
+	title: string;
+	help: string;
+	fields: Field[];
+}
+
+function groupFields( fields: Field[], tab: string ): FieldGroup[] {
+	const groups: FieldGroup[] = [];
+	for ( const field of fields ) {
+		const title = field.group ?? '';
+		let group = groups.find( ( g ) => g.title === title );
+		if ( ! group ) {
+			group = { key: `${ tab }::${ title }`, title, help: '', fields: [] };
+			groups.push( group );
+		}
+		group.help = group.help || field.group_help || '';
+		group.fields.push( field );
+	}
+	return groups;
+}
+
 /**
  * Renders a schema as a responsive field grid that uses the full page width
  * (no header, no save button - caller owns those). When the schema groups its
  * fields into two or more `section`s, each section becomes a sub-tab; fields
- * without a section belong to a leading "General" group.
+ * without a section belong to a leading "General" group. Inside a tab, fields
+ * with a `group` are drawn as cards with a heading and a one-line description
+ * (the first card, and every card with a changed value, starts open; the rest
+ * starts closed), and a field with `show_if` appears only while its condition holds.
  */
 export function SettingsFields( {
 	schema: fullSchema,
@@ -300,32 +388,88 @@ export function SettingsFields( {
 		}
 	}
 	const [ active, setActive ] = useState( 0 );
+	const [ toggled, setToggled ] = useState< Record< string, boolean > >( {} );
+	const initialOpen = useRef< Record< string, boolean > >( {} );
 	const current = sections[ Math.min( active, sections.length - 1 ) ] ?? general;
 	const visible = sections.length > 1 ? schema.filter( ( f ) => ( f.section || general ) === current ) : schema;
 
-	const grid = (
-		<div className="uxs-form uxs-form--grid">
-			{ visible.map( ( field ) => (
-				<div
-					key={ field.key }
-					className={ `uxs-form__row${ field.wide || WIDE_TYPES.includes( field.type ) ? ' uxs-form__row--wide' : '' }` }
-				>
-					<label htmlFor={ `uxs-${ field.key }` }>{ field.label }</label>
-					<FieldInput
-						field={ field }
-						value={ draft[ field.key ] ?? null }
-						onChange={ ( v ) => setDraft( ( d ) => ( { ...d, [ field.key ]: v } ) ) }
-					/>
-					{ field.help ? <p className="uxs-form__help">{ field.help }</p> : null }
-					{ field.explain ? <SettingExplain explain={ field.explain } /> : null }
-					{ notes?.[ field.key ] ?? null }
-				</div>
-			) ) }
+	// Before the stored values arrive the defaults decide, so the first paint is not a flash of hidden fields.
+	const ready = Object.keys( draft ).length > 0;
+	const values: Record< string, Value > = ready ? draft : Object.fromEntries( schema.map( ( f ) => [ f.key, f.default ?? null ] ) );
+	const shown = visibleKeys( schema, values );
+
+	const row = ( field: Field ): JSX.Element => (
+		<div
+			className={ `uxs-form__row${ field.wide || WIDE_TYPES.includes( field.type ) ? ' uxs-form__row--wide' : '' }` }
+		>
+			<label htmlFor={ `uxs-${ field.key }` }>{ field.label }</label>
+			<FieldInput
+				field={ field }
+				value={ draft[ field.key ] ?? null }
+				onChange={ ( v ) => setDraft( ( d ) => ( { ...d, [ field.key ]: v } ) ) }
+			/>
+			{ field.help ? <p className="uxs-form__help">{ field.help }</p> : null }
+			{ field.explain ? <SettingExplain explain={ field.explain } /> : null }
+			{ notes?.[ field.key ] ?? null }
 		</div>
 	);
+	const rows = ( fields: Field[] ): JSX.Element[] =>
+		fields.map( ( field ) =>
+			field.show_if ? (
+				<Reveal key={ field.key } show={ shown.has( field.key ) }>
+					{ row( field ) }
+				</Reveal>
+			) : (
+				<Fragment key={ field.key }>{ row( field ) }</Fragment>
+			)
+		);
+
+	const grouped = visible.some( ( f ) => f.group );
+	let body: JSX.Element;
+	if ( ! grouped ) {
+		body = <div className="uxs-form uxs-form--grid">{ rows( visible ) }</div>;
+	} else {
+		const groups = groupFields( visible, current );
+		body = (
+			<div className="uxs-groups">
+				{ groups.map( ( group, index ) => {
+					if ( ! group.fields.some( ( f ) => shown.has( f.key ) ) ) {
+						return null; // Every field of the card is switched off by its condition.
+					}
+					if ( ready && initialOpen.current[ group.key ] === undefined ) {
+						initialOpen.current[ group.key ] = index === 0 || group.fields.some( ( f ) => ! isDefault( f, draft[ f.key ] ) );
+					}
+					const open = toggled[ group.key ] ?? initialOpen.current[ group.key ] ?? index === 0;
+					const regionId = `uxs-group-${ group.key.replace( /\W+/g, '-' ) }`;
+					return (
+						<div key={ group.key } className="uxs-form uxs-form--grid uxs-group">
+							<button
+								type="button"
+								className="uxs-group__head"
+								aria-expanded={ open }
+								aria-controls={ regionId }
+								onClick={ () => setToggled( ( t ) => ( { ...t, [ group.key ]: ! open } ) ) }
+							>
+								<span className="uxs-group__titles">
+									<span className="uxs-group__title">{ group.title || general }</span>
+									{ group.help ? <span className="uxs-group__help">{ group.help }</span> : null }
+								</span>
+								<ChevronDown size={ 18 } aria-hidden="true" className="uxs-group__chevron" />
+							</button>
+							<Reveal show={ open }>
+								<div id={ regionId } className="uxs-group__body">
+									{ rows( group.fields ) }
+								</div>
+							</Reveal>
+						</div>
+					);
+				} ) }
+			</div>
+		);
+	}
 
 	if ( sections.length < 2 ) {
-		return grid;
+		return body;
 	}
 
 	return (
@@ -345,7 +489,7 @@ export function SettingsFields( {
 				) ) }
 			</TabsNav>
 			<h2 className="uxs-form__section">{ current }</h2>
-			{ grid }
+			{ body }
 		</>
 	);
 }
