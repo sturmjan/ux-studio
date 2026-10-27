@@ -331,8 +331,6 @@ function WelcomeStep( { ctx }: { ctx: StarterCtx } ): JSX.Element {
 				</>
 			) }
 
-			{ ! phpBad && php && <PhpCard php={ php } /> }
-
 			<div className="uxs-wiz-actions">
 				<button type="button" className="button button-primary" disabled={ ! d } onClick={ ctx.next }>
 					{ __( 'Choose the modules', 'ux-studio' ) } <ArrowRight size={ 16 } aria-hidden />

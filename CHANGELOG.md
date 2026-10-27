@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.5
+
+- Changed - The PHP version is shown only when there is a problem: the green "PHP x.y.z, no known security problem" card
+  in the first step of the new-site wizard and the "PHP x.y.z is up to date" row in the Security module are gone. A safe
+  version needs no message; a vulnerable or soon unsupported version still gets the red or yellow card, the dashboard
+  widget, the notice and the admin bar node.
+
 ## 0.8.4
 
 - Changed - Dashboard Widgets, "Hidden widgets": one table of every widget the dashboard has (WordPress, plugins, UX Studio)
