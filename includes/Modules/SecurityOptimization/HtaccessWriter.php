@@ -66,23 +66,20 @@ final class HtaccessWriter {
 
 		if ( ! empty( $settings['protect_wp_config'] ) ) {
 			$rules[] = '';
-			$rules[] = '<files wp-config.php>';
-			$rules[] = 'order allow,deny';
-			$rules[] = 'deny from all';
-			$rules[] = '</files>';
+			$rules[] = '<Files wp-config.php>';
+			array_push( $rules, ...self::deny_lines() );
+			$rules[] = '</Files>';
 			// Backups/copies left by editors or tools (wp-config.php.bak, .old, .save~ ...)
 			// are served as plain text by Apache - block them too.
 			$rules[] = '<FilesMatch "(?i)^\.?wp-config(\.php.+|.*\.(bak|bk|backup|old|orig|save|swp|swo|tmp|txt|zip|7z|rar|tar|gz|tgz|bz2|sql)|.*~)$">';
-			$rules[] = 'order allow,deny';
-			$rules[] = 'deny from all';
+			array_push( $rules, ...self::deny_lines() );
 			$rules[] = '</FilesMatch>';
 		}
 
 		if ( ! empty( $settings['block_sensitive_files'] ) ) {
 			$rules[] = '';
 			$rules[] = '<FilesMatch "^(readme\.html|license\.txt|wp-config-sample\.php)$">';
-			$rules[] = 'order allow,deny';
-			$rules[] = 'deny from all';
+			array_push( $rules, ...self::deny_lines() );
 			$rules[] = '</FilesMatch>';
 		}
 
@@ -99,6 +96,24 @@ final class HtaccessWriter {
 		}
 
 		return $rules;
+	}
+
+	/**
+	 * "Nobody may open this" for both Apache generations. Apache 2.4 without mod_access_compat answers 500 to the old
+	 * `Order`/`Deny` directives (the WHOLE site then fails), so each syntax sits in the module check of its own.
+	 *
+	 * @return string[]
+	 */
+	public static function deny_lines(): array {
+		return array(
+			'<IfModule mod_authz_core.c>',
+			'Require all denied',
+			'</IfModule>',
+			'<IfModule !mod_authz_core.c>',
+			'Order allow,deny',
+			'Deny from all',
+			'</IfModule>',
+		);
 	}
 
 	/**

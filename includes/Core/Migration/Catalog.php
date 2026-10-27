@@ -279,6 +279,31 @@ final class Catalog {
 				)
 			),
 			$full(
+				'security-optimization',
+				array( 'disable-feeds' => 'Disable Feeds' ),
+				array(
+					'when'    => array( 'disable_rss_feeds' ),
+					'feature' => __( 'Disable RSS feeds', 'ux-studio' ),
+				)
+			),
+			$full(
+				'security-optimization',
+				array( 'stop-user-enumeration' => 'Stop User Enumeration' ),
+				array(
+					'when'    => array( 'block_user_enumeration' ),
+					'feature' => __( 'Block user enumeration', 'ux-studio' ),
+				)
+			),
+			// Switching off Application Passwords is only half of "Harden the login page": information only.
+			$part(
+				'security-optimization',
+				array( 'disable-application-passwords' => 'Disable Application Passwords' ),
+				array(
+					'when'    => array( 'protect_login' ),
+					'feature' => __( 'Disable Application Passwords', 'ux-studio' ),
+				)
+			),
+			$full(
 				'image-optimizer',
 				array(
 					'ewww-image-optimizer'       => 'EWWW Image Optimizer',

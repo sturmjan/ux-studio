@@ -3,6 +3,8 @@
  * includes/Core/Onboarding/{Applier,CentralApp,StarterPack}.php and PhpVersionMaintenance::payload().
  */
 
+import type { Explain } from '../../components/SettingExplain';
+
 export type OverlapStatus = 'ok' | 'blocked' | 'confirm';
 
 export interface StarterModule {
@@ -20,6 +22,16 @@ export interface PresetRow {
 	label: string;
 	value: unknown;
 	value_label: string;
+	/** What it does, the risk, when to switch it off, when the pack leaves it out (Security settings only). */
+	explain?: Explain | null;
+}
+
+/** A setting the pack leaves out on this site. */
+export interface LeftOutRow {
+	key: string;
+	label: string;
+	reason: string;
+	explain: Explain | null;
 }
 
 export interface StarterWarning {
@@ -38,6 +50,7 @@ export interface StarterItem {
 	unavailable: string;
 	modules: StarterModule[];
 	preset: PresetRow[];
+	left_out?: LeftOutRow[];
 	warnings: StarterWarning[];
 }
 
@@ -84,6 +97,8 @@ export interface ApplyResult {
 	modules: Record< string, string >;
 	plugins: string[];
 	errors: string[];
+	/** Checks after saving (already translated): rules verified, a rule taken back, ... */
+	notes?: string[];
 }
 
 export interface ApplyResponse {

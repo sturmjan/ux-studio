@@ -11,6 +11,8 @@ import { __ } from '@wordpress/i18n';
 import { api, queryClient } from './api';
 import { TabsNav } from './SubNav';
 import MultiSelectField from '../components/MultiSelectField';
+import SettingExplain from '../components/SettingExplain';
+import type { Explain } from '../components/SettingExplain';
 
 export type Value = string | number | boolean | string[] | null;
 
@@ -30,6 +32,8 @@ export interface Field {
 		| 'richtext';
 	label: string;
 	help?: string;
+	/** Plain-language details (what it does, the risk, when to switch it off), shown under the help. */
+	explain?: Explain;
 	default?: Value;
 	options?: Record< string, string >;
 	/** Optional group label; two or more distinct sections render as sub-tabs. */
@@ -277,6 +281,7 @@ export function SettingsFields( {
 						onChange={ ( v ) => setDraft( ( d ) => ( { ...d, [ field.key ]: v } ) ) }
 					/>
 					{ field.help ? <p className="uxs-form__help">{ field.help }</p> : null }
+					{ field.explain ? <SettingExplain explain={ field.explain } /> : null }
 					{ notes?.[ field.key ] ?? null }
 				</div>
 			) ) }

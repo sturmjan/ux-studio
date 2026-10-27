@@ -137,6 +137,7 @@ final class Module extends BaseModule {
 
 		/* ── Harden login page ── */
 		if ( $this->setting( 'protect_login', false ) ) {
+			add_filter( 'wp_login_errors', array( $this, 'generic_credential_errors' ), PHP_INT_MAX );
 			add_filter( 'login_errors', array( $this, 'sanitize_login_errors' ) );
 			add_filter( 'wp_is_application_passwords_available', '__return_false' );
 		}
@@ -397,7 +398,22 @@ final class Module extends BaseModule {
 	   Settings schema
 	   ═══════════════════════════════════════════════════ */
 
+	/**
+	 * The schema with the plain-language explanation (SettingHelp) added to every option that has one: the screen
+	 * shows it under the help line as "Details".
+	 */
 	public function settings_schema(): array {
+		$fields = $this->base_schema();
+		foreach ( $fields as $i => $field ) {
+			$explain = SettingHelp::for_key( (string) ( $field['key'] ?? '' ) );
+			if ( null !== $explain ) {
+				$fields[ $i ]['explain'] = $explain;
+			}
+		}
+		return $fields;
+	}
+
+	private function base_schema(): array {
 		$country_options = array();
 		foreach ( CountryBlocklist::get_countries() as $code => $name ) {
 			$country_options[ $code ] = $name . ' (' . $code . ')';
@@ -1720,12 +1736,50 @@ final class Module extends BaseModule {
 		return substr( hash( 'sha256', wp_salt( 'auth' ) . '|uxstudio-author-slug', true ), 0, 16 );
 	}
 
+	/** Login error codes that tell an attacker whether the username or the password was wrong. */
+	private const CREDENTIAL_ERROR_CODES = array( 'invalid_username', 'invalid_email', 'incorrect_password' );
+
+	/** True once wp_login_errors() has already made the login errors generic (the string filter must stay out of it). */
+	private bool $login_errors_handled = false;
+
 	/**
-	 * Replace detailed login error text with a generic message.
+	 * Make the "wrong username / wrong password" errors generic, and leave every other login error alone.
+	 * The lockout of the limiter, CAPTCHA, two-step verification and any other message keep their own text:
+	 * the user has to be told WHY they cannot log in.
 	 *
-	 * @param string $error Original error markup (unused).
+	 * @param \WP_Error $errors Login errors.
+	 */
+	public function generic_credential_errors( $errors ) {
+		if ( ! $errors instanceof \WP_Error ) {
+			return $errors;
+		}
+		$this->login_errors_handled = true;
+		$found                      = false;
+		foreach ( self::CREDENTIAL_ERROR_CODES as $code ) {
+			if ( $errors->get_error_message( $code ) !== '' ) {
+				$errors->remove( $code );
+				$found = true;
+			}
+		}
+		if ( $found ) {
+			$errors->add( 'uxstudio_invalid_credentials', $this->generic_login_message() );
+		}
+		return $errors;
+	}
+
+	/**
+	 * Fallback for errors that did not come through wp_login_errors (a plain string): generic text.
+	 *
+	 * @param string $error Original error markup.
 	 */
 	public function sanitize_login_errors( $error ): string {
+		if ( $this->login_errors_handled ) {
+			return (string) $error;
+		}
+		return $this->generic_login_message();
+	}
+
+	private function generic_login_message(): string {
 		return __( 'Invalid login credentials. Please check both the username and the password.', 'ux-studio' );
 	}
 

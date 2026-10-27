@@ -855,6 +855,36 @@
 	}
 }
 
+/* ---- Plain-language details under an option (SettingExplain) ---- */
+.uxs-explain {
+	flex-basis: 100%;
+	margin: var(--uxs-sp-1) 0 0;
+	font-size: var(--uxs-fs-s);
+	summary {
+		cursor: pointer;
+		color: var(--uxs-brand);
+		width: fit-content;
+	}
+	dl {
+		margin: var(--uxs-sp-2) 0 0;
+		padding: var(--uxs-sp-2) var(--uxs-sp-3);
+		border-left: 3px solid var(--uxs-border);
+		display: grid;
+		gap: var(--uxs-sp-1);
+	}
+	dt {
+		margin: var(--uxs-sp-1) 0 0;
+		font-weight: 600;
+		color: var(--uxs-text);
+	}
+	dd {
+		margin: 0;
+		line-height: 1.5;
+		color: var(--uxs-text-soft);
+	}
+}
+.uxs-wiz-plan__reason { flex-basis: 100%; }
+
 /* ---- Form variants ----
    .uxs-form--stacked: label above a full-width field, no card around it (dialogs, small panels).
    .uxs-form--inline:  the same stacked rows next to an action button, one line, bottoms aligned (a field and its

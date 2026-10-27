@@ -28,7 +28,14 @@ defined( 'ABSPATH' ) || exit;
  *   bot_blacklist        string  current Bot Throttle blacklist (one User-Agent per line),
  *   bot_whitelist        string  current Bot Throttle whitelist,
  *   blocked_settings     array   Security setting key => names of the foreign plugins that already do that job,
- *   csp_mode             string  current Content Security Policy mode of the Security module (off | audit | report-only | enforce).
+ *   csp_mode             string  current Content Security Policy mode of the Security module (off | audit | report-only | enforce),
+ *   reserved_users       string[] logins of existing users that match the Security module's reserved username list,
+ *   app_passwords        array   {users, passwords}: how many users hold Application Passwords and how many passwords,
+ *   published_posts      int     published posts of type post (a site with a blog may have RSS subscribers),
+ *   feed_plugins         string[] names of active plugins that consume or serve RSS feeds (see FEED_PLUGINS),
+ *   headless_plugins     string[] names of active decoupled front end plugins (see HEADLESS_PLUGINS),
+ *   header_plugins       string[] names of active plugins that send security headers (see HEADER_PLUGINS),
+ *   https_ready          bool    the site and home address are https and this very request came over https.
  *
  * An item is one tick box in the wizard:
  *
@@ -51,6 +58,35 @@ final class StarterPack {
 
 	/** Id of the item that is applied last, in two steps. */
 	public const LOGIN_ITEM = 'login-url';
+
+	/** Plugins that need the RSS feeds (folder slug => name). Active one of them keeps the feeds switched on. */
+	public const FEED_PLUGINS = array(
+		'mailchimp-for-wp'            => 'Mailchimp for WP',
+		'seriously-simple-podcasting' => 'Seriously Simple Podcasting',
+		'powerpress'                  => 'PowerPress',
+		'feedzy-rss-feeds'            => 'Feedzy RSS Feeds',
+		'feedwordpress'               => 'FeedWordPress',
+		'wp-rss-aggregator'           => 'WP RSS Aggregator',
+	);
+
+	/** Decoupled front ends read the public REST users route (folder slug => name). */
+	public const HEADLESS_PLUGINS = array(
+		'wp-graphql' => 'WPGraphQL',
+		'faustwp'    => 'Faust.js',
+		'wp-gatsby'  => 'WPGatsby',
+	);
+
+	/** Setting keys that are written into .htaccess by the Security module. */
+	public const HTACCESS_KEYS = array( 'security_headers', 'protect_wp_config', 'disable_directory_listing', 'block_sensitive_files', 'force_https' );
+
+	/** Plugins that send their own security headers (folder slug => name). They keep the Permissions-Policy. */
+	public const HEADER_PLUGINS = array(
+		'really-simple-ssl'                 => 'Really Simple SSL',
+		'headers-security-advanced-hsts-wp' => 'HTTP Headers',
+	);
+
+	/** A site with more published posts than this has a blog: readers subscribe to its feed and author pages are indexed. */
+	public const BLOG_POSTS_LIMIT = 5;
 
 	/** SEO tool crawlers that must NOT be on the Bot Throttle blacklist (agencies audit with them). */
 	private const SEO_ALLOWED_BOTS = array( 'AhrefsBot', 'SemrushBot' );
@@ -111,6 +147,16 @@ final class StarterPack {
 			'bot_whitelist'       => '',
 			'blocked_settings'    => array(),
 			'csp_mode'            => 'off',
+			'reserved_users'      => array(),
+			'app_passwords'       => array(
+				'users'     => 0,
+				'passwords' => 0,
+			),
+			'published_posts'     => 0,
+			'feed_plugins'        => array(),
+			'headless_plugins'    => array(),
+			'header_plugins'      => array(),
+			'https_ready'         => true,
 		);
 	}
 
@@ -509,6 +555,18 @@ final class StarterPack {
 			'heartbeat_control'            => 'slow',
 			'disable_emojis'               => true,
 			'remove_unused_default_themes' => true,
+			// Login hardening: the conditions that make these unsafe on a particular site are checked below.
+			'block_usernames'              => true,
+			'block_username_attempts'      => true,
+			'protect_login'                => true,
+			'disable_rss_feeds'            => true,
+			'protect_wp_config'            => true,
+			'disable_directory_listing'    => true,
+			'block_sensitive_files'        => true,
+			'block_user_enumeration'       => true,
+			'hide_author_slugs'            => true,
+			'enable_permissions_policy'    => true,
+			'force_https'                  => true,
 		);
 		$warnings = array();
 
@@ -524,7 +582,7 @@ final class StarterPack {
 		}
 		if ( ! empty( $env['xff'] ) && empty( $env['cloudflare'] ) ) {
 			// Behind an unknown proxy every visitor looks like the proxy, so a lockout would lock everybody out.
-			$warnings[] = array( 'proxy_xff', __( 'The site is behind a reverse proxy. Login attempt limiting is left off: first set the client IP source (Security > Firewall), then switch it on.', 'ux-studio' ) );
+			$warnings[] = array( 'proxy_xff', __( 'The site is behind a reverse proxy. Login attempt limiting is left off: first set the client IP source (Security > Firewall), then switch it on.', 'ux-studio' ), array( 'keys' => array( 'limit_login_attempts' ) ) );
 		} else {
 			$set['limit_login_attempts'] = true;
 			$set['max_attempts']         = 5;
@@ -536,6 +594,109 @@ final class StarterPack {
 			if ( empty( $env['htaccess_writable'] ) ) {
 				$warnings[] = array( 'htaccess_not_writable', __( 'The .htaccess file cannot be written, so the security headers are sent by PHP only.', 'ux-studio' ) );
 			}
+		}
+
+		// Application Passwords are used by integrations (mobile apps, REST clients), so never cut off ones that exist.
+		$app_users = (int) ( $env['app_passwords']['users'] ?? 0 );
+		$app_total = (int) ( $env['app_passwords']['passwords'] ?? 0 );
+		if ( $app_total > 0 ) {
+			unset( $set['protect_login'] );
+			$warnings[] = array(
+				'app_passwords_in_use',
+				sprintf(
+					/* translators: 1: number of users, 2: number of passwords. */
+					__( 'Left out: Harden the login page. It would switch off Application Passwords, which are in use (passwords: %2$d, users: %1$d): integrations such as the WordPress mobile app or REST clients rely on them. Switch it on in Security once they are not needed.', 'ux-studio' ),
+					$app_users,
+					$app_total
+				), array( 'keys' => array( 'protect_login' ) ) );
+		}
+
+		// An RSS feed can have subscribers: leave it alone on a site that looks like a blog or uses a feed plugin.
+		$feed_plugins = array_values( array_map( 'strval', (array) $env['feed_plugins'] ) );
+		if ( $feed_plugins ) {
+			unset( $set['disable_rss_feeds'] );
+			$warnings[] = array(
+				'feeds_plugin',
+				sprintf(
+					/* translators: %s: plugin names. */
+					__( 'Left out: Disable RSS feeds, because %s needs the feeds.', 'ux-studio' ),
+					implode( ', ', $feed_plugins )
+				),
+				array( 'keys' => array( 'disable_rss_feeds' ) ),
+			);
+		} elseif ( (int) $env['published_posts'] > self::BLOG_POSTS_LIMIT ) {
+			unset( $set['disable_rss_feeds'] );
+			$warnings[] = array(
+				'feeds_blog',
+				sprintf(
+					/* translators: %d: number of published posts. */
+					__( 'Left out: Disable RSS feeds. The site has %d published posts, so it may have readers who subscribe. Switch it on in Security if nobody does.', 'ux-studio' ),
+					(int) $env['published_posts']
+				), array( 'keys' => array( 'disable_rss_feeds' ) ) );
+		}
+
+		// Rules that live in .htaccess: only where Apache reads it and it can be written.
+		$htaccess_rules = array( 'protect_wp_config', 'disable_directory_listing', 'block_sensitive_files', 'force_https' );
+		if ( 'apache' !== $env['server'] && 'litespeed' !== $env['server'] ) {
+			$set        = array_diff_key( $set, array_flip( $htaccess_rules ) );
+			$warnings[] = array( 'htaccess_rules_unsupported', __( 'Left out: Protect wp-config.php, Disable directory listing, Block readme.html / license.txt and Force HTTPS. Rules in .htaccess do not work on this server: block wp-config.php, readme.html and license.txt and the directory listing in the server configuration instead.', 'ux-studio' ), array( 'keys' => array( 'protect_wp_config', 'disable_directory_listing', 'block_sensitive_files', 'force_https' ) ) );
+		} elseif ( empty( $env['htaccess_writable'] ) ) {
+			$set        = array_diff_key( $set, array_flip( $htaccess_rules ) );
+			$warnings[] = array( 'htaccess_rules_unwritable', __( 'Left out: Protect wp-config.php, Disable directory listing, Block readme.html / license.txt and Force HTTPS, because the .htaccess file cannot be written. Make it writable and switch them on in Security.', 'ux-studio' ), array( 'keys' => array( 'protect_wp_config', 'disable_directory_listing', 'block_sensitive_files', 'force_https' ) ) );
+		}
+
+		// Permissions-Policy turns payment off, which would break Apple Pay, Google Pay and the Payment Request API.
+		$header_plugins = array_values( array_map( 'strval', (array) $env['header_plugins'] ) );
+		if ( ! empty( $env['woocommerce'] ) ) {
+			unset( $set['enable_permissions_policy'] );
+			$warnings[] = array( 'permissions_policy_woo', __( 'Left out: Permissions-Policy. WooCommerce is active and the header would switch off the payment API that Apple Pay and Google Pay use.', 'ux-studio' ), array( 'keys' => array( 'enable_permissions_policy' ) ) );
+		} elseif ( $header_plugins ) {
+			unset( $set['enable_permissions_policy'] );
+			$warnings[] = array(
+				'permissions_policy_plugin',
+				sprintf(
+					/* translators: %s: plugin names. */
+					__( 'Left out: Permissions-Policy, because %s already sends security headers.', 'ux-studio' ),
+					implode( ', ', $header_plugins )
+				),
+				array( 'keys' => array( 'enable_permissions_policy' ) ),
+			);
+		}
+
+		// Forced HTTPS is only safe when the site already works on https and no unknown proxy sits in front of it.
+		if ( empty( $env['https_ready'] ) ) {
+			unset( $set['force_https'] );
+			$warnings[] = array( 'https_not_ready', __( 'Left out: Force HTTPS. The site address does not start with https:// or this page was not opened over https, so a redirect to https could lock you out.', 'ux-studio' ), array( 'keys' => array( 'force_https' ) ) );
+		} elseif ( ! empty( $env['xff'] ) && empty( $env['cloudflare'] ) ) {
+			unset( $set['force_https'] );
+			$warnings[] = array( 'https_proxy', __( 'Left out: Force HTTPS. The site is behind a reverse proxy, which often talks to the server over plain http and would make an endless redirect. Switch it on in Security once you know how the proxy connects.', 'ux-studio' ), array( 'keys' => array( 'force_https' ) ) );
+		}
+
+		// Public REST users are read by a decoupled front end: do not take them away.
+		$headless = array_values( array_map( 'strval', (array) $env['headless_plugins'] ) );
+		if ( $headless ) {
+			unset( $set['block_user_enumeration'] );
+			$warnings[] = array(
+				'enumeration_headless',
+				sprintf(
+					/* translators: %s: plugin names. */
+					__( 'Left out: Block user enumeration, because %s reads the public list of users over the REST API.', 'ux-studio' ),
+					implode( ', ', $headless )
+				),
+				array( 'keys' => array( 'block_user_enumeration' ) ),
+			);
+		}
+
+		// New author URLs would break the ones that are already indexed or linked: only on a site without content.
+		if ( (int) $env['published_posts'] > self::BLOG_POSTS_LIMIT ) {
+			unset( $set['hide_author_slugs'] );
+			$warnings[] = array(
+				'author_slugs_blog',
+				sprintf(
+					/* translators: %d: number of published posts. */
+					__( 'Left out: Hide author slugs. The site has %d published posts, so its author pages may already be indexed or linked, and the old addresses would stop working. Switch it on in Security if you accept that.', 'ux-studio' ),
+					(int) $env['published_posts']
+				), array( 'keys' => array( 'hide_author_slugs' ) ) );
 		}
 
 		// A foreign plugin already does one of these jobs: leave that setting out, never create the overlap.
@@ -565,10 +726,31 @@ final class StarterPack {
 			);
 		}
 
+		// Blocking a reserved username at once only makes sense with the login limiter, which does the locking.
+		if ( empty( $set['limit_login_attempts'] ) && ( isset( $set['block_usernames'] ) || isset( $set['block_username_attempts'] ) ) ) {
+			unset( $set['block_usernames'], $set['block_username_attempts'] );
+			$warnings[] = array( 'username_block_needs_limit', __( 'Left out: Block reserved usernames and Lock out IPs that try a blocked username, because they need the login attempt limit, which is not switched on here.', 'ux-studio' ), array( 'keys' => array( 'block_usernames', 'block_username_attempts' ) ) );
+		}
+
+		// A failed login with a reserved name locks the IP at once, also for an existing account with such a name.
+		$reserved = array_values( array_map( 'strval', (array) $env['reserved_users'] ) );
+		if ( $reserved && isset( $set['block_username_attempts'] ) ) {
+			unset( $set['block_username_attempts'] );
+			$warnings[] = array(
+				'reserved_user_exists',
+				sprintf(
+					/* translators: %s: user logins. */
+					__( 'The account %s uses a reserved username: rename it, then switch on "Lock out IPs that try a blocked username" in Security. Until then one typo in its password would lock your own IP.', 'ux-studio' ),
+					implode( ', ', array_slice( $reserved, 0, 3 ) )
+				),
+				array( 'keys' => array( 'block_username_attempts' ) ),
+			);
+		}
+
 		return self::build(
 			'security-hardening',
 			__( 'Security hardening and cleanup', 'ux-studio' ),
-			__( 'Switches off comments, the file editor and XML-RPC, hides the WordPress version, sends security headers, limits login attempts, slows down Heartbeat, keeps 10 revisions, removes the emoji script and deletes unused default themes that WordPress itself brought (Twenty*, never a manually installed one, the newest one stays as the fallback).', 'ux-studio' ),
+			__( 'Switches off comments, the file editor, XML-RPC and RSS feeds (feed addresses answer 403, the feed links leave the page head), hides the WordPress version, sends security headers and the Permissions-Policy header (camera, microphone, location, payment and USB off), redirects http:// to https:// when the site already runs on https (checked after saving; an endless redirect is taken back), blocks wp-config.php (and its backup copies), readme.html, license.txt and wp-config-sample.php in .htaccess, switches off directory listing, stops ?author=N and the public users list in the REST API (logged-in users keep it; the core users sitemap is not touched), replaces user names in author page addresses with a code (old /author/name/ addresses then give 404), limits login attempts, locks out an IP that tries a reserved username such as admin, hides which part of a failed login was wrong and switches off Application Passwords (new ones cannot be created; an MCP or REST client that needs them: switch off "Harden the login page" in Security > Login), slows down Heartbeat, keeps 10 revisions, removes the emoji script and deletes unused default themes that WordPress itself brought (Twenty*, never a manually installed one, the newest one stays as the fallback). Left off on purpose, switch them on yourself when you are sure: the canonical URL redirect and HSTS (a browser remembers HSTS for a year). Open "What will be set" for what each option does, what can go wrong and when to switch it off.', 'ux-studio' ),
 			array( 'security-optimization' ),
 			array( 'security-optimization' => $set ),
 			$warnings,
