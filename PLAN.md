@@ -3164,3 +3164,163 @@ Třída `Core\Onboarding\CentralApp`, REST `onboarding/ca/prepare` (POST), `onbo
   znaků (kontrola i na serveru), návrhy; `GET forms/ai-status` hlásí vypnutý modul / chybějící klíč.
 - [x] Admin Customiser: `hide_footer_version` (výchozí vypnuto) je součástí položky "Skrýt WordPress".
 - [ ] Vydání 0.7.1
+
+## 30. Export a import nastavení (0.8.0)
+
+Zadání (2026-10-26): přenést nastavení modulů mezi weby (a mezi vývojem a ostrým webem) souborem, bez ručního
+přepisování. Stránka je v Nastavení pluginu, záložka „Export a import“ (`#/settings?section=transfer`, díl
+`&part=export|import`); v hlavičce nastavení každého modulu je odkaz „Exportovat toto nastavení“
+(`&module=<id>` otevře export s tím modulem zaškrtnutým). Kód je v `includes/Core/Transfer/`, SPA v `src/app/transfer/`.
+
+### 30.1 Princip
+
+- **Whitelist podle schématu, ne výpis volby.** Exportuje se jen to, co deklaruje `settings_schema()` modulu a co
+  nepatří na seznam „nikdy“ (§30.3). Klíč souboru, který ve schématu není, se zahodí jako neznámý, klíč ze seznamu
+  „nikdy“ se zahodí i když ho někdo do souboru dopsal.
+- **Zápis jen přes vlastní cestu modulu.** `BaseModule::save_settings()` (schéma, sanitizace, vedlejší efekty jako
+  zápis `.htaccess`), zapnutí modulu přes `ActivationGuard` a `Applier::enable()`. Žádný přímý zápis do voleb.
+- **Čisté funkce bez WordPressu**: `Envelope` (sestavení, kanonický JSON, kontrolní součet, kontrola souboru),
+  `NonPortable`, `Planner` (whitelist, merge/replace, diff, popisky), `TypeCheck`, `ImportRules`, `Crypto`.
+  Testují se samostatně (`tests/transfer-*.php`).
+- **Náhled nic nezapisuje; „použít“ plánuje znovu** ze souboru, který dostane, náhledu nevěří.
+- **Snímek před zápisem** (`uxstudio_import_snapshot`, 30 dní, jen poslední import): předchozí seznam modulů, volby
+  dotčených modulů včetně zašifrovaných voleb s tajnými hodnotami, pomocné volby (čekající přihlašovací adresa, hash
+  `.htaccess`, poznámka menu locku, stav CSP) a u obsahu vytvořené položky a předchozí verze upravených.
+  „Vrátit import zpět“: nejdřív obsah, pak moduly zapnuté importem zpět vypnout (spustí se `on_disable`), pak volby a
+  nakonec `after_migration_switch()` u modulů, které zůstaly zapnuté (znovu se zapíše `.htaccess`).
+
+### 30.2 Formát souboru (`format_version` 1)
+
+JSON v UTF-8, hezky formátovaný, bez XML (přesné typy, žádné atributy, nic spustitelného). Obálka:
+
+```
+{ "format": "uxstudio-settings", "format_version": 1, "plugin_version": "0.8.0",
+  "exported_at": "2026-10-26T10:00:00+00:00", "site": { "name": "...", "host": "..." },
+  "options": { "include_enabled": true, "include_data": false, "has_secrets": false },
+  "modules": { "<id>": { "enabled": true, "settings": { ... }, "data": { "<kind>": [ ... ] }, "needs_manual": [ "key" ] } },
+  "secrets": null | { "kdf": "argon2id", "v": 1, "opslimit": 3, "memlimit": 67108864, "salt": "..", "nonce": "..", "ciphertext": ".." },
+  "checksum": "sha256:<hex kanonického JSON modules + secrets>" }
+```
+
+- Kanonický JSON pro součet: klíče objektů seřazené, seznamy v pořadí, prázdné pole vždy `[]`, bez escapování `/` a
+  unicode. Nesoulad součtu je jen varování (soubor někdo upravil ručně).
+- Verze: novější hlavní verze formátu se odmítne s jasnou zprávou, starší se přijme; soubor z novějšího pluginu dá
+  upozornění. Limity: 2 MB, hloubka 32, nikdy `unserialize`, `eval` ani `include`; id modulu `^[a-z0-9][a-z0-9-]*$`.
+- Obrázek: `{"__media":{"id":42,"url":"https://…"}}`. Při importu se id ze souboru ignoruje; použije se jen příloha,
+  jejíž adresa (nebo stejná cesta pod `uploads` tohoto webu) v knihovně médií existuje, jinak se nastavení nechá
+  prázdné a hlásí se.
+- Serializátor je izolovaný v `Envelope::encode()` / `Envelope::parse()`, jiný formát by dodal jen tyto dvě funkce.
+- Stažení: `POST transfer/export` postaví soubor na serveru a vrátí jednorázovou adresu
+  (`admin-post.php?action=uxstudio_transfer_download`, nonce + token + uživatel, pět minut); ta pošle
+  `application/json`, `Content-Disposition: attachment; filename="ux-studio-nastaveni-<host>-<RRRR-MM-DD>.json"`,
+  `X-Content-Type-Options: nosniff`, `no-store`. Soubory do 256 kB přijdou i jako text pro „Zkopírovat do schránky“.
+
+### 30.3 Registr toho, co se nikdy nepřenáší (`NonPortable`)
+
+Jedno místo: `includes/Core/Transfer/NonPortable.php`.
+
+- `KEYS` (klíče nastavení po modulech): content-sync `mode`, `node_api_key`, `central_app_url`, `hmac_secret`,
+  `node_allowed_ips`, `node_default_author`; third-party-login `central_app_url`, `hmac_secret`; bot-throttle
+  `central_report_secret`; cron-control `central_allowed_ips`; review-aggregator `central_profile_id`; dns-manager
+  `manage_user_ids`; opening-hours `schema_location_ids`, `schema_pages`; ai-markdown `exclude_ids`; maintenance-mode
+  `existing_page`, `custom_layout`; security-optimization `captcha_site_key`, `captcha_secret_key`,
+  `captcha_key_source`, `existing_page` (klíče CAPTCHA patří k názvu webu, přenos by zamkl přihlášení).
+- Obecné pravidlo: klíč, který podle `Mcp\Secrets::is_secret_key()` vypadá jako přihlašovací údaj a není v seznamu
+  přenosných tajných hodnot ani v `HARMLESS` (zkontrolované falešné shody: `monthly_token_limit`,
+  `sso_token_ttl_seconds`, `bypass_ips`, `pass_query`), se nepřenáší.
+- `SECRET_OPTIONS` (jediné, co smí cestovat, a jen zašifrované): smtp-email (heslo, Brevo, Gmail client secret,
+  SendGrid, Mailgun, Postmark, SES), stock-photos (6 klíčů), ai-assistant (Claude, OpenAI, DeepSeek),
+  security-optimization (`captcha_cf_api_token`), opening-hours (Google Maps, Mapy.cz), instagram-feed
+  (`app_secret`), dashboard-widgets (PageSpeed klíč, GA service account JSON).
+- `MANUAL_CONNECTIONS` (mimo schéma, vždy do `needs_manual`): Gmail OAuth, přístupový token Instagramu.
+- `STATE_OPTION_PATTERNS` (stav, cache, logy, značky, verze DB, tajné volby; do exportu se nedostanou, protože nejsou
+  ve schématu): `uxstudio_wizard_*`, `uxstudio_*_pending`, `uxstudio_*snapshot*`, `uxstudio_starter_*`,
+  `uxstudio_module_db_versions`, `uxstudio_modules_meta_cache`, `uxstudio_secret_*`, `uxstudio_menu_lock_origin`,
+  `uxstudio_rl_*`, `uxstudio_csp_*`, `uxstudio_overlap_*`, `uxstudio_activity_*`, `uxstudio_*_cache|_log|_state|_version`,
+  `uxstudio_mcp_*`, `uxstudio_central_*`, `uxstudio_node_*`.
+- Zapečetěná hodnota `uxs1:` se nikdy nezapíše do souboru, ať se klíč jmenuje jakkoli.
+- Co je jen v `needs_manual`: klíče z těchto seznamů, které mají na zdrojovém webu hodnotu, a tajné hodnoty, když export
+  nebyl zašifrovaný.
+
+### 30.4 Šifrování tajných hodnot
+
+Volitelné (výchozí vypnuto), libsodium: klíč z hesla `sodium_crypto_pwhash` (argon2id, náhodná sůl 16 B,
+`opslimit` 3, `memlimit` 64 MB), obsah (JSON `modul → klíč → hodnota`) `sodium_crypto_secretbox` s náhodným nonce
+(24 B). Blok nese verzi a parametry; při dešifrování se parametry omezí (ochrana před soubory, které žádají obří
+paměť). Špatné heslo i poškozený blok = totéž `null` a jedna hláška. Heslo min. 12 znaků + potvrzení, nikdy se
+neloguje; pokus o odemčení je omezený (8 chyb / 15 minut na uživatele). `Crypto::available()` vyžaduje skutečné
+rozšíření (WordPress má jen čisté PHP náhrady, ty argon2id neumí); bez něj je volba vypnutá s vysvětlením.
+
+### 30.5 Obsah modulů (datové providery)
+
+Rozhraní `DataProvider` (`module()`, `kind()`, `label()`, `capability()`, `blocked_reason()`, `count()`, `export()`,
+`plan()`, `import()`, `undo()`); registr `DataProviders` s filtrem `ux_studio/transfer_providers` pro další moduly.
+Položky nemají databázová id, počítadla ani osobní údaje; párují se přirozeným klíčem, import jen vytváří a
+aktualizuje, nikdy nemaže. Obsah se importuje jen do modulu, který byl zapnutý už na začátku požadavku (vznikly mu
+tabulky a typy příspěvků).
+
+- Formuláře (`forms`): definice (název, popis, pole, nastavení, stav), klíč = název. Nikdy odeslání, soubory, log
+  akcí ani revize. Bez webhookového tajemství, `logo_id`, `author_id`, `redirect_page_id`; tajemství existujícího
+  formuláře se při aktualizaci zachová. Vlastní skript po odeslání odstraní samotný modul uživateli bez
+  `unfiltered_html`.
+- Přesměrování (`redirects`): pravidla (zdroj, typ, cíl, kód, podmínky, volby, poznámka, pořadí), klíč = typ + zdroj +
+  podmínky. Cíl daný id příspěvku se exportuje jako adresa. Zápis přes `Repository::save()` (zamítne rezervované cesty,
+  smyčky a nebezpečné regexy). Bez počítadel a 404 logu.
+- Code Snippets (`code-snippets`): kód; export i import vyžadují `unfiltered_html` a stejné podmínky jako editor
+  snippetů (`DISALLOW_FILE_EDIT`, `DISALLOW_FILE_MODS`, `edit_plugins`). Importovaný snippet je VŽDY vypnutý (i při
+  aktualizaci), undo vrátí i původní stav zapnutí.
+- Popup Manager (`popup-manager`): texty, spouštěč, cílení na role; stránky cílení jsou id a nepřenášejí se (existující
+  popup si je ponechá). Bez statistik.
+- Opening Hours (`opening-hours`): pobočky (adresa, telefon, hodiny, výjimky, oznámení, souřadnice). Bez dočasného
+  přepsání „dnes zavřeme později“.
+- Notice Board (`notice-board`): jen kategorie. Ne oznámení, dokumenty, odběratele.
+- Záměrně NEJSOU: odeslání formulářů, logy a statistiky, odběratelé, oznámení s dokumenty, složky médií (visí na id
+  příloh), viditelnost menu (visí na id položek menu), IP bany (provozní data), e-mailový log.
+
+### 30.6 Bezpečnostní pravidla importu (`ImportRules`, `Importer`)
+
+Vynucuje server, náhled je ukazuje jako „Bezpečnostní opatření“. Pravidla jen odebírají nebo oslabují hodnotu.
+
+1. `csp_mode` ze souboru nikdy nepřepne na `enforce` (nejvýš `report-only`; už zapnuté `enforce` zůstává); příznak
+   `csp_enforce_override` není ve schématu, takže ho soubor nemůže nést; brána `CspGate` zůstává rozhodující.
+2. Vlastní přihlašovací adresa: nová adresa projde dvoukrokovým stavem `LoginUrlPending` (spustí se PŘED uložením);
+   prázdná nebo „nejednoduchá“ adresa se zahodí. Po importu Zabezpečení se zkontroluje `login_lock_status()`; když je
+   zámek v platnosti a nová adresa nevrací přihlašovací formulář (`Applier::probe()`), vrátí se volby Zabezpečení ze
+   snímku.
+3. Vynucené 2FA (`two_factor_enabled`, role v `two_factor_required_roles`) jen když má importující správce vlastní 2FA.
+4. Blokování zemí jen když je IP importujícího správce na allowlistu firewallu (stávajícím nebo z téhož souboru);
+   seznamy IP určené k blokování (`BLOCK_IP_LISTS`, dnes prázdný registr) nikdy neponechají řádek s jeho IP.
+5. Zámek menu (`menu_lock_enabled`) jen když `MenuSimulator::enforce_access()` nad stávající konfigurací menu nic
+   nezahodí (správce zůstane mít UX Studio, Pluginy, Uživatele, Nastavení).
+6. Režim údržby nikdy nezapne import bez zvláštní zaškrtávací volby.
+7. Kód (pole typu `css`, vlastní CSS údržby, snippety) jen když má importující uživatel `unfiltered_html`.
+8. Přesměrování na HTTPS a HSTS jen když import běží přes HTTPS; CAPTCHA na přihlášení jen když má web vlastní klíče.
+9. Vlastní přihlašovací jméno se odstraní ze seznamu blokovaných jmen.
+10. Klíče z `Sensitive::ADMIN_WRITE` vyžadují správce (`manage_options`), což je podmínka celé funkce; každý modul
+    navíc vyžaduje svou `capability()`. Zápis je omezený sdíleným limitem zápisů; export/import trasy jsou
+    autentizované, seznam veřejných tras REST se nemění.
+11. Zápis do vypnutého modulu jen tam, kde `save_settings()` nemá vedlejší efekty (modul ho nepřepisuje, nebo je v
+    `SAFE_WHEN_OFF`); jinak se nastavení přeskočí s vysvětlením (např. zápis `.htaccess` při vypnutém Zabezpečení).
+12. Vypnutí modulu, který drží data (provider má položky), jen s volbou „Vypnout i moduly s daty“; data se nikdy
+    nemažou.
+
+Typy: `TypeCheck` je přísný (toggle jen `true`/`false`, číslo jen číslo, výběr jen existující volba, multiselect jen
+seznam; neexistující volby se vynechají a hlásí, ne přetypují); klíč s chybným typem se odmítne se zprávou.
+
+### 30.7 Stav
+
+- [x] Obálka, kanonický součet, verze, limity (`Envelope`), test `tests/transfer-envelope.php`
+- [x] Registr nepřenositelného (`NonPortable`), whitelist podle schématu, média přes adresu
+- [x] Šifrování tajných hodnot (`Crypto`), test `tests/transfer-crypto.php` (spouštět s `-d extension=sodium`)
+- [x] Přísné typy, merge/replace, diff, maskování (`TypeCheck`, `Planner`), pravidla (`ImportRules`),
+  test `tests/transfer-import-rules.php`
+- [x] Exportér, importér, snímek, vrácení (`Exporter`, `Importer`, `ImportSnapshot`), REST (`transfer/*`), stažení
+- [x] Providery obsahu: formuláře, přesměrování, snippety, popupy, pobočky, kategorie nástěnky
+- [x] SPA: export (seznam modulů, volby, šifrování), import (soubor/vložení, náhled s diffem, volby, výsledek, vrácení),
+  odkaz „Exportovat toto nastavení“ v hlavičkách modulů
+- [x] Test proti WordPressu `tests/transfer-wp.php` (export všeho, žádné tajné hodnoty z databáze v souboru, náhled
+  0 změn, kolo na neškodné hodnotě, nepřátelský soubor, Zabezpečení, šifrované tajné hodnoty, providery)
+- [ ] Vydání 0.8.0 (verze, tag, vydání na GitHubu)
+- [ ] Později: schopnost MCP (`transfer/export` jen bez tajných hodnot a `import` jen s rozsahem `admin`) - záměrně
+  zatím NEPŘIDÁNO
+- [ ] Později: export složek médií a viditelnosti menu (potřebují mapování id), ZIP s médii

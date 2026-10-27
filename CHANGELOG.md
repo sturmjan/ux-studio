@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.8.0
+
+- Added - Export and import of settings (Settings > "Export and import"). Export: tick the modules (grouped like the
+  Modules screen, search, "Select all", a badge for modules that are off), choose what goes in (on/off state of the
+  modules, module content, secret values) and download a JSON file or copy it. Every module's header has an "Export this
+  setting" link that opens the export with that module ticked. The file only holds settings declared by each module's
+  schema; the Central App connection, licence and OAuth tokens, CAPTCHA keys of a host name, ids of pages, posts and
+  users, wizard markers, caches, logs and database versions never travel (the file lists the fields to fill in again).
+  Secret values (API keys, passwords) are off by default; when you turn them on they are encrypted with a passphrase of
+  at least 12 characters (libsodium, argon2id; the option is off with an explanation on a server without the sodium
+  extension). Module content that can travel: form definitions, redirect rules, code snippets (need `unfiltered_html`),
+  popups, locations with opening hours and notice categories; never submissions, logs or statistics.
+- Added - Import: drop or paste a file, see a server-side preview with a diff per module (old and new value in words,
+  secrets masked, counts of changes and unchanged settings, what is skipped and why), pick modules, choose "Merge" (only
+  the listed settings) or "Replace the whole setting", optionally switch modules on and off as in the file (through the
+  same overlap check as the Modules screen), then import. A snapshot is taken first and "Undo the import" restores it for
+  30 days. Safety measures: the Content-Security-Policy is never switched to Enforce, a new login address starts in the
+  pending state (wp-login.php stays open until confirmed) and is checked afterwards, forced two-factor login needs your
+  own second factor, country blocks need your IP on the allowlist, the menu lock must keep key screens open for you,
+  maintenance mode needs an extra tick, code needs `unfiltered_html` (snippets arrive switched off), HTTPS redirects need
+  an HTTPS session. Everything is saved through the module's own save path, never straight into an option.
+
 ## 0.7.6
 
 - Fixed - Quick search: the field in the admin bar is dark again, like the rest of WordPress' bar (it takes the bar's

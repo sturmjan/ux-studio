@@ -14,6 +14,7 @@ import { hashParam, navigate } from './route';
 import { ModuleSettings } from './ModuleSettings';
 import { MODULE_PAGES } from '../modules/registry';
 import { FEATURE_VIEWS, useViewEnabled } from './featureViews';
+import { ExportModuleLink } from './transfer/ExportLink';
 
 export function GroupPage( { groupId }: { groupId: string } ): JSX.Element {
 	const active = hashParam( 'feature' ) ?? '';
@@ -99,6 +100,7 @@ export function GroupPage( { groupId }: { groupId: string } ): JSX.Element {
 						<h2 className="uxs-tile__name">{ view ? `${ current.name }: ${ view.label }` : current.name }</h2>
 						<span className="uxs-tile__desc">{ view ? '' : current.description }</span>
 					</div>
+					<ExportModuleLink moduleId={ current.id } />
 					<span className="uxs-group__state">{ switchOn ? __( 'Enabled', 'ux-studio' ) : __( 'Disabled', 'ux-studio' ) }</span>
 					<button
 						type="button"
