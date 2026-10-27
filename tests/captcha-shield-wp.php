@@ -33,6 +33,9 @@ use UxStudio\Plugin;
 
 global $wpdb;
 
+// The assertions read the English source strings, whatever language the site runs in.
+switch_to_locale( 'en_US' );
+
 $failures = 0;
 $assert   = static function ( string $name, bool $ok, string $detail = '' ) use ( &$failures ): void {
 	if ( ! $ok ) {
