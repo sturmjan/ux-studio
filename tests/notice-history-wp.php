@@ -83,7 +83,12 @@ $by    = static fn ( string $text ) => $wpdb->get_row( $wpdb->prepare( "SELECT *
 
 try {
 	// 1. Table ---------------------------------------------------------------------------------------------
-	Store::drop();
+	// A table that already holds history (the site is in use) is never dropped: only a missing or empty table is
+	// re-created from scratch, otherwise the creation checks look at the table that is there.
+	$has_history = $table_existed && (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" ) > 0;
+	if ( ! $has_history ) {
+		Store::drop();
+	}
 	delete_transient( 'uxstudio_admin_notices_maint' );
 	$ok = Store::ensure();
 	$assert( 'table: ensure() creates it', $ok && $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $table ) ) ) === $table );
@@ -107,13 +112,13 @@ try {
 	}
 	$r = $call( 'POST', '/admin-notices/log', array(), array( 'items' => array( $item( 'NHTEST off' ) ) ) );
 	$assert( 'off: log answers 200 with recorded 0', 200 === $r->get_status() && 0 === $data( $r )['recorded'] && false === $data( $r )['enabled'] );
-	$assert( 'off: nothing stored', 0 === $rows() );
+	$assert( 'off: nothing stored', 0 === $rows( "text LIKE 'NHTEST%'" ) );
 	$r = $call( 'POST', '/admin-notices/dismiss', array(), array( 'item' => $item( 'NHTEST off' ), 'method' => 'panel' ) );
 	$assert( 'off: dismiss stores nothing either', 0 === $rows() );
 	// relocate off = no panel = no capture point.
 	update_option( $opt_name, array_merge( (array) get_option( $opt_name ), array( 'hide_notices_enabled' => true, 'hide_notices_relocate' => false ) ) );
 	$call( 'POST', '/admin-notices/log', array(), array( 'items' => array( $item( 'NHTEST norelocate' ) ) ) );
-	$assert( 'off: hiding without the panel records nothing', 0 === $rows() );
+	$assert( 'off: hiding without the panel records nothing', 0 === $rows( "text LIKE 'NHTEST%'" ) );
 
 	// 3. Capture and upsert ---------------------------------------------------------------------------------
 	update_option( $opt_name, array_merge( (array) get_option( $opt_name ), array( 'hide_notices_enabled' => true, 'hide_notices_relocate' => true ) ) );

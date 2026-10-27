@@ -39,6 +39,10 @@ $assert( 'key: case does not matter', R::key( 'info', 'Hello World' ) === R::key
 $assert( 'key: unknown type means info', R::key( 'weird', 'abc' ) === R::key( 'info', 'abc' ) );
 $assert( 'key: only the first 240 characters count', R::key( 'info', str_repeat( 'a', 240 ) . 'X' ) === R::key( 'info', str_repeat( 'a', 240 ) . 'Y' ) );
 
+$assert( 'item_key: title and text are hashed together', R::item_key( array( 'type' => 'info', 'title' => 'Backups', 'text' => 'Failed 3 times' ) ) === R::key( 'info', 'Backups Failed 9 times' ) );
+$assert( 'item_key: without a title it equals key()', R::item_key( array( 'type' => 'info', 'title' => '', 'text' => 'abc' ) ) === R::key( 'info', 'abc' ) );
+$assert( 'item_key: another title is another notice', R::item_key( array( 'type' => 'info', 'title' => 'A', 'text' => 'x' ) ) !== R::item_key( array( 'type' => 'info', 'title' => 'B', 'text' => 'x' ) ) );
+
 // --- text --------------------------------------------------------------------------------------------------
 $assert( 'text: tags stripped, entities decoded, whitespace collapsed', 'Hello world & co' === R::clean_text( "<p>Hello\n  <b>world</b> &amp; co</p>" ) );
 $assert( 'text: script and style content removed', 'Visible' === R::clean_text( '<style>.a{}</style><script>alert(1)</script>Visible' ) );

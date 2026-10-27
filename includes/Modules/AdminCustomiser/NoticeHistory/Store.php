@@ -154,7 +154,7 @@ final class Store {
 		$plugins = self::active_plugins();
 		$seen    = array();
 		foreach ( array_slice( $items, 0, Rules::BATCH_MAX ) as $item ) {
-			$key = Rules::key( (string) $item['type'], (string) $item['text'] );
+			$key = Rules::item_key( $item );
 			if ( isset( $seen[ $key ] ) ) {
 				continue;
 			}
@@ -258,7 +258,7 @@ final class Store {
 			return 0;
 		}
 		global $wpdb;
-		$key = Rules::key( (string) $item['type'], (string) $item['text'] );
+		$key = Rules::item_key( $item );
 		$id  = self::upsert( $key, $item, self::active_plugins(), $user_id, true );
 		if ( $id <= 0 ) {
 			return 0;

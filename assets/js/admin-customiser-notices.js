@@ -172,7 +172,11 @@
         var titleNode = clone.querySelector('h1, h2, h3, h4, h5, h6, .fs-plugin-title, .notice-title, p:first-child > strong:first-child, strong:first-child');
         if (titleNode) {
             var candidate = plain(titleNode.textContent, 160);
-            if (candidate && candidate.length < body.length && body.indexOf(candidate) === 0) title = candidate;
+            if (candidate && candidate.length < body.length && body.indexOf(candidate) === 0) {
+                title = candidate;
+                // The title is stored on its own: the text starts after it (the history would show it twice).
+                body = body.slice(candidate.length).replace(/^[^\p{L}\p{N}]+/u, '') || body;
+            }
         }
 
         var classes = {};

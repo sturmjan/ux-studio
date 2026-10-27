@@ -110,6 +110,16 @@ final class Rules {
 	}
 
 	/**
+	 * Key of a sanitised item: the title belongs to the identity of a notice (the panel sends the text without
+	 * its leading title), so title and text are hashed together.
+	 *
+	 * @param array<string, mixed> $item Output of sanitize_item().
+	 */
+	public static function item_key( array $item ): string {
+		return self::key( (string) ( $item['type'] ?? 'info' ), trim( (string) ( $item['title'] ?? '' ) . ' ' . (string) ( $item['text'] ?? '' ) ) );
+	}
+
+	/**
 	 * The key the panel script itself uses (lower-cased text, 240 characters) - kept so the page can recognise
 	 * a notice that was hidden by the panel earlier.
 	 *
