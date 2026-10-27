@@ -88,6 +88,8 @@ $s = $src( array( 'markup' => 'notice', 'id' => 'uxstudio-something', 'text' => 
 $assert( 'source: UX Studio own notice', 'ux-studio' === $s['slug'] && 'UX Studio' === $s['name'] && 'own' === $s['how'] );
 $s = $src( array( 'markup' => 'notice', 'plugin' => 'my-booking-plugin/main.php', 'text' => 'x' ) );
 $assert( 'source: data-plugin basename', 'my-booking-plugin' === $s['slug'] && 'data' === $s['how'] );
+$s = $src( array( 'markup' => 'notice', 'plugin' => 'gone_plugin/gone.php', 'text' => 'x' ) );
+$assert( 'source: data-plugin of an inactive plugin still gives slug and readable name', 'gone-plugin' === $s['slug'] && 'Gone Plugin' === $s['name'] && 'data' === $s['how'] );
 $s = $src( array( 'markup' => 'notice', 'title' => 'yoast seo', 'text' => 'Something happened.' ) );
 $assert( 'source: title label matches an active plugin name', 'wordpress-seo' === $s['slug'] && 'title' === $s['how'] );
 $s = $src( array( 'markup' => 'notice', 'text' => 'Your WooCommerce database needs an update.' ) );

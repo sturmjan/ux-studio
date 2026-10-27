@@ -233,6 +233,15 @@ final class Rules {
 			if ( null !== $found ) {
 				return $found + array( 'how' => 'data' );
 			}
+			// Not among the active plugins (or the directory is named differently): still the best slug there is.
+			$slug = str_replace( '_', '-', strtolower( (string) $token ) );
+			if ( 1 === preg_match( '/^[a-z0-9][a-z0-9-]{1,98}$/', $slug ) ) {
+				return array(
+					'slug' => $slug,
+					'name' => self::pretty_slug( $slug ),
+					'how'  => 'data',
+				);
+			}
 		}
 
 		// Freemius notices carry the slug of the plugin in a class.
