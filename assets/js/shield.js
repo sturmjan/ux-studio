@@ -1,5 +1,5 @@
 /**
- * Shield of UX Studio: the browser side of the key-less proof-of-work CAPTCHA (PLAN.md 31).
+ * Shield of UX Studio: the browser side of the key-less proof-of-work CAPTCHA (PLAN.md 32).
  *
  * One file, three jobs: the widget on the page, the solver inside a Web Worker (the page starts this same file as the
  * worker) and a main-thread solver when a worker is not allowed. tests/captcha-shield.mjs loads the very same file in

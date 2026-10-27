@@ -2,7 +2,7 @@
 // Test only: never runs over HTTP (the release zip also excludes tests/).
 if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
- * Standalone test of the key-less Shield CAPTCHA (PLAN.md 31): the challenge and answer round trip, every kind of
+ * Standalone test of the key-less Shield CAPTCHA (PLAN.md 32): the challenge and answer round trip, every kind of
  * tampering, the expiry, the one-time use, the fill time rule, the difficulty levels, the typed-question fallback and
  * the decision table of the login form, the order in which a CAPTCHA provider is chosen, and the starter pack rules.
  * Needs no WordPress and no database:

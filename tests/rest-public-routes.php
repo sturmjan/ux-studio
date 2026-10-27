@@ -68,6 +68,15 @@ $expect( 'GET /wp-json/wp/v2/users?x=/complianz/v1/', '/wp-json/wp/v2/users?x=/c
 $expect( 'GET /wp-json/complianzevil/v1/x (no boundary)', '/wp-json/complianzevil/v1/x', false );
 $expect( 'GET /wp-json/complianz/v2/banner (other version)', '/wp-json/complianz/v2/banner', false );
 
+echo "\n== own public endpoints (permission_callback __return_true) ==\n";
+rest_get_server();
+$expect( 'GET /wp-json/uxstudio/v1/shield/challenge (Shield CAPTCHA puzzle)', '/wp-json/uxstudio/v1/shield/challenge', true );
+$expect( 'GET ?rest_route=/uxstudio/v1/shield/challenge', '/?rest_route=/uxstudio/v1/shield/challenge', true );
+$expect( 'GET /wp-json/uxstudio/v1/shield/challenge/x (no such route)', '/wp-json/uxstudio/v1/shield/challenge/x', false );
+$expect( 'GET /wp-json/uxstudio/v1/shield/other (no such route)', '/wp-json/uxstudio/v1/shield/other', false );
+$expect( 'GET /wp-json/uxstudio/v1/shield/challenge/../../wp/v2/users (dot segments)', '/wp-json/uxstudio/v1/shield/challenge/../../wp/v2/users', false );
+$expect( 'GET /wp-json/uxstudio/v1/settings/security-optimization (admin route)', '/wp-json/uxstudio/v1/settings/security-optimization', false );
+
 echo "\n== filter uxstudio_rest_public_routes still works ==\n";
 $add = static function ( array $routes ): array {
 	$routes[] = '/contact-form-7/v1/';
