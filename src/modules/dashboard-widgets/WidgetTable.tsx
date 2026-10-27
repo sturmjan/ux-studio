@@ -309,11 +309,18 @@ export default function WidgetTable( { hideAll }: { hideAll: boolean } ): JSX.El
 	}, [ data, rules ] );
 
 	const pending = useRef( 0 );
+	// Requests go one after another: the server changes the stored rules read-modify-write, two at once would lose one.
+	const chain = useRef< Promise< unknown > >( Promise.resolve() );
 	const save = useMutation( {
-		mutationFn: ( body: RulesRequest ) => api< RulesPayload >( 'dashboard-widgets/rules', { method: 'POST', body: JSON.stringify( body ) } ),
-		onMutate: async ( body ): Promise< { previous?: RulesPayload } > => {
+		mutationFn: ( body: RulesRequest ) => {
+			const send = (): Promise< RulesPayload > => api< RulesPayload >( 'dashboard-widgets/rules', { method: 'POST', body: JSON.stringify( body ) } );
+			const run = chain.current.then( send, send );
+			chain.current = run.catch( () => undefined );
+			return run;
+		},
+		onMutate: ( body ): { previous?: RulesPayload } => {
 			pending.current += 1;
-			await queryClient.cancelQueries( { queryKey: KEY } );
+			void queryClient.cancelQueries( { queryKey: KEY } );
 			const previous = queryClient.getQueryData< RulesPayload >( KEY );
 			if ( previous ) {
 				const current = previous.rules && ! Array.isArray( previous.rules ) ? previous.rules : {};
