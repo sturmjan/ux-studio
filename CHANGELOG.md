@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.8.8 (unreleased)
+## 0.8.8
 
 - Fixed - Login page, split layout: the logo was drawn twice, in the round badge above the form and again over the
   media panel. When "Split layout: show logo over the media panel" is on, the badge now shows its default icon and
