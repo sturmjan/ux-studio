@@ -142,17 +142,19 @@ final class MetaBoxRules {
 		$options = self::options();
 		foreach ( MenuOrganizer::role_list() as $role => $name ) {
 			$fields[] = array(
-				'key'     => self::key( (string) $role ),
-				'section' => __( 'Meta boxes', 'ux-studio' ),
-				'type'    => 'multiselect',
-				'label'   => sprintf(
+				'key'        => self::key( (string) $role ),
+				'section'    => __( 'Meta boxes', 'ux-studio' ),
+				'group'      => __( 'Hidden meta boxes', 'ux-studio' ),
+				'group_help' => __( 'For each role, the boxes on the edit screens that stay hidden.', 'ux-studio' ),
+				'type'       => 'multiselect',
+				'label'      => sprintf(
 					/* translators: %s: role name. */
 					__( 'Hide meta boxes on edit screens for the role: %s', 'ux-studio' ),
 					$name
 				),
-				'help'    => __( 'The list is filled by the edit screens you open (open the edit screen of a post type once to see the boxes plugins add). The Publish box can not be hidden. A user with several roles has a box hidden only when every role hides it.', 'ux-studio' ),
-				'options' => $options,
-				'default' => array(),
+				'help'       => __( 'The list is filled by the edit screens you open (open the edit screen of a post type once to see the boxes plugins add). The Publish box can not be hidden. A user with several roles has a box hidden only when every role hides it.', 'ux-studio' ),
+				'options'    => $options,
+				'default'    => array(),
 			);
 		}
 		return $fields;

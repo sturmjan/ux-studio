@@ -652,6 +652,6 @@ final class Module extends BaseModule {
 		);
 
 		// B1: meta boxes hidden per role on the edit screens (one multi-select per role).
-		return array_merge( $schema, MetaBoxRules::schema() );
+		return SettingsLayout::apply( array_merge( $schema, MetaBoxRules::schema() ) );
 	}
 }
