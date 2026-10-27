@@ -210,6 +210,14 @@ $assert( 'hide WordPress: no logo = no login_logo key and a warning', ! isset( $
 $assert( 'hide WordPress: no logo = the login logo is hidden (form_options) with the login customization on', array( 'hide_login_logo' ) === $nl['settings']['admin-customiser']['form_options'] && true === $nl['settings']['admin-customiser']['login_customization_enabled'] );
 $assert( 'hide WordPress: with a logo the login logo is not hidden', ! isset( $ac['form_options'] ) );
 $assert( 'hide WordPress: the admin bar customization (Howdy) is not enabled', ! isset( $ac['admin_bar_enabled'] ) && ! isset( $ac['hide_howdy_name'] ) );
+$plain = $by_id( array( 'site_name' => 'Hotel Alfa', 'login_logo_id' => 77, 'login_settings' => array( 'login_style' => 'classic', 'login_logo' => '', 'login_split_show_logo' => true ) ) )['hide-wordpress'];
+$assert( 'hide WordPress: a plain login page gets the site logo AND an explicit visible note', 77 === $plain['settings']['admin-customiser']['login_logo'] && 'applied' === $plain['login_logo_state'] && in_array( 'login_logo_used', array_column( $plain['warnings'], 'code' ), true ) );
+$cu = $by_id( array( 'site_name' => 'Hotel Alfa', 'login_logo_id' => 77, 'login_settings' => array( 'login_style' => 'split', 'login_customization_enabled' => true, 'login_logo' => 33 ) ) )['hide-wordpress'];
+$cua = $cu['settings']['admin-customiser'];
+$assert( 'hide WordPress: a customised login page keeps ALL login keys untouched', ! isset( $cua['login_logo'] ) && ! isset( $cua['login_customization_enabled'] ) && ! isset( $cua['form_options'] ) && 'custom' === $cu['login_logo_state'] );
+$assert( 'hide WordPress: a customised login page still gets the other parts and an info note', array( 'wp_logo' ) === $cua['hide_admin_bar_elements'] && true === $cua['hide_help_tab'] && true === $cua['hide_footer_version'] && 'Hotel Alfa' === $cua['admin_footer_text'] && true === $cu['settings']['security-optimization']['hide_wp_head_links'] && in_array( 'login_customised', array_column( $cu['warnings'], 'code' ), true ) );
+$cn = $by_id( array( 'login_settings' => array( 'login_style' => 'split' ) ) )['hide-wordpress'];
+$assert( 'hide WordPress: customised page without a site logo does not get hide_login_logo either', ! isset( $cn['settings']['admin-customiser']['form_options'] ) );
 $assert( 'head links: the six core callbacks are removed, none of them is below wp-content', 6 === count( HeadLinks::actions() ) && in_array( array( 'wp_head', 'rsd_link', 10 ), HeadLinks::actions(), true ) && in_array( array( 'template_redirect', 'rest_output_link_header', 11 ), HeadLinks::actions(), true ) );
 
 /* ── .htaccess block removal (pure) ── */

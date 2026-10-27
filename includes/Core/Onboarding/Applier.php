@@ -70,6 +70,9 @@ final class Applier {
 			$item['modules']  = $mods;
 			$item['warnings'] = $this->word_warnings( (array) $item['warnings'] );
 			$item['preset']   = $this->describe_preset( (array) $item['settings'] );
+			if ( isset( $item['login_logo_state'] ) ) {
+				$item['preset'][] = self::login_logo_row( (string) $item['login_logo_state'] );
+			}
 			$item['left_out'] = $this->left_out( (array) $item['warnings'] );
 			unset( $item['settings'] );
 			$items[] = $item;
@@ -189,6 +192,29 @@ final class Applier {
 		return array(
 			'status'  => $status,
 			'plugins' => array_values( array_unique( array_map( 'strval', array_column( $rows, 'name' ) ) ) ),
+		);
+	}
+
+	/**
+	 * Separate line of the "Hide WordPress" preset: what happens with the site logo on the login page.
+	 *
+	 * @param string $state custom | applied | hidden (StarterPack::login_logo_state()).
+	 * @return array{module:string,module_name:string,key:string,label:string,value:mixed,value_label:string,explain:null}
+	 */
+	public static function login_logo_row( string $state ): array {
+		$labels = array(
+			'applied' => __( 'used (Admin Customiser > Login page > Login screen logo)', 'ux-studio' ),
+			'custom'  => __( 'not added, the login page already has its own design', 'ux-studio' ),
+			'hidden'  => __( 'none, the site has no logo (the login logo is hidden)', 'ux-studio' ),
+		);
+		return array(
+			'module'      => 'admin-customiser',
+			'module_name' => ActivationGuard::module_name( 'admin-customiser' ),
+			'key'         => 'login_logo_state',
+			'label'       => __( 'Site logo on the login page', 'ux-studio' ),
+			'value'       => $state,
+			'value_label' => $labels[ $state ] ?? $state,
+			'explain'     => null,
 		);
 	}
 
@@ -393,6 +419,13 @@ final class Applier {
 		}
 		if ( StarterPack::LOGIN_ITEM === $item['id'] && ! in_array( 'security-optimization', $on, true ) ) {
 			LoginUrlPending::clear();
+		}
+		if ( isset( $item['login_logo_state'] ) && in_array( 'admin-customiser', $on, true ) && ! $result['errors'] ) {
+			if ( 'custom' === $item['login_logo_state'] ) {
+				$result['notes'][] = StarterPack::login_customised_note();
+			} elseif ( 'applied' === $item['login_logo_state'] ) {
+				$result['notes'][] = StarterPack::login_logo_used_note();
+			}
 		}
 
 		if ( $result['errors'] ) {
