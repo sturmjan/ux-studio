@@ -54,6 +54,11 @@ export interface SettingsPayload {
 	values: Record< string, Value >;
 }
 
+interface WpAttachment {
+	get: ( k: string ) => unknown;
+	fetch: () => { then: ( cb: () => void ) => unknown };
+}
+
 interface WpMedia {
 	open: () => void;
 	on: ( ev: string, cb: () => void ) => void;
@@ -62,7 +67,32 @@ interface WpMedia {
 
 /** Media picker backed by the WP media modal (wp.media, dependency wp-media). */
 function MediaField( { value, onChange }: { value: number; onChange: ( v: Value ) => void } ): JSX.Element {
-	const wp = ( window as unknown as { wp?: { media?: ( opts: unknown ) => WpMedia } } ).wp;
+	const wp = ( window as unknown as { wp?: { media?: ( ( opts: unknown ) => WpMedia ) & { attachment?: ( id: number ) => WpAttachment } } } ).wp;
+	const [ previewUrl, setPreviewUrl ] = useState( '' );
+	// Preview of the stored attachment, also for an id that was set outside this form (for example by the starter pack).
+	useEffect( () => {
+		const attachment = value > 0 ? wp?.media?.attachment?.( value ) : undefined;
+		if ( ! attachment ) {
+			setPreviewUrl( '' );
+			return undefined;
+		}
+		let alive = true;
+		const show = (): void => {
+			const sizes = attachment.get( 'sizes' ) as Record< string, { url?: string } > | undefined;
+			const url = sizes?.medium?.url ?? sizes?.thumbnail?.url ?? attachment.get( 'url' );
+			if ( alive ) {
+				setPreviewUrl( typeof url === 'string' ? url : '' );
+			}
+		};
+		if ( attachment.get( 'url' ) ) {
+			show();
+		} else {
+			attachment.fetch().then( show );
+		}
+		return () => {
+			alive = false;
+		};
+	}, [ value, wp ] );
 	const pick = (): void => {
 		if ( ! wp?.media ) {
 			return;
@@ -80,6 +110,7 @@ function MediaField( { value, onChange }: { value: number; onChange: ( v: Value 
 	};
 	return (
 		<span className="uxs-media">
+			{ previewUrl ? <img className="uxs-media__preview" src={ previewUrl } alt="" /> : null }
 			<button type="button" className="button" onClick={ pick }>
 				{ value ? __( 'Change image', 'ux-studio' ) : __( 'Select image', 'ux-studio' ) }
 			</button>

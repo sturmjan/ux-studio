@@ -3606,3 +3606,25 @@ Už uložené výsledky WP Rocket nemaže. Test `tests/hide-rocket-insights.php`
 - [x] QA na syntetické stránce (pobyty bez WP Rocketu)
 - [ ] Vydání 0.8.7 (verze, tag, vydání na GitHubu)
 - [ ] Ověřit na živém webu s WP Rocketem po nasazení
+
+## 35. Logo na přihlašovací stránce: balíček a split (0.8.8)
+
+Nález z chalupyroubal.cz: `login_logo` = logo šablony, které uživatel nezadal, a v rozvržení split bylo logo vykreslené dvakrát.
+
+### 35.1 Řešení
+
+- `StarterPack::login_already_customised( array )` (čistá funkce, `tests/login-logo.php`): true, když je cokoli z: `login_customization_enabled`,
+  `login_style` jiný než `classic`, `login_logo`, `login_background_image`, `login_split_media_image` > 0, split adresa videa nebo YouTube,
+  `login_custom_css`, `login_message`, jakákoli `login_*_color`. `Environment` předává aktuální `login_*` nastavení v klíči `login_settings`.
+- Položka „Skrýt WordPress“: při „už má vlastní vzhled“ nesahá na žádný klíč přihlášení (ani `login_customization_enabled`, `form_options`), zbytek
+  (admin lišta, patička, nápověda, verze, hlavička) se použije; info řádek v seznamu a ve výsledku. Na čisté stránce zůstává logo webu, ale
+  výslovně: řádek „Logo webu na přihlašovací stránce“ v „Co se nastaví“ (`Applier::login_logo_row`) a poznámka ve výsledku s návodem na odebrání.
+- `Login::brand_icon_logo_url()`: je-li logo přes panel s médiem, kulatý odznak nad formulářem ho neopakuje (výchozí ikona). Klasické rozvržení beze změny.
+- `MediaField` (SettingsForm) ukazuje náhled obrázku (`wp.media.attachment`), takže ID nastavené mimo formulář není „prázdné“.
+- Existující weby se nemigrují (logo si uživatel odebere v nastavení).
+
+### 35.2 Stav
+
+- [x] Pravidlo, položka balíčku, odznak, náhled v nastavení, testy, překlad, QA na pobyty
+- [ ] Vydání 0.8.8 (verze, tag)
+- [ ] Ověřit na chalupyroubal.cz po aktualizaci (logo jen jednou; logo z balíčku si tam uživatel odebere sám)

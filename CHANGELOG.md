@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.8.8
+
+- Fixed - Login page, split layout: the logo was drawn twice, in the round badge above the form and again over the
+  media panel. When "Split layout: show logo over the media panel" is on, the badge now shows its default icon and
+  the logo appears only once (over the media). With that option off the badge shows the logo as before. The classic
+  layout is unchanged.
+- Fixed - Starter pack, "Hide WordPress": it no longer touches a login page that already has its own design. When the
+  login page has any of: a layout other than classic, a logo, a background or split media image, a split media address,
+  custom CSS, a message above the form, a login color, or customization already switched on, the pack leaves all login
+  keys alone (it still hides the admin bar logo, sets the footer text, hides the Help tab and the WordPress version and
+  cleans the page head) and says so: "The login page already has its own design, the site logo was not added to it."
+- Changed - Starter pack: on a plain login page the site logo is still put on it, but it is now said out loud, as a
+  separate line in "What will be set" and in the result, with how to remove it (clear the logo in Admin Customiser >
+  Login page, or switch off login screen customization).
+- Fixed - Settings: an image field (for example the login logo) now shows a small preview of the chosen image next to
+  its buttons. Before, an image set outside the form (such as the site logo set by the starter pack) looked empty.
+- Existing sites where the starter pack already put the site logo on the login page are not changed. To remove it,
+  open Admin Customiser > Login page and press "Remove" at the login logo.
+
 ## 0.8.7
 
 - Added - Admin Customiser, "Admin screens": **Hide Rocket Insights (WP Rocket)**. One toggle (off by default) turns off

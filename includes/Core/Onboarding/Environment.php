@@ -55,6 +55,7 @@ final class Environment {
 			'login_url_in_use'    => ! empty( $login['login_url_enabled'] ) || '' !== trim( (string) ( $login['login_url'] ?? '' ) ),
 			'site_name'           => wp_specialchars_decode( (string) get_bloginfo( 'name' ), ENT_QUOTES ),
 			'login_logo_id'       => self::logo_id(),
+			'login_settings'      => self::login_settings( $modules ),
 			'roles'               => $roles,
 			'bot_blacklist'       => (string) ( $bot_vals['blacklist_ua'] ?? StarterPack::default_env()['bot_blacklist'] ),
 			'bot_whitelist'       => (string) ( $bot_vals['whitelist_ua'] ?? '' ),
@@ -133,6 +134,26 @@ final class Environment {
 			}
 		}
 		return array_values( $out );
+	}
+
+	/**
+	 * Current login page settings of Admin Customiser (what StarterPack::login_already_customised() reads).
+	 *
+	 * @param Modules $modules Module registry.
+	 * @return array<string, mixed>
+	 */
+	private static function login_settings( Modules $modules ): array {
+		$instance = $modules->instance( 'admin-customiser' );
+		if ( ! $instance ) {
+			return array();
+		}
+		$out = array();
+		foreach ( (array) $instance->settings_values() as $key => $value ) {
+			if ( 0 === strpos( (string) $key, 'login_' ) ) {
+				$out[ $key ] = $value;
+			}
+		}
+		return $out;
 	}
 
 	/**

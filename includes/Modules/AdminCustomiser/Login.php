@@ -103,10 +103,23 @@ final class Login {
 		return $prefix . $message;
 	}
 
+	/**
+	 * Logo for the round badge above the form in the split layout. When the logo is shown over the media panel the
+	 * badge gets none (it falls back to its default icon), so the same image is not drawn twice.
+	 *
+	 * @param bool   $show_over_media The logo is drawn over the media panel (login_split_show_logo is on).
+	 * @param string $logo_url        URL of the login logo, empty when none is set.
+	 */
+	public static function brand_icon_logo_url( bool $show_over_media, string $logo_url ): string {
+		return ( $show_over_media && '' !== $logo_url ) ? '' : $logo_url;
+	}
+
 	/** Logo badge + "Vítejte zpět" heading + subtitle, shown above the form in split layout. */
 	private function render_split_brand(): string {
-		$logo_id  = (int) $this->settings->get( 'login_logo', 0 );
-		$logo_url = $logo_id > 0 ? wp_get_attachment_image_url( $logo_id, 'full' ) : '';
+		$logo_id  = AdminTheme::attachment_id( $this->settings->get( 'login_logo', 0 ) );
+		$logo_url = $logo_id > 0 ? (string) wp_get_attachment_image_url( $logo_id, 'full' ) : '';
+		// The logo over the media panel already shows it: the round badge must not repeat the same image.
+		$logo_url = self::brand_icon_logo_url( (bool) $this->settings->get( 'login_split_show_logo', true ), $logo_url );
 
 		$icon = $logo_url
 			? '<img src="' . esc_url( $logo_url ) . '" alt="">'
@@ -124,7 +137,7 @@ final class Login {
 	 * media-panel layout.
 	 */
 	public function print_styles(): void {
-		$logo_id = (int) $this->settings->get( 'login_logo', 0 );
+		$logo_id = AdminTheme::attachment_id( $this->settings->get( 'login_logo', 0 ) );
 		$logo_url = $logo_id > 0 ? wp_get_attachment_image_url( $logo_id, 'full' ) : '';
 
 		$css = '';
@@ -445,7 +458,7 @@ final class Login {
 		$video_url  = '' !== $video_url ? $video_url : self::DEFAULT_VIDEO_URL;
 		$youtube    = (string) $this->settings->get( 'login_split_media_youtube_url', '' );
 		$show_logo  = (bool) $this->settings->get( 'login_split_show_logo', true );
-		$logo_id    = (int) $this->settings->get( 'login_logo', 0 );
+		$logo_id    = AdminTheme::attachment_id( $this->settings->get( 'login_logo', 0 ) );
 		$logo_url   = $logo_id > 0 ? wp_get_attachment_image_url( $logo_id, 'full' ) : '';
 
 		echo '<div class="uxstudio-login-media">';

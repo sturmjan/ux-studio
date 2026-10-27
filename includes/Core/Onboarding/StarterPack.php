@@ -24,6 +24,7 @@ defined( 'ABSPATH' ) || exit;
  *   login_url_in_use     bool    the custom login URL is already switched on or has a slug,
  *   site_name            string  site name for the admin footer,
  *   login_logo_id        int     attachment id of the site logo or site icon, 0 when there is none,
+ *   login_settings       array   current login page settings of Admin Customiser (key => value), for login_already_customised(),
  *   roles                string[] role slugs that exist,
  *   bot_blacklist        string  current Bot Throttle blacklist (one User-Agent per line),
  *   bot_whitelist        string  current Bot Throttle whitelist,
@@ -144,6 +145,7 @@ final class StarterPack {
 			'login_url_in_use'    => false,
 			'site_name'           => '',
 			'login_logo_id'       => 0,
+			'login_settings'      => array(),
 			'roles'               => array( 'administrator', 'editor', 'author', 'contributor', 'subscriber' ),
 			'bot_blacklist'       => "AhrefsBot\nSemrushBot\nMJ12bot\nDotBot\nPetalBot\nBLEXBot\nMegaIndex\nSerpstatBot\nrogerbot\nDataForSeoBot",
 			'bot_whitelist'       => '',
@@ -858,29 +860,35 @@ final class StarterPack {
 	 */
 	private static function hide_wordpress( array $env ): array {
 		$admin = array(
-			'hide_admin_bar_elements'     => array( 'wp_logo' ),
-			'hide_help_tab'               => true,
-			'hide_footer_version'         => true,
+			'hide_admin_bar_elements' => array( 'wp_logo' ),
+			'hide_help_tab'           => true,
+			'hide_footer_version'     => true,
 			// Enabling the module also turns the admin quick search on by default; nobody asked for that here.
-			'quick_search_enabled'        => false,
-			'login_customization_enabled' => true,
+			'quick_search_enabled'    => false,
 		);
 		if ( '' !== trim( (string) $env['site_name'] ) ) {
 			$admin['admin_footer_text'] = trim( (string) $env['site_name'] );
 		}
-		if ( (int) $env['login_logo_id'] > 0 ) {
-			$admin['login_logo'] = (int) $env['login_logo_id'];
-		}
 		$warnings = array();
-		if ( (int) $env['login_logo_id'] <= 0 ) {
-			// No logo of our own: show none instead of the big WordPress one (LoginExtras::logo_hidden()).
-			$admin['form_options'] = array( 'hide_login_logo' );
-			$warnings[]            = array( 'no_logo', __( 'The site has no logo or site icon yet, so the login page shows no logo at all. Set a logo in Admin Customiser later and untick "Hide login logo".', 'ux-studio' ) );
+		$state    = self::login_logo_state( $env );
+		if ( 'custom' === $state ) {
+			// The login page already has its own design: none of its keys is touched, the logo of the site is not added.
+			$warnings[] = array( 'login_customised', self::login_customised_note() );
+		} else {
+			$admin['login_customization_enabled'] = true;
+			if ( 'applied' === $state ) {
+				$admin['login_logo'] = (int) $env['login_logo_id'];
+				$warnings[]          = array( 'login_logo_used', self::login_logo_used_note() );
+			} else {
+				// No logo of our own: show none instead of the big WordPress one (LoginExtras::logo_hidden()).
+				$admin['form_options'] = array( 'hide_login_logo' );
+				$warnings[]            = array( 'no_logo', __( 'The site has no logo or site icon yet, so the login page shows no logo at all. Set a logo in Admin Customiser later and untick "Hide login logo".', 'ux-studio' ) );
+			}
 		}
-		return self::simple(
+		$item                   = self::simple(
 			'hide-wordpress',
 			__( 'Hide WordPress', 'ux-studio' ),
-			__( 'Removes the WordPress logo from the admin bar, replaces the admin footer text with the site name and hides the WordPress version there, hides the Help tab, shows the site logo on the login page (or no logo when the site has none) and removes the generator and other WordPress links from the page head.', 'ux-studio' ),
+			__( 'Removes the WordPress logo from the admin bar, replaces the admin footer text with the site name and hides the WordPress version there, hides the Help tab, shows the site logo on the login page (or no logo when the site has none; a login page that already has its own design is left alone) and removes the generator and other WordPress links from the page head.', 'ux-studio' ),
 			array( 'admin-customiser', 'security-optimization' ),
 			array(
 				'admin-customiser'      => $admin,
@@ -891,6 +899,71 @@ final class StarterPack {
 			),
 			$warnings
 		);
+		$item['login_logo_state'] = $state;
+		return $item;
+	}
+
+	/** Shown when the pack leaves a custom login page alone (wizard list and apply result). */
+	public static function login_customised_note(): string {
+		return __( 'The login page already has its own design, the site logo was not added to it.', 'ux-studio' );
+	}
+
+	/** Shown when the pack puts the site logo on a plain login page. */
+	public static function login_logo_used_note(): string {
+		return __( 'Site logo on the login page: used (Admin Customiser > Login page > Login screen logo). To remove it, clear that logo there or switch off "Enable login screen customization".', 'ux-studio' );
+	}
+
+	/**
+	 * What the pack does with the login page logo: 'custom' (the page has its own design, nothing is touched),
+	 * 'applied' (plain page, the site logo is set) or 'hidden' (plain page, the site has no logo).
+	 *
+	 * @param array<string, mixed> $env Environment.
+	 */
+	public static function login_logo_state( array $env ): string {
+		if ( self::login_already_customised( (array) ( $env['login_settings'] ?? array() ) ) ) {
+			return 'custom';
+		}
+		return (int) ( $env['login_logo_id'] ?? 0 ) > 0 ? 'applied' : 'hidden';
+	}
+
+	/**
+	 * Does the login page already have a design of its own (so the pack must not touch it)? True when any of:
+	 * customization switched on, a layout other than classic, a logo, a background image, a split media image or
+	 * address, custom CSS, a message, or any login color.
+	 *
+	 * @param array<string, mixed> $s Login settings of Admin Customiser (key => value; missing keys count as empty).
+	 */
+	public static function login_already_customised( array $s ): bool {
+		$id = static function ( $v ): int {
+			if ( is_array( $v ) ) {
+				$v = reset( $v );
+			}
+			return is_numeric( $v ) ? max( 0, (int) $v ) : 0;
+		};
+		$on = static fn( $v ): bool => true === $v || 1 === $v || '1' === $v || 'true' === $v || 'yes' === $v || 'on' === $v;
+		if ( $on( $s['login_customization_enabled'] ?? false ) ) {
+			return true;
+		}
+		$style = trim( (string) ( $s['login_style'] ?? '' ) );
+		if ( '' !== $style && 'classic' !== $style ) {
+			return true;
+		}
+		foreach ( array( 'login_logo', 'login_background_image', 'login_split_media_image' ) as $key ) {
+			if ( $id( $s[ $key ] ?? 0 ) > 0 ) {
+				return true;
+			}
+		}
+		foreach ( array( 'login_split_media_video_url', 'login_split_media_youtube_url', 'login_custom_css', 'login_message' ) as $key ) {
+			if ( '' !== trim( (string) ( $s[ $key ] ?? '' ) ) ) {
+				return true;
+			}
+		}
+		foreach ( $s as $key => $value ) {
+			if ( 1 === preg_match( '/^login_.*_color$/', (string) $key ) && is_scalar( $value ) && '' !== trim( (string) $value ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
