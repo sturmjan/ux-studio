@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.8.3 (unreleased)
+## 0.8.3
 
 - Added - **UX Studio Shield**, a CAPTCHA with no keys, no account and no cookies (Security > CAPTCHA, provider "UX Studio
   Shield"). The browser solves a small proof of work (SHA-256, in a Web Worker, plain JS on the main thread when a worker is
