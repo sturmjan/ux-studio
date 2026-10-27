@@ -184,18 +184,18 @@ msgstr "Nástěnka"
 #: includes/Modules/MaintenanceMode/Module.php:591
 #: includes/Modules/MaintenanceMode/Module.php:598
 #: includes/Modules/MaintenanceMode/Module.php:605
-#: includes/Modules/SecurityOptimization/Module.php:1102
-#: includes/Modules/SecurityOptimization/Module.php:1156
-#: includes/Modules/SecurityOptimization/Module.php:1164
-#: includes/Modules/SecurityOptimization/Module.php:1176
-#: includes/Modules/SecurityOptimization/Module.php:1185
-#: includes/Modules/SecurityOptimization/Module.php:1193
-#: includes/Modules/SecurityOptimization/Module.php:1201
-#: includes/Modules/SecurityOptimization/Module.php:1209
-#: includes/Modules/SecurityOptimization/Module.php:1218
-#: includes/Modules/SecurityOptimization/Module.php:1227
-#: includes/Modules/SecurityOptimization/Module.php:1236
-#: includes/Modules/SecurityOptimization/Module.php:1244
+#: includes/Modules/SecurityOptimization/Module.php:1105
+#: includes/Modules/SecurityOptimization/Module.php:1159
+#: includes/Modules/SecurityOptimization/Module.php:1167
+#: includes/Modules/SecurityOptimization/Module.php:1179
+#: includes/Modules/SecurityOptimization/Module.php:1188
+#: includes/Modules/SecurityOptimization/Module.php:1196
+#: includes/Modules/SecurityOptimization/Module.php:1204
+#: includes/Modules/SecurityOptimization/Module.php:1212
+#: includes/Modules/SecurityOptimization/Module.php:1221
+#: includes/Modules/SecurityOptimization/Module.php:1230
+#: includes/Modules/SecurityOptimization/Module.php:1239
+#: includes/Modules/SecurityOptimization/Module.php:1247
 #: build/157.15c292c788b1f82d3c8a.js:1
 #: build/295.d8f5ca66247a017a6cea.js:1
 #: build/508.47d3ec983f24b502133c.js:20
@@ -319,67 +319,67 @@ msgid "Hide \"Help\" tab"
 msgstr "Skrýt záložku „Nápověda“"
 
 #: includes/Core/Migration/Sources/AbstractAdminSource.php:392
-#: includes/Modules/AdminCustomiser/Module.php:307
+#: includes/Modules/AdminCustomiser/Module.php:315
 msgid "Enable menu organizer"
 msgstr "Zapnout organizátor menu"
 
-#: includes/Modules/AdminCustomiser/Module.php:308
+#: includes/Modules/AdminCustomiser/Module.php:316
 msgid "Reorganizes the WordPress admin menu into custom categories. Configure categories, item order and overrides in the Menu Organizer tab."
 msgstr "Reorganizuje administrační menu WordPressu do vlastních kategorií. Kategorie, pořadí položek a přepisy nastavte na záložce Organizátor menu."
 
-#: includes/Modules/AdminCustomiser/Module.php:323
+#: includes/Modules/AdminCustomiser/Module.php:331
 msgid "Enable admin bar customization"
 msgstr "Zapnout přizpůsobení panelu administrace"
 
 #: includes/Core/Migration/Sources/AdminifySource.php:225
-#: includes/Modules/AdminCustomiser/Module.php:527
+#: includes/Modules/AdminCustomiser/Module.php:535
 msgid "Enable quick search"
 msgstr "Zapnout rychlé hledání"
 
-#: includes/Modules/AdminCustomiser/Module.php:534
+#: includes/Modules/AdminCustomiser/Module.php:542
 msgid "Quick search post types"
 msgstr "Typy obsahu pro rychlé hledání"
 
-#: includes/Modules/AdminCustomiser/Module.php:542
+#: includes/Modules/AdminCustomiser/Module.php:550
 msgid "Enable icon replacer"
 msgstr "Zapnout náhradu ikon"
 
 #: includes/Core/Migration/Sources/AdminifySource.php:219
 #: includes/Core/Migration/Sources/AdminimizeSource.php:220
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:220
-#: includes/Modules/AdminCustomiser/Module.php:549
+#: includes/Modules/AdminCustomiser/Module.php:557
 msgid "Hide admin notices"
 msgstr "Skrýt administrační upozornění"
 
 #: includes/Core/Migration/Sources/AdminimizeSource.php:224
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:221
-#: includes/Modules/AdminCustomiser/Module.php:556
+#: includes/Modules/AdminCustomiser/Module.php:564
 msgid "Relocate instead of hiding"
 msgstr "Přemístit místo skrytí"
 
-#: includes/Modules/AdminCustomiser/Module.php:557
+#: includes/Modules/AdminCustomiser/Module.php:565
 msgid "Move notices to a tray instead of hiding them completely"
 msgstr "Přesunout upozornění do zásuvky místo jejich úplného skrytí"
 
-#: includes/Modules/AdminCustomiser/Module.php:564
+#: includes/Modules/AdminCustomiser/Module.php:572
 msgid "Enable server clock"
 msgstr "Zapnout serverové hodiny"
 
-#: includes/Modules/AdminCustomiser/Module.php:571
+#: includes/Modules/AdminCustomiser/Module.php:579
 msgid "Server clock position"
 msgstr "Pozice serverových hodin"
 
-#: includes/Modules/AdminCustomiser/Module.php:573
+#: includes/Modules/AdminCustomiser/Module.php:581
 msgid "Admin bar pill"
 msgstr "Odznak v panelu administrace"
 
-#: includes/Modules/AdminCustomiser/Module.php:574
+#: includes/Modules/AdminCustomiser/Module.php:582
 msgid "Plus menu"
 msgstr "Menu Plus"
 
 #: includes/Core/Migration/Sources/LoginPressSource.php:136
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:154
-#: includes/Modules/AdminCustomiser/Module.php:582
+#: includes/Modules/AdminCustomiser/Module.php:590
 msgid "Enable login screen customization"
 msgstr "Zapnout přizpůsobení přihlašovací obrazovky"
 
@@ -1831,9 +1831,9 @@ msgstr "Zrušit publikování: %s"
 msgid "Enable bot throttling"
 msgstr "Zapnout omezování botů"
 
-#: includes/Modules/SecurityOptimization/Module.php:1712
-#: includes/Modules/SecurityOptimization/Module.php:2401
-#: includes/Modules/SecurityOptimization/Module.php:2526
+#: includes/Modules/SecurityOptimization/Module.php:1715
+#: includes/Modules/SecurityOptimization/Module.php:2426
+#: includes/Modules/SecurityOptimization/Module.php:2551
 msgid "403 Forbidden"
 msgstr "403 Forbidden"
 
@@ -2254,7 +2254,7 @@ msgid "Disable for specific plugins only"
 msgstr "Zakázat pouze pro vybrané pluginy"
 
 #: includes/Core/Migration/MenuSimulator.php:40
-#: includes/Modules/AdminCustomiser/Module.php:502
+#: includes/Modules/AdminCustomiser/Module.php:510
 #: includes/Modules/DisableAutoUpdates/Module.php:200
 #: includes/Modules/ServiceRequests/Sync.php:471
 #: build/136.2d2b8a524db81ae05028.js:2
@@ -2293,7 +2293,7 @@ msgstr "Zakázat pro všechny šablony"
 msgid "Disable for specific themes only"
 msgstr "Zakázat pouze pro vybrané šablony"
 
-#: includes/Modules/AdminCustomiser/Module.php:501
+#: includes/Modules/AdminCustomiser/Module.php:509
 #: includes/Modules/DisableAutoUpdates/Module.php:226
 #: build/136.2d2b8a524db81ae05028.js:2
 msgid "Themes"
@@ -3500,7 +3500,7 @@ msgstr "Vyberte typ režimu údržby."
 
 #: includes/Modules/ContentSync/Module.php:267
 #: includes/Modules/MaintenanceMode/Module.php:452
-#: includes/Modules/SecurityOptimization/Module.php:1124
+#: includes/Modules/SecurityOptimization/Module.php:1127
 #: build/295.d8f5ca66247a017a6cea.js:1
 #: build/508.47d3ec983f24b502133c.js:23
 #: build/760.a5a844330e84eee089b7.js:1
@@ -3558,7 +3558,7 @@ msgstr "Rozvržení 3 (rozdělené, obrázek vlevo)"
 
 #: includes/Core/Migration/Sources/MaintenanceSource.php:62
 #: includes/Modules/MaintenanceMode/Module.php:487
-#: includes/Modules/SecurityOptimization/Module.php:712
+#: includes/Modules/SecurityOptimization/Module.php:715
 msgid "Existing page"
 msgstr "Existující stránka"
 
@@ -3679,8 +3679,8 @@ msgstr "Zapnout obrázek pozadí"
 msgid "Background image"
 msgstr "Obrázek pozadí"
 
-#: includes/Modules/AdminCustomiser/Module.php:630
 #: includes/Modules/AdminCustomiser/Module.php:638
+#: includes/Modules/AdminCustomiser/Module.php:646
 #: includes/Modules/MaintenanceMode/Module.php:661
 msgid "Custom CSS"
 msgstr "Vlastní CSS"
@@ -3875,7 +3875,7 @@ msgid "Enter a Google tracking ID, e.g. G-XXXXXXXXXX."
 msgstr "Zadejte měřicí ID Google, např. G-XXXXXXXXXX."
 
 #: includes/Modules/PixelTagManager/Module.php:169
-#: includes/Modules/SecurityOptimization/Module.php:1404
+#: includes/Modules/SecurityOptimization/Module.php:1407
 msgid "Facebook Pixel"
 msgstr "Facebook Pixel"
 
@@ -4366,130 +4366,130 @@ msgid "Invalid CIDR range: %s"
 msgstr "Neplatný CIDR rozsah: %s"
 
 #: includes/Core/Migration/Sources/LoginSource.php:238
-#: includes/Modules/SecurityOptimization/Module.php:504
+#: includes/Modules/SecurityOptimization/Module.php:507
 msgid "Enable IP firewall"
 msgstr "Zapnout IP firewall"
 
-#: includes/Modules/SecurityOptimization/Module.php:505
+#: includes/Modules/SecurityOptimization/Module.php:508
 msgid "Blocks every request (frontend, login, admin, REST) from banned IPs/ranges/countries. Logged-in administrators and allowlisted IPs are never blocked."
 msgstr "Blokuje každý požadavek (frontend, přihlášení, administrace, REST) z blokovaných IP/rozsahů/zemí. Přihlášení administrátoři a IP na seznamu povolených nejsou nikdy blokováni."
 
-#: includes/Modules/SecurityOptimization/Module.php:512
+#: includes/Modules/SecurityOptimization/Module.php:515
 msgid "Client IP source"
 msgstr "Zdroj IP klienta"
 
-#: includes/Modules/SecurityOptimization/Module.php:513
+#: includes/Modules/SecurityOptimization/Module.php:516
 msgid "Forwarded headers are only trusted in the selected mode (otherwise spoofable). Choose Cloudflare if the site is behind Cloudflare."
 msgstr "Přeposílaným hlavičkám se důvěřuje pouze ve vybraném režimu (jinak je lze podvrhnout). Pokud je web za Cloudflare, zvolte Cloudflare."
 
-#: includes/Modules/SecurityOptimization/Module.php:515
+#: includes/Modules/SecurityOptimization/Module.php:518
 msgid "Direct connection (REMOTE_ADDR) - safe default"
 msgstr "Přímé připojení (REMOTE_ADDR) – bezpečné výchozí nastavení"
 
-#: includes/Modules/SecurityOptimization/Module.php:516
+#: includes/Modules/SecurityOptimization/Module.php:519
 msgid "Behind Cloudflare (CF-Connecting-IP)"
 msgstr "Za Cloudflare (CF-Connecting-IP)"
 
-#: includes/Modules/SecurityOptimization/Module.php:517
+#: includes/Modules/SecurityOptimization/Module.php:520
 msgid "Behind a reverse proxy (X-Forwarded-For)"
 msgstr "Za reverzní proxy (X-Forwarded-For)"
 
 #: includes/Core/Migration/Sources/LoginSource.php:233
-#: includes/Modules/SecurityOptimization/Module.php:525
+#: includes/Modules/SecurityOptimization/Module.php:528
 msgid "Allowlist (never block)"
 msgstr "Seznam povolených (nikdy neblokovat)"
 
-#: includes/Modules/SecurityOptimization/Module.php:526
+#: includes/Modules/SecurityOptimization/Module.php:529
 msgid "IP addresses or CIDR ranges that are never blocked, one per line. Loopback is always allowed."
 msgstr "IP adresy nebo CIDR rozsahy, které nejsou nikdy blokovány, jedna na řádek. Loopback je vždy povolen."
 
-#: includes/Modules/SecurityOptimization/Module.php:533
+#: includes/Modules/SecurityOptimization/Module.php:536
 msgid "Block page message"
 msgstr "Zpráva stránky s blokováním"
 
-#: includes/Modules/SecurityOptimization/Module.php:534
+#: includes/Modules/SecurityOptimization/Module.php:537
 msgid "Optional message shown to a blocked visitor (403)."
 msgstr "Volitelná zpráva zobrazená zablokovanému návštěvníkovi (403)."
 
-#: includes/Modules/SecurityOptimization/Module.php:543
+#: includes/Modules/SecurityOptimization/Module.php:546
 msgid "Enable country blocklist"
 msgstr "Zapnout seznam blokovaných zemí"
 
-#: includes/Modules/SecurityOptimization/Module.php:544
+#: includes/Modules/SecurityOptimization/Module.php:547
 msgid "Blocks visitors from the selected countries via the IP firewall (downloads aggregated IP ranges per country)."
 msgstr "Blokuje návštěvníky z vybraných zemí prostřednictvím IP firewallu (stahuje agregované rozsahy IP adres podle zemí)."
 
-#: includes/Modules/SecurityOptimization/Module.php:551
+#: includes/Modules/SecurityOptimization/Module.php:554
 msgid "Blocked countries"
 msgstr "Blokované země"
 
-#: includes/Modules/SecurityOptimization/Module.php:552
+#: includes/Modules/SecurityOptimization/Module.php:555
 msgid "Selecting a country here creates/refreshes a country-type IP ban the next time settings are saved."
 msgstr "Výběr země zde vytvoří/obnoví IP blokaci typu země při příštím uložení nastavení."
 
-#: includes/Modules/SecurityOptimization/Module.php:562
+#: includes/Modules/SecurityOptimization/Module.php:565
 msgid "Force canonical URL redirect"
 msgstr "Vynutit přesměrování na kanonickou URL"
 
-#: includes/Modules/SecurityOptimization/Module.php:563
+#: includes/Modules/SecurityOptimization/Module.php:566
 msgid "Writes .htaccess rules that redirect every request to a single canonical version of the site, based on Settings -> General -> Site Address."
 msgstr "Zapisuje pravidla do .htaccess, která přesměrují každý požadavek na jedinou kanonickou verzi webu, podle Nastavení -> Obecné -> Adresa webu."
 
-#: includes/Modules/SecurityOptimization/Module.php:570
+#: includes/Modules/SecurityOptimization/Module.php:573
 msgid "Force HTTPS"
 msgstr "Vynutit HTTPS"
 
-#: includes/Modules/SecurityOptimization/Module.php:571
+#: includes/Modules/SecurityOptimization/Module.php:574
 msgid "Redirects all HTTP requests to HTTPS. Only enable with a working SSL certificate on the whole site. Ignored when canonical URL redirect is on (it already covers this)."
 msgstr "Přesměruje všechny HTTP požadavky na HTTPS. Zapínejte pouze s funkčním SSL certifikátem na celém webu. Ignorováno, když je zapnuté přesměrování na kanonickou URL (to už toto pokrývá)."
 
-#: includes/Modules/SecurityOptimization/Module.php:580
+#: includes/Modules/SecurityOptimization/Module.php:583
 msgid "Security headers"
 msgstr "Bezpečnostní hlavičky"
 
-#: includes/Modules/SecurityOptimization/Module.php:581
+#: includes/Modules/SecurityOptimization/Module.php:584
 msgid "Sends X-Frame-Options, X-Content-Type-Options and Referrer-Policy, both via .htaccess and as a PHP fallback."
 msgstr "Odesílá X-Frame-Options, X-Content-Type-Options a Referrer-Policy, a to jak přes .htaccess, tak jako záložní řešení v PHP."
 
-#: includes/Modules/SecurityOptimization/Module.php:588
+#: includes/Modules/SecurityOptimization/Module.php:591
 msgid "HSTS (Strict-Transport-Security)"
 msgstr "HSTS (Strict-Transport-Security)"
 
-#: includes/Modules/SecurityOptimization/Module.php:589
+#: includes/Modules/SecurityOptimization/Module.php:592
 msgid "Tells browsers to only ever connect over HTTPS for a year. Only enable with a valid SSL certificate everywhere on the site."
 msgstr "Řekne prohlížečům, aby se po dobu jednoho roku připojovaly výhradně přes HTTPS. Zapínejte pouze s platným SSL certifikátem všude na webu."
 
-#: includes/Modules/SecurityOptimization/Module.php:596
+#: includes/Modules/SecurityOptimization/Module.php:599
 msgid "Permissions-Policy"
 msgstr "Permissions-Policy"
 
-#: includes/Modules/SecurityOptimization/Module.php:597
+#: includes/Modules/SecurityOptimization/Module.php:600
 msgid "Disables browser access to camera, microphone, geolocation, payment and USB APIs by default."
 msgstr "Ve výchozím nastavení zakáže prohlížeči přístup k API kamery, mikrofonu, geolokace, plateb a USB."
 
-#: includes/Modules/SecurityOptimization/Module.php:667
+#: includes/Modules/SecurityOptimization/Module.php:670
 msgid "Protect wp-config.php"
 msgstr "Chránit wp-config.php"
 
-#: includes/Modules/SecurityOptimization/Module.php:674
+#: includes/Modules/SecurityOptimization/Module.php:677
 msgid "Disable directory listing"
 msgstr "Zakázat výpis obsahu adresářů"
 
-#: includes/Modules/SecurityOptimization/Module.php:681
+#: includes/Modules/SecurityOptimization/Module.php:684
 msgid "Block readme.html / license.txt"
 msgstr "Blokovat readme.html / license.txt"
 
 #: includes/Core/Migration/Sources/LoginSource.php:320
-#: includes/Modules/SecurityOptimization/Module.php:690
+#: includes/Modules/SecurityOptimization/Module.php:693
 msgid "Enable custom login URL"
 msgstr "Zapnout vlastní URL přihlášení"
 
-#: includes/Modules/SecurityOptimization/Module.php:691
+#: includes/Modules/SecurityOptimization/Module.php:694
 msgid "Rescue switch: define UXSTUDIO_DISABLE_LOGIN_LOCK in wp-config.php to bypass this feature entirely if you get locked out."
 msgstr "Záchranný přepínač: definujte UXSTUDIO_DISABLE_LOGIN_LOCK ve wp-config.php, abyste tuto funkci zcela obešli v případě, že se sami zamknete."
 
 #: includes/Core/Migration/Sources/LoginSource.php:321
-#: includes/Modules/SecurityOptimization/Module.php:698
+#: includes/Modules/SecurityOptimization/Module.php:701
 msgid "Custom login slug"
 msgstr "Vlastní slug přihlášení"
 
@@ -4499,66 +4499,66 @@ msgstr "Nový slug pro přihlašovací stránku. wp-login.php vrátí přímým 
 
 #: includes/Core/Migration/Sources/LoginSource.php:323
 #: includes/Core/Migration/Sources/LoginSource.php:325
-#: includes/Modules/SecurityOptimization/Module.php:706
+#: includes/Modules/SecurityOptimization/Module.php:709
 msgid "Direct wp-login.php behavior"
 msgstr "Chování přímého přístupu na wp-login.php"
 
 #: includes/Modules/CodeSnippets/SnippetConditions.php:409
-#: includes/Modules/SecurityOptimization/Module.php:709
+#: includes/Modules/SecurityOptimization/Module.php:712
 #: build/760.a5a844330e84eee089b7.js:1
 msgid "404 page"
 msgstr "Stránka 404"
 
-#: includes/Modules/SecurityOptimization/Module.php:710
+#: includes/Modules/SecurityOptimization/Module.php:713
 msgid "Homepage"
 msgstr "Domovská stránka"
 
 #: includes/Core/Migration/Sources/LoginSource.php:110
 #: includes/Core/Migration/Sources/LoginSource.php:151
-#: includes/Modules/SecurityOptimization/Module.php:748
+#: includes/Modules/SecurityOptimization/Module.php:751
 msgid "Limit login attempts"
 msgstr "Omezit počet pokusů o přihlášení"
 
-#: includes/Modules/SecurityOptimization/Module.php:749
+#: includes/Modules/SecurityOptimization/Module.php:752
 msgid "Blocks an IP/username after too many failed login attempts (brute-force protection)."
 msgstr "Zablokuje IP adresu/uživatelské jméno po příliš mnoha neúspěšných pokusech o přihlášení (ochrana proti útoku hrubou silou)."
 
 #: includes/Core/Migration/Sources/LoginSource.php:111
 #: includes/Core/Migration/Sources/LoginSource.php:152
-#: includes/Modules/SecurityOptimization/Module.php:756
+#: includes/Modules/SecurityOptimization/Module.php:759
 msgid "Max attempts"
 msgstr "Maximální počet pokusů"
 
 #: includes/Core/Migration/Sources/LoginSource.php:112
 #: includes/Core/Migration/Sources/LoginSource.php:153
-#: includes/Modules/SecurityOptimization/Module.php:763
+#: includes/Modules/SecurityOptimization/Module.php:766
 msgid "Lockout time (minutes)"
 msgstr "Doba zablokování (minuty)"
 
 #: includes/Core/Migration/Sources/LoginSource.php:113
 #: includes/Core/Migration/Sources/LoginSource.php:154
-#: includes/Modules/SecurityOptimization/Module.php:770
+#: includes/Modules/SecurityOptimization/Module.php:773
 msgid "Email admin on lockout"
 msgstr "Upozornit administrátora e-mailem při zablokování"
 
-#: includes/Modules/SecurityOptimization/Module.php:838
+#: includes/Modules/SecurityOptimization/Module.php:841
 msgid "Block reserved usernames"
 msgstr "Blokovat rezervovaná uživatelská jména"
 
-#: includes/Modules/SecurityOptimization/Module.php:839
+#: includes/Modules/SecurityOptimization/Module.php:842
 msgid "Prevents registering/renaming to reserved names such as admin, administrator, root, test."
 msgstr "Zabraňuje registraci/přejmenování na rezervovaná jména jako admin, administrator, root, test."
 
-#: includes/Modules/SecurityOptimization/Module.php:846
+#: includes/Modules/SecurityOptimization/Module.php:849
 msgid "Additional blocked usernames"
 msgstr "Další blokovaná uživatelská jména"
 
-#: includes/Modules/SecurityOptimization/Module.php:847
+#: includes/Modules/SecurityOptimization/Module.php:850
 msgid "One per line, added on top of the built-in reserved list (admin, administrator, root, test)."
 msgstr "Jedno na řádek, přidává se navíc k vestavěnému seznamu rezervovaných jmen (admin, administrator, root, test)."
 
 #: includes/Core/Migration/Sources/CaptchaSource.php:73
-#: includes/Modules/SecurityOptimization/Module.php:864
+#: includes/Modules/SecurityOptimization/Module.php:867
 msgid "Enable CAPTCHA"
 msgstr "Zapnout CAPTCHA"
 
@@ -4567,106 +4567,106 @@ msgid "Adds CAPTCHA verification to login, registration and lost-password forms.
 msgstr "Přidá ověření CAPTCHA k formulářům přihlášení, registrace a zapomenutého hesla. Bez nastavení obou klíčů se nic nevynucuje."
 
 #: includes/Core/Migration/Sources/CaptchaSource.php:60
-#: includes/Modules/SecurityOptimization/Module.php:872
+#: includes/Modules/SecurityOptimization/Module.php:875
 msgid "CAPTCHA provider"
 msgstr "Poskytovatel CAPTCHA"
 
-#: includes/Modules/SecurityOptimization/Module.php:877
-#: includes/Modules/SecurityOptimization/Module.php:891
+#: includes/Modules/SecurityOptimization/Module.php:880
+#: includes/Modules/SecurityOptimization/Module.php:894
 #: build/792.44dda73a4e82141856be.js:2
 msgid "Cloudflare Turnstile"
 msgstr "Cloudflare Turnstile"
 
-#: includes/Modules/SecurityOptimization/Module.php:878
-#: includes/Modules/SecurityOptimization/Module.php:892
+#: includes/Modules/SecurityOptimization/Module.php:881
+#: includes/Modules/SecurityOptimization/Module.php:895
 msgid "Google reCAPTCHA v2 (checkbox)"
 msgstr "Google reCAPTCHA v2 (zaškrtávací políčko)"
 
-#: includes/Modules/SecurityOptimization/Module.php:879
-#: includes/Modules/SecurityOptimization/Module.php:893
+#: includes/Modules/SecurityOptimization/Module.php:882
+#: includes/Modules/SecurityOptimization/Module.php:896
 msgid "Google reCAPTCHA v3 (score)"
 msgstr "Google reCAPTCHA v3 (skóre)"
 
-#: includes/Modules/SecurityOptimization/Module.php:952
+#: includes/Modules/SecurityOptimization/Module.php:955
 msgid "Always"
 msgstr "Vždy"
 
-#: includes/Modules/SecurityOptimization/Module.php:953
+#: includes/Modules/SecurityOptimization/Module.php:956
 msgid "Adaptive (after repeated failures)"
 msgstr "Adaptivní (po opakovaných selháních)"
 
 #: includes/Core/Migration/Sources/CaptchaSource.php:62
-#: includes/Modules/SecurityOptimization/Module.php:1013
+#: includes/Modules/SecurityOptimization/Module.php:1016
 msgid "Site key"
 msgstr "Klíč webu"
 
-#: includes/Modules/SecurityOptimization/Module.php:1014
+#: includes/Modules/SecurityOptimization/Module.php:1017
 msgid "Public key, safe to expose in the page markup."
 msgstr "Veřejný klíč, který lze bezpečně zveřejnit v kódu stránky."
 
 #: includes/Core/Migration/Sources/CaptchaSource.php:63
-#: includes/Modules/SecurityOptimization/Module.php:1021
+#: includes/Modules/SecurityOptimization/Module.php:1024
 msgid "Secret key"
 msgstr "Tajný klíč"
 
-#: includes/Modules/SecurityOptimization/Module.php:1022
+#: includes/Modules/SecurityOptimization/Module.php:1025
 msgid "Stored encrypted server-side. Leave blank to keep the current key."
 msgstr "Uloženo zašifrovaně na serveru. Ponechte prázdné pro zachování stávajícího klíče."
 
 #: includes/Core/Migration/Catalog.php:283
 #: includes/Core/Migration/Sources/XmlRpcSource.php:34
-#: includes/Modules/SecurityOptimization/Module.php:1060
+#: includes/Modules/SecurityOptimization/Module.php:1063
 msgid "Disable XML-RPC"
 msgstr "Zakázat XML-RPC"
 
-#: includes/Modules/SecurityOptimization/Module.php:1067
+#: includes/Modules/SecurityOptimization/Module.php:1070
 msgid "Hide WordPress version"
 msgstr "Skrýt verzi WordPressu"
 
-#: includes/Modules/SecurityOptimization/Module.php:1090
+#: includes/Modules/SecurityOptimization/Module.php:1093
 msgid "Disable emoji scripts"
 msgstr "Zakázat skripty emoji"
 
-#: includes/Modules/SecurityOptimization/Module.php:1097
+#: includes/Modules/SecurityOptimization/Module.php:1100
 msgid "Disable embeds script"
 msgstr "Zakázat skript embeds"
 
 #: includes/Core/Migration/Catalog.php:291
 #: includes/Core/Migration/Sources/XmlRpcSource.php:42
-#: includes/Modules/SecurityOptimization/Module.php:1104
+#: includes/Modules/SecurityOptimization/Module.php:1107
 msgid "Disable RSS feeds"
 msgstr "Zakázat RSS kanály"
 
-#: includes/Modules/SecurityOptimization/Module.php:1111
+#: includes/Modules/SecurityOptimization/Module.php:1114
 msgid "Restrict REST API to logged-in users"
 msgstr "Omezit REST API pouze na přihlášené uživatele"
 
-#: includes/Modules/SecurityOptimization/Module.php:1711
+#: includes/Modules/SecurityOptimization/Module.php:1714
 msgid "Your IP address has been blocked."
 msgstr "Vaše IP adresa byla zablokována."
 
-#: includes/Modules/SecurityOptimization/Module.php:2159
+#: includes/Modules/SecurityOptimization/Module.php:2162
 msgid "XML-RPC is disabled."
 msgstr "XML-RPC je zakázáno."
 
-#: includes/Modules/SecurityOptimization/Module.php:2393
+#: includes/Modules/SecurityOptimization/Module.php:2418
 msgid "Not found."
 msgstr "Nenalezeno."
 
-#: includes/Modules/SecurityOptimization/Module.php:2448
+#: includes/Modules/SecurityOptimization/Module.php:2473
 msgid "This username is not allowed for security reasons. Please choose another."
 msgstr "Toto uživatelské jméno není z bezpečnostních důvodů povoleno. Zvolte prosím jiné."
 
-#: includes/Modules/SecurityOptimization/Module.php:2463
-#: includes/Modules/SecurityOptimization/Module.php:2476
+#: includes/Modules/SecurityOptimization/Module.php:2488
+#: includes/Modules/SecurityOptimization/Module.php:2501
 msgid "This username is not allowed for security reasons."
 msgstr "Toto uživatelské jméno není z bezpečnostních důvodů povoleno."
 
-#: includes/Modules/SecurityOptimization/Module.php:2525
+#: includes/Modules/SecurityOptimization/Module.php:2550
 msgid "RSS feeds are disabled on this site."
 msgstr "RSS kanály jsou na tomto webu zakázány."
 
-#: includes/Modules/SecurityOptimization/Module.php:3055
+#: includes/Modules/SecurityOptimization/Module.php:3080
 msgid "REST API access is restricted to logged-in users."
 msgstr "Přístup k REST API je omezen pouze na přihlášené uživatele."
 
@@ -4713,7 +4713,7 @@ msgstr "Nález nebyl nalezen."
 msgid "Could not restore the file from quarantine."
 msgstr "Soubor se nepodařilo obnovit z karantény."
 
-#: includes/Modules/SecurityOptimization/Module.php:1326
+#: includes/Modules/SecurityOptimization/Module.php:1329
 #: includes/Modules/ServiceRequests/Module.php:134
 msgid "Notification email"
 msgstr "Notifikační e-mail"
@@ -5121,7 +5121,7 @@ msgid "Closed"
 msgstr "Uzavřeno"
 
 #: includes/Modules/InstagramFeed/Module.php:157
-#: includes/Modules/SecurityOptimization/Module.php:1309
+#: includes/Modules/SecurityOptimization/Module.php:1312
 #: build/295.d8f5ca66247a017a6cea.js:1
 msgid "Daily"
 msgstr "Denně"
@@ -5173,7 +5173,7 @@ msgstr "Jazyk"
 
 #: includes/Modules/AdminColumns/RestController.php:99
 #: includes/Modules/AdminCustomiser/MetaBoxRules.php:57
-#: includes/Modules/SecurityOptimization/Module.php:975
+#: includes/Modules/SecurityOptimization/Module.php:978
 msgid "Comments"
 msgstr "Komentáře"
 
@@ -5196,11 +5196,11 @@ msgid "Security"
 msgstr "Zabezpečení"
 
 #: includes/Core/Megamenu.php:174
-#: includes/Modules/SecurityOptimization/Module.php:1088
-#: includes/Modules/SecurityOptimization/Module.php:1095
-#: includes/Modules/SecurityOptimization/Module.php:1117
-#: includes/Modules/SecurityOptimization/Module.php:1130
-#: includes/Modules/SecurityOptimization/Module.php:1138
+#: includes/Modules/SecurityOptimization/Module.php:1091
+#: includes/Modules/SecurityOptimization/Module.php:1098
+#: includes/Modules/SecurityOptimization/Module.php:1120
+#: includes/Modules/SecurityOptimization/Module.php:1133
+#: includes/Modules/SecurityOptimization/Module.php:1141
 #: build/508.47d3ec983f24b502133c.js:20
 #: build/508.47d3ec983f24b502133c.js:23
 #: build/index.7fb9f1f6149cf7a87e57.js:11
@@ -6501,7 +6501,7 @@ msgstr "Použito jako claim \"sub\" ve VAPID JWT odesílaném s každým pushem.
 msgid "Generate VAPID keys first."
 msgstr "Nejprve vygenerujte klíče VAPID."
 
-#: includes/Modules/SecurityOptimization/Module.php:606
+#: includes/Modules/SecurityOptimization/Module.php:609
 msgid "Content-Security-Policy (CSP)"
 msgstr "Content-Security-Policy (CSP)"
 
@@ -6512,7 +6512,7 @@ msgstr "CSP říká prohlížeči, odkud se smějí načítat skripty, styly, ob
 #: includes/Core/Onboarding/Applier.php:236
 #: includes/Core/Transfer/Planner.php:351
 #: includes/Modules/AiMarkdown/Module.php:249
-#: includes/Modules/SecurityOptimization/Module.php:609
+#: includes/Modules/SecurityOptimization/Module.php:612
 #: build/508.47d3ec983f24b502133c.js:10
 #: build/892.ed108dd969d093dfb597.js:1
 #: build/index.7fb9f1f6149cf7a87e57.js:14
@@ -6527,31 +6527,31 @@ msgstr "Pouze hlášení (doporučeno nejprve - nic se neblokuje)"
 msgid "Enforce (actively blocks disallowed sources)"
 msgstr "Vynucovat (aktivně blokuje nepovolené zdroje)"
 
-#: includes/Modules/SecurityOptimization/Module.php:620
+#: includes/Modules/SecurityOptimization/Module.php:623
 msgid "CSP strictness"
 msgstr "Přísnost CSP"
 
-#: includes/Modules/SecurityOptimization/Module.php:621
+#: includes/Modules/SecurityOptimization/Module.php:624
 msgid "Basic allows inline scripts and eval() so it stays compatible with most themes, plugins and visual editors. Strict removes eval() for tighter protection but may break page builders (Elementor, WPBakery, Divi)."
 msgstr "Základní povoluje inline skripty a eval(), takže zůstává kompatibilní s většinou šablon, pluginů a vizuálních editorů. Striktní odebírá eval() pro přísnější ochranu, ale může rozbít page buildery (Elementor, WPBakery, Divi)."
 
-#: includes/Modules/SecurityOptimization/Module.php:623
+#: includes/Modules/SecurityOptimization/Module.php:626
 msgid "Basic (recommended - allows eval)"
 msgstr "Základní (doporučeno - povoluje eval)"
 
-#: includes/Modules/SecurityOptimization/Module.php:624
+#: includes/Modules/SecurityOptimization/Module.php:627
 msgid "Strict (no eval)"
 msgstr "Striktní (bez eval)"
 
-#: includes/Modules/SecurityOptimization/Module.php:632
+#: includes/Modules/SecurityOptimization/Module.php:635
 msgid "CSP - allowed services"
 msgstr "CSP - povolené služby"
 
-#: includes/Modules/SecurityOptimization/Module.php:633
+#: includes/Modules/SecurityOptimization/Module.php:636
 msgid "Select the external services the site uses. Matching domains are added to the policy so their scripts, styles, fonts and images keep working."
 msgstr "Vyberte externí služby, které web používá. Odpovídající domény se přidají do politiky, aby jejich skripty, styly, fonty a obrázky dále fungovaly."
 
-#: includes/Modules/SecurityOptimization/Module.php:641
+#: includes/Modules/SecurityOptimization/Module.php:644
 msgid "CSP - custom domain allowlist"
 msgstr "CSP - vlastní seznam povolených domén"
 
@@ -6559,92 +6559,92 @@ msgstr "CSP - vlastní seznam povolených domén"
 msgid "One domain per line, added to script/style/img/font/connect/frame sources. Examples: https://cdn.example.com, https://*.example.com, wss://socket.example.com."
 msgstr "Jedna doména na řádek, přidá se do zdrojů script/style/img/font/connect/frame. Příklady: https://cdn.example.com, https://*.example.com, wss://socket.example.com."
 
-#: includes/Modules/SecurityOptimization/Module.php:1112
+#: includes/Modules/SecurityOptimization/Module.php:1115
 msgid "Blocks the WordPress REST API for anonymous visitors. Common public endpoints (oEmbed, WooCommerce, Contact Form 7, WPForms, Elementor, site health) stay reachable so front-end features keep working."
 msgstr "Blokuje WordPress REST API pro anonymní návštěvníky. Běžné veřejné endpointy (oEmbed, WooCommerce, Contact Form 7, WPForms, Elementor, kontrola zdraví webu) zůstávají dostupné, aby funkce na frontendu dále fungovaly."
 
 #: includes/Core/Migration/Catalog.php:299
-#: includes/Modules/SecurityOptimization/Module.php:1256
+#: includes/Modules/SecurityOptimization/Module.php:1259
 msgid "Block user enumeration"
 msgstr "Blokovat enumeraci uživatelů"
 
-#: includes/Modules/SecurityOptimization/Module.php:1257
+#: includes/Modules/SecurityOptimization/Module.php:1260
 msgid "Stops attackers harvesting usernames via ?author=N redirects and the public /wp/v2/users REST route. Logged-in users keep full access."
 msgstr "Zabrání útočníkům ve sběru uživatelských jmen přes přesměrování ?author=N a veřejnou REST cestu /wp/v2/users. Přihlášení uživatelé si zachovají plný přístup."
 
-#: includes/Modules/SecurityOptimization/Module.php:1280
+#: includes/Modules/SecurityOptimization/Module.php:1283
 msgid "Disable theme/plugin file editor"
 msgstr "Vypnout editor souborů šablon/pluginů"
 
-#: includes/Modules/SecurityOptimization/Module.php:1281
+#: includes/Modules/SecurityOptimization/Module.php:1284
 msgid "Defines DISALLOW_FILE_EDIT so nobody can edit theme or plugin PHP from wp-admin - a common way attackers turn a stolen admin login into code execution."
 msgstr "Definuje DISALLOW_FILE_EDIT, takže nikdo nemůže upravovat PHP šablon nebo pluginů z wp-adminu - běžný způsob, jak útočníci promění ukradené přihlášení správce ve spuštění kódu."
 
-#: includes/Modules/SecurityOptimization/Module.php:1288
+#: includes/Modules/SecurityOptimization/Module.php:1291
 msgid "Harden the login page"
 msgstr "Zpevnit přihlašovací stránku"
 
-#: includes/Modules/SecurityOptimization/Module.php:1289
+#: includes/Modules/SecurityOptimization/Module.php:1292
 msgid "Hides detailed login error messages (so an attacker cannot tell which of username/password was wrong) and disables Application Passwords."
 msgstr "Skryje podrobné chybové hlášky přihlášení (aby útočník nepoznal, zda bylo špatně jméno, nebo heslo) a vypne aplikační hesla."
 
-#: includes/Modules/SecurityOptimization/Module.php:1298
+#: includes/Modules/SecurityOptimization/Module.php:1301
 msgid "Enable Upload Guard scanner"
 msgstr "Zapnout skener Ochrany nahrávání"
 
-#: includes/Modules/SecurityOptimization/Module.php:1318
+#: includes/Modules/SecurityOptimization/Module.php:1321
 msgid "Email admin on detections"
 msgstr "Informovat správce e-mailem o nálezech"
 
-#: includes/Modules/SecurityOptimization/Module.php:1319
+#: includes/Modules/SecurityOptimization/Module.php:1322
 msgid "Sends a throttled summary email when new high/critical findings appear (at most one per 15 minutes)."
 msgstr "Odešle omezený souhrnný e-mail, když se objeví nové vysoké/kritické nálezy (nejvýše jeden za 15 minut)."
 
-#: includes/Modules/SecurityOptimization/Module.php:1327
+#: includes/Modules/SecurityOptimization/Module.php:1330
 msgid "Where to send Upload Guard alerts. Leave blank to use the site admin email."
 msgstr "Kam posílat upozornění Ochrany nahrávání. Ponechte prázdné pro použití e-mailu správce webu."
 
-#: includes/Modules/SecurityOptimization/Module.php:1395
+#: includes/Modules/SecurityOptimization/Module.php:1398
 msgid "Google Fonts"
 msgstr "Google Fonts"
 
-#: includes/Modules/SecurityOptimization/Module.php:1396
+#: includes/Modules/SecurityOptimization/Module.php:1399
 msgid "Google Tag Manager + Analytics"
 msgstr "Google Tag Manager + Analytics"
 
-#: includes/Modules/SecurityOptimization/Module.php:1397
+#: includes/Modules/SecurityOptimization/Module.php:1400
 msgid "YouTube (embedded videos)"
 msgstr "YouTube (vložená videa)"
 
-#: includes/Modules/SecurityOptimization/Module.php:1398
+#: includes/Modules/SecurityOptimization/Module.php:1401
 msgid "Vimeo (embedded videos)"
 msgstr "Vimeo (vložená videa)"
 
-#: includes/Modules/SecurityOptimization/Module.php:1399
+#: includes/Modules/SecurityOptimization/Module.php:1402
 msgid "Smartsupp (chat)"
 msgstr "Smartsupp (chat)"
 
-#: includes/Modules/SecurityOptimization/Module.php:1400
+#: includes/Modules/SecurityOptimization/Module.php:1403
 msgid "Google reCAPTCHA"
 msgstr "Google reCAPTCHA"
 
-#: includes/Modules/SecurityOptimization/Module.php:1401
+#: includes/Modules/SecurityOptimization/Module.php:1404
 msgid "Cloudflare / CloudFront CDN"
 msgstr "Cloudflare / CloudFront CDN"
 
-#: includes/Modules/SecurityOptimization/Module.php:1402
+#: includes/Modules/SecurityOptimization/Module.php:1405
 msgid "Mapy.cz"
 msgstr "Mapy.cz"
 
-#: includes/Modules/SecurityOptimization/Module.php:1403
+#: includes/Modules/SecurityOptimization/Module.php:1406
 msgid "Google Maps"
 msgstr "Google Maps"
 
-#: includes/Modules/SecurityOptimization/Module.php:1405
+#: includes/Modules/SecurityOptimization/Module.php:1408
 msgid "Gravatar (comment avatars)"
 msgstr "Gravatar (avatary komentářů)"
 
-#: includes/Modules/SecurityOptimization/Module.php:1909
+#: includes/Modules/SecurityOptimization/Module.php:1912
 msgid "Invalid login credentials. Please check both the username and the password."
 msgstr "Neplatné přihlašovací údaje. Zkontrolujte prosím uživatelské jméno i heslo."
 
@@ -7756,7 +7756,7 @@ msgstr "Vstupní pole"
 
 #: includes/Modules/Forms/ElementorWidget.php:189
 #: includes/Modules/Forms/ElementorWidget.php:288
-#: includes/Modules/SecurityOptimization/Module.php:1003
+#: includes/Modules/SecurityOptimization/Module.php:1006
 #: build/474.12fceb2e478085fb674a.js:1
 msgid "Normal"
 msgstr "Normální"
@@ -8264,61 +8264,61 @@ msgid "Open Security - Access Control"
 msgstr "Otevřít Zabezpečení - Řízení přístupu"
 
 #: includes/Core/Migration/Sources/CaptchaSource.php:64
-#: includes/Modules/SecurityOptimization/Module.php:938
+#: includes/Modules/SecurityOptimization/Module.php:941
 msgid "Placement"
 msgstr "Umístění"
 
-#: includes/Modules/SecurityOptimization/Module.php:939
+#: includes/Modules/SecurityOptimization/Module.php:942
 msgid "Inline shows the widget inside the login/register/lost-password form itself. Standalone gate shows a dedicated \"verify you're not a robot\" page before the form is reachable at all - since WordPress redirects every logged-out admin request to wp-login.php, this also protects the whole admin, not just the login form. The gate ignores enforcement mode below and always applies (adaptive mode only affects the inline widget)."
 msgstr "Vložené zobrazí widget přímo ve formuláři přihlášení/registrace/zapomenutého hesla. Samostatná brána zobrazí vyhrazenou stránku „ověřte, že nejste robot“ ještě předtím, než je formulář vůbec dostupný - protože WordPress přesměrovává každý požadavek odhlášeného uživatele do administrace na wp-login.php, chrání to i celou administraci, nejen přihlašovací formulář. Brána ignoruje níže uvedený režim vynucování a platí vždy (adaptivní režim ovlivňuje jen vložený widget)."
 
-#: includes/Modules/SecurityOptimization/Module.php:941
+#: includes/Modules/SecurityOptimization/Module.php:944
 msgid "Inline widget in the form"
 msgstr "Vložený widget ve formuláři"
 
-#: includes/Modules/SecurityOptimization/Module.php:942
+#: includes/Modules/SecurityOptimization/Module.php:945
 msgid "Standalone page before login (also gates wp-admin)"
 msgstr "Samostatná stránka před přihlášením (chrání i wp-admin)"
 
 #: includes/Core/Migration/Sources/CaptchaSource.php:65
-#: includes/Modules/SecurityOptimization/Module.php:950
+#: includes/Modules/SecurityOptimization/Module.php:953
 msgid "Enforcement mode (inline placement only)"
 msgstr "Režim vynucování (jen pro vložené umístění)"
 
 #: includes/Core/Migration/Sources/CaptchaSource.php:61
-#: includes/Modules/SecurityOptimization/Module.php:1029
+#: includes/Modules/SecurityOptimization/Module.php:1032
 msgid "Key source"
 msgstr "Zdroj klíčů"
 
-#: includes/Modules/SecurityOptimization/Module.php:1030
+#: includes/Modules/SecurityOptimization/Module.php:1033
 msgid "Manual: paste site/secret key yourself. Central app: this site (already paired via Content Sync) gets a key automatically from a shared Turnstile widget managed by the central app. Own Cloudflare API token: this site manages its own Turnstile widget directly, using an API token you paste below."
 msgstr "Ručně: site/secret key vložíte sami. Centrální aplikace: tento web (už spárovaný přes Synchronizaci obsahu) dostane klíč automaticky ze sdíleného widgetu Turnstile spravovaného centrální aplikací. Vlastní Cloudflare API token: tento web spravuje vlastní widget Turnstile přímo pomocí API tokenu, který vložíte níže."
 
-#: includes/Modules/SecurityOptimization/Module.php:1032
+#: includes/Modules/SecurityOptimization/Module.php:1035
 msgid "Manual (paste keys below)"
 msgstr "Ručně (vložte klíče níže)"
 
-#: includes/Modules/SecurityOptimization/Module.php:1033
+#: includes/Modules/SecurityOptimization/Module.php:1036
 msgid "Automatic via central app"
 msgstr "Automaticky přes centrální aplikaci"
 
-#: includes/Modules/SecurityOptimization/Module.php:1034
+#: includes/Modules/SecurityOptimization/Module.php:1037
 msgid "Automatic via own Cloudflare API token"
 msgstr "Automaticky přes vlastní Cloudflare API token"
 
-#: includes/Modules/SecurityOptimization/Module.php:1042
+#: includes/Modules/SecurityOptimization/Module.php:1045
 msgid "Cloudflare account ID"
 msgstr "ID účtu Cloudflare"
 
-#: includes/Modules/SecurityOptimization/Module.php:1043
+#: includes/Modules/SecurityOptimization/Module.php:1046
 msgid "Used only for \"own Cloudflare API token\" key source."
 msgstr "Používá se jen pro zdroj klíčů „vlastní Cloudflare API token“."
 
-#: includes/Modules/SecurityOptimization/Module.php:1050
+#: includes/Modules/SecurityOptimization/Module.php:1053
 msgid "Cloudflare API token"
 msgstr "Cloudflare API token"
 
-#: includes/Modules/SecurityOptimization/Module.php:1051
+#: includes/Modules/SecurityOptimization/Module.php:1054
 msgid "Scope it to Account > Turnstile > Edit only, nothing else. Stored encrypted server-side. Leave blank to keep the current token."
 msgstr "Omezte jej jen na Account > Turnstile > Edit, nic jiného. Na serveru uložen šifrovaně. Ponechte prázdné pro zachování stávajícího tokenu."
 
@@ -11529,24 +11529,24 @@ msgid "Signature"
 msgstr "Podpis"
 
 #: includes/Core/Migration/Sources/LoginPressSource.php:175
-#: includes/Modules/SecurityOptimization/Module.php:862
-#: includes/Modules/SecurityOptimization/Module.php:870
-#: includes/Modules/SecurityOptimization/Module.php:886
-#: includes/Modules/SecurityOptimization/Module.php:899
-#: includes/Modules/SecurityOptimization/Module.php:912
-#: includes/Modules/SecurityOptimization/Module.php:920
-#: includes/Modules/SecurityOptimization/Module.php:928
-#: includes/Modules/SecurityOptimization/Module.php:936
-#: includes/Modules/SecurityOptimization/Module.php:948
-#: includes/Modules/SecurityOptimization/Module.php:959
-#: includes/Modules/SecurityOptimization/Module.php:967
-#: includes/Modules/SecurityOptimization/Module.php:985
-#: includes/Modules/SecurityOptimization/Module.php:998
-#: includes/Modules/SecurityOptimization/Module.php:1011
-#: includes/Modules/SecurityOptimization/Module.php:1019
-#: includes/Modules/SecurityOptimization/Module.php:1027
-#: includes/Modules/SecurityOptimization/Module.php:1040
-#: includes/Modules/SecurityOptimization/Module.php:1048
+#: includes/Modules/SecurityOptimization/Module.php:865
+#: includes/Modules/SecurityOptimization/Module.php:873
+#: includes/Modules/SecurityOptimization/Module.php:889
+#: includes/Modules/SecurityOptimization/Module.php:902
+#: includes/Modules/SecurityOptimization/Module.php:915
+#: includes/Modules/SecurityOptimization/Module.php:923
+#: includes/Modules/SecurityOptimization/Module.php:931
+#: includes/Modules/SecurityOptimization/Module.php:939
+#: includes/Modules/SecurityOptimization/Module.php:951
+#: includes/Modules/SecurityOptimization/Module.php:962
+#: includes/Modules/SecurityOptimization/Module.php:970
+#: includes/Modules/SecurityOptimization/Module.php:988
+#: includes/Modules/SecurityOptimization/Module.php:1001
+#: includes/Modules/SecurityOptimization/Module.php:1014
+#: includes/Modules/SecurityOptimization/Module.php:1022
+#: includes/Modules/SecurityOptimization/Module.php:1030
+#: includes/Modules/SecurityOptimization/Module.php:1043
+#: includes/Modules/SecurityOptimization/Module.php:1051
 #: build/508.47d3ec983f24b502133c.js:20
 #: build/508.47d3ec983f24b502133c.js:23
 #: build/792.44dda73a4e82141856be.js:6
@@ -13626,70 +13626,70 @@ msgstr "Duplikace menu"
 msgid "Email Health"
 msgstr "Stav e-mailu"
 
-#: includes/Modules/SecurityOptimization/Module.php:1119
+#: includes/Modules/SecurityOptimization/Module.php:1122
 msgid "Heartbeat API"
 msgstr "Heartbeat API"
 
-#: includes/Modules/SecurityOptimization/Module.php:1120
+#: includes/Modules/SecurityOptimization/Module.php:1123
 msgid "Heartbeat periodically talks to the server in the background (autosave, post locking, session checks). Slowing it down reduces server load on busy admins. Ignored when WP Rocket, LiteSpeed Cache, Heartbeat Control or Perfmatters already manage Heartbeat."
 msgstr "Heartbeat na pozadí pravidelně komunikuje se serverem (automatické ukládání, zamykání příspěvků, kontrola přihlášení). Zpomalením snížíte zátěž serveru, když v administraci pracuje víc lidí. Nastavení se ignoruje, pokud Heartbeat už spravuje WP Rocket, LiteSpeed Cache, Heartbeat Control nebo Perfmatters."
 
-#: includes/Modules/SecurityOptimization/Module.php:1122
+#: includes/Modules/SecurityOptimization/Module.php:1125
 msgid "Default (15 s)"
 msgstr "Výchozí (15 s)"
 
-#: includes/Modules/SecurityOptimization/Module.php:1123
+#: includes/Modules/SecurityOptimization/Module.php:1126
 msgid "Slowed down (60 s)"
 msgstr "Zpomalený (60 s)"
 
-#: includes/Modules/SecurityOptimization/Module.php:1132
+#: includes/Modules/SecurityOptimization/Module.php:1135
 msgid "Limit post revisions"
 msgstr "Omezit revize příspěvků"
 
-#: includes/Modules/SecurityOptimization/Module.php:1133
+#: includes/Modules/SecurityOptimization/Module.php:1136
 msgid "Limits how many revisions are kept for each post."
 msgstr "Omezí počet uchovaných revizí u každého příspěvku."
 
-#: includes/Modules/SecurityOptimization/Module.php:1140
+#: includes/Modules/SecurityOptimization/Module.php:1143
 msgid "Maximum number of revisions"
 msgstr "Maximální počet revizí"
 
-#: includes/Modules/SecurityOptimization/Module.php:1141
+#: includes/Modules/SecurityOptimization/Module.php:1144
 msgid "Recommended value is 3-10. Setting 0 disables revisions entirely."
 msgstr "Doporučená hodnota je 3-10. Hodnota 0 revize úplně vypne."
 
-#: includes/Modules/SecurityOptimization/Module.php:1148
+#: includes/Modules/SecurityOptimization/Module.php:1151
 msgid "Restrict uploadable file types"
 msgstr "Omezit typy nahrávaných souborů"
 
-#: includes/Modules/SecurityOptimization/Module.php:1149
+#: includes/Modules/SecurityOptimization/Module.php:1152
 msgid "Allows only common images, documents (PDF, Office), ZIP, MP3/MP4/WebM and web fonts. SVG stays allowed only if the SVG Upload module permits it."
 msgstr "Povolí jen běžné obrázky, dokumenty (PDF, Office), ZIP, MP3/MP4/WebM a webová písma. SVG zůstane povolené jen tehdy, když ho povoluje modul Nahrávání SVG."
 
 #: includes/Core/Migration/Catalog.php:96
 #: includes/Core/Migration/Sources/DisableCommentsSource.php:65
 #: includes/Core/Migration/Sources/DisableCommentsSource.php:74
-#: includes/Modules/SecurityOptimization/Module.php:1158
+#: includes/Modules/SecurityOptimization/Module.php:1161
 msgid "Disable comments"
 msgstr "Zakázat komentáře"
 
-#: includes/Modules/SecurityOptimization/Module.php:1159
+#: includes/Modules/SecurityOptimization/Module.php:1162
 msgid "Completely disables comments site-wide - closes comments on all content types, removes the Comments section from wp-admin and hides the comment counter from the admin bar. Existing comments stay in the database but are not displayed."
 msgstr "Kompletně zakáže komentáře na celém webu - uzavře komentáře u všech typů obsahu, odstraní sekci Komentáře z administrace a skryje počítadlo komentářů z admin baru. Existující komentáře zůstanou v databázi, ale nebudou se zobrazovat."
 
-#: includes/Modules/SecurityOptimization/Module.php:1246
+#: includes/Modules/SecurityOptimization/Module.php:1249
 msgid "Disable blog"
 msgstr "Zakázat blog"
 
-#: includes/Modules/SecurityOptimization/Module.php:1247
+#: includes/Modules/SecurityOptimization/Module.php:1250
 msgid "Removes blog features - hides \"Posts\" from the admin menu, redirects blog posts and archives to the homepage and hides the Quick Draft dashboard widget. Suitable for presentation sites without a blog."
 msgstr "Odstraní funkce blogu - skryje položku „Příspěvky“ z menu administrace, přesměruje blogové příspěvky a archivy na hlavní stránku a skryje widget Rychlý koncept z nástěnky. Vhodné pro prezentační weby bez blogu."
 
-#: includes/Modules/SecurityOptimization/Module.php:1272
+#: includes/Modules/SecurityOptimization/Module.php:1275
 msgid "Hide author slugs"
 msgstr "Skrýt slugy autorů"
 
-#: includes/Modules/SecurityOptimization/Module.php:1273
+#: includes/Modules/SecurityOptimization/Module.php:1276
 msgid "Replaces usernames in author archive URLs and REST API responses with an encrypted ID, so the login name cannot be read from the URL. Use instead of or together with blocking user enumeration."
 msgstr "Nahradí uživatelská jména v adresách autorských archivů a v odpovědích REST API zašifrovaným ID, takže z URL nejde vyčíst přihlašovací jméno. Použijte místo blokování zjišťování uživatelů, nebo spolu s ním."
 
@@ -13702,93 +13702,93 @@ msgstr "Chráněné formuláře (jen pro widget ve formuláři)"
 msgid "Which forms show and verify the CAPTCHA widget. The standalone gate always covers login and lost password."
 msgstr "Na kterých formulářích se CAPTCHA zobrazí a ověří. Samostatná ověřovací stránka vždy chrání přihlášení a obnovu hesla."
 
-#: includes/Modules/SecurityOptimization/Module.php:688
-#: includes/Modules/SecurityOptimization/Module.php:696
-#: includes/Modules/SecurityOptimization/Module.php:704
-#: includes/Modules/SecurityOptimization/Module.php:719
-#: includes/Modules/SecurityOptimization/Module.php:727
-#: includes/Modules/SecurityOptimization/Module.php:736
-#: includes/Modules/SecurityOptimization/Module.php:746
-#: includes/Modules/SecurityOptimization/Module.php:754
-#: includes/Modules/SecurityOptimization/Module.php:761
-#: includes/Modules/SecurityOptimization/Module.php:768
-#: includes/Modules/SecurityOptimization/Module.php:775
-#: includes/Modules/SecurityOptimization/Module.php:783
-#: includes/Modules/SecurityOptimization/Module.php:791
-#: includes/Modules/SecurityOptimization/Module.php:799
-#: includes/Modules/SecurityOptimization/Module.php:836
-#: includes/Modules/SecurityOptimization/Module.php:844
-#: includes/Modules/SecurityOptimization/Module.php:852
-#: includes/Modules/SecurityOptimization/Module.php:972
-#: includes/Modules/SecurityOptimization/Module.php:1286
+#: includes/Modules/SecurityOptimization/Module.php:691
+#: includes/Modules/SecurityOptimization/Module.php:699
+#: includes/Modules/SecurityOptimization/Module.php:707
+#: includes/Modules/SecurityOptimization/Module.php:722
+#: includes/Modules/SecurityOptimization/Module.php:730
+#: includes/Modules/SecurityOptimization/Module.php:739
+#: includes/Modules/SecurityOptimization/Module.php:749
+#: includes/Modules/SecurityOptimization/Module.php:757
+#: includes/Modules/SecurityOptimization/Module.php:764
+#: includes/Modules/SecurityOptimization/Module.php:771
+#: includes/Modules/SecurityOptimization/Module.php:778
+#: includes/Modules/SecurityOptimization/Module.php:786
+#: includes/Modules/SecurityOptimization/Module.php:794
+#: includes/Modules/SecurityOptimization/Module.php:802
+#: includes/Modules/SecurityOptimization/Module.php:839
+#: includes/Modules/SecurityOptimization/Module.php:847
+#: includes/Modules/SecurityOptimization/Module.php:855
+#: includes/Modules/SecurityOptimization/Module.php:975
+#: includes/Modules/SecurityOptimization/Module.php:1289
 #: build/508.47d3ec983f24b502133c.js:20
 #: build/508.47d3ec983f24b502133c.js:23
 msgid "Login"
 msgstr "Přihlášení"
 
-#: includes/Modules/SecurityOptimization/Module.php:973
+#: includes/Modules/SecurityOptimization/Module.php:976
 msgid "Registration"
 msgstr "Registrace"
 
-#: includes/Modules/SecurityOptimization/Module.php:974
+#: includes/Modules/SecurityOptimization/Module.php:977
 msgid "Lost password"
 msgstr "Obnova hesla"
 
 #: includes/Core/Migration/Sources/DisableCommentsSource.php:66
 #: includes/Core/Migration/Sources/DisableCommentsSource.php:75
-#: includes/Modules/SecurityOptimization/Module.php:1166
+#: includes/Modules/SecurityOptimization/Module.php:1169
 msgid "Where to disable comments"
 msgstr "Kde zakázat komentáře"
 
-#: includes/Modules/SecurityOptimization/Module.php:1167
+#: includes/Modules/SecurityOptimization/Module.php:1170
 msgid "Everywhere closes comments on all content and removes the comment tools from the admin. For selected post types only those post types are affected."
 msgstr "Všude zavře komentáře u veškerého obsahu a odstraní nástroje pro komentáře z administrace. U vybraných typů obsahu se změna týká jen jich."
 
-#: includes/Modules/SecurityOptimization/Module.php:1169
+#: includes/Modules/SecurityOptimization/Module.php:1172
 msgid "Everywhere"
 msgstr "Všude"
 
-#: includes/Modules/SecurityOptimization/Module.php:1170
+#: includes/Modules/SecurityOptimization/Module.php:1173
 msgid "Only for selected post types"
 msgstr "Jen pro vybrané typy obsahu"
 
 #: includes/Core/Migration/Sources/DisableCommentsSource.php:76
-#: includes/Modules/SecurityOptimization/Module.php:1178
+#: includes/Modules/SecurityOptimization/Module.php:1181
 msgid "Post types without comments"
 msgstr "Typy obsahu bez komentářů"
 
-#: includes/Modules/SecurityOptimization/Module.php:1179
+#: includes/Modules/SecurityOptimization/Module.php:1182
 msgid "Used when \"Only for selected post types\" is chosen."
 msgstr "Použije se, když je zvoleno „Jen pro vybrané typy obsahu“."
 
 #: includes/Core/Migration/Sources/DisableCommentsSource.php:95
-#: includes/Modules/SecurityOptimization/Module.php:1187
+#: includes/Modules/SecurityOptimization/Module.php:1190
 msgid "Hide existing comments"
 msgstr "Skrýt existující komentáře"
 
-#: includes/Modules/SecurityOptimization/Module.php:1188
+#: includes/Modules/SecurityOptimization/Module.php:1191
 msgid "Existing comments are hidden on the site but not deleted - switching this off shows them again."
 msgstr "Existující komentáře se na webu skryjí, ale nesmažou - po vypnutí se zase zobrazí."
 
 #: includes/Core/Migration/Sources/DisableCommentsSource.php:67
-#: includes/Modules/SecurityOptimization/Module.php:1195
+#: includes/Modules/SecurityOptimization/Module.php:1198
 msgid "Remove comment tools from the admin"
 msgstr "Odstranit nástroje pro komentáře z administrace"
 
-#: includes/Modules/SecurityOptimization/Module.php:1196
+#: includes/Modules/SecurityOptimization/Module.php:1199
 msgid "Hides the Comments menu, the Discussion settings page, the dashboard widget, the admin bar bubble and the Recent Comments widget. Applies only when disabling everywhere."
 msgstr "Skryje menu Komentáře, stránku nastavení Diskuse, widget na nástěnce, bublinu v admin liště a widget Nejnovější komentáře. Platí jen při zákazu všude."
 
 #: includes/Core/Migration/Sources/DisableCommentsSource.php:68
-#: includes/Modules/SecurityOptimization/Module.php:1203
+#: includes/Modules/SecurityOptimization/Module.php:1206
 msgid "Block comment endpoints"
 msgstr "Zablokovat koncové body komentářů"
 
-#: includes/Modules/SecurityOptimization/Module.php:1204
+#: includes/Modules/SecurityOptimization/Module.php:1207
 msgid "Removes the REST API comment routes, XML-RPC comment/pingback methods, the X-Pingback header and comment feeds. Applies only when disabling everywhere."
 msgstr "Odstraní komentářové routy REST API, metody XML-RPC pro komentáře a pingbacky, hlavičku X-Pingback a komentářové feedy. Platí jen při zákazu všude."
 
-#: includes/Modules/SecurityOptimization/Module.php:2852
+#: includes/Modules/SecurityOptimization/Module.php:2877
 msgid "Comments are disabled."
 msgstr "Komentáře jsou zakázané."
 
@@ -14217,164 +14217,164 @@ msgstr[0] "%d starší pravidlo mířilo na tento zdroj - přesměrováno na nov
 msgstr[1] "%d starší pravidla mířila na tento zdroj - přesměrována na nový cíl (bez řetězu)."
 msgstr[2] "%d starších pravidel mířilo na tento zdroj - přesměrováno na nový cíl (bez řetězu)."
 
-#: includes/Modules/AdminCustomiser/Module.php:330
+#: includes/Modules/AdminCustomiser/Module.php:338
 msgid "Admin page background color"
 msgstr "Barva pozadí stránky administrace"
 
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:189
-#: includes/Modules/AdminCustomiser/Module.php:337
+#: includes/Modules/AdminCustomiser/Module.php:345
 msgid "Admin bar logo"
 msgstr "Logo v admin liště"
 
-#: includes/Modules/AdminCustomiser/Module.php:338
+#: includes/Modules/AdminCustomiser/Module.php:346
 msgid "Replaces the WordPress logo in the admin bar."
 msgstr "Nahradí logo WordPressu v admin liště."
 
-#: includes/Modules/AdminCustomiser/Module.php:345
+#: includes/Modules/AdminCustomiser/Module.php:353
 msgid "Admin bar background color"
 msgstr "Barva pozadí admin lišty"
 
-#: includes/Modules/AdminCustomiser/Module.php:352
+#: includes/Modules/AdminCustomiser/Module.php:360
 msgid "Admin bar dropdown background color"
 msgstr "Barva pozadí rozbalovací nabídky admin lišty"
 
-#: includes/Modules/AdminCustomiser/Module.php:359
+#: includes/Modules/AdminCustomiser/Module.php:367
 msgid "Admin bar text color"
 msgstr "Barva textu admin lišty"
 
-#: includes/Modules/AdminCustomiser/Module.php:366
+#: includes/Modules/AdminCustomiser/Module.php:374
 msgid "Admin bar text hover color"
 msgstr "Barva textu admin lišty při najetí myší"
 
 #: includes/Core/Migration/Sources/AdminimizeSource.php:286
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:182
-#: includes/Modules/AdminCustomiser/Module.php:373
+#: includes/Modules/AdminCustomiser/Module.php:381
 msgid "Hide admin bar elements"
 msgstr "Skrýt prvky admin lišty"
 
-#: includes/Modules/AdminCustomiser/Module.php:375
+#: includes/Modules/AdminCustomiser/Module.php:383
 msgid "WordPress logo"
 msgstr "Logo WordPressu"
 
-#: includes/Modules/AdminCustomiser/Module.php:376
+#: includes/Modules/AdminCustomiser/Module.php:384
 msgid "Icons"
 msgstr "Ikony"
 
-#: includes/Modules/AdminCustomiser/Module.php:377
+#: includes/Modules/AdminCustomiser/Module.php:385
 msgid "Updates item"
 msgstr "Položka Aktualizace"
 
-#: includes/Modules/AdminCustomiser/Module.php:378
+#: includes/Modules/AdminCustomiser/Module.php:386
 msgid "Customize item"
 msgstr "Položka Přizpůsobit"
 
-#: includes/Modules/AdminCustomiser/Module.php:379
+#: includes/Modules/AdminCustomiser/Module.php:387
 msgid "Comments item"
 msgstr "Položka Komentáře"
 
-#: includes/Modules/AdminCustomiser/Module.php:380
+#: includes/Modules/AdminCustomiser/Module.php:388
 msgid "New item"
 msgstr "Položka Přidat"
 
-#: includes/Modules/AdminCustomiser/Module.php:388
+#: includes/Modules/AdminCustomiser/Module.php:396
 msgid "Admin bar: show only the avatar"
 msgstr "Admin lišta: zobrazit pouze avatar"
 
-#: includes/Modules/AdminCustomiser/Module.php:389
+#: includes/Modules/AdminCustomiser/Module.php:397
 msgid "The user name stays in the dropdown menu. Applies when admin bar customization is enabled."
 msgstr "Uživatelské jméno zůstane v rozbalovací nabídce. Platí, pokud je zapnuté přizpůsobení admin lišty."
 
-#: includes/Modules/AdminCustomiser/Module.php:396
+#: includes/Modules/AdminCustomiser/Module.php:404
 msgid "Admin bar: move updates to the right"
 msgstr "Admin lišta: přesunout aktualizace doprava"
 
-#: includes/Modules/AdminCustomiser/Module.php:403
+#: includes/Modules/AdminCustomiser/Module.php:411
 msgid "Admin bar: collapse plugin items under \"+\""
 msgstr "Admin lišta: sbalit položky pluginů pod „+“"
 
-#: includes/Modules/AdminCustomiser/Module.php:410
+#: includes/Modules/AdminCustomiser/Module.php:418
 msgid "Admin bar: keep these items on the bar"
 msgstr "Admin lišta: ponechat tyto položky na liště"
 
-#: includes/Modules/AdminCustomiser/Module.php:411
+#: includes/Modules/AdminCustomiser/Module.php:419
 msgid "Admin bar item IDs (one per line or comma separated) that must NOT be collapsed under \"+\". Full IDs (e.g. wp-admin-bar-notifications) and prefixes both work. Tip: right-click an icon in the admin bar and choose Inspect to find its ID."
 msgstr "ID položek admin lišty (jedno na řádek nebo oddělená čárkou), které se NESMÍ sbalit pod „+“. Funguje úplné ID (např. wp-admin-bar-notifications) i prefix. Tip: klikněte pravým tlačítkem na ikonu v admin liště a zvolte Prozkoumat, abyste zjistili její ID."
 
-#: includes/Modules/AdminCustomiser/Module.php:418
+#: includes/Modules/AdminCustomiser/Module.php:426
 msgid "Admin bar: site name as a link icon on the right"
 msgstr "Admin lišta: název webu jako ikona odkazu vpravo"
 
-#: includes/Modules/AdminCustomiser/Module.php:425
+#: includes/Modules/AdminCustomiser/Module.php:433
 msgid "Horizontal menu on the same row as the admin bar"
 msgstr "Vodorovné menu ve stejném řádku jako admin lišta"
 
-#: includes/Modules/AdminCustomiser/Module.php:426
+#: includes/Modules/AdminCustomiser/Module.php:434
 msgid "Merges the horizontal menu and the admin bar into one row. Applies only when the Menu Organizer uses the horizontal layout."
 msgstr "Sloučí vodorovné menu a admin lištu do jednoho řádku. Platí pouze tehdy, když Menu Organizer používá vodorovné rozložení."
 
-#: includes/Modules/AdminCustomiser/Module.php:433
+#: includes/Modules/AdminCustomiser/Module.php:441
 msgid "Sidebar background color"
 msgstr "Barva pozadí postranního panelu"
 
-#: includes/Modules/AdminCustomiser/Module.php:440
+#: includes/Modules/AdminCustomiser/Module.php:448
 msgid "Sidebar text color"
 msgstr "Barva textu postranního panelu"
 
-#: includes/Modules/AdminCustomiser/Module.php:447
+#: includes/Modules/AdminCustomiser/Module.php:455
 msgid "Sidebar active item background"
 msgstr "Pozadí aktivní položky postranního panelu"
 
-#: includes/Modules/AdminCustomiser/Module.php:454
+#: includes/Modules/AdminCustomiser/Module.php:462
 msgid "Sidebar active item text"
 msgstr "Text aktivní položky postranního panelu"
 
-#: includes/Modules/AdminCustomiser/Module.php:461
+#: includes/Modules/AdminCustomiser/Module.php:469
 msgid "Sidebar hover item background"
 msgstr "Pozadí položky postranního panelu při najetí myší"
 
-#: includes/Modules/AdminCustomiser/Module.php:468
+#: includes/Modules/AdminCustomiser/Module.php:476
 msgid "Sidebar hover item text"
 msgstr "Text položky postranního panelu při najetí myší"
 
-#: includes/Modules/AdminCustomiser/Module.php:475
+#: includes/Modules/AdminCustomiser/Module.php:483
 msgid "Sidebar icons color"
 msgstr "Barva ikon postranního panelu"
 
-#: includes/Modules/AdminCustomiser/Module.php:482
+#: includes/Modules/AdminCustomiser/Module.php:490
 msgid "Hide sidebar icons"
 msgstr "Skrýt ikony postranního panelu"
 
-#: includes/Modules/AdminCustomiser/Module.php:489
+#: includes/Modules/AdminCustomiser/Module.php:497
 msgid "Sidebar width (px, 120-300)"
 msgstr "Šířka postranního panelu (px, 120–300)"
 
-#: includes/Modules/AdminCustomiser/Module.php:490
+#: includes/Modules/AdminCustomiser/Module.php:498
 msgid "WordPress default is 160."
 msgstr "Výchozí hodnota WordPressu je 160."
 
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:222
-#: includes/Modules/AdminCustomiser/Module.php:497
+#: includes/Modules/AdminCustomiser/Module.php:505
 msgid "Suppress update notifications"
 msgstr "Potlačit oznámení o aktualizacích"
 
-#: includes/Modules/AdminCustomiser/Module.php:498
+#: includes/Modules/AdminCustomiser/Module.php:506
 msgid "The selected update checks report \"nothing to update\", so the update nags and admin bar badges disappear. Applies when hiding admin notices is enabled."
 msgstr "Vybrané kontroly aktualizací budou hlásit „není co aktualizovat“, takže zmizí upozornění na aktualizace i odznaky v admin liště. Platí, pokud je zapnuté skrývání oznámení v administraci."
 
-#: includes/Modules/AdminCustomiser/Module.php:500
+#: includes/Modules/AdminCustomiser/Module.php:508
 msgid "Core"
 msgstr "Jádro"
 
 #: includes/Core/Migration/Sources/LoginPressSource.php:68
-#: includes/Modules/AdminCustomiser/Module.php:510
+#: includes/Modules/AdminCustomiser/Module.php:518
 msgid "Login form options"
 msgstr "Možnosti přihlašovacího formuláře"
 
-#: includes/Modules/AdminCustomiser/Module.php:512
+#: includes/Modules/AdminCustomiser/Module.php:520
 msgid "Hide login logo"
 msgstr "Skrýt logo na přihlašovací stránce"
 
-#: includes/Modules/AdminCustomiser/Module.php:520
+#: includes/Modules/AdminCustomiser/Module.php:528
 msgid "Login form text hover color"
 msgstr "Barva textu přihlašovacího formuláře při najetí myší"
 
@@ -16355,12 +16355,13 @@ msgstr ""
 #: includes/Modules/AdminCustomiser/Module.php:284
 #: includes/Modules/AdminCustomiser/Module.php:291
 #: includes/Modules/AdminCustomiser/Module.php:298
-#: includes/Modules/AdminCustomiser/Module.php:328
-#: includes/Modules/AdminCustomiser/Module.php:495
-#: includes/Modules/AdminCustomiser/Module.php:525
-#: includes/Modules/AdminCustomiser/Module.php:532
-#: includes/Modules/AdminCustomiser/Module.php:547
-#: includes/Modules/AdminCustomiser/Module.php:554
+#: includes/Modules/AdminCustomiser/Module.php:305
+#: includes/Modules/AdminCustomiser/Module.php:336
+#: includes/Modules/AdminCustomiser/Module.php:503
+#: includes/Modules/AdminCustomiser/Module.php:533
+#: includes/Modules/AdminCustomiser/Module.php:540
+#: includes/Modules/AdminCustomiser/Module.php:555
+#: includes/Modules/AdminCustomiser/Module.php:562
 msgid "Admin screens"
 msgstr "Obrazovky administrace"
 
@@ -16384,47 +16385,47 @@ msgstr "Obrazovky administrace"
 #: includes/Modules/AdminCustomiser/Module.php:255
 #: includes/Modules/AdminCustomiser/Module.php:263
 #: includes/Modules/AdminCustomiser/Module.php:270
-#: includes/Modules/AdminCustomiser/Module.php:508
-#: includes/Modules/AdminCustomiser/Module.php:518
-#: includes/Modules/AdminCustomiser/Module.php:580
-#: includes/Modules/AdminCustomiser/Module.php:587
+#: includes/Modules/AdminCustomiser/Module.php:516
+#: includes/Modules/AdminCustomiser/Module.php:526
+#: includes/Modules/AdminCustomiser/Module.php:588
 #: includes/Modules/AdminCustomiser/Module.php:595
-#: includes/Modules/AdminCustomiser/Module.php:608
-#: includes/Modules/AdminCustomiser/Module.php:615
-#: includes/Modules/AdminCustomiser/Module.php:622
+#: includes/Modules/AdminCustomiser/Module.php:603
+#: includes/Modules/AdminCustomiser/Module.php:616
+#: includes/Modules/AdminCustomiser/Module.php:623
+#: includes/Modules/AdminCustomiser/Module.php:630
 msgid "Login page"
 msgstr "Přihlašovací stránka"
 
-#: includes/Modules/AdminCustomiser/Module.php:305
 #: includes/Modules/AdminCustomiser/Module.php:313
-#: includes/Modules/AdminCustomiser/Module.php:423
+#: includes/Modules/AdminCustomiser/Module.php:321
 #: includes/Modules/AdminCustomiser/Module.php:431
-#: includes/Modules/AdminCustomiser/Module.php:438
-#: includes/Modules/AdminCustomiser/Module.php:445
-#: includes/Modules/AdminCustomiser/Module.php:452
-#: includes/Modules/AdminCustomiser/Module.php:459
-#: includes/Modules/AdminCustomiser/Module.php:466
-#: includes/Modules/AdminCustomiser/Module.php:473
-#: includes/Modules/AdminCustomiser/Module.php:480
-#: includes/Modules/AdminCustomiser/Module.php:487
-#: includes/Modules/AdminCustomiser/Module.php:540
+#: includes/Modules/AdminCustomiser/Module.php:439
+#: includes/Modules/AdminCustomiser/Module.php:446
+#: includes/Modules/AdminCustomiser/Module.php:453
+#: includes/Modules/AdminCustomiser/Module.php:460
+#: includes/Modules/AdminCustomiser/Module.php:467
+#: includes/Modules/AdminCustomiser/Module.php:474
+#: includes/Modules/AdminCustomiser/Module.php:481
+#: includes/Modules/AdminCustomiser/Module.php:488
+#: includes/Modules/AdminCustomiser/Module.php:495
+#: includes/Modules/AdminCustomiser/Module.php:548
 msgid "Sidebar menu"
 msgstr "Boční menu"
 
-#: includes/Modules/AdminCustomiser/Module.php:321
-#: includes/Modules/AdminCustomiser/Module.php:335
+#: includes/Modules/AdminCustomiser/Module.php:329
 #: includes/Modules/AdminCustomiser/Module.php:343
-#: includes/Modules/AdminCustomiser/Module.php:350
-#: includes/Modules/AdminCustomiser/Module.php:357
-#: includes/Modules/AdminCustomiser/Module.php:364
-#: includes/Modules/AdminCustomiser/Module.php:371
-#: includes/Modules/AdminCustomiser/Module.php:386
+#: includes/Modules/AdminCustomiser/Module.php:351
+#: includes/Modules/AdminCustomiser/Module.php:358
+#: includes/Modules/AdminCustomiser/Module.php:365
+#: includes/Modules/AdminCustomiser/Module.php:372
+#: includes/Modules/AdminCustomiser/Module.php:379
 #: includes/Modules/AdminCustomiser/Module.php:394
-#: includes/Modules/AdminCustomiser/Module.php:401
-#: includes/Modules/AdminCustomiser/Module.php:408
+#: includes/Modules/AdminCustomiser/Module.php:402
+#: includes/Modules/AdminCustomiser/Module.php:409
 #: includes/Modules/AdminCustomiser/Module.php:416
-#: includes/Modules/AdminCustomiser/Module.php:562
-#: includes/Modules/AdminCustomiser/Module.php:569
+#: includes/Modules/AdminCustomiser/Module.php:424
+#: includes/Modules/AdminCustomiser/Module.php:570
+#: includes/Modules/AdminCustomiser/Module.php:577
 msgid "Admin bar"
 msgstr "Admin lišta"
 
@@ -16477,48 +16478,48 @@ msgstr "Cílení"
 msgid "Access"
 msgstr "Přístup"
 
-#: includes/Modules/SecurityOptimization/Module.php:502
-#: includes/Modules/SecurityOptimization/Module.php:510
-#: includes/Modules/SecurityOptimization/Module.php:523
-#: includes/Modules/SecurityOptimization/Module.php:531
-#: includes/Modules/SecurityOptimization/Module.php:541
-#: includes/Modules/SecurityOptimization/Module.php:549
+#: includes/Modules/SecurityOptimization/Module.php:505
+#: includes/Modules/SecurityOptimization/Module.php:513
+#: includes/Modules/SecurityOptimization/Module.php:526
+#: includes/Modules/SecurityOptimization/Module.php:534
+#: includes/Modules/SecurityOptimization/Module.php:544
+#: includes/Modules/SecurityOptimization/Module.php:552
 #: build/508.47d3ec983f24b502133c.js:23
 msgid "Firewall"
 msgstr "Firewall"
 
-#: includes/Modules/SecurityOptimization/Module.php:560
-#: includes/Modules/SecurityOptimization/Module.php:568
-#: includes/Modules/SecurityOptimization/Module.php:578
-#: includes/Modules/SecurityOptimization/Module.php:586
-#: includes/Modules/SecurityOptimization/Module.php:594
+#: includes/Modules/SecurityOptimization/Module.php:563
+#: includes/Modules/SecurityOptimization/Module.php:571
+#: includes/Modules/SecurityOptimization/Module.php:581
+#: includes/Modules/SecurityOptimization/Module.php:589
+#: includes/Modules/SecurityOptimization/Module.php:597
 #: build/508.47d3ec983f24b502133c.js:20
 #: build/508.47d3ec983f24b502133c.js:23
 msgid "HTTPS & headers"
 msgstr "HTTPS a hlavičky"
 
-#: includes/Modules/SecurityOptimization/Module.php:665
-#: includes/Modules/SecurityOptimization/Module.php:672
-#: includes/Modules/SecurityOptimization/Module.php:679
-#: includes/Modules/SecurityOptimization/Module.php:1058
-#: includes/Modules/SecurityOptimization/Module.php:1065
-#: includes/Modules/SecurityOptimization/Module.php:1072
-#: includes/Modules/SecurityOptimization/Module.php:1080
-#: includes/Modules/SecurityOptimization/Module.php:1109
-#: includes/Modules/SecurityOptimization/Module.php:1254
-#: includes/Modules/SecurityOptimization/Module.php:1262
-#: includes/Modules/SecurityOptimization/Module.php:1270
-#: includes/Modules/SecurityOptimization/Module.php:1278
+#: includes/Modules/SecurityOptimization/Module.php:668
+#: includes/Modules/SecurityOptimization/Module.php:675
+#: includes/Modules/SecurityOptimization/Module.php:682
+#: includes/Modules/SecurityOptimization/Module.php:1061
+#: includes/Modules/SecurityOptimization/Module.php:1068
+#: includes/Modules/SecurityOptimization/Module.php:1075
+#: includes/Modules/SecurityOptimization/Module.php:1083
+#: includes/Modules/SecurityOptimization/Module.php:1112
+#: includes/Modules/SecurityOptimization/Module.php:1257
+#: includes/Modules/SecurityOptimization/Module.php:1265
+#: includes/Modules/SecurityOptimization/Module.php:1273
+#: includes/Modules/SecurityOptimization/Module.php:1281
 #: build/508.47d3ec983f24b502133c.js:23
 msgid "Hardening"
 msgstr "Zabezpečení"
 
-#: includes/Modules/SecurityOptimization/Module.php:1146
-#: includes/Modules/SecurityOptimization/Module.php:1296
-#: includes/Modules/SecurityOptimization/Module.php:1316
-#: includes/Modules/SecurityOptimization/Module.php:1324
-#: includes/Modules/SecurityOptimization/Module.php:1332
-#: includes/Modules/SecurityOptimization/Module.php:1340
+#: includes/Modules/SecurityOptimization/Module.php:1149
+#: includes/Modules/SecurityOptimization/Module.php:1299
+#: includes/Modules/SecurityOptimization/Module.php:1319
+#: includes/Modules/SecurityOptimization/Module.php:1327
+#: includes/Modules/SecurityOptimization/Module.php:1335
+#: includes/Modules/SecurityOptimization/Module.php:1343
 #: build/508.47d3ec983f24b502133c.js:20
 msgid "Uploads"
 msgstr "Nahrávání"
@@ -16671,23 +16672,23 @@ msgstr "Povolit SSO přihlášení jako administrátor"
 msgid "Lets central app operators sign in to accounts with administrator rights (install plugins, manage users). Off by default: an administrator login can install code, so with this on a leaked node key gives full control of the site. Turn on only together with the allowed IP list. Editors and lower roles sign in either way."
 msgstr "Umožní operátorům centrální aplikace přihlásit se k účtům s právy administrátora (instalace pluginů, správa uživatelů). Ve výchozím stavu vypnuto: přihlášení administrátora může instalovat kód, takže při zapnutí dává uniklý klíč uzlu plnou kontrolu nad webem. Zapínejte jen spolu se seznamem povolených IP adres. Editoři a nižší role se přihlásí tak jako tak."
 
-#: includes/Modules/SecurityOptimization/Module.php:1299
+#: includes/Modules/SecurityOptimization/Module.php:1302
 msgid "Checks new uploads and runs a scheduled night scan of uploads, plugins and themes. It only reports - files are never moved or deleted automatically. Plugin files identical to the official WordPress.org version count as clean. Turning this off stops all scanning (existing findings are kept). CSP violation reporting is unaffected."
 msgstr "Kontroluje nově nahrané soubory a v noci podle plánu prochází uploady, pluginy a šablony. Pouze hlásí - soubory se nikdy automaticky nepřesouvají ani nemažou. Soubory pluginů shodné s oficiální verzí z WordPress.org se berou jako čisté. Vypnutím se zastaví veškeré skenování (stávající nálezy zůstanou). Hlášení porušení CSP to neovlivní."
 
-#: includes/Modules/SecurityOptimization/Module.php:1305
+#: includes/Modules/SecurityOptimization/Module.php:1308
 msgid "Full scan frequency"
 msgstr "Četnost úplného skenu"
 
-#: includes/Modules/SecurityOptimization/Module.php:1306
+#: includes/Modules/SecurityOptimization/Module.php:1309
 msgid "Automatic full scans run only at night, in a 4-hour window starting between 01:00 and 03:00 site time (different for each site), in small batches with pauses, and wait when the server is busy. Unchanged files are skipped without being read; every 4th run reads everything. New uploads are always checked right away."
 msgstr "Automatické plné skeny běží jen v noci, ve 4hodinovém okně se startem mezi 01:00 a 03:00 podle času webu (každý web jindy), po malých dávkách s pauzami a při vytíženém serveru počkají. Nezměněné soubory se přeskočí bez čtení, každý 4. sken přečte vše. Nově nahrané soubory se kontrolují vždy hned."
 
-#: includes/Modules/SecurityOptimization/Module.php:1308
+#: includes/Modules/SecurityOptimization/Module.php:1311
 msgid "Weekly (recommended)"
 msgstr "Týdně (doporučeno)"
 
-#: includes/Modules/SecurityOptimization/Module.php:1310
+#: includes/Modules/SecurityOptimization/Module.php:1313
 msgid "Only when I click \"Scan now\""
 msgstr "Jen když kliknu na „Skenovat nyní“"
 
@@ -17963,89 +17964,89 @@ msgstr "Nejdřív vyplňte URL Google Map nebo Place ID."
 msgid "This violation has no external source that can be allowlisted. Inline code, eval() and data: URIs have to be fixed in the code."
 msgstr "Toto porušení nemá externí zdroj, který by šlo povolit. Inline kód, eval() a data: URI je potřeba opravit v kódu."
 
-#: includes/Modules/SecurityOptimization/Module.php:699
+#: includes/Modules/SecurityOptimization/Module.php:702
 msgid "New slug for the login page. Direct visitors to wp-login.php get the response chosen below. If the slug collides with an existing page/rewrite rule, the redirect is automatically NOT activated (fail-open) and a warning is logged."
 msgstr "Nový slug přihlašovací stránky. Kdo otevře přímo wp-login.php, dostane odpověď zvolenou níže. Pokud slug koliduje s existující stránkou nebo přepisovacím pravidlem, přesměrování se automaticky NEaktivuje (fail-open) a zapíše se varování."
 
-#: includes/Modules/SecurityOptimization/Module.php:707
+#: includes/Modules/SecurityOptimization/Module.php:710
 msgid "What a visitor who opens wp-login.php (or wp-admin while logged out) directly gets once the custom login URL is active."
 msgstr "Co dostane návštěvník, který přímo otevře wp-login.php (nebo nepřihlášený wp-admin), když je aktivní vlastní přihlašovací URL."
 
-#: includes/Modules/SecurityOptimization/Module.php:711
+#: includes/Modules/SecurityOptimization/Module.php:714
 msgid "Custom path on this site"
 msgstr "Vlastní cesta na tomto webu"
 
-#: includes/Modules/SecurityOptimization/Module.php:713
+#: includes/Modules/SecurityOptimization/Module.php:716
 msgid "Custom message (403)"
 msgstr "Vlastní zpráva (403)"
 
 #: includes/Core/Migration/Sources/LoginSource.php:326
-#: includes/Modules/SecurityOptimization/Module.php:721
+#: includes/Modules/SecurityOptimization/Module.php:724
 msgid "Redirect path"
 msgstr "Cesta přesměrování"
 
-#: includes/Modules/SecurityOptimization/Module.php:722
+#: includes/Modules/SecurityOptimization/Module.php:725
 msgid "Used with \"Custom path on this site\". A slug or path on the current domain, e.g. about-us or contact/address. The domain is added automatically, so the redirect keeps working after a domain move."
 msgstr "Pro volbu „Vlastní cesta na tomto webu“. Slug nebo cesta na aktuální doméně, např. o-nas nebo kontakt/adresa. Doména se doplní automaticky, takže přesměrování funguje i po přesunu webu na jinou doménu."
 
-#: includes/Modules/SecurityOptimization/Module.php:729
+#: includes/Modules/SecurityOptimization/Module.php:732
 msgid "Redirect page"
 msgstr "Stránka přesměrování"
 
-#: includes/Modules/SecurityOptimization/Module.php:730
+#: includes/Modules/SecurityOptimization/Module.php:733
 msgid "Used with \"Existing page\"."
 msgstr "Pro volbu „Existující stránka“."
 
-#: includes/Modules/SecurityOptimization/Module.php:738
+#: includes/Modules/SecurityOptimization/Module.php:741
 msgid "Access denied message"
 msgstr "Zpráva o odepření přístupu"
 
-#: includes/Modules/SecurityOptimization/Module.php:739
+#: includes/Modules/SecurityOptimization/Module.php:742
 msgid "Used with \"Custom message (403)\". Plain text shown to the visitor."
 msgstr "Pro volbu „Vlastní zpráva (403)“. Prostý text zobrazený návštěvníkovi."
 
-#: includes/Modules/SecurityOptimization/Module.php:740
-#: includes/Modules/SecurityOptimization/Module.php:2398
+#: includes/Modules/SecurityOptimization/Module.php:743
+#: includes/Modules/SecurityOptimization/Module.php:2423
 msgid "This has been disabled."
 msgstr "Toto bylo zakázáno."
 
-#: includes/Modules/SecurityOptimization/Module.php:854
+#: includes/Modules/SecurityOptimization/Module.php:857
 msgid "Lock out IPs that try a blocked username"
 msgstr "Zablokovat IP, které zkusí zakázané uživatelské jméno"
 
-#: includes/Modules/SecurityOptimization/Module.php:855
+#: includes/Modules/SecurityOptimization/Module.php:858
 msgid "A failed login with a reserved username locks the IP out immediately (for the lockout time above) instead of after the maximum number of attempts. Requires \"Limit login attempts\" and \"Block reserved usernames\"."
 msgstr "Neúspěšné přihlášení se zakázaným jménem zablokuje IP okamžitě (na dobu blokace výše), ne až po maximálním počtu pokusů. Vyžaduje „Omezit pokusy o přihlášení“ a „Blokovat vyhrazená uživatelská jména“."
 
-#: includes/Modules/SecurityOptimization/Module.php:930
+#: includes/Modules/SecurityOptimization/Module.php:933
 msgid "reCAPTCHA v3 minimum score"
 msgstr "Minimální skóre reCAPTCHA v3"
 
-#: includes/Modules/SecurityOptimization/Module.php:931
+#: includes/Modules/SecurityOptimization/Module.php:934
 msgid "Only for Google reCAPTCHA v3. Score from 0.0 (bot) to 1.0 (human); requests below it are rejected. Recommended 0.5."
 msgstr "Jen pro Google reCAPTCHA v3. Skóre od 0.0 (bot) do 1.0 (člověk), požadavky pod ním se odmítnou. Doporučeno 0.5."
 
-#: includes/Modules/SecurityOptimization/Module.php:961
+#: includes/Modules/SecurityOptimization/Module.php:964
 msgid "Adaptive mode threshold"
 msgstr "Práh adaptivního režimu"
 
-#: includes/Modules/SecurityOptimization/Module.php:962
+#: includes/Modules/SecurityOptimization/Module.php:965
 msgid "Only for adaptive mode: after how many failed attempts from one IP the CAPTCHA starts being required (1-20)."
 msgstr "Jen pro adaptivní režim: po kolika neúspěšných pokusech z jedné IP se začne vyžadovat CAPTCHA (1-20)."
 
-#: includes/Modules/SecurityOptimization/Module.php:1334
+#: includes/Modules/SecurityOptimization/Module.php:1337
 msgid "Custom patterns (advanced)"
 msgstr "Vlastní vzory (pokročilé)"
 
-#: includes/Modules/SecurityOptimization/Module.php:1335
+#: includes/Modules/SecurityOptimization/Module.php:1338
 msgid "Your own regular expressions for suspicious code, one per line, e.g. /malicious_function\\s*\\(/i. Lines starting with # are comments. Each matching pattern adds 25 points to the file score. Invalid expressions are commented out on save and never used."
 msgstr "Vlastní regulární výrazy pro podezřelý kód, jeden na řádek, např. /malicious_function\\s*\\(/i. Řádky začínající # jsou komentáře. Každý shodný vzor přidá souboru 25 bodů. Neplatné výrazy se při uložení zakomentují a nikdy se nepoužijí."
 
-#: includes/Modules/SecurityOptimization/Module.php:1342
+#: includes/Modules/SecurityOptimization/Module.php:1345
 msgid "Skipped paths"
 msgstr "Vynechané cesty"
 
-#: includes/Modules/SecurityOptimization/Module.php:1343
+#: includes/Modules/SecurityOptimization/Module.php:1346
 msgid "Files under these paths are never scanned, one per line. Either an absolute path or a path relative to the site, e.g. wp-content/plugins/cache-plugin/. Useful for a trusted plugin that legitimately uses eval() or base64_decode()."
 msgstr "Soubory pod těmito cestami se nikdy neskenují, jedna na řádek. Absolutní cesta nebo cesta relativní k webu, např. wp-content/plugins/cache-plugin/. Hodí se pro důvěryhodný plugin, který oprávněně používá eval() nebo base64_decode()."
 
@@ -18446,49 +18447,49 @@ msgstr "Prohlížeče návštěvníků nahlásily, že web načítá obsah ze zd
 msgid "Open the CSP overview"
 msgstr "Otevřít přehled CSP"
 
-#: includes/Modules/SecurityOptimization/Module.php:604
-#: includes/Modules/SecurityOptimization/Module.php:618
-#: includes/Modules/SecurityOptimization/Module.php:630
-#: includes/Modules/SecurityOptimization/Module.php:639
-#: includes/Modules/SecurityOptimization/Module.php:647
-#: includes/Modules/SecurityOptimization/Module.php:655
+#: includes/Modules/SecurityOptimization/Module.php:607
+#: includes/Modules/SecurityOptimization/Module.php:621
+#: includes/Modules/SecurityOptimization/Module.php:633
+#: includes/Modules/SecurityOptimization/Module.php:642
+#: includes/Modules/SecurityOptimization/Module.php:650
+#: includes/Modules/SecurityOptimization/Module.php:658
 #: build/508.47d3ec983f24b502133c.js:20
 msgid "CSP"
 msgstr "CSP"
 
-#: includes/Modules/SecurityOptimization/Module.php:607
+#: includes/Modules/SecurityOptimization/Module.php:610
 msgid "CSP tells the browser where scripts, styles, images and other content may load from. It can break parts of the website (payments, chat, maps, analytics, booking widgets) when a needed source is missing, so go step by step: Inventory finds out what the website loads, Policy test shows what Enforce would block, and only then Enforce blocks for real. Inventory and Policy test never block anything. CSP is never sent in wp-admin."
 msgstr "CSP říká prohlížeči, odkud se smějí načítat skripty, styly, obrázky a další obsah. Když chybí zdroj, který web potřebuje, může rozbít části webu (platby, chat, mapy, analytiku, rezervační widgety), proto postupujte krok za krokem: Inventura zjistí, co web načítá, Test politiky ukáže, co by Vynucení blokovalo, a teprve potom Vynucení skutečně blokuje. Inventura ani Test politiky nikdy nic neblokují. Ve wp-adminu se CSP neposílá nikdy."
 
-#: includes/Modules/SecurityOptimization/Module.php:610
+#: includes/Modules/SecurityOptimization/Module.php:613
 msgid "Inventory - find out what the website loads (Report only, recommended first)"
 msgstr "Inventura - zjistit, co web načítá (pouze hlášení, doporučený začátek)"
 
-#: includes/Modules/SecurityOptimization/Module.php:611
+#: includes/Modules/SecurityOptimization/Module.php:614
 msgid "Policy test - report what Enforce would block (Report only)"
 msgstr "Test politiky - hlásit, co by Vynucení blokovalo (pouze hlášení)"
 
-#: includes/Modules/SecurityOptimization/Module.php:612
+#: includes/Modules/SecurityOptimization/Module.php:615
 msgid "Enforce - actively block disallowed sources"
 msgstr "Vynucení - aktivně blokovat nepovolené zdroje"
 
-#: includes/Modules/SecurityOptimization/Module.php:642
+#: includes/Modules/SecurityOptimization/Module.php:645
 msgid "One domain per line, added to script/style/img/font/connect/frame sources. Examples: https://cdn.example.com, https://*.example.com, wss://socket.example.com. Sources approved in the inventory below are added only for the type they were seen with and do not need to be listed here."
 msgstr "Jedna doména na řádek, přidá se ke zdrojům script/style/img/font/connect/frame. Příklady: https://cdn.example.com, https://*.example.com, wss://socket.example.com. Zdroje schválené v inventuře se přidávají jen pro typ, se kterým byly zachyceny, a není třeba je sem psát."
 
-#: includes/Modules/SecurityOptimization/Module.php:649
+#: includes/Modules/SecurityOptimization/Module.php:652
 msgid "Report-only sampling (% of page views)"
 msgstr "Vzorkování pouze hlášení (% zobrazení stránek)"
 
-#: includes/Modules/SecurityOptimization/Module.php:650
+#: includes/Modules/SecurityOptimization/Module.php:653
 msgid "Share of page views that carry the Report-only header in Inventory and Policy test. Every report is a small request to the website; lower this on very busy sites. Over 600 reports an hour collecting pauses until the next full hour automatically. Enforce is always sent on every page view."
 msgstr "Podíl zobrazení stránek, které v Inventuře a Testu politiky nesou hlavičku Report-Only. Každý report je malý požadavek na web; na velmi navštěvovaných webech hodnotu snižte. Nad 600 reportů za hodinu se sběr automaticky pozastaví do další celé hodiny. Vynucení se posílá vždy při každém zobrazení stránky."
 
-#: includes/Modules/SecurityOptimization/Module.php:657
+#: includes/Modules/SecurityOptimization/Module.php:660
 msgid "Switch back to Policy test automatically"
 msgstr "Automaticky přepnout zpět na Test politiky"
 
-#: includes/Modules/SecurityOptimization/Module.php:658
+#: includes/Modules/SecurityOptimization/Module.php:661
 msgid "When Enforce blocks several new scripts, connections or frames that visitors keep loading within 72 hours of switching it on, CSP goes back to Policy test (nothing blocked) and the administrator gets an e-mail."
 msgstr "Když Vynucení během 72 hodin od zapnutí zablokuje několik nových skriptů, spojení nebo rámců, které návštěvníci opakovaně načítají, CSP se vrátí na Test politiky (nic se neblokuje) a administrátor dostane e-mail."
 
@@ -22589,17 +22590,17 @@ msgid "No old plugin is ever deactivated automatically. You decide at the end, a
 msgstr "Žádný starý plugin se nikdy nedeaktivuje automaticky. Rozhodnete až na konci a i potom se můžete vrátit zpět."
 
 #: includes/Core/Migration/Sources/CaptchaSource.php:66
-#: includes/Modules/SecurityOptimization/Module.php:969
+#: includes/Modules/SecurityOptimization/Module.php:972
 msgid "Protected forms"
 msgstr "Chráněné formuláře"
 
 #: includes/Core/Migration/Sources/CaptchaSource.php:68
-#: includes/Modules/SecurityOptimization/Module.php:987
+#: includes/Modules/SecurityOptimization/Module.php:990
 msgid "Widget theme"
 msgstr "Motiv widgetu"
 
 #: includes/Core/Migration/Sources/CaptchaSource.php:71
-#: includes/Modules/SecurityOptimization/Module.php:1000
+#: includes/Modules/SecurityOptimization/Module.php:1003
 msgid "Widget size"
 msgstr "Velikost widgetu"
 
@@ -22633,22 +22634,22 @@ msgid "The e-mail address for lockout notices in the plugin is not valid, so the
 msgstr "E-mailová adresa pro upozornění na blokace v pluginu není platná, proto modul píše správci webu."
 
 #: includes/Core/Migration/Sources/LoginSource.php:186
-#: includes/Modules/SecurityOptimization/Module.php:777
+#: includes/Modules/SecurityOptimization/Module.php:780
 msgid "Lockout e-mail address"
 msgstr "E-mail pro upozornění na blokaci"
 
 #: includes/Core/Migration/Sources/LoginSource.php:205
-#: includes/Modules/SecurityOptimization/Module.php:785
+#: includes/Modules/SecurityOptimization/Module.php:788
 msgid "Lengthen repeated lockouts"
 msgstr "Prodlužovat opakované blokace"
 
 #: includes/Core/Migration/Sources/LoginSource.php:206
-#: includes/Modules/SecurityOptimization/Module.php:793
+#: includes/Modules/SecurityOptimization/Module.php:796
 msgid "Lockout multiplier"
 msgstr "Násobitel blokace"
 
 #: includes/Core/Migration/Sources/LoginSource.php:207
-#: includes/Modules/SecurityOptimization/Module.php:801
+#: includes/Modules/SecurityOptimization/Module.php:804
 msgid "Longest lockout (hours)"
 msgstr "Nejdelší blokace (hodiny)"
 
@@ -22692,25 +22693,25 @@ msgstr "Chyba:"
 msgid "Comment Submission Failure"
 msgstr "Odeslání komentáře se nezdařilo"
 
-#: includes/Modules/SecurityOptimization/Module.php:778
+#: includes/Modules/SecurityOptimization/Module.php:781
 msgid "Where the lockout e-mail goes. Leave empty to use the site administrator address."
 msgstr "Kam se posílá e-mail o blokaci. Nechte prázdné, použije se adresa správce webu."
 
-#: includes/Modules/SecurityOptimization/Module.php:786
+#: includes/Modules/SecurityOptimization/Module.php:789
 msgid "Every new lockout of the same IP address within 24 hours lasts longer than the previous one: the lockout time is multiplied by the factor below, up to the maximum. Off = every lockout lasts the same time."
 msgstr "Každá další blokace stejné IP adresy během 24 hodin trvá déle než předchozí: doba blokace se vynásobí faktorem níže, nejvýše však do maxima. Vypnuto = každá blokace trvá stejně dlouho."
 
-#: includes/Modules/SecurityOptimization/Module.php:794
+#: includes/Modules/SecurityOptimization/Module.php:797
 msgid "Factor per repeated lockout, for example 2 turns 30, 60, 120 minutes. From 1 to 10."
 msgstr "Faktor za každou opakovanou blokaci, například 2 z 30 minut udělá 30, 60, 120 minut. Od 1 do 10."
 
-#: includes/Modules/SecurityOptimization/Module.php:802
+#: includes/Modules/SecurityOptimization/Module.php:805
 msgid "A lockout never lasts longer than this, from 1 to 168 hours."
 msgstr "Blokace nikdy nepotrvá déle než tato doba, od 1 do 168 hodin."
 
-#: includes/Modules/SecurityOptimization/Module.php:809
-#: includes/Modules/SecurityOptimization/Module.php:817
-#: includes/Modules/SecurityOptimization/Module.php:826
+#: includes/Modules/SecurityOptimization/Module.php:812
+#: includes/Modules/SecurityOptimization/Module.php:820
+#: includes/Modules/SecurityOptimization/Module.php:829
 #: includes/Modules/SecurityOptimization/TwoFactor.php:226
 #: includes/Modules/SecurityOptimization/TwoFactor.php:610
 #: build/508.47d3ec983f24b502133c.js:20
@@ -22718,47 +22719,47 @@ msgstr "Blokace nikdy nepotrvá déle než tato doba, od 1 do 168 hodin."
 msgid "Two-step verification"
 msgstr "Dvoufázové ověření"
 
-#: includes/Modules/SecurityOptimization/Module.php:811
+#: includes/Modules/SecurityOptimization/Module.php:814
 msgid "Enable two-step verification"
 msgstr "Zapnout dvoufázové ověření"
 
-#: includes/Modules/SecurityOptimization/Module.php:812
+#: includes/Modules/SecurityOptimization/Module.php:815
 msgid "Lets users protect their account with a code from an authenticator app (Google Authenticator, Authy, 1Password ...). Everybody sets it up in their own profile; recovery codes cover a lost phone. Application passwords (REST API) are not affected. Rescue switch: define UXSTUDIO_DISABLE_2FA as true in wp-config.php to switch the second step off for everybody if you get locked out. Switching this off stops the second step for all users; their settings stay saved."
 msgstr "Uživatelé si mohou chránit účet kódem z aplikace pro ověřování (Google Authenticator, Authy, 1Password ...). Každý si ho nastaví ve svém profilu, záložní kódy řeší ztracený telefon. Hesla aplikací (REST API) to neovlivní. Záchranný přepínač: definujte ve wp-config.php UXSTUDIO_DISABLE_2FA jako true, a druhý krok se pro všechny vypne, kdybyste se zamkli. Vypnutím tohoto přepínače se druhý krok přestane vyžadovat u všech, nastavení uživatelů zůstane uložené."
 
-#: includes/Modules/SecurityOptimization/Module.php:819
+#: includes/Modules/SecurityOptimization/Module.php:822
 msgid "Require for roles"
 msgstr "Vyžadovat pro role"
 
-#: includes/Modules/SecurityOptimization/Module.php:820
+#: includes/Modules/SecurityOptimization/Module.php:823
 msgid "Users with these roles are asked to set up two-step verification after logging in. Nobody is locked out: they can postpone it for the number of logins below, then only their profile page is open until the setup is done."
 msgstr "Uživatelé s těmito rolemi budou po přihlášení vyzváni k nastavení dvoufázového ověření. Nikdo se nezamkne: nastavení mohou odložit o počet přihlášení níže, potom je do dokončení nastavení otevřený jen jejich profil."
 
-#: includes/Modules/SecurityOptimization/Module.php:828
+#: includes/Modules/SecurityOptimization/Module.php:831
 msgid "Logins that may skip the setup"
 msgstr "Přihlášení bez nastavení"
 
-#: includes/Modules/SecurityOptimization/Module.php:829
+#: includes/Modules/SecurityOptimization/Module.php:832
 msgid "For roles that must use two-step verification. 0 = the setup is compulsory from the first login."
 msgstr "Pro role, které musí dvoufázové ověření používat. 0 = nastavení je povinné od prvního přihlášení."
 
-#: includes/Modules/SecurityOptimization/Module.php:970
+#: includes/Modules/SecurityOptimization/Module.php:973
 msgid "Which forms show and verify the CAPTCHA widget. The standalone gate always covers login and lost password on wp-login.php; registration, comments and WooCommerce forms are protected with either placement. Logged-in visitors are never asked on comments and checkout. WooCommerce checkout means the classic checkout (the block checkout has no place for the widget)."
 msgstr "Které formuláře zobrazují a ověřují widget CAPTCHA. Samostatná stránka vždy chrání přihlášení a obnovení hesla na wp-login.php; registrace, komentáře a formuláře WooCommerce se chrání u obou umístění. Přihlášených návštěvníků se u komentářů a pokladny nikdy neptá. Pokladna WooCommerce znamená klasickou pokladnu (blokové pokladně chybí místo pro widget)."
 
-#: includes/Modules/SecurityOptimization/Module.php:976
+#: includes/Modules/SecurityOptimization/Module.php:979
 msgid "WooCommerce login"
 msgstr "Přihlášení WooCommerce"
 
-#: includes/Modules/SecurityOptimization/Module.php:977
+#: includes/Modules/SecurityOptimization/Module.php:980
 msgid "WooCommerce registration"
 msgstr "Registrace WooCommerce"
 
-#: includes/Modules/SecurityOptimization/Module.php:978
+#: includes/Modules/SecurityOptimization/Module.php:981
 msgid "WooCommerce lost password"
 msgstr "Obnovení hesla WooCommerce"
 
-#: includes/Modules/SecurityOptimization/Module.php:979
+#: includes/Modules/SecurityOptimization/Module.php:982
 msgid "WooCommerce checkout"
 msgstr "Pokladna WooCommerce"
 
@@ -22766,29 +22767,29 @@ msgstr "Pokladna WooCommerce"
 msgid "For Cloudflare Turnstile and reCAPTCHA v2. reCAPTCHA has no automatic theme and shows the light one."
 msgstr "Pro Cloudflare Turnstile a reCAPTCHA v2. reCAPTCHA nemá automatický motiv a zobrazí světlý."
 
-#: includes/Modules/SecurityOptimization/Module.php:990
+#: includes/Modules/SecurityOptimization/Module.php:993
 msgid "Automatic (follows the visitor)"
 msgstr "Automaticky (podle návštěvníka)"
 
-#: includes/Modules/SecurityOptimization/Module.php:991
+#: includes/Modules/SecurityOptimization/Module.php:994
 #: build/792.44dda73a4e82141856be.js:7
 msgid "Light"
 msgstr "Světlý"
 
-#: includes/Modules/SecurityOptimization/Module.php:992
+#: includes/Modules/SecurityOptimization/Module.php:995
 #: build/792.44dda73a4e82141856be.js:7
 msgid "Dark"
 msgstr "Tmavý"
 
-#: includes/Modules/SecurityOptimization/Module.php:1001
+#: includes/Modules/SecurityOptimization/Module.php:1004
 msgid "For Cloudflare Turnstile and reCAPTCHA v2. Flexible (Turnstile only) fills the width of the form; reCAPTCHA shows it as normal."
 msgstr "Pro Cloudflare Turnstile a reCAPTCHA v2. Pružná velikost (jen Turnstile) vyplní šířku formuláře; reCAPTCHA ji zobrazí jako normální."
 
-#: includes/Modules/SecurityOptimization/Module.php:1004
+#: includes/Modules/SecurityOptimization/Module.php:1007
 msgid "Compact"
 msgstr "Kompaktní"
 
-#: includes/Modules/SecurityOptimization/Module.php:1005
+#: includes/Modules/SecurityOptimization/Module.php:1008
 msgid "Flexible"
 msgstr "Pružná"
 
@@ -23401,7 +23402,7 @@ msgid "The plugin blocks these screens for some roles. UX Studio never blocks UX
 msgstr "Plugin tyto obrazovky pro některé role blokuje. UX Studio nikdy neblokuje UX Studio, Pluginy, Uživatele a Nastavení (nikdo se nesmí vyzamknout), takže zůstávají dostupné po zadání adresy: %s."
 
 #: includes/Core/Migration/Sources/AbstractAdminSource.php:405
-#: includes/Modules/AdminCustomiser/Module.php:315
+#: includes/Modules/AdminCustomiser/Module.php:323
 msgid "Block access to hidden pages"
 msgstr "Zablokovat přístup ke skrytým stránkám"
 
@@ -23468,7 +23469,7 @@ msgstr "%1$d položek menu závisí na roli „%2$s“, kterou tento web nemá. 
 msgid "Menu items with roles or several conditions"
 msgstr "Položky menu s rolemi nebo víc podmínkami"
 
-#: includes/Modules/AdminCustomiser/Module.php:316
+#: includes/Modules/AdminCustomiser/Module.php:324
 msgid "Off: the Menu Organizer only hides menu items, a hidden page still opens when its address is typed in. On: a page that is hidden from a user (limited to other roles, or hidden for everybody) is refused with \"Sorry, you are not allowed to access this page\" for users who cannot manage options. Sub-items follow their parent item, except a sub-item moved to the top level that the user can see. Never blocked: users who can manage options, the dashboard, the profile, UX Studio, Plugins, Users and Settings, AJAX and REST. Needs the menu organizer to be on. Rescue switch: define UXSTUDIO_DISABLE_MENU_LOCK as true in wp-config.php to switch the blocking off for everybody."
 msgstr "Vypnuto: Organizér menu položky jen skrývá, skrytá stránka se dál otevře po zadání její adresy. Zapnuto: stránka, která je před uživatelem skrytá (omezená na jiné role nebo skrytá pro všechny), je uživatelům, kteří nesmějí spravovat nastavení, odmítnuta hláškou „Je nám líto, ale k této stránce nemáte oprávnění“. Podpoložky následují nadřazenou položku, kromě podpoložky přesunuté na nejvyšší úroveň, kterou uživatel vidí. Nikdy se neblokuje: uživatelé, kteří smějí spravovat nastavení, nástěnka, profil, UX Studio, Pluginy, Uživatelé a Nastavení, AJAX a REST. Vyžaduje zapnutý Organizér menu. Záchranný přepínač: definujte v wp-config.php UXSTUDIO_DISABLE_MENU_LOCK jako true a blokování se pro všechny vypne."
 
@@ -23630,25 +23631,25 @@ msgstr "Pravidla přístupu pro zvláštní aktéry, kteří nejsou role ani jed
 
 #: includes/Core/Migration/Sources/LoginPressSource.php:80
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:97
-#: includes/Modules/AdminCustomiser/Module.php:610
+#: includes/Modules/AdminCustomiser/Module.php:618
 msgid "Login button background color on hover"
 msgstr "Barva pozadí přihlašovacího tlačítka při najetí myší"
 
 #: includes/Core/Migration/Sources/LoginPressSource.php:81
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:98
-#: includes/Modules/AdminCustomiser/Module.php:617
+#: includes/Modules/AdminCustomiser/Module.php:625
 msgid "Login button text color on hover"
 msgstr "Barva textu přihlašovacího tlačítka při najetí myší"
 
 #: includes/Core/Migration/Sources/LoginPressSource.php:119
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:126
-#: includes/Modules/AdminCustomiser/Module.php:589
+#: includes/Modules/AdminCustomiser/Module.php:597
 msgid "Login screen background image"
 msgstr "Obrázek na pozadí přihlašovací obrazovky"
 
 #: includes/Core/Migration/Sources/LoginPressSource.php:120
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:127
-#: includes/Modules/AdminCustomiser/Module.php:597
+#: includes/Modules/AdminCustomiser/Module.php:605
 msgid "Login screen background image: fit"
 msgstr "Obrázek na pozadí přihlašovací obrazovky: přizpůsobení"
 
@@ -23660,7 +23661,7 @@ msgstr "Obrázek na pozadí přihlášení %s není v mediální knihovně tohot
 
 #: includes/Core/Migration/Sources/LoginPressSource.php:132
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:150
-#: includes/Modules/AdminCustomiser/Module.php:632
+#: includes/Modules/AdminCustomiser/Module.php:640
 msgid "Custom CSS of the login page"
 msgstr "Vlastní CSS přihlašovací stránky"
 
@@ -23670,7 +23671,7 @@ msgid "The own CSS of the login screen is copied as it is; UX Studio removes HTM
 msgstr "Vlastní CSS přihlašovací obrazovky se zkopíruje tak, jak je; UX Studio z něj odstraní HTML značky a ořízne ho na 50 KB, proto po přepnutí zkontrolujte přihlašovací obrazovku."
 
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:99
-#: includes/Modules/AdminCustomiser/Module.php:624
+#: includes/Modules/AdminCustomiser/Module.php:632
 msgid "Login screen link color on hover"
 msgstr "Barva odkazů na přihlašovací obrazovce při najetí myší"
 
@@ -23699,7 +23700,7 @@ msgid "Dashboard widgets are hidden in the plugin for roles that do not exist on
 msgstr "Widgety nástěnky jsou v pluginu skryté pro role, které na tomto webu neexistují: %s."
 
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:307
-#: includes/Modules/AdminCustomiser/Module.php:640
+#: includes/Modules/AdminCustomiser/Module.php:648
 msgid "Custom CSS of the admin area"
 msgstr "Vlastní CSS administrace"
 
@@ -23772,35 +23773,35 @@ msgstr "Meta boxy"
 msgid "The list is filled by the edit screens you open (open the edit screen of a post type once to see the boxes plugins add). The Publish box can not be hidden. A user with several roles has a box hidden only when every role hides it."
 msgstr "Seznam se plní z obrazovek úprav, které otevřete (otevřete jednou obrazovku úprav daného typu obsahu, aby se zobrazily boxy přidané pluginy). Box Publikovat skrýt nejde. Uživateli s více rolemi se box skryje jen tehdy, když ho skrývá každá z jeho rolí."
 
-#: includes/Modules/AdminCustomiser/Module.php:590
+#: includes/Modules/AdminCustomiser/Module.php:598
 msgid "Shown behind the classic login layout (the split layout has its own media panel). The background color above shows where the image does not reach."
 msgstr "Zobrazí se za klasickým rozvržením přihlášení (rozdělené rozvržení má vlastní panel s médiem). Barva pozadí výše se ukáže tam, kam obrázek nedosahuje."
 
-#: includes/Modules/AdminCustomiser/Module.php:599
+#: includes/Modules/AdminCustomiser/Module.php:607
 msgid "Cover the whole screen"
 msgstr "Přes celou obrazovku"
 
-#: includes/Modules/AdminCustomiser/Module.php:600
+#: includes/Modules/AdminCustomiser/Module.php:608
 msgid "Fit inside the screen"
 msgstr "Vejde se do obrazovky"
 
-#: includes/Modules/AdminCustomiser/Module.php:601
+#: includes/Modules/AdminCustomiser/Module.php:609
 msgid "Original size, centered"
 msgstr "Původní velikost, vystředěný"
 
-#: includes/Modules/AdminCustomiser/Module.php:602
+#: includes/Modules/AdminCustomiser/Module.php:610
 msgid "Repeat (tile)"
 msgstr "Dlaždicově (opakovaně)"
 
-#: includes/Modules/AdminCustomiser/Module.php:625
+#: includes/Modules/AdminCustomiser/Module.php:633
 msgid "The links under the form (\"Lost your password?\", \"Back to the site\")."
 msgstr "Odkazy pod formulářem („Zapomenuté heslo?“, „Zpět na web“)."
 
-#: includes/Modules/AdminCustomiser/Module.php:633
+#: includes/Modules/AdminCustomiser/Module.php:641
 msgid "Printed in the head of the login, lost-password and registration screens, also when login screen customization above is off. Plain CSS only: HTML tags are stripped and the size is limited to 50 KB. It is never printed on the front end of the site."
 msgstr "Vypíše se v hlavičce přihlašovací obrazovky, obrazovky zapomenutého hesla a registrace, i když je přizpůsobení přihlašovací obrazovky výše vypnuté. Jen čisté CSS: HTML značky se odstraňují a velikost je omezená na 50 KB. Na veřejný web se nikdy nevypisuje."
 
-#: includes/Modules/AdminCustomiser/Module.php:641
+#: includes/Modules/AdminCustomiser/Module.php:649
 msgid "Printed in the head of every admin screen, after the other admin styles. Plain CSS only: HTML tags are stripped and the size is limited to 50 KB. It is never printed on the front end of the site. Own JavaScript for the admin is not supported on purpose."
 msgstr "Vypíše se v hlavičce každé obrazovky administrace, za ostatními styly administrace. Jen čisté CSS: HTML značky se odstraňují a velikost je omezená na 50 KB. Na veřejný web se nikdy nevypisuje. Vlastní JavaScript pro administraci se záměrně nepodporuje."
 
@@ -23916,7 +23917,7 @@ msgstr[1] "%d snippety používaly cílení podle stránky, uživatele, role neb
 msgstr[2] "%d snippetů používalo cílení podle stránky, uživatele, role nebo zařízení. Převedou se na podmínky spuštění (typ stránky, typ obsahu, konkrétní příspěvky, přihlášený nebo odhlášený, role, zařízení), takže poběží jen tam, kde běžely dřív."
 
 #: includes/Core/Migration/Sources/DisableCommentsSource.php:105
-#: includes/Modules/SecurityOptimization/Module.php:1211
+#: includes/Modules/SecurityOptimization/Module.php:1214
 msgid "Roles that may still comment"
 msgstr "Role, které smějí dál komentovat"
 
@@ -23926,12 +23927,12 @@ msgid "These roles of the exceptions no longer exist on the site and are not tra
 msgstr "Tyto role z výjimek na webu už neexistují a nepřenášejí se: %s."
 
 #: includes/Core/Migration/Sources/DisableCommentsSource.php:121
-#: includes/Modules/SecurityOptimization/Module.php:1220
+#: includes/Modules/SecurityOptimization/Module.php:1223
 msgid "Comment types that stay allowed"
 msgstr "Typy komentářů, které zůstanou povolené"
 
 #: includes/Core/Migration/Sources/DisableCommentsSource.php:124
-#: includes/Modules/SecurityOptimization/Module.php:1229
+#: includes/Modules/SecurityOptimization/Module.php:1232
 msgid "Comment types to refuse"
 msgstr "Typy komentářů k odmítnutí"
 
@@ -23941,7 +23942,7 @@ msgid "The module can allow or refuse only pingbacks, trackbacks and (refuse) pr
 msgstr "Modul umí povolit nebo odmítnout jen pingbacky, trackbacky a (odmítnout) hodnocení produktů. Pravidla pro tyto typy komentářů se nepřenášejí: %s."
 
 #: includes/Core/Migration/Sources/DisableCommentsSource.php:139
-#: includes/Modules/SecurityOptimization/Module.php:1238
+#: includes/Modules/SecurityOptimization/Module.php:1241
 msgid "Close comments on posts older than (days)"
 msgstr "Zavřít komentáře u příspěvků starších než (dny)"
 
@@ -24121,39 +24122,39 @@ msgstr "Zdroj, který uvádí parametry adresy, nemůže parametry ignorovat ani
 msgid "Pass ids, or all=true to reset every counter."
 msgstr "Zadejte ids, nebo all=true pro vynulování všech počitadel."
 
-#: includes/Modules/SecurityOptimization/Module.php:1212
+#: includes/Modules/SecurityOptimization/Module.php:1215
 msgid "Users with these roles (and visitors who are not logged in, when that is ticked) are not affected by \"Disable comments\" or by closing comments on old posts: for them comments, the comment tools in the admin and the REST routes work as in WordPress. The choice is made per request, so a page served from a page cache looks the same to everybody; keep pages with a comment form out of the cache."
 msgstr "Uživatelů s těmito rolemi (a návštěvníků bez přihlášení, je-li zaškrtnuto) se nedotýká „Zakázat komentáře“ ani zavírání komentářů u starých příspěvků: komentáře, nástroje komentářů v administraci a trasy REST jim fungují jako ve WordPressu. Rozhoduje se při každém požadavku, takže stránka z cache je pro všechny stejná; stránky s formulářem komentářů z cache vyřaďte."
 
-#: includes/Modules/SecurityOptimization/Module.php:1221
+#: includes/Modules/SecurityOptimization/Module.php:1224
 msgid "Pingbacks and trackbacks (notices from other sites) can stay on although comments are disabled. Used only while \"Disable comments\" is on; a type that is not ticked is refused. Pingbacks travel through XML-RPC, so they also need \"Disable XML-RPC\" to be off, otherwise pings stay closed."
 msgstr "Pingbacky a trackbacky (upozornění z jiných webů) mohou zůstat zapnuté, i když jsou komentáře zakázané. Používá se jen při zapnutém „Zakázat komentáře“; typ, který není zaškrtnutý, se odmítne. Pingbacky chodí přes XML-RPC, takže musí být vypnuté i „Zakázat XML-RPC“, jinak zůstanou pingy zavřené."
 
-#: includes/Modules/SecurityOptimization/Module.php:1230
+#: includes/Modules/SecurityOptimization/Module.php:1233
 msgid "New comments of these types are refused even where comments are open (for example pingbacks, or product reviews while ordinary comments stay open). Existing comments are not touched. Works without \"Disable comments\"."
 msgstr "Nové komentáře těchto typů se odmítnou i tam, kde jsou komentáře otevřené (například pingbacky nebo hodnocení produktů, zatímco běžné komentáře zůstávají otevřené). Existující komentáře se nemění. Funguje i bez „Zakázat komentáře“."
 
-#: includes/Modules/SecurityOptimization/Module.php:1231
+#: includes/Modules/SecurityOptimization/Module.php:1234
 msgid "Product reviews"
 msgstr "Hodnocení produktů"
 
-#: includes/Modules/SecurityOptimization/Module.php:1239
+#: includes/Modules/SecurityOptimization/Module.php:1242
 msgid "0 = never. Comments and pingbacks are closed on content published more than this many days ago. The module does this itself (it filters whether comments are open); the WordPress option \"Automatically close comments on old posts\" is not changed, so switching the module off restores the earlier state. Existing comments stay visible."
 msgstr "0 = nikdy. Komentáře a pingbacky se zavřou u obsahu publikovaného před více než tímto počtem dnů. Modul to dělá sám (filtruje, zda jsou komentáře otevřené); volba WordPressu „Automaticky zavírat komentáře u starých příspěvků“ se nemění, takže po vypnutí modulu je stav jako dřív. Existující komentáře zůstanou vidět."
 
-#: includes/Modules/SecurityOptimization/Module.php:2705
+#: includes/Modules/SecurityOptimization/Module.php:2730
 msgid "This type of comment is not accepted."
 msgstr "Tento typ komentáře se nepřijímá."
 
-#: includes/Modules/SecurityOptimization/Module.php:2773
+#: includes/Modules/SecurityOptimization/Module.php:2798
 msgid "Visitors who are not logged in"
 msgstr "Návštěvníci bez přihlášení"
 
-#: includes/Modules/SecurityOptimization/Module.php:2784
+#: includes/Modules/SecurityOptimization/Module.php:2809
 msgid "Pingbacks"
 msgstr "Pingbacky"
 
-#: includes/Modules/SecurityOptimization/Module.php:2785
+#: includes/Modules/SecurityOptimization/Module.php:2810
 msgid "Trackbacks"
 msgstr "Trackbacky"
 
@@ -25837,19 +25838,19 @@ msgstr "[%s] Vaše nová přihlašovací adresa je aktivní"
 msgid "The new login address of your site is active.\n\nLog in here:\n%1$s\n\nThe usual address (wp-login.php) no longer shows the login form. Save the new address in your password manager.\n\nYou can change or switch it off in UX Studio > Security > Login:\n%2$s\n\nIf you cannot log in at all, add this line to wp-config.php and the old address works again:\ndefine( 'UXSTUDIO_DISABLE_LOGIN_LOCK', true );"
 msgstr "Nová přihlašovací adresa vašeho webu je aktivní.\n\nPřihlaste se zde:\n%1$s\n\nObvyklá adresa (wp-login.php) už přihlašovací formulář neukazuje. Novou adresu si uložte do správce hesel.\n\nZměnit nebo vypnout ji můžete v UX Studio > Zabezpečení > Přihlášení:\n%2$s\n\nPokud se nemůžete přihlásit vůbec, přidejte do wp-config.php tento řádek a stará adresa bude zase fungovat:\ndefine( 'UXSTUDIO_DISABLE_LOGIN_LOCK', true );"
 
-#: includes/Modules/SecurityOptimization/Module.php:1074
+#: includes/Modules/SecurityOptimization/Module.php:1077
 msgid "Hide WordPress links in the page head"
 msgstr "Skrýt odkazy WordPressu v hlavičce stránky"
 
-#: includes/Modules/SecurityOptimization/Module.php:1075
+#: includes/Modules/SecurityOptimization/Module.php:1078
 msgid "Removes the RSD, Windows Live Writer, short link and REST API address links from the page head and the matching HTTP headers, so the site does not announce that it runs on WordPress. The REST API itself keeps working. Use together with \"Hide WordPress version\"."
 msgstr "Odstraní z hlavičky stránky odkazy RSD, Windows Live Writer, krátký odkaz a adresu REST API i odpovídající HTTP hlavičky, aby web neprozrazoval, že běží na WordPressu. Samotné REST API dál funguje. Používejte společně s volbou „Skrýt verzi WordPressu“."
 
-#: includes/Modules/SecurityOptimization/Module.php:1082
+#: includes/Modules/SecurityOptimization/Module.php:1085
 msgid "No e-mails about successful automatic updates"
 msgstr "Bez e-mailů o úspěšných automatických aktualizacích"
 
-#: includes/Modules/SecurityOptimization/Module.php:1083
+#: includes/Modules/SecurityOptimization/Module.php:1086
 msgid "Stops the e-mails WordPress sends after automatic updates of plugins, themes and core. Updates keep running. E-mails about failed or critical core updates and manual-action messages are still sent."
 msgstr "Zastaví e-maily, které WordPress posílá po automatických aktualizacích pluginů, šablon a jádra. Aktualizace dál probíhají. E-maily o neúspěšných nebo kritických aktualizacích jádra a zprávy vyžadující ruční zásah se stále posílají."
 
@@ -27869,7 +27870,7 @@ msgstr "Děkujeme za zpětnou vazbu"
 msgid "Complaint received"
 msgstr "Reklamace přijata"
 
-#: includes/Modules/SecurityOptimization/Module.php:1264
+#: includes/Modules/SecurityOptimization/Module.php:1267
 msgid "Delete unused default themes"
 msgstr "Smazat nepoužité výchozí motivy"
 
@@ -28155,7 +28156,7 @@ msgstr "Co návštěvník uvidí po odeslání formuláře (poděkování, zprá
 msgid "Switches off comments, the file editor and XML-RPC, hides the WordPress version, sends security headers, limits login attempts, slows down Heartbeat, keeps 10 revisions, removes the emoji script and deletes unused default themes that WordPress itself brought (Twenty*, never a manually installed one, the newest one stays as the fallback)."
 msgstr "Vypne komentáře, editor souborů a XML-RPC, skryje verzi WordPressu, odesílá bezpečnostní hlavičky, omezuje pokusy o přihlášení, zpomalí Heartbeat, ponechá 10 revizí, odstraní skript emoji a smaže nepoužívané výchozí šablony, které přinesl sám WordPress (Twenty*, nikdy ručně nainstalovanou; nejnovější zůstane jako záložní)."
 
-#: includes/Modules/SecurityOptimization/Module.php:1265
+#: includes/Modules/SecurityOptimization/Module.php:1268
 msgid "Deletes the default Twenty* themes (Twenty Twenty-Four etc.) that WordPress itself brought - with the install or with a core update - and that nothing uses; an unused theme is only extra attack surface. A Twenty* theme that somebody installed by hand (upload, wordpress.org, FTP) is never deleted. Also never touches the active theme, its parent/child, or any theme that is the parent of another installed theme. The newest default theme always stays as the fallback WordPress switches to if the active theme breaks. Runs on save and then at most once a day while you are in the admin."
 msgstr "Smaže výchozí šablony Twenty* (Twenty Twenty-Four apod.), které přinesl sám WordPress, s instalací nebo s aktualizací jádra, a které nic nepoužívá; nepoužívaná šablona je jen zbytečná útočná plocha. Šablona Twenty*, kterou někdo nainstaloval ručně (nahráním, z wordpress.org nebo přes FTP), se nikdy nesmaže. Nikdy se nedotkne ani aktivní šablony, její nadřazené či podřízené šablony ani šablony, která je nadřazená jiné nainstalované. Nejnovější výchozí šablona vždy zůstane jako záložní, na kterou WordPress přepne, když aktivní šablona selže. Spouští se při uložení a pak nejvýše jednou denně, když jste v administraci."
 
@@ -30024,59 +30025,59 @@ msgstr "Modul Zabezpečení není k dispozici."
 msgid "The site already has its own CAPTCHA keys. Remove them in Security > CAPTCHA first if you want keys from the central application."
 msgstr "Web už má vlastní klíče CAPTCHA. Chcete-li klíče z centrální aplikace, nejdřív je odstraňte v Zabezpečení > CAPTCHA."
 
-#: includes/Modules/SecurityOptimization/Module.php:873
+#: includes/Modules/SecurityOptimization/Module.php:876
 msgid "Automatic uses keys from the central application when the site is connected, then your own keys, and the key-less Shield when there are none. The Shield needs no account and no keys."
 msgstr "Automaticky použije klíče z centrální aplikace, když je web připojený, potom vaše vlastní klíče, a když žádné nejsou, Štít bez klíčů. Štít nepotřebuje účet ani klíče."
 
-#: includes/Modules/SecurityOptimization/Module.php:875
+#: includes/Modules/SecurityOptimization/Module.php:878
 msgid "Automatic (keys if there are any, otherwise the Shield)"
 msgstr "Automaticky (klíče, pokud jsou, jinak Štít)"
 
-#: includes/Modules/SecurityOptimization/Module.php:876
+#: includes/Modules/SecurityOptimization/Module.php:879
 msgid "UX Studio Shield (no keys)"
 msgstr "Štít UX Studia (bez klíčů)"
 
-#: includes/Modules/SecurityOptimization/Module.php:888
+#: includes/Modules/SecurityOptimization/Module.php:891
 msgid "Type of your own keys"
 msgstr "Typ vlastních klíčů"
 
-#: includes/Modules/SecurityOptimization/Module.php:889
+#: includes/Modules/SecurityOptimization/Module.php:892
 msgid "Only for Automatic: which service the keys below belong to."
 msgstr "Jen pro automatický režim: ke které službě patří klíče níže."
 
-#: includes/Modules/SecurityOptimization/Module.php:901
+#: includes/Modules/SecurityOptimization/Module.php:904
 msgid "Shield difficulty"
 msgstr "Obtížnost Štítu"
 
-#: includes/Modules/SecurityOptimization/Module.php:902
+#: includes/Modules/SecurityOptimization/Module.php:905
 msgid "How much computing the browser of the visitor does before the form is accepted. Medium takes a fraction of a second on a computer and about a second on an older phone."
 msgstr "Kolik práce udělá prohlížeč návštěvníka, než se formulář přijme. Střední obtížnost trvá na počítači zlomek vteřiny a na starším telefonu kolem vteřiny."
 
-#: includes/Modules/SecurityOptimization/Module.php:904
+#: includes/Modules/SecurityOptimization/Module.php:907
 msgid "Easy"
 msgstr "Lehká"
 
-#: includes/Modules/SecurityOptimization/Module.php:905
+#: includes/Modules/SecurityOptimization/Module.php:908
 msgid "Medium (default)"
 msgstr "Střední (výchozí)"
 
-#: includes/Modules/SecurityOptimization/Module.php:906
+#: includes/Modules/SecurityOptimization/Module.php:909
 msgid "Hard"
 msgstr "Těžká"
 
-#: includes/Modules/SecurityOptimization/Module.php:914
+#: includes/Modules/SecurityOptimization/Module.php:917
 msgid "Make the Shield harder after failed logins"
 msgstr "Zvýšit obtížnost Štítu po neúspěšných přihlášeních"
 
-#: includes/Modules/SecurityOptimization/Module.php:915
+#: includes/Modules/SecurityOptimization/Module.php:918
 msgid "An address with recent failed logins (the threshold below) gets the next harder difficulty for 15 minutes."
 msgstr "Adresa s nedávnými neúspěšnými přihlášeními (práh níže) dostane na 15 minut o stupeň těžší úlohu."
 
-#: includes/Modules/SecurityOptimization/Module.php:922
+#: includes/Modules/SecurityOptimization/Module.php:925
 msgid "Shield minimum time (seconds)"
 msgstr "Nejkratší doba Štítu (sekundy)"
 
-#: includes/Modules/SecurityOptimization/Module.php:923
+#: includes/Modules/SecurityOptimization/Module.php:926
 msgid "A form answered sooner than this after the check started is refused, because a script is faster than a person. The page waits by itself, so a real visitor is never turned away. 0 switches the rule off (0 to 10)."
 msgstr "Formulář odeslaný dřív, než uplyne tato doba od začátku kontroly, se odmítne, protože skript je rychlejší než člověk. Stránka si počká sama, takže skutečný návštěvník nikdy neuvidí odmítnutí. 0 pravidlo vypne (0 až 10)."
 
@@ -30259,11 +30260,11 @@ msgstr "Je aktivní plugin s CAPTCHA, takže CAPTCHA zůstává jemu."
 msgid "The site is behind a reverse proxy. The CAPTCHA limits per IP address, so set the client IP source first (Security > Firewall)."
 msgstr "Web je za reverzní proxy. CAPTCHA omezuje podle IP adresy, proto nejdřív nastavte zdroj IP klienta (Zabezpečení > Firewall)."
 
-#: includes/Modules/SecurityOptimization/Module.php:865
+#: includes/Modules/SecurityOptimization/Module.php:868
 msgid "Adds CAPTCHA verification to login, registration and lost-password forms. The key-less Shield needs no keys; Turnstile and reCAPTCHA enforce nothing until both keys are set."
 msgstr "Přidá ověření CAPTCHA k formulářům přihlášení, registrace a zapomenutého hesla. Štít bez klíčů klíče nepotřebuje; Turnstile a reCAPTCHA nic nevynucují, dokud nejsou nastaveny oba klíče."
 
-#: includes/Modules/SecurityOptimization/Module.php:988
+#: includes/Modules/SecurityOptimization/Module.php:991
 msgid "For the Shield, Cloudflare Turnstile and reCAPTCHA v2. reCAPTCHA has no automatic theme and shows the light one; on the login pages the Shield shows the light one when this is automatic."
 msgstr "Pro Štít, Cloudflare Turnstile a reCAPTCHA v2. reCAPTCHA nemá automatický motiv a zobrazí světlý; na přihlašovacích stránkách ukáže Štít při automatickém motivu světlý."
 
@@ -30529,3 +30530,11 @@ msgstr "Obnovit výchozí (všem)"
 #: build/290.ab317f1c1bb8a3885bbb.js:5
 msgid "Select none"
 msgstr "Zrušit výběr"
+
+#: includes/Modules/AdminCustomiser/Module.php:307
+msgid "Hide Rocket Insights (WP Rocket)"
+msgstr "Skrýt Rocket Insights (WP Rocket)"
+
+#: includes/Modules/AdminCustomiser/Module.php:308
+msgid "Turns off Rocket Insights through the official WP Rocket switch: the tab on the WP Rocket settings page, the score and recommendations in its sidebar and dashboard, the column in the post lists, its notices and the scheduled performance tests all disappear. Caching and the rest of WP Rocket keep working. Switch this off to get it all back. Without WP Rocket the option does nothing."
+msgstr "Vypne Rocket Insights oficiálním přepínačem WP Rocketu: zmizí záložka v nastavení WP Rocketu, skóre a doporučení v jeho postranním panelu a na přehledu, sloupec v seznamech obsahu, jeho upozornění i plánované testy výkonu. Cache a zbytek WP Rocketu fungují dál. Vypnutím volby se vše vrátí. Bez WP Rocketu volba nic nedělá."

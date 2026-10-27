@@ -3578,3 +3578,31 @@ karty. Každá změna se ukáže hned (optimisticky) a uloží se na pozadí s t
 - [ ] Vydání 0.8.4 (verze, tag, vydání na GitHubu)
 - [ ] Později: nástěnka sítě a uživatelská nástěnka, pravidla pro konkrétního uživatele (ne jen roli)
 - [ ] Později: po zavedení nové role nabídnout „přidat do všech převedených pravidel“
+
+## 34. Skrytí Rocket Insights z WP Rocketu (0.8.7)
+
+Úpravy administrace, sekce Obrazovky administrace, přepínač `hide_rocket_insights` (výchozí vypnuto). Požadavek: „zakázat Rocket Insights“.
+
+### 34.1 Výzkum (WP Rocket 3.23.5.1, shoduje se s verzí na chalupyroubal.cz)
+
+Rocket Insights je ve zdrojích `inc/Engine/Admin/RocketInsights/`. Všechny vstupy do administrace se ptají jedné třídy `Context\Context::is_allowed()`
+(a `SaasContext`), a ta volá oficiální filtr **`rocket_rocket_insights_enabled`** (boolean, `apply_filters` bez předpony). Za ním je:
+záložka a obsah v nastavení (`Settings\Page::rocket_insights_section`), widget skóre v postranním panelu a na přehledu, widget doporučení, sloupec
+`rocket_insights` v seznamech (`PostListing\Subscriber::can_display_column`), aktivační upozornění, hláška po uložení nastavení, REST routy,
+stav licence na přehledu a plánování testů (`schedule_jobs`, `maybe_add_homepage_automatically` při vypnutí rušení úkolů). Jiný oficiální vypínač
+(konstanta, volba) neexistuje. `rocket_insights_settings_enabled` jen zešedí pole Sledování výkonu, ne celou funkci.
+
+### 34.2 Řešení
+
+`includes/Modules/AdminCustomiser/HideRocketInsights.php`: filtr s prioritou 99 vrací false a jako pojistka se na obrazovce seznamu obsahu
+odstraní klíč sloupce z `manage_{typ}_posts_columns` a `manage_edit-{typ}_sortable_columns` na `PHP_INT_MAX`. Žádné CSS ani JS, takže změna názvů
+tříd ve WP Rocketu nic nerozbije. Důsledek: filtr platí i mimo administraci (cron, REST), takže se nespouštějí ani nové naplánované testy.
+Už uložené výsledky WP Rocket nemaže. Test `tests/hide-rocket-insights.php`.
+
+### 34.3 Stav
+
+- [x] Výzkum zdrojů a ověření verze na živém webu
+- [x] Přepínač, filtr a pojistka sloupce, test, český překlad
+- [x] QA na syntetické stránce (pobyty bez WP Rocketu)
+- [ ] Vydání 0.8.7 (verze, tag, vydání na GitHubu)
+- [ ] Ověřit na živém webu s WP Rocketem po nasazení

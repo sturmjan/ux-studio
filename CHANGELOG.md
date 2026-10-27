@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.8.7
+
+- Added - Admin Customiser, "Admin screens": **Hide Rocket Insights (WP Rocket)**. One toggle (off by default) turns off
+  Rocket Insights through the official WP Rocket filter `rocket_rocket_insights_enabled`: the tab on the WP Rocket
+  settings page, the score and recommendations in its sidebar and dashboard, the column in the post lists, its notices and
+  the scheduling of tests are gone. Caching and the rest of WP Rocket are untouched and nothing of WP Rocket is edited;
+  switching the toggle off brings it all back. The option is part of the settings export and import.
+
 ## 0.8.6
 
 - Fixed - Custom login address: "Lost password" (and the registration confirmation) ended on a page that does not
