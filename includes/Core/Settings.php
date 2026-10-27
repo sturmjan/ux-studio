@@ -113,6 +113,9 @@ final class Settings {
 			case 'multiselect':
 				$allowed = array_map( 'strval', array_keys( $field['options'] ?? array() ) );
 				return array_values( array_intersect( array_map( 'strval', (array) $value ), $allowed ) );
+			case 'widget_rules':
+				// Who sees which dashboard widget: a map id => {hidden, roles}, roles limited to the ones the site has.
+				return \UxStudio\Modules\DashboardWidgets\WidgetRules::sanitize( $value, array_map( 'strval', array_keys( $field['options'] ?? array() ) ) ?: null );
 			case 'color':
 				return (string) sanitize_hex_color( (string) $value );
 			case 'richtext':

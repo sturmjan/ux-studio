@@ -9,6 +9,7 @@
 namespace UxStudio\Modules\DashboardWidgets;
 
 use UxStudio\Core\Security;
+use UxStudio\Core\Settings;
 use UxStudio\Modules\AdminCustomiser\MenuOrganizer;
 use UxStudio\Modules\BaseModule;
 
@@ -34,7 +35,9 @@ final class Module extends BaseModule {
 	private const OPTION_TASKS = 'uxstudio_dashboard_tasks';
 	private const OPTION_NOTES = 'uxstudio_dashboard_notes';
 
-	private const CACHE_WIDGETS = 'uxstudio_dashboard_widgets_cache';
+	/** wp_dashboard_setup priorities: the snapshot, then the rules. After everything this plugin registers. */
+	private const PRIORITY_CAPTURE = 9990;
+	private const PRIORITY_APPLY   = 9991;
 
 	/**
 	 * Disk usage widget: the install size is computed by a WP-Cron event
@@ -57,14 +60,17 @@ final class Module extends BaseModule {
 	public function boot(): void {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 
-		// Manage the real wp-admin dashboard: snapshot the registered widgets
-		// late (so add-ons have registered), then remove the ones the admin
-		// hid. Priority ordering matters - cache before we start removing.
-		add_action( 'wp_dashboard_setup', array( $this, 'cache_dashboard_widgets' ), 998 );
-		add_action( 'wp_dashboard_setup', array( $this, 'apply_hidden_widgets' ), 999 );
+		// Rules from the pre-0.8.4 per-role lists are converted once (see maybe_migrate()).
+		add_action( 'init', array( $this, 'maybe_migrate' ), 1 );
 
-		// Priority 1000: after apply_hidden_widgets, so a widget added here is
-		// never itself hidden by a stale "hidden_widgets" settings snapshot.
+		// Manage the real wp-admin dashboard. Very late, after every module and plugin has registered its widgets
+		// (ours at 1000/1001): capture the complete registry first, then remove what the rules hide.
+		add_action( 'wp_dashboard_setup', array( WidgetSnapshot::class, 'capture' ), self::PRIORITY_CAPTURE );
+		add_action( 'wp_dashboard_setup', array( $this, 'apply_rules' ), self::PRIORITY_APPLY );
+		// A widget registered even later is still caught when the dashboard draws its columns.
+		add_action( 'do_meta_boxes', array( $this, 'apply_rules_late' ), 10, 2 );
+
+		// The custom widgets below are registered at 1000, the welcome panel at 1001 (before the rules are applied).
 		add_action( 'wp_dashboard_setup', array( $this, 'register_content_widgets' ), 1000 );
 		add_action( 'wp_dashboard_setup', array( $this, 'register_welcome_panel' ), 1001 );
 
@@ -110,79 +116,138 @@ final class Module extends BaseModule {
 	 * ------------------------------------------------------------------ */
 
 	/**
-	 * Snapshot the currently registered dashboard meta boxes (id => title) into
-	 * a transient so the settings screen can list them even outside the
-	 * dashboard request where $wp_meta_boxes isn't populated.
+	 * The rules: widget id => {hidden, roles}.
+	 *
+	 * @return array<string, array{hidden:bool,roles:string[]}>
 	 */
-	public function cache_dashboard_widgets(): void {
-		global $wp_meta_boxes;
-		if ( ! isset( $wp_meta_boxes['dashboard'] ) || ! is_array( $wp_meta_boxes['dashboard'] ) ) {
-			return;
-		}
-
-		$normalized = array();
-		foreach ( $wp_meta_boxes['dashboard'] as $priorities ) {
-			if ( ! is_array( $priorities ) ) {
-				continue;
-			}
-			foreach ( $priorities as $boxes ) {
-				if ( ! is_array( $boxes ) ) {
-					continue;
-				}
-				foreach ( $boxes as $box_id => $box ) {
-					$title = is_array( $box ) && isset( $box['title'] ) ? sanitize_text_field( wp_strip_all_tags( (string) $box['title'] ) ) : '';
-					$normalized[ (string) $box_id ] = $title;
-				}
-			}
-		}
-		set_transient( self::CACHE_WIDGETS, $normalized, DAY_IN_SECONDS );
+	public function rules(): array {
+		return WidgetRules::sanitize( $this->settings->get( 'widget_rules', array() ), null );
 	}
 
 	/**
-	 * Remove the dashboard widgets the admin hid (or all of them, plus the
-	 * welcome panel, when "disable all" is on).
+	 * Sanitize against the roles of the site and store the rules.
+	 *
+	 * @param array<string, array<string, mixed>> $rules Rules.
+	 * @return array<string, array{hidden:bool,roles:string[]}>
 	 */
-	public function apply_hidden_widgets(): void {
+	public function save_rules( array $rules ): array {
+		$rules = WidgetRules::sanitize( $rules, array_keys( MenuOrganizer::role_list() ) );
+		$this->write_option( array( 'widget_rules' => $rules ) );
+		return $rules;
+	}
+
+	/**
+	 * Merge values into the module's option row right away (not through the schema: used for the rules and the
+	 * migration marker, which are not part of the generic form).
+	 *
+	 * @param array<string, mixed> $values Values to set.
+	 */
+	public function write_option( array $values ): void {
+		$all = array_merge( (array) get_option( 'uxstudio_dashboard_widgets', array() ), $values );
+		update_option( 'uxstudio_dashboard_widgets', $all, Settings::should_autoload( $all ) );
+		$this->reload_settings();
+	}
+
+	/**
+	 * Convert the pre-0.8.4 settings (the global `hidden_widgets` and `hidden_widgets_<role>`) into rules. Runs for the same
+	 * old data only once (the fingerprint is stored), leaves the old keys readable, and merges over the existing rules.
+	 * Also called after an old settings file was imported.
+	 *
+	 * @return bool Whether rules were written.
+	 */
+	public function maybe_migrate(): bool {
+		$stored  = (array) get_option( 'uxstudio_dashboard_widgets', array() );
+		$global  = (array) ( $stored['hidden_widgets'] ?? array() );
+		$by_role = array();
+		foreach ( $stored as $key => $ids ) {
+			if ( 0 === strpos( (string) $key, RoleWidgets::KEY_PREFIX ) && is_array( $ids ) ) {
+				$by_role[ substr( (string) $key, strlen( RoleWidgets::KEY_PREFIX ) ) ] = $ids;
+			}
+		}
+		$hash = WidgetRules::legacy_hash( $global, $by_role );
+		if ( '' === $hash ) {
+			if ( (int) ( $stored['rules_version'] ?? 0 ) < WidgetRules::VERSION ) {
+				$this->write_option( array( 'rules_version' => WidgetRules::VERSION ) );
+			}
+			return false;
+		}
+		if ( $hash === (string) ( $stored['legacy_hash'] ?? '' ) ) {
+			return false;
+		}
+		$converted = WidgetRules::from_legacy( $global, $by_role, array_keys( MenuOrganizer::role_list() ) );
+		$rules     = array_merge( WidgetRules::sanitize( $stored['widget_rules'] ?? array(), null ), $converted );
+		$this->write_option(
+			array(
+				'widget_rules'  => WidgetRules::sanitize( $rules, null ),
+				'legacy_hash'   => $hash,
+				'rules_version' => WidgetRules::VERSION,
+				'rules_notice'  => true,
+			)
+		);
+		return true;
+	}
+
+	/**
+	 * Remove what the rules hide from the dashboard of the current user (and everything but the UX Studio widgets
+	 * when "hide all" is on).
+	 */
+	public function apply_rules(): void {
 		global $wp_meta_boxes;
 
 		if ( (bool) $this->settings->get( 'disable_all_widgets', false ) ) {
 			remove_action( 'welcome_panel', 'wp_welcome_panel' );
-			$wp_meta_boxes['dashboard'] = array();
+			if ( isset( $wp_meta_boxes['dashboard'] ) && is_array( $wp_meta_boxes['dashboard'] ) ) {
+				foreach ( $wp_meta_boxes['dashboard'] as $context => $priorities ) {
+					foreach ( is_array( $priorities ) ? $priorities : array() as $priority => $boxes ) {
+						foreach ( array_keys( is_array( $boxes ) ? $boxes : array() ) as $id ) {
+							if ( ! $this->is_own_widget( (string) $id ) ) {
+								unset( $wp_meta_boxes['dashboard'][ $context ][ $priority ][ $id ] );
+							}
+						}
+					}
+				}
+			}
 			return;
 		}
 
-		$hidden = (array) $this->settings->get( 'hidden_widgets', array() );
-		// B1: widgets hidden for the roles of the current user, on top of the ones hidden for everybody.
-		$user   = wp_get_current_user();
-		$hidden = array_values(
-			array_unique(
-				array_merge(
-					$hidden,
-					RoleWidgets::hidden_for(
-						RoleWidgets::rules( $this->settings, MenuOrganizer::role_list() ),
-						array_map( 'strval', (array) $user->roles )
-					)
-				)
-			)
-		);
-		if ( empty( $hidden ) ) {
+		$rules = $this->rules();
+		if ( ! $rules ) {
 			return;
 		}
-
-		if ( in_array( 'dashboard_welcome', $hidden, true ) ) {
-			remove_action( 'welcome_panel', 'wp_welcome_panel' );
-		}
-		if ( ! isset( $wp_meta_boxes['dashboard'] ) || ! is_array( $wp_meta_boxes['dashboard'] ) ) {
-			return;
-		}
-
-		foreach ( $hidden as $widget_id ) {
-			foreach ( array_keys( $wp_meta_boxes['dashboard'] ) as $context ) {
-				foreach ( array_keys( (array) $wp_meta_boxes['dashboard'][ $context ] ) as $priority ) {
+		$roles = array_map( 'strval', (array) wp_get_current_user()->roles );
+		foreach ( WidgetRules::hidden_for( $rules, $roles ) as $widget_id ) {
+			if ( WidgetSnapshot::CORE_WELCOME === $widget_id ) {
+				remove_action( 'welcome_panel', 'wp_welcome_panel' );
+			}
+			if ( ! isset( $wp_meta_boxes['dashboard'] ) || ! is_array( $wp_meta_boxes['dashboard'] ) ) {
+				continue;
+			}
+			foreach ( $wp_meta_boxes['dashboard'] as $context => $priorities ) {
+				foreach ( array_keys( is_array( $priorities ) ? $priorities : array() ) as $priority ) {
 					unset( $wp_meta_boxes['dashboard'][ $context ][ $priority ][ $widget_id ] );
 				}
 			}
 		}
+	}
+
+	/**
+	 * Same removal when the dashboard draws its columns, for a widget registered after the rules were applied.
+	 *
+	 * @param string $screen Screen id.
+	 */
+	public function apply_rules_late( $screen ): void {
+		if ( 'dashboard' === $screen && ! (bool) $this->settings->get( 'disable_all_widgets', false ) ) {
+			$this->apply_rules();
+		}
+	}
+
+	/**
+	 * A widget of this plugin (it has its own switch; "hide all" leaves it alone, as before).
+	 *
+	 * @param string $id Widget id.
+	 */
+	private function is_own_widget( string $id ): bool {
+		return 0 === strpos( $id, 'uxstudio_' ) || in_array( $id, ModuleWidgets::ids(), true );
 	}
 
 	/**
@@ -208,15 +273,12 @@ final class Module extends BaseModule {
 			'dashboard_primary'     => __( 'WordPress Events and News', 'ux-studio' ),
 		);
 
-		$cached = get_transient( self::CACHE_WIDGETS );
-		if ( is_array( $cached ) ) {
-			foreach ( $cached as $id => $title ) {
-				// UX Studio's own widgets have their own switches in this module.
-				if ( 0 === strpos( (string) $id, 'uxstudio_' ) || in_array( (string) $id, ModuleWidgets::ids(), true ) ) {
-					continue;
-				}
-				$defaults[ (string) $id ] = '' !== (string) $title ? (string) $title : (string) $id;
+		foreach ( WidgetSnapshot::read()['widgets'] as $id => $widget ) {
+			// UX Studio's own widgets have their own switches in this module.
+			if ( 0 === strpos( (string) $id, 'uxstudio_' ) || in_array( (string) $id, ModuleWidgets::ids(), true ) ) {
+				continue;
 			}
+			$defaults[ (string) $id ] = '' !== (string) ( $widget['title'] ?? '' ) ? (string) $widget['title'] : (string) $id;
 		}
 		return $defaults;
 	}
@@ -249,13 +311,25 @@ final class Module extends BaseModule {
 				'default' => false,
 			),
 			array(
-				'key'     => 'hidden_widgets',
+				'key'     => 'widget_rules',
 				'section' => __( 'Hidden widgets', 'ux-studio' ),
+				'type'    => 'widget_rules',
+				'label'   => __( 'Dashboard widget rules', 'ux-studio' ),
+				'help'    => __( 'Which widgets are hidden and which roles see the others. Edited in the table above, not in a form.', 'ux-studio' ),
+				'options' => MenuOrganizer::role_list(),
+				'default' => array(),
+				'managed' => true,
+			),
+			array(
+				'key'     => 'hidden_widgets',
+				'section' => __( 'Hidden widgets (previous format)', 'ux-studio' ),
 				'type'    => 'multiselect',
 				'label'   => __( 'Hide specific dashboard widgets', 'ux-studio' ),
-				'help'    => __( 'The list reflects widgets registered on this site (visit Dashboard once to refresh it).', 'ux-studio' ),
+				'help'    => __( 'The list from before version 0.8.4. It is converted into the rules of the table once and no longer used; kept so an older settings file can still be imported.', 'ux-studio' ),
 				'options' => $this->available_widgets(),
 				'default' => array(),
+				'legacy'  => true,
+				'managed' => true,
 			),
 			array(
 				'key'     => 'widget_disk_usage',
@@ -378,7 +452,7 @@ final class Module extends BaseModule {
 			),
 		);
 
-		// B1: hidden widgets per role (one multi-select per role) and the custom welcome panel go after the global list.
+		// The previous per-role lists (kept only to read an older settings file) and the custom welcome panel go after the rules.
 		$at = (int) array_search( 'hidden_widgets', array_column( $rows, 'key' ), true );
 		array_splice( $rows, $at + 1, 0, RoleWidgets::schema( $this->available_widgets(), MenuOrganizer::role_list() ) );
 
@@ -406,7 +480,17 @@ final class Module extends BaseModule {
 		}
 		unset( $input['ga_service_account_json'] );
 
-		return parent::save_settings( $input );
+		$saved = parent::save_settings( $input );
+		// An older settings file brings the previous lists: convert them into rules at once (same data only once).
+		foreach ( array_keys( $input ) as $key ) {
+			if ( 'hidden_widgets' === $key || 0 === strpos( (string) $key, RoleWidgets::KEY_PREFIX ) ) {
+				if ( $this->maybe_migrate() ) {
+					$saved = $this->settings_values();
+				}
+				break;
+			}
+		}
+		return $saved;
 	}
 
 	/**

@@ -96,6 +96,9 @@ final class Planner {
 				$allowed = array_map( 'strval', array_keys( (array) ( $field['options'] ?? array() ) ) );
 				// Choices this site itself does not offer are left out, so the file only holds what the site can read back.
 				return $allowed ? array_values( array_intersect( $list, $allowed ) ) : $list;
+			case 'widget_rules':
+				// Kept as the map it is; an empty value is an empty map (the file then holds `[]`).
+				return null === $value || '' === $value ? array() : ( is_array( $value ) ? $value : null );
 			case 'select':
 				if ( ! is_scalar( $value ) && null !== $value ) {
 					return null;
@@ -266,6 +269,7 @@ final class Planner {
 			case 'media':
 				return 0;
 			case 'multiselect':
+			case 'widget_rules':
 				return array();
 			default:
 				return '';
@@ -351,6 +355,16 @@ final class Planner {
 		}
 		if ( 'media' === $type ) {
 			return is_int( $value ) && $value > 0 ? '#' . $value : __( '(empty)', 'ux-studio' );
+		}
+		if ( 'widget_rules' === $type && is_array( $value ) ) {
+			$hidden = count( array_filter( $value, static fn( $r ) => is_array( $r ) && ! empty( $r['hidden'] ) ) );
+			$roles  = count( array_filter( $value, static fn( $r ) => is_array( $r ) && empty( $r['hidden'] ) && ! empty( $r['roles'] ) ) );
+			return sprintf(
+				/* translators: 1: number of hidden widgets, 2: number of widgets shown only to some roles. */
+				__( '%1$d hidden, %2$d limited to roles', 'ux-studio' ),
+				$hidden,
+				$roles
+			);
 		}
 		if ( is_array( $value ) ) {
 			$labels = array();

@@ -7,6 +7,8 @@
 
 namespace UxStudio\Core\Transfer;
 
+use UxStudio\Modules\DashboardWidgets\WidgetRules;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -87,6 +89,23 @@ final class TypeCheck {
 					$kept[] = (string) $item;
 				}
 				return $good( array_values( array_unique( $kept ) ), $dropped );
+
+			case 'widget_rules':
+				if ( ! is_array( $value ) ) {
+					return $bad( __( 'Expected a list of dashboard widget rules.', 'ux-studio' ) );
+				}
+				if ( count( $value ) > WidgetRules::MAX_ENTRIES ) {
+					return $bad( __( 'The list is too long.', 'ux-studio' ) );
+				}
+				foreach ( $value as $entry ) {
+					if ( ! is_array( $entry ) || ( isset( $entry['hidden'] ) && ! is_bool( $entry['hidden'] ) ) || ( isset( $entry['roles'] ) && ( ! is_array( $entry['roles'] ) || ( array() !== $entry['roles'] && ! array_is_list( $entry['roles'] ) ) ) ) ) {
+						return $bad( __( 'Expected a list of dashboard widget rules.', 'ux-studio' ) );
+					}
+				}
+				$allowed = array_map( 'strval', array_keys( (array) ( $field['options'] ?? array() ) ) );
+				$report  = array();
+				$clean   = WidgetRules::sanitize( $value, $allowed ?: null, $report );
+				return $good( $clean, $report['dropped_roles'] + $report['dropped_ids'] );
 
 			case 'color':
 				if ( ! is_string( $value ) ) {
