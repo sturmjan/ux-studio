@@ -132,8 +132,9 @@ $rest = static function ( string $method, string $path, array $body = array() ):
 
 try {
 	// The module is off on this site: switch it on for the test (restored at the end).
-	$active = (array) get_option( 'uxstudio_active_modules', array() );
-	if ( ! in_array( 'dashboard-widgets', $active, true ) ) {
+	$active     = (array) get_option( 'uxstudio_active_modules', array() );
+	$was_active = in_array( 'dashboard-widgets', $active, true ); // Then it is booted already (its hooks exist) and holds the old settings.
+	if ( ! $was_active ) {
 		update_option( 'uxstudio_active_modules', array_values( array_merge( $active, array( 'dashboard-widgets' ) ) ) );
 	}
 	delete_option( 'uxstudio_dashboard_widgets' );
@@ -141,7 +142,10 @@ try {
 	wp_cache_flush();
 
 	$module = $modules->instance( 'dashboard-widgets' );
-	$module->boot();
+	$module->reload_settings();
+	if ( ! $was_active ) {
+		$module->boot();
+	}
 	$GLOBALS['wp_rest_server'] = null;
 	rest_get_server();
 
