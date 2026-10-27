@@ -29,7 +29,8 @@ export interface Field {
 		| 'color'
 		| 'media'
 		| 'datetime'
-		| 'richtext';
+		| 'richtext'
+		| 'widget_rules';
 	label: string;
 	help?: string;
 	/** Plain-language details (what it does, the risk, when to switch it off), shown under the help. */
@@ -40,6 +41,8 @@ export interface Field {
 	section?: string;
 	/** Span the full row of the field grid (long text, checklists). */
 	wide?: boolean;
+	/** Edited by a screen of its own (not by the generic form): never drawn here and never sent back by the form's save. */
+	managed?: boolean;
 }
 
 /** Field types whose input needs a full grid row to stay readable. */
@@ -244,7 +247,7 @@ export function FieldInput( {
  * without a section belong to a leading "General" group.
  */
 export function SettingsFields( {
-	schema,
+	schema: fullSchema,
 	draft,
 	setDraft,
 	notes,
@@ -255,6 +258,8 @@ export function SettingsFields( {
 	/** Extra content under the help text of a field, by field key (a state note, a link). */
 	notes?: Record< string, ReactNode >;
 } ): JSX.Element {
+	// Fields with a screen of their own (a table, a builder) are not part of the generic form.
+	const schema = fullSchema.filter( ( f ) => ! f.managed );
 	const general = __( 'General', 'ux-studio' );
 	const sections: string[] = [];
 	for ( const field of schema ) {
@@ -336,8 +341,12 @@ export function useModuleSettings( id: string ) {
 	}, [ query.data ] );
 
 	const save = useMutation( {
-		mutationFn: () =>
-			api( `settings/${ id }`, { method: 'POST', body: JSON.stringify( draft ) } ),
+		mutationFn: () => {
+			// What a screen of its own edits (and saves itself) is never sent back from this form's older copy.
+			const managed = new Set( ( query.data?.schema ?? [] ).filter( ( f ) => f.managed ).map( ( f ) => f.key ) );
+			const body = Object.fromEntries( Object.entries( draft ).filter( ( [ key ] ) => ! managed.has( key ) ) );
+			return api( `settings/${ id }`, { method: 'POST', body: JSON.stringify( body ) } );
+		},
 		onSuccess: () => {
 			void queryClient.invalidateQueries( { queryKey: [ 'settings', id ] } );
 			setSaved( true );

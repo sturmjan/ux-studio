@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.8.4
+
+- Changed - Dashboard Widgets, "Hidden widgets": one table of every widget the dashboard has (WordPress, plugins, UX Studio)
+  instead of a "hide specific" list and one multi-select per role. Each row has **Hide** (for everybody) and **Show to**
+  (roles; default "Everybody", no limit). A widget limited to roles is shown only to users who have at least one of them.
+  Search, filters (hidden, limited to roles, not found, by source), counters, bulk bar (hide, show, show to roles, reset,
+  select all / none), "Revert changes", sticky header, cards on narrow screens. Changes show at once and save in the
+  background. "Hide all dashboard widgets" and the welcome panel stay where they were.
+- Added - The widget list is a stored snapshot taken when an administrator opens the Dashboard (late, before anything is
+  removed), with title, area and a guess of the source (plugin from the file of its callback, marked "estimate"). "Refresh
+  list" loads the Dashboard in the background; widgets missing in the latest scan are shown dimmed as "not found" (the rule is
+  kept, the entry can be removed). REST `GET/POST dashboard-widgets/rules`, `POST dashboard-widgets/refresh`,
+  `DELETE dashboard-widgets/snapshot/{id}`.
+- Changed - UX Studio's own widgets (Tasks, Notes, PageSpeed, Security, the widgets of other modules) are in the same table and
+  follow the same rules; "Hide all" still leaves them alone.
+- Changed - Settings saved before 0.8.4 are converted once: widgets hidden for everybody stay hidden; a widget hidden for some
+  roles is now shown to all the other roles (hidden when every role hid it). The old keys stay readable and are no longer used.
+  A notice explains the conversion. Export and import carry the new `widget_rules` (unknown roles and bad ids are dropped,
+  at most 300 rules); a file from an older version with the old keys is converted on import.
+
 ## 0.8.3
 
 - Added - **UX Studio Shield**, a CAPTCHA with no keys, no account and no cookies (Security > CAPTCHA, provider "UX Studio

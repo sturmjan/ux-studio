@@ -14,8 +14,8 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Settings (all in the module's own settings row, so the generic form edits them and the migration stages them):
- *  - `hidden_widgets_<role>`: multi-select per role, widgets hidden for that role (the global `hidden_widgets` stays and applies
- *    to everybody on top of this);
+ *  - `hidden_widgets_<role>`: the lists of widgets hidden per role from before 0.8.4. No longer edited or used: Module::maybe_migrate()
+ *    turns them (and the global `hidden_widgets`) into `widget_rules` once; the fields stay only to read an older settings file;
  *  - `welcome_panel_enabled`, `welcome_panel_title`, `welcome_panel_content` (rich text, `wp_kses_post`), `welcome_panel_roles`
  *    (roles that see it, none = everybody).
  *
@@ -49,16 +49,18 @@ final class RoleWidgets {
 		foreach ( $roles as $role => $name ) {
 			$fields[] = array(
 				'key'     => self::key( (string) $role ),
-				'section' => __( 'Hidden widgets', 'ux-studio' ),
+				'section' => __( 'Hidden widgets (previous format)', 'ux-studio' ),
 				'type'    => 'multiselect',
 				'label'   => sprintf(
 					/* translators: %s: role name. */
 					__( 'Hide dashboard widgets for the role: %s', 'ux-studio' ),
 					$name
 				),
-				'help'    => __( 'On top of the widgets hidden for everybody above. A user with several roles has a widget hidden only when every role hides it.', 'ux-studio' ),
+				'help'    => __( 'The list from before version 0.8.4: converted into the rules of the table once and no longer used. Kept so an older settings file can still be imported.', 'ux-studio' ),
 				'options' => $widgets,
 				'default' => array(),
+				'legacy'  => true,
+				'managed' => true,
 			);
 		}
 		$fields[] = array(

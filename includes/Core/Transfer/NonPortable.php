@@ -250,6 +250,9 @@ final class NonPortable {
 			if ( ! is_array( $field ) || empty( $field['key'] ) ) {
 				continue;
 			}
+			if ( ! empty( $field['legacy'] ) ) {
+				continue; // A key of an older format: still read from an old file, never written to a new one.
+			}
 			$key    = (string) $field['key'];
 			$reason = self::reason( $module, $field );
 			if ( '' !== $reason ) {
