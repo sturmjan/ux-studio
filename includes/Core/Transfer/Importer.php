@@ -48,7 +48,7 @@ final class Importer {
 	 *
 	 * @var string[]
 	 */
-	private const SAFE_WHEN_OFF = array( 'smtp-email', 'stock-photos', 'ai-assistant', 'opening-hours' );
+	private const SAFE_WHEN_OFF = array( 'smtp-email', 'stock-photos', 'ai-assistant', 'opening-hours', 'dashboard-widgets' );
 
 	/**
 	 * Modules that need a plugin to do anything: module id => plugin file, name and the settings that depend on it.
