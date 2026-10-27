@@ -7,6 +7,7 @@ import { __ } from '@wordpress/i18n';
 import { ArrowLeft, Check, LoaderCircle } from 'lucide-react';
 import { hashParam, navigate } from './route';
 import { SettingsFields, useModuleSettings } from './SettingsForm';
+import { ExportModuleLink } from './transfer/ExportLink';
 
 /** `embedded`: rendered inside a group page - no back arrow / title, only the save button. */
 export function ModuleSettings( { moduleId, embedded = false }: { moduleId?: string; embedded?: boolean } ): JSX.Element {
@@ -35,15 +36,18 @@ export function ModuleSettings( { moduleId, embedded = false }: { moduleId?: str
 					</button>{ ' ' }
 					{ data.name }
 				</h1> }
-				<button
-					type="button"
-					className="button button-primary"
-					disabled={ save.isPending }
-					onClick={ () => save.mutate() }
-				>
-					{ saved ? <Check size={ 14 } /> : null }
-					{ saved ? __( 'Saved', 'ux-studio' ) : __( 'Save changes', 'ux-studio' ) }
-				</button>
+				<div className="uxs-pagehead__actions">
+					<ExportModuleLink moduleId={ id } />
+					<button
+						type="button"
+						className="button button-primary"
+						disabled={ save.isPending }
+						onClick={ () => save.mutate() }
+					>
+						{ saved ? <Check size={ 14 } /> : null }
+						{ saved ? __( 'Saved', 'ux-studio' ) : __( 'Save changes', 'ux-studio' ) }
+					</button>
+				</div>
 			</header>
 			<SettingsFields schema={ data.schema } draft={ draft } setDraft={ setDraft } />
 		</>

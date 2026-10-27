@@ -16,7 +16,7 @@ import { WizardHint } from './WizardHint';
 import { navigate } from './route';
 
 /** meta.json `group` values in display order. */
-const GROUPS: { id: string; label: string }[] = [
+export const GROUPS: { id: string; label: string }[] = [
 	{ id: 'security', label: __( 'Security', 'ux-studio' ) },
 	{ id: 'content', label: __( 'Content', 'ux-studio' ) },
 	{ id: 'media', label: __( 'Media', 'ux-studio' ) },

@@ -18,6 +18,7 @@ import { ModuleIcon } from './moduleIcons';
 import { FEATURE_VIEWS, useViewEnabled, type FeatureView } from './featureViews';
 import { Toasts } from './Toasts';
 import { Wizard } from './wizard/Wizard';
+import { ExportModuleLink } from './transfer/ExportLink';
 import { SubNavSlot } from './SubNav';
 import { getTheme, setTheme, type Theme } from './prefs';
 import { MODULE_PAGES } from '../modules/registry';
@@ -321,6 +322,7 @@ export function App(): JSX.Element {
 							</div>
 						}
 					>
+						<ExportModuleLink moduleId={ moduleId } row />
 						<ModulePageGate moduleId={ moduleId } Page={ CustomPage } />
 					</Suspense>
 				) : route === 'module' ? (

@@ -70,6 +70,14 @@ abstract class BaseModule {
 	 * module was switched on / the options were written. Default: just re-read the settings.
 	 */
 	public function after_migration_switch(): void {
+		$this->reload_settings();
+	}
+
+	/**
+	 * Forget the settings read earlier in this request (the stored option was changed behind this instance,
+	 * for example by an import that was undone), so the next read sees what is stored.
+	 */
+	public function reload_settings(): void {
 		$this->settings = new Settings( 'uxstudio_' . str_replace( '-', '_', $this->id ) );
 	}
 

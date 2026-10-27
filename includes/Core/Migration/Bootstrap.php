@@ -25,12 +25,15 @@ final class Bootstrap {
 			static function (): void {
 				( new MigrationRestController() )->register_routes();
 				( new \UxStudio\Core\Onboarding\RestController() )->register_routes();
+				( new \UxStudio\Core\Transfer\RestController() )->register_routes();
 				( new \UxStudio\Modules\SecurityOptimization\PhpVersionRestController() )->register_routes();
 			}
 		);
 		add_action( self::PURGE_HOOK, array( Snapshot::class, 'purge_expired' ) );
 		add_action( self::PURGE_HOOK, array( Switcher::class, 'purge_expired' ) );
 		add_action( self::PURGE_HOOK, array( Preview::class, 'purge_expired' ) );
+		add_action( self::PURGE_HOOK, array( \UxStudio\Core\Transfer\ImportSnapshot::class, 'purge_expired' ) );
+		\UxStudio\Core\Transfer\RestController::register_hooks();
 		Preview::register();
 		AutoStart::register();
 		add_action( 'admin_init', array( self::class, 'admin_init' ) );
