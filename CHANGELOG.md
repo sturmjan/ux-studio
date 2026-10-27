@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.8.0 (unreleased)
+## 0.8.0
 
 - Added - Export and import of settings (Settings > "Export and import"). Export: tick the modules (grouped like the
   Modules screen, search, "Select all", a badge for modules that are off), choose what goes in (on/off state of the
