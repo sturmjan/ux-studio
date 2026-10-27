@@ -398,7 +398,22 @@ final class Module extends BaseModule {
 	   Settings schema
 	   ═══════════════════════════════════════════════════ */
 
+	/**
+	 * The schema with the plain-language explanation (SettingHelp) added to every option that has one: the screen
+	 * shows it under the help line as "Details".
+	 */
 	public function settings_schema(): array {
+		$fields = $this->base_schema();
+		foreach ( $fields as $i => $field ) {
+			$explain = SettingHelp::for_key( (string) ( $field['key'] ?? '' ) );
+			if ( null !== $explain ) {
+				$fields[ $i ]['explain'] = $explain;
+			}
+		}
+		return $fields;
+	}
+
+	private function base_schema(): array {
 		$country_options = array();
 		foreach ( CountryBlocklist::get_countries() as $code => $name ) {
 			$country_options[ $code ] = $name . ' (' . $code . ')';

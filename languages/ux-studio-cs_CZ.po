@@ -29489,3 +29489,479 @@ msgstr "Upozornění, které nebylo vidět %1$d dní, se označí jako zmizelé.
 #: build/index.27546a6c159bd7c8cc61.js:43
 msgid "Notice history"
 msgstr "Historie upozornění"
+
+#: includes/Core/Migration/Catalog.php:303
+msgid "Disable Application Passwords"
+msgstr "Zakázat Application Passwords"
+
+#. translators: %s: setting name.
+#: includes/Core/Onboarding/Applier.php:366
+msgid "Left out: %s. The site did not answer on plain http, so the redirect to https could not be checked."
+msgstr "Vynecháno: %s. Web neodpověděl na obyčejném http, takže se přesměrování na https nedalo ověřit."
+
+#. translators: 1: setting name, 2: settings tab name.
+#: includes/Core/Onboarding/Applier.php:383
+msgid "Application Passwords are switched off: new ones cannot be created. If an MCP or REST client needs them, switch off \"%1$s\" in Security > %2$s."
+msgstr "Application Passwords jsou vypnuté: nová hesla aplikací nejdou vytvořit. Pokud je potřebuje MCP nebo REST klient, vypněte volbu „%1$s“ v Zabezpečení > %2$s."
+
+#: includes/Core/Onboarding/Applier.php:456
+msgid "Forcing https caused a redirect loop (for example Cloudflare in the Flexible mode) and was taken back."
+msgstr "Vynucení HTTPS způsobilo smyčku přesměrování (například Cloudflare v režimu Flexible), bylo vráceno."
+
+#: includes/Core/Onboarding/Applier.php:462
+msgid "The site could not ask itself for its pages, so the .htaccess rules were not checked for errors."
+msgstr "Web se nedokázal sám dotázat na své stránky, proto se pravidla v .htaccess nezkontrolovala na chyby."
+
+#. translators: %s: setting name.
+#: includes/Core/Onboarding/Applier.php:475
+msgid "The rule \"%s\" caused a server error on this host, so it was left out. The other .htaccess rules work."
+msgstr "Pravidlo „%s“ na tomto hostingu způsobilo chybu serveru, proto bylo vynecháno. Ostatní pravidla v .htaccess fungují."
+
+#: includes/Core/Onboarding/Applier.php:492
+msgid "The rules in .htaccess caused a server error, so they were taken back. The site works as before."
+msgstr "Pravidla v .htaccess způsobila chybu serveru, byla vrácena. Web funguje jako dřív."
+
+#. translators: %s: setting names.
+#: includes/Core/Onboarding/Applier.php:509
+msgid "Verified: %s."
+msgstr "Ověřeno: %s."
+
+#. translators: %s: setting names.
+#: includes/Core/Onboarding/Applier.php:513
+msgid "Could not be verified: %s."
+msgstr "Nešlo ověřit: %s."
+
+#. translators: 1: number of users, 2: number of passwords.
+#: includes/Core/Onboarding/StarterPack.php:608
+msgid "Left out: Harden the login page. It would switch off Application Passwords, which are in use (passwords: %2$d, users: %1$d): integrations such as the WordPress mobile app or REST clients rely on them. Switch it on in Security once they are not needed."
+msgstr "Vynecháno: Zpevnit přihlašovací stránku. Vypnulo by to Application Passwords, a ty se používají (hesel: %2$d, uživatelů: %1$d): spoléhají na ně integrace, například mobilní aplikace WordPressu nebo REST klienti. Zapněte to v Zabezpečení, až je nebudete potřebovat."
+
+#. translators: %s: plugin names.
+#: includes/Core/Onboarding/StarterPack.php:622
+msgid "Left out: Disable RSS feeds, because %s needs the feeds."
+msgstr "Vynecháno: Zakázat RSS kanály, protože je potřebuje %s."
+
+#. translators: %d: number of published posts.
+#: includes/Core/Onboarding/StarterPack.php:633
+msgid "Left out: Disable RSS feeds. The site has %d published posts, so it may have readers who subscribe. Switch it on in Security if nobody does."
+msgstr "Vynecháno: Zakázat RSS kanály. Web má %d publikovaných příspěvků, takže může mít čtenáře, kteří odebírají. Pokud nikdo neodebírá, zapněte to v Zabezpečení."
+
+#: includes/Core/Onboarding/StarterPack.php:642
+msgid "Left out: Protect wp-config.php, Disable directory listing, Block readme.html / license.txt and Force HTTPS. Rules in .htaccess do not work on this server: block wp-config.php, readme.html and license.txt and the directory listing in the server configuration instead."
+msgstr "Vynecháno: Chránit wp-config.php, Zakázat výpis obsahu adresářů, Blokovat readme.html / license.txt a Vynutit HTTPS. Pravidla v .htaccess na tomto serveru nefungují: wp-config.php, readme.html, license.txt a výpis adresářů zablokujte v nastavení serveru."
+
+#: includes/Core/Onboarding/StarterPack.php:645
+msgid "Left out: Protect wp-config.php, Disable directory listing, Block readme.html / license.txt and Force HTTPS, because the .htaccess file cannot be written. Make it writable and switch them on in Security."
+msgstr "Vynecháno: Chránit wp-config.php, Zakázat výpis obsahu adresářů, Blokovat readme.html / license.txt a Vynutit HTTPS, protože soubor .htaccess nejde zapsat. Zpřístupněte ho k zápisu a zapněte volby v Zabezpečení."
+
+#: includes/Core/Onboarding/StarterPack.php:652
+msgid "Left out: Permissions-Policy. WooCommerce is active and the header would switch off the payment API that Apple Pay and Google Pay use."
+msgstr "Vynecháno: Permissions-Policy. Je aktivní WooCommerce a hlavička by vypnula platební rozhraní, které používá Apple Pay a Google Pay."
+
+#. translators: %s: plugin names.
+#: includes/Core/Onboarding/StarterPack.php:659
+msgid "Left out: Permissions-Policy, because %s already sends security headers."
+msgstr "Vynecháno: Permissions-Policy, protože bezpečnostní hlavičky už posílá %s."
+
+#: includes/Core/Onboarding/StarterPack.php:669
+msgid "Left out: Force HTTPS. The site address does not start with https:// or this page was not opened over https, so a redirect to https could lock you out."
+msgstr "Vynecháno: Vynutit HTTPS. Adresa webu nezačíná https:// nebo tato stránka nebyla otevřena přes https, takže by vás přesměrování na https mohlo zamknout venku."
+
+#: includes/Core/Onboarding/StarterPack.php:672
+msgid "Left out: Force HTTPS. The site is behind a reverse proxy, which often talks to the server over plain http and would make an endless redirect. Switch it on in Security once you know how the proxy connects."
+msgstr "Vynecháno: Vynutit HTTPS. Web je za reverzní proxy, která se serverem často mluví po obyčejném http a udělala by nekonečné přesměrování. Zapněte to v Zabezpečení, až budete vědět, jak se proxy připojuje."
+
+#. translators: %s: plugin names.
+#: includes/Core/Onboarding/StarterPack.php:683
+msgid "Left out: Block user enumeration, because %s reads the public list of users over the REST API."
+msgstr "Vynecháno: Blokovat enumeraci uživatelů, protože %s čte veřejný seznam uživatelů přes REST API."
+
+#. translators: %d: number of published posts.
+#: includes/Core/Onboarding/StarterPack.php:697
+msgid "Left out: Hide author slugs. The site has %d published posts, so its author pages may already be indexed or linked, and the old addresses would stop working. Switch it on in Security if you accept that."
+msgstr "Vynecháno: Skrýt slugy autorů. Web má %d publikovaných příspěvků, takže jeho stránky autorů mohou být už zaindexované nebo odkazované a stará adresa by přestala fungovat. Pokud to přijímáte, zapněte to v Zabezpečení."
+
+#: includes/Core/Onboarding/StarterPack.php:732
+msgid "Left out: Block reserved usernames and Lock out IPs that try a blocked username, because they need the login attempt limit, which is not switched on here."
+msgstr "Vynecháno: Blokovat rezervovaná uživatelská jména a Zablokovat IP, které zkusí zakázané uživatelské jméno, protože potřebují omezení pokusů o přihlášení, které tady není zapnuté."
+
+#. translators: %s: user logins.
+#: includes/Core/Onboarding/StarterPack.php:743
+msgid "The account %s uses a reserved username: rename it, then switch on \"Lock out IPs that try a blocked username\" in Security. Until then one typo in its password would lock your own IP."
+msgstr "Účet %s používá vyhrazené jméno: přejmenujte ho, pak zapněte volbu „Zablokovat IP, které zkusí zakázané uživatelské jméno“ v Zabezpečení. Do té doby by jeden překlep v jeho heslu zamkl vaši vlastní IP adresu."
+
+#: includes/Core/Onboarding/StarterPack.php:753
+msgid "Switches off comments, the file editor, XML-RPC and RSS feeds (feed addresses answer 403, the feed links leave the page head), hides the WordPress version, sends security headers and the Permissions-Policy header (camera, microphone, location, payment and USB off), redirects http:// to https:// when the site already runs on https (checked after saving; an endless redirect is taken back), blocks wp-config.php (and its backup copies), readme.html, license.txt and wp-config-sample.php in .htaccess, switches off directory listing, stops ?author=N and the public users list in the REST API (logged-in users keep it; the core users sitemap is not touched), replaces user names in author page addresses with a code (old /author/name/ addresses then give 404), limits login attempts, locks out an IP that tries a reserved username such as admin, hides which part of a failed login was wrong and switches off Application Passwords (new ones cannot be created; an MCP or REST client that needs them: switch off \"Harden the login page\" in Security > Login), slows down Heartbeat, keeps 10 revisions, removes the emoji script and deletes unused default themes that WordPress itself brought (Twenty*, never a manually installed one, the newest one stays as the fallback). Left off on purpose, switch them on yourself when you are sure: the canonical URL redirect and HSTS (a browser remembers HSTS for a year). Open \"What will be set\" for what each option does, what can go wrong and when to switch it off."
+msgstr "Vypne komentáře, editor souborů a XML-RPC i RSS kanály (adresy kanálů odpovídají 403, odkazy na kanály zmizí z hlavičky stránky), skryje verzi WordPressu, pošle bezpečnostní hlavičky a hlavičku Permissions-Policy (vypnutá kamera, mikrofon, poloha, platby a USB), přesměruje http:// na https://, když web už na https běží (kontroluje se po uložení, nekonečné přesměrování se vrátí), zablokuje v .htaccess wp-config.php (i jeho záložní kopie), readme.html, license.txt a wp-config-sample.php, vypne výpis obsahu adresářů, zastaví ?author=N a veřejný seznam uživatelů v REST API (přihlášení uživatelé ho dál mají; sitemapa uživatelů ve WordPressu se nemění), nahradí jména uživatelů v adresách stránek autorů kódem (staré adresy /author/jmeno/ pak dávají 404), omezí pokusy o přihlášení, zablokuje IP, která zkusí vyhrazené jméno jako admin, schová, která část neúspěšného přihlášení byla špatně, a vypne Application Passwords (nová nejdou vytvořit; pokud je potřebuje MCP nebo REST klient, vypněte „Zpevnit přihlašovací stránku“ v Zabezpečení > Přihlášení), zpomalí Heartbeat, ponechá 10 revizí, odstraní skript emoji a smaže nepoužívané výchozí motivy, které WordPress přinesl sám (Twenty*, nikdy ručně nainstalovaný, nejnovější zůstane jako záloha). Záměrně vypnuto, zapněte ručně, až budete jistí: přesměrování na kanonickou URL a HSTS (prohlížeč si HSTS pamatuje rok). Co která volba dělá, co se může pokazit a kdy ji vypnout, najdete po otevření „Co se nastaví“."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:70
+msgid "Switches comments off on the whole site: the comment forms, the Comments menu and the comment feeds disappear. Existing comments stay in the database but are not shown."
+msgstr "Vypne komentáře na celém webu: zmizí formuláře komentářů, nabídka Komentáře i kanály komentářů. Existující komentáře zůstanou v databázi, ale nezobrazují se."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:71
+msgid "A site that lives from discussion or from product reviews loses them. With WooCommerce the pack switches comments off on posts and pages only."
+msgstr "Web, který žije z diskuse nebo z recenzí produktů, o ně přijde. U WooCommerce balíček vypíná komentáře jen u příspěvků a stránek."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:72
+msgid "When visitors should be able to comment."
+msgstr "Když mají návštěvníci moci komentovat."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:73
+msgid "A plugin that disables comments is already active."
+msgstr "Už je aktivní plugin, který komentáře vypíná."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:76
+msgid "After 5 wrong passwords the visitor's IP address is locked out for 15 minutes (longer after repeated lockouts)."
+msgstr "Po 5 špatných heslech se IP adresa návštěvníka zablokuje na 15 minut (po opakovaných blokacích na déle)."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:77
+msgid "Behind a proxy every visitor looks like the same IP address, so a few typos could lock everybody out. People who share one office address share the limit too."
+msgstr "Za proxy vypadá každý návštěvník jako stejná IP adresa, takže pár překlepů by mohlo zamknout všechny. Lidé, kteří sdílejí jednu adresu v kanceláři, sdílejí i limit."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:78
+msgid "When the site is behind a proxy that hides the real IP address and you did not set the IP source in Security > Firewall."
+msgstr "Když je web za proxy, která skrývá skutečnou IP adresu, a nenastavili jste zdroj IP v Zabezpečení > Firewall."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:79
+msgid "The site is behind a reverse proxy that is not Cloudflare, or a login protection plugin is active."
+msgstr "Web je za reverzní proxy, která není Cloudflare, nebo je aktivní plugin na ochranu přihlášení."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:82
+msgid "Nobody can register or rename a user to a reserved name such as admin, administrator, root or test (any name that contains one of them as a word, for example \"my-admin\")."
+msgstr "Nikdo nemůže zaregistrovat ani přejmenovat uživatele na vyhrazené jméno jako admin, administrator, root nebo test (jakékoli jméno, které obsahuje některé z nich jako slovo, například „my-admin“)."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:83
+msgid "Accounts that already exist are not touched; a new account just cannot take such a name."
+msgstr "Existujících účtů se to netýká; nový účet si takové jméno prostě nevezme."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:84
+msgid "When you really need an account with a reserved name."
+msgstr "Když opravdu potřebujete účet s vyhrazeným jménem."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:85
+msgid "The login attempt limit is not set (this option works together with it)."
+msgstr "Není nastavené omezení pokusů o přihlášení (tato volba funguje společně s ním)."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:88
+msgid "A failed login with a reserved name such as admin locks the IP address at once for the lockout time, without waiting for 5 attempts. Bots try \"admin\" first."
+msgstr "Neúspěšné přihlášení s vyhrazeným jménem jako admin okamžitě zablokuje IP adresu na dobu blokace, aniž by se čekalo na 5 pokusů. Boti zkoušejí „admin“ jako první."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:89
+msgid "It also applies to a real account with such a name: one typo in its password locks that IP address, maybe your own. Behind a shared proxy address it could lock everybody out."
+msgstr "Týká se to i skutečného účtu s takovým jménem: jeden překlep v jeho heslu zablokuje tuto IP adresu, třeba i vaši vlastní. Za sdílenou adresou proxy by to mohlo zamknout všechny."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:90
+msgid "When an account with a reserved name has to stay, or when you often mistype."
+msgstr "Když musí zůstat účet s vyhrazeným jménem, nebo když se často překlepnete."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:91
+msgid "An existing account uses a reserved name (rename it first), or the login attempt limit is not set."
+msgstr "Existující účet používá vyhrazené jméno (nejdřív ho přejmenujte), nebo není nastavené omezení pokusů o přihlášení."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:94
+msgid "The login page no longer tells whether the username or the password was wrong. Application Passwords are switched off, so new ones cannot be created. Messages about a lockout, CAPTCHA and two-step verification stay readable."
+msgstr "Přihlašovací stránka už neprozradí, jestli bylo špatně jméno, nebo heslo. Application Passwords jsou vypnuté, takže nová hesla aplikací nejdou vytvořit. Zprávy o blokaci, CAPTCHA a dvoufázovém ověření zůstávají čitelné."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:95
+msgid "Integrations that sign in with an Application Password stop working: the WordPress mobile app, REST clients, some MCP servers and publishing tools."
+msgstr "Integrace, které se přihlašují přes Application Password, přestanou fungovat: mobilní aplikace WordPressu, REST klienti, některé MCP servery a publikační nástroje."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:96
+msgid "When you use such an integration, or want to create Application Passwords again."
+msgstr "Když takovou integraci používáte, nebo chcete znovu vytvářet Application Passwords."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:97
+msgid "Somebody already has an Application Password (the pack never cuts off existing ones)."
+msgstr "Někdo už nějaké Application Password má (balíček existující nikdy neodřízne)."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:100
+msgid "Feed addresses (posts, comments, categories, search) answer 403 and the feed links leave the page head."
+msgstr "Adresy kanálů (příspěvky, komentáře, kategorie, hledání) odpovídají 403 a odkazy na kanály zmizí z hlavičky stránky."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:101
+msgid "RSS readers, newsletter tools with RSS campaigns, podcast apps and aggregators stop getting your updates."
+msgstr "Čtečky RSS, newslettery s RSS kampaněmi, podcastové aplikace a agregátory přestanou dostávat vaše novinky."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:102
+msgid "When anybody follows the site by RSS or e-mail from the feed."
+msgstr "Když někdo web sleduje přes RSS nebo e-mailem z kanálu."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:103
+msgid "The site has more than 5 published posts, a feed plugin is active (Mailchimp for WP, podcast or aggregator plugins), or a plugin that disables feeds is active."
+msgstr "Web má víc než 5 publikovaných příspěvků, je aktivní plugin pracující s kanály (Mailchimp for WP, podcastové nebo agregátorové pluginy), nebo je aktivní plugin, který kanály vypíná."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:106
+msgid "The server refuses to hand out wp-config.php and its copies (.bak, .old, .zip, ...), which hold the database password."
+msgstr "Server odmítne vydat wp-config.php a jeho kopie (.bak, .old, .zip, ...), ve kterých je heslo k databázi."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:107
+msgid "It is a rule in .htaccess, which only Apache and LiteSpeed read. A wrong rule can break the whole site with an HTTP 500, so the pack checks the site afterwards and takes the rules back if it fails."
+msgstr "Je to pravidlo v .htaccess, který čte jen Apache a LiteSpeed. Špatné pravidlo může shodit celý web na HTTP 500, proto balíček po zápisu web zkontroluje a při chybě pravidla vrátí."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:108
+#: includes/Modules/SecurityOptimization/SettingHelp.php:120
+msgid "When the server configuration already blocks these files."
+msgstr "Když už tyto soubory blokuje nastavení serveru."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:109
+#: includes/Modules/SecurityOptimization/SettingHelp.php:115
+#: includes/Modules/SecurityOptimization/SettingHelp.php:121
+msgid "The server is not Apache or LiteSpeed (nginx, IIS), or the .htaccess file cannot be written."
+msgstr "Server není Apache ani LiteSpeed (nginx, IIS), nebo soubor .htaccess nejde zapsat."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:112
+msgid "A folder without an index file, for example /wp-content/uploads/, answers 403 instead of showing the list of its files (Options -Indexes)."
+msgstr "Složka bez indexového souboru, například /wp-content/uploads/, odpoví 403 místo seznamu svých souborů (Options -Indexes)."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:113
+msgid "On some hosts the setting of .htaccess does not allow the Options line and the site answers HTTP 500. The pack detects it, takes only this line back and keeps the other rules."
+msgstr "U některých poskytovatelů hostingu nastavení .htaccess řádek Options nepovoluje a web odpoví HTTP 500. Balíček to pozná, vrátí jen tento řádek a ostatní pravidla ponechá."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:114
+msgid "When you offer a file list on purpose."
+msgstr "Když výpis souborů nabízíte schválně."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:118
+msgid "readme.html, license.txt and wp-config-sample.php answer 403, so nobody can read the WordPress version from them."
+msgstr "readme.html, license.txt a wp-config-sample.php odpovídají 403, takže z nich nikdo nepřečte verzi WordPressu."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:119
+msgid "Hardly any. A scanner that reads readme.html to find the version will not see it."
+msgstr "Skoro žádné. Skener, který čte readme.html kvůli zjištění verze, ji neuvidí."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:124
+msgid "?author=1 no longer redirects to an author page that shows the login name, and the public list of users in the REST API is closed to visitors. Logged-in users keep it. The WordPress users sitemap (wp-sitemap-users.xml) is not changed."
+msgstr "?author=1 už nepřesměruje na stránku autora, která ukazovala přihlašovací jméno, a veřejný seznam uživatelů v REST API je návštěvníkům zavřený. Přihlášení uživatelé ho dál mají. Sitemapa uživatelů ve WordPressu (wp-sitemap-users.xml) se nemění."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:125
+msgid "A decoupled front end (headless) or an app that reads authors over the REST API without logging in stops getting them. The block editor and the admin work as before."
+msgstr "Oddělený front end (headless) nebo aplikace, která čte autory přes REST API bez přihlášení, je přestane dostávat. Blokový editor a administrace fungují jako dřív."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:126
+msgid "When a separate front end or an app needs the public list of users."
+msgstr "Když oddělený front end nebo aplikace potřebuje veřejný seznam uživatelů."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:127
+msgid "A decoupled front end plugin is active (WPGraphQL, Faust.js, WPGatsby), or a plugin that blocks user enumeration is active."
+msgstr "Je aktivní plugin pro oddělený front end (WPGraphQL, Faust.js, WPGatsby), nebo plugin, který blokuje enumeraci uživatelů."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:130
+msgid "The user name in the address of an author page (and in the REST \"slug\") is replaced with a code, for example /author/3f9a.../. The old /author/name/ addresses answer 404, there is no redirect. The sitemap and the theme links use the new addresses."
+msgstr "Jméno uživatele v adrese stránky autora (i v REST „slug“) se nahradí kódem, například /author/3f9a.../. Staré adresy /author/jmeno/ odpovídají 404, přesměrování není. Sitemapa i odkazy v šabloně používají nové adresy."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:131
+msgid "Author pages that are already indexed or linked stop working, and an author sitemap of an SEO plugin changes its addresses."
+msgstr "Stránky autorů, které jsou už zaindexované nebo odkazované, přestanou fungovat, a sitemapa autorů SEO pluginu změní své adresy."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:132
+msgid "When you want to keep the old author addresses."
+msgstr "Když chcete zachovat staré adresy autorů."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:133
+msgid "The site has more than 5 published posts (its author pages may already be indexed)."
+msgstr "Web má víc než 5 publikovaných příspěvků (jeho stránky autorů mohou být už zaindexované)."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:136
+msgid "The old remote interface xmlrpc.php is closed. Attackers use it to guess passwords in bulk."
+msgstr "Staré vzdálené rozhraní xmlrpc.php se zavře. Útočníci přes ně hromadně hádají hesla."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:137
+msgid "Old mobile apps, some publishing tools and the Jetpack connection through XML-RPC stop working."
+msgstr "Staré mobilní aplikace, některé publikační nástroje a připojení Jetpacku přes XML-RPC přestanou fungovat."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:138
+msgid "When a tool you use still talks to xmlrpc.php."
+msgstr "Když nástroj, který používáte, pořád mluví s xmlrpc.php."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:139
+msgid "A plugin that disables XML-RPC is already active."
+msgstr "Je už aktivní plugin, který vypíná XML-RPC."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:142
+msgid "The WordPress version leaves the page head and the addresses of scripts and styles."
+msgstr "Verze WordPressu zmizí z hlavičky stránky a z adres skriptů a stylů."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:143
+msgid "None noticeable. It only makes automatic scanners work a little harder; it does not replace updates."
+msgstr "Nic znatelného. Jen to automatickým skenerům trochu ztíží práci; aktualizace to nenahrazuje."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:144
+#: includes/Modules/SecurityOptimization/SettingHelp.php:186
+msgid "Hardly ever needed."
+msgstr "Málokdy je to potřeba."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:145
+#: includes/Modules/SecurityOptimization/SettingHelp.php:151
+#: includes/Modules/SecurityOptimization/SettingHelp.php:175
+#: includes/Modules/SecurityOptimization/SettingHelp.php:187
+#: includes/Modules/SecurityOptimization/SettingHelp.php:193
+msgid "It is never left out."
+msgstr "Nikdy se nevynechává."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:148
+msgid "The code editors for themes and plugins in wp-admin are switched off (DISALLOW_FILE_EDIT). A stolen administrator login then cannot easily turn into running code."
+msgstr "Editory kódu pro motivy a pluginy v administraci se vypnou (DISALLOW_FILE_EDIT). Ukradené přihlášení správce se pak nedá snadno změnit ve spuštěný kód."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:149
+msgid "You change theme and plugin files over FTP, the file manager or your editor instead."
+msgstr "Soubory motivů a pluginů měníte přes FTP, správce souborů nebo svůj editor."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:150
+msgid "When you edit code in the WordPress admin."
+msgstr "Když upravujete kód v administraci WordPressu."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:154
+msgid "Sends X-Frame-Options (other sites cannot show yours in a frame), X-Content-Type-Options and Referrer-Policy. The headers are set in .htaccess and also by PHP."
+msgstr "Pošle X-Frame-Options (jiné weby nemohou ten váš zobrazit v rámu), X-Content-Type-Options a Referrer-Policy. Hlavičky se nastavují v .htaccess a také přes PHP."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:155
+msgid "A page that has to be shown inside a frame of another site stops appearing there."
+msgstr "Stránka, která se musí zobrazit uvnitř rámu jiného webu, se tam přestane zobrazovat."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:156
+msgid "When other sites embed your pages on purpose."
+msgstr "Když vaše stránky schválně vkládají jiné weby."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:157
+msgid "It is never left out; where .htaccess cannot be written the headers are sent by PHP only."
+msgstr "Nikdy se nevynechává; kde nejde zapsat .htaccess, posílá hlavičky jen PHP."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:160
+msgid "The Permissions-Policy header turns off camera, microphone, location, payment and USB for the page and for frames inside it. It is sent by PHP."
+msgstr "Hlavička Permissions-Policy vypne kameru, mikrofon, polohu, platby a USB pro stránku i pro rámy v ní. Posílá ji PHP."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:161
+msgid "Apple Pay and Google Pay, \"use my location\" on a map and video calls from the page stop working."
+msgstr "Apple Pay a Google Pay, „použít moji polohu“ na mapě a videohovory ze stránky přestanou fungovat."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:162
+msgid "When the site needs any of these functions."
+msgstr "Když web některou z těchto funkcí potřebuje."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:163
+msgid "WooCommerce is active (online payments), or a plugin that sets the same header is active."
+msgstr "Je aktivní WooCommerce (online platby), nebo plugin, který posílá stejnou hlavičku."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:166
+msgid "Every request to http:// is redirected to https:// (a rule in .htaccess)."
+msgstr "Každý požadavek na http:// se přesměruje na https:// (pravidlo v .htaccess)."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:167
+msgid "Behind Cloudflare in the Flexible mode or another proxy that talks to the server over http this causes an endless redirect and the site does not open. The pack checks it and takes the rule back. Insecure content (http images) on a page is blocked by browsers."
+msgstr "Za Cloudflarem v režimu Flexible nebo za jinou proxy, která se serverem mluví po http, vznikne nekonečné přesměrování a web se neotevře. Balíček to zkontroluje a pravidlo vrátí. Nezabezpečený obsah (http obrázky) na stránce prohlížeče blokují."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:168
+msgid "When the site does not work over https everywhere."
+msgstr "Když web nefunguje všude přes https."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:169
+msgid "The site address is not https, this page was not opened over https, plain http does not answer, or the site is behind a proxy that is not Cloudflare."
+msgstr "Adresa webu není https, tato stránka nebyla otevřena přes https, obyčejné http neodpovídá, nebo je web za proxy, která není Cloudflare."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:172
+msgid "WordPress keeps only the last 10 saved versions of each post and page."
+msgstr "WordPress si u každého příspěvku a stránky ponechá jen posledních 10 uložených verzí."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:173
+msgid "You cannot go back to a version older than the tenth one."
+msgstr "Nevrátíte se k verzi starší než desáté."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:174
+msgid "When you need a long history of changes of your texts."
+msgstr "Když potřebujete dlouhou historii změn svých textů."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:178
+msgid "The background messages between the editor and the server (autosave, post locking) go once a minute instead of every 15 to 60 seconds."
+msgstr "Zprávy na pozadí mezi editorem a serverem (automatické ukládání, zamykání příspěvku) chodí jednou za minutu místo každých 15 až 60 sekund."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:179
+msgid "When two people edit one post, they see each other's changes and the post lock a little later."
+msgstr "Když příspěvek upravují dva lidé, vidí změny toho druhého a zámek příspěvku o něco později."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:180
+msgid "When many editors work on the same texts at the same time."
+msgstr "Když na stejných textech pracuje mnoho editorů najednou."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:181
+msgid "A caching plugin that already manages Heartbeat is active (WP Rocket, LiteSpeed Cache, Perfmatters, Heartbeat Control)."
+msgstr "Je aktivní cache plugin, který už Heartbeat spravuje (WP Rocket, LiteSpeed Cache, Perfmatters, Heartbeat Control)."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:184
+msgid "Removes the emoji script and style that WordPress adds to every page. Emoji still show, with the font of the visitor's device."
+msgstr "Odstraní skript a styl emoji, které WordPress přidává na každou stránku. Emoji se dál zobrazují písmem zařízení návštěvníka."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:185
+msgid "A very old browser without an emoji font shows empty boxes instead of emoji."
+msgstr "Velmi starý prohlížeč bez písma s emoji ukáže místo emoji prázdné čtverečky."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:190
+msgid "Deletes the Twenty* themes that WordPress brought itself and that nothing uses; the newest one stays as the fallback. A theme you installed yourself is never deleted."
+msgstr "Smaže motivy Twenty*, které WordPress přinesl sám a které nic nepoužívá; nejnovější zůstane jako záloha. Motiv, který jste nainstalovali sami, se nikdy nesmaže."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:191
+msgid "A deleted theme has to be installed again when you want it."
+msgstr "Smazaný motiv je nutné znovu nainstalovat, když ho budete chtít."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:192
+msgid "When you want to keep the default themes."
+msgstr "Když chcete výchozí motivy ponechat."
+
+#: build/index.88291a4a293e1f8ff75d.js:2
+msgid "Details"
+msgstr "Podrobnosti"
+
+#: build/index.88291a4a293e1f8ff75d.js:2
+msgid "What it does"
+msgstr "Co to dělá"
+
+#: build/index.88291a4a293e1f8ff75d.js:2
+msgid "Risk"
+msgstr "Riziko"
+
+#: build/index.88291a4a293e1f8ff75d.js:2
+msgid "When to switch it off"
+msgstr "Kdy to vypnout"
+
+#: build/index.88291a4a293e1f8ff75d.js:2
+msgid "When the starter pack leaves it out"
+msgstr "Kdy ji balíček vynechá"
+
+#: build/index.88291a4a293e1f8ff75d.js:67
+msgid "Left out on this site"
+msgstr "Vynecháno na tomto webu"
+
+#: build/index.88291a4a293e1f8ff75d.js:67
+msgid "Left out"
+msgstr "Vynecháno"
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:172
+msgid "Tells the browser to open the site only over https for a whole year, even when somebody types http://."
+msgstr "Řekne prohlížeči, aby web celý rok otevíral jen přes https, i když někdo napíše http://."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:173
+msgid "The browser remembers it for a year and cannot be talked out of it. If the certificate expires or https breaks, visitors cannot open the site at all until it works again."
+msgstr "Prohlížeč si to pamatuje rok a nedá se přesvědčit o opaku. Když vyprší certifikát nebo se https pokazí, návštěvníci web vůbec neotevřou, dokud nebude zase fungovat."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:174
+msgid "Before the site works over https everywhere, including the subdomains."
+msgstr "Dokud web nefunguje všude přes https, včetně subdomén."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:175
+msgid "The starter pack never switches it on. Switch it on yourself when you are sure about https."
+msgstr "Úvodní balíček to nikdy nezapíná. Zapněte to sami, až si budete s https jistí."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:178
+msgid "Every request is redirected to one version of the address (with or without www, http or https) taken from the site address in Settings > General (a rule in .htaccess)."
+msgstr "Každý požadavek se přesměruje na jednu verzi adresy (s www nebo bez, http nebo https) podle adresy webu v Nastavení > Obecné (pravidlo v .htaccess)."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:179
+msgid "A wrong site address in Settings > General, or a proxy that talks to the server over http, causes an endless redirect and the site does not open."
+msgstr "Špatná adresa webu v Nastavení > Obecné, nebo proxy, která se serverem mluví po http, způsobí nekonečné přesměrování a web se neotevře."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:180
+msgid "When the redirect to one address is already done by the server or a CDN."
+msgstr "Když přesměrování na jednu adresu už dělá server nebo CDN."
+
+#: includes/Modules/SecurityOptimization/SettingHelp.php:181
+msgid "The starter pack never switches it on. Switch it on yourself when you are sure about the site address."
+msgstr "Úvodní balíček to nikdy nezapíná. Zapněte to sami, až si budete jistí adresou webu."
