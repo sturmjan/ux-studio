@@ -31,6 +31,8 @@ require_once $root . '/includes/Autoloader.php';
 
 use UxStudio\Core\Migration\AutoStart;
 use UxStudio\Core\Onboarding\Applier;
+use UxStudio\Core\Onboarding\HtaccessGuard;
+use UxStudio\Modules\SecurityOptimization\HtaccessWriter;
 use UxStudio\Core\Onboarding\StarterPack;
 use UxStudio\Modules\SecurityOptimization\HeadLinks;
 use UxStudio\Modules\SecurityOptimization\LoginUrlPending;
@@ -118,7 +120,7 @@ $assert( 'every setting key of the pack is in its module schema', array() === $u
 
 /* ── Never in the pack ── */
 
-$never = array( 'ip_firewall_enabled', 'country_blocklist_enabled', 'blocked_countries', 'force_https', 'canonical_redirect', 'enable_hsts', 'restrict_rest_api', 'protect_login', 'block_user_enumeration', 'two_factor_enabled', 'two_factor_required_roles' );
+$never = array( 'ip_firewall_enabled', 'country_blocklist_enabled', 'blocked_countries', 'canonical_redirect', 'enable_hsts', 'restrict_rest_api', 'two_factor_enabled', 'two_factor_required_roles' );
 $found = array();
 foreach ( StarterPack::items( array( 'woocommerce' => true, 'cloudflare' => true ) ) as $item ) {
 	foreach ( (array) ( $item['settings']['security-optimization'] ?? array() ) as $key => $value ) {
@@ -127,7 +129,7 @@ foreach ( StarterPack::items( array( 'woocommerce' => true, 'cloudflare' => true
 		}
 	}
 }
-$assert( 'forced 2FA, IP firewall, country block, HTTPS forcing, HSTS, REST restriction, login hardening and user enumeration block are never set', array() === $found, implode( ',', $found ) );
+$assert( 'forced 2FA, IP firewall, country block, HTTPS forcing, HSTS and REST restriction are never set', array() === $found, implode( ',', $found ) );
 $assert( 'CSP is never enforced; the optional item only inventories (audit, 20 percent)', array( 'csp_mode' => 'audit', 'csp_sample_rate' => 20 ) === $by_id( array() )['csp-audit']['settings']['security-optimization'] && $by_id( array() )['csp-audit']['checked'] );
 foreach ( array( 'audit', 'report-only', 'enforce' ) as $mode ) {
 	$csp = $by_id( array( 'csp_mode' => $mode ) )['csp-audit'];
@@ -271,6 +273,157 @@ $assert( 'update e-mails: plugin and theme mails are never sent', false === Upda
 $assert( 'update e-mails: core success mail is dropped', false === UpdateEmails::decide_core( true, 'success' ) && false === UpdateEmails::filter_core( true, 'success' ) );
 $assert( 'update e-mails: core fail, critical and manual mails still arrive', true === UpdateEmails::decide_core( true, 'fail' ) && true === UpdateEmails::decide_core( true, 'critical' ) && true === UpdateEmails::decide_core( true, 'manual' ) );
 $assert( 'update e-mails: a mail WordPress did not want stays unwanted', false === UpdateEmails::decide_core( false, 'fail' ) && false === UpdateEmails::decide_core( false, 'success' ) );
+
+
+/* ── Login hardening, feeds, .htaccess rules, enumeration, author slugs ── */
+
+$warn_codes = static fn( array $items ): array => array_column( $items['security-hardening']['warnings'], 'code' );
+$clean      = $by_id( array() );
+$sc         = $sec( $clean );
+$assert( 'clean site: login hardening keys are all on', true === $sc['limit_login_attempts'] && true === $sc['block_usernames'] && true === $sc['block_username_attempts'] && true === $sc['protect_login'] );
+$assert( 'clean site: feeds, file rules, listing, enumeration and author slugs are on', true === $sc['disable_rss_feeds'] && true === $sc['protect_wp_config'] && true === $sc['disable_directory_listing'] && true === $sc['block_sensitive_files'] && true === $sc['block_user_enumeration'] && true === $sc['hide_author_slugs'] );
+$assert( 'clean site: no warning at all', array() === $clean['security-hardening']['warnings'] );
+
+$px = $sec( $xf );
+$assert( 'proxy without Cloudflare: reserved username keys follow the limiter out, protect_login stays', ! isset( $px['block_usernames'] ) && ! isset( $px['block_username_attempts'] ) && true === $px['protect_login'] && in_array( 'username_block_needs_limit', $warn_codes( $xf ), true ) );
+$assert( 'Cloudflare: reserved username keys are on', true === $sec( $cf )['block_username_attempts'] );
+$lb = $sec( $by_id( array( 'blocked_settings' => array( 'limit_login_attempts' => array( 'Loginizer' ) ) ) ) );
+$assert( 'a plugin does the login limit: both username keys are left out too', ! isset( $lb['block_usernames'] ) && ! isset( $lb['block_username_attempts'] ) && true === $lb['protect_login'] );
+
+$rv = $by_id( array( 'reserved_users' => array( 'admin', 'tester' ) ) );
+$assert( 'an existing reserved username: block_username_attempts is left out, block_usernames stays, warning names the accounts', ! isset( $sec( $rv )['block_username_attempts'] ) && true === $sec( $rv )['block_usernames'] && in_array( 'reserved_user_exists', $warn_codes( $rv ), true ) && false !== strpos( $rv['security-hardening']['warnings'][0]['message'], 'admin, tester' ) );
+
+$ap = $by_id( array( 'app_passwords' => array( 'users' => 2, 'passwords' => 3 ) ) );
+$assert( 'application passwords exist: protect_login is left out, with a warning', ! isset( $sec( $ap )['protect_login'] ) && in_array( 'app_passwords_in_use', $warn_codes( $ap ), true ) );
+$assert( 'application passwords: the warning carries the counts', false !== strpos( $ap['security-hardening']['warnings'][0]['message'], 'passwords: 3, users: 2' ) );
+$combo = $by_id( array( 'xff' => true, 'reserved_users' => array( 'root' ), 'app_passwords' => array( 'users' => 1, 'passwords' => 1 ) ) );
+$assert( 'combo: proxy + reserved user + application passwords leaves out the limiter, both username keys and protect_login', ! isset( $sec( $combo )['limit_login_attempts'] ) && ! isset( $sec( $combo )['block_usernames'] ) && ! isset( $sec( $combo )['block_username_attempts'] ) && ! isset( $sec( $combo )['protect_login'] ) && true === $sec( $combo )['disable_xmlrpc'] );
+$pl = $by_id( array( 'blocked_settings' => array( 'protect_login' => array( 'X' ) ) ) );
+$assert( 'a plugin does the same (blocked_settings): protect_login is reported with its plugin', in_array( 'blocked_feature', $warn_codes( $pl ), true ) && ! isset( $sec( $pl )['protect_login'] ) );
+
+// RSS feeds.
+$f6 = $by_id( array( 'published_posts' => 6 ) );
+$f5 = $by_id( array( 'published_posts' => 5 ) );
+$assert( 'feeds: more than 5 published posts leaves them on, with a warning', ! isset( $sec( $f6 )['disable_rss_feeds'] ) && in_array( 'feeds_blog', $warn_codes( $f6 ), true ) );
+$assert( 'feeds: exactly 5 posts still switches them off', true === $sec( $f5 )['disable_rss_feeds'] );
+$fp = $by_id( array( 'feed_plugins' => array( 'Mailchimp for WP' ) ) );
+$assert( 'feeds: an active feed plugin keeps them, the warning names it', ! isset( $sec( $fp )['disable_rss_feeds'] ) && in_array( 'feeds_plugin', $warn_codes( $fp ), true ) && false !== strpos( $fp['security-hardening']['warnings'][0]['message'], 'Mailchimp for WP' ) );
+$assert( 'feeds: a plugin that disables feeds already (blocked_settings) is respected', ! isset( $sec( $by_id( array( 'blocked_settings' => array( 'disable_rss_feeds' => array( 'Disable Feeds' ) ) ) ) )['disable_rss_feeds'] ) );
+$assert( 'feed plugin list is small and holds the known slugs', isset( StarterPack::FEED_PLUGINS['mailchimp-for-wp'], StarterPack::FEED_PLUGINS['powerpress'], StarterPack::FEED_PLUGINS['seriously-simple-podcasting'] ) && ! isset( StarterPack::FEED_PLUGINS['jetpack'] ) );
+
+// .htaccess rules.
+$hk      = array( 'protect_wp_config', 'disable_directory_listing', 'block_sensitive_files' );
+$present = static fn( array $set ): array => array_values( array_intersect( $hk, array_keys( $set ) ) );
+$assert( 'Apache with a writable .htaccess: all three rules are in', $hk === $present( $sec( $by_id( array( 'server' => 'apache' ) ) ) ) );
+$assert( 'LiteSpeed: the rules are in', $hk === $present( $sec( $by_id( array( 'server' => 'litespeed' ) ) ) ) );
+foreach ( array( 'nginx', 'iis', 'other' ) as $srv ) {
+	$o = $by_id( array( 'server' => $srv ) );
+	$assert( "$srv: no .htaccess rule, warning says to block in the server configuration", array() === $present( $sec( $o ) ) && in_array( 'htaccess_rules_unsupported', $warn_codes( $o ), true ) );
+}
+$ur = $by_id( array( 'server' => 'apache', 'htaccess_writable' => false ) );
+$assert( 'unwritable .htaccess: no rule, warning explains, headers stay (PHP fallback)', array() === $present( $sec( $ur ) ) && in_array( 'htaccess_rules_unwritable', $warn_codes( $ur ), true ) && true === $sec( $ur )['security_headers'] );
+
+// User enumeration and author slugs.
+$hl = $by_id( array( 'headless_plugins' => array( 'WPGraphQL' ) ) );
+$assert( 'headless front end: users stay readable over REST, warning names the plugin; author slugs unaffected', ! isset( $sec( $hl )['block_user_enumeration'] ) && in_array( 'enumeration_headless', $warn_codes( $hl ), true ) && true === $sec( $hl )['hide_author_slugs'] );
+$assert( 'author slugs: more than 5 posts leaves them off with a warning, enumeration stays on', ! isset( $sec( $f6 )['hide_author_slugs'] ) && in_array( 'author_slugs_blog', $warn_codes( $f6 ), true ) && true === $sec( $f6 )['block_user_enumeration'] );
+$assert( 'author slugs: the same threshold as the feeds', true === $sec( $f5 )['hide_author_slugs'] && 5 === StarterPack::BLOG_POSTS_LIMIT );
+$assert( 'headless plugin list is small', 3 === count( StarterPack::HEADLESS_PLUGINS ) && isset( StarterPack::HEADLESS_PLUGINS['wp-graphql'] ) );
+$assert( 'stop-user-enumeration style plugin (blocked_settings) is respected', ! isset( $sec( $by_id( array( 'blocked_settings' => array( 'block_user_enumeration' => array( 'Stop User Enumeration' ) ) ) ) )['block_user_enumeration'] ) );
+
+// Item text.
+$desc = $clean['security-hardening']['description'];
+foreach ( array( 'RSS', 'wp-config.php', 'readme.html', 'directory listing', '?author=N', 'reserved username', 'Application Passwords', 'Security > Login', 'users sitemap', 'author page', 'Permissions-Policy', 'https://', 'HSTS', 'canonical URL redirect' ) as $needle ) {
+	$assert( "item text mentions: $needle", false !== stripos( $desc, $needle ) );
+}
+
+// Every new key is in the schema, with a label.
+$module_code = (string) file_get_contents( $root . '/includes/Modules/SecurityOptimization/Module.php' );
+foreach ( array( 'block_usernames', 'block_username_attempts', 'protect_login', 'disable_rss_feeds', 'protect_wp_config', 'disable_directory_listing', 'block_sensitive_files', 'block_user_enumeration', 'hide_author_slugs' ) as $key ) {
+	$assert( "schema has $key with a label", 1 === preg_match( "/'key'\s*=>\s*'" . $key . "'[^;]*?'label'\s*=>\s*__\(/s", $module_code ) );
+}
+
+// .htaccess rule text (Apache 2.4 without mod_access_compat must not get a 500).
+$rules = implode( "\n", ( new HtaccessWriter() )->build_rules( array( 'protect_wp_config' => true, 'block_sensitive_files' => true, 'disable_directory_listing' => true ) ) );
+$assert( 'rules: Apache 2.4 syntax sits in mod_authz_core', false !== strpos( $rules, "<IfModule mod_authz_core.c>\nRequire all denied\n</IfModule>" ) );
+$assert( 'rules: Apache 2.2 fallback sits in the negated check', false !== strpos( $rules, "<IfModule !mod_authz_core.c>\nOrder allow,deny\nDeny from all\n</IfModule>" ) );
+$assert( 'rules: no bare Order/Deny outside the module checks', 0 === preg_match( '/^(Order|Deny|order|deny)/m', preg_replace( '#<IfModule !mod_authz_core\.c>.*?</IfModule>#s', '', $rules ) ) );
+$assert( 'rules: wp-config, its backups, readme, license and sample are covered, three blocks of both syntaxes', 3 === substr_count( $rules, 'Require all denied' ) && 3 === substr_count( $rules, 'Deny from all' ) && false !== strpos( $rules, '<Files wp-config.php>' ) && false !== strpos( $rules, 'readme\.html|license\.txt|wp-config-sample\.php' ) && false !== strpos( $rules, 'Options -Indexes' ) );
+
+// Loopback safety net: decisions.
+$assert( 'guard: a 500 on the home page or on the login rolls back', HtaccessGuard::should_roll_back( array( 'home' => 500, 'login' => 200 ) ) && HtaccessGuard::should_roll_back( array( 'home' => 200, 'login' => 503 ) ) );
+$assert( 'guard: 200, 301, 403, 404 do not roll back', ! HtaccessGuard::should_roll_back( array( 'home' => 200, 'login' => 301 ) ) && ! HtaccessGuard::should_roll_back( array( 'home' => 403, 'login' => 404 ) ) );
+$assert( 'guard: an impossible loopback is unknown, not a rollback', ! HtaccessGuard::should_roll_back( array( 'home' => 0, 'login' => 0 ) ) && ! HtaccessGuard::was_checked( array( 'home' => 0, 'login' => 0 ) ) && HtaccessGuard::was_checked( array( 'home' => 0, 'login' => 200 ) ) );
+$assert( 'guard retry: the directory listing is dropped first, the rest stays', array( 'protect_wp_config', 'block_sensitive_files' ) === HtaccessGuard::retry_keys( array( 'protect_wp_config', 'disable_directory_listing', 'block_sensitive_files' ) ) );
+$assert( 'guard retry: nothing to drop means giving up on the group (null)', null === HtaccessGuard::retry_keys( array( 'protect_wp_config', 'block_sensitive_files' ) ) && array() === HtaccessGuard::retry_keys( array( 'disable_directory_listing' ) ) );
+$assert( 'guard verify: refused is 403 or 404, a listing is recognised', HtaccessGuard::is_refused( 403 ) && HtaccessGuard::is_refused( 404 ) && ! HtaccessGuard::is_refused( 200 ) && HtaccessGuard::is_listing( 200, '<html><head><title>Index of /wp-content/uploads</title>' ) && ! HtaccessGuard::is_listing( 200, '<html>hello' ) && ! HtaccessGuard::is_listing( 403, 'Index of' ) );
+$assert( 'guard verify: enumeration is blocked with 401/403, an empty list, no author redirect', HtaccessGuard::enumeration_blocked( '', 401, '' ) && HtaccessGuard::enumeration_blocked( 'https://x.test/', 200, '[]' ) && ! HtaccessGuard::enumeration_blocked( 'https://x.test/author/jan/', 401, '' ) && ! HtaccessGuard::enumeration_blocked( '', 200, '[{"id":1,"slug":"jan"}]' ) );
+
+// Rollback against a copy of an .htaccess file (never the real one).
+$scratch = 'D:/xampp/htdocs/_uxs-scratch';
+@mkdir( $scratch, 0777, true );
+$tmp  = $scratch . '/htaccess-test-' . getmypid();
+$orig = "# BEGIN WordPress\nRewriteEngine On\n# END WordPress\n";
+file_put_contents( $tmp, $orig );
+$copy = HtaccessGuard::read_file( $tmp );
+file_put_contents( $tmp, $orig . "\n# BEGIN UX Studio Security\nOptions -Indexes\n# END UX Studio Security\n" );
+$assert( 'rollback: the copy is the original file content', $orig === $copy );
+$assert( 'rollback: restore puts the original bytes back', HtaccessGuard::restore_file( $tmp, $copy ) && $orig === file_get_contents( $tmp ) );
+$assert( 'rollback: a file that did not exist is removed again', HtaccessGuard::restore_file( $tmp, null ) && ! is_file( $tmp ) && null === HtaccessGuard::read_file( $tmp ) );
+
+
+/* ── Permissions-Policy, forced https, explanations ── */
+
+$assert( 'clean site: Permissions-Policy and forced https are on', true === $sc['enable_permissions_policy'] && true === $sc['force_https'] );
+$assert( 'canonical redirect and HSTS stay off (not in the pack)', ! isset( $sc['canonical_redirect'] ) && ! isset( $sc['enable_hsts'] ) );
+$ppw = $by_id( array( 'woocommerce' => true ) );
+$assert( 'WooCommerce: no Permissions-Policy (payments), warning says so', ! isset( $sec( $ppw )['enable_permissions_policy'] ) && in_array( 'permissions_policy_woo', $warn_codes( $ppw ), true ) );
+$ppp = $by_id( array( 'header_plugins' => array( 'Really Simple SSL' ) ) );
+$assert( 'a header plugin: no Permissions-Policy, warning names it', ! isset( $sec( $ppp )['enable_permissions_policy'] ) && in_array( 'permissions_policy_plugin', $warn_codes( $ppp ), true ) && false !== strpos( $ppp['security-hardening']['warnings'][0]['message'], 'Really Simple SSL' ) );
+$assert( 'header plugin list is small', 2 === count( StarterPack::HEADER_PLUGINS ) );
+
+$nh = $by_id( array( 'https_ready' => false ) );
+$assert( 'http site or http request: forced https left out with a warning', ! isset( $sec( $nh )['force_https'] ) && in_array( 'https_not_ready', $warn_codes( $nh ), true ) && true === $sec( $nh )['protect_wp_config'] );
+$hp = $by_id( array( 'xff' => true ) );
+$assert( 'unknown proxy: forced https left out', ! isset( $sec( $hp )['force_https'] ) && in_array( 'https_proxy', $warn_codes( $hp ), true ) );
+$assert( 'Cloudflare (also with X-Forwarded-For): forced https stays, the loop check protects it', true === $sec( $by_id( array( 'cloudflare' => true, 'xff' => true ) ) )['force_https'] );
+$assert( 'nginx: forced https goes with the .htaccess rules', ! isset( $sec( $by_id( array( 'server' => 'nginx' ) ) )['force_https'] ) );
+$assert( 'forced https is a guarded .htaccess key', in_array( 'force_https', StarterPack::HTACCESS_KEYS, true ) );
+
+// Redirect loop decision.
+$assert( 'loop: the same address twice', HtaccessGuard::redirect_loop( array( 'https://x.test/', 'https://x.test/a', 'https://x.test/' ) ) );
+$assert( 'loop: trailing slash and case do not hide it', HtaccessGuard::redirect_loop( array( 'https://X.test/a', 'https://x.test/a/' ) ) );
+$assert( 'no loop: http -> https', ! HtaccessGuard::redirect_loop( array( 'http://x.test/', 'https://x.test/' ) ) );
+$assert( 'loop: more than 5 hops', HtaccessGuard::redirect_loop( array( 'a', 'b', 'c', 'd', 'e', 'f', 'g' ) ) && ! HtaccessGuard::redirect_loop( array( 'a', 'b', 'c', 'd', 'e', 'f' ) ) );
+$assert( 'https failed: a loop or a 5xx; a plain 200 is fine', HtaccessGuard::https_failed( array( 'a', 'b', 'a' ), 301 ) && HtaccessGuard::https_failed( array( 'a' ), 500 ) && ! HtaccessGuard::https_failed( array( 'a', 'b' ), 200 ) && ! HtaccessGuard::https_failed( array( 'a' ), 0 ) );
+$assert( 'force_https rule text is the HTTPS-off rewrite', false !== strpos( implode( "\n", ( new HtaccessWriter() )->build_rules( array( 'force_https' => true ) ) ), 'RewriteCond %{HTTPS} off' ) );
+
+// Explanations: every setting of the pack has the three parts (and the skip rule), no empty text.
+use UxStudio\Modules\SecurityOptimization\SettingHelp;
+$every = array();
+foreach ( array( array( 'woocommerce' => true, 'cloudflare' => true ), array() ) as $e ) {
+	foreach ( $by_id( $e )['security-hardening']['settings']['security-optimization'] as $key => $v ) {
+		$every[ $key ] = true;
+	}
+}
+$missing = array();
+foreach ( array_keys( $every ) as $key ) {
+	if ( in_array( $key, SettingHelp::PARAMETERS, true ) ) {
+		continue;
+	}
+	$ex = SettingHelp::for_key( $key, true );
+	if ( null === $ex || '' === trim( $ex['does'] ) || '' === trim( $ex['risk'] ) || '' === trim( $ex['off'] ) || '' === trim( (string) ( $ex['skip'] ?? '' ) ) ) {
+		$missing[] = $key;
+	}
+}
+$assert( 'every setting of the security item has what it does, the risk, when to switch it off and when it is left out', array() === $missing, implode( ',', $missing ) );
+$assert( 'the schema explanation has no skip rule, the wizard one has', ! array_key_exists( 'skip', (array) SettingHelp::for_key( 'protect_login' ) ) && array_key_exists( 'skip', (array) SettingHelp::for_key( 'protect_login', true ) ) );
+$assert( 'the risk of application passwords is stated', false !== stripos( SettingHelp::for_key( 'protect_login' )['risk'], 'Application Password' ) );
+$assert( 'the risks that were promised are stated honestly', false !== stripos( SettingHelp::for_key( 'disable_directory_listing' )['risk'], '500' ) && false !== stripos( SettingHelp::for_key( 'force_https' )['risk'], 'Flexible' ) );
+foreach ( array( 'security_headers', 'enable_permissions_policy', 'force_https', 'protect_login' ) as $key ) {
+	$assert( "$key is in the schema code (so its help can carry the explanation)", false !== strpos( $module_code, "'key'     => '$key'" ) );
+}
+$assert( 'the schema attaches SettingHelp to every option', false !== strpos( $module_code, "SettingHelp::for_key( (string) ( \$field['key'] ?? '' ) )" ) );
 
 /* ── AutoStart: a new site gets the starter pack ── */
 

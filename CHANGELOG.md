@@ -1,5 +1,47 @@
 # Changelog
 
+## 0.8.2 (unreleased)
+
+- Added - Starter pack, item "Security hardening and cleanup": these protections are now switched on for a NEW site
+  (sites that already applied the pack keep their settings; applies only when the pack is applied):
+  - "Lock out IPs that try a blocked username" and "Block reserved usernames" (together with the login attempt limit).
+    Left out when the limit is not applied (unknown reverse proxy, a login plugin does it) and when an existing account
+    already has a reserved name: a failed login with such a name locks the IP at once, also for that real account, so
+    one typo in its password would lock the owner out.
+  - "Harden the login page": generic error for a wrong username or password, Application Passwords switched off (new
+    ones cannot be created; switch it off in Security > Login to use MCP or REST clients that sign in with them).
+    Left out when any user already has an Application Password.
+  - "Disable RSS feeds" (feeds answer 403, feed links leave the page head). Left out with more than 5 published posts or
+    when a plugin that needs feeds is active (Mailchimp for WP, Seriously Simple Podcasting, PowerPress, Feedzy,
+    FeedWordPress, WP RSS Aggregator).
+  - "Protect wp-config.php", "Disable directory listing" and "Block readme.html / license.txt" (also wp-config-sample.php)
+    through `.htaccess`, only on Apache or LiteSpeed with a writable file.
+  - "Block user enumeration" (`?author=N` and the public REST users list; the core users sitemap is not changed).
+    Left out when WPGraphQL, Faust.js or WPGatsby is active.
+  - "Hide author slugs" (author pages get a code instead of the user name; old `/author/name/` addresses answer 404).
+    Left out with more than 5 published posts.
+  - "Permissions-Policy" header. Left out with WooCommerce or when a header plugin is active.
+  - "Force HTTPS", only when the site address and this request are https, plain http answers, and no unknown proxy is in
+    front. A redirect loop (for example Cloudflare in the Flexible mode) is detected and the setting is taken back.
+  - The canonical URL redirect and HSTS stay off on purpose.
+- Added - Safety net for the rules the pack writes into `.htaccess`: after saving, the site asks itself for its home page
+  and wp-login.php; on an HTTP 5xx the file is put back byte for byte, the pack retries once without "Disable directory
+  listing" (the line some hosts refuse) and, if that fails too, takes all `.htaccess` rules back. When the site cannot
+  ask itself, the item says so. After success the rules are verified (403 on wp-config.php and readme.html, no file list
+  in uploads, redirect to https, closed users route) and the result is shown as "Verified" / "Could not be verified".
+- Added - Plain-language explanation of every option of the item: what it does, the risk, when to switch it off and
+  when the pack leaves it out. The same wording (one PHP class, `SettingHelp`) is shown under the option in Security
+  ("Details") and in the wizard under "What will be set"; options left out on the site are listed with the reason.
+- Fixed - "Harden the login page" no longer hides the messages that explain why a login is refused: the lockout of the
+  attempt limiter, CAPTCHA and two-step verification keep their own text. Only the wrong username and wrong password
+  errors become generic.
+- Changed - The `.htaccess` rules for wp-config.php and the sensitive files use the Apache 2.4 syntax with the old
+  syntax as a fallback (`<IfModule mod_authz_core.c>` / `<IfModule !mod_authz_core.c>`): without the compatibility module
+  the old `Order`/`Deny` lines gave HTTP 500 for the whole site. Sites that use these options get the new rules written on
+  the next visit to the admin.
+- Changed - Overlap catalog: Disable Feeds (full, for "Disable RSS feeds"), Stop User Enumeration (full, for "Block user
+  enumeration") and Disable Application Passwords (information only, for "Harden the login page").
+
 ## 0.8.1
 
 - Added - Notice history: the bell panel of hidden admin notices now remembers what it caught. A new page "Notice

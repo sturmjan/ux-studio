@@ -16,6 +16,7 @@ use UxStudio\Core\Modules;
 use UxStudio\Modules\BaseModule;
 use UxStudio\Modules\SecurityOptimization\HtaccessWriter;
 use UxStudio\Modules\SecurityOptimization\LoginUrlNotice;
+use UxStudio\Modules\SecurityOptimization\SettingHelp;
 use UxStudio\Modules\SecurityOptimization\LoginUrlPending;
 use UxStudio\Modules\SecurityOptimization\Module as Security;
 use WP_Error;
@@ -69,6 +70,7 @@ final class Applier {
 			$item['modules']  = $mods;
 			$item['warnings'] = $this->word_warnings( (array) $item['warnings'] );
 			$item['preset']   = $this->describe_preset( (array) $item['settings'] );
+			$item['left_out'] = $this->left_out( (array) $item['warnings'] );
 			unset( $item['settings'] );
 			$items[] = $item;
 		}
@@ -134,6 +136,42 @@ final class Applier {
 	}
 
 	/**
+	 * Settings the pack leaves out on this site, each with its label, the reason and the explanation.
+	 *
+	 * @param array<int, array<string, mixed>> $warnings Warnings of one item (already worded).
+	 * @return array<int, array{key:string,label:string,reason:string,explain:array<string,string>|null}>
+	 */
+	private function left_out( array $warnings ): array {
+		$security = $this->modules->instance( 'security-optimization' );
+		$labels   = array();
+		if ( $security ) {
+			foreach ( $security->settings_schema() as $field ) {
+				$labels[ $field['key'] ] = (string) ( $field['label'] ?? $field['key'] );
+			}
+		}
+		$out  = array();
+		$seen = array();
+		foreach ( $warnings as $warning ) {
+			$data = (array) ( $warning['data'] ?? array() );
+			$keys = isset( $data['keys'] ) ? (array) $data['keys'] : ( isset( $data['key'] ) ? array( $data['key'] ) : array() );
+			foreach ( $keys as $key ) {
+				$key = (string) $key;
+				if ( isset( $seen[ $key ] ) ) {
+					continue; // One reason per setting is enough (the first one).
+				}
+				$seen[ $key ] = true;
+				$out[]        = array(
+					'key'     => $key,
+					'label'   => $labels[ $key ] ?? $key,
+					'reason'  => (string) ( $warning['message'] ?? '' ),
+					'explain' => SettingHelp::for_key( $key, true ),
+				);
+			}
+		}
+		return $out;
+	}
+
+	/**
 	 * Overlap status of enabling one module, from the activation guard.
 	 *
 	 * @param string $module Module id.
@@ -179,6 +217,7 @@ final class Applier {
 					'label'       => (string) ( $field['label'] ?? $key ),
 					'value'       => $value,
 					'value_label' => self::value_label( $value, $field ),
+					'explain'     => 'security-optimization' === $module ? SettingHelp::for_key( (string) $key, true ) : null,
 				);
 			}
 		}
@@ -288,6 +327,7 @@ final class Applier {
 			'modules' => array(),
 			'plugins' => array(),
 			'errors'  => array(),
+			'notes'   => array(),
 		);
 		if ( empty( $item['available'] ) ) {
 			$result['status'] = 'skipped';
@@ -323,10 +363,32 @@ final class Applier {
 			if ( ! $instance instanceof BaseModule ) {
 				continue;
 			}
+			// Forced https only when the site answers on plain http at all (otherwise the redirect cannot be checked).
+			if ( $instance instanceof Security && ! empty( $values['force_https'] ) && 0 === HtaccessGuard::http_probe()['code'] ) {
+				unset( $values['force_https'] );
+				$result['notes'][] = sprintf(
+					/* translators: %s: setting name. */
+					__( 'Left out: %s. The site did not answer on plain http, so the redirect to https could not be checked.', 'ux-studio' ),
+					$this->label_of( $instance, 'force_https' )
+				);
+			}
+			$guarded = $instance instanceof Security ? $this->guarded_keys( $values ) : array();
+			$before  = $guarded && $instance instanceof Security ? $this->guard_before( $instance ) : array();
 			try {
 				$instance->save_settings( $values );
 			} catch ( \Throwable $e ) {
 				$result['errors'][] = $module . ': ' . $e->getMessage();
+			}
+			if ( $guarded && $instance instanceof Security && ! $result['errors'] ) {
+				$result['notes'] = array_merge( $result['notes'], $this->guard_after( $instance, $guarded, $before ) );
+			}
+			if ( $instance instanceof Security && ! empty( $values['protect_login'] ) && ! $result['errors'] ) {
+				$result['notes'][] = sprintf(
+					/* translators: 1: setting name, 2: settings tab name. */
+					__( 'Application Passwords are switched off: new ones cannot be created. If an MCP or REST client needs them, switch off "%1$s" in Security > %2$s.', 'ux-studio' ),
+					$this->label_of( $instance, 'protect_login' ),
+					$this->section_of( $instance, 'protect_login' )
+				);
 			}
 		}
 		if ( StarterPack::LOGIN_ITEM === $item['id'] && ! in_array( 'security-optimization', $on, true ) ) {
@@ -341,6 +403,151 @@ final class Applier {
 			$result['status'] = 'partial';
 		}
 		return $result;
+	}
+
+	/**
+	 * Keys of a Security preset that change how the web server answers (.htaccess rules, the users route): the ones
+	 * that get the loopback check after saving.
+	 *
+	 * @param array<string, mixed> $values Preset of the Security module.
+	 * @return string[]
+	 */
+	private function guarded_keys( array $values ): array {
+		$keys = array();
+		foreach ( array_merge( StarterPack::HTACCESS_KEYS, array( 'block_user_enumeration' ) ) as $key ) {
+			if ( ! empty( $values[ $key ] ) ) {
+				$keys[] = $key;
+			}
+		}
+		return $keys;
+	}
+
+	/**
+	 * What is needed to undo the .htaccess rules: the file as it is, and the current values of the keys.
+	 *
+	 * @param Security $security Security module.
+	 * @return array{file:string|null,values:array<string,mixed>}
+	 */
+	private function guard_before( Security $security ): array {
+		return array(
+			'file'   => HtaccessGuard::read_file( HtaccessGuard::path() ),
+			'values' => $security->htaccess_settings(),
+		);
+	}
+
+	/**
+	 * After the rules were saved: ask the site for its home page and wp-login.php. On a server error the file goes
+	 * back to what it was and the pack retries once without the directory listing; when that is not enough, the
+	 * .htaccess keys go back to their previous values. Then the rules are verified (read only, never fails the pack).
+	 *
+	 * @param Security                                        $security Security module.
+	 * @param string[]                                        $keys     Guarded keys that were switched on.
+	 * @param array{file:string|null,values:array<string,mixed>} $before   From guard_before().
+	 * @return string[] Notes for the item (already translated).
+	 */
+	private function guard_after( Security $security, array $keys, array $before ): array {
+		$notes = array();
+		$htkeys = array_values( array_intersect( $keys, StarterPack::HTACCESS_KEYS ) );
+		$path   = HtaccessGuard::path();
+		// Forced https that ends in a redirect loop (Cloudflare Flexible, a proxy over plain http) is taken back at once.
+		if ( in_array( 'force_https', $htkeys, true ) ) {
+			$chain = HtaccessGuard::follow( home_url( '/' ) );
+			if ( HtaccessGuard::https_failed( $chain['urls'], $chain['last'] ) ) {
+				HtaccessGuard::restore_file( $path, $before['file'] );
+				HtaccessGuard::forget_write_state();
+				$security->save_settings( array( 'force_https' => false ) );
+				$keys    = array_values( array_diff( $keys, array( 'force_https' ) ) );
+				$htkeys  = array_values( array_diff( $htkeys, array( 'force_https' ) ) );
+				$notes[] = __( 'Forcing https caused a redirect loop (for example Cloudflare in the Flexible mode) and was taken back.', 'ux-studio' );
+			}
+		}
+		if ( $htkeys ) {
+			$codes = HtaccessGuard::probe_site();
+			if ( ! HtaccessGuard::was_checked( $codes ) ) {
+				$notes[] = __( 'The site could not ask itself for its pages, so the .htaccess rules were not checked for errors.', 'ux-studio' );
+			} elseif ( HtaccessGuard::should_roll_back( $codes ) ) {
+				HtaccessGuard::restore_file( $path, $before['file'] );
+				HtaccessGuard::forget_write_state();
+				$retry = HtaccessGuard::retry_keys( $htkeys );
+				$saved = false;
+				if ( null !== $retry ) {
+					$security->save_settings( array( HtaccessGuard::RISKY_KEY => false ) );
+					if ( ! HtaccessGuard::should_roll_back( HtaccessGuard::probe_site() ) ) {
+						$saved   = true;
+						$keys    = array_values( array_diff( $keys, array( HtaccessGuard::RISKY_KEY ) ) );
+						$notes[] = sprintf(
+							/* translators: %s: setting name. */
+							__( 'The rule "%s" caused a server error on this host, so it was left out. The other .htaccess rules work.', 'ux-studio' ),
+							$this->label_of( $security, HtaccessGuard::RISKY_KEY )
+						);
+					} else {
+						HtaccessGuard::restore_file( $path, $before['file'] );
+						HtaccessGuard::forget_write_state();
+					}
+				}
+				if ( ! $saved ) {
+					$previous = array();
+					foreach ( $htkeys as $key ) {
+						$previous[ $key ] = ! empty( $before['values'][ $key ] );
+					}
+					$security->save_settings( $previous );
+					HtaccessGuard::restore_file( $path, $before['file'] );
+					HtaccessGuard::forget_write_state();
+					$keys    = array_values( array_diff( $keys, $htkeys ) );
+					$notes[] = __( 'The rules in .htaccess caused a server error, so they were taken back. The site works as before.', 'ux-studio' );
+				}
+			}
+		}
+
+		$verdicts = HtaccessGuard::verify( $keys );
+		$proved   = array();
+		$unproved = array();
+		foreach ( $verdicts as $key => $verdict ) {
+			if ( 'verified' === $verdict ) {
+				$proved[] = $this->label_of( $security, $key );
+			} else {
+				$unproved[] = $this->label_of( $security, $key );
+			}
+		}
+		if ( $proved ) {
+			/* translators: %s: setting names. */
+			$notes[] = sprintf( __( 'Verified: %s.', 'ux-studio' ), implode( ', ', $proved ) );
+		}
+		if ( $unproved ) {
+			/* translators: %s: setting names. */
+			$notes[] = sprintf( __( 'Could not be verified: %s.', 'ux-studio' ), implode( ', ', $unproved ) );
+		}
+		return $notes;
+	}
+
+	/**
+	 * Name of the settings tab a Security setting lives in.
+	 *
+	 * @param Security $security Security module.
+	 * @param string   $key      Setting key.
+	 */
+	private function section_of( Security $security, string $key ): string {
+		foreach ( $security->settings_schema() as $field ) {
+			if ( $field['key'] === $key ) {
+				return (string) ( $field['section'] ?? '' );
+			}
+		}
+		return '';
+	}
+
+	/**
+	 * Label of a Security setting from the schema.
+	 *
+	 * @param Security $security Security module.
+	 * @param string   $key      Setting key.
+	 */
+	private function label_of( Security $security, string $key ): string {
+		foreach ( $security->settings_schema() as $field ) {
+			if ( $field['key'] === $key ) {
+				return (string) ( $field['label'] ?? $key );
+			}
+		}
+		return $key;
 	}
 
 	/**

@@ -3165,6 +3165,31 @@ Třída `Core\Onboarding\CentralApp`, REST `onboarding/ca/prepare` (POST), `onbo
 - [x] Admin Customiser: `hide_footer_version` (výchozí vypnuto) je součástí položky "Skrýt WordPress".
 - [ ] Vydání 0.7.1
 
+### 29.8 Zabezpečení v balíčku pro nový web (0.8.2)
+
+- [x] Položka `security-hardening` zapíná navíc (jen při použití balíčku, hotové weby se nemění): `block_usernames` +
+  `block_username_attempts`, `protect_login`, `disable_rss_feeds`, `protect_wp_config`, `disable_directory_listing`,
+  `block_sensitive_files`, `block_user_enumeration`, `hide_author_slugs`, `enable_permissions_policy`, `force_https`.
+  `canonical_redirect` a `enable_hsts` zůstávají vypnuté záměrně (HSTS drží prohlížeč rok).
+- [x] Podmínky (vše v `StarterPack::security_hardening()`, vstupy v `Environment`): uživatelská jména jen s omezením
+  pokusů (proxy bez Cloudflare = vynechat vše tři); `block_username_attempts` se vynechá, když existuje účet s
+  vyhrazeným jménem (kód `handle_blocked_username_login` blokuje IP i při překlepu hesla u existujícího účtu, kontroluje
+  se jen jméno; správné heslo blokaci nespustí); `protect_login` se vynechá, když má někdo Application Password;
+  RSS a slugy autorů se vynechají nad 5 publikovaných příspěvků (`BLOG_POSTS_LIMIT`), RSS i při pluginu z
+  `FEED_PLUGINS`; `block_user_enumeration` při pluginu z `HEADLESS_PLUGINS`; Permissions-Policy při WooCommerce nebo
+  pluginu z `HEADER_PLUGINS`; pravidla `.htaccess` jen na Apache/LiteSpeed se zapisovatelným souborem; `force_https`
+  jen když je web i tento požadavek https, běží `http://` a není před ním neznámá proxy.
+- [x] `protect_login` už neschovává zprávy o blokaci, CAPTCHA a 2FA (`Module::generic_credential_errors`, filtr
+  `wp_login_errors`; řetězcový filtr `login_errors` zůstal jako záloha).
+- [x] Pojistka `.htaccess` (`Core\Onboarding\HtaccessGuard`, volaná z `Applier`): kopie souboru před uložením,
+  smyčkový požadavek na úvodní stránku a wp-login.php, při 5xx obnova a jeden pokus bez výpisu adresářů, pak vrácení
+  všech klíčů; smyčka přesměrování u `force_https` se vrací samostatně. Rozhodnutí jsou čisté funkce (`should_roll_back`,
+  `retry_keys`, `redirect_loop`, `https_failed`). Pravidla v `HtaccessWriter` mají Apache 2.4 i 2.2 větev.
+- [x] Vysvětlivky voleb (`SettingHelp`, jedno místo pro schéma Zabezpečení a průvodce) a seznam "Vynecháno na tomto webu".
+- [x] Katalog překryvů: Disable Feeds, Stop User Enumeration (blokují), Disable Application Passwords (informace).
+- [ ] Wordfence, Solid Security a All In One Security se do blokování nepřidaly (jejich volby nejsou ve wp_options
+  jednoznačně čitelné); zůstává jen informace.
+
 ## 30. Export a import nastavení (0.8.0)
 
 Zadání (2026-10-26): přenést nastavení modulů mezi weby (a mezi vývojem a ostrým webem) souborem, bez ručního

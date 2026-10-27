@@ -60,7 +60,78 @@ final class Environment {
 			'bot_whitelist'       => (string) ( $bot_vals['whitelist_ua'] ?? '' ),
 			'blocked_settings'    => Overlaps::blocked_settings( 'security-optimization' ),
 			'csp_mode'            => (string) ( $login['csp_mode'] ?? 'off' ),
+			'reserved_users'      => $security instanceof Security ? self::reserved_users( $security ) : array(),
+			'app_passwords'       => self::application_passwords(),
+			'published_posts'     => self::published_posts(),
+			'feed_plugins'        => self::plugin_names( StarterPack::FEED_PLUGINS ),
+			'headless_plugins'    => self::plugin_names( StarterPack::HEADLESS_PLUGINS ),
+			'header_plugins'      => self::plugin_names( StarterPack::HEADER_PLUGINS ),
+			'https_ready'         => 0 === strpos( home_url(), 'https://' ) && 0 === strpos( site_url(), 'https://' ) && is_ssl(),
 		);
+	}
+
+	/**
+	 * Logins of existing users that the Security module would treat as reserved (same matching as its block list).
+	 *
+	 * @param Security $security Security module.
+	 * @return string[]
+	 */
+	private static function reserved_users( Security $security ): array {
+		$out = array();
+		foreach ( (array) get_users( array( 'fields' => array( 'user_login' ), 'number' => 2000 ) ) as $user ) {
+			if ( $security->is_blocked_username( (string) $user->user_login ) ) {
+				$out[] = (string) $user->user_login;
+			}
+		}
+		return $out;
+	}
+
+	/**
+	 * How many users hold Application Passwords, and how many passwords that is.
+	 *
+	 * @return array{users:int,passwords:int}
+	 */
+	private static function application_passwords(): array {
+		global $wpdb;
+		$users     = 0;
+		$passwords = 0;
+		$rows      = $wpdb->get_col( "SELECT meta_value FROM {$wpdb->usermeta} WHERE meta_key = '_application_passwords'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		foreach ( (array) $rows as $raw ) {
+			$list = maybe_unserialize( $raw );
+			if ( is_array( $list ) && $list ) {
+				++$users;
+				$passwords += count( $list );
+			}
+		}
+		return array(
+			'users'     => $users,
+			'passwords' => $passwords,
+		);
+	}
+
+	/**
+	 * Published posts of type post.
+	 */
+	private static function published_posts(): int {
+		$counts = wp_count_posts( 'post' );
+		return isset( $counts->publish ) ? (int) $counts->publish : 0;
+	}
+
+	/**
+	 * Names of the active plugins from a list (folder slug => name).
+	 *
+	 * @param array<string, string> $known Plugins to look for.
+	 * @return string[]
+	 */
+	private static function plugin_names( array $known ): array {
+		$out = array();
+		foreach ( Overlaps::active_plugins() as $basename ) {
+			$slug = dirname( $basename );
+			if ( isset( $known[ $slug ] ) ) {
+				$out[ $slug ] = $known[ $slug ];
+			}
+		}
+		return array_values( $out );
 	}
 
 	/**

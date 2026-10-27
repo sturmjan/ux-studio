@@ -72,6 +72,36 @@ final class HtaccessGuard {
 		return array_values( array_diff( $keys, array( self::RISKY_KEY ) ) );
 	}
 
+	/** Redirects followed before the answer counts as a loop. */
+	public const MAX_HOPS = 5;
+
+	/**
+	 * Is this chain of redirects an endless loop? Same address twice, or more hops than a normal site needs.
+	 *
+	 * @param string[] $urls Addresses visited in order (the first one is the start).
+	 */
+	public static function redirect_loop( array $urls ): bool {
+		$seen = array();
+		foreach ( $urls as $url ) {
+			$key = rtrim( strtolower( (string) $url ), '/' );
+			if ( isset( $seen[ $key ] ) ) {
+				return true;
+			}
+			$seen[ $key ] = true;
+		}
+		return count( $urls ) > self::MAX_HOPS + 1;
+	}
+
+	/**
+	 * Is the result of following the redirects of the home page a failure of the forced https?
+	 *
+	 * @param string[] $urls Addresses visited in order.
+	 * @param int      $last HTTP status of the last answer (0 = none).
+	 */
+	public static function https_failed( array $urls, int $last ): bool {
+		return self::redirect_loop( $urls ) || $last >= 500;
+	}
+
 	/**
 	 * Is a file served as a refusal (403 or 404 means the rule works or the file is not there)?
 	 *
@@ -169,6 +199,51 @@ final class HtaccessGuard {
 	}
 
 	/**
+	 * Follow the redirects of an address by hand (at most MAX_HOPS + 1 requests).
+	 *
+	 * @param string $url Start address.
+	 * @return array{urls:string[],last:int}
+	 */
+	public static function follow( string $url ): array {
+		$urls = array( $url );
+		$last = 0;
+		for ( $i = 0; $i <= self::MAX_HOPS + 1; $i++ ) {
+			$answer = self::get( end( $urls ) );
+			$last   = $answer['code'];
+			if ( $last < 300 || $last > 399 || '' === $answer['location'] ) {
+				break;
+			}
+			$next = (string) $answer['location'];
+			if ( 0 === strpos( $next, '/' ) ) {
+				$parts = wp_parse_url( end( $urls ) );
+				$next  = ( $parts['scheme'] ?? 'https' ) . '://' . ( $parts['host'] ?? '' ) . ( isset( $parts['port'] ) ? ':' . $parts['port'] : '' ) . $next;
+			}
+			$urls[] = $next;
+			if ( self::redirect_loop( $urls ) ) {
+				break;
+			}
+		}
+		return array(
+			'urls' => $urls,
+			'last' => $last,
+		);
+	}
+
+	/**
+	 * Does the site answer on plain http at all (redirects not followed)?
+	 *
+	 * @return array{code:int,location:string}
+	 */
+	public static function http_probe(): array {
+		$url    = set_url_scheme( home_url( '/' ), 'http' );
+		$answer = self::get( $url );
+		return array(
+			'code'     => $answer['code'],
+			'location' => $answer['location'],
+		);
+	}
+
+	/**
 	 * One loopback GET: no redirect followed, short timeout, the same certificate rule WordPress uses for itself.
 	 *
 	 * @param string $url URL.
@@ -218,6 +293,10 @@ final class HtaccessGuard {
 				case 'disable_directory_listing':
 					$probe       = self::get( content_url( '/uploads/' ) );
 					$out[ $key ] = self::is_refused( $probe['code'] ) ? 'verified' : 'unverified';
+					break;
+				case 'force_https':
+					$http        = self::http_probe();
+					$out[ $key ] = ( $http['code'] >= 300 && $http['code'] < 400 && 0 === strpos( $http['location'], 'https://' ) ) ? 'verified' : 'unverified';
 					break;
 				case 'block_user_enumeration':
 					$author      = self::get( home_url( '/?author=1' ) );

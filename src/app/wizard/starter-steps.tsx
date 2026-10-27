@@ -30,6 +30,7 @@ import { ApiError, api } from '../api';
 import { formatDate } from '../date';
 import { navigate } from '../route';
 import { CaStep } from './ca-step';
+import SettingExplain from '../../components/SettingExplain';
 import { ConfirmModal, DrawnCheck, ErrorLine, ModuleLinkIcon, SourceIcon, StateIcon, StepHead, Warnings } from './parts';
 import { LoginAddress } from './steps-preview';
 import type { StarterCtx } from './starter-context';
@@ -464,11 +465,27 @@ function PackCard( { item, ctx, siteUrl }: { item: StarterItem; ctx: StarterCtx;
 										<li key={ `${ row.module }-${ row.key }` }>
 											<span>{ row.label }</span>
 											<code>{ row.value_label }</code>
+											{ row.explain ? <SettingExplain explain={ row.explain } /> : null }
 										</li>
 									) ) }
 								</ul>
 							</div>
 						) )
+					) }
+					{ ( item.left_out ?? [] ).length > 0 && (
+						<div className="uxs-wiz-preset">
+							<h4>{ __( 'Left out on this site', 'ux-studio' ) }</h4>
+							<ul className="uxs-wiz-plan__list">
+								{ ( item.left_out ?? [] ).map( ( row ) => (
+									<li key={ row.key }>
+										<span>{ row.label }</span>
+										<code>{ __( 'Left out', 'ux-studio' ) }</code>
+										<span className="uxs-wiz-muted uxs-wiz-plan__reason">{ row.reason }</span>
+										{ row.explain ? <SettingExplain explain={ row.explain } /> : null }
+									</li>
+								) ) }
+							</ul>
+						</div>
 					) }
 				</div>
 			) }
@@ -626,6 +643,11 @@ function ApplyStep( { ctx }: { ctx: StarterCtx } ): JSX.Element {
 							<div className="uxs-wiz-prow__body">
 								<strong>{ titles.get( id ) ?? id }</strong>
 								<span className={ 'error' === state ? 'uxs-wiz-error-text' : 'uxs-wiz-muted' }>{ text }</span>
+								{ ( result?.notes ?? [] ).map( ( note ) => (
+									<span key={ note } className="uxs-wiz-muted">
+										{ note }
+									</span>
+								) ) }
 							</div>
 							<span className="uxs-wiz-bar" role="progressbar" aria-valuemin={ 0 } aria-valuemax={ 100 } aria-valuenow={ percent } aria-label={ titles.get( id ) ?? id }>
 								<span className={ 'error' === state ? 'is-error' : '' } style={ { width: `${ percent }%` } } />
