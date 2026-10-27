@@ -9,7 +9,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Button, DialogTrigger, ListBox, ListBoxItem, Popover } from 'react-aria-components';
-import { ChevronDown, Info, LoaderCircle, RefreshCw, Search, Trash2, Undo2 } from 'lucide-react';
+import { Check, ChevronDown, Info, LoaderCircle, RefreshCw, Search, Trash2, Undo2 } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { formatDate } from '../../app/date';
 import { pushToast } from '../../app/notify';
@@ -252,8 +252,15 @@ function RoleSelect( {
 					className="uxs-multiselect__listbox"
 				>
 					{ roles.map( ( role ) => (
-						<ListBoxItem key={ role.id } id={ role.id } textValue={ role.name } className="uxs-multiselect__item">
-							{ role.name }
+						<ListBoxItem key={ role.id } id={ role.id } textValue={ role.name } className="uxs-multiselect__item uxs-wt__opt">
+							{ ( { isSelected } ) => (
+								<>
+									<span className="uxs-wt__tick" aria-hidden="true">
+										{ isSelected ? <Check size={ 14 } /> : null }
+									</span>
+									{ role.name }
+								</>
+							) }
 						</ListBoxItem>
 					) ) }
 				</ListBox>

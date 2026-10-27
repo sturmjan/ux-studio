@@ -3478,3 +3478,103 @@ Položka `captcha-shield` (přihlášení, registrace, obnova hesla, komentáře
 - [ ] Reálné klíče z CA (v testu mockované HTTP)
 - [ ] Blokové pokladny WooCommerce nemají kam vložit widget (jako dosud)
 
+## 33. Skrytí widgetů nástěnky jako tabulka (0.8.4)
+
+Záložka „Skrytí widgetů“ modulu Dashboard Widgets byla spínač „skrýt vše“, výběr „skrýt konkrétní“ a pro každou roli další
+výběr. Je z toho jedna tabulka všech widgetů, které nástěnka na webu zná. U každého jde zapnout „Skrýt“ (pro všechny) a
+„Zobrazit pro“ (role). Výchozí stav je „Všichni“, tedy žádné omezení. Spínač „Skrýt všechny widgety nástěnky“ a uvítací
+panel zůstaly, kde byly.
+
+### 33.1 Datový model
+
+Nastavení `widget_rules` v řádku `uxstudio_dashboard_widgets` (typ pole `widget_rules`, `managed`: obecný formulář ho nekreslí
+a při uložení neposílá zpět):
+
+```json
+{ "<id widgetu>": { "hidden": true, "roles": ["administrator", "editor"] } }
+```
+
+- `hidden`: widget nevidí nikdo (ani správce, žádný obchvat pro super adminy; widgety nástěnky nejsou kritické).
+- `roles` neprázdné: widget vidí jen uživatel, který má alespoň jednu z těch rolí (více rolí = stačí jedna shoda).
+  Uživatel bez role seznam rolí nesplní.
+- Záznam s výchozími hodnotami (neskryto, všechny role) se neukládá. Sada rolí, která pokrývá všechny role webu, se uloží
+  jako „všichni“ (prázdný seznam). Při zapnutém „hide all“ se pravidla nepoužijí; zůstanou jen widgety UX Studia (id
+  `uxstudio_*`, widgety ostatních modulů), stejně jako dřív.
+- Čisté funkce jsou v `WidgetRules` (bez WordPressu): `visible`, `hidden_for`, `sanitize`, `set_items`, `apply_bulk`,
+  `from_legacy`, `legacy_hash`, `merge_snapshot`, `is_stale`, `needs_write`, `classify_path`. Test `tests/dashboard-widget-rules.php`.
+- Meze: id `[A-Za-z0-9_\-:.]` nejvýš 120 znaků, nejvýš 300 záznamů, nejvýš 60 rolí na záznam.
+
+### 33.2 Převod ze starého formátu (jednou, idempotentně)
+
+Starý stav: `hidden_widgets` (skryté pro všechny) a `hidden_widgets_<role>` (skryté pro roli). `Module::maybe_migrate()` běží na
+`init` (priorita 1) a po uložení souboru s nastavením (`save_settings`):
+
+- id ve `hidden_widgets` -> `hidden: true`;
+- widget skrytý aspoň jedné roli -> `roles` = všechny role webu minus role, které ho skrývají; vyjde-li prázdno (skrývají ho
+  všechny role) -> `hidden: true`. Uživatel s více rolemi dřív widget neviděl jen když ho skrývala každá jeho role, což je přesně
+  „vidí ho, má-li aspoň jednu povolenou roli“ (test porovnává všechny kombinace rolí se starým pravidlem);
+- role, které web nezná, se přeskočí; globální skrytí přebije seznam rolí;
+- idempotence: otisk starých dat (`legacy_hash`) se uloží do řádku nastavení. Stejná stará data se podruhé nepřevádějí (uživatel
+  mezitím upravil tabulku, staré seznamy ji nesmí přepsat). Jiná stará data (starší soubor, migrační zdroj) se převedou znovu a
+  sloučí přes existující pravidla. Bez starých dat se zapíše jen `rules_version`;
+- staré klíče se nemažou (čitelné jedno vydání) a nepoužívají se. V schématu jsou s příznakem `legacy` a `managed`: obecný
+  formulář je nekreslí ani neposílá, exportér je nevypisuje, import starého souboru je přijme a převede;
+- jednorázové upozornění „Nastavení bylo převedeno z původního formátu“ (`rules_notice`), zavře se tlačítkem „Rozumím“.
+
+Důsledek, o kterém je dobré vědět: seznam povolených rolí je výčet. Role založená později (třeba nový plugin) ve výčtu není, takže
+převedený widget neuvidí, dokud ji správce v tabulce nepřidá. V tabulce se dlouhý výčet zobrazuje jako „Všichni kromě: …“.
+
+### 33.3 Snímek widgetů a obnovení
+
+- `WidgetSnapshot::capture()` běží na `wp_dashboard_setup` s prioritou 9990, tedy po všech widgetech tohoto pluginu (1000, 1001)
+  i cizích a před odstraněním podle pravidel (9991). Snímek vzniká jen při zobrazení nástěnky uživatelem s `manage_options`
+  (jinak by pohled redaktora označil správcovské widgety za zmizelé). Nástěnka WordPressu „Vítejte“ není meta box, ale akce
+  `welcome_panel`: do snímku se přidá jako `dashboard_welcome`.
+- Volba `uxstudio_dashboard_widget_snapshot` (bez autoloadu): `scan_at` a `widgets[id]` = `title`, `context`, `priority`, `source`,
+  `source_name`, `guess`, `first_seen`, `last_seen`. Zápis jen při změně nebo po 6 hodinách (jinak se mění jen časy). Tlačítko
+  „Obnovit seznam“ vynutí zápis (`POST refresh` nastaví transient na 10 minut, SPA načte `index.php` na pozadí s cookies správce).
+- Widget s `last_seen` starším než `scan_at` je „nenalezeno“ (ztlumený řádek, pravidlo zůstává). Smazat jde jen takový záznam
+  (i s pravidlem), živý widget by se vrátil (409).
+- Zdroj: `WidgetSnapshot::source()` zjistí soubor callbacku reflexí a `WidgetRules::classify_path()` ho zařadí
+  (jádro, UX Studio, plugin podle složky a názvu z `get_plugins()`, motiv, MU plugin). Všechno mimo jádro a UX Studio se vypisuje
+  jako „odhad“ (callback může ležet ve sdílené knihovně).
+- Widgety, které z nástěnky odstraní jiné nastavení dřív (Zabezpečení: novinky a stav webu, vypnutý přepínač widgetu jiného modulu),
+  se do snímku nedostanou, protože už nejsou registrované. Uvítací panel s vlastní záložkou (`uxstudio_welcome_panel`) se nevypisuje.
+- Odstranění: `Module::apply_rules()` na 9991 a ještě jednou na `do_meta_boxes` (widget zaregistrovaný ještě později).
+  Nástěnka sítě (`wp_network_dashboard_setup`) a uživatelská nástěnka (`wp_user_dashboard_setup`) se neřeší, jako dřív.
+
+### 33.4 REST (`uxstudio/v1`, `manage_options`, schémata argumentů, 60 zápisů za minutu na uživatele)
+
+- `GET dashboard-widgets/rules`: `rules`, `widgets` (řádky se `stale`), `roles`, `scan_at`, `notice`, `index`.
+- `POST dashboard-widgets/rules`: `items` [{id, hidden?, roles?}], `action` (`hide`, `show`, `roles`, `reset`, `replace`,
+  `dismiss_notice`) s `ids` a `roles`; `replace` vrací celou mapu zpět (Vrátit změny). Role se ověřují proti `wp_roles()`,
+  nejvýš 300 položek, id podle vzoru.
+- `POST dashboard-widgets/refresh`, `DELETE dashboard-widgets/snapshot/{id}`.
+
+### 33.5 Export a import
+
+Pole `widget_rules` je v whitelistu podle schématu. `TypeCheck` ho přijme jen jako mapu záznamů s `hidden` typu bool a `roles`
+jako seznamem, víc než 300 záznamů odmítne, neznámé role a nepovolená id zahodí a počet ukáže jako varování v náhledu. Exportér
+starých klíčů (`legacy`) nevypisuje. Import starého souboru jde stejnou cestou převodu (33.2). Modul je ve `SAFE_WHEN_OFF`: jeho
+`save_settings` jen ukládá hodnoty, import tedy funguje i při vypnutém modulu.
+
+### 33.6 Obrazovka
+
+`src/modules/dashboard-widgets/WidgetTable.tsx`: vyhledávání, filtr (Všechny, Skryté, Omezené na role, Nenalezeno), filtr zdroje,
+počítadla, „naposledy obnoveno“, lepicí záhlaví tabulky, role jako malé čipy ve vyskakovacím seznamu (Escape ho jen zavře),
+lepicí lišta hromadných akcí (Skrýt, Zobrazit, Zobrazit pro + Použít, Obnovit výchozí, Vybrat vše, Zrušit výběr), na úzké obrazovce
+karty. Každá změna se ukáže hned (optimisticky) a uloží se na pozadí s toastem; „Vrátit změny“ vrátí pravidla, jak byla při otevření.
+
+### 33.7 Stav
+
+- [x] Datový model a čisté funkce `WidgetRules`, test `tests/dashboard-widget-rules.php`
+- [x] Snímek registrovaných widgetů, zdroj podle souboru callbacku, obnovení, stav „nenalezeno“
+- [x] Odstranění podle pravidel (správce proti redaktorovi), „hide all“, pozdě registrované widgety
+- [x] Převod ze starého formátu s otiskem dat, banner, starý soubor při importu
+- [x] REST (pravidla, hromadné akce, replace, refresh, smazání záznamu)
+- [x] Export a import `widget_rules` (typ pole, TypeCheck, Planner, NonPortable `legacy`)
+- [x] Tabulka v SPA (světlý i tmavý režim, úzké karty, klávesnice), čeština
+- [x] Test proti WordPressu `tests/dashboard-widget-rules-wp.php`, QA v prohlížeči na pobyty
+- [ ] Vydání 0.8.4 (verze, tag, vydání na GitHubu)
+- [ ] Později: nástěnka sítě a uživatelská nástěnka, pravidla pro konkrétního uživatele (ne jen roli)
+- [ ] Později: po zavedení nové role nabídnout „přidat do všech převedených pravidel“

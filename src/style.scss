@@ -3410,7 +3410,7 @@
 		align-items: center;
 		justify-content: space-between;
 		gap: var(--uxs-sp-2);
-		width: 210px;
+		width: 260px;
 		max-width: 100%;
 		min-height: 32px;
 		padding: 2px var(--uxs-sp-2);
@@ -3427,7 +3427,7 @@
 		&[data-disabled] { opacity: 0.45; cursor: not-allowed; }
 	}
 
-	&__all { color: var(--uxs-text-soft); }
+	&__all { color: var(--uxs-text-soft); white-space: nowrap; }
 	&__chips { display: inline-flex; align-items: center; flex-wrap: nowrap; gap: 4px; min-width: 0; overflow: hidden; }
 
 	&__chip {
@@ -3470,6 +3470,12 @@
 
 	.uxs-spin { animation: uxs-spin 0.9s linear infinite; }
 
+	input[type="checkbox"] {
+		accent-color: var(--uxs-brand);
+		background-color: var(--uxs-surface);
+		border-color: var(--uxs-text-soft);
+	}
+
 	/* Narrow screens: every widget becomes a card. */
 	@media (max-width: 900px) {
 		&__table {
@@ -3509,8 +3515,24 @@
 			td.uxs-wt__c-title { display: block; min-width: 0; }
 			td.uxs-wt__c-title::before { display: none; }
 			td.uxs-wt__c-hide { width: auto; }
+			.uxs-wt__roles { flex: 1 1 auto; width: auto; min-width: 0; }
 		}
 
 		&__scan { margin-left: 0; }
 	}
 }
+
+[data-theme="dark"] .uxs-wt { color-scheme: dark; }
+
+/* Role list of a dashboard widget (a popover outside the app root): readable selected state in both themes. */
+.uxs-multiselect__item.uxs-wt__opt {
+	display: flex;
+	align-items: center;
+	gap: var(--uxs-sp-2);
+
+	&[data-selected] { background: var(--uxs-brand-soft); color: var(--uxs-text); }
+	&[data-focused], &[data-hovered] { background: var(--uxs-surface-2); }
+	&[data-selected][data-focused], &[data-selected][data-hovered] { background: var(--uxs-brand-soft); }
+}
+
+.uxs-wt__tick { display: inline-flex; width: 14px; flex: 0 0 14px; color: var(--uxs-brand); }
