@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.8.7 (unreleased)
+## 0.8.7
 
 - Added - Admin Customiser, "Admin screens": **Hide Rocket Insights (WP Rocket)**. One toggle (off by default) turns off
   Rocket Insights through the official WP Rocket filter `rocket_rocket_insights_enabled`: the tab on the WP Rocket
