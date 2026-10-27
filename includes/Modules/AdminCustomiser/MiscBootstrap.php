@@ -84,6 +84,7 @@ final class MiscBootstrap {
 	 */
 	public static function register_rest_routes(): void {
 		( new MiscRestController() )->register_routes();
+		( new NoticeHistory\RestController() )->register_routes();
 	}
 
 	/**

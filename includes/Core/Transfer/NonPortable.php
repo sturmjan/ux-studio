@@ -161,6 +161,7 @@ final class NonPortable {
 		'uxstudio_mcp_*',
 		'uxstudio_central_*',
 		'uxstudio_node_*',
+		'uxstudio_admin_notices*',
 	);
 
 	/**

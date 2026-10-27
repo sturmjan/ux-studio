@@ -168,6 +168,27 @@ body.uxstudio-notices-active #wp-admin-bar-uxstudio-notifications {
 	display: none;
 }
 
+/* Footer: link to the history page (administrators only). */
+#uxstudio-notices__panel-wrap .uxstudio-nc-foot {
+	flex: none;
+	padding: 8px 14px;
+	border-top: 1px solid #e5e7eb;
+	background: #f9fafb;
+	text-align: right;
+}
+
+#uxstudio-notices__panel-wrap .uxstudio-nc-foot__link {
+	color: #4338ca;
+	font-size: 12px;
+	font-weight: 600;
+	text-decoration: none;
+}
+
+#uxstudio-notices__panel-wrap .uxstudio-nc-foot__link:hover,
+#uxstudio-notices__panel-wrap .uxstudio-nc-foot__link:focus-visible {
+	text-decoration: underline;
+}
+
 /* ── One notice = one compact card ───────────────────────────── */
 
 #uxstudio-notices__panel .uxstudio-nc {
