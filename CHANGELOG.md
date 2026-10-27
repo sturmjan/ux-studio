@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.9.0 (unreleased)
+
+- Changed - Admin Customiser settings are laid out in cards. Every tab (Admin screens, Login page, Sidebar menu, Admin
+  bar, Custom CSS, Meta boxes) is split into cards with a heading and a one-line description. The first card and every
+  card that holds a changed value start open, the rest start closed. The login page tab alone went from 38 loose fields
+  to 8 short cards (switch, look and texts, split layout, page colors, background image, form box, input fields, button).
+- Added - Fields that only matter when another one is set are shown only then, with a short collapse and expand
+  animation (none with reduced motion). On the login page: the split layout card only for the split layout, the MP4
+  field only for "Video", the YouTube field only for "YouTube", the image field for "Static image" and "Video" (it is the
+  poster of a video), the background image only for the classic layout, and all login settings only while the login
+  customization switch is on. Quick search post types, notice options, the server clock position, the menu lock and
+  horizontal merge (menu organizer), the admin bar tidy-up options and the icon color follow their switches the same
+  way. A hidden field keeps its stored value; it is still saved, exported and imported as before.
+- Added - Generic `show_if` schema property (`key` with `equals`, `in` or `truthy`; a list means all must hold) and
+  `group` / `group_help` for the cards, drawn by the shared settings form, so any module can use them. Older schemas
+  work as before.
+
 ## 0.8.9
 
 - Fixed - Custom login address: the page is now marked as not cacheable (DONOTCACHEPAGE and no-cache headers). A page

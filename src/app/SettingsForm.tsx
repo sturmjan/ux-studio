@@ -4,7 +4,7 @@
  * (src/modules/<id>/Page.tsx) reuse the same <SettingsFields> + useModuleSettings()
  * to embed a "Settings" tab identical in look to every other module.
  */
-import { Fragment, useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useId, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -390,6 +390,7 @@ export function SettingsFields( {
 	const [ active, setActive ] = useState( 0 );
 	const [ toggled, setToggled ] = useState< Record< string, boolean > >( {} );
 	const initialOpen = useRef< Record< string, boolean > >( {} );
+	const idBase = useId();
 	const current = sections[ Math.min( active, sections.length - 1 ) ] ?? general;
 	const visible = sections.length > 1 ? schema.filter( ( f ) => ( f.section || general ) === current ) : schema;
 
@@ -440,7 +441,7 @@ export function SettingsFields( {
 						initialOpen.current[ group.key ] = index === 0 || group.fields.some( ( f ) => ! isDefault( f, draft[ f.key ] ) );
 					}
 					const open = toggled[ group.key ] ?? initialOpen.current[ group.key ] ?? index === 0;
-					const regionId = `uxs-group-${ group.key.replace( /\W+/g, '-' ) }`;
+					const regionId = `${ idBase }-group-${ index }`;
 					return (
 						<div key={ group.key } className="uxs-form uxs-form--grid uxs-group">
 							<button
