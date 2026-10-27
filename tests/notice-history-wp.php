@@ -49,6 +49,7 @@ $crons     = static function (): array {
 };
 $cron_before   = $crons();
 $table         = Store::table();
+$backup_rows   = array();
 $table_existed = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $table ) ) ) === $table;
 
 $admins   = get_users( array( 'role' => 'administrator', 'number' => 1, 'fields' => 'ID' ) );
@@ -83,10 +84,12 @@ $by    = static fn ( string $text ) => $wpdb->get_row( $wpdb->prepare( "SELECT *
 
 try {
 	// 1. Table ---------------------------------------------------------------------------------------------
-	// A table that already holds history (the site is in use) is never dropped: only a missing or empty table is
-	// re-created from scratch, otherwise the creation checks look at the table that is there.
-	$has_history = $table_existed && (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" ) > 0;
-	if ( ! $has_history ) {
+	// A table of a site in use is never dropped: its rows are saved, the table is emptied for the test and the
+	// rows are put back (with their ids) at the end. A missing table is created from scratch and dropped again.
+	if ( $table_existed ) {
+		$backup_rows = (array) $wpdb->get_results( "SELECT * FROM {$table}", ARRAY_A );
+		$wpdb->query( "DELETE FROM {$table}" );
+	} else {
 		Store::drop();
 	}
 	delete_transient( 'uxstudio_admin_notices_maint' );
@@ -300,7 +303,10 @@ try {
 			update_option( DB::MODULE_VERSIONS_OPTION, $saved_ver );
 		}
 	} else {
-		$wpdb->query( "DELETE FROM {$table} WHERE text LIKE 'NHTEST%'" );
+		$wpdb->query( "DELETE FROM {$table}" );
+		foreach ( $backup_rows as $saved_row ) {
+			$wpdb->insert( $table, $saved_row );
+		}
 	}
 	delete_transient( 'uxstudio_admin_notices_maint' );
 	delete_transient( 'uxstudio_rl_' . $admin_id );
@@ -309,6 +315,7 @@ try {
 	require_once ABSPATH . 'wp-admin/includes/user.php';
 	wp_delete_user( $sub_id );
 	$assert( 'cleanup: cron hooks of the plugin unchanged', $crons() === $cron_before );
+	$assert( 'cleanup: rows of a site in use are back', ! $table_existed || count( $backup_rows ) === (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" ) );
 	$assert( 'cleanup: option restored', $sentinel === $saved_opt ? false === get_option( $opt_name, false ) : get_option( $opt_name ) === $saved_opt );
 	$assert( 'cleanup: temporary user removed', false === get_userdata( $sub_id ) );
 }
