@@ -217,6 +217,9 @@ $assert( 'module: wp_redirect is filtered while the lock is configured, and the 
 $assert( 'module: the site_url filters that send the form to the custom address are hooked together with the lock', false !== strpos( $src, "add_filter( 'site_url', array( \$this, 'filter_login_site_url'" ) && false !== strpos( $src, "add_filter( 'network_site_url'" ) );
 $assert( 'module: status covers off, empty slug, kill switch, plain permalinks and the fail-open collision', 1 === preg_match( "/'off'.*'empty'.*'kill_switch'.*'no_pretty_permalinks'.*'collision'/s", substr( $src, (int) strpos( $src, 'function login_lock_status' ), 1500 ) ) );
 $assert( 'module: the direct-login block uses the same status (fails open on plain permalinks), lets postpass through, never filters postpass', false !== strpos( $src, '! $this->lock_status_cached()' . "['active']" ) && 1 === preg_match( '/function block_direct_wp_login.*is_public_request.*lock_status_cached/s', $src ) && 1 === preg_match( '/function filter_login_site_url.*is_public_action/s', $src ) );
+$handler = substr( $src, (int) strpos( $src, 'function handle_custom_login_url' ), 3200 );
+$assert( 'module: the custom login address is marked non-cacheable (DONOTCACHEPAGE + nocache headers) before wp-login.php is loaded', 1 === preg_match( "/DONOTCACHEPAGE.*nocache_headers\(\).*require ABSPATH \. 'wp-login\.php'/s", $handler ) );
+$assert( 'module: wp-login.php is loaded with its global variables declared (no Undefined variable warnings)', 1 === preg_match( '/global \$error, \$interim_login, \$action, \$user_login;.*require ABSPATH \. .wp-login\.php./s', $handler ) );
 $assert( 'module: the collision is logged at most once a day (transient)', 1 === preg_match( '/COLLISION_LOG_TRANSIENT.*DAY_IN_SECONDS.*login_url_collision/s', substr( $src, (int) strpos( $src, 'function handle_custom_login_url' ), 1200 ) ) );
 
 echo PHP_EOL . ( $failures ? "$failures FAILED" : 'ALL PASSED' ) . PHP_EOL;

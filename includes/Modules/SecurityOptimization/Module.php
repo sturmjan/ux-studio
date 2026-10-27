@@ -2350,6 +2350,18 @@ final class Module extends BaseModule {
 		if ( ! defined( 'UXSTUDIO_LOGIN_URL_BYPASS' ) ) {
 			define( 'UXSTUDIO_LOGIN_URL_BYPASS', true );
 		}
+		// The login page must never come out of a page cache (WP Rocket, LiteSpeed, W3 Total Cache, WP Super Cache ...):
+		// a cached copy keeps showing an old design after a settings change and shares one form, messages and tokens
+		// between visitors. wp-login.php itself is never cached because of its file name, but this address looks like
+		// an ordinary page to a cache plugin, so it has to say so itself.
+		if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+			define( 'DONOTCACHEPAGE', true );
+		}
+		nocache_headers();
+		// wp-login.php is written for the global scope: its functions read $error, $user_login, $action and
+		// $interim_login with "global". Loaded from inside this method they would stay undefined and every load of
+		// the address wrote "Undefined variable" warnings to the error log.
+		global $error, $interim_login, $action, $user_login;
 		require ABSPATH . 'wp-login.php';
 		exit;
 	}

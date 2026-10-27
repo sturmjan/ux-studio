@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.8.9
+
+- Fixed - Custom login address: the page is now marked as not cacheable (DONOTCACHEPAGE and no-cache headers). A page
+  cache plugin (found live with WP Rocket) took the address for an ordinary page and kept serving a stored copy of the
+  login page, so a changed design or logo did not appear and one copy of the form and its tokens was shared by all
+  visitors. After the update clear the cache of the login address once.
+- Fixed - Custom login address: wp-login.php is loaded with its global variables ($error, $user_login, $action,
+  $interim_login) declared, so every load of the address no longer writes "Undefined variable" warnings to the error log.
+
 ## 0.8.8
 
 - Fixed - Login page, split layout: the logo was drawn twice, in the round badge above the form and again over the
