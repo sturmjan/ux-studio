@@ -275,6 +275,7 @@ try {
 	ob_start();
 	CaptchaVerifier::render_widget( $security, 'comment' );
 	$comment_html = (string) ob_get_clean();
+	$assert( 'on a login page "automatic" theme means light (the page is a white box), on a comment form it follows the visitor', false !== strpos( $html, 'data-theme="light"' ) && false !== strpos( $comment_html, 'data-theme="auto"' ) );
 	$assert( 'the comment form widget has no typed fallback', false === strpos( $comment_html, 'uxstudio_shield_nojs' ) && false !== strpos( $comment_html, 'data-uxs-shield' ) );
 
 	$handler = new CaptchaHandler( $security );

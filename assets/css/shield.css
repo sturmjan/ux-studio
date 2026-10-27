@@ -9,6 +9,8 @@
 	--uxs-sh-ok: #1a7f37;
 	--uxs-sh-bad: #b32d2e;
 	position: relative;
+	box-sizing: border-box;
+	width: 100%;
 	max-width: 100%;
 	margin: 0 0 16px;
 	color: var(--uxs-sh-fg);
@@ -34,8 +36,10 @@
 		--uxs-sh-bad: #ff8085;
 	}
 }
-.uxs-shield__box {
+.uxs-shield .uxs-shield__box {
 	display: flex;
+	width: 100%;
+	margin: 0;
 	align-items: center;
 	gap: 12px;
 	box-sizing: border-box;
@@ -47,11 +51,11 @@
 	color: var(--uxs-sh-fg);
 	cursor: pointer;
 }
-.uxs-shield__box:focus-within {
+.uxs-shield .uxs-shield__box:focus-within {
 	outline: 2px solid var(--uxs-sh-accent);
 	outline-offset: 1px;
 }
-.uxs-shield__check {
+.uxs-shield .uxs-shield__check {
 	flex: none;
 	width: 22px;
 	height: 22px;
@@ -59,12 +63,12 @@
 	accent-color: var(--uxs-sh-accent);
 	cursor: inherit;
 }
-.uxs-shield__label {
+.uxs-shield .uxs-shield__label {
 	flex: 1 1 auto;
 	font-size: 14px;
 	line-height: 1.3;
 }
-.uxs-shield__spin {
+.uxs-shield .uxs-shield__spin {
 	display: none;
 	flex: none;
 	width: 18px;
@@ -83,7 +87,7 @@
 .uxs-shield[data-state="failed"] .uxs-shield__box {
 	border-color: var(--uxs-sh-bad);
 }
-.uxs-shield__status {
+.uxs-shield .uxs-shield__status {
 	display: block;
 	min-height: 1.2em;
 	margin-top: 4px;
@@ -94,7 +98,7 @@
 	color: var(--uxs-sh-bad);
 }
 /* The honeypot: out of sight and out of the tab order, but present in the form for a script that fills everything. */
-.uxs-shield__trap {
+.uxs-shield .uxs-shield__trap {
 	position: absolute !important;
 	left: -10000px !important;
 	top: auto !important;
@@ -106,7 +110,7 @@
 }
 /* The typed question. Script removes it from the page when it starts; without script it appears after a short delay
    (so a visitor whose script is blocked is never stuck), at once inside <noscript>. */
-.uxs-shield__fallback {
+.uxs-shield .uxs-shield__fallback {
 	margin-top: 8px;
 	font-size: 14px;
 	visibility: hidden;
@@ -116,10 +120,10 @@
 	visibility: visible;
 	animation: none;
 }
-.uxs-shield__fallback label {
+.uxs-shield .uxs-shield__fallback label {
 	display: block;
 }
-.uxs-shield__fallback input[type="text"] {
+.uxs-shield .uxs-shield__fallback input[type="text"] {
 	width: 5em;
 	margin-left: 6px;
 }

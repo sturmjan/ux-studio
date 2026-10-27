@@ -295,6 +295,10 @@ final class ShieldRuntime {
 		self::enqueue();
 		$field     = (string) ( $opts['field'] ?? CaptchaShield::FIELD );
 		$theme     = in_array( $opts['theme'] ?? 'auto', array( 'auto', 'light', 'dark' ), true ) ? (string) ( $opts['theme'] ?? 'auto' ) : 'auto';
+		// The login pages of WordPress are a white box whatever the visitor's system uses, so "automatic" means light there.
+		if ( 'auto' === $theme && in_array( $context, array( 'login', 'register', 'lostpassword', 'gate' ), true ) ) {
+			$theme = 'light';
+		}
 		$nojs      = CaptchaShield::nojs_allowed( $context );
 		$retry     = __( 'The check did not work. Click the box to try again.', 'ux-studio' );
 		$typed     = __( 'The check did not work. Answer the question below instead.', 'ux-studio' );
@@ -319,7 +323,7 @@ final class ShieldRuntime {
 
 		if ( $nojs ) {
 			$q     = CaptchaShield::nojs_issue( self::secret(), time() );
-			$html .= '<noscript><style>.uxs-shield__fallback{visibility:visible!important;animation:none!important}</style></noscript>';
+			$html .= '<noscript><style>.uxs-shield__fallback{visibility:visible!important;animation:none!important}.uxs-shield .uxs-shield__box,.uxs-shield .uxs-shield__status{display:none!important}</style></noscript>';
 			$html .= '<div class="uxs-shield__fallback"><label>' . esc_html(
 				sprintf(
 					/* translators: 1, 2: numbers of a simple sum. */
