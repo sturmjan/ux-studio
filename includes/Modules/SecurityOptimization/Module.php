@@ -862,7 +862,7 @@ final class Module extends BaseModule {
 				'section' => __( 'CAPTCHA', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Enable CAPTCHA', 'ux-studio' ),
-				'help'    => __( 'Adds CAPTCHA verification to login, registration and lost-password forms. Without both keys set, nothing is enforced.', 'ux-studio' ),
+				'help'    => __( 'Adds CAPTCHA verification to login, registration and lost-password forms. The key-less Shield needs no keys; Turnstile and reCAPTCHA enforce nothing until both keys are set.', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
@@ -985,7 +985,7 @@ final class Module extends BaseModule {
 				'section' => __( 'CAPTCHA', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'Widget theme', 'ux-studio' ),
-				'help'    => __( 'For Cloudflare Turnstile and reCAPTCHA v2. reCAPTCHA has no automatic theme and shows the light one.', 'ux-studio' ),
+				'help'    => __( 'For the Shield, Cloudflare Turnstile and reCAPTCHA v2. reCAPTCHA has no automatic theme and shows the light one; on the login pages the Shield shows the light one when this is automatic.', 'ux-studio' ),
 				'options' => array(
 					'auto'  => __( 'Automatic (follows the visitor)', 'ux-studio' ),
 					'light' => __( 'Light', 'ux-studio' ),

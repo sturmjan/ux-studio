@@ -120,7 +120,9 @@ export default function CaptchaInspector(): JSX.Element {
 
 			{ ! s.connected && (
 				<p className="uxs-form__help">
-					{ __( 'The site is not connected to the central application, so the Shield protects this form for now.', 'ux-studio' ) }{ ' ' }
+					{ 'shield' === s.provider
+						? __( 'The site is not connected to the central application, so the Shield protects this form for now.', 'ux-studio' )
+						: __( 'The site is not connected to the central application.', 'ux-studio' ) }{ ' ' }
 					<button type="button" className="button-link" onClick={ () => navigate( 'wizard', { mode: 'new', step: 'ca' } ) }>
 						{ __( 'Connect to the central application', 'ux-studio' ) }
 					</button>
