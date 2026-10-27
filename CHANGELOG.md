@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.8.1 (unreleased)
+## 0.8.1
 
 - Added - Notice history: the bell panel of hidden admin notices now remembers what it caught. A new page "Notice
   history" (Admin appearance > Admin customiser > Notice history, and a "Show history" link in the panel footer) lists
