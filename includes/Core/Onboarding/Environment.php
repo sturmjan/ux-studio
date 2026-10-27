@@ -66,6 +66,7 @@ final class Environment {
 			'feed_plugins'        => self::plugin_names( StarterPack::FEED_PLUGINS ),
 			'headless_plugins'    => self::plugin_names( StarterPack::HEADLESS_PLUGINS ),
 			'header_plugins'      => self::plugin_names( StarterPack::HEADER_PLUGINS ),
+			'captcha_set'         => ! empty( $login['captcha_enabled'] ) || '' !== trim( (string) ( $login['captcha_site_key'] ?? '' ) ) || ! empty( $login['has_captcha_secret_key'] ),
 			'https_ready'         => 0 === strpos( home_url(), 'https://' ) && 0 === strpos( site_url(), 'https://' ) && is_ssl(),
 		);
 	}

@@ -8,7 +8,6 @@
 
 namespace UxStudio\Modules\Forms;
 
-use UxStudio\Modules\SecurityOptimization\CaptchaVerifier;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -38,6 +37,9 @@ final class PublicRenderer {
 		100 => 12,
 	);
 
+	/** Form being drawn (the CAPTCHA field names its answer after it). */
+	private int $form_id = 0;
+
 	/** Types that may sit side by side when the form uses the "two columns" setting. */
 	private const NARROW_TYPES = array( 'text', 'email', 'tel', 'number', 'url', 'password', 'date', 'time', 'select' );
 
@@ -46,6 +48,7 @@ final class PublicRenderer {
 	 */
 	public function render( array $form ): string {
 		static $styles_printed = false;
+		$this->form_id = (int) $form['id'];
 
 		$fields   = (array) $form['fields'];
 		$settings = (array) $form['settings'];
@@ -539,24 +542,11 @@ final class PublicRenderer {
 	}
 
 	/**
-	 * If Security Optimization has a configured provider, embed the real
-	 * widget; otherwise a neutral placeholder. Server-side verification of
-	 * whatever token this widget produces happens in
-	 * RestController::verify_captcha() (PLAN.md 20.11/F2).
+	 * The CAPTCHA field: Turnstile with keys from the central application, the site's own keys, or the key-less
+	 * Shield (FormsCaptcha::render()). The token it produces is checked in RestController::submit().
 	 */
 	private function render_captcha(): string {
-		$module = class_exists( \UxStudio\Modules\SecurityOptimization\Module::class )
-			? \UxStudio\Plugin::instance()->modules->instance( 'security-optimization' )
-			: null;
-
-		if ( $module instanceof \UxStudio\Modules\SecurityOptimization\Module && CaptchaVerifier::is_configured( $module ) ) {
-			CaptchaVerifier::enqueue_provider_script( $module );
-			ob_start();
-			CaptchaVerifier::render_widget( $module );
-			return (string) ob_get_clean();
-		}
-
-		return '<p class="uxs-fp-captcha-placeholder">' . esc_html__( 'Spam protection is not configured for this site yet.', 'ux-studio' ) . '</p>';
+		return FormsCaptcha::render( $this->form_id );
 	}
 
 	/**
@@ -1395,6 +1385,7 @@ final class PublicRenderer {
 			// needs nothing: its footer script refreshes the token on submit.
 			function resetCaptcha( form ) {
 				try {
+					if ( window.UxStudioShield ) { window.UxStudioShield.reset( form ); }
 					if ( window.turnstile ) {
 						form.querySelectorAll( '.cf-turnstile' ).forEach( function ( el ) { window.turnstile.reset( el ); } );
 					}

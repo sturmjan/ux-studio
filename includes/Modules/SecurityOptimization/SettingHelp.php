@@ -29,6 +29,8 @@ final class SettingHelp {
 		'ip_firewall_proxy',
 		'disable_comments_scope',
 		'disable_comments_post_types',
+		'captcha_placement',
+		'captcha_forms',
 	);
 
 	/**
@@ -66,6 +68,18 @@ final class SettingHelp {
 	 */
 	public static function all(): array {
 		return array(
+			'captcha_enabled'          => array(
+				'does' => __( 'Login, registration, lost password and comments ask for a quick check before they are accepted. With the key-less Shield the browser of the visitor solves a small puzzle by itself: a fraction of a second, no account, no keys, no cookies, nothing sent to a third party. A visitor without JavaScript answers a simple sum instead, so nobody is locked out.', 'ux-studio' ),
+				'risk' => __( 'The Shield stops mass scripted attempts. It does not tell a person from a clever script: an attacker who spends the computing time passes, only slower. A visitor whose browser blocks the script sees the sum after a few seconds. Five wrong answers count as failed logins and lock the address like wrong passwords do.', 'ux-studio' ),
+				'off'  => __( 'When you use Cloudflare Turnstile or reCAPTCHA keys or a CAPTCHA plugin instead, or when you want to protect only the forms of the Forms module.', 'ux-studio' ),
+				'skip' => __( 'A CAPTCHA is already set up (switched on, keys stored or a CAPTCHA plugin active), or the site is behind a reverse proxy that is not Cloudflare: the Shield limits per IP address, and behind such a proxy every visitor looks the same.', 'ux-studio' ),
+			),
+			'captcha_provider'          => array(
+				'does' => __( 'Automatic uses keys from the central application while the site is connected, then your own Turnstile or reCAPTCHA keys, and the key-less Shield when there are none. Anything you choose by hand is used as it is.', 'ux-studio' ),
+				'risk' => __( 'Choosing the Shield on a site that has Turnstile or reCAPTCHA keys drops that check: the Shield is lighter and has no network of other sites behind it. Choosing a provider without its keys switches the CAPTCHA off silently.', 'ux-studio' ),
+				'off'  => __( 'Leave it on Automatic unless you need one specific provider.', 'ux-studio' ),
+				'skip' => __( 'Same as the CAPTCHA switch: a CAPTCHA is already set up, a CAPTCHA plugin is active or the site is behind a reverse proxy that is not Cloudflare.', 'ux-studio' ),
+			),
 			'disable_comments'          => array(
 				'does' => __( 'Switches comments off on the whole site: the comment forms, the Comments menu and the comment feeds disappear. Existing comments stay in the database but are not shown.', 'ux-studio' ),
 				'risk' => __( 'A site that lives from discussion or from product reviews loses them. With WooCommerce the pack switches comments off on posts and pages only.', 'ux-studio' ),

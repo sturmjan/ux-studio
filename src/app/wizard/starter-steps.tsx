@@ -62,7 +62,7 @@ function groups(): Group[] {
 			id: 'security',
 			title: __( 'Security', 'ux-studio' ),
 			icon: <ShieldCheck size={ 18 } aria-hidden />,
-			ids: [ 'security-hardening', 'update-emails', 'bot-throttle', 'vulnerability-scanner', 'activity-log', 'csp-audit', 'login-url' ],
+			ids: [ 'security-hardening', 'update-emails', 'captcha-shield', 'bot-throttle', 'vulnerability-scanner', 'activity-log', 'csp-audit', 'login-url' ],
 		},
 		{
 			id: 'admin',
@@ -104,6 +104,12 @@ export function unavailableText( code: string ): string {
 			return __( 'A custom login address is already set.', 'ux-studio' );
 		case 'collision':
 			return __( 'The address /administrace is already used by a page, post or another rule of this site.', 'ux-studio' );
+		case 'captcha_set':
+			return __( 'A CAPTCHA is already set up on this site, it stays as it is.', 'ux-studio' );
+		case 'captcha_plugin':
+			return __( 'A CAPTCHA plugin is active, so the CAPTCHA is left to it.', 'ux-studio' );
+		case 'captcha_proxy':
+			return __( 'The site is behind a reverse proxy. The CAPTCHA limits per IP address, so set the client IP source first (Security > Firewall).', 'ux-studio' );
 		case 'plugin_overlap':
 			return __( 'Another plugin already takes care of the login address.', 'ux-studio' );
 		default:

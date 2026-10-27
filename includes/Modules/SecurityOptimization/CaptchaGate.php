@@ -235,7 +235,7 @@ final class CaptchaGate {
 
 			if ( ! $nonce_ok ) {
 				$error = new WP_Error( 'uxstudio_verify_failed', __( 'Security check expired, please try again.', 'ux-studio' ) );
-			} elseif ( ! CaptchaVerifier::verify_token( $this->module ) ) {
+			} elseif ( ! CaptchaVerifier::verify_token( $this->module, null, 'gate' ) ) {
 				$error = new WP_Error( 'uxstudio_verify_failed', __( 'Please confirm you are not a robot.', 'ux-studio' ) );
 			} else {
 				$this->set_verified_cookie();
@@ -249,7 +249,7 @@ final class CaptchaGate {
 		<form name="uxstudio-verify-form" id="uxstudio-verify-form" method="post"
 			action="<?php echo esc_url( add_query_arg( array( 'action' => 'uxstudio_verify', 'r' => rawurlencode( $return ) ), wp_login_url() ) ); ?>">
 			<p><?php esc_html_e( 'Please confirm you are not a robot before continuing to the login page.', 'ux-studio' ); ?></p>
-			<?php CaptchaVerifier::render_widget( $this->module ); ?>
+			<?php CaptchaVerifier::render_widget( $this->module, 'gate', true ); ?>
 			<?php wp_nonce_field( self::NONCE_ACTION, 'uxstudio_verify_nonce' ); ?>
 			<p class="submit">
 				<input type="submit" name="wp-submit" id="wp-submit" class="button button-primary button-large"

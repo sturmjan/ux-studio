@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { ArrowLeft, KeyRound, LoaderCircle, Lock, Plus, RefreshCw, Trash2, Unlock } from 'lucide-react';
+import { ArrowLeft, Info, KeyRound, LoaderCircle, Lock, Plus, RefreshCw, Trash2, Unlock } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { hashParam, navigate } from '../../app/route';
-import { useModuleSettings } from '../../app/SettingsForm';
+import { type Field, useModuleSettings, type Value } from '../../app/SettingsForm';
 import { TopicSettings, inSections } from '../../app/TopicSettings';
 import { CspTab } from './CspTab';
 import { UploadGuardTab } from './UploadGuardTab';
@@ -164,9 +164,66 @@ function PhpVersionStatusBox(): JSX.Element | null {
 	);
 }
 
-/** Whether the CAPTCHA secret is stored (it is never sent back to the browser). */
-function CaptchaSecretNote(): JSX.Element {
+/** Settings only the key-less Shield reads. */
+const SHIELD_KEYS = [ 'captcha_shield_level', 'captcha_shield_adaptive', 'captcha_shield_min_time' ];
+/** Settings that only a provider with keys reads. */
+const KEY_SETTINGS = [ 'captcha_site_key', 'captcha_secret_key', 'captcha_key_source', 'captcha_cf_account_id', 'captcha_cf_api_token', 'captcha_size' ];
+
+/**
+ * Which CAPTCHA settings make sense for the chosen provider: the Shield has no keys to show, a provider with keys has
+ * no difficulty, Automatic needs both (the keys are optional there) and the type of the keys.
+ */
+function captchaFieldVisible( field: Field, draft: Record< string, Value > ): boolean {
+	const provider = String( draft.captcha_provider ?? 'auto' );
+	if ( SHIELD_KEYS.includes( field.key ) ) {
+		return 'shield' === provider || 'auto' === provider;
+	}
+	if ( KEY_SETTINGS.includes( field.key ) ) {
+		return 'shield' !== provider;
+	}
+	if ( 'captcha_own_provider' === field.key ) {
+		return 'auto' === provider;
+	}
+	if ( 'captcha_recaptcha_v3_threshold' === field.key ) {
+		return 'recaptcha_v3' === provider || ( 'auto' === provider && 'recaptcha_v3' === draft.captcha_own_provider );
+	}
+	return true;
+}
+
+/** What the Shield protects against and where it stops. Honest on purpose: it is a speed bump, not a person detector. */
+function ShieldInfo(): JSX.Element {
+	return (
+		<div className="uxs-callout" role="note">
+			<Info size={ 16 } aria-hidden />
+			<div>
+				<p>
+					<strong>{ __( 'UX Studio Shield', 'ux-studio' ) }</strong>
+					{ ' - ' }
+					{ __( 'a CAPTCHA with no account, no keys and no cookies. The browser of the visitor solves a small puzzle by itself (about a fraction of a second on a computer) and nothing leaves your site.', 'ux-studio' ) }
+				</p>
+				<p>
+					<strong>{ __( 'What it protects against:', 'ux-studio' ) }</strong>{ ' ' }
+					{ __( 'mass scripted attempts such as password guessing and spam bots. Every attempt costs computing time, an answer works only once, and a form sent faster than a person can fill it is refused.', 'ux-studio' ) }
+				</p>
+				<p>
+					<strong>{ __( 'Where it stops:', 'ux-studio' ) }</strong>{ ' ' }
+					{ __( 'it does not recognise a human. An attacker who has computing power passes, only more slowly, so on a site that is attacked in earnest use Cloudflare Turnstile or reCAPTCHA keys. It also counts per IP address: behind a reverse proxy set the client IP source in Firewall first.', 'ux-studio' ) }
+				</p>
+				<p>
+					<strong>{ __( 'Without JavaScript:', 'ux-studio' ) }</strong>{ ' ' }
+					{ __( 'the login, registration and lost password forms show a simple sum instead, so an administrator is never locked out. Comments and forms of the Forms module need JavaScript.', 'ux-studio' ) }
+				</p>
+			</div>
+		</div>
+	);
+}
+
+/** Whether the CAPTCHA secret is stored (it is never sent back to the browser), shown where keys are used. */
+function CaptchaSecretNote( { provider }: { provider: string } ): JSX.Element | null {
 	const { draft } = useModuleSettings( MODULE );
+	if ( 'shield' === provider ) {
+		return null;
+	}
 	return (
 		<p>
 			{ draft.has_captcha_secret_key
@@ -613,8 +670,16 @@ export default function Page(): JSX.Element {
 				</>
 			) }
 			{ tab === 'captcha' && (
-				<TopicSettings moduleId={ MODULE } include={ inSections( __( 'CAPTCHA', 'ux-studio' ) ) }>
-					<CaptchaSecretNote />
+				<TopicSettings moduleId={ MODULE } include={ inSections( __( 'CAPTCHA', 'ux-studio' ) ) } showField={ captchaFieldVisible }>
+					{ ( draft ) => {
+						const provider = String( draft.captcha_provider ?? 'auto' );
+						return (
+							<>
+								{ ( 'shield' === provider || 'auto' === provider ) && <ShieldInfo /> }
+								<CaptchaSecretNote provider={ provider } />
+							</>
+						);
+					} }
 				</TopicSettings>
 			) }
 			{ tab === 'headers' && (

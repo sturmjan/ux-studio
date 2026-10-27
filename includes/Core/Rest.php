@@ -10,6 +10,7 @@ namespace UxStudio\Core;
 use UxStudio\Core\Migration\ActivationGuard;
 use UxStudio\Core\Migration\Overlaps;
 use UxStudio\Core\Migration\SourceRegistry;
+use UxStudio\Modules\SecurityOptimization\ShieldRuntime;
 use UxStudio\Plugin;
 use UxStudio\Rest\Controller;
 use WP_REST_Request;
@@ -70,6 +71,8 @@ final class Rest extends Controller {
 		$this->route( '/overlaps/unignore', 'POST', array( $this, 'unignore_overlap' ), $this->overlap_key_args() );
 		$this->route( '/settings/(?P<id>[a-z0-9-]+)', 'GET', array( $this, 'get_settings' ) );
 		$this->route( '/settings/(?P<id>[a-z0-9-]+)', 'POST', array( $this, 'save_settings' ) );
+		// The key-less CAPTCHA puzzle: public (the visitor is not logged in yet), rate limited, never cached.
+		ShieldRuntime::register_routes();
 	}
 
 	/**

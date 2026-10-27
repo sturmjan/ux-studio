@@ -58,12 +58,12 @@ final class CaptchaHandler {
 		}
 
 		if ( $this->form_enabled( 'register' ) ) {
-			add_action( 'register_form', array( $this, 'render_widget' ) );
+			add_action( 'register_form', array( $this, 'render_register_widget' ) );
 			add_filter( 'registration_errors', array( $this, 'verify_registration' ), 10, 3 );
 		}
 
 		if ( $this->form_enabled( 'lostpassword' ) ) {
-			add_action( 'lostpassword_form', array( $this, 'render_widget' ) );
+			add_action( 'lostpassword_form', array( $this, 'render_lostpassword_widget' ) );
 			add_action( 'lostpassword_post', array( $this, 'verify_lost_password' ), 10, 1 );
 		}
 
@@ -141,7 +141,15 @@ final class CaptchaHandler {
 	}
 
 	public function render_widget(): void {
-		CaptchaVerifier::render_widget( $this->module );
+		CaptchaVerifier::render_widget( $this->module, 'login' );
+	}
+
+	public function render_register_widget(): void {
+		CaptchaVerifier::render_widget( $this->module, 'register' );
+	}
+
+	public function render_lostpassword_widget(): void {
+		CaptchaVerifier::render_widget( $this->module, 'lostpassword' );
 	}
 
 	public function render_v3_footer(): void {
@@ -170,7 +178,7 @@ final class CaptchaHandler {
 			return $user;
 		}
 
-		if ( ! CaptchaVerifier::verify_token( $this->module ) ) {
+		if ( ! CaptchaVerifier::verify_token( $this->module, null, 'login' ) ) {
 			$this->login_error = new WP_Error( 'uxstudio_captcha_failed', __( 'CAPTCHA verification failed. Please try again.', 'ux-studio' ) );
 			return $this->login_error;
 		}
@@ -195,7 +203,7 @@ final class CaptchaHandler {
 	 * @param string   $user_email            Email (unused).
 	 */
 	public function verify_registration( $errors, $sanitized_user_login, $user_email ) {
-		if ( ! CaptchaVerifier::verify_token( $this->module ) ) {
+		if ( ! CaptchaVerifier::verify_token( $this->module, null, 'register' ) ) {
 			$errors->add( 'uxstudio_captcha_failed', __( '<strong>Error:</strong> CAPTCHA verification failed. Please try again.', 'ux-studio' ) );
 		}
 		return $errors;
@@ -208,7 +216,7 @@ final class CaptchaHandler {
 		if ( ! ( $errors instanceof WP_Error ) ) {
 			return;
 		}
-		if ( ! CaptchaVerifier::verify_token( $this->module ) ) {
+		if ( ! CaptchaVerifier::verify_token( $this->module, null, 'lostpassword' ) ) {
 			$errors->add( 'uxstudio_captcha_failed', __( '<strong>Error:</strong> CAPTCHA verification failed. Please try again.', 'ux-studio' ) );
 		}
 	}

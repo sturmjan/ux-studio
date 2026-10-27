@@ -99,6 +99,15 @@ final class TurnstileCaProvisioner {
 	}
 
 	/**
+	 * Is this site connected to the central application (its URL and the shared node key are both set)? The same
+	 * credentials the provisioning call signs with, so "connected" means "the call can be made".
+	 */
+	public static function is_connected(): bool {
+		list( $central_url, $secret ) = self::credentials();
+		return '' !== trim( $central_url ) && '' !== $secret;
+	}
+
+	/**
 	 * Central app URL + shared node key - same source as CentralClient, this
 	 * module never stores its own copy.
 	 *

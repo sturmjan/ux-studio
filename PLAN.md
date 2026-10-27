@@ -3435,3 +3435,46 @@ zápisů), `POST admin-notices/dismiss`, `GET admin-notices` (stav, typ, zdroj, 
 - [ ] Vydání 0.8.1 (verze, tag, vydání na GitHubu)
 - [ ] Později: zachytit i upozornění, která přijdou po 2,2 s od načtení (druhá dávka), a česky popsat „Zavřeno přes“ v CSV
 - [ ] Později: stránka pro uživatele s nižším oprávněním než správce (teď jen správci)
+
+## 32. Štít UX Studia - CAPTCHA bez klíčů a CAPTCHA formulářů přes centrální aplikaci (0.8.3)
+
+Kód: `SecurityOptimization/CaptchaShield.php` (protokol, čisté funkce), `CaptchaResolver.php` (pořadí poskytovatelů),
+`ShieldRuntime.php` (tajný klíč, jednorázové úložiště, REST, widget), `CaptchaVerifier.php` (config místo Module),
+`Forms/FormsCaptcha.php`, `assets/js/shield.js` + `assets/css/shield.css` (min přes `npm run build:widget`), SPA
+`src/modules/forms/CaptchaInspector.tsx`, `TopicSettings.showField`, `StarterPack` položka `captcha-shield`.
+
+### 32.1 Protokol (podle otevřeného konceptu ALTCHA, vlastní implementace)
+
+- `GET uxstudio/v1/shield/challenge` -> `{algorithm:'SHA-256', salt(32 hex), number_max, challenge=sha256(salt.number), issued(ms), expires(s, +300), signature}`; `signature = HMAC-SHA256(secret, 'v1|alg|challenge|salt|number_max|issued|expires')`. Tajný klíč = HMAC(náhodná volba `uxstudio_shield_secret` bez autoloadu, `wp_salt('auth')`), nikdy se nevrací.
+- Odpověď prohlížeče: base64 JSON `{algorithm, challenge, number, salt, signature, issued, expires, number_max}`. Server ověří: podpis (`hash_equals`), platnost, minimální dobu od vydání (výchozí 1,2 s, nastavení 0 až 10 s; stránka si počká sama), `sha256(salt.number)`, a až nakonec spálí (`INSERT IGNORE` do `wp_options`, `_uxs_shield_used_<hash>`, bez autoloadu; úklid po 1/25 zápisů). Odmítnutá odpověď nespálí výzvu.
+- Obtížnost: Lehká/Střední/Těžká = 50k/150k/500k; po neúspěšných přihlášeních z IP (práh `captcha_adaptive_threshold`, 15 min) o stupeň těžší.
+- Honeypot `uxs_trap`; pole odpovědi `uxstudio_shield` (u formulářů `uxs_shield_f<ID>`).
+- SHA-256 v čistém JS po jednom bloku (Web Crypto `subtle.digest` je async po každém hashi, změřeno 24 tis. proti 1 mil. hashů/s, a na http chybí); worker = tentýž soubor.
+
+### 32.2 Bez JavaScriptu a při selhání (nesmí zamknout správce)
+
+Odpověď JS chybí -> jen potom se zkouší napsaný součet (`uxstudio_shield_nojs` + podepsaný token, otázka z nonce+tajemství, min. 3 s, platnost 6 h, jednorázový, limit 8/min na IP). Platí pro přihlášení, registraci, obnovu hesla, bránu a WooCommerce účet; ne pro komentáře (cache stránek) a Formuláře (potřebují JS). Špatná JS odpověď na součet nepřepadá. Selže-li výzva nebo výpočet, widget ukáže otázku; je-li skript zablokovaný, otázka se ukáže po 4 s (CSS), bez JS hned.
+
+### 32.3 Pořadí poskytovatele
+
+`auto`: klíče z CA (jen při připojení, `node_api_key` + `central_app_url`) > vlastní klíče > Štít. Klíče z CA po ztrátě spojení platí dál jako vlastní. Formuláře: totéž vždy, bez ohledu na `captcha_enabled`. Výchozí `captcha_provider`: `auto` jen když volba modulu nemá žádné `captcha_*`, jinak `turnstile` (stávající weby se nemění). Klíče jedním úložištěm (`Module::store_captcha_keys`, `Security::store_secret`); tlačítko nikdy nepřepíše vlastní klíče.
+
+### 32.4 Centrální aplikace (jen čteno, beze změny)
+
+`TurnstileProvisionController` vydává JEDEN sdílený `managed` widget pro celou flotilu; web se přidá do seznamu domén podle autentizovaného `site_url`. Stejný pár klíčů je proto použitelný pro přihlášení i formuláře (stejná doména, hostname se ověřuje u Cloudflare), změna není nutná. Pozor: limit 5 registrací/hod/web; nezná `action`, takže Turnstile nerozliší přihlášení a formulář. Volitelně pro CA: endpoint `action=status` bez registrace a samostatný widget/akci pro formuláře, pokud bude potřeba statistika zvlášť.
+
+### 32.5 Starter pack
+
+Položka `captcha-shield` (přihlášení, registrace, obnova hesla, komentáře když je balíček nevypíná; `auto`, vložené umístění). Vynechá se: CAPTCHA už zapnutá/klíče (`captcha_set`), plugin s CAPTCHA (katalog překryvů, přidáno 5 pluginů), proxy bez Cloudflare (`captcha_proxy`, stejné pravidlo jako limit přihlášení). Vysvětlení přes `SettingHelp` (`captcha_enabled`, `captcha_provider`).
+
+### 32.6 Stav
+
+- [x] Protokol, JS, CSS, REST, widget, ověření, jednorázové úložiště
+- [x] Login, registrace, obnova hesla, brána, komentáře, WooCommerce, pole formuláře
+- [x] Náhradní cesta bez JS, test v prohlížeči (JS vypnuté, skript zablokovaný, REST zablokované)
+- [x] Nastavení (skrytá pole, info box), inspektor pole CAPTCHA, položka starter packu
+- [x] Testy `captcha-shield.php`, `captcha-shield-wp.php`, `captcha-shield.mjs`, `rest-public-routes.php`
+- [ ] Vyzkoušet na pomalém telefonu (těžká obtížnost naměřena 2,5 až 3,4 s při simulovaném zpomalení CPU 4x až 6x)
+- [ ] Reálné klíče z CA (v testu mockované HTTP)
+- [ ] Blokové pokladny WooCommerce nemají kam vložit widget (jako dosud)
+

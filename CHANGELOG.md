@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.8.3
+
+- Added - **UX Studio Shield**, a CAPTCHA with no keys, no account and no cookies (Security > CAPTCHA, provider "UX Studio
+  Shield"). The browser solves a small proof of work (SHA-256, in a Web Worker, plain JS on the main thread when a worker is
+  not allowed); the server signs the challenge (HMAC), checks the answer, refuses an expired, too fast (fill time, default
+  1.2 s) or replayed answer (one-time use, atomic) and an invisible honeypot field. Difficulty Easy / Medium / Hard
+  (highest number 50k / 150k / 500k), one step harder for an address with recent failed logins. Public route
+  `GET uxstudio/v1/shield/challenge` (rate limited per IP, never cached). Without JavaScript, or when the check cannot run,
+  the login, registration, lost password, gate and WooCommerce account forms show a simple signed sum instead, so nobody is
+  locked out. It stops mass scripted attempts; it does not tell a person from a determined script.
+- Added - Provider "Automatic" (default for a fresh install; a site that already stores CAPTCHA settings keeps Turnstile):
+  keys from the central application while connected, then own keys, then the Shield. New setting "Type of your own keys".
+- Added - The CAPTCHA field of the Forms module no longer depends on the Security CAPTCHA switch: central application keys,
+  then own keys, then the Shield. The field inspector shows what is used and offers "Get keys from the central
+  application" (`POST forms/captcha/provision`); the keys go into the same store as the login CAPTCHA keys. A form with a
+  CAPTCHA field now always protects (before, it did nothing without the switch and keys).
+- Added - Starter pack item "CAPTCHA without keys" (login, registration, lost password, comments when the pack leaves them
+  on). Left out when a CAPTCHA is already set up, a CAPTCHA plugin is active or the site is behind a non-Cloudflare proxy.
+- Changed - CAPTCHA settings screen hides the key fields for the Shield and the Shield settings for providers with keys.
+
 ## 0.8.2
 
 - Added - Starter pack, item "Security hardening and cleanup": these protections are now switched on for a NEW site
