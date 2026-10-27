@@ -35,7 +35,8 @@ defined( 'ABSPATH' ) || exit;
  *   feed_plugins         string[] names of active plugins that consume or serve RSS feeds (see FEED_PLUGINS),
  *   headless_plugins     string[] names of active decoupled front end plugins (see HEADLESS_PLUGINS),
  *   header_plugins       string[] names of active plugins that send security headers (see HEADER_PLUGINS),
- *   https_ready          bool    the site and home address are https and this very request came over https.
+ *   https_ready          bool    the site and home address are https and this very request came over https,
+ *   captcha_set          bool    a CAPTCHA is already set up: switched on, or keys stored (Turnstile, reCAPTCHA).
  *
  * An item is one tick box in the wizard:
  *
@@ -100,6 +101,7 @@ final class StarterPack {
 		return array(
 			'security-hardening',
 			'update-emails',
+			'captcha-shield',
 			'hide-wordpress',
 			'classic',
 			'clean-profiles',
@@ -157,6 +159,7 @@ final class StarterPack {
 			'headless_plugins'    => array(),
 			'header_plugins'      => array(),
 			'https_ready'         => true,
+			'captcha_set'         => false,
 		);
 	}
 
@@ -171,6 +174,7 @@ final class StarterPack {
 		$items = array(
 			self::security_hardening( $env ),
 			self::update_emails( $env ),
+			self::captcha_shield( $env ),
 			self::hide_wordpress( $env ),
 			self::simple(
 				'classic',
@@ -756,6 +760,77 @@ final class StarterPack {
 			$warnings,
 			false
 		);
+	}
+
+	/**
+	 * Forms that the pack protects with the key-less Shield.
+	 *
+	 * Comments only when the pack leaves them on: with WooCommerce they stay on products (reviews), and a plugin that
+	 * already disables comments keeps the site's own decision; on any other site the security item switches comments off
+	 * for good, so a widget on a comment form that is never shown would only be noise.
+	 *
+	 * @param array<string, mixed> $env Environment.
+	 * @return string[]
+	 */
+	public static function captcha_forms( array $env ): array {
+		$env      = array_merge( self::default_env(), $env );
+		$forms    = array( 'login', 'register', 'lostpassword' );
+		$disabled = empty( $env['woocommerce'] ) && ! isset( $env['blocked_settings']['disable_comments'] );
+		if ( ! $disabled ) {
+			$forms[] = 'comment';
+		}
+		return $forms;
+	}
+
+	/**
+	 * Why the key-less CAPTCHA is left out on this site, or '' when it can go on.
+	 *
+	 *  - captcha_plugin  a CAPTCHA plugin is active (the overlap catalog knows them),
+	 *  - captcha_set     a CAPTCHA is already switched on or has keys: it stays as it is,
+	 *  - captcha_proxy   behind a reverse proxy that is not Cloudflare: the Shield limits per IP address, and behind such
+	 *                    a proxy every visitor looks like the proxy (the same rule as the login attempt limit).
+	 *
+	 * @param array<string, mixed> $env Environment.
+	 */
+	public static function captcha_skip_reason( array $env ): string {
+		$env = array_merge( self::default_env(), $env );
+		if ( ! empty( $env['blocked_settings']['captcha_enabled'] ) ) {
+			return 'captcha_plugin';
+		}
+		if ( ! empty( $env['captcha_set'] ) ) {
+			return 'captcha_set';
+		}
+		if ( ! empty( $env['xff'] ) && empty( $env['cloudflare'] ) ) {
+			return 'captcha_proxy';
+		}
+		return '';
+	}
+
+	/**
+	 * CAPTCHA without keys: the Shield on login, registration, lost password and comments.
+	 *
+	 * @param array<string, mixed> $env Environment.
+	 * @return array<string, mixed>
+	 */
+	private static function captcha_shield( array $env ): array {
+		$item = self::simple(
+			'captcha-shield',
+			__( 'CAPTCHA without keys', 'ux-studio' ),
+			__( 'Login, registration, lost password and comments ask the browser of the visitor to solve a small puzzle by itself (a fraction of a second, no account, no keys, no cookies, nothing sent to a third party). A visitor without JavaScript answers a simple sum instead, so nobody is locked out. It stops mass scripted attempts; it does not tell a person from a determined script. Keys from the central application or your own Turnstile keys are used instead as soon as they exist.', 'ux-studio' ),
+			array( 'security-optimization' ),
+			array(
+				'security-optimization' => array(
+					'captcha_enabled'   => true,
+					'captcha_provider'  => 'auto',
+					// In the form itself, not a page before it: the typed-question fallback sits right there.
+					'captcha_placement' => 'inline',
+					'captcha_forms'     => self::captcha_forms( $env ),
+				),
+			),
+			array( array( 'captcha_limits', __( 'The Shield stops mass scripted attempts, not a determined attacker with a computer (that one only needs a little more time). It does not replace the login attempt limit.', 'ux-studio' ) ) )
+		);
+		$reason = self::captcha_skip_reason( $env );
+		return '' === $reason ? $item : self::unavailable( $item, $reason );
 	}
 
 	/**

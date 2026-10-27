@@ -261,6 +261,11 @@ final class Catalog {
 				array(
 					'simple-cloudflare-turnstile' => 'Simple CAPTCHA Alternative with Cloudflare Turnstile',
 					'advanced-google-recaptcha'   => 'Advanced Google reCAPTCHA',
+					'google-captcha'              => 'reCaptcha by BestWebSoft',
+					'advanced-nocaptcha-recaptcha' => 'Advanced noCaptcha & Invisible Captcha',
+					'login-no-captcha-recaptcha'  => 'Login No Captcha reCAPTCHA',
+					'hcaptcha-for-forms-and-more' => 'hCaptcha for WP',
+					'friendly-captcha'            => 'Friendly Captcha',
 				),
 				array(
 					'when'    => array( 'captcha_enabled' ),

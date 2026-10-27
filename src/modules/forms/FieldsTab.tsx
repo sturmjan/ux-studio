@@ -20,6 +20,7 @@ import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-
 import { CSS } from '@dnd-kit/utilities';
 import { Check, GripVertical, Monitor, Plus, Save, Smartphone, Sparkles, Tablet, Trash2 } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
+import CaptchaInspector from './CaptchaInspector';
 import AnimatedCheckbox from '../../components/AnimatedCheckbox';
 import FileUploadField from '../../components/FileUploadField';
 import MultiSelectField, { type MultiSelectOption } from '../../components/MultiSelectField';
@@ -247,6 +248,14 @@ function Inspector( {
 							<label>{ __( 'HTML content', 'ux-studio' ) }</label>
 							<textarea rows={ 6 } value={ field.html ?? '' } onChange={ ( e ) => onChange( { html: e.target.value } ) } />
 						</div>
+					) : field.type === 'captcha' ? (
+						<>
+							<CaptchaInspector />
+							<div className="uxs-form__row">
+								<label>{ __( 'CSS class', 'ux-studio' ) }</label>
+								<input type="text" value={ field.css_class } onChange={ ( e ) => onChange( { css_class: e.target.value } ) } />
+							</div>
+						</>
 					) : (
 						<>
 							<div className="uxs-form__row">

@@ -12,13 +12,14 @@
 import { LoaderCircle } from 'lucide-react';
 import { __ } from '@wordpress/i18n';
 import type { ReactNode } from 'react';
-import { type Field, SettingsFields, useModuleSettings } from './SettingsForm';
+import { type Field, SettingsFields, type Value, useModuleSettings } from './SettingsForm';
 
 export function TopicSettings( {
 	moduleId,
 	include,
 	collapsible,
 	onSaved,
+	showField,
 	children,
 }: {
 	moduleId: string;
@@ -28,8 +29,10 @@ export function TopicSettings( {
 	collapsible?: string;
 	/** Called after a successful save (e.g. to refresh a status that depends on these fields). */
 	onSaved?: () => void;
-	/** Extra content under the fields, before the Save button (notes, status). */
-	children?: ReactNode;
+	/** Hide a field of the topic depending on the values being edited (e.g. keys that a key-less provider does not use). */
+	showField?: ( field: Field, draft: Record< string, Value > ) => boolean;
+	/** Extra content under the fields, before the Save button (notes, status); a function gets the values being edited. */
+	children?: ReactNode | ( ( draft: Record< string, Value > ) => ReactNode );
 } ): JSX.Element | null {
 	const { data, isLoading, draft, setDraft, save, saved } = useModuleSettings( moduleId );
 
@@ -42,7 +45,10 @@ export function TopicSettings( {
 	}
 
 	// The topic is the page; sections inside it would bring the sub-menu back.
-	const schema = data.schema.filter( include ).map( ( f ) => ( { ...f, section: undefined } ) );
+	const schema = data.schema
+		.filter( include )
+		.filter( ( f ) => ! showField || showField( f, draft ) )
+		.map( ( f ) => ( { ...f, section: undefined } ) );
 	if ( schema.length === 0 ) {
 		return null;
 	}
@@ -50,7 +56,7 @@ export function TopicSettings( {
 	const body = (
 		<>
 			<SettingsFields schema={ schema } draft={ draft } setDraft={ setDraft } />
-			{ children }
+			{ typeof children === 'function' ? children( draft ) : children }
 			<button type="button" className="button button-primary" disabled={ save.isPending } onClick={ () => save.mutate( undefined, { onSuccess: onSaved } ) }>
 				{ saved ? __( 'Saved', 'ux-studio' ) : __( 'Save changes', 'ux-studio' ) }
 			</button>
