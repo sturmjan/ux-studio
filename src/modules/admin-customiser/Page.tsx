@@ -4,6 +4,7 @@ import { hashParam } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
 import { MenuLockOriginNote, useMenuLock } from './menuLock';
 import { MenuOrganizerTab } from './MenuOrganizerTab';
+import { NoticeHistoryTab } from './NoticeHistoryTab';
 
 function SettingsTab(): JSX.Element {
 	const { data, isLoading, draft, setDraft, save, saved } = useModuleSettings( 'admin-customiser' );
@@ -31,7 +32,11 @@ function SettingsTab(): JSX.Element {
 	);
 }
 
-/** Sub-pages (Settings / Menu Organizer) are picked in the sidebar tree: `&view=menu-organizer`. */
+/** Sub-pages (Settings / Menu Organizer / Notice history) are picked in the sidebar tree: `&view=menu-organizer`. */
 export default function Page(): JSX.Element {
-	return 'menu-organizer' === hashParam( 'view' ) ? <MenuOrganizerTab /> : <SettingsTab />;
+	const view = hashParam( 'view' );
+	if ( 'menu-organizer' === view ) {
+		return <MenuOrganizerTab />;
+	}
+	return 'notice-history' === view ? <NoticeHistoryTab /> : <SettingsTab />;
 }

@@ -250,6 +250,15 @@ final class DB {
 	}
 
 	/**
+	 * Installed schema version of a module (0 = none), for modules that want to notice a vanished table.
+	 *
+	 * @param string $module_id Module id (kebab-case).
+	 */
+	public static function module_schema_version( string $module_id ): int {
+		return self::module_version( $module_id );
+	}
+
+	/**
 	 * Installed schema version of a module (0 = never installed). Falls back
 	 * to the pre-v2 per-module option once and folds it into the shared array,
 	 * so a site that skipped migrate_2 (e.g. a module added later) still keeps

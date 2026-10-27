@@ -3324,3 +3324,89 @@ seznam; neexistující volby se vynechají a hlásí, ne přetypují); klíč s 
 - [ ] Později: schopnost MCP (`transfer/export` jen bez tajných hodnot a `import` jen s rozsahem `admin`) - záměrně
   zatím NEPŘIDÁNO
 - [ ] Později: export složek médií a viditelnosti menu (potřebují mapování id), ZIP s médii
+
+## 31. Historie upozornění v administraci (0.8.1)
+
+Zadání (2026-10-27): „Udělej ještě nějakou samostatnou stránku, kde budou historicky vidět i ty zavřená upozornění.“
+Doplněk ke skrytým upozorněním (§20.16): panel pod zvonkem v liště zaznamenává, co zachytil, a stránka **Historie
+upozornění** to ukazuje. Stránka je podstránka „Úpravy administrace“ ve skupině Vzhled administrace
+(`#/module?id=admin-appearance&feature=admin-customiser&view=notice-history`, záznam v `featureViews.ts`) a odkazuje na
+ni patička panelu pod zvonkem („Zobrazit historii“). Kód: `includes/Modules/AdminCustomiser/NoticeHistory/`
+(`Rules` čisté funkce, `Store` tabulka, `RestController`), SPA `src/modules/admin-customiser/NoticeHistoryTab.tsx`,
+zachytávání v `assets/js/admin-customiser-notices.js`.
+
+### 31.1 Co se zaznamenává
+
+- **Jen to, co panel opravdu zachytí** (stejný výběr jako panel): `.notice`, `.error`, `.updated`, `.update-nag`, bez
+  `#message`, `.below-h2`, `.notice-success` (průběžné „Nastavení uloženo“), `.settings-error` / `#setting-error-*`,
+  bez věcí v liště a bez vnořených upozornění. Kritické upozornění na verzi PHP (`#uxstudio-php-version-notice`, 0.7.1)
+  se nepřesouvá do panelu a server ho navíc odmítne zapsat, i kdyby přišlo.
+- **Jen když je skrývání zapnuté a upozornění se přesouvají do panelu** (`hide_notices_enabled` a
+  `hide_notices_relocate`). Při vypnutí se nic nezaznamenává (REST odpoví `recorded: 0`) a stránka ukáže vysvětlení s
+  tlačítkem „Otevřít nastavení“. Starší záznamy zůstanou čitelné.
+- **Jen správci** (`manage_options`): skript dostane adresu REST, nonce a seznam skrytých upozornění jen od správce;
+  texty mohou obsahovat jména a e-maily, proto se nikdy nevypisují na front endu, neposílají jinam a nejsou součástí
+  exportu nastavení (tabulka není ve schématu; `uxstudio_admin_notices*` je na seznamu stavových voleb `NonPortable`).
+- Zachycení: panel po 2,2 s od načtení pošle **jedním** požadavkem (`POST admin-notices/log`) všechna upozornění,
+  která v něm leží (`pagehide` ho pošle dřív, když stránku opustíte); upozornění, která přijdou později, se v té
+  stránce nezapíšou. Každé upozornění se v jednom načtení stránky počítá jednou (`seen_count`).
+
+### 31.2 Tabulka `uxstudio_admin_notices`
+
+Vytvoří se líně přes `DB::ensure_module_tables('admin-customiser', 1, …)` (dbDelta, verze se zapíše až po úspěchu;
+když verze přežije zmizelou tabulku, vytvoří se znovu). Jeden řádek na upozornění webu (ne na uživatele):
+`id`, `notice_key` CHAR(40) UNIQUE, `client_key`, `type`, `title`, `text`, `source_slug`, `source_name`, `source_how`,
+`screen`, `dismissible`, `first_seen`, `last_seen`, `seen_count`, `reappeared_count`, `state`
+(`active`|`dismissed`|`gone`), `dismissed_at`, `dismissed_by`, `dismiss_method` (`panel`|`plugin`), `first_seen_user`.
+Časy v čase webu jako ostatní tabulky.
+
+- **Klíč** = `sha1(typ | text bez čísel)`: malá písmena, každá řada číslic se sloučí na `#`, mezery sloučené, prvních
+  240 znaků; titulek se hashuje spolu s textem. „3 aktualizace“ a „12 aktualizací“ je tedy totéž upozornění.
+- **Text** se na serveru čistí znovu (tagy, skripty, entity, řídicí znaky, mezery), max 2000 znaků, titulek 160.
+- **Stavy**: nové = `active`; znovu spatřené `gone` nebo `dismissed` (zavřené pluginem) = zpět `active` a
+  `reappeared_count`+1; zavřené křížkem = `dismissed`. `gone` se nenastaví hned, jen úklidem: aktivní upozornění,
+  které 7 dní nikdo neviděl (`uxstudio_admin_notices_gone_days`), je „zmizelé“.
+- **Úklid** (bez cronu, oportunisticky při zápisu nebo výpisu, nejvýš co 6 hodin): `gone` po 7 dnech, smazání řádků,
+  které se neobjevily 90 dní (`uxstudio_admin_notices_retention_days`), a strop 1000 řádků (zůstanou nejnovější podle
+  `last_seen`). Čistá logika je v `Rules::gone_ids()` a `Rules::purge_ids()`. Cron se nezakládá, takže není co rušit.
+- Žádnou cestu „uninstall“ plugin nemá; data smaže tlačítko „Vymazat celou historii“ (`DELETE admin-notices`).
+
+### 31.3 Zavření a „Znovu zobrazit“
+
+- Křížek karty: je-li v upozornění vlastní ovládání (core `.notice-dismiss`, Elementor, Freemius `.fs-close`, „Skrýt“),
+  spustí se a historie zapíše `dismiss_method = plugin` (plugin si zavření pamatuje sám, odsud nejde vrátit; ukáže se
+  „Zavřeno pluginem, nelze obnovit“). Bez vlastního ovládání panel upozornění jen skryje, zapíše `panel` a **pamatuje
+  si to**: texty takto zavřených upozornění (`client_key`, nejvýš 100) jdou správci do skriptu a upozornění se v panelu
+  už neukáže. „Znovu zobrazit v panelu“ (`POST admin-notices/{id}/reshow`, jen pro `panel`) značku zruší, upozornění se
+  v panelu objeví při příštím načtení. Klik na vlastní ovládání pluginu v kartě se zapíše také jako `plugin`.
+- Zavření dorazí na server i dřív než záznam (řádek se vytvoří při zavření).
+
+### 31.4 Odhad zdroje (`Rules::guess_source`, vždy jen odhad)
+
+Pořadí: vlastní upozornění UX Studia (třída/id `uxstudio`/`uxs`, titulek „UX Studio…“) → jádro WordPressu (věta
+„WordPress X is available“ česky i anglicky, nebo `update-nag` s textem začínajícím WordPress) → `data-plugin` /
+`data-slug` (adresář pluginu, i když není aktivní) → Freemius `fs-slug-<slug>` → otisky tříd známých pluginů (Elementor
+`e-notice`, UpdraftPlus, Wordfence, Yoast, Rank Math, AIOSEO, WooCommerce, ACF, Jetpack, Akismet, CF7, WPForms,
+LiteSpeed, WP Rocket, WP Mail SMTP) → titulek shodný s názvem aktivního pluginu → název aktivního pluginu jako celé
+slovo v textu (nejdelší shoda). Slug se převede na čitelný název podle aktivních pluginů (`get_plugins()`), jinak
+„Neznámý zdroj“ (prázdný slug). UI u zdroje píše „odhad“ a vysvětlení v bublině.
+
+### 31.5 REST (`uxstudio/v1`, vše `manage_options`, schémata argumentů)
+
+`POST admin-notices/log` (max 40 položek, tělo max 200 kB, 40 požadavků za minutu na uživatele, mimo sdílený rozpočet
+zápisů), `POST admin-notices/dismiss`, `GET admin-notices` (stav, typ, zdroj, období, hledání, strana, 20 na stranu),
+`GET admin-notices/stats`, `GET admin-notices/export.csv` (nonce `_wpnonce`, bezpečné proti vzorcům jako `Core\Csv`),
+`DELETE admin-notices/{id}`, `POST admin-notices/bulk-delete` (max 200), `DELETE admin-notices`,
+`POST admin-notices/{id}/reshow`. SQL jen přes `$wpdb->prepare`, výstup escapuje React.
+
+### 31.6 Stav
+
+- [x] Čisté funkce `Rules` (klíč, čištění textu, odhad zdroje, stavy, úklid, CSV, filtry), test `tests/notice-history.php`
+- [x] Tabulka `uxstudio_admin_notices` (dbDelta, oprava zmizelé tabulky), `Store`
+- [x] REST (zachycení, výpis, statistiky, mazání, hromadné mazání, vymazání všeho, znovu zobrazit, CSV)
+- [x] Zachytávání v panelu (jedna dávka na načtení, zavření křížkem, skrytí zavřených panelem, patička „Zobrazit historii“)
+- [x] SPA stránka „Historie upozornění“ (filtry, hledání, stránkování, hromadné akce, export, prázdné/chybové stavy)
+- [x] Test proti WordPressu `tests/notice-history-wp.php`, čeština, QA v prohlížeči se syntetickými upozorněními
+- [ ] Vydání 0.8.1 (verze, tag, vydání na GitHubu)
+- [ ] Později: zachytit i upozornění, která přijdou po 2,2 s od načtení (druhá dávka), a česky popsat „Zavřeno přes“ v CSV
+- [ ] Později: stránka pro uživatele s nižším oprávněním než správce (teď jen správci)

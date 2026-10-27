@@ -16,6 +16,12 @@
     var NEW_CLASS = 'has-new';
 
     var i18n = window.uxstudioNoticesI18n || {};
+    // Present for administrators only: the REST address, the nonce, the admin screen and the notices the panel hides.
+    var config = window.uxstudioNoticesConfig || null;
+    var hiddenKeys = {};
+    if (config && Array.isArray(config.hidden)) {
+        config.hidden.forEach(function(k) { hiddenKeys[k] = true; });
+    }
 
     var panel = document.getElementById('uxstudio-notices__panel');
     var panelWrap = document.getElementById('uxstudio-notices__panel-wrap');
@@ -145,7 +151,102 @@
         });
     }
 
+    // ── History: what the panel captured is reported to the server (administrators only) ────────────────────────
+    var DESCRIBE_DROP = DISMISS + ', [data-uxs-dismiss], script, style, noscript';
+    var descByKey = {};
+    var reported = {};
+    var logSent = false;
+
+    function plain(value, max) {
+        var out = String(value || '').replace(/\s+/g, ' ').trim();
+        return out.length > max ? out.slice(0, max) : out;
+    }
+
+    /** What the server needs to know about a notice: type, title, plain text and markup hints for the source guess. */
+    function describe(notice, key) {
+        var clone = notice.cloneNode(true);
+        Array.prototype.forEach.call(clone.querySelectorAll(DESCRIBE_DROP), function(node) { node.remove(); });
+        var body = plain(clone.textContent, 2000);
+
+        var title = '';
+        var titleNode = clone.querySelector('h1, h2, h3, h4, h5, h6, .fs-plugin-title, .notice-title, p:first-child > strong:first-child, strong:first-child');
+        if (titleNode) {
+            var candidate = plain(titleNode.textContent, 160);
+            if (candidate && candidate.length < body.length && body.indexOf(candidate) === 0) {
+                title = candidate;
+                // The title is stored on its own: the text starts after it (the history would show it twice).
+                body = body.slice(candidate.length).replace(/^[^\p{L}\p{N}]+/u, '') || body;
+            }
+        }
+
+        var classes = {};
+        var nodes = [notice].concat(Array.prototype.slice.call(notice.querySelectorAll('*'), 0, 40));
+        nodes.forEach(function(node) {
+            if (typeof node.className !== 'string') return;
+            node.className.split(/\s+/).forEach(function(c) {
+                if (c && c !== 'is-dismissible') classes[c] = true;
+            });
+        });
+
+        var plugin = '';
+        ['data-plugin', 'data-slug', 'data-plugin-slug'].some(function(attr) {
+            var holder = notice.hasAttribute(attr) ? notice : notice.querySelector('[' + attr + ']');
+            if (holder) plugin = holder.getAttribute(attr) || '';
+            return !!plugin;
+        });
+
+        return {
+            ckey: key,
+            type: noticeType(notice),
+            title: title,
+            text: body,
+            markup: Object.keys(classes).join(' ').slice(0, 1000),
+            id: notice.id || '',
+            plugin: plugin,
+            screen: (config && config.screen) || '',
+            dismissible: isDismissible(notice)
+        };
+    }
+
+    function send(path, payload, keepalive) {
+        if (!config || !config.restUrl || !window.fetch) return;
+        var body = JSON.stringify(payload);
+        try {
+            window.fetch(config.restUrl + path, {
+                method: 'POST',
+                credentials: 'same-origin',
+                keepalive: !!keepalive && body.length < 60000,
+                headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': config.nonce },
+                body: body
+            }).catch(function() {});
+        } catch (err) { /* history is best effort, the panel works without it */ }
+    }
+
+    /** One request per page load, a moment after the last capture pass; also when the page is left sooner. */
+    function flushLog(keepalive) {
+        if (logSent || !config) return;
+        var items = [];
+        cards().forEach(function(card) {
+            var item = descByKey[card.getAttribute('data-key')];
+            if (item && item.text) items.push(item);
+        });
+        if (!items.length) return;
+        logSent = true;
+        send('/log', { items: items.slice(0, 40) }, keepalive);
+    }
+
+    /** The user closed a notice (our cross, or the plugin's own control inside the card). */
+    function reportDismiss(card, method) {
+        if (!config) return;
+        var key = card.getAttribute('data-key');
+        var item = descByKey[key];
+        if (!item || reported[key]) return;
+        reported[key] = true;
+        send('/dismiss', { item: item, method: method });
+    }
+
     function buildCard(notice, key) {
+        if (config) descByKey[key] = describe(notice, key);
         tidyNotice(notice);
         var card = el('div', 'uxstudio-nc');
         card.setAttribute('role', 'listitem');
@@ -179,8 +280,12 @@
             // Trigger the plugin's own dismiss button, so its AJAX call (remember the dismissal) still runs.
             var original = dismissButton(notice);
             if (original) {
+                // The plugin keeps the dismissal itself: the history marks it as closed by the plugin.
+                reportDismiss(card, 'plugin');
                 original.click();
             } else {
+                // Only the panel hides it: the history remembers that and keeps it out of the panel until shown again.
+                reportDismiss(card, 'panel');
                 card.remove();
                 refresh(false);
             }
@@ -231,6 +336,11 @@
                 } else {
                     notice.remove();
                 }
+                return;
+            }
+            if (hiddenKeys[key]) {
+                // Closed with the panel's cross earlier (see the history page): stays out until it is shown again.
+                notice.remove();
                 return;
             }
             card = buildCard(notice, key);
@@ -369,10 +479,21 @@
         }).observe(document.body, { childList: true, subtree: true });
     }
 
+    // A click on a plugin's own dismiss control inside a card (not the synthetic one of our cross, which reports itself).
+    panel.addEventListener('click', function(e) {
+        if (!e.isTrusted || !config) return;
+        var control = e.target.closest ? e.target.closest(DISMISS + ', [data-uxs-dismiss]') : null;
+        if (!control) return;
+        var card = control.closest('.uxstudio-nc');
+        if (card) reportDismiss(card, 'plugin');
+    });
+
     function start() {
         refresh(false);
         setTimeout(function() { refresh(false); }, 300);
         setTimeout(function() { refresh(false); }, 1500);
+        setTimeout(function() { flushLog(false); }, 2200);
+        window.addEventListener('pagehide', function() { flushLog(true); });
         observeNotices();
     }
 

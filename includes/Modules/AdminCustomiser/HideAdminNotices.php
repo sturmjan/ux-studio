@@ -21,6 +21,8 @@
 
 namespace UxStudio\Modules\AdminCustomiser;
 
+use UxStudio\Modules\AdminCustomiser\NoticeHistory\Store;
+
 defined( 'ABSPATH' ) || exit;
 
 final class HideAdminNotices {
@@ -133,6 +135,27 @@ final class HideAdminNotices {
 				'dismiss'  => __( 'Dismiss notice', 'ux-studio' ),
 			)
 		);
+
+		// History capture: administrators only (the texts can hold names and e-mail addresses).
+		if ( current_user_can( 'manage_options' ) ) {
+			$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+			wp_localize_script(
+				'uxstudio-admin-customiser-notices',
+				'uxstudioNoticesConfig',
+				array(
+					'restUrl' => esc_url_raw( rest_url( 'uxstudio/v1/admin-notices' ) ),
+					'nonce'   => wp_create_nonce( 'wp_rest' ),
+					'screen'  => $screen ? (string) $screen->id : '',
+					// Notices the panel's own cross closed earlier: they stay out of the panel until shown again.
+					'hidden'  => Store::hidden_client_keys(),
+				)
+			);
+		}
+	}
+
+	/** Address of the history page in the UX Studio admin app. */
+	public static function history_url(): string {
+		return admin_url( 'admin.php?page=ux-studio#/module?id=admin-appearance&feature=admin-customiser&view=notice-history' );
 	}
 
 	/**
@@ -168,6 +191,11 @@ final class HideAdminNotices {
 			</div>
 			<div id="uxstudio-notices__panel" class="hidden" role="list" tabindex="-1"></div>
 			<div class="uxstudio-nc-empty"><?php echo esc_html__( 'No notices', 'ux-studio' ); ?></div>
+			<?php if ( current_user_can( 'manage_options' ) ) : ?>
+				<div class="uxstudio-nc-foot">
+					<a class="uxstudio-nc-foot__link" href="<?php echo esc_url( self::history_url() ); ?>"><?php echo esc_html__( 'Show history', 'ux-studio' ); ?></a>
+				</div>
+			<?php endif; ?>
 		</div>
 		<?php
 	}
