@@ -43,6 +43,9 @@ final class MiscBootstrap {
 
 		add_action( 'admin_head', array( self::class, 'handle_admin_features_visibility' ) );
 		add_filter( 'admin_footer_text', array( self::class, 'custom_admin_footer_text' ), 11 );
+		if ( $settings->get( 'hide_rocket_insights', false ) ) {
+			HideRocketInsights::register();
+		}
 		if ( $settings->get( 'hide_footer_version', false ) ) {
 			add_filter( 'update_footer', array( self::class, 'hide_footer_version' ), 11 );
 		}

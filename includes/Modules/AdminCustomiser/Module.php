@@ -301,6 +301,14 @@ final class Module extends BaseModule {
 				'default' => false,
 			),
 			array(
+				'key'     => 'hide_rocket_insights',
+				'section' => __( 'Admin screens', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Hide Rocket Insights (WP Rocket)', 'ux-studio' ),
+				'help'    => __( 'Turns off Rocket Insights through the official WP Rocket switch: the tab on the WP Rocket settings page, the score and recommendations in its sidebar and dashboard, the column in the post lists, its notices and the scheduled performance tests all disappear. Caching and the rest of WP Rocket keep working. Switch this off to get it all back. Without WP Rocket the option does nothing.', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
 				'key'     => 'menu_organizer_enabled',
 				'section' => __( 'Sidebar menu', 'ux-studio' ),
 				'type'    => 'toggle',
