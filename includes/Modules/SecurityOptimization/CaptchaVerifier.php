@@ -26,9 +26,13 @@ final class CaptchaVerifier {
 	/** @var array<int, array<string, mixed>> Per request, by module object. */
 	private static array $configs = array();
 
-	/** Forget the remembered configs (settings or keys changed in this request). */
+	/** @var array<string, string> Verdicts of this request: an answer or token is single use, so a second look gets the first verdict. */
+	private static array $verdicts = array();
+
+	/** Forget what was remembered in this request (settings or keys changed, or a test starts a new "request"). */
 	public static function flush(): void {
-		self::$configs = array();
+		self::$configs  = array();
+		self::$verdicts = array();
 	}
 
 	/**
@@ -289,18 +293,17 @@ final class CaptchaVerifier {
 	 */
 	public static function verify_code( array $config, ?string $token = null, string $context = 'login', string $field = CaptchaShield::FIELD ): string {
 		$provider = (string) $config['provider'];
-		static $verdicts = array();
 
 		if ( 'shield' === $provider ) {
 			// An answer is single use, so when two handlers check the same request (the login handler and a WooCommerce
 			// form) the second one must see the first one's verdict instead of burning it twice.
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			$post = static fn( string $key ): string => isset( $_POST[ $key ] ) && is_string( $_POST[ $key ] ) ? (string) wp_unslash( $_POST[ $key ] ) : '';
-			$key  = md5( 'shield|' . $context . '|' . ( $token ?? $post( $field ) ) . '|' . $post( CaptchaShield::NOJS_TOKEN_FIELD ) . '|' . $post( CaptchaShield::NOJS_FIELD ) );
-			if ( ! isset( $verdicts[ $key ] ) ) {
-				$verdicts[ $key ] = ShieldRuntime::check( $context, $field, $token );
+			$key  = md5( 'shield|' . ( $token ?? $post( $field ) ) . '|' . $post( CaptchaShield::NOJS_TOKEN_FIELD ) . '|' . $post( CaptchaShield::NOJS_FIELD ) );
+			if ( ! isset( self::$verdicts[ $key ] ) ) {
+				self::$verdicts[ $key ] = ShieldRuntime::check( $context, $field, $token );
 			}
-			return $verdicts[ $key ];
+			return self::$verdicts[ $key ];
 		}
 
 		if ( 'turnstile' === $provider ) {
@@ -321,10 +324,10 @@ final class CaptchaVerifier {
 		// A token is single use at the provider: when two handlers check the same request (for example the
 		// login form handler and a WooCommerce form), the second one must see the first one's verdict.
 		$key = md5( $provider . '|' . $token );
-		if ( ! isset( $verdicts[ $key ] ) ) {
-			$verdicts[ $key ] = self::siteverify( $config, $token, $endpoint ) ? '' : 'failed';
+		if ( ! isset( self::$verdicts[ $key ] ) ) {
+			self::$verdicts[ $key ] = self::siteverify( $config, $token, $endpoint ) ? '' : 'failed';
 		}
-		return $verdicts[ $key ];
+		return self::$verdicts[ $key ];
 	}
 
 	/**
