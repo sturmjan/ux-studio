@@ -123,22 +123,17 @@ function PhpVersionStatusBox(): JSX.Element | null {
 		queryFn: () => api< PhpVersionStatus >( 'security/php-version' ),
 	} );
 	const data = php.data;
-	if ( ! data ) {
+	// Only a problem is worth a place on the screen: a safe PHP version needs no status row.
+	if ( ! data || 'ok' === data.level ) {
 		return null;
 	}
-	const badge = 'ok' === data.level ? 'is-success' : 'warning' === data.level ? 'is-warning' : 'is-danger';
+	const badge = 'warning' === data.level ? 'is-warning' : 'is-danger';
 	return (
 		<div style={ { marginTop: 'var(--uxs-sp-5)' } }>
 			<h3>{ __( 'PHP version', 'ux-studio' ) }</h3>
 			<p>
 				<span className={ `uxs-badge ${ badge }` }>
-					{ 'ok' === data.level
-						? sprintf(
-								/* translators: %s: PHP version. */
-								__( 'PHP %s is up to date', 'ux-studio' ),
-								data.php_full
-						  )
-						: 'warning' === data.level
+					{ 'warning' === data.level
 						? sprintf(
 								/* translators: %s: PHP version. */
 								__( 'PHP %s will soon lose security support', 'ux-studio' ),
