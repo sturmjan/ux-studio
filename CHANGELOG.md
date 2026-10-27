@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.8.4 (unreleased)
+## 0.8.4
 
 - Changed - Dashboard Widgets, "Hidden widgets": one table of every widget the dashboard has (WordPress, plugins, UX Studio)
   instead of a "hide specific" list and one multi-select per role. Each row has **Hide** (for everybody) and **Show to**
