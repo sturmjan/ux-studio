@@ -168,6 +168,14 @@ $assert( 'keys that are not in the schema are dropped as unknown', array( 'rogue
 $assert( 'non-portable keys of the schema are refused even when the file has them', array( 'node_api_key', 'central_app_url' ) === $in['non_portable'] );
 $assert( 'no non-portable value reaches the accepted set', ! in_array( 'SECRET-KEY-VALUE', $in['accepted'], true ) );
 
+
+$assert( 'export types: a toggle stored as 1 is exported as true', true === Planner::typed( 1, array( 'type' => 'toggle' ) ) && false === Planner::typed( '', array( 'type' => 'toggle' ) ) );
+$assert( 'export types: a list stored as one text becomes a list', array( 'a' ) === Planner::typed( 'a', array( 'type' => 'multiselect' ) ) && array() === Planner::typed( '', array( 'type' => 'multiselect' ) ) && array( '1', '2' ) === Planner::typed( array( 1, 2 ), array( 'type' => 'multiselect' ) ) );
+$assert( 'export types: a number stored as text is a number', 5 === Planner::typed( '5', array( 'type' => 'number' ) ) && 1.5 === Planner::typed( '1.5', array( 'type' => 'number' ) ) && null === Planner::typed( 'abc', array( 'type' => 'number' ) ) );
+$assert( 'export types: a choice the site does not offer is not exported, one it offers is', null === Planner::typed( 'old-model', array( 'type' => 'select', 'options' => array( 'a' => 'A' ) ) ) && 'a' === Planner::typed( 'a', array( 'type' => 'select', 'options' => array( 'a' => 'A' ) ) ) );
+$assert( 'export types: unknown items of a list are left out', array( 'a' ) === Planner::typed( array( 'a', 'zzz' ), array( 'type' => 'multiselect', 'options' => array( 'a' => 'A', 'b' => 'B' ) ) ) );
+$assert( 'export types: text and choices are strings', '3' === Planner::typed( 3, array( 'type' => 'select' ) ) && null === Planner::typed( array( 'x' ), array( 'type' => 'text' ) ) );
+
 /* ── Registry of what never travels ── */
 
 $content_sync = NonPortable::classify( 'content-sync', $schema );

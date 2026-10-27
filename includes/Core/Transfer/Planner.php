@@ -61,10 +61,51 @@ final class Planner {
 				),
 			);
 		}
+		$typed = self::typed( $value, $field );
 		return array(
-			'include' => true,
-			'value'   => $value,
+			'include' => null !== $typed,
+			'value'   => $typed,
 		);
+	}
+
+	/**
+	 * A stored value in the exact JSON type of its field (modules sometimes keep a toggle as 1, a list as one
+	 * text): the file must carry exact types, or the import would reject the file's own values.
+	 *
+	 * @param mixed                $value Stored value.
+	 * @param array<string, mixed> $field Schema field.
+	 * @return mixed Null when no honest value of that type can be made.
+	 */
+	public static function typed( $value, array $field ) {
+		switch ( (string) ( $field['type'] ?? 'text' ) ) {
+			case 'toggle':
+				return is_array( $value ) ? null : (bool) $value;
+			case 'number':
+				return is_int( $value ) || is_float( $value ) ? $value : ( is_numeric( $value ) ? $value + 0 : ( '' === $value || null === $value ? 0 : null ) );
+			case 'multiselect':
+				if ( null === $value || '' === $value ) {
+					return array();
+				}
+				$list = is_array( $value ) ? array_values( $value ) : array( $value );
+				foreach ( $list as $item ) {
+					if ( ! is_scalar( $item ) ) {
+						return null;
+					}
+				}
+				$list    = array_map( 'strval', $list );
+				$allowed = array_map( 'strval', array_keys( (array) ( $field['options'] ?? array() ) ) );
+				// Choices this site itself does not offer are left out, so the file only holds what the site can read back.
+				return $allowed ? array_values( array_intersect( $list, $allowed ) ) : $list;
+			case 'select':
+				if ( ! is_scalar( $value ) && null !== $value ) {
+					return null;
+				}
+				$text    = (string) $value;
+				$allowed = array_map( 'strval', array_keys( (array) ( $field['options'] ?? array() ) ) );
+				return $allowed && ! in_array( $text, $allowed, true ) ? null : $text;
+			default:
+				return is_scalar( $value ) ? (string) $value : ( null === $value ? '' : null );
+		}
 	}
 
 	/**

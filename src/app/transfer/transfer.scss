@@ -356,6 +356,8 @@
 	color: var(--uxs-text);
 
 	.uxs-dns-diff { margin: 0; table-layout: fixed; }
+	.uxs-dns-diff th,
+	.uxs-dns-diff td { word-break: normal; overflow-wrap: anywhere; }
 	.uxs-dns-diff th[scope="row"] { width: 28%; }
 	.uxs-dns-diff .uxs-badge { margin-left: var(--uxs-sp-2); }
 	.uxs-wiz-warnings { margin: 0; }

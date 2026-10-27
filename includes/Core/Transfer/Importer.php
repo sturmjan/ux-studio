@@ -362,7 +362,9 @@ final class Importer {
 		foreach ( $schema as $field ) {
 			$key = (string) ( $field['key'] ?? '' );
 			if ( '' !== $key ) {
-				$current[ $key ] = $values[ $key ] ?? ( $field['default'] ?? null );
+				$stored          = $values[ $key ] ?? ( $field['default'] ?? null );
+				$typed           = Planner::typed( $stored, $field );
+				$current[ $key ] = null === $typed ? $stored : $typed; // Compared in the exact type the file carries.
 			}
 		}
 		$in = Planner::incoming( $id, $schema, (array) ( $file['settings'] ?? array() ), fn( string $url ): int => $this->find_media( $url ) );

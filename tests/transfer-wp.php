@@ -176,6 +176,13 @@ try {
 		}
 	}
 	$assert( 'preview of our own export shows 0 changes', array() === $noisy && 0 === $prev['totals']['changes'], implode( '; ', $noisy ) );
+	$rejected_own = array();
+	foreach ( $prev['modules'] as $m ) {
+		foreach ( $m['rejected'] as $r ) {
+			$rejected_own[] = $m['id'] . '.' . $r['key'];
+		}
+	}
+	$assert( 'no value of our own export is rejected by the import type checks', array() === $rejected_own, implode( ', ', $rejected_own ) );
 	$assert( 'preview counts the keys without change', $prev['totals']['same'] > 100, (string) $prev['totals']['same'] );
 	$assert( 'preview writes nothing', $saved['uxstudio_active_modules']['value'] === get_option( 'uxstudio_active_modules' ) && null === ImportSnapshot::get() );
 
