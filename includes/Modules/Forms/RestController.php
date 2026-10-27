@@ -10,7 +10,6 @@ namespace UxStudio\Modules\Forms;
 use UxStudio\Core\ActivityLog;
 use UxStudio\Modules\AiAssistant\UsageLimiter;
 use UxStudio\Modules\BotThrottle\Guard;
-use UxStudio\Modules\SecurityOptimization\CaptchaVerifier;
 use UxStudio\Rest\Controller;
 use WP_Error;
 use WP_REST_Request;
@@ -81,6 +80,10 @@ final class RestController extends Controller {
 		$this->route( '/forms/(?P<id>\d+)/ai-generate', 'POST', array( $this, 'ai_generate' ), $this->id_arg(), $cap );
 		// Can the generator run here (module on, API key set)? Reads settings only, never calls the AI.
 		$this->route( '/forms/ai-status', 'GET', array( $this, 'ai_status' ), array(), $cap );
+		// Which CAPTCHA the field uses (FormsCaptcha) and the button that fetches keys from the central application.
+		// Provisioning writes the site-wide CAPTCHA keys of the Security module, so it needs manage_options.
+		$this->route( '/forms/captcha/status', 'GET', array( $this, 'captcha_status' ), array(), $cap );
+		$this->route( '/forms/captcha/provision', 'POST', array( $this, 'captcha_provision' ), array(), 'manage_options' );
 
 		$this->route( '/forms/submissions', 'GET', array( $this, 'list_submissions' ), array(), $cap );
 		$this->route( '/forms/submissions/export', 'GET', array( $this, 'export_submissions' ), array(), $cap );
@@ -227,6 +230,21 @@ final class RestController extends Controller {
 	// =====================================================================
 	// AI-assisted field generation (PLAN.md 20.11/F3)
 	// =====================================================================
+
+	public function captcha_status(): WP_REST_Response {
+		return $this->ok( FormsCaptcha::status() );
+	}
+
+	/**
+	 * POST forms/captcha/provision: keys for this site from the central application. The error text of the central
+	 * application is passed on as it is; no secret ever leaves in a response.
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function captcha_provision() {
+		$result = FormsCaptcha::provision();
+		return is_wp_error( $result ) ? $result : $this->ok( $result );
+	}
 
 	public function ai_status(): WP_REST_Response {
 		return $this->ok( Module::ai_status() );
@@ -386,8 +404,11 @@ final class RestController extends Controller {
 			return new WP_Error( 'uxstudio_forms_not_found', __( 'This form is not available.', 'ux-studio' ), array( 'status' => 404 ) );
 		}
 
-		if ( $this->form_has_captcha( $form ) && ! $this->verify_captcha() ) {
-			return new WP_Error( 'uxstudio_forms_captcha', __( 'Spam verification failed, please try again.', 'ux-studio' ), array( 'status' => 422 ) );
+		if ( $this->form_has_captcha( $form ) ) {
+			$why = FormsCaptcha::verify( (int) $form['id'] );
+			if ( '' !== $why ) {
+				return new WP_Error( 'uxstudio_forms_captcha', $why, array( 'status' => 422 ) );
+			}
 		}
 
 		$raw_data = $request->get_param( 'data' );
@@ -436,28 +457,5 @@ final class RestController extends Controller {
 			}
 		}
 		return false;
-	}
-
-	/**
-	 * Real verification against SecurityOptimization\CaptchaVerifier (PLAN.md
-	 * 20.11/F2) - only actually enforced when Security Optimization's own
-	 * `captcha_enabled` toggle is on AND a provider is configured; otherwise
-	 * fails open (a `captcha` field with no configured provider must never
-	 * itself block every submission - the field's presence alone isn't a
-	 * promise of protection, same reasoning as CaptchaVerifier's own outage
-	 * fail-open).
-	 */
-	private function verify_captcha(): bool {
-		if ( ! class_exists( \UxStudio\Modules\SecurityOptimization\Module::class ) ) {
-			return true; // Module not installed - nothing to verify against.
-		}
-		$module = \UxStudio\Plugin::instance()->modules->instance( 'security-optimization' );
-		if ( ! $module instanceof \UxStudio\Modules\SecurityOptimization\Module ) {
-			return true;
-		}
-		if ( ! $module->setting( 'captcha_enabled', false ) || ! CaptchaVerifier::is_configured( $module ) ) {
-			return true;
-		}
-		return CaptchaVerifier::verify_token( $module );
 	}
 }

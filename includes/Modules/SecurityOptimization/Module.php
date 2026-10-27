@@ -50,6 +50,9 @@ final class Module extends BaseModule {
 	private ?IpBanManager $ip_ban_manager    = null;
 	private ?HtaccessWriter $htaccess_writer = null;
 
+	/** @var array{setting:string,own_provider:string,connected:bool,has_keys:bool,ca_keys:bool,own_keys:bool}|null */
+	private ?array $captcha_state_cache = null;
+
 	/**
 	 * Register hooks.
 	 */
@@ -188,6 +191,9 @@ final class Module extends BaseModule {
 			}
 			// Comments and WooCommerce forms: not part of wp-login.php, so independent of the placement.
 			new CaptchaForms( $this );
+			// The Shield makes the next puzzle of an address harder after failed logins.
+			add_action( 'wp_login_failed', array( ShieldRuntime::class, 'record_login_failure' ), 10, 2 );
+			add_action( 'wp_login', array( ShieldRuntime::class, 'clear_login_failures' ), 10, 0 );
 		}
 
 		/* ── Two-step verification: last `authenticate` filter, so it must be hooked after the lockout and
@@ -364,6 +370,76 @@ final class Module extends BaseModule {
 
 	public function captcha_cf_api_token(): string {
 		return Security::get_secret( self::SECRET_CF_API_TOKEN );
+	}
+
+	/**
+	 * Does the module's option already hold any CAPTCHA setting? Such a site keeps the old default (Turnstile).
+	 */
+	private function has_captcha_settings(): bool {
+		foreach ( array_keys( $this->settings->all() ) as $key ) {
+			if ( 0 === strpos( (string) $key, 'captcha_' ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Default of `captcha_provider`: Automatic for an install that never stored a CAPTCHA setting, Turnstile (the
+	 * default before the Shield existed) for every site that did, so no existing site changes behaviour.
+	 */
+	public function captcha_default_provider(): string {
+		return $this->has_captcha_settings() ? 'turnstile' : 'auto';
+	}
+
+	/**
+	 * What the CAPTCHA resolver needs to know about this site, read once per request.
+	 *
+	 * @return array{setting:string,own_provider:string,connected:bool,has_keys:bool,ca_keys:bool,own_keys:bool}
+	 */
+	public function captcha_state(): array {
+		if ( null !== $this->captcha_state_cache ) {
+			return $this->captcha_state_cache;
+		}
+		$stored   = $this->settings->get( 'captcha_provider', null );
+		$own      = (string) $this->settings->get( 'captcha_own_provider', 'turnstile' );
+		$has_keys = '' !== trim( (string) $this->settings->get( 'captcha_site_key', '' ) ) && '' !== trim( $this->captcha_secret_key() );
+		$linked   = TurnstileCaProvisioner::is_connected();
+		$flags    = CaptchaResolver::key_flags( $has_keys, (string) $this->settings->get( 'captcha_key_source', 'manual' ), $linked );
+
+		$this->captcha_state_cache = array(
+			'setting'      => CaptchaResolver::setting( $stored, $this->has_captcha_settings() ),
+			'own_provider' => in_array( $own, CaptchaResolver::KEY_PROVIDERS, true ) ? $own : 'turnstile',
+			'connected'    => $linked,
+			'has_keys'     => $has_keys,
+			'ca_keys'      => $flags['ca_keys'],
+			'own_keys'     => $flags['own_keys'],
+		);
+		return $this->captcha_state_cache;
+	}
+
+	/**
+	 * Store a key pair in the ONE place all CAPTCHA keys live (site key in the module option, secret encrypted), so
+	 * the login forms and the Forms module share it and nothing is provisioned twice.
+	 *
+	 * @param string $site_key   Public key.
+	 * @param string $secret_key Secret key.
+	 * @param string $source     manual | ca | self_api.
+	 */
+	public function store_captcha_keys( string $site_key, string $secret_key, string $source ): void {
+		Security::store_secret( self::SECRET_CAPTCHA, $secret_key );
+		$this->store_raw_setting( 'captcha_site_key', $site_key );
+		if ( in_array( $source, array( 'manual', 'ca', 'self_api' ), true ) ) {
+			$this->store_raw_setting( 'captcha_key_source', $source );
+		}
+		update_option( 'uxstudio_security_optimization_cf_registered_domain', home_url( '/' ) );
+		$this->flush_captcha_cache();
+	}
+
+	/** Forget what was worked out about the CAPTCHA in this request (keys or settings changed). */
+	public function flush_captcha_cache(): void {
+		$this->captcha_state_cache = null;
+		CaptchaVerifier::flush();
 	}
 
 	public function ip_ban_store(): IpBanStore {
@@ -794,12 +870,58 @@ final class Module extends BaseModule {
 				'section' => __( 'CAPTCHA', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'CAPTCHA provider', 'ux-studio' ),
+				'help'    => __( 'Automatic uses keys from the central application when the site is connected, then your own keys, and the key-less Shield when there are none. The Shield needs no account and no keys.', 'ux-studio' ),
+				'options' => array(
+					'auto'         => __( 'Automatic (keys if there are any, otherwise the Shield)', 'ux-studio' ),
+					'shield'       => __( 'UX Studio Shield (no keys)', 'ux-studio' ),
+					'turnstile'    => __( 'Cloudflare Turnstile', 'ux-studio' ),
+					'recaptcha_v2' => __( 'Google reCAPTCHA v2 (checkbox)', 'ux-studio' ),
+					'recaptcha_v3' => __( 'Google reCAPTCHA v3 (score)', 'ux-studio' ),
+				),
+				// A site that already stores CAPTCHA settings keeps Turnstile; only a fresh install starts on Automatic.
+				'default' => $this->captcha_default_provider(),
+			),
+			array(
+				'key'     => 'captcha_own_provider',
+				'section' => __( 'CAPTCHA', 'ux-studio' ),
+				'type'    => 'select',
+				'label'   => __( 'Type of your own keys', 'ux-studio' ),
+				'help'    => __( 'Only for Automatic: which service the keys below belong to.', 'ux-studio' ),
 				'options' => array(
 					'turnstile'    => __( 'Cloudflare Turnstile', 'ux-studio' ),
 					'recaptcha_v2' => __( 'Google reCAPTCHA v2 (checkbox)', 'ux-studio' ),
 					'recaptcha_v3' => __( 'Google reCAPTCHA v3 (score)', 'ux-studio' ),
 				),
 				'default' => 'turnstile',
+			),
+			array(
+				'key'     => 'captcha_shield_level',
+				'section' => __( 'CAPTCHA', 'ux-studio' ),
+				'type'    => 'select',
+				'label'   => __( 'Shield difficulty', 'ux-studio' ),
+				'help'    => __( 'How much computing the browser of the visitor does before the form is accepted. Medium takes a fraction of a second on a computer and about a second on an older phone.', 'ux-studio' ),
+				'options' => array(
+					'easy'   => __( 'Easy', 'ux-studio' ),
+					'medium' => __( 'Medium (default)', 'ux-studio' ),
+					'hard'   => __( 'Hard', 'ux-studio' ),
+				),
+				'default' => CaptchaShield::DEFAULT_LEVEL,
+			),
+			array(
+				'key'     => 'captcha_shield_adaptive',
+				'section' => __( 'CAPTCHA', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Make the Shield harder after failed logins', 'ux-studio' ),
+				'help'    => __( 'An address with recent failed logins (the threshold below) gets the next harder difficulty for 15 minutes.', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
+				'key'     => 'captcha_shield_min_time',
+				'section' => __( 'CAPTCHA', 'ux-studio' ),
+				'type'    => 'number',
+				'label'   => __( 'Shield minimum time (seconds)', 'ux-studio' ),
+				'help'    => __( 'A form answered sooner than this after the check started is refused, because a script is faster than a person. The page waits by itself, so a real visitor is never turned away. 0 switches the rule off (0 to 10).', 'ux-studio' ),
+				'default' => 1.2,
 			),
 			array(
 				'key'     => 'captcha_recaptcha_v3_threshold',
@@ -1305,6 +1427,9 @@ final class Module extends BaseModule {
 		unset( $input['captcha_cf_api_token'] );
 
 		$input = $this->maybe_provision_captcha_keys( $input );
+		if ( array_key_exists( 'captcha_shield_min_time', $input ) ) {
+			$input['captcha_shield_min_time'] = round( max( 0.0, min( 10.0, (float) $input['captcha_shield_min_time'] ) ), 1 );
+		}
 
 		if ( array_key_exists( 'captcha_adaptive_threshold', $input ) ) {
 			$input['captcha_adaptive_threshold'] = max( 1, min( 20, (int) $input['captcha_adaptive_threshold'] ) );
@@ -1339,6 +1464,7 @@ final class Module extends BaseModule {
 		}
 
 		$result = parent::save_settings( $input );
+		$this->flush_captcha_cache();
 
 		if ( null !== $custom_patterns ) {
 			$this->store_raw_setting( 'upload_guard_custom_patterns', $custom_patterns );

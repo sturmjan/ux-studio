@@ -64,15 +64,15 @@ final class CaptchaForms {
 			add_filter( 'rest_pre_insert_comment', array( $this, 'verify_rest_comment' ), 5, 2 );
 		}
 		if ( in_array( 'woo_login', $forms, true ) ) {
-			add_action( 'woocommerce_login_form', array( $this, 'widget' ) );
+			add_action( 'woocommerce_login_form', fn() => $this->widget( 'woo_login' ) );
 			add_filter( 'woocommerce_process_login_errors', array( $this, 'verify_woo_errors' ), 5 );
 		}
 		if ( in_array( 'woo_register', $forms, true ) ) {
-			add_action( 'woocommerce_register_form', array( $this, 'widget' ) );
+			add_action( 'woocommerce_register_form', fn() => $this->widget( 'woo_register' ) );
 			add_filter( 'woocommerce_process_registration_errors', array( $this, 'verify_woo_errors' ), 5 );
 		}
 		if ( in_array( 'woo_lostpassword', $forms, true ) ) {
-			add_action( 'woocommerce_lostpassword_form', array( $this, 'widget' ) );
+			add_action( 'woocommerce_lostpassword_form', fn() => $this->widget( 'woo_lostpassword' ) );
 			add_action( 'lostpassword_post', array( $this, 'verify_woo_lostpassword' ), 4, 1 );
 		}
 		if ( in_array( 'woo_checkout', $forms, true ) ) {
@@ -90,13 +90,13 @@ final class CaptchaForms {
 	/**
 	 * Print the widget (frontend, visitors only).
 	 */
-	public function widget(): void {
+	public function widget( string $context = 'comment' ): void {
 		if ( is_admin() || is_user_logged_in() ) {
 			return;
 		}
 		$this->rendered = true;
 		CaptchaVerifier::enqueue_provider_script( $this->module );
-		CaptchaVerifier::render_widget( $this->module );
+		CaptchaVerifier::render_widget( $this->module, $context );
 	}
 
 	/**
@@ -106,7 +106,7 @@ final class CaptchaForms {
 	 */
 	public function comment_widget( $submit_field ): string {
 		ob_start();
-		$this->widget();
+		$this->widget( 'comment' );
 		return ob_get_clean() . (string) $submit_field;
 	}
 
@@ -114,7 +114,7 @@ final class CaptchaForms {
 	 * Widget on the classic checkout, outside the part WooCommerce re-renders on every change of the order.
 	 */
 	public function checkout_widget(): void {
-		$this->widget();
+		$this->widget( 'woo_checkout' );
 	}
 
 	/**
@@ -133,6 +133,7 @@ final class CaptchaForms {
 		(function () {
 			var reset = function () {
 				if ( window.turnstile && typeof window.turnstile.reset === 'function' ) { window.turnstile.reset(); }
+				if ( window.UxStudioShield ) { window.UxStudioShield.reset(); }
 				if ( window.grecaptcha && typeof window.grecaptcha.reset === 'function' ) { try { window.grecaptcha.reset(); } catch ( e ) {} }
 			};
 			if ( window.jQuery ) { window.jQuery( document.body ).on( 'checkout_error', reset ); }
@@ -154,7 +155,7 @@ final class CaptchaForms {
 	 * Comment form: before WordPress processes the comment.
 	 */
 	public function verify_comment(): void {
-		if ( is_user_logged_in() || CaptchaVerifier::verify_token( $this->module ) ) {
+		if ( is_user_logged_in() || CaptchaVerifier::verify_token( $this->module, null, 'comment' ) ) {
 			return;
 		}
 		wp_die(
@@ -180,7 +181,7 @@ final class CaptchaForms {
 			return $prepared;
 		}
 		$token = (string) $request->get_param( CaptchaVerifier::token_field( $this->module ) );
-		if ( CaptchaVerifier::verify_token( $this->module, sanitize_text_field( $token ) ) ) {
+		if ( CaptchaVerifier::verify_token( $this->module, sanitize_text_field( $token ), 'comment' ) ) {
 			return $prepared;
 		}
 		return new WP_Error( 'uxstudio_captcha_failed', $this->failed_text(), array( 'status' => 403 ) );
@@ -195,7 +196,7 @@ final class CaptchaForms {
 		if ( ! ( $errors instanceof WP_Error ) || is_user_logged_in() ) {
 			return $errors;
 		}
-		if ( ! CaptchaVerifier::verify_token( $this->module ) ) {
+		if ( ! CaptchaVerifier::verify_token( $this->module, null, isset( $_POST['register'] ) ? 'woo_register' : 'woo_login' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$errors->add( 'uxstudio_captcha_failed', $this->failed_text() );
 		}
 		return $errors;
@@ -211,7 +212,7 @@ final class CaptchaForms {
 		if ( ! ( $errors instanceof WP_Error ) || ! isset( $_POST['wc_reset_password'] ) || is_user_logged_in() ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			return;
 		}
-		if ( ! CaptchaVerifier::verify_token( $this->module ) ) {
+		if ( ! CaptchaVerifier::verify_token( $this->module, null, 'woo_lostpassword' ) ) {
 			$errors->add( 'uxstudio_captcha_failed', $this->failed_text() );
 		}
 	}
@@ -220,7 +221,7 @@ final class CaptchaForms {
 	 * Classic checkout: an error notice stops the order.
 	 */
 	public function verify_checkout(): void {
-		if ( is_user_logged_in() || CaptchaVerifier::verify_token( $this->module ) ) {
+		if ( is_user_logged_in() || CaptchaVerifier::verify_token( $this->module, null, 'woo_checkout' ) ) {
 			return;
 		}
 		if ( function_exists( 'wc_add_notice' ) ) {
