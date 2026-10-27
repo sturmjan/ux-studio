@@ -34,9 +34,16 @@ final class WidgetSnapshot {
 	 */
 	public static function read(): array {
 		$snap = get_option( self::OPTION, array() );
+		$widgets = is_array( $snap ) && is_array( $snap['widgets'] ?? null ) ? $snap['widgets'] : array();
+		foreach ( $widgets as $id => $widget ) {
+			// Snapshots written before the titles were normalised may still hold markup.
+			if ( is_array( $widget ) ) {
+				$widgets[ $id ]['title'] = WidgetRules::clean_title( $widget['title'] ?? '', (string) $id );
+			}
+		}
 		return array(
 			'scan_at' => is_array( $snap ) ? (int) ( $snap['scan_at'] ?? 0 ) : 0,
-			'widgets' => is_array( $snap ) && is_array( $snap['widgets'] ?? null ) ? $snap['widgets'] : array(),
+			'widgets' => $widgets,
 		);
 	}
 
@@ -64,10 +71,9 @@ final class WidgetSnapshot {
 						if ( ! is_array( $box ) || RoleWidgets::WELCOME_ID === (string) $id ) {
 							continue; // Removed by remove_meta_box() (false), or the welcome panel with its own tab.
 						}
-						$title = trim( html_entity_decode( wp_strip_all_tags( (string) ( $box['title'] ?? '' ) ), ENT_QUOTES, 'UTF-8' ) );
 						$src   = self::source( $box['callback'] ?? null );
 						$seen[ (string) $id ] = array(
-							'title'       => '' !== $title ? mb_substr( $title, 0, 160 ) : (string) $id,
+							'title'       => WidgetRules::clean_title( $box['title'] ?? '', (string) $id ),
 							'context'     => (string) $context,
 							'priority'    => (string) $priority,
 							'source'      => $src['source'] . ( '' !== $src['folder'] ? ':' . $src['folder'] : '' ),

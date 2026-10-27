@@ -74,6 +74,38 @@ final class WidgetRules {
 	}
 
 	/**
+	 * The plain name of a widget from the title it was registered with (which may carry icons and secondary labels).
+	 * Icons (img, svg, picture, dashicons), screen reader text, labels hidden without JavaScript and title actions are
+	 * removed with their text, other tags are stripped, entities decoded, whitespace collapsed. Empty result = the id.
+	 *
+	 * @param mixed  $title    Registered title (HTML).
+	 * @param string $fallback Widget id.
+	 */
+	public static function clean_title( $title, string $fallback ): string {
+		$html = is_string( $title ) ? $title : '';
+		$html = (string) preg_replace( '#<(svg|picture)\b[^>]*>.*?</\1\s*>#is', ' ', $html );
+		$html = (string) preg_replace( '#<img\b[^>]*>#i', ' ', $html );
+		// Core's Quick Draft is `<span class="hide-if-no-js">Quick Draft</span> <span class="hide-if-js">Your Recent Drafts</span>`:
+		// the label shown without JavaScript is dropped, and a "no JavaScript" label only when other text names the widget.
+		$drop = static function ( string $source, string $classes ): string {
+			return (string) preg_replace( '#<([a-z0-9]+)\b[^>]*\bclass\s*=\s*(["\'])[^"\']*\b(?:' . $classes . ')\b[^"\']*\2[^>]*>.*?</\1\s*>#is', ' ', $source );
+		};
+		$plain = static function ( string $source ): string {
+			$text = html_entity_decode( strip_tags( $source ), ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+			// Emoji used as an icon (WordPress turns them into images on the admin screens).
+			$text = (string) preg_replace( '/[\x{1F000}-\x{1FFFF}\x{2190}-\x{21FF}\x{2300}-\x{23FF}\x{2600}-\x{27BF}\x{2B00}-\x{2BFF}\x{FE0F}\x{200D}]/u', '', $text );
+			return trim( (string) preg_replace( '/\s+/u', ' ', $text ) );
+		};
+		$html = $drop( $html, 'dashicons[\w-]*|screen-reader-text|postbox-title-action|hide-if-js' );
+		$text = $plain( $drop( $html, 'hide-if-no-js' ) );
+		if ( '' === $text ) {
+			$text = $plain( $html );
+		}
+		$text = function_exists( 'mb_substr' ) ? mb_substr( $text, 0, 160 ) : substr( $text, 0, 160 );
+		return '' !== $text ? $text : $fallback;
+	}
+
+	/**
 	 * Boolean from the loose values a form or a file may carry.
 	 *
 	 * @param mixed $value Raw value.
@@ -364,7 +396,7 @@ final class WidgetRules {
 			$old            = is_array( $widgets[ $id ] ?? null ) ? $widgets[ $id ] : array();
 			$widgets[ $id ] = array(
 				'id'          => $id,
-				'title'       => (string) ( $info['title'] ?? '' ),
+				'title'       => self::clean_title( $info['title'] ?? '', $id ),
 				'context'     => (string) ( $info['context'] ?? 'normal' ),
 				'priority'    => (string) ( $info['priority'] ?? 'core' ),
 				'source'      => (string) ( $info['source'] ?? 'unknown' ),

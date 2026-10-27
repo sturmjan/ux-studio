@@ -166,6 +166,19 @@ $assert( 'needs_write: only the times changed = no write', ! W::needs_write( $sn
 $assert( 'needs_write: a new widget = write', W::needs_write( $snap, W::merge_snapshot( $snap, $seen + array( 'new' => array( 'title' => 'N' ) ), 1100 ), 3600 ) );
 $assert( 'needs_write: an old scan is written anyway', W::needs_write( $snap, W::merge_snapshot( $snap, $seen, 5000 ), 3600 ) );
 
+/* ── Titles ── */
+$assert( 'title: icon image and text (AI Panel)', 'AI Panel - vzdálený přístup' === W::clean_title( '<img src="https://x.test/i.png" alt="" width="16"> <span class="dashicons dashicons-shield"></span> AI Panel - vzdálený přístup', 'claude_panel_dashboard_widget' ) );
+$assert( 'title: Quick Draft secondary label is dropped with its text', 'Rychlý koncept' === W::clean_title( 'Rychlý koncept <span class="hide-if-no-js">Nejnovější koncepty</span>', 'dashboard_quick_press' ) );
+$assert( 'title: only an icon falls back to the id', 'my_box' === W::clean_title( '<svg width="1"><path d="M0"/></svg><img src="x.png">', 'my_box' ) && 'my_box' === W::clean_title( '<span class="dashicons dashicons-admin-home"></span>', 'my_box' ) && 'my_box' === W::clean_title( null, 'my_box' ) );
+$assert( 'title: screen reader text, actions, other tags, entities and whitespace', 'Yoast & SEO' === W::clean_title( "  <b>Yoast</b>
+ &amp;  SEO <span class='screen-reader-text'>hidden</span><a class=\"postbox-title-action\" href=\"#\">Edit</a> ", 'x' ) );
+$assert( 'title: plain text stays', 'At a Glance' === W::clean_title( 'At a Glance', 'x' ) );
+$assert( 'title: merge_snapshot stores the clean title', 'Rychlý koncept' === W::merge_snapshot( array(), array( 'q' => array( 'title' => 'Rychlý koncept <span class="hide-if-no-js">Nejnovější</span>' ) ), 5 )['widgets']['q']['title'] );
+
+$assert( 'title: real core Quick Draft keeps the name and drops the no-JavaScript label', 'Rychlý koncept' === W::clean_title( '<span class="hide-if-no-js">Rychlý koncept</span> <span class="hide-if-js">Nejnovější koncepty</span>', 'dashboard_quick_press' ) );
+
+$assert( 'title: an emoji used as an icon is removed', 'AI Panel - vzdálený přístup' === W::clean_title( "\u{1F6E1}\u{FE0F} AI Panel - vzdálený přístup", 'x' ) && 'x' === W::clean_title( "\u{1F916}", 'x' ) );
+
 /* ── Where the code of a widget lives ── */
 $dirs = array(
 	'plugins'    => 'D:/xampp/htdocs/pobyty/wp-content/plugins',
