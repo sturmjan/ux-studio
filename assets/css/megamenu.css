@@ -246,3 +246,242 @@ body.auto-fold .uxstudio-megamenu__panel {
 	-webkit-box-orient: vertical;
 	overflow: hidden;
 }
+
+/* ---- Icons, view switch, list view (0.9.2) ---- */
+
+/* 46 px controls in the header (DESIGN.md) */
+.uxstudio-megamenu__all-link {
+	min-height: 46px;
+	box-sizing: border-box;
+	padding-block: 0;
+}
+
+.uxstudio-megamenu__close {
+	width: 46px;
+	height: 46px;
+}
+
+.uxstudio-megamenu__header {
+	flex-wrap: wrap;
+}
+
+.uxstudio-megamenu__views {
+	display: inline-flex;
+	margin-left: auto;
+	height: 46px;
+	box-sizing: border-box;
+	padding: 4px;
+	gap: 2px;
+	border-radius: var(--uxs-radius);
+	background: var(--uxs-surface-2);
+	border: 1px solid var(--uxs-border);
+}
+
+.uxstudio-megamenu__views + .uxstudio-megamenu__all-link {
+	margin-left: 0;
+}
+
+.uxstudio-megamenu__view {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	height: 100%;
+	padding: 0 var(--uxs-sp-3);
+	border: 0;
+	border-radius: var(--uxs-radius-s);
+	background: transparent;
+	color: var(--uxs-text-soft);
+	font: inherit;
+	font-size: var(--uxs-fs);
+	font-weight: 600;
+	cursor: pointer;
+	transition: background 0.2s, color 0.2s;
+}
+
+.uxstudio-megamenu__view:hover {
+	color: var(--uxs-text);
+}
+
+.uxstudio-megamenu__view[aria-checked="true"] {
+	background: var(--uxs-surface);
+	color: var(--uxs-brand);
+	box-shadow: 0 1px 2px rgb(16 24 40 / 12%);
+}
+
+.uxstudio-megamenu__view:focus-visible,
+.uxstudio-megamenu__close:focus-visible,
+.uxstudio-megamenu__all-link:focus-visible,
+.uxstudio-megamenu__card:focus-visible,
+.uxstudio-megamenu__subgroup-head:focus-visible {
+	outline: 2px solid var(--uxs-brand);
+	outline-offset: 2px;
+}
+
+.uxstudio-megamenu__icon {
+	flex-shrink: 0;
+	width: 20px;
+	height: 20px;
+}
+
+.uxstudio-megamenu__view .uxstudio-megamenu__icon {
+	width: 18px;
+	height: 18px;
+}
+
+/* Card: icon on the left, text beside it */
+.uxstudio-megamenu__card {
+	flex-direction: row;
+	align-items: flex-start;
+	gap: var(--uxs-sp-3);
+}
+
+.uxstudio-megamenu__card-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	width: 40px;
+	height: 40px;
+	border-radius: var(--uxs-radius);
+	background: var(--uxs-surface-2);
+	color: var(--uxs-brand);
+}
+
+.uxstudio-megamenu__card-text {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+	flex: 1;
+}
+
+.uxstudio-megamenu__card-chevron {
+	display: none;
+	color: var(--uxs-text-soft);
+}
+
+/* Group of features (e.g. Dashboard): own heading, its features below */
+.uxstudio-megamenu__subgroup {
+	grid-column: 1 / -1;
+	display: flex;
+	flex-direction: column;
+	gap: var(--uxs-sp-2);
+}
+
+.uxstudio-megamenu__subgroup-head {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--uxs-sp-2);
+	align-self: flex-start;
+	min-height: 32px;
+	padding: 0 var(--uxs-sp-2);
+	border-radius: var(--uxs-radius-s);
+	color: var(--uxs-text);
+	font-size: var(--uxs-fs-m);
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.uxstudio-megamenu__subgroup-head:hover {
+	color: var(--uxs-brand);
+	text-decoration: none;
+}
+
+.uxstudio-megamenu__subgroup-head .uxstudio-megamenu__icon {
+	color: var(--uxs-brand);
+}
+
+/* List view: one module per row */
+#uxstudio-megamenu[data-view="list"] .uxstudio-megamenu__grid {
+	grid-template-columns: 1fr;
+	gap: var(--uxs-sp-2);
+}
+
+#uxstudio-megamenu[data-view="list"] .uxstudio-megamenu__subgroup {
+	gap: var(--uxs-sp-2);
+}
+
+#uxstudio-megamenu[data-view="list"] .uxstudio-megamenu__subgroup > .uxstudio-megamenu__grid {
+	padding-left: var(--uxs-sp-5);
+}
+
+#uxstudio-megamenu[data-view="list"] .uxstudio-megamenu__card {
+	align-items: center;
+	min-height: 46px;
+	padding: 6px var(--uxs-sp-4) 6px var(--uxs-sp-3);
+}
+
+#uxstudio-megamenu[data-view="list"] .uxstudio-megamenu__card-icon {
+	width: 32px;
+	height: 32px;
+}
+
+#uxstudio-megamenu[data-view="list"] .uxstudio-megamenu__card-text {
+	flex-direction: row;
+	align-items: baseline;
+	gap: var(--uxs-sp-3);
+}
+
+#uxstudio-megamenu[data-view="list"] .uxstudio-megamenu__card-name {
+	flex-shrink: 0;
+	min-width: 12ch;
+}
+
+#uxstudio-megamenu[data-view="list"] .uxstudio-megamenu__card-desc {
+	display: block;
+	flex: 1;
+	min-width: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+#uxstudio-megamenu[data-view="list"] .uxstudio-megamenu__card-chevron {
+	display: inline-flex;
+}
+
+#uxstudio-megamenu[data-view="list"] .uxstudio-megamenu__card:hover,
+#uxstudio-megamenu[data-view="list"] .uxstudio-megamenu__card:focus {
+	transform: none;
+}
+
+/* Narrow: icon-only switch, rows stack name over description */
+@media screen and (max-width: 782px) {
+	.uxstudio-megamenu__view-label {
+		display: none;
+	}
+
+	.uxstudio-megamenu__view {
+		padding: 0 var(--uxs-sp-3);
+	}
+
+	.uxstudio-megamenu__header {
+		padding: var(--uxs-sp-3) var(--uxs-sp-4);
+		gap: var(--uxs-sp-2);
+	}
+
+	.uxstudio-megamenu__body {
+		padding: var(--uxs-sp-4);
+	}
+
+	#uxstudio-megamenu[data-view="list"] .uxstudio-megamenu__card-text {
+		flex-direction: column;
+		gap: 0;
+	}
+
+	#uxstudio-megamenu[data-view="list"] .uxstudio-megamenu__card-name {
+		min-width: 0;
+	}
+
+	#uxstudio-megamenu[data-view="list"] .uxstudio-megamenu__subgroup > .uxstudio-megamenu__grid {
+		padding-left: var(--uxs-sp-3);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.uxstudio-megamenu__panel,
+	.uxstudio-megamenu__backdrop,
+	.uxstudio-megamenu__card {
+		transition: none;
+	}
+}
