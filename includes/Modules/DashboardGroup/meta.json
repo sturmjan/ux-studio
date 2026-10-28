@@ -1,0 +1,10 @@
+{
+	"id": "dashboard",
+	"name": "Dashboard",
+	"description": "Widgets on the admin dashboard and the quick Add New button in the editor. Each part can be switched on separately.",
+	"group": "content",
+	"icon": "layout-dashboard",
+	"settings": true,
+	"virtual": true,
+	"children": [ "dashboard-widgets", "quick-add-post" ]
+}
