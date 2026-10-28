@@ -203,7 +203,11 @@ $hw = $by_id( array( 'site_name' => 'Hotel Alfa', 'login_logo_id' => 77 ) )['hid
 $ac = $hw['settings']['admin-customiser'];
 $assert( 'hide WordPress: admin bar logo hidden, footer = site name, help tab hidden, login branding on with the site logo', array( 'wp_logo' ) === $ac['hide_admin_bar_elements'] && 'Hotel Alfa' === $ac['admin_footer_text'] && true === $ac['hide_help_tab'] && true === $ac['login_customization_enabled'] && 77 === $ac['login_logo'] );
 $assert( 'hide WordPress: the WordPress version in the admin footer is hidden too', true === $ac['hide_footer_version'] );
-$assert( 'hide WordPress: the quick search that comes with the module is switched off', false === $ac['quick_search_enabled'] );
+$assert( 'hide WordPress: it no longer decides about the quick search (own item)', ! array_key_exists( 'quick_search_enabled', $ac ) );
+$qs = array_values( array_filter( $items, static fn( $i ) => 'quick-search' === $i['id'] ) )[0] ?? array();
+$assert( 'quick search: its own item, checked by default, switches the quick search on', ! empty( $qs ) && ! empty( $qs['checked'] ) && true === ( $qs['settings']['admin-customiser']['quick_search_enabled'] ?? null ) && 1 === count( $qs['settings']['admin-customiser'] ) );
+$an = array_values( array_filter( $items, static fn( $i ) => 'admin-notices' === $i['id'] ) )[0] ?? array();
+$assert( 'admin notices: its own item, checked by default, moves the notices into the bell panel (relocate, not hide)', ! empty( $an ) && ! empty( $an['checked'] ) && true === ( $an['settings']['admin-customiser']['hide_notices_enabled'] ?? null ) && true === ( $an['settings']['admin-customiser']['hide_notices_relocate'] ?? null ) && 2 === count( $an['settings']['admin-customiser'] ) );
 $assert( 'hide WordPress: generator and head links in Security', true === $hw['settings']['security-optimization']['hide_wp_head_links'] && true === $hw['settings']['security-optimization']['hide_wp_version'] );
 $nl = $by_id( array() )['hide-wordpress'];
 $assert( 'hide WordPress: no logo = no login_logo key and a warning', ! isset( $nl['settings']['admin-customiser']['login_logo'] ) && in_array( 'no_logo', array_column( $nl['warnings'], 'code' ), true ) );

@@ -2,8 +2,26 @@
     'use strict';
 
     // Success messages ("Post updated.") and form feedback stay where they are; only real notices move into the tray.
+    // A green notice counts as feedback only on a screen that is the RESULT of an action (the address carries the usual
+    // result arguments: settings-updated, updated, message, activate, deleted ...). Without them a green notice is a
+    // plugin's own message ("WP Rocket is good to go!", offers, tips) and moves into the tray like any other.
     // The UX Studio PHP version notice is critical and always stays on the page.
-    var NOTICE_EXCLUDE_SELECTOR = ':not(#message):not(.below-h2):not(.notice-success):not(.settings-error):not(#uxstudio-php-version-notice)';
+    var RESULT_ARG = /^(settings-)?updated$|saved|activate|deactivate|delete|trash|message|success|done|import|export|^ids$|locked|skipped|bulk_/i;
+    function isResultScreen() {
+        // PHP knows the original address (WordPress removes its result arguments from the address bar early).
+        var fromPhp = window.uxstudioNoticesI18n && window.uxstudioNoticesI18n.resultScreen;
+        if (fromPhp === true || fromPhp === '1') return true;
+        try {
+            var found = false;
+            new URLSearchParams(window.location.search).forEach(function(value, key) {
+                if (RESULT_ARG.test(key)) found = true;
+            });
+            return found;
+        } catch (e) {
+            return true;
+        }
+    }
+    var NOTICE_EXCLUDE_SELECTOR = ':not(#message):not(.below-h2)' + (isResultScreen() ? ':not(.notice-success)' : '') + ':not(.settings-error):not(#uxstudio-php-version-notice)';
     var NOTICE_SELECTOR = [
         '.notice' + NOTICE_EXCLUDE_SELECTOR,
         '.error' + NOTICE_EXCLUDE_SELECTOR,
@@ -245,6 +263,69 @@
         send('/dismiss', { item: item, method: method });
     }
 
+    /**
+     * Press the plugin's own dismiss control without leaving the page.
+     *
+     * Many plugins dismiss with a plain link (`?dismiss=...`) or a small form. A real click would navigate, i.e. reload
+     * the screen. So the click is delivered (the plugin's script, if it listens to it, runs as usual), but the navigation
+     * or form submission is cancelled here; when no script of the plugin handled the click (nothing called
+     * preventDefault), the same address or form is sent in the background instead.
+     */
+    function runOriginalDismiss(original) {
+        var handled = false;
+        var guard = function(ev) {
+            if (ev.target !== original && !(original.contains && original.contains(ev.target))) return;
+            handled = ev.defaultPrevented;
+            ev.preventDefault();
+        };
+        document.addEventListener('click', guard, false);
+        try {
+            original.click();
+        } finally {
+            document.removeEventListener('click', guard, false);
+        }
+        if (handled) return;
+
+        var link = original.closest ? original.closest('a[href]') : null;
+        if (link) {
+            var href = link.getAttribute('href') || '';
+            if (href.charAt(0) !== '#' && !/^\s*javascript:/i.test(href)) {
+                backgroundRequest(link.href, { method: 'GET' });
+            }
+            return;
+        }
+        var form = original.form || (original.closest ? original.closest('form') : null);
+        if (form && (original.tagName === 'BUTTON' || original.tagName === 'INPUT') && original.type !== 'button') {
+            var method = (form.getAttribute('method') || 'GET').toUpperCase();
+            var target = form.action || window.location.href;
+            var data = null;
+            try {
+                data = new FormData(form, original);
+            } catch (e) {
+                data = new FormData(form);
+            }
+            if (method === 'GET') {
+                var query = new URLSearchParams(data).toString();
+                backgroundRequest(target + (target.indexOf('?') === -1 ? '?' : '&') + query, { method: 'GET' });
+            } else {
+                backgroundRequest(target, { method: 'POST', body: data });
+            }
+        }
+    }
+
+    /** Same-origin request in the background (cookies, no navigation); the answer is not needed. */
+    function backgroundRequest(url, options) {
+        try {
+            var target = new URL(url, window.location.href);
+            if (target.origin !== window.location.origin) return;
+            var init = { method: options.method, credentials: 'same-origin', redirect: 'follow' };
+            if (options.body) init.body = options.body;
+            window.fetch(target.href, init).catch(function() {});
+        } catch (e) {
+            // Nothing to do: the card is removed anyway and the notice shows again if the plugin did not take it.
+        }
+    }
+
     function buildCard(notice, key) {
         if (config) descByKey[key] = describe(notice, key);
         tidyNotice(notice);
@@ -282,7 +363,15 @@
             if (original) {
                 // The plugin keeps the dismissal itself: the history marks it as closed by the plugin.
                 reportDismiss(card, 'plugin');
-                original.click();
+                runOriginalDismiss(original);
+                // The plugin's script normally removes its notice (the card then goes away in cleanupPanel). If it does
+                // not, or only calls the server, the card must not stay behind.
+                window.setTimeout(function() {
+                    if (card.isConnected) {
+                        card.remove();
+                        refresh(false);
+                    }
+                }, 1200);
             } else {
                 // Only the panel hides it: the history remembers that and keeps it out of the panel until shown again.
                 reportDismiss(card, 'panel');

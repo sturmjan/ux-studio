@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.9.1
+
+- New - New-site wizard: two more items are switched on after the installation: "Quick search in the admin bar" and
+  "Tidy admin notices" (notices of plugins and WordPress move into the panel under the bell instead of staying on top of
+  every screen). Both can be unticked in the wizard. The "Hide WordPress" item no longer decides about the quick search.
+- Fixed - Admin notices panel: the cross of a notice no longer reloads the screen. Plugins that dismiss with a plain link
+  (`?dismiss=...`) or a small form used to make the browser follow the link; the dismissal is now sent in the background
+  and the card disappears at once (the plugin's own script still runs when it has one).
+- Changed - Admin notices panel: a green notice from a plugin ("WP Rocket is good to go!", offers, tips) now moves into
+  the panel too. A green notice stays on the page only on a screen that is the result of an action (settings saved,
+  plugin activated, item deleted ...); WordPress removes those arguments from the address bar early, so PHP decides.
+
 ## 0.9.0
 
 - Changed - Admin Customiser settings are laid out in cards. Every tab (Admin screens, Login page, Sidebar menu, Admin

@@ -104,6 +104,8 @@ final class StarterPack {
 			'update-emails',
 			'captcha-shield',
 			'hide-wordpress',
+			'quick-search',
+			'admin-notices',
 			'classic',
 			'clean-profiles',
 			'dashboard-widgets',
@@ -178,6 +180,25 @@ final class StarterPack {
 			self::update_emails( $env ),
 			self::captcha_shield( $env ),
 			self::hide_wordpress( $env ),
+			self::simple(
+				'quick-search',
+				__( 'Quick search in the admin bar', 'ux-studio' ),
+				__( 'One magnifier on the right of the admin bar (also Ctrl+K): type to find posts, pages, products, media, users, settings and UX Studio modules and jump straight to them. The command palette of WordPress stays one click away at the bottom of the results.', 'ux-studio' ),
+				array( 'admin-customiser' ),
+				array( 'admin-customiser' => array( 'quick_search_enabled' => true ) )
+			),
+			self::simple(
+				'admin-notices',
+				__( 'Tidy admin notices', 'ux-studio' ),
+				__( 'Plugins and WordPress show their notices at the top of every admin screen. They are moved into a panel under the bell in the admin bar instead of being hidden, so nothing gets lost and the screens stay clean. Closed notices stay readable in the notice history. The critical PHP warning always stays on the page.', 'ux-studio' ),
+				array( 'admin-customiser' ),
+				array(
+					'admin-customiser' => array(
+						'hide_notices_enabled'  => true,
+						'hide_notices_relocate' => true,
+					),
+				)
+			),
 			self::simple(
 				'classic',
 				__( 'Classic editor and widgets', 'ux-studio' ),
@@ -863,8 +884,6 @@ final class StarterPack {
 			'hide_admin_bar_elements' => array( 'wp_logo' ),
 			'hide_help_tab'           => true,
 			'hide_footer_version'     => true,
-			// Enabling the module also turns the admin quick search on by default; nobody asked for that here.
-			'quick_search_enabled'    => false,
 		);
 		if ( '' !== trim( (string) $env['site_name'] ) ) {
 			$admin['admin_footer_text'] = trim( (string) $env['site_name'] );
