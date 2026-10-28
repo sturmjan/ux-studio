@@ -743,6 +743,64 @@
 	border-bottom: 1px solid var(--uxs-border);
 }
 
+/* ---- Conditional fields and grouped cards of the generic settings form ---- */
+.uxs-reveal {
+	display: grid;
+	grid-template-rows: 0fr;
+	opacity: 0;
+	transition: grid-template-rows var(--uxs-motion) var(--uxs-ease), opacity var(--uxs-motion) var(--uxs-ease);
+
+	&.is-open { grid-template-rows: 1fr; opacity: 1; }
+
+	> .uxs-reveal__inner { min-height: 0; overflow: hidden; }
+	/* Once open, nothing is clipped (focus rings, dropdowns of the multi-select). */
+	&.is-settled > .uxs-reveal__inner { overflow: visible; }
+
+	@media (prefers-reduced-motion: reduce) { transition: none; }
+}
+
+.uxs-form .uxs-reveal:last-child > .uxs-reveal__inner > .uxs-form__row { border-bottom: none; }
+
+.uxs-groups {
+	display: flex;
+	flex-direction: column;
+	gap: var(--uxs-sp-4);
+	margin-bottom: var(--uxs-sp-4);
+}
+
+.uxs-form.uxs-group {
+	padding-block: 0;
+
+	.uxs-group__head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--uxs-sp-4);
+		width: 100%;
+		min-height: 46px;
+		padding: var(--uxs-sp-4) 0;
+		background: none;
+		border: 0;
+		border-radius: var(--uxs-radius-s);
+		color: var(--uxs-text);
+		font-family: var(--uxs-font);
+		text-align: left;
+		cursor: pointer;
+
+		&:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--uxs-brand-soft); }
+		&[aria-expanded="true"] .uxs-group__chevron { transform: rotate(180deg); }
+	}
+
+	.uxs-group__titles { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+	.uxs-group__title { font-size: var(--uxs-fs-m); font-weight: 600; }
+	.uxs-group__help { font-size: var(--uxs-fs); font-weight: 400; color: var(--uxs-text-soft); }
+	.uxs-group__chevron { flex: none; color: var(--uxs-text-soft); transition: transform var(--uxs-motion) var(--uxs-ease); }
+
+	.uxs-group__body { border-top: 1px solid var(--uxs-border); }
+
+	@media (prefers-reduced-motion: reduce) { .uxs-group__chevron { transition: none; } }
+}
+
 /* ---- Settings form (generic schema renderer) ---- */
 .uxs-form {
 	background: var(--uxs-surface);

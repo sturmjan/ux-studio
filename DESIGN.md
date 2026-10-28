@@ -88,3 +88,12 @@ společném chunku - žádná duplikace knihoven.
   s příponou ` UTC` se pozná sama. Jen datum bez času: `{ dateOnly: true }`.
 - V PHP (e-maily, widgety na nástěnce) `mysql2date( get_option( 'date_format' ), … )` nebo
   `wp_date()`, ne surový řetězec.
+
+## 12. Dlouhé formuláře: karty a podmíněná pole (2026-10-27)
+
+- Schématem řízený formulář (`SettingsFields`) kreslí pole s `group` jako karty s nadpisem a jednou větou popisu (hlavička je tlačítko s
+  `aria-expanded`, ovládací prvek min. 46 px). První karta a karty s nevýchozí hodnotou jsou otevřené, ostatní sbalené.
+- Pole, které platí jen při určité hodnotě jiného pole, má `show_if` (`equals` / `in` / `truthy`, seznam = AND, viz PLAN.md 36.2): kontrolní
+  přepínač stojí hned nad závislými poli, nesplněné pole se nevykreslí a jeho hodnota se nemění. Animace je `Reveal` (`--uxs-motion`),
+  s `prefers-reduced-motion` bez animace. Nové moduly to používají místo vlastního skrývání v `Page.tsx`.
+

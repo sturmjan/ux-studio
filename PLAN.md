@@ -3628,3 +3628,54 @@ Nález z chalupyroubal.cz: `login_logo` = logo šablony, které uživatel nezada
 - [x] Pravidlo, položka balíčku, odznak, náhled v nastavení, testy, překlad, QA na pobyty
 - [ ] Vydání 0.8.8 (verze, tag)
 - [ ] Ověřit na chalupyroubal.cz po aktualizaci (logo jen jednou; logo z balíčku si tam uživatel odebere sám)
+
+## 36. Úpravy administrace: karty a podmíněná pole (0.9.0)
+
+Požadavek: stránky Vzhled administrace jsou dlouhé ploché seznamy polí; rozdělit do sekcí a u výběru typu média (mp4 / YouTube) ukazovat jen pole,
+které patří k vybrané volbě.
+
+### 36.1 Nalezené problémy (před úpravou)
+
+- **Přihlašovací stránka**: 38 polí v jednom seznamu. Barvy (stránka, formulář, pole, tlačítko) pomíchané s rozvržením, zprávou, médiem a pozadím;
+  „Zapnout přizpůsobení“ uprostřed seznamu; obrázek, URL mp4 a YouTube vždy všechna tři naráz; pole rozdělené varianty vidět i u klasické;
+  obrázek pozadí vidět i u rozdělené (ten tam neplatí).
+- **Obrazovky administrace**: barvy, patička, skrývání prvků, rychlé hledání a upozornění v jednom seznamu; „typy obsahu pro hledání“ a
+  „potlačit oznámení o aktualizacích“ vidět i při vypnutém hlavním přepínači.
+- **Boční menu**: přepínač organizátoru, barvy, ikony a šířka pomíchané; zámek menu a vodorovné sloučení vidět bez organizátoru; barva ikon i při skrytých ikonách.
+- **Admin lišta**: logo a barvy se mísí s volbami „zapnout úpravy lišty“ a hodinami serveru; volby úpravy lišty vidět i při vypnutém přepínači.
+- **Vlastní CSS, Meta boxy**: bez vysvětlení, co která karta ovlivní.
+
+### 36.2 Formát `show_if`
+
+Volitelná vlastnost pole ve schématu (`settings_schema`), REST ji předá beze změny, vyhodnocuje ji `src/app/showIf.ts` (čistá funkce, test
+`tests/show-if.mjs`):
+
+```php
+'show_if' => array( 'key' => 'login_split_media_type', 'equals' => 'video' )               // rovná se (porovnání jako text)
+'show_if' => array( 'key' => 'login_split_media_type', 'in' => array( 'image', 'video' ) ) // jedna z hodnot
+'show_if' => array( 'key' => 'admin_bar_enabled', 'truthy' => true )                        // zapnuto / neprázdné (false = vypnuto / prázdné)
+'show_if' => array( cond1, cond2 )                                                          // seznam podmínek = všechny musí platit (AND)
+```
+
+Pole s nesplněnou podmínkou se nevykreslí (bez vstupu v DOM), uložená hodnota zůstane a odešle se, uloží i exportuje beze změny. Pole řízené
+skrytým polem je skryté také (řetěz). Zobrazení a skrytí je krátká animace (`Reveal`, `grid-template-rows`), bez ní při `prefers-reduced-motion`.
+Serverová validace a sanitizace se nemění. Karty: `group` (nadpis) a `group_help` (jedna věta) u pole, kartou je jedna skupina uvnitř záložky
+(`section`); karta, jejíž pole jsou všechna skrytá, se nevykreslí; první karta a karty s nevýchozí hodnotou začínají otevřené.
+
+### 36.3 Rozvržení Úprav administrace
+
+`includes/Modules/AdminCustomiser/SettingsLayout.php` je jediné místo (`plan()`): pořadí karet, jejich popisky a podmínky; `Module::settings_schema()` ho
+aplikuje na konec (`apply`), klíče, výchozí hodnoty a sanitizace se nemění. Odchylky od zadání, které vyplynuly ze čtení kódu: barvy a logo admin lišty
+**nezávisí** na „Zapnout úpravy lišty“ (řeší je `AdminTheme`, běží vždy), proto podmínku nemají; obrázek v rozdělené variantě se ukazuje i u videa
+(je to náhledový snímek videa); zámek menu nemá vlastní podřízená pole.
+
+### 36.4 Stav
+
+- [x] Vyhodnocovač `show_if` (TS, čistá funkce) + test `tests/show-if.mjs`
+- [x] `SettingsFields`: karty, rozbalování, `Reveal`, výchozí otevření
+- [x] Rozvržení Úprav administrace + testy `admin-customiser-layout.php`, `admin-customiser-layout-wp.php` (export / import drží skrytá pole)
+- [x] Český překlad popisků karet, QA v prohlížeči (světle i tmavě)
+- [ ] Obnovit výchozí u každé karty (vynecháno, hodnoty médií a barev mají různé „prázdné“ tvary)
+- [ ] Ostatní moduly s dlouhými formuláři převést na `group` / `show_if` (např. Zabezpečení, SMTP)
+- [ ] Vydání 0.9.0 (verze, PR, tag)
+
