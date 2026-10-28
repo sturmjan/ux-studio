@@ -3679,3 +3679,42 @@ aplikuje na konec (`apply`), klíče, výchozí hodnoty a sanitizace se nemění
 - [ ] Ostatní moduly s dlouhými formuláři převést na `group` / `show_if` (např. Zabezpečení, SMTP)
 - [ ] Vydání 0.9.0 (verze, PR, tag)
 
+## 37. Launcher s ikonami a řádkovým výpisem, Rychlé přidání příspěvku pod Nástěnkou (0.9.2)
+
+Požadavky: (1) v přehledu aktivních modulů (launcher z menu UX Studio) ikony u každé položky jako v seznamu Moduly a přepínač na řádkový výpis,
+který se zapamatuje; (2) „Rychlé přidání příspěvku“ dát pod widgety nástěnky.
+
+### 37.1 Launcher
+
+- Launcher NENÍ součást SPA: je to PHP (`includes/Core/Megamenu.php`) + prosté JS/CSS (`assets/js/megamenu.js`, `assets/css/megamenu.css`), načítá se na každé
+  obrazovce administrace. Ikony proto nejdou přes React `<ModuleIcon>`; `bin/gen-launcher-icons.mjs` z lucide-react vygeneruje
+  `includes/Core/launcher-icons.php` (vnitřek SVG pro všechny ikony z `src/app/moduleIcons.tsx` + 3 ikony ovládání). Stejná sada a stejný záložní
+  Puzzle jako v seznamu Moduly; test `tests/module-groups.php` hlídá, že se obě sady nerozejdou. Po přidání ikony do `moduleIcons.tsx` spusť generátor.
+- Přepínač karty / řádky: `role="radiogroup"` se dvěma `role="radio"` (šipky přepínají), 46 px, v hlavičce vedle „Všechny moduly“. Volba je v
+  `localStorage` klíč `uxstudio-launcher-view` (stejný vzor jako režim světlý/tmavý v `src/app/prefs.ts`; SPA žádné jiné nastavení zobrazení neukládá,
+  seznam Moduly si zobrazení nepamatuje). Hodnota se při čtení i zápisu ověřuje (`normalizeView`: jen `grid` | `list`, cokoli jiného = karty).
+  Důsledek: pamatuje se na prohlížeč a zařízení, ne na účet; kdyby to mělo jít za uživatelem napříč zařízeními, chtělo by to user meta + REST.
+- Skupiny: skupina (např. Nástěnka) je v launcheru jedna položka se záhlavím (ikona + název, odkaz na stránku skupiny) a pod ním aktivní funkce;
+  funkce se neuvádějí podruhé a skupina bez aktivní funkce se nezobrazí. Odkaz funkce vede na `#/module?id=<skupina>&feature=<funkce>`.
+
+### 37.2 Rychlé přidání příspěvku pod Nástěnkou
+
+- Zvolená cesta: nová virtuální skupina `dashboard` (`includes/Modules/DashboardGroup/meta.json`, `virtual` + `children`: `dashboard-widgets`,
+  `quick-add-post`), stejně jako `admin-appearance`. Důvody (nejméně riskantní):
+  - jen jeden nový soubor s daty, žádná změna PHP ani TSX kódu pro skupiny: seznam Moduly (dlaždice se 2 podřádky), stromové menu, `GroupPage`,
+    přepínače zapnuto / vypnuto, export a import (`parent_name`), plugin guard i hledání už skupiny umí;
+  - id modulů, názvy voleb, uložená nastavení, stav aktivace ani REST trasy se nemění (skupina nemá vlastní stav, ukládá se jen u funkcí);
+  - staré odkazy `#/module?id=quick-add-post` a `#/module?id=dashboard-widgets` dál fungují: stránka funkce se otevře s drobečkovou navigací
+    „← Nástěnka“ a stromem skupiny vlevo (stejné chování jako u funkcí ostatních skupin); odkazy z průvodce („Otevřít modul“), z widgetů a z e-mailů se nemusely měnit;
+  - alternativa (záložka uvnitř stránky Widgetů nástěnky) by smíchala dva moduly s vlastním přepínačem do jedné stránky a rozbila by 1:1 export a import po modulech.
+- Skupina je v kategorii `content` (obě funkce tam už byly), název „Nástěnka“ (cs), ikona `layout-dashboard`.
+- Hledání v liště administrace hledá v názvech a popisech všech modulů včetně funkcí; skupina přibyla jako další nález („Nástěnka“).
+
+### 37.3 Stav
+
+- [x] Launcher: ikony, přepínač karty / řádky, pamatování, skupiny, úzké obrazovky, světlý i tmavý režim
+- [x] Skupina `dashboard`, testy `tests/module-groups.php` a `tests/launcher-view.mjs`
+- [x] Český překlad, QA v prohlížeči (pobyty)
+- [ ] Vydání 0.9.2 (verze, PR, tag)
+- [ ] Volitelně: zobrazení launcheru jako user meta (napříč zařízeními)
+
