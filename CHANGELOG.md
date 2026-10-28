@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.9.2 (unreleased)
+## 0.9.2
 
 - Changed - The UX Studio launcher (the panel that opens from the UX Studio menu item on every admin screen) shows the
   module icon on every card, the same icon as in the Modules list, also for module groups and their features.
