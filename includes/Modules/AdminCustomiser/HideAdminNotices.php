@@ -130,9 +130,12 @@ final class HideAdminNotices {
 			'uxstudio-admin-customiser-notices',
 			'uxstudioNoticesI18n',
 			array(
-				'showMore' => __( 'Show more', 'ux-studio' ),
-				'showLess' => __( 'Show less', 'ux-studio' ),
-				'dismiss'  => __( 'Dismiss notice', 'ux-studio' ),
+				'showMore'     => __( 'Show more', 'ux-studio' ),
+				'showLess'     => __( 'Show less', 'ux-studio' ),
+				'dismiss'      => __( 'Dismiss notice', 'ux-studio' ),
+				// WordPress strips its result arguments (settings-updated, updated, message ...) from the address bar
+				// while the page loads, so the script can no longer see them: PHP tells it.
+				'resultScreen' => self::is_result_screen(),
 			)
 		);
 
@@ -151,6 +154,35 @@ final class HideAdminNotices {
 				)
 			);
 		}
+	}
+
+	/**
+	 * Is this admin screen the RESULT of an action (saving, activating, deleting ...)? Then a green notice is feedback
+	 * ("Settings saved.") and stays where it is; on any other screen a green notice is a plugin's own message and moves
+	 * into the panel like the rest.
+	 */
+	public static function is_result_screen(): bool {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === strtoupper( (string) $_SERVER['REQUEST_METHOD'] ) ) {
+			return true;
+		}
+		$keys = array_keys( $_GET ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- only the NAMES of the arguments are read.
+		return self::has_result_argument( array_map( 'strval', $keys ), function_exists( 'wp_removable_query_args' ) ? wp_removable_query_args() : array() );
+	}
+
+	/**
+	 * Pure part of is_result_screen(): does any query argument name mean "this is the outcome of an action"?
+	 *
+	 * @param string[] $names     Query argument names of the request.
+	 * @param string[] $removable Arguments WordPress itself removes from the address after the redirect (wp_removable_query_args()).
+	 */
+	public static function has_result_argument( array $names, array $removable = array() ): bool {
+		foreach ( $names as $name ) {
+			if ( in_array( $name, $removable, true ) || 1 === preg_match( '/^(settings-)?updated$|saved|activate|deactivate|delete|trash|message|success|done|import|export|^ids$|locked|skipped|bulk_/i', $name ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/** Address of the history page in the UX Studio admin app. */
