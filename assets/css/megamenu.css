@@ -393,7 +393,7 @@ body.auto-fold .uxstudio-megamenu__panel {
 
 /* List view: one module per row */
 #uxstudio-megamenu[data-view="list"] .uxstudio-megamenu__grid {
-	grid-template-columns: 1fr;
+	grid-template-columns: minmax(0, 1fr);
 	gap: var(--uxs-sp-2);
 }
 
@@ -484,4 +484,18 @@ body.auto-fold .uxstudio-megamenu__panel {
 	.uxstudio-megamenu__card {
 		transition: none;
 	}
+}
+
+/* Long descriptions are cut with an ellipsis instead of pushing the chevron out */
+.uxstudio-megamenu__card-text {
+	overflow: hidden;
+}
+
+.uxstudio-megamenu__subgroup > .uxstudio-megamenu__grid {
+	min-width: 0;
+}
+
+#uxstudio-megamenu[data-view="list"] .uxstudio-megamenu__card-name,
+#uxstudio-megamenu[data-view="list"] .uxstudio-megamenu__card-desc {
+	max-width: 100%;
 }
