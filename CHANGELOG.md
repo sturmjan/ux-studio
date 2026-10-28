@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.9.0 (unreleased)
+## 0.9.0
 
 - Changed - Admin Customiser settings are laid out in cards. Every tab (Admin screens, Login page, Sidebar menu, Admin
   bar, Custom CSS, Meta boxes) is split into cards with a heading and a one-line description. The first card and every
