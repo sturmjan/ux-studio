@@ -3708,7 +3708,8 @@ který se zapamatuje; (2) „Rychlé přidání příspěvku“ dát pod widgety
     „← Nástěnka“ a stromem skupiny vlevo (stejné chování jako u funkcí ostatních skupin); odkazy z průvodce („Otevřít modul“), z widgetů a z e-mailů se nemusely měnit;
   - alternativa (záložka uvnitř stránky Widgetů nástěnky) by smíchala dva moduly s vlastním přepínačem do jedné stránky a rozbila by 1:1 export a import po modulech.
 - Skupina je v kategorii `content` (obě funkce tam už byly), název „Nástěnka“ (cs), ikona `layout-dashboard`.
-- Hledání v liště administrace hledá v názvech a popisech všech modulů včetně funkcí; skupina přibyla jako další nález („Nástěnka“).
+- Hledání v liště administrace hledá v názvech a popisech všech modulů včetně funkcí; skupina přibyla jako další nález („Nástěnka“). Cestou opraven
+  odkaz „Otevřít“ u nálezu modulu: vedl na neexistující trasu `#/modules/<id>`, nově na `#/module?id=<id>`.
 
 ### 37.3 Stav
 
