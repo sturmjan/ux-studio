@@ -464,7 +464,7 @@ final class Integrations {
 				'links' => array(
 					array(
 						'label'  => __( 'Open', 'ux-studio' ),
-						'url'    => admin_url( 'admin.php?page=ux-studio#/modules/' . $id ),
+						'url'    => admin_url( 'admin.php?page=ux-studio#/module?id=' . rawurlencode( (string) $id ) ),
 						'action' => 'open',
 					),
 				),

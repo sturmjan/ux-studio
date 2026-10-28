@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.9.2
+
+- Changed - The UX Studio launcher (the panel that opens from the UX Studio menu item on every admin screen) shows the
+  module icon on every card, the same icon as in the Modules list, also for module groups and their features.
+- Added - The launcher can be switched between cards and compact rows (icon, name, description in one line, arrow).
+  The switch sits in the header, works with the keyboard (arrow keys) and the choice is remembered in this browser for
+  the next opening. Cards stay the default. Only active modules are listed, as before.
+- Changed - "Quick Add Post" moved under a new "Dashboard" group together with "Dashboard Widgets" (the same kind of
+  group as "Admin appearance"). Each part keeps its own switch and settings; module ids, settings and activation do not
+  change, and the old links (`#/module?id=quick-add-post`, `#/module?id=dashboard-widgets`) still open the page. The
+  Modules overview, the launcher and the export and import lists show it under the group (once).
+
 ## 0.9.1
 
 - New - New-site wizard: two more items are switched on after the installation: "Quick search in the admin bar" and

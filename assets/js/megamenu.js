@@ -6,7 +6,19 @@
 ( function () {
 	'use strict';
 
-	var megamenu = document.getElementById( 'uxstudio-megamenu' );
+	var VIEW_KEY = 'uxstudio-launcher-view';
+
+	/** Only 'grid' | 'list' are valid; anything else (stale/foreign value) means the default grid. */
+	function normalizeView( value ) {
+		return value === 'list' ? 'list' : 'grid';
+	}
+
+	// Pure helper exported for tests/launcher-view.mjs (Node); no effect in the browser.
+	if ( typeof module !== 'undefined' && module.exports ) {
+		module.exports = { normalizeView: normalizeView, VIEW_KEY: VIEW_KEY };
+	}
+
+	var megamenu = typeof document !== 'undefined' ? document.getElementById( 'uxstudio-megamenu' ) : null;
 	if ( ! megamenu ) {
 		return;
 	}
@@ -22,6 +34,56 @@
 	} catch ( e ) {
 		// localStorage unavailable (privacy mode etc.) - default light styling is fine.
 	}
+
+	// Remembered card/row display (per browser profile, like the theme above).
+	var viewButtons = megamenu.querySelectorAll( '.uxstudio-megamenu__view' );
+
+	function applyView( view ) {
+		view = normalizeView( view );
+		megamenu.setAttribute( 'data-view', view );
+		Array.prototype.forEach.call( viewButtons, function ( btn ) {
+			var on = btn.getAttribute( 'data-view' ) === view;
+			btn.setAttribute( 'aria-checked', on ? 'true' : 'false' );
+			btn.tabIndex = on ? 0 : -1;
+		} );
+	}
+
+	try {
+		applyView( window.localStorage.getItem( VIEW_KEY ) );
+	} catch ( e ) {
+		applyView( 'grid' );
+	}
+
+	function chooseView( view ) {
+		applyView( view );
+		try {
+			window.localStorage.setItem( VIEW_KEY, normalizeView( view ) );
+		} catch ( e ) {
+			// Not persisted (privacy mode) - still applies for this page view.
+		}
+	}
+
+	Array.prototype.forEach.call( viewButtons, function ( btn, i ) {
+		btn.addEventListener( 'click', function () {
+			chooseView( btn.getAttribute( 'data-view' ) );
+		} );
+		// Radiogroup keyboard model: arrows move + select, focus follows.
+		btn.addEventListener( 'keydown', function ( e ) {
+			var step = 0;
+			if ( e.key === 'ArrowRight' || e.key === 'ArrowDown' ) {
+				step = 1;
+			} else if ( e.key === 'ArrowLeft' || e.key === 'ArrowUp' ) {
+				step = -1;
+			}
+			if ( ! step ) {
+				return;
+			}
+			e.preventDefault();
+			var next = viewButtons[ ( i + step + viewButtons.length ) % viewButtons.length ];
+			chooseView( next.getAttribute( 'data-view' ) );
+			next.focus();
+		} );
+	} );
 
 	var backdrop = megamenu.querySelector( '.uxstudio-megamenu__backdrop' );
 	var closeBtn = megamenu.querySelector( '.uxstudio-megamenu__close' );

@@ -18,7 +18,7 @@ msgstr ""
 #: includes/Core/Admin.php:44
 #: includes/Core/Admin.php:45
 #: includes/Core/Mcp/Bootstrap.php:49
-#: includes/Core/Megamenu.php:90
+#: includes/Core/Megamenu.php:94
 #: includes/Core/Migration/Describe.php:104
 #: includes/Core/Migration/MenuSimulator.php:39
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:474
@@ -166,7 +166,7 @@ msgstr "Oznámení"
 msgid "Dashboard"
 msgstr "Nástěnka"
 
-#: includes/Core/Megamenu.php:166
+#: includes/Core/Megamenu.php:259
 #: includes/Modules/AdminCustomiser/MenuOrganizer.php:88
 #: includes/Modules/ExitPopup/Module.php:89
 #: includes/Modules/ExitPopup/Module.php:96
@@ -206,7 +206,7 @@ msgstr "Nástěnka"
 msgid "Content"
 msgstr "Obsah"
 
-#: includes/Core/Megamenu.php:170
+#: includes/Core/Megamenu.php:263
 #: includes/Modules/AdminColumns/RestController.php:97
 #: includes/Modules/AdminCustomiser/MenuOrganizer.php:89
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:422
@@ -256,7 +256,7 @@ msgstr "Uživatelé"
 msgid "System"
 msgstr "Systém"
 
-#: includes/Core/Megamenu.php:178
+#: includes/Core/Megamenu.php:271
 #: includes/Core/Migration/Sources/AbstractAdminSource.php:257
 #: includes/Modules/AdminCustomiser/MenuOrganizer.php:95
 #: includes/Modules/AdminCustomiser/MenuOrganizer.php:366
@@ -2642,7 +2642,7 @@ msgstr "E-mailová adresa"
 msgid "Subscribe"
 msgstr "Odebírat"
 
-#: includes/Core/Megamenu.php:95
+#: includes/Core/Megamenu.php:109
 #: includes/Modules/ExitPopup/Module.php:528
 #: includes/Modules/FileManager/Module.php:169
 #: includes/Modules/PopupManager/Module.php:509
@@ -5178,25 +5178,25 @@ msgstr "Jazyk"
 msgid "Comments"
 msgstr "Komentáře"
 
-#: includes/Core/Megamenu.php:86
+#: includes/Core/Megamenu.php:90
 msgid "UX Studio quick navigation"
 msgstr "Rychlá navigace UX Studio"
 
-#: includes/Core/Megamenu.php:93
+#: includes/Core/Megamenu.php:107
 msgid "All modules"
 msgstr "Všechny moduly"
 
-#: includes/Core/Megamenu.php:168
+#: includes/Core/Megamenu.php:261
 msgid "Admin Tools"
 msgstr "Nástroje administrace"
 
-#: includes/Core/Megamenu.php:172
+#: includes/Core/Megamenu.php:265
 #: build/index.523987b487aefc323953.js:11
 #: build/index.523987b487aefc323953.js:67
 msgid "Security"
 msgstr "Zabezpečení"
 
-#: includes/Core/Megamenu.php:174
+#: includes/Core/Megamenu.php:267
 #: includes/Modules/SecurityOptimization/Module.php:1091
 #: includes/Modules/SecurityOptimization/Module.php:1098
 #: includes/Modules/SecurityOptimization/Module.php:1120
@@ -5208,7 +5208,7 @@ msgstr "Zabezpečení"
 msgid "Performance"
 msgstr "Výkon"
 
-#: includes/Core/Megamenu.php:176
+#: includes/Core/Megamenu.php:269
 #: build/index.523987b487aefc323953.js:11
 msgid "Developer"
 msgstr "Vývojářské nástroje"
@@ -9836,6 +9836,7 @@ msgstr "Smazat tuto naplánovanou událost?"
 msgid "No events are currently scheduled."
 msgstr "Momentálně nejsou naplánovány žádné události."
 
+#: includes/Core/Megamenu.php:95
 #: build/892.990058c03e152a30de27.js:1
 msgid "Display"
 msgstr "Zobrazení"
@@ -27621,6 +27622,8 @@ msgstr "Popis kroku (nepovinné)"
 msgid "Options look"
 msgstr "Vzhled možností"
 
+#: includes/Core/Megamenu.php:100
+#: includes/Core/Megamenu.php:102
 #: build/792.44dda73a4e82141856be.js:6
 msgid "List"
 msgstr "Seznam"
@@ -28255,13 +28258,13 @@ msgstr "Zobrazit méně"
 msgid "Dismiss notice"
 msgstr "Zavřít upozornění"
 
-#: includes/Modules/AdminCustomiser/HideAdminNotices.php:187
-#: includes/Modules/AdminCustomiser/HideAdminNotices.php:189
+#: includes/Modules/AdminCustomiser/HideAdminNotices.php:219
+#: includes/Modules/AdminCustomiser/HideAdminNotices.php:221
 #: includes/Modules/AdminCustomiser/SettingsLayout.php:77
 msgid "Admin notices"
 msgstr "Upozornění"
 
-#: includes/Modules/AdminCustomiser/HideAdminNotices.php:193
+#: includes/Modules/AdminCustomiser/HideAdminNotices.php:225
 msgid "No notices"
 msgstr "Žádná upozornění"
 
@@ -29293,7 +29296,7 @@ msgstr "Export a import"
 msgid "Export this setting"
 msgstr "Exportovat toto nastavení"
 
-#: includes/Modules/AdminCustomiser/HideAdminNotices.php:196
+#: includes/Modules/AdminCustomiser/HideAdminNotices.php:228
 msgid "Show history"
 msgstr "Zobrazit historii"
 
@@ -30746,3 +30749,12 @@ msgstr "Uklidit upozornění v administraci"
 #: includes/Core/Onboarding/StarterPack.php:193
 msgid "Plugins and WordPress show their notices at the top of every admin screen. They are moved into a panel under the bell in the admin bar instead of being hidden, so nothing gets lost and the screens stay clean. Closed notices stay readable in the notice history. The critical PHP warning always stays on the page."
 msgstr "Pluginy a WordPress zobrazují svá upozornění nahoře na každé obrazovce administrace. Místo skrytí se přesunou do panelu pod zvonkem v liště, takže se nic neztratí a obrazovky zůstanou čisté. Zavřená upozornění jdou dál přečíst v historii upozornění. Kritické upozornění na PHP zůstává vždy na stránce."
+
+#: includes/Core/Megamenu.php:96
+#: includes/Core/Megamenu.php:98
+msgid "Cards"
+msgstr "Karty"
+
+#. Restored (module meta.json / not seen by make-pot)
+msgid "Widgets on the admin dashboard and the quick Add New button in the editor. Each part can be switched on separately."
+msgstr "Widgety na nástěnce administrace a tlačítko pro rychlé přidání příspěvku v editoru. Každou část lze zapnout zvlášť."
