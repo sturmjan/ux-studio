@@ -70,6 +70,8 @@ final class MiscRestController extends Controller {
 			}
 		}
 
+		// Two sources can report the same object (e.g. a third-party filter re-adding core rows): keep each once.
+		$groups = array_map( array( Integrations::class, 'dedupe_rows' ), $groups );
 		$groups = $this->limit_results( $groups, $term, 5, 40 );
 
 		// Totals and the "show all" list screen per group; only for groups that are still in the answer.
