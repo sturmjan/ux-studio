@@ -69,7 +69,7 @@
 		transition: background var(--uxs-motion) var(--uxs-ease), border-color var(--uxs-motion) var(--uxs-ease), color var(--uxs-motion) var(--uxs-ease), box-shadow var(--uxs-motion) var(--uxs-ease);
 	}
 
-	&.is-current .uxs-wiz-step__dot { border-color: var(--uxs-brand); color: var(--uxs-brand); box-shadow: 0 0 0 4px var(--uxs-brand-soft); }
+	&.is-current .uxs-wiz-step__dot { border-color: var(--uxs-brand); color: var(--uxs-brand-text); box-shadow: 0 0 0 4px var(--uxs-brand-soft); }
 	&.is-current { color: var(--uxs-text); font-weight: 600; }
 	&.is-done .uxs-wiz-step__dot { background: var(--uxs-brand); border-color: var(--uxs-brand); color: #fff; }
 }
@@ -128,7 +128,7 @@
 	height: 48px;
 	border-radius: var(--uxs-radius);
 	background: var(--uxs-brand-soft);
-	color: var(--uxs-brand);
+	color: var(--uxs-brand-text);
 }
 
 [data-theme="dark"] .uxs-wiz-stephead__icon { color: #c7d2fe; }
@@ -176,7 +176,7 @@
 		background: var(--uxs-surface-2);
 		border-radius: var(--uxs-radius-s);
 	}
-	svg { flex-shrink: 0; margin-top: 2px; color: var(--uxs-brand); }
+	svg { flex-shrink: 0; margin-top: 2px; color: var(--uxs-brand-text); }
 }
 
 [data-theme="dark"] .uxs-wiz-points svg { color: #a5b4fc; }
@@ -191,9 +191,9 @@
 	color: var(--uxs-text);
 	border-radius: var(--uxs-radius-s);
 
-	svg { flex-shrink: 0; color: var(--uxs-brand); }
-	&.is-ok { background: color-mix(in srgb, var(--uxs-success) 14%, transparent); svg { color: var(--uxs-success); } }
-	&.is-bad { background: color-mix(in srgb, var(--uxs-warning) 16%, transparent); svg { color: var(--uxs-warning); } }
+	svg { flex-shrink: 0; color: var(--uxs-brand-text); }
+	&.is-ok { background: color-mix(in srgb, var(--uxs-success) 14%, transparent); svg { color: var(--uxs-success-text); } }
+	&.is-bad { background: color-mix(in srgb, var(--uxs-warning) 16%, transparent); svg { color: var(--uxs-warning-text); } }
 }
 
 .uxs-wiz-banner p { margin: 0 0 var(--uxs-sp-2); }
@@ -201,8 +201,8 @@
 
 [data-theme="dark"] .uxs-wiz-banner:not(.is-ok):not(.is-bad) { background: color-mix(in srgb, var(--uxs-brand) 22%, transparent); }
 
-.uxs-wiz-error { margin: 0 0 var(--uxs-sp-3); color: var(--uxs-danger); }
-.uxs-wiz-error-text { color: var(--uxs-danger); font-size: var(--uxs-fs-s); }
+.uxs-wiz-error { margin: 0 0 var(--uxs-sp-3); color: var(--uxs-danger-text); }
+.uxs-wiz-error-text { color: var(--uxs-danger-text); font-size: var(--uxs-fs-s); }
 
 /* -- Scan: radar + staggered cards -- */
 .uxs-wiz-scanning {
@@ -220,7 +220,7 @@
 	height: 168px;
 	margin: 0 auto;
 	border-radius: 50%;
-	color: var(--uxs-brand);
+	color: var(--uxs-brand-text);
 	border: 1px solid var(--uxs-border);
 	background:
 		radial-gradient(circle, transparent 0 28%, var(--uxs-border) 28% calc(28% + 1px), transparent calc(28% + 1px) 56%, var(--uxs-border) 56% calc(56% + 1px), transparent calc(56% + 1px)),
@@ -296,7 +296,7 @@
 	height: 40px;
 	border-radius: var(--uxs-radius-s);
 	background: var(--uxs-brand-soft);
-	color: var(--uxs-brand);
+	color: var(--uxs-brand-text);
 }
 
 /* -- Selection -- */
@@ -340,7 +340,7 @@
 	display: inline-flex;
 	align-items: center;
 	gap: var(--uxs-sp-1);
-	color: var(--uxs-brand);
+	color: var(--uxs-brand-text);
 	white-space: nowrap;
 
 	svg { transition: transform var(--uxs-motion) var(--uxs-ease); }
@@ -362,8 +362,8 @@
 	display: flex;
 	align-items: center;
 	gap: var(--uxs-sp-2);
-	&.is-yes { color: var(--uxs-success); }
-	&.is-no { color: var(--uxs-warning); }
+	&.is-yes { color: var(--uxs-success-text); }
+	&.is-no { color: var(--uxs-warning-text); }
 }
 
 .uxs-wiz-plan__list {
@@ -409,7 +409,7 @@
 		color: var(--uxs-text);
 		font-size: var(--uxs-fs-s);
 	}
-	svg { flex-shrink: 0; margin-top: 2px; color: var(--uxs-warning); }
+	svg { flex-shrink: 0; margin-top: 2px; color: var(--uxs-warning-text); }
 }
 
 /* -- Check / verify: source blocks -- */
@@ -445,8 +445,8 @@
 	color: var(--uxs-text);
 	font-size: var(--uxs-fs-s);
 
-	svg { flex-shrink: 0; margin-top: 2px; color: var(--uxs-warning); }
-	&.is-reviewed { background: color-mix(in srgb, var(--uxs-success) 12%, transparent); svg { color: var(--uxs-success); } }
+	svg { flex-shrink: 0; margin-top: 2px; color: var(--uxs-warning-text); }
+	&.is-reviewed { background: color-mix(in srgb, var(--uxs-success) 12%, transparent); svg { color: var(--uxs-success-text); } }
 }
 .uxs-wiz-tick:disabled { opacity: .45; cursor: not-allowed; &:hover { border-color: var(--uxs-border); } }
 .uxs-wiz-rolecompare {
@@ -477,7 +477,7 @@
 	th { color: var(--uxs-text-soft); font-weight: 600; }
 	tr.is-changed td:last-child code { background: color-mix(in srgb, var(--uxs-success) 18%, transparent); color: var(--uxs-text); }
 	code { white-space: normal; overflow-wrap: anywhere; }
-	.uxs-wiz-dropped { margin-left: var(--uxs-sp-1); color: var(--uxs-warning); vertical-align: middle; }
+	.uxs-wiz-dropped { margin-left: var(--uxs-sp-1); color: var(--uxs-warning-text); vertical-align: middle; }
 }
 
 /* Expandable detail of a complex value (check + verify steps). */
@@ -488,7 +488,7 @@
 	summary {
 		display: inline-block;
 		cursor: pointer;
-		color: var(--uxs-brand);
+		color: var(--uxs-brand-text);
 		font-weight: 600;
 		&:focus-visible { outline: 2px solid var(--uxs-brand); outline-offset: 2px; border-radius: var(--uxs-radius-s); }
 	}
@@ -529,8 +529,8 @@
 
 	&.is-running { border-color: var(--uxs-border); border-top-color: var(--uxs-brand); animation: uxs-spin 0.8s linear infinite; }
 	&.is-ok { background: var(--uxs-success); border-color: var(--uxs-success); color: #fff; }
-	&.is-error { border-color: transparent; color: var(--uxs-danger); svg { animation: uxs-wiz-pop var(--uxs-motion) var(--uxs-ease) both; } }
-	&.is-warn { border-color: transparent; color: var(--uxs-warning); }
+	&.is-error { border-color: transparent; color: var(--uxs-danger-text); svg { animation: uxs-wiz-pop var(--uxs-motion) var(--uxs-ease) both; } }
+	&.is-warn { border-color: transparent; color: var(--uxs-warning-text); }
 }
 
 /* -- Migration progress rows -- */
@@ -594,7 +594,7 @@
 	}
 	/* Same rule as the change table: the label keeps its words whole, the long detail text may break anywhere. */
 	li > span:not(.uxs-wiz-state):not(.uxs-badge):not(.uxs-wiz-muted) { flex: 0 1 16em; min-width: 9em; word-break: normal; overflow-wrap: normal; }
-	li.is-bad { color: var(--uxs-danger); }
+	li.is-bad { color: var(--uxs-danger-text); }
 	.uxs-wiz-state { align-self: center; }
 	.uxs-wiz-muted { margin-left: 0; text-align: left; overflow-wrap: anywhere; }
 	.uxs-wiz-checks__detail { flex: 1 1 18em; min-width: 0; }
@@ -727,7 +727,7 @@
 	> div { min-width: 0; }
 	/* A server path in the reason must wrap inside the box instead of widening the page. */
 	p { margin: var(--uxs-sp-1) 0 0; overflow-wrap: anywhere; }
-	&.is-warn { border-color: color-mix(in srgb, var(--uxs-warning) 60%, var(--uxs-border)); background: color-mix(in srgb, var(--uxs-warning) 10%, var(--uxs-surface)); > svg { color: var(--uxs-warning); } }
+	&.is-warn { border-color: color-mix(in srgb, var(--uxs-warning) 60%, var(--uxs-border)); background: color-mix(in srgb, var(--uxs-warning) 10%, var(--uxs-surface)); > svg { color: var(--uxs-warning-text); } }
 }
 
 .uxs-wiz-address {
@@ -816,9 +816,9 @@
 	> div { min-width: 0; }
 	p { margin: var(--uxs-sp-1) 0 0; overflow-wrap: anywhere; }
 	a { display: inline-flex; align-items: center; gap: var(--uxs-sp-1); }
-	&.is-ok { border-color: color-mix(in srgb, var(--uxs-success) 45%, var(--uxs-border)); background: color-mix(in srgb, var(--uxs-success) 10%, var(--uxs-surface)); > svg { color: var(--uxs-success); } }
-	&.is-warning { border-color: color-mix(in srgb, var(--uxs-warning) 60%, var(--uxs-border)); background: color-mix(in srgb, var(--uxs-warning) 12%, var(--uxs-surface)); > svg { color: var(--uxs-warning); } }
-	&.is-critical { border-color: var(--uxs-danger); background: color-mix(in srgb, var(--uxs-danger) 12%, var(--uxs-surface)); > svg { color: var(--uxs-danger); } > div > strong { color: var(--uxs-danger); } }
+	&.is-ok { border-color: color-mix(in srgb, var(--uxs-success) 45%, var(--uxs-border)); background: color-mix(in srgb, var(--uxs-success) 10%, var(--uxs-surface)); > svg { color: var(--uxs-success-text); } }
+	&.is-warning { border-color: color-mix(in srgb, var(--uxs-warning) 60%, var(--uxs-border)); background: color-mix(in srgb, var(--uxs-warning) 12%, var(--uxs-surface)); > svg { color: var(--uxs-warning-text); } }
+	&.is-critical { border-color: var(--uxs-danger); background: color-mix(in srgb, var(--uxs-danger) 12%, var(--uxs-surface)); > svg { color: var(--uxs-danger-text); } > div > strong { color: var(--uxs-danger-text); } }
 }
 
 .uxs-wiz-packgroup { margin-top: var(--uxs-sp-5); }
@@ -828,7 +828,7 @@
 	gap: var(--uxs-sp-2);
 	margin: 0 0 var(--uxs-sp-3);
 	color: var(--uxs-text);
-	svg { color: var(--uxs-brand); }
+	svg { color: var(--uxs-brand-text); }
 }
 
 [data-theme="dark"] .uxs-wiz-packgroup__title svg { color: #a5b4fc; }
@@ -845,7 +845,7 @@
 
 .uxs-wiz-advanced {
 	margin: 0 0 var(--uxs-sp-4);
-	summary { cursor: pointer; color: var(--uxs-brand); font-weight: 600; &:focus-visible { outline: 2px solid var(--uxs-brand); outline-offset: 2px; border-radius: var(--uxs-radius-s); } }
+	summary { cursor: pointer; color: var(--uxs-brand-text); font-weight: 600; &:focus-visible { outline: 2px solid var(--uxs-brand); outline-offset: 2px; border-radius: var(--uxs-radius-s); } }
 	label { display: block; margin: var(--uxs-sp-3) 0 var(--uxs-sp-1); font-weight: 600; color: var(--uxs-text); }
 	input[type="url"] { width: 100%; max-width: 520px; }
 }
@@ -892,7 +892,7 @@
 	gap: var(--uxs-sp-1);
 	font-size: var(--uxs-fs-s);
 	font-weight: 600;
-	color: var(--uxs-brand);
+	color: var(--uxs-brand-text);
 }
 
 [data-theme="dark"] .uxs-wiz-ca__eyebrow { color: #c7d2fe; }
@@ -909,7 +909,7 @@
 	inset: 0;
 	width: 100%;
 	height: 100%;
-	color: var(--uxs-brand);
+	color: var(--uxs-brand-text);
 
 	path {
 		stroke: currentcolor;
@@ -946,7 +946,7 @@
 	height: 34px;
 	background: var(--uxs-surface);
 	border: 1px solid var(--uxs-border);
-	color: var(--uxs-brand);
+	color: var(--uxs-brand-text);
 	box-shadow: var(--uxs-shadow-1);
 
 	&.is-a { left: 17%; top: 23%; }
@@ -1029,7 +1029,7 @@
 	height: 40px;
 	border-radius: var(--uxs-radius-s);
 	background: var(--uxs-brand-soft);
-	color: var(--uxs-brand);
+	color: var(--uxs-brand-text);
 }
 
 [data-theme="dark"] .uxs-wiz-ca__cardicon { color: #c7d2fe; }
@@ -1044,7 +1044,7 @@
 	h3 { margin-bottom: var(--uxs-sp-3); }
 	ul { display: grid; gap: var(--uxs-sp-2); margin: 0; padding: 0; list-style: none; }
 	li { display: flex; align-items: flex-start; gap: var(--uxs-sp-3); margin: 0; color: var(--uxs-text); }
-	svg { flex-shrink: 0; margin-top: 2px; color: var(--uxs-brand); }
+	svg { flex-shrink: 0; margin-top: 2px; color: var(--uxs-brand-text); }
 }
 
 [data-theme="dark"] .uxs-wiz-ca__changes svg { color: #a5b4fc; }
@@ -1120,7 +1120,7 @@
 	gap: var(--uxs-sp-2);
 }
 
-.uxs-wiz-modulelink__icon { display: inline-flex; color: var(--uxs-brand); }
+.uxs-wiz-modulelink__icon { display: inline-flex; color: var(--uxs-brand-text); }
 [data-theme="dark"] .uxs-wiz-modulelink__icon { color: #c7d2fe; }
 
 /* Reduced motion: no animation or transition anywhere in the wizard. */
