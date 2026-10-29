@@ -97,13 +97,25 @@ final class RestController extends Controller {
 		$current = 'plugin' === $type ? $this->current_plugin_version( $slug ) : $this->current_theme_version( $slug );
 		$versions = WordPressApi::get_versions( $type, $slug );
 
+		return $this->ok( self::present_versions( $versions, $current ), array( 'current_version' => $current ) );
+	}
+
+	/**
+	 * Flag the installed version and strip raw package URLs from a version list (pure, unit-tested).
+	 * version_compare() has no '===' operator (ValueError on PHP 8), so equality uses '=='.
+	 *
+	 * @param array<int, array<string, mixed>> $versions Entries with 'version' and 'download_url'.
+	 * @param string                           $current  Installed version, '' when unknown.
+	 * @return array<int, array<string, mixed>>
+	 */
+	public static function present_versions( array $versions, string $current ): array {
 		foreach ( $versions as &$entry ) {
-			$entry['is_current'] = '' !== $current && version_compare( $entry['version'], $current, '===' );
+			$entry['is_current'] = '' !== $current && 0 === version_compare( (string) $entry['version'], $current );
 			unset( $entry['download_url'] ); // Never leak raw package URLs to the client.
 		}
 		unset( $entry );
 
-		return $this->ok( $versions, array( 'current_version' => $current ) );
+		return $versions;
 	}
 
 	/**

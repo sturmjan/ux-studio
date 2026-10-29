@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.9.3
+
+- Fixed - Rollback Manager: the list of versions of a plugin or theme returned an error (HTTP 500, `version_compare()`
+  was called with the invalid operator `===`, a ValueError on PHP 8), so no row offered a version and the screen kept
+  retrying. The installed version is now marked "(current)" in the list, and a row that cannot load shows its own
+  "Could not load versions" message without retrying.
+- Fixed - Dark mode: headings (feature names in group cards, section headings of settings forms, widget headings),
+  the back arrow in page headers, check boxes, the active module filter chip and the colour badges ("Partial overlap",
+  "Full overlap", status badges) had a contrast far below WCAG AA (down to 1.05:1). Text, icons and borders now use
+  dedicated brand and state colours per theme (>= 4.5:1 for text, >= 3:1 for icons and component borders).
+- Fixed - Quick search: every media result is listed once (by object type and ID), the media query no longer passes
+  through other plugins' search filters, and a file whose name differs from its title shows the file name next to the
+  type, so two uploads of the same picture are no longer taken for one result shown twice.
+
 ## 0.9.2
 
 - Changed - The UX Studio launcher (the panel that opens from the UX Studio menu item on every admin screen) shows the

@@ -103,6 +103,48 @@ final class Integrations {
 	}
 
 	/**
+	 * Drop repeated result rows, keeping the first (pure, unit-tested). Rows are identified by object type + ID
+	 * (`object`, `id`); rows without an ID (shortcuts, modules) by label + first link URL. Order is preserved.
+	 *
+	 * @param array<int, array<string, mixed>> $rows Result rows.
+	 * @return array<int, array<string, mixed>>
+	 */
+	public static function dedupe_rows( array $rows ): array {
+		$seen = array();
+		$out  = array();
+		foreach ( $rows as $row ) {
+			if ( isset( $row['id'] ) && '' !== (string) $row['id'] ) {
+				$key = 'id:' . (string) ( $row['object'] ?? ( $row['kind'] ?? '' ) ) . ':' . (string) $row['id'];
+			} else {
+				$first = isset( $row['links'][0]['url'] ) ? (string) $row['links'][0]['url'] : '';
+				$key   = 'url:' . (string) ( $row['label'] ?? '' ) . '|' . $first;
+			}
+			if ( isset( $seen[ $key ] ) ) {
+				continue;
+			}
+			$seen[ $key ] = true;
+			$out[]        = $row;
+		}
+		return $out;
+	}
+
+	/**
+	 * Right-hand text of a media row: the file type, plus the file name when it differs from the title. Two uploads
+	 * of the same file share a title ("photo", "photo-1.jpg") and would otherwise look like one result shown twice.
+	 *
+	 * @param \WP_Post $post  Attachment.
+	 * @param string   $title Cleaned title shown as the row label.
+	 */
+	private function media_meta( \WP_Post $post, string $title ): string {
+		$type = $this->media_type_label( $post );
+		$file = wp_basename( (string) get_attached_file( $post->ID ) );
+		if ( '' === $file || $file === $title || pathinfo( $file, PATHINFO_FILENAME ) === $title ) {
+			return $type;
+		}
+		return '' === $type ? $file : $type . ' · ' . $file;
+	}
+
+	/**
 	 * Upper-case file type for a media row ("PNG", "JPG", "PDF").
 	 *
 	 * @param \WP_Post $post Attachment.
@@ -373,6 +415,9 @@ final class Integrations {
 				'post_type'              => 'attachment',
 				'post_status'            => 'inherit',
 				'posts_per_page'         => self::PER_GROUP,
+				// Like search_posts(): plugins hooking posts_join/posts_search (meta searches, multilingual) must not
+				// reshape this list - a join without DISTINCT returns every attachment once per matching row.
+				'suppress_filters'       => true,
 				'update_post_term_cache' => false,
 			)
 		);
@@ -406,15 +451,18 @@ final class Integrations {
 			$title = self::clean_title( (string) $post->post_title );
 
 			$group[] = array(
+				'object' => 'attachment',
+				'id'     => (int) $post->ID,
 				'label' => '' !== $title ? $title : wp_basename( (string) get_attached_file( $post->ID ) ),
 				'type'  => (string) get_post_mime_type( $post ),
 				'kind'  => 'media',
-				'meta'  => $this->media_type_label( $post ),
+				'meta'  => $this->media_meta( $post, $title ),
 				'thumb' => $thumb ? (string) $thumb : '',
 				'links' => $links,
 			);
 		}
 
+		$group = self::dedupe_rows( $group );
 		if ( empty( $group ) ) {
 			return array();
 		}

@@ -147,9 +147,9 @@
 
 	svg { flex-shrink: 0; margin-top: 2px; }
 }
-.uxs-tr-warn { color: var(--uxs-warning); }
-.uxs-tr-error { color: var(--uxs-danger); }
-.uxs-tr-ok { color: var(--uxs-success); }
+.uxs-tr-warn { color: var(--uxs-warning-text); }
+.uxs-tr-error { color: var(--uxs-danger-text); }
+.uxs-tr-ok { color: var(--uxs-success-text); }
 
 .uxs-tr-opt > .uxs-tr-warn { padding-left: 26px; }
 
@@ -169,7 +169,7 @@
 	align-self: flex-start;
 	background: none;
 	border: 0;
-	color: var(--uxs-brand);
+	color: var(--uxs-brand-text);
 	font-weight: 600;
 	cursor: pointer;
 	padding: 0;
@@ -214,7 +214,7 @@
 	cursor: pointer;
 	transition: border-color var(--uxs-motion-fast) var(--uxs-ease), background var(--uxs-motion-fast) var(--uxs-ease);
 
-	svg { color: var(--uxs-brand); }
+	svg { color: var(--uxs-brand-text); }
 	&:hover,
 	&.is-over,
 	&:focus-within { border-color: var(--uxs-brand); background: var(--uxs-brand-soft); }
@@ -252,7 +252,7 @@
 	border-radius: var(--uxs-radius-s);
 	background: var(--uxs-surface);
 
-	svg { color: var(--uxs-info); }
+	svg { color: var(--uxs-info-text); }
 	p { margin: 0; flex: 1 1 280px; color: var(--uxs-text); }
 }
 
@@ -283,7 +283,7 @@
 		font-size: var(--uxs-fs-s);
 		color: var(--uxs-text);
 	}
-	svg { flex-shrink: 0; margin-top: 2px; color: var(--uxs-warning); }
+	svg { flex-shrink: 0; margin-top: 2px; color: var(--uxs-warning-text); }
 }
 
 /* -- How to import -- */
@@ -341,7 +341,7 @@
 		color: var(--uxs-text-soft);
 		cursor: pointer;
 
-		&:hover { color: var(--uxs-brand); border-color: var(--uxs-brand); }
+		&:hover { color: var(--uxs-brand-text); border-color: var(--uxs-brand); }
 		&:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--uxs-brand-soft); }
 	}
 }
@@ -391,7 +391,7 @@
 	white-space: nowrap;
 
 	&:hover,
-	&:focus-visible { color: var(--uxs-brand); text-decoration: underline; outline: none; }
+	&:focus-visible { color: var(--uxs-brand-text); text-decoration: underline; outline: none; }
 }
 .uxs-tr-linkrow { display: flex; justify-content: flex-end; margin-bottom: var(--uxs-sp-3); }
 

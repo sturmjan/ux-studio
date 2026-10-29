@@ -23,7 +23,7 @@ interface ItemsResponse {
 
 interface VersionEntry {
 	version: string;
-	current: boolean;
+	is_current: boolean;
 }
 
 interface RollbackResult {
@@ -49,13 +49,19 @@ function VersionsSelect( {
 		queryKey: [ 'rollback-manager', 'versions', type, slug ],
 		queryFn: () => api< VersionEntry[] >( `rollback-manager/versions/${ type }/${ slug }` ),
 		staleTime: 5 * 60_000,
+		// One failed row must not hammer the server: no retry storm, the row shows its own error.
+		retry: false,
 	} );
 
 	if ( isLoading ) {
 		return <span className="uxs-loading" style={ { justifyContent: 'flex-start' } }><LoaderCircle size={ 14 } /></span>;
 	}
 
-	if ( isError || ! data || data.length === 0 ) {
+	if ( isError ) {
+		return <span className="uxs-badge is-danger">{ __( 'Could not load versions', 'ux-studio' ) }</span>;
+	}
+
+	if ( ! data || data.length === 0 ) {
 		return <span className="uxs-badge is-warning">{ __( 'No versions found', 'ux-studio' ) }</span>;
 	}
 
@@ -64,7 +70,7 @@ function VersionsSelect( {
 			<option value="">{ __( 'Select a version…', 'ux-studio' ) }</option>
 			{ data.map( ( v ) => (
 				<option key={ v.version } value={ v.version }>
-					{ v.version }{ v.current ? ` (${ __( 'current', 'ux-studio' ) })` : '' }
+					{ v.version }{ v.is_current ? ` (${ __( 'current', 'ux-studio' ) })` : '' }
 				</option>
 			) ) }
 		</select>
