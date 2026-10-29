@@ -30758,3 +30758,7 @@ msgstr "Karty"
 #. Restored (module meta.json / not seen by make-pot)
 msgid "Widgets on the admin dashboard and the quick Add New button in the editor. Each part can be switched on separately."
 msgstr "Widgety na nástěnce administrace a tlačítko pro rychlé přidání příspěvku v editoru. Každou část lze zapnout zvlášť."
+
+#: build/136.036f0ba68f3e03d30cab.js:1
+msgid "Could not load versions"
+msgstr "Nepodařilo se načíst verze"

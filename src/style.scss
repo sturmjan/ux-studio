@@ -2036,7 +2036,7 @@
 		font-size: var(--uxs-fs-s);
 		cursor: pointer;
 
-		&.is-active { background: var(--uxs-brand-soft); color: var(--uxs-brand-text-strong); border-color: var(--uxs-brand); }
+		&.is-active { background: var(--uxs-brand-soft); color: var(--uxs-brand-text-strong); border-color: var(--uxs-brand-text); }
 	}
 }
 
@@ -2213,7 +2213,7 @@
 
 		&:hover { color: var(--uxs-text); border-color: var(--uxs-text-soft); }
 		&:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--uxs-brand-soft); border-color: var(--uxs-brand); }
-		&.is-active { background: var(--uxs-brand-soft); color: var(--uxs-brand-text-strong); border-color: var(--uxs-brand); font-weight: 600; }
+		&.is-active { background: var(--uxs-brand-soft); color: var(--uxs-brand-text-strong); border-color: var(--uxs-brand-text); font-weight: 600; }
 	}
 }
 
