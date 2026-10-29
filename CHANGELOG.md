@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.9.3 (unreleased)
+## 0.9.3
 
 - Fixed - Rollback Manager: the list of versions of a plugin or theme returned an error (HTTP 500, `version_compare()`
   was called with the invalid operator `===`, a ValueError on PHP 8), so no row offered a version and the screen kept
