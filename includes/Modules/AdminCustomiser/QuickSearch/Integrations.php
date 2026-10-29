@@ -129,6 +129,22 @@ final class Integrations {
 	}
 
 	/**
+	 * Right-hand text of a media row: the file type, plus the file name when it differs from the title. Two uploads
+	 * of the same file share a title ("photo", "photo-1.jpg") and would otherwise look like one result shown twice.
+	 *
+	 * @param \WP_Post $post  Attachment.
+	 * @param string   $title Cleaned title shown as the row label.
+	 */
+	private function media_meta( \WP_Post $post, string $title ): string {
+		$type = $this->media_type_label( $post );
+		$file = wp_basename( (string) get_attached_file( $post->ID ) );
+		if ( '' === $file || $file === $title || pathinfo( $file, PATHINFO_FILENAME ) === $title ) {
+			return $type;
+		}
+		return '' === $type ? $file : $type . ' · ' . $file;
+	}
+
+	/**
 	 * Upper-case file type for a media row ("PNG", "JPG", "PDF").
 	 *
 	 * @param \WP_Post $post Attachment.
@@ -440,7 +456,7 @@ final class Integrations {
 				'label' => '' !== $title ? $title : wp_basename( (string) get_attached_file( $post->ID ) ),
 				'type'  => (string) get_post_mime_type( $post ),
 				'kind'  => 'media',
-				'meta'  => $this->media_type_label( $post ),
+				'meta'  => $this->media_meta( $post, $title ),
 				'thumb' => $thumb ? (string) $thumb : '',
 				'links' => $links,
 			);
