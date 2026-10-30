@@ -16,7 +16,7 @@ export default function Page(): JSX.Element {
 					>
 						<ArrowLeft size={ 18 } />
 					</button>{ ' ' }
-					{ __( 'Statistiky návštěv', 'ux-studio' ) }
+					{ __( 'Visitor Statistics', 'ux-studio' ) }
 				</h1>
 			</header>
 			<AnalyticsOverview />
