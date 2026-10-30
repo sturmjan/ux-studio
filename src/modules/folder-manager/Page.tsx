@@ -505,6 +505,7 @@ export default function Page(): JSX.Element {
 						value={ attachmentId }
 						onChange={ ( e ) => setAttachmentId( e.target.value ) }
 					/>
+					<p className="uxs-form__help">{ __( 'The number of the file in the media library. You see it in the address bar when you open the file (post=123).', 'ux-studio' ) }</p>
 				</div>
 				<div className="uxs-form__row">
 					<label htmlFor="uxs-fm-assign-folder">{ __( 'Folder', 'ux-studio' ) }</label>
@@ -559,6 +560,7 @@ export default function Page(): JSX.Element {
 						value={ bulkIds }
 						onChange={ ( e ) => setBulkIds( e.target.value ) }
 					/>
+					<p className="uxs-form__help">{ __( 'The numbers of the files in the media library, for example 12, 15, 20.', 'ux-studio' ) }</p>
 				</div>
 				<div className="uxs-form__row">
 					<label htmlFor="uxs-fm-bulk-folder">{ __( 'Folder', 'ux-studio' ) }</label>

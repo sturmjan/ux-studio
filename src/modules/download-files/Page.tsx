@@ -126,6 +126,7 @@ function AddFileForm( { categories }: { categories: string[] } ): JSX.Element {
 						</span>
 					) : null }
 				</span>
+				<p className="uxs-form__help">{ __( 'Pick a file from the media library or upload a new one.', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-df-category">{ __( 'Category', 'ux-studio' ) }</label>
@@ -153,6 +154,7 @@ function AddFileForm( { categories }: { categories: string[] } ): JSX.Element {
 					onChange={ ( e ) => setPostId( e.target.value ) }
 					placeholder={ __( 'Optional post/page ID', 'ux-studio' ) }
 				/>
+				<p className="uxs-form__help">{ __( 'The number of the post or page that should show this file. You see it in the address bar when you edit the post (post=123). Leave empty to use the file only through the shortcode.', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-df-require-login">{ __( 'Require login to download', 'ux-studio' ) }</label>
@@ -164,6 +166,7 @@ function AddFileForm( { categories }: { categories: string[] } ): JSX.Element {
 					aria-label={ __( 'Require login to download', 'ux-studio' ) }
 					onClick={ () => setRequireLogin( ( v ) => ! v ) }
 				/>
+				<p className="uxs-form__help">{ __( 'Only logged-in users can download the file. It is moved out of the public uploads folder, so its original media address stops working.', 'ux-studio' ) }</p>
 			</div>
 			<button type="button" className="button button-primary" disabled={ ! canSubmit } onClick={ () => create.mutate() }>
 				{ create.isPending ? <LoaderCircle size={ 14 } /> : null } { __( 'Add file', 'ux-studio' ) }

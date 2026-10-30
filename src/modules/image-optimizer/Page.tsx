@@ -186,6 +186,7 @@ function BulkTab(): JSX.Element {
 						value={ restoreId }
 						onChange={ ( e ) => setRestoreId( e.target.value ) }
 					/>
+					<p className="uxs-form__help">{ __( 'The number of the image in the media library (post=123 in the address bar). The saved original replaces the optimized file.', 'ux-studio' ) }</p>
 				</div>
 				<button
 					type="button"
