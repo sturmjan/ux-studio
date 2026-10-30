@@ -4,6 +4,7 @@
 import { QueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { pushToast } from './notify';
+import type { GlossaryData } from '../components/GlossaryTerm';
 
 declare global {
 	interface Window {
@@ -13,6 +14,8 @@ declare global {
 			version: string;
 			apiVersion: number;
 			locale: string;
+			/** Definitions behind the [[term]] markers of help texts (Core\Glossary), in the user's language. */
+			glossary?: GlossaryData;
 		};
 	}
 }

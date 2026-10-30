@@ -991,6 +991,49 @@
 		line-height: 1.5;
 		color: var(--uxs-text-soft);
 	}
+	.uxs-explain__part { display: grid; gap: 0; }
+}
+
+/* ---- Glossary term: the word plus a small "?" that opens its definition (components/GlossaryTerm.tsx) ---- */
+.uxs-gloss { white-space: normal; }
+.uxs-gloss__btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 18px;
+	height: 18px;
+	margin: 0 0 0 var(--uxs-sp-1);
+	padding: 0;
+	vertical-align: text-bottom;
+	border: 1px solid var(--uxs-border);
+	border-radius: 50%;
+	background: var(--uxs-surface-2);
+	color: var(--uxs-brand-text);
+	font-size: 11px;
+	font-weight: 700;
+	line-height: 1;
+	cursor: help;
+
+	&:hover { background: var(--uxs-brand-soft); border-color: var(--uxs-brand-text); }
+	&[data-focus-visible] { outline: 2px solid var(--uxs-brand); outline-offset: 1px; }
+}
+.uxs-gloss__popover {
+	max-width: min(340px, calc(100vw - 24px));
+	background: var(--uxs-surface);
+	color: var(--uxs-text);
+	border: 1px solid var(--uxs-border);
+	border-radius: var(--uxs-radius-s);
+	box-shadow: var(--uxs-shadow-2);
+	font-family: var(--uxs-font);
+	font-size: var(--uxs-fs-s);
+	line-height: 1.5;
+	z-index: 100000;
+}
+.uxs-gloss__dialog {
+	display: grid;
+	gap: var(--uxs-sp-1);
+	padding: var(--uxs-sp-3) var(--uxs-sp-4);
+	outline: none;
 }
 .uxs-wiz-plan__reason { flex-basis: 100%; }
 
