@@ -111,6 +111,8 @@ final class Admin {
 				'version'    => UXSTUDIO_VERSION,
 				'apiVersion' => UXSTUDIO_API_VERSION,
 				'locale'     => get_user_locale(),
+				// Definitions behind the [[term]] markers of the help texts (docs/help-texts.md), in the user's language.
+				'glossary'   => Glossary::for_script(),
 			)
 		);
 
