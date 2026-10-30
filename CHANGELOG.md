@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.10.0 (unreleased)
+## 0.10.0
 
 Post-audit release: plain-language help for the settings of almost every module, a glossary of technical terms, a
 cleaner and more consistent admin UI, and fixes found by the audit.
