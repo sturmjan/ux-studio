@@ -3,6 +3,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Download, ListFilter, LoaderCircle, Pencil, Play, RotateCcw, Trash2, Upload } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
+import { HelpText } from '../../components/GlossaryTerm';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
 import { TabsNav } from '../../app/SubNav';
@@ -353,6 +354,7 @@ function RuleForm( { draft, setDraft }: { draft: Draft; setDraft: ( d: Draft ) =
 					</button>
 				) }
 			</div>
+			<p className="uxs-form__help"><HelpText text={ __( 'Type: [[301]] moves the page for good, [[302]] only for now, [[410]] says the content is gone. Match: "Exact URL" compares the old address letter for letter, a [[regex|regular expression]] matches a pattern.', 'ux-studio' ) } /></p>
 			{ draft.match_type === 'exact' && (
 				<div className="uxs-rd-options">
 					<label>

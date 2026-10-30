@@ -148,6 +148,7 @@ export default function AfterSubmitCard( {
 										<option value="page">{ __( 'A page of this site', 'ux-studio' ) }</option>
 										<option value="url">{ __( 'A web address', 'ux-studio' ) }</option>
 									</select>
+									<p className="uxs-form__help">{ __( 'Where the visitor lands after sending the form: one of your own pages or any web address.', 'ux-studio' ) }</p>
 								</div>
 								{ value.redirect_type === 'page' ? (
 									<div className="uxs-form__row">
@@ -166,6 +167,7 @@ export default function AfterSubmitCard( {
 										<div className="uxs-form__row">
 											<label htmlFor={ editorId + '-rurl' }>{ __( 'Web address', 'ux-studio' ) }</label>
 											<input id={ editorId + '-rurl' } type="url" value={ value.redirect_url } placeholder="https://example.com/thank-you" onChange={ ( e ) => onChange( { redirect_url: e.target.value } ) } />
+											<p className="uxs-form__help">{ __( 'The full address including https://. Check it once, a wrong address sends visitors to an error page.', 'ux-studio' ) }</p>
 										</div>
 										<div className="uxs-form__row">
 											<label className="uxs-checklist__item">
@@ -230,6 +232,7 @@ export default function AfterSubmitCard( {
 												<input type="checkbox" checked={ value.again } onChange={ ( e ) => onChange( { again: e.target.checked } ) } />{ ' ' }
 												{ __( 'Show a "Send another response" button', 'ux-studio' ) }
 											</label>
+											<p className="uxs-form__help">{ __( 'Lets the visitor fill in the form again without reloading the page.', 'ux-studio' ) }</p>
 										</div>
 									) }
 									<div className="uxs-form__row">

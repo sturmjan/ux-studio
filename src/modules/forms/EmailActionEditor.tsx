@@ -214,6 +214,7 @@ export default function EmailActionEditor( {
 									</option>
 								) ) }
 							</select>
+							<p className="uxs-form__help">{ __( 'The look of the e-mail. Minimal is plain text style, Card and Branded add a frame and a logo, Custom HTML lets you write the whole e-mail.', 'ux-studio' ) }</p>
 						</div>
 
 						{ isCustom ? (
@@ -269,6 +270,7 @@ export default function EmailActionEditor( {
 												</button>
 											) ) }
 										</div>
+										<p className="uxs-form__help">{ __( 'Where the logo stands in the header of the e-mail.', 'ux-studio' ) }</p>
 									</div>
 
 									<div className="uxs-form__row">
@@ -285,6 +287,7 @@ export default function EmailActionEditor( {
 											/>
 											<output>{ action.logo_width } px</output>
 										</div>
+										<p className="uxs-form__help">{ __( 'Width of the logo in pixels. A very wide logo may not fit on a phone.', 'ux-studio' ) }</p>
 									</div>
 
 									<ColorRow
@@ -327,11 +330,13 @@ export default function EmailActionEditor( {
 										<input type="checkbox" checked={ action.include_table } onChange={ ( e ) => onChange( { include_table: e.target.checked } ) } />{ ' ' }
 										{ __( 'Include a table of all submitted fields', 'ux-studio' ) }
 									</label>
+									<p className="uxs-form__help">{ __( 'Adds a list of every field and the answer to the e-mail, so the recipient sees all the data at once.', 'ux-studio' ) }</p>
 								</div>
 
 								<div className="uxs-form__row">
 									<label>{ __( 'Button text (optional)', 'ux-studio' ) }</label>
 									<input type="text" value={ action.cta_text } onChange={ ( e ) => onChange( { cta_text: e.target.value } ) } />
+									<p className="uxs-form__help">{ __( 'The words on an optional button at the end of the e-mail. Leave empty for no button.', 'ux-studio' ) }</p>
 								</div>
 								<div className="uxs-form__row">
 									<label>{ __( 'Button URL', 'ux-studio' ) }</label>

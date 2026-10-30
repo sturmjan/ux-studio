@@ -71,6 +71,7 @@ export default function SettingsTab( { form }: { form: FormDefinition } ): JSX.E
 						setDirty( true );
 					} }
 				/>
+				<p className="uxs-form__help">{ __( 'A note for you and your team. It is never shown to visitors.', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
 				<label>{ __( 'Status', 'ux-studio' ) }</label>

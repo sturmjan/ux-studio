@@ -158,6 +158,7 @@ function LocationExtras( { loc }: { loc: Location } ): JSX.Element {
 						</button>
 					</div>
 				) }
+				<p className="uxs-form__help">{ __( 'Closes the location for a short time, for example an unexpected break. Visitors see it as closed until the time runs out, then the normal hours apply again.', 'ux-studio' ) }</p>
 			</div>
 		</>
 	);

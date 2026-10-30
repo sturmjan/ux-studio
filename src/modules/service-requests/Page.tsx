@@ -176,6 +176,7 @@ function NewRequestForm(): JSX.Element {
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-sr-title">{ __( 'What is it about?', 'ux-studio' ) }</label>
 				<input id="uxs-sr-title" type="text" value={ title } onChange={ ( e ) => setTitle( e.target.value ) } />
+				<p className="uxs-form__help">{ __( 'A short title that tells us the problem in one line.', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-sr-description">{ __( 'Description', 'ux-studio' ) }</label>
@@ -196,6 +197,7 @@ function NewRequestForm(): JSX.Element {
 					onChange={ ( e ) => setPageUrl( e.target.value ) }
 					placeholder="https://…"
 				/>
+				<p className="uxs-form__help">{ __( 'The address of the page where you see the problem. It saves time on finding it.', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-sr-type">{ __( 'Type', 'ux-studio' ) }</label>
@@ -216,6 +218,7 @@ function NewRequestForm(): JSX.Element {
 						</option>
 					) ) }
 				</select>
+				<p className="uxs-form__help">{ __( 'How fast it needs an answer. Use the highest level only for a site that is down or loses orders.', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-sr-email">{ __( 'Contact email', 'ux-studio' ) }</label>
@@ -226,6 +229,7 @@ function NewRequestForm(): JSX.Element {
 					onChange={ ( e ) => setRequesterEmail( e.target.value ) }
 					placeholder={ __( 'Leave blank to use your account email', 'ux-studio' ) }
 				/>
+				<p className="uxs-form__help">{ __( 'Where the answer is sent. Empty uses the e-mail of your account.', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
 				<label>{ __( 'Attachment', 'ux-studio' ) }</label>
@@ -332,6 +336,7 @@ function RequestDetail( { item, onClose }: { item: ServiceRequest; onClose: () =
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-sr-reply">{ __( 'Add a message', 'ux-studio' ) }</label>
 				<textarea id="uxs-sr-reply" rows={ 3 } value={ body } onChange={ ( e ) => setBody( e.target.value ) } />
+				<p className="uxs-form__help">{ __( 'Your reply is added to the request and sent to the team.', 'ux-studio' ) }</p>
 			</div>
 			<button
 				type="button"
