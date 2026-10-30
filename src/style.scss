@@ -33,7 +33,9 @@ $uxs-text-fields: 'input[type="text"], input[type="url"], input[type="email"], i
 
 #ux-studio-root .uxs-input:not(textarea) {
 	@include uxs-field-look;
+	box-sizing: border-box;
 	min-height: 0;
+	height: 46px;
 	line-height: 20px;
 	max-width: 100%;
 }
@@ -1142,6 +1144,14 @@ $uxs-text-fields: 'input[type="text"], input[type="url"], input[type="email"], i
 		select {
 			min-height: 0;
 			line-height: 20px;
+		}
+
+		/* The browser's own date / time editors are taller than their text: pin them to the standard height. */
+		input[type="date"],
+		input[type="time"],
+		input[type="datetime-local"] {
+			box-sizing: border-box;
+			height: 46px;
 		}
 
 		#{$uxs-text-fields},
