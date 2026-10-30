@@ -77,4 +77,11 @@ try {
 }
 check( 'an exception still removes the filters', __( 'Cancel', 'ux-studio' ) === 'DE:Cancel' );
 
+// REST callbacks of the public chat routes run in the chat language (ChatLocale::wrap).
+$cb_cs = ChatLocale::wrap( static fn( $x ) => $x . ':' . __( 'Cancel', 'ux-studio' ), static fn() => 'cs' );
+$cb_en = ChatLocale::wrap( static fn( $x ) => $x . ':' . __( 'Cancel', 'ux-studio' ), static fn() => 'en' );
+check( 'wrap(): cs route answers in Czech and passes its arguments', 'req:Zrušit' === $cb_cs( 'req' ) );
+check( 'wrap(): en route answers in English', 'req:Cancel' === $cb_en( 'req' ) );
+check( 'wrap(): the request locale is back afterwards', __( 'Cancel', 'ux-studio' ) === 'DE:Cancel' );
+
 exit( $fail > 0 ? 1 : 0 );

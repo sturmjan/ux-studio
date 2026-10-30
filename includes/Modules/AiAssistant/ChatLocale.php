@@ -76,6 +76,23 @@ final class ChatLocale {
 	}
 
 	/**
+	 * Wrap a REST callback of a public chat route so that its answers (error messages, texts of the e-mails it
+	 * sends) come in the chat language, not in the locale of the site.
+	 *
+	 * @param callable                 $callback REST callback.
+	 * @param (callable():string)|null $language Returns the chat language; default: the `language` setting.
+	 * @return callable
+	 */
+	public static function wrap( callable $callback, ?callable $language = null ): callable {
+		return static function ( ...$args ) use ( $callback, $language ) {
+			$lang = null !== $language
+				? (string) $language()
+				: (string) ( new \UxStudio\Core\Settings( 'uxstudio_ai_assistant' ) )->get( 'language', 'cs' );
+			return self::run( $lang, static fn() => $callback( ...$args ) );
+		};
+	}
+
+	/**
 	 * Translate one text into the chat language outside of a run() block (used by REST handlers).
 	 *
 	 * @param string $text     English source text.

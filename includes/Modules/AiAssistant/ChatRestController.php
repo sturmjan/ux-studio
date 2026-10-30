@@ -70,7 +70,7 @@ final class ChatRestController extends Controller {
 			'/ai-assistant/chat',
 			array(
 				'methods'             => 'POST',
-				'callback'            => array( $this, 'chat' ),
+				'callback'            => ChatLocale::wrap( array( $this, 'chat' ) ),
 				'permission_callback' => '__return_true',
 			)
 		);
@@ -80,7 +80,7 @@ final class ChatRestController extends Controller {
 			'/ai-assistant/gdpr-consent',
 			array(
 				'methods'             => 'POST',
-				'callback'            => array( $this, 'gdpr_consent' ),
+				'callback'            => ChatLocale::wrap( array( $this, 'gdpr_consent' ) ),
 				'permission_callback' => '__return_true',
 			)
 		);
@@ -90,7 +90,7 @@ final class ChatRestController extends Controller {
 			'/ai-assistant/feedback',
 			array(
 				'methods'             => 'POST',
-				'callback'            => array( $this, 'feedback' ),
+				'callback'            => ChatLocale::wrap( array( $this, 'feedback' ) ),
 				'permission_callback' => '__return_true',
 			)
 		);
@@ -100,7 +100,7 @@ final class ChatRestController extends Controller {
 			'/ai-assistant/contact',
 			array(
 				'methods'             => 'POST',
-				'callback'            => array( $this, 'contact' ),
+				'callback'            => ChatLocale::wrap( array( $this, 'contact' ) ),
 				'permission_callback' => '__return_true',
 			)
 		);
@@ -110,7 +110,7 @@ final class ChatRestController extends Controller {
 			'/ai-assistant/callback',
 			array(
 				'methods'             => 'POST',
-				'callback'            => array( $this, 'callback_request' ),
+				'callback'            => ChatLocale::wrap( array( $this, 'callback_request' ) ),
 				'permission_callback' => '__return_true',
 			)
 		);
@@ -120,7 +120,7 @@ final class ChatRestController extends Controller {
 			'/ai-assistant/rating',
 			array(
 				'methods'             => 'POST',
-				'callback'            => array( $this, 'rating' ),
+				'callback'            => ChatLocale::wrap( array( $this, 'rating' ) ),
 				'permission_callback' => '__return_true',
 			)
 		);
@@ -130,7 +130,7 @@ final class ChatRestController extends Controller {
 			'/ai-assistant/faqs',
 			array(
 				'methods'             => 'GET',
-				'callback'            => array( $this, 'faqs' ),
+				'callback'            => ChatLocale::wrap( array( $this, 'faqs' ) ),
 				'permission_callback' => '__return_true',
 			)
 		);
@@ -140,7 +140,7 @@ final class ChatRestController extends Controller {
 			'/ai-assistant/product-card/(?P<id>\d+)',
 			array(
 				'methods'             => 'GET',
-				'callback'            => array( $this, 'product_card' ),
+				'callback'            => ChatLocale::wrap( array( $this, 'product_card' ) ),
 				'permission_callback' => '__return_true',
 				'args'                => array(
 					'id' => array(
