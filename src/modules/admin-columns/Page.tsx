@@ -309,7 +309,12 @@ function AccordionSection( {
 				return rows;
 			}
 			const next = [ ...rows ];
-			[ next[ index ], next[ target ] ] = [ next[ target ], next[ index ] ];
+			const a = next[ index ];
+			const b = next[ target ];
+			if ( a && b ) {
+				next[ index ] = b;
+				next[ target ] = a;
+			}
 			return next;
 		} );
 

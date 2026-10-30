@@ -42,6 +42,10 @@ interface ActivityRow {
 	action: string;
 	object_type: string;
 	object_id: number;
+	/** Readable forms from the server; the raw codes stay as a fallback. */
+	module_label?: string;
+	action_label?: string;
+	object_label?: string;
 }
 
 function scoreBadgeClass( score: number ): string {
@@ -143,9 +147,9 @@ function ActivityList(): JSX.Element {
 				{ data.map( ( row, i ) => (
 					<tr key={ i }>
 						<td>{ formatDate( row.created_at ) }</td>
-						<td>{ row.module }</td>
-						<td>{ row.action }</td>
-						<td>{ row.object_type ? `${ row.object_type } #${ row.object_id }` : '' }</td>
+						<td>{ row.module_label ?? row.module }</td>
+						<td>{ row.action_label ?? row.action }</td>
+						<td>{ row.object_type ? `${ row.object_label ?? row.object_type }${ row.object_id ? ` #${ row.object_id }` : '' }` : '' }</td>
 					</tr>
 				) ) }
 			</tbody>
