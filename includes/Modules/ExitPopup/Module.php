@@ -129,7 +129,7 @@ final class Module extends BaseModule {
 				'key'     => 'enable_cta',
 				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'toggle',
-				'label'   => __( 'Show CTA button', 'ux-studio' ),
+				'label'   => __( 'Show a button (call to action)', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
@@ -137,7 +137,7 @@ final class Module extends BaseModule {
 				'show_if' => array( 'key' => 'enable_cta', 'truthy' => true ),
 				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'text',
-				'label'   => __( 'CTA button label', 'ux-studio' ),
+				'label'   => __( 'Button label', 'ux-studio' ),
 				'default' => __( 'Stay on page', 'ux-studio' ),
 			),
 			array(
@@ -145,8 +145,8 @@ final class Module extends BaseModule {
 				'show_if' => array( 'key' => 'enable_cta', 'truthy' => true ),
 				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'text',
-				'label'   => __( 'CTA button URL', 'ux-studio' ),
-				'help'    => __( 'Use # to simply close the popup.', 'ux-studio' ),
+				'label'   => __( 'Button address (URL)', 'ux-studio' ),
+				'help'    => __( 'Where the button leads. Type # to only close the popup.', 'ux-studio' ),
 				'default' => '#',
 			),
 			array(
@@ -154,7 +154,7 @@ final class Module extends BaseModule {
 				'show_if' => array( 'key' => 'enable_cta', 'truthy' => true ),
 				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'toggle',
-				'label'   => __( 'Open CTA in a new tab', 'ux-studio' ),
+				'label'   => __( 'Open the button in a new tab', 'ux-studio' ),
 				'default' => false,
 			),
 			// --- Appearance ---
@@ -184,7 +184,7 @@ final class Module extends BaseModule {
 				'show_if' => array( 'key' => 'enable_cta', 'truthy' => true ),
 				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'color',
-				'label'   => __( 'CTA background colour', 'ux-studio' ),
+				'label'   => __( 'Button background colour', 'ux-studio' ),
 				'default' => '#2563eb',
 			),
 			array(
@@ -192,7 +192,7 @@ final class Module extends BaseModule {
 				'show_if' => array( 'key' => 'enable_cta', 'truthy' => true ),
 				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'color',
-				'label'   => __( 'CTA text colour', 'ux-studio' ),
+				'label'   => __( 'Button text colour', 'ux-studio' ),
 				'default' => '#ffffff',
 			),
 			array(

@@ -197,17 +197,20 @@ function TestBox(): JSX.Element {
 
 	return (
 		<div className="uxs-form" style={ { maxWidth: 'none', marginBottom: 'var(--uxs-sp-4)' } }>
-			<div className="uxs-form__line" style={ { display: 'flex', alignItems: 'flex-end', gap: 'var(--uxs-sp-3)' } }>
-				<div className="uxs-form__row" style={ { flex: 1 } }>
-					<label htmlFor="uxs-rd-test">{ __( 'Test a URL', 'ux-studio' ) }</label>
-					<input id="uxs-rd-test" type="text" value={ url } placeholder="/old-page.html" onChange={ ( e ) => setUrl( e.target.value ) } />
-				</div>
-				<label style={ { whiteSpace: 'nowrap' } }>
+			<div className="uxs-form__row">
+				<label htmlFor="uxs-rd-test">{ __( 'Test a URL', 'ux-studio' ) }</label>
+				<input id="uxs-rd-test" type="text" value={ url } placeholder="/old-page.html" onChange={ ( e ) => setUrl( e.target.value ) } />
+			</div>
+			<div className="uxs-actions" role="group" aria-label={ __( 'Test options', 'ux-studio' ) }>
+				<label>
 					<input type="checkbox" checked={ live } onChange={ ( e ) => setLive( e.target.checked ) } /> { __( 'Live HTTP check', 'ux-studio' ) }
 				</label>
-				<label style={ { whiteSpace: 'nowrap' } }>
+				<label>
 					<input type="checkbox" checked={ showVisitor } onChange={ ( e ) => setShowVisitor( e.target.checked ) } /> { __( 'As a specific visitor', 'ux-studio' ) }
 				</label>
+			</div>
+			<p className="uxs-form__help">{ __( 'A live check sends a real request to your site. "As a specific visitor" tests rules that depend on login, role, referrer or cookie.', 'ux-studio' ) }</p>
+			<div className="uxs-actions">
 				<button type="button" className="button" disabled={ ! url || test.isPending } onClick={ () => test.mutate() }>
 					<Play size={ 14 } /> { __( 'Test', 'ux-studio' ) }
 				</button>

@@ -283,7 +283,7 @@ final class Module extends BaseModule {
 				'key'     => 'google_url',
 				'type'    => 'text',
 				'label'   => __( 'Google Maps URL or Place ID', 'ux-studio' ),
-				'help'    => __( 'Used by "Request deep scan" to find or create the Google profile in the central app.', 'ux-studio' ),
+				'help'    => __( 'Used by "Request a full scan" to find or create the Google profile in the central app.', 'ux-studio' ),
 				'default' => '',
 			),
 		);
