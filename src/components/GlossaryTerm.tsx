@@ -12,34 +12,9 @@ import { Fragment } from 'react';
 import type { ReactNode } from 'react';
 import { Button, Dialog, DialogTrigger, Popover } from 'react-aria-components';
 import { __, sprintf } from '@wordpress/i18n';
+import { findTerm, splitHelpText } from './glossary';
 
-export interface GlossaryEntry {
-	term: string;
-	text: string;
-}
-
-export interface GlossaryData {
-	terms: Record< string, GlossaryEntry >;
-	aliases: Record< string, string >;
-}
-
-/** Same normalisation as Core\Glossary::id_of() (aliases are applied by the caller). */
-export function normalizeTermId( name: string ): string {
-	return name
-		.trim()
-		.toLowerCase()
-		.replace( /[^a-z0-9]+/g, '-' )
-		.replace( /^-+|-+$/g, '' );
-}
-
-/** The definition behind a marker text, or undefined. */
-export function findTerm( name: string, data: GlossaryData | undefined = window.uxStudioBoot?.glossary ): GlossaryEntry | undefined {
-	if ( ! data ) {
-		return undefined;
-	}
-	const id = normalizeTermId( name );
-	return data.terms[ data.aliases[ id ] ?? id ];
-}
+export type { GlossaryData, GlossaryEntry } from './glossary';
 
 interface GlossaryTermProps {
 	/** Term id or name, as written in the marker (`CSP`, `REST API`). */
@@ -82,41 +57,26 @@ export function GlossaryTerm( { term, children }: GlossaryTermProps ): JSX.Eleme
 	);
 }
 
-const MARKER = /\[\[([^\]|]+?)(?:\|([^\]]+?))?\]\]/g;
-
 /**
  * Plain text with `[[term]]` / `[[term|shown text]]` markers turned into glossary terms. Text without markers
  * (nearly all of it) is returned as it is.
  */
 export function HelpText( { text }: { text: string } ): JSX.Element {
-	if ( ! text.includes( '[[' ) ) {
+	const pieces = splitHelpText( text );
+	if ( pieces.length === 1 && typeof pieces[ 0 ] === 'string' ) {
 		return <>{ text }</>;
-	}
-	const parts: ReactNode[] = [];
-	let last = 0;
-	let index = 0;
-	for ( const match of text.matchAll( MARKER ) ) {
-		const at = match.index ?? 0;
-		if ( at > last ) {
-			parts.push( text.slice( last, at ) );
-		}
-		const name = match[ 1 ] ?? '';
-		const shown = match[ 2 ];
-		parts.push(
-			<GlossaryTerm key={ `${ index++ }-${ name }` } term={ name }>
-				{ shown ?? ( findTerm( name )?.term ?? name ) }
-			</GlossaryTerm>
-		);
-		last = at + match[ 0 ].length;
-	}
-	if ( last < text.length ) {
-		parts.push( text.slice( last ) );
 	}
 	return (
 		<>
-			{ parts.map( ( part, i ) => (
-				<Fragment key={ i }>{ part }</Fragment>
-			) ) }
+			{ pieces.map( ( piece, i ) =>
+				typeof piece === 'string' ? (
+					<Fragment key={ i }>{ piece }</Fragment>
+				) : (
+					<GlossaryTerm key={ i } term={ piece.name }>
+						{ piece.shown ?? findTerm( piece.name )?.term ?? piece.name }
+					</GlossaryTerm>
+				)
+			) }
 		</>
 	);
 }

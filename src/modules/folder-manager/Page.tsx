@@ -236,7 +236,7 @@ function FolderRow( { row, folders }: { row: FolderNode; folders: Folder[] } ): 
 				) }
 			</td>
 			<td>
-				<span style={ { display: 'inline-flex', gap: 'var(--uxs-sp-1, 4px)' } }>
+				<span className="uxs-actions">
 					<button
 						type="button"
 						className="button"

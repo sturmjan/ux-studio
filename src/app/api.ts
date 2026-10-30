@@ -4,7 +4,7 @@
 import { QueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { pushToast } from './notify';
-import type { GlossaryData } from '../components/GlossaryTerm';
+import type { GlossaryData } from '../components/glossary';
 
 declare global {
 	interface Window {
