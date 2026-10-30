@@ -237,7 +237,7 @@ function ColumnRow( {
 					type="button"
 					className={ `uxs-switch${ column.enabled ? ' is-on' : '' }` }
 					aria-pressed={ column.enabled }
-					aria-label={ column.enabled ? __( 'Disable column', 'ux-studio' ) : __( 'Enable column', 'ux-studio' ) }
+					aria-label={ column.enabled ? __( 'Disable column', 'ux-studio' ) : __( 'Turn on column', 'ux-studio' ) }
 					onClick={ () => onChange( { ...column, enabled: ! column.enabled } ) }
 				/>
 			</td>

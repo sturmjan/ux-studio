@@ -316,7 +316,7 @@ msgstr "Skrýt záložku „Nápověda“"
 
 #: includes/Core/Migration/Sources/AbstractAdminSource.php:392
 #: includes/Modules/AdminCustomiser/Module.php:315
-msgid "Enable menu organizer"
+msgid "Turn on menu organizer"
 msgstr "Zapnout organizátor menu"
 
 #: includes/Modules/AdminCustomiser/Module.php:316
@@ -324,12 +324,12 @@ msgid "Reorganizes the WordPress admin menu into custom categories. Configure ca
 msgstr "Reorganizuje administrační menu WordPressu do vlastních kategorií. Kategorie, pořadí položek a přepisy nastavte na záložce Organizátor menu."
 
 #: includes/Modules/AdminCustomiser/Module.php:331
-msgid "Enable admin bar customization"
+msgid "Turn on admin bar customization"
 msgstr "Zapnout přizpůsobení panelu administrace"
 
 #: includes/Core/Migration/Sources/AdminifySource.php:225
 #: includes/Modules/AdminCustomiser/Module.php:535
-msgid "Enable quick search"
+msgid "Turn on quick search"
 msgstr "Zapnout rychlé hledání"
 
 #: includes/Modules/AdminCustomiser/Module.php:542
@@ -337,7 +337,7 @@ msgid "Quick search post types"
 msgstr "Typy obsahu pro rychlé hledání"
 
 #: includes/Modules/AdminCustomiser/Module.php:550
-msgid "Enable icon replacer"
+msgid "Turn on icon replacer"
 msgstr "Zapnout náhradu ikon"
 
 #: includes/Core/Migration/Sources/AdminifySource.php:219
@@ -358,7 +358,7 @@ msgid "Move notices to a tray instead of hiding them completely"
 msgstr "Přesunout upozornění do zásuvky místo jejich úplného skrytí"
 
 #: includes/Modules/AdminCustomiser/Module.php:572
-msgid "Enable server clock"
+msgid "Turn on server clock"
 msgstr "Zapnout serverové hodiny"
 
 #: includes/Modules/AdminCustomiser/Module.php:579
@@ -376,7 +376,7 @@ msgstr "Menu Plus"
 #: includes/Core/Migration/Sources/LoginPressSource.php:136
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:154
 #: includes/Modules/AdminCustomiser/Module.php:590
-msgid "Enable login screen customization"
+msgid "Turn on login screen customization"
 msgstr "Zapnout přizpůsobení přihlašovací obrazovky"
 
 #: build/index.04e7a212f3612f9ac1ea.js:2
@@ -1581,7 +1581,7 @@ msgid "Daily request limit (per user)"
 msgstr "Denní limit požadavků (na uživatele)"
 
 #: includes/Modules/AiAssistant/Module.php:516
-msgid "Enable MCP (tool calling)"
+msgid "Turn on MCP (tool calling)"
 msgstr "Zapnout MCP (volání nástrojů)"
 
 #: includes/Modules/AiAssistant/Module.php:522
@@ -1833,7 +1833,7 @@ msgid "Unpublish: %s"
 msgstr "Zrušit publikování: %s"
 
 #: includes/Modules/BotThrottle/Module.php:360
-msgid "Enable bot throttling"
+msgid "Turn on bot throttling"
 msgstr "Zapnout omezování botů"
 
 #: includes/Modules/SecurityOptimization/Module.php:1708
@@ -3244,7 +3244,7 @@ msgid "Create the primary menu and assign it to a theme location."
 msgstr "Vytvořte hlavní menu a přiřaďte jej k umístění v motivu."
 
 #: includes/Modules/Guide/Module.php:125
-msgid "Enable the modules you need"
+msgid "Turn on the modules you need"
 msgstr "Zapněte moduly, které potřebujete"
 
 #: includes/Modules/Guide/Module.php:126
@@ -3559,7 +3559,7 @@ msgid "Footer text"
 msgstr "Text zápatí"
 
 #: includes/Modules/MaintenanceMode/Module.php:618
-msgid "Enable logo"
+msgid "Turn on logo"
 msgstr "Zapnout logo"
 
 #: includes/Modules/AdminColumns/FieldRenderer.php:134
@@ -3602,7 +3602,7 @@ msgstr "Šířka loga (px)"
 
 #: includes/Core/Migration/Sources/MaintenanceSource.php:90
 #: includes/Modules/MaintenanceMode/Module.php:653
-msgid "Enable background image"
+msgid "Turn on background image"
 msgstr "Zapnout obrázek pozadí"
 
 #: includes/Core/Migration/Sources/MaintenanceSource.php:91
@@ -4294,7 +4294,7 @@ msgstr "Neplatný CIDR rozsah: %s"
 
 #: includes/Core/Migration/Sources/LoginSource.php:238
 #: includes/Modules/SecurityOptimization/Module.php:500
-msgid "Enable IP firewall"
+msgid "Turn on IP firewall"
 msgstr "Zapnout IP firewall"
 
 #: includes/Modules/SecurityOptimization/Module.php:501
@@ -4339,7 +4339,7 @@ msgid "Optional message shown to a blocked visitor (403)."
 msgstr "Volitelná zpráva zobrazená zablokovanému návštěvníkovi (403)."
 
 #: includes/Modules/SecurityOptimization/Module.php:539
-msgid "Enable country blocklist"
+msgid "Turn on country blocklist"
 msgstr "Zapnout seznam blokovaných zemí"
 
 #: includes/Modules/SecurityOptimization/Module.php:540
@@ -4408,7 +4408,7 @@ msgstr "Blokovat readme.html / license.txt"
 
 #: includes/Core/Migration/Sources/LoginSource.php:320
 #: includes/Modules/SecurityOptimization/Module.php:686
-msgid "Enable custom login URL"
+msgid "Turn on custom login URL"
 msgstr "Zapnout vlastní URL přihlášení"
 
 #: includes/Modules/SecurityOptimization/Module.php:687
@@ -4480,7 +4480,7 @@ msgstr "Jedno na řádek, přidává se navíc k vestavěnému seznamu rezervova
 
 #: includes/Core/Migration/Sources/CaptchaSource.php:73
 #: includes/Modules/SecurityOptimization/Module.php:860
-msgid "Enable CAPTCHA"
+msgid "Turn on CAPTCHA"
 msgstr "Zapnout CAPTCHA"
 
 #: includes/Modules/SecurityOptimization/Module.php:865
@@ -6425,7 +6425,7 @@ msgid "Hides detailed login error messages (so an attacker cannot tell which of 
 msgstr "Skryje podrobné chybové hlášky přihlášení (aby útočník nepoznal, zda bylo špatně jméno, nebo heslo) a vypne aplikační hesla."
 
 #: includes/Modules/SecurityOptimization/Module.php:1294
-msgid "Enable Upload Guard scanner"
+msgid "Turn on Upload Guard scanner"
 msgstr "Zapnout skener Ochrany nahrávání"
 
 #: includes/Modules/SecurityOptimization/Module.php:1391
@@ -9795,7 +9795,7 @@ msgid "Disable column"
 msgstr "Vypnout sloupec"
 
 #: build/213.5a49a3684d2b8994d0c3.js:1
-msgid "Enable column"
+msgid "Turn on column"
 msgstr "Zapnout sloupec"
 
 #: build/213.5a49a3684d2b8994d0c3.js:1
@@ -13015,7 +13015,7 @@ msgid "Where to run"
 msgstr "Kde spouštět"
 
 #: build/760.7cf74bc4f9176b3bd380.js:1
-msgid "Enable snippet"
+msgid "Turn on snippet"
 msgstr "Zapnout úryvek"
 
 #: build/760.7cf74bc4f9176b3bd380.js:1
@@ -13306,7 +13306,7 @@ msgstr "Vypnout modul"
 #: build/index.04e7a212f3612f9ac1ea.js:14
 #: build/index.04e7a212f3612f9ac1ea.js:46
 #: build/index.04e7a212f3612f9ac1ea.js:84
-msgid "Enable module"
+msgid "Turn on module"
 msgstr "Zapnout modul"
 
 #: build/index.4744fd9174bf699c546b.js:3
@@ -14257,7 +14257,7 @@ msgid "Message after the timeout"
 msgstr "Zpráva po vypršení limitu"
 
 #: includes/Modules/AiAssistant/Module.php:676
-msgid "Enable the internal chatbot"
+msgid "Turn on the internal chatbot"
 msgstr "Zapnout interní chatbot"
 
 #: includes/Modules/AiAssistant/Module.php:677
@@ -18558,7 +18558,7 @@ msgid "The module \"%s\" does the same job as the plugin below. Two things doing
 msgstr "Modul \"%s\" dělá stejnou práci jako plugin níže. Dvě věci s jedním úkolem se navzájem ruší, proto UX Studio modul nezapnulo. Nejdřív plugin deaktivujte, pak modul zapněte."
 
 #: build/index.04e7a212f3612f9ac1ea.js:10
-msgid "Enable anyway"
+msgid "Turn on anyway"
 msgstr "Zapnout i tak"
 
 #. translators: %s: module name.
@@ -21576,7 +21576,7 @@ msgid "Search the e-mail log"
 msgstr "Hledání v logu e-mailů"
 
 #: includes/Core/Mcp/CoreAbilities.php:133
-msgid "Enable a module"
+msgid "Turn on a module"
 msgstr "Zapnout modul"
 
 #: includes/Core/Mcp/CoreAbilities.php:146
@@ -21850,7 +21850,7 @@ msgid "Disable the MCP server"
 msgstr "Vypnout MCP server"
 
 #: build/index.04e7a212f3612f9ac1ea.js:44
-msgid "Enable the MCP server"
+msgid "Turn on the MCP server"
 msgstr "Zapnout MCP server"
 
 #: build/index.04e7a212f3612f9ac1ea.js:44
@@ -22149,7 +22149,7 @@ msgid "Two-step verification"
 msgstr "Dvoufázové ověření"
 
 #: includes/Modules/SecurityOptimization/Module.php:807
-msgid "Enable two-step verification"
+msgid "Turn on two-step verification"
 msgstr "Zapnout dvoufázové ověření"
 
 #: includes/Modules/SecurityOptimization/Module.php:808
@@ -35849,7 +35849,7 @@ msgid "With 0 nothing is ever deleted, so the log grows and keeps personal data 
 msgstr "S hodnotou 0 se nesmaže nikdy nic, takže protokol roste a drží osobní údaje navždy. Smazané záznamy nejdou obnovit."
 
 #: includes/Modules/SmtpEmail/Module.php:369
-msgid "Enable e-mail logs"
+msgid "Turn on e-mail logs"
 msgstr "Zapnout logy e-mailů"
 
 #: includes/Modules/SmtpEmail/Module.php:370
@@ -37389,3 +37389,15 @@ msgstr "Zda tvůj server umí vytvářet formát [[AVIF]]."
 #: build/index.04e7a212f3612f9ac1ea.js:1
 msgid "Select an option"
 msgstr "Vyberte možnost"
+
+#: includes/Core/Onboarding/StarterPack.php:932
+msgid "Site logo on the login page: used (Admin Customiser > Login page > Login screen logo). To remove it, clear that logo there or turn off \"Turn on login screen customization\"."
+msgstr "Logo webu na přihlašovací stránce: použito (Úpravy administrace > Přihlašovací stránka > Logo přihlašovací obrazovky). Chcete-li ho odebrat, smažte tam logo nebo vypněte „Zapnout přizpůsobení přihlašovací obrazovky“."
+
+#: includes/Modules/AiAssistant/help.php:80
+msgid "Change it when most of your visitors speak the other language, or pick Automatic to follow the language of the site (Czech sites chat in Czech, all others in English). For a different language of generated articles use Content language below."
+msgstr "Změňte to, když většina návštěvníků mluví druhým jazykem, nebo zvolte Automaticky a chat bude mluvit jazykem webu (český web česky, všechny ostatní anglicky). Pro jiný jazyk generovaných článků použijte níže Jazyk obsahu."
+
+#: includes/Modules/AiAssistant/Module.php:526
+msgid "Automatic (language of the site)"
+msgstr "Automaticky (jazyk webu)"

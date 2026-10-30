@@ -302,7 +302,7 @@ function ModuleRow( { m, sub = false, onToggle }: ModuleRowProps ): JSX.Element 
 				<button
 					type="button"
 					className={ `uxs-switch${ m.enabled ? ' is-on' : '' }` }
-					aria-label={ m.enabled ? __( 'Disable module', 'ux-studio' ) : __( 'Enable module', 'ux-studio' ) }
+					aria-label={ m.enabled ? __( 'Disable module', 'ux-studio' ) : __( 'Turn on module', 'ux-studio' ) }
 					aria-pressed={ m.enabled }
 					onClick={ ( e ) => {
 						e.stopPropagation();

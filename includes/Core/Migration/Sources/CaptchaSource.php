@@ -70,7 +70,7 @@ final class CaptchaSource extends AbstractSource {
 		if ( in_array( $size, array( 'normal', 'compact', 'flexible' ), true ) ) {
 			$m->set( self::MODULE, 'captcha_size', $size, __( 'Widget size', 'ux-studio' ), $origin );
 		}
-		$m->set( self::MODULE, 'captcha_enabled', $ready && array() !== $forms, __( 'Enable CAPTCHA', 'ux-studio' ), $origin );
+		$m->set( self::MODULE, 'captcha_enabled', $ready && array() !== $forms, __( 'Turn on CAPTCHA', 'ux-studio' ), $origin );
 		if ( ! $ready ) {
 			$m->warn( __( 'The site key or the secret key is empty, so the CAPTCHA stays turned off in the module.', 'ux-studio' ) );
 		}

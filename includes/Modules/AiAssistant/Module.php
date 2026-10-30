@@ -513,7 +513,7 @@ final class Module extends BaseModule {
 			array(
 				'key'     => 'mcp_enabled',
 				'type'    => 'toggle',
-				'label'   => __( 'Enable MCP (tool calling)', 'ux-studio' ),
+				'label'   => __( 'Turn on MCP (tool calling)', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
@@ -521,8 +521,9 @@ final class Module extends BaseModule {
 				'type'    => 'select',
 				'label'   => __( 'Chat language', 'ux-studio' ),
 				'options' => array(
-					'cs' => __( 'Czech', 'ux-studio' ),
-					'en' => __( 'English', 'ux-studio' ),
+					'cs'   => __( 'Czech', 'ux-studio' ),
+					'en'   => __( 'English', 'ux-studio' ),
+					'auto' => __( 'Automatic (language of the site)', 'ux-studio' ),
 				),
 				'default' => 'cs',
 			),
@@ -673,7 +674,7 @@ final class Module extends BaseModule {
 			array(
 				'key'     => 'chatbot_enabled',
 				'type'    => 'toggle',
-				'label'   => __( 'Enable the internal chatbot', 'ux-studio' ),
+				'label'   => __( 'Turn on the internal chatbot', 'ux-studio' ),
 				'help'    => __( 'When off, the Internal Chat tab refuses new messages.', 'ux-studio' ),
 				'default' => true,
 			),

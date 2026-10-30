@@ -104,7 +104,7 @@ export function GroupPage( { groupId }: { groupId: string } ): JSX.Element {
 					<button
 						type="button"
 						className={ `uxs-switch${ switchOn ? ' is-on' : '' }` }
-						aria-label={ switchOn ? __( 'Disable module', 'ux-studio' ) : __( 'Enable module', 'ux-studio' ) }
+						aria-label={ switchOn ? __( 'Disable module', 'ux-studio' ) : __( 'Turn on module', 'ux-studio' ) }
 						aria-pressed={ switchOn }
 						onClick={ onSwitch }
 					/>

@@ -37,12 +37,16 @@ final class ChatLocale {
 	private static string $active = '';
 
 	/**
-	 * Chat language from the setting, always 'cs' or 'en'.
+	 * Chat language from the setting, always 'cs' or 'en' ('auto' follows the site language).
 	 *
 	 * @param mixed $value Raw value of the `language` setting.
 	 */
 	public static function normalize( $value ): string {
 		$value = is_string( $value ) ? $value : '';
+		if ( 'auto' === $value ) {
+			// Follow the language of the site: Czech sites chat in Czech, everything else in English.
+			return 0 === strpos( (string) get_locale(), 'cs' ) ? 'cs' : 'en';
+		}
 		return isset( self::LOCALES[ $value ] ) ? $value : 'cs';
 	}
 

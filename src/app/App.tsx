@@ -77,7 +77,7 @@ function ModulePageGate( { moduleId, Page }: { moduleId: string; Page: Component
 					{ enable.isError && ! isOverlapError( enable.error ) && <p className="uxs-notice__error">{ ( enable.error as Error ).message }</p> }
 					<div className="uxs-notice__actions">
 						<button type="button" className="button button-primary" disabled={ enable.isPending } onClick={ () => enable.mutate( false ) }>
-							{ enable.isPending ? __( 'Enabling…', 'ux-studio' ) : __( 'Enable module', 'ux-studio' ) }
+							{ enable.isPending ? __( 'Enabling…', 'ux-studio' ) : __( 'Turn on module', 'ux-studio' ) }
 						</button>
 						<button type="button" className="button" disabled={ enable.isPending } onClick={ () => navigate( '' ) }>
 							{ __( 'Back to modules', 'ux-studio' ) }

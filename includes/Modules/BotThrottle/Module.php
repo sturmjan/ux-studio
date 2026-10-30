@@ -357,7 +357,7 @@ final class Module extends BaseModule {
 			array(
 				'key'     => 'enabled',
 				'type'    => 'toggle',
-				'label'   => __( 'Enable bot throttling', 'ux-studio' ),
+				'label'   => __( 'Turn on bot throttling', 'ux-studio' ),
 				'default' => true,
 			),
 			array(

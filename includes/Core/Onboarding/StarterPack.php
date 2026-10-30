@@ -929,7 +929,7 @@ final class StarterPack {
 
 	/** Shown when the pack puts the site logo on a plain login page. */
 	public static function login_logo_used_note(): string {
-		return __( 'Site logo on the login page: used (Admin Customiser > Login page > Login screen logo). To remove it, clear that logo there or turn off "Enable login screen customization".', 'ux-studio' );
+		return __( 'Site logo on the login page: used (Admin Customiser > Login page > Login screen logo). To remove it, clear that logo there or turn off "Turn on login screen customization".', 'ux-studio' );
 	}
 
 	/**
