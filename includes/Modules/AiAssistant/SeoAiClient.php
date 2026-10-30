@@ -117,7 +117,7 @@ final class SeoAiClient {
 		if ( ! $this->is_configured() ) {
 			return array(
 				'success' => false,
-				'error'   => __( 'Centrální aplikace není propojená (chybí central_app_url nebo node_api_key v nastavení Content Sync).', 'ux-studio' ),
+				'error'   => __( 'The central app is not connected. Connect this site in Content Sync first.', 'ux-studio' ),
 			);
 		}
 
@@ -155,7 +155,7 @@ final class SeoAiClient {
 				'success' => false,
 				'error'   => is_array( $data ) && isset( $data['error'] )
 					? (string) $data['error']
-					: sprintf( /* translators: %d: HTTP status code */ __( 'Centrální aplikace vrátila HTTP %d.', 'ux-studio' ), $code ),
+					: sprintf( /* translators: %d: HTTP status code */ __( 'The central app returned HTTP %d.', 'ux-studio' ), $code ),
 			);
 		}
 

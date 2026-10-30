@@ -78,15 +78,14 @@ final class ChatBootstrap {
 		);
 
 		$settings = new Settings( 'uxstudio_ai_assistant' );
-		$language = (string) $settings->get( 'language', 'cs' );
-		if ( ! in_array( $language, array( 'cs', 'en' ), true ) ) {
-			$language = 'cs';
-		}
+		$language = ChatLocale::normalize( $settings->get( 'language', 'cs' ) );
 
 		$product_id = 0;
 		if ( function_exists( 'is_product' ) && is_product() ) {
 			$product_id = get_the_ID() ?: 0;
 		}
+
+		$i18n = AssistantConfig::widget_i18n( $language );
 
 		wp_localize_script(
 			'uxstudio-ai-assistant-widget',
@@ -96,7 +95,8 @@ final class ChatBootstrap {
 				'nonce'            => wp_create_nonce( 'wp_rest' ),
 				'productId'        => $product_id,
 				'maxMessageLength' => ChatRestController::MAX_MESSAGE_LENGTH,
-				'openLabel'        => 'cs' === $language ? 'Otevřít chat' : 'Open chat',
+				'openLabel'        => (string) ( $i18n['openChat'] ?? 'Open chat' ),
+				'i18n'             => $i18n,
 				'assets'           => array(
 					'js'  => add_query_arg( 'ver', $version, UXSTUDIO_URL . $js_rel ),
 					'css' => add_query_arg( 'ver', $version, UXSTUDIO_URL . $css_rel ),

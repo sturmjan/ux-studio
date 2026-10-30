@@ -28,15 +28,25 @@ interface CacheRow {
 	generated_at: string;
 }
 
+interface CachePage {
+	items: CacheRow[];
+	total: number;
+}
+
+const CACHE_PAGE_SIZE = 30;
+
 function CacheTab(): JSX.Element {
+	const [ page, setPage ] = useState( 0 );
 	const { data: stats } = useQuery( {
 		queryKey: [ 'ai-markdown', 'stats' ],
 		queryFn: () => api< Stats >( 'ai-markdown/stats' ),
 	} );
-	const { data: rows, isLoading } = useQuery( {
-		queryKey: [ 'ai-markdown', 'list' ],
-		queryFn: () => api< CacheRow[] >( 'ai-markdown/list' ),
+	const { data: cache, isLoading } = useQuery( {
+		queryKey: [ 'ai-markdown', 'list', page ],
+		queryFn: () => api< CachePage >( `ai-markdown/list?limit=${ CACHE_PAGE_SIZE }&offset=${ page * CACHE_PAGE_SIZE }` ),
 	} );
+	const rows = cache?.items ?? [];
+	const cacheTotal = cache?.total ?? 0;
 
 	const regenerateOne = useMutation( {
 		mutationFn: ( id: number ) => api( `ai-markdown/regenerate/${ id }`, { method: 'POST' } ),
@@ -97,23 +107,23 @@ function CacheTab(): JSX.Element {
 						</tr>
 					</thead>
 					<tbody>
-						{ ( rows ?? [] ).map( ( row ) => (
+						{ rows.map( ( row ) => (
 							<tr key={ row.post_id }>
 								<td>{ row.title }</td>
 								<td>{ formatDate( row.generated_at ) }</td>
 								<td>
 									<button
 										type="button"
-										className="button-link"
+										className="button button-small"
 										disabled={ regenerateOne.isPending }
 										onClick={ () => regenerateOne.mutate( row.post_id ) }
 									>
-										{ __( 'Regenerate', 'ux-studio' ) }
+										<RefreshCw size={ 12 } /> { __( 'Regenerate', 'ux-studio' ) }
 									</button>
 								</td>
 							</tr>
 						) ) }
-						{ ! rows?.length ? (
+						{ ! rows.length ? (
 							<tr>
 								<td colSpan={ 3 }>{ __( 'Nothing cached yet.', 'ux-studio' ) }</td>
 							</tr>
@@ -121,6 +131,25 @@ function CacheTab(): JSX.Element {
 					</tbody>
 				</table></div>
 			) }
+
+			{ cacheTotal > CACHE_PAGE_SIZE ? (
+				<div className="uxs-actions" style={ { marginTop: 'var(--uxs-sp-4)' } }>
+					<button type="button" className="button" disabled={ page === 0 } onClick={ () => setPage( ( p ) => p - 1 ) }>
+						{ __( 'Previous', 'ux-studio' ) }
+					</button>
+					<span className="uxs-form__help" style={ { margin: 0 } }>
+						{ page * CACHE_PAGE_SIZE + 1 }-{ Math.min( cacheTotal, ( page + 1 ) * CACHE_PAGE_SIZE ) } / { cacheTotal }
+					</span>
+					<button
+						type="button"
+						className="button"
+						disabled={ ( page + 1 ) * CACHE_PAGE_SIZE >= cacheTotal }
+						onClick={ () => setPage( ( p ) => p + 1 ) }
+					>
+						{ __( 'Next', 'ux-studio' ) }
+					</button>
+				</div>
+			) : null }
 		</>
 	);
 }

@@ -25,7 +25,7 @@ declare(strict_types=1);
 error_reporting(E_ALL);
 @ini_set('display_errors', '0');
 
-/* ============ KONFIGURACE ============ */
+/* ============ CONFIGURATION ============ */
 
 $CFG = [
     'hash'          => '',
@@ -36,6 +36,8 @@ $CFG = [
     'created'       => 0,
     'expires_at'    => 0,
     'proxies'       => [],
+    'i18n'          => [],
+    'locale'        => 'en-US',
 ];
 $cfg_file = __DIR__ . '/config.php';
 if (is_file($cfg_file)) {
@@ -43,6 +45,17 @@ if (is_file($cfg_file)) {
     if (is_array($loaded)) {
         $CFG = array_merge($CFG, $loaded);
     }
+}
+
+/**
+ * Text of the UI in the language of the admin who installed the endpoint. WordPress is not loaded here, so
+ * there is no __(): the plugin writes the translated texts into config.php ('i18n', keyed by the English
+ * text) and this returns the English text itself when there is no translation.
+ */
+function rt(string $text): string {
+    global $CFG;
+    $dict = is_array($CFG['i18n'] ?? null) ? $CFG['i18n'] : [];
+    return (isset($dict[$text]) && is_string($dict[$text]) && $dict[$text] !== '') ? $dict[$text] : $text;
 }
 
 // Root: primárně z configu (uloží ho plugin = přesné ABSPATH). Fallback hledá
@@ -177,7 +190,7 @@ function php_syntax_error(string $content): ?string {
         token_get_all($content, TOKEN_PARSE);
         return null;
     } catch (\ParseError $e) {
-        return $e->getMessage() . ' (řádek ' . $e->getLine() . ')';
+        return $e->getMessage() . ' (line ' . $e->getLine() . ')';
     } catch (\Throwable $e) {
         return $e->getMessage();
     }
@@ -194,7 +207,7 @@ function safe_path(string $rel, string $root, bool $must_exist = true): string {
         if ($full === false) throw new RuntimeException('Cesta neexistuje: ' . $rel);
     } else {
         $parent = realpath(dirname($cand));
-        if ($parent === false) throw new RuntimeException('Rodičovský adresář neexistuje.');
+        if ($parent === false) throw new RuntimeException('The parent directory does not exist.');
         $rootReal = realpath($root);
         if (strpos($parent . DIRECTORY_SEPARATOR, $rootReal . DIRECTORY_SEPARATOR) !== 0 && $parent !== $rootReal) {
             throw new RuntimeException('Cesta mimo root.');
@@ -212,7 +225,7 @@ function safe_path(string $rel, string $root, bool $must_exist = true): string {
     // Ochrana samotného záchranného endpointu (config, log, sám sebe).
     $norm = rtrim(str_replace('\\', '/', $full), '/');
     if (strpos($norm . '/', $SELF_DIR) === 0) {
-        throw new RuntimeException('Do složky záchranného endpointu nelze zasahovat.');
+        throw new RuntimeException('The folder of the rescue endpoint cannot be touched.');
     }
     return $full;
 }
@@ -284,7 +297,7 @@ function csrf_token(): string {
 function check_csrf(): void {
     $t = $_POST['csrf'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
     if (!hash_equals($_SESSION['csrf'] ?? '', (string) $t)) {
-        json_out(['error' => 'Neplatný CSRF token'], 403);
+        json_out(['error' => 'Invalid CSRF token'], 403);
     }
 }
 
@@ -341,7 +354,7 @@ if (($_POST['action'] ?? '') === 'login') {
         rescue_log('rate_limited', $ip);
         http_response_code(429);
         header('Content-Type: text/plain; charset=utf-8');
-        echo 'Příliš mnoho pokusů. Počkej ' . (900 - (time() - $rec['last'])) . ' s.';
+        echo sprintf(rt('Too many attempts. Wait %d s.'), 900 - (time() - $rec['last']));
         exit;
     }
 
@@ -361,7 +374,7 @@ if (($_POST['action'] ?? '') === 'login') {
         $rl[$ip] = $rec;
         @file_put_contents($rl_file, "<?php exit; ?>\n" . json_encode($rl), LOCK_EX);
         rescue_log('login_fail', $ip);
-        $login_error = 'Nesprávné heslo.';
+        $login_error = rt('Wrong password.');
     }
 }
 
@@ -370,9 +383,9 @@ if (($_POST['action'] ?? '') === 'login') {
 if (!is_logged_in()) {
     header('Content-Type: text/html; charset=utf-8');
     header('X-Robots-Tag: noindex, nofollow');
-    ?><!doctype html><html lang="cs"><head><meta charset="utf-8">
+    ?><!doctype html><html lang="<?= htmlspecialchars((string) $CFG['locale'], ENT_QUOTES) ?>"><head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Záchranný přístup</title><meta name="robots" content="noindex,nofollow">
+    <title><?= htmlspecialchars(rt('Rescue access'), ENT_QUOTES) ?></title><meta name="robots" content="noindex,nofollow">
     <style>
         body{background:#0d1117;color:#c9d1d9;font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}
         form{background:#161b22;padding:2rem;border-radius:8px;border:1px solid #30363d;width:340px}
@@ -382,11 +395,11 @@ if (!is_logged_in()) {
         .err{color:#f85149;margin-top:.5rem;font-size:.9rem}
     </style></head><body>
     <form method="post">
-        <h1>🛟 Záchranný přístup</h1>
-        <p class="sub">Nezávislý na WordPressu. Jen správa souborů.</p>
+        <h1>🛟 <?= htmlspecialchars(rt('Rescue access'), ENT_QUOTES) ?></h1>
+        <p class="sub"><?= htmlspecialchars(rt('Independent of WordPress. File management only.'), ENT_QUOTES) ?></p>
         <input type="hidden" name="action" value="login">
-        <input type="password" name="password" placeholder="Záchranné heslo" autofocus autocomplete="off">
-        <button type="submit">Přihlásit</button>
+        <input type="password" name="password" placeholder="<?= htmlspecialchars(rt('Rescue password'), ENT_QUOTES) ?>" autofocus autocomplete="off">
+        <button type="submit"><?= htmlspecialchars(rt('Log in'), ENT_QUOTES) ?></button>
         <?php if ($login_error): ?><div class="err"><?= htmlspecialchars($login_error, ENT_QUOTES) ?></div><?php endif; ?>
     </form></body></html><?php
     exit;
@@ -404,7 +417,7 @@ if (isset($_GET['api'])) {
 
             case 'list': {
                 $path = safe_path($_POST['path'] ?? '.', $ROOT);
-                if (!is_dir($path)) throw new RuntimeException('Není adresář.');
+                if (!is_dir($path)) throw new RuntimeException('Not a directory.');
                 $items = [];
                 foreach (scandir($path) as $f) {
                     if ($f === '.' || $f === '..') continue;
@@ -424,9 +437,9 @@ if (isset($_GET['api'])) {
 
             case 'read': {
                 $path = safe_path((string) ($_POST['path'] ?? ''), $ROOT);
-                if (!is_file($path)) throw new RuntimeException('Není soubor.');
+                if (!is_file($path)) throw new RuntimeException('Not a file.');
                 $size = filesize($path);
-                if ($size > 5 * 1024 * 1024) throw new RuntimeException('Soubor > 5 MB, stáhni jej.');
+                if ($size > 5 * 1024 * 1024) throw new RuntimeException('File over 5 MB, download it instead.');
                 $raw = file_get_contents($path);
                 // Volitelné částečné čtení po řádcích (start_line/end_line, 1-based včetně).
                 $start = isset($_POST['start_line']) ? max(1, (int) $_POST['start_line']) : 0;
@@ -453,17 +466,17 @@ if (isset($_GET['api'])) {
             case 'write': {
                 $path    = safe_path((string) ($_POST['path'] ?? ''), $ROOT, false);
                 $content = isset($_POST['c64']) ? base64_decode((string) $_POST['c64'], true) : (string) ($_POST['content'] ?? '');
-                if ($content === false) throw new RuntimeException('Neplatný base64 obsah.');
+                if ($content === false) throw new RuntimeException('Invalid base64 content.');
                 if (is_php_path($path) && empty($_POST['force'])) {
                     $lint = php_syntax_error($content);
                     if ($lint !== null) {
                         rescue_log('write_blocked', rel_path($path, $ROOT) . ' — ' . substr($lint, 0, 200));
-                        json_out(['error' => 'PHP syntax error — zápis zablokován: ' . $lint, 'lint_error' => $lint, 'hint' => 'Oprav syntaxi nebo pošli force=1.'], 422);
+                        json_out(['error' => 'PHP syntax error: write blocked: ' . $lint, 'lint_error' => $lint, 'hint' => 'Fix the syntax or send force=1.'], 422);
                     }
                 }
                 $backup = backup_existing($path, 'write', $ROOT);
-                if (file_put_contents($path, $content) === false) throw new RuntimeException('Zápis selhal.');
-                rescue_log('write', rel_path($path, $ROOT) . ' (' . strlen($content) . ' B)' . ($backup ? ' [záloha]' : ''));
+                if (file_put_contents($path, $content) === false) throw new RuntimeException('Write failed.');
+                rescue_log('write', rel_path($path, $ROOT) . ' (' . strlen($content) . ' B)' . ($backup ? ' [backup]' : ''));
                 json_out(['ok' => true, 'path' => rel_path($path, $ROOT), 'size' => strlen($content), 'backup' => (bool) $backup]);
             }
 
@@ -471,19 +484,19 @@ if (isset($_GET['api'])) {
                 // Cílená úprava (find/replace) — posílá se jen měněný úsek, ne celý
                 // soubor → řádově méně tokenů. Pole: path, find|f64, replace|r64, [all], [force].
                 $path = safe_path((string) ($_POST['path'] ?? ''), $ROOT);
-                if (!is_file($path)) throw new RuntimeException('Není soubor.');
+                if (!is_file($path)) throw new RuntimeException('Not a file.');
                 $find = isset($_POST['f64']) ? base64_decode((string) $_POST['f64'], true) : ($_POST['find'] ?? null);
                 $replace = isset($_POST['r64']) ? base64_decode((string) $_POST['r64'], true) : (string) ($_POST['replace'] ?? '');
-                if ($find === null || $find === false || $find === '') throw new RuntimeException('Chybí/neplatné pole find (nebo f64).');
-                if ($replace === false) throw new RuntimeException('Neplatný base64 v r64.');
+                if ($find === null || $find === false || $find === '') throw new RuntimeException('Missing or invalid field find (or f64).');
+                if ($replace === false) throw new RuntimeException('Invalid base64 in r64.');
                 $original    = file_get_contents($path);
                 $occurrences = substr_count($original, (string) $find);
                 if ($occurrences === 0) {
-                    json_out(['error' => 'Hledaný úsek (find) se nenašel.', 'occurrences' => 0], 422);
+                    json_out(['error' => 'The text to find (find) was not found.', 'occurrences' => 0], 422);
                 }
                 $all = !empty($_POST['all']);
                 if ($occurrences > 1 && !$all) {
-                    json_out(['error' => 'Úsek (find) není jednoznačný — nalezen ' . $occurrences . '×. Rozšiř kontext nebo pošli all=1.', 'occurrences' => $occurrences], 422);
+                    json_out(['error' => 'The text to find (find) is not unique: found ' . $occurrences . ' times. Add more context or send all=1.', 'occurrences' => $occurrences], 422);
                 }
                 if ($all) {
                     $new = str_replace((string) $find, (string) $replace, $original);
@@ -497,12 +510,12 @@ if (isset($_GET['api'])) {
                     $lint = php_syntax_error($new);
                     if ($lint !== null) {
                         rescue_log('write_blocked', rel_path($path, $ROOT) . ' [patch] — ' . substr($lint, 0, 200));
-                        json_out(['error' => 'PHP syntax error po náhradě — zápis zablokován: ' . $lint, 'lint_error' => $lint, 'hint' => 'Oprav náhradu nebo pošli force=1.'], 422);
+                        json_out(['error' => 'PHP syntax error after the replacement: write blocked: ' . $lint, 'lint_error' => $lint, 'hint' => 'Fix the replacement or send force=1.'], 422);
                     }
                 }
                 $backup = backup_existing($path, 'patch', $ROOT);
-                if (file_put_contents($path, $new) === false) throw new RuntimeException('Zápis selhal.');
-                rescue_log('write', rel_path($path, $ROOT) . ' [patch ×' . $replaced . ', ' . strlen($new) . ' B]' . ($backup ? ' [záloha]' : ''));
+                if (file_put_contents($path, $new) === false) throw new RuntimeException('Write failed.');
+                rescue_log('write', rel_path($path, $ROOT) . ' [patch ×' . $replaced . ', ' . strlen($new) . ' B]' . ($backup ? ' [backup]' : ''));
                 json_out(['ok' => true, 'path' => rel_path($path, $ROOT), 'replaced' => $replaced, 'size' => strlen($new), 'backup' => (bool) $backup]);
             }
 
@@ -511,7 +524,7 @@ if (isset($_GET['api'])) {
                 if ($path === realpath($ROOT)) throw new RuntimeException('Nelze smazat root.');
                 $backup = is_file($path) ? backup_existing($path, 'delete', $ROOT) : null;
                 is_dir($path) ? rrmdir($path) : unlink($path);
-                rescue_log('delete', rel_path($path, $ROOT) . ($backup ? ' [záloha]' : ''));
+                rescue_log('delete', rel_path($path, $ROOT) . ($backup ? ' [backup]' : ''));
                 json_out(['ok' => true, 'backup' => (bool) $backup]);
             }
 
@@ -519,7 +532,7 @@ if (isset($_GET['api'])) {
                 $from = safe_path((string) ($_POST['from'] ?? ''), $ROOT);
                 $to   = safe_path((string) ($_POST['to'] ?? ''), $ROOT, false);
                 $backup = is_file($to) ? backup_existing($to, 'rename-overwrite', $ROOT) : null;
-                if (!rename($from, $to)) throw new RuntimeException('Přejmenování selhalo.');
+                if (!rename($from, $to)) throw new RuntimeException('Rename failed.');
                 rescue_log('rename', rel_path($from, $ROOT) . ' -> ' . rel_path($to, $ROOT));
                 json_out(['ok' => true, 'backup' => (bool) $backup]);
             }
@@ -532,7 +545,7 @@ if (isset($_GET['api'])) {
             }
 
             default:
-                throw new RuntimeException('Neznámá / nepovolená akce: ' . $action);
+                throw new RuntimeException('Unknown or forbidden action: ' . $action);
         }
     } catch (Throwable $e) {
         json_out(['error' => $e->getMessage()], 400);
@@ -544,7 +557,7 @@ if (isset($_GET['api'])) {
 if (isset($_GET['download'])) {
     try {
         $path = safe_path((string) $_GET['download'], $ROOT);
-        if (!is_file($path)) throw new RuntimeException('Není soubor.');
+        if (!is_file($path)) throw new RuntimeException('Not a file.');
         header('Content-Type: application/octet-stream');
         header('Content-Length: ' . filesize($path));
         header('Content-Disposition: attachment; filename="' . basename($path) . '"');
@@ -563,12 +576,12 @@ $csrf = csrf_token();
 header('Content-Type: text/html; charset=utf-8');
 header('X-Robots-Tag: noindex, nofollow');
 ?><!doctype html>
-<html lang="cs">
+<html lang="<?= htmlspecialchars((string) $CFG['locale'], ENT_QUOTES) ?>">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>🛟 Záchranný přístup</title>
+<title>🛟 <?= htmlspecialchars(rt('Rescue access'), ENT_QUOTES) ?></title>
 <style>
 :root{--bg:#0d1117;--bg2:#161b22;--br:#30363d;--fg:#c9d1d9;--mut:#8b949e;--acc:#58a6ff;--ok:#3fb950;--err:#f85149;--warn:#d29922}
 *{box-sizing:border-box}
@@ -603,56 +616,69 @@ textarea{width:100%;min-height:62vh;font-family:ui-monospace,monospace;font-size
 </head>
 <body>
 <header>
-    <h1>🛟 Záchranný přístup</h1>
+    <h1>🛟 <?= htmlspecialchars(rt('Rescue access'), ENT_QUOTES) ?></h1>
     <span class="muted" id="root-label"></span>
     <nav>
-        <button data-tab="files" class="active">📁 Soubory</button>
-        <button data-tab="editor">📝 Editor</button>
-        <button class="logout" onclick="location.href='?action=logout'">Odhlásit</button>
+        <button data-tab="files" class="active">📁 <?= htmlspecialchars(rt('Files'), ENT_QUOTES) ?></button>
+        <button data-tab="editor">📝 <?= htmlspecialchars(rt('Editor'), ENT_QUOTES) ?></button>
+        <button class="logout" onclick="location.href='?action=logout'"><?= htmlspecialchars(rt('Log out'), ENT_QUOTES) ?></button>
     </nav>
 </header>
 <main>
-    <div class="banner">⚠️ Nouzový režim mimo WordPress — jen správa souborů. Uprav/smaž soubor, který web shodil, pak odhlas.</div>
+    <div class="banner">⚠️ <?= htmlspecialchars(rt('Emergency mode outside WordPress: file management only. Edit or delete the file that broke the site, then log out.'), ENT_QUOTES) ?></div>
 
     <section id="files" class="panel active">
         <div class="toolbar">
             <div class="breadcrumb" id="breadcrumb"></div>
             <button onclick="fs.refresh()">🔄</button>
-            <button onclick="fs.up()">⬆️ Nahoru</button>
-            <button onclick="fs.mkdir()">📁+ Složka</button>
-            <button onclick="fs.newFile()">📄+ Soubor</button>
-            <input type="search" id="filter" placeholder="Filtr...">
+            <button onclick="fs.up()">⬆️ <?= htmlspecialchars(rt('Up'), ENT_QUOTES) ?></button>
+            <button onclick="fs.mkdir()">📁+ <?= htmlspecialchars(rt('New folder'), ENT_QUOTES) ?></button>
+            <button onclick="fs.newFile()">📄+ <?= htmlspecialchars(rt('New file'), ENT_QUOTES) ?></button>
+            <input type="search" id="filter" placeholder="<?= htmlspecialchars(rt('Filter...'), ENT_QUOTES) ?>">
         </div>
         <table>
-            <thead><tr><th style="width:55%">Název</th><th>Velikost</th><th>Změněno</th><th>Akce</th></tr></thead>
+            <thead><tr><th style="width:55%"><?= htmlspecialchars(rt('Name'), ENT_QUOTES) ?></th><th><?= htmlspecialchars(rt('Size'), ENT_QUOTES) ?></th><th><?= htmlspecialchars(rt('Modified'), ENT_QUOTES) ?></th><th><?= htmlspecialchars(rt('Actions'), ENT_QUOTES) ?></th></tr></thead>
             <tbody id="files-body"></tbody>
         </table>
     </section>
 
     <section id="editor" class="panel">
         <div class="toolbar">
-            <span class="muted" id="editor-path">(žádný soubor)</span>
+            <span class="muted" id="editor-path">(<?= htmlspecialchars(rt('no file'), ENT_QUOTES) ?>)</span>
             <span style="flex:1"></span>
-            <button class="primary" onclick="ed.save()">💾 Uložit</button>
-            <button onclick="ed.reload()">🔄 Znovu</button>
+            <button class="primary" onclick="ed.save()">💾 <?= htmlspecialchars(rt('Save'), ENT_QUOTES) ?></button>
+            <button onclick="ed.reload()">🔄 <?= htmlspecialchars(rt('Reload'), ENT_QUOTES) ?></button>
         </div>
-        <textarea id="editor-area" spellcheck="false" placeholder="Klikni na soubor..."></textarea>
+        <textarea id="editor-area" spellcheck="false" placeholder="<?= htmlspecialchars(rt('Click a file...'), ENT_QUOTES) ?>"></textarea>
     </section>
 </main>
 <script>
 const CSRF = <?= json_encode($csrf) ?>;
+const T = <?= json_encode([
+    'locale'        => (string) $CFG['locale'],
+    'responseError' => rt('Could not parse the response'),
+    'folderName'    => rt('Name of the folder:'),
+    'fileName'      => rt('Name of the file:'),
+    'confirmDelete' => rt('Delete:'),
+    'deleted'       => rt('Deleted'),
+    'backup'        => rt('(backup)'),
+    'newName'       => rt('New name:'),
+    'noFileOpen'    => rt('No file is open'),
+    'saved'         => rt('Saved'),
+    'forceSave'     => rt('Force the save anyway?'),
+], JSON_UNESCAPED_UNICODE) ?>;
 async function api(action, data = {}) {
     const fd = new FormData();
     fd.append('csrf', CSRF);
     for (const k in data) fd.append(k, data[k]);
     const r = await fetch('?api=' + encodeURIComponent(action), { method: 'POST', headers: { 'X-CSRF-Token': CSRF }, body: fd });
-    const j = await r.json().catch(() => ({ error: 'Chyba odpovědi' }));
+    const j = await r.json().catch(() => ({ error: T.responseError }));
     if (!r.ok || j.error) throw new Error(j.error || ('HTTP ' + r.status));
     return j;
 }
 function toast(m, t = '') { const d = document.createElement('div'); d.className = 'toast ' + t; d.textContent = m; document.body.appendChild(d); setTimeout(() => d.remove(), 3800); }
 function fmtSize(n){if(n==null)return'';const u=['B','KB','MB','GB'];let i=0;while(n>=1024&&i<3){n/=1024;i++;}return n.toFixed(i?1:0)+' '+u[i];}
-function fmtDate(t){return t?new Date(t*1000).toLocaleString('cs-CZ'):'';}
+function fmtDate(t){return t?new Date(t*1000).toLocaleString(T.locale):'';}
 document.querySelectorAll('nav button[data-tab]').forEach(b => b.onclick = () => {
     document.querySelectorAll('nav button[data-tab]').forEach(x => x.classList.remove('active'));
     document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
@@ -668,17 +694,17 @@ const fs = {
             tr.querySelector('.'+cls).onclick=()=>{ it.type==='dir'?fs.load(it.path):ed.open(it.path); }; tb.appendChild(tr); }); },
     refresh(){ this.load(this.cwd); },
     up(){ const p=this.cwd.split('/'); p.pop(); this.load(p.join('/')||'.'); },
-    async mkdir(){ const n=prompt('Název složky:'); if(!n)return; try{ await api('mkdir',{path:this.cwd+'/'+n}); this.refresh(); }catch(e){ toast(e.message,'err'); } },
-    async newFile(){ const n=prompt('Název souboru:'); if(!n)return; try{ await api('write',{path:this.cwd+'/'+n,content:'',force:1}); this.refresh(); ed.open(this.cwd+'/'+n); }catch(e){ toast(e.message,'err'); } },
-    async del(p){ if(!confirm('Smazat: '+p+' ?'))return; try{ const r=await api('delete',{path:p}); this.refresh(); toast('Smazáno'+(r.backup?' (záloha ✓)':''),'ok'); }catch(e){ toast(e.message,'err'); } },
-    async ren(p){ const parts=p.split('/'); const cur=parts.pop(); const n=prompt('Nový název:',cur); if(!n||n===cur)return; const to=(parts.length?parts.join('/')+'/':'')+n; try{ await api('rename',{from:p,to:to}); this.refresh(); }catch(e){ toast(e.message,'err'); } },
+    async mkdir(){ const n=prompt(T.folderName); if(!n)return; try{ await api('mkdir',{path:this.cwd+'/'+n}); this.refresh(); }catch(e){ toast(e.message,'err'); } },
+    async newFile(){ const n=prompt(T.fileName); if(!n)return; try{ await api('write',{path:this.cwd+'/'+n,content:'',force:1}); this.refresh(); ed.open(this.cwd+'/'+n); }catch(e){ toast(e.message,'err'); } },
+    async del(p){ if(!confirm(T.confirmDelete+' '+p+' ?'))return; try{ const r=await api('delete',{path:p}); this.refresh(); toast(T.deleted+(r.backup?' '+T.backup:''),'ok'); }catch(e){ toast(e.message,'err'); } },
+    async ren(p){ const parts=p.split('/'); const cur=parts.pop(); const n=prompt(T.newName,cur); if(!n||n===cur)return; const to=(parts.length?parts.join('/')+'/':'')+n; try{ await api('rename',{from:p,to:to}); this.refresh(); }catch(e){ toast(e.message,'err'); } },
     dl(p){ window.location='?download='+encodeURIComponent(p); },
 };
 document.getElementById('filter').oninput=()=>fs.refresh();
 const ed = {
     path:null,
     async open(p){ try{ const r=await api('read',{path:p}); this.path=r.path; document.getElementById('editor-path').textContent='📝 '+r.path+' ('+fmtSize(r.size)+')'; document.getElementById('editor-area').value=r.content; document.querySelector('nav button[data-tab=editor]').click(); }catch(e){ toast(e.message,'err'); } },
-    async save(force){ if(!this.path)return toast('Není otevřen soubor','err'); try{ const d={path:this.path,content:document.getElementById('editor-area').value}; if(force)d.force=1; const r=await api('write',d); toast('Uloženo'+(r.backup?' (záloha ✓)':''),'ok'); }catch(e){ if(e.message.includes('syntax')&&confirm(e.message+'\n\nVynutit uložení i tak?')){ this.save(true); } else { toast(e.message,'err'); } } },
+    async save(force){ if(!this.path)return toast(T.noFileOpen,'err'); try{ const d={path:this.path,content:document.getElementById('editor-area').value}; if(force)d.force=1; const r=await api('write',d); toast(T.saved+(r.backup?' '+T.backup:''),'ok'); }catch(e){ if(e.message.includes('syntax')&&confirm(e.message+'\n\n'+T.forceSave)){ this.save(true); } else { toast(e.message,'err'); } } },
     async reload(){ if(this.path)this.open(this.path); },
 };
 document.getElementById('editor-area').addEventListener('keydown',e=>{ if((e.ctrlKey||e.metaKey)&&e.key==='s'){ e.preventDefault(); ed.save(); } });
