@@ -373,6 +373,7 @@ $uxs-text-fields: 'input[type="text"], input[type="url"], input[type="email"], i
 		top: var(--wp-admin--admin-bar--height, 32px);
 		bottom: 0;
 		left: var(--uxs-drawer-left, 0);
+		box-sizing: border-box;
 		width: min(320px, calc(100vw - 48px));
 		overflow-y: auto;
 		box-shadow: var(--uxs-shadow-2);
