@@ -31,13 +31,13 @@ return array(
 	'auto_create_enabled' => array(
 		'does'   => __( 'When somebody signs in with a provider and this site does not know them yet, a new WordPress account is created on the spot. The account gets the e-mail address from the provider, a username made from it, a long random password and the role chosen below. An existing account is never taken over: when the e-mail address already belongs to a user, the login is refused and that user must link the provider from the profile after a normal login.', 'ux-studio' ),
 		'effect' => __( 'Visitors register in one click, without a form. Your user list grows with every new person.', 'ux-studio' ),
-		'risk'   => __( 'Anyone who has an account at an enabled provider (for example any Google account) can get an account on your site, with the role chosen below. Pick the lowest possible role, and expect spam registrations on a public site. Accounts of roles that are not ticked in Allowed roles are still created, but cannot log in.', 'ux-studio' ),
+		'risk'   => __( 'Anyone who has an account at an enabled provider (for example any Google account) can get an account on your site, with the role chosen below. Pick the lowest possible role, and expect spam registrations on a public site. If the role is not ticked in Allowed roles, no account is created and the visitor sees an error.', 'ux-studio' ),
 		'off'    => __( 'Leave it off when only people you know should have an account. They then link the provider from their profile.', 'ux-studio' ),
 	),
 	'auto_create_role'    => array(
 		'does'   => __( 'The role a new account gets when it is created automatically. Administrator cannot be chosen here.', 'ux-studio' ),
 		'effect' => __( 'The role decides what the new person may do on the site. Subscriber can only manage their own profile.', 'ux-studio' ),
-		'risk'   => __( 'Every person who signs in this way gets this role, so a powerful role such as Editor gives strangers access to your content. The role must also be ticked in Allowed roles, otherwise the new account cannot log in.', 'ux-studio' ),
+		'risk'   => __( 'Every person who signs in this way gets this role, so a powerful role such as Editor gives strangers access to your content. The role must also be ticked in Allowed roles, otherwise no account is created and the sign-in fails.', 'ux-studio' ),
 	),
 	'notice_enabled'      => array(
 		'does'   => __( 'Shows a notice in the admin to allowed users who have not linked any provider yet. They can close it.', 'ux-studio' ),
