@@ -73,6 +73,9 @@ export default function Page(): JSX.Element {
 				</h1>
 			</header>
 
+			<p className="uxs-form__help">
+				{ __( 'Sends a short test message to check that the site can send e-mail at all. A passed test means the message left the site; it does not prove that it reached the inbox, so look in the spam folder too.', 'ux-studio' ) }
+			</p>
 			{ status.isLoading ? (
 				<div className="uxs-loading">
 					<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />
