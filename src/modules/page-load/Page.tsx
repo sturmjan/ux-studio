@@ -99,20 +99,37 @@ function OverviewTab(): JSX.Element {
 		);
 	}
 
+	const sum = overview?.summary;
+	const summaryItems: [ string, string ][] = [
+		[ __( 'Average', 'ux-studio' ), `${ sum?.avg_ms ?? 0 } ms` ],
+		[ __( 'Min', 'ux-studio' ), `${ sum?.min_ms ?? 0 } ms` ],
+		[ __( 'Max', 'ux-studio' ), `${ sum?.max_ms ?? 0 } ms` ],
+		[ __( 'Avg queries', 'ux-studio' ), String( sum?.avg_queries ?? 0 ) ],
+		[ __( 'Avg memory', 'ux-studio' ), `${ sum?.avg_memory_mb ?? 0 } MB` ],
+		[ __( 'Peak memory', 'ux-studio' ), `${ sum?.max_memory_mb ?? 0 } MB` ],
+		[ __( 'Samples', 'ux-studio' ), String( sum?.sample_count ?? 0 ) ],
+	];
+
 	return (
 		<>
 			<div className="uxs-form" style={ { marginBottom: 'var(--uxs-sp-5)' } }>
 				<div className="uxs-form__row">
-					<label>{ __( 'Last 24 hours', 'ux-studio' ) }</label>
-					<p className="uxs-form__help">
-						{ __( 'Average', 'ux-studio' ) }: { overview?.summary.avg_ms ?? 0 } ms &nbsp;·&nbsp;
-						{ __( 'Min', 'ux-studio' ) }: { overview?.summary.min_ms ?? 0 } ms &nbsp;·&nbsp;
-						{ __( 'Max', 'ux-studio' ) }: { overview?.summary.max_ms ?? 0 } ms &nbsp;·&nbsp;
-						{ __( 'Avg queries', 'ux-studio' ) }: { overview?.summary.avg_queries ?? 0 } &nbsp;·&nbsp;
-						{ __( 'Avg memory', 'ux-studio' ) }: { overview?.summary.avg_memory_mb ?? 0 } MB &nbsp;·&nbsp;
-						{ __( 'Peak memory', 'ux-studio' ) }: { overview?.summary.max_memory_mb ?? 0 } MB &nbsp;·&nbsp;
-						{ __( 'Samples', 'ux-studio' ) }: { overview?.summary.sample_count ?? 0 }
-					</p>
+					<strong>{ __( 'Last 24 hours', 'ux-studio' ) }</strong>
+					<dl
+						style={ {
+							display: 'grid',
+							gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+							gap: 'var(--uxs-sp-3) var(--uxs-sp-5)',
+							margin: 0,
+						} }
+					>
+						{ summaryItems.map( ( [ label, value ] ) => (
+							<div key={ label }>
+								<dt className="uxs-form__help" style={ { margin: 0 } }>{ label }</dt>
+								<dd style={ { margin: 0, fontWeight: 600 } }>{ value }</dd>
+							</div>
+						) ) }
+					</dl>
 				</div>
 			</div>
 			<div className="uxs-table-wrap"><table className="uxs-table">
@@ -127,7 +144,7 @@ function OverviewTab(): JSX.Element {
 				<tbody>
 					{ ( overview?.hourly ?? [] ).map( ( row ) => (
 						<tr key={ row.hour }>
-							<td>{ row.hour }</td>
+							<td>{ formatDate( row.hour ) }</td>
 							<td>{ row.avg_ms }</td>
 							<td>{ row.avg_queries }</td>
 							<td>{ row.count }</td>

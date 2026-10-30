@@ -7,6 +7,7 @@ import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
 import { TabsNav } from '../../app/SubNav';
 import { formatDate } from '../../app/date';
+import { HelpText } from '../../components/GlossaryTerm';
 
 type Tab = 'bulk' | 'scanner' | 'settings';
 
@@ -75,29 +76,50 @@ function StatusPanel(): JSX.Element | null {
 
 	const { supports_webp: webp, supports_avif: avif, delivery } = status.data;
 
+	const rows: { label: string; ok: boolean | null; text: string; hint?: string }[] = [
+		{
+			label: __( 'WebP images', 'ux-studio' ),
+			ok: webp,
+			text: webp ? __( 'Server can create them', 'ux-studio' ) : __( 'Server cannot create them', 'ux-studio' ),
+			hint: __( 'Can your server create the [[WebP]] format?', 'ux-studio' ),
+		},
+		{
+			label: __( 'AVIF images', 'ux-studio' ),
+			ok: avif,
+			text: avif ? __( 'Server can create them', 'ux-studio' ) : __( 'Server cannot create them', 'ux-studio' ),
+			hint: __( 'Can your server create the [[AVIF]] format?', 'ux-studio' ),
+		},
+		{
+			label: __( 'Automatic delivery of newer formats', 'ux-studio' ),
+			ok: delivery.active ? true : null,
+			text: delivery.active ? __( 'Active', 'ux-studio' ) : __( 'Not active', 'ux-studio' ),
+			hint: __( 'Rules in the .htaccess file of the uploads folder', 'ux-studio' ),
+		},
+	];
+
 	return (
 		<div className="uxs-form" style={ { marginBottom: 'var(--uxs-sp-5)' } }>
-			<div className="uxs-form__row">
-				<span>{ __( 'WebP encoding', 'ux-studio' ) }</span>
-				<span className={ `uxs-badge ${ webp ? 'is-success' : 'is-danger' }` }>
-					{ webp ? __( 'Supported', 'ux-studio' ) : __( 'Unavailable', 'ux-studio' ) }
-				</span>
-			</div>
-			<div className="uxs-form__row">
-				<span>{ __( 'AVIF encoding', 'ux-studio' ) }</span>
-				<span className={ `uxs-badge ${ avif ? 'is-success' : 'is-danger' }` }>
-					{ avif ? __( 'Supported', 'ux-studio' ) : __( 'Unavailable on this server', 'ux-studio' ) }
-				</span>
-			</div>
-			<div className="uxs-form__row">
-				<span>{ __( 'Next-gen delivery (.htaccess)', 'ux-studio' ) }</span>
-				<span className={ `uxs-badge ${ delivery.active ? 'is-success' : '' }` }>
-					{ delivery.active ? __( 'Active', 'ux-studio' ) : __( 'Inactive', 'ux-studio' ) }
-				</span>
-			</div>
+			<ul style={ { listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 'var(--uxs-sp-3)' } }>
+				{ rows.map( ( row ) => (
+					<li key={ row.label } style={ { display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: 'var(--uxs-sp-3)' } }>
+						<strong>{ row.label }</strong>
+						<span
+							className={ `uxs-badge ${ row.ok === true ? 'is-success' : row.ok === false ? 'is-danger' : '' }` }
+							style={ { width: 'auto', flex: '0 0 auto' } }
+						>
+							{ row.text }
+						</span>
+						{ row.hint ? (
+							<span className="uxs-form__help" style={ { margin: 0 } }>
+								<HelpText text={ row.hint } />
+							</span>
+						) : null }
+					</li>
+				) ) }
+			</ul>
 			{ ! delivery.writable ? (
 				<p className="uxs-form__help">
-					{ __( 'uploads/.htaccess is not writable — delivery rules cannot be managed automatically.', 'ux-studio' ) }
+					{ __( 'The .htaccess file in the uploads folder is not writable, so the delivery rules cannot be managed automatically.', 'ux-studio' ) }
 				</p>
 			) : null }
 			{ delivery.server_note ? <p className="uxs-form__help">{ delivery.server_note }</p> : null }
@@ -221,7 +243,7 @@ function ScannerTab(): JSX.Element {
 			<div className="uxs-form" style={ { marginBottom: 'var(--uxs-sp-5)' } }>
 				<p>
 					{ __(
-						'Heuristically finds image attachments not referenced in content, featured images, term meta, widgets or the site logo. Detection can never be perfect, so selected images are moved to the WordPress trash (fully recoverable) — never permanently deleted.',
+						'Heuristically finds image attachments not referenced in content, featured images, term meta, widgets or the site logo. Detection can never be perfect, so selected images are moved to the WordPress trash (fully recoverable), never permanently deleted.',
 						'ux-studio'
 					) }
 				</p>

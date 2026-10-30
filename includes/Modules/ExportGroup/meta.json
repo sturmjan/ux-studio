@@ -1,6 +1,6 @@
 {
 	"id": "export",
-	"name": "Export",
+	"name": "Data export",
 	"description": "Export posts and users to CSV, JSON or TXT. Each export can be switched on separately.",
 	"group": "content",
 	"icon": "file-down",

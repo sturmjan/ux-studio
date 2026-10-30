@@ -1,6 +1,6 @@
 {
 	"id": "duplicate",
-	"name": "Duplication",
+	"name": "Content copying",
 	"description": "One-click copies of posts, pages, products and navigation menus. Post and menu duplication can be switched on separately.",
 	"group": "content",
 	"icon": "copy",
