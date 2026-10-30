@@ -353,7 +353,7 @@ final class AdminMenuEditorSource extends AbstractAdminSource {
 			'users'      => __( 'Access rules for special actors that are not a role or a single user (for example the super admin): %s.', 'ux-studio' ),
 			'grant'      => __( 'The plugin grants a role access to an item that role would not have by itself (UX Studio never gives a role capabilities it lacks): %s.', 'ux-studio' ),
 			'sub_custom' => __( 'Custom items without a usable link (HTML, JavaScript, empty address): %s.', 'ux-studio' ),
-			'colors'     => __( 'Individual colours of menu items: %s.', 'ux-studio' ),
+			'colors'     => __( 'Individual colors of menu items: %s.', 'ux-studio' ),
 			'iframe'     => __( 'Items that open a page inside the admin (iframe, embedded page): %s.', 'ux-studio' ),
 			'always'     => __( 'Menus kept always open: %s.', 'ux-studio' ),
 			'css'        => __( 'Own CSS classes of menu items: %s.', 'ux-studio' ),

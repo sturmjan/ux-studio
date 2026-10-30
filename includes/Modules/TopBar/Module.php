@@ -130,15 +130,15 @@ final class Module extends BaseModule {
 			array(
 				'key'     => 'bg_color',
 				'type'    => 'color',
-				'label'   => __( 'Background colour', 'ux-studio' ),
-				'help'    => __( 'Background colour of the bar.', 'ux-studio' ),
+				'label'   => __( 'Background color', 'ux-studio' ),
+				'help'    => __( 'Background color of the bar.', 'ux-studio' ),
 				'default' => '#1d3998',
 			),
 			array(
 				'key'     => 'text_color',
 				'type'    => 'color',
-				'label'   => __( 'Text colour', 'ux-studio' ),
-				'help'    => __( 'Colour of the text and links in the bar.', 'ux-studio' ),
+				'label'   => __( 'Text color', 'ux-studio' ),
+				'help'    => __( 'Color of the text and links in the bar.', 'ux-studio' ),
 				'default' => '#ffffff',
 			),
 			array(

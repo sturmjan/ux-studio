@@ -252,7 +252,7 @@ function environmentRows( d: Detections ): EnvRow[] {
 		{
 			key: 'woo',
 			label: 'WooCommerce',
-			text: d.woocommerce ? __( 'Active. Comments are switched off on posts and pages only, product reviews keep working.', 'ux-studio' ) : __( 'Not installed.', 'ux-studio' ),
+			text: d.woocommerce ? __( 'Active. Comments are turned off on posts and pages only, product reviews keep working.', 'ux-studio' ) : __( 'Not installed.', 'ux-studio' ),
 			state: 'neutral',
 		},
 		{
@@ -284,14 +284,14 @@ function WelcomeStep( { ctx }: { ctx: StarterCtx } ): JSX.Element {
 	const php = ctx.php;
 	const phpBad = !! php && 'ok' !== php.level;
 	const points = [
-		{ icon: <ListChecks size={ 18 } aria-hidden />, text: __( 'You see every module and its preset first and choose what you want. Nothing is switched on without your tick.', 'ux-studio' ) },
+		{ icon: <ListChecks size={ 18 } aria-hidden />, text: __( 'You see every module and its preset first and choose what you want. Nothing is turned on without your tick.', 'ux-studio' ) },
 		{ icon: <ShieldCheck size={ 18 } aria-hidden />, text: __( 'If another plugin already does a job, that item stays off or leaves that one setting out, so nothing is done twice.', 'ux-studio' ) },
 		{ icon: <Undo2 size={ 18 } aria-hidden />, text: __( 'Before the first change the current state is saved. "Undo everything" at the end puts the modules and settings back.', 'ux-studio' ) },
 	];
 	return (
 		<section className="uxs-wiz-panel uxs-wiz-welcome">
 			<StepHead icon={ <Rocket size={ 26 } aria-hidden /> } title={ __( 'Set up your new website', 'ux-studio' ) }>
-				{ __( 'UX Studio can switch on the modules that suit almost every WordPress site and preset them sensibly in a few minutes.', 'ux-studio' ) }
+				{ __( 'UX Studio can turn on the modules that suit almost every WordPress site and preset them sensibly in a few minutes.', 'ux-studio' ) }
 			</StepHead>
 
 			{ ctx.loadError && <ErrorLine text={ ctx.loadError } /> }
@@ -436,7 +436,7 @@ function PackCard( { item, ctx, siteUrl }: { item: StarterItem; ctx: StarterCtx;
 						<p className="uxs-wiz-muted">
 							{ sprintf(
 								/* translators: %s: plugin names. */
-								__( 'A module of this item is not switched on because %s already does the same job.', 'ux-studio' ),
+								__( 'A module of this item is not turned on because %s already does the same job.', 'ux-studio' ),
 								blockedPlugins( item ).join( ', ' )
 							) }
 						</p>
@@ -459,7 +459,7 @@ function PackCard( { item, ctx, siteUrl }: { item: StarterItem; ctx: StarterCtx;
 						) }
 					</p>
 					{ 0 === item.preset.length ? (
-						<p className="uxs-wiz-muted">{ __( 'The module is just switched on with its default settings.', 'ux-studio' ) }</p>
+						<p className="uxs-wiz-muted">{ __( 'The module is just turned on with its default settings.', 'ux-studio' ) }</p>
 					) : (
 						byModule.map( ( entry ) => (
 							<div key={ entry.name } className="uxs-wiz-preset">
@@ -827,7 +827,7 @@ function DoneStep( { ctx }: { ctx: StarterCtx } ): JSX.Element {
 					<Undo2 size={ 30 } aria-hidden />
 				</span>
 				<h2>{ __( 'Everything was undone', 'ux-studio' ) }</h2>
-				<p>{ __( 'The modules and settings are back the way they were before. If you connected the site to the central application, remove it there as well.', 'ux-studio' ) }</p>
+				<p>{ __( 'The modules and settings are back the way they were before. If you connected the site to the central app, remove it there as well.', 'ux-studio' ) }</p>
 				<div className="uxs-wiz-actions is-center">
 					<button type="button" className="button" onClick={ () => ctx.goTo( 'welcome' ) }>
 						{ __( 'Start over', 'ux-studio' ) }
@@ -887,8 +887,8 @@ function DoneStep( { ctx }: { ctx: StarterCtx } ): JSX.Element {
 					{ ctx.loginConfirmed && <li>{ __( 'The custom login address is confirmed and wp-login.php is closed.', 'ux-studio' ) }</li> }
 					<li>
 						{ ca.data?.ready
-							? __( 'The site is prepared for the central application (Content Sync as a managed site).', 'ux-studio' )
-							: __( 'The site is not connected to the central application. You can do it later in the Content Sync module.', 'ux-studio' ) }
+							? __( 'The site is prepared for the central app (Content Sync as a managed site).', 'ux-studio' )
+							: __( 'The site is not connected to the central app. You can do it later in the Content Sync module.', 'ux-studio' ) }
 					</li>
 					{ skipped.map( ( r ) => (
 						<li key={ r.id }>
@@ -934,8 +934,8 @@ function DoneStep( { ctx }: { ctx: StarterCtx } ): JSX.Element {
 						setConfirm( false );
 					} }
 				>
-					<p>{ __( 'The modules this wizard switched on are switched off again and the settings it changed go back to their earlier values. Modules that were on before stay on.', 'ux-studio' ) }</p>
-					<p>{ __( 'A custom login address goes back as well, so wp-login.php works again. A connection already made in the central application is not removed there.', 'ux-studio' ) }</p>
+					<p>{ __( 'The modules this wizard turned on are turned off again and the settings it changed go back to their earlier values. Modules that were on before stay on.', 'ux-studio' ) }</p>
+					<p>{ __( 'A custom login address goes back as well, so wp-login.php works again. A connection already made in the central app is not removed there.', 'ux-studio' ) }</p>
 				</ConfirmModal>
 			) }
 		</section>
@@ -955,7 +955,7 @@ export function getStarterSteps( withLogin: boolean ): StarterStep[] {
 		steps.push( { id: 'login', title: __( 'Login address', 'ux-studio' ), render: ( ctx ) => <LoginStep ctx={ ctx } /> } );
 	}
 	steps.push(
-		{ id: 'ca', title: __( 'Central application', 'ux-studio' ), render: ( ctx ) => <CaStep ctx={ ctx } /> },
+		{ id: 'ca', title: __( 'Central app', 'ux-studio' ), render: ( ctx ) => <CaStep ctx={ ctx } /> },
 		{ id: 'done', title: __( 'Done', 'ux-studio' ), render: ( ctx ) => <DoneStep ctx={ ctx } /> }
 	);
 	return steps;

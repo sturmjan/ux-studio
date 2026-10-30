@@ -185,7 +185,7 @@ final class PromptLibrary {
 				'output'      => array( 'text' => 'string' ),
 			),
 			'email'                  => array(
-				'label'       => __( 'Email', 'ux-studio' ),
+				'label'       => __( 'E-mail', 'ux-studio' ),
 				'instruction' => 'Write a professional email about: {topic}.',
 				'vars'        => array( 'topic' ),
 				'required'    => array( 'topic' ),
@@ -195,7 +195,7 @@ final class PromptLibrary {
 				),
 			),
 			'email_reply'            => array(
-				'label'       => __( 'Email Reply', 'ux-studio' ),
+				'label'       => __( 'E-mail Reply', 'ux-studio' ),
 				'instruction' => 'Write a professional reply to this email: {source_content}.',
 				'vars'        => array( 'source_content' ),
 				'required'    => array( 'source_content' ),

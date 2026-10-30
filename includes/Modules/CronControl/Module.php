@@ -210,7 +210,7 @@ final class Module extends BaseModule {
 			array(
 				'key'     => 'cron_whitelist_extra',
 				'type'    => 'textarea',
-				'label'   => __( 'Custom hook whitelist', 'ux-studio' ),
+				'label'   => __( 'Custom hook allowlist', 'ux-studio' ),
 				'help'    => __( 'Cron hook names that must never be reported as unknown - one per line. Supports a trailing "*" wildcard, e.g. "woocommerce_*".', 'ux-studio' ),
 				'default' => '',
 			),
@@ -294,7 +294,7 @@ final class Module extends BaseModule {
 					__( 'The central app runs wp-cron every %d minutes.', 'ux-studio' ),
 					(int) ( $response['cron_interval_minutes'] ?? self::CENTRAL_INTERVAL_MINUTES )
 				)
-				: __( 'The central app has cron switched off for this site.', 'ux-studio' );
+				: __( 'The central app has cron turned off for this site.', 'ux-studio' );
 		}
 
 		$result = array(

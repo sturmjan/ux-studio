@@ -32,7 +32,7 @@ export function MenuLockOriginNote( { origin }: { origin: NonNullable< MenuLockS
 			<p>
 				{ sprintf(
 					/* translators: 1: plugin name (Adminimize), 2: date of the migration. */
-					__( 'Switched on by the migration from the plugin %1$s (%2$s). %1$s blocked hidden pages, so the lock is switched on here too. You can switch it off.', 'ux-studio' ),
+					__( 'Turned on by the migration from the plugin %1$s (%2$s). %1$s blocked hidden pages, so the lock is turned on here too. You can switch it off.', 'ux-studio' ),
 					origin.label,
 					formatDate( origin.time )
 				) }{ ' ' }

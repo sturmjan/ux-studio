@@ -396,7 +396,7 @@ export function MenuOrganizerTab(): JSX.Element {
 			) }
 
 			<p className="uxs-form__help" style={ { marginBottom: 'var(--uxs-sp-4)' } }>
-				{ __( 'Hiding an item only removes it from the menu: the page still opens when its address is typed in. To refuse it too, switch on "Block access to hidden pages" in the Settings tab (users who can manage options are never blocked).', 'ux-studio' ) }
+				{ __( 'Hiding an item only removes it from the menu: the page still opens when its address is typed in. To refuse it too, turn on "Block access to hidden pages" in the Settings tab (users who can manage options are never blocked).', 'ux-studio' ) }
 			</p>
 
 			<div className="uxs-form__row">

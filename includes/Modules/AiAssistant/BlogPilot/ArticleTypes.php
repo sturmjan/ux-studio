@@ -327,8 +327,8 @@ final class ArticleTypes {
 				'description' => __( 'Identify - Develop - Communicate - Ask marketing copy.', 'ux-studio' ),
 			),
 			'email' => array(
-				'name'        => __( 'Email', 'ux-studio' ),
-				'description' => __( 'A standalone marketing or transactional email.', 'ux-studio' ),
+				'name'        => __( 'E-mail', 'ux-studio' ),
+				'description' => __( 'A standalone marketing or transactional e-mail.', 'ux-studio' ),
 			),
 			'comment-reply' => array(
 				'name'        => __( 'Comment / Review Reply', 'ux-studio' ),

@@ -132,7 +132,7 @@ abstract class AbstractSource implements Source {
 			$mapping = $this->map( $active );
 
 			if ( ! $active && ! $mapping->is_empty() ) {
-				$mapping->warn( __( 'The plugin is not active, so these settings do not apply on the site right now. They are transferred as they were left in the plugin; they take effect once the module is switched on.', 'ux-studio' ) );
+				$mapping->warn( __( 'The plugin is not active, so these settings do not apply on the site right now. They are transferred as they were left in the plugin; they take effect once the module is turned on.', 'ux-studio' ) );
 			}
 			$mapping->stage = $this->changes_behavior();
 			$module         = $this->target_module();
@@ -140,7 +140,7 @@ abstract class AbstractSource implements Source {
 				$mapping->warn(
 					sprintf(
 						/* translators: %s: module name. */
-						__( 'The module "%s" is already switched on, so the transferred settings are only prepared. They take effect at the switch, after the safe preview.', 'ux-studio' ),
+						__( 'The module "%s" is already turned on, so the transferred settings are only prepared. They take effect at the switch, after the safe preview.', 'ux-studio' ),
 						ActivationGuard::module_name( $module )
 					)
 				);

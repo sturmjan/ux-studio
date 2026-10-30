@@ -9,12 +9,12 @@ defined( 'ABSPATH' ) || exit;
 
 return array(
 	'bg_color' => array(
-		'does  ' => __( 'Background colour of the bar at the top of every page.', 'ux-studio' ),
-		'effect' => __( 'Pick a colour that is visible but does not fight with your header.', 'ux-studio' ),
+		'does  ' => __( 'Background color of the bar at the top of every page.', 'ux-studio' ),
+		'effect' => __( 'Pick a color that is visible but does not fight with your header.', 'ux-studio' ),
 	),
 	'text_color' => array(
-		'does  ' => __( 'Colour of the text and links in the bar.', 'ux-studio' ),
-		'effect' => __( 'Needs strong contrast with the background colour, otherwise the bar cannot be read.', 'ux-studio' ),
+		'does  ' => __( 'Color of the text and links in the bar.', 'ux-studio' ),
+		'effect' => __( 'Needs strong contrast with the background color, otherwise the bar cannot be read.', 'ux-studio' ),
 	),
 	'schedule_publish' => array(
 		'does  ' => __( 'The bar is hidden until this date and time (time of the site). Empty means it is shown right away.', 'ux-studio' ),

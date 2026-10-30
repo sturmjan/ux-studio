@@ -485,7 +485,7 @@ final class Module extends BaseModule {
 		} else {
 			$clean = sanitize_hex_color( $color );
 			if ( ! $clean ) {
-				return new WP_Error( 'uxstudio_invalid_color', __( 'The colour must be a hex value such as #2271b1.', 'ux-studio' ), array( 'status' => 400 ) );
+				return new WP_Error( 'uxstudio_invalid_color', __( 'The color must be a hex value such as #2271b1.', 'ux-studio' ), array( 'status' => 400 ) );
 			}
 			update_term_meta( $id, self::COLOR_META, $clean );
 		}

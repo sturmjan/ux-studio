@@ -316,7 +316,7 @@ final class ChatRestController extends Controller {
 
 			echo 'data: ' . wp_json_encode(
 				array(
-					'error'             => __( 'We are currently at capacity. Please contact us by email instead.', 'ux-studio' ),
+					'error'             => __( 'We are currently at capacity. Please contact us by e-mail instead.', 'ux-studio' ),
 					'show_contact_form' => true,
 				)
 			) . "\n\n";
@@ -364,7 +364,7 @@ final class ChatRestController extends Controller {
 		}
 		$reply_to = PublicGuard::reply_to_address( $email );
 		if ( '' === $reply_to ) {
-			return new WP_Error( 'uxstudio_invalid_email', __( 'Invalid email address.', 'ux-studio' ), array( 'status' => 400 ) );
+			return new WP_Error( 'uxstudio_invalid_email', __( 'Invalid e-mail address.', 'ux-studio' ), array( 'status' => 400 ) );
 		}
 		if ( ! $this->check_form_rate_limit( 'contact' ) ) {
 			return new WP_Error( 'uxstudio_rate_limited', __( 'You have reached the maximum number of messages. Please try again later.', 'ux-studio' ), array( 'status' => 429 ) );
@@ -405,7 +405,7 @@ final class ChatRestController extends Controller {
 			esc_html__( 'New message from the AI Assistant chat', 'ux-studio' ),
 			esc_html__( 'Name', 'ux-studio' ),
 			esc_html( $name ),
-			esc_html__( 'Email', 'ux-studio' ),
+			esc_html__( 'E-mail', 'ux-studio' ),
 			esc_html( $email ),
 			esc_html__( 'Phone', 'ux-studio' ),
 			esc_html( $phone ?: '-' ),

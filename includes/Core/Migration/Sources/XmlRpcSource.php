@@ -45,7 +45,7 @@ final class XmlRpcSource extends AbstractSource {
 			$m->lossy( __( 'The plugin leaves XML-RPC open for a renamed address or an allow list. The module only switches XML-RPC off completely.', 'ux-studio' ) );
 		}
 		if ( ! empty( $o['disabled-methods'] ) && is_array( $o['disabled-methods'] ) ) {
-			$m->lossy( __( 'Disabling single XML-RPC methods is not available, the module switches off XML-RPC as a whole.', 'ux-studio' ) );
+			$m->lossy( __( 'Disabling single XML-RPC methods is not available, the module turns off XML-RPC as a whole.', 'ux-studio' ) );
 		}
 		if ( ! empty( $o['htaccess protection'] ) || ! empty( $o['White-list-IPs'] ) || ! empty( $o['Black-list-IPs'] ) ) {
 			$m->lossy( __( 'The .htaccess protection and the IP lists of the plugin are not transferred.', 'ux-studio' ) );

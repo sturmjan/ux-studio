@@ -46,7 +46,7 @@ function SendForm(): JSX.Element {
 	return (
 		<div className="uxs-form" style={ { marginBottom: 'var(--uxs-sp-5)' } }>
 			<div className="uxs-form__row">
-				<label htmlFor="uxs-grr-email">{ __( 'Recipient email', 'ux-studio' ) }</label>
+				<label htmlFor="uxs-grr-email">{ __( 'Recipient e-mail', 'ux-studio' ) }</label>
 				<input
 					id="uxs-grr-email"
 					type="email"

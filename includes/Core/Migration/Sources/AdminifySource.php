@@ -238,7 +238,7 @@ final class AdminifySource extends AbstractAdminSource {
 		/* ── What stays behind ── */
 		$other = array();
 		if ( $this->truthy( $o['admin_ui'] ?? '' ) ) {
-			$other[] = __( 'its own admin interface (theme, colours, fonts, dark mode switch, favicons)', 'ux-studio' );
+			$other[] = __( 'its own admin interface (theme, colors, fonts, dark mode switch, favicons)', 'ux-studio' );
 		}
 		if ( ! empty( $o['screen_help_tab']['enable_for_screen'] ) ) {
 			$other[] = __( 'custom help tabs', 'ux-studio' );

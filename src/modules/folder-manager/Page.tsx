@@ -213,7 +213,7 @@ function FolderRow( { row, folders }: { row: FolderNode; folders: Folder[] } ): 
 						type="color"
 						value={ row.color || '#2271b1' }
 						disabled={ busy }
-						aria-label={ __( 'Folder colour', 'ux-studio' ) }
+						aria-label={ __( 'Folder color', 'ux-studio' ) }
 						style={ row.color ? undefined : { opacity: 0.35 } }
 						onChange={ ( e ) => recolor.mutate( e.target.value ) }
 					/>
@@ -222,7 +222,7 @@ function FolderRow( { row, folders }: { row: FolderNode; folders: Folder[] } ): 
 							type="button"
 							className="button-link"
 							disabled={ busy }
-							aria-label={ __( 'Remove folder colour', 'ux-studio' ) }
+							aria-label={ __( 'Remove folder color', 'ux-studio' ) }
 							onClick={ () => recolor.mutate( '' ) }
 						>
 							<X size={ 14 } />
@@ -231,7 +231,7 @@ function FolderRow( { row, folders }: { row: FolderNode; folders: Folder[] } ): 
 				</span>
 				{ recolor.isError && (
 					<span className="uxs-badge is-danger" style={ { marginLeft: 'var(--uxs-sp-2)' } }>
-						{ recolor.error instanceof Error ? recolor.error.message : __( 'Could not change the colour.', 'ux-studio' ) }
+						{ recolor.error instanceof Error ? recolor.error.message : __( 'Could not change the color.', 'ux-studio' ) }
 					</span>
 				) }
 			</td>
@@ -317,7 +317,7 @@ function FolderTree( { folders }: { folders: Folder[] } ): JSX.Element {
 				<tr>
 					<th>{ __( 'Name', 'ux-studio' ) }</th>
 					<th>{ __( 'Attachments', 'ux-studio' ) }</th>
-					<th>{ __( 'Colour', 'ux-studio' ) }</th>
+					<th>{ __( 'Color', 'ux-studio' ) }</th>
 					<th>{ __( 'Order', 'ux-studio' ) }</th>
 					<th>{ __( 'Move under', 'ux-studio' ) }</th>
 					<th></th>

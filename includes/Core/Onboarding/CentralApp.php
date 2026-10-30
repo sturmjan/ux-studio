@@ -187,7 +187,7 @@ final class CentralApp {
 	public function prepare( string $url ) {
 		$base = self::normalize_base_url( $url );
 		if ( null === $base ) {
-			return new WP_Error( 'uxstudio_ca_bad_url', __( 'The address of the central application must start with https:// (http:// only works for localhost).', 'ux-studio' ), array( 'status' => 400 ) );
+			return new WP_Error( 'uxstudio_ca_bad_url', __( 'The address of the central app must start with https:// (http:// only works for localhost).', 'ux-studio' ), array( 'status' => 400 ) );
 		}
 		$module = $this->modules->instance( 'content-sync' );
 		if ( ! $module instanceof ContentSync ) {
@@ -197,7 +197,7 @@ final class CentralApp {
 		// A hub that already manages other sites must not silently become a node.
 		$values = $module->settings_values();
 		if ( 'node' !== ( $values['mode'] ?? 'hub' ) && $this->hub_has_sites() ) {
-			return new WP_Error( 'uxstudio_ca_hub_in_use', __( 'This site is set up as a hub and manages other sites. It cannot be connected to the central application as a managed site without breaking that.', 'ux-studio' ), array( 'status' => 409 ) );
+			return new WP_Error( 'uxstudio_ca_hub_in_use', __( 'This site is set up as a hub and manages other sites. It cannot be connected to the central app as a managed site without breaking that.', 'ux-studio' ), array( 'status' => 409 ) );
 		}
 
 		// 1) Snapshot first, so "Undo everything" puts the content-sync settings and key back.
@@ -212,10 +212,10 @@ final class CentralApp {
 				$state['plugins']
 					? sprintf(
 						/* translators: %s: plugin names. */
-						__( 'The Content Sync module cannot be switched on because it overlaps with %s.', 'ux-studio' ),
+						__( 'The Content Sync module cannot be turned on because it overlaps with %s.', 'ux-studio' ),
 						implode( ', ', $state['plugins'] )
 					)
-					: __( 'The Content Sync module could not be switched on.', 'ux-studio' ),
+					: __( 'The Content Sync module could not be turned on.', 'ux-studio' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -304,11 +304,11 @@ final class CentralApp {
 	public function set_captcha( bool $enable ) {
 		$security = $this->modules->instance( 'security-optimization' );
 		if ( ! $security instanceof BaseModule || ! in_array( 'security-optimization', $this->modules->enabled_ids(), true ) ) {
-			return new WP_Error( 'uxstudio_ca_captcha_no_security', __( 'The Security module is off, so there is no CAPTCHA to switch on.', 'ux-studio' ), array( 'status' => 409 ) );
+			return new WP_Error( 'uxstudio_ca_captcha_no_security', __( 'The Security module is off, so there is no CAPTCHA to turn on.', 'ux-studio' ), array( 'status' => 409 ) );
 		}
 		$status = $this->status();
 		if ( $enable && ! $status['ready'] ) {
-			return new WP_Error( 'uxstudio_ca_captcha_not_connected', __( 'Connect the site to the central application first.', 'ux-studio' ), array( 'status' => 409 ) );
+			return new WP_Error( 'uxstudio_ca_captcha_not_connected', __( 'Connect the site to the central app first.', 'ux-studio' ), array( 'status' => 409 ) );
 		}
 		( new Applier( $this->modules ) )->snapshot_for(
 			array( 'security-optimization' ),

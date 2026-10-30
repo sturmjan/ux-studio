@@ -36,23 +36,23 @@ return array(
 		'off   ' => __( 'Turn it off for a link inside your own site, or when the button only closes the popup.', 'ux-studio' ),
 	),
 	'bg_color' => array(
-		'does  ' => __( 'Background colour of the popup window.', 'ux-studio' ),
-		'effect' => __( 'Pick a colour that stands out from your page but keeps the text readable.', 'ux-studio' ),
+		'does  ' => __( 'Background color of the popup window.', 'ux-studio' ),
+		'effect' => __( 'Pick a color that stands out from your page but keeps the text readable.', 'ux-studio' ),
 	),
 	'title_color' => array(
-		'does  ' => __( 'Colour of the headline.', 'ux-studio' ),
-		'effect' => __( 'Needs enough contrast with the background colour, otherwise the headline is hard to read.', 'ux-studio' ),
+		'does  ' => __( 'Color of the headline.', 'ux-studio' ),
+		'effect' => __( 'Needs enough contrast with the background color, otherwise the headline is hard to read.', 'ux-studio' ),
 	),
 	'text_color' => array(
-		'does  ' => __( 'Colour of the text under the headline.', 'ux-studio' ),
-		'effect' => __( 'Needs enough contrast with the background colour for visitors with weaker eyesight.', 'ux-studio' ),
+		'does  ' => __( 'Color of the text under the headline.', 'ux-studio' ),
+		'effect' => __( 'Needs enough contrast with the background color for visitors with weaker eyesight.', 'ux-studio' ),
 	),
 	'cta_bg_color' => array(
-		'does  ' => __( 'Background colour of the button.', 'ux-studio' ),
+		'does  ' => __( 'Background color of the button.', 'ux-studio' ),
 		'effect' => __( 'The button should be the most visible spot of the popup.', 'ux-studio' ),
 	),
 	'cta_text_color' => array(
-		'does  ' => __( 'Colour of the text on the button.', 'ux-studio' ),
+		'does  ' => __( 'Color of the text on the button.', 'ux-studio' ),
 		'effect' => __( 'Keep it in strong contrast with the button background.', 'ux-studio' ),
 	),
 	'overlay_opacity' => array(
@@ -118,7 +118,7 @@ return array(
 		'off   ' => __( 'Leave 0 for a pure exit popup.', 'ux-studio' ),
 	),
 	'enable_email' => array(
-		'does  ' => __( 'Adds an e-mail field and a submit button to the popup. Addresses are stored in the Subscribers list on the Email capture tab.', 'ux-studio' ),
+		'does  ' => __( 'Adds an e-mail field and a submit button to the popup. Addresses are stored in the Subscribers list on the E-mail capture tab.', 'ux-studio' ),
 		'effect' => __( 'You collect contacts from visitors who would leave anyway.', 'ux-studio' ),
 		'risk  ' => __( 'Collecting e-mail addresses is personal data processing. The popup must say what the address is for and your privacy policy must cover it.', 'ux-studio' ),
 		'off   ' => __( 'Turn it off when the popup only informs or leads to a page.', 'ux-studio' ),

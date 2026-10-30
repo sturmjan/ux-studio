@@ -411,7 +411,7 @@ final class FolderSource extends AbstractSource {
 			$m->note(
 				sprintf(
 					/* translators: 1: number of folders with a colour, 2: number of folders with a manual position. */
-					__( 'Folder colours (%1$d) and the manual order (%2$d folders with a position) are carried over to the folders created by this step.', 'ux-studio' ),
+					__( 'Folder colors (%1$d) and the manual order (%2$d folders with a position) are carried over to the folders created by this step.', 'ux-studio' ),
 					$colors,
 					$order
 				)

@@ -157,7 +157,7 @@ final class CronSource extends AbstractSource implements Activatable {
 			$m->note(
 				sprintf(
 					/* translators: %d: number of events. */
-					__( '%d cron events call a URL. They are created in the module switched off and start at the switch, so no call is made twice while WP Crontrol is still active. WP Crontrol\'s own copies stay in WP-Cron and do nothing once the plugin is removed.', 'ux-studio' ),
+					__( '%d cron events call a URL. They are created in the module turned off and start at the switch, so no call is made twice while WP Crontrol is still active. WP Crontrol\'s own copies stay in WP-Cron and do nothing once the plugin is removed.', 'ux-studio' ),
 					$e['url']
 				)
 			);

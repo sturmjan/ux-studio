@@ -92,7 +92,7 @@ function DetailModal( { id, onClose }: { id: number; onClose: () => void } ): JS
 	const resend = useMutation( {
 		mutationFn: () => api< { message: string } >( `email-log/entries/${ id }/resend`, { method: 'POST' } ),
 		onSuccess: ( data ) => {
-			setNotice( data.message ?? __( 'Email was re-sent.', 'ux-studio' ) );
+			setNotice( data.message ?? __( 'E-mail was re-sent.', 'ux-studio' ) );
 			void queryClient.invalidateQueries( { queryKey: [ 'email-log', 'entries' ] } );
 		},
 		onError: ( err: Error ) => setNotice( err.message ),
@@ -123,7 +123,7 @@ function DetailModal( { id, onClose }: { id: number; onClose: () => void } ): JS
 				onClick={ ( e ) => e.stopPropagation() }
 			>
 				<div style={ { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--uxs-sp-4)' } }>
-					<h2 style={ { margin: 0 } }>{ __( 'Email detail', 'ux-studio' ) }</h2>
+					<h2 style={ { margin: 0 } }>{ __( 'E-mail detail', 'ux-studio' ) }</h2>
 					<button type="button" className="button-link" aria-label={ __( 'Close', 'ux-studio' ) } onClick={ onClose }>
 						<X size={ 18 } />
 					</button>
@@ -187,7 +187,7 @@ function DetailModal( { id, onClose }: { id: number; onClose: () => void } ): JS
 
 						<h3>{ __( 'Message', 'ux-studio' ) }</h3>
 						<iframe
-							title={ __( 'Email body', 'ux-studio' ) }
+							title={ __( 'E-mail body', 'ux-studio' ) }
 							sandbox=""
 							srcDoc={ detail.message }
 							style={ { width: '100%', height: 300, border: '1px solid var(--uxs-border, #dcdcde)', borderRadius: 4, background: '#fff' } }
@@ -344,7 +344,7 @@ export default function Page(): JSX.Element {
 					>
 						<ArrowLeft size={ 18 } />
 					</button>{ ' ' }
-					{ __( 'Email Log', 'ux-studio' ) }
+					{ __( 'E-mail Log', 'ux-studio' ) }
 				</h1>
 			</header>
 			<TabsNav>

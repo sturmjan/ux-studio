@@ -69,13 +69,13 @@ final class MaintenanceSource extends AbstractSource {
 				$m->set( self::MODULE, 'body_text', $c['body'], __( 'Text', 'ux-studio' ), $origin );
 			}
 			if ( '' !== (string) $c['headline_colour'] ) {
-				$m->set( self::MODULE, 'headline_colour', $c['headline_colour'], __( 'Headline colour', 'ux-studio' ), $origin );
+				$m->set( self::MODULE, 'headline_colour', $c['headline_colour'], __( 'Headline color', 'ux-studio' ), $origin );
 			}
 			if ( '' !== (string) $c['body_colour'] ) {
-				$m->set( self::MODULE, 'body_colour', $c['body_colour'], __( 'Text colour', 'ux-studio' ), $origin );
+				$m->set( self::MODULE, 'body_colour', $c['body_colour'], __( 'Text color', 'ux-studio' ), $origin );
 			}
 			if ( '' !== (string) $c['background'] ) {
-				$m->set( self::MODULE, 'background_colour', $c['background'], __( 'Background colour', 'ux-studio' ), $origin );
+				$m->set( self::MODULE, 'background_colour', $c['background'], __( 'Background color', 'ux-studio' ), $origin );
 			}
 		}
 		if ( null !== $c['roles'] ) {
@@ -134,7 +134,7 @@ final class MaintenanceSource extends AbstractSource {
 			}
 		}
 		if ( 'disabled' !== $c['mode'] ) {
-			$m->warn( __( 'The old plugin has maintenance or coming soon mode ON. Once the module is switched on, the site shows the maintenance page to visitors. Switch the old plugin off first and check the page in the preview.', 'ux-studio' ) );
+			$m->warn( __( 'The old plugin has maintenance or coming soon mode ON. Once the module is turned on, the site shows the maintenance page to visitors. Switch the old plugin off first and check the page in the preview.', 'ux-studio' ) );
 		}
 	}
 
@@ -368,7 +368,7 @@ final class MaintenanceSource extends AbstractSource {
 		if ( 'blacklist' === (string) ( $o['per_url_settings'] ?? '' ) ) {
 			$m->lossy( __( 'The plugin applies maintenance mode only to the listed addresses; the module cannot do that, it applies to the whole site except for the addresses that stay open. Nothing of this list was transferred.', 'ux-studio' ) );
 		}
-		$m->lossy( __( 'The layout, colours, background, passwords, the secret access link and the search engine rules of the plugin are not transferred; the on / off state, the headline, the planned end, the addresses that stay open and the IP addresses are.', 'ux-studio' ) );
+		$m->lossy( __( 'The layout, colors, background, passwords, the secret access link and the search engine rules of the plugin are not transferred; the on / off state, the headline, the planned end, the addresses that stay open and the IP addresses are.', 'ux-studio' ) );
 		return $m;
 	}
 

@@ -77,7 +77,7 @@ return array(
 		'effect' => __( 'Visitors read it first. Say clearly what is going on.', 'ux-studio' ),
 	),
 	'headline_colour' => array(
-		'does  ' => __( 'Colour of the title.', 'ux-studio' ),
+		'does  ' => __( 'Color of the title.', 'ux-studio' ),
 		'effect' => __( 'Needs good contrast with the page background.', 'ux-studio' ),
 	),
 	'body_text' => array(
@@ -85,7 +85,7 @@ return array(
 		'effect' => __( 'Explain the reason, the expected end and how to reach you.', 'ux-studio' ),
 	),
 	'body_colour' => array(
-		'does  ' => __( 'Colour of the text under the title.', 'ux-studio' ),
+		'does  ' => __( 'Color of the text under the title.', 'ux-studio' ),
 		'effect' => __( 'Needs good contrast with the page background.', 'ux-studio' ),
 	),
 	'footer_text' => array(
@@ -93,7 +93,7 @@ return array(
 		'effect' => __( 'Optional. Leave it empty for no footer.', 'ux-studio' ),
 	),
 	'footer_colour' => array(
-		'does  ' => __( 'Colour of the footer text.', 'ux-studio' ),
+		'does  ' => __( 'Color of the footer text.', 'ux-studio' ),
 		'effect' => __( 'Needs good contrast with the page background.', 'ux-studio' ),
 	),
 	'enable_logo' => array(
@@ -105,7 +105,7 @@ return array(
 		'effect' => __( 'A very wide logo can overflow a phone screen.', 'ux-studio' ),
 	),
 	'background_colour' => array(
-		'does  ' => __( 'Background colour of the maintenance page.', 'ux-studio' ),
+		'does  ' => __( 'Background color of the maintenance page.', 'ux-studio' ),
 		'effect' => __( 'Shown behind the card and when no background image is used.', 'ux-studio' ),
 	),
 	'enable_background_image' => array(

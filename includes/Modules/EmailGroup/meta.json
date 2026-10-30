@@ -1,7 +1,7 @@
 {
 	"id": "email",
-	"name": "Email",
-	"description": "Email delivery over SMTP/API, a log of every sent message with resend, and a deliverability health check. Each part can be switched on separately.",
+	"name": "E-mail",
+	"description": "E-mail delivery over SMTP/API, a log of every sent message with resend, and a deliverability health check. Each part can be turned on separately.",
 	"group": "admin",
 	"icon": "mail",
 	"settings": true,

@@ -210,7 +210,7 @@ export function ExportPanel( { status, preselect }: { status: TransferStatus; pr
 					</div>
 				) ) }
 				<p className="uxs-tr-muted">
-					<Info size={ 13 } aria-hidden /> { __( 'A module that is switched off can be exported too: its stored settings are used.', 'ux-studio' ) }
+					<Info size={ 13 } aria-hidden /> { __( 'A module that is turned off can be exported too: its stored settings are used.', 'ux-studio' ) }
 				</p>
 			</section>
 
@@ -220,7 +220,7 @@ export function ExportPanel( { status, preselect }: { status: TransferStatus; pr
 				</header>
 				<div className="uxs-tr-opt">
 					<AnimatedCheckbox isSelected={ includeEnabled } onChange={ setIncludeEnabled }>
-						{ __( 'Modules switched on or off', 'ux-studio' ) }
+						{ __( 'Modules turned on or off', 'ux-studio' ) }
 					</AnimatedCheckbox>
 					<p className="uxs-tr-muted">{ __( 'The import can switch modules on and off the same way (you decide there).', 'ux-studio' ) }</p>
 				</div>
@@ -296,7 +296,7 @@ export function ExportPanel( { status, preselect }: { status: TransferStatus; pr
 					<div className="uxs-tr-never__body">
 						<p>{ __( 'Connections and identity of this site, ids that mean something only in this database, state and logs never travel, whatever the options say:', 'ux-studio' ) }</p>
 						<ul>
-							<li>{ __( 'The Central App connection: key, address, HMAC secret, allowed addresses, report secret.', 'ux-studio' ) }</li>
+							<li>{ __( 'The Central app connection: key, address, HMAC secret, allowed addresses, report secret.', 'ux-studio' ) }</li>
 							<li>{ __( 'Licence and update tokens, OAuth connections (Gmail, Instagram), CAPTCHA keys of a host name.', 'ux-studio' ) }</li>
 							<li>{ __( 'Ids of pages, posts, users and terms (an image travels with its address and is only used if the other site has it in its media library).', 'ux-studio' ) }</li>
 							<li>{ __( 'Wizard markers, pending states, snapshots, caches, logs, statistics and database versions.', 'ux-studio' ) }</li>

@@ -60,8 +60,8 @@ final class Notice {
 		return array(
 			'notlinked'         => __( 'This account is not linked to any user on this site. Sign in with your password first and link the account in your profile.', 'ux-studio' ),
 			'role'              => __( 'Your role is not allowed to sign in through a third party.', 'ux-studio' ),
-			'placeholder_email' => __( 'The provider did not send your email address. If you already have an account here, sign in with your password and link it in your profile.', 'ux-studio' ),
-			'email_taken'       => __( 'This email is already registered. Sign in with your password first and link the provider in your profile.', 'ux-studio' ),
+			'placeholder_email' => __( 'The provider did not send your e-mail address. If you already have an account here, sign in with your password and link it in your profile.', 'ux-studio' ),
+			'email_taken'       => __( 'This e-mail is already registered. Sign in with your password first and link the provider in your profile.', 'ux-studio' ),
 			'sub_taken'         => __( 'This external account is already linked to a different user.', 'ux-studio' ),
 			'expired'           => __( 'The sign-in request expired. Please try again.', 'ux-studio' ),
 			'session'           => __( 'The sign-in request does not belong to this browser. Please try again.', 'ux-studio' ),

@@ -89,7 +89,7 @@ function features(): Feature[] {
 			id: 'shared',
 			icon: Network,
 			title: __( 'Shared protection', 'ux-studio' ),
-			text: __( 'Ban an IP address, a range or a whole country once and it is blocked on every connected site. The central application also gives the site its CAPTCHA keys, so you set nothing up by hand.', 'ux-studio' ),
+			text: __( 'Ban an IP address, a range or a whole country once and it is blocked on every connected site. The central app also gives the site its CAPTCHA keys, so you set nothing up by hand.', 'ux-studio' ),
 		},
 		{
 			id: 'tickets',
@@ -138,7 +138,7 @@ function CaCaptcha( { status, onChange }: { status: CaStatus; onChange: () => vo
 			const res = await api< CaStatus >( 'onboarding/ca/captcha', { method: 'POST', body: JSON.stringify( { enabled } ) } );
 			queryClient.setQueryData( [ 'onboarding', 'ca-status' ], res );
 			if ( enabled && ! res.captcha.has_keys ) {
-				setNote( __( 'The central application did not give this site CAPTCHA keys. The CAPTCHA is not enforced, so logging in works as before. You can add the keys by hand in Security > CAPTCHA.', 'ux-studio' ) );
+				setNote( __( 'The central app did not give this site CAPTCHA keys. The CAPTCHA is not enforced, so logging in works as before. You can add the keys by hand in Security > CAPTCHA.', 'ux-studio' ) );
 			}
 			onChange();
 		} catch ( e ) {
@@ -152,15 +152,15 @@ function CaCaptcha( { status, onChange }: { status: CaStatus; onChange: () => vo
 		<div className="uxs-wiz-box uxs-wiz-captcha">
 			<label className="uxs-wiz-checkrow">
 				<input type="checkbox" checked={ captcha.enabled } disabled={ busy || ! captcha.security_enabled } onChange={ ( e ) => void toggle( e.target.checked ) } />
-				<span>{ __( 'CAPTCHA with keys from the central application', 'ux-studio' ) }</span>
+				<span>{ __( 'CAPTCHA with keys from the central app', 'ux-studio' ) }</span>
 			</label>
 			<p className="uxs-wiz-muted">
-				{ __( 'Adds a Cloudflare Turnstile check to the login, registration and lost password forms. The central application gives the site its keys, so you paste nothing. If the keys do not arrive, the check is not enforced and nobody is locked out.', 'ux-studio' ) }
+				{ __( 'Adds a Cloudflare Turnstile check to the login, registration and lost password forms. The central app gives the site its keys, so you paste nothing. If the keys do not arrive, the check is not enforced and nobody is locked out.', 'ux-studio' ) }
 			</p>
 			{ ! captcha.security_enabled && <p className="uxs-wiz-muted">{ __( 'The Security module is off. Switch it on to use the CAPTCHA.', 'ux-studio' ) }</p> }
 			{ captcha.enabled && captcha.has_keys && (
 				<p className="uxs-wiz-banner is-ok" role="status">
-					<CircleCheck size={ 16 } aria-hidden /> { __( 'The CAPTCHA is on with keys from the central application.', 'ux-studio' ) }
+					<CircleCheck size={ 16 } aria-hidden /> { __( 'The CAPTCHA is on with keys from the central app.', 'ux-studio' ) }
 				</p>
 			) }
 			{ note && (
@@ -234,8 +234,8 @@ export function CaStep( { ctx }: { ctx: StarterCtx } ): JSX.Element {
 	const attention = !! form && ! go;
 	const steps: Array< [ string, string ] > = [
 		[ __( 'Connect', 'ux-studio' ), __( 'One click here. The site proves who it is with a secret key.', 'ux-studio' ) ],
-		[ __( 'Sign in or create an account', 'ux-studio' ), __( 'You land in the central application, log in or sign up and confirm the connection.', 'ux-studio' ) ],
-		[ __( 'Done, the site is watched', 'ux-studio' ), __( 'You come back here and the central application starts keeping an eye on the site.', 'ux-studio' ) ],
+		[ __( 'Sign in or create an account', 'ux-studio' ), __( 'You land in the central app, log in or sign up and confirm the connection.', 'ux-studio' ) ],
+		[ __( 'Done, the site is watched', 'ux-studio' ), __( 'You come back here and the central app starts keeping an eye on the site.', 'ux-studio' ) ],
 	];
 
 	return (
@@ -245,8 +245,8 @@ export function CaStep( { ctx }: { ctx: StarterCtx } ): JSX.Element {
 					<span className="uxs-wiz-ca__eyebrow">
 						<PlugZap size={ 16 } aria-hidden /> { __( 'Optional step', 'ux-studio' ) }
 					</span>
-					<h2>{ __( 'Central application', 'ux-studio' ) }</h2>
-					<p>{ __( 'One place to watch over all your websites. Connect this one and the central application keeps an eye on it for you: whether it runs, whether it is safe and fast, and whether anything is about to expire.', 'ux-studio' ) }</p>
+					<h2>{ __( 'Central app', 'ux-studio' ) }</h2>
+					<p>{ __( 'One place to watch over all your websites. Connect this one and the central app keeps an eye on it for you: whether it runs, whether it is safe and fast, and whether anything is about to expire.', 'ux-studio' ) }</p>
 				</div>
 				<HeroArt />
 			</div>
@@ -255,7 +255,7 @@ export function CaStep( { ctx }: { ctx: StarterCtx } ): JSX.Element {
 				<>
 					<p className="uxs-wiz-banner is-ok" role="status">
 						<CircleCheck size={ 16 } aria-hidden />
-						{ __( 'The connection was completed in the central application.', 'ux-studio' ) }
+						{ __( 'The connection was completed in the central app.', 'ux-studio' ) }
 						{ st.contact_after && st.last_contact > 0 && (
 							<>
 								{ ' ' }
@@ -273,7 +273,7 @@ export function CaStep( { ctx }: { ctx: StarterCtx } ): JSX.Element {
 
 			{ returned && cancelled && (
 				<p className="uxs-wiz-banner is-bad" role="status">
-					<CircleAlert size={ 16 } aria-hidden /> { __( 'The connection was cancelled in the central application. Nothing is connected. You can try again.', 'ux-studio' ) }
+					<CircleAlert size={ 16 } aria-hidden /> { __( 'The connection was cancelled in the central app. Nothing is connected. You can try again.', 'ux-studio' ) }
 				</p>
 			) }
 
@@ -281,8 +281,8 @@ export function CaStep( { ctx }: { ctx: StarterCtx } ): JSX.Element {
 				<p className={ `uxs-wiz-banner ${ st.ready && st.contact_after ? 'is-ok' : 'is-bad' }` } role="status">
 					{ st.ready && st.contact_after ? <CircleCheck size={ 16 } aria-hidden /> : <CircleAlert size={ 16 } aria-hidden /> }
 					{ st.ready && st.contact_after
-						? __( 'The central application has contacted the site. The connection looks complete.', 'ux-studio' )
-						: __( 'The central application has not confirmed the connection yet. Try again if you did not finish it there.', 'ux-studio' ) }
+						? __( 'The central app has contacted the site. The connection looks complete.', 'ux-studio' )
+						: __( 'The central app has not confirmed the connection yet. Try again if you did not finish it there.', 'ux-studio' ) }
 				</p>
 			) }
 
@@ -319,15 +319,15 @@ export function CaStep( { ctx }: { ctx: StarterCtx } ): JSX.Element {
 						<ul>
 							<li>
 								<Info size={ 18 } aria-hidden />
-								<span>{ __( 'This switches on Content Sync as a managed site and creates a secret key for it. Administrator sign-in and package installation from the central application stay off.', 'ux-studio' ) }</span>
+								<span>{ __( 'This turns on Content Sync as a managed site and creates a secret key for it. Administrator sign-in and package installation from the central app stay off.', 'ux-studio' ) }</span>
 							</li>
 							<li>
 								<Info size={ 18 } aria-hidden />
-								<span>{ __( 'The central application can then read the state of the site and work with its posts, pages and media. It cannot sign in as an administrator or install plugins.', 'ux-studio' ) }</span>
+								<span>{ __( 'The central app can then read the state of the site and work with its posts, pages and media. It cannot sign in as an administrator or install plugins.', 'ux-studio' ) }</span>
 							</li>
 							<li>
 								<Info size={ 18 } aria-hidden />
-								<span>{ __( 'The site must be reachable from the internet: the central application checks it while connecting.', 'ux-studio' ) }</span>
+								<span>{ __( 'The site must be reachable from the internet: the central app checks it while connecting.', 'ux-studio' ) }</span>
 							</li>
 						</ul>
 					</div>
@@ -337,18 +337,18 @@ export function CaStep( { ctx }: { ctx: StarterCtx } ): JSX.Element {
 							<TriangleAlert size={ 20 } aria-hidden />
 							<div>
 								<strong>{ __( 'This site runs on your computer', 'ux-studio' ) }</strong>
-								<p>{ __( 'A central application on the internet cannot reach it, so the connection will fail, unless the central application runs on your computer too.', 'ux-studio' ) }</p>
+								<p>{ __( 'A central app on the internet cannot reach it, so the connection will fail, unless the central app runs on your computer too.', 'ux-studio' ) }</p>
 							</div>
 						</div>
 					) }
 
 					<h3 className="uxs-wiz-ca__h">{ __( 'Questions', 'ux-studio' ) }</h3>
 					<div className="uxs-wiz-ca__faqs">
-						<Faq question={ __( 'What can the central application do on my site?', 'ux-studio' ) }>
-							{ __( 'It reads the state of the site and works with posts, pages and media through requests signed with the secret key. Signing in as an administrator and installing packages from the central application are switched off.', 'ux-studio' ) }
+						<Faq question={ __( 'What can the central app do on my site?', 'ux-studio' ) }>
+							{ __( 'It reads the state of the site and works with posts, pages and media through requests signed with the secret key. Signing in as an administrator and installing packages from the central app are turned off.', 'ux-studio' ) }
 						</Faq>
 						<Faq question={ __( 'How do I disconnect the site?', 'ux-studio' ) }>
-							{ __( 'Switch off the Content Sync module and the central application can no longer reach the site. You can also remove the site from the list of websites in the central application.', 'ux-studio' ) }
+							{ __( 'Turn off the Content Sync module and the central app can no longer reach the site. You can also remove the site from the list of websites in the central app.', 'ux-studio' ) }
 						</Faq>
 						<Faq question={ __( 'Can I do this later?', 'ux-studio' ) }>
 							{ __( 'Yes. Skip this step now and connect later in the Content Sync module.', 'ux-studio' ) }
@@ -357,7 +357,7 @@ export function CaStep( { ctx }: { ctx: StarterCtx } ): JSX.Element {
 
 					<details className="uxs-wiz-advanced">
 						<summary>{ __( 'Advanced', 'ux-studio' ) }</summary>
-						<label htmlFor="uxs-wiz-ca-url">{ __( 'Address of the central application', 'ux-studio' ) }</label>
+						<label htmlFor="uxs-wiz-ca-url">{ __( 'Address of the central app', 'ux-studio' ) }</label>
 						<input id="uxs-wiz-ca-url" type="url" className="regular-text" value={ url } disabled={ busy || go } onChange={ ( e ) => setUrl( e.target.value ) } />
 						<p className="uxs-wiz-muted">{ __( 'Only https:// addresses work. http:// is accepted for localhost, for testing on your own computer.', 'ux-studio' ) }</p>
 					</details>
@@ -373,13 +373,13 @@ export function CaStep( { ctx }: { ctx: StarterCtx } ): JSX.Element {
 									<p>
 										{ sprintf(
 											/* translators: %s: error detail. */
-											__( 'The site did not answer its own signed test request (%s). The central application will probably not be able to confirm the connection either.', 'ux-studio' ),
+											__( 'The site did not answer its own signed test request (%s). The central app will probably not be able to confirm the connection either.', 'ux-studio' ),
 											'' !== form.ping.error ? form.ping.error : `HTTP ${ form.ping.code }`
 										) }
 									</p>
 								) }
 								{ form.warnings.includes( 'return_url_origin' ) && (
-									<p>{ __( 'The administration address differs from the site address, so the central application cannot send you back here. Come back to this wizard by hand when you finish.', 'ux-studio' ) }</p>
+									<p>{ __( 'The administration address differs from the site address, so the central app cannot send you back here. Come back to this wizard by hand when you finish.', 'ux-studio' ) }</p>
 								) }
 								<div className="uxs-wiz-actions">
 									<button type="button" className="button" onClick={ () => setForm( null ) }>
@@ -413,7 +413,7 @@ export function CaStep( { ctx }: { ctx: StarterCtx } ): JSX.Element {
 					) }
 					{ ! showSuccess ? (
 						<button type="button" className="button button-primary" disabled={ busy || go || attention } onClick={ () => void prepare() }>
-							{ busy || go ? __( 'Connecting…', 'ux-studio' ) : __( 'Connect to the central application', 'ux-studio' ) }
+							{ busy || go ? __( 'Connecting…', 'ux-studio' ) : __( 'Connect to the central app', 'ux-studio' ) }
 						</button>
 					) : (
 						<button type="button" className="button button-primary" onClick={ ctx.next }>

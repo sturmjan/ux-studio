@@ -409,7 +409,7 @@ final class RedirectsSource extends AbstractSource implements Activatable {
 			'action:url'       => __( 'rules without a target', 'ux-studio' ),
 			'status:403'       => __( 'rules answering 403 Forbidden', 'ux-studio' ),
 			'status:404'       => __( 'rules answering 404 Not Found', 'ux-studio' ),
-			'wildcard_off'     => __( 'rules with * that never matched, because wildcards were switched off in the plugin', 'ux-studio' ),
+			'wildcard_off'     => __( 'rules with * that never matched, because wildcards were turned off in the plugin', 'ux-studio' ),
 			'empty'            => __( 'rules with an empty source or target', 'ux-studio' ),
 			'duplicate'        => __( 'rules with the same address and the same conditions as an earlier rule (only the first one could ever match)', 'ux-studio' ),
 		);
@@ -501,7 +501,7 @@ final class RedirectsSource extends AbstractSource implements Activatable {
 			$m->note( __( 'Rules ending with * become regular-expression rules (the part after the prefix is passed to the target as $1).', 'ux-studio' ) );
 		}
 		if ( $this->module_enabled( self::MODULE ) ) {
-			$m->warn( __( 'The module "Redirects" is already on, so the rules are created switched off. They are switched on at the switch, after the safe preview, so two plugins never redirect the same address.', 'ux-studio' ) );
+			$m->warn( __( 'The module "Redirects" is already on, so the rules are created turned off. They are turned on at the switch, after the safe preview, so two plugins never redirect the same address.', 'ux-studio' ) );
 		}
 		return $m;
 	}
@@ -536,7 +536,7 @@ final class RedirectsSource extends AbstractSource implements Activatable {
 			),
 			array(
 				'key'   => 'inactive',
-				'label' => __( 'of them switched off in the plugin', 'ux-studio' ),
+				'label' => __( 'of them turned off in the plugin', 'ux-studio' ),
 				'count' => $inactive,
 			),
 			array(

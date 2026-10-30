@@ -182,14 +182,14 @@ final class Module extends BaseModule {
 			array(
 				'key'     => 'from_email',
 				'type'    => 'text',
-				'label'   => __( 'From email', 'ux-studio' ),
+				'label'   => __( 'From e-mail', 'ux-studio' ),
 				'help'    => __( 'Sender address used for outgoing mail. Leave blank to keep WordPress defaults.', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
 				'key'     => 'force_from_email',
 				'type'    => 'toggle',
-				'label'   => __( 'Force From email', 'ux-studio' ),
+				'label'   => __( 'Force From e-mail', 'ux-studio' ),
 				'help'    => __( 'Override the From address on every outgoing message, even if a plugin sets its own.', 'ux-studio' ),
 				'default' => false,
 			),
@@ -366,8 +366,8 @@ final class Module extends BaseModule {
 			array(
 				'key'     => 'enable_email_logs',
 				'type'    => 'toggle',
-				'label'   => __( 'Enable email logs', 'ux-studio' ),
-				'help'    => __( 'Record every email sent from the site in the delivery log (for debugging and overview).', 'ux-studio' ),
+				'label'   => __( 'Enable e-mail logs', 'ux-studio' ),
+				'help'    => __( 'Record every e-mail sent from the site in the delivery log (for debugging and overview).', 'ux-studio' ),
 				'default' => true,
 			),
 			array(
@@ -1549,10 +1549,10 @@ final class Module extends BaseModule {
 
 		$subject = sprintf(
 			/* translators: %s: site name */
-			__( '[%s] SMTP test email', 'ux-studio' ),
+			__( '[%s] SMTP test e-mail', 'ux-studio' ),
 			get_bloginfo( 'name' )
 		);
-		$body = __( 'This is a test email sent from the UX Studio SMTP Email module.', 'ux-studio' );
+		$body = __( 'This is a test e-mail sent from the UX Studio SMTP E-mail module.', 'ux-studio' );
 
 		if ( '' === $mailer ) {
 			return $this->dispatch( $to, $subject, $body, '' ) + array( 'mailer' => '' );

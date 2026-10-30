@@ -364,7 +364,7 @@ final class Staging {
 				if ( $done < count( (array) $row['ids'] ) ) {
 					$out['errors'][] = sprintf(
 						/* translators: 1: plugin slug, 2: number switched on, 3: number prepared. */
-						__( 'Of the data of "%1$s", %2$d of %3$d items were switched on, the rest could not be switched on (check the permissions and the logs).', 'ux-studio' ),
+						__( 'Of the data of "%1$s", %2$d of %3$d items were turned on, the rest could not be turned on (check the permissions and the logs).', 'ux-studio' ),
 						(string) $row['source'],
 						$done,
 						count( (array) $row['ids'] )
@@ -373,7 +373,7 @@ final class Staging {
 			} else {
 				$out['errors'][] = sprintf(
 					/* translators: %s: plugin slug. */
-					__( 'The data of "%s" could not be switched on.', 'ux-studio' ),
+					__( 'The data of "%s" could not be turned on.', 'ux-studio' ),
 					(string) $row['source']
 				);
 			}

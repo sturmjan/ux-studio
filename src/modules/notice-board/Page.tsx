@@ -514,7 +514,7 @@ function SubscribersTab(): JSX.Element {
 			<thead>
 				<tr>
 					<th>{ __( 'Date', 'ux-studio' ) }</th>
-					<th>{ __( 'Email', 'ux-studio' ) }</th>
+					<th>{ __( 'E-mail', 'ux-studio' ) }</th>
 					<th>{ __( 'Categories', 'ux-studio' ) }</th>
 					<th>{ __( 'Confirmed', 'ux-studio' ) }</th>
 					<th>{ __( 'Actions', 'ux-studio' ) }</th>

@@ -263,7 +263,7 @@ final class Module extends BaseModule {
 				'key'     => 'vapid_subject',
 				'type'    => 'text',
 				'label'   => __( 'VAPID contact (mailto: or URL)', 'ux-studio' ),
-				'help'    => __( 'Used as the "sub" claim of the VAPID JWT sent with each push. Defaults to the site admin email.', 'ux-studio' ),
+				'help'    => __( 'Used as the "sub" claim of the VAPID JWT sent with each push. Defaults to the site admin e-mail.', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
@@ -368,13 +368,13 @@ final class Module extends BaseModule {
 			array(
 				'key'     => 'prompt_bg_color',
 				'type'    => 'color',
-				'label'   => __( 'Opt-in prompt background colour', 'ux-studio' ),
+				'label'   => __( 'Opt-in prompt background color', 'ux-studio' ),
 				'default' => '#ffffff',
 			),
 			array(
 				'key'     => 'prompt_btn_color',
 				'type'    => 'color',
-				'label'   => __( 'Opt-in prompt accent / button colour', 'ux-studio' ),
+				'label'   => __( 'Opt-in prompt accent / button color', 'ux-studio' ),
 				'default' => '#2271b1',
 			),
 		);

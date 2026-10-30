@@ -144,7 +144,7 @@ final class Module extends BaseModule {
 		}
 
 		if ( '' === $recipient || ! is_email( $recipient ) ) {
-			return $this->save_result( false, __( 'Invalid recipient email address.', 'ux-studio' ), '', $recipient );
+			return $this->save_result( false, __( 'Invalid recipient e-mail address.', 'ux-studio' ), '', $recipient );
 		}
 
 		$mail_method   = 'unknown';
@@ -164,14 +164,14 @@ final class Module extends BaseModule {
 
 		$subject = sprintf(
 			/* translators: 1: site name, 2: date/time */
-			__( '[%1$s] Email Health Check - %2$s', 'ux-studio' ),
+			__( '[%1$s] E-mail Health Check - %2$s', 'ux-studio' ),
 			get_bloginfo( 'name' ),
 			wp_date( 'Y-m-d H:i' )
 		);
 
 		$body = sprintf(
 			/* translators: 1: site name, 2: date/time */
-			__( "This is an automated test email from %1\$s.\nTime: %2\$s\n\nIf you can read this, outgoing email is working correctly.", 'ux-studio' ),
+			__( "This is an automated test e-mail from %1\$s.\nTime: %2\$s\n\nIf you can read this, outgoing e-mail is working correctly.", 'ux-studio' ),
 			get_bloginfo( 'name' ),
 			wp_date( 'Y-m-d H:i:s' )
 		);
@@ -227,21 +227,21 @@ final class Module extends BaseModule {
 				'key'     => 'test_recipient',
 				'type'    => 'text',
 				'label'   => __( 'Test recipient', 'ux-studio' ),
-				'help'    => __( 'Email address that receives the test message. Defaults to the site admin email.', 'ux-studio' ),
+				'help'    => __( 'E-mail address that receives the test message. Defaults to the site admin e-mail.', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
 				'key'     => 'auto_test',
 				'type'    => 'toggle',
 				'label'   => __( 'Scheduled test', 'ux-studio' ),
-				'help'    => __( 'Automatically send a test email on a fixed interval.', 'ux-studio' ),
+				'help'    => __( 'Automatically send a test e-mail on a fixed interval.', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
 				'key'     => 'test_interval',
 				'type'    => 'select',
 				'label'   => __( 'Test interval', 'ux-studio' ),
-				'help'    => __( 'How often the scheduled test email is sent.', 'ux-studio' ),
+				'help'    => __( 'How often the scheduled test e-mail is sent.', 'ux-studio' ),
 				'options' => array(
 					'1'  => __( 'Every hour', 'ux-studio' ),
 					'3'  => __( 'Every 3 hours', 'ux-studio' ),

@@ -127,7 +127,7 @@ final class ImportRules {
 				if ( empty( $ctx['admin_has_2fa'] ) ) {
 					if ( ! empty( $values['two_factor_enabled'] ) && empty( $current['two_factor_enabled'] ) ) {
 						$drop( 'two_factor_enabled', 'two_factor', __( 'Skipped: you have no two-factor login set up yet, so switching it on could lock you out. Set up your own second factor first, then import again.', 'ux-studio' ) );
-						$note( 'two_factor', 'two_factor_enabled', __( 'Two-factor login was not switched on, because the importing administrator has none.', 'ux-studio' ) );
+						$note( 'two_factor', 'two_factor_enabled', __( 'Two-factor login was not turned on, because the importing administrator has none.', 'ux-studio' ) );
 					}
 					if ( isset( $values['two_factor_required_roles'] ) && array_intersect( (array) $values['two_factor_required_roles'], (array) ( $ctx['admin_roles'] ?? array() ) ) && array_diff( (array) $values['two_factor_required_roles'], (array) ( $current['two_factor_required_roles'] ?? array() ) ) ) {
 						$drop( 'two_factor_required_roles', 'two_factor', __( 'Skipped: the list would force two-factor login on your own role while you have none set up.', 'ux-studio' ) );
@@ -173,15 +173,15 @@ final class ImportRules {
 				// 5. Menu lock.
 				if ( ! empty( $values['menu_lock_enabled'] ) && empty( $current['menu_lock_enabled'] ) && empty( $ctx['menu_lock_safe'] ) ) {
 					$drop( 'menu_lock_enabled', 'menu_lock', __( 'Skipped: with the menu rules of this site the lock would stop you from opening UX Studio, Plugins, Users or Settings.', 'ux-studio' ) );
-					$note( 'menu_lock', 'menu_lock_enabled', __( 'The menu lock was not switched on, because it would lock the importing administrator out of key screens.', 'ux-studio' ) );
+					$note( 'menu_lock', 'menu_lock_enabled', __( 'The menu lock was not turned on, because it would lock the importing administrator out of key screens.', 'ux-studio' ) );
 				}
 				break;
 
 			case 'maintenance-mode':
 				// 6. Maintenance mode.
 				if ( isset( $values['mode'] ) && 'disabled' !== $values['mode'] && ( $current['mode'] ?? 'disabled' ) !== $values['mode'] && empty( $ctx['allow_maintenance'] ) ) {
-					$drop( 'mode', 'maintenance', __( 'Skipped: an import does not switch on maintenance mode unless you tick the extra box for it.', 'ux-studio' ) );
-					$note( 'maintenance', 'mode', __( 'Maintenance mode was not switched on. Tick "Allow switching on maintenance mode" to do it.', 'ux-studio' ) );
+					$drop( 'mode', 'maintenance', __( 'Skipped: an import does not turn on maintenance mode unless you tick the extra box for it.', 'ux-studio' ) );
+					$note( 'maintenance', 'mode', __( 'Maintenance mode was not turned on. Tick "Allow turning on maintenance mode" to do it.', 'ux-studio' ) );
 				}
 				break;
 		}

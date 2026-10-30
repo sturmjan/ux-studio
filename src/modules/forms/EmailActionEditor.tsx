@@ -179,7 +179,7 @@ export default function EmailActionEditor( {
 	return (
 		<div className="uxs-card uxs-mail" style={ { marginBottom: 'var(--uxs-sp-4)' } }>
 			<div className="uxs-mail__head">
-				<strong>{ __( 'Email notification', 'ux-studio' ) }</strong>
+				<strong>{ __( 'E-mail notification', 'ux-studio' ) }</strong>
 				<button type="button" className="button-link" onClick={ onRemove } aria-label={ __( 'Remove this action', 'ux-studio' ) }>
 					<Trash2 size={ 14 } />
 				</button>
@@ -196,7 +196,7 @@ export default function EmailActionEditor( {
 								placeholder={ __( 'admin_email or {email}', 'ux-studio' ) }
 								onChange={ ( e ) => onChange( { to: e.target.value } ) }
 							/>
-							<p className="uxs-form__help">{ __( 'Leave empty to use the site admin email. Supports merge tags, e.g. {email}.', 'ux-studio' ) }</p>
+							<p className="uxs-form__help">{ __( 'Leave empty to use the site admin e-mail. Supports merge tags, e.g. {email}.', 'ux-studio' ) }</p>
 						</div>
 
 						<div className="uxs-form__row">
@@ -229,7 +229,7 @@ export default function EmailActionEditor( {
 								/>
 								<p className="uxs-form__help">
 									{ __(
-										'Your own complete HTML email - no built-in layout is added around it. Merge tags: {form_title}, {submission_date}, {submission_table}, and any field key like {email}. Use inline style="" attributes; most email clients ignore <style> blocks and external CSS.',
+										'Your own complete HTML e-mail - no built-in layout is added around it. Merge tags: {form_title}, {submission_date}, {submission_table}, and any field key like {email}. Use inline style="" attributes; most e-mail clients ignore <style> blocks and external CSS.',
 										'ux-studio'
 									) }
 								</p>
@@ -354,7 +354,7 @@ export default function EmailActionEditor( {
 					</div>
 				</div>
 
-				<aside className="uxs-mail__preview" aria-label={ __( 'Email preview', 'ux-studio' ) }>
+				<aside className="uxs-mail__preview" aria-label={ __( 'E-mail preview', 'ux-studio' ) }>
 					<div className="uxs-mail__preview-bar">
 						<strong>{ __( 'Live preview', 'ux-studio' ) }</strong>
 						{ stale && <LoaderCircle size={ 14 } className="uxs-mail__spin" aria-label={ __( 'Updating the preview', 'ux-studio' ) } /> }
@@ -371,7 +371,7 @@ export default function EmailActionEditor( {
 						{ __( 'Subject:', 'ux-studio' ) } <strong>{ preview.data?.subject ?? '' }</strong>
 					</div>
 					<div className={ `uxs-mail__frame is-${ device }` }>
-						<iframe title={ __( 'Email preview', 'ux-studio' ) } sandbox="" srcDoc={ preview.data?.html ?? '' } />
+						<iframe title={ __( 'E-mail preview', 'ux-studio' ) } sandbox="" srcDoc={ preview.data?.html ?? '' } />
 					</div>
 				</aside>
 			</div>

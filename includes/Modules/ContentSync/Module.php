@@ -260,9 +260,9 @@ final class Module extends BaseModule {
 				'key'     => 'sso_mapping_strategy',
 				'type'    => 'select',
 				'label'   => __( 'SSO user mapping', 'ux-studio' ),
-				'help'    => __( 'auto: map by email, provision if missing. strict: only pre-mapped/known users. disabled: SSO off.', 'ux-studio' ),
+				'help'    => __( 'auto: map by e-mail, provision if missing. strict: only pre-mapped/known users. disabled: SSO off.', 'ux-studio' ),
 				'options' => array(
-					'auto'     => __( 'Auto (map by email, provision if missing)', 'ux-studio' ),
+					'auto'     => __( 'Auto (map by e-mail, provision if missing)', 'ux-studio' ),
 					'strict'   => __( 'Strict (existing users only)', 'ux-studio' ),
 					'disabled' => __( 'Disabled', 'ux-studio' ),
 				),
@@ -318,7 +318,7 @@ final class Module extends BaseModule {
 				'key'     => 'central_app_url',
 				'type'    => 'text',
 				'label'   => __( 'Central app URL', 'ux-studio' ),
-				'help'    => __( 'Base URL of the central application acting as the broker for connected sites.', 'ux-studio' ),
+				'help'    => __( 'Base URL of the central app acting as the broker for connected sites.', 'ux-studio' ),
 				'default' => '',
 			),
 			array(

@@ -24,15 +24,15 @@ return array(
 		'risk  ' => __( 'A number of a location that does not exist is skipped. A typo can leave a location out.', 'ux-studio' ),
 	),
 	'severity_info_color' => array(
-		'does  ' => __( 'Colour of the announcement banner of the Info level.', 'ux-studio' ),
-		'effect' => __( 'Visitors see the colour with the announcement, for example a note about a changed schedule.', 'ux-studio' ),
+		'does  ' => __( 'Color of the announcement banner of the Info level.', 'ux-studio' ),
+		'effect' => __( 'Visitors see the color with the announcement, for example a note about a changed schedule.', 'ux-studio' ),
 	),
 	'severity_warning_color' => array(
-		'does  ' => __( 'Colour of the announcement banner of the Warning level.', 'ux-studio' ),
+		'does  ' => __( 'Color of the announcement banner of the Warning level.', 'ux-studio' ),
 		'effect' => __( 'Use it for things visitors should notice, such as a shorter day.', 'ux-studio' ),
 	),
 	'severity_critical_color' => array(
-		'does  ' => __( 'Colour of the announcement banner of the Critical level.', 'ux-studio' ),
+		'does  ' => __( 'Color of the announcement banner of the Critical level.', 'ux-studio' ),
 		'effect' => __( 'Use it for closures, so nobody travels to a closed place.', 'ux-studio' ),
 	),
 );

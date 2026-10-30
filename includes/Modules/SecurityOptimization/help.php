@@ -16,10 +16,10 @@ return array(
 		'does' => __( 'Login, registration, lost password and comments ask for a quick check before they are accepted. With the key-less Shield the browser of the visitor solves a small puzzle by itself: a fraction of a second, no account, no keys, no cookies, nothing sent to a third party. A visitor without JavaScript answers a simple sum instead, so nobody is locked out.', 'ux-studio' ),
 		'risk' => __( 'The Shield stops mass scripted attempts. It does not tell a person from a clever script: an attacker who spends the computing time passes, only slower. A visitor whose browser blocks the script sees the sum after a few seconds. Five wrong answers count as failed logins and lock the address like wrong passwords do.', 'ux-studio' ),
 		'off'  => __( 'When you use Cloudflare Turnstile or reCAPTCHA keys or a CAPTCHA plugin instead, or when you want to protect only the forms of the Forms module.', 'ux-studio' ),
-		'skip' => __( 'A CAPTCHA is already set up (switched on, keys stored or a CAPTCHA plugin active), or the site is behind a reverse proxy that is not Cloudflare: the Shield limits per IP address, and behind such a proxy every visitor looks the same.', 'ux-studio' ),
+		'skip' => __( 'A CAPTCHA is already set up (turned on, keys stored or a CAPTCHA plugin active), or the site is behind a reverse proxy that is not Cloudflare: the Shield limits per IP address, and behind such a proxy every visitor looks the same.', 'ux-studio' ),
 	),
 	'captcha_provider'          => array(
-		'does' => __( 'Automatic uses keys from the central application while the site is connected, then your own Turnstile or reCAPTCHA keys, and the key-less Shield when there are none. Anything you choose by hand is used as it is.', 'ux-studio' ),
+		'does' => __( 'Automatic uses keys from the central app while the site is connected, then your own Turnstile or reCAPTCHA keys, and the key-less Shield when there are none. Anything you choose by hand is used as it is.', 'ux-studio' ),
 		'risk' => __( 'Choosing the Shield on a site that has Turnstile or reCAPTCHA keys drops that check: the Shield is lighter and has no network of other sites behind it. Choosing a provider without its keys switches the CAPTCHA off silently.', 'ux-studio' ),
 		'off'  => __( 'Leave it on Automatic unless you need one specific provider.', 'ux-studio' ),
 		'skip' => __( 'Same as the CAPTCHA switch: a CAPTCHA is already set up, a CAPTCHA plugin is active or the site is behind a reverse proxy that is not Cloudflare.', 'ux-studio' ),
@@ -49,7 +49,7 @@ return array(
 		'skip' => __( 'An existing account uses a reserved name (rename it first), or the login attempt limit is not set.', 'ux-studio' ),
 	),
 	'protect_login'             => array(
-		'does' => __( 'The login page no longer tells whether the username or the password was wrong. Application Passwords are switched off, so new ones cannot be created. Messages about a lockout, CAPTCHA and two-step verification stay readable.', 'ux-studio' ),
+		'does' => __( 'The login page no longer tells whether the username or the password was wrong. Application Passwords are turned off, so new ones cannot be created. Messages about a lockout, CAPTCHA and two-step verification stay readable.', 'ux-studio' ),
 		'risk' => __( 'Integrations that sign in with an Application Password stop working: the WordPress mobile app, REST clients, some MCP servers and publishing tools.', 'ux-studio' ),
 		'off'  => __( 'When you use such an integration, or want to create Application Passwords again.', 'ux-studio' ),
 		'skip' => __( 'Somebody already has an Application Password (the pack never cuts off existing ones).', 'ux-studio' ),
@@ -103,7 +103,7 @@ return array(
 		'skip' => __( 'It is never left out.', 'ux-studio' ),
 	),
 	'disable_file_editing'      => array(
-		'does' => __( 'The code editors for themes and plugins in wp-admin are switched off (DISALLOW_FILE_EDIT). A stolen administrator login then cannot easily turn into running code.', 'ux-studio' ),
+		'does' => __( 'The code editors for themes and plugins in wp-admin are turned off (DISALLOW_FILE_EDIT). A stolen administrator login then cannot easily turn into running code.', 'ux-studio' ),
 		'risk' => __( 'You change theme and plugin files over FTP, the file manager or your editor instead.', 'ux-studio' ),
 		'off'  => __( 'When you edit code in the WordPress admin.', 'ux-studio' ),
 		'skip' => __( 'It is never left out.', 'ux-studio' ),
@@ -244,7 +244,7 @@ return array(
 		'effect' => __( 'A low number starts the check early; a high number lets an attacker try more before it shows.', 'ux-studio' ),
 	),
 	'disable_embeds'             => array(
-		'does'   => __( 'Switches off the extra embed machinery of WordPress: other sites can no longer discover your embed address, pasted links to sites that are not on the WordPress list of known services are no longer turned into embeds, and the embed preview in the visual editor goes away.', 'ux-studio' ),
+		'does'   => __( 'Turns off the extra embed machinery of WordPress: other sites can no longer discover your embed address, pasted links to sites that are not on the WordPress list of known services are no longer turned into embeds, and the embed preview in the visual editor goes away.', 'ux-studio' ),
 		'effect' => __( 'The page head is a little lighter. Links to well-known services such as YouTube still become players as before.', 'ux-studio' ),
 		'risk'   => __( 'Other WordPress sites can no longer show your posts as embedded cards. Pasted links to less common sites stay plain links instead of becoming a box. Check posts that rely on such embeds.', 'ux-studio' ),
 		'off'    => __( 'Leave it off if you want others to embed your posts, or you paste links to uncommon sites and expect a box.', 'ux-studio' ),

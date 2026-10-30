@@ -221,13 +221,13 @@ function NewRequestForm(): JSX.Element {
 				<p className="uxs-form__help">{ __( 'How fast it needs an answer. Use the highest level only for a site that is down or loses orders.', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
-				<label htmlFor="uxs-sr-email">{ __( 'Contact email', 'ux-studio' ) }</label>
+				<label htmlFor="uxs-sr-email">{ __( 'Contact e-mail', 'ux-studio' ) }</label>
 				<input
 					id="uxs-sr-email"
 					type="text"
 					value={ requesterEmail }
 					onChange={ ( e ) => setRequesterEmail( e.target.value ) }
-					placeholder={ __( 'Leave blank to use your account email', 'ux-studio' ) }
+					placeholder={ __( 'Leave blank to use your account e-mail', 'ux-studio' ) }
 				/>
 				<p className="uxs-form__help">{ __( 'Where the answer is sent. Empty uses the e-mail of your account.', 'ux-studio' ) }</p>
 			</div>

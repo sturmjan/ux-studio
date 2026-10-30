@@ -110,7 +110,7 @@ final class LoginSource extends AbstractSource implements Activatable {
 		$m->set( self::MODULE, 'limit_login_attempts', true, __( 'Limit login attempts', 'ux-studio' ), 'limit_login_allowed_retries' );
 		$m->set( self::MODULE, 'max_attempts', (int) ( $retries ?? 4 ), __( 'Max attempts', 'ux-studio' ), 'limit_login_allowed_retries' );
 		$m->set( self::MODULE, 'lockout_time', max( 1, (int) round( (int) ( $duration ?? 1200 ) / 60 ) ), __( 'Lockout time (minutes)', 'ux-studio' ), 'limit_login_lockout_duration' );
-		$m->set( self::MODULE, 'notify_admin', in_array( 'email', explode( ',', (string) ( $notify ?? 'email' ) ), true ), __( 'Email admin on lockout', 'ux-studio' ), 'limit_login_lockout_notify' );
+		$m->set( self::MODULE, 'notify_admin', in_array( 'email', explode( ',', (string) ( $notify ?? 'email' ) ), true ), __( 'E-mail admin on lockout', 'ux-studio' ), 'limit_login_lockout_notify' );
 
 		$this->map_notify_email( $m, (string) $this->opt( 'admin_notify_email' ), 'admin_notify_email' );
 		$this->map_progressive(
@@ -151,7 +151,7 @@ final class LoginSource extends AbstractSource implements Activatable {
 		$m->set( self::MODULE, 'limit_login_attempts', empty( $this->opt( 'loginizer_disable_brute' ) ), __( 'Limit login attempts', 'ux-studio' ), 'loginizer_disable_brute' );
 		$m->set( self::MODULE, 'max_attempts', (int) ( empty( $o['max_retries'] ) ? 3 : $o['max_retries'] ), __( 'Max attempts', 'ux-studio' ), 'loginizer_options:max_retries' );
 		$m->set( self::MODULE, 'lockout_time', max( 1, (int) round( $lockout_s / 60 ) ), __( 'Lockout time (minutes)', 'ux-studio' ), 'loginizer_options:lockout_time' );
-		$m->set( self::MODULE, 'notify_admin', ! empty( $o['notify_email'] ), __( 'Email admin on lockout', 'ux-studio' ), 'loginizer_options:notify_email' );
+		$m->set( self::MODULE, 'notify_admin', ! empty( $o['notify_email'] ), __( 'E-mail admin on lockout', 'ux-studio' ), 'loginizer_options:notify_email' );
 
 		$this->map_notify_email( $m, (string) ( $o['notify_email_address'] ?? '' ), 'loginizer_options:notify_email_address' );
 		$this->map_progressive(
@@ -163,7 +163,7 @@ final class LoginSource extends AbstractSource implements Activatable {
 		);
 		$this->map_lists( $m, 'loginizer_whitelist', 'loginizer_blacklist' );
 
-		$m->lossy( __( 'Loginizer CAPTCHA, passwordless login and social login are not transferred. Two-step verification cannot be moved (the secrets stay with the plugin): users set it up again in their profile once it is switched on in the module.', 'ux-studio' ) );
+		$m->lossy( __( 'Loginizer CAPTCHA, passwordless login and social login are not transferred. Two-step verification cannot be moved (the secrets stay with the plugin): users set it up again in their profile once it is turned on in the module.', 'ux-studio' ) );
 		return $m;
 	}
 
@@ -239,7 +239,7 @@ final class LoginSource extends AbstractSource implements Activatable {
 			$m->warn(
 				sprintf(
 					/* translators: %d: number of addresses. */
-					_n( '%d blocked IP address or range goes to the Firewall of Security Optimization, and the Firewall is switched on so it takes effect. It starts to block once the module is switched on.', '%d blocked IP addresses or ranges go to the Firewall of Security Optimization, and the Firewall is switched on so they take effect. They start to block once the module is switched on.', count( $lists['block'] ), 'ux-studio' ),
+					_n( '%d blocked IP address or range goes to the Firewall of Security Optimization, and the Firewall is turned on so it takes effect. It starts to block once the module is turned on.', '%d blocked IP addresses or ranges go to the Firewall of Security Optimization, and the Firewall is turned on so they take effect. They start to block once the module is turned on.', count( $lists['block'] ), 'ux-studio' ),
 					count( $lists['block'] )
 				)
 			);
@@ -330,7 +330,7 @@ final class LoginSource extends AbstractSource implements Activatable {
 		$m->warn(
 			sprintf(
 				/* translators: %s: new login address. */
-				__( 'Once the module is switched on, the login address changes for everyone to %s. Save the new address before you switch over, the old one stops working.', 'ux-studio' ),
+				__( 'Once the module is turned on, the login address changes for everyone to %s. Save the new address before you switch over, the old one stops working.', 'ux-studio' ),
 				$base . $slug . '/'
 			)
 		);

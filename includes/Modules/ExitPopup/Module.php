@@ -163,21 +163,21 @@ final class Module extends BaseModule {
 				'key'     => 'bg_color',
 				'section' => __( 'Appearance', 'ux-studio' ),
 				'type'    => 'color',
-				'label'   => __( 'Background colour', 'ux-studio' ),
+				'label'   => __( 'Background color', 'ux-studio' ),
 				'default' => '#ffffff',
 			),
 			array(
 				'key'     => 'title_color',
 				'section' => __( 'Appearance', 'ux-studio' ),
 				'type'    => 'color',
-				'label'   => __( 'Headline colour', 'ux-studio' ),
+				'label'   => __( 'Headline color', 'ux-studio' ),
 				'default' => '#1f2937',
 			),
 			array(
 				'key'     => 'text_color',
 				'section' => __( 'Appearance', 'ux-studio' ),
 				'type'    => 'color',
-				'label'   => __( 'Text colour', 'ux-studio' ),
+				'label'   => __( 'Text color', 'ux-studio' ),
 				'default' => '#4b5563',
 			),
 			array(
@@ -185,7 +185,7 @@ final class Module extends BaseModule {
 				'show_if' => array( 'key' => 'enable_cta', 'truthy' => true ),
 				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'color',
-				'label'   => __( 'Button background colour', 'ux-studio' ),
+				'label'   => __( 'Button background color', 'ux-studio' ),
 				'default' => '#2563eb',
 			),
 			array(
@@ -193,7 +193,7 @@ final class Module extends BaseModule {
 				'show_if' => array( 'key' => 'enable_cta', 'truthy' => true ),
 				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'color',
-				'label'   => __( 'Button text colour', 'ux-studio' ),
+				'label'   => __( 'Button text color', 'ux-studio' ),
 				'default' => '#ffffff',
 			),
 			array(
@@ -310,7 +310,7 @@ final class Module extends BaseModule {
 			// --- E-mail capture ---
 			array(
 				'key'     => 'enable_email',
-				'section' => __( 'Email capture', 'ux-studio' ),
+				'section' => __( 'E-mail capture', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Show e-mail capture field', 'ux-studio' ),
 				'default' => true,
@@ -318,15 +318,15 @@ final class Module extends BaseModule {
 			array(
 				'key'     => 'email_placeholder',
 				'show_if' => array( 'key' => 'enable_email', 'truthy' => true ),
-				'section' => __( 'Email capture', 'ux-studio' ),
+				'section' => __( 'E-mail capture', 'ux-studio' ),
 				'type'    => 'text',
 				'label'   => __( 'E-mail field placeholder', 'ux-studio' ),
-				'default' => __( 'Email address', 'ux-studio' ),
+				'default' => __( 'E-mail address', 'ux-studio' ),
 			),
 			array(
 				'key'     => 'email_button_text',
 				'show_if' => array( 'key' => 'enable_email', 'truthy' => true ),
-				'section' => __( 'Email capture', 'ux-studio' ),
+				'section' => __( 'E-mail capture', 'ux-studio' ),
 				'type'    => 'text',
 				'label'   => __( 'Submit button label', 'ux-studio' ),
 				'default' => __( 'Subscribe', 'ux-studio' ),
@@ -334,7 +334,7 @@ final class Module extends BaseModule {
 			array(
 				'key'     => 'email_success_message',
 				'show_if' => array( 'key' => 'enable_email', 'truthy' => true ),
-				'section' => __( 'Email capture', 'ux-studio' ),
+				'section' => __( 'E-mail capture', 'ux-studio' ),
 				'type'    => 'text',
 				'label'   => __( 'Success message', 'ux-studio' ),
 				'default' => __( 'Thanks! Check your inbox soon.', 'ux-studio' ),
@@ -342,7 +342,7 @@ final class Module extends BaseModule {
 			array(
 				'key'     => 'enable_autoresponder',
 				'show_if' => array( 'key' => 'enable_email', 'truthy' => true ),
-				'section' => __( 'Email capture', 'ux-studio' ),
+				'section' => __( 'E-mail capture', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Send autoresponder e-mail to the subscriber', 'ux-studio' ),
 				'default' => false,
@@ -350,7 +350,7 @@ final class Module extends BaseModule {
 			array(
 				'key'     => 'autoresponder_subject',
 				'show_if' => array( 'key' => 'enable_autoresponder', 'truthy' => true ),
-				'section' => __( 'Email capture', 'ux-studio' ),
+				'section' => __( 'E-mail capture', 'ux-studio' ),
 				'type'    => 'text',
 				'label'   => __( 'Autoresponder subject', 'ux-studio' ),
 				'default' => __( 'Thanks for your interest', 'ux-studio' ),
@@ -358,7 +358,7 @@ final class Module extends BaseModule {
 			array(
 				'key'     => 'autoresponder_body',
 				'show_if' => array( 'key' => 'enable_autoresponder', 'truthy' => true ),
-				'section' => __( 'Email capture', 'ux-studio' ),
+				'section' => __( 'E-mail capture', 'ux-studio' ),
 				'type'    => 'richtext',
 				'label'   => __( 'Autoresponder body', 'ux-studio' ),
 				'default' => '',
@@ -542,7 +542,7 @@ final class Module extends BaseModule {
 				'emailEnabled'   => (bool) $this->settings->get( 'enable_email', true ),
 				'restUrl'        => esc_url_raw( rest_url( 'uxstudio/v1/exit-popup/subscribe' ) ),
 				'restNonce'      => wp_create_nonce( 'wp_rest' ),
-				'emailLabel'     => (string) $this->settings->get( 'email_placeholder', __( 'Email address', 'ux-studio' ) ),
+				'emailLabel'     => (string) $this->settings->get( 'email_placeholder', __( 'E-mail address', 'ux-studio' ) ),
 				'submitLabel'    => (string) $this->settings->get( 'email_button_text', __( 'Subscribe', 'ux-studio' ) ),
 				'closeLabel'     => __( 'Close', 'ux-studio' ),
 				'successMessage' => (string) $this->settings->get( 'email_success_message', __( 'Thanks! Check your inbox soon.', 'ux-studio' ) ),

@@ -580,7 +580,7 @@ final class Module extends BaseModule {
 				'key'     => 'headline_colour',
 				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'color',
-				'label'   => __( 'Headline colour', 'ux-studio' ),
+				'label'   => __( 'Headline color', 'ux-studio' ),
 				'default' => '#1f2937',
 			),
 			array(
@@ -594,7 +594,7 @@ final class Module extends BaseModule {
 				'key'     => 'body_colour',
 				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'color',
-				'label'   => __( 'Body colour', 'ux-studio' ),
+				'label'   => __( 'Body color', 'ux-studio' ),
 				'default' => '#676c76',
 			),
 			array(
@@ -608,7 +608,7 @@ final class Module extends BaseModule {
 				'key'     => 'footer_colour',
 				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'color',
-				'label'   => __( 'Footer colour', 'ux-studio' ),
+				'label'   => __( 'Footer color', 'ux-studio' ),
 				'default' => '#676c76',
 			),
 			array(
@@ -643,7 +643,7 @@ final class Module extends BaseModule {
 				'key'     => 'background_colour',
 				'section' => __( 'Appearance', 'ux-studio' ),
 				'type'    => 'color',
-				'label'   => __( 'Background colour', 'ux-studio' ),
+				'label'   => __( 'Background color', 'ux-studio' ),
 				'default' => '#f5f5f5',
 			),
 			array(

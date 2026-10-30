@@ -40,11 +40,11 @@ return array(
 		'effect' => __( 'The visitor is asked again later. A choice made in the browser dialog itself would be remembered for good.', 'ux-studio' ),
 	),
 	'prompt_bg_color' => array(
-		'does  ' => __( 'Background colour of the permission window.', 'ux-studio' ),
-		'effect' => __( 'Pick a colour in line with your site and keep the text readable.', 'ux-studio' ),
+		'does  ' => __( 'Background color of the permission window.', 'ux-studio' ),
+		'effect' => __( 'Pick a color in line with your site and keep the text readable.', 'ux-studio' ),
 	),
 	'prompt_btn_color' => array(
-		'does  ' => __( 'Colour of the allow button and the accent of the window.', 'ux-studio' ),
+		'does  ' => __( 'Color of the allow button and the accent of the window.', 'ux-studio' ),
 		'effect' => __( 'The allow button should stand out from the "later" button.', 'ux-studio' ),
 	),
 );

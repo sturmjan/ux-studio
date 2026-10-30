@@ -763,7 +763,7 @@ final class Module extends BaseModule {
 				'key'     => 'notify_admin',
 				'section' => __( 'Login', 'ux-studio' ),
 				'type'    => 'toggle',
-				'label'   => __( 'Email admin on lockout', 'ux-studio' ),
+				'label'   => __( 'E-mail admin on lockout', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
@@ -866,7 +866,7 @@ final class Module extends BaseModule {
 				'section' => __( 'CAPTCHA', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'CAPTCHA provider', 'ux-studio' ),
-				'help'    => __( 'Automatic uses keys from the central application when the site is connected, then your own keys, and the key-less Shield when there are none. The Shield needs no account and no keys.', 'ux-studio' ),
+				'help'    => __( 'Automatic uses keys from the central app when the site is connected, then your own keys, and the key-less Shield when there are none. The Shield needs no account and no keys.', 'ux-studio' ),
 				'options' => array(
 					'auto'         => __( 'Automatic (recommended)', 'ux-studio' ),
 					'shield'       => __( 'UX Studio Shield (no keys)', 'ux-studio' ),
@@ -1311,16 +1311,16 @@ final class Module extends BaseModule {
 				'key'     => 'upload_guard_notify',
 				'section' => __( 'Uploads', 'ux-studio' ),
 				'type'    => 'toggle',
-				'label'   => __( 'Email admin on detections', 'ux-studio' ),
-				'help'    => __( 'Sends a throttled summary email when new high/critical findings appear (at most one per 15 minutes).', 'ux-studio' ),
+				'label'   => __( 'E-mail admin on detections', 'ux-studio' ),
+				'help'    => __( 'Sends a throttled summary e-mail when new high/critical findings appear (at most one per 15 minutes).', 'ux-studio' ),
 				'default' => true,
 			),
 			array(
 				'key'     => 'upload_guard_notify_email',
 				'section' => __( 'Uploads', 'ux-studio' ),
 				'type'    => 'text',
-				'label'   => __( 'Notification email', 'ux-studio' ),
-				'help'    => __( 'Where to send Upload Guard alerts. Leave blank to use the site admin email.', 'ux-studio' ),
+				'label'   => __( 'Notification e-mail', 'ux-studio' ),
+				'help'    => __( 'Where to send Upload Guard alerts. Leave blank to use the site admin e-mail.', 'ux-studio' ),
 				'default' => '',
 			),
 			array(

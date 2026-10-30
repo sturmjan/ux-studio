@@ -72,10 +72,10 @@ final class CaptchaSource extends AbstractSource {
 		}
 		$m->set( self::MODULE, 'captcha_enabled', $ready && array() !== $forms, __( 'Enable CAPTCHA', 'ux-studio' ), $origin );
 		if ( ! $ready ) {
-			$m->warn( __( 'The site key or the secret key is empty, so the CAPTCHA stays switched off in the module.', 'ux-studio' ) );
+			$m->warn( __( 'The site key or the secret key is empty, so the CAPTCHA stays turned off in the module.', 'ux-studio' ) );
 		}
 		if ( array() === $forms ) {
-			$m->warn( __( 'The plugin protects none of the forms the module can protect, so the CAPTCHA stays switched off in the module.', 'ux-studio' ) );
+			$m->warn( __( 'The plugin protects none of the forms the module can protect, so the CAPTCHA stays turned off in the module.', 'ux-studio' ) );
 		}
 		$m->warn( __( 'Once the module is on, the CAPTCHA appears in the forms listed above with these keys. Make sure the keys are valid for this domain.', 'ux-studio' ) );
 	}
@@ -176,7 +176,7 @@ final class CaptchaSource extends AbstractSource {
 		} elseif ( 'builtin' === $type ) {
 			$m->lossy( __( 'The plugin uses its own built-in CAPTCHA, which the module does not have. Choose Cloudflare Turnstile or reCAPTCHA in the module.', 'ux-studio' ) );
 		} else {
-			$m->note( __( 'The CAPTCHA is switched off in the plugin, there is nothing to transfer.', 'ux-studio' ) );
+			$m->note( __( 'The CAPTCHA is turned off in the plugin, there is nothing to transfer.', 'ux-studio' ) );
 		}
 
 		if ( ! empty( $o['login_protection'] ) ) {

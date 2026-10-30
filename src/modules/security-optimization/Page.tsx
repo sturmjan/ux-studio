@@ -381,7 +381,7 @@ function TwoFactorData(): JSX.Element {
 					</span>
 				</p>
 			) }
-			{ ! data.feature && ! data.killed && <p>{ __( 'Two-step verification is switched off. Switch it on above and save; every user then sets it up in their own profile.', 'ux-studio' ) }</p> }
+			{ ! data.feature && ! data.killed && <p>{ __( 'Two-step verification is turned off. Switch it on above and save; every user then sets it up in their own profile.', 'ux-studio' ) }</p> }
 			<p>
 				{ __( 'If you get locked out, add this line to wp-config.php, then remove it again after you log in:', 'ux-studio' ) } <code>{ `define( '${ data.kill_switch }', true );` }</code>
 			</p>

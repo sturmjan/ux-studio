@@ -484,7 +484,7 @@ $store     = array();
 $module_on = true;
 $install_double( $store, static function () use ( &$module_on ) { return $module_on; } );
 $plan = SourceRegistry::get( 'redirection' )->plan();
-$assert( 'redirects (module on): plan says rules are created switched off', true === $plan['staged'] && $lossy_has( array( 'lossy' => $plan['warnings'] ), 'switched off' ), json_encode( $plan['warnings'] ) );
+$assert( 'redirects (module on): plan says rules are created switched off', true === $plan['staged'] && $lossy_has( array( 'lossy' => $plan['warnings'] ), 'turned off' ), json_encode( $plan['warnings'] ) );
 $run = Runner::start( array( 'redirection' ), false );
 $r1  = $drive();
 $entry = Staging::entry( $run['id'] );
@@ -523,7 +523,7 @@ $by    = array_column( $items, null, 'label' );
 $assert( 'simple-301: wildcards on => * becomes (.*) and $1, plain rules stay exact', 3 === count( $items ) && 'exact' === $by['/stara']['match_type'] && '^/blog/(.*)' === $by['^/blog/(.*)']['source'] && '/novy-blog/$1' === $by['^/blog/(.*)']['target'] && 'regex' === $by['^/jentext(.*)']['match_type'], json_encode( array_keys( $by ) ) );
 $site( array( 'simple-301-redirects' ), array( 'simple-301-redirects' ), array( '301_redirects' => array( '/stara' => '/nova', '/blog/*' => '/novy-blog/*' ) ) );
 $plan  = SourceRegistry::get( 'simple-301-redirects' )->plan();
-$assert( 'simple-301: wildcards off => rules with * never matched, skipped and reported', 1 === count( $items_of( 'simple-301-redirects' ) ) && $lossy_has( $plan, 'wildcards were switched off' ), json_encode( $plan['lossy'] ) );
+$assert( 'simple-301: wildcards off => rules with * never matched, skipped and reported', 1 === count( $items_of( 'simple-301-redirects' ) ) && $lossy_has( $plan, 'wildcards were turned off' ), json_encode( $plan['lossy'] ) );
 
 $site( array( '301-redirects' ), array( '301-redirects' ) );
 $table( 'ts_redirects' );
@@ -556,7 +556,7 @@ $assert( 'code-snippets: single-use -> php, run once, and it is NEVER switched o
 $assert( 'code-snippets: the plan explains shortcodes and the run-once rule', false !== strpos( implode( ' ', $plan['notes'] ), 'uxstudio_snippet' ) && false !== strpos( implode( ' ', $plan['warnings'] ), 'run-once snippet' ) && 1 === $data_count( $plan, 'manual' ), json_encode( array( $plan['notes'], $plan['warnings'], $plan['data'] ) ) );
 $assert( 'code-snippets: scopes map to type + place', 'php' === $by['cs:1']['type'] && 'everywhere' === $by['cs:1']['run_location'] && 'frontend_only' === $by['cs:2']['run_location'] && 'html' === $by['cs:4']['type'] && 'site_header' === $by['cs:4']['run_location'] && 'css' === $by['cs:5']['type'] && 'js' === $by['cs:6']['type'] && 'site_footer' === $by['cs:6']['run_location'] );
 $assert( 'code-snippets: name is trimmed, tags go into the description, active flag is kept', 'WooCommerce kategorie 580' === $by['cs:1']['name'] && false !== strpos( $by['cs:1']['description'], 'sample, woo' ) && true === $by['cs:1']['enabled'] && false === $by['cs:2']['enabled'] );
-$assert( 'code-snippets: plan says every snippet is created switched off', false !== strpos( implode( ' ', $plan['notes'] ), 'switched off' ) && 5 === $data_count( $plan, 'enable' ), json_encode( $plan['data'] ) );
+$assert( 'code-snippets: plan says every snippet is created switched off', false !== strpos( implode( ' ', $plan['notes'] ), 'turned off' ) && 5 === $data_count( $plan, 'enable' ), json_encode( $plan['data'] ) );
 // Always disabled + activation staged, also with the module OFF.
 $store = array();
 $install_double( $store, static fn() => true );

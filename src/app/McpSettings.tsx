@@ -70,7 +70,7 @@ const SCOPES: { id: Scope; label: string; help: string }[] = [
 	{
 		id: 'migration',
 		label: __( 'Migration access', 'ux-studio' ),
-		help: __( 'Run, verify, preview and switch on migrations from other plugins, and undo them. Includes Read. A migration can enable imported PHP snippets, so this scope is equivalent to running code on the site.', 'ux-studio' ),
+		help: __( 'Run, verify, preview and turn on migrations from other plugins, and undo them. Includes Read. A migration can enable imported PHP snippets, so this scope is equivalent to running code on the site.', 'ux-studio' ),
 	},
 	{
 		id: 'admin',

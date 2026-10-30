@@ -91,7 +91,7 @@ const FIELD_TYPE_LABELS: Record< FieldType, string > = {
 	date: __( 'Date', 'ux-studio' ),
 	image: __( 'Image', 'ux-studio' ),
 	url: __( 'Link', 'ux-studio' ),
-	email: __( 'Email', 'ux-studio' ),
+	email: __( 'E-mail', 'ux-studio' ),
 	color: __( 'Color swatch', 'ux-studio' ),
 	post: __( 'Related post', 'ux-studio' ),
 };

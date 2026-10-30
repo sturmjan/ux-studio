@@ -1,6 +1,6 @@
 {
 	"id": "smtp-email",
-	"name": "SMTP Email",
+	"name": "SMTP E-mail",
 	"description": "Route outgoing mail through SMTP or the Brevo API and keep a delivery log.",
 	"group": "developer",
 	"icon": "mail",

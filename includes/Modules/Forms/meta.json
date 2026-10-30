@@ -1,7 +1,7 @@
 {
 	"id": "forms",
 	"name": "Form Builder",
-	"description": "Build multi-step forms with conditional fields, file uploads and email notifications, and browse a searchable archive of submissions.",
+	"description": "Build multi-step forms with conditional fields, file uploads and e-mail notifications, and browse a searchable archive of submissions.",
 	"group": "content",
 	"icon": "clipboard-list",
 	"settings": true

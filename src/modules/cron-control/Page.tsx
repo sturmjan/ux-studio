@@ -132,14 +132,14 @@ function StatusView(): JSX.Element {
 					</th>
 					<td>
 						<span className={ `uxs-badge ${ data.disable_wp_cron ? 'is-warning' : 'is-success' }` }>
-							{ data.disable_wp_cron ? __( 'No, this is switched off', 'ux-studio' ) : __( 'Yes, the default way', 'ux-studio' ) }
+							{ data.disable_wp_cron ? __( 'No, this is turned off', 'ux-studio' ) : __( 'Yes, the default way', 'ux-studio' ) }
 						</span>
 						<span className="uxs-form__help">
-							<HelpText text={ __( 'WordPress normally starts its scheduled tasks ([[cron|WP-Cron]]) when someone opens a page. When this is switched off, something else has to start them, for example a cron of the hosting.', 'ux-studio' ) } />
+							<HelpText text={ __( 'WordPress normally starts its scheduled tasks ([[cron|WP-Cron]]) when someone opens a page. When this is turned off, something else has to start them, for example a cron of the hosting.', 'ux-studio' ) } />
 						</span>
 						{ data.disable_wp_cron && ! data.mu_plugin_active ? (
 							<span className="uxs-form__help">
-								{ __( 'It is switched off elsewhere (wp-config.php or another plugin), not by this module.', 'ux-studio' ) }
+								{ __( 'It is turned off elsewhere (wp-config.php or another plugin), not by this module.', 'ux-studio' ) }
 							</span>
 						) : null }
 					</td>

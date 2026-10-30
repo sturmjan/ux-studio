@@ -17,8 +17,8 @@ return array(
 		'effect' => __( 'After the text is the usual place, so the text lines stay aligned.', 'ux-studio' ),
 	),
 	'disable_speculative_loading' => array(
-		'does  ' => __( 'Switches off the WordPress feature that loads pages in the background before the visitor clicks them (speculative loading).', 'ux-studio' ),
-		'effect' => __( 'With the switch on nothing is loaded ahead of time. Pages open a little slower, but the server and the data of visitors are spared.', 'ux-studio' ),
+		'does  ' => __( 'Turns off the WordPress feature that loads pages in the background before the visitor clicks them (speculative loading).', 'ux-studio' ),
+		'effect' => __( 'With the turn on nothing is loaded ahead of time. Pages open a little slower, but the server and the data of visitors are spared.', 'ux-studio' ),
 		'risk  ' => __( 'Pages that count visits or change something when opened can be triggered by the preloading. That is the usual reason to switch the feature off.', 'ux-studio' ),
 		'off   ' => __( 'Leave it off for most sites, the feature makes browsing faster. Switch it on only when it causes trouble.', 'ux-studio' ),
 	),

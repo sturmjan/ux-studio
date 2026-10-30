@@ -48,7 +48,7 @@ export function captchaStatusLine( status: CaptchaStatus ): string {
 	if ( 'ca' === status.source ) {
 		return sprintf(
 			/* translators: %s: provider name. */
-			__( 'Using: %s (keys from the central application)', 'ux-studio' ),
+			__( 'Using: %s (keys from the central app)', 'ux-studio' ),
 			providerName( status.provider )
 		);
 	}
@@ -94,10 +94,10 @@ export default function CaptchaInspector(): JSX.Element {
 			{ s.can_provision && ! s.has_keys && (
 				<>
 					<p className="uxs-form__help">
-						{ __( 'This site is connected to the central application, which can give it Cloudflare Turnstile keys. The same keys then protect the login forms too.', 'ux-studio' ) }
+						{ __( 'This site is connected to the central app, which can give it Cloudflare Turnstile keys. The same keys then protect the login forms too.', 'ux-studio' ) }
 					</p>
 					<button type="button" className="button" disabled={ provision.isPending } onClick={ () => provision.mutate() }>
-						{ provision.isPending ? __( 'Getting keys…', 'ux-studio' ) : __( 'Get keys from the central application', 'ux-studio' ) }
+						{ provision.isPending ? __( 'Getting keys…', 'ux-studio' ) : __( 'Get keys from the central app', 'ux-studio' ) }
 					</button>
 				</>
 			) }
@@ -121,10 +121,10 @@ export default function CaptchaInspector(): JSX.Element {
 			{ ! s.connected && (
 				<p className="uxs-form__help">
 					{ 'shield' === s.provider
-						? __( 'The site is not connected to the central application, so the Shield protects this form for now.', 'ux-studio' )
-						: __( 'The site is not connected to the central application.', 'ux-studio' ) }{ ' ' }
+						? __( 'The site is not connected to the central app, so the Shield protects this form for now.', 'ux-studio' )
+						: __( 'The site is not connected to the central app.', 'ux-studio' ) }{ ' ' }
 					<button type="button" className="button-link" onClick={ () => navigate( 'wizard', { mode: 'new', step: 'ca' } ) }>
-						{ __( 'Connect to the central application', 'ux-studio' ) }
+						{ __( 'Connect to the central app', 'ux-studio' ) }
 					</button>
 				</p>
 			) }

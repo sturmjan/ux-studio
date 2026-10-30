@@ -109,11 +109,11 @@ final class TypeCheck {
 
 			case 'color':
 				if ( ! is_string( $value ) ) {
-					return $bad( __( 'Expected a colour such as #1a2b3c.', 'ux-studio' ) );
+					return $bad( __( 'Expected a color such as #1a2b3c.', 'ux-studio' ) );
 				}
 				return '' === $value || 1 === preg_match( '/^#(?:[0-9a-fA-F]{3}){1,2}$/', $value )
 					? $good( $value )
-					: $bad( __( 'Expected a colour such as #1a2b3c.', 'ux-studio' ) );
+					: $bad( __( 'Expected a color such as #1a2b3c.', 'ux-studio' ) );
 
 			case 'media':
 				// Resolved before this check (see Planner::resolve_media); what arrives here is an attachment id or 0.

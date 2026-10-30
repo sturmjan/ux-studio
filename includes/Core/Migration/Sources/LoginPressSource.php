@@ -89,7 +89,7 @@ final class LoginPressSource extends AbstractAdminSource {
 			if ( '' === $hex ) {
 				$lossy[] = sprintf(
 					/* translators: 1: setting, 2: value. */
-					__( 'The colour "%1$s" (%2$s) is not a plain hex colour and was not transferred.', 'ux-studio' ),
+					__( 'The color "%1$s" (%2$s) is not a plain hex color and was not transferred.', 'ux-studio' ),
 					$key,
 					$raw
 				);

@@ -61,7 +61,7 @@ export function NoSettings( { module, backArrow = true }: { module: ModuleInfo; 
 					<ModuleIcon name={ module.icon } size={ 28 } />
 				</span>
 				{ module.description ? <p className="uxs-empty__desc">{ module.description }</p> : null }
-				<p className="uxs-empty__note">{ __( 'This module has no settings. It works as soon as it is switched on.', 'ux-studio' ) }</p>
+				<p className="uxs-empty__note">{ __( 'This module has no settings. It works as soon as it is turned on.', 'ux-studio' ) }</p>
 				<div className="uxs-empty__switch">
 					<span className="uxs-group__state">{ module.enabled ? __( 'Enabled', 'ux-studio' ) : __( 'Disabled', 'ux-studio' ) }</span>
 					<button

@@ -86,12 +86,12 @@ final class Importer {
 		return array(
 			__( 'Content-Security-Policy is never switched to Enforce by an import; at most to the policy test (report only).', 'ux-studio' ),
 			__( 'A custom login address is saved in two steps: wp-login.php stays open until you open the new address and confirm it.', 'ux-studio' ),
-			__( 'Two-factor login is switched on only if you have already set it up for your own account.', 'ux-studio' ),
+			__( 'Two-factor login is turned on only if you have already set it up for your own account.', 'ux-studio' ),
 			__( 'Country blocks are imported only if your IP address is on the firewall allowlist.', 'ux-studio' ),
-			__( 'The menu lock is switched on only if it keeps UX Studio, Plugins, Users and Settings open for you.', 'ux-studio' ),
-			__( 'Maintenance mode is never switched on by an import unless you tick the extra box.', 'ux-studio' ),
-			__( 'Code (custom CSS, scripts, snippets) is imported only if you may add scripts to the site (unfiltered_html). Snippets arrive switched off.', 'ux-studio' ),
-			__( 'Redirecting to HTTPS is switched on only when you are on HTTPS now; CAPTCHA only when this site has its own CAPTCHA keys.', 'ux-studio' ),
+			__( 'The menu lock is turned on only if it keeps UX Studio, Plugins, Users and Settings open for you.', 'ux-studio' ),
+			__( 'Maintenance mode is never turned on by an import unless you tick the extra box.', 'ux-studio' ),
+			__( 'Code (custom CSS, scripts, snippets) is imported only if you may add scripts to the site (unfiltered_html). Snippets arrive turned off.', 'ux-studio' ),
+			__( 'Redirecting to HTTPS is turned on only when you are on HTTPS now; CAPTCHA only when this site has its own CAPTCHA keys.', 'ux-studio' ),
 			__( 'Everything is saved through the module itself, after a snapshot you can undo for 30 days.', 'ux-studio' ),
 		);
 	}
@@ -484,13 +484,13 @@ final class Importer {
 			$view['warnings'][] = sprintf(
 				/* translators: %s: plugin names. */
 				'blocked' === $view['enabled']['overlap']['status']
-					? __( 'It cannot be switched on: %s already does the same job on this site.', 'ux-studio' )
+					? __( 'It cannot be turned on: %s already does the same job on this site.', 'ux-studio' )
 					: __( 'It overlaps with %s. Confirm to switch it on anyway.', 'ux-studio' ),
 				implode( ', ', $view['enabled']['overlap']['plugins'] )
 			);
 		}
 		if ( 'keep' === $view['enabled']['change'] ) {
-			$view['warnings'][] = __( 'The file has this module off, but it holds data here, so it stays on. Tick "Also switch off modules that hold data" to switch it off.', 'ux-studio' );
+			$view['warnings'][] = __( 'The file has this module off, but it holds data here, so it stays on. Tick "Also turn off modules that hold data" to switch it off.', 'ux-studio' );
 		}
 
 		// Content.
@@ -730,7 +730,7 @@ final class Importer {
 					if ( in_array( $state['status'], array( 'blocked', 'confirm' ), true ) ) {
 						$result['warnings'][] = sprintf(
 							/* translators: %s: plugin names. */
-							__( 'Not switched on: %s overlaps with this module.', 'ux-studio' ),
+							__( 'Not turned on: %s overlaps with this module.', 'ux-studio' ),
 							implode( ', ', $state['plugins'] )
 						);
 					}

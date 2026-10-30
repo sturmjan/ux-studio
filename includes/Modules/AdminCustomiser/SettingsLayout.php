@@ -59,7 +59,7 @@ final class SettingsLayout {
 			),
 			array(
 				'title'  => __( 'Hidden parts of the screens', 'ux-studio' ),
-				'help'   => __( 'Switch off small parts of the admin screens that you do not use.', 'ux-studio' ),
+				'help'   => __( 'Turn off small parts of the admin screens that you do not use.', 'ux-studio' ),
 				'fields' => array( 'hide_screen_options', 'hide_help_tab', 'hide_rocket_insights' ),
 			),
 			array(

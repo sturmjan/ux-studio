@@ -1,7 +1,7 @@
 {
 	"id": "google-review-request",
 	"name": "Google Review Request",
-	"description": "Send Google review request emails after orders or reservations and track delivery stats.",
+	"description": "Send Google review request e-mails after orders or reservations and track delivery stats.",
 	"group": "content",
 	"icon": "star",
 	"settings": true

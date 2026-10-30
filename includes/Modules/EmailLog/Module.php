@@ -444,7 +444,7 @@ final class Module extends BaseModule {
 		if ( $sent ) {
 			return array(
 				'success' => true,
-				'message' => __( 'Email was re-sent.', 'ux-studio' ),
+				'message' => __( 'E-mail was re-sent.', 'ux-studio' ),
 			);
 		}
 

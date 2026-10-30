@@ -153,7 +153,7 @@ final class Module extends BaseModule {
 			array(
 				'key'     => 'notify_on_publish',
 				'type'    => 'toggle',
-				'label'   => __( 'Email subscribers when a notice is published', 'ux-studio' ),
+				'label'   => __( 'E-mail subscribers when a notice is published', 'ux-studio' ),
 				'help'    => __( 'Sends a notification to confirmed subscribers of the matching category (and to "all categories" subscribers).', 'ux-studio' ),
 				'default' => true,
 			),
@@ -161,8 +161,8 @@ final class Module extends BaseModule {
 				'key'     => 'from_email',
 				'show_if' => array( 'key' => 'notify_on_publish', 'truthy' => true ),
 				'type'    => 'text',
-				'label'   => __( 'From email', 'ux-studio' ),
-				'help'    => __( 'Sender address for subscription and notification emails. Defaults to the site admin email.', 'ux-studio' ),
+				'label'   => __( 'From e-mail', 'ux-studio' ),
+				'help'    => __( 'Sender address for subscription and notification e-mails. Defaults to the site admin e-mail.', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
@@ -1124,7 +1124,7 @@ final class Module extends BaseModule {
 			? esc_html__( 'A change of the categories you follow on the notice board was requested. Confirm it by clicking the link below:', 'ux-studio' )
 			: esc_html__( 'Please confirm your subscription to the notice board by clicking the link below:', 'ux-studio' ) ) . '</p>';
 		$body .= '<p><a href="' . esc_url( $confirm_url ) . '">' . esc_html__( 'Confirm subscription', 'ux-studio' ) . '</a></p>';
-		$body .= '<p style="color:#787c82;font-size:13px;">' . esc_html__( 'If you did not request this, you can ignore this email.', 'ux-studio' ) . '</p>';
+		$body .= '<p style="color:#787c82;font-size:13px;">' . esc_html__( 'If you did not request this, you can ignore this e-mail.', 'ux-studio' ) . '</p>';
 
 		wp_mail( $email, $subject, $body, $this->email_headers() );
 	}
@@ -1615,7 +1615,7 @@ final class Module extends BaseModule {
 		$dom_id   = 'uxs-nb-subscribe-' . wp_rand( 1000, 9999 );
 		?>
 		<form class="uxs-nb-subscribe" id="<?php echo esc_attr( $dom_id ); ?>" method="post" action="<?php echo $endpoint; ?>">
-			<label for="<?php echo esc_attr( $dom_id ); ?>-email"><?php esc_html_e( 'Get notified of new notices by email:', 'ux-studio' ); ?></label><br>
+			<label for="<?php echo esc_attr( $dom_id ); ?>-email"><?php esc_html_e( 'Get notified of new notices by e-mail:', 'ux-studio' ); ?></label><br>
 			<input type="email" id="<?php echo esc_attr( $dom_id ); ?>-email" name="email" required placeholder="<?php esc_attr_e( 'your@email.com', 'ux-studio' ); ?>">
 			<button type="submit"><?php esc_html_e( 'Subscribe', 'ux-studio' ); ?></button>
 			<div class="uxs-nb-subscribe__msg" role="status" aria-live="polite"></div>
