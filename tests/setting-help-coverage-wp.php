@@ -12,8 +12,8 @@ if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
  *   - a baseline entry for a field the schema does not contain here (an option that depends on the site, for example
  *     WooCommerce) is only reported, so the result does not depend on the plugins of the machine.
  *
- * The only exempt fields are colour pickers inside a card whose heading already has a description (the audit
- * rated those "OK": the card explains them).
+ * The only exempt fields are colour pickers and the per-role "hidden meta boxes" lists inside a card whose heading
+ * already has a description (the audit rated those "OK": the card explains them).
  *
  * Needs WordPress (schemas use core functions); with a bare WP the plugin does not have to be loaded:
  *
@@ -100,7 +100,10 @@ foreach ( array_keys( $modules->all() ) as $id ) {
 		if ( '' === $key ) {
 			continue;
 		}
-		if ( 'color' === ( $field['type'] ?? '' ) && ! empty( $field['group'] ) && isset( $described[ (string) $field['group'] ] ) ) {
+		// Colour pickers and the per-role "hidden meta boxes" lists (one field per role of the site, so the keys depend on
+		// the site) are explained by the heading of their card.
+		$card_explains = 'color' === ( $field['type'] ?? '' ) || 0 === strpos( $key, 'hidden_metaboxes_' );
+		if ( $card_explains && ! empty( $field['group'] ) && isset( $described[ (string) $field['group'] ] ) ) {
 			++$exempt;
 			continue;
 		}
