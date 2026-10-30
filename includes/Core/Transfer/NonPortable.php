@@ -120,6 +120,22 @@ final class NonPortable {
 	);
 
 	/**
+	 * Translated label of a manual connection (the constant above cannot call `__()`).
+	 *
+	 * @param string $label English label from MANUAL_CONNECTIONS.
+	 */
+	public static function manual_label( string $label ): string {
+		switch ( $label ) {
+			case 'Gmail connection (OAuth)':
+				return __( 'Gmail connection (OAuth)', 'ux-studio' );
+			case 'Instagram connection (access token)':
+				return __( 'Instagram connection (access token)', 'ux-studio' );
+			default:
+				return $label;
+		}
+	}
+
+	/**
 	 * Keys the generic credential pattern catches by name only ("token" in a limit, "pass" in "bypass"): plain
 	 * configuration, not credentials. Reviewed one by one.
 	 *

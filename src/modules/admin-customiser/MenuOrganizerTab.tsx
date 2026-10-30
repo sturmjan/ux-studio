@@ -428,6 +428,9 @@ export function MenuOrganizerTab(): JSX.Element {
 					/>
 				</label>
 			</p>
+			<p className="uxs-form__help">
+				{ __( 'Export saves the menu layout to a file. Import loads such a file and replaces the current layout, so export first if you want to keep it.', 'ux-studio' ) }
+			</p>
 
 			<h3>{ __( 'Categories', 'ux-studio' ) }</h3>
 			<div className="uxs-form__row">

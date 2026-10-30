@@ -11,6 +11,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { api, queryClient } from './api';
 import { TabsNav } from './SubNav';
+import { ColorField } from '../components/ColorField';
 import MultiSelectField from '../components/MultiSelectField';
 import SettingExplain from '../components/SettingExplain';
 import type { Explain } from '../components/SettingExplain';
@@ -212,23 +213,13 @@ export function FieldInput( {
 				/>
 			);
 		case 'color':
-			// A native color input cannot be empty, so an unset value is shown as
-			// a faded swatch + "Default" instead of a misleading black.
 			return (
-				<span className="uxs-color">
-					<input
-						type="color"
-						className={ value ? '' : 'is-empty' }
-						value={ value ? String( value ) : '#000000' }
-						onChange={ ( e ) => onChange( e.target.value ) }
-					/>
-					<code>{ value ? String( value ) : __( 'Default', 'ux-studio' ) }</code>
-					{ value ? (
-						<button type="button" className="button-link" onClick={ () => onChange( '' ) }>
-							{ __( 'Reset', 'ux-studio' ) }
-						</button>
-					) : null }
-				</span>
+				<ColorField
+					value={ value ? String( value ) : '' }
+					defaultColor={ 'string' === typeof field.default ? field.default : '' }
+					label={ field.label }
+					onChange={ onChange }
+				/>
 			);
 		case 'media':
 			return <MediaField value={ Number( value ?? 0 ) } onChange={ onChange } />;

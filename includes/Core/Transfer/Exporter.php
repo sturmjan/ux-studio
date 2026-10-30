@@ -235,7 +235,7 @@ final class Exporter {
 			}
 			foreach ( NonPortable::MANUAL_CONNECTIONS[ $id ] ?? array() as $connection ) {
 				if ( '' !== Security::get_secret( $connection['option'] ) ) {
-					$manual[] = $connection['label'];
+					$manual[] = NonPortable::manual_label( $connection['label'] );
 				}
 			}
 

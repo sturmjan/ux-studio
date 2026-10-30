@@ -15,6 +15,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * GET    uxstudio/v1/activity-log/entries - filtered/paginated log rows
  * DELETE uxstudio/v1/activity-log/entries - purge entries older than retention
+ * GET    uxstudio/v1/activity-log/filters - modules and actions present in the log, with labels
  */
 final class RestController extends Controller {
 
@@ -59,6 +60,16 @@ final class RestController extends Controller {
 			)
 		);
 		$this->route( '/activity-log/entries', 'DELETE', array( $this, 'purge' ) );
+		$this->route( '/activity-log/filters', 'GET', array( $this, 'filters' ) );
+	}
+
+	/**
+	 * Modules and actions that occur in the log, for the filter selects.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function filters( WP_REST_Request $request ) {
+		return $this->ok( $this->module->get_filter_options() );
 	}
 
 	/**

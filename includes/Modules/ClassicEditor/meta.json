@@ -1,6 +1,6 @@
 {
 	"id": "classic-editor",
-	"name": "Classic Editor",
+	"name": "Classic post editor",
 	"description": "Replace the block editor with the classic editor for selected post types.",
 	"group": "content",
 	"icon": "square-pen",
