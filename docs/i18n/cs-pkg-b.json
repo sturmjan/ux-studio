@@ -435,5 +435,8 @@
   "Hello! How can I help you?": "Dobrý den! Jak vám mohu pomoci?",
   "Type your question...": "Napište svůj dotaz...",
   "This chat uses AI. By sending a message you agree to your query being processed. Your conversation may be stored to improve service quality.": "Tento chat využívá AI. Odesláním zprávy souhlasíte se zpracováním vašeho dotazu. Vaše konverzace může být uložena pro zlepšení kvality služeb.",
-  "AI Support": "AI Podpora"
+  "AI Support": "AI Podpora",
+  "Primary color": "Hlavní barva",
+  "Text color": "Barva textu",
+  "Include product attributes (size, color...) in the header.": "Zahrnout atributy produktu (velikost, barva...) do hlavičky."
 }

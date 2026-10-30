@@ -138,7 +138,7 @@ function CacheTab(): JSX.Element {
 						{ __( 'Previous', 'ux-studio' ) }
 					</button>
 					<span className="uxs-form__help" style={ { margin: 0 } }>
-						{ page * CACHE_PAGE_SIZE + 1 }–{ Math.min( cacheTotal, ( page + 1 ) * CACHE_PAGE_SIZE ) } / { cacheTotal }
+						{ page * CACHE_PAGE_SIZE + 1 }-{ Math.min( cacheTotal, ( page + 1 ) * CACHE_PAGE_SIZE ) } / { cacheTotal }
 					</span>
 					<button
 						type="button"

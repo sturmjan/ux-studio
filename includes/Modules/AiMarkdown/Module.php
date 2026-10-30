@@ -285,7 +285,7 @@ final class Module extends BaseModule {
 				'show_currency'           => array( __( 'Show currency', 'ux-studio' ), __( 'Include the currency code (CZK, EUR...) in the header.', 'ux-studio' ) ),
 				'show_stock_status'       => array( __( 'Stock availability', 'ux-studio' ), __( 'Include whether the product is in stock.', 'ux-studio' ) ),
 				'show_product_categories' => array( __( 'Product categories', 'ux-studio' ), __( 'Include the product categories in the header.', 'ux-studio' ) ),
-				'show_product_attributes' => array( __( 'Product attributes', 'ux-studio' ), __( 'Include product attributes (size, colour...) in the header.', 'ux-studio' ) ),
+				'show_product_attributes' => array( __( 'Product attributes', 'ux-studio' ), __( 'Include product attributes (size, color...) in the header.', 'ux-studio' ) ),
 			);
 			foreach ( $woo as $key => $texts ) {
 				$schema[] = array(
