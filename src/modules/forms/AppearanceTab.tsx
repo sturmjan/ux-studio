@@ -148,6 +148,7 @@ export default function AppearanceTab( { form }: { form: FormDefinition } ): JSX
 						{ __( 'Show a number in front of every step title', 'ux-studio' ) }
 					</label>
 				</div>
+				<p className="uxs-form__help">{ __( 'Numbers the steps of a multi-step form (1, 2, 3...) in front of their titles.', 'ux-studio' ) }</p>
 			</div>
 
 			<div className="uxs-form__row">

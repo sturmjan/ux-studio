@@ -242,11 +242,13 @@ function Inspector( {
 							<input type="text" value={ field.step_title ?? '' } onChange={ ( e ) => onChange( { step_title: e.target.value } ) } />
 							<label style={ { marginTop: 'var(--uxs-sp-3)' } }>{ __( 'Step description (optional)', 'ux-studio' ) }</label>
 							<input type="text" value={ field.step_description ?? '' } onChange={ ( e ) => onChange( { step_description: e.target.value } ) } />
+							<p className="uxs-form__help">{ __( 'The title and an optional short line shown for this step of a multi-step form.', 'ux-studio' ) }</p>
 						</div>
 					) : field.type === 'html' ? (
 						<div className="uxs-form__row">
 							<label>{ __( 'HTML content', 'ux-studio' ) }</label>
 							<textarea rows={ 6 } value={ field.html ?? '' } onChange={ ( e ) => onChange( { html: e.target.value } ) } />
+							<p className="uxs-form__help">{ __( 'Free text or HTML shown inside the form. It is not a field, nothing is sent from it.', 'ux-studio' ) }</p>
 						</div>
 					) : field.type === 'captcha' ? (
 						<>
@@ -254,6 +256,7 @@ function Inspector( {
 							<div className="uxs-form__row">
 								<label>{ __( 'CSS class', 'ux-studio' ) }</label>
 								<input type="text" value={ field.css_class } onChange={ ( e ) => onChange( { css_class: e.target.value } ) } />
+								<p className="uxs-form__help">{ __( 'An extra class name for your own styling. Leave empty when you do not write custom CSS.', 'ux-studio' ) }</p>
 							</div>
 						</>
 					) : (
@@ -274,6 +277,7 @@ function Inspector( {
 									onChange={ ( e ) => onChange( { default_value: e.target.value } ) }
 									placeholder="{today} / {query.utm_source}"
 								/>
+								<p className="uxs-form__help">{ __( 'The value already filled in when the form opens. The visitor can change it.', 'ux-studio' ) }</p>
 							</div>
 							<div className="uxs-form__row">
 								<AnimatedCheckbox isSelected={ field.required } onChange={ ( isSelected ) => onChange( { required: isSelected } ) }>
@@ -287,10 +291,12 @@ function Inspector( {
 									<option value="visible">{ __( 'Visible label', 'ux-studio' ) }</option>
 									<option value="placeholder_only">{ __( 'Placeholder only', 'ux-studio' ) }</option>
 								</select>
+								<p className="uxs-form__help">{ __( 'Whether the field label is shown above the field or only as a hint inside it. Without a visible label some visitors and screen readers lose track of what to enter.', 'ux-studio' ) }</p>
 							</div>
 							<div className="uxs-form__row">
 								<label>{ __( 'CSS class', 'ux-studio' ) }</label>
 								<input type="text" value={ field.css_class } onChange={ ( e ) => onChange( { css_class: e.target.value } ) } />
+								<p className="uxs-form__help">{ __( 'An extra class name for your own styling. Leave empty when you do not write custom CSS.', 'ux-studio' ) }</p>
 							</div>
 							{ isChoice && <OptionsEditor field={ field } onChange={ onChange } /> }
 							{ ( field.type === 'radio' || field.type === 'checkbox_group' ) && (
@@ -312,6 +318,7 @@ function Inspector( {
 								<div className="uxs-form__row">
 									<label>{ __( 'Terms/policy URL', 'ux-studio' ) }</label>
 									<input type="url" value={ field.terms_url ?? '' } onChange={ ( e ) => onChange( { terms_url: e.target.value } ) } />
+									<p className="uxs-form__help">{ __( 'The address of the page with the terms or privacy policy. The checkbox text links to it.', 'ux-studio' ) }</p>
 								</div>
 							) }
 							{ field.type === 'file' && (
@@ -385,6 +392,7 @@ function Inspector( {
 									value={ field.minlength ?? '' }
 									onChange={ ( e ) => onChange( { minlength: e.target.value === '' ? null : Number( e.target.value ) } ) }
 								/>
+								<p className="uxs-form__help">{ __( 'The shortest text the visitor may send. Shorter answers are refused.', 'ux-studio' ) }</p>
 							</div>
 							<div className="uxs-form__row">
 								<label>{ __( 'Max length', 'ux-studio' ) }</label>
@@ -393,6 +401,7 @@ function Inspector( {
 									value={ field.maxlength ?? '' }
 									onChange={ ( e ) => onChange( { maxlength: e.target.value === '' ? null : Number( e.target.value ) } ) }
 								/>
+								<p className="uxs-form__help">{ __( 'The longest text the visitor may send. Longer answers are refused.', 'ux-studio' ) }</p>
 							</div>
 						</>
 					) }

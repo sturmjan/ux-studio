@@ -129,29 +129,32 @@ final class Module extends BaseModule {
 				'key'     => 'enable_cta',
 				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'toggle',
-				'label'   => __( 'Show CTA button', 'ux-studio' ),
+				'label'   => __( 'Show a button (call to action)', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
 				'key'     => 'cta_text',
+				'show_if' => array( 'key' => 'enable_cta', 'truthy' => true ),
 				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'text',
-				'label'   => __( 'CTA button label', 'ux-studio' ),
+				'label'   => __( 'Button label', 'ux-studio' ),
 				'default' => __( 'Stay on page', 'ux-studio' ),
 			),
 			array(
 				'key'     => 'cta_url',
+				'show_if' => array( 'key' => 'enable_cta', 'truthy' => true ),
 				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'text',
-				'label'   => __( 'CTA button URL', 'ux-studio' ),
-				'help'    => __( 'Use # to simply close the popup.', 'ux-studio' ),
+				'label'   => __( 'Button address (URL)', 'ux-studio' ),
+				'help'    => __( 'Where the button leads. Type # to only close the popup.', 'ux-studio' ),
 				'default' => '#',
 			),
 			array(
 				'key'     => 'cta_new_tab',
+				'show_if' => array( 'key' => 'enable_cta', 'truthy' => true ),
 				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'toggle',
-				'label'   => __( 'Open CTA in a new tab', 'ux-studio' ),
+				'label'   => __( 'Open the button in a new tab', 'ux-studio' ),
 				'default' => false,
 			),
 			// --- Appearance ---
@@ -178,16 +181,18 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'cta_bg_color',
-				'section' => __( 'Appearance', 'ux-studio' ),
+				'show_if' => array( 'key' => 'enable_cta', 'truthy' => true ),
+				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'color',
-				'label'   => __( 'CTA background colour', 'ux-studio' ),
+				'label'   => __( 'Button background colour', 'ux-studio' ),
 				'default' => '#2563eb',
 			),
 			array(
 				'key'     => 'cta_text_color',
-				'section' => __( 'Appearance', 'ux-studio' ),
+				'show_if' => array( 'key' => 'enable_cta', 'truthy' => true ),
+				'section' => __( 'Content', 'ux-studio' ),
 				'type'    => 'color',
-				'label'   => __( 'CTA text colour', 'ux-studio' ),
+				'label'   => __( 'Button text colour', 'ux-studio' ),
 				'default' => '#ffffff',
 			),
 			array(
@@ -219,6 +224,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'cookie_days',
+				'show_if' => array( 'key' => 'frequency_mode', 'equals' => 'cookie' ),
 				'section' => __( 'Triggers', 'ux-studio' ),
 				'type'    => 'number',
 				'label'   => __( 'Cookie lifetime (days)', 'ux-studio' ),
@@ -235,6 +241,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'mouse_leave_delay',
+				'show_if' => array( 'key' => 'detect_mouse_leave', 'truthy' => true ),
 				'section' => __( 'Triggers', 'ux-studio' ),
 				'type'    => 'number',
 				'label'   => __( 'Mouse-leave delay (ms)', 'ux-studio' ),
@@ -263,6 +270,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'idle_timeout',
+				'show_if' => array( 'key' => 'detect_idle', 'truthy' => true ),
 				'section' => __( 'Triggers', 'ux-studio' ),
 				'type'    => 'number',
 				'label'   => __( 'Inactivity timeout (seconds)', 'ux-studio' ),
@@ -277,6 +285,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'scroll_up_desktop',
+				'show_if' => array( 'key' => 'detect_scroll_up', 'truthy' => true ),
 				'section' => __( 'Triggers', 'ux-studio' ),
 				'type'    => 'number',
 				'label'   => __( 'Scroll-up threshold desktop (px)', 'ux-studio' ),
@@ -284,6 +293,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'scroll_up_mobile',
+				'show_if' => array( 'key' => 'detect_scroll_up', 'truthy' => true ),
 				'section' => __( 'Triggers', 'ux-studio' ),
 				'type'    => 'number',
 				'label'   => __( 'Scroll-up threshold mobile (px)', 'ux-studio' ),
@@ -306,6 +316,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'email_placeholder',
+				'show_if' => array( 'key' => 'enable_email', 'truthy' => true ),
 				'section' => __( 'Email capture', 'ux-studio' ),
 				'type'    => 'text',
 				'label'   => __( 'E-mail field placeholder', 'ux-studio' ),
@@ -313,6 +324,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'email_button_text',
+				'show_if' => array( 'key' => 'enable_email', 'truthy' => true ),
 				'section' => __( 'Email capture', 'ux-studio' ),
 				'type'    => 'text',
 				'label'   => __( 'Submit button label', 'ux-studio' ),
@@ -320,6 +332,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'email_success_message',
+				'show_if' => array( 'key' => 'enable_email', 'truthy' => true ),
 				'section' => __( 'Email capture', 'ux-studio' ),
 				'type'    => 'text',
 				'label'   => __( 'Success message', 'ux-studio' ),
@@ -327,6 +340,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'enable_autoresponder',
+				'show_if' => array( 'key' => 'enable_email', 'truthy' => true ),
 				'section' => __( 'Email capture', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Send autoresponder e-mail to the subscriber', 'ux-studio' ),
@@ -334,6 +348,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'autoresponder_subject',
+				'show_if' => array( 'key' => 'enable_autoresponder', 'truthy' => true ),
 				'section' => __( 'Email capture', 'ux-studio' ),
 				'type'    => 'text',
 				'label'   => __( 'Autoresponder subject', 'ux-studio' ),
@@ -341,6 +356,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'autoresponder_body',
+				'show_if' => array( 'key' => 'enable_autoresponder', 'truthy' => true ),
 				'section' => __( 'Email capture', 'ux-studio' ),
 				'type'    => 'richtext',
 				'label'   => __( 'Autoresponder body', 'ux-studio' ),
@@ -370,6 +386,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'include_pages',
+				'show_if' => array( 'key' => 'targeting_mode', 'equals' => 'include' ),
 				'section' => __( 'Targeting', 'ux-studio' ),
 				'type'    => 'textarea',
 				'label'   => __( 'Include URLs / page IDs', 'ux-studio' ),
@@ -378,6 +395,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'exclude_pages',
+				'show_if' => array( 'key' => 'targeting_mode', 'equals' => 'exclude' ),
 				'section' => __( 'Targeting', 'ux-studio' ),
 				'type'    => 'textarea',
 				'label'   => __( 'Exclude URLs / page IDs', 'ux-studio' ),

@@ -93,6 +93,7 @@ export default function FormsList( { onOpen }: { onOpen: ( id: number ) => void 
 						onChange={ ( e ) => setNewTitle( e.target.value ) }
 						placeholder={ __( 'e.g. Contact form', 'ux-studio' ) }
 					/>
+					<p className="uxs-form__help">{ __( 'The name of the form. It is for you in the list, visitors do not see it unless you show it in the form.', 'ux-studio' ) }</p>
 				</div>
 				<button
 					type="button"

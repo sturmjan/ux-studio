@@ -3,6 +3,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Download, ListFilter, LoaderCircle, Pencil, Play, RotateCcw, Trash2, Upload } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
+import { HelpText } from '../../components/GlossaryTerm';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
 import { TabsNav } from '../../app/SubNav';
@@ -197,17 +198,20 @@ function TestBox(): JSX.Element {
 
 	return (
 		<div className="uxs-form" style={ { maxWidth: 'none', marginBottom: 'var(--uxs-sp-4)' } }>
-			<div className="uxs-form__line" style={ { display: 'flex', alignItems: 'flex-end', gap: 'var(--uxs-sp-3)' } }>
-				<div className="uxs-form__row" style={ { flex: 1 } }>
-					<label htmlFor="uxs-rd-test">{ __( 'Test a URL', 'ux-studio' ) }</label>
-					<input id="uxs-rd-test" type="text" value={ url } placeholder="/old-page.html" onChange={ ( e ) => setUrl( e.target.value ) } />
-				</div>
-				<label style={ { whiteSpace: 'nowrap' } }>
+			<div className="uxs-form__row">
+				<label htmlFor="uxs-rd-test">{ __( 'Test a URL', 'ux-studio' ) }</label>
+				<input id="uxs-rd-test" type="text" value={ url } placeholder="/old-page.html" onChange={ ( e ) => setUrl( e.target.value ) } />
+			</div>
+			<div className="uxs-actions" role="group" aria-label={ __( 'Test options', 'ux-studio' ) }>
+				<label>
 					<input type="checkbox" checked={ live } onChange={ ( e ) => setLive( e.target.checked ) } /> { __( 'Live HTTP check', 'ux-studio' ) }
 				</label>
-				<label style={ { whiteSpace: 'nowrap' } }>
+				<label>
 					<input type="checkbox" checked={ showVisitor } onChange={ ( e ) => setShowVisitor( e.target.checked ) } /> { __( 'As a specific visitor', 'ux-studio' ) }
 				</label>
+			</div>
+			<p className="uxs-form__help">{ __( 'A live check sends a real request to your site. "As a specific visitor" tests rules that depend on login, role, referrer or cookie.', 'ux-studio' ) }</p>
+			<div className="uxs-actions">
 				<button type="button" className="button" disabled={ ! url || test.isPending } onClick={ () => test.mutate() }>
 					<Play size={ 14 } /> { __( 'Test', 'ux-studio' ) }
 				</button>
@@ -350,6 +354,7 @@ function RuleForm( { draft, setDraft }: { draft: Draft; setDraft: ( d: Draft ) =
 					</button>
 				) }
 			</div>
+			<p className="uxs-form__help"><HelpText text={ __( 'Type: [[301]] moves the page for good, [[302]] only for now, [[410]] says the content is gone. Match: "Exact URL" compares the old address letter for letter, a [[regex|regular expression]] matches a pattern.', 'ux-studio' ) } /></p>
 			{ draft.match_type === 'exact' && (
 				<div className="uxs-rd-options">
 					<label>

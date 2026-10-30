@@ -168,6 +168,7 @@ function NoticeForm( {
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-nb-body">{ __( 'Body / description', 'ux-studio' ) }</label>
 				<textarea id="uxs-nb-body" rows={ 5 } value={ draft.body } onChange={ ( e ) => set( 'body', e.target.value ) } />
+				<p className="uxs-form__help">{ __( 'The full text of the notice. Visitors read it on the notice board and in the e-mail sent to subscribers.', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-nb-category">{ __( 'Category', 'ux-studio' ) }</label>
@@ -188,6 +189,7 @@ function NoticeForm( {
 					value={ draft.reference }
 					onChange={ ( e ) => set( 'reference', e.target.value ) }
 				/>
+				<p className="uxs-form__help">{ __( 'Your own number of the notice, for example 4/2026. Shown next to the title so people can quote it.', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-nb-publish">{ __( 'Publish date', 'ux-studio' ) }</label>
@@ -197,6 +199,7 @@ function NoticeForm( {
 					value={ draft.publish_date }
 					onChange={ ( e ) => set( 'publish_date', e.target.value ) }
 				/>
+				<p className="uxs-form__help">{ __( 'From this day the notice is visible. A later date keeps it hidden until then.', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-nb-expiry">{ __( 'Expiry date (auto-archives after)', 'ux-studio' ) }</label>
@@ -206,6 +209,7 @@ function NoticeForm( {
 					value={ draft.expiry_date }
 					onChange={ ( e ) => set( 'expiry_date', e.target.value ) }
 				/>
+				<p className="uxs-form__help">{ __( 'After this day the notice moves to the archive by itself and disappears from the active board.', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
 				<label>{ __( 'Attachments', 'ux-studio' ) }</label>
@@ -432,6 +436,7 @@ function CategoriesTab(): JSX.Element {
 					>
 						<Plus size={ 14 } /> { __( 'Add', 'ux-studio' ) }
 					</button>
+					<p className="uxs-form__help">{ __( 'Name of a new category. Subscribers can choose which categories they want to hear about.', 'ux-studio' ) }</p>
 				</div>
 				{ add.isError ? <p className="uxs-form__help">{ ( add.error as Error ).message }</p> : null }
 			</div>

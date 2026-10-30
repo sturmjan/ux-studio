@@ -142,6 +142,7 @@ function SendTab(): JSX.Element {
 				<div className="uxs-form__row">
 					<label htmlFor="uxs-pn-url">{ __( 'Click URL', 'ux-studio' ) }</label>
 					<input id="uxs-pn-url" type="url" placeholder="https://…" value={ url } onChange={ ( e ) => setUrl( e.target.value ) } />
+					<p className="uxs-form__help">{ __( 'The page that opens when the person taps the notification. Without it the notification opens your home page.', 'ux-studio' ) }</p>
 				</div>
 				<div className="uxs-form__row">
 					<label htmlFor="uxs-pn-icon">{ __( 'Icon URL', 'ux-studio' ) }</label>
@@ -152,6 +153,7 @@ function SendTab(): JSX.Element {
 						value={ icon }
 						onChange={ ( e ) => setIcon( e.target.value ) }
 					/>
+					<p className="uxs-form__help">{ __( 'Address of a small picture shown in the notification. Empty uses the default icon from the settings.', 'ux-studio' ) }</p>
 				</div>
 				<div className="uxs-form__row">
 					<label htmlFor="uxs-pn-segment">{ __( 'Audience', 'ux-studio' ) }</label>
@@ -159,6 +161,7 @@ function SendTab(): JSX.Element {
 						<option value="all">{ __( 'All subscribers', 'ux-studio' ) }</option>
 						<option value="recent_30d">{ __( 'Subscribed in last 30 days', 'ux-studio' ) }</option>
 					</select>
+					<p className="uxs-form__help">{ __( 'Who receives the message. A sent notification cannot be taken back, so check the group before you send.', 'ux-studio' ) }</p>
 				</div>
 				{ customSegments.length > 0 ? (
 					<div className="uxs-form__row">
@@ -389,6 +392,7 @@ function SegmentsTab(): JSX.Element {
 				<div className="uxs-form__row">
 					<label htmlFor="uxs-pn-seg-name">{ __( 'New segment name', 'ux-studio' ) }</label>
 					<input id="uxs-pn-seg-name" type="text" value={ name } onChange={ ( e ) => setName( e.target.value ) } />
+					<p className="uxs-form__help">{ __( 'The name of a group of subscribers that you can address together later.', 'ux-studio' ) }</p>
 				</div>
 				<button type="button" className="button button-primary" disabled={ name.trim() === '' || create.isPending } onClick={ () => create.mutate() }>
 					{ __( 'Create segment', 'ux-studio' ) }

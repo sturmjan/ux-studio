@@ -296,6 +296,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'auto_send_post_types',
+				'show_if' => array( 'key' => 'auto_send_enabled', 'truthy' => true ),
 				'type'    => 'multiselect',
 				'label'   => __( 'Post types announced automatically', 'ux-studio' ),
 				'options' => self::post_type_options(),
@@ -303,6 +304,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'auto_send_authors',
+				'show_if' => array( 'key' => 'auto_send_enabled', 'truthy' => true ),
 				'type'    => 'select',
 				'label'   => __( 'Who triggers the automatic notification', 'ux-studio' ),
 				'help'    => __( 'The notification goes to every subscriber. By default only posts by editors and administrators trigger it.', 'ux-studio' ),

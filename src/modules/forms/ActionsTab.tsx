@@ -164,6 +164,7 @@ function CreatePostActionEditor( {
 							</option>
 						) ) }
 					</select>
+					<p className="uxs-form__help">{ __( 'What state the new post gets. Draft and Pending review wait for you to publish. Published goes live at once.', 'ux-studio' ) }</p>
 				</div>
 				<div className="uxs-form__row">
 					<label>{ __( 'Title', 'ux-studio' ) }</label>

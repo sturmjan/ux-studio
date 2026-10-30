@@ -364,6 +364,17 @@ final class Module extends BaseModule {
 				$version,
 				true
 			);
+			wp_add_inline_script(
+				'uxstudio-post-gallery',
+				'window.uxstudioGalleryI18n = ' . wp_json_encode(
+					array(
+						'close' => __( 'Close', 'ux-studio' ),
+						'prev'  => __( 'Previous', 'ux-studio' ),
+						'next'  => __( 'Next', 'ux-studio' ),
+					)
+				) . ';',
+				'before'
+			);
 		}
 	}
 

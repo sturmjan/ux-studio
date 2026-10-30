@@ -143,16 +143,16 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'schedule_publish',
-				'type'    => 'text',
+				'type'    => 'datetime',
 				'label'   => __( 'Auto publish', 'ux-studio' ),
-				'help'    => __( 'Show the bar from this date/time. Leave empty to show immediately. Format: YYYY-MM-DDTHH:MM.', 'ux-studio' ),
+				'help'    => __( 'Show the bar from this date and time (time of the site). Leave empty to show it immediately.', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
 				'key'     => 'schedule_deactivate',
-				'type'    => 'text',
+				'type'    => 'datetime',
 				'label'   => __( 'Auto deactivate', 'ux-studio' ),
-				'help'    => __( 'Hide the bar after this date/time. Leave empty to show permanently. Format: YYYY-MM-DDTHH:MM.', 'ux-studio' ),
+				'help'    => __( 'Hide the bar after this date and time (time of the site). Leave empty to show it until you remove it.', 'ux-studio' ),
 				'default' => '',
 			),
 		);

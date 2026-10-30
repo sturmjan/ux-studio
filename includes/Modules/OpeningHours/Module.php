@@ -131,12 +131,14 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'schema_on_homepage',
+				'show_if' => array( 'key' => 'schema_enabled', 'truthy' => true ),
 				'type'    => 'toggle',
 				'label'   => __( 'Include JSON-LD on the homepage', 'ux-studio' ),
 				'default' => true,
 			),
 			array(
 				'key'     => 'schema_pages',
+				'show_if' => array( 'key' => 'schema_enabled', 'truthy' => true ),
 				'type'    => 'text',
 				'label'   => __( 'Additional pages for JSON-LD (page IDs)', 'ux-studio' ),
 				'help'    => __( 'Comma-separated IDs of pages (e.g. Contact) where the JSON-LD of the locations is also printed. Blank = nowhere else.', 'ux-studio' ),
@@ -144,6 +146,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'schema_location_ids',
+				'show_if' => array( 'key' => 'schema_enabled', 'truthy' => true ),
 				'type'    => 'text',
 				'label'   => __( 'JSON-LD location IDs (comma-separated, blank = all)', 'ux-studio' ),
 				'default' => '',
