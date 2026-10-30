@@ -3719,3 +3719,44 @@ který se zapamatuje; (2) „Rychlé přidání příspěvku“ dát pod widgety
 - [ ] Vydání 0.9.2 (verze, PR, tag)
 - [ ] Volitelně: zobrazení launcheru jako user meta (napříč zařízeními)
 
+
+## 38. Plán po auditu (0.10.0)
+
+Podklady: externí audit nastavení a nápovědy (`settings-help.csv`, 879 polí) a audit v prohlížeči (`audit-*.png`, cs + en, tmavý i světlý režim).
+Balíčky se vydávají do jedné verze 0.10.0. Český překlad nových řetězců se dodává v `docs/i18n/cs-pkg-<balíček>.json`, do `.po` je aplikuje balíček F.
+Jednotlivé balíčky A až E dopisují texty nápovědy podle `tests/fixtures/help-baseline.json` (seznam polí bez nápovědy podle modulů) a opravují nálezy
+auditu v zadaných modulech; zadání každého je u jeho zadavatele, sem patří jen odškrtávátka.
+
+### 38.1 Balíčky
+
+- [x] **0 Jádro**: sdílený registr nápovědy + slovník + test pokrytí, jazyk per uživatel, úzké obrazovky, navigace, prázdný stav, jednotná pole a mezery, dokumentace
+- [ ] **A** texty nápovědy a opravy auditu (skupina modulů A)
+- [ ] **B** texty nápovědy a opravy auditu (skupina modulů B)
+- [ ] **C** texty nápovědy a opravy auditu (skupina modulů C)
+- [ ] **D** texty nápovědy a opravy auditu (skupina modulů D)
+- [ ] **E** texty nápovědy a opravy auditu (skupina modulů E)
+- [ ] **F** závěr: aplikovat `docs/i18n/cs-pkg-*.json` do `languages/*.po`, `.json` překlady, baseline nápovědy prázdný nebo odůvodněný, QA, verze 0.10.0, PR, vydání
+
+### 38.2 Balíček 0: co přibylo
+
+1. **Registr nápovědy** `includes/Core/SettingHelp.php`: `SettingHelp::for( $module_id, $key, $with_skip = false )` vrací `{ does, effect, risk?, off?, skip? }`.
+   Data v `includes/Modules/<Modul>/help.php`, načítají se líně a v cache s klíčem jazyka; filtry `uxstudio_setting_help`, `uxstudio_setting_help_file`;
+   inline `'explain' => array(...)` ve schématu má přednost. `Core\Rest::get_settings()` přidává `explain` automaticky přes `SettingHelp::attach()`.
+   Data Zabezpečení přesunuta do `SecurityOptimization/help.php` beze změny klíčů a textů; `SecurityOptimization\SettingHelp` zůstává jako zpětně kompatibilní
+   obal pro průvodce (`for_key`, `keys`, `all`, `PARAMETERS`).
+2. **Slovník** `includes/Core/Glossary.php` (45 pojmů + aliasy), do SPA přes `uxStudioBoot.glossary`; značky `[[term]]` / `[[term|text]]` vykresluje
+   `HelpText` a `GlossaryTerm` (react-aria popover, Esc zavírá). Detail: `docs/help-texts.md`.
+3. **Test pokrytí** `tests/setting-help-coverage-wp.php` + `tests/fixtures/help-baseline.json` (baseline se jen zmenšuje, zbytečná položka v baseline test shodí).
+4. **Jazyk per uživatel** `includes/Core/Locale.php`: trasy `uxstudio/v1` běží v `switch_to_user_locale()` mezi `rest_request_before_callbacks` a
+   `rest_request_after_callbacks` (spárované i pro `rest_do_request()`); doplňuje se textová doména pluginu; test `tests/rest-locale-wp.php`.
+5. **Úzké obrazovky**: zásuvka pod 1100 px, sklopitelný panel na široké, tlačítko Menu, tabulky v `.uxs-table-wrap`, zalamování `.uxs-form__line`.
+6. **Navigace**: jedna aktivní primární položka, záložky jako sekundární úroveň.
+7. **Prázdný stav** modulu bez nastavení, jednotná pole (46 px) pro všechny textové typy, `.uxs-actions`, `.uxs-form__actions`, nerozšířená akční tlačítka,
+   jedno "Exportovat toto nastavení" a jedna zpětná šipka na stránce skupiny.
+
+### 38.3 Co musí vědět další balíčky
+
+- Nové pole schématu = záznam v `help.php` téhož modulu (jinak test pokrytí selže), a pokud šlo o pole z baseline, smazat ho z baseline.
+- Nové tabulky: `<div className="uxs-table-wrap"><table className="uxs-table">...`. Řádky tlačítek: `.uxs-actions`. Žádné inline `padding` / `height` polí.
+- Texty jen anglicky v kódu; český překlad do `docs/i18n/cs-pkg-<balíček>.json`. Nespouštět i18n nástroje do `languages/` před balíčkem F.
+- Sdílená třída pro vypínač a stav v `NoSettings.tsx` je kopie vzoru z `GroupPage.tsx`; změna vzhledu vypínače patří do `.uxs-switch`.
