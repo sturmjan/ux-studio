@@ -416,7 +416,7 @@ function FeedsTab(): JSX.Element {
 			/>
 		);
 	}
-	if ( editing && editing !== 'new' ) {
+	if ( editing ) {
 		const feed = editing;
 		return (
 			<FeedEditor
