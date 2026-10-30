@@ -4,15 +4,17 @@
  * Route: #/module?id=cron-control
  */
 import { useState } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Check, LoaderCircle, Play, RefreshCw, Trash2 } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, LoaderCircle, Play, RefreshCw, Trash2 } from 'lucide-react';
 import { api } from '../../app/api';
 import { navigate } from '../../app/route';
 import { TopicSettings, withKeys } from '../../app/TopicSettings';
 import { TabsNav } from '../../app/SubNav';
 import { formatDate } from '../../app/date';
+import { HelpText } from '../../components/GlossaryTerm';
 import UrlEventsView from './UrlEvents';
+import { filterEvents, paginate, sourceOptions } from './eventsList';
 
 type Tab = 'events' | 'urls' | 'schedules' | 'watch' | 'settings';
 
@@ -21,6 +23,9 @@ interface CronEvent {
 	timestamp: number;
 	next_run_human: string;
 	schedule: string | null;
+	schedule_label: string;
+	schedule_origin: string;
+	source: string;
 	interval: number | null;
 	args: unknown[];
 }
@@ -28,6 +33,7 @@ interface CronEvent {
 interface CronSchedule {
 	name: string;
 	display: string;
+	origin: string;
 	interval: number;
 }
 
@@ -121,44 +127,58 @@ function StatusView(): JSX.Element {
 					</td>
 				</tr>
 				<tr>
-					<th>{ __( 'DISABLE_WP_CRON', 'ux-studio' ) }</th>
+					<th>
+						{ __( 'Tasks start on page visits', 'ux-studio' ) } <code className="uxs-form__help">DISABLE_WP_CRON</code>
+					</th>
 					<td>
 						<span className={ `uxs-badge ${ data.disable_wp_cron ? 'is-warning' : 'is-success' }` }>
-							{ data.disable_wp_cron ? __( 'Enabled', 'ux-studio' ) : __( 'Disabled', 'ux-studio' ) }
+							{ data.disable_wp_cron ? __( 'No, this is switched off', 'ux-studio' ) : __( 'Yes, the default way', 'ux-studio' ) }
+						</span>
+						<span className="uxs-form__help">
+							<HelpText text={ __( 'WordPress normally starts its scheduled tasks ([[cron|WP-Cron]]) when someone opens a page. When this is switched off, something else has to start them, for example a cron of the hosting.', 'ux-studio' ) } />
 						</span>
 						{ data.disable_wp_cron && ! data.mu_plugin_active ? (
 							<span className="uxs-form__help">
-								{ __( 'Defined elsewhere (wp-config.php or another plugin), not by this module.', 'ux-studio' ) }
+								{ __( 'It is switched off elsewhere (wp-config.php or another plugin), not by this module.', 'ux-studio' ) }
 							</span>
 						) : null }
 					</td>
 				</tr>
 				<tr>
-					<th>{ __( 'DISABLE_WP_CRON writable', 'ux-studio' ) }</th>
+					<th>
+						{ __( 'This module can switch it off', 'ux-studio' ) } <code className="uxs-form__help">mu-plugins</code>
+					</th>
 					<td>
 						<span className={ `uxs-badge ${ data.mu_writable ? 'is-success' : 'is-danger' }` }>
-							{ data.mu_writable ? __( 'mu-plugins writable', 'ux-studio' ) : __( 'mu-plugins NOT writable', 'ux-studio' ) }
+							{ data.mu_writable ? __( 'Yes, the folder for must-use plugins is writable', 'ux-studio' ) : __( 'No, the folder for must-use plugins is not writable', 'ux-studio' ) }
 						</span>
 						{ ! data.mu_writable ? (
 							<span className="uxs-form__help">
-								{ __( 'The mu-plugins directory is not writable, so this module cannot set DISABLE_WP_CRON. Define it manually in wp-config.php if you need to disable WP-Cron.', 'ux-studio' ) }
+								{ __( 'The mu-plugins folder is not writable, so this module cannot stop the start of tasks on page visits (DISABLE_WP_CRON). Add that setting to wp-config.php yourself if you need it.', 'ux-studio' ) }
 							</span>
 						) : null }
 					</td>
 				</tr>
 				<tr>
-					<th>{ __( '.htaccess writable', 'ux-studio' ) }</th>
+					<th>
+						{ __( 'Access rules can be written', 'ux-studio' ) } <code className="uxs-form__help">.htaccess</code>
+					</th>
 					<td>
 						<span className={ `uxs-badge ${ data.htaccess_writable ? 'is-success' : 'is-warning' }` }>
-							{ data.htaccess_writable ? __( 'Yes', 'ux-studio' ) : __( 'No (Apache access rules cannot be applied)', 'ux-studio' ) }
+							{ data.htaccess_writable ? __( 'Yes', 'ux-studio' ) : __( 'No, the access rules for the cron file cannot be applied', 'ux-studio' ) }
 						</span>
 					</td>
 				</tr>
 				<tr>
-					<th>{ __( 'ALTERNATE_WP_CRON', 'ux-studio' ) }</th>
+					<th>
+						{ __( 'Alternative way of starting tasks', 'ux-studio' ) } <code className="uxs-form__help">ALTERNATE_WP_CRON</code>
+					</th>
 					<td>
 						<span className={ `uxs-badge ${ data.alternate_wp_cron ? 'is-warning' : 'is-success' }` }>
-							{ data.alternate_wp_cron ? __( 'Enabled', 'ux-studio' ) : __( 'Disabled', 'ux-studio' ) }
+							{ data.alternate_wp_cron ? __( 'On', 'ux-studio' ) : __( 'Off', 'ux-studio' ) }
+						</span>
+						<span className="uxs-form__help">
+							{ __( 'A rarely needed method for servers that cannot start tasks in the background: the visitor is redirected once to the same page, and the tasks run during that redirect.', 'ux-studio' ) }
 						</span>
 					</td>
 				</tr>
@@ -167,7 +187,7 @@ function StatusView(): JSX.Element {
 					<td>
 						{ null === data.next_scheduled
 							? __( 'None', 'ux-studio' )
-							: new Date( data.next_scheduled * 1000 ).toLocaleString() }
+							: formatDate( data.next_scheduled ) }
 					</td>
 				</tr>
 				<tr>
@@ -235,7 +255,7 @@ function CentralSyncView(): JSX.Element | null {
 					<br />
 					<small>
 						{ __( 'Last sent:', 'ux-studio' ) }{ ' ' }
-						{ result.timestamp ? new Date( result.timestamp * 1000 ).toLocaleString() : result.tested_at }
+						{ result.timestamp ? formatDate( result.timestamp ) : formatDate( result.tested_at ) }
 					</small>
 				</p>
 			) : (
@@ -258,8 +278,13 @@ function CentralSyncView(): JSX.Element | null {
 	);
 }
 
+const PER_PAGE = 25;
+
 function EventsTable(): JSX.Element {
 	const queryClient = useQueryClient();
+	const [ query, setQuery ] = useState( '' );
+	const [ source, setSource ] = useState( '' );
+	const [ page, setPage ] = useState( 1 );
 	const { data, isLoading } = useQuery( {
 		queryKey: [ 'cron-control', 'events' ],
 		queryFn: () => api< CronEvent[] >( 'cron-control/events' ),
@@ -295,59 +320,161 @@ function EventsTable(): JSX.Element {
 		return <p>{ __( 'No events are currently scheduled.', 'ux-studio' ) }</p>;
 	}
 
+	const filtered = filterEvents( data, query, source );
+	const paged = paginate( filtered, page, PER_PAGE );
+	const sources = sourceOptions( data );
+
 	return (
-		<div className="uxs-table-wrap"><table className="uxs-table">
-			<thead>
-				<tr>
-					<th>{ __( 'Hook', 'ux-studio' ) }</th>
-					<th>{ __( 'Next run', 'ux-studio' ) }</th>
-					<th>{ __( 'Schedule', 'ux-studio' ) }</th>
-					<th>{ __( 'Args', 'ux-studio' ) }</th>
-					<th>{ __( 'Actions', 'ux-studio' ) }</th>
-				</tr>
-			</thead>
-			<tbody>
-				{ data.map( ( event ) => (
-					<tr key={ `${ event.hook }-${ event.timestamp }` }>
-						<td>{ event.hook }</td>
-						<td>
-							{ event.next_run_human }
-							<br />
-							<small>{ new Date( event.timestamp * 1000 ).toLocaleString() }</small>
-						</td>
-						<td>{ event.schedule ?? __( 'Non-repeating', 'ux-studio' ) }</td>
-						<td>
-							<code style={ { fontSize: '11px' } }>{ JSON.stringify( event.args ) }</code>
-						</td>
-						<td>
-							<button
-								type="button"
-								className="button"
-								aria-label={ __( 'Run now', 'ux-studio' ) }
-								disabled={ run.isPending }
-								onClick={ () => run.mutate( event ) }
-							>
-								<Play size={ 14 } />
-							</button>{ ' ' }
-							<button
-								type="button"
-								className="button"
-								aria-label={ __( 'Delete', 'ux-studio' ) }
-								disabled={ del.isPending }
-								onClick={ () => {
-									if ( window.confirm( __( 'Delete this scheduled event?', 'ux-studio' ) ) ) {
-										del.mutate( event );
-									}
-								} }
-							>
-								<Trash2 size={ 14 } />
-							</button>
-						</td>
-					</tr>
-				) ) }
-			</tbody>
-		</table></div>
+		<>
+			<div className="uxs-actions" style={ { marginBottom: 'var(--uxs-sp-4)' } }>
+				<input
+					type="search"
+					value={ query }
+					aria-label={ __( 'Search by hook, source or schedule', 'ux-studio' ) }
+					placeholder={ __( 'Search by hook, source or schedule', 'ux-studio' ) }
+					onChange={ ( e ) => {
+						setQuery( e.target.value );
+						setPage( 1 );
+					} }
+				/>
+				<select
+					value={ source }
+					aria-label={ __( 'Source', 'ux-studio' ) }
+					onChange={ ( e ) => {
+						setSource( e.target.value );
+						setPage( 1 );
+					} }
+				>
+					<option value="">{ __( 'All sources', 'ux-studio' ) }</option>
+					{ sources.map( ( name ) => (
+						<option key={ name } value={ name }>
+							{ name }
+						</option>
+					) ) }
+				</select>
+				<span className="uxs-form__help" style={ { margin: 0 } }>
+					{ sprintf(
+						/* translators: %d: number of scheduled events */
+						_n( '%d event', '%d events', filtered.length, 'ux-studio' ),
+						filtered.length
+					) }
+				</span>
+			</div>
+			{ paged.total === 0 ? (
+				<p>{ __( 'No event matches the search.', 'ux-studio' ) }</p>
+			) : (
+				<div className="uxs-table-wrap">
+					<table className="uxs-table">
+						<thead>
+							<tr>
+								<th>{ __( 'Hook', 'ux-studio' ) }</th>
+								<th>{ __( 'Next run', 'ux-studio' ) }</th>
+								<th>{ __( 'Schedule', 'ux-studio' ) }</th>
+								<th>{ __( 'Args', 'ux-studio' ) }</th>
+								<th>{ __( 'Actions', 'ux-studio' ) }</th>
+							</tr>
+						</thead>
+						<tbody>
+							{ paged.items.map( ( event ) => (
+								<tr key={ `${ event.hook }-${ event.timestamp }-${ JSON.stringify( event.args ) }` }>
+									<td style={ { overflowWrap: 'anywhere' } }>
+										<code>{ event.hook }</code>
+										{ event.source ? (
+											<>
+												<br />
+												<small className="uxs-form__help">{ event.source }</small>
+											</>
+										) : null }
+									</td>
+									<td style={ { whiteSpace: 'nowrap' } }>
+										{ event.next_run_human }
+										<br />
+										<small>{ formatDate( event.timestamp ) }</small>
+									</td>
+									<td>
+										{ event.schedule ? (
+											<>
+												{ event.schedule_label }
+												{ event.schedule_origin === 'plugin' ? (
+													<>
+														<br />
+														<small className="uxs-form__help">{ __( 'set by another plugin', 'ux-studio' ) }</small>
+													</>
+												) : null }
+											</>
+										) : (
+											__( 'Runs once', 'ux-studio' )
+										) }
+									</td>
+									<td>
+										<code style={ { fontSize: '11px', overflowWrap: 'anywhere' } }>{ JSON.stringify( event.args ) }</code>
+									</td>
+									<td style={ { whiteSpace: 'nowrap' } }>
+										<button
+											type="button"
+											className="button"
+											title={ __( 'Run now', 'ux-studio' ) }
+											aria-label={ __( 'Run now', 'ux-studio' ) }
+											disabled={ run.isPending }
+											onClick={ () => run.mutate( event ) }
+										>
+											<Play size={ 14 } />
+										</button>{ ' ' }
+										<button
+											type="button"
+											className="button"
+											title={ __( 'Delete', 'ux-studio' ) }
+											aria-label={ __( 'Delete', 'ux-studio' ) }
+											disabled={ del.isPending }
+											onClick={ () => {
+												if ( window.confirm( __( 'Delete this scheduled event?', 'ux-studio' ) ) ) {
+													del.mutate( event );
+												}
+											} }
+										>
+											<Trash2 size={ 14 } />
+										</button>
+									</td>
+								</tr>
+							) ) }
+						</tbody>
+					</table>
+				</div>
+			) }
+			{ paged.pages > 1 ? (
+				<div className="uxs-actions" style={ { marginTop: 'var(--uxs-sp-4)' } }>
+					<button type="button" className="button" disabled={ paged.page <= 1 } onClick={ () => setPage( paged.page - 1 ) }>
+						<ChevronLeft size={ 14 } /> { __( 'Previous', 'ux-studio' ) }
+					</button>
+					<span>
+						{ sprintf(
+							/* translators: 1: current page, 2: number of pages */
+							__( 'Page %1$d of %2$d', 'ux-studio' ),
+							paged.page,
+							paged.pages
+						) }
+					</span>
+					<button type="button" className="button" disabled={ paged.page >= paged.pages } onClick={ () => setPage( paged.page + 1 ) }>
+						{ __( 'Next', 'ux-studio' ) } <ChevronRight size={ 14 } />
+					</button>
+				</div>
+			) : null }
+		</>
 	);
+}
+
+/** An interval in seconds as a short phrase ("5 min", "1 h", "1 day"). */
+function formatInterval( seconds: number ): string {
+	if ( seconds > 0 && seconds % 86400 === 0 ) {
+		return sprintf( _n( '%d day', '%d days', seconds / 86400, 'ux-studio' ), seconds / 86400 );
+	}
+	if ( seconds > 0 && seconds % 3600 === 0 ) {
+		return sprintf( __( '%d h', 'ux-studio' ), seconds / 3600 );
+	}
+	if ( seconds > 0 && seconds % 60 === 0 ) {
+		return sprintf( __( '%d min', 'ux-studio' ), seconds / 60 );
+	}
+	return sprintf( __( '%d s', 'ux-studio' ), seconds );
 }
 
 function SchedulesTable(): JSX.Element {
@@ -381,8 +508,16 @@ function SchedulesTable(): JSX.Element {
 				{ data.map( ( s ) => (
 					<tr key={ s.name }>
 						<td><code>{ s.name }</code></td>
-						<td>{ s.display }</td>
-						<td>{ s.interval }s</td>
+						<td>
+							{ s.display }
+							{ s.origin === 'plugin' ? (
+								<>
+									<br />
+									<small className="uxs-form__help">{ __( 'Added by another plugin or theme. Its name comes from there and cannot be translated here.', 'ux-studio' ) }</small>
+								</>
+							) : null }
+						</td>
+						<td>{ formatInterval( s.interval ) }</td>
 					</tr>
 				) ) }
 			</tbody>
