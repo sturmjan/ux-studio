@@ -14,6 +14,7 @@ use UxStudio\Core\Mcp\Bootstrap as McpBootstrap;
 use UxStudio\Core\Megamenu;
 use UxStudio\Core\Migration\ActivationGuard;
 use UxStudio\Core\Migration\Bootstrap as MigrationBootstrap;
+use UxStudio\Core\Locale;
 use UxStudio\Core\Modules;
 use UxStudio\Core\PhpVersion\Bootstrap as PhpVersionBootstrap;
 use UxStudio\Core\Rest;
@@ -53,6 +54,9 @@ final class Plugin {
 
 		$this->modules = new Modules();
 		$this->modules->boot();
+
+		// REST answers in the language of the user, not of the site (before any route is served).
+		Locale::register();
 
 		( new Rest( $this->modules ) )->register();
 		ActivationGuard::register();
