@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.10.1 (unreleased)
+## 0.10.1
 
 - Chat language has a new option "Automatic (language of the site)": Czech sites chat in Czech, all others in English. It also drives the language of generated content and of the SEO topic research.
 - Wording: the 25 "Enable ..." labels of toggles and buttons now read "Turn on ...", in line with "Turn on/Turn off" used elsewhere. "Disable ..." labels were left as they are, because they name what the option blocks (for example "Disable theme updates").
