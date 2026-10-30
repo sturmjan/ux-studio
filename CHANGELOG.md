@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.4
+
+- Fixed - Admin notices panel: the "New version available" line in the rows of the Plugins list disappeared, so there
+  was no update link even though WordPress counted available updates. WordPress marks that line as an inline notice
+  (`update-message notice inline`) and the panel moved it into the bell. Inline notices and notices inside list tables,
+  forms, meta boxes and the theme browser now stay where they are (also with "hide" instead of "move").
+
 ## 0.9.3
 
 - Fixed - Rollback Manager: the list of versions of a plugin or theme returned an error (HTTP 500, `version_compare()`

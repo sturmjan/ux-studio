@@ -21,7 +21,12 @@
             return true;
         }
     }
-    var NOTICE_EXCLUDE_SELECTOR = ':not(#message):not(.below-h2)' + (isResultScreen() ? ':not(.notice-success)' : '') + ':not(.settings-error):not(#uxstudio-php-version-notice)';
+    // `.inline` notices belong to the place where they are printed and are never moved: the "New version available"
+    // line in a row of the Plugins/Themes list (`update-message notice inline`), messages inside forms, meta boxes and
+    // list tables. Moving them into the tray emptied those rows (the update link vanished from the plugin list).
+    var NOTICE_EXCLUDE_SELECTOR = ':not(#message):not(.below-h2):not(.inline):not(.update-message)' + (isResultScreen() ? ':not(.notice-success)' : '') + ':not(.settings-error):not(#uxstudio-php-version-notice)';
+    // Containers whose notices stay where they are, whatever their classes.
+    var KEEP_IN_PLACE = '.wp-list-table, .plugin-update-tr, .theme-overlay, .theme-browser, .postbox, .inside, form, #customize-controls, .media-modal, .edit-post-layout, .interface-interface-skeleton';
     var NOTICE_SELECTOR = [
         '.notice' + NOTICE_EXCLUDE_SELECTOR,
         '.error' + NOTICE_EXCLUDE_SELECTOR,
@@ -92,6 +97,7 @@
             if (panelWrap.contains(el)) return;
             if (el.id && /^setting-error-/.test(el.id)) return;
             if (el.closest('#wpadminbar')) return;
+            if (el.closest(KEEP_IN_PLACE)) return;
             // A notice inside another notice (a plugin's own sub-box) belongs to its parent card.
             if (el.parentElement && el.parentElement.closest(NOTICE_SELECTOR)) return;
             var content = (el.textContent || '').replace(/\s+/g, ' ').trim();
