@@ -166,22 +166,24 @@ final class AssistantConfig {
 			return '' !== $value ? $value : $default;
 		};
 
+		$defaults = self::widget_defaults( $language );
+
 		return array(
 			'type'                  => in_array( $type, array( 'bubble', 'sidebar' ), true ) ? $type : 'bubble',
 			'position'              => in_array( $pos, array( 'bottom-right', 'bottom-left' ), true ) ? $pos : 'bottom-right',
 			'color'                 => self::color( 'widget_color', '#2271b1' ),
 			'textColor'             => self::color( 'widget_text_color', '#ffffff' ),
-			'title'                 => $text( 'widget_title', PromptTemplates::default_title( $language ) ),
-			'greeting'              => $area( 'widget_greeting', PromptTemplates::default_greeting( $language ) ),
-			'placeholder'           => $text( 'widget_placeholder', PromptTemplates::default_placeholder( $language ) ),
-			'gdprText'              => $area( 'widget_gdpr_text', PromptTemplates::default_gdpr_text( $language ) ),
+			'title'                 => $text( 'widget_title', $defaults['title'] ),
+			'greeting'              => $area( 'widget_greeting', $defaults['greeting'] ),
+			'placeholder'           => $text( 'widget_placeholder', $defaults['placeholder'] ),
+			'gdprText'              => $area( 'widget_gdpr_text', $defaults['gdpr'] ),
 			'autoOpen'              => self::flag( 'widget_auto_open', false ),
 			'autoOpenDelay'         => self::int_in( 'widget_auto_open_delay', 5, 0, 120 ),
 			'autoOpenSound'         => self::flag( 'widget_auto_open_sound', true ),
 			'autoOpenCooldown'      => self::int_in( 'widget_auto_open_cooldown', 30, 0, 365 ),
 			'inactivityTimeout'     => self::int_in( 'widget_inactivity_timeout', 60, 0, 600 ),
 			'handoffTimeout'        => self::int_in( 'widget_handoff_timeout', 120, 0, 3600 ),
-			'handoffTimeoutMessage' => $area( 'widget_handoff_timeout_message', PromptTemplates::default_handoff_timeout_message( $language ) ),
+			'handoffTimeoutMessage' => $area( 'widget_handoff_timeout_message', $defaults['handoff'] ),
 		);
 	}
 
@@ -193,7 +195,77 @@ final class AssistantConfig {
 	 * @return array<string, string>
 	 */
 	public static function widget_i18n( string $language ): array {
-		$strings = ChatLocale::run(
+		$strings = self::cached_for_language(
+			'i18n',
+			$language,
+			static function ( string $lang ): array {
+				return self::build_widget_strings( $lang );
+			}
+		);
+
+		// Currency symbol of the shop (product cards); empty when there is no shop.
+		$currency = '';
+		if ( function_exists( 'get_woocommerce_currency_symbol' ) ) {
+			$currency = html_entity_decode( (string) get_woocommerce_currency_symbol(), ENT_QUOTES, 'UTF-8' );
+		}
+		$strings['currency'] = $currency;
+
+		return $strings;
+	}
+
+	/**
+	 * Result of a callback that reads the translation catalog, kept per chat language and per translation file
+	 * (plugin version + modification time of the .mo), so the catalog is not read on every page view.
+	 *
+	 * @param string                               $name     Name of the cached value.
+	 * @param string                               $language 'cs' or 'en'.
+	 * @param callable(string): array<string, string> $build    Builds the value for a language.
+	 * @return array<string, string>
+	 */
+	private static function cached_for_language( string $name, string $language, callable $build ): array {
+		$language  = ChatLocale::normalize( $language );
+		$mo        = UXSTUDIO_PATH . 'languages/ux-studio-cs_CZ.mo';
+		$signature = ( defined( 'UXSTUDIO_VERSION' ) ? UXSTUDIO_VERSION : '' ) . '|' . ( is_file( $mo ) ? (string) filemtime( $mo ) : '' );
+		$key       = 'uxs_ai_' . $name . '_' . $language . '_' . substr( md5( $signature ), 0, 12 );
+		$cached    = get_transient( $key );
+		if ( is_array( $cached ) && array() !== $cached ) {
+			return $cached;
+		}
+		$value = $build( $language );
+		set_transient( $key, $value, DAY_IN_SECONDS );
+		return $value;
+	}
+
+	/**
+	 * Default widget texts (title, greeting, placeholder, GDPR notice, handoff timeout message) in the chat language.
+	 *
+	 * @param string $language 'cs' or 'en'.
+	 * @return array<string, string>
+	 */
+	private static function widget_defaults( string $language ): array {
+		return self::cached_for_language(
+			'defaults',
+			$language,
+			static function ( string $lang ): array {
+				return array(
+					'title'       => PromptTemplates::default_title( $lang ),
+					'greeting'    => PromptTemplates::default_greeting( $lang ),
+					'placeholder' => PromptTemplates::default_placeholder( $lang ),
+					'gdpr'        => PromptTemplates::default_gdpr_text( $lang ),
+					'handoff'     => PromptTemplates::default_handoff_timeout_message( $lang ),
+				);
+			}
+		);
+	}
+
+	/**
+	 * The widget texts in the chat language (see widget_i18n()).
+	 *
+	 * @param string $language 'cs' or 'en'.
+	 * @return array<string, string>
+	 */
+	private static function build_widget_strings( string $language ): array {
+		return ChatLocale::run(
 			$language,
 			static function (): array {
 				return array(
@@ -269,15 +341,6 @@ final class AssistantConfig {
 				);
 			}
 		);
-
-		// Currency symbol of the shop (product cards); empty when there is no shop.
-		$currency = '';
-		if ( function_exists( 'get_woocommerce_currency_symbol' ) ) {
-			$currency = html_entity_decode( (string) get_woocommerce_currency_symbol(), ENT_QUOTES, 'UTF-8' );
-		}
-		$strings['currency'] = $currency;
-
-		return $strings;
 	}
 
 	/**

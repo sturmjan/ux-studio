@@ -85,6 +85,8 @@ final class ChatBootstrap {
 			$product_id = get_the_ID() ?: 0;
 		}
 
+		$i18n = AssistantConfig::widget_i18n( $language );
+
 		wp_localize_script(
 			'uxstudio-ai-assistant-widget',
 			'uxstudioAiAssistantWidget',
@@ -93,13 +95,8 @@ final class ChatBootstrap {
 				'nonce'            => wp_create_nonce( 'wp_rest' ),
 				'productId'        => $product_id,
 				'maxMessageLength' => ChatRestController::MAX_MESSAGE_LENGTH,
-				'openLabel'        => ChatLocale::run(
-					$language,
-					static function (): string {
-						return __( 'Open chat', 'ux-studio' );
-					}
-				),
-				'i18n'             => AssistantConfig::widget_i18n( $language ),
+				'openLabel'        => (string) ( $i18n['openChat'] ?? 'Open chat' ),
+				'i18n'             => $i18n,
 				'assets'           => array(
 					'js'  => add_query_arg( 'ver', $version, UXSTUDIO_URL . $js_rel ),
 					'css' => add_query_arg( 'ver', $version, UXSTUDIO_URL . $css_rel ),
