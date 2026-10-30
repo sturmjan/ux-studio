@@ -3730,12 +3730,13 @@ auditu v zadaných modulech; zadání každého je u jeho zadavatele, sem patř�
 ### 38.1 Balíčky
 
 - [x] **0 Jádro**: sdílený registr nápovědy + slovník + test pokrytí, jazyk per uživatel, úzké obrazovky, navigace, prázdný stav, jednotná pole a mezery, dokumentace
-- [ ] **A** texty nápovědy a opravy auditu (skupina modulů A)
-- [ ] **B** texty nápovědy a opravy auditu (skupina modulů B)
-- [ ] **C** texty nápovědy a opravy auditu (skupina modulů C)
-- [ ] **D** texty nápovědy a opravy auditu (skupina modulů D)
-- [ ] **E** texty nápovědy a opravy auditu (skupina modulů E)
-- [ ] **F** závěr: aplikovat `docs/i18n/cs-pkg-*.json` do `languages/*.po`, `.json` překlady, baseline nápovědy prázdný nebo odůvodněný, QA, verze 0.10.0, PR, vydání
+- [x] **A** texty nápovědy a opravy auditu (skupina modulů A)
+- [x] **B** texty nápovědy a opravy auditu (skupina modulů B)
+- [x] **C** texty nápovědy a opravy auditu (skupina modulů C)
+- [x] **D** texty nápovědy a opravy auditu (skupina modulů D)
+- [x] **E** texty nápovědy a opravy auditu (skupina modulů E)
+- [x] **F** závěr (sloučení A až E, překlady, baseline, QA v prohlížeči): viz 38.4
+- [ ] **vydání 0.10.0**: zvýšit verze, PR, tag (dělá ten, kdo vydává, ne balíček F)
 
 ### 38.2 Balíček 0: co přibylo
 
@@ -3760,3 +3761,23 @@ auditu v zadaných modulech; zadání každého je u jeho zadavatele, sem patř�
 - Nové tabulky: `<div className="uxs-table-wrap"><table className="uxs-table">...`. Řádky tlačítek: `.uxs-actions`. Žádné inline `padding` / `height` polí.
 - Texty jen anglicky v kódu; český překlad do `docs/i18n/cs-pkg-<balíček>.json`. Nespouštět i18n nástroje do `languages/` před balíčkem F.
 - Sdílená třída pro vypínač a stav v `NoSettings.tsx` je kopie vzoru z `GroupPage.tsx`; změna vzhledu vypínače patří do `.uxs-switch`.
+
+### 38.4 Balíček F: co přibylo
+
+- [x] Sloučeny větve A až E (`feature/audit-0.10`), beze konfliktů.
+- [x] Slovník: +20 pojmů (CAPTCHA, CVE, reverse DNS, tokens, system prompt, YAML, speculative loading, prefetch, prerender, exit intent, GA4, Retry-After, HMAC, mu-plugin, post meta, taxonomy, revisions, DISABLE_WP_CRON, ALTERNATE_WP_CRON, GDPR); `tests/glossary-resolve.php` ověří, že každá značka `[[term]]` v `help.php` a v kódu má záznam.
+- [x] Sdílené soubory: pole `media` má `media_noun` ("Vybrat ikonu") a malé tlačítko Odebrat; třídy `.uxs-status-list`, `.uxs-pager`, `.uxs-stats`, `.uxs-notice.is-wide`; dlouhé volby v `select` končí výpustkou; kompaktní seznam konfliktů (`OverlapPanel compact`); veřejné trasy chatu běží v jazyce chatu (`ChatLocale::wrap`); nápověda u polí v záložkách AI a v importu Elementoru; `tsc --noEmit` čisté.
+- [x] Chyby z balíčku A: Bot Throttle `verify_rdns` se používá (podvržený robot je obecný crawler, pravý projde, bez odpovědi DNS se nepotrestá), `blacklist_ua` dostane přísný plán, Third-Party Login kontroluje roli před vytvořením účtu. Testy: `tests/bot-throttle-detector.php`, `tests/third-party-login-role.php`.
+- [x] Nalezená chyba balíčku D: klíče `'does  '` s mezerami v 13 souborech `help.php` (nápověda se nezobrazovala); opraveno, test pokrytí to hlídá.
+- [x] Překlady: `docs/i18n/cs-pkg-*.json` aplikovány (1 869 nových záznamů), názvy modulů z `meta.json` jsou jen v `.po` (soubor `languages/ux-studio-meta.php` neexistuje a nebyl zaveden), pomocné nástroje `languages/.build/po-apply-dict.py`, `po-set.py`, `po-prune.py`, `term_rules.py` (viz `languages/README.md`).
+- [x] Terminologie EN: color, e-mail, allowlist/blocklist, central app, turn on/off (cca 330 řetězců); CZ: motiv, smazat, e-mail. Bez pomlček ve zdrojových řetězcích.
+- [x] Smazáno 343 nepoužívaných JSON překladů s md5 v názvu (aplikace čte jen `ux-studio-cs_CZ-ux-studio-app.json`), `bin/merge-json-translations.php` zapisuje jen ten soubor, md5 soubory jsou v `.gitignore`.
+- [x] Baseline nápovědy je prázdný (`{}`); test pokrytí vyjímá barvy a seznamy `hidden_metaboxes_<role>` v kartě s popisem.
+
+### 38.5 Co zůstává otevřené
+
+- [ ] "Enable / Disable" (a "Disabled") zůstávají jako slovník modulů a funkcí (cca 200 řetězců); jen "switch on/off" se sjednotilo na "turn on/off". Sjednotit i tyto výrazy je produktové rozhodnutí.
+- [ ] Zástupné pomlčky pro prázdnou hodnotu v tabulkách (`'—'`) a rozsah časů otevírací doby zůstaly, nejsou to věty.
+- [ ] Veřejný chat nabízí jen čeština/angličtina (volba "automaticky" by potřebovala varianty promptů pro další jazyky).
+- [ ] Debug Mode nemá stránku v SPA (jen prázdný stav s textem "Jak to funguje").
+- [ ] Prohlížečové QA bylo na pobyty s modulem zobrazeným jako zapnutý jen v prohlížeči (odpověď `GET /modules` přepsaná), moduly vypnuté na serveru nevracejí svá data; vzhled stránek modulů s vlastním REST (Cron, DNS, Image Optimizer) ověřit ještě jednou na webu, kde jsou zapnuté.

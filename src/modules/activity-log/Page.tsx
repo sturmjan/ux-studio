@@ -134,7 +134,7 @@ function LogTable(): JSX.Element {
 							{ query.data.map( ( row ) => (
 								<tr key={ row.id }>
 									<td>{ formatDate( row.created_at ) }</td>
-									<td>{ row.user_name || ( row.user_id ? `#${ row.user_id }` : '—' ) }</td>
+									<td>{ Number( row.user_id ) > 0 ? row.user_name || `#${ row.user_id }` : __( 'System', 'ux-studio' ) }</td>
 									<td>{ row.module_label ?? row.module }</td>
 									<td>{ row.action_label ?? row.action }</td>
 									<td>{ row.object_type ? `${ row.object_label ?? row.object_type }${ row.object_id ? ` #${ row.object_id }` : '' }` : '' }</td>

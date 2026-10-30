@@ -120,4 +120,9 @@ společném chunku - žádná duplikace knihoven.
   Akční tlačítko v kartě se neroztahuje na celou šířku (`align-self: flex-start`), jen na mobilu u úmyslně blokového.
 - **Modul bez nastavení** ukáže prázdný stav (`NoSettings.tsx`): ikona, název, popis, "nemá nastavení, funguje po zapnutí", vypínač, případně "Jak to funguje"
   z klíče `how` v `meta.json`. Bez tlačítka Uložit.
+- **Chat pro návštěvníky mluví jazykem z nastavení "Chat language"**, ne jazykem webu ani uživatele. Texty chatu pocházejí z `AiAssistant\ChatLocale`:
+  `__()` uvnitř `ChatLocale::run( $lang, ... )` odpovídá z `.mo` pluginu pro jazyk chatu; veřejné REST trasy chatu a předání člověku se obalují
+  `ChatLocale::wrap()`, takže i chybové zprávy odpovídají jazyku widgetu.
+- **Překlady**: zdrojové řetězce jsou anglicky s jednotnou terminologií (color, e-mail, allowlist/blocklist, central app, turn on/off; bez pomlček
+  jako interpunkce). Čeština: motiv, smazat, e-mail. Pravidla: `languages/.build/term_rules.py`, postup: `languages/README.md`.
 - **Skupina**: export nastavení je jednou, v hlavičce skupiny; zpět vede jedna šipka (drobečková navigace "<- skupina", u funkce skupiny se šipka v nadpisu skryje).
