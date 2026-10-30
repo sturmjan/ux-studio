@@ -1,5 +1,92 @@
 # Changelog
 
+## 0.10.0 (unreleased)
+
+Post-audit release: plain-language help for the settings of almost every module, a glossary of technical terms, a
+cleaner and more consistent admin UI, and fixes found by the audit.
+
+### Help and glossary
+
+- Added: plain-language help (what it does, what changes, the risk, when to turn it off) for the settings of Security,
+  Disable Auto Updates, Vulnerability Scanner, SMTP E-mail, E-mail Log, E-mail Health, Bot Throttle, Third-Party Login,
+  AI Assistant, AI Markdown, Admin Customiser, Clean Profiles, Dashboard Widgets, User Last Login, Exit Popup,
+  Maintenance Mode, Push Notifications, Review Aggregator, Opening Hours, Link Manager, Redirects, Pixel and Tag
+  Manager, Instagram Feed, Notice Board, Google Review Request, Post Gallery, Top Bar, Image Optimizer, Auto Image
+  Upload, Content Sync, Cron Control, Page Load, DNS Manager, Code Snippets, Download Files, Duplicate Post, Export
+  Posts, Export Users, Folder Manager, Quick Image and SVG Upload. The coverage test baseline is now empty.
+- Added: help lines for the fields of the AI Assistant tabs (BlogPilot, Content Creator, Knowledge Hub, RAG Training)
+  and the Elementor Import page, and for pages of Forms, Notice Board, Push Notifications, Redirects, Instagram Feed,
+  Service Requests and Google Review Request.
+- Added: the glossary explains 20 more terms (CAPTCHA, CVE, reverse DNS, tokens, system prompt, YAML, speculative
+  loading, prefetch, prerender, exit intent, GA4, Retry-After, HMAC, must-use plugin, post meta, taxonomy, revisions,
+  DISABLE_WP_CRON, ALTERNATE_WP_CRON, GDPR). A test checks that every `[[term]]` marker has a glossary entry.
+- Changed: option names are shorter and the detail moved to the help (for example the client IP source choices in
+  Security). The help for the login attempt limit states the real defaults (3 attempts, 30 minutes).
+- Changed: settings that only matter for another value are hidden until it is chosen (Maintenance Mode, Exit Popup,
+  Link Manager, Push Notifications, Review Aggregator, Opening Hours, Notice Board, Redirects). Saved values are kept.
+
+### Fixed
+
+- Fixed: Bot Throttle reverse DNS check now has an effect. A robot that claims to be a search engine but whose address
+  belongs to somebody else is treated as a generic crawler (strong throttling). A real search engine is let through, and
+  an address that gives no DNS answer at all is never punished. IPv6 crawlers are checked with AAAA records.
+- Fixed: Bot Throttle blocklisted User-Agents now get the strict plan the setting promises (they were only lightly
+  throttled).
+- Fixed: Third-Party Login no longer creates an account for a role that is not allowed to sign in; the role is checked
+  before the account exists.
+- Fixed: the visitor chat widget speaks the language chosen in "Chat language" everywhere: buttons, forms, rating,
+  errors, FAQ, default texts and the answers of the public REST routes. No Czech is hard-coded in the script.
+- Fixed: AI Panel, the AI toolbar, the SEO score panel and the Elementor import messages are translatable (English
+  source texts with Czech translations); the 33 BlogPilot article types are translated.
+- Fixed: the help of Exit Popup, Maintenance Mode, Push Notifications, Review Aggregator, Opening Hours, Link Manager,
+  Redirects, Pixel and Tag Manager, Instagram Feed, Notice Board, Google Review Request, Post Gallery and Top Bar was
+  not shown (the help files had keys with trailing spaces). The coverage test found it.
+- Fixed: the activity log and the dashboard widgets show module names, readable actions, object types and user names
+  instead of internal identifiers (actions without a user show "System"); the log filters list only values that really occur.
+- Fixed: Email Log shows "Plugin: Disable Emails" instead of "plugin: disable-emails" and an "Unconfirmed" status with an
+  explanation instead of the raw "Pending"; the tabs of SMTP E-mail and E-mail Log have distinct names.
+- Fixed: Vulnerability Scanner names its real data source (Wordfence Intelligence through the central app).
+- Fixed: Post Gallery lightbox buttons (Close, Previous, Next) are translated; the Gmail "no connected account" error
+  of SMTP E-mail is translatable; the Czech plural of "Note" has all forms.
+
+### UI
+
+- Changed: Modules list: plugin conflicts are one summary line (Show / Hide) with a compact list of one row per
+  conflict; all counts (All, tabs, Enabled, Disabled) count features and a note explains it; names may wrap to two lines.
+- Changed: global settings: one dark mode switch (the sidebar one), the language is shown by name, values line up with
+  their labels. Color fields show the color in effect, "Default (theme color)" in plain text and a real Reset button.
+- Changed: the Admin Customiser meta box explanation is shown once at the top of the card.
+- Changed: media fields: "Select icon / Change icon" for icons, and "Remove" is a small button.
+- Changed: Cron Control events are paginated (25 per page), searchable, show the plugin that owns each hook, human
+  schedule names and dates in the user's format, and have compact icon actions; the Mode tab explains DISABLE_WP_CRON and
+  ALTERNATE_WP_CRON.
+- Changed: DNS Manager warns about immediate changes only when DNS management is active; TTL and the Cloudflare proxy are
+  explained in the record form. Image Optimizer capabilities are a compact list; Page Load shows the last 24 hours as a
+  grid of values.
+- Changed: Top bar schedule uses date and time pickers; Reviews buttons sit in a proper row without technical wording;
+  the Redirects test box has a clear layout; Instagram steps are a neutral numbered box; AI Markdown cache list is
+  paginated, skips deleted posts and has a proper "Regenerate" button.
+- Changed: Performance Optimization and Rollback Manager ask for confirmation before they delete data or replace files.
+- Changed: long options in select boxes end with an ellipsis instead of being cut in the middle of a word.
+- Changed: group names "Export" and "Duplication" are now "Data export" and "Content copying"; "Redirects and 404 errors"
+  and "Redirect rules" no longer share one name; "Classic WordPress screens" (group) differs from its features.
+
+### Terminology and translations
+
+- Changed: one wording in English: color, e-mail, allowlist and blocklist, central app, turn on and turn off (about 330
+  source strings). No dashes in user-facing source strings; options such as "Select a form" no longer have decorations.
+- Changed: the Czech translation covers every string of the code (1,869 new entries); themes are "motiv", deleting is
+  "smazat", e-mail is spelled with a hyphen.
+- Removed: 343 unused md5-named JSON translation files. The app loads one file, `ux-studio-cs_CZ-ux-studio-app.json`;
+  `bin/merge-json-translations.php` builds only that file.
+
+### Developer
+
+- Added: `tests/glossary-resolve.php`, `tests/bot-throttle-detector.php`, `tests/third-party-login-role.php`,
+  `tests/cron-events-list.mjs`; `tests/chat-locale.php` covers the public chat routes.
+- Added: translation helpers `languages/.build/po-apply-dict.py`, `po-set.py`, `po-prune.py` (see `languages/README.md`).
+- Fixed: `npx tsc --noEmit` is clean (style sheet typings, Instagram feed editing state, Admin Columns).
+
 ## 0.9.4
 
 - Fixed - Admin notices panel: the "New version available" line in the rows of the Plugins list disappeared, so there
