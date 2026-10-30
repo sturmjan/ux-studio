@@ -12,6 +12,33 @@
    (a 40px square box) in one module and the standard 46px field in another. */
 $uxs-text-fields: 'input[type="text"], input[type="url"], input[type="email"], input[type="password"], input[type="search"], input[type="tel"], input[type="number"], input[type="date"], input[type="time"], input[type="datetime-local"]';
 
+/* The look of ONE field (46px with a 20px content line, standard radius, brand focus ring). Used by the fields of a form
+   row and by `.uxs-input`, for a field that sits outside a form row (a date in a list row, a filter above a table). */
+@mixin uxs-field-look {
+	background: var(--uxs-surface);
+	color: var(--uxs-text);
+	border: 1px solid var(--uxs-border);
+	border-radius: var(--uxs-radius-s);
+	padding: var(--uxs-sp-3) var(--uxs-sp-4);
+	font-family: var(--uxs-font);
+	font-size: var(--uxs-fs);
+	transition: border-color var(--uxs-motion-fast) var(--uxs-ease), box-shadow var(--uxs-motion-fast) var(--uxs-ease);
+
+	&:focus {
+		outline: none;
+		border-color: var(--uxs-brand);
+		box-shadow: 0 0 0 3px var(--uxs-brand-soft);
+	}
+}
+
+#ux-studio-root .uxs-input:not(textarea) {
+	@include uxs-field-look;
+	min-height: 0;
+	line-height: 20px;
+	max-width: 100%;
+}
+#ux-studio-root textarea.uxs-input { @include uxs-field-look; }
+
 #ux-studio-root,
 .uxs-portal {
 	/* Brand */
@@ -1108,22 +1135,7 @@ $uxs-text-fields: 'input[type="text"], input[type="url"], input[type="email"], i
 
 		#{$uxs-text-fields},
 		select,
-		textarea {
-			background: var(--uxs-surface);
-			color: var(--uxs-text);
-			border: 1px solid var(--uxs-border);
-			border-radius: var(--uxs-radius-s);
-			padding: var(--uxs-sp-3) var(--uxs-sp-4);
-			font-family: var(--uxs-font);
-			font-size: var(--uxs-fs);
-			transition: border-color var(--uxs-motion-fast) var(--uxs-ease), box-shadow var(--uxs-motion-fast) var(--uxs-ease);
-
-			&:focus {
-				outline: none;
-				border-color: var(--uxs-brand);
-				box-shadow: 0 0 0 3px var(--uxs-brand-soft);
-			}
-		}
+		textarea { @include uxs-field-look; }
 	}
 
 	.uxs-color {

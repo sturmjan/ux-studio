@@ -230,6 +230,7 @@ function SendTab(): JSX.Element {
 										<>
 											<input
 												type="datetime-local"
+												className="uxs-input"
 												value={ schedule[ n.id ] ?? '' }
 												onChange={ ( e ) => setSchedule( ( s ) => ( { ...s, [ n.id ]: e.target.value } ) ) }
 												style={ { marginRight: 6 } }
