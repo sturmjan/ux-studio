@@ -155,9 +155,12 @@ final class RestController extends Controller {
 	}
 
 	/**
-	 * Recently cached posts.
+	 * Recently cached posts, one page (`limit`, `offset`).
+	 *
+	 * @param WP_REST_Request $request Request.
 	 */
-	public function list_cache(): mixed {
-		return $this->ok( $this->module->list_cache() );
+	public function list_cache( WP_REST_Request $request ): mixed {
+		$limit = (int) $request->get_param( 'limit' );
+		return $this->ok( $this->module->list_cache( $limit > 0 ? $limit : 30, (int) $request->get_param( 'offset' ) ) );
 	}
 }
