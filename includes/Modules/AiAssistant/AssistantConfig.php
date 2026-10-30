@@ -186,6 +186,101 @@ final class AssistantConfig {
 	}
 
 	/**
+	 * Texts of the visitor chat widget (wp_localize_script `i18n`), in the chat language chosen by the site owner.
+	 * Keys match DEFAULT_TEXTS in assets/js/ai-assistant-widget.js; the widget falls back to English per key.
+	 *
+	 * @param string $language 'cs' or 'en'.
+	 * @return array<string, string>
+	 */
+	public static function widget_i18n( string $language ): array {
+		$strings = ChatLocale::run(
+			$language,
+			static function (): array {
+				return array(
+					'openChat' => __( 'Open chat', 'ux-studio' ),
+					'closeChat' => __( 'Close chat', 'ux-studio' ),
+					'writeUs' => __( 'Write to us', 'ux-studio' ),
+					'writeUsIntro' => __( 'Write to us and we will get back to you as soon as possible.', 'ux-studio' ),
+					'callOperatorAria' => __( 'Call an operator', 'ux-studio' ),
+					'talkToOperator' => __( 'Talk to an operator', 'ux-studio' ),
+					'callbackTitle' => __( 'We will call you back', 'ux-studio' ),
+					'callbackIntro' => __( 'Leave us your phone number and we will call you back.', 'ux-studio' ),
+					'enlargeChat' => __( 'Enlarge chat', 'ux-studio' ),
+					'shrinkChat' => __( 'Shrink chat', 'ux-studio' ),
+					'newChat' => __( 'New chat', 'ux-studio' ),
+					'startNewChat' => __( 'Start a new chat', 'ux-studio' ),
+					'gdprDefault' => __( 'This chat uses AI. Sending a message means you agree to your query being processed.', 'ux-studio' ),
+					'greetingDefault' => __( 'Hello! How can I help you?', 'ux-studio' ),
+					'placeholderDefault' => __( 'Type your question...', 'ux-studio' ),
+					'messageLabel' => __( 'Message', 'ux-studio' ),
+					'send' => __( 'Send', 'ux-studio' ),
+					'faqTitle' => __( 'Frequently asked questions', 'ux-studio' ),
+					'hideQuestions' => __( 'Hide questions', 'ux-studio' ),
+					'showMoreQuestions' => __( 'Show more questions (%d)', 'ux-studio' ),
+					'next' => __( 'Next', 'ux-studio' ),
+					'show' => __( 'Show', 'ux-studio' ),
+					'waitingOperator' => __( 'Waiting for an operator to join...', 'ux-studio' ),
+					'operatorName' => __( 'Operator', 'ux-studio' ),
+					'operatorOnline' => __( '%s is online', 'ux-studio' ),
+					'cancel' => __( 'Cancel', 'ux-studio' ),
+					'handoffReason' => __( 'The customer asked for an operator using the button.', 'ux-studio' ),
+					'handoffRecorded' => __( 'Your request has been recorded. Please wait for an operator to join.', 'ux-studio' ),
+					'handoffFailed' => __( 'Could not call an operator. Please try again.', 'ux-studio' ),
+					'handoffCancelled' => __( 'The operator request was cancelled. We are continuing with the AI assistant.', 'ux-studio' ),
+					'handoffSendFailed' => __( 'Could not send the message to the operator.', 'ux-studio' ),
+					'handoffTimeoutDefault' => __( 'Sorry, an operator is not available right now. Please leave us a message or a phone number and we will get back to you as soon as possible.', 'ux-studio' ),
+					'writeMessage' => __( 'Write a message', 'ux-studio' ),
+					'callBack' => __( 'Call me back', 'ux-studio' ),
+					'continueAssistant' => __( 'Continue with the assistant', 'ux-studio' ),
+					'backToChat' => __( 'Back to chat', 'ux-studio' ),
+					'resumeText' => __( 'How can I help you?', 'ux-studio' ),
+					'serverError' => __( 'Sorry, there was an error communicating with the server.', 'ux-studio' ),
+					'nameLabel' => __( 'Name', 'ux-studio' ),
+					'namePlaceholder' => __( 'Your name', 'ux-studio' ),
+					'emailLabel' => __( 'E-mail', 'ux-studio' ),
+					'emailPlaceholder' => __( 'you@example.com', 'ux-studio' ),
+					'phoneLabel' => __( 'Phone', 'ux-studio' ),
+					'phoneNoteCallback' => __( '(we will call you back)', 'ux-studio' ),
+					'phonePlaceholder' => __( 'e.g. +1 555 123 4567', 'ux-studio' ),
+					'yourMessageLabel' => __( 'Message', 'ux-studio' ),
+					'yourMessagePlaceholder' => __( 'Your message...', 'ux-studio' ),
+					'sendMessage' => __( 'Send message', 'ux-studio' ),
+					'fillAll' => __( 'Please fill in all fields.', 'ux-studio' ),
+					'sending' => __( 'Sending...', 'ux-studio' ),
+					'messageSent' => __( 'Message sent! We will get back to you as soon as possible.', 'ux-studio' ),
+					'sendFailed' => __( 'Could not send the message.', 'ux-studio' ),
+					'connectionError' => __( 'Connection error. Please try again.', 'ux-studio' ),
+					'phoneNumberLabel' => __( 'Phone number', 'ux-studio' ),
+					'noteLabel' => __( 'Note', 'ux-studio' ),
+					'optional' => __( '(optional)', 'ux-studio' ),
+					'callNotePlaceholder' => __( 'When can we call you?', 'ux-studio' ),
+					'fillPhone' => __( 'Please enter your phone number.', 'ux-studio' ),
+					'callbackThanks' => __( 'Thank you! We will get back to you as soon as possible.', 'ux-studio' ),
+					'ratingQuestion' => __( 'How would you rate our help?', 'ux-studio' ),
+					'starsLabel' => __( '%d of 5 stars', 'ux-studio' ),
+					'feedbackPlaceholder' => __( 'Would you like to add anything? (optional)', 'ux-studio' ),
+					'sendRating' => __( 'Send rating', 'ux-studio' ),
+					'ratingThanks' => __( 'Thank you for your rating!', 'ux-studio' ),
+					'inactivityPrompt' => __( 'Is there anything else I can help you with?', 'ux-studio' ),
+					'yes' => __( 'Yes', 'ux-studio' ),
+					'no' => __( 'No', 'ux-studio' ),
+					'askAnything' => __( 'Ask me anything!', 'ux-studio' ),
+					'goodbye' => __( 'Thank you for visiting! We would appreciate your rating.', 'ux-studio' ),
+				);
+			}
+		);
+
+		// Currency symbol of the shop (product cards); empty when there is no shop.
+		$currency = '';
+		if ( function_exists( 'get_woocommerce_currency_symbol' ) ) {
+			$currency = html_entity_decode( (string) get_woocommerce_currency_symbol(), ENT_QUOTES, 'UTF-8' );
+		}
+		$strings['currency'] = $currency;
+
+		return $strings;
+	}
+
+	/**
 	 * Comma-separated string (legacy) or array (new multiselect) -> clean list.
 	 *
 	 * @param mixed $value Raw stored value.
