@@ -4,6 +4,7 @@
 import { QueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { pushToast } from './notify';
+import type { GlossaryData } from '../components/glossary';
 
 declare global {
 	interface Window {
@@ -13,6 +14,8 @@ declare global {
 			version: string;
 			apiVersion: number;
 			locale: string;
+			/** Definitions behind the [[term]] markers of help texts (Core\Glossary), in the user's language. */
+			glossary?: GlossaryData;
 		};
 	}
 }
@@ -102,6 +105,8 @@ export interface ModuleInfo {
 	parent?: string | null;
 	/** Feature ids of a virtual group tile (empty for normal modules). */
 	children?: string[];
+	/** Short "How it works" text (meta.json `how`), shown on the page of a module without settings. */
+	how?: string;
 }
 
 /** One overlap between an enabled UX Studio module and an active foreign plugin (GET /overlaps). */

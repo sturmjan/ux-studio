@@ -122,11 +122,11 @@ export function PreviewStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 						<dd>{ over ? __( 'It has ended', 'ux-studio' ) : formatDate( entry.expires_at ) }</dd>
 					</div>
 					<div>
-						<dt>{ __( 'Switched off in the preview', 'ux-studio' ) }</dt>
+						<dt>{ __( 'Turned off in the preview', 'ux-studio' ) }</dt>
 						<dd>{ entry.plugins.length > 0 ? pluginNames( entry.plugins, target ) : __( 'No active plugin', 'ux-studio' ) }</dd>
 					</div>
 					<div>
-						<dt>{ __( 'Switched on in the preview', 'ux-studio' ) }</dt>
+						<dt>{ __( 'Turned on in the preview', 'ux-studio' ) }</dt>
 						<dd>{ entry.modules.map( ( m ) => m.name ).join( ', ' ) }</dd>
 					</div>
 				</dl>
@@ -277,7 +277,7 @@ export function SwitchStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 							) }
 						</div>
 						<div className="uxs-wiz-box">
-							<h3>{ __( 'These modules will be switched on', 'ux-studio' ) }</h3>
+							<h3>{ __( 'These modules will be turned on', 'ux-studio' ) }</h3>
 							{ plan.modules.length > 0 ? (
 								<ul className="uxs-wiz-plain">
 									{ plan.modules.map( ( m ) => (
@@ -288,7 +288,7 @@ export function SwitchStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 									) ) }
 								</ul>
 							) : (
-								<p className="uxs-wiz-muted">{ __( 'No module needs to be switched on.', 'ux-studio' ) }</p>
+								<p className="uxs-wiz-muted">{ __( 'No module needs to be turned on.', 'ux-studio' ) }</p>
 							) }
 						</div>
 					</div>
@@ -300,7 +300,7 @@ export function SwitchStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 								<li>
 									{ sprintf(
 										/* translators: 1: number of prepared settings, 2: number of prepared objects (rules, snippets ...). */
-										__( 'The prepared values go live: %1$d settings and %2$d objects (rules, snippets, menu fields) are switched on.', 'ux-studio' ),
+										__( 'The prepared values go live: %1$d settings and %2$d objects (rules, snippets, menu fields) are turned on.', 'ux-studio' ),
 										staged,
 										plan.staging.activations
 									) }
@@ -404,7 +404,7 @@ export function SwitchStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 					<p>
 						{ sprintf(
 							/* translators: 1: number of plugins, 2: number of modules. */
-							__( '%1$d plugin(s) will be deactivated and %2$d module(s) switched on. The site is checked right after, and you can undo the switch from the run history.', 'ux-studio' ),
+							__( '%1$d plugin(s) will be deactivated and %2$d module(s) turned on. The site is checked right after, and you can undo the switch from the run history.', 'ux-studio' ),
 							plan.plugins.length,
 							plan.modules.filter( ( m ) => ! m.enabled ).length
 						) }
@@ -443,7 +443,7 @@ export function SwitchedDone( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 				{ result &&
 					sprintf(
 						/* translators: 1: number of deactivated plugins, 2: number of modules switched on. */
-						__( '%1$d plugin(s) deactivated, %2$d module(s) switched on. The site is being tested now, from outside, without the preview.', 'ux-studio' ),
+						__( '%1$d plugin(s) deactivated, %2$d module(s) turned on. The site is being tested now, from outside, without the preview.', 'ux-studio' ),
 						result.deactivated.length,
 						result.enabled.length
 					) }

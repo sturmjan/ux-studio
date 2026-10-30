@@ -107,7 +107,7 @@ final class WhiteLabelCmsSource extends AbstractAdminSource {
 			if ( '' === $hex ) {
 				$lossy[] = sprintf(
 					/* translators: 1: setting, 2: value. */
-					__( 'The colour "%1$s" (%2$s) is not a plain hex colour and was not transferred.', 'ux-studio' ),
+					__( 'The color "%1$s" (%2$s) is not a plain hex color and was not transferred.', 'ux-studio' ),
 					$key,
 					$raw
 				);
@@ -159,8 +159,8 @@ final class WhiteLabelCmsSource extends AbstractAdminSource {
 			'logo_width'                   => __( 'logo size', 'ux-studio' ),
 			'logo_height'                  => __( 'logo size', 'ux-studio' ),
 			'logo_bottom_margin'           => __( 'space under the logo', 'ux-studio' ),
-			'privacy_policy_link_color'    => __( 'privacy link colours', 'ux-studio' ),
-			'privacy_policy_link_hover_color' => __( 'privacy link colours', 'ux-studio' ),
+			'privacy_policy_link_color'    => __( 'privacy link colors', 'ux-studio' ),
+			'privacy_policy_link_hover_color' => __( 'privacy link colors', 'ux-studio' ),
 			'hide_register_lost_password'  => __( 'hidden "Lost your password" links', 'ux-studio' ),
 			'hide_back_to_link'            => __( 'hidden "Back to the site" link', 'ux-studio' ),
 			'login_custom_js'              => __( 'own JavaScript of the login screen', 'ux-studio' ),

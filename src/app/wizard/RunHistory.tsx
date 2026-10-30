@@ -163,7 +163,7 @@ export function RunHistory( {
 							formatDate( target.started_at )
 						) }
 					</p>
-					{ target.switch_active && <p>{ __( 'The run is switched on, so the switch is undone first: the old plugins are activated again and the modules it turned on go off.', 'ux-studio' ) }</p> }
+					{ target.switch_active && <p>{ __( 'The run is turned on, so the switch is undone first: the old plugins are activated again and the modules it turned on go off.', 'ux-studio' ) }</p> }
 				</UndoMigrationModal>
 			) }
 

@@ -284,9 +284,12 @@ final class ChatEngine {
 		}
 
 		if ( '' === $final_text ) {
-			$final_text = 'cs' === $language
-				? 'Omlouvám se, nepodařilo se mi zpracovat požadavek.'
-				: 'Sorry, I was unable to process that request.';
+			$final_text = ChatLocale::run(
+				(string) $language,
+				static function (): string {
+					return __( 'Sorry, I was unable to process that request.', 'ux-studio' );
+				}
+			);
 		}
 
 		return $final_text;

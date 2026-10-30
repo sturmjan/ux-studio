@@ -137,11 +137,11 @@ final class FormsCaptcha {
 			return new WP_Error( 'uxstudio_forms_captcha_no_security', __( 'The Security module is not available.', 'ux-studio' ), array( 'status' => 409 ) );
 		}
 		if ( ! TurnstileCaProvisioner::is_connected() ) {
-			return new WP_Error( 'uxstudio_forms_captcha_not_connected', __( 'Connect the site to the central application first.', 'ux-studio' ), array( 'status' => 409 ) );
+			return new WP_Error( 'uxstudio_forms_captcha_not_connected', __( 'Connect the site to the central app first.', 'ux-studio' ), array( 'status' => 409 ) );
 		}
 		$status = self::status();
 		if ( $status['has_keys'] && ! $status['keys_from_ca'] ) {
-			return new WP_Error( 'uxstudio_forms_captcha_own_keys', __( 'The site already has its own CAPTCHA keys. Remove them in Security > CAPTCHA first if you want keys from the central application.', 'ux-studio' ), array( 'status' => 409 ) );
+			return new WP_Error( 'uxstudio_forms_captcha_own_keys', __( 'The site already has its own CAPTCHA keys. Remove them in Security > CAPTCHA first if you want keys from the central app.', 'ux-studio' ), array( 'status' => 409 ) );
 		}
 
 		$keys = TurnstileCaProvisioner::provision( $module );

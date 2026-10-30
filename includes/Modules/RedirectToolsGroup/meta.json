@@ -1,7 +1,7 @@
 {
 	"id": "redirect-tools",
-	"name": "Redirects",
-	"description": "SEO-safe redirects with a 404 log, and an optional catch-all that sends every 404 to the homepage. Each part can be switched on separately.",
+	"name": "Redirects and 404 errors",
+	"description": "SEO-safe redirects with a 404 log, and an optional catch-all that sends every 404 to the homepage. Each part can be turned on separately.",
 	"group": "content",
 	"icon": "signpost",
 	"settings": true,

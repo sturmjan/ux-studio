@@ -41,7 +41,7 @@ export function fieldCatalog(): FieldCatalogEntry[] {
 	return [
 		{ type: 'text', label: __( 'Text', 'ux-studio' ), icon: TypeIcon, category: 'basic' },
 		{ type: 'textarea', label: __( 'Textarea', 'ux-studio' ), icon: AlignLeft, category: 'basic' },
-		{ type: 'email', label: __( 'Email', 'ux-studio' ), icon: Mail, category: 'basic' },
+		{ type: 'email', label: __( 'E-mail', 'ux-studio' ), icon: Mail, category: 'basic' },
 		{ type: 'url', label: __( 'URL', 'ux-studio' ), icon: LinkIcon, category: 'basic' },
 		{ type: 'tel', label: __( 'Phone', 'ux-studio' ), icon: Phone, category: 'basic' },
 		{ type: 'number', label: __( 'Number', 'ux-studio' ), icon: Hash, category: 'basic' },

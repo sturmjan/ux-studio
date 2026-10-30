@@ -8,9 +8,9 @@
 import { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { ChevronRight, LoaderCircle, PowerOff } from 'lucide-react';
+import { ChevronDown, ChevronRight, LoaderCircle, PowerOff, TriangleAlert } from 'lucide-react';
 import { api, queryClient, type ApiError, type ModuleInfo } from './api';
-import { isOverlapError, OverlapModal, OverlapPanel, refreshOverlaps } from './Overlaps';
+import { isOverlapError, OverlapModal, OverlapPanel, refreshOverlaps, useOverlaps } from './Overlaps';
 import { ModuleIcon } from './moduleIcons';
 import { WizardHint } from './WizardHint';
 import { navigate } from './route';
@@ -31,6 +31,8 @@ export function ModuleGrid(): JSX.Element {
 	const [ group, setGroup ] = useState( 'all' );
 	const [ status, setStatus ] = useState< StatusFilter >( 'all' );
 	const [ search, setSearch ] = useState( '' );
+	const [ conflictsOpen, setConflictsOpen ] = useState( false );
+	const { data: overlaps } = useOverlaps();
 	const { data: modules, isLoading, error } = useQuery( {
 		queryKey: [ 'modules' ],
 		queryFn: () => api< ModuleInfo[] >( 'modules' ),
@@ -102,14 +104,24 @@ export function ModuleGrid(): JSX.Element {
 		[ m, ...childrenOf( m ) ].map( ( x ) => `${ x.name } ${ x.description } ${ x.id }` ).join( ' ' ).toLocaleLowerCase();
 
 	const needle = search.trim().toLocaleLowerCase();
+	// Everything is counted in features (what a switch controls): a group such as "Dashboard" counts as the features
+	// inside it, a module without a group counts as one. So All = Enabled + Disabled, whatever the tab.
+	const featuresOf = ( m: ModuleInfo ): ModuleInfo[] => {
+		const subs = childrenOf( m );
+		return subs.length > 0 ? subs : [ m ];
+	};
+	const matchesStatus = ( m: ModuleInfo ): boolean => 'all' === status || ( 'on' === status ) === m.enabled;
 	const visible = topLevel.filter(
 		( m ) =>
 			( 'all' === group || m.group === group ) &&
-			( 'all' === status || ( 'on' === status ) === m.enabled ) &&
+			featuresOf( m ).some( matchesStatus ) &&
 			( '' === needle || haystack( m ).includes( needle ) )
 	);
-	const countIn = ( id: string ): number => topLevel.filter( ( m ) => m.group === id ).length;
-	const topEnabled = topLevel.filter( ( m ) => m.enabled ).length;
+	const featureCount = ( list: ModuleInfo[] ): number => list.reduce( ( sum, m ) => sum + featuresOf( m ).length, 0 );
+	const countIn = ( id: string ): number => featureCount( topLevel.filter( ( m ) => m.group === id ) );
+	const totalFeatures = featureCount( topLevel );
+	const featuresEnabled = topLevel.reduce( ( sum, m ) => sum + featuresOf( m ).filter( ( f ) => f.enabled ).length, 0 );
+	const conflictCount = overlaps ? overlaps.full.length + overlaps.customiser.length + overlaps.partial.length : 0;
 
 	const onDeactivateAll = (): void => {
 		if ( enabledCount === 0 || deactivateAll.isPending ) {
@@ -151,7 +163,32 @@ export function ModuleGrid(): JSX.Element {
 				</div>
 			</header>
 			<WizardHint />
-			<OverlapPanel />
+			{ conflictCount > 0 ? (
+				<div className="uxs-overlaps">
+					<div className="uxs-overlaps__summary">
+						<TriangleAlert size={ 16 } aria-hidden />
+						<strong>
+							{ sprintf(
+								/* translators: %d: number of conflicts with other plugins. */
+								_n( '%d conflict with a plugin', '%d conflicts with plugins', conflictCount, 'ux-studio' ),
+								conflictCount
+							) }
+						</strong>
+						<button
+							type="button"
+							className="button button-small"
+							aria-expanded={ conflictsOpen }
+							onClick={ () => setConflictsOpen( ! conflictsOpen ) }
+						>
+							{ conflictsOpen ? __( 'Hide', 'ux-studio' ) : __( 'Show', 'ux-studio' ) }
+							<ChevronDown size={ 14 } aria-hidden style={ { transform: conflictsOpen ? 'rotate(180deg)' : 'none' } } />
+						</button>
+					</div>
+					{ conflictsOpen ? <OverlapPanel compact /> : null }
+				</div>
+			) : (
+				<OverlapPanel />
+			) }
 			<div className="uxs-modulefilter">
 				<input
 					type="search"
@@ -163,7 +200,7 @@ export function ModuleGrid(): JSX.Element {
 				/>
 				<div className="uxs-subtabs" role="tablist" aria-label={ __( 'Module group', 'ux-studio' ) }>
 					<button type="button" role="tab" aria-selected={ 'all' === group } className={ 'all' === group ? 'is-active' : '' } onClick={ () => setGroup( 'all' ) }>
-						{ __( 'All', 'ux-studio' ) } ({ topLevel.length })
+						{ __( 'All', 'ux-studio' ) } ({ totalFeatures })
 					</button>
 					{ GROUPS.filter( ( g ) => countIn( g.id ) > 0 ).map( ( g ) => (
 						<button key={ g.id } type="button" role="tab" aria-selected={ g.id === group } className={ g.id === group ? 'is-active' : '' } onClick={ () => setGroup( g.id ) }>
@@ -178,14 +215,22 @@ export function ModuleGrid(): JSX.Element {
 					onChange={ ( e ) => setStatus( e.target.value as StatusFilter ) }
 				>
 					<option value="all">{ __( 'All statuses', 'ux-studio' ) }</option>
-					<option value="on">{ sprintf( /* translators: %d: number of enabled modules. */ __( 'Enabled (%d)', 'ux-studio' ), topEnabled ) }</option>
-					<option value="off">{ sprintf( /* translators: %d: number of disabled modules. */ __( 'Disabled (%d)', 'ux-studio' ), topLevel.length - topEnabled ) }</option>
+					<option value="on">{ sprintf( /* translators: %d: number of enabled features. */ __( 'Enabled (%d)', 'ux-studio' ), featuresEnabled ) }</option>
+					<option value="off">{ sprintf( /* translators: %d: number of disabled features. */ __( 'Disabled (%d)', 'ux-studio' ), totalFeatures - featuresEnabled ) }</option>
 				</select>
 			</div>
+			<p className="uxs-modulefilter__empty" style={ { marginTop: 0 } }>
+				{ sprintf(
+					/* translators: 1: number of features (things with their own switch), 2: number of rows in the list (modules and groups). */
+					__( 'The numbers count features, the things with their own switch. A group counts as the features inside it. %1$d features in %2$d rows.', 'ux-studio' ),
+					totalFeatures,
+					topLevel.length
+				) }
+			</p>
 			{ 0 === visible.length ? <p className="uxs-modulefilter__empty">{ __( 'No module matches the filter.', 'ux-studio' ) }</p> : null }
 			<div className="uxs-grid is-list">
 				{ visible.map( ( m ) => {
-					const subs = childrenOf( m );
+					const subs = childrenOf( m ).filter( matchesStatus );
 					return (
 						<div key={ m.id } className="uxs-rowgroup">
 							<ModuleRow m={ m } onToggle={ ( x ) => toggle.mutate( { m: x } ) } />
@@ -243,8 +288,17 @@ function ModuleRow( { m, sub = false, onToggle }: ModuleRowProps ): JSX.Element 
 				<span className="uxs-tile__icon">
 					<ModuleIcon name={ m.icon } size={ sub ? 16 : 20 } />
 				</span>
-				<span className="uxs-tile__name">{ m.name }</span>
-				<span className="uxs-tile__desc">{ m.description }</span>
+				{ /* The name may wrap to two lines; the grid CSS would cut it with an ellipsis. */ }
+				<span
+					className="uxs-tile__name"
+					title={ m.name }
+					style={ { flex: sub ? '0 1 244px' : '0 1 260px', whiteSpace: 'normal', overflow: 'visible', textOverflow: 'clip', lineHeight: 1.3 } }
+				>
+					{ m.name }
+				</span>
+				<span className="uxs-tile__desc" title={ m.description }>
+					{ m.description }
+				</span>
 				<button
 					type="button"
 					className={ `uxs-switch${ m.enabled ? ' is-on' : '' }` }

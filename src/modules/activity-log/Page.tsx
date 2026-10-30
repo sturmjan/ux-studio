@@ -19,6 +19,21 @@ interface ActivityEntry {
 	object_type: string;
 	object_id: number;
 	meta: string | null;
+	/** Readable forms from the server; the raw codes stay for filtering. */
+	module_label?: string;
+	action_label?: string;
+	object_label?: string;
+	user_name?: string;
+}
+
+interface FilterOption {
+	value: string;
+	label: string;
+}
+
+interface FilterOptions {
+	modules: FilterOption[];
+	actions: FilterOption[];
 }
 
 const PAGE_SIZE = 20;
@@ -38,6 +53,11 @@ function LogTable(): JSX.Element {
 			),
 	} );
 
+	const filters = useQuery( {
+		queryKey: [ 'activity-log', 'filters' ],
+		queryFn: () => api< FilterOptions >( 'activity-log/filters' ),
+	} );
+
 	const purge = useMutation( {
 		mutationFn: () => api( 'activity-log/entries', { method: 'DELETE' } ),
 		onSuccess: () => void queryClient.invalidateQueries( { queryKey: [ 'activity-log', 'entries' ] } ),
@@ -48,27 +68,39 @@ function LogTable(): JSX.Element {
 			<div className="uxs-form uxs-form--inline" style={ { marginBottom: 'var(--uxs-sp-4)' } }>
 				<div className="uxs-form__row">
 					<label htmlFor="uxs-al-module">{ __( 'Module', 'ux-studio' ) }</label>
-					<input
+					<select
 						id="uxs-al-module"
-						type="text"
 						value={ moduleFilter }
 						onChange={ ( e ) => {
 							setPage( 0 );
 							setModuleFilter( e.target.value );
 						} }
-					/>
+					>
+						<option value="">{ __( 'All modules', 'ux-studio' ) }</option>
+						{ ( filters.data?.modules ?? [] ).map( ( o ) => (
+							<option key={ o.value } value={ o.value }>
+								{ o.label }
+							</option>
+						) ) }
+					</select>
 				</div>
 				<div className="uxs-form__row">
 					<label htmlFor="uxs-al-action">{ __( 'Action', 'ux-studio' ) }</label>
-					<input
+					<select
 						id="uxs-al-action"
-						type="text"
 						value={ actionFilter }
 						onChange={ ( e ) => {
 							setPage( 0 );
 							setActionFilter( e.target.value );
 						} }
-					/>
+					>
+						<option value="">{ __( 'All actions', 'ux-studio' ) }</option>
+						{ ( filters.data?.actions ?? [] ).map( ( o ) => (
+							<option key={ o.value } value={ o.value }>
+								{ o.label }
+							</option>
+						) ) }
+					</select>
 				</div>
 				<button
 					type="button"
@@ -88,7 +120,7 @@ function LogTable(): JSX.Element {
 				<p>{ __( 'No matching activity found.', 'ux-studio' ) }</p>
 			) : (
 				<>
-					<table className="uxs-table">
+					<div className="uxs-table-wrap"><table className="uxs-table">
 						<thead>
 							<tr>
 								<th>{ __( 'Date', 'ux-studio' ) }</th>
@@ -102,14 +134,14 @@ function LogTable(): JSX.Element {
 							{ query.data.map( ( row ) => (
 								<tr key={ row.id }>
 									<td>{ formatDate( row.created_at ) }</td>
-									<td>{ row.user_id }</td>
-									<td>{ row.module }</td>
-									<td>{ row.action }</td>
-									<td>{ row.object_type ? `${ row.object_type } #${ row.object_id }` : '' }</td>
+									<td>{ Number( row.user_id ) > 0 ? row.user_name || `#${ row.user_id }` : __( 'System', 'ux-studio' ) }</td>
+									<td>{ row.module_label ?? row.module }</td>
+									<td>{ row.action_label ?? row.action }</td>
+									<td>{ row.object_type ? `${ row.object_label ?? row.object_type }${ row.object_id ? ` #${ row.object_id }` : '' }` : '' }</td>
 								</tr>
 							) ) }
 						</tbody>
-					</table>
+					</table></div>
 					<div style={ { display: 'flex', gap: 'var(--uxs-sp-3)', marginTop: 'var(--uxs-sp-4)' } }>
 						<button type="button" className="button" disabled={ page === 0 } onClick={ () => setPage( ( p ) => p - 1 ) }>
 							{ __( 'Previous', 'ux-studio' ) }

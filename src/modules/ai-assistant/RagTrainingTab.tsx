@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Database, LoaderCircle, RefreshCw, Trash2 } from 'lucide-react';
+import { HelpText } from '../../components/GlossaryTerm';
 import { api, queryClient } from '../../app/api';
 
 interface TrainingSource {
@@ -106,6 +107,9 @@ function AddSourceForm(): JSX.Element {
 					<option value="sitemap">{ __( 'Sitemap URL', 'ux-studio' ) }</option>
 					<option value="text">{ __( 'Raw text', 'ux-studio' ) }</option>
 				</select>
+				<p className="uxs-form__help">
+					<HelpText text={ __( 'A web page URL reads one page. A sitemap URL reads all pages listed in a sitemap, which can be many. Raw text is a text you paste here.', 'ux-studio' ) } />
+				</p>
 			</div>
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-rag-source-title">{ __( 'Title (optional)', 'ux-studio' ) }</label>
@@ -141,6 +145,9 @@ function AddSourceForm(): JSX.Element {
 					aria-pressed={ useInternal }
 					onClick={ () => setUseInternal( ( v ) => ! v ) }
 				/>
+				<p className="uxs-form__help">
+					<HelpText text={ __( 'Public chat answers the visitors of the website, so share only what anyone may see. The internal chat is for your team in the admin.', 'ux-studio' ) } />
+				</p>
 			</div>
 			<button type="button" className="button button-primary" disabled={ ! canSubmit || create.isPending } onClick={ () => create.mutate() }>
 				{ create.isPending ? <LoaderCircle size={ 14 } /> : null } { __( 'Add source', 'ux-studio' ) }
@@ -179,7 +186,7 @@ function SourcesTable(): JSX.Element {
 	}
 
 	return (
-		<table className="uxs-table">
+		<div className="uxs-table-wrap"><table className="uxs-table">
 			<thead>
 				<tr>
 					<th>{ __( 'Type', 'ux-studio' ) }</th>
@@ -227,7 +234,7 @@ function SourcesTable(): JSX.Element {
 					</tr>
 				) ) }
 			</tbody>
-		</table>
+		</table></div>
 	);
 }
 
@@ -266,6 +273,9 @@ function ReindexButton( {
 					</p>
 				) : null }
 			</div>
+			<p className="uxs-form__help">
+				<HelpText text={ __( 'Rebuilds the search index of this part from the current data. Run it after big changes. It works in the background and the counter updates by itself.', 'ux-studio' ) } />
+			</p>
 		</div>
 	);
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, LoaderCircle, Mail, Trash2, X } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
@@ -29,15 +29,56 @@ interface EmailLogDetail extends EmailLogEntry {
 const PAGE_SIZE = 20;
 
 function StatusBadge( { status }: { status: string } ): JSX.Element {
+	const unconfirmed = status !== 'success' && status !== 'error';
 	return (
-		<span className={ `uxs-badge ${ status === 'success' ? 'is-success' : status === 'error' ? 'is-danger' : '' }` }>
+		<span
+			className={ `uxs-badge ${ status === 'success' ? 'is-success' : status === 'error' ? 'is-danger' : '' }` }
+			title={
+				unconfirmed
+					? __( 'WordPress did not report a result for this message. Another plugin may have blocked it or sent it its own way.', 'ux-studio' )
+					: undefined
+			}
+		>
 			{ status === 'success'
 				? __( 'Sent', 'ux-studio' )
 				: status === 'error'
 				? __( 'Failed', 'ux-studio' )
-				: __( 'Pending', 'ux-studio' ) }
+				: __( 'Unconfirmed', 'ux-studio' ) }
 		</span>
 	);
+}
+
+/**
+ * The stored source is a raw "kind: folder" string such as "plugin: disable-emails". Show it as words.
+ */
+function prettySlug( slug: string ): string {
+	return slug
+		.replace( /\.php$/i, '' )
+		.split( /[-_]+/ )
+		.filter( ( part ) => part !== '' )
+		.map( ( part ) => part.charAt( 0 ).toUpperCase() + part.slice( 1 ) )
+		.join( ' ' );
+}
+
+function SourceLabel( { source }: { source: string } ): JSX.Element {
+	if ( source === '' ) {
+		return <>—</>;
+	}
+	const match = /^(plugin|theme|mu-plugin):\s*(.+)$/.exec( source );
+	if ( ! match ) {
+		return <>{ source === 'WordPress' ? __( 'WordPress itself', 'ux-studio' ) : source }</>;
+	}
+	const name = prettySlug( match[ 2 ] ?? '' );
+	if ( match[ 1 ] === 'plugin' ) {
+		/* translators: %s: plugin name */
+		return <>{ sprintf( __( 'Plugin: %s', 'ux-studio' ), name ) }</>;
+	}
+	if ( match[ 1 ] === 'theme' ) {
+		/* translators: %s: theme name */
+		return <>{ sprintf( __( 'Theme: %s', 'ux-studio' ), name ) }</>;
+	}
+	/* translators: %s: file name of a must-use plugin */
+	return <>{ sprintf( __( 'Must-use plugin: %s', 'ux-studio' ), name ) }</>;
 }
 
 function DetailModal( { id, onClose }: { id: number; onClose: () => void } ): JSX.Element {
@@ -51,7 +92,7 @@ function DetailModal( { id, onClose }: { id: number; onClose: () => void } ): JS
 	const resend = useMutation( {
 		mutationFn: () => api< { message: string } >( `email-log/entries/${ id }/resend`, { method: 'POST' } ),
 		onSuccess: ( data ) => {
-			setNotice( data.message ?? __( 'Email was re-sent.', 'ux-studio' ) );
+			setNotice( data.message ?? __( 'E-mail was re-sent.', 'ux-studio' ) );
 			void queryClient.invalidateQueries( { queryKey: [ 'email-log', 'entries' ] } );
 		},
 		onError: ( err: Error ) => setNotice( err.message ),
@@ -82,7 +123,7 @@ function DetailModal( { id, onClose }: { id: number; onClose: () => void } ): JS
 				onClick={ ( e ) => e.stopPropagation() }
 			>
 				<div style={ { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--uxs-sp-4)' } }>
-					<h2 style={ { margin: 0 } }>{ __( 'Email detail', 'ux-studio' ) }</h2>
+					<h2 style={ { margin: 0 } }>{ __( 'E-mail detail', 'ux-studio' ) }</h2>
 					<button type="button" className="button-link" aria-label={ __( 'Close', 'ux-studio' ) } onClick={ onClose }>
 						<X size={ 18 } />
 					</button>
@@ -94,7 +135,7 @@ function DetailModal( { id, onClose }: { id: number; onClose: () => void } ): JS
 					</div>
 				) : (
 					<>
-						<table className="uxs-table" style={ { marginBottom: 'var(--uxs-sp-4)' } }>
+						<div className="uxs-table-wrap" style={ { marginBottom: 'var(--uxs-sp-4)' } }><table className="uxs-table">
 							<tbody>
 								<tr>
 									<th style={ { width: 140, textAlign: 'left' } }>{ __( 'Status', 'ux-studio' ) }</th>
@@ -114,7 +155,7 @@ function DetailModal( { id, onClose }: { id: number; onClose: () => void } ): JS
 								</tr>
 								<tr>
 									<th style={ { textAlign: 'left' } }>{ __( 'Source', 'ux-studio' ) }</th>
-									<td>{ detail.source || '—' }</td>
+									<td><SourceLabel source={ detail.source } /></td>
 								</tr>
 								{ detail.error_message ? (
 									<tr>
@@ -123,7 +164,7 @@ function DetailModal( { id, onClose }: { id: number; onClose: () => void } ): JS
 									</tr>
 								) : null }
 							</tbody>
-						</table>
+						</table></div>
 
 						<h3>{ __( 'Headers', 'ux-studio' ) }</h3>
 						<pre style={ { whiteSpace: 'pre-wrap', wordBreak: 'break-word', background: 'var(--uxs-bg-muted, #f6f7f7)', padding: 'var(--uxs-sp-3, 12px)', borderRadius: 4 } }>
@@ -146,7 +187,7 @@ function DetailModal( { id, onClose }: { id: number; onClose: () => void } ): JS
 
 						<h3>{ __( 'Message', 'ux-studio' ) }</h3>
 						<iframe
-							title={ __( 'Email body', 'ux-studio' ) }
+							title={ __( 'E-mail body', 'ux-studio' ) }
 							sandbox=""
 							srcDoc={ detail.message }
 							style={ { width: '100%', height: 300, border: '1px solid var(--uxs-border, #dcdcde)', borderRadius: 4, background: '#fff' } }
@@ -196,6 +237,9 @@ function LogTable(): JSX.Element {
 
 	return (
 		<>
+			<p className="uxs-form__help">
+				{ __( 'Every message the site tried to send. Open one to read its text and send it again. "Unconfirmed" means WordPress never reported a result, for example because another plugin took over the sending.', 'ux-studio' ) }
+			</p>
 			<div style={ { marginBottom: 'var(--uxs-sp-4)' } }>
 				<button
 					type="button"
@@ -215,7 +259,7 @@ function LogTable(): JSX.Element {
 				<p>{ __( 'No mail has been sent yet.', 'ux-studio' ) }</p>
 			) : (
 				<>
-					<table className="uxs-table">
+					<div className="uxs-table-wrap"><table className="uxs-table">
 						<thead>
 							<tr>
 								<th>{ __( 'Date', 'ux-studio' ) }</th>
@@ -240,7 +284,7 @@ function LogTable(): JSX.Element {
 											{ row.subject || __( '(no subject)', 'ux-studio' ) }
 										</button>
 									</td>
-									<td>{ row.source || '—' }</td>
+									<td><SourceLabel source={ row.source } /></td>
 									<td>
 										<StatusBadge status={ row.status } />
 										{ row.error_message ? (
@@ -262,7 +306,7 @@ function LogTable(): JSX.Element {
 								</tr>
 							) ) }
 						</tbody>
-					</table>
+					</table></div>
 					<div style={ { display: 'flex', gap: 'var(--uxs-sp-3)', marginTop: 'var(--uxs-sp-4)' } }>
 						<button type="button" className="button" disabled={ page === 0 } onClick={ () => setPage( ( p ) => p - 1 ) }>
 							{ __( 'Previous', 'ux-studio' ) }
@@ -300,12 +344,12 @@ export default function Page(): JSX.Element {
 					>
 						<ArrowLeft size={ 18 } />
 					</button>{ ' ' }
-					{ __( 'Email Log', 'ux-studio' ) }
+					{ __( 'E-mail Log', 'ux-studio' ) }
 				</h1>
 			</header>
 			<TabsNav>
 				<button className={ tab === 'log' ? 'is-active' : '' } onClick={ () => setTab( 'log' ) }>
-					{ __( 'Log', 'ux-studio' ) }
+					{ __( 'Messages', 'ux-studio' ) }
 				</button>
 				<button className={ tab === 'settings' ? 'is-active' : '' } onClick={ () => setTab( 'settings' ) }>
 					{ __( 'Settings', 'ux-studio' ) }

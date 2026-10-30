@@ -4,5 +4,6 @@
 	"description": "Inspect the status of WordPress debug constants and read the debug log.",
 	"group": "developer",
 	"icon": "bug",
-	"settings": false
+	"settings": false,
+	"how": "The module only reads. It reports the debug settings from wp-config.php (WP_DEBUG and related) and the end of the debug log, and never changes wp-config.php. To turn debugging on or off, edit that file yourself. The log can hold file paths and other internal details, so only administrators can read it."
 }

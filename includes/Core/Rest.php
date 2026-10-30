@@ -90,7 +90,7 @@ final class Rest extends Controller {
 		return $this->ok(
 			array(
 				'name'   => $this->translate_meta( $meta['name'] ?? (string) $request['id'] ),
-				'schema' => $module->settings_schema(),
+				'schema' => SettingHelp::attach( (string) $request['id'], $module->settings_schema() ),
 				'values' => $module->settings_values(),
 			)
 		);
@@ -124,7 +124,7 @@ final class Rest extends Controller {
 		if ( '' === $text ) {
 			return '';
 		}
-		// phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText -- dynamic by design; msgids are registered manually in languages/ux-studio-meta.php.
+		// phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText -- dynamic by design; msgids are kept in the .po (languages/README.md, po-apply-dict.py).
 		return translate( $text, 'ux-studio' );
 	}
 
@@ -143,6 +143,8 @@ final class Rest extends Controller {
 				'id'          => $id,
 				'name'        => $this->translate_meta( $meta['name'] ?? $id ),
 				'description' => $this->translate_meta( $meta['description'] ?? '' ),
+				// Optional short "How it works" text for the page of a module without settings.
+				'how'         => $this->translate_meta( $meta['how'] ?? '' ),
 				'group'       => $meta['group'] ?? 'general',
 				'icon'        => $meta['icon'] ?? 'puzzle',
 				'settings'    => ! empty( $meta['settings'] ),

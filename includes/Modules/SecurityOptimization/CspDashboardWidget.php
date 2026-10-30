@@ -171,7 +171,7 @@ final class CspDashboardWidget {
 	private static function render_warnings( array $probe, array $state ): void {
 		$warnings = array();
 		if ( CspPolicy::disabled_by_constant() ) {
-			$warnings[] = __( 'CSP is switched off by UXSTUDIO_CSP_DISABLE in wp-config.php - no header is sent.', 'ux-studio' );
+			$warnings[] = __( 'CSP is turned off by UXSTUDIO_CSP_DISABLE in wp-config.php - no header is sent.', 'ux-studio' );
 		}
 		if ( ! empty( $probe ) && empty( $probe['ok'] ) ) {
 			$warnings[] = 'rewritten' === ( $probe['reason'] ?? '' )

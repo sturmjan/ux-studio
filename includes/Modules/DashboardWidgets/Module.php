@@ -692,7 +692,7 @@ final class Module extends BaseModule {
 			ARRAY_A
 		);
 
-		return is_array( $rows ) ? $rows : array();
+		return is_array( $rows ) ? array_map( array( \UxStudio\Modules\ActivityLog\Labels::class, 'decorate' ), $rows ) : array();
 	}
 
 	/* ------------------------------------------------------------------ *

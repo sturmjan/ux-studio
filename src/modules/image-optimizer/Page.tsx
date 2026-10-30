@@ -7,6 +7,7 @@ import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
 import { TabsNav } from '../../app/SubNav';
 import { formatDate } from '../../app/date';
+import { HelpText } from '../../components/GlossaryTerm';
 
 type Tab = 'bulk' | 'scanner' | 'settings';
 
@@ -75,29 +76,49 @@ function StatusPanel(): JSX.Element | null {
 
 	const { supports_webp: webp, supports_avif: avif, delivery } = status.data;
 
+	const rows: { label: string; ok: boolean | null; text: string; hint?: string }[] = [
+		{
+			label: __( 'WebP images', 'ux-studio' ),
+			ok: webp,
+			text: webp ? __( 'Server can create them', 'ux-studio' ) : __( 'Server cannot create them', 'ux-studio' ),
+			hint: __( 'Whether your server can create the [[WebP]] format.', 'ux-studio' ),
+		},
+		{
+			label: __( 'AVIF images', 'ux-studio' ),
+			ok: avif,
+			text: avif ? __( 'Server can create them', 'ux-studio' ) : __( 'Server cannot create them', 'ux-studio' ),
+			hint: __( 'Whether your server can create the [[AVIF]] format.', 'ux-studio' ),
+		},
+		{
+			label: __( 'Automatic delivery of newer formats', 'ux-studio' ),
+			ok: delivery.active ? true : null,
+			text: delivery.active ? __( 'Active', 'ux-studio' ) : __( 'Not active', 'ux-studio' ),
+			hint: __( 'Rules in the .htaccess file of the uploads folder', 'ux-studio' ),
+		},
+	];
+
 	return (
 		<div className="uxs-form" style={ { marginBottom: 'var(--uxs-sp-5)' } }>
-			<div className="uxs-form__row">
-				<span>{ __( 'WebP encoding', 'ux-studio' ) }</span>
-				<span className={ `uxs-badge ${ webp ? 'is-success' : 'is-danger' }` }>
-					{ webp ? __( 'Supported', 'ux-studio' ) : __( 'Unavailable', 'ux-studio' ) }
-				</span>
-			</div>
-			<div className="uxs-form__row">
-				<span>{ __( 'AVIF encoding', 'ux-studio' ) }</span>
-				<span className={ `uxs-badge ${ avif ? 'is-success' : 'is-danger' }` }>
-					{ avif ? __( 'Supported', 'ux-studio' ) : __( 'Unavailable on this server', 'ux-studio' ) }
-				</span>
-			</div>
-			<div className="uxs-form__row">
-				<span>{ __( 'Next-gen delivery (.htaccess)', 'ux-studio' ) }</span>
-				<span className={ `uxs-badge ${ delivery.active ? 'is-success' : '' }` }>
-					{ delivery.active ? __( 'Active', 'ux-studio' ) : __( 'Inactive', 'ux-studio' ) }
-				</span>
-			</div>
+			<ul className="uxs-status-list">
+				{ rows.map( ( row ) => (
+					<li key={ row.label } className="uxs-status-list__row">
+						<strong>{ row.label }</strong>
+						<span
+							className={ `uxs-badge ${ row.ok === true ? 'is-success' : row.ok === false ? 'is-danger' : '' }` }
+						>
+							{ row.text }
+						</span>
+						{ row.hint ? (
+							<span className="uxs-form__help uxs-status-list__hint">
+								<HelpText text={ row.hint } />
+							</span>
+						) : null }
+					</li>
+				) ) }
+			</ul>
 			{ ! delivery.writable ? (
 				<p className="uxs-form__help">
-					{ __( 'uploads/.htaccess is not writable — delivery rules cannot be managed automatically.', 'ux-studio' ) }
+					{ __( 'The .htaccess file in the uploads folder is not writable, so the delivery rules cannot be managed automatically.', 'ux-studio' ) }
 				</p>
 			) : null }
 			{ delivery.server_note ? <p className="uxs-form__help">{ delivery.server_note }</p> : null }
@@ -164,6 +185,7 @@ function BulkTab(): JSX.Element {
 						value={ restoreId }
 						onChange={ ( e ) => setRestoreId( e.target.value ) }
 					/>
+					<p className="uxs-form__help">{ __( 'The number of the image in the media library (post=123 in the address bar). The saved original replaces the optimized file.', 'ux-studio' ) }</p>
 				</div>
 				<button
 					type="button"
@@ -221,7 +243,7 @@ function ScannerTab(): JSX.Element {
 			<div className="uxs-form" style={ { marginBottom: 'var(--uxs-sp-5)' } }>
 				<p>
 					{ __(
-						'Heuristically finds image attachments not referenced in content, featured images, term meta, widgets or the site logo. Detection can never be perfect, so selected images are moved to the WordPress trash (fully recoverable) — never permanently deleted.',
+						'Heuristically finds image attachments not referenced in content, featured images, term meta, widgets or the site logo. Detection can never be perfect, so selected images are moved to the WordPress trash (fully recoverable), never permanently deleted.',
 						'ux-studio'
 					) }
 				</p>
@@ -265,7 +287,7 @@ function ScannerTab(): JSX.Element {
 			) : null }
 
 			{ data && data.items.length > 0 ? (
-				<table className="widefat striped">
+				<div className="uxs-scroll-x"><table className="widefat striped">
 					<thead>
 						<tr>
 							<th style={ { width: 32 } } />
@@ -305,7 +327,7 @@ function ScannerTab(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) : null }
 
 			{ data && data.total_pages > 1 ? (

@@ -802,13 +802,13 @@ final class Smoke {
 		foreach ( $urls as $url ) {
 			$res = self::fetch( $url, $token );
 			if ( '' !== $res['error'] || self::is_fatal( $res ) ) {
-				return self::result( 'fail', sprintf( /* translators: %s: address. */ __( 'The page %s fails with the snippets switched on.', 'ux-studio' ), $url ) );
+				return self::result( 'fail', sprintf( /* translators: %s: address. */ __( 'The page %s fails with the snippets turned on.', 'ux-studio' ), $url ) );
 			}
 			if ( null !== $token && ! self::was_preview( $res ) ) {
 				return self::result( 'fail', __( 'The preview did not take effect on this page (the preview file is not loaded or the token was refused).', 'ux-studio' ) );
 			}
 		}
-		return self::result( 'ok', __( 'The pages render without errors with the snippets switched on.', 'ux-studio' ) );
+		return self::result( 'ok', __( 'The pages render without errors with the snippets turned on.', 'ux-studio' ) );
 	}
 
 	/* ── Summary ── */

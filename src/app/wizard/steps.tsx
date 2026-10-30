@@ -23,7 +23,7 @@ export interface WizardStep {
 function WelcomeStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 	const points: { icon: JSX.Element; text: string }[] = [
 		{ icon: <Radar size={ 18 } aria-hidden />, text: __( 'The wizard finds plugins on this site whose job a UX Studio module does as well.', 'ux-studio' ) },
-		{ icon: <ShieldCheck size={ 18 } aria-hidden />, text: __( 'It only reads the plugins. Nothing in them changes, and nothing is switched on or deactivated until you confirm the switch.', 'ux-studio' ) },
+		{ icon: <ShieldCheck size={ 18 } aria-hidden />, text: __( 'It only reads the plugins. Nothing in them changes, and nothing is turned on or deactivated until you confirm the switch.', 'ux-studio' ) },
 		{ icon: <Camera size={ 18 } aria-hidden />, text: __( 'Before the first write it saves a snapshot, so you can undo the whole migration for 30 days.', 'ux-studio' ) },
 		{ icon: <Eye size={ 18 } aria-hidden />, text: __( 'Before the switch you can look at the site without the old plugins in a safe preview that only your browser sees. Visitors keep the old plugins the whole time.', 'ux-studio' ) },
 		{ icon: <Power size={ 18 } aria-hidden />, text: __( 'No old plugin is ever deactivated automatically. You decide at the end, and even then you can go back.', 'ux-studio' ) },
@@ -608,7 +608,7 @@ function DoneStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 			<div className="uxs-wiz-next">
 				<h3>{ __( 'What happens next', 'ux-studio' ) }</h3>
 				<ul>
-					<li>{ __( 'The old plugins still run and nothing was switched on - the site behaves exactly as before.', 'ux-studio' ) }</li>
+					<li>{ __( 'The old plugins still run and nothing was turned on - the site behaves exactly as before.', 'ux-studio' ) }</li>
 					{ staged > 0 && (
 						<li>
 							{ sprintf(

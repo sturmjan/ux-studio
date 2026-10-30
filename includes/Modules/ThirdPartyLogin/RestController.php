@@ -291,6 +291,10 @@ final class RestController extends Controller {
 			if ( '' === $role ) {
 				return $this->fail( 'config' );
 			}
+			// Role gate BEFORE the account exists: a role that may not log in must not leave an orphan account behind.
+			if ( ! $this->module->is_role_allowed( $role ) ) {
+				return $this->fail( 'role' );
+			}
 
 			$username = $this->unique_username( $email_raw );
 			$user_id  = wp_insert_user(

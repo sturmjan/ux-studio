@@ -164,6 +164,7 @@ function CreatePostActionEditor( {
 							</option>
 						) ) }
 					</select>
+					<p className="uxs-form__help">{ __( 'What state the new post gets. Draft and Pending review wait for you to publish. Published goes live at once.', 'ux-studio' ) }</p>
 				</div>
 				<div className="uxs-form__row">
 					<label>{ __( 'Title', 'ux-studio' ) }</label>
@@ -262,7 +263,7 @@ export default function ActionsTab( { form }: { form: FormDefinition } ): JSX.El
 
 			<h3 className="uxs-fb-subhead">{ __( 'Actions', 'ux-studio' ) }</h3>
 			{ actions.length === 0 ? (
-			<div className="uxs-fb-empty">{ __( 'No actions yet - add one below (email, webhook or create a post).', 'ux-studio' ) }</div>
+			<div className="uxs-fb-empty">{ __( 'No actions yet - add one below (e-mail, webhook or create a post).', 'ux-studio' ) }</div>
 			) : (
 				actions.map( ( action, i ) => {
 					if ( 'email' === action.type ) {
@@ -304,7 +305,7 @@ export default function ActionsTab( { form }: { form: FormDefinition } ): JSX.El
 
 			<div style={ { display: 'flex', gap: 'var(--uxs-sp-2)', flexWrap: 'wrap' } }>
 				<button type="button" className="button" onClick={ () => add( emptyEmailAction() ) }>
-					<Mail size={ 14 } /> { __( 'Add email notification', 'ux-studio' ) }
+					<Mail size={ 14 } /> { __( 'Add e-mail notification', 'ux-studio' ) }
 				</button>
 				<button type="button" className="button" onClick={ () => add( emptyWebhookAction() ) }>
 					<WebhookIcon size={ 14 } /> { __( 'Add webhook', 'ux-studio' ) }

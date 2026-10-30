@@ -180,6 +180,10 @@ final class Throttler {
 	 * @param string $category Bot category id.
 	 */
 	private function default_action_for_category( string $category ): string {
+		// UAs on the owner's blocklist are not a signature category: they get the strict plan the setting promises.
+		if ( 'blacklist' === $category ) {
+			return 'throttle_aggressive';
+		}
 		$defaults = Signatures::categories();
 		return $defaults[ $category ]['default_action'] ?? 'throttle_light';
 	}

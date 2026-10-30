@@ -285,7 +285,7 @@ final class Module extends BaseModule {
 				'show_currency'           => array( __( 'Show currency', 'ux-studio' ), __( 'Include the currency code (CZK, EUR...) in the header.', 'ux-studio' ) ),
 				'show_stock_status'       => array( __( 'Stock availability', 'ux-studio' ), __( 'Include whether the product is in stock.', 'ux-studio' ) ),
 				'show_product_categories' => array( __( 'Product categories', 'ux-studio' ), __( 'Include the product categories in the header.', 'ux-studio' ) ),
-				'show_product_attributes' => array( __( 'Product attributes', 'ux-studio' ), __( 'Include product attributes (size, colour...) in the header.', 'ux-studio' ) ),
+				'show_product_attributes' => array( __( 'Product attributes', 'ux-studio' ), __( 'Include product attributes (size, color...) in the header.', 'ux-studio' ) ),
 			);
 			foreach ( $woo as $key => $texts ) {
 				$schema[] = array(
@@ -752,26 +752,41 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * List cached posts with title, for the admin table.
+	 * One page of the cached posts with title, for the admin table. Cache rows of posts that no longer exist
+	 * are not listed.
 	 *
-	 * @return array<int, array{post_id:int,title:string,generated_at:string}>
+	 * @param int $limit  Rows per page (1 to 100).
+	 * @param int $offset Rows to skip.
+	 * @return array{items:array<int, array{post_id:int,title:string,generated_at:string}>,total:int}
 	 */
-	public function list_cache(): array {
+	public function list_cache( int $limit = 30, int $offset = 0 ): array {
 		global $wpdb;
-		$rows = $wpdb->get_results(
-			"SELECT post_id, generated_at FROM {$wpdb->prefix}uxstudio_ai_markdown_cache ORDER BY generated_at DESC LIMIT 100",
+		$limit  = max( 1, min( 100, $limit ) );
+		$offset = max( 0, $offset );
+		$table  = $wpdb->prefix . 'uxstudio_ai_markdown_cache';
+
+		$total = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} c INNER JOIN {$wpdb->posts} p ON p.ID = c.post_id" );
+		$rows  = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT c.post_id, c.generated_at, p.post_title FROM {$table} c INNER JOIN {$wpdb->posts} p ON p.ID = c.post_id ORDER BY c.generated_at DESC LIMIT %d OFFSET %d",
+				$limit,
+				$offset
+			),
 			ARRAY_A
 		);
 		$out = array();
 		foreach ( (array) $rows as $row ) {
-			$post = get_post( (int) $row['post_id'] );
+			$title = (string) $row['post_title'];
 			$out[] = array(
 				'post_id'      => (int) $row['post_id'],
-				'title'        => $post ? $post->post_title : __( '(deleted)', 'ux-studio' ),
+				'title'        => '' !== $title ? $title : __( '(no title)', 'ux-studio' ),
 				'generated_at' => (string) $row['generated_at'],
 			);
 		}
-		return $out;
+		return array(
+			'items' => $out,
+			'total' => $total,
+		);
 	}
 
 	/**

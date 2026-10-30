@@ -135,7 +135,7 @@ final class Module extends BaseModule {
 				'key'     => 'app_id',
 				'type'    => 'text',
 				'label'   => __( 'Instagram app ID', 'ux-studio' ),
-				'help'    => __( 'The client_id of your Instagram app (Meta App Dashboard → Instagram → API setup with Instagram login).', 'ux-studio' ),
+				'help'    => __( 'The app ID of your Instagram app. You find it in the Meta App Dashboard, in the section "API setup with Instagram login".', 'ux-studio' ),
 				'default' => '',
 			),
 			array(

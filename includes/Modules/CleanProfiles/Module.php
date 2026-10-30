@@ -39,7 +39,7 @@ final class Module extends BaseModule {
 			'user-admin-bar-front-wrap'     => __( 'Toolbar', 'ux-studio' ),
 			'user-description-wrap'         => __( 'Biographical Info', 'ux-studio' ),
 			'user-role-wrap'                => __( 'Role', 'ux-studio' ),
-			'user-email-wrap'               => __( 'Email', 'ux-studio' ),
+			'user-email-wrap'               => __( 'E-mail', 'ux-studio' ),
 			'user-url-wrap'                 => __( 'Website', 'ux-studio' ),
 			'user-pass1-wrap'               => __( 'New Password', 'ux-studio' ),
 			'user-generate-reset-link-wrap' => __( 'Password Reset', 'ux-studio' ),

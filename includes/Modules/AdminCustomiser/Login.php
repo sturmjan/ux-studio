@@ -114,7 +114,7 @@ final class Login {
 		return ( $show_over_media && '' !== $logo_url ) ? '' : $logo_url;
 	}
 
-	/** Logo badge + "Vítejte zpět" heading + subtitle, shown above the form in split layout. */
+	/** Logo badge + "Welcome back" heading + subtitle, shown above the form in split layout. */
 	private function render_split_brand(): string {
 		$logo_id  = AdminTheme::attachment_id( $this->settings->get( 'login_logo', 0 ) );
 		$logo_url = $logo_id > 0 ? (string) wp_get_attachment_image_url( $logo_id, 'full' ) : '';
@@ -127,8 +127,8 @@ final class Login {
 
 		return '<div class="uxstudio-login-brand">'
 			. '<span class="uxstudio-login-brand__icon">' . $icon . '</span>'
-			. '<h1 class="uxstudio-login-brand__title">' . esc_html__( 'Vítejte zpět', 'ux-studio' ) . '</h1>'
-			. '<p class="uxstudio-login-brand__subtitle">' . esc_html( get_bloginfo( 'name' ) ) . ' &mdash; ' . esc_html__( 'přihlaste se do systému', 'ux-studio' ) . '</p>'
+			. '<h1 class="uxstudio-login-brand__title">' . esc_html__( 'Welcome back', 'ux-studio' ) . '</h1>'
+			. '<p class="uxstudio-login-brand__subtitle">' . esc_html( get_bloginfo( 'name' ) ) . ' &mdash; ' . esc_html__( 'sign in to continue', 'ux-studio' ) . '</p>'
 			. '</div>';
 	}
 

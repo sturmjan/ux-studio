@@ -1,7 +1,7 @@
 {
 	"id": "admin-appearance",
 	"name": "Admin appearance",
-	"description": "Customise the admin menu, admin bar, login screen and colours, and hide the admin bar on the front end. Each part can be switched on separately.",
+	"description": "Customize the admin menu, admin bar, login screen and colors, and hide the admin bar on the front end. Each part can be turned on separately.",
 	"group": "admin",
 	"icon": "layout-dashboard",
 	"settings": true,

@@ -264,6 +264,9 @@ function LoginAttemptsTab(): JSX.Element {
 
 	return (
 		<>
+			<p className="uxs-form__help">
+				{ __( 'Failed logins and the addresses locked out because of them. Remove a row to let that address try again. "Clear all attempts" lifts every lockout at once, including those of real attackers.', 'ux-studio' ) }
+			</p>
 			<p>
 				<button type="button" className="button" onClick={ () => clearAll.mutate() } disabled={ clearAll.isPending }>
 					<Trash2 size={ 14 } /> { __( 'Clear all attempts', 'ux-studio' ) }
@@ -272,7 +275,7 @@ function LoginAttemptsTab(): JSX.Element {
 			{ ! data || data.length === 0 ? (
 				<p>{ __( 'No failed login attempts recorded.', 'ux-studio' ) }</p>
 			) : (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Username', 'ux-studio' ) }</th>
@@ -316,7 +319,7 @@ function LoginAttemptsTab(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 		</>
 	);
@@ -378,7 +381,7 @@ function TwoFactorData(): JSX.Element {
 					</span>
 				</p>
 			) }
-			{ ! data.feature && ! data.killed && <p>{ __( 'Two-step verification is switched off. Switch it on above and save; every user then sets it up in their own profile.', 'ux-studio' ) }</p> }
+			{ ! data.feature && ! data.killed && <p>{ __( 'Two-step verification is turned off. Switch it on above and save; every user then sets it up in their own profile.', 'ux-studio' ) }</p> }
 			<p>
 				{ __( 'If you get locked out, add this line to wp-config.php, then remove it again after you log in:', 'ux-studio' ) } <code>{ `define( '${ data.kill_switch }', true );` }</code>
 			</p>
@@ -387,7 +390,7 @@ function TwoFactorData(): JSX.Element {
 			{ data.users.length === 0 ? (
 				<p>{ __( 'Nobody has set it up yet.', 'ux-studio' ) }</p>
 			) : (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'User', 'ux-studio' ) }</th>
@@ -421,13 +424,13 @@ function TwoFactorData(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 
 			{ data.missing.length > 0 && (
 				<>
 					<h4>{ __( 'Required, not set up yet', 'ux-studio' ) }</h4>
-					<table className="uxs-table">
+					<div className="uxs-table-wrap"><table className="uxs-table">
 						<thead>
 							<tr>
 								<th>{ __( 'User', 'ux-studio' ) }</th>
@@ -456,7 +459,7 @@ function TwoFactorData(): JSX.Element {
 								</tr>
 							) ) }
 						</tbody>
-					</table>
+					</table></div>
 				</>
 			) }
 		</>
@@ -506,6 +509,9 @@ function IpBansTab(): JSX.Element {
 						<option value="cidr">{ __( 'IP range (CIDR)', 'ux-studio' ) }</option>
 						<option value="country">{ __( 'Country code (ISO 3166-1 alpha-2)', 'ux-studio' ) }</option>
 					</select>
+					<p className="uxs-form__help">
+						{ __( 'A single address blocks one visitor. A range (CIDR) blocks a whole network, for example 203.0.113.0/24 is 256 addresses. A country code, such as CN, blocks everybody from that country.', 'ux-studio' ) }
+					</p>
 				</div>
 				<div className="uxs-form__row">
 					<label htmlFor="uxs-ipban-value">{ __( 'Value', 'ux-studio' ) }</label>
@@ -516,10 +522,16 @@ function IpBansTab(): JSX.Element {
 						value={ value }
 						onChange={ ( e ) => setValue( e.target.value ) }
 					/>
+					<p className="uxs-form__help">
+						{ __( 'Write the address, range or code that matches the type. Do not ban your own address or a shared one such as an office: you would lock yourself and others out. Logged-in administrators and the allowlist are never blocked. The ban takes effect only while the IP firewall is turned on in the settings.', 'ux-studio' ) }
+					</p>
 				</div>
 				<div className="uxs-form__row">
 					<label htmlFor="uxs-ipban-note">{ __( 'Note', 'ux-studio' ) }</label>
 					<input id="uxs-ipban-note" type="text" value={ note } onChange={ ( e ) => setNote( e.target.value ) } />
+					<p className="uxs-form__help">
+						{ __( 'Optional. Write why you banned it, so you remember later.', 'ux-studio' ) }
+					</p>
 				</div>
 			</div>
 			<p>
@@ -545,7 +557,7 @@ function IpBansTab(): JSX.Element {
 			) : ! data || data.length === 0 ? (
 				<p>{ __( 'No IP bans yet.', 'ux-studio' ) }</p>
 			) : (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Target', 'ux-studio' ) }</th>
@@ -604,7 +616,7 @@ function IpBansTab(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 		</>
 	);

@@ -214,6 +214,7 @@ export default function UrlEventsView(): JSX.Element {
 								</option>
 							) ) }
 						</select>
+						<p className="uxs-form__help">{ __( 'How often the address is called after the first run. Choose “Only once” to call it a single time.', 'ux-studio' ) }</p>
 					</div>
 					<div className="uxs-form__row">
 						<label htmlFor="uxs-ue-first">{ draft.schedule ? __( 'First run', 'ux-studio' ) : __( 'Run at', 'ux-studio' ) }</label>
@@ -230,6 +231,7 @@ export default function UrlEventsView(): JSX.Element {
 							value={ draft.timeout }
 							onChange={ ( e ) => set( 'timeout', Number( e.target.value ) ) }
 						/>
+						<p className="uxs-form__help">{ __( 'How long to wait for the answer of the address before the call counts as failed (1 to 60 seconds).', 'ux-studio' ) }</p>
 					</div>
 					<div className="uxs-form__row">
 						<label htmlFor="uxs-ue-enabled">{ __( 'Enabled', 'ux-studio' ) }</label>
@@ -267,7 +269,7 @@ export default function UrlEventsView(): JSX.Element {
 			) : ! events.data || events.data.length === 0 ? (
 				<p>{ __( 'No URL events yet.', 'ux-studio' ) }</p>
 			) : (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Event', 'ux-studio' ) }</th>
@@ -328,7 +330,7 @@ export default function UrlEventsView(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 		</>
 	);

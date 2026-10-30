@@ -343,11 +343,11 @@
 			el(
 				PluginSidebarMoreMenuItem,
 				{ target: 'uxstudio-seo-score' },
-				i18n.panelTitle || 'SEO skóre'
+				i18n.panelTitle || 'SEO score'
 			),
 			el(
 				PluginSidebar,
-				{ name: 'uxstudio-seo-score', title: i18n.panelTitle || 'SEO skóre', icon: 'chart-line' },
+				{ name: 'uxstudio-seo-score', title: i18n.panelTitle || 'SEO score', icon: 'chart-line' },
 				el(
 					PanelBody,
 					null,
@@ -359,7 +359,7 @@
 					),
 					error ? el( 'p', { className: 'uxstudio-seo-score__error' }, error ) : null,
 					el( PanelRow, null, el( TextControl, {
-						label: i18n.focusKeyword || 'Klíčové slovo',
+						label: i18n.focusKeyword || 'Focus keyword',
 						value: focusKeyword,
 						onChange: function ( next ) {
 							setFocusKeyword( next );
@@ -367,14 +367,14 @@
 						},
 					} ) ),
 					el( PanelRow, null, el( TextControl, {
-						label: i18n.metaTitle || 'SEO titulek',
+						label: i18n.metaTitle || 'SEO title',
 						value: getMeta( '_uxstudio_ai_seo_title' ),
 						onChange: function ( next ) {
 							setMeta( { _uxstudio_ai_seo_title: next } );
 						},
 					} ) ),
 					el( PanelRow, null, el( TextareaControl, {
-						label: i18n.metaDesc || 'SEO popis',
+						label: i18n.metaDesc || 'SEO description',
 						value: getMeta( '_uxstudio_ai_seo_description' ),
 						onChange: function ( next ) {
 							setMeta( { _uxstudio_ai_seo_description: next } );
@@ -384,11 +384,11 @@
 				el( PanelBody, { title: 'Checklist', initialOpen: true }, el( CheckList, { checks: checks } ) ),
 				el(
 					PanelBody,
-					{ title: i18n.topicResearch || 'Návrh klíčových slov', initialOpen: false },
+					{ title: i18n.topicResearch || 'Keyword suggestions', initialOpen: false },
 					el(
 						'p',
 						{ className: 'uxstudio-seo-score__hint' },
-						i18n.topicResearchHint || 'AI odhad z kontextu, ne reálná data o vyhledávanosti.'
+						i18n.topicResearchHint || 'AI estimate based on the context, not real search volume data.'
 					),
 					el(
 						wp.components.Button,
@@ -397,13 +397,13 @@
 							disabled: ! focusKeyword || topicsLoading,
 							onClick: runTopicResearch,
 						},
-						topicsLoading ? ( i18n.researching || 'Hledám…' ) : ( i18n.topicResearch || 'Návrh klíčových slov' )
+						topicsLoading ? ( i18n.researching || 'Searching…' ) : ( i18n.topicResearch || 'Keyword suggestions' )
 					),
 					topicsError ? el( 'p', { className: 'uxstudio-seo-score__error' }, topicsError ) : null,
 					topics ? el(
 						'div',
 						{ className: 'uxstudio-seo-score__topics' },
-						el( 'strong', null, i18n.relatedKeywords || 'Související klíčová slova' ),
+						el( 'strong', null, i18n.relatedKeywords || 'Related keywords' ),
 						el(
 							'div',
 							{ className: 'uxstudio-seo-score__chips' },
@@ -411,7 +411,7 @@
 								return el( 'span', { key: i, className: 'uxstudio-seo-score__chip' }, kw );
 							} )
 						),
-						el( 'strong', null, i18n.subtopics || 'Podtémata k pokrytí' ),
+						el( 'strong', null, i18n.subtopics || 'Subtopics to cover' ),
 						el(
 							'ul',
 							{ className: 'uxstudio-seo-score__subtopics' },
@@ -427,7 +427,7 @@
 					el(
 						wp.components.Button,
 						{ variant: 'secondary', disabled: schemaLoading, onClick: runSchema },
-						schemaLoading ? ( i18n.analyzing || 'Analyzuji…' ) : ( i18n.schemaGenerate || 'Vygenerovat' )
+						schemaLoading ? ( i18n.analyzing || 'Analyzing…' ) : ( i18n.schemaGenerate || 'Generate' )
 					),
 					schemaError ? el( 'p', { className: 'uxstudio-seo-score__error' }, schemaError ) : null,
 					schema ? el(
@@ -436,21 +436,21 @@
 						el(
 							wp.components.Button,
 							{ variant: 'link', onClick: copySchema },
-							schemaCopied ? ( i18n.schemaCopied || 'Zkopírováno!' ) : ( i18n.schemaCopy || 'Zkopírovat' )
+							schemaCopied ? ( i18n.schemaCopied || 'Copied!' ) : ( i18n.schemaCopy || 'Copy' )
 						),
 						el( 'pre', { className: 'uxstudio-seo-score__schema' }, JSON.stringify( schema, null, 2 ) )
 					) : null
 				),
 				el(
 					PanelBody,
-					{ title: i18n.linkSuggestions || 'Interní odkazy', initialOpen: false },
+					{ title: i18n.linkSuggestions || 'Internal links', initialOpen: false },
 					el(
 						wp.components.Button,
 						{ variant: 'secondary', disabled: linksLoading, onClick: runLinkSuggestions },
-						linksLoading ? ( i18n.analyzing || 'Analyzuji…' ) : ( i18n.linkSuggestionsFind || 'Najít návrhy' )
+						linksLoading ? ( i18n.analyzing || 'Analyzing…' ) : ( i18n.linkSuggestionsFind || 'Find suggestions' )
 					),
 					linksError ? el( 'p', { className: 'uxstudio-seo-score__error' }, linksError ) : null,
-					links && 0 === links.length ? el( 'p', { className: 'uxstudio-seo-score__hint' }, i18n.linkSuggestionsEmpty || 'Žádné návrhy.' ) : null,
+					links && 0 === links.length ? el( 'p', { className: 'uxstudio-seo-score__hint' }, i18n.linkSuggestionsEmpty || 'No suggestions.' ) : null,
 					links && links.length ? el(
 						'ul',
 						{ className: 'uxstudio-seo-score__links' },

@@ -32,7 +32,7 @@ final class Redirect404Source extends AbstractSource {
 			return $m;
 		}
 		if ( isset( $o['p404_status'] ) && '1' !== (string) $o['p404_status'] ) {
-			$m->warn( __( 'The redirect is switched off in the plugin, but the module will always redirect once it is on.', 'ux-studio' ) );
+			$m->warn( __( 'The redirect is turned off in the plugin, but the module will always redirect once it is on.', 'ux-studio' ) );
 		}
 		$target = trim( (string) ( $o['p404_redirect_to'] ?? '' ) );
 		if ( '' !== $target ) {

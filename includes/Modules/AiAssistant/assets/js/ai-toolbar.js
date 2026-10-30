@@ -1,7 +1,7 @@
 /**
- * AI akce v toolbaru bloku nad označeným textem (Rozvinout / Přepsat /
- * Shrnout / Opravit gramatiku). Volá jediný endpoint
- * uxstudio/v1/ai-assistant/content/tool a označený úsek nahradí výsledkem.
+ * AI actions in the block toolbar above the selected text (Expand / Rewrite /
+ * Summarize / Fix grammar). Calls the single endpoint
+ * uxstudio/v1/ai-assistant/content/tool and replaces the selection with the result.
  */
 ( function () {
 	'use strict';
@@ -65,7 +65,7 @@
 
 		function apply( tool ) {
 			if ( ! hasSelection ) {
-				notice( i18n.noSelection || 'Označ text.', 'warning' );
+				notice( i18n.noSelection || 'Select some text first.', 'warning' );
 				return;
 			}
 			// Pozice se zapamatují PŘED voláním: uživatel může mezitím kliknout
@@ -81,14 +81,14 @@
 					var data = ( payload && payload.data ) || {};
 					var text = data.text || '';
 					if ( ! text ) {
-						notice( i18n.emptyResult || 'AI nevrátila text.', 'warning' );
+						notice( i18n.emptyResult || 'The AI returned no text.', 'warning' );
 						return;
 					}
 					onChange( richTextInsert( value, richTextCreate( { text: text } ), start, end ) );
 				} )
 				.catch( function ( err ) {
 					setBusy( false );
-					notice( ( i18n.error || 'Chyba:' ) + ' ' + ( err.message || '' ), 'error' );
+					notice( ( i18n.error || 'Error:' ) + ' ' + ( err.message || '' ), 'error' );
 				} );
 		}
 
@@ -100,7 +100,7 @@
 				null,
 				el( ToolbarDropdownMenu, {
 					icon: 'admin-customizer',
-					label: busy ? ( i18n.working || 'Pracuji…' ) : ( i18n.menuLabel || 'AI nástroje' ),
+					label: busy ? ( i18n.working || 'Working…' ) : ( i18n.menuLabel || 'AI tools' ),
 					controls: cfg.actions.map( function ( action ) {
 						return {
 							title: action.label,
@@ -119,7 +119,7 @@
 		registerFormatType( 'uxstudio/ai-toolbar', {
 			// Formát se nikdy neaplikuje (nikde nevoláme toggleFormat) - jde
 			// čistě o nosič tlačítka v toolbaru nad označeným textem.
-			title: i18n.menuLabel || 'AI nástroje',
+			title: i18n.menuLabel || 'AI tools',
 			tagName: 'span',
 			className: 'uxstudio-ai-toolbar-noop',
 			edit: Edit,

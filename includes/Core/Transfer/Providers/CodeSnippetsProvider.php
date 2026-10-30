@@ -157,7 +157,7 @@ final class CodeSnippetsProvider extends AbstractProvider {
 
 	public function plan( array $incoming ): array {
 		$plan             = parent::plan( $incoming );
-		$plan['warnings'][] = __( 'Snippets are imported switched off. Read them and switch them on yourself.', 'ux-studio' );
+		$plan['warnings'][] = __( 'Snippets are imported turned off. Read them and switch them on yourself.', 'ux-studio' );
 		return $plan;
 	}
 

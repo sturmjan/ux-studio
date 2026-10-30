@@ -20,16 +20,29 @@ defined( 'ABSPATH' ) || exit;
 final class ContentToolbarEditor {
 
 	/**
-	 * Akce v toolbaru → klíč v PromptLibrary. Všechny čtyři berou
-	 * `source_content` a vracejí `{text}`, takže je zvládne jeden generický
-	 * handler v JS.
+	 * Toolbar actions: the keys are keys of the PromptLibrary (labels: see labels()). All four take
+	 * `source_content` and return `{text}`, so one generic handler in JS serves them.
 	 */
 	private const ACTIONS = array(
-		'sentence_expander'  => 'Rozvinout',
-		'paragraph_rewriter' => 'Přepsat lépe',
-		'text_summarizer'    => 'Shrnout',
-		'fix_grammar'        => 'Opravit gramatiku',
+		'sentence_expander',
+		'paragraph_rewriter',
+		'text_summarizer',
+		'fix_grammar',
 	);
+
+	/**
+	 * Button labels of the actions.
+	 *
+	 * @return array<string, string>
+	 */
+	private function labels(): array {
+		return array(
+			'sentence_expander'  => __( 'Expand', 'ux-studio' ),
+			'paragraph_rewriter' => __( 'Rewrite better', 'ux-studio' ),
+			'text_summarizer'    => __( 'Summarize', 'ux-studio' ),
+			'fix_grammar'        => __( 'Fix grammar', 'ux-studio' ),
+		);
+	}
 
 	public function register(): void {
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_assets' ) );
@@ -58,11 +71,11 @@ final class ContentToolbarEditor {
 				'nonce'   => wp_create_nonce( 'wp_rest' ),
 				'actions' => $this->actions(),
 				'i18n'    => array(
-					'menuLabel'    => __( 'AI nástroje', 'ux-studio' ),
-					'working'      => __( 'Pracuji…', 'ux-studio' ),
-					'noSelection'  => __( 'Nejdřív označ text, se kterým má AI pracovat.', 'ux-studio' ),
-					'error'        => __( 'AI nástroj selhal:', 'ux-studio' ),
-					'emptyResult'  => __( 'AI nevrátila žádný text.', 'ux-studio' ),
+					'menuLabel'    => __( 'AI tools', 'ux-studio' ),
+					'working'      => __( 'Working…', 'ux-studio' ),
+					'noSelection'  => __( 'Select the text the AI should work with first.', 'ux-studio' ),
+					'error'        => __( 'The AI tool failed:', 'ux-studio' ),
+					'emptyResult'  => __( 'The AI returned no text.', 'ux-studio' ),
 				),
 			)
 		);
@@ -72,11 +85,12 @@ final class ContentToolbarEditor {
 	 * @return array<int, array{tool:string, label:string}>
 	 */
 	private function actions(): array {
-		$out = array();
-		foreach ( self::ACTIONS as $tool => $label ) {
-			// Popisek bere z PromptLibrary jen ověření, že nástroj existuje —
-			// kdyby se klíč v knihovně přejmenoval, tlačítko se nezobrazí
-			// místo toho, aby tiše vracelo "Unknown content tool".
+		$out    = array();
+		$labels = $this->labels();
+		foreach ( self::ACTIONS as $tool ) {
+			$label = $labels[ $tool ] ?? $tool;
+			// The PromptLibrary is only asked whether the tool exists: if its key is ever renamed,
+			// the button disappears instead of silently returning "Unknown content tool".
 			if ( null === PromptLibrary::get( $tool ) ) {
 				continue;
 			}

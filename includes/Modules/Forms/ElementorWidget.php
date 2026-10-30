@@ -108,7 +108,7 @@ final class ElementorWidget extends \Elementor\Widget_Base {
 	 * @return array<string, string> { id => title }, "0" always first.
 	 */
 	private function form_options(): array {
-		$options = array( '0' => __( '— Select a form —', 'ux-studio' ) );
+		$options = array( '0' => __( 'Select a form', 'ux-studio' ) );
 		if ( null === self::$module ) {
 			return $options;
 		}

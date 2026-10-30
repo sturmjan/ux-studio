@@ -66,7 +66,7 @@ final class BanNotifier {
 		) . '</p>';
 		$body .= '<p><code>' . esc_html( $ip_hash ) . '</code></p>';
 		$body .= '<p>' . esc_html( admin_url( 'admin.php?page=ux-studio#/module?id=bot-throttle' ) ) . '</p>';
-		$body .= '<p>' . esc_html__( 'Further bans within the next few minutes will still be logged but won\'t send another email, to avoid flooding this inbox during a sustained attack.', 'ux-studio' ) . '</p>';
+		$body .= '<p>' . esc_html__( 'Further bans within the next few minutes will still be logged but won\'t send another e-mail, to avoid flooding this inbox during a sustained attack.', 'ux-studio' ) . '</p>';
 		$body .= '</body></html>';
 
 		wp_mail( $to, $subject, $body, array( 'Content-Type: text/html; charset=UTF-8' ) );

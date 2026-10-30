@@ -88,33 +88,52 @@ final class PromptTemplates {
 			. "- Do not use markdown formatting (no **, ##, etc.)\n";
 	}
 
+	/**
+	 * Default texts of the visitor widget, in the chat language. The English source texts are the msgids; the Czech
+	 * ones come from the translation file (see ChatLocale for how the chat language is applied).
+	 */
 	public static function default_greeting( string $language ): string {
-		return 'cs' === $language
-			? __( 'Dobrý den! Jak vám mohu pomoci?', 'ux-studio' )
-			: __( 'Hello! How can I help you?', 'ux-studio' );
+		return ChatLocale::run(
+			$language,
+			static function (): string {
+				return __( 'Hello! How can I help you?', 'ux-studio' );
+			}
+		);
 	}
 
 	public static function default_gdpr_text( string $language ): string {
-		return 'cs' === $language
-			? __( 'Tento chat využívá AI. Odesláním zprávy souhlasíte se zpracováním vašeho dotazu. Vaše konverzace může být uložena pro zlepšení kvality služeb.', 'ux-studio' )
-			: __( 'This chat uses AI. By sending a message you agree to your query being processed. Your conversation may be stored to improve service quality.', 'ux-studio' );
+		return ChatLocale::run(
+			$language,
+			static function (): string {
+				return __( 'This chat uses AI. By sending a message you agree to your query being processed. Your conversation may be stored to improve service quality.', 'ux-studio' );
+			}
+		);
 	}
 
 	public static function default_placeholder( string $language ): string {
-		return 'cs' === $language
-			? __( 'Napište svůj dotaz...', 'ux-studio' )
-			: __( 'Type your question...', 'ux-studio' );
+		return ChatLocale::run(
+			$language,
+			static function (): string {
+				return __( 'Type your question...', 'ux-studio' );
+			}
+		);
 	}
 
 	public static function default_handoff_timeout_message( string $language ): string {
-		return 'cs' === $language
-			? __( 'Omlouváme se, operátor se vám nyní nemůže věnovat. Napište nám prosím zprávu nebo zanechte telefonní kontakt a ozveme se vám co nejdříve.', 'ux-studio' )
-			: __( 'Sorry, an operator is not available right now. Please leave us a message or a phone number and we will get back to you as soon as possible.', 'ux-studio' );
+		return ChatLocale::run(
+			$language,
+			static function (): string {
+				return __( 'Sorry, an operator is not available right now. Please leave us a message or a phone number and we will get back to you as soon as possible.', 'ux-studio' );
+			}
+		);
 	}
 
 	public static function default_title( string $language ): string {
-		return 'cs' === $language
-			? __( 'AI Podpora', 'ux-studio' )
-			: __( 'AI Support', 'ux-studio' );
+		return ChatLocale::run(
+			$language,
+			static function (): string {
+				return __( 'AI Support', 'ux-studio' );
+			}
+		);
 	}
 }

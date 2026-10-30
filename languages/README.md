@@ -53,3 +53,26 @@ php wp-cli.phar i18n make-mo languages/ux-studio-cs_CZ.po languages/
 php wp-cli.phar i18n make-json languages/ux-studio-cs_CZ.po --no-purge
 php bin/merge-json-translations.php
 ```
+
+## Many new strings from dictionaries (post-audit packages)
+
+When the new strings come as `{ "English": "Czech" }` dictionaries (`docs/i18n/cs-pkg-*.json`), use the helpers in
+`.build/` instead of translating by hand. The terminology rules (color, e-mail, allowlist/blocklist, central app,
+turn on/off) live in `.build/term_rules.py`; a dictionary written before a rule still matches the new msgids.
+
+```
+npm run build && npm run i18n:pot     # (wp = php path/to/wp-cli.phar)
+python languages/.build/po-refs.py
+python languages/.build/po-missing.py
+python languages/.build/po-apply-dict.py docs/i18n/cs-pkg-a.json ...   # also adds new meta.json names/descriptions
+python languages/.build/po-set.py changes.json    # change the Czech of EXISTING entries (also singular -> plural)
+python languages/.build/po-prune.py               # drop entries renamed by a terminology rule (needs .build/term-map.json)
+php wp-cli.phar i18n make-mo languages/ux-studio-cs_CZ.po languages/
+php wp-cli.phar i18n make-json languages/ux-studio-cs_CZ.po --no-purge
+rm languages/ux-studio-cs_CZ-ux-studio-app.json && php bin/merge-json-translations.php   # rebuild the handle file from the current chunks
+```
+
+The md5-named JSON files that `make-json` writes (one per chunk) are inputs of the merge only; they are git-ignored.
+`languages/ux-studio-meta.php` mentioned in old comments does not exist: the names and descriptions of `meta.json`
+live in the `.po` only (added by `po-apply-dict.py`).
+

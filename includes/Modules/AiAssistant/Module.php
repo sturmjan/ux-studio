@@ -584,13 +584,13 @@ final class Module extends BaseModule {
 			array(
 				'key'     => 'widget_color',
 				'type'    => 'color',
-				'label'   => __( 'Primary colour', 'ux-studio' ),
+				'label'   => __( 'Primary color', 'ux-studio' ),
 				'default' => '#2271b1',
 			),
 			array(
 				'key'     => 'widget_text_color',
 				'type'    => 'color',
-				'label'   => __( 'Text colour', 'ux-studio' ),
+				'label'   => __( 'Text color', 'ux-studio' ),
 				'default' => '#ffffff',
 			),
 			array(

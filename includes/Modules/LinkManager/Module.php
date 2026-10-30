@@ -563,6 +563,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'icon_dashicon',
+				'show_if' => array( 'key' => 'icon_type', 'equals' => 'dashicon' ),
 				'section' => $general,
 				'type'    => 'select',
 				'label'   => __( 'Dashicon', 'ux-studio' ),
@@ -572,6 +573,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'icon_position',
+				'show_if' => array( 'key' => 'icon_type', 'in' => array( 'arrow', 'dashicon' ) ),
 				'section' => $general,
 				'type'    => 'select',
 				'label'   => __( 'Icon position', 'ux-studio' ),
@@ -583,6 +585,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'icon_skip_images',
+				'show_if' => array( 'key' => 'icon_type', 'in' => array( 'arrow', 'dashicon' ) ),
 				'section' => $general,
 				'type'    => 'toggle',
 				'label'   => __( 'No icon on links that contain an image', 'ux-studio' ),
@@ -633,6 +636,7 @@ final class Module extends BaseModule {
 			);
 			$schema[] = array(
 				'key'     => 'speculative_loading_mode',
+				'show_if' => array( 'key' => 'disable_speculative_loading', 'truthy' => false ),
 				'type'    => 'select',
 				'label'   => __( 'Loading mode', 'ux-studio' ),
 				'help'    => __( 'Choose how aggressively to preload links.', 'ux-studio' ),
@@ -645,6 +649,7 @@ final class Module extends BaseModule {
 			);
 			$schema[] = array(
 				'key'     => 'speculative_loading_eagerness',
+				'show_if' => array( 'key' => 'disable_speculative_loading', 'truthy' => false ),
 				'type'    => 'select',
 				'label'   => __( 'Loading eagerness', 'ux-studio' ),
 				'help'    => __( 'Choose how early to start preloading links.', 'ux-studio' ),
@@ -658,6 +663,7 @@ final class Module extends BaseModule {
 			);
 			$schema[] = array(
 				'key'     => 'exclude_paths',
+				'show_if' => array( 'key' => 'disable_speculative_loading', 'truthy' => false ),
 				'type'    => 'textarea',
 				'label'   => __( 'Exclude paths', 'ux-studio' ),
 				'help'    => __( 'URL patterns to exclude from speculative loading, one per line (e.g. /cart/*, /checkout/*).', 'ux-studio' ),
@@ -665,6 +671,7 @@ final class Module extends BaseModule {
 			);
 			$schema[] = array(
 				'key'     => 'exclude_prerender_paths',
+				'show_if' => array( 'key' => 'disable_speculative_loading', 'truthy' => false ),
 				'type'    => 'textarea',
 				'label'   => __( 'Exclude from prerender', 'ux-studio' ),
 				'help'    => __( 'URL patterns to exclude only from prerendering, one per line (e.g. /personalized-area/*).', 'ux-studio' ),

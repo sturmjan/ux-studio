@@ -247,7 +247,7 @@ final class LoginUrlNotice {
 	 */
 	public static function render_permalinks_notice( string $permalinks_url, string $settings_url ): string {
 		return '<div id="uxstudio-login-url-permalinks" class="notice notice-warning below-h2">'
-			. '<p><strong>' . esc_html__( 'The custom login address is switched on, but it is not enforced.', 'ux-studio' ) . '</strong></p>'
+			. '<p><strong>' . esc_html__( 'The custom login address is turned on, but it is not enforced.', 'ux-studio' ) . '</strong></p>'
 			. '<p>' . esc_html__( 'This site uses plain permalinks, where the custom login address cannot work. To keep you from being locked out, wp-login.php stays open. Choose a pretty permalink structure (for example Post name) and the custom address starts to apply.', 'ux-studio' ) . '</p>'
 			. '<p><a class="button button-primary" href="' . esc_url( $permalinks_url ) . '">' . esc_html__( 'Open Settings > Permalinks', 'ux-studio' ) . '</a> '
 			. '<a class="button" href="' . esc_url( $settings_url ) . '">' . esc_html__( 'Open Security > Login', 'ux-studio' ) . '</a></p>'

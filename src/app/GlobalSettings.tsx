@@ -3,27 +3,37 @@
  * left sidebar. Distinct from per-module settings (ModuleSettings.tsx), which
  * open from a module tile.
  */
-import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { Moon, Sun } from 'lucide-react';
 import { McpSettings } from './McpSettings';
 import { Transfer } from './transfer/Transfer';
-import { getTheme, setTheme, type Theme } from './prefs';
 import { hashParam, navigate } from './route';
 
 function Row( { label, value }: { label: string; value: string } ): JSX.Element {
+	// The label has the same top padding, so a plain value lines up with it instead of sitting 8 px higher.
 	return (
 		<div className="uxs-form__row">
 			<label>{ label }</label>
-			<span>{ value }</span>
+			<span style={ { paddingTop: 'var(--uxs-sp-2)' } }>{ value }</span>
 		</div>
 	);
 }
 
+/** "cs_CZ" -> "čeština (Česko)" in the language of the admin; falls back to the code. */
+function localeName( code: string | undefined ): string {
+	if ( ! code ) {
+		return '—';
+	}
+	const tag = code.replace( '_', '-' );
+	try {
+		const name = new Intl.DisplayNames( [ tag ], { type: 'language' } ).of( tag );
+		return name && name !== tag ? name.charAt( 0 ).toLocaleUpperCase( tag ) + name.slice( 1 ) : code;
+	} catch {
+		return code;
+	}
+}
+
 export function GlobalSettings(): JSX.Element {
 	const boot = window.uxStudioBoot;
-	const [ theme, setThemeState ] = useState< Theme >( getTheme() );
-	const next: Theme = theme === 'dark' ? 'light' : 'dark';
 	const sectionParam = hashParam( 'section' );
 	const section = 'mcp' === sectionParam || 'transfer' === sectionParam ? sectionParam : 'general';
 
@@ -72,31 +82,11 @@ export function GlobalSettings(): JSX.Element {
 			</header>
 			{ tabs }
 
-			<h2 className="uxs-section-title">{ __( 'Appearance', 'ux-studio' ) }</h2>
-			<div className="uxs-form">
-				<div className="uxs-form__row">
-					<label>{ __( 'Theme', 'ux-studio' ) }</label>
-					<button
-						type="button"
-						className="button"
-						onClick={ () => {
-							setTheme( next );
-							setThemeState( next );
-						} }
-					>
-						{ theme === 'dark' ? <Sun size={ 14 } aria-hidden /> : <Moon size={ 14 } aria-hidden /> }
-						{ theme === 'dark'
-							? __( 'Switch to light mode', 'ux-studio' )
-							: __( 'Switch to dark mode', 'ux-studio' ) }
-					</button>
-				</div>
-			</div>
-
 			<h2 className="uxs-section-title">{ __( 'About', 'ux-studio' ) }</h2>
 			<div className="uxs-form">
 				<Row label={ __( 'Plugin version', 'ux-studio' ) } value={ boot?.version ?? '—' } />
 				<Row label={ __( 'API version', 'ux-studio' ) } value={ String( boot?.apiVersion ?? '—' ) } />
-				<Row label={ __( 'Language', 'ux-studio' ) } value={ boot?.locale ?? '—' } />
+				<Row label={ __( 'Language', 'ux-studio' ) } value={ localeName( boot?.locale ) } />
 			</div>
 		</>
 	);

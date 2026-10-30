@@ -60,7 +60,7 @@ function BrevoVerify( { hasKey, stored }: { hasKey: boolean; stored?: BrevoStatu
 	return (
 		<div className="uxs-form" style={ { marginTop: 'var(--uxs-sp-5)' } }>
 			<p className="uxs-form__help">
-				{ __( 'The sender address (From email) must be a verified sender or belong to a verified domain in Brevo.', 'ux-studio' ) }
+				{ __( 'The sender address (From e-mail) must be a verified sender or belong to a verified domain in Brevo.', 'ux-studio' ) }
 			</p>
 			<button type="button" className="button" disabled={ ! hasKey || verify.isPending } onClick={ () => verify.mutate() }>
 				{ __( 'Verify API key', 'ux-studio' ) }
@@ -100,7 +100,7 @@ function MailerTest( { mailer, ready, to }: { mailer: string; ready: boolean; to
 	return (
 		<div className="uxs-mailer-test">
 			<button type="button" className="button" disabled={ ! ready || test.isPending } onClick={ () => test.mutate() }>
-				<Send size={ 14 } /> { __( 'Send a test email through this connection', 'ux-studio' ) }
+				<Send size={ 14 } /> { __( 'Send a test e-mail through this connection', 'ux-studio' ) }
 			</button>{ ' ' }
 			{ ! ready && (
 				<span className="uxs-form__help">{ __( 'Fill in and save the settings of this connection first.', 'ux-studio' ) }</span>
@@ -221,7 +221,7 @@ function LogTable(): JSX.Element {
 				className="button"
 				disabled={ clear.isPending || ! data || data.total === 0 }
 				onClick={ () => {
-					if ( window.confirm( __( 'Are you sure you want to clear all email logs? This action cannot be undone.', 'ux-studio' ) ) ) {
+					if ( window.confirm( __( 'Are you sure you want to clear all e-mail logs? This action cannot be undone.', 'ux-studio' ) ) ) {
 						clear.mutate();
 					}
 				} }
@@ -233,7 +233,7 @@ function LogTable(): JSX.Element {
 				className="button-link"
 				onClick={ () => navigate( 'module', { id: 'email-log' } ) }
 			>
-				{ __( 'Message bodies, headers and per-entry resend: Email Log module', 'ux-studio' ) }
+				{ __( 'Message bodies, headers and per-entry resend: E-mail Log module', 'ux-studio' ) }
 			</button>
 		</div>
 	);
@@ -262,7 +262,7 @@ function LogTable(): JSX.Element {
 	return (
 		<>
 			{ toolbar }
-			<table className="uxs-table">
+			<div className="uxs-table-wrap"><table className="uxs-table">
 				<thead>
 					<tr>
 						<th>{ __( 'Date', 'ux-studio' ) }</th>
@@ -293,7 +293,7 @@ function LogTable(): JSX.Element {
 						</tr>
 					) ) }
 				</tbody>
-			</table>
+			</table></div>
 			<p style={ { display: 'flex', gap: '8px', alignItems: 'center' } }>
 				<button type="button" className="button" disabled={ page <= 1 } onClick={ () => setPage( page - 1 ) }>
 					{ __( 'Previous', 'ux-studio' ) }
@@ -364,7 +364,7 @@ export default function Page(): JSX.Element {
 					>
 						<ArrowLeft size={ 18 } />
 					</button>{ ' ' }
-					{ __( 'SMTP Email', 'ux-studio' ) }
+					{ __( 'SMTP E-mail', 'ux-studio' ) }
 				</h1>
 			</header>
 			<TabsNav>
@@ -372,7 +372,7 @@ export default function Page(): JSX.Element {
 					{ __( 'Settings', 'ux-studio' ) }
 				</button>
 				<button className={ tab === 'log' ? 'is-active' : '' } onClick={ () => setTab( 'log' ) }>
-					{ __( 'Log', 'ux-studio' ) }
+					{ __( 'Delivery log', 'ux-studio' ) }
 				</button>
 			</TabsNav>
 			{ tab === 'settings' && ( isLoading || ! data ) && (
@@ -426,11 +426,11 @@ export default function Page(): JSX.Element {
 
 					<div className="uxs-form" style={ { marginTop: 'var(--uxs-sp-5)' } }>
 						<div className="uxs-form__row">
-							<label htmlFor="uxs-smtp-test-to">{ __( 'Send a test email to', 'ux-studio' ) }</label>
+							<label htmlFor="uxs-smtp-test-to">{ __( 'Send a test e-mail to', 'ux-studio' ) }</label>
 							<input
 								id="uxs-smtp-test-to"
 								type="text"
-								placeholder={ __( 'Defaults to the site admin email', 'ux-studio' ) }
+								placeholder={ __( 'Defaults to the site admin e-mail', 'ux-studio' ) }
 								value={ testTo }
 								onChange={ ( e ) => setTestTo( e.target.value ) }
 							/>
@@ -439,7 +439,7 @@ export default function Page(): JSX.Element {
 							</p>
 						</div>
 						<button type="button" className="button" disabled={ test.isPending } onClick={ () => test.mutate() }>
-							<Send size={ 14 } /> { __( 'Send test email', 'ux-studio' ) }
+							<Send size={ 14 } /> { __( 'Send test e-mail', 'ux-studio' ) }
 						</button>
 						{ ' ' }
 						<button type="button" className="button" disabled={ resend.isPending || ! draft.has_last_message } onClick={ () => resend.mutate() }>

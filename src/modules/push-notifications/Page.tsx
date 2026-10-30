@@ -142,6 +142,7 @@ function SendTab(): JSX.Element {
 				<div className="uxs-form__row">
 					<label htmlFor="uxs-pn-url">{ __( 'Click URL', 'ux-studio' ) }</label>
 					<input id="uxs-pn-url" type="url" placeholder="https://…" value={ url } onChange={ ( e ) => setUrl( e.target.value ) } />
+					<p className="uxs-form__help">{ __( 'The page that opens when the person taps the notification. Without it the notification opens your home page.', 'ux-studio' ) }</p>
 				</div>
 				<div className="uxs-form__row">
 					<label htmlFor="uxs-pn-icon">{ __( 'Icon URL', 'ux-studio' ) }</label>
@@ -152,6 +153,7 @@ function SendTab(): JSX.Element {
 						value={ icon }
 						onChange={ ( e ) => setIcon( e.target.value ) }
 					/>
+					<p className="uxs-form__help">{ __( 'Address of a small picture shown in the notification. Empty uses the default icon from the settings.', 'ux-studio' ) }</p>
 				</div>
 				<div className="uxs-form__row">
 					<label htmlFor="uxs-pn-segment">{ __( 'Audience', 'ux-studio' ) }</label>
@@ -159,6 +161,7 @@ function SendTab(): JSX.Element {
 						<option value="all">{ __( 'All subscribers', 'ux-studio' ) }</option>
 						<option value="recent_30d">{ __( 'Subscribed in last 30 days', 'ux-studio' ) }</option>
 					</select>
+					<p className="uxs-form__help">{ __( 'Who receives the message. A sent notification cannot be taken back, so check the group before you send.', 'ux-studio' ) }</p>
 				</div>
 				{ customSegments.length > 0 ? (
 					<div className="uxs-form__row">
@@ -194,7 +197,7 @@ function SendTab(): JSX.Element {
 			{ isLoading ? <Loading /> : null }
 			{ ! isLoading && ( ! data || data.length === 0 ) ? <p>{ __( 'No notifications yet.', 'ux-studio' ) }</p> : null }
 			{ ! isLoading && data && data.length > 0 ? (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Title', 'ux-studio' ) }</th>
@@ -230,6 +233,7 @@ function SendTab(): JSX.Element {
 										<>
 											<input
 												type="datetime-local"
+												className="uxs-input"
 												value={ schedule[ n.id ] ?? '' }
 												onChange={ ( e ) => setSchedule( ( s ) => ( { ...s, [ n.id ]: e.target.value } ) ) }
 												style={ { marginRight: 6 } }
@@ -252,7 +256,7 @@ function SendTab(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) : null }
 		</>
 	);
@@ -292,7 +296,7 @@ function SubscribersTab(): JSX.Element {
 	const custom = ( segments.data ?? [] ).filter( ( s ) => s.type === 'custom' );
 
 	return (
-		<table className="uxs-table">
+		<div className="uxs-table-wrap"><table className="uxs-table">
 			<thead>
 				<tr>
 					<th>{ __( 'Date', 'ux-studio' ) }</th>
@@ -361,7 +365,7 @@ function SubscribersTab(): JSX.Element {
 					</tr>
 				) ) }
 			</tbody>
-		</table>
+		</table></div>
 	);
 }
 
@@ -388,6 +392,7 @@ function SegmentsTab(): JSX.Element {
 				<div className="uxs-form__row">
 					<label htmlFor="uxs-pn-seg-name">{ __( 'New segment name', 'ux-studio' ) }</label>
 					<input id="uxs-pn-seg-name" type="text" value={ name } onChange={ ( e ) => setName( e.target.value ) } />
+					<p className="uxs-form__help">{ __( 'The name of a group of subscribers that you can address together later.', 'ux-studio' ) }</p>
 				</div>
 				<button type="button" className="button button-primary" disabled={ name.trim() === '' || create.isPending } onClick={ () => create.mutate() }>
 					{ __( 'Create segment', 'ux-studio' ) }
@@ -398,7 +403,7 @@ function SegmentsTab(): JSX.Element {
 			{ isLoading ? <Loading /> : null }
 			{ ! isLoading && ( ! data || data.length === 0 ) ? <p>{ __( 'No segments yet.', 'ux-studio' ) }</p> : null }
 			{ ! isLoading && data && data.length > 0 ? (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Name', 'ux-studio' ) }</th>
@@ -441,7 +446,7 @@ function SegmentsTab(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) : null }
 		</>
 	);

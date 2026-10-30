@@ -90,7 +90,7 @@ final class SeoScorePanel extends Controller {
 		if ( empty( $result['success'] ) ) {
 			return new WP_Error(
 				'uxstudio_seo_score_bridge',
-				(string) ( $result['error'] ?? __( 'SEO analýza selhala.', 'ux-studio' ) ),
+				(string) ( $result['error'] ?? __( 'The SEO analysis failed.', 'ux-studio' ) ),
 				array( 'status' => 424 )
 			);
 		}
@@ -131,7 +131,7 @@ final class SeoScorePanel extends Controller {
 		if ( empty( $result['success'] ) ) {
 			return new WP_Error(
 				'uxstudio_schema_bridge',
-				(string) ( $result['error'] ?? __( 'Generování schema markup selhalo.', 'ux-studio' ) ),
+				(string) ( $result['error'] ?? __( 'Generating the schema markup failed.', 'ux-studio' ) ),
 				array( 'status' => 424 )
 			);
 		}
@@ -149,7 +149,7 @@ final class SeoScorePanel extends Controller {
 		if ( empty( $result['success'] ) ) {
 			return new WP_Error(
 				'uxstudio_link_suggestions_bridge',
-				(string) ( $result['error'] ?? __( 'Návrh interních odkazů selhal.', 'ux-studio' ) ),
+				(string) ( $result['error'] ?? __( 'Suggesting internal links failed.', 'ux-studio' ) ),
 				array( 'status' => 424 )
 			);
 		}

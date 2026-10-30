@@ -294,7 +294,7 @@ final class StarterPack {
 			self::optional(
 				'smtp-email',
 				__( 'E-mail sending through SMTP', 'ux-studio' ),
-				__( 'Sends the site e-mail through your mail server. Needs the server and login details, so it is only switched on here and you fill them in afterwards.', 'ux-studio' ),
+				__( 'Sends the site e-mail through your mail server. Needs the server and login details, so it is only turned on here and you fill them in afterwards.', 'ux-studio' ),
 				array( 'smtp-email' ),
 				array(),
 				array( array( 'smtp_credentials', __( 'Fill in the SMTP server and login in the module settings, otherwise e-mail keeps going through the default WordPress way.', 'ux-studio' ) ) )
@@ -632,7 +632,7 @@ final class StarterPack {
 				'app_passwords_in_use',
 				sprintf(
 					/* translators: 1: number of users, 2: number of passwords. */
-					__( 'Left out: Harden the login page. It would switch off Application Passwords, which are in use (passwords: %2$d, users: %1$d): integrations such as the WordPress mobile app or REST clients rely on them. Switch it on in Security once they are not needed.', 'ux-studio' ),
+					__( 'Left out: Harden the login page. It would turn off Application Passwords, which are in use (passwords: %2$d, users: %1$d): integrations such as the WordPress mobile app or REST clients rely on them. Switch it on in Security once they are not needed.', 'ux-studio' ),
 					$app_users,
 					$app_total
 				), array( 'keys' => array( 'protect_login' ) ) );
@@ -676,7 +676,7 @@ final class StarterPack {
 		$header_plugins = array_values( array_map( 'strval', (array) $env['header_plugins'] ) );
 		if ( ! empty( $env['woocommerce'] ) ) {
 			unset( $set['enable_permissions_policy'] );
-			$warnings[] = array( 'permissions_policy_woo', __( 'Left out: Permissions-Policy. WooCommerce is active and the header would switch off the payment API that Apple Pay and Google Pay use.', 'ux-studio' ), array( 'keys' => array( 'enable_permissions_policy' ) ) );
+			$warnings[] = array( 'permissions_policy_woo', __( 'Left out: Permissions-Policy. WooCommerce is active and the header would turn off the payment API that Apple Pay and Google Pay use.', 'ux-studio' ), array( 'keys' => array( 'enable_permissions_policy' ) ) );
 		} elseif ( $header_plugins ) {
 			unset( $set['enable_permissions_policy'] );
 			$warnings[] = array(
@@ -756,7 +756,7 @@ final class StarterPack {
 		// Blocking a reserved username at once only makes sense with the login limiter, which does the locking.
 		if ( empty( $set['limit_login_attempts'] ) && ( isset( $set['block_usernames'] ) || isset( $set['block_username_attempts'] ) ) ) {
 			unset( $set['block_usernames'], $set['block_username_attempts'] );
-			$warnings[] = array( 'username_block_needs_limit', __( 'Left out: Block reserved usernames and Lock out IPs that try a blocked username, because they need the login attempt limit, which is not switched on here.', 'ux-studio' ), array( 'keys' => array( 'block_usernames', 'block_username_attempts' ) ) );
+			$warnings[] = array( 'username_block_needs_limit', __( 'Left out: Block reserved usernames and Lock out IPs that try a blocked username, because they need the login attempt limit, which is not turned on here.', 'ux-studio' ), array( 'keys' => array( 'block_usernames', 'block_username_attempts' ) ) );
 		}
 
 		// A failed login with a reserved name locks the IP at once, also for an existing account with such a name.
@@ -767,7 +767,7 @@ final class StarterPack {
 				'reserved_user_exists',
 				sprintf(
 					/* translators: %s: user logins. */
-					__( 'The account %s uses a reserved username: rename it, then switch on "Lock out IPs that try a blocked username" in Security. Until then one typo in its password would lock your own IP.', 'ux-studio' ),
+					__( 'The account %s uses a reserved username: rename it, then turn on "Lock out IPs that try a blocked username" in Security. Until then one typo in its password would lock your own IP.', 'ux-studio' ),
 					implode( ', ', array_slice( $reserved, 0, 3 ) )
 				),
 				array( 'keys' => array( 'block_username_attempts' ) ),
@@ -777,7 +777,7 @@ final class StarterPack {
 		return self::build(
 			'security-hardening',
 			__( 'Security hardening and cleanup', 'ux-studio' ),
-			__( 'Switches off comments, the file editor, XML-RPC and RSS feeds (feed addresses answer 403, the feed links leave the page head), hides the WordPress version, sends security headers and the Permissions-Policy header (camera, microphone, location, payment and USB off), redirects http:// to https:// when the site already runs on https (checked after saving; an endless redirect is taken back), blocks wp-config.php (and its backup copies), readme.html, license.txt and wp-config-sample.php in .htaccess, switches off directory listing, stops ?author=N and the public users list in the REST API (logged-in users keep it; the core users sitemap is not touched), replaces user names in author page addresses with a code (old /author/name/ addresses then give 404), limits login attempts, locks out an IP that tries a reserved username such as admin, hides which part of a failed login was wrong and switches off Application Passwords (new ones cannot be created; an MCP or REST client that needs them: switch off "Harden the login page" in Security > Login), slows down Heartbeat, keeps 10 revisions, removes the emoji script and deletes unused default themes that WordPress itself brought (Twenty*, never a manually installed one, the newest one stays as the fallback). Left off on purpose, switch them on yourself when you are sure: the canonical URL redirect and HSTS (a browser remembers HSTS for a year). Open "What will be set" for what each option does, what can go wrong and when to switch it off.', 'ux-studio' ),
+			__( 'Turns off comments, the file editor, XML-RPC and RSS feeds (feed addresses answer 403, the feed links leave the page head), hides the WordPress version, sends security headers and the Permissions-Policy header (camera, microphone, location, payment and USB off), redirects http:// to https:// when the site already runs on https (checked after saving; an endless redirect is taken back), blocks wp-config.php (and its backup copies), readme.html, license.txt and wp-config-sample.php in .htaccess, turns off directory listing, stops ?author=N and the public users list in the REST API (logged-in users keep it; the core users sitemap is not touched), replaces user names in author page addresses with a code (old /author/name/ addresses then give 404), limits login attempts, locks out an IP that tries a reserved username such as admin, hides which part of a failed login was wrong and turns off Application Passwords (new ones cannot be created; an MCP or REST client that needs them: turn off "Harden the login page" in Security > Login), slows down Heartbeat, keeps 10 revisions, removes the emoji script and deletes unused default themes that WordPress itself brought (Twenty*, never a manually installed one, the newest one stays as the fallback). Left off on purpose, switch them on yourself when you are sure: the canonical URL redirect and HSTS (a browser remembers HSTS for a year). Open "What will be set" for what each option does, what can go wrong and when to switch it off.', 'ux-studio' ),
 			array( 'security-optimization' ),
 			array( 'security-optimization' => $set ),
 			$warnings,
@@ -839,7 +839,7 @@ final class StarterPack {
 		$item = self::simple(
 			'captcha-shield',
 			__( 'CAPTCHA without keys', 'ux-studio' ),
-			__( 'Login, registration, lost password and comments ask the browser of the visitor to solve a small puzzle by itself (a fraction of a second, no account, no keys, no cookies, nothing sent to a third party). A visitor without JavaScript answers a simple sum instead, so nobody is locked out. It stops mass scripted attempts; it does not tell a person from a determined script. Keys from the central application or your own Turnstile keys are used instead as soon as they exist.', 'ux-studio' ),
+			__( 'Login, registration, lost password and comments ask the browser of the visitor to solve a small puzzle by itself (a fraction of a second, no account, no keys, no cookies, nothing sent to a third party). A visitor without JavaScript answers a simple sum instead, so nobody is locked out. It stops mass scripted attempts; it does not tell a person from a determined script. Keys from the central app or your own Turnstile keys are used instead as soon as they exist.', 'ux-studio' ),
 			array( 'security-optimization' ),
 			array(
 				'security-optimization' => array(
@@ -929,7 +929,7 @@ final class StarterPack {
 
 	/** Shown when the pack puts the site logo on a plain login page. */
 	public static function login_logo_used_note(): string {
-		return __( 'Site logo on the login page: used (Admin Customiser > Login page > Login screen logo). To remove it, clear that logo there or switch off "Enable login screen customization".', 'ux-studio' );
+		return __( 'Site logo on the login page: used (Admin Customiser > Login page > Login screen logo). To remove it, clear that logo there or turn off "Enable login screen customization".', 'ux-studio' );
 	}
 
 	/**

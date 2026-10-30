@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { LoaderCircle, Pause, Play, Plus, Sparkles, Trash2 } from 'lucide-react';
+import { HelpText } from '../../components/GlossaryTerm';
 import { api, queryClient } from '../../app/api';
 import { formatDate } from '../../app/date';
 
@@ -234,6 +235,9 @@ function GeneratorForm( { editing, onDone }: { editing: Generator | null; onDone
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-bp-title">{ __( 'Generator name', 'ux-studio' ) }</label>
 				<input id="uxs-bp-title" type="text" value={ form.title } onChange={ ( e ) => setForm( { ...form, title: e.target.value } ) } />
+				<p className="uxs-form__help">
+					<HelpText text={ __( 'Only for you: the name of this generator in the list. Visitors never see it.', 'ux-studio' ) } />
+				</p>
 			</div>
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-bp-topics">{ __( 'Topics (one per line)', 'ux-studio' ) }</label>
@@ -243,6 +247,9 @@ function GeneratorForm( { editing, onDone }: { editing: Generator | null; onDone
 					value={ form.topicsText }
 					onChange={ ( e ) => setForm( { ...form, topicsText: e.target.value } ) }
 				/>
+				<p className="uxs-form__help">
+					<HelpText text={ __( 'Each line is one idea for an article. The AI picks one of the lines at random each time it writes.', 'ux-studio' ) } />
+				</p>
 			</div>
 			<div className="uxs-form__row">
 				<label>{ __( 'Article types', 'ux-studio' ) }</label>
@@ -270,6 +277,9 @@ function GeneratorForm( { editing, onDone }: { editing: Generator | null; onDone
 						</option>
 					) ) }
 				</select>
+				<p className="uxs-form__help">
+					<HelpText text={ __( 'The AI service that writes the articles. The default is the one chosen in the AI settings; every provider needs its own API key there.', 'ux-studio' ) } />
+				</p>
 			</div>
 			{ ( () => {
 				const providerInfo = form.provider ? providers?.[ form.provider ] : undefined;
@@ -287,12 +297,18 @@ function GeneratorForm( { editing, onDone }: { editing: Generator | null; onDone
 								</option>
 							) ) }
 						</select>
+						<p className="uxs-form__help">
+							<HelpText text={ __( 'Larger models write better and cost more per [[tokens]]. Leave the default model if you are unsure.', 'ux-studio' ) } />
+						</p>
 					</div>
 				);
 			} )() }
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-bp-tone">{ __( 'Tone', 'ux-studio' ) }</label>
 				<input id="uxs-bp-tone" type="text" value={ form.tone } onChange={ ( e ) => setForm( { ...form, tone: e.target.value } ) } />
+				<p className="uxs-form__help">
+					<HelpText text={ __( 'How the articles should sound, for example friendly, expert or humorous. The AI reads it as an instruction.', 'ux-studio' ) } />
+				</p>
 			</div>
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-bp-length">{ __( 'Length', 'ux-studio' ) }</label>
@@ -302,6 +318,9 @@ function GeneratorForm( { editing, onDone }: { editing: Generator | null; onDone
 					<option value="long">{ __( 'Long', 'ux-studio' ) }</option>
 					<option value="extra-long">{ __( 'Extra long', 'ux-studio' ) }</option>
 				</select>
+				<p className="uxs-form__help">
+					<HelpText text={ __( 'How long each article is. Longer articles cost more [[tokens]] and take longer to write.', 'ux-studio' ) } />
+				</p>
 			</div>
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-bp-post-status">{ __( 'Post status', 'ux-studio' ) }</label>
@@ -310,6 +329,9 @@ function GeneratorForm( { editing, onDone }: { editing: Generator | null; onDone
 					<option value="publish">{ __( 'Published', 'ux-studio' ) }</option>
 					<option value="pending">{ __( 'Pending review', 'ux-studio' ) }</option>
 				</select>
+				<p className="uxs-form__help">
+					<HelpText text={ __( 'Draft keeps the article hidden until you have read it and published it yourself. Published puts it on the site at once, without a human check. Pending review waits for an editor.', 'ux-studio' ) } />
+				</p>
 			</div>
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-bp-schedule">{ __( 'Schedule', 'ux-studio' ) }</label>
@@ -320,6 +342,9 @@ function GeneratorForm( { editing, onDone }: { editing: Generator | null; onDone
 						</option>
 					) ) }
 				</select>
+				<p className="uxs-form__help">
+					<HelpText text={ __( 'How often the generator runs. It is started by [[cron|WP-Cron]], so the site needs some visits (or a real server cron) to run on time.', 'ux-studio' ) } />
+				</p>
 			</div>
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-bp-window">{ __( 'Publish time window', 'ux-studio' ) }</label>
@@ -328,6 +353,9 @@ function GeneratorForm( { editing, onDone }: { editing: Generator | null; onDone
 					<span>{ __( 'to', 'ux-studio' ) }</span>
 					<input type="time" value={ form.timeTo } onChange={ ( e ) => setForm( { ...form, timeTo: e.target.value } ) } />
 				</div>
+				<p className="uxs-form__help">
+					<HelpText text={ __( 'The generator picks a random moment inside this time window, so the articles do not appear all at the same time. It uses the clock of the server (usually UTC), not the time zone of the site.', 'ux-studio' ) } />
+				</p>
 			</div>
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-bp-per-run">{ __( 'Posts per run', 'ux-studio' ) }</label>
@@ -339,6 +367,9 @@ function GeneratorForm( { editing, onDone }: { editing: Generator | null; onDone
 					value={ form.postsPerRun }
 					onChange={ ( e ) => setForm( { ...form, postsPerRun: Math.max( 1, Math.min( 10, Number( e.target.value ) ) ) } ) }
 				/>
+				<p className="uxs-form__help">
+					<HelpText text={ __( 'How many articles are written each time the generator runs (1 to 10). Each article uses AI [[tokens]] and counts toward the monthly limit.', 'ux-studio' ) } />
+				</p>
 			</div>
 
 			<button
@@ -411,7 +442,7 @@ function GeneratorsSection(): JSX.Element {
 			) : data.items.length === 0 ? (
 				<p>{ __( 'No generators yet.', 'ux-studio' ) }</p>
 			) : (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Name', 'ux-studio' ) }</th>
@@ -473,7 +504,7 @@ function GeneratorsSection(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 		</div>
 	);
@@ -528,7 +559,7 @@ function GeneratedPostsSection(): JSX.Element {
 							</button>
 						</div>
 					</div>
-					<table className="uxs-table">
+					<div className="uxs-table-wrap"><table className="uxs-table">
 						<thead>
 							<tr>
 								<th></th>
@@ -565,7 +596,7 @@ function GeneratedPostsSection(): JSX.Element {
 								</tr>
 							) ) }
 						</tbody>
-					</table>
+					</table></div>
 				</>
 			) }
 		</div>

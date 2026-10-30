@@ -1,7 +1,7 @@
 {
 	"id": "email-health",
-	"name": "Email Health",
-	"description": "Send a test email to verify outgoing mail works and record the last result.",
+	"name": "E-mail Health",
+	"description": "Send a test e-mail to verify outgoing mail works and record the last result.",
 	"group": "admin",
 	"icon": "mail-check",
 	"settings": true

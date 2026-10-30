@@ -14,6 +14,92 @@
     var nonce    = cfg.nonce || '';
     var opts     = cfg.config;
     var root     = document.getElementById('uxstudio-ai-assistant-widget-root');
+    var i18n     = (cfg.i18n && typeof cfg.i18n === 'object') ? cfg.i18n : {};
+
+    // ---------------------------------------------------------------------------
+    // Texts. The server sends the dictionary in the chat language chosen by the site owner (cfg.i18n);
+    // these English defaults only apply when it is missing or incomplete (older cached page).
+    // ---------------------------------------------------------------------------
+
+    var DEFAULT_TEXTS = {
+        openChat: 'Open chat',
+        closeChat: 'Close chat',
+        writeUs: 'Write to us',
+        writeUsIntro: 'Write to us and we will get back to you as soon as possible.',
+        callOperatorAria: 'Call an operator',
+        talkToOperator: 'Talk to an operator',
+        callbackTitle: 'We will call you back',
+        callbackIntro: 'Leave us your phone number and we will call you back.',
+        enlargeChat: 'Enlarge chat',
+        shrinkChat: 'Shrink chat',
+        newChat: 'New chat',
+        startNewChat: 'Start a new chat',
+        gdprDefault: 'This chat uses AI. Sending a message means you agree to your query being processed.',
+        greetingDefault: 'Hello! How can I help you?',
+        placeholderDefault: 'Type your question...',
+        messageLabel: 'Message',
+        send: 'Send',
+        faqTitle: 'Frequently asked questions',
+        hideQuestions: 'Hide questions',
+        showMoreQuestions: 'Show more questions (%d)',
+        next: 'Next',
+        currency: '',
+        show: 'Show',
+        waitingOperator: 'Waiting for an operator to join...',
+        operatorName: 'Operator',
+        operatorOnline: '%s is online',
+        cancel: 'Cancel',
+        handoffReason: 'The customer asked for an operator using the button.',
+        handoffRecorded: 'Your request has been recorded. Please wait for an operator to join.',
+        handoffFailed: 'Could not call an operator. Please try again.',
+        handoffCancelled: 'The operator request was cancelled. We are continuing with the AI assistant.',
+        handoffSendFailed: 'Could not send the message to the operator.',
+        handoffTimeoutDefault: 'Sorry, an operator is not available right now. Please leave us a message or a phone number and we will get back to you as soon as possible.',
+        writeMessage: 'Write a message',
+        callBack: 'Call me back',
+        continueAssistant: 'Continue with the assistant',
+        backToChat: 'Back to chat',
+        resumeText: 'How can I help you?',
+        serverError: 'Sorry, there was an error communicating with the server.',
+        nameLabel: 'Name',
+        namePlaceholder: 'Your name',
+        emailLabel: 'E-mail',
+        emailPlaceholder: 'you@example.com',
+        phoneLabel: 'Phone',
+        phoneNoteCallback: '(we will call you back)',
+        phonePlaceholder: 'e.g. +1 555 123 4567',
+        yourMessageLabel: 'Message',
+        yourMessagePlaceholder: 'Your message...',
+        sendMessage: 'Send message',
+        fillAll: 'Please fill in all fields.',
+        sending: 'Sending...',
+        messageSent: 'Message sent! We will get back to you as soon as possible.',
+        sendFailed: 'Could not send the message.',
+        connectionError: 'Connection error. Please try again.',
+        phoneNumberLabel: 'Phone number',
+        noteLabel: 'Note',
+        optional: '(optional)',
+        callNotePlaceholder: 'When can we call you?',
+        fillPhone: 'Please enter your phone number.',
+        callbackThanks: 'Thank you! We will get back to you as soon as possible.',
+        ratingQuestion: 'How would you rate our help?',
+        starsLabel: '%d of 5 stars',
+        feedbackPlaceholder: 'Would you like to add anything? (optional)',
+        sendRating: 'Send rating',
+        ratingThanks: 'Thank you for your rating!',
+        inactivityPrompt: 'Is there anything else I can help you with?',
+        yes: 'Yes',
+        no: 'No',
+        askAnything: 'Ask me anything!',
+        goodbye: 'Thank you for visiting! We would appreciate your rating.'
+    };
+
+    // Text by key; an optional second argument replaces %s / %d.
+    function t(key, value) {
+        var text = (typeof i18n[key] === 'string' && i18n[key] !== '') ? i18n[key] : (DEFAULT_TEXTS[key] || '');
+        if (value === undefined) return text;
+        return text.replace(/%[sd]/, function() { return String(value); });
+    }
 
     if (!root) {
         return;
@@ -201,7 +287,7 @@
     // -- Trigger button
     var trigger = el('button', 'uxstudio-ais-trigger', {
         'type': 'button',
-        'aria-label': 'Otevrit chat'
+        'aria-label': cfg.openLabel || t('openChat')
     });
     trigger.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
 
@@ -223,27 +309,27 @@
     headerTitle.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> ' + sanitizeText(opts.title || 'AI Podpora');
     var closeBtn = el('button', 'uxstudio-ais-header-close', {
         'type': 'button',
-        'aria-label': 'Zavrit chat'
+        'aria-label': t('closeChat')
     });
     closeBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
 
     // Email contact button in header
     var emailBtn = el('button', 'uxstudio-ais-header-email', {
         'type': 'button',
-        'aria-label': 'Napsat email',
-        'title': 'Napsat email'
+        'aria-label': t('writeMessage'),
+        'title': t('writeMessage')
     });
     emailBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>';
     emailBtn.addEventListener('click', function() {
-        showErrorWithContactForm('Napište nám a my se vám ozveme co nejdříve.');
+        showErrorWithContactForm(t('writeUsIntro'));
         scrollToBottom();
     });
 
     // Operator handoff button in header ("call a human operator")
     var operatorBtn = el('button', 'uxstudio-ais-header-email', {
         'type': 'button',
-        'aria-label': 'Přivolat operátora',
-        'title': 'Mluvit s operátorem'
+        'aria-label': t('callOperatorAria'),
+        'title': t('talkToOperator')
     });
     operatorBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>';
     operatorBtn.addEventListener('click', function() {
@@ -253,20 +339,20 @@
     // Phone contact button in header
     var phoneBtn = el('button', 'uxstudio-ais-header-email', {
         'type': 'button',
-        'aria-label': 'Zavoláme vám zpět',
-        'title': 'Zavoláme vám zpět'
+        'aria-label': t('callbackTitle'),
+        'title': t('callbackTitle')
     });
     phoneBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>';
     phoneBtn.addEventListener('click', function() {
-        showPhoneCallbackForm('Zanechte nám telefonní číslo a my vám zavoláme zpět.');
+        showPhoneCallbackForm(t('callbackIntro'));
         scrollToBottom();
     });
 
     // Maximize button in header
     var maximizeBtn = el('button', 'uxstudio-ais-header-email', {
         'type': 'button',
-        'aria-label': 'Zvětšit chat',
-        'title': 'Zvětšit chat'
+        'aria-label': t('enlargeChat'),
+        'title': t('enlargeChat')
     });
     var maximizeSvgExpand = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="m21 3-7 7"/><path d="m3 21 7-7"/></svg>';
     var maximizeSvgShrink = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6v6"/><path d="M20 10h-6V4"/><path d="m14 10 7-7"/><path d="m3 21 7-7"/></svg>';
@@ -276,15 +362,15 @@
         isMaximized = !isMaximized;
         panel.classList.toggle('uxstudio-ais-panel--maximized', isMaximized);
         maximizeBtn.innerHTML = isMaximized ? maximizeSvgShrink : maximizeSvgExpand;
-        maximizeBtn.title = isMaximized ? 'Zmenšit chat' : 'Zvětšit chat';
+        maximizeBtn.title = isMaximized ? t('shrinkChat') : t('enlargeChat');
         maximizeBtn.setAttribute('aria-label', maximizeBtn.title);
     });
 
     // New chat button in header
     var newChatBtn = el('button', 'uxstudio-ais-header-email', {
         'type': 'button',
-        'aria-label': 'Nový chat',
-        'title': 'Začít nový chat'
+        'aria-label': t('newChat'),
+        'title': t('startNewChat')
     });
     newChatBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>';
     newChatBtn.addEventListener('click', function() {
@@ -306,7 +392,7 @@
 
     // -- GDPR notice (shown as small bar at bottom, not blocking)
     var gdprBar = el('div', 'uxstudio-ais-gdpr-bar');
-    gdprBar.innerHTML = '<span class="uxstudio-ais-gdpr-bar-text">' + sanitizeText(opts.gdprText || 'Tento chat vyuziva AI. Odeslani zpravy znamena souhlas se zpracovanim dotazu.') + '</span>';
+    gdprBar.innerHTML = '<span class="uxstudio-ais-gdpr-bar-text">' + sanitizeText(opts.gdprText || t('gdprDefault')) + '</span>';
     if (gdprConsented) {
         gdprBar.style.display = 'none';
     }
@@ -316,14 +402,14 @@
     var messagesArea = el('div', 'uxstudio-ais-messages');
     var inputArea = el('div', 'uxstudio-ais-input-area');
     var input = el('textarea', 'uxstudio-ais-input', {
-        'placeholder': opts.placeholder || 'Napiste svuj dotaz...',
+        'placeholder': opts.placeholder || t('placeholderDefault'),
         'rows': '1',
         'maxlength': String(cfg.maxMessageLength || 2000),
-        'aria-label': 'Zprava'
+        'aria-label': t('messageLabel')
     });
     var sendBtn = el('button', 'uxstudio-ais-send', {
         'type': 'button',
-        'aria-label': 'Odeslat'
+        'aria-label': t('send')
     });
     sendBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
     inputArea.appendChild(input);
@@ -595,7 +681,7 @@
         }
 
         // Show greeting
-        var greetingText = opts.greeting || 'Dobry den! Jak vam mohu pomoci?';
+        var greetingText = opts.greeting || t('greetingDefault');
         addMessageToUI('bot', greetingText);
         messages.push({ role: 'bot', text: greetingText });
         saveMessages(messages);
@@ -637,7 +723,7 @@
         var container = el('div', 'uxstudio-ais-faqs');
 
         var title = el('div', 'uxstudio-ais-faqs-title');
-        title.textContent = 'Často kladené dotazy';
+        title.textContent = t('faqTitle');
         container.appendChild(title);
 
         var list = el('div', 'uxstudio-ais-faqs-list');
@@ -688,7 +774,7 @@
             moreIconEl.innerHTML = FAQ_CHEVRON_DOWN;
 
             function labelFor(expanded) {
-                return expanded ? 'Skrýt otázky' : 'Zobrazit další otázky (' + extraFaqs.length + ')';
+                return expanded ? t('hideQuestions') : t('showMoreQuestions', extraFaqs.length);
             }
 
             var expanded = false;
@@ -725,7 +811,7 @@
             return;
         }
         if (existing) return;
-        var arrowBtn = el('button', 'uxstudio-ais-product-arrow', { 'type': 'button', 'aria-label': 'Další' });
+        var arrowBtn = el('button', 'uxstudio-ais-product-arrow', { 'type': 'button', 'aria-label': t('next') });
         arrowBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>';
         arrowBtn.addEventListener('click', function() {
             var maxScroll = carousel.scrollWidth - carousel.clientWidth;
@@ -803,12 +889,12 @@
             bodyEl.appendChild(price);
         } else if (priceNum) {
             var price = el('div', 'uxstudio-ais-product-card-price');
-            price.textContent = priceNum + ' Kč';
+            price.textContent = priceNum + (t('currency') ? ' ' + t('currency') : '');
             bodyEl.appendChild(price);
         }
 
         var cta = el('span', 'uxstudio-ais-product-card-link');
-        cta.textContent = 'Zobrazit \u2192';
+        cta.textContent = t('show') + ' \u2192';
         bodyEl.appendChild(cta);
 
         card.appendChild(bodyEl);
@@ -875,11 +961,11 @@
         var text, showCancel = false;
 
         if (handoffStatus === 'requested') {
-            text = '<span class="uxstudio-ais-handoff-dot"></span> Čekáme na připojení operátora…';
+            text = '<span class="uxstudio-ais-handoff-dot"></span> ' + sanitizeText(t('waitingOperator'));
             showCancel = true;
         } else if (handoffStatus === 'human') {
-            var name = handoffAssignedTo ? sanitizeText(handoffAssignedTo) : 'Operátor';
-            text = '<span class="uxstudio-ais-handoff-dot uxstudio-ais-handoff-dot--live"></span> ' + name + ' je online';
+            var name = handoffAssignedTo ? sanitizeText(handoffAssignedTo) : sanitizeText(t('operatorName'));
+            text = '<span class="uxstudio-ais-handoff-dot uxstudio-ais-handoff-dot--live"></span> ' + sanitizeText(t('operatorOnline')).replace('%s', function() { return name; });
             showCancel = false;
         } else {
             text = '';
@@ -889,7 +975,7 @@
 
         if (showCancel) {
             var cancelBtn = el('button', 'uxstudio-ais-handoff-cancel', { 'type': 'button' });
-            cancelBtn.textContent = 'Zrušit';
+            cancelBtn.textContent = t('cancel');
             cancelBtn.addEventListener('click', cancelHandoff);
             handoffBannerEl.appendChild(cancelBtn);
         }
@@ -912,7 +998,7 @@
         operatorBtn.disabled = true;
         apiPost('/handoff/request', {
             session_id: sessionId,
-            reason: 'Zákazník požádal o operátora přes tlačítko.'
+            reason: t('handoffReason')
         })
         .then(function(r) { return r.json(); })
         .then(function(data) {
@@ -923,7 +1009,7 @@
             }
             handoffStatus = data.status || 'requested';
             updateOperatorButtonVisibility();
-            var infoText = data.message || 'Vaše žádost byla zaznamenána. Počkejte, prosím, na připojení operátora.';
+            var infoText = data.message || t('handoffRecorded');
             addMessageToUI('bot', infoText);
             messages.push({ role: 'bot', text: infoText });
             saveMessages(messages);
@@ -934,7 +1020,7 @@
         })
         .catch(function() {
             operatorBtn.disabled = false;
-            showError('Nepodařilo se zavolat operátora. Zkuste to prosím znovu.');
+            showError(t('handoffFailed'));
         });
     }
 
@@ -947,8 +1033,9 @@
                 updateOperatorButtonVisibility();
                 hideHandoffBanner();
                 stopHandoffPolling();
-                addMessageToUI('bot', 'Žádost o operátora byla zrušena. Pokračujeme s AI asistentem.');
-                messages.push({ role: 'bot', text: 'Žádost o operátora byla zrušena. Pokračujeme s AI asistentem.' });
+                var cancelledText = t('handoffCancelled');
+                addMessageToUI('bot', cancelledText);
+                messages.push({ role: 'bot', text: cancelledText });
                 saveMessages(messages);
             })
             .catch(function() {});
@@ -979,7 +1066,7 @@
         .catch(function() {
             isStreaming = false;
             sendBtn.disabled = false;
-            showError('Nepodařilo se odeslat zprávu operátorovi.');
+            showError(t('handoffSendFailed'));
         });
     }
 
@@ -1066,27 +1153,27 @@
         var wrap = el('div', 'uxstudio-ais-handoff-timeout');
 
         var msg = el('div', 'uxstudio-ais-handoff-timeout-text');
-        msg.textContent = opts.handoffTimeoutMessage || 'Omlouváme se, operátor se vám nyní nemůže věnovat. Napište nám prosím zprávu nebo zanechte telefonní kontakt a ozveme se vám co nejdříve.';
+        msg.textContent = opts.handoffTimeoutMessage || t('handoffTimeoutDefault');
         wrap.appendChild(msg);
 
         var actions = el('div', 'uxstudio-ais-handoff-timeout-actions');
 
         var emailLink = el('a', 'uxstudio-ais-handoff-timeout-link', { 'href': '#' });
-        emailLink.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> Napsat zprávu';
+        emailLink.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> ' + sanitizeText(t('writeMessage'));
         emailLink.addEventListener('click', function(e) {
             e.preventDefault();
-            showErrorWithContactForm('Napište nám a my se vám ozveme co nejdříve.');
+            showErrorWithContactForm(t('writeUsIntro'));
         });
 
         var phoneLink = el('a', 'uxstudio-ais-handoff-timeout-link', { 'href': '#' });
-        phoneLink.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> Zavolat zpět';
+        phoneLink.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> ' + sanitizeText(t('callBack'));
         phoneLink.addEventListener('click', function(e) {
             e.preventDefault();
-            showPhoneCallbackForm('Zanechte nám telefonní číslo a my vám zavoláme zpět.');
+            showPhoneCallbackForm(t('callbackIntro'));
         });
 
         var aiLink = el('a', 'uxstudio-ais-handoff-timeout-link', { 'href': '#' });
-        aiLink.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Pokračovat s asistentem';
+        aiLink.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> ' + sanitizeText(t('continueAssistant'));
         aiLink.addEventListener('click', function(e) {
             e.preventDefault();
             if (wrap.parentNode) {
@@ -1096,7 +1183,7 @@
             messages = messages.filter(function(m) {
                 return !(m.role === 'handoff-timeout' || (m.role === 'system' && m.text === 'handoff-timeout'));
             });
-            var resumeText = 'S čím vám mohu pomoci?';
+            var resumeText = t('resumeText');
             addMessageToUI('bot', resumeText);
             messages.push({ role: 'bot', text: resumeText });
             saveMessages(messages);
@@ -1191,7 +1278,7 @@
             playReceiveSound();
             var wrapper = el('div', 'uxstudio-ais-msg uxstudio-ais-msg--bot uxstudio-ais-msg--agent');
             var name = el('div', 'uxstudio-ais-msg-agent-name');
-            name.textContent = msg.agent_name || 'Operátor';
+            name.textContent = msg.agent_name || t('operatorName');
             wrapper.appendChild(name);
             var textEl = el('div', 'uxstudio-ais-msg-text');
             textEl.textContent = content;
@@ -1394,7 +1481,7 @@
         })
         .catch(function() {
             removeTypingIndicator(typingEl);
-            showErrorWithContactForm('Omlouváme se, došlo k chybě při komunikaci se serverem.');
+            showErrorWithContactForm(t('serverError'));
             finishStream([]);
         });
     }
@@ -1473,36 +1560,36 @@
         // Back button to return to chat
         var backBtn = el('button', 'uxstudio-ais-contact-back');
         backBtn.type = 'button';
-        backBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg> Zpět na chat';
+        backBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg> ' + sanitizeText(t('backToChat'));
         backBtn.addEventListener('click', function() {
             overlay.remove();
         });
 
         // Title
         var title = el('div', 'uxstudio-ais-contact-title');
-        title.textContent = errorText || 'Napište nám';
+        title.textContent = errorText || t('writeUs');
 
         // Form content
         var form = el('div', 'uxstudio-ais-contact-form');
 
         var nameLabel = el('label', 'uxstudio-ais-contact-label');
-        nameLabel.textContent = 'Jméno';
-        var nameInput = el('input', 'uxstudio-ais-contact-input', { type: 'text', placeholder: 'Vaše jméno' });
+        nameLabel.textContent = t('nameLabel');
+        var nameInput = el('input', 'uxstudio-ais-contact-input', { type: 'text', placeholder: t('namePlaceholder') });
 
         var emailLabel = el('label', 'uxstudio-ais-contact-label');
-        emailLabel.textContent = 'Email';
-        var emailInput = el('input', 'uxstudio-ais-contact-input', { type: 'email', placeholder: 'vas@email.cz' });
+        emailLabel.textContent = t('emailLabel');
+        var emailInput = el('input', 'uxstudio-ais-contact-input', { type: 'email', placeholder: t('emailPlaceholder') });
 
         var phoneLabel = el('label', 'uxstudio-ais-contact-label');
-        phoneLabel.textContent = 'Telefon';
+        phoneLabel.textContent = t('phoneLabel');
         var phoneNote = el('small', 'uxstudio-ais-contact-note');
-        phoneNote.textContent = ' (zavoláme vám zpět)';
+        phoneNote.textContent = ' ' + t('phoneNoteCallback');
         phoneLabel.appendChild(phoneNote);
-        var phoneInput = el('input', 'uxstudio-ais-contact-input', { type: 'tel', placeholder: '+420 xxx xxx xxx' });
+        var phoneInput = el('input', 'uxstudio-ais-contact-input', { type: 'tel', placeholder: t('phonePlaceholder') });
 
         var msgLabel = el('label', 'uxstudio-ais-contact-label');
-        msgLabel.textContent = 'Zpráva';
-        var msgTextarea = el('textarea', 'uxstudio-ais-contact-textarea', { rows: '3', placeholder: 'Vaše zpráva...' });
+        msgLabel.textContent = t('yourMessageLabel');
+        var msgTextarea = el('textarea', 'uxstudio-ais-contact-textarea', { rows: '3', placeholder: t('yourMessagePlaceholder') });
 
         // Předvyplnit posledními zprávami uživatele
         var prefill = [];
@@ -1516,7 +1603,7 @@
         }
 
         var submitBtn = el('button', 'uxstudio-ais-contact-submit');
-        submitBtn.textContent = 'Odeslat zprávu';
+        submitBtn.textContent = t('sendMessage');
         submitBtn.type = 'button';
 
         var status = el('span', 'uxstudio-ais-contact-status');
@@ -1527,13 +1614,13 @@
             var msg = msgTextarea.value.trim();
 
             if (!name || !email || !msg) {
-                status.textContent = 'Vyplňte všechna pole.';
+                status.textContent = t('fillAll');
                 status.className = 'uxstudio-ais-contact-status uxstudio-ais-contact-status--error';
                 return;
             }
 
             submitBtn.disabled = true;
-            status.textContent = 'Odesílám...';
+            status.textContent = t('sending');
             status.className = 'uxstudio-ais-contact-status';
 
             fetch(restUrl + '/contact', {
@@ -1554,17 +1641,17 @@
                 if (data.success) {
                     form.innerHTML = '';
                     var success = el('div', 'uxstudio-ais-contact-success');
-                    success.textContent = 'Zpráva odeslána! Ozveme se vám co nejdříve.';
+                    success.textContent = t('messageSent');
                     form.appendChild(success);
                     setTimeout(function() { overlay.remove(); }, 3000);
                 } else {
-                    status.textContent = data.error || 'Nepodařilo se odeslat.';
+                    status.textContent = data.error || t('sendFailed');
                     status.className = 'uxstudio-ais-contact-status uxstudio-ais-contact-status--error';
                     submitBtn.disabled = false;
                 }
             })
             .catch(function() {
-                status.textContent = 'Chyba připojení. Zkuste to znovu.';
+                status.textContent = t('connectionError');
                 status.className = 'uxstudio-ais-contact-status uxstudio-ais-contact-status--error';
                 submitBtn.disabled = false;
             });
@@ -1601,27 +1688,27 @@
 
         var backBtn = el('button', 'uxstudio-ais-contact-back');
         backBtn.type = 'button';
-        backBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg> Zpět na chat';
+        backBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg> ' + sanitizeText(t('backToChat'));
         backBtn.addEventListener('click', function() { overlay.remove(); });
 
         var title = el('div', 'uxstudio-ais-contact-title');
-        title.textContent = titleText || 'Zavoláme vám zpět';
+        title.textContent = titleText || t('callbackTitle');
 
         var form = el('div', 'uxstudio-ais-contact-form');
 
         var phoneLabel = el('label', 'uxstudio-ais-contact-label');
-        phoneLabel.textContent = 'Telefonní číslo';
-        var phoneInput = el('input', 'uxstudio-ais-contact-input', { type: 'tel', placeholder: '+420 xxx xxx xxx' });
+        phoneLabel.textContent = t('phoneNumberLabel');
+        var phoneInput = el('input', 'uxstudio-ais-contact-input', { type: 'tel', placeholder: t('phonePlaceholder') });
 
         var msgLabel = el('label', 'uxstudio-ais-contact-label');
-        msgLabel.textContent = 'Poznámka';
+        msgLabel.textContent = t('noteLabel');
         var noteLabel = el('small', 'uxstudio-ais-contact-note');
-        noteLabel.textContent = ' (nepovinné)';
+        noteLabel.textContent = ' ' + t('optional');
         msgLabel.appendChild(noteLabel);
-        var msgTextarea = el('textarea', 'uxstudio-ais-contact-textarea', { rows: '2', placeholder: 'Kdy vám můžeme zavolat?' });
+        var msgTextarea = el('textarea', 'uxstudio-ais-contact-textarea', { rows: '2', placeholder: t('callNotePlaceholder') });
 
         var submitBtn = el('button', 'uxstudio-ais-contact-submit');
-        submitBtn.textContent = 'Zavolat zpět';
+        submitBtn.textContent = t('callBack');
         submitBtn.type = 'button';
 
         var status = el('span', 'uxstudio-ais-contact-status');
@@ -1629,13 +1716,13 @@
         submitBtn.addEventListener('click', function() {
             var phone = phoneInput.value.trim();
             if (!phone) {
-                status.textContent = 'Vyplňte telefonní číslo.';
+                status.textContent = t('fillPhone');
                 status.className = 'uxstudio-ais-contact-status uxstudio-ais-contact-status--error';
                 return;
             }
 
             submitBtn.disabled = true;
-            status.textContent = 'Odesílám...';
+            status.textContent = t('sending');
             status.className = 'uxstudio-ais-contact-status';
 
             fetch(restUrl + '/callback', {
@@ -1654,17 +1741,17 @@
                 if (data.success) {
                     form.innerHTML = '';
                     var success = el('div', 'uxstudio-ais-contact-success');
-                    success.textContent = 'Děkujeme! Ozveme se vám co nejdříve.';
+                    success.textContent = t('callbackThanks');
                     form.appendChild(success);
                     setTimeout(function() { overlay.remove(); }, 3000);
                 } else {
-                    status.textContent = data.error || 'Nepodařilo se odeslat.';
+                    status.textContent = data.error || t('sendFailed');
                     status.className = 'uxstudio-ais-contact-status uxstudio-ais-contact-status--error';
                     submitBtn.disabled = false;
                 }
             })
             .catch(function() {
-                status.textContent = 'Chyba připojení. Zkuste to znovu.';
+                status.textContent = t('connectionError');
                 status.className = 'uxstudio-ais-contact-status uxstudio-ais-contact-status--error';
                 submitBtn.disabled = false;
             });
@@ -1695,7 +1782,7 @@
 
         var wrap = el('div', 'uxstudio-ais-rating');
         var label = el('div', 'uxstudio-ais-rating-label');
-        label.textContent = 'Jak hodnotíte naši pomoc?';
+        label.textContent = t('ratingQuestion');
         wrap.appendChild(label);
 
         var starsRow = el('div', 'uxstudio-ais-rating-stars');
@@ -1712,7 +1799,7 @@
 
         for (var i = 1; i <= 5; i++) {
             (function(rating) {
-                var btn = el('button', 'uxstudio-ais-rating-star', { 'type': 'button', 'aria-label': rating + ' hvězd' });
+                var btn = el('button', 'uxstudio-ais-rating-star', { 'type': 'button', 'aria-label': t('starsLabel', rating) });
                 btn.innerHTML = starSvgEmpty;
                 btn.addEventListener('mouseenter', function() { updateStars(rating); });
                 btn.addEventListener('mouseleave', function() { updateStars(0); });
@@ -1745,14 +1832,14 @@
         if (ratingWrap.querySelector('.uxstudio-ais-rating-feedback')) return;
 
         var feedback = el('div', 'uxstudio-ais-rating-feedback');
-        var textarea = el('textarea', 'uxstudio-ais-contact-textarea', { rows: '2', placeholder: 'Chcete něco doplnit? (volitelné)' });
+        var textarea = el('textarea', 'uxstudio-ais-contact-textarea', { rows: '2', placeholder: t('feedbackPlaceholder') });
         var submitBtn = el('button', 'uxstudio-ais-rating-submit');
-        submitBtn.textContent = 'Odeslat hodnocení';
+        submitBtn.textContent = t('sendRating');
         submitBtn.type = 'button';
 
         submitBtn.addEventListener('click', function() {
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Odesílám...';
+            submitBtn.textContent = t('sending');
 
             apiPost('/rating', {
                 session_id: sessionId,
@@ -1766,15 +1853,15 @@
                     sessionStorage.setItem('uxstudio_ais_rated', '1');
                     ratingWrap.innerHTML = '';
                     var thanks = el('div', 'uxstudio-ais-rating-thanks');
-                    thanks.textContent = 'Děkujeme za vaše hodnocení!';
+                    thanks.textContent = t('ratingThanks');
                     ratingWrap.appendChild(thanks);
                 } else {
-                    submitBtn.textContent = 'Odeslat hodnocení';
+                    submitBtn.textContent = t('sendRating');
                     submitBtn.disabled = false;
                 }
             })
             .catch(function() {
-                submitBtn.textContent = 'Odeslat hodnocení';
+                submitBtn.textContent = t('sendRating');
                 submitBtn.disabled = false;
             });
         });
@@ -1807,7 +1894,7 @@
 
     function showInactivityPrompt() {
         inactivityTimer = null;
-        var promptText = 'Mohu vám ještě s něčím pomoci?';
+        var promptText = t('inactivityPrompt');
         addMessageToUI('bot', promptText);
         messages.push({ role: 'bot', text: promptText });
         saveMessages(messages);
@@ -1815,17 +1902,18 @@
         var btnsWrap = el('div', 'uxstudio-ais-inactivity-btns');
 
         var yesBtn = el('button', 'uxstudio-ais-inactivity-btn uxstudio-ais-inactivity-btn--yes');
-        yesBtn.textContent = 'Ano';
+        yesBtn.textContent = t('yes');
         yesBtn.type = 'button';
 
         var noBtn = el('button', 'uxstudio-ais-inactivity-btn uxstudio-ais-inactivity-btn--no');
-        noBtn.textContent = 'Ne';
+        noBtn.textContent = t('no');
         noBtn.type = 'button';
 
         yesBtn.addEventListener('click', function() {
             btnsWrap.remove();
-            addMessageToUI('bot', 'Zeptejte se na cokoliv!');
-            messages.push({ role: 'bot', text: 'Zeptejte se na cokoliv!' });
+            var askText = t('askAnything');
+            addMessageToUI('bot', askText);
+            messages.push({ role: 'bot', text: askText });
             saveMessages(messages);
             input.focus();
             startInactivityTimer();
@@ -1833,8 +1921,9 @@
 
         noBtn.addEventListener('click', function() {
             btnsWrap.remove();
-            addMessageToUI('bot', 'Děkujeme za návštěvu! Budeme rádi za vaše hodnocení.');
-            messages.push({ role: 'bot', text: 'Děkujeme za návštěvu! Budeme rádi za vaše hodnocení.' });
+            var goodbyeText = t('goodbye');
+            addMessageToUI('bot', goodbyeText);
+            messages.push({ role: 'bot', text: goodbyeText });
             saveMessages(messages);
             showStarRating();
         });

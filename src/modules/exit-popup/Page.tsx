@@ -51,11 +51,11 @@ function SubscribersTable(): JSX.Element {
 			{ ! data || data.length === 0 ? (
 				<p>{ __( 'No subscribers captured yet.', 'ux-studio' ) }</p>
 			) : (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Date', 'ux-studio' ) }</th>
-							<th>{ __( 'Email', 'ux-studio' ) }</th>
+							<th>{ __( 'E-mail', 'ux-studio' ) }</th>
 							<th>{ __( 'Page', 'ux-studio' ) }</th>
 						</tr>
 					</thead>
@@ -68,7 +68,7 @@ function SubscribersTable(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 		</>
 	);
@@ -82,7 +82,7 @@ const TOPICS: { id: string; label: string }[] = [
 	{ id: 'appearance', label: __( 'Appearance', 'ux-studio' ) },
 	{ id: 'triggers', label: __( 'Triggers', 'ux-studio' ) },
 	{ id: 'targeting', label: __( 'Targeting', 'ux-studio' ) },
-	{ id: 'email', label: __( 'Email capture', 'ux-studio' ) },
+	{ id: 'email', label: __( 'E-mail capture', 'ux-studio' ) },
 ];
 
 export default function Page(): JSX.Element {

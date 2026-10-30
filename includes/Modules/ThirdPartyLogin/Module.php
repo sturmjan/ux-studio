@@ -315,12 +315,30 @@ final class Module extends BaseModule {
 	 * @param WP_User $user User to test.
 	 */
 	public function is_user_allowed( WP_User $user ): bool {
-		$allowed = $this->allowed_roles();
+		return self::any_role_allowed( (array) $user->roles, $this->allowed_roles() );
+	}
+
+	/**
+	 * Role gate for a role that is not assigned to a user yet (used before an account is created).
+	 *
+	 * @param string $role Role id.
+	 */
+	public function is_role_allowed( string $role ): bool {
+		return self::any_role_allowed( array( $role ), $this->allowed_roles() );
+	}
+
+	/**
+	 * Fail-closed role check: true when at least one role is on the allow-list; an empty list denies everyone.
+	 *
+	 * @param array<int, mixed> $roles   Roles of the user.
+	 * @param array<int, mixed> $allowed Allowed roles.
+	 */
+	public static function any_role_allowed( array $roles, array $allowed ): bool {
 		if ( empty( $allowed ) ) {
 			return false;
 		}
-		foreach ( (array) $user->roles as $role ) {
-			if ( in_array( (string) $role, $allowed, true ) ) {
+		foreach ( $roles as $role ) {
+			if ( in_array( (string) $role, array_map( 'strval', $allowed ), true ) ) {
 				return true;
 			}
 		}

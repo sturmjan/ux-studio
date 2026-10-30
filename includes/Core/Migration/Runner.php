@@ -361,7 +361,7 @@ final class Runner {
 			// The switch wrote prepared values and switched data on; the snapshot no longer describes the
 			// site. With the switch record at hand, undo the switch first, then roll back as usual.
 			if ( ! Switcher::has_switch( $run_id ) ) {
-				return new \WP_Error( 'uxstudio_migration_applied', __( 'This run has already been switched on, so the snapshot no longer matches the site. Undo the switch first.', 'ux-studio' ), array( 'status' => 409 ) );
+				return new \WP_Error( 'uxstudio_migration_applied', __( 'This run has already been turned on, so the snapshot no longer matches the site. Undo the switch first.', 'ux-studio' ), array( 'status' => 409 ) );
 			}
 			$reverted = Switcher::revert( $run_id );
 			if ( is_wp_error( $reverted ) ) {

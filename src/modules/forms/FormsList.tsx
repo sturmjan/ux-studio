@@ -93,6 +93,7 @@ export default function FormsList( { onOpen }: { onOpen: ( id: number ) => void 
 						onChange={ ( e ) => setNewTitle( e.target.value ) }
 						placeholder={ __( 'e.g. Contact form', 'ux-studio' ) }
 					/>
+					<p className="uxs-form__help">{ __( 'The name of the form. It is for you in the list, visitors do not see it unless you show it in the form.', 'ux-studio' ) }</p>
 				</div>
 				<button
 					type="button"
@@ -119,7 +120,7 @@ export default function FormsList( { onOpen }: { onOpen: ( id: number ) => void 
 			) : ! query.data || query.data.length === 0 ? (
 				<p>{ __( 'No forms yet - add your first one above.', 'ux-studio' ) }</p>
 			) : (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Title', 'ux-studio' ) }</th>
@@ -180,7 +181,7 @@ export default function FormsList( { onOpen }: { onOpen: ( id: number ) => void 
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 		</>
 	);

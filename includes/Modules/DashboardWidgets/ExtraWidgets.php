@@ -205,7 +205,7 @@ final class ExtraWidgets {
 					?>
 					<tr>
 						<td style="padding:3px 6px 3px 0;white-space:nowrap;"><?php echo esc_html( '' !== $user ? $user : '—' ); ?></td>
-						<td style="padding:3px 6px 3px 0;"><code style="font-size:11px;"><?php echo esc_html( $row['module'] . ': ' . $row['action'] ); ?></code></td>
+						<td style="padding:3px 6px 3px 0;"><span><?php echo esc_html( \UxStudio\Modules\ActivityLog\Labels::action( (string) $row['action'] ) ); ?></span></td>
 						<td style="padding:3px 6px 3px 0;"><?php echo esc_html( mb_strimwidth( (string) $object, 0, 40, '…' ) ); ?></td>
 						<td style="text-align:right;color:#646970;white-space:nowrap;">
 							<?php

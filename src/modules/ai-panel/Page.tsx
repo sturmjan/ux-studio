@@ -1,6 +1,6 @@
 /**
  * AI Panel has its own dedicated wp-admin screen (not part of the React SPA -
- * its UI is a self-contained legacy admin page, unchanged by the port). This
+ * its UI is a self-contained legacy admin page). This
  * tile just points there. Route: #/module?id=ai-panel
  */
 import { __ } from '@wordpress/i18n';
@@ -24,20 +24,20 @@ export default function Page(): JSX.Element {
 					{ __( 'AI Panel', 'ux-studio' ) }
 				</h1>
 			</header>
-			<div className="uxs-form">
-				<div className="uxs-form__row">
-					<p className="uxs-form__help" style={ { margin: 0 } }>
-						<Terminal size={ 16 } style={ { verticalAlign: 'middle', marginRight: 6 } } />
-						{ __(
-							'AI Panel manages temporary remote access grants through its own dedicated admin screen, unchanged from before the rewrite.',
-							'ux-studio'
-						) }
-					</p>
-				</div>
-				<a className="button button-primary" href={ url } style={ { width: 'fit-content' } }>
+			<section className="uxs-empty" aria-label={ __( 'AI Panel', 'ux-studio' ) }>
+				<span className="uxs-empty__icon">
+					<Terminal size={ 28 } />
+				</span>
+				<p className="uxs-empty__desc">
+					{ __(
+						'AI Panel has its own admin screen. There you allow temporary access for an AI agent, read the audit log and remove the access at any moment.',
+						'ux-studio'
+					) }
+				</p>
+				<a className="button button-primary" href={ url }>
 					{ __( 'Open AI Panel', 'ux-studio' ) } <ArrowUpRight size={ 14 } />
 				</a>
-			</div>
+			</section>
 		</>
 	);
 }

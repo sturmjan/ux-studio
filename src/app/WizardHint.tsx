@@ -39,7 +39,7 @@ export function WizardHint(): JSX.Element | null {
 	const starter = data.starter ? (
 		<aside className="uxs-wizhint" aria-label={ __( 'New site setup', 'ux-studio' ) }>
 			<Sparkles size={ 20 } aria-hidden />
-			<p>{ __( 'Is this a new site? Switch on the modules that suit almost every site, already preset, in one short wizard.', 'ux-studio' ) }</p>
+			<p>{ __( 'Is this a new site? Turn on the modules that suit almost every site, already preset, in one short wizard.', 'ux-studio' ) }</p>
 			<button type="button" className="button button-primary button-small" onClick={ () => navigate( 'wizard', { mode: 'new' } ) }>
 				{ __( 'Set up the recommended modules', 'ux-studio' ) }
 			</button>

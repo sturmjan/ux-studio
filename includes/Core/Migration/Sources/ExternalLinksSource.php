@@ -113,7 +113,7 @@ final class ExternalLinksSource extends AbstractSource {
 			$m->set( self::MODULE, 'default_target', 'keep', __( 'External links open', 'ux-studio' ), $origin . ':apply_settings' );
 			$m->set( self::MODULE, 'default_rel', '', __( 'rel attribute of external links', 'ux-studio' ), $origin . ':apply_settings' );
 			$m->set( self::MODULE, 'icon_type', 'none', __( 'Icon of external links', 'ux-studio' ), $origin . ':apply_settings' );
-			$m->note( __( 'The plugin has the settings for external links switched off, so the module does not change them either (no new tab, no rel, no icon).', 'ux-studio' ) );
+			$m->note( __( 'The plugin has the settings for external links turned off, so the module does not change them either (no new tab, no rel, no icon).', 'ux-studio' ) );
 			return;
 		}
 

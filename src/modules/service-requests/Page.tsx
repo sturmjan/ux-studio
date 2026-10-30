@@ -176,6 +176,7 @@ function NewRequestForm(): JSX.Element {
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-sr-title">{ __( 'What is it about?', 'ux-studio' ) }</label>
 				<input id="uxs-sr-title" type="text" value={ title } onChange={ ( e ) => setTitle( e.target.value ) } />
+				<p className="uxs-form__help">{ __( 'A short title that tells us the problem in one line.', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-sr-description">{ __( 'Description', 'ux-studio' ) }</label>
@@ -196,6 +197,7 @@ function NewRequestForm(): JSX.Element {
 					onChange={ ( e ) => setPageUrl( e.target.value ) }
 					placeholder="https://…"
 				/>
+				<p className="uxs-form__help">{ __( 'The address of the page where you see the problem. It saves time on finding it.', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-sr-type">{ __( 'Type', 'ux-studio' ) }</label>
@@ -216,16 +218,18 @@ function NewRequestForm(): JSX.Element {
 						</option>
 					) ) }
 				</select>
+				<p className="uxs-form__help">{ __( 'How fast it needs an answer. Use the highest level only for a site that is down or loses orders.', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
-				<label htmlFor="uxs-sr-email">{ __( 'Contact email', 'ux-studio' ) }</label>
+				<label htmlFor="uxs-sr-email">{ __( 'Contact e-mail', 'ux-studio' ) }</label>
 				<input
 					id="uxs-sr-email"
 					type="text"
 					value={ requesterEmail }
 					onChange={ ( e ) => setRequesterEmail( e.target.value ) }
-					placeholder={ __( 'Leave blank to use your account email', 'ux-studio' ) }
+					placeholder={ __( 'Leave blank to use your account e-mail', 'ux-studio' ) }
 				/>
+				<p className="uxs-form__help">{ __( 'Where the answer is sent. Empty uses the e-mail of your account.', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
 				<label>{ __( 'Attachment', 'ux-studio' ) }</label>
@@ -301,7 +305,7 @@ function RequestDetail( { item, onClose }: { item: ServiceRequest; onClose: () =
 			{ envEntries.length > 0 ? (
 				<details style={ { marginTop: 'var(--uxs-sp-3)' } }>
 					<summary>{ __( 'Site details sent with this request', 'ux-studio' ) }</summary>
-					<table className="uxs-table">
+					<div className="uxs-table-wrap"><table className="uxs-table">
 						<tbody>
 							{ envEntries.map( ( [ key, value ] ) => (
 								<tr key={ key }>
@@ -310,7 +314,7 @@ function RequestDetail( { item, onClose }: { item: ServiceRequest; onClose: () =
 								</tr>
 							) ) }
 						</tbody>
-					</table>
+					</table></div>
 				</details>
 			) : null }
 
@@ -332,6 +336,7 @@ function RequestDetail( { item, onClose }: { item: ServiceRequest; onClose: () =
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-sr-reply">{ __( 'Add a message', 'ux-studio' ) }</label>
 				<textarea id="uxs-sr-reply" rows={ 3 } value={ body } onChange={ ( e ) => setBody( e.target.value ) } />
+				<p className="uxs-form__help">{ __( 'Your reply is added to the request and sent to the team.', 'ux-studio' ) }</p>
 			</div>
 			<button
 				type="button"
@@ -387,7 +392,7 @@ function RequestsTable(): JSX.Element {
 			) : null }
 			{ ! isLoading && ( ! data || data.length === 0 ) ? <p>{ __( 'No service requests yet.', 'ux-studio' ) }</p> : null }
 			{ ! isLoading && data && data.length > 0 ? (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Number', 'ux-studio' ) }</th>
@@ -441,7 +446,7 @@ function RequestsTable(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) : null }
 			<p className="uxs-form__help">
 				{ __(

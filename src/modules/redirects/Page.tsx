@@ -3,6 +3,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Download, ListFilter, LoaderCircle, Pencil, Play, RotateCcw, Trash2, Upload } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
+import { HelpText } from '../../components/GlossaryTerm';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
 import { TabsNav } from '../../app/SubNav';
@@ -197,17 +198,20 @@ function TestBox(): JSX.Element {
 
 	return (
 		<div className="uxs-form" style={ { maxWidth: 'none', marginBottom: 'var(--uxs-sp-4)' } }>
-			<div className="uxs-form__line" style={ { display: 'flex', alignItems: 'flex-end', gap: 'var(--uxs-sp-3)' } }>
-				<div className="uxs-form__row" style={ { flex: 1 } }>
-					<label htmlFor="uxs-rd-test">{ __( 'Test a URL', 'ux-studio' ) }</label>
-					<input id="uxs-rd-test" type="text" value={ url } placeholder="/old-page.html" onChange={ ( e ) => setUrl( e.target.value ) } />
-				</div>
-				<label style={ { whiteSpace: 'nowrap' } }>
+			<div className="uxs-form__row">
+				<label htmlFor="uxs-rd-test">{ __( 'Test a URL', 'ux-studio' ) }</label>
+				<input id="uxs-rd-test" type="text" value={ url } placeholder="/old-page.html" onChange={ ( e ) => setUrl( e.target.value ) } />
+			</div>
+			<div className="uxs-actions" role="group" aria-label={ __( 'Test options', 'ux-studio' ) }>
+				<label>
 					<input type="checkbox" checked={ live } onChange={ ( e ) => setLive( e.target.checked ) } /> { __( 'Live HTTP check', 'ux-studio' ) }
 				</label>
-				<label style={ { whiteSpace: 'nowrap' } }>
+				<label>
 					<input type="checkbox" checked={ showVisitor } onChange={ ( e ) => setShowVisitor( e.target.checked ) } /> { __( 'As a specific visitor', 'ux-studio' ) }
 				</label>
+			</div>
+			<p className="uxs-form__help">{ __( 'A live check sends a real request to your site. "As a specific visitor" tests rules that depend on login, role, referrer or cookie.', 'ux-studio' ) }</p>
+			<div className="uxs-actions">
 				<button type="button" className="button" disabled={ ! url || test.isPending } onClick={ () => test.mutate() }>
 					<Play size={ 14 } /> { __( 'Test', 'ux-studio' ) }
 				</button>
@@ -350,6 +354,7 @@ function RuleForm( { draft, setDraft }: { draft: Draft; setDraft: ( d: Draft ) =
 					</button>
 				) }
 			</div>
+			<p className="uxs-form__help"><HelpText text={ __( 'Type: [[301]] moves the page for good, [[302]] only for now, [[410]] says the content is gone. Match: "Exact URL" compares the old address letter for letter, a [[regex|regular expression]] matches a pattern.', 'ux-studio' ) } /></p>
 			{ draft.match_type === 'exact' && (
 				<div className="uxs-rd-options">
 					<label>
@@ -416,24 +421,19 @@ function RulesTab( { draft, setDraft }: { draft: Draft; setDraft: ( d: Draft ) =
 		<>
 			<TestBox />
 			<RuleForm draft={ draft } setDraft={ setDraft } />
-			<div className="uxs-form__row" style={ { maxWidth: 320, marginBottom: 'var(--uxs-sp-3)' } }>
-				<input
-					type="search"
-					style={ {
-						background: 'var(--uxs-surface)',
-						color: 'var(--uxs-text)',
-						border: '1px solid var(--uxs-border)',
-						borderRadius: 'var(--uxs-radius-s)',
-						padding: 'var(--uxs-sp-2) var(--uxs-sp-3)',
-						width: '100%',
-					} }
-					value={ search }
-					placeholder={ __( 'Search redirects…', 'ux-studio' ) }
-					onChange={ ( e ) => {
-						setPage( 0 );
-						setSearch( e.target.value );
-					} }
-				/>
+			<div className="uxs-form uxs-form--stacked" style={ { maxWidth: 320, marginBottom: 'var(--uxs-sp-3)' } }>
+				<div className="uxs-form__row">
+					<input
+						type="search"
+						aria-label={ __( 'Search redirects…', 'ux-studio' ) }
+						value={ search }
+						placeholder={ __( 'Search redirects…', 'ux-studio' ) }
+						onChange={ ( e ) => {
+							setPage( 0 );
+							setSearch( e.target.value );
+						} }
+					/>
+				</div>
 			</div>
 			{ rules.data && rules.data.some( ( r ) => r.hits > 0 ) && (
 				<p style={ { marginBottom: 'var(--uxs-sp-3)' } }>
@@ -456,7 +456,7 @@ function RulesTab( { draft, setDraft }: { draft: Draft; setDraft: ( d: Draft ) =
 			{ rules.data && rules.data.length === 0 && <p>{ __( 'No redirects yet.', 'ux-studio' ) }</p> }
 			{ rules.data && rules.data.length > 0 && (
 				<>
-					<table className="uxs-table">
+					<div className="uxs-table-wrap"><table className="uxs-table">
 						<thead>
 							<tr>
 								<th>{ __( 'Old URL', 'ux-studio' ) }</th>
@@ -552,7 +552,7 @@ function RulesTab( { draft, setDraft }: { draft: Draft; setDraft: ( d: Draft ) =
 								</tr>
 							) ) }
 						</tbody>
-					</table>
+					</table></div>
 					<div style={ { display: 'flex', gap: 'var(--uxs-sp-3)', marginTop: 'var(--uxs-sp-4)' } }>
 						<button type="button" className="button" disabled={ page === 0 } onClick={ () => setPage( ( p ) => p - 1 ) }>
 							{ __( 'Previous', 'ux-studio' ) }
@@ -605,7 +605,7 @@ function NotFoundTab( { onRedirect }: { onRedirect: ( url: string ) => void } ):
 			{ log.data && log.data.length === 0 && <p>{ __( 'No 404 errors logged.', 'ux-studio' ) }</p> }
 			{ log.data && log.data.length > 0 && (
 				<>
-					<table className="uxs-table">
+					<div className="uxs-table-wrap"><table className="uxs-table">
 						<thead>
 							<tr>
 								<th>{ __( 'URL', 'ux-studio' ) }</th>
@@ -638,7 +638,7 @@ function NotFoundTab( { onRedirect }: { onRedirect: ( url: string ) => void } ):
 								</tr>
 							) ) }
 						</tbody>
-					</table>
+					</table></div>
 					<div style={ { display: 'flex', gap: 'var(--uxs-sp-3)', marginTop: 'var(--uxs-sp-4)' } }>
 						<button type="button" className="button" disabled={ page === 0 } onClick={ () => setPage( ( p ) => p - 1 ) }>
 							{ __( 'Previous', 'ux-studio' ) }
@@ -703,7 +703,7 @@ function AuditTab(): JSX.Element {
 							<span className="uxs-badge is-success">{ __( 'No problems found.', 'ux-studio' ) }</span>
 						</p>
 					) : (
-						<table className="uxs-table">
+						<div className="uxs-table-wrap"><table className="uxs-table">
 							<tbody>
 								{ data.issues.map( ( issue, i ) => (
 									<tr key={ i }>
@@ -717,7 +717,7 @@ function AuditTab(): JSX.Element {
 									</tr>
 								) ) }
 							</tbody>
-						</table>
+						</table></div>
 					) }
 				</>
 			) }

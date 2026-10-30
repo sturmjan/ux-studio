@@ -85,8 +85,10 @@ final class Claude_Panel_Runtime {
                 self::rate_limit_ok($attempts, $ip);
                 Claude_Panel_Bootstrap::audit('login_ok');
                 Claude_Panel_Bootstrap::notify_admin_email(
-                    'AI Panel: úspěšné přihlášení',
-                    sprintf("Někdo se právě přihlásil do AI Panelu.\nIP: %s\nČas: %s\n\nPokud jste to nebyl(a) Vy, ihned odeberte přístup v admin AI Panel.",
+                    __('AI Panel: successful login', 'ux-studio'),
+                    sprintf(
+                        /* translators: 1: IP address, 2: date and time */
+                        __("Somebody has just logged in to AI Panel.\nIP: %1\$s\nTime: %2\$s\n\nIf this was not you, remove the access in AI Panel in the admin right away.", 'ux-studio'),
                         $ip, wp_date('Y-m-d H:i:s'))
                 );
                 wp_redirect(self::$access_url);
@@ -94,7 +96,7 @@ final class Claude_Panel_Runtime {
             } else {
                 self::rate_limit_fail($attempts, $ip);
                 Claude_Panel_Bootstrap::audit('login_fail');
-                $login_error = 'Nesprávné heslo.';
+                $login_error = __('Wrong password.', 'ux-studio');
             }
         }
 
@@ -127,8 +129,8 @@ final class Claude_Panel_Runtime {
         header('Content-Type: application/json; charset=utf-8');
         header('X-AI-Panel: ' . CP_VERSION);
 
-        // brief=1 → minimální strojová verze (angličtina, bez prózy). Načítá se
-        // na začátku každé session → menší = méně tokenů. Plná verze zůstává default.
+        // brief=1 -> minimal machine version (no prose). It is loaded at the start of every
+        // session, so smaller = fewer tokens. The full version stays the default.
         if (!empty($_GET['brief'])) {
             echo json_encode([
                 'name'    => 'AI Panel',
@@ -166,76 +168,76 @@ final class Claude_Panel_Runtime {
         $help = [
             'name'        => 'AI Panel',
             'version'     => CP_VERSION,
-            'purpose'     => 'Single-page admin panel pro WordPress: dočasný řízený přístup k souborům, databázi a shellu serveru.',
-            'audience'    => 'Libovolný AI agent / autonomní klient (Claude Code, Codex, Gemini CLI a podobné). Tento JSON popisuje protokol natolik, aby agent mohl panel obsluhovat bez další lidské nápovědy.',
+            'purpose'     => 'Single-page admin panel for WordPress: temporary controlled access to the files, the database and the shell of the server.',
+            'audience'    => 'Any AI agent / autonomous client (Claude Code, Codex, Gemini CLI and similar). This JSON describes the protocol well enough for an agent to operate the panel without further human help.',
             'how_to_use'  => [
-                '1. Načti tento endpoint (' . self::$access_url . '?api=help) – potvrzuje identitu pluginu.',
-                '2. Přihlaš se: POST na ' . self::$access_url . ' s polem `action=login` a `password=<heslo>`. Server vrátí 302 + session cookie `cppnl` (scope: cesta panelu, HttpOnly, SameSite=Strict).',
-                '3. Z odpovědi po loginu (HTML hlavního UI) vyparsuj CSRF token: `const CSRF = "<token>"` v <script> tagu.',
-                '4. Volej API přes POST na ' . self::$access_url . '?api=<action>. CSRF token posílej v poli `csrf` nebo hlavičce `X-CSRF-Token`.',
-                '5. Pro akce `sql`, `exec`, `write`, `patch` posílej payload v base64 (níže), abys obešel WAF (Wordfence apod.).',
-                '6. Po dokončení prací: GET ' . self::$access_url . '?action=logout. Uživatel pak v WP admin dashboardu klikne „Okamžitě odebrat přístup" (kill switch).',
+                '1. Load this endpoint (' . self::$access_url . '?api=help) - it confirms the identity of the plugin.',
+                '2. Log in: POST to ' . self::$access_url . ' with the fields `action=login` and `password=<password>`. The server returns 302 + the session cookie `cppnl` (scope: panel path, HttpOnly, SameSite=Strict).',
+                '3. From the response after login (HTML of the main UI) parse the CSRF token: `const CSRF = "<token>"` in the <script> tag.',
+                '4. Call the API with POST to ' . self::$access_url . '?api=<action>. Send the CSRF token in the field `csrf` or in the header `X-CSRF-Token`.',
+                '5. For the actions `sql`, `exec`, `write`, `patch` send the payload in base64 (see below) to get past the WAF (Wordfence etc.).',
+                '6. When the work is done: GET ' . self::$access_url . '?action=logout. The user then clicks "Remove the access now" (kill switch) in the WP admin dashboard.',
             ],
             'auth' => [
-                'method'      => 'POST form, klasický password',
-                'rate_limit'  => '5 chybných pokusů → 15 min lockout (per IP)',
-                'session_ttl' => '3600 s (po každém requestu se obnovuje)',
-                'csrf'        => 'Token v session, vrácen v HTML hlavního UI jako `const CSRF = "..."`. Posílej v POST poli `csrf` nebo HTTP hlavičce `X-CSRF-Token`.',
+                'method'      => 'POST form, plain password',
+                'rate_limit'  => '5 wrong attempts -> 15 min lockout (per IP)',
+                'session_ttl' => '3600 s (renewed on every request)',
+                'csrf'        => 'Token kept in the session, returned in the HTML of the main UI as `const CSRF = "..."`. Send it in the POST field `csrf` or in the HTTP header `X-CSRF-Token`.',
             ],
             'endpoints' => [
-                'GET  /'              => 'Login form (před přihlášením) nebo hlavní UI (po přihlášení).',
-                'POST /'              => 'Login: pole `action=login`, `password=<heslo>`.',
-                'GET  ?api=help'      => 'Tento JSON. Bez auth. Přidej `&brief=1` pro stručnou strojovou verzi (výrazně méně tokenů) — doporučeno pro automatizované klienty.',
+                'GET  /'              => 'Login form (before login) or the main UI (after login).',
+                'POST /'              => 'Login: fields `action=login`, `password=<password>`.',
+                'GET  ?api=help'      => 'This JSON. No auth. Add `&brief=1` for the short machine version (far fewer tokens), recommended for automated clients.',
                 'GET  ?action=logout' => 'Logout.',
-                'POST ?api=list'      => 'Listing adresáře. Pole: `path` (relativní k WP rootu). Volitelně `compact=1` → položky jako poziční pole `[name, "d"|"f"]` bez size/mtime/perms (méně tokenů u velkých adresářů; `format` popisuje pořadí).',
-                'POST ?api=grep'      => 'Hledání v souboru NEBO adresáři (rekurzivně) — vrací JEN matchující řádky, ne celé soubory (řádově méně tokenů než read+lokální hledání). Pole: `pattern` NEBO `p64` (base64), `path` (soubor/adresář, default \'.\'), volitelně `regex=1` (PCRE; jinak literal), `ignore_case=1`, `glob` (filtr názvu, např. `*.php`), `max` (strop matchů, default 200), `maxcell` (ořez délky řádku, default 300), `context` (± řádky, 0–10). Vrací `{matches:[{file,line,text}], count, files_scanned, truncated?}`. Přeskakuje binárky, *.min.*, zálohy a soubory >3 MB.',
-                'POST ?api=read'      => 'Přečti soubor. Pole: `path`. Volitelně `start_line` + `end_line` (1-based včetně) pro částečné čtení jen daného rozsahu řádků — šetří tokeny u velkých souborů (vrací i `total_lines`). Limit 5 MB.',
-                'POST ?api=write'     => 'Zapiš CELÝ soubor. Pole: `path`, `content` NEBO `c64` (base64). Vytváří + přepisuje. POZOR: pro úpravu existujícího souboru použij radši ?api=patch (mnohem méně tokenů). U *.php se obsah nejdřív zkontroluje na syntax chyby a zápis se při chybě zablokuje (HTTP 422, pole `lint_error`) — vynutíš přes `force=1`. Existující soubor se před přepsáním zálohuje.',
-                'POST ?api=patch'     => 'PREFEROVANÁ úprava existujícího souboru (find/replace) — posílá se JEN měněný úsek místo celého souboru, řádově méně tokenů než write. Pole: `path`, `find` NEBO `f64` (base64), `replace` NEBO `r64` (base64), volitelně `all=1` (nahradí všechny výskyty; jinak musí být `find` v souboru jednoznačný, jinak HTTP 422 + `occurrences`), `force=1` (přeskočí PHP lint). U *.php se lintuje VÝSLEDEK; před zápisem se dělá záloha. Vrací `{ok, replaced, size, backup}`.',
-                'POST ?api=delete'    => 'Smaž soubor / adresář (rekurzivně). Pole: `path`. Plugin chrání sám sebe a WP root.',
-                'POST ?api=mkdir'     => 'Vytvoř adresář (rekurzivně). Pole: `path`.',
-                'POST ?api=rename'    => 'Přejmenuj / přesuň. Pole: `from`, `to`.',
-                'POST ?api=upload'    => 'Upload souborů. multipart/form-data: `files[]`, `path` (cílový adresář).',
-                'POST ?api=exec'      => 'Spusť shell příkaz. Pole: `cmd` NEBO `cmd64` (base64), volitelně `cwd`. Vrací `{output, rc, cwd}`.',
-                'POST ?api=sql'       => 'Spusť SQL na WP DB. Pole: `query` NEBO `q64` (base64). SELECT vrací `{columns, rows, count}`, ostatní vrací `{ok, affected, insertId}`. Úsporné volitelné parametry u čtení: `maxrows` (strop řádků, default 500, `0`=bez stropu; při ořezu vrací `truncated:true`), `compact=1` (řádky jako poziční pole místo objektů → jména sloupců jen jednou v `columns`, odpověď má `format:"rows"`), `maxcell` (ořez dlouhých textových buněk na N znaků se značkou `…[+N B]`). Doporučení: vybírej jen potřebné sloupce + `LIMIT`, ne `SELECT *`.',
-                'POST ?api=wpinfo'    => 'WordPress / server info: WP verze, locale, DB connection, PHP, server, disk, exec_enabled atd.',
-                'GET  ?download=path' => 'Stáhni soubor (binární stream, Content-Disposition: attachment).',
+                'POST ?api=list'      => 'Directory listing. Fields: `path` (relative to the WP root). Optional `compact=1` -> items as positional arrays `[name, "d"|"f"]` without size/mtime/perms (fewer tokens for big directories; `format` describes the order).',
+                'POST ?api=grep'      => 'Search in a file OR a directory (recursive). Returns ONLY the matching lines, not whole files (orders of magnitude fewer tokens than read + local search). Fields: `pattern` OR `p64` (base64), `path` (file/directory, default \'.\'), optional `regex=1` (PCRE; otherwise literal), `ignore_case=1`, `glob` (file name filter, e.g. `*.php`), `max` (match cap, default 200), `maxcell` (line length cut, default 300), `context` (+/- lines, 0-10). Returns `{matches:[{file,line,text}], count, files_scanned, truncated?}`. Skips binaries, *.min.*, backups and files over 3 MB.',
+                'POST ?api=read'      => 'Read a file. Fields: `path`. Optional `start_line` + `end_line` (1-based, inclusive) to read only that range of lines, which saves tokens on big files (also returns `total_lines`). Limit 5 MB.',
+                'POST ?api=write'     => 'Write the WHOLE file. Fields: `path`, `content` OR `c64` (base64). Creates and overwrites. WARNING: to change an existing file prefer ?api=patch (far fewer tokens). *.php content is checked for syntax errors first and the write is blocked on an error (HTTP 422, field `lint_error`); force it with `force=1`. An existing file is backed up before it is overwritten.',
+                'POST ?api=patch'     => 'PREFERRED way to change an existing file (find/replace): only the changed part is sent instead of the whole file, orders of magnitude fewer tokens than write. Fields: `path`, `find` OR `f64` (base64), `replace` OR `r64` (base64), optional `all=1` (replaces every occurrence; otherwise `find` must be unique in the file, or HTTP 422 + `occurrences`), `force=1` (skips the PHP lint). For *.php the RESULT is linted; a backup is made before the write. Returns `{ok, replaced, size, backup}`.',
+                'POST ?api=delete'    => 'Delete a file / directory (recursive). Fields: `path`. The plugin protects itself and the WP root.',
+                'POST ?api=mkdir'     => 'Create a directory (recursive). Fields: `path`.',
+                'POST ?api=rename'    => 'Rename / move. Fields: `from`, `to`.',
+                'POST ?api=upload'    => 'Upload files. multipart/form-data: `files[]`, `path` (target directory).',
+                'POST ?api=exec'      => 'Run a shell command. Fields: `cmd` OR `cmd64` (base64), optional `cwd`. Returns `{output, rc, cwd}`.',
+                'POST ?api=sql'       => 'Run SQL on the WP database. Fields: `query` OR `q64` (base64). SELECT returns `{columns, rows, count}`, everything else returns `{ok, affected, insertId}`. Economical optional parameters for reads: `maxrows` (row cap, default 500, `0` = no cap; `truncated:true` is returned when cut), `compact=1` (rows as positional arrays instead of objects -> column names only once in `columns`, the response has `format:"rows"`), `maxcell` (cuts long text cells to N characters with the mark `...[+N B]`). Recommendation: select only the columns you need + `LIMIT`, not `SELECT *`.',
+                'POST ?api=wpinfo'    => 'WordPress / server info: WP version, locale, DB connection, PHP, server, disk, exec_enabled etc.',
+                'GET  ?download=path' => 'Download a file (binary stream, Content-Disposition: attachment).',
             ],
             'obfuscation' => [
-                'reason' => 'Wordfence a podobné WAF blokují payloady jako "SELECT", "rm -rf", apod. Posíláním v base64 (s alternativním názvem pole) tyto signature-based filtry obejdeš.',
+                'reason' => 'Wordfence and similar WAFs block payloads such as "SELECT", "rm -rf" and so on. By sending them in base64 (with an alternative field name) you get past these signature-based filters.',
                 'fields' => [
-                    'sql:   query  → q64  (base64 SQL dotazu)',
-                    'exec:  cmd    → cmd64 (base64 shell příkazu)',
-                    'write: content→ c64  (base64 obsahu souboru)',
-                    'patch: find   → f64, replace → r64 (base64 úseků)',
+                    'sql:   query  -> q64  (base64 of the SQL query)',
+                    'exec:  cmd    -> cmd64 (base64 of the shell command)',
+                    'write: content-> c64  (base64 of the file content)',
+                    'patch: find   -> f64, replace -> r64 (base64 of the parts)',
                 ],
             ],
             'efficiency' => [
-                'reason' => 'Panel se obsluhuje přes HTTP — každý přenesený bajt jsou tokeny (a vygenerovaný obsah jsou drahé output tokeny). Tyto zásady drží spotřebu nízko:',
+                'reason' => 'The panel is operated over HTTP, so every transferred byte costs tokens (and generated content is expensive output tokens). These rules keep the consumption low:',
                 'rules'  => [
-                    'Na začátku session načti ?api=help&brief=1 (ne plný help) — je řádově menší.',
-                    'Úpravy souborů dělej přes ?api=patch (find/replace), NE přes ?api=write s celým obsahem — celý soubor (navíc v base64) je řádově víc tokenů než malý diff.',
-                    'Hledej přes ?api=grep (vrací jen matchující řádky), NEČTI kvůli hledání celé soubory ani adresáře.',
-                    'Velké soubory čti částečně: ?api=read se start_line/end_line místo celého souboru.',
-                    'Velké adresáře listuj s ?api=list&compact=1.',
-                    'U SELECT vybírej jen potřebné sloupce a používej LIMIT. Pro objemné výsledky přidej compact=1 a maxcell=500. Vyhni se SELECT * u wp_posts/wp_options (velké HTML / serializované sloupce).',
+                    'At the start of the session load ?api=help&brief=1 (not the full help), it is far smaller.',
+                    'Change files with ?api=patch (find/replace), NOT with ?api=write and the whole content: a whole file (in base64 on top) is orders of magnitude more tokens than a small diff.',
+                    'Search with ?api=grep (returns only the matching lines), do NOT read whole files or directories just to search.',
+                    'Read big files partially: ?api=read with start_line/end_line instead of the whole file.',
+                    'List big directories with ?api=list&compact=1.',
+                    'For SELECT choose only the columns you need and use LIMIT. For bulky results add compact=1 and maxcell=500. Avoid SELECT * on wp_posts/wp_options (big HTML / serialized columns).',
                 ],
             ],
             'response_format' => [
-                'success' => 'HTTP 200, JSON podle akce.',
+                'success' => 'HTTP 200, JSON depending on the action.',
                 'error'   => 'HTTP 4xx, JSON: {"error": "human readable message"}.',
-                'auth_fail' => 'HTTP 403 + {"error": "Neplatný CSRF token"} pro chybějící CSRF; redirect na login pokud session vypršela.',
-                'rate_limited' => 'HTTP 429 + plain text se zbývajícím cooldownem.',
-                'expired_access' => 'HTTP 410 — uživatel musí povolit přístup znovu v WP admin dashboardu.',
+                'auth_fail' => 'HTTP 403 + {"error": "Invalid CSRF token"} for a missing CSRF; redirect to the login if the session expired.',
+                'rate_limited' => 'HTTP 429 + plain text with the remaining cooldown.',
+                'expired_access' => 'HTTP 410 - the user has to allow the access again in the WP admin dashboard.',
             ],
             'safety' => [
-                'php_lint'   => 'Zápis *.php se ověří přes token_get_all(TOKEN_PARSE). Syntax error → HTTP 422 a zápis se NEprovede. Obejdeš polem force=1.',
-                'auto_backup'=> 'Před každým write/delete/rename, které přepisuje/maže existující soubor, se originál zkopíruje do wp-content/claude-panel-backups/<datum>/ (web-nedostupné). Rollback = zkopírovat zpět.',
-                'rescue'     => 'Pokud i tak dojde k pádu WP (fatální chyba za běhu, ne jen syntax), existuje samostatný záchranný endpoint mimo WordPress — spravuje ho admin ve WP → AI Panel.',
+                'php_lint'   => 'Writing *.php is verified with token_get_all(TOKEN_PARSE). A syntax error -> HTTP 422 and the write is NOT done. Bypass it with the field force=1.',
+                'auto_backup'=> 'Before every write/delete/rename that overwrites/deletes an existing file, the original is copied to wp-content/claude-panel-backups/<date>/ (not reachable from the web). Rollback = copy it back.',
+                'rescue'     => 'If WP crashes anyway (a fatal error at runtime, not just a syntax error), there is a separate rescue endpoint outside WordPress, managed by the admin in WP > AI Panel.',
             ],
-            'filesystem_root' => 'WordPress ABSPATH. Všechny `path` parametry jsou relativní k němu.',
-            'audit_log'       => 'Všechny zápisové operace se logují do WP options `claude_panel_audit` (admin to vidí v dashboardu, pokud chce). Operace: login_ok, login_fail, write, delete, mkdir, rename, upload, exec, sql, download.',
-            'time_limit'      => 'Přístup auto-expiruje. Aktuální stav viz `expires_in_seconds` níže.',
+            'filesystem_root' => 'WordPress ABSPATH. All `path` parameters are relative to it.',
+            'audit_log'       => 'All write operations are logged to the WP option `claude_panel_audit` (the admin can see it in the dashboard if they want). Operations: login_ok, login_fail, write, delete, mkdir, rename, upload, exec, sql, download.',
+            'time_limit'      => 'The access expires automatically. See `expires_in_seconds` below for the current state.',
             'expires_in_seconds' => max(0, intval(self::$opts['access_expires_at']) - time()),
             'expires_at_iso'     => date('c', intval(self::$opts['access_expires_at'])),
         ];
@@ -268,7 +270,7 @@ final class Claude_Panel_Runtime {
         $t = $_POST['csrf'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
         if (!hash_equals($_SESSION['csrf'] ?? '', $t)) {
             http_response_code(403);
-            echo json_encode(['error' => 'Neplatný CSRF token']);
+            echo json_encode(['error' => __('Invalid CSRF token', 'ux-studio')]);
             exit;
         }
     }
@@ -283,7 +285,11 @@ final class Claude_Panel_Runtime {
         if ($rec['count'] >= 5 && time() - $rec['last'] < 900) {
             http_response_code(429);
             header('Content-Type: text/plain; charset=utf-8');
-            echo 'Příliš mnoho pokusů. Počkej ' . (900 - (time() - $rec['last'])) . ' s.';
+            echo esc_html(sprintf(
+                /* translators: %d: seconds to wait */
+                __('Too many attempts. Wait %d s.', 'ux-studio'),
+                900 - (time() - $rec['last'])
+            ));
             exit;
         }
         return [$data, $ip];
@@ -316,7 +322,7 @@ final class Claude_Panel_Runtime {
         } else {
             $parent = realpath(dirname($cand));
             if ($parent === false) {
-                throw new Exception('Rodičovský adresář neexistuje.');
+                throw new Exception(__('The parent directory does not exist.', 'ux-studio'));
             }
             $rootReal = realpath(self::$root);
             if (strpos($parent . DIRECTORY_SEPARATOR, $rootReal . DIRECTORY_SEPARATOR) !== 0
@@ -377,7 +383,7 @@ final class Claude_Panel_Runtime {
             token_get_all((string) $content, TOKEN_PARSE);
             return null;
         } catch (\ParseError $e) {
-            return $e->getMessage() . ' (řádek ' . $e->getLine() . ')';
+            return $e->getMessage() . ' (' . sprintf(/* translators: %d: line number */ __('line %d', 'ux-studio'), $e->getLine()) . ')';
         } catch (\Throwable $e) {
             return $e->getMessage();
         }
@@ -464,7 +470,7 @@ final class Claude_Panel_Runtime {
 
                 case 'list': {
                     $path = self::safe_path($_POST['path'] ?? '.');
-                    if (!is_dir($path)) throw new Exception('Není adresář.');
+                    if (!is_dir($path)) throw new Exception(__('Not a directory.', 'ux-studio'));
                     // compact=1 → jen name+type (poziční pole), bez size/mtime/perms/path.
                     // Šetří tokeny u velkých adresářů; detaily si vyžádej cíleně jinou akcí.
                     $compact = !empty($_POST['compact']);
@@ -499,9 +505,9 @@ final class Claude_Panel_Runtime {
 
                 case 'read': {
                     $path = self::safe_path($_POST['path']);
-                    if (!is_file($path)) throw new Exception('Není soubor.');
+                    if (!is_file($path)) throw new Exception(__('Not a file.', 'ux-studio'));
                     $size = filesize($path);
-                    if ($size > 5 * 1024 * 1024) throw new Exception('Soubor je příliš velký pro zobrazení (>5 MB). Stáhni jej.');
+                    if ($size > 5 * 1024 * 1024) throw new Exception(__('The file is too large to display (over 5 MB). Download it instead.', 'ux-studio'));
                     $raw = file_get_contents($path);
 
                     // Volitelné částečné čtení po řádcích (start_line/end_line, 1-based
@@ -540,7 +546,7 @@ final class Claude_Panel_Runtime {
                     $pattern = isset($_POST['p64'])
                         ? (string) base64_decode($_POST['p64'], true)
                         : (string) ($_POST['pattern'] ?? '');
-                    if ($pattern === false || $pattern === '') throw new Exception('Chybí/neplatný pattern (nebo p64).');
+                    if ($pattern === false || $pattern === '') throw new Exception(__('Missing or invalid pattern (or p64).', 'ux-studio'));
 
                     $base       = self::safe_path($_POST['path'] ?? '.');
                     $regex      = !empty($_POST['regex']);
@@ -554,7 +560,7 @@ final class Claude_Panel_Runtime {
                     if ($regex) {
                         $delim = '~';
                         $re    = $delim . str_replace($delim, '\\' . $delim, $pattern) . $delim . ($ci ? 'i' : '');
-                        if (@preg_match($re, '') === false) throw new Exception('Neplatný regex.');
+                        if (@preg_match($re, '') === false) throw new Exception(__('Invalid regular expression.', 'ux-studio'));
                         $match_line = function ($line) use ($re) { return (bool) preg_match($re, $line); };
                     } else {
                         $needle = $ci ? mb_strtolower($pattern) : $pattern;
@@ -583,7 +589,7 @@ final class Claude_Panel_Runtime {
                             $files[] = $f->getPathname();
                         }
                     } else {
-                        throw new Exception('Cesta není soubor ani adresář.');
+                        throw new Exception(__('The path is neither a file nor a directory.', 'ux-studio'));
                     }
 
                     $matches   = [];
@@ -639,7 +645,7 @@ final class Claude_Panel_Runtime {
                     $content = isset($_POST['c64'])
                         ? base64_decode($_POST['c64'], true)
                         : ($_POST['content'] ?? '');
-                    if ($content === false) throw new Exception('Neplatný base64 obsah.');
+                    if ($content === false) throw new Exception(__('Invalid base64 content.', 'ux-studio'));
 
                     // Bezpečnostní lint: PHP soubory se před zápisem zkontrolují
                     // na syntaktické chyby (nejčastější příčina bílé obrazovky
@@ -651,9 +657,9 @@ final class Claude_Panel_Runtime {
                             Claude_Panel_Bootstrap::audit('write_blocked', self::rel_path($path) . ' — ' . substr($lint, 0, 200));
                             http_response_code(422);
                             echo json_encode([
-                                'error'      => 'PHP syntax error — zápis zablokován kvůli ochraně webu: ' . $lint,
+                                'error'      => __('PHP syntax error: the write was blocked to protect the site:', 'ux-studio') . ' ' . $lint,
                                 'lint_error' => $lint,
-                                'hint'       => 'Oprav syntaxi, nebo pošli force=1 pro vynucení zápisu.',
+                                'hint'       => __('Fix the syntax, or send force=1 to force the write.', 'ux-studio'),
                             ], JSON_UNESCAPED_UNICODE);
                             exit;
                         }
@@ -662,9 +668,9 @@ final class Claude_Panel_Runtime {
                     // Záloha původní verze PŘED přepsáním → instantní rollback.
                     $backup = self::backup_existing($path, 'write');
 
-                    if (file_put_contents($path, $content) === false) throw new Exception('Zápis selhal.');
+                    if (file_put_contents($path, $content) === false) throw new Exception(__('Write failed.', 'ux-studio'));
                     Claude_Panel_Bootstrap::audit('write', self::rel_path($path) . ' (' . strlen($content) . ' B)'
-                        . ($backup ? ' [záloha ✓]' : ''));
+                        . ($backup ? ' [backup ✓]' : ''));
                     $res = ['ok' => true, 'path' => self::rel_path($path), 'size' => strlen($content), 'backup' => (bool) $backup];
                     break;
                 }
@@ -674,7 +680,7 @@ final class Claude_Panel_Runtime {
                     // celého souboru → řádově méně (drahých output) tokenů než write.
                     // Pole: path, find|f64, replace|r64, [all=1], [force=1].
                     $path = self::safe_path($_POST['path']);
-                    if (!is_file($path)) throw new Exception('Není soubor.');
+                    if (!is_file($path)) throw new Exception(__('Not a file.', 'ux-studio'));
 
                     $find = isset($_POST['f64'])
                         ? base64_decode($_POST['f64'], true)
@@ -683,16 +689,16 @@ final class Claude_Panel_Runtime {
                         ? base64_decode($_POST['r64'], true)
                         : ($_POST['replace'] ?? '');
                     if ($find === null || $find === false || $find === '') {
-                        throw new Exception('Chybí/neplatné pole find (nebo f64).');
+                        throw new Exception(__('Missing or invalid field find (or f64).', 'ux-studio'));
                     }
-                    if ($replace === false) throw new Exception('Neplatný base64 v r64.');
+                    if ($replace === false) throw new Exception(__('Invalid base64 in r64.', 'ux-studio'));
 
                     $original    = file_get_contents($path);
                     $occurrences = substr_count($original, $find);
                     if ($occurrences === 0) {
                         http_response_code(422);
                         echo json_encode([
-                            'error'       => 'Hledaný úsek (find) se v souboru nenašel.',
+                            'error'       => __('The text to find (find) was not found in the file.', 'ux-studio'),
                             'occurrences' => 0,
                         ], JSON_UNESCAPED_UNICODE);
                         exit;
@@ -701,8 +707,11 @@ final class Claude_Panel_Runtime {
                     if ($occurrences > 1 && !$all) {
                         http_response_code(422);
                         echo json_encode([
-                            'error'       => 'Úsek (find) není jednoznačný — nalezen ' . $occurrences . '×. '
-                                           . 'Rozšiř kontext, nebo pošli all=1 pro nahrazení všech výskytů.',
+                            'error'       => sprintf(
+                                /* translators: %d: number of occurrences found */
+                                __('The text to find (find) is not unique: found %d times. Add more context, or send all=1 to replace every occurrence.', 'ux-studio'),
+                                $occurrences
+                            ),
                             'occurrences' => $occurrences,
                         ], JSON_UNESCAPED_UNICODE);
                         exit;
@@ -721,18 +730,18 @@ final class Claude_Panel_Runtime {
                             Claude_Panel_Bootstrap::audit('write_blocked', self::rel_path($path) . ' [patch] — ' . substr($lint, 0, 200));
                             http_response_code(422);
                             echo json_encode([
-                                'error'      => 'PHP syntax error po náhradě — zápis zablokován: ' . $lint,
+                                'error'      => __('PHP syntax error after the replacement: the write was blocked:', 'ux-studio') . ' ' . $lint,
                                 'lint_error' => $lint,
-                                'hint'       => 'Oprav náhradu, nebo pošli force=1 pro vynucení zápisu.',
+                                'hint'       => __('Fix the replacement, or send force=1 to force the write.', 'ux-studio'),
                             ], JSON_UNESCAPED_UNICODE);
                             exit;
                         }
                     }
 
                     $backup = self::backup_existing($path, 'patch');
-                    if (file_put_contents($path, $new) === false) throw new Exception('Zápis selhal.');
+                    if (file_put_contents($path, $new) === false) throw new Exception(__('Write failed.', 'ux-studio'));
                     Claude_Panel_Bootstrap::audit('write', self::rel_path($path) . ' [patch ×' . $replaced . ', ' . strlen($new) . ' B]'
-                        . ($backup ? ' [záloha ✓]' : ''));
+                        . ($backup ? ' [backup ✓]' : ''));
                     $res = ['ok' => true, 'path' => self::rel_path($path), 'replaced' => $replaced, 'size' => strlen($new), 'backup' => (bool) $backup];
                     break;
                 }
@@ -743,11 +752,11 @@ final class Claude_Panel_Runtime {
                     // Protect the host UX1 plugin (which contains this module) from being deleted via the panel.
                     $host_plugin_dir = defined('WP_EXTENDED_PATH') ? realpath(WP_EXTENDED_PATH) : false;
                     if ($host_plugin_dir && strpos($path, $host_plugin_dir) === 0) {
-                        throw new Exception('Nelze smazat samotný plugin.');
+                        throw new Exception(__('The plugin itself cannot be deleted.', 'ux-studio'));
                     }
                     $backup = is_file($path) ? self::backup_existing($path, 'delete') : null;
                     is_dir($path) ? self::rrmdir($path) : unlink($path);
-                    Claude_Panel_Bootstrap::audit('delete', self::rel_path($path) . ($backup ? ' [záloha ✓]' : ''));
+                    Claude_Panel_Bootstrap::audit('delete', self::rel_path($path) . ($backup ? ' [backup ✓]' : ''));
                     $res = ['ok' => true, 'backup' => (bool) $backup];
                     break;
                 }
@@ -765,17 +774,17 @@ final class Claude_Panel_Runtime {
                     $to   = self::safe_path($_POST['to'], false);
                     // Když cíl existuje, přepíše se — zálohuj ho před ztrátou.
                     $backup = is_file($to) ? self::backup_existing($to, 'rename-overwrite') : null;
-                    if (!rename($from, $to)) throw new Exception('Přejmenování selhalo.');
-                    Claude_Panel_Bootstrap::audit('rename', self::rel_path($from) . ' -> ' . self::rel_path($to) . ($backup ? ' [záloha ✓]' : ''));
+                    if (!rename($from, $to)) throw new Exception(__('Rename failed.', 'ux-studio'));
+                    Claude_Panel_Bootstrap::audit('rename', self::rel_path($from) . ' -> ' . self::rel_path($to) . ($backup ? ' [backup ✓]' : ''));
                     $res = ['ok' => true, 'backup' => (bool) $backup];
                     break;
                 }
 
                 case 'upload': {
                     $dir = self::safe_path($_POST['path'] ?? '.');
-                    if (!is_dir($dir)) throw new Exception('Cíl není adresář.');
+                    if (!is_dir($dir)) throw new Exception(__('The target is not a directory.', 'ux-studio'));
                     $uploaded = [];
-                    if (empty($_FILES['files'])) throw new Exception('Žádné soubory.');
+                    if (empty($_FILES['files'])) throw new Exception(__('No files.', 'ux-studio'));
                     $files = $_FILES['files'];
                     $count = is_array($files['name']) ? count($files['name']) : 1;
                     for ($i = 0; $i < $count; $i++) {
@@ -792,11 +801,11 @@ final class Claude_Panel_Runtime {
                 }
 
                 case 'exec': {
-                    if (!function_exists('exec')) throw new Exception('exec() zakázáno.');
+                    if (!function_exists('exec')) throw new Exception(__('exec() is disabled.', 'ux-studio'));
                     $cmd = isset($_POST['cmd64'])
                         ? (string) base64_decode($_POST['cmd64'], true)
                         : (string) ($_POST['cmd'] ?? '');
-                    if ($cmd === false || trim($cmd) === '') throw new Exception('Prázdný/neplatný příkaz.');
+                    if ($cmd === false || trim($cmd) === '') throw new Exception(__('Empty or invalid command.', 'ux-studio'));
                     $cwd = isset($_POST['cwd']) ? self::safe_path($_POST['cwd']) : self::$root;
                     $output = [];
                     $rc = 0;
@@ -818,7 +827,7 @@ final class Claude_Panel_Runtime {
                     $query = isset($_POST['q64'])
                         ? (string) base64_decode($_POST['q64'], true)
                         : (string) ($_POST['query'] ?? '');
-                    if ($query === false || trim($query) === '') throw new Exception('Prázdný/neplatný dotaz.');
+                    if ($query === false || trim($query) === '') throw new Exception(__('Empty or invalid query.', 'ux-studio'));
 
                     // Detekuj typ dotazu (první klíčové slovo). Modifikační dotazy
                     // jdou do auditu; čistá čtení (SELECT/SHOW/DESCRIBE/EXPLAIN) ne.
@@ -905,7 +914,7 @@ final class Claude_Panel_Runtime {
                 }
 
                 default:
-                    throw new Exception('Neznámá akce: ' . $action);
+                    throw new Exception(sprintf(/* translators: %s: name of the API action */ __('Unknown action: %s', 'ux-studio'), $action));
             }
 
             echo json_encode($res, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
@@ -918,7 +927,7 @@ final class Claude_Panel_Runtime {
     public static function handle_download() {
         try {
             $path = self::safe_path($_GET['download']);
-            if (!is_file($path)) throw new Exception('Není soubor.');
+            if (!is_file($path)) throw new Exception(__('Not a file.', 'ux-studio'));
             header('Content-Type: application/octet-stream');
             header('Content-Length: ' . filesize($path));
             header('Content-Disposition: attachment; filename="' . basename($path) . '"');
@@ -934,8 +943,8 @@ final class Claude_Panel_Runtime {
 
     public static function render_login($err = '') {
         $action = esc_url(self::$access_url);
-        ?><!doctype html><html lang="cs"><head><meta charset="utf-8">
-        <title>AI Panel — přihlášení</title>
+        ?><!doctype html><html lang="<?= esc_attr(str_replace('_', '-', determine_locale())) ?>"><head><meta charset="utf-8">
+        <title><?= esc_html__('AI Panel: login', 'ux-studio') ?></title>
         <meta name="robots" content="noindex,nofollow">
         <meta name="claude-panel" content="<?= esc_attr(CP_VERSION) ?>">
         <meta name="claude-panel-help" content="?api=help">
@@ -952,10 +961,10 @@ final class Claude_Panel_Runtime {
         <form method="post" action="<?= $action ?>">
             <h1>🛡️ AI Panel</h1>
             <input type="hidden" name="action" value="login">
-            <input type="password" name="password" placeholder="Heslo" autofocus autocomplete="off">
-            <button type="submit">Přihlásit</button>
+            <input type="password" name="password" placeholder="<?= esc_attr__('Password', 'ux-studio') ?>" autofocus autocomplete="off">
+            <button type="submit"><?= esc_html__('Log in', 'ux-studio') ?></button>
             <?php if ($err): ?><div class="err"><?= htmlspecialchars($err, ENT_QUOTES, 'UTF-8') ?></div><?php endif; ?>
-            <div class="muted">Tento přístup je dočasný a po vypršení automaticky končí.</div>
+            <div class="muted"><?= esc_html__('This access is temporary and ends automatically when it expires.', 'ux-studio') ?></div>
         </form></body></html><?php
     }
 
@@ -964,7 +973,7 @@ final class Claude_Panel_Runtime {
         $access_url = self::$access_url;
         $expires_in = max(0, intval(self::$opts['access_expires_at']) - time());
         ?><!doctype html>
-<html lang="cs">
+<html lang="<?= esc_attr(str_replace('_', '-', determine_locale())) ?>">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -1031,30 +1040,30 @@ kbd{background:#21262d;border:1px solid var(--br);border-radius:3px;padding:.1re
     <span class="muted" id="root-label"></span>
     <span class="expires" id="expires"></span>
     <nav>
-        <button data-tab="files" class="active">📁 Soubory</button>
-        <button data-tab="editor">📝 Editor</button>
-        <button data-tab="terminal">💻 Terminál</button>
+        <button data-tab="files" class="active">📁 <?= esc_html__('Files', 'ux-studio') ?></button>
+        <button data-tab="editor">📝 <?= esc_html__('Editor', 'ux-studio') ?></button>
+        <button data-tab="terminal">💻 <?= esc_html__('Terminal', 'ux-studio') ?></button>
         <button data-tab="sql">🗄️ SQL</button>
-        <button data-tab="info">ℹ️ WP Info</button>
-        <button class="logout" onclick="location.href='<?= esc_url(self::$access_url) ?>?action=logout'">Odhlásit</button>
+        <button data-tab="info">ℹ️ <?= esc_html__('WP info', 'ux-studio') ?></button>
+        <button class="logout" onclick="location.href='<?= esc_url(self::$access_url) ?>?action=logout'"><?= esc_html__('Log out', 'ux-studio') ?></button>
     </nav>
 </header>
 
 <main>
 
-<!-- SOUBORY -->
+<!-- FILES -->
 <section id="files" class="panel active">
     <div class="toolbar">
         <div class="breadcrumb" id="breadcrumb"></div>
         <button onclick="fs.refresh()">🔄</button>
-        <button onclick="fs.up()">⬆️ Nahoru</button>
-        <button onclick="fs.mkdir()">📁+ Nová složka</button>
-        <button onclick="fs.newFile()">📄+ Nový soubor</button>
-        <button onclick="fs.uploadDialog()">⬆️ Upload</button>
-        <input type="search" id="filter" placeholder="Filtr v tomto adresáři...">
+        <button onclick="fs.up()">⬆️ <?= esc_html__('Up', 'ux-studio') ?></button>
+        <button onclick="fs.mkdir()">📁+ <?= esc_html__('New folder', 'ux-studio') ?></button>
+        <button onclick="fs.newFile()">📄+ <?= esc_html__('New file', 'ux-studio') ?></button>
+        <button onclick="fs.uploadDialog()">⬆️ <?= esc_html__('Upload', 'ux-studio') ?></button>
+        <input type="search" id="filter" placeholder="<?= esc_attr__('Filter in this directory...', 'ux-studio') ?>">
     </div>
     <table>
-        <thead><tr><th style="width:50%">Název</th><th>Velikost</th><th>Práva</th><th>Změněno</th><th>Akce</th></tr></thead>
+        <thead><tr><th style="width:50%"><?= esc_html__('Name', 'ux-studio') ?></th><th><?= esc_html__('Size', 'ux-studio') ?></th><th><?= esc_html__('Permissions', 'ux-studio') ?></th><th><?= esc_html__('Modified', 'ux-studio') ?></th><th><?= esc_html__('Actions', 'ux-studio') ?></th></tr></thead>
         <tbody id="files-body"></tbody>
     </table>
 </section>
@@ -1062,56 +1071,56 @@ kbd{background:#21262d;border:1px solid var(--br);border-radius:3px;padding:.1re
 <!-- EDITOR -->
 <section id="editor" class="panel">
     <div class="toolbar">
-        <span class="muted" id="editor-path">(žádný soubor)</span>
+        <span class="muted" id="editor-path">(<?= esc_html__('no file', 'ux-studio') ?>)</span>
         <span style="flex:1"></span>
-        <button class="primary" onclick="ed.save()">💾 Uložit <kbd>Ctrl+S</kbd></button>
-        <button onclick="ed.reload()">🔄 Znovu načíst</button>
+        <button class="primary" onclick="ed.save()">💾 <?= esc_html__('Save', 'ux-studio') ?> <kbd>Ctrl+S</kbd></button>
+        <button onclick="ed.reload()">🔄 <?= esc_html__('Reload', 'ux-studio') ?></button>
     </div>
-    <textarea id="editor-area" spellcheck="false" placeholder="Klikni na soubor v průzkumníku..."></textarea>
+    <textarea id="editor-area" spellcheck="false" placeholder="<?= esc_attr__('Click a file in the explorer...', 'ux-studio') ?>"></textarea>
 </section>
 
-<!-- TERMINÁL -->
+<!-- TERMINAL -->
 <section id="terminal" class="panel">
     <div class="toolbar">
         <span class="muted">CWD:</span>
         <input type="text" id="term-cwd" value=".">
         <input type="text" id="term-cmd" placeholder="php -v    |    wp plugin list    |    dir" style="flex:2">
-        <button class="primary" onclick="term.run()">▶️ Spustit</button>
-        <button onclick="document.getElementById('terminal-out').textContent=''">Vyčistit</button>
+        <button class="primary" onclick="term.run()">▶️ <?= esc_html__('Run', 'ux-studio') ?></button>
+        <button onclick="document.getElementById('terminal-out').textContent=''"><?= esc_html__('Clear', 'ux-studio') ?></button>
     </div>
-    <div id="terminal-out">Zadej příkaz výše. Enter spouští. Tip: použij "wp" pro WP-CLI pokud je nainstalováno.</div>
+    <div id="terminal-out"><?= esc_html__('Enter a command above. Enter runs it. Tip: use "wp" for WP-CLI if it is installed.', 'ux-studio') ?></div>
 </section>
 
 <!-- SQL -->
 <section id="sql" class="panel">
     <div class="toolbar">
-        <button class="primary" onclick="sql.run()">▶️ Spustit <kbd>Ctrl+Enter</kbd></button>
+        <button class="primary" onclick="sql.run()">▶️ <?= esc_html__('Run', 'ux-studio') ?> <kbd>Ctrl+Enter</kbd></button>
         <button onclick="sql.insertTemplate('SELECT * FROM <?= esc_js($GLOBALS['wpdb']->prefix) ?>options LIMIT 20')">📋 Options</button>
         <button onclick="sql.insertTemplate('SELECT * FROM <?= esc_js($GLOBALS['wpdb']->prefix) ?>users')">📋 Users</button>
         <button onclick="sql.insertTemplate('SHOW TABLES')">📋 Tables</button>
     </div>
     <textarea id="sql-query" style="min-height:150px" placeholder="SELECT * FROM <?= esc_js($GLOBALS['wpdb']->prefix) ?>posts WHERE post_status='publish' LIMIT 10">SELECT option_name, option_value FROM <?= esc_js($GLOBALS['wpdb']->prefix) ?>options WHERE option_name IN ('siteurl','home','blogname','admin_email','template') LIMIT 20;</textarea>
-    <div style="margin-top:1rem" id="sql-out">Napiš SQL dotaz a spusť.</div>
+    <div style="margin-top:1rem" id="sql-out"><?= esc_html__('Write an SQL query and run it.', 'ux-studio') ?></div>
 </section>
 
 <!-- INFO -->
 <section id="info" class="panel">
     <div class="toolbar">
-        <button onclick="info.load()">🔄 Načíst</button>
+        <button onclick="info.load()">🔄 <?= esc_html__('Load', 'ux-studio') ?></button>
     </div>
-    <div id="info-body">Klikni na „Načíst".</div>
+    <div id="info-body"><?= esc_html__('Click "Load".', 'ux-studio') ?></div>
 </section>
 
 </main>
 
 <dialog id="upload-dialog">
-    <h3 style="margin-top:0">Upload souborů</h3>
+    <h3 style="margin-top:0"><?= esc_html__('Upload files', 'ux-studio') ?></h3>
     <form id="upload-form" enctype="multipart/form-data">
-        <p class="muted">Cíl: <span id="upload-target"></span></p>
+        <p class="muted"><?= esc_html__('Target:', 'ux-studio') ?> <span id="upload-target"></span></p>
         <input type="file" name="files[]" multiple required>
         <div style="margin-top:1rem;display:flex;gap:.5rem;justify-content:flex-end">
-            <button type="button" onclick="document.getElementById('upload-dialog').close()">Zrušit</button>
-            <button type="submit" class="primary">Nahrát</button>
+            <button type="button" onclick="document.getElementById('upload-dialog').close()"><?= esc_html__('Cancel', 'ux-studio') ?></button>
+            <button type="submit" class="primary"><?= esc_html__('Upload', 'ux-studio') ?></button>
         </div>
     </form>
 </dialog>
@@ -1120,6 +1129,33 @@ kbd{background:#21262d;border:1px solid var(--br);border-radius:3px;padding:.1re
 const CSRF = <?= json_encode($csrf) ?>;
 const SELF = <?= json_encode($access_url) ?>;
 const EXPIRES_IN = <?= intval($expires_in) ?>;
+const T = <?= wp_json_encode([
+    'locale'        => str_replace('_', '-', determine_locale()),
+    'parseError'    => __('Could not parse the response', 'ux-studio'),
+    'expired'       => __('EXPIRED: log out and contact the admin', 'ux-studio'),
+    'expiresIn'     => __('Expires in', 'ux-studio'),
+    'hoursShort'    => __('h', 'ux-studio'),
+    'minutesShort'  => __('min', 'ux-studio'),
+    'newFolderName' => __('Name of the new folder:', 'ux-studio'),
+    'folderCreated' => __('Folder created', 'ux-studio'),
+    'newFileName'   => __('Name of the new file:', 'ux-studio'),
+    'confirmDelete' => __('Really delete:', 'ux-studio'),
+    'deleted'       => __('Deleted', 'ux-studio'),
+    'newName'       => __('New name:', 'ux-studio'),
+    'renamed'       => __('Renamed', 'ux-studio'),
+    'uploaded'      => __('Uploaded', 'ux-studio'),
+    'noFileOpen'    => __('No file is open', 'ux-studio'),
+    'saved'         => __('Saved:', 'ux-studio'),
+    'zeroRows'      => __('0 rows.', 'ux-studio'),
+    'rows'          => __('rows', 'ux-studio'),
+    'sqlOk'         => __('OK. Rows affected:', 'ux-studio'),
+    'database'      => __('Database', 'ux-studio'),
+    'wpVersion'     => __('WP version', 'ux-studio'),
+    'diskFree'      => __('Disk free', 'ux-studio'),
+    'diskTotal'     => __('Disk total', 'ux-studio'),
+    'allowed'       => __('allowed', 'ux-studio'),
+    'disabled'      => __('disabled', 'ux-studio'),
+]) ?>;
 
 function b64(s) { return btoa(unescape(encodeURIComponent(String(s)))); }
 const B64_FIELDS = { sql:{query:'q64'}, exec:{cmd:'cmd64'}, write:{content:'c64'} };
@@ -1141,7 +1177,7 @@ async function api(action, data = {}, isUpload = false) {
         opts.body = fd;
     }
     const r = await fetch(url, opts);
-    const j = await r.json().catch(() => ({ error: 'Chyba parsování odpovědi' }));
+    const j = await r.json().catch(() => ({ error: T.parseError }));
     if (!r.ok || j.error) throw new Error(j.error || ('HTTP ' + r.status));
     return j;
 }
@@ -1155,11 +1191,11 @@ function toast(msg, type = '') {
 }
 
 function fmtSize(n){if(n==null)return'';const u=['B','KB','MB','GB'];let i=0;while(n>=1024&&i<u.length-1){n/=1024;i++;}return n.toFixed(i?1:0)+' '+u[i];}
-function fmtDate(t){if(!t)return'';return new Date(t*1000).toLocaleString('cs-CZ');}
+function fmtDate(t){if(!t)return'';return new Date(t*1000).toLocaleString(T.locale);}
 
 // Expiry countdown
 let expiresLeft = EXPIRES_IN;
-function fmtCountdown(s){if(s<=0)return'VYPRŠEL — odhlas se a kontaktuj admina';const h=Math.floor(s/3600);const m=Math.floor((s%3600)/60);return 'Vyprší za ' + (h>0?h+' h ':'') + m + ' min';}
+function fmtCountdown(s){if(s<=0)return T.expired;const h=Math.floor(s/3600);const m=Math.floor((s%3600)/60);return T.expiresIn + ' ' + (h>0?h+' '+T.hoursShort+' ':'') + m + ' ' + T.minutesShort;}
 function tickExpiry(){document.getElementById('expires').textContent=fmtCountdown(expiresLeft);if(expiresLeft<=0)return;expiresLeft--;}
 tickExpiry(); setInterval(tickExpiry, 1000);
 
@@ -1220,10 +1256,10 @@ const fs = {
     },
     refresh() { this.load(this.cwd); },
     up() { const parts = this.cwd.split('/'); parts.pop(); this.load(parts.join('/') || '.'); },
-    async mkdir() { const n=prompt('Název nové složky:'); if(!n)return; try{await api('mkdir',{path:this.cwd+'/'+n}); this.refresh(); toast('Složka vytvořena','ok');}catch(e){toast(e.message,'err');} },
-    async newFile(){ const n=prompt('Název nového souboru:'); if(!n)return; try{await api('write',{path:this.cwd+'/'+n,content:''}); this.refresh(); ed.open(this.cwd+'/'+n);}catch(e){toast(e.message,'err');} },
-    async del(p) { if(!confirm('Opravdu smazat: '+p+' ?'))return; try{await api('delete',{path:p}); this.refresh(); toast('Smazáno','ok');}catch(e){toast(e.message,'err');} },
-    async rename(p){ const parts=p.split('/'); const cur=parts.pop(); const n=prompt('Nový název:',cur); if(!n||n===cur)return; const to=(parts.length?parts.join('/')+'/':'')+n; try{await api('rename',{from:p,to:to}); this.refresh(); toast('Přejmenováno','ok');}catch(e){toast(e.message,'err');} },
+    async mkdir() { const n=prompt(T.newFolderName); if(!n)return; try{await api('mkdir',{path:this.cwd+'/'+n}); this.refresh(); toast(T.folderCreated,'ok');}catch(e){toast(e.message,'err');} },
+    async newFile(){ const n=prompt(T.newFileName); if(!n)return; try{await api('write',{path:this.cwd+'/'+n,content:''}); this.refresh(); ed.open(this.cwd+'/'+n);}catch(e){toast(e.message,'err');} },
+    async del(p) { if(!confirm(T.confirmDelete+' '+p+' ?'))return; try{await api('delete',{path:p}); this.refresh(); toast(T.deleted,'ok');}catch(e){toast(e.message,'err');} },
+    async rename(p){ const parts=p.split('/'); const cur=parts.pop(); const n=prompt(T.newName,cur); if(!n||n===cur)return; const to=(parts.length?parts.join('/')+'/':'')+n; try{await api('rename',{from:p,to:to}); this.refresh(); toast(T.renamed,'ok');}catch(e){toast(e.message,'err');} },
     download(p) { window.location = SELF + '?download=' + encodeURIComponent(p); },
     uploadDialog(){ document.getElementById('upload-target').textContent=this.cwd; document.getElementById('upload-dialog').showModal(); },
 };
@@ -1232,14 +1268,14 @@ document.getElementById('upload-form').onsubmit = async (e) => {
     e.preventDefault();
     const fd = new FormData(e.target);
     fd.append('path', fs.cwd);
-    try { await api('upload', fd, true); document.getElementById('upload-dialog').close(); fs.refresh(); toast('Nahráno','ok'); }
+    try { await api('upload', fd, true); document.getElementById('upload-dialog').close(); fs.refresh(); toast(T.uploaded,'ok'); }
     catch (err) { toast(err.message, 'err'); }
 };
 
 const ed = {
     path: null,
     async open(p) { try { const r = await api('read', { path: p }); this.path = r.path; document.getElementById('editor-path').textContent='📝 '+r.path+'  ('+fmtSize(r.size)+')'; document.getElementById('editor-area').value = r.content; document.querySelector('nav button[data-tab=editor]').click(); } catch (e) { toast(e.message, 'err'); } },
-    async save() { if(!this.path) return toast('Žádný soubor není otevřen','err'); try { const c = document.getElementById('editor-area').value; await api('write', { path: this.path, content: c }); toast('Uloženo: '+this.path, 'ok'); } catch (e) { toast(e.message,'err'); } },
+    async save() { if(!this.path) return toast(T.noFileOpen,'err'); try { const c = document.getElementById('editor-area').value; await api('write', { path: this.path, content: c }); toast(T.saved+' '+this.path, 'ok'); } catch (e) { toast(e.message,'err'); } },
     async reload() { if(!this.path) return; this.open(this.path); },
 };
 document.getElementById('editor-area').addEventListener('keydown', e => { if((e.ctrlKey||e.metaKey) && e.key === 's'){ e.preventDefault(); ed.save(); } });
@@ -1264,13 +1300,13 @@ const sql = {
         try {
             const r = await api('sql', { query: q });
             if (r.rows) {
-                if (!r.rows.length) { out.innerHTML = '<span class="muted">0 řádků.</span>'; return; }
+                if (!r.rows.length) { out.innerHTML = '<span class="muted">'+T.zeroRows+'</span>'; return; }
                 let h = '<table><thead><tr>'+r.columns.map(c=>'<th>'+c+'</th>').join('')+'</tr></thead><tbody>';
                 r.rows.forEach(row => { h += '<tr>'+r.columns.map(c=>'<td>'+(row[c]===null?'<span class="muted">NULL</span>':String(row[c]).replace(/[<>&]/g,x=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[x])))+'</td>').join('')+'</tr>'; });
-                h += '</tbody></table><p class="muted">'+r.count+' řádků</p>';
+                h += '</tbody></table><p class="muted">'+r.count+' '+T.rows+'</p>';
                 out.innerHTML = h;
             } else {
-                out.innerHTML = '<span style="color:var(--ok)">✓ OK. Dotčeno řádků: '+r.affected+(r.insertId?', insertId='+r.insertId:'')+'</span>';
+                out.innerHTML = '<span style="color:var(--ok)">✓ '+T.sqlOk+' '+r.affected+(r.insertId?', insertId='+r.insertId:'')+'</span>';
             }
         } catch (e) { out.innerHTML = '<span style="color:var(--err)">'+e.message+'</span>'; }
     },
@@ -1284,7 +1320,7 @@ const info = {
             const r = await api('wpinfo');
             let h = '';
             h += '<div class="info-section"><h3>🌐 WordPress</h3><div class="info-grid">';
-            h += row('WP verze', r.wp_version);
+            h += row(T.wpVersion, r.wp_version);
             h += row('Site URL', r.site_url);
             h += row('Home URL', r.home_url);
             h += row('Locale', r.locale);
@@ -1292,7 +1328,7 @@ const info = {
             h += '</div></div>';
 
             if (r.db) {
-                h += '<div class="info-section"><h3>🗄️ Databáze</h3><div class="info-grid">';
+                h += '<div class="info-section"><h3>🗄️ '+T.database+'</h3><div class="info-grid">';
                 for (const k in r.db) h += row(k, r.db[k] || '<span class="muted">—</span>');
                 h += '</div></div>';
             }
@@ -1306,9 +1342,9 @@ const info = {
             h += row('Upload max', r.upload_max);
             h += row('Post max', r.post_max);
             h += row('Max exec time', r.max_exec_time + 's');
-            h += row('Disk volný', fmtSize(r.disk_free));
-            h += row('Disk celkem', fmtSize(r.disk_total));
-            h += row('exec()', r.exec_enabled ? '<span class="badge ok">povoleno</span>' : '<span class="badge err">zakázáno</span>');
+            h += row(T.diskFree, fmtSize(r.disk_free));
+            h += row(T.diskTotal, fmtSize(r.disk_total));
+            h += row('exec()', r.exec_enabled ? '<span class="badge ok">'+T.allowed+'</span>' : '<span class="badge err">'+T.disabled+'</span>');
             h += '</div></div>';
 
             document.getElementById('info-body').innerHTML = h;

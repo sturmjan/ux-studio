@@ -43,9 +43,9 @@ function moduleSummary( m: PreviewModule ): string {
 		}
 	}
 	if ( 'enable' === m.enabled.change ) {
-		parts.push( __( 'switch on', 'ux-studio' ) );
+		parts.push( __( 'turn on', 'ux-studio' ) );
 	} else if ( 'disable' === m.enabled.change ) {
-		parts.push( __( 'switch off', 'ux-studio' ) );
+		parts.push( __( 'turn off', 'ux-studio' ) );
 	}
 	if ( 0 === parts.length ) {
 		parts.push( __( 'no change', 'ux-studio' ) );
@@ -225,7 +225,7 @@ export function ImportPanel( { status }: { status: TransferStatus } ): JSX.Eleme
 					<p className="uxs-tr-ok">
 						<Check size={ 14 } aria-hidden /> { __( 'The import was undone: settings, the list of modules and the content it created are back as they were.', 'ux-studio' ) }
 					</p>
-					{ undone.modules_off.length > 0 && <p className="uxs-tr-muted">{ sprintf( /* translators: %s: module ids. */ __( 'Switched off again: %s.', 'ux-studio' ), undone.modules_off.join( ', ' ) ) }</p> }
+					{ undone.modules_off.length > 0 && <p className="uxs-tr-muted">{ sprintf( /* translators: %s: module ids. */ __( 'Turned off again: %s.', 'ux-studio' ), undone.modules_off.join( ', ' ) ) }</p> }
 					<Warnings warnings={ undone.errors } />
 				</div>
 			) }
@@ -362,12 +362,12 @@ export function ImportPanel( { status }: { status: TransferStatus } ): JSX.Eleme
 							<AnimatedCheckbox isSelected={ options.apply_enabled } onChange={ ( on ) => setOptions( { ...options, apply_enabled: on, disable_with_data: on ? options.disable_with_data : false } ) }>
 								{ __( 'Switch modules on and off as in the file', 'ux-studio' ) }
 							</AnimatedCheckbox>
-							<p className="uxs-tr-muted">{ __( 'Off by default. Switching on goes through the same check as the Modules screen (a plugin that does the same job can refuse it).', 'ux-studio' ) }</p>
+							<p className="uxs-tr-muted">{ __( 'Off by default. Turning on goes through the same check as the Modules screen (a plugin that does the same job can refuse it).', 'ux-studio' ) }</p>
 						</div>
 						{ options.apply_enabled && (
 							<div className="uxs-tr-opt">
 								<AnimatedCheckbox isSelected={ options.disable_with_data } onChange={ ( on ) => setOptions( { ...options, disable_with_data: on } ) }>
-									{ __( 'Also switch off modules that hold data here', 'ux-studio' ) }
+									{ __( 'Also turn off modules that hold data here', 'ux-studio' ) }
 								</AnimatedCheckbox>
 								<p className="uxs-tr-muted">{ __( 'Forms, redirects, snippets and the like stay on unless you tick this. Their data is never deleted.', 'ux-studio' ) }</p>
 							</div>
@@ -375,7 +375,7 @@ export function ImportPanel( { status }: { status: TransferStatus } ): JSX.Eleme
 						{ hasMaintenance && (
 							<div className="uxs-tr-opt">
 								<AnimatedCheckbox isSelected={ options.allow_maintenance } onChange={ ( on ) => setOptions( { ...options, allow_maintenance: on } ) }>
-									{ __( 'Allow switching on maintenance mode', 'ux-studio' ) }
+									{ __( 'Allow turning on maintenance mode', 'ux-studio' ) }
 								</AnimatedCheckbox>
 								<p className="uxs-tr-muted">{ __( 'Maintenance mode hides the site from visitors. An import never does that unless you tick this.', 'ux-studio' ) }</p>
 							</div>
@@ -485,7 +485,7 @@ export function ImportPanel( { status }: { status: TransferStatus } ): JSX.Eleme
 					onCancel={ () => setAskUndo( false ) }
 					onConfirm={ () => undo.mutate() }
 				>
-					<p>{ __( 'The settings of the modules the import touched, the list of modules switched on, and the content the import created or changed go back to how they were just before it. Changes made since then in those modules are lost.', 'ux-studio' ) }</p>
+					<p>{ __( 'The settings of the modules the import touched, the list of modules turned on, and the content the import created or changed go back to how they were just before it. Changes made since then in those modules are lost.', 'ux-studio' ) }</p>
 				</ConfirmModal>
 			) }
 		</div>
@@ -541,8 +541,8 @@ function ModuleRow( {
 				</AnimatedCheckbox>
 				<span className="uxs-tr-badges">
 					{ ! m.known && <span className="uxs-badge is-danger">{ __( 'unknown', 'ux-studio' ) }</span> }
-					{ 'enable' === m.enabled.change && <span className="uxs-badge is-success">{ __( 'will be switched on', 'ux-studio' ) }</span> }
-					{ 'disable' === m.enabled.change && <span className="uxs-badge is-warning">{ __( 'will be switched off', 'ux-studio' ) }</span> }
+					{ 'enable' === m.enabled.change && <span className="uxs-badge is-success">{ __( 'will be turned on', 'ux-studio' ) }</span> }
+					{ 'disable' === m.enabled.change && <span className="uxs-badge is-warning">{ __( 'will be turned off', 'ux-studio' ) }</span> }
 					{ 'blocked' === m.enabled.overlap.status && <span className="uxs-badge is-danger">{ __( 'overlap', 'ux-studio' ) }</span> }
 				</span>
 				{ hasDetail && (
@@ -733,8 +733,8 @@ function ResultView( { result, onAgain, onUndo }: { result: ApplyResponse; onAga
 							<span className="uxs-tr-muted">
 								{ r.written > 0 && sprintf( /* translators: %d: number of settings saved. */ _n( '%d setting saved', '%d settings saved', r.written, 'ux-studio' ), r.written ) }
 								{ r.data && ` ${ r.data.label }: ${ r.data.created } + ${ r.data.updated }` }
-								{ 'enabled' === r.enabled && ` ${ __( 'switched on', 'ux-studio' ) }` }
-								{ 'disabled' === r.enabled && ` ${ __( 'switched off', 'ux-studio' ) }` }
+								{ 'enabled' === r.enabled && ` ${ __( 'turned on', 'ux-studio' ) }` }
+								{ 'disabled' === r.enabled && ` ${ __( 'turned off', 'ux-studio' ) }` }
 							</span>
 						</div>
 						{ '' !== r.reason && <p className="uxs-tr-muted">{ r.reason }</p> }

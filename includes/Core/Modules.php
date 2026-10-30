@@ -309,7 +309,7 @@ final class Modules {
 		if ( empty( $this->boot_failures ) || ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
-		echo '<div class="notice notice-error"><p><strong>' . esc_html__( 'UX Studio: some modules failed to start and were switched off for now. The rest of the site keeps running.', 'ux-studio' ) . '</strong></p><ul>';
+		echo '<div class="notice notice-error"><p><strong>' . esc_html__( 'UX Studio: some modules failed to start and were turned off for now. The rest of the site keeps running.', 'ux-studio' ) . '</strong></p><ul>';
 		foreach ( $this->boot_failures as $id => $message ) {
 			$name = (string) ( $this->meta[ $id ]['name'] ?? $id );
 			echo '<li><code>' . esc_html( $name ) . '</code> - ' . esc_html( $message ) . '</li>';

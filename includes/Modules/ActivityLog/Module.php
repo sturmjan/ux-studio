@@ -108,21 +108,21 @@ final class Module extends BaseModule {
 				'key'     => 'alert_new_ip',
 				'type'    => 'toggle',
 				'label'   => __( 'Alert on new IP login', 'ux-studio' ),
-				'help'    => __( 'Send an email when a user logs in from an IP address not seen for them before.', 'ux-studio' ),
+				'help'    => __( 'Send an e-mail when a user logs in from an IP address not seen for them before.', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
 				'key'     => 'alert_role_escalation',
 				'type'    => 'toggle',
 				'label'   => __( 'Alert on admin promotion', 'ux-studio' ),
-				'help'    => __( 'Send an email when any user is promoted to the administrator role.', 'ux-studio' ),
+				'help'    => __( 'Send an e-mail when any user is promoted to the administrator role.', 'ux-studio' ),
 				'default' => true,
 			),
 			array(
 				'key'     => 'alert_email',
 				'type'    => 'text',
-				'label'   => __( 'Alert email', 'ux-studio' ),
-				'help'    => __( 'Recipient for alerts. Defaults to the site admin email.', 'ux-studio' ),
+				'label'   => __( 'Alert e-mail', 'ux-studio' ),
+				'help'    => __( 'Recipient for alerts. Defaults to the site admin e-mail.', 'ux-studio' ),
 				'default' => '',
 			),
 		);
@@ -430,8 +430,39 @@ final class Module extends BaseModule {
 		$items = $wpdb->get_results( $wpdb->prepare( $items_sql, array_merge( $params, array( $limit, $offset ) ) ), ARRAY_A );
 
 		return array(
-			'items' => is_array( $items ) ? $items : array(),
+			'items' => is_array( $items ) ? array_map( array( Labels::class, 'decorate' ), $items ) : array(),
 			'total' => $total,
+		);
+	}
+
+	/**
+	 * Values the log filters can offer: the modules and actions that really occur in the log, with readable labels.
+	 *
+	 * @return array{modules:array<int,array{value:string,label:string}>,actions:array<int,array{value:string,label:string}>}
+	 */
+	public function get_filter_options(): array {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- the module's own table, no input.
+		$modules = $wpdb->get_col( "SELECT DISTINCT module FROM {$wpdb->prefix}uxstudio_activity_log ORDER BY module LIMIT 200" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- the module's own table, no input.
+		$actions = $wpdb->get_col( "SELECT DISTINCT action FROM {$wpdb->prefix}uxstudio_activity_log ORDER BY action LIMIT 500" );
+
+		$pack = static function ( $values, callable $label ): array {
+			$out = array();
+			foreach ( (array) $values as $value ) {
+				$out[] = array(
+					'value' => (string) $value,
+					'label' => $label( (string) $value ),
+				);
+			}
+			usort( $out, static fn( array $a, array $b ): int => strcasecmp( $a['label'], $b['label'] ) );
+			return $out;
+		};
+
+		return array(
+			'modules' => $pack( $modules, array( Labels::class, 'module' ) ),
+			'actions' => $pack( $actions, array( Labels::class, 'action' ) ),
 		);
 	}
 

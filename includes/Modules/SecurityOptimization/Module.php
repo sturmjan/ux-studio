@@ -478,18 +478,11 @@ final class Module extends BaseModule {
 	   ═══════════════════════════════════════════════════ */
 
 	/**
-	 * The schema with the plain-language explanation (SettingHelp) added to every option that has one: the screen
-	 * shows it under the help line as "Details".
+	 * The settings schema. The plain-language explanation of each option (help.php) is attached to it by the REST
+	 * layer, through Core\SettingHelp, like for every other module.
 	 */
 	public function settings_schema(): array {
-		$fields = $this->base_schema();
-		foreach ( $fields as $i => $field ) {
-			$explain = SettingHelp::for_key( (string) ( $field['key'] ?? '' ) );
-			if ( null !== $explain ) {
-				$fields[ $i ]['explain'] = $explain;
-			}
-		}
-		return $fields;
+		return $this->base_schema();
 	}
 
 	private function base_schema(): array {
@@ -515,9 +508,9 @@ final class Module extends BaseModule {
 				'label'   => __( 'Client IP source', 'ux-studio' ),
 				'help'    => __( 'Forwarded headers are only trusted in the selected mode (otherwise spoofable). Choose Cloudflare if the site is behind Cloudflare.', 'ux-studio' ),
 				'options' => array(
-					'none'       => __( 'Direct connection (REMOTE_ADDR) - safe default', 'ux-studio' ),
-					'cloudflare' => __( 'Behind Cloudflare (CF-Connecting-IP)', 'ux-studio' ),
-					'xff'        => __( 'Behind a reverse proxy (X-Forwarded-For)', 'ux-studio' ),
+					'none'       => __( 'Direct connection (default)', 'ux-studio' ),
+					'cloudflare' => __( 'Behind Cloudflare', 'ux-studio' ),
+					'xff'        => __( 'Behind a reverse proxy', 'ux-studio' ),
 				),
 				'default' => 'none',
 			),
@@ -770,7 +763,7 @@ final class Module extends BaseModule {
 				'key'     => 'notify_admin',
 				'section' => __( 'Login', 'ux-studio' ),
 				'type'    => 'toggle',
-				'label'   => __( 'Email admin on lockout', 'ux-studio' ),
+				'label'   => __( 'E-mail admin on lockout', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
@@ -873,9 +866,9 @@ final class Module extends BaseModule {
 				'section' => __( 'CAPTCHA', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'CAPTCHA provider', 'ux-studio' ),
-				'help'    => __( 'Automatic uses keys from the central application when the site is connected, then your own keys, and the key-less Shield when there are none. The Shield needs no account and no keys.', 'ux-studio' ),
+				'help'    => __( 'Automatic uses keys from the central app when the site is connected, then your own keys, and the key-less Shield when there are none. The Shield needs no account and no keys.', 'ux-studio' ),
 				'options' => array(
-					'auto'         => __( 'Automatic (keys if there are any, otherwise the Shield)', 'ux-studio' ),
+					'auto'         => __( 'Automatic (recommended)', 'ux-studio' ),
 					'shield'       => __( 'UX Studio Shield (no keys)', 'ux-studio' ),
 					'turnstile'    => __( 'Cloudflare Turnstile', 'ux-studio' ),
 					'recaptcha_v2' => __( 'Google reCAPTCHA v2 (checkbox)', 'ux-studio' ),
@@ -942,7 +935,7 @@ final class Module extends BaseModule {
 				'help'    => __( 'Inline shows the widget inside the login/register/lost-password form itself. Standalone gate shows a dedicated "verify you\'re not a robot" page before the form is reachable at all - since WordPress redirects every logged-out admin request to wp-login.php, this also protects the whole admin, not just the login form. The gate ignores enforcement mode below and always applies (adaptive mode only affects the inline widget).', 'ux-studio' ),
 				'options' => array(
 					'inline' => __( 'Inline widget in the form', 'ux-studio' ),
-					'gate'   => __( 'Standalone page before login (also gates wp-admin)', 'ux-studio' ),
+					'gate'   => __( 'Standalone page before login', 'ux-studio' ),
 				),
 				'default' => 'gate',
 			),
@@ -1318,16 +1311,16 @@ final class Module extends BaseModule {
 				'key'     => 'upload_guard_notify',
 				'section' => __( 'Uploads', 'ux-studio' ),
 				'type'    => 'toggle',
-				'label'   => __( 'Email admin on detections', 'ux-studio' ),
-				'help'    => __( 'Sends a throttled summary email when new high/critical findings appear (at most one per 15 minutes).', 'ux-studio' ),
+				'label'   => __( 'E-mail admin on detections', 'ux-studio' ),
+				'help'    => __( 'Sends a throttled summary e-mail when new high/critical findings appear (at most one per 15 minutes).', 'ux-studio' ),
 				'default' => true,
 			),
 			array(
 				'key'     => 'upload_guard_notify_email',
 				'section' => __( 'Uploads', 'ux-studio' ),
 				'type'    => 'text',
-				'label'   => __( 'Notification email', 'ux-studio' ),
-				'help'    => __( 'Where to send Upload Guard alerts. Leave blank to use the site admin email.', 'ux-studio' ),
+				'label'   => __( 'Notification e-mail', 'ux-studio' ),
+				'help'    => __( 'Where to send Upload Guard alerts. Leave blank to use the site admin e-mail.', 'ux-studio' ),
 				'default' => '',
 			),
 			array(

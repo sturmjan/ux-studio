@@ -107,6 +107,7 @@ function ItemRules( {
 						} )
 					}
 				/>
+				<small className="uxs-sub-rule__hint">{ __( 'Only users with this WordPress permission see the item, for example edit_others_posts. Leave empty for no extra rule.', 'ux-studio' ) }</small>
 			</label>
 			<label className="uxs-sub-rule__field">
 				<span>{ __( 'Always show to these users', 'ux-studio' ) }</span>

@@ -1,7 +1,7 @@
 {
 	"id": "top-bar",
 	"name": "Top Bar",
-	"description": "Show a scheduled announcement bar at the top of the site with custom colours.",
+	"description": "Show a scheduled announcement bar at the top of the site with custom colors.",
 	"group": "content",
 	"icon": "panel-top",
 	"settings": true

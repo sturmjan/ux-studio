@@ -618,7 +618,7 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 		return array(
 			array(
 				'id'    => 'snippets',
-				'label' => __( 'Pages render with the snippets switched on', 'ux-studio' ),
+				'label' => __( 'Pages render with the snippets turned on', 'ux-studio' ),
 				'type'  => 'pages_clean',
 			),
 		);
@@ -658,8 +658,8 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 				sprintf(
 					/* translators: %d: number of snippets. */
 					_n(
-						'%d snippet used a schedule or targeting that the run conditions of the module cannot express (for example several OR groups, taxonomy terms, page URLs, a referrer, categories or tags, latest posts). It is created switched off so you can review it before it runs everywhere.',
-						'%d snippets used a schedule or targeting that the run conditions of the module cannot express (for example several OR groups, taxonomy terms, page URLs, a referrer, categories or tags, latest posts). They are created switched off so you can review them before they run everywhere.',
+						'%d snippet used a schedule or targeting that the run conditions of the module cannot express (for example several OR groups, taxonomy terms, page URLs, a referrer, categories or tags, latest posts). It is created turned off so you can review it before it runs everywhere.',
+						'%d snippets used a schedule or targeting that the run conditions of the module cannot express (for example several OR groups, taxonomy terms, page URLs, a referrer, categories or tags, latest posts). They are created turned off so you can review them before they run everywhere.',
 						$c['review'],
 						'ux-studio'
 					),
@@ -681,7 +681,7 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 				)
 			);
 		}
-		$m->note( __( 'Every snippet is created switched off, because it is code. Snippets that were on in the old plugin are switched on at the switch, after the safe preview.', 'ux-studio' ) );
+		$m->note( __( 'Every snippet is created turned off, because it is code. Snippets that were on in the old plugin are turned on at the switch, after the safe preview.', 'ux-studio' ) );
 		$shortcodes = 0;
 		$placements = 0;
 		foreach ( $c['items'] as $item ) {
@@ -721,8 +721,8 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 				sprintf(
 					/* translators: %d: number of snippets. */
 					_n(
-						'%d run-once snippet is created switched off and is NOT switched on at the switch. It executes its code one time on the next page of wp-admin after you switch it on, then switches itself off.',
-						'%d run-once snippets are created switched off and are NOT switched on at the switch. Each executes its code one time on the next page of wp-admin after you switch it on, then switches itself off.',
+						'%d run-once snippet is created turned off and is NOT turned on at the switch. It executes its code one time on the next page of wp-admin after you switch it on, then switches itself off.',
+						'%d run-once snippets are created turned off and are NOT turned on at the switch. Each executes its code one time on the next page of wp-admin after you switch it on, then switches itself off.',
 						$c['manual'],
 						'ux-studio'
 					),
@@ -763,7 +763,7 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 			),
 			array(
 				'key'   => 'enable',
-				'label' => __( 'of them will be switched on at the switch', 'ux-studio' ),
+				'label' => __( 'of them will be turned on at the switch', 'ux-studio' ),
 				'count' => $enabled,
 			),
 			array(
@@ -773,7 +773,7 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 			),
 			array(
 				'key'   => 'manual',
-				'label' => __( 'of them are run-once snippets that you switch on yourself', 'ux-studio' ),
+				'label' => __( 'of them are run-once snippets that you turn on yourself', 'ux-studio' ),
 				'count' => $this->collect()['manual'],
 			),
 		);

@@ -222,6 +222,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'log_404_retention_days',
+				'show_if' => array( 'key' => 'log_404', 'truthy' => true ),
 				'type'    => 'number',
 				'label'   => __( 'Keep 404 entries for (days)', 'ux-studio' ),
 				'help'    => __( 'Entries not seen for this long are removed. 0 = keep.', 'ux-studio' ),

@@ -263,7 +263,7 @@ final class Module extends BaseModule {
 				'key'     => 'vapid_subject',
 				'type'    => 'text',
 				'label'   => __( 'VAPID contact (mailto: or URL)', 'ux-studio' ),
-				'help'    => __( 'Used as the "sub" claim of the VAPID JWT sent with each push. Defaults to the site admin email.', 'ux-studio' ),
+				'help'    => __( 'Used as the "sub" claim of the VAPID JWT sent with each push. Defaults to the site admin e-mail.', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
@@ -296,6 +296,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'auto_send_post_types',
+				'show_if' => array( 'key' => 'auto_send_enabled', 'truthy' => true ),
 				'type'    => 'multiselect',
 				'label'   => __( 'Post types announced automatically', 'ux-studio' ),
 				'options' => self::post_type_options(),
@@ -303,6 +304,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'auto_send_authors',
+				'show_if' => array( 'key' => 'auto_send_enabled', 'truthy' => true ),
 				'type'    => 'select',
 				'label'   => __( 'Who triggers the automatic notification', 'ux-studio' ),
 				'help'    => __( 'The notification goes to every subscriber. By default only posts by editors and administrators trigger it.', 'ux-studio' ),
@@ -366,13 +368,13 @@ final class Module extends BaseModule {
 			array(
 				'key'     => 'prompt_bg_color',
 				'type'    => 'color',
-				'label'   => __( 'Opt-in prompt background colour', 'ux-studio' ),
+				'label'   => __( 'Opt-in prompt background color', 'ux-studio' ),
 				'default' => '#ffffff',
 			),
 			array(
 				'key'     => 'prompt_btn_color',
 				'type'    => 'color',
-				'label'   => __( 'Opt-in prompt accent / button colour', 'ux-studio' ),
+				'label'   => __( 'Opt-in prompt accent / button color', 'ux-studio' ),
 				'default' => '#2271b1',
 			),
 		);

@@ -29,7 +29,7 @@ export default function Page(): JSX.Element {
 					<p className="uxs-form__help" style={ { margin: 0 } }>
 						<FolderOpen size={ 16 } style={ { verticalAlign: 'middle', marginRight: 6 } } />
 						{ __(
-							'File Manager grants browser access to the entire server filesystem, restricted to an explicit whitelist of administrators. It manages its own access and settings through a dedicated admin screen.',
+							'File Manager grants browser access to the entire server filesystem, restricted to an explicit allowlist of administrators. It manages its own access and settings through a dedicated admin screen.',
 							'ux-studio'
 						) }
 					</p>

@@ -261,7 +261,7 @@ final class SmtpSource extends AbstractSource {
 			$out['extras'][] = __( 'The "return path" setting (bounce address) has no counterpart in the module.', 'ux-studio' );
 		}
 		if ( ! empty( $option['logs']['enabled'] ) ) {
-			$out['extras'][] = __( 'The e-mail log of the plugin and its tracking are not transferred. Use the Email Log module.', 'ux-studio' );
+			$out['extras'][] = __( 'The e-mail log of the plugin and its tracking are not transferred. Use the E-mail Log module.', 'ux-studio' );
 		}
 		return $out;
 	}
@@ -572,8 +572,8 @@ final class SmtpSource extends AbstractSource {
 		}
 
 		$m->set( self::MODULE, 'mailer', $mailer, __( 'Mailer', 'ux-studio' ), $origin );
-		$m->set( self::MODULE, 'from_email', $c['from_email'], __( 'From email', 'ux-studio' ), $origin );
-		$m->set( self::MODULE, 'force_from_email', $c['force_email'], __( 'Force From email', 'ux-studio' ), $origin );
+		$m->set( self::MODULE, 'from_email', $c['from_email'], __( 'From e-mail', 'ux-studio' ), $origin );
+		$m->set( self::MODULE, 'force_from_email', $c['force_email'], __( 'Force From e-mail', 'ux-studio' ), $origin );
 		$m->set( self::MODULE, 'from_name', $c['from_name'], __( 'From name', 'ux-studio' ), $origin );
 		$m->set( self::MODULE, 'force_from_name', $c['force_name'], __( 'Force From name', 'ux-studio' ), $origin );
 

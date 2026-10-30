@@ -8,6 +8,39 @@
 @use './app/mcp';
 @use './app/transfer/transfer';
 
+/* Every text-like field. One list, so a new input type (url, email, search ...) never ends up with the plain WP look
+   (a 40px square box) in one module and the standard 46px field in another. */
+$uxs-text-fields: 'input[type="text"], input[type="url"], input[type="email"], input[type="password"], input[type="search"], input[type="tel"], input[type="number"], input[type="date"], input[type="time"], input[type="datetime-local"]';
+
+/* The look of ONE field (46px with a 20px content line, standard radius, brand focus ring). Used by the fields of a form
+   row and by `.uxs-input`, for a field that sits outside a form row (a date in a list row, a filter above a table). */
+@mixin uxs-field-look {
+	background: var(--uxs-surface);
+	color: var(--uxs-text);
+	border: 1px solid var(--uxs-border);
+	border-radius: var(--uxs-radius-s);
+	padding: var(--uxs-sp-3) var(--uxs-sp-4);
+	font-family: var(--uxs-font);
+	font-size: var(--uxs-fs);
+	transition: border-color var(--uxs-motion-fast) var(--uxs-ease), box-shadow var(--uxs-motion-fast) var(--uxs-ease);
+
+	&:focus {
+		outline: none;
+		border-color: var(--uxs-brand);
+		box-shadow: 0 0 0 3px var(--uxs-brand-soft);
+	}
+}
+
+#ux-studio-root .uxs-input:not(textarea) {
+	@include uxs-field-look;
+	box-sizing: border-box;
+	min-height: 0;
+	height: 46px;
+	line-height: 20px;
+	max-width: 100%;
+}
+#ux-studio-root textarea.uxs-input { @include uxs-field-look; }
+
 #ux-studio-root,
 .uxs-portal {
 	/* Brand */
@@ -95,7 +128,16 @@
 /* ---- Base colours that WordPress admin would otherwise decide (dark mode: #1d2327 headings on a dark card = 1.05:1) ---- */
 :is(.uxs-shell, .uxs-portal) :where(h1, h2, h3, h4, h5, h6) { color: var(--uxs-text); }
 /* Icon-only back arrow in a page header: follows the heading colour (was the browser's black). */
-.uxs-pagehead h1 > button { color: inherit; }
+.uxs-pagehead h1 > button {
+	color: inherit;
+	background: none;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+	vertical-align: middle;
+}
+/* A feature of a group has the "back to <group>" link above its page: the arrow in the heading would be a second one. */
+.uxs-content.has-crumb .uxs-pagehead h1 > button { display: none; }
 
 /* Native check boxes / radios: WP paints them white with a blue tick; in dark mode they get a surface fill and a
    border that is >= 3:1 against the card (WCAG 1.4.11), the checked state is the brand fill with a white tick. */
@@ -139,14 +181,39 @@
 	flex-direction: column;
 	gap: var(--uxs-sp-2);
 
+	.uxs-sidebar__top {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--uxs-sp-2);
+		padding: var(--uxs-sp-2) var(--uxs-sp-1) var(--uxs-sp-4) 0;
+	}
+
 	.uxs-sidebar__brand {
 		display: flex;
 		align-items: center;
 		gap: var(--uxs-sp-2);
 		font-size: var(--uxs-fs-m);
 		font-weight: 700;
-		padding: var(--uxs-sp-2) var(--uxs-sp-3) var(--uxs-sp-4);
+		padding: 0 var(--uxs-sp-3);
 		color: var(--uxs-text);
+	}
+
+	.uxs-sidebar__fold {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 36px;
+		height: 36px;
+		padding: 0;
+		border: none;
+		border-radius: var(--uxs-radius-s);
+		background: none;
+		color: var(--uxs-text-soft);
+		cursor: pointer;
+
+		&:hover { background: var(--uxs-surface-2); color: var(--uxs-text); }
+		&:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--uxs-brand-soft); }
 	}
 
 	a.uxs-sidebar__item,
@@ -257,6 +324,221 @@
 	padding: var(--uxs-sp-6);
 	min-width: 0;
 }
+
+/* ---- Narrow shell: the sidebar is an off-canvas drawer (App.tsx sets .is-narrow below 1100px of shell width) ----
+   Wide shell: the user may fold the sidebar away (.is-folded, remembered in localStorage). Either way a "Menu"
+   button in .uxs-topbar brings it back. */
+.uxs-shell { position: relative; }
+
+.uxs-topbar {
+	position: sticky;
+	top: var(--wp-admin--admin-bar--height, 32px);
+	z-index: 20;
+	display: flex;
+	align-items: center;
+	margin: calc(var(--uxs-sp-2) * -1) 0 var(--uxs-sp-4);
+	padding: var(--uxs-sp-2) 0;
+	background: var(--uxs-bg);
+}
+
+.uxs-topbar__toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--uxs-sp-2);
+	padding: var(--uxs-sp-2) var(--uxs-sp-4);
+	border: 1px solid var(--uxs-border);
+	border-radius: var(--uxs-radius-s);
+	background: var(--uxs-surface);
+	color: var(--uxs-text);
+	font-family: var(--uxs-font);
+	font-size: var(--uxs-fs);
+	font-weight: 600;
+	cursor: pointer;
+
+	&:hover { border-color: var(--uxs-brand); color: var(--uxs-brand-text); }
+	&:focus-visible { outline: none; border-color: var(--uxs-brand); box-shadow: 0 0 0 3px var(--uxs-brand-soft); }
+}
+
+.uxs-shell.is-folded .uxs-sidebar { display: none; }
+
+.uxs-shell__backdrop {
+	position: fixed;
+	inset: 0;
+	z-index: 10040;
+	background: rgb(15 20 32 / 45%);
+}
+
+.uxs-shell.is-narrow {
+	.uxs-sidebar {
+		position: fixed;
+		z-index: 10050;
+		top: var(--wp-admin--admin-bar--height, 32px);
+		bottom: 0;
+		left: var(--uxs-drawer-left, 0);
+		box-sizing: border-box;
+		width: min(320px, calc(100vw - 48px));
+		overflow-y: auto;
+		box-shadow: var(--uxs-shadow-2);
+		transform: translateX(calc(-100% - var(--uxs-drawer-left, 0px)));
+		visibility: hidden;
+		transition: transform var(--uxs-motion) var(--uxs-ease), visibility 0s linear var(--uxs-motion);
+	}
+
+	&.is-drawer-open .uxs-sidebar {
+		transform: none;
+		visibility: visible;
+		transition: transform var(--uxs-motion) var(--uxs-ease), visibility 0s;
+	}
+
+	.uxs-content { padding: var(--uxs-sp-4) var(--uxs-sp-5) var(--uxs-sp-5); }
+}
+
+@media (max-width: 782px) {
+	/* WP mobile: no margin around the app, a slimmer page. */
+	.uxs-shell { margin-right: 0; border-radius: 0; }
+	.uxs-shell.is-narrow .uxs-content { padding: var(--uxs-sp-3) var(--uxs-sp-3) var(--uxs-sp-5); }
+	.uxs-shell.is-narrow .uxs-sidebar { top: var(--wp-admin--admin-bar--height, 46px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.uxs-shell.is-narrow .uxs-sidebar { transition: none; }
+}
+
+/* ---- Sub-navigation: ONE primary item is active (the feature, or the module title when it has no feature level);
+   its tabs are a clearly secondary level: indented, a line on the left, active = bold brand text, never a fill. ---- */
+.uxs-subnav__list.is-level-1 {
+	margin: var(--uxs-sp-1) 0 var(--uxs-sp-1) var(--uxs-sp-4);
+	gap: 0;
+	border-left: 2px solid var(--uxs-border);
+
+	button {
+		border-radius: 0 var(--uxs-radius-s) var(--uxs-radius-s) 0;
+		margin-left: -2px;
+		padding: var(--uxs-sp-1) var(--uxs-sp-3);
+		border-left: 2px solid transparent;
+		font-size: var(--uxs-fs);
+
+		&.is-active {
+			background: none;
+			color: var(--uxs-brand-text);
+			font-weight: 700;
+			border-left-color: var(--uxs-brand);
+		}
+	}
+}
+.uxs-subnav__list.is-level-2 {
+	margin-left: var(--uxs-sp-5);
+	button { font-size: var(--uxs-fs-s); padding: var(--uxs-sp-1) var(--uxs-sp-3); }
+}
+
+/* ---- A module without settings: empty state instead of an empty form ---- */
+.uxs-empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--uxs-sp-3);
+	max-width: 560px;
+	margin: var(--uxs-sp-5) auto;
+	padding: var(--uxs-sp-6);
+	text-align: center;
+	background: var(--uxs-surface);
+	border: 1px solid var(--uxs-border);
+	border-radius: var(--uxs-radius);
+
+	.uxs-empty__icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 56px;
+		height: 56px;
+		border-radius: var(--uxs-radius);
+		background: var(--uxs-brand-soft);
+		color: var(--uxs-brand-text);
+	}
+	.uxs-empty__desc,
+	.uxs-empty__note { margin: 0; color: var(--uxs-text-soft); }
+	.uxs-empty__note { color: var(--uxs-text); font-weight: 500; }
+	.uxs-empty__switch { display: inline-flex; align-items: center; gap: var(--uxs-sp-3); margin-top: var(--uxs-sp-2); }
+	.uxs-empty__how {
+		margin-top: var(--uxs-sp-3);
+		padding-top: var(--uxs-sp-4);
+		border-top: 1px solid var(--uxs-border);
+		text-align: left;
+		width: 100%;
+
+		h3 { margin: 0 0 var(--uxs-sp-2); font-size: var(--uxs-fs); }
+		p { margin: 0; color: var(--uxs-text-soft); line-height: 1.55; }
+	}
+}
+
+/* ---- Layout helpers (post-audit package 0, see DESIGN.md "Layout rules") ---- */
+/* A row of buttons: one gap everywhere, wraps on a narrow screen, never stretched. */
+.uxs-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--uxs-sp-3);
+}
+/* Status rows: label, a small badge, an optional hint (Image Optimizer). */
+.uxs-status-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	gap: var(--uxs-sp-3);
+
+	.uxs-status-list__row {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: var(--uxs-sp-3);
+	}
+
+	.uxs-badge { width: auto; flex: 0 0 auto; }
+	.uxs-status-list__hint { margin: 0; }
+}
+
+/* Search / filter row above a list and the pager under it (Cron Control events). */
+.uxs-list-toolbar { margin-bottom: var(--uxs-sp-4); }
+.uxs-list-toolbar input[type="search"] { flex: 1 1 280px; min-width: 220px; max-width: 420px; }
+.uxs-list-toolbar__count { margin: 0; }
+.uxs-pager { margin-top: var(--uxs-sp-4); align-items: center; }
+
+/* A grid of summary values: small label above a bold value (Page Load). */
+.uxs-stats {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+	gap: var(--uxs-sp-3) var(--uxs-sp-5);
+	margin: 0;
+
+	.uxs-stats__label { margin: 0; }
+	.uxs-stats__value { margin: 0; font-weight: 600; }
+}
+
+/* Space above the save / submit button of a form (right under a form card). */
+.uxs-form__actions,
+:is(.uxs-form, .uxs-groups, .uxs-table-wrap) + .button { margin-top: var(--uxs-sp-5); }
+.uxs-form__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--uxs-sp-3); }
+/* A button directly inside a form card or a flex column keeps its own width instead of filling the card. */
+.uxs-form:not(.uxs-form--inline) > .button,
+.uxs-card > .button,
+.uxs-group__body > .button { align-self: flex-start; }
+/* A line of controls: fields keep a usable width and wrap, they never shrink to a sliver. */
+.uxs-form .uxs-form__line { flex-wrap: wrap; }
+.uxs-form .uxs-form__line > .uxs-form__row { flex: 1 1 260px; min-width: min(260px, 100%); }
+
+/* A table of a list screen: horizontal scroll inside its own card instead of pushing the page wider. */
+.uxs-table-wrap {
+	max-width: 100%;
+	overflow-x: auto;
+	background: var(--uxs-surface);
+	border: 1px solid var(--uxs-border);
+	border-radius: var(--uxs-radius);
+
+	> .uxs-table { border: none; border-radius: 0; margin: 0; }
+	td, th { overflow-wrap: break-word; }
+}
+.uxs-scroll-x { max-width: 100%; overflow-x: auto; }
 
 /* ---- Module grid ("šachovnice") ---- */
 .uxs-grid {
@@ -509,6 +791,12 @@
 		background-position: right 12px center;
 		background-size: 16px 16px;
 		cursor: pointer;
+		/* A long option is cut with an ellipsis, never in the middle of a word without a sign. */
+		min-width: 0;
+		max-width: 100%;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		overflow: hidden;
 	}
 
 	/* Stand-alone selects (list filters above a table) had no style of their
@@ -701,6 +989,8 @@
 		margin-bottom: var(--uxs-sp-4);
 
 		h1 { font-size: var(--uxs-fs-m); }
+		/* The group page has its own back arrow in the heading above. */
+		h1 > button { display: none; }
 		&.is-embedded { justify-content: flex-end; }
 	}
 }
@@ -859,13 +1149,14 @@
 		padding-block: var(--uxs-sp-2);
 
 		.uxs-form__row {
-			input[type="text"],
-			input[type="url"],
-			input[type="email"],
-			input[type="password"],
+			#{$uxs-text-fields},
 			select,
 			textarea { width: 100%; box-sizing: border-box; }
 			input[type="number"] { max-width: 200px; }
+			/* A date picker or a short number is never stretched over the whole row. */
+			input[type="date"],
+			input[type="time"],
+			input[type="datetime-local"] { width: auto; max-width: 100%; }
 		}
 	}
 
@@ -889,25 +1180,25 @@
 			> :not(label) { grid-column: 1; }
 		}
 
-		input[type="text"],
-		input[type="number"],
-		select,
-		textarea {
-			background: var(--uxs-surface);
-			color: var(--uxs-text);
-			border: 1px solid var(--uxs-border);
-			border-radius: var(--uxs-radius-s);
-			padding: var(--uxs-sp-3) var(--uxs-sp-4);
-			font-family: var(--uxs-font);
-			font-size: var(--uxs-fs);
-			transition: border-color var(--uxs-motion-fast) var(--uxs-ease), box-shadow var(--uxs-motion-fast) var(--uxs-ease);
-
-			&:focus {
-				outline: none;
-				border-color: var(--uxs-brand);
-				box-shadow: 0 0 0 3px var(--uxs-brand-soft);
-			}
+		/* WordPress gives fields min-height 30px and line-height 2: pin the content line (20px + 2 x 12px padding +
+		   2px border), so every field in the plugin is 46px high, like the buttons. */
+		#{$uxs-text-fields},
+		select {
+			min-height: 0;
+			line-height: 20px;
 		}
+
+		/* The browser's own date / time editors are taller than their text: pin them to the standard height. */
+		input[type="date"],
+		input[type="time"],
+		input[type="datetime-local"] {
+			box-sizing: border-box;
+			height: 46px;
+		}
+
+		#{$uxs-text-fields},
+		select,
+		textarea { @include uxs-field-look; }
 	}
 
 	.uxs-color {
@@ -991,6 +1282,49 @@
 		line-height: 1.5;
 		color: var(--uxs-text-soft);
 	}
+	.uxs-explain__part { display: grid; gap: 0; }
+}
+
+/* ---- Glossary term: the word plus a small "?" that opens its definition (components/GlossaryTerm.tsx) ---- */
+.uxs-gloss { white-space: normal; }
+.uxs-gloss__btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 18px;
+	height: 18px;
+	margin: 0 0 0 var(--uxs-sp-1);
+	padding: 0;
+	vertical-align: text-bottom;
+	border: 1px solid var(--uxs-border);
+	border-radius: 50%;
+	background: var(--uxs-surface-2);
+	color: var(--uxs-brand-text);
+	font-size: 11px;
+	font-weight: 700;
+	line-height: 1;
+	cursor: help;
+
+	&:hover { background: var(--uxs-brand-soft); border-color: var(--uxs-brand-text); }
+	&[data-focus-visible] { outline: 2px solid var(--uxs-brand); outline-offset: 1px; }
+}
+.uxs-gloss__popover {
+	max-width: min(340px, calc(100vw - 24px));
+	background: var(--uxs-surface);
+	color: var(--uxs-text);
+	border: 1px solid var(--uxs-border);
+	border-radius: var(--uxs-radius-s);
+	box-shadow: var(--uxs-shadow-2);
+	font-family: var(--uxs-font);
+	font-size: var(--uxs-fs-s);
+	line-height: 1.5;
+	z-index: 100000;
+}
+.uxs-gloss__dialog {
+	display: grid;
+	gap: var(--uxs-sp-1);
+	padding: var(--uxs-sp-3) var(--uxs-sp-4);
+	outline: none;
 }
 .uxs-wiz-plan__reason { flex-basis: 100%; }
 
@@ -1014,6 +1348,8 @@
 		input[type="url"],
 		input[type="email"],
 		input[type="password"],
+		input[type="search"],
+		input[type="tel"],
 		select,
 		textarea { width: 100%; box-sizing: border-box; }
 	}
@@ -1060,6 +1396,8 @@
 		input[type="url"],
 		input[type="email"],
 		input[type="password"],
+		input[type="search"],
+		input[type="tel"],
 		select,
 		textarea { width: 100%; box-sizing: border-box; }
 	}
@@ -1287,7 +1625,7 @@
 	tr.is-invalid:hover td { background: color-mix(in srgb, var(--uxs-danger) 10%, transparent); }
 
 	/* Editable rows (e.g. the Admin Columns builder). */
-	input[type="text"], select {
+	input[type="text"], input[type="url"], input[type="email"], input[type="password"], input[type="search"], select {
 		background: var(--uxs-surface);
 		color: var(--uxs-text);
 		border: 1px solid var(--uxs-border);
@@ -1599,6 +1937,11 @@
 	.uxs-notice__error { color: var(--uxs-danger-text); }
 }
 
+.uxs-notice.is-wide {
+	max-width: none;
+	margin-bottom: var(--uxs-sp-3);
+}
+
 .uxs-notice__actions {
 	display: flex;
 	flex-wrap: wrap;
@@ -1700,6 +2043,28 @@
 }
 
 .uxs-overlaps__body { flex: 1; min-width: 0; }
+
+/* Summary line above the module list and the compact list under it (one slim row per conflict). */
+.uxs-overlaps__summary {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: var(--uxs-sp-3);
+}
+
+.uxs-overlaps.is-compact {
+	margin: var(--uxs-sp-3) 0 0;
+
+	.uxs-overlaps__list { margin: 0; gap: var(--uxs-sp-1); }
+}
+
+.uxs-overlaps__item.is-compact {
+	align-items: center;
+	padding: var(--uxs-sp-2) var(--uxs-sp-3);
+
+	.uxs-overlaps__icon { padding-top: 0; }
+	.uxs-overlaps__module { color: var(--uxs-text-soft); }
+}
 
 .uxs-overlaps__head {
 	display: flex;

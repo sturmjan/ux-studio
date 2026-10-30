@@ -1,7 +1,7 @@
 {
 	"id": "analytics",
-	"name": "Statistiky návštěv",
-	"description": "Vlastní měření návštěvnosti bez cookies (GDPR-friendly) – zobrazení stránek, unikátní návštěvníci, nejnavštěvovanější stránky, zdroje a graf posledních dní. Data se dávkově agregují do denních souhrnů.",
+	"name": "Visitor Statistics",
+	"description": "Own cookie-free traffic measurement (GDPR-friendly): page views, unique visitors, top pages, sources and a chart of the last days. Data is aggregated into daily summaries in batches.",
 	"group": "content",
 	"icon": "bar-chart-2",
 	"settings": true

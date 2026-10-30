@@ -323,7 +323,7 @@ final class Submissions {
 		}
 
 		if ( 'email' === $type && ! is_email( (string) $value ) ) {
-			return __( 'Invalid email address.', 'ux-studio' );
+			return __( 'Invalid e-mail address.', 'ux-studio' );
 		}
 		if ( 'url' === $type && ! wp_http_validate_url( (string) $value ) ) {
 			return __( 'Invalid URL.', 'ux-studio' );

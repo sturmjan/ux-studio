@@ -6,6 +6,16 @@
 	var galleries = document.querySelectorAll('.uxstudio-gallery[data-lightbox="1"]');
 	if (!galleries.length) return;
 
+	var i18n = window.uxstudioGalleryI18n || {};
+	var labels = {
+		close: i18n.close || 'Close',
+		prev: i18n.prev || 'Previous',
+		next: i18n.next || 'Next'
+	};
+	function esc(text) {
+		return String(text).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+	}
+
 	var overlay = null;
 	var imgEl = null;
 	var counterEl = null;
@@ -20,14 +30,14 @@
 		overlay.innerHTML =
 			'<div class="uxstudio-lightbox__toolbar">'
 				+ '<span class="uxstudio-lightbox__counter"></span>'
-				+ '<button class="uxstudio-lightbox__btn uxstudio-lightbox__close" aria-label="Close">'
+				+ '<button class="uxstudio-lightbox__btn uxstudio-lightbox__close" aria-label="' + esc(labels.close) + '">'
 					+ '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
 				+ '</button>'
 			+ '</div>'
-			+ '<button class="uxstudio-lightbox__nav uxstudio-lightbox__prev" aria-label="Previous">'
+			+ '<button class="uxstudio-lightbox__nav uxstudio-lightbox__prev" aria-label="' + esc(labels.prev) + '">'
 				+ '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>'
 			+ '</button>'
-			+ '<button class="uxstudio-lightbox__nav uxstudio-lightbox__next" aria-label="Next">'
+			+ '<button class="uxstudio-lightbox__nav uxstudio-lightbox__next" aria-label="' + esc(labels.next) + '">'
 				+ '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>'
 			+ '</button>'
 			+ '<div class="uxstudio-lightbox__stage">'

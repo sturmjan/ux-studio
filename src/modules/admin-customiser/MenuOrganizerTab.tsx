@@ -396,7 +396,7 @@ export function MenuOrganizerTab(): JSX.Element {
 			) }
 
 			<p className="uxs-form__help" style={ { marginBottom: 'var(--uxs-sp-4)' } }>
-				{ __( 'Hiding an item only removes it from the menu: the page still opens when its address is typed in. To refuse it too, switch on "Block access to hidden pages" in the Settings tab (users who can manage options are never blocked).', 'ux-studio' ) }
+				{ __( 'Hiding an item only removes it from the menu: the page still opens when its address is typed in. To refuse it too, turn on "Block access to hidden pages" in the Settings tab (users who can manage options are never blocked).', 'ux-studio' ) }
 			</p>
 
 			<div className="uxs-form__row">
@@ -427,6 +427,9 @@ export function MenuOrganizerTab(): JSX.Element {
 						style={ { display: 'none' } }
 					/>
 				</label>
+			</p>
+			<p className="uxs-form__help">
+				{ __( 'Export saves the menu layout to a file. Import loads such a file and replaces the current layout, so export first if you want to keep it.', 'ux-studio' ) }
 			</p>
 
 			<h3>{ __( 'Categories', 'ux-studio' ) }</h3>
@@ -471,7 +474,7 @@ export function MenuOrganizerTab(): JSX.Element {
 							<Trash2 size={ 12 } /> { __( 'Delete', 'ux-studio' ) }
 						</button>
 
-						<table className="uxs-table" style={ { marginTop: 'var(--uxs-sp-2)' } }>
+						<div className="uxs-table-wrap" style={ { marginTop: 'var(--uxs-sp-2)' } }><table className="uxs-table">
 							<thead>
 								<tr>
 									<th>{ __( 'Item', 'ux-studio' ) }</th>
@@ -568,7 +571,7 @@ export function MenuOrganizerTab(): JSX.Element {
 									</tr>
 								) ) }
 							</tbody>
-						</table>
+						</table></div>
 					</div>
 				</div>
 			) ) }
@@ -582,7 +585,7 @@ export function MenuOrganizerTab(): JSX.Element {
 					<input type="text" placeholder={ __( 'Title', 'ux-studio' ) } value={ linkTitle } onChange={ ( e ) => setLinkTitle( e.target.value ) } />{ ' ' }
 					<input type="url" placeholder="https://…" value={ linkUrl } onChange={ ( e ) => setLinkUrl( e.target.value ) } />{ ' ' }
 					<select value={ linkCategory } onChange={ ( e ) => setLinkCategory( e.target.value ) }>
-						<option value="">{ __( '— category —', 'ux-studio' ) }</option>
+						<option value="">{ __( 'Choose a category', 'ux-studio' ) }</option>
 						{ categoryIds.map( ( id ) => (
 							<option key={ id } value={ id }>
 								{ draft.categories[ id ] }
@@ -595,7 +598,7 @@ export function MenuOrganizerTab(): JSX.Element {
 				</span>
 			</div>
 			{ draft.custom_links.length > 0 && (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Title', 'ux-studio' ) }</th>
@@ -618,7 +621,7 @@ export function MenuOrganizerTab(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 
 			<h3>{ __( 'Separators', 'ux-studio' ) }</h3>
@@ -627,7 +630,7 @@ export function MenuOrganizerTab(): JSX.Element {
 				<span>
 					<input type="text" placeholder={ __( 'Label (optional)', 'ux-studio' ) } value={ sepLabel } onChange={ ( e ) => setSepLabel( e.target.value ) } />{ ' ' }
 					<select value={ sepCategory } onChange={ ( e ) => setSepCategory( e.target.value ) }>
-						<option value="">{ __( '— category —', 'ux-studio' ) }</option>
+						<option value="">{ __( 'Choose a category', 'ux-studio' ) }</option>
 						{ categoryIds.map( ( id ) => (
 							<option key={ id } value={ id }>
 								{ draft.categories[ id ] }
@@ -640,7 +643,7 @@ export function MenuOrganizerTab(): JSX.Element {
 				</span>
 			</div>
 			{ draft.separators.length > 0 && (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Label', 'ux-studio' ) }</th>
@@ -661,7 +664,7 @@ export function MenuOrganizerTab(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 
 			<p style={ { marginTop: 'var(--uxs-sp-4)' } }>

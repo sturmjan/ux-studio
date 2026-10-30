@@ -173,7 +173,7 @@ export function PlanDetails( { plan }: { plan: SourcePlan } ): JSX.Element {
 			{ plan.staged && plan.data.length > 0 && (
 				<p className="uxs-wiz-note">
 					<Info size={ 14 } aria-hidden />{ ' ' }
-					{ __( 'The module is already on, so this is only prepared: the objects are created switched off and start working at the switch, after the safe preview.', 'ux-studio' ) }
+					{ __( 'The module is already on, so this is only prepared: the objects are created turned off and start working at the switch, after the safe preview.', 'ux-studio' ) }
 				</p>
 			) }
 			{ ( plan.transfer.length > 0 || plan.data.length > 0 ) && plan.notes.length > 0 && (

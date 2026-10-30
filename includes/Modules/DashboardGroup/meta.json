@@ -1,7 +1,7 @@
 {
 	"id": "dashboard",
 	"name": "Dashboard",
-	"description": "Widgets on the admin dashboard and the quick Add New button in the editor. Each part can be switched on separately.",
+	"description": "Widgets on the admin dashboard and the quick Add New button in the editor. Each part can be turned on separately.",
 	"group": "content",
 	"icon": "gauge",
 	"settings": true,

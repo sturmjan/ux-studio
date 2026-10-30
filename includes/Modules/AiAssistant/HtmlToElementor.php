@@ -1945,7 +1945,7 @@ class HtmlToElementor
         // Stáhnout HTML. wp_safe_remote_get = reject_unsafe_urls: odmítne interní/privátní
         // adresy a nestandardní porty (SSRF) a stejnou kontrolou projde i každý redirect.
         if (!wp_http_validate_url($url)) {
-            throw new \RuntimeException('Neplatná nebo nepovolená URL (interní adresa či nestandardní port).');
+            throw new \RuntimeException(__( 'Invalid or forbidden URL (an internal address or a non-standard port).', 'ux-studio' ));
         }
         $response = wp_safe_remote_get($url, [
             'timeout' => 30,
@@ -1955,17 +1955,25 @@ class HtmlToElementor
         ]);
 
         if (is_wp_error($response)) {
-            throw new \RuntimeException('Nepodařilo se stáhnout stránku: ' . $response->get_error_message());
+            throw new \RuntimeException(sprintf(
+                /* translators: %s: error message */
+                __( 'Could not download the page: %s', 'ux-studio' ),
+                $response->get_error_message()
+            ));
         }
 
         $statusCode = wp_remote_retrieve_response_code($response);
         if ($statusCode !== 200) {
-            throw new \RuntimeException("Stránka vrátila HTTP {$statusCode}");
+            throw new \RuntimeException(sprintf(
+                /* translators: %d: HTTP status code */
+                __( 'The page returned HTTP %d', 'ux-studio' ),
+                $statusCode
+            ));
         }
 
         $html = wp_remote_retrieve_body($response);
         if (empty($html)) {
-            throw new \RuntimeException('Stránka je prázdná');
+            throw new \RuntimeException(__( 'The page is empty', 'ux-studio' ));
         }
 
         // Extrahovat obsah (parsuje CSS ze style tagů a uchovává v self::$css_rules)

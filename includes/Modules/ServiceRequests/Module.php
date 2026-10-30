@@ -131,8 +131,8 @@ final class Module extends BaseModule {
 			array(
 				'key'     => 'delivery_email',
 				'type'    => 'text',
-				'label'   => __( 'Notification email', 'ux-studio' ),
-				'help'    => __( 'Where notifications about new service requests are sent. Defaults to the site admin email if left blank.', 'ux-studio' ),
+				'label'   => __( 'Notification e-mail', 'ux-studio' ),
+				'help'    => __( 'Where notifications about new service requests are sent. Defaults to the site admin e-mail if left blank.', 'ux-studio' ),
 				'default' => '',
 			),
 		);

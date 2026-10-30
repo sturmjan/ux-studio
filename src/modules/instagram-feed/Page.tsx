@@ -124,13 +124,18 @@ function ConnectionTab(): JSX.Element {
 	return (
 		<div className="uxs-form">
 			{ ! data.has_app_id || ! data.has_app_secret ? (
-				<div style={ { padding: 'var(--uxs-sp-3)', borderLeft: '3px solid #d63638', background: 'rgba(214,54,56,.06)', marginBottom: 'var(--uxs-sp-4)' } }>
-					<p>
-						{ __( 'Fill in the Instagram app ID and app secret above and save them before connecting.', 'ux-studio' ) }
-					</p>
-					<p className="uxs-form__help">
-						{ __( 'Register this redirect URI in your Meta app:', 'ux-studio' ) } <code>{ data.redirect_uri }</code>
-					</p>
+				<div className="uxs-callout" style={ { marginBottom: 'var(--uxs-sp-4)' } }>
+					<div>
+						<p><strong>{ __( 'Before you can connect Instagram:', 'ux-studio' ) }</strong></p>
+						<ol style={ { margin: 'var(--uxs-sp-2) 0 0', paddingLeft: '1.4em' } }>
+							<li>{ __( 'In the Meta App Dashboard, create an app and open the product "Instagram", section "API setup with Instagram login".', 'ux-studio' ) }</li>
+							<li>{ __( 'Copy the Instagram app ID and app secret into the fields above and save them.', 'ux-studio' ) }</li>
+							<li>
+								{ __( 'In the same section, add this address as a valid OAuth redirect URI:', 'ux-studio' ) } <code>{ data.redirect_uri }</code>
+							</li>
+							<li>{ __( 'Come back here and press "Connect Instagram".', 'ux-studio' ) }</li>
+						</ol>
+					</div>
 				</div>
 			) : null }
 
@@ -149,7 +154,7 @@ function ConnectionTab(): JSX.Element {
 					<p className="uxs-form__help">
 						{ __( 'Cached media items:', 'ux-studio' ) } { data.media_count }
 					</p>
-					<div style={ { display: 'flex', gap: 'var(--uxs-sp-3)', marginTop: 'var(--uxs-sp-3)' } }>
+					<div className="uxs-actions">
 						<button type="button" className="button button-primary" disabled={ sync.isPending } onClick={ () => sync.mutate() }>
 							{ sync.isPending ? <LoaderCircle size={ 14 } /> : <RefreshCw size={ 14 } /> } { __( 'Sync now', 'ux-studio' ) }
 						</button>
@@ -281,30 +286,37 @@ function FeedEditor( {
 						<option key={ k } value={ k }>{ label }</option>
 					) ) }
 				</select>
+				<p className="uxs-form__help">{ __( 'How the posts are arranged on the page: a grid, a masonry of different heights, a carousel or a slider.', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
 				<label>{ __( 'Number of posts', 'ux-studio' ) }</label>
 				<input type="number" value={ config.item_limit } onChange={ ( e ) => set( 'item_limit', Number( e.target.value ) ) } />
+				<p className="uxs-form__help">{ __( 'How many of the latest posts the feed shows.', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
 				<label>{ __( 'Columns (desktop)', 'ux-studio' ) }</label>
 				<input type="number" value={ config.cols_desktop } onChange={ ( e ) => set( 'cols_desktop', Number( e.target.value ) ) } />
+				<p className="uxs-form__help">{ __( 'How many posts stand next to each other on a computer. Phones show fewer automatically.', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
 				<label>{ __( 'Gap (px)', 'ux-studio' ) }</label>
 				<input type="number" value={ config.gap_px } onChange={ ( e ) => set( 'gap_px', Number( e.target.value ) ) } />
+				<p className="uxs-form__help">{ __( 'The space between posts in pixels.', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
 				<label>{ __( 'Media types', 'ux-studio' ) }</label>
 				<input type="text" value={ config.media_types } onChange={ ( e ) => set( 'media_types', e.target.value ) } />
+				<p className="uxs-form__help">{ __( 'Which kinds of posts to show, separated by commas: IMAGE, VIDEO, CAROUSEL_ALBUM. Empty shows all.', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
 				<label>{ __( 'Include hashtags', 'ux-studio' ) }</label>
 				<input type="text" value={ config.include_hashtags } onChange={ ( e ) => set( 'include_hashtags', e.target.value ) } />
+				<p className="uxs-form__help">{ __( 'Show only posts that contain at least one of these hashtags (separated by commas, without #). Empty means no filter.', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
 				<label>{ __( 'Exclude hashtags', 'ux-studio' ) }</label>
 				<input type="text" value={ config.exclude_hashtags } onChange={ ( e ) => set( 'exclude_hashtags', e.target.value ) } />
+				<p className="uxs-form__help">{ __( 'Hide posts that contain any of these hashtags (separated by commas, without #).', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
 				<label>{ __( 'Show captions', 'ux-studio' ) }</label>
@@ -314,6 +326,7 @@ function FeedEditor( {
 					aria-pressed={ config.show_caption }
 					onClick={ () => set( 'show_caption', ! config.show_caption ) }
 				/>
+				<p className="uxs-form__help">{ __( 'Shows the text written under each post.', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
 				<label>{ __( 'Show follow button', 'ux-studio' ) }</label>
@@ -323,6 +336,7 @@ function FeedEditor( {
 					aria-pressed={ config.show_follow }
 					onClick={ () => set( 'show_follow', ! config.show_follow ) }
 				/>
+				<p className="uxs-form__help">{ __( 'Adds a button that opens your Instagram profile.', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
 				<label>{ __( 'Show likes and comments on hover', 'ux-studio' ) }</label>
@@ -332,6 +346,7 @@ function FeedEditor( {
 					aria-pressed={ config.show_likes }
 					onClick={ () => set( 'show_likes', ! config.show_likes ) }
 				/>
+				<p className="uxs-form__help">{ __( 'Shows the number of likes and comments when the pointer is over a post.', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
 				<label>{ __( 'Custom CSS (declarations for the feed wrapper)', 'ux-studio' ) }</label>
@@ -342,6 +357,7 @@ function FeedEditor( {
 					value={ config.custom_css }
 					onChange={ ( e ) => set( 'custom_css', e.target.value ) }
 				/>
+				<p className="uxs-form__help">{ __( 'Advanced. Style rules that apply to the whole feed box, for example a rounded corner or a background.', 'ux-studio' ) }</p>
 			</div>
 			<div style={ { display: 'flex', gap: 'var(--uxs-sp-3)' } }>
 				<button type="button" className="button button-primary" disabled={ pending } onClick={ () => onSubmit( name, config ) }>
@@ -400,7 +416,7 @@ function FeedsTab(): JSX.Element {
 			/>
 		);
 	}
-	if ( editing && editing !== 'new' ) {
+	if ( editing ) {
 		const feed = editing;
 		return (
 			<FeedEditor
@@ -423,7 +439,7 @@ function FeedsTab(): JSX.Element {
 			{ data.length === 0 ? (
 				<p>{ __( 'No feeds yet. Create one, then embed it with its shortcode.', 'ux-studio' ) }</p>
 			) : (
-				<table className="widefat striped">
+				<div className="uxs-scroll-x"><table className="widefat striped">
 					<thead>
 						<tr>
 							<th>{ __( 'Name', 'ux-studio' ) }</th>
@@ -449,7 +465,7 @@ function FeedsTab(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 		</>
 	);

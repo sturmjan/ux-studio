@@ -228,7 +228,7 @@ final class AdminimizeSource extends AbstractAdminSource {
 						$m->warn(
 							sprintf(
 								/* translators: 1: setting, 2: roles that lose the feature. */
-								__( '"%1$s" is switched on for everybody in UX Studio, the plugin applied it only to some roles. %2$s lose it as well.', 'ux-studio' ),
+								__( '"%1$s" is turned on for everybody in UX Studio, the plugin applied it only to some roles. %2$s lose it as well.', 'ux-studio' ),
 								$key[1],
 								$this->role_names( $rest )
 							)

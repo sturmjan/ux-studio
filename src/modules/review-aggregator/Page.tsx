@@ -90,18 +90,20 @@ function ReviewsTab(): JSX.Element {
 	return (
 		<>
 			<div style={ { marginBottom: 'var(--uxs-sp-4)' } }>
+				<div className="uxs-actions">
 				<button type="button" className="button button-primary" disabled={ fetchReviews.isPending } onClick={ () => fetchReviews.mutate() }>
 					{ fetchReviews.isPending ? <LoaderCircle size={ 14 } /> : <RefreshCw size={ 14 } /> } { __( 'Fetch reviews', 'ux-studio' ) }
-				</button>{ ' ' }
+				</button>
 				<button
 					type="button"
 					className="button"
 					disabled={ requestScrape.isPending }
 					onClick={ () => requestScrape.mutate() }
-					title={ __( 'Queue a full-history Google scan on the central app (NAS scraper). Fetch reviews once the scan has finished.', 'ux-studio' ) }
+					title={ __( 'Ask the central app to download the whole history of your Google reviews, not only the latest ones. When it has finished, press "Fetch reviews".', 'ux-studio' ) }
 				>
-					{ requestScrape.isPending ? <LoaderCircle size={ 14 } /> : <ScanSearch size={ 14 } /> } { __( 'Request deep scan (NAS)', 'ux-studio' ) }
+					{ requestScrape.isPending ? <LoaderCircle size={ 14 } /> : <ScanSearch size={ 14 } /> } { __( 'Request a full scan', 'ux-studio' ) }
 				</button>
+				</div>
 				{ fetchReviews.isError ? <p className="uxs-form__help">{ ( fetchReviews.error as Error ).message }</p> : null }
 				{ requestScrape.isError ? <p className="uxs-form__help">{ ( requestScrape.error as Error ).message }</p> : null }
 				{ requestScrape.data ? (
@@ -109,7 +111,7 @@ function ReviewsTab(): JSX.Element {
 						<span className="uxs-badge is-success">
 							{ sprintf(
 								/* translators: %d: central app scrape job id */
-								__( 'Deep scan queued (job #%d). Fetch reviews once it has finished.', 'ux-studio' ),
+								__( 'Full scan requested (job #%d). Press "Fetch reviews" once it has finished.', 'ux-studio' ),
 								requestScrape.data.job_id
 							) }
 						</span>
@@ -130,7 +132,7 @@ function ReviewsTab(): JSX.Element {
 			) : null }
 			{ ! isLoading && ( ! data || data.length === 0 ) ? <p>{ __( 'No reviews yet.', 'ux-studio' ) }</p> : null }
 			{ ! isLoading && data && data.length > 0 ? (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Source', 'ux-studio' ) }</th>
@@ -207,7 +209,7 @@ function ReviewsTab(): JSX.Element {
 							</Fragment>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) : null }
 		</>
 	);
@@ -238,7 +240,7 @@ function StatsTab(): JSX.Element {
 				{ ' · ' }
 				{ __( 'Average rating:', 'ux-studio' ) } <strong>{ data.average }</strong>
 			</p>
-			<table className="uxs-table">
+			<div className="uxs-table-wrap"><table className="uxs-table">
 				<thead>
 					<tr>
 						<th>{ __( 'Source', 'ux-studio' ) }</th>
@@ -255,7 +257,7 @@ function StatsTab(): JSX.Element {
 						</tr>
 					) ) }
 				</tbody>
-			</table>
+			</table></div>
 		</>
 	);
 }

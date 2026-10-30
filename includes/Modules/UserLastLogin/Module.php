@@ -184,8 +184,12 @@ final class Module extends BaseModule {
 				'key'     => 'custom_format',
 				'type'    => 'text',
 				'label'   => __( 'Custom format', 'ux-studio' ),
-				'help'    => __( 'PHP date format used when "Custom format" is selected (e.g. Y-m-d H:i:s).', 'ux-studio' ),
+				'help'    => __( 'Write the format with letters: d day, m month, Y year, H hour, i minute. For example "d. m. Y H:i" shows 24. 10. 2026 14:35.', 'ux-studio' ),
 				'default' => 'Y-m-d H:i:s',
+				'show_if' => array(
+					'key'    => 'format',
+					'equals' => 'custom',
+				),
 			),
 		);
 	}

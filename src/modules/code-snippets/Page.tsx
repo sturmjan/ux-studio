@@ -209,7 +209,7 @@ function SnippetsTable( {
 			) : snippets.length === 0 ? (
 				<p>{ __( 'No snippets have been created yet.', 'ux-studio' ) }</p>
 			) : (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Name', 'ux-studio' ) }</th>
@@ -284,7 +284,7 @@ function SnippetsTable( {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 		</>
 	);
@@ -354,6 +354,7 @@ const query = useQuery( {
 							value={ draft.name }
 							onChange={ ( e ) => setDraft( ( d ) => ( { ...d, name: e.target.value } ) ) }
 						/>
+						<p className="uxs-form__help">{ __( 'Only for you, to tell snippets apart in the list. Visitors never see it.', 'ux-studio' ) }</p>
 					</div>
 					<div className="uxs-form__row">
 						<label htmlFor="uxs-cs-description">{ __( 'Description', 'ux-studio' ) }</label>
@@ -379,6 +380,7 @@ const query = useQuery( {
 							<option value="css">{ __( 'CSS', 'ux-studio' ) }</option>
 							<option value="js">{ __( 'JavaScript', 'ux-studio' ) }</option>
 						</select>
+						<p className="uxs-form__help">{ __( 'PHP runs on the server and can change how the site works. HTML, CSS and JavaScript are added to the page that the visitor sees.', 'ux-studio' ) }</p>
 					</div>
 					<div className="uxs-form__row">
 						<label htmlFor="uxs-cs-code">{ __( 'Snippet code', 'ux-studio' ) }</label>
@@ -409,6 +411,7 @@ const query = useQuery( {
 								</option>
 							) ) }
 						</select>
+						<p className="uxs-form__help">{ __( 'Decides on which pages and in which place the snippet is used. The options depend on the type.', 'ux-studio' ) }</p>
 					</div>
 					{ ( draft.run_location === BEFORE_CONTENT || draft.run_location === AFTER_CONTENT ) && (
 						<div className="uxs-form__row">
@@ -484,6 +487,7 @@ const query = useQuery( {
 							aria-pressed={ draft.enabled }
 							onClick={ () => setDraft( ( d ) => ( { ...d, enabled: ! d.enabled } ) ) }
 						/>
+						<p className="uxs-form__help">{ __( 'A snippet that is off is saved but does nothing. Turn it on when the code is ready.', 'ux-studio' ) }</p>
 					</div>
 
 					{ error && (

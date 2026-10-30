@@ -209,7 +209,7 @@ final class Switcher {
 		if ( $plan['switched'] ) {
 			$out[] = array(
 				'code'    => 'switched',
-				'message' => __( 'This run is already switched on.', 'ux-studio' ),
+				'message' => __( 'This run is already turned on.', 'ux-studio' ),
 			);
 			return $out;
 		}
@@ -354,7 +354,7 @@ final class Switcher {
 				} else {
 					$errors[] = sprintf(
 						/* translators: %s: module id. */
-						__( 'The module "%s" could not be switched on.', 'ux-studio' ),
+						__( 'The module "%s" could not be turned on.', 'ux-studio' ),
 						$module
 					);
 				}
@@ -370,7 +370,7 @@ final class Switcher {
 					} catch ( \Throwable $e ) {
 						$errors[] = sprintf(
 							/* translators: 1: module id, 2: error message. */
-							__( 'The module "%1$s" could not finish switching on: %2$s', 'ux-studio' ),
+							__( 'The module "%1$s" could not finish turning on: %2$s', 'ux-studio' ),
 							$module,
 							$e->getMessage()
 						);
@@ -531,7 +531,7 @@ final class Switcher {
 		$run_id = Snapshot::clean_id( $run_id );
 		$record = self::record( $run_id );
 		if ( ! $record ) {
-			return new \WP_Error( 'uxstudio_switch_none', __( 'This run is not switched on, or the undo information has expired.', 'ux-studio' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'uxstudio_switch_none', __( 'This run is not turned on, or the undo information has expired.', 'ux-studio' ), array( 'status' => 404 ) );
 		}
 		$modules_api = self::modules();
 		if ( ! $modules_api ) {

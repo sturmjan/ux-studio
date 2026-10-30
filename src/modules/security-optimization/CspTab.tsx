@@ -445,7 +445,7 @@ export function CspTab(): JSX.Element {
 			setPendingMode( null );
 			void queryClient.invalidateQueries( { queryKey: [ 'settings', 'security-optimization' ] } );
 			if ( res.values.csp_gate_blocked ) {
-				pushToast( 'error', __( 'Enforce was not switched on: the conditions are not met. The previous mode stays.', 'ux-studio' ) );
+				pushToast( 'error', __( 'Enforce was not turned on: the conditions are not met. The previous mode stays.', 'ux-studio' ) );
 			}
 			// A mode change is the moment to prove the header really arrives.
 			if ( res.values.csp_mode !== 'off' && res.values.csp_mode !== savedMode ) {
@@ -582,7 +582,7 @@ export function CspTab(): JSX.Element {
 						: __( 'No sources reported yet. Browsers report them as visitors open pages - give it a few hours.', 'ux-studio' ) }
 				</p>
 			) : (
-				<table className="uxs-table uxs-csp-table">
+				<div className="uxs-table-wrap"><table className="uxs-table uxs-csp-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Source', 'ux-studio' ) }</th>
@@ -706,7 +706,7 @@ export function CspTab(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 
 			{ pendingMode && (

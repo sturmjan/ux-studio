@@ -95,10 +95,12 @@ function AddSiteForm(): JSX.Element {
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-cs-name">{ __( 'Node name', 'ux-studio' ) }</label>
 				<input id="uxs-cs-name" type="text" value={ name } onChange={ ( e ) => setName( e.target.value ) } placeholder={ __( 'e.g. Client hotel site', 'ux-studio' ) } />
+				<p className="uxs-form__help">{ __( 'A name for you, to recognize the site in the list. A node is a site managed from this one.', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-cs-url">{ __( 'Node URL', 'ux-studio' ) }</label>
 				<input id="uxs-cs-url" type="text" value={ url } onChange={ ( e ) => setUrl( e.target.value ) } placeholder="https://node.example.com" />
+				<p className="uxs-form__help">{ __( 'The address of the managed site, with https:// at the start.', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-cs-key">{ __( 'Shared API key', 'ux-studio' ) }</label>
@@ -156,7 +158,7 @@ function SitesTab(): JSX.Element {
 			) : null }
 			{ ! isLoading && ( ! data || data.length === 0 ) ? <p>{ __( 'No nodes registered yet.', 'ux-studio' ) }</p> : null }
 			{ ! isLoading && data && data.length > 0 ? (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Name', 'ux-studio' ) }</th>
@@ -187,7 +189,7 @@ function SitesTab(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) : null }
 		</>
 	);
@@ -228,13 +230,14 @@ function PushTab(): JSX.Element {
 				<div className="uxs-form__row">
 					<label htmlFor="uxs-cs-search">{ __( 'Find content to push', 'ux-studio' ) }</label>
 					<input id="uxs-cs-search" type="text" value={ search } onChange={ ( e ) => setSearch( e.target.value ) } placeholder={ __( 'Search posts…', 'ux-studio' ) } />
+					<p className="uxs-form__help">{ __( 'Type part of the title of the post or page you want to send to a node.', 'ux-studio' ) }</p>
 				</div>
 			</div>
 
 			{ posts.isLoading ? (
 				<div className="uxs-loading"><LoaderCircle size={ 24 } /></div>
 			) : (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th></th>
@@ -255,7 +258,7 @@ function PushTab(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 
 			<h3 style={ { marginTop: 'var(--uxs-sp-4)' } }>{ __( 'Target nodes', 'ux-studio' ) }</h3>
@@ -275,7 +278,7 @@ function PushTab(): JSX.Element {
 			</p>
 
 			{ push.data ? (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Node', 'ux-studio' ) }</th>
@@ -292,7 +295,7 @@ function PushTab(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) : null }
 		</>
 	);
@@ -450,7 +453,7 @@ function RemoteTab(): JSX.Element {
 					{ posts.isError ? <p className="uxs-form__help">{ ( posts.error as Error ).message }</p> : null }
 					{ posts.data ? (
 						<>
-							<table className="uxs-table">
+							<div className="uxs-table-wrap"><table className="uxs-table">
 								<thead>
 									<tr>
 										<th>{ __( 'Title', 'ux-studio' ) }</th>
@@ -487,7 +490,7 @@ function RemoteTab(): JSX.Element {
 										</tr>
 									) ) }
 								</tbody>
-							</table>
+							</table></div>
 							<p>
 								<button type="button" className="button" disabled={ page <= 1 } onClick={ () => setPage( ( n ) => n - 1 ) }>
 									{ __( 'Previous', 'ux-studio' ) }
@@ -519,10 +522,12 @@ function RemoteTab(): JSX.Element {
 					<div className="uxs-form__row">
 						<label htmlFor="uxs-cs-rp-excerpt">{ __( 'Excerpt', 'ux-studio' ) }</label>
 						<textarea id="uxs-cs-rp-excerpt" rows={ 3 } value={ draft.excerpt } onChange={ ( e ) => setDraft( { ...draft, excerpt: e.target.value } ) } />
+						<p className="uxs-form__help">{ __( 'A short summary that lists and search results show instead of the whole text.', 'ux-studio' ) }</p>
 					</div>
 					<div className="uxs-form__row">
 						<label htmlFor="uxs-cs-rp-content">{ __( 'Content (HTML)', 'ux-studio' ) }</label>
 						<textarea id="uxs-cs-rp-content" rows={ 14 } value={ draft.content } onChange={ ( e ) => setDraft( { ...draft, content: e.target.value } ) } />
+						<p className="uxs-form__help">{ __( 'The text of the post as HTML code. A mistake here changes the live page on the node once you save.', 'ux-studio' ) }</p>
 					</div>
 					<button type="button" className="button button-primary" disabled={ save.isPending || draft.title.trim() === '' } onClick={ () => save.mutate( draft ) }>
 						{ save.isPending ? <LoaderCircle size={ 14 } /> : null } { __( 'Save on node', 'ux-studio' ) }
@@ -555,7 +560,7 @@ function LogTab(): JSX.Element {
 	}
 
 	return (
-		<table className="uxs-table">
+		<div className="uxs-table-wrap"><table className="uxs-table">
 			<thead>
 				<tr>
 					<th>{ __( 'Date', 'ux-studio' ) }</th>
@@ -578,7 +583,7 @@ function LogTab(): JSX.Element {
 					</tr>
 				) ) }
 			</tbody>
-		</table>
+		</table></div>
 	);
 }
 

@@ -31,7 +31,7 @@ final class Claude_Panel_Bootstrap {
             'notify_email'         => '',     // defaults to admin_email if empty
             'last_grant_password'  => '',     // shown ONCE after grant, then cleared on next page render
             'show_dashboard_widget'=> true,   // toggle from settings page
-            // Záchranný endpoint (standalone, mimo WordPress).
+            // Rescue endpoint (standalone, outside WordPress).
             'rescue_installed'     => false,
             'rescue_url'           => '',
             'rescue_file'          => '',
@@ -39,7 +39,7 @@ final class Claude_Panel_Bootstrap {
             'rescue_created'       => 0,
             'rescue_allowed_ips'   => '',
             'rescue_require_https' => false,
-            'rescue_key_enc'       => '',     // klíč zašifrovaný WP salty (kvůli zobrazení v adminu)
+            'rescue_key_enc'       => '',     // key encrypted with the WP salts (so it can be shown in the admin)
         ];
     }
 
@@ -80,6 +80,47 @@ final class Claude_Panel_Bootstrap {
         // configured trusted proxies) instead of the raw REMOTE_ADDR.
         $ip = \UxStudio\Core\ClientIp::get('auto');
         return $ip !== '' ? $ip : '?';
+    }
+
+    /**
+     * Texts of the rescue endpoint UI in the language of the admin who installs it. rescue.php runs outside
+     * WordPress (no __()), so they are written into its config.php. KEEP IN SYNC with the rt() calls there.
+     */
+    public static function rescue_i18n() {
+        return [
+            'Too many attempts. Wait %d s.' => __('Too many attempts. Wait %d s.', 'ux-studio'),
+            'Wrong password.' => __('Wrong password.', 'ux-studio'),
+            'Rescue access' => __('Rescue access', 'ux-studio'),
+            'Independent of WordPress. File management only.' => __('Independent of WordPress. File management only.', 'ux-studio'),
+            'Rescue password' => __('Rescue password', 'ux-studio'),
+            'Log in' => __('Log in', 'ux-studio'),
+            'Files' => __('Files', 'ux-studio'),
+            'Editor' => __('Editor', 'ux-studio'),
+            'Log out' => __('Log out', 'ux-studio'),
+            'Emergency mode outside WordPress: file management only. Edit or delete the file that broke the site, then log out.' => __('Emergency mode outside WordPress: file management only. Edit or delete the file that broke the site, then log out.', 'ux-studio'),
+            'Up' => __('Up', 'ux-studio'),
+            'New folder' => __('New folder', 'ux-studio'),
+            'New file' => __('New file', 'ux-studio'),
+            'Filter...' => __('Filter...', 'ux-studio'),
+            'Name' => __('Name', 'ux-studio'),
+            'Size' => __('Size', 'ux-studio'),
+            'Modified' => __('Modified', 'ux-studio'),
+            'Actions' => __('Actions', 'ux-studio'),
+            'no file' => __('no file', 'ux-studio'),
+            'Save' => __('Save', 'ux-studio'),
+            'Reload' => __('Reload', 'ux-studio'),
+            'Click a file...' => __('Click a file...', 'ux-studio'),
+            'Could not parse the response' => __('Could not parse the response', 'ux-studio'),
+            'Name of the folder:' => __('Name of the folder:', 'ux-studio'),
+            'Name of the file:' => __('Name of the file:', 'ux-studio'),
+            'Delete:' => __('Delete:', 'ux-studio'),
+            'Deleted' => __('Deleted', 'ux-studio'),
+            '(backup)' => __('(backup)', 'ux-studio'),
+            'New name:' => __('New name:', 'ux-studio'),
+            'No file is open' => __('No file is open', 'ux-studio'),
+            'Saved' => __('Saved', 'ux-studio'),
+            'Force the save anyway?' => __('Force the save anyway?', 'ux-studio'),
+        ];
     }
 
     /**
@@ -189,7 +230,7 @@ final class Claude_Panel_Bootstrap {
 
     public static function ajax_grant() {
         if (!current_user_can('manage_options')) {
-            wp_send_json_error(['message' => 'Nemáte oprávnění.'], 403);
+            wp_send_json_error(['message' => __('You do not have permission to do that.', 'ux-studio')], 403);
         }
         check_ajax_referer('cp_ajax', 'nonce');
 
@@ -228,9 +269,10 @@ final class Claude_Panel_Bootstrap {
         $opts = self::get_settings();
 
         self::notify_admin_email(
-            'AI Panel: přístup povolen',
+            __('AI Panel: access granted', 'ux-studio'),
             sprintf(
-                "Přístup byl povolen na %d minut.\nURL: %s\nVyprší: %s\n\nPokud jste to nebyl(a) Vy, ihned přístup odeberte v admin AI Panel.",
+                /* translators: 1: number of minutes, 2: panel URL, 3: expiry date and time */
+                __("Access was granted for %1\$d minutes.\nURL: %2\$s\nExpires: %3\$s\n\nIf this was not you, remove the access in AI Panel in the admin right away.", 'ux-studio'),
                 $duration_min,
                 self::access_url($slug),
                 wp_date('Y-m-d H:i:s', $opts['access_expires_at'])
@@ -239,13 +281,13 @@ final class Claude_Panel_Bootstrap {
 
         wp_send_json_success([
             'html'    => self::render_widget_body_html($opts, $password),
-            'message' => 'Přístup byl povolen.',
+            'message' => __('Access was granted.', 'ux-studio'),
         ]);
     }
 
     public static function ajax_revoke() {
         if (!current_user_can('manage_options')) {
-            wp_send_json_error(['message' => 'Nemáte oprávnění.'], 403);
+            wp_send_json_error(['message' => __('You do not have permission to do that.', 'ux-studio')], 403);
         }
         check_ajax_referer('cp_ajax', 'nonce');
 
@@ -265,13 +307,13 @@ final class Claude_Panel_Bootstrap {
 
         wp_send_json_success([
             'html'    => self::render_widget_body_html($opts, ''),
-            'message' => 'Přístup byl odebrán.',
+            'message' => __('Access was removed.', 'ux-studio'),
         ]);
     }
 
     public static function ajax_clear_log() {
         if (!current_user_can('manage_options')) {
-            wp_send_json_error(['message' => 'Nemáte oprávnění.'], 403);
+            wp_send_json_error(['message' => __('You do not have permission to do that.', 'ux-studio')], 403);
         }
         check_ajax_referer('cp_ajax', 'nonce');
 
@@ -281,7 +323,7 @@ final class Claude_Panel_Bootstrap {
 
         wp_send_json_success([
             'html'    => self::render_audit_log_html(),
-            'message' => 'Audit log byl vymazán.',
+            'message' => __('The audit log was cleared.', 'ux-studio'),
         ]);
     }
 
@@ -299,7 +341,7 @@ final class Claude_Panel_Bootstrap {
         $out = fopen('php://output', 'w');
         // BOM pro Excel
         fwrite($out, "\xEF\xBB\xBF");
-        fputcsv($out, ['Čas', 'IP', 'Událost', 'Detaily']);
+        fputcsv($out, [__('Time', 'ux-studio'), __('IP', 'ux-studio'), __('Event', 'ux-studio'), __('Details', 'ux-studio')]);
         foreach ($log as $row) {
             fputcsv($out, [
                 wp_date('Y-m-d H:i:s', intval($row['time'] ?? 0)),
@@ -414,16 +456,18 @@ final class Claude_Panel_Bootstrap {
             // this moment, even if WP-Cron / the plugin never cleans it up.
             'expires_at'    => (int) $expires_at,
             'proxies'       => self::rescue_trusted_proxies(),
+            'i18n'          => self::rescue_i18n(),
+            'locale'        => str_replace('_', '-', determine_locale()),
         ];
-        $php = "<?php\n// AI Panel — rescue config. Nesahat ručně; spravuje plugin.\n"
-             . "// Přímý přístup přes HTTP nic nevypíše (jen vrátí pole).\nreturn "
+        $php = "<?php\n// AI Panel - rescue config. Do not edit by hand; managed by the plugin.\n"
+             . "// Direct access over HTTP prints nothing (it only returns an array).\nreturn "
              . var_export($config, true) . ";\n";
         if (file_put_contents($dir . '/config.php', $php) === false) return false;
 
         // Ochrana (Apache): rescue-<rand>.php nech dostupné, config.php ne.
         // Log a rate-limit soubor mají navíc vlastní PHP guard (exit) pro nginx.
         file_put_contents($dir . '/.htaccess',
-            "# AI Panel rescue — chraň konfiguraci, skript nech dostupný\n" .
+            "# AI Panel rescue - protect the configuration, keep the script reachable\n" .
             "<FilesMatch \"^config\\.php$\">\n" .
             "  <IfModule mod_authz_core.c>\n    Require all denied\n  </IfModule>\n" .
             "  <IfModule !mod_authz_core.c>\n    Deny from all\n  </IfModule>\n" .
@@ -490,7 +534,7 @@ final class Claude_Panel_Bootstrap {
         }
         wp_add_dashboard_widget(
             'claude_panel_dashboard_widget',
-            '🛡️ AI Panel — vzdálený přístup',
+            '🛡️ ' . __('AI Panel: remote access', 'ux-studio'),
             [__CLASS__, 'render_dashboard_widget']
         );
 
@@ -580,6 +624,14 @@ final class Claude_Panel_Bootstrap {
         </style>
         <script>
         (function () {
+            var CPT = <?= wp_json_encode([
+                'ok'            => __('OK', 'ux-studio'),
+                'error'         => __('Error.', 'ux-studio'),
+                'networkError'  => __('Network error:', 'ux-studio'),
+                'confirmGrant'  => __('This generates a one-time URL and password. Continue?', 'ux-studio'),
+                'confirmRevoke' => __('Really remove the access? The other side will lose the connection.', 'ux-studio'),
+                'confirmClear'  => __('Really clear the whole audit log?', 'ux-studio'),
+            ]) ?>;
             function init(root) {
                 if (!root || root.dataset.cpwInit === '1') return;
                 root.dataset.cpwInit = '1';
@@ -613,12 +665,12 @@ final class Claude_Panel_Bootstrap {
                                 } else {
                                     root.innerHTML = j.data.html;
                                 }
-                                notice(j.data.message || 'OK', 'ok');
+                                notice(j.data.message || CPT.ok, 'ok');
                             } else {
-                                notice((j && j.data && j.data.message) || 'Chyba.', 'err');
+                                notice((j && j.data && j.data.message) || CPT.error, 'err');
                             }
                         })
-                        .catch(function(e){ notice('Chyba sítě: ' + e.message, 'err'); })
+                        .catch(function(e){ notice(CPT.networkError + ' ' + e.message, 'err'); })
                         .finally(function(){ setBusy(false); });
                 }
 
@@ -626,14 +678,14 @@ final class Claude_Panel_Bootstrap {
                     var f = e.target;
                     if (f && f.matches('form[data-cpw-action="grant"]')) {
                         e.preventDefault();
-                        if (!confirm('Tímto vygenerujete jednorázové URL a heslo. Pokračovat?')) return;
+                        if (!confirm(CPT.confirmGrant)) return;
                         var dur = f.querySelector('[name=duration]').value;
                         var lockEl = f.querySelector('[name=lock_ip]');
                         var lock = (lockEl && lockEl.checked) ? '1' : '0';
                         send('cp_grant_ajax', { duration: dur, lock_ip: lock });
                     } else if (f && f.matches('form[data-cpw-action="revoke"]')) {
                         e.preventDefault();
-                        if (!confirm('Opravdu odebrat přístup? Druhá strana přijde o spojení.')) return;
+                        if (!confirm(CPT.confirmRevoke)) return;
                         send('cp_revoke_ajax', {});
                     }
                 });
@@ -644,24 +696,24 @@ final class Claude_Panel_Bootstrap {
                         var u = root.querySelector('#cpw-url'); u = u ? u.textContent : '';
                         var p = root.querySelector('#cpw-pwd'); p = p ? p.textContent : '';
                         var promptText =
-                            'Pro AI agenta: dočasný administrační přístup k WordPress webu přes plugin "ai-panel". ' +
-                            'Postup: (1) GET ' + u + '?api=help&brief=1 — vrátí stručný strojový JSON protokolu (login flow, CSRF, base64 obfuskace pro WAF, všechny API akce: list/read/grep/write/patch/delete/mkdir/rename/upload/exec/sql/wpinfo, download endpoint) VČETNĚ sekce "efficiency" — řiď se jí, ať zbytečně nepálíš tokeny (hledej přes grep, ne čti celé soubory; úpravy přes patch, ne write; částečné read; úsporné SQL). Plný help bez &brief je jen pro člověka. ' +
-                            '(2) Přihlaš se POST na ' + u + ' s polem action=login a password=<heslo>; přijmi session cookie cppnl a vyparsuj `const CSRF = "..."` z HTML odpovědi. ' +
-                            '(3) Pokračuj podle help dokumentace. Po dokončení mě informuj — uživatel ručně odebere přístup ve WP admin dashboardu (kill switch).\n\n' +
+                            'For the AI agent: temporary admin access to a WordPress site through the "ai-panel" plugin. ' +
+                            'Steps: (1) GET ' + u + '?api=help&brief=1 - returns a short machine-readable JSON of the protocol (login flow, CSRF, base64 obfuscation for the WAF, all API actions: list/read/grep/write/patch/delete/mkdir/rename/upload/exec/sql/wpinfo, download endpoint) INCLUDING the "efficiency" section - follow it so you do not burn tokens needlessly (search with grep instead of reading whole files; edit with patch, not write; partial reads; economical SQL). The full help without &brief is for humans only. ' +
+                            '(2) Log in with POST to ' + u + ' with the fields action=login and password=<password>; accept the session cookie cppnl and parse `const CSRF = "..."` from the HTML response. ' +
+                            '(3) Continue according to the help documentation. When you are done, tell me - the user removes the access by hand in the WP admin dashboard (kill switch).\n\n' +
                             'URL: ' + u + '\n' +
-                            'Heslo: ' + p;
+                            'Password: ' + p;
 
-                        // Přibal i záchranný endpoint (mimo WP), pokud je nainstalovaný,
-                        // ať AI agent hned ví, čím obnovit web, kdyby ho shodil.
+                        // Add the rescue endpoint (outside WP) when it is installed,
+                        // so the AI agent knows at once how to restore the site if it breaks it.
                         var ru = root.querySelector('#cpw-rescue-url'); ru = ru ? ru.textContent : '';
                         var rk = root.querySelector('#cpw-rescue-key'); rk = rk ? rk.textContent : '';
                         if (ru && rk) {
                             promptText +=
-                                '\n\n=== ZÁCHRANNÝ ENDPOINT (nezávislý na WordPressu) ===\n' +
-                                'DŮLEŽITÉ: Pokud tvoje změna způsobí fatální PHP chybu, která shodí celý web (bílá obrazovka) a tento panel i wp-admin přestanou reagovat, NEPANIKAŘ a NEČEKEJ na FTP. Existuje samostatný nástroj běžící mimo WordPress, který funguje i když je WP rozbitý. Umí JEN správu souborů — přihlaš se a oprav nebo smaž soubor, který web shodil.\n' +
+                                '\n\n=== RESCUE ENDPOINT (independent of WordPress) ===\n' +
+                                'IMPORTANT: If your change causes a fatal PHP error that takes the whole site down (white screen) and this panel and wp-admin stop responding, DO NOT PANIC and DO NOT WAIT for FTP. There is a separate tool running outside WordPress that works even when WP is broken. It can ONLY manage files - log in and fix or delete the file that broke the site.\n' +
                                 'Rescue URL: ' + ru + '\n' +
-                                'Rescue klíč: ' + rk + '\n' +
-                                'Přihlášení: POST action=login & password=<klíč>, session cookie cprescue, CSRF z `const CSRF = "..."`. API (POST ?api=): list/read/write/patch/delete/rename/mkdir (POST pole path, content|c64, from/to; patch: find|f64 + replace|r64). Úprav existující soubor přes patch (jen diff, ne celý soubor); read umí start_line/end_line. GET ?download=path. Zápis *.php se lintuje (422 při syntax chybě, obejít force=1) a před přepisem zálohuje.';
+                                'Rescue key: ' + rk + '\n' +
+                                'Login: POST action=login & password=<key>, session cookie cprescue, CSRF from `const CSRF = "..."`. API (POST ?api=): list/read/write/patch/delete/rename/mkdir (POST fields path, content|c64, from/to; patch: find|f64 + replace|r64). Edit an existing file with patch (diff only, not the whole file); read supports start_line/end_line. GET ?download=path. Writing *.php is linted (422 on a syntax error, bypass with force=1) and backed up before overwriting.';
                         }
 
                         navigator.clipboard.writeText(promptText).then(function () {
@@ -673,15 +725,15 @@ final class Claude_Panel_Bootstrap {
                         var ru = root.querySelector('#cpw-rescue-url'); ru = ru ? ru.textContent : '';
                         var rk = root.querySelector('#cpw-rescue-key'); rk = rk ? rk.textContent : '';
                         navigator.clipboard.writeText(
-                            'AI Panel — záchranný přístup (mimo WordPress).\nURL: ' + ru + '\nKlíč (heslo): ' + rk +
-                            '\nPřihlášení: otevři URL, zadej klíč jako heslo. Jen správa souborů.'
+                            'AI Panel - rescue access (outside WordPress).\nURL: ' + ru + '\nKey (password): ' + rk +
+                            '\nLogin: open the URL and enter the key as the password. File management only.'
                         ).then(function () {
                             var c = root.querySelector('#cpw-rescue-copied');
                             if (c) { c.style.display = 'inline'; setTimeout(function(){ c.style.display = 'none'; }, 3000); }
                         });
                     } else if (e.target && e.target.matches('[data-cpw-clear-log]')) {
                         e.preventDefault();
-                        if (!confirm('Opravdu vymazat celý audit log?')) return;
+                        if (!confirm(CPT.confirmClear)) return;
                         send('cp_clear_log_ajax', {}, 'log');
                     }
                 });
@@ -722,72 +774,86 @@ final class Claude_Panel_Bootstrap {
         <?php if ($is_active): ?>
             <div class="cpw-row">
                 <span class="cpw-dot cpw-dot-on"></span>
-                <span class="cpw-status">POVOLEN</span>
-                <span class="cpw-time">— vyprší za <strong><?= esc_html(self::format_duration($expires_in)) ?></strong></span>
+                <span class="cpw-status"><?= esc_html__('ALLOWED', 'ux-studio') ?></span>
+                <span class="cpw-time">- <?= self::kses(sprintf(
+                    /* translators: %s: remaining time, for example "3 h 20 min" */
+                    __('expires in %s', 'ux-studio'),
+                    '<strong>' . esc_html(self::format_duration($expires_in)) . '</strong>'
+                )) ?></span>
             </div>
 
             <?php if ($one_time_password): ?>
                 <div class="cpw-creds">
-                    <h4>📋 Přístupové údaje (heslo už znovu neuvidíte!)</h4>
+                    <h4>📋 <?= esc_html__('Access details (you will not see the password again!)', 'ux-studio') ?></h4>
                     <table class="cpw-creds-table">
                         <tr><th>URL</th><td><code id="cpw-url"><?= esc_html($access_url) ?></code></td></tr>
-                        <tr><th>Heslo</th><td><code id="cpw-pwd"><?= esc_html($one_time_password) ?></code></td></tr>
+                        <tr><th><?= esc_html__('Password', 'ux-studio') ?></th><td><code id="cpw-pwd"><?= esc_html($one_time_password) ?></code></td></tr>
                     </table>
-                    <button type="button" class="button button-primary button-small" data-cpw-copy>📋 Zkopírovat pro AI agenta</button>
-                    <span id="cpw-copied" class="cpw-copied">✓ Zkopírováno</span>
-                    <p style="margin: .5rem 0 0; font-size: 11px; color: #6b7280;">Schránka bude obsahovat URL, heslo a stručný prompt pro AI agenta, aby si na libovolném PC sám načetl dokumentaci API z <code>?api=help</code><?= $has_rescue_w ? ' — a navíc URL + klíč k záchrannému endpointu pro případ, že by se web shodil.' : '.' ?></p>
+                    <button type="button" class="button button-primary button-small" data-cpw-copy>📋 <?= esc_html__('Copy for the AI agent', 'ux-studio') ?></button>
+                    <span id="cpw-copied" class="cpw-copied">✓ <?= esc_html__('Copied', 'ux-studio') ?></span>
+                    <p style="margin: .5rem 0 0; font-size: 11px; color: #6b7280;"><?= self::kses(
+                        $has_rescue_w
+                            ? __('The clipboard will hold the URL, the password and a short prompt for the AI agent, so it can load the API documentation from <code>?api=help</code> on any computer, plus the URL and key of the rescue endpoint in case the site goes down.', 'ux-studio')
+                            : __('The clipboard will hold the URL, the password and a short prompt for the AI agent, so it can load the API documentation from <code>?api=help</code> on any computer.', 'ux-studio')
+                    ) ?></p>
                 </div>
             <?php else: ?>
-                <p style="margin: .3em 0; font-size: 12px;">URL: <code style="font-size: 11px; word-break: break-all;"><?= esc_html($access_url) ?></code></p>
+                <p style="margin: .3em 0; font-size: 12px;"><?= esc_html__('URL:', 'ux-studio') ?> <code style="font-size: 11px; word-break: break-all;"><?= esc_html($access_url) ?></code></p>
             <?php endif; ?>
 
             <?php if ($has_rescue_w): ?>
                 <div class="cpw-creds" style="background:#fff7ed;border-color:#fed7aa;">
-                    <h4>🛟 Záchranný endpoint (mimo WordPress) — aktivní</h4>
+                    <h4>🛟 <?= esc_html__('Rescue endpoint (outside WordPress): active', 'ux-studio') ?></h4>
                     <table class="cpw-creds-table">
                         <tr><th>URL</th><td><code id="cpw-rescue-url"><?= esc_html($opts['rescue_url']) ?></code></td></tr>
-                        <tr><th>Klíč</th><td><code id="cpw-rescue-key"><?= esc_html($rescue_key_w) ?></code></td></tr>
+                        <tr><th><?= esc_html__('Key', 'ux-studio') ?></th><td><code id="cpw-rescue-key"><?= esc_html($rescue_key_w) ?></code></td></tr>
                     </table>
-                    <button type="button" class="button button-small" data-cpw-copy-rescue>📋 Zkopírovat záchranný přístup</button>
-                    <span id="cpw-rescue-copied" class="cpw-copied">✓ Zkopírováno</span>
+                    <button type="button" class="button button-small" data-cpw-copy-rescue>📋 <?= esc_html__('Copy the rescue access', 'ux-studio') ?></button>
+                    <span id="cpw-rescue-copied" class="cpw-copied">✓ <?= esc_html__('Copied', 'ux-studio') ?></span>
                     <p style="margin:.4rem 0 0;font-size:11px;color:#9a3412;">
-                        Pro obnovu webu, když ho fatální chyba shodí (i wp-admin). Přihlášení klíčem výše, jen správa souborů.
-                        Omezeno na IP <code><?= esc_html($opts['rescue_allowed_ips'] ?: 'kdokoli') ?></code>. Smaže se automaticky po vypršení přístupu.
+                        <?= self::kses(sprintf(
+                            /* translators: %s: allowed IP address or "anyone" */
+                            __('For restoring the site when a fatal error takes it down (wp-admin too). Log in with the key above; file management only. Limited to IP %s. It is deleted automatically when the access expires.', 'ux-studio'),
+                            '<code>' . esc_html($opts['rescue_allowed_ips'] ?: __('anyone', 'ux-studio')) . '</code>'
+                        )) ?>
                     </p>
                 </div>
             <?php endif; ?>
 
             <form data-cpw-action="revoke" class="cpw-actions">
-                <button class="button button-small cpw-btn-revoke">⛔ Okamžitě odebrat přístup</button>
+                <button class="button button-small cpw-btn-revoke">⛔ <?= esc_html__('Remove the access now', 'ux-studio') ?></button>
             </form>
 
         <?php else: ?>
             <div class="cpw-row">
                 <span class="cpw-dot cpw-dot-off"></span>
-                <span class="cpw-status">VYPNUT</span>
-                <span class="cpw-time">— panel URL vrací 404</span>
+                <span class="cpw-status"><?= esc_html__('OFF', 'ux-studio') ?></span>
+                <span class="cpw-time">- <?= esc_html__('the panel URL returns 404', 'ux-studio') ?></span>
             </div>
 
             <form data-cpw-action="grant" class="cpw-grant">
-                <label style="font-size: 12px;">Povolit na:
+                <label style="font-size: 12px;"><?= esc_html__('Allow for:', 'ux-studio') ?>
                     <select name="duration">
                         <option value="15">15 min</option>
                         <option value="60">1 h</option>
                         <option value="240" selected>4 h</option>
                         <option value="720">12 h</option>
                         <option value="1440">24 h</option>
-                        <option value="2880">2 dny</option>
-                        <option value="10080">7 dní</option>
+                        <option value="2880"><?= esc_html__('2 days', 'ux-studio') ?></option>
+                        <option value="10080"><?= esc_html__('7 days', 'ux-studio') ?></option>
                     </select>
                 </label>
                 <label style="font-size:12px;display:flex;align-items:center;gap:.35rem;width:100%;">
                     <input type="checkbox" name="lock_ip" value="1" checked>
-                    Zamknout záchranný přístup na moji IP <code style="font-size:11px;"><?= esc_html(self::client_ip()) ?></code>
+                    <?= self::kses(sprintf(
+                        /* translators: %s: the IP address of the current admin */
+                        __('Lock the rescue access to my IP %s', 'ux-studio'),
+                        '<code style="font-size:11px;">' . esc_html(self::client_ip()) . '</code>'
+                    )) ?>
                 </label>
-                <button class="button button-primary">✅ Povolit přístup</button>
+                <button class="button button-primary">✅ <?= esc_html__('Allow access', 'ux-studio') ?></button>
             </form>
-            <p class="cpw-warn">⚠️ Po povolení dává plný přístup k souborům, DB i shellu. Povolujte jen pokud důvěřujete druhé straně.<br>
-            Zaškrtnuto = záchranný endpoint půjde otevřít jen z tvé IP (bezpečnější). Odškrtni, pokud AI agent běží na jiné IP/serveru.</p>
+            <p class="cpw-warn">⚠️ <?= self::kses(__('Once allowed, it gives full access to files, the database and the shell. Allow it only if you trust the other side.<br>Checked = the rescue endpoint can be opened only from your IP (safer). Uncheck it if the AI agent runs on another IP or server.', 'ux-studio')) ?></p>
         <?php endif; ?>
         <?php
         return ob_get_clean();
@@ -797,7 +863,7 @@ final class Claude_Panel_Bootstrap {
 
     public static function render_admin_page() {
         if (!current_user_can('manage_options')) {
-            wp_die('Forbidden', 403);
+            wp_die(esc_html__('Forbidden', 'ux-studio'), 403);
         }
 
         // Handle "toggle dashboard widget" form post.
@@ -808,8 +874,8 @@ final class Claude_Panel_Bootstrap {
             self::update_settings($opts_in);
             self::audit('dashboard_widget_toggled', $opts_in['show_dashboard_widget'] ? 'enabled' : 'disabled');
             $settings_notice = $opts_in['show_dashboard_widget']
-                ? 'Dashboard widget byl povolen.'
-                : 'Dashboard widget byl skryt.';
+                ? __('The dashboard widget was turned on.', 'ux-studio')
+                : __('The dashboard widget was hidden.', 'ux-studio');
         }
 
         $opts = self::get_settings();
@@ -827,29 +893,29 @@ final class Claude_Panel_Bootstrap {
         ?>
         <div class="wrap">
             <h1>🛡️ AI Panel</h1>
-            <p style="color:#6b7280;margin:.2rem 0 1rem">Dočasný řízený přístup k souborům, databázi a shellu pro vzdáleného administrátora. Stejné ovládání najdete i v dashboard widgetu.</p>
+            <p style="color:#6b7280;margin:.2rem 0 1rem"><?= esc_html__('Temporary controlled access to files, the database and the shell for a remote administrator. The same controls are also in the dashboard widget.', 'ux-studio') ?></p>
 
             <?php if ($settings_notice): ?>
                 <div class="notice notice-success is-dismissible"><p><?= esc_html($settings_notice) ?></p></div>
             <?php endif; ?>
 
-            <h2 style="margin-top: 1rem;">Stav přístupu</h2>
+            <h2 style="margin-top: 1rem;"><?= esc_html__('Access status', 'ux-studio') ?></h2>
             <div class="cpw" id="cpw-root" data-ajax="<?= $ajax_url ?>" data-nonce="<?= esc_attr($nonce) ?>">
                 <?= self::render_widget_body_html($opts, $one_time_password) ?>
             </div>
 
-            <h2 style="margin-top: 2rem;">Nastavení</h2>
+            <h2 style="margin-top: 2rem;"><?= esc_html__('Settings', 'ux-studio') ?></h2>
             <form method="post" style="background:#fff;border:1px solid #c3c4c7;border-radius:4px;padding:1rem;max-width:720px;">
                 <?php wp_nonce_field('cp_toggle_widget'); ?>
                 <input type="hidden" name="cp_toggle_widget" value="1">
                 <label style="display:flex;align-items:center;gap:.6rem;font-weight:600;">
                     <input type="checkbox" name="show_dashboard_widget" value="1" <?php checked($widget_on); ?>>
-                    Zobrazovat widget na hlavním dashboardu
+                    <?= esc_html__('Show the widget on the main dashboard', 'ux-studio') ?>
                 </label>
                 <p class="description" style="margin:.4rem 0 .8rem 1.8rem;">
-                    Když je vypnuto, panel ovládáš výhradně z této stránky. Hodí se, pokud nechceš mít na dashboardu vidět tlačítko „Povolit přístup".
+                    <?= esc_html__('When this is off, you control the panel only from this page. Useful if you do not want to see the "Allow access" button on the dashboard.', 'ux-studio') ?>
                 </p>
-                <?php submit_button($widget_on ? 'Skrýt widget z dashboardu' : 'Povolit widget na dashboardu', $widget_on ? 'secondary' : 'primary', 'submit', false); ?>
+                <?php submit_button($widget_on ? __('Hide the widget from the dashboard', 'ux-studio') : __('Show the widget on the dashboard', 'ux-studio'), $widget_on ? 'secondary' : 'primary', 'submit', false); ?>
             </form>
 
             <?php self::render_rescue_section($opts); ?>
@@ -862,36 +928,33 @@ final class Claude_Panel_Bootstrap {
     }
 
     /**
-     * Informační sekce o záchranném endpointu. Žádný formulář — endpoint se
-     * vytváří i maže AUTOMATICKY spolu s povolením/vypršením přístupu.
-     * Aktuální URL + klíč se ukazují nahoře ve „Stav přístupu", když je aktivní.
+     * Info section about the rescue endpoint. No form - the endpoint is created and deleted
+     * AUTOMATICALLY together with granting / expiring the access.
+     * The current URL + key are shown at the top in "Access status" while it is active.
      */
     public static function render_rescue_section($opts) {
         $active = !empty($opts['access_active']) && intval($opts['access_expires_at']) > time();
         ?>
-        <h2 style="margin-top: 2rem;">🛟 Záchranný přístup <small style="color:#6b7280;font-weight:normal">(funguje i když je WordPress rozbitý)</small></h2>
+        <h2 style="margin-top: 2rem;">🛟 <?= esc_html__('Rescue access', 'ux-studio') ?> <small style="color:#6b7280;font-weight:normal">(<?= esc_html__('works even when WordPress is broken', 'ux-studio') ?>)</small></h2>
 
         <div style="background:#fff;border:1px solid #c3c4c7;border-radius:4px;padding:1rem 1.25rem;max-width:760px;">
             <p style="margin-top:0;color:#4b5563;font-size:13px;">
-                Samostatný soubor <strong>mimo WordPress</strong> pro případ, že fatální chyba shodí celý web
-                (bílá obrazovka, nefunkční wp-admin). Přihlásíš se do něj a rozbitý soubor opravíš/smažeš
-                <strong>bez FTP</strong>. Umí <strong>jen správu souborů</strong> (žádné SQL ani shell) a před
-                každým přepsáním/smazáním dělá zálohu.
+                <?= self::kses(__('A separate file <strong>outside WordPress</strong> for when a fatal error takes the whole site down (white screen, broken wp-admin). You log in to it and fix or delete the broken file <strong>without FTP</strong>. It can do <strong>file management only</strong> (no SQL, no shell) and makes a backup before every overwrite or delete.', 'ux-studio')) ?>
             </p>
             <p style="color:#4b5563;font-size:13px;">
-                <strong>Nic nenastavuješ.</strong> Endpoint vznikne <strong>automaticky při „Povolit přístup"</strong>:
-                klíč = stejné heslo jako přístup, přihlášení je omezeno na <strong>tvoji aktuální IP</strong>
-                (<code><?= esc_html(self::client_ip()) ?></code>). Po <strong>vypršení</strong> nebo
-                <strong>odebrání</strong> přístupu se sám <strong>smaže</strong>.
+                <?= self::kses(sprintf(
+                    /* translators: %s: the IP address of the current admin */
+                    __('<strong>There is nothing to set up.</strong> The endpoint is created <strong>automatically when you click "Allow access"</strong>: the key is the same password as the access, and login is limited to <strong>your current IP</strong> (%s). When the access <strong>expires</strong> or is <strong>removed</strong>, the endpoint <strong>deletes itself</strong>.', 'ux-studio'),
+                    '<code>' . esc_html(self::client_ip()) . '</code>'
+                )) ?>
             </p>
             <?php if ($active && !empty($opts['rescue_installed'])): ?>
-                <p style="color:#15803d;font-size:13px;font-weight:600;margin-bottom:0;">● Právě je aktivní — URL a klíč najdeš nahoře ve „Stav přístupu".</p>
+                <p style="color:#15803d;font-size:13px;font-weight:600;margin-bottom:0;">● <?= esc_html__('Active now. You will find the URL and key at the top, in "Access status".', 'ux-studio') ?></p>
             <?php else: ?>
-                <p style="color:#6b7280;font-size:13px;margin-bottom:0;">Teď neaktivní. Objeví se po povolení přístupu.</p>
+                <p style="color:#6b7280;font-size:13px;margin-bottom:0;"><?= esc_html__('Not active now. It appears once you allow access.', 'ux-studio') ?></p>
             <?php endif; ?>
             <div style="background:#fef3c7;border-left:3px solid #f59e0b;color:#92400e;padding:8px 12px;border-radius:3px;font-size:12px;margin:.8rem 0 0;">
-                ⚠️ Endpoint je zadní vrátka chráněná klíčem + omezená na tvou IP. Na <strong>nginx</strong> neplatí
-                <code>.htaccess</code> — tam si ověř, že <code>config.php</code> vedle skriptu není stažitelné (vrací prázdno).
+                ⚠️ <?= self::kses(__('The endpoint is a back door protected by a key and limited to your IP. On <strong>nginx</strong> <code>.htaccess</code> does not apply, so check there that <code>config.php</code> next to the script cannot be downloaded (it returns nothing).', 'ux-studio')) ?>
             </div>
         </div>
         <?php
@@ -930,33 +993,43 @@ final class Claude_Panel_Bootstrap {
 
         ob_start();
         ?>
-        <h2 style="margin-top: 2rem;">Audit log <small style="color:#6b7280;font-weight:normal">(celkem <?= esc_html($total) ?> záznamů)</small></h2>
+        <h2 style="margin-top: 2rem;"><?= esc_html__('Audit log', 'ux-studio') ?> <small style="color:#6b7280;font-weight:normal">(<?= esc_html(sprintf(
+            /* translators: %d: number of audit log entries */
+            _n('%d entry in total', '%d entries in total', $total, 'ux-studio'),
+            $total
+        )) ?>)</small></h2>
 
         <div class="cp-audit-toolbar">
-            <span>Filtrovat:</span>
-            <a href="<?= esc_url($base_url) ?>" class="button button-small <?= $filter === '' ? 'button-primary' : '' ?>">Vše</a>
-            <a href="<?= esc_url(add_query_arg('cp_filter', 'access', $base_url)) ?>" class="button button-small <?= $filter === 'access' ? 'button-primary' : '' ?>">Přístup</a>
-            <a href="<?= esc_url(add_query_arg('cp_filter', 'login', $base_url)) ?>" class="button button-small <?= $filter === 'login' ? 'button-primary' : '' ?>">Přihlášení</a>
-            <a href="<?= esc_url(add_query_arg('cp_filter', 'file', $base_url)) ?>" class="button button-small <?= $filter === 'file' ? 'button-primary' : '' ?>">Soubory</a>
+            <span><?= esc_html__('Filter:', 'ux-studio') ?></span>
+            <a href="<?= esc_url($base_url) ?>" class="button button-small <?= $filter === '' ? 'button-primary' : '' ?>"><?= esc_html__('All', 'ux-studio') ?></a>
+            <a href="<?= esc_url(add_query_arg('cp_filter', 'access', $base_url)) ?>" class="button button-small <?= $filter === 'access' ? 'button-primary' : '' ?>"><?= esc_html__('Access', 'ux-studio') ?></a>
+            <a href="<?= esc_url(add_query_arg('cp_filter', 'login', $base_url)) ?>" class="button button-small <?= $filter === 'login' ? 'button-primary' : '' ?>"><?= esc_html__('Login', 'ux-studio') ?></a>
+            <a href="<?= esc_url(add_query_arg('cp_filter', 'file', $base_url)) ?>" class="button button-small <?= $filter === 'file' ? 'button-primary' : '' ?>"><?= esc_html__('Files', 'ux-studio') ?></a>
             <a href="<?= esc_url(add_query_arg('cp_filter', 'sql', $base_url)) ?>" class="button button-small <?= $filter === 'sql' ? 'button-primary' : '' ?>">SQL</a>
-            <a href="<?= esc_url(add_query_arg('cp_filter', 'exec', $base_url)) ?>" class="button button-small <?= $filter === 'exec' ? 'button-primary' : '' ?>">Shell</a>
-            <a href="<?= esc_url(add_query_arg('cp_filter', 'system', $base_url)) ?>" class="button button-small <?= $filter === 'system' ? 'button-primary' : '' ?>">Systém</a>
+            <a href="<?= esc_url(add_query_arg('cp_filter', 'exec', $base_url)) ?>" class="button button-small <?= $filter === 'exec' ? 'button-primary' : '' ?>"><?= esc_html__('Shell', 'ux-studio') ?></a>
+            <a href="<?= esc_url(add_query_arg('cp_filter', 'system', $base_url)) ?>" class="button button-small <?= $filter === 'system' ? 'button-primary' : '' ?>"><?= esc_html__('System', 'ux-studio') ?></a>
             <span class="spacer"></span>
-            <a href="<?= esc_url($export_url) ?>" class="button button-small">⬇️ Export CSV</a>
-            <button type="button" class="button button-small" data-cpw-clear-log>🗑️ Vymazat log</button>
+            <a href="<?= esc_url($export_url) ?>" class="button button-small">⬇️ <?= esc_html__('Export CSV', 'ux-studio') ?></a>
+            <button type="button" class="button button-small" data-cpw-clear-log>🗑️ <?= esc_html__('Clear the log', 'ux-studio') ?></button>
         </div>
 
         <?php if (empty($sliced)): ?>
-            <p style="color:#6b7280;background:#fff;border:1px solid #c3c4c7;border-radius:4px;padding:1rem;">Zatím žádné záznamy v auditu<?= $filter ? ' (s filtrem „' . esc_html($filter) . '")' : '' ?>.</p>
+            <p style="color:#6b7280;background:#fff;border:1px solid #c3c4c7;border-radius:4px;padding:1rem;"><?= $filter
+                ? esc_html(sprintf(
+                    /* translators: %s: name of the active filter */
+                    __('No audit entries yet (filter: %s).', 'ux-studio'),
+                    $filter
+                ))
+                : esc_html__('No audit entries yet.', 'ux-studio') ?></p>
         <?php else: ?>
             <table class="widefat striped cp-audit">
                 <thead>
                     <tr>
-                        <th style="width:160px;">Čas</th>
-                        <th style="width:120px;">IP</th>
-                        <th style="width:140px;">Kategorie</th>
-                        <th style="width:160px;">Událost</th>
-                        <th>Detaily</th>
+                        <th style="width:160px;"><?= esc_html__('Time', 'ux-studio') ?></th>
+                        <th style="width:120px;"><?= esc_html__('IP', 'ux-studio') ?></th>
+                        <th style="width:140px;"><?= esc_html__('Category', 'ux-studio') ?></th>
+                        <th style="width:160px;"><?= esc_html__('Event', 'ux-studio') ?></th>
+                        <th><?= esc_html__('Details', 'ux-studio') ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -977,7 +1050,11 @@ final class Claude_Panel_Bootstrap {
             <?php if ($total_pages > 1): ?>
                 <div class="tablenav" style="margin-top: .5rem;">
                     <div class="tablenav-pages">
-                        <span class="displaying-num"><?= esc_html($total) ?> položek</span>
+                        <span class="displaying-num"><?= esc_html(sprintf(
+                            /* translators: %d: number of items */
+                            _n('%d item', '%d items', $total, 'ux-studio'),
+                            $total
+                        )) ?></span>
                         <span class="pagination-links">
                             <?php for ($p = 1; $p <= $total_pages; $p++):
                                 $url = add_query_arg(['cp_filter' => $filter, 'paged' => $p], $base_url);
@@ -1008,25 +1085,30 @@ final class Claude_Panel_Bootstrap {
 
     public static function category_label($cat) {
         $map = [
-            'login'  => '🔐 Přihlášení',
-            'file'   => '📁 Soubor',
-            'sql'    => '🗄️ SQL',
-            'exec'   => '💻 Shell',
-            'access' => '🛡️ Přístup',
-            'system' => '⚙️ Systém',
+            'login'  => '🔐 ' . __('Login', 'ux-studio'),
+            'file'   => '📁 ' . __('File', 'ux-studio'),
+            'sql'    => '🗄️ ' . __('SQL', 'ux-studio'),
+            'exec'   => '💻 ' . __('Shell', 'ux-studio'),
+            'access' => '🛡️ ' . __('Access', 'ux-studio'),
+            'system' => '⚙️ ' . __('System', 'ux-studio'),
         ];
-        return $map[$cat] ?? '⚙️ Systém';
+        return $map[$cat] ?? '⚙️ ' . __('System', 'ux-studio');
     }
 
     /* ============ MISC ============ */
+
+    /** Escapes a translated string that may contain a few inline tags. */
+    private static function kses($html) {
+        return wp_kses((string) $html, ['strong' => [], 'code' => ['style' => []], 'br' => []]);
+    }
 
     public static function format_duration($sec) {
         $sec = max(0, (int) $sec);
         $h = intdiv($sec, 3600);
         $m = intdiv($sec % 3600, 60);
         $parts = [];
-        if ($h > 0) $parts[] = $h . ' h';
-        if ($m > 0 || $h === 0) $parts[] = $m . ' min';
+        if ($h > 0) $parts[] = sprintf(/* translators: %d: hours */ __('%d h', 'ux-studio'), $h);
+        if ($m > 0 || $h === 0) $parts[] = sprintf(/* translators: %d: minutes */ __('%d min', 'ux-studio'), $m);
         return implode(' ', $parts);
     }
 }

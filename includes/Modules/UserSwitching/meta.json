@@ -4,5 +4,6 @@
 	"description": "Instantly switch between user accounts to test roles and troubleshoot, then switch straight back.",
 	"group": "developer",
 	"icon": "user-cog",
-	"settings": false
+	"settings": false,
+	"how": "Users who can edit users get a Switch to link in the user list and on profiles. After you switch, the site treats you as that user until you switch back, so everything you do is saved under that account. You can switch only to accounts you are allowed to edit. Logging out ends the switch."
 }

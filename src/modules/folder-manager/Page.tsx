@@ -213,7 +213,7 @@ function FolderRow( { row, folders }: { row: FolderNode; folders: Folder[] } ): 
 						type="color"
 						value={ row.color || '#2271b1' }
 						disabled={ busy }
-						aria-label={ __( 'Folder colour', 'ux-studio' ) }
+						aria-label={ __( 'Folder color', 'ux-studio' ) }
 						style={ row.color ? undefined : { opacity: 0.35 } }
 						onChange={ ( e ) => recolor.mutate( e.target.value ) }
 					/>
@@ -222,7 +222,7 @@ function FolderRow( { row, folders }: { row: FolderNode; folders: Folder[] } ): 
 							type="button"
 							className="button-link"
 							disabled={ busy }
-							aria-label={ __( 'Remove folder colour', 'ux-studio' ) }
+							aria-label={ __( 'Remove folder color', 'ux-studio' ) }
 							onClick={ () => recolor.mutate( '' ) }
 						>
 							<X size={ 14 } />
@@ -231,12 +231,12 @@ function FolderRow( { row, folders }: { row: FolderNode; folders: Folder[] } ): 
 				</span>
 				{ recolor.isError && (
 					<span className="uxs-badge is-danger" style={ { marginLeft: 'var(--uxs-sp-2)' } }>
-						{ recolor.error instanceof Error ? recolor.error.message : __( 'Could not change the colour.', 'ux-studio' ) }
+						{ recolor.error instanceof Error ? recolor.error.message : __( 'Could not change the color.', 'ux-studio' ) }
 					</span>
 				) }
 			</td>
 			<td>
-				<span style={ { display: 'inline-flex', gap: 'var(--uxs-sp-1, 4px)' } }>
+				<span className="uxs-actions">
 					<button
 						type="button"
 						className="button"
@@ -264,7 +264,7 @@ function FolderRow( { row, folders }: { row: FolderNode; folders: Folder[] } ): 
 					aria-label={ __( 'Move folder under', 'ux-studio' ) }
 					onChange={ ( e ) => reparent.mutate( Number( e.target.value ) ) }
 				>
-					<option value={ 0 }>{ __( '— Top level —', 'ux-studio' ) }</option>
+					<option value={ 0 }>{ __( 'Top level', 'ux-studio' ) }</option>
 					{ folders
 						.filter( ( folder ) => ! blocked.has( folder.id ) )
 						.map( ( folder ) => (
@@ -304,7 +304,7 @@ function FolderTree( { folders }: { folders: Folder[] } ): JSX.Element {
 		return (
 			<p>
 				{ __(
-					'No folders yet. Create one below, then assign attachments to it — either one by one, or in bulk from the "Bulk move attachments" panel.',
+					'No folders yet. Create one below, then assign attachments to it, either one by one or in bulk from the "Bulk move attachments" panel.',
 					'ux-studio'
 				) }
 			</p>
@@ -312,12 +312,12 @@ function FolderTree( { folders }: { folders: Folder[] } ): JSX.Element {
 	}
 
 	return (
-		<table className="uxs-table">
+		<div className="uxs-table-wrap"><table className="uxs-table">
 			<thead>
 				<tr>
 					<th>{ __( 'Name', 'ux-studio' ) }</th>
 					<th>{ __( 'Attachments', 'ux-studio' ) }</th>
-					<th>{ __( 'Colour', 'ux-studio' ) }</th>
+					<th>{ __( 'Color', 'ux-studio' ) }</th>
 					<th>{ __( 'Order', 'ux-studio' ) }</th>
 					<th>{ __( 'Move under', 'ux-studio' ) }</th>
 					<th></th>
@@ -328,7 +328,7 @@ function FolderTree( { folders }: { folders: Folder[] } ): JSX.Element {
 					<FolderRow key={ row.id } row={ row } folders={ folders } />
 				) ) }
 			</tbody>
-		</table>
+		</table></div>
 	);
 }
 
@@ -463,7 +463,7 @@ export default function Page(): JSX.Element {
 						value={ parent }
 						onChange={ ( e ) => setParent( Number( e.target.value ) ) }
 					>
-						<option value={ 0 }>{ __( '— None (top level) —', 'ux-studio' ) }</option>
+						<option value={ 0 }>{ __( 'None (top level)', 'ux-studio' ) }</option>
 						{ folders.map( ( folder ) => (
 							<option key={ folder.id } value={ folder.id }>
 								{ folder.name }
@@ -505,6 +505,7 @@ export default function Page(): JSX.Element {
 						value={ attachmentId }
 						onChange={ ( e ) => setAttachmentId( e.target.value ) }
 					/>
+					<p className="uxs-form__help">{ __( 'The number of the file in the media library. You see it in the address bar when you open the file (post=123).', 'ux-studio' ) }</p>
 				</div>
 				<div className="uxs-form__row">
 					<label htmlFor="uxs-fm-assign-folder">{ __( 'Folder', 'ux-studio' ) }</label>
@@ -513,7 +514,7 @@ export default function Page(): JSX.Element {
 						value={ assignFolder }
 						onChange={ ( e ) => setAssignFolder( Number( e.target.value ) ) }
 					>
-						<option value={ 0 }>{ __( '— Unassigned —', 'ux-studio' ) }</option>
+						<option value={ 0 }>{ __( 'Unassigned', 'ux-studio' ) }</option>
 						{ folders.map( ( folder ) => (
 							<option key={ folder.id } value={ folder.id }>
 								{ folder.name }
@@ -559,6 +560,7 @@ export default function Page(): JSX.Element {
 						value={ bulkIds }
 						onChange={ ( e ) => setBulkIds( e.target.value ) }
 					/>
+					<p className="uxs-form__help">{ __( 'The numbers of the files in the media library, for example 12, 15, 20.', 'ux-studio' ) }</p>
 				</div>
 				<div className="uxs-form__row">
 					<label htmlFor="uxs-fm-bulk-folder">{ __( 'Folder', 'ux-studio' ) }</label>
@@ -567,7 +569,7 @@ export default function Page(): JSX.Element {
 						value={ bulkFolder }
 						onChange={ ( e ) => setBulkFolder( Number( e.target.value ) ) }
 					>
-						<option value={ 0 }>{ __( '— Unassigned —', 'ux-studio' ) }</option>
+						<option value={ 0 }>{ __( 'Unassigned', 'ux-studio' ) }</option>
 						{ folders.map( ( folder ) => (
 							<option key={ folder.id } value={ folder.id }>
 								{ folder.name }

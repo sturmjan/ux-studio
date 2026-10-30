@@ -20,18 +20,6 @@ if ( ! is_dir( $languages ) ) {
 	exit( 1 );
 }
 
-// The relative source WP hashes for the enqueued 'ux-studio-app' handle is the
-// actual (content-hashed) main bundle path, e.g. build/index.<hash>.js. Resolve
-// it so the merged file lands where WP looks.
-$index_rel = 'build/index.js';
-foreach ( glob( __DIR__ . '/../build/index.*.js' ) ?: array() as $f ) {
-	if ( substr( $f, -3 ) === '.js' ) {
-		$index_rel = 'build/' . basename( $f );
-		break;
-	}
-}
-$main_hash = md5( $index_rel );
-
 // Base = the handle-named file merged by the last LOCAL run (versioned in the
 // repo), then JSONs that belong to a CURRENT build/*.js file override it.
 // - Locally (after make-json) the fresh per-chunk files win over the base, and
@@ -82,14 +70,12 @@ foreach ( $by_locale as $locale => $files ) {
 		continue;
 	}
 
-	$targets = array(
-		$languages . "/ux-studio-{$locale}-{$main_hash}.json", // what WP loads
-		$languages . "/ux-studio-{$locale}-ux-studio-app.json", // handle-named fallback
-	);
-	foreach ( $targets as $target ) {
-		file_put_contents( $target, wp_json_encode_fallback( $merged ) );
-	}
-	fwrite( STDOUT, "merged {$locale}: " . count( $merged['locale_data']['messages'] ) . " messages -> {$main_hash}\n" );
+	// WordPress checks the handle-named file first (Core\Admin passes the languages path to
+	// wp_set_script_translations), so this single file is all the SPA ever loads. The md5-named files of the
+	// chunks (make-json output) are only inputs here and are not committed or shipped.
+	$target = $languages . "/ux-studio-{$locale}-ux-studio-app.json";
+	file_put_contents( $target, wp_json_encode_fallback( $merged ) );
+	fwrite( STDOUT, "merged {$locale}: " . count( $merged['locale_data']['messages'] ) . " messages -> ux-studio-{$locale}-ux-studio-app.json\n" );
 }
 
 /**

@@ -342,7 +342,7 @@ final class Preview {
 			return new \WP_Error( 'uxstudio_migration_rolled_back', __( 'This run was already rolled back.', 'ux-studio' ), array( 'status' => 409 ) );
 		}
 		if ( ! empty( $record['switched'] ) ) {
-			return new \WP_Error( 'uxstudio_migration_switched', __( 'This run is already switched on. Undo the switch to preview it again.', 'ux-studio' ), array( 'status' => 409 ) );
+			return new \WP_Error( 'uxstudio_migration_switched', __( 'This run is already turned on. Undo the switch to preview it again.', 'ux-studio' ), array( 'status' => 409 ) );
 		}
 		$sources = self::sources_of( $record );
 		if ( ! $sources ) {

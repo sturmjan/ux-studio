@@ -62,7 +62,7 @@ final class HandoffRestController extends Controller {
 			'/ai-assistant/handoff/request',
 			array(
 				'methods'             => 'POST',
-				'callback'            => array( $this, 'request_handoff' ),
+				'callback'            => ChatLocale::wrap( array( $this, 'request_handoff' ) ),
 				'permission_callback' => '__return_true',
 			)
 		);
@@ -72,7 +72,7 @@ final class HandoffRestController extends Controller {
 			'/ai-assistant/handoff/cancel',
 			array(
 				'methods'             => 'POST',
-				'callback'            => array( $this, 'cancel_request' ),
+				'callback'            => ChatLocale::wrap( array( $this, 'cancel_request' ) ),
 				'permission_callback' => '__return_true',
 			)
 		);
@@ -82,7 +82,7 @@ final class HandoffRestController extends Controller {
 			'/ai-assistant/handoff/message',
 			array(
 				'methods'             => 'POST',
-				'callback'            => array( $this, 'customer_message' ),
+				'callback'            => ChatLocale::wrap( array( $this, 'customer_message' ) ),
 				'permission_callback' => '__return_true',
 			)
 		);
@@ -92,7 +92,7 @@ final class HandoffRestController extends Controller {
 			'/ai-assistant/handoff/poll',
 			array(
 				'methods'             => 'POST',
-				'callback'            => array( $this, 'customer_poll' ),
+				'callback'            => ChatLocale::wrap( array( $this, 'customer_poll' ) ),
 				'permission_callback' => '__return_true',
 			)
 		);

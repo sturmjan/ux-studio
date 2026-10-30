@@ -354,7 +354,7 @@ final class Module extends BaseModule {
 			'first_name'      => __( 'First Name', 'ux-studio' ),
 			'last_name'       => __( 'Last Name', 'ux-studio' ),
 			'nickname'        => __( 'Nickname', 'ux-studio' ),
-			'user_email'      => __( 'Email Address', 'ux-studio' ),
+			'user_email'      => __( 'E-mail Address', 'ux-studio' ),
 			'user_url'        => __( 'Website URL', 'ux-studio' ),
 			'description'     => __( 'Description', 'ux-studio' ),
 			'avatar'          => __( 'Avatar', 'ux-studio' ),

@@ -127,6 +127,7 @@ export default function Page(): JSX.Element {
 								value={ newTitle }
 								onChange={ ( e ) => setNewTitle( e.target.value ) }
 							/>
+							<p className="uxs-form__help">{ __( 'The name of the popup. It is for you in the list, visitors do not see it.', 'ux-studio' ) }</p>
 						</div>
 						<button
 							type="button"
@@ -143,7 +144,7 @@ export default function Page(): JSX.Element {
 							<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />
 						</div>
 					) : (
-						<table className="uxs-table">
+						<div className="uxs-table-wrap"><table className="uxs-table">
 							<thead>
 								<tr>
 									<th>{ __( 'Title', 'ux-studio' ) }</th>
@@ -183,7 +184,7 @@ export default function Page(): JSX.Element {
 									</tr>
 								) : null }
 							</tbody>
-						</table>
+						</table></div>
 					) }
 				</>
 			) }

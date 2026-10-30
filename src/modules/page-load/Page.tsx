@@ -99,23 +99,31 @@ function OverviewTab(): JSX.Element {
 		);
 	}
 
+	const sum = overview?.summary;
+	const summaryItems: [ string, string ][] = [
+		[ __( 'Average', 'ux-studio' ), `${ sum?.avg_ms ?? 0 } ms` ],
+		[ __( 'Min', 'ux-studio' ), `${ sum?.min_ms ?? 0 } ms` ],
+		[ __( 'Max', 'ux-studio' ), `${ sum?.max_ms ?? 0 } ms` ],
+		[ __( 'Avg queries', 'ux-studio' ), String( sum?.avg_queries ?? 0 ) ],
+		[ __( 'Avg memory', 'ux-studio' ), `${ sum?.avg_memory_mb ?? 0 } MB` ],
+		[ __( 'Peak memory', 'ux-studio' ), `${ sum?.max_memory_mb ?? 0 } MB` ],
+		[ __( 'Samples', 'ux-studio' ), String( sum?.sample_count ?? 0 ) ],
+	];
+
 	return (
 		<>
 			<div className="uxs-form" style={ { marginBottom: 'var(--uxs-sp-5)' } }>
-				<div className="uxs-form__row">
-					<label>{ __( 'Last 24 hours', 'ux-studio' ) }</label>
-					<p className="uxs-form__help">
-						{ __( 'Average', 'ux-studio' ) }: { overview?.summary.avg_ms ?? 0 } ms &nbsp;·&nbsp;
-						{ __( 'Min', 'ux-studio' ) }: { overview?.summary.min_ms ?? 0 } ms &nbsp;·&nbsp;
-						{ __( 'Max', 'ux-studio' ) }: { overview?.summary.max_ms ?? 0 } ms &nbsp;·&nbsp;
-						{ __( 'Avg queries', 'ux-studio' ) }: { overview?.summary.avg_queries ?? 0 } &nbsp;·&nbsp;
-						{ __( 'Avg memory', 'ux-studio' ) }: { overview?.summary.avg_memory_mb ?? 0 } MB &nbsp;·&nbsp;
-						{ __( 'Peak memory', 'ux-studio' ) }: { overview?.summary.max_memory_mb ?? 0 } MB &nbsp;·&nbsp;
-						{ __( 'Samples', 'ux-studio' ) }: { overview?.summary.sample_count ?? 0 }
-					</p>
-				</div>
+				<strong>{ __( 'Last 24 hours', 'ux-studio' ) }</strong>
+				<dl className="uxs-stats">
+					{ summaryItems.map( ( [ label, value ] ) => (
+						<div key={ label }>
+							<dt className="uxs-form__help uxs-stats__label">{ label }</dt>
+							<dd className="uxs-stats__value">{ value }</dd>
+						</div>
+					) ) }
+				</dl>
 			</div>
-			<table className="uxs-table">
+			<div className="uxs-table-wrap"><table className="uxs-table">
 				<thead>
 					<tr>
 						<th>{ __( 'Hour', 'ux-studio' ) }</th>
@@ -127,7 +135,7 @@ function OverviewTab(): JSX.Element {
 				<tbody>
 					{ ( overview?.hourly ?? [] ).map( ( row ) => (
 						<tr key={ row.hour }>
-							<td>{ row.hour }</td>
+							<td>{ formatDate( row.hour ) }</td>
 							<td>{ row.avg_ms }</td>
 							<td>{ row.avg_queries }</td>
 							<td>{ row.count }</td>
@@ -139,11 +147,11 @@ function OverviewTab(): JSX.Element {
 						</tr>
 					) : null }
 				</tbody>
-			</table>
+			</table></div>
 			<h2 style={ { fontSize: 'var(--uxs-fs-m)', margin: 'var(--uxs-sp-5) 0 var(--uxs-sp-3)' } }>
 				{ __( 'Recent requests', 'ux-studio' ) }
 			</h2>
-			<table className="uxs-table">
+			<div className="uxs-table-wrap"><table className="uxs-table">
 				<thead>
 					<tr>
 						<th>{ __( 'Time', 'ux-studio' ) }</th>
@@ -169,7 +177,7 @@ function OverviewTab(): JSX.Element {
 						</tr>
 					) : null }
 				</tbody>
-			</table>
+			</table></div>
 		</>
 	);
 }
@@ -201,7 +209,7 @@ function ImpactTab(): JSX.Element {
 					</p>
 				</div>
 			</div>
-			<table className="uxs-table">
+			<div className="uxs-table-wrap"><table className="uxs-table">
 				<thead>
 					<tr>
 						<th>{ __( 'Plugin', 'ux-studio' ) }</th>
@@ -232,11 +240,11 @@ function ImpactTab(): JSX.Element {
 						</tr>
 					) : null }
 				</tbody>
-			</table>
+			</table></div>
 			<h2 style={ { fontSize: 'var(--uxs-fs-m)', margin: 'var(--uxs-sp-5) 0 var(--uxs-sp-3)' } }>
 				{ __( 'Recent benchmark events', 'ux-studio' ) }
 			</h2>
-			<table className="uxs-table">
+			<div className="uxs-table-wrap"><table className="uxs-table">
 				<thead>
 					<tr>
 						<th>{ __( 'Time', 'ux-studio' ) }</th>
@@ -266,7 +274,7 @@ function ImpactTab(): JSX.Element {
 						</tr>
 					) : null }
 				</tbody>
-			</table>
+			</table></div>
 		</>
 	);
 }

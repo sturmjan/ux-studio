@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { FileText, LoaderCircle, Sparkles, Upload } from 'lucide-react';
+import { HelpText } from '../../components/GlossaryTerm';
 import { api } from '../../app/api';
 
 interface UsageInfo {
@@ -203,10 +204,16 @@ function PostGeneratorSection(): JSX.Element {
 					onChange={ ( e ) => setDescription( e.target.value ) }
 					placeholder={ __( 'What should this content be about?', 'ux-studio' ) }
 				/>
+				<p className="uxs-form__help">
+					<HelpText text={ __( 'Describe the topic, the readers and the points to cover. The more concrete you are, the better the draft. The result is saved as a draft that you check and publish yourself.', 'ux-studio' ) } />
+				</p>
 			</div>
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-cc-keyword">{ __( 'SEO focus keyword (optional)', 'ux-studio' ) }</label>
 				<input id="uxs-cc-keyword" type="text" value={ focusKeyword } onChange={ ( e ) => setFocusKeyword( e.target.value ) } />
+				<p className="uxs-form__help">
+					<HelpText text={ __( 'The phrase you want to be found by in search engines. The AI works it into the title, the headings and the text. Leave it empty if you have none.', 'ux-studio' ) } />
+				</p>
 			</div>
 			<button
 				type="button"
@@ -314,6 +321,9 @@ function WooGeneratorSection(): JSX.Element {
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-cc-woo-description">{ __( 'Product description (rough input)', 'ux-studio' ) }</label>
 				<textarea id="uxs-cc-woo-description" rows={ 3 } value={ description } onChange={ ( e ) => setDescription( e.target.value ) } />
+				<p className="uxs-form__help">
+					<HelpText text={ __( 'Write rough notes or keywords about the product. The AI turns them into a finished description. Check facts such as sizes and materials before you use it.', 'ux-studio' ) } />
+				</p>
 			</div>
 			<button
 				type="button"
@@ -379,6 +389,9 @@ function BulkSeoSection(): JSX.Element {
 					<option value="post">{ __( 'Posts', 'ux-studio' ) }</option>
 					<option value="page">{ __( 'Pages', 'ux-studio' ) }</option>
 				</select>
+				<p className="uxs-form__help">
+					<HelpText text={ __( 'Only items that lack an SEO title or description are touched, five at a time. Run it again for the next five.', 'ux-studio' ) } />
+				</p>
 			</div>
 			{ status.data ? (
 				<p className="uxs-form__help">
@@ -403,7 +416,7 @@ function BulkSeoSection(): JSX.Element {
 			{ run.isError ? <p className="uxs-form__help">{ ( run.error as Error ).message }</p> : null }
 
 			{ log.length > 0 ? (
-				<table className="uxs-table" style={ { marginTop: 'var(--uxs-sp-4)' } }>
+				<div className="uxs-table-wrap" style={ { marginTop: 'var(--uxs-sp-4)' } }><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Post', 'ux-studio' ) }</th>
@@ -420,7 +433,7 @@ function BulkSeoSection(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) : null }
 		</div>
 	);
@@ -458,6 +471,9 @@ function SeoGeneratorSection(): JSX.Element {
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-cc-seo-post-id">{ __( 'Save to post ID (optional)', 'ux-studio' ) }</label>
 				<input id="uxs-cc-seo-post-id" type="number" min={ 0 } value={ postId } onChange={ ( e ) => setPostId( e.target.value ) } />
+				<p className="uxs-form__help">
+					<HelpText text={ __( 'With the ID of a post, the generated title and description are saved into its SEO fields and replace the current ones. Leave it empty to only see the result.', 'ux-studio' ) } />
+				</p>
 			</div>
 			<button type="button" className="button button-primary" disabled={ content.trim() === '' || generate.isPending } onClick={ () => generate.mutate() }>
 				{ generate.isPending ? <LoaderCircle size={ 14 } /> : <Sparkles size={ 14 } /> } { __( 'Generate SEO meta', 'ux-studio' ) }
@@ -627,6 +643,9 @@ function ElementorImportSection(): JSX.Element {
 					<div className="uxs-form__row">
 						<label htmlFor="uxs-cc-el-selector">{ __( 'Content CSS selector (optional)', 'ux-studio' ) }</label>
 						<input id="uxs-cc-el-selector" type="text" value={ selector } onChange={ ( e ) => setSelector( e.target.value ) } placeholder="#content" />
+						<p className="uxs-form__help">
+							<HelpText text={ __( 'A CSS selector says which part of the page to take, for example #content. Leave it empty to find the main content automatically.', 'ux-studio' ) } />
+						</p>
 					</div>
 				</>
 			) }
@@ -649,6 +668,9 @@ function ElementorImportSection(): JSX.Element {
 					<option value="publish">{ __( 'Published', 'ux-studio' ) }</option>
 					<option value="pending">{ __( 'Pending review', 'ux-studio' ) }</option>
 				</select>
+				<p className="uxs-form__help">
+					<HelpText text={ __( 'Draft is the safest choice: look at the imported page in Elementor before it goes live.', 'ux-studio' ) } />
+				</p>
 			</div>
 
 			<button

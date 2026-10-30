@@ -46,13 +46,14 @@ function SendForm(): JSX.Element {
 	return (
 		<div className="uxs-form" style={ { marginBottom: 'var(--uxs-sp-5)' } }>
 			<div className="uxs-form__row">
-				<label htmlFor="uxs-grr-email">{ __( 'Recipient email', 'ux-studio' ) }</label>
+				<label htmlFor="uxs-grr-email">{ __( 'Recipient e-mail', 'ux-studio' ) }</label>
 				<input
 					id="uxs-grr-email"
 					type="email"
 					value={ email }
 					onChange={ ( e ) => setEmail( e.target.value ) }
 				/>
+				<p className="uxs-form__help">{ __( 'The customer who gets the request for a review. It is sent right away, so check the address.', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-grr-order-id">{ __( 'Order ID (optional)', 'ux-studio' ) }</label>
@@ -62,6 +63,7 @@ function SendForm(): JSX.Element {
 					value={ orderId }
 					onChange={ ( e ) => setOrderId( e.target.value ) }
 				/>
+				<p className="uxs-form__help">{ __( 'Number of the order the request belongs to. It is only written to the log, so you can find it later.', 'ux-studio' ) }</p>
 			</div>
 			<button
 				type="button"
@@ -103,7 +105,7 @@ function StatsTable(): JSX.Element {
 	}
 
 	return (
-		<table className="uxs-table">
+		<div className="uxs-table-wrap"><table className="uxs-table">
 			<thead>
 				<tr>
 					<th>{ __( 'Date', 'ux-studio' ) }</th>
@@ -126,7 +128,7 @@ function StatsTable(): JSX.Element {
 					</tr>
 				) ) }
 			</tbody>
-		</table>
+		</table></div>
 	);
 }
 

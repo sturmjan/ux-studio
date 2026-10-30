@@ -71,6 +71,7 @@ export default function SettingsTab( { form }: { form: FormDefinition } ): JSX.E
 						setDirty( true );
 					} }
 				/>
+				<p className="uxs-form__help">{ __( 'A note for you and your team. It is never shown to visitors.', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
 				<label>{ __( 'Status', 'ux-studio' ) }</label>
@@ -99,7 +100,7 @@ export default function SettingsTab( { form }: { form: FormDefinition } ): JSX.E
 					{ __( 'Show CAPTCHA field when placed in this form', 'ux-studio' ) }
 				</label>
 				<p className="uxs-form__help">
-					{ __( 'A honeypot field is always active regardless of this setting. The CAPTCHA field works on its own: it uses keys from the central application or your own keys, and the key-less Shield when there are none.', 'ux-studio' ) }
+					{ __( 'A honeypot field is always active regardless of this setting. The CAPTCHA field works on its own: it uses keys from the central app or your own keys, and the key-less Shield when there are none.', 'ux-studio' ) }
 				</p>
 			</div>
 			<div className="uxs-form__row">

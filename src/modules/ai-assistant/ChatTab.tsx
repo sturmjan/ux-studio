@@ -220,7 +220,7 @@ export function ChatTab(): JSX.Element {
 					<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />
 				</div>
 			) : (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th></th>
@@ -273,7 +273,7 @@ export function ChatTab(): JSX.Element {
 							</tr>
 						) : null }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 
 			<div style={ { display: 'flex', gap: 'var(--uxs-sp-2, 8px)', marginTop: 'var(--uxs-sp-3, 12px)' } }>

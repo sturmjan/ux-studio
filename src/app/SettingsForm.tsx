@@ -11,6 +11,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { api, queryClient } from './api';
 import { TabsNav } from './SubNav';
+import { ColorField } from '../components/ColorField';
 import MultiSelectField from '../components/MultiSelectField';
 import SettingExplain from '../components/SettingExplain';
 import type { Explain } from '../components/SettingExplain';
@@ -51,6 +52,8 @@ export interface Field {
 	wide?: boolean;
 	/** Edited by a screen of its own (not by the generic form): never drawn here and never sent back by the form's save. */
 	managed?: boolean;
+	/** What a `media` field holds, so the buttons read "Select icon" instead of "Select image". */
+	media_noun?: 'image' | 'icon';
 }
 
 /** Field types whose input needs a full grid row to stay readable. */
@@ -74,7 +77,7 @@ interface WpMedia {
 }
 
 /** Media picker backed by the WP media modal (wp.media, dependency wp-media). */
-function MediaField( { value, onChange }: { value: number; onChange: ( v: Value ) => void } ): JSX.Element {
+function MediaField( { value, onChange, noun }: { value: number; onChange: ( v: Value ) => void; noun?: 'image' | 'icon' } ): JSX.Element {
 	const wp = ( window as unknown as { wp?: { media?: ( ( opts: unknown ) => WpMedia ) & { attachment?: ( id: number ) => WpAttachment } } } ).wp;
 	const [ previewUrl, setPreviewUrl ] = useState( '' );
 	// Preview of the stored attachment, also for an id that was set outside this form (for example by the starter pack).
@@ -106,7 +109,7 @@ function MediaField( { value, onChange }: { value: number; onChange: ( v: Value 
 			return;
 		}
 		const frame = wp.media( {
-			title: __( 'Select image', 'ux-studio' ),
+			title: 'icon' === noun ? __( 'Select an icon', 'ux-studio' ) : __( 'Select image', 'ux-studio' ),
 			multiple: false,
 			library: { type: 'image' },
 		} );
@@ -120,12 +123,14 @@ function MediaField( { value, onChange }: { value: number; onChange: ( v: Value 
 		<span className="uxs-media">
 			{ previewUrl ? <img className="uxs-media__preview" src={ previewUrl } alt="" /> : null }
 			<button type="button" className="button" onClick={ pick }>
-				{ value ? __( 'Change image', 'ux-studio' ) : __( 'Select image', 'ux-studio' ) }
+				{ 'icon' === noun
+					? ( value ? __( 'Change icon', 'ux-studio' ) : __( 'Select icon', 'ux-studio' ) )
+					: ( value ? __( 'Change image', 'ux-studio' ) : __( 'Select image', 'ux-studio' ) ) }
 			</button>
 			{ value ? (
 				<button
 					type="button"
-					className="button-link uxs-media__clear"
+					className="button button-small uxs-media__clear"
 					onClick={ () => onChange( 0 ) }
 				>
 					{ __( 'Remove', 'ux-studio' ) }
@@ -161,7 +166,7 @@ export function FieldInput( {
 					value={ String( value ?? '' ) }
 					onChange={ ( e ) => onChange( e.target.value ) }
 				>
-					<option value="">{ __( '— Select —', 'ux-studio' ) }</option>
+					<option value="">{ __( 'Select an option', 'ux-studio' ) }</option>
 					{ Object.entries( field.options ?? {} ).map( ( [ k, label ] ) => (
 						<option key={ k } value={ k }>
 							{ label }
@@ -212,26 +217,16 @@ export function FieldInput( {
 				/>
 			);
 		case 'color':
-			// A native color input cannot be empty, so an unset value is shown as
-			// a faded swatch + "Default" instead of a misleading black.
 			return (
-				<span className="uxs-color">
-					<input
-						type="color"
-						className={ value ? '' : 'is-empty' }
-						value={ value ? String( value ) : '#000000' }
-						onChange={ ( e ) => onChange( e.target.value ) }
-					/>
-					<code>{ value ? String( value ) : __( 'Default', 'ux-studio' ) }</code>
-					{ value ? (
-						<button type="button" className="button-link" onClick={ () => onChange( '' ) }>
-							{ __( 'Reset', 'ux-studio' ) }
-						</button>
-					) : null }
-				</span>
+				<ColorField
+					value={ value ? String( value ) : '' }
+					defaultColor={ 'string' === typeof field.default ? field.default : '' }
+					label={ field.label }
+					onChange={ onChange }
+				/>
 			);
 		case 'media':
-			return <MediaField value={ Number( value ?? 0 ) } onChange={ onChange } />;
+			return <MediaField value={ Number( value ?? 0 ) } onChange={ onChange } noun={ field.media_noun } />;
 		case 'datetime':
 			// Date and time of the site, stored as YYYY-MM-DDTHH:MM (what datetime-local writes).
 			return (

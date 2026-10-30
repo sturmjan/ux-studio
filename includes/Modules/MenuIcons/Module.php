@@ -95,7 +95,7 @@ final class Module extends BaseModule {
 				<label>
 					<?php esc_html_e( 'Lucide icon name', 'ux-studio' ); ?><br />
 					<select class="widefat" name="<?php echo esc_attr( $field( 'icon_lucide' ) ); ?>">
-						<option value=""><?php esc_html_e( '— choose —', 'ux-studio' ); ?></option>
+						<option value=""><?php esc_html_e( 'Choose', 'ux-studio' ); ?></option>
 						<?php foreach ( IconLibrary::choices() as $value => $label ) : ?>
 							<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $value, 'lucide' === $icon_type ? $icon_value : '' ); ?>><?php echo esc_html( $label ); ?></option>
 						<?php endforeach; ?>
@@ -107,7 +107,7 @@ final class Module extends BaseModule {
 				<label>
 					<?php esc_html_e( 'Dashicon', 'ux-studio' ); ?><br />
 					<select class="widefat uxs-dashicon-select" name="<?php echo esc_attr( $field( 'icon_dashicons' ) ); ?>">
-						<option value=""><?php esc_html_e( '— choose —', 'ux-studio' ); ?></option>
+						<option value=""><?php esc_html_e( 'Choose', 'ux-studio' ); ?></option>
 						<?php foreach ( IconLibrary::dashicon_choices() as $value => $label ) : ?>
 							<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $value, 'dashicons' === $icon_type ? $icon_value : '' ); ?>><?php echo esc_html( $label ); ?></option>
 						<?php endforeach; ?>

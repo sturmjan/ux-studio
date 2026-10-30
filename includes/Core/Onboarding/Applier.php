@@ -411,7 +411,7 @@ final class Applier {
 			if ( $instance instanceof Security && ! empty( $values['protect_login'] ) && ! $result['errors'] ) {
 				$result['notes'][] = sprintf(
 					/* translators: 1: setting name, 2: settings tab name. */
-					__( 'Application Passwords are switched off: new ones cannot be created. If an MCP or REST client needs them, switch off "%1$s" in Security > %2$s.', 'ux-studio' ),
+					__( 'Application Passwords are turned off: new ones cannot be created. If an MCP or REST client needs them, turn off "%1$s" in Security > %2$s.', 'ux-studio' ),
 					$this->label_of( $instance, 'protect_login' ),
 					$this->section_of( $instance, 'protect_login' )
 				);

@@ -106,7 +106,7 @@ function DetailModal( { id, onClose }: { id: number; onClose: () => void } ): JS
 							) ) }
 						</div>
 
-						<table className="uxs-table" style={ { marginBottom: 'var(--uxs-sp-4)' } }>
+						<div className="uxs-table-wrap" style={ { marginBottom: 'var(--uxs-sp-4)' } }><table className="uxs-table">
 							<tbody>
 								<tr>
 									<th style={ { width: 160, textAlign: 'left' } }>{ __( 'Form', 'ux-studio' ) }</th>
@@ -130,7 +130,7 @@ function DetailModal( { id, onClose }: { id: number; onClose: () => void } ): JS
 									);
 								} ) }
 							</tbody>
-						</table>
+						</table></div>
 
 						{ detail.files.length > 0 ? (
 							<>
@@ -269,7 +269,7 @@ export default function ArchiveTab( { formId, formTitle, initialStatus }: { form
 				<p>{ __( 'No submissions found.', 'ux-studio' ) }</p>
 			) : (
 				<>
-					<table className="uxs-table">
+					<div className="uxs-table-wrap"><table className="uxs-table">
 						<thead>
 							<tr>
 								{ ! formId ? <th>{ __( 'Form', 'ux-studio' ) }</th> : null }
@@ -311,7 +311,7 @@ export default function ArchiveTab( { formId, formTitle, initialStatus }: { form
 								</tr>
 							) ) }
 						</tbody>
-					</table>
+					</table></div>
 
 					<div style={ { display: 'flex', gap: 'var(--uxs-sp-3)', marginTop: 'var(--uxs-sp-4)', alignItems: 'center' } }>
 						<button type="button" className="button" disabled={ page === 0 } onClick={ () => setPage( ( p ) => p - 1 ) }>

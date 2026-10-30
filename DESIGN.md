@@ -97,3 +97,32 @@ společném chunku - žádná duplikace knihoven.
   přepínač stojí hned nad závislými poli, nesplněné pole se nevykreslí a jeho hodnota se nemění. Animace je `Reveal` (`--uxs-motion`),
   s `prefers-reduced-motion` bez animace. Nové moduly to používají místo vlastního skrývání v `Page.tsx`.
 
+
+## 13. Nápověda k nastavení, slovník a rozvržení (0.10.0)
+
+- **Nápověda k volbám je jedna pro všechny moduly.** Texty leží v `includes/Modules/<Modul>/help.php` (`klíč => does / effect / risk / off / skip`,
+  řetězce přes `__()`), registr `Core\SettingHelp` je přidá jako `explain` ke schématu a `SettingExplain` je vykreslí jako "Podrobnosti".
+  Nová volba dostane záznam hned; test `tests/setting-help-coverage-wp.php` hlídá, že žádné pole nezůstane bez textu mimo `tests/fixtures/help-baseline.json`.
+  Postup, tón a délka: `docs/help-texts.md`.
+- **Technický pojem** v textu nápovědy se píše `[[CSP]]` nebo `[[dns|záznamy DNS]]`. Definici dodává `Core\Glossary`, zobrazí ji `GlossaryTerm`
+  (kolečko "?", fokusovatelné, Enter / mezerník otevře, Esc zavře). Vlastní komponenty používají `GlossaryTerm` / `HelpText` z `src/components/GlossaryTerm.tsx`,
+  žádné vlastní tooltipy.
+- **Jazyk je per uživatel.** REST trasy `uxstudio/v1` běží v jazyce přihlášeného uživatele (`Core\Locale`), ne webu. Texty se proto nikdy nepřekládají
+  mimo požadavek ani se nekešují napříč jazyky (cache jen s klíčem jazyka, viz `SettingHelp::file_entries()`).
+- **Úzká obrazovka.** Pod 1100 px šířky aplikace je postranní panel zásuvka (tlačítko "Menu", Esc a klepnutí vedle zavře, fokus se vrací); na široké
+  obrazovce jde panel sklopit a volba se pamatuje v `localStorage` (`uxstudio-sidebar`). Tabulky `.uxs-table` bývají v `<div className="uxs-table-wrap">`,
+  který posouvá vodorovně uvnitř vlastní karty; dlouhé texty se zalamují. Řádek ovládacích prvků (`.uxs-form__line`) se zalamuje a pole mají minimální šířku.
+- **Navigace.** Aktivní je právě jedna primární položka (funkce, u modulu bez funkcí jeho název). Záložky pod ní jsou sekundární úroveň: odsazená,
+  čára vlevo, aktivní = tučný text v barvě značky bez výplně.
+- **Pole a mezery.** Každé textové pole (`text`, `url`, `email`, `password`, `search`, `tel`, `number`, `date`, `time`, `datetime-local`) a výběr má 46 px a
+  `--uxs-radius-s`; seznam typů je jedna proměnná `$uxs-text-fields` v `style.scss`, vlastní styly polí v modulech se nepíšou. Tlačítka vedle sebe patří do
+  `.uxs-actions` (mezera 12 px, zalamuje), tlačítko Uložit pod formulářem má nad sebou 24 px (sourozenec `.uxs-form` + `.button`, nebo `.uxs-form__actions`).
+  Akční tlačítko v kartě se neroztahuje na celou šířku (`align-self: flex-start`), jen na mobilu u úmyslně blokového.
+- **Modul bez nastavení** ukáže prázdný stav (`NoSettings.tsx`): ikona, název, popis, "nemá nastavení, funguje po zapnutí", vypínač, případně "Jak to funguje"
+  z klíče `how` v `meta.json`. Bez tlačítka Uložit.
+- **Chat pro návštěvníky mluví jazykem z nastavení "Chat language"**, ne jazykem webu ani uživatele. Texty chatu pocházejí z `AiAssistant\ChatLocale`:
+  `__()` uvnitř `ChatLocale::run( $lang, ... )` odpovídá z `.mo` pluginu pro jazyk chatu; veřejné REST trasy chatu a předání člověku se obalují
+  `ChatLocale::wrap()`, takže i chybové zprávy odpovídají jazyku widgetu.
+- **Překlady**: zdrojové řetězce jsou anglicky s jednotnou terminologií (color, e-mail, allowlist/blocklist, central app, turn on/off; bez pomlček
+  jako interpunkce). Čeština: motiv, smazat, e-mail. Pravidla: `languages/.build/term_rules.py`, postup: `languages/README.md`.
+- **Skupina**: export nastavení je jednou, v hlavičce skupiny; zpět vede jedna šipka (drobečková navigace "<- skupina", u funkce skupiny se šipka v nadpisu skryje).

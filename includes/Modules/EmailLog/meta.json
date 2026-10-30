@@ -1,6 +1,6 @@
 {
 	"id": "email-log",
-	"name": "Email Log",
+	"name": "E-mail Log",
 	"description": "Record every outgoing wp_mail() send, successful or failed.",
 	"group": "developer",
 	"icon": "inbox",

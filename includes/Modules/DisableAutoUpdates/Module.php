@@ -361,7 +361,7 @@ final class Module extends BaseModule {
 		add_filter(
 			'pre_http_request',
 			function ( $pre, $args, $url ) use ( $checks ) {
-				return $this->blocks_request( (string) $url, $checks ) ? new \WP_Error( 'uxstudio_updates_check_disabled', __( 'The update check is switched off in UX Studio.', 'ux-studio' ) ) : $pre;
+				return $this->blocks_request( (string) $url, $checks ) ? new \WP_Error( 'uxstudio_updates_check_disabled', __( 'The update check is turned off in UX Studio.', 'ux-studio' ) ) : $pre;
 			},
 			10,
 			3

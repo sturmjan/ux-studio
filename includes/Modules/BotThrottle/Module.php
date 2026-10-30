@@ -439,21 +439,21 @@ final class Module extends BaseModule {
 		$schema[] = array(
 			'key'     => 'whitelist_ua',
 			'type'    => 'textarea',
-			'label'   => __( 'Whitelist User-Agents (one per line)', 'ux-studio' ),
+			'label'   => __( 'Allowlist User-Agents (one per line)', 'ux-studio' ),
 			'help'    => __( 'UA fragments that are NEVER throttled.', 'ux-studio' ),
 			'default' => '',
 		);
 		$schema[] = array(
 			'key'     => 'whitelist_ip',
 			'type'    => 'textarea',
-			'label'   => __( 'Whitelist IP / CIDR (one per line)', 'ux-studio' ),
+			'label'   => __( 'Allowlist IP / CIDR (one per line)', 'ux-studio' ),
 			'help'    => __( 'e.g. 192.168.0.0/16', 'ux-studio' ),
 			'default' => '',
 		);
 		$schema[] = array(
 			'key'     => 'blacklist_ua',
 			'type'    => 'textarea',
-			'label'   => __( 'Blacklist User-Agents (one per line)', 'ux-studio' ),
+			'label'   => __( 'Blocklist User-Agents (one per line)', 'ux-studio' ),
 			'help'    => __( 'UA fragments that are ALWAYS aggressively throttled.', 'ux-studio' ),
 			'default' => "AhrefsBot\nSemrushBot\nMJ12bot\nDotBot\nPetalBot\nBLEXBot\nMegaIndex\nSerpstatBot\nrogerbot\nDataForSeoBot",
 		);

@@ -69,10 +69,13 @@ export default function Page(): JSX.Element {
 					>
 						<ArrowLeft size={ 18 } />
 					</button>{ ' ' }
-					{ __( 'Email Health', 'ux-studio' ) }
+					{ __( 'E-mail Health', 'ux-studio' ) }
 				</h1>
 			</header>
 
+			<p className="uxs-form__help">
+				{ __( 'Sends a short test message to check that the site can send e-mail at all. A passed test means the message left the site; it does not prove that it reached the inbox, so look in the spam folder too.', 'ux-studio' ) }
+			</p>
 			{ status.isLoading ? (
 				<div className="uxs-loading">
 					<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />
@@ -82,7 +85,7 @@ export default function Page(): JSX.Element {
 			) }
 			<p>
 				<button type="button" className="button" disabled={ test.isPending } onClick={ () => test.mutate() }>
-					<Send size={ 14 } /> { __( 'Send test email now', 'ux-studio' ) }
+					<Send size={ 14 } /> { __( 'Send test e-mail now', 'ux-studio' ) }
 				</button>
 				{ test.error ? <span className="uxs-badge is-danger"> { ( test.error as Error ).message }</span> : null }
 			</p>

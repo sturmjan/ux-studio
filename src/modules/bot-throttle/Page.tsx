@@ -89,6 +89,9 @@ function DashboardTab(): JSX.Element {
 				<strong style={ { color } }>{ data.tier.tier }</strong>
 				<span className="uxs-bt-tier__score">{ Math.round( data.tier.score ) }%</span>
 			</div>
+			<p className="uxs-form__help">
+				{ __( 'The load is measured from the response time, database queries and memory of the last minute. GREEN is calm, YELLOW is busy, ORANGE is heavy and RED is overloaded. Bots are slowed down or turned away more strictly the higher it is; ordinary visitors and search engines are protected.', 'ux-studio' ) }
+			</p>
 
 			<div className="uxs-cards">
 				<div className="uxs-card"><div className="uxs-card__num">{ data.stats_1h.total }</div><div className="uxs-card__label">{ __( 'Bot requests (1h)', 'ux-studio' ) }</div></div>
@@ -102,7 +105,7 @@ function DashboardTab(): JSX.Element {
 			{ data.stats_24h.top_bots.length === 0 ? (
 				<p>{ __( 'No data yet.', 'ux-studio' ) }</p>
 			) : (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Bot', 'ux-studio' ) }</th>
@@ -121,11 +124,11 @@ function DashboardTab(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 
 			<h3>{ __( 'Category rules', 'ux-studio' ) }</h3>
-			<table className="uxs-table">
+			<div className="uxs-table-wrap"><table className="uxs-table">
 				<thead>
 					<tr>
 						<th>{ __( 'Category', 'ux-studio' ) }</th>
@@ -142,7 +145,7 @@ function DashboardTab(): JSX.Element {
 						</tr>
 					) ) }
 				</tbody>
-			</table>
+			</table></div>
 
 			<p style={ { marginTop: 16 } }>
 				<button type="button" className="button" onClick={ () => clearCache.mutate() }>
@@ -177,7 +180,7 @@ function LogTab(): JSX.Element {
 					{ __( 'Clear log', 'ux-studio' ) }
 				</button>
 			</p>
-			<table className="uxs-table">
+			<div className="uxs-table-wrap"><table className="uxs-table">
 				<thead>
 					<tr>
 						<th>{ __( 'Date', 'ux-studio' ) }</th>
@@ -208,7 +211,7 @@ function LogTab(): JSX.Element {
 						</tr>
 					) ) }
 				</tbody>
-			</table>
+			</table></div>
 		</>
 	);
 }
@@ -238,10 +241,16 @@ function TestTab(): JSX.Element {
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-bt-test-ua">{ __( 'User-Agent', 'ux-studio' ) }</label>
 				<textarea id="uxs-bt-test-ua" rows={ 3 } value={ ua } onChange={ ( e ) => setUa( e.target.value ) } />
+				<p className="uxs-form__help">
+					{ __( 'The text a browser or robot sends to say who it is. Paste one from your access log, or pick a sample below.', 'ux-studio' ) }
+				</p>
 			</div>
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-bt-test-ip">{ __( 'IP (optional)', 'ux-studio' ) }</label>
 				<input id="uxs-bt-test-ip" type="text" value={ ip } onChange={ ( e ) => setIp( e.target.value ) } />
+				<p className="uxs-form__help">
+					{ __( 'The address of the visitor. It only matters for your IP allowlist; leave it as it is otherwise.', 'ux-studio' ) }
+				</p>
 			</div>
 			<div className="uxs-form__row">
 				<label>{ __( 'Samples', 'ux-studio' ) }</label>
@@ -259,7 +268,7 @@ function TestTab(): JSX.Element {
 				</button>
 			</p>
 			{ run.data && (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<tbody>
 						<tr><th>{ __( 'Detected as bot', 'ux-studio' ) }</th><td>{ run.data.detected ? __( 'Yes', 'ux-studio' ) : __( 'No', 'ux-studio' ) }</td></tr>
 						{ run.data.bot && (
@@ -276,7 +285,7 @@ function TestTab(): JSX.Element {
 							</>
 						) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 		</div>
 	);
