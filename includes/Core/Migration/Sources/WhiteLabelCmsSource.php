@@ -151,7 +151,7 @@ final class WhiteLabelCmsSource extends AbstractAdminSource {
 			$lossy[] = __( 'The own CSS of the login screen is copied as it is; UX Studio removes HTML tags from it and cuts it at 50 KB, so check the login screen after the switch.', 'ux-studio' );
 		}
 		if ( $login ) {
-			$m->set( self::MODULE, 'login_customization_enabled', true, __( 'Enable login screen customization', 'ux-studio' ), $origin );
+			$m->set( self::MODULE, 'login_customization_enabled', true, __( 'Turn on login screen customization', 'ux-studio' ), $origin );
 		}
 		$login_lost = array();
 		foreach ( array(

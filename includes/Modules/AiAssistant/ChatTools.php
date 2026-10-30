@@ -1,7 +1,7 @@
 <?php
 /**
  * Provider-agnostic tool (function-calling) definitions for the chat, used
- * when the "Enable MCP (tool calling)" setting is on - see AiProviderInterface
+ * when the "Turn on MCP (tool calling)" setting is on - see AiProviderInterface
  * ::chat_with_tools()/::format_tool_results(). When it is off, ChatEngine
  * falls back to plain RAG context injection via PromptBuilder instead.
  *

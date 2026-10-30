@@ -244,7 +244,7 @@ interface OverlapModalProps {
 	onConfirm: () => void;
 }
 
-/** Explains why a module was not enabled; for confirmable overlaps offers "Enable anyway". */
+/** Explains why a module was not enabled; for confirmable overlaps offers "Turn on anyway". */
 export function OverlapModal( { error, moduleName, busy = false, onClose, onConfirm }: OverlapModalProps ): JSX.Element {
 	const data = error.data as Partial< OverlapErrorData >;
 	const plugins = data.plugins ?? [];
@@ -301,7 +301,7 @@ export function OverlapModal( { error, moduleName, busy = false, onClose, onConf
 					</button>
 					{ confirmable ? (
 						<button type="button" className="button button-primary" disabled={ busy } onClick={ onConfirm }>
-							{ busy ? __( 'Enabling…', 'ux-studio' ) : __( 'Enable anyway', 'ux-studio' ) }
+							{ busy ? __( 'Enabling…', 'ux-studio' ) : __( 'Turn on anyway', 'ux-studio' ) }
 						</button>
 					) : (
 						<>

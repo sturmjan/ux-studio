@@ -430,8 +430,7 @@ final class ContentGenerator {
 	 * Content language configured for the module ('cs'/'en'), default 'cs'.
 	 */
 	private static function language(): string {
-		$language = (string) self::settings()->get( 'language', 'cs' );
-		return in_array( $language, array( 'cs', 'en' ), true ) ? $language : 'cs';
+		return ChatLocale::normalize( self::settings()->get( 'language', 'cs' ) );
 	}
 
 	/**

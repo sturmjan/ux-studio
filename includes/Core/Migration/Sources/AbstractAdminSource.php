@@ -389,7 +389,7 @@ abstract class AbstractAdminSource extends AbstractSource {
 			),
 			$origin
 		);
-		$m->set( self::MODULE, 'menu_organizer_enabled', true, __( 'Enable menu organizer', 'ux-studio' ), $origin );
+		$m->set( self::MODULE, 'menu_organizer_enabled', true, __( 'Turn on menu organizer', 'ux-studio' ), $origin );
 
 		// Pages the plugin really blocks (not only hides): "Block access to hidden pages" does the same in UX Studio.
 		$lock = $this->lock_plan( $model, $clean, $bypass, $origin_of );

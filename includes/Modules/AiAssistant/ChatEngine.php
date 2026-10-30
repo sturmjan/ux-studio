@@ -227,7 +227,7 @@ final class ChatEngine {
 	/**
 	 * Non-streaming tool-calling loop: lets the model call search_* tools
 	 * (see ChatTools) before producing its final answer. Used only when the
-	 * "Enable MCP (tool calling)" setting is on.
+	 * "Turn on MCP (tool calling)" setting is on.
 	 *
 	 * @param array<int, array{role:string,content:mixed}> $chat_messages Trimmed conversation history.
 	 * @param array<string, mixed>                          $context       RAG context (used only for its language, tool-calling gets its own data via tools).

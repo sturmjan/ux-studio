@@ -235,7 +235,7 @@ final class LoginSource extends AbstractSource implements Activatable {
 			);
 		}
 		if ( $lists['block'] ) {
-			$m->set( self::MODULE, 'ip_firewall_enabled', true, __( 'Enable IP firewall', 'ux-studio' ), $block_option );
+			$m->set( self::MODULE, 'ip_firewall_enabled', true, __( 'Turn on IP firewall', 'ux-studio' ), $block_option );
 			$m->warn(
 				sprintf(
 					/* translators: %d: number of addresses. */
@@ -317,7 +317,7 @@ final class LoginSource extends AbstractSource implements Activatable {
 			$redirect = '404';
 		}
 
-		$m->set( self::MODULE, 'login_url_enabled', true, __( 'Enable custom login URL', 'ux-studio' ), 'whl_page' );
+		$m->set( self::MODULE, 'login_url_enabled', true, __( 'Turn on custom login URL', 'ux-studio' ), 'whl_page' );
 		$m->set( self::MODULE, 'login_url', $slug, __( 'Custom login slug', 'ux-studio' ), 'whl_page' );
 		if ( false !== strpos( $redirect, '404' ) ) {
 			$m->set( self::MODULE, 'disabled_behavior', '404', __( 'Direct wp-login.php behavior', 'ux-studio' ), 'whl_redirect_admin' );

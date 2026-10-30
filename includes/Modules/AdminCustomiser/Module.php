@@ -312,7 +312,7 @@ final class Module extends BaseModule {
 				'key'     => 'menu_organizer_enabled',
 				'section' => __( 'Sidebar menu', 'ux-studio' ),
 				'type'    => 'toggle',
-				'label'   => __( 'Enable menu organizer', 'ux-studio' ),
+				'label'   => __( 'Turn on menu organizer', 'ux-studio' ),
 				'help'    => __( 'Reorganizes the WordPress admin menu into custom categories. Configure categories, item order and overrides in the Menu Organizer tab.', 'ux-studio' ),
 				'default' => false,
 			),
@@ -328,7 +328,7 @@ final class Module extends BaseModule {
 				'key'     => 'admin_bar_enabled',
 				'section' => __( 'Admin bar', 'ux-studio' ),
 				'type'    => 'toggle',
-				'label'   => __( 'Enable admin bar customization', 'ux-studio' ),
+				'label'   => __( 'Turn on admin bar customization', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
@@ -532,7 +532,7 @@ final class Module extends BaseModule {
 				'key'     => 'quick_search_enabled',
 				'section' => __( 'Admin screens', 'ux-studio' ),
 				'type'    => 'toggle',
-				'label'   => __( 'Enable quick search', 'ux-studio' ),
+				'label'   => __( 'Turn on quick search', 'ux-studio' ),
 				'default' => true,
 			),
 			array(
@@ -547,7 +547,7 @@ final class Module extends BaseModule {
 				'key'     => 'icon_replacer_enabled',
 				'section' => __( 'Sidebar menu', 'ux-studio' ),
 				'type'    => 'toggle',
-				'label'   => __( 'Enable icon replacer', 'ux-studio' ),
+				'label'   => __( 'Turn on icon replacer', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
@@ -569,7 +569,7 @@ final class Module extends BaseModule {
 				'key'     => 'server_clock_enabled',
 				'section' => __( 'Admin bar', 'ux-studio' ),
 				'type'    => 'toggle',
-				'label'   => __( 'Enable server clock', 'ux-studio' ),
+				'label'   => __( 'Turn on server clock', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
@@ -587,7 +587,7 @@ final class Module extends BaseModule {
 				'key'     => 'login_customization_enabled',
 				'section' => __( 'Login page', 'ux-studio' ),
 				'type'    => 'toggle',
-				'label'   => __( 'Enable login screen customization', 'ux-studio' ),
+				'label'   => __( 'Turn on login screen customization', 'ux-studio' ),
 				'default' => false,
 			),
 			array(

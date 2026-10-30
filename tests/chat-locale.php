@@ -30,6 +30,7 @@ define( 'UXSTUDIO_PATH', dirname( __DIR__ ) . '/' );
 if ( ! function_exists( 'array_last' ) ) { function array_last( array $a ) { return $a ? $a[ array_key_last( $a ) ] : null; } }
 
 $GLOBALS['uxs_filters'] = array();
+function get_locale() { return $GLOBALS['uxs_site_locale'] ?? 'en_US'; }
 function add_filter( $tag, $cb, $prio = 10, $args = 1 ) { $GLOBALS['uxs_filters'][ $tag ][ $prio ][ md5( serialize( $cb ) ) ] = $cb; return true; }
 function remove_filter( $tag, $cb, $prio = 10 ) { unset( $GLOBALS['uxs_filters'][ $tag ][ $prio ][ md5( serialize( $cb ) ) ] ); return true; }
 function uxs_apply( $tag, $value, ...$args ) {
@@ -58,8 +59,14 @@ check( 'cs: translated from the plugin .mo', ChatLocale::run( 'cs', static fn() 
 check( 'en: the English source text, not the request locale', ChatLocale::run( 'en', static fn() => __( 'Cancel', 'ux-studio' ) ) === 'Cancel' );
 check( 'cs: text without translation stays English', ChatLocale::run( 'cs', static fn() => __( 'No such text anywhere', 'ux-studio' ) ) === 'No such text anywhere' );
 check( 'other text domains are left alone', ChatLocale::run( 'cs', static fn() => __( 'Cancel', 'other' ) ) === 'DE:Cancel' );
+$GLOBALS['uxs_site_locale'] = 'cs_CZ';
+check( 'auto on a Czech site is cs', ChatLocale::normalize( 'auto' ) === 'cs' );
+$GLOBALS['uxs_site_locale'] = 'de_DE';
+check( 'auto on any other site is en', ChatLocale::normalize( 'auto' ) === 'en' );
+check( 'auto runs the callback in the site language', ChatLocale::run( 'auto', static fn() => __( 'Cancel', 'ux-studio' ) ) === 'Cancel' );
+
 check( 'unknown language falls back to cs', ChatLocale::run( 'xx', static fn() => __( 'Cancel', 'ux-studio' ) ) === 'Zrušit' );
-check( 'normalize()', ChatLocale::normalize( 'en' ) === 'en' && ChatLocale::normalize( 'auto' ) === 'cs' && ChatLocale::normalize( null ) === 'cs' );
+check( 'normalize()', ChatLocale::normalize( 'en' ) === 'en' && ChatLocale::normalize( 'xx' ) === 'cs' && ChatLocale::normalize( null ) === 'cs' );
 check( 'filters are gone after run()', __( 'Cancel', 'ux-studio' ) === 'DE:Cancel' );
 
 $nested = ChatLocale::run(

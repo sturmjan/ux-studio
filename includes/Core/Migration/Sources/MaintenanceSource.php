@@ -87,7 +87,7 @@ final class MaintenanceSource extends AbstractSource {
 		if ( empty( $c['page'] ) && '' !== (string) ( $c['bg_url'] ?? '' ) ) {
 			$attachment = function_exists( 'attachment_url_to_postid' ) ? (int) attachment_url_to_postid( (string) $c['bg_url'] ) : 0;
 			if ( $attachment > 0 ) {
-				$m->set( self::MODULE, 'enable_background_image', true, __( 'Enable background image', 'ux-studio' ), $origin );
+				$m->set( self::MODULE, 'enable_background_image', true, __( 'Turn on background image', 'ux-studio' ), $origin );
 				$m->set( self::MODULE, 'background_image', $attachment, __( 'Background image', 'ux-studio' ), $origin );
 			} else {
 				$m->lossy(

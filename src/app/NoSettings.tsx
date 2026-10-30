@@ -67,7 +67,7 @@ export function NoSettings( { module, backArrow = true }: { module: ModuleInfo; 
 					<button
 						type="button"
 						className={ `uxs-switch${ module.enabled ? ' is-on' : '' }` }
-						aria-label={ module.enabled ? __( 'Disable module', 'ux-studio' ) : __( 'Enable module', 'ux-studio' ) }
+						aria-label={ module.enabled ? __( 'Disable module', 'ux-studio' ) : __( 'Turn on module', 'ux-studio' ) }
 						aria-pressed={ module.enabled }
 						disabled={ toggle.isPending }
 						onClick={ () => toggle.mutate( false ) }

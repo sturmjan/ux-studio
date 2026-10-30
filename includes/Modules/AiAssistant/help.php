@@ -77,7 +77,7 @@ return array(
 	'language'                       => array(
 		'does'   => __( 'The language of the visitor chat: the texts of the chat window, the default greeting and the language the AI answers in.', 'ux-studio' ),
 		'effect' => __( 'The chat window speaks this language whatever the language of the page or the visitor is. Texts you typed yourself (title, greeting) are shown as written.', 'ux-studio' ),
-		'off'    => __( 'Change it when most of your visitors speak the other language. For a different language of generated articles use Content language below.', 'ux-studio' ),
+		'off'    => __( 'Change it when most of your visitors speak the other language, or pick Automatic to follow the language of the site (Czech sites chat in Czech, all others in English). For a different language of generated articles use Content language below.', 'ux-studio' ),
 	),
 	'operator_notifications_enabled' => array(
 		'does'   => __( 'Sends you an e-mail the moment a visitor presses the button to talk to a person.', 'ux-studio' ),

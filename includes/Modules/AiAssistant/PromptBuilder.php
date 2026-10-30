@@ -41,10 +41,7 @@ final class PromptBuilder {
 	 * @return array<string, mixed>
 	 */
 	public static function build_context( string $message, string $page_url, array $conversation_history, int $product_id, string $chat_target ): array {
-		$language = (string) self::settings()->get( 'language', 'cs' );
-		if ( ! in_array( $language, array( 'cs', 'en' ), true ) ) {
-			$language = 'cs';
-		}
+		$language = ChatLocale::normalize( self::settings()->get( 'language', 'cs' ) );
 
 		$context = array(
 			'language'            => $language,

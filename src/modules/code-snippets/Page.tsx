@@ -479,7 +479,7 @@ const query = useQuery( {
 					) }
 					<ConditionsEditor conditions={ draft.conditions } choices={ options.data } onChange={ ( conditions ) => setDraft( ( d ) => ( { ...d, conditions } ) ) } />
 					<div className="uxs-form__row">
-						<label htmlFor="uxs-cs-enabled">{ __( 'Enable snippet', 'ux-studio' ) }</label>
+						<label htmlFor="uxs-cs-enabled">{ __( 'Turn on snippet', 'ux-studio' ) }</label>
 						<button
 							id="uxs-cs-enabled"
 							type="button"

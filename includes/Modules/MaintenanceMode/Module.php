@@ -615,7 +615,7 @@ final class Module extends BaseModule {
 				'key'     => 'enable_logo',
 				'section' => __( 'Appearance', 'ux-studio' ),
 				'type'    => 'select',
-				'label'   => __( 'Enable logo', 'ux-studio' ),
+				'label'   => __( 'Turn on logo', 'ux-studio' ),
 				'options' => array(
 					'no'  => __( 'No', 'ux-studio' ),
 					'yes' => __( 'Yes', 'ux-studio' ),
@@ -650,7 +650,7 @@ final class Module extends BaseModule {
 				'key'     => 'enable_background_image',
 				'section' => __( 'Appearance', 'ux-studio' ),
 				'type'    => 'toggle',
-				'label'   => __( 'Enable background image', 'ux-studio' ),
+				'label'   => __( 'Turn on background image', 'ux-studio' ),
 				'default' => false,
 			),
 			array(

@@ -222,7 +222,7 @@ final class AdminifySource extends AbstractAdminSource {
 			}
 		}
 		if ( array_key_exists( 'admin_bar_search', $o ) ) {
-			$m->set( self::MODULE, 'quick_search_enabled', $this->truthy( $o['admin_bar_search'] ), __( 'Enable quick search', 'ux-studio' ), $origin . ':admin_bar_search' );
+			$m->set( self::MODULE, 'quick_search_enabled', $this->truthy( $o['admin_bar_search'] ), __( 'Turn on quick search', 'ux-studio' ), $origin . ':admin_bar_search' );
 		}
 		$rw = (array) ( $o['remove_widgets'] ?? array() );
 		$dash = array_values( array_filter( array_map( 'strval', (array) ( $rw['dashboard_widgets_list'] ?? array() ) ) ) );

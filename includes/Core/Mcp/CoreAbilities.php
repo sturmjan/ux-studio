@@ -130,7 +130,7 @@ final class CoreAbilities {
 
 			Registry::define(
 				'uxstudio/module-enable',
-				__( 'Enable a module', 'ux-studio' ),
+				__( 'Turn on a module', 'ux-studio' ),
 				'Enable a UX Studio module (security-relevant modules need the admin scope). Goes through the plugin-overlap guard: when an active plugin already does the same job the call is refused with code uxstudio_plugin_overlap and the plugins listed in data.plugins - use the migration tools to move them over and deactivate them first. A partial overlap needs confirm_overlap=true.',
 				$W,
 				array(

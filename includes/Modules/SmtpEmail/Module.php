@@ -366,7 +366,7 @@ final class Module extends BaseModule {
 			array(
 				'key'     => 'enable_email_logs',
 				'type'    => 'toggle',
-				'label'   => __( 'Enable e-mail logs', 'ux-studio' ),
+				'label'   => __( 'Turn on e-mail logs', 'ux-studio' ),
 				'help'    => __( 'Record every e-mail sent from the site in the delivery log (for debugging and overview).', 'ux-studio' ),
 				'default' => true,
 			),

@@ -102,7 +102,7 @@ final class SeoScorePanel extends Controller {
 		$client = new SeoAiClient();
 		$result = $client->topic_research(
 			(string) $request->get_param( 'seed_keyword' ),
-			'cs' === ( new \UxStudio\Core\Settings( 'uxstudio_ai_assistant' ) )->get( 'language', 'cs' ) ? 'cs' : 'en'
+			ChatLocale::normalize( ( new \UxStudio\Core\Settings( 'uxstudio_ai_assistant' ) )->get( 'language', 'cs' ) )
 		);
 
 		if ( empty( $result['success'] ) ) {

@@ -527,7 +527,7 @@ export function McpSettings(): JSX.Element {
 					<button
 						type="button"
 						className={ `uxs-switch${ data.enabled ? ' is-on' : '' }` }
-						aria-label={ data.enabled ? __( 'Disable the MCP server', 'ux-studio' ) : __( 'Enable the MCP server', 'ux-studio' ) }
+						aria-label={ data.enabled ? __( 'Disable the MCP server', 'ux-studio' ) : __( 'Turn on the MCP server', 'ux-studio' ) }
 						aria-pressed={ data.enabled }
 						disabled={ toggle.isPending }
 						onClick={ () => toggle.mutate( ! data.enabled ) }
