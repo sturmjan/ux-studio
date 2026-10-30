@@ -469,6 +469,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'custom_layout',
+				'show_if' => array( 'key' => 'layout_type', 'equals' => 'custom' ),
 				'section' => __( 'Access', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'Choose layout', 'ux-studio' ),
@@ -482,6 +483,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'existing_page',
+				'show_if' => array( 'key' => 'layout_type', 'equals' => 'page' ),
 				'section' => __( 'Access', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'Existing page', 'ux-studio' ),
@@ -503,6 +505,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'access_roles',
+				'show_if' => array( 'key' => 'auth_type', 'equals' => 'roles' ),
 				'section' => __( 'Access', 'ux-studio' ),
 				'type'    => 'multiselect',
 				'label'   => __( 'Allowed roles', 'ux-studio' ),
@@ -552,6 +555,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'countdown_label',
+				'show_if' => array( 'key' => 'countdown_enabled', 'truthy' => true ),
 				'section' => __( 'Countdown', 'ux-studio' ),
 				'type'    => 'text',
 				'label'   => __( 'Text above the countdown', 'ux-studio' ),
@@ -620,6 +624,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'logo_image',
+				'show_if' => array( 'key' => 'enable_logo', 'equals' => 'yes' ),
 				'section' => __( 'Appearance', 'ux-studio' ),
 				'type'    => 'media',
 				'label'   => __( 'Logo image', 'ux-studio' ),
@@ -628,6 +633,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'logo_width',
+				'show_if' => array( 'key' => 'enable_logo', 'equals' => 'yes' ),
 				'section' => __( 'Appearance', 'ux-studio' ),
 				'type'    => 'number',
 				'label'   => __( 'Logo width (px)', 'ux-studio' ),
@@ -649,6 +655,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'background_image',
+				'show_if' => array( 'key' => 'enable_background_image', 'truthy' => true ),
 				'section' => __( 'Appearance', 'ux-studio' ),
 				'type'    => 'media',
 				'label'   => __( 'Background image', 'ux-studio' ),

@@ -259,6 +259,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'fetch_interval',
+				'show_if' => array( 'key' => 'auto_fetch', 'truthy' => true ),
 				'type'    => 'select',
 				'label'   => __( 'Fetch interval', 'ux-studio' ),
 				'help'    => __( 'How often new reviews are pulled from the central app automatically.', 'ux-studio' ),

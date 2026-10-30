@@ -159,6 +159,7 @@ final class Module extends BaseModule {
 			),
 			array(
 				'key'     => 'from_email',
+				'show_if' => array( 'key' => 'notify_on_publish', 'truthy' => true ),
 				'type'    => 'text',
 				'label'   => __( 'From email', 'ux-studio' ),
 				'help'    => __( 'Sender address for subscription and notification emails. Defaults to the site admin email.', 'ux-studio' ),

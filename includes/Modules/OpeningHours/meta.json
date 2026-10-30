@@ -1,7 +1,7 @@
 {
 	"id": "opening-hours",
 	"name": "Opening Hours",
-	"description": "Manage branch locations, weekly opening hours and exceptions, with a live open/closed status API. (Scope note: legacy shortcodes/map widgets are intentionally not ported yet - CRUD + status API only.)",
+	"description": "Manage branch locations, weekly opening hours and exceptions, with a live open/closed status API.",
 	"group": "content",
 	"icon": "clock",
 	"settings": true

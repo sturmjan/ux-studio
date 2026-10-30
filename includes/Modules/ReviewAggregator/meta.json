@@ -1,7 +1,7 @@
 {
 	"id": "review-aggregator",
 	"name": "Review Aggregator",
-	"description": "Aggregate Google, Facebook and Mapy.cz reviews through the Content Sync broker - no local scraping or API keys on this site.",
+	"description": "Aggregate Google, Facebook and Mapy.cz reviews through the central app, with no local scraping and no API keys on this site.",
 	"group": "content",
 	"icon": "star",
 	"settings": true
