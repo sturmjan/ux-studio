@@ -195,10 +195,160 @@ final class ArticleTypes {
 	);
 
 	/**
+	 * Names and descriptions of the article types in the language of the admin, for the UI. The `name` and
+	 * `description` in TYPES stay English: they are also part of the prompt sent to the AI.
+	 *
+	 * @return array<string, array{name:string,description:string}>
+	 */
+	private static function labels(): array {
+		return array(
+			'how-to' => array(
+				'name'        => __( 'How-To Guide', 'ux-studio' ),
+				'description' => __( 'Detailed step-by-step instructions on how to do something.', 'ux-studio' ),
+			),
+			'listicle' => array(
+				'name'        => __( 'Listicle (Top X)', 'ux-studio' ),
+				'description' => __( 'An article in list format (Top 10, Best X...).', 'ux-studio' ),
+			),
+			'review' => array(
+				'name'        => __( 'Review', 'ux-studio' ),
+				'description' => __( 'A detailed review of a product, service or tool.', 'ux-studio' ),
+			),
+			'comparison' => array(
+				'name'        => __( 'Comparison', 'ux-studio' ),
+				'description' => __( 'A comparison of two or more things (A vs B).', 'ux-studio' ),
+			),
+			'faq' => array(
+				'name'        => __( 'FAQ Article', 'ux-studio' ),
+				'description' => __( 'Frequently asked questions and answers.', 'ux-studio' ),
+			),
+			'case-study' => array(
+				'name'        => __( 'Case Study', 'ux-studio' ),
+				'description' => __( 'A real-world example with concrete results and data.', 'ux-studio' ),
+			),
+			'ultimate-guide' => array(
+				'name'        => __( 'Ultimate Guide', 'ux-studio' ),
+				'description' => __( 'An exhaustive guide to a topic from A to Z.', 'ux-studio' ),
+			),
+			'beginner-guide' => array(
+				'name'        => __( 'Beginner Guide', 'ux-studio' ),
+				'description' => __( 'An accessible introduction to a topic for newcomers.', 'ux-studio' ),
+			),
+			'opinion' => array(
+				'name'        => __( 'Opinion / Commentary', 'ux-studio' ),
+				'description' => __( 'An authored opinion on a current topic.', 'ux-studio' ),
+			),
+			'trends' => array(
+				'name'        => __( 'Trends & Predictions', 'ux-studio' ),
+				'description' => __( 'Analysis of current trends and forecasts.', 'ux-studio' ),
+			),
+			'myth-busting' => array(
+				'name'        => __( 'Myth Busting', 'ux-studio' ),
+				'description' => __( 'Debunking common myths and misconceptions.', 'ux-studio' ),
+			),
+			'checklist' => array(
+				'name'        => __( 'Checklist', 'ux-studio' ),
+				'description' => __( 'A practical checklist with actionable items.', 'ux-studio' ),
+			),
+			'problem-solution' => array(
+				'name'        => __( 'Problem & Solution', 'ux-studio' ),
+				'description' => __( 'Identifying a problem and offering a solution.', 'ux-studio' ),
+			),
+			'story' => array(
+				'name'        => __( 'Story / Narrative', 'ux-studio' ),
+				'description' => __( 'An article driven by a story or personal experience.', 'ux-studio' ),
+			),
+			'resource-list' => array(
+				'name'        => __( 'Resource List', 'ux-studio' ),
+				'description' => __( 'A curated list of useful resources, tools or links.', 'ux-studio' ),
+			),
+			'data-driven' => array(
+				'name'        => __( 'Data-Driven Article', 'ux-studio' ),
+				'description' => __( 'An article backed by data, statistics and research.', 'ux-studio' ),
+			),
+			'expert-roundup' => array(
+				'name'        => __( 'Expert Roundup', 'ux-studio' ),
+				'description' => __( 'A collection of opinions and tips from multiple experts.', 'ux-studio' ),
+			),
+			'seasonal' => array(
+				'name'        => __( 'Seasonal Article', 'ux-studio' ),
+				'description' => __( 'Content relevant to a specific season or period.', 'ux-studio' ),
+			),
+			'local-seo' => array(
+				'name'        => __( 'Local SEO Article', 'ux-studio' ),
+				'description' => __( 'Content focused on a specific location or region.', 'ux-studio' ),
+			),
+			'industry-analysis' => array(
+				'name'        => __( 'Industry Analysis', 'ux-studio' ),
+				'description' => __( 'An in-depth analysis of an industry with data and conclusions.', 'ux-studio' ),
+			),
+			'product-launch' => array(
+				'name'        => __( 'Product Launch', 'ux-studio' ),
+				'description' => __( 'Introducing a new product or service.', 'ux-studio' ),
+			),
+			'pillar-content' => array(
+				'name'        => __( 'Pillar Content', 'ux-studio' ),
+				'description' => __( 'Extensive pillar content covering a topic in depth.', 'ux-studio' ),
+			),
+			'behind-scenes' => array(
+				'name'        => __( 'Behind the Scenes', 'ux-studio' ),
+				'description' => __( 'A behind-the-scenes look at how something works or is made.', 'ux-studio' ),
+			),
+			'news' => array(
+				'name'        => __( 'News / Announcement', 'ux-studio' ),
+				'description' => __( 'A current news item or announcement from the field.', 'ux-studio' ),
+			),
+			'interview' => array(
+				'name'        => __( 'Interview', 'ux-studio' ),
+				'description' => __( 'An interview with an expert or interesting person.', 'ux-studio' ),
+			),
+			'aida' => array(
+				'name'        => __( 'AIDA Copy', 'ux-studio' ),
+				'description' => __( 'Attention - Interest - Desire - Action marketing copy.', 'ux-studio' ),
+			),
+			'pas' => array(
+				'name'        => __( 'PAS Copy', 'ux-studio' ),
+				'description' => __( 'Problem - Agitate - Solution marketing copy.', 'ux-studio' ),
+			),
+			'bab' => array(
+				'name'        => __( 'BAB Copy', 'ux-studio' ),
+				'description' => __( 'Before - After - Bridge marketing copy.', 'ux-studio' ),
+			),
+			'hero' => array(
+				'name'        => __( 'HERO Copy', 'ux-studio' ),
+				'description' => __( 'Hook - Empathize - Response - Outcome marketing copy.', 'ux-studio' ),
+			),
+			'spin' => array(
+				'name'        => __( 'SPIN Copy', 'ux-studio' ),
+				'description' => __( 'Situation - Problem - Implication - Need-payoff selling copy.', 'ux-studio' ),
+			),
+			'idca' => array(
+				'name'        => __( 'IDCA Copy', 'ux-studio' ),
+				'description' => __( 'Identify - Develop - Communicate - Ask marketing copy.', 'ux-studio' ),
+			),
+			'email' => array(
+				'name'        => __( 'Email', 'ux-studio' ),
+				'description' => __( 'A standalone marketing or transactional email.', 'ux-studio' ),
+			),
+			'comment-reply' => array(
+				'name'        => __( 'Comment / Review Reply', 'ux-studio' ),
+				'description' => __( 'A short, on-brand reply to a comment or review.', 'ux-studio' ),
+			),
+		);
+	}
+
+	/**
+	 * All article types for the UI, with the name and description translated.
+	 *
 	 * @return array<string, array{name:string,description:string,prompt_hint:string}>
 	 */
 	public static function get_all(): array {
-		return self::TYPES;
+		$labels = self::labels();
+		$all    = array();
+		foreach ( self::TYPES as $id => $type ) {
+			$all[ $id ] = isset( $labels[ $id ] ) ? array_merge( $type, $labels[ $id ] ) : $type;
+		}
+		return $all;
 	}
 
 	/**
