@@ -97,9 +97,9 @@ const FIELD_TYPE_LABELS: Record< FieldType, string > = {
 };
 
 const KEY_HELP: Record< Column[ 'type' ], string > = {
-	default: __( 'Key of an existing column — start typing to see suggestions.', 'ux-studio' ),
-	meta: __( 'Custom field (meta) key — start typing to see suggestions.', 'ux-studio' ),
-	taxonomy: __( 'Taxonomy slug — start typing to see suggestions.', 'ux-studio' ),
+	default: __( 'Key of an existing column. Start typing to see suggestions.', 'ux-studio' ),
+	meta: __( 'Custom field (meta) key. Start typing to see suggestions.', 'ux-studio' ),
+	taxonomy: __( 'Taxonomy slug. Start typing to see suggestions.', 'ux-studio' ),
 	post_id: __( 'Any unique column key.', 'ux-studio' ),
 	thumbnail: __( 'Any unique column key.', 'ux-studio' ),
 };
@@ -199,7 +199,7 @@ function ColumnRow( {
 				{ keyMissing && (
 					<span className="uxs-inline-warning">
 						<AlertTriangle size={ 12 } aria-hidden />
-						{ __( 'Required — a column with no key is discarded when you save.', 'ux-studio' ) }
+						{ __( 'Required: a column with no key is discarded when you save.', 'ux-studio' ) }
 					</span>
 				) }
 			</td>
@@ -352,7 +352,7 @@ function AccordionSection( {
 					{ draft.length === 0 ? (
 						<p>
 							{ __(
-								'No custom columns yet — the native columns are shown unchanged. Add one below to relabel, reorder, hide or add a column.',
+								'No custom columns yet. The native columns are shown unchanged. Add one below to relabel, reorder, hide or add a column.',
 								'ux-studio'
 							) }
 						</p>
@@ -528,7 +528,7 @@ export default function Page(): JSX.Element {
 					{ addableTypes.length > 0 && (
 						<div style={ { display: 'flex', gap: 'var(--uxs-sp-2)', alignItems: 'center' } }>
 							<select value={ addingType } onChange={ ( e ) => setAddingType( e.target.value ) }>
-								<option value="">{ __( '— Select content type —', 'ux-studio' ) }</option>
+								<option value="">{ __( 'Select content type', 'ux-studio' ) }</option>
 								{ addableTypes.map( ( t ) => (
 									<option key={ t.id } value={ t.id }>
 										{ t.label }

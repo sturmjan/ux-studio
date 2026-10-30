@@ -179,7 +179,7 @@ final class Module extends BaseModule {
 		wp_nonce_field( self::NONCE, self::NONCE . '_nonce' );
 
 		echo '<select name="uxstudio_post_type" class="widefat">';
-		printf( '<option value="">%s</option>', esc_html__( '— No change —', 'ux-studio' ) );
+		printf( '<option value="">%s</option>', esc_html__( 'No change', 'ux-studio' ) );
 		foreach ( $options as $name => $label ) {
 			printf( '<option value="%s">%s</option>', esc_attr( $name ), esc_html( $label ) );
 		}
@@ -211,7 +211,7 @@ final class Module extends BaseModule {
 				<label>
 					<span class="title"><?php esc_html_e( 'Post Type', 'ux-studio' ); ?></span>
 					<select name="uxstudio_post_type">
-						<option value=""><?php esc_html_e( '— No change —', 'ux-studio' ); ?></option>
+						<option value=""><?php esc_html_e( 'No change', 'ux-studio' ); ?></option>
 						<?php foreach ( $options as $name => $label ) : ?>
 							<option value="<?php echo esc_attr( $name ); ?>"><?php echo esc_html( $label ); ?></option>
 						<?php endforeach; ?>

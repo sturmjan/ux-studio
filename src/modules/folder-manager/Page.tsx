@@ -264,7 +264,7 @@ function FolderRow( { row, folders }: { row: FolderNode; folders: Folder[] } ): 
 					aria-label={ __( 'Move folder under', 'ux-studio' ) }
 					onChange={ ( e ) => reparent.mutate( Number( e.target.value ) ) }
 				>
-					<option value={ 0 }>{ __( '— Top level —', 'ux-studio' ) }</option>
+					<option value={ 0 }>{ __( 'Top level', 'ux-studio' ) }</option>
 					{ folders
 						.filter( ( folder ) => ! blocked.has( folder.id ) )
 						.map( ( folder ) => (
@@ -304,7 +304,7 @@ function FolderTree( { folders }: { folders: Folder[] } ): JSX.Element {
 		return (
 			<p>
 				{ __(
-					'No folders yet. Create one below, then assign attachments to it — either one by one, or in bulk from the "Bulk move attachments" panel.',
+					'No folders yet. Create one below, then assign attachments to it, either one by one or in bulk from the "Bulk move attachments" panel.',
 					'ux-studio'
 				) }
 			</p>
@@ -463,7 +463,7 @@ export default function Page(): JSX.Element {
 						value={ parent }
 						onChange={ ( e ) => setParent( Number( e.target.value ) ) }
 					>
-						<option value={ 0 }>{ __( '— None (top level) —', 'ux-studio' ) }</option>
+						<option value={ 0 }>{ __( 'None (top level)', 'ux-studio' ) }</option>
 						{ folders.map( ( folder ) => (
 							<option key={ folder.id } value={ folder.id }>
 								{ folder.name }
@@ -514,7 +514,7 @@ export default function Page(): JSX.Element {
 						value={ assignFolder }
 						onChange={ ( e ) => setAssignFolder( Number( e.target.value ) ) }
 					>
-						<option value={ 0 }>{ __( '— Unassigned —', 'ux-studio' ) }</option>
+						<option value={ 0 }>{ __( 'Unassigned', 'ux-studio' ) }</option>
 						{ folders.map( ( folder ) => (
 							<option key={ folder.id } value={ folder.id }>
 								{ folder.name }
@@ -569,7 +569,7 @@ export default function Page(): JSX.Element {
 						value={ bulkFolder }
 						onChange={ ( e ) => setBulkFolder( Number( e.target.value ) ) }
 					>
-						<option value={ 0 }>{ __( '— Unassigned —', 'ux-studio' ) }</option>
+						<option value={ 0 }>{ __( 'Unassigned', 'ux-studio' ) }</option>
 						{ folders.map( ( folder ) => (
 							<option key={ folder.id } value={ folder.id }>
 								{ folder.name }

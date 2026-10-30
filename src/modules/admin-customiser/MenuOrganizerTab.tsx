@@ -585,7 +585,7 @@ export function MenuOrganizerTab(): JSX.Element {
 					<input type="text" placeholder={ __( 'Title', 'ux-studio' ) } value={ linkTitle } onChange={ ( e ) => setLinkTitle( e.target.value ) } />{ ' ' }
 					<input type="url" placeholder="https://…" value={ linkUrl } onChange={ ( e ) => setLinkUrl( e.target.value ) } />{ ' ' }
 					<select value={ linkCategory } onChange={ ( e ) => setLinkCategory( e.target.value ) }>
-						<option value="">{ __( '— category —', 'ux-studio' ) }</option>
+						<option value="">{ __( 'Choose a category', 'ux-studio' ) }</option>
 						{ categoryIds.map( ( id ) => (
 							<option key={ id } value={ id }>
 								{ draft.categories[ id ] }
@@ -630,7 +630,7 @@ export function MenuOrganizerTab(): JSX.Element {
 				<span>
 					<input type="text" placeholder={ __( 'Label (optional)', 'ux-studio' ) } value={ sepLabel } onChange={ ( e ) => setSepLabel( e.target.value ) } />{ ' ' }
 					<select value={ sepCategory } onChange={ ( e ) => setSepCategory( e.target.value ) }>
-						<option value="">{ __( '— category —', 'ux-studio' ) }</option>
+						<option value="">{ __( 'Choose a category', 'ux-studio' ) }</option>
 						{ categoryIds.map( ( id ) => (
 							<option key={ id } value={ id }>
 								{ draft.categories[ id ] }

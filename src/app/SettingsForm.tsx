@@ -166,7 +166,7 @@ export function FieldInput( {
 					value={ String( value ?? '' ) }
 					onChange={ ( e ) => onChange( e.target.value ) }
 				>
-					<option value="">{ __( '— Select —', 'ux-studio' ) }</option>
+					<option value="">{ __( 'Select', 'ux-studio' ) }</option>
 					{ Object.entries( field.options ?? {} ).map( ( [ k, label ] ) => (
 						<option key={ k } value={ k }>
 							{ label }

@@ -173,7 +173,7 @@ function NoticeForm( {
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-nb-category">{ __( 'Category', 'ux-studio' ) }</label>
 				<select id="uxs-nb-category" value={ draft.category } onChange={ ( e ) => set( 'category', e.target.value ) }>
-					<option value="">{ __( '— None —', 'ux-studio' ) }</option>
+					<option value="">{ __( 'None', 'ux-studio' ) }</option>
 					{ categories.map( ( c ) => (
 						<option key={ c.id } value={ c.slug }>
 							{ c.name }
