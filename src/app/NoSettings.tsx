@@ -56,13 +56,10 @@ export function NoSettings( { module, backArrow = true }: { module: ModuleInfo; 
 					{ module.name }
 				</h1>
 			</header>
-			<section className="uxs-empty" aria-labelledby="uxs-empty-title">
-				<span className="uxs-tile__icon uxs-empty__icon">
+			<section className="uxs-empty" aria-label={ module.name }>
+				<span className="uxs-empty__icon">
 					<ModuleIcon name={ module.icon } size={ 28 } />
 				</span>
-				<h2 id="uxs-empty-title" className="uxs-empty__title">
-					{ module.name }
-				</h2>
 				{ module.description ? <p className="uxs-empty__desc">{ module.description }</p> : null }
 				<p className="uxs-empty__note">{ __( 'This module has no settings. It works as soon as it is switched on.', 'ux-studio' ) }</p>
 				<div className="uxs-empty__switch">

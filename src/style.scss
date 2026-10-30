@@ -442,8 +442,16 @@ $uxs-text-fields: 'input[type="text"], input[type="url"], input[type="email"], i
 	border: 1px solid var(--uxs-border);
 	border-radius: var(--uxs-radius);
 
-	.uxs-empty__icon { width: 56px; height: 56px; }
-	.uxs-empty__title { margin: 0; font-size: var(--uxs-fs-l); }
+	.uxs-empty__icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 56px;
+		height: 56px;
+		border-radius: var(--uxs-radius);
+		background: var(--uxs-brand-soft);
+		color: var(--uxs-brand-text);
+	}
 	.uxs-empty__desc,
 	.uxs-empty__note { margin: 0; color: var(--uxs-text-soft); }
 	.uxs-empty__note { color: var(--uxs-text); font-weight: 500; }
@@ -936,6 +944,8 @@ $uxs-text-fields: 'input[type="text"], input[type="url"], input[type="email"], i
 		margin-bottom: var(--uxs-sp-4);
 
 		h1 { font-size: var(--uxs-fs-m); }
+		/* The group page has its own back arrow in the heading above. */
+		h1 > button { display: none; }
 		&.is-embedded { justify-content: flex-end; }
 	}
 }
