@@ -95,6 +95,18 @@ function ItemsTable( { type, items, focusSlug }: { type: ItemType; items: Rollba
 		if ( ! version ) {
 			return;
 		}
+		if (
+			! window.confirm(
+				sprintf(
+					/* translators: 1: plugin or theme name, 2: version number */
+					__( 'Replace %1$s with version %2$s? The files are swapped right away. Make a backup first: if the newer version changed the database, the older one may not work with it.', 'ux-studio' ),
+					item.name,
+					version
+				)
+			)
+		) {
+			return;
+		}
 		rollback.mutate(
 			{ slug: item.slug, version },
 			{
@@ -136,6 +148,10 @@ function ItemsTable( { type, items, focusSlug }: { type: ItemType; items: Rollba
 	}
 
 	return (
+		<>
+		<p className="uxs-form__help">
+			{ __( 'A rollback replaces the installed files with an older version from WordPress.org. Use it when an update broke the site. The settings and data stay, but a newer version may have changed the database in a way the older one does not understand, so make a backup first. Automatic updates may install the newer version again unless you turn them off for this item.', 'ux-studio' ) }
+		</p>
 		<div className="uxs-table-wrap"><table className="uxs-table">
 			<thead>
 				<tr>
@@ -190,6 +206,7 @@ function ItemsTable( { type, items, focusSlug }: { type: ItemType; items: Rollba
 				} ) }
 			</tbody>
 		</table></div>
+		</>
 	);
 }
 

@@ -928,7 +928,7 @@ final class Module extends BaseModule {
 		if ( '' === $token || '' === $email ) {
 			return array(
 				'ok'    => false,
-				'error' => 'Gmail API: no connected account or token refresh failed.',
+				'error' => __( 'Gmail API: no connected account or token refresh failed.', 'ux-studio' ),
 			);
 		}
 

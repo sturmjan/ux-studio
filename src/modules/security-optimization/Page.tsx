@@ -264,6 +264,9 @@ function LoginAttemptsTab(): JSX.Element {
 
 	return (
 		<>
+			<p className="uxs-form__help">
+				{ __( 'Failed logins and the addresses locked out because of them. Remove a row to let that address try again. "Clear all attempts" lifts every lockout at once, including those of real attackers.', 'ux-studio' ) }
+			</p>
 			<p>
 				<button type="button" className="button" onClick={ () => clearAll.mutate() } disabled={ clearAll.isPending }>
 					<Trash2 size={ 14 } /> { __( 'Clear all attempts', 'ux-studio' ) }
@@ -506,6 +509,9 @@ function IpBansTab(): JSX.Element {
 						<option value="cidr">{ __( 'IP range (CIDR)', 'ux-studio' ) }</option>
 						<option value="country">{ __( 'Country code (ISO 3166-1 alpha-2)', 'ux-studio' ) }</option>
 					</select>
+					<p className="uxs-form__help">
+						{ __( 'A single address blocks one visitor. A range (CIDR) blocks a whole network, for example 203.0.113.0/24 is 256 addresses. A country code, such as CN, blocks everybody from that country.', 'ux-studio' ) }
+					</p>
 				</div>
 				<div className="uxs-form__row">
 					<label htmlFor="uxs-ipban-value">{ __( 'Value', 'ux-studio' ) }</label>
@@ -516,10 +522,16 @@ function IpBansTab(): JSX.Element {
 						value={ value }
 						onChange={ ( e ) => setValue( e.target.value ) }
 					/>
+					<p className="uxs-form__help">
+						{ __( 'Write the address, range or code that matches the type. Do not ban your own address or a shared one such as an office: you would lock yourself and others out. Logged-in administrators and the allowlist are never blocked. The ban takes effect only while the IP firewall is turned on in the settings.', 'ux-studio' ) }
+					</p>
 				</div>
 				<div className="uxs-form__row">
 					<label htmlFor="uxs-ipban-note">{ __( 'Note', 'ux-studio' ) }</label>
 					<input id="uxs-ipban-note" type="text" value={ note } onChange={ ( e ) => setNote( e.target.value ) } />
+					<p className="uxs-form__help">
+						{ __( 'Optional. Write why you banned it, so you remember later.', 'ux-studio' ) }
+					</p>
 				</div>
 			</div>
 			<p>

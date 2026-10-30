@@ -372,7 +372,7 @@ export default function Page(): JSX.Element {
 					{ __( 'Settings', 'ux-studio' ) }
 				</button>
 				<button className={ tab === 'log' ? 'is-active' : '' } onClick={ () => setTab( 'log' ) }>
-					{ __( 'Log', 'ux-studio' ) }
+					{ __( 'Delivery log', 'ux-studio' ) }
 				</button>
 			</TabsNav>
 			{ tab === 'settings' && ( isLoading || ! data ) && (
