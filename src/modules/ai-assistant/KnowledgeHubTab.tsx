@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { LoaderCircle, Sparkles, Trash2, Upload } from 'lucide-react';
+import { HelpText } from '../../components/GlossaryTerm';
 import { api, queryClient } from '../../app/api';
 
 interface KnowledgeDocument {
@@ -120,6 +121,9 @@ function UploadDocumentForm(): JSX.Element {
 					accept=".pdf,.docx,.txt,.md"
 					onChange={ ( e ) => setFile( e.target.files?.[ 0 ] ?? null ) }
 				/>
+				<p className="uxs-form__help">
+					<HelpText text={ __( 'The text of the document is cut into passages and saved in the knowledge base, so the chat can use it in its answers.', 'ux-studio' ) } />
+				</p>
 			</div>
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-kb-doc-public">{ __( 'Public chat', 'ux-studio' ) }</label>
@@ -140,6 +144,9 @@ function UploadDocumentForm(): JSX.Element {
 					aria-pressed={ useInternal }
 					onClick={ () => setUseInternal( ( v ) => ! v ) }
 				/>
+				<p className="uxs-form__help">
+					<HelpText text={ __( 'Public chat answers the visitors of the website, so share only what anyone may see. The internal chat is for your team in the admin.', 'ux-studio' ) } />
+				</p>
 			</div>
 			<button type="button" className="button button-primary" disabled={ ! file || upload.isPending } onClick={ () => upload.mutate() }>
 				{ upload.isPending ? <LoaderCircle size={ 14 } /> : <Upload size={ 14 } /> } { __( 'Upload document', 'ux-studio' ) }
@@ -172,6 +179,9 @@ function AddManualEntryForm(): JSX.Element {
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-kb-entry-content">{ __( 'Content', 'ux-studio' ) }</label>
 				<textarea id="uxs-kb-entry-content" rows={ 4 } value={ content } onChange={ ( e ) => setContent( e.target.value ) } />
+				<p className="uxs-form__help">
+					<HelpText text={ __( 'Write the fact as a short, complete text, as you would answer a customer. The chat uses it as a source for its answers.', 'ux-studio' ) } />
+				</p>
 			</div>
 			<button
 				type="button"
@@ -329,10 +339,16 @@ function AddFaqForm(): JSX.Element {
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-faq-answer">{ __( 'Answer', 'ux-studio' ) }</label>
 				<textarea id="uxs-faq-answer" rows={ 3 } value={ answer } onChange={ ( e ) => setAnswer( e.target.value ) } />
+				<p className="uxs-form__help">
+					<HelpText text={ __( 'Write the answer the way the chat and the quick suggestions should say it. Keep it short and factual.', 'ux-studio' ) } />
+				</p>
 			</div>
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-faq-category">{ __( 'Category', 'ux-studio' ) }</label>
 				<input id="uxs-faq-category" type="text" value={ category } onChange={ ( e ) => setCategory( e.target.value ) } />
+				<p className="uxs-form__help">
+					<HelpText text={ __( 'An optional label to group similar questions.', 'ux-studio' ) } />
+				</p>
 			</div>
 			<button
 				type="button"
@@ -376,13 +392,18 @@ function FaqSuggestions(): JSX.Element {
 					value={ topic }
 					onChange={ ( e ) => setTopic( e.target.value ) }
 				/>
+				<p className="uxs-form__help">
+					<HelpText text={ __( 'The AI proposes questions and answers about this topic from the content of your site. Check each suggestion before you accept it.', 'ux-studio' ) } />
+				</p>
 			</div>
-			<button type="button" className="button" disabled={ analyze.isPending } onClick={ () => analyze.mutate() }>
-				{ analyze.isPending ? <LoaderCircle size={ 14 } /> : <Sparkles size={ 14 } /> } { __( 'Suggest from past chats', 'ux-studio' ) }
-			</button>{ ' ' }
-			<button type="button" className="button" disabled={ ! topic.trim() || generate.isPending } onClick={ () => generate.mutate() }>
-				{ generate.isPending ? <LoaderCircle size={ 14 } /> : <Sparkles size={ 14 } /> } { __( 'Suggest from topic', 'ux-studio' ) }
-			</button>
+			<div className="uxs-actions">
+				<button type="button" className="button" disabled={ analyze.isPending } onClick={ () => analyze.mutate() }>
+					{ analyze.isPending ? <LoaderCircle size={ 14 } /> : <Sparkles size={ 14 } /> } { __( 'Suggest from past chats', 'ux-studio' ) }
+				</button>
+				<button type="button" className="button" disabled={ ! topic.trim() || generate.isPending } onClick={ () => generate.mutate() }>
+					{ generate.isPending ? <LoaderCircle size={ 14 } /> : <Sparkles size={ 14 } /> } { __( 'Suggest from topic', 'ux-studio' ) }
+				</button>
+			</div>
 
 			{ result && ! result.success ? <p className="uxs-form__help">{ result.error }</p> : null }
 

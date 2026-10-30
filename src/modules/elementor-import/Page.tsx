@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { ArrowLeft, Download, LoaderCircle, Upload } from 'lucide-react';
+import { HelpText } from '../../components/GlossaryTerm';
 import { api } from '../../app/api';
 import { navigate } from '../../app/route';
 import { TabsNav } from '../../app/SubNav';
@@ -110,6 +111,9 @@ function ModeFields( {
 					<option value="replace">{ __( 'Replace existing page content', 'ux-studio' ) }</option>
 					<option value="append">{ __( 'Append to existing page', 'ux-studio' ) }</option>
 				</select>
+				<p className="uxs-form__help">
+					<HelpText text={ __( 'New draft page is the safe choice. Replace removes the current Elementor content of the page you choose; Append adds the import below the existing content.', 'ux-studio' ) } />
+				</p>
 			</div>
 			{ mode !== 'new_page' ? (
 				<div className="uxs-form__row">
@@ -206,6 +210,9 @@ function ImportTab(): JSX.Element {
 					<option value="url">{ __( 'From URL', 'ux-studio' ) }</option>
 					<option value="html">{ __( 'Paste HTML', 'ux-studio' ) }</option>
 				</select>
+				<p className="uxs-form__help">
+					<HelpText text={ __( 'A file or pasted JSON is an Elementor template exported from Elementor. A URL or HTML is converted from an ordinary web page and may need some touch-ups.', 'ux-studio' ) } />
+				</p>
 			</div>
 
 			{ source === 'file' ? (
