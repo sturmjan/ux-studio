@@ -31,7 +31,7 @@ return array(
 		'skip' => __( 'A plugin that disables comments is already active.', 'ux-studio' ),
 	),
 	'limit_login_attempts'      => array(
-		'does' => __( 'After 5 wrong passwords the visitor\'s IP address is locked out for 15 minutes (longer after repeated lockouts).', 'ux-studio' ),
+		'does' => __( 'After the set number of wrong passwords (3 by default) the visitor\'s IP address is locked out for the lockout time (30 minutes by default, longer after repeated lockouts).', 'ux-studio' ),
 		'risk' => __( 'Behind a proxy every visitor looks like the same IP address, so a few typos could lock everybody out. People who share one office address share the limit too.', 'ux-studio' ),
 		'off'  => __( 'When the site is behind a proxy that hides the real IP address and you did not set the IP source in Security > Firewall.', 'ux-studio' ),
 		'skip' => __( 'The site is behind a reverse proxy that is not Cloudflare, or a login protection plugin is active.', 'ux-studio' ),
@@ -43,7 +43,7 @@ return array(
 		'skip' => __( 'The login attempt limit is not set (this option works together with it).', 'ux-studio' ),
 	),
 	'block_username_attempts'   => array(
-		'does' => __( 'A failed login with a reserved name such as admin locks the IP address at once for the lockout time, without waiting for 5 attempts. Bots try "admin" first.', 'ux-studio' ),
+		'does' => __( 'A failed login with a reserved name such as admin locks the IP address at once for the lockout time, without waiting for the maximum number of attempts. Bots try "admin" first.', 'ux-studio' ),
 		'risk' => __( 'It also applies to a real account with such a name: one typo in its password locks that IP address, maybe your own. Behind a shared proxy address it could lock everybody out.', 'ux-studio' ),
 		'off'  => __( 'When an account with a reserved name has to stay, or when you often mistype.', 'ux-studio' ),
 		'skip' => __( 'An existing account uses a reserved name (rename it first), or the login attempt limit is not set.', 'ux-studio' ),
@@ -161,5 +161,110 @@ return array(
 		'risk' => __( 'A deleted theme has to be installed again when you want it.', 'ux-studio' ),
 		'off'  => __( 'When you want to keep the default themes.', 'ux-studio' ),
 		'skip' => __( 'It is never left out.', 'ux-studio' ),
+	),
+	'ip_firewall_enabled'        => array(
+		'does'   => __( 'Every request from a banned address, range or country is refused with a 403 page, whatever it asks for: pages, login, admin or REST API.', 'ux-studio' ),
+		'effect' => __( 'Blocked visitors see only the block page. Administrators who are logged in and addresses on the allowlist are never blocked, so you cannot lock yourself out while you are signed in.', 'ux-studio' ),
+		'risk'   => __( 'A wrong ban or a wrong "Client IP source" can block real visitors, or your own address once you log out. Add your own address to the allowlist first.', 'ux-studio' ),
+		'off'    => __( 'Leave it off when the server or Cloudflare already filters addresses for you.', 'ux-studio' ),
+	),
+	'ip_firewall_proxy'          => array(
+		'does'   => __( 'Tells the firewall where to read the visitor\'s address from. "Direct connection" uses the address the server sees on the connection (REMOTE_ADDR). Behind Cloudflare or another reverse proxy that address is the proxy, so the real visitor is read from a header the proxy adds.', 'ux-studio' ),
+		'effect' => __( 'The right choice makes bans and lockouts hit the real visitor. Headers are trusted only when the request really comes from Cloudflare (or from a proxy range of your own), because anybody can fake a header.', 'ux-studio' ),
+		'risk'   => __( 'Direct connection behind a proxy makes all visitors look like one address: one ban or lockout then blocks everybody. Choosing Cloudflare or a reverse proxy on a site that is not behind one lets a visitor pretend to be another address.', 'ux-studio' ),
+		'off'    => __( 'Leave "Direct connection" unless you are sure the site sits behind Cloudflare or a reverse proxy (the host can tell you).', 'ux-studio' ),
+	),
+	'ip_firewall_allowlist'      => array(
+		'does'   => __( 'Addresses that are never blocked, one per line. You can write a single address (203.0.113.7) or a whole range in [[cidr|CIDR]] notation (203.0.113.0/24). The loopback address 127.0.0.1, the computer talking to itself, is always allowed.', 'ux-studio' ),
+		'effect' => __( 'These visitors pass the firewall and the country blocklist even when a ban would match them. Put your office, your monitoring and your payment gateway here.', 'ux-studio' ),
+		'risk'   => __( 'Everybody behind an address on this list is trusted, so list only addresses you control. A shared or changing address (home internet) is a poor choice.', 'ux-studio' ),
+	),
+	'ip_firewall_message'        => array(
+		'does'   => __( 'The sentence a blocked visitor sees on the 403 page. Empty shows a plain default.', 'ux-studio' ),
+		'effect' => __( 'Say how to reach you, so a visitor who is blocked by mistake can ask for help.', 'ux-studio' ),
+	),
+	'country_blocklist_enabled'  => array(
+		'does'   => __( 'Visitors whose address belongs to one of the countries below are refused by the IP firewall. The address ranges of each country are downloaded and stored on the site.', 'ux-studio' ),
+		'effect' => __( 'Traffic from those countries, including real customers, search engine robots and monitoring tools, sees only the block page.', 'ux-studio' ),
+		'risk'   => __( 'Country data is never exact: a visitor on a VPN or a traveler can be blocked or let through by mistake. Blocking a country also blocks every bot or service whose servers stand there, for example search engines.', 'ux-studio' ),
+		'off'    => __( 'Use it only against a clear, repeated attack from specific countries. It is not a general protection.', 'ux-studio' ),
+	),
+	'blocked_countries'          => array(
+		'does'   => __( 'The countries to block. The list is applied when you save the settings: the address ranges of each chosen country are downloaded and a ban is created or refreshed.', 'ux-studio' ),
+		'effect' => __( 'Every visitor from these countries is blocked as soon as the country blocklist is on. Removing a country lifts the block for it.', 'ux-studio' ),
+		'risk'   => __( 'Do not block the country where your customers, your host or your payment gateway are. Blocking your own country can lock you out once you log out; add your address to the allowlist first.', 'ux-studio' ),
+	),
+	'login_url_enabled'          => array(
+		'does'   => __( 'The login page moves from wp-login.php to the address you choose below. Anybody who opens the old address gets the response chosen under "Direct wp-login.php behavior".', 'ux-studio' ),
+		'effect' => __( 'Bots that hammer wp-login.php find nothing. People who log in must use the new address, so give it to everybody who logs in and bookmark it.', 'ux-studio' ),
+		'risk'   => __( 'If you forget the new address you cannot log in. Rescue: add define( \'UXSTUDIO_DISABLE_LOGIN_LOCK\', true ); to wp-config.php. Plugins and saved links that point to wp-login.php stop working.', 'ux-studio' ),
+		'off'    => __( 'Leave it off if several people log in and you cannot make sure they know the new address.', 'ux-studio' ),
+	),
+	'login_url'                  => array(
+		'does'   => __( 'The new address of the login page, for example "my-login" gives yourdomain.com/my-login.', 'ux-studio' ),
+		'effect' => __( 'Pick something that is not easy to guess. If it clashes with an existing page, the change is not applied and a warning is logged, so the old login keeps working.', 'ux-studio' ),
+		'risk'   => __( 'Write the address down before you save. Without it you cannot reach the login page.', 'ux-studio' ),
+	),
+	'disabled_behavior'          => array(
+		'does'   => __( 'What a visitor gets who opens wp-login.php or wp-admin without being logged in, once the custom login address is on.', 'ux-studio' ),
+		'effect' => __( 'A 404 page looks as if there is no login at all. A redirect or a message tells honest visitors where they are, but also shows the page exists.', 'ux-studio' ),
+		'risk'   => __( 'Choosing the homepage or another page for a visitor who really wants to log in can confuse them. Make sure your team knows the new login address.', 'ux-studio' ),
+	),
+	'existing_page'              => array(
+		'does'   => __( 'The page of your site that a visitor of the old login address is sent to.', 'ux-studio' ),
+		'effect' => __( 'Pick a harmless public page, for example the homepage or a contact page. Used only with "Existing page" above.', 'ux-studio' ),
+		'risk'   => __( 'A page that is deleted or turned into a draft later leaves visitors on an error page.', 'ux-studio' ),
+	),
+	'max_attempts'               => array(
+		'does'   => __( 'How many wrong passwords from one address are tolerated before that address is locked out. The default is 3.', 'ux-studio' ),
+		'effect' => __( 'A lower number stops password guessing sooner but also catches people who simply mistype. Three to five is a sensible range.', 'ux-studio' ),
+		'risk'   => __( 'A very low number (1 or 2) can lock out you or your client after a typo. People who share one address, such as an office, share the count.', 'ux-studio' ),
+	),
+	'lockout_time'               => array(
+		'does'   => __( 'For how many minutes a locked-out address cannot try to log in. The default is 30. With "Lengthen repeated lockouts" the time grows with every repeat.', 'ux-studio' ),
+		'effect' => __( 'A longer lockout slows down attackers more, but a person who locked themselves out has to wait that long.', 'ux-studio' ),
+		'risk'   => __( 'A very long lockout on a shared address keeps everybody behind it out for hours.', 'ux-studio' ),
+	),
+	'notify_admin'               => array(
+		'does'   => __( 'Sends an e-mail each time an address gets locked out. It names the address, the username that was tried and the length of the lockout. The e-mail goes to the address set below, or to the site administrator.', 'ux-studio' ),
+		'effect' => __( 'You learn about attacks at once. On a site that is attacked all day it can mean dozens of e-mails, so it fits a quiet site best.', 'ux-studio' ),
+		'off'    => __( 'Leave it off if the site is a regular target of bots and you do not want your inbox full.', 'ux-studio' ),
+	),
+	'captcha_shield_adaptive'    => array(
+		'does'   => __( 'When an address has had several failed logins recently (the threshold set under "Adaptive mode threshold"), it gets the next harder Shield difficulty for 15 minutes. The Shield is the key-less [[CAPTCHA]] of UX Studio: the browser solves a small puzzle by itself.', 'ux-studio' ),
+		'effect' => __( 'A normal visitor still gets the easy check. Only addresses that look like an attack must compute longer, so the cost lands on the attacker.', 'ux-studio' ),
+	),
+	'captcha_mode'               => array(
+		'does'   => __( 'Decides when the check is required in the inline form. "Always" asks every visitor. "Adaptive" asks only after repeated failed attempts from that address.', 'ux-studio' ),
+		'effect' => __( 'Adaptive is friendlier: most visitors see no check at all. Always protects better against the very first attempt.', 'ux-studio' ),
+		'risk'   => __( 'With Adaptive an attacker gets a few free attempts before the check appears. Always puts a small extra step in front of every honest visitor.', 'ux-studio' ),
+	),
+	'captcha_adaptive_threshold' => array(
+		'does'   => __( 'In adaptive mode, how many failed attempts from one address make the [[CAPTCHA]] appear. Allowed values are 1 to 20.', 'ux-studio' ),
+		'effect' => __( 'A low number starts the check early; a high number lets an attacker try more before it shows.', 'ux-studio' ),
+	),
+	'disable_embeds'             => array(
+		'does'   => __( 'Switches off the extra embed machinery of WordPress: other sites can no longer discover your embed address, pasted links to sites that are not on the WordPress list of known services are no longer turned into embeds, and the embed preview in the visual editor goes away.', 'ux-studio' ),
+		'effect' => __( 'The page head is a little lighter. Links to well-known services such as YouTube still become players as before.', 'ux-studio' ),
+		'risk'   => __( 'Other WordPress sites can no longer show your posts as embedded cards. Pasted links to less common sites stay plain links instead of becoming a box. Check posts that rely on such embeds.', 'ux-studio' ),
+		'off'    => __( 'Leave it off if you want others to embed your posts, or you paste links to uncommon sites and expect a box.', 'ux-studio' ),
+	),
+	'restrict_rest_api'          => array(
+		'does'   => __( 'Anonymous visitors are refused by the [[REST API]], the technical interface that apps, forms and many plugins use. Logged-in users keep full access. A list of well-known public endpoints (forms, shop, oEmbed) stays open.', 'ux-studio' ),
+		'effect' => __( 'Bots can no longer read your content and user names through the interface. Pages themselves look the same.', 'ux-studio' ),
+		'risk'   => __( 'A plugin, mobile app, newsletter tool, headless front end or contact form that calls the REST API without logging in can stop working. Test the forms and the shop after you turn it on.', 'ux-studio' ),
+		'off'    => __( 'Leave it off when other services read your site through the REST API.', 'ux-studio' ),
+	),
+	'restrict_mime_types'        => array(
+		'does'   => __( 'Only common file types can be uploaded: images, PDF and Office documents, ZIP, MP3, MP4, WebM and web fonts. Everything else is refused in the media library.', 'ux-studio' ),
+		'effect' => __( 'Nobody can upload a risky or unusual file type by mistake or by a stolen account.', 'ux-studio' ),
+		'risk'   => __( 'Other file types, for example 3D models, CAD drawings, special audio or code files, can no longer be uploaded. Users will get an error and not know why.', 'ux-studio' ),
+		'off'    => __( 'Leave it off when your team regularly uploads types that are not in the list above.', 'ux-studio' ),
+	),
+	'disable_blog'               => array(
+		'does'   => __( 'Hides Posts from the admin menu and the admin bar, sends the Posts screens in the admin back to the dashboard and removes the Quick Draft box. On the site every blog post, category, tag, date and author page is sent to the homepage with a permanent (301) redirect.', 'ux-studio' ),
+		'effect' => __( 'A presentation site without a blog looks tidier in the admin. A visitor who opens an old post address lands on the homepage.', 'ux-studio' ),
+		'risk'   => __( 'Existing posts disappear for visitors and search engines, which can cost you search traffic, and browsers remember a permanent redirect for a long time. You also cannot edit posts in the admin any more. Plugins that store their content as posts (news, events) are affected too. The posts stay in the database.', 'ux-studio' ),
+		'off'    => __( 'Leave it off if the site has a blog or a plugin stores its content as posts.', 'ux-studio' ),
 	),
 );

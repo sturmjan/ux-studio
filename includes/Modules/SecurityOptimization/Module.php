@@ -508,9 +508,9 @@ final class Module extends BaseModule {
 				'label'   => __( 'Client IP source', 'ux-studio' ),
 				'help'    => __( 'Forwarded headers are only trusted in the selected mode (otherwise spoofable). Choose Cloudflare if the site is behind Cloudflare.', 'ux-studio' ),
 				'options' => array(
-					'none'       => __( 'Direct connection (REMOTE_ADDR) - safe default', 'ux-studio' ),
-					'cloudflare' => __( 'Behind Cloudflare (CF-Connecting-IP)', 'ux-studio' ),
-					'xff'        => __( 'Behind a reverse proxy (X-Forwarded-For)', 'ux-studio' ),
+					'none'       => __( 'Direct connection (default)', 'ux-studio' ),
+					'cloudflare' => __( 'Behind Cloudflare', 'ux-studio' ),
+					'xff'        => __( 'Behind a reverse proxy', 'ux-studio' ),
 				),
 				'default' => 'none',
 			),
@@ -868,7 +868,7 @@ final class Module extends BaseModule {
 				'label'   => __( 'CAPTCHA provider', 'ux-studio' ),
 				'help'    => __( 'Automatic uses keys from the central application when the site is connected, then your own keys, and the key-less Shield when there are none. The Shield needs no account and no keys.', 'ux-studio' ),
 				'options' => array(
-					'auto'         => __( 'Automatic (keys if there are any, otherwise the Shield)', 'ux-studio' ),
+					'auto'         => __( 'Automatic (recommended)', 'ux-studio' ),
 					'shield'       => __( 'UX Studio Shield (no keys)', 'ux-studio' ),
 					'turnstile'    => __( 'Cloudflare Turnstile', 'ux-studio' ),
 					'recaptcha_v2' => __( 'Google reCAPTCHA v2 (checkbox)', 'ux-studio' ),
@@ -935,7 +935,7 @@ final class Module extends BaseModule {
 				'help'    => __( 'Inline shows the widget inside the login/register/lost-password form itself. Standalone gate shows a dedicated "verify you\'re not a robot" page before the form is reachable at all - since WordPress redirects every logged-out admin request to wp-login.php, this also protects the whole admin, not just the login form. The gate ignores enforcement mode below and always applies (adaptive mode only affects the inline widget).', 'ux-studio' ),
 				'options' => array(
 					'inline' => __( 'Inline widget in the form', 'ux-studio' ),
-					'gate'   => __( 'Standalone page before login (also gates wp-admin)', 'ux-studio' ),
+					'gate'   => __( 'Standalone page before login', 'ux-studio' ),
 				),
 				'default' => 'gate',
 			),
