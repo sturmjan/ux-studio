@@ -113,4 +113,9 @@ return array(
 		'effect' => __( 'A picture makes the page look finished. The image field appears once you turn it on.', 'ux-studio' ),
 		'risk  ' => __( 'A large photo slows the page on a weak connection. Use a compressed image.', 'ux-studio' ),
 	),
+	'background_image' => array(
+		'does  ' => __( 'The picture shown behind the content of the maintenance page.', 'ux-studio' ),
+		'effect' => __( 'It fills the whole screen, so choose a wide picture and leave space for the text.', 'ux-studio' ),
+		'risk  ' => __( 'A large photo slows the page on a weak connection. Use a compressed image.', 'ux-studio' ),
+	),
 );
