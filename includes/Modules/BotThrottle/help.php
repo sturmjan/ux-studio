@@ -15,9 +15,9 @@ return array(
 	),
 	'verify_rdns'         => array(
 		'does'   => __( 'For the big search engines (Google, Bing, Yandex, DuckDuckGo, Apple, Seznam) the module asks the domain name system who really owns the address ([[dns|reverse DNS]]) and checks that it fits the name the robot gave. The answer is remembered for a day.', 'ux-studio' ),
-		'effect' => __( 'It is meant to tell a fake robot that only pretends to be Googlebot from a real one. In this version the answer is not used yet by the throttling rules, so turning it on changes nothing for visitors.', 'ux-studio' ),
+		'effect' => __( 'A fake robot that only pretends to be Googlebot (its address belongs to somebody else) is treated as an unknown crawler: it is slowed down strongly, and turned away when the server is overloaded. A real one is let through as a search engine. When the address gives no answer at all, the robot gets the benefit of the doubt and is not slowed down.', 'ux-studio' ),
 		'risk'   => __( 'Every new robot address costs one extra name lookup, which can be slow when the DNS server of the host is slow.', 'ux-studio' ),
-		'off'    => __( 'Leave it off for now. It adds lookups without changing the result.', 'ux-studio' ),
+		'off'    => __( 'Leave it off if you do not see fake search engine robots in the Log tab.', 'ux-studio' ),
 	),
 	'requests_per_minute' => array(
 		'does'   => __( 'The most page requests one IP address may make per minute, whoever it is. The limit protects against floods and runaway scripts (a simple denial-of-service protection). 0 turns it off.', 'ux-studio' ),
@@ -113,7 +113,7 @@ return array(
 	),
 	'blacklist_ua'        => array(
 		'does'   => __( 'Robots whose [[user-agent|User-Agent]] contains one of these words, one per line, are always treated as unwelcome crawlers, even when the module would otherwise not know them. The list is filled with common SEO crawlers.', 'ux-studio' ),
-		'effect' => __( 'These robots are slowed down when the server is busy, and turned away when it is overloaded. When the server is calm they pass untouched.', 'ux-studio' ),
+		'effect' => __( 'These robots are always slowed down, a little when the server is calm and strongly when it is busy, and turned away when it is overloaded.', 'ux-studio' ),
 		'risk'   => __( 'A word that also appears in the name of a useful robot would slow it down as well. Use a distinctive word.', 'ux-studio' ),
 	),
 );
