@@ -124,7 +124,7 @@ final class Rest extends Controller {
 		if ( '' === $text ) {
 			return '';
 		}
-		// phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText -- dynamic by design; msgids are registered manually in languages/ux-studio-meta.php.
+		// phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText -- dynamic by design; msgids are kept in the .po (languages/README.md, po-apply-dict.py).
 		return translate( $text, 'ux-studio' );
 	}
 

@@ -36,7 +36,7 @@ final class Exporter {
 	 * @param string $text English source.
 	 */
 	private function t( string $text ): string {
-		// phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText -- msgids are registered in languages/ux-studio-meta.php.
+		// phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText -- msgids are kept in the .po (languages/README.md, po-apply-dict.py).
 		return '' === $text ? '' : translate( $text, 'ux-studio' );
 	}
 
