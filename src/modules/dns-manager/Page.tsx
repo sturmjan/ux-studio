@@ -3,6 +3,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Lock, LoaderCircle, Pencil, Plus, RefreshCw, Trash2, Undo2 } from 'lucide-react';
 import { api, ApiError, queryClient } from '../../app/api';
+import { HelpText } from '../../components/GlossaryTerm';
 import { navigate } from '../../app/route';
 import { SettingsFields, useModuleSettings } from '../../app/SettingsForm';
 import { TabsNav } from '../../app/SubNav';
@@ -512,11 +513,17 @@ function RecordForm( {
 					<input id="uxs-dns-comment" type="text" maxLength={ 100 } value={ draft.comment } onChange={ ( e ) => set( { comment: e.target.value } ) } />
 				</div>
 			</div>
+			<p className="uxs-form__help">
+				<HelpText text={ __( 'The [[ttl|TTL]] says how long other servers remember the record before they ask again. A short time makes a change visible sooner, a long one lowers the load. The priority matters for mail (MX) records only: the server with the lower number is tried first.', 'ux-studio' ) } />
+			</p>
 			{ [ 'A', 'AAAA', 'CNAME' ].includes( draft.type ) && (
 				<label style={ { display: 'block', marginTop: 'var(--uxs-sp-3)' } }>
 					<input type="checkbox" checked={ draft.proxied && ! proxyOff } disabled={ proxyOff } onChange={ ( e ) => set( { proxied: e.target.checked } ) } />{ ' ' }
 					{ __( 'Proxied through Cloudflare (orange cloud)', 'ux-studio' ) }
-					{ proxyOff && <small style={ { color: 'var(--uxs-text-soft)' } }> - { __( 'not available for this record', 'ux-studio' ) }</small> }
+					{ proxyOff && <small style={ { color: 'var(--uxs-text-soft)' } }> ({ __( 'not available for this record', 'ux-studio' ) })</small> }
+					<span className="uxs-form__help" style={ { display: 'block' } }>
+						{ __( 'With the orange cloud the visitors reach the site through Cloudflare, which hides the real address of the server. The TTL is then set by Cloudflare. Leave it off for mail and verification records.', 'ux-studio' ) }
+					</span>
 				</label>
 			) }
 			{ localError && (
@@ -992,7 +999,7 @@ export default function Page(): JSX.Element {
 					{ zone && <small style={ { color: 'var(--uxs-text-soft)', marginLeft: 8 } }>{ zone }</small> }
 				</h1>
 			</header>
-			<Banner />
+			{ s?.active ? <Banner /> : null }
 			<TabsNav>
 				{ tabs.map( ( [ id, label ] ) => (
 					<button key={ id } className={ tab === id ? 'is-active' : '' } onClick={ () => setTab( id ) }>
@@ -1003,7 +1010,7 @@ export default function Page(): JSX.Element {
 			{ status.isLoading && <Loading /> }
 			{ status.isError && errorBox( status.error ) }
 			{ s && tab !== 'settings' && ! s.active && (
-				<div className="uxs-notice" role="status">
+				<div className="uxs-notice" role="status" style={ { maxWidth: 'none' } }>
 					<p>{ inactiveText[ s.reason ?? '' ] ?? inactiveText.not_configured }</p>
 				</div>
 			) }

@@ -6,6 +6,7 @@ import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import { TabsNav } from '../../app/SubNav';
 import { formatDate } from '../../app/date';
+import { HelpText } from '../../components/GlossaryTerm';
 
 type Tab = 'analyze' | 'history';
 
@@ -92,7 +93,11 @@ function AnalyzeTab(): JSX.Element {
 								type="button"
 								className="button"
 								disabled={ metrics.revisions === 0 || fix.isPending }
-								onClick={ () => fix.mutate( 'revisions' ) }
+								onClick={ () => {
+									if ( window.confirm( __( 'Delete all saved revisions of posts and pages? The current content stays, but you can no longer go back to older versions. This cannot be undone.', 'ux-studio' ) ) ) {
+										fix.mutate( 'revisions' );
+									}
+								} }
 							>
 								<Wrench size={ 14 } /> { __( 'Delete revisions', 'ux-studio' ) }
 							</button>
@@ -106,7 +111,11 @@ function AnalyzeTab(): JSX.Element {
 								type="button"
 								className="button"
 								disabled={ metrics.spam_comments === 0 || fix.isPending }
-								onClick={ () => fix.mutate( 'spam_comments' ) }
+								onClick={ () => {
+									if ( window.confirm( __( 'Delete all comments marked as spam? They are removed from the database for good and cannot be restored.', 'ux-studio' ) ) ) {
+										fix.mutate( 'spam_comments' );
+									}
+								} }
 							>
 								<Wrench size={ 14 } /> { __( 'Delete spam comments', 'ux-studio' ) }
 							</button>
@@ -127,7 +136,11 @@ function AnalyzeTab(): JSX.Element {
 								type="button"
 								className="button"
 								disabled={ metrics.transients_count === 0 || fix.isPending }
-								onClick={ () => fix.mutate( 'expired_transients' ) }
+								onClick={ () => {
+									if ( window.confirm( __( 'Delete expired temporary data (transients)? Only entries that have already expired are removed, WordPress would delete them anyway.', 'ux-studio' ) ) ) {
+										fix.mutate( 'expired_transients' );
+									}
+								} }
 							>
 								<Wrench size={ 14 } /> { __( 'Delete expired transients', 'ux-studio' ) }
 							</button>
@@ -135,6 +148,17 @@ function AnalyzeTab(): JSX.Element {
 					</tr>
 				</tbody>
 			</table></div>
+			<div className="uxs-form" style={ { marginTop: 'var(--uxs-sp-5)' } }>
+				<p className="uxs-form__help">
+					<strong>{ __( 'Post revisions', 'ux-studio' ) }</strong>: { __( 'WordPress saves a copy of a post every time you update it, so you can go back. Old copies pile up in the database. Deleting them keeps the current content and removes only the history.', 'ux-studio' ) }
+				</p>
+				<p className="uxs-form__help">
+					<strong>{ __( 'Spam comments', 'ux-studio' ) }</strong>: { __( 'Comments marked as spam stay in the database until someone deletes them. Deleting them is final.', 'ux-studio' ) }
+				</p>
+				<p className="uxs-form__help">
+					<strong>{ __( 'Transients', 'ux-studio' ) }</strong>: <HelpText text={ __( 'Temporary values that plugins keep for a while, so they do not have to compute them again ([[transient|transients]]). Expired ones are useless and safe to delete.', 'ux-studio' ) } />
+				</p>
+			</div>
 			{ fix.isSuccess ? <p className="uxs-badge is-success">{ __( 'Fix applied.', 'ux-studio' ) }</p> : null }
 		</>
 	);

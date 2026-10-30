@@ -95,10 +95,12 @@ function AddSiteForm(): JSX.Element {
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-cs-name">{ __( 'Node name', 'ux-studio' ) }</label>
 				<input id="uxs-cs-name" type="text" value={ name } onChange={ ( e ) => setName( e.target.value ) } placeholder={ __( 'e.g. Client hotel site', 'ux-studio' ) } />
+				<p className="uxs-form__help">{ __( 'A name for you, to recognize the site in the list. A node is a site managed from this one.', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-cs-url">{ __( 'Node URL', 'ux-studio' ) }</label>
 				<input id="uxs-cs-url" type="text" value={ url } onChange={ ( e ) => setUrl( e.target.value ) } placeholder="https://node.example.com" />
+				<p className="uxs-form__help">{ __( 'The address of the managed site, with https:// at the start.', 'ux-studio' ) }</p>
 			</div>
 			<div className="uxs-form__row">
 				<label htmlFor="uxs-cs-key">{ __( 'Shared API key', 'ux-studio' ) }</label>
@@ -228,6 +230,7 @@ function PushTab(): JSX.Element {
 				<div className="uxs-form__row">
 					<label htmlFor="uxs-cs-search">{ __( 'Find content to push', 'ux-studio' ) }</label>
 					<input id="uxs-cs-search" type="text" value={ search } onChange={ ( e ) => setSearch( e.target.value ) } placeholder={ __( 'Search posts…', 'ux-studio' ) } />
+					<p className="uxs-form__help">{ __( 'Type part of the title of the post or page you want to send to a node.', 'ux-studio' ) }</p>
 				</div>
 			</div>
 
@@ -519,10 +522,12 @@ function RemoteTab(): JSX.Element {
 					<div className="uxs-form__row">
 						<label htmlFor="uxs-cs-rp-excerpt">{ __( 'Excerpt', 'ux-studio' ) }</label>
 						<textarea id="uxs-cs-rp-excerpt" rows={ 3 } value={ draft.excerpt } onChange={ ( e ) => setDraft( { ...draft, excerpt: e.target.value } ) } />
+						<p className="uxs-form__help">{ __( 'A short summary that lists and search results show instead of the whole text.', 'ux-studio' ) }</p>
 					</div>
 					<div className="uxs-form__row">
 						<label htmlFor="uxs-cs-rp-content">{ __( 'Content (HTML)', 'ux-studio' ) }</label>
 						<textarea id="uxs-cs-rp-content" rows={ 14 } value={ draft.content } onChange={ ( e ) => setDraft( { ...draft, content: e.target.value } ) } />
+						<p className="uxs-form__help">{ __( 'The text of the post as HTML code. A mistake here changes the live page on the node once you save.', 'ux-studio' ) }</p>
 					</div>
 					<button type="button" className="button button-primary" disabled={ save.isPending || draft.title.trim() === '' } onClick={ () => save.mutate( draft ) }>
 						{ save.isPending ? <LoaderCircle size={ 14 } /> : null } { __( 'Save on node', 'ux-studio' ) }

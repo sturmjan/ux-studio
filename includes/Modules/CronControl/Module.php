@@ -517,6 +517,9 @@ final class Module extends BaseModule {
 						'timestamp'      => (int) $timestamp,
 						'next_run_human' => $this->human_time( (int) $timestamp ),
 						'schedule'       => $schedule,
+						'schedule_label' => null === $schedule ? '' : self::schedule_label( $schedule, (string) ( $schedules[ $schedule ]['display'] ?? '' ) ),
+						'schedule_origin' => null === $schedule ? '' : self::schedule_origin( $schedule ),
+						'source'         => $this->hook_source( (string) $hook ),
 						'interval'       => $interval,
 						'args'           => isset( $entry['args'] ) && is_array( $entry['args'] ) ? array_values( $entry['args'] ) : array(),
 					);
@@ -647,14 +650,15 @@ final class Module extends BaseModule {
 	/**
 	 * List the registered cron schedules (display name + interval).
 	 *
-	 * @return array<int, array{name:string,display:string,interval:int}>
+	 * @return array<int, array{name:string,display:string,origin:string,interval:int}>
 	 */
 	public function get_schedules(): array {
 		$out = array();
 		foreach ( wp_get_schedules() as $name => $schedule ) {
 			$out[] = array(
 				'name'     => (string) $name,
-				'display'  => (string) ( $schedule['display'] ?? $name ),
+				'display'  => self::schedule_label( (string) $name, (string) ( $schedule['display'] ?? $name ) ),
+				'origin'   => self::schedule_origin( (string) $name ),
 				'interval' => (int) ( $schedule['interval'] ?? 0 ),
 			);
 		}
@@ -1104,6 +1108,127 @@ final class Module extends BaseModule {
 		$key = md5( serialize( $args ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 
 		return isset( $cron[ $timestamp ][ $hook ][ $key ] );
+	}
+
+	/**
+	 * Where a schedule comes from: `core` (WordPress itself), `ours` (the intervals saved in this module) or
+	 * `plugin` (registered by some other plugin or theme, its name is not ours to translate).
+	 *
+	 * @param string $name Schedule id.
+	 */
+	public static function schedule_origin( string $name ): string {
+		if ( in_array( $name, array( 'hourly', 'twicedaily', 'daily', 'weekly' ), true ) ) {
+			return 'core';
+		}
+		return isset( self::custom_schedules()[ $name ] ) ? 'ours' : 'plugin';
+	}
+
+	/**
+	 * Readable name of a schedule: the WordPress ones in the language of the user, the rest as registered.
+	 *
+	 * @param string $name    Schedule id.
+	 * @param string $display Name the schedule was registered with.
+	 */
+	public static function schedule_label( string $name, string $display ): string {
+		$core = array(
+			'hourly'     => __( 'Every hour', 'ux-studio' ),
+			'twicedaily' => __( 'Twice a day', 'ux-studio' ),
+			'daily'      => __( 'Once a day', 'ux-studio' ),
+			'weekly'     => __( 'Once a week', 'ux-studio' ),
+		);
+		if ( isset( $core[ $name ] ) ) {
+			return $core[ $name ];
+		}
+		return '' !== $display ? $display : $name;
+	}
+
+	/**
+	 * Which part of the site registered the callback of a hook (WordPress, a plugin, the theme), for the
+	 * events list. Empty when the hook has no callback at the moment (for example its plugin is off).
+	 *
+	 * @param string $hook Hook name.
+	 */
+	private function hook_source( string $hook ): string {
+		static $cache = array();
+		if ( isset( $cache[ $hook ] ) ) {
+			return $cache[ $hook ];
+		}
+		global $wp_filter;
+		$cache[ $hook ] = '';
+		if ( ! isset( $wp_filter[ $hook ] ) || ! ( $wp_filter[ $hook ] instanceof \WP_Hook ) ) {
+			return '';
+		}
+		foreach ( $wp_filter[ $hook ]->callbacks as $callbacks ) {
+			foreach ( $callbacks as $cb ) {
+				$file = self::callback_file( $cb['function'] ?? null );
+				if ( null !== $file ) {
+					$cache[ $hook ] = self::source_of_file( $file );
+					return $cache[ $hook ];
+				}
+			}
+		}
+		return '';
+	}
+
+	/**
+	 * File a callback is defined in.
+	 *
+	 * @param mixed $fn Callback.
+	 */
+	private static function callback_file( $fn ): ?string {
+		try {
+			if ( is_string( $fn ) && function_exists( $fn ) || $fn instanceof \Closure ) {
+				return ( new \ReflectionFunction( $fn ) )->getFileName() ?: null;
+			}
+			if ( is_array( $fn ) && 2 === count( $fn ) ) {
+				return ( new \ReflectionMethod( $fn[0], $fn[1] ) )->getFileName() ?: null;
+			}
+			if ( is_object( $fn ) && method_exists( $fn, '__invoke' ) ) {
+				return ( new \ReflectionMethod( $fn, '__invoke' ) )->getFileName() ?: null;
+			}
+		} catch ( \Throwable $e ) {
+			return null;
+		}
+		return null;
+	}
+
+	/**
+	 * Name of the plugin, theme or WordPress that owns a file.
+	 *
+	 * @param string $file Absolute path.
+	 */
+	private static function source_of_file( string $file ): string {
+		$file = wp_normalize_path( $file );
+		$plug = trailingslashit( wp_normalize_path( WP_PLUGIN_DIR ) );
+		$mu   = trailingslashit( wp_normalize_path( WPMU_PLUGIN_DIR ) );
+		$root = trailingslashit( wp_normalize_path( get_theme_root() ) );
+		if ( 0 === strpos( $file, $plug ) ) {
+			$folder = strtok( substr( $file, strlen( $plug ) ), '/' );
+			if ( ! function_exists( 'get_plugins' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/plugin.php';
+			}
+			static $names = null;
+			if ( null === $names ) {
+				$names = array();
+				foreach ( get_plugins() as $path => $data ) {
+					$names[ (string) strtok( $path, '/' ) ] = (string) ( $data['Name'] ?? '' );
+				}
+			}
+			$key = (string) $folder;
+			return '' !== ( $names[ $key ] ?? '' ) ? $names[ $key ] : $key;
+		}
+		if ( 0 === strpos( $file, $mu ) ) {
+			return (string) strtok( substr( $file, strlen( $mu ) ), '/' );
+		}
+		if ( 0 === strpos( $file, $root ) ) {
+			$dir = (string) strtok( substr( $file, strlen( $root ) ), '/' );
+			$name = wp_get_theme( $dir )->get( 'Name' );
+			return is_string( $name ) && '' !== $name ? $name : $dir;
+		}
+		if ( 0 === strpos( $file, trailingslashit( wp_normalize_path( ABSPATH ) ) ) ) {
+			return 'WordPress';
+		}
+		return '';
 	}
 
 	/**
