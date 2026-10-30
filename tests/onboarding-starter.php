@@ -435,7 +435,7 @@ $assert( 'the risks that were promised are stated honestly', false !== stripos( 
 foreach ( array( 'security_headers', 'enable_permissions_policy', 'force_https', 'protect_login' ) as $key ) {
 	$assert( "$key is in the schema code (so its help can carry the explanation)", false !== strpos( $module_code, "'key'     => '$key'" ) );
 }
-$assert( 'the schema attaches SettingHelp to every option', false !== strpos( $module_code, "SettingHelp::for_key( (string) ( \$field['key'] ?? '' ) )" ) );
+$assert( 'the REST layer attaches the shared SettingHelp registry to every option', false !== strpos( (string) file_get_contents( $root . '/includes/Core/Rest.php' ), 'SettingHelp::attach(' ) && is_file( $root . '/includes/Modules/SecurityOptimization/help.php' ) );
 
 /* ── AutoStart: a new site gets the starter pack ── */
 

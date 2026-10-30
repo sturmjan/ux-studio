@@ -90,7 +90,7 @@ final class Rest extends Controller {
 		return $this->ok(
 			array(
 				'name'   => $this->translate_meta( $meta['name'] ?? (string) $request['id'] ),
-				'schema' => $module->settings_schema(),
+				'schema' => SettingHelp::attach( (string) $request['id'], $module->settings_schema() ),
 				'values' => $module->settings_values(),
 			)
 		);

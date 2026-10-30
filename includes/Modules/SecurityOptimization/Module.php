@@ -478,18 +478,11 @@ final class Module extends BaseModule {
 	   ═══════════════════════════════════════════════════ */
 
 	/**
-	 * The schema with the plain-language explanation (SettingHelp) added to every option that has one: the screen
-	 * shows it under the help line as "Details".
+	 * The settings schema. The plain-language explanation of each option (help.php) is attached to it by the REST
+	 * layer, through Core\SettingHelp, like for every other module.
 	 */
 	public function settings_schema(): array {
-		$fields = $this->base_schema();
-		foreach ( $fields as $i => $field ) {
-			$explain = SettingHelp::for_key( (string) ( $field['key'] ?? '' ) );
-			if ( null !== $explain ) {
-				$fields[ $i ]['explain'] = $explain;
-			}
-		}
-		return $fields;
+		return $this->base_schema();
 	}
 
 	private function base_schema(): array {
