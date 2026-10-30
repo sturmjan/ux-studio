@@ -75,7 +75,7 @@ function AnalyzeTab(): JSX.Element {
 				</button>
 			</div>
 
-			<table className="uxs-table">
+			<div className="uxs-table-wrap"><table className="uxs-table">
 				<thead>
 					<tr>
 						<th>{ __( 'Check', 'ux-studio' ) }</th>
@@ -134,7 +134,7 @@ function AnalyzeTab(): JSX.Element {
 						</td>
 					</tr>
 				</tbody>
-			</table>
+			</table></div>
 			{ fix.isSuccess ? <p className="uxs-badge is-success">{ __( 'Fix applied.', 'ux-studio' ) }</p> : null }
 		</>
 	);
@@ -158,7 +158,7 @@ function HistoryTab(): JSX.Element {
 	}
 
 	return (
-		<table className="uxs-table">
+		<div className="uxs-table-wrap"><table className="uxs-table">
 			<thead>
 				<tr>
 					<th>{ __( 'Date', 'ux-studio' ) }</th>
@@ -173,7 +173,7 @@ function HistoryTab(): JSX.Element {
 					</tr>
 				) ) }
 			</tbody>
-		</table>
+		</table></div>
 	);
 }
 

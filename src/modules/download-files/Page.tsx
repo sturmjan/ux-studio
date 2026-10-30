@@ -222,7 +222,7 @@ function FilesTable(): JSX.Element {
 			) : null }
 			{ ! isLoading && ( ! data || data.length === 0 ) ? <p>{ __( 'No protected files yet.', 'ux-studio' ) }</p> : null }
 			{ ! isLoading && data && data.length > 0 ? (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Title', 'ux-studio' ) }</th>
@@ -266,7 +266,7 @@ function FilesTable(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) : null }
 		</>
 	);

@@ -209,7 +209,7 @@ function SnippetsTable( {
 			) : snippets.length === 0 ? (
 				<p>{ __( 'No snippets have been created yet.', 'ux-studio' ) }</p>
 			) : (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Name', 'ux-studio' ) }</th>
@@ -284,7 +284,7 @@ function SnippetsTable( {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 		</>
 	);

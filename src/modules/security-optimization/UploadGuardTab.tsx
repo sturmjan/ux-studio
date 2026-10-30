@@ -190,7 +190,7 @@ export function UploadGuardTab(): JSX.Element {
 			) : ! findings.data || findings.data.length === 0 ? (
 				<p>{ __( 'No findings in this category.', 'ux-studio' ) }</p>
 			) : (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'File', 'ux-studio' ) }</th>
@@ -264,7 +264,7 @@ export function UploadGuardTab(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 		</>
 	);

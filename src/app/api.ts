@@ -105,6 +105,8 @@ export interface ModuleInfo {
 	parent?: string | null;
 	/** Feature ids of a virtual group tile (empty for normal modules). */
 	children?: string[];
+	/** Short "How it works" text (meta.json `how`), shown on the page of a module without settings. */
+	how?: string;
 }
 
 /** One overlap between an enabled UX Studio module and an active foreign plugin (GET /overlaps). */

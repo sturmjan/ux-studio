@@ -88,7 +88,7 @@ function CacheTab(): JSX.Element {
 					<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />
 				</div>
 			) : (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Post', 'ux-studio' ) }</th>
@@ -119,7 +119,7 @@ function CacheTab(): JSX.Element {
 							</tr>
 						) : null }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 		</>
 	);
@@ -218,7 +218,7 @@ function LogTab(): JSX.Element {
 			</p>
 
 			{ stats && stats.bots.length > 0 ? (
-				<table className="uxs-table" style={ { maxWidth: 480, marginBottom: 'var(--uxs-sp-5)' } }>
+				<div className="uxs-table-wrap" style={ { maxWidth: 480, marginBottom: 'var(--uxs-sp-5)' } }><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'AI bot', 'ux-studio' ) }</th>
@@ -244,7 +244,7 @@ function LogTab(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) : null }
 
 			<div style={ { display: 'flex', flexWrap: 'wrap', gap: 'var(--uxs-sp-3)', alignItems: 'center', marginBottom: 'var(--uxs-sp-3)' } }>
@@ -308,7 +308,7 @@ function LogTab(): JSX.Element {
 				<p>{ __( 'No AI bot has accessed the markdown endpoints yet.', 'ux-studio' ) }</p>
 			) : (
 				<>
-					<table className="uxs-table">
+					<div className="uxs-table-wrap"><table className="uxs-table">
 						<thead>
 							<tr>
 								<th style={ { width: 28 } }>
@@ -359,7 +359,7 @@ function LogTab(): JSX.Element {
 								</tr>
 							) ) }
 						</tbody>
-					</table>
+					</table></div>
 					<div style={ { display: 'flex', gap: 'var(--uxs-sp-3)', alignItems: 'center', marginTop: 'var(--uxs-sp-4)' } }>
 						<button type="button" className="button" disabled={ page === 0 } onClick={ () => setPage( ( p ) => p - 1 ) }>
 							{ __( 'Previous', 'ux-studio' ) }

@@ -267,7 +267,7 @@ export default function UrlEventsView(): JSX.Element {
 			) : ! events.data || events.data.length === 0 ? (
 				<p>{ __( 'No URL events yet.', 'ux-studio' ) }</p>
 			) : (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Event', 'ux-studio' ) }</th>
@@ -328,7 +328,7 @@ export default function UrlEventsView(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 		</>
 	);

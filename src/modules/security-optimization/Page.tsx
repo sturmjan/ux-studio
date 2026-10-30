@@ -272,7 +272,7 @@ function LoginAttemptsTab(): JSX.Element {
 			{ ! data || data.length === 0 ? (
 				<p>{ __( 'No failed login attempts recorded.', 'ux-studio' ) }</p>
 			) : (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Username', 'ux-studio' ) }</th>
@@ -316,7 +316,7 @@ function LoginAttemptsTab(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 		</>
 	);
@@ -387,7 +387,7 @@ function TwoFactorData(): JSX.Element {
 			{ data.users.length === 0 ? (
 				<p>{ __( 'Nobody has set it up yet.', 'ux-studio' ) }</p>
 			) : (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'User', 'ux-studio' ) }</th>
@@ -421,13 +421,13 @@ function TwoFactorData(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 
 			{ data.missing.length > 0 && (
 				<>
 					<h4>{ __( 'Required, not set up yet', 'ux-studio' ) }</h4>
-					<table className="uxs-table">
+					<div className="uxs-table-wrap"><table className="uxs-table">
 						<thead>
 							<tr>
 								<th>{ __( 'User', 'ux-studio' ) }</th>
@@ -456,7 +456,7 @@ function TwoFactorData(): JSX.Element {
 								</tr>
 							) ) }
 						</tbody>
-					</table>
+					</table></div>
 				</>
 			) }
 		</>
@@ -545,7 +545,7 @@ function IpBansTab(): JSX.Element {
 			) : ! data || data.length === 0 ? (
 				<p>{ __( 'No IP bans yet.', 'ux-studio' ) }</p>
 			) : (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Target', 'ux-studio' ) }</th>
@@ -604,7 +604,7 @@ function IpBansTab(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 		</>
 	);

@@ -717,7 +717,7 @@ function RecordsTab( { status, zone }: { status: DnsStatus; zone: string } ): JS
 			{ records.isError && errorBox( records.error ) }
 			{ records.data && shown.length === 0 && <p>{ __( 'No records found.', 'ux-studio' ) }</p> }
 			{ shown.length > 0 && (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Type', 'ux-studio' ) }</th>
@@ -767,7 +767,7 @@ function RecordsTab( { status, zone }: { status: DnsStatus; zone: string } ): JS
 							);
 						} ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 			{ pending && (
 				<ConfirmDialog pending={ pending } zone={ zone } busy={ run.isPending } error={ run.error } onConfirm={ () => run.mutate( pending ) } onCancel={ () => setPending( null ) } onRefresh={ refresh } />
@@ -884,7 +884,7 @@ function HistoryTab( { status, zone }: { status: DnsStatus; zone: string } ): JS
 			{ log.isError && errorBox( log.error ) }
 			{ log.data && rows.length === 0 && <p>{ __( 'No changes recorded.', 'ux-studio' ) }</p> }
 			{ rows.length > 0 && (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'When', 'ux-studio' ) }</th>
@@ -921,7 +921,7 @@ function HistoryTab( { status, zone }: { status: DnsStatus; zone: string } ): JS
 							);
 						} ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 			<div style={ { display: 'flex', gap: 'var(--uxs-sp-3)', marginTop: 'var(--uxs-sp-4)' } }>
 				<button type="button" className="button" disabled={ page === 1 } onClick={ () => setPage( ( p ) => p - 1 ) }>

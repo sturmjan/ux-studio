@@ -130,7 +130,7 @@ function ActivityList(): JSX.Element {
 	}
 
 	return (
-		<table className="uxs-table">
+		<div className="uxs-table-wrap"><table className="uxs-table">
 			<thead>
 				<tr>
 					<th>{ __( 'Date', 'ux-studio' ) }</th>
@@ -149,7 +149,7 @@ function ActivityList(): JSX.Element {
 					</tr>
 				) ) }
 			</tbody>
-		</table>
+		</table></div>
 	);
 }
 

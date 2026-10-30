@@ -75,7 +75,6 @@ export function GroupPage( { groupId }: { groupId: string } ): JSX.Element {
 						type="button"
 						onClick={ () => navigate( '' ) }
 						aria-label={ __( 'Back to modules', 'ux-studio' ) }
-						style={ { background: 'none', border: 'none', cursor: 'pointer', verticalAlign: 'middle' } }
 					>
 						<ArrowLeft size={ 18 } />
 					</button>{ ' ' }

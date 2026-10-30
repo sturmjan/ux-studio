@@ -194,7 +194,7 @@ function SendTab(): JSX.Element {
 			{ isLoading ? <Loading /> : null }
 			{ ! isLoading && ( ! data || data.length === 0 ) ? <p>{ __( 'No notifications yet.', 'ux-studio' ) }</p> : null }
 			{ ! isLoading && data && data.length > 0 ? (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Title', 'ux-studio' ) }</th>
@@ -252,7 +252,7 @@ function SendTab(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) : null }
 		</>
 	);
@@ -292,7 +292,7 @@ function SubscribersTab(): JSX.Element {
 	const custom = ( segments.data ?? [] ).filter( ( s ) => s.type === 'custom' );
 
 	return (
-		<table className="uxs-table">
+		<div className="uxs-table-wrap"><table className="uxs-table">
 			<thead>
 				<tr>
 					<th>{ __( 'Date', 'ux-studio' ) }</th>
@@ -361,7 +361,7 @@ function SubscribersTab(): JSX.Element {
 					</tr>
 				) ) }
 			</tbody>
-		</table>
+		</table></div>
 	);
 }
 
@@ -398,7 +398,7 @@ function SegmentsTab(): JSX.Element {
 			{ isLoading ? <Loading /> : null }
 			{ ! isLoading && ( ! data || data.length === 0 ) ? <p>{ __( 'No segments yet.', 'ux-studio' ) }</p> : null }
 			{ ! isLoading && data && data.length > 0 ? (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Name', 'ux-studio' ) }</th>
@@ -441,7 +441,7 @@ function SegmentsTab(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) : null }
 		</>
 	);

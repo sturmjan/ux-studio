@@ -115,7 +115,7 @@ function OverviewTab(): JSX.Element {
 					</p>
 				</div>
 			</div>
-			<table className="uxs-table">
+			<div className="uxs-table-wrap"><table className="uxs-table">
 				<thead>
 					<tr>
 						<th>{ __( 'Hour', 'ux-studio' ) }</th>
@@ -139,11 +139,11 @@ function OverviewTab(): JSX.Element {
 						</tr>
 					) : null }
 				</tbody>
-			</table>
+			</table></div>
 			<h2 style={ { fontSize: 'var(--uxs-fs-m)', margin: 'var(--uxs-sp-5) 0 var(--uxs-sp-3)' } }>
 				{ __( 'Recent requests', 'ux-studio' ) }
 			</h2>
-			<table className="uxs-table">
+			<div className="uxs-table-wrap"><table className="uxs-table">
 				<thead>
 					<tr>
 						<th>{ __( 'Time', 'ux-studio' ) }</th>
@@ -169,7 +169,7 @@ function OverviewTab(): JSX.Element {
 						</tr>
 					) : null }
 				</tbody>
-			</table>
+			</table></div>
 		</>
 	);
 }
@@ -201,7 +201,7 @@ function ImpactTab(): JSX.Element {
 					</p>
 				</div>
 			</div>
-			<table className="uxs-table">
+			<div className="uxs-table-wrap"><table className="uxs-table">
 				<thead>
 					<tr>
 						<th>{ __( 'Plugin', 'ux-studio' ) }</th>
@@ -232,11 +232,11 @@ function ImpactTab(): JSX.Element {
 						</tr>
 					) : null }
 				</tbody>
-			</table>
+			</table></div>
 			<h2 style={ { fontSize: 'var(--uxs-fs-m)', margin: 'var(--uxs-sp-5) 0 var(--uxs-sp-3)' } }>
 				{ __( 'Recent benchmark events', 'ux-studio' ) }
 			</h2>
-			<table className="uxs-table">
+			<div className="uxs-table-wrap"><table className="uxs-table">
 				<thead>
 					<tr>
 						<th>{ __( 'Time', 'ux-studio' ) }</th>
@@ -266,7 +266,7 @@ function ImpactTab(): JSX.Element {
 						</tr>
 					) : null }
 				</tbody>
-			</table>
+			</table></div>
 		</>
 	);
 }

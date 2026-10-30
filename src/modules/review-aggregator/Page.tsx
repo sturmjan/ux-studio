@@ -130,7 +130,7 @@ function ReviewsTab(): JSX.Element {
 			) : null }
 			{ ! isLoading && ( ! data || data.length === 0 ) ? <p>{ __( 'No reviews yet.', 'ux-studio' ) }</p> : null }
 			{ ! isLoading && data && data.length > 0 ? (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Source', 'ux-studio' ) }</th>
@@ -207,7 +207,7 @@ function ReviewsTab(): JSX.Element {
 							</Fragment>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) : null }
 		</>
 	);
@@ -238,7 +238,7 @@ function StatsTab(): JSX.Element {
 				{ ' · ' }
 				{ __( 'Average rating:', 'ux-studio' ) } <strong>{ data.average }</strong>
 			</p>
-			<table className="uxs-table">
+			<div className="uxs-table-wrap"><table className="uxs-table">
 				<thead>
 					<tr>
 						<th>{ __( 'Source', 'ux-studio' ) }</th>
@@ -255,7 +255,7 @@ function StatsTab(): JSX.Element {
 						</tr>
 					) ) }
 				</tbody>
-			</table>
+			</table></div>
 		</>
 	);
 }

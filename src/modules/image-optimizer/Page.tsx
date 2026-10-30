@@ -265,7 +265,7 @@ function ScannerTab(): JSX.Element {
 			) : null }
 
 			{ data && data.items.length > 0 ? (
-				<table className="widefat striped">
+				<div className="uxs-scroll-x"><table className="widefat striped">
 					<thead>
 						<tr>
 							<th style={ { width: 32 } } />
@@ -305,7 +305,7 @@ function ScannerTab(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) : null }
 
 			{ data && data.total_pages > 1 ? (

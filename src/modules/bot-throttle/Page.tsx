@@ -102,7 +102,7 @@ function DashboardTab(): JSX.Element {
 			{ data.stats_24h.top_bots.length === 0 ? (
 				<p>{ __( 'No data yet.', 'ux-studio' ) }</p>
 			) : (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Bot', 'ux-studio' ) }</th>
@@ -121,11 +121,11 @@ function DashboardTab(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 
 			<h3>{ __( 'Category rules', 'ux-studio' ) }</h3>
-			<table className="uxs-table">
+			<div className="uxs-table-wrap"><table className="uxs-table">
 				<thead>
 					<tr>
 						<th>{ __( 'Category', 'ux-studio' ) }</th>
@@ -142,7 +142,7 @@ function DashboardTab(): JSX.Element {
 						</tr>
 					) ) }
 				</tbody>
-			</table>
+			</table></div>
 
 			<p style={ { marginTop: 16 } }>
 				<button type="button" className="button" onClick={ () => clearCache.mutate() }>
@@ -177,7 +177,7 @@ function LogTab(): JSX.Element {
 					{ __( 'Clear log', 'ux-studio' ) }
 				</button>
 			</p>
-			<table className="uxs-table">
+			<div className="uxs-table-wrap"><table className="uxs-table">
 				<thead>
 					<tr>
 						<th>{ __( 'Date', 'ux-studio' ) }</th>
@@ -208,7 +208,7 @@ function LogTab(): JSX.Element {
 						</tr>
 					) ) }
 				</tbody>
-			</table>
+			</table></div>
 		</>
 	);
 }
@@ -259,7 +259,7 @@ function TestTab(): JSX.Element {
 				</button>
 			</p>
 			{ run.data && (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<tbody>
 						<tr><th>{ __( 'Detected as bot', 'ux-studio' ) }</th><td>{ run.data.detected ? __( 'Yes', 'ux-studio' ) : __( 'No', 'ux-studio' ) }</td></tr>
 						{ run.data.bot && (
@@ -276,7 +276,7 @@ function TestTab(): JSX.Element {
 							</>
 						) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 		</div>
 	);

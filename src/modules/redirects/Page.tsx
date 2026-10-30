@@ -416,24 +416,19 @@ function RulesTab( { draft, setDraft }: { draft: Draft; setDraft: ( d: Draft ) =
 		<>
 			<TestBox />
 			<RuleForm draft={ draft } setDraft={ setDraft } />
-			<div className="uxs-form__row" style={ { maxWidth: 320, marginBottom: 'var(--uxs-sp-3)' } }>
-				<input
-					type="search"
-					style={ {
-						background: 'var(--uxs-surface)',
-						color: 'var(--uxs-text)',
-						border: '1px solid var(--uxs-border)',
-						borderRadius: 'var(--uxs-radius-s)',
-						padding: 'var(--uxs-sp-2) var(--uxs-sp-3)',
-						width: '100%',
-					} }
-					value={ search }
-					placeholder={ __( 'Search redirects…', 'ux-studio' ) }
-					onChange={ ( e ) => {
-						setPage( 0 );
-						setSearch( e.target.value );
-					} }
-				/>
+			<div className="uxs-form uxs-form--stacked" style={ { maxWidth: 320, marginBottom: 'var(--uxs-sp-3)' } }>
+				<div className="uxs-form__row">
+					<input
+						type="search"
+						aria-label={ __( 'Search redirects…', 'ux-studio' ) }
+						value={ search }
+						placeholder={ __( 'Search redirects…', 'ux-studio' ) }
+						onChange={ ( e ) => {
+							setPage( 0 );
+							setSearch( e.target.value );
+						} }
+					/>
+				</div>
 			</div>
 			{ rules.data && rules.data.some( ( r ) => r.hits > 0 ) && (
 				<p style={ { marginBottom: 'var(--uxs-sp-3)' } }>
@@ -456,7 +451,7 @@ function RulesTab( { draft, setDraft }: { draft: Draft; setDraft: ( d: Draft ) =
 			{ rules.data && rules.data.length === 0 && <p>{ __( 'No redirects yet.', 'ux-studio' ) }</p> }
 			{ rules.data && rules.data.length > 0 && (
 				<>
-					<table className="uxs-table">
+					<div className="uxs-table-wrap"><table className="uxs-table">
 						<thead>
 							<tr>
 								<th>{ __( 'Old URL', 'ux-studio' ) }</th>
@@ -552,7 +547,7 @@ function RulesTab( { draft, setDraft }: { draft: Draft; setDraft: ( d: Draft ) =
 								</tr>
 							) ) }
 						</tbody>
-					</table>
+					</table></div>
 					<div style={ { display: 'flex', gap: 'var(--uxs-sp-3)', marginTop: 'var(--uxs-sp-4)' } }>
 						<button type="button" className="button" disabled={ page === 0 } onClick={ () => setPage( ( p ) => p - 1 ) }>
 							{ __( 'Previous', 'ux-studio' ) }
@@ -605,7 +600,7 @@ function NotFoundTab( { onRedirect }: { onRedirect: ( url: string ) => void } ):
 			{ log.data && log.data.length === 0 && <p>{ __( 'No 404 errors logged.', 'ux-studio' ) }</p> }
 			{ log.data && log.data.length > 0 && (
 				<>
-					<table className="uxs-table">
+					<div className="uxs-table-wrap"><table className="uxs-table">
 						<thead>
 							<tr>
 								<th>{ __( 'URL', 'ux-studio' ) }</th>
@@ -638,7 +633,7 @@ function NotFoundTab( { onRedirect }: { onRedirect: ( url: string ) => void } ):
 								</tr>
 							) ) }
 						</tbody>
-					</table>
+					</table></div>
 					<div style={ { display: 'flex', gap: 'var(--uxs-sp-3)', marginTop: 'var(--uxs-sp-4)' } }>
 						<button type="button" className="button" disabled={ page === 0 } onClick={ () => setPage( ( p ) => p - 1 ) }>
 							{ __( 'Previous', 'ux-studio' ) }
@@ -703,7 +698,7 @@ function AuditTab(): JSX.Element {
 							<span className="uxs-badge is-success">{ __( 'No problems found.', 'ux-studio' ) }</span>
 						</p>
 					) : (
-						<table className="uxs-table">
+						<div className="uxs-table-wrap"><table className="uxs-table">
 							<tbody>
 								{ data.issues.map( ( issue, i ) => (
 									<tr key={ i }>
@@ -717,7 +712,7 @@ function AuditTab(): JSX.Element {
 									</tr>
 								) ) }
 							</tbody>
-						</table>
+						</table></div>
 					) }
 				</>
 			) }

@@ -352,7 +352,7 @@ function AccordionSection( {
 							) }
 						</p>
 					) : (
-						<table className="uxs-table">
+						<div className="uxs-table-wrap"><table className="uxs-table">
 							<thead>
 								<tr>
 									<th></th>
@@ -382,7 +382,7 @@ function AccordionSection( {
 									/>
 								) ) }
 							</tbody>
-						</table>
+						</table></div>
 					) }
 					{ draft.length > 0 && (
 						<p className="uxs-form__help">

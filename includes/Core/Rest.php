@@ -143,6 +143,8 @@ final class Rest extends Controller {
 				'id'          => $id,
 				'name'        => $this->translate_meta( $meta['name'] ?? $id ),
 				'description' => $this->translate_meta( $meta['description'] ?? '' ),
+				// Optional short "How it works" text for the page of a module without settings.
+				'how'         => $this->translate_meta( $meta['how'] ?? '' ),
 				'group'       => $meta['group'] ?? 'general',
 				'icon'        => $meta['icon'] ?? 'puzzle',
 				'settings'    => ! empty( $meta['settings'] ),

@@ -88,7 +88,7 @@ function LogTable(): JSX.Element {
 				<p>{ __( 'No matching activity found.', 'ux-studio' ) }</p>
 			) : (
 				<>
-					<table className="uxs-table">
+					<div className="uxs-table-wrap"><table className="uxs-table">
 						<thead>
 							<tr>
 								<th>{ __( 'Date', 'ux-studio' ) }</th>
@@ -109,7 +109,7 @@ function LogTable(): JSX.Element {
 								</tr>
 							) ) }
 						</tbody>
-					</table>
+					</table></div>
 					<div style={ { display: 'flex', gap: 'var(--uxs-sp-3)', marginTop: 'var(--uxs-sp-4)' } }>
 						<button type="button" className="button" disabled={ page === 0 } onClick={ () => setPage( ( p ) => p - 1 ) }>
 							{ __( 'Previous', 'ux-studio' ) }

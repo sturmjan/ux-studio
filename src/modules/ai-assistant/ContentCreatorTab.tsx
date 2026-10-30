@@ -403,7 +403,7 @@ function BulkSeoSection(): JSX.Element {
 			{ run.isError ? <p className="uxs-form__help">{ ( run.error as Error ).message }</p> : null }
 
 			{ log.length > 0 ? (
-				<table className="uxs-table" style={ { marginTop: 'var(--uxs-sp-4)' } }>
+				<div className="uxs-table-wrap" style={ { marginTop: 'var(--uxs-sp-4)' } }><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Post', 'ux-studio' ) }</th>
@@ -420,7 +420,7 @@ function BulkSeoSection(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) : null }
 		</div>
 	);

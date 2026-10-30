@@ -143,7 +143,7 @@ export default function Page(): JSX.Element {
 							<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />
 						</div>
 					) : (
-						<table className="uxs-table">
+						<div className="uxs-table-wrap"><table className="uxs-table">
 							<thead>
 								<tr>
 									<th>{ __( 'Title', 'ux-studio' ) }</th>
@@ -183,7 +183,7 @@ export default function Page(): JSX.Element {
 									</tr>
 								) : null }
 							</tbody>
-						</table>
+						</table></div>
 					) }
 				</>
 			) }

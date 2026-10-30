@@ -230,7 +230,7 @@ function UsageTab(): JSX.Element {
 			{ data.stats.length === 0 ? (
 				<p>{ __( 'No usage recorded for this period.', 'ux-studio' ) }</p>
 			) : (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Provider', 'ux-studio' ) }</th>
@@ -253,7 +253,7 @@ function UsageTab(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 		</>
 	);

@@ -94,7 +94,7 @@ function DetailModal( { id, onClose }: { id: number; onClose: () => void } ): JS
 					</div>
 				) : (
 					<>
-						<table className="uxs-table" style={ { marginBottom: 'var(--uxs-sp-4)' } }>
+						<div className="uxs-table-wrap" style={ { marginBottom: 'var(--uxs-sp-4)' } }><table className="uxs-table">
 							<tbody>
 								<tr>
 									<th style={ { width: 140, textAlign: 'left' } }>{ __( 'Status', 'ux-studio' ) }</th>
@@ -123,7 +123,7 @@ function DetailModal( { id, onClose }: { id: number; onClose: () => void } ): JS
 									</tr>
 								) : null }
 							</tbody>
-						</table>
+						</table></div>
 
 						<h3>{ __( 'Headers', 'ux-studio' ) }</h3>
 						<pre style={ { whiteSpace: 'pre-wrap', wordBreak: 'break-word', background: 'var(--uxs-bg-muted, #f6f7f7)', padding: 'var(--uxs-sp-3, 12px)', borderRadius: 4 } }>
@@ -215,7 +215,7 @@ function LogTable(): JSX.Element {
 				<p>{ __( 'No mail has been sent yet.', 'ux-studio' ) }</p>
 			) : (
 				<>
-					<table className="uxs-table">
+					<div className="uxs-table-wrap"><table className="uxs-table">
 						<thead>
 							<tr>
 								<th>{ __( 'Date', 'ux-studio' ) }</th>
@@ -262,7 +262,7 @@ function LogTable(): JSX.Element {
 								</tr>
 							) ) }
 						</tbody>
-					</table>
+					</table></div>
 					<div style={ { display: 'flex', gap: 'var(--uxs-sp-3)', marginTop: 'var(--uxs-sp-4)' } }>
 						<button type="button" className="button" disabled={ page === 0 } onClick={ () => setPage( ( p ) => p - 1 ) }>
 							{ __( 'Previous', 'ux-studio' ) }

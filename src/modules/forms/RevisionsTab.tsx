@@ -51,7 +51,7 @@ export default function RevisionsTab( { form }: { form: FormDefinition } ): JSX.
 	}
 
 	return (
-		<table className="uxs-table">
+		<div className="uxs-table-wrap"><table className="uxs-table">
 			<thead>
 				<tr>
 					<th>{ __( 'Title at the time', 'ux-studio' ) }</th>
@@ -96,6 +96,6 @@ export default function RevisionsTab( { form }: { form: FormDefinition } ): JSX.
 			<caption style={ { captionSide: 'bottom', textAlign: 'left', paddingTop: 'var(--uxs-sp-3)' } } className="uxs-form__help">
 				{ __( 'The current, live definition is always saved as a new revision first, so restoring is never a one-way action.', 'ux-studio' ) }
 			</caption>
-		</table>
+		</table></div>
 	);
 }

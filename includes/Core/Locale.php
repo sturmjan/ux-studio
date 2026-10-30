@@ -14,13 +14,13 @@ defined( 'ABSPATH' ) || exit;
  * the language of the SITE: an English administrator on a Czech site saw module names, setting labels and help
  * texts half in Czech. This class makes every request of `uxstudio/v1` run in the locale of the current user:
  *
- *   rest_pre_dispatch   switch_to_user_locale()  (WordPress reloads the translations of every loaded text domain,
- *                       so `ux-studio` and the module names from meta.json follow; our own check below makes
- *                       sure of it for the plugin's own text domain)
- *   rest_post_dispatch  restore_previous_locale()
+ *   rest_request_before_callbacks  switch_to_user_locale()  (WordPress reloads the translations of every loaded
+ *                                  text domain, so `ux-studio` and the module names from meta.json follow; our
+ *                                  own check below makes sure of it for the plugin's own text domain)
+ *   rest_request_after_callbacks   restore_previous_locale()
  *
- * The two calls are paired by a stack, so batch requests and requests made from PHP (rest_do_request) stay
- * balanced. Requests of other namespaces, anonymous requests and users whose locale equals the current one are
+ * Both filters run in the same method of the REST server for every matched route, so they stay paired for batch
+ * requests and for requests made from PHP with rest_do_request(). Requests of other namespaces, anonymous requests and users whose locale equals the current one are
  * left alone.
  */
 final class Locale {
@@ -38,34 +38,36 @@ final class Locale {
 	 * Hook the filters (called once from Plugin::boot()).
 	 */
 	public static function register(): void {
-		add_filter( 'rest_pre_dispatch', array( self::class, 'on_pre_dispatch' ), 1, 3 );
-		add_filter( 'rest_post_dispatch', array( self::class, 'on_post_dispatch' ), 9999, 3 );
+		// These two run inside the same method of the REST server for every matched route, so they are always
+		// paired, also for requests made from PHP with rest_do_request() (which skips rest_post_dispatch).
+		add_filter( 'rest_request_before_callbacks', array( self::class, 'on_before' ), 1, 3 );
+		add_filter( 'rest_request_after_callbacks', array( self::class, 'on_after' ), 9999, 1 );
 	}
 
 	/**
-	 * Switch to the locale of the user before a request of our namespace is handled.
+	 * Switch to the locale of the user before the permission check and the callback of a route of our namespace.
 	 *
-	 * @param mixed            $result  Pre-dispatch result (passed through untouched).
-	 * @param \WP_REST_Server  $server  Server.
-	 * @param \WP_REST_Request $request Request.
+	 * @param mixed            $response Response so far (passed through untouched).
+	 * @param array            $handler  Route handler.
+	 * @param \WP_REST_Request $request  Request.
 	 * @return mixed
 	 */
-	public static function on_pre_dispatch( $result, $server, $request ) {
+	public static function on_before( $response, $handler, $request ) {
 		$switched = false;
 		if ( $request instanceof \WP_REST_Request && 0 === strpos( $request->get_route(), self::NAMESPACE_PREFIX ) ) {
 			$switched = self::switch_for_current_user();
 		}
 		self::$stack[] = $switched;
-		return $result;
+		return $response;
 	}
 
 	/**
-	 * Undo the switch once the response is ready.
+	 * Undo the switch once the callback has run.
 	 *
 	 * @param mixed $response Response (passed through untouched).
 	 * @return mixed
 	 */
-	public static function on_post_dispatch( $response ) {
+	public static function on_after( $response ) {
 		if ( array() !== self::$stack && array_pop( self::$stack ) ) {
 			restore_previous_locale();
 			self::ensure_plugin_textdomain();

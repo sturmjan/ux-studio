@@ -110,7 +110,7 @@ function StatusView(): JSX.Element {
 	const showExternal = data.mode === 'external' || data.mode === 'central_app';
 
 	return (
-		<table className="uxs-table">
+		<div className="uxs-table-wrap"><table className="uxs-table">
 			<tbody>
 				<tr>
 					<th>{ __( 'Mode', 'ux-studio' ) }</th>
@@ -198,7 +198,7 @@ function StatusView(): JSX.Element {
 					</tr>
 				) : null }
 			</tbody>
-		</table>
+		</table></div>
 	);
 }
 
@@ -296,7 +296,7 @@ function EventsTable(): JSX.Element {
 	}
 
 	return (
-		<table className="uxs-table">
+		<div className="uxs-table-wrap"><table className="uxs-table">
 			<thead>
 				<tr>
 					<th>{ __( 'Hook', 'ux-studio' ) }</th>
@@ -346,7 +346,7 @@ function EventsTable(): JSX.Element {
 					</tr>
 				) ) }
 			</tbody>
-		</table>
+		</table></div>
 	);
 }
 
@@ -369,7 +369,7 @@ function SchedulesTable(): JSX.Element {
 	}
 
 	return (
-		<table className="uxs-table">
+		<div className="uxs-table-wrap"><table className="uxs-table">
 			<thead>
 				<tr>
 					<th>{ __( 'Name', 'ux-studio' ) }</th>
@@ -386,7 +386,7 @@ function SchedulesTable(): JSX.Element {
 					</tr>
 				) ) }
 			</tbody>
-		</table>
+		</table></div>
 	);
 }
 
@@ -397,7 +397,7 @@ function WatchList( { title, entries, tone }: { title: string; entries: WatchEnt
 	return (
 		<div style={ { marginTop: 'var(--uxs-sp-4)' } }>
 			<h3>{ title } <span className={ `uxs-badge is-${ tone }` }>{ entries.length }</span></h3>
-			<table className="uxs-table">
+			<div className="uxs-table-wrap"><table className="uxs-table">
 				<thead>
 					<tr>
 						<th>{ __( 'Hook', 'ux-studio' ) }</th>
@@ -420,7 +420,7 @@ function WatchList( { title, entries, tone }: { title: string; entries: WatchEnt
 						</tr>
 					) ) }
 				</tbody>
-			</table>
+			</table></div>
 		</div>
 	);
 }

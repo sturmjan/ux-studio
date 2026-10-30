@@ -312,7 +312,7 @@ function FolderTree( { folders }: { folders: Folder[] } ): JSX.Element {
 	}
 
 	return (
-		<table className="uxs-table">
+		<div className="uxs-table-wrap"><table className="uxs-table">
 			<thead>
 				<tr>
 					<th>{ __( 'Name', 'ux-studio' ) }</th>
@@ -328,7 +328,7 @@ function FolderTree( { folders }: { folders: Folder[] } ): JSX.Element {
 					<FolderRow key={ row.id } row={ row } folders={ folders } />
 				) ) }
 			</tbody>
-		</table>
+		</table></div>
 	);
 }
 

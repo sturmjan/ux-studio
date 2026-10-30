@@ -156,7 +156,7 @@ function SitesTab(): JSX.Element {
 			) : null }
 			{ ! isLoading && ( ! data || data.length === 0 ) ? <p>{ __( 'No nodes registered yet.', 'ux-studio' ) }</p> : null }
 			{ ! isLoading && data && data.length > 0 ? (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Name', 'ux-studio' ) }</th>
@@ -187,7 +187,7 @@ function SitesTab(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) : null }
 		</>
 	);
@@ -234,7 +234,7 @@ function PushTab(): JSX.Element {
 			{ posts.isLoading ? (
 				<div className="uxs-loading"><LoaderCircle size={ 24 } /></div>
 			) : (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th></th>
@@ -255,7 +255,7 @@ function PushTab(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 
 			<h3 style={ { marginTop: 'var(--uxs-sp-4)' } }>{ __( 'Target nodes', 'ux-studio' ) }</h3>
@@ -275,7 +275,7 @@ function PushTab(): JSX.Element {
 			</p>
 
 			{ push.data ? (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Node', 'ux-studio' ) }</th>
@@ -292,7 +292,7 @@ function PushTab(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) : null }
 		</>
 	);
@@ -450,7 +450,7 @@ function RemoteTab(): JSX.Element {
 					{ posts.isError ? <p className="uxs-form__help">{ ( posts.error as Error ).message }</p> : null }
 					{ posts.data ? (
 						<>
-							<table className="uxs-table">
+							<div className="uxs-table-wrap"><table className="uxs-table">
 								<thead>
 									<tr>
 										<th>{ __( 'Title', 'ux-studio' ) }</th>
@@ -487,7 +487,7 @@ function RemoteTab(): JSX.Element {
 										</tr>
 									) ) }
 								</tbody>
-							</table>
+							</table></div>
 							<p>
 								<button type="button" className="button" disabled={ page <= 1 } onClick={ () => setPage( ( n ) => n - 1 ) }>
 									{ __( 'Previous', 'ux-studio' ) }
@@ -555,7 +555,7 @@ function LogTab(): JSX.Element {
 	}
 
 	return (
-		<table className="uxs-table">
+		<div className="uxs-table-wrap"><table className="uxs-table">
 			<thead>
 				<tr>
 					<th>{ __( 'Date', 'ux-studio' ) }</th>
@@ -578,7 +578,7 @@ function LogTab(): JSX.Element {
 					</tr>
 				) ) }
 			</tbody>
-		</table>
+		</table></div>
 	);
 }
 

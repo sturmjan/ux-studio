@@ -301,7 +301,7 @@ function RequestDetail( { item, onClose }: { item: ServiceRequest; onClose: () =
 			{ envEntries.length > 0 ? (
 				<details style={ { marginTop: 'var(--uxs-sp-3)' } }>
 					<summary>{ __( 'Site details sent with this request', 'ux-studio' ) }</summary>
-					<table className="uxs-table">
+					<div className="uxs-table-wrap"><table className="uxs-table">
 						<tbody>
 							{ envEntries.map( ( [ key, value ] ) => (
 								<tr key={ key }>
@@ -310,7 +310,7 @@ function RequestDetail( { item, onClose }: { item: ServiceRequest; onClose: () =
 								</tr>
 							) ) }
 						</tbody>
-					</table>
+					</table></div>
 				</details>
 			) : null }
 
@@ -387,7 +387,7 @@ function RequestsTable(): JSX.Element {
 			) : null }
 			{ ! isLoading && ( ! data || data.length === 0 ) ? <p>{ __( 'No service requests yet.', 'ux-studio' ) }</p> : null }
 			{ ! isLoading && data && data.length > 0 ? (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Number', 'ux-studio' ) }</th>
@@ -441,7 +441,7 @@ function RequestsTable(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) : null }
 			<p className="uxs-form__help">
 				{ __(

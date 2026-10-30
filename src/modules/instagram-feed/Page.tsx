@@ -423,7 +423,7 @@ function FeedsTab(): JSX.Element {
 			{ data.length === 0 ? (
 				<p>{ __( 'No feeds yet. Create one, then embed it with its shortcode.', 'ux-studio' ) }</p>
 			) : (
-				<table className="widefat striped">
+				<div className="uxs-scroll-x"><table className="widefat striped">
 					<thead>
 						<tr>
 							<th>{ __( 'Name', 'ux-studio' ) }</th>
@@ -449,7 +449,7 @@ function FeedsTab(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 		</>
 	);

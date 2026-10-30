@@ -411,7 +411,7 @@ function GeneratorsSection(): JSX.Element {
 			) : data.items.length === 0 ? (
 				<p>{ __( 'No generators yet.', 'ux-studio' ) }</p>
 			) : (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Name', 'ux-studio' ) }</th>
@@ -473,7 +473,7 @@ function GeneratorsSection(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 		</div>
 	);
@@ -528,7 +528,7 @@ function GeneratedPostsSection(): JSX.Element {
 							</button>
 						</div>
 					</div>
-					<table className="uxs-table">
+					<div className="uxs-table-wrap"><table className="uxs-table">
 						<thead>
 							<tr>
 								<th></th>
@@ -565,7 +565,7 @@ function GeneratedPostsSection(): JSX.Element {
 								</tr>
 							) ) }
 						</tbody>
-					</table>
+					</table></div>
 				</>
 			) }
 		</div>

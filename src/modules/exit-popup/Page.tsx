@@ -51,7 +51,7 @@ function SubscribersTable(): JSX.Element {
 			{ ! data || data.length === 0 ? (
 				<p>{ __( 'No subscribers captured yet.', 'ux-studio' ) }</p>
 			) : (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Date', 'ux-studio' ) }</th>
@@ -68,7 +68,7 @@ function SubscribersTable(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 		</>
 	);

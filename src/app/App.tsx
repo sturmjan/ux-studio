@@ -3,10 +3,10 @@
  * is the module grid ("šachovnice", ux1-style). Extension pages registered via
  * window.uxStudio.registerPage render inside the same shell.
  */
-import { Suspense, useEffect, useState, type ComponentType } from 'react';
+import { Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState, type ComponentType } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { LayoutGrid, Settings, Blocks, Moon, Sun, LoaderCircle, Wand2 } from 'lucide-react';
+import { LayoutGrid, Settings, Blocks, Moon, Sun, LoaderCircle, Wand2, Menu, PanelLeftClose, X } from 'lucide-react';
 import { currentRoute, hashParam, navigate } from './route';
 import { api, queryClient, type ApiError, type ModuleInfo } from './api';
 import { isOverlapError, OverlapBar, OverlapModal, refreshOverlaps } from './Overlaps';
@@ -20,7 +20,7 @@ import { Toasts } from './Toasts';
 import { Wizard } from './wizard/Wizard';
 import { ExportModuleLink } from './transfer/ExportLink';
 import { SubNavSlot } from './SubNav';
-import { getTheme, setTheme, type Theme } from './prefs';
+import { getSidebarHidden, getTheme, setSidebarHidden, setTheme, type Theme } from './prefs';
 import { MODULE_PAGES } from '../modules/registry';
 
 /**
@@ -186,8 +186,64 @@ function TreeView( { groupId, featureId, view, active }: { groupId: string; feat
 	);
 }
 
+/** Below this width of the app shell the sidebar becomes a drawer (the shell is the viewport minus the WP menu). */
+const NARROW_SHELL = 1100;
+
 export function App(): JSX.Element {
 	const route = useHashRoute();
+	const shellRef = useRef< HTMLDivElement >( null );
+	const toggleRef = useRef< HTMLButtonElement >( null );
+	// Narrow shell: the sidebar is an off-canvas drawer. Wide shell: it is a column the user may fold away (remembered).
+	const [ narrow, setNarrow ] = useState( false );
+	const [ folded, setFolded ] = useState( getSidebarHidden() );
+	const [ drawer, setDrawer ] = useState( false );
+	useLayoutEffect( () => {
+		const shell = shellRef.current;
+		if ( ! shell || typeof ResizeObserver === 'undefined' ) {
+			return undefined;
+		}
+		const measure = (): void => {
+			setNarrow( shell.getBoundingClientRect().width < NARROW_SHELL );
+			// Where the shell starts (WP menu + padding): the drawer is fixed there, so it stays in view while scrolling.
+			shell.style.setProperty( '--uxs-drawer-left', `${ Math.max( 0, shell.getBoundingClientRect().left ) }px` );
+		};
+		measure();
+		const observer = new ResizeObserver( measure );
+		observer.observe( shell );
+		return () => observer.disconnect();
+	}, [] );
+	const closeDrawer = useCallback( ( returnFocus: boolean ): void => {
+		setDrawer( false );
+		if ( returnFocus ) {
+			toggleRef.current?.focus();
+		}
+	}, [] );
+	useEffect( () => {
+		// A page was chosen in the drawer: get out of the way. Leaving the narrow layout closes it too.
+		const onHash = (): void => setDrawer( false );
+		window.addEventListener( 'hashchange', onHash );
+		return () => window.removeEventListener( 'hashchange', onHash );
+	}, [] );
+	useEffect( () => {
+		if ( ! drawer ) {
+			return undefined;
+		}
+		const onKey = ( e: KeyboardEvent ): void => {
+			if ( e.key === 'Escape' ) {
+				closeDrawer( true );
+			}
+		};
+		document.addEventListener( 'keydown', onKey );
+		// The drawer is a modal-like layer: move the focus into it.
+		shellRef.current?.querySelector< HTMLElement >( '.uxs-sidebar__fold' )?.focus();
+		return () => document.removeEventListener( 'keydown', onKey );
+	}, [ drawer, closeDrawer ] );
+	useEffect( () => {
+		if ( ! narrow ) {
+			setDrawer( false );
+		}
+	}, [ narrow ] );
+	const sidebarShown = narrow ? drawer : ! folded;
 	const [ subNavSlot, setSubNavSlot ] = useState< HTMLElement | null >( null );
 	const extension = pages.get( route );
 	const moduleId = route === 'module' ? hashParam( 'id' ) ?? '' : '';
@@ -216,11 +272,32 @@ export function App(): JSX.Element {
 	];
 
 	return (
-		<div className="uxs-shell">
-			<nav className="uxs-sidebar" aria-label={ __( 'UX Studio navigation', 'ux-studio' ) }>
-				<span className="uxs-sidebar__brand">
-					<Blocks size={ 20 } /> UX Studio
-				</span>
+		<div
+			ref={ shellRef }
+			className={ `uxs-shell${ narrow ? ' is-narrow' : '' }${ ! narrow && folded ? ' is-folded' : '' }${ drawer ? ' is-drawer-open' : '' }` }
+		>
+			{ narrow && drawer ? <div className="uxs-shell__backdrop" aria-hidden="true" onClick={ () => closeDrawer( true ) } /> : null }
+			<nav id="uxs-sidebar" className="uxs-sidebar" aria-label={ __( 'UX Studio navigation', 'ux-studio' ) }>
+				<div className="uxs-sidebar__top">
+					<span className="uxs-sidebar__brand">
+						<Blocks size={ 20 } /> UX Studio
+					</span>
+					<button
+						type="button"
+						className="uxs-sidebar__fold"
+						aria-label={ narrow ? __( 'Close menu', 'ux-studio' ) : __( 'Hide the sidebar', 'ux-studio' ) }
+						onClick={ () => {
+							if ( narrow ) {
+								closeDrawer( true );
+							} else {
+								setSidebarHidden( true );
+								setFolded( true );
+							}
+						} }
+					>
+						{ narrow ? <X size={ 18 } aria-hidden="true" /> : <PanelLeftClose size={ 18 } aria-hidden="true" /> }
+					</button>
+				</div>
 				{ nav.map( ( item ) => (
 					<div key={ item.route }>
 						<a
@@ -308,7 +385,29 @@ export function App(): JSX.Element {
 			</nav>
 			<Toasts />
 			<SubNavSlot.Provider value={ subNavSlot }>
-			<main className="uxs-content">
+			<main className={ `uxs-content${ current?.parent ? ' has-crumb' : '' }` }>
+				{ narrow || folded ? (
+					<div className="uxs-topbar">
+						<button
+							ref={ toggleRef }
+							type="button"
+							className="uxs-topbar__toggle"
+							aria-controls="uxs-sidebar"
+							aria-expanded={ sidebarShown }
+							onClick={ () => {
+								if ( narrow ) {
+									setDrawer( true );
+								} else {
+									setSidebarHidden( false );
+									setFolded( false );
+								}
+							} }
+						>
+							<Menu size={ 18 } aria-hidden="true" />
+							<span>{ __( 'Menu', 'ux-studio' ) }</span>
+						</button>
+					</div>
+				) : null }
 				{ moduleId && ! isGroup ? <GroupBreadcrumb moduleId={ moduleId } /> : null }
 				{ extension ? (
 					<extension.component />

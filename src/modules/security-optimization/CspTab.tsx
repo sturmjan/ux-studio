@@ -582,7 +582,7 @@ export function CspTab(): JSX.Element {
 						: __( 'No sources reported yet. Browsers report them as visitors open pages - give it a few hours.', 'ux-studio' ) }
 				</p>
 			) : (
-				<table className="uxs-table uxs-csp-table">
+				<div className="uxs-table-wrap"><table className="uxs-table uxs-csp-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Source', 'ux-studio' ) }</th>
@@ -706,7 +706,7 @@ export function CspTab(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 
 			{ pendingMode && (

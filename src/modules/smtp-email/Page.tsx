@@ -262,7 +262,7 @@ function LogTable(): JSX.Element {
 	return (
 		<>
 			{ toolbar }
-			<table className="uxs-table">
+			<div className="uxs-table-wrap"><table className="uxs-table">
 				<thead>
 					<tr>
 						<th>{ __( 'Date', 'ux-studio' ) }</th>
@@ -293,7 +293,7 @@ function LogTable(): JSX.Element {
 						</tr>
 					) ) }
 				</tbody>
-			</table>
+			</table></div>
 			<p style={ { display: 'flex', gap: '8px', alignItems: 'center' } }>
 				<button type="button" className="button" disabled={ page <= 1 } onClick={ () => setPage( page - 1 ) }>
 					{ __( 'Previous', 'ux-studio' ) }

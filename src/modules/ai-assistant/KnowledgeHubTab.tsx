@@ -216,7 +216,7 @@ function KnowledgeSection(): JSX.Element {
 			{ data.documents.length === 0 ? (
 				<p>{ __( 'No documents uploaded yet.', 'ux-studio' ) }</p>
 			) : (
-				<table className="uxs-table" style={ { marginBottom: 'var(--uxs-sp-5)' } }>
+				<div className="uxs-table-wrap" style={ { marginBottom: 'var(--uxs-sp-5)' } }><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Title', 'ux-studio' ) }</th>
@@ -259,7 +259,7 @@ function KnowledgeSection(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 
 			<h2>{ __( 'Manual entries', 'ux-studio' ) }</h2>
@@ -267,7 +267,7 @@ function KnowledgeSection(): JSX.Element {
 			{ data.manual_entries.length === 0 ? (
 				<p>{ __( 'No manual entries yet.', 'ux-studio' ) }</p>
 			) : (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Title', 'ux-studio' ) }</th>
@@ -299,7 +299,7 @@ function KnowledgeSection(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 		</>
 	);
@@ -387,7 +387,7 @@ function FaqSuggestions(): JSX.Element {
 			{ result && ! result.success ? <p className="uxs-form__help">{ result.error }</p> : null }
 
 			{ result?.success && result.suggestions && result.suggestions.length > 0 ? (
-				<table className="uxs-table" style={ { marginTop: 'var(--uxs-sp-4)' } }>
+				<div className="uxs-table-wrap" style={ { marginTop: 'var(--uxs-sp-4)' } }><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Question', 'ux-studio' ) }</th>
@@ -410,7 +410,7 @@ function FaqSuggestions(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) : null }
 			{ result?.success && result.suggestions && result.suggestions.length === 0 ? (
 				<p>{ __( 'No new suggestions.', 'ux-studio' ) }</p>
@@ -452,7 +452,7 @@ function FaqSection(): JSX.Element {
 			{ data.items.length === 0 ? (
 				<p>{ __( 'No FAQs yet.', 'ux-studio' ) }</p>
 			) : (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Question', 'ux-studio' ) }</th>
@@ -498,7 +498,7 @@ function FaqSection(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 		</>
 	);

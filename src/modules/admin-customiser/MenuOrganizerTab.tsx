@@ -471,7 +471,7 @@ export function MenuOrganizerTab(): JSX.Element {
 							<Trash2 size={ 12 } /> { __( 'Delete', 'ux-studio' ) }
 						</button>
 
-						<table className="uxs-table" style={ { marginTop: 'var(--uxs-sp-2)' } }>
+						<div className="uxs-table-wrap" style={ { marginTop: 'var(--uxs-sp-2)' } }><table className="uxs-table">
 							<thead>
 								<tr>
 									<th>{ __( 'Item', 'ux-studio' ) }</th>
@@ -568,7 +568,7 @@ export function MenuOrganizerTab(): JSX.Element {
 									</tr>
 								) ) }
 							</tbody>
-						</table>
+						</table></div>
 					</div>
 				</div>
 			) ) }
@@ -595,7 +595,7 @@ export function MenuOrganizerTab(): JSX.Element {
 				</span>
 			</div>
 			{ draft.custom_links.length > 0 && (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Title', 'ux-studio' ) }</th>
@@ -618,7 +618,7 @@ export function MenuOrganizerTab(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 
 			<h3>{ __( 'Separators', 'ux-studio' ) }</h3>
@@ -640,7 +640,7 @@ export function MenuOrganizerTab(): JSX.Element {
 				</span>
 			</div>
 			{ draft.separators.length > 0 && (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th>{ __( 'Label', 'ux-studio' ) }</th>
@@ -661,7 +661,7 @@ export function MenuOrganizerTab(): JSX.Element {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 
 			<p style={ { marginTop: 'var(--uxs-sp-4)' } }>

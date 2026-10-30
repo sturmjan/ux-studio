@@ -136,7 +136,7 @@ function ItemsTable( { type, items, focusSlug }: { type: ItemType; items: Rollba
 	}
 
 	return (
-		<table className="uxs-table">
+		<div className="uxs-table-wrap"><table className="uxs-table">
 			<thead>
 				<tr>
 					<th>{ __( 'Name', 'ux-studio' ) }</th>
@@ -189,7 +189,7 @@ function ItemsTable( { type, items, focusSlug }: { type: ItemType; items: Rollba
 					);
 				} ) }
 			</tbody>
-		</table>
+		</table></div>
 	);
 }
 

@@ -374,7 +374,7 @@ function TokensTable( { tokens }: { tokens: McpToken[] } ): JSX.Element {
 		return <p className="uxs-form__help">{ __( 'No tokens yet.', 'ux-studio' ) }</p>;
 	}
 	return (
-		<table className="uxs-table">
+		<div className="uxs-table-wrap"><table className="uxs-table">
 			<thead>
 				<tr>
 					<th>{ __( 'Name', 'ux-studio' ) }</th>
@@ -436,7 +436,7 @@ function TokensTable( { tokens }: { tokens: McpToken[] } ): JSX.Element {
 					</tr>
 				) ) }
 			</tbody>
-		</table>
+		</table></div>
 	);
 }
 
@@ -453,7 +453,7 @@ function Abilities( { abilities }: { abilities: McpAbility[] } ): JSX.Element {
 				{ ' · ' }
 				{ counts.map( ( s ) => `${ s.label }: ${ s.count }` ).join( ', ' ) }
 			</summary>
-			<table className="uxs-table">
+			<div className="uxs-table-wrap"><table className="uxs-table">
 				<thead>
 					<tr>
 						<th>{ __( 'Tool', 'ux-studio' ) }</th>
@@ -476,7 +476,7 @@ function Abilities( { abilities }: { abilities: McpAbility[] } ): JSX.Element {
 						</tr>
 					) ) }
 				</tbody>
-			</table>
+			</table></div>
 		</details>
 	);
 }

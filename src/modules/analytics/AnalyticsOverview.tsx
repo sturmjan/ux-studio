@@ -301,7 +301,7 @@ function TopTable( {
 			{ rows.length === 0 ? (
 				<p style={ { color: 'var(--uxs-text-soft)', margin: 0, fontSize: 13 } }>{ __( 'No data.', 'ux-studio' ) }</p>
 			) : (
-				<table className="uxs-table">
+				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>
 						<tr>
 							<th style={ { width: 28 } }>#</th>
@@ -333,7 +333,7 @@ function TopTable( {
 							</tr>
 						) ) }
 					</tbody>
-				</table>
+				</table></div>
 			) }
 		</div>
 	);
