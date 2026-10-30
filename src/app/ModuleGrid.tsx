@@ -165,7 +165,7 @@ export function ModuleGrid(): JSX.Element {
 			<WizardHint />
 			{ conflictCount > 0 ? (
 				<div className="uxs-overlaps">
-					<div style={ { display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 12 } }>
+					<div className="uxs-overlaps__summary">
 						<TriangleAlert size={ 16 } aria-hidden />
 						<strong>
 							{ sprintf(
@@ -184,7 +184,7 @@ export function ModuleGrid(): JSX.Element {
 							<ChevronDown size={ 14 } aria-hidden style={ { transform: conflictsOpen ? 'rotate(180deg)' : 'none' } } />
 						</button>
 					</div>
-					{ conflictsOpen ? <OverlapPanel /> : null }
+					{ conflictsOpen ? <OverlapPanel compact /> : null }
 				</div>
 			) : (
 				<OverlapPanel />

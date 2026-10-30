@@ -115,18 +115,11 @@ function OverviewTab(): JSX.Element {
 			<div className="uxs-form" style={ { marginBottom: 'var(--uxs-sp-5)' } }>
 				<div className="uxs-form__row">
 					<strong>{ __( 'Last 24 hours', 'ux-studio' ) }</strong>
-					<dl
-						style={ {
-							display: 'grid',
-							gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-							gap: 'var(--uxs-sp-3) var(--uxs-sp-5)',
-							margin: 0,
-						} }
-					>
+					<dl className="uxs-stats">
 						{ summaryItems.map( ( [ label, value ] ) => (
 							<div key={ label }>
-								<dt className="uxs-form__help" style={ { margin: 0 } }>{ label }</dt>
-								<dd style={ { margin: 0, fontWeight: 600 } }>{ value }</dd>
+								<dt className="uxs-form__help uxs-stats__label">{ label }</dt>
+								<dd className="uxs-stats__value">{ value }</dd>
 							</div>
 						) ) }
 					</dl>

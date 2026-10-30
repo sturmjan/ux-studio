@@ -559,7 +559,7 @@ function PropagationNotice( { result }: { result: WriteResult } ): JSX.Element |
 		return null;
 	}
 	return (
-		<div className="uxs-notice" role="status" style={ { maxWidth: 'none', marginBottom: 'var(--uxs-sp-4)' } }>
+		<div className="uxs-notice is-wide" role="status">
 			<strong>{ __( 'Change saved.', 'ux-studio' ) }</strong>{ ' ' }
 			{ rec.proxied
 				? __( 'The record is proxied through Cloudflare, so the change applies immediately.', 'ux-studio' )
@@ -856,7 +856,7 @@ function HistoryTab( { status, zone }: { status: DnsStatus; zone: string } ): JS
 	return (
 		<>
 			{ log.data?.source === 'local' && (
-				<div className="uxs-notice" style={ { maxWidth: 'none', marginBottom: 'var(--uxs-sp-3)' } }>
+				<div className="uxs-notice is-wide">
 					{ __( 'The central app is not reachable, showing the local copy of the history.', 'ux-studio' ) }
 				</div>
 			) }
@@ -1010,7 +1010,7 @@ export default function Page(): JSX.Element {
 			{ status.isLoading && <Loading /> }
 			{ status.isError && errorBox( status.error ) }
 			{ s && tab !== 'settings' && ! s.active && (
-				<div className="uxs-notice" role="status" style={ { maxWidth: 'none' } }>
+				<div className="uxs-notice is-wide" role="status">
 					<p>{ inactiveText[ s.reason ?? '' ] ?? inactiveText.not_configured }</p>
 				</div>
 			) }

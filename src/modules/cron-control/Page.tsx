@@ -326,7 +326,7 @@ function EventsTable(): JSX.Element {
 
 	return (
 		<>
-			<div className="uxs-actions" style={ { marginBottom: 'var(--uxs-sp-4)' } }>
+			<div className="uxs-actions uxs-list-toolbar">
 				<input
 					type="search"
 					value={ query }
@@ -352,7 +352,7 @@ function EventsTable(): JSX.Element {
 						</option>
 					) ) }
 				</select>
-				<span className="uxs-form__help" style={ { margin: 0 } }>
+				<span className="uxs-form__help uxs-list-toolbar__count">
 					{ sprintf(
 						/* translators: %d: number of scheduled events */
 						_n( '%d event', '%d events', filtered.length, 'ux-studio' ),
@@ -442,7 +442,7 @@ function EventsTable(): JSX.Element {
 				</div>
 			) }
 			{ paged.pages > 1 ? (
-				<div className="uxs-actions" style={ { marginTop: 'var(--uxs-sp-4)' } }>
+				<div className="uxs-actions uxs-pager">
 					<button type="button" className="button" disabled={ paged.page <= 1 } onClick={ () => setPage( paged.page - 1 ) }>
 						<ChevronLeft size={ 14 } /> { __( 'Previous', 'ux-studio' ) }
 					</button>

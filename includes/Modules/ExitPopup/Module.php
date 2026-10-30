@@ -109,6 +109,7 @@ final class Module extends BaseModule {
 				'key'   => 'popup_icon',
 				'section' => __( 'Content', 'ux-studio' ),
 				'type'  => 'media',
+				'media_noun' => 'icon',
 				'label' => __( 'Icon', 'ux-studio' ),
 				'help'  => __( 'Optional icon shown on the edge between the image and the text (recommended 64-80 px).', 'ux-studio' ),
 			),

@@ -755,6 +755,12 @@ $uxs-text-fields: 'input[type="text"], input[type="url"], input[type="email"], i
 		background-position: right 12px center;
 		background-size: 16px 16px;
 		cursor: pointer;
+		/* A long option is cut with an ellipsis, never in the middle of a word without a sign. */
+		min-width: 0;
+		max-width: 100%;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		overflow: hidden;
 	}
 
 	/* Stand-alone selects (list filters above a table) had no style of their
@@ -1166,6 +1172,41 @@ $uxs-text-fields: 'input[type="text"], input[type="url"], input[type="email"], i
 
 		input.is-empty { opacity: 0.3; }
 		code { background: none; padding: 0; color: var(--uxs-text-soft); }
+	}
+
+	/* Status rows: label, a small badge, an optional hint (Image Optimizer). */
+	.uxs-status-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		gap: var(--uxs-sp-3);
+
+		.uxs-status-list__row {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: baseline;
+			gap: var(--uxs-sp-3);
+		}
+
+		.uxs-badge { width: auto; flex: 0 0 auto; }
+		.uxs-status-list__hint { margin: 0; }
+	}
+
+	/* Search / filter row above a list and the pager under it (Cron Control events). */
+	.uxs-list-toolbar { margin-bottom: var(--uxs-sp-4); }
+	.uxs-list-toolbar__count { margin: 0; }
+	.uxs-pager { margin-top: var(--uxs-sp-4); align-items: center; }
+
+	/* A grid of summary values: small label above a bold value (Page Load). */
+	.uxs-stats {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+		gap: var(--uxs-sp-3) var(--uxs-sp-5);
+		margin: 0;
+
+		.uxs-stats__label { margin: 0; }
+		.uxs-stats__value { margin: 0; font-weight: 600; }
 	}
 
 	.uxs-media {
@@ -1895,6 +1936,11 @@ $uxs-text-fields: 'input[type="text"], input[type="url"], input[type="email"], i
 	.uxs-notice__error { color: var(--uxs-danger-text); }
 }
 
+.uxs-notice.is-wide {
+	max-width: none;
+	margin-bottom: var(--uxs-sp-3);
+}
+
 .uxs-notice__actions {
 	display: flex;
 	flex-wrap: wrap;
@@ -1996,6 +2042,28 @@ $uxs-text-fields: 'input[type="text"], input[type="url"], input[type="email"], i
 }
 
 .uxs-overlaps__body { flex: 1; min-width: 0; }
+
+/* Summary line above the module list and the compact list under it (one slim row per conflict). */
+.uxs-overlaps__summary {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: var(--uxs-sp-3);
+}
+
+.uxs-overlaps.is-compact {
+	margin: var(--uxs-sp-3) 0 0;
+
+	.uxs-overlaps__list { margin: 0; gap: var(--uxs-sp-1); }
+}
+
+.uxs-overlaps__item.is-compact {
+	align-items: center;
+	padding: var(--uxs-sp-2) var(--uxs-sp-3);
+
+	.uxs-overlaps__icon { padding-top: 0; }
+	.uxs-overlaps__module { color: var(--uxs-text-soft); }
+}
 
 .uxs-overlaps__head {
 	display: flex;

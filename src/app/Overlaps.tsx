@@ -94,8 +94,12 @@ function rowText( row: OverlapRow ): string {
 	);
 }
 
-/** "Plugin conflicts" panel for the Modules screen. Renders nothing without overlaps. */
-export function OverlapPanel(): JSX.Element | null {
+/**
+ * "Plugin conflicts" panel for the Modules screen. Renders nothing without overlaps.
+ * `compact` (used inside the collapsible summary) draws one slim row per conflict without a heading and
+ * keeps the long explanation as a tooltip.
+ */
+export function OverlapPanel( { compact = false }: { compact?: boolean } ): JSX.Element | null {
 	const { data } = useOverlaps();
 	const ignore = useOverlapAction( 'ignore' );
 	const unignore = useOverlapAction( 'unignore' );
@@ -111,16 +115,18 @@ export function OverlapPanel(): JSX.Element | null {
 	const busy = ignore.isPending || unignore.isPending;
 
 	return (
-		<section className="uxs-overlaps" aria-labelledby="uxs-overlaps-title">
+		<section className={ `uxs-overlaps${ compact ? ' is-compact' : '' }` } aria-labelledby={ compact ? undefined : 'uxs-overlaps-title' }>
 			{ rows.length > 0 && (
 				<>
-					<h2 id="uxs-overlaps-title" className="uxs-overlaps__title">
-						<TriangleAlert size={ 16 } aria-hidden />
-						{ __( 'Plugin conflicts', 'ux-studio' ) }
-					</h2>
+					{ ! compact && (
+						<h2 id="uxs-overlaps-title" className="uxs-overlaps__title">
+							<TriangleAlert size={ 16 } aria-hidden />
+							{ __( 'Plugin conflicts', 'ux-studio' ) }
+						</h2>
+					) }
 					<ul className="uxs-overlaps__list">
 						{ rows.map( ( row ) => (
-							<li key={ row.key } className={ `uxs-overlaps__item is-${ row.group }` }>
+							<li key={ row.key } className={ `uxs-overlaps__item is-${ row.group }${ compact ? ' is-compact' : '' }` } title={ compact ? rowText( row ) : undefined }>
 								<span className="uxs-overlaps__icon">
 									{ 'full' === row.group ? <CircleAlert size={ 18 } aria-hidden /> : <Info size={ 18 } aria-hidden /> }
 								</span>
@@ -128,8 +134,9 @@ export function OverlapPanel(): JSX.Element | null {
 									<div className="uxs-overlaps__head">
 										<strong>{ row.name }</strong>
 										{ typeBadge( row ) }
+										{ compact && <span className="uxs-overlaps__module">{ row.feature ? `${ row.module_name } (${ row.feature })` : row.module_name }</span> }
 									</div>
-									<p>{ rowText( row ) }</p>
+									{ ! compact && <p>{ rowText( row ) }</p> }
 								</div>
 								<div className="uxs-overlaps__actions">
 									{ row.migratable && <WizardButton slugs={ [ row.slug ] } /> }

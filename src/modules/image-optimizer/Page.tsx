@@ -99,18 +99,17 @@ function StatusPanel(): JSX.Element | null {
 
 	return (
 		<div className="uxs-form" style={ { marginBottom: 'var(--uxs-sp-5)' } }>
-			<ul style={ { listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 'var(--uxs-sp-3)' } }>
+			<ul className="uxs-status-list">
 				{ rows.map( ( row ) => (
-					<li key={ row.label } style={ { display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: 'var(--uxs-sp-3)' } }>
+					<li key={ row.label } className="uxs-status-list__row">
 						<strong>{ row.label }</strong>
 						<span
 							className={ `uxs-badge ${ row.ok === true ? 'is-success' : row.ok === false ? 'is-danger' : '' }` }
-							style={ { width: 'auto', flex: '0 0 auto' } }
 						>
 							{ row.text }
 						</span>
 						{ row.hint ? (
-							<span className="uxs-form__help" style={ { margin: 0 } }>
+							<span className="uxs-form__help uxs-status-list__hint">
 								<HelpText text={ row.hint } />
 							</span>
 						) : null }
