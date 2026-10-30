@@ -81,13 +81,13 @@ function StatusPanel(): JSX.Element | null {
 			label: __( 'WebP images', 'ux-studio' ),
 			ok: webp,
 			text: webp ? __( 'Server can create them', 'ux-studio' ) : __( 'Server cannot create them', 'ux-studio' ),
-			hint: __( 'Can your server create the [[WebP]] format?', 'ux-studio' ),
+			hint: __( 'Whether your server can create the [[WebP]] format.', 'ux-studio' ),
 		},
 		{
 			label: __( 'AVIF images', 'ux-studio' ),
 			ok: avif,
 			text: avif ? __( 'Server can create them', 'ux-studio' ) : __( 'Server cannot create them', 'ux-studio' ),
-			hint: __( 'Can your server create the [[AVIF]] format?', 'ux-studio' ),
+			hint: __( 'Whether your server can create the [[AVIF]] format.', 'ux-studio' ),
 		},
 		{
 			label: __( 'Automatic delivery of newer formats', 'ux-studio' ),
