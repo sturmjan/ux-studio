@@ -21,3 +21,7 @@ Thumbs.db
 
 # Temporary translation inputs of po-missing.py / po-append.py
 languages/.build/*.json
+
+# Per-chunk JS translation files made by `wp i18n make-json` (md5 of the chunk path). The SPA loads only the
+# handle-named file ux-studio-<locale>-ux-studio-app.json (merged by bin/merge-json-translations.php).
+/languages/ux-studio-*-[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].json

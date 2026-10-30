@@ -96,10 +96,10 @@ final class Admin {
 			$asset['version']
 		);
 
-		// JS translations. WP loads languages/ux-studio-<locale>-<md5(relative src)>.json
-		// where the src is the hashed build/index.<hash>.js; the build/CI merges every
-		// lazy-chunk's JSON into that one file (bin/merge-json-translations.php) so
-		// code-split module pages are translated too, not just the main bundle.
+		// JS translations. WP loads languages/ux-studio-<locale>-ux-studio-app.json (named after the
+		// script handle, found first because the path is given below); bin/merge-json-translations.php
+		// merges every lazy-chunk's JSON into that one file so code-split module pages are translated
+		// too, not just the main bundle.
 		wp_set_script_translations( 'ux-studio-app', 'ux-studio', UXSTUDIO_PATH . 'languages' );
 
 		wp_localize_script(
