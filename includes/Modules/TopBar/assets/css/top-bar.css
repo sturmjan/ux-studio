@@ -59,3 +59,40 @@
 .uxstudio-top-bar--marquee:hover .uxstudio-top-bar__track {
 	animation-play-state: paused;
 }
+
+/* Slideshow: one message at a time, it may wrap instead of scrolling */
+#uxstudio-top-bar[data-slides] {
+	white-space: normal;
+}
+
+#uxstudio-top-bar[data-slides] .uxstudio-top-bar__content {
+	display: none;
+	white-space: normal;
+	width: 100%;
+	box-sizing: border-box;
+	text-align: center;
+}
+
+#uxstudio-top-bar[data-slides] .uxstudio-top-bar__content.is-active {
+	display: block;
+	animation: uxstudio-top-bar-fade 0.5s ease;
+}
+
+.uxstudio-top-bar__title {
+	margin-right: 0.5em;
+}
+
+@keyframes uxstudio-top-bar-fade {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	#uxstudio-top-bar[data-slides] .uxstudio-top-bar__content.is-active {
+		animation: none;
+	}
+}

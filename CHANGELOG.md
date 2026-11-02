@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.11.0
+
+- Added: the Top Bar can rotate several messages like a slideshow. Next to the simple bar text there is a new list "More messages": each message is either text only or heading and text, has its own "Show from" and "Show until" time and a Published switch, and can be reordered or removed. The seconds per message are configurable. A single active message behaves as before (long text scrolls); with two or more the bar switches between them and pauses on hover.
+- Added: a reusable `repeater` settings field type (a list of items with their own sub-fields), also understood by the settings export and import.
+- Changed: the migration wizard draws yes/no values with icons instead of the check and cross characters, which rendered inconsistently in some fonts.
+
 ## 0.10.1
 
 - Chat language has a new option "Automatic (language of the site)": Czech sites chat in Czech, all others in English. It also drives the language of generated content and of the SEO topic research.

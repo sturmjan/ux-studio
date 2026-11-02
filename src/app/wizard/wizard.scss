@@ -1135,3 +1135,5 @@
 	.uxs-wiz-radar__pulse { display: none; }
 	.uxs-wiz-radar__sweep { background: color-mix(in srgb, var(--uxs-brand) 18%, transparent); }
 }
+
+.uxs-wiz-mark { display: inline-block; vertical-align: -2px; &.is-yes { color: var(--uxs-success); } &.is-no { color: var(--uxs-text-soft); } }

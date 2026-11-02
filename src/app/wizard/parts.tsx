@@ -3,7 +3,7 @@
  */
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { CircleX, TriangleAlert, Info } from 'lucide-react';
+import { Check, CircleX, TriangleAlert, Info, X } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { api, type ModuleInfo } from '../api';
 import { ModuleIcon } from '../moduleIcons';
@@ -205,6 +205,26 @@ export function PartialNote( { reviewed, onOpen }: { reviewed: boolean; onOpen: 
 	);
 }
 
+/** Text with the server's boolean marks (check / cross characters) drawn as Lucide icons. */
+export function Marks( { text }: { text: string } ): JSX.Element {
+	if ( ! /[✓✗]/.test( text ) ) {
+		return <>{ text }</>;
+	}
+	return (
+		<>
+			{ text.split( /([✓✗])/ ).map( ( part, i ) => {
+				if ( '✓' === part ) {
+					return <Check key={ i } size={ 14 } className="uxs-wiz-mark is-yes" aria-label={ __( 'Yes', 'ux-studio' ) } />;
+				}
+				if ( '✗' === part ) {
+					return <X key={ i } size={ 14 } className="uxs-wiz-mark is-no" aria-label={ __( 'No', 'ux-studio' ) } />;
+				}
+				return part;
+			} ) }
+		</>
+	);
+}
+
 function nameList( names: string[] ): string {
 	if ( 0 === names.length ) {
 		return '-';
@@ -235,10 +255,10 @@ export function MenuRoleTable( { rows }: { rows: MenuRoleRow[] } ): JSX.Element 
 								<tr key={ row.role } className={ same ? 'is-same' : 'is-changed' }>
 									<td>{ row.label }</td>
 									<td title={ row.before.join( ', ' ) }>
-										<strong>{ row.before.length }</strong> <span className="uxs-wiz-muted">{ nameList( row.before ) }</span>
+										<strong>{ row.before.length }</strong> <span className="uxs-wiz-muted"><Marks text={ nameList( row.before ) } /></span>
 									</td>
 									<td title={ row.after.join( ', ' ) }>
-										<strong>{ row.after.length }</strong> <span className="uxs-wiz-muted">{ nameList( row.after ) }</span>
+										<strong>{ row.after.length }</strong> <span className="uxs-wiz-muted"><Marks text={ nameList( row.after ) } /></span>
 									</td>
 								</tr>
 							);
@@ -290,7 +310,7 @@ export function DetailRows( { rows }: { rows: DetailRow[] } ): JSX.Element | nul
 				{ rows.map( ( row, i ) => (
 					<div key={ `${ i }-${ row.label }` }>
 						{ '' !== row.label && <dt>{ row.label }</dt> }
-						<dd>{ row.value }</dd>
+						<dd><Marks text={ row.value } /></dd>
 					</div>
 				) ) }
 			</dl>
@@ -302,7 +322,7 @@ export function DetailRows( { rows }: { rows: DetailRow[] } ): JSX.Element | nul
 function ValueCell( { text, rows }: { text: string; rows?: DetailRow[] } ): JSX.Element {
 	return (
 		<>
-			<code>{ '' === text ? '-' : text }</code>
+			<code>{ '' === text ? '-' : <Marks text={ text } /> }</code>
 			{ rows && <DetailRows rows={ rows } /> }
 		</>
 	);
@@ -396,7 +416,7 @@ export function TestRows( { run, labels }: { run: SmokeRun; labels?: Record< str
 						<div className="uxs-wiz-trow__body">
 							<strong>{ item.label }</strong>
 							{ 'site' !== item.group && labels?.[ item.group ] && <span className="uxs-wiz-muted">{ labels[ item.group ] }</span> }
-							{ result && '' !== result.detail && <span className={ 'fail' === result.status ? 'uxs-wiz-error-text' : 'uxs-wiz-muted' }>{ result.detail }</span> }
+							{ result && '' !== result.detail && <span className={ 'fail' === result.status ? 'uxs-wiz-error-text' : 'uxs-wiz-muted' }><Marks text={ result.detail } /></span> }
 						</div>
 						{ result && result.ms > 0 && <span className="uxs-wiz-muted uxs-wiz-trow__ms">{ sprintf( /* translators: %d: milliseconds. */ __( '%d ms', 'ux-studio' ), result.ms ) }</span> }
 					</li>

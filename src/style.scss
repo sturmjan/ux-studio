@@ -4010,3 +4010,16 @@ $uxs-text-fields: 'input[type="text"], input[type="url"], input[type="email"], i
 }
 
 .uxs-wt__tick { display: inline-flex; width: 14px; flex: 0 0 14px; color: var(--uxs-brand-text); }
+
+/* Repeater field (list of cards: slideshow messages, rules) */
+.uxs-repeater { display: flex; flex-direction: column; gap: 8px; }
+.uxs-repeater__item { border: 1px solid var(--uxs-border, #dcdcde); border-radius: 8px; background: var(--uxs-surface, #fff); }
+.uxs-repeater__item.is-off .uxs-repeater__title { opacity: 0.55; }
+.uxs-repeater__head { display: flex; align-items: center; gap: 10px; padding: 8px 12px; }
+.uxs-repeater__title { flex: 1; display: flex; align-items: center; gap: 8px; background: none; border: 0; padding: 0; text-align: left; font-weight: 600; cursor: pointer; min-width: 0; }
+.uxs-repeater__title span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.uxs-repeater__title svg { transition: transform 0.15s; transform: rotate(-90deg); }
+.uxs-repeater__title svg.is-open { transform: none; }
+.uxs-repeater__body { padding: 4px 16px 12px; border-top: 1px solid var(--uxs-border, #dcdcde); display: flex; flex-direction: column; gap: 12px; }
+.uxs-repeater__remove { color: #b32d2e; }
+.uxs-repeater__add { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; }

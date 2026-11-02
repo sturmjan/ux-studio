@@ -6,18 +6,21 @@
  */
 import { Fragment, useEffect, useId, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ArrowDown, ArrowUp, ChevronDown, Plus, Trash2 } from 'lucide-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { api, queryClient } from './api';
 import { TabsNav } from './SubNav';
 import { ColorField } from '../components/ColorField';
 import MultiSelectField from '../components/MultiSelectField';
 import SettingExplain from '../components/SettingExplain';
 import type { Explain } from '../components/SettingExplain';
-import { type ShowIf, isEmptyValue, visibleKeys } from './showIf';
+import { type ShowIf, type Scalar, isEmptyValue, isVisible, visibleKeys } from './showIf';
 
-export type Value = string | number | boolean | string[] | null;
+/** One item of a `repeater` field: its sub-field values by key. */
+export type RepeaterItem = Record< string, string | number | boolean | string[] | null >;
+
+export type Value = string | number | boolean | string[] | RepeaterItem[] | null;
 
 export interface Field {
 	key: string;
@@ -33,7 +36,8 @@ export interface Field {
 		| 'media'
 		| 'datetime'
 		| 'richtext'
-		| 'widget_rules';
+		| 'widget_rules'
+		| 'repeater';
 	label: string;
 	help?: string;
 	/** Plain-language details (what it does, the risk, when to switch it off), shown under the help. */
@@ -52,12 +56,17 @@ export interface Field {
 	wide?: boolean;
 	/** Edited by a screen of its own (not by the generic form): never drawn here and never sent back by the form's save. */
 	managed?: boolean;
+	/** A `repeater`: the sub-fields of one item, the name shown on an item's card and the key whose value titles it. */
+	item_fields?: Field[];
+	item_label?: string;
+	item_title?: string;
+	max_items?: number;
 	/** What a `media` field holds, so the buttons read "Select icon" instead of "Select image". */
 	media_noun?: 'image' | 'icon';
 }
 
 /** Field types whose input needs a full grid row to stay readable. */
-const WIDE_TYPES: ReadonlyArray< Field[ 'type' ] > = [ 'textarea', 'css', 'richtext', 'multiselect' ];
+const WIDE_TYPES: ReadonlyArray< Field[ 'type' ] > = [ 'textarea', 'css', 'richtext', 'multiselect', 'repeater' ];
 
 export interface SettingsPayload {
 	name: string;
@@ -137,6 +146,102 @@ function MediaField( { value, onChange, noun }: { value: number; onChange: ( v: 
 				</button>
 			) : null }
 		</span>
+	);
+}
+
+/** Editable list of items (a slideshow, a set of rules): add, reorder, remove, fold open and shut. */
+function RepeaterField( { field, value, onChange }: { field: Field; value: Value; onChange: ( v: Value ) => void } ): JSX.Element {
+	const items = ( Array.isArray( value ) ? value : [] ).filter( ( i ): i is RepeaterItem => 'object' === typeof i && null !== i && ! Array.isArray( i ) );
+	const subFields = field.item_fields ?? [];
+	const [ open, setOpen ] = useState< number | null >( null );
+	const max = field.max_items ?? 50;
+	const name = field.item_label ?? __( 'Item', 'ux-studio' );
+	const blank = (): RepeaterItem => Object.fromEntries( subFields.map( ( f ) => [ f.key, ( f.default ?? ( 'toggle' === f.type ? false : '' ) ) as RepeaterItem[ string ] ] ) );
+	const set = ( next: RepeaterItem[] ): void => onChange( next );
+	const move = ( i: number, to: number ): void => {
+		const next = [ ...items ];
+		const moved = next[ i ];
+		next[ i ] = next[ to ] as RepeaterItem;
+		next[ to ] = moved as RepeaterItem;
+		set( next );
+		setOpen( to );
+	};
+	const flag = subFields.find( ( f ) => 'toggle' === f.type );
+	return (
+		<div className="uxs-repeater">
+			{ items.map( ( item, i ) => {
+				const heading = field.item_title ? String( item[ field.item_title ] ?? '' ).trim() : '';
+				const isOpen = open === i;
+				const text = subFields.find( ( f ) => 'richtext' === f.type || 'textarea' === f.type );
+				const preview = text ? String( item[ text.key ] ?? '' ).replace( /<[^>]*>/g, '' ).trim() : '';
+				const label = heading || preview.slice( 0, 60 ) || sprintf( '%1$s %2$d', name, i + 1 );
+				return (
+					<div key={ i } className={ `uxs-repeater__item${ flag && ! item[ flag.key ] ? ' is-off' : '' }` }>
+						<div className="uxs-repeater__head">
+							<button type="button" className="uxs-repeater__title" aria-expanded={ isOpen } onClick={ () => setOpen( isOpen ? null : i ) }>
+								<ChevronDown size={ 16 } aria-hidden="true" className={ isOpen ? 'is-open' : '' } />
+								<span>{ label }</span>
+							</button>
+							{ flag ? (
+								<button
+									type="button"
+									className={ `uxs-switch${ item[ flag.key ] ? ' is-on' : '' }` }
+									aria-pressed={ !! item[ flag.key ] }
+									aria-label={ flag.label }
+									title={ flag.label }
+									onClick={ () => set( items.map( ( it, n ) => ( n === i ? { ...it, [ flag.key ]: ! it[ flag.key ] } : it ) ) ) }
+								/>
+							) : null }
+							<button type="button" className="button-link" disabled={ 0 === i } aria-label={ __( 'Move up', 'ux-studio' ) } onClick={ () => move( i, i - 1 ) }>
+								<ArrowUp size={ 16 } aria-hidden="true" />
+							</button>
+							<button type="button" className="button-link" disabled={ i === items.length - 1 } aria-label={ __( 'Move down', 'ux-studio' ) } onClick={ () => move( i, i + 1 ) }>
+								<ArrowDown size={ 16 } aria-hidden="true" />
+							</button>
+							<button
+								type="button"
+								className="button-link uxs-repeater__remove"
+								aria-label={ __( 'Remove', 'ux-studio' ) }
+								onClick={ () => {
+									set( items.filter( ( _, n ) => n !== i ) );
+									setOpen( null );
+								} }
+							>
+								<Trash2 size={ 16 } aria-hidden="true" />
+							</button>
+						</div>
+						{ isOpen ? (
+							<div className="uxs-repeater__body">
+								{ subFields
+									.filter( ( f ) => f !== flag && isVisible( f.show_if, item as Record< string, Scalar > ) )
+									.map( ( f ) => (
+										<div key={ f.key } className="uxs-form__row">
+											<label>{ f.label }</label>
+											<FieldInput
+												field={ f }
+												value={ item[ f.key ] ?? null }
+												onChange={ ( v ) => set( items.map( ( it, n ) => ( n === i ? { ...it, [ f.key ]: v as RepeaterItem[ string ] } : it ) ) ) }
+											/>
+											{ f.help ? <p className="uxs-form__help">{ f.help }</p> : null }
+										</div>
+									) ) }
+							</div>
+						) : null }
+					</div>
+				);
+			} ) }
+			<button
+				type="button"
+				className="button uxs-repeater__add"
+				disabled={ items.length >= max }
+				onClick={ () => {
+					set( [ ...items, blank() ] );
+					setOpen( items.length );
+				} }
+			>
+				<Plus size={ 16 } aria-hidden="true" /> { sprintf( /* translators: %s: the name of one item, e.g. "Message". */ __( 'Add: %s', 'ux-studio' ), name ) }
+			</button>
+		</div>
 	);
 }
 
@@ -225,6 +330,8 @@ export function FieldInput( {
 					onChange={ onChange }
 				/>
 			);
+		case 'repeater':
+			return <RepeaterField field={ field } value={ value } onChange={ onChange } />;
 		case 'media':
 			return <MediaField value={ Number( value ?? 0 ) } onChange={ onChange } noun={ field.media_noun } />;
 		case 'datetime':
