@@ -8,7 +8,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { ArrowRight, Camera, ChevronDown, CircleCheck, Eye, History as HistoryIcon, Power, Radar, ShieldCheck, Sparkles, Undo2, Wand2 } from 'lucide-react';
 import { navigate } from '../route';
 import type { WizardCtx } from './context';
-import { ChangeTable, DataCounts, DetailRows, DrawnCheck, ErrorLine, MatchBadge, MenuRoleTable, PartialNote, PlanDetails, SourceIcon, StateIcon, StatusBadge, StepHead, UndoMigrationModal, Warnings, reducedMotion, sourceSummary } from './parts';
+import { ChangeTable, DataCounts, DetailRows, DrawnCheck, ErrorLine, Marks, MatchBadge, MenuRoleTable, PartialNote, PlanDetails, SourceIcon, StateIcon, StatusBadge, StepHead, UndoMigrationModal, Warnings, reducedMotion, sourceSummary } from './parts';
 import { PreviewStep, RevertedDone, SwitchStep, SwitchedDone } from './steps-preview';
 import type { RunSource, ScanSource } from './types';
 
@@ -514,7 +514,7 @@ function VerifyStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 									<li key={ c.id } className={ c.ok ? 'is-ok' : 'is-bad' }>
 										<StateIcon state={ c.ok ? 'ok' : 'error' } />
 										<span>{ c.label }</span>
-										{ c.detail && <span className="uxs-wiz-muted uxs-wiz-checks__detail">{ c.detail }</span> }
+										{ c.detail && <span className="uxs-wiz-muted uxs-wiz-checks__detail"><Marks text={ c.detail } /></span> }
 										{ c.staged && <span className="uxs-badge is-info">{ __( 'Prepared - takes effect after the switch', 'ux-studio' ) }</span> }
 										{ c.rows && c.rows.length > 0 && (
 											<div className="uxs-wiz-checks__rows">

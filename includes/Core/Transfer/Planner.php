@@ -96,6 +96,7 @@ final class Planner {
 				$allowed = array_map( 'strval', array_keys( (array) ( $field['options'] ?? array() ) ) );
 				// Choices this site itself does not offer are left out, so the file only holds what the site can read back.
 				return $allowed ? array_values( array_intersect( $list, $allowed ) ) : $list;
+			case 'repeater':
 			case 'widget_rules':
 				// Kept as the map it is; an empty value is an empty map (the file then holds `[]`).
 				return null === $value || '' === $value ? array() : ( is_array( $value ) ? $value : null );
@@ -269,6 +270,7 @@ final class Planner {
 			case 'media':
 				return 0;
 			case 'multiselect':
+			case 'repeater':
 			case 'widget_rules':
 				return array();
 			default:
@@ -355,6 +357,10 @@ final class Planner {
 		}
 		if ( 'media' === $type ) {
 			return is_int( $value ) && $value > 0 ? '#' . $value : __( '(empty)', 'ux-studio' );
+		}
+		if ( 'repeater' === $type && is_array( $value ) ) {
+			/* translators: %d: number of items in a list setting. */
+			return sprintf( _n( '%d item', '%d items', count( $value ), 'ux-studio' ), count( $value ) );
 		}
 		if ( 'widget_rules' === $type && is_array( $value ) ) {
 			$hidden = count( array_filter( $value, static fn( $r ) => is_array( $r ) && ! empty( $r['hidden'] ) ) );

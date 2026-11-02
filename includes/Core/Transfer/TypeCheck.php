@@ -90,6 +90,12 @@ final class TypeCheck {
 				}
 				return $good( array_values( array_unique( $kept ) ), $dropped );
 
+			case 'repeater':
+				if ( ! is_array( $value ) || count( $value ) > (int) ( $field['max_items'] ?? 50 ) ) {
+					return $bad( __( 'Expected a list of items.', 'ux-studio' ) );
+				}
+				return $good( array_values( $value ) );
+
 			case 'widget_rules':
 				if ( ! is_array( $value ) ) {
 					return $bad( __( 'Expected a list of dashboard widget rules.', 'ux-studio' ) );

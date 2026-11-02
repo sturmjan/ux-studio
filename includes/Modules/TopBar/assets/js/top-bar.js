@@ -13,12 +13,38 @@
 		content = bar.querySelector('.uxstudio-top-bar__content');
 		if (!track || !content) return;
 
+		if (bar.hasAttribute('data-slides')) {
+			startSlideshow();
+			return;
+		}
+
 		checkOverflow();
 
 		window.addEventListener('resize', function () {
 			clearTimeout(resizeTimer);
 			resizeTimer = setTimeout(checkOverflow, 200);
 		});
+	}
+
+	// Two or more messages: show one at a time and switch on a timer (paused on hover/focus, still under reduced motion).
+	function startSlideshow() {
+		var slides = track.querySelectorAll('.uxstudio-top-bar__content');
+		var index = 0;
+		var paused = false;
+		var seconds = parseInt(bar.getAttribute('data-interval'), 10) || 6;
+
+		bar.classList.add('uxstudio-top-bar--slides');
+		bar.addEventListener('mouseenter', function () { paused = true; });
+		bar.addEventListener('mouseleave', function () { paused = false; });
+		bar.addEventListener('focusin', function () { paused = true; });
+		bar.addEventListener('focusout', function () { paused = false; });
+
+		window.setInterval(function () {
+			if (paused || document.hidden) return;
+			slides[index].classList.remove('is-active');
+			index = (index + 1) % slides.length;
+			slides[index].classList.add('is-active');
+		}, seconds * 1000);
 	}
 
 	function checkOverflow() {

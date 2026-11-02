@@ -116,6 +116,15 @@ final class Settings {
 			case 'widget_rules':
 				// Who sees which dashboard widget: a map id => {hidden, roles}, roles limited to the ones the site has.
 				return \UxStudio\Modules\DashboardWidgets\WidgetRules::sanitize( $value, array_map( 'strval', array_keys( $field['options'] ?? array() ) ) ?: null );
+			case 'repeater':
+				// A list of items, each one sanitized by the sub-fields the schema declares (`item_fields`).
+				$out = array();
+				foreach ( array_slice( array_values( (array) $value ), 0, (int) ( $field['max_items'] ?? 50 ) ) as $item ) {
+					if ( is_array( $item ) ) {
+						$out[] = self::clean( $item, (array) ( $field['item_fields'] ?? array() ) ) + self::defaults_of( (array) ( $field['item_fields'] ?? array() ) );
+					}
+				}
+				return $out;
 			case 'color':
 				return (string) sanitize_hex_color( (string) $value );
 			case 'richtext':
@@ -135,5 +144,19 @@ final class Settings {
 			default:
 				return sanitize_text_field( (string) $value );
 		}
+	}
+
+	/**
+	 * Default values of a list of schema fields (what an item of a repeater gets for a missing sub-field).
+	 *
+	 * @param array $fields Schema fields.
+	 * @return array<string, mixed>
+	 */
+	private static function defaults_of( array $fields ): array {
+		$out = array();
+		foreach ( $fields as $field ) {
+			$out[ $field['key'] ] = $field['default'] ?? ( 'toggle' === $field['type'] ? false : '' );
+		}
+		return $out;
 	}
 }

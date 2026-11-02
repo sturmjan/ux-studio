@@ -8,7 +8,7 @@
  *   { key, truthy }  true: the value is on / not empty; false: it is off / empty
  * A field whose condition is not met is just not drawn; its stored value is never touched.
  */
-export type Scalar = string | number | boolean | string[] | null | undefined;
+export type Scalar = string | number | boolean | unknown[] | null | undefined;
 
 export interface ShowIfCondition {
 	key: string;
