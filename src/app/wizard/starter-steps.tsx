@@ -68,7 +68,7 @@ function groups(): Group[] {
 			id: 'admin',
 			title: __( 'Administration', 'ux-studio' ),
 			icon: <LayoutDashboard size={ 18 } aria-hidden />,
-			ids: [ 'hide-wordpress', 'dashboard-widgets', 'clean-profiles', 'user-last-login', 'email-log' ],
+			ids: [ 'hide-wordpress', 'wp-menu', 'dashboard-widgets', 'clean-profiles', 'user-last-login', 'email-log' ],
 		},
 		{
 			id: 'content',

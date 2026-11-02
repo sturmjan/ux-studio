@@ -201,7 +201,7 @@ final class MenuOrganizer {
 				'/^user-role-editor/i', '/^pms-/i',
 			),
 			'content'    => array(
-				'/^edit\.php/', '/^post-new\.php/', '/^edit-comments\.php$/', '/^edit-tags\.php/',
+				'/^uxs-content$/', '/^edit\.php/', '/^post-new\.php/', '/^edit-comments\.php$/', '/^edit-tags\.php/',
 				'/^acf-/i', '/^cptui/i', '/^pods/i', '/^mb[-_]/i', '/^toolset/i', '/^wpcf7/i',
 				'/^wpforms/i', '/^gf[-_]/i', '/^forminator/i', '/^fluentform/i', '/^ninja[-_]?forms/i',
 				'/^formidable/i',

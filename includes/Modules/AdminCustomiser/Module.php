@@ -41,6 +41,7 @@ final class Module extends BaseModule {
 	 */
 	public function boot(): void {
 		MenuOrganizerBootstrap::register();
+		( new ModuleLinks( $this->settings ) )->register();
 		MenuLock::register();
 		MiscBootstrap::register();
 	}
@@ -315,6 +316,31 @@ final class Module extends BaseModule {
 				'label'   => __( 'Turn on menu organizer', 'ux-studio' ),
 				'help'    => __( 'Reorganizes the WordPress admin menu into custom categories. Configure categories, item order and overrides in the Menu Organizer tab.', 'ux-studio' ),
 				'default' => false,
+			),
+			array(
+				'key'     => 'content_hub_enabled',
+				'section' => __( 'Sidebar menu', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Merge content into one "Content" item', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'module_links_enabled',
+				'section' => __( 'Sidebar menu', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Add UX Studio modules to the menu', 'ux-studio' ),
+				'default' => false,
+			),
+			array(
+				'key'     => 'module_links_badges',
+				'section' => __( 'Sidebar menu', 'ux-studio' ),
+				'type'    => 'toggle',
+				'label'   => __( 'Show counts next to module links', 'ux-studio' ),
+				'default' => true,
+				'show_if' => array(
+					'key'    => 'module_links_enabled',
+					'truthy' => true,
+				),
 			),
 			array(
 				'key'     => 'menu_lock_enabled',

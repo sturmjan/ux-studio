@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.12.0
+
+- Added: UX Studio modules in the WordPress menu (Admin Customiser, "Sidebar menu"). "Add UX Studio modules to the menu" puts a link to each module that is switched on into the matching place: Content, Media, Tools, Settings, Users and Appearance. The main "UX Studio" item stays as it is. Administrators only.
+- Added: "Merge content into one "Content" item" moves Posts, Pages and your own content types out of the top level into one "Content" item (WooCommerce products and Elementor templates keep their own item). With the module links on, the content modules (Top Bar, Popups, Exit Popup, Forms, Opening Hours, Notice Board, Reviews, Redirects, Folders) are listed there too. The Menu Organizer files the hub under its Content category.
+- Added: small counts next to module links for unread form entries, open Vulnerability Scanner findings and e-mails that failed in the last 7 days (switch "Show counts next to module links"; cached for 5 minutes).
+- Added: the setup wizard has a recommended, pre-ticked item "Tidy WordPress menu" that turns on the Menu Organizer, the Content hub and the module links.
+- Added: the filters `uxstudio_module_menu_links` and `uxstudio_content_hub_exclude` adjust the links and the types the hub does not take over.
+
 ## 0.11.0
 
 - Added: the Top Bar can rotate several messages like a slideshow. Next to the simple bar text there is a new list "More messages": each message is either text only or heading and text, has its own "Show from" and "Show until" time and a Published switch, and can be reordered or removed. The seconds per message are configurable. A single active message behaves as before (long text scrolls); with two or more the bar switches between them and pauses on hover.
