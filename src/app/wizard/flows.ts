@@ -208,6 +208,8 @@ export interface SwitchFlags {
 	ack_login: boolean;
 	override_failures: boolean;
 	no_preview: boolean;
+	/** The automatic switch after the verification: no preview was run (a failed one still blocks). */
+	skip_preview: boolean;
 }
 
 export interface SwitchFlow {
@@ -227,12 +229,12 @@ export interface SwitchFlow {
 	/** Forget the state of this run (after its switch was undone elsewhere). */
 	clear: () => void;
 	loadPlan: () => Promise< void >;
-	doSwitch: () => Promise< boolean >;
+	doSwitch: ( extra?: Partial< SwitchFlags > ) => Promise< boolean >;
 	revert: () => Promise< boolean >;
 	rerunLive: () => Promise< void >;
 }
 
-const NO_FLAGS: SwitchFlags = { ack_login: false, override_failures: false, no_preview: false };
+const NO_FLAGS: SwitchFlags = { ack_login: false, override_failures: false, no_preview: false, skip_preview: false };
 
 export function useSwitch( runId: string | null ): SwitchFlow {
 	const live = useSmoke( 'live' );
@@ -283,14 +285,14 @@ export function useSwitch( runId: string | null ): SwitchFlow {
 		void refreshOverlaps();
 	}, [] );
 
-	const doSwitch = useCallback( async (): Promise< boolean > => {
+	const doSwitch = useCallback( async ( extra?: Partial< SwitchFlags > ): Promise< boolean > => {
 		if ( ! runId ) {
 			return false;
 		}
 		setSwitching( true );
 		setSwitchError( null );
 		try {
-			const res = await post< SwitchResult >( 'migration/switch', { run_id: runId, ...flags } );
+			const res = await post< SwitchResult >( 'migration/switch', { run_id: runId, ...flags, ...extra } );
 			setResult( res );
 			setReverted( false );
 			changed();

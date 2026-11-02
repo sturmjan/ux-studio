@@ -299,8 +299,7 @@ final class Preview {
 				continue;
 			}
 			foreach ( $source->plugin_slugs() as $slug ) {
-				$info = PluginInfo::find( (string) $slug );
-				if ( $info && $info['active'] ) {
+				foreach ( PluginInfo::active_family( (string) $slug ) as $info ) {
 					$plugins[] = $info['basename'];
 				}
 			}

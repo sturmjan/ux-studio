@@ -124,8 +124,7 @@ final class Switcher {
 		foreach ( $sources as $id ) {
 			$source = SourceRegistry::get( $id );
 			foreach ( $source ? $source->plugin_slugs() : array() as $slug ) {
-				$info = PluginInfo::find( (string) $slug );
-				if ( $info && $info['active'] ) {
+				foreach ( PluginInfo::active_family( (string) $slug ) as $info ) {
 					$plugins[] = array(
 						'basename' => $info['basename'],
 						'name'     => '' !== $info['name'] ? $info['name'] : (string) $slug,
@@ -228,10 +227,14 @@ final class Switcher {
 		$preview = $plan['preview'];
 		if ( $preview['available']['ok'] ) {
 			if ( ! $preview['tested'] ) {
-				$out[] = array(
-					'code'    => 'preview_missing',
-					'message' => __( 'Run the safe preview and its tests first.', 'ux-studio' ),
-				);
+				// The wizard's automatic switch after the verification goes without a preview (the undo, the live check
+				// and the automatic revert still apply). A preview that was run and failed is never skipped.
+				if ( empty( $flags['skip_preview'] ) ) {
+					$out[] = array(
+						'code'    => 'preview_missing',
+						'message' => __( 'Run the safe preview and its tests first.', 'ux-studio' ),
+					);
+				}
 			} elseif ( ! $preview['complete'] ) {
 				$out[] = array(
 					'code'    => 'preview_incomplete',
@@ -243,7 +246,7 @@ final class Switcher {
 					'message' => __( 'Some preview tests failed. Fix the cause, or confirm that you want to switch anyway.', 'ux-studio' ),
 				);
 			}
-		} elseif ( empty( $flags['no_preview'] ) ) {
+		} elseif ( empty( $flags['no_preview'] ) && empty( $flags['skip_preview'] ) ) {
 			$out[] = array(
 				'code'    => 'preview_unavailable',
 				'message' => __( 'The safe preview is not available here. Switch without it only if you confirm that you accept the risk.', 'ux-studio' ),
@@ -256,6 +259,20 @@ final class Switcher {
 			);
 		}
 		return $out;
+	}
+
+	/**
+	 * Which of these plugin files are still active (site list and, on a network, the network list).
+	 *
+	 * @param string[] $basenames Plugin files.
+	 * @return string[]
+	 */
+	private static function still_active( array $basenames ): array {
+		$active = (array) get_option( 'active_plugins', array() );
+		if ( function_exists( 'is_multisite' ) && is_multisite() ) {
+			$active = array_merge( $active, array_keys( (array) get_site_option( 'active_sitewide_plugins', array() ) ) );
+		}
+		return array_values( array_intersect( $basenames, $active ) );
 	}
 
 	/* ── Switch ── */
@@ -330,7 +347,7 @@ final class Switcher {
 			'effect_modules' => array(),
 			'staging'        => $entry,
 			'htaccess'       => $htaccess,
-			'flags'          => array_intersect_key( $flags, array_flip( array( 'override_failures', 'no_preview' ) ) ),
+			'flags'          => array_intersect_key( $flags, array_flip( array( 'override_failures', 'no_preview', 'skip_preview' ) ) ),
 		);
 		update_option( self::option_name( $run_id ), $record, false );
 		ActivityLog::log( 'core', 'migration_switch_started', 'migration', 0, array( 'run' => $run_id, 'plugins' => $targets['plugins'], 'modules' => $targets['modules'] ) );
@@ -385,11 +402,28 @@ final class Switcher {
 			if ( $targets['plugins'] ) {
 				deactivate_plugins( $targets['plugins'], false );
 			}
-			$now_active = (array) get_option( 'active_plugins', array() );
+			// Some plugins stay on (network-wide activation, a plugin that blocks its own deactivation): try again
+			// silently and network-wide, and say so when it still does not work instead of leaving it unnoticed.
+			$left = self::still_active( $targets['plugins'] );
+			if ( $left ) {
+				deactivate_plugins( $left, true );
+				$left = self::still_active( $left );
+			}
+			if ( $left && function_exists( 'is_multisite' ) && is_multisite() ) {
+				deactivate_plugins( $left, true, true );
+				$left = self::still_active( $left );
+			}
 			foreach ( $targets['plugins'] as $basename ) {
-				if ( ! in_array( $basename, $now_active, true ) ) {
+				if ( ! in_array( $basename, $left, true ) ) {
 					$record['deactivated'][] = $basename;
 				}
+			}
+			foreach ( $left as $basename ) {
+				$errors[] = sprintf(
+					/* translators: %s: plugin file. */
+					__( 'The plugin "%s" could not be deactivated. Deactivate it on the Plugins screen.', 'ux-studio' ),
+					$basename
+				);
 			}
 			PluginInfo::flush();
 		} catch ( \Throwable $e ) {
