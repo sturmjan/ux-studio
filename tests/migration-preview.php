@@ -646,6 +646,14 @@ $assert( 'the switch refuses with 409 and lists the blockers', is_wp_error( $blo
 $unavail = $plan;
 $unavail['preview']['available'] = array( 'ok' => false, 'reason' => 'x', 'path' => '' );
 $assert( 'without an available preview only an explicit "no preview" lets the switch go', array( 'preview_unavailable' ) === array_column( Switcher::blockers( $unavail, $flags_ok ), 'code' ) && array() === Switcher::blockers( $unavail, $flags_ok + array( 'no_preview' => true ) ) );
+$assert( 'the automatic switch (skip_preview) goes without a preview that was never run', array() === Switcher::blockers( $plan, $flags_ok + array( 'skip_preview' => true ) ), json_encode( Switcher::blockers( $plan, $flags_ok + array( 'skip_preview' => true ) ) ) );
+$failed_preview = $plan;
+$failed_preview['preview']['tested']   = true;
+$failed_preview['preview']['complete'] = true;
+$failed_preview['preview']['counts']['fail'] = 1;
+$assert( 'skip_preview never skips a preview that was run and failed', array( 'preview_failed' ) === array_column( Switcher::blockers( $failed_preview, $flags_ok + array( 'skip_preview' => true ) ), 'code' ) );
+$assert( 'skip_preview does not skip the login acknowledgement', array( 'login_ack' ) === array_column( Switcher::blockers( $plan, array( 'skip_preview' => true ) ), 'code' ) );
+$assert( 'plugin editions are one family (FileBird Pro next to FileBird)', 'filebird' === PluginInfo::family_key( 'filebird-pro' ) && 'real-media-library' === PluginInfo::family_key( 'real-media-library-lite' ) && PluginInfo::family_key( 'filebird' ) === PluginInfo::family_key( 'filebird-premium' ) && 'classic-editor' === PluginInfo::family_key( 'classic-editor' ) && 'duplicate-page' === PluginInfo::family_key( 'duplicate-page' ) );
 $assert( 'a changed login address needs the acknowledgement', in_array( 'login_ack', array_column( Switcher::blockers( $plan, array() ), 'code' ), true ) );
 
 // Record complete, passing preview tests.

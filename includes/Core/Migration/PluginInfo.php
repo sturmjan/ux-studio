@@ -65,4 +65,37 @@ final class PluginInfo {
 	public static function find( string $slug ): ?array {
 		return self::all()[ $slug ] ?? null;
 	}
+
+	/**
+	 * Folder slug without the edition suffix, so `filebird-pro` and `filebird` are one plugin family.
+	 *
+	 * @param string $slug Folder slug.
+	 */
+	public static function family_key( string $slug ): string {
+		$key = strtolower( $slug );
+		do {
+			$before = $key;
+			$key    = (string) preg_replace( '/-(pro|premium|lite|free)$/', '', $key );
+		} while ( $key !== $before && '' !== $key );
+		return '' === $key ? strtolower( $slug ) : $key;
+	}
+
+	/**
+	 * Every ACTIVE plugin of a family: the plugin the catalog names and its other editions (a Pro next to the
+	 * Lite, which keeps the same folders and data). Used to decide which plugins the switch must turn off.
+	 *
+	 * @param string $slug Folder slug from the catalog.
+	 * @return array<int, array{basename:string,name:string,version:string,active:bool}>
+	 */
+	public static function active_family( string $slug ): array {
+		$want = self::family_key( $slug );
+		$out  = array();
+		foreach ( self::all() as $found => $info ) {
+			if ( $info['active'] && ( $found === $slug || self::family_key( (string) $found ) === $want ) ) {
+				$out[ $info['basename'] ] = $info;
+			}
+		}
+		// A family can have several folders with an active file each: all() keeps only one per folder, which is enough.
+		return array_values( $out );
+	}
 }

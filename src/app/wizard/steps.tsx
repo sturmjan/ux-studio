@@ -3,7 +3,7 @@
  * insert an entry there; nothing else needs to know how many steps there are.
  * The safe preview, the switch and the finish of a switched run are in steps-preview.tsx.
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { ArrowRight, Camera, ChevronDown, CircleCheck, Eye, History as HistoryIcon, Power, Radar, ShieldCheck, Sparkles, Undo2, Wand2 } from 'lucide-react';
 import { navigate } from '../route';
@@ -480,6 +480,33 @@ function VerifyStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 	const failed = verify ? Object.values( verify ).flat().filter( ( c ) => ! c.ok ).length : 0;
 	const labels = ctx.run?.per_source ?? {};
 
+	// Everything matches: the switch follows by itself (modules on, old plugins off). The preview is optional then;
+	// the undo (30 days), the live check and the automatic revert stay. Not for a new login address (it needs an
+	// acknowledgement) and not when anything differs or the migration had errors.
+	const [ auto, setAuto ] = useState( true );
+	const tried = useRef( false );
+	const { sw } = ctx;
+	const clean = !! verify && 0 === failed && !! ctx.target && ! ctx.rolledBack;
+	useEffect( () => {
+		if ( clean && auto ) {
+			void sw.loadPlan();
+		}
+	}, [ auto, clean, sw.loadPlan ] );
+	const plan = sw.plan;
+	const eligible = clean && auto && !! plan && ! plan.switched && 0 === plan.errors && ! plan.login.changes;
+	useEffect( () => {
+		if ( ! eligible || tried.current ) {
+			return;
+		}
+		tried.current = true;
+		void sw.doSwitch( { skip_preview: true } ).then( ( ok ) => {
+			if ( ok ) {
+				ctx.goTo( 'done' );
+			}
+		} );
+	}, [ ctx, eligible, sw ] );
+	const autoHeld = clean && auto && !! plan && ! eligible;
+
 	return (
 		<section className="uxs-wiz-panel">
 			<StepHead icon={ <ShieldCheck size={ 26 } aria-hidden /> } title={ __( 'Verify the result', 'ux-studio' ) }>
@@ -499,6 +526,19 @@ function VerifyStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 								failed
 						  ) }
 				</p>
+			) }
+
+			{ verify && 0 === failed && (
+				<div className="uxs-wiz-next is-wide" role="status">
+					<label className="uxs-wiz-checkrow">
+						<input type="checkbox" checked={ auto } disabled={ sw.switching || !! sw.result } onChange={ ( e ) => setAuto( e.target.checked ) } />
+						<span>{ __( 'Switch automatically: turn on the modules and deactivate the migrated plugins', 'ux-studio' ) }</span>
+					</label>
+					{ sw.switching && <p className="uxs-wiz-muted">{ __( 'Switching…', 'ux-studio' ) }</p> }
+					<ErrorLine text={ sw.switchError } />
+					{ autoHeld && <p className="uxs-wiz-muted">{ plan?.login.changes ? __( 'The login address changes with this switch, so it waits for your confirmation in the next steps.', 'ux-studio' ) : __( 'The automatic switch is waiting: continue to the next steps.', 'ux-studio' ) }</p> }
+					{ ! autoHeld && ! sw.switching && ! sw.switchError && auto && <p className="uxs-wiz-muted">{ __( 'Nothing is deleted and you can undo the switch for 30 days.', 'ux-studio' ) }</p> }
+				</div>
 			) }
 
 			<div className="uxs-wiz-sourcelist">

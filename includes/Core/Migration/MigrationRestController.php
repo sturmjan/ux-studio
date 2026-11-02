@@ -119,6 +119,7 @@ final class MigrationRestController extends Controller {
 				'ack_login'         => $flag(),
 				'override_failures' => $flag(),
 				'no_preview'        => $flag(),
+				'skip_preview'      => $flag(),
 			)
 		);
 		$this->route( '/migration/revert-switch', 'POST', array( $this, 'revert_switch' ), $run_arg );
@@ -243,6 +244,7 @@ final class MigrationRestController extends Controller {
 				'ack_login'         => (bool) $request['ack_login'],
 				'override_failures' => (bool) $request['override_failures'],
 				'no_preview'        => (bool) $request['no_preview'],
+				'skip_preview'      => (bool) $request['skip_preview'],
 			),
 			(int) get_current_user_id()
 		);

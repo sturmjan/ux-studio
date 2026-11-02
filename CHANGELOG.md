@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.13.0
+
+- Added: the migration wizard switches over by itself once the verification shows that everything matches: the modules are turned on and the migrated plugins are deactivated, without a click. A box on the verification step turns this off. The safe preview becomes optional in this path; the undo (30 days), the live check after the switch and the automatic revert stay. A preview that was run and failed still blocks the switch, and a new login address still waits for your confirmation.
+- Fixed: a migrated plugin could stay active after the switch. Other editions of a plugin (for example FileBird Pro next to FileBird, or a Lite and a Pro of the same plugin) are now deactivated together with it, a plugin that stays on is deactivated again silently (and network-wide on a network), and the switch reports any plugin that still could not be deactivated instead of passing over it.
+- Added: Czech translations of the Top Bar slideshow, the repeater field, the module links and the Content hub of the WordPress menu, the count badges and the new wizard texts.
+
 ## 0.12.0
 
 - Added: UX Studio modules in the WordPress menu (Admin Customiser, "Sidebar menu"). "Add UX Studio modules to the menu" puts a link to each module that is switched on into the matching place: Content, Media, Tools, Settings, Users and Appearance. The main "UX Studio" item stays as it is. Administrators only.
