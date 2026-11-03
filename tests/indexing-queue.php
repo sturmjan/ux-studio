@@ -145,5 +145,16 @@ $assert( 'the same overlap never blocks switching the module on (information onl
 Overlaps::set_foreign_reader( null );
 Overlaps::flush();
 
+/* ── One-time switch-on for sites already connected (PLAN.md 39.3) ── */
+
+use UxStudio\Core\Onboarding\SharingUpgrade as Up;
+
+$assert( 'upgrade: a site that is not connected is left alone', 'skip' === Up::decide( false, false, false ) && 'skip' === Up::decide( false, true, false ) );
+$assert( 'upgrade: a connected site with the module on only gets the options', 'configure' === Up::decide( true, true, false ) );
+$assert( 'upgrade: a connected site with the module off gets it switched on', 'enable' === Up::decide( true, false, false ) );
+$assert( 'upgrade: a module the administrator switched off stays off', 'skip' === Up::decide( true, false, true ) );
+$assert( 'upgrade: options the site stored itself are not overwritten', array( 'indexnow_enabled' => true ) === Up::settings_to_store( array( 'social_refresh_enabled' => false, 'social_key_source' => 'own' ), true ) );
+$assert( 'upgrade: all three options for a clean site, IndexNow only when no other plugin sends it', array( 'social_refresh_enabled' => true, 'social_key_source' => 'ca', 'indexnow_enabled' => true ) === Up::settings_to_store( array(), true ) && ! isset( Up::settings_to_store( array(), false )['indexnow_enabled'] ) );
+
 echo PHP_EOL . ( 0 === $failures ? 'ALL PASSED' : $failures . ' FAILED' ) . PHP_EOL;
 exit( 0 === $failures ? 0 : 1 );

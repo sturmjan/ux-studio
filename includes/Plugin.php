@@ -17,6 +17,7 @@ use UxStudio\Core\Migration\ActivationGuard;
 use UxStudio\Core\Migration\Bootstrap as MigrationBootstrap;
 use UxStudio\Core\Locale;
 use UxStudio\Core\Modules;
+use UxStudio\Core\Onboarding\SharingUpgrade;
 use UxStudio\Core\PhpVersion\Bootstrap as PhpVersionBootstrap;
 use UxStudio\Core\Rest;
 use UxStudio\Core\Upgrade;
@@ -68,6 +69,7 @@ final class Plugin {
 
 		if ( is_admin() ) {
 			( new Admin( $this->modules ) )->register();
+			SharingUpgrade::register();
 			( new Megamenu( $this->modules ) )->register();
 		}
 

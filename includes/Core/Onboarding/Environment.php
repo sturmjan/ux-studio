@@ -61,6 +61,7 @@ final class Environment {
 			'bot_blacklist'       => (string) ( $bot_vals['blacklist_ua'] ?? StarterPack::default_env()['bot_blacklist'] ),
 			'bot_whitelist'       => (string) ( $bot_vals['whitelist_ua'] ?? '' ),
 			'blocked_settings'    => Overlaps::blocked_settings( 'security-optimization' ),
+			'blocked_indexing'    => Overlaps::blocked_settings( 'indexing-notice' ),
 			'csp_mode'            => (string) ( $login['csp_mode'] ?? 'off' ),
 			'reserved_users'      => $security instanceof Security ? self::reserved_users( $security ) : array(),
 			'app_passwords'       => self::application_passwords(),
