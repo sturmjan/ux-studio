@@ -17105,13 +17105,13 @@ msgstr "Komprese obrázků v knihovně médií, generování kopií WebP/AVIF s 
 
 #. Restored (module meta.json / not seen by make-pot)
 #. Module name from meta.json
-msgid "Indexing Notice"
-msgstr "Upozornění na indexování"
+msgid "Indexing & Sharing"
+msgstr "Indexování a sdílení"
 
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
-msgid "Show an admin bar warning when search engines are discouraged from indexing the site."
-msgstr "Zobrazí varování v liště administrace, když je vyhledávačům zakázáno web indexovat."
+msgid "Warns when search engines are discouraged, refreshes the preview on Facebook after you change a page and tells search engines about the change (IndexNow)."
+msgstr "Upozorní, když jsou vyhledávače odrazovány, po změně stránky obnoví náhled na Facebooku a dá vědět vyhledávačům o změně (IndexNow)."
 
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
@@ -37595,3 +37595,377 @@ msgstr "Automatické přepnutí čeká: pokračujte dalšími kroky."
 #: build/index.ae0529262ec09fcd8aa2.js:82
 msgid "Nothing is deleted and you can undo the switch for 30 days."
 msgstr "Nic se nemaže a přepnutí můžete 30 dní vrátit zpět."
+
+#: includes/Core/CentralApp/Gateway.php:70
+msgid "The connection to the central app is paused, because this site is a copy or was moved to another address."
+msgstr "Propojení s Centrální aplikací je pozastavené, protože tento web je kopie nebo byl přesunut na jinou adresu."
+
+#. translators: %s: new address of the site.
+#: includes/Core/CentralApp/PausedNotice.php:42
+msgid "This site was moved to %s. The connection with the central app is paused."
+msgstr "Tento web byl přesunut na adresu %s. Propojení s Centrální aplikací je pozastavené."
+
+#: includes/Core/CentralApp/PausedNotice.php:45
+msgid "This site was moved to another address. The connection with the central app is paused."
+msgstr "Tento web byl přesunut na jinou adresu. Propojení s Centrální aplikací je pozastavené."
+
+#. translators: %s: address of the original site.
+#: includes/Core/CentralApp/PausedNotice.php:50
+msgid "This site is a copy of the site %s. The connection with the central app is paused."
+msgstr "Tento web je kopie webu %s. Propojení s Centrální aplikací je pozastavené."
+
+#: includes/Core/CentralApp/PausedNotice.php:53
+msgid "This site is a copy of another site. The connection with the central app is paused."
+msgstr "Tento web je kopie jiného webu. Propojení s Centrální aplikací je pozastavené."
+
+#: includes/Core/CentralApp/PausedNotice.php:66
+msgid "Nothing is sent to the central app from this site: no monitoring data, no preview refresh, no CAPTCHA keys. If this really is a separate site, connect it as a new one."
+msgstr "Z tohoto webu se do Centrální aplikace nic neodesílá: ani data z monitoringu, ani obnovení náhledů, ani klíče CAPTCHA. Pokud je to opravdu samostatný web, připojte ho jako nový."
+
+#: includes/Core/CentralApp/PausedNotice.php:70
+msgid "Connect as a new site"
+msgstr "Připojit jako nový web"
+
+#: includes/Core/Migration/Catalog.php:399
+#: includes/Core/Migration/Catalog.php:410
+#: includes/Core/Migration/Catalog.php:419
+msgid "IndexNow"
+msgstr "IndexNow"
+
+#: includes/Core/Onboarding/CentralApp.php:216
+msgid "This site is a copy or was moved, so its connection is paused. Use \"Connect as a new site\" in the notice first."
+msgstr "Tento web je kopie nebo byl přesunut, proto je jeho propojení pozastavené. Nejdřív v upozornění použijte „Připojit jako nový web“."
+
+#: includes/Core/Onboarding/SharingUpgrade.php:174
+msgid "New: Facebook previews and IndexNow refresh by themselves."
+msgstr "Nově: náhledy na Facebooku a IndexNow se obnovují samy."
+
+#: includes/Core/Onboarding/SharingUpgrade.php:175
+msgid "After you change a published page, Facebook fetches its new preview and Bing and Seznam hear about the change. You can turn either off in the settings."
+msgstr "Po změně zveřejněné stránky si Facebook stáhne její nový náhled a Bing se Seznamem se o změně dozvědí. Obojí můžete v nastavení vypnout."
+
+#: includes/Core/Onboarding/StarterPack.php:887
+msgid "Facebook previews stay off, because the site is not connected to the central app. Connect it, or turn them on later in the module with your own Facebook app."
+msgstr "Náhledy na Facebooku zůstávají vypnuté, protože web není připojený k Centrální aplikaci. Připojte ho, nebo je později zapněte v modulu s vlastní aplikací na Facebooku."
+
+#. translators: %s: plugin names.
+#: includes/Core/Onboarding/StarterPack.php:895
+msgid "IndexNow is left out, because %s already sends it."
+msgstr "IndexNow je vynechané, protože ho už posílá %s."
+
+#: includes/Core/Onboarding/StarterPack.php:904
+msgid "Indexing and sharing"
+msgstr "Indexování a sdílení"
+
+#: includes/Core/Onboarding/StarterPack.php:905
+msgid "Warns in the admin when the site is hidden from search engines, so a launch is not forgotten. After you change a published page it tells Bing and Seznam about it (IndexNow) and, when the site is connected to the central app, makes Facebook fetch the new preview of the link."
+msgstr "Upozorní v administraci, že je web skrytý před vyhledávači, aby se na spuštění nezapomnělo. Po změně zveřejněné stránky o tom dá vědět Bingu a Seznamu (IndexNow) a pokud je web připojený k Centrální aplikaci, přiměje Facebook stáhnout nový náhled odkazu."
+
+#: includes/Modules/IndexingNotice/Dispatcher.php:378
+msgid "The central app asked to wait (too many requests)."
+msgstr "Centrální aplikace požádala o počkání (příliš mnoho požadavků)."
+
+#: includes/Modules/IndexingNotice/Dispatcher.php:382
+msgid "The central app knows this site under another address and is being told about the move."
+msgstr "Centrální aplikace zná tento web pod jinou adresou a právě se jí oznamuje přesun."
+
+#: includes/Modules/IndexingNotice/Dispatcher.php:385
+msgid "This site is a copy or was moved, the connection is paused."
+msgstr "Tento web je kopie nebo byl přesunut, propojení je pozastavené."
+
+#: includes/Modules/IndexingNotice/Dispatcher.php:406
+msgid "The central app sent no result for this address."
+msgstr "Centrální aplikace k této adrese neposlala žádný výsledek."
+
+#: includes/Modules/IndexingNotice/Dispatcher.php:437
+msgid "The Facebook app ID or app secret is missing."
+msgstr "Chybí ID aplikace nebo tajný klíč aplikace na Facebooku."
+
+#: includes/Modules/IndexingNotice/Dispatcher.php:448
+msgid "Facebook asked to wait (too many calls)."
+msgstr "Facebook požádal o počkání (příliš mnoho volání)."
+
+#: includes/Modules/IndexingNotice/Eligibility.php:64
+msgid "This site is a copy or was moved, so nothing is sent."
+msgstr "Tento web je kopie nebo byl přesunut, proto se nic neodesílá."
+
+#: includes/Modules/IndexingNotice/Eligibility.php:66
+msgid "Search engines are discouraged on this site (Settings > Reading), so nothing is sent."
+msgstr "Vyhledávače jsou na tomto webu odrazovány (Nastavení > Čtení), proto se nic neodesílá."
+
+#: includes/Modules/IndexingNotice/Eligibility.php:68
+msgid "This content type has no public page."
+msgstr "Tento typ obsahu nemá veřejnou stránku."
+
+#: includes/Modules/IndexingNotice/Eligibility.php:70
+msgid "Only published content is sent."
+msgstr "Odesílá se jen zveřejněný obsah."
+
+#: includes/Modules/IndexingNotice/Eligibility.php:72
+msgid "The page is protected by a password."
+msgstr "Stránka je chráněná heslem."
+
+#: includes/Modules/IndexingNotice/Eligibility.php:74
+msgid "The page is set to noindex."
+msgstr "Stránka je nastavená na noindex."
+
+#: includes/Modules/IndexingNotice/Eligibility.php:76
+msgid "The maintenance page is shown to visitors right now."
+msgstr "Návštěvníkům se právě ukazuje stránka údržby."
+
+#: includes/Modules/IndexingNotice/FacebookScraper.php:157
+msgid "Enter the app ID (digits only) and the app secret."
+msgstr "Zadejte ID aplikace (jen číslice) a tajný klíč aplikace."
+
+#: includes/Modules/IndexingNotice/FacebookScraper.php:163
+msgid "Facebook could not be reached."
+msgstr "Facebook se nepodařilo kontaktovat."
+
+#: includes/Modules/IndexingNotice/FacebookScraper.php:171
+msgid "The keys are valid."
+msgstr "Klíče jsou platné."
+
+#. translators: %s: error text from Facebook.
+#: includes/Modules/IndexingNotice/FacebookScraper.php:180
+msgid "Facebook refused the keys: %s"
+msgstr "Facebook klíče odmítl: %s"
+
+#: includes/Modules/IndexingNotice/help.php:12
+msgid "When you save a published page, post or product, Facebook is asked to forget the old preview of its link and fetch the title, description and image again. This happens about two minutes after the save, so your page cache has time to clear."
+msgstr "Když uložíte zveřejněnou stránku, příspěvek nebo produkt, Facebook dostane pokyn zapomenout starý náhled jejího odkazu a znovu si stáhnout titulek, popis a obrázek. Stane se to asi dvě minuty po uložení, aby měla vaše mezipaměť stránek čas se vyprázdnit."
+
+#: includes/Modules/IndexingNotice/help.php:13
+msgid "Someone who shares the link on Facebook or Messenger sees the new text and image. Without this, the old preview can stay for weeks. LinkedIn has no automatic refresh, so the editor shows a link to its Post Inspector. X, Pinterest, Telegram, Slack and Discord cannot be refreshed from outside, they renew their previews themselves."
+msgstr "Kdo sdílí odkaz na Facebooku nebo v Messengeru, uvidí nový text a obrázek. Bez toho může starý náhled zůstat i několik týdnů. LinkedIn automatické obnovení nemá, proto je v editoru odkaz na jeho Post Inspector. X, Pinterest, Telegram, Slack a Discord zvenku obnovit nejdou, svoje náhledy si obnovují samy."
+
+#: includes/Modules/IndexingNotice/help.php:14
+msgid "Facebook keeps an image under its address. A picture you replace under the same file name can still look old. Upload it under a new name. Nothing is sent for pages protected by a password, set to noindex, or while the maintenance page or a site that discourages search engines is on."
+msgstr "Facebook si pamatuje obrázek podle jeho adresy. Obrázek, který přepíšete pod stejným názvem souboru, může vypadat pořád staře. Nahrajte ho pod novým názvem. Nic se neodešle u stránek chráněných heslem, nastavených na noindex, ani když je zapnutá stránka údržby nebo web odrazuje vyhledávače."
+
+#: includes/Modules/IndexingNotice/help.php:15
+msgid "Leave it off if the site is not shared on social networks."
+msgstr "Nechte vypnuté, pokud se web na sociálních sítích nesdílí."
+
+#: includes/Modules/IndexingNotice/help.php:18
+msgid "Facebook only answers an app that is registered with it. Central app means this site asks the central app to do the refresh with its app, so you fill in nothing. My own Facebook app means this site calls Facebook itself with keys of your app."
+msgstr "Facebook odpovídá jen aplikaci, která je u něj registrovaná. Centrální aplikace znamená, že obnovení za tento web provede Centrální aplikace svou aplikací, takže nic nevyplňujete. Moje vlastní aplikace na Facebooku znamená, že web volá Facebook sám s klíči vaší aplikace."
+
+#: includes/Modules/IndexingNotice/help.php:19
+msgid "With the central app the site sends only the addresses of changed pages. The secret of the central app never reaches the site. With your own app the limits and the responsibility are yours alone."
+msgstr "U Centrální aplikace web posílá jen adresy změněných stránek. Tajný klíč Centrální aplikace se k webu nikdy nedostane. U vlastní aplikace jsou limity i odpovědnost jen vaše."
+
+#: includes/Modules/IndexingNotice/help.php:20
+msgid "The central app option works only when the site is connected to it. Without the connection no preview is refreshed, and the settings show a warning."
+msgstr "Volba Centrální aplikace funguje jen tehdy, když je web k ní připojený. Bez připojení se žádný náhled neobnoví a v nastavení se ukáže upozornění."
+
+#: includes/Modules/IndexingNotice/help.php:21
+msgid "Choose your own app if the site is not managed by the central app, or if you want it to be independent of it."
+msgstr "Vlastní aplikaci zvolte, pokud web Centrální aplikace nespravuje nebo když chcete být na ní nezávislí."
+
+#: includes/Modules/IndexingNotice/help.php:24
+msgid "The number of your Facebook app. Open developers.facebook.com, go to My Apps and create an app (type Other or Business is fine). Then open Settings, Basic and copy the App ID. Menu names there change from time to time. Your app does not need to be reviewed by Facebook."
+msgstr "Číslo vaší aplikace na Facebooku. Otevřete developers.facebook.com, přejděte do Moje aplikace a vytvořte aplikaci (typ Jiné nebo Business stačí). Pak otevřete Nastavení, Základní a zkopírujte ID aplikace. Názvy menu se tam čas od času mění. Aplikace nemusí projít kontrolou Facebooku."
+
+#: includes/Modules/IndexingNotice/help.php:25
+msgid "The site uses it to ask Facebook for a fresh preview."
+msgstr "Web ho používá, aby si od Facebooku vyžádal čerstvý náhled."
+
+#: includes/Modules/IndexingNotice/help.php:28
+msgid "The App secret from the same page (Settings, Basic, click Show). It is saved encrypted and never shown again. Leave the field empty to keep the saved one."
+msgstr "Tajný klíč aplikace ze stejné stránky (Nastavení, Základní, klikněte na Zobrazit). Uloží se šifrovaně a už se nezobrazí. Nechte pole prázdné, aby zůstal uložený ten stávající."
+
+#: includes/Modules/IndexingNotice/help.php:29
+msgid "Together with the App ID it lets the site ask Facebook for a fresh preview. Use the Verify keys button below to check both values."
+msgstr "Spolu s ID aplikace umožní webu vyžádat si od Facebooku čerstvý náhled. Obě hodnoty zkontrolujete tlačítkem Ověřit klíče níže."
+
+#: includes/Modules/IndexingNotice/help.php:30
+msgid "Anyone who knows the secret can act as your app. Do not send it by e-mail or chat. It is not part of a settings export."
+msgstr "Kdo zná tajný klíč, může vystupovat jako vaše aplikace. Neposílejte ho e-mailem ani v chatu. Do exportu nastavení se nezahrnuje."
+
+#: includes/Modules/IndexingNotice/help.php:33
+msgid "Adds a link to the LinkedIn Post Inspector to the box beside the editor."
+msgstr "Přidá do boxu vedle editoru odkaz na LinkedIn Post Inspector."
+
+#: includes/Modules/IndexingNotice/help.php:34
+msgid "LinkedIn cannot be refreshed by a program. When you open the inspector with the address of the page, LinkedIn fetches the page again."
+msgstr "LinkedIn nejde obnovit programem. Když otevřete inspektor s adresou stránky, LinkedIn si stránku stáhne znovu."
+
+#: includes/Modules/IndexingNotice/help.php:35
+msgid "Turn it off if you do not share on LinkedIn."
+msgstr "Vypněte, pokud nesdílíte na LinkedInu."
+
+#: includes/Modules/IndexingNotice/help.php:38
+msgid "Tells the search engines that support IndexNow (Bing, Seznam, Yandex, Naver, Yep) that a page changed, right after you save it. The site proves it owns the address with a short key that it shows at the address /key.txt on your domain. You do not create any file."
+msgstr "Vyhledávačům, které IndexNow podporují (Bing, Seznam, Yandex, Naver, Yep), hned po uložení oznámí, že se stránka změnila. Web prokazuje, že adresa je jeho, krátkým klíčem, který ukazuje na adrese /klíč.txt vaší domény. Žádný soubor nevytváříte."
+
+#: includes/Modules/IndexingNotice/help.php:39
+msgid "These search engines learn about a new or changed page at once, not at the next visit of their robot. Google does not support IndexNow and keeps using the sitemap."
+msgstr "Tyto vyhledávače se o nové nebo změněné stránce dozvědí hned, ne až při příští návštěvě svého robota. Google IndexNow nepodporuje a dál se řídí mapou webu."
+
+#: includes/Modules/IndexingNotice/help.php:40
+msgid "Rank Math, Yoast SEO and the IndexNow plugin can send the same message. When one of them has it on, this site stays quiet so a page is not sent twice. Nothing is sent while search engines are discouraged in Settings, Reading."
+msgstr "Stejnou zprávu mohou posílat i Rank Math, Yoast SEO a plugin IndexNow. Když ji má některý z nich zapnutou, tento web mlčí, aby se stránka neposlala dvakrát. Nic se neposílá, dokud jsou v Nastavení, Čtení vyhledávače odrazovány."
+
+#: includes/Modules/IndexingNotice/help.php:41
+msgid "Turn it off if you do not care about Bing and Seznam, or if another plugin already does it."
+msgstr "Vypněte, pokud vám na Bingu a Seznamu nezáleží nebo to už dělá jiný plugin."
+
+#: includes/Modules/IndexingNotice/IndexNow.php:164
+msgid "There is no address of this site to send."
+msgstr "Není co poslat, žádná adresa nepatří tomuto webu."
+
+#: includes/Modules/IndexingNotice/Module.php:128
+msgid "Social media previews"
+msgstr "Náhledy na sociálních sítích"
+
+#: includes/Modules/IndexingNotice/Module.php:129
+msgid "Tell search engines about changes (IndexNow)"
+msgstr "Oznámit změny vyhledávačům (IndexNow)"
+
+#: includes/Modules/IndexingNotice/Module.php:143
+msgid "After you save a published page, Facebook fetches its title, description and image again."
+msgstr "Po uložení zveřejněné stránky si Facebook znovu stáhne její titulek, popis a obrázek."
+
+#: includes/Modules/IndexingNotice/Module.php:145
+msgid "Refresh previews on Facebook after a change"
+msgstr "Po změně obnovit náhledy na Facebooku"
+
+#: includes/Modules/IndexingNotice/Module.php:153
+msgid "Where the Facebook keys come from"
+msgstr "Odkud jsou klíče k Facebooku"
+
+#: includes/Modules/IndexingNotice/Module.php:155
+msgid "Central app (nothing to fill in)"
+msgstr "Centrální aplikace (nic se nevyplňuje)"
+
+#: includes/Modules/IndexingNotice/Module.php:156
+msgid "My own Facebook app"
+msgstr "Moje vlastní aplikace na Facebooku"
+
+#: includes/Modules/IndexingNotice/Module.php:165
+msgid "App ID"
+msgstr "ID aplikace"
+
+#: includes/Modules/IndexingNotice/Module.php:173
+msgid "App secret"
+msgstr "Tajný klíč aplikace"
+
+#: includes/Modules/IndexingNotice/Module.php:174
+msgid "Stored encrypted and never shown again. Leave blank to keep the current secret."
+msgstr "Uloží se šifrovaně a už se nezobrazí. Nechte prázdné, aby zůstal uložený ten stávající."
+
+#: includes/Modules/IndexingNotice/Module.php:182
+msgid "Show a link to the LinkedIn Post Inspector in the editor"
+msgstr "Ukazovat v editoru odkaz na LinkedIn Post Inspector"
+
+#: includes/Modules/IndexingNotice/Module.php:188
+msgid "Bing, Seznam and other search engines learn about a changed page at once."
+msgstr "Bing, Seznam a další vyhledávače se o změněné stránce dozvědí hned."
+
+#: includes/Modules/IndexingNotice/Module.php:190
+msgid "Send changed pages to IndexNow"
+msgstr "Posílat změněné stránky do IndexNow"
+
+#: includes/Modules/IndexingNotice/PostActions.php:89
+#: includes/Modules/IndexingNotice/PostActions.php:135
+msgid "Refresh social preview"
+msgstr "Obnovit náhled na sítích"
+
+#: includes/Modules/IndexingNotice/PostActions.php:107
+msgid "Social preview and search engines"
+msgstr "Náhled na sítích a vyhledávače"
+
+#: includes/Modules/IndexingNotice/PostActions.php:126
+msgid "Publish the page first. Only published pages are sent to Facebook and to the search engines."
+msgstr "Nejdřív stránku zveřejněte. Facebooku a vyhledávačům se posílá jen zveřejněný obsah."
+
+#: includes/Modules/IndexingNotice/PostActions.php:130
+msgid "Not refreshed yet."
+msgstr "Zatím neobnoveno."
+
+#: includes/Modules/IndexingNotice/PostActions.php:137
+msgid "Save your changes first. Facebook and the search engines are told right away."
+msgstr "Nejdřív uložte změny. Facebook i vyhledávače se pak dozvědí hned."
+
+#: includes/Modules/IndexingNotice/PostActions.php:143
+msgid "Open the LinkedIn Post Inspector"
+msgstr "Otevřít LinkedIn Post Inspector"
+
+#: includes/Modules/IndexingNotice/PostActions.php:144
+msgid "LinkedIn has no automatic refresh. The inspector fetches the page again when you open it."
+msgstr "LinkedIn automatické obnovení nemá. Inspektor si stránku stáhne znovu, když ho otevřete."
+
+#. translators: %s: date and time.
+#: includes/Modules/IndexingNotice/PostActions.php:161
+msgid "Facebook preview refreshed %s"
+msgstr "Náhled na Facebooku obnoven %s"
+
+#: includes/Modules/IndexingNotice/PostActions.php:164
+msgid "Facebook refresh waits for another try"
+msgstr "Obnovení na Facebooku čeká na další pokus"
+
+#. translators: %s: error text.
+#: includes/Modules/IndexingNotice/PostActions.php:168
+msgid "Facebook refresh failed: %s"
+msgstr "Obnovení na Facebooku se nepovedlo: %s"
+
+#: includes/Modules/IndexingNotice/PostActions.php:173
+msgid "IndexNow sent"
+msgstr "IndexNow odesláno"
+
+#: includes/Modules/IndexingNotice/PostActions.php:176
+msgid "IndexNow waits for another try"
+msgstr "IndexNow čeká na další pokus"
+
+#: includes/Modules/IndexingNotice/PostActions.php:179
+msgid "IndexNow was refused"
+msgstr "IndexNow bylo odmítnuto"
+
+#: includes/Modules/IndexingNotice/PostActions.php:182
+msgid "Nothing was sent (both options are off)."
+msgstr "Nic se neodeslalo (obě volby jsou vypnuté)."
+
+#: build/727.a58928df80a942c8c502.js:1
+msgid "The site is not connected to the central app, so previews are not refreshed. Connect it (the setup wizard or the Content Sync module), or choose your own Facebook app."
+msgstr "Web není připojený k Centrální aplikaci, proto se náhledy neobnovují. Připojte ho (průvodce nastavením nebo modul Synchronizace obsahu), nebo zvolte vlastní aplikaci na Facebooku."
+
+#: build/727.a58928df80a942c8c502.js:1
+msgid "The connection to the central app is paused, because this site is a copy or was moved. Nothing is sent."
+msgstr "Propojení s Centrální aplikací je pozastavené, protože tento web je kopie nebo byl přesunut. Nic se neodesílá."
+
+#: build/727.a58928df80a942c8c502.js:1
+msgid "Verify keys"
+msgstr "Ověřit klíče"
+
+#: build/727.a58928df80a942c8c502.js:1
+msgid "A secret is saved. Leave the field empty to keep it."
+msgstr "Tajný klíč je uložený. Nechte pole prázdné, aby zůstal."
+
+#: build/727.a58928df80a942c8c502.js:1
+msgid "No secret is saved yet."
+msgstr "Zatím není uložený žádný tajný klíč."
+
+#: build/727.a58928df80a942c8c502.js:1
+msgid "Search engines are discouraged on this site (Settings, Reading), so nothing is sent."
+msgstr "Vyhledávače jsou na tomto webu odrazovány (Nastavení, Čtení), proto se nic neodesílá."
+
+#. translators: %s: plugin names.
+#: build/727.a58928df80a942c8c502.js:2
+msgid "IndexNow is already sent by %s. This site stays quiet so a page is not sent twice."
+msgstr "IndexNow už posílá %s. Tento web mlčí, aby se stránka neposlala dvakrát."
+
+#: build/727.a58928df80a942c8c502.js:2
+msgid "Key address"
+msgstr "Adresa klíče"
+
+#: build/727.a58928df80a942c8c502.js:2
+msgid "Indexing & Sharing"
+msgstr "Indexování a sdílení"
+
+#: build/index.448b9a5f8122a692a0c2.js:69
+msgid "You cancelled the connection. You can finish it later in the Content Sync module."
+msgstr "Připojení jste zrušili. Můžete ho dokončit později v modulu Synchronizace obsahu."
+
+#: build/index.448b9a5f8122a692a0c2.js:69
+msgid "The site is connected to the central app. The recommended modules below use it where they can."
+msgstr "Web je připojený k Centrální aplikaci. Doporučené moduly níže ji využijí všude, kde to jde."

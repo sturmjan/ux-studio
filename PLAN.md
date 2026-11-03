@@ -3920,13 +3920,13 @@ Ruční cesta: řádková akce v seznamu příspěvků a tlačítko v editoru �
 ### 39.8 Fáze
 
 - [ ] F0 Ručně (curl) ověřit scrape s app tokenem appky CA; zjistit, jestli obnoví i Instagram/Threads/WhatsApp; zapsat limit z `X-App-Usage`; ověřit Meta klíče na produkci CA; projít aktuální kroky založení appky pro návod
-- [ ] F1 UX Studio: `indexing-notice` dostane nastavení (karty, `show_if`), přejmenování, `FacebookScraper`, hák, fronta, cron se zpožděním, režim `own` + Ověřit klíče
+- [x] F1 UX Studio: `indexing-notice` dostane nastavení (karty, `show_if`), přejmenování, `FacebookScraper`, hák, fronta, cron se zpožděním, režim `own` + Ověřit klíče
 - [ ] F1 CA: `?page=social_refresh` (podpis, web podle klíče webu §40.2, kontrola domény, rate limit, Graph API, odpověď po URL, log v CA)
-- [ ] F2 Režim `ca` na straně pluginu (klient po vzoru `TurnstileCaProvisioner`) + upozornění bez připojení
-- [ ] F2 IndexNow: klíč, `/<klíč>.txt`, odeslání, pravidlo překryvů s Rank Math / Yoast
-- [ ] F2 Průvodce: `Environment` klíč `ca_connected`, nastavení položky `indexing-notice`, testy `tests/onboarding-starter.php`
-- [ ] F2 Migrace pro stávající připojené weby + jednorázové upozornění
-- [ ] F2 Activity Log + meta u příspěvku, řádková akce a tlačítko v editoru, odkaz na LinkedIn, texty nápovědy, překlady cs_CZ
+- [x] F2 Režim `ca` na straně pluginu (klient po vzoru `TurnstileCaProvisioner`) + upozornění bez připojení
+- [x] F2 IndexNow: klíč, `/<klíč>.txt`, odeslání, pravidlo překryvů s Rank Math / Yoast
+- [x] F2 Průvodce: `Environment` klíč `ca_connected`, nastavení položky `indexing-notice`, testy `tests/onboarding-starter.php`
+- [x] F2 Migrace pro stávající připojené weby + jednorázové upozornění
+- [x] F2 Activity Log + meta u příspěvku, řádková akce a tlačítko v editoru, odkaz na LinkedIn, texty nápovědy, překlady cs_CZ
 - [ ] F4 Test na pobyty v obou režimech (úprava stránky → za 2 min nový náhled v Sharing Debuggeru, IndexNow 202), vydání, flotila
 
 ### 39.9 Rozhodnutí (2026-11-03)
@@ -4057,3 +4057,15 @@ aplikace** → Hotovo. Nově: Vítejte → **Centrální aplikace** → Doporuč
 - Návrat z CA vede na `step=modules&ca=done`. Při „Připojit jako nový web“ vede na krok `ca` s `reconnect=1`, tam se návrat nastaví zpět na `step=ca` (REST `onboarding/ca/prepare` přijímá `step`).
 - Odchylka: `ActivityLog` zapisuje události spojení s CA pod modul `content-sync` (`ca_site_moved`, `ca_site_moved_pending`, `ca_site_moved_failed`, `ca_link_paused`, `ca_connect_as_new`).
 - Odchylka: volání s 202 `pending_decision` se opakuje nejvýš 1× za hodinu při běžných voláních a 1× denně z cronu. Známá adresa se mění až po `moved`.
+
+### 39.10 Poznámky k provedení (UX Studio, 2026-11-03)
+
+- Kód modulu je v `includes/Modules/IndexingNotice/`: `SocialQueue` (fronta, čistá logika), `Eligibility` (co se smí odeslat), `Dispatcher` (hák, cron, `ca` / `own`, Activity Log, meta), `FacebookScraper`, `IndexNow`, `PostActions` (řádková akce, box v editoru), `RestController` (`status`, `verify-keys`), `help.php`. Obrazovka `src/modules/indexing-notice/Page.tsx` (karty z generického schématu + Ověřit klíče, stav připojení k CA, adresa klíče IndexNow). Testy `tests/indexing-queue.php`, `tests/central-app-identity.php`.
+- Hák je `wp_after_insert_post` (ne `save_post`), aby šlo o jedno volání po uložení; příznak noindex se čte až při běhu cronu, protože blokový editor ukládá meta po tomto háku.
+- Fronta: jedna položka na URL, `due` = uložení + 120 s a nejdřív 10 minut po posledním běhu téže URL; krok (`social`, `indexnow`) se při přechodné chybě (429, síť, limit 4 / 17 / 32 / 613) zkouší znovu nejvýš 3×, pak se zahodí. Dávka 50 URL u `ca`, 20 u `own`.
+- Token Facebooku jde u scrapu v těle POST, ne v adrese (nepadne do logů). Ověření klíčů je `GET` na `graph.facebook.com/<app_id>?access_token=...` podle zadání.
+- Odchylka: pravidlo překryvů s IndexNow je záznam typu `partial` s `starter_skip` (nový příznak katalogu), ne `full`. Plný záznam s `when` = `indexnow_enabled` (výchozí zapnuto) by `ActivationGuard` použil k odmítnutí zapnutí celého modulu. Balíček a migrace vynechají `indexnow_enabled` (`Overlaps::blocked_settings()`), na obrazovce Modulů je to informační řádek.
+- Odchylka: za běhu se IndexNow neposílá ani ručně zapnuté, dokud ho posílá Rank Math / Yoast / plugin IndexNow (stránka by šla dvakrát). V nastavení je to řečeno. Přepínače v cizích pluginech (`rank_math_modules` obsahuje `instant-indexing`, `wpseo.enable_index_now`, slug `indexnow`) je třeba ověřit na živém webu s těmi pluginy.
+- Migrace (`Core\Onboarding\SharingUpgrade`): běží jednou při první administraci správce po aktualizaci. Jen pro web připojený k CA a nepozastavený. Plugin dosud nikdy nezapisoval, že správce modul vypnul, proto se od tohoto vydání zapisuje vypnutí z obrazovky Modulů (`uxstudio_modules_disabled`) a respektuje se. Web, který modul vypnul před tímto vydáním, záznam nemá, takže se mu modul jednou zapne (a upozornění to řekne). Neodpojené weby a weby s vypnutým modulem bez připojení se nemění; IndexNow se tedy zapne jen tam, kde modul už běží nebo se zapnul touto migrací (zadání 39.3 „u všech indexovatelných webů“ jsem nevyložil jako zapnutí modulu na všech webech).
+- Překlady cs_CZ: `.po` / `.mo` / JSON doplněny postupem „Adding a few new strings“, `ux-studio.pot` se nepřegenerovalo (diff by měl tisíce řádků šumu), udělá se při vydání. Jména modulu v `.po` nahrazena (`Indexing & Sharing`).
+- Neověřeno v prohlížeči ani proti živému Facebooku (F0 a F4 zůstávají).
