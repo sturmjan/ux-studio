@@ -62,7 +62,7 @@ final class PausedNotice {
 			return;
 		}
 		$action = wp_nonce_url( admin_url( 'admin-post.php?action=' . self::ACTION ), self::ACTION );
-		echo '<div class="notice notice-warning"><p><strong>' . esc_html( self::message( $paused ) ) . '</strong></p>';
+		echo '<div id="uxstudio-ca-paused-notice" class="notice notice-warning"><p><strong>' . esc_html( self::message( $paused ) ) . '</strong></p>';
 		echo '<p>' . esc_html__( 'Nothing is sent to the central app from this site: no monitoring data, no preview refresh, no CAPTCHA keys. If this really is a separate site, connect it as a new one.', 'ux-studio' ) . '</p>';
 		printf(
 			'<p><a href="%s" class="button button-primary">%s</a></p></div>',

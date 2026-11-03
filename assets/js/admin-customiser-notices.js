@@ -24,7 +24,7 @@
     // `.inline` notices belong to the place where they are printed and are never moved: the "New version available"
     // line in a row of the Plugins/Themes list (`update-message notice inline`), messages inside forms, meta boxes and
     // list tables. Moving them into the tray emptied those rows (the update link vanished from the plugin list).
-    var NOTICE_EXCLUDE_SELECTOR = ':not(#message):not(.below-h2):not(.inline):not(.update-message)' + (isResultScreen() ? ':not(.notice-success)' : '') + ':not(.settings-error):not(#uxstudio-php-version-notice)';
+    var NOTICE_EXCLUDE_SELECTOR = ':not(#message):not(.below-h2):not(.inline):not(.update-message)' + (isResultScreen() ? ':not(.notice-success)' : '') + ':not(.settings-error):not(#uxstudio-php-version-notice):not(#uxstudio-ca-paused-notice)';
     // Containers whose notices stay where they are, whatever their classes.
     var KEEP_IN_PLACE = '.wp-list-table, .plugin-update-tr, .theme-overlay, .theme-browser, .postbox, .inside, form, #customize-controls, .media-modal, .edit-post-layout, .interface-interface-skeleton';
     var NOTICE_SELECTOR = [
