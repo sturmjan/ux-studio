@@ -3781,3 +3781,94 @@ auditu v zadaných modulech; zadání každého je u jeho zadavatele, sem patř�
 - [ ] Veřejný chat nabízí jen čeština/angličtina (volba "automaticky" by potřebovala varianty promptů pro další jazyky).
 - [ ] Debug Mode nemá stránku v SPA (jen prázdný stav s textem "Jak to funguje").
 - [ ] Prohlížečové QA bylo na pobyty s modulem zobrazeným jako zapnutý jen v prohlížeči (odpověď `GET /modules` přepsaná), moduly vypnuté na serveru nevracejí svá data; vzhled stránek modulů s vlastním REST (Cron, DNS, Image Optimizer) ověřit ještě jednou na webu, kde jsou zapnuté.
+
+## 39. Obnovení náhledů na sociálních sítích po úpravě obsahu (2026-11-03, NÁVRH)
+
+Cíl: po uložení změny publikované stránky, příspěvku nebo produktu mají sociální sítě zahodit starý
+náhled odkazu (titulek, popis, `og:image`) a stáhnout nový. Dnes se to dělá ručně v Sharing Debuggeru
+Facebooku („Scrape Again") a obvykle se na to zapomene.
+
+### 39.1 Kam to patří
+
+**Do Content Sync jako služba propojení s CA. Žádný nový modul, žádné klíče na webu.**
+
+- Klíče už má CA: Meta appka „UX1 - Centrální aplikace" (`app_settings.meta_app_id` / `meta_app_secret`,
+  AES-256-GCM, Nastavení → Sociální sítě, čte `InstagramAuthController::getAppConfig()`). **App Secret
+  z CA nikdy neodejde.** Web jen pošle CA „tyhle URL se změnily" a Facebook volá CA. Kdyby CA secret
+  webům rozdávala, jeden napadený web = uniklý secret celé flotily.
+- Kanál existuje: `node_api_key` + `central_app_url` z Content Sync, HMAC jako
+  `TurnstileCaProvisioner` → `?page=turnstile_provision` (vzor ověření v CA: `sites.api_key`).
+- **Zapne se samo v průvodci (§29):** krok Centrální aplikace (`Onboarding\CentralApp`) web spáruje,
+  tím je služba dostupná. Do `StarterPack` přibude položka `social-preview-refresh`, předzaškrtnutá,
+  dostupná jen při připojení k CA (nový klíč `ca_connected` v `Environment::detect()`, jinak
+  `unavailable` = `ca_not_connected`). Stejné pravidlo jako u Štítu (§32.3): bez CA nic, s CA samo.
+  Web, který se k CA připojí později, má volbu `social_refresh_enabled` v Content Sync s výchozí
+  hodnotou zapnuto.
+- Zamítnuto: Performance Optimization (kontrola zdraví DB, s cache sítí nesouvisí), Pixel Tag Manager
+  (měřicí kódy, ne obsah), samostatný modul (bez CA by neměl klíče).
+
+### 39.2 Které sítě jdou obnovit automaticky
+
+Stav k 2026-11, před F1 znovu ověřit:
+
+| Síť | Automaticky? | Jak / proč ne |
+|---|---|---|
+| Facebook (+ Messenger) | **Ano** | `POST https://graph.facebook.com/?id=<url>&scrape=true&access_token=<APP_ID>\|<APP_SECRET>`; app token stačí, App Review není potřeba. |
+| Instagram, Threads, WhatsApp | Ověřit v F0 | Crawler Meta je společný, ale že scrape přes Graph API obnoví i jejich cache, není zdokumentované. Neslibovat. |
+| LinkedIn | **Ne** | Post Inspector nemá veřejné API. Náhrada: v editoru odkaz „Obnovit na LinkedInu" na `https://www.linkedin.com/post-inspector/inspect/<url-encoded>` (jedno ruční kliknutí). |
+| X | Ne | Card Validator zrušen, API na obnovu karty neexistuje, cache vyprší sama. |
+| Pinterest, Telegram, Slack, Discord | Ne | Bez API (Telegram jen ručně přes @WebpageBot), Slack/Discord mají krátkou cache. |
+
+Volitelně na stejném háku (O4): **IndexNow** (Bing, Seznam, Yandex) oznámí vyhledávačům změněnou URL.
+Není to sociální síť, ale spouštěč i fronta jsou totožné a nepotřebuje CA (klíčový soubor na webu).
+
+### 39.3 Tok
+
+1. Web: `transition_post_status` / `save_post` → jen `publish`, jen `is_post_type_viewable()`, ne revize,
+   ne autosave, ne `noindex` (Rank Math / Yoast / Security nastavení), ne stránky za heslem.
+   Hromadné změny (WP-CLI, import, push z hubu) se sloučí do jedné dávky.
+2. URL do fronty (option bez autoloadu, deduplikace). Úprava titulní stránky přidá i `home_url('/')`.
+   Stejná URL nejvýš 1× za 10 minut.
+3. `wp_schedule_single_event( time() + 120 )`. **Zpoždění je nutné:** Facebook si HTML stáhne hned,
+   takže se nejdřív musí smazat page cache (LiteSpeed, Cloudflare, WP Rocket), jinak dostane starou verzi.
+4. Cron pošle dávku (max 50 URL) na CA `?page=social_refresh`.
+5. CA: ověří podpis, **ověří, že každá URL patří k doméně autentizovaného webu** (jinak by šlo CA zneužít
+   ke scrapování cizích URL pod naší Meta appkou), rate limit na web, zavolá Graph API, vrátí výsledek
+   po URL (OK + co Facebook vidí: `og:title`, `og:image`, nebo chyba).
+6. Web zapíše výsledek do `uxstudio_content_sync_log` (akce `social_refresh`) a k příspěvku meta
+   „Náhled na Facebooku obnoven 3. 11. 12:03".
+
+Ruční cesta: řádková akce v seznamu příspěvků a tlačítko v editoru „Obnovit náhled na sítích"
+(Facebook přes CA + odkaz na LinkedIn Post Inspector).
+
+### 39.4 Pasti a rizika
+
+- **Rate limit Graph API pro app token** je zhruba 200 volání/h × počet uživatelů appky. Appka CA jich
+  má málo, takže limit je sdílený pro celou flotilu (~97 webů). Proto deduplikace, dávky a v CA globální
+  fronta; chyby 4 / 32 / 613 odložit, neopakovat hned. Skutečný limit číst z hlavičky `X-App-Usage`.
+- Meta appka CA má dnes jen use case Facebook Login (paměť `centrani-app-social-facebook-setup`).
+  Scrape s app tokenem by na use case záviset neměl, **ověřit v F0 reálným voláním**.
+- `meta_app_id` / `meta_app_secret` jsou podle poznámek z 22. 9. zapsané jen lokálně, na produkci CA ověřit.
+- Facebook cachuje obrázky podle URL zvlášť: obrázek přepsaný pod stejným názvem souboru (Výměna médií)
+  může zůstat starý i po scrapu. Mimo rozsah, zmínit v nápovědě.
+- Web v údržbě (Maintenance Mode), za WAFem nebo s chybou by Facebooku „obnovil" chybový náhled.
+  Při zapnuté údržbě nic neposílat; Facebook crawler musí projít bot ochranou klienta
+  (`facebookexternalhit` nesmí být v blacklistu Bot Throttle).
+- Koncepty a plánované příspěvky neposílat; naplánovaný se pošle až při publikaci (stejný hák).
+
+### 39.5 Fáze
+
+- [ ] F0 Ručně (curl z CA) ověřit scrape s app tokenem appky CA; zjistit, jestli obnoví i Instagram/Threads/WhatsApp; zapsat limit z `X-App-Usage`; ověřit Meta klíče na produkci CA
+- [ ] F1 CA: `?page=social_refresh` (HMAC proti `sites.api_key`, kontrola domény, rate limit, Graph API, odpověď po URL, log v CA); plán v `centrani-app/PLAN.md`
+- [ ] F1 UX Studio: `social_refresh_enabled` v Content Sync (výchozí zapnuto), hák, fronta, cron se zpožděním, klient po vzoru `TurnstileCaProvisioner`
+- [ ] F2 `StarterPack` položka `social-preview-refresh` + `Environment` klíč `ca_connected`, testy v `tests/onboarding-starter.php`
+- [ ] F2 Výsledek do sync logu + meta u příspěvku, řádková akce a tlačítko v editoru, odkaz na LinkedIn Post Inspector, překlady cs_CZ
+- [ ] F3 (podle O4) IndexNow na stejném háku
+- [ ] F4 Test na pobyty (úprava stránky → za 2 min nový náhled v Sharing Debuggeru), vydání, flotila
+
+### 39.6 Otevřené otázky
+
+- O1 Umístění v Content Sync + položka průvodce (39.1). Souhlas?
+- O2 Výchozí zapnuto i u webů, které už jsou připojené (aktualizace pluginu to zapne samo), nebo jen u nových přes průvodce?
+- O3 Typy obsahu: všechny veřejné (doporučeno), nebo jen stránky, příspěvky a produkty?
+- O4 Přidat IndexNow do stejné funkce?
