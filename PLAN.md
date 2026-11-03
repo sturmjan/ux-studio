@@ -4035,7 +4035,7 @@ aplikace** → Hotovo. Nově: Vítejte → **Centrální aplikace** → Doporuč
 ### 40.6 Fáze
 
 - [x] F1 UX Studio: přesun kroku CA na začátek `getStarterSteps()`, návrat z CA na krok modulů + nové načtení balíčku, texty
-- [x] F1 UX Studio: test průvodce v prohlížeči: připojit + návrat z CA na krok modulů ověřeno 3.11. (zrušit / přeskočit neprokliknuto)
+- [x] F1 UX Studio: test průvodce v prohlížeči (připojit, zrušit, přeskočit, návrat z CA na krok modulů) ověřen 3.11.
 - [x] F1 UX Studio: `uxstudio_site_id`, posílání při připojení a v hlavičce všech podepsaných volání (`TurnstileCaProvisioner`, `CentralClient`, nové volání přes `Core\CentralApp\Gateway`; Content Sync volá CA jen přes připojení)
 - [x] F1 CA: sloupec `sites.site_uid` + migrace, hledání podle `site_uid` s fallbackem na URL, doplnění UUID starým webům, `connect_site` přijímá `site_id`
 - [x] F2 UX Studio: hlídání změny `home_url()`, `site_moved`, stavy `clone` / `superseded`, upozornění a „Připojit jako nový web"
@@ -4086,6 +4086,13 @@ proti CA z worktree `_ca-wt-identity` s čerstvou DB `ca_e2e` (všech 116 migrac
 - Nalezeno a opraveno: (1) průvodce nového webu padal (`reload` použitý v závislostech efektu před deklarací),
   commit a393f84; (2) upozornění „web je kopie" schoval úklid admin upozornění, má teď stejnou výjimku jako
   upozornění na PHP, commit 37d4858.
-- Zbývá: Zrušit / Přeskočit v kroku CA, Vrátit přesun, „Připojit jako nový web", Facebook u veřejné URL
-  (lokální `localhost` Facebook nestáhne, CA přesto hlásí OK s prázdným titulkem: zvážit hlášení „Facebook
-  nenašel titulek ani obrázek"), IndexNow 200/202 u veřejného webu, nginx.
+- ✅ Druhé kolo: Vrátit přesun v CA, „Připojit jako nový web" (nové ID, nový záznam v CA), Zrušit (návrat na
+  Moduly s hláškou), Přeskočit, odpověď `superseded` pro starou adresu (přímé volání `SiteMove::process`).
+- Nalezeno a opraveno ve druhém kole: (3) pozastavený web zůstal pozastavený navždy i po Vrátit; teď se denně
+  zeptá CA a při `moved` se probudí (commit 4839774, CA 9e24d59 odpovídá staré adrese `superseded` místo nové
+  žádosti o rozhodnutí); (4) CA: `form-action 'self'` blokoval návrat z potvrzení propojení na web na jiné
+  doméně (starší chyba, na produkci ji maskuje Hostinger), potvrzovací stránka teď povolí původ webu (CA a8f30ad);
+  (5) CA: migrace 117 pro `sites.enabled_modules`, který žádná migrace nezakládala (CA 0c22e45).
+- Zbývá: Facebook u veřejné URL (lokální `localhost` Facebook nestáhne, CA přesto hlásí OK s prázdným titulkem:
+  zvážit hlášení „Facebook nenašel titulek ani obrázek"), IndexNow 200/202 u veřejného webu, nginx, názvy voleb
+  IndexNow v Rank Math / Yoast.
