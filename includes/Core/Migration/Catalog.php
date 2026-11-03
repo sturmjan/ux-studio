@@ -30,6 +30,9 @@ defined( 'ABSPATH' ) || exit;
  *                      Overlaps::foreign_condition_met()). The entry keeps its type only while at least one
  *                      holds, that is while the foreign feature is really ON. Otherwise it is downgraded to
  *                      partial (information only) or, with `foreign_else` => `none`, not reported at all.
+ *  - `starter_skip` : (partial entries) the onboarding starter pack leaves the `when` settings out while the overlap
+ *                      holds, as it does for a full entry, but enabling the module is never refused (the module
+ *                      has other jobs; only that one setting would be done twice).
  *  - module `*`      : "any UX Studio module" (WP Extended overlaps with all).
  *
  * Plugins are matched by FOLDER slug: `wpforms-lite` matches
@@ -381,6 +384,39 @@ final class Catalog {
 					'foreign_when' => array( array( 'file' => 'llms.txt' ) ),
 					'foreign_else' => 'partial',
 					'feature'      => __( 'llms.txt', 'ux-studio' ),
+				)
+			),
+			// IndexNow: Rank Math, Yoast and the IndexNow plugin ping the search engines themselves. Information only, the
+			// starter pack leaves `indexnow_enabled` out so an address is not sent twice (PLAN.md 39.7).
+			$part(
+				'indexing-notice',
+				array( 'seo-by-rank-math' => 'Rank Math SEO', 'seo-by-rank-math-pro' => 'Rank Math SEO Pro' ),
+				array(
+					'when'         => array( 'indexnow_enabled' ),
+					'foreign_when' => array( array( 'option' => 'rank_math_modules', 'contains' => array( 'instant-indexing' ) ) ),
+					'foreign_else' => 'none',
+					'starter_skip' => true,
+					'feature'      => __( 'IndexNow', 'ux-studio' ),
+				)
+			),
+			$part(
+				'indexing-notice',
+				array( 'wordpress-seo' => 'Yoast SEO', 'wordpress-seo-premium' => 'Yoast SEO Premium' ),
+				array(
+					'when'         => array( 'indexnow_enabled' ),
+					'foreign_when' => array( array( 'option' => 'wpseo', 'key' => 'enable_index_now' ) ),
+					'foreign_else' => 'none',
+					'starter_skip' => true,
+					'feature'      => __( 'IndexNow', 'ux-studio' ),
+				)
+			),
+			$part(
+				'indexing-notice',
+				array( 'indexnow' => 'IndexNow' ),
+				array(
+					'when'         => array( 'indexnow_enabled' ),
+					'starter_skip' => true,
+					'feature'      => __( 'IndexNow', 'ux-studio' ),
 				)
 			),
 			// Security: the plugin silences the same update e-mails (information only, never blocks).

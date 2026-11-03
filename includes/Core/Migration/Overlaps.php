@@ -153,8 +153,9 @@ final class Overlaps {
 
 	/**
 	 * Settings of a module that an active foreign plugin blocks, as setting keys: the `when` keys of full
-	 * catalog entries whose plugin is active (and whose foreign feature is on). The onboarding starter pack
-	 * leaves these settings out instead of creating an overlap the activation guard would have refused.
+	 * catalog entries whose plugin is active (and whose foreign feature is on), and of partial entries marked
+	 * `starter_skip`. The onboarding starter pack leaves these settings out instead of creating an overlap the
+	 * activation guard would have refused (or, for `starter_skip`, a job done twice).
 	 *
 	 * @param string $module_id Module id.
 	 * @return array<string, string[]> Setting key => names of the plugins that block it.
@@ -166,11 +167,12 @@ final class Overlaps {
 			return $out;
 		}
 		foreach ( Catalog::entries() as $entry ) {
-			if ( $entry['module'] !== $module_id || Catalog::TYPE_FULL !== $entry['type'] || empty( $entry['when'] ) ) {
+			$skips = ! empty( $entry['starter_skip'] );
+			if ( $entry['module'] !== $module_id || ( Catalog::TYPE_FULL !== $entry['type'] && ! $skips ) || empty( $entry['when'] ) ) {
 				continue;
 			}
 			$entry = self::effective_entry( $entry );
-			if ( null === $entry || Catalog::TYPE_FULL !== $entry['type'] ) {
+			if ( null === $entry || ( Catalog::TYPE_FULL !== $entry['type'] && ! $skips ) ) {
 				continue;
 			}
 			foreach ( array_keys( $entry['plugins'] ) as $slug ) {

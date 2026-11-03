@@ -8,6 +8,7 @@
 namespace UxStudio\Modules\ContentSync;
 
 use UxStudio\Core\ActivityLog;
+use UxStudio\Core\CentralApp\SiteIdentity;
 use UxStudio\Core\Security;
 use UxStudio\Core\Settings;
 use UxStudio\Modules\BotThrottle\Log as BotThrottleLog;
@@ -618,6 +619,9 @@ final class NodeController {
 			array(
 				'ok'         => true,
 				'site'       => home_url( '/' ),
+				// What the Central App checks during `site_moved` (PLAN.md 40.3): who answers on this address.
+				'site_id'    => SiteIdentity::site_id(),
+				'home_url'   => home_url( '/' ),
 				'acf_active' => AcfBridge::is_active(),
 				'post_types' => $post_types,
 				'authors'    => array_map(

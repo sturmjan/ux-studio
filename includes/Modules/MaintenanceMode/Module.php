@@ -149,6 +149,14 @@ final class Module extends BaseModule {
 	}
 
 	/**
+	 * Is the maintenance or coming soon page shown to visitors right now (a mode is on and its countdown, if any,
+	 * has not run out)? Other modules ask before they send anything about the live pages (Indexing & Sharing).
+	 */
+	public function is_serving(): bool {
+		return 'disabled' !== $this->get_mode();
+	}
+
+	/**
 	 * Whether this is a privileged preview request.
 	 */
 	private function is_preview_request(): bool {
