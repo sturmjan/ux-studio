@@ -59,7 +59,62 @@ final class DomainWatch {
 	 * Daily run.
 	 */
 	public static function cron(): void {
+		if ( SiteIdentity::is_paused() ) {
+			self::recheck();
+			return;
+		}
 		self::check( true );
+	}
+
+	/**
+	 * A paused link asks once a day whether it still is paused. Without this a site the Central App took back
+	 * (operator chose "Move" or "Revert" after the pause) would stay paused for good, and the only way out,
+	 * "Connect as a new site", would create a second record for the same site.
+	 *
+	 * @return string `resumed` | `clone` | `pending` | `error` | `none`
+	 */
+	public static function recheck(): string {
+		$paused = SiteIdentity::paused();
+		if ( null === $paused || self::$busy || ! Gateway::is_paired() ) {
+			return 'none';
+		}
+		$current = home_url( '/' );
+		$known   = SiteIdentity::known_url();
+
+		self::$busy = true;
+		$result     = Gateway::request(
+			'site_moved',
+			array(
+				'old_url'  => '' !== $known ? $known : $current,
+				'new_url'  => $current,
+				'site_url' => $current,
+			),
+			array(),
+			false
+		);
+		self::$busy = false;
+
+		if ( $result instanceof WP_Error ) {
+			return 'error';
+		}
+
+		$verdict = SiteIdentity::classify_move_response( $result['code'], $result['body'] );
+		switch ( $verdict['kind'] ) {
+			case 'moved':
+				SiteIdentity::resume();
+				SiteIdentity::set_known_url( $current );
+				ActivityLog::log( 'content-sync', 'ca_link_resumed', 'setting', 0, array( 'url' => $current, 'was' => $paused['state'] ) );
+				return 'resumed';
+			case 'clone':
+			case SiteIdentity::STATE_SUPERSEDED:
+				SiteIdentity::pause( $verdict['kind'], '' !== $verdict['url'] ? $verdict['url'] : $paused['url'] );
+				return 'clone';
+			case 'pending':
+				return 'pending';
+		}
+		// 410 / 423 keep (or refresh) the pause; anything else leaves it as it is.
+		Gateway::inspect( $result['code'], $result['body'] );
+		return 'error';
 	}
 
 	/**

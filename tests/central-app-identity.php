@@ -119,6 +119,7 @@ $assert( '410 superseded', array( 'kind' => 'superseded', 'url' => 'https://n.te
 $assert( '423 clone', array( 'kind' => 'clone', 'url' => 'https://o.test/' ) === SiteIdentity::classify_response( 423, array( 'code' => 'clone', 'original_url' => 'https://o.test/' ) ) );
 $assert( 'the same code with another status is nothing', 'none' === SiteIdentity::classify_response( 200, array( 'code' => 'clone' ) )['kind'] && 'none' === SiteIdentity::classify_response( 409, array( 'code' => 'other' ) )['kind'] );
 $assert( 'site_moved: moved / pending / clone / error', 'moved' === SiteIdentity::classify_move_response( 200, array( 'status' => 'moved', 'url' => 'u' ) )['kind'] && 'pending' === SiteIdentity::classify_move_response( 202, array( 'status' => 'pending_decision' ) )['kind'] && 'clone' === SiteIdentity::classify_move_response( 200, array( 'status' => 'clone', 'original_url' => 'o' ) )['kind'] && 'error' === SiteIdentity::classify_move_response( 403, array() )['kind'] && 'error' === SiteIdentity::classify_move_response( 200, array( 'status' => 'whatever' ) )['kind'] );
+$assert( 'site_moved: superseded carries the new address', 'superseded' === SiteIdentity::classify_move_response( 200, array( 'status' => 'superseded', 'new_url' => 'n' ) )['kind'] && 'n' === SiteIdentity::classify_move_response( 200, array( 'status' => 'superseded', 'new_url' => 'n' ) )['url'] );
 
 /* ── Site id in the database ── */
 

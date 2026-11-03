@@ -137,6 +137,9 @@ final class SiteIdentity {
 		if ( 200 === $code && 'clone' === $status ) {
 			return array( 'kind' => 'clone', 'url' => (string) ( $decoded['original_url'] ?? '' ) );
 		}
+		if ( 200 === $code && self::STATE_SUPERSEDED === $status ) {
+			return array( 'kind' => self::STATE_SUPERSEDED, 'url' => (string) ( $decoded['new_url'] ?? '' ) );
+		}
 		return array( 'kind' => 'error', 'url' => '' );
 	}
 
