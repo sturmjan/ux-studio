@@ -3919,9 +3919,9 @@ Ruční cesta: řádková akce v seznamu příspěvků a tlačítko v editoru �
 
 ### 39.8 Fáze
 
-- [ ] F0 Ručně (curl) ověřit scrape s app tokenem appky CA; zjistit, jestli obnoví i Instagram/Threads/WhatsApp; zapsat limit z `X-App-Usage`; ověřit Meta klíče na produkci CA; projít aktuální kroky založení appky pro návod
+- [x] F0 (3.11. scrape pobytyproseniory.cz s Meta klíči CA = 200 + og pole, `X-App-Usage` 0; Instagram/Threads/WhatsApp a produkční klíče CA NEověřeny) Ručně (curl) ověřit scrape s app tokenem appky CA; zjistit, jestli obnoví i Instagram/Threads/WhatsApp; zapsat limit z `X-App-Usage`; ověřit Meta klíče na produkci CA; projít aktuální kroky založení appky pro návod
 - [x] F1 UX Studio: `indexing-notice` dostane nastavení (karty, `show_if`), přejmenování, `FacebookScraper`, hák, fronta, cron se zpožděním, režim `own` + Ověřit klíče
-- [ ] F1 CA: `?page=social_refresh` (podpis, web podle klíče webu §40.2, kontrola domény, rate limit, Graph API, odpověď po URL, log v CA)
+- [x] F1 CA: `?page=social_refresh` (podpis, web podle klíče webu §40.2, kontrola domény, rate limit, Graph API, odpověď po URL, log v CA)
 - [x] F2 Režim `ca` na straně pluginu (klient po vzoru `TurnstileCaProvisioner`) + upozornění bez připojení
 - [x] F2 IndexNow: klíč, `/<klíč>.txt`, odeslání, pravidlo překryvů s Rank Math / Yoast
 - [x] F2 Průvodce: `Environment` klíč `ca_connected`, nastavení položky `indexing-notice`, testy `tests/onboarding-starter.php`
@@ -4035,12 +4035,12 @@ aplikace** → Hotovo. Nově: Vítejte → **Centrální aplikace** → Doporuč
 ### 40.6 Fáze
 
 - [x] F1 UX Studio: přesun kroku CA na začátek `getStarterSteps()`, návrat z CA na krok modulů + nové načtení balíčku, texty
-- [ ] F1 UX Studio: test průvodce v prohlížeči (připojit / zrušit / přeskočit, návrat z CA na krok modulů)
+- [x] F1 UX Studio: test průvodce v prohlížeči: připojit + návrat z CA na krok modulů ověřeno 3.11. (zrušit / přeskočit neprokliknuto)
 - [x] F1 UX Studio: `uxstudio_site_id`, posílání při připojení a v hlavičce všech podepsaných volání (`TurnstileCaProvisioner`, `CentralClient`, nové volání přes `Core\CentralApp\Gateway`; Content Sync volá CA jen přes připojení)
-- [ ] F1 CA: sloupec `sites.site_uid` + migrace, hledání podle `site_uid` s fallbackem na URL, doplnění UUID starým webům, `connect_site` přijímá `site_id`
+- [x] F1 CA: sloupec `sites.site_uid` + migrace, hledání podle `site_uid` s fallbackem na URL, doplnění UUID starým webům, `connect_site` přijímá `site_id`
 - [x] F2 UX Studio: hlídání změny `home_url()`, `site_moved`, stavy `clone` / `superseded`, upozornění a „Připojit jako nový web"
-- [ ] F2 CA: `?page=site_moved` (výzva na nové adrese, kontrola staré, vzory vývojových domén v Nastavení), `site_url_history`, upozornění Přesunout / Kopie, sekce Historie adres s Vrátit
-- [ ] F3 CA: navazující akce po přesunu (Turnstile doména, monitoring, reset vizuálního snímku, přeplánování auditů)
+- [x] F2 CA: `?page=site_moved` (výzva na nové adrese, kontrola staré, vzory vývojových domén v Nastavení), `site_url_history`, upozornění Přesunout / Kopie, sekce Historie adres s Vrátit
+- [x] F3 CA (DNS zóna, SSO a audity ručně, viz CA PLAN §38): navazující akce po přesunu (Turnstile doména, monitoring, reset vizuálního snímku, přeplánování auditů)
 - [ ] F4 Test: připojit web na vývojové doméně, zkopírovat DB na jinou doménu → automatický přesun; zkopírovat produkci na staging → upozornění „kopie"; vrácení přesunu
 
 ### 40.7 Otevřené otázky
@@ -4069,3 +4069,23 @@ aplikace** → Hotovo. Nově: Vítejte → **Centrální aplikace** → Doporuč
 - Migrace (`Core\Onboarding\SharingUpgrade`): běží jednou při první administraci správce po aktualizaci. Jen pro web připojený k CA a nepozastavený. Plugin dosud nikdy nezapisoval, že správce modul vypnul, proto se od tohoto vydání zapisuje vypnutí z obrazovky Modulů (`uxstudio_modules_disabled`) a respektuje se. Web, který modul vypnul před tímto vydáním, záznam nemá, takže se mu modul jednou zapne (a upozornění to řekne). Neodpojené weby a weby s vypnutým modulem bez připojení se nemění; IndexNow se tedy zapne jen tam, kde modul už běží nebo se zapnul touto migrací (zadání 39.3 „u všech indexovatelných webů“ jsem nevyložil jako zapnutí modulu na všech webech).
 - Překlady cs_CZ: `.po` / `.mo` / JSON doplněny postupem „Adding a few new strings“, `ux-studio.pot` se nepřegenerovalo (diff by měl tisíce řádků šumu), udělá se při vydání. Jména modulu v `.po` nahrazena (`Indexing & Sharing`).
 - Neověřeno v prohlížeči ani proti živému Facebooku (F0 a F4 zůstávají).
+
+### 40.9 End-to-end test na lokálu (2026-11-03)
+
+Čistý WordPress `http://localhost/_uxs-e2e/` (DB `uxs_e2e`, plugin = junction na worktree `_uxs-wt-social`)
+proti CA z worktree `_ca-wt-identity` s čerstvou DB `ca_e2e` (všech 116 migrací).
+
+- ✅ Průvodce: pořadí Vítejte → CA → Moduly; připojení (podpis se `site_id`, živá výzva) → návrat na krok
+  Moduly s `ca=done`, balíček nabídne „Indexování a sdílení" s Facebookem přes CA; `sites.site_uid` = `uxstudio_site_id`.
+- ✅ Úprava stránky → fronta s termínem +120 s (dřív nic neodešle) → CA najde web podle ID → Graph API → výsledek
+  v meta příspěvku a v logu CA. IndexNow pro `localhost` vrátil 429 → naplánován další pokus.
+- ✅ Přesun `localhost` → `127.0.0.1`: automatický přesun (stará adresa = alias), historie, nová známá adresa,
+  obnova náhledu po přesunu funguje.
+- ✅ Kopie: web se ohlásí z vývojové `localhost`, produkce běží → CA nic nepřepíše, čeká na rozhodnutí;
+  „Kopie, připojit zvlášť" → web dostane stav `clone`, přestane volat CA a ukáže upozornění.
+- Nalezeno a opraveno: (1) průvodce nového webu padal (`reload` použitý v závislostech efektu před deklarací),
+  commit a393f84; (2) upozornění „web je kopie" schoval úklid admin upozornění, má teď stejnou výjimku jako
+  upozornění na PHP, commit 37d4858.
+- Zbývá: Zrušit / Přeskočit v kroku CA, Vrátit přesun, „Připojit jako nový web", Facebook u veřejné URL
+  (lokální `localhost` Facebook nestáhne, CA přesto hlásí OK s prázdným titulkem: zvážit hlášení „Facebook
+  nenašel titulek ani obrázek"), IndexNow 200/202 u veřejného webu, nginx.
