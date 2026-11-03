@@ -3792,7 +3792,7 @@ Facebooku („Scrape Again") a obvykle se na to zapomene.
 
 UX Studio samostatný SEO modul nemá (SEO dělá Rank Math / Yoast). Nejbližší je `indexing-notice`:
 hlídá, jestli web vidí vyhledávače, a je ve startovacím balíčku průvodce (§29). Rozšíří se o to, jestli
-správně vidí web i sociální sítě (a volitelně vyhledávače přes IndexNow, O4).
+správně vidí web i sociální sítě a jestli se o změně hned dozví vyhledávače (IndexNow, 39.7).
 
 - `id` zůstává `indexing-notice` (zapnutý stav, export nastavení i položka balíčku platí dál), mění se
   jen název („Indexování a sdílení" / „Indexing & Sharing"), popis a skupina `admin` → `content`.
@@ -3835,14 +3835,20 @@ odpověď 200 = platné), výsledek hned pod polem.
 - Které sítě: Facebook a Messenger automaticky; LinkedIn jen ručně odkazem (nemá API); X, Pinterest,
   Telegram, Slack a Discord obnovit nejdou a náhled si obnoví samy.
 
-### 39.3 Průvodce (§29)
+### 39.3 Průvodce (§29) a stávající weby
 
 `indexing-notice` už v balíčku je. Položka dostane do `settings` navíc `social_refresh_enabled = true`
 a `social_key_source = ca`, **jen když je web připojený k CA** (nový klíč `ca_connected` v
-`Environment::detect()`; ověřit pořadí kroku Centrální aplikace vůči použití balíčku, případně stav
-zjistit znovu při `apply`). Bez připojení se modul zapne jako dnes a náhledy zůstanou vypnuté; vysvětlení
-položky to řekne („Náhledy na Facebooku zapnete v modulu vlastními klíči, nebo připojením k CA").
-Vrácení balíčku (snímek) vrátí i tyto hodnoty.
+`Environment::detect()`). Díky přesunu kroku CA na začátek průvodce (§40.1) je stav připojení známý
+dřív, než se balíček sestaví. Bez připojení se modul zapne jako dnes, náhledy zůstanou vypnuté a
+vysvětlení položky řekne, jak je zapnout (vlastní klíče, nebo připojení k CA). IndexNow (39.7) se zapne
+vždy, CA nepotřebuje. Vrácení balíčku (snímek) vrátí i tyto hodnoty.
+
+**Stávající weby (rozhodnuto O2):** jednorázová migrace při aktualizaci pluginu. Web připojený k CA
+dostane zapnutý modul `indexing-notice` (přes `ActivationGuard`, ne napřímo), `social_refresh_enabled`
+a `social_key_source = ca`; IndexNow zapnuto u všech webů, které jsou indexovatelné. Uživateli se jednou
+ukáže upozornění „Nově: náhledy na Facebooku a IndexNow se obnovují samy" s odkazem do nastavení.
+Web s ručně vypnutým modulem (záznam v historii modulů) se nezapíná.
 
 ### 39.4 Které sítě jdou obnovit
 
@@ -3855,26 +3861,31 @@ Stav k 2026-11, před F1 znovu ověřit:
 | LinkedIn | **Ne** | Post Inspector nemá veřejné API. Náhrada: odkaz v editoru na `https://www.linkedin.com/post-inspector/inspect/<url-encoded>`. |
 | X | Ne | Card Validator zrušen, API na obnovu karty neexistuje. |
 | Pinterest, Telegram, Slack, Discord | Ne | Bez API (Telegram jen ručně přes @WebpageBot), krátká cache. |
+| Vyhledávače Bing, Seznam, Yandex (+ Naver, Yep) | **Ano, IndexNow** | Viz 39.7. Google IndexNow nepodporuje. |
 
 ### 39.5 Tok
 
-1. `transition_post_status` / `save_post` → jen `publish`, jen `is_post_type_viewable()`, ne revize,
-   ne autosave, ne `noindex`, ne stránky za heslem, ne při zapnuté údržbě (Maintenance Mode).
-   Hromadné změny (WP-CLI, import, push z hubu) se sloučí do jedné dávky.
-2. URL do fronty (option bez autoloadu, deduplikace). Úprava titulní stránky přidá i `home_url('/')`.
-   Stejná URL nejvýš 1× za 10 minut.
+1. `transition_post_status` / `save_post` → **jen URL právě uloženého příspěvku** (rozhodnuto O3:
+   žádná titulní stránka, archivy ani kategorie navíc), všechny typy, pro které platí
+   `is_post_type_viewable()`. Ne revize, ne autosave, ne `noindex`, ne stránky za heslem, ne při zapnuté
+   údržbě (Maintenance Mode), **ne na neindexovatelném webu** (`blog_public = 0`, typicky vývojová
+   doména), ne na webu, který CA označila za kopii (§40.4). Hromadné změny (WP-CLI, import, push z hubu)
+   se sloučí do jedné dávky.
+2. URL do fronty (option bez autoloadu, deduplikace). Stejná URL nejvýš 1× za 10 minut.
 3. `wp_schedule_single_event( time() + 120 )`. **Zpoždění je nutné:** Facebook HTML stáhne hned, takže
    se nejdřív musí smazat page cache (LiteSpeed, Cloudflare, WP Rocket), jinak dostane starou verzi.
 4. Cron podle `social_key_source`:
-   - `ca`: dávka (max 50 URL) na CA `?page=social_refresh`. CA ověří podpis, **ověří, že každá URL
-     patří k doméně autentizovaného webu** (jinak by šlo CA zneužít ke scrapování cizích URL pod naší
-     Meta appkou), rate limit na web, zavolá Graph API, vrátí výsledek po URL.
+   - `ca`: dávka (max 50 URL) na CA `?page=social_refresh`. CA web najde podle klíče webu (§40.2),
+     ověří podpis, **ověří, že každá URL patří k aktuální doméně toho webu** (jinak by šlo CA zneužít
+     ke scrapování cizích URL pod naší Meta appkou), rate limit na web, zavolá Graph API, vrátí výsledek
+     po URL.
    - `own`: stejné volání Graph API přímo z webu (třída `FacebookScraper` v modulu).
-5. Výsledek (OK + co Facebook vidí: `og:title`, `og:image`, nebo chyba) do Activity Logu a k příspěvku
-   meta „Náhled na Facebooku obnoven 3. 11. 12:03".
+   - IndexNow vždy přímo z webu (39.7), nezávisle na volbě klíčů.
+5. Výsledek (OK + co Facebook vidí: `og:title`, `og:image`, nebo chyba; u IndexNow HTTP kód) do Activity
+   Logu a k příspěvku meta „Náhled na Facebooku obnoven 3. 11. 12:03 · IndexNow odesláno".
 
 Ruční cesta: řádková akce v seznamu příspěvků a tlačítko v editoru „Obnovit náhled na sítích"
-(Facebook + odkaz na LinkedIn Post Inspector).
+(Facebook + IndexNow + odkaz na LinkedIn Post Inspector).
 
 ### 39.6 Pasti a rizika
 
@@ -3891,20 +3902,148 @@ Ruční cesta: řádková akce v seznamu příspěvků a tlačítko v editoru �
 - Facebook crawler (`facebookexternalhit`) musí projít bot ochranou: nesmí být v blacklistu Bot Throttle
   ani blokovaný WAFem klienta, jinak se „obnoví" chybový náhled.
 
-### 39.7 Fáze
+### 39.7 IndexNow (rozhodnuto O4: ano, ve stejném modulu)
+
+- Karta „Oznámit změny vyhledávačům (IndexNow)", přepínač `indexnow_enabled`, výchozí zapnuto.
+- Klíč: náhodných 32 hex znaků vygenerovaných při prvním zapnutí (option bez autoloadu). Není tajný,
+  musí být veřejně čitelný: web ho servíruje na `/<klíč>.txt` přes `template_redirect` (bez souboru
+  v kořeni, takže funguje i bez práva zápisu). Při přesunu domény (§40) zůstává platný.
+- `POST https://api.indexnow.org/indexnow` s `{host, key, keyLocation, urlList}`; sdílená síť IndexNow
+  předá URL všem zapojeným vyhledávačům (Bing, Seznam, Yandex, Naver, Yep). Odpověď 200/202 = OK,
+  403 = klíč nesedí, 422 = URL nepatří k hostu, 429 = moc rychle (odložit).
+- Jen na indexovatelném webu (`blog_public = 1`) a jen pro indexovatelné URL. Rank Math i Yoast mají
+  vlastní IndexNow: **katalog překryvů** (§26) dostane pravidlo „IndexNow zapnutý v Rank Math / Yoast /
+  plugin IndexNow → `indexnow_enabled` se v balíčku vynechá", ať se URL neposílá dvakrát.
+- Vysvětlení: „Bing, Seznam a další vyhledávače se o změně dozví hned, ne až při příští návštěvě robota.
+  Google tuto službu nepodporuje, ten se řídí mapou webu."
+
+### 39.8 Fáze
 
 - [ ] F0 Ručně (curl) ověřit scrape s app tokenem appky CA; zjistit, jestli obnoví i Instagram/Threads/WhatsApp; zapsat limit z `X-App-Usage`; ověřit Meta klíče na produkci CA; projít aktuální kroky založení appky pro návod
 - [ ] F1 UX Studio: `indexing-notice` dostane nastavení (karty, `show_if`), přejmenování, `FacebookScraper`, hák, fronta, cron se zpožděním, režim `own` + Ověřit klíče
-- [ ] F1 CA: `?page=social_refresh` (HMAC proti `sites.api_key`, kontrola domény, rate limit, Graph API, odpověď po URL, log v CA); plán v `centrani-app/PLAN.md`
+- [ ] F1 CA: `?page=social_refresh` (podpis, web podle klíče webu §40.2, kontrola domény, rate limit, Graph API, odpověď po URL, log v CA)
 - [ ] F2 Režim `ca` na straně pluginu (klient po vzoru `TurnstileCaProvisioner`) + upozornění bez připojení
+- [ ] F2 IndexNow: klíč, `/<klíč>.txt`, odeslání, pravidlo překryvů s Rank Math / Yoast
 - [ ] F2 Průvodce: `Environment` klíč `ca_connected`, nastavení položky `indexing-notice`, testy `tests/onboarding-starter.php`
+- [ ] F2 Migrace pro stávající připojené weby + jednorázové upozornění
 - [ ] F2 Activity Log + meta u příspěvku, řádková akce a tlačítko v editoru, odkaz na LinkedIn, texty nápovědy, překlady cs_CZ
-- [ ] F3 (podle O4) IndexNow ve stejném modulu
-- [ ] F4 Test na pobyty v obou režimech (úprava stránky → za 2 min nový náhled v Sharing Debuggeru), vydání, flotila
+- [ ] F4 Test na pobyty v obou režimech (úprava stránky → za 2 min nový náhled v Sharing Debuggeru, IndexNow 202), vydání, flotila
 
-### 39.8 Otevřené otázky
+### 39.9 Rozhodnutí (2026-11-03)
 
-- O1 Rozšířit Indexing Notice na „Indexování a sdílení" (39.1)? Alternativa je nový modul „SEO".
-- O2 U webů už připojených k CA zapnout náhledy samo s aktualizací pluginu, nebo jen přes průvodce / ručně?
-- O3 Typy obsahu: všechny veřejné (doporučeno), nebo jen stránky, příspěvky a produkty?
-- O4 Přidat IndexNow do stejného modulu (sedí k „indexování" v názvu)?
+- O1 ✅ Rozšířit Indexing Notice na „Indexování a sdílení".
+- O2 ✅ U webů už připojených k CA zapnout samo s aktualizací pluginu (39.3).
+- O3 ✅ Vždy jen URL aktualizovaného příspěvku; všechny veřejné typy obsahu.
+- O4 ✅ IndexNow ano, ve stejném modulu (39.7).
+
+## 40. CA na začátku průvodce a stálý klíč webu, který přežije změnu domény (2026-11-03, NÁVRH)
+
+Požadavek: (1) krok Centrální aplikace je dnes v průvodci nového webu předposlední, má jít na začátek;
+(2) web spárovaný s CA na vývojové doméně má zůstat spárovaný i po přesunu na produkční doménu. CA jen
+sama aktualizuje URL a změnu zaznamená.
+
+**Proč to dnes nejde:** CA hledá web podle URL (`Site::findByUrl()` v `ConnectController`,
+`TurnstileProvisionController::auth()`, `SeoAiApiController::auth()`). Po změně `home_url()` web
+podepisuje správným klíčem, ale CA ho pod novou adresou nenajde → 403 u všeho (Turnstile, SSO, servisní
+požadavky, náhledy). Dnes je jediné řešení web v CA smazat a připojit znovu, a tím se ztratí historie
+monitoringu, auditů a recenzí.
+
+### 40.1 Pořadí kroků průvodce
+
+Dnes (`getStarterSteps()`): Vítejte → Doporučené moduly → Použít → (Přihlašovací adresa) → **Centrální
+aplikace** → Hotovo. Nově: Vítejte → **Centrální aplikace** → Doporučené moduly → Použít →
+(Přihlašovací adresa) → Hotovo.
+
+- Proč: balíček pak ví, že je web připojený (`ca_connected`), takže rovnou nastaví CAPTCHA klíče z CA
+  (§32.3), náhledy na Facebooku (§39.3) a další služby, které klíče z CA potřebují. Dnes by se to muselo
+  dodělávat až po průvodci.
+- Krok zůstává **nepovinný** („Přeskočit, připojím později v Content Sync"), tlačítko Přeskočit na stejné
+  úrovni jako Připojit.
+- Připojení odvede prohlížeč na CA a zpět (`return_url`). Návrat musí průvodce otevřít na kroku
+  **Doporučené moduly** (`#/wizard?mode=new&step=modules`, tento krok nic nemění, takže jde otevřít
+  adresou) a znovu načíst `GET onboarding/starter`, protože se změnil `ca_connected`. Při
+  `ux1_connect_cancelled=1` taky pokračovat na modulech, s poznámkou „Připojení jste zrušili, můžete ho
+  dokončit později".
+- Migrační průvodce (`getSteps()`, cizí pluginy) krok CA nemá a zůstává beze změny; nabídka startovacího
+  balíčku po migraci jde přes stejné pořadí jako nový web.
+
+### 40.2 Klíč webu (stálá identita)
+
+- Web: option `uxstudio_site_id` = UUID v4, vygenerované jednou (při prvním připojení nebo aktivaci),
+  bez autoloadu. **Není tajné**, je to jen identifikátor; tajemstvím zůstává `node_api_key`. Protože obojí
+  leží v databázi, s přesunem databáze na produkci (Duplicator, All-in-One WP Migration, WP-CLI
+  `search-replace`, ruční dump) se přenese samo.
+- Připojení (`?page=connect_site`) posílá navíc `site_id` (a podepisuje ho: payload
+  `site_url|site_name|timestamp|site_type|site_id`). Každé podepsané volání z webu na CA nese hlavičku
+  `X-UxStudio-Site-Id`.
+- CA: sloupec `sites.site_uid` (unikátní, NULL u starých webů). Hledání: nejdřív podle `site_uid`, když
+  chybí, postaru podle URL (zpětná kompatibilita). Starý web bez `site_uid` ho dostane při prvním
+  podepsaném volání, kde sedí URL i podpis (doplní se samo, bez zásahu).
+- Podpis se dál ověřuje klíčem `sites.api_key` nalezeného webu. Samotné UUID nic neotevře.
+
+### 40.3 Přesun domény
+
+1. Web si pamatuje adresu, pod kterou byl naposledy potvrzený (`uxstudio_ca_known_url`). Při každém
+   volání na CA a jednou denně (cron) porovná s `home_url()`. Když se liší, pošle podepsané
+   `?page=site_moved` s `{site_id, old_url, new_url}`.
+2. CA: web najde podle `site_id`, ověří podpis jeho `api_key` → **živá výzva na nové adrese**
+   (podepsaný content-sync ping na `new_url`, stejný mechanismus jako u připojení), čímž ověří, že klíč
+   opravdu drží web na nové doméně.
+3. CA zkusí **starou adresu**. Podle výsledku:
+   - stará adresa neodpovídá, nebo odpovídá jiný web / bez stejného `site_id` → **přesun proběhne sám**;
+   - stará adresa pořád odpovídá se stejným `site_id` a je to vývojová doména (seznam vzorů v Nastavení
+     CA, výchozí: `localhost`, `*.local`, `*.test`, `dev.*`, `develop.*`, `staging.*`, `test.*`,
+     vlastní vývojové domény typu `*.ux1.cz`) a nová ne → **přesun proběhne sám** (typický případ
+     „vývoj zůstal běžet, produkce je nová");
+   - jinak (obě adresy živé, obě produkční, nebo nová je vývojová a stará produkční = někdo si
+     zkopíroval produkci na staging) → **nic se nepřepíše**, CA pošle upozornění „Web X se ohlásil na
+     nové adrese Y, stará adresa pořád běží. Je to přesun, nebo kopie?" s tlačítky **Přesunout** /
+     **Kopie, připojit zvlášť**.
+4. Přesun v CA: `sites.url` = nová adresa, záznam do nové tabulky `site_url_history` (`site_id`,
+   `old_url`, `new_url`, `changed_at`, `source` = `auto` | `operator`, `decided_by`, `reason`), řádek
+   v `activity_log`, upozornění správci (stejný kanál jako ostatní notifikace CA). V detailu webu v CA
+   sekce „Historie adres" s tlačítkem Vrátit u posledního přesunu.
+5. Navazující věci v CA po přesunu: přidat novou doménu do sdíleného Turnstile widgetu (starou nechat,
+   než doběhne), monitoring dostupnosti a PageSpeed na novou URL, **reset referenčního snímku vizuálního
+   monitoringu** (jinak hned hlásí „web se změnil"), audit / SEO test / přístupnost přeplánovat,
+   recenze a klientské vazby beze změny (drží se `site_id`).
+6. Web po kladné odpovědi uloží `uxstudio_ca_known_url = home_url()` a zapíše změnu i do svého
+   Activity Logu.
+
+### 40.4 Kopie webu (staging z produkce, klon)
+
+- Když CA rozhodne „kopie" (nebo ji tak označí operátor), odpoví webu na nové adrese stavem `clone`.
+  Web uloží `uxstudio_ca_clone = 1`, **přestane volat CA** (žádné náhledy, Turnstile provisioning, servisní
+  požadavky pod cizí identitou) a v administraci ukáže upozornění: „Tento web je kopie webu X. Propojení
+  s Centrální aplikací je pozastavené." s tlačítkem **Připojit jako nový web** (vygeneruje nové
+  `uxstudio_site_id` + nový `node_api_key` a spustí běžné připojení).
+- Volání ze staré adresy po přesunu (vývojová kopie, která dál běží) CA odmítne stavem `superseded`;
+  web ukáže totéž upozornění („Tento web byl přesunut na Y").
+- Bonus: weby, které jsou ve stavu kopie nebo neindexovatelné, nikdy nevolají Facebook ani IndexNow
+  (§39.5), takže vývojová doména nezaplevelí náhledy ani vyhledávače.
+
+### 40.5 Bezpečnost
+
+- UUID samo nic neotevře; přesun vyžaduje podpis `api_key` **a** živou odpověď webu na nové adrese.
+- Ukradená databáze živého webu (útočník má UUID i klíč a postaví kopii jinde): stará adresa dál běží
+  a je produkční → automatický přesun se neprovede, rozhoduje člověk. Tohle je důvod, proč nestačí jen
+  „podpis sedí, přepiš URL".
+- Nová URL prochází `UrlGuard` (stejně jako při připojení: žádné privátní IP, jen http/https).
+- Rate limit `site_moved`: 5 / den / web. Každý automatický přesun jde správci jako upozornění, takže
+  chybný přesun nezůstane bez povšimnutí, a jde jedním tlačítkem vrátit.
+
+### 40.6 Fáze
+
+- [ ] F1 UX Studio: přesun kroku CA na začátek `getStarterSteps()`, návrat z CA na krok modulů + nové načtení balíčku, texty, test v prohlížeči (připojit / zrušit / přeskočit)
+- [ ] F1 UX Studio: `uxstudio_site_id`, posílání při připojení a v hlavičce všech podepsaných volání (Content Sync, `TurnstileCaProvisioner`, `CentralClient`, náhledy)
+- [ ] F1 CA: sloupec `sites.site_uid` + migrace, hledání podle `site_uid` s fallbackem na URL, doplnění UUID starým webům, `connect_site` přijímá `site_id`
+- [ ] F2 UX Studio: hlídání změny `home_url()`, `site_moved`, stavy `clone` / `superseded`, upozornění a „Připojit jako nový web"
+- [ ] F2 CA: `?page=site_moved` (výzva na nové adrese, kontrola staré, vzory vývojových domén v Nastavení), `site_url_history`, upozornění Přesunout / Kopie, sekce Historie adres s Vrátit
+- [ ] F3 CA: navazující akce po přesunu (Turnstile doména, monitoring, reset vizuálního snímku, přeplánování auditů)
+- [ ] F4 Test: připojit web na vývojové doméně, zkopírovat DB na jinou doménu → automatický přesun; zkopírovat produkci na staging → upozornění „kopie"; vrácení přesunu
+
+### 40.7 Otevřené otázky
+
+- P1 Seznam vývojových vzorů: stačí výchozí (40.3) + vlastní v Nastavení CA, nebo máš pevný seznam vývojových domén (např. `develop.trockenmann.com`, `*.ux1.cz`)?
+- P2 Upozornění o automatickém přesunu: jen v CA, nebo i e-mailem / push (PWA)?
+- P3 Má se po přesunu staré (vývojové) adrese v CA nechat záznam jako „vývojová verze webu X" (např. pro monitoring vývoje), nebo ji úplně zapomenout?
