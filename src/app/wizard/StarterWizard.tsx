@@ -93,6 +93,16 @@ export function StarterWizard(): JSX.Element {
 		}
 	}, [ data ] );
 
+	// Back from the central app: the connection changed what the pack offers, so read it again (PLAN.md 40.1).
+	const returnedFromCa = useRef( 'done' === hashParam( 'ca' ) );
+	useEffect( () => {
+		if ( returnedFromCa.current ) {
+			returnedFromCa.current = false;
+			preselected.current = false;
+			void reload();
+		}
+	}, [ reload ] );
+
 	// A pending login address from an earlier run also needs its step.
 	useEffect( () => {
 		if ( data && 'none' !== data.login_url.state ) {

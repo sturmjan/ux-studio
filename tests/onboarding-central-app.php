@@ -78,6 +78,16 @@ $assert( 'form has exactly the fields of the protocol', array( 'site_url', 'site
 $assert( 'form site_type is wordpress, key is at least 32 characters, timestamp is a string of digits', 'wordpress' === $form['fields']['site_type'] && strlen( $form['fields']['api_key'] ) >= 32 && '1790000000' === $form['fields']['timestamp'] );
 $assert( 'form signature verifies the way the Central App checks it', hash_equals( hash_hmac( 'sha256', 'https://example.com|Můj web|1790000000|wordpress', $key ), $form['fields']['signature'] ) );
 
+$sid  = '3f2c6a1e-8b4d-4c1a-9e57-2d6b0a9c1f34';
+$form = CentralApp::connect_form( 'https://app.ux1.cz/', 'https://example.com', 'Můj web', $key, '', 1790000000, $sid );
+$assert( 'with a site id the form carries site_id as the last field', 'site_id' === array_key_last( $form['fields'] ) && $sid === $form['fields']['site_id'] );
+$assert(
+	'signature with site_id equals the independently computed HMAC (site_url|site_name|timestamp|site_type|site_id)',
+	'c7f4af105b2bd61e8b637b4f7ad7412d248579ed4789a1f527a56a1067291786' === $form['fields']['signature']
+);
+$assert( 'an empty site id leaves the signature at the form without it', CentralApp::signature( 'https://example.com', 'Můj web', 1790000000, 'wordpress', $key, '' ) === CentralApp::signature( 'https://example.com', 'Můj web', 1790000000, 'wordpress', $key ) );
+$assert( 'return path: default is the modules step, the connect step may be asked for, anything else falls back', str_contains( CentralApp::return_path(), 'step=modules&ca=done' ) && str_contains( CentralApp::return_path( 'ca' ), 'step=ca&ca=done' ) && CentralApp::return_path( 'apply' ) === CentralApp::RETURN_PATH );
+
 /* ── Local site ── */
 
 $assert( 'local sites are recognised', CentralApp::is_local_site( 'http://localhost/pobyty' ) && CentralApp::is_local_site( 'http://127.0.0.1:8080' ) && CentralApp::is_local_site( 'https://shop.test' ) && CentralApp::is_local_site( 'http://[::1]/' ) );

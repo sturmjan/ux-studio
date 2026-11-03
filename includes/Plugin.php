@@ -8,6 +8,7 @@
 namespace UxStudio;
 
 use UxStudio\Core\Admin;
+use UxStudio\Core\CentralApp\Bootstrap as CentralAppBootstrap;
 use UxStudio\Core\DB;
 use UxStudio\Core\GithubUpdater;
 use UxStudio\Core\Mcp\Bootstrap as McpBootstrap;
@@ -63,6 +64,7 @@ final class Plugin {
 		MigrationBootstrap::register();
 		McpBootstrap::register();
 		PhpVersionBootstrap::register();
+		CentralAppBootstrap::register();
 
 		if ( is_admin() ) {
 			( new Admin( $this->modules ) )->register();

@@ -37,6 +37,7 @@ defined( 'ABSPATH' ) || exit;
  *   headless_plugins     string[] names of active decoupled front end plugins (see HEADLESS_PLUGINS),
  *   header_plugins       string[] names of active plugins that send security headers (see HEADER_PLUGINS),
  *   https_ready          bool    the site and home address are https and this very request came over https,
+ *   ca_connected         bool    the site is paired with the Central App and the link is not paused (PLAN.md 39.3, 40.1),
  *   captcha_set          bool    a CAPTCHA is already set up: switched on, or keys stored (Turnstile, reCAPTCHA).
  *
  * An item is one tick box in the wizard:
@@ -165,6 +166,7 @@ final class StarterPack {
 			'header_plugins'      => array(),
 			'https_ready'         => true,
 			'captcha_set'         => false,
+			'ca_connected'        => false,
 		);
 	}
 

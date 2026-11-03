@@ -54,6 +54,7 @@ register_deactivation_hook(
 		}
 		\UxStudio\Core\Migration\Bootstrap::deactivate();
 		\UxStudio\Core\PhpVersion\Bootstrap::deactivate();
+		\UxStudio\Core\CentralApp\Bootstrap::deactivate();
 	}
 );
 

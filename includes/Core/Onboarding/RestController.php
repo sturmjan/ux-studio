@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  *   POST onboarding/starter/apply     items[], overrides{}, confirmed[]  (snapshot first, login address last and pending)
  *   POST onboarding/starter/revert    put the snapshot back
  *   POST onboarding/login-url/confirm force?  step B: close wp-login.php, send the e-mail
- *   POST onboarding/ca/prepare        url?    node mode + key, returns the POST form for the Central App (CentralApp)
+ *   POST onboarding/ca/prepare        url?, step?  node mode + key, returns the POST form for the Central App (CentralApp)
  *   GET  onboarding/ca/status                 connection state, last call of the Central App, CAPTCHA state
  *   POST onboarding/ca/captcha        enabled CAPTCHA keys from the Central App on / off
  *
@@ -74,10 +74,16 @@ final class RestController extends Controller {
 			'POST',
 			array( $this, 'ca_prepare' ),
 			array(
-				'url' => array(
+				'url'  => array(
 					'required' => false,
 					'type'     => 'string',
 					'default'  => '',
+				),
+				'step' => array(
+					'required'          => false,
+					'type'              => 'string',
+					'default'           => '',
+					'sanitize_callback' => 'sanitize_key',
 				),
 			)
 		);
@@ -107,7 +113,7 @@ final class RestController extends Controller {
 	 * POST onboarding/ca/prepare. The response carries the shared key once, for the form the browser posts.
 	 */
 	public function ca_prepare( WP_REST_Request $request ) {
-		$result = $this->central_app()->prepare( (string) $request['url'] );
+		$result = $this->central_app()->prepare( (string) $request['url'], (string) $request['step'] );
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}

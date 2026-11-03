@@ -28,7 +28,7 @@ import {
 } from 'lucide-react';
 import { ApiError, api } from '../api';
 import { formatDate } from '../date';
-import { navigate } from '../route';
+import { hashParam, navigate } from '../route';
 import { CaStep } from './ca-step';
 import SettingExplain from '../../components/SettingExplain';
 import { ConfirmModal, DrawnCheck, ErrorLine, ModuleLinkIcon, SourceIcon, StateIcon, StepHead, Warnings } from './parts';
@@ -333,7 +333,7 @@ function WelcomeStep( { ctx }: { ctx: StarterCtx } ): JSX.Element {
 
 			<div className="uxs-wiz-actions">
 				<button type="button" className="button button-primary" disabled={ ! d } onClick={ ctx.next }>
-					{ __( 'Choose the modules', 'ux-studio' ) } <ArrowRight size={ 16 } aria-hidden />
+					{ __( 'Continue', 'ux-studio' ) } <ArrowRight size={ 16 } aria-hidden />
 				</button>
 			</div>
 		</section>
@@ -531,6 +531,17 @@ function ModulesStep( { ctx }: { ctx: StarterCtx } ): JSX.Element {
 			<StepHead icon={ <ListChecks size={ 26 } aria-hidden /> } title={ __( 'Recommended modules', 'ux-studio' ) }>
 				{ __( 'These modules and presets suit almost every site. Untick what you do not want. Open "What will be set" to see every value.', 'ux-studio' ) }
 			</StepHead>
+
+			{ 'done' === hashParam( 'ca' ) && '1' === hashParam( 'ux1_connect_cancelled' ) && (
+				<p className="uxs-wiz-banner is-bad" role="status">
+					<CircleAlert size={ 16 } aria-hidden /> { __( 'You cancelled the connection. You can finish it later in the Content Sync module.', 'ux-studio' ) }
+				</p>
+			) }
+			{ 'done' === hashParam( 'ca' ) && '1' !== hashParam( 'ux1_connect_cancelled' ) && data.detections.ca_connected && (
+				<p className="uxs-wiz-banner is-ok" role="status">
+					<CircleCheck size={ 16 } aria-hidden /> { __( 'The site is connected to the central app. The recommended modules below use it where they can.', 'ux-studio' ) }
+				</p>
+			) }
 
 			<div className="uxs-wiz-bulk">
 				<button type="button" className="button-link" onClick={ () => ctx.setSelected( recommended ) }>
@@ -943,21 +954,20 @@ function DoneStep( { ctx }: { ctx: StarterCtx } ): JSX.Element {
 }
 
 /**
- * Ordered steps. The login address step exists only when the pack sets one (decided by the shell).
+ * Ordered steps. The central app comes right after the welcome (PLAN.md 40.1), so the starter pack already knows
+ * whether the site is connected. The login address step exists only when the pack sets one (decided by the shell).
  */
 export function getStarterSteps( withLogin: boolean ): StarterStep[] {
 	const steps: StarterStep[] = [
 		{ id: 'welcome', title: __( 'Welcome', 'ux-studio' ), render: ( ctx ) => <WelcomeStep ctx={ ctx } /> },
+		{ id: 'ca', title: __( 'Central app', 'ux-studio' ), render: ( ctx ) => <CaStep ctx={ ctx } /> },
 		{ id: 'modules', title: __( 'Recommended modules', 'ux-studio' ), render: ( ctx ) => <ModulesStep ctx={ ctx } /> },
 		{ id: 'apply', title: __( 'Apply', 'ux-studio' ), render: ( ctx ) => <ApplyStep ctx={ ctx } /> },
 	];
 	if ( withLogin ) {
 		steps.push( { id: 'login', title: __( 'Login address', 'ux-studio' ), render: ( ctx ) => <LoginStep ctx={ ctx } /> } );
 	}
-	steps.push(
-		{ id: 'ca', title: __( 'Central app', 'ux-studio' ), render: ( ctx ) => <CaStep ctx={ ctx } /> },
-		{ id: 'done', title: __( 'Done', 'ux-studio' ), render: ( ctx ) => <DoneStep ctx={ ctx } /> }
-	);
+	steps.push( { id: 'done', title: __( 'Done', 'ux-studio' ), render: ( ctx ) => <DoneStep ctx={ ctx } /> } );
 	return steps;
 }
 

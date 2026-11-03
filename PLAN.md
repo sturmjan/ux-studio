@@ -4034,10 +4034,11 @@ aplikace** → Hotovo. Nově: Vítejte → **Centrální aplikace** → Doporuč
 
 ### 40.6 Fáze
 
-- [ ] F1 UX Studio: přesun kroku CA na začátek `getStarterSteps()`, návrat z CA na krok modulů + nové načtení balíčku, texty, test v prohlížeči (připojit / zrušit / přeskočit)
-- [ ] F1 UX Studio: `uxstudio_site_id`, posílání při připojení a v hlavičce všech podepsaných volání (Content Sync, `TurnstileCaProvisioner`, `CentralClient`, náhledy)
+- [x] F1 UX Studio: přesun kroku CA na začátek `getStarterSteps()`, návrat z CA na krok modulů + nové načtení balíčku, texty
+- [ ] F1 UX Studio: test průvodce v prohlížeči (připojit / zrušit / přeskočit, návrat z CA na krok modulů)
+- [x] F1 UX Studio: `uxstudio_site_id`, posílání při připojení a v hlavičce všech podepsaných volání (`TurnstileCaProvisioner`, `CentralClient`, nové volání přes `Core\CentralApp\Gateway`; Content Sync volá CA jen přes připojení)
 - [ ] F1 CA: sloupec `sites.site_uid` + migrace, hledání podle `site_uid` s fallbackem na URL, doplnění UUID starým webům, `connect_site` přijímá `site_id`
-- [ ] F2 UX Studio: hlídání změny `home_url()`, `site_moved`, stavy `clone` / `superseded`, upozornění a „Připojit jako nový web"
+- [x] F2 UX Studio: hlídání změny `home_url()`, `site_moved`, stavy `clone` / `superseded`, upozornění a „Připojit jako nový web"
 - [ ] F2 CA: `?page=site_moved` (výzva na nové adrese, kontrola staré, vzory vývojových domén v Nastavení), `site_url_history`, upozornění Přesunout / Kopie, sekce Historie adres s Vrátit
 - [ ] F3 CA: navazující akce po přesunu (Turnstile doména, monitoring, reset vizuálního snímku, přeplánování auditů)
 - [ ] F4 Test: připojit web na vývojové doméně, zkopírovat DB na jinou doménu → automatický přesun; zkopírovat produkci na staging → upozornění „kopie"; vrácení přesunu
@@ -4047,3 +4048,12 @@ aplikace** → Hotovo. Nově: Vítejte → **Centrální aplikace** → Doporuč
 - P1 Seznam vývojových vzorů: stačí výchozí (40.3) + vlastní v Nastavení CA, nebo máš pevný seznam vývojových domén (např. `develop.trockenmann.com`, `*.ux1.cz`)?
 - P2 Upozornění o automatickém přesunu: jen v CA, nebo i e-mailem / push (PWA)?
 - P3 Má se po přesunu staré (vývojové) adrese v CA nechat záznam jako „vývojová verze webu X" (např. pro monitoring vývoje), nebo ji úplně zapomenout?
+
+### 40.8 Poznámky k provedení (UX Studio, 2026-11-03)
+
+- Kód je v `includes/Core/CentralApp/`: `SiteIdentity` (id, známá adresa, stav pozastavení, čisté rozhodovací funkce), `Gateway` (podepsané volání s hlavičkou a `site_id`, čtení odpovědí 409 / 410 / 423), `DomainWatch` (porovnání adresy při volání a denní cron, `site_moved`), `PausedNotice` (upozornění a „Připojit jako nový web“), `Bootstrap`. Test `tests/central-app-identity.php`.
+- Stav kopie je v option `uxstudio_ca_clone` jako pole `{state: clone|superseded, url, since}` (podle smlouvy s CA, ne `= 1` jako v 40.4).
+- Podpis připojení: `site_url|site_name|timestamp|site_type|site_id`, když se `site_id` posílá (v průvodci vždy).
+- Návrat z CA vede na `step=modules&ca=done`. Při „Připojit jako nový web“ vede na krok `ca` s `reconnect=1`, tam se návrat nastaví zpět na `step=ca` (REST `onboarding/ca/prepare` přijímá `step`).
+- Odchylka: `ActivityLog` zapisuje události spojení s CA pod modul `content-sync` (`ca_site_moved`, `ca_site_moved_pending`, `ca_site_moved_failed`, `ca_link_paused`, `ca_connect_as_new`).
+- Odchylka: volání s 202 `pending_decision` se opakuje nejvýš 1× za hodinu při běžných voláních a 1× denně z cronu. Známá adresa se mění až po `moved`.
