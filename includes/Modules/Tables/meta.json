@@ -1,0 +1,8 @@
+{
+	"id": "tables",
+	"name": "Tables",
+	"description": "Build tables in a spreadsheet-like editor, paste them from Excel or import CSV, and embed them with a shortcode. Optional sorting, search and pagination.",
+	"group": "content",
+	"icon": "sheet",
+	"settings": true
+}

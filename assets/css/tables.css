@@ -1,0 +1,195 @@
+/* UX Studio Tables front end (PLAN §41). Override the --uxs-tbl-* variables in your theme to restyle. */
+.uxs-tbl-root {
+	--uxs-tbl-border: #dcdcde;
+	--uxs-tbl-head-bg: #f3f4f6;
+	--uxs-tbl-head-color: inherit;
+	--uxs-tbl-stripe: rgba(0, 0, 0, 0.03);
+	--uxs-tbl-hover: rgba(0, 0, 0, 0.06);
+	--uxs-tbl-pad: 0.6em 0.9em;
+	margin: 0 0 1.5em;
+}
+
+.uxs-tbl-root--scroll .uxs-tbl-scroll {
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+}
+
+.uxs-tbl-scroll:focus-visible {
+	outline: 2px solid currentColor;
+	outline-offset: 2px;
+}
+
+.uxs-tbl {
+	width: 100%;
+	border-collapse: collapse;
+	border: 1px solid var(--uxs-tbl-border);
+}
+
+.uxs-tbl th,
+.uxs-tbl td {
+	padding: var(--uxs-tbl-pad);
+	border: 1px solid var(--uxs-tbl-border);
+	text-align: left;
+	vertical-align: top;
+}
+
+.uxs-tbl thead th,
+.uxs-tbl tfoot td {
+	background: var(--uxs-tbl-head-bg);
+	color: var(--uxs-tbl-head-color);
+	font-weight: 600;
+}
+
+.uxs-tbl img {
+	max-width: 100%;
+	height: auto;
+}
+
+.uxs-tbl__caption {
+	padding: 0 0 0.6em;
+	font-weight: 600;
+	text-align: left;
+}
+
+.uxs-tbl__caption--below {
+	caption-side: bottom;
+	padding: 0.6em 0 0;
+}
+
+.uxs-tbl--striped tbody tr:nth-child(even) td {
+	background: var(--uxs-tbl-stripe);
+}
+
+.uxs-tbl--hover tbody tr:hover td {
+	background: var(--uxs-tbl-hover);
+}
+
+/* Scroll mode: keep columns readable instead of squeezing them. */
+.uxs-tbl-root--scroll .uxs-tbl {
+	min-width: 32em;
+}
+
+/* Stacked cards on small screens. */
+@media (max-width: 640px) {
+	.uxs-tbl-root--stack .uxs-tbl,
+	.uxs-tbl-root--stack .uxs-tbl tbody,
+	.uxs-tbl-root--stack .uxs-tbl tfoot,
+	.uxs-tbl-root--stack .uxs-tbl tr,
+	.uxs-tbl-root--stack .uxs-tbl td {
+		display: block;
+		width: 100%;
+	}
+
+	.uxs-tbl-root--stack .uxs-tbl {
+		border: 0;
+	}
+
+	.uxs-tbl-root--stack .uxs-tbl thead {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip: rect(0 0 0 0);
+		white-space: nowrap;
+	}
+
+	.uxs-tbl-root--stack .uxs-tbl tr {
+		margin: 0 0 1em;
+		border: 1px solid var(--uxs-tbl-border);
+	}
+
+	.uxs-tbl-root--stack .uxs-tbl td {
+		border: 0;
+		border-bottom: 1px solid var(--uxs-tbl-border);
+	}
+
+	.uxs-tbl-root--stack .uxs-tbl td:last-child {
+		border-bottom: 0;
+	}
+
+	.uxs-tbl-root--stack .uxs-tbl td[data-label]::before {
+		content: attr(data-label);
+		display: block;
+		font-weight: 600;
+		font-size: 0.85em;
+		opacity: 0.75;
+	}
+}
+
+/* Controls built by tables.js. */
+.uxs-tbl-controls {
+	display: flex;
+	justify-content: flex-end;
+	margin: 0 0 0.6em;
+}
+
+.uxs-tbl-controls input[type="search"] {
+	max-width: 100%;
+	width: 18em;
+	padding: 0.4em 0.7em;
+	border: 1px solid var(--uxs-tbl-border);
+	border-radius: 4px;
+}
+
+.uxs-tbl-sort {
+	all: unset;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4em;
+	width: 100%;
+	cursor: pointer;
+	font: inherit;
+}
+
+.uxs-tbl-sort:focus-visible {
+	outline: 2px solid currentColor;
+	outline-offset: 2px;
+}
+
+.uxs-tbl-sort::after {
+	content: "\2195";
+	opacity: 0.4;
+	font-size: 0.85em;
+}
+
+th[aria-sort="ascending"] .uxs-tbl-sort::after {
+	content: "\2191";
+	opacity: 1;
+}
+
+th[aria-sort="descending"] .uxs-tbl-sort::after {
+	content: "\2193";
+	opacity: 1;
+}
+
+.uxs-tbl-pager {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 0.4em;
+	margin: 0.6em 0 0;
+}
+
+.uxs-tbl-pager button {
+	padding: 0.3em 0.8em;
+	border: 1px solid var(--uxs-tbl-border);
+	border-radius: 4px;
+	background: transparent;
+	color: inherit;
+	cursor: pointer;
+}
+
+.uxs-tbl-pager button:disabled {
+	opacity: 0.4;
+	cursor: default;
+}
+
+.uxs-tbl-empty td {
+	text-align: center;
+	opacity: 0.7;
+}
+
+.uxs-tbl-root [hidden] {
+	display: none !important;
+}

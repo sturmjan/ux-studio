@@ -72,6 +72,7 @@ final class ModuleLinks {
 			array( 'forms', __( 'Forms', 'ux-studio' ), self::HUB, 'forms' ),
 			array( 'opening-hours', __( 'Opening Hours', 'ux-studio' ), self::HUB, '' ),
 			array( 'maps', __( 'Maps', 'ux-studio' ), self::HUB, '' ),
+			array( 'tables', __( 'Tables', 'ux-studio' ), self::HUB, '' ),
 			array( 'notice-board', __( 'Notice Board', 'ux-studio' ), self::HUB, '' ),
 			array( 'review-aggregator', __( 'Reviews', 'ux-studio' ), self::HUB, '' ),
 			array( 'redirects', __( 'Redirects and 404', 'ux-studio' ), self::HUB, '' ),
