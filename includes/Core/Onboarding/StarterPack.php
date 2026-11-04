@@ -271,9 +271,9 @@ final class StarterPack {
 				array( 'image-optimizer' ),
 				array(
 					'image-optimizer' => array(
-						'quality'           => 82,
-						'convert_to_webp'   => true,
-						'htaccess_delivery' => false,
+						'quality'         => 82,
+						'convert_to_webp' => true,
+						'delivery_mode'   => 'off',
 					),
 				)
 			),
