@@ -276,7 +276,8 @@ $uxs_tablepress = static function ( bool $apply ) use ( $uxs_usage ): void {
 $uxs_mapster = static function ( bool $apply ) use ( $uxs_usage ): void {
 	WP_CLI::log( '--- mapster ---' );
 
-	$module = class_exists( '\UxStudio\Plugin' ) ? \UxStudio\Plugin::instance()->modules->instance( 'maps' ) : null;
+	$plugin = class_exists( '\UxStudio\Plugin' ) ? \UxStudio\Plugin::instance() : null;
+	$module = $plugin && isset( $plugin->modules ) ? $plugin->modules->instance( 'maps' ) : null;
 	$ready  = $module instanceof \UxStudio\Modules\Maps\Module && post_type_exists( \UxStudio\Modules\Maps\Module::CPT );
 	if ( ! $ready ) {
 		WP_CLI::warning( 'Module "maps" is not enabled in UX Studio - showing what would be migrated only.' );
