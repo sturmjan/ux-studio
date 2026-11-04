@@ -44,6 +44,8 @@ final class Module extends BaseModule {
 
 	private const MAX_MARKERS = 200;
 
+	private ?Frontend $frontend = null;
+
 	private const SECRET_MAPY   = 'uxstudio_secret_maps_mapy';
 	private const SECRET_MAPBOX = 'uxstudio_secret_maps_mapbox_token';
 	private const SECRET_GOOGLE = 'uxstudio_secret_maps_google';
@@ -67,7 +69,49 @@ final class Module extends BaseModule {
 		add_action( 'init', array( $this, 'register_post_type' ) );
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_filter( 'uxstudio_csp_directives', array( $this, 'csp_directives' ) );
-		( new Frontend( $this ) )->register();
+		$this->frontend = new Frontend( $this );
+		$this->frontend->register();
+		GutenbergBlock::register( $this );
+		// Only ever fires when Elementor itself calls it, so the widget class
+		// (which extends \Elementor\Widget_Base) is never loaded without Elementor.
+		add_action(
+			'elementor/widgets/register',
+			function ( $widgets_manager ): void {
+				ElementorWidget::register_with( $this, $widgets_manager );
+			}
+		);
+		add_action( 'elementor/preview/enqueue_scripts', array( $this, 'enqueue_frontend_assets' ) );
+	}
+
+	/**
+	 * Render a map exactly like the shortcode (shared by the Elementor widget and the Gutenberg block).
+	 *
+	 * @param int $id     Map ID.
+	 * @param int $height Height override in px, 0 = the map's own height.
+	 */
+	public function render_map( int $id, int $height = 0 ): string {
+		if ( null === $this->frontend ) {
+			return '';
+		}
+		$atts = array( 'id' => $id );
+		if ( $height > 0 ) {
+			$atts['height'] = $height;
+		}
+		return $this->frontend->render_shortcode( $atts );
+	}
+
+	/**
+	 * Enqueue the front-end assets up front (Elementor editor preview, where the widget HTML is injected later).
+	 */
+	public function enqueue_frontend_assets(): void {
+		if ( null === $this->frontend ) {
+			return;
+		}
+		$this->frontend->register_assets();
+		wp_enqueue_style( 'uxstudio-leaflet' );
+		wp_enqueue_script( 'uxstudio-leaflet' );
+		wp_enqueue_style( 'uxstudio-maps' );
+		wp_enqueue_script( 'uxstudio-maps' );
 	}
 
 	/**

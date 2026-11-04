@@ -252,11 +252,14 @@
 		el.appendChild( box );
 	}
 
-	function boot() {
-		var maps = Array.prototype.slice.call( document.querySelectorAll( '.uxs-map[data-uxs-map]' ) );
+	function boot( root ) {
+		var maps = Array.prototype.slice.call( ( root || document ).querySelectorAll( '.uxs-map[data-uxs-map]' ) );
 		var lazy = [];
 		maps.forEach( function ( el ) {
 			var cfg;
+			if ( el.getAttribute( 'data-uxs-map-ready' ) || el.classList.contains( 'uxs-map--placeholder' ) ) {
+				return;
+			}
 			try {
 				cfg = JSON.parse( el.getAttribute( 'data-uxs-map' ) || '{}' );
 			} catch ( e ) {
@@ -291,9 +294,39 @@
 		} );
 	}
 
+	/**
+	 * Build the maps inside one element (used for markup injected after load,
+	 * e.g. the Elementor editor preview).
+	 */
+	window.uxsMaps = {
+		init: function ( root ) {
+			boot( root || document );
+		},
+	};
+
+	// Elementor editor/preview: the widget HTML is injected after DOMContentLoaded.
+	function hookElementor() {
+		if ( ! window.elementorFrontend || ! window.elementorFrontend.hooks ) {
+			return;
+		}
+		window.elementorFrontend.hooks.addAction( 'frontend/element_ready/uxstudio_map.default', function ( $scope ) {
+			var node = $scope && $scope[ 0 ] ? $scope[ 0 ] : $scope;
+			if ( node && node.querySelectorAll ) {
+				window.uxsMaps.init( node );
+			}
+		} );
+	}
+	if ( window.elementorFrontend && window.elementorFrontend.hooks ) {
+		hookElementor();
+	} else if ( window.jQuery ) {
+		window.jQuery( window ).on( 'elementor/frontend/init', hookElementor );
+	}
+
 	if ( document.readyState === 'loading' ) {
-		document.addEventListener( 'DOMContentLoaded', boot );
+		document.addEventListener( 'DOMContentLoaded', function () {
+			boot( document );
+		} );
 	} else {
-		boot();
+		boot( document );
 	}
 } )();
