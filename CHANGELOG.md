@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.14.0
+
+- Added: Indexing Notice is now "Indexing & Sharing". After you save a change to a published post, page or product, Facebook fetches the new title, description and image of the link about two minutes later (only the saved post, every public content type). The Facebook keys come from the central app, or you enter your own App ID and App Secret (the fields show only with that choice, with a "Verify keys" button; the secret is stored encrypted and never exported).
+- Added: IndexNow in the same module tells Bing, Seznam and other search engines about the changed page right away. The key is served at `/<key>.txt` without a file in the site root. It stays off while Rank Math, Yoast or the IndexNow plugin already send IndexNow.
+- Added: nothing is sent from a site hidden from search engines, in maintenance mode, for password protected or noindex posts, or from a copy of a site. A refresh button in the post row and in the editor, plus a link to the LinkedIn Post Inspector (LinkedIn has no API for this).
+- Added: the central app step of the new-site wizard comes right after Welcome, so the recommended modules already use the connection. Coming back from the central app (also after cancelling) continues on the module step.
+- Added: a stable site id. The connection with the central app survives moving the site to another domain: the site reports the new address and the central app updates it by itself and keeps the history. A copy of a site (staging made from production) is recognised, its connection pauses with a notice and a "Connect as a new site" button; a paused site asks once a day and resumes when the central app takes it back.
+- Changed: sites already connected to the central app get Indexing & Sharing switched on once after the update, with a notice. A module switched off on the Modules screen from now on stays off.
+
 ## 0.13.0
 
 - Added: the migration wizard switches over by itself once the verification shows that everything matches: the modules are turned on and the migrated plugins are deactivated, without a click. A box on the verification step turns this off. The safe preview becomes optional in this path; the undo (30 days), the live check after the switch and the automatic revert stay. A preview that was run and failed still blocks the switch, and a new login address still waits for your confirmation.
