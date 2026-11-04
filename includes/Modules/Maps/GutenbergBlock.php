@@ -92,6 +92,18 @@ final class GutenbergBlock {
 		);
 		wp_enqueue_script( 'uxstudio-maps-block-editor' );
 		wp_add_inline_script( 'uxstudio-maps-block-editor', 'window.uxsMapsBlock = ' . wp_json_encode( $maps ) . ';', 'before' );
+		// An inline-only handle gets no JSON translations from WordPress, so hand the
+		// editor the strings already translated by PHP.
+		$strings = array(
+			'UX Studio Map'                                     => array( __( 'UX Studio Map', 'ux-studio' ) ),
+			'Embed a map built with the UX Studio Maps module.' => array( __( 'Embed a map built with the UX Studio Maps module.', 'ux-studio' ) ),
+			'Select a map…'                                     => array( __( 'Select a map…', 'ux-studio' ) ),
+			'Map'                                               => array( __( 'Map', 'ux-studio' ) ),
+			'Height (px)'                                       => array( __( 'Height (px)', 'ux-studio' ) ),
+			'Leave empty to use the height set in the map.'     => array( __( 'Leave empty to use the height set in the map.', 'ux-studio' ) ),
+			'Select a map in the block settings on the right.'  => array( __( 'Select a map in the block settings on the right.', 'ux-studio' ) ),
+		);
+		wp_add_inline_script( 'uxstudio-maps-block-editor', 'wp.i18n.setLocaleData( ' . wp_json_encode( $strings ) . ', "ux-studio" );', 'before' );
 		wp_add_inline_script( 'uxstudio-maps-block-editor', self::editor_script() );
 	}
 
