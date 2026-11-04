@@ -1,8 +1,8 @@
 {
 	"id": "indexing-notice",
-	"name": "Indexing Notice",
-	"description": "Show an admin bar warning when search engines are discouraged from indexing the site.",
-	"group": "admin",
+	"name": "Indexing & Sharing",
+	"description": "Warns when search engines are discouraged, refreshes the preview on Facebook after you change a page and tells search engines about the change (IndexNow).",
+	"group": "content",
 	"icon": "search-x",
-	"settings": false
+	"settings": true
 }

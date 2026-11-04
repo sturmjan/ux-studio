@@ -8,6 +8,7 @@
 namespace UxStudio\Core\Onboarding;
 
 use UxStudio\Core\ActivityLog;
+use UxStudio\Core\CentralApp\SiteIdentity;
 use UxStudio\Core\Modules;
 use UxStudio\Core\Security;
 use UxStudio\Modules\BaseModule;
@@ -24,8 +25,9 @@ defined( 'ABSPATH' ) || exit;
  *   The browser POSTs to  {central_app_url}/?page=connect_site  the fields
  *     site_url, site_name, api_key (at least 32 characters), timestamp (+-600 s), site_type (wordpress),
  *     return_url (same origin as site_url, otherwise the Central App drops it), signature
- *   signature = hash_hmac( 'sha256', site_url . '|' . site_name . '|' . timestamp . '|' . site_type, api_key )
- *   (site_type is part of the signed text whenever it is sent; sent as 'wordpress' here).
+ *   signature = hash_hmac( 'sha256', site_url . '|' . site_name . '|' . timestamp . '|' . site_type [. '|' . site_id], api_key )
+ *   (site_type is part of the signed text whenever it is sent; sent as 'wordpress' here. site_id, the stable UUID of
+ *   the site (PLAN.md 40.2), is appended to the signed text whenever it is sent; the Central App accepts both forms.)
  *
  * The signature proves nothing by itself (the key travels in the same POST), so the Central App makes a live
  * challenge: it calls the site's signed content-sync ping, first with the legacy protocol, then with `uxstudio`.
@@ -49,7 +51,10 @@ final class CentralApp {
 	public const PREPARED_OPTION = 'uxstudio_ca_prepared';
 
 	/** Where the wizard lands again after the Central App (admin screen + hash route). */
-	public const RETURN_PATH = 'admin.php?page=ux-studio#/wizard?mode=new&step=ca&ca=done';
+	public const RETURN_PATH = 'admin.php?page=ux-studio#/wizard?mode=new&step=modules&ca=done';
+
+	/** Steps of the wizard the Central App may send the browser back to (the connect step is first, so the default is the next one). */
+	public const RETURN_STEPS = array( 'modules', 'ca' );
 
 	private Modules $modules;
 
@@ -121,11 +126,15 @@ final class CentralApp {
 	 * @param int    $timestamp Unix time as sent.
 	 * @param string $site_type `wordpress` (an empty type is left out of the signed text).
 	 * @param string $api_key   Shared key.
+	 * @param string $site_id   Stable site id (UUID); an empty one is left out of the signed text.
 	 */
-	public static function signature( string $site_url, string $site_name, int $timestamp, string $site_type, string $api_key ): string {
+	public static function signature( string $site_url, string $site_name, int $timestamp, string $site_type, string $api_key, string $site_id = '' ): string {
 		$payload = $site_url . '|' . $site_name . '|' . $timestamp;
 		if ( '' !== $site_type ) {
 			$payload .= '|' . $site_type;
+		}
+		if ( '' !== $site_id ) {
+			$payload .= '|' . $site_id;
 		}
 		return hash_hmac( 'sha256', $payload, $api_key );
 	}
@@ -159,21 +168,38 @@ final class CentralApp {
 	 * @param string $api_key    Shared key.
 	 * @param string $return_url Where the Central App sends the browser back (may be empty).
 	 * @param int    $timestamp  Unix time.
+	 * @param string $site_id    Stable site id (UUID), '' = not sent.
 	 * @return array{action:string,fields:array<string,string>}
 	 */
-	public static function connect_form( string $base_url, string $site_url, string $site_name, string $api_key, string $return_url, int $timestamp ): array {
+	public static function connect_form( string $base_url, string $site_url, string $site_name, string $api_key, string $return_url, int $timestamp, string $site_id = '' ): array {
+		$fields = array(
+			'site_url'   => $site_url,
+			'site_name'  => $site_name,
+			'api_key'    => $api_key,
+			'timestamp'  => (string) $timestamp,
+			'site_type'  => self::SITE_TYPE,
+			'return_url' => $return_url,
+			'signature'  => self::signature( $site_url, $site_name, $timestamp, self::SITE_TYPE, $api_key, $site_id ),
+		);
+		if ( '' !== $site_id ) {
+			$fields['site_id'] = $site_id;
+		}
 		return array(
 			'action' => $base_url . self::CONNECT_PAGE,
-			'fields' => array(
-				'site_url'   => $site_url,
-				'site_name'  => $site_name,
-				'api_key'    => $api_key,
-				'timestamp'  => (string) $timestamp,
-				'site_type'  => self::SITE_TYPE,
-				'return_url' => $return_url,
-				'signature'  => self::signature( $site_url, $site_name, $timestamp, self::SITE_TYPE, $api_key ),
-			),
+			'fields' => $fields,
 		);
+	}
+
+	/**
+	 * The wizard address the Central App sends the browser back to.
+	 *
+	 * @param string $step Wizard step (see RETURN_STEPS), anything else means the default.
+	 */
+	public static function return_path( string $step = '' ): string {
+		if ( ! in_array( $step, self::RETURN_STEPS, true ) ) {
+			return self::RETURN_PATH;
+		}
+		return 'admin.php?page=ux-studio#/wizard?mode=new&step=' . $step . '&ca=done';
 	}
 
 	/* ── WordPress side ── */
@@ -181,10 +207,14 @@ final class CentralApp {
 	/**
 	 * Get the site ready for the Central App and build the form the browser posts.
 	 *
-	 * @param string $url Central App address typed by the administrator (empty = production).
+	 * @param string $url  Central App address typed by the administrator (empty = production).
+	 * @param string $step Wizard step the Central App sends the browser back to (see RETURN_STEPS).
 	 * @return array<string, mixed>|WP_Error
 	 */
-	public function prepare( string $url ) {
+	public function prepare( string $url, string $step = '' ) {
+		if ( SiteIdentity::is_paused() ) {
+			return new WP_Error( 'uxstudio_ca_paused', __( 'This site is a copy or was moved, so its connection is paused. Use "Connect as a new site" in the notice first.', 'ux-studio' ), array( 'status' => 409 ) );
+		}
 		$base = self::normalize_base_url( $url );
 		if ( null === $base ) {
 			return new WP_Error( 'uxstudio_ca_bad_url', __( 'The address of the central app must start with https:// (http:// only works for localhost).', 'ux-studio' ), array( 'status' => 400 ) );
@@ -202,7 +232,7 @@ final class CentralApp {
 
 		// 1) Snapshot first, so "Undo everything" puts the content-sync settings and key back.
 		$applier = new Applier( $this->modules );
-		$applier->snapshot_for( array( 'content-sync' ), array( ContentSync::SECRET_NODE_KEY, self::PREPARED_OPTION, NodeController::LAST_PING_OPTION ) );
+		$applier->snapshot_for( array( 'content-sync' ), array( ContentSync::SECRET_NODE_KEY, self::PREPARED_OPTION, NodeController::LAST_PING_OPTION, SiteIdentity::KNOWN_URL_OPTION ) );
 
 		// 2) The module on, through the activation guard.
 		$state = $applier->enable( 'content-sync', false );
@@ -235,20 +265,22 @@ final class CentralApp {
 			)
 		);
 		update_option( self::PREPARED_OPTION, time(), false );
+		// The Central App is about to learn this address together with the site id: it is the address on file.
+		SiteIdentity::set_known_url( home_url( '/' ) );
 
 		// 4) Does the site answer the signed ping the Central App is about to send? (A request of its own, so the node routes exist.)
 		$ping = $this->self_check( $key );
 
 		$site_url  = untrailingslashit( home_url() );
 		$site_name = wp_specialchars_decode( (string) get_bloginfo( 'name' ), ENT_QUOTES );
-		$return    = admin_url( self::RETURN_PATH );
+		$return    = admin_url( self::return_path( $step ) );
 		$warnings  = array();
 		if ( ! self::same_origin( $return, $site_url ) ) {
 			// The Central App would drop it anyway; the visitor comes back by hand.
 			$return     = '';
 			$warnings[] = 'return_url_origin';
 		}
-		$form = self::connect_form( $base, $site_url, $site_name, $key, $return, time() );
+		$form = self::connect_form( $base, $site_url, $site_name, $key, $return, time(), SiteIdentity::site_id() );
 
 		// The key is not logged anywhere; the log only says that a connection was prepared and where to.
 		ActivityLog::log( 'content-sync', 'ca_connect_prepared', 'setting', 0, array( 'central_app' => $base, 'ping' => $ping['ok'] ? 'ok' : 'failed' ) );

@@ -82,6 +82,7 @@ final class Applier {
 		$record   = LoginUrlPending::record();
 		return array(
 			'detections' => array(
+				'ca_connected'        => ! empty( $env['ca_connected'] ),
 				'woocommerce'         => $env['woocommerce'],
 				'cloudflare'          => $env['cloudflare'],
 				'xff'                 => $env['xff'],

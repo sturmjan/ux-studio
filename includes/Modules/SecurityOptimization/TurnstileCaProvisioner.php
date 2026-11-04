@@ -9,6 +9,8 @@
 
 namespace UxStudio\Modules\SecurityOptimization;
 
+use UxStudio\Core\CentralApp\Gateway;
+use UxStudio\Core\CentralApp\SiteIdentity;
 use UxStudio\Core\Security;
 use UxStudio\Core\Settings;
 use UxStudio\Modules\ContentSync\HmacAuth;
@@ -33,6 +35,10 @@ final class TurnstileCaProvisioner {
 	 * @return array{site_key:string,secret_key:string}|WP_Error
 	 */
 	public static function provision( Module $module ) {
+		$blocked = Gateway::guard();
+		if ( null !== $blocked ) {
+			return $blocked;
+		}
 		list( $central_url, $secret ) = self::credentials();
 
 		if ( '' === $central_url || '' === $secret ) {
@@ -48,7 +54,8 @@ final class TurnstileCaProvisioner {
 			'site_url' => home_url( '/' ),
 		);
 		$url = untrailingslashit( $central_url ) . '/?' . http_build_query( $query );
-		$raw = '';
+		// The body carries the stable site id next to the address (PLAN.md 40.2); the signature covers it.
+		$raw = (string) wp_json_encode( SiteIdentity::with_site_id( array( 'site_url' => home_url( '/' ) ) ) );
 
 		$timestamp = time();
 		$nonce     = bin2hex( random_bytes( 8 ) );
@@ -59,11 +66,14 @@ final class TurnstileCaProvisioner {
 			array(
 				'method'  => 'POST',
 				'timeout' => self::TIMEOUT,
-				'headers' => array(
-					'Content-Type'              => 'application/json',
-					HmacAuth::HEADER_SIGNATURE  => $signature,
-					HmacAuth::HEADER_TIMESTAMP  => (string) $timestamp,
-					HmacAuth::HEADER_NONCE      => $nonce,
+				'headers' => array_merge(
+					array(
+						'Content-Type'             => 'application/json',
+						HmacAuth::HEADER_SIGNATURE => $signature,
+						HmacAuth::HEADER_TIMESTAMP => (string) $timestamp,
+						HmacAuth::HEADER_NONCE     => $nonce,
+					),
+					Gateway::headers()
 				),
 				'body'    => $raw,
 			)
@@ -76,6 +86,7 @@ final class TurnstileCaProvisioner {
 		$code    = (int) wp_remote_retrieve_response_code( $response );
 		$decoded = json_decode( (string) wp_remote_retrieve_body( $response ), true );
 		$decoded = is_array( $decoded ) ? $decoded : array();
+		Gateway::inspect( $code, $decoded );
 
 		if ( $code < 200 || $code >= 300 || empty( $decoded['success'] ) ) {
 			$message = (string) ( $decoded['error'] ?? '' );
@@ -104,7 +115,7 @@ final class TurnstileCaProvisioner {
 	 */
 	public static function is_connected(): bool {
 		list( $central_url, $secret ) = self::credentials();
-		return '' !== trim( $central_url ) && '' !== $secret;
+		return '' !== trim( $central_url ) && '' !== $secret && ! SiteIdentity::is_paused();
 	}
 
 	/**

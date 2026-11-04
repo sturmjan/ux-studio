@@ -437,6 +437,17 @@ foreach ( array( 'security_headers', 'enable_permissions_policy', 'force_https',
 }
 $assert( 'the REST layer attaches the shared SettingHelp registry to every option', false !== strpos( (string) file_get_contents( $root . '/includes/Core/Rest.php' ), 'SettingHelp::attach(' ) && is_file( $root . '/includes/Modules/SecurityOptimization/help.php' ) );
 
+/* ── Indexing & Sharing (PLAN.md 39.3) ── */
+
+$idx = static fn( array $env ): array => $by_id( $env )['indexing-notice'];
+$off = $idx( array() );
+$assert( 'indexing: without the central app only IndexNow is preset and the missing previews are explained', array( 'indexing-notice' => array( 'indexnow_enabled' => true ) ) === $off['settings'] && in_array( 'social_needs_ca', array_column( $off['warnings'], 'code' ), true ) );
+$on = $idx( array( 'ca_connected' => true ) );
+$assert( 'indexing: a connected site also gets the Facebook refresh from the central app', array( 'indexnow_enabled' => true, 'social_refresh_enabled' => true, 'social_key_source' => 'ca' ) === array_merge( array( 'indexnow_enabled' => true ), $on['settings']['indexing-notice'] ) && true === $on['settings']['indexing-notice']['social_refresh_enabled'] && 'ca' === $on['settings']['indexing-notice']['social_key_source'] && ! in_array( 'social_needs_ca', array_column( $on['warnings'], 'code' ), true ) );
+$other = $idx( array( 'ca_connected' => true, 'blocked_indexing' => array( 'indexnow_enabled' => array( 'Rank Math SEO' ) ) ) );
+$assert( 'indexing: IndexNow is left out when another plugin sends it, the rest stays', ! isset( $other['settings']['indexing-notice']['indexnow_enabled'] ) && true === $other['settings']['indexing-notice']['social_refresh_enabled'] && in_array( 'indexnow_other', array_column( $other['warnings'], 'code' ), true ) );
+$assert( 'indexing: the item stays available and keeps its module', true === $on['available'] && array( 'indexing-notice' ) === $on['modules'] );
+
 /* ── AutoStart: a new site gets the starter pack ── */
 
 $req = array( 'flag' => 'pending', 'can_manage' => true, 'same_user' => true, 'count' => 0 );

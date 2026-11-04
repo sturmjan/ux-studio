@@ -186,6 +186,8 @@ export function CaStep( { ctx }: { ctx: StarterCtx } ): JSX.Element {
 	const returned = 'done' === hashParam( 'ca' );
 	const cancelled = '1' === hashParam( 'ux1_connect_cancelled' );
 	const connected = '1' === hashParam( 'ux1_connected' );
+	// "Connect as a new site" from the notice of a copied site: the browser comes back to this step, not to the modules.
+	const reconnect = '1' === hashParam( 'reconnect' );
 	const status = useQuery( {
 		queryKey: [ 'onboarding', 'ca-status' ],
 		queryFn: () => api< CaStatus >( 'onboarding/ca/status' ),
@@ -218,7 +220,7 @@ export function CaStep( { ctx }: { ctx: StarterCtx } ): JSX.Element {
 		setBusy( true );
 		setError( null );
 		try {
-			const res = await api< CaPrepare >( 'onboarding/ca/prepare', { method: 'POST', body: JSON.stringify( { url } ) } );
+			const res = await api< CaPrepare >( 'onboarding/ca/prepare', { method: 'POST', body: JSON.stringify( { url, step: reconnect ? 'ca' : 'modules' } ) } );
 			setForm( res );
 			if ( res.ping.ok && 0 === res.warnings.length ) {
 				setGo( true );

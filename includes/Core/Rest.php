@@ -10,6 +10,7 @@ namespace UxStudio\Core;
 use UxStudio\Core\Migration\ActivationGuard;
 use UxStudio\Core\Migration\Overlaps;
 use UxStudio\Core\Migration\SourceRegistry;
+use UxStudio\Core\Onboarding\SharingUpgrade;
 use UxStudio\Modules\SecurityOptimization\ShieldRuntime;
 use UxStudio\Plugin;
 use UxStudio\Rest\Controller;
@@ -179,6 +180,11 @@ final class Rest extends Controller {
 		$ok = $this->modules->set_enabled( $id, (bool) $request['enabled'] );
 		if ( ! $ok ) {
 			return new \WP_Error( 'uxstudio_unknown_module', __( 'Unknown module.', 'ux-studio' ), array( 'status' => 404 ) );
+		}
+		// What the administrator chose is remembered, so an automatic switch-on later does not undo it (SharingUpgrade).
+		$meta = $this->modules->all()[ $id ] ?? null;
+		if ( $meta && ! Modules::is_group( $meta ) ) {
+			SharingUpgrade::record_choice( $id, (bool) $request['enabled'] );
 		}
 		return $this->ok( array( 'id' => $id, 'enabled' => (bool) $request['enabled'] ) );
 	}

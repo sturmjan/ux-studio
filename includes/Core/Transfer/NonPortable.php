@@ -47,6 +47,8 @@ final class NonPortable {
 		'opening-hours'         => array( 'schema_location_ids', 'schema_pages' ),
 		'ai-markdown'           => array( 'exclude_ids' ),
 		'maintenance-mode'      => array( 'existing_page', 'custom_layout' ),
+		// The Facebook app of this site: the secret never leaves it, the id is useless without it.
+		'indexing-notice'       => array( 'social_fb_app_id', 'social_fb_app_secret' ),
 		// Keys of a CAPTCHA belong to one host name; copying them to another host locks the login form.
 		'security-optimization' => array( 'captcha_site_key', 'captcha_secret_key', 'captcha_key_source', 'existing_page' ),
 	);

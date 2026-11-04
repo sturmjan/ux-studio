@@ -7,6 +7,7 @@
 
 namespace UxStudio\Core\Onboarding;
 
+use UxStudio\Core\CentralApp\Gateway;
 use UxStudio\Core\Migration\Overlaps;
 use UxStudio\Core\Modules;
 use UxStudio\Modules\SecurityOptimization\LoginUrl;
@@ -60,6 +61,7 @@ final class Environment {
 			'bot_blacklist'       => (string) ( $bot_vals['blacklist_ua'] ?? StarterPack::default_env()['bot_blacklist'] ),
 			'bot_whitelist'       => (string) ( $bot_vals['whitelist_ua'] ?? '' ),
 			'blocked_settings'    => Overlaps::blocked_settings( 'security-optimization' ),
+			'blocked_indexing'    => Overlaps::blocked_settings( 'indexing-notice' ),
 			'csp_mode'            => (string) ( $login['csp_mode'] ?? 'off' ),
 			'reserved_users'      => $security instanceof Security ? self::reserved_users( $security ) : array(),
 			'app_passwords'       => self::application_passwords(),
@@ -68,6 +70,7 @@ final class Environment {
 			'headless_plugins'    => self::plugin_names( StarterPack::HEADLESS_PLUGINS ),
 			'header_plugins'      => self::plugin_names( StarterPack::HEADER_PLUGINS ),
 			'captcha_set'         => ! empty( $login['captcha_enabled'] ) || '' !== trim( (string) ( $login['captcha_site_key'] ?? '' ) ) || ! empty( $login['has_captcha_secret_key'] ),
+			'ca_connected'        => Gateway::is_active(),
 			'https_ready'         => 0 === strpos( home_url(), 'https://' ) && 0 === strpos( site_url(), 'https://' ) && is_ssl(),
 		);
 	}

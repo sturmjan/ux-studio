@@ -51,4 +51,5 @@ export const MODULE_PAGES: Record< string, ReturnType< typeof lazy > > = {
 	'ai-assistant': lazy( () => import( './ai-assistant/Page' ) ),
 	redirects: lazy( () => import( './redirects/Page' ) ),
 	'dns-manager': lazy( () => import( './dns-manager/Page' ) ),
+	'indexing-notice': lazy( () => import( './indexing-notice/Page' ) ),
 };

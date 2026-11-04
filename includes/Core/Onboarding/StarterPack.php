@@ -37,6 +37,8 @@ defined( 'ABSPATH' ) || exit;
  *   headless_plugins     string[] names of active decoupled front end plugins (see HEADLESS_PLUGINS),
  *   header_plugins       string[] names of active plugins that send security headers (see HEADER_PLUGINS),
  *   https_ready          bool    the site and home address are https and this very request came over https,
+ *   blocked_indexing     array   Indexing & Sharing setting key => names of the plugins that already do that job (IndexNow),
+ *   ca_connected         bool    the site is paired with the Central App and the link is not paused (PLAN.md 39.3, 40.1),
  *   captcha_set          bool    a CAPTCHA is already set up: switched on, or keys stored (Turnstile, reCAPTCHA).
  *
  * An item is one tick box in the wizard:
@@ -165,6 +167,8 @@ final class StarterPack {
 			'header_plugins'      => array(),
 			'https_ready'         => true,
 			'captcha_set'         => false,
+			'ca_connected'        => false,
+			'blocked_indexing'    => array(),
 		);
 	}
 
@@ -300,12 +304,7 @@ final class StarterPack {
 					'activity-log' => array( 'retention_days' => 90 ),
 				)
 			),
-			self::simple(
-				'indexing-notice',
-				__( 'Search engine visibility notice', 'ux-studio' ),
-				__( 'Warns in the admin when the site is hidden from search engines, so a launch is not forgotten.', 'ux-studio' ),
-				array( 'indexing-notice' )
-			),
+			self::indexing_notice( $env ),
 			self::optional(
 				'smtp-email',
 				__( 'E-mail sending through SMTP', 'ux-studio' ),
@@ -869,6 +868,45 @@ final class StarterPack {
 		);
 		$reason = self::captcha_skip_reason( $env );
 		return '' === $reason ? $item : self::unavailable( $item, $reason );
+	}
+
+	/**
+	 * Indexing & Sharing: the admin warning, IndexNow, and the Facebook preview refresh when the central app is there
+	 * (PLAN.md 39.3). The refresh needs keys of the central app, so it is only offered to a connected site.
+	 *
+	 * @param array<string, mixed> $env Environment.
+	 * @return array<string, mixed>
+	 */
+	private static function indexing_notice( array $env ): array {
+		$settings = array();
+		$warnings = array();
+		if ( ! empty( $env['ca_connected'] ) ) {
+			$settings['social_refresh_enabled'] = true;
+			$settings['social_key_source']      = 'ca';
+		} else {
+			$warnings[] = array( 'social_needs_ca', __( 'Facebook previews stay off, because the site is not connected to the central app. Connect it, or turn them on later in the module with your own Facebook app.', 'ux-studio' ) );
+		}
+		$others = (array) ( $env['blocked_indexing']['indexnow_enabled'] ?? array() );
+		if ( $others ) {
+			$warnings[] = array(
+				'indexnow_other',
+				sprintf(
+					/* translators: %s: plugin names. */
+					__( 'IndexNow is left out, because %s already sends it.', 'ux-studio' ),
+					implode( ', ', array_map( 'strval', $others ) )
+				),
+			);
+		} else {
+			$settings['indexnow_enabled'] = true;
+		}
+		return self::simple(
+			'indexing-notice',
+			__( 'Indexing and sharing', 'ux-studio' ),
+			__( 'Warns in the admin when the site is hidden from search engines, so a launch is not forgotten. After you change a published page it tells Bing and Seznam about it (IndexNow) and, when the site is connected to the central app, makes Facebook fetch the new preview of the link.', 'ux-studio' ),
+			array( 'indexing-notice' ),
+			$settings ? array( 'indexing-notice' => $settings ) : array(),
+			$warnings
+		);
 	}
 
 	/**

@@ -109,6 +109,17 @@ export function StarterWizard(): JSX.Element {
 		await starter.refetch();
 	}, [ starter ] );
 
+	// Back from the central app: the connection changed what the pack offers, so read it again (PLAN.md 40.1).
+	// Declared after `reload`: its dependency list is read during render.
+	const returnedFromCa = useRef( 'done' === hashParam( 'ca' ) );
+	useEffect( () => {
+		if ( returnedFromCa.current ) {
+			returnedFromCa.current = false;
+			preselected.current = false;
+			void reload();
+		}
+	}, [ reload ] );
+
 	const startApply = useCallback( () => {
 		if ( ! data ) {
 			return;
