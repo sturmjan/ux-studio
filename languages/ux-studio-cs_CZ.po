@@ -38341,3 +38341,504 @@ msgstr "Zatím žádné mapy. Vytvoř mapu a vlož její shortcode do stránky (
 #: includes/Modules/Maps/meta.json:1
 msgid "Build simple maps with one or more draggable pins and embed them with a shortcode. Providers: OpenStreetMap, Mapy.com, Mapbox and Google Maps."
 msgstr "Jednoduché mapy s jedním nebo více špendlíky, které přetáhneš myší, a vložení na stránku shortcodem. Podklady: OpenStreetMap, Mapy.com, Mapbox a Google Mapy."
+
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:75
+#: includes/Modules/Tables/Module.php:67
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Tables"
+msgstr "Tabulky"
+
+#: includes/Modules/ImageOptimizer/help.php:69
+msgid "WordPress makes several smaller copies of every image, for example for lists, galleries and mobile screens. This setting also compresses those copies and creates their WebP and AVIF versions."
+msgstr "WordPress z každého obrázku vyrábí několik menších kopií, například pro výpisy, galerie a mobilní obrazovky. Tato volba zkomprimuje i tyto kopie a vytvoří k nim verze WebP a AVIF."
+
+#: includes/Modules/ImageOptimizer/help.php:70
+msgid "Pages use the small copies much more often than the full-size image, so this is where most of the saved data comes from. Without it browsers would still download the old, heavy small copies."
+msgstr "Stránky používají malé kopie mnohem častěji než obrázek v plné velikosti, takže právě tady se ušetří nejvíc dat. Bez toho by prohlížeče dál stahovaly staré, těžké malé kopie."
+
+#: includes/Modules/ImageOptimizer/help.php:71
+msgid "Every size is backed up next to the file before it is compressed, so the media folder grows. Optimizing many sizes of many images takes longer."
+msgstr "Každá velikost se před kompresí zálohuje vedle souboru, takže složka s médii naroste. Optimalizace mnoha velikostí u mnoha obrázků trvá déle."
+
+#: includes/Modules/ImageOptimizer/help.php:72
+msgid "Leave it empty to process all sizes. Pick only some sizes when you want to save disk space or time and the other sizes are rarely shown."
+msgstr "Nech prázdné a zpracují se všechny velikosti. Vyber jen některé, když chceš ušetřit místo nebo čas a ostatní velikosti se zobrazují zřídka."
+
+#: includes/Modules/ImageOptimizer/help.php:75
+msgid "Photos taken with an iPhone are often saved as HEIC, a format most browsers cannot show. With this on, such a file is turned into a JPEG while it is uploaded."
+msgstr "Fotky z iPhonu se často ukládají jako HEIC, formát, který většina prohlížečů neumí zobrazit. Se zapnutou volbou se takový soubor při nahrání převede na JPEG."
+
+#: includes/Modules/ImageOptimizer/help.php:76
+msgid "Editors can upload photos straight from the phone and they show up on the site. The media library only contains the JPEG."
+msgstr "Redaktoři můžou nahrávat fotky přímo z telefonu a na webu se zobrazí. V knihovně médií je jen JPEG."
+
+#: includes/Modules/ImageOptimizer/help.php:77
+msgid "It only works when the server can read HEIC. When it cannot, the upload stays as it was. The HEIC file is deleted after the conversion, so the original HEIC is not kept."
+msgstr "Funguje jen tehdy, když server umí HEIC přečíst. Když neumí, soubor zůstane, jak byl nahraný. Po převodu se soubor HEIC smaže, původní HEIC se tedy neuchová."
+
+#: includes/Modules/ImageOptimizer/help.php:78
+msgid "Leave it off when nobody uploads photos from iPhones."
+msgstr "Nech vypnuté, když nikdo nenahrává fotky z iPhonu."
+
+#: includes/Modules/ImageOptimizer/help.php:81
+msgid "Images listed here are skipped by automatic optimization and by the bulk run. Write one attachment ID or one file name per line. A star stands for any text, so logo-*.png matches every logo file."
+msgstr "Obrázky uvedené tady automatická i hromadná optimalizace přeskočí. Na každý řádek napiš jedno ID přílohy nebo jeden název souboru. Hvězdička zastoupí libovolný text, takže logo-*.png zachytí všechny soubory s logem."
+
+#: includes/Modules/ImageOptimizer/help.php:82
+msgid "These images stay exactly as they were uploaded. In the media library they are marked as excluded."
+msgstr "Tyto obrázky zůstanou přesně tak, jak byly nahrané. V knihovně médií jsou označené jako vyloučené."
+
+#: includes/Modules/ImageOptimizer/help.php:83
+msgid "You can still optimize an excluded image by hand with its Optimize button. A wrong pattern can leave more images untouched than you want."
+msgstr "Vyloučený obrázek můžeš i tak zoptimalizovat ručně jeho tlačítkem Optimalizovat. Špatný vzor může nechat beze změny víc obrázků, než chceš."
+
+#: includes/Modules/ImageOptimizer/help.php:84
+msgid "Leave it empty to optimize everything. Use it for logos, print files or images that must keep every pixel."
+msgstr "Nech prázdné a zoptimalizuje se všechno. Použij pro loga, tiskové podklady nebo obrázky, které si musí zachovat každý pixel."
+
+#: includes/Modules/ImageOptimizer/help.php:87
+msgid "Decides how visitors receive the smaller AVIF and WebP copies. The .htaccess way writes a few rules into the .htaccess file in the uploads folder, so the same image address returns the smaller file. The picture tag way changes the HTML of the page so the browser chooses the best file itself."
+msgstr "Určuje, jak návštěvníci dostanou menší kopie AVIF a WebP. Způsob .htaccess zapíše několik pravidel do souboru .htaccess ve složce uploads, takže stejná adresa obrázku vrátí menší soubor. Způsob se značkou picture upraví HTML stránky, aby si prohlížeč sám vybral nejlepší soubor."
+
+#: includes/Modules/ImageOptimizer/help.php:88
+msgid "Visitors with modern browsers download less data. The picture tag way needs no server rules, so it also works on nginx and behind a [[CDN]]. Only copies that really exist on disk are offered."
+msgstr "Návštěvníci s moderním prohlížečem stáhnou méně dat. Způsob se značkou picture nepotřebuje pravidla na serveru, takže funguje i na nginx a za [[CDN]]. Nabídnou se jen kopie, které na disku opravdu existují."
+
+#: includes/Modules/ImageOptimizer/help.php:89
+msgid "The .htaccess way changes a server file, works only on Apache and LiteSpeed, and a CDN in front of the site may cache the wrong format. The rules sit in their own marked block, other rules in that file are kept, and the block is removed when you switch it off. The picture tag way adds an extra element around images, so a theme style that targets the image directly can look different, and it does not change images in places that bypass the normal content, such as CSS backgrounds."
+msgstr "Způsob .htaccess mění soubor na serveru, funguje jen na Apache a LiteSpeed a CDN před webem může uložit do mezipaměti špatný formát. Pravidla mají vlastní označený blok, ostatní pravidla v souboru zůstanou a po vypnutí se blok odstraní. Způsob se značkou picture přidá kolem obrázků další prvek, takže styl šablony mířící přímo na obrázek může vypadat jinak, a nezmění obrázky mimo běžný obsah, například pozadí v CSS."
+
+#: includes/Modules/ImageOptimizer/help.php:90
+msgid "Choose Off when another plugin or your CDN already serves next-generation images."
+msgstr "Zvol Vypnuto, když obrázky nové generace už doručuje jiný plugin nebo tvoje CDN."
+
+#. translators: %d: number of thumbnails
+#: includes/Modules/ImageOptimizer/MediaLibrary.php:312
+msgid "incl. %d thumbnail"
+msgid_plural "incl. %d thumbnails"
+msgstr[0] "vč. %d náhledu"
+msgstr[1] "vč. %d náhledů"
+msgstr[2] "vč. %d náhledů"
+
+#: includes/Modules/ImageOptimizer/MediaLibrary.php:322
+msgid "Excluded from automatic optimization"
+msgstr "Vyloučeno z automatické optimalizace"
+
+#: includes/Modules/ImageOptimizer/Module.php:267
+msgid "Thumbnail sizes to optimize"
+msgstr "Velikosti náhledů k optimalizaci"
+
+#: includes/Modules/ImageOptimizer/Module.php:268
+msgid "The smaller copies WordPress makes of every image are compressed too, and get WebP/AVIF copies. Pick the sizes to process. Nothing selected = all sizes."
+msgstr "Zkomprimují se i menší kopie, které WordPress dělá z každého obrázku, a dostanou kopie WebP/AVIF. Vyber velikosti ke zpracování. Nic nevybráno = všechny velikosti."
+
+#: includes/Modules/ImageOptimizer/Module.php:282
+msgid "Convert HEIC photos to JPEG on upload"
+msgstr "Převádět fotky HEIC při nahrání na JPEG"
+
+#: includes/Modules/ImageOptimizer/Module.php:283
+msgid "iPhone photos in HEIC format are saved as JPEG while they are uploaded. Needs a server whose Imagick can read HEIC, otherwise nothing changes."
+msgstr "Fotky z iPhonu ve formátu HEIC se při nahrání uloží jako JPEG. Vyžaduje server, jehož Imagick umí číst HEIC, jinak se nic nezmění."
+
+#: includes/Modules/ImageOptimizer/Module.php:289
+msgid "Excluded images"
+msgstr "Vyloučené obrázky"
+
+#: includes/Modules/ImageOptimizer/Module.php:290
+msgid "One per line: an attachment ID, or a file name with * as a wildcard (for example logo-*.png). These images are skipped by automatic and bulk optimization."
+msgstr "Jeden na řádek: ID přílohy nebo název souboru s * jako zástupným znakem (například logo-*.png). Automatická i hromadná optimalizace tyto obrázky přeskočí."
+
+#: includes/Modules/ImageOptimizer/Module.php:296
+msgid "Serve next-gen images"
+msgstr "Doručovat obrázky nové generace"
+
+#: includes/Modules/ImageOptimizer/Module.php:297
+msgid "How visitors get the WebP/AVIF copies. .htaccess: rewrite rules in uploads/.htaccess (Apache/LiteSpeed). Picture tag: images in pages are wrapped in a picture element, which also works on nginx and behind a CDN."
+msgstr "Jak návštěvníci dostanou kopie WebP/AVIF. .htaccess: pravidla přepisu v uploads/.htaccess (Apache/LiteSpeed). Značka picture: obrázky na stránkách se zabalí do prvku picture, což funguje i na nginx a za CDN."
+
+#: includes/Modules/ImageOptimizer/Module.php:300
+msgid ".htaccess rewrite rules"
+msgstr "Pravidla přepisu v .htaccess"
+
+#: includes/Modules/ImageOptimizer/Module.php:301
+msgid "Picture tag in the page"
+msgstr "Značka picture ve stránce"
+
+#: includes/Modules/ImageOptimizer/Optimizer.php:120
+msgid "Only JPEG, PNG, GIF and WebP images are supported."
+msgstr "Podporované jsou jen obrázky JPEG, PNG, GIF a WebP."
+
+#: includes/Modules/Maps/ElementorWidget.php:38
+#: includes/Modules/Maps/GutenbergBlock.php:40
+#: includes/Modules/Maps/GutenbergBlock.php:98
+msgid "UX Studio Map"
+msgstr "Mapa UX Studio"
+
+#: includes/Modules/Maps/ElementorWidget.php:66
+msgid "Select map"
+msgstr "Vyber mapu"
+
+#: includes/Modules/Maps/ElementorWidget.php:77
+#: includes/Modules/Maps/GutenbergBlock.php:103
+msgid "Leave empty to use the height set in the map."
+msgstr "Nech prázdné a použije se výška nastavená v mapě."
+
+#: includes/Modules/Maps/ElementorWidget.php:91
+msgid "Select a map"
+msgstr "Vyber mapu"
+
+#: includes/Modules/Maps/ElementorWidget.php:107
+msgid "Select a map in the panel on the left."
+msgstr "Vyber mapu v panelu vlevo."
+
+#: includes/Modules/Maps/GutenbergBlock.php:41
+#: includes/Modules/Maps/GutenbergBlock.php:99
+msgid "Embed a map built with the UX Studio Maps module."
+msgstr "Vloží mapu vytvořenou v modulu Mapy UX Studia."
+
+#: includes/Modules/Maps/GutenbergBlock.php:100
+msgid "Select a map…"
+msgstr "Vyber mapu…"
+
+#: includes/Modules/Maps/GutenbergBlock.php:104
+msgid "Select a map in the block settings on the right."
+msgstr "Vyber mapu v nastavení bloku vpravo."
+
+#: includes/Modules/Tables/ElementorWidget.php:39
+msgid "UX Table"
+msgstr "Tabulka UX"
+
+#: includes/Modules/Tables/ElementorWidget.php:61
+#: includes/Modules/Tables/Module.php:329
+msgid "Table"
+msgstr "Tabulka"
+
+#: includes/Modules/Tables/ElementorWidget.php:67
+msgid "Select table"
+msgstr "Vyber tabulku"
+
+#: includes/Modules/Tables/ElementorWidget.php:78
+msgid "Build the table in UX Studio, Tables first, then pick it here."
+msgstr "Tabulku nejdřív vytvoř v UX Studiu v Tabulkách a pak ji vyber tady."
+
+#: includes/Modules/Tables/ElementorWidget.php:90
+msgid "Select a table"
+msgstr "Vyber tabulku"
+
+#: includes/Modules/Tables/ElementorWidget.php:106
+msgid "Select a table in the panel on the left."
+msgstr "Vyber tabulku v panelu vlevo."
+
+#: includes/Modules/Tables/Frontend.php:147
+msgid "Search table"
+msgstr "Hledat v tabulce"
+
+#: includes/Modules/Tables/Frontend.php:148
+msgid "First"
+msgstr "První"
+
+#: includes/Modules/Tables/Frontend.php:151
+msgid "Last"
+msgstr "Poslední"
+
+#. translators: 1: current page, 2: number of pages
+#: includes/Modules/Tables/Frontend.php:153
+msgid "Page %1$s of %2$s"
+msgstr "Stránka %1$s z %2$s"
+
+#: includes/Modules/Tables/Frontend.php:154
+msgid "No matching rows."
+msgstr "Žádné odpovídající řádky."
+
+#: includes/Modules/Tables/Frontend.php:155
+msgid "Sort by this column"
+msgstr "Řadit podle tohoto sloupce"
+
+#: includes/Modules/Tables/help.php:12
+msgid "Decides whether a new table starts with every second row shaded."
+msgstr "Určuje, jestli nová tabulka začne s podbarveným každým druhým řádkem."
+
+#: includes/Modules/Tables/help.php:13
+msgid "Long tables are easier to read line by line. Existing tables keep their own choice."
+msgstr "Dlouhé tabulky se pak lépe čtou řádek po řádku. Stávající tabulky si nechají svou volbu."
+
+#: includes/Modules/Tables/help.php:14
+msgid "Turn it off when your theme already styles table rows or you prefer a plain look."
+msgstr "Vypni, když řádky tabulek už stylizuje šablona nebo chceš prostý vzhled."
+
+#: includes/Modules/Tables/help.php:17
+msgid "Chooses what a new table does on a narrow screen. \"Scroll\" keeps the table as it is and lets visitors swipe sideways. \"Stack\" turns every row into a small card. \"None\" leaves the table alone."
+msgstr "Určuje, co nová tabulka udělá na úzké obrazovce. „Posouvat“ nechá tabulku, jak je, a návštěvník ji posune do strany. „Karty“ udělá z každého řádku malou kartu. „Nechat“ tabulku nemění."
+
+#: includes/Modules/Tables/help.php:18
+msgid "Phone visitors can read wide tables without zooming. Existing tables keep their own choice."
+msgstr "Návštěvníci na telefonu přečtou i širokou tabulku bez přibližování. Stávající tabulky si nechají svou volbu."
+
+#: includes/Modules/Tables/help.php:19
+msgid "Stack works best when the table has a header row, because the header text becomes the label of every value. Without it the cards show values with no labels."
+msgstr "Karty fungují nejlépe, když má tabulka řádek hlavičky, protože text hlavičky se stane popiskem každé hodnoty. Bez něj karty ukážou hodnoty bez popisků."
+
+#: includes/Modules/Tables/help.php:20
+msgid "Choose \"None\" only when the table is always narrow or your theme handles small screens itself."
+msgstr "„Nechat“ zvol jen tehdy, když je tabulka vždy úzká nebo malé obrazovky řeší sama šablona."
+
+#: includes/Modules/Tables/Module.php:94
+msgid "Striped rows in new tables"
+msgstr "Pruhované řádky v nových tabulkách"
+
+#: includes/Modules/Tables/Module.php:95
+msgid "Existing tables keep their own setting."
+msgstr "Stávající tabulky si nechají své nastavení."
+
+#: includes/Modules/Tables/Module.php:101
+msgid "Narrow screens in new tables"
+msgstr "Úzké obrazovky v nových tabulkách"
+
+#: includes/Modules/Tables/Module.php:115
+msgid "Scroll sideways"
+msgstr "Posouvat do strany"
+
+#: includes/Modules/Tables/Module.php:116
+msgid "Stack rows as cards"
+msgstr "Řádky jako karty"
+
+#: includes/Modules/Tables/Module.php:117
+msgid "Leave as is"
+msgstr "Nechat beze změny"
+
+#. translators: 1: max rows, 2: max columns
+#: includes/Modules/Tables/Module.php:235
+msgid "The table is too large. The limit is %1$d rows and %2$d columns."
+msgstr "Tabulka je příliš velká. Limit je %1$d řádků a %2$d sloupců."
+
+#: includes/Modules/Tables/Module.php:316
+#: includes/Modules/Tables/Module.php:364
+#: includes/Modules/Tables/Module.php:387
+#: includes/Modules/Tables/RestController.php:70
+msgid "Table not found."
+msgstr "Tabulka nenalezena."
+
+#. translators: %s: table name
+#: includes/Modules/Tables/Module.php:370
+msgid "%s (copy)"
+msgstr "%s (kopie)"
+
+#: build/31.e959ef402866234d7207.js:1
+msgid "Active (picture tag)"
+msgstr "Aktivní (značka picture)"
+
+#: build/31.e959ef402866234d7207.js:1
+msgid "Images in pages are wrapped in a picture tag"
+msgstr "Obrázky na stránkách se zabalí do značky picture"
+
+#. translators: 1: column letter, 2: row number
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Cell %1$s%2$d"
+msgstr "Buňka %1$s%2$d"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Pasted into the table."
+msgstr "Vloženo do tabulky."
+
+#. translators: 1: max rows, 2: max columns
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "The pasted block does not fit. The limit is %1$d rows and %2$d columns."
+msgstr "Vložený blok se nevejde. Limit je %1$d řádků a %2$d sloupců."
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "A table can have at most %d rows."
+msgstr "Tabulka může mít nejvýš %d řádků."
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "A table can have at most %d columns."
+msgstr "Tabulka může mít nejvýš %d sloupců."
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Table saved."
+msgstr "Tabulka uložena."
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Discard the unsaved changes?"
+msgstr "Zahodit neuložené změny?"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "All tables"
+msgstr "Všechny tabulky"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Table name"
+msgstr "Název tabulky"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Save table"
+msgstr "Uložit tabulku"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Table structure"
+msgstr "Struktura tabulky"
+
+#. translators: %d: row number
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Row %d"
+msgstr "Řádek %d"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Insert above"
+msgstr "Vložit nad"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Insert below"
+msgstr "Vložit pod"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Move row up"
+msgstr "Posunout řádek nahoru"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Move row down"
+msgstr "Posunout řádek dolů"
+
+#. translators: %s: column letter
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Column %s"
+msgstr "Sloupec %s"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Insert left"
+msgstr "Vložit vlevo"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Insert right"
+msgstr "Vložit vpravo"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Move column left"
+msgstr "Posunout sloupec vlevo"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Move column right"
+msgstr "Posunout sloupec vpravo"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Import CSV"
+msgstr "Importovat CSV"
+
+#. translators: 1: max rows, 2: max columns
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "The file is too large. The limit is %1$d rows and %2$d columns."
+msgstr "Soubor je příliš velký. Limit je %1$d řádků a %2$d sloupců."
+
+#. translators: 1: rows, 2: columns
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Imported %1$d rows and %2$d columns. Save the table to keep them."
+msgstr "Importováno %1$d řádků a %2$d sloupců. Tabulku ulož, aby se zachovaly."
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Copy a block of cells in Excel or Google Sheets, click the cell where it should start and paste. Cells can contain links, line breaks (<br>), bold and italic text and images."
+msgstr "V Excelu nebo Google Tabulkách zkopíruj blok buněk, klikni na buňku, kde má začít, a vlož. Buňky můžou obsahovat odkazy, zalomení řádku (<br>), tučný a kurzívní text a obrázky."
+
+#. translators: 1: rows, 2: columns, 3: max rows, 4: max columns
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "%1$d rows x %2$d columns (limit %3$d x %4$d)."
+msgstr "%1$d řádků × %2$d sloupců (limit %3$d × %4$d)."
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Table options"
+msgstr "Volby tabulky"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "The first row is a header"
+msgstr "První řádek je hlavička"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "The last row is a footer"
+msgstr "Poslední řádek je patička"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Striped rows"
+msgstr "Pruhované řádky"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Highlight the row under the mouse"
+msgstr "Zvýraznit řádek pod myší"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "On narrow screens"
+msgstr "Na úzkých obrazovkách"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Visitors can sort by a column (needs a header row)"
+msgstr "Návštěvníci můžou řadit podle sloupce (vyžaduje řádek hlavičky)"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Show a search box"
+msgstr "Zobrazit vyhledávací pole"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Split into pages"
+msgstr "Rozdělit na stránky"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Rows per page"
+msgstr "Řádků na stránku"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Caption"
+msgstr "Popisek"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Caption position"
+msgstr "Umístění popisku"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Above the table"
+msgstr "Nad tabulkou"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Below the table"
+msgstr "Pod tabulkou"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Extra CSS class"
+msgstr "Další třída CSS"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Description (internal note)"
+msgstr "Popis (interní poznámka)"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Table duplicated."
+msgstr "Tabulka zduplikována."
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "New table"
+msgstr "Nová tabulka"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "New table from CSV"
+msgstr "Nová tabulka z CSV"
+
+#. translators: 1: rows, 2: columns
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "%1$d x %2$d"
+msgstr "%1$d × %2$d"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Edit table"
+msgstr "Upravit tabulku"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Duplicate table"
+msgstr "Duplikovat tabulku"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Delete table"
+msgstr "Smazat tabulku"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Delete this table? Pages using its shortcode will show nothing."
+msgstr "Smazat tuto tabulku? Stránky s jejím shortcodem pak nic nezobrazí."
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "No tables yet. Create one and paste its shortcode into a page (Elementor: Shortcode widget)."
+msgstr "Zatím žádné tabulky. Vytvoř tabulku a vlož její shortcode do stránky (v Elementoru widget Shortcode)."

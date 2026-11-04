@@ -4178,8 +4178,17 @@ optimalizace nekomprimovala podruhé (`.bak` soubory nechá na místě). `webp-e
 - [x] Migrační skript (mapster, squeeze, webp-express; tablepress jen výpis)
 - [x] `Optimizer::legacy_backup()` čte zálohy Squeeze `.bak.ext`
 - [ ] Ověřit mapu naživo s klíčem Mapy.com a Google (uživatel dodá klíče)
-- [ ] `image-optimizer`: komprese náhledů + WebP/AVIF pro náhledy + restore náhledů
-- [ ] `image-optimizer`: režim `<picture>`, HEIC → JPEG, vyloučené obrázky
-- [ ] Modul `tables` (CPT, mřížkový editor v SPA, CSV, shortcode + alias `[table id=N /]`, blok, Elementor widget)
-- [ ] Elementor widget a Gutenberg blok pro `maps` (dnes funguje widget Shortcode)
+- [x] `image-optimizer`: komprese náhledů + WebP/AVIF pro náhledy + restore náhledů (zálohy `-original` u každého náhledu, bez zálohy se náhledy přegenerují; dávky s časovým rozpočtem)
+- [x] `image-optimizer`: `delivery_mode` htaccess/picture/off (nahrazuje `htaccess_delivery`), HEIC → JPEG, vyloučené obrázky, vstup WebP
+- [x] Modul `tables` (CPT, mřížkový editor v SPA, vložení z Excelu, CSV, shortcode + alias `[table id=N /]`, Elementor widget, řazení/hledání/stránkování ve vanilla JS; Gutenberg blok zatím ne)
+- [x] Elementor widget a Gutenberg blok pro `maps`
 - [ ] Pilot migrace na jiném webu než seco (seco jen se souhlasem uživatele)
+- [ ] Ověřit v prohlížeči Elementor widgety (Mapa, Tabulka) a blok Mapa (na lokálu pobyty je Classic Editor) a HEIC + větev Imagick (lokální PHP nemá Imagick)
+- [ ] Rozhodnout: obrázky po Squeeze bulk znovu zpracuje i v náhledech (druhá ztrátová komprese, ale dostanou WebP). Alternativa: migrace nastaví `_uxstudio_io_thumbs`, náhledy se nechají a WebP pro ně nebude
+
+Stav 2026-11-04 odpoledne: tři části dělali paralelně agenti (Sonnet) ve worktree `_uxs-wt-imgopt` a
+`_uxs-wt-tables`, zkontrolováno a sloučeno do `feature/maps-module`. Opravy při kontrole: překlad bloku Mapa
+(inline skript nedostává JSON překlady), pojistka kroku `mapster` bez nabootovaného pluginu, nečitelný text buněk
+editoru tabulek v tmavém režimu. Ověřeno v prohlížeči: editor tabulek (vložení z Excelu, uložení), tabulka na webu
+(sémantika, pruhy, posun), nastavení Image Optimizeru česky. Testy `overlap-catalog`, `module-links`,
+`module-groups`, `onboarding-starter`, `mcp-core`, `setting-help-coverage` prošly.

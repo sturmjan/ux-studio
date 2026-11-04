@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-04T13:54:13+00:00\n"
+"POT-Creation-Date: 2026-11-04T14:35:53+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: ux-studio\n"
@@ -495,7 +495,7 @@ msgid "Verify a migration"
 msgstr ""
 
 #: includes/Core/Mcp/MigrationAbilities.php:134
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "Start the safe preview"
 msgstr ""
 
@@ -512,9 +512,9 @@ msgid "Switch a migration on"
 msgstr ""
 
 #: includes/Core/Mcp/MigrationAbilities.php:185
-#: build/index.95ffffc5479cac1ca8c6.js:48
-#: build/index.95ffffc5479cac1ca8c6.js:50
-#: build/index.95ffffc5479cac1ca8c6.js:60
+#: build/index.f41f5a790b9689358030.js:48
+#: build/index.f41f5a790b9689358030.js:50
+#: build/index.f41f5a790b9689358030.js:60
 msgid "Undo the switch"
 msgstr ""
 
@@ -572,15 +572,15 @@ msgstr ""
 #: build/367.f5e0550aca1d7816e509.js:2
 #: build/792.9cf1e41924c78c7c2b20.js:6
 #: build/792.9cf1e41924c78c7c2b20.js:9
-#: build/index.95ffffc5479cac1ca8c6.js:10
-#: build/index.95ffffc5479cac1ca8c6.js:46
+#: build/index.f41f5a790b9689358030.js:10
+#: build/index.f41f5a790b9689358030.js:46
 msgid "Close"
 msgstr ""
 
 #: includes/Core/Megamenu.php:259
 #: includes/Modules/AdminCustomiser/MenuOrganizer.php:88
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:201
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:202
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:203
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:204
 #: includes/Modules/ExitPopup/Module.php:89
 #: includes/Modules/ExitPopup/Module.php:96
 #: includes/Modules/ExitPopup/Module.php:103
@@ -616,8 +616,8 @@ msgstr ""
 #: build/508.8a13704505821d5bc575.js:20
 #: build/508.8a13704505821d5bc575.js:23
 #: build/792.9cf1e41924c78c7c2b20.js:9
-#: build/index.95ffffc5479cac1ca8c6.js:11
-#: build/index.95ffffc5479cac1ca8c6.js:69
+#: build/index.f41f5a790b9689358030.js:11
+#: build/index.f41f5a790b9689358030.js:69
 msgid "Content"
 msgstr ""
 
@@ -630,20 +630,20 @@ msgstr ""
 #: includes/Modules/AdminCustomiser/MenuOrganizer.php:89
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:470
 #: build/321.db92192ff645f329024c.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:11
-#: build/index.95ffffc5479cac1ca8c6.js:69
+#: build/index.f41f5a790b9689358030.js:11
+#: build/index.f41f5a790b9689358030.js:69
 msgid "Media"
 msgstr ""
 
 #: includes/Core/Megamenu.php:265
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:99
-#: build/index.95ffffc5479cac1ca8c6.js:11
-#: build/index.95ffffc5479cac1ca8c6.js:69
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:101
+#: build/index.f41f5a790b9689358030.js:11
+#: build/index.f41f5a790b9689358030.js:69
 msgid "Security"
 msgstr ""
 
 #: includes/Core/Megamenu.php:267
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:104
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:106
 #: includes/Modules/SecurityOptimization/Module.php:1084
 #: includes/Modules/SecurityOptimization/Module.php:1091
 #: includes/Modules/SecurityOptimization/Module.php:1113
@@ -651,12 +651,12 @@ msgstr ""
 #: includes/Modules/SecurityOptimization/Module.php:1134
 #: build/508.8a13704505821d5bc575.js:20
 #: build/508.8a13704505821d5bc575.js:23
-#: build/index.95ffffc5479cac1ca8c6.js:11
+#: build/index.f41f5a790b9689358030.js:11
 msgid "Performance"
 msgstr ""
 
 #: includes/Core/Megamenu.php:269
-#: build/index.95ffffc5479cac1ca8c6.js:11
+#: build/index.f41f5a790b9689358030.js:11
 msgid "Developer"
 msgstr ""
 
@@ -667,8 +667,8 @@ msgstr ""
 #: includes/Modules/Forms/Templates.php:387
 #: includes/Modules/Forms/Templates.php:480
 #: build/194.891eb73b35196acf3416.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:14
-#: build/index.95ffffc5479cac1ca8c6.js:69
+#: build/index.f41f5a790b9689358030.js:14
+#: build/index.f41f5a790b9689358030.js:69
 msgid "Other"
 msgstr ""
 
@@ -721,7 +721,7 @@ msgstr ""
 #: includes/Core/Migration/AbstractSource.php:690
 #: build/194.891eb73b35196acf3416.js:1
 #: build/321.db92192ff645f329024c.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:39
+#: build/index.f41f5a790b9689358030.js:39
 msgid "updated"
 msgstr ""
 
@@ -730,14 +730,14 @@ msgid "already there"
 msgstr ""
 
 #: includes/Core/Migration/AbstractSource.php:692
-#: build/31.b509ec0ed3b608c6de80.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/31.e959ef402866234d7207.js:1
+#: build/index.f41f5a790b9689358030.js:41
 msgid "skipped"
 msgstr ""
 
 #: includes/Core/Migration/AbstractSource.php:693
 #: build/321.db92192ff645f329024c.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/index.f41f5a790b9689358030.js:41
 msgid "failed"
 msgstr ""
 
@@ -873,7 +873,7 @@ msgstr ""
 #. translators: %d: how many more.
 #: includes/Core/Migration/Describe.php:164
 #: includes/Core/Migration/Describe.php:255
-#: build/index.95ffffc5479cac1ca8c6.js:25
+#: build/index.f41f5a790b9689358030.js:25
 #, php-format,js-format
 msgid "+ %d more"
 msgstr ""
@@ -991,7 +991,7 @@ msgstr ""
 #: includes/Modules/DashboardWidgets/ExtraWidgets.php:146
 #: includes/Modules/FileManager/Module.php:203
 #: build/21.30c1ebaf32acd1446cd0.js:1
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 #: build/50.9edf8cb8b40cf82d7f40.js:1
 #: build/71.844d8c3ad1d402b710cd.js:4
 #: build/81.0bbc37bca527d5ddced9.js:4
@@ -1013,8 +1013,9 @@ msgstr ""
 #: build/831.35d15682a5b5435d51ef.js:1
 #: build/860.e32bb09fe0c2cb103fef.js:1
 #: build/907.3669874b6660055a5076.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:45
-#: build/index.95ffffc5479cac1ca8c6.js:84
+#: build/948.c419c5152a4c5a554976.js:1
+#: build/index.f41f5a790b9689358030.js:45
+#: build/index.f41f5a790b9689358030.js:84
 msgid "Settings"
 msgstr ""
 
@@ -1438,7 +1439,7 @@ msgid "The groups of the old menu (the parts between its separators) become cate
 msgstr ""
 
 #: includes/Core/Migration/Sources/AbstractAdminSource.php:266
-#: build/index.95ffffc5479cac1ca8c6.js:84
+#: build/index.f41f5a790b9689358030.js:84
 msgid "Menu"
 msgstr ""
 
@@ -2979,7 +2980,7 @@ msgstr ""
 
 #: includes/Core/Migration/Sources/FolderSource.php:439
 #: includes/Core/Migration/Sources/FolderSource.php:451
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:77
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:79
 #: includes/Modules/FolderManager/AdminIntegration.php:181
 #: includes/Modules/FolderManager/AdminIntegration.php:408
 #: includes/Modules/FolderManager/Module.php:224
@@ -4528,7 +4529,7 @@ msgid "This run is already turned on."
 msgstr ""
 
 #: includes/Core/Migration/Switcher.php:218
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "The migration had errors. Undo it and run it again before switching."
 msgstr ""
 
@@ -4537,12 +4538,12 @@ msgid "There is nothing to switch."
 msgstr ""
 
 #: includes/Core/Migration/Switcher.php:235
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "Run the safe preview and its tests first."
 msgstr ""
 
 #: includes/Core/Migration/Switcher.php:241
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "The tests of the safe preview are incomplete or older than a day. Run them again."
 msgstr ""
 
@@ -4555,7 +4556,7 @@ msgid "The safe preview is not available here. Switch without it only if you con
 msgstr ""
 
 #: includes/Core/Migration/Switcher.php:258
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "Save the new login address and tick the box to confirm it."
 msgstr ""
 
@@ -4661,10 +4662,11 @@ msgstr ""
 #: includes/Core/Onboarding/Applier.php:263
 #: includes/Core/Transfer/Planner.php:353
 #: includes/Modules/AiMarkdown/Module.php:249
+#: includes/Modules/ImageOptimizer/Module.php:299
 #: includes/Modules/SecurityOptimization/Module.php:605
 #: build/508.8a13704505821d5bc575.js:10
 #: build/744.2748a81e69ae738e0ceb.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:16
+#: build/index.f41f5a790b9689358030.js:16
 msgid "Off"
 msgstr ""
 
@@ -4788,7 +4790,7 @@ msgstr ""
 
 #: includes/Core/Onboarding/SharingUpgrade.php:181
 #: build/457.bfb617b9c08b11ef91d9.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:10
+#: build/index.f41f5a790b9689358030.js:10
 msgid "Dismiss"
 msgstr ""
 
@@ -5137,11 +5139,12 @@ msgid "Unknown module."
 msgstr ""
 
 #: includes/Core/Transfer/Envelope.php:143
-#: build/index.95ffffc5479cac1ca8c6.js:33
+#: build/index.f41f5a790b9689358030.js:33
 msgid "The file is larger than 2 MB, so it is not a settings export of UX Studio."
 msgstr ""
 
 #: includes/Core/Transfer/Envelope.php:149
+#: build/948.c419c5152a4c5a554976.js:1
 msgid "The file is empty."
 msgstr ""
 
@@ -5200,7 +5203,7 @@ msgid "The checksum of the file does not match its content. The file was probabl
 msgstr ""
 
 #: includes/Core/Transfer/Exporter.php:146
-#: build/index.95ffffc5479cac1ca8c6.js:19
+#: build/index.f41f5a790b9689358030.js:19
 msgid "Choose at least one module."
 msgstr ""
 
@@ -5219,7 +5222,7 @@ msgid "The passphrase is too long."
 msgstr ""
 
 #: includes/Core/Transfer/Exporter.php:167
-#: build/index.95ffffc5479cac1ca8c6.js:15
+#: build/index.f41f5a790b9689358030.js:15
 msgid "The two passphrases are not the same."
 msgstr ""
 
@@ -5449,7 +5452,7 @@ msgstr ""
 #: includes/Core/Transfer/Planner.php:348
 #: includes/Core/Transfer/Planner.php:356
 #: includes/Core/Transfer/Planner.php:359
-#: build/index.95ffffc5479cac1ca8c6.js:38
+#: build/index.f41f5a790b9689358030.js:38
 msgid "(empty)"
 msgstr ""
 
@@ -5678,8 +5681,8 @@ msgid "UX Studio (core)"
 msgstr ""
 
 #: includes/Modules/ActivityLog/Labels.php:39
-#: build/index.95ffffc5479cac1ca8c6.js:44
-#: build/index.95ffffc5479cac1ca8c6.js:45
+#: build/index.f41f5a790b9689358030.js:44
+#: build/index.f41f5a790b9689358030.js:45
 msgid "MCP server"
 msgstr ""
 
@@ -5740,7 +5743,7 @@ msgid "Module"
 msgstr ""
 
 #: includes/Modules/ActivityLog/Labels.php:71
-#: build/index.95ffffc5479cac1ca8c6.js:84
+#: build/index.f41f5a790b9689358030.js:84
 msgid "Migration"
 msgstr ""
 
@@ -5797,7 +5800,7 @@ msgstr ""
 #: includes/Modules/AiPanel/legacy/Panel.php:121
 #: includes/Modules/DashboardWidgets/ExtraWidgets.php:272
 #: build/21.30c1ebaf32acd1446cd0.js:1
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 #: build/50.9edf8cb8b40cf82d7f40.js:1
 #: build/71.844d8c3ad1d402b710cd.js:4
 #: build/81.0bbc37bca527d5ddced9.js:4
@@ -5834,7 +5837,8 @@ msgstr ""
 #: build/831.35d15682a5b5435d51ef.js:1
 #: build/860.e32bb09fe0c2cb103fef.js:1
 #: build/907.3669874b6660055a5076.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/948.c419c5152a4c5a554976.js:1
+#: build/index.f41f5a790b9689358030.js:41
 msgid "Saved"
 msgstr ""
 
@@ -5848,7 +5852,7 @@ msgstr ""
 
 #: includes/Modules/ActivityLog/Labels.php:139
 #: includes/Modules/AiPanel/legacy/Runtime.php:1146
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 msgid "Uploaded"
 msgstr ""
 
@@ -5882,7 +5886,7 @@ msgstr ""
 
 #: includes/Modules/ActivityLog/Labels.php:147
 #: build/563.4204a55ae089c7189db8.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:34
 msgid "Exported"
 msgstr ""
 
@@ -5927,7 +5931,7 @@ msgid "Migration started"
 msgstr ""
 
 #: includes/Modules/ActivityLog/Labels.php:157
-#: build/index.95ffffc5479cac1ca8c6.js:81
+#: build/index.f41f5a790b9689358030.js:81
 msgid "Migration finished"
 msgstr ""
 
@@ -6041,7 +6045,7 @@ msgstr ""
 #: includes/Modules/MediaReplace/RestController.php:151
 #: build/259.d3b2816b77859dc1b903.js:1
 #: build/744.2748a81e69ae738e0ceb.js:3
-#: build/index.95ffffc5479cac1ca8c6.js:37
+#: build/index.f41f5a790b9689358030.js:37
 msgid "unknown"
 msgstr ""
 
@@ -6062,7 +6066,7 @@ msgstr ""
 #: build/718.9147151c836b27425805.js:2
 #: build/744.2748a81e69ae738e0ceb.js:1
 #: build/792.9cf1e41924c78c7c2b20.js:9
-#: build/index.95ffffc5479cac1ca8c6.js:25
+#: build/index.f41f5a790b9689358030.js:25
 msgid "Yes"
 msgstr ""
 
@@ -6080,7 +6084,7 @@ msgstr ""
 #: build/244.35274d1e3f0f28073cc5.js:1
 #: build/718.9147151c836b27425805.js:2
 #: build/792.9cf1e41924c78c7c2b20.js:9
-#: build/index.95ffffc5479cac1ca8c6.js:25
+#: build/index.f41f5a790b9689358030.js:25
 msgid "No"
 msgstr ""
 
@@ -7034,158 +7038,170 @@ msgid "Opening Hours"
 msgstr ""
 
 #: includes/Modules/AdminCustomiser/ModuleLinks.php:74
+#: includes/Modules/Maps/Module.php:129
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Maps"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:75
+#: includes/Modules/Tables/Module.php:67
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Tables"
+msgstr ""
+
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:76
 #: build/475.8db6429ac020818b0b27.js:1
 msgid "Notice Board"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:75
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:77
 #: build/718.9147151c836b27425805.js:2
 msgid "Reviews"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:76
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:78
 msgid "Redirects and 404"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:79
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:81
+#: build/31.e959ef402866234d7207.js:1
 msgid "Image Optimizer"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:80
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:82
 msgid "Media Trash"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:81
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:83
 #: build/21.30c1ebaf32acd1446cd0.js:1
 msgid "Stock Photos"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:83
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:85
 msgid "Export Posts"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:84
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:86
 msgid "Export Users"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:85
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:87
 #: build/309.cb23d6cb6be5bee70318.js:1
 msgid "Content Sync"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:86
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:88
 #: build/760.68ac0267c2002bfbac34.js:1
 msgid "Code Snippets"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:87
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:89
 #: build/744.2748a81e69ae738e0ceb.js:3
 msgid "Cron Control"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:88
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:90
 #: build/136.9d5ee41c2aeb779b3264.js:3
 msgid "Rollback Manager"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:89
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:91
 #: build/563.4204a55ae089c7189db8.js:1
 msgid "Elementor Import"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:90
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:92
 #: build/860.e32bb09fe0c2cb103fef.js:1
 msgid "Activity Log"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:91
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:93
 #: build/367.f5e0550aca1d7816e509.js:2
 msgid "E-mail Log"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:92
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:94
 #: build/81.0bbc37bca527d5ddced9.js:4
 msgid "DNS Management"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:93
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:95
 #: build/457.bfb617b9c08b11ef91d9.js:1
 msgid "Vulnerability Scanner"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:94
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:96
 #: build/178.fae4b86d3cb981cc5e5f.js:1
 msgid "Page Load"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:96
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:98
 #: build/831.35d15682a5b5435d51ef.js:1
 msgid "SMTP E-mail"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:97
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:99
 #: build/259.d3b2816b77859dc1b903.js:1
 msgid "E-mail Health"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:98
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:100
 #: includes/Modules/MaintenanceMode/Module.php:290
 #: includes/Modules/MaintenanceMode/Module.php:310
 #: includes/Modules/MaintenanceMode/Module.php:585
 msgid "Maintenance Mode"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:100
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:102
 #: build/907.3669874b6660055a5076.js:1
 msgid "Third-Party Login"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:101
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:103
 #: build/50.9edf8cb8b40cf82d7f40.js:1
 msgid "Bot Throttle"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:102
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:104
 msgid "Auto Updates"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:103
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:105
 msgid "Pixel and Tag Manager"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:105
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:107
 msgid "Link Manager"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:106
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:108
 #: build/194.891eb73b35196acf3416.js:1
 msgid "Visitor Statistics"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:108
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:110
 #: includes/Modules/UserLastLogin/Module.php:68
 msgid "Last Login"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:109
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:111
 #: includes/Modules/UserSwitching/Module.php:722
 msgid "User Switching"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:110
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:112
 msgid "Clean Profiles"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:112
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:114
 msgid "Admin Customiser"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:113
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:115
 msgid "Menu Icons"
 msgstr ""
 
-#: includes/Modules/AdminCustomiser/ModuleLinks.php:114
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:116
 msgid "Menu Visibility"
 msgstr ""
 
@@ -7659,7 +7675,8 @@ msgstr ""
 #: includes/Modules/AiAssistant/AssistantConfig.php:292
 #: includes/Modules/Forms/PublicRenderer.php:148
 #: includes/Modules/PostGallery/Module.php:373
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: includes/Modules/Tables/Frontend.php:150
+#: build/31.e959ef402866234d7207.js:1
 #: build/81.0bbc37bca527d5ddced9.js:4
 #: build/148.fff05c8f9e349c9bb69a.js:1
 #: build/295.194c63ac77af78b024ef.js:1
@@ -7680,7 +7697,7 @@ msgstr ""
 #: build/290.7aeafae4513dd3a7b7b2.js:5
 #: build/321.db92192ff645f329024c.js:1
 #: build/718.9147151c836b27425805.js:2
-#: build/index.95ffffc5479cac1ca8c6.js:13
+#: build/index.f41f5a790b9689358030.js:13
 msgid "Show"
 msgstr ""
 
@@ -7712,9 +7729,9 @@ msgstr ""
 #: build/508.8a13704505821d5bc575.js:10
 #: build/744.2748a81e69ae738e0ceb.js:1
 #: build/792.9cf1e41924c78c7c2b20.js:10
-#: build/index.95ffffc5479cac1ca8c6.js:29
-#: build/index.95ffffc5479cac1ca8c6.js:43
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:29
+#: build/index.f41f5a790b9689358030.js:43
+#: build/index.f41f5a790b9689358030.js:54
 msgid "Cancel"
 msgstr ""
 
@@ -7788,8 +7805,9 @@ msgstr ""
 #: build/744.2748a81e69ae738e0ceb.js:1
 #: build/744.2748a81e69ae738e0ceb.js:3
 #: build/760.68ac0267c2002bfbac34.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:41
-#: build/index.95ffffc5479cac1ca8c6.js:43
+#: build/948.c419c5152a4c5a554976.js:1
+#: build/index.f41f5a790b9689358030.js:41
+#: build/index.f41f5a790b9689358030.js:43
 msgid "Name"
 msgstr ""
 
@@ -7886,7 +7904,7 @@ msgstr ""
 #: build/395.f0306d44f0bd4d82baf6.js:6
 #: build/508.8a13704505821d5bc575.js:23
 #: build/744.2748a81e69ae738e0ceb.js:3
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 msgid "Note"
 msgid_plural "Notes"
 msgstr[0] ""
@@ -8583,8 +8601,8 @@ msgid "AI tools"
 msgstr ""
 
 #: includes/Modules/AiAssistant/ContentToolbarEditor.php:75
-#: build/index.95ffffc5479cac1ca8c6.js:70
-#: build/index.95ffffc5479cac1ca8c6.js:79
+#: build/index.f41f5a790b9689358030.js:70
+#: build/index.f41f5a790b9689358030.js:79
 msgid "Working…"
 msgstr ""
 
@@ -9725,7 +9743,7 @@ msgstr ""
 #: includes/Modules/AiAssistant/Module.php:447
 #: includes/Modules/AiAssistant/Module.php:461
 #: includes/Modules/DashboardWidgets/Module.php:445
-#: includes/Modules/Maps/Module.php:112
+#: includes/Modules/Maps/Module.php:156
 #: includes/Modules/SmtpEmail/Module.php:255
 #: includes/Modules/SmtpEmail/Module.php:302
 #: includes/Modules/StockPhotos/Module.php:177
@@ -10367,7 +10385,8 @@ msgstr ""
 #: build/718.9147151c836b27425805.js:2
 #: build/760.68ac0267c2002bfbac34.js:1
 #: build/792.9cf1e41924c78c7c2b20.js:9
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/948.c419c5152a4c5a554976.js:1
+#: build/index.f41f5a790b9689358030.js:41
 msgid "Copy"
 msgstr ""
 
@@ -10729,7 +10748,7 @@ msgid "Terms of these taxonomies are listed in llms.txt and the AI sitemap."
 msgstr ""
 
 #: includes/Modules/AiMarkdown/Module.php:187
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 msgid "Site name"
 msgstr ""
 
@@ -11033,7 +11052,8 @@ msgstr ""
 
 #: includes/Modules/AiPanel/legacy/Panel.php:106
 #: includes/Modules/AiPanel/legacy/Runtime.php:1066
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
+#: build/948.c419c5152a4c5a554976.js:1
 msgid "Size"
 msgstr ""
 
@@ -11054,7 +11074,8 @@ msgstr ""
 #: build/744.2748a81e69ae738e0ceb.js:1
 #: build/744.2748a81e69ae738e0ceb.js:2
 #: build/792.9cf1e41924c78c7c2b20.js:9
-#: build/index.95ffffc5479cac1ca8c6.js:43
+#: build/948.c419c5152a4c5a554976.js:1
+#: build/index.f41f5a790b9689358030.js:43
 msgid "Actions"
 msgstr ""
 
@@ -11171,7 +11192,7 @@ msgstr ""
 
 #: includes/Modules/AiPanel/legacy/Panel.php:344
 #: includes/Modules/AiPanel/legacy/Panel.php:1032
-#: build/index.95ffffc5479cac1ca8c6.js:2
+#: build/index.f41f5a790b9689358030.js:2
 msgid "Details"
 msgstr ""
 
@@ -11235,8 +11256,8 @@ msgstr ""
 #: includes/Modules/SecurityOptimization/TwoFactor.php:659
 #: build/244.35274d1e3f0f28073cc5.js:1
 #: build/760.68ac0267c2002bfbac34.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:41
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:41
+#: build/index.f41f5a790b9689358030.js:54
 msgid "Copied"
 msgstr ""
 
@@ -11391,7 +11412,7 @@ msgstr ""
 #: build/508.8a13704505821d5bc575.js:20
 #: build/641.4b98a03a8ba3213bcf98.js:4
 #: build/792.9cf1e41924c78c7c2b20.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:13
+#: build/index.f41f5a790b9689358030.js:13
 msgid "All"
 msgstr ""
 
@@ -11444,6 +11465,7 @@ msgstr ""
 #: build/157.851b6aeaf5ef5f90a7d1.js:1
 #: build/641.4b98a03a8ba3213bcf98.js:4
 #: build/792.9cf1e41924c78c7c2b20.js:9
+#: build/948.c419c5152a4c5a554976.js:1
 msgid "Export CSV"
 msgstr ""
 
@@ -11473,10 +11495,10 @@ msgstr ""
 
 #: includes/Modules/AiPanel/legacy/Panel.php:1089
 #: includes/Modules/SecurityOptimization/UploadGuardNotifier.php:94
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 #: build/244.35274d1e3f0f28073cc5.js:1
 #: build/508.8a13704505821d5bc575.js:20
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:34
 msgid "File"
 msgstr ""
 
@@ -11670,7 +11692,7 @@ msgstr ""
 
 #: includes/Modules/AiPanel/legacy/Runtime.php:1089
 #: includes/Modules/Forms/PublicRenderer.php:488
-#: build/index.95ffffc5479cac1ca8c6.js:1
+#: build/index.f41f5a790b9689358030.js:1
 msgid "Clear"
 msgstr ""
 
@@ -12583,7 +12605,7 @@ msgstr ""
 
 #: includes/Modules/CleanProfiles/Module.php:41
 #: build/508.8a13704505821d5bc575.js:22
-#: build/index.95ffffc5479cac1ca8c6.js:25
+#: build/index.f41f5a790b9689358030.js:25
 msgid "Role"
 msgstr ""
 
@@ -13304,9 +13326,9 @@ msgstr ""
 #: build/295.194c63ac77af78b024ef.js:1
 #: build/508.8a13704505821d5bc575.js:23
 #: build/760.68ac0267c2002bfbac34.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:14
-#: build/index.95ffffc5479cac1ca8c6.js:44
-#: build/index.95ffffc5479cac1ca8c6.js:46
+#: build/index.f41f5a790b9689358030.js:14
+#: build/index.f41f5a790b9689358030.js:44
+#: build/index.f41f5a790b9689358030.js:46
 msgid "Disabled"
 msgstr ""
 
@@ -13874,7 +13896,7 @@ msgstr ""
 
 #: includes/Modules/DashboardWidgets/ExtraWidgets.php:65
 #: build/290.7aeafae4513dd3a7b7b2.js:5
-#: build/index.95ffffc5479cac1ca8c6.js:44
+#: build/index.f41f5a790b9689358030.js:44
 msgid "Notes"
 msgstr ""
 
@@ -13969,14 +13991,15 @@ msgstr ""
 #: build/587.887c4561290fb7789459.js:1
 #: build/641.4b98a03a8ba3213bcf98.js:3
 #: build/744.2748a81e69ae738e0ceb.js:2
+#: build/948.c419c5152a4c5a554976.js:1
 msgid "Delete"
 msgstr ""
 
 #: includes/Modules/DashboardWidgets/ExtraWidgets.php:271
 #: build/81.0bbc37bca527d5ddced9.js:3
 #: build/508.8a13704505821d5bc575.js:10
-#: build/index.95ffffc5479cac1ca8c6.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:81
+#: build/index.f41f5a790b9689358030.js:1
+#: build/index.f41f5a790b9689358030.js:81
 msgid "Saving…"
 msgstr ""
 
@@ -14009,8 +14032,8 @@ msgstr ""
 #: includes/Modules/DashboardWidgets/Module.php:279
 #: includes/Modules/DashboardWidgets/RoleWidgets.php:169
 #: includes/Modules/DashboardWidgets/WidgetSnapshot.php:90
-#: build/index.95ffffc5479cac1ca8c6.js:73
-#: build/index.95ffffc5479cac1ca8c6.js:84
+#: build/index.f41f5a790b9689358030.js:73
+#: build/index.f41f5a790b9689358030.js:84
 msgid "Welcome"
 msgstr ""
 
@@ -14891,7 +14914,7 @@ msgid "The underlying media attachment is missing."
 msgstr ""
 
 #: includes/Modules/DownloadFiles/Module.php:601
-#: includes/Modules/ImageOptimizer/Optimizer.php:486
+#: includes/Modules/ImageOptimizer/Optimizer.php:781
 msgid "The file is missing on disk."
 msgstr ""
 
@@ -14905,8 +14928,8 @@ msgstr ""
 #: includes/Modules/PostGallery/Module.php:96
 #: build/290.7aeafae4513dd3a7b7b2.js:5
 #: build/309.cb23d6cb6be5bee70318.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:2
+#: build/index.f41f5a790b9689358030.js:1
+#: build/index.f41f5a790b9689358030.js:2
 #: includes/Modules/DownloadFiles/assets/js/download-files-admin.js:49
 #: includes/Modules/PostGallery/assets/js/post-gallery-admin.js:48
 msgid "Remove"
@@ -16142,7 +16165,7 @@ msgstr ""
 #: includes/Modules/ExportPosts/Module.php:142
 #: build/395.f0306d44f0bd4d82baf6.js:6
 #: build/563.4204a55ae089c7189db8.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/index.f41f5a790b9689358030.js:41
 msgid "Export"
 msgstr ""
 
@@ -16210,7 +16233,7 @@ msgstr ""
 #: build/792.9cf1e41924c78c7c2b20.js:1
 #: build/792.9cf1e41924c78c7c2b20.js:9
 #: build/831.35d15682a5b5435d51ef.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:13
+#: build/index.f41f5a790b9689358030.js:13
 msgid "Status"
 msgstr ""
 
@@ -16533,7 +16556,7 @@ msgid "Save settings"
 msgstr ""
 
 #: includes/Modules/FileManager/Module.php:332
-#: build/index.95ffffc5479cac1ca8c6.js:1
+#: build/index.f41f5a790b9689358030.js:1
 msgid "Settings saved."
 msgstr ""
 
@@ -16828,7 +16851,7 @@ msgid "Attachment not found."
 msgstr ""
 
 #: includes/Modules/FolderManager/Module.php:882
-#: includes/Modules/ImageOptimizer/MediaLibrary.php:375
+#: includes/Modules/ImageOptimizer/MediaLibrary.php:384
 msgid "You are not allowed to edit this item."
 msgstr ""
 
@@ -16914,12 +16937,12 @@ msgid "Submitted at"
 msgstr ""
 
 #: includes/Modules/Forms/Csv.php:92
-#: build/index.95ffffc5479cac1ca8c6.js:78
+#: build/index.f41f5a790b9689358030.js:78
 msgid "yes"
 msgstr ""
 
 #: includes/Modules/Forms/Csv.php:92
-#: build/index.95ffffc5479cac1ca8c6.js:78
+#: build/index.f41f5a790b9689358030.js:78
 msgid "no"
 msgstr ""
 
@@ -16937,7 +16960,7 @@ msgstr ""
 
 #: includes/Modules/Forms/DashboardWidget.php:53
 #: build/792.9cf1e41924c78c7c2b20.js:9
-#: build/index.95ffffc5479cac1ca8c6.js:73
+#: build/index.f41f5a790b9689358030.js:73
 msgid "Summary"
 msgstr ""
 
@@ -17165,13 +17188,13 @@ msgid "Submit"
 msgstr ""
 
 #: includes/Modules/Forms/PublicRenderer.php:147
-#: build/index.95ffffc5479cac1ca8c6.js:54
-#: build/index.95ffffc5479cac1ca8c6.js:57
-#: build/index.95ffffc5479cac1ca8c6.js:69
-#: build/index.95ffffc5479cac1ca8c6.js:74
-#: build/index.95ffffc5479cac1ca8c6.js:75
-#: build/index.95ffffc5479cac1ca8c6.js:77
-#: build/index.95ffffc5479cac1ca8c6.js:78
+#: build/index.f41f5a790b9689358030.js:54
+#: build/index.f41f5a790b9689358030.js:57
+#: build/index.f41f5a790b9689358030.js:69
+#: build/index.f41f5a790b9689358030.js:74
+#: build/index.f41f5a790b9689358030.js:75
+#: build/index.f41f5a790b9689358030.js:77
+#: build/index.f41f5a790b9689358030.js:78
 msgid "Back"
 msgstr ""
 
@@ -17244,7 +17267,7 @@ msgid "Step %d"
 msgstr ""
 
 #: includes/Modules/Forms/PublicRenderer.php:384
-#: build/index.95ffffc5479cac1ca8c6.js:2
+#: build/index.f41f5a790b9689358030.js:2
 msgid "Choose…"
 msgstr ""
 
@@ -17731,8 +17754,8 @@ msgid "Development"
 msgstr ""
 
 #: includes/Modules/Forms/Templates.php:480
-#: build/index.95ffffc5479cac1ca8c6.js:11
-#: build/index.95ffffc5479cac1ca8c6.js:69
+#: build/index.f41f5a790b9689358030.js:11
+#: build/index.f41f5a790b9689358030.js:69
 msgid "Administration"
 msgstr ""
 
@@ -18395,108 +18418,168 @@ msgid "Turn it off when you prefer to optimize images by hand, in batches."
 msgstr ""
 
 #: includes/Modules/ImageOptimizer/help.php:69
-msgid "Writes a few rules into the .htaccess file in the uploads folder. A browser that understands AVIF or WebP then receives that smaller copy of an image automatically, under the same address."
+msgid "WordPress makes several smaller copies of every image, for example for lists, galleries and mobile screens. This setting also compresses those copies and creates their WebP and AVIF versions."
 msgstr ""
 
 #: includes/Modules/ImageOptimizer/help.php:70
-msgid "The images in your content do not have to change. Visitors with modern browsers download less data."
+msgid "Pages use the small copies much more often than the full-size image, so this is where most of the saved data comes from. Without it browsers would still download the old, heavy small copies."
 msgstr ""
 
 #: includes/Modules/ImageOptimizer/help.php:71
-msgid "This changes a server file. The rules sit in their own marked block, other rules in that file are kept, and the block is removed when you turn the setting off. It works only on Apache and LiteSpeed. On nginx it does nothing, and a CDN in front of the site may cache the wrong format."
+msgid "Every size is backed up next to the file before it is compressed, so the media folder grows. Optimizing many sizes of many images takes longer."
 msgstr ""
 
 #: includes/Modules/ImageOptimizer/help.php:72
-msgid "Turn it off on nginx, or when a [[CDN]] or another plugin already serves the next-generation images."
+msgid "Leave it empty to process all sizes. Pick only some sizes when you want to save disk space or time and the other sizes are rarely shown."
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/help.php:75
+msgid "Photos taken with an iPhone are often saved as HEIC, a format most browsers cannot show. With this on, such a file is turned into a JPEG while it is uploaded."
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/help.php:76
+msgid "Editors can upload photos straight from the phone and they show up on the site. The media library only contains the JPEG."
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/help.php:77
+msgid "It only works when the server can read HEIC. When it cannot, the upload stays as it was. The HEIC file is deleted after the conversion, so the original HEIC is not kept."
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/help.php:78
+msgid "Leave it off when nobody uploads photos from iPhones."
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/help.php:81
+msgid "Images listed here are skipped by automatic optimization and by the bulk run. Write one attachment ID or one file name per line. A star stands for any text, so logo-*.png matches every logo file."
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/help.php:82
+msgid "These images stay exactly as they were uploaded. In the media library they are marked as excluded."
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/help.php:83
+msgid "You can still optimize an excluded image by hand with its Optimize button. A wrong pattern can leave more images untouched than you want."
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/help.php:84
+msgid "Leave it empty to optimize everything. Use it for logos, print files or images that must keep every pixel."
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/help.php:87
+msgid "Decides how visitors receive the smaller AVIF and WebP copies. The .htaccess way writes a few rules into the .htaccess file in the uploads folder, so the same image address returns the smaller file. The picture tag way changes the HTML of the page so the browser chooses the best file itself."
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/help.php:88
+msgid "Visitors with modern browsers download less data. The picture tag way needs no server rules, so it also works on nginx and behind a [[CDN]]. Only copies that really exist on disk are offered."
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/help.php:89
+msgid "The .htaccess way changes a server file, works only on Apache and LiteSpeed, and a CDN in front of the site may cache the wrong format. The rules sit in their own marked block, other rules in that file are kept, and the block is removed when you switch it off. The picture tag way adds an extra element around images, so a theme style that targets the image directly can look different, and it does not change images in places that bypass the normal content, such as CSS backgrounds."
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/help.php:90
+msgid "Choose Off when another plugin or your CDN already serves next-generation images."
 msgstr ""
 
 #: includes/Modules/ImageOptimizer/HtaccessDelivery.php:180
 msgid "The web server does not look like Apache/LiteSpeed; .htaccess rules may be ignored (e.g. on nginx). Configure next-gen delivery at the server level instead."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/MediaLibrary.php:107
+#: includes/Modules/ImageOptimizer/MediaLibrary.php:106
 msgid "Optimizing..."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/MediaLibrary.php:108
+#: includes/Modules/ImageOptimizer/MediaLibrary.php:107
 msgid "Restoring..."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/MediaLibrary.php:109
-#: includes/Modules/ImageOptimizer/MediaLibrary.php:322
+#: includes/Modules/ImageOptimizer/MediaLibrary.php:108
+#: includes/Modules/ImageOptimizer/MediaLibrary.php:331
 msgid "Optimize"
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/MediaLibrary.php:110
-#: includes/Modules/ImageOptimizer/MediaLibrary.php:329
+#: includes/Modules/ImageOptimizer/MediaLibrary.php:109
+#: includes/Modules/ImageOptimizer/MediaLibrary.php:338
 msgid "Restore original"
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/MediaLibrary.php:111
+#: includes/Modules/ImageOptimizer/MediaLibrary.php:110
 msgid "Restore the original file? The optimized version will be replaced."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/MediaLibrary.php:112
+#: includes/Modules/ImageOptimizer/MediaLibrary.php:111
 msgid "Connection error."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/MediaLibrary.php:188
+#: includes/Modules/ImageOptimizer/MediaLibrary.php:190
 msgid "File size"
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/MediaLibrary.php:189
-#: includes/Modules/ImageOptimizer/MediaLibrary.php:351
+#: includes/Modules/ImageOptimizer/MediaLibrary.php:191
+#: includes/Modules/ImageOptimizer/MediaLibrary.php:360
 msgid "Optimization"
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/MediaLibrary.php:291
+#: includes/Modules/ImageOptimizer/MediaLibrary.php:293
 msgid "Not supported"
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/MediaLibrary.php:306
+#: includes/Modules/ImageOptimizer/MediaLibrary.php:308
 msgid "Optimized"
 msgstr ""
 
 #. translators: %d: percent saved
-#: includes/Modules/ImageOptimizer/MediaLibrary.php:308
+#: includes/Modules/ImageOptimizer/MediaLibrary.php:310
 #, php-format
 msgid "saved %d%%"
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/MediaLibrary.php:310
+#. translators: %d: number of thumbnails
+#: includes/Modules/ImageOptimizer/MediaLibrary.php:312
+#, php-format
+msgid "incl. %d thumbnail"
+msgid_plural "incl. %d thumbnails"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/Modules/ImageOptimizer/MediaLibrary.php:315
 msgid "Not optimized"
 msgstr ""
 
 #. translators: %s: file size
-#: includes/Modules/ImageOptimizer/MediaLibrary.php:312
+#: includes/Modules/ImageOptimizer/MediaLibrary.php:317
 #, php-format
 msgid "File size: %s"
 msgstr ""
 
 #: includes/Modules/ImageOptimizer/MediaLibrary.php:322
+msgid "Excluded from automatic optimization"
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/MediaLibrary.php:331
 msgid "Optimize again"
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/MediaLibrary.php:371
+#: includes/Modules/ImageOptimizer/MediaLibrary.php:380
 msgid "Invalid security token."
 msgstr ""
 
 #. translators: 1: saved size, 2: percent
-#: includes/Modules/ImageOptimizer/MediaLibrary.php:399
+#: includes/Modules/ImageOptimizer/MediaLibrary.php:408
 #, php-format
 msgid "Optimized! Saved %1$s (%2$d%%)."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/MediaLibrary.php:422
+#: includes/Modules/ImageOptimizer/MediaLibrary.php:431
 msgid "The original was restored."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/MediaLibrary.php:439
+#: includes/Modules/ImageOptimizer/MediaLibrary.php:448
 msgid "Restore original (Image Optimizer)"
 msgstr ""
 
 #. translators: %d: number of images
-#: includes/Modules/ImageOptimizer/MediaLibrary.php:495
+#: includes/Modules/ImageOptimizer/MediaLibrary.php:504
 #, php-format
 msgid "%d original restored."
 msgid_plural "%d originals restored."
@@ -18504,123 +18587,155 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of images
-#: includes/Modules/ImageOptimizer/MediaLibrary.php:501
+#: includes/Modules/ImageOptimizer/MediaLibrary.php:510
 #, php-format
 msgid "%d skipped (no backup of the original, or no permission)."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Module.php:109
+#: includes/Modules/ImageOptimizer/Module.php:205
 msgid "Quality"
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Module.php:110
+#: includes/Modules/ImageOptimizer/Module.php:206
 msgid "JPEG/WebP/AVIF compression quality, 1-100. Used for every format that has no quality of its own below."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Module.php:116
+#: includes/Modules/ImageOptimizer/Module.php:212
 msgid "JPEG quality"
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Module.php:117
-#: includes/Modules/ImageOptimizer/Module.php:124
+#: includes/Modules/ImageOptimizer/Module.php:213
+#: includes/Modules/ImageOptimizer/Module.php:220
 msgid "1-100. 0 = use the general Quality."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Module.php:123
+#: includes/Modules/ImageOptimizer/Module.php:219
 msgid "WebP quality"
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Module.php:130
+#: includes/Modules/ImageOptimizer/Module.php:226
 msgid "AVIF quality"
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Module.php:131
+#: includes/Modules/ImageOptimizer/Module.php:227
 msgid "1-100. 0 = use the general Quality. AVIF reaches the same look at a lower number than JPEG."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Module.php:137
+#: includes/Modules/ImageOptimizer/Module.php:233
 msgid "Max width (px)"
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Module.php:138
+#: includes/Modules/ImageOptimizer/Module.php:234
 msgid "Images wider than this are downscaled. 0 disables resizing."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Module.php:144
+#: includes/Modules/ImageOptimizer/Module.php:240
 msgid "Max height (px)"
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Module.php:145
+#: includes/Modules/ImageOptimizer/Module.php:241
 msgid "Images taller than this are downscaled (aspect ratio is kept, together with the max width). 0 = no height limit."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Module.php:151
+#: includes/Modules/ImageOptimizer/Module.php:247
 msgid "Convert PNG to JPEG"
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Module.php:152
+#: includes/Modules/ImageOptimizer/Module.php:248
 msgid "PNG images without transparency are saved as JPEG, which is usually much smaller. The file name changes (.png becomes .jpg), so links to an already published PNG stop working - best used together with automatic optimization of new uploads. The PNG is kept as the backup and Restore brings it back."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Module.php:158
+#: includes/Modules/ImageOptimizer/Module.php:254
 msgid "Also generate WebP"
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Module.php:164
+#: includes/Modules/ImageOptimizer/Module.php:260
 msgid "Also generate AVIF"
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Module.php:165
+#: includes/Modules/ImageOptimizer/Module.php:261
 msgid "AVIF is smaller than WebP but requires server support. Ignored automatically when the server cannot encode AVIF."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Module.php:171
+#: includes/Modules/ImageOptimizer/Module.php:267
+msgid "Thumbnail sizes to optimize"
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/Module.php:268
+msgid "The smaller copies WordPress makes of every image are compressed too, and get WebP/AVIF copies. Pick the sizes to process. Nothing selected = all sizes."
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/Module.php:275
 msgid "Optimize new uploads automatically"
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Module.php:172
+#: includes/Modules/ImageOptimizer/Module.php:276
 msgid "Compress and generate next-gen siblings whenever an image is uploaded."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Module.php:178
-msgid "Serve next-gen images via .htaccess"
+#: includes/Modules/ImageOptimizer/Module.php:282
+msgid "Convert HEIC photos to JPEG on upload"
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Module.php:179
-msgid "Adds Apache/LiteSpeed rewrite rules to uploads/.htaccess so browsers get AVIF/WebP when available. Removed when disabled. No effect on nginx."
+#: includes/Modules/ImageOptimizer/Module.php:283
+msgid "iPhone photos in HEIC format are saved as JPEG while they are uploaded. Needs a server whose Imagick can read HEIC, otherwise nothing changes."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Optimizer.php:91
-#: includes/Modules/ImageOptimizer/Optimizer.php:196
+#: includes/Modules/ImageOptimizer/Module.php:289
+msgid "Excluded images"
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/Module.php:290
+msgid "One per line: an attachment ID, or a file name with * as a wildcard (for example logo-*.png). These images are skipped by automatic and bulk optimization."
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/Module.php:296
+msgid "Serve next-gen images"
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/Module.php:297
+msgid "How visitors get the WebP/AVIF copies. .htaccess: rewrite rules in uploads/.htaccess (Apache/LiteSpeed). Picture tag: images in pages are wrapped in a picture element, which also works on nginx and behind a CDN."
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/Module.php:300
+msgid ".htaccess rewrite rules"
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/Module.php:301
+msgid "Picture tag in the page"
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/Optimizer.php:110
+#: includes/Modules/ImageOptimizer/Optimizer.php:395
 msgid "Not a media library attachment."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Optimizer.php:101
-msgid "Only JPEG, PNG and GIF images are supported."
+#: includes/Modules/ImageOptimizer/Optimizer.php:120
+msgid "Only JPEG, PNG, GIF and WebP images are supported."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Optimizer.php:120
+#: includes/Modules/ImageOptimizer/Optimizer.php:159
 msgid "Could not create a backup of the original image."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Optimizer.php:154
-msgid "Neither the Imagick nor the GD PHP extension is available."
-msgstr ""
-
-#: includes/Modules/ImageOptimizer/Optimizer.php:208
+#: includes/Modules/ImageOptimizer/Optimizer.php:408
 msgid "No backup exists for this image."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Optimizer.php:222
-#: includes/Modules/ImageOptimizer/Optimizer.php:492
+#: includes/Modules/ImageOptimizer/Optimizer.php:424
+#: includes/Modules/ImageOptimizer/Optimizer.php:787
 msgid "Refused to operate on a file outside the uploads directory."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Optimizer.php:228
+#: includes/Modules/ImageOptimizer/Optimizer.php:430
 msgid "Could not restore the original image."
 msgstr ""
 
-#: includes/Modules/ImageOptimizer/Optimizer.php:535
+#: includes/Modules/ImageOptimizer/Optimizer.php:845
+msgid "Neither the Imagick nor the GD PHP extension is available."
+msgstr ""
+
+#: includes/Modules/ImageOptimizer/Optimizer.php:863
 msgid "Could not decode the image."
 msgstr ""
 
@@ -19529,7 +19644,7 @@ msgstr ""
 
 #: includes/Modules/MaintenanceMode/Module.php:411
 #: build/792.9cf1e41924c78c7c2b20.js:6
-#: build/index.95ffffc5479cac1ca8c6.js:84
+#: build/index.f41f5a790b9689358030.js:84
 msgid "Preview"
 msgstr ""
 
@@ -19676,6 +19791,42 @@ msgstr ""
 msgid "Custom CSS for the maintenance page. Useful classes: .uxstudio__card, .uxstudio__headline, .uxstudio__description, .uxstudio__footer, .uxstudio__logo."
 msgstr ""
 
+#: includes/Modules/Maps/ElementorWidget.php:38
+#: includes/Modules/Maps/GutenbergBlock.php:40
+#: includes/Modules/Maps/GutenbergBlock.php:98
+msgid "UX Studio Map"
+msgstr ""
+
+#: includes/Modules/Maps/ElementorWidget.php:60
+#: includes/Modules/Maps/GutenbergBlock.php:101
+#: includes/Modules/Maps/Module.php:497
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Map"
+msgstr ""
+
+#: includes/Modules/Maps/ElementorWidget.php:66
+msgid "Select map"
+msgstr ""
+
+#: includes/Modules/Maps/ElementorWidget.php:76
+#: includes/Modules/Maps/GutenbergBlock.php:102
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Height (px)"
+msgstr ""
+
+#: includes/Modules/Maps/ElementorWidget.php:77
+#: includes/Modules/Maps/GutenbergBlock.php:103
+msgid "Leave empty to use the height set in the map."
+msgstr ""
+
+#: includes/Modules/Maps/ElementorWidget.php:91
+msgid "Select a map"
+msgstr ""
+
+#: includes/Modules/Maps/ElementorWidget.php:107
+msgid "Select a map in the panel on the left."
+msgstr ""
+
 #: includes/Modules/Maps/Frontend.php:128
 msgid "Get directions"
 msgstr ""
@@ -19696,6 +19847,19 @@ msgstr ""
 #: includes/Modules/Maps/Frontend.php:159
 #, php-format
 msgid "The map is loaded from %s."
+msgstr ""
+
+#: includes/Modules/Maps/GutenbergBlock.php:41
+#: includes/Modules/Maps/GutenbergBlock.php:99
+msgid "Embed a map built with the UX Studio Maps module."
+msgstr ""
+
+#: includes/Modules/Maps/GutenbergBlock.php:100
+msgid "Select a map…"
+msgstr ""
+
+#: includes/Modules/Maps/GutenbergBlock.php:104
+msgid "Select a map in the block settings on the right."
 msgstr ""
 
 #: includes/Modules/Maps/help.php:12
@@ -19791,79 +19955,69 @@ msgstr ""
 msgid "A very tall map on a phone covers the whole screen and is hard to scroll past."
 msgstr ""
 
-#: includes/Modules/Maps/Module.php:85
-#: build/225.e191f19968d429a2a707.js:1
-msgid "Maps"
-msgstr ""
-
-#: includes/Modules/Maps/Module.php:117
+#: includes/Modules/Maps/Module.php:161
 msgid "Default map provider"
 msgstr ""
 
-#: includes/Modules/Maps/Module.php:118
+#: includes/Modules/Maps/Module.php:162
 msgid "Used by maps set to \"Default\". A provider without a key falls back to OpenStreetMap."
 msgstr ""
 
-#: includes/Modules/Maps/Module.php:125
+#: includes/Modules/Maps/Module.php:169
 msgid "Mapy.com API key"
 msgstr ""
 
-#: includes/Modules/Maps/Module.php:126
+#: includes/Modules/Maps/Module.php:170
 msgid "Get it at developer.mapy.com. If empty, the key from Opening Hours is used."
 msgstr ""
 
-#: includes/Modules/Maps/Module.php:132
+#: includes/Modules/Maps/Module.php:176
 msgid "Mapbox access token"
 msgstr ""
 
-#: includes/Modules/Maps/Module.php:133
+#: includes/Modules/Maps/Module.php:177
 msgid "A public token (pk.…) restricted to this site's URL in your Mapbox account."
 msgstr ""
 
-#: includes/Modules/Maps/Module.php:139
+#: includes/Modules/Maps/Module.php:183
 #: includes/Modules/OpeningHours/Module.php:189
 msgid "Google Maps API key"
 msgstr ""
 
-#: includes/Modules/Maps/Module.php:140
+#: includes/Modules/Maps/Module.php:184
 msgid "Needs the Maps JavaScript API enabled; restrict it to this site's referrer. If empty, the key from Opening Hours is used."
 msgstr ""
 
-#: includes/Modules/Maps/Module.php:146
+#: includes/Modules/Maps/Module.php:190
 msgid "Google Map ID"
 msgstr ""
 
-#: includes/Modules/Maps/Module.php:147
+#: includes/Modules/Maps/Module.php:191
 msgid "Optional. With a Map ID Google draws modern colored pins and applies the cloud style of that ID."
 msgstr ""
 
-#: includes/Modules/Maps/Module.php:153
+#: includes/Modules/Maps/Module.php:197
 msgid "Default pin color"
 msgstr ""
 
-#: includes/Modules/Maps/Module.php:159
+#: includes/Modules/Maps/Module.php:203
 msgid "Default map height (px)"
 msgstr ""
 
-#: includes/Modules/Maps/Module.php:199
+#: includes/Modules/Maps/Module.php:243
 msgid "OpenStreetMap (no key)"
 msgstr ""
 
-#: includes/Modules/Maps/Module.php:445
-#: includes/Modules/Maps/Module.php:481
+#: includes/Modules/Maps/Module.php:489
+#: includes/Modules/Maps/Module.php:525
 msgid "Map not found."
 msgstr ""
 
-#: includes/Modules/Maps/Module.php:453
-#: build/225.e191f19968d429a2a707.js:1
-msgid "Map"
-msgstr ""
-
-#: includes/Modules/Maps/Module.php:559
+#: includes/Modules/Maps/Module.php:603
 msgid "Enter an address to search for."
 msgstr ""
 
-#: includes/Modules/Maps/Module.php:598
+#: includes/Modules/Maps/Module.php:642
 msgid "Address search is not available right now."
 msgstr ""
 
@@ -20165,7 +20319,7 @@ msgid "Latest notices"
 msgstr ""
 
 #: includes/Modules/NoticeBoard/Module.php:1372
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 #: build/295.194c63ac77af78b024ef.js:1
 #: build/395.f0306d44f0bd4d82baf6.js:6
 #: build/475.8db6429ac020818b0b27.js:1
@@ -20173,7 +20327,7 @@ msgstr ""
 #: build/641.4b98a03a8ba3213bcf98.js:3
 #: build/792.9cf1e41924c78c7c2b20.js:1
 #: build/792.9cf1e41924c78c7c2b20.js:9
-#: build/index.95ffffc5479cac1ca8c6.js:25
+#: build/index.f41f5a790b9689358030.js:25
 msgid "Active"
 msgstr ""
 
@@ -20214,7 +20368,7 @@ msgid "Filter"
 msgstr ""
 
 #: includes/Modules/NoticeBoard/Module.php:1400
-#: build/index.95ffffc5479cac1ca8c6.js:1
+#: build/index.f41f5a790b9689358030.js:1
 msgid "Reset"
 msgstr ""
 
@@ -20867,7 +21021,8 @@ msgid "Or insert the shortcode %s"
 msgstr ""
 
 #: includes/Modules/PostGallery/Module.php:372
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: includes/Modules/Tables/Frontend.php:149
+#: build/31.e959ef402866234d7207.js:1
 #: build/81.0bbc37bca527d5ddced9.js:4
 #: build/148.fff05c8f9e349c9bb69a.js:1
 #: build/295.194c63ac77af78b024ef.js:1
@@ -22017,9 +22172,9 @@ msgstr ""
 
 #: includes/Modules/SecurityOptimization/CaptchaGate.php:256
 #: includes/Modules/SecurityOptimization/TwoFactor.php:669
-#: build/index.95ffffc5479cac1ca8c6.js:54
-#: build/index.95ffffc5479cac1ca8c6.js:65
-#: build/index.95ffffc5479cac1ca8c6.js:71
+#: build/index.f41f5a790b9689358030.js:54
+#: build/index.f41f5a790b9689358030.js:65
+#: build/index.f41f5a790b9689358030.js:71
 msgid "Continue"
 msgstr ""
 
@@ -22342,7 +22497,7 @@ msgstr ""
 
 #: includes/Modules/SecurityOptimization/DashboardWidget.php:69
 #: build/475.8db6429ac020818b0b27.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:43
+#: build/index.f41f5a790b9689358030.js:43
 msgid "Expires"
 msgstr ""
 
@@ -23095,7 +23250,7 @@ msgid "The custom login address set in UX Studio is in force. The usual wp-login
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/LoginUrlNotice.php:234
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "Copy the address"
 msgstr ""
 
@@ -24031,7 +24186,7 @@ msgstr ""
 #: includes/Modules/SecurityOptimization/PhpVersionNotice.php:260
 #: includes/Modules/SecurityOptimization/PhpVersionNotice.php:294
 #: build/508.8a13704505821d5bc575.js:22
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 msgid "Security advisory on php.net"
 msgstr ""
 
@@ -24095,12 +24250,12 @@ msgid "Warning"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/PhpVersionNotice.php:291
-#: build/index.95ffffc5479cac1ca8c6.js:63
+#: build/index.f41f5a790b9689358030.js:63
 msgid "Critical: the PHP version of this website is not safe."
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/PhpVersionNotice.php:291
-#: build/index.95ffffc5479cac1ca8c6.js:63
+#: build/index.f41f5a790b9689358030.js:63
 msgid "The PHP version of this website will soon lose security support."
 msgstr ""
 
@@ -24336,10 +24491,10 @@ msgid "Recovery codes. Each works once and they are shown only now. Store them s
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/TwoFactor.php:665
-#: build/index.95ffffc5479cac1ca8c6.js:41
-#: build/index.95ffffc5479cac1ca8c6.js:70
-#: build/index.95ffffc5479cac1ca8c6.js:73
-#: build/index.95ffffc5479cac1ca8c6.js:84
+#: build/index.f41f5a790b9689358030.js:41
+#: build/index.f41f5a790b9689358030.js:70
+#: build/index.f41f5a790b9689358030.js:73
+#: build/index.f41f5a790b9689358030.js:84
 msgid "Done"
 msgstr ""
 
@@ -24668,7 +24823,7 @@ msgstr ""
 
 #: includes/Modules/ServiceRequests/Sync.php:468
 #: build/194.891eb73b35196acf3416.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:45
+#: build/index.f41f5a790b9689358030.js:45
 msgid "Language"
 msgstr ""
 
@@ -25348,6 +25503,128 @@ msgstr ""
 msgid "Only users with one of these roles may upload SVG files. Defaults to administrators only."
 msgstr ""
 
+#: includes/Modules/Tables/ElementorWidget.php:39
+msgid "UX Table"
+msgstr ""
+
+#: includes/Modules/Tables/ElementorWidget.php:61
+#: includes/Modules/Tables/Module.php:329
+msgid "Table"
+msgstr ""
+
+#: includes/Modules/Tables/ElementorWidget.php:67
+msgid "Select table"
+msgstr ""
+
+#: includes/Modules/Tables/ElementorWidget.php:78
+msgid "Build the table in UX Studio, Tables first, then pick it here."
+msgstr ""
+
+#: includes/Modules/Tables/ElementorWidget.php:90
+msgid "Select a table"
+msgstr ""
+
+#: includes/Modules/Tables/ElementorWidget.php:106
+msgid "Select a table in the panel on the left."
+msgstr ""
+
+#: includes/Modules/Tables/Frontend.php:147
+msgid "Search table"
+msgstr ""
+
+#: includes/Modules/Tables/Frontend.php:148
+msgid "First"
+msgstr ""
+
+#: includes/Modules/Tables/Frontend.php:151
+msgid "Last"
+msgstr ""
+
+#. translators: 1: current page, 2: number of pages
+#: includes/Modules/Tables/Frontend.php:153
+#, php-format
+msgid "Page %1$s of %2$s"
+msgstr ""
+
+#: includes/Modules/Tables/Frontend.php:154
+msgid "No matching rows."
+msgstr ""
+
+#: includes/Modules/Tables/Frontend.php:155
+msgid "Sort by this column"
+msgstr ""
+
+#: includes/Modules/Tables/help.php:12
+msgid "Decides whether a new table starts with every second row shaded."
+msgstr ""
+
+#: includes/Modules/Tables/help.php:13
+msgid "Long tables are easier to read line by line. Existing tables keep their own choice."
+msgstr ""
+
+#: includes/Modules/Tables/help.php:14
+msgid "Turn it off when your theme already styles table rows or you prefer a plain look."
+msgstr ""
+
+#: includes/Modules/Tables/help.php:17
+msgid "Chooses what a new table does on a narrow screen. \"Scroll\" keeps the table as it is and lets visitors swipe sideways. \"Stack\" turns every row into a small card. \"None\" leaves the table alone."
+msgstr ""
+
+#: includes/Modules/Tables/help.php:18
+msgid "Phone visitors can read wide tables without zooming. Existing tables keep their own choice."
+msgstr ""
+
+#: includes/Modules/Tables/help.php:19
+msgid "Stack works best when the table has a header row, because the header text becomes the label of every value. Without it the cards show values with no labels."
+msgstr ""
+
+#: includes/Modules/Tables/help.php:20
+msgid "Choose \"None\" only when the table is always narrow or your theme handles small screens itself."
+msgstr ""
+
+#: includes/Modules/Tables/Module.php:94
+msgid "Striped rows in new tables"
+msgstr ""
+
+#: includes/Modules/Tables/Module.php:95
+msgid "Existing tables keep their own setting."
+msgstr ""
+
+#: includes/Modules/Tables/Module.php:101
+msgid "Narrow screens in new tables"
+msgstr ""
+
+#: includes/Modules/Tables/Module.php:115
+msgid "Scroll sideways"
+msgstr ""
+
+#: includes/Modules/Tables/Module.php:116
+msgid "Stack rows as cards"
+msgstr ""
+
+#: includes/Modules/Tables/Module.php:117
+msgid "Leave as is"
+msgstr ""
+
+#. translators: 1: max rows, 2: max columns
+#: includes/Modules/Tables/Module.php:235
+#, php-format
+msgid "The table is too large. The limit is %1$d rows and %2$d columns."
+msgstr ""
+
+#: includes/Modules/Tables/Module.php:316
+#: includes/Modules/Tables/Module.php:364
+#: includes/Modules/Tables/Module.php:387
+#: includes/Modules/Tables/RestController.php:70
+msgid "Table not found."
+msgstr ""
+
+#. translators: %s: table name
+#: includes/Modules/Tables/Module.php:370
+#, php-format
+msgid "%s (copy)"
+msgstr ""
+
 #: includes/Modules/ThirdPartyLogin/help.php:12
 msgid "The address of the central app that talks to Google, Facebook, Apple or Seznam for this site. The site never sees your provider keys, only the answer of the central app."
 msgstr ""
@@ -25980,7 +26257,7 @@ msgid "no API key"
 msgstr ""
 
 #: build/21.30c1ebaf32acd1446cd0.js:1
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 #: build/50.9edf8cb8b40cf82d7f40.js:1
 #: build/71.844d8c3ad1d402b710cd.js:4
 #: build/81.0bbc37bca527d5ddced9.js:1
@@ -26032,15 +26309,16 @@ msgstr ""
 #: build/831.35d15682a5b5435d51ef.js:1
 #: build/860.e32bb09fe0c2cb103fef.js:1
 #: build/907.3669874b6660055a5076.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:11
-#: build/index.95ffffc5479cac1ca8c6.js:41
-#: build/index.95ffffc5479cac1ca8c6.js:44
-#: build/index.95ffffc5479cac1ca8c6.js:45
-#: build/index.95ffffc5479cac1ca8c6.js:46
-#: build/index.95ffffc5479cac1ca8c6.js:54
-#: build/index.95ffffc5479cac1ca8c6.js:69
-#: build/index.95ffffc5479cac1ca8c6.js:76
-#: build/index.95ffffc5479cac1ca8c6.js:84
+#: build/948.c419c5152a4c5a554976.js:1
+#: build/index.f41f5a790b9689358030.js:11
+#: build/index.f41f5a790b9689358030.js:41
+#: build/index.f41f5a790b9689358030.js:44
+#: build/index.f41f5a790b9689358030.js:45
+#: build/index.f41f5a790b9689358030.js:46
+#: build/index.f41f5a790b9689358030.js:54
+#: build/index.f41f5a790b9689358030.js:69
+#: build/index.f41f5a790b9689358030.js:76
+#: build/index.f41f5a790b9689358030.js:84
 msgid "Loading…"
 msgstr ""
 
@@ -26052,13 +26330,13 @@ msgstr ""
 #: build/21.30c1ebaf32acd1446cd0.js:1
 #: build/395.f0306d44f0bd4d82baf6.js:6
 #: build/563.4204a55ae089c7189db8.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:36
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/index.f41f5a790b9689358030.js:36
+#: build/index.f41f5a790b9689358030.js:41
 msgid "Import"
 msgstr ""
 
 #: build/21.30c1ebaf32acd1446cd0.js:1
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 #: build/50.9edf8cb8b40cf82d7f40.js:1
 #: build/71.844d8c3ad1d402b710cd.js:4
 #: build/81.0bbc37bca527d5ddced9.js:4
@@ -26098,20 +26376,21 @@ msgstr ""
 #: build/831.35d15682a5b5435d51ef.js:1
 #: build/860.e32bb09fe0c2cb103fef.js:1
 #: build/907.3669874b6660055a5076.js:1
+#: build/948.c419c5152a4c5a554976.js:1
 #: build/999.8f3a70b5b0b1489cdfac.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:14
-#: build/index.95ffffc5479cac1ca8c6.js:41
-#: build/index.95ffffc5479cac1ca8c6.js:45
-#: build/index.95ffffc5479cac1ca8c6.js:60
-#: build/index.95ffffc5479cac1ca8c6.js:71
-#: build/index.95ffffc5479cac1ca8c6.js:73
-#: build/index.95ffffc5479cac1ca8c6.js:82
-#: build/index.95ffffc5479cac1ca8c6.js:84
+#: build/index.f41f5a790b9689358030.js:14
+#: build/index.f41f5a790b9689358030.js:41
+#: build/index.f41f5a790b9689358030.js:45
+#: build/index.f41f5a790b9689358030.js:60
+#: build/index.f41f5a790b9689358030.js:71
+#: build/index.f41f5a790b9689358030.js:73
+#: build/index.f41f5a790b9689358030.js:82
+#: build/index.f41f5a790b9689358030.js:84
 msgid "Back to modules"
 msgstr ""
 
 #: build/21.30c1ebaf32acd1446cd0.js:1
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 #: build/50.9edf8cb8b40cf82d7f40.js:1
 #: build/71.844d8c3ad1d402b710cd.js:4
 #: build/81.0bbc37bca527d5ddced9.js:4
@@ -26148,113 +26427,122 @@ msgstr ""
 #: build/831.35d15682a5b5435d51ef.js:1
 #: build/860.e32bb09fe0c2cb103fef.js:1
 #: build/907.3669874b6660055a5076.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/948.c419c5152a4c5a554976.js:1
+#: build/index.f41f5a790b9689358030.js:41
 msgid "Save changes"
 msgstr ""
 
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 msgid "WebP images"
 msgstr ""
 
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 msgid "Server can create them"
 msgstr ""
 
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 msgid "Server cannot create them"
 msgstr ""
 
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 msgid "Whether your server can create the [[WebP]] format."
 msgstr ""
 
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 msgid "AVIF images"
 msgstr ""
 
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 msgid "Whether your server can create the [[AVIF]] format."
 msgstr ""
 
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 msgid "Automatic delivery of newer formats"
 msgstr ""
 
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
+msgid "Active (picture tag)"
+msgstr ""
+
+#: build/31.e959ef402866234d7207.js:1
 msgid "Not active"
 msgstr ""
 
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
+msgid "Images in pages are wrapped in a picture tag"
+msgstr ""
+
+#: build/31.e959ef402866234d7207.js:1
 msgid "Rules in the .htaccess file of the uploads folder"
 msgstr ""
 
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 msgid "The .htaccess file in the uploads folder is not writable, so the delivery rules cannot be managed automatically."
 msgstr ""
 
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 msgid "Compresses JPEG/PNG/GIF images already in the media library and optionally generates WebP/AVIF siblings. Originals are always kept as a backup file before the first optimization."
 msgstr ""
 
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 msgid "Start bulk optimization"
 msgstr ""
 
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 #: build/295.194c63ac77af78b024ef.js:1
 msgid "Running…"
 msgstr ""
 
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 msgid "Idle."
 msgstr ""
 
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 msgid "Restore original by attachment ID"
 msgstr ""
 
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 msgid "The number of the image in the media library (post=123 in the address bar). The saved original replaces the optimized file."
 msgstr ""
 
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 #: build/792.9cf1e41924c78c7c2b20.js:10
 msgid "Restore"
 msgstr ""
 
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 msgid "Restored."
 msgstr ""
 
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 msgid "Heuristically finds image attachments not referenced in content, featured images, term meta, widgets or the site logo. Detection can never be perfect, so selected images are moved to the WordPress trash (fully recoverable), never permanently deleted."
 msgstr ""
 
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 msgid "Re-scan"
 msgstr ""
 
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 msgid "Move selected to trash"
 msgstr ""
 
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 msgid "unused images"
 msgstr ""
 
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 msgid "Moved to trash:"
 msgstr ""
 
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 msgid "No unused images detected."
 msgstr ""
 
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 msgid "Bulk Optimize"
 msgstr ""
 
-#: build/31.b509ec0ed3b608c6de80.js:1
+#: build/31.e959ef402866234d7207.js:1
 msgid "Unused Images"
 msgstr ""
 
@@ -27050,8 +27338,8 @@ msgstr ""
 
 #: build/148.fff05c8f9e349c9bb69a.js:1
 #: build/290.7aeafae4513dd3a7b7b2.js:5
-#: build/index.95ffffc5479cac1ca8c6.js:16
-#: build/index.95ffffc5479cac1ca8c6.js:76
+#: build/index.f41f5a790b9689358030.js:16
+#: build/index.f41f5a790b9689358030.js:76
 msgid "Select all"
 msgstr ""
 
@@ -27117,7 +27405,7 @@ msgid "Re-run analysis"
 msgstr ""
 
 #: build/158.3e131a86fa17cc3ad651.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:84
+#: build/index.f41f5a790b9689358030.js:84
 msgid "Check"
 msgstr ""
 
@@ -27483,12 +27771,12 @@ msgid "Any unique column key."
 msgstr ""
 
 #: build/213.9e236eb9641a9ad98b0c.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:1
+#: build/index.f41f5a790b9689358030.js:1
 msgid "Move up"
 msgstr ""
 
 #: build/213.9e236eb9641a9ad98b0c.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:1
+#: build/index.f41f5a790b9689358030.js:1
 msgid "Move down"
 msgstr ""
 
@@ -27545,9 +27833,9 @@ msgstr ""
 #: build/295.194c63ac77af78b024ef.js:1
 #: build/744.2748a81e69ae738e0ceb.js:1
 #: build/760.68ac0267c2002bfbac34.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:14
-#: build/index.95ffffc5479cac1ca8c6.js:44
-#: build/index.95ffffc5479cac1ca8c6.js:46
+#: build/index.f41f5a790b9689358030.js:14
+#: build/index.f41f5a790b9689358030.js:44
+#: build/index.f41f5a790b9689358030.js:46
 msgid "Enabled"
 msgstr ""
 
@@ -27582,6 +27870,7 @@ msgid "Add content type"
 msgstr ""
 
 #: build/225.e191f19968d429a2a707.js:1
+#: build/948.c419c5152a4c5a554976.js:1
 msgid "Shortcode copied."
 msgstr ""
 
@@ -27694,10 +27983,6 @@ msgid "Map style"
 msgstr ""
 
 #: build/225.e191f19968d429a2a707.js:1
-msgid "Height (px)"
-msgstr ""
-
-#: build/225.e191f19968d429a2a707.js:1
 msgid "Fit the view to all pins"
 msgstr ""
 
@@ -27751,6 +28036,7 @@ msgstr ""
 #: build/321.db92192ff645f329024c.js:1
 #: build/760.68ac0267c2002bfbac34.js:1
 #: build/792.9cf1e41924c78c7c2b20.js:1
+#: build/948.c419c5152a4c5a554976.js:1
 msgid "Shortcode"
 msgstr ""
 
@@ -27836,7 +28122,7 @@ msgstr ""
 
 #: build/230.d845ebd882743a00f31d.js:1
 #: build/744.2748a81e69ae738e0ceb.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 msgid "Address"
 msgstr ""
 
@@ -28180,7 +28466,7 @@ msgstr ""
 #: build/321.db92192ff645f329024c.js:1
 #: build/641.4b98a03a8ba3213bcf98.js:3
 #: build/718.9147151c836b27425805.js:2
-#: build/index.95ffffc5479cac1ca8c6.js:13
+#: build/index.f41f5a790b9689358030.js:13
 msgid "Hide"
 msgstr ""
 
@@ -28227,7 +28513,7 @@ msgstr ""
 
 #. translators: %d: number of selected options.
 #: build/290.7aeafae4513dd3a7b7b2.js:5
-#: build/index.95ffffc5479cac1ca8c6.js:2
+#: build/index.f41f5a790b9689358030.js:2
 #, js-format
 msgid "%d selected"
 msgstr ""
@@ -28242,7 +28528,7 @@ msgstr ""
 
 #: build/290.7aeafae4513dd3a7b7b2.js:5
 #: build/295.194c63ac77af78b024ef.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:73
+#: build/index.f41f5a790b9689358030.js:73
 msgid "Apply"
 msgstr ""
 
@@ -28636,8 +28922,8 @@ msgstr ""
 
 #: build/295.194c63ac77af78b024ef.js:1
 #: build/508.8a13704505821d5bc575.js:19
-#: build/index.95ffffc5479cac1ca8c6.js:70
-#: build/index.95ffffc5479cac1ca8c6.js:78
+#: build/index.f41f5a790b9689358030.js:70
+#: build/index.f41f5a790b9689358030.js:78
 msgid "Waiting"
 msgstr ""
 
@@ -28769,7 +29055,7 @@ msgid "No SEO plugin detected - saved into UX Studio's own fields."
 msgstr ""
 
 #: build/295.194c63ac77af78b024ef.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:71
+#: build/index.f41f5a790b9689358030.js:71
 msgid "Checking…"
 msgstr ""
 
@@ -29496,7 +29782,7 @@ msgid "Synced"
 msgstr ""
 
 #: build/321.db92192ff645f329024c.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:39
+#: build/index.f41f5a790b9689358030.js:39
 msgid "new"
 msgstr ""
 
@@ -29643,8 +29929,8 @@ msgstr ""
 #: build/744.2748a81e69ae738e0ceb.js:1
 #: build/760.68ac0267c2002bfbac34.js:1
 #: build/831.35d15682a5b5435d51ef.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:70
-#: build/index.95ffffc5479cac1ca8c6.js:78
+#: build/index.f41f5a790b9689358030.js:70
+#: build/index.f41f5a790b9689358030.js:78
 msgid "Failed"
 msgstr ""
 
@@ -30276,7 +30562,7 @@ msgstr ""
 
 #: build/457.bfb617b9c08b11ef91d9.js:1
 #: build/641.4b98a03a8ba3213bcf98.js:3
-#: build/index.95ffffc5479cac1ca8c6.js:1
+#: build/index.f41f5a790b9689358030.js:1
 msgid "Item"
 msgstr ""
 
@@ -30969,7 +31255,7 @@ msgid "Apply .htaccess rules"
 msgstr ""
 
 #: build/508.8a13704505821d5bc575.js:20
-#: build/index.95ffffc5479cac1ca8c6.js:64
+#: build/index.f41f5a790b9689358030.js:64
 msgid "PHP version"
 msgstr ""
 
@@ -31745,7 +32031,7 @@ msgid "The notice will appear in the panel again on the next page load."
 msgstr ""
 
 #: build/641.4b98a03a8ba3213bcf98.js:4
-#: build/index.95ffffc5479cac1ca8c6.js:78
+#: build/index.f41f5a790b9689358030.js:78
 msgid "Try again"
 msgstr ""
 
@@ -31932,7 +32218,7 @@ msgstr ""
 
 #. translators: %d: milliseconds.
 #: build/744.2748a81e69ae738e0ceb.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:26
+#: build/index.f41f5a790b9689358030.js:26
 #, js-format
 msgid "%d ms"
 msgstr ""
@@ -32708,7 +32994,7 @@ msgid "The site is not connected to the central app, so the Shield protects this
 msgstr ""
 
 #: build/792.9cf1e41924c78c7c2b20.js:6
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "Connect to the central app"
 msgstr ""
 
@@ -32849,7 +33135,7 @@ msgid "Choices"
 msgstr ""
 
 #: build/792.9cf1e41924c78c7c2b20.js:6
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "Advanced"
 msgstr ""
 
@@ -32866,7 +33152,7 @@ msgid "Delete field"
 msgstr ""
 
 #: build/792.9cf1e41924c78c7c2b20.js:6
-#: build/index.95ffffc5479cac1ca8c6.js:2
+#: build/index.f41f5a790b9689358030.js:2
 msgid "Options"
 msgstr ""
 
@@ -32883,8 +33169,8 @@ msgid "Field settings"
 msgstr ""
 
 #: build/792.9cf1e41924c78c7c2b20.js:6
-#: build/index.95ffffc5479cac1ca8c6.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:45
+#: build/index.f41f5a790b9689358030.js:1
+#: build/index.f41f5a790b9689358030.js:45
 msgid "General"
 msgstr ""
 
@@ -33174,7 +33460,7 @@ msgid "Header"
 msgstr ""
 
 #: build/792.9cf1e41924c78c7c2b20.js:7
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 msgid "Site logo"
 msgstr ""
 
@@ -33311,7 +33597,7 @@ msgid "After submit"
 msgstr ""
 
 #: build/792.9cf1e41924c78c7c2b20.js:7
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "What happens"
 msgstr ""
 
@@ -34074,7 +34360,7 @@ msgid "No providers are enabled yet. Enable providers in the Settings tab."
 msgstr ""
 
 #: build/907.3669874b6660055a5076.js:1
-#: build/index.95ffffc5479cac1ca8c6.js:52
+#: build/index.f41f5a790b9689358030.js:52
 msgid "Connect"
 msgstr ""
 
@@ -34094,6 +34380,228 @@ msgstr ""
 msgid "No HMAC secret set yet."
 msgstr ""
 
+#. translators: 1: column letter, 2: row number
+#: build/948.c419c5152a4c5a554976.js:1
+#, js-format
+msgid "Cell %1$s%2$d"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Pasted into the table."
+msgstr ""
+
+#. translators: 1: max rows, 2: max columns
+#: build/948.c419c5152a4c5a554976.js:1
+#, js-format
+msgid "The pasted block does not fit. The limit is %1$d rows and %2$d columns."
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+#, js-format
+msgid "A table can have at most %d rows."
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+#, js-format
+msgid "A table can have at most %d columns."
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Table saved."
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Discard the unsaved changes?"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "All tables"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Table name"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Save table"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Table structure"
+msgstr ""
+
+#. translators: %d: row number
+#: build/948.c419c5152a4c5a554976.js:1
+#, js-format
+msgid "Row %d"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Insert above"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Insert below"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Move row up"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Move row down"
+msgstr ""
+
+#. translators: %s: column letter
+#: build/948.c419c5152a4c5a554976.js:1
+#, js-format
+msgid "Column %s"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Insert left"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Insert right"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Move column left"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Move column right"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Import CSV"
+msgstr ""
+
+#. translators: 1: max rows, 2: max columns
+#: build/948.c419c5152a4c5a554976.js:1
+#, js-format
+msgid "The file is too large. The limit is %1$d rows and %2$d columns."
+msgstr ""
+
+#. translators: 1: rows, 2: columns
+#: build/948.c419c5152a4c5a554976.js:1
+#, js-format
+msgid "Imported %1$d rows and %2$d columns. Save the table to keep them."
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Copy a block of cells in Excel or Google Sheets, click the cell where it should start and paste. Cells can contain links, line breaks (<br>), bold and italic text and images."
+msgstr ""
+
+#. translators: 1: rows, 2: columns, 3: max rows, 4: max columns
+#: build/948.c419c5152a4c5a554976.js:1
+#, js-format
+msgid "%1$d rows x %2$d columns (limit %3$d x %4$d)."
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Table options"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "The first row is a header"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "The last row is a footer"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Striped rows"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Highlight the row under the mouse"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "On narrow screens"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Visitors can sort by a column (needs a header row)"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Show a search box"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Split into pages"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Rows per page"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Caption"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Caption position"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Above the table"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Below the table"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Extra CSS class"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Description (internal note)"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Table duplicated."
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "New table"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "New table from CSV"
+msgstr ""
+
+#. translators: 1: rows, 2: columns
+#: build/948.c419c5152a4c5a554976.js:1
+#, js-format
+msgid "%1$d x %2$d"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Edit table"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Duplicate table"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Delete table"
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Delete this table? Pages using its shortcode will show nothing."
+msgstr ""
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "No tables yet. Create one and paste its shortcode into a page (Elementor: Shortcode widget)."
+msgstr ""
+
 #: build/999.8f3a70b5b0b1489cdfac.js:1
 msgid "AI Panel has its own admin screen. There you allow temporary access for an AI agent, read the audit log and remove the access at any moment."
 msgstr ""
@@ -34102,472 +34610,472 @@ msgstr ""
 msgid "Open AI Panel"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:1
+#: build/index.f41f5a790b9689358030.js:1
 msgid "Default (theme color)"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:1
+#: build/index.f41f5a790b9689358030.js:1
 msgid "Select an icon"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:1
+#: build/index.f41f5a790b9689358030.js:1
 msgid "Select image"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:1
+#: build/index.f41f5a790b9689358030.js:1
 msgid "Change icon"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:1
+#: build/index.f41f5a790b9689358030.js:1
 msgid "Select icon"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:1
+#: build/index.f41f5a790b9689358030.js:1
 msgid "Change image"
 msgstr ""
 
 #. translators: %s: the name of one item, e.g. "Message".
-#: build/index.95ffffc5479cac1ca8c6.js:1
+#: build/index.f41f5a790b9689358030.js:1
 #, js-format
 msgid "Add: %s"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:1
+#: build/index.f41f5a790b9689358030.js:1
 msgid "Select an option"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:1
+#: build/index.f41f5a790b9689358030.js:1
 #, js-format
 msgid "What is %s?"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:1
+#: build/index.f41f5a790b9689358030.js:1
 msgid "Choose options"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:2
+#: build/index.f41f5a790b9689358030.js:2
 msgid "Search..."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:2
+#: build/index.f41f5a790b9689358030.js:2
 msgid "Selected options"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:2
+#: build/index.f41f5a790b9689358030.js:2
 msgid "What it does"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:2
+#: build/index.f41f5a790b9689358030.js:2
 msgid "What changes"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:2
+#: build/index.f41f5a790b9689358030.js:2
 msgid "Risk"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:2
+#: build/index.f41f5a790b9689358030.js:2
 msgid "When to switch it off"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:2
+#: build/index.f41f5a790b9689358030.js:2
 msgid "When the starter pack leaves it out"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:2
+#: build/index.f41f5a790b9689358030.js:2
 msgid "Start the migration wizard"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:2
+#: build/index.f41f5a790b9689358030.js:2
 msgid "Full overlap"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:2
+#: build/index.f41f5a790b9689358030.js:2
 msgid "Partial overlap, can be migrated"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:2
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:2
+#: build/index.f41f5a790b9689358030.js:65
 msgid "Partial overlap"
 msgstr ""
 
 #. translators: 1: plugin name, 2: UX Studio module name.
-#: build/index.95ffffc5479cac1ca8c6.js:3
+#: build/index.f41f5a790b9689358030.js:3
 #, js-format
 msgid "%1$s does the same job as the module \"%2$s\". Running both can conflict - deactivate the plugin or switch the module off."
 msgstr ""
 
 #. translators: 1: plugin name, 2: UX Studio module name.
-#: build/index.95ffffc5479cac1ca8c6.js:4
+#: build/index.f41f5a790b9689358030.js:4
 #, js-format
 msgid "%1$s covers part of what the module \"%2$s\" does. Both can run, but check that they do not change the same screens."
 msgstr ""
 
 #. translators: 1: plugin name, 2: UX Studio module name.
-#: build/index.95ffffc5479cac1ca8c6.js:5
+#: build/index.f41f5a790b9689358030.js:5
 #, js-format
 msgid "%1$s overlaps only partly with the module \"%2$s\". Both can run side by side; this is for your information."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:5
+#: build/index.f41f5a790b9689358030.js:5
 msgid "Plugin conflicts"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:5
-#: build/index.95ffffc5479cac1ca8c6.js:8
-#: build/index.95ffffc5479cac1ca8c6.js:10
+#: build/index.f41f5a790b9689358030.js:5
+#: build/index.f41f5a790b9689358030.js:8
+#: build/index.f41f5a790b9689358030.js:10
 msgid "Open plugins"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:5
-#: build/index.95ffffc5479cac1ca8c6.js:8
+#: build/index.f41f5a790b9689358030.js:5
+#: build/index.f41f5a790b9689358030.js:8
 msgid "Ignore"
 msgstr ""
 
 #. translators: %d: number of ignored plugin conflicts.
-#: build/index.95ffffc5479cac1ca8c6.js:6
+#: build/index.f41f5a790b9689358030.js:6
 #, js-format
 msgid "Ignored conflicts (%d)"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:6
+#: build/index.f41f5a790b9689358030.js:6
 msgid "Show again"
 msgstr ""
 
 #. translators: %s: comma-separated plugin names.
-#: build/index.95ffffc5479cac1ca8c6.js:7
+#: build/index.f41f5a790b9689358030.js:7
 #, js-format
 msgid "An active plugin does the same job as this module: %s. Running both can conflict."
 msgstr ""
 
 #. translators: %s: comma-separated plugin names.
-#: build/index.95ffffc5479cac1ca8c6.js:8
+#: build/index.f41f5a790b9689358030.js:8
 #, js-format
 msgid "An active plugin partly overlaps with this module: %s."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:8
+#: build/index.f41f5a790b9689358030.js:8
 msgid "This module overlaps with an active plugin"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:8
+#: build/index.f41f5a790b9689358030.js:8
 msgid "The module cannot be enabled yet"
 msgstr ""
 
 #. translators: %s: module name.
-#: build/index.95ffffc5479cac1ca8c6.js:9
+#: build/index.f41f5a790b9689358030.js:9
 #, js-format
 msgid "The module \"%s\" covers part of what the plugin below already does. You can enable it anyway, but both will run and may change the same screens."
 msgstr ""
 
 #. translators: %s: module name.
-#: build/index.95ffffc5479cac1ca8c6.js:10
+#: build/index.f41f5a790b9689358030.js:10
 #, js-format
 msgid "The module \"%s\" does the same job as the plugin below. Two things doing one job conflict with each other, so UX Studio did not enable it. Deactivate the plugin first, then enable the module."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:10
-#: build/index.95ffffc5479cac1ca8c6.js:84
+#: build/index.f41f5a790b9689358030.js:10
+#: build/index.f41f5a790b9689358030.js:84
 msgid "Enabling…"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:10
+#: build/index.f41f5a790b9689358030.js:10
 msgid "Turn on anyway"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:10
-#: build/index.95ffffc5479cac1ca8c6.js:73
+#: build/index.f41f5a790b9689358030.js:10
+#: build/index.f41f5a790b9689358030.js:73
 msgid "New site setup"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:10
+#: build/index.f41f5a790b9689358030.js:10
 msgid "Is this a new site? Turn on the modules that suit almost every site, already preset, in one short wizard."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:10
+#: build/index.f41f5a790b9689358030.js:10
 msgid "Set up the recommended modules"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:10
-#: build/index.95ffffc5479cac1ca8c6.js:84
+#: build/index.f41f5a790b9689358030.js:10
+#: build/index.f41f5a790b9689358030.js:84
 msgid "Migration wizard"
 msgstr ""
 
 #. translators: %d: number of plugins.
-#: build/index.95ffffc5479cac1ca8c6.js:11
+#: build/index.f41f5a790b9689358030.js:11
 #, js-format
 msgid "We found %d plugin that UX Studio can take over, with its settings and data."
 msgid_plural "We found %d plugins that UX Studio can take over, with their settings and data."
 msgstr[0] ""
 msgstr[1] ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:11
+#: build/index.f41f5a790b9689358030.js:11
 msgid "Start the wizard"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:11
+#: build/index.f41f5a790b9689358030.js:11
 msgid "Failed to load modules."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:11
-#: build/index.95ffffc5479cac1ca8c6.js:15
-#: build/index.95ffffc5479cac1ca8c6.js:84
+#: build/index.f41f5a790b9689358030.js:11
+#: build/index.f41f5a790b9689358030.js:15
+#: build/index.f41f5a790b9689358030.js:84
 msgid "Modules"
 msgstr ""
 
 #. translators: %d: number of currently active modules.
-#: build/index.95ffffc5479cac1ca8c6.js:12
+#: build/index.f41f5a790b9689358030.js:12
 #, js-format
 msgid "Deactivate %d active module?"
 msgid_plural "Deactivate all %d active modules?"
 msgstr[0] ""
 msgstr[1] ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:12
+#: build/index.f41f5a790b9689358030.js:12
 msgid "Deactivate all modules"
 msgstr ""
 
 #. translators: %d: number of conflicts with other plugins.
-#: build/index.95ffffc5479cac1ca8c6.js:13
+#: build/index.f41f5a790b9689358030.js:13
 #, js-format
 msgid "%d conflict with a plugin"
 msgid_plural "%d conflicts with plugins"
 msgstr[0] ""
 msgstr[1] ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:13
+#: build/index.f41f5a790b9689358030.js:13
 msgid "Search modules…"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:13
-#: build/index.95ffffc5479cac1ca8c6.js:16
+#: build/index.f41f5a790b9689358030.js:13
+#: build/index.f41f5a790b9689358030.js:16
 msgid "Search modules"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:13
+#: build/index.f41f5a790b9689358030.js:13
 msgid "Module group"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:13
+#: build/index.f41f5a790b9689358030.js:13
 msgid "All statuses"
 msgstr ""
 
 #. translators: %d: number of enabled features.
-#: build/index.95ffffc5479cac1ca8c6.js:13
+#: build/index.f41f5a790b9689358030.js:13
 #, js-format
 msgid "Enabled (%d)"
 msgstr ""
 
 #. translators: %d: number of disabled features.
-#: build/index.95ffffc5479cac1ca8c6.js:13
+#: build/index.f41f5a790b9689358030.js:13
 #, js-format
 msgid "Disabled (%d)"
 msgstr ""
 
 #. translators: 1: number of features (things with their own switch), 2: number of rows in the list (modules and groups).
-#: build/index.95ffffc5479cac1ca8c6.js:14
+#: build/index.f41f5a790b9689358030.js:14
 #, js-format
 msgid "The numbers count features, the things with their own switch. A group counts as the features inside it. %1$d features in %2$d rows."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:14
+#: build/index.f41f5a790b9689358030.js:14
 msgid "No module matches the filter."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:14
-#: build/index.95ffffc5479cac1ca8c6.js:46
+#: build/index.f41f5a790b9689358030.js:14
+#: build/index.f41f5a790b9689358030.js:46
 msgid "Disable module"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:14
-#: build/index.95ffffc5479cac1ca8c6.js:46
-#: build/index.95ffffc5479cac1ca8c6.js:84
+#: build/index.f41f5a790b9689358030.js:14
+#: build/index.f41f5a790b9689358030.js:46
+#: build/index.f41f5a790b9689358030.js:84
 msgid "Turn on module"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:14
+#: build/index.f41f5a790b9689358030.js:14
 msgid "This module has no settings. It works as soon as it is turned on."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:14
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:14
+#: build/index.f41f5a790b9689358030.js:53
 msgid "How it works"
 msgstr ""
 
 #. translators: %d: minimum length of the passphrase.
-#: build/index.95ffffc5479cac1ca8c6.js:15
+#: build/index.f41f5a790b9689358030.js:15
 #, js-format
 msgid "At least %d characters."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:15
+#: build/index.f41f5a790b9689358030.js:15
 msgid "The file is too large to copy. Download it instead."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:15
+#: build/index.f41f5a790b9689358030.js:15
 msgid "The file is JSON: plain text that keeps exact types (a switch is true or false, a number stays a number), has no hidden parts and cannot carry anything that runs. That is why there is no XML. You can open and read it in any text editor."
 msgstr ""
 
 #. translators: 1: selected modules, 2: all modules.
-#: build/index.95ffffc5479cac1ca8c6.js:16
+#: build/index.f41f5a790b9689358030.js:16
 #, js-format
 msgid "%1$d of %2$d selected"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:16
-#: build/index.95ffffc5479cac1ca8c6.js:69
-#: build/index.95ffffc5479cac1ca8c6.js:76
+#: build/index.f41f5a790b9689358030.js:16
+#: build/index.f41f5a790b9689358030.js:69
+#: build/index.f41f5a790b9689358030.js:76
 msgid "Clear selection"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:16
+#: build/index.f41f5a790b9689358030.js:16
 msgid "No module matches the search."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:16
+#: build/index.f41f5a790b9689358030.js:16
 msgid "A module that is turned off can be exported too: its stored settings are used."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:16
+#: build/index.f41f5a790b9689358030.js:16
 msgid "What goes into the file"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:16
+#: build/index.f41f5a790b9689358030.js:16
 msgid "Modules turned on or off"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:16
+#: build/index.f41f5a790b9689358030.js:16
 msgid "The import can switch modules on and off the same way (you decide there)."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:16
+#: build/index.f41f5a790b9689358030.js:16
 msgid "Module content (definitions)"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:16
+#: build/index.f41f5a790b9689358030.js:16
 msgid "Form definitions, redirect rules, code snippets, popups, locations with opening hours and notice categories. Never submissions, logs, statistics or personal data."
 msgstr ""
 
 #. translators: %s: names of the chosen modules that have content.
-#: build/index.95ffffc5479cac1ca8c6.js:17
+#: build/index.f41f5a790b9689358030.js:17
 #, js-format
 msgid "In your selection: %s."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:17
+#: build/index.f41f5a790b9689358030.js:17
 msgid "None of the chosen modules has content to export."
 msgstr ""
 
 #. translators: %s: names of modules.
-#: build/index.95ffffc5479cac1ca8c6.js:18
+#: build/index.f41f5a790b9689358030.js:18
 #, js-format
 msgid "Code snippets can only be exported by a user who may add scripts to the site (unfiltered_html): %s will be left out."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:18
+#: build/index.f41f5a790b9689358030.js:18
 msgid "Secret values (API keys, passwords), encrypted with a passphrase"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:18
+#: build/index.f41f5a790b9689358030.js:18
 msgid "Off by default. Without it the file never contains a secret, and lists the fields you will have to fill in again on the other site."
 msgstr ""
 
 #. translators: %d: number of secret values set in the chosen modules.
-#: build/index.95ffffc5479cac1ca8c6.js:19
+#: build/index.f41f5a790b9689358030.js:19
 #, js-format
 msgid "%d secret value is set in your selection."
 msgid_plural "%d secret values are set in your selection."
 msgstr[0] ""
 msgstr[1] ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:19
+#: build/index.f41f5a790b9689358030.js:19
 msgid "This server has no libsodium (the PHP sodium extension), so secrets cannot be encrypted and this option is off. Ask your host to enable the extension."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:19
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:19
+#: build/index.f41f5a790b9689358030.js:34
 msgid "Passphrase"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:19
+#: build/index.f41f5a790b9689358030.js:19
 msgid "Passphrase again"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:19
+#: build/index.f41f5a790b9689358030.js:19
 msgid "Remember it: the secrets cannot be opened without it, and nobody can recover it for you."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:19
+#: build/index.f41f5a790b9689358030.js:19
 msgid "Hide what is never exported"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:19
+#: build/index.f41f5a790b9689358030.js:19
 msgid "Show what is never exported"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:19
+#: build/index.f41f5a790b9689358030.js:19
 msgid "Connections and identity of this site, ids that mean something only in this database, state and logs never travel, whatever the options say:"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:19
+#: build/index.f41f5a790b9689358030.js:19
 msgid "The Central app connection: key, address, HMAC secret, allowed addresses, report secret."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:19
+#: build/index.f41f5a790b9689358030.js:19
 msgid "Licence and update tokens, OAuth connections (Gmail, Instagram), CAPTCHA keys of a host name."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:19
+#: build/index.f41f5a790b9689358030.js:19
 msgid "Ids of pages, posts, users and terms (an image travels with its address and is only used if the other site has it in its media library)."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:19
+#: build/index.f41f5a790b9689358030.js:19
 msgid "Wizard markers, pending states, snapshots, caches, logs, statistics and database versions."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:19
+#: build/index.f41f5a790b9689358030.js:19
 msgid "Per module:"
 msgstr ""
 
 #. translators: 1: modules, 2: settings, 3: content items, 4: secrets.
-#: build/index.95ffffc5479cac1ca8c6.js:20
+#: build/index.f41f5a790b9689358030.js:20
 #, js-format
 msgid "%1$d modules, %2$d settings, %3$d content items, %4$d secrets."
 msgstr ""
 
 #. translators: %d: number of fields.
-#: build/index.95ffffc5479cac1ca8c6.js:21
+#: build/index.f41f5a790b9689358030.js:21
 #, js-format
 msgid "%d field has to be filled in by hand on the other site."
 msgid_plural "%d fields have to be filled in by hand on the other site."
 msgstr[0] ""
 msgstr[1] ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:21
+#: build/index.f41f5a790b9689358030.js:21
 msgid "Download the file"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:21
+#: build/index.f41f5a790b9689358030.js:21
 msgid "Copy to clipboard"
 msgstr ""
 
 #. translators: %s: file size.
-#: build/index.95ffffc5479cac1ca8c6.js:22
+#: build/index.f41f5a790b9689358030.js:22
 #, js-format
 msgid "Copied to the clipboard (%s)."
 msgstr ""
 
 #. translators: 1: file name, 2: size.
-#: build/index.95ffffc5479cac1ca8c6.js:23
+#: build/index.f41f5a790b9689358030.js:23
 #, js-format
 msgid "The file %1$s (%2$s) is being downloaded."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:23
+#: build/index.f41f5a790b9689358030.js:23
 msgid "No settings to transfer"
 msgstr ""
 
 #. translators: %d: number of settings.
-#: build/index.95ffffc5479cac1ca8c6.js:24
+#: build/index.f41f5a790b9689358030.js:24
 #, js-format
 msgid "%d setting"
 msgid_plural "%d settings"
@@ -34575,185 +35083,185 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: number of objects, 2: what they are ("Redirects").
-#: build/index.95ffffc5479cac1ca8c6.js:25
+#: build/index.f41f5a790b9689358030.js:25
 #, js-format
 msgid "%1$d × %2$s"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:25
+#: build/index.f41f5a790b9689358030.js:25
 msgid "Inactive"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:25
+#: build/index.f41f5a790b9689358030.js:25
 msgid "Plugin removed, settings remain"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:25
+#: build/index.f41f5a790b9689358030.js:25
 msgid "Full match"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:25
+#: build/index.f41f5a790b9689358030.js:25
 msgid "Partial match"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:25
+#: build/index.f41f5a790b9689358030.js:25
 msgid "Will be transferred"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:25
-#: build/index.95ffffc5479cac1ca8c6.js:78
+#: build/index.f41f5a790b9689358030.js:25
+#: build/index.f41f5a790b9689358030.js:78
 msgid "Nothing to transfer."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:25
-#: build/index.95ffffc5479cac1ca8c6.js:78
+#: build/index.f41f5a790b9689358030.js:25
+#: build/index.f41f5a790b9689358030.js:78
 msgid "Will not be transferred"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:25
+#: build/index.f41f5a790b9689358030.js:25
 msgid "Nothing is lost."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:25
+#: build/index.f41f5a790b9689358030.js:25
 msgid "The module is already on, so this is only prepared: the objects are created turned off and start working at the switch, after the safe preview."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:25
+#: build/index.f41f5a790b9689358030.js:25
 msgid "Partial match: check the list of what will not be transferred."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:25
+#: build/index.f41f5a790b9689358030.js:25
 msgid "Checked, you can tick it."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:25
+#: build/index.f41f5a790b9689358030.js:25
 msgid "Show the list"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:25
+#: build/index.f41f5a790b9689358030.js:25
 msgid "Menu by role"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:25
+#: build/index.f41f5a790b9689358030.js:25
 msgid "Hidden now (old plugin)"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:25
+#: build/index.f41f5a790b9689358030.js:25
 msgid "Hidden after migration"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:25
+#: build/index.f41f5a790b9689358030.js:25
 msgid "No role has a menu item hidden, before or after."
 msgstr ""
 
 #. translators: %s: role names.
-#: build/index.95ffffc5479cac1ca8c6.js:26
+#: build/index.f41f5a790b9689358030.js:26
 #, js-format
 msgid "Nothing is hidden, before or after, for: %s."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:26
+#: build/index.f41f5a790b9689358030.js:26
 msgid "Show detail"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:26
-#: build/index.95ffffc5479cac1ca8c6.js:38
+#: build/index.f41f5a790b9689358030.js:26
+#: build/index.f41f5a790b9689358030.js:38
 msgid "Setting"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:26
+#: build/index.f41f5a790b9689358030.js:26
 msgid "Now in UX Studio"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:26
+#: build/index.f41f5a790b9689358030.js:26
 msgid "After migration"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:26
-#: build/index.95ffffc5479cac1ca8c6.js:33
+#: build/index.f41f5a790b9689358030.js:26
+#: build/index.f41f5a790b9689358030.js:33
 msgid "no change"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:26
+#: build/index.f41f5a790b9689358030.js:26
 msgid "Prepared"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:26
+#: build/index.f41f5a790b9689358030.js:26
 msgid "The module does not accept the whole value."
 msgstr ""
 
 #. translators: 1: number of failed tests, 2: number of tests.
-#: build/index.95ffffc5479cac1ca8c6.js:27
+#: build/index.f41f5a790b9689358030.js:27
 #, js-format
 msgid "%1$d of %2$d tests failed."
 msgstr ""
 
 #. translators: 1: number of tests with a warning, 2: number of tests.
-#: build/index.95ffffc5479cac1ca8c6.js:28
+#: build/index.f41f5a790b9689358030.js:28
 #, js-format
 msgid "All %2$d tests passed, %1$d with a warning."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:28
+#: build/index.f41f5a790b9689358030.js:28
 msgid "The test passed."
 msgstr ""
 
 #. translators: %d: number of tests.
-#: build/index.95ffffc5479cac1ca8c6.js:29
+#: build/index.f41f5a790b9689358030.js:29
 #, js-format
 msgid "All %d tests passed."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:29
+#: build/index.f41f5a790b9689358030.js:29
 msgid "Everything changed after the migration in the places below is lost."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:29
+#: build/index.f41f5a790b9689358030.js:29
 msgid "The undo does not merge, it puts back the state from before the migration."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:29
+#: build/index.f41f5a790b9689358030.js:29
 msgid "Checking what the undo would restore…"
 msgstr ""
 
 #. translators: %s: names of modules.
-#: build/index.95ffffc5479cac1ca8c6.js:30
+#: build/index.f41f5a790b9689358030.js:30
 #, js-format
 msgid "Modules whose settings are restored: %s"
 msgstr ""
 
 #. translators: %s: names of database tables.
-#: build/index.95ffffc5479cac1ca8c6.js:31
+#: build/index.f41f5a790b9689358030.js:31
 #, js-format
 msgid "Tables rebuilt from the backup: %s"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:31
+#: build/index.f41f5a790b9689358030.js:31
 msgid "It could not be checked whether anything changed since the migration."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:31
+#: build/index.f41f5a790b9689358030.js:31
 msgid "It cannot be told whether anything changed since the migration."
 msgstr ""
 
 #. translators: %s: names of modules or settings.
-#: build/index.95ffffc5479cac1ca8c6.js:32
+#: build/index.f41f5a790b9689358030.js:32
 #, js-format
 msgid "Changed since the migration: settings of %s."
 msgstr ""
 
 #. translators: 1: table name, 2: rows after the migration, 3: rows now.
-#: build/index.95ffffc5479cac1ca8c6.js:33
+#: build/index.f41f5a790b9689358030.js:33
 #, js-format
 msgid "Changed since the migration: table %1$s (%2$d rows after the migration, %3$d now)."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:33
+#: build/index.f41f5a790b9689358030.js:33
 msgid "I understand that these later changes will be lost."
 msgstr ""
 
 #. translators: %d: number of changed settings.
-#: build/index.95ffffc5479cac1ca8c6.js:33
+#: build/index.f41f5a790b9689358030.js:33
 #, js-format
 msgid "%d change"
 msgid_plural "%d changes"
@@ -34761,1643 +35269,1643 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: content name, 2: number of items.
-#: build/index.95ffffc5479cac1ca8c6.js:33
+#: build/index.f41f5a790b9689358030.js:33
 #, js-format
 msgid "%1$s: %2$d"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:33
+#: build/index.f41f5a790b9689358030.js:33
 msgid "turn on"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:33
+#: build/index.f41f5a790b9689358030.js:33
 msgid "turn off"
 msgstr ""
 
 #. translators: 1: date and time of the import, 2: date until the snapshot is kept.
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:34
 #, js-format
 msgid "The last import (%1$s) can be undone until %2$s."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:34
-#: build/index.95ffffc5479cac1ca8c6.js:37
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/index.f41f5a790b9689358030.js:34
+#: build/index.f41f5a790b9689358030.js:37
+#: build/index.f41f5a790b9689358030.js:41
 msgid "Undo the import"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:34
 msgid "The import was undone: settings, the list of modules and the content it created are back as they were."
 msgstr ""
 
 #. translators: %s: module ids.
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:34
 #, js-format
 msgid "Turned off again: %s."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:34
 msgid "Load a file"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:34
 msgid "Drop the .json file here, or click to choose it"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:34
 msgid "A settings export of UX Studio, up to 2 MB. Nothing is saved yet: you will see what it would change first."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:34
-#: build/index.95ffffc5479cac1ca8c6.js:35
+#: build/index.f41f5a790b9689358030.js:34
+#: build/index.f41f5a790b9689358030.js:35
 msgid "Checking the file…"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:34
 msgid "The file"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:34
 msgid "Choose another file"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:34
 msgid "From site"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:34
-#: build/index.95ffffc5479cac1ca8c6.js:45
+#: build/index.f41f5a790b9689358030.js:34
+#: build/index.f41f5a790b9689358030.js:45
 msgid "Plugin version"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:34
 msgid "The file holds secret values (API keys, passwords) encrypted with a passphrase. Type it to include them in the preview, or leave it and import without them."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:34
 msgid "This server has no libsodium (the PHP sodium extension), so the secrets cannot be opened here."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:34
 msgid "Open the secrets"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:34
 msgid "The secrets were opened. They are never shown here, only whether they differ."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:34
 msgid "Safety measures"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:34
 msgid "None of the rules below had to hold anything back for this file."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:34
 msgid "All rules that always apply to an import"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:34
 msgid "How to import"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:34
 msgid "Merge"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:34
 msgid "recommended"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:34
 msgid "Overwrites only the settings the file lists. Everything else stays as it is."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:34
 msgid "Replace the whole setting of a module"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:34
 msgid "Settings the file does not mention go back to their defaults."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:34
 msgid "Switch modules on and off as in the file"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:34
 msgid "Off by default. Turning on goes through the same check as the Modules screen (a plugin that does the same job can refuse it)."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:34
 msgid "Also turn off modules that hold data here"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:34
 msgid "Forms, redirects, snippets and the like stay on unless you tick this. Their data is never deleted."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:34
 msgid "Allow turning on maintenance mode"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:34
 msgid "Maintenance mode hides the site from visitors. An import never does that unless you tick this."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:34
+#: build/index.f41f5a790b9689358030.js:34
 msgid "What it would change"
 msgstr ""
 
 #. translators: 1: changes, 2: settings without change.
-#: build/index.95ffffc5479cac1ca8c6.js:35
+#: build/index.f41f5a790b9689358030.js:35
 #, js-format
 msgid "%1$d changes, %2$d without change"
 msgstr ""
 
 #. translators: 1: modules chosen, 2: changes in them.
-#: build/index.95ffffc5479cac1ca8c6.js:36
+#: build/index.f41f5a790b9689358030.js:36
 #, js-format
 msgid "Chosen: %1$d modules, %2$d changes."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:36
+#: build/index.f41f5a790b9689358030.js:36
 msgid "Replace the whole setting of the modules?"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:36
+#: build/index.f41f5a790b9689358030.js:36
 msgid "Yes, replace"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:36
+#: build/index.f41f5a790b9689358030.js:36
 msgid "In every module you import, the settings the file does not mention go back to their defaults. Connections and keys that never travel stay as they are. You can still undo the import for 30 days."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:36
+#: build/index.f41f5a790b9689358030.js:36
 msgid "Import now?"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:36
+#: build/index.f41f5a790b9689358030.js:36
 msgid "Importing…"
 msgstr ""
 
 #. translators: 1: modules, 2: changes.
-#: build/index.95ffffc5479cac1ca8c6.js:37
+#: build/index.f41f5a790b9689358030.js:37
 #, js-format
 msgid "%1$d modules and %2$d changes will be saved."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:37
+#: build/index.f41f5a790b9689358030.js:37
 msgid "Mode: replace the whole setting."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:37
+#: build/index.f41f5a790b9689358030.js:37
 msgid "Mode: merge."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:37
+#: build/index.f41f5a790b9689358030.js:37
 msgid "A snapshot is taken first, so you can undo the import for 30 days."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:37
+#: build/index.f41f5a790b9689358030.js:37
 msgid "Undo the last import?"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:37
+#: build/index.f41f5a790b9689358030.js:37
 msgid "Undoing…"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:37
+#: build/index.f41f5a790b9689358030.js:37
 msgid "The settings of the modules the import touched, the list of modules turned on, and the content the import created or changed go back to how they were just before it. Changes made since then in those modules are lost."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:37
+#: build/index.f41f5a790b9689358030.js:37
 msgid "Or paste the text of the file"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:37
+#: build/index.f41f5a790b9689358030.js:37
 msgid "Check the text"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:37
+#: build/index.f41f5a790b9689358030.js:37
 msgid "will be turned on"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:37
+#: build/index.f41f5a790b9689358030.js:37
 msgid "will be turned off"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:37
+#: build/index.f41f5a790b9689358030.js:37
 msgid "overlap"
 msgstr ""
 
 #. translators: %s: module name.
-#: build/index.95ffffc5479cac1ca8c6.js:37
+#: build/index.f41f5a790b9689358030.js:37
 #, js-format
 msgid "Details: %s"
 msgstr ""
 
 #. translators: %s: names of plugins.
-#: build/index.95ffffc5479cac1ca8c6.js:38
+#: build/index.f41f5a790b9689358030.js:38
 #, js-format
 msgid "Switch it on although it overlaps with %s"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:38
+#: build/index.f41f5a790b9689358030.js:38
 msgid "Now"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:38
+#: build/index.f41f5a790b9689358030.js:38
 msgid "After import"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:38
+#: build/index.f41f5a790b9689358030.js:38
 msgid "sensitive"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:38
+#: build/index.f41f5a790b9689358030.js:38
 msgid "a different secret value"
 msgstr ""
 
 #. translators: 1: new items, 2: updated items, 3: unchanged items.
-#: build/index.95ffffc5479cac1ca8c6.js:39
+#: build/index.f41f5a790b9689358030.js:39
 #, js-format
 msgid "%1$d new, %2$d updated, %3$d unchanged"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:39
+#: build/index.f41f5a790b9689358030.js:39
 msgid "same"
 msgstr ""
 
 #. translators: %d: number of items.
-#: build/index.95ffffc5479cac1ca8c6.js:39
+#: build/index.f41f5a790b9689358030.js:39
 #, js-format
 msgid "…and %d more"
 msgstr ""
 
 #. translators: %s: name of a setting.
-#: build/index.95ffffc5479cac1ca8c6.js:39
+#: build/index.f41f5a790b9689358030.js:39
 #, js-format
 msgid "%s: the image is not in the media library of this site, so it was left unset."
 msgstr ""
 
 #. translators: 1: setting name, 2: number of choices.
-#: build/index.95ffffc5479cac1ca8c6.js:39
+#: build/index.f41f5a790b9689358030.js:39
 #, js-format
 msgid "%1$s: %2$d choices do not exist on this site and were left out."
 msgstr ""
 
 #. translators: %s: names of settings.
-#: build/index.95ffffc5479cac1ca8c6.js:39
+#: build/index.f41f5a790b9689358030.js:39
 #, js-format
 msgid "Not transferred (belongs to one site): %s."
 msgstr ""
 
 #. translators: %s: names of keys.
-#: build/index.95ffffc5479cac1ca8c6.js:39
+#: build/index.f41f5a790b9689358030.js:39
 #, js-format
 msgid "Not known to this version, skipped: %s."
 msgstr ""
 
 #. translators: %s: names of settings.
-#: build/index.95ffffc5479cac1ca8c6.js:39
+#: build/index.f41f5a790b9689358030.js:39
 #, js-format
 msgid "To fill in by hand: %s."
 msgstr ""
 
 #. translators: %d: number of settings.
-#: build/index.95ffffc5479cac1ca8c6.js:39
+#: build/index.f41f5a790b9689358030.js:39
 #, js-format
 msgid "%d setting is already the same."
 msgid_plural "%d settings are already the same."
 msgstr[0] ""
 msgstr[1] ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:39
+#: build/index.f41f5a790b9689358030.js:39
 msgid "The new login address did not show the login form, so the Security settings were put back to what they were. Nobody was locked out."
 msgstr ""
 
 #. translators: %s: the new login address.
-#: build/index.95ffffc5479cac1ca8c6.js:40
+#: build/index.f41f5a790b9689358030.js:40
 #, js-format
 msgid "The new login address %s is saved, but wp-login.php stays open until you open the new address and confirm it."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:40
+#: build/index.f41f5a790b9689358030.js:40
 msgid "Open the Security module"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:40
+#: build/index.f41f5a790b9689358030.js:40
 msgid "Login check: wp-login.php is reachable."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:40
+#: build/index.f41f5a790b9689358030.js:40
 msgid "Result of the import"
 msgstr ""
 
 #. translators: 1: modules done, 2: skipped, 3: failed.
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/index.f41f5a790b9689358030.js:41
 #, js-format
 msgid "%1$d done, %2$d skipped, %3$d failed"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/index.f41f5a790b9689358030.js:41
 msgid "done"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/index.f41f5a790b9689358030.js:41
 msgid "partly done"
 msgstr ""
 
 #. translators: %d: number of settings saved.
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/index.f41f5a790b9689358030.js:41
 #, js-format
 msgid "%d setting saved"
 msgid_plural "%d settings saved"
 msgstr[0] ""
 msgstr[1] ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/index.f41f5a790b9689358030.js:41
 msgid "turned on"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/index.f41f5a790b9689358030.js:41
 msgid "turned off"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/index.f41f5a790b9689358030.js:41
 msgid "A snapshot was taken before the import. You can undo it for 30 days."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/index.f41f5a790b9689358030.js:41
 msgid "Import another file"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/index.f41f5a790b9689358030.js:41
 msgid "Failed to load the list of modules."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:41
-#: build/index.95ffffc5479cac1ca8c6.js:45
+#: build/index.f41f5a790b9689358030.js:41
+#: build/index.f41f5a790b9689358030.js:45
 msgid "Export and import"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/index.f41f5a790b9689358030.js:41
 msgid "Export this setting"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/index.f41f5a790b9689358030.js:41
 msgid "Read access"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/index.f41f5a790b9689358030.js:41
 msgid "View modules, settings (never secrets), plugin overlaps, logs and the state of migrations."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/index.f41f5a790b9689358030.js:41
 msgid "Write access"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/index.f41f5a790b9689358030.js:41
 msgid "Enable and disable modules, change ordinary module settings, manage redirects. Settings that decide where credentials or data are sent (mail server, central app, AI provider, recipients) or that guard the site (login address, firewall, 2FA, CSP) need Admin. Includes Read."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/index.f41f5a790b9689358030.js:41
 msgid "Migration access"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/index.f41f5a790b9689358030.js:41
 msgid "Run, verify, preview and turn on migrations from other plugins, and undo them. Includes Read. A migration can enable imported PHP snippets, so this scope is equivalent to running code on the site."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/index.f41f5a790b9689358030.js:41
 msgid "Admin access"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/index.f41f5a790b9689358030.js:41
 msgid "Everything above, and the only scope that may set credentials and security-relevant settings, and see the hidden values (login address, allowlists). Also accepted by third party MCP adapters."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/index.f41f5a790b9689358030.js:41
 msgid "Run this in a terminal."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/index.f41f5a790b9689358030.js:41
 msgid "Add to claude_desktop_config.json (needs Node.js; mcp-remote connects the app to the server)."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/index.f41f5a790b9689358030.js:41
 msgid "Add to ~/.cursor/mcp.json (or .cursor/mcp.json in a project)."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/index.f41f5a790b9689358030.js:41
 msgid "Token created"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/index.f41f5a790b9689358030.js:41
 msgid "Copy the token now."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/index.f41f5a790b9689358030.js:41
 msgid "It is shown only once and cannot be displayed again. If you lose it, revoke it and create a new one."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/index.f41f5a790b9689358030.js:41
 msgid "Token"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:41
-#: build/index.95ffffc5479cac1ca8c6.js:45
+#: build/index.f41f5a790b9689358030.js:41
+#: build/index.f41f5a790b9689358030.js:45
 msgid "Connect a client"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:41
-#: build/index.95ffffc5479cac1ca8c6.js:43
-#: build/index.95ffffc5479cac1ca8c6.js:45
+#: build/index.f41f5a790b9689358030.js:41
+#: build/index.f41f5a790b9689358030.js:43
+#: build/index.f41f5a790b9689358030.js:45
 msgid "Create token"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/index.f41f5a790b9689358030.js:41
 msgid "For example the client that will use it: \"Claude Code on my laptop\"."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:41
-#: build/index.95ffffc5479cac1ca8c6.js:43
+#: build/index.f41f5a790b9689358030.js:41
+#: build/index.f41f5a790b9689358030.js:43
 msgid "Scopes"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:41
+#: build/index.f41f5a790b9689358030.js:41
 msgid "Valid for"
 msgstr ""
 
 #. translators: %d: number of days.
-#: build/index.95ffffc5479cac1ca8c6.js:42
+#: build/index.f41f5a790b9689358030.js:42
 #, js-format
 msgid "%d days"
 msgstr ""
 
 #. translators: %d: maximum number of days.
-#: build/index.95ffffc5479cac1ca8c6.js:43
+#: build/index.f41f5a790b9689358030.js:43
 #, js-format
 msgid "A token always expires, after %d days at most."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:43
+#: build/index.f41f5a790b9689358030.js:43
 msgid "Allowed IP addresses"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:43
+#: build/index.f41f5a790b9689358030.js:43
 msgid "Optional. One address or range (CIDR) per line. Empty = the token works from anywhere."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:43
+#: build/index.f41f5a790b9689358030.js:43
 msgid "Whoever holds this token can make changes to the site as an administrator within these scopes. Store it like a password."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:43
+#: build/index.f41f5a790b9689358030.js:43
 msgid "Creating…"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:43
+#: build/index.f41f5a790b9689358030.js:43
 msgid "No tokens yet."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:43
+#: build/index.f41f5a790b9689358030.js:43
 msgid "Last used"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:43
+#: build/index.f41f5a790b9689358030.js:43
 msgid "IP addresses"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:43
+#: build/index.f41f5a790b9689358030.js:43
 msgid "old"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:43
+#: build/index.f41f5a790b9689358030.js:43
 msgid "expired"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:43
+#: build/index.f41f5a790b9689358030.js:43
 msgid "never"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:43
+#: build/index.f41f5a790b9689358030.js:43
 msgid "any"
 msgstr ""
 
 #. translators: %s: token name.
-#: build/index.95ffffc5479cac1ca8c6.js:43
+#: build/index.f41f5a790b9689358030.js:43
 #, js-format
 msgid "Revoke the token \"%s\"? Clients using it stop working immediately."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:43
+#: build/index.f41f5a790b9689358030.js:43
 msgid "Revoke"
 msgstr ""
 
 #. translators: %d: number of tools.
-#: build/index.95ffffc5479cac1ca8c6.js:44
+#: build/index.f41f5a790b9689358030.js:44
 #, js-format
 msgid "%d tools offered"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:44
+#: build/index.f41f5a790b9689358030.js:44
 msgid "Tool"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:44
+#: build/index.f41f5a790b9689358030.js:44
 msgid "Scope"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:44
+#: build/index.f41f5a790b9689358030.js:44
 msgid "needs confirmation"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:44
+#: build/index.f41f5a790b9689358030.js:44
 msgid "read only"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:44
+#: build/index.f41f5a790b9689358030.js:44
 msgid "MCP (Model Context Protocol) lets AI tools such as Claude Code, Claude Desktop or Cursor work with this site: list and switch modules, read settings and move settings over from other plugins with the migration wizard. Every call is recorded in the Activity Log."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:44
+#: build/index.f41f5a790b9689358030.js:44
 msgid "Off by default. While it is off the endpoint does not exist and no token works."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:44
+#: build/index.f41f5a790b9689358030.js:44
 msgid "Disable the MCP server"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:44
+#: build/index.f41f5a790b9689358030.js:44
 msgid "Turn on the MCP server"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:44
+#: build/index.f41f5a790b9689358030.js:44
 msgid "Endpoint"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:44
+#: build/index.f41f5a790b9689358030.js:44
 msgid "Endpoint URL"
 msgstr ""
 
 #. translators: %d: calls per minute.
-#: build/index.95ffffc5479cac1ca8c6.js:45
+#: build/index.f41f5a790b9689358030.js:45
 #, js-format
 msgid "Streamable HTTP, JSON-RPC over POST. Clients send the token as \"Authorization: Bearer\". At most %d calls per minute per token."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:45
+#: build/index.f41f5a790b9689358030.js:45
 msgid "The WordPress MCP Adapter plugin is active too. It keeps working with admin tokens; this endpoint is the one that applies scopes."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:45
+#: build/index.f41f5a790b9689358030.js:45
 msgid "Access tokens"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:45
+#: build/index.f41f5a790b9689358030.js:45
 msgid "A token lets an AI client act on this site as an administrator, within its scopes. Give it only the scopes it needs, keep it secret and revoke it when it is no longer used."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:45
+#: build/index.f41f5a790b9689358030.js:45
 msgid "Replace YOUR_TOKEN with a token from above. A freshly created token is filled in for you when it is created."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:45
+#: build/index.f41f5a790b9689358030.js:45
 msgid "Tools"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:45
+#: build/index.f41f5a790b9689358030.js:45
 msgid "Includes the content tools of the AI Assistant module (posts, pages, media, shop, SEO)."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:45
+#: build/index.f41f5a790b9689358030.js:45
 msgid "Content tools (posts, pages, media) appear here when the AI Assistant module is enabled."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:45
+#: build/index.f41f5a790b9689358030.js:45
 msgid "About"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:45
+#: build/index.f41f5a790b9689358030.js:45
 msgid "API version"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:45
+#: build/index.f41f5a790b9689358030.js:45
 msgid "Menu Organizer"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:45
+#: build/index.f41f5a790b9689358030.js:45
 msgid "Notice history"
 msgstr ""
 
 #. translators: 1: enabled features, 2: all features in the group.
-#: build/index.95ffffc5479cac1ca8c6.js:46
+#: build/index.f41f5a790b9689358030.js:46
 #, js-format
 msgid "%1$d of %2$d on"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:46
+#: build/index.f41f5a790b9689358030.js:46
 msgid "Undone"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:46
+#: build/index.f41f5a790b9689358030.js:46
 msgid "Switched"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:46
+#: build/index.f41f5a790b9689358030.js:46
 msgid "Switch undone"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:46
+#: build/index.f41f5a790b9689358030.js:46
 msgid "With errors"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:46
+#: build/index.f41f5a790b9689358030.js:46
 msgid "Finished"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:46
-#: build/index.95ffffc5479cac1ca8c6.js:60
-#: build/index.95ffffc5479cac1ca8c6.js:84
+#: build/index.f41f5a790b9689358030.js:46
+#: build/index.f41f5a790b9689358030.js:60
+#: build/index.f41f5a790b9689358030.js:84
 msgid "Run history"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:46
+#: build/index.f41f5a790b9689358030.js:46
 msgid "No migration has been run yet."
 msgstr ""
 
 #. translators: %d: number of prepared values and objects.
-#: build/index.95ffffc5479cac1ca8c6.js:47
+#: build/index.f41f5a790b9689358030.js:47
 #, js-format
 msgid "%d prepared for the switch"
 msgstr ""
 
 #. translators: %s: date until which the switch can be undone.
-#: build/index.95ffffc5479cac1ca8c6.js:48
+#: build/index.f41f5a790b9689358030.js:48
 #, js-format
 msgid "The switch can be undone until %s"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:48
+#: build/index.f41f5a790b9689358030.js:48
 msgid "Preview and switch"
 msgstr ""
 
 #. translators: %s: date until which the migration can be undone.
-#: build/index.95ffffc5479cac1ca8c6.js:49
+#: build/index.f41f5a790b9689358030.js:49
 #, js-format
 msgid "Can be undone until %s"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:49
+#: build/index.f41f5a790b9689358030.js:49
 msgid "Undo"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:49
+#: build/index.f41f5a790b9689358030.js:49
 msgid "Settings restored"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:49
+#: build/index.f41f5a790b9689358030.js:49
 msgid "The snapshot is no longer kept"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:49
-#: build/index.95ffffc5479cac1ca8c6.js:82
+#: build/index.f41f5a790b9689358030.js:49
+#: build/index.f41f5a790b9689358030.js:82
 msgid "Undo this migration?"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:49
-#: build/index.95ffffc5479cac1ca8c6.js:50
-#: build/index.95ffffc5479cac1ca8c6.js:60
-#: build/index.95ffffc5479cac1ca8c6.js:73
-#: build/index.95ffffc5479cac1ca8c6.js:82
+#: build/index.f41f5a790b9689358030.js:49
+#: build/index.f41f5a790b9689358030.js:50
+#: build/index.f41f5a790b9689358030.js:60
+#: build/index.f41f5a790b9689358030.js:73
+#: build/index.f41f5a790b9689358030.js:82
 msgid "Restoring…"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:49
-#: build/index.95ffffc5479cac1ca8c6.js:82
+#: build/index.f41f5a790b9689358030.js:49
+#: build/index.f41f5a790b9689358030.js:82
 msgid "Undo the migration"
 msgstr ""
 
 #. translators: %s: date and time of the run.
-#: build/index.95ffffc5479cac1ca8c6.js:50
+#: build/index.f41f5a790b9689358030.js:50
 #, js-format
 msgid "UX Studio goes back exactly to how it was before the run from %s: settings, and everything the run created. Changes made in these modules since then are lost."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:50
+#: build/index.f41f5a790b9689358030.js:50
 msgid "The run is turned on, so the switch is undone first: the old plugins are activated again and the modules it turned on go off."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:50
-#: build/index.95ffffc5479cac1ca8c6.js:60
+#: build/index.f41f5a790b9689358030.js:50
+#: build/index.f41f5a790b9689358030.js:60
 msgid "Undo the switch?"
 msgstr ""
 
 #. translators: %s: date and time of the run.
-#: build/index.95ffffc5479cac1ca8c6.js:51
+#: build/index.f41f5a790b9689358030.js:51
 #, js-format
 msgid "The old plugins of the run from %s are activated again, the modules the switch turned on go off, and settings and data return to how they were before the switch. Changes made in these modules since then are lost."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:51
+#: build/index.f41f5a790b9689358030.js:51
 msgid "Migration steps"
 msgstr ""
 
 #. translators: 1: step number, 2: step name.
-#: build/index.95ffffc5479cac1ca8c6.js:52
+#: build/index.f41f5a790b9689358030.js:52
 #, js-format
 msgid "Step %1$d: %2$s"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:52
+#: build/index.f41f5a790b9689358030.js:52
 msgid "The central app did not give this site CAPTCHA keys. The CAPTCHA is not enforced, so logging in works as before. You can add the keys by hand in Security > CAPTCHA."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:52
+#: build/index.f41f5a790b9689358030.js:52
 msgid "CAPTCHA with keys from the central app"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:52
+#: build/index.f41f5a790b9689358030.js:52
 msgid "Adds a Cloudflare Turnstile check to the login, registration and lost password forms. The central app gives the site its keys, so you paste nothing. If the keys do not arrive, the check is not enforced and nobody is locked out."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:52
+#: build/index.f41f5a790b9689358030.js:52
 msgid "The Security module is off. Switch it on to use the CAPTCHA."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:52
+#: build/index.f41f5a790b9689358030.js:52
 msgid "The CAPTCHA is on with keys from the central app."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:52
+#: build/index.f41f5a790b9689358030.js:52
 msgid "One click here. The site proves who it is with a secret key."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:52
+#: build/index.f41f5a790b9689358030.js:52
 msgid "Sign in or create an account"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:52
+#: build/index.f41f5a790b9689358030.js:52
 msgid "You land in the central app, log in or sign up and confirm the connection."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:52
+#: build/index.f41f5a790b9689358030.js:52
 msgid "Done, the site is watched"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:52
+#: build/index.f41f5a790b9689358030.js:52
 msgid "You come back here and the central app starts keeping an eye on the site."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:52
+#: build/index.f41f5a790b9689358030.js:52
 msgid "Optional step"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:52
-#: build/index.95ffffc5479cac1ca8c6.js:73
+#: build/index.f41f5a790b9689358030.js:52
+#: build/index.f41f5a790b9689358030.js:73
 msgid "Central app"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:52
+#: build/index.f41f5a790b9689358030.js:52
 msgid "One place to watch over all your websites. Connect this one and the central app keeps an eye on it for you: whether it runs, whether it is safe and fast, and whether anything is about to expire."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:52
+#: build/index.f41f5a790b9689358030.js:52
 msgid "The connection was completed in the central app."
 msgstr ""
 
 #. translators: %s: date and time.
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 #, js-format
 msgid "It last contacted the site on %s."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "The connection was cancelled in the central app. Nothing is connected. You can try again."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "The central app has contacted the site. The connection looks complete."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "The central app has not confirmed the connection yet. Try again if you did not finish it there."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "What you get"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "Availability"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "Checks the site regularly, alerts you when it goes down and when it is back, and keeps the history of uptime and response time. It also tracks when the SSL certificate and the domain expire."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "Known vulnerabilities"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "Compares the plugins, themes and WordPress version of the site with a vulnerability database and warns you when something installed is affected. Google Safe Browsing tells you if the site gets flagged as dangerous."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "Outdated PHP"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "Shows which PHP version the site runs on and warns you when it no longer gets security updates or has a critical vulnerability."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "Speed and SEO"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "Measures the speed with Google PageSpeed regularly and keeps the history. A public SEO test and audit check the basics of search engine optimisation."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "Looks and accessibility"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "Takes screenshots of key pages every day and compares them, so a broken layout does not go unnoticed. Once a month it scans the site for accessibility problems."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "Alerts and reports"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "Alerts arrive by e-mail, Discord, Slack or as a notification on your phone or computer, with a daily digest if you prefer fewer messages. Regular e-mail reports sum up how the site is doing."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "Shared protection"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "Ban an IP address, a range or a whole country once and it is blocked on every connected site. The central app also gives the site its CAPTCHA keys, so you set nothing up by hand."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "Support tickets"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "Service requests from the site land in one ticket queue, with replies and response deadlines."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "Content, social networks and reviews"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "Edit posts, pages and media of the site from one place, plan posts for Facebook, Instagram and LinkedIn and get help from the AI assistant. Google reviews of the business are collected in one list."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "What changes on your site"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "This turns on Content Sync as a managed site and creates a secret key for it. Administrator sign-in and package installation from the central app stay off."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "The central app can then read the state of the site and work with its posts, pages and media. It cannot sign in as an administrator or install plugins."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "The site must be reachable from the internet: the central app checks it while connecting."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "This site runs on your computer"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "A central app on the internet cannot reach it, so the connection will fail, unless the central app runs on your computer too."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "Questions"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "What can the central app do on my site?"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "It reads the state of the site and works with posts, pages and media through requests signed with the secret key. Signing in as an administrator and installing packages from the central app are turned off."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "How do I disconnect the site?"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "Turn off the Content Sync module and the central app can no longer reach the site. You can also remove the site from the list of websites in the central app."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "Can I do this later?"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "Yes. Skip this step now and connect later in the Content Sync module."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "Address of the central app"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "Only https:// addresses work. http:// is accepted for localhost, for testing on your own computer."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:53
+#: build/index.f41f5a790b9689358030.js:53
 msgid "Check before you continue"
 msgstr ""
 
 #. translators: %s: error detail.
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 #, js-format
 msgid "The site did not answer its own signed test request (%s). The central app will probably not be able to confirm the connection either."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "The administration address differs from the site address, so the central app cannot send you back here. Come back to this wizard by hand when you finish."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "Continue anyway"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "Connect or skip"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "You can also connect later."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "Skip"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "Connecting…"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "No migration to work on"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "The preview and the switch work on a finished migration. Run one first, or continue a run from the run history below."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "Start a migration"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "Only your browser sees the site without the old plugins, for 30 minutes. Visitors keep getting the old plugins the whole time."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "Nothing is saved while you look: no .htaccess, no schedule, no module data. The preview ends by itself after 30 minutes, or when you end it."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "The tests compare the site now with the site in the preview and stop the switch when something breaks."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "Safe preview"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "See the site the way it will work after the switch, before anything is switched."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "The preview is not available on this server"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "You can still switch without a preview, but then nothing has been tested before the old plugins are deactivated. Everything can be undone for 30 days."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "The preview ends"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "It has ended"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "Turned off in the preview"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "No active plugin"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "Turned on in the preview"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "The preview has ended. Start it again to test or look at the site."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "Fix the cause, or switch anyway only if you accept the risk."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "Starting…"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "Open the site in the preview"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
-#: build/index.95ffffc5479cac1ca8c6.js:60
+#: build/index.f41f5a790b9689358030.js:54
+#: build/index.f41f5a790b9689358030.js:60
 msgid "Run the tests again"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "End the preview"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "Continue without the preview"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "Continue to the switch"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "Some preview tests failed. Fix the cause, or confirm below that you want to switch anyway."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "The safe preview is not available here. Confirm below that you want to switch without it."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "Switch to UX Studio"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "UX Studio modules take over and the old plugins are deactivated. Nothing is deleted, and you can undo it all for 30 days."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "These plugins will be deactivated"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "None of the migrated plugins is active, so nothing is deactivated."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "These modules will be turned on"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "already on"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:54
+#: build/index.f41f5a790b9689358030.js:54
 msgid "No module needs to be turned on."
 msgstr ""
 
 #. translators: 1: number of prepared settings, 2: number of prepared objects (rules, snippets ...).
-#: build/index.95ffffc5479cac1ca8c6.js:55
+#: build/index.f41f5a790b9689358030.js:55
 #, js-format
 msgid "The prepared values go live: %1$d settings and %2$d objects (rules, snippets, menu fields) are turned on."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:55
+#: build/index.f41f5a790b9689358030.js:55
 msgid "The old plugins are deactivated the normal WordPress way, so their own deactivation steps run. Their files and data stay where they are."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:55
+#: build/index.f41f5a790b9689358030.js:55
 msgid "Right after that the home page is checked from outside. If it fails, everything is undone automatically."
 msgstr ""
 
 #. translators: %d: number of days.
-#: build/index.95ffffc5479cac1ca8c6.js:56
+#: build/index.f41f5a790b9689358030.js:56
 #, js-format
 msgid "You can undo the whole switch with one click for %d day."
 msgid_plural "You can undo the whole switch with one click for %d days."
 msgstr[0] ""
 msgstr[1] ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:56
+#: build/index.f41f5a790b9689358030.js:56
 msgid "The login address changes"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:56
+#: build/index.f41f5a790b9689358030.js:56
 msgid "After the switch you log in at this address. The old one stops working for everybody. Save it now."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:56
+#: build/index.f41f5a790b9689358030.js:56
 msgid "I have saved the new login address"
 msgstr ""
 
 #. translators: %s: PHP constant name.
-#: build/index.95ffffc5479cac1ca8c6.js:57
+#: build/index.f41f5a790b9689358030.js:57
 #, js-format
 msgid "Locked out anyway? Add define( '%s', true ); to wp-config.php and the normal wp-login.php works again."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:57
+#: build/index.f41f5a790b9689358030.js:57
 msgid "Switch anyway, I accept that these tests failed"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:57
+#: build/index.f41f5a790b9689358030.js:57
 msgid "Back to the preview tests"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:57
+#: build/index.f41f5a790b9689358030.js:57
 msgid "No safe preview on this server"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:57
+#: build/index.f41f5a790b9689358030.js:57
 msgid "Switch without a preview, I accept the risk"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:57
+#: build/index.f41f5a790b9689358030.js:57
 msgid "Go to the safe preview"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:57
+#: build/index.f41f5a790b9689358030.js:57
 msgid "Switch now"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:57
+#: build/index.f41f5a790b9689358030.js:57
 msgid "Switch to UX Studio now?"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:57
-#: build/index.95ffffc5479cac1ca8c6.js:82
+#: build/index.f41f5a790b9689358030.js:57
+#: build/index.f41f5a790b9689358030.js:82
 msgid "Switching…"
 msgstr ""
 
 #. translators: 1: number of plugins, 2: number of modules.
-#: build/index.95ffffc5479cac1ca8c6.js:58
+#: build/index.f41f5a790b9689358030.js:58
 #, js-format
 msgid "%1$d plugin(s) will be deactivated and %2$d module(s) turned on. The site is checked right after, and you can undo the switch from the run history."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:58
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:58
+#: build/index.f41f5a790b9689358030.js:65
 msgid "New login address:"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:58
+#: build/index.f41f5a790b9689358030.js:58
 msgid "UX Studio has taken over"
 msgstr ""
 
 #. translators: 1: number of deactivated plugins, 2: number of modules switched on.
-#: build/index.95ffffc5479cac1ca8c6.js:59
+#: build/index.f41f5a790b9689358030.js:59
 #, js-format
 msgid "%1$d plugin(s) deactivated, %2$d module(s) turned on. The site is being tested now, from outside, without the preview."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:59
+#: build/index.f41f5a790b9689358030.js:59
 msgid "The login address is now"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:59
+#: build/index.f41f5a790b9689358030.js:59
 msgid "You can undo the switch below."
 msgstr ""
 
 #. translators: %s: date until which the switch can be undone.
-#: build/index.95ffffc5479cac1ca8c6.js:60
+#: build/index.f41f5a790b9689358030.js:60
 #, js-format
 msgid "You can undo the switch until %s."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:60
-#: build/index.95ffffc5479cac1ca8c6.js:84
+#: build/index.f41f5a790b9689358030.js:60
+#: build/index.f41f5a790b9689358030.js:84
 msgid "Continue with the recommended modules"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:60
+#: build/index.f41f5a790b9689358030.js:60
 msgid "The old plugins are activated again, the modules the switch turned on go off, and the settings and data return to how they were before the switch. Changes made in these modules since then are lost. The migrated values stay prepared."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:60
+#: build/index.f41f5a790b9689358030.js:60
 msgid "The switch was undone"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:60
+#: build/index.f41f5a790b9689358030.js:60
 msgid "The old plugins are active again and the modules are as they were before. The migrated values are prepared again: you can preview and switch once more, or undo the migration from the run history."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:60
+#: build/index.f41f5a790b9689358030.js:60
 msgid "Back to the preview"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:60
+#: build/index.f41f5a790b9689358030.js:60
 msgid "This site has no subscriber or customer role."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:60
+#: build/index.f41f5a790b9689358030.js:60
 msgid "A custom login address needs pretty permalinks (Settings > Permalinks)."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:60
+#: build/index.f41f5a790b9689358030.js:60
 msgid "A Content Security Policy mode is already set, it stays as it is."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:60
+#: build/index.f41f5a790b9689358030.js:60
 msgid "A custom login address is already set."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:60
+#: build/index.f41f5a790b9689358030.js:60
 msgid "The address /administrace is already used by a page, post or another rule of this site."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:60
+#: build/index.f41f5a790b9689358030.js:60
 msgid "A CAPTCHA is already set up on this site, it stays as it is."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:60
+#: build/index.f41f5a790b9689358030.js:60
 msgid "A CAPTCHA plugin is active, so the CAPTCHA is left to it."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:60
+#: build/index.f41f5a790b9689358030.js:60
 msgid "The site is behind a reverse proxy. The CAPTCHA limits per IP address, so set the client IP source first (Security > Firewall)."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:60
+#: build/index.f41f5a790b9689358030.js:60
 msgid "Another plugin already takes care of the login address."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:60
+#: build/index.f41f5a790b9689358030.js:60
 msgid "This is not possible on this site."
 msgstr ""
 
 #. translators: %s: plugin names.
-#: build/index.95ffffc5479cac1ca8c6.js:61
+#: build/index.f41f5a790b9689358030.js:61
 #, js-format
 msgid "Skipped: %s already does this job."
 msgstr ""
 
 #. translators: %s: plugin names.
-#: build/index.95ffffc5479cac1ca8c6.js:62
+#: build/index.f41f5a790b9689358030.js:62
 #, js-format
 msgid "Skipped: the partial overlap with %s was not confirmed."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:62
+#: build/index.f41f5a790b9689358030.js:62
 msgid "Skipped: the module is not available."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:62
+#: build/index.f41f5a790b9689358030.js:62
 msgid "Skipped."
 msgstr ""
 
 #. translators: %s: reason.
-#: build/index.95ffffc5479cac1ca8c6.js:63
+#: build/index.f41f5a790b9689358030.js:63
 #, js-format
 msgid "Skipped: %s"
 msgstr ""
 
 #. translators: %s: PHP version.
-#: build/index.95ffffc5479cac1ca8c6.js:64
+#: build/index.f41f5a790b9689358030.js:64
 #, js-format
 msgid "PHP %s"
 msgstr ""
 
 #. translators: %s: PHP version.
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 #, js-format
 msgid "This website runs on PHP %s. No known security problem with this version."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 msgid "Unknown server"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 msgid "Server"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 msgid "Cloudflare"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 msgid "Detected. Visitor IP addresses are read from the Cloudflare header."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 msgid "Not detected."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 msgid "Reverse proxy"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 msgid "The site is behind a reverse proxy. Limiting login attempts stays off until the client IP source is set."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 msgid "Active. Comments are turned off on posts and pages only, product reviews keep working."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 msgid "Not installed."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 msgid "Permalinks"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 msgid "Pretty permalinks are on."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 msgid "Plain permalinks. A custom login address is not possible until you choose a pretty structure."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 msgid "Can be written, so the security rules go there."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 msgid "Cannot be written. The security headers are sent by PHP only."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 msgid "Set. It is shown on the login page."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 msgid "Not set yet. The login page keeps the WordPress logo."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 msgid "You see every module and its preset first and choose what you want. Nothing is turned on without your tick."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 msgid "If another plugin already does a job, that item stays off or leaves that one setting out, so nothing is done twice."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 msgid "Before the first change the current state is saved. \"Undo everything\" at the end puts the modules and settings back."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 msgid "Set up your new website"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 msgid "UX Studio can turn on the modules that suit almost every WordPress site and preset them sensibly in a few minutes."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 msgid "What the wizard found"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 msgid "Confirm the partial overlap first."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 msgid "Module already on"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 msgid "Part left out"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:65
+#: build/index.f41f5a790b9689358030.js:65
 msgid "Optional"
 msgstr ""
 
 #. translators: %s: plugin names.
-#: build/index.95ffffc5479cac1ca8c6.js:66
+#: build/index.f41f5a790b9689358030.js:66
 #, js-format
 msgid "Not available: %s already does this job on this site."
 msgstr ""
 
 #. translators: %s: plugin names.
-#: build/index.95ffffc5479cac1ca8c6.js:67
+#: build/index.f41f5a790b9689358030.js:67
 #, js-format
 msgid "Switch it on although it partly overlaps with %s"
 msgstr ""
 
 #. translators: %s: plugin names.
-#: build/index.95ffffc5479cac1ca8c6.js:68
+#: build/index.f41f5a790b9689358030.js:68
 #, js-format
 msgid "A module of this item is not turned on because %s already does the same job."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:68
+#: build/index.f41f5a790b9689358030.js:68
 msgid "What will be set"
 msgstr ""
 
 #. translators: %s: module names.
-#: build/index.95ffffc5479cac1ca8c6.js:69
+#: build/index.f41f5a790b9689358030.js:69
 #, js-format
 msgid "Modules: %s"
 msgstr ""
 
 #. translators: %s: module name.
-#: build/index.95ffffc5479cac1ca8c6.js:69
+#: build/index.f41f5a790b9689358030.js:69
 #, js-format
 msgid "%s (already on)"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:69
+#: build/index.f41f5a790b9689358030.js:69
 msgid "The module is just turned on with its default settings."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:69
+#: build/index.f41f5a790b9689358030.js:69
 msgid "Left out on this site"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:69
+#: build/index.f41f5a790b9689358030.js:69
 msgid "Left out"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:69
+#: build/index.f41f5a790b9689358030.js:69
 msgid "Performance and SEO"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:69
-#: build/index.95ffffc5479cac1ca8c6.js:73
+#: build/index.f41f5a790b9689358030.js:69
+#: build/index.f41f5a790b9689358030.js:73
 msgid "Recommended modules"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:69
+#: build/index.f41f5a790b9689358030.js:69
 msgid "These modules and presets suit almost every site. Untick what you do not want. Open \"What will be set\" to see every value."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:69
+#: build/index.f41f5a790b9689358030.js:69
 msgid "You cancelled the connection. You can finish it later in the Content Sync module."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:69
+#: build/index.f41f5a790b9689358030.js:69
 msgid "The site is connected to the central app. The recommended modules below use it where they can."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:69
+#: build/index.f41f5a790b9689358030.js:69
 msgid "Select the recommended"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:69
+#: build/index.f41f5a790b9689358030.js:69
 msgid "More options"
 msgstr ""
 
 #. translators: %d: number of selected items.
-#: build/index.95ffffc5479cac1ca8c6.js:70
+#: build/index.f41f5a790b9689358030.js:70
 #, js-format
 msgid "Set up %d item"
 msgid_plural "Set up %d items"
 msgstr[0] ""
 msgstr[1] ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:70
+#: build/index.f41f5a790b9689358030.js:70
 msgid "Setup finished"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:70
+#: build/index.f41f5a790b9689358030.js:70
 msgid "Setting up…"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:70
+#: build/index.f41f5a790b9689358030.js:70
 msgid "Please keep this page open. Each item is saved on its own, so a problem in one does not stop the others."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:70
+#: build/index.f41f5a790b9689358030.js:70
 msgid "Done in part."
 msgstr ""
 
 #. translators: 1: items set up, 2: items skipped, 3: items that failed.
-#: build/index.95ffffc5479cac1ca8c6.js:71
+#: build/index.f41f5a790b9689358030.js:71
 #, js-format
 msgid "%1$d set up, %2$d skipped, %3$d failed. You can undo everything on the last page."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:71
-#: build/index.95ffffc5479cac1ca8c6.js:73
+#: build/index.f41f5a790b9689358030.js:71
+#: build/index.f41f5a790b9689358030.js:73
 msgid "Login address"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:71
+#: build/index.f41f5a790b9689358030.js:71
 msgid "No new login address is waiting for confirmation. The login page stays where it was."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:71
+#: build/index.f41f5a790b9689358030.js:71
 msgid "The login address is confirmed"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:71
+#: build/index.f41f5a790b9689358030.js:71
 msgid "wp-login.php is closed now. Log in at the new address and save it."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:71
+#: build/index.f41f5a790b9689358030.js:71
 msgid "An e-mail with the address was sent to the site administrator."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:71
+#: build/index.f41f5a790b9689358030.js:71
 msgid "The e-mail with the address could not be sent. Save the address now."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:71
+#: build/index.f41f5a790b9689358030.js:71
 msgid "Confirm the new login address"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:71
+#: build/index.f41f5a790b9689358030.js:71
 msgid "The login page is moving to a new address. Open it first and check that you see the login form."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:71
+#: build/index.f41f5a790b9689358030.js:71
 msgid "Open in a new window"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:71
+#: build/index.f41f5a790b9689358030.js:71
 msgid "Until you confirm, nobody is locked out"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:71
+#: build/index.f41f5a790b9689358030.js:71
 msgid "The usual wp-login.php stays open until you confirm the new address. After the confirmation it is closed for everybody and an e-mail with the new address is sent to you."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:71
+#: build/index.f41f5a790b9689358030.js:71
 msgid "The confirmation has been waiting for more than 24 hours. wp-login.php has been open the whole time."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:71
+#: build/index.f41f5a790b9689358030.js:71
 msgid "I saw the login form"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:71
+#: build/index.f41f5a790b9689358030.js:71
 msgid "The server could not check the address"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:71
+#: build/index.f41f5a790b9689358030.js:71
 msgid "I opened the address in my browser and saw the login form there. Close wp-login.php anyway."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:71
+#: build/index.f41f5a790b9689358030.js:71
 msgid "Close wp-login.php"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:71
+#: build/index.f41f5a790b9689358030.js:71
 msgid "Confirm later"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:71
+#: build/index.f41f5a790b9689358030.js:71
 msgid "Confirm the new address"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:71
+#: build/index.f41f5a790b9689358030.js:71
 msgid "If you confirm later, wp-login.php stays open and a notice in the administration reminds you. You can also come back to this wizard."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:71
+#: build/index.f41f5a790b9689358030.js:71
 msgid "Everything was undone"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:71
+#: build/index.f41f5a790b9689358030.js:71
 msgid "The modules and settings are back the way they were before. If you connected the site to the central app, remove it there as well."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:71
-#: build/index.95ffffc5479cac1ca8c6.js:82
+#: build/index.f41f5a790b9689358030.js:71
+#: build/index.f41f5a790b9689358030.js:82
 msgid "Start over"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:71
+#: build/index.f41f5a790b9689358030.js:71
 msgid "The new site is set up"
 msgstr ""
 
 #. translators: %d: number of items set up.
-#: build/index.95ffffc5479cac1ca8c6.js:72
+#: build/index.f41f5a790b9689358030.js:72
 #, js-format
 msgid "%d item was set up."
 msgid_plural "%d items were set up."
@@ -36405,370 +36913,370 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: date and time.
-#: build/index.95ffffc5479cac1ca8c6.js:73
+#: build/index.f41f5a790b9689358030.js:73
 #, js-format
 msgid "The recommended modules were set up on %s."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:73
+#: build/index.f41f5a790b9689358030.js:73
 msgid "Nothing was changed."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:73
+#: build/index.f41f5a790b9689358030.js:73
 msgid "The new login address is waiting for your confirmation. wp-login.php is still open."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:73
+#: build/index.f41f5a790b9689358030.js:73
 msgid "Confirm it now"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:73
+#: build/index.f41f5a790b9689358030.js:73
 msgid "The custom login address is confirmed and wp-login.php is closed."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:73
+#: build/index.f41f5a790b9689358030.js:73
 msgid "The site is prepared for the central app (Content Sync as a managed site)."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:73
+#: build/index.f41f5a790b9689358030.js:73
 msgid "The site is not connected to the central app. You can do it later in the Content Sync module."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:73
+#: build/index.f41f5a790b9689358030.js:73
 msgid "Open a module"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:73
+#: build/index.f41f5a790b9689358030.js:73
 msgid "Undo everything"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:73
+#: build/index.f41f5a790b9689358030.js:73
 msgid "Undo everything?"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:73
+#: build/index.f41f5a790b9689358030.js:73
 msgid "The modules this wizard turned on are turned off again and the settings it changed go back to their earlier values. Modules that were on before stay on."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:73
+#: build/index.f41f5a790b9689358030.js:73
 msgid "A custom login address goes back as well, so wp-login.php works again. A connection already made in the central app is not removed there."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:73
+#: build/index.f41f5a790b9689358030.js:73
 msgid "The server did not answer for this item."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:73
+#: build/index.f41f5a790b9689358030.js:73
 msgid "Setup steps"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:73
+#: build/index.f41f5a790b9689358030.js:73
 msgid "The wizard finds plugins on this site whose job a UX Studio module does as well."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:73
+#: build/index.f41f5a790b9689358030.js:73
 msgid "It only reads the plugins. Nothing in them changes, and nothing is turned on or deactivated until you confirm the switch."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:73
+#: build/index.f41f5a790b9689358030.js:73
 msgid "Before the first write it saves a snapshot, so you can undo the whole migration for 30 days."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:73
+#: build/index.f41f5a790b9689358030.js:73
 msgid "Before the switch you can look at the site without the old plugins in a safe preview that only your browser sees. Visitors keep the old plugins the whole time."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:73
+#: build/index.f41f5a790b9689358030.js:73
 msgid "No old plugin is ever deactivated automatically. You decide at the end, and even then you can go back."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:73
+#: build/index.f41f5a790b9689358030.js:73
 msgid "Move your settings to UX Studio"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:73
+#: build/index.f41f5a790b9689358030.js:73
 msgid "Copy the settings and data of other plugins (redirects, snippets, folders, mail settings ...) into the matching UX Studio modules, check that nothing got lost and keep the option to go back."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:73
+#: build/index.f41f5a790b9689358030.js:73
 msgid "Switching to the module and deactivating the old plugin is a separate step that comes after a safe preview of the site without the old plugins."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:73
+#: build/index.f41f5a790b9689358030.js:73
 msgid "Scan the site"
 msgstr ""
 
 #. translators: 1: UX Studio module name, 2: "12 settings".
-#: build/index.95ffffc5479cac1ca8c6.js:74
+#: build/index.f41f5a790b9689358030.js:74
 #, js-format
 msgid "Module: %1$s - %2$s"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:74
+#: build/index.f41f5a790b9689358030.js:74
 msgid "Scan failed"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:74
+#: build/index.f41f5a790b9689358030.js:74
 msgid "Scanning the site…"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:74
+#: build/index.f41f5a790b9689358030.js:74
 msgid "Looking for plugins UX Studio can take over from."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:74
+#: build/index.f41f5a790b9689358030.js:74
 msgid "No plugin to migrate found"
 msgstr ""
 
 #. translators: %d: number of plugins found.
-#: build/index.95ffffc5479cac1ca8c6.js:75
+#: build/index.f41f5a790b9689358030.js:75
 #, js-format
 msgid "Found %d plugin"
 msgid_plural "Found %d plugins"
 msgstr[0] ""
 msgstr[1] ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:75
+#: build/index.f41f5a790b9689358030.js:75
 msgid "None of the plugins UX Studio can migrate is installed here, and no leftover settings of them were found."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:75
+#: build/index.f41f5a790b9689358030.js:75
 msgid "These plugins (or their leftover settings) have a matching UX Studio module."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:75
-#: build/index.95ffffc5479cac1ca8c6.js:76
+#: build/index.f41f5a790b9689358030.js:75
+#: build/index.f41f5a790b9689358030.js:76
 msgid "Choose what to migrate"
 msgstr ""
 
 #. translators: %s: plugin name.
-#: build/index.95ffffc5479cac1ca8c6.js:76
+#: build/index.f41f5a790b9689358030.js:76
 #, js-format
 msgid "Migrate %s"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:76
+#: build/index.f41f5a790b9689358030.js:76
 msgid "Open the list of what is not transferred first."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:76
+#: build/index.f41f5a790b9689358030.js:76
 msgid "What moves over"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:76
+#: build/index.f41f5a790b9689358030.js:76
 msgid "Tick the plugins whose settings should be copied. Inactive plugins can be migrated too. Open \"What moves over\" to see exactly what is and is not transferred. Partial matches can only be ticked once you have opened that list."
 msgstr ""
 
 #. translators: 1: plugin names, 2: UX Studio module name.
-#: build/index.95ffffc5479cac1ca8c6.js:77
+#: build/index.f41f5a790b9689358030.js:77
 #, js-format
 msgid "%1$s all carry settings for the module \"%2$s\". The one migrated last overwrites the others, so tick only the plugin you actually use."
 msgstr ""
 
 #. translators: %d: number of selected plugins.
-#: build/index.95ffffc5479cac1ca8c6.js:78
+#: build/index.f41f5a790b9689358030.js:78
 #, js-format
 msgid "Check %d plugin"
 msgid_plural "Check %d plugins"
 msgstr[0] ""
 msgstr[1] ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:78
+#: build/index.f41f5a790b9689358030.js:78
 msgid "Check before writing"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:78
+#: build/index.f41f5a790b9689358030.js:78
 msgid "This is a trial run: nothing has been written. Below is what each plugin would change in UX Studio."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:78
+#: build/index.f41f5a790b9689358030.js:78
 msgid "When you start the migration, a snapshot of the current UX Studio settings is saved first. You can restore it for 30 days."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:78
+#: build/index.f41f5a790b9689358030.js:78
 msgid "Running the trial…"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:78
+#: build/index.f41f5a790b9689358030.js:78
 msgid "Start the migration"
 msgstr ""
 
 #. translators: 1: objects handled so far, 2: objects in total.
-#: build/index.95ffffc5479cac1ca8c6.js:79
+#: build/index.f41f5a790b9689358030.js:79
 #, js-format
 msgid "Working… %1$d / %2$d"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:79
+#: build/index.f41f5a790b9689358030.js:79
 msgid "Nothing to change"
 msgstr ""
 
 #. translators: 1: number of values written, 2: number of values only prepared.
-#: build/index.95ffffc5479cac1ca8c6.js:80
+#: build/index.f41f5a790b9689358030.js:80
 #, js-format
 msgid "%1$d written, %2$d of them only prepared (they take effect after the switch)"
 msgstr ""
 
 #. translators: %d: number of settings written.
-#: build/index.95ffffc5479cac1ca8c6.js:81
+#: build/index.f41f5a790b9689358030.js:81
 #, js-format
 msgid "%d setting written"
 msgid_plural "%d settings written"
 msgstr[0] ""
 msgstr[1] ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:81
+#: build/index.f41f5a790b9689358030.js:81
 msgid "Migrating…"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:81
+#: build/index.f41f5a790b9689358030.js:81
 msgid "Please keep this page open. If it closes, come back to the wizard and it will carry on."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:81
+#: build/index.f41f5a790b9689358030.js:81
 msgid "Snapshot of the current settings"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:81
+#: build/index.f41f5a790b9689358030.js:81
 msgid "Saved - can be restored for 30 days"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:81
+#: build/index.f41f5a790b9689358030.js:81
 msgid "Verify the result"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:81
+#: build/index.f41f5a790b9689358030.js:81
 msgid "The old plugin settings are compared with what is now stored in UX Studio."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:81
+#: build/index.f41f5a790b9689358030.js:81
 msgid "Comparing…"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:81
+#: build/index.f41f5a790b9689358030.js:81
 msgid "Everything matches."
 msgstr ""
 
 #. translators: %d: number of differences.
-#: build/index.95ffffc5479cac1ca8c6.js:82
+#: build/index.f41f5a790b9689358030.js:82
 #, js-format
 msgid "%d difference found. You can undo the migration or continue and fix it by hand."
 msgid_plural "%d differences found. You can undo the migration or continue and fix them by hand."
 msgstr[0] ""
 msgstr[1] ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:82
+#: build/index.f41f5a790b9689358030.js:82
 msgid "Switch automatically: turn on the modules and deactivate the migrated plugins"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:82
+#: build/index.f41f5a790b9689358030.js:82
 msgid "The login address changes with this switch, so it waits for your confirmation in the next steps."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:82
+#: build/index.f41f5a790b9689358030.js:82
 msgid "The automatic switch is waiting: continue to the next steps."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:82
+#: build/index.f41f5a790b9689358030.js:82
 msgid "Nothing is deleted and you can undo the switch for 30 days."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:82
+#: build/index.f41f5a790b9689358030.js:82
 msgid "Prepared - takes effect after the switch"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:82
-#: build/index.95ffffc5479cac1ca8c6.js:84
+#: build/index.f41f5a790b9689358030.js:82
+#: build/index.f41f5a790b9689358030.js:84
 msgid "Continue to the safe preview"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:82
+#: build/index.f41f5a790b9689358030.js:82
 msgid "The UX Studio settings go back exactly to how they were before the migration, and everything the migration created (rules, snippets, folders, menu fields) is removed. The old plugins are not touched."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:82
+#: build/index.f41f5a790b9689358030.js:82
 msgid "The migration was undone"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:82
+#: build/index.f41f5a790b9689358030.js:82
 msgid "UX Studio is back to how it was before. The old plugins were never changed."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:82
+#: build/index.f41f5a790b9689358030.js:82
 msgid "Settings migrated"
 msgstr ""
 
 #. translators: 1: number of plugins, 2: number of settings written.
-#: build/index.95ffffc5479cac1ca8c6.js:83
+#: build/index.f41f5a790b9689358030.js:83
 #, js-format
 msgid "%1$d plugin(s) processed, %2$d item(s) written to UX Studio."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:83
+#: build/index.f41f5a790b9689358030.js:83
 msgid "What happens next"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:83
+#: build/index.f41f5a790b9689358030.js:83
 msgid "The old plugins still run and nothing was turned on - the site behaves exactly as before."
 msgstr ""
 
 #. translators: %d: number of values only prepared.
-#: build/index.95ffffc5479cac1ca8c6.js:84
+#: build/index.f41f5a790b9689358030.js:84
 #, js-format
 msgid "%d value was only prepared, because its module is already on. It takes effect at the switch, after the safe preview."
 msgid_plural "%d values were only prepared, because their modules are already on. They take effect at the switch, after the safe preview."
 msgstr[0] ""
 msgstr[1] ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:84
+#: build/index.f41f5a790b9689358030.js:84
 msgid "To switch, open the safe preview (the site without the old plugins, only for you), then the switch. You can do that later from the run history."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:84
+#: build/index.f41f5a790b9689358030.js:84
 msgid "Until then you can undo this migration from the run history for 30 days."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:84
+#: build/index.f41f5a790b9689358030.js:84
 msgid "Scan"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:84
+#: build/index.f41f5a790b9689358030.js:84
 msgid "Selection"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:84
+#: build/index.f41f5a790b9689358030.js:84
 msgid "Verification"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:84
+#: build/index.f41f5a790b9689358030.js:84
 msgid "Switch"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:84
+#: build/index.f41f5a790b9689358030.js:84
 msgid "This module is turned off. Enable it to use its settings."
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:84
+#: build/index.f41f5a790b9689358030.js:84
 msgid "Toggle dark mode"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:84
+#: build/index.f41f5a790b9689358030.js:84
 msgid "Light mode"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:84
+#: build/index.f41f5a790b9689358030.js:84
 msgid "Dark mode"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:84
+#: build/index.f41f5a790b9689358030.js:84
 msgid "UX Studio navigation"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:84
+#: build/index.f41f5a790b9689358030.js:84
 msgid "Close menu"
 msgstr ""
 
-#: build/index.95ffffc5479cac1ca8c6.js:84
+#: build/index.f41f5a790b9689358030.js:84
 msgid "Hide the sidebar"
 msgstr ""
 
