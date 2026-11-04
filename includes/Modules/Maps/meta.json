@@ -1,0 +1,8 @@
+{
+	"id": "maps",
+	"name": "Maps",
+	"description": "Build simple maps with one or more draggable pins and embed them with a shortcode. Providers: OpenStreetMap, Mapy.com, Mapbox and Google Maps.",
+	"group": "content",
+	"icon": "map-pinned",
+	"settings": true
+}

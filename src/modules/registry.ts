@@ -41,6 +41,7 @@ export const MODULE_PAGES: Record< string, ReturnType< typeof lazy > > = {
 	forms: lazy( () => import( './forms/Page' ) ),
 	'stock-photos': lazy( () => import( './stock-photos/Page' ) ),
 	'opening-hours': lazy( () => import( './opening-hours/Page' ) ),
+	maps: lazy( () => import( './maps/Page' ) ),
 	'ai-markdown': lazy( () => import( './ai-markdown/Page' ) ),
 	'notice-board': lazy( () => import( './notice-board/Page' ) ),
 	'image-optimizer': lazy( () => import( './image-optimizer/Page' ) ),

@@ -37969,3 +37969,375 @@ msgstr "Připojení jste zrušili. Můžete ho dokončit později v modulu Synch
 #: build/index.448b9a5f8122a692a0c2.js:69
 msgid "The site is connected to the central app. The recommended modules below use it where they can."
 msgstr "Web je připojený k Centrální aplikaci. Doporučené moduly níže ji využijí všude, kde to jde."
+
+#: includes/Modules/Maps/Frontend.php:128
+msgid "Get directions"
+msgstr "Navigovat"
+
+#: includes/Modules/Maps/Frontend.php:129
+msgid "More"
+msgstr "Více"
+
+#: includes/Modules/Maps/Frontend.php:130
+msgid "Show map"
+msgstr "Zobrazit mapu"
+
+#: includes/Modules/Maps/Frontend.php:132
+msgid "The map could not be loaded."
+msgstr "Mapu se nepodařilo načíst."
+
+#. translators: %s: map service name, e.g. Google Maps
+#: includes/Modules/Maps/Frontend.php:159
+msgid "The map is loaded from %s."
+msgstr "Mapa se načítá ze služby %s."
+
+#: includes/Modules/Maps/help.php:12
+msgid "Chooses who draws the map background for every map set to \"Default\". Pins stay in the same place whichever provider you pick."
+msgstr "Určuje, kdo kreslí podklad všech map nastavených na „Výchozí“. Špendlíky zůstanou na stejném místě, ať zvolíš kteréhokoli poskytovatele."
+
+#: includes/Modules/Maps/help.php:13
+msgid "You can switch all maps of the site to another provider at once, without editing each map."
+msgstr "Všechny mapy webu přepneš na jiného poskytovatele najednou, bez úprav jednotlivých map."
+
+#: includes/Modules/Maps/help.php:14
+msgid "Mapy.com, Mapbox and Google need a key. Without it the website quietly shows OpenStreetMap instead."
+msgstr "Mapy.com, Mapbox a Google potřebují klíč. Bez něj web potichu zobrazí OpenStreetMap."
+
+#: includes/Modules/Maps/help.php:15
+msgid "Keep OpenStreetMap when you do not want to manage any keys or accounts."
+msgstr "Nech OpenStreetMap, když nechceš spravovat žádné klíče ani účty."
+
+#: includes/Modules/Maps/help.php:18
+msgid "The key from your Mapy.com developer account. It lets the site load Czech tourist, aerial and winter maps and search addresses."
+msgstr "Klíč z tvého vývojářského účtu Mapy.com. Web s ním načte české turistické, letecké a zimní mapy a vyhledá adresy."
+
+#: includes/Modules/Maps/help.php:19
+msgid "Maps get the detailed Czech map background visitors know from Mapy.com, and address search in the editor finds Czech addresses reliably."
+msgstr "Mapy dostanou podrobný český podklad, který návštěvníci znají z Mapy.com, a hledání v editoru spolehlivě najde české adresy."
+
+#: includes/Modules/Maps/help.php:20
+msgid "The key is visible in the page code, because the visitor's browser loads the map tiles with it. Limit it to your domain in the Mapy.com account and keep an eye on the free monthly limit."
+msgstr "Klíč je vidět v kódu stránky, protože s ním prohlížeč návštěvníka načítá dlaždice mapy. V účtu Mapy.com ho omez na svou doménu a hlídej bezplatný měsíční limit."
+
+#: includes/Modules/Maps/help.php:21
+#: includes/Modules/Maps/help.php:27
+msgid "Leave it empty when you use another provider."
+msgstr "Nech prázdné, když používáš jiného poskytovatele."
+
+#: includes/Modules/Maps/help.php:24
+msgid "The public access token from your Mapbox account. It unlocks Mapbox styles such as the dark or outdoor map."
+msgstr "Veřejný přístupový token z tvého účtu Mapbox. Zpřístupní styly Mapboxu, třeba tmavou nebo turistickou mapu."
+
+#: includes/Modules/Maps/help.php:25
+msgid "Maps can match the look of the site, for example a dark map on a dark page."
+msgstr "Mapy můžou ladit se vzhledem webu, například tmavá mapa na tmavé stránce."
+
+#: includes/Modules/Maps/help.php:26
+msgid "Use only a public token (pk.), never a secret one (sk.). It is visible in the page code, so restrict it to your site's address in Mapbox."
+msgstr "Používej jen veřejný token (pk.), nikdy tajný (sk.). Je vidět v kódu stránky, proto ho v Mapboxu omez na adresu svého webu."
+
+#: includes/Modules/Maps/help.php:30
+msgid "The Google Cloud key with the Maps JavaScript API enabled. It lets the site show maps drawn by Google."
+msgstr "Klíč z Google Cloud se zapnutým Maps JavaScript API. Web s ním zobrazí mapy, které kreslí Google."
+
+#: includes/Modules/Maps/help.php:31
+msgid "Visitors see the familiar Google map with satellite and terrain views."
+msgstr "Návštěvníci uvidí známou mapu Googlu se satelitním a terénním zobrazením."
+
+#: includes/Modules/Maps/help.php:32
+msgid "Google bills map loads above the free monthly credit. Restrict the key to your domain and set a budget alert in Google Cloud, otherwise a copied key can cost money."
+msgstr "Google účtuje načtení map nad bezplatný měsíční kredit. Omez klíč na svou doménu a nastav v Google Cloud upozornění na rozpočet, jinak tě zkopírovaný klíč může stát peníze."
+
+#: includes/Modules/Maps/help.php:33
+msgid "Leave it empty when you do not need Google specifically. OpenStreetMap and Mapy.com cost nothing for a normal site."
+msgstr "Nech prázdné, když nepotřebuješ právě Google. OpenStreetMap a Mapy.com běžný web nic nestojí."
+
+#: includes/Modules/Maps/help.php:36
+msgid "The ID of a map style created in Google Cloud. With it Google uses its newer pins in the color of each pin and your cloud style."
+msgstr "ID stylu mapy vytvořeného v Google Cloud. Google pak použije novější špendlíky v barvě každého špendlíku a tvůj styl z cloudu."
+
+#: includes/Modules/Maps/help.php:37
+msgid "Google maps look the way you designed them in Google Cloud instead of the default style."
+msgstr "Mapy Googlu vypadají tak, jak sis je navrhl v Google Cloud, místo výchozího stylu."
+
+#: includes/Modules/Maps/help.php:38
+msgid "Leave it empty and Google maps use the standard look with the pin colors from this module."
+msgstr "Nech prázdné a mapy Googlu použijí běžný vzhled s barvami špendlíků z tohoto modulu."
+
+#: includes/Modules/Maps/help.php:41
+msgid "The color a new pin gets. Each pin can still have its own color in the editor."
+msgstr "Barva, kterou dostane nový špendlík. Každý špendlík může mít v editoru i vlastní barvu."
+
+#: includes/Modules/Maps/help.php:42
+msgid "Pins match the colors of the site without setting each one by hand."
+msgstr "Špendlíky ladí s barvami webu, aniž bys každý nastavoval ručně."
+
+#: includes/Modules/Maps/help.php:45
+msgid "The height a new map starts with. The width always fills the space where the map is placed."
+msgstr "Výška, se kterou nová mapa začíná. Šířka vždy vyplní místo, kam mapu vložíš."
+
+#: includes/Modules/Maps/help.php:46
+msgid "New maps fit the layout of the site from the start. Existing maps keep their own height."
+msgstr "Nové mapy od začátku sedí do rozvržení webu. Stávající mapy si nechají svou výšku."
+
+#: includes/Modules/Maps/help.php:47
+msgid "A very tall map on a phone covers the whole screen and is hard to scroll past."
+msgstr "Hodně vysoká mapa na telefonu zakryje celou obrazovku a špatně se přes ni posouvá."
+
+#: includes/Modules/Maps/Module.php:85
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Maps"
+msgstr "Mapy"
+
+#: includes/Modules/Maps/Module.php:117
+msgid "Default map provider"
+msgstr "Výchozí poskytovatel map"
+
+#: includes/Modules/Maps/Module.php:118
+msgid "Used by maps set to \"Default\". A provider without a key falls back to OpenStreetMap."
+msgstr "Použijí ho mapy nastavené na „Výchozí“. Poskytovatel bez klíče se nahradí OpenStreetMap."
+
+#: includes/Modules/Maps/Module.php:125
+msgid "Mapy.com API key"
+msgstr "API klíč Mapy.com"
+
+#: includes/Modules/Maps/Module.php:126
+msgid "Get it at developer.mapy.com. If empty, the key from Opening Hours is used."
+msgstr "Získáš ho na developer.mapy.com. Když je prázdný, použije se klíč z Otevírací doby."
+
+#: includes/Modules/Maps/Module.php:132
+msgid "Mapbox access token"
+msgstr "Přístupový token Mapbox"
+
+#: includes/Modules/Maps/Module.php:133
+msgid "A public token (pk.…) restricted to this site's URL in your Mapbox account."
+msgstr "Veřejný token (pk.…) omezený v účtu Mapbox na adresu tohoto webu."
+
+#: includes/Modules/Maps/Module.php:140
+msgid "Needs the Maps JavaScript API enabled; restrict it to this site's referrer. If empty, the key from Opening Hours is used."
+msgstr "Potřebuje zapnuté Maps JavaScript API a omezení na adresu tohoto webu. Když je prázdný, použije se klíč z Otevírací doby."
+
+#: includes/Modules/Maps/Module.php:146
+msgid "Google Map ID"
+msgstr "Google Map ID"
+
+#: includes/Modules/Maps/Module.php:147
+msgid "Optional. With a Map ID Google draws modern colored pins and applies the cloud style of that ID."
+msgstr "Nepovinné. S Map ID kreslí Google moderní barevné špendlíky a použije styl uložený pod tímto ID."
+
+#: includes/Modules/Maps/Module.php:153
+msgid "Default pin color"
+msgstr "Výchozí barva špendlíku"
+
+#: includes/Modules/Maps/Module.php:159
+msgid "Default map height (px)"
+msgstr "Výchozí výška mapy (px)"
+
+#: includes/Modules/Maps/Module.php:199
+msgid "OpenStreetMap (no key)"
+msgstr "OpenStreetMap (bez klíče)"
+
+#: includes/Modules/Maps/Module.php:445
+#: includes/Modules/Maps/Module.php:481
+msgid "Map not found."
+msgstr "Mapa nenalezena."
+
+#: includes/Modules/Maps/Module.php:453
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Map"
+msgstr "Mapa"
+
+#: includes/Modules/Maps/Module.php:559
+msgid "Enter an address to search for."
+msgstr "Zadej adresu, kterou chceš najít."
+
+#: includes/Modules/Maps/Module.php:598
+msgid "Address search is not available right now."
+msgstr "Hledání adres teď není k dispozici."
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Shortcode copied."
+msgstr "Shortcode zkopírován."
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Map saved."
+msgstr "Mapa uložena."
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Nothing found for this address."
+msgstr "Pro tuto adresu se nic nenašlo."
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "All maps"
+msgstr "Všechny mapy"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Map name"
+msgstr "Název mapy"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Save map"
+msgstr "Uložit mapu"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Search an address…"
+msgstr "Hledat adresu…"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Search an address"
+msgstr "Hledat adresu"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Click the map…"
+msgstr "Klikni do mapy…"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Add pin"
+msgstr "Přidat špendlík"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Add as pin"
+msgstr "Přidat jako špendlík"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Drag a pin to move it. Click a pin to edit its text."
+msgstr "Špendlík přesuneš přetažením. Kliknutím na něj upravíš jeho text."
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "The editor preview uses OpenStreetMap; on the website the map is drawn by Google Maps with the same pin positions."
+msgstr "Náhled v editoru používá OpenStreetMap. Na webu mapu nakreslí Google Mapy se stejnými polohami špendlíků."
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "This provider has no key yet (Settings tab) - the website shows OpenStreetMap until you add one."
+msgstr "Tento poskytovatel zatím nemá klíč (karta Nastavení). Než ho doplníš, web zobrazí OpenStreetMap."
+
+#. translators: %d: number of pins
+#: build/225.e191f19968d429a2a707.js:1
+msgid "%d pin"
+msgid_plural "%d pins"
+msgstr[0] "%d špendlík"
+msgstr[1] "%d špendlíky"
+msgstr[2] "%d špendlíků"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Add the first pin by searching an address or clicking the map."
+msgstr "První špendlík přidáš vyhledáním adresy nebo kliknutím do mapy."
+
+#. translators: %d: pin number
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Pin %d"
+msgstr "Špendlík %d"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Delete pin"
+msgstr "Smazat špendlík"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Popup text"
+msgstr "Text v bublině"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Link (optional)"
+msgstr "Odkaz (nepovinné)"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Latitude"
+msgstr "Zeměpisná šířka"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Longitude"
+msgstr "Zeměpisná délka"
+
+#. translators: %s: provider name
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Default (%s)"
+msgstr "Výchozí (%s)"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "no key"
+msgstr "bez klíče"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Mapbox style"
+msgstr "Styl Mapbox"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Map style"
+msgstr "Styl mapy"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Height (px)"
+msgstr "Výška (px)"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Fit the view to all pins"
+msgstr "Přizpůsobit výřez všem špendlíkům"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Zoom for a single pin"
+msgstr "Přiblížení u jednoho špendlíku"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Current view will be used."
+msgstr "Použije se aktuální výřez."
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Use the current view of the preview"
+msgstr "Použít aktuální výřez náhledu"
+
+#. translators: 1: latitude, 2: longitude, 3: zoom
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Center %1$s, %2$s, zoom %3$d"
+msgstr "Střed %1$s, %2$s, přiblížení %3$d"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Zoom with the mouse wheel"
+msgstr "Přibližovat kolečkem myši"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Show \"Get directions\" in the popup"
+msgstr "Zobrazit v bublině „Navigovat“"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Load the map only after a click (privacy, no request to the provider before)"
+msgstr "Načíst mapu až po kliknutí (soukromí, do té doby žádný požadavek na poskytovatele)"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Our branches"
+msgstr "Naše pobočky"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "No Opening Hours location has coordinates yet."
+msgstr "Žádná pobočka v Otevírací době zatím nemá souřadnice."
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "New map"
+msgstr "Nová mapa"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "New map from Opening Hours locations"
+msgstr "Nová mapa z poboček Otevírací doby"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Pins"
+msgstr "Špendlíky"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Edit map"
+msgstr "Upravit mapu"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Delete map"
+msgstr "Smazat mapu"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Delete this map? Pages using its shortcode will show nothing."
+msgstr "Smazat tuto mapu? Stránky s jejím shortcodem pak nic nezobrazí."
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "No maps yet. Create one and paste its shortcode into a page (Elementor: Shortcode widget)."
+msgstr "Zatím žádné mapy. Vytvoř mapu a vlož její shortcode do stránky (v Elementoru widget Shortcode)."
+
+#: includes/Modules/Maps/meta.json:1
+msgid "Build simple maps with one or more draggable pins and embed them with a shortcode. Providers: OpenStreetMap, Mapy.com, Mapbox and Google Maps."
+msgstr "Jednoduché mapy s jedním nebo více špendlíky, které přetáhneš myší, a vložení na stránku shortcodem. Podklady: OpenStreetMap, Mapy.com, Mapbox a Google Mapy."

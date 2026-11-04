@@ -309,6 +309,16 @@ final class Optimizer {
 			}
 		}
 
+		// Squeeze plugin sidecar "<name>.bak.<ext>" (PLAN §41). For a "-scaled"
+		// file Squeeze may have backed up the unscaled upload instead.
+		$extension = $info['extension'] ?? '';
+		foreach ( array_unique( array( $info['filename'], (string) preg_replace( '/-scaled$/', '', $info['filename'] ) ) ) as $name ) {
+			$squeeze = $info['dirname'] . '/' . $name . '.bak.' . $extension;
+			if ( is_file( $squeeze ) ) {
+				return $squeeze;
+			}
+		}
+
 		return null;
 	}
 
