@@ -168,17 +168,25 @@ $uxs_usage = static function ( string $like ): array {
 };
 
 /**
- * TablePress -> tables module (uxstudio_table). Cells keep TablePress' JSON
- * 2D array shape, options are translated to _uxstudio_table_options.
+ * TablePress -> tables module (uxstudio_table), saved through
+ * Tables\Module::save_table() so cells and options are validated exactly like
+ * in the editor. Cells keep TablePress' JSON 2D array shape, options are
+ * translated to _uxstudio_table_options.
  */
-$uxs_tablepress = static function ( bool $apply ) use ( $uxs_find_migrated, $uxs_usage ): void {
+$uxs_tablepress = static function ( bool $apply ) use ( $uxs_usage ): void {
 	WP_CLI::log( '--- tablepress ---' );
 
 	$map    = json_decode( (string) get_option( 'tablepress_tables', '' ), true );
 	$tables = is_array( $map ) ? (array) ( $map['table_post'] ?? array() ) : array();
-	$ready  = post_type_exists( 'uxstudio_table' );
+	$plugin = class_exists( '\UxStudio\Plugin' ) ? \UxStudio\Plugin::instance() : null;
+	$module = $plugin && isset( $plugin->modules ) ? $plugin->modules->instance( 'tables' ) : null;
+	if ( ! $module instanceof \UxStudio\Modules\Tables\Module && class_exists( '\UxStudio\Modules\Tables\Module' ) && post_type_exists( \UxStudio\Modules\Tables\Module::CPT ) ) {
+		// The plugin is not booted in this process (wp eval-file with --skip-plugins), but the post type is registered.
+		$module = new \UxStudio\Modules\Tables\Module( 'tables', (array) json_decode( (string) file_get_contents( UXSTUDIO_PATH . 'includes/Modules/Tables/meta.json' ), true ) );
+	}
+	$ready = $module instanceof \UxStudio\Modules\Tables\Module && post_type_exists( \UxStudio\Modules\Tables\Module::CPT );
 	if ( ! $ready ) {
-		WP_CLI::warning( 'Module "tables" is not active (post type uxstudio_table missing) - showing what would be migrated only.' );
+		WP_CLI::warning( 'Module "tables" is not enabled in UX Studio - showing what would be migrated only.' );
 	}
 
 	foreach ( $tables as $legacy_id => $post_id ) {
@@ -221,7 +229,7 @@ $uxs_tablepress = static function ( bool $apply ) use ( $uxs_find_migrated, $uxs
 		);
 
 		$empty_rows = count( array_filter( $cells, static fn ( $row ) => '' === implode( '', array_map( 'trim', (array) $row ) ) ) );
-		$existing   = $ready ? $uxs_find_migrated( 'uxstudio_table', '_uxstudio_table_legacy_id', (int) $legacy_id ) : 0;
+		$existing   = $ready ? $module->find_by_legacy_id( (int) $legacy_id ) : 0;
 		WP_CLI::log(
 			sprintf(
 				'Table %d "%s": %d rows x %d cols, %s%s',
@@ -241,23 +249,21 @@ $uxs_tablepress = static function ( bool $apply ) use ( $uxs_find_migrated, $uxs
 		}
 
 		if ( $apply && $ready && ! $existing ) {
-			$new_id = wp_insert_post(
+			$saved = $module->save_table(
+				0,
 				array(
-					'post_type'    => 'uxstudio_table',
-					'post_status'  => 'publish',
-					'post_title'   => $post->post_title,
-					'post_excerpt' => $post->post_excerpt,
-					'post_content' => wp_slash( (string) wp_json_encode( $cells, JSON_UNESCAPED_UNICODE ) ),
-				),
-				true
+					'title'       => $post->post_title,
+					'description' => $post->post_excerpt,
+					'cells'       => $cells,
+					'options'     => $options,
+					'legacy_id'   => (int) $legacy_id,
+				)
 			);
-			if ( is_wp_error( $new_id ) ) {
-				WP_CLI::warning( "Table {$legacy_id}: " . $new_id->get_error_message() );
+			if ( is_wp_error( $saved ) ) {
+				WP_CLI::warning( "Table {$legacy_id}: " . $saved->get_error_message() );
 				continue;
 			}
-			update_post_meta( $new_id, '_uxstudio_table_options', wp_slash( (string) wp_json_encode( $options ) ) );
-			update_post_meta( $new_id, '_uxstudio_table_legacy_id', (int) $legacy_id );
-			WP_CLI::log( "  -> created uxstudio_table #{$new_id}" );
+			WP_CLI::log( "  -> created table #{$saved['id']}, shortcode [uxstudio_table id=\"{$saved['id']}\"]" );
 		}
 	}
 };
