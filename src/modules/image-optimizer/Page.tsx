@@ -23,6 +23,7 @@ interface DeliveryStatus {
 	writable: boolean;
 	path: string;
 	server_note: string;
+	mode: 'htaccess' | 'picture' | 'off';
 }
 
 interface CapabilityStatus {
@@ -91,9 +92,17 @@ function StatusPanel(): JSX.Element | null {
 		},
 		{
 			label: __( 'Automatic delivery of newer formats', 'ux-studio' ),
-			ok: delivery.active ? true : null,
-			text: delivery.active ? __( 'Active', 'ux-studio' ) : __( 'Not active', 'ux-studio' ),
-			hint: __( 'Rules in the .htaccess file of the uploads folder', 'ux-studio' ),
+			ok: delivery.mode === 'picture' || delivery.active ? true : null,
+			text:
+				delivery.mode === 'picture'
+					? __( 'Active (picture tag)', 'ux-studio' )
+					: delivery.active
+						? __( 'Active', 'ux-studio' )
+						: __( 'Not active', 'ux-studio' ),
+			hint:
+				delivery.mode === 'picture'
+					? __( 'Images in pages are wrapped in a picture tag', 'ux-studio' )
+					: __( 'Rules in the .htaccess file of the uploads folder', 'ux-studio' ),
 		},
 	];
 
@@ -116,12 +125,12 @@ function StatusPanel(): JSX.Element | null {
 					</li>
 				) ) }
 			</ul>
-			{ ! delivery.writable ? (
+			{ delivery.mode === 'htaccess' && ! delivery.writable ? (
 				<p className="uxs-form__help">
 					{ __( 'The .htaccess file in the uploads folder is not writable, so the delivery rules cannot be managed automatically.', 'ux-studio' ) }
 				</p>
 			) : null }
-			{ delivery.server_note ? <p className="uxs-form__help">{ delivery.server_note }</p> : null }
+			{ delivery.mode === 'htaccess' && delivery.server_note ? <p className="uxs-form__help">{ delivery.server_note }</p> : null }
 		</div>
 	);
 }

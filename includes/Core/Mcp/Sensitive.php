@@ -51,7 +51,7 @@ final class Sensitive {
 		'download-files'        => array( 'require_login_default' ),
 		'google-review-request' => array( 'google_review_url', 'email_body', 'email_subject' ),
 		'admin-customiser'      => array( 'login_custom_css', 'login_message', 'admin_custom_css', 'menu_lock_enabled' ),
-		'image-optimizer'       => array( 'htaccess_delivery' ),
+		'image-optimizer'       => array( 'htaccess_delivery', 'delivery_mode' ),
 		'notice-board'          => array( 'from_email' ),
 	);
 

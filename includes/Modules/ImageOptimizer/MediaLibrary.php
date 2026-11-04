@@ -21,7 +21,6 @@ final class MediaLibrary {
 
 	private const BULK_RESTORE = 'uxstudio_io_restore';
 	private const SORT_KEY     = 'uxstudio_io_size';
-	private const MIME         = array( 'image/jpeg', 'image/png', 'image/gif' );
 
 	private Module $module;
 
@@ -125,20 +124,21 @@ final class MediaLibrary {
 	 * @param int $attachment_id Attachment id.
 	 */
 	private function is_supported( int $attachment_id ): bool {
-		return in_array( (string) get_post_mime_type( $attachment_id ), self::MIME, true );
+		return in_array( (string) get_post_mime_type( $attachment_id ), Optimizer::SUPPORTED_MIME, true );
 	}
 
 	/**
 	 * Optimization state of an attachment.
 	 *
 	 * @param int $attachment_id Attachment id.
-	 * @return array{optimized:bool,original:int,current:int,percent:int,webp:int,avif:int,backup:bool}
+	 * @return array{optimized:bool,original:int,current:int,percent:int,webp:int,avif:int,backup:bool,thumbs:int,excluded:bool}
 	 */
 	private function info( int $attachment_id ): array {
 		$path    = (string) get_attached_file( $attachment_id );
 		$current = ( '' !== $path && is_file( $path ) ) ? (int) filesize( $path ) : 0;
 
 		$optimized = '' !== (string) get_post_meta( $attachment_id, Optimizer::META_OPTIMIZED_SIZE, true );
+		// Original / optimized size cover the whole attachment: main file plus its thumbnails.
 		$original  = $optimized ? (int) get_post_meta( $attachment_id, Optimizer::META_ORIGINAL_SIZE, true ) : $current;
 		$final     = $optimized ? (int) get_post_meta( $attachment_id, Optimizer::META_OPTIMIZED_SIZE, true ) : $current;
 
@@ -159,6 +159,8 @@ final class MediaLibrary {
 			'webp'      => $webp,
 			'avif'      => $avif,
 			'backup'    => $this->optimizer->has_backup( $attachment_id ),
+			'thumbs'    => (int) get_post_meta( $attachment_id, Optimizer::META_THUMBS, true ),
+			'excluded'  => $this->module->is_excluded( $attachment_id ),
 		);
 	}
 
@@ -306,11 +308,18 @@ final class MediaLibrary {
 			$html .= '<span class="uxs-io-badge">' . esc_html__( 'Optimized', 'ux-studio' ) . ' &#10003;</span>';
 			$html .= '<br><span class="uxs-io-compare">' . esc_html( size_format( $info['original'] ) . ' → ' . size_format( $final ) ) . '</span>';
 			$html .= '<br><span class="uxs-io-saved">' . esc_html( sprintf( /* translators: %d: percent saved */ __( 'saved %d%%', 'ux-studio' ), max( 0, $info['percent'] ) ) ) . '</span>';
+			if ( $info['thumbs'] > 0 ) {
+				$html .= '<br><span class="uxs-io-compare">' . esc_html( sprintf( /* translators: %d: number of thumbnails */ _n( 'incl. %d thumbnail', 'incl. %d thumbnails', $info['thumbs'], 'ux-studio' ), $info['thumbs'] ) ) . '</span>';
+			}
 		} else {
 			$html .= '<span class="uxs-io-pending">' . esc_html__( 'Not optimized', 'ux-studio' ) . '</span>';
 			if ( $detail ) {
 				$html .= '<br><span class="uxs-io-compare">' . esc_html( sprintf( /* translators: %s: file size */ __( 'File size: %s', 'ux-studio' ), size_format( $info['current'] ) ) ) . '</span>';
 			}
+		}
+
+		if ( $info['excluded'] ) {
+			$html .= '<br><span class="uxs-io-na">' . esc_html__( 'Excluded from automatic optimization', 'ux-studio' ) . '</span>';
 		}
 
 		if ( $can_edit ) {
