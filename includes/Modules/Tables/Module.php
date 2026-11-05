@@ -391,6 +391,154 @@ final class Module extends BaseModule {
 		return true;
 	}
 
+	/* ------------------------------------------------------------------ *
+	 * TablePress import (bin/migrate-plugins.php and the migration wizard)
+	 * ------------------------------------------------------------------ */
+
+	/**
+	 * Option of TablePress that maps its table IDs to post IDs: {"last_id":N,"table_post":{"1":123}}.
+	 */
+	public const TABLEPRESS_OPTION = 'tablepress_tables';
+
+	/**
+	 * The TablePress tables that exist: legacy ID => post ID.
+	 *
+	 * @return array<int, int>
+	 */
+	public static function tablepress_tables(): array {
+		$stored = get_option( self::TABLEPRESS_OPTION, '' );
+		$map    = is_array( $stored ) ? $stored : json_decode( (string) $stored, true );
+		$out    = array();
+		foreach ( is_array( $map ) ? (array) ( $map['table_post'] ?? array() ) : array() as $legacy_id => $post_id ) {
+			if ( (int) $legacy_id > 0 && (int) $post_id > 0 ) {
+				$out[ (int) $legacy_id ] = (int) $post_id;
+			}
+		}
+		ksort( $out );
+		return $out;
+	}
+
+	/**
+	 * Read one TablePress table (post type tablepress_table) in the shape save_table() takes. Reads only.
+	 *
+	 * Hidden rows and columns are dropped, TablePress' DataTables switches become the sort / search / paginate
+	 * options. Not carried over: custom DataTables commands, per-table CSS ids, formulas (reported).
+	 *
+	 * @param int                 $post_id Post ID of the TablePress table.
+	 * @param array<string, bool> $args    `drop_empty_rows`: leave out rows with no content at all.
+	 * @return array<string, mixed>|null {title, description, cells, options, empty_rows, dropped_html, formulas, custom_commands} or null when the post is missing or not valid table data.
+	 */
+	public function convert_tablepress( int $post_id, array $args = array() ): ?array {
+		$post = get_post( $post_id );
+		if ( ! $post ) {
+			return null;
+		}
+		$cells = json_decode( $post->post_content, true );
+		if ( ! is_array( $cells ) ) {
+			return null;
+		}
+
+		// Hidden rows/columns are not carried over as such - they are dropped.
+		$visibility = json_decode( (string) get_post_meta( $post->ID, '_tablepress_table_visibility', true ), true );
+		if ( is_array( $visibility ) ) {
+			$rows_visible = (array) ( $visibility['rows'] ?? array() );
+			$cols_visible = (array) ( $visibility['columns'] ?? array() );
+			$cells        = array_values( array_filter( $cells, static fn ( $i ) => ! isset( $rows_visible[ $i ] ) || $rows_visible[ $i ], ARRAY_FILTER_USE_KEY ) );
+			$cells        = array_map( static fn ( $row ) => array_values( array_filter( (array) $row, static fn ( $i ) => ! isset( $cols_visible[ $i ] ) || $cols_visible[ $i ], ARRAY_FILTER_USE_KEY ) ), $cells );
+		}
+
+		$is_empty   = static fn ( $row ): bool => '' === implode( '', array_map( static fn ( $cell ) => trim( (string) $cell ), (array) $row ) );
+		$empty_rows = count( array_filter( $cells, $is_empty ) );
+		if ( ! empty( $args['drop_empty_rows'] ) ) {
+			$cells = array_values( array_filter( $cells, static fn ( $row ) => ! $is_empty( $row ) ) );
+		}
+
+		$dropped_html = 0;
+		$formulas     = 0;
+		foreach ( $cells as $row ) {
+			foreach ( (array) $row as $cell ) {
+				$cell = (string) $cell;
+				if ( preg_match( '/^=\s*[A-Za-z0-9(]/', $cell ) ) {
+					++$formulas;
+				}
+				if ( str_contains( $cell, '<' ) && preg_match_all( '/<\/?([a-z][a-z0-9]*)/i', $cell, $tags ) && array_diff( array_map( 'strtolower', $tags[1] ), array_keys( self::allowed_html() ) ) ) {
+					++$dropped_html;
+				}
+			}
+		}
+
+		$tp     = json_decode( (string) get_post_meta( $post->ID, '_tablepress_table_options', true ), true );
+		$tp     = is_array( $tp ) ? $tp : array();
+		$use_dt = ! empty( $tp['use_datatables'] );
+		return array(
+			'title'           => $post->post_title,
+			'description'     => $post->post_excerpt,
+			'cells'           => $cells,
+			'options'         => array(
+				'head'             => ! empty( $tp['table_head'] ),
+				'foot'             => ! empty( $tp['table_foot'] ),
+				'striped'          => ! empty( $tp['alternating_row_colors'] ),
+				'hover'            => ! empty( $tp['row_hover'] ),
+				'responsive'       => $use_dt && ! empty( $tp['datatables_scrollx'] ) ? 'scroll' : 'none',
+				'sort'             => $use_dt && ! empty( $tp['datatables_sort'] ),
+				'search'           => $use_dt && ! empty( $tp['datatables_filter'] ),
+				'paginate'         => $use_dt && ! empty( $tp['datatables_paginate'] ),
+				'page_size'        => (int) ( $tp['datatables_paginate_entries'] ?? 10 ),
+				'caption'          => ! empty( $tp['print_name'] ) ? $post->post_title : '',
+				'caption_position' => ( $tp['print_name_position'] ?? 'above' ) === 'below' ? 'below' : 'above',
+				'extra_class'      => sanitize_text_field( (string) ( $tp['extra_css_classes'] ?? '' ) ),
+			),
+			'empty_rows'      => $empty_rows,
+			'dropped_html'    => $dropped_html,
+			'formulas'        => $formulas,
+			'custom_commands' => trim( (string) ( $tp['datatables_custom_commands'] ?? '' ) ),
+		);
+	}
+
+	/**
+	 * Import one TablePress table. Idempotent by legacy ID: a table that was imported before is left alone
+	 * (never overwritten, it may have been edited here since).
+	 *
+	 * @param int                 $legacy_id TablePress table ID (the N of [table id=N /]).
+	 * @param int                 $post_id   Post ID of the TablePress table.
+	 * @param array<string, bool> $args      See convert_tablepress().
+	 * @return array{status:string,id:int}|WP_Error status: created | unchanged.
+	 */
+	public function import_tablepress( int $legacy_id, int $post_id, array $args = array() ) {
+		$existing = $this->find_by_legacy_id( $legacy_id );
+		if ( $existing ) {
+			return array(
+				'status' => 'unchanged',
+				'id'     => $existing,
+			);
+		}
+		$input = $this->convert_tablepress( $post_id, $args );
+		if ( null === $input ) {
+			return new WP_Error( 'uxstudio_table_tablepress_invalid', __( 'The TablePress table is missing or its data is not valid.', 'ux-studio' ) );
+		}
+		$input['legacy_id'] = $legacy_id;
+		$saved              = $this->save_table( 0, $input );
+		return is_wp_error( $saved ) ? $saved : array(
+			'status' => 'created',
+			'id'     => (int) $saved['id'],
+		);
+	}
+
+	/**
+	 * The module instance for code that may run while the module is switched off (the migration wizard writes
+	 * tables before the module is turned on): the booted one when there is one, otherwise a fresh instance.
+	 * Saving needs neither the hooks nor the registered post type.
+	 */
+	public static function standalone(): self {
+		$plugin = class_exists( '\UxStudio\Plugin' ) ? \UxStudio\Plugin::instance() : null;
+		$module = $plugin && isset( $plugin->modules ) ? $plugin->modules->instance( 'tables' ) : null;
+		if ( $module instanceof self ) {
+			return $module;
+		}
+		$meta = json_decode( (string) file_get_contents( __DIR__ . '/meta.json' ), true );
+		return new self( 'tables', is_array( $meta ) ? $meta : array() );
+	}
+
 	/**
 	 * Table ID created from a legacy plugin's ID (TablePress), or 0.
 	 *

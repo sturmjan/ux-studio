@@ -38,6 +38,7 @@ use UxStudio\Core\Migration\Sources\Redirect404Source;
 use UxStudio\Core\Migration\Sources\RedirectsSource;
 use UxStudio\Core\Migration\Sources\SmtpSource;
 use UxStudio\Core\Migration\Sources\SvgSource;
+use UxStudio\Core\Migration\Sources\TablePressSource;
 use UxStudio\Core\Migration\Sources\UpdatesSource;
 use UxStudio\Core\Migration\Sources\WpExtendedSource;
 use UxStudio\Core\Migration\Sources\WhiteLabelCmsSource;
@@ -101,6 +102,7 @@ final class SourceRegistry {
 			MaintenanceSource::class      => array( 'wp-maintenance-mode', 'coming-soon', 'maintenance', 'under-construction-page' ),
 			ActivityLogSource::class      => array( 'simple-history', 'wp-security-audit-log', 'aryo-activity-log', 'adminify-activity-logs' ),
 			PostTypeOrderSource::class    => array( 'post-types-order', 'intuitive-custom-post-order' ),
+			TablePressSource::class       => array( 'tablepress' ),
 			// F5: Admin Customiser sources and Admin Columns.
 			AdminMenuEditorSource::class  => array( 'admin-menu-editor', 'admin-menu-editor-pro' ),
 			AdminimizeSource::class       => array( 'adminimize' ),

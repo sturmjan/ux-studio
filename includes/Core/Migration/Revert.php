@@ -89,6 +89,12 @@ final class Revert {
 				return false;
 			case 'snippet_file':
 				return self::delete_snippet_file( $id );
+			case 'table_post':
+				// Only a table of the Tables module, and only one this run created (the mapping holds just those).
+				if ( function_exists( 'get_post_type' ) && function_exists( 'wp_delete_post' ) && (int) $id > 0 && 'uxstudio_table' === get_post_type( (int) $id ) ) {
+					return false !== wp_delete_post( (int) $id, true );
+				}
+				return false;
 		}
 		return false;
 	}

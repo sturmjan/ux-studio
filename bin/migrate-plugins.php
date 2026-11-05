@@ -138,97 +138,59 @@ $uxs_usage = static function ( string $like ): array {
 };
 
 /**
- * TablePress -> tables module (uxstudio_table), saved through
- * Tables\Module::save_table() so cells and options are validated exactly like
- * in the editor. Cells keep TablePress' JSON 2D array shape, options are
- * translated to _uxstudio_table_options.
+ * TablePress -> tables module (uxstudio_table). The conversion lives in
+ * Tables\Module::convert_tablepress() / import_tablepress() and is shared with the
+ * migration wizard (Core\Migration\Sources\TablePressSource). Saving goes through
+ * save_table(), so cells and options are validated exactly like in the editor.
  */
 $uxs_tablepress = static function ( bool $apply ) use ( $uxs_usage ): void {
 	WP_CLI::log( '--- tablepress ---' );
 
-	$map    = json_decode( (string) get_option( 'tablepress_tables', '' ), true );
-	$tables = is_array( $map ) ? (array) ( $map['table_post'] ?? array() ) : array();
-	$plugin = class_exists( '\UxStudio\Plugin' ) ? \UxStudio\Plugin::instance() : null;
-	$module = $plugin && isset( $plugin->modules ) ? $plugin->modules->instance( 'tables' ) : null;
-	if ( ! $module instanceof \UxStudio\Modules\Tables\Module && class_exists( '\UxStudio\Modules\Tables\Module' ) && post_type_exists( \UxStudio\Modules\Tables\Module::CPT ) ) {
-		// The plugin is not booted in this process (wp eval-file with --skip-plugins), but the post type is registered.
-		$module = new \UxStudio\Modules\Tables\Module( 'tables', (array) json_decode( (string) file_get_contents( UXSTUDIO_PATH . 'includes/Modules/Tables/meta.json' ), true ) );
-	}
-	$ready = $module instanceof \UxStudio\Modules\Tables\Module && post_type_exists( \UxStudio\Modules\Tables\Module::CPT );
+	$tables = class_exists( '\UxStudio\Modules\Tables\Module' ) ? \UxStudio\Modules\Tables\Module::tablepress_tables() : array();
+	// The module need not be switched on: saving needs neither its hooks nor the registered post type
+	// (the post type only has to exist for the alias to render, that is the module being on after the switch).
+	$module = class_exists( '\UxStudio\Modules\Tables\Module' ) ? \UxStudio\Modules\Tables\Module::standalone() : null;
+	$ready  = null !== $module;
 	if ( ! $ready ) {
-		WP_CLI::warning( 'Module "tables" is not enabled in UX Studio - showing what would be migrated only.' );
+		WP_CLI::warning( 'The tables module code is not available - showing what would be migrated only.' );
+	} elseif ( ! post_type_exists( \UxStudio\Modules\Tables\Module::CPT ) ) {
+		WP_CLI::warning( 'Module "tables" is not enabled in UX Studio yet - tables are written anyway, but [table id=N /] only renders once the module is on.' );
 	}
 
 	foreach ( $tables as $legacy_id => $post_id ) {
-		$post = get_post( (int) $post_id );
-		if ( ! $post ) {
-			WP_CLI::warning( "Table {$legacy_id}: post {$post_id} is missing, skipped." );
-			continue;
-		}
-		$cells = json_decode( $post->post_content, true );
-		if ( ! is_array( $cells ) ) {
-			WP_CLI::warning( "Table {$legacy_id}: cell data is not valid JSON, skipped." );
+		$data = $ready ? $module->convert_tablepress( (int) $post_id ) : null;
+		if ( null === $data ) {
+			WP_CLI::warning( "Table {$legacy_id}: post {$post_id} is missing or its cell data is not valid JSON, skipped." );
 			continue;
 		}
 
-		// Hidden rows/columns are not carried over as such - they are dropped.
-		$visibility = json_decode( (string) get_post_meta( $post->ID, '_tablepress_table_visibility', true ), true );
-		if ( is_array( $visibility ) ) {
-			$rows_visible = (array) ( $visibility['rows'] ?? array() );
-			$cols_visible = (array) ( $visibility['columns'] ?? array() );
-			$cells        = array_values( array_filter( $cells, static fn ( $i ) => ! isset( $rows_visible[ $i ] ) || $rows_visible[ $i ], ARRAY_FILTER_USE_KEY ) );
-			$cells        = array_map( static fn ( $row ) => array_values( array_filter( (array) $row, static fn ( $i ) => ! isset( $cols_visible[ $i ] ) || $cols_visible[ $i ], ARRAY_FILTER_USE_KEY ) ), $cells );
-		}
-
-		$tp      = json_decode( (string) get_post_meta( $post->ID, '_tablepress_table_options', true ), true );
-		$tp      = is_array( $tp ) ? $tp : array();
-		$use_dt  = ! empty( $tp['use_datatables'] );
-		$options = array(
-			'head'             => ! empty( $tp['table_head'] ),
-			'foot'             => ! empty( $tp['table_foot'] ),
-			'striped'          => ! empty( $tp['alternating_row_colors'] ),
-			'hover'            => ! empty( $tp['row_hover'] ),
-			'responsive'       => $use_dt && ! empty( $tp['datatables_scrollx'] ) ? 'scroll' : 'none',
-			'sort'             => $use_dt && ! empty( $tp['datatables_sort'] ),
-			'search'           => $use_dt && ! empty( $tp['datatables_filter'] ),
-			'paginate'         => $use_dt && ! empty( $tp['datatables_paginate'] ),
-			'page_size'        => (int) ( $tp['datatables_paginate_entries'] ?? 10 ),
-			'caption'          => ! empty( $tp['print_name'] ) ? $post->post_title : '',
-			'caption_position' => ( $tp['print_name_position'] ?? 'above' ) === 'below' ? 'below' : 'above',
-			'extra_class'      => sanitize_text_field( (string) ( $tp['extra_css_classes'] ?? '' ) ),
-		);
-
-		$empty_rows = count( array_filter( $cells, static fn ( $row ) => '' === implode( '', array_map( 'trim', (array) $row ) ) ) );
-		$existing   = $ready ? $module->find_by_legacy_id( (int) $legacy_id ) : 0;
+		$existing = $ready ? $module->find_by_legacy_id( (int) $legacy_id ) : 0;
 		WP_CLI::log(
 			sprintf(
 				'Table %d "%s": %d rows x %d cols, %s%s',
 				$legacy_id,
-				$post->post_title,
-				count( $cells ),
-				count( (array) ( $cells[0] ?? array() ) ),
+				$data['title'],
+				count( $data['cells'] ),
+				count( (array) ( $data['cells'][0] ?? array() ) ),
 				$existing ? "already migrated as #{$existing}" : 'new',
-				$empty_rows ? ", {$empty_rows} empty row(s)" : ''
+				$data['empty_rows'] ? ", {$data['empty_rows']} empty row(s)" : ''
 			)
 		);
-		if ( ! empty( $tp['datatables_custom_commands'] ) ) {
-			WP_CLI::warning( "Table {$legacy_id}: custom DataTables commands are not migrated: " . $tp['datatables_custom_commands'] );
+		if ( '' !== $data['custom_commands'] ) {
+			WP_CLI::warning( "Table {$legacy_id}: custom DataTables commands are not migrated: " . $data['custom_commands'] );
+		}
+		if ( $data['formulas'] ) {
+			WP_CLI::warning( "Table {$legacy_id}: {$data['formulas']} cell(s) look like formulas; UX Studio does not calculate them." );
+		}
+		if ( $data['dropped_html'] ) {
+			WP_CLI::warning( "Table {$legacy_id}: {$data['dropped_html']} cell(s) contain HTML that is not allowed in a table cell (only links, line breaks, bold, italic, span, images) and will be stripped." );
 		}
 		foreach ( $uxs_usage( "[table id={$legacy_id} " ) as $page ) {
 			WP_CLI::log( "  used on page {$page} (the [table id={$legacy_id} /] alias keeps it working)" );
 		}
 
 		if ( $apply && $ready && ! $existing ) {
-			$saved = $module->save_table(
-				0,
-				array(
-					'title'       => $post->post_title,
-					'description' => $post->post_excerpt,
-					'cells'       => $cells,
-					'options'     => $options,
-					'legacy_id'   => (int) $legacy_id,
-				)
-			);
+			$saved = $module->import_tablepress( (int) $legacy_id, (int) $post_id );
 			if ( is_wp_error( $saved ) ) {
 				WP_CLI::warning( "Table {$legacy_id}: " . $saved->get_error_message() );
 				continue;
