@@ -4177,7 +4177,8 @@ optimalizace nekomprimovala podruhé (`.bak` soubory nechá na místě). `webp-e
 - [x] Modul `maps` (editor, 4 poskytovatelé, alias Mapsteru, nápověda, čeština)
 - [x] Migrační skript (mapster, squeeze, webp-express; tablepress jen výpis)
 - [x] `Optimizer::legacy_backup()` čte zálohy Squeeze `.bak.ext`
-- [ ] Ověřit mapu naživo s klíčem Mapy.com a Google (uživatel dodá klíče)
+- [x] Mapy.com ověřeno naživo 2026-11-05 (klíč uživatele): dlaždice basic i outdoor (36/36 OK), povinné logo, piny, bublina, odkaz Navigovat na mapy.com, hledání adres v editoru jde přes Mapy.com
+- [ ] Google Maps naživo: klíč „Trockenmann“ z hesláře je VYPRŠELÝ (Google vrací ExpiredKeyMapError). Modul API načte správně a Google zobrazí vlastní chybovou hlášku. Ověřit s platným klíčem
 - [x] `image-optimizer`: komprese náhledů + WebP/AVIF pro náhledy + restore náhledů (zálohy `-original` u každého náhledu, bez zálohy se náhledy přegenerují; dávky s časovým rozpočtem)
 - [x] `image-optimizer`: `delivery_mode` htaccess/picture/off (nahrazuje `htaccess_delivery`), HEIC → JPEG, vyloučené obrázky, vstup WebP
 - [x] Modul `tables` (CPT, mřížkový editor v SPA, vložení z Excelu, CSV, shortcode + alias `[table id=N /]`, Elementor widget, řazení/hledání/stránkování ve vanilla JS; Gutenberg blok zatím ne)
