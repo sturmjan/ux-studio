@@ -4096,3 +4096,113 @@ proti CA z worktree `_ca-wt-identity` s čerstvou DB `ca_e2e` (všech 116 migrac
 - Zbývá: Facebook u veřejné URL (lokální `localhost` Facebook nestáhne, CA přesto hlásí OK s prázdným titulkem:
   zvážit hlášení „Facebook nenašel titulek ani obrázek"), IndexNow 200/202 u veřejného webu, nginx, názvy voleb
   IndexNow v Rank Math / Yoast.
+
+## 41. Náhrada pluginů Mapster, Squeeze, WebP konverze a TablePress (2026-11-04)
+
+Podnět: seco-valassko.cz (Hostinger) jede na Mapster WP Maps 2.0.6, Squeeze 1.8.3.1 a TablePress 3.4.1.
+Uživatel chce stejné funkce v UX Studiu a migraci. **Na seco se nic nemění**, web slouží jen jako vzor
+(inventura přes SSH + WP-CLI jen pro čtení, migrační skript tam běžel jen naprázdno).
+
+### 41.1 Co na seco reálně je (2026-11-04)
+
+- **Mapster:** 1 mapa (ID 13745, stránka Kontakt, `[mapster_wp_map id="13745"]` v Elementoru), 1 bod
+  „Kamenná prodejna" (49.4754288, 17.9690538, `#eb183f`), popup s adresou a otevírací dobou, Mapbox
+  `dark-v11`, výška 600 px, ruční střed + zoom 7.64, zoom kolečkem vypnutý. Zbytek funkcí nepoužitý.
+- **Squeeze:** 4194 zkomprimovaných obrázků, originály vedle souborů jako `jmeno.bak.ext` (5,1 GB),
+  komprimuje i náhledy. Auto WebP vypnuté.
+- **WebP konverze:** plugin už na serveru není, zbylo 7 options `webp-express-*`. Web servíruje 0 WebP.
+- **TablePress:** 2 malé tabulky (ceníky), hlavička + pruhy + hover + horizontální scroll.
+  Na živém webu je v ceníku `[DOPLNIT CENU]` (nahlášeno uživateli).
+
+### 41.2 Porovnání
+
+| Funkce | Plugin | UX Studio | Stav |
+|---|---|---|---|
+| Mapa s více piny, přetahování, popupy | Mapster | modul `maps` | ✅ hotovo (41.3) |
+| Poskytovatelé OSM / Mapy.com / Mapbox / Google | Mapster (Mapbox, Google) | modul `maps` | ✅ |
+| Komprese hlavního souboru | Squeeze | `image-optimizer` | ✅ už bylo |
+| **Komprese náhledů** | Squeeze | jen hlavní soubor | ❌ mezera |
+| **WebP/AVIF pro náhledy** | WebP Express | jen hlavní soubor | ❌ mezera, doručení přes .htaccess pak pro `srcset` nic nenajde |
+| Záloha + obnovení | Squeeze `.bak.ext` | `-original.ext` | ✅ restore čte i `.bak.ext` |
+| Doručení přes `<picture>` | WebP Express | jen .htaccess | ❌ (nginx/CDN) |
+| Vstup HEIC/WebP, vyloučené obrázky | Squeeze | ne | ❌ menší |
+| Tabulky | TablePress | nic | ❌ celý modul |
+
+### 41.3 Modul `maps` (HOTOVO, větev `feature/maps-module`)
+
+UX1 měl mapu jen uvnitř Otevírací doby (4 poskytovatelé, přetahovatelný pin pobočky). Při přepisu ji
+§15 vědomě vypustil. Teď je to samostatný jednoduchý modul:
+
+- CPT `uxstudio_map`, celá konfigurace v meta `_uxstudio_map` (JSON): `provider` (default/osm/mapy/
+  mapbox/google), `style`, `height`, `zoom`, `center`, `fit_markers`, `scroll_zoom`, `route_link`,
+  `click_to_load`, `markers[{lat,lng,title,text,color,url}]` (max 200). Validace v `Module::sanitize_config()`
+  (popup text přes `wp_kses` jen `br/strong/b/em/i/a`, URL jen http/https/mailto/tel).
+- Editor v SPA: hledání adresy (Mapy.com → Google → OSM Nominatim), přidání pinu kliknutím do mapy,
+  přetažení pinu, text/barva/odkaz/souřadnice, „použít aktuální výřez", mapa z poboček Otevírací doby.
+  Náhled v editoru je vždy Leaflet; u Googlu s podkladem OSM (polohy platí stejně).
+- Web: `[uxstudio_map id="X" height="300"]`, `assets/js/maps.js`. Leaflet 1.9.4 přibalený lokálně
+  (`assets/vendor/leaflet`, žádné CDN), Google Maps JS API se načte až když je potřeba. Mapa se staví až
+  při scrollu do zobrazení, volitelně až po kliknutí (do té doby 0 požadavků na poskytovatele). Mapy.com
+  s povinným logem a atribucí.
+- Klíče jako secrets (`uxstudio_secret_maps_*`), Mapy.com a Google spadnou na klíče z Otevírací doby.
+  Poskytovatel bez klíče → web ukáže OSM. CSP: při Google klíči přidá `maps.googleapis.com` /
+  `maps.gstatic.com` přes filtr `uxstudio_csp_directives`.
+- Alias `[mapster_wp_map id="N"]` (meta `_uxstudio_map_legacy_id`), registrovaný jen když shortcode
+  Mapsteru neexistuje → po migraci a vypnutí Mapsteru stránky fungují bez úprav obsahu i Elementoru.
+- Katalog překryvů: Mapster → `maps` a Squeeze → `image-optimizer` jako `partial` (jen informace,
+  zapnutí modulu neblokuje, migrace běží při obou zapnutých).
+
+Ověřeno 2026-11-04 na lokálu (dočasně přepnutý aktivní plugin, pak vráceno): CRUD a sanitizace přes
+WP-CLI, editor v prohlížeči (hledání, klik, přetažení, uložení, čeština), web (2 piny, popup, navigace,
+načtení po kliknutí), migrace z Mapsteru na mock datech podle seco (naprázdno, ostře, opakovaně =
+idempotentní, alias). Testy `overlap-catalog`, `module-links`, `setting-help-coverage` prošly.
+Neověřeno naživo: dlaždice Mapy.com a Google (chybí klíče na lokálu); URL dlaždic Mapboxu ověřena curl.
+
+### 41.4 Migrační skript `bin/migrate-plugins.php`
+
+```
+cat bin/migrate-plugins.php | ssh <host> "cd <wp-root> && wp eval-file - mapster squeeze webp-express tablepress [apply]"
+```
+
+`bin/` se do release zipu nebalí, skript se proto posílá z repa přes stdin a na webu nezůstane.
+
+Výchozí je suchý běh, zapisuje až `apply`. `mapster` ukládá přes `Maps\Module::save_map()` (stejná
+validace jako editor) a převezme Mapbox token. `squeeze` zapíše meta image-optimizeru, aby hromadná
+optimalizace nekomprimovala podruhé (`.bak` soubory nechá na místě). `webp-express` smaže zbylé options.
+`tablepress` čeká na modul `tables` (CPT `uxstudio_table`, alias `[table id=N /]`).
+
+### 41.5 Fáze
+
+- [x] Inventura seco-valassko.cz a porovnání
+- [x] Modul `maps` (editor, 4 poskytovatelé, alias Mapsteru, nápověda, čeština)
+- [x] Migrační skript (mapster, squeeze, webp-express; tablepress jen výpis)
+- [x] `Optimizer::legacy_backup()` čte zálohy Squeeze `.bak.ext`
+- [x] Mapy.com ověřeno naživo 2026-11-05 (klíč uživatele): dlaždice basic i outdoor (36/36 OK), povinné logo, piny, bublina, odkaz Navigovat na mapy.com, hledání adres v editoru jde přes Mapy.com
+- [ ] Google Maps naživo: klíč „Trockenmann“ z hesláře je VYPRŠELÝ (Google vrací ExpiredKeyMapError). Modul API načte správně a Google zobrazí vlastní chybovou hlášku. Ověřit s platným klíčem
+- [x] `image-optimizer`: komprese náhledů + WebP/AVIF pro náhledy + restore náhledů (zálohy `-original` u každého náhledu, bez zálohy se náhledy přegenerují; dávky s časovým rozpočtem)
+- [x] `image-optimizer`: `delivery_mode` htaccess/picture/off (nahrazuje `htaccess_delivery`), HEIC → JPEG, vyloučené obrázky, vstup WebP
+- [x] Modul `tables` (CPT, mřížkový editor v SPA, vložení z Excelu, CSV, shortcode + alias `[table id=N /]`, Elementor widget, řazení/hledání/stránkování ve vanilla JS; Gutenberg blok zatím ne)
+- [x] Elementor widget a Gutenberg blok pro `maps`
+- [ ] Pilot migrace na jiném webu než seco (seco jen se souhlasem uživatele)
+- [ ] Ověřit v prohlížeči Elementor widgety (Mapa, Tabulka) a blok Mapa (na lokálu pobyty je Classic Editor) a HEIC + větev Imagick (lokální PHP nemá Imagick)
+- [x] Rozhodnuto 2026-11-05 (uživatel): **nikdy nekomprimovat podruhé**. Obrázky zkomprimované jiným optimalizátorem (dnes Squeeze, registr `ForeignOptimizers` pro další) se převezmou, jak jsou, a dostanou jen WebP/AVIF pro hlavní soubor i náhledy. Nová instalace komprimuje normálně.
+- [x] Rozhodnuto 2026-11-05: **na zálohu originálů se vždy ptát** - nastavení `backup_originals` pro upload, hromadná optimalizace se před spuštěním zeptá (zaškrtávátko předvyplněné z nastavení), průvodce migrací se u Squeeze zeptá, jestli ponechat jeho `.bak` zálohy, nebo je smazat a uvolnit místo.
+- [x] Mapster, TablePress a Squeeze v průvodci migrací (`MapsterSource`, `TablePressSource`, `SqueezeSource`), CLI skript volá stejný kód
+
+Stav 2026-11-04 odpoledne: tři části dělali paralelně agenti (Sonnet) ve worktree `_uxs-wt-imgopt` a
+`_uxs-wt-tables`, zkontrolováno a sloučeno do `feature/maps-module`. Opravy při kontrole: překlad bloku Mapa
+(inline skript nedostává JSON překlady), pojistka kroku `mapster` bez nabootovaného pluginu, nečitelný text buněk
+editoru tabulek v tmavém režimu. Ověřeno v prohlížeči: editor tabulek (vložení z Excelu, uložení), tabulka na webu
+(sémantika, pruhy, posun), nastavení Image Optimizeru česky. Testy `overlap-catalog`, `module-links`,
+`module-groups`, `onboarding-starter`, `mcp-core`, `setting-help-coverage` prošly.
+
+Stav 2026-11-05: průvodce migrací ověřen v prohlížeči naostro na lokálu s nainstalovanými TablePress 3.4.1, Mapster 2.0.6
+a Squeeze 1.8.3.1 (mock data podle seco): detekce, otázky, zkušební běh (uvolní 2 MB), migrace, ověření, automatické
+přepnutí (3 pluginy vypnuty, 9/9 kontrol webu OK), stránka se starými `[table id=1 /]` a `[mapster_wp_map]` funguje přes
+UX Studio, vrácení zapne pluginy zpět a smaže vytvořené mapy a tabulky. Obrázky po Squeeze se nepřekódovaly (stejná
+velikost), `.bak` smazány dle volby, WebP vznikly. Elementor widgety (panel česky, změna výšky překreslí mapu) a blok Mapa
+(výběr mapy v Inspectoru) ověřeny v prohlížeči. Testovací pluginy a data po testu odstraněny.
+
+Známé drobnosti: po vrácení migrace zůstane u obrázků značka `_uxstudio_io_precompressed` a kopie WebP (neškodí, obrázek
+zkomprimovaný opravdu je; smazané `.bak` vrátit nejde, průvodce na to předem upozorní). Dotaz `rollback-impact` po už
+vráceném běhu vrací 404 (jádro průvodce, ne nové zdroje).

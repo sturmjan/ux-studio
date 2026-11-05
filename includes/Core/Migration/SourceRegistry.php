@@ -21,6 +21,7 @@ use UxStudio\Core\Migration\Sources\CronSource;
 use UxStudio\Core\Migration\Sources\DisableCommentsSource;
 use UxStudio\Core\Migration\Sources\DuplicatePostSource;
 use UxStudio\Core\Migration\Sources\EmailLogSource;
+use UxStudio\Core\Migration\Sources\SqueezeSource;
 use UxStudio\Core\Migration\Sources\ExternalLinksSource;
 use UxStudio\Core\Migration\Sources\ExternalPermalinksSource;
 use UxStudio\Core\Migration\Sources\FolderSource;
@@ -29,6 +30,7 @@ use UxStudio\Core\Migration\Sources\LastLoginSource;
 use UxStudio\Core\Migration\Sources\LoginPressSource;
 use UxStudio\Core\Migration\Sources\LoginSource;
 use UxStudio\Core\Migration\Sources\MaintenanceSource;
+use UxStudio\Core\Migration\Sources\MapsterSource;
 use UxStudio\Core\Migration\Sources\MenuIconsSource;
 use UxStudio\Core\Migration\Sources\MenuVisibilitySource;
 use UxStudio\Core\Migration\Sources\NoSettingsSource;
@@ -37,6 +39,7 @@ use UxStudio\Core\Migration\Sources\Redirect404Source;
 use UxStudio\Core\Migration\Sources\RedirectsSource;
 use UxStudio\Core\Migration\Sources\SmtpSource;
 use UxStudio\Core\Migration\Sources\SvgSource;
+use UxStudio\Core\Migration\Sources\TablePressSource;
 use UxStudio\Core\Migration\Sources\UpdatesSource;
 use UxStudio\Core\Migration\Sources\WpExtendedSource;
 use UxStudio\Core\Migration\Sources\WhiteLabelCmsSource;
@@ -95,10 +98,13 @@ final class SourceRegistry {
 			LastLoginSource::class        => array( 'when-last-login', 'wp-last-login' ),
 			SmtpSource::class             => array( 'wp-mail-smtp', 'easy-wp-smtp', 'post-smtp', 'fluent-smtp' ),
 			EmailLogSource::class         => array( 'wp-mail-logging', 'email-log' ),
+			SqueezeSource::class          => array( 'squeeze' ),
 			CronSource::class             => array( 'wp-crontrol' ),
 			MaintenanceSource::class      => array( 'wp-maintenance-mode', 'coming-soon', 'maintenance', 'under-construction-page' ),
 			ActivityLogSource::class      => array( 'simple-history', 'wp-security-audit-log', 'aryo-activity-log', 'adminify-activity-logs' ),
 			PostTypeOrderSource::class    => array( 'post-types-order', 'intuitive-custom-post-order' ),
+			TablePressSource::class       => array( 'tablepress' ),
+			MapsterSource::class          => array( 'mapster-wp-maps' ),
 			// F5: Admin Customiser sources and Admin Columns.
 			AdminMenuEditorSource::class  => array( 'admin-menu-editor', 'admin-menu-editor-pro' ),
 			AdminimizeSource::class       => array( 'adminimize' ),

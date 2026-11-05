@@ -87,8 +87,20 @@ final class Revert {
 					return false !== wp_unschedule_event( (int) $parts[0], $parts[1], array( (int) $parts[2] ) );
 				}
 				return false;
+			case 'uxstudio_map':
+				// A map the Mapster source created (private post type of the Maps module).
+				if ( function_exists( 'get_post_type' ) && function_exists( 'wp_delete_post' ) && (int) $id > 0 && 'uxstudio_map' === get_post_type( (int) $id ) ) {
+					return false !== wp_delete_post( (int) $id, true );
+				}
+				return false;
 			case 'snippet_file':
 				return self::delete_snippet_file( $id );
+			case 'table_post':
+				// Only a table of the Tables module, and only one this run created (the mapping holds just those).
+				if ( function_exists( 'get_post_type' ) && function_exists( 'wp_delete_post' ) && (int) $id > 0 && 'uxstudio_table' === get_post_type( (int) $id ) ) {
+					return false !== wp_delete_post( (int) $id, true );
+				}
+				return false;
 		}
 		return false;
 	}

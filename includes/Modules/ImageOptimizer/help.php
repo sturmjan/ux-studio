@@ -59,16 +59,40 @@ return array(
 		'risk'   => __( 'Creating AVIF is slow and needs a lot of server memory. On weak hosting it can make optimizing time out. If the server cannot encode AVIF, the setting is ignored.', 'ux-studio' ),
 		'off'    => __( 'Leave it off on shared hosting with strict limits.', 'ux-studio' ),
 	),
+	'backup_originals'   => array(
+		'does'   => __( 'Before an image is compressed, the untouched file is copied next to it, and the same is done for every thumbnail. This setting is used for new uploads. The bulk run asks again before it starts.', 'ux-studio' ),
+		'effect' => __( 'Restore can bring the original back at any time. Without a backup the compression is final.', 'ux-studio' ),
+		'risk'   => __( 'The backups take disk space, about as much as the images take now. With backups off, Restore is not possible, and converting PNG to JPEG is skipped because it needs the original. Images that another plugin already compressed are never compressed again and get no backup from this module.', 'ux-studio' ),
+		'off'    => __( 'Turn it off when disk space is tight and you already have your own backup of the uploads folder.', 'ux-studio' ),
+	),
 	'auto_optimize'      => array(
 		'does'   => __( 'Every image you upload is compressed, and the extra formats are created, right after the upload.', 'ux-studio' ),
 		'effect' => __( 'You do not have to remember to optimize. Uploading a big photo takes a bit longer.', 'ux-studio' ),
 		'risk'   => __( 'Together with the maximum size and the PNG conversion it changes every new upload. Uploads of many images at once can be slow.', 'ux-studio' ),
 		'off'    => __( 'Turn it off when you prefer to optimize images by hand, in batches.', 'ux-studio' ),
 	),
-	'htaccess_delivery'  => array(
-		'does'   => __( 'Writes a few rules into the .htaccess file in the uploads folder. A browser that understands AVIF or WebP then receives that smaller copy of an image automatically, under the same address.', 'ux-studio' ),
-		'effect' => __( 'The images in your content do not have to change. Visitors with modern browsers download less data.', 'ux-studio' ),
-		'risk'   => __( 'This changes a server file. The rules sit in their own marked block, other rules in that file are kept, and the block is removed when you turn the setting off. It works only on Apache and LiteSpeed. On nginx it does nothing, and a CDN in front of the site may cache the wrong format.', 'ux-studio' ),
-		'off'    => __( 'Turn it off on nginx, or when a [[CDN]] or another plugin already serves the next-generation images.', 'ux-studio' ),
+	'thumbnail_sizes'    => array(
+		'does'   => __( 'WordPress makes several smaller copies of every image, for example for lists, galleries and mobile screens. This setting also compresses those copies and creates their WebP and AVIF versions.', 'ux-studio' ),
+		'effect' => __( 'Pages use the small copies much more often than the full-size image, so this is where most of the saved data comes from. Without it browsers would still download the old, heavy small copies.', 'ux-studio' ),
+		'risk'   => __( 'Every size is backed up next to the file before it is compressed, so the media folder grows. Optimizing many sizes of many images takes longer.', 'ux-studio' ),
+		'off'    => __( 'Leave it empty to process all sizes. Pick only some sizes when you want to save disk space or time and the other sizes are rarely shown.', 'ux-studio' ),
+	),
+	'convert_heic'       => array(
+		'does'   => __( 'Photos taken with an iPhone are often saved as HEIC, a format most browsers cannot show. With this on, such a file is turned into a JPEG while it is uploaded.', 'ux-studio' ),
+		'effect' => __( 'Editors can upload photos straight from the phone and they show up on the site. The media library only contains the JPEG.', 'ux-studio' ),
+		'risk'   => __( 'It only works when the server can read HEIC. When it cannot, the upload stays as it was. The HEIC file is deleted after the conversion, so the original HEIC is not kept.', 'ux-studio' ),
+		'off'    => __( 'Leave it off when nobody uploads photos from iPhones.', 'ux-studio' ),
+	),
+	'excluded'           => array(
+		'does'   => __( 'Images listed here are skipped by automatic optimization and by the bulk run. Write one attachment ID or one file name per line. A star stands for any text, so logo-*.png matches every logo file.', 'ux-studio' ),
+		'effect' => __( 'These images stay exactly as they were uploaded. In the media library they are marked as excluded.', 'ux-studio' ),
+		'risk'   => __( 'You can still optimize an excluded image by hand with its Optimize button. A wrong pattern can leave more images untouched than you want.', 'ux-studio' ),
+		'off'    => __( 'Leave it empty to optimize everything. Use it for logos, print files or images that must keep every pixel.', 'ux-studio' ),
+	),
+	'delivery_mode'      => array(
+		'does'   => __( 'Decides how visitors receive the smaller AVIF and WebP copies. The .htaccess way writes a few rules into the .htaccess file in the uploads folder, so the same image address returns the smaller file. The picture tag way changes the HTML of the page so the browser chooses the best file itself.', 'ux-studio' ),
+		'effect' => __( 'Visitors with modern browsers download less data. The picture tag way needs no server rules, so it also works on nginx and behind a [[CDN]]. Only copies that really exist on disk are offered.', 'ux-studio' ),
+		'risk'   => __( 'The .htaccess way changes a server file, works only on Apache and LiteSpeed, and a CDN in front of the site may cache the wrong format. The rules sit in their own marked block, other rules in that file are kept, and the block is removed when you switch it off. The picture tag way adds an extra element around images, so a theme style that targets the image directly can look different, and it does not change images in places that bypass the normal content, such as CSS backgrounds.', 'ux-studio' ),
+		'off'    => __( 'Choose Off when another plugin or your CDN already serves next-generation images.', 'ux-studio' ),
 	),
 );

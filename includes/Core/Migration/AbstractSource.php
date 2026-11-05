@@ -654,9 +654,20 @@ abstract class AbstractSource implements Source {
 			'errors'    => $errs,
 		);
 		if ( $done ) {
-			$out['items'] = $this->summary_rows( $stats, $probs, $dry_run ? 0 : $this->pending_activations( $run_id ) );
+			$out['items'] = array_merge( $this->summary_rows( $stats, $probs, $dry_run ? 0 : $this->pending_activations( $run_id ) ), $this->extra_summary_rows( $dry_run, $run_id ) );
 		}
 		return $out;
+	}
+
+	/**
+	 * Further result rows of a finished data phase (for example freed disk space). Same row shape as the summary.
+	 *
+	 * @param bool   $dry_run Dry run.
+	 * @param string $run_id  Run id.
+	 * @return array<int, array<string, mixed>>
+	 */
+	protected function extra_summary_rows( bool $dry_run, string $run_id ): array {
+		return array();
 	}
 
 	/**

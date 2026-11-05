@@ -16,6 +16,7 @@ interface BulkStatus {
 	total: number;
 	done: number;
 	running: boolean;
+	backup?: boolean;
 }
 
 interface DeliveryStatus {
@@ -23,6 +24,7 @@ interface DeliveryStatus {
 	writable: boolean;
 	path: string;
 	server_note: string;
+	mode: 'htaccess' | 'picture' | 'off';
 }
 
 interface CapabilityStatus {
@@ -91,9 +93,17 @@ function StatusPanel(): JSX.Element | null {
 		},
 		{
 			label: __( 'Automatic delivery of newer formats', 'ux-studio' ),
-			ok: delivery.active ? true : null,
-			text: delivery.active ? __( 'Active', 'ux-studio' ) : __( 'Not active', 'ux-studio' ),
-			hint: __( 'Rules in the .htaccess file of the uploads folder', 'ux-studio' ),
+			ok: delivery.mode === 'picture' || delivery.active ? true : null,
+			text:
+				delivery.mode === 'picture'
+					? __( 'Active (picture tag)', 'ux-studio' )
+					: delivery.active
+						? __( 'Active', 'ux-studio' )
+						: __( 'Not active', 'ux-studio' ),
+			hint:
+				delivery.mode === 'picture'
+					? __( 'Images in pages are wrapped in a picture tag', 'ux-studio' )
+					: __( 'Rules in the .htaccess file of the uploads folder', 'ux-studio' ),
 		},
 	];
 
@@ -116,12 +126,12 @@ function StatusPanel(): JSX.Element | null {
 					</li>
 				) ) }
 			</ul>
-			{ ! delivery.writable ? (
+			{ delivery.mode === 'htaccess' && ! delivery.writable ? (
 				<p className="uxs-form__help">
 					{ __( 'The .htaccess file in the uploads folder is not writable, so the delivery rules cannot be managed automatically.', 'ux-studio' ) }
 				</p>
 			) : null }
-			{ delivery.server_note ? <p className="uxs-form__help">{ delivery.server_note }</p> : null }
+			{ delivery.mode === 'htaccess' && delivery.server_note ? <p className="uxs-form__help">{ delivery.server_note }</p> : null }
 		</div>
 	);
 }
@@ -135,10 +145,24 @@ function BulkTab(): JSX.Element {
 		refetchInterval: ( query ) => ( query.state.data?.running ? 4000 : false ),
 	} );
 
+	const settings = useModuleSettings( 'image-optimizer' );
+	const [ confirming, setConfirming ] = useState( false );
+	const [ keepBackups, setKeepBackups ] = useState( true );
+
 	const start = useMutation( {
-		mutationFn: () => api< BulkStatus >( 'image-optimizer/bulk-start', { method: 'POST' } ),
-		onSuccess: () => void queryClient.invalidateQueries( { queryKey: [ 'image-optimizer', 'bulk-status' ] } ),
+		mutationFn: ( backup: boolean ) =>
+			api< BulkStatus >( 'image-optimizer/bulk-start', { method: 'POST', body: JSON.stringify( { backup } ) } ),
+		onSuccess: () => {
+			setConfirming( false );
+			void queryClient.invalidateQueries( { queryKey: [ 'image-optimizer', 'bulk-status' ] } );
+		},
 	} );
+
+	// The question is prefilled from the module setting.
+	const askBackup = (): void => {
+		setKeepBackups( settings.data?.values?.backup_originals !== false );
+		setConfirming( true );
+	};
 
 	const restore = useMutation( {
 		mutationFn: ( id: number ) => api( `image-optimizer/restore/${ id }`, { method: 'POST' } ),
@@ -159,13 +183,41 @@ function BulkTab(): JSX.Element {
 			<div className="uxs-form" style={ { marginBottom: 'var(--uxs-sp-5)' } }>
 				<p>
 					{ __(
-						'Compresses JPEG/PNG/GIF images already in the media library and optionally generates WebP/AVIF siblings. Originals are always kept as a backup file before the first optimization.',
+						'Compresses JPEG/PNG/GIF/WebP images already in the media library and optionally generates WebP/AVIF siblings. Before it starts you choose whether the originals are backed up.',
 						'ux-studio'
 					) }
 				</p>
-				<button type="button" className="button button-primary" disabled={ start.isPending || !! data?.running } onClick={ () => start.mutate() }>
-					{ start.isPending ? <LoaderCircle size={ 14 } /> : null } { __( 'Start bulk optimization', 'ux-studio' ) }
-				</button>
+				{ confirming ? (
+					<div className="uxs-form__row">
+						<label htmlFor="uxs-io-backup">
+							<input
+								id="uxs-io-backup"
+								type="checkbox"
+								checked={ keepBackups }
+								onChange={ ( e ) => setKeepBackups( e.target.checked ) }
+							/>{ ' ' }
+							{ __( 'Back up the originals before compressing', 'ux-studio' ) }
+						</label>
+						<p className="uxs-form__help">
+							{ keepBackups
+								? __( 'Every image and every thumbnail is copied next to the file before it is compressed. This takes extra disk space, about as much as the images take now. Restore can bring the originals back.', 'ux-studio' )
+								: __( 'No copies are made. The compression cannot be undone and Restore will not work for these images.', 'ux-studio' ) }
+						</p>
+						<p className="uxs-form__help">
+							{ __( 'Images that another plugin (for example Squeeze) already compressed are never compressed again, whatever you choose here. Only their WebP/AVIF copies are made.', 'ux-studio' ) }
+						</p>
+						<button type="button" className="button button-primary" disabled={ start.isPending } onClick={ () => start.mutate( keepBackups ) }>
+							{ start.isPending ? <LoaderCircle size={ 14 } /> : null } { __( 'Start', 'ux-studio' ) }
+						</button>{ ' ' }
+						<button type="button" className="button" disabled={ start.isPending } onClick={ () => setConfirming( false ) }>
+							{ __( 'Cancel', 'ux-studio' ) }
+						</button>
+					</div>
+				) : (
+					<button type="button" className="button button-primary" disabled={ start.isPending || !! data?.running } onClick={ askBackup }>
+						{ __( 'Start bulk optimization', 'ux-studio' ) }
+					</button>
+				) }
 				{ data ? (
 					<p>
 						{ data.running ? __( 'Running…', 'ux-studio' ) : __( 'Idle.', 'ux-studio' ) }

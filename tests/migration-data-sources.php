@@ -151,8 +151,10 @@ function get_the_title( $id ) { $p = get_post( $id ); return $p ? $p->post_title
 function get_posts( $args ) {
 	$types = (array) ( $args['post_type'] ?? array() );
 	$stat  = (array) ( $args['post_status'] ?? array( 'publish' ) );
-	return array_values( array_filter( $GLOBALS['uxs_posts'], static fn( $p ) => in_array( $p->post_type, $types, true ) && in_array( $p->post_status, $stat, true ) ) );
+	$found = array_values( array_filter( $GLOBALS['uxs_posts'], static fn( $p ) => in_array( $p->post_type, $types, true ) && ( in_array( 'any', $stat, true ) || in_array( $p->post_status, $stat, true ) ) ) );
+	return 'ids' === ( $args['fields'] ?? '' ) ? array_map( static fn( $p ) => $p->ID, $found ) : $found;
 }
+function maybe_unserialize( $v ) { return is_string( $v ) && preg_match( '/^[aOs]:\d+:/', $v ) ? unserialize( $v ) : $v; }
 function get_userdata( $id ) { return (object) array( 'user_login' => 'user' . $id ); }
 function wp_timezone() { return new DateTimeZone( 'UTC' ); }
 function attachment_url_to_postid( $url ) { return $GLOBALS['uxs_attachments'][ $url ] ?? 0; }
@@ -193,6 +195,7 @@ use UxStudio\Core\Migration\History;
 use UxStudio\Core\Migration\Mapping;
 use UxStudio\Core\Migration\PluginInfo;
 use UxStudio\Core\Migration\Revert;
+use UxStudio\Modules\Maps\MapsterImport;
 use UxStudio\Core\Migration\Runner;
 use UxStudio\Core\Migration\SettingsWriter;
 use UxStudio\Core\Migration\Snapshot;
@@ -1294,6 +1297,78 @@ $run = Runner::start( array( 'limit-login-attempts-reloaded' ), false );
 $r1  = $drive();
 $assert( 'llar (module off): bans created directly, nothing staged, allow list written to the module option', 3 === count( $store['limit-login-attempts-reloaded'] ) && array() === Staging::all() && "192.0.2.1" === ( $opt( 'uxstudio_security_optimization' )['ip_firewall_allowlist'] ?? null ) && true === ( $opt( 'uxstudio_security_optimization' )['ip_firewall_enabled'] ?? null ), json_encode( array( $opt( 'uxstudio_security_optimization' ), array_keys( $store ) ) ) );
 AbstractSource::set_data_double( null );
+
+/* ═══ Mapster WP Maps → maps module ═══ */
+
+$assert( 'mapster: registered, target module maps, partial in the catalog (never blocks the module)', SourceRegistry::get( 'mapster-wp-maps' ) instanceof \UxStudio\Core\Migration\Sources\MapsterSource && 'maps' === SourceRegistry::get( 'mapster-wp-maps' )->target_module() && 'partial' === SourceRegistry::get( 'mapster-wp-maps' )->match_type() );
+$site( array( 'mapster-wp-maps' ), array( 'mapster-wp-maps' ), array(), array( 'activity-log' ) );
+$post( 100, 'mapster-wp-map', 'publish', 'Office' );
+$post( 101, 'mapster-wp-map', 'publish', 'Route map' );
+$post( 102, 'mapster-wp-map', 'draft', 'Draft map' );
+$post( 900, 'mapster-wp-settings', 'publish', 'Settings' );
+$post( 201, 'mapster-wp-location', 'publish', 'HQ' );
+$post( 202, 'mapster-wp-location', 'publish', 'Border' );
+$post( 203, 'mapster-wp-location', 'publish', 'Depot' );
+$meta( 'post', 900, 'default_access_token', 'pk.default' );
+$meta( 'post', 100, 'map_type_map_provider', 'mapbox' );
+$meta( 'post', 100, 'map_type_custom_mapbox_style', 'mapbox://styles/mapbox/dark-v11' );
+$meta( 'post', 100, 'view_initial_load', 'manual' );
+$meta( 'post', 100, 'view_manual_zoom', '15' );
+$meta( 'post', 100, 'view_manual_latitude', '49.2' );
+$meta( 'post', 100, 'view_manual_longitude', '16.6' );
+$meta( 'post', 100, 'layout_height', '380' );
+$meta( 'post', 100, 'locations', serialize( array( 201, 202 ) ) );
+$meta( 'post', 100, 'polygons', serialize( array( 5 ) ) );
+$meta( 'post', 101, 'map_type_map_provider', 'mapbox' );
+$meta( 'post', 101, 'map_type_access_token', 'pk.own' );
+$meta( 'post', 101, 'locations', serialize( array( 203 ) ) );
+$meta( 'post', 201, 'location', json_encode( array( 'features' => array( array( 'geometry' => array( 'type' => 'Point', 'coordinates' => array( 16.6, 49.2 ) ) ) ) ) ) );
+$meta( 'post', 201, 'enable_popup', '1' );
+$meta( 'post', 201, 'popup_header_text', 'Our office' );
+$meta( 'post', 201, 'popup_body_text', 'Open 9-17' );
+$meta( 'post', 202, 'location', json_encode( array( 'features' => array( array( 'geometry' => array( 'type' => 'Polygon', 'coordinates' => array() ) ) ) ) ) );
+$meta( 'post', 203, 'location', json_encode( array( 'features' => array( array( 'geometry' => array( 'type' => 'Point', 'coordinates' => array( 14.4, 50.1 ) ) ) ) ) ) );
+$sql( '/p\.post_content AS body FROM wp_posts p WHERE .*mapster_wp_map/', static fn() => array( array( 'post_title' => 'Contact', 'body' => 'Find us [mapster_wp_map id="100"] here' ) ) );
+$sql( '/m\.meta_value AS body FROM wp_posts p JOIN wp_postmeta m/', static fn() => array( array( 'post_title' => 'Landing', 'body' => '{"shortcode":"[mapster_wp_map id=\"101\"]"}' ) ) );
+
+$ms   = SourceRegistry::get( 'mapster-wp-maps' );
+$plan = $ms->plan();
+$assert( 'mapster: only published maps are counted (2 of 3)', 2 === $plan['counts']['data'] && 2 === count( $plan['data'] ), json_encode( $plan['data'] ) );
+$assert( 'mapster: scan row shows title, service, pins and the pages that embed it', false !== strpos( $plan['data'][0]['label'], 'Office (Mapbox, 1 pin)' ) && false !== strpos( $plan['data'][0]['label'], 'used on: Contact' ) && false !== strpos( $plan['data'][1]['label'], 'used on: Landing' ), json_encode( $plan['data'] ) );
+$assert( 'mapster: the polygon is reported as not transferred', $lossy_has( $plan, 'Office (Border, all polygons)' ), json_encode( $plan['lossy'] ) );
+$assert( 'mapster: no settings are written (only maps), alias note is there, nothing staged', 0 === $plan['counts']['transfer'] && 1 === count( $plan['notes'] ) && false === $plan['staged'] );
+$assert( 'mapster: default token from the settings post is the fallback, a map own token wins', 'pk.default' === MapsterImport::read( 100 )['token'] && 'pk.own' === MapsterImport::read( 101 )['token'] );
+$conv = MapsterImport::read( 100 );
+$assert( 'mapster: converted config (style, manual view, height, popup title and body, polygon dropped)', 'mapbox' === $conv['provider'] && 'mapbox/dark-v11' === $conv['config']['style'] && false === $conv['config']['fit_markers'] && 15.0 === $conv['config']['zoom'] && 380 === $conv['config']['height'] && 'Our office' === $conv['config']['markers'][0]['title'] && 'Open 9-17' === $conv['config']['markers'][0]['text'] && 1 === count( $conv['config']['markers'] ) && array( 'Border', 'all polygons' ) === $conv['skipped'], json_encode( $conv ) );
+$osm = MapsterImport::read( 100, true );
+$assert( 'mapster: "use OpenStreetMap" turns a Mapbox map into OSM without style and token', 'osm' === $osm['provider'] && '' === $osm['style'] && '' === $osm['token'] && 'osm' === $osm['config']['provider'] );
+$assert( 'mapster: one option, off by default', array( 'switch_to_osm' ) === array_column( $ms->options(), 'key' ) && false === $ms->options()[0]['default'] );
+$assert( 'mapster: the token option is in the snapshot (rollback restores it)', in_array( 'uxstudio_secret_maps_mapbox_token', $ms->target_options(), true ) );
+
+$store = array();
+$install_double( $store, static fn() => false );
+$run = Runner::start( array( 'mapster-wp-maps' ), true );
+$d1  = $drive();
+$assert( 'mapster: dry run writes nothing', array() === $store, json_encode( $d1['per_source']['mapster-wp-maps'] ?? null ) );
+$run = Runner::start( array( 'mapster-wp-maps' ), false );
+$r1  = $drive();
+$assert( 'mapster: apply creates both maps, nothing is staged (inert data)', 2 === count( $store['mapster-wp-maps'] ?? array() ) && 2 === $r1['per_source']['mapster-wp-maps']['written'] && array() === Staging::all(), json_encode( $r1['per_source']['mapster-wp-maps'] ?? null ) );
+$assert( 'mapster: created maps are recorded for the rollback', 2 === count( array_filter( $GLOBALS['wpdb']->map, static fn( $r ) => 'testobj' === $r['target_type'] ) ) );
+Runner::start( array( 'mapster-wp-maps' ), false );
+$r2 = $drive();
+$assert( 'mapster: second run changes nothing (idempotent)', 0 === $r2['per_source']['mapster-wp-maps']['written'], json_encode( $r2['per_source']['mapster-wp-maps'] ?? null ) );
+$ver = Runner::verify();
+$assert( 'mapster: verify finds both maps', array() === array_filter( $ver['mapster-wp-maps'], static fn( $c ) => ! $c['ok'] ) && ! empty( $ver['mapster-wp-maps'] ), json_encode( $ver['mapster-wp-maps'] ) );
+AbstractSource::set_data_double( null );
+
+// A Mapbox map without any token is warned about.
+$site( array( 'mapster-wp-maps' ), array( 'mapster-wp-maps' ), array(), array( 'activity-log' ) );
+$post( 100, 'mapster-wp-map', 'publish', 'No token' );
+$meta( 'post', 100, 'map_type_map_provider', 'mapbox' );
+$plan = SourceRegistry::get( 'mapster-wp-maps' )->plan();
+$assert( 'mapster: a Mapbox map without a token produces a warning', false !== strpos( implode( ' ', $plan['warnings'] ), 'No token' ), json_encode( $plan['warnings'] ) );
+$site( array(), array(), array(), array( 'activity-log' ) );
+$assert( 'mapster: no maps = absent, nothing to do', 'absent' === SourceRegistry::get( 'mapster-wp-maps' )->detect()['status'] );
 
 echo PHP_EOL . ( $failures ? "$failures FAILED" : 'ALL PASSED' ) . PHP_EOL;
 exit( $failures ? 1 : 0 );

@@ -37969,3 +37969,1093 @@ msgstr "Připojení jste zrušili. Můžete ho dokončit později v modulu Synch
 #: build/index.448b9a5f8122a692a0c2.js:69
 msgid "The site is connected to the central app. The recommended modules below use it where they can."
 msgstr "Web je připojený k Centrální aplikaci. Doporučené moduly níže ji využijí všude, kde to jde."
+
+#: includes/Modules/Maps/Frontend.php:128
+msgid "Get directions"
+msgstr "Navigovat"
+
+#: includes/Modules/Maps/Frontend.php:129
+msgid "More"
+msgstr "Více"
+
+#: includes/Modules/Maps/Frontend.php:130
+msgid "Show map"
+msgstr "Zobrazit mapu"
+
+#: includes/Modules/Maps/Frontend.php:132
+msgid "The map could not be loaded."
+msgstr "Mapu se nepodařilo načíst."
+
+#. translators: %s: map service name, e.g. Google Maps
+#: includes/Modules/Maps/Frontend.php:159
+msgid "The map is loaded from %s."
+msgstr "Mapa se načítá ze služby %s."
+
+#: includes/Modules/Maps/help.php:12
+msgid "Chooses who draws the map background for every map set to \"Default\". Pins stay in the same place whichever provider you pick."
+msgstr "Určuje, kdo kreslí podklad všech map nastavených na „Výchozí“. Špendlíky zůstanou na stejném místě, ať zvolíš kteréhokoli poskytovatele."
+
+#: includes/Modules/Maps/help.php:13
+msgid "You can switch all maps of the site to another provider at once, without editing each map."
+msgstr "Všechny mapy webu přepneš na jiného poskytovatele najednou, bez úprav jednotlivých map."
+
+#: includes/Modules/Maps/help.php:14
+msgid "Mapy.com, Mapbox and Google need a key. Without it the website quietly shows OpenStreetMap instead."
+msgstr "Mapy.com, Mapbox a Google potřebují klíč. Bez něj web potichu zobrazí OpenStreetMap."
+
+#: includes/Modules/Maps/help.php:15
+msgid "Keep OpenStreetMap when you do not want to manage any keys or accounts."
+msgstr "Nech OpenStreetMap, když nechceš spravovat žádné klíče ani účty."
+
+#: includes/Modules/Maps/help.php:18
+msgid "The key from your Mapy.com developer account. It lets the site load Czech tourist, aerial and winter maps and search addresses."
+msgstr "Klíč z tvého vývojářského účtu Mapy.com. Web s ním načte české turistické, letecké a zimní mapy a vyhledá adresy."
+
+#: includes/Modules/Maps/help.php:19
+msgid "Maps get the detailed Czech map background visitors know from Mapy.com, and address search in the editor finds Czech addresses reliably."
+msgstr "Mapy dostanou podrobný český podklad, který návštěvníci znají z Mapy.com, a hledání v editoru spolehlivě najde české adresy."
+
+#: includes/Modules/Maps/help.php:20
+msgid "The key is visible in the page code, because the visitor's browser loads the map tiles with it. Limit it to your domain in the Mapy.com account and keep an eye on the free monthly limit."
+msgstr "Klíč je vidět v kódu stránky, protože s ním prohlížeč návštěvníka načítá dlaždice mapy. V účtu Mapy.com ho omez na svou doménu a hlídej bezplatný měsíční limit."
+
+#: includes/Modules/Maps/help.php:21
+#: includes/Modules/Maps/help.php:27
+msgid "Leave it empty when you use another provider."
+msgstr "Nech prázdné, když používáš jiného poskytovatele."
+
+#: includes/Modules/Maps/help.php:24
+msgid "The public access token from your Mapbox account. It unlocks Mapbox styles such as the dark or outdoor map."
+msgstr "Veřejný přístupový token z tvého účtu Mapbox. Zpřístupní styly Mapboxu, třeba tmavou nebo turistickou mapu."
+
+#: includes/Modules/Maps/help.php:25
+msgid "Maps can match the look of the site, for example a dark map on a dark page."
+msgstr "Mapy můžou ladit se vzhledem webu, například tmavá mapa na tmavé stránce."
+
+#: includes/Modules/Maps/help.php:26
+msgid "Use only a public token (pk.), never a secret one (sk.). It is visible in the page code, so restrict it to your site's address in Mapbox."
+msgstr "Používej jen veřejný token (pk.), nikdy tajný (sk.). Je vidět v kódu stránky, proto ho v Mapboxu omez na adresu svého webu."
+
+#: includes/Modules/Maps/help.php:30
+msgid "The Google Cloud key with the Maps JavaScript API enabled. It lets the site show maps drawn by Google."
+msgstr "Klíč z Google Cloud se zapnutým Maps JavaScript API. Web s ním zobrazí mapy, které kreslí Google."
+
+#: includes/Modules/Maps/help.php:31
+msgid "Visitors see the familiar Google map with satellite and terrain views."
+msgstr "Návštěvníci uvidí známou mapu Googlu se satelitním a terénním zobrazením."
+
+#: includes/Modules/Maps/help.php:32
+msgid "Google bills map loads above the free monthly credit. Restrict the key to your domain and set a budget alert in Google Cloud, otherwise a copied key can cost money."
+msgstr "Google účtuje načtení map nad bezplatný měsíční kredit. Omez klíč na svou doménu a nastav v Google Cloud upozornění na rozpočet, jinak tě zkopírovaný klíč může stát peníze."
+
+#: includes/Modules/Maps/help.php:33
+msgid "Leave it empty when you do not need Google specifically. OpenStreetMap and Mapy.com cost nothing for a normal site."
+msgstr "Nech prázdné, když nepotřebuješ právě Google. OpenStreetMap a Mapy.com běžný web nic nestojí."
+
+#: includes/Modules/Maps/help.php:36
+msgid "The ID of a map style created in Google Cloud. With it Google uses its newer pins in the color of each pin and your cloud style."
+msgstr "ID stylu mapy vytvořeného v Google Cloud. Google pak použije novější špendlíky v barvě každého špendlíku a tvůj styl z cloudu."
+
+#: includes/Modules/Maps/help.php:37
+msgid "Google maps look the way you designed them in Google Cloud instead of the default style."
+msgstr "Mapy Googlu vypadají tak, jak sis je navrhl v Google Cloud, místo výchozího stylu."
+
+#: includes/Modules/Maps/help.php:38
+msgid "Leave it empty and Google maps use the standard look with the pin colors from this module."
+msgstr "Nech prázdné a mapy Googlu použijí běžný vzhled s barvami špendlíků z tohoto modulu."
+
+#: includes/Modules/Maps/help.php:41
+msgid "The color a new pin gets. Each pin can still have its own color in the editor."
+msgstr "Barva, kterou dostane nový špendlík. Každý špendlík může mít v editoru i vlastní barvu."
+
+#: includes/Modules/Maps/help.php:42
+msgid "Pins match the colors of the site without setting each one by hand."
+msgstr "Špendlíky ladí s barvami webu, aniž bys každý nastavoval ručně."
+
+#: includes/Modules/Maps/help.php:45
+msgid "The height a new map starts with. The width always fills the space where the map is placed."
+msgstr "Výška, se kterou nová mapa začíná. Šířka vždy vyplní místo, kam mapu vložíš."
+
+#: includes/Modules/Maps/help.php:46
+msgid "New maps fit the layout of the site from the start. Existing maps keep their own height."
+msgstr "Nové mapy od začátku sedí do rozvržení webu. Stávající mapy si nechají svou výšku."
+
+#: includes/Modules/Maps/help.php:47
+msgid "A very tall map on a phone covers the whole screen and is hard to scroll past."
+msgstr "Hodně vysoká mapa na telefonu zakryje celou obrazovku a špatně se přes ni posouvá."
+
+#: includes/Modules/Maps/Module.php:85
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Maps"
+msgstr "Mapy"
+
+#: includes/Modules/Maps/Module.php:117
+msgid "Default map provider"
+msgstr "Výchozí poskytovatel map"
+
+#: includes/Modules/Maps/Module.php:118
+msgid "Used by maps set to \"Default\". A provider without a key falls back to OpenStreetMap."
+msgstr "Použijí ho mapy nastavené na „Výchozí“. Poskytovatel bez klíče se nahradí OpenStreetMap."
+
+#: includes/Modules/Maps/Module.php:125
+msgid "Mapy.com API key"
+msgstr "API klíč Mapy.com"
+
+#: includes/Modules/Maps/Module.php:126
+msgid "Get it at developer.mapy.com. If empty, the key from Opening Hours is used."
+msgstr "Získáš ho na developer.mapy.com. Když je prázdný, použije se klíč z Otevírací doby."
+
+#: includes/Modules/Maps/Module.php:132
+msgid "Mapbox access token"
+msgstr "Přístupový token Mapbox"
+
+#: includes/Modules/Maps/Module.php:133
+msgid "A public token (pk.…) restricted to this site's URL in your Mapbox account."
+msgstr "Veřejný token (pk.…) omezený v účtu Mapbox na adresu tohoto webu."
+
+#: includes/Modules/Maps/Module.php:140
+msgid "Needs the Maps JavaScript API enabled; restrict it to this site's referrer. If empty, the key from Opening Hours is used."
+msgstr "Potřebuje zapnuté Maps JavaScript API a omezení na adresu tohoto webu. Když je prázdný, použije se klíč z Otevírací doby."
+
+#: includes/Modules/Maps/Module.php:146
+msgid "Google Map ID"
+msgstr "Google Map ID"
+
+#: includes/Modules/Maps/Module.php:147
+msgid "Optional. With a Map ID Google draws modern colored pins and applies the cloud style of that ID."
+msgstr "Nepovinné. S Map ID kreslí Google moderní barevné špendlíky a použije styl uložený pod tímto ID."
+
+#: includes/Modules/Maps/Module.php:153
+msgid "Default pin color"
+msgstr "Výchozí barva špendlíku"
+
+#: includes/Modules/Maps/Module.php:159
+msgid "Default map height (px)"
+msgstr "Výchozí výška mapy (px)"
+
+#: includes/Modules/Maps/Module.php:199
+msgid "OpenStreetMap (no key)"
+msgstr "OpenStreetMap (bez klíče)"
+
+#: includes/Modules/Maps/Module.php:445
+#: includes/Modules/Maps/Module.php:481
+msgid "Map not found."
+msgstr "Mapa nenalezena."
+
+#: includes/Modules/Maps/Module.php:453
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Map"
+msgstr "Mapa"
+
+#: includes/Modules/Maps/Module.php:559
+msgid "Enter an address to search for."
+msgstr "Zadej adresu, kterou chceš najít."
+
+#: includes/Modules/Maps/Module.php:598
+msgid "Address search is not available right now."
+msgstr "Hledání adres teď není k dispozici."
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Shortcode copied."
+msgstr "Shortcode zkopírován."
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Map saved."
+msgstr "Mapa uložena."
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Nothing found for this address."
+msgstr "Pro tuto adresu se nic nenašlo."
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "All maps"
+msgstr "Všechny mapy"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Map name"
+msgstr "Název mapy"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Save map"
+msgstr "Uložit mapu"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Search an address…"
+msgstr "Hledat adresu…"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Search an address"
+msgstr "Hledat adresu"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Click the map…"
+msgstr "Klikni do mapy…"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Add pin"
+msgstr "Přidat špendlík"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Add as pin"
+msgstr "Přidat jako špendlík"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Drag a pin to move it. Click a pin to edit its text."
+msgstr "Špendlík přesuneš přetažením. Kliknutím na něj upravíš jeho text."
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "The editor preview uses OpenStreetMap; on the website the map is drawn by Google Maps with the same pin positions."
+msgstr "Náhled v editoru používá OpenStreetMap. Na webu mapu nakreslí Google Mapy se stejnými polohami špendlíků."
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "This provider has no key yet (Settings tab) - the website shows OpenStreetMap until you add one."
+msgstr "Tento poskytovatel zatím nemá klíč (karta Nastavení). Než ho doplníš, web zobrazí OpenStreetMap."
+
+#. translators: %d: number of pins
+#: build/225.e191f19968d429a2a707.js:1
+msgid "%d pin"
+msgid_plural "%d pins"
+msgstr[0] "%d špendlík"
+msgstr[1] "%d špendlíky"
+msgstr[2] "%d špendlíků"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Add the first pin by searching an address or clicking the map."
+msgstr "První špendlík přidáš vyhledáním adresy nebo kliknutím do mapy."
+
+#. translators: %d: pin number
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Pin %d"
+msgstr "Špendlík %d"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Delete pin"
+msgstr "Smazat špendlík"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Popup text"
+msgstr "Text v bublině"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Link (optional)"
+msgstr "Odkaz (nepovinné)"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Latitude"
+msgstr "Zeměpisná šířka"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Longitude"
+msgstr "Zeměpisná délka"
+
+#. translators: %s: provider name
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Default (%s)"
+msgstr "Výchozí (%s)"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "no key"
+msgstr "bez klíče"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Mapbox style"
+msgstr "Styl Mapbox"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Map style"
+msgstr "Styl mapy"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Height (px)"
+msgstr "Výška (px)"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Fit the view to all pins"
+msgstr "Přizpůsobit výřez všem špendlíkům"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Zoom for a single pin"
+msgstr "Přiblížení u jednoho špendlíku"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Current view will be used."
+msgstr "Použije se aktuální výřez."
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Use the current view of the preview"
+msgstr "Použít aktuální výřez náhledu"
+
+#. translators: 1: latitude, 2: longitude, 3: zoom
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Center %1$s, %2$s, zoom %3$d"
+msgstr "Střed %1$s, %2$s, přiblížení %3$d"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Zoom with the mouse wheel"
+msgstr "Přibližovat kolečkem myši"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Show \"Get directions\" in the popup"
+msgstr "Zobrazit v bublině „Navigovat“"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Load the map only after a click (privacy, no request to the provider before)"
+msgstr "Načíst mapu až po kliknutí (soukromí, do té doby žádný požadavek na poskytovatele)"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Our branches"
+msgstr "Naše pobočky"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "No Opening Hours location has coordinates yet."
+msgstr "Žádná pobočka v Otevírací době zatím nemá souřadnice."
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "New map"
+msgstr "Nová mapa"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "New map from Opening Hours locations"
+msgstr "Nová mapa z poboček Otevírací doby"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Pins"
+msgstr "Špendlíky"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Edit map"
+msgstr "Upravit mapu"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Delete map"
+msgstr "Smazat mapu"
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "Delete this map? Pages using its shortcode will show nothing."
+msgstr "Smazat tuto mapu? Stránky s jejím shortcodem pak nic nezobrazí."
+
+#: build/225.e191f19968d429a2a707.js:1
+msgid "No maps yet. Create one and paste its shortcode into a page (Elementor: Shortcode widget)."
+msgstr "Zatím žádné mapy. Vytvoř mapu a vlož její shortcode do stránky (v Elementoru widget Shortcode)."
+
+#: includes/Modules/Maps/meta.json:1
+msgid "Build simple maps with one or more draggable pins and embed them with a shortcode. Providers: OpenStreetMap, Mapy.com, Mapbox and Google Maps."
+msgstr "Jednoduché mapy s jedním nebo více špendlíky, které přetáhneš myší, a vložení na stránku shortcodem. Podklady: OpenStreetMap, Mapy.com, Mapbox a Google Mapy."
+
+#: includes/Modules/AdminCustomiser/ModuleLinks.php:75
+#: includes/Modules/Tables/Module.php:67
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Tables"
+msgstr "Tabulky"
+
+#: includes/Modules/ImageOptimizer/help.php:69
+msgid "WordPress makes several smaller copies of every image, for example for lists, galleries and mobile screens. This setting also compresses those copies and creates their WebP and AVIF versions."
+msgstr "WordPress z každého obrázku vyrábí několik menších kopií, například pro výpisy, galerie a mobilní obrazovky. Tato volba zkomprimuje i tyto kopie a vytvoří k nim verze WebP a AVIF."
+
+#: includes/Modules/ImageOptimizer/help.php:70
+msgid "Pages use the small copies much more often than the full-size image, so this is where most of the saved data comes from. Without it browsers would still download the old, heavy small copies."
+msgstr "Stránky používají malé kopie mnohem častěji než obrázek v plné velikosti, takže právě tady se ušetří nejvíc dat. Bez toho by prohlížeče dál stahovaly staré, těžké malé kopie."
+
+#: includes/Modules/ImageOptimizer/help.php:71
+msgid "Every size is backed up next to the file before it is compressed, so the media folder grows. Optimizing many sizes of many images takes longer."
+msgstr "Každá velikost se před kompresí zálohuje vedle souboru, takže složka s médii naroste. Optimalizace mnoha velikostí u mnoha obrázků trvá déle."
+
+#: includes/Modules/ImageOptimizer/help.php:72
+msgid "Leave it empty to process all sizes. Pick only some sizes when you want to save disk space or time and the other sizes are rarely shown."
+msgstr "Nech prázdné a zpracují se všechny velikosti. Vyber jen některé, když chceš ušetřit místo nebo čas a ostatní velikosti se zobrazují zřídka."
+
+#: includes/Modules/ImageOptimizer/help.php:75
+msgid "Photos taken with an iPhone are often saved as HEIC, a format most browsers cannot show. With this on, such a file is turned into a JPEG while it is uploaded."
+msgstr "Fotky z iPhonu se často ukládají jako HEIC, formát, který většina prohlížečů neumí zobrazit. Se zapnutou volbou se takový soubor při nahrání převede na JPEG."
+
+#: includes/Modules/ImageOptimizer/help.php:76
+msgid "Editors can upload photos straight from the phone and they show up on the site. The media library only contains the JPEG."
+msgstr "Redaktoři můžou nahrávat fotky přímo z telefonu a na webu se zobrazí. V knihovně médií je jen JPEG."
+
+#: includes/Modules/ImageOptimizer/help.php:77
+msgid "It only works when the server can read HEIC. When it cannot, the upload stays as it was. The HEIC file is deleted after the conversion, so the original HEIC is not kept."
+msgstr "Funguje jen tehdy, když server umí HEIC přečíst. Když neumí, soubor zůstane, jak byl nahraný. Po převodu se soubor HEIC smaže, původní HEIC se tedy neuchová."
+
+#: includes/Modules/ImageOptimizer/help.php:78
+msgid "Leave it off when nobody uploads photos from iPhones."
+msgstr "Nech vypnuté, když nikdo nenahrává fotky z iPhonu."
+
+#: includes/Modules/ImageOptimizer/help.php:81
+msgid "Images listed here are skipped by automatic optimization and by the bulk run. Write one attachment ID or one file name per line. A star stands for any text, so logo-*.png matches every logo file."
+msgstr "Obrázky uvedené tady automatická i hromadná optimalizace přeskočí. Na každý řádek napiš jedno ID přílohy nebo jeden název souboru. Hvězdička zastoupí libovolný text, takže logo-*.png zachytí všechny soubory s logem."
+
+#: includes/Modules/ImageOptimizer/help.php:82
+msgid "These images stay exactly as they were uploaded. In the media library they are marked as excluded."
+msgstr "Tyto obrázky zůstanou přesně tak, jak byly nahrané. V knihovně médií jsou označené jako vyloučené."
+
+#: includes/Modules/ImageOptimizer/help.php:83
+msgid "You can still optimize an excluded image by hand with its Optimize button. A wrong pattern can leave more images untouched than you want."
+msgstr "Vyloučený obrázek můžeš i tak zoptimalizovat ručně jeho tlačítkem Optimalizovat. Špatný vzor může nechat beze změny víc obrázků, než chceš."
+
+#: includes/Modules/ImageOptimizer/help.php:84
+msgid "Leave it empty to optimize everything. Use it for logos, print files or images that must keep every pixel."
+msgstr "Nech prázdné a zoptimalizuje se všechno. Použij pro loga, tiskové podklady nebo obrázky, které si musí zachovat každý pixel."
+
+#: includes/Modules/ImageOptimizer/help.php:87
+msgid "Decides how visitors receive the smaller AVIF and WebP copies. The .htaccess way writes a few rules into the .htaccess file in the uploads folder, so the same image address returns the smaller file. The picture tag way changes the HTML of the page so the browser chooses the best file itself."
+msgstr "Určuje, jak návštěvníci dostanou menší kopie AVIF a WebP. Způsob .htaccess zapíše několik pravidel do souboru .htaccess ve složce uploads, takže stejná adresa obrázku vrátí menší soubor. Způsob se značkou picture upraví HTML stránky, aby si prohlížeč sám vybral nejlepší soubor."
+
+#: includes/Modules/ImageOptimizer/help.php:88
+msgid "Visitors with modern browsers download less data. The picture tag way needs no server rules, so it also works on nginx and behind a [[CDN]]. Only copies that really exist on disk are offered."
+msgstr "Návštěvníci s moderním prohlížečem stáhnou méně dat. Způsob se značkou picture nepotřebuje pravidla na serveru, takže funguje i na nginx a za [[CDN]]. Nabídnou se jen kopie, které na disku opravdu existují."
+
+#: includes/Modules/ImageOptimizer/help.php:89
+msgid "The .htaccess way changes a server file, works only on Apache and LiteSpeed, and a CDN in front of the site may cache the wrong format. The rules sit in their own marked block, other rules in that file are kept, and the block is removed when you switch it off. The picture tag way adds an extra element around images, so a theme style that targets the image directly can look different, and it does not change images in places that bypass the normal content, such as CSS backgrounds."
+msgstr "Způsob .htaccess mění soubor na serveru, funguje jen na Apache a LiteSpeed a CDN před webem může uložit do mezipaměti špatný formát. Pravidla mají vlastní označený blok, ostatní pravidla v souboru zůstanou a po vypnutí se blok odstraní. Způsob se značkou picture přidá kolem obrázků další prvek, takže styl šablony mířící přímo na obrázek může vypadat jinak, a nezmění obrázky mimo běžný obsah, například pozadí v CSS."
+
+#: includes/Modules/ImageOptimizer/help.php:90
+msgid "Choose Off when another plugin or your CDN already serves next-generation images."
+msgstr "Zvol Vypnuto, když obrázky nové generace už doručuje jiný plugin nebo tvoje CDN."
+
+#. translators: %d: number of thumbnails
+#: includes/Modules/ImageOptimizer/MediaLibrary.php:312
+msgid "incl. %d thumbnail"
+msgid_plural "incl. %d thumbnails"
+msgstr[0] "vč. %d náhledu"
+msgstr[1] "vč. %d náhledů"
+msgstr[2] "vč. %d náhledů"
+
+#: includes/Modules/ImageOptimizer/MediaLibrary.php:322
+msgid "Excluded from automatic optimization"
+msgstr "Vyloučeno z automatické optimalizace"
+
+#: includes/Modules/ImageOptimizer/Module.php:267
+msgid "Thumbnail sizes to optimize"
+msgstr "Velikosti náhledů k optimalizaci"
+
+#: includes/Modules/ImageOptimizer/Module.php:268
+msgid "The smaller copies WordPress makes of every image are compressed too, and get WebP/AVIF copies. Pick the sizes to process. Nothing selected = all sizes."
+msgstr "Zkomprimují se i menší kopie, které WordPress dělá z každého obrázku, a dostanou kopie WebP/AVIF. Vyber velikosti ke zpracování. Nic nevybráno = všechny velikosti."
+
+#: includes/Modules/ImageOptimizer/Module.php:282
+msgid "Convert HEIC photos to JPEG on upload"
+msgstr "Převádět fotky HEIC při nahrání na JPEG"
+
+#: includes/Modules/ImageOptimizer/Module.php:283
+msgid "iPhone photos in HEIC format are saved as JPEG while they are uploaded. Needs a server whose Imagick can read HEIC, otherwise nothing changes."
+msgstr "Fotky z iPhonu ve formátu HEIC se při nahrání uloží jako JPEG. Vyžaduje server, jehož Imagick umí číst HEIC, jinak se nic nezmění."
+
+#: includes/Modules/ImageOptimizer/Module.php:289
+msgid "Excluded images"
+msgstr "Vyloučené obrázky"
+
+#: includes/Modules/ImageOptimizer/Module.php:290
+msgid "One per line: an attachment ID, or a file name with * as a wildcard (for example logo-*.png). These images are skipped by automatic and bulk optimization."
+msgstr "Jeden na řádek: ID přílohy nebo název souboru s * jako zástupným znakem (například logo-*.png). Automatická i hromadná optimalizace tyto obrázky přeskočí."
+
+#: includes/Modules/ImageOptimizer/Module.php:296
+msgid "Serve next-gen images"
+msgstr "Doručovat obrázky nové generace"
+
+#: includes/Modules/ImageOptimizer/Module.php:297
+msgid "How visitors get the WebP/AVIF copies. .htaccess: rewrite rules in uploads/.htaccess (Apache/LiteSpeed). Picture tag: images in pages are wrapped in a picture element, which also works on nginx and behind a CDN."
+msgstr "Jak návštěvníci dostanou kopie WebP/AVIF. .htaccess: pravidla přepisu v uploads/.htaccess (Apache/LiteSpeed). Značka picture: obrázky na stránkách se zabalí do prvku picture, což funguje i na nginx a za CDN."
+
+#: includes/Modules/ImageOptimizer/Module.php:300
+msgid ".htaccess rewrite rules"
+msgstr "Pravidla přepisu v .htaccess"
+
+#: includes/Modules/ImageOptimizer/Module.php:301
+msgid "Picture tag in the page"
+msgstr "Značka picture ve stránce"
+
+#: includes/Modules/ImageOptimizer/Optimizer.php:120
+msgid "Only JPEG, PNG, GIF and WebP images are supported."
+msgstr "Podporované jsou jen obrázky JPEG, PNG, GIF a WebP."
+
+#: includes/Modules/Maps/ElementorWidget.php:38
+#: includes/Modules/Maps/GutenbergBlock.php:40
+#: includes/Modules/Maps/GutenbergBlock.php:98
+msgid "UX Studio Map"
+msgstr "Mapa UX Studio"
+
+#: includes/Modules/Maps/ElementorWidget.php:66
+msgid "Select map"
+msgstr "Vyber mapu"
+
+#: includes/Modules/Maps/ElementorWidget.php:77
+#: includes/Modules/Maps/GutenbergBlock.php:103
+msgid "Leave empty to use the height set in the map."
+msgstr "Nech prázdné a použije se výška nastavená v mapě."
+
+#: includes/Modules/Maps/ElementorWidget.php:91
+msgid "Select a map"
+msgstr "Vyber mapu"
+
+#: includes/Modules/Maps/ElementorWidget.php:107
+msgid "Select a map in the panel on the left."
+msgstr "Vyber mapu v panelu vlevo."
+
+#: includes/Modules/Maps/GutenbergBlock.php:41
+#: includes/Modules/Maps/GutenbergBlock.php:99
+msgid "Embed a map built with the UX Studio Maps module."
+msgstr "Vloží mapu vytvořenou v modulu Mapy UX Studia."
+
+#: includes/Modules/Maps/GutenbergBlock.php:100
+msgid "Select a map…"
+msgstr "Vyber mapu…"
+
+#: includes/Modules/Maps/GutenbergBlock.php:104
+msgid "Select a map in the block settings on the right."
+msgstr "Vyber mapu v nastavení bloku vpravo."
+
+#: includes/Modules/Tables/ElementorWidget.php:39
+msgid "UX Table"
+msgstr "Tabulka UX"
+
+#: includes/Modules/Tables/ElementorWidget.php:61
+#: includes/Modules/Tables/Module.php:329
+msgid "Table"
+msgstr "Tabulka"
+
+#: includes/Modules/Tables/ElementorWidget.php:67
+msgid "Select table"
+msgstr "Vyber tabulku"
+
+#: includes/Modules/Tables/ElementorWidget.php:78
+msgid "Build the table in UX Studio, Tables first, then pick it here."
+msgstr "Tabulku nejdřív vytvoř v UX Studiu v Tabulkách a pak ji vyber tady."
+
+#: includes/Modules/Tables/ElementorWidget.php:90
+msgid "Select a table"
+msgstr "Vyber tabulku"
+
+#: includes/Modules/Tables/ElementorWidget.php:106
+msgid "Select a table in the panel on the left."
+msgstr "Vyber tabulku v panelu vlevo."
+
+#: includes/Modules/Tables/Frontend.php:147
+msgid "Search table"
+msgstr "Hledat v tabulce"
+
+#: includes/Modules/Tables/Frontend.php:148
+msgid "First"
+msgstr "První"
+
+#: includes/Modules/Tables/Frontend.php:151
+msgid "Last"
+msgstr "Poslední"
+
+#. translators: 1: current page, 2: number of pages
+#: includes/Modules/Tables/Frontend.php:153
+msgid "Page %1$s of %2$s"
+msgstr "Stránka %1$s z %2$s"
+
+#: includes/Modules/Tables/Frontend.php:154
+msgid "No matching rows."
+msgstr "Žádné odpovídající řádky."
+
+#: includes/Modules/Tables/Frontend.php:155
+msgid "Sort by this column"
+msgstr "Řadit podle tohoto sloupce"
+
+#: includes/Modules/Tables/help.php:12
+msgid "Decides whether a new table starts with every second row shaded."
+msgstr "Určuje, jestli nová tabulka začne s podbarveným každým druhým řádkem."
+
+#: includes/Modules/Tables/help.php:13
+msgid "Long tables are easier to read line by line. Existing tables keep their own choice."
+msgstr "Dlouhé tabulky se pak lépe čtou řádek po řádku. Stávající tabulky si nechají svou volbu."
+
+#: includes/Modules/Tables/help.php:14
+msgid "Turn it off when your theme already styles table rows or you prefer a plain look."
+msgstr "Vypni, když řádky tabulek už stylizuje šablona nebo chceš prostý vzhled."
+
+#: includes/Modules/Tables/help.php:17
+msgid "Chooses what a new table does on a narrow screen. \"Scroll\" keeps the table as it is and lets visitors swipe sideways. \"Stack\" turns every row into a small card. \"None\" leaves the table alone."
+msgstr "Určuje, co nová tabulka udělá na úzké obrazovce. „Posouvat“ nechá tabulku, jak je, a návštěvník ji posune do strany. „Karty“ udělá z každého řádku malou kartu. „Nechat“ tabulku nemění."
+
+#: includes/Modules/Tables/help.php:18
+msgid "Phone visitors can read wide tables without zooming. Existing tables keep their own choice."
+msgstr "Návštěvníci na telefonu přečtou i širokou tabulku bez přibližování. Stávající tabulky si nechají svou volbu."
+
+#: includes/Modules/Tables/help.php:19
+msgid "Stack works best when the table has a header row, because the header text becomes the label of every value. Without it the cards show values with no labels."
+msgstr "Karty fungují nejlépe, když má tabulka řádek hlavičky, protože text hlavičky se stane popiskem každé hodnoty. Bez něj karty ukážou hodnoty bez popisků."
+
+#: includes/Modules/Tables/help.php:20
+msgid "Choose \"None\" only when the table is always narrow or your theme handles small screens itself."
+msgstr "„Nechat“ zvol jen tehdy, když je tabulka vždy úzká nebo malé obrazovky řeší sama šablona."
+
+#: includes/Modules/Tables/Module.php:94
+msgid "Striped rows in new tables"
+msgstr "Pruhované řádky v nových tabulkách"
+
+#: includes/Modules/Tables/Module.php:95
+msgid "Existing tables keep their own setting."
+msgstr "Stávající tabulky si nechají své nastavení."
+
+#: includes/Modules/Tables/Module.php:101
+msgid "Narrow screens in new tables"
+msgstr "Úzké obrazovky v nových tabulkách"
+
+#: includes/Modules/Tables/Module.php:115
+msgid "Scroll sideways"
+msgstr "Posouvat do strany"
+
+#: includes/Modules/Tables/Module.php:116
+msgid "Stack rows as cards"
+msgstr "Řádky jako karty"
+
+#: includes/Modules/Tables/Module.php:117
+msgid "Leave as is"
+msgstr "Nechat beze změny"
+
+#. translators: 1: max rows, 2: max columns
+#: includes/Modules/Tables/Module.php:235
+msgid "The table is too large. The limit is %1$d rows and %2$d columns."
+msgstr "Tabulka je příliš velká. Limit je %1$d řádků a %2$d sloupců."
+
+#: includes/Modules/Tables/Module.php:316
+#: includes/Modules/Tables/Module.php:364
+#: includes/Modules/Tables/Module.php:387
+#: includes/Modules/Tables/RestController.php:70
+msgid "Table not found."
+msgstr "Tabulka nenalezena."
+
+#. translators: %s: table name
+#: includes/Modules/Tables/Module.php:370
+msgid "%s (copy)"
+msgstr "%s (kopie)"
+
+#: build/31.e959ef402866234d7207.js:1
+msgid "Active (picture tag)"
+msgstr "Aktivní (značka picture)"
+
+#: build/31.e959ef402866234d7207.js:1
+msgid "Images in pages are wrapped in a picture tag"
+msgstr "Obrázky na stránkách se zabalí do značky picture"
+
+#. translators: 1: column letter, 2: row number
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Cell %1$s%2$d"
+msgstr "Buňka %1$s%2$d"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Pasted into the table."
+msgstr "Vloženo do tabulky."
+
+#. translators: 1: max rows, 2: max columns
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "The pasted block does not fit. The limit is %1$d rows and %2$d columns."
+msgstr "Vložený blok se nevejde. Limit je %1$d řádků a %2$d sloupců."
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "A table can have at most %d rows."
+msgstr "Tabulka může mít nejvýš %d řádků."
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "A table can have at most %d columns."
+msgstr "Tabulka může mít nejvýš %d sloupců."
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Table saved."
+msgstr "Tabulka uložena."
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Discard the unsaved changes?"
+msgstr "Zahodit neuložené změny?"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "All tables"
+msgstr "Všechny tabulky"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Table name"
+msgstr "Název tabulky"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Save table"
+msgstr "Uložit tabulku"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Table structure"
+msgstr "Struktura tabulky"
+
+#. translators: %d: row number
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Row %d"
+msgstr "Řádek %d"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Insert above"
+msgstr "Vložit nad"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Insert below"
+msgstr "Vložit pod"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Move row up"
+msgstr "Posunout řádek nahoru"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Move row down"
+msgstr "Posunout řádek dolů"
+
+#. translators: %s: column letter
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Column %s"
+msgstr "Sloupec %s"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Insert left"
+msgstr "Vložit vlevo"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Insert right"
+msgstr "Vložit vpravo"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Move column left"
+msgstr "Posunout sloupec vlevo"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Move column right"
+msgstr "Posunout sloupec vpravo"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Import CSV"
+msgstr "Importovat CSV"
+
+#. translators: 1: max rows, 2: max columns
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "The file is too large. The limit is %1$d rows and %2$d columns."
+msgstr "Soubor je příliš velký. Limit je %1$d řádků a %2$d sloupců."
+
+#. translators: 1: rows, 2: columns
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Imported %1$d rows and %2$d columns. Save the table to keep them."
+msgstr "Importováno %1$d řádků a %2$d sloupců. Tabulku ulož, aby se zachovaly."
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Copy a block of cells in Excel or Google Sheets, click the cell where it should start and paste. Cells can contain links, line breaks (<br>), bold and italic text and images."
+msgstr "V Excelu nebo Google Tabulkách zkopíruj blok buněk, klikni na buňku, kde má začít, a vlož. Buňky můžou obsahovat odkazy, zalomení řádku (<br>), tučný a kurzívní text a obrázky."
+
+#. translators: 1: rows, 2: columns, 3: max rows, 4: max columns
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "%1$d rows x %2$d columns (limit %3$d x %4$d)."
+msgstr "%1$d řádků × %2$d sloupců (limit %3$d × %4$d)."
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Table options"
+msgstr "Volby tabulky"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "The first row is a header"
+msgstr "První řádek je hlavička"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "The last row is a footer"
+msgstr "Poslední řádek je patička"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Striped rows"
+msgstr "Pruhované řádky"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Highlight the row under the mouse"
+msgstr "Zvýraznit řádek pod myší"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "On narrow screens"
+msgstr "Na úzkých obrazovkách"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Visitors can sort by a column (needs a header row)"
+msgstr "Návštěvníci můžou řadit podle sloupce (vyžaduje řádek hlavičky)"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Show a search box"
+msgstr "Zobrazit vyhledávací pole"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Split into pages"
+msgstr "Rozdělit na stránky"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Rows per page"
+msgstr "Řádků na stránku"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Caption"
+msgstr "Popisek"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Caption position"
+msgstr "Umístění popisku"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Above the table"
+msgstr "Nad tabulkou"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Below the table"
+msgstr "Pod tabulkou"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Extra CSS class"
+msgstr "Další třída CSS"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Description (internal note)"
+msgstr "Popis (interní poznámka)"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Table duplicated."
+msgstr "Tabulka zduplikována."
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "New table"
+msgstr "Nová tabulka"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "New table from CSV"
+msgstr "Nová tabulka z CSV"
+
+#. translators: 1: rows, 2: columns
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "%1$d x %2$d"
+msgstr "%1$d × %2$d"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Edit table"
+msgstr "Upravit tabulku"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Duplicate table"
+msgstr "Duplikovat tabulku"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Delete table"
+msgstr "Smazat tabulku"
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "Delete this table? Pages using its shortcode will show nothing."
+msgstr "Smazat tuto tabulku? Stránky s jejím shortcodem pak nic nezobrazí."
+
+#: build/948.c419c5152a4c5a554976.js:1
+msgid "No tables yet. Create one and paste its shortcode into a page (Elementor: Shortcode widget)."
+msgstr "Zatím žádné tabulky. Vytvoř tabulku a vlož její shortcode do stránky (v Elementoru widget Shortcode)."
+
+#: includes/Core/Migration/Sources/MapsterSource.php:61
+msgid "Draw Mapbox maps with OpenStreetMap instead (no token needed)"
+msgstr "Místo Mapboxu kreslit mapy přes OpenStreetMap (bez tokenu)"
+
+#: includes/Core/Migration/Sources/MapsterSource.php:62
+msgid "Off: Mapbox maps stay Mapbox and the token is transferred. On: they use OpenStreetMap, the style and the token are not used."
+msgstr "Vypnuto: mapy z Mapboxu zůstanou na Mapboxu a přenese se token. Zapnuto: použijí OpenStreetMap, styl a token se nepoužijí."
+
+#: includes/Core/Migration/Sources/MapsterSource.php:124
+msgid "There is no Mapster map, so there is nothing to transfer."
+msgstr "Mapster nemá žádnou mapu, není co přenášet."
+
+#. translators: %s: list of maps with what is left out.
+#: includes/Core/Migration/Sources/MapsterSource.php:141
+msgid "The module draws points only. These items are not transferred: %s."
+msgstr "Modul kreslí jen body. Tyto položky se nepřenesou: %s."
+
+#. translators: %s: list of map names.
+#: includes/Core/Migration/Sources/MapsterSource.php:150
+msgid "No Mapbox token was found for: %s. These maps show OpenStreetMap until a token is set in the module settings."
+msgstr "Pro tyto mapy se nenašel token Mapboxu: %s. Dokud ho nedoplníš v nastavení modulu, zobrazí OpenStreetMap."
+
+#: includes/Core/Migration/Sources/MapsterSource.php:155
+msgid "Pages with the Mapster shortcode keep working: the module answers it by itself once Mapster is deactivated."
+msgstr "Stránky se shortcodem Mapsteru dál fungují: jakmile se Mapster vypne, modul na shortcode odpoví sám."
+
+#. translators: 1: map title, 2: map service, 3: number of pins.
+#: includes/Core/Migration/Sources/MapsterSource.php:169
+msgid "%1$s (%2$s, %3$d pin)"
+msgid_plural "%1$s (%2$s, %3$d pins)"
+msgstr[0] "%1$s (%2$s, %3$d špendlík)"
+msgstr[1] "%1$s (%2$s, %3$d špendlíky)"
+msgstr[2] "%1$s (%2$s, %3$d špendlíků)"
+
+#. translators: %s: page titles.
+#: includes/Core/Migration/Sources/MapsterSource.php:177
+msgid "used on: %s"
+msgstr "použito na: %s"
+
+#: includes/Core/Migration/Sources/MapsterSource.php:233
+msgid "The Maps module is not available."
+msgstr "Modul Mapy není k dispozici."
+
+#: includes/Core/Migration/Sources/MapsterSource.php:262
+msgid "The map is not in UX Studio."
+msgstr "Mapa v UX Studiu není."
+
+#: includes/Core/Migration/Sources/SqueezeSource.php:61
+msgid "Keep the original backups made by Squeeze (they allow Restore, but take disk space)"
+msgstr "Ponechat zálohy originálů ze Squeeze (umožní obnovení, ale zabírají místo)"
+
+#: includes/Core/Migration/Sources/SqueezeSource.php:62
+msgid "Squeeze saved the untouched original of every image next to it as name.bak.jpg. Switch this off to delete those files and free the space. After that the images cannot be restored to their originals."
+msgstr "Squeeze uložil nedotčený originál každého obrázku vedle něj jako název.bak.jpg. Vypni to a tyto soubory se smažou a uvolní místo. Obrázky pak už nepůjde vrátit do původní podoby."
+
+#: includes/Core/Migration/Sources/SqueezeSource.php:67
+msgid "Create the WebP/AVIF copies right away"
+msgstr "Hned vytvořit kopie WebP/AVIF"
+
+#: includes/Core/Migration/Sources/SqueezeSource.php:68
+msgid "Queues a run that makes the WebP/AVIF copies of the main file and every thumbnail of the migrated images. The images themselves are not compressed again."
+msgstr "Zařadí běh, který vyrobí kopie WebP/AVIF hlavního souboru i všech náhledů převzatých obrázků. Samotné obrázky se znovu nekomprimují."
+
+#: includes/Core/Migration/Sources/SqueezeSource.php:79
+#: includes/Core/Migration/Sources/SqueezeSource.php:100
+msgid "The compressed images are taken over without being compressed again; only their WebP/AVIF copies are made."
+msgstr "Zkomprimované obrázky se převezmou bez opakované komprese, vyrobí se jen jejich kopie WebP/AVIF."
+
+#: includes/Core/Migration/Sources/SqueezeSource.php:81
+msgid "The plugin has no settings or compressed images, there is nothing to transfer."
+msgstr "Plugin nemá žádná nastavení ani zkomprimované obrázky, není co přenášet."
+
+#: includes/Core/Migration/Sources/SqueezeSource.php:99
+msgid "Which thumbnail sizes Squeeze compressed is not transferred: the images it compressed are marked and never compressed again, new images follow the module setting \"Thumbnail sizes to optimize\"."
+msgstr "Které velikosti náhledů Squeeze komprimoval, se nepřenáší: obrázky, které zkomprimoval, se označí a už se nikdy znovu nekomprimují, nové obrázky se řídí nastavením modulu „Velikosti náhledů k optimalizaci“."
+
+#: includes/Core/Migration/Sources/SqueezeSource.php:117
+#: includes/Core/Migration/Sources/SqueezeSource.php:128
+msgid "Compressed images"
+msgstr "Zkomprimované obrázky"
+
+#: includes/Core/Migration/Sources/SqueezeSource.php:304
+msgid "The image is not marked as already compressed."
+msgstr "Obrázek není označený jako už zkomprimovaný."
+
+#: includes/Core/Migration/Sources/SqueezeSource.php:317
+msgid "Disk space that will be freed"
+msgstr "Místo, které se uvolní"
+
+#: includes/Core/Migration/Sources/SqueezeSource.php:317
+msgid "Disk space freed"
+msgstr "Uvolněné místo"
+
+#: includes/Core/Migration/Sources/TablePressSource.php:59
+msgid "Leave out empty rows"
+msgstr "Vynechat prázdné řádky"
+
+#: includes/Core/Migration/Sources/TablePressSource.php:60
+msgid "Rows with nothing in any cell are not copied. Leave it off to get the tables exactly as they are in TablePress."
+msgstr "Řádky, které nemají nic v žádné buňce, se nezkopírují. Nech vypnuté a tabulky budou přesně jako v TablePressu."
+
+#: includes/Core/Migration/Sources/TablePressSource.php:121
+msgid "TablePress has no tables, there is nothing to transfer."
+msgstr "TablePress nemá žádné tabulky, není co přenášet."
+
+#: includes/Core/Migration/Sources/TablePressSource.php:124
+msgid "TablePress has no settings that matter here. Each table keeps its own display options (header, footer, stripes, hover, sorting, search, paging)."
+msgstr "TablePress tu nemá žádná důležitá nastavení. Každá tabulka si nese vlastní volby zobrazení (hlavička, patička, pruhy, zvýraznění, řazení, hledání, stránkování)."
+
+#: includes/Core/Migration/Sources/TablePressSource.php:125
+msgid "Pages with [table id=N /] keep working without any change: once TablePress is switched off, the Tables module answers the same shortcode."
+msgstr "Stránky s [table id=N /] fungují dál beze změny: jakmile se TablePress vypne, modul Tabulky odpoví na stejný shortcode."
+
+#. translators: %d: number of table cells.
+#: includes/Core/Migration/Sources/TablePressSource.php:132
+msgid "%d table cells contain HTML that is not allowed in a table cell (only links, line breaks, bold, italic, span and images are). The extra tags are removed, the text stays."
+msgstr "Buněk s HTML, které v buňce tabulky není povolené (povolené jsou jen odkazy, zalomení řádku, tučné písmo, kurzíva, span a obrázky): %d. Přebytečné značky se odstraní, text zůstane."
+
+#. translators: %d: number of table cells.
+#: includes/Core/Migration/Sources/TablePressSource.php:142
+msgid "%d table cells look like formulas. TablePress calculates them, UX Studio shows the text as it is."
+msgstr "Buněk, které vypadají jako vzorce: %d. TablePress je počítá, UX Studio zobrazí text, jak je."
+
+#. translators: %d: number of tables.
+#: includes/Core/Migration/Sources/TablePressSource.php:152
+msgid "%d tables use custom DataTables commands. They are not transferred; sorting, search and paging are kept as switches."
+msgstr "Tabulek s vlastními příkazy DataTables: %d. Ty se nepřenesou, řazení, hledání a stránkování zůstanou jako přepínače."
+
+#. translators: %d: number of tables.
+#: includes/Core/Migration/Sources/TablePressSource.php:162
+msgid "%d tables are missing or their data is damaged. They are skipped."
+msgstr "Tabulek, které chybí nebo mají poškozená data: %d. Přeskočí se."
+
+#: includes/Core/Migration/Sources/TablePressSource.php:170
+msgid "TablePress has custom CSS. It is not transferred, because it targets the class names of TablePress. Restyle the tables with the CSS variables of the Tables module or an extra CSS class."
+msgstr "TablePress má vlastní CSS. Nepřenese se, protože míří na názvy tříd TablePressu. Tabulky přestyluj pomocí proměnných CSS modulu Tabulky nebo další třídou CSS."
+
+#: includes/Core/Migration/Sources/TablePressSource.php:185
+msgid "empty rows left out"
+msgstr "prázdné řádky vynechány"
+
+#: includes/Core/Migration/Sources/TablePressSource.php:185
+msgid "empty rows (copied as they are)"
+msgstr "prázdné řádky (zkopírovány, jak jsou)"
+
+#: includes/Core/Migration/Sources/TablePressSource.php:209
+#: includes/Core/Migration/Sources/TablePressSource.php:240
+#: includes/Modules/Tables/Module.php:517
+msgid "The TablePress table is missing or its data is not valid."
+msgstr "Tabulka TablePressu chybí nebo nemá platná data."
+
+#: includes/Core/Migration/Sources/TablePressSource.php:251
+msgid "The table is not in UX Studio."
+msgstr "Tabulka v UX Studiu není."
+
+#: includes/Modules/ImageOptimizer/help.php:63
+msgid "Before an image is compressed, the untouched file is copied next to it, and the same is done for every thumbnail. This setting is used for new uploads. The bulk run asks again before it starts."
+msgstr "Než se obrázek zkomprimuje, zkopíruje se nedotčený soubor vedle něj, a stejně tak u každého náhledu. Toto nastavení platí pro nově nahrané obrázky. Hromadná optimalizace se před spuštěním zeptá znovu."
+
+#: includes/Modules/ImageOptimizer/help.php:64
+msgid "Restore can bring the original back at any time. Without a backup the compression is final."
+msgstr "Obnovení pak kdykoli vrátí originál. Bez zálohy je komprese konečná."
+
+#: includes/Modules/ImageOptimizer/help.php:65
+msgid "The backups take disk space, about as much as the images take now. With backups off, Restore is not possible, and converting PNG to JPEG is skipped because it needs the original. Images that another plugin already compressed are never compressed again and get no backup from this module."
+msgstr "Zálohy zabírají místo na disku, zhruba tolik, kolik teď zabírají obrázky. Bez záloh obnovení nejde a převod PNG na JPEG se přeskočí, protože potřebuje originál. Obrázky, které už zkomprimoval jiný plugin, se nikdy nekomprimují znovu a tento modul jim zálohu nedělá."
+
+#: includes/Modules/ImageOptimizer/help.php:66
+msgid "Turn it off when disk space is tight and you already have your own backup of the uploads folder."
+msgstr "Vypni, když je místa na disku málo a máš vlastní zálohu složky uploads."
+
+#. translators: %s: name of another image optimizer plugin.
+#: includes/Modules/ImageOptimizer/MediaLibrary.php:323
+msgid "Compressed by %s, files left as they are"
+msgstr "Zkomprimoval %s, soubory zůstaly beze změny"
+
+#: includes/Modules/ImageOptimizer/Module.php:276
+msgid "Keep a backup of the original images"
+msgstr "Uchovávat zálohu původních obrázků"
+
+#: includes/Modules/ImageOptimizer/Module.php:277
+msgid "Before an image is compressed, the untouched file is copied next to it. Only with a backup can Restore bring the original back. Backups take disk space. Used for new uploads; the bulk run asks again before it starts."
+msgstr "Než se obrázek zkomprimuje, zkopíruje se nedotčený soubor vedle něj. Jen se zálohou umí obnovení vrátit originál. Zálohy zabírají místo. Platí pro nově nahrané obrázky, hromadná optimalizace se před spuštěním zeptá znovu."
+
+#. translators: %s: name of the other image optimizer plugin.
+#: includes/Modules/ImageOptimizer/Optimizer.php:643
+msgid "The WebP/AVIF copies were removed. There is nothing to restore: the image was compressed by %s and its original is not kept."
+msgstr "Kopie WebP/AVIF byly odstraněny. Není co obnovit: obrázek zkomprimoval %s a jeho originál se neuchoval."
+
+#: includes/Modules/Maps/MapsterImport.php:161
+msgid "The Mapster map does not exist."
+msgstr "Mapa Mapsteru neexistuje."
+
+#: build/31.55aec9373a86e5d8db0a.js:1
+msgid "Compresses JPEG/PNG/GIF/WebP images already in the media library and optionally generates WebP/AVIF siblings. Before it starts you choose whether the originals are backed up."
+msgstr "Zkomprimuje obrázky JPEG/PNG/GIF/WebP, které už jsou v knihovně médií, a volitelně vytvoří kopie WebP/AVIF. Před spuštěním si zvolíš, jestli se mají originály zálohovat."
+
+#: build/31.55aec9373a86e5d8db0a.js:1
+msgid "Back up the originals before compressing"
+msgstr "Zálohovat originály před kompresí"
+
+#: build/31.55aec9373a86e5d8db0a.js:1
+msgid "Every image and every thumbnail is copied next to the file before it is compressed. This takes extra disk space, about as much as the images take now. Restore can bring the originals back."
+msgstr "Každý obrázek i každý náhled se před kompresí zkopíruje vedle souboru. Zabere to další místo na disku, zhruba tolik, kolik teď zabírají obrázky. Obnovení pak umí originály vrátit."
+
+#: build/31.55aec9373a86e5d8db0a.js:1
+msgid "No copies are made. The compression cannot be undone and Restore will not work for these images."
+msgstr "Žádné kopie se nevytvoří. Kompresi nepůjde vrátit a obnovení u těchto obrázků nebude fungovat."
+
+#: build/31.55aec9373a86e5d8db0a.js:1
+msgid "Images that another plugin (for example Squeeze) already compressed are never compressed again, whatever you choose here. Only their WebP/AVIF copies are made."
+msgstr "Obrázky, které už zkomprimoval jiný plugin (například Squeeze), se nikdy nekomprimují znovu, ať zvolíš cokoli. Vyrobí se jen jejich kopie WebP/AVIF."
+
+#: build/31.55aec9373a86e5d8db0a.js:1
+msgid "Start"
+msgstr "Spustit"
