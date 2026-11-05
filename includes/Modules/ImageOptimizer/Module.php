@@ -27,6 +27,7 @@ final class Module extends BaseModule {
 	private const CRON_HOOK    = 'uxstudio_io_process_batch';
 	private const QUEUE_OPTION = 'uxstudio_io_queue';
 	private const TOTAL_OPTION = 'uxstudio_io_total';
+	private const BACKUP_OPTION = 'uxstudio_io_backup';
 	private const BATCH_SIZE   = 5;
 
 	private Optimizer $optimizer;
@@ -270,6 +271,13 @@ final class Module extends BaseModule {
 				'default' => array(),
 			),
 			array(
+				'key'     => 'backup_originals',
+				'type'    => 'toggle',
+				'label'   => __( 'Keep a backup of the original images', 'ux-studio' ),
+				'help'    => __( 'Before an image is compressed, the untouched file is copied next to it. Only with a backup can Restore bring the original back. Backups take disk space. Used for new uploads; the bulk run asks again before it starts.', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
 				'key'     => 'auto_optimize',
 				'type'    => 'toggle',
 				'label'   => __( 'Optimize new uploads automatically', 'ux-studio' ),
@@ -417,8 +425,9 @@ final class Module extends BaseModule {
 	 * @param array|null $metadata      Metadata to use instead of the stored one (upload in progress).
 	 * @param float      $deadline      Microtime after which the thumbnail loop pauses (0 = no limit).
 	 * @param bool       $thumbs_only   Leave the main file alone, only process thumbnails.
+	 * @param bool|null  $backup        Keep a backup of the originals; null = the setting.
 	 */
-	public function optimize( int $attachment_id, ?array $metadata = null, float $deadline = 0.0, bool $thumbs_only = false ) {
+	public function optimize( int $attachment_id, ?array $metadata = null, float $deadline = 0.0, bool $thumbs_only = false, ?bool $backup = null ) {
 		$general = $this->general_quality();
 		$resize  = (bool) $this->setting( 'enable_resize', 'enable_resize', true );
 
@@ -438,6 +447,7 @@ final class Module extends BaseModule {
 				'metadata'        => $metadata,
 				'deadline'        => $deadline,
 				'thumbs_only'     => $thumbs_only,
+				'backup'          => null === $backup ? (bool) $this->settings->get( 'backup_originals', true ) : $backup,
 			)
 		);
 
@@ -548,11 +558,13 @@ final class Module extends BaseModule {
 	 * first batch. Safe to call again while a run is in progress (re-syncs
 	 * the queue with anything still missing the optimized-size meta). Images
 	 * optimized before thumbnails were handled are queued again, but only for
-	 * their thumbnails. Excluded images are left out.
+	 * their thumbnails. Excluded images are left out. The backup choice is stored
+	 * with the queue, so the whole run follows it.
 	 *
-	 * @return array{queued:int,total:int}
+	 * @param bool|null $backup Keep backups of the originals; null = the setting.
+	 * @return array{queued:int,total:int,backup:bool}
 	 */
-	public function bulk_start(): array {
+	public function bulk_start( ?bool $backup = null ): array {
 		$query = array(
 			'post_type'      => 'attachment',
 			'post_mime_type' => Optimizer::SUPPORTED_MIME,
@@ -597,18 +609,40 @@ final class Module extends BaseModule {
 
 		update_option( self::QUEUE_OPTION, $ids, false );
 		update_option( self::TOTAL_OPTION, count( $ids ), false );
+		// Stored as 1/0: update_option() ignores a first-time false.
+		update_option( self::BACKUP_OPTION, ( null === $backup ? (bool) $this->settings->get( 'backup_originals', true ) : $backup ) ? 1 : 0, false );
 
 		if ( ! empty( $ids ) && ! wp_next_scheduled( self::CRON_HOOK ) ) {
 			wp_schedule_single_event( time() + 5, self::CRON_HOOK );
 		}
 
-		return array( 'queued' => count( $ids ), 'total' => count( $ids ) );
+		return array( 'queued' => count( $ids ), 'total' => count( $ids ), 'backup' => (bool) (int) get_option( self::BACKUP_OPTION, 1 ) );
+	}
+
+	/**
+	 * Add images to the bulk queue without rebuilding it (the migration wizard queues the images it took
+	 * over, so they get their WebP/AVIF copies). Needs no module instance; the queue is only worked off
+	 * while the module is on.
+	 *
+	 * @param int[] $ids Attachment ids.
+	 */
+	public static function enqueue_ids( array $ids ): void {
+		$queue = array_map( 'intval', (array) get_option( self::QUEUE_OPTION, array() ) );
+		$new   = array_values( array_diff( array_map( 'intval', $ids ), $queue ) );
+		if ( empty( $new ) ) {
+			return;
+		}
+		update_option( self::QUEUE_OPTION, array_merge( $queue, $new ), false );
+		update_option( self::TOTAL_OPTION, (int) get_option( self::TOTAL_OPTION, 0 ) + count( $new ), false );
+		if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
+			wp_schedule_single_event( time() + 5, self::CRON_HOOK );
+		}
 	}
 
 	/**
 	 * Current bulk progress.
 	 *
-	 * @return array{queued:int,total:int,done:int,running:bool}
+	 * @return array{queued:int,total:int,done:int,running:bool,backup:bool}
 	 */
 	public function bulk_status(): array {
 		$queue   = (array) get_option( self::QUEUE_OPTION, array() );
@@ -619,6 +653,7 @@ final class Module extends BaseModule {
 			'total'   => $total,
 			'done'    => max( 0, $total - $queued ),
 			'running' => $queued > 0,
+			'backup'  => (bool) (int) get_option( self::BACKUP_OPTION, 1 ),
 		);
 	}
 
@@ -648,7 +683,7 @@ final class Module extends BaseModule {
 
 			$thumbs_only = '' !== (string) get_post_meta( $attachment_id, Optimizer::META_OPTIMIZED_SIZE, true )
 				&& '' === (string) get_post_meta( $attachment_id, Optimizer::META_THUMBS, true );
-			$result      = $this->optimize( $attachment_id, null, $deadline, $thumbs_only );
+			$result      = $this->optimize( $attachment_id, null, $deadline, $thumbs_only, (bool) (int) get_option( self::BACKUP_OPTION, 1 ) );
 			if ( ! is_wp_error( $result ) && ! empty( $result['thumbs_pending'] ) ) {
 				array_unshift( $queue, $attachment_id );
 			}

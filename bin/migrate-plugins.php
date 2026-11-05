@@ -38,70 +38,40 @@ WP_CLI::log( $uxs_apply ? '=== APPLY - changes will be written ===' : '=== DRY R
  * stay where they are; Optimizer::legacy_backup() reads them for Restore.
  */
 $uxs_squeeze = static function ( bool $apply ): void {
-	global $wpdb;
-
-	$ids = array_map(
-		'intval',
-		$wpdb->get_col( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'squeeze_is_compressed' AND meta_value <> ''" ) // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-	);
-
-	$stats = array( 'compressed' => count( $ids ), 'marked' => 0, 'already' => 0, 'no_backup' => 0, 'missing_file' => 0, 'backup_bytes' => 0, 'saved_bytes' => 0 );
-	$no_backup = array();
-
-	foreach ( $ids as $id ) {
-		if ( '' !== (string) get_post_meta( $id, '_uxstudio_io_optimized_size', true ) ) {
-			++$stats['already'];
-			continue;
-		}
-
-		$path = get_attached_file( $id );
-		if ( ! $path || ! is_file( $path ) ) {
-			++$stats['missing_file'];
-			continue;
-		}
-
-		$info   = pathinfo( $path );
-		$backup = null;
-		foreach ( array_unique( array( $info['filename'], (string) preg_replace( '/-scaled$/', '', $info['filename'] ) ) ) as $name ) {
-			$candidate = $info['dirname'] . '/' . $name . '.bak.' . ( $info['extension'] ?? '' );
-			if ( is_file( $candidate ) ) {
-				$backup = $candidate;
-				break;
-			}
-		}
-
-		$current  = (int) filesize( $path );
-		$original = $backup ? (int) filesize( $backup ) : $current;
-		if ( null === $backup ) {
-			++$stats['no_backup'];
-			$no_backup[] = $id;
-		} else {
-			$stats['backup_bytes'] += $original;
-			$stats['saved_bytes']  += max( 0, $original - $current );
-		}
-
-		if ( $apply ) {
-			update_post_meta( $id, '_uxstudio_io_original_size', $original );
-			update_post_meta( $id, '_uxstudio_io_optimized_size', $current );
-			update_post_meta( $id, '_uxstudio_io_webp_done', is_file( $info['dirname'] . '/' . $info['filename'] . '.webp' ) ? 1 : 0 );
-			update_post_meta( $id, '_uxstudio_io_avif_done', is_file( $info['dirname'] . '/' . $info['filename'] . '.avif' ) ? 1 : 0 );
-			update_post_meta( $id, '_uxstudio_io_filesize', $current );
-		}
-		++$stats['marked'];
-	}
-
 	WP_CLI::log( '--- squeeze ---' );
-	WP_CLI::log( sprintf( 'Compressed by Squeeze: %d | to mark: %d | already in image-optimizer: %d | without .bak backup: %d | file missing: %d', $stats['compressed'], $stats['marked'], $stats['already'], $stats['no_backup'], $stats['missing_file'] ) );
-	WP_CLI::log( sprintf( 'Backups: %s, Squeeze saved: %s', size_format( $stats['backup_bytes'], 1 ), size_format( $stats['saved_bytes'], 1 ) ) );
-	if ( $no_backup ) {
-		WP_CLI::log( 'No backup (Restore will not work): ' . implode( ', ', array_slice( $no_backup, 0, 30 ) ) . ( count( $no_backup ) > 30 ? ' ...' : '' ) );
+	WP_CLI::log( 'Same code as the migration wizard (Core\Migration\Sources\SqueezeSource): the compressed images are marked, never compressed again, .bak originals are kept.' );
+
+	$source = new \UxStudio\Core\Migration\Sources\SqueezeSource( 'squeeze' );
+	$state  = array(
+		'run_id'  => '',
+		'options' => array(
+			'keep_backups'  => true,
+			'generate_webp' => false,
+		),
+	);
+	$totals = array( 'written' => 0, 'unchanged' => 0 );
+	$guard  = 0;
+	do {
+		$result = $source->migrate( $state, ! $apply );
+		$totals['written']   += (int) ( $result['written'] ?? 0 );
+		$totals['unchanged'] += (int) ( $result['unchanged'] ?? 0 );
+		$state['cursor']      = $result['cursor'] ?? null;
+		foreach ( (array) ( $result['errors'] ?? array() ) as $error ) {
+			WP_CLI::warning( (string) $error );
+		}
+	} while ( empty( $result['done'] ) && ++$guard < 10000 );
+
+	WP_CLI::log( sprintf( '%s: %d images marked, %d already there.', $apply ? 'Applied' : 'Dry run', $totals['written'], $totals['unchanged'] ) );
+	foreach ( (array) ( $result['items'] ?? array() ) as $row ) {
+		if ( ! empty( $row['label'] ) ) {
+			WP_CLI::log( '  ' . $row['label'] . ': ' . ( $row['to'] ?? '' ) );
+		}
 	}
 	$options = get_option( 'squeeze_options' );
 	if ( is_array( $options ) ) {
 		WP_CLI::log( sprintf( 'Squeeze settings for comparison: JPEG q%s, WebP q%s, thumbnails: %s', $options['jpeg_quality'] ?? '?', $options['webp_quality'] ?? '?', implode( ', ', array_keys( (array) ( $options['compress_thumbs'] ?? array() ) ) ) ) );
 	}
 };
-
 /**
  * WebP Express leftovers: the plugin is gone, only its options remain.
  */

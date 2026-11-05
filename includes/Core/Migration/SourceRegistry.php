@@ -21,6 +21,7 @@ use UxStudio\Core\Migration\Sources\CronSource;
 use UxStudio\Core\Migration\Sources\DisableCommentsSource;
 use UxStudio\Core\Migration\Sources\DuplicatePostSource;
 use UxStudio\Core\Migration\Sources\EmailLogSource;
+use UxStudio\Core\Migration\Sources\SqueezeSource;
 use UxStudio\Core\Migration\Sources\ExternalLinksSource;
 use UxStudio\Core\Migration\Sources\ExternalPermalinksSource;
 use UxStudio\Core\Migration\Sources\FolderSource;
@@ -95,6 +96,7 @@ final class SourceRegistry {
 			LastLoginSource::class        => array( 'when-last-login', 'wp-last-login' ),
 			SmtpSource::class             => array( 'wp-mail-smtp', 'easy-wp-smtp', 'post-smtp', 'fluent-smtp' ),
 			EmailLogSource::class         => array( 'wp-mail-logging', 'email-log' ),
+			SqueezeSource::class          => array( 'squeeze' ),
 			CronSource::class             => array( 'wp-crontrol' ),
 			MaintenanceSource::class      => array( 'wp-maintenance-mode', 'coming-soon', 'maintenance', 'under-construction-page' ),
 			ActivityLogSource::class      => array( 'simple-history', 'wp-security-audit-log', 'aryo-activity-log', 'adminify-activity-logs' ),

@@ -471,8 +471,8 @@ final class Catalog {
 				)
 			),
 			$part( 'image-optimizer', array( 'webp-express' => 'WebP Express' ) ),
-			// Squeeze also compresses thumbnails, which image-optimizer does not yet (PLAN §41). Its compressed
-			// images and .bak originals are taken over by bin/migrate-plugins.php.
+			// Squeeze: SqueezeSource marks its compressed images so they are never compressed again (only WebP/AVIF
+			// copies are added) and optionally removes the .bak originals.
 			$part( 'image-optimizer', array( 'squeeze' => 'Squeeze' ) ),
 			// Information only: maps are moved by bin/migrate-plugins.php while both run, and the
 			// [mapster_wp_map] alias steps in only once Mapster is off.

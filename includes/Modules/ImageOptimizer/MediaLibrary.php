@@ -131,7 +131,7 @@ final class MediaLibrary {
 	 * Optimization state of an attachment.
 	 *
 	 * @param int $attachment_id Attachment id.
-	 * @return array{optimized:bool,original:int,current:int,percent:int,webp:int,avif:int,backup:bool,thumbs:int,excluded:bool}
+	 * @return array{optimized:bool,original:int,current:int,percent:int,webp:int,avif:int,backup:bool,thumbs:int,excluded:bool,foreign:string}
 	 */
 	private function info( int $attachment_id ): array {
 		$path    = (string) get_attached_file( $attachment_id );
@@ -161,6 +161,7 @@ final class MediaLibrary {
 			'backup'    => $this->optimizer->has_backup( $attachment_id ),
 			'thumbs'    => (int) get_post_meta( $attachment_id, Optimizer::META_THUMBS, true ),
 			'excluded'  => $this->module->is_excluded( $attachment_id ),
+			'foreign'   => ForeignOptimizers::source_of( $attachment_id ),
 		);
 	}
 
@@ -318,6 +319,10 @@ final class MediaLibrary {
 			}
 		}
 
+		if ( '' !== $info['foreign'] ) {
+			$html .= '<br><span class="uxs-io-na">' . esc_html( sprintf( /* translators: %s: name of another image optimizer plugin. */ __( 'Compressed by %s, files left as they are', 'ux-studio' ), ForeignOptimizers::label( $info['foreign'] ) ) ) . '</span>';
+		}
+
 		if ( $info['excluded'] ) {
 			$html .= '<br><span class="uxs-io-na">' . esc_html__( 'Excluded from automatic optimization', 'ux-studio' ) . '</span>';
 		}
@@ -428,7 +433,7 @@ final class MediaLibrary {
 
 		wp_send_json_success(
 			array(
-				'message' => __( 'The original was restored.', 'ux-studio' ),
+				'message' => ! empty( $result['message'] ) ? (string) $result['message'] : __( 'The original was restored.', 'ux-studio' ),
 				'html'    => $this->status_html( $attachment_id, true ),
 			)
 		);

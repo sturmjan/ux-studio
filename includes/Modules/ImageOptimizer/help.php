@@ -59,6 +59,12 @@ return array(
 		'risk'   => __( 'Creating AVIF is slow and needs a lot of server memory. On weak hosting it can make optimizing time out. If the server cannot encode AVIF, the setting is ignored.', 'ux-studio' ),
 		'off'    => __( 'Leave it off on shared hosting with strict limits.', 'ux-studio' ),
 	),
+	'backup_originals'   => array(
+		'does'   => __( 'Before an image is compressed, the untouched file is copied next to it, and the same is done for every thumbnail. This setting is used for new uploads. The bulk run asks again before it starts.', 'ux-studio' ),
+		'effect' => __( 'Restore can bring the original back at any time. Without a backup the compression is final.', 'ux-studio' ),
+		'risk'   => __( 'The backups take disk space, about as much as the images take now. With backups off, Restore is not possible, and converting PNG to JPEG is skipped because it needs the original. Images that another plugin already compressed are never compressed again and get no backup from this module.', 'ux-studio' ),
+		'off'    => __( 'Turn it off when disk space is tight and you already have your own backup of the uploads folder.', 'ux-studio' ),
+	),
 	'auto_optimize'      => array(
 		'does'   => __( 'Every image you upload is compressed, and the extra formats are created, right after the upload.', 'ux-studio' ),
 		'effect' => __( 'You do not have to remember to optimize. Uploading a big photo takes a bit longer.', 'ux-studio' ),

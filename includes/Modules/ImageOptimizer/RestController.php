@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * GET  uxstudio/v1/image-optimizer/status                    - runtime capabilities + delivery status
  * POST uxstudio/v1/image-optimizer/optimize/{attachment_id}  - optimize one image
- * POST uxstudio/v1/image-optimizer/bulk-start                - queue + schedule all unoptimized images
+ * POST uxstudio/v1/image-optimizer/bulk-start                - queue + schedule all unoptimized images (optional body: backup = keep backups of the originals)
  * GET  uxstudio/v1/image-optimizer/bulk-status               - queue progress
  * POST uxstudio/v1/image-optimizer/restore/{attachment_id}   - restore the backed-up original
  * GET  uxstudio/v1/image-optimizer/unused                    - list unused images (heuristic, read-only)
@@ -45,7 +45,17 @@ final class RestController extends Controller {
 			'POST',
 			array( $this, 'optimize' )
 		);
-		$this->route( '/image-optimizer/bulk-start', 'POST', array( $this, 'bulk_start' ) );
+		$this->route(
+			'/image-optimizer/bulk-start',
+			'POST',
+			array( $this, 'bulk_start' ),
+			array(
+				'backup' => array(
+					'type'              => 'boolean',
+					'sanitize_callback' => 'rest_sanitize_boolean',
+				),
+			)
+		);
 		$this->route( '/image-optimizer/bulk-status', 'GET', array( $this, 'bulk_status' ) );
 		$this->route(
 			'/image-optimizer/restore/(?P<id>\d+)',
@@ -104,7 +114,8 @@ final class RestController extends Controller {
 	 * @param WP_REST_Request $request Request.
 	 */
 	public function bulk_start( WP_REST_Request $request ) {
-		return $this->ok( $this->module->bulk_start() );
+		$backup = $request->get_param( 'backup' );
+		return $this->ok( $this->module->bulk_start( null === $backup ? null : (bool) $backup ) );
 	}
 
 	/**

@@ -35,6 +35,9 @@ final class Optimizer {
 	/** Number of thumbnails compressed (set once all of them are done). */
 	public const META_THUMBS = '_uxstudio_io_thumbs';
 
+	/** Size of the main file before any optimizer touched it (kept for the stats when there is no backup). */
+	public const META_MAIN_ORIGINAL = '_uxstudio_io_main_original';
+
 	/** Thumbnail run paused by the time budget: file names already done (continues on the next batch). */
 	public const META_THUMBS_PENDING = '_uxstudio_io_thumbs_pending';
 
@@ -102,7 +105,10 @@ final class Optimizer {
 	 *                            thumbnails (bool, default true), thumbnail_sizes (string[], empty = all),
 	 *                            metadata (array, used instead of the stored metadata, e.g. during upload),
 	 *                            deadline (float microtime after which the thumbnail loop pauses),
-	 *                            thumbs_only (bool, skip the main file).
+	 *                            thumbs_only (bool, skip the main file),
+	 *                            backup (bool, default true: keep "-original" copies; false = no backups, so no Restore),
+	 *                            siblings_only (bool: never re-encode, only emit WebP/AVIF; always on for images that
+	 *                            another optimizer already compressed, see ForeignOptimizers).
 	 * @return array|WP_Error {attachment_id, original_size, optimized_size, webp_done, avif_done, converted, thumbs, thumbs_pending}
 	 */
 	public function optimize( int $attachment_id, int $quality, bool $convert_webp, int $max_width, bool $convert_avif = false, array $opts = array() ) {
@@ -138,27 +144,55 @@ final class Optimizer {
 			$convert_webp = false;
 		}
 
+		// An image that another optimizer already compressed is never encoded again: only siblings are made.
+		$foreign       = ForeignOptimizers::source_of( $attachment_id );
+		$siblings_only = ! empty( $opts['siblings_only'] ) || '' !== $foreign;
+		if ( '' !== $foreign && $foreign !== (string) get_post_meta( $attachment_id, ForeignOptimizers::META, true ) ) {
+			update_post_meta( $attachment_id, ForeignOptimizers::META, $foreign );
+		}
+		// Without backups the original is gone after compression, so nothing that needs it (PNG -> JPEG) may run.
+		$backup_on = ! $siblings_only && ( ! isset( $opts['backup'] ) || ! empty( $opts['backup'] ) );
+		if ( ! $backup_on ) {
+			$opts['png_to_jpg'] = false;
+		}
+		if ( $siblings_only ) {
+			$max_width  = 0;
+			$max_height = 0;
+		}
+
 		$meta = isset( $opts['metadata'] ) && is_array( $opts['metadata'] ) ? $opts['metadata'] : wp_get_attachment_metadata( $attachment_id );
 		$meta = is_array( $meta ) ? $meta : array();
 
 		// A paused thumbnail run (time budget) continues without touching the main file again.
 		$pending     = get_post_meta( $attachment_id, self::META_THUMBS_PENDING, true );
 		$thumbs_only = ! empty( $opts['thumbs_only'] ) || ! empty( $pending );
-		$skip_done   = is_array( $pending ) ? array_map( 'strval', $pending ) : array();
+		$skip_done   = $this->done_map( $pending );
 
 		$backup    = $this->backup_for( $attachment_id, $path );
 		$converted = false;
+		$pre_size  = (int) filesize( $path );
+		$previous  = (int) get_post_meta( $attachment_id, self::META_ORIGINAL_SIZE, true );
 		$result    = array(
 			'webp_done' => is_file( $this->webp_path( $path ) ),
 			'avif_done' => is_file( $this->avif_path( $path ) ),
 		);
 
-		if ( ! $thumbs_only ) {
-			if ( ! is_file( $backup ) ) {
+		if ( $thumbs_only ) {
+			$main_original = (int) get_post_meta( $attachment_id, self::META_MAIN_ORIGINAL, true );
+			if ( is_file( $backup ) ) {
+				$main_original = (int) filesize( $backup );
+			}
+			$main_original = $main_original > 0 ? $main_original : $pre_size;
+		} elseif ( $siblings_only ) {
+			$main_original = '' !== $foreign ? ForeignOptimizers::original_size( $foreign, $path ) : 0;
+			$main_original = $main_original > 0 ? $main_original : $pre_size;
+		} else {
+			if ( $backup_on && ! is_file( $backup ) ) {
 				if ( ! @copy( $path, $backup ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 					return new WP_Error( 'uxstudio_backup_failed', __( 'Could not create a backup of the original image.', 'ux-studio' ) );
 				}
 			}
+			$main_original = is_file( $backup ) ? (int) filesize( $backup ) : $pre_size;
 
 			// Optional PNG -> JPEG conversion (opaque PNGs only). The PNG stays as
 			// the "-original" backup, so Restore can bring it back.
@@ -181,12 +215,21 @@ final class Optimizer {
 					$converted = true;
 				}
 			}
+		}
 
+		if ( ! $thumbs_only && $siblings_only ) {
+			if ( $this->siblings_missing( $path, $convert_webp, $convert_avif ) ) {
+				$extra = $this->process_file( $path, $mime, $qualities, 0, 0, $convert_webp, $convert_avif, null, false );
+				if ( ! is_wp_error( $extra ) ) {
+					$result = $extra;
+				}
+			}
+		} elseif ( ! $thumbs_only ) {
 			$result = $this->process_file( $path, $mime, $qualities, $max_width, $max_height, $convert_webp, $convert_avif );
 			if ( is_wp_error( $result ) ) {
 				return $result;
 			}
-		} elseif ( ( $convert_webp && ! is_file( $this->webp_path( $path ) ) ) || ( $convert_avif && ! is_file( $this->avif_path( $path ) ) ) ) {
+		} elseif ( $this->siblings_missing( $path, $convert_webp, $convert_avif ) ) {
 			// Already optimized earlier: only add the missing next-gen siblings of the main file.
 			$extra = $this->process_file( $path, $mime, $qualities, 0, 0, $convert_webp, $convert_avif, null, false );
 			if ( ! is_wp_error( $extra ) ) {
@@ -199,7 +242,8 @@ final class Optimizer {
 
 		// Set first, so the auto-optimize filter skips this attachment while metadata is rebuilt below.
 		if ( ! $thumbs_only ) {
-			update_post_meta( $attachment_id, self::META_ORIGINAL_SIZE, (int) filesize( $this->backup_for( $attachment_id, $path ) ) );
+			update_post_meta( $attachment_id, self::META_MAIN_ORIGINAL, $main_original );
+			update_post_meta( $attachment_id, self::META_ORIGINAL_SIZE, $main_original );
 		}
 		update_post_meta( $attachment_id, self::META_OPTIMIZED_SIZE, $optimized_size );
 		update_post_meta( $attachment_id, self::META_WEBP_DONE, $result['webp_done'] ? 1 : 0 );
@@ -225,7 +269,9 @@ final class Optimizer {
 				$convert_avif,
 				array_map( 'strval', (array) ( $opts['thumbnail_sizes'] ?? array() ) ),
 				(float) ( $opts['deadline'] ?? 0 ),
-				$skip_done
+				$skip_done,
+				$backup_on,
+				$siblings_only
 			);
 		}
 
@@ -239,7 +285,11 @@ final class Optimizer {
 		}
 
 		// Stats cover the whole attachment: main file plus every thumbnail.
-		$totals = $this->totals( $attachment_id, $path, $meta );
+		$totals = $this->totals( $path, $meta, $main_original, $thumbs['done'] );
+		// Without any backup the new "original" is only what this run saw: keep the larger figure from before.
+		if ( $thumbs_only || ! is_file( $backup ) ) {
+			$totals['original'] = max( $totals['original'], $previous );
+		}
 		update_post_meta( $attachment_id, self::META_ORIGINAL_SIZE, $totals['original'] );
 		update_post_meta( $attachment_id, self::META_OPTIMIZED_SIZE, $totals['current'] );
 
@@ -252,14 +302,48 @@ final class Optimizer {
 			'converted'      => $converted,
 			'thumbs'         => count( $thumbs['done'] ),
 			'thumbs_pending' => $thumbs['pending'],
+			'siblings_only'  => $siblings_only,
+			'backup'         => $backup_on,
 		);
 	}
 
 	/**
-	 * Compress the generated thumbnails (and emit their siblings). Each one is
-	 * backed up once next to the file ("<name>-300x200-original.jpg") and always
-	 * rebuilt from that backup. Stops early once the deadline has passed (at
-	 * least one file is processed per call so a run always makes progress).
+	 * Names of the thumbnails already done in a paused run, with their original size
+	 * (the stored value is a map name => size; an older list of names is accepted).
+	 *
+	 * @param mixed $stored Value of the pending meta.
+	 * @return array<string, int>
+	 */
+	private function done_map( $stored ): array {
+		$out = array();
+		foreach ( is_array( $stored ) ? $stored : array() as $key => $value ) {
+			if ( is_int( $key ) ) {
+				$out[ (string) $value ] = 0;
+			} else {
+				$out[ (string) $key ] = (int) $value;
+			}
+		}
+
+		return $out;
+	}
+
+	/**
+	 * Whether a wanted next-gen sibling of a file does not exist yet.
+	 *
+	 * @param string $file Absolute file path.
+	 * @param bool   $webp WebP wanted.
+	 * @param bool   $avif AVIF wanted.
+	 */
+	private function siblings_missing( string $file, bool $webp, bool $avif ): bool {
+		return ( $webp && ! is_file( $this->webp_path( $file ) ) ) || ( $avif && ! is_file( $this->avif_path( $file ) ) );
+	}
+
+	/**
+	 * Compress the generated thumbnails (and emit their siblings). With backups on, each
+	 * one is backed up once next to the file ("<name>-300x200-original.jpg") and always
+	 * rebuilt from that backup. In siblings-only mode the files are not touched at all.
+	 * Stops early once the deadline has passed (at least one file is processed per call
+	 * so a run always makes progress).
 	 *
 	 * @param string $main    Absolute main file path (directory anchor).
 	 * @param array  $meta    Attachment metadata.
@@ -268,53 +352,76 @@ final class Optimizer {
 	 * @param bool   $avif    Emit .avif siblings.
 	 * @param string[] $names Size names to process; empty = all.
 	 * @param float  $deadline Microtime after which to pause; 0 = no limit.
-	 * @param string[] $skip  File names already done in an earlier paused run.
-	 * @return array{count:int,pending:bool,done:string[]} done = every file name processed so far.
+	 * @param array<string, int> $skip Files already done in an earlier paused run (name => original size).
+	 * @param bool   $backup_on Keep a backup of every thumbnail before it is compressed.
+	 * @param bool   $siblings_only Never re-encode the thumbnail, only emit the siblings.
+	 * @return array{count:int,pending:bool,done:array<string, int>} done = every file name handled so far => original size.
 	 */
-	private function optimize_thumbnails( string $main, array $meta, array $qualities, bool $webp, bool $avif, array $names, float $deadline, array $skip ): array {
+	private function optimize_thumbnails( string $main, array $meta, array $qualities, bool $webp, bool $avif, array $names, float $deadline, array $skip, bool $backup_on = true, bool $siblings_only = false ): array {
 		$done      = $skip;
 		$processed = 0;
 		$pending   = false;
 
 		foreach ( $this->thumbnail_files( $main, $meta, $names ) as $file ) {
 			$name = wp_basename( $file );
-			if ( in_array( $name, $skip, true ) ) {
+			if ( isset( $skip[ $name ] ) ) {
 				continue;
 			}
+
+			$mime = (string) wp_check_filetype( $file )['type'];
+			if ( ! in_array( $mime, self::SUPPORTED_MIME, true ) ) {
+				continue;
+			}
+			$is_webp = 'image/webp' === $mime;
+			$thumb_w = $is_webp ? false : $webp;
+			$thumb_a = $is_webp ? false : $avif;
+			$pre     = (int) filesize( $file );
+
+			// A foreign-compressed thumbnail that already has its siblings needs nothing.
+			if ( $siblings_only && ! $this->siblings_missing( $file, $thumb_w, $thumb_a ) ) {
+				$done[ $name ] = $pre;
+				continue;
+			}
+
 			if ( $deadline > 0 && $processed > 0 && microtime( true ) > $deadline ) {
 				$pending = true;
 				break;
 			}
-
 			if ( 0.0 === $deadline ) {
 				@set_time_limit( 30 ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, Squiz.PHP.DiscouragedFunctions.Discouraged
 			}
 
-			$mime   = (string) wp_check_filetype( $file )['type'];
-			$backup = $this->backup_path( $file );
-			if ( ! in_array( $mime, self::SUPPORTED_MIME, true ) || ( ! is_file( $backup ) && ! @copy( $file, $backup ) ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			if ( $siblings_only ) {
+				$result = $this->process_file( $file, $mime, $qualities, 0, 0, $thumb_w, $thumb_a, null, false );
+				++$processed;
+				$done[ $name ] = $pre;
 				continue;
 			}
 
-			$is_webp = 'image/webp' === $mime;
-			$result  = $this->process_file( $file, $mime, $qualities, 0, 0, $is_webp ? false : $webp, $is_webp ? false : $avif, $backup );
+			$backup = $this->backup_path( $file );
+			if ( $backup_on && ! is_file( $backup ) && ! @copy( $file, $backup ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				continue;
+			}
+			$has_backup = is_file( $backup );
+
+			$result = $this->process_file( $file, $mime, $qualities, 0, 0, $thumb_w, $thumb_a, $has_backup ? $backup : null );
 			++$processed;
+			$done[ $name ] = $has_backup ? (int) filesize( $backup ) : $pre;
 			if ( is_wp_error( $result ) ) {
 				continue;
 			}
 
 			// Never keep a "compressed" thumbnail that is bigger than the original one.
 			clearstatcache( true, $file );
-			if ( (int) filesize( $file ) >= (int) filesize( $backup ) ) {
+			if ( $has_backup && (int) filesize( $file ) >= (int) filesize( $backup ) ) {
 				@copy( $backup, $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 			}
-			$done[] = $name;
 		}
 
 		return array(
 			'count'   => $processed,
 			'pending' => $pending,
-			'done'    => array_values( array_unique( $done ) ),
+			'done'    => $done,
 		);
 	}
 
@@ -353,24 +460,29 @@ final class Optimizer {
 	}
 
 	/**
-	 * Original (backed-up) and current size of the whole attachment, thumbnails
-	 * included. A file without a backup counts with its current size.
+	 * Original and current size of the whole attachment, thumbnails included. The original
+	 * of a thumbnail is the size recorded when it was handled, else its backup, else its
+	 * current size.
 	 *
-	 * @param int    $attachment_id Attachment post id.
-	 * @param string $main          Absolute main file path.
-	 * @param array  $meta          Attachment metadata.
+	 * @param string             $main          Absolute main file path.
+	 * @param array              $meta          Attachment metadata.
+	 * @param int                $main_original Size of the main file before any optimizer.
+	 * @param array<string, int> $recorded      Thumbnail file name => original size.
 	 * @return array{original:int,current:int}
 	 */
-	private function totals( int $attachment_id, string $main, array $meta ): array {
-		$backup   = $this->backup_for( $attachment_id, $main );
+	private function totals( string $main, array $meta, int $main_original, array $recorded ): array {
 		$current  = (int) filesize( $main );
-		$original = is_file( $backup ) ? (int) filesize( $backup ) : $current;
+		$original = $main_original;
 
 		foreach ( $this->thumbnail_files( $main, $meta ) as $file ) {
 			$size      = (int) filesize( $file );
 			$thumb_bak = $this->backup_path( $file );
+			$known     = (int) ( $recorded[ wp_basename( $file ) ] ?? 0 );
 			$current  += $size;
-			$original += is_file( $thumb_bak ) ? (int) filesize( $thumb_bak ) : $size;
+			if ( $known <= 0 ) {
+				$known = is_file( $thumb_bak ) ? (int) filesize( $thumb_bak ) : $size;
+			}
+			$original += $known;
 		}
 
 		return array(
@@ -405,6 +517,11 @@ final class Optimizer {
 		if ( ! $own_backup ) {
 			$backup = $this->legacy_backup( $path );
 			if ( null === $backup ) {
+				$foreign = ForeignOptimizers::source_of( $attachment_id );
+				if ( '' !== $foreign ) {
+					// Compressed by another optimizer and its backup is gone: only our own copies can be removed.
+					return $this->remove_siblings( $attachment_id, $path, $foreign );
+				}
 				return new WP_Error( 'uxstudio_no_backup', __( 'No backup exists for this image.', 'ux-studio' ) );
 			}
 		}
@@ -485,9 +602,48 @@ final class Optimizer {
 		delete_post_meta( $attachment_id, self::META_CONVERTED_FROM );
 		delete_post_meta( $attachment_id, self::META_THUMBS );
 		delete_post_meta( $attachment_id, self::META_THUMBS_PENDING );
+		delete_post_meta( $attachment_id, self::META_MAIN_ORIGINAL );
+		if ( '' !== ForeignOptimizers::source_of( $attachment_id ) ) {
+			// Back to the untouched original: it may be compressed again by this module.
+			update_post_meta( $attachment_id, ForeignOptimizers::META, 'none' );
+		}
 		update_post_meta( $attachment_id, MediaLibrary::META_FILESIZE, (int) filesize( $target ) );
 
 		return array( 'attachment_id' => $attachment_id, 'restored' => true );
+	}
+
+	/**
+	 * Restore for an image that another optimizer compressed and whose backup does not exist (any more):
+	 * the files stay as they are, only the WebP/AVIF copies made by this module are removed.
+	 *
+	 * @param int    $attachment_id Attachment post id.
+	 * @param string $path          Absolute main file path.
+	 * @param string $source        Id of the foreign optimizer.
+	 */
+	private function remove_siblings( int $attachment_id, string $path, string $source ): array {
+		$meta  = wp_get_attachment_metadata( $attachment_id );
+		$files = array_merge( array( $path ), $this->thumbnail_files( $path, is_array( $meta ) ? $meta : array() ) );
+		foreach ( $files as $file ) {
+			foreach ( array( $this->webp_path( $file ), $this->avif_path( $file ) ) as $sibling ) {
+				if ( is_file( $sibling ) ) {
+					@unlink( $sibling ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				}
+			}
+		}
+		foreach ( array( self::META_OPTIMIZED_SIZE, self::META_ORIGINAL_SIZE, self::META_MAIN_ORIGINAL, self::META_WEBP_DONE, self::META_AVIF_DONE, self::META_THUMBS, self::META_THUMBS_PENDING ) as $key ) {
+			delete_post_meta( $attachment_id, $key );
+		}
+
+		return array(
+			'attachment_id' => $attachment_id,
+			'restored'      => false,
+			'source'        => $source,
+			'message'       => sprintf(
+				/* translators: %s: name of the other image optimizer plugin. */
+				__( 'The WebP/AVIF copies were removed. There is nothing to restore: the image was compressed by %s and its original is not kept.', 'ux-studio' ),
+				ForeignOptimizers::label( $source )
+			),
+		);
 	}
 
 	/**
@@ -604,17 +760,8 @@ final class Optimizer {
 			}
 		}
 
-		// Squeeze plugin sidecar "<name>.bak.<ext>" (PLAN §41). For a "-scaled"
-		// file Squeeze may have backed up the unscaled upload instead.
-		$extension = $info['extension'] ?? '';
-		foreach ( array_unique( array( $info['filename'], (string) preg_replace( '/-scaled$/', '', $info['filename'] ) ) ) as $name ) {
-			$squeeze = $info['dirname'] . '/' . $name . '.bak.' . $extension;
-			if ( is_file( $squeeze ) ) {
-				return $squeeze;
-			}
-		}
-
-		return null;
+		// Squeeze plugin sidecar "<name>.bak.<ext>" (PLAN §41), see ForeignOptimizers.
+		return ForeignOptimizers::squeeze_backup( $path );
 	}
 
 	/**
