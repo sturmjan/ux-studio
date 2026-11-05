@@ -474,8 +474,9 @@ final class Catalog {
 			// Squeeze: SqueezeSource marks its compressed images so they are never compressed again (only WebP/AVIF
 			// copies are added) and optionally removes the .bak originals.
 			$part( 'image-optimizer', array( 'squeeze' => 'Squeeze' ) ),
-			// Information only: maps are moved by bin/migrate-plugins.php while both run, and the
-			// [mapster_wp_map] alias steps in only once Mapster is off.
+			// Partial on purpose (never blocks): the module draws points only, lines and polygons are
+			// not covered. The wizard (MapsterSource) moves the maps; the [mapster_wp_map] alias steps in
+			// only once Mapster is off.
 			$part( 'maps', array( 'mapster-wp-maps' => 'Mapster WP Maps' ) ),
 			// Partial on purpose, although the migration wizard (Sources\TablePressSource) moves the tables: TablePress
 			// features the module does not have (formulas, custom DataTables commands) mean the two must be able to run side

@@ -215,90 +215,35 @@ $uxs_mapster = static function ( bool $apply ) use ( $uxs_usage ): void {
 		WP_CLI::warning( 'Module "maps" is not enabled in UX Studio - showing what would be migrated only.' );
 	}
 
-	$settings_post = get_posts( array( 'post_type' => 'mapster-wp-settings', 'post_status' => 'any', 'posts_per_page' => 1, 'fields' => 'ids' ) );
-	$default_token = $settings_post ? (string) get_post_meta( (int) $settings_post[0], 'default_access_token', true ) : '';
-
-	$maps = get_posts( array( 'post_type' => 'mapster-wp-map', 'post_status' => 'publish', 'posts_per_page' => -1 ) );
+	$maps = \UxStudio\Modules\Maps\MapsterImport::map_ids();
 	if ( ! $maps ) {
 		WP_CLI::log( 'No Mapster maps found.' );
 	}
-	foreach ( $maps as $map ) {
-		$m = static fn ( string $key ) => get_post_meta( $map->ID, $key, true );
-
-		$provider = (string) $m( 'map_type_map_provider' );
-		$token    = (string) $m( 'map_type_access_token' ) ?: $default_token;
-		$style    = (string) preg_replace( '#^mapbox://styles/#', '', (string) $m( 'map_type_custom_mapbox_style' ) );
-		if ( '' === $style ) {
-			$style = 'mapbox/' . ( (string) $m( 'map_type_map_tile_style_access_token' ) ?: 'streets' ) . '-v12';
+	foreach ( $maps as $map_id ) {
+		$data = \UxStudio\Modules\Maps\MapsterImport::read( $map_id );
+		if ( null === $data ) {
+			continue;
 		}
-		// Mapster also offers Google; anything else falls back to OpenStreetMap.
-		$target = array( 'mapbox' => 'mapbox', 'google-maps' => 'google', 'google' => 'google' )[ $provider ] ?? 'osm';
-
-		$markers = array();
-		$skipped = array();
-		foreach ( array_filter( array_map( 'intval', (array) maybe_unserialize( $m( 'locations' ) ) ) ) as $loc_id ) {
-			$loc = get_post( $loc_id );
-			if ( ! $loc ) {
-				continue;
-			}
-			$geo   = json_decode( (string) get_post_meta( $loc_id, 'location', true ), true );
-			$point = $geo['features'][0]['geometry'] ?? null;
-			if ( ! is_array( $point ) || 'Point' !== ( $point['type'] ?? '' ) ) {
-				$skipped[] = $loc->post_title;
-				continue;
-			}
-			$popup     = '1' === (string) get_post_meta( $loc_id, 'enable_popup', true );
-			$header    = (string) get_post_meta( $loc_id, 'popup_header_text', true );
-			$markers[] = array(
-				'lat'   => (float) $point['coordinates'][1],
-				'lng'   => (float) $point['coordinates'][0],
-				'title' => $popup && '' !== $header ? $header : $loc->post_title,
-				'text'  => $popup ? trim( (string) get_post_meta( $loc_id, 'popup_body_text', true ) ) : '',
-				'color' => (string) get_post_meta( $loc_id, 'marker_color', true ),
-				'url'   => '',
-			);
-		}
-		foreach ( array( 'lines', 'polygons' ) as $kind ) {
-			if ( array_filter( (array) maybe_unserialize( $m( $kind ) ) ) ) {
-				$skipped[] = "all {$kind}";
-			}
-		}
-
-		$config = array(
-			'provider'      => $target,
-			'style'         => 'mapbox' === $target ? $style : '',
-			'height'        => 'px' === ( (string) $m( 'layout_height_units' ) ?: 'px' ) ? (int) $m( 'layout_height' ) : 450,
-			'zoom'          => (float) $m( 'view_manual_zoom' ) ?: 13,
-			'center'        => array( 'lat' => (float) $m( 'view_manual_latitude' ), 'lng' => (float) $m( 'view_manual_longitude' ) ),
-			'fit_markers'   => 'manual' !== (string) $m( 'view_initial_load' ),
-			'scroll_zoom'   => '1' === (string) $m( 'zoom_on_scroll' ),
-			'route_link'    => false,
-			'click_to_load' => false,
-			'markers'       => $markers,
-		);
-
-		$existing = $ready ? $module->find_by_legacy_id( $map->ID ) : 0;
-		WP_CLI::log( sprintf( 'Map %d "%s": %s -> %s%s, %d pin(s), height %dpx, %s', $map->ID, $map->post_title, $provider ?: '?', $target, $config['style'] ? " ({$config['style']})" : '', count( $markers ), $config['height'], $existing ? "already migrated as #{$existing}" : 'new' ) );
-		foreach ( $markers as $marker ) {
+		$config   = $data['config'];
+		$existing = $ready ? $module->find_by_legacy_id( $map_id ) : 0;
+		WP_CLI::log( sprintf( 'Map %d "%s": %s -> %s%s, %d pin(s), height %dpx, %s', $map_id, $data['title'], $data['from'] ?: '?', $data['provider'], $data['style'] ? " ({$data['style']})" : '', $data['pins'], $config['height'], $existing ? "already migrated as #{$existing}" : 'new' ) );
+		foreach ( $config['markers'] as $marker ) {
 			WP_CLI::log( sprintf( '  pin "%s" %.6f, %.6f %s', $marker['title'], $marker['lat'], $marker['lng'], $marker['color'] ) );
 		}
-		if ( 'mapbox' === $target ) {
-			WP_CLI::log( '  Mapbox token: ' . ( '' !== $token ? 'found (stored encrypted on apply unless the module already has one)' : 'MISSING - the map shows OpenStreetMap until a token is set' ) );
+		if ( 'mapbox' === $data['provider'] ) {
+			WP_CLI::log( '  Mapbox token: ' . ( '' !== $data['token'] ? 'found (stored encrypted on apply unless the module already has one)' : 'MISSING - the map shows OpenStreetMap until a token is set' ) );
 		}
-		if ( $skipped ) {
-			WP_CLI::warning( "Map {$map->ID}: not migrated (only points are supported): " . implode( ', ', $skipped ) );
+		if ( $data['skipped'] ) {
+			WP_CLI::warning( "Map {$map_id}: not migrated (only points are supported): " . implode( ', ', $data['skipped'] ) );
 		}
 		foreach ( $uxs_usage( 'mapster_wp_map id=' ) as $page ) {
 			WP_CLI::log( "  page with a Mapster shortcode: {$page} (keeps working through the alias once Mapster is off)" );
 		}
 
 		if ( $apply && $ready && ! $existing ) {
-			if ( 'mapbox' === $target && '' !== $token ) {
-				$module->store_provider_key( 'mapbox', $token );
-			}
-			$saved = $module->save_map( 0, array( 'title' => $map->post_title, 'config' => $config, 'legacy_id' => $map->ID ) );
-			if ( is_wp_error( $saved ) ) {
-				WP_CLI::warning( "Map {$map->ID}: " . $saved->get_error_message() );
+			$saved = $module->import_mapster( $map_id );
+			if ( 'created' !== $saved['status'] ) {
+				WP_CLI::warning( "Map {$map_id}: " . ( $saved['message'] ?? $saved['status'] ) );
 				continue;
 			}
 			WP_CLI::log( "  -> created map #{$saved['id']}, shortcode [uxstudio_map id=\"{$saved['id']}\"]" );
