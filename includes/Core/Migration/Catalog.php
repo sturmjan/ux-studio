@@ -477,8 +477,9 @@ final class Catalog {
 			// Information only: maps are moved by bin/migrate-plugins.php while both run, and the
 			// [mapster_wp_map] alias steps in only once Mapster is off.
 			$part( 'maps', array( 'mapster-wp-maps' => 'Mapster WP Maps' ) ),
-			// Information only, like maps: tables are moved by bin/migrate-plugins.php and the [table id=N /]
-			// alias steps in only once TablePress is off.
+			// Partial on purpose, although the migration wizard (Sources\TablePressSource) moves the tables: TablePress
+			// features the module does not have (formulas, custom DataTables commands) mean the two must be able to run side
+			// by side, so enabling the module is never refused. The [table id=N /] alias steps in only once TablePress is off.
 			$part( 'tables', array( 'tablepress' => 'TablePress' ) ),
 			$part(
 				'pixel-tag-manager',
