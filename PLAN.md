@@ -4184,7 +4184,9 @@ optimalizace nekomprimovala podruhé (`.bak` soubory nechá na místě). `webp-e
 - [x] Elementor widget a Gutenberg blok pro `maps`
 - [ ] Pilot migrace na jiném webu než seco (seco jen se souhlasem uživatele)
 - [ ] Ověřit v prohlížeči Elementor widgety (Mapa, Tabulka) a blok Mapa (na lokálu pobyty je Classic Editor) a HEIC + větev Imagick (lokální PHP nemá Imagick)
-- [ ] Rozhodnout: obrázky po Squeeze bulk znovu zpracuje i v náhledech (druhá ztrátová komprese, ale dostanou WebP). Alternativa: migrace nastaví `_uxstudio_io_thumbs`, náhledy se nechají a WebP pro ně nebude
+- [x] Rozhodnuto 2026-11-05 (uživatel): **nikdy nekomprimovat podruhé**. Obrázky zkomprimované jiným optimalizátorem (dnes Squeeze, registr `ForeignOptimizers` pro další) se převezmou, jak jsou, a dostanou jen WebP/AVIF pro hlavní soubor i náhledy. Nová instalace komprimuje normálně.
+- [x] Rozhodnuto 2026-11-05: **na zálohu originálů se vždy ptát** - nastavení `backup_originals` pro upload, hromadná optimalizace se před spuštěním zeptá (zaškrtávátko předvyplněné z nastavení), průvodce migrací se u Squeeze zeptá, jestli ponechat jeho `.bak` zálohy, nebo je smazat a uvolnit místo.
+- [x] Mapster, TablePress a Squeeze v průvodci migrací (`MapsterSource`, `TablePressSource`, `SqueezeSource`), CLI skript volá stejný kód
 
 Stav 2026-11-04 odpoledne: tři části dělali paralelně agenti (Sonnet) ve worktree `_uxs-wt-imgopt` a
 `_uxs-wt-tables`, zkontrolováno a sloučeno do `feature/maps-module`. Opravy při kontrole: překlad bloku Mapa
@@ -4192,3 +4194,14 @@ Stav 2026-11-04 odpoledne: tři části dělali paralelně agenti (Sonnet) ve wo
 editoru tabulek v tmavém režimu. Ověřeno v prohlížeči: editor tabulek (vložení z Excelu, uložení), tabulka na webu
 (sémantika, pruhy, posun), nastavení Image Optimizeru česky. Testy `overlap-catalog`, `module-links`,
 `module-groups`, `onboarding-starter`, `mcp-core`, `setting-help-coverage` prošly.
+
+Stav 2026-11-05: průvodce migrací ověřen v prohlížeči naostro na lokálu s nainstalovanými TablePress 3.4.1, Mapster 2.0.6
+a Squeeze 1.8.3.1 (mock data podle seco): detekce, otázky, zkušební běh (uvolní 2 MB), migrace, ověření, automatické
+přepnutí (3 pluginy vypnuty, 9/9 kontrol webu OK), stránka se starými `[table id=1 /]` a `[mapster_wp_map]` funguje přes
+UX Studio, vrácení zapne pluginy zpět a smaže vytvořené mapy a tabulky. Obrázky po Squeeze se nepřekódovaly (stejná
+velikost), `.bak` smazány dle volby, WebP vznikly. Elementor widgety (panel česky, změna výšky překreslí mapu) a blok Mapa
+(výběr mapy v Inspectoru) ověřeny v prohlížeči. Testovací pluginy a data po testu odstraněny.
+
+Známé drobnosti: po vrácení migrace zůstane u obrázků značka `_uxstudio_io_precompressed` a kopie WebP (neškodí, obrázek
+zkomprimovaný opravdu je; smazané `.bak` vrátit nejde, průvodce na to předem upozorní). Dotaz `rollback-impact` po už
+vráceném běhu vrací 404 (jádro průvodce, ne nové zdroje).

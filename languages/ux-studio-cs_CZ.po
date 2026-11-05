@@ -38842,3 +38842,220 @@ msgstr "Smazat tuto tabulku? Stránky s jejím shortcodem pak nic nezobrazí."
 #: build/948.c419c5152a4c5a554976.js:1
 msgid "No tables yet. Create one and paste its shortcode into a page (Elementor: Shortcode widget)."
 msgstr "Zatím žádné tabulky. Vytvoř tabulku a vlož její shortcode do stránky (v Elementoru widget Shortcode)."
+
+#: includes/Core/Migration/Sources/MapsterSource.php:61
+msgid "Draw Mapbox maps with OpenStreetMap instead (no token needed)"
+msgstr "Místo Mapboxu kreslit mapy přes OpenStreetMap (bez tokenu)"
+
+#: includes/Core/Migration/Sources/MapsterSource.php:62
+msgid "Off: Mapbox maps stay Mapbox and the token is transferred. On: they use OpenStreetMap, the style and the token are not used."
+msgstr "Vypnuto: mapy z Mapboxu zůstanou na Mapboxu a přenese se token. Zapnuto: použijí OpenStreetMap, styl a token se nepoužijí."
+
+#: includes/Core/Migration/Sources/MapsterSource.php:124
+msgid "There is no Mapster map, so there is nothing to transfer."
+msgstr "Mapster nemá žádnou mapu, není co přenášet."
+
+#. translators: %s: list of maps with what is left out.
+#: includes/Core/Migration/Sources/MapsterSource.php:141
+msgid "The module draws points only. These items are not transferred: %s."
+msgstr "Modul kreslí jen body. Tyto položky se nepřenesou: %s."
+
+#. translators: %s: list of map names.
+#: includes/Core/Migration/Sources/MapsterSource.php:150
+msgid "No Mapbox token was found for: %s. These maps show OpenStreetMap until a token is set in the module settings."
+msgstr "Pro tyto mapy se nenašel token Mapboxu: %s. Dokud ho nedoplníš v nastavení modulu, zobrazí OpenStreetMap."
+
+#: includes/Core/Migration/Sources/MapsterSource.php:155
+msgid "Pages with the Mapster shortcode keep working: the module answers it by itself once Mapster is deactivated."
+msgstr "Stránky se shortcodem Mapsteru dál fungují: jakmile se Mapster vypne, modul na shortcode odpoví sám."
+
+#. translators: 1: map title, 2: map service, 3: number of pins.
+#: includes/Core/Migration/Sources/MapsterSource.php:169
+msgid "%1$s (%2$s, %3$d pin)"
+msgid_plural "%1$s (%2$s, %3$d pins)"
+msgstr[0] "%1$s (%2$s, %3$d špendlík)"
+msgstr[1] "%1$s (%2$s, %3$d špendlíky)"
+msgstr[2] "%1$s (%2$s, %3$d špendlíků)"
+
+#. translators: %s: page titles.
+#: includes/Core/Migration/Sources/MapsterSource.php:177
+msgid "used on: %s"
+msgstr "použito na: %s"
+
+#: includes/Core/Migration/Sources/MapsterSource.php:233
+msgid "The Maps module is not available."
+msgstr "Modul Mapy není k dispozici."
+
+#: includes/Core/Migration/Sources/MapsterSource.php:262
+msgid "The map is not in UX Studio."
+msgstr "Mapa v UX Studiu není."
+
+#: includes/Core/Migration/Sources/SqueezeSource.php:61
+msgid "Keep the original backups made by Squeeze (they allow Restore, but take disk space)"
+msgstr "Ponechat zálohy originálů ze Squeeze (umožní obnovení, ale zabírají místo)"
+
+#: includes/Core/Migration/Sources/SqueezeSource.php:62
+msgid "Squeeze saved the untouched original of every image next to it as name.bak.jpg. Switch this off to delete those files and free the space. After that the images cannot be restored to their originals."
+msgstr "Squeeze uložil nedotčený originál každého obrázku vedle něj jako název.bak.jpg. Vypni to a tyto soubory se smažou a uvolní místo. Obrázky pak už nepůjde vrátit do původní podoby."
+
+#: includes/Core/Migration/Sources/SqueezeSource.php:67
+msgid "Create the WebP/AVIF copies right away"
+msgstr "Hned vytvořit kopie WebP/AVIF"
+
+#: includes/Core/Migration/Sources/SqueezeSource.php:68
+msgid "Queues a run that makes the WebP/AVIF copies of the main file and every thumbnail of the migrated images. The images themselves are not compressed again."
+msgstr "Zařadí běh, který vyrobí kopie WebP/AVIF hlavního souboru i všech náhledů převzatých obrázků. Samotné obrázky se znovu nekomprimují."
+
+#: includes/Core/Migration/Sources/SqueezeSource.php:79
+#: includes/Core/Migration/Sources/SqueezeSource.php:100
+msgid "The compressed images are taken over without being compressed again; only their WebP/AVIF copies are made."
+msgstr "Zkomprimované obrázky se převezmou bez opakované komprese, vyrobí se jen jejich kopie WebP/AVIF."
+
+#: includes/Core/Migration/Sources/SqueezeSource.php:81
+msgid "The plugin has no settings or compressed images, there is nothing to transfer."
+msgstr "Plugin nemá žádná nastavení ani zkomprimované obrázky, není co přenášet."
+
+#: includes/Core/Migration/Sources/SqueezeSource.php:99
+msgid "Which thumbnail sizes Squeeze compressed is not transferred: the images it compressed are marked and never compressed again, new images follow the module setting \"Thumbnail sizes to optimize\"."
+msgstr "Které velikosti náhledů Squeeze komprimoval, se nepřenáší: obrázky, které zkomprimoval, se označí a už se nikdy znovu nekomprimují, nové obrázky se řídí nastavením modulu „Velikosti náhledů k optimalizaci“."
+
+#: includes/Core/Migration/Sources/SqueezeSource.php:117
+#: includes/Core/Migration/Sources/SqueezeSource.php:128
+msgid "Compressed images"
+msgstr "Zkomprimované obrázky"
+
+#: includes/Core/Migration/Sources/SqueezeSource.php:304
+msgid "The image is not marked as already compressed."
+msgstr "Obrázek není označený jako už zkomprimovaný."
+
+#: includes/Core/Migration/Sources/SqueezeSource.php:317
+msgid "Disk space that will be freed"
+msgstr "Místo, které se uvolní"
+
+#: includes/Core/Migration/Sources/SqueezeSource.php:317
+msgid "Disk space freed"
+msgstr "Uvolněné místo"
+
+#: includes/Core/Migration/Sources/TablePressSource.php:59
+msgid "Leave out empty rows"
+msgstr "Vynechat prázdné řádky"
+
+#: includes/Core/Migration/Sources/TablePressSource.php:60
+msgid "Rows with nothing in any cell are not copied. Leave it off to get the tables exactly as they are in TablePress."
+msgstr "Řádky, které nemají nic v žádné buňce, se nezkopírují. Nech vypnuté a tabulky budou přesně jako v TablePressu."
+
+#: includes/Core/Migration/Sources/TablePressSource.php:121
+msgid "TablePress has no tables, there is nothing to transfer."
+msgstr "TablePress nemá žádné tabulky, není co přenášet."
+
+#: includes/Core/Migration/Sources/TablePressSource.php:124
+msgid "TablePress has no settings that matter here. Each table keeps its own display options (header, footer, stripes, hover, sorting, search, paging)."
+msgstr "TablePress tu nemá žádná důležitá nastavení. Každá tabulka si nese vlastní volby zobrazení (hlavička, patička, pruhy, zvýraznění, řazení, hledání, stránkování)."
+
+#: includes/Core/Migration/Sources/TablePressSource.php:125
+msgid "Pages with [table id=N /] keep working without any change: once TablePress is switched off, the Tables module answers the same shortcode."
+msgstr "Stránky s [table id=N /] fungují dál beze změny: jakmile se TablePress vypne, modul Tabulky odpoví na stejný shortcode."
+
+#. translators: %d: number of table cells.
+#: includes/Core/Migration/Sources/TablePressSource.php:132
+msgid "%d table cells contain HTML that is not allowed in a table cell (only links, line breaks, bold, italic, span and images are). The extra tags are removed, the text stays."
+msgstr "Buněk s HTML, které v buňce tabulky není povolené (povolené jsou jen odkazy, zalomení řádku, tučné písmo, kurzíva, span a obrázky): %d. Přebytečné značky se odstraní, text zůstane."
+
+#. translators: %d: number of table cells.
+#: includes/Core/Migration/Sources/TablePressSource.php:142
+msgid "%d table cells look like formulas. TablePress calculates them, UX Studio shows the text as it is."
+msgstr "Buněk, které vypadají jako vzorce: %d. TablePress je počítá, UX Studio zobrazí text, jak je."
+
+#. translators: %d: number of tables.
+#: includes/Core/Migration/Sources/TablePressSource.php:152
+msgid "%d tables use custom DataTables commands. They are not transferred; sorting, search and paging are kept as switches."
+msgstr "Tabulek s vlastními příkazy DataTables: %d. Ty se nepřenesou, řazení, hledání a stránkování zůstanou jako přepínače."
+
+#. translators: %d: number of tables.
+#: includes/Core/Migration/Sources/TablePressSource.php:162
+msgid "%d tables are missing or their data is damaged. They are skipped."
+msgstr "Tabulek, které chybí nebo mají poškozená data: %d. Přeskočí se."
+
+#: includes/Core/Migration/Sources/TablePressSource.php:170
+msgid "TablePress has custom CSS. It is not transferred, because it targets the class names of TablePress. Restyle the tables with the CSS variables of the Tables module or an extra CSS class."
+msgstr "TablePress má vlastní CSS. Nepřenese se, protože míří na názvy tříd TablePressu. Tabulky přestyluj pomocí proměnných CSS modulu Tabulky nebo další třídou CSS."
+
+#: includes/Core/Migration/Sources/TablePressSource.php:185
+msgid "empty rows left out"
+msgstr "prázdné řádky vynechány"
+
+#: includes/Core/Migration/Sources/TablePressSource.php:185
+msgid "empty rows (copied as they are)"
+msgstr "prázdné řádky (zkopírovány, jak jsou)"
+
+#: includes/Core/Migration/Sources/TablePressSource.php:209
+#: includes/Core/Migration/Sources/TablePressSource.php:240
+#: includes/Modules/Tables/Module.php:517
+msgid "The TablePress table is missing or its data is not valid."
+msgstr "Tabulka TablePressu chybí nebo nemá platná data."
+
+#: includes/Core/Migration/Sources/TablePressSource.php:251
+msgid "The table is not in UX Studio."
+msgstr "Tabulka v UX Studiu není."
+
+#: includes/Modules/ImageOptimizer/help.php:63
+msgid "Before an image is compressed, the untouched file is copied next to it, and the same is done for every thumbnail. This setting is used for new uploads. The bulk run asks again before it starts."
+msgstr "Než se obrázek zkomprimuje, zkopíruje se nedotčený soubor vedle něj, a stejně tak u každého náhledu. Toto nastavení platí pro nově nahrané obrázky. Hromadná optimalizace se před spuštěním zeptá znovu."
+
+#: includes/Modules/ImageOptimizer/help.php:64
+msgid "Restore can bring the original back at any time. Without a backup the compression is final."
+msgstr "Obnovení pak kdykoli vrátí originál. Bez zálohy je komprese konečná."
+
+#: includes/Modules/ImageOptimizer/help.php:65
+msgid "The backups take disk space, about as much as the images take now. With backups off, Restore is not possible, and converting PNG to JPEG is skipped because it needs the original. Images that another plugin already compressed are never compressed again and get no backup from this module."
+msgstr "Zálohy zabírají místo na disku, zhruba tolik, kolik teď zabírají obrázky. Bez záloh obnovení nejde a převod PNG na JPEG se přeskočí, protože potřebuje originál. Obrázky, které už zkomprimoval jiný plugin, se nikdy nekomprimují znovu a tento modul jim zálohu nedělá."
+
+#: includes/Modules/ImageOptimizer/help.php:66
+msgid "Turn it off when disk space is tight and you already have your own backup of the uploads folder."
+msgstr "Vypni, když je místa na disku málo a máš vlastní zálohu složky uploads."
+
+#. translators: %s: name of another image optimizer plugin.
+#: includes/Modules/ImageOptimizer/MediaLibrary.php:323
+msgid "Compressed by %s, files left as they are"
+msgstr "Zkomprimoval %s, soubory zůstaly beze změny"
+
+#: includes/Modules/ImageOptimizer/Module.php:276
+msgid "Keep a backup of the original images"
+msgstr "Uchovávat zálohu původních obrázků"
+
+#: includes/Modules/ImageOptimizer/Module.php:277
+msgid "Before an image is compressed, the untouched file is copied next to it. Only with a backup can Restore bring the original back. Backups take disk space. Used for new uploads; the bulk run asks again before it starts."
+msgstr "Než se obrázek zkomprimuje, zkopíruje se nedotčený soubor vedle něj. Jen se zálohou umí obnovení vrátit originál. Zálohy zabírají místo. Platí pro nově nahrané obrázky, hromadná optimalizace se před spuštěním zeptá znovu."
+
+#. translators: %s: name of the other image optimizer plugin.
+#: includes/Modules/ImageOptimizer/Optimizer.php:643
+msgid "The WebP/AVIF copies were removed. There is nothing to restore: the image was compressed by %s and its original is not kept."
+msgstr "Kopie WebP/AVIF byly odstraněny. Není co obnovit: obrázek zkomprimoval %s a jeho originál se neuchoval."
+
+#: includes/Modules/Maps/MapsterImport.php:161
+msgid "The Mapster map does not exist."
+msgstr "Mapa Mapsteru neexistuje."
+
+#: build/31.55aec9373a86e5d8db0a.js:1
+msgid "Compresses JPEG/PNG/GIF/WebP images already in the media library and optionally generates WebP/AVIF siblings. Before it starts you choose whether the originals are backed up."
+msgstr "Zkomprimuje obrázky JPEG/PNG/GIF/WebP, které už jsou v knihovně médií, a volitelně vytvoří kopie WebP/AVIF. Před spuštěním si zvolíš, jestli se mají originály zálohovat."
+
+#: build/31.55aec9373a86e5d8db0a.js:1
+msgid "Back up the originals before compressing"
+msgstr "Zálohovat originály před kompresí"
+
+#: build/31.55aec9373a86e5d8db0a.js:1
+msgid "Every image and every thumbnail is copied next to the file before it is compressed. This takes extra disk space, about as much as the images take now. Restore can bring the originals back."
+msgstr "Každý obrázek i každý náhled se před kompresí zkopíruje vedle souboru. Zabere to další místo na disku, zhruba tolik, kolik teď zabírají obrázky. Obnovení pak umí originály vrátit."
+
+#: build/31.55aec9373a86e5d8db0a.js:1
+msgid "No copies are made. The compression cannot be undone and Restore will not work for these images."
+msgstr "Žádné kopie se nevytvoří. Kompresi nepůjde vrátit a obnovení u těchto obrázků nebude fungovat."
+
+#: build/31.55aec9373a86e5d8db0a.js:1
+msgid "Images that another plugin (for example Squeeze) already compressed are never compressed again, whatever you choose here. Only their WebP/AVIF copies are made."
+msgstr "Obrázky, které už zkomprimoval jiný plugin (například Squeeze), se nikdy nekomprimují znovu, ať zvolíš cokoli. Vyrobí se jen jejich kopie WebP/AVIF."
+
+#: build/31.55aec9373a86e5d8db0a.js:1
+msgid "Start"
+msgstr "Spustit"
