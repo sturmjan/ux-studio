@@ -29,6 +29,7 @@ use UxStudio\Core\Migration\Sources\LastLoginSource;
 use UxStudio\Core\Migration\Sources\LoginPressSource;
 use UxStudio\Core\Migration\Sources\LoginSource;
 use UxStudio\Core\Migration\Sources\MaintenanceSource;
+use UxStudio\Core\Migration\Sources\MapsterSource;
 use UxStudio\Core\Migration\Sources\MenuIconsSource;
 use UxStudio\Core\Migration\Sources\MenuVisibilitySource;
 use UxStudio\Core\Migration\Sources\NoSettingsSource;
@@ -99,6 +100,7 @@ final class SourceRegistry {
 			MaintenanceSource::class      => array( 'wp-maintenance-mode', 'coming-soon', 'maintenance', 'under-construction-page' ),
 			ActivityLogSource::class      => array( 'simple-history', 'wp-security-audit-log', 'aryo-activity-log', 'adminify-activity-logs' ),
 			PostTypeOrderSource::class    => array( 'post-types-order', 'intuitive-custom-post-order' ),
+			MapsterSource::class          => array( 'mapster-wp-maps' ),
 			// F5: Admin Customiser sources and Admin Columns.
 			AdminMenuEditorSource::class  => array( 'admin-menu-editor', 'admin-menu-editor-pro' ),
 			AdminimizeSource::class       => array( 'adminimize' ),

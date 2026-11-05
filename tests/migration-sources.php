@@ -135,6 +135,7 @@ function wp_roles() {
 $GLOBALS['uxs_plugins'] = array();
 function get_plugins() { return $GLOBALS['uxs_plugins']; }
 
+function get_posts( $args ) { return array(); }
 require_once $root . '/includes/Autoloader.php';
 \UxStudio\Autoloader::register();
 

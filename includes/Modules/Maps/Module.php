@@ -47,7 +47,7 @@ final class Module extends BaseModule {
 	private ?Frontend $frontend = null;
 
 	private const SECRET_MAPY   = 'uxstudio_secret_maps_mapy';
-	private const SECRET_MAPBOX = 'uxstudio_secret_maps_mapbox_token';
+	public const SECRET_MAPBOX  = 'uxstudio_secret_maps_mapbox_token';
 	private const SECRET_GOOGLE = 'uxstudio_secret_maps_google';
 
 	/** Keys already entered in opening-hours are reused as a fallback. */
@@ -546,6 +546,17 @@ final class Module extends BaseModule {
 			)
 		);
 		return $found ? (int) $found[0] : 0;
+	}
+
+	/**
+	 * Create a map from a Mapster WP Maps map (migration wizard and bin/migrate-plugins.php).
+	 *
+	 * @param int  $map_id        Mapster map post id.
+	 * @param bool $switch_to_osm Draw a Mapbox map with OpenStreetMap instead.
+	 * @return array{status:string,id?:int,message?:string,data?:array<string, mixed>} status: created | unchanged | error.
+	 */
+	public function import_mapster( int $map_id, bool $switch_to_osm = false ): array {
+		return ( new MapsterImport( $this ) )->import( $map_id, $switch_to_osm );
 	}
 
 	/**

@@ -474,8 +474,9 @@ final class Catalog {
 			// Squeeze also compresses thumbnails, which image-optimizer does not yet (PLAN §41). Its compressed
 			// images and .bak originals are taken over by bin/migrate-plugins.php.
 			$part( 'image-optimizer', array( 'squeeze' => 'Squeeze' ) ),
-			// Information only: maps are moved by bin/migrate-plugins.php while both run, and the
-			// [mapster_wp_map] alias steps in only once Mapster is off.
+			// Partial on purpose (never blocks): the module draws points only, lines and polygons are
+			// not covered. The wizard (MapsterSource) moves the maps; the [mapster_wp_map] alias steps in
+			// only once Mapster is off.
 			$part( 'maps', array( 'mapster-wp-maps' => 'Mapster WP Maps' ) ),
 			// Information only, like maps: tables are moved by bin/migrate-plugins.php and the [table id=N /]
 			// alias steps in only once TablePress is off.
