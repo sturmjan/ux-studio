@@ -824,7 +824,10 @@ final class Module extends BaseModule {
 			return;
 		}
 		$mode = $this->get_mode();
-		$hash = md5( $mode . '|' . home_url() . '|' . (string) $this->settings->get( 'central_allowed_ips', '' ) . '|' . self::MU_PLUGIN_VERSION );
+		// Hash what is actually written (the validated allowlist), not the raw textarea: a changed
+		// validation then rewrites the block, and this new hash format forces one rewrite after the
+		// update, so an .htaccess written from a previously accepted invalid entry gets replaced.
+		$hash = md5( $mode . '|' . home_url() . '|ips=' . implode( ',', $this->central_allowed_ips() ) . '|' . self::MU_PLUGIN_VERSION );
 
 		if ( ! $force && get_option( self::HASH_OPTION, '' ) === $hash ) {
 			return;
