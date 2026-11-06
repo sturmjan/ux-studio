@@ -249,17 +249,24 @@ abstract class RestEndpointTool {
 
 	/**
 	 * Meta object type of a wrapped route, for is_protected_meta(): wp/v2 users, comments and
-	 * taxonomy routes have their own meta, everything else (posts, pages, media, custom post
-	 * types, WooCommerce products and orders) is post meta.
+	 * taxonomy routes have their own meta; WooCommerce orders are `order` (with HPOS their meta
+	 * lives in wc_orders_meta, not in postmeta) and customers `user`; everything else (posts,
+	 * pages, media, custom post types, WooCommerce products and coupons) is post meta.
 	 *
 	 * @param string $namespace REST namespace.
 	 * @param string $route     Route within the namespace.
 	 */
 	public static function meta_type( string $namespace, string $route ): string {
+		$base = explode( '/', trim( $route, '/' ) )[0] ?? '';
+		if ( 0 === strpos( $namespace, 'wc/' ) || 'wc' === $namespace ) {
+			if ( 'orders' === $base ) {
+				return 'order';
+			}
+			return 'customers' === $base ? 'user' : 'post';
+		}
 		if ( 'wp/v2' !== $namespace ) {
 			return 'post';
 		}
-		$base = explode( '/', trim( $route, '/' ) )[0] ?? '';
 		if ( 'users' === $base ) {
 			return 'user';
 		}
@@ -289,7 +296,8 @@ abstract class RestEndpointTool {
 	 *   other keys are run through wp_kses_post() (CORE_FILTERED_META is left to core).
 	 * - WooCommerce `meta_data`: no protected key, values through wp_kses_post(). An item with an
 	 *   `id` updates that meta row and renames it to `key`, so the row's current key may not be
-	 *   protected either.
+	 *   protected either; on order routes (HPOS meta table) an `id` is refused.
+	 * - Every key must be plain ASCII (plain_meta_key()).
 	 *
 	 * A protected key sent with the value already stored (a client sending back what GET returned)
 	 * is dropped silently, it would write nothing; a changed one refuses the whole request and the
@@ -313,6 +321,10 @@ abstract class RestEndpointTool {
 			}
 			foreach ( $meta as $key => $value ) {
 				$key = (string) $key;
+				if ( ! self::plain_meta_key( $key ) ) {
+					$refused[] = '' === $key ? '""' : $key;
+					continue;
+				}
 				if ( 'post' === $meta_type && in_array( $key, self::TEXT_META_ALLOWLIST, true ) ) {
 					if ( null !== $value && ! is_string( $value ) ) {
 						$refused[] = $key;
@@ -344,13 +356,15 @@ abstract class RestEndpointTool {
 			foreach ( $input['meta_data'] as $meta ) {
 				$meta = is_object( $meta ) ? get_object_vars( $meta ) : $meta;
 				$key  = is_array( $meta ) && is_scalar( $meta['key'] ?? null ) ? (string) $meta['key'] : '';
-				if ( '' === $key ) {
-					$refused[] = '""';
+				if ( '' === $key || ! self::plain_meta_key( $key ) ) {
+					$refused[] = '' === $key ? '""' : $key;
 					continue;
 				}
 				$row = null;
 				if ( isset( $meta['id'] ) && '' !== $meta['id'] && 0 !== $meta['id'] ) {
-					if ( ! is_numeric( $meta['id'] ) ) {
+					// A row id is checked in the WordPress meta table of the type. Order meta may live
+					// in wc_orders_meta (HPOS), where get_metadata_by_mid() does not look: refused.
+					if ( ! is_numeric( $meta['id'] ) || ! in_array( $meta_type, array( 'post', 'user', 'term', 'comment' ), true ) ) {
 						$refused[] = $key;
 						continue;
 					}
@@ -411,8 +425,31 @@ abstract class RestEndpointTool {
 	 * @return array<int, mixed>
 	 */
 	private static function stored_meta( string $meta_type, int $object_id, string $key ): array {
+		if ( 'order' === $meta_type ) {
+			// HPOS-aware: through the order object, not postmeta.
+			$order = function_exists( 'wc_get_order' ) ? wc_get_order( $object_id ) : null;
+			if ( ! is_object( $order ) || ! method_exists( $order, 'get_meta' ) ) {
+				return array();
+			}
+			$rows = array();
+			foreach ( (array) $order->get_meta( $key, false, 'edit' ) as $row ) {
+				$rows[] = is_object( $row ) && isset( $row->value ) ? $row->value : $row;
+			}
+			return $rows;
+		}
 		$rows = get_metadata( $meta_type, $object_id, $key, false );
 		return is_array( $rows ) ? array_values( $rows ) : array();
+	}
+
+	/**
+	 * Is a meta key plain ASCII (`A-Z a-z 0-9 _ - : .`)? is_protected_meta() drops characters it
+	 * does not know before it looks at the first one, so a fullwidth `＿price` would not count as
+	 * protected, yet a unicode_ci collation compares it equal to `_price` in SQL.
+	 *
+	 * @param string $key Meta key.
+	 */
+	public static function plain_meta_key( string $key ): bool {
+		return 1 === preg_match( '/^[A-Za-z0-9_\-:.]+$/D', $key );
 	}
 
 	/**

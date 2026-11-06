@@ -852,6 +852,18 @@ $assert( 'R10: enabled approved directories -> the list decides', true === RestE
 $assert( 'R10: the filter lets the canonical approved value through', ! $threw( 'https://cdn.example.com/files/a.zip' ) && $threw( 'HTTPS://cdn.example.com/files/a.zip' ) );
 $GLOBALS['uxs_register']->mode = 'disabled';
 
+/* ── R11: meta keys must be plain ASCII, order meta rows by id are refused (HPOS) ── */
+
+foreach ( array( "\u{FF3F}price", "\u{FF3F}elementor_data", '_price ', ' _price', "_price\0", 'price​', 'a b', 'a/b', 'cena_ž' ) as $key ) {
+	$assert( 'R11: meta_data key refused: ' . json_encode( $key ), is_wp_error( RestEndpointTool::guard_meta( array( 'meta_data' => array( array( 'key' => $key, 'value' => '1' ) ) ), 'post', 5 ) ) );
+	$assert( 'R11: wp/v2 meta key refused: ' . json_encode( $key ), is_wp_error( RestEndpointTool::guard_meta( array( 'meta' => array( $key => '1' ) ), 'post', 5 ) ) );
+}
+$g = RestEndpointTool::guard_meta( array( 'meta_data' => array( array( 'key' => 'my-plugin:color.v2', 'value' => 'red' ) ) ), 'post', 5 );
+$assert( 'R11: plain keys with - : . pass', ! is_wp_error( $g ) && 'red' === $g['meta_data'][0]['value'] );
+$assert( 'R11: an order meta row by id is refused (HPOS meta is not in postmeta)', is_wp_error( RestEndpointTool::guard_meta( array( 'meta_data' => array( array( 'id' => 92, 'key' => 'colour', 'value' => 'x' ) ) ), 'order', 5 ) ) );
+$g = RestEndpointTool::guard_meta( array( 'meta_data' => array( array( 'key' => 'colour', 'value' => 'x' ) ) ), 'order', 5 );
+$assert( 'R11: unprotected order meta without id still passes', ! is_wp_error( $g ) && 'x' === $g['meta_data'][0]['value'] );
+$assert( 'R11: protected order meta is refused (no order object to compare with)', is_wp_error( RestEndpointTool::guard_meta( array( 'meta_data' => array( array( 'key' => '_payment_method', 'value' => 'cod' ) ) ), 'order', 5 ) ) );
 Auth::reset( $tok( array( 'admin' ) ) );
 $assert( 'R8: an admin token may set a local path', ! is_wp_error( $dl( 'wp-includes/sodium_compat/LICENSE' ) ) );
 Auth::reset( null );
@@ -889,7 +901,7 @@ $assert( 'R9: an unknown route or method registers no tool', ! isset( $GLOBALS['
 $assert( 'R5: meta_type of posts/pages/media is post', 'post' === RestEndpointTool::meta_type( 'wp/v2', '/pages/(?P<id>[\d]+)' ) && 'post' === RestEndpointTool::meta_type( 'wp/v2', '/posts' ) && 'post' === RestEndpointTool::meta_type( 'wp/v2', '/media/(?P<id>[\d]+)' ) );
 $assert( 'R5: meta_type of categories/tags is term', 'term' === RestEndpointTool::meta_type( 'wp/v2', '/categories' ) && 'term' === RestEndpointTool::meta_type( 'wp/v2', '/tags/(?P<id>[\d]+)' ) );
 $assert( 'R5: meta_type of users/comments', 'user' === RestEndpointTool::meta_type( 'wp/v2', '/users/(?P<id>[\d]+)' ) && 'comment' === RestEndpointTool::meta_type( 'wp/v2', '/comments' ) );
-$assert( 'R5: meta_type of WooCommerce routes is post', 'post' === RestEndpointTool::meta_type( 'wc/v3', '/products/(?P<id>[\d]+)' ) && 'post' === RestEndpointTool::meta_type( 'wc/v3', '/orders' ) );
+$assert( 'R5: meta_type of WooCommerce products is post, orders order, customers user', 'post' === RestEndpointTool::meta_type( 'wc/v3', '/products/(?P<id>[\d]+)' ) && 'order' === RestEndpointTool::meta_type( 'wc/v3', '/orders' ) && 'order' === RestEndpointTool::meta_type( 'wc/v3', '/orders/(?P<order_id>[\d]+)/refunds' ) && 'user' === RestEndpointTool::meta_type( 'wc/v3', '/customers/(?P<id>[\d]+)' ) );
 
 /* ── R3: URL parameters can only fill their own route ── */
 
