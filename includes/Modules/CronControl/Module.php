@@ -480,6 +480,8 @@ final class Module extends BaseModule {
 			'external_cron_cmd'   => sprintf( '*/5 * * * * wget -q -O - "%s" >/dev/null 2>&1', site_url( 'wp-cron.php' ) . '?doing_wp_cron' ),
 			// Last push of the cron config to the central app (central mode).
 			'remote_result'       => $this->remote_result(),
+			// Allowlist entries that are not a valid IP/CIDR and were left out of .htaccess.
+			'invalid_allowed_ips' => self::parse_allowed_ips( (string) $this->settings->get( 'central_allowed_ips', '' ) )['invalid'],
 		);
 	}
 
@@ -1004,25 +1006,57 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Parsed, validated IP/CIDR allowlist for central_app mode.
+	 * Parsed, validated IP/CIDR allowlist for central_app mode. Only these
+	 * entries are ever written into .htaccess as `Require ip`.
 	 *
 	 * @return array<int, string>
 	 */
 	private function central_allowed_ips(): array {
-		$raw = (string) $this->settings->get( 'central_allowed_ips', '' );
-		if ( '' === $raw ) {
-			return array();
-		}
-		$ips = preg_split( '/[\r\n,]+/', $raw ) ?: array();
-		$ips = array_map( 'trim', $ips );
-		return array_values(
-			array_filter(
-				$ips,
-				static function ( string $ip ): bool {
-					return '' !== $ip && ( false !== filter_var( $ip, FILTER_VALIDATE_IP ) || strpos( $ip, '/' ) !== false );
-				}
-			)
+		return self::parse_allowed_ips( (string) $this->settings->get( 'central_allowed_ips', '' ) )['valid'];
+	}
+
+	/**
+	 * Split the allowlist textarea into valid entries (IPv4/IPv6 address or
+	 * CIDR with a prefix length valid for its family) and rejected ones.
+	 *
+	 * @param string $raw One entry per line (commas also accepted).
+	 * @return array{valid: array<int, string>, invalid: array<int, string>}
+	 */
+	public static function parse_allowed_ips( string $raw ): array {
+		$out = array(
+			'valid'   => array(),
+			'invalid' => array(),
 		);
+		foreach ( preg_split( '/[\r\n,]+/', $raw ) ?: array() as $entry ) {
+			$entry = trim( $entry );
+			if ( '' === $entry ) {
+				continue;
+			}
+			$out[ self::is_valid_ip_or_cidr( $entry ) ? 'valid' : 'invalid' ][] = $entry;
+		}
+		return $out;
+	}
+
+	/**
+	 * Whether an entry is a plain IPv4/IPv6 address or a CIDR range with a
+	 * prefix of 0-32 (IPv4) / 0-128 (IPv6).
+	 *
+	 * @param string $entry Trimmed entry.
+	 */
+	private static function is_valid_ip_or_cidr( string $entry ): bool {
+		if ( false !== filter_var( $entry, FILTER_VALIDATE_IP ) ) {
+			return true;
+		}
+		if ( 1 !== preg_match( '/^([0-9A-Fa-f:.]+)\/(0|[1-9][0-9]{0,2})$/', $entry, $m ) ) {
+			return false;
+		}
+		if ( false !== filter_var( $m[1], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+			return (int) $m[2] <= 32;
+		}
+		if ( false !== filter_var( $m[1], FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ) {
+			return (int) $m[2] <= 128;
+		}
+		return false;
 	}
 
 	/**
