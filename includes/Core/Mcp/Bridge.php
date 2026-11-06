@@ -13,11 +13,27 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * They keep their code where it is; the MCP core only maps them to its scopes:
- * read-only abilities need `read`, the others `write` (destructive ones also a `confirm`).
+ * read-only abilities need `read`, the others `write` (destructive ones also a `confirm`),
+ * except the tools in AI_SCOPE_OVERRIDES.
  */
 final class Bridge {
 
 	public const AI_CATEGORY = 'ai-assistant';
+
+	/**
+	 * AI Assistant tools whose scope does not follow from their annotations. They run as the token
+	 * owner (an administrator) over wp/v2, so a `write` token could create an administrator, take
+	 * over an admin account (e-mail, password, role) or change the site e-mail: that is more than
+	 * the admin scope guards elsewhere (Sensitive::SECURITY_MODULES), so they need `admin`.
+	 *
+	 * @var array<string, string> Ability name => scope.
+	 */
+	public const AI_SCOPE_OVERRIDES = array(
+		'ai-assistant/users-create'    => Scopes::ADMIN,
+		'ai-assistant/users-update'    => Scopes::ADMIN,
+		'ai-assistant/users-delete'    => Scopes::ADMIN,
+		'ai-assistant/settings-update' => Scopes::ADMIN,
+	);
 
 	/**
 	 * Definitions of the module abilities.
@@ -53,7 +69,7 @@ final class Bridge {
 				'name'         => $ability->get_name(),
 				'label'        => $ability->get_label(),
 				'description'  => $ability->get_description(),
-				'scope'        => ! empty( $annotations['readonly'] ) ? Scopes::READ : Scopes::WRITE,
+				'scope'        => self::ai_scope( (string) $ability->get_name(), $annotations ),
 				'input_schema' => $schema ? $schema : array( 'type' => 'object', 'properties' => array() ),
 				'annotations'  => $annotations,
 				'callback'     => static fn( array $input ) => self::run_wp_ability( $ability, $input ),
@@ -62,6 +78,19 @@ final class Bridge {
 			);
 		}
 		return $out;
+	}
+
+	/**
+	 * Scope an AI Assistant tool needs: the override map first, then read-only = `read`, else `write`.
+	 *
+	 * @param string               $name        Ability name (`ai-assistant/...`).
+	 * @param array<string, mixed> $annotations Normalised annotations.
+	 */
+	public static function ai_scope( string $name, array $annotations ): string {
+		if ( isset( self::AI_SCOPE_OVERRIDES[ $name ] ) ) {
+			return self::AI_SCOPE_OVERRIDES[ $name ];
+		}
+		return ! empty( $annotations['readonly'] ) ? Scopes::READ : Scopes::WRITE;
 	}
 
 	/**

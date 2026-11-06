@@ -535,6 +535,45 @@ $assert( 'legacy ids are recognised', \UxStudio\Core\Mcp\LegacyJwt::is_legacy_id
 $assert( 'a revoked old token stops working', 'denied' === Auth::evaluate( $jwt, Auth::KIND_ENDPOINT, '203.0.113.5' )['state'] );
 $assert( 'a tampered JWT is refused', 'denied' === Auth::evaluate( $jwt . 'x', Auth::KIND_ENDPOINT, '203.0.113.5' )['state'] );
 
+/* ── Route the token is judged on: what WordPress dispatches, not a guess (U1, U3) ── */
+
+function wp_parse_url( $url, $component = -1 ) { return parse_url( $url, $component ); }
+function rest_get_url_prefix() { return 'wp-json'; }
+
+use UxStudio\Core\RestRoute;
+
+$srv = static fn( string $uri, string $method = 'POST', array $extra = array() ): array => array( 'REQUEST_URI' => $uri, 'REQUEST_METHOD' => $method ) + $extra;
+$assert( 'route: pretty permalink', '/uxstudio/v1/mcp' === RestRoute::requested( array(), array(), $srv( '/wp-json/uxstudio/v1/mcp' ) ) );
+$assert( 'route: subdirectory install and trailing slash', '/uxstudio/v1/mcp' === RestRoute::requested( array(), array(), $srv( '/pobyty/wp-json/uxstudio/v1/mcp/' ) ) );
+$assert( 'route: ?rest_route= beats the path', '/wp/v2/users' === RestRoute::requested( array( 'rest_route' => '/wp/v2/users' ), array(), $srv( '/wp-json/uxstudio/v1/mcp' ) ) );
+$assert( 'route: POST rest_route beats the permalink (WP::parse_request order)', '/wp/v2/users' === RestRoute::requested( array(), array( 'rest_route' => '/wp/v2/users' ), $srv( '/wp-json/uxstudio/v1/mcp' ) ) );
+$assert( 'route: POST rest_route beats an equal GET one', '/wp/v2/users' === RestRoute::requested( array( 'rest_route' => '/wp/v2/users' ), array( 'rest_route' => '/wp/v2/users' ), $srv( '/' ) ) );
+$assert( 'route: GET and POST rest_route differ -> none (WordPress answers 400)', '' === RestRoute::requested( array( 'rest_route' => '/uxstudio/v1/mcp' ), array( 'rest_route' => '/wp/v2/users' ), $srv( '/' ) ) );
+$assert( 'route: non-string rest_route -> none', '' === RestRoute::requested( array( 'rest_route' => array( 'x' ) ), array(), $srv( '/wp-json/uxstudio/v1/mcp' ) ) );
+$assert( 'route: not a REST URL', '' === RestRoute::requested( array(), array(), $srv( '/wp-admin/admin-ajax.php' ) ) );
+$assert( 'route: the U1 bypass no longer looks like the MCP route', '' === Auth::route_kind( RestRoute::requested( array(), array( 'rest_route' => '/wp/v2/users', 'roles' => 'administrator' ), $srv( '/wp-json/uxstudio/v1/mcp' ) ) ) );
+$assert( 'method: plain', 'POST' === RestRoute::method( array(), $srv( '/', 'post' ) ) );
+$assert( 'method: X-HTTP-Method-Override is honoured like the REST server does', 'GET' === RestRoute::method( array(), $srv( '/', 'POST', array( 'HTTP_X_HTTP_METHOD_OVERRIDE' => 'get' ) ) ) );
+$assert( 'method: ?_method= wins over the header', 'DELETE' === RestRoute::method( array( '_method' => 'DELETE' ), $srv( '/', 'POST', array( 'HTTP_X_HTTP_METHOD_OVERRIDE' => 'GET' ) ) ) );
+$assert( 'outside a REST request the token is not even looked at', ! RestRoute::is_rest() );
+Auth::reset();
+$_SERVER['HTTP_AUTHORIZATION'] = 'Bearer ' . $adm['token'];
+$_SERVER['REQUEST_URI']        = '/wp-json/uxstudio/v1/mcp';
+$GLOBALS['uxs_options']['uxstudio_mcp'] = array( 'enabled' => true );
+$assert( 'authenticate() refuses a valid token before REST_REQUEST', false === Auth::authenticate( false ) && null === Auth::context() );
+unset( $_SERVER['HTTP_AUTHORIZATION'] );
+
+/* ── AI Assistant tools that can escalate need admin (U2) ── */
+
+use UxStudio\Core\Mcp\Bridge;
+
+foreach ( array( 'users-create', 'users-update', 'users-delete', 'settings-update' ) as $tool ) {
+	$assert( "AI tool $tool needs the admin scope", Scopes::ADMIN === Bridge::ai_scope( 'ai-assistant/' . $tool, array( 'readonly' => false ) ) );
+	$assert( "a write token cannot run $tool", ! Scopes::allows( array( 'write' ), Bridge::ai_scope( 'ai-assistant/' . $tool, array() ) ) );
+}
+$assert( 'AI read tools stay read', Scopes::READ === Bridge::ai_scope( 'ai-assistant/users-list', array( 'readonly' => true ) ) );
+$assert( 'other AI write tools stay write', Scopes::WRITE === Bridge::ai_scope( 'ai-assistant/posts-create', array( 'readonly' => false ) ) );
+
 /* ── Config: default off, legacy value migrated once ── */
 
 $GLOBALS['uxs_options'] = array();
