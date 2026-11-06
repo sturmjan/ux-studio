@@ -9,6 +9,7 @@
 namespace UxStudio\Modules\SecurityOptimization;
 
 use UxStudio\Core\ActivityLog;
+use UxStudio\Core\RestRoute;
 use UxStudio\Core\Security;
 use UxStudio\Core\Settings;
 use UxStudio\Modules\BaseModule;
@@ -52,6 +53,9 @@ final class Module extends BaseModule {
 
 	/** @var array{setting:string,own_provider:string,connected:bool,has_keys:bool,ca_keys:bool,own_keys:bool}|null */
 	private ?array $captcha_state_cache = null;
+
+	/** The anonymous REST request passed the lock as public; recheck the dispatched request. */
+	private bool $rest_lock_recheck = false;
 
 	/**
 	 * Register hooks.
@@ -225,7 +229,9 @@ final class Module extends BaseModule {
 			add_action( 'template_redirect', array( $this, 'redirect_feed' ) );
 		}
 		if ( $this->setting( 'restrict_rest_api', false ) ) {
+			RestRoute::track();
 			add_filter( 'rest_authentication_errors', array( $this, 'restrict_rest_api' ), 99 );
+			add_filter( 'rest_pre_dispatch', array( $this, 'recheck_rest_lock' ), -100, 3 );
 		}
 
 		/* ── Heartbeat (left alone when a caching/perf plugin already manages it) ── */
@@ -3073,15 +3079,46 @@ final class Module extends BaseModule {
 	 * @return \WP_Error|null|mixed
 	 */
 	public function restrict_rest_api( $result ) {
+		$this->rest_lock_recheck = false;
 		if ( ! empty( $result ) ) {
 			return $result;
 		}
 		if ( is_user_logged_in() ) {
 			return $result;
 		}
-		if ( $this->is_public_rest_route() ) {
+		if ( $this->is_public_rest_route( RestRoute::current(), RestRoute::method() ) ) {
+			// Confirm on the request the server really dispatches (recheck_rest_lock()).
+			$this->rest_lock_recheck = true;
 			return $result;
 		}
+		return $this->rest_lock_error();
+	}
+
+	/**
+	 * `rest_pre_dispatch`: the anonymous request let through as public must be public as the
+	 * WP_REST_Request the server dispatches (route and method after `_method` /
+	 * X-HTTP-Method-Override), whatever the raw request looked like.
+	 *
+	 * @param mixed $result  Short-circuit value.
+	 * @param mixed $server  REST server.
+	 * @param mixed $request Request.
+	 * @return mixed
+	 */
+	public function recheck_rest_lock( $result, $server = null, $request = null ) {
+		if ( ! $this->rest_lock_recheck || null !== $result || ! RestRoute::is_served( $request ) ) {
+			return $result;
+		}
+		$this->rest_lock_recheck = false;
+		if ( $this->is_public_rest_route( (string) $request->get_route(), (string) $request->get_method() ) ) {
+			return $result;
+		}
+		return $this->rest_lock_error();
+	}
+
+	/**
+	 * The refusal of the "REST only for logged-in users" lock.
+	 */
+	private function rest_lock_error(): WP_Error {
 		return new WP_Error( 'uxstudio_rest_forbidden', __( 'REST API access is restricted to logged-in users.', 'ux-studio' ), array( 'status' => 401 ) );
 	}
 
@@ -3095,8 +3132,7 @@ final class Module extends BaseModule {
 	 * single-use nonce), so the login requirement adds nothing there but breaks
 	 * the flow.
 	 */
-	private function is_public_rest_route(): bool {
-		$route = $this->current_rest_route();
+	private function is_public_rest_route( string $route, string $method ): bool {
 		if ( '' === $route ) {
 			return false;
 		}
@@ -3124,7 +3160,7 @@ final class Module extends BaseModule {
 			}
 		}
 
-		return $this->is_own_public_endpoint( $route );
+		return $this->is_own_public_endpoint( $route, $method );
 	}
 
 	/**
@@ -3151,13 +3187,14 @@ final class Module extends BaseModule {
 	 * Honour that for our namespace only, so the lock keeps covering core and
 	 * other plugins without every module having to whitelist itself.
 	 *
-	 * @param string $route Requested route with a leading slash.
+	 * @param string $route  Requested route with a leading slash.
+	 * @param string $method HTTP method the REST server dispatches with (overrides applied).
 	 */
-	private function is_own_public_endpoint( string $route ): bool {
+	private function is_own_public_endpoint( string $route, string $method ): bool {
 		if ( 0 !== strpos( $route, '/uxstudio/v1/' ) || ! function_exists( 'rest_get_server' ) ) {
 			return false;
 		}
-		$method = isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( sanitize_key( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) : 'GET';
+		$method = strtoupper( $method );
 
 		foreach ( rest_get_server()->get_routes( 'uxstudio/v1' ) as $pattern => $handlers ) {
 			if ( ! preg_match( '@^' . $pattern . '$@i', $route ) ) {
@@ -3172,40 +3209,5 @@ final class Module extends BaseModule {
 		}
 
 		return false;
-	}
-
-	/**
-	 * The REST route being requested, with a leading slash.
-	 *
-	 * `rest_authentication_errors` fires before the REST server has resolved
-	 * the route, so read it off the request the same way the server will:
-	 * either the `rest_route` query var (plain permalinks) or the path after
-	 * the REST prefix.
-	 */
-	private function current_rest_route(): string {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only routing lookup.
-		if ( isset( $_GET['rest_route'] ) ) {
-			// Raw on purpose: sanitize_text_field() strips percent-encoded octets (%2e%2e), which would hide a
-			// dot-segment from is_public_rest_route(). The value is only compared, never output.
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-			$route = is_string( $_GET['rest_route'] ) ? (string) wp_unslash( $_GET['rest_route'] ) : '';
-			return '/' . ltrim( $route, '/' );
-		}
-
-		// Raw for the same reason (comparison only).
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$uri = isset( $_SERVER['REQUEST_URI'] ) ? (string) wp_unslash( $_SERVER['REQUEST_URI'] ) : '';
-		if ( '' === $uri ) {
-			return '';
-		}
-
-		$path   = (string) wp_parse_url( $uri, PHP_URL_PATH );
-		$needle = '/' . trim( rest_get_url_prefix(), '/' ) . '/';
-		$pos    = strpos( $path, $needle );
-		if ( false === $pos ) {
-			return '';
-		}
-
-		return '/' . ltrim( substr( $path, $pos + strlen( $needle ) ), '/' );
 	}
 }

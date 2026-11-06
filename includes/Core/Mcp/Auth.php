@@ -8,6 +8,8 @@
 namespace UxStudio\Core\Mcp;
 
 use UxStudio\Core\ClientIp;
+use UxStudio\Core\RestRoute;
+use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -17,6 +19,11 @@ defined( 'ABSPATH' ) || exit;
  *  - `/mcp/`, `/wp-abilities/` (the WordPress MCP Adapter plugin, Abilities REST): tokens with
  *    the `admin` scope only, because those routes know nothing about scopes.
  * Everywhere else (wp/v2, wc/v3, uxstudio/v1/*, wp-admin) the Authorization header is ignored.
+ *
+ * The route is the one the REST server dispatches (RestRoute), and only inside a REST request:
+ * like Application Passwords, the token is not looked at before rest_api_loaded() (the REST
+ * server clears the cached anonymous user, so the token is evaluated then). rest_pre_dispatch
+ * binds the result to the served request once more, so a token can never run another route.
  */
 final class Auth {
 
@@ -36,7 +43,9 @@ final class Auth {
 	 * Hook `determine_current_user` (after cookies and application passwords).
 	 */
 	public static function register(): void {
+		RestRoute::track();
 		add_filter( 'determine_current_user', array( self::class, 'authenticate' ), 20 );
+		add_filter( 'rest_pre_dispatch', array( self::class, 'bind' ), -1000, 3 );
 	}
 
 	/**
@@ -52,7 +61,7 @@ final class Auth {
 		if ( null !== self::$context ) {
 			return 'ok' === self::$context['state'] ? (int) self::$context['user_id'] : $user_id;
 		}
-		if ( self::$busy || ! Config::enabled() ) {
+		if ( self::$busy || ! RestRoute::is_rest() || ! Config::enabled() ) {
 			return $user_id;
 		}
 		$kind = self::route_kind();
@@ -70,10 +79,40 @@ final class Auth {
 		} finally {
 			self::$busy = false;
 		}
+		self::$context['route_kind'] = $kind;
 		if ( 'ok' === self::$context['state'] ) {
 			return (int) self::$context['user_id'];
 		}
 		return $user_id;
+	}
+
+	/**
+	 * `rest_pre_dispatch`: a token accepted for an MCP route must not run any other served route.
+	 * Internal sub-requests of an ability (rest_do_request) are not the served request and pass.
+	 *
+	 * @param mixed $result  Short-circuit value.
+	 * @param mixed $server  REST server.
+	 * @param mixed $request Request.
+	 * @return mixed
+	 */
+	public static function bind( $result, $server = null, $request = null ) {
+		$ctx = self::$context;
+		if ( null !== $result || ! $ctx || 'ok' !== $ctx['state'] || ! RestRoute::is_served( $request ) ) {
+			return $result;
+		}
+		if ( '' !== (string) ( $ctx['route_kind'] ?? '' ) && self::route_kind( (string) $request->get_route() ) === $ctx['route_kind'] ) {
+			return $result;
+		}
+		self::$context = array(
+			'state'  => 'denied',
+			'code'   => 'scope_route',
+			'id'     => (string) ( $ctx['id'] ?? '' ),
+			'label'  => (string) ( $ctx['label'] ?? '' ),
+			'scopes' => array(),
+			'ip'     => (string) ( $ctx['ip'] ?? '' ),
+		);
+		wp_set_current_user( 0 );
+		return new WP_Error( 'uxstudio_mcp_route', 'An MCP token is valid on the MCP endpoint only.', array( 'status' => 401 ) );
 	}
 
 	/**
@@ -203,22 +242,11 @@ final class Auth {
 	}
 
 	/**
-	 * REST route of the raw request (both pretty permalinks and ?rest_route=). Parsed by hand
-	 * because determine_current_user may run before WordPress has resolved the route.
+	 * REST route this request runs: the one the REST server dispatches (POST `rest_route` wins
+	 * over GET and the permalink, a GET/POST mismatch is '' = no token), see RestRoute.
 	 */
 	private static function request_route(): string {
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
-		if ( isset( $_GET['rest_route'] ) && is_string( $_GET['rest_route'] ) ) {
-			return (string) wp_unslash( $_GET['rest_route'] );
-		}
-		$path   = (string) wp_parse_url( (string) ( $_SERVER['REQUEST_URI'] ?? '' ), PHP_URL_PATH );
-		$prefix = '/' . trim( rest_get_url_prefix(), '/' ) . '/';
-		$pos    = strpos( $path, $prefix );
-		if ( false === $pos ) {
-			return '';
-		}
-		// phpcs:enable
-		return substr( $path, $pos + strlen( $prefix ) - 1 );
+		return RestRoute::current();
 	}
 
 	/**
