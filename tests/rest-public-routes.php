@@ -203,6 +203,19 @@ if ( class_exists( 'WooCommerce' ) ) {
 	$expect( 'GET /wp-json/wc/store%2F..%2Fv3/orders', '/wp-json/wc/store%2F..%2Fv3/orders', false );
 	$expect( 'POST store route with body rest_route=/wc/v3/orders', '/wp-json/wc/store/v1/cart', false, 'POST', array( 'rest_route' => '/wc/v3/orders' ) );
 	$expect( 'GET ?rest_route=/wc/v3/orders&x=/wc/store/v1/', '/?rest_route=/wc/v3/orders&x=/wc/store/v1/', false );
+	// Reviews list reviewer names and avatars: locked although the Store API is public.
+	$expect( 'GET /wp-json/wc/store/v1/products/reviews (Store API says true)', '/wp-json/wc/store/v1/products/reviews', false );
+	$expect( 'GET /wp-json/wc/store/v1/products/reviews/ (trailing slash)', '/wp-json/wc/store/v1/products/reviews/', false );
+	$expect( 'GET /wp-json/wc/store/v1/Products/Reviews (routes match any case)', '/wp-json/wc/store/v1/Products/Reviews', false );
+	$expect( 'GET /wp-json/wc/store/products/reviews (legacy)', '/wp-json/wc/store/products/reviews', false );
+	$expect( 'GET ?rest_route=/wc/store/v1/products/reviews&product_id=1', '/?rest_route=/wc/store/v1/products/reviews&product_id=1', false );
+	$expect( 'GET /wp-json/wc/store/v1/products/reviewsx (other route)', '/wp-json/wc/store/v1/products/reviewsx', true );
+	$open_reviews = static function ( array $routes ): array {
+		return array_values( array_diff( $routes, array( '/wc/store/v1/products/reviews' ) ) );
+	};
+	add_filter( 'uxstudio_rest_lock_private_routes', $open_reviews );
+	$expect( 'filter uxstudio_rest_lock_private_routes can open the reviews', '/wp-json/wc/store/v1/products/reviews', true );
+	remove_filter( 'uxstudio_rest_lock_private_routes', $open_reviews );
 } else {
 	echo "SKIP  WooCommerce not active\n";
 }
@@ -238,10 +251,12 @@ $row( 'public batch (auth said true): public sub-request runs, private refused',
 $row( 'a public endpoint calling rest_do_request() internally is left alone', $serve( '/wp-json/uxs-test/v1/open/inner' ), 'ran:"secret"' );
 $row( 'no batch state is left for the next request', $serve( '/wp-json/uxs-test/v1/open/inner' ), 'ran:"secret"' );
 if ( class_exists( 'WooCommerce' ) ) {
+	$row( 'real Store API reviews -> refused', $serve( '/wp-json/wc/store/v1/products/reviews' ), 'auth:uxstudio_rest_forbidden' );
+	$row( 'reviews dispatched behind a Store API cart URL -> refused', $serve( '/wp-json/wc/store/v1/cart', new WP_REST_Request( 'GET', '/wc/store/v1/products/reviews' ) ), 'error:uxstudio_rest_forbidden' );
 	$row( '/wc/v3 dispatched behind a Store API URL -> refused', $serve( '/wp-json/wc/store/v1/cart', new WP_REST_Request( 'GET', '/wc/v3/orders' ) ), 'error:uxstudio_rest_forbidden' );
 	$sub = new WP_REST_Request( 'POST', '/uxs-test/v1/open/batch' );
-	$sub->set_param( 'paths', array( '/wc/v3/orders' ) );
-	$row( 'batch sub-request to /wc/v3 -> refused', $serve( '/wp-json/uxs-test/v1/open/batch', $sub, 'POST' ), 'ran:["uxstudio_rest_forbidden"]' );
+	$sub->set_param( 'paths', array( '/wc/store/v1/products/reviews', '/wc/v3/orders' ) );
+	$row( 'batch sub-requests to reviews and /wc/v3 -> refused', $serve( '/wp-json/uxs-test/v1/open/batch', $sub, 'POST' ), 'ran:["uxstudio_rest_forbidden","uxstudio_rest_forbidden"]' );
 }
 $admins = get_users( array( 'role' => 'administrator', 'number' => 1, 'fields' => 'ID' ) );
 $admin  = (int) ( $admins[0] ?? 0 );

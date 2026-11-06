@@ -250,8 +250,8 @@ return array(
 		'off'    => __( 'Leave it off if you want others to embed your posts, or you paste links to uncommon sites and expect a box.', 'ux-studio' ),
 	),
 	'restrict_rest_api'          => array(
-		'does'   => __( 'Anonymous visitors are refused by the [[REST API]], the technical interface that apps, forms and many plugins use. Logged-in users keep full access. The public endpoints of the WooCommerce shop (cart and checkout), Contact Form 7 and the Complianz cookie banner stay open.', 'ux-studio' ),
-		'effect' => __( 'Bots can no longer read your content and user names through the interface. Pages themselves look the same.', 'ux-studio' ),
+		'does'   => __( 'Anonymous visitors are refused by the [[REST API]], the technical interface that apps, forms and many plugins use. Logged-in users keep full access. The WooCommerce Store API (products, cart and checkout), Contact Form 7 and the Complianz cookie banner stay open; product reviews in the Store API stay locked.', 'ux-studio' ),
+		'effect' => __( 'Bots can no longer read user names, posts and pages through the interface. What the shop needs stays public: products, prices and stock can still be read through the WooCommerce Store API. Pages themselves look the same.', 'ux-studio' ),
 		'risk'   => __( 'A plugin, mobile app, newsletter tool, headless front end or contact form that calls the REST API without logging in can stop working. Test the forms and the shop after you turn it on.', 'ux-studio' ),
 		'off'    => __( 'Leave it off when other services read your site through the REST API.', 'ux-studio' ),
 	),

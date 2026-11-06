@@ -1106,7 +1106,7 @@ final class Module extends BaseModule {
 				'section' => __( 'Hardening', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Restrict REST API to logged-in users', 'ux-studio' ),
-				'help'    => __( 'Blocks the WordPress REST API for anonymous visitors. The public endpoints of the WooCommerce shop (cart and checkout), Contact Form 7 and the Complianz cookie banner stay reachable so front-end features keep working. Developers can add more with the uxstudio_rest_public_routes filter.', 'ux-studio' ),
+				'help'    => __( 'Blocks the WordPress REST API for anonymous visitors. So that the shop and forms keep working, the WooCommerce Store API (products, cart and checkout, so product data stays publicly readable), Contact Form 7 and the Complianz cookie banner stay reachable. Product reviews in the Store API stay locked (the WooCommerce review blocks then show none to visitors). Developers can change this with the uxstudio_rest_public_routes and uxstudio_rest_lock_private_routes filters.', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
@@ -3196,6 +3196,24 @@ final class Module extends BaseModule {
 		 *
 		 * @param array<int, string> $routes Leading-slash route prefixes.
 		 */
+		// Routes inside a public namespace that stay locked. The REST server matches routes
+		// case-insensitively, so they are compared in lower case.
+		$lower = strtolower( untrailingslashit( $route ) );
+		/**
+		 * Routes that stay locked for anonymous visitors although a public prefix covers them.
+		 *
+		 * Starts from the built-in defaults (see default_locked_rest_routes()); remove one to
+		 * open it. Each entry locks the route itself and everything below it.
+		 *
+		 * @param array<int, string> $routes Leading-slash routes.
+		 */
+		foreach ( (array) apply_filters( 'uxstudio_rest_lock_private_routes', self::default_locked_rest_routes() ) as $locked ) {
+			$locked = strtolower( untrailingslashit( (string) $locked ) );
+			if ( '' !== $locked && ( $lower === $locked || 0 === strpos( $lower, $locked . '/' ) ) ) {
+				return false;
+			}
+		}
+
 		$public = (array) apply_filters( 'uxstudio_rest_public_routes', self::default_public_rest_prefixes() );
 
 		foreach ( $public as $prefix ) {
@@ -3243,6 +3261,20 @@ final class Module extends BaseModule {
 			$prefixes[] = '/contact-form-7/v1/';
 		}
 		return $prefixes;
+	}
+
+	/**
+	 * Routes locked by default inside a public prefix.
+	 *
+	 * - /wc/store/v1/products/reviews (and the legacy /wc/store/products/reviews): lists every
+	 *   product review with the reviewer's name and avatar hashes of their e-mail. The shop does
+	 *   not need it; only the WooCommerce review blocks do, a site using them can open it with
+	 *   the uxstudio_rest_lock_private_routes filter.
+	 *
+	 * @return array<int, string> Leading-slash routes.
+	 */
+	private static function default_locked_rest_routes(): array {
+		return array( '/wc/store/v1/products/reviews', '/wc/store/products/reviews' );
 	}
 
 	/**

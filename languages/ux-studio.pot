@@ -22404,11 +22404,11 @@ msgid "Leave it off if you want others to embed your posts, or you paste links t
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/help.php:253
-msgid "Anonymous visitors are refused by the [[REST API]], the technical interface that apps, forms and many plugins use. Logged-in users keep full access. The public endpoints of the WooCommerce shop (cart and checkout), Contact Form 7 and the Complianz cookie banner stay open."
+msgid "Anonymous visitors are refused by the [[REST API]], the technical interface that apps, forms and many plugins use. Logged-in users keep full access. The WooCommerce Store API (products, cart and checkout), Contact Form 7 and the Complianz cookie banner stay open; product reviews in the Store API stay locked."
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/help.php:254
-msgid "Bots can no longer read your content and user names through the interface. Pages themselves look the same."
+msgid "Bots can no longer read user names, posts and pages through the interface. What the shop needs stays public: products, prices and stock can still be read through the WooCommerce Store API. Pages themselves look the same."
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/help.php:255
@@ -23167,7 +23167,7 @@ msgid "Restrict REST API to logged-in users"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/Module.php:1108
-msgid "Blocks the WordPress REST API for anonymous visitors. The public endpoints of the WooCommerce shop (cart and checkout), Contact Form 7 and the Complianz cookie banner stay reachable so front-end features keep working. Developers can add more with the uxstudio_rest_public_routes filter."
+msgid "Blocks the WordPress REST API for anonymous visitors. So that the shop and forms keep working, the WooCommerce Store API (products, cart and checkout, so product data stays publicly readable), Contact Form 7 and the Complianz cookie banner stay reachable. Product reviews in the Store API stay locked (the WooCommerce review blocks then show none to visitors). Developers can change this with the uxstudio_rest_public_routes and uxstudio_rest_lock_private_routes filters."
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/Module.php:1115

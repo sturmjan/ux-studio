@@ -6408,8 +6408,8 @@ msgid "One domain per line, added to script/style/img/font/connect/frame sources
 msgstr "Jedna doména na řádek, přidá se do zdrojů script/style/img/font/connect/frame. Příklady: https://cdn.example.com, https://*.example.com, wss://socket.example.com."
 
 #: includes/Modules/SecurityOptimization/Module.php:1108
-msgid "Blocks the WordPress REST API for anonymous visitors. The public endpoints of the WooCommerce shop (cart and checkout), Contact Form 7 and the Complianz cookie banner stay reachable so front-end features keep working. Developers can add more with the uxstudio_rest_public_routes filter."
-msgstr "Blokuje WordPress REST API pro anonymní návštěvníky. Veřejné endpointy obchodu WooCommerce (košík a pokladna), Contact Form 7 a cookie lišty Complianz zůstávají dostupné, aby funkce na frontendu dále fungovaly. Vývojáři můžou další přidat filtrem uxstudio_rest_public_routes."
+msgid "Blocks the WordPress REST API for anonymous visitors. So that the shop and forms keep working, the WooCommerce Store API (products, cart and checkout, so product data stays publicly readable), Contact Form 7 and the Complianz cookie banner stay reachable. Product reviews in the Store API stay locked (the WooCommerce review blocks then show none to visitors). Developers can change this with the uxstudio_rest_public_routes and uxstudio_rest_lock_private_routes filters."
+msgstr "Blokuje WordPress REST API pro anonymní návštěvníky. Aby dál fungoval obchod a formuláře, zůstávají dostupné WooCommerce Store API (produkty, košík a pokladna, takže data produktů jdou veřejně číst), Contact Form 7 a cookie lišta Complianz. Recenze produktů ve Store API zůstávají zamčené (bloky recenzí WooCommerce je pak návštěvníkům neukážou). Vývojáři to můžou změnit filtry uxstudio_rest_public_routes a uxstudio_rest_lock_private_routes."
 
 #: includes/Core/Migration/Catalog.php:299
 #: includes/Modules/SecurityOptimization/Module.php:1252
@@ -35491,12 +35491,12 @@ msgid "Leave it off if you want others to embed your posts, or you paste links t
 msgstr "Nech vypnuté, pokud chceš, aby si tvé příspěvky mohli zabudovat jiní, nebo vkládáš odkazy na neobvyklé weby a čekáš box."
 
 #: includes/Modules/SecurityOptimization/help.php:253
-msgid "Anonymous visitors are refused by the [[REST API]], the technical interface that apps, forms and many plugins use. Logged-in users keep full access. The public endpoints of the WooCommerce shop (cart and checkout), Contact Form 7 and the Complianz cookie banner stay open."
-msgstr "Anonymní návštěvníci jsou odmítnuti u [[REST API]], technického rozhraní, které používají aplikace, formuláře a mnoho pluginů. Přihlášení uživatelé mají plný přístup. Veřejné koncové body obchodu WooCommerce (košík a pokladna), Contact Form 7 a cookie lišty Complianz zůstávají otevřené."
+msgid "Anonymous visitors are refused by the [[REST API]], the technical interface that apps, forms and many plugins use. Logged-in users keep full access. The WooCommerce Store API (products, cart and checkout), Contact Form 7 and the Complianz cookie banner stay open; product reviews in the Store API stay locked."
+msgstr "Anonymní návštěvníci jsou odmítnuti u [[REST API]], technického rozhraní, které používají aplikace, formuláře a mnoho pluginů. Přihlášení uživatelé mají plný přístup. WooCommerce Store API (produkty, košík a pokladna), Contact Form 7 a cookie lišta Complianz zůstávají otevřené; recenze produktů ve Store API zůstávají zamčené."
 
 #: includes/Modules/SecurityOptimization/help.php:254
-msgid "Bots can no longer read your content and user names through the interface. Pages themselves look the same."
-msgstr "Boti už nemohou tímto rozhraním číst tvůj obsah a jména uživatelů. Samotné stránky vypadají stejně."
+msgid "Bots can no longer read user names, posts and pages through the interface. What the shop needs stays public: products, prices and stock can still be read through the WooCommerce Store API. Pages themselves look the same."
+msgstr "Boti už tímto rozhraním nepřečtou jména uživatelů, příspěvky ani stránky. Co potřebuje obchod, zůstává veřejné: produkty, ceny a sklad jdou přes WooCommerce Store API číst dál. Samotné stránky vypadají stejně."
 
 #: includes/Modules/SecurityOptimization/help.php:255
 msgid "A plugin, mobile app, newsletter tool, headless front end or contact form that calls the REST API without logging in can stop working. Test the forms and the shop after you turn it on."
