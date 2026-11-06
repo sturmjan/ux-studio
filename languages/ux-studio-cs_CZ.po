@@ -6408,8 +6408,8 @@ msgid "One domain per line, added to script/style/img/font/connect/frame sources
 msgstr "Jedna doména na řádek, přidá se do zdrojů script/style/img/font/connect/frame. Příklady: https://cdn.example.com, https://*.example.com, wss://socket.example.com."
 
 #: includes/Modules/SecurityOptimization/Module.php:1108
-msgid "Blocks the WordPress REST API for anonymous visitors. Common public endpoints (oEmbed, WooCommerce, Contact Form 7, WPForms, Elementor, site health) stay reachable so front-end features keep working."
-msgstr "Blokuje WordPress REST API pro anonymní návštěvníky. Běžné veřejné endpointy (oEmbed, WooCommerce, Contact Form 7, WPForms, Elementor, kontrola zdraví webu) zůstávají dostupné, aby funkce na frontendu dále fungovaly."
+msgid "Blocks the WordPress REST API for anonymous visitors. The public endpoints of the WooCommerce shop (cart and checkout), Contact Form 7 and the Complianz cookie banner stay reachable so front-end features keep working. Developers can add more with the uxstudio_rest_public_routes filter."
+msgstr "Blokuje WordPress REST API pro anonymní návštěvníky. Veřejné endpointy obchodu WooCommerce (košík a pokladna), Contact Form 7 a cookie lišty Complianz zůstávají dostupné, aby funkce na frontendu dále fungovaly. Vývojáři můžou další přidat filtrem uxstudio_rest_public_routes."
 
 #: includes/Core/Migration/Catalog.php:299
 #: includes/Modules/SecurityOptimization/Module.php:1252
@@ -35491,8 +35491,8 @@ msgid "Leave it off if you want others to embed your posts, or you paste links t
 msgstr "Nech vypnuté, pokud chceš, aby si tvé příspěvky mohli zabudovat jiní, nebo vkládáš odkazy na neobvyklé weby a čekáš box."
 
 #: includes/Modules/SecurityOptimization/help.php:253
-msgid "Anonymous visitors are refused by the [[REST API]], the technical interface that apps, forms and many plugins use. Logged-in users keep full access. A list of well-known public endpoints (forms, shop, oEmbed) stays open."
-msgstr "Anonymní návštěvníci jsou odmítnuti u [[REST API]], technického rozhraní, které používají aplikace, formuláře a mnoho pluginů. Přihlášení uživatelé mají plný přístup. Seznam dobře známých veřejných koncových bodů (formuláře, obchod, oEmbed) zůstává otevřený."
+msgid "Anonymous visitors are refused by the [[REST API]], the technical interface that apps, forms and many plugins use. Logged-in users keep full access. The public endpoints of the WooCommerce shop (cart and checkout), Contact Form 7 and the Complianz cookie banner stay open."
+msgstr "Anonymní návštěvníci jsou odmítnuti u [[REST API]], technického rozhraní, které používají aplikace, formuláře a mnoho pluginů. Přihlášení uživatelé mají plný přístup. Veřejné koncové body obchodu WooCommerce (košík a pokladna), Contact Form 7 a cookie lišty Complianz zůstávají otevřené."
 
 #: includes/Modules/SecurityOptimization/help.php:254
 msgid "Bots can no longer read your content and user names through the interface. Pages themselves look the same."

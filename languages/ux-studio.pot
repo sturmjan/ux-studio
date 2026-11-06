@@ -22404,7 +22404,7 @@ msgid "Leave it off if you want others to embed your posts, or you paste links t
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/help.php:253
-msgid "Anonymous visitors are refused by the [[REST API]], the technical interface that apps, forms and many plugins use. Logged-in users keep full access. A list of well-known public endpoints (forms, shop, oEmbed) stays open."
+msgid "Anonymous visitors are refused by the [[REST API]], the technical interface that apps, forms and many plugins use. Logged-in users keep full access. The public endpoints of the WooCommerce shop (cart and checkout), Contact Form 7 and the Complianz cookie banner stay open."
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/help.php:254
@@ -23167,7 +23167,7 @@ msgid "Restrict REST API to logged-in users"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/Module.php:1108
-msgid "Blocks the WordPress REST API for anonymous visitors. Common public endpoints (oEmbed, WooCommerce, Contact Form 7, WPForms, Elementor, site health) stay reachable so front-end features keep working."
+msgid "Blocks the WordPress REST API for anonymous visitors. The public endpoints of the WooCommerce shop (cart and checkout), Contact Form 7 and the Complianz cookie banner stay reachable so front-end features keep working. Developers can add more with the uxstudio_rest_public_routes filter."
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/Module.php:1115

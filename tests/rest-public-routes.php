@@ -78,6 +78,31 @@ $expect( 'GET /wp-json/wp/v2/users?x=/complianz/v1/', '/wp-json/wp/v2/users?x=/c
 $expect( 'GET /wp-json/complianzevil/v1/x (no boundary)', '/wp-json/complianzevil/v1/x', false );
 $expect( 'GET /wp-json/complianz/v2/banner (other version)', '/wp-json/complianz/v2/banner', false );
 
+echo "\n== WooCommerce Store API (needs WooCommerce active) ==\n";
+if ( class_exists( 'WooCommerce' ) ) {
+	$expect( 'GET /wp-json/wc/store/v1/cart', '/wp-json/wc/store/v1/cart', true );
+	$expect( 'GET /wp-json/wc/store/v1/products?per_page=5', '/wp-json/wc/store/v1/products?per_page=5', true );
+	$expect( 'POST /wp-json/wc/store/v1/cart/add-item', '/wp-json/wc/store/v1/cart/add-item', true, 'POST' );
+	$expect( 'POST /wp-json/wc/store/v1/checkout', '/wp-json/wc/store/v1/checkout', true, 'POST' );
+	$expect( 'POST .../wc/store/v1/checkout + X-HTTP-Method-Override: PUT', '/wp-json/wc/store/v1/checkout', true, 'POST', array(), array( 'HTTP_X_HTTP_METHOD_OVERRIDE' => 'PUT' ) );
+	$expect( 'POST /wp-json/wc/store/v1/batch', '/wp-json/wc/store/v1/batch', true, 'POST' );
+	$expect( 'GET /wp-json/wc/store/cart (legacy, unversioned)', '/wp-json/wc/store/cart', true );
+	$expect( 'GET ?rest_route=/wc/store/v1/cart', '/?rest_route=/wc/store/v1/cart', true );
+	$expect( 'GET /wp-json/wc/v3/orders (admin API)', '/wp-json/wc/v3/orders', false );
+	$expect( 'GET /wp-json/wc/v3/customers (admin API)', '/wp-json/wc/v3/customers', false );
+	$expect( 'GET /wp-json/wc-analytics/reports', '/wp-json/wc-analytics/reports', false );
+	$expect( 'GET /wp-json/wc/storex/v1/cart (no boundary)', '/wp-json/wc/storex/v1/cart', false );
+	$expect( 'GET /wp-json/wc/store-admin/x (no boundary)', '/wp-json/wc/store-admin/x', false );
+	$expect( 'GET /wp-json/wc/store (namespace index, no slash)', '/wp-json/wc/store', false );
+	$expect( 'GET /wp-json/wc/store/v1/../../v3/orders', '/wp-json/wc/store/v1/../../v3/orders', false );
+	$expect( 'GET /wp-json/wc/store/%2e%2e/v3/orders', '/wp-json/wc/store/%2e%2e/v3/orders', false );
+	$expect( 'GET /wp-json/wc/store%2F..%2Fv3/orders', '/wp-json/wc/store%2F..%2Fv3/orders', false );
+	$expect( 'POST store route with body rest_route=/wc/v3/orders', '/wp-json/wc/store/v1/cart', false, 'POST', array( 'rest_route' => '/wc/v3/orders' ) );
+	$expect( 'GET ?rest_route=/wc/v3/orders&x=/wc/store/v1/', '/?rest_route=/wc/v3/orders&x=/wc/store/v1/', false );
+} else {
+	echo "SKIP  WooCommerce not active\n";
+}
+
 echo "\n== own public endpoints (permission_callback __return_true) ==\n";
 rest_get_server();
 $expect( 'GET /wp-json/uxstudio/v1/shield/challenge (Shield CAPTCHA puzzle)', '/wp-json/uxstudio/v1/shield/challenge', true );
@@ -117,6 +142,33 @@ $row = static function ( string $label, string $got, string $want ) use ( &$fail
 $same = new WP_REST_Request( 'GET', '/complianz/v1/banner' );
 $row( 'served request = the public route', $served( '/wp-json/complianz/v1/banner', $same ), 'allowed' );
 $row( 'served request differs from the raw URL -> refused', $served( '/wp-json/complianz/v1/banner', new WP_REST_Request( 'GET', '/wp/v2/users' ) ), 'uxstudio_rest_forbidden' );
+if ( class_exists( 'WooCommerce' ) ) {
+	$row( 'served Store API checkout POST', $served( '/wp-json/wc/store/v1/checkout', new WP_REST_Request( 'POST', '/wc/store/v1/checkout' ), 'POST' ), 'allowed' );
+	$override = new WP_REST_Request( 'POST', '/wc/store/v1/cart/update-customer' );
+	$override->set_method( 'PUT' );
+	$row( 'served Store API with method overridden to PUT', $served( '/wp-json/wc/store/v1/cart/update-customer', $override, 'POST' ), 'allowed' );
+	$row( 'served /wc/v3 behind a Store API URL -> refused', $served( '/wp-json/wc/store/v1/cart', new WP_REST_Request( 'GET', '/wc/v3/orders' ) ), 'uxstudio_rest_forbidden' );
+
+	// Sub-requests of a Store API batch must be public on their own.
+	$batch = new WP_REST_Request( 'POST', '/wc/store/v1/batch' );
+	RestRoute::reset();
+	$check( '/wp-json/wc/store/v1/batch', 'POST' );
+	RestRoute::arm( null );
+	RestRoute::capture( null, rest_get_server(), $batch );
+	$outer   = $module->recheck_rest_lock( null, rest_get_server(), $batch );
+	$sub_ok  = $module->recheck_rest_lock( null, rest_get_server(), new WP_REST_Request( 'POST', '/wc/store/v1/cart/add-item' ) );
+	$sub_bad = $module->recheck_rest_lock( null, rest_get_server(), new WP_REST_Request( 'GET', '/wc/storex/v1/x' ) );
+	$sub_v3  = $module->recheck_rest_lock( null, rest_get_server(), new WP_REST_Request( 'GET', '/wc/v3/orders' ) );
+	RestRoute::reset();
+	$row( 'served Store API batch', null === $outer ? 'allowed' : 'blocked', 'allowed' );
+	$row( 'batch sub-request /wc/store/v1/cart/add-item', null === $sub_ok ? 'allowed' : 'blocked', 'allowed' );
+	$row( 'batch sub-request /wc/storex/v1/x -> refused', is_wp_error( $sub_bad ) ? 'blocked' : 'allowed', 'blocked' );
+	$row( 'batch sub-request /wc/v3/orders -> refused', is_wp_error( $sub_v3 ) ? 'blocked' : 'allowed', 'blocked' );
+	// The next request starts clean (no batch state left over).
+	$check( '/wp-json/complianz/v1/banner' );
+	$after = $module->recheck_rest_lock( null, rest_get_server(), new WP_REST_Request( 'GET', '/wp/v2/users' ) );
+	$row( 'batch state reset by the next request', null === $after ? 'untouched' : 'blocked', 'untouched' );
+}
 $row( 'served method GET on a POST-only public route -> refused', $served( '/wp-json/uxstudio/v1/test-public-post', new WP_REST_Request( 'GET', '/uxstudio/v1/test-public-post' ), 'POST' ), 'uxstudio_rest_forbidden' );
 RestRoute::reset();
 $check( '/wp-json/complianz/v1/banner' );
@@ -139,7 +191,17 @@ $expect( 'filter adds /contact-form-7/v1/ -> allowed', '/wp-json/contact-form-7/
 $expect( 'filter keeps complianz default', '/wp-json/complianz/v1/banner', true );
 $expect( 'filter does not open core', '/wp-json/wp/v2/users', false );
 remove_filter( 'uxstudio_rest_public_routes', $add );
-$expect( 'filter removed -> cf7 closed again', '/wp-json/contact-form-7/v1/contact-forms/1/feedback', false );
+$expect( 'filter removed -> cf7 open only by default with CF7 active', '/wp-json/contact-form-7/v1/contact-forms/1/feedback', defined( 'WPCF7_VERSION' ) );
+$expect( 'GET /wp-json/oembed/1.0/embed (author data, stays locked)', '/wp-json/oembed/1.0/embed?url=' . rawurlencode( home_url( '/' ) ), false );
+
+if ( class_exists( 'WooCommerce' ) ) {
+	$drop_store = static function ( array $routes ): array {
+		return array_values( array_diff( $routes, array( '/wc/store/' ) ) );
+	};
+	add_filter( 'uxstudio_rest_public_routes', $drop_store );
+	$expect( 'filter can remove the Store API default', '/wp-json/wc/store/v1/cart', false );
+	remove_filter( 'uxstudio_rest_public_routes', $drop_store );
+}
 
 $drop = static function ( array $routes ): array {
 	return array_values( array_diff( $routes, array( '/complianz/v1/' ) ) );

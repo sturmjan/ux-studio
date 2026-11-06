@@ -57,6 +57,9 @@ final class Module extends BaseModule {
 	/** The anonymous REST request passed the lock as public; recheck the dispatched request. */
 	private bool $rest_lock_recheck = false;
 
+	/** The served anonymous request is a public batch route; every sub-request must be public too. */
+	private bool $rest_lock_batch = false;
+
 	/**
 	 * Register hooks.
 	 */
@@ -1111,7 +1114,7 @@ final class Module extends BaseModule {
 				'section' => __( 'Hardening', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Restrict REST API to logged-in users', 'ux-studio' ),
-				'help'    => __( 'Blocks the WordPress REST API for anonymous visitors. Common public endpoints (oEmbed, WooCommerce, Contact Form 7, WPForms, Elementor, site health) stay reachable so front-end features keep working.', 'ux-studio' ),
+				'help'    => __( 'Blocks the WordPress REST API for anonymous visitors. The public endpoints of the WooCommerce shop (cart and checkout), Contact Form 7 and the Complianz cookie banner stay reachable so front-end features keep working. Developers can add more with the uxstudio_rest_public_routes filter.', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
@@ -3080,6 +3083,7 @@ final class Module extends BaseModule {
 	 */
 	public function restrict_rest_api( $result ) {
 		$this->rest_lock_recheck = false;
+		$this->rest_lock_batch   = false;
 		if ( ! empty( $result ) ) {
 			return $result;
 		}
@@ -3105,11 +3109,21 @@ final class Module extends BaseModule {
 	 * @return mixed
 	 */
 	public function recheck_rest_lock( $result, $server = null, $request = null ) {
-		if ( ! $this->rest_lock_recheck || null !== $result || ! RestRoute::is_served( $request ) ) {
+		if ( null !== $result ) {
+			return $result;
+		}
+		if ( $this->rest_lock_batch && $request instanceof \WP_REST_Request && ! RestRoute::is_served( $request ) ) {
+			// A sub-request of a public batch (Store API /batch) runs for the same anonymous
+			// visitor, so it must be public on its own: the batch must not tunnel to /wc/v3 & co.
+			return $this->is_public_rest_route( (string) $request->get_route(), (string) $request->get_method() ) ? $result : $this->rest_lock_error();
+		}
+		if ( ! $this->rest_lock_recheck || ! RestRoute::is_served( $request ) ) {
 			return $result;
 		}
 		$this->rest_lock_recheck = false;
-		if ( $this->is_public_rest_route( (string) $request->get_route(), (string) $request->get_method() ) ) {
+		$route                   = (string) $request->get_route();
+		if ( $this->is_public_rest_route( $route, (string) $request->get_method() ) ) {
+			$this->rest_lock_batch = (bool) preg_match( '#/batch/?$#', $route );
 			return $result;
 		}
 		return $this->rest_lock_error();
@@ -3169,16 +3183,35 @@ final class Module extends BaseModule {
 	 * Only third-party namespaces whose front-end code has to reach the REST API
 	 * as an anonymous visitor belong here. Never add core routes (wp/v2/users…).
 	 *
+	 * Each prefix is a whole namespace ending with '/', matched from the start of
+	 * the dispatched route, so /wc/storex or /wc/store-admin never match /wc/store/.
+	 * The endpoints keep their own permission callbacks (CF7 admin routes still
+	 * need the capability); the lock only stops refusing the visitor up front.
+	 *
 	 * - /complianz/v1/ - Complianz cookie banner: /banner, /manage_consent_html,
 	 *   /documents, /track, /store_cookies. Locking it breaks the banner and
 	 *   consent is never stored.
+	 * - /wc/store/ - WooCommerce Store API (/wc/store/v1/... and the legacy
+	 *   unversioned /wc/store/...), only with WooCommerce active. The block cart,
+	 *   checkout, mini-cart and product filters call it as the guest shopper.
+	 *   The admin API (/wc/v3, /wc-analytics...) stays locked.
+	 * - /contact-form-7/v1/ - Contact Form 7, only with CF7 active. The form posts
+	 *   to /contact-forms/{id}/feedback; without it no guest can send a form.
+	 *
+	 * Not here on purpose: /oembed/1.0/ - the oEmbed response carries the author
+	 * name and author URL (the user slug), the very enumeration the lock stops.
 	 *
 	 * @return array<int, string> Leading-slash route prefixes.
 	 */
 	private static function default_public_rest_prefixes(): array {
-		return array(
-			'/complianz/v1/',
-		);
+		$prefixes = array( '/complianz/v1/' );
+		if ( class_exists( 'WooCommerce' ) ) {
+			$prefixes[] = '/wc/store/';
+		}
+		if ( defined( 'WPCF7_VERSION' ) ) {
+			$prefixes[] = '/contact-form-7/v1/';
+		}
+		return $prefixes;
 	}
 
 	/**
