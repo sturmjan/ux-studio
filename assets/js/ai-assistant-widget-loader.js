@@ -106,6 +106,16 @@
         bubble.addEventListener(type, load, { passive: true });
     });
 
+    // Public API stub (see offerHelp in the full widget): queue the call and
+    // start loading; the full widget replays the queue and opens the panel itself.
+    window.uxstudioAiAssistantQueue = window.uxstudioAiAssistantQueue || [];
+    window.uxstudioAiAssistant = {
+        offerHelp: function (offer) {
+            window.uxstudioAiAssistantQueue.push(offer);
+            load();
+        }
+    };
+
     var hasSession = false;
     try {
         hasSession = !!window.sessionStorage.getItem('uxstudio_ais_session');

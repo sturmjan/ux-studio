@@ -1,0 +1,8 @@
+{
+	"id": "ai-search",
+	"name": "AI Search",
+	"description": "Live AJAX search with suggestions, several search field designs and a results page, built on the AI Assistant's shared knowledge index, with a hand-off to the chat assistant.",
+	"group": "content",
+	"icon": "search",
+	"settings": true
+}

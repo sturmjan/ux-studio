@@ -1976,6 +1976,55 @@
     checkHandoffOnLoad();
 
     // ---------------------------------------------------------------------------
+    // Public API: other modules (AI Search) can open the panel with an offer of
+    // help. Calls made before this script loaded are queued by the loader in
+    // window.uxstudioAiAssistantQueue and replayed below.
+    // ---------------------------------------------------------------------------
+
+    function offerHelp(offer) {
+        if (!offer || typeof offer.text !== 'string' || !offer.text) return;
+        // Never interrupt a conversation with a human operator.
+        if (handoffStatus === 'requested' || handoffStatus === 'human') return;
+
+        openPanel(true);
+
+        var last = messages.length ? messages[messages.length - 1] : null;
+        if (!last || last.text !== offer.text) {
+            addMessageToUI('bot', offer.text);
+            messages.push({ role: 'bot', text: offer.text });
+            saveMessages(messages);
+        }
+
+        if (offer.reply) {
+            var container = el('div', 'uxstudio-ais-faqs');
+            var list = el('div', 'uxstudio-ais-faqs-list');
+            container.appendChild(list);
+
+            var chip = el('button', 'uxstudio-ais-faq-chip', { 'type': 'button' });
+            var chipText = el('span', 'uxstudio-ais-faq-chip-text');
+            chipText.textContent = offer.replyLabel || offer.reply;
+            var chipIcon = el('span', 'uxstudio-ais-faq-chip-icon');
+            chipIcon.innerHTML = FAQ_CHEVRON_RIGHT;
+            chip.appendChild(chipText);
+            chip.appendChild(chipIcon);
+            chip.addEventListener('click', function() {
+                if (container.parentNode) {
+                    container.parentNode.removeChild(container);
+                }
+                input.value = offer.reply;
+                sendMessage();
+            });
+            list.appendChild(chip);
+            messagesArea.appendChild(container);
+            scrollToBottom();
+        }
+    }
+
+    window.uxstudioAiAssistant = { offerHelp: offerHelp };
+    (window.uxstudioAiAssistantQueue || []).forEach(offerHelp);
+    window.uxstudioAiAssistantQueue = [];
+
+    // ---------------------------------------------------------------------------
     // Auto-open logic
     // ---------------------------------------------------------------------------
 
