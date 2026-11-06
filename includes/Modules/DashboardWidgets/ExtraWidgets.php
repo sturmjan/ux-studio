@@ -285,7 +285,7 @@ final class ExtraWidgets {
 			if ( tasksBox ) {
 				var list = tasksBox.querySelector( '.uxs-dw-tasks__list' );
 				var input = tasksBox.querySelector( '.uxs-dw-tasks__input' );
-				var tasks = <?php echo wp_json_encode( array_values( $this->module->get_tasks() ) ); ?>;
+				var tasks = <?php echo wp_json_encode( array_values( $this->module->get_tasks() ), JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 				var render = function () {
 					list.innerHTML = '';
 					var sorted = tasks.slice().sort( function ( a, b ) {
