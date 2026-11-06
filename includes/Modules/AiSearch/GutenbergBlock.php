@@ -117,6 +117,13 @@ final class GutenbergBlock {
 			array(
 				'designs' => $designs,
 				'layouts' => $layouts,
+				'text'    => array(
+					'field'       => __( 'AI Search field', 'ux-studio' ),
+					'results'     => __( 'AI Search results', 'ux-studio' ),
+					'design'      => __( 'Search field design', 'ux-studio' ),
+					'placeholder' => __( 'Placeholder', 'ux-studio' ),
+					'layout'      => __( 'Results layout', 'ux-studio' ),
+				),
 			)
 		);
 
@@ -126,7 +133,6 @@ final class GutenbergBlock {
 		return;
 	}
 	var el = wp.element.createElement;
-	var __ = wp.i18n.__;
 	var cfg = window.uxstudioAiSearchBlock;
 	var InspectorControls = wp.blockEditor.InspectorControls;
 	var useBlockProps = wp.blockEditor.useBlockProps;
@@ -149,7 +155,7 @@ final class GutenbergBlock {
 				var controls = [
 					el( SelectControl, {
 						key: 'design',
-						label: __( 'Search field design', 'ux-studio' ),
+						label: cfg.text.design,
 						value: a.design,
 						options: cfg.designs,
 						onChange: function ( v ) { props.setAttributes( { design: v } ); },
@@ -158,14 +164,14 @@ final class GutenbergBlock {
 				if ( withPlaceholder ) {
 					controls.push( el( TextControl, {
 						key: 'placeholder',
-						label: __( 'Placeholder', 'ux-studio' ),
+						label: cfg.text.placeholder,
 						value: a.placeholder,
 						onChange: function ( v ) { props.setAttributes( { placeholder: v } ); },
 					} ) );
 				} else {
 					controls.push( el( SelectControl, {
 						key: 'layout',
-						label: __( 'Results layout', 'ux-studio' ),
+						label: cfg.text.layout,
 						value: a.layout,
 						options: cfg.layouts,
 						onChange: function ( v ) { props.setAttributes( { layout: v } ); },
@@ -182,8 +188,8 @@ final class GutenbergBlock {
 		} );
 	}
 
-	register( 'uxstudio/ai-search', __( 'AI Search field', 'ux-studio' ), 'search', true );
-	register( 'uxstudio/ai-search-results', __( 'AI Search results', 'ux-studio' ), 'list-view', false );
+	register( 'uxstudio/ai-search', cfg.text.field, 'search', true );
+	register( 'uxstudio/ai-search-results', cfg.text.results, 'list-view', false );
 } )( window.wp );
 JS;
 	}

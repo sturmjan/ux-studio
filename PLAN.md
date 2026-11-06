@@ -4108,7 +4108,8 @@ Modul `ai-search` (`includes/Modules/AiSearch/`): živé AJAX hledání s nasáv
 
 - [x] Modul, REST, renderer, CSS/JS, bloky, API widgetu
 - [x] Ověřeno na lokálním webu (návrhy, výpis, nabídka v bublině)
-- [ ] České překlady řetězců modulu (languages/README.md)
+- [x] České překlady řetězců modulu (připsáno na konec .po, .mo přegenerováno)
+- [x] Produkty WooCommerce: vlastní hledání v produktovém indexu AI Asistenta (název, SKU, kategorie, vlastnosti/ACF, popis; všechna slova dotazu musí sedět, české koncovky, bez diakritiky, i produkty bez skladu s nižší prioritou, respektuje viditelnost katalogu); ve výsledku se ukáže, která vlastnost hledání zasáhla. Pozor: index ukládá JSON s escapovanou diakritikou (č), `SearchService` proto hledá i escapovaný tvar.
 - [ ] Elementor widget (volitelně)
 - [ ] Znalostní báze (FAQ) jako další zdroj výsledků
 - [ ] PR, verze, CHANGELOG

@@ -78,16 +78,7 @@ final class SearchService {
 			);
 		}
 
-		foreach ( ProductIndexer::search( $q, $limit ) as $row ) {
-			$candidates[] = array(
-				'id'        => (int) ( $row['parent_id'] ?: $row['product_id'] ),
-				'title'     => (string) $row['name'],
-				'text'      => (string) $row['description_text'],
-				'url'       => (string) $row['permalink'],
-				'image'     => (string) $row['image_url'],
-				'relevance' => (float) ( $row['relevance'] ?? 0 ),
-			);
-		}
+		$candidates = array_merge( $candidates, self::product_candidates( $q, $limit ) );
 
 		return self::finish( $candidates, $q, $limit );
 	}
@@ -138,31 +129,7 @@ final class SearchService {
 			);
 		}
 
-		if ( ProductIndexer::is_woocommerce_active() ) {
-			$rows = $wpdb->get_results(
-				$wpdb->prepare(
-					"SELECT product_id, parent_id, name, description_text, permalink, image_url
-					 FROM {$wpdb->prefix}uxstudio_ai_assistant_product_index
-					 WHERE name LIKE %s AND stock_status = 'instock'
-					 ORDER BY (name LIKE %s) DESC, CHAR_LENGTH(name) ASC
-					 LIMIT %d",
-					$like_any,
-					$like_prefix,
-					$limit
-				),
-				ARRAY_A
-			);
-			foreach ( (array) $rows as $row ) {
-				$candidates[] = array(
-					'id'        => (int) ( $row['parent_id'] ?: $row['product_id'] ),
-					'title'     => (string) $row['name'],
-					'text'      => (string) $row['description_text'],
-					'url'       => (string) $row['permalink'],
-					'image'     => (string) $row['image_url'],
-					'relevance' => 100.0,
-				);
-			}
-		}
+		$candidates = array_merge( $candidates, self::product_candidates( $q, $limit ) );
 
 		if ( count( $candidates ) < $limit ) {
 			foreach ( ContentIndexer::search( $q, $limit ) as $row ) {
@@ -238,7 +205,10 @@ final class SearchService {
 			if ( ! $post instanceof \WP_Post || 'publish' !== $post->post_status || '' !== $post->post_password ) {
 				continue;
 			}
-			$items[] = self::normalise( $post, $c['title'], $c['text'], $c['url'], $c['image'], $q );
+			if ( 'product' === $post->post_type && ! self::product_visible( $post->ID ) ) {
+				continue;
+			}
+			$items[] = self::normalise( $post, $c['title'], $c['text'], $c['url'], $c['image'], $q, $c['props'] ?? array() );
 			if ( count( $items ) >= $limit ) {
 				break;
 			}
@@ -282,7 +252,7 @@ final class SearchService {
 	/**
 	 * @return array<string, mixed>
 	 */
-	private static function normalise( \WP_Post $post, string $title, string $text, string $url, string $image, string $q ): array {
+	private static function normalise( \WP_Post $post, string $title, string $text, string $url, string $image, string $q, array $props = array() ): array {
 		$type_obj = get_post_type_object( $post->post_type );
 		$price    = '';
 		if ( 'product' === $post->post_type && function_exists( 'wc_get_product' ) ) {
@@ -299,7 +269,158 @@ final class SearchService {
 			'image'      => $image,
 			'snippet'    => self::snippet( $text, $q ),
 			'price'      => $price,
+			'props'      => $props,
 		);
+	}
+
+	/**
+	 * Weighted product columns: where a word counts most.
+	 */
+	private const PRODUCT_COLUMNS = array(
+		'name'             => 4,
+		'sku'              => 4,
+		'categories'       => 3,
+		'attributes'       => 3,
+		'description_text' => 1,
+	);
+
+	/**
+	 * Search the product index (name, SKU, categories, properties, description).
+	 *
+	 * Every word of the query has to match in at least one column (so "red
+	 * dress" finds a product whose name has "dress" and whose colour property is
+	 * "red"); when nothing satisfies all words, products matching any word are
+	 * returned. Czech declension is handled with the same suffix stemming the
+	 * assistant uses. Out-of-stock products are included, they only rank lower.
+	 *
+	 * @return array<int, array<string, mixed>> Candidates for finish().
+	 */
+	private static function product_candidates( string $q, int $limit ): array {
+		if ( ! ProductIndexer::is_woocommerce_active() ) {
+			return array();
+		}
+
+		global $wpdb;
+		$table = "{$wpdb->prefix}uxstudio_ai_assistant_product_index";
+
+		$needles = array();
+		foreach ( array_slice( self::terms( $q ), 0, 6 ) as $term ) {
+			$stem      = ContentIndexer::extract_stems( array( $term ) )[0] ?? $term;
+			$needles[] = $stem;
+		}
+		if ( ! $needles ) {
+			return array();
+		}
+
+		// Score: weight of each column a word hits, summed over words.
+		$score_sql    = array();
+		$score_params = array();
+		$term_sql     = array();
+		$term_params  = array();
+		foreach ( $needles as $needle ) {
+			$likes   = array( '%' . $wpdb->esc_like( $needle ) . '%' );
+			// Attributes/categories are stored as JSON with escaped unicode (č): match that form too.
+			$escaped = trim( (string) wp_json_encode( $needle ), '"' );
+			if ( $escaped !== $needle ) {
+				$likes[] = '%' . $wpdb->esc_like( $escaped ) . '%';
+			}
+
+			$ors = array();
+			foreach ( self::PRODUCT_COLUMNS as $col => $weight ) {
+				$cond = array();
+				foreach ( $likes as $i => $like ) {
+					if ( $i > 0 && ! in_array( $col, array( 'categories', 'attributes' ), true ) ) {
+						continue;
+					}
+					$cond[]         = "{$col} LIKE %s";
+					$term_params[]  = $like;
+					$score_params[] = $like;
+				}
+				$ors[]       = '(' . implode( ' OR ', $cond ) . ')';
+				$score_sql[] = "(CASE WHEN (" . implode( ' OR ', $cond ) . ") THEN {$weight} ELSE 0 END)";
+			}
+			$term_sql[] = '(' . implode( ' OR ', $ors ) . ')';
+		}
+
+		$score = implode( ' + ', $score_sql );
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- fragments are built from fixed column names and %s placeholders.
+		$run = static function ( string $glue ) use ( $wpdb, $table, $score, $score_params, $term_sql, $term_params, $limit ): array {
+			$sql = "SELECT *, ({$score}) AS relevance FROM {$table} WHERE " . implode( " {$glue} ", $term_sql )
+				. " ORDER BY relevance DESC, (stock_status = 'instock') DESC, price ASC LIMIT %d";
+			$rows = $wpdb->get_results( $wpdb->prepare( $sql, ...array_merge( $score_params, $term_params, array( $limit * 2 ) ) ), ARRAY_A );
+			return is_array( $rows ) ? $rows : array();
+		};
+		// phpcs:enable
+
+		$rows = $run( 'AND' );
+		if ( ! $rows && count( $term_sql ) > 1 ) {
+			$rows = $run( 'OR' );
+		}
+
+		$candidates = array();
+		foreach ( $rows as $row ) {
+			$candidates[] = array(
+				'id'        => (int) ( $row['parent_id'] ?: $row['product_id'] ),
+				'title'     => (string) $row['name'],
+				'text'      => (string) $row['description_text'],
+				'url'       => (string) $row['permalink'],
+				'image'     => (string) $row['image_url'],
+				'relevance' => (float) $row['relevance'],
+				'props'     => self::matched_properties( (string) $row['attributes'], $needles, (string) $row['name'] ),
+			);
+		}
+		return $candidates;
+	}
+
+	/**
+	 * Product properties whose value contains one of the searched words, as
+	 * "Label: value" pairs (at most 3), so the result can show why it matched.
+	 *
+	 * @param array<int, string> $needles Search stems.
+	 * @param string             $title   Product name (a property repeating it is skipped).
+	 * @return array<int, array{label:string,value:string}>
+	 */
+	private static function matched_properties( string $json, array $needles, string $title ): array {
+		$attrs = json_decode( $json, true );
+		if ( ! is_array( $attrs ) ) {
+			return array();
+		}
+
+		$out = array();
+		foreach ( $attrs as $key => $value ) {
+			if ( ! is_string( $value ) || '' === $value || 'category-description' === $key || 0 === strcasecmp( trim( $value ), trim( $title ) ) ) {
+				continue;
+			}
+			foreach ( $needles as $needle ) {
+				if ( false !== mb_stripos( $value, $needle ) ) {
+					$out[] = array(
+						'label' => ucfirst( str_replace( array( '-', '_' ), ' ', (string) $key ) ),
+						'value' => mb_strlen( $value ) > 60 ? mb_substr( $value, 0, 59 ) . '…' : $value,
+					);
+					break;
+				}
+			}
+			if ( count( $out ) >= 3 ) {
+				break;
+			}
+		}
+		return $out;
+	}
+
+	/**
+	 * Whether WooCommerce lets this product show up in searches (catalog
+	 * visibility, and its own "hide out of stock" setting).
+	 */
+	private static function product_visible( int $id ): bool {
+		if ( ! function_exists( 'wc_get_product' ) ) {
+			return true;
+		}
+		$product = wc_get_product( $id );
+		if ( ! $product ) {
+			return false;
+		}
+		return in_array( $product->get_catalog_visibility(), array( 'visible', 'search' ), true )
+			&& ( 'yes' !== get_option( 'woocommerce_hide_out_of_stock_items' ) || $product->is_in_stock() );
 	}
 
 	/**

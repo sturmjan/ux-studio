@@ -412,7 +412,7 @@ final class ContentIndexer {
 	 * @param array<int, string> $words Significant words.
 	 * @return array<int, string>
 	 */
-	private static function extract_stems( array $words ): array {
+	public static function extract_stems( array $words ): array {
 		$suffixes = array( 'ších', 'ními', 'ích', 'ých', 'ách', 'ech', 'ími', 'ové', 'ého', 'ému', 'ými', 'ním', 'ům', 'em', 'ém', 'ým', 'ím', 'ám', 'mi', 'ou', 'ky', 'ny', 'ty', 'ry', 'ly', 'ů', 'í', 'é', 'ý', 'á', 'ě', 'y', 'i', 'u' );
 
 		$stems = array();

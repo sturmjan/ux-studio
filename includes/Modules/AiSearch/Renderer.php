@@ -129,7 +129,9 @@ final class Renderer {
 					: '<span class="uxs-suggest__thumb uxs-suggest__thumb--empty" aria-hidden="true"></span>';
 			}
 			$out .= '<span class="uxs-suggest__text"><span class="uxs-suggest__title">' . SearchService::highlight( (string) $item['title'], $q ) . '</span>'
-				. '<span class="uxs-suggest__meta">' . esc_html( (string) $item['type_label'] ) . '</span></span></a>';
+				. '<span class="uxs-suggest__meta">' . esc_html( (string) $item['type_label'] ) . $this->props_inline( (array) $item['props'], $q, 1 ) . '</span></span>'
+				. ( '' !== (string) $item['price'] ? '<span class="uxs-suggest__price">' . wp_kses_post( (string) $item['price'] ) . '</span>' : '' )
+				. '</a>';
 		}
 
 		return $out . '<a class="uxs-suggest__all" role="option" href="' . esc_url( $this->module->results_url( $q ) ) . '">'
@@ -248,6 +250,13 @@ final class Renderer {
 			$out .= '<div class="uxs-item__body">'
 				. '<span class="uxs-item__type">' . esc_html( (string) $item['type_label'] ) . '</span>'
 				. '<h3 class="uxs-item__title"><a href="' . esc_url( (string) $item['url'] ) . '">' . SearchService::highlight( (string) $item['title'], $q ) . '</a></h3>';
+			if ( ! empty( $item['props'] ) ) {
+				$out .= '<ul class="uxs-item__props">';
+				foreach ( $item['props'] as $prop ) {
+					$out .= '<li><span>' . esc_html( (string) $prop['label'] ) . ':</span> ' . SearchService::highlight( (string) $prop['value'], $q ) . '</li>';
+				}
+				$out .= '</ul>';
+			}
 			if ( '' !== (string) $item['snippet'] ) {
 				$out .= '<p class="uxs-item__snippet">' . SearchService::highlight( (string) $item['snippet'], $q ) . '</p>';
 			}
@@ -273,6 +282,19 @@ final class Renderer {
 			. '<span>' . esc_html__( 'Our assistant can help you with the search.', 'ux-studio' ) . '</span></div>'
 			. '<button type="button" class="uxs-ai__button" data-uxs-ai-open>' . esc_html__( 'Ask the assistant', 'ux-studio' ) . '</button>'
 			. '</div>';
+	}
+
+	/**
+	 * " · Label: value" fragments for the dropdown's meta line.
+	 *
+	 * @param array<int, array{label:string,value:string}> $props Matched properties.
+	 */
+	private function props_inline( array $props, string $q, int $max ): string {
+		$out = '';
+		foreach ( array_slice( $props, 0, $max ) as $prop ) {
+			$out .= ' · ' . esc_html( (string) $prop['label'] ) . ': ' . SearchService::highlight( (string) $prop['value'], $q );
+		}
+		return $out;
 	}
 
 	// ---------------------------------------------------------------------

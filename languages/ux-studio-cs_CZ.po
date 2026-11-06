@@ -37969,3 +37969,203 @@ msgstr "Připojení jste zrušili. Můžete ho dokončit později v modulu Synch
 #: build/index.448b9a5f8122a692a0c2.js:69
 msgid "The site is connected to the central app. The recommended modules below use it where they can."
 msgstr "Web je připojený k Centrální aplikaci. Doporučené moduly níže ji využijí všude, kde to jde."
+
+msgid "AI Search field"
+msgstr "Pole AI vyhledávání"
+
+msgid "Live search field with suggestions."
+msgstr "Vyhledávací pole s živým našeptávačem."
+
+msgid "AI Search results"
+msgstr "Výsledky AI vyhledávání"
+
+msgid ""
+"Search field with the live list of results. Place it on the results page."
+msgstr ""
+"Vyhledávací pole se živým výpisem výsledků. Vložte ho na stránku výsledků."
+
+msgid "Default design"
+msgstr "Výchozí design"
+
+msgid "Default layout"
+msgstr "Výchozí rozložení"
+
+msgid "Search…"
+msgstr "Hledat…"
+
+msgid "Looking for “{query}”? I can help you with your search."
+msgstr "Hledáte “{query}”? Rád vám s vyhledáváním pomohu."
+
+msgid "Help me find: {query}"
+msgstr "Pomozte mi najít: {query}"
+
+msgid "Yes, help me find “{query}”"
+msgstr "Ano, pomozte mi najít “{query}”"
+
+msgid "Created automatically"
+msgstr "Vytvořit automaticky"
+
+msgid "WordPress search"
+msgstr "Hledání WordPressu"
+
+msgid "Default search field design"
+msgstr "Výchozí design vyhledávacího pole"
+
+msgid ""
+"Used by [uxs_search] and the block unless a design is set there, e.g. "
+"[uxs_search design=\"pill\"]."
+msgstr ""
+"Používá [uxs_search] a blok, pokud tam není design zadaný, např. [uxs_search"
+" design=\"pill\"]."
+
+msgid "Results layout"
+msgstr "Rozložení výsledků"
+
+msgid "Show thumbnails"
+msgstr "Zobrazit miniatury"
+
+msgid "Popular searches"
+msgstr "Oblíbená hledání"
+
+msgid ""
+"Comma-separated. Shown when the field is focused and empty, and under the "
+"Hero design."
+msgstr ""
+"Oddělená čárkou. Zobrazí se po kliknutí do prázdného pole a pod designem "
+"Hero."
+
+msgid "Start suggesting after (characters)"
+msgstr "Začít našeptávat po (znacích)"
+
+msgid "Suggestions in the dropdown"
+msgstr "Počet návrhů v rozbalovací nabídce"
+
+msgid "Results per page"
+msgstr "Výsledků na stránku"
+
+msgid "Hand-off to the chat assistant"
+msgstr "Předání chatovacímu asistentovi"
+
+msgid ""
+"Needs the AI Assistant module with the chat widget enabled. Automatic: the "
+"chat bubble opens on the results page and offers help with the search."
+msgstr ""
+"Vyžaduje modul AI Asistent se zapnutým chatovacím widgetem. Automaticky: na "
+"stránce výsledků se otevře chatovací bublina a nabídne pomoc s hledáním."
+
+msgid "Button on the results page"
+msgstr "Tlačítko na stránce výsledků"
+
+msgid "Automatically open the chat"
+msgstr "Automaticky otevřít chat"
+
+msgid "Open automatically only with up to N results (0 = always)"
+msgstr "Otevřít automaticky jen při nejvýše N výsledcích (0 = vždy)"
+
+msgid "Message from the assistant"
+msgstr "Zpráva od asistenta"
+
+msgid "Use {query} for what the visitor searched for."
+msgstr "Pomocí {query} se doplní hledaný výraz návštěvníka."
+
+msgid "Quick reply button"
+msgstr "Tlačítko rychlé odpovědi"
+
+msgid "Message sent to the assistant when it is clicked"
+msgstr "Zpráva odeslaná asistentovi po kliknutí"
+
+msgid "Replace the WordPress search"
+msgstr "Nahradit hledání WordPressu"
+
+msgid ""
+"Swaps the theme search forms for the default design and redirects /?s= to "
+"the results page below."
+msgstr ""
+"Nahradí vyhledávací formuláře šablony výchozím designem a přesměruje /?s= na"
+" stránku výsledků níže."
+
+msgid "Results page"
+msgstr "Stránka výsledků"
+
+msgid ""
+"A page containing [uxs_search_results]. When left on automatic, a \"Search\""
+" page is created for you the first time."
+msgstr ""
+"Stránka obsahující [uxs_search_results]. Při volbě automaticky se při prvním"
+" použití sama vytvoří stránka „Hledání“."
+
+msgid "Recent searches"
+msgstr "Poslední hledání"
+
+msgid "Search is not available right now."
+msgstr "Hledání teď není dostupné."
+
+msgctxt "results page slug"
+msgid "search"
+msgstr "hledani"
+
+msgid "Suggestions"
+msgstr "Návrhy"
+
+msgid "Popular:"
+msgstr "Oblíbené:"
+
+msgid "Nothing found for “%s”."
+msgstr "Pro “%s” se nic nenašlo."
+
+msgid "Search everywhere"
+msgstr "Hledat všude"
+
+msgid "Show all results for “%s”"
+msgstr "Zobrazit všechny výsledky pro “%s”"
+
+msgid "Type what you are looking for."
+msgstr "Napište, co hledáte."
+
+msgid "We did not find anything matching your search."
+msgstr "Nenašli jsme nic, co by odpovídalo hledání."
+
+msgid "Did not find what you need?"
+msgstr "Nenašli jste, co potřebujete?"
+
+msgid "Our assistant can help you with the search."
+msgstr "S hledáním vám pomůže náš asistent."
+
+msgid "Ask the assistant"
+msgstr "Zeptat se asistenta"
+
+msgid "AI Search"
+msgstr "AI vyhledávání"
+
+msgid ""
+"Live AJAX search with suggestions, several search field designs and a "
+"results page, built on the AI Assistant's shared knowledge index, with a "
+"hand-off to the chat assistant."
+msgstr ""
+"Živé AJAX vyhledávání s našeptávačem, několika designy vyhledávacího pole a "
+"stránkou výsledků nad sdíleným indexem AI Asistenta, s předáním chatovacímu "
+"asistentovi."
+
+msgid "Classic (rounded field with button)"
+msgstr "Klasický (zaoblené pole s tlačítkem)"
+
+msgid "Minimal (underline)"
+msgstr "Minimalistický (podtržení)"
+
+msgid "Pill (large, icon inside)"
+msgstr "Pilulka (velké, ikona uvnitř)"
+
+msgid "Command palette (shortcut hint)"
+msgstr "Paleta příkazů (nápověda zkratky)"
+
+msgid "Overlay (icon opens full-screen search)"
+msgstr "Překryv (ikona otevře hledání přes celou obrazovku)"
+
+msgid "Hero (large, with popular searches)"
+msgstr "Hero (velké, s oblíbenými hledáními)"
+
+msgid "%1$d result for “%2$s”"
+msgid_plural "%1$d results for “%2$s”"
+msgstr[0] "%1$d výsledek pro “%2$s”"
+msgstr[1] "%1$d výsledky pro “%2$s”"
+msgstr[2] "%1$d výsledků pro “%2$s”"
