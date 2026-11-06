@@ -4096,3 +4096,19 @@ proti CA z worktree `_ca-wt-identity` s čerstvou DB `ca_e2e` (všech 116 migrac
 - Zbývá: Facebook u veřejné URL (lokální `localhost` Facebook nestáhne, CA přesto hlásí OK s prázdným titulkem:
   zvážit hlášení „Facebook nenašel titulek ani obrázek"), IndexNow 200/202 u veřejného webu, nginx, názvy voleb
   IndexNow v Rank Math / Yoast.
+
+## 41. AI Search (2026-11-06)
+
+Modul `ai-search` (`includes/Modules/AiSearch/`): živé AJAX hledání s nasávačem, 6 návrhů pole (classic, minimal, pill, command, overlay, hero), výpis se 3 rozloženími (list, cards, compact) a stránka výsledků.
+
+- Žádný vlastní index: čte sdílenou RAG databázi AI Asistenta (`ContentIndexer`, `ProductIndexer`); bez ní spadne na `WP_Query`. Každá položka se před vrácením ověří proti živému příspěvku (publikovaný, bez hesla).
+- Vložení: `[uxs_search design=""]`, `[uxs_search_results]`, bloky `uxstudio/ai-search` a `uxstudio/ai-search-results`, volitelně náhrada WP hledání (formuláře + přesměrování `/?s=` na stránku výsledků, ta se jednou sama založí).
+- Předání asistentovi: nové veřejné API widgetu `window.uxstudioAiAssistant.offerHelp({text, reply, replyLabel})` (loader drží frontu do načtení widgetu). Na stránce výsledků se bublina sama otevře s nabídkou pomoci (nastavitelné: vypnuto / tlačítko / automaticky, práh počtu výsledků).
+- REST: `GET uxstudio/v1/ai-search/suggest|search`, veřejné, rate limit 90/min na IP přes `PublicGuard`.
+
+- [x] Modul, REST, renderer, CSS/JS, bloky, API widgetu
+- [x] Ověřeno na lokálním webu (návrhy, výpis, nabídka v bublině)
+- [ ] České překlady řetězců modulu (languages/README.md)
+- [ ] Elementor widget (volitelně)
+- [ ] Znalostní báze (FAQ) jako další zdroj výsledků
+- [ ] PR, verze, CHANGELOG
