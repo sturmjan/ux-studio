@@ -667,6 +667,128 @@ $assert( 'R5: admin token may still write Elementor meta', $raw === RestEndpoint
 Auth::reset( null );
 $assert( 'R5: no token (cookie admin with unfiltered_html) is untouched', $raw === RestEndpointTool::guard_meta( $raw, 'post' ) );
 
+/* ── R6: protected meta sent back unchanged (GET round trip) is dropped, changed is refused ── */
+
+$GLOBALS['uxs_stored'] = array(
+	'post' => array(
+		5 => array(
+			'_elementor_data'      => array( $xss ),
+			'_elementor_edit_mode' => array( 'builder' ),
+			'_acf_changed'         => array( '' ),
+			'_wc_count'            => array( '3' ),
+			'_settings'            => array( array( 'b' => 2, 'a' => '1' ) ),
+			'_multi'               => array( 'x', 'y' ),
+		),
+	),
+);
+$GLOBALS['uxs_mids'] = array(
+	91 => (object) array( 'meta_id' => 91, 'post_id' => 5, 'meta_key' => '_price', 'meta_value' => '10' ),
+	92 => (object) array( 'meta_id' => 92, 'post_id' => 5, 'meta_key' => 'colour', 'meta_value' => 'red' ),
+	93 => (object) array( 'meta_id' => 93, 'post_id' => 5, 'meta_key' => '_elementor_data', 'meta_value' => $xss ),
+	94 => (object) array( 'meta_id' => 94, 'post_id' => 6, 'meta_key' => '_elementor_data', 'meta_value' => $xss ),
+);
+function get_metadata( $type, $id, $key = '', $single = false ) { return $GLOBALS['uxs_stored'][ $type ][ (int) $id ][ $key ] ?? array(); }
+function get_metadata_by_mid( $type, $mid ) { return 'post' === $type ? ( $GLOBALS['uxs_mids'][ (int) $mid ] ?? false ) : false; }
+
+Auth::reset( $tok( array( 'write' ) ) );
+$rt = array( 'hero' => 'Hi', '_elementor_data' => $xss, '_elementor_edit_mode' => 'builder', '_acf_changed' => false, '_wc_count' => 3, '_settings' => array( 'a' => 1, 'b' => '2' ), '_multi' => array( 'x', 'y' ), '_missing' => '' );
+$g  = RestEndpointTool::guard_meta( array( 'meta' => $rt ), 'post', 5 );
+$assert( 'R6: unchanged protected meta from GET is dropped, the rest kept', ! is_wp_error( $g ) && array( 'hero' => 'Hi' ) === $g['meta'], is_wp_error( $g ) ? $g->get_error_message() : json_encode( $g ) );
+$g = RestEndpointTool::guard_meta( array( 'meta' => array( '_elementor_data' => $xss . ' ', '_acf_changed' => true, 'hero' => 'x' ) ), 'post', 5 );
+$assert( 'R6: changed protected meta is refused and the error lists the keys', is_wp_error( $g ) && 403 === $g->get_error_data()['status'] && array( '_elementor_data', '_acf_changed' ) === $g->get_error_data()['keys'] && str_contains( $g->get_error_message(), '_elementor_data, _acf_changed' ) );
+$assert( 'R6: same value on another object is refused', is_wp_error( RestEndpointTool::guard_meta( array( 'meta' => array( '_elementor_data' => $xss ) ), 'post', 6 ) ) );
+$assert( 'R6: without an object id (create) it is refused', is_wp_error( RestEndpointTool::guard_meta( array( 'meta' => array( '_elementor_edit_mode' => 'builder' ) ), 'post', 0 ) ) );
+$assert( 'R6: deleting stored protected meta (null) is refused', is_wp_error( RestEndpointTool::guard_meta( array( 'meta' => array( '_elementor_edit_mode' => null ) ), 'post', 5 ) ) );
+$assert( 'R6: a value missing a row of multi meta is refused', is_wp_error( RestEndpointTool::guard_meta( array( 'meta' => array( '_multi' => array( 'x' ) ) ), 'post', 5 ) ) );
+$assert( 'R6: meta of another type with the same id is not compared', is_wp_error( RestEndpointTool::guard_meta( array( 'meta' => array( '_elementor_edit_mode' => 'builder' ) ), 'term', 5 ) ) );
+
+/* ── R7: WooCommerce meta_data with the id of an existing row ── */
+
+$md = static fn( array $items, int $id = 5 ) => RestEndpointTool::guard_meta( array( 'meta_data' => $items ), 'post', $id );
+$g  = $md( array( array( 'id' => 91, 'key' => 'note', 'value' => 'x' ) ) );
+$assert( 'R7: renaming a protected row (_price) by its id is refused', is_wp_error( $g ) && array( '_price' ) === $g->get_error_data()['keys'] );
+$assert( 'R7: string id works the same', is_wp_error( $md( array( array( 'id' => '91', 'key' => 'note', 'value' => 'x' ) ) ) ) );
+$assert( 'R7: a non numeric id is refused', is_wp_error( $md( array( array( 'id' => '91abc', 'key' => 'note', 'value' => 'x' ) ) ) ) );
+$g = $md( array( array( 'id' => 92, 'key' => 'colour', 'value' => '<script>x</script>blue' ) ) );
+$assert( 'R7: updating an unprotected row by id works (kses-filtered)', ! is_wp_error( $g ) && 'blue' === $g['meta_data'][0]['value'] && 92 === $g['meta_data'][0]['id'] );
+$g = $md( array( array( 'id' => 93, 'key' => '_elementor_data', 'value' => $xss ), array( 'id' => 92, 'key' => 'colour', 'value' => 'red' ) ) );
+$assert( 'R7: an unchanged protected row from GET is dropped', ! is_wp_error( $g ) && 1 === count( $g['meta_data'] ) && 'colour' === $g['meta_data'][0]['key'] );
+$assert( 'R7: a changed protected row is refused', is_wp_error( $md( array( array( 'id' => 93, 'key' => '_elementor_data', 'value' => '[]' ) ) ) ) );
+$assert( 'R7: a protected row of another product is refused', is_wp_error( $md( array( array( 'id' => 94, 'key' => '_elementor_data', 'value' => $xss ) ) ) ) );
+$assert( 'R7: a protected key without id on create is refused', is_wp_error( $md( array( array( 'key' => '_elementor_data', 'value' => $xss ) ), 0 ) ) );
+$g = $md( array( array( 'key' => '_elementor_data', 'value' => $xss ) ) );
+$assert( 'R7: a protected key without id but unchanged is dropped', ! is_wp_error( $g ) && array() === $g['meta_data'] );
+$assert( 'R7: renaming an unprotected row to a protected key is refused', is_wp_error( $md( array( array( 'id' => 92, 'key' => '_price', 'value' => '1' ) ) ) ) );
+$assert( 'R7: ... also when the value equals the row value', is_wp_error( $md( array( array( 'id' => 92, 'key' => '_price', 'value' => 'red' ) ) ) ) );
+
+/* ── R8: WooCommerce downloads[].file of a restricted token ── */
+
+function untrailingslashit( $v ) { return rtrim( (string) $v, '/\\' ); }
+function trailingslashit( $v ) { return untrailingslashit( $v ) . '/'; }
+function wp_upload_dir( $time = null, $create = true ) { return array( 'baseurl' => 'https://shop.test/wp-content/uploads', 'basedir' => '/srv/www/wp-content/uploads' ); }
+function site_url( $p = '' ) { return 'https://shop.test' . $p; }
+function home_url( $p = '' ) { return 'https://shop.test' . $p; }
+
+$approved = static fn( string $url ): bool => 0 === strpos( $url, 'https://shop.test/wp-content/uploads/woocommerce_uploads/' ) || 0 === strpos( $url, 'https://cdn.example.com/files/' ) || 0 === strpos( $url, 'https://shop.test/' );
+$dl       = static fn( $file ) => RestEndpointTool::guard_downloads( array( 'name' => 'P', 'downloads' => array( array( 'name' => 'F', 'file' => $file ) ) ), $approved );
+
+Auth::reset( $tok( array( 'write' ) ) );
+foreach ( array( 'https://shop.test/wp-content/uploads/woocommerce_uploads/2026/11/e-book.pdf', 'https://cdn.example.com/files/a.zip?sig=abc%20def&x=1' ) as $ok ) {
+	$assert( "R8: approved http(s) file passes: $ok", ! is_wp_error( $dl( $ok ) ) );
+}
+$bad_files = array(
+	'/etc/passwd', 'wp-includes/sodium_compat/LICENSE', '../wp-config.php', 'wp-config.php', 'C:\\xampp\\passwords.txt', 'C:/xampp/passwords.txt',
+	'file:///etc/passwd', 'FILE:///etc/passwd', '//cdn.example.com/files/a.zip', 'HTTPS://cdn.example.com/files/a.zip', 'ftp://cdn.example.com/files/a.zip',
+	'[download id="1"]', '[x]https://cdn.example.com/files/a.zip', ' https://cdn.example.com/files/a.zip', "https://cdn.example.com/files/a.zip\n",
+	'https://cdn.example.com/files/../../etc/passwd', 'https://cdn.example.com/files/%2e%2e/%2e%2e/etc/passwd', 'https://cdn.example.com/files/%252e%252e/x',
+	'https://cdn.example.com/files/..%5c..%5cx', 'https://cdn.example.com/files/a%5cb', 'https://cdn.example.com/files/a.zip%00.pdf', 'https://cdn.example.com/files\\..\\x', 'https://user@cdn.example.com/files/a.zip',
+	'https://cdn.example.com/files/a.zip?u=https://shop.test/wp-config.php', 'https://cdn.example.com/files/a.zip?u=https%3A%2F%2Fshop.test%2Fwp-config.php',
+	'https://shop.test/wp-config.php', 'http://shop.test/wp-config.php', 'https://SHOP.test/wp-config.php', 'https://shop.test/wp-content/uploads-old/backup.sql',
+	'https://evil.example.com/x.zip', 'https://cdn.example.com', 'https://cdn.example.com:99999x/files/a',
+);
+foreach ( $bad_files as $bad ) {
+	$assert( 'R8: refused download file ' . json_encode( $bad ), is_wp_error( $dl( $bad ) ) );
+}
+$assert( 'R8: a file that is not a string is refused', is_wp_error( $dl( array( '/etc/passwd' ) ) ) );
+$assert( 'R8: downloads that are not a list are refused', is_wp_error( RestEndpointTool::guard_downloads( array( 'downloads' => '/etc/passwd' ), $approved ) ) );
+$assert( 'R8: an item without a file passes (WooCommerce skips it)', ! is_wp_error( RestEndpointTool::guard_downloads( array( 'downloads' => array( array( 'id' => 'x' ) ) ), $approved ) ) );
+$assert( 'R8: the http variant of the uploads URL passes when approved', ! is_wp_error( RestEndpointTool::guard_downloads( array( 'downloads' => array( array( 'file' => 'http://shop.test/wp-content/uploads/woocommerce_uploads/a.pdf' ) ) ), static fn() => true ) ) );
+$assert( 'R8: a well formed URL outside approved directories is refused', is_wp_error( RestEndpointTool::guard_downloads( array( 'downloads' => array( array( 'file' => 'https://other.example.com/a.zip' ) ) ), static fn() => false ) ) );
+$assert( 'R8: without WooCommerce nothing is approved (fail closed)', false === RestEndpointTool::woo_approved_download( 'https://cdn.example.com/files/a.zip' ) );
+Auth::reset( $tok( array( 'admin' ) ) );
+$assert( 'R8: an admin token may set a local path', ! is_wp_error( $dl( 'wp-includes/sodium_compat/LICENSE' ) ) );
+Auth::reset( null );
+$assert( 'R8: no token (cookie admin) is untouched', ! is_wp_error( $dl( '/etc/passwd' ) ) );
+$assert( 'R8: query filter blocks writes to the approved directories table', '' === RestEndpointTool::block_download_directory_writes( "INSERT INTO `wp_wc_product_download_directories` (`url`, `enabled`) VALUES ('file:///etc/', 1)" ) && '' === RestEndpointTool::block_download_directory_writes( ' update wp_wc_product_download_directories SET enabled = 1' ) );
+$sel = 'SELECT 1 FROM `wp_wc_product_download_directories` WHERE enabled = 1';
+$assert( 'R8: query filter leaves reads and other tables alone', $sel === RestEndpointTool::block_download_directory_writes( $sel ) && 'INSERT INTO wp_posts' === RestEndpointTool::block_download_directory_writes( 'INSERT INTO wp_posts' ) );
+
+/* ── R9: a wrapped route that is not registered gives no tool (fail closed) ── */
+
+use UxStudio\Modules\AiAssistant\Mcp\Dto\RestOperationConfig;
+
+$GLOBALS['uxs_abilities'] = array();
+function wp_register_ability( $name, $args ) { $GLOBALS['uxs_abilities'][ $name ] = $args; }
+function rest_get_server() {
+	return new class() {
+		public function get_routes( $ns ) {
+			return array( '/wc/v3/products/(?P<id>[\d]+)' => array( array( 'methods' => array( 'GET' => true ), 'args' => array( 'context' => array( 'type' => 'string' ) ) ) ) );
+		}
+	};
+}
+$tool = new class() extends RestEndpointTool {
+	protected function get_operations(): array {
+		return array(
+			new RestOperationConfig( 'p-get', 'G', 'G', 'GET', '/products/(?P<id>[\d]+)', 'wc/v3' ),
+			new RestOperationConfig( 'p-put', 'U', 'U', 'PUT', '/products/(?P<id>[\d]+)', 'wc/v3' ),
+			new RestOperationConfig( 'p-list', 'L', 'L', 'GET', '/products', 'wc/v3' ),
+		);
+	}
+};
+$tool->register();
+$assert( 'R9: a matched route is registered with additionalProperties:false', false === ( $GLOBALS['uxs_abilities']['ai-assistant/p-get']['input_schema']['additionalProperties'] ?? null ) );
+$assert( 'R9: an unknown route or method registers no tool', ! isset( $GLOBALS['uxs_abilities']['ai-assistant/p-put'] ) && ! isset( $GLOBALS['uxs_abilities']['ai-assistant/p-list'] ) );
+
 $assert( 'R5: meta_type of posts/pages/media is post', 'post' === RestEndpointTool::meta_type( 'wp/v2', '/pages/(?P<id>[\d]+)' ) && 'post' === RestEndpointTool::meta_type( 'wp/v2', '/posts' ) && 'post' === RestEndpointTool::meta_type( 'wp/v2', '/media/(?P<id>[\d]+)' ) );
 $assert( 'R5: meta_type of categories/tags is term', 'term' === RestEndpointTool::meta_type( 'wp/v2', '/categories' ) && 'term' === RestEndpointTool::meta_type( 'wp/v2', '/tags/(?P<id>[\d]+)' ) );
 $assert( 'R5: meta_type of users/comments', 'user' === RestEndpointTool::meta_type( 'wp/v2', '/users/(?P<id>[\d]+)' ) && 'comment' === RestEndpointTool::meta_type( 'wp/v2', '/comments' ) );

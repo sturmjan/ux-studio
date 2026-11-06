@@ -11,6 +11,7 @@
 
 namespace UxStudio\Modules\AiAssistant\Mcp\Tools;
 
+use UxStudio\Core\Mcp\Auth;
 use UxStudio\Modules\AiAssistant\Mcp\Dto\RestOperationConfig;
 use WP_REST_Request;
 
@@ -37,6 +38,15 @@ abstract class RestEndpointTool {
 
 	protected function register_operation( RestOperationConfig $config ): void {
 		$input_schema = $this->build_input_schema( $config );
+		if ( null === $input_schema ) {
+			// The wrapped route (or its method) is not registered, e.g. WooCommerce is inactive: without
+			// its argument list the schema could not refuse unknown input, so there is no tool.
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- debug only.
+				error_log( sprintf( 'UX Studio MCP: tool %s not registered, route %s %s not found.', $config->operation_id, $config->method, '/' . $config->namespace . $config->route ) );
+			}
+			return;
+		}
 
 		$is_destructive = in_array( $config->method, array( 'DELETE' ), true );
 		$is_readonly    = in_array( $config->method, array( 'GET' ), true );
@@ -70,7 +80,13 @@ abstract class RestEndpointTool {
 		);
 	}
 
-	protected function build_input_schema( RestOperationConfig $config ): array {
+	/**
+	 * JSON schema of a tool from the args of the wrapped route.
+	 *
+	 * @param RestOperationConfig $config Operation.
+	 * @return array<string, mixed>|null Null when the route and method are not registered.
+	 */
+	protected function build_input_schema( RestOperationConfig $config ): ?array {
 		$server = rest_get_server();
 		$routes = $server->get_routes( $config->namespace );
 
@@ -86,7 +102,6 @@ abstract class RestEndpointTool {
 			if ( ! $this->route_matches( $route_pattern, $pattern ) ) {
 				continue;
 			}
-			$matched = true;
 
 			preg_match_all( '/\(\?P<(\w+)>[^)]+\)/', $pattern, $url_params );
 			foreach ( $url_params[1] as $param_name ) {
@@ -101,6 +116,7 @@ abstract class RestEndpointTool {
 				if ( ! isset( $handler['methods'] ) || ! $this->method_matches( $config->method, $handler['methods'] ) ) {
 					continue;
 				}
+				$matched = true;
 
 				if ( ! empty( $handler['args'] ) ) {
 					foreach ( $handler['args'] as $arg_name => $arg_def ) {
@@ -117,6 +133,10 @@ abstract class RestEndpointTool {
 				break;
 			}
 			break;
+		}
+
+		if ( ! $matched ) {
+			return null;
 		}
 
 		foreach ( $config->input_schema_modifications as $key => $modification ) {
@@ -143,9 +163,7 @@ abstract class RestEndpointTool {
 			$schema['required'] = $required;
 		}
 		// The arguments of the wrapped route are known: nothing else may be sent.
-		if ( $matched ) {
-			$schema['additionalProperties'] = false;
-		}
+		$schema['additionalProperties'] = false;
 
 		return $schema;
 	}
@@ -269,17 +287,24 @@ abstract class RestEndpointTool {
 	 *   `_elementor_data` / `_elementor_edit_mode`, which have no sanitize callback and would put a
 	 *   <script> on the frontend) except the plain-text TEXT_META_ALLOWLIST; string values of the
 	 *   other keys are run through wp_kses_post() (CORE_FILTERED_META is left to core).
-	 * - WooCommerce `meta_data`: no protected key, values through wp_kses_post().
+	 * - WooCommerce `meta_data`: no protected key, values through wp_kses_post(). An item with an
+	 *   `id` updates that meta row and renames it to `key`, so the row's current key may not be
+	 *   protected either.
+	 *
+	 * A protected key sent with the value already stored (a client sending back what GET returned)
+	 * is dropped silently, it would write nothing; a changed one refuses the whole request and the
+	 * error lists the keys.
 	 *
 	 * @param array<string, mixed> $input     Body parameters.
 	 * @param string               $meta_type Meta object type (post, term, user, comment).
+	 * @param int                  $object_id Object the request updates (0 when it creates one).
 	 * @return array<string, mixed>|\WP_Error
 	 */
-	public static function guard_meta( array $input, string $meta_type = 'post' ) {
+	public static function guard_meta( array $input, string $meta_type = 'post', int $object_id = 0 ) {
 		if ( ( ! isset( $input['meta'] ) && ! isset( $input['meta_data'] ) ) || current_user_can( 'unfiltered_html' ) ) {
 			return $input;
 		}
-		$denied = new \WP_Error( 'invalid_input', __( 'Protected meta keys cannot be written with this token.', 'ux-studio' ), array( 'status' => 403 ) );
+		$refused = array();
 
 		if ( isset( $input['meta'] ) ) {
 			$meta = is_object( $input['meta'] ) ? get_object_vars( $input['meta'] ) : $input['meta'];
@@ -290,13 +315,19 @@ abstract class RestEndpointTool {
 				$key = (string) $key;
 				if ( 'post' === $meta_type && in_array( $key, self::TEXT_META_ALLOWLIST, true ) ) {
 					if ( null !== $value && ! is_string( $value ) ) {
-						return $denied;
+						$refused[] = $key;
+						continue;
 					}
 					$meta[ $key ] = null === $value ? null : sanitize_text_field( $value );
 					continue;
 				}
 				if ( '' === $key || is_protected_meta( $key, $meta_type ) ) {
-					return $denied;
+					if ( '' !== $key && $object_id > 0 && self::same_meta( $value, self::stored_meta( $meta_type, $object_id, $key ) ) ) {
+						unset( $meta[ $key ] );
+					} else {
+						$refused[] = '' === $key ? '""' : $key;
+					}
+					continue;
 				}
 				if ( ! in_array( $key, self::CORE_FILTERED_META, true ) ) {
 					$meta[ $key ] = self::kses_deep( $value );
@@ -309,17 +340,266 @@ abstract class RestEndpointTool {
 			if ( ! is_array( $input['meta_data'] ) ) {
 				return new \WP_Error( 'invalid_input', __( 'meta_data must be a list of key/value objects.', 'ux-studio' ), array( 'status' => 400 ) );
 			}
-			foreach ( $input['meta_data'] as $i => $meta ) {
-				$key = is_array( $meta ) ? (string) ( $meta['key'] ?? '' ) : '';
-				if ( '' === $key || is_protected_meta( $key, $meta_type ) ) {
-					return $denied;
+			$list = array();
+			foreach ( $input['meta_data'] as $meta ) {
+				$meta = is_object( $meta ) ? get_object_vars( $meta ) : $meta;
+				$key  = is_array( $meta ) && is_scalar( $meta['key'] ?? null ) ? (string) $meta['key'] : '';
+				if ( '' === $key ) {
+					$refused[] = '""';
+					continue;
+				}
+				$row = null;
+				if ( isset( $meta['id'] ) && '' !== $meta['id'] && 0 !== $meta['id'] ) {
+					if ( ! is_numeric( $meta['id'] ) ) {
+						$refused[] = $key;
+						continue;
+					}
+					$found = get_metadata_by_mid( $meta_type, (int) $meta['id'] );
+					$row   = is_object( $found ) ? $found : null;
+					if ( $row && (string) $row->meta_key !== $key && is_protected_meta( (string) $row->meta_key, $meta_type ) ) {
+						// Would rename (and overwrite) a protected row such as _price or _downloadable_files.
+						$refused[] = (string) $row->meta_key;
+						continue;
+					}
+				}
+				if ( is_protected_meta( $key, $meta_type ) ) {
+					$value = $meta['value'] ?? null;
+					if ( $row ) {
+						$owner = (int) ( $row->{$meta_type . '_id'} ?? 0 );
+						$same  = $object_id > 0 && $owner === $object_id && (string) $row->meta_key === $key
+							&& self::same_meta( $value, array( $row->meta_value ) );
+					} else {
+						$same = $object_id > 0 && self::same_meta( $value, self::stored_meta( $meta_type, $object_id, $key ) );
+					}
+					if ( ! $same ) {
+						$refused[] = $key;
+					}
+					continue;
 				}
 				if ( array_key_exists( 'value', $meta ) ) {
-					$input['meta_data'][ $i ]['value'] = self::kses_deep( $meta['value'] );
+					$meta['value'] = self::kses_deep( $meta['value'] );
 				}
+				$list[] = $meta;
+			}
+			$input['meta_data'] = $list;
+		}
+
+		if ( $refused ) {
+			$refused = array_values( array_unique( $refused ) );
+			return new \WP_Error(
+				'invalid_input',
+				sprintf(
+					/* translators: %s: comma separated meta keys. */
+					__( 'Protected meta keys cannot be changed with this token: %s. Leave them out or send the value that is already stored.', 'ux-studio' ),
+					implode( ', ', $refused )
+				),
+				array(
+					'status' => 403,
+					'keys'   => $refused,
+				)
+			);
+		}
+		return $input;
+	}
+
+	/**
+	 * Stored values of a meta key (every row, unserialized).
+	 *
+	 * @param string $meta_type Meta object type.
+	 * @param int    $object_id Object ID.
+	 * @param string $key       Meta key.
+	 * @return array<int, mixed>
+	 */
+	private static function stored_meta( string $meta_type, int $object_id, string $key ): array {
+		$rows = get_metadata( $meta_type, $object_id, $key, false );
+		return is_array( $rows ) ? array_values( $rows ) : array();
+	}
+
+	/**
+	 * Is a submitted meta value the one already stored? Compared the way REST returns it: one row
+	 * as the value itself, several rows as a list, no row as null / '' / [] / false; numbers and
+	 * booleans as the strings the database holds.
+	 *
+	 * @param mixed             $value Submitted value.
+	 * @param array<int, mixed> $rows  Stored rows.
+	 */
+	public static function same_meta( $value, array $rows ): bool {
+		if ( ! $rows ) {
+			return null === $value || '' === $value || array() === $value || false === $value;
+		}
+		if ( null === $value ) {
+			return false;
+		}
+		if ( is_bool( $value ) && 1 === count( $rows ) && is_scalar( $rows[0] ) ) {
+			$stored = strtolower( trim( (string) $rows[0] ) );
+			return ! in_array( $stored, array( '', '0', 'false', 'no', 'off' ), true ) === $value;
+		}
+		$norm = self::normalize_meta( $value );
+		if ( 1 === count( $rows ) && self::normalize_meta( $rows[0] ) === $norm ) {
+			return true;
+		}
+		return is_array( $value ) && array_is_list( $value ) && self::normalize_meta( $rows ) === $norm;
+	}
+
+	/**
+	 * Comparable form of a meta value: objects as arrays, keyed arrays sorted, scalars as strings.
+	 *
+	 * @param mixed $value Value.
+	 * @return mixed
+	 */
+	private static function normalize_meta( $value ) {
+		if ( is_object( $value ) ) {
+			$value = get_object_vars( $value );
+		}
+		if ( is_array( $value ) ) {
+			$value = array_map( array( self::class, 'normalize_meta' ), $value );
+			if ( ! array_is_list( $value ) ) {
+				ksort( $value, SORT_STRING );
+			}
+			return $value;
+		}
+		if ( is_bool( $value ) ) {
+			return $value ? '1' : '';
+		}
+		if ( null === $value ) {
+			return '';
+		}
+		return is_scalar( $value ) ? (string) $value : $value;
+	}
+
+	/**
+	 * WooCommerce `downloads` of a token without the admin scope. The token acts as an
+	 * administrator, and for one WooCommerce approves (and enables) the directory of any new
+	 * download file, so `downloads[].file` could otherwise publish /etc/passwd, wp-config.php or a
+	 * backup as a free download. Every file must therefore be:
+	 *
+	 * - an absolute http(s) URL (lowercase scheme), never a local path, file://, //host or a
+	 *   `[shortcode]`, without whitespace, control characters, backslashes, brackets, user info or
+	 *   `..` (also percent-encoded);
+	 * - inside an approved and enabled download directory already (Approved Download Directories);
+	 * - when it is a URL of this site (WooCommerce serves those from the disk), inside the uploads
+	 *   directory, and the site URL may not appear again later in it (WooCommerce str_replace()s it).
+	 *
+	 * @param array<string, mixed> $input       Body parameters.
+	 * @param callable|null        $is_approved fn( string $url ): bool, defaults to WooCommerce.
+	 * @return array<string, mixed>|\WP_Error
+	 */
+	public static function guard_downloads( array $input, ?callable $is_approved = null ) {
+		if ( ! array_key_exists( 'downloads', $input ) || ! Auth::restricted() ) {
+			return $input;
+		}
+		$list = is_object( $input['downloads'] ) ? get_object_vars( $input['downloads'] ) : $input['downloads'];
+		if ( ! is_array( $list ) ) {
+			return new \WP_Error( 'invalid_input', __( 'downloads must be a list of files.', 'ux-studio' ), array( 'status' => 400 ) );
+		}
+		$is_approved = $is_approved ?? array( self::class, 'woo_approved_download' );
+		foreach ( $list as $item ) {
+			$item = is_object( $item ) ? get_object_vars( $item ) : $item;
+			if ( ! is_array( $item ) ) {
+				return new \WP_Error( 'invalid_input', __( 'downloads must be a list of files.', 'ux-studio' ), array( 'status' => 400 ) );
+			}
+			$file = $item['file'] ?? '';
+			if ( empty( $file ) ) {
+				continue; // WooCommerce skips an item without a file.
+			}
+			if ( ! is_string( $file ) || ! self::download_url_allowed( $file ) || ! $is_approved( $file ) ) {
+				return new \WP_Error(
+					'invalid_input',
+					sprintf(
+						/* translators: %s: download file. */
+						__( 'The download file %s is refused for this token: it must be an http(s) URL inside an already approved download directory (WooCommerce > Settings > Products > Approved download directories). Local paths need the admin scope.', 'ux-studio' ),
+						is_string( $file ) ? $file : gettype( $file )
+					),
+					array( 'status' => 403 )
+				);
 			}
 		}
 		return $input;
+	}
+
+	/**
+	 * The shape checks of guard_downloads() (no database).
+	 *
+	 * @param string $file Download file.
+	 */
+	public static function download_url_allowed( string $file ): bool {
+		$bad = '[\x00-\x20\x7f\\\\\[\]@]';
+		if ( strlen( $file ) > 2048 || ! preg_match( '~^https?://[A-Za-z0-9.-]+(?::\d+)?/~', $file ) || preg_match( '~' . $bad . '~', $file ) ) {
+			return false;
+		}
+		$decoded = $file;
+		for ( $i = 0; $i < 5; $i++ ) {
+			$next = rawurldecode( $decoded );
+			if ( $next === $decoded ) {
+				break;
+			}
+			$decoded = $next;
+		}
+		// Decoded (WooCommerce and the web server decode it): no traversal, backslash or control character.
+		if ( false !== strpos( $decoded, '..' ) || preg_match( '~[\x00-\x1f\x7f\\\\]~', $decoded ) ) {
+			return false;
+		}
+
+		$uploads = function_exists( 'wp_upload_dir' ) ? (string) ( wp_upload_dir( null, false )['baseurl'] ?? '' ) : '';
+		$own     = array( $uploads );
+		foreach ( array( 'site_url', 'network_site_url', 'home_url' ) as $fn ) {
+			if ( function_exists( $fn ) ) {
+				$own[] = (string) $fn( '/' );
+			}
+		}
+		$is_local = false;
+		foreach ( $own as $url ) {
+			$bare = preg_replace( '~^https?:~i', '', untrailingslashit( $url ) );
+			if ( '' === $bare || null === $bare ) {
+				continue;
+			}
+			foreach ( array( 'https:', 'http:' ) as $scheme ) {
+				// WooCommerce replaces the site URL anywhere in the string, a second copy (e.g. in
+				// the query) would turn a remote URL into a path on the disk.
+				if ( false !== stripos( $file, $scheme . $bare, 1 ) || false !== stripos( $decoded, $scheme . $bare, 1 ) ) {
+					return false;
+				}
+			}
+			$is_local = $is_local || 0 === stripos( (string) preg_replace( '~^https?:~', '', $file ), $bare );
+		}
+		if ( $is_local ) {
+			// A URL of this site is read from the disk: only below the uploads directory.
+			$base = preg_replace( '~^https?:~i', '', untrailingslashit( $uploads ) );
+			return '' !== (string) $base && 0 === strpos( (string) preg_replace( '~^https?:~', '', $file ), $base . '/' );
+		}
+		return true;
+	}
+
+	/**
+	 * Is the URL inside an approved and enabled WooCommerce download directory? False when the
+	 * feature is not available (fail closed).
+	 *
+	 * @param string $file Download file.
+	 */
+	public static function woo_approved_download( string $file ): bool {
+		$class = 'Automattic\\WooCommerce\\Internal\\ProductDownloads\\ApprovedDirectories\\Register';
+		if ( ! function_exists( 'wc_get_container' ) || ! class_exists( $class ) ) {
+			return false;
+		}
+		try {
+			return (bool) wc_get_container()->get( $class )->is_valid_path( $file );
+		} catch ( \Throwable $e ) {
+			return false;
+		}
+	}
+
+	/**
+	 * `query` filter while a restricted token runs a wrapped route: WooCommerce may not add, enable
+	 * or change approved download directories on its behalf (it does so for any administrator).
+	 *
+	 * @param mixed $query SQL.
+	 * @return mixed
+	 */
+	public static function block_download_directory_writes( $query ) {
+		if ( is_string( $query ) && preg_match( '~^\s*(?:INSERT|UPDATE|REPLACE|DELETE)\b~i', $query ) && false !== stripos( $query, 'wc_product_download_directories' ) ) {
+			return '';
+		}
+		return $query;
 	}
 
 	/**
@@ -350,7 +630,13 @@ abstract class RestEndpointTool {
 		if ( is_wp_error( $built ) ) {
 			return $built;
 		}
-		$input = self::guard_meta( $built['input'], self::meta_type( $config->namespace, $config->route ) );
+		// build_route() checked the id against the route regex and `^[A-Za-z0-9_-]+$`.
+		$object_id = array_key_exists( 'id', self::url_params( $config->route ) ) && ctype_digit( (string) $input['id'] ) ? (int) $input['id'] : 0;
+		$input     = self::guard_meta( $built['input'], self::meta_type( $config->namespace, $config->route ), $object_id );
+		if ( is_wp_error( $input ) ) {
+			return $input;
+		}
+		$input = self::guard_downloads( $input );
 		if ( is_wp_error( $input ) ) {
 			return $input;
 		}
@@ -365,8 +651,18 @@ abstract class RestEndpointTool {
 			$request->set_query_params( $input );
 		}
 
-		$response = rest_do_request( $request );
-		$data     = $response->get_data();
+		$restricted = Auth::restricted();
+		if ( $restricted ) {
+			add_filter( 'query', array( self::class, 'block_download_directory_writes' ), PHP_INT_MAX );
+		}
+		try {
+			$response = rest_do_request( $request );
+		} finally {
+			if ( $restricted ) {
+				remove_filter( 'query', array( self::class, 'block_download_directory_writes' ), PHP_INT_MAX );
+			}
+		}
+		$data = $response->get_data();
 
 		return array(
 			array(
