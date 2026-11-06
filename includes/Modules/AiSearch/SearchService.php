@@ -303,8 +303,13 @@ final class SearchService {
 		global $wpdb;
 		$table = "{$wpdb->prefix}uxstudio_ai_assistant_product_index";
 
+		// One or two letters match inside almost any word: ignore them unless nothing longer was typed.
+		$terms = self::terms( $q );
+		$long  = array_values( array_filter( $terms, static fn( string $t ): bool => mb_strlen( $t ) >= 3 ) );
+		$terms = $long ?: $terms;
+
 		$needles = array();
-		foreach ( array_slice( self::terms( $q ), 0, 6 ) as $term ) {
+		foreach ( array_slice( $terms, 0, 6 ) as $term ) {
 			$stem      = ContentIndexer::extract_stems( array( $term ) )[0] ?? $term;
 			$needles[] = $stem;
 		}

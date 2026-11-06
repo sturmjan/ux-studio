@@ -87,7 +87,15 @@ final class RestController {
 			return $limited;
 		}
 
-		$q     = (string) $request['q'];
+		$q = (string) $request['q'];
+		if ( mb_strlen( $q ) < 2 ) {
+			return $this->respond(
+				array(
+					'html'  => '',
+					'count' => 0,
+				)
+			);
+		}
 		$items = SearchService::suggest( $q, $this->module->suggest_limit() );
 
 		return $this->respond(

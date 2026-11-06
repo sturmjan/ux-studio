@@ -167,7 +167,7 @@
                         return;
                     }
                     list.innerHTML = data.html;
-                    setOpen(true);
+                    setOpen(!!data.html);
                 })
                 .catch(function (err) {
                     if (err && err.name === 'AbortError') {
@@ -473,7 +473,10 @@
                 already = window.sessionStorage.getItem(OFFERED_KEY) === q;
             } catch (e) { /* storage blocked */ }
 
-            if (allowAuto && cfg.ai.mode === 'auto' && q && withinThreshold && !already) {
+            // On phones the chat opens full screen and would hide the results: leave it to the button there.
+            var roomy = !window.matchMedia || window.matchMedia('(min-width: 769px)').matches;
+
+            if (allowAuto && cfg.ai.mode === 'auto' && q && withinThreshold && !already && roomy) {
                 try {
                     window.sessionStorage.setItem(OFFERED_KEY, q);
                 } catch (e) { /* storage blocked */ }
