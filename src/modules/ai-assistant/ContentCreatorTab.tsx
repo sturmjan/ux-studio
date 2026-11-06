@@ -238,7 +238,7 @@ function PostGeneratorSection(): JSX.Element {
 					<div
 						className="uxs-form__help"
 						style={ { border: '1px solid var(--uxs-border, #e2e2e2)', borderRadius: 4, padding: 'var(--uxs-sp-3)', maxHeight: 300, overflow: 'auto' } }
-						// eslint-disable-next-line react/no-danger -- AI-generated HTML preview, sanitised server-side via wp_kses_post() on save.
+						// eslint-disable-next-line react/no-danger -- AI-generated HTML preview, already passed through wp_kses_post() by the generate endpoint (same as on save).
 						dangerouslySetInnerHTML={ { __html: result.content ?? '' } }
 					/>
 
@@ -342,7 +342,7 @@ function WooGeneratorSection(): JSX.Element {
 					<div
 						className="uxs-form__help"
 						style={ { border: '1px solid var(--uxs-border, #e2e2e2)', borderRadius: 4, padding: 'var(--uxs-sp-3)', maxHeight: 300, overflow: 'auto' } }
-						// eslint-disable-next-line react/no-danger -- AI-generated HTML preview, copy target is the WooCommerce editor which sanitises on save.
+						// eslint-disable-next-line react/no-danger -- AI-generated HTML preview, already passed through wp_kses_post() by the generate-woo endpoint.
 						dangerouslySetInnerHTML={ { __html: result.content ?? '' } }
 					/>
 					<p className="uxs-form__help">{ __( 'Copy the text above into the product description field.', 'ux-studio' ) }</p>
