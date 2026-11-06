@@ -473,12 +473,20 @@ abstract class RestEndpointTool {
 	 * download file, so `downloads[].file` could otherwise publish /etc/passwd, wp-config.php or a
 	 * backup as a free download. Every file must therefore be:
 	 *
-	 * - an absolute http(s) URL (lowercase scheme), never a local path, file://, //host or a
-	 *   `[shortcode]`, without whitespace, control characters, backslashes, brackets, user info or
-	 *   `..` (also percent-encoded);
-	 * - inside an approved and enabled download directory already (Approved Download Directories);
+	 * - an absolute http(s) URL, never a local path, file://, //host or a `[shortcode]`, without
+	 *   whitespace, control characters, backslashes, brackets, user info or a `.` / `..` path
+	 *   segment (also percent-encoded);
+	 * - canonical: what WooCommerce stores (WC_Product_Download::set_file() runs esc_url_raw(),
+	 *   which strips e.g. ^ { } " < > `, so `/.^./` would be saved as `/../`) must be the very
+	 *   string that was checked. The scheme and host are lower-cased (an IDN host converted to
+	 *   punycode) and the canonical URL is what gets sent on;
+	 * - inside an approved and enabled download directory already, with the Approved Download
+	 *   Directories system enabled (in its disabled mode WooCommerce checks nothing);
 	 * - when it is a URL of this site (WooCommerce serves those from the disk), inside the uploads
 	 *   directory, and the site URL may not appear again later in it (WooCommerce str_replace()s it).
+	 *
+	 * The value that reaches set_file() after the woocommerce_file_download_path filter is checked
+	 * once more while the request runs (download_path_filter()).
 	 *
 	 * @param array<string, mixed> $input       Body parameters.
 	 * @param callable|null        $is_approved fn( string $url ): bool, defaults to WooCommerce.
@@ -493,38 +501,138 @@ abstract class RestEndpointTool {
 			return new \WP_Error( 'invalid_input', __( 'downloads must be a list of files.', 'ux-studio' ), array( 'status' => 400 ) );
 		}
 		$is_approved = $is_approved ?? array( self::class, 'woo_approved_download' );
-		foreach ( $list as $item ) {
+		$out         = array();
+		foreach ( $list as $key => $item ) {
 			$item = is_object( $item ) ? get_object_vars( $item ) : $item;
 			if ( ! is_array( $item ) ) {
 				return new \WP_Error( 'invalid_input', __( 'downloads must be a list of files.', 'ux-studio' ), array( 'status' => 400 ) );
 			}
 			$file = $item['file'] ?? '';
 			if ( empty( $file ) ) {
+				$out[ $key ] = $item;
 				continue; // WooCommerce skips an item without a file.
 			}
-			if ( ! is_string( $file ) || ! self::download_url_allowed( $file ) || ! $is_approved( $file ) ) {
-				return new \WP_Error(
-					'invalid_input',
-					sprintf(
-						/* translators: %s: download file. */
-						__( 'The download file %s is refused for this token: it must be an http(s) URL inside an already approved download directory (WooCommerce > Settings > Products > Approved download directories). Local paths need the admin scope.', 'ux-studio' ),
-						is_string( $file ) ? $file : gettype( $file )
-					),
-					array( 'status' => 403 )
-				);
+			$canonical = is_string( $file ) ? self::download_file_allowed( $file, $is_approved ) : null;
+			if ( null === $canonical ) {
+				return self::download_refused( $file );
 			}
+			$item['file'] = $canonical;
+			$out[ $key ]  = $item;
 		}
+		$input['downloads'] = $out;
 		return $input;
 	}
 
 	/**
-	 * The shape checks of guard_downloads() (no database).
+	 * Canonical form of an allowed download file (shape and approved directory), null if refused.
+	 *
+	 * @param string        $file        Download file.
+	 * @param callable|null $is_approved fn( string $url ): bool, defaults to WooCommerce.
+	 */
+	public static function download_file_allowed( string $file, ?callable $is_approved = null ): ?string {
+		$canonical = self::canonical_download_url( $file );
+		if ( null === $canonical || ! self::download_url_allowed( $canonical ) ) {
+			return null;
+		}
+		$is_approved = $is_approved ?? array( self::class, 'woo_approved_download' );
+		return $is_approved( $canonical ) ? $canonical : null;
+	}
+
+	/**
+	 * The 403 of a refused download file.
+	 *
+	 * @param mixed $file Download file.
+	 */
+	private static function download_refused( $file ): \WP_Error {
+		return new \WP_Error(
+			'invalid_input',
+			sprintf(
+				/* translators: %s: download file. */
+				__( 'The download file %s is refused for this token: it must be an http(s) URL inside an already approved download directory (WooCommerce > Settings > Products > Approved download directories). Local paths need the admin scope.', 'ux-studio' ),
+				is_string( $file ) ? $file : gettype( $file )
+			),
+			array( 'status' => 403 )
+		);
+	}
+
+	/**
+	 * `woocommerce_file_download_path`, last, while a restricted token runs a wrapped route: the
+	 * value WooCommerce is about to store must pass the same checks (another filter may have
+	 * changed what guard_downloads() saw). Refused: the save is aborted.
+	 *
+	 * @param mixed $path Download file.
+	 * @return mixed
+	 * @throws \Exception When the file is refused (WC_Data_Exception if WooCommerce is loaded).
+	 */
+	public static function download_path_filter( $path ) {
+		if ( ! Auth::restricted() || ( is_string( $path ) && '' === $path ) ) {
+			return $path;
+		}
+		$canonical = is_string( $path ) ? self::download_file_allowed( $path ) : null;
+		if ( null !== $canonical && $canonical === $path ) {
+			return $path;
+		}
+		$message = self::download_refused( $path )->get_error_message();
+		if ( class_exists( 'WC_Data_Exception' ) ) {
+			throw new \WC_Data_Exception( 'uxstudio_download_refused', $message, 403 ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- REST error message.
+		}
+		throw new \Exception( $message ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- REST error message.
+	}
+
+	/**
+	 * The canonical form of a download URL, or null when it is not an absolute http(s) URL or
+	 * WooCommerce would store something else than it (esc_url_raw() in set_file()).
 	 *
 	 * @param string $file Download file.
 	 */
+	public static function canonical_download_url( string $file ): ?string {
+		if ( strlen( $file ) > 2048 || preg_match( '~[\x00-\x20\x7f\\\\]~', $file ) ) {
+			return null;
+		}
+		if ( ! preg_match( '~^([A-Za-z][A-Za-z0-9+.-]*)://([^/?#]*)(/.*)$~sD', $file, $m ) ) {
+			return null;
+		}
+		$scheme = strtolower( $m[1] );
+		if ( 'http' !== $scheme && 'https' !== $scheme ) {
+			return null;
+		}
+		if ( ! preg_match( '~^([^:]+)(?::(\d{1,5}))?$~D', $m[2], $authority ) ) {
+			return null;
+		}
+		$host = $authority[1];
+		if ( preg_match( '~[^\x21-\x7e]~', $host ) ) {
+			// IDN host: punycode, the form the approved directories and the HTTP client use.
+			if ( ! function_exists( 'idn_to_ascii' ) ) {
+				return null;
+			}
+			$host = idn_to_ascii( $host, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46 );
+			if ( ! is_string( $host ) ) {
+				return null;
+			}
+		}
+		$host = strtolower( $host );
+		if ( ! preg_match( '~^[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?$~D', $host ) || false !== strpos( $host, '..' ) ) {
+			return null;
+		}
+		$port = isset( $authority[2] ) && '' !== $authority[2] ? (int) $authority[2] : null;
+		if ( null !== $port && ( $port < 1 || $port > 65535 ) ) {
+			return null;
+		}
+		$canonical = $scheme . '://' . $host . ( null !== $port ? ':' . $port : '' ) . $m[3];
+		if ( ! function_exists( 'esc_url_raw' ) || esc_url_raw( $canonical ) !== $canonical ) {
+			return null;
+		}
+		return $canonical;
+	}
+
+	/**
+	 * The shape checks of guard_downloads() on a canonical URL (no database).
+	 *
+	 * @param string $file Download file (canonical_download_url()).
+	 */
 	public static function download_url_allowed( string $file ): bool {
 		$bad = '[\x00-\x20\x7f\\\\\[\]@]';
-		if ( strlen( $file ) > 2048 || ! preg_match( '~^https?://[A-Za-z0-9.-]+(?::\d+)?/~', $file ) || preg_match( '~' . $bad . '~', $file ) ) {
+		if ( strlen( $file ) > 2048 || ! preg_match( '~^https?://[a-z0-9.-]+(?::\d+)?/~', $file ) || preg_match( '~' . $bad . '~', $file ) ) {
 			return false;
 		}
 		$decoded = $file;
@@ -535,8 +643,10 @@ abstract class RestEndpointTool {
 			}
 			$decoded = $next;
 		}
-		// Decoded (WooCommerce and the web server decode it): no traversal, backslash or control character.
-		if ( false !== strpos( $decoded, '..' ) || preg_match( '~[\x00-\x1f\x7f\\\\]~', $decoded ) ) {
+		// Decoded (WooCommerce and the web server decode it): no dot segment (a segment of dots and
+		// spaces only, as Windows trims `.. ` and `...` to `..`), backslash or control character.
+		// `file..zip` is a file name and passes.
+		if ( preg_match( '~(?:^|/)(?=[. ]*\.)[. ]+(?:$|[/?#;])~', $decoded ) || preg_match( '~[\x00-\x1f\x7f\\\\]~', $decoded ) ) {
 			return false;
 		}
 
@@ -582,7 +692,13 @@ abstract class RestEndpointTool {
 			return false;
 		}
 		try {
-			return (bool) wc_get_container()->get( $class )->is_valid_path( $file );
+			$register = wc_get_container()->get( $class );
+			// Only the enabled system refuses files outside the list (in the disabled mode an
+			// administrator - which the token acts as - may store any file).
+			if ( $class::MODE_ENABLED !== $register->get_mode() ) {
+				return false;
+			}
+			return (bool) $register->is_valid_path( $file );
 		} catch ( \Throwable $e ) {
 			return false;
 		}
@@ -654,12 +770,14 @@ abstract class RestEndpointTool {
 		$restricted = Auth::restricted();
 		if ( $restricted ) {
 			add_filter( 'query', array( self::class, 'block_download_directory_writes' ), PHP_INT_MAX );
+			add_filter( 'woocommerce_file_download_path', array( self::class, 'download_path_filter' ), PHP_INT_MAX );
 		}
 		try {
 			$response = rest_do_request( $request );
 		} finally {
 			if ( $restricted ) {
 				remove_filter( 'query', array( self::class, 'block_download_directory_writes' ), PHP_INT_MAX );
+				remove_filter( 'woocommerce_file_download_path', array( self::class, 'download_path_filter' ), PHP_INT_MAX );
 			}
 		}
 		$data = $response->get_data();

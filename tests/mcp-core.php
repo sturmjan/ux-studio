@@ -622,7 +622,28 @@ $assert( 'R1: limit_caps leaves a user without unfiltered_html alone', array( 'e
 use UxStudio\Modules\AiAssistant\Mcp\Tools\RestEndpointTool;
 
 function wp_kses_post( $v ) { return preg_replace( '/\s+on\w+\s*=\s*("[^"]*"|\'[^\']*\'|\S+)/i', '', strip_tags( preg_replace( '#<script\b[^>]*>.*?</script>#is', '', (string) $v ), '<p><a><strong><em><img>' ) ); }
-function esc_url_raw( $v ) { return preg_match( '#^(https?:)?//|^/(?!/)|^\#|^mailto:#i', (string) $v ) ? (string) $v : ''; }
+// Mirrors WordPress esc_url( $url, null, 'db' ): strips characters outside its set, %0d/%0a, `;//`, unknown protocols.
+function esc_url_raw( $v ) {
+	$url = str_replace( ' ', '%20', ltrim( (string) $v ) );
+	$url = preg_replace( '|[^a-z0-9-~+_.?#=!&;,/:%@$\|*\'()\[\]\x80-\xff]|i', '', $url );
+	if ( '' === $url ) {
+		return $url;
+	}
+	if ( 0 !== stripos( $url, 'mailto:' ) ) {
+		do {
+			$before = $url;
+			$url    = str_replace( array( '%0d', '%0a', '%0D', '%0A' ), '', $url );
+		} while ( $before !== $url );
+	}
+	$url = str_replace( ';//', '://', $url );
+	if ( ! str_contains( $url, ':' ) && ! in_array( $url[0], array( '/', '#', '?' ), true ) ) {
+		$url = 'http://' . $url;
+	}
+	if ( '/' === $url[0] || '#' === $url[0] ) {
+		return $url;
+	}
+	return preg_match( '#^(https?|ftps?|mailto):#i', $url ) ? $url : '';
+}
 function is_protected_meta( $key, $type = '' ) { return '_' === substr( (string) $key, 0, 1 ); }
 
 Auth::reset( $tok( array( 'write' ) ) );
@@ -738,7 +759,7 @@ foreach ( array( 'https://shop.test/wp-content/uploads/woocommerce_uploads/2026/
 }
 $bad_files = array(
 	'/etc/passwd', 'wp-includes/sodium_compat/LICENSE', '../wp-config.php', 'wp-config.php', 'C:\\xampp\\passwords.txt', 'C:/xampp/passwords.txt',
-	'file:///etc/passwd', 'FILE:///etc/passwd', '//cdn.example.com/files/a.zip', 'HTTPS://cdn.example.com/files/a.zip', 'ftp://cdn.example.com/files/a.zip',
+	'file:///etc/passwd', 'FILE:///etc/passwd', '//cdn.example.com/files/a.zip', 'ftp://cdn.example.com/files/a.zip',
 	'[download id="1"]', '[x]https://cdn.example.com/files/a.zip', ' https://cdn.example.com/files/a.zip', "https://cdn.example.com/files/a.zip\n",
 	'https://cdn.example.com/files/../../etc/passwd', 'https://cdn.example.com/files/%2e%2e/%2e%2e/etc/passwd', 'https://cdn.example.com/files/%252e%252e/x',
 	'https://cdn.example.com/files/..%5c..%5cx', 'https://cdn.example.com/files/a%5cb', 'https://cdn.example.com/files/a.zip%00.pdf', 'https://cdn.example.com/files\\..\\x', 'https://user@cdn.example.com/files/a.zip',
@@ -755,6 +776,82 @@ $assert( 'R8: an item without a file passes (WooCommerce skips it)', ! is_wp_err
 $assert( 'R8: the http variant of the uploads URL passes when approved', ! is_wp_error( RestEndpointTool::guard_downloads( array( 'downloads' => array( array( 'file' => 'http://shop.test/wp-content/uploads/woocommerce_uploads/a.pdf' ) ) ), static fn() => true ) ) );
 $assert( 'R8: a well formed URL outside approved directories is refused', is_wp_error( RestEndpointTool::guard_downloads( array( 'downloads' => array( array( 'file' => 'https://other.example.com/a.zip' ) ) ), static fn() => false ) ) );
 $assert( 'R8: without WooCommerce nothing is approved (fail closed)', false === RestEndpointTool::woo_approved_download( 'https://cdn.example.com/files/a.zip' ) );
+
+/* ── R10: the value WooCommerce stores (esc_url_raw() in set_file()) is the one checked ── */
+
+$seen   = array();
+$spy    = static function ( string $url ) use ( $approved, &$seen ): bool {
+	$seen[] = $url;
+	return $approved( $url );
+};
+$dl_spy = static fn( $file ) => RestEndpointTool::guard_downloads( array( 'downloads' => array( array( 'name' => 'F', 'file' => $file ) ) ), $spy );
+$stripped = array(
+	'https://shop.test/wp-content/uploads/woocommerce_uploads/.^./.^./x.zip',
+	'https://shop.test/wp-content/uploads/woocommerce_uploads/.{./.}./wp-config.php',
+	'https://shop.test/wp-content/uploads/woocommerce_uploads/."./x.zip',
+	'https://shop.test/wp-content/uploads/woocommerce_uploads/.<./.>./x.zip',
+	'https://shop.test/wp-content/uploads/woocommerce_uploads/.`./x.zip',
+	'https://shop.test/wp-content/uploads/woocommerce_uploads/.%0a./.%0D./x.zip',
+	'https://shop.test/wp-content/uploads/woocommerce_uploads/.%%0a0a./x.zip',
+	'https://cdn.example.com/files/a.zip?x=1;//shop.test/wp-config.php',
+	'https://cdn.example.com/files/a^b.zip',
+);
+foreach ( $stripped as $bad ) {
+	$seen = array();
+	$assert( 'R10: refused, esc_url_raw() would store another URL: ' . $bad, is_wp_error( $dl_spy( $bad ) ) && esc_url_raw( $bad ) !== $bad && array() === $seen );
+}
+$assert( 'R10: the ^ trick really turns into traversal in esc_url_raw()', 'https://shop.test/wp-content/uploads/woocommerce_uploads/../../x.zip' === esc_url_raw( $stripped[0] ) );
+foreach ( array( '/.../', '/.. /', '/..%20/', '/.%20./', '/%2e%2e%2e/', '/./', '/../', '/..?x=', '/..;x/', '/..#' ) as $seg ) {
+	$assert( 'R10: dot segment refused: ' . $seg, null === RestEndpointTool::download_file_allowed( 'https://cdn.example.com/files' . $seg . 'a.zip', static fn() => true ) );
+}
+foreach ( array( '/...a.zip', '/.a.zip', '/a.zip.' ) as $name ) {
+	$assert( 'R10: dots in a file name pass: ' . $name, 'https://cdn.example.com/files' . $name === RestEndpointTool::download_file_allowed( 'https://cdn.example.com/files' . $name, static fn() => true ) );
+}
+$g = $dl( 'https://cdn.example.com/files/report..final.zip' );
+$assert( 'R10: `..` inside a file name passes', ! is_wp_error( $g ) && 'https://cdn.example.com/files/report..final.zip' === $g['downloads'][0]['file'] );
+$g = $dl( 'HTTPS://CDN.Example.com/files/A.zip' );
+$assert( 'R10: scheme and host are lower-cased and sent on canonical', ! is_wp_error( $g ) && 'https://cdn.example.com/files/A.zip' === $g['downloads'][0]['file'], is_wp_error( $g ) ? $g->get_error_message() : json_encode( $g ) );
+$seen = array();
+$g    = RestEndpointTool::guard_downloads( array( 'downloads' => array( array( 'file' => 'https://čdn.example.com/files/a.zip' ) ) ), static function ( string $u ) use ( &$seen ): bool { $seen[] = $u; return true; } );
+$puny = function_exists( 'idn_to_ascii' ) ? 'https://' . idn_to_ascii( 'čdn.example.com', IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46 ) . '/files/a.zip' : null;
+$assert( 'R10: an IDN host is checked and sent as punycode', null === $puny ? is_wp_error( $g ) : ( ! is_wp_error( $g ) && $puny === $g['downloads'][0]['file'] && array( $puny ) === $seen ) );
+$assert( 'R10: the approved check sees the canonical URL', ( $seen = array() ) === array() && ! is_wp_error( $dl_spy( 'HTTPS://cdn.example.com/files/a.zip' ) ) && array( 'https://cdn.example.com/files/a.zip' ) === $seen );
+foreach ( array( 'file:///srv/www/wp-content/uploads/woocommerce_uploads/a.zip', 'file://localhost/etc/passwd', 'https://cdn.example.com:0/files/a.zip', 'https://cdn.example.com:65536/files/a.zip', 'https://-cdn.example.com/files/a.zip', 'https://cdn..example.com/files/a.zip', 'https:/cdn.example.com/files/a.zip', 'https://cdn.example.com?/files' ) as $bad ) {
+	$assert( 'R10: refused even when approved: ' . $bad, is_wp_error( RestEndpointTool::guard_downloads( array( 'downloads' => array( array( 'file' => $bad ) ) ), static fn() => true ) ) );
+}
+$g = RestEndpointTool::guard_downloads( array( 'downloads' => array( (object) array( 'name' => 'O', 'file' => 'https://cdn.example.com/files/a.zip' ), array( 'id' => 'keep' ) ) ), $approved );
+$assert( 'R10: items are sent on as arrays, items without a file are kept', ! is_wp_error( $g ) && 'O' === $g['downloads'][0]['name'] && array( 'id' => 'keep' ) === $g['downloads'][1] );
+
+// woocommerce_file_download_path: the value about to be stored is checked once more.
+$threw = static function ( $path ): bool {
+	try {
+		RestEndpointTool::download_path_filter( $path );
+	} catch ( \Exception $e ) {
+		return true;
+	}
+	return false;
+};
+$assert( 'R10: a path changed by another filter to a local file aborts the save', $threw( '/etc/passwd' ) && $threw( 'https://shop.test/wp-content/uploads/woocommerce_uploads/../../x.zip' ) && $threw( array( 'x' ) ) );
+$assert( 'R10: without an enabled approved directory system even a good URL aborts', $threw( 'https://cdn.example.com/files/a.zip' ) );
+$assert( 'R10: an empty path is left to WooCommerce', ! $threw( '' ) );
+Auth::reset( $tok( array( 'admin' ) ) );
+$assert( 'R10: an admin token is not filtered', ! $threw( '/etc/passwd' ) );
+Auth::reset( $tok( array( 'write' ) ) );
+
+// Approved Download Directories: only the enabled mode counts.
+eval( 'namespace Automattic\WooCommerce\Internal\ProductDownloads\ApprovedDirectories; class Register { const MODE_DISABLED = "disabled"; const MODE_ENABLED = "enabled"; public $mode = "disabled"; public function get_mode() { return $this->mode; } public function is_valid_path( $u ) { return 0 === strpos( $u, "https://cdn.example.com/files/" ); } }' );
+$GLOBALS['uxs_register'] = new \Automattic\WooCommerce\Internal\ProductDownloads\ApprovedDirectories\Register();
+function wc_get_container() {
+	return new class() {
+		public function get( $id ) { return $GLOBALS['uxs_register']; }
+	};
+}
+$assert( 'R10: disabled approved directories (WooCommerce checks nothing) -> refused', false === RestEndpointTool::woo_approved_download( 'https://cdn.example.com/files/a.zip' ) );
+$GLOBALS['uxs_register']->mode = 'enabled';
+$assert( 'R10: enabled approved directories -> the list decides', true === RestEndpointTool::woo_approved_download( 'https://cdn.example.com/files/a.zip' ) && false === RestEndpointTool::woo_approved_download( 'https://evil.example.com/a.zip' ) );
+$assert( 'R10: the filter lets the canonical approved value through', ! $threw( 'https://cdn.example.com/files/a.zip' ) && $threw( 'HTTPS://cdn.example.com/files/a.zip' ) );
+$GLOBALS['uxs_register']->mode = 'disabled';
+
 Auth::reset( $tok( array( 'admin' ) ) );
 $assert( 'R8: an admin token may set a local path', ! is_wp_error( $dl( 'wp-includes/sodium_compat/LICENSE' ) ) );
 Auth::reset( null );
