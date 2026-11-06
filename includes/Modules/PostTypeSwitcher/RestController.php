@@ -104,6 +104,9 @@ final class RestController extends Controller {
 	public function switch_bulk( WP_REST_Request $request ) {
 		$post_ids = array_map( 'absint', (array) $request->get_param( 'post_ids' ) );
 		$new_type = (string) $request->get_param( 'new_type' );
+		if ( ! array_key_exists( $new_type, $this->module->switchable_types() ) ) {
+			return new \WP_Error( 'uxstudio_invalid_post_type', __( 'Invalid target post type.', 'ux-studio' ), array( 'status' => 400 ) );
+		}
 
 		$switched = array();
 		$failed   = array();
