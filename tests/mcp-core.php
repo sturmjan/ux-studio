@@ -574,6 +574,120 @@ foreach ( array( 'users-create', 'users-update', 'users-delete', 'settings-updat
 $assert( 'AI read tools stay read', Scopes::READ === Bridge::ai_scope( 'ai-assistant/users-list', array( 'readonly' => true ) ) );
 $assert( 'other AI write tools stay write', Scopes::WRITE === Bridge::ai_scope( 'ai-assistant/posts-create', array( 'readonly' => false ) ) );
 
+/* ── R4: non-readonly AI tools need admin unless allowlisted as write ── */
+
+$write_tools = array( 'posts-create', 'posts-update', 'posts-delete', 'pages-create', 'pages-update', 'pages-delete', 'categories-create', 'categories-update', 'categories-delete', 'tags-create', 'tags-update', 'tags-delete', 'media-delete', 'woo-products-create', 'woo-products-update', 'woo-products-delete' );
+foreach ( $write_tools as $tool ) {
+	$assert( "R4: $tool is write", Scopes::WRITE === Bridge::ai_scope( 'ai-assistant/' . $tool, array( 'readonly' => false ) ) );
+}
+$assert( 'R4: the allowlist is exactly the content tools', count( $write_tools ) === count( Bridge::AI_WRITE_TOOLS ) );
+foreach ( array( 'woo-orders-create', 'elementor-update-widget', 'some-future-tool', 'plugins-install' ) as $tool ) {
+	$assert( "R4: $tool defaults to admin", Scopes::ADMIN === Bridge::ai_scope( 'ai-assistant/' . $tool, array( 'readonly' => false ) ) );
+}
+$assert( 'R4: a new read-only tool is read', Scopes::READ === Bridge::ai_scope( 'ai-assistant/some-future-tool', array( 'readonly' => true ) ) );
+
+/* ── R1: a token without admin never has unfiltered_html (stored XSS -> admin takeover) ── */
+
+$GLOBALS['uxs_caps']     = array( 'unfiltered_html' => true, 'edit_posts' => true, 'manage_options' => true );
+$GLOBALS['uxs_editable'] = array( 10 );
+// Mimics WP_User::has_cap(): the user_has_cap filter (Auth::limit_caps) runs on every check.
+function current_user_can( $cap, ...$args ) {
+	$caps = Auth::limit_caps( $GLOBALS['uxs_caps'], array( $cap ), array( $cap ), null );
+	if ( 'edit_post' === $cap ) {
+		return ! empty( $caps['edit_posts'] ) && in_array( (int) ( $args[0] ?? 0 ), $GLOBALS['uxs_editable'], true );
+	}
+	return ! empty( $caps[ $cap ] );
+}
+$tok = static fn( array $scopes, string $state = 'ok' ): array => array( 'state' => $state, 'code' => $state, 'id' => 't1', 'label' => 'x', 'scopes' => $scopes, 'user_id' => 7, 'ip' => '203.0.113.5' );
+
+Auth::reset( null );
+$assert( 'R1: no token (cookie admin) keeps unfiltered_html', current_user_can( 'unfiltered_html' ) && ! Auth::restricted() );
+foreach ( array( array( 'read' ), array( 'write' ), array( 'migration' ), array( 'read', 'write', 'migration' ) ) as $scopes ) {
+	Auth::reset( $tok( $scopes ) );
+	$label = implode( '+', $scopes );
+	$assert( "R1: a $label token loses unfiltered_html", Auth::restricted() && ! current_user_can( 'unfiltered_html' ) );
+	$assert( "R1: a $label token keeps its other capabilities", current_user_can( 'manage_options' ) && current_user_can( 'edit_posts' ) );
+}
+Auth::reset( $tok( array( 'admin' ) ) );
+$assert( 'R1: an admin token keeps unfiltered_html', ! Auth::restricted() && current_user_can( 'unfiltered_html' ) );
+Auth::reset( $tok( array( 'write', 'admin' ) ) );
+$assert( 'R1: write+admin is admin', current_user_can( 'unfiltered_html' ) );
+Auth::reset( $tok( array( 'write' ), 'denied' ) );
+$assert( 'R1: a refused token changes nothing (no user anyway)', ! Auth::restricted() );
+Auth::reset( $tok( array( 'write' ) ) );
+$assert( 'R1: limit_caps leaves a user without unfiltered_html alone', array( 'edit_posts' => true ) === Auth::limit_caps( array( 'edit_posts' => true ) ) );
+
+/* ── R1: WooCommerce meta_data of a restricted token ── */
+
+use UxStudio\Modules\AiAssistant\Mcp\Tools\RestEndpointTool;
+
+function wp_kses_post( $v ) { return preg_replace( '/\s+on\w+\s*=\s*("[^"]*"|\'[^\']*\'|\S+)/i', '', strip_tags( preg_replace( '#<script\b[^>]*>.*?</script>#is', '', (string) $v ), '<p><a><strong><em><img>' ) ); }
+function esc_url_raw( $v ) { return preg_match( '#^(https?:)?//|^/(?!/)|^\#|^mailto:#i', (string) $v ) ? (string) $v : ''; }
+function is_protected_meta( $key, $type = '' ) { return '_' === substr( (string) $key, 0, 1 ); }
+
+Auth::reset( $tok( array( 'write' ) ) );
+$g = RestEndpointTool::guard_meta( array( 'name' => 'P', 'meta_data' => array( array( 'key' => '_elementor_data', 'value' => '[]' ) ) ) );
+$assert( 'R1: write token cannot set protected meta (_elementor_data) over woo meta_data', is_wp_error( $g ) );
+$g = RestEndpointTool::guard_meta( array( 'meta_data' => array( array( 'key' => 'hero_text', 'value' => array( 'a' => '<script>alert(1)</script><strong>ok</strong>' ) ) ) ) );
+$assert( 'R1: write token meta_data strings are kses-filtered', ! is_wp_error( $g ) && '<strong>ok</strong>' === $g['meta_data'][0]['value']['a'] );
+Auth::reset( $tok( array( 'admin' ) ) );
+$raw = array( 'meta_data' => array( array( 'key' => '_custom', 'value' => '<script>x</script>' ) ) );
+$assert( 'R1: admin token meta_data is untouched', $raw === RestEndpointTool::guard_meta( $raw ) );
+
+/* ── R3: URL parameters can only fill their own route ── */
+
+$br = static fn( string $route, array $in ) => RestEndpointTool::build_route( $route, $in );
+$ok = $br( '/products/(?P<id>[\d]+)', array( 'id' => '42', 'name' => 'X' ) );
+$assert( 'R3: numeric id fills the route, the rest stays body', ! is_wp_error( $ok ) && '/products/42' === $ok['route'] && array( 'name' => 'X' ) === $ok['input'] );
+$ok = $br( '/products/(?P<id>[\d]+)', array( 'id' => 42 ) );
+$assert( 'R3: integer id is accepted', ! is_wp_error( $ok ) && '/products/42' === $ok['route'] );
+$assert( 'R3: id "batch" (PUT products/batch deletes products) is refused', is_wp_error( $br( '/products/(?P<id>[\d]+)', array( 'id' => 'batch', 'delete' => array( 1, 2 ) ) ) ) );
+$assert( 'R3: id "1/application-passwords" is refused', is_wp_error( $br( '/users/(?P<id>[\d]+)', array( 'id' => '1/application-passwords' ) ) ) );
+foreach ( array( '1?context=edit', '1#x', '../1', '1%2F2', "1\n", ' 1', '', true, array( 1 ), 1.5 ) as $bad ) {
+	$assert( 'R3: id ' . json_encode( $bad ) . ' is refused', is_wp_error( $br( '/posts/(?P<id>[\d]+)', array( 'id' => $bad ) ) ) );
+}
+$assert( 'R3: a missing URL parameter is refused', is_wp_error( $br( '/posts/(?P<id>[\d]+)', array() ) ) );
+$ok = $br( '/types/(?P<type>[\w-]+)', array( 'type' => 'wp_block' ) );
+$assert( 'R3: slug parameter within its regex', ! is_wp_error( $ok ) && '/types/wp_block' === $ok['route'] );
+$assert( 'R3: a slash is refused even where the route regex is looser', is_wp_error( $br( '/types/(?P<type>.+)', array( 'type' => 'post/x' ) ) ) );
+$assert( 'R3: "$1" in a value cannot act as a backreference', is_wp_error( $br( '/posts/(?P<id>[\d]+)', array( 'id' => '$1' ) ) ) );
+$ok = $br( '/categories', array( 'name' => 'a/b' ) );
+$assert( 'R3: routes without parameters pass the body through', ! is_wp_error( $ok ) && '/categories' === $ok['route'] && array( 'name' => 'a/b' ) === $ok['input'] );
+$assert( 'R3: url_params reads named groups', array( 'id' => '[\d]+', 'type' => '[\w-]+' ) === RestEndpointTool::url_params( '/a/(?P<id>[\d]+)/(?P<type>[\w-]+)' ) );
+
+/* ── R2: elementor-update-widget ── */
+
+use UxStudio\Modules\AiAssistant\Mcp\Tools\ElementorTools;
+
+function get_post( $id ) { return in_array( (int) $id, array( 10, 11 ), true ) ? (object) array( 'ID' => (int) $id ) : null; }
+function get_post_meta( $id, $key, $single = false ) { return $GLOBALS['uxs_meta'][ $id ][ $key ] ?? ''; }
+function update_post_meta( $id, $key, $value ) { $GLOBALS['uxs_meta'][ $id ][ $key ] = stripslashes( $value ); return true; } // WordPress unslashes.
+function wp_slash( $v ) { return addslashes( $v ); }
+
+$doc = static fn(): string => json_encode( array( array( 'id' => 'sec1', 'elType' => 'section', 'elements' => array( array( 'id' => 'w1', 'elType' => 'widget', 'widgetType' => 'heading', 'settings' => array( 'title' => 'Old' ) ) ) ) ) );
+$el  = new ElementorTools();
+$GLOBALS['uxs_meta'] = array( 10 => array( '_elementor_data' => $doc() ), 11 => array( '_elementor_data' => $doc() ) );
+$title = static fn( int $id ) => (array) ( json_decode( (string) $GLOBALS['uxs_meta'][ $id ]['_elementor_data'], true )[0]['elements'][0]['settings'] ?? array() );
+
+Auth::reset( $tok( array( 'admin' ) ) );
+$res = $el->update_widget_content( array( 'post_id' => 10, 'widget_id' => 'w1', 'settings' => json_encode( array( 'title' => 'Nové "jméno" a/b' ) ) ) );
+$assert( 'R2: update works and survives update_post_meta unslashing (wp_slash)', ! is_wp_error( $res ) && 'Nové "jméno" a/b' === ( $title( 10 )['title'] ?? null ), (string) $GLOBALS['uxs_meta'][10]['_elementor_data'] );
+$res = $el->update_widget_content( array( 'post_id' => 11, 'widget_id' => 'w1', 'settings' => '{"title":"x"}' ) );
+$assert( 'R2: a post the user may not edit is refused', is_wp_error( $res ) && 'Old' === $title( 11 )['title'] );
+$res = $el->update_widget_content( array( 'post_id' => 999, 'widget_id' => 'w1', 'settings' => '{"title":"x"}' ) );
+$assert( 'R2: a missing post is refused', is_wp_error( $res ) );
+$before = $GLOBALS['uxs_meta'][10]['_elementor_data'];
+$res    = $el->update_widget_content( array( 'post_id' => 10, 'widget_id' => 'nope', 'settings' => '{"title":"x"}' ) );
+$assert( 'R2: an unknown widget writes nothing', $before === $GLOBALS['uxs_meta'][10]['_elementor_data'] && str_contains( (string) $res[0]['text'], 'not found' ) );
+$el->update_widget_content( array( 'post_id' => 10, 'widget_id' => 'w1', 'settings' => '["a"]' ) );
+$assert( 'R2: settings must be an object', $before === $GLOBALS['uxs_meta'][10]['_elementor_data'] );
+Auth::reset( $tok( array( 'write' ) ) );
+$el->update_widget_content( array( 'post_id' => 10, 'widget_id' => 'w1', 'settings' => json_encode( array( 'title' => '<script>alert(1)</script>Hi', 'link' => array( 'url' => 'javascript:alert(1)' ) ) ) ) );
+$set = $title( 10 );
+$assert( 'R2: without unfiltered_html the settings are kses-filtered', 'Hi' === $set['title'] && '' === $set['link']['url'] );
+$assert( 'R2: the tool needs the admin scope over MCP', Scopes::ADMIN === Bridge::ai_scope( 'ai-assistant/elementor-update-widget', array( 'readonly' => false ) ) );
+Auth::reset( null );
+
 /* ── Config: default off, legacy value migrated once ── */
 
 $GLOBALS['uxs_options'] = array();

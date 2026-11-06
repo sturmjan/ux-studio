@@ -24,6 +24,10 @@ defined( 'ABSPATH' ) || exit;
  * like Application Passwords, the token is not looked at before rest_api_loaded() (the REST
  * server clears the cached anonymous user, so the token is evaluated then). rest_pre_dispatch
  * binds the result to the served request once more, so a token can never run another route.
+ *
+ * A token without the `admin` scope never carries `unfiltered_html`: its tools run as the token
+ * owner (an administrator), so without this a `write` token could store <script> in posts, terms
+ * or meta and take over the admin who views them (see restricted() and limit_caps()).
  */
 final class Auth {
 
@@ -46,6 +50,35 @@ final class Auth {
 		RestRoute::track();
 		add_filter( 'determine_current_user', array( self::class, 'authenticate' ), 20 );
 		add_filter( 'rest_pre_dispatch', array( self::class, 'bind' ), -1000, 3 );
+		add_filter( 'user_has_cap', array( self::class, 'limit_caps' ), 1000, 4 );
+	}
+
+	/**
+	 * Is this request run by an accepted MCP token without the `admin` scope?
+	 */
+	public static function restricted(): bool {
+		$ctx = self::$context;
+		return is_array( $ctx ) && 'ok' === ( $ctx['state'] ?? '' )
+			&& ! in_array( Scopes::ADMIN, Scopes::normalize( $ctx['scopes'] ?? array() ), true );
+	}
+
+	/**
+	 * `user_has_cap`: no `unfiltered_html` while a restricted token runs the request, for any user
+	 * checked (the tools act as the token owner, other checks must not reopen the gap). kses then
+	 * keeps its filters on post content, excerpts, titles, term descriptions and comments; tools that
+	 * write meta or builder data check the capability themselves.
+	 *
+	 * @param array<string, bool> $allcaps All capabilities of the user.
+	 * @param mixed               $caps    Required primitive capabilities (unused).
+	 * @param mixed               $args    Capability check arguments (unused).
+	 * @param mixed               $user    User being checked (unused).
+	 * @return array<string, bool>
+	 */
+	public static function limit_caps( $allcaps, $caps = array(), $args = array(), $user = null ) {
+		if ( is_array( $allcaps ) && ! empty( $allcaps['unfiltered_html'] ) && self::restricted() ) {
+			$allcaps['unfiltered_html'] = false;
+		}
+		return $allcaps;
 	}
 
 	/**

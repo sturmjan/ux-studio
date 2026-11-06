@@ -75,6 +75,11 @@ final class Server {
 			return $denied;
 		}
 		$ctx = (array) Auth::context();
+		// kses_init() ran on set_current_user already; run it again now that the token is known
+		// for sure, so a token without `admin` never writes with the kses filters removed.
+		if ( Auth::restricted() && function_exists( 'kses_init' ) ) {
+			kses_init();
+		}
 
 		if ( 'POST' !== $request->get_method() ) {
 			return self::reply( 405, Protocol::error( null, Protocol::ERR_REQUEST, 'This server answers POST requests only (no server-initiated stream).' ), array( 'Allow' => 'POST' ) );

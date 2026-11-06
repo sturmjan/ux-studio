@@ -218,13 +218,31 @@ class ElementorTools {
 		return array( array( 'text' => wp_json_encode( $widgets, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE ) ) );
 	}
 
-	public function update_widget_content( array $input = array() ): array {
+	/**
+	 * Merge new settings into one widget of an Elementor document.
+	 *
+	 * Writes `_elementor_data` directly (not through Elementor's document save), so it checks what
+	 * that save would: the caller may edit the post, the widget exists, and without `unfiltered_html`
+	 * every string is run through wp_kses_post() and URLs through esc_url_raw(). Over MCP the tool
+	 * needs the `admin` scope anyway (not in Bridge::AI_WRITE_TOOLS): builder settings hold raw
+	 * HTML, CSS and attributes no generic filter makes safe.
+	 *
+	 * @param array<string, mixed> $input post_id, widget_id, settings (JSON object).
+	 * @return array<int, array<string, string>>|\WP_Error
+	 */
+	public function update_widget_content( array $input = array() ) {
 		$post_id      = (int) ( $input['post_id'] ?? 0 );
-		$widget_id    = $input['widget_id'] ?? '';
-		$new_settings = json_decode( $input['settings'] ?? '{}', true );
+		$widget_id    = (string) ( $input['widget_id'] ?? '' );
+		$new_settings = json_decode( (string) ( $input['settings'] ?? '{}' ), true );
 
-		if ( ! $post_id || ! $widget_id || empty( $new_settings ) ) {
+		if ( $post_id <= 0 || '' === $widget_id || empty( $new_settings ) ) {
 			return array( array( 'text' => '{"error": "post_id, widget_id and settings are required"}' ) );
+		}
+		if ( ! is_array( $new_settings ) || array_is_list( $new_settings ) ) {
+			return array( array( 'text' => '{"error": "settings must be a JSON object of setting => value"}' ) );
+		}
+		if ( ! get_post( $post_id ) || ! current_user_can( 'edit_post', $post_id ) ) {
+			return new \WP_Error( 'forbidden', __( 'You may not edit this post.', 'ux-studio' ), array( 'status' => 403 ) );
 		}
 
 		$data     = get_post_meta( $post_id, '_elementor_data', true );
@@ -234,15 +252,42 @@ class ElementorTools {
 			return array( array( 'text' => '{"error": "Invalid Elementor data"}' ) );
 		}
 
-		$updated = $this->update_widget_recursive( $elements, $widget_id, $new_settings );
+		if ( ! current_user_can( 'unfiltered_html' ) ) {
+			$new_settings = self::sanitize_settings( $new_settings );
+		}
 
-		update_post_meta( $post_id, '_elementor_data', wp_json_encode( $updated ) );
+		$found   = false;
+		$updated = $this->update_widget_recursive( $elements, $widget_id, $new_settings, $found );
+		if ( ! $found ) {
+			return array( array( 'text' => '{"error": "Widget not found"}' ) );
+		}
+
+		// update_post_meta() unslashes: without wp_slash() the JSON escapes (\uXXXX, \/, \") break.
+		update_post_meta( $post_id, '_elementor_data', wp_slash( (string) wp_json_encode( $updated ) ) );
 
 		if ( class_exists( '\Elementor\Plugin' ) ) {
 			\Elementor\Plugin::$instance->files_manager->clear_cache();
 		}
 
 		return array( array( 'text' => wp_json_encode( array( 'success' => true, 'widget_id' => $widget_id ) ) ) );
+	}
+
+	/**
+	 * Settings of a caller without `unfiltered_html`: strings through wp_kses_post(), values of
+	 * `url` keys (Elementor link controls) through esc_url_raw(), so no `javascript:` link either.
+	 *
+	 * @param array<int|string, mixed> $settings Settings.
+	 * @return array<int|string, mixed>
+	 */
+	public static function sanitize_settings( array $settings ): array {
+		foreach ( $settings as $key => $value ) {
+			if ( is_array( $value ) ) {
+				$settings[ $key ] = self::sanitize_settings( $value );
+			} elseif ( is_string( $value ) ) {
+				$settings[ $key ] = 'url' === $key ? esc_url_raw( $value ) : wp_kses_post( $value );
+			}
+		}
+		return $settings;
 	}
 
 	private function extract_structure( array $elements, int $depth = 0 ): array {
@@ -282,13 +327,14 @@ class ElementorTools {
 		return $found;
 	}
 
-	private function update_widget_recursive( array $elements, string $widget_id, array $new_settings ): array {
+	private function update_widget_recursive( array $elements, string $widget_id, array $new_settings, bool &$found = false ): array {
 		foreach ( $elements as &$element ) {
 			if ( ( $element['id'] ?? '' ) === $widget_id ) {
-				$element['settings'] = array_merge( $element['settings'] ?? array(), $new_settings );
+				$element['settings'] = array_merge( (array) ( $element['settings'] ?? array() ), $new_settings );
+				$found               = true;
 			}
 			if ( ! empty( $element['elements'] ) ) {
-				$element['elements'] = $this->update_widget_recursive( $element['elements'], $widget_id, $new_settings );
+				$element['elements'] = $this->update_widget_recursive( $element['elements'], $widget_id, $new_settings, $found );
 			}
 		}
 		return $elements;

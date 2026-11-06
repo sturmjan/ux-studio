@@ -80,11 +80,13 @@ abstract class RestEndpointTool {
 		);
 
 		$route_pattern = '/' . $config->namespace . $config->route;
+		$matched       = false;
 
 		foreach ( $routes as $pattern => $handlers ) {
 			if ( ! $this->route_matches( $route_pattern, $pattern ) ) {
 				continue;
 			}
+			$matched = true;
 
 			preg_match_all( '/\(\?P<(\w+)>[^)]+\)/', $pattern, $url_params );
 			foreach ( $url_params[1] as $param_name ) {
@@ -125,21 +127,142 @@ abstract class RestEndpointTool {
 			}
 		}
 
+		// URL parameters: required, and a string one must match the route regex (the real check is
+		// in build_route(), this tells the client up front).
+		$required = array();
+		foreach ( self::url_params( $config->route ) as $param_name => $regex ) {
+			$required[] = $param_name;
+			if ( ! isset( $schema['properties'][ $param_name ] ) ) {
+				$schema['properties'][ $param_name ] = array( 'type' => 'string' );
+			}
+			if ( 'string' === ( $schema['properties'][ $param_name ]['type'] ?? '' ) ) {
+				$schema['properties'][ $param_name ]['pattern'] = '^(?:' . $regex . ')$';
+			}
+		}
+		if ( $required ) {
+			$schema['required'] = $required;
+		}
+		// The arguments of the wrapped route are known: nothing else may be sent.
+		if ( $matched ) {
+			$schema['additionalProperties'] = false;
+		}
+
 		return $schema;
 	}
 
-	protected function execute_rest_request( RestOperationConfig $config, array $input ): array {
-		$route = $config->route;
+	/**
+	 * Named URL parameters of a route and their regex, e.g. `/posts/(?P<id>[\d]+)` => id => `[\d]+`.
+	 *
+	 * @param string $route Route pattern.
+	 * @return array<string, string>
+	 */
+	public static function url_params( string $route ): array {
+		preg_match_all( '/\(\?P<(\w+)>([^)]+)\)/', $route, $m, PREG_SET_ORDER );
+		$out = array();
+		foreach ( $m as $match ) {
+			$out[ $match[1] ] = $match[2];
+		}
+		return $out;
+	}
 
-		foreach ( $input as $key => $value ) {
-			$placeholder = '(?P<' . $key . '>';
-			if ( false !== strpos( $route, $placeholder ) || false !== strpos( $route, '<' . $key . '>' ) ) {
-				$route = preg_replace( '/\(\?P<' . $key . '>[^)]+\)/', (string) $value, $route );
-				unset( $input[ $key ] );
+	/**
+	 * Put the URL parameters of `$input` into the route. Every value must be a plain string or
+	 * integer that matches the regex of its named group AND `^[A-Za-z0-9_-]+$`, so `batch`,
+	 * `1/application-passwords`, `..`, `?` or `#` can never reach another route than the one
+	 * the tool wraps.
+	 *
+	 * @param string               $route Route pattern (`/products/(?P<id>[\d]+)`).
+	 * @param array<string, mixed> $input Tool input.
+	 * @return array{route:string,input:array<string, mixed>}|\WP_Error Route and the remaining input.
+	 */
+	public static function build_route( string $route, array $input ) {
+		$params = self::url_params( $route );
+		foreach ( $params as $name => $regex ) {
+			$value = $input[ $name ] ?? null;
+			if ( is_int( $value ) ) {
+				$value = (string) $value;
+			}
+			if ( ! is_string( $value ) || '' === $value ) {
+				/* translators: %s: URL parameter name. */
+				return new \WP_Error( 'invalid_input', sprintf( __( 'The URL parameter %s is required.', 'ux-studio' ), $name ), array( 'status' => 400 ) );
+			}
+			$own = '~^(?:' . str_replace( '~', '\~', $regex ) . ')$~D';
+			if ( ! preg_match( '/^[A-Za-z0-9_-]+$/D', $value ) || ! preg_match( $own, $value ) ) {
+				/* translators: %s: URL parameter name. */
+				return new \WP_Error( 'invalid_input', sprintf( __( 'The URL parameter %s has an invalid value.', 'ux-studio' ), $name ), array( 'status' => 400 ) );
+			}
+			$params[ $name ] = $value;
+			unset( $input[ $name ] );
+		}
+		$built = preg_replace_callback(
+			'/\(\?P<(\w+)>[^)]+\)/',
+			static fn( array $m ): string => $params[ $m[1] ],
+			$route
+		);
+		return array(
+			'route' => (string) $built,
+			'input' => $input,
+		);
+	}
+
+	/**
+	 * Without `unfiltered_html` (an MCP token without the admin scope), WooCommerce `meta_data` may
+	 * not touch protected (`_`-prefixed) keys such as `_elementor_data`, and its string values are
+	 * run through wp_kses_post(): WooCommerce stores them as they come and themes print them.
+	 *
+	 * @param array<string, mixed> $input Body parameters.
+	 * @return array<string, mixed>|\WP_Error
+	 */
+	public static function guard_meta( array $input ) {
+		if ( ! isset( $input['meta_data'] ) || ! is_array( $input['meta_data'] ) || current_user_can( 'unfiltered_html' ) ) {
+			return $input;
+		}
+		foreach ( $input['meta_data'] as $i => $meta ) {
+			$key = is_array( $meta ) ? (string) ( $meta['key'] ?? '' ) : '';
+			if ( '' === $key || is_protected_meta( $key, 'post' ) ) {
+				return new \WP_Error( 'invalid_input', __( 'Protected meta keys cannot be written with this token.', 'ux-studio' ), array( 'status' => 403 ) );
+			}
+			if ( array_key_exists( 'value', $meta ) ) {
+				$input['meta_data'][ $i ]['value'] = self::kses_deep( $meta['value'] );
 			}
 		}
+		return $input;
+	}
 
-		$url = '/' . $config->namespace . $route;
+	/**
+	 * wp_kses_post() on every string of a value.
+	 *
+	 * @param mixed $value Value.
+	 * @return mixed
+	 */
+	public static function kses_deep( $value ) {
+		if ( is_string( $value ) ) {
+			return wp_kses_post( $value );
+		}
+		if ( is_array( $value ) ) {
+			return array_map( array( self::class, 'kses_deep' ), $value );
+		}
+		return $value;
+	}
+
+	/**
+	 * Forward the call to the wrapped route.
+	 *
+	 * @param RestOperationConfig  $config Operation.
+	 * @param array<string, mixed> $input  Tool input.
+	 * @return array<int, array<string, string>>|\WP_Error
+	 */
+	protected function execute_rest_request( RestOperationConfig $config, array $input ) {
+		$built = self::build_route( $config->route, $input );
+		if ( is_wp_error( $built ) ) {
+			return $built;
+		}
+		$input = self::guard_meta( $built['input'] );
+		if ( is_wp_error( $input ) ) {
+			return $input;
+		}
+
+		$url = '/' . $config->namespace . $built['route'];
 
 		$request = new WP_REST_Request( $config->method, $url );
 
