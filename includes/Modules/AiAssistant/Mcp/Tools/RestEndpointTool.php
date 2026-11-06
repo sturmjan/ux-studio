@@ -206,24 +206,117 @@ abstract class RestEndpointTool {
 	}
 
 	/**
-	 * Without `unfiltered_html` (an MCP token without the admin scope), WooCommerce `meta_data` may
-	 * not touch protected (`_`-prefixed) keys such as `_elementor_data`, and its string values are
-	 * run through wp_kses_post(): WooCommerce stores them as they come and themes print them.
+	 * Protected (`_`-prefixed) post meta a token without `admin` may still write in a wp/v2 `meta`
+	 * object: plain-text SEO fields (Yoast, UX Studio SEO panel). Their values must be strings and
+	 * go through sanitize_text_field(), so no markup reaches them either.
 	 *
-	 * @param array<string, mixed> $input Body parameters.
+	 * @var string[]
+	 */
+	public const TEXT_META_ALLOWLIST = array(
+		'_yoast_wpseo_title',
+		'_yoast_wpseo_metadesc',
+		'_yoast_wpseo_focuskw',
+		'_uxstudio_ai_seo_title',
+		'_uxstudio_ai_seo_description',
+		'_uxstudio_ai_seo_focus_keyword',
+	);
+
+	/**
+	 * Registered meta that core already kses-filters for a user without `unfiltered_html`
+	 * (`footnotes` is JSON: running wp_kses_post() over the raw string would break it).
+	 *
+	 * @var string[]
+	 */
+	public const CORE_FILTERED_META = array( 'footnotes' );
+
+	/**
+	 * Meta object type of a wrapped route, for is_protected_meta(): wp/v2 users, comments and
+	 * taxonomy routes have their own meta, everything else (posts, pages, media, custom post
+	 * types, WooCommerce products and orders) is post meta.
+	 *
+	 * @param string $namespace REST namespace.
+	 * @param string $route     Route within the namespace.
+	 */
+	public static function meta_type( string $namespace, string $route ): string {
+		if ( 'wp/v2' !== $namespace ) {
+			return 'post';
+		}
+		$base = explode( '/', trim( $route, '/' ) )[0] ?? '';
+		if ( 'users' === $base ) {
+			return 'user';
+		}
+		if ( 'comments' === $base ) {
+			return 'comment';
+		}
+		if ( in_array( $base, array( 'categories', 'tags' ), true ) ) {
+			return 'term';
+		}
+		if ( function_exists( 'get_taxonomies' ) ) {
+			foreach ( get_taxonomies( array( 'show_in_rest' => true ), 'objects' ) as $taxonomy ) {
+				if ( $base === ( $taxonomy->rest_base ? $taxonomy->rest_base : $taxonomy->name ) ) {
+					return 'term';
+				}
+			}
+		}
+		return 'post';
+	}
+
+	/**
+	 * Without `unfiltered_html` (an MCP token without the admin scope), meta sent through a tool is
+	 * limited, because registered meta is stored as it comes and builders/themes print it:
+	 *
+	 * - wp/v2 `meta` (posts, pages, terms, users, comments): no protected key (e.g. Elementor's
+	 *   `_elementor_data` / `_elementor_edit_mode`, which have no sanitize callback and would put a
+	 *   <script> on the frontend) except the plain-text TEXT_META_ALLOWLIST; string values of the
+	 *   other keys are run through wp_kses_post() (CORE_FILTERED_META is left to core).
+	 * - WooCommerce `meta_data`: no protected key, values through wp_kses_post().
+	 *
+	 * @param array<string, mixed> $input     Body parameters.
+	 * @param string               $meta_type Meta object type (post, term, user, comment).
 	 * @return array<string, mixed>|\WP_Error
 	 */
-	public static function guard_meta( array $input ) {
-		if ( ! isset( $input['meta_data'] ) || ! is_array( $input['meta_data'] ) || current_user_can( 'unfiltered_html' ) ) {
+	public static function guard_meta( array $input, string $meta_type = 'post' ) {
+		if ( ( ! isset( $input['meta'] ) && ! isset( $input['meta_data'] ) ) || current_user_can( 'unfiltered_html' ) ) {
 			return $input;
 		}
-		foreach ( $input['meta_data'] as $i => $meta ) {
-			$key = is_array( $meta ) ? (string) ( $meta['key'] ?? '' ) : '';
-			if ( '' === $key || is_protected_meta( $key, 'post' ) ) {
-				return new \WP_Error( 'invalid_input', __( 'Protected meta keys cannot be written with this token.', 'ux-studio' ), array( 'status' => 403 ) );
+		$denied = new \WP_Error( 'invalid_input', __( 'Protected meta keys cannot be written with this token.', 'ux-studio' ), array( 'status' => 403 ) );
+
+		if ( isset( $input['meta'] ) ) {
+			$meta = is_object( $input['meta'] ) ? get_object_vars( $input['meta'] ) : $input['meta'];
+			if ( ! is_array( $meta ) ) {
+				return new \WP_Error( 'invalid_input', __( 'meta must be an object of key => value.', 'ux-studio' ), array( 'status' => 400 ) );
 			}
-			if ( array_key_exists( 'value', $meta ) ) {
-				$input['meta_data'][ $i ]['value'] = self::kses_deep( $meta['value'] );
+			foreach ( $meta as $key => $value ) {
+				$key = (string) $key;
+				if ( 'post' === $meta_type && in_array( $key, self::TEXT_META_ALLOWLIST, true ) ) {
+					if ( null !== $value && ! is_string( $value ) ) {
+						return $denied;
+					}
+					$meta[ $key ] = null === $value ? null : sanitize_text_field( $value );
+					continue;
+				}
+				if ( '' === $key || is_protected_meta( $key, $meta_type ) ) {
+					return $denied;
+				}
+				if ( ! in_array( $key, self::CORE_FILTERED_META, true ) ) {
+					$meta[ $key ] = self::kses_deep( $value );
+				}
+			}
+			$input['meta'] = $meta;
+		}
+
+		if ( isset( $input['meta_data'] ) ) {
+			if ( ! is_array( $input['meta_data'] ) ) {
+				return new \WP_Error( 'invalid_input', __( 'meta_data must be a list of key/value objects.', 'ux-studio' ), array( 'status' => 400 ) );
+			}
+			foreach ( $input['meta_data'] as $i => $meta ) {
+				$key = is_array( $meta ) ? (string) ( $meta['key'] ?? '' ) : '';
+				if ( '' === $key || is_protected_meta( $key, $meta_type ) ) {
+					return $denied;
+				}
+				if ( array_key_exists( 'value', $meta ) ) {
+					$input['meta_data'][ $i ]['value'] = self::kses_deep( $meta['value'] );
+				}
 			}
 		}
 		return $input;
@@ -257,7 +350,7 @@ abstract class RestEndpointTool {
 		if ( is_wp_error( $built ) ) {
 			return $built;
 		}
-		$input = self::guard_meta( $built['input'] );
+		$input = self::guard_meta( $built['input'], self::meta_type( $config->namespace, $config->route ) );
 		if ( is_wp_error( $input ) ) {
 			return $input;
 		}

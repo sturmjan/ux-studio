@@ -634,6 +634,44 @@ Auth::reset( $tok( array( 'admin' ) ) );
 $raw = array( 'meta_data' => array( array( 'key' => '_custom', 'value' => '<script>x</script>' ) ) );
 $assert( 'R1: admin token meta_data is untouched', $raw === RestEndpointTool::guard_meta( $raw ) );
 
+/* ── R5: wp/v2 `meta` object of a restricted token (Elementor meta -> stored XSS) ── */
+
+$xss = '[{"id":"a1","elType":"widget","widgetType":"html","settings":{"html":"<script>alert(1)</script>"}}]';
+Auth::reset( $tok( array( 'write' ) ) );
+$g = RestEndpointTool::guard_meta( array( 'id' => '5', 'meta' => array( '_elementor_edit_mode' => 'builder', '_elementor_data' => $xss ) ), 'post' );
+$assert( 'R5: write token cannot set _elementor_data/_elementor_edit_mode over wp/v2 meta', is_wp_error( $g ) && 403 === $g->get_error_data()['status'] );
+foreach ( array( '_elementor_page_settings' => array( 'custom_css' => 'x' ), '_elementor_conditions' => array( 'include/general' ), '_elementor_template_type' => 'wp-page', '_edit_lock' => '1' ) as $k => $v ) {
+	$assert( "R5: write token cannot set protected $k", is_wp_error( RestEndpointTool::guard_meta( array( 'meta' => array( $k => $v ) ), 'post' ) ) );
+}
+$assert( 'R5: deleting protected meta (null) is refused too', is_wp_error( RestEndpointTool::guard_meta( array( 'meta' => array( '_elementor_data' => null ) ), 'post' ) ) );
+$assert( 'R5: protected term meta is refused', is_wp_error( RestEndpointTool::guard_meta( array( 'meta' => array( '_term_secret' => 'x' ) ), 'term' ) ) );
+$assert( 'R5: protected user meta is refused', is_wp_error( RestEndpointTool::guard_meta( array( 'meta' => array( '_user_x' => 'x' ) ), 'user' ) ) );
+$assert( 'R5: protected comment meta is refused', is_wp_error( RestEndpointTool::guard_meta( array( 'meta' => array( '_wp_note_status' => 'x' ) ), 'comment' ) ) );
+$assert( 'R5: an empty key is refused', is_wp_error( RestEndpointTool::guard_meta( array( 'meta' => array( '' => 'x' ) ), 'post' ) ) );
+$assert( 'R5: meta that is not an object is refused', is_wp_error( RestEndpointTool::guard_meta( array( 'meta' => 'x' ), 'post' ) ) );
+$g = RestEndpointTool::guard_meta( array( 'title' => 'T', 'meta' => array( 'hero' => '<script>alert(1)</script><strong>ok</strong>', 'opts' => array( 'a' => '<img src="x" onerror="alert(1)">' ), 'count' => 3 ) ), 'post' );
+$assert( 'R5: other meta strings are kses-filtered (nested too), scalars kept', ! is_wp_error( $g ) && '<strong>ok</strong>' === $g['meta']['hero'] && '<img src="x">' === $g['meta']['opts']['a'] && 3 === $g['meta']['count'] && 'T' === $g['title'], json_encode( $g ) );
+$fn = '[{"content":"<a href=\"https://x.test\">x</a>","id":"f1"}]';
+$g  = RestEndpointTool::guard_meta( array( 'meta' => array( 'footnotes' => $fn ) ), 'post' );
+$assert( 'R5: footnotes is left to core (its JSON is not run through kses here)', ! is_wp_error( $g ) && $fn === $g['meta']['footnotes'] );
+$g = RestEndpointTool::guard_meta( array( 'meta' => array( '_yoast_wpseo_title' => '<b>SEO</b> title', '_uxstudio_ai_seo_description' => 'Popis', '_yoast_wpseo_focuskw' => null ) ), 'post' );
+$assert( 'R5: allowlisted SEO text meta passes as plain text', ! is_wp_error( $g ) && 'SEO title' === $g['meta']['_yoast_wpseo_title'] && 'Popis' === $g['meta']['_uxstudio_ai_seo_description'] && null === $g['meta']['_yoast_wpseo_focuskw'] );
+$assert( 'R5: allowlisted SEO meta must be a string', is_wp_error( RestEndpointTool::guard_meta( array( 'meta' => array( '_yoast_wpseo_title' => array( '<script>' ) ) ), 'post' ) ) );
+$assert( 'R5: the SEO allowlist is post meta only', is_wp_error( RestEndpointTool::guard_meta( array( 'meta' => array( '_yoast_wpseo_title' => 'x' ) ), 'term' ) ) );
+$g = RestEndpointTool::guard_meta( array( 'meta' => (object) array( '_elementor_data' => $xss ) ), 'post' );
+$assert( 'R5: a meta object (stdClass) is checked as well', is_wp_error( $g ) );
+$assert( 'R5: input without meta is untouched', array( 'title' => '<b>x</b>' ) === RestEndpointTool::guard_meta( array( 'title' => '<b>x</b>' ), 'post' ) );
+Auth::reset( $tok( array( 'admin' ) ) );
+$raw = array( 'meta' => array( '_elementor_edit_mode' => 'builder', '_elementor_data' => $xss ) );
+$assert( 'R5: admin token may still write Elementor meta', $raw === RestEndpointTool::guard_meta( $raw, 'post' ) );
+Auth::reset( null );
+$assert( 'R5: no token (cookie admin with unfiltered_html) is untouched', $raw === RestEndpointTool::guard_meta( $raw, 'post' ) );
+
+$assert( 'R5: meta_type of posts/pages/media is post', 'post' === RestEndpointTool::meta_type( 'wp/v2', '/pages/(?P<id>[\d]+)' ) && 'post' === RestEndpointTool::meta_type( 'wp/v2', '/posts' ) && 'post' === RestEndpointTool::meta_type( 'wp/v2', '/media/(?P<id>[\d]+)' ) );
+$assert( 'R5: meta_type of categories/tags is term', 'term' === RestEndpointTool::meta_type( 'wp/v2', '/categories' ) && 'term' === RestEndpointTool::meta_type( 'wp/v2', '/tags/(?P<id>[\d]+)' ) );
+$assert( 'R5: meta_type of users/comments', 'user' === RestEndpointTool::meta_type( 'wp/v2', '/users/(?P<id>[\d]+)' ) && 'comment' === RestEndpointTool::meta_type( 'wp/v2', '/comments' ) );
+$assert( 'R5: meta_type of WooCommerce routes is post', 'post' === RestEndpointTool::meta_type( 'wc/v3', '/products/(?P<id>[\d]+)' ) && 'post' === RestEndpointTool::meta_type( 'wc/v3', '/orders' ) );
+
 /* ── R3: URL parameters can only fill their own route ── */
 
 $br = static fn( string $route, array $in ) => RestEndpointTool::build_route( $route, $in );
