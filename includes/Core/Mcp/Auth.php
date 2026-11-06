@@ -23,7 +23,8 @@ defined( 'ABSPATH' ) || exit;
  * The route is the one the REST server dispatches (RestRoute), and only inside a REST request:
  * like Application Passwords, the token is not looked at before rest_api_loaded() (the REST
  * server clears the cached anonymous user, so the token is evaluated then). rest_pre_dispatch
- * binds the result to the served request once more, so a token can never run another route.
+ * (early) and rest_request_before_callbacks (binding, no rest_pre_dispatch filter can undo it)
+ * tie the result to the served request once more, so a token can never run another route.
  *
  * A token without the `admin` scope never carries `unfiltered_html`: its tools run as the token
  * owner (an administrator), so without this a `write` token could store <script> in posts, terms
@@ -50,6 +51,7 @@ final class Auth {
 		RestRoute::track();
 		add_filter( 'determine_current_user', array( self::class, 'authenticate' ), 20 );
 		add_filter( 'rest_pre_dispatch', array( self::class, 'bind' ), -1000, 3 );
+		add_filter( 'rest_request_before_callbacks', array( self::class, 'bind_callbacks' ), PHP_INT_MAX, 3 );
 		add_filter( 'user_has_cap', array( self::class, 'limit_caps' ), 1000, 4 );
 	}
 
@@ -129,12 +131,51 @@ final class Auth {
 	 * @return mixed
 	 */
 	public static function bind( $result, $server = null, $request = null ) {
-		$ctx = self::$context;
-		if ( null !== $result || ! $ctx || 'ok' !== $ctx['state'] || ! RestRoute::is_served( $request ) ) {
+		if ( null !== $result ) {
 			return $result;
 		}
+		$refusal = self::route_refusal( $request );
+		return $refusal ? $refusal : $result;
+	}
+
+	/**
+	 * `rest_request_before_callbacks`, last: the binding form of bind(). rest_pre_dispatch is only
+	 * the early refusal, a later filter returning null there (ACF does on every request) drops
+	 * it; a WP_Error here stops the permission and endpoint callbacks.
+	 *
+	 * @param mixed $response Result so far (a WP_Error stops the callbacks).
+	 * @param mixed $handler  Matched handler.
+	 * @param mixed $request  Request.
+	 * @return mixed
+	 */
+	public static function bind_callbacks( $response, $handler = null, $request = null ) {
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+		$refusal = self::route_refusal( $request );
+		return $refusal ? $refusal : $response;
+	}
+
+	/**
+	 * Refusal of a served request a token was not accepted for. Once refused (also when a filter
+	 * dropped the refusal), the request stays refused: the context is denied from then on.
+	 *
+	 * @param mixed $request Request.
+	 */
+	private static function route_refusal( $request ): ?WP_Error {
+		$ctx = self::$context;
+		if ( ! $ctx || ! RestRoute::is_served( $request ) ) {
+			return null;
+		}
+		$error = new WP_Error( 'uxstudio_mcp_route', 'An MCP token is valid on the MCP endpoint only.', array( 'status' => 401 ) );
+		if ( 'denied' === $ctx['state'] && 'scope_route' === ( $ctx['code'] ?? '' ) && ! empty( $ctx['bound'] ) ) {
+			return $error;
+		}
+		if ( 'ok' !== $ctx['state'] ) {
+			return null;
+		}
 		if ( '' !== (string) ( $ctx['route_kind'] ?? '' ) && self::route_kind( (string) $request->get_route() ) === $ctx['route_kind'] ) {
-			return $result;
+			return null;
 		}
 		self::$context = array(
 			'state'  => 'denied',
@@ -143,9 +184,10 @@ final class Auth {
 			'label'  => (string) ( $ctx['label'] ?? '' ),
 			'scopes' => array(),
 			'ip'     => (string) ( $ctx['ip'] ?? '' ),
+			'bound'  => true,
 		);
 		wp_set_current_user( 0 );
-		return new WP_Error( 'uxstudio_mcp_route', 'An MCP token is valid on the MCP endpoint only.', array( 'status' => 401 ) );
+		return $error;
 	}
 
 	/**

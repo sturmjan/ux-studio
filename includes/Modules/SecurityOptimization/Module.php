@@ -54,12 +54,6 @@ final class Module extends BaseModule {
 	/** @var array{setting:string,own_provider:string,connected:bool,has_keys:bool,ca_keys:bool,own_keys:bool}|null */
 	private ?array $captcha_state_cache = null;
 
-	/** The anonymous REST request passed the lock as public; recheck the dispatched request. */
-	private bool $rest_lock_recheck = false;
-
-	/** The served anonymous request is a public batch route; every sub-request must be public too. */
-	private bool $rest_lock_batch = false;
-
 	/**
 	 * Register hooks.
 	 */
@@ -232,9 +226,7 @@ final class Module extends BaseModule {
 			add_action( 'template_redirect', array( $this, 'redirect_feed' ) );
 		}
 		if ( $this->setting( 'restrict_rest_api', false ) ) {
-			RestRoute::track();
-			add_filter( 'rest_authentication_errors', array( $this, 'restrict_rest_api' ), 99 );
-			add_filter( 'rest_pre_dispatch', array( $this, 'recheck_rest_lock' ), -100, 3 );
+			$this->register_rest_lock();
 		}
 
 		/* ── Heartbeat (left alone when a caching/perf plugin already manages it) ── */
@@ -3078,30 +3070,42 @@ final class Module extends BaseModule {
 	}
 
 	/**
+	 * Hooks of the "REST only for logged-in users" lock.
+	 *
+	 * - rest_authentication_errors: refuses the raw request before anything is dispatched;
+	 * - rest_pre_dispatch: the same refusal for the dispatched WP_REST_Request, early. A fast path
+	 *   only: a later filter returning null (ACF does on every request) drops it;
+	 * - rest_request_before_callbacks, last: the binding check. A WP_Error there stops the
+	 *   permission and endpoint callbacks of every dispatched request (batch sub-requests too),
+	 *   whatever the rest_pre_dispatch filters returned.
+	 */
+	public function register_rest_lock(): void {
+		RestRoute::track();
+		add_filter( 'rest_authentication_errors', array( $this, 'restrict_rest_api' ), 99 );
+		add_filter( 'rest_pre_dispatch', array( $this, 'recheck_rest_lock' ), -100, 3 );
+		add_filter( 'rest_request_before_callbacks', array( $this, 'enforce_rest_lock' ), PHP_INT_MAX, 3 );
+	}
+
+	/**
+	 * `rest_authentication_errors`. A WP_Error of another method is kept. Any other value, `true`
+	 * included, is not a login: the WooCommerce Store API answers `true` for every /wc/store/
+	 * request, a guest's too. Only a logged-in user skips the lock.
+	 *
 	 * @param \WP_Error|null|mixed $result Incoming filter value.
 	 * @return \WP_Error|null|mixed
 	 */
 	public function restrict_rest_api( $result ) {
-		$this->rest_lock_recheck = false;
-		$this->rest_lock_batch   = false;
-		if ( ! empty( $result ) ) {
-			return $result;
-		}
-		if ( is_user_logged_in() ) {
+		if ( is_wp_error( $result ) || is_user_logged_in() ) {
 			return $result;
 		}
 		if ( $this->is_public_rest_route( RestRoute::current(), RestRoute::method() ) ) {
-			// Confirm on the request the server really dispatches (recheck_rest_lock()).
-			$this->rest_lock_recheck = true;
 			return $result;
 		}
 		return $this->rest_lock_error();
 	}
 
 	/**
-	 * `rest_pre_dispatch`: the anonymous request let through as public must be public as the
-	 * WP_REST_Request the server dispatches (route and method after `_method` /
-	 * X-HTTP-Method-Override), whatever the raw request looked like.
+	 * `rest_pre_dispatch`: early refusal, see register_rest_lock().
 	 *
 	 * @param mixed $result  Short-circuit value.
 	 * @param mixed $server  REST server.
@@ -3112,21 +3116,48 @@ final class Module extends BaseModule {
 		if ( null !== $result ) {
 			return $result;
 		}
-		if ( $this->rest_lock_batch && $request instanceof \WP_REST_Request && ! RestRoute::is_served( $request ) ) {
-			// A sub-request of a public batch (Store API /batch) runs for the same anonymous
-			// visitor, so it must be public on its own: the batch must not tunnel to /wc/v3 & co.
-			return $this->is_public_rest_route( (string) $request->get_route(), (string) $request->get_method() ) ? $result : $this->rest_lock_error();
+		$refusal = $this->rest_lock_refusal( $request );
+		return $refusal ? $refusal : $result;
+	}
+
+	/**
+	 * `rest_request_before_callbacks`, last: the binding check, see register_rest_lock().
+	 *
+	 * @param mixed $response Result so far (a WP_Error stops the callbacks).
+	 * @param mixed $handler  Matched handler.
+	 * @param mixed $request  Request.
+	 * @return mixed
+	 */
+	public function enforce_rest_lock( $response, $handler = null, $request = null ) {
+		if ( is_wp_error( $response ) ) {
+			return $response;
 		}
-		if ( ! $this->rest_lock_recheck || ! RestRoute::is_served( $request ) ) {
-			return $result;
+		$refusal = $this->rest_lock_refusal( $request );
+		return $refusal ? $refusal : $response;
+	}
+
+	/**
+	 * Does the lock refuse a dispatched request? It must be public as the WP_REST_Request the
+	 * server dispatches (route and method after `_method` / X-HTTP-Method-Override), whatever the
+	 * raw request looked like. Checked are the served request of an anonymous REST call and every
+	 * other request dispatched while a public batch route (Store API /batch) is served: those run
+	 * for the same visitor and must not tunnel to /wc/v3 & co. Other internal requests (a public
+	 * endpoint calling rest_do_request()) and requests before the served dispatch pass.
+	 *
+	 * @param mixed $request Request.
+	 */
+	private function rest_lock_refusal( $request ): ?WP_Error {
+		if ( ! $request instanceof \WP_REST_Request || ! RestRoute::is_rest() || is_user_logged_in() ) {
+			return null;
 		}
-		$this->rest_lock_recheck = false;
-		$route                   = (string) $request->get_route();
-		if ( $this->is_public_rest_route( $route, (string) $request->get_method() ) ) {
-			$this->rest_lock_batch = (bool) preg_match( '#/batch/?$#', $route );
-			return $result;
+		$served = RestRoute::served();
+		if ( null === $served ) {
+			return null;
 		}
-		return $this->rest_lock_error();
+		if ( $served !== $request && ! preg_match( '#/batch/?$#i', (string) $served->get_route() ) ) {
+			return null;
+		}
+		return $this->is_public_rest_route( (string) $request->get_route(), (string) $request->get_method() ) ? null : $this->rest_lock_error();
 	}
 
 	/**
