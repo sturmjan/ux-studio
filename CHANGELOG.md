@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.14.2
+
+- Changed: release packages are now signed (Ed25519, `ux-studio.zip.sig` next to the zip). This version does not check the signature yet; the next version turns the check on.
+
 ## 0.14.1
 
 Security release: fixes found by a security review of the REST lock, the MCP tokens and several modules.
