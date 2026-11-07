@@ -287,8 +287,9 @@ abstract class RestEndpointTool {
 	}
 
 	/**
-	 * Without `unfiltered_html` (an MCP token without the admin scope), meta sent through a tool is
-	 * limited, because registered meta is stored as it comes and builders/themes print it:
+	 * A restricted MCP token (no admin scope, so no `unfiltered_html`, see Auth::restricted()) may
+	 * only send limited meta through a tool, because registered meta is stored as it comes and
+	 * builders/themes print it:
 	 *
 	 * - wp/v2 `meta` (posts, pages, terms, users, comments): no protected key (e.g. Elementor's
 	 *   `_elementor_data` / `_elementor_edit_mode`, which have no sanitize callback and would put a
@@ -303,13 +304,18 @@ abstract class RestEndpointTool {
 	 * is dropped silently, it would write nothing; a changed one refuses the whole request and the
 	 * error lists the keys.
 	 *
+	 * Anybody else (an admin-scope token, a logged-in user) is left to core and the route, as before
+	 * these checks existed, also without `unfiltered_html` (multisite, DISALLOW_UNFILTERED_HTML):
+	 * the guard closes the gap between a write token and its owner's capabilities, it adds no
+	 * refusals to callers that act with their full capabilities anyway.
+	 *
 	 * @param array<string, mixed> $input     Body parameters.
 	 * @param string               $meta_type Meta object type (post, term, user, comment).
 	 * @param int                  $object_id Object the request updates (0 when it creates one).
 	 * @return array<string, mixed>|\WP_Error
 	 */
 	public static function guard_meta( array $input, string $meta_type = 'post', int $object_id = 0 ) {
-		if ( ( ! isset( $input['meta'] ) && ! isset( $input['meta_data'] ) ) || current_user_can( 'unfiltered_html' ) ) {
+		if ( ( ! isset( $input['meta'] ) && ! isset( $input['meta_data'] ) ) || ! Auth::restricted() ) {
 			return $input;
 		}
 		$refused = array();

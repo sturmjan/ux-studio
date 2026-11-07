@@ -687,6 +687,18 @@ $raw = array( 'meta' => array( '_elementor_edit_mode' => 'builder', '_elementor_
 $assert( 'R5: admin token may still write Elementor meta', $raw === RestEndpointTool::guard_meta( $raw, 'post' ) );
 Auth::reset( null );
 $assert( 'R5: no token (cookie admin with unfiltered_html) is untouched', $raw === RestEndpointTool::guard_meta( $raw, 'post' ) );
+// Multisite / DISALLOW_UNFILTERED_HTML: nobody has unfiltered_html, the admin token adds no refusals.
+$caps_before = $GLOBALS['uxs_caps'];
+unset( $GLOBALS['uxs_caps']['unfiltered_html'] );
+Auth::reset( $tok( array( 'admin' ) ) );
+$assert( 'F4: admin token without unfiltered_html: Elementor meta untouched', ! current_user_can( 'unfiltered_html' ) && $raw === RestEndpointTool::guard_meta( $raw, 'post', 5 ) );
+$wide = array( 'meta' => array( 'cena_ž' => '1' ), 'meta_data' => array( array( 'id' => 92, 'key' => 'colour', 'value' => '<b>x</b>' ), array( 'key' => '_payment_method', 'value' => 'cod' ) ) );
+$assert( 'F4: admin token without unfiltered_html: non-ASCII keys, order row ids, protected keys untouched', $wide === RestEndpointTool::guard_meta( $wide, 'order', 5 ) );
+Auth::reset( null );
+$assert( 'F4: no token, user without unfiltered_html: untouched (left to core)', $wide === RestEndpointTool::guard_meta( $wide, 'order', 5 ) );
+Auth::reset( $tok( array( 'write' ) ) );
+$assert( 'F4: a write token is still refused', is_wp_error( RestEndpointTool::guard_meta( $wide, 'order', 5 ) ) );
+$GLOBALS['uxs_caps'] = $caps_before;
 
 /* ── R6: protected meta sent back unchanged (GET round trip) is dropped, changed is refused ── */
 
