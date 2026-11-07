@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.14.3
+
+- Security: automatic updates of UX Studio now check the Ed25519 signature of the release package (`ux-studio.zip.sig`). An update without a valid signature is refused and the installed version is kept.
+
 ## 0.14.2
 
 - Changed: release packages are now signed (Ed25519, `ux-studio.zip.sig` next to the zip). This version does not check the signature yet; the next version turns the check on.
