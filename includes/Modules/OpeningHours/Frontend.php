@@ -145,7 +145,7 @@ final class Frontend {
 
 		$payload = 1 === count( $items ) ? $items[0] : array( '@graph' => $items );
 		echo "\n<script type=\"application/ld+json\">";
-		echo wp_json_encode( $payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+		echo wp_json_encode( $payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP ); // HEX_TAG: no </script> breakout from admin-entered text.
 		echo "</script>\n";
 	}
 

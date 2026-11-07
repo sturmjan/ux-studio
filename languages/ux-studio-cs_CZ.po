@@ -37969,3 +37969,11 @@ msgstr "Připojení jste zrušili. Můžete ho dokončit později v modulu Synch
 #: build/index.448b9a5f8122a692a0c2.js:69
 msgid "The site is connected to the central app. The recommended modules below use it where they can."
 msgstr "Web je připojený k Centrální aplikaci. Doporučené moduly níže ji využijí všude, kde to jde."
+
+#: build/744.7fdbbd2c2c857b663f27.js:1
+msgid "Invalid IP allowlist entries were ignored"
+msgstr "Neplatné položky seznamu povolených IP byly ignorovány"
+
+#: build/744.7fdbbd2c2c857b663f27.js:1
+msgid "Only an IPv4/IPv6 address or a CIDR range (prefix 0-32 / 0-128) is allowed. Fix or remove:"
+msgstr "Povolená je jen adresa IPv4/IPv6 nebo CIDR rozsah (prefix 0-32 / 0-128). Opravte nebo odeberte:"

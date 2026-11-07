@@ -51,6 +51,7 @@ interface CronStatus {
 	cron_url: string;
 	external_cron_cmd: string;
 	remote_result: RemoteResult | null;
+	invalid_allowed_ips?: string[];
 }
 
 interface RemoteResult {
@@ -167,6 +168,13 @@ function StatusView(): JSX.Element {
 						<span className={ `uxs-badge ${ data.htaccess_writable ? 'is-success' : 'is-warning' }` }>
 							{ data.htaccess_writable ? __( 'Yes', 'ux-studio' ) : __( 'No, the access rules for the cron file cannot be applied', 'ux-studio' ) }
 						</span>
+						{ data.invalid_allowed_ips && data.invalid_allowed_ips.length > 0 ? (
+							<span className="uxs-form__help">
+								<span className="uxs-badge is-warning">{ __( 'Invalid IP allowlist entries were ignored', 'ux-studio' ) }</span>{ ' ' }
+								{ __( 'Only an IPv4/IPv6 address or a CIDR range (prefix 0-32 / 0-128) is allowed. Fix or remove:', 'ux-studio' ) }{ ' ' }
+								<code>{ data.invalid_allowed_ips.join( ', ' ) }</code>
+							</span>
+						) : null }
 					</td>
 				</tr>
 				<tr>
