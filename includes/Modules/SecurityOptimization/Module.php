@@ -3076,8 +3076,19 @@ final class Module extends BaseModule {
 	 * - rest_pre_dispatch: the same refusal for the dispatched WP_REST_Request, early. A fast path
 	 *   only: a later filter returning null (ACF does on every request) drops it;
 	 * - rest_request_before_callbacks, last: the binding check. A WP_Error there stops the
-	 *   permission and endpoint callbacks of every dispatched request (batch sub-requests too),
-	 *   whatever the rest_pre_dispatch filters returned.
+	 *   permission and endpoint callbacks of every dispatched request it checks (the served one,
+	 *   Store API batch sub-requests, `_embed` links), whatever the rest_pre_dispatch filters
+	 *   returned.
+	 *
+	 * Residual risks, by design of the REST server (the lock cannot close them):
+	 * - a rest_pre_dispatch filter running before ours (priority below -100) that returns a
+	 *   response, e.g. a REST cache plugin answering from its cache, skips both the dispatch
+	 *   recheck and the callbacks, so rest_request_before_callbacks never runs. Only the
+	 *   rest_authentication_errors refusal applies then, which judges the raw request;
+	 * - a rest_request_before_callbacks filter added later at PHP_INT_MAX runs after ours and can
+	 *   replace the WP_Error with a response of its own;
+	 * - internal requests a public endpoint makes with rest_do_request() while it is being
+	 *   dispatched are not checked (they are server-side code paths, see rest_lock_refusal()).
 	 */
 	public function register_rest_lock(): void {
 		RestRoute::track();
@@ -3087,21 +3098,42 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * `rest_authentication_errors`. A WP_Error of another method is kept. Any other value, `true`
-	 * included, is not a login: the WooCommerce Store API answers `true` for every /wc/store/
-	 * request, a guest's too. Only a logged-in user skips the lock.
+	 * `rest_authentication_errors`. A WP_Error of another method is kept. A logged-in user, or
+	 * `true` from another authentication method (Jetpack's signed WordPress.com requests run as
+	 * user 0 and answer `true`), passes as it did before the dispatch checks existed, and the
+	 * served request is remembered as vouched for (RestRoute::vouch()) so enforce_rest_lock()
+	 * lets it run too. That also covers core logging out a logged-in user without a REST nonce
+	 * (rest_cookie_check_errors(), later): the request runs anonymously, as it always did.
+	 *
+	 * The one `true` that proves nothing is the WooCommerce Store API's: it answers `true` for
+	 * every /wc/store/ request, a guest's too, so it is not trusted there (the Store API is public
+	 * anyway, except the routes default_locked_rest_routes() keeps locked).
 	 *
 	 * @param \WP_Error|null|mixed $result Incoming filter value.
 	 * @return \WP_Error|null|mixed
 	 */
 	public function restrict_rest_api( $result ) {
-		if ( is_wp_error( $result ) || is_user_logged_in() ) {
+		if ( is_wp_error( $result ) ) {
+			RestRoute::vouch( false );
 			return $result;
 		}
-		if ( $this->is_public_rest_route( RestRoute::current(), RestRoute::method() ) ) {
+		$trusted = is_user_logged_in() || ( true === $result && ! $this->store_api_may_vouch() );
+		RestRoute::vouch( $trusted );
+		if ( $trusted || $this->is_public_rest_route( RestRoute::current(), RestRoute::method() ) ) {
 			return $result;
 		}
 		return $this->rest_lock_error();
+	}
+
+	/**
+	 * Could a `true` authentication result come from the WooCommerce Store API? Its
+	 * Authentication::init() hooks only when the `rest_route` query var (the route the server
+	 * dispatches) starts with /wc/store/; compared case-insensitively to be safe.
+	 */
+	private function store_api_may_vouch(): bool {
+		$route = isset( $GLOBALS['wp'] ) && is_object( $GLOBALS['wp'] ) ? ( $GLOBALS['wp']->query_vars['rest_route'] ?? '' ) : '';
+		$route = is_string( $route ) ? $route : '';
+		return 0 === stripos( '/' . ltrim( $route, '/' ), '/wc/store' ) || 0 === stripos( RestRoute::current(), '/wc/store' );
 	}
 
 	/**
@@ -3137,12 +3169,18 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Does the lock refuse a dispatched request? It must be public as the WP_REST_Request the
-	 * server dispatches (route and method after `_method` / X-HTTP-Method-Override), whatever the
-	 * raw request looked like. Checked are the served request of an anonymous REST call and every
-	 * other request dispatched while a public batch route (Store API /batch) is served: those run
-	 * for the same visitor and must not tunnel to /wc/v3 & co. Other internal requests (a public
-	 * endpoint calling rest_do_request()) and requests before the served dispatch pass.
+	 * Does the lock refuse a dispatched request of an anonymous REST call? Checked are, against
+	 * the route and method the server dispatches (after `_method` / X-HTTP-Method-Override),
+	 * whatever the raw request looked like:
+	 * - the served request: passes when public, or when vouched for at authentication (bound to
+	 *   that very WP_REST_Request and its route, see RestRoute::served_vouched());
+	 * - every request dispatched while a batch route is served (Store API /batch, core
+	 *   /batch/v1) and every request dispatched after the served one (its `_embed` links): they
+	 *   run for the same visitor and must not tunnel to /wc/v3 & co. They inherit the vouch only
+	 *   when the served route is not public, i.e. the call got in on that vouch alone; a public
+	 *   batch or a public route with `_embed` never opens a locked route.
+	 * Other internal requests (a public endpoint calling rest_do_request() while it runs) and
+	 * requests before the served dispatch pass.
 	 *
 	 * @param mixed $request Request.
 	 */
@@ -3154,8 +3192,17 @@ final class Module extends BaseModule {
 		if ( null === $served ) {
 			return null;
 		}
-		if ( $served !== $request && ! preg_match( '#/batch/?$#i', (string) $served->get_route() ) ) {
-			return null;
+		if ( $served === $request ) {
+			if ( RestRoute::served_vouched() ) {
+				return null;
+			}
+		} else {
+			if ( ! RestRoute::served_dispatched() && ! preg_match( '#/batch(/v1)?/?$#i', (string) $served->get_route() ) ) {
+				return null;
+			}
+			if ( RestRoute::served_vouched() && ! $this->is_public_rest_route( (string) $served->get_route(), (string) $served->get_method() ) ) {
+				return null;
+			}
 		}
 		return $this->is_public_rest_route( (string) $request->get_route(), (string) $request->get_method() ) ? null : $this->rest_lock_error();
 	}

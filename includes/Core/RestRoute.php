@@ -31,6 +31,18 @@ final class RestRoute {
 
 	private static bool $tracking = false;
 
+	/** The served request has been dispatched (its rest_post_dispatch ran): embeds come next. */
+	private static bool $dispatched = false;
+
+	/** @var string|null Route an authentication method vouched for while authenticating, see vouch(). */
+	private static $vouched_for = null;
+
+	/** @var string|null The vouched route, carried from arm() to capture(). */
+	private static $armed_vouch = null;
+
+	/** @var string|null The vouched route of the served request ('' = none). */
+	private static $served_vouch = null;
+
 	/**
 	 * Start remembering the served request (idempotent).
 	 */
@@ -44,6 +56,54 @@ final class RestRoute {
 		// Internal sub-requests (rest_do_request from an ability) come later and are not it.
 		add_filter( 'rest_authentication_errors', array( self::class, 'arm' ), PHP_INT_MAX );
 		add_filter( 'rest_pre_dispatch', array( self::class, 'capture' ), PHP_INT_MIN, 3 );
+		// serve_request() runs rest_post_dispatch for the served request right before
+		// response_to_data(), which dispatches the `_embed` links as new requests.
+		add_filter( 'rest_post_dispatch', array( self::class, 'mark_dispatched' ), PHP_INT_MAX, 3 );
+	}
+
+	/**
+	 * Called from a rest_authentication_errors filter: the caller of the request about to be
+	 * served is trusted (a logged-in user, or another authentication method answered `true`).
+	 * The trust is bound to the route current() names now, i.e. the route serve_request() hands
+	 * to dispatch(), and to the WP_REST_Request captured next, see served_vouched().
+	 *
+	 * @param bool $trusted Trusted or not (false clears an earlier vouch).
+	 */
+	public static function vouch( bool $trusted ): void {
+		self::$vouched_for = $trusted ? strtolower( self::current() ) : null;
+	}
+
+	/**
+	 * Did an authentication method vouch for the served request? Only for the very
+	 * WP_REST_Request serve_request() dispatches, and only while it still runs the route the
+	 * trust was given for.
+	 */
+	public static function served_vouched(): bool {
+		return null !== self::$served && null !== self::$served_vouch && '' !== self::$served_vouch
+			&& self::$served_vouch === strtolower( self::normalize( (string) self::$served->get_route() ) );
+	}
+
+	/**
+	 * Has the served request been dispatched? Requests dispatched after that are its `_embed`
+	 * links (WP_REST_Server::embed_links()) or come from late output filters.
+	 */
+	public static function served_dispatched(): bool {
+		return self::$dispatched;
+	}
+
+	/**
+	 * `rest_post_dispatch`, last: the served request has its response.
+	 *
+	 * @param mixed $response Response.
+	 * @param mixed $server   REST server.
+	 * @param mixed $request  Request.
+	 * @return mixed Unchanged.
+	 */
+	public static function mark_dispatched( $response, $server = null, $request = null ) {
+		if ( null !== self::$served && self::$served === $request ) {
+			self::$dispatched = true;
+		}
+		return $response;
 	}
 
 	/**
@@ -53,7 +113,9 @@ final class RestRoute {
 	 * @return mixed Unchanged.
 	 */
 	public static function arm( $result ) {
-		self::$armed = ! ( function_exists( 'is_wp_error' ) && is_wp_error( $result ) );
+		self::$armed       = ! ( function_exists( 'is_wp_error' ) && is_wp_error( $result ) );
+		self::$armed_vouch = self::$armed ? self::$vouched_for : null;
+		self::$vouched_for = null;
 		return $result;
 	}
 
@@ -67,8 +129,11 @@ final class RestRoute {
 	 */
 	public static function capture( $result, $server = null, $request = null ) {
 		if ( self::$armed && $request instanceof \WP_REST_Request ) {
-			self::$armed  = false;
-			self::$served = $request;
+			self::$armed        = false;
+			self::$served       = $request;
+			self::$served_vouch = self::$armed_vouch;
+			self::$armed_vouch  = null;
+			self::$dispatched   = false;
 		}
 		return $result;
 	}
@@ -174,8 +239,12 @@ final class RestRoute {
 	 * Forget the served request (tests).
 	 */
 	public static function reset(): void {
-		self::$armed  = false;
-		self::$served = null;
+		self::$armed        = false;
+		self::$served       = null;
+		self::$dispatched   = false;
+		self::$vouched_for  = null;
+		self::$armed_vouch  = null;
+		self::$served_vouch = null;
 	}
 
 	/**

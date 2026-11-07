@@ -52,6 +52,33 @@ register_rest_route(
 		},
 	)
 );
+// Same batch behind a route that is not public: only a vouched-for caller gets in.
+register_rest_route(
+	'uxs-test/v1',
+	'/batch',
+	array(
+		'methods'             => 'POST',
+		'permission_callback' => '__return_true',
+		'callback'            => static function ( WP_REST_Request $request ) {
+			$out = array();
+			foreach ( (array) $request->get_param( 'paths' ) as $path ) {
+				$response = rest_do_request( new WP_REST_Request( 'GET', (string) $path ) );
+				$out[]    = $response->is_error() ? $response->as_error()->get_error_code() : $response->get_data();
+			}
+			return $out;
+		},
+	)
+);
+// Responses with embeddable links (served with `_embed`), one public, one not.
+$linked = static function ( WP_REST_Request $request ) {
+	$response = new WP_REST_Response( array( 'linked' => true ) );
+	$tag      = (string) $request->get_param( 'tag' );
+	$response->add_link( 'secret', rest_url( 'uxs-test/v1/private?tag=' . $tag ), array( 'embeddable' => true ) );
+	$response->add_link( 'item', rest_url( 'uxs-test/v1/open/item?tag=' . $tag ), array( 'embeddable' => true ) );
+	return $response;
+};
+register_rest_route( 'uxs-test/v1', '/open/linked', array( 'methods' => 'GET', 'callback' => $linked, 'permission_callback' => '__return_true' ) );
+register_rest_route( 'uxs-test/v1', '/linked', array( 'methods' => 'GET', 'callback' => $linked, 'permission_callback' => '__return_true' ) );
 register_rest_route( 'uxs-test/v1', '/open/inner', array( 'methods' => 'GET', 'permission_callback' => '__return_true', 'callback' => static fn() => rest_do_request( new WP_REST_Request( 'GET', '/uxs-test/v1/private' ) )->get_data() ) );
 // POST is an own public endpoint, GET is not (its permission callback is not __return_true).
 register_rest_route(
@@ -88,6 +115,11 @@ $store_like = static function ( $result ) {
 	return $result;
 };
 add_filter( 'rest_authentication_errors', $store_like, 10 );
+// Jetpack: a WordPress.com blog-token signed request authenticates as user 0 and answers true.
+$signed_like = static function ( $result ) {
+	return ( empty( $result ) && ! empty( $_SERVER['HTTP_X_UXS_SIGNED'] ) ) ? true : $result;
+};
+add_filter( 'rest_authentication_errors', $signed_like, 10 );
 
 wp_set_current_user( 0 );
 
@@ -151,8 +183,8 @@ $row = static function ( string $label, string $got, string $want ) use ( &$fail
  *
  * @return string 'auth:<code>' (refused before dispatch), 'error:<code>' or 'ran:<json data>'.
  */
-$serve = static function ( string $uri, ?WP_REST_Request $dispatched = null, string $method = 'GET' ) use ( $raw ): string {
-	$raw( $uri, $method );
+$serve = static function ( string $uri, ?WP_REST_Request $dispatched = null, string $method = 'GET', array $headers = array(), bool $embed = false ) use ( $raw ): string {
+	$raw( $uri, $method, array(), $headers );
 	$server = rest_get_server();
 	$auth   = $server->check_authentication();
 	if ( is_wp_error( $auth ) ) {
@@ -160,7 +192,24 @@ $serve = static function ( string $uri, ?WP_REST_Request $dispatched = null, str
 	} else {
 		$request  = $dispatched ?? new WP_REST_Request( $method, RestRoute::current() );
 		$response = $server->dispatch( $request );
-		$out      = $response->is_error() ? 'error:' . $response->as_error()->get_error_code() : 'ran:' . wp_json_encode( $response->get_data() );
+		// Like serve_request(): rest_post_dispatch, then response_to_data() dispatches the embeds.
+		$response = apply_filters( 'rest_post_dispatch', rest_ensure_response( $response ), $server, $request );
+		if ( $response->is_error() ) {
+			$out = 'error:' . $response->as_error()->get_error_code();
+		} elseif ( $embed ) {
+			$data = $server->response_to_data( $response, true );
+			$out  = 'embedded:';
+			foreach ( array( 'secret', 'item' ) as $rel ) {
+				$item = $data['_embedded'][ $rel ][0] ?? null;
+				$out .= $rel . '=' . ( ( is_array( $item ) && isset( $item['code'] ) ) ? (string) $item['code'] : wp_json_encode( $item ) ) . ' ';
+			}
+			$out = rtrim( $out );
+		} else {
+			$out = 'ran:' . wp_json_encode( $response->get_data() );
+		}
+	}
+	foreach ( array_keys( $headers ) as $header ) {
+		unset( $_SERVER[ $header ] );
 	}
 	unset( $GLOBALS['wp']->query_vars['rest_route'] );
 	RestRoute::reset();
@@ -258,11 +307,43 @@ if ( class_exists( 'WooCommerce' ) ) {
 	$sub->set_param( 'paths', array( '/wc/store/v1/products/reviews', '/wc/v3/orders' ) );
 	$row( 'batch sub-requests to reviews and /wc/v3 -> refused', $serve( '/wp-json/uxs-test/v1/open/batch', $sub, 'POST' ), 'ran:["uxstudio_rest_forbidden","uxstudio_rest_forbidden"]' );
 }
+
+echo "\n== another authentication method answering true (Jetpack-like signed request, user 0) ==\n";
+$sig = array( 'HTTP_X_UXS_SIGNED' => '1' );
+$row( 'unsigned private route -> refused', $serve( '/wp-json/uxs-test/v1/private' ), 'auth:uxstudio_rest_forbidden' );
+$row( 'signed private route runs', $serve( '/wp-json/uxs-test/v1/private', null, 'GET', $sig ), 'ran:"secret"' );
+$row( 'signed, dispatched route in another case still runs', $serve( '/wp-json/uxs-test/v1/private', new WP_REST_Request( 'GET', '/UXS-TEST/v1/private' ), 'GET', $sig ), 'ran:"secret"' );
+$row( 'signed for a public URL, another route dispatched -> refused', $serve( '/wp-json/uxs-test/v1/open/item', new WP_REST_Request( 'GET', '/uxs-test/v1/private' ), 'GET', $sig ), 'error:uxstudio_rest_forbidden' );
+$bsub = new WP_REST_Request( 'POST', '/uxs-test/v1/batch' );
+$bsub->set_param( 'paths', array( '/uxs-test/v1/private' ) );
+$row( 'unsigned private batch -> refused', $serve( '/wp-json/uxs-test/v1/batch', $bsub, 'POST' ), 'auth:uxstudio_rest_forbidden' );
+$bsub = new WP_REST_Request( 'POST', '/uxs-test/v1/batch' );
+$bsub->set_param( 'paths', array( '/uxs-test/v1/private' ) );
+$row( 'signed private batch: sub-requests inherit the vouch', $serve( '/wp-json/uxs-test/v1/batch', $bsub, 'POST', $sig ), 'ran:["secret"]' );
+$psub = new WP_REST_Request( 'POST', '/uxs-test/v1/open/batch' );
+$psub->set_param( 'paths', array( '/uxs-test/v1/open/item', '/uxs-test/v1/private' ) );
+$row( 'signed public batch: private sub-request still refused', $serve( '/wp-json/uxs-test/v1/open/batch', $psub, 'POST', $sig ), 'ran:["item","uxstudio_rest_forbidden"]' );
+$row( 'no vouch is left for the next request', $serve( '/wp-json/uxs-test/v1/private' ), 'auth:uxstudio_rest_forbidden' );
+if ( class_exists( 'WooCommerce' ) ) {
+	$row( 'signed Store API reviews -> still refused (a /wc/store/ true proves nothing)', $serve( '/wp-json/wc/store/v1/products/reviews', null, 'GET', $sig ), 'auth:uxstudio_rest_forbidden' );
+}
+
+echo "\n== _embed links of the served request ==\n";
+$row( 'public route: private embed refused, public embed runs', $serve( '/wp-json/uxs-test/v1/open/linked?tag=a', new WP_REST_Request( 'GET', '/uxs-test/v1/open/linked' ), 'GET', array(), true ), 'embedded:secret=uxstudio_rest_forbidden item="item"' );
+$row( 'signed private route: embeds inherit the vouch', $serve( '/wp-json/uxs-test/v1/linked?tag=b', new WP_REST_Request( 'GET', '/uxs-test/v1/linked' ), 'GET', $sig, true ), 'embedded:secret="secret" item="item"' );
+$row( 'signed public route: private embed refused', $serve( '/wp-json/uxs-test/v1/open/linked?tag=c', new WP_REST_Request( 'GET', '/uxs-test/v1/open/linked' ), 'GET', $sig, true ), 'embedded:secret=uxstudio_rest_forbidden item="item"' );
+
 $admins = get_users( array( 'role' => 'administrator', 'number' => 1, 'fields' => 'ID' ) );
 $admin  = (int) ( $admins[0] ?? 0 );
 if ( $admin ) {
 	wp_set_current_user( $admin );
 	$row( 'a logged-in user is not locked', $serve( '/wp-json/uxs-test/v1/private' ), 'ran:"secret"' );
+	// Cookie login without a REST nonce: core logs the user out and answers true (v0.14.0 ran it anonymously).
+	$GLOBALS['wp_rest_auth_cookie'] = true;
+	wp_set_current_user( $admin );
+	$row( 'cookie login without a nonce: runs anonymously, as before', $serve( '/wp-json/uxs-test/v1/private' ), 'ran:"secret"' );
+	$row( '... and the user is logged out for it', (string) get_current_user_id(), '0' );
+	unset( $GLOBALS['wp_rest_auth_cookie'] );
 	wp_set_current_user( 0 );
 }
 
