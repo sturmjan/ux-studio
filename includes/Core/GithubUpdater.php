@@ -36,7 +36,7 @@ final class GithubUpdater {
 	 * Base64 Ed25519 public key (32 bytes) matching the CI signing secret.
 	 * Empty = signature verification off.
 	 */
-	private const RELEASE_PUBLIC_KEY = '';
+	private const RELEASE_PUBLIC_KEY = 'Agcqym2NcSzyt2axlTDrB2yPxDm948B7tTFSTHD3BbQ=';
 
 	/**
 	 * Whether this request may check for or install updates: wp-admin (incl.
