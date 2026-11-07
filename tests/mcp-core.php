@@ -535,6 +535,440 @@ $assert( 'legacy ids are recognised', \UxStudio\Core\Mcp\LegacyJwt::is_legacy_id
 $assert( 'a revoked old token stops working', 'denied' === Auth::evaluate( $jwt, Auth::KIND_ENDPOINT, '203.0.113.5' )['state'] );
 $assert( 'a tampered JWT is refused', 'denied' === Auth::evaluate( $jwt . 'x', Auth::KIND_ENDPOINT, '203.0.113.5' )['state'] );
 
+/* ── Route the token is judged on: what WordPress dispatches, not a guess (U1, U3) ── */
+
+function wp_parse_url( $url, $component = -1 ) { return parse_url( $url, $component ); }
+function rest_get_url_prefix() { return 'wp-json'; }
+
+use UxStudio\Core\RestRoute;
+
+$srv = static fn( string $uri, string $method = 'POST', array $extra = array() ): array => array( 'REQUEST_URI' => $uri, 'REQUEST_METHOD' => $method ) + $extra;
+$assert( 'route: pretty permalink', '/uxstudio/v1/mcp' === RestRoute::requested( array(), array(), $srv( '/wp-json/uxstudio/v1/mcp' ) ) );
+$assert( 'route: subdirectory install and trailing slash', '/uxstudio/v1/mcp' === RestRoute::requested( array(), array(), $srv( '/pobyty/wp-json/uxstudio/v1/mcp/' ) ) );
+$assert( 'route: ?rest_route= beats the path', '/wp/v2/users' === RestRoute::requested( array( 'rest_route' => '/wp/v2/users' ), array(), $srv( '/wp-json/uxstudio/v1/mcp' ) ) );
+$assert( 'route: POST rest_route beats the permalink (WP::parse_request order)', '/wp/v2/users' === RestRoute::requested( array(), array( 'rest_route' => '/wp/v2/users' ), $srv( '/wp-json/uxstudio/v1/mcp' ) ) );
+$assert( 'route: POST rest_route beats an equal GET one', '/wp/v2/users' === RestRoute::requested( array( 'rest_route' => '/wp/v2/users' ), array( 'rest_route' => '/wp/v2/users' ), $srv( '/' ) ) );
+$assert( 'route: GET and POST rest_route differ -> none (WordPress answers 400)', '' === RestRoute::requested( array( 'rest_route' => '/uxstudio/v1/mcp' ), array( 'rest_route' => '/wp/v2/users' ), $srv( '/' ) ) );
+$assert( 'route: non-string rest_route -> none', '' === RestRoute::requested( array( 'rest_route' => array( 'x' ) ), array(), $srv( '/wp-json/uxstudio/v1/mcp' ) ) );
+$assert( 'route: not a REST URL', '' === RestRoute::requested( array(), array(), $srv( '/wp-admin/admin-ajax.php' ) ) );
+$assert( 'route: the U1 bypass no longer looks like the MCP route', '' === Auth::route_kind( RestRoute::requested( array(), array( 'rest_route' => '/wp/v2/users', 'roles' => 'administrator' ), $srv( '/wp-json/uxstudio/v1/mcp' ) ) ) );
+$assert( 'method: plain', 'POST' === RestRoute::method( array(), $srv( '/', 'post' ) ) );
+$assert( 'method: X-HTTP-Method-Override is honoured like the REST server does', 'GET' === RestRoute::method( array(), $srv( '/', 'POST', array( 'HTTP_X_HTTP_METHOD_OVERRIDE' => 'get' ) ) ) );
+$assert( 'method: ?_method= wins over the header', 'DELETE' === RestRoute::method( array( '_method' => 'DELETE' ), $srv( '/', 'POST', array( 'HTTP_X_HTTP_METHOD_OVERRIDE' => 'GET' ) ) ) );
+$assert( 'outside a REST request the token is not even looked at', ! RestRoute::is_rest() );
+Auth::reset();
+$_SERVER['HTTP_AUTHORIZATION'] = 'Bearer ' . $adm['token'];
+$_SERVER['REQUEST_URI']        = '/wp-json/uxstudio/v1/mcp';
+$GLOBALS['uxs_options']['uxstudio_mcp'] = array( 'enabled' => true );
+$assert( 'authenticate() refuses a valid token before REST_REQUEST', false === Auth::authenticate( false ) && null === Auth::context() );
+unset( $_SERVER['HTTP_AUTHORIZATION'] );
+
+/* ── AI Assistant tools that can escalate need admin (U2) ── */
+
+use UxStudio\Core\Mcp\Bridge;
+
+foreach ( array( 'users-create', 'users-update', 'users-delete', 'settings-update' ) as $tool ) {
+	$assert( "AI tool $tool needs the admin scope", Scopes::ADMIN === Bridge::ai_scope( 'ai-assistant/' . $tool, array( 'readonly' => false ) ) );
+	$assert( "a write token cannot run $tool", ! Scopes::allows( array( 'write' ), Bridge::ai_scope( 'ai-assistant/' . $tool, array() ) ) );
+}
+$assert( 'AI read tools stay read', Scopes::READ === Bridge::ai_scope( 'ai-assistant/users-list', array( 'readonly' => true ) ) );
+$assert( 'other AI write tools stay write', Scopes::WRITE === Bridge::ai_scope( 'ai-assistant/posts-create', array( 'readonly' => false ) ) );
+
+/* ── R4: non-readonly AI tools need admin unless allowlisted as write ── */
+
+$write_tools = array( 'posts-create', 'posts-update', 'posts-delete', 'pages-create', 'pages-update', 'pages-delete', 'categories-create', 'categories-update', 'categories-delete', 'tags-create', 'tags-update', 'tags-delete', 'media-delete', 'woo-products-create', 'woo-products-update', 'woo-products-delete' );
+foreach ( $write_tools as $tool ) {
+	$assert( "R4: $tool is write", Scopes::WRITE === Bridge::ai_scope( 'ai-assistant/' . $tool, array( 'readonly' => false ) ) );
+}
+$assert( 'R4: the allowlist is exactly the content tools', count( $write_tools ) === count( Bridge::AI_WRITE_TOOLS ) );
+foreach ( array( 'woo-orders-create', 'elementor-update-widget', 'some-future-tool', 'plugins-install' ) as $tool ) {
+	$assert( "R4: $tool defaults to admin", Scopes::ADMIN === Bridge::ai_scope( 'ai-assistant/' . $tool, array( 'readonly' => false ) ) );
+}
+$assert( 'R4: a new read-only tool is read', Scopes::READ === Bridge::ai_scope( 'ai-assistant/some-future-tool', array( 'readonly' => true ) ) );
+
+/* ── R1: a token without admin never has unfiltered_html (stored XSS -> admin takeover) ── */
+
+$GLOBALS['uxs_caps']     = array( 'unfiltered_html' => true, 'edit_posts' => true, 'manage_options' => true );
+$GLOBALS['uxs_editable'] = array( 10 );
+// Mimics WP_User::has_cap(): the user_has_cap filter (Auth::limit_caps) runs on every check.
+function current_user_can( $cap, ...$args ) {
+	$caps = Auth::limit_caps( $GLOBALS['uxs_caps'], array( $cap ), array( $cap ), null );
+	if ( 'edit_post' === $cap ) {
+		return ! empty( $caps['edit_posts'] ) && in_array( (int) ( $args[0] ?? 0 ), $GLOBALS['uxs_editable'], true );
+	}
+	return ! empty( $caps[ $cap ] );
+}
+$tok = static fn( array $scopes, string $state = 'ok' ): array => array( 'state' => $state, 'code' => $state, 'id' => 't1', 'label' => 'x', 'scopes' => $scopes, 'user_id' => 7, 'ip' => '203.0.113.5' );
+
+Auth::reset( null );
+$assert( 'R1: no token (cookie admin) keeps unfiltered_html', current_user_can( 'unfiltered_html' ) && ! Auth::restricted() );
+foreach ( array( array( 'read' ), array( 'write' ), array( 'migration' ), array( 'read', 'write', 'migration' ) ) as $scopes ) {
+	Auth::reset( $tok( $scopes ) );
+	$label = implode( '+', $scopes );
+	$assert( "R1: a $label token loses unfiltered_html", Auth::restricted() && ! current_user_can( 'unfiltered_html' ) );
+	$assert( "R1: a $label token keeps its other capabilities", current_user_can( 'manage_options' ) && current_user_can( 'edit_posts' ) );
+}
+Auth::reset( $tok( array( 'admin' ) ) );
+$assert( 'R1: an admin token keeps unfiltered_html', ! Auth::restricted() && current_user_can( 'unfiltered_html' ) );
+Auth::reset( $tok( array( 'write', 'admin' ) ) );
+$assert( 'R1: write+admin is admin', current_user_can( 'unfiltered_html' ) );
+Auth::reset( $tok( array( 'write' ), 'denied' ) );
+$assert( 'R1: a refused token changes nothing (no user anyway)', ! Auth::restricted() );
+Auth::reset( $tok( array( 'write' ) ) );
+$assert( 'R1: limit_caps leaves a user without unfiltered_html alone', array( 'edit_posts' => true ) === Auth::limit_caps( array( 'edit_posts' => true ) ) );
+
+/* ── R1: WooCommerce meta_data of a restricted token ── */
+
+use UxStudio\Modules\AiAssistant\Mcp\Tools\RestEndpointTool;
+
+function wp_kses_post( $v ) { return preg_replace( '/\s+on\w+\s*=\s*("[^"]*"|\'[^\']*\'|\S+)/i', '', strip_tags( preg_replace( '#<script\b[^>]*>.*?</script>#is', '', (string) $v ), '<p><a><strong><em><img>' ) ); }
+// Mirrors WordPress esc_url( $url, null, 'db' ): strips characters outside its set, %0d/%0a, `;//`, unknown protocols.
+function esc_url_raw( $v ) {
+	$url = str_replace( ' ', '%20', ltrim( (string) $v ) );
+	$url = preg_replace( '|[^a-z0-9-~+_.?#=!&;,/:%@$\|*\'()\[\]\x80-\xff]|i', '', $url );
+	if ( '' === $url ) {
+		return $url;
+	}
+	if ( 0 !== stripos( $url, 'mailto:' ) ) {
+		do {
+			$before = $url;
+			$url    = str_replace( array( '%0d', '%0a', '%0D', '%0A' ), '', $url );
+		} while ( $before !== $url );
+	}
+	$url = str_replace( ';//', '://', $url );
+	if ( ! str_contains( $url, ':' ) && ! in_array( $url[0], array( '/', '#', '?' ), true ) ) {
+		$url = 'http://' . $url;
+	}
+	if ( '/' === $url[0] || '#' === $url[0] ) {
+		return $url;
+	}
+	return preg_match( '#^(https?|ftps?|mailto):#i', $url ) ? $url : '';
+}
+function is_protected_meta( $key, $type = '' ) { return '_' === substr( (string) $key, 0, 1 ); }
+
+Auth::reset( $tok( array( 'write' ) ) );
+$g = RestEndpointTool::guard_meta( array( 'name' => 'P', 'meta_data' => array( array( 'key' => '_elementor_data', 'value' => '[]' ) ) ) );
+$assert( 'R1: write token cannot set protected meta (_elementor_data) over woo meta_data', is_wp_error( $g ) );
+$g = RestEndpointTool::guard_meta( array( 'meta_data' => array( array( 'key' => 'hero_text', 'value' => array( 'a' => '<script>alert(1)</script><strong>ok</strong>' ) ) ) ) );
+$assert( 'R1: write token meta_data strings are kses-filtered', ! is_wp_error( $g ) && '<strong>ok</strong>' === $g['meta_data'][0]['value']['a'] );
+Auth::reset( $tok( array( 'admin' ) ) );
+$raw = array( 'meta_data' => array( array( 'key' => '_custom', 'value' => '<script>x</script>' ) ) );
+$assert( 'R1: admin token meta_data is untouched', $raw === RestEndpointTool::guard_meta( $raw ) );
+
+/* ── R5: wp/v2 `meta` object of a restricted token (Elementor meta -> stored XSS) ── */
+
+$xss = '[{"id":"a1","elType":"widget","widgetType":"html","settings":{"html":"<script>alert(1)</script>"}}]';
+Auth::reset( $tok( array( 'write' ) ) );
+$g = RestEndpointTool::guard_meta( array( 'id' => '5', 'meta' => array( '_elementor_edit_mode' => 'builder', '_elementor_data' => $xss ) ), 'post' );
+$assert( 'R5: write token cannot set _elementor_data/_elementor_edit_mode over wp/v2 meta', is_wp_error( $g ) && 403 === $g->get_error_data()['status'] );
+foreach ( array( '_elementor_page_settings' => array( 'custom_css' => 'x' ), '_elementor_conditions' => array( 'include/general' ), '_elementor_template_type' => 'wp-page', '_edit_lock' => '1' ) as $k => $v ) {
+	$assert( "R5: write token cannot set protected $k", is_wp_error( RestEndpointTool::guard_meta( array( 'meta' => array( $k => $v ) ), 'post' ) ) );
+}
+$assert( 'R5: deleting protected meta (null) is refused too', is_wp_error( RestEndpointTool::guard_meta( array( 'meta' => array( '_elementor_data' => null ) ), 'post' ) ) );
+$assert( 'R5: protected term meta is refused', is_wp_error( RestEndpointTool::guard_meta( array( 'meta' => array( '_term_secret' => 'x' ) ), 'term' ) ) );
+$assert( 'R5: protected user meta is refused', is_wp_error( RestEndpointTool::guard_meta( array( 'meta' => array( '_user_x' => 'x' ) ), 'user' ) ) );
+$assert( 'R5: protected comment meta is refused', is_wp_error( RestEndpointTool::guard_meta( array( 'meta' => array( '_wp_note_status' => 'x' ) ), 'comment' ) ) );
+$assert( 'R5: an empty key is refused', is_wp_error( RestEndpointTool::guard_meta( array( 'meta' => array( '' => 'x' ) ), 'post' ) ) );
+$assert( 'R5: meta that is not an object is refused', is_wp_error( RestEndpointTool::guard_meta( array( 'meta' => 'x' ), 'post' ) ) );
+$g = RestEndpointTool::guard_meta( array( 'title' => 'T', 'meta' => array( 'hero' => '<script>alert(1)</script><strong>ok</strong>', 'opts' => array( 'a' => '<img src="x" onerror="alert(1)">' ), 'count' => 3 ) ), 'post' );
+$assert( 'R5: other meta strings are kses-filtered (nested too), scalars kept', ! is_wp_error( $g ) && '<strong>ok</strong>' === $g['meta']['hero'] && '<img src="x">' === $g['meta']['opts']['a'] && 3 === $g['meta']['count'] && 'T' === $g['title'], json_encode( $g ) );
+$fn = '[{"content":"<a href=\"https://x.test\">x</a>","id":"f1"}]';
+$g  = RestEndpointTool::guard_meta( array( 'meta' => array( 'footnotes' => $fn ) ), 'post' );
+$assert( 'R5: footnotes is left to core (its JSON is not run through kses here)', ! is_wp_error( $g ) && $fn === $g['meta']['footnotes'] );
+$g = RestEndpointTool::guard_meta( array( 'meta' => array( '_yoast_wpseo_title' => '<b>SEO</b> title', '_uxstudio_ai_seo_description' => 'Popis', '_yoast_wpseo_focuskw' => null ) ), 'post' );
+$assert( 'R5: allowlisted SEO text meta passes as plain text', ! is_wp_error( $g ) && 'SEO title' === $g['meta']['_yoast_wpseo_title'] && 'Popis' === $g['meta']['_uxstudio_ai_seo_description'] && null === $g['meta']['_yoast_wpseo_focuskw'] );
+$assert( 'R5: allowlisted SEO meta must be a string', is_wp_error( RestEndpointTool::guard_meta( array( 'meta' => array( '_yoast_wpseo_title' => array( '<script>' ) ) ), 'post' ) ) );
+$assert( 'R5: the SEO allowlist is post meta only', is_wp_error( RestEndpointTool::guard_meta( array( 'meta' => array( '_yoast_wpseo_title' => 'x' ) ), 'term' ) ) );
+$g = RestEndpointTool::guard_meta( array( 'meta' => (object) array( '_elementor_data' => $xss ) ), 'post' );
+$assert( 'R5: a meta object (stdClass) is checked as well', is_wp_error( $g ) );
+$assert( 'R5: input without meta is untouched', array( 'title' => '<b>x</b>' ) === RestEndpointTool::guard_meta( array( 'title' => '<b>x</b>' ), 'post' ) );
+Auth::reset( $tok( array( 'admin' ) ) );
+$raw = array( 'meta' => array( '_elementor_edit_mode' => 'builder', '_elementor_data' => $xss ) );
+$assert( 'R5: admin token may still write Elementor meta', $raw === RestEndpointTool::guard_meta( $raw, 'post' ) );
+Auth::reset( null );
+$assert( 'R5: no token (cookie admin with unfiltered_html) is untouched', $raw === RestEndpointTool::guard_meta( $raw, 'post' ) );
+// Multisite / DISALLOW_UNFILTERED_HTML: nobody has unfiltered_html, the admin token adds no refusals.
+$caps_before = $GLOBALS['uxs_caps'];
+unset( $GLOBALS['uxs_caps']['unfiltered_html'] );
+Auth::reset( $tok( array( 'admin' ) ) );
+$assert( 'F4: admin token without unfiltered_html: Elementor meta untouched', ! current_user_can( 'unfiltered_html' ) && $raw === RestEndpointTool::guard_meta( $raw, 'post', 5 ) );
+$wide = array( 'meta' => array( 'cena_ž' => '1' ), 'meta_data' => array( array( 'id' => 92, 'key' => 'colour', 'value' => '<b>x</b>' ), array( 'key' => '_payment_method', 'value' => 'cod' ) ) );
+$assert( 'F4: admin token without unfiltered_html: non-ASCII keys, order row ids, protected keys untouched', $wide === RestEndpointTool::guard_meta( $wide, 'order', 5 ) );
+Auth::reset( null );
+$assert( 'F4: no token, user without unfiltered_html: untouched (left to core)', $wide === RestEndpointTool::guard_meta( $wide, 'order', 5 ) );
+Auth::reset( $tok( array( 'write' ) ) );
+$assert( 'F4: a write token is still refused', is_wp_error( RestEndpointTool::guard_meta( $wide, 'order', 5 ) ) );
+$GLOBALS['uxs_caps'] = $caps_before;
+
+/* ── R6: protected meta sent back unchanged (GET round trip) is dropped, changed is refused ── */
+
+$GLOBALS['uxs_stored'] = array(
+	'post' => array(
+		5 => array(
+			'_elementor_data'      => array( $xss ),
+			'_elementor_edit_mode' => array( 'builder' ),
+			'_acf_changed'         => array( '' ),
+			'_wc_count'            => array( '3' ),
+			'_settings'            => array( array( 'b' => 2, 'a' => '1' ) ),
+			'_multi'               => array( 'x', 'y' ),
+		),
+	),
+);
+$GLOBALS['uxs_mids'] = array(
+	91 => (object) array( 'meta_id' => 91, 'post_id' => 5, 'meta_key' => '_price', 'meta_value' => '10' ),
+	92 => (object) array( 'meta_id' => 92, 'post_id' => 5, 'meta_key' => 'colour', 'meta_value' => 'red' ),
+	93 => (object) array( 'meta_id' => 93, 'post_id' => 5, 'meta_key' => '_elementor_data', 'meta_value' => $xss ),
+	94 => (object) array( 'meta_id' => 94, 'post_id' => 6, 'meta_key' => '_elementor_data', 'meta_value' => $xss ),
+);
+function get_metadata( $type, $id, $key = '', $single = false ) { return $GLOBALS['uxs_stored'][ $type ][ (int) $id ][ $key ] ?? array(); }
+function get_metadata_by_mid( $type, $mid ) { return 'post' === $type ? ( $GLOBALS['uxs_mids'][ (int) $mid ] ?? false ) : false; }
+
+Auth::reset( $tok( array( 'write' ) ) );
+$rt = array( 'hero' => 'Hi', '_elementor_data' => $xss, '_elementor_edit_mode' => 'builder', '_acf_changed' => false, '_wc_count' => 3, '_settings' => array( 'a' => 1, 'b' => '2' ), '_multi' => array( 'x', 'y' ), '_missing' => '' );
+$g  = RestEndpointTool::guard_meta( array( 'meta' => $rt ), 'post', 5 );
+$assert( 'R6: unchanged protected meta from GET is dropped, the rest kept', ! is_wp_error( $g ) && array( 'hero' => 'Hi' ) === $g['meta'], is_wp_error( $g ) ? $g->get_error_message() : json_encode( $g ) );
+$g = RestEndpointTool::guard_meta( array( 'meta' => array( '_elementor_data' => $xss . ' ', '_acf_changed' => true, 'hero' => 'x' ) ), 'post', 5 );
+$assert( 'R6: changed protected meta is refused and the error lists the keys', is_wp_error( $g ) && 403 === $g->get_error_data()['status'] && array( '_elementor_data', '_acf_changed' ) === $g->get_error_data()['keys'] && str_contains( $g->get_error_message(), '_elementor_data, _acf_changed' ) );
+$assert( 'R6: same value on another object is refused', is_wp_error( RestEndpointTool::guard_meta( array( 'meta' => array( '_elementor_data' => $xss ) ), 'post', 6 ) ) );
+$assert( 'R6: without an object id (create) it is refused', is_wp_error( RestEndpointTool::guard_meta( array( 'meta' => array( '_elementor_edit_mode' => 'builder' ) ), 'post', 0 ) ) );
+$assert( 'R6: deleting stored protected meta (null) is refused', is_wp_error( RestEndpointTool::guard_meta( array( 'meta' => array( '_elementor_edit_mode' => null ) ), 'post', 5 ) ) );
+$assert( 'R6: a value missing a row of multi meta is refused', is_wp_error( RestEndpointTool::guard_meta( array( 'meta' => array( '_multi' => array( 'x' ) ) ), 'post', 5 ) ) );
+$assert( 'R6: meta of another type with the same id is not compared', is_wp_error( RestEndpointTool::guard_meta( array( 'meta' => array( '_elementor_edit_mode' => 'builder' ) ), 'term', 5 ) ) );
+
+/* ── R7: WooCommerce meta_data with the id of an existing row ── */
+
+$md = static fn( array $items, int $id = 5 ) => RestEndpointTool::guard_meta( array( 'meta_data' => $items ), 'post', $id );
+$g  = $md( array( array( 'id' => 91, 'key' => 'note', 'value' => 'x' ) ) );
+$assert( 'R7: renaming a protected row (_price) by its id is refused', is_wp_error( $g ) && array( '_price' ) === $g->get_error_data()['keys'] );
+$assert( 'R7: string id works the same', is_wp_error( $md( array( array( 'id' => '91', 'key' => 'note', 'value' => 'x' ) ) ) ) );
+$assert( 'R7: a non numeric id is refused', is_wp_error( $md( array( array( 'id' => '91abc', 'key' => 'note', 'value' => 'x' ) ) ) ) );
+$g = $md( array( array( 'id' => 92, 'key' => 'colour', 'value' => '<script>x</script>blue' ) ) );
+$assert( 'R7: updating an unprotected row by id works (kses-filtered)', ! is_wp_error( $g ) && 'blue' === $g['meta_data'][0]['value'] && 92 === $g['meta_data'][0]['id'] );
+$g = $md( array( array( 'id' => 93, 'key' => '_elementor_data', 'value' => $xss ), array( 'id' => 92, 'key' => 'colour', 'value' => 'red' ) ) );
+$assert( 'R7: an unchanged protected row from GET is dropped', ! is_wp_error( $g ) && 1 === count( $g['meta_data'] ) && 'colour' === $g['meta_data'][0]['key'] );
+$assert( 'R7: a changed protected row is refused', is_wp_error( $md( array( array( 'id' => 93, 'key' => '_elementor_data', 'value' => '[]' ) ) ) ) );
+$assert( 'R7: a protected row of another product is refused', is_wp_error( $md( array( array( 'id' => 94, 'key' => '_elementor_data', 'value' => $xss ) ) ) ) );
+$assert( 'R7: a protected key without id on create is refused', is_wp_error( $md( array( array( 'key' => '_elementor_data', 'value' => $xss ) ), 0 ) ) );
+$g = $md( array( array( 'key' => '_elementor_data', 'value' => $xss ) ) );
+$assert( 'R7: a protected key without id but unchanged is dropped', ! is_wp_error( $g ) && array() === $g['meta_data'] );
+$assert( 'R7: renaming an unprotected row to a protected key is refused', is_wp_error( $md( array( array( 'id' => 92, 'key' => '_price', 'value' => '1' ) ) ) ) );
+$assert( 'R7: ... also when the value equals the row value', is_wp_error( $md( array( array( 'id' => 92, 'key' => '_price', 'value' => 'red' ) ) ) ) );
+
+/* ── R8: WooCommerce downloads[].file of a restricted token ── */
+
+function untrailingslashit( $v ) { return rtrim( (string) $v, '/\\' ); }
+function trailingslashit( $v ) { return untrailingslashit( $v ) . '/'; }
+function wp_upload_dir( $time = null, $create = true ) { return array( 'baseurl' => 'https://shop.test/wp-content/uploads', 'basedir' => '/srv/www/wp-content/uploads' ); }
+function site_url( $p = '' ) { return 'https://shop.test' . $p; }
+function home_url( $p = '' ) { return 'https://shop.test' . $p; }
+
+$approved = static fn( string $url ): bool => 0 === strpos( $url, 'https://shop.test/wp-content/uploads/woocommerce_uploads/' ) || 0 === strpos( $url, 'https://cdn.example.com/files/' ) || 0 === strpos( $url, 'https://shop.test/' );
+$dl       = static fn( $file ) => RestEndpointTool::guard_downloads( array( 'name' => 'P', 'downloads' => array( array( 'name' => 'F', 'file' => $file ) ) ), $approved );
+
+Auth::reset( $tok( array( 'write' ) ) );
+foreach ( array( 'https://shop.test/wp-content/uploads/woocommerce_uploads/2026/11/e-book.pdf', 'https://cdn.example.com/files/a.zip?sig=abc%20def&x=1' ) as $ok ) {
+	$assert( "R8: approved http(s) file passes: $ok", ! is_wp_error( $dl( $ok ) ) );
+}
+$bad_files = array(
+	'/etc/passwd', 'wp-includes/sodium_compat/LICENSE', '../wp-config.php', 'wp-config.php', 'C:\\xampp\\passwords.txt', 'C:/xampp/passwords.txt',
+	'file:///etc/passwd', 'FILE:///etc/passwd', '//cdn.example.com/files/a.zip', 'ftp://cdn.example.com/files/a.zip',
+	'[download id="1"]', '[x]https://cdn.example.com/files/a.zip', ' https://cdn.example.com/files/a.zip', "https://cdn.example.com/files/a.zip\n",
+	'https://cdn.example.com/files/../../etc/passwd', 'https://cdn.example.com/files/%2e%2e/%2e%2e/etc/passwd', 'https://cdn.example.com/files/%252e%252e/x',
+	'https://cdn.example.com/files/..%5c..%5cx', 'https://cdn.example.com/files/a%5cb', 'https://cdn.example.com/files/a.zip%00.pdf', 'https://cdn.example.com/files\\..\\x', 'https://user@cdn.example.com/files/a.zip',
+	'https://cdn.example.com/files/a.zip?u=https://shop.test/wp-config.php', 'https://cdn.example.com/files/a.zip?u=https%3A%2F%2Fshop.test%2Fwp-config.php',
+	'https://shop.test/wp-config.php', 'http://shop.test/wp-config.php', 'https://SHOP.test/wp-config.php', 'https://shop.test/wp-content/uploads-old/backup.sql',
+	'https://evil.example.com/x.zip', 'https://cdn.example.com', 'https://cdn.example.com:99999x/files/a',
+);
+foreach ( $bad_files as $bad ) {
+	$assert( 'R8: refused download file ' . json_encode( $bad ), is_wp_error( $dl( $bad ) ) );
+}
+$assert( 'R8: a file that is not a string is refused', is_wp_error( $dl( array( '/etc/passwd' ) ) ) );
+$assert( 'R8: downloads that are not a list are refused', is_wp_error( RestEndpointTool::guard_downloads( array( 'downloads' => '/etc/passwd' ), $approved ) ) );
+$assert( 'R8: an item without a file passes (WooCommerce skips it)', ! is_wp_error( RestEndpointTool::guard_downloads( array( 'downloads' => array( array( 'id' => 'x' ) ) ), $approved ) ) );
+$assert( 'R8: the http variant of the uploads URL passes when approved', ! is_wp_error( RestEndpointTool::guard_downloads( array( 'downloads' => array( array( 'file' => 'http://shop.test/wp-content/uploads/woocommerce_uploads/a.pdf' ) ) ), static fn() => true ) ) );
+$assert( 'R8: a well formed URL outside approved directories is refused', is_wp_error( RestEndpointTool::guard_downloads( array( 'downloads' => array( array( 'file' => 'https://other.example.com/a.zip' ) ) ), static fn() => false ) ) );
+$assert( 'R8: without WooCommerce nothing is approved (fail closed)', false === RestEndpointTool::woo_approved_download( 'https://cdn.example.com/files/a.zip' ) );
+
+/* ── R10: the value WooCommerce stores (esc_url_raw() in set_file()) is the one checked ── */
+
+$seen   = array();
+$spy    = static function ( string $url ) use ( $approved, &$seen ): bool {
+	$seen[] = $url;
+	return $approved( $url );
+};
+$dl_spy = static fn( $file ) => RestEndpointTool::guard_downloads( array( 'downloads' => array( array( 'name' => 'F', 'file' => $file ) ) ), $spy );
+$stripped = array(
+	'https://shop.test/wp-content/uploads/woocommerce_uploads/.^./.^./x.zip',
+	'https://shop.test/wp-content/uploads/woocommerce_uploads/.{./.}./wp-config.php',
+	'https://shop.test/wp-content/uploads/woocommerce_uploads/."./x.zip',
+	'https://shop.test/wp-content/uploads/woocommerce_uploads/.<./.>./x.zip',
+	'https://shop.test/wp-content/uploads/woocommerce_uploads/.`./x.zip',
+	'https://shop.test/wp-content/uploads/woocommerce_uploads/.%0a./.%0D./x.zip',
+	'https://shop.test/wp-content/uploads/woocommerce_uploads/.%%0a0a./x.zip',
+	'https://cdn.example.com/files/a.zip?x=1;//shop.test/wp-config.php',
+	'https://cdn.example.com/files/a^b.zip',
+);
+foreach ( $stripped as $bad ) {
+	$seen = array();
+	$assert( 'R10: refused, esc_url_raw() would store another URL: ' . $bad, is_wp_error( $dl_spy( $bad ) ) && esc_url_raw( $bad ) !== $bad && array() === $seen );
+}
+$assert( 'R10: the ^ trick really turns into traversal in esc_url_raw()', 'https://shop.test/wp-content/uploads/woocommerce_uploads/../../x.zip' === esc_url_raw( $stripped[0] ) );
+foreach ( array( '/.../', '/.. /', '/..%20/', '/.%20./', '/%2e%2e%2e/', '/./', '/../', '/..?x=', '/..;x/', '/..#' ) as $seg ) {
+	$assert( 'R10: dot segment refused: ' . $seg, null === RestEndpointTool::download_file_allowed( 'https://cdn.example.com/files' . $seg . 'a.zip', static fn() => true ) );
+}
+foreach ( array( '/...a.zip', '/.a.zip', '/a.zip.' ) as $name ) {
+	$assert( 'R10: dots in a file name pass: ' . $name, 'https://cdn.example.com/files' . $name === RestEndpointTool::download_file_allowed( 'https://cdn.example.com/files' . $name, static fn() => true ) );
+}
+$g = $dl( 'https://cdn.example.com/files/report..final.zip' );
+$assert( 'R10: `..` inside a file name passes', ! is_wp_error( $g ) && 'https://cdn.example.com/files/report..final.zip' === $g['downloads'][0]['file'] );
+$g = $dl( 'HTTPS://CDN.Example.com/files/A.zip' );
+$assert( 'R10: scheme and host are lower-cased and sent on canonical', ! is_wp_error( $g ) && 'https://cdn.example.com/files/A.zip' === $g['downloads'][0]['file'], is_wp_error( $g ) ? $g->get_error_message() : json_encode( $g ) );
+$seen = array();
+$g    = RestEndpointTool::guard_downloads( array( 'downloads' => array( array( 'file' => 'https://čdn.example.com/files/a.zip' ) ) ), static function ( string $u ) use ( &$seen ): bool { $seen[] = $u; return true; } );
+$puny = function_exists( 'idn_to_ascii' ) ? 'https://' . idn_to_ascii( 'čdn.example.com', IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46 ) . '/files/a.zip' : null;
+$assert( 'R10: an IDN host is checked and sent as punycode', null === $puny ? is_wp_error( $g ) : ( ! is_wp_error( $g ) && $puny === $g['downloads'][0]['file'] && array( $puny ) === $seen ) );
+$assert( 'R10: the approved check sees the canonical URL', ( $seen = array() ) === array() && ! is_wp_error( $dl_spy( 'HTTPS://cdn.example.com/files/a.zip' ) ) && array( 'https://cdn.example.com/files/a.zip' ) === $seen );
+foreach ( array( 'file:///srv/www/wp-content/uploads/woocommerce_uploads/a.zip', 'file://localhost/etc/passwd', 'https://cdn.example.com:0/files/a.zip', 'https://cdn.example.com:65536/files/a.zip', 'https://-cdn.example.com/files/a.zip', 'https://cdn..example.com/files/a.zip', 'https:/cdn.example.com/files/a.zip', 'https://cdn.example.com?/files' ) as $bad ) {
+	$assert( 'R10: refused even when approved: ' . $bad, is_wp_error( RestEndpointTool::guard_downloads( array( 'downloads' => array( array( 'file' => $bad ) ) ), static fn() => true ) ) );
+}
+$g = RestEndpointTool::guard_downloads( array( 'downloads' => array( (object) array( 'name' => 'O', 'file' => 'https://cdn.example.com/files/a.zip' ), array( 'id' => 'keep' ) ) ), $approved );
+$assert( 'R10: items are sent on as arrays, items without a file are kept', ! is_wp_error( $g ) && 'O' === $g['downloads'][0]['name'] && array( 'id' => 'keep' ) === $g['downloads'][1] );
+
+// woocommerce_file_download_path: the value about to be stored is checked once more.
+$threw = static function ( $path ): bool {
+	try {
+		RestEndpointTool::download_path_filter( $path );
+	} catch ( \Exception $e ) {
+		return true;
+	}
+	return false;
+};
+$assert( 'R10: a path changed by another filter to a local file aborts the save', $threw( '/etc/passwd' ) && $threw( 'https://shop.test/wp-content/uploads/woocommerce_uploads/../../x.zip' ) && $threw( array( 'x' ) ) );
+$assert( 'R10: without an enabled approved directory system even a good URL aborts', $threw( 'https://cdn.example.com/files/a.zip' ) );
+$assert( 'R10: an empty path is left to WooCommerce', ! $threw( '' ) );
+Auth::reset( $tok( array( 'admin' ) ) );
+$assert( 'R10: an admin token is not filtered', ! $threw( '/etc/passwd' ) );
+Auth::reset( $tok( array( 'write' ) ) );
+
+// Approved Download Directories: only the enabled mode counts.
+eval( 'namespace Automattic\WooCommerce\Internal\ProductDownloads\ApprovedDirectories; class Register { const MODE_DISABLED = "disabled"; const MODE_ENABLED = "enabled"; public $mode = "disabled"; public function get_mode() { return $this->mode; } public function is_valid_path( $u ) { return 0 === strpos( $u, "https://cdn.example.com/files/" ); } }' );
+$GLOBALS['uxs_register'] = new \Automattic\WooCommerce\Internal\ProductDownloads\ApprovedDirectories\Register();
+function wc_get_container() {
+	return new class() {
+		public function get( $id ) { return $GLOBALS['uxs_register']; }
+	};
+}
+$assert( 'R10: disabled approved directories (WooCommerce checks nothing) -> refused', false === RestEndpointTool::woo_approved_download( 'https://cdn.example.com/files/a.zip' ) );
+$GLOBALS['uxs_register']->mode = 'enabled';
+$assert( 'R10: enabled approved directories -> the list decides', true === RestEndpointTool::woo_approved_download( 'https://cdn.example.com/files/a.zip' ) && false === RestEndpointTool::woo_approved_download( 'https://evil.example.com/a.zip' ) );
+$assert( 'R10: the filter lets the canonical approved value through', ! $threw( 'https://cdn.example.com/files/a.zip' ) && $threw( 'HTTPS://cdn.example.com/files/a.zip' ) );
+$GLOBALS['uxs_register']->mode = 'disabled';
+
+/* ── R11: meta keys must be plain ASCII, order meta rows by id are refused (HPOS) ── */
+
+foreach ( array( "\u{FF3F}price", "\u{FF3F}elementor_data", '_price ', ' _price', "_price\0", 'price​', 'a b', 'a/b', 'cena_ž' ) as $key ) {
+	$assert( 'R11: meta_data key refused: ' . json_encode( $key ), is_wp_error( RestEndpointTool::guard_meta( array( 'meta_data' => array( array( 'key' => $key, 'value' => '1' ) ) ), 'post', 5 ) ) );
+	$assert( 'R11: wp/v2 meta key refused: ' . json_encode( $key ), is_wp_error( RestEndpointTool::guard_meta( array( 'meta' => array( $key => '1' ) ), 'post', 5 ) ) );
+}
+$g = RestEndpointTool::guard_meta( array( 'meta_data' => array( array( 'key' => 'my-plugin:color.v2', 'value' => 'red' ) ) ), 'post', 5 );
+$assert( 'R11: plain keys with - : . pass', ! is_wp_error( $g ) && 'red' === $g['meta_data'][0]['value'] );
+$assert( 'R11: an order meta row by id is refused (HPOS meta is not in postmeta)', is_wp_error( RestEndpointTool::guard_meta( array( 'meta_data' => array( array( 'id' => 92, 'key' => 'colour', 'value' => 'x' ) ) ), 'order', 5 ) ) );
+$g = RestEndpointTool::guard_meta( array( 'meta_data' => array( array( 'key' => 'colour', 'value' => 'x' ) ) ), 'order', 5 );
+$assert( 'R11: unprotected order meta without id still passes', ! is_wp_error( $g ) && 'x' === $g['meta_data'][0]['value'] );
+$assert( 'R11: protected order meta is refused (no order object to compare with)', is_wp_error( RestEndpointTool::guard_meta( array( 'meta_data' => array( array( 'key' => '_payment_method', 'value' => 'cod' ) ) ), 'order', 5 ) ) );
+Auth::reset( $tok( array( 'admin' ) ) );
+$assert( 'R8: an admin token may set a local path', ! is_wp_error( $dl( 'wp-includes/sodium_compat/LICENSE' ) ) );
+Auth::reset( null );
+$assert( 'R8: no token (cookie admin) is untouched', ! is_wp_error( $dl( '/etc/passwd' ) ) );
+$assert( 'R8: query filter blocks writes to the approved directories table', '' === RestEndpointTool::block_download_directory_writes( "INSERT INTO `wp_wc_product_download_directories` (`url`, `enabled`) VALUES ('file:///etc/', 1)" ) && '' === RestEndpointTool::block_download_directory_writes( ' update wp_wc_product_download_directories SET enabled = 1' ) );
+$sel = 'SELECT 1 FROM `wp_wc_product_download_directories` WHERE enabled = 1';
+$assert( 'R8: query filter leaves reads and other tables alone', $sel === RestEndpointTool::block_download_directory_writes( $sel ) && 'INSERT INTO wp_posts' === RestEndpointTool::block_download_directory_writes( 'INSERT INTO wp_posts' ) );
+
+/* ── R9: a wrapped route that is not registered gives no tool (fail closed) ── */
+
+use UxStudio\Modules\AiAssistant\Mcp\Dto\RestOperationConfig;
+
+$GLOBALS['uxs_abilities'] = array();
+function wp_register_ability( $name, $args ) { $GLOBALS['uxs_abilities'][ $name ] = $args; }
+function rest_get_server() {
+	return new class() {
+		public function get_routes( $ns ) {
+			return array( '/wc/v3/products/(?P<id>[\d]+)' => array( array( 'methods' => array( 'GET' => true ), 'args' => array( 'context' => array( 'type' => 'string' ) ) ) ) );
+		}
+	};
+}
+$tool = new class() extends RestEndpointTool {
+	protected function get_operations(): array {
+		return array(
+			new RestOperationConfig( 'p-get', 'G', 'G', 'GET', '/products/(?P<id>[\d]+)', 'wc/v3' ),
+			new RestOperationConfig( 'p-put', 'U', 'U', 'PUT', '/products/(?P<id>[\d]+)', 'wc/v3' ),
+			new RestOperationConfig( 'p-list', 'L', 'L', 'GET', '/products', 'wc/v3' ),
+		);
+	}
+};
+$tool->register();
+$assert( 'R9: a matched route is registered with additionalProperties:false', false === ( $GLOBALS['uxs_abilities']['ai-assistant/p-get']['input_schema']['additionalProperties'] ?? null ) );
+$assert( 'R9: an unknown route or method registers no tool', ! isset( $GLOBALS['uxs_abilities']['ai-assistant/p-put'] ) && ! isset( $GLOBALS['uxs_abilities']['ai-assistant/p-list'] ) );
+
+$assert( 'R5: meta_type of posts/pages/media is post', 'post' === RestEndpointTool::meta_type( 'wp/v2', '/pages/(?P<id>[\d]+)' ) && 'post' === RestEndpointTool::meta_type( 'wp/v2', '/posts' ) && 'post' === RestEndpointTool::meta_type( 'wp/v2', '/media/(?P<id>[\d]+)' ) );
+$assert( 'R5: meta_type of categories/tags is term', 'term' === RestEndpointTool::meta_type( 'wp/v2', '/categories' ) && 'term' === RestEndpointTool::meta_type( 'wp/v2', '/tags/(?P<id>[\d]+)' ) );
+$assert( 'R5: meta_type of users/comments', 'user' === RestEndpointTool::meta_type( 'wp/v2', '/users/(?P<id>[\d]+)' ) && 'comment' === RestEndpointTool::meta_type( 'wp/v2', '/comments' ) );
+$assert( 'R5: meta_type of WooCommerce products is post, orders order, customers user', 'post' === RestEndpointTool::meta_type( 'wc/v3', '/products/(?P<id>[\d]+)' ) && 'order' === RestEndpointTool::meta_type( 'wc/v3', '/orders' ) && 'order' === RestEndpointTool::meta_type( 'wc/v3', '/orders/(?P<order_id>[\d]+)/refunds' ) && 'user' === RestEndpointTool::meta_type( 'wc/v3', '/customers/(?P<id>[\d]+)' ) );
+
+/* ── R3: URL parameters can only fill their own route ── */
+
+$br = static fn( string $route, array $in ) => RestEndpointTool::build_route( $route, $in );
+$ok = $br( '/products/(?P<id>[\d]+)', array( 'id' => '42', 'name' => 'X' ) );
+$assert( 'R3: numeric id fills the route, the rest stays body', ! is_wp_error( $ok ) && '/products/42' === $ok['route'] && array( 'name' => 'X' ) === $ok['input'] );
+$ok = $br( '/products/(?P<id>[\d]+)', array( 'id' => 42 ) );
+$assert( 'R3: integer id is accepted', ! is_wp_error( $ok ) && '/products/42' === $ok['route'] );
+$assert( 'R3: id "batch" (PUT products/batch deletes products) is refused', is_wp_error( $br( '/products/(?P<id>[\d]+)', array( 'id' => 'batch', 'delete' => array( 1, 2 ) ) ) ) );
+$assert( 'R3: id "1/application-passwords" is refused', is_wp_error( $br( '/users/(?P<id>[\d]+)', array( 'id' => '1/application-passwords' ) ) ) );
+foreach ( array( '1?context=edit', '1#x', '../1', '1%2F2', "1\n", ' 1', '', true, array( 1 ), 1.5 ) as $bad ) {
+	$assert( 'R3: id ' . json_encode( $bad ) . ' is refused', is_wp_error( $br( '/posts/(?P<id>[\d]+)', array( 'id' => $bad ) ) ) );
+}
+$assert( 'R3: a missing URL parameter is refused', is_wp_error( $br( '/posts/(?P<id>[\d]+)', array() ) ) );
+$ok = $br( '/types/(?P<type>[\w-]+)', array( 'type' => 'wp_block' ) );
+$assert( 'R3: slug parameter within its regex', ! is_wp_error( $ok ) && '/types/wp_block' === $ok['route'] );
+$assert( 'R3: a slash is refused even where the route regex is looser', is_wp_error( $br( '/types/(?P<type>.+)', array( 'type' => 'post/x' ) ) ) );
+$assert( 'R3: "$1" in a value cannot act as a backreference', is_wp_error( $br( '/posts/(?P<id>[\d]+)', array( 'id' => '$1' ) ) ) );
+$ok = $br( '/categories', array( 'name' => 'a/b' ) );
+$assert( 'R3: routes without parameters pass the body through', ! is_wp_error( $ok ) && '/categories' === $ok['route'] && array( 'name' => 'a/b' ) === $ok['input'] );
+$assert( 'R3: url_params reads named groups', array( 'id' => '[\d]+', 'type' => '[\w-]+' ) === RestEndpointTool::url_params( '/a/(?P<id>[\d]+)/(?P<type>[\w-]+)' ) );
+
+/* ── R2: elementor-update-widget ── */
+
+use UxStudio\Modules\AiAssistant\Mcp\Tools\ElementorTools;
+
+function get_post( $id ) { return in_array( (int) $id, array( 10, 11 ), true ) ? (object) array( 'ID' => (int) $id ) : null; }
+function get_post_meta( $id, $key, $single = false ) { return $GLOBALS['uxs_meta'][ $id ][ $key ] ?? ''; }
+function update_post_meta( $id, $key, $value ) { $GLOBALS['uxs_meta'][ $id ][ $key ] = stripslashes( $value ); return true; } // WordPress unslashes.
+function wp_slash( $v ) { return addslashes( $v ); }
+
+$doc = static fn(): string => json_encode( array( array( 'id' => 'sec1', 'elType' => 'section', 'elements' => array( array( 'id' => 'w1', 'elType' => 'widget', 'widgetType' => 'heading', 'settings' => array( 'title' => 'Old' ) ) ) ) ) );
+$el  = new ElementorTools();
+$GLOBALS['uxs_meta'] = array( 10 => array( '_elementor_data' => $doc() ), 11 => array( '_elementor_data' => $doc() ) );
+$title = static fn( int $id ) => (array) ( json_decode( (string) $GLOBALS['uxs_meta'][ $id ]['_elementor_data'], true )[0]['elements'][0]['settings'] ?? array() );
+
+Auth::reset( $tok( array( 'admin' ) ) );
+$res = $el->update_widget_content( array( 'post_id' => 10, 'widget_id' => 'w1', 'settings' => json_encode( array( 'title' => 'Nové "jméno" a/b' ) ) ) );
+$assert( 'R2: update works and survives update_post_meta unslashing (wp_slash)', ! is_wp_error( $res ) && 'Nové "jméno" a/b' === ( $title( 10 )['title'] ?? null ), (string) $GLOBALS['uxs_meta'][10]['_elementor_data'] );
+$res = $el->update_widget_content( array( 'post_id' => 11, 'widget_id' => 'w1', 'settings' => '{"title":"x"}' ) );
+$assert( 'R2: a post the user may not edit is refused', is_wp_error( $res ) && 'Old' === $title( 11 )['title'] );
+$res = $el->update_widget_content( array( 'post_id' => 999, 'widget_id' => 'w1', 'settings' => '{"title":"x"}' ) );
+$assert( 'R2: a missing post is refused', is_wp_error( $res ) );
+$before = $GLOBALS['uxs_meta'][10]['_elementor_data'];
+$res    = $el->update_widget_content( array( 'post_id' => 10, 'widget_id' => 'nope', 'settings' => '{"title":"x"}' ) );
+$assert( 'R2: an unknown widget writes nothing', $before === $GLOBALS['uxs_meta'][10]['_elementor_data'] && str_contains( (string) $res[0]['text'], 'not found' ) );
+$el->update_widget_content( array( 'post_id' => 10, 'widget_id' => 'w1', 'settings' => '["a"]' ) );
+$assert( 'R2: settings must be an object', $before === $GLOBALS['uxs_meta'][10]['_elementor_data'] );
+Auth::reset( $tok( array( 'write' ) ) );
+$el->update_widget_content( array( 'post_id' => 10, 'widget_id' => 'w1', 'settings' => json_encode( array( 'title' => '<script>alert(1)</script>Hi', 'link' => array( 'url' => 'javascript:alert(1)' ) ) ) ) );
+$set = $title( 10 );
+$assert( 'R2: without unfiltered_html the settings are kses-filtered', 'Hi' === $set['title'] && '' === $set['link']['url'] );
+$assert( 'R2: the tool needs the admin scope over MCP', Scopes::ADMIN === Bridge::ai_scope( 'ai-assistant/elementor-update-widget', array( 'readonly' => false ) ) );
+Auth::reset( null );
+
 /* ── Config: default off, legacy value migrated once ── */
 
 $GLOBALS['uxs_options'] = array();

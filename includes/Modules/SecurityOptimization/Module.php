@@ -9,6 +9,7 @@
 namespace UxStudio\Modules\SecurityOptimization;
 
 use UxStudio\Core\ActivityLog;
+use UxStudio\Core\RestRoute;
 use UxStudio\Core\Security;
 use UxStudio\Core\Settings;
 use UxStudio\Modules\BaseModule;
@@ -225,7 +226,7 @@ final class Module extends BaseModule {
 			add_action( 'template_redirect', array( $this, 'redirect_feed' ) );
 		}
 		if ( $this->setting( 'restrict_rest_api', false ) ) {
-			add_filter( 'rest_authentication_errors', array( $this, 'restrict_rest_api' ), 99 );
+			$this->register_rest_lock();
 		}
 
 		/* ── Heartbeat (left alone when a caching/perf plugin already manages it) ── */
@@ -1105,7 +1106,7 @@ final class Module extends BaseModule {
 				'section' => __( 'Hardening', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Restrict REST API to logged-in users', 'ux-studio' ),
-				'help'    => __( 'Blocks the WordPress REST API for anonymous visitors. Common public endpoints (oEmbed, WooCommerce, Contact Form 7, WPForms, Elementor, site health) stay reachable so front-end features keep working.', 'ux-studio' ),
+				'help'    => __( 'Blocks the WordPress REST API for anonymous visitors. So that the shop and forms keep working, the WooCommerce Store API (products, cart and checkout, so product data stays publicly readable), Contact Form 7 and the Complianz cookie banner stay reachable. Product reviews in the Store API stay locked (the WooCommerce review blocks then show none to visitors). Developers can change this with the uxstudio_rest_public_routes and uxstudio_rest_lock_private_routes filters.', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
@@ -3069,19 +3070,147 @@ final class Module extends BaseModule {
 	}
 
 	/**
+	 * Hooks of the "REST only for logged-in users" lock.
+	 *
+	 * - rest_authentication_errors: refuses the raw request before anything is dispatched;
+	 * - rest_pre_dispatch: the same refusal for the dispatched WP_REST_Request, early. A fast path
+	 *   only: a later filter returning null (ACF does on every request) drops it;
+	 * - rest_request_before_callbacks, last: the binding check. A WP_Error there stops the
+	 *   permission and endpoint callbacks of every dispatched request it checks (the served one,
+	 *   Store API batch sub-requests, `_embed` links), whatever the rest_pre_dispatch filters
+	 *   returned.
+	 *
+	 * Residual risks, by design of the REST server (the lock cannot close them):
+	 * - a rest_pre_dispatch filter running before ours (priority below -100) that returns a
+	 *   response, e.g. a REST cache plugin answering from its cache, skips both the dispatch
+	 *   recheck and the callbacks, so rest_request_before_callbacks never runs. Only the
+	 *   rest_authentication_errors refusal applies then, which judges the raw request;
+	 * - a rest_request_before_callbacks filter added later at PHP_INT_MAX runs after ours and can
+	 *   replace the WP_Error with a response of its own;
+	 * - internal requests a public endpoint makes with rest_do_request() while it is being
+	 *   dispatched are not checked (they are server-side code paths, see rest_lock_refusal()).
+	 */
+	public function register_rest_lock(): void {
+		RestRoute::track();
+		add_filter( 'rest_authentication_errors', array( $this, 'restrict_rest_api' ), 99 );
+		add_filter( 'rest_pre_dispatch', array( $this, 'recheck_rest_lock' ), -100, 3 );
+		add_filter( 'rest_request_before_callbacks', array( $this, 'enforce_rest_lock' ), PHP_INT_MAX, 3 );
+	}
+
+	/**
+	 * `rest_authentication_errors`. A WP_Error of another method is kept. A logged-in user, or
+	 * `true` from another authentication method (Jetpack's signed WordPress.com requests run as
+	 * user 0 and answer `true`), passes as it did before the dispatch checks existed, and the
+	 * served request is remembered as vouched for (RestRoute::vouch()) so enforce_rest_lock()
+	 * lets it run too. That also covers core logging out a logged-in user without a REST nonce
+	 * (rest_cookie_check_errors(), later): the request runs anonymously, as it always did.
+	 *
+	 * The one `true` that proves nothing is the WooCommerce Store API's: it answers `true` for
+	 * every /wc/store/ request, a guest's too, so it is not trusted there (the Store API is public
+	 * anyway, except the routes default_locked_rest_routes() keeps locked).
+	 *
 	 * @param \WP_Error|null|mixed $result Incoming filter value.
 	 * @return \WP_Error|null|mixed
 	 */
 	public function restrict_rest_api( $result ) {
-		if ( ! empty( $result ) ) {
+		if ( is_wp_error( $result ) ) {
+			RestRoute::vouch( false );
 			return $result;
 		}
-		if ( is_user_logged_in() ) {
+		$trusted = is_user_logged_in() || ( true === $result && ! $this->store_api_may_vouch() );
+		RestRoute::vouch( $trusted );
+		if ( $trusted || $this->is_public_rest_route( RestRoute::current(), RestRoute::method() ) ) {
 			return $result;
 		}
-		if ( $this->is_public_rest_route() ) {
+		return $this->rest_lock_error();
+	}
+
+	/**
+	 * Could a `true` authentication result come from the WooCommerce Store API? Its
+	 * Authentication::init() hooks only when the `rest_route` query var (the route the server
+	 * dispatches) starts with /wc/store/; compared case-insensitively to be safe.
+	 */
+	private function store_api_may_vouch(): bool {
+		$route = isset( $GLOBALS['wp'] ) && is_object( $GLOBALS['wp'] ) ? ( $GLOBALS['wp']->query_vars['rest_route'] ?? '' ) : '';
+		$route = is_string( $route ) ? $route : '';
+		return 0 === stripos( '/' . ltrim( $route, '/' ), '/wc/store' ) || 0 === stripos( RestRoute::current(), '/wc/store' );
+	}
+
+	/**
+	 * `rest_pre_dispatch`: early refusal, see register_rest_lock().
+	 *
+	 * @param mixed $result  Short-circuit value.
+	 * @param mixed $server  REST server.
+	 * @param mixed $request Request.
+	 * @return mixed
+	 */
+	public function recheck_rest_lock( $result, $server = null, $request = null ) {
+		if ( null !== $result ) {
 			return $result;
 		}
+		$refusal = $this->rest_lock_refusal( $request );
+		return $refusal ? $refusal : $result;
+	}
+
+	/**
+	 * `rest_request_before_callbacks`, last: the binding check, see register_rest_lock().
+	 *
+	 * @param mixed $response Result so far (a WP_Error stops the callbacks).
+	 * @param mixed $handler  Matched handler.
+	 * @param mixed $request  Request.
+	 * @return mixed
+	 */
+	public function enforce_rest_lock( $response, $handler = null, $request = null ) {
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+		$refusal = $this->rest_lock_refusal( $request );
+		return $refusal ? $refusal : $response;
+	}
+
+	/**
+	 * Does the lock refuse a dispatched request of an anonymous REST call? Checked are, against
+	 * the route and method the server dispatches (after `_method` / X-HTTP-Method-Override),
+	 * whatever the raw request looked like:
+	 * - the served request: passes when public, or when vouched for at authentication (bound to
+	 *   that very WP_REST_Request and its route, see RestRoute::served_vouched());
+	 * - every request dispatched while a batch route is served (Store API /batch, core
+	 *   /batch/v1) and every request dispatched after the served one (its `_embed` links): they
+	 *   run for the same visitor and must not tunnel to /wc/v3 & co. They inherit the vouch only
+	 *   when the served route is not public, i.e. the call got in on that vouch alone; a public
+	 *   batch or a public route with `_embed` never opens a locked route.
+	 * Other internal requests (a public endpoint calling rest_do_request() while it runs) and
+	 * requests before the served dispatch pass.
+	 *
+	 * @param mixed $request Request.
+	 */
+	private function rest_lock_refusal( $request ): ?WP_Error {
+		if ( ! $request instanceof \WP_REST_Request || ! RestRoute::is_rest() || is_user_logged_in() ) {
+			return null;
+		}
+		$served = RestRoute::served();
+		if ( null === $served ) {
+			return null;
+		}
+		if ( $served === $request ) {
+			if ( RestRoute::served_vouched() ) {
+				return null;
+			}
+		} else {
+			if ( ! RestRoute::served_dispatched() && ! preg_match( '#/batch(/v1)?/?$#i', (string) $served->get_route() ) ) {
+				return null;
+			}
+			if ( RestRoute::served_vouched() && ! $this->is_public_rest_route( (string) $served->get_route(), (string) $served->get_method() ) ) {
+				return null;
+			}
+		}
+		return $this->is_public_rest_route( (string) $request->get_route(), (string) $request->get_method() ) ? null : $this->rest_lock_error();
+	}
+
+	/**
+	 * The refusal of the "REST only for logged-in users" lock.
+	 */
+	private function rest_lock_error(): WP_Error {
 		return new WP_Error( 'uxstudio_rest_forbidden', __( 'REST API access is restricted to logged-in users.', 'ux-studio' ), array( 'status' => 401 ) );
 	}
 
@@ -3095,8 +3224,7 @@ final class Module extends BaseModule {
 	 * single-use nonce), so the login requirement adds nothing there but breaks
 	 * the flow.
 	 */
-	private function is_public_rest_route(): bool {
-		$route = $this->current_rest_route();
+	private function is_public_rest_route( string $route, string $method ): bool {
 		if ( '' === $route ) {
 			return false;
 		}
@@ -3115,6 +3243,24 @@ final class Module extends BaseModule {
 		 *
 		 * @param array<int, string> $routes Leading-slash route prefixes.
 		 */
+		// Routes inside a public namespace that stay locked. The REST server matches routes
+		// case-insensitively, so they are compared in lower case.
+		$lower = strtolower( untrailingslashit( $route ) );
+		/**
+		 * Routes that stay locked for anonymous visitors although a public prefix covers them.
+		 *
+		 * Starts from the built-in defaults (see default_locked_rest_routes()); remove one to
+		 * open it. Each entry locks the route itself and everything below it.
+		 *
+		 * @param array<int, string> $routes Leading-slash routes.
+		 */
+		foreach ( (array) apply_filters( 'uxstudio_rest_lock_private_routes', self::default_locked_rest_routes() ) as $locked ) {
+			$locked = strtolower( untrailingslashit( (string) $locked ) );
+			if ( '' !== $locked && ( $lower === $locked || 0 === strpos( $lower, $locked . '/' ) ) ) {
+				return false;
+			}
+		}
+
 		$public = (array) apply_filters( 'uxstudio_rest_public_routes', self::default_public_rest_prefixes() );
 
 		foreach ( $public as $prefix ) {
@@ -3124,7 +3270,7 @@ final class Module extends BaseModule {
 			}
 		}
 
-		return $this->is_own_public_endpoint( $route );
+		return $this->is_own_public_endpoint( $route, $method );
 	}
 
 	/**
@@ -3133,16 +3279,49 @@ final class Module extends BaseModule {
 	 * Only third-party namespaces whose front-end code has to reach the REST API
 	 * as an anonymous visitor belong here. Never add core routes (wp/v2/users…).
 	 *
+	 * Each prefix is a whole namespace ending with '/', matched from the start of
+	 * the dispatched route, so /wc/storex or /wc/store-admin never match /wc/store/.
+	 * The endpoints keep their own permission callbacks (CF7 admin routes still
+	 * need the capability); the lock only stops refusing the visitor up front.
+	 *
 	 * - /complianz/v1/ - Complianz cookie banner: /banner, /manage_consent_html,
 	 *   /documents, /track, /store_cookies. Locking it breaks the banner and
 	 *   consent is never stored.
+	 * - /wc/store/ - WooCommerce Store API (/wc/store/v1/... and the legacy
+	 *   unversioned /wc/store/...), only with WooCommerce active. The block cart,
+	 *   checkout, mini-cart and product filters call it as the guest shopper.
+	 *   The admin API (/wc/v3, /wc-analytics...) stays locked.
+	 * - /contact-form-7/v1/ - Contact Form 7, only with CF7 active. The form posts
+	 *   to /contact-forms/{id}/feedback; without it no guest can send a form.
+	 *
+	 * Not here on purpose: /oembed/1.0/ - the oEmbed response carries the author
+	 * name and author URL (the user slug), the very enumeration the lock stops.
 	 *
 	 * @return array<int, string> Leading-slash route prefixes.
 	 */
 	private static function default_public_rest_prefixes(): array {
-		return array(
-			'/complianz/v1/',
-		);
+		$prefixes = array( '/complianz/v1/' );
+		if ( class_exists( 'WooCommerce' ) ) {
+			$prefixes[] = '/wc/store/';
+		}
+		if ( defined( 'WPCF7_VERSION' ) ) {
+			$prefixes[] = '/contact-form-7/v1/';
+		}
+		return $prefixes;
+	}
+
+	/**
+	 * Routes locked by default inside a public prefix.
+	 *
+	 * - /wc/store/v1/products/reviews (and the legacy /wc/store/products/reviews): lists every
+	 *   product review with the reviewer's name and avatar hashes of their e-mail. The shop does
+	 *   not need it; only the WooCommerce review blocks do, a site using them can open it with
+	 *   the uxstudio_rest_lock_private_routes filter.
+	 *
+	 * @return array<int, string> Leading-slash routes.
+	 */
+	private static function default_locked_rest_routes(): array {
+		return array( '/wc/store/v1/products/reviews', '/wc/store/products/reviews' );
 	}
 
 	/**
@@ -3151,13 +3330,14 @@ final class Module extends BaseModule {
 	 * Honour that for our namespace only, so the lock keeps covering core and
 	 * other plugins without every module having to whitelist itself.
 	 *
-	 * @param string $route Requested route with a leading slash.
+	 * @param string $route  Requested route with a leading slash.
+	 * @param string $method HTTP method the REST server dispatches with (overrides applied).
 	 */
-	private function is_own_public_endpoint( string $route ): bool {
+	private function is_own_public_endpoint( string $route, string $method ): bool {
 		if ( 0 !== strpos( $route, '/uxstudio/v1/' ) || ! function_exists( 'rest_get_server' ) ) {
 			return false;
 		}
-		$method = isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( sanitize_key( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) : 'GET';
+		$method = strtoupper( $method );
 
 		foreach ( rest_get_server()->get_routes( 'uxstudio/v1' ) as $pattern => $handlers ) {
 			if ( ! preg_match( '@^' . $pattern . '$@i', $route ) ) {
@@ -3172,40 +3352,5 @@ final class Module extends BaseModule {
 		}
 
 		return false;
-	}
-
-	/**
-	 * The REST route being requested, with a leading slash.
-	 *
-	 * `rest_authentication_errors` fires before the REST server has resolved
-	 * the route, so read it off the request the same way the server will:
-	 * either the `rest_route` query var (plain permalinks) or the path after
-	 * the REST prefix.
-	 */
-	private function current_rest_route(): string {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only routing lookup.
-		if ( isset( $_GET['rest_route'] ) ) {
-			// Raw on purpose: sanitize_text_field() strips percent-encoded octets (%2e%2e), which would hide a
-			// dot-segment from is_public_rest_route(). The value is only compared, never output.
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-			$route = is_string( $_GET['rest_route'] ) ? (string) wp_unslash( $_GET['rest_route'] ) : '';
-			return '/' . ltrim( $route, '/' );
-		}
-
-		// Raw for the same reason (comparison only).
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$uri = isset( $_SERVER['REQUEST_URI'] ) ? (string) wp_unslash( $_SERVER['REQUEST_URI'] ) : '';
-		if ( '' === $uri ) {
-			return '';
-		}
-
-		$path   = (string) wp_parse_url( $uri, PHP_URL_PATH );
-		$needle = '/' . trim( rest_get_url_prefix(), '/' ) . '/';
-		$pos    = strpos( $path, $needle );
-		if ( false === $pos ) {
-			return '';
-		}
-
-		return '/' . ltrim( substr( $path, $pos + strlen( $needle ) ), '/' );
 	}
 }

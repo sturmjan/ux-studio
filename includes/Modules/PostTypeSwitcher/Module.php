@@ -124,8 +124,11 @@ final class Module extends BaseModule {
 			return new \WP_Error( 'uxstudio_type_not_enabled', __( 'The post type switcher is not enabled for this post type.', 'ux-studio' ), array( 'status' => 400 ) );
 		}
 
-		$target = get_post_type_object( $new_type );
-		if ( ! $target || 'attachment' === $new_type ) {
+		// Only the whitelist offered in the UI (public, show_ui, not excluded) -
+		// never an arbitrary registered type such as wp_template or a private CPT.
+		$switchable = $this->switchable_types();
+		$target     = $switchable[ $new_type ] ?? null;
+		if ( ! $target instanceof \WP_Post_Type ) {
 			return new \WP_Error( 'uxstudio_invalid_post_type', __( 'Invalid target post type.', 'ux-studio' ), array( 'status' => 400 ) );
 		}
 

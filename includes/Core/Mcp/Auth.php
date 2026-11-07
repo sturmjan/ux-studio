@@ -8,6 +8,8 @@
 namespace UxStudio\Core\Mcp;
 
 use UxStudio\Core\ClientIp;
+use UxStudio\Core\RestRoute;
+use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -17,6 +19,16 @@ defined( 'ABSPATH' ) || exit;
  *  - `/mcp/`, `/wp-abilities/` (the WordPress MCP Adapter plugin, Abilities REST): tokens with
  *    the `admin` scope only, because those routes know nothing about scopes.
  * Everywhere else (wp/v2, wc/v3, uxstudio/v1/*, wp-admin) the Authorization header is ignored.
+ *
+ * The route is the one the REST server dispatches (RestRoute), and only inside a REST request:
+ * like Application Passwords, the token is not looked at before rest_api_loaded() (the REST
+ * server clears the cached anonymous user, so the token is evaluated then). rest_pre_dispatch
+ * (early) and rest_request_before_callbacks (binding, no rest_pre_dispatch filter can undo it)
+ * tie the result to the served request once more, so a token can never run another route.
+ *
+ * A token without the `admin` scope never carries `unfiltered_html`: its tools run as the token
+ * owner (an administrator), so without this a `write` token could store <script> in posts, terms
+ * or meta and take over the admin who views them (see restricted() and limit_caps()).
  */
 final class Auth {
 
@@ -36,7 +48,39 @@ final class Auth {
 	 * Hook `determine_current_user` (after cookies and application passwords).
 	 */
 	public static function register(): void {
+		RestRoute::track();
 		add_filter( 'determine_current_user', array( self::class, 'authenticate' ), 20 );
+		add_filter( 'rest_pre_dispatch', array( self::class, 'bind' ), -1000, 3 );
+		add_filter( 'rest_request_before_callbacks', array( self::class, 'bind_callbacks' ), PHP_INT_MAX, 3 );
+		add_filter( 'user_has_cap', array( self::class, 'limit_caps' ), 1000, 4 );
+	}
+
+	/**
+	 * Is this request run by an accepted MCP token without the `admin` scope?
+	 */
+	public static function restricted(): bool {
+		$ctx = self::$context;
+		return is_array( $ctx ) && 'ok' === ( $ctx['state'] ?? '' )
+			&& ! in_array( Scopes::ADMIN, Scopes::normalize( $ctx['scopes'] ?? array() ), true );
+	}
+
+	/**
+	 * `user_has_cap`: no `unfiltered_html` while a restricted token runs the request, for any user
+	 * checked (the tools act as the token owner, other checks must not reopen the gap). kses then
+	 * keeps its filters on post content, excerpts, titles, term descriptions and comments; tools that
+	 * write meta or builder data check the capability themselves.
+	 *
+	 * @param array<string, bool> $allcaps All capabilities of the user.
+	 * @param mixed               $caps    Required primitive capabilities (unused).
+	 * @param mixed               $args    Capability check arguments (unused).
+	 * @param mixed               $user    User being checked (unused).
+	 * @return array<string, bool>
+	 */
+	public static function limit_caps( $allcaps, $caps = array(), $args = array(), $user = null ) {
+		if ( is_array( $allcaps ) && ! empty( $allcaps['unfiltered_html'] ) && self::restricted() ) {
+			$allcaps['unfiltered_html'] = false;
+		}
+		return $allcaps;
 	}
 
 	/**
@@ -52,7 +96,7 @@ final class Auth {
 		if ( null !== self::$context ) {
 			return 'ok' === self::$context['state'] ? (int) self::$context['user_id'] : $user_id;
 		}
-		if ( self::$busy || ! Config::enabled() ) {
+		if ( self::$busy || ! RestRoute::is_rest() || ! Config::enabled() ) {
 			return $user_id;
 		}
 		$kind = self::route_kind();
@@ -70,10 +114,80 @@ final class Auth {
 		} finally {
 			self::$busy = false;
 		}
+		self::$context['route_kind'] = $kind;
 		if ( 'ok' === self::$context['state'] ) {
 			return (int) self::$context['user_id'];
 		}
 		return $user_id;
+	}
+
+	/**
+	 * `rest_pre_dispatch`: a token accepted for an MCP route must not run any other served route.
+	 * Internal sub-requests of an ability (rest_do_request) are not the served request and pass.
+	 *
+	 * @param mixed $result  Short-circuit value.
+	 * @param mixed $server  REST server.
+	 * @param mixed $request Request.
+	 * @return mixed
+	 */
+	public static function bind( $result, $server = null, $request = null ) {
+		if ( null !== $result ) {
+			return $result;
+		}
+		$refusal = self::route_refusal( $request );
+		return $refusal ? $refusal : $result;
+	}
+
+	/**
+	 * `rest_request_before_callbacks`, last: the binding form of bind(). rest_pre_dispatch is only
+	 * the early refusal, a later filter returning null there (ACF does on every request) drops
+	 * it; a WP_Error here stops the permission and endpoint callbacks.
+	 *
+	 * @param mixed $response Result so far (a WP_Error stops the callbacks).
+	 * @param mixed $handler  Matched handler.
+	 * @param mixed $request  Request.
+	 * @return mixed
+	 */
+	public static function bind_callbacks( $response, $handler = null, $request = null ) {
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+		$refusal = self::route_refusal( $request );
+		return $refusal ? $refusal : $response;
+	}
+
+	/**
+	 * Refusal of a served request a token was not accepted for. Once refused (also when a filter
+	 * dropped the refusal), the request stays refused: the context is denied from then on.
+	 *
+	 * @param mixed $request Request.
+	 */
+	private static function route_refusal( $request ): ?WP_Error {
+		$ctx = self::$context;
+		if ( ! $ctx || ! RestRoute::is_served( $request ) ) {
+			return null;
+		}
+		$error = new WP_Error( 'uxstudio_mcp_route', 'An MCP token is valid on the MCP endpoint only.', array( 'status' => 401 ) );
+		if ( 'denied' === $ctx['state'] && 'scope_route' === ( $ctx['code'] ?? '' ) && ! empty( $ctx['bound'] ) ) {
+			return $error;
+		}
+		if ( 'ok' !== $ctx['state'] ) {
+			return null;
+		}
+		if ( '' !== (string) ( $ctx['route_kind'] ?? '' ) && self::route_kind( (string) $request->get_route() ) === $ctx['route_kind'] ) {
+			return null;
+		}
+		self::$context = array(
+			'state'  => 'denied',
+			'code'   => 'scope_route',
+			'id'     => (string) ( $ctx['id'] ?? '' ),
+			'label'  => (string) ( $ctx['label'] ?? '' ),
+			'scopes' => array(),
+			'ip'     => (string) ( $ctx['ip'] ?? '' ),
+			'bound'  => true,
+		);
+		wp_set_current_user( 0 );
+		return $error;
 	}
 
 	/**
@@ -203,22 +317,11 @@ final class Auth {
 	}
 
 	/**
-	 * REST route of the raw request (both pretty permalinks and ?rest_route=). Parsed by hand
-	 * because determine_current_user may run before WordPress has resolved the route.
+	 * REST route this request runs: the one the REST server dispatches (POST `rest_route` wins
+	 * over GET and the permalink, a GET/POST mismatch is '' = no token), see RestRoute.
 	 */
 	private static function request_route(): string {
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
-		if ( isset( $_GET['rest_route'] ) && is_string( $_GET['rest_route'] ) ) {
-			return (string) wp_unslash( $_GET['rest_route'] );
-		}
-		$path   = (string) wp_parse_url( (string) ( $_SERVER['REQUEST_URI'] ?? '' ), PHP_URL_PATH );
-		$prefix = '/' . trim( rest_get_url_prefix(), '/' ) . '/';
-		$pos    = strpos( $path, $prefix );
-		if ( false === $pos ) {
-			return '';
-		}
-		// phpcs:enable
-		return substr( $path, $pos + strlen( $prefix ) - 1 );
+		return RestRoute::current();
 	}
 
 	/**

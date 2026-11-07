@@ -67,11 +67,19 @@ final class Server {
 			return self::reply( 403, Protocol::error( null, Protocol::ERR_REQUEST, $origin ) );
 		}
 
+		// The token is evaluated when WordPress first asks for the user inside the REST request;
+		// make sure that has happened even if no authentication filter asked.
+		wp_get_current_user();
 		$denied = self::auth_problem( Auth::context() );
 		if ( null !== $denied ) {
 			return $denied;
 		}
 		$ctx = (array) Auth::context();
+		// kses_init() ran on set_current_user already; run it again now that the token is known
+		// for sure, so a token without `admin` never writes with the kses filters removed.
+		if ( Auth::restricted() && function_exists( 'kses_init' ) ) {
+			kses_init();
+		}
 
 		if ( 'POST' !== $request->get_method() ) {
 			return self::reply( 405, Protocol::error( null, Protocol::ERR_REQUEST, 'This server answers POST requests only (no server-initiated stream).' ), array( 'Allow' => 'POST' ) );

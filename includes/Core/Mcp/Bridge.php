@@ -14,10 +14,45 @@ defined( 'ABSPATH' ) || exit;
 /**
  * They keep their code where it is; the MCP core only maps them to its scopes:
  * read-only abilities need `read`, the others `write` (destructive ones also a `confirm`).
+ * AI Assistant tools are stricter: only the ones in AI_WRITE_TOOLS get `write`, every other
+ * tool that is not read-only needs `admin`.
  */
 final class Bridge {
 
 	public const AI_CATEGORY = 'ai-assistant';
+
+	/**
+	 * AI Assistant tools that change content and are fine for a `write` token. Allowlist on purpose:
+	 * the tools run as the token owner (an administrator), so a new tool must not become available
+	 * to `write` tokens just because nobody listed it. What these write is filtered by kses (a token
+	 * without `admin` has no unfiltered_html, see Auth::limit_caps) and their URL parameters are
+	 * checked (RestEndpointTool::build_route).
+	 *
+	 * Deliberately NOT here (= admin): users-create/update/delete (create an administrator, take over
+	 * an account), settings-update (site e-mail, URLs, default role), woo-orders-create (sets paid
+	 * orders, customers and sends shop e-mails), elementor-update-widget (raw builder data, see
+	 * ElementorTools::update_widget_content).
+	 *
+	 * @var string[]
+	 */
+	public const AI_WRITE_TOOLS = array(
+		'ai-assistant/posts-create',
+		'ai-assistant/posts-update',
+		'ai-assistant/posts-delete',
+		'ai-assistant/pages-create',
+		'ai-assistant/pages-update',
+		'ai-assistant/pages-delete',
+		'ai-assistant/categories-create',
+		'ai-assistant/categories-update',
+		'ai-assistant/categories-delete',
+		'ai-assistant/tags-create',
+		'ai-assistant/tags-update',
+		'ai-assistant/tags-delete',
+		'ai-assistant/media-delete',
+		'ai-assistant/woo-products-create',
+		'ai-assistant/woo-products-update',
+		'ai-assistant/woo-products-delete',
+	);
 
 	/**
 	 * Definitions of the module abilities.
@@ -53,7 +88,7 @@ final class Bridge {
 				'name'         => $ability->get_name(),
 				'label'        => $ability->get_label(),
 				'description'  => $ability->get_description(),
-				'scope'        => ! empty( $annotations['readonly'] ) ? Scopes::READ : Scopes::WRITE,
+				'scope'        => self::ai_scope( (string) $ability->get_name(), $annotations ),
 				'input_schema' => $schema ? $schema : array( 'type' => 'object', 'properties' => array() ),
 				'annotations'  => $annotations,
 				'callback'     => static fn( array $input ) => self::run_wp_ability( $ability, $input ),
@@ -62,6 +97,19 @@ final class Bridge {
 			);
 		}
 		return $out;
+	}
+
+	/**
+	 * Scope an AI Assistant tool needs: read-only = `read`, allowlisted = `write`, anything else `admin`.
+	 *
+	 * @param string               $name        Ability name (`ai-assistant/...`).
+	 * @param array<string, mixed> $annotations Normalised annotations.
+	 */
+	public static function ai_scope( string $name, array $annotations ): string {
+		if ( ! empty( $annotations['readonly'] ) ) {
+			return Scopes::READ;
+		}
+		return in_array( $name, self::AI_WRITE_TOOLS, true ) ? Scopes::WRITE : Scopes::ADMIN;
 	}
 
 	/**

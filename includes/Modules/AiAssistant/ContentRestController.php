@@ -196,10 +196,27 @@ final class ContentRestController extends Controller {
 				)
 			);
 
-			return $this->ok( $result );
+			return $this->ok( self::kses_html_fields( $result, array( 'content' ) ) );
 		} catch ( \Throwable $e ) {
 			return new WP_Error( 'uxstudio_generate_failed', $e->getMessage(), array( 'status' => 400 ) );
 		}
+	}
+
+	/**
+	 * Run AI-generated HTML fields through wp_kses_post() before they reach the
+	 * admin preview (rendered as HTML), so the preview matches what is saved.
+	 *
+	 * @param array<string, mixed> $result Generator output.
+	 * @param string[]             $keys   Keys holding HTML.
+	 * @return array<string, mixed>
+	 */
+	private static function kses_html_fields( array $result, array $keys ): array {
+		foreach ( $keys as $key ) {
+			if ( isset( $result[ $key ] ) && is_string( $result[ $key ] ) ) {
+				$result[ $key ] = wp_kses_post( $result[ $key ] );
+			}
+		}
+		return $result;
 	}
 
 	public function create_draft( WP_REST_Request $request ) {
@@ -252,7 +269,7 @@ final class ContentRestController extends Controller {
 				)
 			);
 
-			return $this->ok( $result );
+			return $this->ok( self::kses_html_fields( $result, array( 'content', 'short_description' ) ) );
 		} catch ( \Throwable $e ) {
 			return new WP_Error( 'uxstudio_generate_woo_failed', $e->getMessage(), array( 'status' => 400 ) );
 		}
