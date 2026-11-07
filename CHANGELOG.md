@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.14.1 (unreleased)
+## 0.14.1
 
 Security release: fixes found by a security review of the REST lock, the MCP tokens and several modules.
 
