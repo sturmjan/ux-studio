@@ -61,7 +61,7 @@ final class Inventory {
 	}
 
 	/**
-	 * The two public routes of the banner must stay reachable when Security Optimization limits REST to logged-in users.
+	 * The public routes of the banner must stay reachable when Security Optimization limits REST to logged-in users.
 	 *
 	 * @param mixed $routes Route prefixes already registered as public.
 	 * @return array<int, string>
@@ -70,6 +70,7 @@ final class Inventory {
 		$routes   = is_array( $routes ) ? $routes : array();
 		$routes[] = '/uxstudio/v1/consent/region';
 		$routes[] = '/uxstudio/v1/consent/cookies';
+		$routes[] = '/uxstudio/v1/consent/record';
 		return $routes;
 	}
 

@@ -40,6 +40,7 @@ final class Module extends BaseModule {
 		Gate::boot( $this );
 		GtmKit::register( $this );
 		Inventory::boot( $this );
+		Records::boot();
 
 		add_action( 'init', array( $this, 'init' ) );
 		add_action( 'rest_api_init', array( Geo::class, 'register_routes' ) );
@@ -86,10 +87,12 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Module switched off: stop the weekly inventory scan. Settings and the stored inventory stay.
+	 * Module switched off: stop the weekly inventory scan and the daily purge of consent records. Settings, the stored
+	 * inventory and the records stay.
 	 */
 	public function on_disable(): void {
 		Inventory::unschedule();
+		Records::unschedule();
 	}
 
 	/**
@@ -396,6 +399,7 @@ final class Module extends BaseModule {
 				'ctry'     => __( 'Country', 'ux-studio' ),
 				'pol'      => __( 'Privacy policy of the provider', 'ux-studio' ),
 				'nock'     => __( 'No cookies of its own.', 'ux-studio' ),
+				'cid'      => __( 'Consent ID (quote it if you ask us about your choice):', 'ux-studio' ),
 			),
 		);
 		if ( '' !== $policy ) {
@@ -403,6 +407,10 @@ final class Module extends BaseModule {
 		}
 		// Cookies of the services are loaded when the visitor opens the detail, not carried in every page.
 		$config['ck'] = esc_url_raw( rest_url( 'uxstudio/v1/consent/cookies' ) );
+		if ( Records::enabled() ) {
+			// Where the banner reports a decision (consent records, phase F5). Absent = nothing is reported.
+			$config['rec'] = esc_url_raw( rest_url( 'uxstudio/v1/consent/record' ) );
+		}
 		if ( $eu_only ) {
 			$config['geo'] = esc_url_raw( rest_url( 'uxstudio/v1/consent/region' ) );
 		}
@@ -475,6 +483,7 @@ final class Module extends BaseModule {
 		$look    = __( 'Appearance', 'ux-studio' );
 		$block   = __( 'Blocking', 'ux-studio' );
 		$google  = __( 'Google Consent Mode', 'ux-studio' );
+		$records = __( 'Consent records', 'ux-studio' );
 
 		return array(
 			// --- Display ---
@@ -716,6 +725,22 @@ final class Module extends BaseModule {
 				'label'   => __( 'Wait for the saved choice (milliseconds)', 'ux-studio' ),
 				'default' => 500,
 				'show_if' => array( 'key' => 'consent_mode', 'in' => array( 'basic', 'advanced' ) ),
+			),
+			// --- Consent records (F5) ---
+			array(
+				'key'     => 'log_enabled',
+				'section' => $records,
+				'type'    => 'toggle',
+				'label'   => __( 'Keep a record of every choice (proof of consent)', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
+				'key'     => 'log_retention_days',
+				'section' => $records,
+				'type'    => 'number',
+				'label'   => __( 'Keep records for (days)', 'ux-studio' ),
+				'default' => Records::DEFAULT_DAYS,
+				'show_if' => array( 'key' => 'log_enabled', 'truthy' => true ),
 			),
 		);
 	}
