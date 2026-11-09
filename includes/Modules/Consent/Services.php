@@ -59,6 +59,28 @@ final class Services {
 	}
 
 	/**
+	 * The own rule that decides a host (a host pattern equal to the host or one of its parent domains), or null.
+	 * Path patterns do not count: a host alone cannot tell.
+	 *
+	 * @param string                                       $host  Host name.
+	 * @param list<array{pattern:string, category:string}> $rules Parsed own rules.
+	 * @return array{pattern:string, category:string}|null
+	 */
+	public static function rule_for_host( string $host, array $rules ): ?array {
+		$host = strtolower( trim( $host, '. ' ) );
+		if ( '' === $host ) {
+			return null;
+		}
+		foreach ( $rules as $rule ) {
+			$pattern = $rule['pattern'];
+			if ( false === strpos( $pattern, '/' ) && ( $host === $pattern || str_ends_with( $host, '.' . $pattern ) ) ) {
+				return $rule;
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * Consent category of a URL, or null when the URL needs no consent (first party, relative, unknown host, or an
 	 * own rule that says `necessary`).
 	 *
@@ -103,8 +125,9 @@ final class Services {
 			return null;
 		}
 
-		// Google embeds live on google.com itself (reCAPTCHA does too and is necessary): decide by path.
-		if ( 'google.com' === $host || str_ends_with( $host, '.google.com' ) || str_ends_with( $host, '.google.cz' ) || 'google.cz' === $host ) {
+		// Google embeds live on google.com itself (reCAPTCHA does too and is necessary): decide by path. A host the
+		// catalogue lists on its own (analytics.google.com) is decided by the catalogue.
+		if ( ( 'google.com' === $host || str_ends_with( $host, '.google.com' ) || str_ends_with( $host, '.google.cz' ) || 'google.cz' === $host ) && null === CspServices::consent_for_host( $host ) ) {
 			if ( 0 === strpos( $path, '/maps' ) || 0 === strpos( $host, 'maps.' ) ) {
 				return array(
 					'category' => 'marketing',
@@ -120,14 +143,16 @@ final class Services {
 			return null;
 		}
 		$category = $known['category'];
+		$label    = $known['label'];
 
-		// Google tag manager family: the id says what the tag is for.
+		// Google tag manager family: the id says what the tag is for, and so which service (and which cookies) it is.
 		if ( 'googletagmanager.com' === $known['domain'] ) {
 			if ( false !== strpos( $path, '/gtag/js' ) ) {
 				$query = is_array( $parts ) ? (string) ( $parts['query'] ?? '' ) : '';
 				parse_str( html_entity_decode( $query ), $args );
 				$id = strtoupper( (string) ( $args['id'] ?? '' ) );
 				$category = ( 0 === strpos( $id, 'G-' ) || 0 === strpos( $id, 'GT-' ) || 0 === strpos( $id, 'UA-' ) ) ? 'statistics' : 'marketing';
+				$label    = 'statistics' === $category ? 'Google Analytics' : 'Google Ads';
 			} else {
 				// gtm.js / ns.html: a container can hold both kinds of tags.
 				$category = 'statistics marketing';
@@ -136,7 +161,7 @@ final class Services {
 
 		return array(
 			'category' => $category,
-			'label'    => $known['label'],
+			'label'    => $label,
 			'gcm'      => $known['gcm'],
 		);
 	}
@@ -155,13 +180,15 @@ final class Services {
 					continue;
 				}
 				$category = $known['category'];
+				$label    = $known['label'];
 				if ( 'googletagmanager.com' === $known['domain'] ) {
 					// A bare gtag config / gtm snippet: statistics unless the snippet names an Ads id.
 					$category = 1 === preg_match( '/[\'"](?:AW|DC)-/i', $code ) ? 'marketing' : ( 1 === preg_match( '#googletagmanager\.com/gtm#i', $code ) ? 'statistics marketing' : 'statistics' );
+					$label    = 'marketing' === $category ? 'Google Ads' : ( 'statistics' === $category ? 'Google Analytics' : $known['label'] );
 				}
 				return array(
 					'category' => $category,
-					'label'    => $known['label'],
+					'label'    => $label,
 					'gcm'      => $known['gcm'],
 				);
 			}

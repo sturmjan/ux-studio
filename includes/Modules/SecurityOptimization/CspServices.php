@@ -324,7 +324,7 @@ final class CspServices {
 	 * advanced mode it may load before consent).
 	 *
 	 * Hosts that are NOT here (fonts, CDNs, payment gateways, captcha, the site itself) count as necessary and
-	 * are never blocked. Only the minimum for F1; the cookie list and the import come in F2.
+	 * are never blocked. The cookies of each service are in consent_services().
 	 *
 	 * @return array<string, array{category:string, label:string, gcm?:bool}>
 	 */
@@ -389,6 +389,7 @@ final class CspServices {
 			'cloudflareinsights.com' => $s( 'Cloudflare Web Analytics' ),
 			'matomo.cloud'           => $s( 'Matomo' ),
 			'smartlook.com'          => $s( 'Smartlook' ),
+			'smartlook.cloud'        => $s( 'Smartlook' ),
 			// Chat widgets (preferences: they remember the conversation).
 			'smartsuppchat.com'      => $p( 'Smartsupp' ),
 			'smartsupp.com'          => $p( 'Smartsupp' ),
@@ -423,6 +424,57 @@ final class CspServices {
 			}
 		}
 		return $best;
+	}
+
+	/**
+	 * Cookies and provider details of the services in consent_catalogue() plus the necessary ones of the site itself
+	 * (WordPress, WooCommerce, the consent cookie, Cloudflare, reCAPTCHA). Key = service label. The data lives in
+	 * `data/consent-services.php` (field list in its header), so this stays the one shared catalogue and the file can
+	 * grow without bloating this class. Each service gets a `category` (its own, or the one of its hosts).
+	 *
+	 * @return array<string, array{category:string, processor:string, country:string, transfer:string, policy:string, ocd:string[], note:array<string,string>, cookies:list<array{0:string,1:string,2:string,3:string}>}>
+	 */
+	public static function consent_services(): array {
+		static $services = null;
+		if ( null !== $services ) {
+			return $services;
+		}
+		$file = __DIR__ . '/data/consent-services.php';
+		$raw  = is_readable( $file ) ? require $file : array();
+		$raw  = is_array( $raw ) ? $raw : array();
+
+		$categories = array();
+		foreach ( self::consent_catalogue() as $entry ) {
+			// A label that serves several hosts has the same category on all of them.
+			$categories[ $entry['label'] ] = $entry['category'];
+		}
+
+		$services = array();
+		foreach ( $raw as $label => $service ) {
+			$service  = (array) $service;
+			$category = (string) ( $service['category'] ?? ( $categories[ $label ] ?? 'marketing' ) );
+			$services[ (string) $label ] = array(
+				'category'  => $category,
+				'processor' => (string) ( $service['processor'] ?? '' ),
+				'country'   => strtoupper( (string) ( $service['country'] ?? '' ) ),
+				'transfer'  => (string) ( $service['transfer'] ?? '' ),
+				'policy'    => (string) ( $service['policy'] ?? '' ),
+				'ocd'       => array_values( array_map( 'strval', (array) ( $service['ocd'] ?? array() ) ) ),
+				'note'      => (array) ( $service['note'] ?? array() ),
+				'cookies'   => array_values( (array) ( $service['cookies'] ?? array() ) ),
+			);
+		}
+		return $services;
+	}
+
+	/**
+	 * One service of consent_services() by its label, or null.
+	 *
+	 * @param string $label Service label as in consent_catalogue().
+	 * @return array<string, mixed>|null
+	 */
+	public static function consent_service( string $label ): ?array {
+		return self::consent_services()[ $label ] ?? null;
 	}
 
 	/**
