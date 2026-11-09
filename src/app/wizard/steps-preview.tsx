@@ -232,6 +232,9 @@ export function SwitchStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 		} else if ( ! flags.no_preview ) {
 			list.push( __( 'The safe preview is not available here. Confirm below that you want to switch without it.', 'ux-studio' ) );
 		}
+		if ( ( plan.must_confirm ?? 0 ) > 0 && ! pv.tested && ! flags.override_failures ) {
+			list.push( __( 'Something the old plugin provided has no counterpart and stops working after the switch (see the migration plan). Confirm that you want to switch anyway.', 'ux-studio' ) );
+		}
 		if ( plan.login.changes && ! flags.ack_login ) {
 			list.push( __( 'Save the new login address and tick the box to confirm it.', 'ux-studio' ) );
 		}
@@ -370,7 +373,21 @@ export function SwitchStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 						</div>
 					) }
 
-					{ blockers.length > 0 && <Warnings warnings={ blockers } /> }
+					{ ( plan.must_confirm ?? 0 ) > 0 && ! plan.preview.tested && (
+					<div className="uxs-wiz-callout is-warn" role="group">
+						<ShieldAlert size={ 20 } aria-hidden />
+						<div>
+							<strong>{ __( 'Some things stop working after the switch', 'ux-studio' ) }</strong>
+							<p>{ __( 'The migration plan lists what the old plugin provided and UX Studio cannot take over. Move it by hand first, or confirm that you accept the loss.', 'ux-studio' ) }</p>
+							<label className="uxs-wiz-checkrow">
+								<input type="checkbox" checked={ flags.override_failures } onChange={ ( e ) => sw.setFlag( 'override_failures', e.target.checked ) } />
+								<span>{ __( 'Switch anyway, I accept the loss', 'ux-studio' ) }</span>
+							</label>
+						</div>
+					</div>
+				) }
+
+				{ blockers.length > 0 && <Warnings warnings={ blockers } /> }
 					{ plan.preview.available.ok && ! plan.preview.complete && (
 						<p>
 							<button type="button" className="button-link" onClick={ () => ctx.goTo( 'preview' ) }>

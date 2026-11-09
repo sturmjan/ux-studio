@@ -228,6 +228,8 @@ export interface SwitchPlan {
 	preview: { available: PreviewAvailability; tested: boolean; fresh: boolean; complete: boolean; counts: SmokeCounts; total: number };
 	kill_switch: string;
 	revert_days: number;
+	/** Checks that report a certain loss (no counterpart in UX Studio); confirmed with override_failures when there is no preview. */
+	must_confirm?: number;
 }
 
 /** POST migration/switch. */
