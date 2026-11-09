@@ -4107,7 +4107,7 @@ proti CA z worktree `_ca-wt-identity` s čerstvou DB `ca_e2e` (všech 116 migrac
   zvážit hlášení „Facebook nenašel titulek ani obrázek"), IndexNow 200/202 u veřejného webu, nginx, názvy voleb
   IndexNow v Rank Math / Yoast.
 
-## 42. Cookies, souhlas a právní stránky - modul `consent` (2026-10-21, F1 rozpracováno 2026-11-09)
+## 42. Cookies, souhlas a právní stránky - modul `consent` (2026-10-21, F1 hotovo, F2 hotovo 2026-11-09)
 
 > Číslo 42, protože 41 už má větev s mapami a 26 je obsazené migračním průvodcem. Plán se přesunul ze staré větve, kde měl číslo 26.
 
@@ -4239,8 +4239,8 @@ a přenosy mimo EU se **předvyplní ze skenu** (GA4, Google Ads, Smartsupp, Tru
 - [x] F1 Lišta + kategorie + blokování přes `script_loader_tag` + napojení Pixel Tag Manager / GTM Kit
 - [x] F1 Consent Mode v2 (basic/advanced), placeholdery iframe, shortcode „Nastavení cookies"
 - [x] F1 Nastavení, komu lištu zobrazit (všem / jen EU přes `CF-IPCountry`)
-- [ ] F2 Rozšíření `CspServices` o cookies, import Open Cookie Database (po ověření licence)
-- [ ] F2 Statická inventura v pluginu + fronta „k zařazení"
+- [x] F2 Rozšíření `CspServices` o cookies, import Open Cookie Database (po ověření licence)
+- [x] F2 Statická inventura v pluginu + fronta „k zařazení"
 - [ ] F3 Playwright sken v CA (bez souhlasu / přijmout / odmítnout), API do pluginu, hlášení porušení
 - [ ] F3 Měsíční rozvrh, upozornění na novou cookie, přehled flotily v CA
 - [ ] F4 Průvodce údaji o správci + zásady cookies + ochrana osobních údajů (bloky, verze)
@@ -4312,3 +4312,75 @@ Větev `feature/consent-module`, nepushnuto. Verze pluginu nezvýšena, změna j
   (hash našeho skriptu je v registru, ale zadržené cizí inline skripty po uvolnění potřebují vlastní hash), skutečná hlavička
   `CF-IPCountry` (jen mock). Tagy v GTM kontejneru nezadržuje modul, řídí je kontejner (viz bod výše), ověřeno jen push události, ne konfigurace kontejneru. Uvolněné skripty
   nedostanou znovu `DOMContentLoaded`. Pre-existující selhání `tests/admin-customiser-layout.php` (na main stejné) s tím nesouvisí.
+
+### 42.12 F2 poznámky k provedení (2026-11-09)
+
+Větev `feature/consent-module`, nepushnuto. Verze pluginu nezvýšena, změna je v CHANGELOG pod „Unreleased". Překlady negenerovány,
+nové řetězce jsou obalené `__()` a česky v `docs/i18n/cs-consent-f2.json`.
+
+- **Katalog cookies (jeden sdílený):** `CspServices::consent_services()` a `consent_service( $label )`. Data jsou v
+  `includes/Modules/SecurityOptimization/data/consent-services.php` (hlavička souboru popisuje pole), klíč = štítek služby z
+  `consent_catalogue()`, takže skript z hostu vede rovnou k jeho cookies. Služba má zpracovatele, zemi (ISO), způsob přenosu
+  (`us` / `adequacy` / `scc` / `eea`), odkaz na zásady poskytovatele, volitelnou poznámku a řádky cookies `[ název nebo vzor, účel en,
+  účel cs, doba ]`. Vzor: `*` je libovolný řetězec, začátek `~` znamená regex. Doba je kód (`session`, `30min`, `13mo`, `2y`),
+  slovy ji píše `Cookies::duration()` česky i anglicky. Pokryté služby: všechny z `consent_catalogue()` plus nezbytné
+  WordPress, WooCommerce, naše `uxs_consent`, Cloudflare a reCAPTCHA. Služby, u kterých jsem si nebyl jistý názvy cookies
+  (Sklik, Heureka, Zboží, Mapy, Smartsupp, Tidio, Smartlook), mají místo vymyšleného seznamu poznámku; Instagram, Pinterest, Vimeo,
+  Mailchimp, Tawk.to, Crisp a Intercom berou cookies z Open Cookie Database (max. 12, pole `ocd`). Služby mimo seznam hostů
+  nesou vlastní `category`. Label `gtag/js?id=G-` se nově jmenuje „Google Analytics" a `AW-` „Google Ads" (dřív oboje „Google Tag
+  Manager"), aby se ukázaly správné cookies; kontejner `gtm.js` zůstává „Google Tag Manager".
+- **Open Cookie Database, licence ověřena:** repo `jkwakman/Open-Cookie-Database`, soubor `LICENSE` je **Apache License 2.0** (README o
+  atribuci nic dalšího neříká, NOTICE soubor neexistuje). Apache 2.0 přibalení povoluje a je kompatibilní s GPL **v3** (ne s
+  GPL-2.0-only); plugin je `GPL-2.0-or-later`, takže je to v pořádku. Podmínky, které plníme: kopie licence je v
+  `includes/Modules/Consent/data/OPEN-COOKIE-DATABASE-LICENSE.txt`, `meta` datového souboru říká, že jde o upravenou (zredukovanou)
+  kopii a odkud je, atribuce je v README a na záložce „Služby a cookies". Import: `php bin/import-open-cookie-database.php [--file=ocd.csv]`
+  stáhne CSV a vygeneruje `includes/Modules/Consent/data/open-cookie-database.json` (2287 cookies, 359 platforem, 308 kB, 76 kB gzip;
+  jen název, příznak wildcard, platforma, kategorie, doba, správce a popis zkrácený na 160 znaků). `bin/` se do release zipu nebalí,
+  JSON ano. Plugin nic nestahuje za běhu. Wildcard v OCD = prefix. Kategorie OCD „Functional" se mapuje na `preferences`
+  (opatrnější čtení), „Security" a „Necessary" na `necessary`. Popisy z OCD jsou anglicky; české mají jen služby z našeho katalogu.
+  Soubor se čte až když ho někdo potřebuje (admin, veřejný endpoint pro službu bez vlastního seznamu), běžné zobrazení stránky ho nenačte.
+  Právní posouzení licence nedělal právník, je to čtení textu licence.
+- **Inventura (`Inventory`):** zdroje jsou HTML vzorku vlastních stránek (úvodní, 3 nejnovější příspěvky, 3 stránky, u WooCommerce produkt, košík,
+  pokladna; max. 10, filtr `uxstudio_consent_inventory_pages`) a tabulka CSP porušení (`CspLogger::table()`, sloupec `blocked_host`,
+  direktivy script/frame/child/connect/img, max. 200 hostů). **Odchylka od zadání:** místo `wp_scripts()` se čte vykreslené HTML (smyčka
+  přes `wp_remote_get` na vlastní permalinky), protože `wp_scripts()` existuje jen v requestu, který stránku vykresluje; HTML navíc zachytí
+  natvrdo vložené skripty a ukáže, co opravdu servíruje keš. Z HTML se berou `<script src>`, `<link rel=stylesheet|preload|modulepreload>`,
+  `<iframe src|data-uxc-src>`, `<img src>` a inline snippety podle `consent_inline_signatures()`. Ukládají se jen holá fakta (host, max. 5
+  příkladů adres bez query kromě `id` Google tagu, počty) do volby `uxstudio_consent_inventory` (bez autoload); zařazení se počítá při
+  čtení, takže nové pravidlo nebo katalog platí hned. Host patří do jednoho ze čtyř stavů: pravidlo (rozhodl správce), služba z katalogu
+  (kategorie), „známý a nevyžaduje souhlas" (`CspServices::catalogue()`: písma, CDN) a **fronta k zařazení** (zbytek).
+  **Zařazení = vlastní pravidlo:** `Inventory::assign()` přepíše řádek `host kategorie` v nastavení `custom_rules` (ostatní řádky a komentáře
+  zůstanou, max. 100 pravidel), takže ho `Blocker` používá stejně jako ručně napsané pravidlo; volba `remove` rozhodnutí smaže. Běh: ručně
+  tlačítkem a týdně WP-Cron (`uxstudio_consent_inventory_run`; v tomhle pluginu se používá WP-Cron, Action Scheduler ne). Rozpočet běhu 30 s,
+  `Module::on_disable()` cron ruší. REST (`InventoryRest`, capability `manage_options`, zápisy přes rate limit `Controller::route`):
+  `GET consent/inventory`, `POST consent/inventory/scan`, `POST consent/inventory/assign {host, category}`.
+- **Seznam cookies v liště:** `frontend_config` nese jen **názvy služeb** (config 1,8 kB na pobyty), cookies se nenačítají s každou stránkou.
+  `consent.js` při prvním otevření rozbalovátka „Služby" zavolá veřejný `GET uxstudio/v1/consent/cookies?s=A|B` (max. 40 štítků, jen
+  štítky, které katalog zná, odpověď `{štítek: {p, c, t, u, n, k:[[název, účel, doba]]}}`, `Cache-Control: public, max-age=3600`, transient 12 h
+  na štítek) a doplní zpracovatele, zemi, odkaz na zásady a cookies pod každou službu. V kategorii „Nezbytné" se nově ukazují vlastní služby webu
+  (WordPress, Cookie consent, WooCommerce). Velikost: `consent.min.js` 8,6 kB (3,5 kB gzip), `consent.min.css` 3,9 kB (1,4 kB gzip), před F2
+  7,4 / 3,6 kB. Oba veřejné endpointy (`consent/region` a `consent/cookies`) se nově registrují do filtru `uxstudio_rest_public_routes`;
+  **`consent/region` v F1 chyběl**, takže při zamčeném REST (Security Optimization) by padal a lišta se zobrazila všem (bezpečný směr, ale „jen EU" nefungovalo).
+- **Admin:** záložka „Služby a cookies" na stránce modulu (`src/modules/consent/Inventory.tsx`, stávající třídy `uxs-table`, `uxs-badge`,
+  `button`): tlačítko „Prohledat teď", fronta k zařazení s výběrem kategorie (preference / statistika / marketing / nezbytné), nalezené služby a
+  cookies, „Vaše rozhodnutí" se zapomenutím, atribuce OCD.
+- **Veřejná metoda pro F3 a F4:** `\UxStudio\Modules\Consent\Report::site( ?string $lang = null )` (jazyk `cs` / `en`, jinak podle locale). Vrací
+  `['generated', 'language', 'scanned_at', 'categories' => ['necessary'|'preferences'|'statistics'|'marketing' => [služba ...]], 'cookies' => [plochý
+  seznam], 'unclassified' => [hosty ve frontě], 'open_cookie_database' => meta]`. Služba: `label, category, processor, country, country_name,
+  transfer, transfer_text, policy, note, cookies[name, purpose, duration, source (catalogue|ocd)], hosts, found`. Seznam služeb je stejný jako
+  v liště (vlastní nezbytné + nalezené a zařazené + ručně psané + Pixel & Tag Manager + GTM Kit), takže zásady cookies a lišta si nemohou
+  odporovat. F3 sken porovná skutečné cookies s `Cookies::match( $name, $lang )` (katalog, pak OCD; vrací službu, kategorii, účel, dobu,
+  zdroj) a hostitele s `Inventory::state()`. Pozor: je to popis toho, co katalog a inventura VĚDÍ, ne důkaz, co na webu běží.
+- **Ověřeno:** `php -l`, `tests/consent.php` (131 případů: úplnost katalogu, vzory, OCD vč. chybějícího souboru, doby, čeština, parsování HTML,
+  fronta, pravidla, shoda s `Blocker`), `tests/consent-wp.php` (nový, WP-CLI proti lokálnímu pobyty s načtenými třídami z tohoto checkoutu:
+  skutečný běh inventury 10 stránek za cca 18 s, oprávnění, veřejný endpoint, kolečko zařazení a zapomenutí, velikost configu, `Report::site`),
+  `consent-js.mjs`, `forms-consent-detect.mjs`, `overlap-catalog`, `module-links`, `module-groups`, `csp-logic`, `csp-inline-scripts`,
+  `npm run build`, `npm run build:widget`, `tsc --noEmit`.
+- **Neověřeno / otevřené:** zobrazení záložky a rozbalovátka cookies v prohlížeči (po dohodě se v F2 do prohlížeče nechodilo), axe-core nových
+  prvků v liště; zda zásady poskytovatelů a doby cookies jsou aktuální (sestaveno z veřejných informací a OCD, bez ověření u poskytovatelů;
+  Sklik, Heureka, Zboží, Mapy, Smartsupp, Tidio a Smartlook nemají seznam cookies vůbec, jen poznámku; adresy zásad Heureky, Smartsupp a Smartlooku
+  chybí, protože jsem si nebyl jistý); chování smyčky `wp_remote_get` za firewallem nebo basic auth klienta (stránka se pak přeskočí a
+  inventura je neúplná; není o tom hlášení v UI); běh 10 stránek trvá desítky sekund, na pomalém hostingu s krátkým `max_execution_time`
+  nebo proxy může ruční tlačítko vypršet (cron to nemá); CSP tabulka může obsahovat podvržené hosty (veřejný token), jsou jen ve frontě a nic
+  se neblokuje ani nepovoluje automaticky; `Inventory` nezná cookies nastavené jen skriptem (to řeší dynamický sken F3); Action Scheduler
+  se nepoužil.

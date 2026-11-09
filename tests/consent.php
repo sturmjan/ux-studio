@@ -3,7 +3,8 @@
 if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
  * Standalone test (no WordPress) of the Cookie Consent module logic (PLAN.md 42, F1): URL classification, rewriting of
- * script and iframe tags, the Consent Mode defaults script, the region check and the catalog entry.
+ * script and iframe tags, the Consent Mode defaults script, the region check and the catalog entry; F2: the cookie
+ * catalogue, pattern matching, the Open Cookie Database, the static inventory and its queue.
  *
  *   php tests/consent.php
  *
@@ -28,6 +29,10 @@ require_once $dir . 'SecurityOptimization/CspServices.php';
 require_once $dir . 'Consent/Services.php';
 require_once $dir . 'Consent/Blocker.php';
 require_once $dir . 'Consent/ConsentMode.php';
+require_once $dir . 'Consent/OpenCookieDb.php';
+require_once $dir . 'Consent/Cookies.php';
+require_once $dir . 'Consent/Inventory.php';
+if ( ! class_exists( 'WP_Error' ) ) { eval( 'class WP_Error {}' ); }
 // Geo and Gate need classes of the plugin (REST controller, Module); only the pure parts are used here.
 if ( ! class_exists( 'UxStudio\Rest\Controller' ) ) {
 	eval( 'namespace UxStudio\Rest; abstract class Controller { public const NS = "uxstudio/v1"; }' );
@@ -37,7 +42,11 @@ require_once $dir . 'Consent/Geo.php';
 
 use UxStudio\Modules\Consent\Blocker;
 use UxStudio\Modules\Consent\ConsentMode;
+use UxStudio\Modules\Consent\Cookies;
 use UxStudio\Modules\Consent\Geo;
+use UxStudio\Modules\Consent\Inventory;
+use UxStudio\Modules\Consent\OpenCookieDb;
+use UxStudio\Modules\SecurityOptimization\CspServices;
 use UxStudio\Modules\Consent\Services;
 
 $failures = 0;
@@ -171,6 +180,146 @@ foreach ( $assets as $a ) {
 	$assert( "asset $a exists", is_file( $root . '/assets/consent/' . $a ) );
 }
 $assert( 'no em or en dash in the module sources', 0 === preg_match( '/[\x{2013}\x{2014}]/u', implode( '', array_map( 'file_get_contents', glob( $dir . 'Consent/*.php' ) ) ) . file_get_contents( $root . '/assets/consent/consent.js' ) ) );
+
+// --- F2: cookie catalogue (one shared catalogue, CspServices::consent_services()) ---
+$services = CspServices::consent_services();
+$labels   = array_unique( array_map( static fn( array $e ): string => $e['label'], CspServices::consent_catalogue() ) );
+$missing  = array_values( array_filter( $labels, static fn( string $l ): bool => ! isset( $services[ $l ] ) ) );
+$assert( 'every service of the consent host catalogue has an entry', array() === $missing, implode( ', ', $missing ) );
+$empty = array_keys( array_filter( $services, static fn( array $s ): bool => array() === $s['cookies'] && array() === $s['ocd'] && array() === $s['note'] ) );
+$assert( 'no service is empty (cookies, OCD platform or a note)', array() === $empty, implode( ', ', $empty ) );
+$badrow = array();
+foreach ( $services as $label => $svc ) {
+	if ( ! in_array( $svc['category'], array( 'necessary', 'preferences', 'statistics', 'marketing' ), true ) ) {
+		$badrow[] = "$label category";
+	}
+	foreach ( $svc['cookies'] as $row ) {
+		if ( 4 !== count( $row ) || '' === $row[0] || '' === $row[1] || '' === $row[2] || ( Cookies::duration( $row[3], 'en' ) === $row[3] && 'session' !== $row[3] ) ) {
+			$badrow[] = "$label {$row[0]}";
+		}
+	}
+	if ( '' !== $svc['transfer'] && ( '' === $svc['country'] || '' === $svc['processor'] ) ) {
+		$badrow[] = "$label transfer";
+	}
+}
+$assert( 'catalogue rows are complete (4 fields, readable duration, provider for a transfer)', array() === $badrow, implode( '; ', $badrow ) );
+foreach ( array( 'Google Analytics', 'Google Ads', 'Google Tag Manager', 'Facebook', 'Sklik (Seznam)', 'Heureka', 'Hotjar', 'Microsoft Clarity', 'YouTube', 'Google Maps', 'Mapy.cz', 'Smartsupp', 'Tawk.to', 'WordPress', 'WooCommerce', 'Cookie consent' ) as $must ) {
+	$assert( "catalogue covers $must", isset( $services[ $must ] ) );
+}
+$assert( 'necessary services carry their own category', 'necessary' === $services['WordPress']['category'] && 'necessary' === $services['Cookie consent']['category'] );
+$assert( 'host services take the category of their host', 'statistics' === $services['Hotjar']['category'] && 'marketing' === $services['Facebook']['category'] && 'preferences' === $services['Smartsupp']['category'] );
+$assert( 'US services name the transfer, Czech ones stay in the EEA', 'us' === $services['Google Analytics']['transfer'] && 'eea' === $services['Heureka']['transfer'] );
+
+// pattern matching
+$assert( 'pattern: wildcard _ga_*', Cookies::pattern_matches( '_ga_*', '_ga_9REVSBTW6T' ) && ! Cookies::pattern_matches( '_ga_*', '_gat' ) && ! Cookies::pattern_matches( '_ga_*', '_ga' ) );
+$assert( 'pattern: exact and case sensitive', Cookies::pattern_matches( '_ga', '_ga' ) && ! Cookies::pattern_matches( '_ga', '_GA' ) && ! Cookies::pattern_matches( '_ga', '_ga2' ) );
+$assert( 'pattern: wildcard in the middle, special characters are literal', Cookies::pattern_matches( 'wp-settings-time-*', 'wp-settings-time-7' ) && ! Cookies::pattern_matches( 'a.b*', 'axb1' ) );
+$assert( 'pattern: regex with ~', Cookies::pattern_matches( '~_hj(Session|SessionUser)_[0-9]+', '_hjSessionUser_123' ) && ! Cookies::pattern_matches( '~_hj[0-9]+', '_hj12x' ) );
+$assert( 'pattern: empty never matches', ! Cookies::pattern_matches( '', 'x' ) && ! Cookies::pattern_matches( '*', '' ) );
+
+// match(): catalogue first, then the Open Cookie Database
+$m = Cookies::match( '_ga_9REVSBTW6T', 'cs' );
+$assert( 'match: GA4 cookie => Google Analytics, statistics, from the catalogue', null !== $m && 'Google Analytics' === $m['service'] && 'statistics' === $m['category'] && 'catalogue' === $m['source'] && '2 roky' === $m['duration'], json_encode( $m, JSON_UNESCAPED_UNICODE ) );
+$m = Cookies::match( 'wp_woocommerce_session_abc123', 'en' );
+$assert( 'match: WooCommerce session is necessary', null !== $m && 'necessary' === $m['category'] && '2 days' === $m['duration'], json_encode( $m ) );
+$m = Cookies::match( 'uxs_consent', 'en' );
+$assert( 'match: our own consent cookie', null !== $m && 'Cookie consent' === $m['service'] && 'necessary' === $m['category'] );
+$m = Cookies::match( 'tawk_abc', 'en' );
+$assert( 'match: falls back to the Open Cookie Database (wildcard prefix)', null !== $m && 'ocd' === $m['source'] && 'Tawk.to' === $m['service'], json_encode( $m ) );
+$assert( 'match: unknown cookie is null', null === Cookies::match( 'zz_totally_unknown_cookie', 'en' ) );
+
+// Open Cookie Database
+$assert( 'OCD: data file present with Apache-2.0 provenance', OpenCookieDb::available() && 'Apache-2.0' === OpenCookieDb::meta()['license'] && ( OpenCookieDb::meta()['cookies'] ?? 0 ) > 2000 );
+$assert( 'OCD: licence text is bundled', is_file( $dir . 'Consent/data/OPEN-COOKIE-DATABASE-LICENSE.txt' ) && false !== strpos( (string) file_get_contents( $dir . 'Consent/data/OPEN-COOKIE-DATABASE-LICENSE.txt' ), 'Apache License' ) );
+$o = OpenCookieDb::lookup( '_fbp' );
+$assert( 'OCD: exact name', null !== $o && 'Facebook' === $o['platform'] && 'marketing' === $o['category'] );
+$o = OpenCookieDb::lookup( '_gac_UA-1234' );
+$assert( 'OCD: wildcard entries match by prefix', null !== $o && $o['wildcard'] );
+$assert( 'OCD: unknown name', null === OpenCookieDb::lookup( 'zz_totally_unknown_cookie' ) );
+$assert( 'OCD: platform rows', count( OpenCookieDb::platform_cookies( array( 'Instagram' ) ) ) > 3 && array() === OpenCookieDb::platform_cookies( array( 'No Such Platform' ) ) );
+OpenCookieDb::use_file( __DIR__ . '/does-not-exist.json' );
+$assert( 'OCD: missing file degrades to nothing, the catalogue still works', ! OpenCookieDb::available() && null === OpenCookieDb::lookup( '_fbp' ) && null !== Cookies::match( '_fbp', 'en' ) );
+OpenCookieDb::use_file( null );
+
+// durations
+$assert( 'duration: Czech plurals', '1 rok' === Cookies::duration( '1y', 'cs' ) && '2 roky' === Cookies::duration( '2y', 'cs' ) && '5 let' === Cookies::duration( '5y', 'cs' ) && '13 měsíců' === Cookies::duration( '13mo', 'cs' ) && '3 měsíce' === Cookies::duration( '3mo', 'cs' ) && '1 den' === Cookies::duration( '1d', 'cs' ) && '30 minut' === Cookies::duration( '30min', 'cs' ) && 'do konce relace' === Cookies::duration( 'session', 'cs' ) );
+$assert( 'duration: English', '1 year' === Cookies::duration( '1y', 'en' ) && '13 months' === Cookies::duration( '13mo', 'en' ) && 'session' === Cookies::duration( 'session', 'en' ) && 'permanent' === Cookies::duration( 'permanent', 'en' ) );
+$assert( 'lang: Czech locale only', 'cs' === Cookies::lang( 'cs_CZ' ) && 'en' === Cookies::lang( 'sk_SK' ) && 'en' === Cookies::lang( 'en_US' ) );
+
+// services for display
+$svc = Cookies::service( 'Google Analytics', 'cs' );
+$assert( 'service: Czech texts, country and transfer', null !== $svc && 'USA' === $svc['country_name'] && '' !== $svc['transfer_text'] && 'Rozlišuje návštěvníky pro počítání návštěv a návštěvníků.' === $svc['cookies'][0]['purpose'] );
+$svc = Cookies::service( 'Instagram', 'en' );
+$assert( 'service: no own cookies => Open Cookie Database rows (max 12)', null !== $svc && count( $svc['cookies'] ) > 3 && count( $svc['cookies'] ) <= 12 && 'ocd' === $svc['cookies'][0]['source'] );
+$svc = Cookies::service( 'Google Tag Manager', 'cs' );
+$assert( 'service: a service with a note and no cookies', null !== $svc && array() === $svc['cookies'] && '' !== $svc['note'] );
+$assert( 'service: unknown label is null', null === Cookies::service( 'Unknown Vendor', 'en' ) );
+$by = Cookies::services_by_category( array( 'necessary' => array( 'WordPress', 'WordPress' ), 'statistics' => array( 'Hotjar', 'My own tool' ) ), 'en' );
+$assert( 'by category: dedupes, keeps hand-written names with an empty list, all four categories present', 1 === count( $by['necessary'] ) && 2 === count( $by['statistics'] ) && 'My own tool' === $by['statistics'][1]['label'] && array() === $by['statistics'][1]['cookies'] && array() === $by['marketing'] );
+
+// --- F2: inventory (pure parts) ---
+$html = '<html><head><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto&display=swap">'
+	. '<link rel="stylesheet" href="https://example.cz/wp-content/style.css"><link rel="icon" href="https://icons.example-icons.com/i.png">'
+	. '<script src="https://www.googletagmanager.com/gtag/js?id=G-ABC123&amp;l=dl"></script>'
+	. '<script type="text/plain" data-uxc="marketing" src="https://connect.facebook.net/en_US/fbevents.js"></script>'
+	. '<script src="//cdn.unknownvendor.io/widget.js?token=SECRET"></script>'
+	. '<script>fbq( "init", "123" );</script><script>var plain = 1;</script><script type="application/ld+json">{"a":"https://schema.org"}</script>'
+	. '</head><body><iframe data-uxc="marketing" data-uxc-src="https://www.youtube-nocookie.com/embed/abc" src=""></iframe>'
+	. '<img src="https://www.facebook.com/tr?id=1&ev=PageView"><img src="https://example.cz/own.png"><img src="/relative.png"></body></html>';
+$found = Inventory::scan_html( $html, 'example.cz' );
+$hosts = array_unique( array_column( $found['refs'], 'host' ) );
+sort( $hosts );
+$assert( 'scan_html: external hosts only, no own host, no relative address, no JSON-LD', $hosts === array( 'cdn.unknownvendor.io', 'connect.facebook.net', 'fonts.googleapis.com', 'www.facebook.com', 'www.googletagmanager.com', 'www.youtube-nocookie.com' ), implode( ',', $hosts ) );
+$assert( 'analytics.google.com is decided by the catalogue, not by the google.com path rule', 'statistics' === $cat( $c( 'https://region1.analytics.google.com/g/collect' ) ) && null === $c( 'https://www.google.com/recaptcha/api.js' ) && 'marketing' === $cat( $c( 'https://www.google.com/maps/embed?pb=1' ) ) );
+$assert( 'gtag.js labels: GA4 id => Google Analytics, Ads id => Google Ads, container => Google Tag Manager', 'Google Analytics' === ( $c( 'https://www.googletagmanager.com/gtag/js?id=G-ABC123' )['label'] ?? '' ) && 'Google Ads' === ( $c( 'https://www.googletagmanager.com/gtag/js?id=AW-123' )['label'] ?? '' ) && 'Google Tag Manager' === ( $c( 'https://www.googletagmanager.com/gtm.js?id=GTM-AB' )['label'] ?? '' ) );
+$assert( 'scan_html: known inline snippet is recognised', array( 'Facebook' => 'marketing' ) === $found['inline'], json_encode( $found['inline'] ) );
+$gtag = array_values( array_filter( $found['refs'], static fn( array $r ): bool => 'www.googletagmanager.com' === $r['host'] ) );
+$unk  = array_values( array_filter( $found['refs'], static fn( array $r ): bool => 'cdn.unknownvendor.io' === $r['host'] ) );
+$assert( 'scan_html: the Google tag id survives, other query strings (tokens) do not', 'https://www.googletagmanager.com/gtag/js?id=G-ABC123' === $gtag[0]['url'] && 'https://cdn.unknownvendor.io/widget.js' === $unk[0]['url'], $gtag[0]['url'] . ' ' . $unk[0]['url'] );
+$assert( 'example_url drops fragments and unknown queries', 'https://a.example.org/x.js' === Inventory::example_url( '//a.example.org/x.js?k=1#f' ) );
+$assert( 'valid_host', Inventory::valid_host( 'cdn.example.io' ) && ! Inventory::valid_host( 'localhost' ) && ! Inventory::valid_host( '10.0.0.1' ) && ! Inventory::valid_host( 'a b.com' ) && ! Inventory::valid_host( 'inline' ) );
+
+$facts = Inventory::add_page( array(), $found );
+$facts = Inventory::add_page( $facts, $found );
+$facts = Inventory::add_csp(
+	$facts,
+	array(
+		array( 'host' => 'tracker.csponly.net', 'hits' => 7, 'url' => 'https://tracker.csponly.net/t.js' ),
+		array( 'host' => 'inline', 'hits' => 9, 'url' => '' ),
+		array( 'host' => 'example.cz', 'hits' => 3, 'url' => 'https://example.cz/a.js' ),
+	),
+	'example.cz'
+);
+$assert( 'add_page: counts pages per host', 2 === $facts['hosts']['cdn.unknownvendor.io']['p'] && 'html' === $facts['hosts']['cdn.unknownvendor.io']['s'][0] );
+$assert( 'add_csp: CSP-only host added, keywords and own host skipped', isset( $facts['hosts']['tracker.csponly.net'] ) && 7 === $facts['hosts']['tracker.csponly.net']['h'] && ! isset( $facts['hosts']['inline'] ) && ! isset( $facts['hosts']['example.cz'] ) );
+
+$state = Inventory::evaluate( $facts, array(), 'example.cz' );
+$queue = array_column( $state['queue'], 'host' );
+$sorted = $queue;
+sort( $sorted );
+$assert( 'evaluate: unknown hosts go to the queue', $sorted === array( 'cdn.unknownvendor.io', 'tracker.csponly.net' ), implode( ',', $queue ) );
+$assert( 'evaluate: busiest unknown host first', 'cdn.unknownvendor.io' === $state['queue'][0]['host'] );
+$assert( 'evaluate: GA4 tag => Google Analytics statistics', 'statistics' === ( $state['services']['Google Analytics']['category'] ?? '' ) );
+$assert( 'evaluate: iframe and pixel => marketing services', 'marketing' === ( $state['services']['YouTube']['category'] ?? '' ) && 'marketing' === ( $state['services']['Facebook']['category'] ?? '' ) );
+$assert( 'evaluate: fonts are known and need no consent, not queued', in_array( 'fonts.googleapis.com', array_column( $state['known'], 'host' ), true ) && ! in_array( 'fonts.googleapis.com', $queue, true ) );
+
+$rules_text = Inventory::rules_with( "# my notes\nold.example.org marketing", 'cdn.unknownvendor.io', 'marketing' );
+$assert( 'rules_with: appends, keeps comments and other lines', "# my notes\nold.example.org marketing\ncdn.unknownvendor.io marketing" === $rules_text, $rules_text );
+$rules_text = Inventory::rules_with( $rules_text, 'cdn.unknownvendor.io', 'necessary' );
+$assert( 'rules_with: a second decision replaces the first', 1 === substr_count( $rules_text, 'cdn.unknownvendor.io' ) && str_ends_with( $rules_text, 'cdn.unknownvendor.io necessary' ), $rules_text );
+$assert( 'rules_with: remove forgets the host', false === strpos( Inventory::rules_with( $rules_text, 'cdn.unknownvendor.io', 'remove' ), 'unknownvendor' ) );
+
+$rules = Services::parse_rules( Inventory::rules_with( '', 'cdn.unknownvendor.io', 'marketing' ) );
+$state = Inventory::evaluate( $facts, $rules, 'example.cz' );
+$assert( 'evaluate: a classified host leaves the queue and becomes a service in that category', ! in_array( 'cdn.unknownvendor.io', array_column( $state['queue'], 'host' ), true ) && 'marketing' === ( $state['services']['cdn.unknownvendor.io']['category'] ?? '' ) && 'cdn.unknownvendor.io' === $state['decided'][0]['host'] );
+$assert( 'the Blocker uses the same decision (own rule)', 'marketing' === $cat( Services::classify( 'https://cdn.unknownvendor.io/widget.js', 'example.cz', $rules ) ) );
+$rules = Services::parse_rules( Inventory::rules_with( '', 'cdn.unknownvendor.io', 'necessary' ) );
+$state = Inventory::evaluate( $facts, $rules, 'example.cz' );
+$assert( 'evaluate: necessary decision leaves the queue and is not a consent service', ! isset( $state['services']['cdn.unknownvendor.io'] ) && 'necessary' === $state['decided'][0]['category'] && null === Services::classify( 'https://cdn.unknownvendor.io/widget.js', 'example.cz', $rules ) );
+$assert( 'rule_for_host: parent domain rule covers a subdomain, a path rule does not', null !== Services::rule_for_host( 'a.b.example.org', Services::parse_rules( 'example.org marketing' ) ) && null === Services::rule_for_host( 'example.org', Services::parse_rules( 'example.org/ads marketing' ) ) );
+
+$all_php = implode( '', array_map( 'file_get_contents', array_merge( glob( $dir . 'Consent/*.php' ), array( $dir . 'SecurityOptimization/data/consent-services.php', $root . '/bin/import-open-cookie-database.php' ) ) ) );
+$assert( 'no em or en dash in the F2 sources and data', 0 === preg_match( '/[\x{2013}\x{2014}]/u', $all_php . file_get_contents( $root . '/assets/consent/consent.js' ) ) );
 
 if ( $failures ) { echo "$failures failure(s)\n"; exit( 1 ); }
 echo "ALL PASSED\n";
