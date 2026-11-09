@@ -39,6 +39,7 @@ final class Module extends BaseModule {
 	public function boot(): void {
 		Gate::boot( $this );
 		GtmKit::register( $this );
+		Inventory::boot( $this );
 
 		add_action( 'init', array( $this, 'init' ) );
 		add_action( 'rest_api_init', array( Geo::class, 'register_routes' ) );
@@ -82,6 +83,13 @@ final class Module extends BaseModule {
 				return 'off' === $this->consent_mode() ? array() : array( $this->defaults_body() );
 			}
 		);
+	}
+
+	/**
+	 * Module switched off: stop the weekly inventory scan. Settings and the stored inventory stay.
+	 */
+	public function on_disable(): void {
+		Inventory::unschedule();
 	}
 
 	/**
@@ -325,6 +333,12 @@ final class Module extends BaseModule {
 				$lists[ $category ][] = $label;
 			}
 		}
+		// Own necessary cookies plus the services the inventory found and the owner classified (F2), the same on every page.
+		foreach ( Inventory::banner_services() as $category => $labels ) {
+			foreach ( $labels as $label ) {
+				$lists[ $category ][] = $label;
+			}
+		}
 
 		$categories = array(
 			array(
@@ -350,9 +364,7 @@ final class Module extends BaseModule {
 			),
 		);
 		foreach ( $categories as $i => $category ) {
-			if ( 'necessary' !== $category['id'] ) {
-				$categories[ $i ]['s'] = array_values( array_unique( $lists[ $category['id'] ] ?? array() ) );
-			}
+			$categories[ $i ]['s'] = array_values( array_unique( $lists[ $category['id'] ] ?? array() ) );
 		}
 
 		$config = array(
@@ -378,11 +390,19 @@ final class Module extends BaseModule {
 				'load'     => __( 'Load content', 'ux-studio' ),
 				'fab'      => __( 'Cookie settings', 'ux-studio' ),
 				'policy'   => (string) $s->get( 'policy_label', __( 'Cookie policy', 'ux-studio' ) ),
+				'cookies'  => __( 'Cookies', 'ux-studio' ),
+				'keep'     => __( 'Stored for', 'ux-studio' ),
+				'prov'     => __( 'Provider', 'ux-studio' ),
+				'ctry'     => __( 'Country', 'ux-studio' ),
+				'pol'      => __( 'Privacy policy of the provider', 'ux-studio' ),
+				'nock'     => __( 'No cookies of its own.', 'ux-studio' ),
 			),
 		);
 		if ( '' !== $policy ) {
 			$config['policy'] = esc_url_raw( $policy );
 		}
+		// Cookies of the services are loaded when the visitor opens the detail, not carried in every page.
+		$config['ck'] = esc_url_raw( rest_url( 'uxstudio/v1/consent/cookies' ) );
 		if ( $eu_only ) {
 			$config['geo'] = esc_url_raw( rest_url( 'uxstudio/v1/consent/region' ) );
 		}
