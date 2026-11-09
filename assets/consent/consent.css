@@ -49,13 +49,17 @@
 	border-radius: var(--uxc-r);
 }
 
-.uxc-h { margin: 0 0 8px; font-size: 1.15em; font-weight: 700; line-height: 1.3; color: inherit; }
+.uxc .uxc-h { margin: 0 0 8px; font-family: inherit; text-transform: none; letter-spacing: normal; font-size: 1.15em; font-weight: 700; line-height: 1.3; color: inherit; }
 .uxc-p, .uxc-d { margin: 0; font-size: .95em; }
 .uxc-d { opacity: .85; margin-top: 4px; }
 .uxc-a { color: inherit; text-decoration: underline; font-weight: 600; }
 
 .uxc-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
-.uxc-btn {
+.uxc .uxc-btn,
+.uxc-ph .uxc-btn {
+	text-transform: none;
+	letter-spacing: normal;
+	box-shadow: none;
 	flex: 1 1 auto;
 	min-height: 44px;
 	padding: 8px 16px;
@@ -69,8 +73,8 @@
 	border-radius: var(--uxc-r);
 	cursor: pointer;
 }
-.uxc-btn.uxc-alt { color: var(--uxc-fg); background: transparent; border-color: currentColor; }
-.uxc-btn:hover { filter: brightness(1.08); }
+.uxc .uxc-btn.uxc-alt { color: var(--uxc-fg); background: transparent; border-color: currentColor; }
+.uxc .uxc-btn:hover, .uxc-ph .uxc-btn:hover { filter: brightness(1.08); }
 .uxc-btn:focus-visible, .uxc-fab:focus-visible, .uxc-a:focus-visible, .uxc-detail input:focus-visible, .uxc-detail summary:focus-visible, .uxc-h:focus-visible {
 	outline: 3px solid var(--uxc-fg);
 	outline-offset: 2px;
@@ -105,14 +109,14 @@
 	font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 .uxc-ph p { margin: 0; max-width: 46ch; }
-.uxc-ph .uxc-btn { flex: none; }
+.uxc-ph .uxc-btn { flex: none; width: auto; }
 .uxc-open { cursor: pointer; }
 
 @media (max-width: 480px) {
 	.uxc-box .uxc-dlg { bottom: 8px; width: calc(100% - 16px); }
 	.uxc-box.uxc-left .uxc-dlg { left: 8px; }
 	.uxc-box.uxc-right .uxc-dlg { right: 8px; }
-	.uxc-btn { flex-basis: 100%; }
+	.uxc .uxc-btn { flex-basis: 100%; }
 }
 @media (forced-colors: active) {
 	.uxc-btn { border-color: ButtonText; }

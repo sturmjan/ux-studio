@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Added: Cookie Consent module (PLAN section 42, phase F1). A light banner (about 4 kB over the wire) with necessary, preferences, statistics and marketing categories; equal accept and reject buttons; a small button and the shortcode `[uxstudio_cookie_settings]` to change the choice later. Tracking scripts and third-party iframes (YouTube, maps and others) are held back until the visitor agrees. Google Consent Mode v2 (off, basic by default, or advanced), an option to show the banner only to European visitors (Cloudflare `CF-IPCountry`), integration with Pixel & Tag Manager and GTM Kit. Complianz, Cookie Notice, CookieYes and Cookiebot are reported as a conflict.
+- Changed: the Forms marketing-consent detection (Sklik) also reads the new banner.
+
 ## 0.14.3
 
 - Security: automatic updates of UX Studio now check the Ed25519 signature of the release package (`ux-studio.zip.sig`). An update without a valid signature is refused and the installed version is kept.

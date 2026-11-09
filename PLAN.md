@@ -4236,9 +4236,9 @@ a přenosy mimo EU se **předvyplní ze skenu** (GA4, Google Ads, Smartsupp, Tru
 ### 42.9 Fáze
 
 - [ ] F0 Změřit Complianz na autoservisvydra.cz s pluginem a bez něj (studený TTFB, Benchmark z `page-load`), zapsat sem
-- [ ] F1 Lišta + kategorie + blokování přes `script_loader_tag` + napojení Pixel Tag Manager / GTM Kit
-- [ ] F1 Consent Mode v2 (basic/advanced), placeholdery iframe, shortcode „Nastavení cookies"
-- [ ] F1 Nastavení, komu lištu zobrazit (všem / jen EU přes `CF-IPCountry`)
+- [x] F1 Lišta + kategorie + blokování přes `script_loader_tag` + napojení Pixel Tag Manager / GTM Kit
+- [x] F1 Consent Mode v2 (basic/advanced), placeholdery iframe, shortcode „Nastavení cookies"
+- [x] F1 Nastavení, komu lištu zobrazit (všem / jen EU přes `CF-IPCountry`)
 - [ ] F2 Rozšíření `CspServices` o cookies, import Open Cookie Database (po ověření licence)
 - [ ] F2 Statická inventura v pluginu + fronta „k zařazení"
 - [ ] F3 Playwright sken v CA (bez souhlasu / přijmout / odmítnout), API do pluginu, hlášení porušení
@@ -4267,3 +4267,42 @@ Rozhodnuto 2026-10-21:
   konzervativnější výklad ÚOOÚ); advanced jako volba s vysvětlením. Při migraci se převezme
   režim, který web měl v Complianzu (autoservisvydra = advanced).
 - O4 ✅ Retence záznamů souhlasů 3 roky (výchozí, nastavitelné).
+
+### 42.11 F1 poznámky k provedení (2026-11-09)
+
+Větev `feature/consent-module`, nepushnuto. Verze pluginu nezvýšena, změna je v CHANGELOG pod „Unreleased".
+
+- **Kde:** `includes/Modules/Consent/` (`Module`, `Services`, `Blocker`, `ConsentMode`, `Geo`, `Gate`, `GtmKit`, `help.php`),
+  frontend `assets/consent/consent.js|css` (+ `.min`, sestavuje `npm run build:widget`), stránka nastavení
+  `src/modules/consent/Page.tsx`, test `tests/consent.php`, čeština v `docs/i18n/cs-consent.json`.
+- **Katalog:** žádný druhý katalog. `CspServices` dostal `consent_catalogue()` (host => kategorie, služba, zda čte Consent Mode),
+  `consent_for_host()` a `consent_inline_signatures()`. `Services::classify()` k hostu doplní cestu (gtag s `G-` = statistika,
+  `AW-` = marketing, `gtm.js` = „statistics marketing" = stačí kterákoli), vlastní pravidla a výjimku pro vlastní web.
+- **Blokování:** `script_loader_tag` přepíše každý `<script>` registrovaného skriptu (vč. překladů a before/after) na
+  `type="text/plain" data-uxc="kategorie"`; `consent.js` je po souhlasu znovu vytvoří v pořadí stránky (externí čeká na onload).
+  Iframy v `the_content`, widgetech a oEmbedu ztratí `src` (`data-uxc-src`), JS vloží placeholder s tlačítkem „Načíst obsah"; YouTube jde
+  přes `youtube-nocookie.com`. Volitelná pojistka `buffer_guard` (výstupní buffer) chytá natvrdo vložené snippety podle signatur.
+  Stránka je pro všechny stejná, takže zůstává kešovatelná. Uložení nastavení vyprázdní keš WP Rocket, LiteSpeed, W3TC, WPSC.
+- **Souhlas:** cookie `uxs_consent` = `1.<verze>.<bity>.<čas>`, first-party, `SameSite=Lax`, `Secure` na HTTPS, platnost max 365 dní,
+  verze zásad v nastavení (zvýšení = zeptat se všech znovu). Žádná PII, na serveru se nic neukládá (záznamy souhlasů jsou F5).
+  `window.uxConsent.has()`, událost `uxstudio:consent`, `window.uxstudioConsent`.
+- **Consent Mode v2:** inline skript v `<head>` s prioritou 0 (default denied, pak update podle cookie) je statický a jeho hash se
+  registruje v `CspInlineScripts` (stejný mechanismus jako Forms, ne `unsafe-inline`). Basic = Google tagy blokované jako ostatní;
+  advanced = Google tagy (gtag, GTM) se nechají načíst hned. Výchozí basic. Update při rozhodnutí posílá `consent.js`.
+- **Komu zobrazit:** `display_to` = all | eu. Při „eu" se `consent.js` zeptá veřejného REST `uxstudio/v1/consent/region` (čte `CF-IPCountry`,
+  EU+EHP+GB+CH, filtr `uxstudio_consent_regions`); mimo region se souhlas bere jako udělený a lišta se nezobrazí; chybí-li hlavička
+  nebo endpoint selže, lišta se zobrazí. Výsledek se drží v `sessionStorage`.
+- **Napojení:** Pixel & Tag Manager tiskne své snippety zadržené přes `Gate::attrs()` (a vynechá `<noscript>` pixely); GTM Kit: vypnutí
+  jeho vlastního `consent default`, hlášení CMP a v basic režimu zadržení kontejneru (`wp_inline_script_attributes`).
+  Forms: `forms-consent-detect.js` čte nově i `window.uxConsent` (test v `tests/forms-consent-detect.mjs`).
+  `ConflictGuard` (katalog překryvů): `consent` je plný konflikt s Complianz, Complianz Premium, Cookie Notice, CookieYes, Cookiebot.
+- **Velikost frontendu:** `consent.min.js` 7,4 kB (3,0 kB gzip), `consent.min.css` 3,6 kB (1,3 kB gzip); Complianz ~21 kB přenos / ~90 kB.
+- **Ověřeno:** `php -l`, `tests/consent.php` (včetně spuštění skriptu s Consent Mode v Node), `forms-consent-detect.mjs`, `overlap-catalog`,
+  `module-links`, `module-groups`, `npm run build`. V prohlížeči na lokálním pobyty (Playwright): lišta se zobrazí, skripty zůstanou
+  `text/plain`, volba „jen statistika" uvolní GA a GTM a pošle `update`, „odmítnout" nic nespustí, mimo EU (mock endpointu) bez lišty
+  a se spuštěnými skripty, focus trap v detailu, endpoint `region` projde zámkem REST.
+- **Neověřeno / otevřené:** placeholdery iframe v prohlížeči (jen jednotkový test přepisu), `buffer_guard` na reálné stránce,
+  axe-core a kontrast s vlastními barvami, GTM Kit v režimu advanced, chování s WP Rocket/LiteSpeed (delay JS) a se striktní CSP
+  (hash našeho skriptu je v registru, ale zadržené cizí inline skripty po uvolnění potřebují vlastní hash), skutečná hlavička
+  `CF-IPCountry` (jen mock). Tagy uvnitř GTM kontejneru řídí Consent Mode v kontejneru, ne tento modul. Uvolněné skripty
+  nedostanou znovu `DOMContentLoaded`. Pre-existující selhání `tests/admin-customiser-layout.php` (na main stejné) s tím nesouvisí.
