@@ -99,18 +99,8 @@
 	function signal( source ) {
 		var s = snapshot();
 		win.uxstudioConsent = s;
-		// Trigger for Google Tag Manager, pushed on EVERY page view and every decision (also for a choice read from the
-		// cookie), so a tag that does not read Consent Mode (Meta Pixel, Sklik, TikTok, Hotjar...) can be fired by a
-		// custom event trigger `uxc_consent` plus a condition on the variable it needs. Names are stable:
-		//   event: 'uxc_consent', uxc_preferences / uxc_statistics / uxc_marketing: true | false, uxc_source: 'stored' | 'user' | 'region' | 'none'
-		( win.dataLayer = win.dataLayer || [] ).push( {
-			event: 'uxc_consent',
-			uxc_preferences: s.preferences,
-			uxc_statistics: s.statistics,
-			uxc_marketing: s.marketing,
-			uxc_source: source,
-		} );
 		// A stored choice was already sent by the inline defaults script, so only a new decision needs an update.
+		// It goes before the event below, so a Google tag fired by that event already sees the new state.
 		if ( cfg.gcm && ( source === 'user' || source === 'region' ) ) {
 			var g = function ( on ) {
 				return on ? 'granted' : 'denied';
@@ -124,6 +114,17 @@
 				ad_personalization: g( s.marketing ),
 			} );
 		}
+		// Trigger for Google Tag Manager, pushed on EVERY page view and every decision (also for a choice read from the
+		// cookie), so a tag that does not read Consent Mode (Meta Pixel, Sklik, TikTok, Hotjar...) can be fired by a
+		// custom event trigger `uxc_consent` plus a condition on the variable it needs. Names are stable:
+		//   event: 'uxc_consent', uxc_preferences / uxc_statistics / uxc_marketing: true | false, uxc_source: 'stored' | 'user' | 'region' | 'none'
+		( win.dataLayer = win.dataLayer || [] ).push( {
+			event: 'uxc_consent',
+			uxc_preferences: s.preferences,
+			uxc_statistics: s.statistics,
+			uxc_marketing: s.marketing,
+			uxc_source: source,
+		} );
 		try {
 			doc.dispatchEvent( new CustomEvent( 'uxstudio:consent', { detail: { categories: s, source: source } } ) );
 		} catch ( e ) {}
