@@ -6,6 +6,7 @@ import { TopicSettings, inSections } from '../../app/TopicSettings';
 import { TabsNav } from '../../app/SubNav';
 import Inventory from './Inventory';
 import { RecordsPanel } from './Records';
+import Scan from './Scan';
 
 const MODULE = 'consent';
 
@@ -17,6 +18,7 @@ const TOPICS: { id: string; label: string }[] = [
 	{ id: 'blocking', label: __( 'Blocking', 'ux-studio' ) },
 	{ id: 'google', label: __( 'Google Consent Mode', 'ux-studio' ) },
 	{ id: 'inventory', label: __( 'Services and cookies', 'ux-studio' ) },
+	{ id: 'scan', label: __( 'Scan', 'ux-studio' ) },
 	{ id: 'records', label: __( 'Consent records', 'ux-studio' ) },
 ];
 
@@ -52,6 +54,8 @@ export default function Page(): JSX.Element {
 			</TabsNav>
 			{ topic.id === 'inventory' ? (
 				<Inventory />
+			) : topic.id === 'scan' ? (
+				<Scan />
 			) : (
 			<>
 			<TopicSettings key={ topic.id } moduleId={ MODULE } include={ inSections( topic.label ) }>
