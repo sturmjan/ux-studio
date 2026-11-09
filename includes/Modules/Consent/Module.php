@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
  *    Consent Mode v2 defaults (ConsentMode);
  *  - Pixel & Tag Manager and GTM Kit are wired in directly (Gate, GtmKit).
  *
- * Later phases (scanner, legal pages, consent log, migration, TCF) are not part of this class.
+ * Later phases (scanner, migration, TCF) are not part of this class. The legal pages (F4) live in Legal.
  */
 final class Module extends BaseModule {
 
@@ -41,6 +41,7 @@ final class Module extends BaseModule {
 		GtmKit::register( $this );
 		Inventory::boot( $this );
 		Records::boot();
+		Legal::boot();
 
 		add_action( 'init', array( $this, 'init' ) );
 		add_action( 'rest_api_init', array( Geo::class, 'register_routes' ) );

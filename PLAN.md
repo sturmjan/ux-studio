@@ -4107,7 +4107,7 @@ proti CA z worktree `_ca-wt-identity` s čerstvou DB `ca_e2e` (všech 116 migrac
   zvážit hlášení „Facebook nenašel titulek ani obrázek"), IndexNow 200/202 u veřejného webu, nginx, názvy voleb
   IndexNow v Rank Math / Yoast.
 
-## 42. Cookies, souhlas a právní stránky - modul `consent` (2026-10-21, F1 hotovo, F2 hotovo 2026-11-09)
+## 42. Cookies, souhlas a právní stránky - modul `consent` (2026-10-21, F1 hotovo, F2 hotovo 2026-11-09, F4 hotovo 2026-11-09)
 
 > Číslo 42, protože 41 už má větev s mapami a 26 je obsazené migračním průvodcem. Plán se přesunul ze staré větve, kde měl číslo 26.
 
@@ -4243,9 +4243,9 @@ a přenosy mimo EU se **předvyplní ze skenu** (GA4, Google Ads, Smartsupp, Tru
 - [x] F2 Statická inventura v pluginu + fronta „k zařazení"
 - [ ] F3 Playwright sken v CA (bez souhlasu / přijmout / odmítnout), API do pluginu, hlášení porušení
 - [ ] F3 Měsíční rozvrh, upozornění na novou cookie, přehled flotily v CA
-- [ ] F4 Průvodce údaji o správci + zásady cookies + ochrana osobních údajů (bloky, verze)
-- [ ] F4 Obchodní podmínky pro WooCommerce + uložení verze k objednávce
-- [ ] F4 Revize šablon (Claude) proti checklistu náležitostí a rozsahu témat Complianzu + kontrola podobnosti textů
+- [x] F4 Průvodce údaji o správci + zásady cookies + ochrana osobních údajů (bloky, verze)
+- [x] F4 Obchodní podmínky pro WooCommerce + uložení verze k objednávce
+- [x] F4 Revize šablon (Claude) proti checklistu náležitostí a rozsahu témat Complianzu + kontrola podobnosti textů (revize Claude, ne právník)
 - [x] F5 Záznamy souhlasů (tabulka, retence, export pro doložení)
 - [ ] F6 Migrace z Complianzu + předání přes ConflictGuard, pilot na autoservisvydra.cz
 - [ ] F7 IAB TCF v2.2 (až po vyjasnění registrace CMP)
@@ -4423,3 +4423,74 @@ Větev `feature/consent-log` (z `feature/consent-module`), nepushnuto. Verze plu
   za cizím WAF/Cloudflare pravidlem; chování APCu větve Guardu; test `consent-records-wp.php` běžel proti nainstalovanému (starší) pluginu na lokálním webu, kde zámek REST ještě nemá
   `register_rest_lock()` a `RestRoute` (použit starší `restrict_rest_api`), takže plný zámek z této větve je ověřen jen čtením kódu (`is_own_public_endpoint` + `__return_true`);
   zámek s `rest-public-routes.php` pro novou routu neběžel. Velikost `consent.min.js`: viz CHANGELOG/report (8,5 kB, 3,5 kB gzip, o 1,2 kB resp. 0,4 kB víc než v F1).
+
+### 42.14 F4 poznámky k provedení (2026-11-09)
+
+Větev `feature/consent-module`, nepushnuto. Verze pluginu nezvýšena, změna je v CHANGELOG pod „Unreleased“. Překlady negenerovány, nové řetězce
+jsou obalené `__()` a česky v `docs/i18n/cs-consent-f4.json`. Do prohlížeče se v F4 nechodilo (viz „Neověřeno“).
+
+- **Kde:** `includes/Modules/Consent/` `Legal` (data, stránky, verze, shortcody, meta objednávky), `LegalProfile` (údaje průvodce, validace),
+  `LegalBuilder` (hodnoty pro šablony, tabulky z `Report::site()`, doprava a platby z WooCommerce), `LegalTemplate` (malý šablonovací jazyk),
+  `LegalRest` (admin routy), šablony `legal/{cs,en}/{cookies,privacy,terms}.php` a `legal/purposes.php` (účely, právní základy, výchozí doby);
+  SPA záložka „Právní stránky“ (`src/modules/consent/Legal.tsx`, v `Page.tsx` jen položka záložky, v `Module.php` jen `Legal::boot()`). Testy: `tests/consent-legal.php` (bez WP: engine,
+  validace, šablony, **checklist**, 137 případů), `tests/consent-legal-wp.php` (WP-CLI, vše po sobě uklidí a ověří), `tests/consent-legal-similarity.php` (kontrola podobnosti).
+- **Proč texty nejsou v gettextu:** dlouhé právní texty se překládají jako celek a kvůli právní přesnosti mají v každém jazyce vlastní stavbu vět (české
+  § a čl., anglický text není doslovný překlad). Proto jeden soubor šablony na jazyk a dokument. Admin rozhraní (štítky, chyby) jde normálním `__()`.
+  Jazyk stránek: nastavení průvodce (auto = jazyk webu `WPLANG`/`get_locale()`, ne jazyk administrátora), nebo atribut `lang` shortcodu.
+- **Šablonovací jazyk:** `{{x}}` escapované, `{{{x}}}` HTML, které sestavil generátor (a už ho escapoval), `{% if x %}..{% else %}..{% endif %}`, `{% if not x %}`.
+  Nic nespouští kód. Hodnoty z průvodce jdou vždy přes `{{ }}`; výsledek navíc prochází `wp_kses_post`. Test hlídá vyvážení podmínek, stejnou sadu proměnných v cs a en
+  a že každá proměnná šablony má hodnotu v `LegalBuilder::vars()`.
+- **Průvodce (`LegalProfile`):** název, IČO (6 až 10 číslic), DIČ, sídlo, zápis v rejstříku, e-mail, telefon, pověřenec ano/ne + kontakt, dozorový úřad (výchozí ÚOOÚ), účely
+  (8: objednávky, účty, dotazy, newsletter, recenze, statistika, reklama, provoz a zabezpečení webu; každý s údaji, právním základem a výchozí dobou uložení, kterou jde přepsat), příjemci ručně
+  (druh, název, „mimo EHP“, max. 30), e-shop ano/ne, kdo platí vrácení zboží, adresy pro reklamace a vrácení, poznámky k dodání a platbě, jazyk. Uloženo v nenačítané volbě
+  `uxstudio_consent_legal` spolu s id stránek a aktuální verzí dokumentu. Validace jen na serveru; neplatný vstup = 400 s chybami po polích a nic se neuloží.
+  Příjemci a předání mimo EHP se **předvyplní ze služeb v `Report::site()`** (poskytovatel, země, způsob přenosu z katalogu) a spojí s ručními. Účely navrhuje podle toho, zda web
+  používá statistiku nebo marketing. Nevyplněný průvodce = stránky se nevytvoří (chybějící údaje jsou vypsané u dokumentu).
+- **Stránky a shortcody:** stránka obsahuje jen blok shortcodu `[uxstudio_legal doc="cookies|privacy|terms"]` (volitelně `lang`). Celý dokument se skládá **živě při zobrazení**
+  z šablony, údajů průvodce a `Report::site()`, takže nová služba nebo cookie se v tabulce objeví hned. Samostatně `[uxstudio_cookie_table]` (jen tabulky) a existující `[uxstudio_cookie_settings]`
+  (tlačítko, vkládá se do zásad cookies). Stránka, kterou majitel přepsal vlastním obsahem, se nepřepisuje (verze se zaznamená dál). Nová stránka je koncept, dokud se nezaškrtne „zveřejnit“.
+  Při zveřejněné stránce se nastaví WP „stránka zásad ochrany soukromí“, `policy_url` lišty a `woocommerce_terms_page_id`, **jen když tam nic není**. Upozornění „nejde o právní službu, nechte zkontrolovat
+  právníkem“ je v adminu (nahoře na záložce) a ve zdroji každé stránky jako HTML komentář; do viditelného textu je nedávám, protože výstup je kešovaný pro všechny návštěvníky a klient by
+  měl nápis na veřejné stránce. Chce-li se viditelný nápis, jde to jednou větou v šabloně.
+- **Verzování:** verze = snímek vykresleného dokumentu (skrytý typ příspěvku `uxs_legal_version`, `post_content` = HTML s tokenem místo tlačítka cookies, meta `_uxs_doc/_uxs_ver/_uxs_hash/_uxs_lang/_uxs_effective`).
+  „Vytvořit/aktualizovat stránky“ vykreslí dokument, spočítá SHA-256 normalizovaného textu a **novou verzi udělá jen když se hash liší** od aktuální (nebo se změnil jazyk). Do hashe vstupuje i živá tabulka cookies a seznam
+  příjemců, takže změna služeb = nová verze po aktualizaci; do té doby admin u dokumentu ukazuje „text se od té doby změnil“ a výpis neklasifikovaných hostů, které v zásadách chybí. Číslování 1, 2, 3; datum „účinná od“ = okamžik vzniku verze
+  (u konceptu je tedy datum vzniku, ne zveřejnění). Na stránce nahoře „Verze N, účinná od D“, dole zavřená sekce „Dřívější verze“ s texty (`platila od … do …`). V adminu historie s otiskem a zobrazením textu. Archiv se nikdy nemaže.
+  Mezi živým zobrazením a poslední zveřejněnou verzí tedy může být rozdíl (živá tabulka je novější); je to záměr a admin to hlásí.
+- **Obchodní podmínky a objednávky:** šablona pro spotřebitele podle českého práva (úvod a vymezení spotřebitele, uzavření smlouvy, cena a platba, dodání, odstoupení do 14 dnů vč. výjimek a vzorového formuláře,
+  vady a reklamace, ČOI, osobní údaje, závěr). Doprava (zóny, flat rate s cenou, doprava zdarma od částky) a platební brány (zapnuté) se čtou živě z WooCommerce, DPH podle `wc_prices_include_tax()`.
+  **Verze k objednávce:** hooky `woocommerce_checkout_create_order` (klasická pokladna) a `woocommerce_store_api_checkout_update_order_meta` (blokový checkout) uloží přes `$order->update_meta_data()` (HPOS bezpečně)
+  `_uxstudio_terms_version`, `_uxstudio_terms_hash` (SHA-256 celého textu), `_uxstudio_terms_effective` a `_uxstudio_terms_snapshot` (id snímku v archivu), jen když je stránka s podmínkami zveřejněná a
+  objednávka ještě nic nemá. Detail objednávky v adminu (`woocommerce_admin_order_data_after_order_details`) ukáže „verze N, účinná od D, otisk 12 znaků“. Starší objednávka zůstává na své verzi i po změně podmínek; její text je v archivu.
+  Odkaz na text konkrétní verze z detailu objednávky zatím není (je v historii na záložce).
+- **Odchylky a rozhodnutí:** (1) ODR platforma EU byla zrušena (nařízení 2024/3228, platforma skončila 20. 7. 2025; z paměti, neověřeno), proto podmínky uvádějí jen ČOI a `adr.coi.cz`, bez odkazu na platformu ODR.
+  (2) „Pověřenec“ ve výchozím textu = nemáme, protože to zákon neukládá; to platí jen pro soukromé subjekty, veřejný orgán ho mít musí (průvodce to nehlídá). (3) Právní základ a doba uložení účelů jsou výchozí návrh
+  (např. doklady 10 let), majitel je může upravit, ale nemusí být pro jeho činnost správné. (4) HPOS: plugin jako celek neohlašuje kompatibilitu `custom_order_tables`, F4 používá jen CRUD API objednávky; hlášení je
+  rozhodnutí pro celý plugin, ne pro tuto fázi.
+- **Kontrola podobnosti (úkol 4):** referenční texty = bezplatný plugin `complianz-gdpr` z wordpress.org (stažen do `C:\Users\sturm\.claude\screenshots\complianz-tmp\`, po kontrole smazán): anglické šablony zásad cookies
+  (`config/documents/cookie-policy-{eu,uk,us,au,br,ca,za}.php`) a řetězce ze `.pot` + **české překlady** z translate.wordpress.org (578 českých a 813 anglických odstavců). Šablony zásad ochrany osobních údajů a obchodních podmínek
+  jsou v placené verzi a ke stažení nebyly, takže se s nimi srovnat nedalo. Skript `tests/consent-legal-similarity.php <složka>`: z našich šablon (vyrenderovaných se všemi volitelnými částmi), `purposes.php` a delších řetězců `LegalBuilder`
+  bere odstavce o 12+ slovech (u builderu 9+) a měří (a) podíl našich slovních 4-gramů, které se vyskytují kdekoli v referenci („contain4“) a (b) `similar_text` proti 5 odstavcům reference s nejvíc shodnými 3-gramy. **Prahy: příznak při contain4 >= 0,20
+  nebo similar_text >= 50 %.** Výsledek: čeština 100 odstavců, contain4 max 0,06 (98 bez jediné shody), similar_text max 44,6 %; angličtina 108 odstavců, contain4 max 0,17 (devítislovná věta „data may be transferred outside the European Economic Area“),
+  similar_text max 48,4 % (věta „We do not use any service in this category“); **0 odstavců přes práh, nic se nepřepisovalo**. Nejbližší shody jsou věty, které nese samotné GDPR (čl. 7 odst. 3, čl. 21). Slabiny metody: reference je
+  jen malá část Complianzu; n-gramy nechytí převyprávění beze změny slov; práh je odhad. Struktura a rozsah témat byly inspirované Complianzem a GDPR, formulace psané od nuly.
+- **Checklist (revize Claude, úkol 5)** - v `tests/consent-legal.php` jako 82 spustitelných kontrol (cs i en) proti vykresleným šablonám, všechny splněny:
+  - Zásady ochrany osobních údajů (GDPR čl. 12 a 13): totožnost a kontakt správce; pověřenec nebo prohlášení, že není; účely a právní základ (čl. 6) u každého účelu; oprávněný zájem, je-li základem; příjemci; předání do třetích zemí se zárukou
+    (kapitola V) a způsobem získání kopie záruk; doba uložení u každého účelu; práva čl. 15, 16, 17, 18, 20, 21 (vč. přímého marketingu), odvolání souhlasu čl. 7 odst. 3; stížnost u dozorového úřadu; zda je poskytnutí údajů povinné a následky;
+    automatizované rozhodování a profilování; lhůta jednoho měsíce na vyřízení žádosti (čl. 12); zdroj údajů (čl. 14); odkaz na zásady cookies.
+  - Zásady cookies (§ 89 odst. 3 ZEK, GDPR): kategorie (nezbytné, předvolby, statistika, marketing; vždy všechny čtyři, aby bylo vidět, co se nepoužívá), u každé služby poskytovatel a země a odkaz na jeho zásady, u každé cookie název, účel a doba;
+    co je nezbytné bez souhlasu a co se souhlasem; jak souhlas změnit nebo odvolat (tlačítko `[uxstudio_cookie_settings]`); doba platnosti volby a záznam souhlasu (ID, bez IP, retence); předání mimo EHP; jak cookies zakázat v prohlížeči; verze a archiv.
+  - Obchodní podmínky (OZ § 1811, 1820, 1829 a násl., § 1837, zákon 634/1992 § 19 a 20d): identifikace prodávajícího; postup objednání a vznik smlouvy; cena vč. daně a nákladů dopravy; platba a doprava; odstoupení 14 dnů, lhůta, způsob, vrácení zboží,
+    vrácení peněz, kdo nese náklady, výjimky, vzorový formulář; vady (záruka 24 měsíců, volba nároků); reklamace (potvrzení, 30 dnů); mimosoudní řešení sporů (ČOI); osobní údaje; změny podmínek a použitelná verze.
+  - **Co revize našla a opravila během psaní:** nepodložená „splatnost do 5 dnů“ (vypuštěno), obrácené pořadí lhůt při rozhodnutí o reklamaci (opraveno: ihned, ve složitých případech do 3 pracovních dnů, vyřízení do 30 dnů), chybná doména ČOI (správně `adr.coi.cz`),
+    odstavec o přechodu nebezpečí škody, který nedával smysl (vypuštěn), pevná lhůta domněnky vady (nahrazena odkazem na dobu stanovenou zákonem, protože jsem si nebyl jistý aktuálním číslem).
+  - **Známé mezery šablon (neřeší se, právník nebo další verze):** žádná ustanovení pro dárkové poukazy, předobjednávky, předplatné a digitální obsah, osobní odběr, zahraniční doručení, firemní zákazníky nad rámec jedné věty, reklamační řád jako
+    samostatný dokument; odkazy na paragrafy nebyly ověřeny proti aktuálnímu znění zákonů (čerpáno z paměti, ne z e-Sbírky); ustanovení o odpovědnosti za škodu na zboží při dopravě je obecné.
+- **Ověřeno:** `php -l`, `npx tsc --noEmit`, `npm run build`, `npm run build:widget`, `tests/consent-legal.php` (137), `tests/consent-legal-wp.php` (WP-CLI proti lokálnímu pobyty: validace, vykreslení z `Report::site()` včetně nové služby bez přegenerování, verze 1 a 2 a archiv,
+  angličtina, XSS v údajích průvodce, doprava a platba z dočasné zóny a brány WooCommerce, meta objednávek (3 objednávky, starší zůstane na své verzi, nezveřejněné podmínky nic neukládají), zobrazení v detailu objednávky, REST práva anonym/editor/admin, úklid: stránky,
+  verze, volby, objednávky a tabulka záznamů vráceny do původního stavu), existující `tests/consent.php`, `consent-records.php`, `consent-wp.php`, `consent-js.mjs`, `forms-consent-detect.mjs`, `module-links`, `module-groups`, `overlap-catalog`.
+  Vykreslení jednoho dokumentu stojí 11 až 35 ms na lokálu bez keše (kešuje stránka).
+- **Neověřeno / otevřené:** zobrazení záložky „Právní stránky“ a stránek na frontendu v prohlížeči (zadání zakázalo; shortcode v bloku `core/shortcode`, vzhled tabulek v šabloně motivu, `<details>` s archivem); skutečná pokladna WooCommerce (klasická i blokový checkout:
+  hooky jsou volané přímo s objednávkou vytvořenou `wc_create_order()`, ne přes odeslání pokladny; blokový hook jsem neviděl běžet); HPOS zapnuté (lokální web jeho stav nezkoumán); `tests/consent-records-wp.php` nelze s `--skip-plugins=ux-studio` spustit (potřebuje
+  nainstalovaný plugin, jak píše jeho hlavička; k F4 se nevztahuje); zda je český text správný a úplný z právního hlediska (revizi právníkem to nenahrazuje); cookies se v tabulce zobrazují podle katalogu, ne podle skutečného skenu (to přinese F3); stránky se nikdy nezveřejní
+  samy; chování s WPML/Polylang (jazyk se bere z jednoho nastavení, ne po jazycích); `Legal::state()` při každém otevření záložky vykresluje všechny tři dokumenty kvůli příznaku „změněno“, tedy desítky ms.
