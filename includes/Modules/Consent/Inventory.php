@@ -519,7 +519,10 @@ final class Inventory {
 	 */
 	public static function facts(): array {
 		$facts = get_option( self::OPTION, array() );
-		return is_array( $facts ) ? $facts : array();
+		$facts = is_array( $facts ) ? $facts : array();
+		// Hosts the dynamic scan (F3) saw join the queue; what the static run already found keeps its own facts.
+		$facts['hosts'] = (array) ( $facts['hosts'] ?? array() ) + Scan::inventory_hosts();
+		return $facts;
 	}
 
 	/**

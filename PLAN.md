@@ -4107,7 +4107,7 @@ proti CA z worktree `_ca-wt-identity` s čerstvou DB `ca_e2e` (všech 116 migrac
   zvážit hlášení „Facebook nenašel titulek ani obrázek"), IndexNow 200/202 u veřejného webu, nginx, názvy voleb
   IndexNow v Rank Math / Yoast.
 
-## 42. Cookies, souhlas a právní stránky - modul `consent` (2026-10-21, F1 hotovo, F2 hotovo 2026-11-09, F4 hotovo 2026-11-09)
+## 42. Cookies, souhlas a právní stránky - modul `consent` (2026-10-21, F1-F5 hotovo lokálně 2026-11-09)
 
 > Číslo 42, protože 41 už má větev s mapami a 26 je obsazené migračním průvodcem. Plán se přesunul ze staré větve, kde měl číslo 26.
 
@@ -4241,8 +4241,8 @@ a přenosy mimo EU se **předvyplní ze skenu** (GA4, Google Ads, Smartsupp, Tru
 - [x] F1 Nastavení, komu lištu zobrazit (všem / jen EU přes `CF-IPCountry`)
 - [x] F2 Rozšíření `CspServices` o cookies, import Open Cookie Database (po ověření licence)
 - [x] F2 Statická inventura v pluginu + fronta „k zařazení"
-- [ ] F3 Playwright sken v CA (bez souhlasu / přijmout / odmítnout), API do pluginu, hlášení porušení
-- [ ] F3 Měsíční rozvrh, upozornění na novou cookie, přehled flotily v CA
+- [x] F3 Dynamický sken v CA (bez souhlasu / přijmout / odmítnout; na NAS je Puppeteer, ne Playwright), API do pluginu, hlášení porušení (nasazení na NAS zatím neproběhlo, viz CA PLAN §39.7)
+- [x] F3 Měsíční rozvrh, upozornění na novou cookie, přehled flotily v CA
 - [x] F4 Průvodce údaji o správci + zásady cookies + ochrana osobních údajů (bloky, verze)
 - [x] F4 Obchodní podmínky pro WooCommerce + uložení verze k objednávce
 - [x] F4 Revize šablon (Claude) proti checklistu náležitostí a rozsahu témat Complianzu + kontrola podobnosti textů (revize Claude, ne právník)
@@ -4494,3 +4494,43 @@ jsou obalené `__()` a česky v `docs/i18n/cs-consent-f4.json`. Do prohlížeče
   hooky jsou volané přímo s objednávkou vytvořenou `wc_create_order()`, ne přes odeslání pokladny; blokový hook jsem neviděl běžet); HPOS zapnuté (lokální web jeho stav nezkoumán); `tests/consent-records-wp.php` nelze s `--skip-plugins=ux-studio` spustit (potřebuje
   nainstalovaný plugin, jak píše jeho hlavička; k F4 se nevztahuje); zda je český text správný a úplný z právního hlediska (revizi právníkem to nenahrazuje); cookies se v tabulce zobrazují podle katalogu, ne podle skutečného skenu (to přinese F3); stránky se nikdy nezveřejní
   samy; chování s WPML/Polylang (jazyk se bere z jednoho nastavení, ne po jazycích); `Legal::state()` při každém otevření záložky vykresluje všechny tři dokumenty kvůli příznaku „změněno“, tedy desítky ms.
+### 42.15 F3 poznámky k provedení (2026-11-09)
+
+Větev `feature/consent-scan` (z `feature/consent-module`), nepushnuto. Verze pluginu nezvýšena, změna je v CHANGELOG pod „Unreleased“. Překlady negenerovány, české
+řetězce jsou v `docs/i18n/cs-consent-f3.json`. Protějšek v Centrální aplikaci (CA) je v jejím `PLAN.md` §39 (rozvrh, kroky, nasazení na NAS); **kontrakt je popsán na obou místech a musí zůstat shodný**.
+
+- **Rozdělení práce (a proč):** NAS jen **zaznamenává** (prohlížeč, čistý kontext, tři běhy), CA **řídí** (rozvrh, kroky, předání, upozornění, přehled flotily), plugin **vyhodnocuje**. Vyhodnocení je v pluginu,
+  protože katalog (`Cookies::match`, `Services::classify`, `CspServices`, OCD) a pravidla majitele žijí tady: nový katalog nebo ručně zařazený host platí při dalším skenu hned a CA nepotřebuje kopii katalogu.
+  Cena: CA neví, co je porušení, dokud jí to plugin neřekne, proto plugin v odpovědi na předání vrací souhrn (`summary`), krátký výpis a příznak `new` u každého porušení, ze kterých CA staví přehled a upozornění.
+- **Kde:** `includes/Modules/Consent/Scan.php` (sanitizace, vyhodnocení, úložiště, žádost o sken; čisté funkce bez WP jsou označené), `ScanRest.php` (routy), `src/modules/consent/Scan.tsx` (záložka „Sken“),
+  malé zásahy: `Module::boot()` (`Scan::boot()`), `Page.tsx` (záložka), `Inventory::facts()` (přimíchá hosty ze skenu), `Report::site()` (dvě nové klíče). Testy: `tests/consent-scan.php` (bez WP), `tests/consent-scan-wp.php` (WP-CLI).
+- **Kontrakt CA → plugin** (podepsané HMAC s nonce klíčem `node_api_key`, tedy `NodeController::verify`; trasy pod `uxstudio/v1/content-sync/node/`, takže je pouští stávající výjimka `uxstudio_rest_public_routes` pro Security Optimization):
+  - `GET /consent/scan-plan` → `{ok, consent:true, urls:[max 4 adresy tohoto webu z Inventory::sample_urls()], banner:'uxstudio', mode}`.
+  - `POST /consent/scan-result` s tělem `{scan_id, result}`, `result` = `{schema:1, scanner, scanned_at, site_url, pages[], banner:{kind, found}, scenarios:{none|accept|reject: {status: ok|banner_not_found|error, error, banner_visible, clicked, truncated, pages[], cookies[], storage[], requests[]}}}`.
+    Cookie: `name, domain, path, expires, http_only, secure, same_site, third_party, phase (load|choice|nav), page, via (http|script), by_host`. Storage: `area, key, origin, phase`. Požadavek: `host, type, path, third_party, n_pre, n_post`.
+    **Hodnoty cookies ani storage se neposílají a plugin je nikdy neukládá.** Limity těla 600 kB (413), 150 cookies, 150 klíčů storage a 400 požadavků na běh, 6 stránek. Plný popis s příkladem je v CA `PLAN.md` §39.2.
+  - Odpověď: `{ok, summary:{cookies, unknown_cookies, violations, new_unknown, new_violations, banner, judged:{none, accept, reject}}, violations:[{scenario, kind, name, service, category, new}] (max 20), unknown_cookies:[názvy] (max 20)}`.
+    Chyby: 401 špatný nebo opakovaný podpis (nonce je jednorázový, tolerance 300 s), 400 nevalidní výsledek, 413 příliš velké.
+- **Plugin → CA:** `Scan::request_scan()` volá `Gateway::post('consent_scan_api', {site_url, reason}, ['action'=>'request'])` (stejný kanál jako `social_refresh`: stálé ID webu v hlavičce, pozastavení při kopii webu, čtení 409/410/423).
+  CA odpoví 202 `{queued:true}` (sken proběhne v jejích cron tickech a výsledek přijde sám přes `scan-result`), 429 (jeden sken na hodinu), 409 (web nemá modul). Čas žádosti se pamatuje, záložka ukazuje „čeká na vyřízení“.
+- **Jak se ověřuje pravost dat:** (1) podpis HMAC s nonce klíčem webu (kdo nezná `node_api_key`, nic nevloží; test: špatný klíč, starý čas, opakovaný nonce, nepodepsané volání, vše 401), (2) `Scan::sanitize()` zahodí neznámá pole,
+  omezí počty a délky, vyčistí hosty (IP a nesmysly pryč), ořízne query a odmítne cizí enum hodnoty, (3) uloží se jen sanitizovaný tvar. Co to **neřeší**: CA, která má klíč webu, může poslat cokoli (např. vymyšlené porušení);
+  plugin nemá jak ověřit, že data opravdu vyrobil prohlížeč. Je to stejná úroveň důvěry jako u ostatních volání CA ↔ plugin.
+- **Vyhodnocení (`Scan::evaluate`, čistá funkce):** porušení = cookie nebo požadavek s kategorií jinou než nezbytná, který vznikl **bez souhlasu** (běh `none`, jen když byla lišta vidět) nebo **po odmítnutí** (běh `reject`, jen pokud se kliklo,
+  a jen co vzniklo po kliknutí: cookie ve fázi `load` a požadavky s `n_pre` se nepočítají, patří běhu `none`). Běh `accept` je jen referenční (jaké cookies web nastavuje). Neznámá cookie (`Cookies::match` = null) **není porušení**, jde mezi neznámé;
+  host se klasifikuje stejně jako v inventuře (vlastní pravidlo, katalog, „nevyžaduje souhlas“ jako písma a CDN, jinak neznámý). Při Consent Mode **advanced** se požadavky na Google před souhlasem za porušení nepočítají (je to dokumentovaná volba,
+  §42.8), cookies ano. Nové = klíč `scénář|druh|jméno` není v minulém skenu; při prvním skenu je každé porušení nové, ale neznámé cookies se nepočítají jako nové (jinak by první sken hlásil všechno).
+- **Napojení na zbytek:** neznámé **hosty** ze skenu `Inventory::facts()` přimíchá do faktů se zdrojem `scan`, takže se objeví ve frontě „k zařazení“ na záložce Služby a cookies a majitel je zařadí stejným tlačítkem (výsledek skenu se nepřepisuje při týdenním běhu inventury,
+  protože je v samostatné volbě). Neznámé **cookies** se ukazují na záložce Sken (pravidla na úrovni cookie nejsou, zařazení cookie do kategorie zatím není). `Report::site()` má dva nové klíče, `scan_at` a `scan_cookies`
+  (název, doména, kategorie, služba, účel, doba, `party`, kde se viděla); **klíče z F2 se nezměnily**. Pozor: `scan_cookies` je to, co **sken viděl**, na rozdíl od `cookies`, což je to, co katalog o službách **ví**.
+- **Úložiště:** jedna volba `uxstudio_consent_scan` (bez autoload): poslední sanitizovaný výsledek, jeho vyhodnocení (včetně klíčů pro porovnání s příštím skenem), čas přijetí a čas žádosti. Typicky pár kB až desítky kB. Volba se při odinstalaci nemaže (konvence modulu, viz F5).
+  Aktivita se zapisuje do `ActivityLog` (`consent` / `scan_received`).
+- **Admin:** záložka „Sken“ (`Scan.tsx`): tlačítko „Požádat centrální aplikaci o sken“ (zakázané bez propojení), stav propojení, souhrn (porušení, cookies, neznámé cookies, lišta), tabulka tří běhů (cookies, požadavky, zda se dal běh posoudit
+  a proč ne), porušení, neznámé cookies, všechny nalezené cookies. REST `GET uxstudio/v1/consent/scan`, `POST uxstudio/v1/consent/scan/request` (`manage_options`, zápis přes `Controller::route` s limitem).
+- **Ověřeno:** `php -l`, `tests/consent-scan.php` (36 případů: sanitizace, porušení bez souhlasu a po odmítnutí, co porušení není, neposouditelné běhy, advanced Consent Mode, novost, fronta inventury), `tests/consent-scan-wp.php`
+  (WP-CLI proti lokálnímu pobyty, 23 případů: podpis, starý čas, opakovaný nonce, nesprávný klíč, plán, přijetí výsledku, oprávnění admin routam, `Inventory::facts`, `Report::site`; po sobě uklidí volby a klíč),
+  stávající `tests/consent*.php`, `consent-js.mjs`, `npm run build`, `tsc --noEmit`. Společně s CA proběhl celý řetězec lokálně (cron v CA, skutečný Chrome, lišta UX Studia na statické stránce, skutečné třídy `Scan` a `HmacAuth` za maketou WordPressu), viz CA `PLAN.md` §39.8.
+- **Neověřeno / otevřené:** záložka Sken v prohlížeči (kompilace a typy ano, vykreslení ne, axe-core ne); skutečné REST trasy za skutečným webem s Security Optimization v zamčeném režimu REST (trasy jsou pod `content-sync/node/`, kde výjimka už platí, ale ověřeno jen
+  přes `rest_do_request`); běh proti cizím lištám (Complianz, Cookiebot, CookieYes, OneTrust, Borlabs) jsou selektory ze zdokumentovaných ID a tříd, **nezkoušené na živém webu**; lišta UX Studia se ovládá **pořadím tlačítek** v `.uxc-main .uxc-actions`
+  (odmítnout, přijmout, nastavení), protože `consent.js` nemá API pro přijetí; změní-li se pořadí, sken to pozná (kliknutí nezmění souhlas ⇒ běh `error`), ale bude potřeba upravit selektory v CA `consentscan.js`; sken vidí jen pár stránek a jen z IP NASu
+  (firewall klienta může sken zablokovat, viz §42.8); neznámá cookie se nedá zařadit (jen zjistit, co je); nová cookie z `scan_cookies` se v zásadách cookies (F4) zatím nepoužívá.

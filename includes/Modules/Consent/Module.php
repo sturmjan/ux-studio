@@ -42,6 +42,7 @@ final class Module extends BaseModule {
 		Inventory::boot( $this );
 		Records::boot();
 		Legal::boot();
+		Scan::boot();
 
 		add_action( 'init', array( $this, 'init' ) );
 		add_action( 'rest_api_init', array( Geo::class, 'register_routes' ) );

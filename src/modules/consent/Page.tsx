@@ -7,6 +7,7 @@ import { TabsNav } from '../../app/SubNav';
 import Inventory from './Inventory';
 import Legal from './Legal';
 import { RecordsPanel } from './Records';
+import Scan from './Scan';
 
 const MODULE = 'consent';
 
@@ -19,6 +20,7 @@ const TOPICS: { id: string; label: string }[] = [
 	{ id: 'google', label: __( 'Google Consent Mode', 'ux-studio' ) },
 	{ id: 'inventory', label: __( 'Services and cookies', 'ux-studio' ) },
 	{ id: 'legal', label: __( 'Legal pages', 'ux-studio' ) },
+	{ id: 'scan', label: __( 'Scan', 'ux-studio' ) },
 	{ id: 'records', label: __( 'Consent records', 'ux-studio' ) },
 ];
 
@@ -56,6 +58,8 @@ export default function Page(): JSX.Element {
 				<Inventory />
 			) : topic.id === 'legal' ? (
 				<Legal />
+			) : topic.id === 'scan' ? (
+				<Scan />
 			) : (
 			<>
 			<TopicSettings key={ topic.id } moduleId={ MODULE } include={ inSections( topic.label ) }>
