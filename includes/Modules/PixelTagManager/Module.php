@@ -8,6 +8,7 @@
 namespace UxStudio\Modules\PixelTagManager;
 
 use UxStudio\Modules\BaseModule;
+use UxStudio\Modules\Consent\Gate;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -15,6 +16,10 @@ defined( 'ABSPATH' ) || exit;
  * Outputs Google Analytics, Facebook Pixel and Pinterest tracking snippets.
  * Every ID is strictly validated against a format regex before being echoed
  * into the page head (stored-XSS protection). Ported from the legacy module.
+ *
+ * With the Cookie Consent module on, each snippet is printed held back (`type="text/plain" data-uxc="..."`) and the
+ * banner releases it once the visitor allows its category (Gate::attrs()). The <noscript> pixels are left out then,
+ * because without JavaScript there is no way to ask for consent.
  */
 final class Module extends BaseModule {
 
@@ -67,9 +72,11 @@ final class Module extends BaseModule {
 		if ( ! $this->is_valid_tracking_id( $tracking_id, 'google_analytics' ) ) {
 			return;
 		}
+		// Ads ids (AW-) are marketing, the rest is statistics. A Google tag reads Consent Mode, so in advanced mode it is not held back.
+		$gate = Gate::attrs( 0 === strpos( strtoupper( $tracking_id ), 'AW-' ) ? 'marketing' : 'statistics', true );
 		?>
-		<script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo esc_attr( $tracking_id ); ?>"></script>
-		<script>
+		<script<?php echo $gate; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed attributes from Gate. ?> async src="https://www.googletagmanager.com/gtag/js?id=<?php echo esc_attr( $tracking_id ); ?>"></script>
+		<script<?php echo $gate; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 			window.dataLayer = window.dataLayer || [];
 			function gtag() { dataLayer.push( arguments ); }
 			gtag( "js", new Date() );
@@ -87,8 +94,9 @@ final class Module extends BaseModule {
 		if ( ! $this->is_valid_tracking_id( $pixel_id, 'facebook_pixel' ) ) {
 			return;
 		}
+		$gate = Gate::attrs( 'marketing' );
 		?>
-		<script>
+		<script<?php echo $gate; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed attributes from Gate. ?>>
 			! function ( f, b, e, v, n, t, s ) {
 				if ( f.fbq ) return;
 				n = f.fbq = function () {
@@ -108,10 +116,12 @@ final class Module extends BaseModule {
 			fbq( 'init', <?php echo wp_json_encode( $pixel_id ); ?> );
 			fbq( 'track', 'PageView' );
 		</script>
+		<?php if ( ! Gate::active() ) : ?>
 		<noscript>
 			<img height="1" width="1" style="display:none" alt=""
 				src="https://www.facebook.com/tr?id=<?php echo esc_attr( $pixel_id ); ?>&ev=PageView&noscript=1" />
 		</noscript>
+		<?php endif; ?>
 		<?php
 	}
 
@@ -124,8 +134,9 @@ final class Module extends BaseModule {
 		if ( ! $this->is_valid_tracking_id( $tag_id, 'pinterest_tag' ) ) {
 			return;
 		}
+		$gate = Gate::attrs( 'marketing' );
 		?>
-		<script>
+		<script<?php echo $gate; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed attributes from Gate. ?>>
 			! function ( e ) {
 				if ( ! window.pintrk ) {
 					window.pintrk = function () {
@@ -144,10 +155,12 @@ final class Module extends BaseModule {
 			pintrk( 'load', <?php echo wp_json_encode( $tag_id ); ?> );
 			pintrk( 'page' );
 		</script>
+		<?php if ( ! Gate::active() ) : ?>
 		<noscript>
 			<img height="1" width="1" style="display:none;" alt=""
 				src="https://ct.pinterest.com/v3/?tid=<?php echo esc_attr( $tag_id ); ?>&noscript=1" />
 		</noscript>
+		<?php endif; ?>
 		<?php
 	}
 

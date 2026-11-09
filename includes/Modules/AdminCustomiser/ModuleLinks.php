@@ -101,6 +101,7 @@ final class ModuleLinks {
 			array( 'bot-throttle', __( 'Bot Throttle', 'ux-studio' ), 'options-general.php', '' ),
 			array( 'disable-auto-updates', __( 'Auto Updates', 'ux-studio' ), 'options-general.php', '' ),
 			array( 'pixel-tag-manager', __( 'Pixel and Tag Manager', 'ux-studio' ), 'options-general.php', '' ),
+			array( 'consent', __( 'Cookie Consent', 'ux-studio' ), 'options-general.php', '' ),
 			array( 'performance-optimization', __( 'Performance', 'ux-studio' ), 'options-general.php', '' ),
 			array( 'link-manager', __( 'Link Manager', 'ux-studio' ), 'options-general.php', '' ),
 			array( 'analytics', __( 'Visitor Statistics', 'ux-studio' ), 'options-general.php', '' ),
