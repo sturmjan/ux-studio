@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { navigate } from '../../app/route';
 import { TopicSettings, inSections } from '../../app/TopicSettings';
 import { TabsNav } from '../../app/SubNav';
+import Inventory from './Inventory';
 
 const MODULE = 'consent';
 
@@ -14,6 +15,7 @@ const TOPICS: { id: string; label: string }[] = [
 	{ id: 'appearance', label: __( 'Appearance', 'ux-studio' ) },
 	{ id: 'blocking', label: __( 'Blocking', 'ux-studio' ) },
 	{ id: 'google', label: __( 'Google Consent Mode', 'ux-studio' ) },
+	{ id: 'inventory', label: __( 'Services and cookies', 'ux-studio' ) },
 ];
 
 function Note( { children }: { children: JSX.Element | string } ): JSX.Element {
@@ -46,6 +48,9 @@ export default function Page(): JSX.Element {
 					</button>
 				) ) }
 			</TabsNav>
+			{ topic.id === 'inventory' ? (
+				<Inventory />
+			) : (
 			<TopicSettings key={ topic.id } moduleId={ MODULE } include={ inSections( topic.label ) }>
 				{ topic.id === 'display' && (
 					<Note>
@@ -72,6 +77,7 @@ export default function Page(): JSX.Element {
 					</Note>
 				) }
 			</TopicSettings>
+			) }
 		</>
 	);
 }

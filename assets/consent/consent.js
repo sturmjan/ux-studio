@@ -220,6 +220,72 @@
 		runQueue();
 	}
 
+	/* ---------- cookies of the services (loaded when the detail is opened, not carried in every page) ---------- */
+
+	var cookiePromise = null;
+
+	function loadCookies() {
+		if ( cookiePromise ) {
+			return cookiePromise;
+		}
+		var labels = [];
+		cfg.c.forEach( function ( c ) {
+			( c.s || [] ).forEach( function ( s ) {
+				if ( labels.indexOf( s ) < 0 ) {
+					labels.push( s );
+				}
+			} );
+		} );
+		if ( ! cfg.ck || ! win.fetch || ! labels.length ) {
+			cookiePromise = Promise.resolve( {} );
+		} else {
+			cookiePromise = win
+				.fetch( cfg.ck + ( cfg.ck.indexOf( '?' ) < 0 ? '?' : '&' ) + 's=' + encodeURIComponent( labels.join( '|' ) ), { credentials: 'omit' } )
+				.then( function ( r ) {
+					return r.ok ? r.json() : {};
+				} )
+				.catch( function () {
+					return {};
+				} );
+		}
+		return cookiePromise;
+	}
+
+	function fillService( li, info ) {
+		var meta = [];
+		if ( info.p ) {
+			meta.push( T.prov + ': ' + info.p );
+		}
+		if ( info.c ) {
+			meta.push( T.ctry + ': ' + info.c );
+		}
+		if ( meta.length ) {
+			li.appendChild( el( 'span', 'uxc-meta', meta.join( ', ' ) ) );
+		}
+		if ( info.u && /^https:\/\//i.test( info.u ) ) {
+			var a = el( 'a', 'uxc-a uxc-meta', T.pol );
+			a.href = info.u;
+			a.target = '_blank';
+			a.rel = 'noopener noreferrer';
+			li.appendChild( a );
+		}
+		if ( info.k && info.k.length ) {
+			var ul = el( 'ul', 'uxc-ck' );
+			info.k.forEach( function ( k ) {
+				var item = el( 'li' );
+				item.appendChild( el( 'code', '', k[ 0 ] ) );
+				item.appendChild( doc.createTextNode( ' ' + k[ 1 ] ) );
+				if ( k[ 2 ] ) {
+					item.appendChild( el( 'span', 'uxc-meta', T.keep + ': ' + k[ 2 ] ) );
+				}
+				ul.appendChild( item );
+			} );
+			li.appendChild( ul );
+		} else {
+			li.appendChild( el( 'span', 'uxc-meta', info.n || T.nock ) );
+		}
+	}
+
 	/* ---------- banner ---------- */
 
 	function focusables() {
@@ -367,15 +433,31 @@
 			row.appendChild( label );
 			row.appendChild( el( 'p', 'uxc-d', c.d ) );
 			var list = c.s || [];
-			if ( c.id !== 'necessary' ) {
+			if ( c.id !== 'necessary' || list.length ) {
 				var det = el( 'details', 'uxc-svc' );
 				det.appendChild( el( 'summary', '', T.services + ' (' + list.length + ')' ) );
 				if ( list.length ) {
 					var ul = el( 'ul' );
+					var items = {};
 					list.forEach( function ( s ) {
-						ul.appendChild( el( 'li', '', s ) );
+						items[ s ] = el( 'li', '', s );
+						ul.appendChild( items[ s ] );
 					} );
 					det.appendChild( ul );
+					// The cookies of the services come on first opening, so the page itself stays small.
+					det.addEventListener( 'toggle', function () {
+						if ( ! det.open || det._ck ) {
+							return;
+						}
+						det._ck = 1;
+						loadCookies().then( function ( data ) {
+							list.forEach( function ( s ) {
+								if ( data[ s ] ) {
+									fillService( items[ s ], data[ s ] );
+								}
+							} );
+						} );
+					} );
 				} else {
 					det.appendChild( el( 'p', 'uxc-d', T.none ) );
 				}

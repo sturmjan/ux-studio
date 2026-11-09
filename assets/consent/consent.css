@@ -88,6 +88,11 @@
 .uxc-svc { margin-top: 6px; font-size: .9em; }
 .uxc-svc summary { cursor: pointer; padding: 2px 0; }
 .uxc-svc ul { margin: 4px 0 0 18px; padding: 0; }
+.uxc-svc li { margin: 0 0 6px; }
+.uxc-svc .uxc-ck { margin: 2px 0 0 14px; font-size: .92em; }
+.uxc-svc .uxc-ck li { margin: 2px 0; }
+.uxc-svc code { font-size: .95em; word-break: break-all; }
+.uxc-meta { display: block; font-size: .92em; opacity: .8; }
 
 .uxc-fab {
 	position: fixed; left: 16px; bottom: 16px; z-index: 2147482000;
