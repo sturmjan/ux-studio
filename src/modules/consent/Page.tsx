@@ -66,7 +66,7 @@ export default function Page(): JSX.Element {
 				{ topic.id === 'google' && (
 					<Note>
 						{ __(
-							'Google Tag Manager Kit and the Pixel and Tag Manager module follow this setting automatically. Defaults are sent to Google before any tag, so every consent type starts as denied.',
+							'Google Tag Manager Kit and the Pixel and Tag Manager module follow this setting automatically. Defaults are sent to Google before any tag, so every consent type starts as denied. Warning: a tag inside your Tag Manager container that is not from Google (Meta Pixel, Sklik, TikTok, Hotjar) does not read this signal. In the container, fire it with a custom event trigger named uxc_consent and a condition that uxc_marketing (or uxc_statistics, uxc_preferences) is true, or use Additional consent checks. The event is pushed to the dataLayer on every page, also for a choice remembered from an earlier visit.',
 							'ux-studio'
 						) }
 					</Note>

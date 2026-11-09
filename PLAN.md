@@ -4296,6 +4296,12 @@ Větev `feature/consent-module`, nepushnuto. Verze pluginu nezvýšena, změna j
   jeho vlastního `consent default`, hlášení CMP a v basic režimu zadržení kontejneru (`wp_inline_script_attributes`).
   Forms: `forms-consent-detect.js` čte nově i `window.uxConsent` (test v `tests/forms-consent-detect.mjs`).
   `ConflictGuard` (katalog překryvů): `consent` je plný konflikt s Complianz, Complianz Premium, Cookie Notice, CookieYes, Cookiebot.
+- **GTM kontejner a cizí tagy (oprava po revizi):** `gtm.js` se v basic uvolní při kterékoli kategorii a v advanced hned, takže tagy
+  uvnitř kontejneru, které nečtou Consent Mode (Meta Pixel, Sklik, TikTok, Hotjar), by běžely bez souhlasu. `consent.js` proto při každém
+  stavu (cookie při načtení, nové rozhodnutí, region, i nerozhodnuto) pushne do dataLayeru
+  `{event:'uxc_consent', uxc_preferences, uxc_statistics, uxc_marketing, uxc_source}`. V kontejneru se takové tagy musí spouštět vlastním
+  spouštěčem této události s podmínkou na příslušnou proměnnou (nebo přes Additional consent checks); upozornění je v nápovědě
+  `consent_mode` i na stránce nastavení. Modul to z PHP vynutit neumí, protože do kontejneru nevidí. Test: `tests/consent-js.mjs`.
 - **Velikost frontendu:** `consent.min.js` 7,4 kB (3,0 kB gzip), `consent.min.css` 3,6 kB (1,3 kB gzip); Complianz ~21 kB přenos / ~90 kB.
 - **Ověřeno:** `php -l`, `tests/consent.php` (včetně spuštění skriptu s Consent Mode v Node), `forms-consent-detect.mjs`, `overlap-catalog`,
   `module-links`, `module-groups`, `npm run build`. V prohlížeči na lokálním pobyty (Playwright): lišta se zobrazí, skripty zůstanou
@@ -4304,5 +4310,5 @@ Větev `feature/consent-module`, nepushnuto. Verze pluginu nezvýšena, změna j
 - **Neověřeno / otevřené:** placeholdery iframe v prohlížeči (jen jednotkový test přepisu), `buffer_guard` na reálné stránce,
   axe-core a kontrast s vlastními barvami, GTM Kit v režimu advanced, chování s WP Rocket/LiteSpeed (delay JS) a se striktní CSP
   (hash našeho skriptu je v registru, ale zadržené cizí inline skripty po uvolnění potřebují vlastní hash), skutečná hlavička
-  `CF-IPCountry` (jen mock). Tagy uvnitř GTM kontejneru řídí Consent Mode v kontejneru, ne tento modul. Uvolněné skripty
+  `CF-IPCountry` (jen mock). Tagy v GTM kontejneru nezadržuje modul, řídí je kontejner (viz bod výše), ověřeno jen push události, ne konfigurace kontejneru. Uvolněné skripty
   nedostanou znovu `DOMContentLoaded`. Pre-existující selhání `tests/admin-customiser-layout.php` (na main stejné) s tím nesouvisí.

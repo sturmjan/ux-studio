@@ -134,7 +134,7 @@ return array(
 	),
 	'consent_mode' => array(
 		'does'   => __( 'Tells Google tags what the visitor allowed (Google Consent Mode v2). Basic: Google tags do not load at all before consent. Advanced: they load at once, but send only anonymous pings without cookies until consent is given.', 'ux-studio' ),
-		'effect' => __( 'Basic is the cautious choice. Advanced lets Google model the visits it could not measure, which can give fuller reports.', 'ux-studio' ),
+		'effect' => __( 'Basic is the cautious choice. Advanced lets Google model the visits it could not measure, which can give fuller reports. Tags inside a Google Tag Manager container are not held back by this module: those from Google follow the signal, but a tag from another company (Meta Pixel, Sklik, TikTok, Hotjar) ignores it. Fire such tags in the container with a custom event trigger named uxc_consent and a condition on the variable uxc_marketing, uxc_statistics or uxc_preferences being true, or use Additional consent checks. Otherwise they run without consent.', 'ux-studio' ),
 		'risk'   => __( 'In advanced mode Google servers are contacted before the visitor decides. Some authorities see that as a data transfer that needs consent, so mention it in your privacy policy or stay on basic.', 'ux-studio' ),
 		'off'    => __( 'Choose Off only when the site uses no Google tags at all.', 'ux-studio' ),
 	),
