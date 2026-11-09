@@ -4246,7 +4246,7 @@ a přenosy mimo EU se **předvyplní ze skenu** (GA4, Google Ads, Smartsupp, Tru
 - [ ] F4 Průvodce údaji o správci + zásady cookies + ochrana osobních údajů (bloky, verze)
 - [ ] F4 Obchodní podmínky pro WooCommerce + uložení verze k objednávce
 - [ ] F4 Revize šablon (Claude) proti checklistu náležitostí a rozsahu témat Complianzu + kontrola podobnosti textů
-- [ ] F5 Záznamy souhlasů (tabulka, retence, export pro doložení)
+- [x] F5 Záznamy souhlasů (tabulka, retence, export pro doložení)
 - [ ] F6 Migrace z Complianzu + předání přes ConflictGuard, pilot na autoservisvydra.cz
 - [ ] F7 IAB TCF v2.2 (až po vyjasnění registrace CMP)
 - [ ] F8 Nasazení na flotilu
@@ -4312,3 +4312,43 @@ Větev `feature/consent-module`, nepushnuto. Verze pluginu nezvýšena, změna j
   (hash našeho skriptu je v registru, ale zadržené cizí inline skripty po uvolnění potřebují vlastní hash), skutečná hlavička
   `CF-IPCountry` (jen mock). Tagy v GTM kontejneru nezadržuje modul, řídí je kontejner (viz bod výše), ověřeno jen push události, ne konfigurace kontejneru. Uvolněné skripty
   nedostanou znovu `DOMContentLoaded`. Pre-existující selhání `tests/admin-customiser-layout.php` (na main stejné) s tím nesouvisí.
+
+### 42.13 F5 poznámky k provedení (2026-11-09)
+
+Větev `feature/consent-log` (z `feature/consent-module`), nepushnuto. Verze pluginu nezvýšena, změna je v CHANGELOG pod „Unreleased“.
+
+- **Kde:** `includes/Modules/Consent/Records.php` (tabulka, validace, ukládání, souhrn, CSV, retence), `RecordsRest.php` (veřejný zápis + admin routy +
+  export přes `admin-post`), `RecordsWidget.php` (dashboard widget, vzor 20.10); `consent.js` (odeslání), SPA záložka „Záznamy souhlasů“
+  (`src/modules/consent/Records.tsx`, `Page.tsx`), nastavení v `Module.php` + `help.php`, čeština `docs/i18n/cs-consent-f5.json`.
+  Testy: `tests/consent-records.php` (bez WP), `tests/consent-records-wp.php` (WP-CLI eval-file, tabulku si vytvoří a zahodí), `tests/consent-js.mjs` (rozšířen o falešné DOM).
+- **Tabulka `{prefix}uxstudio_consent_log`** (schéma v1, `DB::ensure_module_tables('consent', 1, …)` z `Records::boot()`, stejný mechanismus jako Analytics/PopupManager):
+  `id` BIGINT AI, `consent_id` CHAR(32), `created_at` DATETIME (UTC), `policy_version` SMALLINT, `categories` TINYINT (bity 1 předvolby, 2 statistiky, 4 marketing, stejně
+  jako cookie), `action` VARCHAR(12), `page_path` VARCHAR(255) NULL; indexy `consent_id`, `created_at`. **Žádná IP, žádný user agent, žádné zařízení, žádný query string.**
+- **ID souhlasu:** 32 hex znaků z `crypto.getRandomValues` (záloha `Math.random`), generuje prohlížeč při prvním rozhodnutí. Je 5. částí cookie
+  `uxs_consent` (`1.<verze>.<bity>.<čas>.<id>`; inline skript Consent Mode čte jen první 4 části, takže se jeho hash nemění a stará cookie bez ID dál platí). Při dalším rozhodnutí
+  se ID zachová (historie jednoho návštěvníka se vyhledá jedním ID, i přes změnu verze zásad), stará cookie bez ID dostane nové ID. V detailu lišty (znovuotevření) je řádek „ID souhlasu“.
+- **Typy akcí:** `accept_all`, `reject_all`, `custom`, `withdraw` (rozhodnutí, které odebere dřív udělenou kategorii; v JS stejná podmínka, která spouští reload stránky).
+  `region` se **nezapisuje** (odchylka od zadání): mimo EU/EHP lišta neběží a nikdo nic nerozhodl, záznam by nebyl doklad souhlasu a zaplnil by tabulku každou návštěvou.
+  Server proto `region` neakceptuje. Serverová kontrola souladu: `accept_all` ⇒ bity 7, `reject_all` ⇒ 0.
+- **Odesílání (`consent.js`):** po každém rozhodnutí `navigator.sendBeacon(cfg.rec, URLSearchParams)` (form-urlencoded je „simple“ požadavek, takže bez CORS preflight ani při jiném
+  originu REST URL), záloha `fetch(..., {keepalive:true, credentials:'omit'})`; vše v `try/catch`, nikdy neblokuje lištu. Při pouhém načtení uložené volby se nic neposílá.
+  Cesta je jen `location.pathname`. `cfg.rec` se do konfigurace tiskne jen při zapnutém ukládání.
+- **Veřejný endpoint `POST uxstudio/v1/consent/record`:** `permission_callback => '__return_true'`, což je přesně signál, podle kterého zámek REST
+  (`SecurityOptimization\Module::is_own_public_endpoint`) pustí vlastní veřejnou routu nepřihlášeným, stejně jako `consent/region` (netřeba nic přidávat do `uxstudio_rest_public_routes`).
+  Obrana v pořadí: přepínač ukládání, limit těla 1024 B (413), `Guard::exceeded('consent_record', 30, 60, 600)` z Bot Throttle (sdílená infrastruktura; drží jen solený hash IP v APCu,
+  bucket tabulce nebo transientu na minuty, ve vlastních záznamech modulu IP není), striktní validace argumentů (ID `^[a-f0-9]{32}$`, verze int 1 až 9999, bity 0 až 7, akce z allowlistu,
+  cesta se ořízne na path bez query/fragmentu a při nepovolených znacích se zahodí; špatný vstup = 400), limit na ID (8 za 10 minut, transient) a strop pro celý web (120 za minutu, filtr
+  `uxstudio_consent_record_cap`, minimum 10). Stejné rozhodnutí poslané dvakrát do 5 minut se uloží jednou. Odpověď 204 bez těla, `Cache-Control: no-store`.
+  Poznámka: když Bot Throttle někoho zablokuje, zapíše to do **svého** logu (hash IP + user agent + URL) jako u každého jiného Guardu; do tabulky souhlasů se nic z toho nedostane.
+- **Retence:** nastavení `log_retention_days` (výchozí 1095 = 3 roky, drží se mezi 30 a 3650; 0 nebo nesmysl = výchozí, ne „navždy“) a `log_enabled`. Denní cron
+  `uxstudio_consent_log_purge` volá `Retention::purge()` (dávky po 5000, UTC), plánuje se v `Records::boot()`, ruší v `Module::on_disable()`. Data se při vypnutí modulu nemažou.
+- **Admin:** záložka „Záznamy souhlasů“ (nastavení nahoře, pod ním přehled za 7/30/90/365 dní: počty a podíly podle akce, počet návštěvníků, podíl povolených kategorií, počet uložených,
+  nejstarší záznam), vyhledání podle ID (toleruje velká písmena a pomlčky), export CSV (od/do, volitelně jen jedno ID; `admin-post` + nonce + `manage_options`, UTF-8 BOM,
+  `Csv::safe_row`, čtení po 1000 řádcích přes `id > N`, takže se tabulka nenačítá celá do paměti; export se zapisuje do Activity Logu). REST: `GET consent/records/summary|find|export-url` (`manage_options`).
+  Dashboard widget „Cookie lišta: odpovědi návštěvníků“ (podíly za 30 dní), jen pro správce a při zapnutém ukládání.
+- **Odinstalace:** plugin nemá žádný `uninstall.php` ani mazání tabulek modulů (konvence: data zůstávají i po vypnutí modulu, mimo `NoticeHistory\Store`). Tabulku souhlasů jsem proto nemazal
+  ani já. Pokud se má smazání při odinstalaci pluginu zavést, je to rozhodnutí pro všechny moduly najednou.
+- **Neověřeno:** SPA záložka v prohlížeči (zadání zakazuje, jen `npm run build` a `tsc`); skutečný `sendBeacon` v prohlížeči (otestováno proti falešnému DOM a stubu); `consent/record`
+  za cizím WAF/Cloudflare pravidlem; chování APCu větve Guardu; test `consent-records-wp.php` běžel proti nainstalovanému (starší) pluginu na lokálním webu, kde zámek REST ještě nemá
+  `register_rest_lock()` a `RestRoute` (použit starší `restrict_rest_api`), takže plný zámek z této větve je ověřen jen čtením kódu (`is_own_public_endpoint` + `__return_true`);
+  zámek s `rest-public-routes.php` pro novou routu neběžel. Velikost `consent.min.js`: viz CHANGELOG/report (8,5 kB, 3,5 kB gzip, o 1,2 kB resp. 0,4 kB víc než v F1).

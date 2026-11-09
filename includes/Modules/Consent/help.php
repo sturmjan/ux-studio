@@ -142,4 +142,15 @@ return array(
 		'does'   => __( 'How many milliseconds Google tags wait for the saved choice of a returning visitor before they start.', 'ux-studio' ),
 		'effect' => __( 'The default of 500 is enough on almost every site.', 'ux-studio' ),
 	),
+	'log_enabled' => array(
+		'does'   => __( 'Saves a short record each time a visitor answers the banner: a random anonymous ID, the time, the version of your consent policy, the categories allowed and the kind of answer (accept all, reject all, own choice, withdrawal), plus the path of the page.', 'ux-studio' ),
+		'effect' => __( 'It is your proof that consent was given (GDPR article 7). The ID is also kept in the cookie that remembers the choice and is shown in the cookie settings, so a visitor can quote it and you can find their records. No IP address, browser details or query string are stored.', 'ux-studio' ),
+		'risk'   => __( 'The records are personal-data adjacent: mention them in your privacy policy. Only a banner that was shown can record a choice; a visitor outside the region you chose for the banner is not asked and not recorded.', 'ux-studio' ),
+		'off'    => __( 'With records off you cannot prove later that a visitor agreed. Records already saved are kept until they expire.', 'ux-studio' ),
+	),
+	'log_retention_days' => array(
+		'does'   => __( 'How many days a record is kept. Older records are deleted once a day. The default is 1095 days (3 years); the value is kept between 30 and 3650.', 'ux-studio' ),
+		'effect' => __( 'Long enough to answer a complaint or an inspection, short enough not to hoard data.', 'ux-studio' ),
+		'risk'   => __( 'Shortening it deletes the older records at the next daily run, and they cannot be restored. Export them first if you need them.', 'ux-studio' ),
+	),
 );

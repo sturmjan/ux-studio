@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { navigate } from '../../app/route';
 import { TopicSettings, inSections } from '../../app/TopicSettings';
 import { TabsNav } from '../../app/SubNav';
+import { RecordsPanel } from './Records';
 
 const MODULE = 'consent';
 
@@ -14,6 +15,7 @@ const TOPICS: { id: string; label: string }[] = [
 	{ id: 'appearance', label: __( 'Appearance', 'ux-studio' ) },
 	{ id: 'blocking', label: __( 'Blocking', 'ux-studio' ) },
 	{ id: 'google', label: __( 'Google Consent Mode', 'ux-studio' ) },
+	{ id: 'records', label: __( 'Consent records', 'ux-studio' ) },
 ];
 
 function Note( { children }: { children: JSX.Element | string } ): JSX.Element {
@@ -72,6 +74,7 @@ export default function Page(): JSX.Element {
 					</Note>
 				) }
 			</TopicSettings>
+			{ topic.id === 'records' && <RecordsPanel /> }
 		</>
 	);
 }

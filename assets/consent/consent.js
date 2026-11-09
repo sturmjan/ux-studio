@@ -4,7 +4,8 @@
  * No dependencies, no jQuery. Reads the JSON block #uxc-config (printed by includes/Modules/Consent). Minified to
  * consent.min.js by `npm run build:widget`.
  *
- * Choice cookie `uxs_consent` = 1.<policy version>.<bits>.<unix time>, bits 1 preferences, 2 statistics, 4 marketing.
+ * Choice cookie `uxs_consent` = 1.<policy version>.<bits>.<unix time>[.<consent id>], bits 1 preferences, 2 statistics, 4 marketing.
+ * The consent id is 32 random hex characters made here; every decision is reported to cfg.rec (consent records, F5) with it.
  * Blocked script: <script type="text/plain" data-uxc="statistics marketing"> (any of the listed categories releases it).
  * Blocked iframe: <iframe data-uxc="marketing" data-uxc-src="..." data-uxc-service="YouTube">.
  *
@@ -37,6 +38,7 @@
 	var root = null;
 	var fab = null;
 	var opener = null;
+	var cid = ''; // anonymous id of this visitor's consent records (also the 5th part of the cookie)
 
 	function el( tag, cls, text ) {
 		var n = doc.createElement( tag );
@@ -68,14 +70,54 @@
 		return st;
 	}
 
-	function writeCookie( st ) {
+	function bitsOf( st ) {
 		var bits = 0;
 		CATS.forEach( function ( c ) {
 			if ( st[ c ] ) {
 				bits |= BIT[ c ];
 			}
 		} );
-		var value = [ 1, cfg.v, bits, Math.floor( Date.now() / 1000 ) ].join( '.' );
+		return bits;
+	}
+
+	function cookieId() {
+		var m = new RegExp( '(?:^|; )' + NAME + '=([^;]*)' ).exec( doc.cookie );
+		var id = m ? decodeURIComponent( m[ 1 ] ).split( '.' )[ 4 ] : '';
+		return /^[a-f0-9]{32}$/.test( id || '' ) ? id : '';
+	}
+
+	function newId() {
+		var a = [];
+		var i;
+		try {
+			a = Array.prototype.slice.call( win.crypto.getRandomValues( new Uint8Array( 16 ) ) );
+		} catch ( e ) {
+			for ( i = 0; i < 16; i++ ) {
+				a.push( Math.floor( Math.random() * 256 ) );
+			}
+		}
+		return a
+			.map( function ( b ) {
+				return ( b < 16 ? '0' : '' ) + b.toString( 16 );
+			} )
+			.join( '' );
+	}
+
+	// Report a decision for the consent records. Fire and forget: never waits, never throws, never blocks the banner.
+	function record( action, st ) {
+		if ( ! cfg.rec ) {
+			return;
+		}
+		try {
+			var body = new win.URLSearchParams( { id: cid, v: cfg.v, c: bitsOf( st ), a: action, p: win.location.pathname } );
+			if ( ! ( win.navigator.sendBeacon && win.navigator.sendBeacon( cfg.rec, body ) ) && win.fetch ) {
+				win.fetch( cfg.rec, { method: 'POST', body: body, keepalive: true, credentials: 'omit' } ).catch( function () {} );
+			}
+		} catch ( e ) {}
+	}
+
+	function writeCookie( st ) {
+		var value = [ 1, cfg.v, bitsOf( st ), Math.floor( Date.now() / 1000 ) ].concat( cid ? [ cid ] : [] ).join( '.' );
 		doc.cookie = NAME + '=' + value + ';max-age=' + cfg.days * 86400 + ';path=/;SameSite=Lax' + ( win.location.protocol === 'https:' ? ';Secure' : '' );
 	}
 
@@ -228,20 +270,22 @@
 		} );
 	}
 
-	function commit( choice ) {
+	function commit( choice, kind ) {
 		var before = state || ( implicit ? { preferences: 1, statistics: 1, marketing: 1 } : null );
 		implicit = false;
 		state = {};
 		CATS.forEach( function ( c ) {
 			state[ c ] = !! choice[ c ];
 		} );
+		cid = cid || cookieId() || newId();
 		writeCookie( state );
-		hide();
-		signal( 'user' );
-		scan();
 		var revoked = before && CATS.some( function ( c ) {
 			return before[ c ] && ! state[ c ];
 		} );
+		record( revoked ? 'withdraw' : kind, state );
+		hide();
+		signal( 'user' );
+		scan();
 		if ( revoked ) {
 			// Scripts that already ran cannot be taken back: start the page again without them.
 			win.setTimeout( function () {
@@ -302,10 +346,10 @@
 		dlg.setAttribute( 'aria-describedby', 'uxc-m' );
 
 		var all = function () {
-			commit( { preferences: 1, statistics: 1, marketing: 1 } );
+			commit( { preferences: 1, statistics: 1, marketing: 1 }, 'accept_all' );
 		};
 		var none = function () {
-			commit( {} );
+			commit( {}, 'reject_all' );
 		};
 		var button = function ( label, cls, fn ) {
 			var b = el( 'button', 'uxc-btn' + ( cls ? ' ' + cls : '' ), label );
@@ -391,8 +435,11 @@
 			CATS.forEach( function ( c ) {
 				choice[ c ] = boxes[ c ] && boxes[ c ].checked;
 			} );
-			commit( choice );
+			commit( choice, 'custom' );
 		} ) );
+		root._id = el( 'p', 'uxc-d' );
+		root._id.hidden = true;
+		detail.appendChild( root._id );
 		detail.appendChild( dActions );
 
 		dlg.appendChild( main );
@@ -442,6 +489,8 @@
 				root._boxes[ c ].checked = has( c );
 			}
 		} );
+		root._id.textContent = cid && T.cid ? T.cid + ' ' + cid : '';
+		root._id.hidden = ! root._id.textContent;
 		if ( fab ) {
 			fab.hidden = true;
 		}
@@ -469,6 +518,7 @@
 
 	function start() {
 		state = readCookie();
+		cid = cookieId();
 		if ( state ) {
 			signal( 'stored' );
 			scan();
