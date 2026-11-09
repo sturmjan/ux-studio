@@ -24,6 +24,15 @@ return array(
 		'effect' => __( 'After this time the banner asks again.', 'ux-studio' ),
 		'risk'   => __( 'Data protection authorities expect a choice to be renewed at the latest after about a year, so do not go above 365.', 'ux-studio' ),
 	),
+	'legacy_prefix' => array(
+		'does'   => __( 'Cookie name prefix of the banner this one replaced (for Complianz it is cmplz_). A returning visitor who already chose in the old banner is not asked again: the choice is read once and stored here.', 'ux-studio' ),
+		'effect' => __( 'Only a choice made under the policy number below is taken over, and only when the old banner was dismissed.', 'ux-studio' ),
+		'risk'   => __( 'Leave it empty to ask everybody again. The migration fills it in; you can clear it after about a year, when the old cookies have expired.', 'ux-studio' ),
+	),
+	'legacy_policy_id' => array(
+		'does'   => __( 'The policy number the old banner had when it was switched off. A choice saved under another number is ignored.', 'ux-studio' ),
+		'effect' => __( 'This keeps the rule of the old banner: after a change of policy people are asked again.', 'ux-studio' ),
+	),
 	'show_reopen' => array(
 		'does'   => __( 'Shows a small round button in the corner of every page that reopens the cookie settings.', 'ux-studio' ),
 		'effect' => __( 'Visitors can change or withdraw their consent at any time, which the rules require to be as easy as giving it.', 'ux-studio' ),

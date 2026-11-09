@@ -206,6 +206,10 @@ final class Smoke {
 				return self::check_clean( $token );
 			case 'admin_access':
 				return self::check_admin_access( $check, $token );
+			case 'consent_banner':
+				return self::check_consent_banner( $check, $token );
+			case 'consent_blockers':
+				return self::result( 'fail', implode( ' | ', array_map( 'strval', (array) ( $check['problems'] ?? array() ) ) ) );
 		}
 		return array(
 			'status' => 'info',
@@ -568,6 +572,41 @@ final class Smoke {
 			return self::result( 'fail', __( 'The comment form is still on the post.', 'ux-studio' ) );
 		}
 		return self::result( 'ok', __( 'The comment form is not on the post.', 'ux-studio' ) );
+	}
+
+	/**
+	 * Cookie consent after the old banner is gone: exactly one banner on the home page, no Complianz left in the markup,
+	 * and the converted legal pages render our document.
+	 *
+	 * @param array<string, mixed> $check Check with `pages` (addresses).
+	 * @param string|null          $token Token.
+	 * @return array{status:string,detail:string}
+	 */
+	private static function check_consent_banner( array $check, ?string $token ): array {
+		$res = self::fetch( home_url( '/' ), $token );
+		if ( '' !== $res['error'] || self::is_fatal( $res ) ) {
+			return self::result( 'fail', '' !== $res['error'] ? $res['error'] : __( 'The home page fails with a server error.', 'ux-studio' ) );
+		}
+		if ( null !== $token && ! self::was_preview( $res ) ) {
+			return self::result( 'fail', __( 'The preview did not take effect on this page (the preview file is not loaded or the token was refused).', 'ux-studio' ) );
+		}
+		$ours = substr_count( $res['body'], 'id="uxc-config"' );
+		if ( 1 !== $ours ) {
+			return self::result( 'fail', sprintf( /* translators: %d: number of banners. */ __( 'Expected one banner of this module on the home page, found %d.', 'ux-studio' ), $ours ) );
+		}
+		if ( preg_match( '/cmplz-cookiebanner|complianz\.min\.js|cmplz_fire_categories/i', $res['body'] ) ) {
+			return self::result( 'fail', __( 'The Complianz banner is still on the home page, so visitors would get two banners.', 'ux-studio' ) );
+		}
+		foreach ( array_slice( array_map( 'strval', (array) ( $check['pages'] ?? array() ) ), 0, 5 ) as $url ) {
+			$page = self::fetch( $url, $token );
+			if ( '' !== $page['error'] || self::is_fatal( $page ) ) {
+				return self::result( 'fail', sprintf( /* translators: %s: page address. */ __( 'The legal page %s fails.', 'ux-studio' ), $url ) );
+			}
+			if ( false !== stripos( $page['body'], '[cmplz-' ) || false === strpos( $page['body'], 'class="uxs-legal' ) ) {
+				return self::result( 'fail', sprintf( /* translators: %s: page address. */ __( 'The legal page %s does not show the document of this module.', 'ux-studio' ), $url ) );
+			}
+		}
+		return self::result( 'ok', __( 'One banner, no Complianz markup, the legal pages show the generated documents.', 'ux-studio' ) );
 	}
 
 	/**

@@ -393,6 +393,46 @@ final class Legal {
 	}
 
 	/**
+	 * Use an existing page as the page of a document (the migration from Complianz keeps the address of its pages).
+	 * Only when no usable page is known yet.
+	 *
+	 * @param string $doc Document.
+	 * @param int    $id  Page id.
+	 * @return bool Whether the page was adopted.
+	 */
+	public static function adopt_page( string $doc, int $id ): bool {
+		if ( ! in_array( $doc, LegalProfile::DOCS, true ) || $id <= 0 ) {
+			return false;
+		}
+		$data = self::data();
+		$cur  = (int) ( $data['pages'][ $doc ] ?? 0 );
+		$post = $cur > 0 ? get_post( $cur ) : null;
+		if ( $cur === $id ) {
+			return true;
+		}
+		if ( $post instanceof \WP_Post && 'trash' !== $post->post_status ) {
+			return false;
+		}
+		$data['pages'][ $doc ] = $id;
+		self::save_data( $data );
+		return true;
+	}
+
+	/**
+	 * Forget an adopted page (undo of adopt_page()).
+	 *
+	 * @param string $doc Document.
+	 * @param int    $id  Page id.
+	 */
+	public static function release_page( string $doc, int $id ): void {
+		$data = self::data();
+		if ( (int) ( $data['pages'][ $doc ] ?? 0 ) === $id ) {
+			unset( $data['pages'][ $doc ] );
+			self::save_data( $data );
+		}
+	}
+
+	/**
 	 * What a legal page contains: one shortcode block.
 	 *
 	 * @param string $doc Document.

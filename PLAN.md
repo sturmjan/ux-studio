@@ -4107,7 +4107,7 @@ proti CA z worktree `_ca-wt-identity` s čerstvou DB `ca_e2e` (všech 116 migrac
   zvážit hlášení „Facebook nenašel titulek ani obrázek"), IndexNow 200/202 u veřejného webu, nginx, názvy voleb
   IndexNow v Rank Math / Yoast.
 
-## 42. Cookies, souhlas a právní stránky - modul `consent` (2026-10-21, F1-F5 hotovo lokálně 2026-11-09)
+## 42. Cookies, souhlas a právní stránky - modul `consent` (2026-10-21, F1-F6 hotovo lokálně 2026-11-09, pilot F6 čeká)
 
 > Číslo 42, protože 41 už má větev s mapami a 26 je obsazené migračním průvodcem. Plán se přesunul ze staré větve, kde měl číslo 26.
 
@@ -4247,7 +4247,8 @@ a přenosy mimo EU se **předvyplní ze skenu** (GA4, Google Ads, Smartsupp, Tru
 - [x] F4 Obchodní podmínky pro WooCommerce + uložení verze k objednávce
 - [x] F4 Revize šablon (Claude) proti checklistu náležitostí a rozsahu témat Complianzu + kontrola podobnosti textů (revize Claude, ne právník)
 - [x] F5 Záznamy souhlasů (tabulka, retence, export pro doložení)
-- [ ] F6 Migrace z Complianzu + předání přes ConflictGuard, pilot na autoservisvydra.cz
+- [x] F6 Migrace z Complianzu + předání přes ConflictGuard (zdroj frameworku, stránky, shortcody, převod souhlasů, API pro sken; viz 42.16)
+- [ ] F6 Pilot na autoservisvydra.cz (postup v 42.16, neprovedeno)
 - [ ] F7 IAB TCF v2.2 (až po vyjasnění registrace CMP)
 - [ ] F8 Nasazení na flotilu
 
@@ -4534,3 +4535,63 @@ Větev `feature/consent-scan` (z `feature/consent-module`), nepushnuto. Verze pl
   přes `rest_do_request`); běh proti cizím lištám (Complianz, Cookiebot, CookieYes, OneTrust, Borlabs) jsou selektory ze zdokumentovaných ID a tříd, **nezkoušené na živém webu**; lišta UX Studia se ovládá **pořadím tlačítek** v `.uxc-main .uxc-actions`
   (odmítnout, přijmout, nastavení), protože `consent.js` nemá API pro přijetí; změní-li se pořadí, sken to pozná (kliknutí nezmění souhlas ⇒ běh `error`), ale bude potřeba upravit selektory v CA `consentscan.js`; sken vidí jen pár stránek a jen z IP NASu
   (firewall klienta může sken zablokovat, viz §42.8); neznámá cookie se nedá zařadit (jen zjistit, co je); nová cookie z `scan_cookies` se v zásadách cookies (F4) zatím nepoužívá.
+
+### 42.16 F6 poznámky k provedení a postup pilotu (2026-11-09)
+
+Větev `feature/consent-module`, nepushnuto. Verze pluginu nezvýšena, změna je v CHANGELOG pod „Unreleased“. Překlady negenerovány, české řetězce jsou v `docs/i18n/cs-consent-f6.json`.
+Protějšek v CA: `nas-scripts/scraper/consentscan.js` (větev `feature/consent-scan`).
+
+- **Kde:** zdroj migrace `includes/Core/Migration/Sources/ComplianzSource.php` (registrace v `SourceRegistry`, slugy `complianz-gdpr` a `complianz-gdpr-premium`, cíl `consent` z Catalogu), čisté mapování `includes/Modules/Consent/ComplianzMap.php`
+  (nastavení, převod shortcodů a bloků, logika cookie), kompatibilní shortcody `ComplianzCompat.php`, `Legal::adopt_page()` a `release_page()`, nové typy smoke testu `consent_banner` a `consent_blockers` v `Smoke.php`, `consent.js` (API + převod cookie),
+  dvě nová nastavení `legacy_prefix` a `legacy_policy_id`. Testy: `tests/consent-complianz.php` (včetně reálné fixture `tests/fixtures/complianz/7.5.7.json`), `tests/consent-js.mjs`, CA `nas-scripts/scraper/test/consentscan-local.js`.
+- **Cesta frameworkem, ne vedle něj.** Zdroj je `AbstractSource` + `Activatable`: nastavení jdou přes `Mapping`/`SettingsWriter` (při zapnutém modulu consent do stagingu, jinak přímo do volby bez účinku), údaje průvodce F4 přes `Mapping::option` (`uxstudio_consent_legal`, klíč `profile`,
+  jen prázdná pole), stránky jako data fáze (`data_kind` = `page`), vždy NEAKTIVNÍ ve stagingu a přepsané až v `Staging::apply` při přepnutí. Předání ConflictGuardu dělá `Switcher` beze změny: v jednom kroku `Staging::apply` → zapnutí modulu `consent` (a `pixel-tag-manager`
+  přes `extra_modules()`) → `deactivate_plugins(Complianz)`; vrácení to obrátí (moduly pryč → plugin zpět → volby zpět → `Activatable::deactivate` → staging zpět).
+- **Co se převádí:** Consent Mode (`consent-mode` + `gtag-basic-consent-mode` → off / basic / advanced; nenastavený Complianz = beze změny), doba platnosti (max 365), blokování skriptů a iframů (`enable_cookie_blocker`), GEO IP premium → „jen EU“, adresa stránky zásad cookies (`policy_url`),
+  texty lišty (nadpis, zpráva jako prostý text, Přijmout / Odmítnout / Nastavení / Uložit), pozice (bottom = pruh, bottom-left/right = box), barvy (pozadí, text, tlačítko přijmout), poloměr rohů, skrytí malého tlačítka (`hide-everywhere`), vlastní pravidla ze Script Centeru
+  (`block_script` → `<adresa> <kategorie>`, `whitelist_script` → `necessary`, funkční = necessary), údaje správce (název, adresa, e-mail, telefon) do profilu F4, ID Google Analytics (`compile_statistics` = google-analytics) do Pixel & Tag Manageru, předpona cookie a číslo zásad pro převod souhlasů.
+- **Co se nepřevádí (vypíše plán):** Do Not Track a GPC, soft cookie wall, souhlas posunem stránky nebo časem, vlastní CSS, logo, animace, styl přepínačů, písma, stíny, barvy ostatních tlačítek, druhá a další lišta (jazyky, A/B), překlady WPML/Polylang, vlastní popisy cookies a služeb,
+  odlišné režimy podle regionu (opt-out), dokumenty které neumíme (impressum, disclaimer, dohody o zpracování, regionální varianty US/UK/CA), `[cmplz-consent-area]` a jeho blok, `[cmplz-dnsmpi-request]`. Stránky s takovým prvkem zůstanou beze změny a jsou vypsané.
+  IČO, DIČ a pověřenec v Complianzu nejsou, plán na to upozorní.
+- **Dvě věci, které by po přepnutí tiše přestaly fungovat, jsou BLOKUJÍCÍ.** (1) Skripty přidané ve Script Centeru (`add_script`): modul nic takového nemá; plán vypíše název, kategorii a kód a nabídne ruční založení v modulu Code Snippets (nic se nepřesouvá automaticky).
+  (2) Tracking, který vkládá sám Complianz: GTM kontejner (`compile_statistics` = google-tag-manager) bez GTM Kitu nebo GTM4WP, Matomo, Clicky, Yandex, Clarity, Google Tag Gateway. GA4 se naopak převede do Pixel & Tag Manageru (staging). Blokování je zavedené jako **neprošlý test bezpečného náhledu**
+  (`consent_blockers`), takže přepnutí vyžaduje existující potvrzení „přepnout i tak“ (`override_failures`, v průvodci i v MCP); nová REST vlajka ani nové políčko průvodce nebyly potřeba. Slabina: kdo náhled přeskočí (`skip_preview`, automatické přepnutí průvodce po ověření), blokující test nepotká a upozornění zůstane jen v plánu.
+- **Právní stránky: rozhodnutí.** Stránka, její ID, slug a tedy URL zůstanou, mění se jen obsah, a to až při přepnutí: `[cmplz-document type="cookie-statement"]` nebo blok `complianz/document` → `[uxstudio_legal doc="cookies"]` (privacy-statement → `privacy`), odpojený blok s vlastním textem → `<!-- wp:html -->` s tím textem.
+  Důvod proti variantě „nové stránky se stejným slugem po přesunu původních“: nemění ID ani menu, odkazy, přesměrování a Search Console zůstanou a nehrozí kolize slugu `-2`. Původní obsah je v post meta `_uxs_cz_original` (plus revize WordPressu) a `deactivate()` ho vrátí bajt po bajtu,
+  pokud stránku mezitím nikdo neupravil (`_uxs_cz_written` = hash toho, co jsme zapsali); upravenou stránku nepřepíše a původní text zůstane v revizích. Přepsaná zveřejněná stránka se přihlásí jako stránka dokumentu (`Legal::adopt_page`) a vznikne verze 1 (`Legal::publish`); při vrácení se přihláška zruší.
+  Dokument se převede jen když profil F4 má název, adresu a e-mail (jinak by byl s prázdnými místy); jinak stránka zůstane a plán to řekne. Nezveřejněné stránky (koncept) se přepíšou, ale nepřihlásí.
+- **Shortcody a bloky v obsahu.** Přepisují se ve všech typech příspěvků: `[cmplz-manage-consent]`, `[cmplz-revoke-link text=...]`, `[cmplz-accept-link]` → `[uxstudio_cookie_settings]` (text → `label`), `[cmplz-cookies]` → `[uxstudio_cookie_table]`. Navíc `ComplianzCompat` registruje stejné názvy (a blok `complianz/document`), **jen když Complianz neběží**,
+  takže obsah, na který migrace nesáhla (page builder, widgety, vlastní pole), nevypíše surové shortcody a v bezpečném náhledu fungují ještě před přepsáním stránek.
+- **Souhlasy návštěvníků.** Cookies Complianzu: `cmplz_banner-status` = `dismissed`, `cmplz_policy_id` = číslo, `cmplz_preferences|statistics|marketing` = `allow` / `deny` (`cmplz_functional` je vždy allow; předpona `cmplz_`, u multisite `cmplz_rt_`; cesta cookie je podadresář webu).
+  `consent.js` je při prvním načtení čte, jen když chybí platná `uxs_consent` a v konfiguraci je `leg` (`{p: předpona, v: číslo zásad}`). **Rozhodnutí o verzi zásad:** převezme se jen když je lišta zavřená, je aspoň jedna kategorie rozhodnutá a `cmplz_policy_id` je rovno číslu zásad,
+  které Complianz měl při migraci (`complianz_active_policy_id`); jiné číslo = návštěvník se zeptá znovu, stejně jako to dělal Complianz. Z `allow` vzniknou bity, vše ostatní je zamítnuto; zapíše se naše cookie s novým anonymním ID a časem převodu, událost `uxc_consent` dostane `uxc_source: 'import'`
+  a pošle se i Consent Mode `update` (inline skript v `<head>` čte jen `uxs_consent`, takže první stránka jinak startuje s denied). Převod se **nehlásí do záznamů souhlasů** (návštěvník nic nerozhodl; doklad o souhlasu drží záznamy Complianzu, jejichž export doporučuji před přepnutím uložit).
+  Nastavení `legacy_prefix` vypíná převod (po roce, kdy stará cookies vypršela). Přírůstek skriptu: `consent.min.js` 9,8 → 10,5 kB (gzip 3,9 → 4,1 kB).
+- **API pro automatizaci.** `window.uxConsent.acceptAll()`, `rejectAll()`, `set({preferences, statistics, marketing})` volají stejné `commit` jako tlačítka (cookie, záznam F5, `uxc_consent`, Consent Mode update, případné znovunačtení při odvolání). CA `consentscan.js` je používá přednostně; u starší verze bez API zůstává klikání podle pořadí tlačítek (testováno oběma cestami).
+- **Ověřeno.** `php -l`, `npm run build`, `npm run build:widget`, `npx tsc --noEmit`, `tests/consent-complianz.php` (65 kontrol), všechny `tests/consent*.php`, `node tests/consent-js.mjs`, `overlap-catalog`, `migration-sources`, `migration-data-sources`, `migration-preview`, `migration-admin-sources`, `mcp-core`, `wizard-autostart`; CA lokální test skeneru (puppeteer, skutečný Chrome) s API i bez něj.
+  **Skutečná migrace na `_uxs-e2e` s Complianzem 7.5.7** (nasazená testovací konfigurace, 6 stránek a příspěvků): plán, běh, bezpečný náhled (9 z 10 testů ok, blokující test `add_script` správně neprošel), přepnutí bez potvrzení odmítnuto (409), přepnutí s potvrzením: Complianz deaktivován, `consent` a `pixel-tag-manager` zapnuty, 5 stránek přepsáno a 1 (impressum) ponechána,
+  živý test „jedna lišta“ ok, v prohlížeči jedna lišta s převzatým nadpisem a barvami, `/prace-s-cookies/` a `/gdpr/` na stejných adresách s vygenerovaným dokumentem, vracející se návštěvník s cookies Complianzu bez lišty (volba 3 = preference + statistika, událost `import`), jiné číslo zásad lištu ukáže, `acceptAll()` funguje.
+  Vrácení přepnutí: obsah všech stránek, `active_plugins`, seznam modulů, profil a ID Google Analytics **shodné s hashem před přepnutím**; druhý cyklus přepnutí a vrácení stejně; rollback běhu smaže volby. Varianta „modul `consent` už zapnutý při migraci“: 22 hodnot a 5 stránek čeká ve stagingu, živé volby nezměněny, rollback čistý.
+- **Nalezeno při ověření.** Apache na lokálu držel přes opcache starou cestu k pluginu (junction přesměrovaný na jiný worktree) a modul `consent` se v HTTP nenačetl; pomohl `opcache_reset()`, ne chyba v kódu. Archiv verzí dokumentů (`uxs_legal_version`) po vrácení a rollbacku zůstane (konvence F4: archiv se nemaže), jen se odpojí od stránky.
+- **Neověřeno / otevřené.** Jen free verze Complianzu 7.5.7 s jednou ručně nasazenou konfigurací (bez GTM, bez prémiových funkcí: GEO IP, regionální banner, `privacy-statement`, `impressum`, TCF); stránky `privacy-statement` a `impressum` jsou testovány na syntetickém obsahu. Sken F3 po přepnutí proti skutečnému webu (jen lokální test s API).
+  Chování s WP Rocket (keš se po přepnutí neprázdní automaticky, `Module::purge_page_caches()` volá jen uložení nastavení modulu; v pilotu vyčistit ručně) a se striktní CSP. Polylang/WPML. Multisite (`cmplz_rt_`). Převod cookie jen v testech s falešným DOM a v Chrome na lokálu, ne za Cloudflare. Obsah v datech page builderů (Elementor, Divi) se nepřepisuje, jen ho kryje `ComplianzCompat`.
+  Smoke test „jedna lišta“ hledá `cmplz-cookiebanner` v HTML, ale Complianz lištu vkládá JavaScriptem, takže pozná jen zbytky skriptu (`complianz.min.js`, `cmplz_fire_categories`), ne lištu samotnou; po přepnutí proto vždy spustit sken F3.
+
+#### Postup pilotu na autoservisvydra.cz (NEPROVEDENO, jen příprava)
+
+Web je živý a za Cloudflare/openresty; platí pravidla živého serveru (záloha lokálně i na serveru, nikdy nepřepsat serverový soubor lokálním bez diffu). Pilot dělat mimo špičku a s uživatelem po ruce.
+
+1. **F0 předem (měření, zapsat do §42.9 F0).** Studený TTFB (obejít keš WP Rocket parametrem nebo vyčištěním), DCL a load, velikost a počet assetů, HTML rozbalené; **s Complianzem a po přepnutí na modul consent** (stejná metoda jako v 42.1: Playwright, 5 měření, medián). Zapsat také počet uzlů `cmplz` v DOM a skutečnou cenu na serveru (TTFB bez keše).
+2. **Záloha podle pravidel.** Složka `backup/YYYY-MM-DD_HHMM/` lokálně (mimo server) i na serveru **mimo web root**, případně pod web rootem s `.htaccess` `Require all denied` + `Options -Indexes` + prázdným `index.html` (openresty `.htaccess` ignoruje, tam jen mimo web root). Obsah: dump DB (`mysqldump`, utf8mb4), celý `wp-content/plugins/complianz-gdpr` a `wp-content/plugins/ux-studio`, `wp-content/mu-plugins`, `.htaccess`,
+   export záznamů souhlasů z Complianzu a export jeho nastavení. `zmeny.txt` s časem, seznamem změn a důvodem.
+3. **Zjistit předem** (na serveru, jen čtení): `cmplz_options` (`compile_statistics`, `gtm_code`, `ua_code`, `consent-mode`, `gtag-basic-consent-mode`, `use_country`), `complianz_options_custom-scripts` (zejména `add_script`), seznam stránek s `cmplz-document`, jak se vkládá GTM kontejner `GTM-M2H8FV7L` (Complianz, GTM Kit, šablona, WP Rocket?), zda je WP Rocket „delay JS“ a které skripty vyjímá.
+4. **Verze pluginu UX Studio** s modulem consent (vydání až po QA celého modulu, samostatná vlna). Na server nasadit stejným postupem jako u UX Studia (release zip, ne ruční kopírování souborů); před tím porovnat serverovou verzi se zálohou.
+5. **Průvodce migrací**: sken, plán (přečíst všechna upozornění s uživatelem, zejména blokující), doplnit v modulu IČO, DIČ a pověřence (Právní stránky), běh, ověření.
+6. **GTM kontejner (§42.11).** Pokud ho vkládal Complianz, nejdřív ho přidat jinak (GTM Kit) a až pak přepnout. V kontejneru musí být spouštěče na vlastní událost `uxc_consent` s podmínkou na `uxc_marketing` / `uxc_statistics` pro tagy, které nečtou Consent Mode (Meta Pixel, Sklik, Hotjar), a Consent Mode proměnné
+   (`ad_storage`, `analytics_storage`) nastavené podle `consent_mode` (web byl v režimu *advanced*, převezme se). Zkontrolovat v GTM náhledu (Tag Assistant) před i po přepnutí.
+7. **Bezpečný náhled** v průvodci (aspoň 30 minut klikání: úvodní stránka, formulář, `/prace-s-cookies/`, `/gdpr/`), všechny testy ok; neprošlý test řešit, ne přeskakovat.
+8. **Přepnutí** (Complianz se vypne a modul zapne v jednom kroku), hned **vyprázdnit keš** WP Rocket a Cloudflare (purge cache), ověřit živý test v průvodci.
+9. **Kontrola po přepnutí:** sken F3 z CA (tři běhy: bez souhlasu / přijmout / odmítnout, nyní přes `uxConsent` API; žádné porušení), Consent Mode v GTM Tag Assistant (výchozí denied, update po volbě, `gcs=G100` při advanced před souhlasem), jedna lišta, zachované adresy `/prace-s-cookies/` a `/gdpr/` (200, správný dokument, verze 1), převzatý souhlas (prohlížeč, který už souhlasil, lištu nevidí),
+   měření v GA4 Realtime a Google Ads (konverze), záznamy souhlasů přibývají, Core Web Vitals a TTFB proti F0.
+10. **Vrácení.** Tlačítko „Vrátit přepnutí“ (30 dní): moduly pryč, Complianz zpět, stránky zpět na původní obsah; pak vyčistit keš. Při selhání průvodce obnovit ze zálohy (DB dump + složky pluginů). Po týdnu bez problémů nabídnout odstranění Complianzu a po roce vyčištění `legacy_prefix`.
+11. **Zápis.** Výsledky do §42.9 (F0 a pilot), stav do `STAV.md`, a co pilot odhalil do §42.16.

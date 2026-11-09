@@ -158,5 +158,52 @@ check( 'records: nothing is sent when records are off, the choice still works', 
 r = await runUi( '', withText, { steps: ( { win, button } ) => { win.navigator.sendBeacon = () => { throw new Error( 'x' ); }; button( TX.accept ).click(); } } );
 check( 'records: a throwing sendBeacon does not stop the choice', /uxs_consent=1\.3\.7\./.test( r.doc.cookie ) );
 
+
+// ---------- public API for automation (F6): same behaviour as the buttons ----------
+r = await runUi( '', withText, { steps: ( { win } ) => { win.apiResult = win.uxConsent.acceptAll(); } } );
+b = r.calls.beacon;
+check( 'api: acceptAll records an accept_all decision with all bits', b.length === 1 && b[ 0 ].b.a === 'accept_all' && b[ 0 ].b.c === '7', JSON.stringify( b ) );
+check( 'api: acceptAll writes the cookie and returns the new state', /uxs_consent=1\.3\.7\./.test( r.doc.cookie ) && r.win.apiResult.marketing === true && r.win.apiResult.necessary === true );
+check( 'api: acceptAll pushes uxc_consent with source user', uxc( r.win.dataLayer || [] ).some( ( x ) => x.uxc_source === 'user' && x.uxc_marketing === true ) );
+
+r = await runUi( '', withText, { steps: ( { win } ) => win.uxConsent.rejectAll() } );
+b = r.calls.beacon;
+check( 'api: rejectAll records reject_all with bits 0', b.length === 1 && b[ 0 ].b.a === 'reject_all' && b[ 0 ].b.c === '0' && /uxs_consent=1\.3\.0\./.test( r.doc.cookie ), JSON.stringify( b ) );
+
+r = await runUi( '', withText, { steps: ( { win } ) => win.uxConsent.set( { statistics: true, marketing: 0, junk: true } ) } );
+b = r.calls.beacon;
+check( 'api: set records a custom decision with only the named categories', b.length === 1 && b[ 0 ].b.a === 'custom' && b[ 0 ].b.c === '2' && /uxs_consent=1\.3\.2\./.test( r.doc.cookie ), JSON.stringify( b ) );
+
+r = await runUi( 'uxs_consent=1.3.7.1731000000.' + stored, withText, { steps: ( { win } ) => win.uxConsent.rejectAll() } );
+b = r.calls.beacon;
+check( 'api: rejectAll after accepting is a withdraw with the same id', b.length === 1 && b[ 0 ].b.a === 'withdraw' && b[ 0 ].b.id === stored, JSON.stringify( b ) );
+
+// ---------- choices made in the old banner (Complianz cookies) ----------
+const leg = { leg: { p: 'cmplz_', v: 7 }, ...withText };
+const old = ( extra = '' ) => 'cmplz_banner-status=dismissed; cmplz_policy_id=7; cmplz_functional=allow; cmplz_preferences=allow; cmplz_statistics=allow; cmplz_marketing=deny' + extra;
+r = await runUi( old(), leg );
+e = uxc( r.win.dataLayer || [] );
+check( 'legacy: an old Complianz choice becomes our cookie (preferences + statistics)', /uxs_consent=1\.3\.3\.\d+\.[a-f0-9]{32}/.test( r.doc.cookie ), r.doc.cookie );
+check( 'legacy: the banner is not shown and the event has source import', e.length === 1 && e[ 0 ].uxc_source === 'import' && e[ 0 ].uxc_statistics === true && e[ 0 ].uxc_marketing === false && r.body.querySelectorAll( 'button' ).filter( ( x ) => x.textContent === TX.accept ).length === 0, JSON.stringify( e ) );
+check( 'legacy: taking over is not reported as a visitor decision', r.calls.beacon.length === 0 && r.calls.fetch.length === 0 );
+
+r = await runUi( old().replace( 'policy_id=7', 'policy_id=6' ), leg );
+check( 'legacy: another policy number is ignored, the banner asks', ! /uxs_consent=/.test( r.doc.cookie ) && r.body.querySelectorAll( 'button' ).some( ( x ) => x.textContent === TX.accept ) );
+
+r = await runUi( 'cmplz_policy_id=7; cmplz_marketing=allow', leg );
+check( 'legacy: a banner that was never dismissed is ignored', ! /uxs_consent=/.test( r.doc.cookie ) );
+
+r = await runUi( 'cmplz_banner-status=dismissed; cmplz_policy_id=7', leg );
+check( 'legacy: no category cookie means no decision to take over', ! /uxs_consent=/.test( r.doc.cookie ) );
+
+r = await runUi( old( '; uxs_consent=1.3.4.1731000000' ), leg );
+check( 'legacy: an existing choice of ours wins over the old cookies', /uxs_consent=1\.3\.4\.1731000000/.test( r.doc.cookie ) && uxc( r.win.dataLayer || [] )[ 0 ].uxc_source === 'stored' );
+
+r = await runUi( old(), withText );
+check( 'legacy: without the setting the old cookies are not read', ! /uxs_consent=/.test( r.doc.cookie ) );
+
+r = await runUi( old(), { ...withText, leg: { p: 'x;y', v: 7 } } );
+check( 'legacy: a prefix with odd characters is refused', ! /uxs_consent=/.test( r.doc.cookie ) );
+
 console.log( failures === 0 ? 'ALL OK' : failures + ' FAILED' );
 process.exit( failures === 0 ? 0 : 1 );

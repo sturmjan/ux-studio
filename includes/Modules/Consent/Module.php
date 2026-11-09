@@ -43,6 +43,7 @@ final class Module extends BaseModule {
 		Records::boot();
 		Legal::boot();
 		Scan::boot();
+		ComplianzCompat::boot();
 
 		add_action( 'init', array( $this, 'init' ) );
 		add_action( 'rest_api_init', array( Geo::class, 'register_routes' ) );
@@ -413,6 +414,14 @@ final class Module extends BaseModule {
 			// Where the banner reports a decision (consent records, phase F5). Absent = nothing is reported.
 			$config['rec'] = esc_url_raw( rest_url( 'uxstudio/v1/consent/record' ) );
 		}
+		// A returning visitor of the old banner (Complianz) keeps the choice; only while the owner has this switched on.
+		$legacy = strtolower( trim( (string) $s->get( 'legacy_prefix', '' ) ) );
+		if ( 1 === preg_match( '/^[a-z0-9_]{1,20}$/', $legacy ) ) {
+			$config['leg'] = array(
+				'p' => $legacy,
+				'v' => max( 0, (int) $s->get( 'legacy_policy_id', 0 ) ),
+			);
+		}
 		if ( $eu_only ) {
 			$config['geo'] = esc_url_raw( rest_url( 'uxstudio/v1/consent/region' ) );
 		}
@@ -513,6 +522,21 @@ final class Module extends BaseModule {
 				'type'    => 'number',
 				'label'   => __( 'Remember the choice for (days)', 'ux-studio' ),
 				'default' => 365,
+			),
+			array(
+				'key'     => 'legacy_prefix',
+				'section' => $display,
+				'type'    => 'text',
+				'label'   => __( 'Take over choices from the old banner (cookie name prefix)', 'ux-studio' ),
+				'default' => '',
+			),
+			array(
+				'key'     => 'legacy_policy_id',
+				'section' => $display,
+				'type'    => 'number',
+				'label'   => __( 'Policy number of the old banner', 'ux-studio' ),
+				'default' => 0,
+				'show_if' => array( 'key' => 'legacy_prefix', 'truthy' => true ),
 			),
 			array(
 				'key'     => 'show_reopen',

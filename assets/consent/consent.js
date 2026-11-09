@@ -9,7 +9,8 @@
  * Blocked script: <script type="text/plain" data-uxc="statistics marketing"> (any of the listed categories releases it).
  * Blocked iframe: <iframe data-uxc="marketing" data-uxc-src="..." data-uxc-service="YouTube">.
  *
- * Public API: window.uxConsent.has( category ), .get(), .open(); event `uxstudio:consent` on document;
+ * Public API: window.uxConsent.has( category ), .get(), .open(), and for automation the same as the buttons (consent records and
+ * the `uxc_consent` event included): .acceptAll(), .rejectAll(), .set( { preferences, statistics, marketing } ); event `uxstudio:consent` on document;
  * window.uxstudioConsent = { preferences, statistics, marketing } (read by the Forms conversion tracking).
  */
 ( function () {
@@ -121,6 +122,30 @@
 		doc.cookie = NAME + '=' + value + ';max-age=' + cfg.days * 86400 + ';path=/;SameSite=Lax' + ( win.location.protocol === 'https:' ? ';Secure' : '' );
 	}
 
+	// Migration from another banner (cfg.leg = { p: cookie prefix, v: policy number }): the visitor's choice in the old
+	// cookies is taken over once, so nobody is asked again. Only a dismissed banner and the same policy number count.
+	function legacy() {
+		var l = cfg.leg;
+		if ( ! l || ! /^[a-z0-9_]{1,20}$/.test( l.p || '' ) ) {
+			return null;
+		}
+		var get = function ( n ) {
+			var m = new RegExp( '(?:^|; )' + l.p + n + '=([^;]*)' ).exec( doc.cookie );
+			return m ? decodeURIComponent( m[ 1 ] ) : '';
+		};
+		if ( get( 'banner-status' ) !== 'dismissed' || ( l.v && +get( 'policy_id' ) !== l.v ) ) {
+			return null;
+		}
+		var st = {};
+		var seen = false;
+		CATS.forEach( function ( c ) {
+			var v = get( c );
+			seen = seen || !! v;
+			st[ c ] = v === 'allow';
+		} );
+		return seen ? st : null;
+	}
+
 	function has( category ) {
 		if ( category === 'necessary' ) {
 			return true;
@@ -143,7 +168,7 @@
 		win.uxstudioConsent = s;
 		// A stored choice was already sent by the inline defaults script, so only a new decision needs an update.
 		// It goes before the event below, so a Google tag fired by that event already sees the new state.
-		if ( cfg.gcm && ( source === 'user' || source === 'region' ) ) {
+		if ( cfg.gcm && ( source === 'user' || source === 'region' || source === 'import' ) ) {
 			var g = function ( on ) {
 				return on ? 'granted' : 'denied';
 			};
@@ -601,6 +626,19 @@
 	function start() {
 		state = readCookie();
 		cid = cookieId();
+		var old = state ? null : legacy();
+		if ( old ) {
+			// Not reported as a decision of the visitor (nothing new was decided); the old banner holds that record.
+			state = old;
+			cid = newId();
+			writeCookie( state );
+			signal( 'import' );
+			scan();
+			if ( cfg.fab ) {
+				showFab();
+			}
+			return;
+		}
 		if ( state ) {
 			signal( 'stored' );
 			scan();
@@ -639,11 +677,29 @@
 			} );
 	}
 
+	function choose( choice, kind ) {
+		commit( choice, kind );
+		return snapshot();
+	}
+
 	win.uxConsent = {
 		has: has,
 		get: snapshot,
 		open: function () {
 			open( doc.activeElement );
+		},
+		acceptAll: function () {
+			return choose( { preferences: 1, statistics: 1, marketing: 1 }, 'accept_all' );
+		},
+		rejectAll: function () {
+			return choose( {}, 'reject_all' );
+		},
+		set: function ( c ) {
+			var choice = {};
+			CATS.forEach( function ( k ) {
+				choice[ k ] = !! ( c && c[ k ] );
+			} );
+			return choose( choice, 'custom' );
 		},
 	};
 
