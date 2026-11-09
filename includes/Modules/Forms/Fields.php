@@ -186,6 +186,8 @@ final class Fields {
 			$clean['accept']     = self::sanitize_accept( $field['accept'] ?? array() );
 			$clean['max_size_mb'] = max( 1, min( 50, (int) ( $field['max_size_mb'] ?? 10 ) ) );
 			$clean['multiple']   = ! empty( $field['multiple'] );
+			$clean['max_files']  = max( 1, min( 20, (int) ( $field['max_files'] ?? 8 ) ) );
+			$clean['collapsible'] = ! empty( $field['collapsible'] );
 		}
 
 		return $clean;

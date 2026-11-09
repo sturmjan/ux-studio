@@ -329,6 +329,9 @@ final class PublicRenderer {
 		} elseif ( $is_check && $hide ) {
 			// The checkbox's own text IS its label (and its accessible name), a second hidden label would only repeat it.
 			$group_label = '';
+		} elseif ( 'file' === $type && ! empty( $field['collapsible'] ) ) {
+			// The collapsible card's <summary> carries the label.
+			$group_label = '';
 		} elseif ( $is_group ) {
 			$group_label = $uid . '-label';
 			printf(
@@ -349,7 +352,7 @@ final class PublicRenderer {
 			);
 		}
 
-		echo $this->render_control( $field, $uid, $placeholder, $is_check && $hide && $required, $group_label ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo $this->render_control( $field, $uid, $placeholder, $is_check && $hide && $required, $group_label, $star ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '<span class="uxs-fp-error" id="' . esc_attr( $uid ) . '-err" data-uxs-field-error></span>';
 		echo '</div>';
 
@@ -360,7 +363,7 @@ final class PublicRenderer {
 	 * @param bool   $inline_star True when the required star must sit in the control's own text (its label is not drawn).
 	 * @param string $group_label Id of the element that names a radio / checkbox group.
 	 */
-	private function render_control( array $field, string $uid, string $placeholder, bool $inline_star = false, string $group_label = '' ): string {
+	private function render_control( array $field, string $uid, string $placeholder, bool $inline_star = false, string $group_label = '', string $label_star = '' ): string {
 		$type     = (string) $field['type'];
 		$key      = (string) $field['key'];
 		$required = ! empty( $field['required'] ) ? ' required' : '';
@@ -460,17 +463,51 @@ final class PublicRenderer {
 				);
 
 			case 'file':
-				$accept   = implode( ',', array_map( static fn( $e ) => '.' . $e, (array) ( $field['accept'] ?? array() ) ) );
-				$multiple = ! empty( $field['multiple'] ) ? ' multiple' : '';
-				return sprintf(
-					'<div class="uxs-fp-dropzone" data-uxs-dropzone><input type="file" id="%1$s" name="file_%2$s%3$s" accept="%4$s"%5$s%6$s><p class="uxs-fp-dropzone__hint">%7$s</p><ul class="uxs-fp-files" data-uxs-file-list></ul></div>',
+				$exts      = (array) ( $field['accept'] ?? array() );
+				$accept    = implode( ',', array_map( static fn( $e ) => '.' . $e, $exts ) );
+				$is_multi  = ! empty( $field['multiple'] );
+				$multiple  = $is_multi ? ' multiple' : '';
+				$max_mb    = max( 1, min( 50, (int) ( $field['max_size_mb'] ?? 10 ) ) );
+				$max_files = $is_multi ? max( 1, min( 20, (int) ( $field['max_files'] ?? 8 ) ) ) : 1;
+				$types     = strtoupper( implode( ', ', $exts ) );
+				$limits    = $is_multi
+					? sprintf(
+						/* translators: 1: max files, 2: max size in MB. */
+						__( 'Up to %1$d files, each up to %2$d MB.', 'ux-studio' ),
+						$max_files,
+						$max_mb
+					)
+					: sprintf(
+						/* translators: %d: max size in MB. */
+						__( 'Up to %d MB.', 'ux-studio' ),
+						$max_mb
+					);
+				if ( '' !== $types ) {
+					$limits .= ' (' . $types . ')';
+				}
+				$zone = sprintf(
+					'<div class="uxs-fp-dropzone" data-uxs-dropzone data-max-files="%8$d" data-max-mb="%9$d"><input type="file" id="%1$s" name="file_%2$s%3$s" accept="%4$s"%5$s%6$s><p class="uxs-fp-dropzone__hint"><strong>%7$s</strong> <span>%11$s</span><small>%10$s</small></p></div><ul class="uxs-fp-files" data-uxs-file-list></ul>',
 					esc_attr( $uid ),
 					$name,
-					$multiple ? '[]' : '',
+					$is_multi ? '[]' : '',
 					esc_attr( $accept ),
 					$multiple,
 					$required,
-					esc_html__( 'Drag & drop a file here, or click to choose.', 'ux-studio' )
+					esc_html( $is_multi ? __( 'Drag & drop files here', 'ux-studio' ) : __( 'Drag & drop a file here', 'ux-studio' ) ),
+					$max_files,
+					$max_mb,
+					esc_html( $limits ),
+					esc_html__( 'or click to choose.', 'ux-studio' )
+				);
+				if ( empty( $field['collapsible'] ) ) {
+					return '<div class="uxs-fp-filewrap">' . $zone . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				}
+				return sprintf(
+					'<details class="uxs-fp-collapse" data-uxs-collapse><summary><span class="uxs-fp-collapse__title">%1$s%2$s%3$s</span><svg class="uxs-fp-collapse__chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>%4$s</details>',
+					esc_html( (string) $field['label'] ),
+					$label_star, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					'' !== $placeholder ? ' <small>(' . esc_html( $placeholder ) . ')</small>' : '',
+					$zone // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				);
 
 			case 'signature':
@@ -640,6 +677,22 @@ final class PublicRenderer {
 		.uxs-fp-dropzone.is-dragover{border-color:#2563eb;background:rgba(37,99,235,.05);}
 		.uxs-fp-dropzone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
 		.uxs-fp-dropzone__hint{margin:0;font-size:13px;color:#6b7280;}
+		.uxs-fp-dropzone__hint strong{color:inherit;font-weight:600;}
+		.uxs-fp-dropzone__hint small{display:block;margin-top:4px;font-size:12px;opacity:.8;}
+		.uxs-fp-dropzone{cursor:pointer;}
+		.uxs-fp-files{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:6px;}
+		.uxs-fp-files li{display:flex;align-items:center;gap:10px;font-size:13px;}
+		.uxs-fp-files img{width:36px;height:36px;object-fit:cover;border-radius:4px;flex:none;}
+		.uxs-fp-files .uxs-fp-files__name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+		.uxs-fp-files button{background:none;border:0;cursor:pointer;font-size:18px;line-height:1;color:inherit;opacity:.7;}
+		.uxs-fp-collapse{border:1px solid #d1d5db;border-radius:8px;padding:0 14px;}
+		.uxs-fp-collapse>summary{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;list-style:none;padding:12px 0;font-weight:600;}
+		.uxs-fp-collapse>summary::-webkit-details-marker{display:none;}
+		.uxs-fp-collapse>summary small{font-weight:400;opacity:.7;}
+		.uxs-fp-collapse__chev{transition:transform .2s;flex:none;}
+		.uxs-fp-collapse[open] .uxs-fp-collapse__chev{transform:rotate(180deg);}
+		.uxs-fp-collapse[open]>summary{padding-bottom:10px;}
+		.uxs-fp-collapse .uxs-fp-files{margin-bottom:14px;}
 		.uxs-fp-files{list-style:none;margin:10px 0 0;padding:0;font-size:13px;text-align:left;}
 		.uxs-fp-files li{padding:2px 0;color:#1f2937;}
 		.uxs-fp-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
@@ -803,7 +856,7 @@ final class PublicRenderer {
 						values[ key ] = Array.prototype.filter.call( inputs, function ( i ) { return i.checked; } ).map( function ( i ) { return i.value; } );
 					} else if ( inputs[ 0 ].type === 'checkbox' ) {
 						values[ key ] = inputs[ 0 ].checked ? '1' : '';
-					} else if ( inputs[ 0 ].multiple ) {
+					} else if ( inputs[ 0 ].multiple && inputs[ 0 ].options ) {
 						values[ key ] = Array.prototype.filter.call( inputs[ 0 ].options, function ( o ) { return o.selected; } ).map( function ( o ) { return o.value; } );
 					} else {
 						values[ key ] = inputs[ 0 ].value;
@@ -854,17 +907,70 @@ final class PublicRenderer {
 			function setupDropzone( wrap ) {
 				var zone  = wrap.querySelector( '[data-uxs-dropzone]' );
 				var input = zone ? zone.querySelector( 'input[type=file]' ) : null;
-				var list  = zone ? zone.querySelector( '[data-uxs-file-list]' ) : null;
-				if ( ! zone || ! input ) { return; }
+				var list  = wrap.querySelector( '[data-uxs-file-list]' );
+				var error = wrap.querySelector( '[data-uxs-field-error]' );
+				var card  = wrap.querySelector( '[data-uxs-collapse]' );
+				if ( ! zone || ! input || ! list ) { return; }
+				var maxFiles = parseInt( zone.getAttribute( 'data-max-files' ), 10 ) || 1;
+				var maxBytes = ( parseInt( zone.getAttribute( 'data-max-mb' ), 10 ) || 10 ) * 1048576;
+				var multiple = input.multiple;
+				var accept   = ( input.getAttribute( 'accept' ) || '' ).split( ',' ).filter( Boolean );
+				var files    = [];
+
+				function allowed( f ) {
+					if ( ! accept.length ) { return true; }
+					var name = f.name.toLowerCase();
+					return accept.some( function ( a ) { return name.slice( -a.length ) === a.toLowerCase(); } );
+				}
+				function sync() {
+					try {
+						var dt = new DataTransfer();
+						files.forEach( function ( f ) { dt.items.add( f ); } );
+						input.files = dt.files;
+					} catch ( err ) { /* old browser: keep the native selection */ }
+				}
 				function renderList() {
 					list.innerHTML = '';
-					Array.prototype.forEach.call( input.files, function ( f ) {
+					files.forEach( function ( f, i ) {
 						var li = document.createElement( 'li' );
-						li.textContent = f.name + ' (' + Math.round( f.size / 1024 ) + ' KB)';
+						if ( /^image\//.test( f.type ) ) {
+							var im = document.createElement( 'img' );
+							im.alt = '';
+							im.src = URL.createObjectURL( f );
+							im.onload = function () { URL.revokeObjectURL( im.src ); };
+							li.appendChild( im );
+						}
+						var n = document.createElement( 'span' );
+						n.className = 'uxs-fp-files__name';
+						n.textContent = f.name + ' (' + ( f.size / 1048576 ).toFixed( 1 ) + ' MB)';
+						var b = document.createElement( 'button' );
+						b.type = 'button';
+						b.setAttribute( 'aria-label', cfg.i18n.removeChip );
+						b.textContent = '\u00d7';
+						b.addEventListener( 'click', function () { files.splice( i, 1 ); sync(); renderList(); } );
+						li.appendChild( n );
+						li.appendChild( b );
 						list.appendChild( li );
 					} );
 				}
-				input.addEventListener( 'change', renderList );
+				function add( incoming ) {
+					var rejected = false;
+					Array.prototype.forEach.call( incoming, function ( f ) {
+						if ( ! multiple ) { files = []; }
+						if ( files.length >= maxFiles || ! allowed( f ) || f.size > maxBytes ) { rejected = true; return; }
+						if ( files.some( function ( x ) { return x.name === f.name && x.size === f.size; } ) ) { return; }
+						files.push( f );
+					} );
+					sync();
+					renderList();
+					if ( error ) { error.textContent = rejected ? cfg.i18n.invalid : ''; }
+				}
+				input.addEventListener( 'change', function () {
+					// The native list replaces our state on each pick, so merge instead.
+					var picked = Array.prototype.slice.call( input.files );
+					add( picked );
+				} );
+				input.addEventListener( 'invalid', function () { if ( card ) { card.open = true; } } );
 				[ 'dragenter', 'dragover' ].forEach( function ( evt ) {
 					zone.addEventListener( evt, function ( e ) { e.preventDefault(); zone.classList.add( 'is-dragover' ); } );
 				} );
@@ -873,8 +979,7 @@ final class PublicRenderer {
 				} );
 				zone.addEventListener( 'drop', function ( e ) {
 					if ( e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length ) {
-						input.files = e.dataTransfer.files;
-						renderList();
+						add( e.dataTransfer.files );
 					}
 				} );
 			}

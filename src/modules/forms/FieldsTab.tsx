@@ -328,6 +328,26 @@ function Inspector( {
 											{ __( 'Allow multiple files', 'ux-studio' ) }
 										</AnimatedCheckbox>
 									</div>
+									{ field.multiple && (
+										<div className="uxs-form__row">
+											<label>{ __( 'Max number of files', 'ux-studio' ) }</label>
+											<input
+												type="number"
+												min={ 1 }
+												max={ 20 }
+												value={ field.max_files ?? 8 }
+												onChange={ ( e ) => onChange( { max_files: Number( e.target.value ) } ) }
+											/>
+										</div>
+									) }
+									<div className="uxs-form__row">
+										<AnimatedCheckbox isSelected={ !! field.collapsible } onChange={ ( isSelected ) => onChange( { collapsible: isSelected } ) }>
+											{ __( 'Collapsible (drop-down card)', 'ux-studio' ) }
+										</AnimatedCheckbox>
+										<p className="uxs-form__help">
+											{ __( 'The upload area is hidden behind a card with the field label that visitors click to open. The placeholder text is shown next to the label as a hint.', 'ux-studio' ) }
+										</p>
+									</div>
 									<div className="uxs-form__row">
 										<label>{ __( 'Max size (MB)', 'ux-studio' ) }</label>
 										<input

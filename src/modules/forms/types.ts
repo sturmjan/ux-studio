@@ -83,6 +83,8 @@ export interface FormField {
 	accept?: string[];
 	max_size_mb?: number;
 	multiple?: boolean;
+	max_files?: number;
+	collapsible?: boolean;
 }
 
 export type EmailTemplate = 'minimal' | 'card' | 'branded' | 'custom';

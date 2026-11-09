@@ -1,10 +1,10 @@
 /**
  * Form Builder landing screen: list of forms + create/delete + shortcode hint.
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Archive, Copy, Inbox, LoaderCircle, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Archive, Copy, Inbox, LoaderCircle, Plus, Trash2, X } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import TemplateGallery from './TemplateGallery';
@@ -40,19 +40,24 @@ function ShortcodeBadge( { id }: { id: number } ): JSX.Element {
 
 export default function FormsList( { onOpen }: { onOpen: ( id: number ) => void } ): JSX.Element {
 	const [ newTitle, setNewTitle ] = useState( '' );
+	const [ creating, setCreating ] = useState( false );
+
+	useEffect( () => {
+		if ( ! creating ) {
+			return;
+		}
+		const onKey = ( e: KeyboardEvent ): void => {
+			if ( 'Escape' === e.key ) {
+				setCreating( false );
+			}
+		};
+		window.addEventListener( 'keydown', onKey );
+		return () => window.removeEventListener( 'keydown', onKey );
+	}, [ creating ] );
 
 	const query = useQuery( {
 		queryKey: [ 'forms', 'list' ],
 		queryFn: () => api< FormListItem[] >( 'forms' ),
-	} );
-
-	const create = useMutation( {
-		mutationFn: () => api< { id: number } >( 'forms', { method: 'POST', body: JSON.stringify( { title: newTitle, status: 'draft' } ) } ),
-		onSuccess: ( form ) => {
-			setNewTitle( '' );
-			void queryClient.invalidateQueries( { queryKey: [ 'forms', 'list' ] } );
-			onOpen( form.id );
-		},
 	} );
 
 	const remove = useMutation( {
@@ -74,51 +79,61 @@ export default function FormsList( { onOpen }: { onOpen: ( id: number ) => void 
 					</button>{ ' ' }
 					{ __( 'Form Builder', 'ux-studio' ) }
 				</h1>
-				<button
-					type="button"
-					className="button"
-					onClick={ () => navigate( 'module', { id: 'forms', tab: 'archive' } ) }
-				>
-					<Archive size={ 14 } /> { __( 'Submission archive', 'ux-studio' ) }
-				</button>
+				<span style={ { display: 'inline-flex', gap: 'var(--uxs-sp-2)' } }>
+					<button
+						type="button"
+						className="button"
+						onClick={ () => navigate( 'module', { id: 'forms', tab: 'archive' } ) }
+					>
+						<Archive size={ 14 } /> { __( 'Submission archive', 'ux-studio' ) }
+					</button>
+					<button type="button" className="button button-primary" onClick={ () => setCreating( true ) }>
+						<Plus size={ 14 } /> { __( 'New form', 'ux-studio' ) }
+					</button>
+				</span>
 			</header>
 
-			<div className="uxs-form uxs-form--inline" style={ { marginBottom: 'var(--uxs-sp-5)' } }>
-				<div className="uxs-form__row">
-					<label htmlFor="uxs-new-form-title">{ __( 'New form title', 'ux-studio' ) }</label>
-					<input
-						id="uxs-new-form-title"
-						type="text"
-						value={ newTitle }
-						onChange={ ( e ) => setNewTitle( e.target.value ) }
-						placeholder={ __( 'e.g. Contact form', 'ux-studio' ) }
-					/>
-					<p className="uxs-form__help">{ __( 'The name of the form. It is for you in the list, visitors do not see it unless you show it in the form.', 'ux-studio' ) }</p>
+			{ creating && (
+				<div className="uxs-overlay" onClick={ () => setCreating( false ) }>
+					<div className="uxs-modal uxs-newform" role="dialog" aria-modal="true" aria-labelledby="uxs-newform-title" onClick={ ( e ) => e.stopPropagation() }>
+						<div className="uxs-newform__head">
+							<h2 id="uxs-newform-title">{ __( 'New form', 'ux-studio' ) }</h2>
+							<button type="button" className="button-link" aria-label={ __( 'Close', 'ux-studio' ) } onClick={ () => setCreating( false ) }>
+								<X size={ 18 } />
+							</button>
+						</div>
+						<div className="uxs-form uxs-form--stacked">
+							<div className="uxs-form__row">
+								<label htmlFor="uxs-new-form-title">{ __( 'New form title', 'ux-studio' ) }</label>
+								<input
+									id="uxs-new-form-title"
+									type="text"
+									value={ newTitle }
+									autoFocus
+									onChange={ ( e ) => setNewTitle( e.target.value ) }
+									placeholder={ __( 'e.g. Contact form', 'ux-studio' ) }
+								/>
+								<p className="uxs-form__help">{ __( 'The name of the form. It is for you in the list, visitors do not see it unless you show it in the form.', 'ux-studio' ) }</p>
+							</div>
+						</div>
+						<TemplateGallery
+							title={ newTitle.trim() }
+							onCreated={ ( id ) => {
+								setNewTitle( '' );
+								setCreating( false );
+								onOpen( id );
+							} }
+						/>
+					</div>
 				</div>
-				<button
-					type="button"
-					className="button button-primary"
-					disabled={ ! newTitle || create.isPending }
-					onClick={ () => create.mutate() }
-				>
-					{ create.isPending ? <LoaderCircle size={ 14 } /> : <Plus size={ 14 } /> } { __( 'Add form', 'ux-studio' ) }
-				</button>
-			</div>
-
-			<TemplateGallery
-				title={ newTitle.trim() }
-				onCreated={ ( id ) => {
-					setNewTitle( '' );
-					onOpen( id );
-				} }
-			/>
+			) }
 
 			{ query.isLoading ? (
 				<div className="uxs-loading">
 					<LoaderCircle size={ 24 } aria-label={ __( 'Loading…', 'ux-studio' ) } />
 				</div>
 			) : ! query.data || query.data.length === 0 ? (
-				<p>{ __( 'No forms yet - add your first one above.', 'ux-studio' ) }</p>
+				<p>{ __( 'No forms yet - add your first one with the New form button.', 'ux-studio' ) }</p>
 			) : (
 				<div className="uxs-table-wrap"><table className="uxs-table">
 					<thead>

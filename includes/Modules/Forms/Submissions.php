@@ -235,6 +235,15 @@ final class Submissions {
 		}
 		if ( empty( $field['multiple'] ) ) {
 			$list = array( $list[0] );
+		} else {
+			$max_files = max( 1, min( 20, (int) ( $field['max_files'] ?? 8 ) ) );
+			if ( count( $list ) > $max_files ) {
+				return new WP_Error(
+					'uxstudio_forms_too_many_files',
+					/* translators: %d: maximum number of files. */
+					sprintf( __( 'You can attach at most %d files.', 'ux-studio' ), $max_files )
+				);
+			}
 		}
 
 		$stored = array();
