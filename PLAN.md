@@ -4106,3 +4106,164 @@ proti CA z worktree `_ca-wt-identity` s čerstvou DB `ca_e2e` (všech 116 migrac
 - Zbývá: Facebook u veřejné URL (lokální `localhost` Facebook nestáhne, CA přesto hlásí OK s prázdným titulkem:
   zvážit hlášení „Facebook nenašel titulek ani obrázek"), IndexNow 200/202 u veřejného webu, nginx, názvy voleb
   IndexNow v Rank Math / Yoast.
+
+## 42. Cookies, souhlas a právní stránky - modul `consent` (2026-10-21, F1 rozpracováno 2026-11-09)
+
+> Číslo 42, protože 41 už má větev s mapami a 26 je obsazené migračním průvodcem. Plán se přesunul ze staré větve, kde měl číslo 26.
+
+Zadání uživatele: Complianz zdržuje weby. Nahradit ho vlastním modulem, který zvládne
+cookie lištu, analýzu všech skriptů a cookies a vygenerování všech právních stránek
+(zásady cookies, ochrana osobních údajů, obchodní podmínky).
+
+### 42.1 Výchozí měření - autoservisvydra.cz (2026-10-21, Playwright)
+
+Complianz 7.5.6, opt-in, region `eu`, před ním WP Rocket, server openresty. Curl bez
+prohlížeče dostane od firewallu 466, sken proto musí jít přes skutečný prohlížeč.
+
+| Co | Hodnota |
+|---|---|
+| Studený load (bez keše) | TTFB 695 ms, DCL 1826 ms, load 2913 ms |
+| Teplý load (WP Rocket) | TTFB 41 ms, DCL 304 ms, load 605 ms |
+| Assety Complianzu | `complianz.min.js` 12 KB / 45 KB rozbaleno (470 ms), `banner-1-optin.css` 7,8 / 42 KB, `cookieblocker.min.css` 1 / 2,7 KB |
+| V DOM | 78 uzlů `cmplz`, 1,8 kB inline skriptů, 2 placeholdery |
+| Celá stránka | 59 požadavků, 643 KB, HTML 349 KB rozbaleno |
+
+Zjištění:
+- Na frontendu stojí Complianz ~21 KB přenosu a ~90 KB rozbaleného JS+CSS. Na lištu je to
+  hodně, ale ne dramatické. **Kolik stojí na serveru (output buffer, TTFB 695 ms bez keše),
+  zjistí jen srovnání s vypnutým pluginem** - viz F0.
+- Google Consent Mode v2 běží v režimu *advanced*: GTM a gtag se načtou před souhlasem
+  a posílají bezcookiové pingy (`gcs=G100`, `npa=1`) na GA4 i Google Ads. Modul musí umět
+  basic i advanced.
+- Web má dvě GA4 property (`G-9REVSBTW6T`, `G-RRTZTW8TRF`) a Google Ads `AW-16653764254`
+  přes GTM `GTM-M2H8FV7L`. Sken je musí najít a přiřadit službám.
+- V DOM lišty visí nevyrenderovaný text „Správa {vendor_count} prodejců" (šablona TCF,
+  přestože TCF je vypnuté). Příklad, čemu se vyhnout.
+- Právní stránky `/prace-s-cookies/` a `/gdpr/` vygeneroval Complianz. Při migraci zachovat URL.
+
+### 42.2 Rozhodnutí
+
+| Téma | Rozhodnutí |
+|---|---|
+| Umístění | Nový modul `consent` (skupina C, vlastní SPA stránka). Ne přílepek k `security-optimization`. |
+| Výkon | Žádná logika per návštěvník v PHP. Lišta staticky v patičce, stav souhlasu jen v cookie + JS ⇒ plně kešovatelné (WP Rocket, LiteSpeed). Cíl: JS ≤ 5 KB gzip, CSS inline ≤ 3 KB. |
+| Blokování | Primárně přes `script_loader_tag` (registrované skripty → `type="text/plain" data-consent="…"`) a přímé napojení Pixel Tag Manageru a GTM Kitu. Buffer stránky jen jako volitelná pojistka pro natvrdo vložené skripty, běží jen při tvorbě keše. |
+| Komu lištu zobrazit | **Nastavení**, výchozí „všem". Volba „jen EU/EHP" (plus GB a CH) pozná zemi z hlavičky `CF-IPCountry` (za Cloudflare) přes malý veřejný endpoint `consent/region`, který se nekešuje; stránka sama zůstává kešovatelná. Když hlavička chybí nebo endpoint neodpoví, lišta se **zobrazí** (bezpečnější směr). Mimo EU se souhlas bere jako udělený a nic se neukládá. Žádná GeoIP DB v pluginu. |
+| Consent Mode v2 | Ano, nastavitelné per web: vypnuto / **basic (výchozí)** / advanced. `default` denied před jakýmkoli Google tagem, `update` po souhlasu. Basic = Google tagy se vůbec nenačtou, dokud není souhlas; advanced = načtou se hned a řídí se signálem. |
+| IAB TCF v2.2 | **Zahrnout** (rozhodnutí uživatele), ale jako samostatnou fázi a vypínatelně - viz past 42.8 (registrace CMP). |
+| Analýza | Dvě vrstvy: statická v pluginu (registrované skripty + CSP inventura), dynamická v CA (Playwright na NAS). |
+| Katalog | Jeden sdílený katalog služeb: rozšířit `CspServices` o cookies (název/vzor, účel, doba, kategorie, zpracovatel, země přenosu). Základ Open Cookie Database - **před použitím ověřit licenci**. |
+| Právní texty | Zásady cookies, ochrana osobních údajů **i obchodní podmínky**. Deterministické šablony + data z průvodce a skenu; volitelně AI jen na vlastní odstavce. Texty psané od nuly, od konkurence jen struktura (viz `feedback_neprebirat-texty-konkurence`). Šablony jednou zreviduje právník. |
+| Záznamy souhlasů | Ano (doklad dle čl. 7 odst. 1 GDPR): anonymní ID, čas, verze zásad, kategorie. **Bez IP.** Retence nastavitelná (výchozí 3 roky). |
+
+### 42.3 Frontend lišty
+
+- Vanilla JS bez závislostí, jeden soubor, `defer`; texty a nastavení jako inline JSON.
+- První vrstva: „Přijmout vše" / „Odmítnout" / „Nastavení", **stejně výrazná** tlačítka
+  (§89 ZEK, ÚOOÚ). Žádná předzaškrtnutá políčka, žádná cookie wall.
+- Kategorie: nezbytné (vždy), preference, statistika, marketing. U každé výpis služeb.
+- Platnost souhlasu max 12 měsíců. Změna verze zásad nebo nová marketingová služba ⇒ znovu.
+- Trvalý přístup ke změně: shortcode/blok „Nastavení cookies" + volitelná plovoucí ikonka.
+- Iframe (YouTube, Vimeo, Google Maps, Mapy.cz) ⇒ placeholder s tlačítkem „Načíst";
+  YouTube přes `youtube-nocookie.com`.
+- Událost `uxstudio:consent` (CustomEvent) + `window.uxConsent.has('marketing')` pro vlastní kód.
+- Vzhled: barvy/pozice/zaoblení z nastavení. Přístupnost: focus trap v detailu, ESC,
+  `role="dialog"`, kontrast - ověřit axe-core.
+
+### 42.4 Analýza skriptů a cookies
+
+**Statická (plugin, bez prohlížeče):**
+- `wp_scripts`/`wp_styles` na vzorku stránek + domény z CSP inventury ⇒ seznam externích hostů.
+- Mapování host ⇒ služba ⇒ kategorie přes katalog. Neznámé hosty jdou do fronty „k zařazení".
+
+**Dynamická (CA, Playwright na NAS, stejná infrastruktura jako vizuální monitoring a axe-core):**
+- Projde N stránek ze sitemapy (home, kontakt, produkt, košík…) **bez souhlasu**, pak po
+  „Přijmout vše" a pak po „Odmítnout".
+- Zaznamená cookies (vč. httpOnly z `context.cookies()`), localStorage/sessionStorage,
+  síťové požadavky a ID měřicích kódů (GA4, AW, GTM, FB pixel).
+- **Hlásí porušení:** cookie nebo požadavek marketingové služby před souhlasem nebo po odmítnutí.
+- Výsledek jde přes API do pluginu (podepsaný požadavek jako ostatní volání CA ↔ UX Studio).
+- Rozvrh: měsíčně + ručně z adminu. Nová neznámá cookie ⇒ upozornění, přehled flotily v CA.
+- Hlavička `X-UX1-Monitor` (viz `reference_monitoring-firewall-vyjimky`), jinak firewall
+  jako na autoservisvydra sken zablokuje.
+
+### 42.5 Generátor právních stránek
+
+Průvodce se vyplní jednou za web a data sdílí všechny dokumenty: správce, IČO/DIČ, sídlo,
+kontakty, pověřenec (ano/ne), účely zpracování, provozovna, e-shop ano/ne. Zpracovatelé
+a přenosy mimo EU se **předvyplní ze skenu** (GA4, Google Ads, Smartsupp, Trustindex, Typekit…).
+
+| Dokument | Obsah | Dynamická část |
+|---|---|---|
+| Zásady cookies | co jsou cookies, kategorie, jak změnit souhlas | tabulka cookies a služeb živě z katalogu a skenu |
+| Ochrana osobních údajů (GDPR) | správce, účely + právní základy, příjemci, doba, práva subjektu, ÚOOÚ | zpracovatelé ze skenu, WooCommerce/formuláře podle aktivních modulů |
+| Obchodní podmínky (e-shop) | OZ §1810 a násl.: objednávka, cena, dodání, platba, odstoupení do 14 dní (+ vzorový formulář), reklamace, ODR/ČOI | doprava a platby z WooCommerce |
+
+- Renderování přes blok/shortcode ⇒ změna dat se propíše bez přegenerování.
+- Verze s datem „účinné od" a archiv starých verzí. Obchodní podmínky musí jít dohledat
+  ke dni objednávky, proto se verze uloží k objednávce.
+- Upozornění v adminu, když sken najde službu, která v zásadách chybí.
+
+### 42.6 IAB TCF v2.2 (samostatná fáze)
+
+- Stáhnout a cachovat Global Vendor List (týdně, lokálně, žádné volání z prohlížeče na cizí CDN).
+- Generovat TC string, `__tcfapi` stub v `<head>`, výběr dodavatelů v nastavení.
+- Zapínat jen na webech s AdSense/programatickou reklamou. Jinde vypnuto a **žádné TCF
+  texty v DOM**.
+
+### 42.7 Migrace z Complianzu
+
+- Import: kategorie, služby, texty lišty, barvy, údaje z průvodce (správce, IČO), ID stránek
+  `/prace-s-cookies/` a `/gdpr/` (zachovat URL, obsah nahradit blokem).
+- Stávající souhlasy návštěvníků (cookies `cmplz_*`) přečíst a převést, ať se lišta všem
+  neukáže znovu.
+- Předání přes `ConflictGuard` jako u ostatních modulů (Complianz vypnout až po ověření).
+- Po přepnutí smazat keš (WP Rocket) a ověřit dynamickým skenem.
+
+### 42.8 Pasti a rizika
+
+- **TCF vyžaduje registrovaný CMP** u IAB Europe (CMP ID, roční poplatek, audit). Bez
+  registrace je TC string neplatný. Před F7 ověřit podmínky a cenu. Může to být důvod TCF
+  nedělat a na reklamních webech nechat certifikovaný CMP.
+- **Kešování:** nic, co závisí na návštěvníkovi (region, souhlas), nesmí jít do HTML.
+- **Odpovědnost za texty:** šablony reviduje Claude (O1), ne advokát. Klient musí v adminu
+  vidět upozornění, že za obsah odpovídá on.
+- **Licence databáze cookies** (atribuce, stejně jako u Wordfence).
+- **Advanced Consent Mode** posílá pingy i bez souhlasu. Klientovi zdokumentovat, že jde
+  o volbu, ne chybu. Výchozí je basic.
+- **Firewally klientů** blokují sken bez prohlížeče nebo bez hlavičky (autoservisvydra: 466).
+
+### 42.9 Fáze
+
+- [ ] F0 Změřit Complianz na autoservisvydra.cz s pluginem a bez něj (studený TTFB, Benchmark z `page-load`), zapsat sem
+- [ ] F1 Lišta + kategorie + blokování přes `script_loader_tag` + napojení Pixel Tag Manager / GTM Kit
+- [ ] F1 Consent Mode v2 (basic/advanced), placeholdery iframe, shortcode „Nastavení cookies"
+- [ ] F1 Nastavení, komu lištu zobrazit (všem / jen EU přes `CF-IPCountry`)
+- [ ] F2 Rozšíření `CspServices` o cookies, import Open Cookie Database (po ověření licence)
+- [ ] F2 Statická inventura v pluginu + fronta „k zařazení"
+- [ ] F3 Playwright sken v CA (bez souhlasu / přijmout / odmítnout), API do pluginu, hlášení porušení
+- [ ] F3 Měsíční rozvrh, upozornění na novou cookie, přehled flotily v CA
+- [ ] F4 Průvodce údaji o správci + zásady cookies + ochrana osobních údajů (bloky, verze)
+- [ ] F4 Obchodní podmínky pro WooCommerce + uložení verze k objednávce
+- [ ] F4 Revize šablon (Claude) proti checklistu náležitostí a rozsahu témat Complianzu + kontrola podobnosti textů
+- [ ] F5 Záznamy souhlasů (tabulka, retence, export pro doložení)
+- [ ] F6 Migrace z Complianzu + předání přes ConflictGuard, pilot na autoservisvydra.cz
+- [ ] F7 IAB TCF v2.2 (až po vyjasnění registrace CMP)
+- [ ] F8 Nasazení na flotilu
+
+### 42.10 Otevřené otázky
+
+Rozhodnuto 2026-10-21:
+
+- O1 ✅ Revizi šablon dělá Claude: kontrola proti checklistu povinných náležitostí (GDPR
+  čl. 13, §89 ZEK, OZ §1811, §1820, §1829 a násl., zákon o ochraně spotřebitele, ODR) a proti
+  rozsahu témat dokumentů Complianzu. Inspirace Complianzem = **struktura a pokrytí témat,
+  formulace vlastní** (pravidlo `feedback_neprebirat-texty-konkurence`, kontrola
+  `similar_text` proti textům Complianzu). Claude není advokát - v adminu u obchodních
+  podmínek upozornění, že klient odpovídá za obsah a revizi právníkem doporučujeme.
+- O2 ✅ TCF ano: uživatel ho nepoužívá, ale klienti můžou. F7 zůstává, pořád podmíněná
+  vyjasněním registrace CMP (42.8).
+- O3 ✅ Nastavitelné per web. Výchozí **basic** (bez souhlasu žádné volání na Google -
+  konzervativnější výklad ÚOOÚ); advanced jako volba s vysvětlením. Při migraci se převezme
+  režim, který web měl v Complianzu (autoservisvydra = advanced).
+- O4 ✅ Retence záznamů souhlasů 3 roky (výchozí, nastavitelné).
