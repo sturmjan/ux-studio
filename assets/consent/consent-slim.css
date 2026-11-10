@@ -17,3 +17,6 @@
 	.uxc-t-slim .uxc-main .uxc-actions { flex: 1 1 100%; }
 	.uxc.uxc-t-slim .uxc-main .uxc-btn { flex: 1 1 0; padding: 4px 8px; }
 }
+
+/* Option "Top of the page". */
+.uxc.uxc-t-slim.uxc-o-top:not(.is-detail) .uxc-dlg { top: 0; bottom: auto; box-shadow: 0 2px 14px rgba(0, 0, 0, .2); }

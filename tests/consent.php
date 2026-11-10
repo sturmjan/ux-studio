@@ -333,6 +333,21 @@ $assert( 'templates: default colours add nothing in classic, cookiebot and slim 
 $assert( 'templates: own colours are emitted in every template', '--uxc-bg:#112233;' === Templates::variables( 'classic', array( 'color_bg' => '#112233' ) + $def ) );
 $assert( 'templates: the cookie card is light by default (no colour overrides, like the other templates)', '' === Templates::variables( 'cookie', $def ) );
 $assert( 'templates: own colours are emitted in the cookie card too', '--uxc-bg:#111111;--uxc-fg:#eeeeee;' === Templates::variables( 'cookie', array( 'color_bg' => '#111111', 'color_text' => '#eeeeee' ) + $def ) );
+// Options of one template (PLAN 42.22): the defaults are today's look, only the chosen template's options go to the page.
+$assert( 'options: classic has none (layout and side are cfg.layout and cfg.pos)', array() === Templates::options( 'classic', array( 'tabs_width' => 700 ) ) );
+$assert( 'options: defaults are the look the templates had before', array( 'place' => 'center', 'about' => true ) === Templates::options( 'cookiebot', array() ) && array( 'icon' => true, 'shape' => 'round' ) === Templates::options( 'cookie', array() ) && array( 'place' => 'bottom', 'link' => true ) === Templates::options( 'slim', array() ) );
+$assert( 'options: only the chosen template options are returned (no keys of another template)', array( 'place' => 'top', 'link' => false ) === Templates::options( 'slim', array( 'slim_place' => 'top', 'slim_link' => false, 'tabs_place' => 'full', 'card_shape' => 'rect' ) ) );
+$assert( 'options: a value that is not a choice falls back to the default', array( 'place' => 'center', 'about' => false ) === Templates::options( 'cookiebot', array( 'tabs_place' => 'evil', 'tabs_about' => false ) ) && 'round' === Templates::options( 'cookie', array( 'card_shape' => 'x' ) )['shape'] );
+$assert( 'options: full width and rectangular buttons', 'full' === Templates::options( 'cookiebot', array( 'tabs_place' => 'full' ) )['place'] && 'rect' === Templates::options( 'cookie', array( 'card_shape' => 'rect' ) )['shape'] );
+$assert( 'options: default sizes add no CSS variable', '' === Templates::size_variables( 'cookiebot', array() ) && '' === Templates::size_variables( 'cookie', array( 'card_radius' => 22 ) ) && '' === Templates::size_variables( 'classic', array( 'tabs_width' => 700 ) ) && '' === Templates::size_variables( 'slim', array( 'tabs_width' => 700 ) ) );
+$assert( 'options: sizes are variables of their own template only and stay in range', '--uxc-w:700px;' === Templates::size_variables( 'cookiebot', array( 'tabs_width' => '700' ) ) && '--uxc-w:1400px;' === Templates::size_variables( 'cookiebot', array( 'tabs_width' => 99999 ) ) && '--uxc-w:480px;' === Templates::size_variables( 'cookiebot', array( 'tabs_width' => -5 ) ) && '--uxc-cr:0px;' === Templates::size_variables( 'cookie', array( 'card_radius' => 0 ) ) && '--uxc-cr:40px;' === Templates::size_variables( 'cookie', array( 'card_radius' => 900 ) ) && '' === Templates::size_variables( 'cookie', array( 'card_radius' => 'abc' ) ) );
+$schema_src = $module_src ?? file_get_contents( $dir . 'Consent/Module.php' );
+foreach ( Templates::DEFAULTS as $key => $default ) {
+	$prefix = substr( $key, 0, strpos( $key, '_' ) );
+	$ok     = 1 === preg_match( "/'key'\s*=>\s*'" . $key . "'.*?'show_if'\s*=>\s*array\( 'key' => 'template', 'equals' => '(\w+)' \).*?'default'\s*=>\s*([^,\n]+),/s", $schema_src, $m );
+	$expect = is_bool( $default ) ? ( $default ? 'true' : 'false' ) : ( is_int( $default ) ? (string) $default : "'" . $default . "'" );
+	$assert( "options: $key is in the schema, only for its template, with the default $expect", $ok && trim( $m[2] ) === $expect && ( array( 'tabs' => 'cookiebot', 'card' => 'cookie', 'slim' => 'slim' )[ $prefix ] === $m[1] ) );
+}
 // The settings schema and the script know the same names.
 $module_src = file_get_contents( $dir . 'Consent/Module.php' );
 $js_src     = file_get_contents( $root . '/assets/consent/consent.js' );

@@ -1,0 +1,18 @@
+{
+  "Placement": "Umístění",
+  "Panel at the bottom centre": "Panel dole uprostřed",
+  "Bar across the full width at the bottom": "Lišta dole přes celou šířku",
+  "Show the tab About cookies": "Zobrazit záložku O cookies",
+  "Maximum width of the panel (px)": "Maximální šířka panelu (px)",
+  "From 480 to 1400. On a narrow screen the panel always fills the width.": "Od 480 do 1400. Na úzké obrazovce panel vždy vyplní celou šířku.",
+  "Show the cookie icon": "Zobrazit ikonku sušenky",
+  "Shape of the buttons": "Tvar tlačítek",
+  "Reject and accept always look equally strong, in either shape.": "Odmítnout a přijmout vypadají stejně výrazně v obou tvarech.",
+  "Round": "Kulatá",
+  "Rounded rectangle": "Zaoblený obdélník",
+  "Corner radius of the card (px)": "Zaoblení rohů karty (px)",
+  "From 0 to 40.": "Od 0 do 40.",
+  "Bottom of the page": "Dole na stránce",
+  "Top of the page": "Nahoře na stránce",
+  "Show the link to the privacy policy": "Zobrazit odkaz na zásady ochrany osobních údajů"
+}

@@ -283,6 +283,7 @@ final class Module extends BaseModule {
 			$values[ $key ] = (string) sanitize_hex_color( (string) $this->settings->get( $key, $pair[1] ) );
 		}
 		$css    = Templates::variables( $this->template(), $values );
+		$css   .= Templates::size_variables( $this->template(), $this->settings->all() );
 		$radius = max( 0, min( 32, (int) $this->settings->get( 'radius', 8 ) ) );
 		if ( 8 !== $radius ) {
 			$css .= '--uxc-r:' . $radius . 'px;';
@@ -516,6 +517,10 @@ final class Module extends BaseModule {
 		}
 		if ( 'right' === (string) $s->get( 'reopen_position', 'left' ) ) {
 			$config['fabpos'] = 'right';
+		}
+		$options = Templates::options( $this->template(), $s->all() );
+		if ( $options ) {
+			$config['o'] = $options;
 		}
 		return $config;
 	}
@@ -773,7 +778,16 @@ final class Module extends BaseModule {
 					'right' => __( 'Right', 'ux-studio' ),
 				),
 				'default' => 'left',
-				'show_if' => array( 'key' => 'template', 'in' => array( 'classic', 'cookie' ) ),
+				// The card always has a side; the classic box only (a bar across the bottom has none).
+				'show_if' => array(
+					'any' => array(
+						array( 'key' => 'template', 'equals' => 'cookie' ),
+						array(
+							array( 'key' => 'template', 'equals' => 'classic' ),
+							array( 'key' => 'layout', 'equals' => 'box' ),
+						),
+					),
+				),
 			),
 			array(
 				'key'     => 'color_bg',
@@ -807,8 +821,89 @@ final class Module extends BaseModule {
 				'key'     => 'radius',
 				'section' => $look,
 				'type'    => 'number',
+				'show_if' => array( 'key' => 'template', 'equals' => 'classic' ),
 				'label'   => __( 'Corner radius (px)', 'ux-studio' ),
 				'default' => 8,
+			),
+			// --- Options of one template (PLAN 42.22): drawn only while that template is chosen; the colours above are shared. ---
+			array(
+				'key'     => 'tabs_place',
+				'section' => $look,
+				'type'    => 'select',
+				'show_if' => array( 'key' => 'template', 'equals' => 'cookiebot' ),
+				'label'   => __( 'Placement', 'ux-studio' ),
+				'options' => array(
+					'center' => __( 'Panel at the bottom centre', 'ux-studio' ),
+					'full'   => __( 'Bar across the full width at the bottom', 'ux-studio' ),
+				),
+				'default' => 'center',
+			),
+			array(
+				'key'     => 'tabs_about',
+				'section' => $look,
+				'type'    => 'toggle',
+				'show_if' => array( 'key' => 'template', 'equals' => 'cookiebot' ),
+				'label'   => __( 'Show the tab About cookies', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
+				'key'     => 'tabs_width',
+				'section' => $look,
+				'type'    => 'number',
+				'show_if' => array( 'key' => 'template', 'equals' => 'cookiebot' ),
+				'label'   => __( 'Maximum width of the panel (px)', 'ux-studio' ),
+				'help'    => __( 'From 480 to 1400. On a narrow screen the panel always fills the width.', 'ux-studio' ),
+				'default' => 880,
+			),
+			array(
+				'key'     => 'card_icon',
+				'section' => $look,
+				'type'    => 'toggle',
+				'show_if' => array( 'key' => 'template', 'equals' => 'cookie' ),
+				'label'   => __( 'Show the cookie icon', 'ux-studio' ),
+				'default' => true,
+			),
+			array(
+				'key'     => 'card_shape',
+				'section' => $look,
+				'type'    => 'select',
+				'show_if' => array( 'key' => 'template', 'equals' => 'cookie' ),
+				'label'   => __( 'Shape of the buttons', 'ux-studio' ),
+				'help'    => __( 'Reject and accept always look equally strong, in either shape.', 'ux-studio' ),
+				'options' => array(
+					'round' => __( 'Round', 'ux-studio' ),
+					'rect'  => __( 'Rounded rectangle', 'ux-studio' ),
+				),
+				'default' => 'round',
+			),
+			array(
+				'key'     => 'card_radius',
+				'section' => $look,
+				'type'    => 'number',
+				'show_if' => array( 'key' => 'template', 'equals' => 'cookie' ),
+				'label'   => __( 'Corner radius of the card (px)', 'ux-studio' ),
+				'help'    => __( 'From 0 to 40.', 'ux-studio' ),
+				'default' => 22,
+			),
+			array(
+				'key'     => 'slim_place',
+				'section' => $look,
+				'type'    => 'select',
+				'show_if' => array( 'key' => 'template', 'equals' => 'slim' ),
+				'label'   => __( 'Placement', 'ux-studio' ),
+				'options' => array(
+					'bottom' => __( 'Bottom of the page', 'ux-studio' ),
+					'top'    => __( 'Top of the page', 'ux-studio' ),
+				),
+				'default' => 'bottom',
+			),
+			array(
+				'key'     => 'slim_link',
+				'section' => $look,
+				'type'    => 'toggle',
+				'show_if' => array( 'key' => 'template', 'equals' => 'slim' ),
+				'label'   => __( 'Show the link to the privacy policy', 'ux-studio' ),
+				'default' => true,
 			),
 			// --- Blocking ---
 			array(

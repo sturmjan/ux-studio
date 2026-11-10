@@ -85,7 +85,7 @@ async function runUi( cookie, cfg, { beacon = true, steps, sandbox = false } = {
 		addEventListener: () => {},
 		dispatchEvent: () => {},
 		createElement: ( t ) => new FakeNode( t ),
-		createTextNode: ( t ) => ( { textContent: t } ),
+		createTextNode: ( t ) => Object.assign( new FakeNode( '#text' ), { textContent: t } ),
 	};
 	const win = {
 		location: { protocol: 'https:', pathname: '/kontakt/', search: '?utm=secret' },
@@ -270,6 +270,38 @@ for ( const tpl of [ 'classic', 'cookiebot', 'cookie', 'slim', 'nonsense' ] ) {
 	check( 'tpl ' + name + ': reopening and rejecting is a withdraw', b.length === 1 && b[ 0 ].b.a === 'withdraw' && b[ 0 ].b.id === stored, JSON.stringify( b ) );
 	r = await runUi( '', { ...tcfg, preview: 'detail' }, { sandbox: true } );
 	check( 'tpl ' + name + ': preview detail view works and nothing is stored', r.body.querySelectorAll( '.uxc-detail' )[ 0 ].hidden === false && r.calls.beacon.length === 0 );
+}
+
+// ---------- options of one template (PLAN 42.22): cfg.o ----------
+{
+	const base = { ...withText, t: { ...withText.t, tab_c: 'Consent', tab_d: 'Details', tab_a: 'About cookies', tabs: 'Sections', about: 'About text' } };
+	const classes = ( x ) => x.body.querySelectorAll( '.uxc' )[ 0 ].className.split( ' ' );
+	const tabsOf = ( x ) => x.body.querySelectorAll( 'button' ).filter( ( b ) => b.attrs.role === 'tab' );
+	r = await runUi( '', { ...base, tpl: 'cookiebot', o: { place: 'full', about: false } } );
+	check( 'opt cookiebot: full width adds the class and the About tab and panel are gone', classes( r ).includes( 'uxc-o-full' ) && tabsOf( r ).length === 2 && r.body.querySelectorAll( '.uxc-about' ).length === 0, classes( r ).join( ' ' ) + ' ' + tabsOf( r ).length );
+	r = await runUi( '', { ...base, tpl: 'cookiebot', o: { place: 'center', about: true } } );
+	check( 'opt cookiebot: centre with three tabs has no extra class', ! classes( r ).includes( 'uxc-o-full' ) && tabsOf( r ).length === 3 );
+	r = await runUi( '', { ...base, tpl: 'cookiebot' } );
+	check( 'opt cookiebot: without cfg.o (older config) it is the same as before', tabsOf( r ).length === 3 && ! classes( r ).includes( 'uxc-o-full' ) );
+	r = await runUi( '', { ...base, tpl: 'cookiebot', o: { about: false } } );
+	const t2 = tabsOf( r );
+	check( 'opt cookiebot: with two tabs the first is selected and the Details tab opens its panel', t2.length === 2 && t2[ 0 ].attrs[ 'aria-selected' ] === true && r.body.querySelectorAll( '.uxc-detail' )[ 0 ].hidden === true );
+	r = await runUi( '', { ...base, tpl: 'cookie', o: { icon: false, shape: 'rect' } } );
+	check( 'opt cookie: no icon and rectangular buttons', r.body.querySelectorAll( '.uxc-ic' ).length === 0 && r.body.querySelectorAll( '.uxc-hd' ).length === 0 && classes( r ).includes( 'uxc-o-rect' ) && r.body.querySelectorAll( '.uxc-h' ).length >= 1 );
+	r = await runUi( '', { ...base, tpl: 'cookie', o: { icon: true, shape: 'round' } } );
+	check( 'opt cookie: icon and round buttons are the default look', r.body.querySelectorAll( '.uxc-ic' ).length === 1 && ! classes( r ).includes( 'uxc-o-rect' ) );
+	r = await runUi( '', { ...base, tpl: 'cookie', o: { icon: false, shape: 'rect' } } );
+	const rb = r.body.querySelectorAll( '.uxc-dlg button' ).filter( ( x ) => x.className.includes( 'uxc-btn' ) );
+	check( 'opt cookie rect: reject and accept are both solid (no quiet class)', ! rb.find( ( x ) => x.textContent === TX.reject ).className.includes( 'uxc-alt' ) && ! rb.find( ( x ) => x.textContent === TX.accept ).className.includes( 'uxc-alt' ) );
+	const withPolicy = { ...base, policy: '/privacy/' };
+	r = await runUi( '', { ...withPolicy, tpl: 'slim', o: { place: 'top', link: false } } );
+	check( 'opt slim: top adds the class and the policy link is left out', classes( r ).includes( 'uxc-o-top' ) && r.body.querySelectorAll( '.uxc-a' ).length === 0 );
+	r = await runUi( '', { ...withPolicy, tpl: 'slim', o: { place: 'bottom', link: true } } );
+	check( 'opt slim: bottom with the link is the default look', ! classes( r ).includes( 'uxc-o-top' ) && r.body.querySelectorAll( '.uxc-a' ).length === 1 );
+	r = await runUi( '', { ...withPolicy, tpl: 'classic', o: { place: 'top', link: false, icon: false, shape: 'rect', about: false } } );
+	check( 'opt: another template ignores the options of a different one', ! classes( r ).some( ( c ) => c.startsWith( 'uxc-o-' ) ) && r.body.querySelectorAll( '.uxc-a' ).length === 1 );
+	r = await runUi( '', { ...withPolicy, tpl: 'cookie', o: { place: 'top', link: false } } );
+	check( 'opt cookie: keeps its policy link whatever the slim option says', r.body.querySelectorAll( '.uxc-a' ).length === 1 );
 }
 
 console.log( failures === 0 ? 'ALL OK' : failures + ' FAILED' );

@@ -463,7 +463,15 @@
 	}
 
 	function build() {
-		root = el( 'div', 'uxc uxc-t-' + TPL + ( TPL === 'classic' ? ' uxc-' + cfg.layout : '' ) + ' uxc-' + cfg.pos );
+		// Options of the chosen template (PLAN 42.22): cfg.o only holds the ones of that template.
+		var O = cfg.o || {};
+		root = el(
+			'div',
+			'uxc uxc-t-' + TPL + ( TPL === 'classic' ? ' uxc-' + cfg.layout : '' ) + ' uxc-' + cfg.pos +
+				( TPL === 'cookiebot' && O.place === 'full' ? ' uxc-o-full' : '' ) +
+				( TPL === 'cookie' && O.shape === 'rect' ? ' uxc-o-rect' : '' ) +
+				( TPL === 'slim' && O.place === 'top' ? ' uxc-o-top' : '' )
+		);
 		root.hidden = true;
 		root.appendChild( el( 'div', 'uxc-ov' ) );
 		var dlg = el( 'div', 'uxc-dlg' );
@@ -522,7 +530,7 @@
 		title.tabIndex = -1;
 		var msg = el( 'p', 'uxc-p', T.msg );
 		msg.id = 'uxc-m';
-		if ( TPL === 'cookie' ) {
+		if ( TPL === 'cookie' && O.icon !== false ) {
 			var head = el( 'div', 'uxc-hd' );
 			var ic = el( 'span', 'uxc-ic' );
 			ic.innerHTML = icon( 40 );
@@ -533,7 +541,7 @@
 			text.appendChild( title );
 		}
 		text.appendChild( msg );
-		if ( cfg.policy && /^(https?:\/\/|\/)/i.test( cfg.policy ) ) {
+		if ( cfg.policy && /^(https?:\/\/|\/)/i.test( cfg.policy ) && ! ( TPL === 'slim' && O.link === false ) ) {
 			var link = el( 'a', 'uxc-a', T.policy );
 			link.href = cfg.policy;
 			msg.appendChild( doc.createTextNode( ' ' ) );
@@ -634,7 +642,7 @@
 			var about = el( 'div', 'uxc-about' );
 			about.appendChild( el( 'p', 'uxc-p', T.about ) );
 			root._panels = { main: main, detail: detail, about: about };
-			[ [ 'main', T.tab_c ], [ 'detail', T.tab_d ], [ 'about', T.tab_a ] ].forEach( function ( d ) {
+			[ [ 'main', T.tab_c ], [ 'detail', T.tab_d ], [ 'about', T.tab_a ] ].slice( 0, O.about === false ? 2 : 3 ).forEach( function ( d ) {
 				var tab = el( 'button', 'uxc-tab', d[ 1 ] );
 				tab.type = 'button';
 				tab.id = 'uxc-tab-' + d[ 0 ];
@@ -650,7 +658,7 @@
 				tab.addEventListener( 'keydown', function ( e ) {
 					if ( e.key === 'ArrowRight' || e.key === 'ArrowLeft' ) {
 						e.preventDefault();
-						var next = tabs[ ( tabs.indexOf( tab ) + ( e.key === 'ArrowRight' ? 1 : 2 ) ) % 3 ];
+						var next = tabs[ ( tabs.indexOf( tab ) + ( e.key === 'ArrowRight' ? 1 : tabs.length - 1 ) ) % tabs.length ];
 						setTab( next._p );
 						next.focus();
 					}
@@ -662,7 +670,9 @@
 			dlg.appendChild( tabList );
 			dlg.appendChild( main );
 			dlg.appendChild( detail );
-			dlg.appendChild( about );
+			if ( O.about !== false ) {
+				dlg.appendChild( about );
+			}
 			dlg.appendChild( actions );
 			setTab( 'main' );
 		}
