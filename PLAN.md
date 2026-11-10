@@ -4106,3 +4106,619 @@ proti CA z worktree `_ca-wt-identity` s čerstvou DB `ca_e2e` (všech 116 migrac
 - Zbývá: Facebook u veřejné URL (lokální `localhost` Facebook nestáhne, CA přesto hlásí OK s prázdným titulkem:
   zvážit hlášení „Facebook nenašel titulek ani obrázek"), IndexNow 200/202 u veřejného webu, nginx, názvy voleb
   IndexNow v Rank Math / Yoast.
+
+## 42. Cookies, souhlas a právní stránky - modul `consent` (2026-10-21, F1-F6 hotovo lokálně 2026-11-09, pilot F6 čeká)
+
+> Číslo 42, protože 41 už má větev s mapami a 26 je obsazené migračním průvodcem. Plán se přesunul ze staré větve, kde měl číslo 26.
+
+Zadání uživatele: Complianz zdržuje weby. Nahradit ho vlastním modulem, který zvládne
+cookie lištu, analýzu všech skriptů a cookies a vygenerování všech právních stránek
+(zásady cookies, ochrana osobních údajů, obchodní podmínky).
+
+### 42.1 Výchozí měření - autoservisvydra.cz (2026-10-21, Playwright)
+
+Complianz 7.5.6, opt-in, region `eu`, před ním WP Rocket, server openresty. Curl bez
+prohlížeče dostane od firewallu 466, sken proto musí jít přes skutečný prohlížeč.
+
+| Co | Hodnota |
+|---|---|
+| Studený load (bez keše) | TTFB 695 ms, DCL 1826 ms, load 2913 ms |
+| Teplý load (WP Rocket) | TTFB 41 ms, DCL 304 ms, load 605 ms |
+| Assety Complianzu | `complianz.min.js` 12 KB / 45 KB rozbaleno (470 ms), `banner-1-optin.css` 7,8 / 42 KB, `cookieblocker.min.css` 1 / 2,7 KB |
+| V DOM | 78 uzlů `cmplz`, 1,8 kB inline skriptů, 2 placeholdery |
+| Celá stránka | 59 požadavků, 643 KB, HTML 349 KB rozbaleno |
+
+Zjištění:
+- Na frontendu stojí Complianz ~21 KB přenosu a ~90 KB rozbaleného JS+CSS. Na lištu je to
+  hodně, ale ne dramatické. **Kolik stojí na serveru (output buffer, TTFB 695 ms bez keše),
+  zjistí jen srovnání s vypnutým pluginem** - viz F0.
+- Google Consent Mode v2 běží v režimu *advanced*: GTM a gtag se načtou před souhlasem
+  a posílají bezcookiové pingy (`gcs=G100`, `npa=1`) na GA4 i Google Ads. Modul musí umět
+  basic i advanced.
+- Web má dvě GA4 property (`G-9REVSBTW6T`, `G-RRTZTW8TRF`) a Google Ads `AW-16653764254`
+  přes GTM `GTM-M2H8FV7L`. Sken je musí najít a přiřadit službám.
+- V DOM lišty visí nevyrenderovaný text „Správa {vendor_count} prodejců" (šablona TCF,
+  přestože TCF je vypnuté). Příklad, čemu se vyhnout.
+- Právní stránky `/prace-s-cookies/` a `/gdpr/` vygeneroval Complianz. Při migraci zachovat URL.
+
+### 42.2 Rozhodnutí
+
+| Téma | Rozhodnutí |
+|---|---|
+| Umístění | Nový modul `consent` (skupina C, vlastní SPA stránka). Ne přílepek k `security-optimization`. |
+| Výkon | Žádná logika per návštěvník v PHP. Lišta staticky v patičce, stav souhlasu jen v cookie + JS ⇒ plně kešovatelné (WP Rocket, LiteSpeed). Cíl: JS ≤ 5 KB gzip, CSS inline ≤ 3 KB. |
+| Blokování | Primárně přes `script_loader_tag` (registrované skripty → `type="text/plain" data-consent="…"`) a přímé napojení Pixel Tag Manageru a GTM Kitu. Buffer stránky jen jako volitelná pojistka pro natvrdo vložené skripty, běží jen při tvorbě keše. |
+| Komu lištu zobrazit | **Nastavení**, výchozí „všem". Volba „jen EU/EHP" (plus GB a CH) pozná zemi z hlavičky `CF-IPCountry` (za Cloudflare) přes malý veřejný endpoint `consent/region`, který se nekešuje; stránka sama zůstává kešovatelná. Když hlavička chybí nebo endpoint neodpoví, lišta se **zobrazí** (bezpečnější směr). Mimo EU se souhlas bere jako udělený a nic se neukládá. Žádná GeoIP DB v pluginu. |
+| Consent Mode v2 | Ano, nastavitelné per web: vypnuto / **basic (výchozí)** / advanced. `default` denied před jakýmkoli Google tagem, `update` po souhlasu. Basic = Google tagy se vůbec nenačtou, dokud není souhlas; advanced = načtou se hned a řídí se signálem. |
+| IAB TCF v2.2 | **Zahrnout** (rozhodnutí uživatele), ale jako samostatnou fázi a vypínatelně - viz past 42.8 (registrace CMP). |
+| Analýza | Dvě vrstvy: statická v pluginu (registrované skripty + CSP inventura), dynamická v CA (Playwright na NAS). |
+| Katalog | Jeden sdílený katalog služeb: rozšířit `CspServices` o cookies (název/vzor, účel, doba, kategorie, zpracovatel, země přenosu). Základ Open Cookie Database - **před použitím ověřit licenci**. |
+| Právní texty | Zásady cookies, ochrana osobních údajů **i obchodní podmínky**. Deterministické šablony + data z průvodce a skenu; volitelně AI jen na vlastní odstavce. Texty psané od nuly, od konkurence jen struktura (viz `feedback_neprebirat-texty-konkurence`). Šablony jednou zreviduje právník. |
+| Záznamy souhlasů | Ano (doklad dle čl. 7 odst. 1 GDPR): anonymní ID, čas, verze zásad, kategorie. **Bez IP.** Retence nastavitelná (výchozí 3 roky). |
+
+### 42.3 Frontend lišty
+
+- Vanilla JS bez závislostí, jeden soubor, `defer`; texty a nastavení jako inline JSON.
+- První vrstva: „Přijmout vše" / „Odmítnout" / „Nastavení", **stejně výrazná** tlačítka
+  (§89 ZEK, ÚOOÚ). Žádná předzaškrtnutá políčka, žádná cookie wall.
+- Kategorie: nezbytné (vždy), preference, statistika, marketing. U každé výpis služeb.
+- Platnost souhlasu max 12 měsíců. Změna verze zásad nebo nová marketingová služba ⇒ znovu.
+- Trvalý přístup ke změně: shortcode/blok „Nastavení cookies" + volitelná plovoucí ikonka.
+- Iframe (YouTube, Vimeo, Google Maps, Mapy.cz) ⇒ placeholder s tlačítkem „Načíst";
+  YouTube přes `youtube-nocookie.com`.
+- Událost `uxstudio:consent` (CustomEvent) + `window.uxConsent.has('marketing')` pro vlastní kód.
+- Vzhled: barvy/pozice/zaoblení z nastavení. Přístupnost: focus trap v detailu, ESC,
+  `role="dialog"`, kontrast - ověřit axe-core.
+
+### 42.4 Analýza skriptů a cookies
+
+**Statická (plugin, bez prohlížeče):**
+- `wp_scripts`/`wp_styles` na vzorku stránek + domény z CSP inventury ⇒ seznam externích hostů.
+- Mapování host ⇒ služba ⇒ kategorie přes katalog. Neznámé hosty jdou do fronty „k zařazení".
+
+**Dynamická (CA, Playwright na NAS, stejná infrastruktura jako vizuální monitoring a axe-core):**
+- Projde N stránek ze sitemapy (home, kontakt, produkt, košík…) **bez souhlasu**, pak po
+  „Přijmout vše" a pak po „Odmítnout".
+- Zaznamená cookies (vč. httpOnly z `context.cookies()`), localStorage/sessionStorage,
+  síťové požadavky a ID měřicích kódů (GA4, AW, GTM, FB pixel).
+- **Hlásí porušení:** cookie nebo požadavek marketingové služby před souhlasem nebo po odmítnutí.
+- Výsledek jde přes API do pluginu (podepsaný požadavek jako ostatní volání CA ↔ UX Studio).
+- Rozvrh: měsíčně + ručně z adminu. Nová neznámá cookie ⇒ upozornění, přehled flotily v CA.
+- Hlavička `X-UX1-Monitor` (viz `reference_monitoring-firewall-vyjimky`), jinak firewall
+  jako na autoservisvydra sken zablokuje.
+
+### 42.5 Generátor právních stránek
+
+Průvodce se vyplní jednou za web a data sdílí všechny dokumenty: správce, IČO/DIČ, sídlo,
+kontakty, pověřenec (ano/ne), účely zpracování, provozovna, e-shop ano/ne. Zpracovatelé
+a přenosy mimo EU se **předvyplní ze skenu** (GA4, Google Ads, Smartsupp, Trustindex, Typekit…).
+
+| Dokument | Obsah | Dynamická část |
+|---|---|---|
+| Zásady cookies | co jsou cookies, kategorie, jak změnit souhlas | tabulka cookies a služeb živě z katalogu a skenu |
+| Ochrana osobních údajů (GDPR) | správce, účely + právní základy, příjemci, doba, práva subjektu, ÚOOÚ | zpracovatelé ze skenu, WooCommerce/formuláře podle aktivních modulů |
+| Obchodní podmínky (e-shop) | OZ §1810 a násl.: objednávka, cena, dodání, platba, odstoupení do 14 dní (+ vzorový formulář), reklamace, ODR/ČOI | doprava a platby z WooCommerce |
+
+- Renderování přes blok/shortcode ⇒ změna dat se propíše bez přegenerování.
+- Verze s datem „účinné od" a archiv starých verzí. Obchodní podmínky musí jít dohledat
+  ke dni objednávky, proto se verze uloží k objednávce.
+- Upozornění v adminu, když sken najde službu, která v zásadách chybí.
+
+### 42.6 IAB TCF v2.2 (samostatná fáze)
+
+- Stáhnout a cachovat Global Vendor List (týdně, lokálně, žádné volání z prohlížeče na cizí CDN).
+- Generovat TC string, `__tcfapi` stub v `<head>`, výběr dodavatelů v nastavení.
+- Zapínat jen na webech s AdSense/programatickou reklamou. Jinde vypnuto a **žádné TCF
+  texty v DOM**.
+
+### 42.7 Migrace z Complianzu
+
+- Import: kategorie, služby, texty lišty, barvy, údaje z průvodce (správce, IČO), ID stránek
+  `/prace-s-cookies/` a `/gdpr/` (zachovat URL, obsah nahradit blokem).
+- Stávající souhlasy návštěvníků (cookies `cmplz_*`) přečíst a převést, ať se lišta všem
+  neukáže znovu.
+- Předání přes `ConflictGuard` jako u ostatních modulů (Complianz vypnout až po ověření).
+- Po přepnutí smazat keš (WP Rocket) a ověřit dynamickým skenem.
+
+### 42.8 Pasti a rizika
+
+- **TCF vyžaduje registrovaný CMP** u IAB Europe (CMP ID, roční poplatek, audit). Bez
+  registrace je TC string neplatný. Před F7 ověřit podmínky a cenu. Může to být důvod TCF
+  nedělat a na reklamních webech nechat certifikovaný CMP.
+- **Kešování:** nic, co závisí na návštěvníkovi (region, souhlas), nesmí jít do HTML.
+- **Odpovědnost za texty:** šablony reviduje Claude (O1), ne advokát. Klient musí v adminu
+  vidět upozornění, že za obsah odpovídá on.
+- **Licence databáze cookies** (atribuce, stejně jako u Wordfence).
+- **Advanced Consent Mode** posílá pingy i bez souhlasu. Klientovi zdokumentovat, že jde
+  o volbu, ne chybu. Výchozí je basic.
+- **Firewally klientů** blokují sken bez prohlížeče nebo bez hlavičky (autoservisvydra: 466).
+
+### 42.9 Fáze
+
+- [ ] F0 Změřit Complianz na autoservisvydra.cz s pluginem a bez něj (studený TTFB, Benchmark z `page-load`), zapsat sem
+- [x] F1 Lišta + kategorie + blokování přes `script_loader_tag` + napojení Pixel Tag Manager / GTM Kit
+- [x] F1 Consent Mode v2 (basic/advanced), placeholdery iframe, shortcode „Nastavení cookies"
+- [x] F1 Nastavení, komu lištu zobrazit (všem / jen EU přes `CF-IPCountry`)
+- [x] F2 Rozšíření `CspServices` o cookies, import Open Cookie Database (po ověření licence)
+- [x] F2 Statická inventura v pluginu + fronta „k zařazení"
+- [x] F3 Dynamický sken v CA (bez souhlasu / přijmout / odmítnout; na NAS je Puppeteer, ne Playwright), API do pluginu, hlášení porušení (nasazení na NAS zatím neproběhlo, viz CA PLAN §39.7)
+- [x] F3 Měsíční rozvrh, upozornění na novou cookie, přehled flotily v CA
+- [x] F4 Průvodce údaji o správci + zásady cookies + ochrana osobních údajů (bloky, verze)
+- [x] F4 Obchodní podmínky pro WooCommerce + uložení verze k objednávce
+- [x] F4 Revize šablon (Claude) proti checklistu náležitostí a rozsahu témat Complianzu + kontrola podobnosti textů (revize Claude, ne právník)
+- [x] F5 Záznamy souhlasů (tabulka, retence, export pro doložení)
+- [x] F6 Migrace z Complianzu + předání přes ConflictGuard (zdroj frameworku, stránky, shortcody, převod souhlasů, API pro sken; viz 42.16)
+- [ ] F6 Pilot na autoservisvydra.cz (postup v 42.16, neprovedeno)
+- [ ] F7 IAB TCF v2.2 (až po vyjasnění registrace CMP)
+- [ ] F8 Nasazení na flotilu
+
+### 42.10 Otevřené otázky
+
+Rozhodnuto 2026-10-21:
+
+- O1 ✅ Revizi šablon dělá Claude: kontrola proti checklistu povinných náležitostí (GDPR
+  čl. 13, §89 ZEK, OZ §1811, §1820, §1829 a násl., zákon o ochraně spotřebitele, ODR) a proti
+  rozsahu témat dokumentů Complianzu. Inspirace Complianzem = **struktura a pokrytí témat,
+  formulace vlastní** (pravidlo `feedback_neprebirat-texty-konkurence`, kontrola
+  `similar_text` proti textům Complianzu). Claude není advokát - v adminu u obchodních
+  podmínek upozornění, že klient odpovídá za obsah a revizi právníkem doporučujeme.
+- O2 ✅ TCF ano: uživatel ho nepoužívá, ale klienti můžou. F7 zůstává, pořád podmíněná
+  vyjasněním registrace CMP (42.8).
+- O3 ✅ Nastavitelné per web. Výchozí **basic** (bez souhlasu žádné volání na Google -
+  konzervativnější výklad ÚOOÚ); advanced jako volba s vysvětlením. Při migraci se převezme
+  režim, který web měl v Complianzu (autoservisvydra = advanced).
+- O4 ✅ Retence záznamů souhlasů 3 roky (výchozí, nastavitelné).
+
+### 42.11 F1 poznámky k provedení (2026-11-09)
+
+Ověřeno v 42.17: placeholdery iframe, axe-core, kontrast výchozích barev, hlavička `CF-IPCountry` (jen mock), `buffer_guard` na reálné stránce.
+
+Větev `feature/consent-module`, nepushnuto. Verze pluginu nezvýšena, změna je v CHANGELOG pod „Unreleased".
+
+- **Kde:** `includes/Modules/Consent/` (`Module`, `Services`, `Blocker`, `ConsentMode`, `Geo`, `Gate`, `GtmKit`, `help.php`),
+  frontend `assets/consent/consent.js|css` (+ `.min`, sestavuje `npm run build:widget`), stránka nastavení
+  `src/modules/consent/Page.tsx`, test `tests/consent.php`, čeština v `docs/i18n/cs-consent.json`.
+- **Katalog:** žádný druhý katalog. `CspServices` dostal `consent_catalogue()` (host => kategorie, služba, zda čte Consent Mode),
+  `consent_for_host()` a `consent_inline_signatures()`. `Services::classify()` k hostu doplní cestu (gtag s `G-` = statistika,
+  `AW-` = marketing, `gtm.js` = „statistics marketing" = stačí kterákoli), vlastní pravidla a výjimku pro vlastní web.
+- **Blokování:** `script_loader_tag` přepíše každý `<script>` registrovaného skriptu (vč. překladů a before/after) na
+  `type="text/plain" data-uxc="kategorie"`; `consent.js` je po souhlasu znovu vytvoří v pořadí stránky (externí čeká na onload).
+  Iframy v `the_content`, widgetech a oEmbedu ztratí `src` (`data-uxc-src`), JS vloží placeholder s tlačítkem „Načíst obsah"; YouTube jde
+  přes `youtube-nocookie.com`. Volitelná pojistka `buffer_guard` (výstupní buffer) chytá natvrdo vložené snippety podle signatur.
+  Stránka je pro všechny stejná, takže zůstává kešovatelná. Uložení nastavení vyprázdní keš WP Rocket, LiteSpeed, W3TC, WPSC.
+- **Souhlas:** cookie `uxs_consent` = `1.<verze>.<bity>.<čas>`, first-party, `SameSite=Lax`, `Secure` na HTTPS, platnost max 365 dní,
+  verze zásad v nastavení (zvýšení = zeptat se všech znovu). Žádná PII, na serveru se nic neukládá (záznamy souhlasů jsou F5).
+  `window.uxConsent.has()`, událost `uxstudio:consent`, `window.uxstudioConsent`.
+- **Consent Mode v2:** inline skript v `<head>` s prioritou 0 (default denied, pak update podle cookie) je statický a jeho hash se
+  registruje v `CspInlineScripts` (stejný mechanismus jako Forms, ne `unsafe-inline`). Basic = Google tagy blokované jako ostatní;
+  advanced = Google tagy (gtag, GTM) se nechají načíst hned. Výchozí basic. Update při rozhodnutí posílá `consent.js`.
+- **Komu zobrazit:** `display_to` = all | eu. Při „eu" se `consent.js` zeptá veřejného REST `uxstudio/v1/consent/region` (čte `CF-IPCountry`,
+  EU+EHP+GB+CH, filtr `uxstudio_consent_regions`); mimo region se souhlas bere jako udělený a lišta se nezobrazí; chybí-li hlavička
+  nebo endpoint selže, lišta se zobrazí. Výsledek se drží v `sessionStorage`.
+- **Napojení:** Pixel & Tag Manager tiskne své snippety zadržené přes `Gate::attrs()` (a vynechá `<noscript>` pixely); GTM Kit: vypnutí
+  jeho vlastního `consent default`, hlášení CMP a v basic režimu zadržení kontejneru (`wp_inline_script_attributes`).
+  Forms: `forms-consent-detect.js` čte nově i `window.uxConsent` (test v `tests/forms-consent-detect.mjs`).
+  `ConflictGuard` (katalog překryvů): `consent` je plný konflikt s Complianz, Complianz Premium, Cookie Notice, CookieYes, Cookiebot.
+- **GTM kontejner a cizí tagy (oprava po revizi):** `gtm.js` se v basic uvolní při kterékoli kategorii a v advanced hned, takže tagy
+  uvnitř kontejneru, které nečtou Consent Mode (Meta Pixel, Sklik, TikTok, Hotjar), by běžely bez souhlasu. `consent.js` proto při každém
+  stavu (cookie při načtení, nové rozhodnutí, region, i nerozhodnuto) pushne do dataLayeru
+  `{event:'uxc_consent', uxc_preferences, uxc_statistics, uxc_marketing, uxc_source}`. V kontejneru se takové tagy musí spouštět vlastním
+  spouštěčem této události s podmínkou na příslušnou proměnnou (nebo přes Additional consent checks); upozornění je v nápovědě
+  `consent_mode` i na stránce nastavení. Modul to z PHP vynutit neumí, protože do kontejneru nevidí. Test: `tests/consent-js.mjs`.
+- **Velikost frontendu:** `consent.min.js` 7,4 kB (3,0 kB gzip), `consent.min.css` 3,6 kB (1,3 kB gzip); Complianz ~21 kB přenos / ~90 kB.
+- **Ověřeno:** `php -l`, `tests/consent.php` (včetně spuštění skriptu s Consent Mode v Node), `forms-consent-detect.mjs`, `overlap-catalog`,
+  `module-links`, `module-groups`, `npm run build`. V prohlížeči na lokálním pobyty (Playwright): lišta se zobrazí, skripty zůstanou
+  `text/plain`, volba „jen statistika" uvolní GA a GTM a pošle `update`, „odmítnout" nic nespustí, mimo EU (mock endpointu) bez lišty
+  a se spuštěnými skripty, focus trap v detailu, endpoint `region` projde zámkem REST.
+- **Neověřeno / otevřené:** placeholdery iframe v prohlížeči (jen jednotkový test přepisu), `buffer_guard` na reálné stránce,
+  axe-core a kontrast s vlastními barvami, GTM Kit v režimu advanced, chování s WP Rocket/LiteSpeed (delay JS) a se striktní CSP
+  (hash našeho skriptu je v registru, ale zadržené cizí inline skripty po uvolnění potřebují vlastní hash), skutečná hlavička
+  `CF-IPCountry` (jen mock). Tagy v GTM kontejneru nezadržuje modul, řídí je kontejner (viz bod výše), ověřeno jen push události, ne konfigurace kontejneru. Uvolněné skripty
+  nedostanou znovu `DOMContentLoaded`. Pre-existující selhání `tests/admin-customiser-layout.php` (na main stejné) s tím nesouvisí.
+
+### 42.12 F2 poznámky k provedení (2026-11-09)
+
+Ověřeno v 42.17: záložka Služby a cookies, rozbalovátko cookies v liště, axe-core.
+
+Větev `feature/consent-module`, nepushnuto. Verze pluginu nezvýšena, změna je v CHANGELOG pod „Unreleased". Překlady negenerovány,
+nové řetězce jsou obalené `__()` a česky v `docs/i18n/cs-consent-f2.json`.
+
+- **Katalog cookies (jeden sdílený):** `CspServices::consent_services()` a `consent_service( $label )`. Data jsou v
+  `includes/Modules/SecurityOptimization/data/consent-services.php` (hlavička souboru popisuje pole), klíč = štítek služby z
+  `consent_catalogue()`, takže skript z hostu vede rovnou k jeho cookies. Služba má zpracovatele, zemi (ISO), způsob přenosu
+  (`us` / `adequacy` / `scc` / `eea`), odkaz na zásady poskytovatele, volitelnou poznámku a řádky cookies `[ název nebo vzor, účel en,
+  účel cs, doba ]`. Vzor: `*` je libovolný řetězec, začátek `~` znamená regex. Doba je kód (`session`, `30min`, `13mo`, `2y`),
+  slovy ji píše `Cookies::duration()` česky i anglicky. Pokryté služby: všechny z `consent_catalogue()` plus nezbytné
+  WordPress, WooCommerce, naše `uxs_consent`, Cloudflare a reCAPTCHA. Služby, u kterých jsem si nebyl jistý názvy cookies
+  (Sklik, Heureka, Zboží, Mapy, Smartsupp, Tidio, Smartlook), mají místo vymyšleného seznamu poznámku; Instagram, Pinterest, Vimeo,
+  Mailchimp, Tawk.to, Crisp a Intercom berou cookies z Open Cookie Database (max. 12, pole `ocd`). Služby mimo seznam hostů
+  nesou vlastní `category`. Label `gtag/js?id=G-` se nově jmenuje „Google Analytics" a `AW-` „Google Ads" (dřív oboje „Google Tag
+  Manager"), aby se ukázaly správné cookies; kontejner `gtm.js` zůstává „Google Tag Manager".
+- **Open Cookie Database, licence ověřena:** repo `jkwakman/Open-Cookie-Database`, soubor `LICENSE` je **Apache License 2.0** (README o
+  atribuci nic dalšího neříká, NOTICE soubor neexistuje). Apache 2.0 přibalení povoluje a je kompatibilní s GPL **v3** (ne s
+  GPL-2.0-only); plugin je `GPL-2.0-or-later`, takže je to v pořádku. Podmínky, které plníme: kopie licence je v
+  `includes/Modules/Consent/data/OPEN-COOKIE-DATABASE-LICENSE.txt`, `meta` datového souboru říká, že jde o upravenou (zredukovanou)
+  kopii a odkud je, atribuce je v README a na záložce „Služby a cookies". Import: `php bin/import-open-cookie-database.php [--file=ocd.csv]`
+  stáhne CSV a vygeneruje `includes/Modules/Consent/data/open-cookie-database.json` (2287 cookies, 359 platforem, 308 kB, 76 kB gzip;
+  jen název, příznak wildcard, platforma, kategorie, doba, správce a popis zkrácený na 160 znaků). `bin/` se do release zipu nebalí,
+  JSON ano. Plugin nic nestahuje za běhu. Wildcard v OCD = prefix. Kategorie OCD „Functional" se mapuje na `preferences`
+  (opatrnější čtení), „Security" a „Necessary" na `necessary`. Popisy z OCD jsou anglicky; české mají jen služby z našeho katalogu.
+  Soubor se čte až když ho někdo potřebuje (admin, veřejný endpoint pro službu bez vlastního seznamu), běžné zobrazení stránky ho nenačte.
+  Právní posouzení licence nedělal právník, je to čtení textu licence.
+- **Inventura (`Inventory`):** zdroje jsou HTML vzorku vlastních stránek (úvodní, 3 nejnovější příspěvky, 3 stránky, u WooCommerce produkt, košík,
+  pokladna; max. 10, filtr `uxstudio_consent_inventory_pages`) a tabulka CSP porušení (`CspLogger::table()`, sloupec `blocked_host`,
+  direktivy script/frame/child/connect/img, max. 200 hostů). **Odchylka od zadání:** místo `wp_scripts()` se čte vykreslené HTML (smyčka
+  přes `wp_remote_get` na vlastní permalinky), protože `wp_scripts()` existuje jen v requestu, který stránku vykresluje; HTML navíc zachytí
+  natvrdo vložené skripty a ukáže, co opravdu servíruje keš. Z HTML se berou `<script src>`, `<link rel=stylesheet|preload|modulepreload>`,
+  `<iframe src|data-uxc-src>`, `<img src>` a inline snippety podle `consent_inline_signatures()`. Ukládají se jen holá fakta (host, max. 5
+  příkladů adres bez query kromě `id` Google tagu, počty) do volby `uxstudio_consent_inventory` (bez autoload); zařazení se počítá při
+  čtení, takže nové pravidlo nebo katalog platí hned. Host patří do jednoho ze čtyř stavů: pravidlo (rozhodl správce), služba z katalogu
+  (kategorie), „známý a nevyžaduje souhlas" (`CspServices::catalogue()`: písma, CDN) a **fronta k zařazení** (zbytek).
+  **Zařazení = vlastní pravidlo:** `Inventory::assign()` přepíše řádek `host kategorie` v nastavení `custom_rules` (ostatní řádky a komentáře
+  zůstanou, max. 100 pravidel), takže ho `Blocker` používá stejně jako ručně napsané pravidlo; volba `remove` rozhodnutí smaže. Běh: ručně
+  tlačítkem a týdně WP-Cron (`uxstudio_consent_inventory_run`; v tomhle pluginu se používá WP-Cron, Action Scheduler ne). Rozpočet běhu 30 s,
+  `Module::on_disable()` cron ruší. REST (`InventoryRest`, capability `manage_options`, zápisy přes rate limit `Controller::route`):
+  `GET consent/inventory`, `POST consent/inventory/scan`, `POST consent/inventory/assign {host, category}`.
+- **Seznam cookies v liště:** `frontend_config` nese jen **názvy služeb** (config 1,8 kB na pobyty), cookies se nenačítají s každou stránkou.
+  `consent.js` při prvním otevření rozbalovátka „Služby" zavolá veřejný `GET uxstudio/v1/consent/cookies?s=A|B` (max. 40 štítků, jen
+  štítky, které katalog zná, odpověď `{štítek: {p, c, t, u, n, k:[[název, účel, doba]]}}`, `Cache-Control: public, max-age=3600`, transient 12 h
+  na štítek) a doplní zpracovatele, zemi, odkaz na zásady a cookies pod každou službu. V kategorii „Nezbytné" se nově ukazují vlastní služby webu
+  (WordPress, Cookie consent, WooCommerce). Velikost: `consent.min.js` 8,6 kB (3,5 kB gzip), `consent.min.css` 3,9 kB (1,4 kB gzip), před F2
+  7,4 / 3,6 kB. Oba veřejné endpointy (`consent/region` a `consent/cookies`) se nově registrují do filtru `uxstudio_rest_public_routes`;
+  **`consent/region` v F1 chyběl**, takže při zamčeném REST (Security Optimization) by padal a lišta se zobrazila všem (bezpečný směr, ale „jen EU" nefungovalo).
+- **Admin:** záložka „Služby a cookies" na stránce modulu (`src/modules/consent/Inventory.tsx`, stávající třídy `uxs-table`, `uxs-badge`,
+  `button`): tlačítko „Prohledat teď", fronta k zařazení s výběrem kategorie (preference / statistika / marketing / nezbytné), nalezené služby a
+  cookies, „Vaše rozhodnutí" se zapomenutím, atribuce OCD.
+- **Veřejná metoda pro F3 a F4:** `\UxStudio\Modules\Consent\Report::site( ?string $lang = null )` (jazyk `cs` / `en`, jinak podle locale). Vrací
+  `['generated', 'language', 'scanned_at', 'categories' => ['necessary'|'preferences'|'statistics'|'marketing' => [služba ...]], 'cookies' => [plochý
+  seznam], 'unclassified' => [hosty ve frontě], 'open_cookie_database' => meta]`. Služba: `label, category, processor, country, country_name,
+  transfer, transfer_text, policy, note, cookies[name, purpose, duration, source (catalogue|ocd)], hosts, found`. Seznam služeb je stejný jako
+  v liště (vlastní nezbytné + nalezené a zařazené + ručně psané + Pixel & Tag Manager + GTM Kit), takže zásady cookies a lišta si nemohou
+  odporovat. F3 sken porovná skutečné cookies s `Cookies::match( $name, $lang )` (katalog, pak OCD; vrací službu, kategorii, účel, dobu,
+  zdroj) a hostitele s `Inventory::state()`. Pozor: je to popis toho, co katalog a inventura VĚDÍ, ne důkaz, co na webu běží.
+- **Ověřeno:** `php -l`, `tests/consent.php` (131 případů: úplnost katalogu, vzory, OCD vč. chybějícího souboru, doby, čeština, parsování HTML,
+  fronta, pravidla, shoda s `Blocker`), `tests/consent-wp.php` (nový, WP-CLI proti lokálnímu pobyty s načtenými třídami z tohoto checkoutu:
+  skutečný běh inventury 10 stránek za cca 18 s, oprávnění, veřejný endpoint, kolečko zařazení a zapomenutí, velikost configu, `Report::site`),
+  `consent-js.mjs`, `forms-consent-detect.mjs`, `overlap-catalog`, `module-links`, `module-groups`, `csp-logic`, `csp-inline-scripts`,
+  `npm run build`, `npm run build:widget`, `tsc --noEmit`.
+- **Neověřeno / otevřené:** zobrazení záložky a rozbalovátka cookies v prohlížeči (po dohodě se v F2 do prohlížeče nechodilo), axe-core nových
+  prvků v liště; zda zásady poskytovatelů a doby cookies jsou aktuální (sestaveno z veřejných informací a OCD, bez ověření u poskytovatelů;
+  Sklik, Heureka, Zboží, Mapy, Smartsupp, Tidio a Smartlook nemají seznam cookies vůbec, jen poznámku; adresy zásad Heureky, Smartsupp a Smartlooku
+  chybí, protože jsem si nebyl jistý); chování smyčky `wp_remote_get` za firewallem nebo basic auth klienta (stránka se pak přeskočí a
+  inventura je neúplná; není o tom hlášení v UI); běh 10 stránek trvá desítky sekund, na pomalém hostingu s krátkým `max_execution_time`
+  nebo proxy může ruční tlačítko vypršet (cron to nemá); CSP tabulka může obsahovat podvržené hosty (veřejný token), jsou jen ve frontě a nic
+  se neblokuje ani nepovoluje automaticky; `Inventory` nezná cookies nastavené jen skriptem (to řeší dynamický sken F3); Action Scheduler
+  se nepoužil.
+### 42.13 F5 poznámky k provedení (2026-11-09)
+
+Ověřeno v 42.17: záložka Záznamy souhlasů, skutečný `sendBeacon`, export CSV (nalezena a opravena chyba s `&amp;` v odkazu).
+
+Větev `feature/consent-log` (z `feature/consent-module`), nepushnuto. Verze pluginu nezvýšena, změna je v CHANGELOG pod „Unreleased“.
+
+- **Kde:** `includes/Modules/Consent/Records.php` (tabulka, validace, ukládání, souhrn, CSV, retence), `RecordsRest.php` (veřejný zápis + admin routy +
+  export přes `admin-post`), `RecordsWidget.php` (dashboard widget, vzor 20.10); `consent.js` (odeslání), SPA záložka „Záznamy souhlasů“
+  (`src/modules/consent/Records.tsx`, `Page.tsx`), nastavení v `Module.php` + `help.php`, čeština `docs/i18n/cs-consent-f5.json`.
+  Testy: `tests/consent-records.php` (bez WP), `tests/consent-records-wp.php` (WP-CLI eval-file, tabulku si vytvoří a zahodí), `tests/consent-js.mjs` (rozšířen o falešné DOM).
+- **Tabulka `{prefix}uxstudio_consent_log`** (schéma v1, `DB::ensure_module_tables('consent', 1, …)` z `Records::boot()`, stejný mechanismus jako Analytics/PopupManager):
+  `id` BIGINT AI, `consent_id` CHAR(32), `created_at` DATETIME (UTC), `policy_version` SMALLINT, `categories` TINYINT (bity 1 předvolby, 2 statistiky, 4 marketing, stejně
+  jako cookie), `action` VARCHAR(12), `page_path` VARCHAR(255) NULL; indexy `consent_id`, `created_at`. **Žádná IP, žádný user agent, žádné zařízení, žádný query string.**
+- **ID souhlasu:** 32 hex znaků z `crypto.getRandomValues` (záloha `Math.random`), generuje prohlížeč při prvním rozhodnutí. Je 5. částí cookie
+  `uxs_consent` (`1.<verze>.<bity>.<čas>.<id>`; inline skript Consent Mode čte jen první 4 části, takže se jeho hash nemění a stará cookie bez ID dál platí). Při dalším rozhodnutí
+  se ID zachová (historie jednoho návštěvníka se vyhledá jedním ID, i přes změnu verze zásad), stará cookie bez ID dostane nové ID. V detailu lišty (znovuotevření) je řádek „ID souhlasu“.
+- **Typy akcí:** `accept_all`, `reject_all`, `custom`, `withdraw` (rozhodnutí, které odebere dřív udělenou kategorii; v JS stejná podmínka, která spouští reload stránky).
+  `region` se **nezapisuje** (odchylka od zadání): mimo EU/EHP lišta neběží a nikdo nic nerozhodl, záznam by nebyl doklad souhlasu a zaplnil by tabulku každou návštěvou.
+  Server proto `region` neakceptuje. Serverová kontrola souladu: `accept_all` ⇒ bity 7, `reject_all` ⇒ 0.
+- **Odesílání (`consent.js`):** po každém rozhodnutí `navigator.sendBeacon(cfg.rec, URLSearchParams)` (form-urlencoded je „simple“ požadavek, takže bez CORS preflight ani při jiném
+  originu REST URL), záloha `fetch(..., {keepalive:true, credentials:'omit'})`; vše v `try/catch`, nikdy neblokuje lištu. Při pouhém načtení uložené volby se nic neposílá.
+  Cesta je jen `location.pathname`. `cfg.rec` se do konfigurace tiskne jen při zapnutém ukládání.
+- **Veřejný endpoint `POST uxstudio/v1/consent/record`:** `permission_callback => '__return_true'`, což je přesně signál, podle kterého zámek REST
+  (`SecurityOptimization\Module::is_own_public_endpoint`) pustí vlastní veřejnou routu nepřihlášeným, stejně jako `consent/region` (netřeba nic přidávat do `uxstudio_rest_public_routes`).
+  Obrana v pořadí: přepínač ukládání, limit těla 1024 B (413), `Guard::exceeded('consent_record', 30, 60, 600)` z Bot Throttle (sdílená infrastruktura; drží jen solený hash IP v APCu,
+  bucket tabulce nebo transientu na minuty, ve vlastních záznamech modulu IP není), striktní validace argumentů (ID `^[a-f0-9]{32}$`, verze int 1 až 9999, bity 0 až 7, akce z allowlistu,
+  cesta se ořízne na path bez query/fragmentu a při nepovolených znacích se zahodí; špatný vstup = 400), limit na ID (8 za 10 minut, transient) a strop pro celý web (120 za minutu, filtr
+  `uxstudio_consent_record_cap`, minimum 10). Stejné rozhodnutí poslané dvakrát do 5 minut se uloží jednou. Odpověď 204 bez těla, `Cache-Control: no-store`.
+  Poznámka: když Bot Throttle někoho zablokuje, zapíše to do **svého** logu (hash IP + user agent + URL) jako u každého jiného Guardu; do tabulky souhlasů se nic z toho nedostane.
+- **Retence:** nastavení `log_retention_days` (výchozí 1095 = 3 roky, drží se mezi 30 a 3650; 0 nebo nesmysl = výchozí, ne „navždy“) a `log_enabled`. Denní cron
+  `uxstudio_consent_log_purge` volá `Retention::purge()` (dávky po 5000, UTC), plánuje se v `Records::boot()`, ruší v `Module::on_disable()`. Data se při vypnutí modulu nemažou.
+- **Admin:** záložka „Záznamy souhlasů“ (nastavení nahoře, pod ním přehled za 7/30/90/365 dní: počty a podíly podle akce, počet návštěvníků, podíl povolených kategorií, počet uložených,
+  nejstarší záznam), vyhledání podle ID (toleruje velká písmena a pomlčky), export CSV (od/do, volitelně jen jedno ID; `admin-post` + nonce + `manage_options`, UTF-8 BOM,
+  `Csv::safe_row`, čtení po 1000 řádcích přes `id > N`, takže se tabulka nenačítá celá do paměti; export se zapisuje do Activity Logu). REST: `GET consent/records/summary|find|export-url` (`manage_options`).
+  Dashboard widget „Cookie lišta: odpovědi návštěvníků“ (podíly za 30 dní), jen pro správce a při zapnutém ukládání.
+- **Odinstalace:** plugin nemá žádný `uninstall.php` ani mazání tabulek modulů (konvence: data zůstávají i po vypnutí modulu, mimo `NoticeHistory\Store`). Tabulku souhlasů jsem proto nemazal
+  ani já. Pokud se má smazání při odinstalaci pluginu zavést, je to rozhodnutí pro všechny moduly najednou.
+- **Neověřeno:** SPA záložka v prohlížeči (zadání zakazuje, jen `npm run build` a `tsc`); skutečný `sendBeacon` v prohlížeči (otestováno proti falešnému DOM a stubu); `consent/record`
+  za cizím WAF/Cloudflare pravidlem; chování APCu větve Guardu; test `consent-records-wp.php` běžel proti nainstalovanému (starší) pluginu na lokálním webu, kde zámek REST ještě nemá
+  `register_rest_lock()` a `RestRoute` (použit starší `restrict_rest_api`), takže plný zámek z této větve je ověřen jen čtením kódu (`is_own_public_endpoint` + `__return_true`);
+  zámek s `rest-public-routes.php` pro novou routu neběžel. Velikost `consent.min.js`: viz CHANGELOG/report (8,5 kB, 3,5 kB gzip, o 1,2 kB resp. 0,4 kB víc než v F1).
+
+### 42.14 F4 poznámky k provedení (2026-11-09)
+
+Ověřeno v 42.17: záložka Právní stránky, stránky na frontendu, klasická i bloková pokladna WooCommerce a meta `_uxstudio_terms_version` (HPOS ne).
+
+Větev `feature/consent-module`, nepushnuto. Verze pluginu nezvýšena, změna je v CHANGELOG pod „Unreleased“. Překlady negenerovány, nové řetězce
+jsou obalené `__()` a česky v `docs/i18n/cs-consent-f4.json`. Do prohlížeče se v F4 nechodilo (viz „Neověřeno“).
+
+- **Kde:** `includes/Modules/Consent/` `Legal` (data, stránky, verze, shortcody, meta objednávky), `LegalProfile` (údaje průvodce, validace),
+  `LegalBuilder` (hodnoty pro šablony, tabulky z `Report::site()`, doprava a platby z WooCommerce), `LegalTemplate` (malý šablonovací jazyk),
+  `LegalRest` (admin routy), šablony `legal/{cs,en}/{cookies,privacy,terms}.php` a `legal/purposes.php` (účely, právní základy, výchozí doby);
+  SPA záložka „Právní stránky“ (`src/modules/consent/Legal.tsx`, v `Page.tsx` jen položka záložky, v `Module.php` jen `Legal::boot()`). Testy: `tests/consent-legal.php` (bez WP: engine,
+  validace, šablony, **checklist**, 137 případů), `tests/consent-legal-wp.php` (WP-CLI, vše po sobě uklidí a ověří), `tests/consent-legal-similarity.php` (kontrola podobnosti).
+- **Proč texty nejsou v gettextu:** dlouhé právní texty se překládají jako celek a kvůli právní přesnosti mají v každém jazyce vlastní stavbu vět (české
+  § a čl., anglický text není doslovný překlad). Proto jeden soubor šablony na jazyk a dokument. Admin rozhraní (štítky, chyby) jde normálním `__()`.
+  Jazyk stránek: nastavení průvodce (auto = jazyk webu `WPLANG`/`get_locale()`, ne jazyk administrátora), nebo atribut `lang` shortcodu.
+- **Šablonovací jazyk:** `{{x}}` escapované, `{{{x}}}` HTML, které sestavil generátor (a už ho escapoval), `{% if x %}..{% else %}..{% endif %}`, `{% if not x %}`.
+  Nic nespouští kód. Hodnoty z průvodce jdou vždy přes `{{ }}`; výsledek navíc prochází `wp_kses_post`. Test hlídá vyvážení podmínek, stejnou sadu proměnných v cs a en
+  a že každá proměnná šablony má hodnotu v `LegalBuilder::vars()`.
+- **Průvodce (`LegalProfile`):** název, IČO (6 až 10 číslic), DIČ, sídlo, zápis v rejstříku, e-mail, telefon, pověřenec ano/ne + kontakt, dozorový úřad (výchozí ÚOOÚ), účely
+  (8: objednávky, účty, dotazy, newsletter, recenze, statistika, reklama, provoz a zabezpečení webu; každý s údaji, právním základem a výchozí dobou uložení, kterou jde přepsat), příjemci ručně
+  (druh, název, „mimo EHP“, max. 30), e-shop ano/ne, kdo platí vrácení zboží, adresy pro reklamace a vrácení, poznámky k dodání a platbě, jazyk. Uloženo v nenačítané volbě
+  `uxstudio_consent_legal` spolu s id stránek a aktuální verzí dokumentu. Validace jen na serveru; neplatný vstup = 400 s chybami po polích a nic se neuloží.
+  Příjemci a předání mimo EHP se **předvyplní ze služeb v `Report::site()`** (poskytovatel, země, způsob přenosu z katalogu) a spojí s ručními. Účely navrhuje podle toho, zda web
+  používá statistiku nebo marketing. Nevyplněný průvodce = stránky se nevytvoří (chybějící údaje jsou vypsané u dokumentu).
+- **Stránky a shortcody:** stránka obsahuje jen blok shortcodu `[uxstudio_legal doc="cookies|privacy|terms"]` (volitelně `lang`). Celý dokument se skládá **živě při zobrazení**
+  z šablony, údajů průvodce a `Report::site()`, takže nová služba nebo cookie se v tabulce objeví hned. Samostatně `[uxstudio_cookie_table]` (jen tabulky) a existující `[uxstudio_cookie_settings]`
+  (tlačítko, vkládá se do zásad cookies). Stránka, kterou majitel přepsal vlastním obsahem, se nepřepisuje (verze se zaznamená dál). Nová stránka je koncept, dokud se nezaškrtne „zveřejnit“.
+  Při zveřejněné stránce se nastaví WP „stránka zásad ochrany soukromí“, `policy_url` lišty a `woocommerce_terms_page_id`, **jen když tam nic není**. Upozornění „nejde o právní službu, nechte zkontrolovat
+  právníkem“ je v adminu (nahoře na záložce) a ve zdroji každé stránky jako HTML komentář; do viditelného textu je nedávám, protože výstup je kešovaný pro všechny návštěvníky a klient by
+  měl nápis na veřejné stránce. Chce-li se viditelný nápis, jde to jednou větou v šabloně.
+- **Verzování:** verze = snímek vykresleného dokumentu (skrytý typ příspěvku `uxs_legal_version`, `post_content` = HTML s tokenem místo tlačítka cookies, meta `_uxs_doc/_uxs_ver/_uxs_hash/_uxs_lang/_uxs_effective`).
+  „Vytvořit/aktualizovat stránky“ vykreslí dokument, spočítá SHA-256 normalizovaného textu a **novou verzi udělá jen když se hash liší** od aktuální (nebo se změnil jazyk). Do hashe vstupuje i živá tabulka cookies a seznam
+  příjemců, takže změna služeb = nová verze po aktualizaci; do té doby admin u dokumentu ukazuje „text se od té doby změnil“ a výpis neklasifikovaných hostů, které v zásadách chybí. Číslování 1, 2, 3; datum „účinná od“ = okamžik vzniku verze
+  (u konceptu je tedy datum vzniku, ne zveřejnění). Na stránce nahoře „Verze N, účinná od D“, dole zavřená sekce „Dřívější verze“ s texty (`platila od … do …`). V adminu historie s otiskem a zobrazením textu. Archiv se nikdy nemaže.
+  Mezi živým zobrazením a poslední zveřejněnou verzí tedy může být rozdíl (živá tabulka je novější); je to záměr a admin to hlásí.
+- **Obchodní podmínky a objednávky:** šablona pro spotřebitele podle českého práva (úvod a vymezení spotřebitele, uzavření smlouvy, cena a platba, dodání, odstoupení do 14 dnů vč. výjimek a vzorového formuláře,
+  vady a reklamace, ČOI, osobní údaje, závěr). Doprava (zóny, flat rate s cenou, doprava zdarma od částky) a platební brány (zapnuté) se čtou živě z WooCommerce, DPH podle `wc_prices_include_tax()`.
+  **Verze k objednávce:** hooky `woocommerce_checkout_create_order` (klasická pokladna) a `woocommerce_store_api_checkout_update_order_meta` (blokový checkout) uloží přes `$order->update_meta_data()` (HPOS bezpečně)
+  `_uxstudio_terms_version`, `_uxstudio_terms_hash` (SHA-256 celého textu), `_uxstudio_terms_effective` a `_uxstudio_terms_snapshot` (id snímku v archivu), jen když je stránka s podmínkami zveřejněná a
+  objednávka ještě nic nemá. Detail objednávky v adminu (`woocommerce_admin_order_data_after_order_details`) ukáže „verze N, účinná od D, otisk 12 znaků“. Starší objednávka zůstává na své verzi i po změně podmínek; její text je v archivu.
+  Odkaz na text konkrétní verze z detailu objednávky zatím není (je v historii na záložce).
+- **Odchylky a rozhodnutí:** (1) ODR platforma EU byla zrušena (nařízení 2024/3228, platforma skončila 20. 7. 2025; z paměti, neověřeno), proto podmínky uvádějí jen ČOI a `adr.coi.cz`, bez odkazu na platformu ODR.
+  (2) „Pověřenec“ ve výchozím textu = nemáme, protože to zákon neukládá; to platí jen pro soukromé subjekty, veřejný orgán ho mít musí (průvodce to nehlídá). (3) Právní základ a doba uložení účelů jsou výchozí návrh
+  (např. doklady 10 let), majitel je může upravit, ale nemusí být pro jeho činnost správné. (4) HPOS: plugin jako celek neohlašuje kompatibilitu `custom_order_tables`, F4 používá jen CRUD API objednávky; hlášení je
+  rozhodnutí pro celý plugin, ne pro tuto fázi.
+- **Kontrola podobnosti (úkol 4):** referenční texty = bezplatný plugin `complianz-gdpr` z wordpress.org (stažen do `C:\Users\sturm\.claude\screenshots\complianz-tmp\`, po kontrole smazán): anglické šablony zásad cookies
+  (`config/documents/cookie-policy-{eu,uk,us,au,br,ca,za}.php`) a řetězce ze `.pot` + **české překlady** z translate.wordpress.org (578 českých a 813 anglických odstavců). Šablony zásad ochrany osobních údajů a obchodních podmínek
+  jsou v placené verzi a ke stažení nebyly, takže se s nimi srovnat nedalo. Skript `tests/consent-legal-similarity.php <složka>`: z našich šablon (vyrenderovaných se všemi volitelnými částmi), `purposes.php` a delších řetězců `LegalBuilder`
+  bere odstavce o 12+ slovech (u builderu 9+) a měří (a) podíl našich slovních 4-gramů, které se vyskytují kdekoli v referenci („contain4“) a (b) `similar_text` proti 5 odstavcům reference s nejvíc shodnými 3-gramy. **Prahy: příznak při contain4 >= 0,20
+  nebo similar_text >= 50 %.** Výsledek: čeština 100 odstavců, contain4 max 0,06 (98 bez jediné shody), similar_text max 44,6 %; angličtina 108 odstavců, contain4 max 0,17 (devítislovná věta „data may be transferred outside the European Economic Area“),
+  similar_text max 48,4 % (věta „We do not use any service in this category“); **0 odstavců přes práh, nic se nepřepisovalo**. Nejbližší shody jsou věty, které nese samotné GDPR (čl. 7 odst. 3, čl. 21). Slabiny metody: reference je
+  jen malá část Complianzu; n-gramy nechytí převyprávění beze změny slov; práh je odhad. Struktura a rozsah témat byly inspirované Complianzem a GDPR, formulace psané od nuly.
+- **Checklist (revize Claude, úkol 5)** - v `tests/consent-legal.php` jako 82 spustitelných kontrol (cs i en) proti vykresleným šablonám, všechny splněny:
+  - Zásady ochrany osobních údajů (GDPR čl. 12 a 13): totožnost a kontakt správce; pověřenec nebo prohlášení, že není; účely a právní základ (čl. 6) u každého účelu; oprávněný zájem, je-li základem; příjemci; předání do třetích zemí se zárukou
+    (kapitola V) a způsobem získání kopie záruk; doba uložení u každého účelu; práva čl. 15, 16, 17, 18, 20, 21 (vč. přímého marketingu), odvolání souhlasu čl. 7 odst. 3; stížnost u dozorového úřadu; zda je poskytnutí údajů povinné a následky;
+    automatizované rozhodování a profilování; lhůta jednoho měsíce na vyřízení žádosti (čl. 12); zdroj údajů (čl. 14); odkaz na zásady cookies.
+  - Zásady cookies (§ 89 odst. 3 ZEK, GDPR): kategorie (nezbytné, předvolby, statistika, marketing; vždy všechny čtyři, aby bylo vidět, co se nepoužívá), u každé služby poskytovatel a země a odkaz na jeho zásady, u každé cookie název, účel a doba;
+    co je nezbytné bez souhlasu a co se souhlasem; jak souhlas změnit nebo odvolat (tlačítko `[uxstudio_cookie_settings]`); doba platnosti volby a záznam souhlasu (ID, bez IP, retence); předání mimo EHP; jak cookies zakázat v prohlížeči; verze a archiv.
+  - Obchodní podmínky (OZ § 1811, 1820, 1829 a násl., § 1837, zákon 634/1992 § 19 a 20d): identifikace prodávajícího; postup objednání a vznik smlouvy; cena vč. daně a nákladů dopravy; platba a doprava; odstoupení 14 dnů, lhůta, způsob, vrácení zboží,
+    vrácení peněz, kdo nese náklady, výjimky, vzorový formulář; vady (záruka 24 měsíců, volba nároků); reklamace (potvrzení, 30 dnů); mimosoudní řešení sporů (ČOI); osobní údaje; změny podmínek a použitelná verze.
+  - **Co revize našla a opravila během psaní:** nepodložená „splatnost do 5 dnů“ (vypuštěno), obrácené pořadí lhůt při rozhodnutí o reklamaci (opraveno: ihned, ve složitých případech do 3 pracovních dnů, vyřízení do 30 dnů), chybná doména ČOI (správně `adr.coi.cz`),
+    odstavec o přechodu nebezpečí škody, který nedával smysl (vypuštěn), pevná lhůta domněnky vady (nahrazena odkazem na dobu stanovenou zákonem, protože jsem si nebyl jistý aktuálním číslem).
+  - **Známé mezery šablon (neřeší se, právník nebo další verze):** žádná ustanovení pro dárkové poukazy, předobjednávky, předplatné a digitální obsah, osobní odběr, zahraniční doručení, firemní zákazníky nad rámec jedné věty, reklamační řád jako
+    samostatný dokument; odkazy na paragrafy nebyly ověřeny proti aktuálnímu znění zákonů (čerpáno z paměti, ne z e-Sbírky); ustanovení o odpovědnosti za škodu na zboží při dopravě je obecné.
+- **Ověřeno:** `php -l`, `npx tsc --noEmit`, `npm run build`, `npm run build:widget`, `tests/consent-legal.php` (137), `tests/consent-legal-wp.php` (WP-CLI proti lokálnímu pobyty: validace, vykreslení z `Report::site()` včetně nové služby bez přegenerování, verze 1 a 2 a archiv,
+  angličtina, XSS v údajích průvodce, doprava a platba z dočasné zóny a brány WooCommerce, meta objednávek (3 objednávky, starší zůstane na své verzi, nezveřejněné podmínky nic neukládají), zobrazení v detailu objednávky, REST práva anonym/editor/admin, úklid: stránky,
+  verze, volby, objednávky a tabulka záznamů vráceny do původního stavu), existující `tests/consent.php`, `consent-records.php`, `consent-wp.php`, `consent-js.mjs`, `forms-consent-detect.mjs`, `module-links`, `module-groups`, `overlap-catalog`.
+  Vykreslení jednoho dokumentu stojí 11 až 35 ms na lokálu bez keše (kešuje stránka).
+- **Neověřeno / otevřené:** zobrazení záložky „Právní stránky“ a stránek na frontendu v prohlížeči (zadání zakázalo; shortcode v bloku `core/shortcode`, vzhled tabulek v šabloně motivu, `<details>` s archivem); skutečná pokladna WooCommerce (klasická i blokový checkout:
+  hooky jsou volané přímo s objednávkou vytvořenou `wc_create_order()`, ne přes odeslání pokladny; blokový hook jsem neviděl běžet); HPOS zapnuté (lokální web jeho stav nezkoumán); `tests/consent-records-wp.php` nelze s `--skip-plugins=ux-studio` spustit (potřebuje
+  nainstalovaný plugin, jak píše jeho hlavička; k F4 se nevztahuje); zda je český text správný a úplný z právního hlediska (revizi právníkem to nenahrazuje); cookies se v tabulce zobrazují podle katalogu, ne podle skutečného skenu (to přinese F3); stránky se nikdy nezveřejní
+  samy; chování s WPML/Polylang (jazyk se bere z jednoho nastavení, ne po jazycích); `Legal::state()` při každém otevření záložky vykresluje všechny tři dokumenty kvůli příznaku „změněno“, tedy desítky ms.
+### 42.15 F3 poznámky k provedení (2026-11-09)
+
+Ověřeno v 42.17: záložka Sken se vykreslí bez chyb (běh proti NASu ne).
+
+Větev `feature/consent-scan` (z `feature/consent-module`), nepushnuto. Verze pluginu nezvýšena, změna je v CHANGELOG pod „Unreleased“. Překlady negenerovány, české
+řetězce jsou v `docs/i18n/cs-consent-f3.json`. Protějšek v Centrální aplikaci (CA) je v jejím `PLAN.md` §39 (rozvrh, kroky, nasazení na NAS); **kontrakt je popsán na obou místech a musí zůstat shodný**.
+
+- **Rozdělení práce (a proč):** NAS jen **zaznamenává** (prohlížeč, čistý kontext, tři běhy), CA **řídí** (rozvrh, kroky, předání, upozornění, přehled flotily), plugin **vyhodnocuje**. Vyhodnocení je v pluginu,
+  protože katalog (`Cookies::match`, `Services::classify`, `CspServices`, OCD) a pravidla majitele žijí tady: nový katalog nebo ručně zařazený host platí při dalším skenu hned a CA nepotřebuje kopii katalogu.
+  Cena: CA neví, co je porušení, dokud jí to plugin neřekne, proto plugin v odpovědi na předání vrací souhrn (`summary`), krátký výpis a příznak `new` u každého porušení, ze kterých CA staví přehled a upozornění.
+- **Kde:** `includes/Modules/Consent/Scan.php` (sanitizace, vyhodnocení, úložiště, žádost o sken; čisté funkce bez WP jsou označené), `ScanRest.php` (routy), `src/modules/consent/Scan.tsx` (záložka „Sken“),
+  malé zásahy: `Module::boot()` (`Scan::boot()`), `Page.tsx` (záložka), `Inventory::facts()` (přimíchá hosty ze skenu), `Report::site()` (dvě nové klíče). Testy: `tests/consent-scan.php` (bez WP), `tests/consent-scan-wp.php` (WP-CLI).
+- **Kontrakt CA → plugin** (podepsané HMAC s nonce klíčem `node_api_key`, tedy `NodeController::verify`; trasy pod `uxstudio/v1/content-sync/node/`, takže je pouští stávající výjimka `uxstudio_rest_public_routes` pro Security Optimization):
+  - `GET /consent/scan-plan` → `{ok, consent:true, urls:[max 4 adresy tohoto webu z Inventory::sample_urls()], banner:'uxstudio', mode}`.
+  - `POST /consent/scan-result` s tělem `{scan_id, result}`, `result` = `{schema:1, scanner, scanned_at, site_url, pages[], banner:{kind, found}, scenarios:{none|accept|reject: {status: ok|banner_not_found|error, error, banner_visible, clicked, truncated, pages[], cookies[], storage[], requests[]}}}`.
+    Cookie: `name, domain, path, expires, http_only, secure, same_site, third_party, phase (load|choice|nav), page, via (http|script), by_host`. Storage: `area, key, origin, phase`. Požadavek: `host, type, path, third_party, n_pre, n_post`.
+    **Hodnoty cookies ani storage se neposílají a plugin je nikdy neukládá.** Limity těla 600 kB (413), 150 cookies, 150 klíčů storage a 400 požadavků na běh, 6 stránek. Plný popis s příkladem je v CA `PLAN.md` §39.2.
+  - Odpověď: `{ok, summary:{cookies, unknown_cookies, violations, new_unknown, new_violations, banner, judged:{none, accept, reject}}, violations:[{scenario, kind, name, service, category, new}] (max 20), unknown_cookies:[názvy] (max 20)}`.
+    Chyby: 401 špatný nebo opakovaný podpis (nonce je jednorázový, tolerance 300 s), 400 nevalidní výsledek, 413 příliš velké.
+- **Plugin → CA:** `Scan::request_scan()` volá `Gateway::post('consent_scan_api', {site_url, reason}, ['action'=>'request'])` (stejný kanál jako `social_refresh`: stálé ID webu v hlavičce, pozastavení při kopii webu, čtení 409/410/423).
+  CA odpoví 202 `{queued:true}` (sken proběhne v jejích cron tickech a výsledek přijde sám přes `scan-result`), 429 (jeden sken na hodinu), 409 (web nemá modul). Čas žádosti se pamatuje, záložka ukazuje „čeká na vyřízení“.
+- **Jak se ověřuje pravost dat:** (1) podpis HMAC s nonce klíčem webu (kdo nezná `node_api_key`, nic nevloží; test: špatný klíč, starý čas, opakovaný nonce, nepodepsané volání, vše 401), (2) `Scan::sanitize()` zahodí neznámá pole,
+  omezí počty a délky, vyčistí hosty (IP a nesmysly pryč), ořízne query a odmítne cizí enum hodnoty, (3) uloží se jen sanitizovaný tvar. Co to **neřeší**: CA, která má klíč webu, může poslat cokoli (např. vymyšlené porušení);
+  plugin nemá jak ověřit, že data opravdu vyrobil prohlížeč. Je to stejná úroveň důvěry jako u ostatních volání CA ↔ plugin.
+- **Vyhodnocení (`Scan::evaluate`, čistá funkce):** porušení = cookie nebo požadavek s kategorií jinou než nezbytná, který vznikl **bez souhlasu** (běh `none`, jen když byla lišta vidět) nebo **po odmítnutí** (běh `reject`, jen pokud se kliklo,
+  a jen co vzniklo po kliknutí: cookie ve fázi `load` a požadavky s `n_pre` se nepočítají, patří běhu `none`). Běh `accept` je jen referenční (jaké cookies web nastavuje). Neznámá cookie (`Cookies::match` = null) **není porušení**, jde mezi neznámé;
+  host se klasifikuje stejně jako v inventuře (vlastní pravidlo, katalog, „nevyžaduje souhlas“ jako písma a CDN, jinak neznámý). Při Consent Mode **advanced** se požadavky na Google před souhlasem za porušení nepočítají (je to dokumentovaná volba,
+  §42.8), cookies ano. Nové = klíč `scénář|druh|jméno` není v minulém skenu; při prvním skenu je každé porušení nové, ale neznámé cookies se nepočítají jako nové (jinak by první sken hlásil všechno).
+- **Napojení na zbytek:** neznámé **hosty** ze skenu `Inventory::facts()` přimíchá do faktů se zdrojem `scan`, takže se objeví ve frontě „k zařazení“ na záložce Služby a cookies a majitel je zařadí stejným tlačítkem (výsledek skenu se nepřepisuje při týdenním běhu inventury,
+  protože je v samostatné volbě). Neznámé **cookies** se ukazují na záložce Sken (pravidla na úrovni cookie nejsou, zařazení cookie do kategorie zatím není). `Report::site()` má dva nové klíče, `scan_at` a `scan_cookies`
+  (název, doména, kategorie, služba, účel, doba, `party`, kde se viděla); **klíče z F2 se nezměnily**. Pozor: `scan_cookies` je to, co **sken viděl**, na rozdíl od `cookies`, což je to, co katalog o službách **ví**.
+- **Úložiště:** jedna volba `uxstudio_consent_scan` (bez autoload): poslední sanitizovaný výsledek, jeho vyhodnocení (včetně klíčů pro porovnání s příštím skenem), čas přijetí a čas žádosti. Typicky pár kB až desítky kB. Volba se při odinstalaci nemaže (konvence modulu, viz F5).
+  Aktivita se zapisuje do `ActivityLog` (`consent` / `scan_received`).
+- **Admin:** záložka „Sken“ (`Scan.tsx`): tlačítko „Požádat centrální aplikaci o sken“ (zakázané bez propojení), stav propojení, souhrn (porušení, cookies, neznámé cookies, lišta), tabulka tří běhů (cookies, požadavky, zda se dal běh posoudit
+  a proč ne), porušení, neznámé cookies, všechny nalezené cookies. REST `GET uxstudio/v1/consent/scan`, `POST uxstudio/v1/consent/scan/request` (`manage_options`, zápis přes `Controller::route` s limitem).
+- **Ověřeno:** `php -l`, `tests/consent-scan.php` (36 případů: sanitizace, porušení bez souhlasu a po odmítnutí, co porušení není, neposouditelné běhy, advanced Consent Mode, novost, fronta inventury), `tests/consent-scan-wp.php`
+  (WP-CLI proti lokálnímu pobyty, 23 případů: podpis, starý čas, opakovaný nonce, nesprávný klíč, plán, přijetí výsledku, oprávnění admin routam, `Inventory::facts`, `Report::site`; po sobě uklidí volby a klíč),
+  stávající `tests/consent*.php`, `consent-js.mjs`, `npm run build`, `tsc --noEmit`. Společně s CA proběhl celý řetězec lokálně (cron v CA, skutečný Chrome, lišta UX Studia na statické stránce, skutečné třídy `Scan` a `HmacAuth` za maketou WordPressu), viz CA `PLAN.md` §39.8.
+- **Neověřeno / otevřené:** záložka Sken v prohlížeči (kompilace a typy ano, vykreslení ne, axe-core ne); skutečné REST trasy za skutečným webem s Security Optimization v zamčeném režimu REST (trasy jsou pod `content-sync/node/`, kde výjimka už platí, ale ověřeno jen
+  přes `rest_do_request`); běh proti cizím lištám (Complianz, Cookiebot, CookieYes, OneTrust, Borlabs) jsou selektory ze zdokumentovaných ID a tříd, **nezkoušené na živém webu**; lišta UX Studia se ovládá **pořadím tlačítek** v `.uxc-main .uxc-actions`
+  (odmítnout, přijmout, nastavení), protože `consent.js` nemá API pro přijetí; změní-li se pořadí, sken to pozná (kliknutí nezmění souhlas ⇒ běh `error`), ale bude potřeba upravit selektory v CA `consentscan.js`; sken vidí jen pár stránek a jen z IP NASu
+  (firewall klienta může sken zablokovat, viz §42.8); neznámá cookie se nedá zařadit (jen zjistit, co je); nová cookie z `scan_cookies` se v zásadách cookies (F4) zatím nepoužívá.
+
+### 42.16 F6 poznámky k provedení a postup pilotu (2026-11-09)
+
+Ověřeno v 42.17 jen UI kroku „Přepnout“ s `must_confirm` (zastubované REST odpovědi); skutečný Complianz a přepnutí ne.
+
+Větev `feature/consent-module`, nepushnuto. Verze pluginu nezvýšena, změna je v CHANGELOG pod „Unreleased“. Překlady negenerovány, české řetězce jsou v `docs/i18n/cs-consent-f6.json`.
+Protějšek v CA: `nas-scripts/scraper/consentscan.js` (větev `feature/consent-scan`).
+
+- **Kde:** zdroj migrace `includes/Core/Migration/Sources/ComplianzSource.php` (registrace v `SourceRegistry`, slugy `complianz-gdpr` a `complianz-gdpr-premium`, cíl `consent` z Catalogu), čisté mapování `includes/Modules/Consent/ComplianzMap.php`
+  (nastavení, převod shortcodů a bloků, logika cookie), kompatibilní shortcody `ComplianzCompat.php`, `Legal::adopt_page()` a `release_page()`, nové typy smoke testu `consent_banner` a `consent_blockers` v `Smoke.php`, `consent.js` (API + převod cookie),
+  dvě nová nastavení `legacy_prefix` a `legacy_policy_id`. Testy: `tests/consent-complianz.php` (včetně reálné fixture `tests/fixtures/complianz/7.5.7.json`), `tests/consent-js.mjs`, CA `nas-scripts/scraper/test/consentscan-local.js`.
+- **Cesta frameworkem, ne vedle něj.** Zdroj je `AbstractSource` + `Activatable`: nastavení jdou přes `Mapping`/`SettingsWriter` (při zapnutém modulu consent do stagingu, jinak přímo do volby bez účinku), údaje průvodce F4 přes `Mapping::option` (`uxstudio_consent_legal`, klíč `profile`,
+  jen prázdná pole), stránky jako data fáze (`data_kind` = `page`), vždy NEAKTIVNÍ ve stagingu a přepsané až v `Staging::apply` při přepnutí. Předání ConflictGuardu dělá `Switcher` beze změny: v jednom kroku `Staging::apply` → zapnutí modulu `consent` (a `pixel-tag-manager`
+  přes `extra_modules()`) → `deactivate_plugins(Complianz)`; vrácení to obrátí (moduly pryč → plugin zpět → volby zpět → `Activatable::deactivate` → staging zpět).
+- **Co se převádí:** Consent Mode (`consent-mode` + `gtag-basic-consent-mode` → off / basic / advanced; nenastavený Complianz = beze změny), doba platnosti (max 365), blokování skriptů a iframů (`enable_cookie_blocker`), GEO IP premium → „jen EU“, adresa stránky zásad cookies (`policy_url`),
+  texty lišty (nadpis, zpráva jako prostý text, Přijmout / Odmítnout / Nastavení / Uložit), pozice (bottom = pruh, bottom-left/right = box), barvy (pozadí, text, tlačítko přijmout), poloměr rohů, skrytí malého tlačítka (`hide-everywhere`), vlastní pravidla ze Script Centeru
+  (`block_script` → `<adresa> <kategorie>`, `whitelist_script` → `necessary`, funkční = necessary), údaje správce (název, adresa, e-mail, telefon) do profilu F4, ID Google Analytics (`compile_statistics` = google-analytics) do Pixel & Tag Manageru, předpona cookie a číslo zásad pro převod souhlasů.
+- **Co se nepřevádí (vypíše plán):** Do Not Track a GPC, soft cookie wall, souhlas posunem stránky nebo časem, vlastní CSS, logo, animace, styl přepínačů, písma, stíny, barvy ostatních tlačítek, druhá a další lišta (jazyky, A/B), překlady WPML/Polylang, vlastní popisy cookies a služeb,
+  odlišné režimy podle regionu (opt-out), dokumenty které neumíme (impressum, disclaimer, dohody o zpracování, regionální varianty US/UK/CA), `[cmplz-consent-area]` a jeho blok, `[cmplz-dnsmpi-request]`. Stránky s takovým prvkem zůstanou beze změny a jsou vypsané.
+  IČO, DIČ a pověřenec v Complianzu nejsou, plán na to upozorní.
+- **Dvě věci, které by po přepnutí tiše přestaly fungovat, jsou BLOKUJÍCÍ.** (1) Skripty přidané ve Script Centeru (`add_script`): modul nic takového nemá; plán vypíše název, kategorii a kód a nabídne ruční založení v modulu Code Snippets (nic se nepřesouvá automaticky).
+  (2) Tracking, který vkládá sám Complianz: GTM kontejner (`compile_statistics` = google-tag-manager) bez GTM Kitu nebo GTM4WP, Matomo, Clicky, Yandex, Clarity, Google Tag Gateway. GA4 se naopak převede do Pixel & Tag Manageru (staging). Blokování je zavedené jako **neprošlý test bezpečného náhledu**
+  (`consent_blockers`), takže přepnutí vyžaduje existující potvrzení „přepnout i tak“ (`override_failures`, v průvodci i v MCP); nová REST vlajka ani nové políčko průvodce nebyly potřeba. Slabina: kdo náhled přeskočí (`skip_preview`, automatické přepnutí průvodce po ověření), blokující test nepotká a upozornění zůstane jen v plánu.
+- **Právní stránky: rozhodnutí.** Stránka, její ID, slug a tedy URL zůstanou, mění se jen obsah, a to až při přepnutí: `[cmplz-document type="cookie-statement"]` nebo blok `complianz/document` → `[uxstudio_legal doc="cookies"]` (privacy-statement → `privacy`), odpojený blok s vlastním textem → `<!-- wp:html -->` s tím textem.
+  Důvod proti variantě „nové stránky se stejným slugem po přesunu původních“: nemění ID ani menu, odkazy, přesměrování a Search Console zůstanou a nehrozí kolize slugu `-2`. Původní obsah je v post meta `_uxs_cz_original` (plus revize WordPressu) a `deactivate()` ho vrátí bajt po bajtu,
+  pokud stránku mezitím nikdo neupravil (`_uxs_cz_written` = hash toho, co jsme zapsali); upravenou stránku nepřepíše a původní text zůstane v revizích. Přepsaná zveřejněná stránka se přihlásí jako stránka dokumentu (`Legal::adopt_page`) a vznikne verze 1 (`Legal::publish`); při vrácení se přihláška zruší.
+  Dokument se převede jen když profil F4 má název, adresu a e-mail (jinak by byl s prázdnými místy); jinak stránka zůstane a plán to řekne. Nezveřejněné stránky (koncept) se přepíšou, ale nepřihlásí.
+- **Shortcody a bloky v obsahu.** Přepisují se ve všech typech příspěvků: `[cmplz-manage-consent]`, `[cmplz-revoke-link text=...]`, `[cmplz-accept-link]` → `[uxstudio_cookie_settings]` (text → `label`), `[cmplz-cookies]` → `[uxstudio_cookie_table]`. Navíc `ComplianzCompat` registruje stejné názvy (a blok `complianz/document`), **jen když Complianz neběží**,
+  takže obsah, na který migrace nesáhla (page builder, widgety, vlastní pole), nevypíše surové shortcody a v bezpečném náhledu fungují ještě před přepsáním stránek.
+- **Souhlasy návštěvníků.** Cookies Complianzu: `cmplz_banner-status` = `dismissed`, `cmplz_policy_id` = číslo, `cmplz_preferences|statistics|marketing` = `allow` / `deny` (`cmplz_functional` je vždy allow; předpona `cmplz_`, u multisite `cmplz_rt_`; cesta cookie je podadresář webu).
+  `consent.js` je při prvním načtení čte, jen když chybí platná `uxs_consent` a v konfiguraci je `leg` (`{p: předpona, v: číslo zásad}`). **Rozhodnutí o verzi zásad:** převezme se jen když je lišta zavřená, je aspoň jedna kategorie rozhodnutá a `cmplz_policy_id` je rovno číslu zásad,
+  které Complianz měl při migraci (`complianz_active_policy_id`); jiné číslo = návštěvník se zeptá znovu, stejně jako to dělal Complianz. Z `allow` vzniknou bity, vše ostatní je zamítnuto; zapíše se naše cookie s novým anonymním ID a časem převodu, událost `uxc_consent` dostane `uxc_source: 'import'`
+  a pošle se i Consent Mode `update` (inline skript v `<head>` čte jen `uxs_consent`, takže první stránka jinak startuje s denied). Převod se **nehlásí do záznamů souhlasů** (návštěvník nic nerozhodl; doklad o souhlasu drží záznamy Complianzu, jejichž export doporučuji před přepnutím uložit).
+  Nastavení `legacy_prefix` vypíná převod (po roce, kdy stará cookies vypršela). Přírůstek skriptu: `consent.min.js` 9,8 → 10,5 kB (gzip 3,9 → 4,1 kB).
+- **API pro automatizaci.** `window.uxConsent.acceptAll()`, `rejectAll()`, `set({preferences, statistics, marketing})` volají stejné `commit` jako tlačítka (cookie, záznam F5, `uxc_consent`, Consent Mode update, případné znovunačtení při odvolání). CA `consentscan.js` je používá přednostně; u starší verze bez API zůstává klikání podle pořadí tlačítek (testováno oběma cestami).
+- **Ověřeno.** `php -l`, `npm run build`, `npm run build:widget`, `npx tsc --noEmit`, `tests/consent-complianz.php` (65 kontrol), všechny `tests/consent*.php`, `node tests/consent-js.mjs`, `overlap-catalog`, `migration-sources`, `migration-data-sources`, `migration-preview`, `migration-admin-sources`, `mcp-core`, `wizard-autostart`; CA lokální test skeneru (puppeteer, skutečný Chrome) s API i bez něj.
+  **Skutečná migrace na `_uxs-e2e` s Complianzem 7.5.7** (nasazená testovací konfigurace, 6 stránek a příspěvků): plán, běh, bezpečný náhled (9 z 10 testů ok, blokující test `add_script` správně neprošel), přepnutí bez potvrzení odmítnuto (409), přepnutí s potvrzením: Complianz deaktivován, `consent` a `pixel-tag-manager` zapnuty, 5 stránek přepsáno a 1 (impressum) ponechána,
+  živý test „jedna lišta“ ok, v prohlížeči jedna lišta s převzatým nadpisem a barvami, `/prace-s-cookies/` a `/gdpr/` na stejných adresách s vygenerovaným dokumentem, vracející se návštěvník s cookies Complianzu bez lišty (volba 3 = preference + statistika, událost `import`), jiné číslo zásad lištu ukáže, `acceptAll()` funguje.
+  Vrácení přepnutí: obsah všech stránek, `active_plugins`, seznam modulů, profil a ID Google Analytics **shodné s hashem před přepnutím**; druhý cyklus přepnutí a vrácení stejně; rollback běhu smaže volby. Varianta „modul `consent` už zapnutý při migraci“: 22 hodnot a 5 stránek čeká ve stagingu, živé volby nezměněny, rollback čistý.
+- **Nalezeno při ověření.** Apache na lokálu držel přes opcache starou cestu k pluginu (junction přesměrovaný na jiný worktree) a modul `consent` se v HTTP nenačetl; pomohl `opcache_reset()`, ne chyba v kódu. Archiv verzí dokumentů (`uxs_legal_version`) po vrácení a rollbacku zůstane (konvence F4: archiv se nemaže), jen se odpojí od stránky.
+- **Neověřeno / otevřené.** Jen free verze Complianzu 7.5.7 s jednou ručně nasazenou konfigurací (bez GTM, bez prémiových funkcí: GEO IP, regionální banner, `privacy-statement`, `impressum`, TCF); stránky `privacy-statement` a `impressum` jsou testovány na syntetickém obsahu. Sken F3 po přepnutí proti skutečnému webu (jen lokální test s API).
+  Chování s WP Rocket (keš se po přepnutí neprázdní automaticky, `Module::purge_page_caches()` volá jen uložení nastavení modulu; v pilotu vyčistit ručně) a se striktní CSP. Polylang/WPML. Multisite (`cmplz_rt_`). Převod cookie jen v testech s falešným DOM a v Chrome na lokálu, ne za Cloudflare. Obsah v datech page builderů (Elementor, Divi) se nepřepisuje, jen ho kryje `ComplianzCompat`.
+  Smoke test „jedna lišta“ hledá `cmplz-cookiebanner` v HTML, ale Complianz lištu vkládá JavaScriptem, takže pozná jen zbytky skriptu (`complianz.min.js`, `cmplz_fire_categories`), ne lištu samotnou; po přepnutí proto vždy spustit sken F3.
+
+#### Postup pilotu na autoservisvydra.cz (NEPROVEDENO, jen příprava)
+
+Web je živý a za Cloudflare/openresty; platí pravidla živého serveru (záloha lokálně i na serveru, nikdy nepřepsat serverový soubor lokálním bez diffu). Pilot dělat mimo špičku a s uživatelem po ruce.
+
+1. **F0 předem (měření, zapsat do §42.9 F0).** Studený TTFB (obejít keš WP Rocket parametrem nebo vyčištěním), DCL a load, velikost a počet assetů, HTML rozbalené; **s Complianzem a po přepnutí na modul consent** (stejná metoda jako v 42.1: Playwright, 5 měření, medián). Zapsat také počet uzlů `cmplz` v DOM a skutečnou cenu na serveru (TTFB bez keše).
+2. **Záloha podle pravidel.** Složka `backup/YYYY-MM-DD_HHMM/` lokálně (mimo server) i na serveru **mimo web root**, případně pod web rootem s `.htaccess` `Require all denied` + `Options -Indexes` + prázdným `index.html` (openresty `.htaccess` ignoruje, tam jen mimo web root). Obsah: dump DB (`mysqldump`, utf8mb4), celý `wp-content/plugins/complianz-gdpr` a `wp-content/plugins/ux-studio`, `wp-content/mu-plugins`, `.htaccess`,
+   export záznamů souhlasů z Complianzu a export jeho nastavení. `zmeny.txt` s časem, seznamem změn a důvodem.
+3. **Zjistit předem** (na serveru, jen čtení): `cmplz_options` (`compile_statistics`, `gtm_code`, `ua_code`, `consent-mode`, `gtag-basic-consent-mode`, `use_country`), `complianz_options_custom-scripts` (zejména `add_script`), seznam stránek s `cmplz-document`, jak se vkládá GTM kontejner `GTM-M2H8FV7L` (Complianz, GTM Kit, šablona, WP Rocket?), zda je WP Rocket „delay JS“ a které skripty vyjímá.
+4. **Verze pluginu UX Studio** s modulem consent (vydání až po QA celého modulu, samostatná vlna). Na server nasadit stejným postupem jako u UX Studia (release zip, ne ruční kopírování souborů); před tím porovnat serverovou verzi se zálohou.
+5. **Průvodce migrací**: sken, plán (přečíst všechna upozornění s uživatelem, zejména blokující), doplnit v modulu IČO, DIČ a pověřence (Právní stránky), běh, ověření.
+6. **GTM kontejner (§42.11).** Pokud ho vkládal Complianz, nejdřív ho přidat jinak (GTM Kit) a až pak přepnout. V kontejneru musí být spouštěče na vlastní událost `uxc_consent` s podmínkou na `uxc_marketing` / `uxc_statistics` pro tagy, které nečtou Consent Mode (Meta Pixel, Sklik, Hotjar), a Consent Mode proměnné
+   (`ad_storage`, `analytics_storage`) nastavené podle `consent_mode` (web byl v režimu *advanced*, převezme se). Zkontrolovat v GTM náhledu (Tag Assistant) před i po přepnutí.
+7. **Bezpečný náhled** v průvodci (aspoň 30 minut klikání: úvodní stránka, formulář, `/prace-s-cookies/`, `/gdpr/`), všechny testy ok; neprošlý test řešit, ne přeskakovat.
+8. **Přepnutí** (Complianz se vypne a modul zapne v jednom kroku), hned **vyprázdnit keš** WP Rocket a Cloudflare (purge cache), ověřit živý test v průvodci.
+9. **Kontrola po přepnutí:** sken F3 z CA (tři běhy: bez souhlasu / přijmout / odmítnout, nyní přes `uxConsent` API; žádné porušení), Consent Mode v GTM Tag Assistant (výchozí denied, update po volbě, `gcs=G100` při advanced před souhlasem), jedna lišta, zachované adresy `/prace-s-cookies/` a `/gdpr/` (200, správný dokument, verze 1), převzatý souhlas (prohlížeč, který už souhlasil, lištu nevidí),
+   měření v GA4 Realtime a Google Ads (konverze), záznamy souhlasů přibývají, Core Web Vitals a TTFB proti F0.
+10. **Vrácení.** Tlačítko „Vrátit přepnutí“ (30 dní): moduly pryč, Complianz zpět, stránky zpět na původní obsah; pak vyčistit keš. Při selhání průvodce obnovit ze zálohy (DB dump + složky pluginů). Po týdnu bez problémů nabídnout odstranění Complianzu a po roce vyčištění `legacy_prefix`.
+11. **Zápis.** Výsledky do §42.9 (F0 a pilot), stav do `STAV.md`, a co pilot odhalil do §42.16.
+
+### 42.17 Závěrečná QA (2026-11-10)
+
+Větev `feature/consent-module`, nepushnuto, verze nezvýšena. Testovací web `_uxs-e2e` (WordPress s WooCommerce, motiv Twenty Twenty-Five), Playwright v Chromiu. Skripty jsou v `tests/e2e/` (bez hesel, admin heslo z `UXS_ADMIN_PASSWORD`), screenshoty v `C:\Users\sturm\.claude\screenshots\uxc-*.png`.
+
+- **Ověřeno v prohlížeči (desktop 1280 px a mobil 390 px), `consent-frontend.mjs`:** lišta se zobrazí, je `role=dialog` s popiskem; přijmout, odmítnout, uložit z nastavení, API `uxConsent.acceptAll/rejectAll/set/has`; focus trap v detailu (14x Tab a Shift+Tab zůstane uvnitř), Escape (detail -> první vrstva, po rozhodnutí zavře), plovoucí tlačítko, shortcode `[uxstudio_cookie_settings]`, odkaz `#uxc-open`; rozbalení „Služby“ načte `consent/cookies` a vykreslí cookies; řádek ID souhlasu (32 hex) po opětovném otevření. Blokování: před souhlasem se GA (Pixel & Tag Manager, testovací `G-QATEST1234`) nepožaduje a nevznikne cookie `_ga*`; po „jen statistika“ se načte, odejde `consent update` (analytics granted, ad denied) a `uxc_consent` s `uxc_source: user` jde po něm; při načtení stránky jde jen událost `uxc_consent` se zdrojem `none` a vše `false` (záměr kódu, ne chyba); po odmítnutí nic a vše `denied`; odvolání souhlasu = reload a skripty neběží, iframy zase placeholdery. Iframy: placeholder, YouTube přes `youtube-nocookie.com`, Google Maps, po souhlasu s marketingem se načtou. Žádné chyby v konzoli. Síť k Googlu a YouTube byla v testu zastubovaná, takže ověřeno je, že prohlížeč požadavek vyšle či nevyšle, ne chování skutečného GA.
+- **axe-core** (tagy wcag2a, wcag2aa, wcag21a, wcag21aa, best-practice), omezeno na `.uxc` a `.uxc-fab`: lišta otevřená, detail, zavřená s plovoucím tlačítkem, desktop i mobil: **0 nálezů serious/critical**, žádné nálezy ani nižší závažnosti. Kontrast výchozích barev prošel pravidlem `color-contrast`. Na celé stránce axe hlásil jedno `list` serious v navigaci motivu Twenty Twenty-Five (mimo modul). Vlastní barvy z nastavení se neměřily.
+- **Záznamy souhlasů, `consent-records-region.mjs`:** rozhodnutí odešlo přes `sendBeacon` (`consent/record`), záznam se v adminu najde podle ID, souhrn i widget na nástěnce ukazují počty, export CSV se stáhne a obsahuje ID.
+- **Režim „jen EU“, `consent-region.mjs`:** s `CF-IPCountry` CZ, DE, XX a bez hlavičky se lišta zobrazí a nic se nenačte; s `US` se lišta nezobrazí, statistický skript se spustí a cookie souhlasu se nezapíše. Endpoint `consent/region` vrací `eu:true` pro CZ a bez hlavičky, `eu:false` pro US. Hlavička je pořád jen mock Playwrightu, ne skutečný Cloudflare.
+- **Admin SPA, `consent-admin.mjs`:** všech 9 záložek se vykreslí bez chyb v konzoli a bez chybných odpovědí REST; „Prohledat teď“ najde GA, YouTube, Google Maps a WooCommerce. `consent-inventory-classify.mjs`: neznámý host ze stránky se zařadí do fronty, zařazení jako marketing ho z fronty odstraní a skript se na frontendu drží zpět do souhlasu (jen s volbou „Zachytit i úryvky vložené přímo do stránky“, viz níže).
+- **Právní stránky a WooCommerce, `consent-legal-shop.mjs`:** průvodce (údaje, e-shop, uložení, náhled), vytvoření a zveřejnění tří stránek, vykreslení na frontendu (zásady cookies s tabulkou a `_ga`, tlačítko nastavení, archiv verzí). Objednávka přes klasickou pokladnu (`[woocommerce_checkout]`, povinný souhlas s podmínkami, dobírka) i přes blokovou pokladnu: obě mají `_uxstudio_terms_version` a admin detail ukazuje „Terms and conditions: version N, in force from ...“. HPOS na testovacím webu vypnuté, takže se neověřovalo.
+- **Migrace, krok „Přepnout“ s `must_confirm`, `consent-switch-mock.mjs`:** bez Complianzu nešlo vytvořit skutečný běh, proto jsou v prohlížeči zastubované odpovědi `migration/runs` a `migration/switch-plan` (`must_confirm: 2`, bez náhledu). Ověřeno jen UI: kartička „Some things stop working after the switch“ se vykreslí, tlačítko „Switch now“ je bez zaškrtnutí zablokované (i s jen zaškrtnutým „bez náhledu“) a po zaškrtnutí obou potvrzení se odblokuje. Do skutečného přepnutí se nešlo.
+- **Čeština, `consent-czech.mjs`:** s `WPLANG=cs_CZ` (nainstalovaný core jazyk) a jazykem uživatele cs_CZ je lišta, detail i placeholder česky a všech 9 záložek modulu nemá anglicky vypadající řádky.
+- **Nalezené a opravené chyby:** (1) `.uxc-ph` měl `box-sizing: content-box` (pravidlo `.uxc-ph *` se ho netýkalo), takže při `width: 100%` plus paddingu přetékal o 50 px a na 390 px se stránka posouvala do strany; oprava v `consent.css`, hlídá to kontrola „no horizontal overflow“ na mobilu. (2) Odkaz na export CSV z `consent/records/export-url` měl `&amp;` místo `&` (`wp_nonce_url` escapuje pro HTML), prohlížeč poslal špatný nonce a `admin-post.php` odpověděl 403; oprava v `RecordsRest::export_url()` (`wp_create_nonce` + `add_query_arg`), test `consent-records-wp.php` kontroluje, že v URL není `&amp;`. (3) Fronta hostů nevysvětlovala, že skript napsaný přímo ve stránce se drží zpět jen s volbou `buffer_guard`; doplněna nápověda pod tabulku (a překlad).
+- **Poznámky z ověření (nejsou chyby modulu):** WP-CLI v Git Bash přepisuje argument `/%postname%/` na cestu Gitu (proto byly permalinky v záloze rozbité), `permalink_structure` nastavit přes `wp eval update_option`. Uložení jakéhokoli nastavení modulu v SPA pošle celý koncept včetně textů lišty ve výchozím jazyce administrátora, takže se výchozí text „zamrzne“ v tomto jazyce (obecné chování formuláře nastavení). Vzorek stránek skenu je 3 nejnovější příspěvky a 3 nejnovější stránky, starší stránka s cizím skriptem se do fronty nedostane, dokud ji vzorek nezahrne.
+- **Neověřeno:** skutečný GA a skutečné YouTube/Maps (síť zastubovaná); GTM Kit v režimu advanced; WP Rocket, LiteSpeed (delay JS) a striktní CSP; skutečná hlavička Cloudflare; migrace se skutečným Complianzem a skutečné přepnutí; HPOS; vlastní barvy a jejich kontrast; záložka Sken (jen vykreslení bez chyby, běh proti NASu ne); `consent-scan-wp.php` na testovacím webu hlásí 502 místo očekávaného 424 (web má připravené spojení s CA, ale CA neběží; prostředí, ne regrese); `consent-records-wp.php` odmítne běžet, když tabulka záznamů už existuje; `consent-legal-wp.php` při prvním běhu nad webem s existujícími verzemi hlásí „versions not restored“, na druhý běh projde.
+- **Překlady:** po `make-pot` a `po-refs` chybělo 263 řetězců (migrace, smoke testy modulu, sken a doplňky F3 a F6, nová nápověda) a všechny pokryly stávající slovníky `cs-consent*.json` plus nový `cs-consent-qa.json` (1 řetězec). `.po` má 9090 položek, `po-missing.py` hlásí 0, `.mo`, 89 JSON souborů a `ux-studio-cs_CZ-ux-studio-app.json` (2960 zpráv) jsou přegenerované. `wp i18n update-po` se nepoužilo.
+
+
+### 42.18 Živý náhled lišty v administraci (2026-11-10)
+
+Větev `feature/consent-module`, nepushnuto, verze nezvýšena (CHANGELOG pod „Unreleased“). Záložky Zobrazení, Texty a Vzhled mají vedle formuláře panel „Náhled“ se skutečnou lištou, která se překreslí při každé změně pole, ještě před uložením.
+
+- **Jak to funguje:** `TopicSettings` dostal volitelný prop `aside( draft )` (panel vedle formuláře, od 1280 px dva sloupce, jinak pod formulářem; ostatní moduly ho nepoužívají, takže se nezměnily). `Page.tsx` do něj dává `BannerPreview` (`src/modules/consent/Preview.tsx`), kterému jde rozpracovaný koncept (`draft` z `useModuleSettings`). Koncept se s debounce 350 ms pošle na `POST uxstudio/v1/consent/preview-config` (`PreviewRest`, `manage_options`, read-only route bez podílu na limitu zápisů) a vrátí `{ config, css, assets }`. SPA z toho složí dokument `srcdoc`: `<link>` na `consent.min.css`, `<style>` s proměnnými z `css_variables()`, JSON blok `#uxc-config` a `<script src>` na `consent.min.js`. Žádná napodobenina v Reactu, žádné druhé mapování nastavení na lištu.
+- **Stejné mapování jako web:** `Module::preview_config( values, view )` sloučí uložená nastavení s hodnotami (očištěnými `Settings::clean()` podle schématu, takže jako při uložení; neznámé klíče se zahodí), na dobu volání podstrčí výsledek přes filtr `pre_option_uxstudio_consent` a zavolá `frontend_config()` a `css_variables()` (teď veřejná). Nic se nezapisuje a po návratu se nastavení znovu načte. `asset_urls()` sdílí `enqueue()` i náhled.
+- **Přepínače:** první vrstva (`main`), nastavení kategorií (`detail`), plovoucí tlačítko (`fab`), placeholder vloženého videa (`ph`; v dokumentu je zadržený `<iframe data-uxc-src>` s `about:blank`); šířka Počítač (stránka 900 px široká) a Mobil (390 px). Stránka v iframe má pevnou šířku a je zmenšená `transform: scale` na šířku panelu. Je-li plovoucí tlačítko v nastavení vypnuté, panel to napíše.
+- **Izolace:** `<iframe sandbox="allow-scripts">` bez `allow-same-origin` a s `referrerpolicy="no-referrer"`: dokument má neprůhledný původ (`window.origin === 'null'`), takže `document.cookie`, `sessionStorage` a `window.parent.document` vyhodí `SecurityError`, lišta nemůže zapsat cookie `uxs_consent` do domény administrace ani volat REST s jeho relací. Server z konfigurace vynechá `rec` (záznamy souhlasů), `geo` (region), `leg` (převzetí staré lišty) a `ck` (seznam cookies, v detailu se tedy služby ukážou jen názvy). `<base target="_blank">` bez `allow-popups` způsobí, že odkaz na zásady v náhledu nikam nevede (a nenačte web do rámečku).
+- **Režim náhledu v `consent.js`** (`cfg.preview` = main, detail, fab, ph; přírůstek v `consent.min.js` 10 486 na 10 630 bajtů, tj. +144 B, gzip 4 122 na 4 182 B, tj. +60 B): `start()` se hned po vykreslení vrací (nečte cookie ani úložiště, nevolá region), `commit()` nedělá nic (tlačítka lištu neschovají, nic se neukládá, neodesílá, nevolá `signal` ani reload), `loadFrame()` nedělá nic (placeholder zůstane) a při prvním vykreslení se nevolá `focus()`, aby náhled neukradl kurzor z formuláře, do kterého admin píše. Test `tests/consent-js.mjs` simuluje sandbox (cookie a úložiště vyhazují výjimku) a ověřuje všechny čtyři pohledy a že tlačítka ani API nic neuloží ani neodešlou.
+- **CSP administrace:** modul Security Optimization CSP v administraci vůbec neposílá (`CspPolicy` se při `is_admin()` vrací dřív), takže iframe nic nerozbíjí. Pro případ, že by CSP na administraci přidal server nebo jiný plugin, je náhled postavený tak, aby ji snesl: žádný inline skript (konfigurace je JSON blok, tedy data), skript a styl se načítají souborem ze stejného webu (`script-src 'self'`, `style-src 'self'`), jediný inline prvek je `<style>` s proměnnými barev a rozvržením (vyžaduje `style-src 'unsafe-inline'`, které administrace WordPressu stejně potřebuje). Dokument `srcdoc` dědí CSP rodiče, a pokud by rodič měl `frame-src` nebo `child-src`, musel by povolit `about:srcdoc`; to se nezkoušelo, protože takovou CSP administrace nemá.
+- **Ověřeno v prohlížeči (hydro-izol, Chromium, `tests/e2e/consent-preview.mjs`, 25 kontrol):** lišta v náhledu je ta skutečná, neuložený titulek a text tlačítka se promítnou do 2 s, rozvržení bar, strana, poloměr 22 px a barvy pozadí a tlačítek, pohled detail (4 přepínače, kurzor zůstane ve formuláři), plovoucí tlačítko, placeholder videa (tlačítko nic nenačte), mobil 390 px; v rámečku cookie, úložiště i rodič vyhazují `SecurityError`, původ je `null`; kliknutí na Přijmout a Odmítnout lištu neschová; v doméně administrace nevznikne cookie `uxs_consent`; žádný požadavek na `consent/record`, `region` ani `cookies`; náhled volá jen POST; uložená nastavení se nezměnila; bez chyb v konzoli. Česky ověřeno vizuálně (`uxc-preview-cs.png`). `tests/consent-preview-wp.php` (WP-CLI na testovacím webu `_uxs-e2e`): oprávnění, sanitizace jako při uložení, vynechané klíče, nic se neuloží, živá konfigurace se po volání vrátí.
+- **Neověřeno:** CSP přidaná zvenčí na administraci (viz výše); Safari a Firefox (sandboxovaný `srcdoc` s externím skriptem by se choval stejně, ale nezkoušelo se); čtečka obrazovky (iframe má `title`, přepínače `aria-pressed` ve skupinách s popiskem); prohlížeč bez `ResizeObserver` (panel se pak jen nezmenšuje na šířku sloupce); lišta s vlastním CSS motivu (náhled ho z principu nemá, ukazuje lištu na šedé skice stránky, ne na skutečném webu).
+
+### 42.19 Předvyplnění údajů správce (2026-11-10)
+
+Větev `feature/consent-module`, nepushnuto, verze nezvýšena (CHANGELOG pod „Unreleased“). Překlady negenerovány, české řetězce jsou v `docs/i18n/cs-consent-prefill.json`.
+
+- **Kde:** `includes/Modules/Consent/LegalDetect.php` (čistá extrakce + `detect()`), REST `GET uxstudio/v1/consent/legal/detect?ares=1&ico=` v `LegalRest.php` (`manage_options`, nic neukládá), tlačítka „Načíst údaje z webu“ a „Ověřit v ARES“ v `src/modules/consent/Legal.tsx`. Testy: `tests/consent-legal-detect.php` (bez WordPressu), `tests/e2e/consent-legal-detect.mjs` (prohlížeč, session přes `COOKIES_JSON`, protože přihlašovací formulář má bot štít).
+- **Pořadí zdrojů (první platná hodnota pole vyhrává):** 1. ARES (jen na pokyn a jen pro IČO s platným kontrolním součtem; název, sídlo, DIČ), 2. WooCommerce (adresa obchodu `woocommerce_store_address`, `_2`, `_city`, `_postcode`; `has_eshop`), 3. SEO pluginy (Yoast `wpseo_titles` `company_name` / osoba přes `company_or_person_user_id`; Rank Math `rank-math-options-titles` `knowledgegraph_name`, `email`, `phone`, `phone_numbers`, `local_address`; SEOPress `seopress_social_option_name` `seopress_social_knowledge_*`; All in One SEO `aioseo_options` (JSON) `searchAppearance.global.schema`), 4. Complianz (`cmplz_options`, stejné mapování jako migrace F6: `ComplianzMap::profile_from_options()`), 5. stránka Kontakt / O nás / Impressum a úvodní stránka s patičkou (loopback), 6. `admin_email` jako poslední možnost se štítkem „zkontrolujte“. Názvy voleb jsou ověřené ve zdrojích pluginů na wordpress.org (Rank Math, SEOPress, AIOSEO) a v lokálním Yoastu. Neověřeno: Yoast Local SEO (`wpseo_local`) se nečte.
+- **Stránky:** HTML se stáhne přes `wp_remote_get` na adresu z vlastních permalinků (host se kontroluje proti `home_url()`), max 1,5 MB, timeout 8 s, celkový rozpočet 30 s, nejvýš 3 kontaktní stránky + úvodní. Z textu (bloky na řádky, bez skriptů a stylů): IČO (štítek + 8 číslic, i „12 345 678“, kontrolní součet), DIČ `CZ…` / `SK…`, zápis v rejstříku (obě pořadí vět, i slovenský obchodný register) přepsaný do věty jako v profilu, e-mail (doména webu, pak firemní schránka, pak freemail; bez noreply a obrázků), telefon (s předvolbou, `tel:` odkaz, číslo za slovem Tel), adresa (řádek s PSČ nejblíž IČO, ulice za právní formou nebo štítkem, případně z řádku nad PSČ), název (slova před nejčastější právní formou; OSVČ jako jméno u IČO s nízkou jistotou).
+- **ARES:** `https://ares.gov.cz/ekonomicke-subjekty-v-be/rest/ekonomicke-subjekty/{ico}`, jen `wp_remote_get`, timeout 8 s, bez přesměrování, max 512 kB, odpověď se validuje (shoda IČO, kontrolní součet). Když neodpoví, vrátí se `ares: error` a nic se nezmění. IČO se do ARES posílá jen po stisku tlačítka (automatická detekce při prvním otevření běží bez ARES). Zápis v rejstříku ARES v tomto endpointu nevrací, ten zůstává ze stránky.
+- **Účely:** `security` vždy; `contact` při modulu Forms nebo CF7 / WPForms / Gravity / Ninja / Fluent Forms; `analytics` a `marketing` podle `Report::site()`; WooCommerce = `orders`, `accounts` (povolená registrace), `reviews` (recenze zapnuté); `newsletter` při aktivním Mailchimp for WP, MailPoet, Newsletter, FluentCRM, Brevo (`mailin`), MailerLite. Průvodce účely jen přidá, nikdy neodškrtne.
+- **Bezpečnost:** každá hodnota projde `LegalProfile::sanitize()` po jednom poli, neplatná propadne na další zdroj; HTML se do hodnot nikdy nedostane; loopback jen na vlastní host.
+- **Průvodce:** vyplní jen PRÁZDNÁ pole (nebo tip serveru před prvním uložením, `guessed` ve stavu, nebo hodnotu, kterou tlačítko samo vyplnilo a člověk ji neupravil), u každého ukáže štítek zdroje, u vyplněného pole s jinou hodnotou nabídne „Použít“. Nic se neuloží před „Uložit“. Při prvním otevření s neuloženým profilem se detekce (bez ARES) spustí sama.
+- **Ověřeno na hydro-izol (lokál):** detekce našla stejné údaje jako ručně vyplněný profil (IČO, DIČ, sídlo, rejstřík, e-mail na doméně webu, telefon, účely contact / analytics / security); název z Yoastu `HYDRO-IZOL CZ, s.r.o.`, z ARES oficiálně `HYDRO - IZOL CZ, s.r.o.` (s mezerami kolem pomlčky, liší se od ručního profilu, proto ho průvodce nabídne jako návrh). Prohlížeč: 24 kontrol včetně toho, že psaná hodnota se nepřepíše a nic se neuloží.
+- **Neověřeno:** weby s e-shopem (adresa z WooCommerce, účely orders / accounts / reviews jen testem funkce `purposes_for`), SEO pluginy Rank Math, SEOPress a AIOSEO na živé instalaci (jen test mapování nad strukturou voleb), stránky s kontaktem vykreslené page builderem, který text skládá skriptem, a živý OSVČ web.
+
+### 42.20 Šablony vzhledu lišty (2026-11-10)
+
+Větev `feature/consent-module`, nepushnuto, verze nezvýšena (CHANGELOG pod „Unreleased“). Nové nastavení `template` (sekce Vzhled, výchozí `classic`): `classic`, `cookiebot` (v administraci „Tabs“), `cookie` („Card“), `slim` („Slim bar“). Šablona mění strukturu DOM a CSS, chování je jedno pro všechny.
+
+- **Jak je to postavené:** jeden `consent.js`, žádné čtyři kopie. `build()` skládá stejné kusy (název, text, tlačítka, kategorie, služby) a podle `cfg.tpl` mění jen: modifikátor `uxc-t-<tpl>` na kořeni, pořadí tlačítek (`classic` Odmítnout, Přijmout, Přizpůsobit; `slim` Odmítnout, Přizpůsobit, Přijmout; `cookie` Přizpůsobit, Odmítnout, Přijmout; `cookiebot` Odmítnout, Povolit výběr, Povolit vše), hlavičku s ikonou (jen `cookie`) a záložky (jen `cookiebot`). Funkce tlačítek, `commit()`, Consent Mode, záznamy F5, `uxConsent`, Escape, focus trap detailu a `cfg.preview` jsou sdílené. Neznámá hodnota je v JS i v PHP `classic` (`Templates::normalize()`).
+- **PHP:** nová čistá třída `includes/Modules/Consent/Templates.php` (seznam šablon, normalizace, jméno souboru stylu, barevné výchozí hodnoty karty), kterou testuje `tests/consent.php` bez WordPressu. `Module::template()`, `frontend_config()` nese `tpl`, `asset_urls()` vrací i `tcss` a `tcss_ver`, `css_variables()` používá `Templates::variables()`. `preview_config()` vrací `assets` spočtené uvnitř podstrčeného nastavení, takže náhled načte CSS zvolené (neuložené) šablony.
+- **Velikost, rozhodnutí o CSS:** základ `consent.min.css` zůstává a obsahuje `classic` (existující weby se nezmění a nenačítají nic navíc). Každá další šablona je samostatný malý soubor `consent-<tpl>.min.css` přidaný PO základním (`wp_enqueue_style` se závislostí na základním). Důvod: sdílené je skoro všechno (tlačítka, kategorie, přepínače, plovoucí tlačítko, placeholder), takže duplikace v samostatném souboru by byla zbytečná, a na stránku nejde CSS nepoužitých šablon. Cena je jeden HTTP požadavek navíc u šablon jiných než `classic`. Čísla (bajty / gzip -9): `consent.min.js` 12 350 / 4 802 (bylo 10 630 / 4 182, tj. +1 720 / +620: tři šablony, záložky s ARIA a přepsaný `build()`), `consent.min.css` 4 088 / 1 390 (bylo 3 989 / 1 362), `consent-cookiebot.min.css` 2 574 / 897, `consent-cookie.min.css` 1 478 / 593, `consent-slim.min.css` 919 / 440. Přenos JS + CSS celkem (gzip): `classic` ~6,2 kB, `slim` ~6,6 kB, `cookie` ~6,8 kB, `cookiebot` ~7,1 kB.
+- **`cookiebot`:** široký panel dole uprostřed (880 px, stín), nahoře `role=tablist` Souhlas / Podrobnosti / O cookies (šipky vlevo a vpravo mění záložku, roving tabindex), v první vrstvě řada přepínačů (Nezbytné zamčené, ostatní ve výchozím stavu vypnuté), pod tím tři tlačítka vždy viditelná pod všemi záložkami. Záložka Podrobnosti ukazuje popisy a služby bez druhé sady přepínačů (ty jsou jen na první záložce, aby se nemusely synchronizovat). Odmítnout a Povolit vše jsou plná tlačítka stejného vzhledu, Povolit výběr je obrysové. Na šířce do 640 px je panel na celou šířku se zaoblenými horními rohy a tlačítka jsou pod sebou. Panel není modální (bez překryvu a bez pasti fokusu, jako první vrstva ostatních šablon). Nové texty `tab_c`, `tab_d`, `tab_a`, `tabs`, `about` (vlastní formulace) se do konfigurace přidávají jen u této šablony. Z Cookiebotu se nepřebírá CSS, obrázky, logo ani texty, jen kompozice.
+- **`cookie`:** světlá zaoblená karta (od 2026-11-10; původně tmavá jako vzor, viz 42.21) vlevo dole (volba strany `position` zůstala), nahoře vlastní SVG ikona sušenky (stejná jako plovoucí tlačítko, pár set bajtů, barva přes `currentColor`; obrázek ze vzoru se nepoužil) a velký nadpis, text, patička s textovým tlačítkem Přizpůsobit vlevo a dvěma kulatými tlačítky vpravo. Po rozhodnutí plovoucí kulaté tlačítko (stávající `.uxc-fab`, má okraj a stín, takže je vidět i na světlé stránce). Na šířce do 480 px přilepená dole na celou šířku se zaoblenými horními rohy. Detail se otevírá ve stávajícím centrovaném dialogu (CSS karty se na `is-detail` nevztahuje: `:not(.is-detail)`).
+- **Rovnocenné odmítnutí v `cookie` (GDPR, EDPB):** nenapodobuje se vzor, kde je odmítnutí podtržený text vedle velkého kulatého přijetí. Odmítnout i Přijmout jsou dvě PLNÁ tlačítka stejné velikosti (68 px, stejné písmo a tloušťka okraje) vedle sebe. Přijetí je v barvě tlačítek, odmítnutí je světle šedé plné (devět procent barvy textu smíchané s pozadím) s 2 px okrajem v barvě textu, takže je stejně viditelné jako přijetí a jeho kontrast je kontrast textu na kartě. Textové tlačítko zbývá jen u „Přizpůsobit“, třetí tišší volby. `tests/e2e/consent-templates.mjs` měří, že Odmítnout a Přijmout mají stejnou výšku, podobnou šířku, stejné písmo, tloušťku okraje a plné pozadí.
+- **Výchozí barvy karty (změna 2026-11-10):** karta NENÍ ve výchozím stavu tmavá. Má stejné výchozí barvy jako ostatní šablony (bílé pozadí, tmavý text `#1d2327`, tlačítka `#1d4ed8`), odlišuje ji stín, tenký okraj a tvar. Tím odpadla výjimka v `Templates::variables()` (dvojice barev nahrazovaná tmavou paletou, dokud majitel nezměnil ani jednu z nich) i konstanta `CARD`: každá barva, kterou majitel nastaví, se použije tak, jak je, ve všech šablonách stejně. Pozor: karta tedy po upgradu z dřívější verze této větve už není tmavá; šablona nebyla vydaná, takže se nic nemigruje.
+- **Výchozí texty podle šablony:** `Module::text()` vrací pro `cookie` krátké výchozí „A word about cookies“, „No thanks“, „Sure“ (česky Pár slov o cookies, Ne, díky, Jasně) a pro `slim` zkrácenou větu zprávy. Platí jen, když se uložený text rovná obecnému výchozímu; text, který majitel napsal sám, má vždy přednost. Past: formulář uloží při jakémkoli uložení celý koncept včetně výchozích textů (viz 42.17), takže i takto uložený výchozí text se bere jako výchozí a šablona ho nahradí krátkým.
+- **`slim`:** nízká lišta přes celou šířku okna (52 px na počítači při jednom řádku, 113 px na 390 px s dvěma řádky textu a řadou tlačítek), jeden zkrácený řádek textu s odkazem na zásady a vpravo Odmítnout / Přizpůsobit / Přijmout (Odmítnout a Přijmout stejná plná tlačítka, Přizpůsobit obrysové). Nadpis zůstává pro čtečky (pojmenovává dialog), vizuálně je skrytý. Detail se otevírá jako stávající dialog. Lišta z principu překrývá dolní okraj stránky včetně pevných prvků webu (na hydro-izol plovoucí tlačítko Zvuk).
+- **Nastavení:** `layout` se zobrazí jen u `classic`; `position` u `classic` a `cookie`. `show_if` umí jen AND a řetěz skrytého řídicího pole by schoval i `position`, takže u `classic` s lištou `bar` je `position` vidět, ale nemá účinek (dříve byl skrytý). Dlaždice s náhledy se nedělaly, výběr se okamžitě projeví v živém náhledu (CSS zvolené šablony se do iframe přidává jako druhý `<link>`).
+- **Migrace z Complianzu (F6):** `ComplianzMap` mapuje jen `layout` a `position`, `template` nenastavuje, takže migrované weby zůstávají na `classic` (hlídá `tests/consent.php`).
+- **Opravy v základu, nalezené při QA:** (1) na šířce do 480 px byl centrovaný dialog nastavení rohového okna posunutý mimo obrazovku doleva (pravidla `.uxc-box.uxc-left .uxc-dlg` v media dotazu přebila `.uxc.is-detail .uxc-dlg`), přidáno pravidlo za ně. (2) Motiv hydro-izol obarvuje každý `<label>` na `#9e9e9e`, názvy kategorií měly kontrast 2,67 (axe serious); `.uxc .uxc-sw` má `color: inherit`.
+- **Ověřeno** (`tests/e2e/consent-templates.mjs`, hydro-izol, Chromium, 1280 px a 390 px, 4 šablony, čistý profil): banner se otevře, root třída, načte se jen CSS dané šablony, žádné vodorovné přetečení, banner a dialog nastavení uvnitř okna, Odmítnout a Přijmout stejně velké, viditelný focus ring, záložky a šipky (cookiebot), past fokusu v dialogu nastavení (16x Tab a Shift+Tab) a Escape (ostatní), odmítnutí zapíše cookie s bity 0, po rozhodnutí plovoucí tlačítko (min. 44 px), znovuotevření a Přijmout vše zapíše bity 7. **axe-core** (wcag2a, wcag2aa, wcag21a, wcag21aa, best-practice) bez serious a critical u všech čtyř šablon: první vrstva, nastavení (u `cookiebot` záložky Podrobnosti a O cookies), plovoucí tlačítko; desktop i mobil. Kontrast výchozích barev je součástí pravidla `color-contrast`. Administrace (dočasný admin, cookies z WP-CLI, po testu smazán): výběr šablony v záložce Vzhled přepne živý náhled (správná třída a správný druhý styl), pohled Nastavení kategorií funguje, ničeho se neuložilo, `layout` se skryje mimo `classic`. `tests/consent-js.mjs` (každá šablona vykreslí tlačítka, přijmout, odmítnout, vlastní výběr, odvolání, náhled; neznámá šablona = classic) a `tests/consent.php` (Templates, barvy, config).
+- **Neověřeno:** vlastní barvy majitele a jejich kontrast (jen logika výběru dvojic v testu), jiné motivy než hydro-izol, Safari a Firefox (přepínače `appearance: none` s `::before` na checkboxu), čtečka obrazovky (role tab a tabpanel a `aria-selected` jsou, poslech se nedělal), `forced-colors` u nových šablon (nové se neměřily), WP Rocket s delay JS a striktní CSP (druhý `<link>` je soubor ze stejného webu), dlouhé vlastní popisky tlačítek v kulatých tlačítkách karty (kulatá se rozšíří na tabletku, nezkoušelo se), česká lišta nových šablon v prohlížeči (překlady jsou, vizuálně jen kontrola screenshotů před jejich vygenerováním).
+
+### 42.21 Výběr šablony dlaždicemi (2026-11-10)
+
+Pole `template` je nový obecný typ `image_choice` (`src/app/SettingsForm.tsx`, `ImageChoiceField`; server `Settings::clean()`, export a import `Transfer\Planner` a `TypeCheck` ho berou jako `select`). Schéma má `options`, `images` (klíč => URL) a volitelně `descriptions`. Vykreslí se jako radiogroup: skutečné skryté `<input type="radio">` v `<label>`, šipky mění volbu, viditelný focus, vybraná dlaždice má rámeček v barvě značky a ikonku zaškrtnutí, obrázek má `alt=""` (název je v textu). Řádek je vždy naskládaný (popisek nad dlaždicemi), 2 sloupce, 4 sloupce od 640 px šířky formuláře (container query, ne okno, protože vedle formuláře je živý náhled). Vzhled pro světlý i tmavý režim SPA.
+
+- **SVG:** `assets/consent/templates/{classic,cookiebot,cookie,slim}.svg`, vlastní kresby 160x100, 0,9 až 1,5 kB. URL předává `settings_schema()` přes `UXSTUDIO_URL`.
+- **Chyba „Vyberte možnost“ místo výchozí:** `<select>` bral hodnotu přímo z konceptu (`draft[key] ?? null`), a ten je prázdný, dokud efekt `useModuleSettings` nezkopíruje data ze serveru, a také když je uložená hodnota prázdná nebo už není mezi volbami. Prázdná hodnota se ukázala jako zástupný text. Oprava je obecná: `choiceValue()` (`src/app/choice.ts`) vrací uloženou hodnotu, jen když je mezi `options`, jinak default pole; řádek formuláře do doby načtení dat používá výchozí hodnoty. Test `tests/choice.mjs`, serverová validace `tests/settings-image-choice.php`. Neověřeno: na hydro-izol option `uxstudio_consent` neexistuje a server vracel `classic`, takže prázdný výběr tam byl nejspíš jen ten snímek před příchodem dat (nebo starý build v prohlížeči).
+- **Past:** kontejnerové pravidlo „úzký formulář = naskládané řádky“ mělo menší specifičnost než základní pravidlo řádku, takže v úzkém formuláři vedle náhledu zůstaly dva sloupce a pole měla 70 px. Teď `.uxs-form .uxs-form__row`.
+
+### 42.22 Nastavení vzhledu podle šablony (2026-11-10)
+
+V záložce Vzhled se ukazují jen pole, která zvolená šablona používá; barvy (pozadí, text, tlačítka, text tlačítek) jsou společné. Výchozí hodnoty jsou dnešní vzhled, takže se na existujících webech nic nezmění.
+
+| Šablona | Volby (klíč, výchozí) |
+|---|---|
+| Klasická | `layout` box/bar (box), `position` left/right (left, jen u `box`), `radius` 0 až 32 (8) |
+| Záložky | `tabs_place` center/full (center), `tabs_about` (zapnuto), `tabs_width` 480 až 1400 px (880) |
+| Karta | `position` left/right (left), `card_icon` (zapnuto), `card_shape` round/rect (round), `card_radius` 0 až 40 px (22) |
+| Úzká lišta | `slim_place` bottom/top (bottom), `slim_link` (zapnuto) |
+
+- **Pojmenování:** starší klíče `layout`, `position` a `radius` zůstaly (názvy bez prefixu, existující weby je mají uložené, a `position` sdílí Klasická s Kartou). Nové mají prefix šablony (`tabs_`, `card_`, `slim_`).
+- **Server:** pole jsou ve `settings_schema()` se `show_if` na `template`, validace přes `Settings::clean()` (select z `options`, toggle, number). Čistá logika je v `Templates`: `DEFAULTS`, `RANGES`, `number()` (zkrácení do rozsahu, nečíselné = výchozí), `options()` a `size_variables()`; testuje ji `tests/consent.php` bez WordPressu. `frontend_config()` přidá objekt `o` jen pro aktivní šablonu (klasická ho nemá, ostatní 2 až 3 krátké klíče) a vůbec ho nepřidá, když je prázdný. Čísla jdou jako CSS proměnné jen aktivní šablony a jen když se liší od výchozí (`--uxc-w` šířka panelu, `--uxc-cr` zaoblení karty); `preview_config()` je počítá z neuložených hodnot stejně.
+- **Banner:** `consent.js` čte `cfg.o` a přidává modifikátory kořene (`uxc-o-full`, `uxc-o-rect`, `uxc-o-top`) a vynechává ikonu karty, záložku a panel O cookies (šipky mezi záložkami počítají s počtem záložek) a odkaz na zásady v úzké liště. Bez `cfg.o` (starší konfigurace) je vzhled jako dřív. Nárůst: `consent.min.js` 12 609 B (gzip 4 906), `consent-cookiebot.min.css` 3 183 (1 012), `consent-cookie.min.css` 2 285 (739), `consent-slim.min.css` 1 025 (462).
+- **Karta, tvar tlačítek:** obdélníková tlačítka (`uxc-o-rect`) mají stejnou výšku (48 px) a plné pozadí jako kulatá, odmítnutí a přijetí tedy zůstávají stejně výrazné. Bez ikony zůstává velký nadpis.
+- **Záložky na celou šířku:** panel sedí na spodní hraně bez zaoblení, obsah drží zvolenou šířku (`padding-inline: max(24px, (100% - šířka) / 2)`), na úzké obrazovce (do 640 px) je to jako dřív.
+- **`show_if` s „nebo“:** `{ any: [ ... ] }`, vnořený seznam je „a“ (`src/app/showIf.ts`, test `tests/show-if.mjs`). Potřeba: strana okna je u Karty vždy a u Klasické jen s rozvržením `box` (u lišty dole žádnou nemá), ale `layout` je mimo Klasickou skryté, takže řetěz „řídicí pole musí být vidět“ by schoval i stranu u Karty. Proto `visibleKeys` u `any` stačí jedna větev, jejíž řídicí pole jsou viditelná. Pole `radius` je jen u Klasické (Záložky a Úzká lišta ho nepoužívají, Karta má vlastní `card_radius`; uložená hodnota se nemaže).
+- **Ověřeno:** `tests/e2e/consent-template-options.mjs` (hydro-izol, Chromium, 1280 px a 390 px, 7 variant: záložky na celou šířku s obsahem 1000 px, záložky 600 px bez O cookies a šipky mezi dvěma záložkami, karta vpravo s obdélníkovými tlačítky bez ikony a s poloměrem 8, karta s poloměrem 40, úzká lišta nahoře bez odkazu a dole s odkazem, klasická lišta beze změny): geometrie, bez vodorovného přetečení, axe-core bez serious a critical v první vrstvě i v nastavení. Administrace: po výběru každé dlaždice se ukážou jen pole té šablony a živý náhled hned ukáže každou volbu (třída kořene, počet ikon a záložek, zaoblení). Odkaz na zásady se ukáže jen s nastavenou adresou zásad (test ji nastavuje).
+
+
+### 42.23 Logo UX1 v liště (2026-11-10)
+
+Větev `feature/consent-module`, nepushnuto, verze nezvýšena (CHANGELOG pod „Unreleased“). Ve všech čtyřech šablonách je nenápadný šedý nápis UX1 jako odkaz na https://ux1.cz/ do nového okna.
+
+- **Logo:** vlastní inline SVG, 315 B (`viewBox 0 0 37 14`, zobrazeno 32 x 12 px): U je tah s obloukem, X a 1 jsou vyplněné polygony s rovnými konci, žádné `<text>`, žádný font, žádný požadavek. Barva `currentColor` (barva textu lišty), průhlednost 0,4, na `:hover` a `:focus-visible` 0,9 a obrys 3 px. Tvar je odvozený od tučného geometrického nápisu (na ux1.cz Outfit 800), ne jeho kopie; je to značka, takže se na ni nevztahuje kontrast 1.4.3 (výjimka pro logotypy), a přesto nese sjednocenou průhlednost, aby byla čitelná. Ve `forced-colors` je plná.
+- **Odkaz:** `<a class="uxc-by" href="https://ux1.cz/" target="_blank" rel="noopener">` s `aria-label` i `title` z překladu „Cookie lištu dodává UX1 (otevře se v novém okně)“ (zdroj anglicky `Cookie banner by UX1 (opens in a new window)`), SVG `aria-hidden="true" focusable="false"`. Přijímá se jen adresa `https://`. Nic se nenačítá, je to jen navigace, takže CSP se nemění. V náhledu v administraci (sandbox bez `allow-popups`) klik nic neotevře, nic nespadne.
+- **Konfigurace:** `Module::frontend_config()` pošle `by` (URL z `Templates::BY_URL`) a text `t.by` jen když filtr `uxstudio_consent_show_branding` (výchozí `true`) vrátí pravdu; bez `by` se logo nevykreslí. Vypnutí: `add_filter( 'uxstudio_consent_show_branding', '__return_false' );`. V administraci žádné nastavení není (záměr). Čistou logiku drží `Templates::by()`, aby ji šlo testovat bez WordPressu. Náhled v administraci používá stejné JS a CSS i stejné `frontend_config()`, takže logo má bez další práce.
+- **Pořadí v DOM a tabulátoru:** logo je poslední fokusovatelný prvek, tedy až za tlačítky. U Klasické, Karty a Úzké lišty je posledním potomkem dialogu, u Záložek posledním prvkem řady tlačítek. Past fokusu v nastavení (`focusables()`) ho bere jako běžný odkaz, takže ho Tab dosáhne a smyčka zůstává v dialogu.
+- **Kde logo sedí (a proč):**
+
+| Šablona | Umístění | Proč tam |
+|---|---|---|
+| Klasická (box i bar), detail všech šablon kromě Záložek | absolutně v pravém horním rohu dialogu, `top: 6px; right: 20px` | padding dialogu je 20 px, logo je vysoké 12 px, takže leží celé v paddingu nad nadpisem a vedle nic nevzniká; nepotřebuje rezervu v nadpisu ani v šířce textu |
+| Karta | pravý horní roh karty, `top: 8px; right: max(24px, 0,9 x --uxc-cr)` | padding karty je 24 px; u největšího zaoblení 40 px by se logo u `right: 24px` dotklo oblouku, proto pravý odstup roste se zaoblením |
+| Záložky | v řadě tlačítek vlevo (`margin-right: auto`, tlačítka jsou vpravo), na šířce do 640 px pod naskládanými tlačítky vlevo | řada tlačítek je pod všemi záložkami, takže logo je vidět na každé; v běžném toku, takže ho nic nepřekryje ani ve variantě `full` a při jakékoli šířce panelu |
+| Úzká lišta | vpravo uprostřed výšky ve vyhrazeném sloupci (`padding-right: 68px`); na šířce do 640 px v nově přidaném spodním pruhu lišty (`padding-bottom: 28px`, `bottom: 8px; right: 12px`) | v řádku je jen text a tlačítka a lišta je nízká, proto vyhrazený sloupec místo překryvu; na telefonu by sloupec zúžil text, proto pruh dole (lišta je o 20 px vyšší). Platí nahoře i dole, protože umístění se řídí jen vnitřkem lišty |
+
+- **Velikost** (bajty / gzip -9, proti stavu před touto změnou): `consent.min.js` 13 191 / 5 123 (bylo 12 609 / 4 906, tj. +582 / +217), `consent.min.css` 4 473 / 1 458 (bylo 4 088 / 1 390, +385 / +68), `consent-cookiebot.min.css` 3 382 / 1 063 (bylo 3 183 / 1 012, +199 / +51), `consent-cookie.min.css` 2 380 / 767 (bylo 2 285 / 739, +95 / +28), `consent-slim.min.css` 1 346 / 525 (bylo 1 025 / 462, +321 / +63). U Klasické je tedy celkem +967 B (+285 gzip), u ostatních šablon podle jejich souboru.
+- **Testy:** `tests/consent-js.mjs` (odkaz existuje jednou v každé šabloně, `target`, `rel`, `aria-label`, `title`, SVG bez `<text>` a pod 400 B, bez `by` žádné logo, `javascript:` se odmítne, pořadí za tlačítky), `tests/consent.php` (`Templates::by`, filtr vypnutí, žádné nastavení v administraci, logo bez fontu).
+- **Ověřeno v prohlížeči** (`tests/e2e/consent-ux1-logo.mjs`, Chromium, 1280 a 390 px, varianty: Klasická box vlevo, vpravo, bar; Záložky na střed a přes celou šířku se šířkou obsahu 1000 px; Karta vlevo kulatá, vpravo obdélníková bez ikony se zaoblením 8 a zaoblení 40; Úzká lišta dole a nahoře; náhled administrace `cfg.preview`; bez `by`): první vrstva i nastavení (u Záložek všechny tři záložky), měří se ohraničení loga proti každému tlačítku, textu, přepínači, záložce a `li` v dialogu, logo uvnitř okna i dialogu, pořadí za tlačítky, viditelný obrys při Tab, klik otevře ux1.cz v novém okně a lišta zůstane, past fokusu (14 x Tab a Shift+Tab) logo dosáhne a neopustí dialog, axe-core (wcag2a, wcag2aa, wcag21a, wcag21aa, best-practice) bez serious a critical. Test používá skutečné `consent.min.js` a minifikované CSS z pracovní kopie na podstrčené doméně s nepřátelským „motivem“ (šedí každý `label`, barví odkazy, mění `svg` a písmo tlačítek).
+- **Odchylka od zadání (pozor):** web `http://localhost/hydro-izol/` už není WordPress (zbyla jen složka `wp-content/themes/bricks-child`, adresa vrací 404) a `_uxs-e2e` je symlink na cizí worktree `_uxs-wt-social`, do kterého se nesahá. Proto se místo hydro-izolu použil harness bez WordPressu (viz výše) a nic se na žádný web nenasazovalo ani se nečistil WP Rocket.
+- **Neověřeno:** skutečný WordPress s motivem (zvlášť Bricks) a WP Rocket s odložením JS, Safari a Firefox, čtečka obrazovky, vlastní barvy majitele (logo bere barvu textu s 0,4 průhledností; na velmi světlém textu lišty na světlém pozadí by bylo skoro neviditelné, což je u podpisu přijatelné), velmi dlouhé vlastní popisky tlačítek v Záložkách (řada se zalomí a logo zůstane v toku).

@@ -1,6 +1,6 @@
 /**
  * Minifies the public assets that live outside the webpack/SPA build and are served on the frontend: the AI chat
- * widget and the Shield CAPTCHA widget (script and style). Writes a `.min` file next to each source.
+ * widget, the Shield CAPTCHA widget and the Cookie Consent banner (script and style). Writes a `.min` file next to each source.
  * ChatBootstrap and ShieldRuntime serve the `.min` files unless SCRIPT_DEBUG is on.
  *
  * Run: npm run build:widget  (terser + csso come with @wordpress/scripts)
@@ -13,8 +13,8 @@ import { minify as minifyCss } from 'csso';
 
 const root = resolve( dirname( fileURLToPath( import.meta.url ) ), '..' );
 
-const jsFiles = [ 'assets/js/ai-assistant-widget.js', 'assets/js/ai-assistant-widget-loader.js', 'assets/js/shield.js' ];
-const cssFiles = [ 'assets/css/ai-assistant-widget.css', 'assets/css/shield.css' ];
+const jsFiles = [ 'assets/js/ai-assistant-widget.js', 'assets/js/ai-assistant-widget-loader.js', 'assets/js/shield.js', 'assets/consent/consent.js' ];
+const cssFiles = [ 'assets/css/ai-assistant-widget.css', 'assets/css/shield.css', 'assets/consent/consent.css', 'assets/consent/consent-cookiebot.css', 'assets/consent/consent-cookie.css', 'assets/consent/consent-slim.css' ];
 
 const minName = ( file ) => file.replace( /\.(js|css)$/, '.min.$1' );
 const report = ( file, before, after ) =>

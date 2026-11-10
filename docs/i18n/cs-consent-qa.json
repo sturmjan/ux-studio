@@ -1,0 +1,3 @@
+{
+  "A classified host is held back when its script is added by WordPress or a plugin. A script pasted directly into a page is held back only when \"Also catch snippets pasted directly into the page\" is on (tab Blocking).": "Zařazený server se zadrží, když jeho skript přidá WordPress nebo doplněk. Skript vložený přímo do stránky se zadrží jen při zapnuté volbě „Zachytit i úryvky vložené přímo do stránky“ (záložka Blokování)."
+}

@@ -6,7 +6,7 @@
  */
 import { Fragment, useEffect, useId, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
-import { ArrowDown, ArrowUp, ChevronDown, Plus, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, Check, ChevronDown, Plus, Trash2 } from 'lucide-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { __, sprintf } from '@wordpress/i18n';
 import { api, queryClient } from './api';
@@ -15,6 +15,7 @@ import { ColorField } from '../components/ColorField';
 import MultiSelectField from '../components/MultiSelectField';
 import SettingExplain from '../components/SettingExplain';
 import type { Explain } from '../components/SettingExplain';
+import { choiceValue } from './choice';
 import { type ShowIf, type Scalar, isEmptyValue, isVisible, visibleKeys } from './showIf';
 
 /** One item of a `repeater` field: its sub-field values by key. */
@@ -31,6 +32,7 @@ export interface Field {
 		| 'css'
 		| 'number'
 		| 'select'
+		| 'image_choice'
 		| 'multiselect'
 		| 'color'
 		| 'media'
@@ -44,6 +46,9 @@ export interface Field {
 	explain?: Explain;
 	default?: Value;
 	options?: Record< string, string >;
+	/** An `image_choice`: picture URL by option key, and an optional one-sentence description by option key. */
+	images?: Record< string, string >;
+	descriptions?: Record< string, string >;
 	/** Optional group label; two or more distinct sections render as sub-tabs. */
 	section?: string;
 	/** Card of the sub-tab this field belongs to (title); fields of one group are drawn together under its heading. */
@@ -66,7 +71,7 @@ export interface Field {
 }
 
 /** Field types whose input needs a full grid row to stay readable. */
-const WIDE_TYPES: ReadonlyArray< Field[ 'type' ] > = [ 'textarea', 'css', 'richtext', 'multiselect', 'repeater' ];
+const WIDE_TYPES: ReadonlyArray< Field[ 'type' ] > = [ 'textarea', 'css', 'richtext', 'multiselect', 'repeater', 'image_choice' ];
 
 export interface SettingsPayload {
 	name: string;
@@ -245,6 +250,33 @@ function RepeaterField( { field, value, onChange }: { field: Field; value: Value
 	);
 }
 
+/** Tiles with a picture instead of a drop-down: a radio group, one tile per option (arrow keys move the choice). */
+function ImageChoiceField( { field, value, onChange }: { field: Field; value: Value; onChange: ( v: Value ) => void } ): JSX.Element {
+	const name = useId();
+	const current = choiceValue( field, value );
+	return (
+		<div className="uxs-tiles" role="radiogroup" aria-label={ field.label }>
+			{ Object.entries( field.options ?? {} ).map( ( [ k, label ] ) => {
+				const image = field.images?.[ k ];
+				const description = field.descriptions?.[ k ];
+				return (
+					<label key={ k } className={ `uxs-tile${ current === k ? ' is-selected' : '' }` }>
+						<input type="radio" name={ name } value={ k } checked={ current === k } onChange={ () => onChange( k ) } />
+						{ image ? <img className="uxs-tile__img" src={ image } alt="" loading="lazy" /> : null }
+						<span className="uxs-tile__body">
+							<span className="uxs-tile__title">{ label }</span>
+							{ description ? <span className="uxs-tile__desc">{ description }</span> : null }
+						</span>
+						<span className="uxs-tile__check" aria-hidden="true">
+							<Check size={ 14 } />
+						</span>
+					</label>
+				);
+			} ) }
+		</div>
+	);
+}
+
 export function FieldInput( {
 	field,
 	value,
@@ -268,7 +300,8 @@ export function FieldInput( {
 		case 'select':
 			return (
 				<select
-					value={ String( value ?? '' ) }
+					id={ `uxs-${ field.key }` }
+					value={ choiceValue( field, value ) }
 					onChange={ ( e ) => onChange( e.target.value ) }
 				>
 					<option value="">{ __( 'Select an option', 'ux-studio' ) }</option>
@@ -279,6 +312,8 @@ export function FieldInput( {
 					) ) }
 				</select>
 			);
+		case 'image_choice':
+			return <ImageChoiceField field={ field } value={ value } onChange={ onChange } />;
 		case 'multiselect': {
 			const selected = Array.isArray( value ) ? value.map( String ) : [];
 			// Long lists (e.g. countries) become a searchable dropdown with chips instead of a wall of checkboxes.
@@ -317,6 +352,7 @@ export function FieldInput( {
 			return (
 				<input
 					type="number"
+					id={ `uxs-${ field.key }` }
 					value={ Number( value ?? 0 ) }
 					onChange={ ( e ) => onChange( Number( e.target.value ) ) }
 				/>
@@ -503,12 +539,12 @@ export function SettingsFields( {
 
 	const row = ( field: Field ): JSX.Element => (
 		<div
-			className={ `uxs-form__row${ field.wide || WIDE_TYPES.includes( field.type ) ? ' uxs-form__row--wide' : '' }` }
+			className={ `uxs-form__row${ field.wide || WIDE_TYPES.includes( field.type ) ? ' uxs-form__row--wide' : '' }${ 'image_choice' === field.type ? ' uxs-form__row--stack' : '' }` }
 		>
 			<label htmlFor={ `uxs-${ field.key }` }>{ field.label }</label>
 			<FieldInput
 				field={ field }
-				value={ draft[ field.key ] ?? null }
+				value={ values[ field.key ] ?? null }
 				onChange={ ( v ) => setDraft( ( d ) => ( { ...d, [ field.key ]: v } ) ) }
 			/>
 			{ field.help ? <p className="uxs-form__help">{ field.help }</p> : null }

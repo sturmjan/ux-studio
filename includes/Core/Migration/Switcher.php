@@ -143,7 +143,11 @@ final class Switcher {
 		}
 
 		$preview = (array) ( $record['preview'] ?? array() );
-		$ids     = array_column( Smoke::plan( $run_id ), 'id' );
+		$smoke   = Smoke::plan( $run_id );
+		$ids     = array_column( $smoke, 'id' );
+		// Checks that report something the switch loses for sure (Complianz scripts with no counterpart): they need the
+		// admin's confirmation even when the preview is skipped.
+		$must_confirm = count( array_filter( $smoke, static fn( $c ): bool => 'consent_blockers' === ( $c['type'] ?? '' ) ) );
 		$results = (array) ( $preview['results'] ?? array() );
 		$missing = array_values( array_diff( $ids, array_keys( $results ) ) );
 		$age_ok  = ! empty( $preview['at'] ) && (int) $preview['at'] > time() - Preview::RESULT_MAX_AGE;
@@ -165,6 +169,7 @@ final class Switcher {
 				'counts'    => $counts,
 				'total'     => count( $ids ),
 			),
+			'must_confirm' => $must_confirm,
 			'kill_switch' => 'UXSTUDIO_DISABLE_LOGIN_LOCK',
 			'revert_days' => self::KEEP_DAYS,
 		);
@@ -250,6 +255,13 @@ final class Switcher {
 			$out[] = array(
 				'code'    => 'preview_unavailable',
 				'message' => __( 'The safe preview is not available here. Switch without it only if you confirm that you accept the risk.', 'ux-studio' ),
+			);
+		}
+		// Without a preview its failing tests cannot block; a known loss still must be confirmed.
+		if ( ! empty( $plan['must_confirm'] ) && ! $preview['tested'] && empty( $flags['override_failures'] ) ) {
+			$out[] = array(
+				'code'    => 'confirm_losses',
+				'message' => __( 'Something the old plugin provided has no counterpart and stops working after the switch (see the migration plan). Confirm that you want to switch anyway.', 'ux-studio' ),
 			);
 		}
 		if ( $plan['login']['changes'] && empty( $flags['ack_login'] ) ) {

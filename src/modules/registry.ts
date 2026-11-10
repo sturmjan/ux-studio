@@ -32,6 +32,7 @@ export const MODULE_PAGES: Record< string, ReturnType< typeof lazy > > = {
 	'elementor-import': lazy( () => import( './elementor-import/Page' ) ),
 	'cron-control': lazy( () => import( './cron-control/Page' ) ),
 	'exit-popup': lazy( () => import( './exit-popup/Page' ) ),
+	consent: lazy( () => import( './consent/Page' ) ),
 	'bot-throttle': lazy( () => import( './bot-throttle/Page' ) ),
 	'vulnerability-scanner': lazy( () => import( './vulnerability-scanner/Page' ) ),
 	'third-party-login': lazy( () => import( './third-party-login/Page' ) ),

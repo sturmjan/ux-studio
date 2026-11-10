@@ -1,0 +1,135 @@
+{
+    "plugin": "complianz-gdpr 7.5.7 (seeded by hand on a local site, banner saved through CMPLZ_COOKIEBANNER::save)",
+    "options": {
+        "regions": "eu",
+        "cookie_expiry": 180,
+        "respect_dnt": "yes",
+        "records_of_consent": "yes",
+        "enable_cookie_banner": "yes",
+        "enable_cookie_blocker": "yes",
+        "consent-mode": "yes",
+        "gtag-basic-consent-mode": "no",
+        "compile_statistics": "google-analytics",
+        "ua_code": "G-TESTF6CZ12",
+        "organisation_name": "Autoservis Vydra s.r.o.",
+        "address_company": "Hlavní 12\n123 45 Vydra",
+        "country_company": "CZ",
+        "email_company": "info@autoservis-test.cz",
+        "telephone_company": "+420 123 456 789",
+        "cookie-statement": "generated",
+        "privacy-statement": "generated",
+        "impressum": "none",
+        "disclaimer": "none",
+        "wizard_completed_once": 1,
+        "cookie_banner_required": "yes",
+        "uses_ad_cookies": "no"
+    },
+    "policy_id": "7",
+    "custom_scripts": {
+        "block_script": [
+            {
+                "name": "Chatovací widget",
+                "category": "marketing",
+                "enable": 1,
+                "urls": [
+                    "https://chat.example-widgets.cz/loader.js",
+                    "https://cdn.example-chat.com/w.js"
+                ],
+                "enable_placeholder": 0,
+                "placeholder": "",
+                "enable_dependency": 0,
+                "dependency": ""
+            },
+            {
+                "name": "Heatmapa",
+                "category": "statistics",
+                "enable": 1,
+                "urls": [
+                    "static.heatmap-tool.io/tracker"
+                ],
+                "enable_placeholder": 0
+            },
+            {
+                "name": "Vypnuto",
+                "category": "marketing",
+                "enable": 0,
+                "urls": [
+                    "https://off.example.com/x.js"
+                ]
+            }
+        ],
+        "whitelist_script": [
+            {
+                "name": "Naše mapa",
+                "urls": [
+                    "mapy.nase-firma.cz/embed"
+                ],
+                "enable": 1
+            }
+        ],
+        "add_script": [
+            {
+                "name": "Vlastní měření",
+                "category": "statistics",
+                "enable": 1,
+                "editor": "<script>window.x=1;</script>"
+            }
+        ]
+    },
+    "banner_row": {
+        "ID": "1",
+        "title": "Hlavní lišta",
+        "banner_version": "1",
+        "default": "1",
+        "position": "bottom-right",
+        "checkbox_style": "slider",
+        "use_logo": "",
+        "logo_attachment_id": "0",
+        "close_button": "1",
+        "revoke": "Spravovat souhlas",
+        "manage_consent_options": "hover-hide-mobile",
+        "header": "a:2:{s:4:\"text\";s:17:\"Spravovat souhlas\";s:4:\"show\";i:1;}",
+        "dismiss": "a:2:{s:4:\"text\";s:10:\"Odmítnout\";s:4:\"show\";i:1;}",
+        "save_preferences": "Uložit výběr",
+        "view_preferences": "Nastavení",
+        "category_functional": "Functional",
+        "category_all": "a:2:{s:4:\"text\";s:9:\"Marketing\";s:4:\"show\";i:1;}",
+        "category_stats": "a:2:{s:4:\"text\";s:10:\"Statistics\";s:4:\"show\";i:1;}",
+        "category_prefs": "a:2:{s:4:\"text\";s:11:\"Preferences\";s:4:\"show\";i:1;}",
+        "accept": "Přijmout vše",
+        "message_optin": "<p>Používáme cookies, abychom vám zobrazili web a, s vaším souhlasem, měřili návštěvnost.</p>",
+        "use_categories": "view-preferences",
+        "disable_cookiebanner": "0",
+        "banner_width": "526",
+        "soft_cookiewall": "1",
+        "dismiss_on_scroll": "0",
+        "dismiss_on_timeout": "0",
+        "dismiss_timeout": "10",
+        "accept_informational": "a:2:{s:4:\"text\";s:6:\"Accept\";s:4:\"show\";i:1;}",
+        "message_optout": "To provide the best experiences, we use technologies like cookies to store and/or access device information. Consenting to these technologies will allow us to process data such as browsing behavior or unique IDs on this site. Not consenting or withdrawing consent, may adversely affect certain features and functions.",
+        "use_custom_cookie_css": "1",
+        "custom_css": ".cmplz-cookiebanner{font-family:serif}",
+        "statistics": "a:0:{}",
+        "functional_text": "a:2:{s:4:\"text\";s:289:\"The technical storage or access is strictly necessary for the legitimate purpose of enabling the use of a specific service explicitly requested by the subscriber or user, or for the sole purpose of carrying out the transmission of a communication over an electronic communications network.\";s:4:\"show\";i:1;}",
+        "statistics_text": "a:2:{s:4:\"text\";s:82:\"The technical storage or access that is used exclusively for statistical purposes.\";s:4:\"show\";i:1;}",
+        "statistics_text_anonymous": "a:2:{s:4:\"text\";s:317:\"The technical storage or access that is used exclusively for anonymous statistical purposes. Without a subpoena, voluntary compliance on the part of your Internet Service Provider, or additional records from a third party, information stored or retrieved for this purpose alone cannot usually be used to identify you.\";s:4:\"show\";i:1;}",
+        "preferences_text": "a:2:{s:4:\"text\";s:144:\"The technical storage or access is necessary for the legitimate purpose of storing preferences that are not requested by the subscriber or user.\";s:4:\"show\";i:1;}",
+        "marketing_text": "a:2:{s:4:\"text\";s:181:\"The technical storage or access is required to create user profiles to send advertising, or to track the user on a website or across several websites for similar marketing purposes.\";s:4:\"show\";i:1;}",
+        "colorpalette_background": "a:2:{s:5:\"color\";s:7:\"#fafafa\";s:6:\"border\";s:7:\"#e0e0e0\";}",
+        "colorpalette_text": "a:2:{s:5:\"color\";s:7:\"#222222\";s:9:\"hyperlink\";s:7:\"#0044cc\";}",
+        "colorpalette_toggles": "a:3:{s:10:\"background\";s:7:\"#3B29FF\";s:6:\"bullet\";s:7:\"#ffffff\";s:8:\"inactive\";s:4:\"#555\";}",
+        "colorpalette_border_radius": "a:5:{s:3:\"top\";i:12;s:5:\"right\";i:12;s:6:\"bottom\";i:12;s:4:\"left\";i:12;s:4:\"type\";s:2:\"px\";}",
+        "border_width": "a:4:{s:3:\"top\";i:0;s:5:\"right\";i:0;s:6:\"bottom\";i:0;s:4:\"left\";i:0;}",
+        "font_size": "12",
+        "colorpalette_button_accept": "a:3:{s:10:\"background\";s:7:\"#0a7d3b\";s:6:\"border\";s:7:\"#0a7d3b\";s:4:\"text\";s:7:\"#ffffff\";}",
+        "colorpalette_button_deny": "a:3:{s:10:\"background\";s:7:\"#f9f9f9\";s:6:\"border\";s:7:\"#f2f2f2\";s:4:\"text\";s:7:\"#222222\";}",
+        "colorpalette_button_settings": "a:3:{s:10:\"background\";s:7:\"#f9f9f9\";s:6:\"border\";s:7:\"#f2f2f2\";s:4:\"text\";s:7:\"#333333\";}",
+        "buttons_border_radius": "a:5:{s:3:\"top\";i:6;s:5:\"right\";i:6;s:6:\"bottom\";i:6;s:4:\"left\";i:6;s:4:\"type\";s:2:\"px\";}",
+        "animation": "fade",
+        "use_box_shadow": "1",
+        "header_footer_shadow": "0",
+        "hide_preview": "0",
+        "disable_width_correction": "0",
+        "legal_documents": "1"
+    }
+}

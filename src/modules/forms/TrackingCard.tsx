@@ -314,7 +314,7 @@ export default function TrackingCard( {
 									</select>
 									<p className="uxs-form__help">
 										{ __(
-											'The state is read when the conversion fires from Complianz, CookieYes, Cookiebot, Google Consent Mode (ad_storage) or window.uxstudioConsent.marketing. Without a recognised banner the value above is sent; with 0 Sklik still counts the conversion, only without personalization. Meta Pixel and Google Ads are not affected: they fire only if their tracker is already on the page, which your cookie banner controls.',
+											'The state is read when the conversion fires from the UX Studio cookie banner, Complianz, CookieYes, Cookiebot, Google Consent Mode (ad_storage) or window.uxstudioConsent.marketing. Without a recognised banner the value above is sent; with 0 Sklik still counts the conversion, only without personalization. Meta Pixel and Google Ads are not affected: they fire only if their tracker is already on the page, which your cookie banner controls.',
 											'ux-studio'
 										) }
 									</p>

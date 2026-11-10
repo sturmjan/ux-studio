@@ -1,0 +1,8 @@
+{
+	"id": "consent",
+	"name": "Cookie Consent",
+	"description": "A light cookie banner with categories, blocking of tracking scripts and embedded content until the visitor agrees, and Google Consent Mode v2.",
+	"group": "security",
+	"icon": "shield",
+	"settings": true
+}

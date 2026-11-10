@@ -105,10 +105,11 @@ final class Settings {
 			case 'number':
 				return is_numeric( $value ) ? +$value : 0;
 			case 'select':
+			case 'image_choice':
 				// Compare as strings: option keys may be ints (e.g. page IDs) while
 				// the submitted value arrives as a string from JSON.
 				$allowed = array_map( 'strval', array_keys( $field['options'] ?? array() ) );
-				$value   = (string) $value;
+				$value   = is_scalar( $value ) ? (string) $value : '';
 				return in_array( $value, $allowed, true ) ? $value : (string) ( $field['default'] ?? '' );
 			case 'multiselect':
 				$allowed = array_map( 'strval', array_keys( $field['options'] ?? array() ) );

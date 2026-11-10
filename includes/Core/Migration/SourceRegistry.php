@@ -17,6 +17,7 @@ use UxStudio\Core\Migration\Sources\AutoUnpublishSource;
 use UxStudio\Core\Migration\Sources\CaptchaSource;
 use UxStudio\Core\Migration\Sources\ClassicEditorSource;
 use UxStudio\Core\Migration\Sources\CodeSnippetsSource;
+use UxStudio\Core\Migration\Sources\ComplianzSource;
 use UxStudio\Core\Migration\Sources\CronSource;
 use UxStudio\Core\Migration\Sources\DisableCommentsSource;
 use UxStudio\Core\Migration\Sources\DuplicatePostSource;
@@ -99,6 +100,8 @@ final class SourceRegistry {
 			MaintenanceSource::class      => array( 'wp-maintenance-mode', 'coming-soon', 'maintenance', 'under-construction-page' ),
 			ActivityLogSource::class      => array( 'simple-history', 'wp-security-audit-log', 'aryo-activity-log', 'adminify-activity-logs' ),
 			PostTypeOrderSource::class    => array( 'post-types-order', 'intuitive-custom-post-order' ),
+			// Cookie consent (PLAN.md 42.16).
+			ComplianzSource::class        => array( 'complianz-gdpr', 'complianz-gdpr-premium' ),
 			// F5: Admin Customiser sources and Admin Columns.
 			AdminMenuEditorSource::class  => array( 'admin-menu-editor', 'admin-menu-editor-pro' ),
 			AdminimizeSource::class       => array( 'adminimize' ),

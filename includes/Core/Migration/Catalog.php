@@ -117,6 +117,17 @@ final class Catalog {
 				)
 			),
 			$full( 'email-health', array( 'check-email' => 'Check & Log Email' ) ),
+			// Two banners at once would stack and block everything twice (PLAN.md 42.7: the hand-over from Complianz).
+			$full(
+				'consent',
+				array(
+					'complianz-gdpr'         => 'Complianz',
+					'complianz-gdpr-premium' => 'Complianz Premium',
+					'cookie-notice'          => 'Cookie Notice & Compliance',
+					'cookie-law-info'        => 'CookieYes',
+					'cookiebot'              => 'Cookiebot',
+				)
+			),
 			$full(
 				'cron-control',
 				array(

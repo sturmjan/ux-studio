@@ -40,3 +40,6 @@ receives the defaults as its initial value.
 See DESIGN.md §7. A module is `includes/Modules/<Id>/` with `meta.json` +
 `Module.php` (extends `BaseModule`); optional REST controller and optional
 lazy-loaded SPA screen. Reference implementation: `Modules/HideAdminBar`.
+
+## Third-party data
+- **Open Cookie Database** (https://github.com/jkwakman/Open-Cookie-Database), Apache License 2.0. The Cookie Consent module bundles a reduced and modified copy (cookie name, platform, category, retention, data controller and a shortened description) in `includes/Modules/Consent/data/open-cookie-database.json`, used as a fallback for cookie descriptions. Licence text: `includes/Modules/Consent/data/OPEN-COOKIE-DATABASE-LICENSE.txt`. Refresh with `php bin/import-open-cookie-database.php`.

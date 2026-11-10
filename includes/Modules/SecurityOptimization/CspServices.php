@@ -314,4 +314,189 @@ final class CspServices {
 		}
 		return $host === $source_host;
 	}
+
+	/**
+	 * Consent category of services that load code or content from a third party (PLAN.md 42.2: one shared catalogue,
+	 * so the cookie banner reuses this class instead of keeping a second list). Key = host or registrable domain
+	 * (a host matches when it equals the key or is a subdomain of it; the LONGEST matching key wins, so
+	 * `maps.googleapis.com` can differ from `googleapis.com`). Value: category (`preferences`, `statistics`,
+	 * `marketing`), `label` (what the visitor reads) and `gcm` (the Google tag reads Consent Mode signals, so in
+	 * advanced mode it may load before consent).
+	 *
+	 * Hosts that are NOT here (fonts, CDNs, payment gateways, captcha, the site itself) count as necessary and
+	 * are never blocked. The cookies of each service are in consent_services().
+	 *
+	 * @return array<string, array{category:string, label:string, gcm?:bool}>
+	 */
+	public static function consent_catalogue(): array {
+		$m = static fn( string $label, bool $gcm = false ): array => array(
+			'category' => 'marketing',
+			'label'    => $label,
+			'gcm'      => $gcm,
+		);
+		$s = static fn( string $label, bool $gcm = false ): array => array(
+			'category' => 'statistics',
+			'label'    => $label,
+			'gcm'      => $gcm,
+		);
+		$p = static fn( string $label ): array => array(
+			'category' => 'preferences',
+			'label'    => $label,
+			'gcm'      => false,
+		);
+
+		return array(
+			// Google tags (Consent Mode aware).
+			'googletagmanager.com'   => $m( 'Google Tag Manager', true ),
+			'google-analytics.com'   => $s( 'Google Analytics', true ),
+			'analytics.google.com'   => $s( 'Google Analytics', true ),
+			'googleadservices.com'   => $m( 'Google Ads', true ),
+			'doubleclick.net'        => $m( 'Google Ads', true ),
+			'googlesyndication.com'  => $m( 'Google AdSense' ),
+			// Google embeds.
+			'maps.googleapis.com'    => $m( 'Google Maps' ),
+			'maps.gstatic.com'       => $m( 'Google Maps' ),
+			'youtube.com'            => $m( 'YouTube' ),
+			'youtube-nocookie.com'   => $m( 'YouTube' ),
+			'youtu.be'               => $m( 'YouTube' ),
+			// Social, ads, embeds.
+			'facebook.net'           => $m( 'Facebook' ),
+			'facebook.com'           => $m( 'Facebook' ),
+			'instagram.com'          => $m( 'Instagram' ),
+			'linkedin.com'           => $m( 'LinkedIn' ),
+			'licdn.com'              => $m( 'LinkedIn' ),
+			'ads-twitter.com'        => $m( 'X (Twitter)' ),
+			'platform.twitter.com'   => $m( 'X (Twitter)' ),
+			'twitter.com'            => $m( 'X (Twitter)' ),
+			'tiktok.com'             => $m( 'TikTok' ),
+			'pinterest.com'          => $m( 'Pinterest' ),
+			'pinimg.com'             => $m( 'Pinterest' ),
+			'bat.bing.com'           => $m( 'Microsoft Advertising' ),
+			'vimeo.com'              => $m( 'Vimeo' ),
+			'mapy.cz'                => $m( 'Mapy.cz' ),
+			'mapy.com'               => $m( 'Mapy.com' ),
+			'imedia.cz'              => $m( 'Sklik (Seznam)' ),
+			'heureka.cz'             => $m( 'Heureka' ),
+			'heureka.sk'             => $m( 'Heureka' ),
+			'im9.cz'                 => $m( 'Heureka' ),
+			'zbozi.cz'               => $m( 'Zboží.cz' ),
+			'chimpstatic.com'        => $m( 'Mailchimp' ),
+			'list-manage.com'        => $m( 'Mailchimp' ),
+			// Statistics.
+			'clarity.ms'             => $s( 'Microsoft Clarity' ),
+			'hotjar.com'             => $s( 'Hotjar' ),
+			'hotjar.io'              => $s( 'Hotjar' ),
+			'cloudflareinsights.com' => $s( 'Cloudflare Web Analytics' ),
+			'matomo.cloud'           => $s( 'Matomo' ),
+			'smartlook.com'          => $s( 'Smartlook' ),
+			'smartlook.cloud'        => $s( 'Smartlook' ),
+			// Chat widgets (preferences: they remember the conversation).
+			'smartsuppchat.com'      => $p( 'Smartsupp' ),
+			'smartsupp.com'          => $p( 'Smartsupp' ),
+			'tawk.to'                => $p( 'Tawk.to' ),
+			'tidio.co'               => $p( 'Tidio' ),
+			'tidiochat.com'          => $p( 'Tidio' ),
+			'crisp.chat'             => $p( 'Crisp' ),
+			'intercom.io'            => $p( 'Intercom' ),
+		);
+	}
+
+	/**
+	 * Consent entry of a host (see consent_catalogue()), longest matching key wins, or null for an unknown host.
+	 *
+	 * @param string $host Host name.
+	 * @return array{category:string, label:string, gcm:bool, domain:string}|null
+	 */
+	public static function consent_for_host( string $host ): ?array {
+		$host = strtolower( trim( $host, ". \t\n\r\0\x0B" ) );
+		if ( '' === $host ) {
+			return null;
+		}
+		$best = null;
+		foreach ( self::consent_catalogue() as $domain => $entry ) {
+			if ( ( $host === $domain || str_ends_with( $host, '.' . $domain ) ) && ( null === $best || strlen( $domain ) > strlen( $best['domain'] ) ) ) {
+				$best = array(
+					'category' => $entry['category'],
+					'label'    => $entry['label'],
+					'gcm'      => ! empty( $entry['gcm'] ),
+					'domain'   => $domain,
+				);
+			}
+		}
+		return $best;
+	}
+
+	/**
+	 * Cookies and provider details of the services in consent_catalogue() plus the necessary ones of the site itself
+	 * (WordPress, WooCommerce, the consent cookie, Cloudflare, reCAPTCHA). Key = service label. The data lives in
+	 * `data/consent-services.php` (field list in its header), so this stays the one shared catalogue and the file can
+	 * grow without bloating this class. Each service gets a `category` (its own, or the one of its hosts).
+	 *
+	 * @return array<string, array{category:string, processor:string, country:string, transfer:string, policy:string, ocd:string[], note:array<string,string>, cookies:list<array{0:string,1:string,2:string,3:string}>}>
+	 */
+	public static function consent_services(): array {
+		static $services = null;
+		if ( null !== $services ) {
+			return $services;
+		}
+		$file = __DIR__ . '/data/consent-services.php';
+		$raw  = is_readable( $file ) ? require $file : array();
+		$raw  = is_array( $raw ) ? $raw : array();
+
+		$categories = array();
+		foreach ( self::consent_catalogue() as $entry ) {
+			// A label that serves several hosts has the same category on all of them.
+			$categories[ $entry['label'] ] = $entry['category'];
+		}
+
+		$services = array();
+		foreach ( $raw as $label => $service ) {
+			$service  = (array) $service;
+			$category = (string) ( $service['category'] ?? ( $categories[ $label ] ?? 'marketing' ) );
+			$services[ (string) $label ] = array(
+				'category'  => $category,
+				'processor' => (string) ( $service['processor'] ?? '' ),
+				'country'   => strtoupper( (string) ( $service['country'] ?? '' ) ),
+				'transfer'  => (string) ( $service['transfer'] ?? '' ),
+				'policy'    => (string) ( $service['policy'] ?? '' ),
+				'ocd'       => array_values( array_map( 'strval', (array) ( $service['ocd'] ?? array() ) ) ),
+				'note'      => (array) ( $service['note'] ?? array() ),
+				'cookies'   => array_values( (array) ( $service['cookies'] ?? array() ) ),
+			);
+		}
+		return $services;
+	}
+
+	/**
+	 * One service of consent_services() by its label, or null.
+	 *
+	 * @param string $label Service label as in consent_catalogue().
+	 * @return array<string, mixed>|null
+	 */
+	public static function consent_service( string $label ): ?array {
+		return self::consent_services()[ $label ] ?? null;
+	}
+
+	/**
+	 * Signatures of hard-coded inline snippets of known services: regex => host of the service in the catalogue.
+	 * Used only by the optional page-buffer safety net for code that is not a registered script.
+	 *
+	 * @return array<string, string>
+	 */
+	public static function consent_inline_signatures(): array {
+		return array(
+			'#googletagmanager\.com/(?:gtm|gtag)#i'         => 'googletagmanager.com',
+			'#\bgtag\s*\(\s*[\'"]config[\'"]#i'             => 'googletagmanager.com',
+			'#google-analytics\.com/(?:analytics|ga)\.js#i' => 'google-analytics.com',
+			'#connect\.facebook\.net#i'                     => 'facebook.net',
+			'#\bfbq\s*\(\s*[\'"]init[\'"]#i'                => 'facebook.net',
+			'#static\.hotjar\.com#i'                        => 'hotjar.com',
+			'#clarity\.ms/tag#i'                            => 'clarity.ms',
+			'#s\.pinimg\.com/ct/core\.js#i'                 => 'pinimg.com',
+			'#snap\.licdn\.com#i'                           => 'licdn.com',
+			'#analytics\.tiktok\.com#i'                     => 'tiktok.com',
+			'#bat\.bing\.com#i'                             => 'bat.bing.com',
+			'#c\.imedia\.cz/js/retargeting#i'               => 'imedia.cz',
+		);
+	}
 }
