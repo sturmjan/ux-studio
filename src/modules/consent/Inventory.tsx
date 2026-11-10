@@ -185,6 +185,9 @@ export default function Inventory(): JSX.Element {
 							} ) }
 						</tbody>
 					</table>
+					<p className="uxs-form__help">
+						{ __( 'A classified host is held back when its script is added by WordPress or a plugin. A script pasted directly into a page is held back only when "Also catch snippets pasted directly into the page" is on (tab Blocking).', 'ux-studio' ) }
+					</p>
 				</div>
 			) }
 
