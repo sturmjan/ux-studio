@@ -229,5 +229,48 @@ check( 'preview: the button stays hidden when the setting is off', r.body.queryS
 r = await runUi( '', { ...pv, preview: 'ph' }, { sandbox: true } );
 check( 'preview: placeholder view builds no banner', r.body.querySelectorAll( '.uxc' ).length === 0 && r.body.querySelectorAll( '.uxc-fab' ).length === 0 );
 
+// ---------- banner templates (PLAN 42.20): same buttons, same functions, only the structure differs ----------
+for ( const tpl of [ 'classic', 'cookiebot', 'cookie', 'slim', 'nonsense' ] ) {
+	const tcfg = { ...withText, tpl, t: { ...withText.t, tab_c: 'Consent', tab_d: 'Details', tab_a: 'About cookies', tabs: 'Sections', about: 'About text' } };
+	const cls = ( x ) => x.body.querySelectorAll( '.uxc' )[ 0 ].className;
+	const name = tpl === 'nonsense' ? 'unknown template (falls back to classic)' : tpl;
+	const root = tpl === 'nonsense' ? 'classic' : tpl;
+	r = await runUi( '', tcfg );
+	check( 'tpl ' + name + ': root carries the template class', cls( r ).split( ' ' ).includes( 'uxc-t-' + root ), cls( r ) );
+	const dlgButtons = r.body.querySelectorAll( '.uxc-dlg button' ).filter( ( x ) => x.className.includes( 'uxc-btn' ) );
+	const rej = dlgButtons.find( ( x ) => x.textContent === TX.reject );
+	const acc = dlgButtons.find( ( x ) => x.textContent === TX.accept );
+	check( 'tpl ' + name + ': reject and accept are in the first layer with the same weight', !! rej && !! acc && ! rej.className.includes( 'uxc-alt' ) && ! acc.className.includes( 'uxc-alt' ), dlgButtons.map( ( x ) => x.className ).join( '|' ) );
+	if ( root !== 'cookiebot' ) {
+		check( 'tpl ' + name + ': there is a customize button that is not the quiet-less accept', dlgButtons.some( ( x ) => x.textContent === 'Customize' ) );
+	} else {
+		const tabs = r.body.querySelectorAll( 'button' ).filter( ( x ) => x.attrs.role === 'tab' );
+		check( 'tpl cookiebot: three tabs, the first selected', tabs.length === 3 && tabs[ 0 ].attrs[ 'aria-selected' ] === true && tabs[ 1 ].attrs[ 'aria-selected' ] === false, JSON.stringify( tabs.map( ( x ) => x.attrs[ 'aria-selected' ] ) ) );
+		check( 'tpl cookiebot: switches of the three categories are on the first layer (necessary locked)', r.body.querySelectorAll( '.uxc-swr input' ).length === 4 && r.body.querySelectorAll( '.uxc-swr input' ).filter( ( x ) => x.disabled ).length === 1 );
+		tabs[ 1 ].click();
+		check( 'tpl cookiebot: the Details tab shows the details panel only', r.body.querySelectorAll( '.uxc-detail' )[ 0 ].hidden === false && r.body.querySelectorAll( '.uxc-main' )[ 0 ].hidden === true && r.body.querySelectorAll( '.uxc-about' )[ 0 ].hidden === true );
+	}
+	r = await runUi( '', tcfg, { steps: ( { button } ) => button( TX.accept ).click() } );
+	b = r.calls.beacon;
+	check( 'tpl ' + name + ': accept all records accept_all with all bits and writes the cookie', b.length === 1 && b[ 0 ].b.a === 'accept_all' && b[ 0 ].b.c === '7' && /uxs_consent=1\.3\.7\./.test( r.doc.cookie ), JSON.stringify( b ) );
+	r = await runUi( '', tcfg, { steps: ( { button } ) => button( TX.reject ).click() } );
+	b = r.calls.beacon;
+	check( 'tpl ' + name + ': reject all records reject_all with bits 0', b.length === 1 && b[ 0 ].b.a === 'reject_all' && b[ 0 ].b.c === '0' && /uxs_consent=1\.3\.0\./.test( r.doc.cookie ), JSON.stringify( b ) );
+	r = await runUi( '', tcfg, {
+		steps: ( { body, button } ) => {
+			if ( root !== 'cookiebot' ) { button( 'Customize' ).click(); }
+			body.querySelectorAll( 'input' ).filter( ( i ) => ! i.disabled )[ 1 ].checked = true;
+			button( TX.save ).click();
+		},
+	} );
+	b = r.calls.beacon;
+	check( 'tpl ' + name + ': a selection records custom with the bits of the ticked switches', b.length === 1 && b[ 0 ].b.a === 'custom' && b[ 0 ].b.c === '2', JSON.stringify( b ) );
+	r = await runUi( 'uxs_consent=1.3.7.1731000000.' + stored, tcfg, { steps: ( { win, button } ) => { win.uxConsent.open(); button( TX.reject ).click(); } } );
+	b = r.calls.beacon;
+	check( 'tpl ' + name + ': reopening and rejecting is a withdraw', b.length === 1 && b[ 0 ].b.a === 'withdraw' && b[ 0 ].b.id === stored, JSON.stringify( b ) );
+	r = await runUi( '', { ...tcfg, preview: 'detail' }, { sandbox: true } );
+	check( 'tpl ' + name + ': preview detail view works and nothing is stored', r.body.querySelectorAll( '.uxc-detail' )[ 0 ].hidden === false && r.calls.beacon.length === 0 );
+}
+
 console.log( failures === 0 ? 'ALL OK' : failures + ' FAILED' );
 process.exit( failures === 0 ? 0 : 1 );

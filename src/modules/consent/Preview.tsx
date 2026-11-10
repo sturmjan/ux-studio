@@ -23,7 +23,7 @@ export type PreviewWidth = 'desktop' | 'mobile';
 interface PreviewData {
 	config: Record< string, unknown >;
 	css: string;
-	assets: { js: string; css: string; js_ver: string; css_ver: string };
+	assets: { js: string; css: string; js_ver: string; css_ver: string; tcss: string; tcss_ver: string };
 }
 
 /** The size of the page inside the iframe; the iframe is scaled down to the width of the panel. */
@@ -63,6 +63,8 @@ export function previewDocument( data: PreviewData, view: PreviewView ): string 
 		'<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
 		'<base target="_blank">' +
 		`<link rel="stylesheet" href="${ esc( `${ data.assets.css }?ver=${ data.assets.css_ver }` ) }">` +
+		// The style of the chosen template, on top of the base one (none for the classic template).
+		( data.assets.tcss ? `<link rel="stylesheet" href="${ esc( `${ data.assets.tcss }?ver=${ data.assets.tcss_ver }` ) }">` : '' ) +
 		'<style>html,body{margin:0;min-height:100%;background:#fff;font:16px/1.5 system-ui,sans-serif}' +
 		'.pg{padding:24px;max-width:760px;margin:0 auto}.pg-bar{height:44px;background:#e8eaed}' +
 		'.pg-h{height:28px;width:55%;background:#d5d9de;margin:8px 0 18px}.pg-line{height:12px;background:#eceef1;margin:10px 0}' +

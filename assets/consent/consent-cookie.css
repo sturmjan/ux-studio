@@ -1,0 +1,37 @@
+/* UX Studio Cookie Consent, template "cookie": a dark rounded card in the corner with a cookie icon and round buttons. Loaded after consent.css.
+   Reject and accept are the same size and both solid, so declining is as easy and as visible as accepting. */
+.uxc.uxc-t-cookie:not(.is-detail) .uxc-dlg {
+	left: 24px; bottom: 24px; width: min(380px, calc(100% - 48px));
+	padding: 24px 24px 20px; border-radius: 22px;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, .35);
+}
+.uxc.uxc-t-cookie.uxc-right:not(.is-detail) .uxc-dlg { left: auto; right: 24px; }
+.uxc-hd { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+.uxc-ic { flex: none; display: flex; color: var(--uxc-ac); }
+.uxc .uxc-hd .uxc-h { margin: 0; font-size: 1.45em; font-weight: 800; line-height: 1.15; }
+.uxc-t-cookie .uxc-main .uxc-p { font-size: .9em; line-height: 1.55; }
+.uxc-t-cookie .uxc-main .uxc-actions {
+	flex-wrap: nowrap; align-items: center; gap: 12px;
+	margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(128, 128, 128, .4);
+}
+.uxc.uxc-t-cookie .uxc-main .uxc-btn { flex: none; }
+.uxc.uxc-t-cookie .uxc-main .uxc-btn.uxc-alt {
+	flex: 1 1 auto; min-height: 44px; padding: 0; text-align: left;
+	background: none; border: 0; border-radius: 0; color: inherit;
+	text-decoration: underline; text-underline-offset: 3px; font-weight: 600;
+}
+.uxc.uxc-t-cookie .uxc-main .uxc-no,
+.uxc.uxc-t-cookie .uxc-main .uxc-yes {
+	min-width: 68px; height: 68px; padding: 0 8px; border-radius: 34px;
+	font-size: .85rem; font-weight: 800; line-height: 1.15;
+	box-shadow: 0 4px 14px rgba(0, 0, 0, .25);
+}
+.uxc.uxc-t-cookie .uxc-main .uxc-no { color: var(--uxc-bg); background: var(--uxc-fg); border-color: var(--uxc-fg); }
+
+@media (max-width: 480px) {
+	.uxc.uxc-t-cookie:not(.is-detail) .uxc-dlg,
+	.uxc.uxc-t-cookie.uxc-right:not(.is-detail) .uxc-dlg {
+		left: 0; right: 0; bottom: 0; width: 100%;
+		padding: 20px 18px 16px; border-radius: 22px 22px 0 0;
+	}
+}

@@ -180,19 +180,32 @@ final class Module extends BaseModule {
 	/**
 	 * URLs of the banner script and style (the minified ones unless SCRIPT_DEBUG), each with a version from the file time.
 	 *
-	 * @return array{js:string,css:string,js_ver:string,css_ver:string}
+	 * The style of the chosen template (`tcss`) is a second, small file loaded after the base one; the classic template
+	 * lives in the base style, so for it `tcss` is an empty string and nothing extra is loaded.
+	 *
+	 * @return array{js:string,css:string,js_ver:string,css_ver:string,tcss:string,tcss_ver:string}
 	 */
 	public function asset_urls(): array {
 		$min  = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 		$base = UXSTUDIO_PATH . 'assets/consent/';
 		$url  = UXSTUDIO_URL . 'assets/consent/';
 		$ver  = static fn( string $file ): string => is_readable( $base . $file ) ? (string) filemtime( $base . $file ) : UXSTUDIO_VERSION;
+		$tcss = Templates::style_file( $this->template(), $min );
 		return array(
-			'js'      => $url . 'consent' . $min . '.js',
-			'css'     => $url . 'consent' . $min . '.css',
-			'js_ver'  => $ver( 'consent' . $min . '.js' ),
-			'css_ver' => $ver( 'consent' . $min . '.css' ),
+			'js'       => $url . 'consent' . $min . '.js',
+			'css'      => $url . 'consent' . $min . '.css',
+			'js_ver'   => $ver( 'consent' . $min . '.js' ),
+			'css_ver'  => $ver( 'consent' . $min . '.css' ),
+			'tcss'     => '' === $tcss ? '' : $url . $tcss,
+			'tcss_ver' => '' === $tcss ? '' : $ver( $tcss ),
 		);
+	}
+
+	/**
+	 * The chosen banner template, always one of TEMPLATES.
+	 */
+	public function template(): string {
+		return Templates::normalize( (string) $this->settings->get( 'template', 'classic' ) );
 	}
 
 	/**
@@ -210,6 +223,10 @@ final class Module extends BaseModule {
 			wp_add_inline_style( self::HANDLE, $vars );
 		}
 		wp_enqueue_style( self::HANDLE );
+		if ( '' !== $assets['tcss'] ) {
+			// Only the style of the chosen template goes to the page, after the base one.
+			wp_enqueue_style( self::HANDLE . '-tpl', $assets['tcss'], array( self::HANDLE ), $assets['tcss_ver'] );
+		}
 
 		wp_enqueue_script(
 			self::HANDLE,
@@ -232,7 +249,7 @@ final class Module extends BaseModule {
 	 *
 	 * @param array  $values Unsaved values by setting key (sanitized here with the schema; unknown keys are dropped).
 	 * @param string $view   main | detail | fab | ph, which part of the banner the preview shows.
-	 * @return array{config:array<string,mixed>,css:string}
+	 * @return array{config:array<string,mixed>,css:string,assets:array<string,string>}
 	 */
 	public function preview_config( array $values, string $view ): array {
 		$option = 'uxstudio_' . str_replace( '-', '_', $this->id );
@@ -243,6 +260,7 @@ final class Module extends BaseModule {
 		try {
 			$config = $this->frontend_config();
 			$css    = $this->css_variables();
+			$assets = $this->asset_urls(); // Inside the swap: the style of the template being previewed, not the saved one.
 		} finally {
 			remove_filter( 'pre_option_' . $option, $swap );
 			$this->reload_settings();
@@ -252,6 +270,7 @@ final class Module extends BaseModule {
 		return array(
 			'config' => $config,
 			'css'    => $css,
+			'assets' => $assets,
 		);
 	}
 
@@ -259,19 +278,11 @@ final class Module extends BaseModule {
 	 * Colour and radius overrides, only the ones that differ from the stylesheet defaults.
 	 */
 	public function css_variables(): string {
-		$map = array(
-			'color_bg'          => array( '--uxc-bg', '#ffffff' ),
-			'color_text'        => array( '--uxc-fg', '#1d2327' ),
-			'color_accent'      => array( '--uxc-ac', '#1d4ed8' ),
-			'color_accent_text' => array( '--uxc-ac-fg', '#ffffff' ),
-		);
-		$css = '';
-		foreach ( $map as $key => $pair ) {
-			$value = (string) sanitize_hex_color( (string) $this->settings->get( $key, $pair[1] ) );
-			if ( '' !== $value && strtolower( $value ) !== $pair[1] ) {
-				$css .= $pair[0] . ':' . $value . ';';
-			}
+		$values = array();
+		foreach ( Templates::COLOURS as $key => $pair ) {
+			$values[ $key ] = (string) sanitize_hex_color( (string) $this->settings->get( $key, $pair[1] ) );
 		}
+		$css    = Templates::variables( $this->template(), $values );
 		$radius = max( 0, min( 32, (int) $this->settings->get( 'radius', 8 ) ) );
 		if ( 8 !== $radius ) {
 			$css .= '--uxc-r:' . $radius . 'px;';
@@ -357,6 +368,20 @@ final class Module extends BaseModule {
 	}
 
 	/**
+	 * A banner text. A template may have its own shorter DEFAULT; the text the owner wrote always wins, and so does a text
+	 * saved unchanged from the form (which stores the default of the language the owner works in).
+	 *
+	 * @param string                $key      Setting key.
+	 * @param string                $default  Generic default.
+	 * @param array<string, string> $by_tpl   Default by template.
+	 */
+	private function text( string $key, string $default, array $by_tpl ): string {
+		$value = (string) $this->settings->get( $key, $default );
+		$tpl   = $this->template();
+		return ( $value === $default && isset( $by_tpl[ $tpl ] ) ) ? $by_tpl[ $tpl ] : $value;
+	}
+
+	/**
 	 * Settings and texts for the banner script. Same for every visitor.
 	 *
 	 * @return array<string, mixed>
@@ -426,15 +451,20 @@ final class Module extends BaseModule {
 			'v'      => $this->policy_version(),
 			'days'   => max( 1, min( 365, (int) $s->get( 'expiry_days', 365 ) ) ),
 			'gcm'    => 'off' !== $this->consent_mode(),
+			'tpl'    => $this->template(),
 			'layout' => 'bar' === (string) $s->get( 'layout', 'box' ) ? 'bar' : 'box',
 			'pos'    => 'right' === (string) $s->get( 'position', 'left' ) ? 'right' : 'left',
 			'fab'    => (bool) $s->get( 'show_reopen', true ),
 			'c'      => $categories,
 			't'      => array(
-				'title'    => (string) $s->get( 'title', __( 'Your privacy choices', 'ux-studio' ) ),
-				'msg'      => (string) $s->get( 'message', __( 'We use cookies so this site works and, if you agree, to measure visits and show relevant offers. Choose what you allow. You can change your decision at any time.', 'ux-studio' ) ),
-				'accept'   => (string) $s->get( 'btn_accept', __( 'Accept all', 'ux-studio' ) ),
-				'reject'   => (string) $s->get( 'btn_reject', __( 'Reject all', 'ux-studio' ) ),
+				'title'    => $this->text( 'title', __( 'Your privacy choices', 'ux-studio' ), array( 'cookie' => __( 'A word about cookies', 'ux-studio' ) ) ),
+				'msg'      => $this->text(
+					'message',
+					__( 'We use cookies so this site works and, if you agree, to measure visits and show relevant offers. Choose what you allow. You can change your decision at any time.', 'ux-studio' ),
+					array( 'slim' => __( 'We use cookies to run this site and, with your consent, to measure visits and show relevant offers.', 'ux-studio' ) )
+				),
+				'accept'   => $this->text( 'btn_accept', __( 'Accept all', 'ux-studio' ), array( 'cookie' => __( 'Sure', 'ux-studio' ) ) ),
+				'reject'   => $this->text( 'btn_reject', __( 'Reject all', 'ux-studio' ), array( 'cookie' => __( 'No thanks', 'ux-studio' ) ) ),
 				'settings' => (string) $s->get( 'btn_settings', __( 'Customize', 'ux-studio' ) ),
 				'save'     => (string) $s->get( 'btn_save', __( 'Save choices', 'ux-studio' ) ),
 				'close'    => __( 'Close', 'ux-studio' ),
@@ -454,6 +484,16 @@ final class Module extends BaseModule {
 				'cid'      => __( 'Consent ID (quote it if you ask us about your choice):', 'ux-studio' ),
 			),
 		);
+		if ( 'cookiebot' === $config['tpl'] ) {
+			// Only this template has tabs; its texts do not travel with the others.
+			$config['t'] += array(
+				'tab_c' => __( 'Consent', 'ux-studio' ),
+				'tab_d' => __( 'Details', 'ux-studio' ),
+				'tab_a' => __( 'About cookies', 'ux-studio' ),
+				'tabs'  => __( 'Cookie banner sections', 'ux-studio' ),
+				'about' => __( 'Cookies are small files that a website stores in your browser. The necessary ones keep the site working. All the others are used only if you allow them, and you can change or withdraw your choice at any time with the cookie settings button.', 'ux-studio' ),
+			);
+		}
 		if ( '' !== $policy ) {
 			$config['policy'] = esc_url_raw( $policy );
 		}
@@ -686,9 +726,24 @@ final class Module extends BaseModule {
 			),
 			// --- Appearance ---
 			array(
+				'key'     => 'template',
+				'section' => $look,
+				'type'    => 'select',
+				'label'   => __( 'Template', 'ux-studio' ),
+				'help'    => __( 'The look of the banner. It works the same in every template. Classic is a box or a bar (set below), Tabs a wide panel with switches, Card a dark card with round buttons (its default colours are dark, colours you set replace them), Slim one thin bar.', 'ux-studio' ),
+				'options' => array(
+					'classic'   => __( 'Classic', 'ux-studio' ),
+					'cookiebot' => __( 'Tabs', 'ux-studio' ),
+					'cookie'    => __( 'Card', 'ux-studio' ),
+					'slim'      => __( 'Slim bar', 'ux-studio' ),
+				),
+				'default' => 'classic',
+			),
+			array(
 				'key'     => 'layout',
 				'section' => $look,
 				'type'    => 'select',
+				'show_if' => array( 'key' => 'template', 'equals' => 'classic' ),
 				'label'   => __( 'Layout', 'ux-studio' ),
 				'options' => array(
 					'box' => __( 'Box in a corner', 'ux-studio' ),
@@ -706,7 +761,7 @@ final class Module extends BaseModule {
 					'right' => __( 'Right', 'ux-studio' ),
 				),
 				'default' => 'left',
-				'show_if' => array( 'key' => 'layout', 'equals' => 'box' ),
+				'show_if' => array( 'key' => 'template', 'in' => array( 'classic', 'cookie' ) ),
 			),
 			array(
 				'key'     => 'color_bg',

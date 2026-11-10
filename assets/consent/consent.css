@@ -82,7 +82,7 @@
 .uxc-h:focus { outline: none; }
 
 .uxc-cat { padding: 12px 0; border-top: 1px solid rgba(128, 128, 128, .35); }
-.uxc-sw { display: flex; align-items: center; gap: 10px; font-weight: 600; cursor: pointer; }
+.uxc .uxc-sw { display: flex; align-items: center; gap: 10px; font-weight: 600; cursor: pointer; color: inherit; } /* colour: a theme that greys every <label> must not grey ours */
 .uxc-sw input { width: 20px; height: 20px; margin: 0; accent-color: var(--uxc-ac); flex: none; }
 .uxc-on { margin-left: auto; font-size: .85em; font-weight: 400; opacity: .8; }
 .uxc-svc { margin-top: 6px; font-size: .9em; }
@@ -121,6 +121,8 @@
 	.uxc-box .uxc-dlg { bottom: 8px; width: calc(100% - 16px); }
 	.uxc-box.uxc-left .uxc-dlg { left: 8px; }
 	.uxc-box.uxc-right .uxc-dlg { right: 8px; }
+	/* The centred settings dialog must win over the corner offsets above (they came later and pushed it off the screen). */
+	.uxc.is-detail .uxc-dlg { left: 50%; right: auto; bottom: auto; width: calc(100% - 16px); }
 	.uxc .uxc-btn { flex-basis: 100%; }
 }
 @media (forced-colors: active) {

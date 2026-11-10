@@ -13,6 +13,10 @@
  * the `uxc_consent` event included): .acceptAll(), .rejectAll(), .set( { preferences, statistics, marketing } ); event `uxstudio:consent` on document;
  * window.uxstudioConsent = { preferences, statistics, marketing } (read by the Forms conversion tracking).
  *
+ * Templates (cfg.tpl, PLAN 42.20): classic (default), cookiebot (tabs + switches), cookie (dark card, round buttons), slim (thin bar).
+ * One script, one behaviour: a template only changes which elements build() makes and the class it puts on the root; its style is
+ * consent-<tpl>.css, loaded on top of consent.css by the page (classic lives in consent.css itself).
+ *
  * Preview (admin, PLAN 42.18): cfg.preview = main | detail | fab | ph. The page is a sandboxed iframe without allow-same-origin, so
  * there is no cookie, no storage and no request: nothing is stored or reported, the buttons do nothing, the view stays as asked.
  */
@@ -37,6 +41,8 @@
 	var BIT = { preferences: 1, statistics: 2, marketing: 4 };
 	var T = cfg.t || {};
 	var PV = !! cfg.preview;
+	var TPL = [ 'cookiebot', 'cookie', 'slim' ].indexOf( cfg.tpl ) < 0 ? 'classic' : cfg.tpl;
+	var CB = TPL === 'cookiebot';
 	var quiet = PV; // no focus change while the admin is typing in the form next to the preview
 
 	var state = null; // { preferences, statistics, marketing } booleans once the visitor decided
@@ -396,7 +402,21 @@
 		}
 	}
 
+	// Tabs of the cookiebot template: main (consent), detail, about.
+	function setTab( name ) {
+		root._tabs.forEach( function ( t ) {
+			var on = t._p === name;
+			t.setAttribute( 'aria-selected', on );
+			t.tabIndex = on ? 0 : -1;
+			root._panels[ t._p ].hidden = ! on;
+		} );
+	}
+
 	function setView( detail ) {
+		if ( CB ) {
+			setTab( detail ? 'detail' : 'main' );
+			return;
+		}
 		root.className = root.className.replace( / is-detail/, '' ) + ( detail ? ' is-detail' : '' );
 		var dlg = root.querySelector( '.uxc-dlg' );
 		dlg.setAttribute( 'aria-modal', detail ? 'true' : 'false' );
@@ -421,6 +441,11 @@
 		opener = null;
 	}
 
+	// A small cookie with a bite and crumbs (own drawing); follows the text colour.
+	function icon( size ) {
+		return '<svg viewBox="0 0 24 24" width="' + size + '" height="' + size + '" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"/><path d="M8.5 8.5v.01M16 15.5v.01M12 12v.01M11 17v.01M7 14v.01"/></svg>';
+	}
+
 	function showFab() {
 		if ( fab ) {
 			fab.hidden = false;
@@ -430,7 +455,7 @@
 		fab.type = 'button';
 		fab.setAttribute( 'aria-label', T.fab );
 		fab.title = T.fab;
-		fab.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"/><path d="M8.5 8.5v.01M16 15.5v.01M12 12v.01M11 17v.01M7 14v.01"/></svg>';
+		fab.innerHTML = icon( 22 );
 		fab.addEventListener( 'click', function () {
 			open( fab );
 		} );
@@ -438,7 +463,7 @@
 	}
 
 	function build() {
-		root = el( 'div', 'uxc uxc-' + cfg.layout + ' uxc-' + cfg.pos );
+		root = el( 'div', 'uxc uxc-t-' + TPL + ( TPL === 'classic' ? ' uxc-' + cfg.layout : '' ) + ' uxc-' + cfg.pos );
 		root.hidden = true;
 		root.appendChild( el( 'div', 'uxc-ov' ) );
 		var dlg = el( 'div', 'uxc-dlg' );
@@ -447,11 +472,19 @@
 		dlg.setAttribute( 'aria-labelledby', 'uxc-t' );
 		dlg.setAttribute( 'aria-describedby', 'uxc-m' );
 
+		var boxes = {};
 		var all = function () {
 			commit( { preferences: 1, statistics: 1, marketing: 1 }, 'accept_all' );
 		};
 		var none = function () {
 			commit( {}, 'reject_all' );
+		};
+		var saveSel = function () {
+			var choice = {};
+			CATS.forEach( function ( c ) {
+				choice[ c ] = boxes[ c ] && boxes[ c ].checked;
+			} );
+			commit( choice, 'custom' );
 		};
 		var button = function ( label, cls, fn ) {
 			var b = el( 'button', 'uxc-btn' + ( cls ? ' ' + cls : '' ), label );
@@ -459,8 +492,29 @@
 			b.addEventListener( 'click', fn );
 			return b;
 		};
+		// A category with its switch (only the name when `plain`).
+		var sw = function ( c, plain ) {
+			var label = el( plain ? 'div' : 'label', 'uxc-sw' );
+			if ( ! plain ) {
+				var input = el( 'input' );
+				input.type = 'checkbox';
+				if ( c.id === 'necessary' ) {
+					input.checked = true;
+					input.disabled = true;
+				} else {
+					input.checked = !! ( state && state[ c.id ] );
+					boxes[ c.id ] = input;
+				}
+				label.appendChild( input );
+			}
+			label.appendChild( el( 'span', 'uxc-n', c.n ) );
+			if ( c.id === 'necessary' ) {
+				label.appendChild( el( 'span', 'uxc-on', T.always ) );
+			}
+			return label;
+		};
 
-		// First layer: accept and reject look the same, customize is the quieter third option.
+		// First layer: accept and reject look the same, customize is the quieter option.
 		var main = el( 'div', 'uxc-main' );
 		var text = el( 'div', 'uxc-text' );
 		var title = el( 'h2', 'uxc-h', T.title );
@@ -468,7 +522,16 @@
 		title.tabIndex = -1;
 		var msg = el( 'p', 'uxc-p', T.msg );
 		msg.id = 'uxc-m';
-		text.appendChild( title );
+		if ( TPL === 'cookie' ) {
+			var head = el( 'div', 'uxc-hd' );
+			var ic = el( 'span', 'uxc-ic' );
+			ic.innerHTML = icon( 40 );
+			head.appendChild( ic );
+			head.appendChild( title );
+			text.appendChild( head );
+		} else {
+			text.appendChild( title );
+		}
 		text.appendChild( msg );
 		if ( cfg.policy && /^(https?:\/\/|\/)/i.test( cfg.policy ) ) {
 			var link = el( 'a', 'uxc-a', T.policy );
@@ -476,42 +539,48 @@
 			msg.appendChild( doc.createTextNode( ' ' ) );
 			msg.appendChild( link );
 		}
+		// The buttons and their order depend on the template: r reject, a accept, s customize (opens the detail),
+		// v allow the selection made with the switches. Reject and accept always get the same size and weight.
+		var defs = {
+			r: [ T.reject, 'uxc-no', none ],
+			a: [ T.accept, 'uxc-yes', all ],
+			s: [
+				T.settings,
+				'uxc-alt',
+				function () {
+					setView( true );
+				},
+			],
+			v: [ T.save, 'uxc-alt', saveSel ],
+		};
 		var actions = el( 'div', 'uxc-actions' );
-		actions.appendChild( button( T.reject, '', none ) );
-		actions.appendChild( button( T.accept, '', all ) );
-		actions.appendChild( button( T.settings, 'uxc-alt', function () {
-			setView( true );
-		} ) );
+		( { cookiebot: 'rva', slim: 'rsa', cookie: 'sra' }[ TPL ] || 'ras' ).split( '' ).forEach( function ( k ) {
+			actions.appendChild( button( defs[ k ][ 0 ], defs[ k ][ 1 ], defs[ k ][ 2 ] ) );
+		} );
 		main.appendChild( text );
-		main.appendChild( actions );
+		if ( CB ) {
+			var row = el( 'div', 'uxc-swr' );
+			cfg.c.forEach( function ( c ) {
+				row.appendChild( sw( c ) );
+			} );
+			main.appendChild( row );
+		} else {
+			main.appendChild( actions );
+		}
 
-		// Second layer: one switch per category, with the services in use.
+		// Second layer: the categories with the services in use (and a switch each, except in the tabs template).
 		var detail = el( 'div', 'uxc-detail' );
 		detail.hidden = true;
-		var h = el( 'h2', 'uxc-h', T.settings );
-		h.id = 'uxc-t2';
-		h.tabIndex = -1;
-		detail.appendChild( h );
-		var boxes = {};
+		if ( ! CB ) {
+			var h = el( 'h2', 'uxc-h', T.settings );
+			h.id = 'uxc-t2';
+			h.tabIndex = -1;
+			detail.appendChild( h );
+		}
 		cfg.c.forEach( function ( c ) {
-			var row = el( 'div', 'uxc-cat' );
-			var label = el( 'label', 'uxc-sw' );
-			var input = el( 'input' );
-			input.type = 'checkbox';
-			if ( c.id === 'necessary' ) {
-				input.checked = true;
-				input.disabled = true;
-			} else {
-				input.checked = !! ( state && state[ c.id ] );
-				boxes[ c.id ] = input;
-			}
-			label.appendChild( input );
-			label.appendChild( el( 'span', 'uxc-n', c.n ) );
-			if ( c.id === 'necessary' ) {
-				label.appendChild( el( 'span', 'uxc-on', T.always ) );
-			}
-			row.appendChild( label );
-			row.appendChild( el( 'p', 'uxc-d', c.d ) );
+			var row2 = el( 'div', 'uxc-cat' );
+			row2.appendChild( sw( c, CB ) );
+			row2.appendChild( el( 'p', 'uxc-d', c.d ) );
 			var list = c.s || [];
 			if ( c.id !== 'necessary' || list.length ) {
 				var det = el( 'details', 'uxc-svc' );
@@ -541,27 +610,62 @@
 				} else {
 					det.appendChild( el( 'p', 'uxc-d', T.none ) );
 				}
-				row.appendChild( det );
+				row2.appendChild( det );
 			}
-			detail.appendChild( row );
+			detail.appendChild( row2 );
 		} );
-		var dActions = el( 'div', 'uxc-actions' );
-		dActions.appendChild( button( T.reject, '', none ) );
-		dActions.appendChild( button( T.accept, '', all ) );
-		dActions.appendChild( button( T.save, 'uxc-alt', function () {
-			var choice = {};
-			CATS.forEach( function ( c ) {
-				choice[ c ] = boxes[ c ] && boxes[ c ].checked;
-			} );
-			commit( choice, 'custom' );
-		} ) );
 		root._id = el( 'p', 'uxc-d' );
 		root._id.hidden = true;
 		detail.appendChild( root._id );
-		detail.appendChild( dActions );
-
-		dlg.appendChild( main );
-		dlg.appendChild( detail );
+		if ( ! CB ) {
+			var dActions = el( 'div', 'uxc-actions' );
+			dActions.appendChild( button( T.reject, 'uxc-no', none ) );
+			dActions.appendChild( button( T.accept, 'uxc-yes', all ) );
+			dActions.appendChild( button( T.save, 'uxc-alt', saveSel ) );
+			detail.appendChild( dActions );
+			dlg.appendChild( main );
+			dlg.appendChild( detail );
+		} else {
+			// Tabs: Consent (the first layer), Details, About cookies. The three buttons stay under all of them.
+			var tabs = [];
+			var tabList = el( 'div', 'uxc-tabs' );
+			tabList.setAttribute( 'role', 'tablist' );
+			tabList.setAttribute( 'aria-label', T.tabs );
+			var about = el( 'div', 'uxc-about' );
+			about.appendChild( el( 'p', 'uxc-p', T.about ) );
+			root._panels = { main: main, detail: detail, about: about };
+			[ [ 'main', T.tab_c ], [ 'detail', T.tab_d ], [ 'about', T.tab_a ] ].forEach( function ( d ) {
+				var tab = el( 'button', 'uxc-tab', d[ 1 ] );
+				tab.type = 'button';
+				tab.id = 'uxc-tab-' + d[ 0 ];
+				tab._p = d[ 0 ];
+				tab.setAttribute( 'role', 'tab' );
+				tab.setAttribute( 'aria-controls', 'uxc-pn-' + d[ 0 ] );
+				root._panels[ d[ 0 ] ].id = 'uxc-pn-' + d[ 0 ];
+				root._panels[ d[ 0 ] ].setAttribute( 'role', 'tabpanel' );
+				root._panels[ d[ 0 ] ].setAttribute( 'aria-labelledby', tab.id );
+				tab.addEventListener( 'click', function () {
+					setTab( d[ 0 ] );
+				} );
+				tab.addEventListener( 'keydown', function ( e ) {
+					if ( e.key === 'ArrowRight' || e.key === 'ArrowLeft' ) {
+						e.preventDefault();
+						var next = tabs[ ( tabs.indexOf( tab ) + ( e.key === 'ArrowRight' ? 1 : 2 ) ) % 3 ];
+						setTab( next._p );
+						next.focus();
+					}
+				} );
+				tabs.push( tab );
+				tabList.appendChild( tab );
+			} );
+			root._tabs = tabs;
+			dlg.appendChild( tabList );
+			dlg.appendChild( main );
+			dlg.appendChild( detail );
+			dlg.appendChild( about );
+			dlg.appendChild( actions );
+			setTab( 'main' );
+		}
 		root.appendChild( dlg );
 		root.addEventListener( 'keydown', onKey );
 		doc.body.insertBefore( root, doc.body.firstChild );
@@ -613,7 +717,11 @@
 			fab.hidden = true;
 		}
 		root.hidden = false;
-		setView( true );
+		if ( CB ) {
+			setTab( 'main' ); // the switches are on this tab
+		} else {
+			setView( true );
+		}
 	}
 
 	/* ---------- start ---------- */
@@ -643,6 +751,9 @@
 				}
 			} else if ( cfg.preview === 'detail' ) {
 				open( null );
+				if ( CB ) {
+					setTab( 'detail' );
+				}
 			} else if ( cfg.preview === 'main' ) {
 				show();
 			}

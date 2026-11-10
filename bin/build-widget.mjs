@@ -14,7 +14,7 @@ import { minify as minifyCss } from 'csso';
 const root = resolve( dirname( fileURLToPath( import.meta.url ) ), '..' );
 
 const jsFiles = [ 'assets/js/ai-assistant-widget.js', 'assets/js/ai-assistant-widget-loader.js', 'assets/js/shield.js', 'assets/consent/consent.js' ];
-const cssFiles = [ 'assets/css/ai-assistant-widget.css', 'assets/css/shield.css', 'assets/consent/consent.css' ];
+const cssFiles = [ 'assets/css/ai-assistant-widget.css', 'assets/css/shield.css', 'assets/consent/consent.css', 'assets/consent/consent-cookiebot.css', 'assets/consent/consent-cookie.css', 'assets/consent/consent-slim.css' ];
 
 const minName = ( file ) => file.replace( /\.(js|css)$/, '.min.$1' );
 const report = ( file, before, after ) =>

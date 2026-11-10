@@ -39,6 +39,7 @@ if ( ! class_exists( 'UxStudio\Rest\Controller' ) ) {
 	eval( 'class WP_REST_Request {} class WP_REST_Response {}' );
 }
 require_once $dir . 'Consent/Geo.php';
+require_once $dir . 'Consent/Templates.php';
 
 use UxStudio\Modules\Consent\Blocker;
 use UxStudio\Modules\Consent\ConsentMode;
@@ -48,6 +49,7 @@ use UxStudio\Modules\Consent\Inventory;
 use UxStudio\Modules\Consent\OpenCookieDb;
 use UxStudio\Modules\SecurityOptimization\CspServices;
 use UxStudio\Modules\Consent\Services;
+use UxStudio\Modules\Consent\Templates;
 
 $failures = 0;
 $assert   = static function ( string $name, bool $ok, string $detail = '' ) use ( &$failures ): void {
@@ -317,6 +319,32 @@ $rules = Services::parse_rules( Inventory::rules_with( '', 'cdn.unknownvendor.io
 $state = Inventory::evaluate( $facts, $rules, 'example.cz' );
 $assert( 'evaluate: necessary decision leaves the queue and is not a consent service', ! isset( $state['services']['cdn.unknownvendor.io'] ) && 'necessary' === $state['decided'][0]['category'] && null === Services::classify( 'https://cdn.unknownvendor.io/widget.js', 'example.cz', $rules ) );
 $assert( 'rule_for_host: parent domain rule covers a subdomain, a path rule does not', null !== Services::rule_for_host( 'a.b.example.org', Services::parse_rules( 'example.org marketing' ) ) && null === Services::rule_for_host( 'example.org', Services::parse_rules( 'example.org/ads marketing' ) ) );
+
+// ---------- banner templates (PLAN 42.20) ----------
+$assert( 'templates: the four known ones, classic first', array( 'classic', 'cookiebot', 'cookie', 'slim' ) === Templates::ALL );
+$assert( 'templates: an unknown or empty value is classic', 'classic' === Templates::normalize( 'nonsense' ) && 'classic' === Templates::normalize( '' ) && 'classic' === Templates::normalize( 'SLIM' ) && 'slim' === Templates::normalize( 'slim' ) );
+$assert( 'templates: classic loads no extra style, the others load consent-<name>.min.css only', '' === Templates::style_file( 'classic', '.min' ) && 'consent-slim.min.css' === Templates::style_file( 'slim', '.min' ) && 'consent-cookie.css' === Templates::style_file( 'cookie', '' ) && '' === Templates::style_file( 'x/../y', '.min' ) );
+foreach ( array( 'cookiebot', 'cookie', 'slim' ) as $t ) {
+	$f = Templates::style_file( $t, '.min' );
+	$assert( "templates: $t has its style file built", is_file( $root . '/assets/consent/' . $f ) && is_file( $root . '/assets/consent/consent-' . $t . '.css' ) );
+}
+$def = array( 'color_bg' => '#ffffff', 'color_text' => '#1d2327', 'color_accent' => '#1d4ed8', 'color_accent_text' => '#ffffff' );
+$assert( 'templates: default colours add nothing in classic, cookiebot and slim (existing sites do not change)', '' === Templates::variables( 'classic', $def ) && '' === Templates::variables( 'cookiebot', $def ) && '' === Templates::variables( 'slim', $def ) );
+$assert( 'templates: own colours are emitted in every template', '--uxc-bg:#112233;' === Templates::variables( 'classic', array( 'color_bg' => '#112233' ) + $def ) );
+$card = Templates::variables( 'cookie', $def );
+$assert( 'templates: the cookie card is dark by default', false !== strpos( $card, '--uxc-bg:#2a2e32;' ) && false !== strpos( $card, '--uxc-fg:#f4f5f6;' ) && false !== strpos( $card, '--uxc-ac:#f5b942;' ) );
+$own = Templates::variables( 'cookie', array( 'color_bg' => '#eeeeee' ) + $def );
+$assert( 'templates: a light background of the owner does not get the light text of the dark card', false !== strpos( $own, '--uxc-bg:#eeeeee;' ) && false === strpos( $own, '--uxc-fg' ) && false !== strpos( $own, '--uxc-ac:#f5b942;' ) );
+$own = Templates::variables( 'cookie', array( 'color_accent' => '#cc0000' ) + $def );
+$assert( 'templates: own button colour keeps the dark card and the white button text', false !== strpos( $own, '--uxc-bg:#2a2e32;' ) && false !== strpos( $own, '--uxc-ac:#cc0000;' ) && false === strpos( $own, '--uxc-ac-fg' ) );
+// The settings schema and the script know the same names.
+$module_src = file_get_contents( $dir . 'Consent/Module.php' );
+$js_src     = file_get_contents( $root . '/assets/consent/consent.js' );
+foreach ( Templates::ALL as $t ) {
+	$assert( "templates: $t is offered in the settings and known to consent.js", false !== strpos( $module_src, "'$t'" ) && ( 'classic' === $t || false !== strpos( $js_src, "'$t'" ) ) );
+}
+$assert( 'templates: the config carries the template and the settings hide layout outside classic', false !== strpos( $module_src, "'tpl'    => \$this->template()" ) && 1 === preg_match( "/'key'\s*=>\s*'layout'.*?'show_if'\s*=>\s*array\(\s*'key'\s*=>\s*'template',\s*'equals'\s*=>\s*'classic'/s", $module_src ) );
+$assert( 'templates: the Complianz migration maps layout only, so migrated sites stay on the default (classic) template', false === strpos( file_get_contents( $dir . 'Consent/ComplianzMap.php' ), "'template'" ) );
 
 $all_php = implode( '', array_map( 'file_get_contents', array_merge( glob( $dir . 'Consent/*.php' ), array( $dir . 'SecurityOptimization/data/consent-services.php', $root . '/bin/import-open-cookie-database.php' ) ) ) );
 $assert( 'no em or en dash in the F2 sources and data', 0 === preg_match( '/[\x{2013}\x{2014}]/u', $all_php . file_get_contents( $root . '/assets/consent/consent.js' ) ) );
