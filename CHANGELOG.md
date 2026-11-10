@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.16.0
 
 - Changed: the help of an option is a round "?" button next to the control instead of the expanding "Details" under it (PLAN 43). Hover, focus or click opens a floating window with the same content (up to 460 px wide, kept inside the screen, closes with Escape, a click outside or when the pointer leaves); a click pins it, Enter moves the focus into it. Works with the keyboard and by touch, in the light and dark theme, also in the setup wizard.
 - Changed: the module "Classic WordPress screens" is now called "Classic WordPress editor and widgets" (Czech: Klasický editor/widgety WordPressu), in the module list, the launcher and the search.
