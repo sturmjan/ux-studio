@@ -12,6 +12,9 @@
  * Public API: window.uxConsent.has( category ), .get(), .open(), and for automation the same as the buttons (consent records and
  * the `uxc_consent` event included): .acceptAll(), .rejectAll(), .set( { preferences, statistics, marketing } ); event `uxstudio:consent` on document;
  * window.uxstudioConsent = { preferences, statistics, marketing } (read by the Forms conversion tracking).
+ *
+ * Preview (admin, PLAN 42.18): cfg.preview = main | detail | fab | ph. The page is a sandboxed iframe without allow-same-origin, so
+ * there is no cookie, no storage and no request: nothing is stored or reported, the buttons do nothing, the view stays as asked.
  */
 ( function () {
 	'use strict';
@@ -33,6 +36,8 @@
 	var CATS = [ 'preferences', 'statistics', 'marketing' ];
 	var BIT = { preferences: 1, statistics: 2, marketing: 4 };
 	var T = cfg.t || {};
+	var PV = !! cfg.preview;
+	var quiet = PV; // no focus change while the admin is typing in the form next to the preview
 
 	var state = null; // { preferences, statistics, marketing } booleans once the visitor decided
 	var implicit = false; // outside the region the banner is meant for: everything counts as allowed
@@ -242,6 +247,9 @@
 	}
 
 	function loadFrame( f ) {
+		if ( PV ) {
+			return;
+		}
 		f.src = f.getAttribute( 'data-uxc-src' );
 		f.hidden = false;
 		if ( f._uxcPh && f._uxcPh.parentNode ) {
@@ -362,6 +370,9 @@
 	}
 
 	function commit( choice, kind ) {
+		if ( PV ) {
+			return;
+		}
 		var before = state || ( implicit ? { preferences: 1, statistics: 1, marketing: 1 } : null );
 		implicit = false;
 		state = {};
@@ -392,7 +403,7 @@
 		dlg.setAttribute( 'aria-labelledby', detail ? 'uxc-t2' : 'uxc-t' );
 		root.querySelector( '.uxc-main' ).hidden = detail;
 		root.querySelector( '.uxc-detail' ).hidden = ! detail;
-		if ( detail ) {
+		if ( detail && ! quiet ) {
 			root.querySelector( '.uxc-detail h2' ).focus();
 		}
 	}
@@ -624,6 +635,20 @@
 	}
 
 	function start() {
+		if ( PV ) {
+			scan();
+			if ( cfg.preview === 'fab' ) {
+				if ( cfg.fab ) {
+					showFab();
+				}
+			} else if ( cfg.preview === 'detail' ) {
+				open( null );
+			} else if ( cfg.preview === 'main' ) {
+				show();
+			}
+			quiet = false;
+			return;
+		}
 		state = readCookie();
 		cid = cookieId();
 		var old = state ? null : legacy();

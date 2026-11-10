@@ -74,7 +74,7 @@ class FakeNode {
 	querySelector( sel ) { return this.querySelectorAll( sel )[ 0 ] || null; }
 }
 
-async function runUi( cookie, cfg, { beacon = true, steps } = {} ) {
+async function runUi( cookie, cfg, { beacon = true, steps, sandbox = false } = {} ) {
 	const calls = { beacon: [], fetch: [] };
 	const body = new FakeNode( 'body' );
 	const doc = {
@@ -98,6 +98,13 @@ async function runUi( cookie, cfg, { beacon = true, steps } = {} ) {
 	};
 	const ctx = vm.createContext( { document: doc, window: win, CustomEvent: class { constructor( n, o ) { this.type = n; this.detail = o.detail; } }, JSON, Array, Math, Date, RegExp, decodeURIComponent, Uint8Array, Object, URLSearchParams } );
 	win.document = doc;
+	if ( sandbox ) {
+		// A sandboxed iframe without allow-same-origin: touching cookies or storage throws.
+		const deny = () => { throw new Error( 'SecurityError' ); };
+		Object.defineProperty( doc, 'cookie', { get: deny, set: deny } );
+		win.sessionStorage = { getItem: deny, setItem: deny };
+		win.location = { get protocol() { return deny(); }, get pathname() { return deny(); } };
+	}
 	vm.runInContext( src.replace( /\bwin\.fetch\b/g, 'window.fetch' ), ctx );
 	await new Promise( ( r ) => setTimeout( r, 20 ) );
 	const button = ( label ) => body.querySelectorAll( 'button' ).find( ( b ) => b.textContent === label );
@@ -204,6 +211,23 @@ check( 'legacy: without the setting the old cookies are not read', ! /uxs_consen
 
 r = await runUi( old(), { ...withText, leg: { p: 'x;y', v: 7 } } );
 check( 'legacy: a prefix with odd characters is refused', ! /uxs_consent=/.test( r.doc.cookie ) );
+
+// ---------- preview in the admin (PLAN 42.18): sandboxed iframe, nothing stored, reported or reloaded ----------
+const pv = { ...withText, preview: 'main', geo: 'https://x.test/region', leg: { p: 'cmplz_', v: 7 }, t: { ...withText.t, ph: 'From %s', load: 'Load' } };
+let shown = ( x ) => x.body.querySelectorAll( '.uxc' ).filter( ( n ) => ! n.hidden ).length;
+r = await runUi( '', pv, { sandbox: true, steps: ( { button } ) => button( TX.accept ).click() } );
+check( 'preview: the banner is shown although cookies and storage throw', shown( r ) === 1 );
+check( 'preview: Accept does not hide the banner, record, set a cookie or push to the dataLayer', shown( r ) === 1 && r.calls.beacon.length === 0 && r.calls.fetch.length === 0 && ! ( r.win.dataLayer || [] ).length );
+r = await runUi( '', pv, { sandbox: true, steps: ( { win } ) => { win.uxConsent.rejectAll(); win.uxConsent.set( { marketing: 1 } ); } } );
+check( 'preview: the automation API does not store or report either', shown( r ) === 1 && r.calls.beacon.length === 0 && r.calls.fetch.length === 0 );
+r = await runUi( '', { ...pv, preview: 'detail' }, { sandbox: true } );
+check( 'preview: detail view opens the second layer', shown( r ) === 1 && / is-detail/.test( r.body.querySelectorAll( '.uxc' )[ 0 ].className ) );
+r = await runUi( '', { ...pv, preview: 'fab' }, { sandbox: true } );
+check( 'preview: floating button view shows the button and no banner', r.body.querySelectorAll( '.uxc-fab' ).length === 1 && r.body.querySelectorAll( '.uxc' ).length === 0 );
+r = await runUi( '', { ...pv, preview: 'fab', fab: false }, { sandbox: true } );
+check( 'preview: the button stays hidden when the setting is off', r.body.querySelectorAll( '.uxc-fab' ).length === 0 );
+r = await runUi( '', { ...pv, preview: 'ph' }, { sandbox: true } );
+check( 'preview: placeholder view builds no banner', r.body.querySelectorAll( '.uxc' ).length === 0 && r.body.querySelectorAll( '.uxc-fab' ).length === 0 );
 
 console.log( failures === 0 ? 'ALL OK' : failures + ' FAILED' );
 process.exit( failures === 0 ? 0 : 1 );

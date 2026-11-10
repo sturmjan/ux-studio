@@ -7,6 +7,7 @@
 
 namespace UxStudio\Modules\Consent;
 
+use UxStudio\Core\Settings;
 use UxStudio\Modules\BaseModule;
 use UxStudio\Modules\SecurityOptimization\CspInlineScripts;
 
@@ -47,6 +48,7 @@ final class Module extends BaseModule {
 
 		add_action( 'init', array( $this, 'init' ) );
 		add_action( 'rest_api_init', array( Geo::class, 'register_routes' ) );
+		add_action( 'rest_api_init', array( PreviewRest::class, 'register' ) );
 
 		if ( is_admin() ) {
 			return;
@@ -176,18 +178,33 @@ final class Module extends BaseModule {
 	}
 
 	/**
+	 * URLs of the banner script and style (the minified ones unless SCRIPT_DEBUG), each with a version from the file time.
+	 *
+	 * @return array{js:string,css:string,js_ver:string,css_ver:string}
+	 */
+	public function asset_urls(): array {
+		$min  = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+		$base = UXSTUDIO_PATH . 'assets/consent/';
+		$url  = UXSTUDIO_URL . 'assets/consent/';
+		$ver  = static fn( string $file ): string => is_readable( $base . $file ) ? (string) filemtime( $base . $file ) : UXSTUDIO_VERSION;
+		return array(
+			'js'      => $url . 'consent' . $min . '.js',
+			'css'     => $url . 'consent' . $min . '.css',
+			'js_ver'  => $ver( 'consent' . $min . '.js' ),
+			'css_ver' => $ver( 'consent' . $min . '.css' ),
+		);
+	}
+
+	/**
 	 * Banner script and style.
 	 */
 	public function enqueue(): void {
 		if ( ! $this->runs_here() ) {
 			return;
 		}
-		$min  = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
-		$base = UXSTUDIO_PATH . 'assets/consent/';
-		$url  = UXSTUDIO_URL . 'assets/consent/';
-		$ver  = static fn( string $file ): string => is_readable( $base . $file ) ? (string) filemtime( $base . $file ) : UXSTUDIO_VERSION;
+		$assets = $this->asset_urls();
 
-		wp_register_style( self::HANDLE, $url . 'consent' . $min . '.css', array(), $ver( 'consent' . $min . '.css' ) );
+		wp_register_style( self::HANDLE, $assets['css'], array(), $assets['css_ver'] );
 		$vars = $this->css_variables();
 		if ( '' !== $vars ) {
 			wp_add_inline_style( self::HANDLE, $vars );
@@ -196,9 +213,9 @@ final class Module extends BaseModule {
 
 		wp_enqueue_script(
 			self::HANDLE,
-			$url . 'consent' . $min . '.js',
+			$assets['js'],
 			array(),
-			$ver( 'consent' . $min . '.js' ),
+			$assets['js_ver'],
 			array(
 				'in_footer' => true,
 				'strategy'  => 'defer',
@@ -207,9 +224,41 @@ final class Module extends BaseModule {
 	}
 
 	/**
+	 * What the live preview in the admin needs: the config the banner script would get with the given UNSAVED values
+	 * applied over the stored settings, and the colour variables. It runs the very same code as the frontend (the stored
+	 * option is swapped for the merged values while it runs, and nothing is written), so the preview cannot drift from
+	 * the real banner. Everything that talks to the outside is left out: consent records (`rec`), the region check
+	 * (`geo`), the old banner takeover (`leg`) and the cookie list (`ck`).
+	 *
+	 * @param array  $values Unsaved values by setting key (sanitized here with the schema; unknown keys are dropped).
+	 * @param string $view   main | detail | fab | ph, which part of the banner the preview shows.
+	 * @return array{config:array<string,mixed>,css:string}
+	 */
+	public function preview_config( array $values, string $view ): array {
+		$option = 'uxstudio_' . str_replace( '-', '_', $this->id );
+		$merged = array_merge( $this->settings->all(), Settings::clean( $values, $this->settings_schema() ) );
+		$swap   = static fn() => $merged;
+		add_filter( 'pre_option_' . $option, $swap );
+		$this->reload_settings();
+		try {
+			$config = $this->frontend_config();
+			$css    = $this->css_variables();
+		} finally {
+			remove_filter( 'pre_option_' . $option, $swap );
+			$this->reload_settings();
+		}
+		unset( $config['rec'], $config['geo'], $config['leg'], $config['ck'] );
+		$config['preview'] = in_array( $view, array( 'main', 'detail', 'fab', 'ph' ), true ) ? $view : 'main';
+		return array(
+			'config' => $config,
+			'css'    => $css,
+		);
+	}
+
+	/**
 	 * Colour and radius overrides, only the ones that differ from the stylesheet defaults.
 	 */
-	private function css_variables(): string {
+	public function css_variables(): string {
 		$map = array(
 			'color_bg'          => array( '--uxc-bg', '#ffffff' ),
 			'color_text'        => array( '--uxc-fg', '#1d2327' ),

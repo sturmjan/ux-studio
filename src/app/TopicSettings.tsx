@@ -20,6 +20,7 @@ export function TopicSettings( {
 	collapsible,
 	onSaved,
 	showField,
+	aside,
 	children,
 }: {
 	moduleId: string;
@@ -31,6 +32,8 @@ export function TopicSettings( {
 	onSaved?: () => void;
 	/** Hide a field of the topic depending on the values being edited (e.g. keys that a key-less provider does not use). */
 	showField?: ( field: Field, draft: Record< string, Value > ) => boolean;
+	/** A panel next to the form (a live preview), drawn from the values being edited; stacks under the form on a narrow screen. */
+	aside?: ( draft: Record< string, Value > ) => ReactNode;
 	/** Extra content under the fields, before the Save button (notes, status); a function gets the values being edited. */
 	children?: ReactNode | ( ( draft: Record< string, Value > ) => ReactNode );
 } ): JSX.Element | null {
@@ -62,6 +65,15 @@ export function TopicSettings( {
 			</button>
 		</>
 	);
+
+	if ( aside && ! collapsible ) {
+		return (
+			<div className="uxs-topic-settings uxs-topic-settings--split">
+				<div className="uxs-topic-settings__form">{ body }</div>
+				<aside className="uxs-topic-settings__aside">{ aside( draft ) }</aside>
+			</div>
+		);
+	}
 
 	if ( collapsible ) {
 		return (

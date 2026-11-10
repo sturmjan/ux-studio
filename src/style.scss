@@ -3236,6 +3236,74 @@ $uxs-text-fields: 'input[type="text"], input[type="url"], input[type="email"], i
 	&--collapsible > summary { cursor: pointer; font-weight: 600; margin-bottom: var(--uxs-sp-3); }
 }
 
+/* A form with a panel next to it (live preview of the cookie banner): two columns when there is room, else stacked. */
+.uxs-topic-settings--split {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: var(--uxs-sp-5);
+	align-items: start;
+
+	@media (min-width: 1280px) {
+		grid-template-columns: minmax(0, 1fr) minmax(420px, 500px);
+	}
+
+	&__aside {
+		min-width: 0;
+
+		@media (min-width: 1280px) {
+			position: sticky;
+			top: 48px;
+		}
+	}
+}
+
+.uxs-uxcp {
+	background: var(--uxs-surface);
+	border: 1px solid var(--uxs-border);
+	border-radius: var(--uxs-radius);
+	padding: var(--uxs-sp-4);
+
+	&__title { margin: 0 0 var(--uxs-sp-3); color: var(--uxs-text); }
+
+	&__bar { display: flex; flex-wrap: wrap; gap: var(--uxs-sp-2) var(--uxs-sp-3); margin-bottom: var(--uxs-sp-3); }
+
+	&__group {
+		display: inline-flex;
+		flex-wrap: wrap;
+		border: 1px solid var(--uxs-border);
+		border-radius: var(--uxs-radius-s);
+		overflow: hidden;
+
+		button {
+			border: 0;
+			border-right: 1px solid var(--uxs-border);
+			background: var(--uxs-surface);
+			color: var(--uxs-text);
+			padding: 6px 10px;
+			font-size: var(--uxs-fs-s);
+			cursor: pointer;
+
+			&:last-child { border-right: 0; }
+			&:hover { background: var(--uxs-surface-2); }
+			&:focus-visible { outline: 2px solid var(--uxs-brand); outline-offset: -2px; }
+			&.is-active { background: var(--uxs-brand-soft); color: var(--uxs-brand-text-strong); font-weight: 600; }
+		}
+	}
+
+	/* The iframe is a fixed-size page scaled down from its top left corner; the stage takes the scaled height. */
+	&__stage {
+		position: relative;
+		overflow: hidden;
+		border: 1px solid var(--uxs-border);
+		border-radius: var(--uxs-radius-s);
+		background: var(--uxs-surface-2);
+
+		iframe { display: block; border: 0; transform-origin: 0 0; background: #fff; }
+	}
+
+	&__note { position: absolute; inset: auto 8px 8px; margin: 0; padding: 6px 10px; background: var(--uxs-surface); color: var(--uxs-danger-text); border-radius: var(--uxs-radius-s); }
+}
+
 .uxs-topic-data {
 	margin-top: var(--uxs-sp-6, 32px);
 	padding-top: var(--uxs-sp-5);

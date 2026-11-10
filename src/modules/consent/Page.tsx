@@ -8,8 +8,12 @@ import Inventory from './Inventory';
 import Legal from './Legal';
 import { RecordsPanel } from './Records';
 import Scan from './Scan';
+import { BannerPreview, type PreviewView, type PreviewWidth } from './Preview';
 
 const MODULE = 'consent';
+
+/** Topics whose fields change how the banner looks: the live preview sits next to their form. */
+const PREVIEW_TOPICS = [ 'display', 'texts', 'appearance' ];
 
 /** One menu item per settings section (the PHP schema groups the fields by the same labels). */
 const TOPICS: { id: string; label: string }[] = [
@@ -30,6 +34,9 @@ function Note( { children }: { children: JSX.Element | string } ): JSX.Element {
 
 export default function Page(): JSX.Element {
 	const [ tab, setTab ] = useState< string >( 'display' );
+	// Kept here, so switching between the three topics keeps what the preview shows.
+	const [ view, setView ] = useState< PreviewView >( 'main' );
+	const [ width, setWidth ] = useState< PreviewWidth >( 'desktop' );
 	const topic = TOPICS.find( ( t ) => t.id === tab ) ?? ( TOPICS[ 0 ] as ( typeof TOPICS )[ number ] );
 
 	return (
@@ -62,7 +69,16 @@ export default function Page(): JSX.Element {
 				<Scan />
 			) : (
 			<>
-			<TopicSettings key={ topic.id } moduleId={ MODULE } include={ inSections( topic.label ) }>
+			<TopicSettings
+				key={ topic.id }
+				moduleId={ MODULE }
+				include={ inSections( topic.label ) }
+				aside={
+					PREVIEW_TOPICS.includes( topic.id )
+						? ( draft ) => <BannerPreview values={ draft } view={ view } setView={ setView } width={ width } setWidth={ setWidth } />
+						: undefined
+				}
+			>
 				{ topic.id === 'display' && (
 					<Note>
 						{ __(
