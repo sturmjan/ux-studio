@@ -948,6 +948,7 @@ final class StarterPack {
 			$warnings[] = array( 'login_customised', self::login_customised_note() );
 		} else {
 			$admin['login_customization_enabled'] = true;
+			$admin['login_style']                 = 'split';
 			if ( 'applied' === $state ) {
 				$admin['login_logo'] = (int) $env['login_logo_id'];
 				$warnings[]          = array( 'login_logo_used', self::login_logo_used_note() );

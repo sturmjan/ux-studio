@@ -10,7 +10,7 @@ namespace UxStudio\Modules\SecurityOptimization;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * ONE place for the wording, used by the Security settings screen (the "Details" under an option) and by the
+ * ONE place for the wording, used by the Security settings screen (the help window of the "?" button next to an option) and by the
  * onboarding wizard (the list "What will be set"), so the two cannot drift apart.
  *
  * Every entry has the same parts: `does`, `risk`, `off` and, for the settings of the starter pack, `skip` (the

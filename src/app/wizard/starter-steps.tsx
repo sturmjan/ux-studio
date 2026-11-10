@@ -469,7 +469,7 @@ function PackCard( { item, ctx, siteUrl }: { item: StarterItem; ctx: StarterCtx;
 										<li key={ `${ row.module }-${ row.key }` }>
 											<span>{ row.label }</span>
 											<code>{ row.value_label }</code>
-											{ row.explain ? <SettingExplain explain={ row.explain } /> : null }
+											{ row.explain ? <SettingExplain explain={ row.explain } label={ row.label } /> : null }
 										</li>
 									) ) }
 								</ul>
@@ -485,7 +485,7 @@ function PackCard( { item, ctx, siteUrl }: { item: StarterItem; ctx: StarterCtx;
 										<span>{ row.label }</span>
 										<code>{ __( 'Left out', 'ux-studio' ) }</code>
 										<span className="uxs-wiz-muted uxs-wiz-plan__reason">{ row.reason }</span>
-										{ row.explain ? <SettingExplain explain={ row.explain } /> : null }
+										{ row.explain ? <SettingExplain explain={ row.explain } label={ row.label } /> : null }
 									</li>
 								) ) }
 							</ul>

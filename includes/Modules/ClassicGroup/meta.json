@@ -1,6 +1,6 @@
 {
 	"id": "classic",
-	"name": "Classic WordPress screens",
+	"name": "Classic WordPress editor and widgets",
 	"description": "Bring back the classic post editor and the classic widgets screen instead of the block-based ones. Each part can be turned on separately.",
 	"group": "content",
 	"icon": "square-pen",

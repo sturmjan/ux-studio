@@ -42,7 +42,7 @@ export interface Field {
 		| 'repeater';
 	label: string;
 	help?: string;
-	/** Plain-language details (what it does, the risk, when to switch it off), shown under the help. */
+	/** Plain-language details (what it does, the risk, when to switch it off), shown in the help window of the "?" button. */
 	explain?: Explain;
 	default?: Value;
 	options?: Record< string, string >;
@@ -69,6 +69,9 @@ export interface Field {
 	/** What a `media` field holds, so the buttons read "Select icon" instead of "Select image". */
 	media_noun?: 'image' | 'icon';
 }
+
+/** Field types that do not stretch over the row: the help button sits right next to them. */
+const COMPACT_TYPES: ReadonlyArray< Field[ 'type' ] > = [ 'toggle', 'number', 'color', 'media', 'datetime' ];
 
 /** Field types whose input needs a full grid row to stay readable. */
 const WIDE_TYPES: ReadonlyArray< Field[ 'type' ] > = [ 'textarea', 'css', 'richtext', 'multiselect', 'repeater', 'image_choice' ];
@@ -390,6 +393,7 @@ export function FieldInput( {
 		case 'css':
 			return (
 				<textarea
+					id={ `uxs-${ field.key }` }
 					rows={ 10 }
 					className="uxs-code-editor"
 					spellCheck={ false }
@@ -401,6 +405,7 @@ export function FieldInput( {
 		case 'richtext':
 			return (
 				<textarea
+					id={ `uxs-${ field.key }` }
 					rows={ 5 }
 					value={ String( value ?? '' ) }
 					onChange={ ( e ) => onChange( e.target.value ) }
@@ -409,6 +414,7 @@ export function FieldInput( {
 		default:
 			return (
 				<input
+					id={ `uxs-${ field.key }` }
 					type="text"
 					value={ String( value ?? '' ) }
 					onChange={ ( e ) => onChange( e.target.value ) }
@@ -542,13 +548,26 @@ export function SettingsFields( {
 			className={ `uxs-form__row${ field.wide || WIDE_TYPES.includes( field.type ) ? ' uxs-form__row--wide' : '' }${ 'image_choice' === field.type ? ' uxs-form__row--stack' : '' }` }
 		>
 			<label htmlFor={ `uxs-${ field.key }` }>{ field.label }</label>
-			<FieldInput
-				field={ field }
-				value={ values[ field.key ] ?? null }
-				onChange={ ( v ) => setDraft( ( d ) => ( { ...d, [ field.key ]: v } ) ) }
-			/>
+			{ field.explain ? (
+				// The "?" with the details sits to the right of the control, in the same line.
+				<div className="uxs-form__control">
+					<div className={ `uxs-form__control-main${ COMPACT_TYPES.includes( field.type ) ? ' uxs-form__control-main--compact' : '' }` }>
+						<FieldInput
+							field={ field }
+							value={ values[ field.key ] ?? null }
+							onChange={ ( v ) => setDraft( ( d ) => ( { ...d, [ field.key ]: v } ) ) }
+						/>
+					</div>
+					<SettingExplain explain={ field.explain } label={ field.label } />
+				</div>
+			) : (
+				<FieldInput
+					field={ field }
+					value={ values[ field.key ] ?? null }
+					onChange={ ( v ) => setDraft( ( d ) => ( { ...d, [ field.key ]: v } ) ) }
+				/>
+			) }
 			{ field.help ? <p className="uxs-form__help">{ field.help }</p> : null }
-			{ field.explain ? <SettingExplain explain={ field.explain } /> : null }
 			{ notes?.[ field.key ] ?? null }
 		</div>
 	);

@@ -134,6 +134,8 @@ final class LoginPressSource extends AbstractAdminSource {
 		}
 		if ( $count ) {
 			$m->set( self::MODULE, 'login_customization_enabled', true, __( 'Turn on login screen customization', 'ux-studio' ), $origin );
+			// The old plugin's look was a centred form with colours: keep it, the new default layout is the split one.
+			$m->set( self::MODULE, 'login_style', 'classic', __( 'Login screen layout', 'ux-studio' ), $origin );
 		}
 
 		$lost = array();

@@ -60,8 +60,8 @@ final class WidgetSnapshot {
 	 */
 	public static function capture(): void {
 		global $wp_meta_boxes;
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return;
+		if ( ! current_user_can( 'manage_options' ) || Preview::active() ) {
+			return; // The preview registers a widget that is switched off: a scan made then would be wrong.
 		}
 		$seen = array();
 		if ( isset( $wp_meta_boxes['dashboard'] ) && is_array( $wp_meta_boxes['dashboard'] ) ) {

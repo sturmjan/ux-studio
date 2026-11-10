@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Runs from Plugin::boot() right after the schema upgrade and before any module boots, so the first request
  * served by the new code records how the site looked under the old code. Each routine is idempotent and is
- * remembered in one option, so it never runs twice. Nothing here changes a user's settings.
+ * remembered in one option, so it never runs twice. Nothing here changes what a site looks like or does.
  *
  * 0.6.0:
  *  - `login_lock`: remembers whether the custom login address was configured BEFORE this release. Only such
@@ -42,7 +42,7 @@ final class Upgrade {
 		$marks = get_option( self::MARKS_OPTION, array() );
 		$marks = is_array( $marks ) ? $marks : array();
 		$dirty = false;
-		foreach ( array( 'login_lock' => 'record_login_lock', 'csp_state' => 'record_csp_state' ) as $key => $method ) {
+		foreach ( array( 'login_lock' => 'record_login_lock', 'csp_state' => 'record_csp_state', 'login_style' => 'pin_login_style' ) as $key => $method ) {
 			if ( isset( $marks[ $key ] ) ) {
 				continue;
 			}
@@ -79,6 +79,25 @@ final class Upgrade {
 	public static function login_lock_was_configured(): bool {
 		$marker = get_option( self::LOGIN_LOCK_OPTION, false );
 		return is_array( $marker ) && ! empty( $marker['configured'] );
+	}
+
+	/**
+	 * The default login screen layout changed from classic to split (0.16). A site that already has the login screen
+	 * customisation switched on but never saved a layout was showing the classic one: store that choice, so its login
+	 * page does not change. Sites that never turned the customisation on, and every site that turns it on later, get
+	 * the new default. A layout that is stored is never touched.
+	 */
+	public static function pin_login_style(): void {
+		$settings = get_option( 'uxstudio_admin_customiser', false );
+		if ( ! is_array( $settings ) || array_key_exists( 'login_style', $settings ) ) {
+			return;
+		}
+		$on = $settings['login_customization_enabled'] ?? false;
+		if ( true !== $on && 1 !== $on && '1' !== $on && 'true' !== $on ) {
+			return;
+		}
+		$settings['login_style'] = 'classic';
+		update_option( 'uxstudio_admin_customiser', $settings ); // The autoload flag of the option stays as it is.
 	}
 
 	/**

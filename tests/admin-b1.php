@@ -279,7 +279,8 @@ $assert( 'never on the front end: only admin_head and login_head are hooked (no 
 
 /* Login page: background image and hover colours. */
 $login_css = static function ( array $values ): string {
-	$GLOBALS['uxs_options']['uxstudio_admin_customiser'] = $values;
+	// These cases are about the classic layout (the default layout is split, which paints its own panel).
+	$GLOBALS['uxs_options']['uxstudio_admin_customiser'] = $values + array( 'login_style' => 'classic' );
 	ob_start();
 	( new Login( new Settings( 'uxstudio_admin_customiser' ) ) )->print_styles();
 	return ob_get_clean();

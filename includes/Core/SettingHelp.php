@@ -10,7 +10,7 @@ namespace UxStudio\Core;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * ONE registry for the "Details" shown under a setting (what it does, what changes, the risk, when to switch it
+ * ONE registry for the help window of the "?" button next to a setting (what it does, what changes, the risk, when to switch it
  * off). Every module keeps its texts in `includes/Modules/<Module>/help.php`, a file that returns
  * `key => parts`; this class finds them, normalises them and attaches them to the settings schema that the REST
  * layer serves (the SPA renders `field.explain` generically).
