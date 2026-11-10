@@ -1,18 +1,21 @@
 /**
- * Hidden widgets: one table of every widget of the wp-admin dashboard (core, plugins, UX Studio). Each row can be hidden
- * for everybody or limited to some roles; the toolbar and the bulk bar change several rows at once.
+ * Widgets of the dashboard: ONE table of every widget (WordPress, plugins, UX Studio's own and those of other modules) with
+ * filters, a switch to turn the widgets of UX Studio on, the rule that hides a widget or limits it to some roles, a detail
+ * under each row and a live preview when you point at a widget.
  *
  * Every change is saved at once (a toast confirms it) through uxstudio/v1/dashboard-widgets/rules; the server checks the
- * ids and roles again. "Revert changes" puts back the rules as they were when the screen opened.
+ * ids, roles and switches again. "Revert changes" puts back the rules and switches as they were when the screen opened.
  */
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Button, DialogTrigger, ListBox, ListBoxItem, Popover } from 'react-aria-components';
-import { Check, ChevronDown, Info, LoaderCircle, RefreshCw, Search, Trash2, Undo2 } from 'lucide-react';
+import { Check, ChevronDown, ChevronRight, Info, LoaderCircle, RefreshCw, Search, Trash2, Undo2 } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { formatDate } from '../../app/date';
 import { pushToast } from '../../app/notify';
+import { navigate } from '../../app/route';
+import WidgetPreview from './WidgetPreview';
 
 interface Rule {
 	hidden: boolean;
@@ -32,7 +35,24 @@ interface WidgetRow {
 	first_seen: number;
 	last_seen: number;
 	stale: boolean;
+	/** wordpress | plugin (also themes) | own | module */
+	type: WidgetType;
+	/** Plugin, theme or module name. */
+	type_name: string;
+	/** The switch that turns a widget of UX Studio on, or null. */
+	toggle: { key: string; enabled: boolean } | null;
+	module: { id: string; name: string; active: boolean } | null;
+	/** on | off | module_off | unavailable */
+	state: 'on' | 'off' | 'module_off' | 'unavailable';
+	description: string;
+	note: string;
+	note_tab: string;
+	help?: { does?: string; effect?: string; risk?: string; off?: string };
 }
+
+type WidgetType = 'wordpress' | 'plugin' | 'own' | 'module';
+
+type Toggles = Record< string, boolean >;
 
 interface RoleInfo {
 	id: string;
@@ -41,6 +61,8 @@ interface RoleInfo {
 
 interface RulesPayload {
 	rules: Rules;
+	toggles: Toggles;
+	preview: string;
 	widgets: WidgetRow[];
 	roles: RoleInfo[];
 	scan_at: number;
@@ -48,7 +70,8 @@ interface RulesPayload {
 	index: string;
 }
 
-type Filter = 'all' | 'hidden' | 'limited' | 'stale';
+export type TypeFilter = 'all' | WidgetType;
+type StateFilter = 'all' | 'on' | 'off' | 'hidden' | 'limited' | 'stale';
 
 interface RulesRequest {
 	items?: { id: string; hidden?: boolean; roles?: string[] }[];
@@ -56,6 +79,8 @@ interface RulesRequest {
 	ids?: string[];
 	roles?: string[];
 	rules?: Rules;
+	/** Switches of the widgets of UX Studio: setting key => on. */
+	toggles?: Toggles;
 }
 
 const KEY = [ 'dashboard-widgets', 'rules' ];
@@ -79,27 +104,42 @@ function contextLabel( context: string ): string {
 	}
 }
 
-/** Who provides the widget, as the snapshot recorded it (`core`, `uxstudio`, `plugin:<folder>`, `theme:<folder>`, `mu`). */
-function sourceLabel( row: WidgetRow ): string {
-	const [ kind, folder = '' ] = row.source.split( ':' );
-	switch ( kind ) {
-		case 'core':
-			return __( 'WordPress', 'ux-studio' );
-		case 'uxstudio':
-			return 'UX Studio';
+/** Short name of the kind of a widget. */
+function typeLabel( type: WidgetType ): string {
+	switch ( type ) {
+		case 'wordpress':
+			return 'WordPress';
 		case 'plugin':
-			return row.source_name || folder;
-		case 'theme':
+			return __( 'Plugin', 'ux-studio' );
+		case 'own':
+			return __( 'UX Studio widget', 'ux-studio' );
+		default:
+			return __( 'UX Studio module', 'ux-studio' );
+	}
+}
+
+/** Who provides the widget: the plugin, the theme or the module by name; WordPress and our own widgets need none. */
+function ownerName( row: WidgetRow ): string {
+	if ( 'plugin' === row.type ) {
+		const [ kind ] = row.source.split( ':' );
+		if ( 'theme' === kind ) {
 			return sprintf(
 				/* translators: %s: theme name. */
 				__( 'Theme %s', 'ux-studio' ),
-				row.source_name || folder
+				row.type_name
 			);
-		case 'mu':
+		}
+		if ( 'mu' === kind ) {
 			return __( 'Must-use plugin', 'ux-studio' );
-		default:
-			return __( 'Unknown source', 'ux-studio' );
+		}
+		return row.type_name || __( 'Unknown source', 'ux-studio' );
 	}
+	return 'module' === row.type ? row.type_name : '';
+}
+
+/** Whether a widget is switched off in any way (its switch, its module, something it needs). */
+function isOff( row: WidgetRow ): boolean {
+	return 'on' !== row.state;
 }
 
 function ruleOf( rules: Rules, id: string ): Rule {
@@ -148,16 +188,34 @@ function applyLocal( rules: Rules, body: RulesRequest, allRoles: string[] ): Rul
 	return next;
 }
 
-/** Rules in a form that compares equal whatever the order (for "has anything changed"). */
-function fingerprint( rules: Rules ): string {
-	return JSON.stringify(
+/** The rows after some switches changed (shown at once; the answer of the server replaces this). */
+function applyToggles( widgets: WidgetRow[], toggles: Toggles ): WidgetRow[] {
+	return widgets.map( ( w ) => {
+		if ( ! w.toggle || ! ( w.toggle.key in toggles ) ) {
+			return w;
+		}
+		const enabled = toggles[ w.toggle.key ] ?? w.toggle.enabled;
+		let state: WidgetRow[ 'state' ] = w.state;
+		if ( 'module_off' !== w.state ) {
+			state = enabled ? ( 'off' === w.state ? 'on' : w.state ) : 'off';
+		}
+		return { ...w, toggle: { ...w.toggle, enabled }, state };
+	} );
+}
+
+/** Rules and switches in a form that compares equal whatever the order (for "has anything changed"). */
+function fingerprint( rules: Rules, toggles: Toggles ): string {
+	return JSON.stringify( [
 		Object.keys( rules )
 			.sort()
 			.map( ( id ) => {
 				const rule = ruleOf( rules, id );
 				return [ id, rule.hidden, [ ...rule.roles ].sort() ];
-			} )
-	);
+			} ),
+		Object.keys( toggles )
+			.sort()
+			.map( ( key ) => [ key, toggles[ key ] ] ),
+	] );
 }
 
 /** The roles of a rule as small chips in a popover list; nothing chosen = everybody. */
@@ -283,7 +341,17 @@ function RoleSelect( {
 	);
 }
 
-export default function WidgetTable( { hideAll }: { hideAll: boolean } ): JSX.Element {
+export default function WidgetTable( {
+	hideAll,
+	initialType = 'all',
+	onOpenTab,
+}: {
+	hideAll: boolean;
+	/** Filter the screen opens with (the old tabs of this module link here). */
+	initialType?: TypeFilter;
+	/** Go to another tab of the module (the API keys). */
+	onOpenTab?: ( tab: string ) => void;
+} ): JSX.Element {
 	const { data, isLoading, error } = useQuery( {
 		queryKey: KEY,
 		queryFn: () => api< RulesPayload >( 'dashboard-widgets/rules' ),
@@ -291,22 +359,27 @@ export default function WidgetTable( { hideAll }: { hideAll: boolean } ): JSX.El
 
 	const baseline = useRef< string | null >( null );
 	const baselineRules = useRef< Rules >( {} );
+	const baselineToggles = useRef< Toggles >( {} );
 	const [ search, setSearch ] = useState( '' );
-	const [ filter, setFilter ] = useState< Filter >( 'all' );
+	const [ typeFilter, setTypeFilter ] = useState< TypeFilter >( initialType );
+	const [ filter, setFilter ] = useState< StateFilter >( 'all' );
 	const [ sourceFilter, setSourceFilter ] = useState( '' );
 	const [ selected, setSelected ] = useState< Set< string > >( new Set() );
+	const [ open, setOpen ] = useState< Set< string > >( new Set() );
 	const [ bulkRoles, setBulkRoles ] = useState< string[] >( [] );
 	const [ toast, setToast ] = useState< number | undefined >( undefined );
 	const allBox = useRef< HTMLInputElement >( null );
 
 	const rules: Rules = useMemo( () => ( data?.rules && ! Array.isArray( data.rules ) ? data.rules : {} ), [ data ] );
+	const toggles: Toggles = useMemo( () => ( data?.toggles && ! Array.isArray( data.toggles ) ? data.toggles : {} ), [ data ] );
 
 	useEffect( () => {
 		if ( data && null === baseline.current ) {
-			baseline.current = fingerprint( rules );
+			baseline.current = fingerprint( rules, toggles );
 			baselineRules.current = rules;
+			baselineToggles.current = toggles;
 		}
-	}, [ data, rules ] );
+	}, [ data, rules, toggles ] );
 
 	const pending = useRef( 0 );
 	// Requests go one after another: the server changes the stored rules read-modify-write, two at once would lose one.
@@ -324,9 +397,12 @@ export default function WidgetTable( { hideAll }: { hideAll: boolean } ): JSX.El
 			const previous = queryClient.getQueryData< RulesPayload >( KEY );
 			if ( previous ) {
 				const current = previous.rules && ! Array.isArray( previous.rules ) ? previous.rules : {};
+				const nextToggles = { ...( previous.toggles && ! Array.isArray( previous.toggles ) ? previous.toggles : {} ), ...( body.toggles ?? {} ) };
 				queryClient.setQueryData< RulesPayload >( KEY, {
 					...previous,
 					rules: applyLocal( current, body, previous.roles.map( ( r ) => r.id ) ),
+					toggles: nextToggles,
+					widgets: body.toggles ? applyToggles( previous.widgets, body.toggles ) : previous.widgets,
 					notice: 'dismiss_notice' === body.action ? false : previous.notice,
 				} );
 			}
@@ -384,19 +460,32 @@ export default function WidgetTable( { hideAll }: { hideAll: boolean } ): JSX.El
 	const widgets = data?.widgets ?? [];
 	const roles = data?.roles ?? [];
 
+	/** Sources to filter by: every plugin, theme and module by name, plus WordPress and our own widgets. */
 	const sources = useMemo( () => {
 		const map = new Map< string, string >();
 		for ( const w of widgets ) {
-			map.set( w.source, sourceLabel( w ) );
+			if ( typeFilter !== 'all' && w.type !== typeFilter ) {
+				continue;
+			}
+			map.set( sourceKey( w ), sourceName( w ) );
 		}
 		return [ ...map.entries() ].sort( ( a, b ) => a[ 1 ].localeCompare( b[ 1 ] ) );
-	}, [ widgets ] );
+	}, [ widgets, typeFilter ] );
 
 	const rows = useMemo( () => {
 		const needle = search.trim().toLocaleLowerCase();
 		return widgets
 			.filter( ( w ) => {
 				const rule = ruleOf( rules, w.id );
+				if ( typeFilter !== 'all' && w.type !== typeFilter ) {
+					return false;
+				}
+				if ( 'on' === filter && isOff( w ) ) {
+					return false;
+				}
+				if ( 'off' === filter && ! isOff( w ) ) {
+					return false;
+				}
 				if ( 'hidden' === filter && ! rule.hidden ) {
 					return false;
 				}
@@ -406,25 +495,27 @@ export default function WidgetTable( { hideAll }: { hideAll: boolean } ): JSX.El
 				if ( 'stale' === filter && ! w.stale ) {
 					return false;
 				}
-				if ( sourceFilter && w.source !== sourceFilter ) {
+				if ( sourceFilter && sourceKey( w ) !== sourceFilter ) {
 					return false;
 				}
-				return ! needle || `${ w.title } ${ w.id } ${ sourceLabel( w ) }`.toLocaleLowerCase().includes( needle );
+				return ! needle || `${ w.title } ${ w.id } ${ sourceName( w ) }`.toLocaleLowerCase().includes( needle );
 			} )
 			.sort( ( a, b ) => a.title.localeCompare( b.title ) );
-	}, [ widgets, rules, filter, sourceFilter, search ] );
+	}, [ widgets, rules, typeFilter, filter, sourceFilter, search ] );
 
 	const counts = useMemo( () => {
 		let hidden = 0;
 		let limited = 0;
 		let stale = 0;
+		let off = 0;
 		for ( const w of widgets ) {
 			const rule = ruleOf( rules, w.id );
 			hidden += rule.hidden ? 1 : 0;
 			limited += ! rule.hidden && rule.roles.length > 0 ? 1 : 0;
 			stale += w.stale ? 1 : 0;
+			off += isOff( w ) ? 1 : 0;
 		}
-		return { hidden, limited, stale };
+		return { hidden, limited, stale, off };
 	}, [ widgets, rules ] );
 
 	const visibleSelected = rows.filter( ( w ) => selected.has( w.id ) ).length;
@@ -449,8 +540,10 @@ export default function WidgetTable( { hideAll }: { hideAll: boolean } ): JSX.El
 
 	// Changes are shown at once and saved in the background; only forgetting a widget waits for the server.
 	const busy = forget.isPending;
-	const changed = null !== baseline.current && baseline.current !== fingerprint( rules );
+	const changed = null !== baseline.current && baseline.current !== fingerprint( rules, toggles );
 	const ids = [ ...selected ];
+	// The switches among the selected rows (only the widgets of UX Studio have one).
+	const switchable = rows.filter( ( w ) => selected.has( w.id ) && w.toggle && 'module_off' !== w.state );
 
 	const toggle = ( id: string ): void =>
 		setSelected( ( s ) => {
@@ -462,6 +555,25 @@ export default function WidgetTable( { hideAll }: { hideAll: boolean } ): JSX.El
 			}
 			return next;
 		} );
+	const expand = ( id: string ): void =>
+		setOpen( ( s ) => {
+			const next = new Set( s );
+			if ( next.has( id ) ) {
+				next.delete( id );
+			} else {
+				next.add( id );
+			}
+			return next;
+		} );
+	const setSwitches = ( list: WidgetRow[], enabled: boolean ): void => {
+		const map: Toggles = {};
+		for ( const w of list ) {
+			if ( w.toggle ) {
+				map[ w.toggle.key ] = enabled;
+			}
+		}
+		save.mutate( { toggles: map } );
+	};
 
 	return (
 		<div className="uxs-wt">
@@ -487,6 +599,10 @@ export default function WidgetTable( { hideAll }: { hideAll: boolean } ): JSX.El
 				</p>
 			) : null }
 
+			<p className="uxs-wt__intro">
+				{ __( 'Every widget of the dashboard in one list. Turn the widgets of UX Studio on or off, hide any widget, or show it only to some roles. Point at the eye to see how a widget looks on the dashboard.', 'ux-studio' ) }
+			</p>
+
 			<div className="uxs-wt__toolbar">
 				<label className="uxs-wt__search">
 					<span className="screen-reader-text">{ __( 'Search widgets', 'ux-studio' ) }</span>
@@ -494,9 +610,27 @@ export default function WidgetTable( { hideAll }: { hideAll: boolean } ): JSX.El
 					<input type="search" value={ search } onChange={ ( e ) => setSearch( e.target.value ) } placeholder={ __( 'Search by name or ID…', 'ux-studio' ) } maxLength={ 100 } />
 				</label>
 				<label>
-					<span className="screen-reader-text">{ __( 'Show', 'ux-studio' ) }</span>
-					<select value={ filter } onChange={ ( e ) => setFilter( e.target.value as Filter ) }>
-						<option value="all">{ __( 'All widgets', 'ux-studio' ) }</option>
+					<span className="screen-reader-text">{ __( 'Type', 'ux-studio' ) }</span>
+					<select
+						value={ typeFilter }
+						onChange={ ( e ) => {
+							setTypeFilter( e.target.value as TypeFilter );
+							setSourceFilter( '' );
+						} }
+					>
+						<option value="all">{ __( 'All types', 'ux-studio' ) }</option>
+						<option value="wordpress">WordPress</option>
+						<option value="plugin">{ __( 'Plugins and themes', 'ux-studio' ) }</option>
+						<option value="own">{ __( 'UX Studio widgets', 'ux-studio' ) }</option>
+						<option value="module">{ __( 'UX Studio modules', 'ux-studio' ) }</option>
+					</select>
+				</label>
+				<label>
+					<span className="screen-reader-text">{ __( 'State', 'ux-studio' ) }</span>
+					<select value={ filter } onChange={ ( e ) => setFilter( e.target.value as StateFilter ) }>
+						<option value="all">{ __( 'Any state', 'ux-studio' ) }</option>
+						<option value="on">{ __( 'On', 'ux-studio' ) }</option>
+						<option value="off">{ __( 'Off', 'ux-studio' ) }</option>
 						<option value="hidden">{ __( 'Hidden', 'ux-studio' ) }</option>
 						<option value="limited">{ __( 'Limited to roles', 'ux-studio' ) }</option>
 						<option value="stale">{ __( 'Not found', 'ux-studio' ) }</option>
@@ -516,13 +650,20 @@ export default function WidgetTable( { hideAll }: { hideAll: boolean } ): JSX.El
 				<button type="button" className="button" disabled={ refresh.isPending } onClick={ () => refresh.mutate() }>
 					<RefreshCw size={ 14 } aria-hidden className={ refresh.isPending ? 'uxs-spin' : undefined } /> { __( 'Refresh list', 'ux-studio' ) }
 				</button>
-				<button type="button" className="button" disabled={ ! changed || busy } onClick={ () => save.mutate( { action: 'replace', rules: baselineRules.current } ) }>
+				<button
+					type="button"
+					className="button"
+					disabled={ ! changed || busy }
+					onClick={ () => save.mutate( { action: 'replace', rules: baselineRules.current, toggles: baselineToggles.current } ) }
+				>
 					<Undo2 size={ 14 } aria-hidden /> { __( 'Revert changes', 'ux-studio' ) }
 				</button>
 			</div>
 
 			<p className="uxs-wt__stats" aria-live="polite">
 				<span>{ sprintf( _n( '%d widget', '%d widgets', widgets.length, 'ux-studio' ), widgets.length ) }</span>
+				<span>{ sprintf( __( 'Shown: %d', 'ux-studio' ), rows.length ) }</span>
+				<span>{ sprintf( __( 'Off: %d', 'ux-studio' ), counts.off ) }</span>
 				<span>{ sprintf( __( 'Hidden: %d', 'ux-studio' ), counts.hidden ) }</span>
 				<span>{ sprintf( __( 'Limited to roles: %d', 'ux-studio' ), counts.limited ) }</span>
 				{ counts.stale > 0 ? <span>{ sprintf( __( 'Not found: %d', 'ux-studio' ), counts.stale ) }</span> : null }
@@ -561,8 +702,9 @@ export default function WidgetTable( { hideAll }: { hideAll: boolean } ): JSX.El
 								/>
 							</th>
 							<th>{ __( 'Widget', 'ux-studio' ) }</th>
-							<th>{ __( 'Source', 'ux-studio' ) }</th>
+							<th>{ __( 'Type and source', 'ux-studio' ) }</th>
 							<th>{ __( 'Area', 'ux-studio' ) }</th>
+							<th className="uxs-wt__c-on">{ __( 'On', 'ux-studio' ) }</th>
 							<th className="uxs-wt__c-hide">{ __( 'Hide', 'ux-studio' ) }</th>
 							<th>{ __( 'Show to', 'ux-studio' ) }</th>
 						</tr>
@@ -571,60 +713,139 @@ export default function WidgetTable( { hideAll }: { hideAll: boolean } ): JSX.El
 						{ rows.map( ( w ) => {
 							const rule = ruleOf( rules, w.id );
 							const isSel = selected.has( w.id );
+							const isOpen = open.has( w.id );
+							const off = isOff( w );
+							const owner = ownerName( w );
+							const detailId = `uxs-wt-detail-${ w.id }`;
 							return (
-								<tr key={ w.id } className={ `${ rule.hidden ? 'is-hidden' : '' }${ w.stale ? ' is-stale' : '' }${ isSel ? ' is-selected' : '' }` }>
-									<td className="uxs-wt__c-check">
-										<input type="checkbox" checked={ isSel } aria-label={ sprintf( __( 'Select %s', 'ux-studio' ), w.title ) } onChange={ () => toggle( w.id ) } />
-									</td>
-									<td data-label={ __( 'Widget', 'ux-studio' ) } className="uxs-wt__c-title">
-										<strong>{ w.title }</strong>
-										<code>{ w.id }</code>
-										{ w.stale ? (
-											<span className="uxs-wt__stale">
-												<span className="uxs-badge is-warning">{ __( 'not found', 'ux-studio' ) }</span>
+								<Fragment key={ w.id }>
+									<tr className={ `${ rule.hidden ? 'is-hidden' : '' }${ w.stale ? ' is-stale' : '' }${ isSel ? ' is-selected' : '' }${ off ? ' is-off' : '' }${ isOpen ? ' is-open' : '' }` }>
+										<td className="uxs-wt__c-check">
+											<input type="checkbox" checked={ isSel } aria-label={ sprintf( __( 'Select %s', 'ux-studio' ), w.title ) } onChange={ () => toggle( w.id ) } />
+										</td>
+										<td data-label={ __( 'Widget', 'ux-studio' ) } className="uxs-wt__c-title">
+											<span className="uxs-wt__titleline">
 												<button
 													type="button"
-													className="button-link"
-													aria-label={ sprintf( __( 'Remove the entry %s', 'ux-studio' ), w.title ) }
-													disabled={ forget.isPending }
-													onClick={ () => {
-														if ( window.confirm( __( 'Remove this widget from the list together with its rule?', 'ux-studio' ) ) ) {
-															forget.mutate( w.id );
-														}
-													} }
+													className="uxs-wt__expand"
+													aria-expanded={ isOpen }
+													aria-controls={ detailId }
+													aria-label={ sprintf(
+														/* translators: %s: widget name. */
+														__( 'Details of %s', 'ux-studio' ),
+														w.title
+													) }
+													onClick={ () => expand( w.id ) }
 												>
-													<Trash2 size={ 14 } aria-hidden /> { __( 'Remove', 'ux-studio' ) }
+													<ChevronRight size={ 15 } aria-hidden="true" className={ isOpen ? 'is-open' : undefined } />
 												</button>
+												<strong>{ w.title }</strong>
+												<WidgetPreview id={ w.id } title={ w.title } base={ data.preview } />
 											</span>
-										) : null }
-									</td>
-									<td data-label={ __( 'Source', 'ux-studio' ) } className="uxs-wt__c-source">
-										{ sourceLabel( w ) }
-										{ w.guess ? <span className="uxs-wt__guess">{ __( 'estimate', 'ux-studio' ) }</span> : null }
-									</td>
-									<td data-label={ __( 'Area', 'ux-studio' ) } className="uxs-wt__c-area">
-										{ contextLabel( w.context ) }
-									</td>
-									<td data-label={ __( 'Hide', 'ux-studio' ) } className="uxs-wt__c-hide">
-										<button
-											type="button"
-											className={ `uxs-switch${ rule.hidden ? ' is-on' : '' }` }
-											aria-pressed={ rule.hidden }
-											aria-label={ sprintf( __( 'Hide %s for everybody', 'ux-studio' ), w.title ) }
-											disabled={ busy }
-											onClick={ () => save.mutate( { items: [ { id: w.id, hidden: ! rule.hidden } ] } ) }
-										/>
-									</td>
-									<td data-label={ __( 'Show to', 'ux-studio' ) }>
-										<RoleSelect
-											roles={ roles }
-											value={ rule.roles }
-											label={ sprintf( __( 'Roles that see %s', 'ux-studio' ), w.title ) }
-											disabled={ rule.hidden || busy }
-											onChange={ ( next ) => save.mutate( { items: [ { id: w.id, roles: next } ] } ) }
-										/>
-									</td>
-								</tr>
+											<code>{ w.id }</code>
+											{ w.stale ? (
+												<span className="uxs-wt__stale">
+													<span className="uxs-badge is-warning">{ __( 'not found', 'ux-studio' ) }</span>
+													<button
+														type="button"
+														className="button-link"
+														aria-label={ sprintf( __( 'Remove the entry %s', 'ux-studio' ), w.title ) }
+														disabled={ forget.isPending }
+														onClick={ () => {
+															if ( window.confirm( __( 'Remove this widget from the list together with its rule?', 'ux-studio' ) ) ) {
+																forget.mutate( w.id );
+															}
+														} }
+													>
+														<Trash2 size={ 14 } aria-hidden /> { __( 'Remove', 'ux-studio' ) }
+													</button>
+												</span>
+											) : null }
+										</td>
+										<td data-label={ __( 'Type', 'ux-studio' ) } className="uxs-wt__c-source">
+											<span className={ `uxs-wt__type is-${ w.type }` }>{ typeLabel( w.type ) }</span>
+											{ owner ? <span className="uxs-wt__owner">{ owner }</span> : null }
+											{ w.guess ? <span className="uxs-wt__guess">{ __( 'estimate', 'ux-studio' ) }</span> : null }
+										</td>
+										<td data-label={ __( 'Area', 'ux-studio' ) } className="uxs-wt__c-area">
+											{ contextLabel( w.context ) }
+										</td>
+										<td data-label={ __( 'On', 'ux-studio' ) } className="uxs-wt__c-on">
+											{ w.toggle ? (
+												'module_off' === w.state ? (
+													<span className="uxs-wt__off">
+														<span className="uxs-badge is-warning">{ __( 'module off', 'ux-studio' ) }</span>
+														{ w.module?.id ? (
+															<button type="button" className="button-link" onClick={ () => navigate( 'module', { id: w.module?.id ?? '' } ) }>
+																{ sprintf(
+																	/* translators: %s: module name. */
+																	__( 'Open %s', 'ux-studio' ),
+																	w.module.name
+																) }
+															</button>
+														) : null }
+													</span>
+												) : (
+													<>
+														<button
+															type="button"
+															className={ `uxs-switch${ w.toggle.enabled ? ' is-on' : '' }` }
+															aria-pressed={ w.toggle.enabled }
+															aria-label={ sprintf(
+																/* translators: %s: widget name. */
+																__( 'Turn on %s', 'ux-studio' ),
+																w.title
+															) }
+															disabled={ busy }
+															onClick={ () => setSwitches( [ w ], ! w.toggle?.enabled ) }
+														/>
+														{ 'unavailable' === w.state ? <span className="uxs-badge is-warning">{ __( 'not available', 'ux-studio' ) }</span> : null }
+													</>
+												)
+											) : 'module_off' === w.state ? (
+												<span className="uxs-wt__off">
+													<span className="uxs-badge is-warning">{ __( 'module off', 'ux-studio' ) }</span>
+													{ w.module?.id ? (
+														<button type="button" className="button-link" onClick={ () => navigate( 'module', { id: w.module?.id ?? '' } ) }>
+															{ sprintf( __( 'Open %s', 'ux-studio' ), w.module.name ) }
+														</button>
+													) : null }
+												</span>
+											) : (
+												<span className="uxs-wt__always" title={ __( 'This widget has no switch. Hide it instead.', 'ux-studio' ) }>
+													<span aria-hidden="true">{ '·' }</span>
+													<span className="screen-reader-text">{ __( 'No switch', 'ux-studio' ) }</span>
+												</span>
+											) }
+										</td>
+										<td data-label={ __( 'Hide', 'ux-studio' ) } className="uxs-wt__c-hide">
+											<button
+												type="button"
+												className={ `uxs-switch${ rule.hidden ? ' is-on' : '' }` }
+												aria-pressed={ rule.hidden }
+												aria-label={ sprintf( __( 'Hide %s for everybody', 'ux-studio' ), w.title ) }
+												disabled={ busy }
+												onClick={ () => save.mutate( { items: [ { id: w.id, hidden: ! rule.hidden } ] } ) }
+											/>
+										</td>
+										<td data-label={ __( 'Show to', 'ux-studio' ) }>
+											<RoleSelect
+												roles={ roles }
+												value={ rule.roles }
+												label={ sprintf( __( 'Roles that see %s', 'ux-studio' ), w.title ) }
+												disabled={ rule.hidden || busy }
+												onChange={ ( next ) => save.mutate( { items: [ { id: w.id, roles: next } ] } ) }
+											/>
+										</td>
+									</tr>
+									{ isOpen ? (
+										<tr id={ detailId } className="uxs-wt__detail">
+											<td colSpan={ 7 }>
+												<WidgetDetail row={ w } onOpenTab={ onOpenTab } />
+											</td>
+										</tr>
+									) : null }
+								</Fragment>
 							);
 						} ) }
 					</tbody>
@@ -639,6 +860,12 @@ export default function WidgetTable( { hideAll }: { hideAll: boolean } ): JSX.El
 					</button>
 					<button type="button" className="button" disabled={ busy } onClick={ () => save.mutate( { action: 'show', ids } ) }>
 						{ __( 'Show', 'ux-studio' ) }
+					</button>
+					<button type="button" className="button" disabled={ busy || 0 === switchable.length } onClick={ () => setSwitches( switchable, true ) }>
+						{ __( 'Turn on', 'ux-studio' ) }
+					</button>
+					<button type="button" className="button" disabled={ busy || 0 === switchable.length } onClick={ () => setSwitches( switchable, false ) }>
+						{ __( 'Turn off', 'ux-studio' ) }
 					</button>
 					<span className="uxs-wt__bulkroles">
 						<span>{ __( 'Show to:', 'ux-studio' ) }</span>
@@ -660,6 +887,91 @@ export default function WidgetTable( { hideAll }: { hideAll: boolean } ): JSX.El
 					</span>
 				</div>
 			) : null }
+		</div>
+	);
+}
+
+/** Key and label of the "Source" filter: a plugin, a theme or a module by name; WordPress and UX Studio widgets as such. */
+function sourceKey( w: WidgetRow ): string {
+	return 'wordpress' === w.type || 'own' === w.type ? w.type : `${ w.type }:${ w.type_name || w.source }`;
+}
+
+function sourceName( w: WidgetRow ): string {
+	return 'wordpress' === w.type ? 'WordPress' : 'own' === w.type ? __( 'UX Studio widgets', 'ux-studio' ) : ownerName( w ) || typeLabel( w.type );
+}
+
+/** The detail under a row: what the widget is, what its switch does, where it comes from, what it needs. */
+function WidgetDetail( { row, onOpenTab }: { row: WidgetRow; onOpenTab?: ( tab: string ) => void } ): JSX.Element {
+	const help = row.help;
+	const seen = row.first_seen > 0 ? formatDate( row.first_seen ) : '';
+	return (
+		<div className="uxs-wt__detailbox">
+			<dl>
+				{ row.description || help?.does ? (
+					<>
+						<dt>{ __( 'What it shows', 'ux-studio' ) }</dt>
+						<dd>{ help?.does || row.description }</dd>
+					</>
+				) : null }
+				{ help?.effect ? (
+					<>
+						<dt>{ __( 'What changes', 'ux-studio' ) }</dt>
+						<dd>{ help.effect }</dd>
+					</>
+				) : null }
+				{ help?.risk ? (
+					<>
+						<dt>{ __( 'Watch out', 'ux-studio' ) }</dt>
+						<dd>{ help.risk }</dd>
+					</>
+				) : null }
+				{ help?.off ? (
+					<>
+						<dt>{ __( 'Good to know', 'ux-studio' ) }</dt>
+						<dd>{ help.off }</dd>
+					</>
+				) : null }
+				<dt>{ __( 'Provided by', 'ux-studio' ) }</dt>
+				<dd>
+					{ typeLabel( row.type ) }
+					{ ownerName( row ) ? `: ${ ownerName( row ) }` : '' }
+					{ row.guess ? ` (${ __( 'estimate', 'ux-studio' ) })` : '' }
+				</dd>
+				<dt>{ __( 'Widget ID', 'ux-studio' ) }</dt>
+				<dd>
+					<code>{ row.id }</code>
+				</dd>
+				{ seen ? (
+					<>
+						<dt>{ __( 'First seen', 'ux-studio' ) }</dt>
+						<dd>{ seen }</dd>
+					</>
+				) : null }
+				{ row.note ? (
+					<>
+						<dt>{ __( 'Needs', 'ux-studio' ) }</dt>
+						<dd>
+							{ row.note }{ ' ' }
+							{ row.note_tab && onOpenTab ? (
+								<button type="button" className="button-link" onClick={ () => onOpenTab( row.note_tab ) }>
+									{ __( 'Open API keys', 'ux-studio' ) }
+								</button>
+							) : null }
+						</dd>
+					</>
+				) : null }
+				{ row.module?.id ? (
+					<>
+						<dt>{ __( 'Module', 'ux-studio' ) }</dt>
+						<dd>
+							<button type="button" className="button-link" onClick={ () => navigate( 'module', { id: row.module?.id ?? '' } ) }>
+								{ row.module.name }
+							</button>
+							{ row.module.active ? '' : ` (${ __( 'off', 'ux-studio' ) })` }
+						</dd>
+					</>
+				) : null }
+			</dl>
 		</div>
 	);
 }

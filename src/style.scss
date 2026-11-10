@@ -3934,6 +3934,73 @@ $uxs-text-fields: 'input[type="text"], input[type="url"], input[type="email"], i
 		tbody tr.is-hidden .uxs-wt__c-title strong { text-decoration: line-through; color: var(--uxs-text-soft); }
 	}
 
+	&__intro { margin: 0; color: var(--uxs-text-soft); max-width: 80ch; }
+
+	&__c-on { width: 150px; }
+	&__always { color: var(--uxs-text-soft); }
+	&__off { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 2px; font-size: var(--uxs-fs-s); }
+
+	/* Switched-off widgets stay in the list, a little quieter. */
+	tbody tr.is-off .uxs-wt__c-title strong { color: var(--uxs-text-soft); }
+
+	&__titleline { display: flex; align-items: center; gap: var(--uxs-sp-1); min-width: 0; }
+
+	&__expand, &__eye {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		flex: 0 0 auto;
+		width: 28px;
+		height: 28px;
+		padding: 0;
+		color: var(--uxs-text-soft);
+		background: transparent;
+		border: 1px solid transparent;
+		border-radius: var(--uxs-radius-s);
+		cursor: pointer;
+
+		&:hover { color: var(--uxs-text); background: var(--uxs-surface-2); }
+		&:focus-visible { outline: 2px solid var(--uxs-brand); outline-offset: 1px; }
+		svg { transition: transform var(--uxs-motion-fast) var(--uxs-ease); }
+		svg.is-open { transform: rotate(90deg); }
+	}
+
+	/* Type and owner of a widget: a small pill and the name of the plugin or module under it. */
+	&__type {
+		display: inline-block;
+		padding: 1px 8px;
+		font-size: 12px;
+		line-height: 18px;
+		font-weight: 600;
+		white-space: nowrap;
+		color: var(--uxs-text-soft);
+		background: var(--uxs-surface-2);
+		border-radius: 999px;
+
+		&.is-wordpress { color: var(--uxs-info-text); background: color-mix(in srgb, var(--uxs-info) 14%, var(--uxs-surface)); }
+		&.is-own { color: var(--uxs-brand-text-strong); background: var(--uxs-brand-soft); }
+		&.is-module { color: var(--uxs-brand-text-strong); background: color-mix(in srgb, var(--uxs-brand) 8%, var(--uxs-surface-2)); }
+	}
+
+	&__owner { display: block; margin-top: 2px; color: var(--uxs-text-soft); }
+
+	tr.uxs-wt__detail td { padding: 0; background: var(--uxs-surface-2); }
+	tbody tr.uxs-wt__detail:hover td { background: var(--uxs-surface-2); }
+
+	&__detailbox {
+		padding: var(--uxs-sp-3) var(--uxs-sp-4) var(--uxs-sp-4) 52px;
+
+		dl {
+			display: grid;
+			grid-template-columns: max-content minmax(0, 1fr);
+			gap: var(--uxs-sp-1) var(--uxs-sp-4);
+			margin: 0;
+		}
+		dt { color: var(--uxs-text-soft); font-size: var(--uxs-fs-s); }
+		dd { margin: 0; max-width: 80ch; }
+		code { background: none; padding: 0; overflow-wrap: anywhere; }
+	}
+
 	&__c-check { width: 40px; }
 	&__c-hide { width: 72px; }
 	&__c-area { white-space: nowrap; color: var(--uxs-text-soft); font-size: var(--uxs-fs-s); }
@@ -4059,6 +4126,11 @@ $uxs-text-fields: 'input[type="text"], input[type="url"], input[type="email"], i
 			}
 			td.uxs-wt__c-title { display: block; min-width: 0; }
 			td.uxs-wt__c-title::before { display: none; }
+			td.uxs-wt__c-on { width: auto; }
+			tbody tr.uxs-wt__detail { display: block; margin-top: calc(-1 * var(--uxs-sp-3)); padding: 0; }
+			tbody tr.uxs-wt__detail td { display: block; }
+			.uxs-wt__detailbox { padding-left: var(--uxs-sp-3); }
+			.uxs-wt__detailbox dl { grid-template-columns: minmax(0, 1fr); }
 			td.uxs-wt__c-hide { width: auto; }
 			.uxs-wt__roles { flex: 1 1 auto; width: auto; min-width: 0; }
 		}
@@ -4068,6 +4140,43 @@ $uxs-text-fields: 'input[type="text"], input[type="url"], input[type="email"], i
 }
 
 [data-theme="dark"] .uxs-wt { color-scheme: dark; }
+
+/* Preview of a widget: a popover on <body>, the widget drawn by the server inside a scaled frame. */
+.uxs-wt__preview {
+	position: fixed;
+	z-index: 100000;
+	overflow: hidden;
+	background: var(--uxs-surface);
+	border: 1px solid var(--uxs-border);
+	border-radius: var(--uxs-radius);
+	box-shadow: var(--uxs-shadow-2);
+
+	iframe {
+		position: absolute;
+		top: 0;
+		left: 0;
+		border: 0;
+		background: #f0f0f1;
+		transform-origin: 0 0;
+		pointer-events: none;
+	}
+}
+
+.uxs-wt__preview-wait, .uxs-wt__preview-fail {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: var(--uxs-sp-1);
+	padding: var(--uxs-sp-4);
+	text-align: center;
+	color: var(--uxs-text-soft);
+	font-size: var(--uxs-fs-s);
+}
+.uxs-wt__preview-fail strong { color: var(--uxs-text); }
+.uxs-wt__preview .uxs-spin { animation: uxs-spin 0.9s linear infinite; }
 
 /* Role list of a dashboard widget (a popover outside the app root): readable selected state in both themes. */
 .uxs-multiselect__item.uxs-wt__opt {

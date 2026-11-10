@@ -3,14 +3,14 @@ import { __ } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, LoaderCircle, Plus, Trash2 } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
-import { navigate } from '../../app/route';
+import { hashParam, navigate } from '../../app/route';
 import { useModuleSettings } from '../../app/SettingsForm';
 import { TopicSettings, inSections, withKeys } from '../../app/TopicSettings';
 import { TabsNav } from '../../app/SubNav';
 import { formatDate } from '../../app/date';
-import WidgetTable from './WidgetTable';
+import WidgetTable, { type TypeFilter } from './WidgetTable';
 
-type Tab = 'tasks' | 'hidden' | 'welcome' | 'custom' | 'modules' | 'layout' | 'keys';
+type Tab = 'tasks' | 'widgets' | 'welcome' | 'layout' | 'keys';
 
 interface Task {
 	id: string;
@@ -296,15 +296,54 @@ function SaveLayout( { summary }: { summary: string } ): JSX.Element {
 
 const MODULE = 'dashboard-widgets';
 
-/** Settings sections are menu items of their own, next to the overview. */
+/** Settings sections are menu items of their own, next to the overview and the widget table. */
 const SECTION_TABS: { id: Tab; label: string }[] = [
-	{ id: 'hidden', label: __( 'Hidden widgets', 'ux-studio' ) },
 	{ id: 'welcome', label: __( 'Welcome panel', 'ux-studio' ) },
-	{ id: 'custom', label: __( 'Custom widgets', 'ux-studio' ) },
-	{ id: 'modules', label: __( 'Widgets from other modules', 'ux-studio' ) },
 	{ id: 'layout', label: __( 'Layout', 'ux-studio' ) },
 	{ id: 'keys', label: __( 'API keys', 'ux-studio' ) },
 ];
+
+const TABS: Tab[] = [ 'tasks', 'widgets', 'welcome', 'layout', 'keys' ];
+const TYPES: TypeFilter[] = [ 'all', 'wordpress', 'plugin', 'own', 'module' ];
+
+interface View {
+	tab: Tab;
+	type: TypeFilter;
+}
+
+/**
+ * Tab and filter from the address. The three tabs of the earlier versions (Hidden widgets, Custom widgets, Widgets from
+ * other modules) are one table now: their addresses open it with the matching filter.
+ */
+function readView(): View {
+	const tab = hashParam( 'tab' ) ?? '';
+	const type = hashParam( 'type' ) ?? '';
+	switch ( tab ) {
+		case 'hidden':
+			return { tab: 'widgets', type: 'all' };
+		case 'custom':
+			return { tab: 'widgets', type: 'own' };
+		case 'modules':
+			return { tab: 'widgets', type: 'module' };
+	}
+	return {
+		tab: TABS.includes( tab as Tab ) ? ( tab as Tab ) : 'tasks',
+		type: TYPES.includes( type as TypeFilter ) ? ( type as TypeFilter ) : 'all',
+	};
+}
+
+/** Write the view into the address without adding a history entry (and without leaving the module). */
+function writeView( view: View ): void {
+	const usp = new URLSearchParams( window.location.hash.slice( window.location.hash.indexOf( '?' ) + 1 ) );
+	usp.set( 'tab', view.tab );
+	if ( 'widgets' === view.tab && 'all' !== view.type ) {
+		usp.set( 'type', view.type );
+	} else {
+		usp.delete( 'type' );
+	}
+	const base = window.location.hash.split( '?' )[ 0 ] || '#/module';
+	window.history.replaceState( null, '', `${ window.location.pathname }${ window.location.search }${ base }?${ usp.toString() }` );
+}
 
 /** Whether the API keys are stored (they are never sent back to the browser). */
 function KeysNote(): JSX.Element {
@@ -327,20 +366,41 @@ function LayoutNote(): JSX.Element {
 	return <SaveLayout summary={ String( draft.saved_layout ?? '' ) } />;
 }
 
-/** Hide all widgets (a switch) above the table of every widget with its rule. */
-function HiddenTab(): JSX.Element {
+/** Hide all widgets (a switch) above the table of every widget with its rules and switches. */
+function WidgetsTab( { type, onOpenTab }: { type: TypeFilter; onOpenTab: ( tab: Tab ) => void } ): JSX.Element {
 	const { data } = useModuleSettings( MODULE );
 	return (
 		<>
 			<TopicSettings moduleId={ MODULE } include={ withKeys( 'disable_all_widgets' ) } />
-			<WidgetTable hideAll={ !! data?.values.disable_all_widgets } />
+			<WidgetTable key={ type } hideAll={ !! data?.values.disable_all_widgets } initialType={ type } onOpenTab={ ( t ) => onOpenTab( t as Tab ) } />
 		</>
 	);
 }
 
 export default function Page(): JSX.Element {
-	const [ tab, setTab ] = useState< Tab >( 'tasks' );
+	const [ view, setView ] = useState< View >( readView );
+	const tab = view.tab;
 	const section = SECTION_TABS.find( ( t ) => t.id === tab );
+
+	// An old address (tab=hidden | custom | modules) is turned into the new one once, then follows later changes of the address.
+	useEffect( () => {
+		const sync = (): void => {
+			const next = readView();
+			setView( next );
+			if ( [ 'hidden', 'custom', 'modules' ].includes( hashParam( 'tab' ) ?? '' ) ) {
+				writeView( next );
+			}
+		};
+		sync();
+		window.addEventListener( 'hashchange', sync );
+		return () => window.removeEventListener( 'hashchange', sync );
+	}, [] );
+
+	const open = ( next: Tab ): void => {
+		const v: View = { tab: next, type: 'widgets' === next ? view.type : 'all' };
+		setView( v );
+		writeView( v );
+	};
 
 	return (
 		<>
@@ -358,11 +418,14 @@ export default function Page(): JSX.Element {
 				</h1>
 			</header>
 			<TabsNav>
-				<button className={ tab === 'tasks' ? 'is-active' : '' } onClick={ () => setTab( 'tasks' ) }>
+				<button className={ tab === 'tasks' ? 'is-active' : '' } onClick={ () => open( 'tasks' ) }>
 					{ __( 'Tasks', 'ux-studio' ) }
 				</button>
+				<button className={ tab === 'widgets' ? 'is-active' : '' } onClick={ () => open( 'widgets' ) }>
+					{ __( 'Widgets', 'ux-studio' ) }
+				</button>
 				{ SECTION_TABS.map( ( t ) => (
-					<button key={ t.id } className={ tab === t.id ? 'is-active' : '' } onClick={ () => setTab( t.id ) }>
+					<button key={ t.id } className={ tab === t.id ? 'is-active' : '' } onClick={ () => open( t.id ) }>
 						{ t.label }
 					</button>
 				) ) }
@@ -377,8 +440,8 @@ export default function Page(): JSX.Element {
 					<TasksAndNotes />
 				</>
 			) }
-			{ tab === 'hidden' && <HiddenTab /> }
-			{ section && tab !== 'hidden' && (
+			{ tab === 'widgets' && <WidgetsTab type={ view.type } onOpenTab={ open } /> }
+			{ section && (
 				<TopicSettings key={ section.id } moduleId={ MODULE } include={ inSections( section.label ) }>
 					{ section.id === 'keys' && <KeysNote /> }
 					{ section.id === 'layout' && <LayoutNote /> }
