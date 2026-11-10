@@ -838,6 +838,7 @@ final class Module extends BaseModule {
 				'type'    => 'select',
 				'show_if' => array( 'key' => 'template', 'equals' => 'cookiebot' ),
 				'label'   => __( 'Placement', 'ux-studio' ),
+				'help'    => __( 'Panel in the middle of the bottom edge, or a band across the whole width.', 'ux-studio' ),
 				'options' => array(
 					'center' => __( 'Panel at the bottom centre', 'ux-studio' ),
 					'full'   => __( 'Bar across the full width at the bottom', 'ux-studio' ),
@@ -850,6 +851,7 @@ final class Module extends BaseModule {
 				'type'    => 'toggle',
 				'show_if' => array( 'key' => 'template', 'equals' => 'cookiebot' ),
 				'label'   => __( 'Show the tab About cookies', 'ux-studio' ),
+				'help'    => __( 'The third tab with a short explanation of what cookies are and how to change the choice later.', 'ux-studio' ),
 				'default' => true,
 			),
 			array(
@@ -867,6 +869,7 @@ final class Module extends BaseModule {
 				'type'    => 'toggle',
 				'show_if' => array( 'key' => 'template', 'equals' => 'cookie' ),
 				'label'   => __( 'Show the cookie icon', 'ux-studio' ),
+				'help'    => __( 'The small cookie picture next to the heading of the card.', 'ux-studio' ),
 				'default' => true,
 			),
 			array(
@@ -897,6 +900,7 @@ final class Module extends BaseModule {
 				'type'    => 'select',
 				'show_if' => array( 'key' => 'template', 'equals' => 'slim' ),
 				'label'   => __( 'Placement', 'ux-studio' ),
+				'help'    => __( 'The thin bar sits at the bottom or at the top of the window.', 'ux-studio' ),
 				'options' => array(
 					'bottom' => __( 'Bottom of the page', 'ux-studio' ),
 					'top'    => __( 'Top of the page', 'ux-studio' ),
@@ -909,6 +913,7 @@ final class Module extends BaseModule {
 				'type'    => 'toggle',
 				'show_if' => array( 'key' => 'template', 'equals' => 'slim' ),
 				'label'   => __( 'Show the link to the privacy policy', 'ux-studio' ),
+				'help'    => __( 'A link to your cookie policy at the end of the text in the bar.', 'ux-studio' ),
 				'default' => true,
 			),
 			// --- Blocking ---

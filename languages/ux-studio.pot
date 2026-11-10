@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-10T20:50:30+00:00\n"
+"POT-Creation-Date: 2026-11-10T20:57:00+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: ux-studio\n"
@@ -2204,7 +2204,7 @@ msgstr ""
 
 #: includes/Core/Migration/Sources/CaptchaSource.php:64
 #: includes/Modules/Consent/Module.php:840
-#: includes/Modules/Consent/Module.php:899
+#: includes/Modules/Consent/Module.php:902
 #: includes/Modules/SecurityOptimization/Module.php:935
 msgid "Placement"
 msgstr ""
@@ -2483,7 +2483,7 @@ msgid "Complianz inserts the analytics tool \"%s\" itself. UX Studio cannot inse
 msgstr ""
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:306
-#: includes/Modules/Consent/Module.php:956
+#: includes/Modules/Consent/Module.php:961
 msgid "Google Consent Mode v2"
 msgstr ""
 
@@ -2493,12 +2493,12 @@ msgid "Remember the choice for (days)"
 msgstr ""
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:308
-#: includes/Modules/Consent/Module.php:919
+#: includes/Modules/Consent/Module.php:924
 msgid "Hold back tracking scripts until the visitor agrees"
 msgstr ""
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:309
-#: includes/Modules/Consent/Module.php:926
+#: includes/Modules/Consent/Module.php:931
 msgid "Replace embedded videos and maps by a \"Load content\" box"
 msgstr ""
 
@@ -2619,7 +2619,7 @@ msgid "Show a small button to change the choice later"
 msgstr ""
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:326
-#: includes/Modules/Consent/Module.php:948
+#: includes/Modules/Consent/Module.php:953
 msgid "Own rules"
 msgstr ""
 
@@ -4952,7 +4952,7 @@ msgstr ""
 #: includes/Core/Onboarding/Applier.php:263
 #: includes/Core/Transfer/Planner.php:354
 #: includes/Modules/AiMarkdown/Module.php:249
-#: includes/Modules/Consent/Module.php:958
+#: includes/Modules/Consent/Module.php:963
 #: includes/Modules/SecurityOptimization/Module.php:606
 #: build/508.06dd7a663f8bebe1f9fe.js:10
 #: build/744.16b934e695e287117fb6.js:1
@@ -14160,92 +14160,112 @@ msgstr ""
 msgid "Right"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:842
-msgid "Panel at the bottom centre"
+#: includes/Modules/Consent/Module.php:841
+msgid "Panel in the middle of the bottom edge, or a band across the whole width."
 msgstr ""
 
 #: includes/Modules/Consent/Module.php:843
+msgid "Panel at the bottom centre"
+msgstr ""
+
+#: includes/Modules/Consent/Module.php:844
 msgid "Bar across the full width at the bottom"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:852
+#: includes/Modules/Consent/Module.php:853
 msgid "Show the tab About cookies"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:860
+#: includes/Modules/Consent/Module.php:854
+msgid "The third tab with a short explanation of what cookies are and how to change the choice later."
+msgstr ""
+
+#: includes/Modules/Consent/Module.php:862
 msgid "Maximum width of the panel (px)"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:861
+#: includes/Modules/Consent/Module.php:863
 msgid "From 480 to 1400. On a narrow screen the panel always fills the width."
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:869
+#: includes/Modules/Consent/Module.php:871
 msgid "Show the cookie icon"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:877
-msgid "Shape of the buttons"
-msgstr ""
-
-#: includes/Modules/Consent/Module.php:878
-msgid "Reject and accept always look equally strong, in either shape."
+#: includes/Modules/Consent/Module.php:872
+msgid "The small cookie picture next to the heading of the card."
 msgstr ""
 
 #: includes/Modules/Consent/Module.php:880
-msgid "Round"
+msgid "Shape of the buttons"
 msgstr ""
 
 #: includes/Modules/Consent/Module.php:881
+msgid "Reject and accept always look equally strong, in either shape."
+msgstr ""
+
+#: includes/Modules/Consent/Module.php:883
+msgid "Round"
+msgstr ""
+
+#: includes/Modules/Consent/Module.php:884
 msgid "Rounded rectangle"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:890
+#: includes/Modules/Consent/Module.php:893
 msgid "Corner radius of the card (px)"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:891
+#: includes/Modules/Consent/Module.php:894
 msgid "From 0 to 40."
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:901
+#: includes/Modules/Consent/Module.php:903
+msgid "The thin bar sits at the bottom or at the top of the window."
+msgstr ""
+
+#: includes/Modules/Consent/Module.php:905
 msgid "Bottom of the page"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:902
+#: includes/Modules/Consent/Module.php:906
 #: build/290.e2e990ece125bef2b17b.js:1
 msgid "Top of the page"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:911
+#: includes/Modules/Consent/Module.php:915
 msgid "Show the link to the privacy policy"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:933
+#: includes/Modules/Consent/Module.php:916
+msgid "A link to your cookie policy at the end of the text in the bar."
+msgstr ""
+
+#: includes/Modules/Consent/Module.php:938
 msgid "Use the privacy-enhanced YouTube address"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:941
+#: includes/Modules/Consent/Module.php:946
 msgid "Also catch snippets pasted directly into the page"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:959
+#: includes/Modules/Consent/Module.php:964
 msgid "Basic: Google tags wait for consent"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:960
+#: includes/Modules/Consent/Module.php:965
 msgid "Advanced: Google tags load at once and follow the signal"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:968
+#: includes/Modules/Consent/Module.php:973
 msgid "Wait for the saved choice (milliseconds)"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:977
+#: includes/Modules/Consent/Module.php:982
 msgid "Keep a record of every choice (proof of consent)"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:984
+#: includes/Modules/Consent/Module.php:989
 msgid "Keep records for (days)"
 msgstr ""
 
