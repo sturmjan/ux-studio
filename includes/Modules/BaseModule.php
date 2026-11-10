@@ -54,6 +54,13 @@ abstract class BaseModule {
 	}
 
 	/**
+	 * Called once when the module is switched on (not when it is booted on every request). A place to give a new
+	 * installation sensible starting values; it must not change settings that already exist.
+	 */
+	public function on_enable(): void {
+	}
+
+	/**
 	 * Options (besides the module settings) the module changes when its settings take effect, for example
 	 * the hash of the last written `.htaccess` block. The migration switch saves them first, so undoing the
 	 * switch restores them exactly.

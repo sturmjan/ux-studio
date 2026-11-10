@@ -40,6 +40,13 @@ final class Settings {
 		return $this->values[ $key ] ?? $default;
 	}
 
+	/**
+	 * Forget the values read so far, so the next read asks the options again (a filter on the option may have changed it).
+	 */
+	public function flush(): void {
+		$this->values = null;
+	}
+
 	/** All stored values. */
 	public function all(): array {
 		if ( null === $this->values ) {

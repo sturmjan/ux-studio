@@ -80,7 +80,113 @@ final class Module extends BaseModule {
 		$this->analytics()->boot();
 		( new ExtraWidgets( $this, $this->settings ) )->boot();
 		( new ModuleWidgets( $this->settings ) )->boot();
+		( new Preview( $this ) )->boot();
 		$this->layout()->boot();
+	}
+
+	/**
+	 * Starting values for a NEW installation: the first time the module is switched on, and only when it has no stored
+	 * settings at all. Existing settings are never touched. Which widgets are on and which are hidden is in
+	 * WidgetCatalog::new_install(); the third-party widgets that may be installed later are hidden when they first
+	 * appear on the dashboard (apply_pending_defaults()).
+	 */
+	public function on_enable(): void {
+		$missing = new \stdClass();
+		if ( $missing !== get_option( 'uxstudio_dashboard_widgets', $missing ) ) {
+			return;
+		}
+		$start = WidgetCatalog::new_install();
+		$this->write_option(
+			$start['toggles'] + array(
+				'widget_rules'           => WidgetRules::sanitize( $start['rules'], null ),
+				'default_hidden_pending' => $start['pending'],
+				'rules_version'          => WidgetRules::VERSION,
+			)
+		);
+	}
+
+	/**
+	 * Forget the settings read so far (the preview shows the option with one switch forced on).
+	 */
+	public function flush_settings_cache(): void {
+		$this->settings->flush();
+	}
+
+	/**
+	 * Current value of every widget switch (the stored one, else the default of the schema).
+	 *
+	 * @return array<string, bool>
+	 */
+	public function toggle_values(): array {
+		$defaults = array();
+		foreach ( $this->settings_schema() as $field ) {
+			$defaults[ (string) $field['key'] ] = (bool) ( $field['default'] ?? false );
+		}
+		$out = array();
+		foreach ( WidgetCatalog::toggle_keys() as $key ) {
+			$out[ $key ] = (bool) $this->settings->get( $key, $defaults[ $key ] ?? false );
+		}
+		return $out;
+	}
+
+	/**
+	 * Names of the UX Studio modules that are switched on, id => name (for the owner of a widget).
+	 *
+	 * @return array<string, string>
+	 */
+	public function active_module_names(): array {
+		$modules = \UxStudio\Plugin::instance()->modules;
+		$all     = $modules->all();
+		$out     = array();
+		foreach ( $modules->enabled_ids() as $id ) {
+			$out[ $id ] = (string) ( $all[ $id ]['name'] ?? $id );
+		}
+		return $out;
+	}
+
+	/**
+	 * What the site has that some widgets need.
+	 *
+	 * @return array{woocommerce:bool,elementor_pro:bool,ga:bool,pagespeed:bool}
+	 */
+	public function widget_env(): array {
+		return array(
+			'woocommerce'   => class_exists( 'WooCommerce' ),
+			'elementor_pro' => defined( 'ELEMENTOR_PRO_VERSION' ),
+			'ga'            => $this->analytics()->is_configured(),
+			'pagespeed'     => '' !== Security::get_secret( self::SECRET_PAGESPEED ),
+		);
+	}
+
+	/**
+	 * A widget that is hidden by default on a new installation but did not exist yet (Yoast SEO installed later) gets its
+	 * rule when it first appears on the dashboard of an administrator. A widget the owner already made a rule for is left alone.
+	 */
+	private function apply_pending_defaults(): void {
+		global $wp_meta_boxes;
+		$pending = array_values( array_filter( (array) $this->settings->get( 'default_hidden_pending', array() ), 'is_string' ) );
+		if ( ! $pending || ! current_user_can( 'manage_options' ) || empty( $wp_meta_boxes['dashboard'] ) ) {
+			return;
+		}
+		$present = array();
+		foreach ( (array) $wp_meta_boxes['dashboard'] as $priorities ) {
+			foreach ( (array) $priorities as $boxes ) {
+				foreach ( is_array( $boxes ) ? $boxes : array() as $id => $box ) {
+					if ( is_array( $box ) ) {
+						$present[] = (string) $id;
+					}
+				}
+			}
+		}
+		$result = WidgetCatalog::pending_hits( $pending, $present, $this->rules() );
+		if ( $result['changed'] ) {
+			$this->write_option(
+				array(
+					'widget_rules'           => WidgetRules::sanitize( $result['rules'], null ),
+					'default_hidden_pending' => $result['pending'],
+				)
+			);
+		}
 	}
 
 	/**
@@ -205,6 +311,10 @@ final class Module extends BaseModule {
 	public function apply_rules(): void {
 		global $wp_meta_boxes;
 
+		// The preview of a widget draws it whatever the rules say.
+		if ( Preview::active() ) {
+			return;
+		}
 		if ( (bool) $this->settings->get( 'disable_all_widgets', false ) ) {
 			remove_action( 'welcome_panel', 'wp_welcome_panel' );
 			if ( isset( $wp_meta_boxes['dashboard'] ) && is_array( $wp_meta_boxes['dashboard'] ) ) {
@@ -221,6 +331,7 @@ final class Module extends BaseModule {
 			return;
 		}
 
+		$this->apply_pending_defaults();
 		$rules = $this->rules();
 		if ( ! $rules ) {
 			return;
