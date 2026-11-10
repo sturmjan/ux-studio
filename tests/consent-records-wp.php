@@ -169,7 +169,7 @@ try {
 	$assert( 'find: an unknown id -> empty list', array() === ( $get( '/uxstudio/v1/consent/records/find', array( 'id' => str_repeat( '0', 32 ) ) )->get_data()['data'] ?? null ) );
 	$res = $get( '/uxstudio/v1/consent/records/export-url', array( 'from' => '2026-01-01', 'to' => 'junk', 'id' => $id ) );
 	$url = (string) ( $res->get_data()['data']['url'] ?? '' );
-	$assert( 'export-url: nonce-signed admin-post link, a bad date is left out', false !== strpos( $url, 'action=uxstudio_consent_export' ) && false !== strpos( $url, '_wpnonce=' ) && false !== strpos( $url, 'from=2026-01-01' ) && false === strpos( $url, 'junk' ) && false !== strpos( $url, 'id=' . $id ), $url );
+	$assert( 'export-url: nonce-signed admin-post link, a bad date is left out', false !== strpos( $url, 'action=uxstudio_consent_export' ) && false !== strpos( $url, '_wpnonce=' ) && false !== strpos( $url, 'from=2026-01-01' ) && false === strpos( $url, 'junk' ) && false !== strpos( $url, 'id=' . $id ) && false === strpos( $url, '&amp;' ), $url );
 	$assert( 'export-url: a bad id -> 400', 400 === $get( '/uxstudio/v1/consent/records/export-url', array( 'id' => 'zz' ) )->get_status() );
 
 	// --- CSV ---

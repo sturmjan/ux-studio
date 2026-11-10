@@ -208,7 +208,9 @@ final class RecordsRest extends Controller {
 			}
 			$args['id'] = $id;
 		}
-		return $this->ok( array( 'url' => wp_nonce_url( add_query_arg( $args, admin_url( 'admin-post.php' ) ), 'uxstudio_consent_export' ) ) );
+		// wp_nonce_url() HTML-escapes ("&amp;"), which is wrong in a JSON value the browser navigates to: the nonce would be lost.
+		$args['_wpnonce'] = wp_create_nonce( 'uxstudio_consent_export' );
+		return $this->ok( array( 'url' => add_query_arg( $args, admin_url( 'admin-post.php' ) ) ) );
 	}
 
 	/**
