@@ -23,6 +23,7 @@ defined( 'ABSPATH' ) || exit;
  * GET  uxstudio/v1/dashboard-widgets/rules     - every known widget with its rule, the roles, the time of the last scan
  * POST uxstudio/v1/dashboard-widgets/rules     - set rules: `items` [{id, hidden?, roles?}], a bulk `action` (hide | show | roles | reset)
  *                                                on `ids`, `replace` (the whole map back, for "undo"), `dismiss_notice`
+ *                                                `toggles` {setting key: bool} switches widgets of UX Studio on / off (the rows of GET carry type, type_name, toggle, module, state)
  * POST uxstudio/v1/dashboard-widgets/refresh   - ask for the next Dashboard view to rewrite the snapshot (the SPA then loads index.php)
  * DELETE uxstudio/v1/dashboard-widgets/snapshot/{id} - forget a widget that is no longer registered, together with its rule
  */
@@ -129,6 +130,10 @@ final class RestController extends Controller {
 					),
 				),
 				'rules'  => array(
+					'required' => false,
+					'type'     => array( 'object', 'array' ),
+				),
+				'toggles' => array(
 					'required' => false,
 					'type'     => array( 'object', 'array' ),
 				),
@@ -276,23 +281,56 @@ final class RestController extends Controller {
 				'stale'       => WidgetRules::is_stale( (array) $widget, $scan_at ),
 			);
 		}
+		$blank = static fn( string $id, string $title, string $context, string $source, bool $stale ): array => array(
+			'id'          => $id,
+			'title'       => $title,
+			'context'     => $context,
+			'priority'    => '',
+			'source'      => $source,
+			'source_name' => '',
+			'guess'       => false,
+			'first_seen'  => 0,
+			'last_seen'   => 0,
+			'stale'       => $stale,
+		);
+		// The widgets of UX Studio are always listed (a widget that is switched off is not on the dashboard, but has to be
+		// there to be switched on); they are never "not found".
+		foreach ( WidgetCatalog::entries() as $id => $entry ) {
+			if ( ! isset( $rows[ $id ] ) ) {
+				$rows[ $id ] = $blank( $id, (string) $entry['title'], '', 'uxstudio', false );
+			}
+			$rows[ $id ]['stale'] = false;
+		}
+		// WordPress registers these on every site: before the first look at the dashboard they are not "not found" either.
+		if ( 0 === $scan_at ) {
+			foreach ( WidgetCatalog::core_widgets() as $id => $core ) {
+				if ( ! isset( $rows[ $id ] ) ) {
+					$rows[ $id ] = $blank( $id, $core['title'], $core['context'], 'core', false );
+				}
+			}
+		}
 		// A rule of a widget the snapshot does not know (e.g. imported from another site) still has to be visible.
 		foreach ( array_keys( $rules ) as $id ) {
 			if ( ! isset( $rows[ (string) $id ] ) ) {
-				$rows[ (string) $id ] = array(
-					'id'          => (string) $id,
-					'title'       => (string) $id,
-					'context'     => '',
-					'priority'    => '',
-					'source'      => 'unknown',
-					'source_name' => '',
-					'guess'       => false,
-					'first_seen'  => 0,
-					'last_seen'   => 0,
-					'stale'       => true,
-				);
+				$rows[ (string) $id ] = $blank( (string) $id, (string) $id, '', 'unknown', true );
 			}
 		}
+
+		$values  = $this->module->toggle_values();
+		$names   = $this->module->active_module_names();
+		$env     = $this->module->widget_env();
+		$entries = WidgetCatalog::entries();
+		foreach ( $rows as $id => $row ) {
+			$row = WidgetCatalog::decorate( $row, $values, $names, $env );
+			if ( isset( $entries[ $id ] ) && '' !== $entries[ $id ]['key'] ) {
+				$help = \UxStudio\Core\SettingHelp::for( 'dashboard-widgets', (string) $entries[ $id ]['key'] );
+				if ( is_array( $help ) ) {
+					$row['help'] = $help;
+				}
+			}
+			$rows[ $id ] = $row;
+		}
+
 		$roles = array();
 		foreach ( MenuOrganizer::role_list() as $slug => $name ) {
 			$roles[] = array(
@@ -302,12 +340,14 @@ final class RestController extends Controller {
 		}
 		return array(
 			'rules'    => (object) $rules,
+			'toggles'  => (object) $values,
 			'widgets'  => array_values( $rows ),
 			'roles'    => $roles,
 			'scan_at'  => $scan_at,
 			'hide_all' => (bool) $this->module->settings_value( 'disable_all_widgets', false ),
 			'notice'   => (bool) $this->module->settings_value( 'rules_notice', false ),
 			'index'    => admin_url( 'index.php' ),
+			'preview'  => Preview::url_base(),
 		);
 	}
 
@@ -358,6 +398,11 @@ final class RestController extends Controller {
 			return new \WP_Error( 'uxstudio_rules_too_many', __( 'There are too many widget rules.', 'ux-studio' ), array( 'status' => 400 ) );
 		}
 		$this->module->save_rules( $rules );
+		// The switches of the widgets of UX Studio (only the ones that exist).
+		$toggles = WidgetCatalog::clean_toggles( $request->get_param( 'toggles' ) );
+		if ( $toggles ) {
+			$this->module->write_option( $toggles );
+		}
 		return $this->ok( $this->rules_payload() );
 	}
 

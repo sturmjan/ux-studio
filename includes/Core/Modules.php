@@ -119,6 +119,9 @@ final class Modules {
 		if ( ! $enable && $was_enabled ) {
 			$this->run_on_disable( $id );
 		}
+		if ( $enable && ! $was_enabled ) {
+			$this->run_on_enable( $id );
+		}
 		return true;
 	}
 
@@ -172,6 +175,22 @@ final class Modules {
 	public function cleanup_for_plugin_deactivation(): void {
 		foreach ( $this->enabled_ids() as $id ) {
 			$this->run_on_disable( $id );
+		}
+	}
+
+	/**
+	 * @param string $id Module id.
+	 */
+	private function run_on_enable( string $id ): void {
+		$module = $this->instance( $id );
+		if ( ! $module ) {
+			return;
+		}
+		try {
+			$module->on_enable();
+		} catch ( \Throwable $e ) {
+			// Starting values are a convenience: a failure must never block switching a module on.
+			error_log( 'UX Studio: on_enable failed for ' . $id . ': ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		}
 	}
 
