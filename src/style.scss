@@ -3247,12 +3247,15 @@ $uxs-text-fields: 'input[type="text"], input[type="url"], input[type="email"], i
 		grid-template-columns: minmax(0, 1fr) minmax(420px, 500px);
 	}
 
-	&__aside {
+	// The element is .uxs-topic-settings__aside (a BEM child of the block, not of the --split modifier).
+	> .uxs-topic-settings__aside {
 		min-width: 0;
 
 		@media (min-width: 1280px) {
 			position: sticky;
-			top: 48px;
+			top: 48px; // below the WordPress admin bar (32px) with some air
+			max-height: calc(100vh - 64px); // a short window scrolls the panel itself instead of cutting it
+			overflow-y: auto;
 		}
 	}
 }
