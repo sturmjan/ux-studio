@@ -386,6 +386,9 @@
 		word-break: break-word;
 	}
 	&.is-lossy li { justify-content: flex-start; color: var(--uxs-text-soft); }
+	/* The label takes the room, the value and the help "?" sit at the right end. */
+	li > span:first-child { flex: 1 1 12rem; }
+	li > .uxs-tipbtn { align-self: center; margin-block: -4px; }
 }
 
 .uxs-wiz-note { display: flex; gap: var(--uxs-sp-2); align-items: flex-start; margin: var(--uxs-sp-3) 0 0; color: var(--uxs-text-soft); font-size: var(--uxs-fs-s); svg { flex-shrink: 0; margin-top: 3px; } }

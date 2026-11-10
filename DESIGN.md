@@ -101,7 +101,7 @@ společném chunku - žádná duplikace knihoven.
 ## 13. Nápověda k nastavení, slovník a rozvržení (0.10.0)
 
 - **Nápověda k volbám je jedna pro všechny moduly.** Texty leží v `includes/Modules/<Modul>/help.php` (`klíč => does / effect / risk / off / skip`,
-  řetězce přes `__()`), registr `Core\SettingHelp` je přidá jako `explain` ke schématu a `SettingExplain` je vykreslí jako "Podrobnosti".
+  řetězce přes `__()`), registr `Core\SettingHelp` je přidá jako `explain` ke schématu a `SettingExplain` je vykreslí jako kulaté "?" vedle prvku s plovoucím oknem (od 0.16 místo rozbalovací "Podrobnosti").
   Nová volba dostane záznam hned; test `tests/setting-help-coverage-wp.php` hlídá, že žádné pole nezůstane bez textu mimo `tests/fixtures/help-baseline.json`.
   Postup, tón a délka: `docs/help-texts.md`.
 - **Technický pojem** v textu nápovědy se píše `[[CSP]]` nebo `[[dns|záznamy DNS]]`. Definici dodává `Core\Glossary`, zobrazí ji `GlossaryTerm`
