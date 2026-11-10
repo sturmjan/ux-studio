@@ -19,7 +19,7 @@ return <<<'TPL'
 {{{purposes_html}}}
 
 <h2>Odkud údaje máme</h2>
-<p>Většinu údajů nám sdělíte sami, když vyplníte formulář, objednáte, napíšete nám nebo si založíte účet. Další údaje vznikají při návštěvě webu: server si zaznamenává technické údaje o přístupu a pomocí cookies a podobných technologií se zjišťuje, jak web používáte, ale jen v rozsahu, který jste v liště cookies povolili. Podrobný seznam najdete v {% if has_cookies_url %}<a href="{{cookies_url}}">zásadách používání cookies</a>{% else %}zásadách používání cookies{% endif %}.</p>
+<p>Většinu údajů nám sdělíte sami, když vyplníte formulář{% if has_eshop %}, objednáte{% endif %}, napíšete nám{% if has_eshop %} nebo si založíte účet{% endif %}. Další údaje vznikají při návštěvě webu: server si zaznamenává technické údaje o přístupu a pomocí cookies a podobných technologií se zjišťuje, jak web používáte, ale jen v rozsahu, který jste v liště cookies povolili. Podrobný seznam najdete v {% if has_cookies_url %}<a href="{{cookies_url}}">zásadách používání cookies</a>{% else %}zásadách používání cookies{% endif %}.</p>
 
 <h2>Komu údaje předáváme</h2>
 <p>Vaše údaje nikomu neprodáváme. Pro některé činnosti využíváme další firmy, které údaje zpracovávají podle našich pokynů a na základě smlouvy, nebo které je dostávají proto, že to vyžaduje splnění objednávky či zákon.</p>
@@ -37,7 +37,7 @@ return <<<'TPL'
 <p>Konkrétní lhůty jsou uvedeny u každého účelu výše. Obecně platí, že údaje mažeme nebo anonymizujeme, jakmile pomine důvod, pro který jsme je získali. Pokud údaje potřebujeme k určení, výkonu nebo obhajobě právních nároků, ponecháme je do konce promlčecí lhůty.</p>
 
 <h2>Musíte nám údaje poskytnout?</h2>
-<p>Poskytnutí údajů je dobrovolné. Bez některých údajů vám ale nemůžeme splnit, o co žádáte: bez adresy a kontaktu nedoručíme objednávku, bez e-mailu vám neodpovíme. U údajů, které potřebujeme kvůli zákonné povinnosti, například pro účetnictví, je jejich poskytnutí nutné, aby bylo možné smlouvu uzavřít. Údaje, ke kterým jsme požádali o souhlas, poskytovat nemusíte a nic se nestane, když souhlas neudělíte nebo ho odvoláte.</p>
+<p>Poskytnutí údajů je dobrovolné. Bez některých údajů vám ale nemůžeme splnit, o co žádáte: {% if has_eshop %}bez adresy a kontaktu nedoručíme objednávku, {% endif %}bez e-mailu nebo telefonu vám neodpovíme. U údajů, které potřebujeme kvůli zákonné povinnosti, například pro účetnictví, je jejich poskytnutí nutné, aby bylo možné smlouvu uzavřít. Údaje, ke kterým jsme požádali o souhlas, poskytovat nemusíte a nic se nestane, když souhlas neudělíte nebo ho odvoláte.</p>
 
 <h2>Automatizované rozhodování</h2>
 <p>O vás nerozhodujeme způsobem, který by se opíral výhradně o automatizované zpracování a měl pro vás právní účinky nebo se vás podobně významně dotýkal. {% if uses_consent %}Pokud povolíte marketingové cookies, mohou poskytovatelé reklamních služeb vytvářet na jejich základě profil vašich zájmů, abychom vám zobrazili vhodnější nabídky. To se děje jen s vaším souhlasem, který můžete odvolat v nastavení cookies.{% endif %}</p>

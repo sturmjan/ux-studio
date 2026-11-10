@@ -19,7 +19,7 @@ return <<<'TPL'
 {{{purposes_html}}}
 
 <h2>Where the data comes from</h2>
-<p>Most of the data comes from you, when you fill in a form, order, write to us or create an account. Some arises when you visit the site: the server records technical details of each access, and cookies and similar technologies show how the site is used, but only to the extent you allowed in the cookie banner. The detailed list is in the {% if has_cookies_url %}<a href="{{cookies_url}}">cookie policy</a>{% else %}cookie policy{% endif %}.</p>
+<p>Most of the data comes from you, when you fill in a form{% if has_eshop %}, order{% endif %}, write to us{% if has_eshop %} or create an account{% endif %}. Some arises when you visit the site: the server records technical details of each access, and cookies and similar technologies show how the site is used, but only to the extent you allowed in the cookie banner. The detailed list is in the {% if has_cookies_url %}<a href="{{cookies_url}}">cookie policy</a>{% else %}cookie policy{% endif %}.</p>
 
 <h2>Who receives the data</h2>
 <p>We do not sell your data. For some activities we use other companies, which process data on our instructions under a contract, or which receive it because fulfilling an order or the law requires it.</p>
@@ -37,7 +37,7 @@ return <<<'TPL'
 <p>The periods are given for each purpose above. As a rule we delete or anonymise data as soon as the reason for which we collected it ends. Where we need data to establish, exercise or defend legal claims, we keep it until the limitation period ends.</p>
 
 <h2>Do you have to give us the data?</h2>
-<p>Giving data is voluntary. Without some of it, however, we cannot do what you ask: without an address we cannot deliver an order, without an e-mail we cannot reply. For data we need because of a legal duty, such as accounting, giving it is necessary for a contract to be concluded. You do not have to give data we asked consent for, and nothing happens if you do not consent or if you withdraw consent.</p>
+<p>Giving data is voluntary. Without some of it, however, we cannot do what you ask: {% if has_eshop %}without an address we cannot deliver an order, {% endif %}without an e-mail or phone number we cannot reply. For data we need because of a legal duty, such as accounting, giving it is necessary for a contract to be concluded. You do not have to give data we asked consent for, and nothing happens if you do not consent or if you withdraw consent.</p>
 
 <h2>Automated decision-making</h2>
 <p>We do not take decisions about you that rest solely on automated processing and have legal effects on you or similarly significantly affect you. {% if uses_consent %}If you allow marketing cookies, advertising providers may build a profile of your interests from them so that we can show you more suitable offers. This happens only with your consent, which you can withdraw in the cookie settings.{% endif %}</p>
