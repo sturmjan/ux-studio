@@ -69,3 +69,9 @@
 @media (max-width: 640px) {
 	.uxc-o-full .uxc-tabs, .uxc-o-full .uxc-main, .uxc-o-full .uxc-detail, .uxc-o-full .uxc-about, .uxc-o-full .uxc-actions { padding-inline: 16px; }
 }
+
+/* UX1 signature: first in the button row (after the buttons in the tab order), on the left; on a narrow screen it sits under the stacked buttons. */
+.uxc.uxc-t-cookiebot .uxc-actions .uxc-by { position: static; margin-right: auto; align-self: center; }
+@media (max-width: 640px) {
+	.uxc.uxc-t-cookiebot .uxc-actions .uxc-by { margin: 2px 0 0; align-self: flex-start; }
+}

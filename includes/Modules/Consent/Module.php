@@ -495,6 +495,12 @@ final class Module extends BaseModule {
 				'about' => __( 'Cookies are small files that a website stores in your browser. The necessary ones keep the site working. All the others are used only if you allow them, and you can change or withdraw your choice at any time with the cookie settings button.', 'ux-studio' ),
 			);
 		}
+		// A small grey UX1 signature in the banner. Switch it off with add_filter( 'uxstudio_consent_show_branding', '__return_false' ).
+		$by = Templates::by( (bool) apply_filters( 'uxstudio_consent_show_branding', true ) );
+		if ( '' !== $by ) {
+			$config['by']      = $by;
+			$config['t']['by'] = __( 'Cookie banner by UX1 (opens in a new window)', 'ux-studio' );
+		}
 		if ( '' !== $policy ) {
 			$config['policy'] = esc_url_raw( $policy );
 		}

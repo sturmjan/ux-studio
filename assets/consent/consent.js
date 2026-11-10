@@ -446,6 +446,21 @@
 		return '<svg viewBox="0 0 24 24" width="' + size + '" height="' + size + '" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"/><path d="M8.5 8.5v.01M16 15.5v.01M12 12v.01M11 17v.01M7 14v.01"/></svg>';
 	}
 
+	// The word UX1 drawn as paths (no font, no request): a quiet signature link, off by default only through the PHP filter.
+	function brand() {
+		if ( ! cfg.by || ! /^https:\/\//i.test( cfg.by ) ) {
+			return null;
+		}
+		var a = el( 'a', 'uxc-by' );
+		a.href = cfg.by;
+		a.target = '_blank';
+		a.rel = 'noopener';
+		a.setAttribute( 'aria-label', T.by || 'UX1' );
+		a.title = T.by || 'UX1';
+		a.innerHTML = '<svg viewBox="0 0 37 14" width="32" height="12" fill="currentColor" aria-hidden="true" focusable="false"><path d="M1.7 0v7.8a4.5 4.5 0 0 0 9 0V0" fill="none" stroke="currentColor" stroke-width="3.4"/><path d="M15 0h4.2L27 14h-4.2zM22.8 0H27l-7.8 14H15zM36.6 0v14h-3.4V4.2L30 5.4V2.4L34.4 0z"/></svg>';
+		return a;
+	}
+
 	function showFab() {
 		if ( fab ) {
 			fab.hidden = false;
@@ -673,8 +688,19 @@
 			if ( O.about !== false ) {
 				dlg.appendChild( about );
 			}
+			// Tabs: the signature sits at the start of the button row, after the buttons in the tab order.
+			var by1 = brand();
+			if ( by1 ) {
+				actions.appendChild( by1 );
+			}
 			dlg.appendChild( actions );
 			setTab( 'main' );
+		}
+		if ( ! CB ) {
+			var by2 = brand();
+			if ( by2 ) {
+				dlg.appendChild( by2 );
+			}
 		}
 		root.appendChild( dlg );
 		root.addEventListener( 'keydown', onKey );

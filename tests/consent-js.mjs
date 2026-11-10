@@ -304,5 +304,28 @@ for ( const tpl of [ 'classic', 'cookiebot', 'cookie', 'slim', 'nonsense' ] ) {
 	check( 'opt cookie: keeps its policy link whatever the slim option says', r.body.querySelectorAll( '.uxc-a' ).length === 1 );
 }
 
+// UX1 signature link (PLAN 42.23): in every template, once, a link to a new window with an accessible name; none without cfg.by.
+{
+	const byBase = { t: { by: 'Cookie banner by UX1 (opens in a new window)' } };
+	for ( const tpl of [ 'classic', 'cookiebot', 'cookie', 'slim' ] ) {
+		r = await runUi( '', { ...byBase, tpl, by: 'https://ux1.cz/' } );
+		const links = r.body.querySelectorAll( '.uxc-by' );
+		const a = links[ 0 ];
+		check( `by ${ tpl }: one link to https://ux1.cz/ in a new window with noopener`, links.length === 1 && a.href === 'https://ux1.cz/' && a.target === '_blank' && a.rel === 'noopener', JSON.stringify( links.length ) );
+		check( `by ${ tpl }: aria-label and title are the translated text, the svg is hidden from readers`, a.attrs[ 'aria-label' ] === byBase.t.by && a.title === byBase.t.by && /aria-hidden="true" focusable="false"/.test( a.innerHTML ) );
+		check( `by ${ tpl }: no external request and no text node in the svg (paths only, no font)`, ! /<text|<image|href=/.test( a.innerHTML ) && a.innerHTML.length < 400 );
+		r = await runUi( '', { ...byBase, tpl } );
+		check( `by ${ tpl }: no link when the server sends no "by" (filter off)`, r.body.querySelectorAll( '.uxc-by' ).length === 0 );
+		r = await runUi( '', { ...byBase, tpl, by: 'javascript:alert(1)' } );
+		check( `by ${ tpl }: only an https address is accepted`, r.body.querySelectorAll( '.uxc-by' ).length === 0 );
+	}
+	r = await runUi( '', { ...byBase, tpl: 'cookiebot', by: 'https://ux1.cz/' } );
+	const actionsBox = r.body.querySelectorAll( '.uxc-actions' )[ 0 ];
+	check( 'by cookiebot: the link is the last item of the button row (after the buttons in the tab order)', actionsBox.children[ actionsBox.children.length - 1 ].className === 'uxc-by' );
+	r = await runUi( '', { ...byBase, tpl: 'classic', by: 'https://ux1.cz/' } );
+	const dlgBox = r.body.querySelectorAll( '.uxc-dlg' )[ 0 ];
+	check( 'by classic: the link is the last child of the dialog (after the buttons in the tab order)', dlgBox.children[ dlgBox.children.length - 1 ].className === 'uxc-by' );
+}
+
 console.log( failures === 0 ? 'ALL OK' : failures + ' FAILED' );
 process.exit( failures === 0 ? 0 : 1 );

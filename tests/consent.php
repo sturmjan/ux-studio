@@ -357,6 +357,15 @@ foreach ( Templates::ALL as $t ) {
 $assert( 'templates: the config carries the template and the settings hide layout outside classic', false !== strpos( $module_src, "'tpl'    => \$this->template()" ) && 1 === preg_match( "/'key'\s*=>\s*'layout'.*?'show_if'\s*=>\s*array\(\s*'key'\s*=>\s*'template',\s*'equals'\s*=>\s*'classic'/s", $module_src ) );
 $assert( 'templates: the Complianz migration maps layout only, so migrated sites stay on the default (classic) template', false === strpos( file_get_contents( $dir . 'Consent/ComplianzMap.php' ), "'template'" ) );
 
+// UX1 signature in the banner (PLAN 42.23): on by default, off only through the PHP filter, https only, no setting in the admin.
+$assert( 'branding: the address is https://ux1.cz/ and an empty string when switched off', 'https://ux1.cz/' === Templates::by( true ) && '' === Templates::by( false ) && 0 === strpos( Templates::BY_URL, 'https://' ) );
+$GLOBALS['uxs_filters']['uxstudio_consent_show_branding'] = array( function () { return false; } );
+$assert( 'branding: the filter uxstudio_consent_show_branding switches it off', '' === Templates::by( (bool) apply_filters( 'uxstudio_consent_show_branding', true ) ) );
+$GLOBALS['uxs_filters'] = array();
+$assert( 'branding: without a filter it is on', 'https://ux1.cz/' === Templates::by( (bool) apply_filters( 'uxstudio_consent_show_branding', true ) ) );
+$assert( 'branding: Module sends "by" and its text only through that filter and has no admin setting', false !== strpos( $module_src, "apply_filters( 'uxstudio_consent_show_branding', true )" ) && false !== strpos( $module_src, "\$config['by']" ) && false === strpos( $module_src, "'key'     => 'branding'" ) && false === strpos( $module_src, "'key'     => 'by'" ) );
+$assert( 'branding: consent.js draws the logo as paths without a font or request', false !== strpos( $js_src, "'uxc-by'" ) && false === strpos( $js_src, '<text' ) );
+
 $all_php = implode( '', array_map( 'file_get_contents', array_merge( glob( $dir . 'Consent/*.php' ), array( $dir . 'SecurityOptimization/data/consent-services.php', $root . '/bin/import-open-cookie-database.php' ) ) ) );
 $assert( 'no em or en dash in the F2 sources and data', 0 === preg_match( '/[\x{2013}\x{2014}]/u', $all_php . file_get_contents( $root . '/assets/consent/consent.js' ) ) );
 

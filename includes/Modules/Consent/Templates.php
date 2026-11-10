@@ -16,6 +16,14 @@ defined( 'ABSPATH' ) || exit;
 final class Templates {
 
 	/** The first one is the default and the fallback for any other value. */
+	/** Where the small UX1 signature in the banner points. */
+	public const BY_URL = 'https://ux1.cz/';
+
+	/** The signature link of the banner: the address, or an empty string when the site owner has switched it off. */
+	public static function by( bool $show ): string {
+		return $show ? self::BY_URL : '';
+	}
+
 	public const ALL = array( 'classic', 'cookiebot', 'cookie', 'slim' );
 
 	/** Colour settings: key => array( CSS variable, the default of the stylesheet ). */

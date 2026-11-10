@@ -117,6 +117,17 @@
 .uxc-ph .uxc-btn { flex: none; width: auto; }
 .uxc-open { cursor: pointer; }
 
+/* UX1 signature (PLAN 42.23): grey, quiet, in the padding corner of the dialog so it never covers text or buttons. */
+.uxc .uxc-by {
+	position: absolute; top: 6px; right: 20px; display: flex; align-items: center;
+	color: inherit; opacity: .4; line-height: 0; text-decoration: none;
+}
+.uxc .uxc-by svg { display: block; width: auto; height: 12px; }
+.uxc .uxc-by:hover, .uxc .uxc-by:focus-visible { opacity: .9; }
+.uxc .uxc-by:focus-visible { outline: 3px solid var(--uxc-fg); outline-offset: 3px; }
+@media (forced-colors: active) {
+	.uxc .uxc-by { opacity: 1; }
+}
 @media (max-width: 480px) {
 	.uxc-box .uxc-dlg { bottom: 8px; width: calc(100% - 16px); }
 	.uxc-box.uxc-left .uxc-dlg { left: 8px; }
