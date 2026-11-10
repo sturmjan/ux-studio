@@ -26,10 +26,10 @@ interface Pos {
 }
 
 /** Next to the trigger, flipped when there is no room, always inside the window. */
-function place( rect: DOMRect ): Pos {
+function place( rect: DOMRect, boxH: number = BOX_H ): Pos {
 	const gap = 8;
 	const width = BOX_W + 2;
-	const height = BOX_H + 2;
+	const height = boxH + 2;
 	let left = rect.left;
 	if ( left + width > window.innerWidth - 8 ) {
 		left = window.innerWidth - width - 8;
@@ -46,7 +46,10 @@ export default function WidgetPreview( { id, title, base }: { id: string; title:
 	const [ pos, setPos ] = useState< Pos >( { left: 0, top: 0 } );
 	const [ ready, setReady ] = useState( false );
 	const [ failed, setFailed ] = useState( false );
+	// Height of the drawn widget in frame pixels: a small widget gets a small box, not a grey empty area.
+	const [ frameH, setFrameH ] = useState( FRAME_H );
 	const trigger = useRef< HTMLButtonElement >( null );
+	const frame = useRef< HTMLIFrameElement >( null );
 	const timer = useRef< number | undefined >( undefined );
 	const popId = useId();
 
@@ -67,14 +70,32 @@ export default function WidgetPreview( { id, title, base }: { id: string; title:
 		if ( open ) {
 			setReady( false );
 			setFailed( false );
+			setFrameH( FRAME_H );
 		}
 	}, [ open ] );
 
+	const boxH = Math.round( frameH * SCALE );
+
 	useLayoutEffect( () => {
 		if ( open && trigger.current ) {
-			setPos( place( trigger.current.getBoundingClientRect() ) );
+			setPos( place( trigger.current.getBoundingClientRect(), boxH ) );
 		}
-	}, [ open ] );
+	}, [ open, boxH ] );
+
+	/** The frame is on the same origin, so its content height can be read (again a moment later for late images). */
+	const measure = useCallback( (): void => {
+		try {
+			const doc = frame.current?.contentDocument;
+			// The admin styles give html and body the full frame height, so measure the widget box itself.
+			const box = doc?.querySelector( '.postbox, #welcome-panel' );
+			const h = box ? Math.ceil( box.getBoundingClientRect().bottom + 16 ) : 0;
+			if ( h > 0 ) {
+				setFrameH( Math.min( FRAME_H, Math.max( 120, h ) ) );
+			}
+		} catch {
+			// A frame that cannot be read keeps the full size.
+		}
+	}, [] );
 
 	// A frame that stays silent is reported as not available.
 	useEffect( () => {
@@ -140,7 +161,7 @@ export default function WidgetPreview( { id, title, base }: { id: string; title:
 							role="tooltip"
 							data-theme={ theme }
 							className="uxs-portal uxs-wt__preview"
-							style={ { left: pos.left, top: pos.top, width: BOX_W + 2, height: BOX_H + 2 } }
+							style={ { left: pos.left, top: pos.top, width: BOX_W + 2, height: boxH + 2 } }
 							onMouseEnter={ clear }
 							onMouseLeave={ () => hide( CLOSE_DELAY ) }
 						>
@@ -163,11 +184,16 @@ export default function WidgetPreview( { id, title, base }: { id: string; title:
 										__( 'Preview of the widget %s', 'ux-studio' ),
 										title
 									) }
+									ref={ frame }
 									tabIndex={ -1 }
 									loading="lazy"
 									referrerPolicy="same-origin"
-									style={ { width: FRAME_W, height: FRAME_H, transform: `scale(${ SCALE })` } }
-									onLoad={ () => setReady( true ) }
+									style={ { width: FRAME_W, height: frameH, transform: `scale(${ SCALE })` } }
+									onLoad={ () => {
+										setReady( true );
+										measure();
+										window.setTimeout( measure, 600 );
+									} }
 								/>
 							) }
 						</div>,
