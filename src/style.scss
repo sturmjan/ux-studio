@@ -4014,7 +4014,9 @@ $uxs-text-fields: 'input[type="text"], input[type="url"], input[type="email"], i
 	}
 
 	&__stale { display: inline-flex; align-items: center; gap: var(--uxs-sp-2); margin-top: 2px; }
-	&__guess { margin-left: var(--uxs-sp-2); font-size: 11px; font-style: italic; opacity: 0.8; }
+	&__guess { margin-left: var(--uxs-sp-2); font-size: 11px; font-style: italic; color: var(--uxs-text); }
+	/* The warning colour of a badge is below 4.5:1 on its own tint; in this table the text takes the normal text colour. */
+	.uxs-badge.is-warning { color: var(--uxs-text); }
 
 	/* Roles of a row: muted "Everybody" or small chips; the whole thing opens the list. */
 	&__roles {

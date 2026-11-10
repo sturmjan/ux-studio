@@ -266,8 +266,9 @@ final class Preview {
 	<style>
 		html.wp-toolbar { padding-top: 0 !important; }
 		body.uxs-dw-preview { margin: 0; padding: 12px; background: #f0f0f1; overflow: hidden; pointer-events: none; user-select: none; }
-		body.uxs-dw-preview #dashboard-widgets { display: block; min-width: 0; }
-		body.uxs-dw-preview .postbox-container { float: none; width: 100%; min-width: 0; }
+		body.uxs-dw-preview #dashboard-widgets-wrap, body.uxs-dw-preview #dashboard-widgets { display: block !important; min-width: 0 !important; width: auto !important; }
+		body.uxs-dw-preview #dashboard-widgets .postbox-container { float: none !important; width: 100% !important; min-width: 0 !important; }
+		body.uxs-dw-preview .meta-box-sortables { min-height: 0 !important; margin: 0 !important; }
 		body.uxs-dw-preview .postbox { margin: 0; min-width: 0; }
 		body.uxs-dw-preview .welcome-panel { margin: 0; }
 		body.uxs-dw-preview .welcome-panel-close { display: none; }

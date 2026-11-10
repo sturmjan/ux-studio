@@ -10,10 +10,10 @@ import { createPortal } from 'react-dom';
 import { __, sprintf } from '@wordpress/i18n';
 import { Eye, LoaderCircle } from 'lucide-react';
 
-/** The widget is drawn at this size and shown scaled down to 60 %, so it fills about 420 x 312 px. */
-const FRAME_W = 700;
-const FRAME_H = 520;
-const SCALE = 0.6;
+/** The widget is drawn at this size and shown scaled down to 75 %, so it fills about 420 x 315 px. */
+const FRAME_W = 560;
+const FRAME_H = 420;
+const SCALE = 0.75;
 const BOX_W = Math.round( FRAME_W * SCALE );
 const BOX_H = Math.round( FRAME_H * SCALE );
 const OPEN_DELAY = 350;
