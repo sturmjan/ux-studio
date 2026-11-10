@@ -66,6 +66,8 @@ try {
 	$by_key = array_column( $json, null, 'key' );
 	$assert( 'the schema JSON carries group, group_help and show_if', ! empty( $by_key['login_split_media_video_url']['group'] ) && ! empty( $by_key['login_split_media_video_url']['group_help'] ) && in_array( array( 'key' => 'login_split_media_type', 'equals' => 'video' ), $by_key['login_split_media_video_url']['show_if'] ?? array(), true ), wp_json_encode( $by_key['login_split_media_video_url'] ?? null ) );
 
+	$assert( 'login_style: the schema default is the split layout, and both layouts stay selectable', 'split' === ( $by_key['login_style']['default'] ?? null ) && array( 'classic', 'split' ) === array_keys( (array) ( $by_key['login_style']['options'] ?? array() ) ), wp_json_encode( $by_key['login_style'] ?? null ) );
+
 	// A state where several fields are hidden but hold values.
 	$module->save_settings(
 		array(

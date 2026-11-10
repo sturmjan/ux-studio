@@ -229,7 +229,7 @@ final class Module extends BaseModule {
 					'classic' => __( 'Classic (centered form, colors above)', 'ux-studio' ),
 					'split'   => __( 'Split (media panel + form, like the central app)', 'ux-studio' ),
 				),
-				'default' => 'classic',
+				'default' => Login::DEFAULT_STYLE,
 			),
 			array(
 				'key'     => 'login_split_media_type',

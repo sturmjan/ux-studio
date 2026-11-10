@@ -25,6 +25,12 @@ final class Login {
 	private const DEFAULT_VIDEO_URL = 'https://app.ux1.cz/public/tpl/images/backgrounds/login_bg.mp4';
 	private const DEFAULT_POSTER_URL = 'https://app.ux1.cz/public/tpl/images/backgrounds/login_bg.jpg';
 
+	/**
+	 * Layout used when `login_style` was never saved: the split layout (media panel + form). Sites that already
+	 * had the login screen customised before this default changed keep the classic layout, see Upgrade::pin_login_style().
+	 */
+	public const DEFAULT_STYLE = 'split';
+
 	private Settings $settings;
 
 	public function __construct( Settings $settings ) {
@@ -84,7 +90,7 @@ final class Login {
 	}
 
 	private function is_split(): bool {
-		return 'split' === (string) $this->settings->get( 'login_style', 'classic' );
+		return 'split' === (string) $this->settings->get( 'login_style', self::DEFAULT_STYLE );
 	}
 
 	/**

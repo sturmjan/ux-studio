@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Changed: the module "Classic WordPress screens" is now called "Classic WordPress editor and widgets" (Czech: Klasický editor/widgety WordPressu), in the module list, the launcher and the search.
+- Changed: the default layout of the login screen is Split (media panel and form) for new setups (PLAN 43). The starter pack ("Hide WordPress") sets it when it turns the login customisation on for a plain login page. A site that already had the login customisation on but never saved a layout keeps the classic one (one-time upgrade step `login_style`), and so does a site that was migrated from LoginPress or White Label CMS. A layout that is saved is never touched.
+
 ## 0.15.0
 
 - Added: a small grey UX1 signature in the Cookie Consent banner (PLAN 42.23), in all four templates: the word UX1 drawn as a 315 B inline SVG (no font, no request), a link to https://ux1.cz/ that opens in a new window, with an accessible name, a visible focus ring and the place after the buttons in the tab order. It sits in a free corner of each template (padding corner of the classic box and of the card, the button row of the tabs, a reserved column or strip of the slim bar) and never covers a button or text. Switch it off with `add_filter( 'uxstudio_consent_show_branding', '__return_false' );` (no setting in the admin). The live preview shows it too. `consent.min.js` +582 B (+217 gzip), the template styles +95 to +385 B.
