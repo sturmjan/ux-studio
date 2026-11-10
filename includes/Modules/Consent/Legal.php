@@ -279,6 +279,8 @@ final class Legal {
 
 		return array(
 			'stored'         => null !== $data['profile'],
+			// Before the first save the name, e-mail and address are only guesses; the wizard may replace them by what LegalDetect finds.
+			'guessed'        => null !== $data['profile'] ? array() : array_values( array_filter( array( 'name', 'email', 'address' ), static fn( string $k ): bool => '' !== trim( (string) $profile[ $k ] ) ) ),
 			'profile'        => $profile,
 			'language'       => $lang,
 			'purposes'       => $purposes,

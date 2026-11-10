@@ -22,6 +22,7 @@ defined( 'ABSPATH' ) || exit;
  * GET  uxstudio/v1/consent/legal/preview?doc=   the document as it would be published now
  * GET  uxstudio/v1/consent/legal/versions?doc=  archive of a document (without the text)
  * GET  uxstudio/v1/consent/legal/version?id=    one archived version with its text
+ * GET  uxstudio/v1/consent/legal/detect?ares=1&ico=  suggestions for the details of the controller (nothing is saved)
  *
  * Every route needs `manage_options` (Controller::route), writes spend the per-user write budget. Input is validated in
  * LegalProfile::sanitize() and in the allowlists below; HTML sent back is passed through wp_kses_post().
@@ -70,6 +71,22 @@ final class LegalRest extends Controller {
 				'live' => array(
 					'type'    => 'boolean',
 					'default' => false,
+				),
+			)
+		);
+		$this->route(
+			'/consent/legal/detect',
+			'GET',
+			array( $this, 'detect' ),
+			array(
+				'ares' => array(
+					'type'    => 'boolean',
+					'default' => false,
+				),
+				'ico'  => array(
+					'type'              => 'string',
+					'default'           => '',
+					'sanitize_callback' => static fn( $v ): string => (string) preg_replace( '/\D/', '', is_scalar( $v ) ? (string) $v : '' ),
 				),
 			)
 		);
@@ -152,6 +169,15 @@ final class LegalRest extends Controller {
 				'state'   => Legal::state(),
 			)
 		);
+	}
+
+	/**
+	 * Suggestions for the details of the controller, from the data of the site. Saves nothing.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 */
+	public function detect( WP_REST_Request $request ): WP_REST_Response {
+		return $this->ok( LegalDetect::detect( (bool) $request->get_param( 'ares' ), substr( (string) $request->get_param( 'ico' ), 0, 8 ) ) );
 	}
 
 	/**

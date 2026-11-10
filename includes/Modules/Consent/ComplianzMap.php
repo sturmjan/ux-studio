@@ -84,6 +84,29 @@ final class ComplianzMap {
 	}
 
 	/**
+	 * The details of the controller Complianz holds (name, address, e-mail, telephone), as fields of the legal profile.
+	 * Shared by the migration and by LegalDetect, so there is one mapping.
+	 *
+	 * @param array<string, mixed> $opt Option `cmplz_options`.
+	 * @return array<string, string> Only the fields that have a value.
+	 */
+	public static function profile_from_options( array $opt ): array {
+		$profile = array();
+		foreach ( array(
+			'organisation_name' => 'name',
+			'address_company'   => 'address',
+			'email_company'     => 'email',
+			'telephone_company' => 'phone',
+		) as $from => $to ) {
+			$value = is_scalar( $opt[ $from ] ?? null ) ? trim( (string) $opt[ $from ] ) : '';
+			if ( '' !== $value ) {
+				$profile[ $to ] = $value;
+			}
+		}
+		return $profile;
+	}
+
+	/**
 	 * Settings of the module from the Complianz data.
 	 *
 	 * @param array<string, mixed>      $opt     Option `cmplz_options`.
@@ -283,18 +306,7 @@ final class ComplianzMap {
 			$other = $stats;
 		}
 
-		$profile = array();
-		foreach ( array(
-			'organisation_name' => 'name',
-			'address_company'   => 'address',
-			'email_company'     => 'email',
-			'telephone_company' => 'phone',
-		) as $from => $to ) {
-			$value = trim( (string) ( $opt[ $from ] ?? '' ) );
-			if ( '' !== $value ) {
-				$profile[ $to ] = $value;
-			}
-		}
+		$profile = self::profile_from_options( $opt );
 
 		return array(
 			'settings'      => $s,

@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { ExternalLink, Eye, History, LoaderCircle, Plus, Trash2 } from 'lucide-react';
+import { ExternalLink, Eye, History, LoaderCircle, Plus, ScanSearch, Trash2 } from 'lucide-react';
 import { ApiError, api, queryClient } from '../../app/api';
 import { formatDate } from '../../app/date';
 
@@ -52,6 +52,8 @@ interface DocState {
 
 interface LegalState {
 	stored: boolean;
+	/** Fields that hold only a guess of the server before the first save (the wizard may replace them). */
+	guessed: string[];
 	profile: Profile;
 	language: 'cs' | 'en';
 	purposes: { key: string; label: string; retention: string; suggested: boolean }[];
@@ -76,6 +78,33 @@ interface VersionFull extends VersionRow {
 }
 
 const KEY = [ 'consent', 'legal' ];
+
+/** One suggestion of GET consent/legal/detect (nothing is saved on the server). */
+interface Suggestion {
+	value: string | boolean | string[];
+	source: string;
+	confidence: 'high' | 'medium' | 'low';
+	label: string;
+}
+
+interface DetectResult {
+	suggestions: Record< string, Suggestion >;
+	pages: string[];
+	ares: 'skipped' | 'ok' | 'not_found' | 'error' | 'no_ico';
+}
+
+const DETECT_FIELDS = [ 'name', 'ico', 'dic', 'address', 'register_note', 'email', 'phone' ] as const;
+type DetectField = ( typeof DETECT_FIELDS )[ number ];
+
+function omit< T >( map: Record< string, T >, key: string ): Record< string, T > {
+	const rest = { ...map };
+	delete rest[ key ];
+	return rest;
+}
+
+function same( a: string, b: string ): boolean {
+	return a.trim().replace( /\s+/g, ' ' ).toLowerCase() === b.trim().replace( /\s+/g, ' ' ).toLowerCase();
+}
 
 function errorsOf( e: unknown ): Record< string, string > {
 	if ( e instanceof ApiError ) {
@@ -114,16 +143,44 @@ interface FieldProps {
 	label: string;
 	error?: string;
 	help?: string;
+	/** Where the value that is in the field now came from (found on the site, not typed or saved). */
+	origin?: Suggestion;
+	/** A different value found for a field that already has one. */
+	conflict?: Suggestion;
+	onReplace?: () => void;
 	children: JSX.Element;
 }
 
-function Field( { label, error, help, children }: FieldProps ): JSX.Element {
+function SourceBadge( { origin }: { origin: Suggestion } ): JSX.Element {
+	const check = origin.confidence === 'low' || origin.source === 'admin_email';
+	return <span className={ 'uxs-badge' + ( check ? ' is-warning' : '' ) }>{ origin.label }</span>;
+}
+
+function Field( { label, error, help, origin, conflict, onReplace, children }: FieldProps ): JSX.Element {
 	return (
 		<div className="uxs-form__row">
 			<label>
 				<span>{ label }</span>
 				{ children }
 			</label>
+			{ origin && (
+				<p className="uxs-form__help">
+					<SourceBadge origin={ origin } />
+				</p>
+			) }
+			{ conflict && onReplace && (
+				<p className="uxs-form__help">
+					{ sprintf(
+						/* translators: 1: where the suggestion comes from, for example "from ARES"; 2: the suggested value. */
+						__( 'Suggestion (%1$s): %2$s', 'ux-studio' ),
+						conflict.label,
+						String( conflict.value )
+					) }{ ' ' }
+					<button type="button" className="button button-small" onClick={ onReplace }>
+						{ __( 'Use it', 'ux-studio' ) }
+					</button>
+				</p>
+			) }
 			{ help && <p className="uxs-form__help">{ help }</p> }
 			{ error && <p className="uxs-badge is-danger">{ error }</p> }
 		</div>
@@ -142,6 +199,16 @@ export default function Legal(): JSX.Element {
 	const [ history, setHistory ] = useState< DocId | null >( null );
 	const [ shown, setShown ] = useState< number | null >( null );
 	const [ notice, setNotice ] = useState< string >( '' );
+	// Details found on the site: where each value in the form came from, differing values for filled fields, and what the person typed.
+	const [ origin, setOrigin ] = useState< Record< string, Suggestion > >( {} );
+	const [ conflicts, setConflicts ] = useState< Record< string, Suggestion > >( {} );
+	const [ detectNote, setDetectNote ] = useState< string >( '' );
+	const touched = useRef< Record< string, boolean > >( {} );
+	const profileRef = useRef< Profile | null >( null );
+	const originRef = useRef< Record< string, Suggestion > >( {} );
+	const autoRan = useRef< boolean >( false );
+	profileRef.current = profile;
+	originRef.current = origin;
 
 	useEffect( () => {
 		if ( legal.data && ( profile === null || ! dirty ) ) {
@@ -157,6 +224,9 @@ export default function Legal(): JSX.Element {
 			queryClient.setQueryData( KEY, data );
 			setProfile( data.profile );
 			setDirty( false );
+			setOrigin( {} );
+			setConflicts( {} );
+			touched.current = {};
 			setErrors( {} );
 			setNotice( __( 'Details saved. Now make or update the pages below.', 'ux-studio' ) );
 		},
@@ -190,6 +260,102 @@ export default function Legal(): JSX.Element {
 		},
 	} );
 
+	function applyDetected( res: DetectResult, withAres: boolean ): void {
+		const current = profileRef.current;
+		if ( ! current ) {
+			return;
+		}
+		const guessed = legal.data?.guessed ?? [];
+		const next: Profile = { ...current };
+		const found: Record< string, Suggestion > = {};
+		const other: Record< string, Suggestion > = {};
+		let filled = 0;
+		for ( const field of DETECT_FIELDS ) {
+			const s = res.suggestions[ field ];
+			if ( ! s || typeof s.value !== 'string' ) {
+				continue;
+			}
+			const now = current[ field ];
+			if ( same( now, s.value ) ) {
+				if ( guessed.includes( field ) || originRef.current[ field ] ) {
+					found[ field ] = s;
+				}
+				continue;
+			}
+			// Empty, a guess of the server, or a value this very button filled in earlier and the person has not touched.
+			const fillable = ! touched.current[ field ] && ( now.trim() === '' || guessed.includes( field ) || !! originRef.current[ field ] );
+			if ( fillable ) {
+				next[ field ] = s.value;
+				found[ field ] = s;
+				filled++;
+			} else {
+				other[ field ] = s;
+			}
+		}
+		const shop = res.suggestions.has_eshop;
+		if ( shop && shop.value === true && ! current.has_eshop && ! touched.current.has_eshop ) {
+			next.has_eshop = true;
+			found.has_eshop = shop;
+			filled++;
+		}
+		const wanted = res.suggestions.purposes;
+		if ( wanted && Array.isArray( wanted.value ) && ! touched.current.purposes ) {
+			const add = wanted.value.filter( ( k ) => ! current.purposes.includes( k ) );
+			if ( add.length > 0 ) {
+				next.purposes = [ ...current.purposes, ...add ];
+				found.purposes = wanted;
+				filled += add.length;
+			}
+		}
+		if ( filled > 0 ) {
+			setProfile( next );
+			setDirty( true );
+		}
+		setOrigin( ( o ) => ( { ...o, ...found } ) );
+		setConflicts( ( c ) => {
+			const rest = { ...c };
+			for ( const key of Object.keys( found ) ) {
+				delete rest[ key ];
+			}
+			return { ...rest, ...other };
+		} );
+		const aresText: Record< string, string > = {
+			ok: __( 'Checked in ARES.', 'ux-studio' ),
+			not_found: __( 'ARES does not know this company number.', 'ux-studio' ),
+			error: __( 'ARES did not answer. Nothing was changed.', 'ux-studio' ),
+			no_ico: __( 'No valid company number (IČO) was found. Type it in and try again.', 'ux-studio' ),
+		};
+		const parts: string[] = [
+			filled > 0
+				? sprintf(
+						/* translators: %d: number of items filled in from the site. */
+						__( 'Filled in %d item(s) from the site. Check them, then press Save details.', 'ux-studio' ),
+						filled
+				  )
+				: __( 'Nothing new to fill in: the empty fields were not found on the site.', 'ux-studio' ),
+		];
+		const aresLine = aresText[ res.ares ];
+		if ( withAres && aresLine ) {
+			parts.push( aresLine );
+		}
+		setDetectNote( parts.join( ' ' ) );
+	}
+
+	const detect = useMutation( {
+		mutationFn: ( v: { ares: boolean; ico: string } ) => api< DetectResult >( `/consent/legal/detect?ares=${ v.ares ? 1 : 0 }&ico=${ encodeURIComponent( v.ico ) }` ),
+		onSuccess: ( res, v ) => applyDetected( res, v.ares ),
+		onError: ( e ) => setDetectNote( messageOf( e ) ),
+	} );
+
+	// The first time the wizard is opened with nothing saved, look at the site (without ARES: that call leaves the site).
+	useEffect( () => {
+		if ( legal.data && ! legal.data.stored && ! autoRan.current ) {
+			autoRan.current = true;
+			detect.mutate( { ares: false, ico: '' } );
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ legal.data ] );
+
 	const openPreview = useMutation( {
 		mutationFn: ( doc: DocId ) => api< { doc: DocId; html: string } >( `/consent/legal/preview?doc=${ doc }` ),
 		onSuccess: ( data ) => setPreview( { doc: data.doc, html: data.html } ),
@@ -217,7 +383,27 @@ export default function Legal(): JSX.Element {
 	function change< K extends keyof Profile >( key: K, value: Profile[ K ] ): void {
 		setProfile( ( p ) => ( p ? { ...p, [ key ]: value } : p ) );
 		setDirty( true );
+		// What the person typed is no longer "found on the site".
+		touched.current[ key ] = true;
+		setOrigin( ( o ) => omit( o, key ) );
+		setConflicts( ( c ) => omit( c, key ) );
 	}
+	function takeSuggestion( key: DetectField ): void {
+		const s = conflicts[ key ];
+		if ( ! s || typeof s.value !== 'string' ) {
+			return;
+		}
+		const value = s.value;
+		setProfile( ( p ) => ( p ? { ...p, [ key ]: value } : p ) );
+		setDirty( true );
+		setOrigin( ( o ) => ( { ...o, [ key ]: s } ) );
+		setConflicts( ( c ) => omit( c, key ) );
+	}
+	const meta = ( key: DetectField ): Pick< FieldProps, 'origin' | 'conflict' | 'onReplace' > => ( {
+		origin: origin[ key ],
+		conflict: conflicts[ key ],
+		onReplace: () => takeSuggestion( key ),
+	} );
 	function togglePurpose( key: string ): void {
 		const has = profile!.purposes.includes( key );
 		change( 'purposes', has ? profile!.purposes.filter( ( k ) => k !== key ) : [ ...profile!.purposes, key ] );
@@ -252,25 +438,44 @@ export default function Legal(): JSX.Element {
 			</p>
 
 			<h3>{ __( 'Who is the controller', 'ux-studio' ) }</h3>
-			<Field label={ __( 'Name of the company or person', 'ux-studio' ) } error={ err( 'name' ) }>
+			<div className="uxs-actions">
+				<button type="button" className="button" disabled={ detect.isPending } onClick={ () => detect.mutate( { ares: false, ico: '' } ) }>
+					{ detect.isPending ? <LoaderCircle size={ 14 } /> : <ScanSearch size={ 14 } /> } { __( 'Load details from the site', 'ux-studio' ) }
+				</button>
+				<button type="button" className="button" disabled={ detect.isPending } onClick={ () => detect.mutate( { ares: true, ico: profile.ico.replace( /\D/g, '' ) } ) }>
+					{ __( 'Verify in ARES', 'ux-studio' ) }
+				</button>
+			</div>
+			<p className="uxs-form__help">
+				{ __(
+					'Looks at the shop settings, the SEO plugin, the Contact page and the footer of this site and fills in the empty fields; a filled field is never overwritten (a different value is offered next to it). Nothing is saved until you press Save details. ARES is the public register of Czech companies: your company number is sent there only when you press "Verify in ARES".',
+					'ux-studio'
+				) }
+			</p>
+			{ detectNote && (
+				<p className="uxs-form__help" role="status">
+					{ detectNote }
+				</p>
+			) }
+			<Field label={ __( 'Name of the company or person', 'ux-studio' ) } { ...meta( 'name' ) } error={ err( 'name' ) }>
 				{ text( 'name' ) }
 			</Field>
-			<Field label={ __( 'Company number (IČO)', 'ux-studio' ) } error={ err( 'ico' ) }>
+			<Field label={ __( 'Company number (IČO)', 'ux-studio' ) } { ...meta( 'ico' ) } error={ err( 'ico' ) }>
 				{ text( 'ico' ) }
 			</Field>
-			<Field label={ __( 'VAT number (DIČ), if you have one', 'ux-studio' ) } error={ err( 'dic' ) }>
+			<Field label={ __( 'VAT number (DIČ), if you have one', 'ux-studio' ) } { ...meta( 'dic' ) } error={ err( 'dic' ) }>
 				{ text( 'dic' ) }
 			</Field>
-			<Field label={ __( 'Address of the seat', 'ux-studio' ) } error={ err( 'address' ) }>
+			<Field label={ __( 'Address of the seat', 'ux-studio' ) } { ...meta( 'address' ) } error={ err( 'address' ) }>
 				{ area( 'address' ) }
 			</Field>
-			<Field label={ __( 'Entry in a register (optional)', 'ux-studio' ) } help={ __( 'For example: registered in the commercial register kept by the City Court in Prague, file C 12345.', 'ux-studio' ) } error={ err( 'register_note' ) }>
+			<Field label={ __( 'Entry in a register (optional)', 'ux-studio' ) } { ...meta( 'register_note' ) } help={ __( 'For example: registered in the commercial register kept by the City Court in Prague, file C 12345.', 'ux-studio' ) } error={ err( 'register_note' ) }>
 				{ text( 'register_note' ) }
 			</Field>
-			<Field label={ __( 'E-mail for questions about personal data', 'ux-studio' ) } error={ err( 'email' ) }>
+			<Field label={ __( 'E-mail for questions about personal data', 'ux-studio' ) } { ...meta( 'email' ) } error={ err( 'email' ) }>
 				{ text( 'email' ) }
 			</Field>
-			<Field label={ __( 'Telephone (optional)', 'ux-studio' ) } error={ err( 'phone' ) }>
+			<Field label={ __( 'Telephone (optional)', 'ux-studio' ) } { ...meta( 'phone' ) } error={ err( 'phone' ) }>
 				{ text( 'phone' ) }
 			</Field>
 			<div className="uxs-form__row">
@@ -299,6 +504,11 @@ export default function Legal(): JSX.Element {
 
 			<h3>{ __( 'What you do with personal data', 'ux-studio' ) }</h3>
 			<p className="uxs-form__help">{ __( 'Tick what applies. Each purpose comes with the data, the legal basis and a retention period; you can change the period.', 'ux-studio' ) }</p>
+			{ origin.purposes && (
+				<p className="uxs-form__help">
+					<SourceBadge origin={ origin.purposes } />
+				</p>
+			) }
 			{ err( 'purposes' ) && <p className="uxs-badge is-danger">{ err( 'purposes' ) }</p> }
 			{ data.purposes.map( ( p ) => {
 				const on = profile.purposes.includes( p.key );
@@ -364,6 +574,11 @@ export default function Legal(): JSX.Element {
 				<label>
 					<input type="checkbox" checked={ profile.has_eshop } onChange={ ( e ) => change( 'has_eshop', e.target.checked ) } /> { __( 'We run an online shop (needed for the terms and conditions)', 'ux-studio' ) }
 				</label>
+				{ origin.has_eshop && (
+					<p className="uxs-form__help">
+						<SourceBadge origin={ origin.has_eshop } />
+					</p>
+				) }
 				{ ! data.shop && profile.has_eshop && <p className="uxs-form__help">{ __( 'WooCommerce is not active, so delivery and payment methods cannot be read. The terms will tell customers to look at the basket.', 'ux-studio' ) }</p> }
 			</div>
 			{ profile.has_eshop && (
