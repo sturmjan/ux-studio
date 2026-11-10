@@ -331,12 +331,8 @@ foreach ( array( 'cookiebot', 'cookie', 'slim' ) as $t ) {
 $def = array( 'color_bg' => '#ffffff', 'color_text' => '#1d2327', 'color_accent' => '#1d4ed8', 'color_accent_text' => '#ffffff' );
 $assert( 'templates: default colours add nothing in classic, cookiebot and slim (existing sites do not change)', '' === Templates::variables( 'classic', $def ) && '' === Templates::variables( 'cookiebot', $def ) && '' === Templates::variables( 'slim', $def ) );
 $assert( 'templates: own colours are emitted in every template', '--uxc-bg:#112233;' === Templates::variables( 'classic', array( 'color_bg' => '#112233' ) + $def ) );
-$card = Templates::variables( 'cookie', $def );
-$assert( 'templates: the cookie card is dark by default', false !== strpos( $card, '--uxc-bg:#2a2e32;' ) && false !== strpos( $card, '--uxc-fg:#f4f5f6;' ) && false !== strpos( $card, '--uxc-ac:#f5b942;' ) );
-$own = Templates::variables( 'cookie', array( 'color_bg' => '#eeeeee' ) + $def );
-$assert( 'templates: a light background of the owner does not get the light text of the dark card', false !== strpos( $own, '--uxc-bg:#eeeeee;' ) && false === strpos( $own, '--uxc-fg' ) && false !== strpos( $own, '--uxc-ac:#f5b942;' ) );
-$own = Templates::variables( 'cookie', array( 'color_accent' => '#cc0000' ) + $def );
-$assert( 'templates: own button colour keeps the dark card and the white button text', false !== strpos( $own, '--uxc-bg:#2a2e32;' ) && false !== strpos( $own, '--uxc-ac:#cc0000;' ) && false === strpos( $own, '--uxc-ac-fg' ) );
+$assert( 'templates: the cookie card is light by default (no colour overrides, like the other templates)', '' === Templates::variables( 'cookie', $def ) );
+$assert( 'templates: own colours are emitted in the cookie card too', '--uxc-bg:#111111;--uxc-fg:#eeeeee;' === Templates::variables( 'cookie', array( 'color_bg' => '#111111', 'color_text' => '#eeeeee' ) + $def ) );
 // The settings schema and the script know the same names.
 $module_src = file_get_contents( $dir . 'Consent/Module.php' );
 $js_src     = file_get_contents( $root . '/assets/consent/consent.js' );

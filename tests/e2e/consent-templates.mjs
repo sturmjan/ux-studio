@@ -196,11 +196,11 @@ if ( process.env.COOKIES_JSON ) {
 	const before = await stored();
 	await page.evaluate( () => [ ...document.querySelectorAll( 'button' ) ].find( ( x ) => [ 'Appearance', 'Vzhled' ].includes( x.textContent.trim() ) ).click() );
 	await page.waitForTimeout( 600 );
-	const select = page.locator( '.uxs-topic-settings__form select' ).first();
-	const options = await select.locator( 'option' ).evaluateAll( ( l ) => l.map( ( o ) => o.value ).filter( Boolean ) );
-	check( 'admin: the first select of Appearance is the template with the four values', JSON.stringify( options ) === JSON.stringify( [ 'classic', 'cookiebot', 'cookie', 'slim' ] ), JSON.stringify( options ) );
+	const tiles = page.locator( '.uxs-topic-settings__form .uxs-tiles' ).first();
+	const options = await tiles.locator( 'input[type=radio]' ).evaluateAll( ( l ) => l.map( ( o ) => o.value ) );
+	check( 'admin: the first field of Appearance is the template as tiles with the four values', JSON.stringify( options ) === JSON.stringify( [ 'classic', 'cookiebot', 'cookie', 'slim' ] ), JSON.stringify( options ) );
 	for ( const tpl of [ 'cookiebot', 'cookie', 'slim', 'classic' ] ) {
-		await select.selectOption( tpl );
+		await tiles.locator( `.uxs-tile:has(input[value="${ tpl }"])` ).click();
 		await page.waitForTimeout( 1800 );
 		const frame = await ( await page.waitForSelector( '.uxs-uxcp iframe' ) ).contentFrame();
 		await frame.waitForSelector( `.uxc.uxc-t-${ tpl }:not([hidden]) .uxc-dlg`, { timeout: 10000 } );

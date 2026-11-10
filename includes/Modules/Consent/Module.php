@@ -746,7 +746,7 @@ final class Module extends BaseModule {
 				'descriptions' => array(
 					'classic'   => __( 'A box in a corner or a bar across the bottom.', 'ux-studio' ),
 					'cookiebot' => __( 'A wide panel with tabs and switches.', 'ux-studio' ),
-					'cookie'    => __( 'A dark card with round buttons.', 'ux-studio' ),
+					'cookie'    => __( 'A light card with round buttons.', 'ux-studio' ),
 					'slim'      => __( 'One thin bar across the page.', 'ux-studio' ),
 				),
 				'default'      => 'classic',

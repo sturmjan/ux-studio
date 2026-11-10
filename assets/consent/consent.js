@@ -13,7 +13,7 @@
  * the `uxc_consent` event included): .acceptAll(), .rejectAll(), .set( { preferences, statistics, marketing } ); event `uxstudio:consent` on document;
  * window.uxstudioConsent = { preferences, statistics, marketing } (read by the Forms conversion tracking).
  *
- * Templates (cfg.tpl, PLAN 42.20): classic (default), cookiebot (tabs + switches), cookie (dark card, round buttons), slim (thin bar).
+ * Templates (cfg.tpl, PLAN 42.20): classic (default), cookiebot (tabs + switches), cookie (light card, round buttons), slim (thin bar).
  * One script, one behaviour: a template only changes which elements build() makes and the class it puts on the root; its style is
  * consent-<tpl>.css, loaded on top of consent.css by the page (classic lives in consent.css itself).
  *
