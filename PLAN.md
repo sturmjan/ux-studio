@@ -4271,6 +4271,8 @@ Rozhodnuto 2026-10-21:
 
 ### 42.11 F1 poznámky k provedení (2026-11-09)
 
+Ověřeno v 42.17: placeholdery iframe, axe-core, kontrast výchozích barev, hlavička `CF-IPCountry` (jen mock), `buffer_guard` na reálné stránce.
+
 Větev `feature/consent-module`, nepushnuto. Verze pluginu nezvýšena, změna je v CHANGELOG pod „Unreleased".
 
 - **Kde:** `includes/Modules/Consent/` (`Module`, `Services`, `Blocker`, `ConsentMode`, `Geo`, `Gate`, `GtmKit`, `help.php`),
@@ -4315,6 +4317,8 @@ Větev `feature/consent-module`, nepushnuto. Verze pluginu nezvýšena, změna j
   nedostanou znovu `DOMContentLoaded`. Pre-existující selhání `tests/admin-customiser-layout.php` (na main stejné) s tím nesouvisí.
 
 ### 42.12 F2 poznámky k provedení (2026-11-09)
+
+Ověřeno v 42.17: záložka Služby a cookies, rozbalovátko cookies v liště, axe-core.
 
 Větev `feature/consent-module`, nepushnuto. Verze pluginu nezvýšena, změna je v CHANGELOG pod „Unreleased". Překlady negenerovány,
 nové řetězce jsou obalené `__()` a česky v `docs/i18n/cs-consent-f2.json`.
@@ -4387,6 +4391,8 @@ nové řetězce jsou obalené `__()` a česky v `docs/i18n/cs-consent-f2.json`.
   se nepoužil.
 ### 42.13 F5 poznámky k provedení (2026-11-09)
 
+Ověřeno v 42.17: záložka Záznamy souhlasů, skutečný `sendBeacon`, export CSV (nalezena a opravena chyba s `&amp;` v odkazu).
+
 Větev `feature/consent-log` (z `feature/consent-module`), nepushnuto. Verze pluginu nezvýšena, změna je v CHANGELOG pod „Unreleased“.
 
 - **Kde:** `includes/Modules/Consent/Records.php` (tabulka, validace, ukládání, souhrn, CSV, retence), `RecordsRest.php` (veřejný zápis + admin routy +
@@ -4426,6 +4432,8 @@ Větev `feature/consent-log` (z `feature/consent-module`), nepushnuto. Verze plu
   zámek s `rest-public-routes.php` pro novou routu neběžel. Velikost `consent.min.js`: viz CHANGELOG/report (8,5 kB, 3,5 kB gzip, o 1,2 kB resp. 0,4 kB víc než v F1).
 
 ### 42.14 F4 poznámky k provedení (2026-11-09)
+
+Ověřeno v 42.17: záložka Právní stránky, stránky na frontendu, klasická i bloková pokladna WooCommerce a meta `_uxstudio_terms_version` (HPOS ne).
 
 Větev `feature/consent-module`, nepushnuto. Verze pluginu nezvýšena, změna je v CHANGELOG pod „Unreleased“. Překlady negenerovány, nové řetězce
 jsou obalené `__()` a česky v `docs/i18n/cs-consent-f4.json`. Do prohlížeče se v F4 nechodilo (viz „Neověřeno“).
@@ -4497,6 +4505,8 @@ jsou obalené `__()` a česky v `docs/i18n/cs-consent-f4.json`. Do prohlížeče
   samy; chování s WPML/Polylang (jazyk se bere z jednoho nastavení, ne po jazycích); `Legal::state()` při každém otevření záložky vykresluje všechny tři dokumenty kvůli příznaku „změněno“, tedy desítky ms.
 ### 42.15 F3 poznámky k provedení (2026-11-09)
 
+Ověřeno v 42.17: záložka Sken se vykreslí bez chyb (běh proti NASu ne).
+
 Větev `feature/consent-scan` (z `feature/consent-module`), nepushnuto. Verze pluginu nezvýšena, změna je v CHANGELOG pod „Unreleased“. Překlady negenerovány, české
 řetězce jsou v `docs/i18n/cs-consent-f3.json`. Protějšek v Centrální aplikaci (CA) je v jejím `PLAN.md` §39 (rozvrh, kroky, nasazení na NAS); **kontrakt je popsán na obou místech a musí zůstat shodný**.
 
@@ -4537,6 +4547,8 @@ Větev `feature/consent-scan` (z `feature/consent-module`), nepushnuto. Verze pl
   (firewall klienta může sken zablokovat, viz §42.8); neznámá cookie se nedá zařadit (jen zjistit, co je); nová cookie z `scan_cookies` se v zásadách cookies (F4) zatím nepoužívá.
 
 ### 42.16 F6 poznámky k provedení a postup pilotu (2026-11-09)
+
+Ověřeno v 42.17 jen UI kroku „Přepnout“ s `must_confirm` (zastubované REST odpovědi); skutečný Complianz a přepnutí ne.
 
 Větev `feature/consent-module`, nepushnuto. Verze pluginu nezvýšena, změna je v CHANGELOG pod „Unreleased“. Překlady negenerovány, české řetězce jsou v `docs/i18n/cs-consent-f6.json`.
 Protějšek v CA: `nas-scripts/scraper/consentscan.js` (větev `feature/consent-scan`).
@@ -4595,3 +4607,20 @@ Web je živý a za Cloudflare/openresty; platí pravidla živého serveru (zálo
    měření v GA4 Realtime a Google Ads (konverze), záznamy souhlasů přibývají, Core Web Vitals a TTFB proti F0.
 10. **Vrácení.** Tlačítko „Vrátit přepnutí“ (30 dní): moduly pryč, Complianz zpět, stránky zpět na původní obsah; pak vyčistit keš. Při selhání průvodce obnovit ze zálohy (DB dump + složky pluginů). Po týdnu bez problémů nabídnout odstranění Complianzu a po roce vyčištění `legacy_prefix`.
 11. **Zápis.** Výsledky do §42.9 (F0 a pilot), stav do `STAV.md`, a co pilot odhalil do §42.16.
+
+### 42.17 Závěrečná QA (2026-11-10)
+
+Větev `feature/consent-module`, nepushnuto, verze nezvýšena. Testovací web `_uxs-e2e` (WordPress s WooCommerce, motiv Twenty Twenty-Five), Playwright v Chromiu. Skripty jsou v `tests/e2e/` (bez hesel, admin heslo z `UXS_ADMIN_PASSWORD`), screenshoty v `C:\Users\sturm\.claude\screenshots\uxc-*.png`.
+
+- **Ověřeno v prohlížeči (desktop 1280 px a mobil 390 px), `consent-frontend.mjs`:** lišta se zobrazí, je `role=dialog` s popiskem; přijmout, odmítnout, uložit z nastavení, API `uxConsent.acceptAll/rejectAll/set/has`; focus trap v detailu (14x Tab a Shift+Tab zůstane uvnitř), Escape (detail -> první vrstva, po rozhodnutí zavře), plovoucí tlačítko, shortcode `[uxstudio_cookie_settings]`, odkaz `#uxc-open`; rozbalení „Služby“ načte `consent/cookies` a vykreslí cookies; řádek ID souhlasu (32 hex) po opětovném otevření. Blokování: před souhlasem se GA (Pixel & Tag Manager, testovací `G-QATEST1234`) nepožaduje a nevznikne cookie `_ga*`; po „jen statistika“ se načte, odejde `consent update` (analytics granted, ad denied) a `uxc_consent` s `uxc_source: user` jde po něm; při načtení stránky jde jen událost `uxc_consent` se zdrojem `none` a vše `false` (záměr kódu, ne chyba); po odmítnutí nic a vše `denied`; odvolání souhlasu = reload a skripty neběží, iframy zase placeholdery. Iframy: placeholder, YouTube přes `youtube-nocookie.com`, Google Maps, po souhlasu s marketingem se načtou. Žádné chyby v konzoli. Síť k Googlu a YouTube byla v testu zastubovaná, takže ověřeno je, že prohlížeč požadavek vyšle či nevyšle, ne chování skutečného GA.
+- **axe-core** (tagy wcag2a, wcag2aa, wcag21a, wcag21aa, best-practice), omezeno na `.uxc` a `.uxc-fab`: lišta otevřená, detail, zavřená s plovoucím tlačítkem, desktop i mobil: **0 nálezů serious/critical**, žádné nálezy ani nižší závažnosti. Kontrast výchozích barev prošel pravidlem `color-contrast`. Na celé stránce axe hlásil jedno `list` serious v navigaci motivu Twenty Twenty-Five (mimo modul). Vlastní barvy z nastavení se neměřily.
+- **Záznamy souhlasů, `consent-records-region.mjs`:** rozhodnutí odešlo přes `sendBeacon` (`consent/record`), záznam se v adminu najde podle ID, souhrn i widget na nástěnce ukazují počty, export CSV se stáhne a obsahuje ID.
+- **Režim „jen EU“, `consent-region.mjs`:** s `CF-IPCountry` CZ, DE, XX a bez hlavičky se lišta zobrazí a nic se nenačte; s `US` se lišta nezobrazí, statistický skript se spustí a cookie souhlasu se nezapíše. Endpoint `consent/region` vrací `eu:true` pro CZ a bez hlavičky, `eu:false` pro US. Hlavička je pořád jen mock Playwrightu, ne skutečný Cloudflare.
+- **Admin SPA, `consent-admin.mjs`:** všech 9 záložek se vykreslí bez chyb v konzoli a bez chybných odpovědí REST; „Prohledat teď“ najde GA, YouTube, Google Maps a WooCommerce. `consent-inventory-classify.mjs`: neznámý host ze stránky se zařadí do fronty, zařazení jako marketing ho z fronty odstraní a skript se na frontendu drží zpět do souhlasu (jen s volbou „Zachytit i úryvky vložené přímo do stránky“, viz níže).
+- **Právní stránky a WooCommerce, `consent-legal-shop.mjs`:** průvodce (údaje, e-shop, uložení, náhled), vytvoření a zveřejnění tří stránek, vykreslení na frontendu (zásady cookies s tabulkou a `_ga`, tlačítko nastavení, archiv verzí). Objednávka přes klasickou pokladnu (`[woocommerce_checkout]`, povinný souhlas s podmínkami, dobírka) i přes blokovou pokladnu: obě mají `_uxstudio_terms_version` a admin detail ukazuje „Terms and conditions: version N, in force from ...“. HPOS na testovacím webu vypnuté, takže se neověřovalo.
+- **Migrace, krok „Přepnout“ s `must_confirm`, `consent-switch-mock.mjs`:** bez Complianzu nešlo vytvořit skutečný běh, proto jsou v prohlížeči zastubované odpovědi `migration/runs` a `migration/switch-plan` (`must_confirm: 2`, bez náhledu). Ověřeno jen UI: kartička „Some things stop working after the switch“ se vykreslí, tlačítko „Switch now“ je bez zaškrtnutí zablokované (i s jen zaškrtnutým „bez náhledu“) a po zaškrtnutí obou potvrzení se odblokuje. Do skutečného přepnutí se nešlo.
+- **Čeština, `consent-czech.mjs`:** s `WPLANG=cs_CZ` (nainstalovaný core jazyk) a jazykem uživatele cs_CZ je lišta, detail i placeholder česky a všech 9 záložek modulu nemá anglicky vypadající řádky.
+- **Nalezené a opravené chyby:** (1) `.uxc-ph` měl `box-sizing: content-box` (pravidlo `.uxc-ph *` se ho netýkalo), takže při `width: 100%` plus paddingu přetékal o 50 px a na 390 px se stránka posouvala do strany; oprava v `consent.css`, hlídá to kontrola „no horizontal overflow“ na mobilu. (2) Odkaz na export CSV z `consent/records/export-url` měl `&amp;` místo `&` (`wp_nonce_url` escapuje pro HTML), prohlížeč poslal špatný nonce a `admin-post.php` odpověděl 403; oprava v `RecordsRest::export_url()` (`wp_create_nonce` + `add_query_arg`), test `consent-records-wp.php` kontroluje, že v URL není `&amp;`. (3) Fronta hostů nevysvětlovala, že skript napsaný přímo ve stránce se drží zpět jen s volbou `buffer_guard`; doplněna nápověda pod tabulku (a překlad).
+- **Poznámky z ověření (nejsou chyby modulu):** WP-CLI v Git Bash přepisuje argument `/%postname%/` na cestu Gitu (proto byly permalinky v záloze rozbité), `permalink_structure` nastavit přes `wp eval update_option`. Uložení jakéhokoli nastavení modulu v SPA pošle celý koncept včetně textů lišty ve výchozím jazyce administrátora, takže se výchozí text „zamrzne“ v tomto jazyce (obecné chování formuláře nastavení). Vzorek stránek skenu je 3 nejnovější příspěvky a 3 nejnovější stránky, starší stránka s cizím skriptem se do fronty nedostane, dokud ji vzorek nezahrne.
+- **Neověřeno:** skutečný GA a skutečné YouTube/Maps (síť zastubovaná); GTM Kit v režimu advanced; WP Rocket, LiteSpeed (delay JS) a striktní CSP; skutečná hlavička Cloudflare; migrace se skutečným Complianzem a skutečné přepnutí; HPOS; vlastní barvy a jejich kontrast; záložka Sken (jen vykreslení bez chyby, běh proti NASu ne); `consent-scan-wp.php` na testovacím webu hlásí 502 místo očekávaného 424 (web má připravené spojení s CA, ale CA neběží; prostředí, ne regrese); `consent-records-wp.php` odmítne běžet, když tabulka záznamů už existuje; `consent-legal-wp.php` při prvním běhu nad webem s existujícími verzemi hlásí „versions not restored“, na druhý běh projde.
+- **Překlady:** po `make-pot` a `po-refs` chybělo 263 řetězců (migrace, smoke testy modulu, sken a doplňky F3 a F6, nová nápověda) a všechny pokryly stávající slovníky `cs-consent*.json` plus nový `cs-consent-qa.json` (1 řetězec). `.po` má 9090 položek, `po-missing.py` hlásí 0, `.mo`, 89 JSON souborů a `ux-studio-cs_CZ-ux-studio-app.json` (2960 zpráv) jsou přegenerované. `wp i18n update-po` se nepoužilo.

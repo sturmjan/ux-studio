@@ -184,7 +184,8 @@ const URL_ = BASE + '/qa-embeds/';
 	await page.waitForTimeout( 800 );
 	check( 'revocation reloads page; GA not re-requested', seen.gtm.length === gtmBefore, gtmBefore + ' -> ' + seen.gtm.length );
 	check( 'after revocation GA stub did not run', await page.evaluate( () => window.__gtmLoaded !== 1 ) );
-	check( 'after revocation iframes are placeholders again', await page.locator( '.uxc-ph' ).count() === 2 );
+	await page.waitForSelector( '.uxc-ph', { timeout: 5000 } ).catch( () => {} );
+	check( 'after revocation iframes are placeholders again', await page.locator( '.uxc-ph' ).count() === 2, String( await page.locator( '.uxc-ph' ).count() ) );
 	check( 'no console errors (desktop flow)', seen.console.length === 0, seen.console.join( ' // ' ) );
 	await context.close();
 }
