@@ -803,7 +803,7 @@ final class PublicRenderer {
 						values[ key ] = Array.prototype.filter.call( inputs, function ( i ) { return i.checked; } ).map( function ( i ) { return i.value; } );
 					} else if ( inputs[ 0 ].type === 'checkbox' ) {
 						values[ key ] = inputs[ 0 ].checked ? '1' : '';
-					} else if ( inputs[ 0 ].multiple ) {
+					} else if ( inputs[ 0 ].multiple && inputs[ 0 ].options ) {
 						values[ key ] = Array.prototype.filter.call( inputs[ 0 ].options, function ( o ) { return o.selected; } ).map( function ( o ) { return o.value; } );
 					} else {
 						values[ key ] = inputs[ 0 ].value;
