@@ -1384,7 +1384,7 @@ $uxs-text-fields: 'input[type="text"], input[type="url"], input[type="email"], i
 }
 
 @container uxs-form (max-width: 520px) {
-	.uxs-form__row {
+	.uxs-form .uxs-form__row {
 		grid-template-columns: minmax(0, 1fr);
 		padding: var(--uxs-sp-2) 0;
 		border-bottom: none;
@@ -4091,3 +4091,79 @@ $uxs-text-fields: 'input[type="text"], input[type="url"], input[type="email"], i
 .uxs-repeater__body { padding: 4px 16px 12px; border-top: 1px solid var(--uxs-border, #dcdcde); display: flex; flex-direction: column; gap: 12px; }
 .uxs-repeater__remove { color: #b32d2e; }
 .uxs-repeater__add { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; }
+
+/* ---- image_choice: tiles with a picture (radio group) ---- */
+/* The tiles need the whole width: label above, tiles under it. */
+.uxs-form .uxs-form__row.uxs-form__row--stack {
+	grid-template-columns: minmax(0, 1fr);
+
+	> label { grid-column: 1; grid-row: auto; padding-top: 0; }
+	> :not(label) { grid-column: 1; }
+}
+.uxs-tiles {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--uxs-sp-3);
+	width: 100%;
+
+}
+@container uxs-form (min-width: 640px) {
+	.uxs-tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+.uxs-tile {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: var(--uxs-sp-2);
+	padding: var(--uxs-sp-2);
+	margin: 0;
+	background: var(--uxs-surface);
+	border: 1px solid var(--uxs-border);
+	border-radius: var(--uxs-radius);
+	color: var(--uxs-text);
+	font-weight: 400;
+	cursor: pointer;
+	transition: border-color 0.15s, box-shadow 0.15s;
+
+	&:hover { border-color: var(--uxs-text-soft); }
+	&.is-selected {
+		border-color: var(--uxs-brand);
+		box-shadow: 0 0 0 1px var(--uxs-brand);
+	}
+	&:has(input:focus-visible) { box-shadow: 0 0 0 3px var(--uxs-brand-soft); outline: 2px solid var(--uxs-brand); outline-offset: 1px; }
+
+	input[type="radio"] {
+		position: absolute;
+		opacity: 0;
+		width: 1px;
+		height: 1px;
+		margin: 0;
+		pointer-events: none;
+	}
+	.uxs-tile__img {
+		display: block;
+		width: 100%;
+		height: auto;
+		aspect-ratio: 8 / 5;
+		border-radius: var(--uxs-radius-s);
+		border: 1px solid var(--uxs-border);
+		background: #eef0f3;
+	}
+	.uxs-tile__body { display: flex; flex-direction: column; gap: 2px; padding: 0 var(--uxs-sp-1) var(--uxs-sp-1); }
+	.uxs-tile__title { font-weight: 600; font-size: var(--uxs-fs-m, 14px); }
+	.uxs-tile__desc { color: var(--uxs-text-soft); font-size: var(--uxs-fs-s); line-height: 1.4; }
+	.uxs-tile__check {
+		position: absolute;
+		top: var(--uxs-sp-3);
+		right: var(--uxs-sp-3);
+		display: none;
+		align-items: center;
+		justify-content: center;
+		width: 22px;
+		height: 22px;
+		border-radius: 50%;
+		background: var(--uxs-brand);
+		color: #fff;
+	}
+	&.is-selected .uxs-tile__check { display: inline-flex; }
+}

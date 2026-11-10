@@ -59,6 +59,7 @@ final class TypeCheck {
 				return $bad( __( 'Expected a number.', 'ux-studio' ) );
 
 			case 'select':
+			case 'image_choice':
 				if ( ! is_string( $value ) && ! is_int( $value ) ) {
 					return $bad( __( 'Expected one of the listed choices.', 'ux-studio' ) );
 				}

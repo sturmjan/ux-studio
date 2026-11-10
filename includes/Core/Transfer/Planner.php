@@ -101,6 +101,7 @@ final class Planner {
 				// Kept as the map it is; an empty value is an empty map (the file then holds `[]`).
 				return null === $value || '' === $value ? array() : ( is_array( $value ) ? $value : null );
 			case 'select':
+			case 'image_choice':
 				if ( ! is_scalar( $value ) && null !== $value ) {
 					return null;
 				}

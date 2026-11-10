@@ -726,18 +726,30 @@ final class Module extends BaseModule {
 			),
 			// --- Appearance ---
 			array(
-				'key'     => 'template',
-				'section' => $look,
-				'type'    => 'select',
-				'label'   => __( 'Template', 'ux-studio' ),
-				'help'    => __( 'The look of the banner. It works the same in every template. Classic is a box or a bar (set below), Tabs a wide panel with switches, Card a dark card with round buttons (its default colours are dark, colours you set replace them), Slim one thin bar.', 'ux-studio' ),
-				'options' => array(
+				'key'          => 'template',
+				'section'      => $look,
+				'type'         => 'image_choice',
+				'label'        => __( 'Template', 'ux-studio' ),
+				'help'         => __( 'The look of the banner. It works the same in every template.', 'ux-studio' ),
+				'options'      => array(
 					'classic'   => __( 'Classic', 'ux-studio' ),
 					'cookiebot' => __( 'Tabs', 'ux-studio' ),
 					'cookie'    => __( 'Card', 'ux-studio' ),
 					'slim'      => __( 'Slim bar', 'ux-studio' ),
 				),
-				'default' => 'classic',
+				'images'       => array(
+					'classic'   => UXSTUDIO_URL . 'assets/consent/templates/classic.svg',
+					'cookiebot' => UXSTUDIO_URL . 'assets/consent/templates/cookiebot.svg',
+					'cookie'    => UXSTUDIO_URL . 'assets/consent/templates/cookie.svg',
+					'slim'      => UXSTUDIO_URL . 'assets/consent/templates/slim.svg',
+				),
+				'descriptions' => array(
+					'classic'   => __( 'A box in a corner or a bar across the bottom.', 'ux-studio' ),
+					'cookiebot' => __( 'A wide panel with tabs and switches.', 'ux-studio' ),
+					'cookie'    => __( 'A dark card with round buttons.', 'ux-studio' ),
+					'slim'      => __( 'One thin bar across the page.', 'ux-studio' ),
+				),
+				'default'      => 'classic',
 			),
 			array(
 				'key'     => 'layout',
