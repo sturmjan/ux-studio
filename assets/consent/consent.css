@@ -120,20 +120,23 @@
 /* UX1 signature (PLAN 42.23): light and quiet, in a corner of the dialog; the headings keep room for it on the right. */
 .uxc .uxc-by {
 	position: absolute; top: 13px; right: 25px; display: flex; align-items: center;
-	color: inherit; opacity: .15; text-decoration: none;
-	font: italic 700 26px/1 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	color: inherit; opacity: .1; text-decoration: none;
+	font: italic 900 32px/1 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 	letter-spacing: .02em;
+	-webkit-text-stroke: .7px currentColor; /* heavier than the bold of fonts without a black weight (Segoe UI) */
 }
+.uxc .uxc-by { align-items: baseline; }
+.uxc .uxc-by::before { content: "by"; margin-right: .22em; font-size: .5em; font-weight: 600; -webkit-text-stroke: 0; }
 .uxc .uxc-by::after { content: "UX1"; }
-.uxc .uxc-dlg:has(> .uxc-by) .uxc-h { padding-right: 84px; }
+.uxc .uxc-dlg:has(> .uxc-by) .uxc-h { padding-right: 124px; }
 /* Classic bar: the buttons sit at the right end of the row, so the signature gets its own column (under the row on a phone). */
-.uxc.uxc-bar:not(.is-detail) .uxc-dlg:has(> .uxc-by) { padding-right: 100px; }
+.uxc.uxc-bar:not(.is-detail) .uxc-dlg:has(> .uxc-by) { padding-right: 140px; }
 .uxc.uxc-bar:not(.is-detail) .uxc-by { top: 50%; transform: translateY(-50%); }
 @media (max-width: 640px) {
-	.uxc.uxc-bar:not(.is-detail) .uxc-dlg:has(> .uxc-by) { padding-right: 20px; padding-bottom: 46px; }
+	.uxc.uxc-bar:not(.is-detail) .uxc-dlg:has(> .uxc-by) { padding-right: 20px; padding-bottom: 54px; }
 	.uxc.uxc-bar:not(.is-detail) .uxc-by { top: auto; bottom: 10px; transform: none; }
 }
-.uxc .uxc-by:hover, .uxc .uxc-by:focus-visible { opacity: .6; }
+.uxc .uxc-by:hover, .uxc .uxc-by:focus-visible { opacity: .5; }
 .uxc .uxc-by:focus-visible { outline: 3px solid var(--uxc-fg); outline-offset: 3px; }
 @media (forced-colors: active) {
 	.uxc .uxc-by { opacity: 1; }
