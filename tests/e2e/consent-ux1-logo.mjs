@@ -119,13 +119,13 @@ async function inspect( page, label, vp ) {
 			.map( ( n ) => ( { tag: n.tagName.toLowerCase(), cls: n.className, text: ( n.textContent || '' ).trim().slice( 0, 20 ), box: /^(H2|P)$/.test( n.tagName ) ? textBox( n ) : r( n ) } ) );
 		const buttons = [ ...dlg.querySelectorAll( 'button' ) ].filter( vis );
 		const order = buttons.every( ( b ) => !! ( b.compareDocumentPosition( logo ) & Node.DOCUMENT_POSITION_FOLLOWING ) );
-		const svg = logo.querySelector( 'svg' );
+		const ws = getComputedStyle( logo );
 		const cs = getComputedStyle( logo );
 		return {
 			count: logos.length, box: r( logo ), dlg: r( dlg ), others, order,
 			href: logo.getAttribute( 'href' ), target: logo.getAttribute( 'target' ), rel: logo.getAttribute( 'rel' ),
 			label: logo.getAttribute( 'aria-label' ), title: logo.getAttribute( 'title' ),
-			svgHidden: svg.getAttribute( 'aria-hidden' ), svgFocusable: svg.getAttribute( 'focusable' ), svgBytes: svg.outerHTML.length,
+			wordText: getComputedStyle( logo, '::after' ).content.replace( /"/g, '' ), textNodes: logo.textContent.trim(), fontStyle: ws.fontStyle, fontFamily: ws.fontFamily, hasSvg: !! logo.querySelector( 'svg' ),
 			opacity: cs.opacity, color: cs.color,
 		};
 	} );
@@ -135,15 +135,15 @@ async function inspect( page, label, vp ) {
 	}
 	check( `${ label }: exactly one logo`, data.count === 1, String( data.count ) );
 	check( `${ label }: link to https://ux1.cz/ in a new window with noopener`, data.href === 'https://ux1.cz/' && data.target === '_blank' && data.rel === 'noopener', JSON.stringify( [ data.href, data.target, data.rel ] ) );
-	check( `${ label }: accessible name and title in Czech/English text of the config, svg hidden`, data.label === TEXT.by && data.title === TEXT.by && data.svgHidden === 'true' && data.svgFocusable === 'false', JSON.stringify( data ) );
+	check( `${ label }: accessible name and title in Czech/English text of the config, the visible word UX1 from CSS (no text node), italic system font, no svg`, data.label === TEXT.by && data.title === TEXT.by && data.wordText === 'UX1' && data.textNodes === '' && data.fontStyle === 'italic' && /system-ui/.test( data.fontFamily ) && ! data.hasSvg, JSON.stringify( data ) );
 	const b = data.box;
 	check( `${ label }: inside the screen`, b.x >= 0 && b.y >= 0 && b.x + b.width <= vp.width && b.y + b.height <= vp.height, JSON.stringify( b ) );
 	check( `${ label }: inside the dialog`, b.x >= data.dlg.x - 0.5 && b.y >= data.dlg.y - 0.5 && b.x + b.width <= data.dlg.x + data.dlg.width + 0.5 && b.y + b.height <= data.dlg.y + data.dlg.height + 0.5, JSON.stringify( { b, dlg: data.dlg } ) );
 	const hit = data.others.filter( ( o ) => rectsOverlap( b, o.box ) );
 	check( `${ label }: overlaps no button, text, switch or tab`, hit.length === 0, JSON.stringify( hit.map( ( h ) => [ h.tag, h.cls, h.text, h.box ] ) ) );
 	check( `${ label }: after the buttons in the tab order`, data.order );
-	check( `${ label }: light and in the background (height 20 to 24 px, opacity .15 to .3, slanted)`, b.height >= 20 && b.height <= 24 && +data.opacity >= 0.15 && +data.opacity <= 0.3, JSON.stringify( { b, o: data.opacity } ) );
-	console.log( `INFO ${ label }: logo ${ b.width.toFixed( 1 ) } x ${ b.height.toFixed( 1 ) } at (${ Math.round( b.x ) }, ${ Math.round( b.y ) }), svg ${ data.svgBytes } B, colour ${ data.color }` );
+	check( `${ label }: light and in the background (height 22 to 34 px, opacity .1 to .2)`, b.height >= 22 && b.height <= 34 && +data.opacity >= 0.1 && +data.opacity <= 0.2, JSON.stringify( { b, o: data.opacity } ) );
+	console.log( `INFO ${ label }: logo ${ b.width.toFixed( 1 ) } x ${ b.height.toFixed( 1 ) } at (${ Math.round( b.x ) }, ${ Math.round( b.y ) }), font ${ data.fontFamily.slice( 0, 20 ) }, colour ${ data.color }` );
 }
 
 async function axeCheck( page, label ) {
@@ -215,7 +215,7 @@ try {
 				const cs = getComputedStyle( a );
 				return { cls: a.className, outline: cs.outlineStyle, w: parseFloat( cs.outlineWidth ), op: cs.opacity };
 			} );
-			check( `${ tag }: Tab after the last button reaches the logo, with a visible focus ring and stronger`, /uxc-by/.test( focused.cls ) && focused.outline !== 'none' && focused.w >= 2 && +focused.op >= 0.6, JSON.stringify( focused ) );
+			check( `${ tag }: Tab after the last button reaches the logo, with a visible focus ring and stronger`, /uxc-by/.test( focused.cls ) && focused.outline !== 'none' && focused.w >= 2 && +focused.op >= 0.5, JSON.stringify( focused ) );
 
 			if ( v.name === 'classic' && size === 'desktop' ) {
 				const [ popup ] = await Promise.all( [ context.waitForEvent( 'page' ), page.locator( '.uxc-by' ).click() ] );

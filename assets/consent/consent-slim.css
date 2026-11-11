@@ -22,12 +22,12 @@
 .uxc.uxc-t-slim.uxc-o-top:not(.is-detail) .uxc-dlg { top: 0; bottom: auto; box-shadow: 0 2px 14px rgba(0, 0, 0, .2); }
 
 /* UX1 signature: in a reserved column at the end of the bar (vertically centred), under the buttons on a narrow screen. */
-.uxc.uxc-t-slim:not(.is-detail) .uxc-dlg { padding-right: 96px; }
-.uxc.uxc-t-slim:not(.is-detail) .uxc-by { top: 50%; right: 16px; transform: translateY(-50%); }
+.uxc.uxc-t-slim:not(.is-detail) .uxc-dlg { padding-right: 100px; }
+.uxc.uxc-t-slim:not(.is-detail) .uxc-by { top: 50%; right: 21px; transform: translateY(-50%); }
 @media (max-width: 640px) {
-	.uxc.uxc-t-slim:not(.is-detail) .uxc-dlg { padding: 8px 12px 38px; }
-	.uxc.uxc-t-slim:not(.is-detail) .uxc-by { top: auto; bottom: 8px; right: 12px; transform: none; }
+	.uxc.uxc-t-slim:not(.is-detail) .uxc-dlg { padding: 8px 12px 44px; }
+	.uxc.uxc-t-slim:not(.is-detail) .uxc-by { top: auto; bottom: 10px; right: 17px; transform: none; }
 }
 
 /* The settings dialog of the slim bar has no visible heading: the text starts at the top, so it gets room above for the UX1 signature. */
-.uxc.uxc-t-slim.is-detail .uxc-dlg:has(> .uxc-by) { padding-top: 38px; }
+.uxc.uxc-t-slim.is-detail .uxc-dlg:has(> .uxc-by) { padding-top: 48px; }

@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Changed: the UX1 signature in the Cookie Consent banner is larger (22 px instead of 12 px), lighter (opacity .22) and slanted, in all four templates. Headings keep room for it on the right and the settings dialog of the slim bar gets space above the text, so it still covers nothing (checked in 14 variants on desktop and phone).
+- Changed: the UX1 signature in the Cookie Consent banner is now the word UX1 in the system font (italic, bold, 26 px, set by CSS `::after`, no SVG), lighter (opacity .15) and 5 px further from the top right corner, in all four templates. Headings keep room for it on the right, the classic bar and the slim bar give it its own column (under the buttons on a phone) and the settings dialog of the slim bar gets space above the text, so it covers nothing (checked in 14 variants on desktop and phone, axe clean).
 
 ## 0.16.0
 
