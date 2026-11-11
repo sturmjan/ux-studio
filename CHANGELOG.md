@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.16.1
+
+- Added: Cookie Consent setting "What opens when the visitor wants to change the choice" (Display): the category settings (default, as before) or the banner as on the first visit, from which Customize leads on to the categories. Applies to the floating button, the shortcode and links to #uxc-open.
+- Changed: the UX1 signature in the Cookie Consent banner is now the text "by UX1" in the system font (set by CSS `::before`/`::after`, no SVG, no text node): UX1 in italic black weight 32 px with a thin stroke so it stays heavy where the system font has no black weight, "by" at half size; very light (opacity .1, only slightly darker on hover: .18) and 5 px further from the top right corner, in all four templates. Headings keep room for it on the right, the classic bar and the slim bar give it its own column (under the buttons on a phone) and the settings dialog of the slim bar gets space above the text, so it covers nothing (checked in 14 variants on desktop and phone, axe clean).
+
 ## 0.16.0
 
 - Changed: the help of an option is a round "?" button next to the control instead of the expanding "Details" under it (PLAN 43). Hover, focus or click opens a floating window with the same content (up to 460 px wide, kept inside the screen, closes with Escape, a click outside or when the pointer leaves); a click pins it, Enter moves the focus into it. Works with the keyboard and by touch, in the light and dark theme, also in the setup wizard.

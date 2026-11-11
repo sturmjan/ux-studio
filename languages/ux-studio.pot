@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: UX Studio 0.15.0\n"
+"Project-Id-Version: UX Studio 0.16.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/_uxs-wt-help\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-10T21:10:06+00:00\n"
+"POT-Creation-Date: 2026-11-11T08:56:19+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: ux-studio\n"
@@ -543,7 +543,7 @@ msgid "UX Studio quick navigation"
 msgstr ""
 
 #: includes/Core/Megamenu.php:95
-#: includes/Modules/Consent/Module.php:592
+#: includes/Modules/Consent/Module.php:593
 #: build/744.16b934e695e287117fb6.js:3
 #: build/954.179d869228684c1a3a4c.js:12
 msgid "Display"
@@ -566,7 +566,7 @@ msgid "All modules"
 msgstr ""
 
 #: includes/Core/Megamenu.php:109
-#: includes/Modules/Consent/Module.php:471
+#: includes/Modules/Consent/Module.php:472
 #: includes/Modules/ExitPopup/Module.php:547
 #: includes/Modules/FileManager/Module.php:169
 #: includes/Modules/PopupManager/Module.php:509
@@ -2207,8 +2207,8 @@ msgid "Secret key"
 msgstr ""
 
 #: includes/Core/Migration/Sources/CaptchaSource.php:64
-#: includes/Modules/Consent/Module.php:840
-#: includes/Modules/Consent/Module.php:902
+#: includes/Modules/Consent/Module.php:853
+#: includes/Modules/Consent/Module.php:915
 #: includes/Modules/SecurityOptimization/Module.php:935
 msgid "Placement"
 msgstr ""
@@ -2487,38 +2487,38 @@ msgid "Complianz inserts the analytics tool \"%s\" itself. UX Studio cannot inse
 msgstr ""
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:306
-#: includes/Modules/Consent/Module.php:961
+#: includes/Modules/Consent/Module.php:974
 msgid "Google Consent Mode v2"
 msgstr ""
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:307
-#: includes/Modules/Consent/Module.php:623
+#: includes/Modules/Consent/Module.php:624
 msgid "Remember the choice for (days)"
 msgstr ""
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:308
-#: includes/Modules/Consent/Module.php:924
+#: includes/Modules/Consent/Module.php:937
 msgid "Hold back tracking scripts until the visitor agrees"
 msgstr ""
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:309
-#: includes/Modules/Consent/Module.php:931
+#: includes/Modules/Consent/Module.php:944
 msgid "Replace embedded videos and maps by a \"Load content\" box"
 msgstr ""
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:310
-#: includes/Modules/Consent/Module.php:605
+#: includes/Modules/Consent/Module.php:606
 msgid "Show the banner to"
 msgstr ""
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:311
-#: includes/Modules/Consent/Module.php:679
+#: includes/Modules/Consent/Module.php:692
 msgid "Cookie policy address"
 msgstr ""
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:312
 #: includes/Modules/AdminCustomiser/NoticeHistory/RestController.php:331
-#: includes/Modules/Consent/Module.php:665
+#: includes/Modules/Consent/Module.php:678
 #: includes/Modules/ExportPosts/Module.php:501
 #: build/84.ed8f4f7b23948245f28b.js:1
 #: build/213.9e236eb9641a9ad98b0c.js:1
@@ -2539,7 +2539,7 @@ msgstr ""
 #: includes/Modules/AiAssistant/AssistantConfig.php:287
 #: includes/Modules/AiAssistant/AssistantConfig.php:317
 #: includes/Modules/AiAssistant/ChatRestController.php:414
-#: includes/Modules/Consent/Module.php:672
+#: includes/Modules/Consent/Module.php:685
 #: includes/Modules/Forms/Templates.php:296
 #: includes/Modules/TopBar/Module.php:185
 #: build/367.a235c48e88c77c3c8693.js:2
@@ -2549,27 +2549,27 @@ msgid "Message"
 msgstr ""
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:314
-#: includes/Modules/Consent/Module.php:693
+#: includes/Modules/Consent/Module.php:706
 msgid "Accept button"
 msgstr ""
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:315
-#: includes/Modules/Consent/Module.php:700
+#: includes/Modules/Consent/Module.php:713
 msgid "Reject button"
 msgstr ""
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:316
-#: includes/Modules/Consent/Module.php:707
+#: includes/Modules/Consent/Module.php:720
 msgid "Customize button"
 msgstr ""
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:317
-#: includes/Modules/Consent/Module.php:714
+#: includes/Modules/Consent/Module.php:727
 msgid "Save button"
 msgstr ""
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:318
-#: includes/Modules/Consent/Module.php:770
+#: includes/Modules/Consent/Module.php:783
 #: includes/Modules/DashboardWidgets/Module.php:530
 #: includes/Modules/DashboardWidgets/Module.php:545
 #: includes/Modules/ExitPopup/Module.php:120
@@ -2581,19 +2581,19 @@ msgid "Layout"
 msgstr ""
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:319
-#: includes/Modules/Consent/Module.php:781
+#: includes/Modules/Consent/Module.php:794
 msgid "Side of the box"
 msgstr ""
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:320
-#: includes/Modules/Consent/Module.php:802
+#: includes/Modules/Consent/Module.php:815
 msgid "Background"
 msgstr ""
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:321
 #: includes/Core/Migration/Sources/MaintenanceSource.php:69
 #: includes/Modules/AdminCustomiser/NoticeHistory/RestController.php:332
-#: includes/Modules/Consent/Module.php:809
+#: includes/Modules/Consent/Module.php:822
 #: includes/Modules/TopBar/Module.php:218
 #: build/213.9e236eb9641a9ad98b0c.js:1
 #: build/295.875fb70efdc96b58927b.js:1
@@ -2603,37 +2603,37 @@ msgid "Text"
 msgstr ""
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:322
-#: includes/Modules/Consent/Module.php:816
+#: includes/Modules/Consent/Module.php:829
 msgid "Buttons"
 msgstr ""
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:323
-#: includes/Modules/Consent/Module.php:823
+#: includes/Modules/Consent/Module.php:836
 msgid "Button text"
 msgstr ""
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:324
-#: includes/Modules/Consent/Module.php:831
+#: includes/Modules/Consent/Module.php:844
 msgid "Corner radius (px)"
 msgstr ""
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:325
-#: includes/Modules/Consent/Module.php:645
+#: includes/Modules/Consent/Module.php:646
 msgid "Show a small button to change the choice later"
 msgstr ""
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:326
-#: includes/Modules/Consent/Module.php:953
+#: includes/Modules/Consent/Module.php:966
 msgid "Own rules"
 msgstr ""
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:332
-#: includes/Modules/Consent/Module.php:630
+#: includes/Modules/Consent/Module.php:631
 msgid "Take over choices from the old banner (cookie name prefix)"
 msgstr ""
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:333
-#: includes/Modules/Consent/Module.php:637
+#: includes/Modules/Consent/Module.php:638
 msgid "Policy number of the old banner"
 msgstr ""
 
@@ -4959,7 +4959,7 @@ msgstr ""
 #: includes/Core/Onboarding/Applier.php:263
 #: includes/Core/Transfer/Planner.php:354
 #: includes/Modules/AiMarkdown/Module.php:249
-#: includes/Modules/Consent/Module.php:963
+#: includes/Modules/Consent/Module.php:976
 #: includes/Modules/SecurityOptimization/Module.php:606
 #: build/508.06dd7a663f8bebe1f9fe.js:10
 #: build/530.beda7fac3bbd088df3d7.js:6
@@ -6786,7 +6786,7 @@ msgid "Dashboard"
 msgstr ""
 
 #: includes/Modules/AdminCustomiser/MenuOrganizer.php:90
-#: includes/Modules/Consent/Module.php:594
+#: includes/Modules/Consent/Module.php:595
 #: includes/Modules/ExitPopup/Module.php:164
 #: includes/Modules/ExitPopup/Module.php:171
 #: includes/Modules/ExitPopup/Module.php:178
@@ -10203,13 +10203,13 @@ msgid "Position"
 msgstr ""
 
 #: includes/Modules/AiAssistant/Module.php:580
-#: includes/Modules/Consent/Module.php:655
+#: includes/Modules/Consent/Module.php:668
 #: includes/Modules/PushNotifications/Module.php:338
 msgid "Bottom right"
 msgstr ""
 
 #: includes/Modules/AiAssistant/Module.php:581
-#: includes/Modules/Consent/Module.php:654
+#: includes/Modules/Consent/Module.php:667
 #: includes/Modules/PushNotifications/Module.php:339
 msgid "Bottom left"
 msgstr ""
@@ -11504,7 +11504,7 @@ msgstr ""
 
 #: includes/Modules/AiPanel/legacy/Panel.php:344
 #: includes/Modules/AiPanel/legacy/Panel.php:1032
-#: includes/Modules/Consent/Module.php:492
+#: includes/Modules/Consent/Module.php:493
 msgid "Details"
 msgstr ""
 
@@ -13898,7 +13898,7 @@ msgid "Cookie Consent: Google Consent Mode defaults"
 msgstr ""
 
 #: includes/Modules/Consent/Module.php:353
-#: includes/Modules/Consent/Module.php:477
+#: includes/Modules/Consent/Module.php:478
 msgid "Cookie settings"
 msgstr ""
 
@@ -13940,351 +13940,367 @@ msgstr ""
 msgid "Measure advertising and show offers that may interest you, here and on other sites. Also covers embedded video, maps and social content."
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:461
-#: includes/Modules/Consent/Module.php:666
+#: includes/Modules/Consent/Module.php:462
+#: includes/Modules/Consent/Module.php:679
 msgid "Your privacy choices"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:461
+#: includes/Modules/Consent/Module.php:462
 msgid "A word about cookies"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:464
-#: includes/Modules/Consent/Module.php:673
+#: includes/Modules/Consent/Module.php:465
+#: includes/Modules/Consent/Module.php:686
 msgid "We use cookies so this site works and, if you agree, to measure visits and show relevant offers. Choose what you allow. You can change your decision at any time."
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:465
+#: includes/Modules/Consent/Module.php:466
 msgid "We use cookies to run this site and, with your consent, to measure visits and show relevant offers."
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:467
-#: includes/Modules/Consent/Module.php:694
+#: includes/Modules/Consent/Module.php:468
+#: includes/Modules/Consent/Module.php:707
 msgid "Accept all"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:467
+#: includes/Modules/Consent/Module.php:468
 msgid "Sure"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:468
-#: includes/Modules/Consent/Module.php:701
+#: includes/Modules/Consent/Module.php:469
+#: includes/Modules/Consent/Module.php:714
 msgid "Reject all"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:468
+#: includes/Modules/Consent/Module.php:469
 msgid "No thanks"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:469
-#: includes/Modules/Consent/Module.php:708
+#: includes/Modules/Consent/Module.php:470
+#: includes/Modules/Consent/Module.php:721
 msgid "Customize"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:470
-#: includes/Modules/Consent/Module.php:715
+#: includes/Modules/Consent/Module.php:471
+#: includes/Modules/Consent/Module.php:728
 msgid "Save choices"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:472
+#: includes/Modules/Consent/Module.php:473
 msgid "Always on"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:473
+#: includes/Modules/Consent/Module.php:474
 msgid "Services"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:474
+#: includes/Modules/Consent/Module.php:475
 msgid "None in use"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:475
+#: includes/Modules/Consent/Module.php:476
 #, php-format
 msgid "This content comes from %s. Loading it may set cookies and share data with that service."
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:476
+#: includes/Modules/Consent/Module.php:477
 msgid "Load content"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:478
-#: includes/Modules/Consent/Module.php:687
+#: includes/Modules/Consent/Module.php:479
+#: includes/Modules/Consent/Module.php:700
 msgid "Cookie policy"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:479
+#: includes/Modules/Consent/Module.php:480
 #: build/954.179d869228684c1a3a4c.js:2
 #: build/954.179d869228684c1a3a4c.js:11
 msgid "Cookies"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:480
+#: includes/Modules/Consent/Module.php:481
 msgid "Stored for"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:481
+#: includes/Modules/Consent/Module.php:482
 #: build/21.f35df9e129463bd4a179.js:1
 #: build/295.875fb70efdc96b58927b.js:1
 #: build/954.179d869228684c1a3a4c.js:2
 msgid "Provider"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:482
+#: includes/Modules/Consent/Module.php:483
 #: build/194.891eb73b35196acf3416.js:1
 msgid "Country"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:483
+#: includes/Modules/Consent/Module.php:484
 msgid "Privacy policy of the provider"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:484
+#: includes/Modules/Consent/Module.php:485
 #: build/954.179d869228684c1a3a4c.js:2
 msgid "No cookies of its own."
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:485
+#: includes/Modules/Consent/Module.php:486
 msgid "Consent ID (quote it if you ask us about your choice):"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:491
+#: includes/Modules/Consent/Module.php:492
 msgid "Consent"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:493
+#: includes/Modules/Consent/Module.php:494
 msgid "About cookies"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:494
+#: includes/Modules/Consent/Module.php:495
 msgid "Cookie banner sections"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:495
+#: includes/Modules/Consent/Module.php:496
 msgid "Cookies are small files that a website stores in your browser. The necessary ones keep the site working. All the others are used only if you allow them, and you can change or withdraw your choice at any time with the cookie settings button."
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:502
+#: includes/Modules/Consent/Module.php:503
 msgid "Cookie banner by UX1 (opens in a new window)"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:593
+#: includes/Modules/Consent/Module.php:594
 #: build/954.179d869228684c1a3a4c.js:12
 msgid "Texts"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:595
+#: includes/Modules/Consent/Module.php:596
 #: build/954.179d869228684c1a3a4c.js:12
 msgid "Blocking"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:596
+#: includes/Modules/Consent/Module.php:597
 #: build/954.179d869228684c1a3a4c.js:12
 msgid "Google Consent Mode"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:597
+#: includes/Modules/Consent/Module.php:598
 #: build/954.179d869228684c1a3a4c.js:12
 msgid "Consent records"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:607
+#: includes/Modules/Consent/Module.php:608
 msgid "All visitors"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:608
+#: includes/Modules/Consent/Module.php:609
 msgid "Visitors from the EU and Europe only"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:616
+#: includes/Modules/Consent/Module.php:617
 msgid "Consent version"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:652
+#: includes/Modules/Consent/Module.php:653
+msgid "What opens when the visitor wants to change the choice"
+msgstr ""
+
+#: includes/Modules/Consent/Module.php:654
+msgid "Applies to the small button, the shortcode [uxstudio_cookie_settings] and links to #uxc-open. The banner shows the same first screen as on the first visit; the visitor gets to the categories with Customize."
+msgstr ""
+
+#: includes/Modules/Consent/Module.php:656
+msgid "The category settings"
+msgstr ""
+
+#: includes/Modules/Consent/Module.php:657
+msgid "The banner as on the first visit"
+msgstr ""
+
+#: includes/Modules/Consent/Module.php:665
 msgid "Position of that button"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:686
+#: includes/Modules/Consent/Module.php:699
 msgid "Cookie policy link text"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:721
+#: includes/Modules/Consent/Module.php:734
 msgid "Extra services: Preferences"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:728
+#: includes/Modules/Consent/Module.php:741
 msgid "Extra services: Statistics"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:735
+#: includes/Modules/Consent/Module.php:748
 msgid "Extra services: Marketing"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:743
+#: includes/Modules/Consent/Module.php:756
 #: build/792.e76b3c57f168142448e6.js:7
 msgid "Template"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:744
+#: includes/Modules/Consent/Module.php:757
 msgid "The look of the banner. It works the same in every template."
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:746
+#: includes/Modules/Consent/Module.php:759
 msgid "Classic"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:747
+#: includes/Modules/Consent/Module.php:760
 msgid "Tabs"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:748
+#: includes/Modules/Consent/Module.php:761
 #: build/792.e76b3c57f168142448e6.js:6
 msgid "Card"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:749
+#: includes/Modules/Consent/Module.php:762
 msgid "Slim bar"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:758
+#: includes/Modules/Consent/Module.php:771
 msgid "A box in a corner or a bar across the bottom."
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:759
+#: includes/Modules/Consent/Module.php:772
 msgid "A wide panel with tabs and switches."
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:760
+#: includes/Modules/Consent/Module.php:773
 msgid "A light card with round buttons."
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:761
+#: includes/Modules/Consent/Module.php:774
 msgid "One thin bar across the page."
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:772
+#: includes/Modules/Consent/Module.php:785
 msgid "Box in a corner"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:773
+#: includes/Modules/Consent/Module.php:786
 msgid "Bar across the bottom"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:783
+#: includes/Modules/Consent/Module.php:796
 #: build/792.e76b3c57f168142448e6.js:6
 msgid "Left"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:784
+#: includes/Modules/Consent/Module.php:797
 #: build/792.e76b3c57f168142448e6.js:6
 msgid "Right"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:841
+#: includes/Modules/Consent/Module.php:854
 msgid "Panel in the middle of the bottom edge, or a band across the whole width."
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:843
+#: includes/Modules/Consent/Module.php:856
 msgid "Panel at the bottom centre"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:844
+#: includes/Modules/Consent/Module.php:857
 msgid "Bar across the full width at the bottom"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:853
+#: includes/Modules/Consent/Module.php:866
 msgid "Show the tab About cookies"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:854
+#: includes/Modules/Consent/Module.php:867
 msgid "The third tab with a short explanation of what cookies are and how to change the choice later."
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:862
+#: includes/Modules/Consent/Module.php:875
 msgid "Maximum width of the panel (px)"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:863
+#: includes/Modules/Consent/Module.php:876
 msgid "From 480 to 1400. On a narrow screen the panel always fills the width."
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:871
+#: includes/Modules/Consent/Module.php:884
 msgid "Show the cookie icon"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:872
+#: includes/Modules/Consent/Module.php:885
 msgid "The small cookie picture next to the heading of the card."
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:880
+#: includes/Modules/Consent/Module.php:893
 msgid "Shape of the buttons"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:881
+#: includes/Modules/Consent/Module.php:894
 msgid "Reject and accept always look equally strong, in either shape."
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:883
+#: includes/Modules/Consent/Module.php:896
 msgid "Round"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:884
+#: includes/Modules/Consent/Module.php:897
 msgid "Rounded rectangle"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:893
+#: includes/Modules/Consent/Module.php:906
 msgid "Corner radius of the card (px)"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:894
+#: includes/Modules/Consent/Module.php:907
 msgid "From 0 to 40."
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:903
+#: includes/Modules/Consent/Module.php:916
 msgid "The thin bar sits at the bottom or at the top of the window."
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:905
+#: includes/Modules/Consent/Module.php:918
 msgid "Bottom of the page"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:906
+#: includes/Modules/Consent/Module.php:919
 #: build/530.beda7fac3bbd088df3d7.js:3
 msgid "Top of the page"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:915
+#: includes/Modules/Consent/Module.php:928
 msgid "Show the link to the privacy policy"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:916
+#: includes/Modules/Consent/Module.php:929
 msgid "A link to your cookie policy at the end of the text in the bar."
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:938
+#: includes/Modules/Consent/Module.php:951
 msgid "Use the privacy-enhanced YouTube address"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:946
+#: includes/Modules/Consent/Module.php:959
 msgid "Also catch snippets pasted directly into the page"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:964
+#: includes/Modules/Consent/Module.php:977
 msgid "Basic: Google tags wait for consent"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:965
+#: includes/Modules/Consent/Module.php:978
 msgid "Advanced: Google tags load at once and follow the signal"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:973
+#: includes/Modules/Consent/Module.php:986
 msgid "Wait for the saved choice (milliseconds)"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:982
+#: includes/Modules/Consent/Module.php:995
 msgid "Keep a record of every choice (proof of consent)"
 msgstr ""
 
-#: includes/Modules/Consent/Module.php:989
+#: includes/Modules/Consent/Module.php:1002
 msgid "Keep records for (days)"
 msgstr ""
 

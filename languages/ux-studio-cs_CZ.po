@@ -216,7 +216,7 @@ msgid "Media"
 msgstr "Média"
 
 #: includes/Modules/AdminCustomiser/MenuOrganizer.php:90
-#: includes/Modules/Consent/Module.php:594
+#: includes/Modules/Consent/Module.php:595
 #: includes/Modules/ExitPopup/Module.php:164
 #: includes/Modules/ExitPopup/Module.php:171
 #: includes/Modules/ExitPopup/Module.php:178
@@ -651,7 +651,7 @@ msgstr "Stránka"
 #: includes/Modules/AiAssistant/AssistantConfig.php:287
 #: includes/Modules/AiAssistant/AssistantConfig.php:317
 #: includes/Modules/AiAssistant/ChatRestController.php:414
-#: includes/Modules/Consent/Module.php:672
+#: includes/Modules/Consent/Module.php:685
 #: includes/Modules/Forms/Templates.php:296
 #: includes/Modules/TopBar/Module.php:185
 #: build/367.a235c48e88c77c3c8693.js:2
@@ -2629,7 +2629,7 @@ msgid "Subscribe"
 msgstr "Odebírat"
 
 #: includes/Core/Megamenu.php:109
-#: includes/Modules/Consent/Module.php:471
+#: includes/Modules/Consent/Module.php:472
 #: includes/Modules/ExitPopup/Module.php:547
 #: includes/Modules/FileManager/Module.php:169
 #: includes/Modules/PopupManager/Module.php:509
@@ -2709,7 +2709,7 @@ msgstr "ID příspěvku"
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:312
 #: includes/Modules/AdminCustomiser/NoticeHistory/RestController.php:331
-#: includes/Modules/Consent/Module.php:665
+#: includes/Modules/Consent/Module.php:678
 #: includes/Modules/ExportPosts/Module.php:501
 #: build/84.ed8f4f7b23948245f28b.js:1
 #: build/213.9e236eb9641a9ad98b0c.js:1
@@ -6406,7 +6406,7 @@ msgstr "CSP říká prohlížeči, odkud se smějí načítat skripty, styly, ob
 #: includes/Core/Onboarding/Applier.php:263
 #: includes/Core/Transfer/Planner.php:354
 #: includes/Modules/AiMarkdown/Module.php:249
-#: includes/Modules/Consent/Module.php:963
+#: includes/Modules/Consent/Module.php:976
 #: includes/Modules/SecurityOptimization/Module.php:606
 #: build/508.06dd7a663f8bebe1f9fe.js:10
 #: build/530.beda7fac3bbd088df3d7.js:6
@@ -8147,8 +8147,8 @@ msgid "Open Security - Access Control"
 msgstr "Otevřít Zabezpečení - Řízení přístupu"
 
 #: includes/Core/Migration/Sources/CaptchaSource.php:64
-#: includes/Modules/Consent/Module.php:840
-#: includes/Modules/Consent/Module.php:902
+#: includes/Modules/Consent/Module.php:853
+#: includes/Modules/Consent/Module.php:915
 #: includes/Modules/SecurityOptimization/Module.php:935
 msgid "Placement"
 msgstr "Umístění"
@@ -8814,7 +8814,7 @@ msgstr "Zpět na moduly"
 msgid "Security - Access Control"
 msgstr "Zabezpečení - Řízení přístupu"
 
-#: includes/Modules/Consent/Module.php:481
+#: includes/Modules/Consent/Module.php:482
 #: build/21.f35df9e129463bd4a179.js:1
 #: build/295.875fb70efdc96b58927b.js:1
 #: build/954.179d869228684c1a3a4c.js:2
@@ -9760,7 +9760,7 @@ msgid "No events are currently scheduled."
 msgstr "Momentálně nejsou naplánovány žádné události."
 
 #: includes/Core/Megamenu.php:95
-#: includes/Modules/Consent/Module.php:592
+#: includes/Modules/Consent/Module.php:593
 #: build/744.16b934e695e287117fb6.js:3
 #: build/954.179d869228684c1a3a4c.js:12
 msgid "Display"
@@ -9848,7 +9848,7 @@ msgstr "Taxonomie"
 #: includes/Core/Migration/Sources/ComplianzSource.php:321
 #: includes/Core/Migration/Sources/MaintenanceSource.php:69
 #: includes/Modules/AdminCustomiser/NoticeHistory/RestController.php:332
-#: includes/Modules/Consent/Module.php:809
+#: includes/Modules/Consent/Module.php:822
 #: includes/Modules/TopBar/Module.php:218
 #: build/213.9e236eb9641a9ad98b0c.js:1
 #: build/295.875fb70efdc96b58927b.js:1
@@ -11511,7 +11511,7 @@ msgid "Advanced"
 msgstr "Pokročilé"
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:318
-#: includes/Modules/Consent/Module.php:770
+#: includes/Modules/Consent/Module.php:783
 #: includes/Modules/DashboardWidgets/Module.php:530
 #: includes/Modules/DashboardWidgets/Module.php:545
 #: includes/Modules/ExitPopup/Module.php:120
@@ -11744,7 +11744,7 @@ msgstr "Soukromé"
 msgid "Minimal"
 msgstr "Minimalistická"
 
-#: includes/Modules/Consent/Module.php:748
+#: includes/Modules/Consent/Module.php:761
 #: build/792.e76b3c57f168142448e6.js:6
 msgid "Card"
 msgstr "Karta"
@@ -11842,7 +11842,7 @@ msgstr "admin_email nebo {email}"
 msgid "Subject"
 msgstr "Předmět"
 
-#: includes/Modules/Consent/Module.php:743
+#: includes/Modules/Consent/Module.php:756
 #: build/792.e76b3c57f168142448e6.js:7
 msgid "Template"
 msgstr "Šablona"
@@ -12910,7 +12910,7 @@ msgstr "Nejnavštěvovanější stránky"
 msgid "Traffic sources"
 msgstr "Zdroje návštěvnosti"
 
-#: includes/Modules/Consent/Module.php:482
+#: includes/Modules/Consent/Module.php:483
 #: build/194.891eb73b35196acf3416.js:1
 msgid "Country"
 msgstr "Země"
@@ -14324,13 +14324,13 @@ msgid "Position"
 msgstr "Pozice"
 
 #: includes/Modules/AiAssistant/Module.php:580
-#: includes/Modules/Consent/Module.php:655
+#: includes/Modules/Consent/Module.php:668
 #: includes/Modules/PushNotifications/Module.php:338
 msgid "Bottom right"
 msgstr "Vpravo dole"
 
 #: includes/Modules/AiAssistant/Module.php:581
-#: includes/Modules/Consent/Module.php:654
+#: includes/Modules/Consent/Module.php:667
 #: includes/Modules/PushNotifications/Module.php:339
 msgid "Bottom left"
 msgstr "Vlevo dole"
@@ -27003,12 +27003,12 @@ msgstr "Karty (rámečky)"
 msgid "Buttons in a row (e.g. a 1 to 5 rating)"
 msgstr "Tlačítka v řadě (např. hodnocení 1 až 5)"
 
-#: includes/Modules/Consent/Module.php:783
+#: includes/Modules/Consent/Module.php:796
 #: build/792.e76b3c57f168142448e6.js:6
 msgid "Left"
 msgstr "Vlevo"
 
-#: includes/Modules/Consent/Module.php:784
+#: includes/Modules/Consent/Module.php:797
 #: build/792.e76b3c57f168142448e6.js:6
 msgid "Right"
 msgstr "Vpravo"
@@ -29190,7 +29190,7 @@ msgstr "Když chcete výchozí motivy ponechat."
 
 #: includes/Modules/AiPanel/legacy/Panel.php:344
 #: includes/Modules/AiPanel/legacy/Panel.php:1032
-#: includes/Modules/Consent/Module.php:492
+#: includes/Modules/Consent/Module.php:493
 msgid "Details"
 msgstr "Podrobnosti"
 
@@ -29545,7 +29545,7 @@ msgstr "Třetí sloupec"
 msgid "Fourth column"
 msgstr "Čtvrtý sloupec"
 
-#: includes/Modules/Consent/Module.php:906
+#: includes/Modules/Consent/Module.php:919
 #: build/530.beda7fac3bbd088df3d7.js:3
 msgid "Top of the page"
 msgstr "Horní část stránky"
@@ -38467,7 +38467,7 @@ msgid "Cookie Consent: Google Consent Mode defaults"
 msgstr "Cookie lišta: výchozí hodnoty Google Consent Mode"
 
 #: includes/Modules/Consent/Module.php:353
-#: includes/Modules/Consent/Module.php:477
+#: includes/Modules/Consent/Module.php:478
 msgid "Cookie settings"
 msgstr "Nastavení cookies"
 
@@ -38509,218 +38509,218 @@ msgstr "Ukazují nám, které stránky se navštěvují a jak se web používá,
 msgid "Measure advertising and show offers that may interest you, here and on other sites. Also covers embedded video, maps and social content."
 msgstr "Měří reklamu a zobrazují nabídky, které vás mohou zajímat, tady i na jiných webech. Zahrnují také vložená videa, mapy a obsah sociálních sítí."
 
-#: includes/Modules/Consent/Module.php:461
-#: includes/Modules/Consent/Module.php:666
+#: includes/Modules/Consent/Module.php:462
+#: includes/Modules/Consent/Module.php:679
 msgid "Your privacy choices"
 msgstr "Vaše volby soukromí"
 
-#: includes/Modules/Consent/Module.php:464
-#: includes/Modules/Consent/Module.php:673
+#: includes/Modules/Consent/Module.php:465
+#: includes/Modules/Consent/Module.php:686
 msgid "We use cookies so this site works and, if you agree, to measure visits and show relevant offers. Choose what you allow. You can change your decision at any time."
 msgstr "Používáme cookies, aby tento web fungoval a, pokud souhlasíte, abychom měřili návštěvnost a ukazovali relevantní nabídky. Vyberte, co povolíte. Své rozhodnutí můžete kdykoli změnit."
 
-#: includes/Modules/Consent/Module.php:467
-#: includes/Modules/Consent/Module.php:694
+#: includes/Modules/Consent/Module.php:468
+#: includes/Modules/Consent/Module.php:707
 msgid "Accept all"
 msgstr "Přijmout vše"
 
-#: includes/Modules/Consent/Module.php:468
-#: includes/Modules/Consent/Module.php:701
+#: includes/Modules/Consent/Module.php:469
+#: includes/Modules/Consent/Module.php:714
 msgid "Reject all"
 msgstr "Odmítnout vše"
 
-#: includes/Modules/Consent/Module.php:469
-#: includes/Modules/Consent/Module.php:708
+#: includes/Modules/Consent/Module.php:470
+#: includes/Modules/Consent/Module.php:721
 msgid "Customize"
 msgstr "Přizpůsobit"
 
-#: includes/Modules/Consent/Module.php:470
-#: includes/Modules/Consent/Module.php:715
+#: includes/Modules/Consent/Module.php:471
+#: includes/Modules/Consent/Module.php:728
 msgid "Save choices"
 msgstr "Uložit volby"
 
-#: includes/Modules/Consent/Module.php:472
+#: includes/Modules/Consent/Module.php:473
 msgid "Always on"
 msgstr "Vždy zapnuto"
 
-#: includes/Modules/Consent/Module.php:473
+#: includes/Modules/Consent/Module.php:474
 msgid "Services"
 msgstr "Služby"
 
-#: includes/Modules/Consent/Module.php:474
+#: includes/Modules/Consent/Module.php:475
 msgid "None in use"
 msgstr "Žádné se nepoužívají"
 
-#: includes/Modules/Consent/Module.php:475
+#: includes/Modules/Consent/Module.php:476
 msgid "This content comes from %s. Loading it may set cookies and share data with that service."
 msgstr "Tento obsah pochází ze služby %s. Jeho načtení může nastavit cookies a sdílet data s touto službou."
 
-#: includes/Modules/Consent/Module.php:476
+#: includes/Modules/Consent/Module.php:477
 msgid "Load content"
 msgstr "Načíst obsah"
 
-#: includes/Modules/Consent/Module.php:478
-#: includes/Modules/Consent/Module.php:687
+#: includes/Modules/Consent/Module.php:479
+#: includes/Modules/Consent/Module.php:700
 msgid "Cookie policy"
 msgstr "Zásady cookies"
 
-#: includes/Modules/Consent/Module.php:593
+#: includes/Modules/Consent/Module.php:594
 #: build/954.179d869228684c1a3a4c.js:12
 msgid "Texts"
 msgstr "Texty"
 
-#: includes/Modules/Consent/Module.php:595
+#: includes/Modules/Consent/Module.php:596
 #: build/954.179d869228684c1a3a4c.js:12
 msgid "Blocking"
 msgstr "Blokování"
 
-#: includes/Modules/Consent/Module.php:596
+#: includes/Modules/Consent/Module.php:597
 #: build/954.179d869228684c1a3a4c.js:12
 msgid "Google Consent Mode"
 msgstr "Google Consent Mode"
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:310
-#: includes/Modules/Consent/Module.php:605
+#: includes/Modules/Consent/Module.php:606
 msgid "Show the banner to"
 msgstr "Zobrazit lištu"
 
-#: includes/Modules/Consent/Module.php:607
+#: includes/Modules/Consent/Module.php:608
 msgid "All visitors"
 msgstr "Všem návštěvníkům"
 
-#: includes/Modules/Consent/Module.php:608
+#: includes/Modules/Consent/Module.php:609
 msgid "Visitors from the EU and Europe only"
 msgstr "Jen návštěvníkům z EU a Evropy"
 
-#: includes/Modules/Consent/Module.php:616
+#: includes/Modules/Consent/Module.php:617
 msgid "Consent version"
 msgstr "Verze souhlasu"
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:307
-#: includes/Modules/Consent/Module.php:623
+#: includes/Modules/Consent/Module.php:624
 msgid "Remember the choice for (days)"
 msgstr "Pamatovat si volbu (dny)"
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:325
-#: includes/Modules/Consent/Module.php:645
+#: includes/Modules/Consent/Module.php:646
 msgid "Show a small button to change the choice later"
 msgstr "Zobrazit malé tlačítko pro pozdější změnu volby"
 
-#: includes/Modules/Consent/Module.php:652
+#: includes/Modules/Consent/Module.php:665
 msgid "Position of that button"
 msgstr "Poloha tohoto tlačítka"
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:311
-#: includes/Modules/Consent/Module.php:679
+#: includes/Modules/Consent/Module.php:692
 msgid "Cookie policy address"
 msgstr "Adresa zásad cookies"
 
-#: includes/Modules/Consent/Module.php:686
+#: includes/Modules/Consent/Module.php:699
 msgid "Cookie policy link text"
 msgstr "Text odkazu na zásady cookies"
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:314
-#: includes/Modules/Consent/Module.php:693
+#: includes/Modules/Consent/Module.php:706
 msgid "Accept button"
 msgstr "Tlačítko pro přijetí"
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:315
-#: includes/Modules/Consent/Module.php:700
+#: includes/Modules/Consent/Module.php:713
 msgid "Reject button"
 msgstr "Tlačítko pro odmítnutí"
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:316
-#: includes/Modules/Consent/Module.php:707
+#: includes/Modules/Consent/Module.php:720
 msgid "Customize button"
 msgstr "Tlačítko pro přizpůsobení"
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:317
-#: includes/Modules/Consent/Module.php:714
+#: includes/Modules/Consent/Module.php:727
 msgid "Save button"
 msgstr "Tlačítko pro uložení"
 
-#: includes/Modules/Consent/Module.php:721
+#: includes/Modules/Consent/Module.php:734
 msgid "Extra services: Preferences"
 msgstr "Další služby: Preference"
 
-#: includes/Modules/Consent/Module.php:728
+#: includes/Modules/Consent/Module.php:741
 msgid "Extra services: Statistics"
 msgstr "Další služby: Statistika"
 
-#: includes/Modules/Consent/Module.php:735
+#: includes/Modules/Consent/Module.php:748
 msgid "Extra services: Marketing"
 msgstr "Další služby: Marketing"
 
-#: includes/Modules/Consent/Module.php:772
+#: includes/Modules/Consent/Module.php:785
 msgid "Box in a corner"
 msgstr "Okno v rohu"
 
-#: includes/Modules/Consent/Module.php:773
+#: includes/Modules/Consent/Module.php:786
 msgid "Bar across the bottom"
 msgstr "Pruh přes spodní část"
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:319
-#: includes/Modules/Consent/Module.php:781
+#: includes/Modules/Consent/Module.php:794
 msgid "Side of the box"
 msgstr "Strana okna"
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:320
-#: includes/Modules/Consent/Module.php:802
+#: includes/Modules/Consent/Module.php:815
 msgid "Background"
 msgstr "Pozadí"
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:322
-#: includes/Modules/Consent/Module.php:816
+#: includes/Modules/Consent/Module.php:829
 msgid "Buttons"
 msgstr "Tlačítka"
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:323
-#: includes/Modules/Consent/Module.php:823
+#: includes/Modules/Consent/Module.php:836
 msgid "Button text"
 msgstr "Text tlačítek"
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:324
-#: includes/Modules/Consent/Module.php:831
+#: includes/Modules/Consent/Module.php:844
 msgid "Corner radius (px)"
 msgstr "Zaoblení rohů (px)"
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:308
-#: includes/Modules/Consent/Module.php:924
+#: includes/Modules/Consent/Module.php:937
 msgid "Hold back tracking scripts until the visitor agrees"
 msgstr "Zadržet sledovací skripty, dokud návštěvník nesouhlasí"
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:309
-#: includes/Modules/Consent/Module.php:931
+#: includes/Modules/Consent/Module.php:944
 msgid "Replace embedded videos and maps by a \"Load content\" box"
 msgstr "Nahradit vložená videa a mapy rámečkem \"Načíst obsah\""
 
-#: includes/Modules/Consent/Module.php:938
+#: includes/Modules/Consent/Module.php:951
 msgid "Use the privacy-enhanced YouTube address"
 msgstr "Použít adresu YouTube s rozšířenou ochranou soukromí"
 
-#: includes/Modules/Consent/Module.php:946
+#: includes/Modules/Consent/Module.php:959
 msgid "Also catch snippets pasted directly into the page"
 msgstr "Zachytit i úryvky vložené přímo do stránky"
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:326
-#: includes/Modules/Consent/Module.php:953
+#: includes/Modules/Consent/Module.php:966
 msgid "Own rules"
 msgstr "Vlastní pravidla"
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:306
-#: includes/Modules/Consent/Module.php:961
+#: includes/Modules/Consent/Module.php:974
 msgid "Google Consent Mode v2"
 msgstr "Google Consent Mode v2"
 
-#: includes/Modules/Consent/Module.php:964
+#: includes/Modules/Consent/Module.php:977
 msgid "Basic: Google tags wait for consent"
 msgstr "Základní: značky Google čekají na souhlas"
 
-#: includes/Modules/Consent/Module.php:965
+#: includes/Modules/Consent/Module.php:978
 msgid "Advanced: Google tags load at once and follow the signal"
 msgstr "Pokročilý: značky Google se načtou hned a řídí se signálem"
 
-#: includes/Modules/Consent/Module.php:973
+#: includes/Modules/Consent/Module.php:986
 msgid "Wait for the saved choice (milliseconds)"
 msgstr "Čekat na uloženou volbu (milisekundy)"
 
@@ -38799,12 +38799,12 @@ msgid "Complianz inserts the analytics tool \"%s\" itself. UX Studio cannot inse
 msgstr "Complianz sám vkládá analytický nástroj „%s“. UX Studio ho vkládat neumí, takže po přepnutí měření přestane, pokud ho nevloží něco jiného."
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:332
-#: includes/Modules/Consent/Module.php:630
+#: includes/Modules/Consent/Module.php:631
 msgid "Take over choices from the old banner (cookie name prefix)"
 msgstr "Převzít volby ze staré lišty (předpona názvu cookie)"
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:333
-#: includes/Modules/Consent/Module.php:637
+#: includes/Modules/Consent/Module.php:638
 msgid "Policy number of the old banner"
 msgstr "Číslo zásad staré lišty"
 
@@ -39113,39 +39113,39 @@ msgstr "Stránky se nevytvořily, chybí některé údaje."
 msgid "This version does not exist."
 msgstr "Tato verze neexistuje."
 
-#: includes/Modules/Consent/Module.php:479
+#: includes/Modules/Consent/Module.php:480
 #: build/954.179d869228684c1a3a4c.js:2
 #: build/954.179d869228684c1a3a4c.js:11
 msgid "Cookies"
 msgstr "Cookies"
 
-#: includes/Modules/Consent/Module.php:480
+#: includes/Modules/Consent/Module.php:481
 msgid "Stored for"
 msgstr "Uloženo na"
 
-#: includes/Modules/Consent/Module.php:483
+#: includes/Modules/Consent/Module.php:484
 msgid "Privacy policy of the provider"
 msgstr "Zásady ochrany osobních údajů poskytovatele"
 
-#: includes/Modules/Consent/Module.php:484
+#: includes/Modules/Consent/Module.php:485
 #: build/954.179d869228684c1a3a4c.js:2
 msgid "No cookies of its own."
 msgstr "Žádné vlastní cookies."
 
-#: includes/Modules/Consent/Module.php:485
+#: includes/Modules/Consent/Module.php:486
 msgid "Consent ID (quote it if you ask us about your choice):"
 msgstr "ID souhlasu (uveďte ho, pokud se nás na svou volbu budete dotazovat):"
 
-#: includes/Modules/Consent/Module.php:597
+#: includes/Modules/Consent/Module.php:598
 #: build/954.179d869228684c1a3a4c.js:12
 msgid "Consent records"
 msgstr "Záznamy souhlasů"
 
-#: includes/Modules/Consent/Module.php:982
+#: includes/Modules/Consent/Module.php:995
 msgid "Keep a record of every choice (proof of consent)"
 msgstr "Ukládat záznam o každé volbě (doklad o souhlasu)"
 
-#: includes/Modules/Consent/Module.php:989
+#: includes/Modules/Consent/Module.php:1002
 msgid "Keep records for (days)"
 msgstr "Uchovávat záznamy (dnů)"
 
@@ -39998,35 +39998,35 @@ msgstr "Ověřit v ARES"
 msgid "Looks at the shop settings, the SEO plugin, the Contact page and the footer of this site and fills in the empty fields; a filled field is never overwritten (a different value is offered next to it). Nothing is saved until you press Save details. ARES is the public register of Czech companies: your company number is sent there only when you press \"Verify in ARES\"."
 msgstr "Podívá se do nastavení obchodu, SEO pluginu, na stránku Kontakt a do patičky tohoto webu a vyplní prázdná pole; vyplněné pole se nikdy nepřepíše (jiná hodnota se nabídne vedle něj). Nic se neuloží, dokud nestisknete Uložit údaje. ARES je veřejný rejstřík českých firem: vaše IČO se tam pošle jen po stisku „Ověřit v ARES“."
 
-#: includes/Modules/Consent/Module.php:461
+#: includes/Modules/Consent/Module.php:462
 msgid "A word about cookies"
 msgstr "Pár slov o cookies"
 
-#: includes/Modules/Consent/Module.php:465
+#: includes/Modules/Consent/Module.php:466
 msgid "We use cookies to run this site and, with your consent, to measure visits and show relevant offers."
 msgstr "Používáme cookies, aby tento web fungoval a s vaším souhlasem měřil návštěvnost a ukazoval relevantní nabídky."
 
-#: includes/Modules/Consent/Module.php:467
+#: includes/Modules/Consent/Module.php:468
 msgid "Sure"
 msgstr "Jasně"
 
-#: includes/Modules/Consent/Module.php:468
+#: includes/Modules/Consent/Module.php:469
 msgid "No thanks"
 msgstr "Ne, díky"
 
-#: includes/Modules/Consent/Module.php:491
+#: includes/Modules/Consent/Module.php:492
 msgid "Consent"
 msgstr "Souhlas"
 
-#: includes/Modules/Consent/Module.php:493
+#: includes/Modules/Consent/Module.php:494
 msgid "About cookies"
 msgstr "O cookies"
 
-#: includes/Modules/Consent/Module.php:494
+#: includes/Modules/Consent/Module.php:495
 msgid "Cookie banner sections"
 msgstr "Sekce cookie lišty"
 
-#: includes/Modules/Consent/Module.php:495
+#: includes/Modules/Consent/Module.php:496
 msgid "Cookies are small files that a website stores in your browser. The necessary ones keep the site working. All the others are used only if you allow them, and you can change or withdraw your choice at any time with the cookie settings button."
 msgstr "Cookies jsou malé soubory, které si web ukládá ve vašem prohlížeči. Nezbytné zajišťují fungování webu. Všechny ostatní se používají jen s vaším svolením a svou volbu můžete kdykoli změnit nebo odvolat tlačítkem nastavení cookies."
 
@@ -40034,27 +40034,27 @@ msgstr "Cookies jsou malé soubory, které si web ukládá ve vašem prohlíže�
 msgid "The look of the banner. It works the same in every template. Classic is a box or a bar (set below), Tabs a wide panel with switches, Card a dark card with round buttons (its default colours are dark, colours you set replace them), Slim one thin bar."
 msgstr "Vzhled lišty. Ve všech šablonách funguje stejně. Klasická je okno nebo lišta (nastavíte níže), Záložky široký panel s přepínači, Karta tmavá karta s kulatými tlačítky (výchozí barvy má tmavé, vaše vlastní je nahradí), Úzká lišta jeden tenký pruh."
 
-#: includes/Modules/Consent/Module.php:746
+#: includes/Modules/Consent/Module.php:759
 msgid "Classic"
 msgstr "Klasická"
 
-#: includes/Modules/Consent/Module.php:747
+#: includes/Modules/Consent/Module.php:760
 msgid "Tabs"
 msgstr "Záložky"
 
-#: includes/Modules/Consent/Module.php:749
+#: includes/Modules/Consent/Module.php:762
 msgid "Slim bar"
 msgstr "Úzká lišta"
 
-#: includes/Modules/Consent/Module.php:744
+#: includes/Modules/Consent/Module.php:757
 msgid "The look of the banner. It works the same in every template."
 msgstr "Vzhled lišty. Ve všech šablonách funguje stejně."
 
-#: includes/Modules/Consent/Module.php:758
+#: includes/Modules/Consent/Module.php:771
 msgid "A box in a corner or a bar across the bottom."
 msgstr "Okno v rohu nebo lišta přes spodek stránky."
 
-#: includes/Modules/Consent/Module.php:759
+#: includes/Modules/Consent/Module.php:772
 msgid "A wide panel with tabs and switches."
 msgstr "Široký panel se záložkami a přepínači."
 
@@ -40062,71 +40062,71 @@ msgstr "Široký panel se záložkami a přepínači."
 msgid "A dark card with round buttons."
 msgstr "Tmavá karta s kulatými tlačítky."
 
-#: includes/Modules/Consent/Module.php:761
+#: includes/Modules/Consent/Module.php:774
 msgid "One thin bar across the page."
 msgstr "Jeden tenký pruh přes celou šířku."
 
-#: includes/Modules/Consent/Module.php:760
+#: includes/Modules/Consent/Module.php:773
 msgid "A light card with round buttons."
 msgstr "Světlá karta s kulatými tlačítky."
 
-#: includes/Modules/Consent/Module.php:843
+#: includes/Modules/Consent/Module.php:856
 msgid "Panel at the bottom centre"
 msgstr "Panel dole uprostřed"
 
-#: includes/Modules/Consent/Module.php:844
+#: includes/Modules/Consent/Module.php:857
 msgid "Bar across the full width at the bottom"
 msgstr "Lišta dole přes celou šířku"
 
-#: includes/Modules/Consent/Module.php:853
+#: includes/Modules/Consent/Module.php:866
 msgid "Show the tab About cookies"
 msgstr "Zobrazit záložku O cookies"
 
-#: includes/Modules/Consent/Module.php:862
+#: includes/Modules/Consent/Module.php:875
 msgid "Maximum width of the panel (px)"
 msgstr "Maximální šířka panelu (px)"
 
-#: includes/Modules/Consent/Module.php:863
+#: includes/Modules/Consent/Module.php:876
 msgid "From 480 to 1400. On a narrow screen the panel always fills the width."
 msgstr "Od 480 do 1400. Na úzké obrazovce panel vždy vyplní celou šířku."
 
-#: includes/Modules/Consent/Module.php:871
+#: includes/Modules/Consent/Module.php:884
 msgid "Show the cookie icon"
 msgstr "Zobrazit ikonku sušenky"
 
-#: includes/Modules/Consent/Module.php:880
+#: includes/Modules/Consent/Module.php:893
 msgid "Shape of the buttons"
 msgstr "Tvar tlačítek"
 
-#: includes/Modules/Consent/Module.php:881
+#: includes/Modules/Consent/Module.php:894
 msgid "Reject and accept always look equally strong, in either shape."
 msgstr "Odmítnout a přijmout vypadají stejně výrazně v obou tvarech."
 
-#: includes/Modules/Consent/Module.php:883
+#: includes/Modules/Consent/Module.php:896
 msgid "Round"
 msgstr "Kulatá"
 
-#: includes/Modules/Consent/Module.php:884
+#: includes/Modules/Consent/Module.php:897
 msgid "Rounded rectangle"
 msgstr "Zaoblený obdélník"
 
-#: includes/Modules/Consent/Module.php:893
+#: includes/Modules/Consent/Module.php:906
 msgid "Corner radius of the card (px)"
 msgstr "Zaoblení rohů karty (px)"
 
-#: includes/Modules/Consent/Module.php:894
+#: includes/Modules/Consent/Module.php:907
 msgid "From 0 to 40."
 msgstr "Od 0 do 40."
 
-#: includes/Modules/Consent/Module.php:905
+#: includes/Modules/Consent/Module.php:918
 msgid "Bottom of the page"
 msgstr "Dole na stránce"
 
-#: includes/Modules/Consent/Module.php:915
+#: includes/Modules/Consent/Module.php:928
 msgid "Show the link to the privacy policy"
 msgstr "Zobrazit odkaz na zásady ochrany osobních údajů"
 
-#: includes/Modules/Consent/Module.php:502
+#: includes/Modules/Consent/Module.php:503
 msgid "Cookie banner by UX1 (opens in a new window)"
 msgstr "Cookie lištu dodává UX1 (otevře se v novém okně)"
 
@@ -40138,23 +40138,23 @@ msgstr "Nápověda: %s"
 msgid "Classic WordPress editor and widgets"
 msgstr "Klasický editor/widgety WordPressu"
 
-#: includes/Modules/Consent/Module.php:841
+#: includes/Modules/Consent/Module.php:854
 msgid "Panel in the middle of the bottom edge, or a band across the whole width."
 msgstr "Panel uprostřed spodního okraje, nebo pruh přes celou šířku."
 
-#: includes/Modules/Consent/Module.php:854
+#: includes/Modules/Consent/Module.php:867
 msgid "The third tab with a short explanation of what cookies are and how to change the choice later."
 msgstr "Třetí záložka s krátkým vysvětlením, co jsou cookies a jak volbu později změnit."
 
-#: includes/Modules/Consent/Module.php:872
+#: includes/Modules/Consent/Module.php:885
 msgid "The small cookie picture next to the heading of the card."
 msgstr "Malý obrázek sušenky vedle nadpisu karty."
 
-#: includes/Modules/Consent/Module.php:903
+#: includes/Modules/Consent/Module.php:916
 msgid "The thin bar sits at the bottom or at the top of the window."
 msgstr "Úzká lišta je u spodního, nebo horního okraje okna."
 
-#: includes/Modules/Consent/Module.php:916
+#: includes/Modules/Consent/Module.php:929
 msgid "A link to your cookie policy at the end of the text in the bar."
 msgstr "Odkaz na vaše zásady cookies na konci textu v liště."
 
@@ -40562,3 +40562,19 @@ msgstr "Otevřít klíče API"
 #: build/530.beda7fac3bbd088df3d7.js:10
 msgid "Widgets"
 msgstr "Widgety"
+
+#: includes/Modules/Consent/Module.php:653
+msgid "What opens when the visitor wants to change the choice"
+msgstr "Co se otevře, když chce návštěvník změnit volbu"
+
+#: includes/Modules/Consent/Module.php:654
+msgid "Applies to the small button, the shortcode [uxstudio_cookie_settings] and links to #uxc-open. The banner shows the same first screen as on the first visit; the visitor gets to the categories with Customize."
+msgstr "Platí pro malé tlačítko, shortcode [uxstudio_cookie_settings] i odkazy na #uxc-open. Lišta ukáže stejnou první obrazovku jako při první návštěvě, ke kategoriím se návštěvník dostane tlačítkem Přizpůsobit."
+
+#: includes/Modules/Consent/Module.php:656
+msgid "The category settings"
+msgstr "Nastavení kategorií"
+
+#: includes/Modules/Consent/Module.php:657
+msgid "The banner as on the first visit"
+msgstr "Lišta jako při první návštěvě"

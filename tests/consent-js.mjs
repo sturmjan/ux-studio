@@ -148,7 +148,10 @@ r = await runUi( 'uxs_consent=1.3.7.1731000000.' + stored, withText, { steps: ( 
 b = r.calls.beacon;
 check( 'records: withdrawing a granted category is reported as withdraw with the same id', b.length === 1 && b[ 0 ].b.a === 'withdraw' && b[ 0 ].b.id === stored && b[ 0 ].b.c === '0', JSON.stringify( b ) );
 
+r = await runUi( 'uxs_consent=1.3.7.1731000000.' + stored, { ...withText, rv: 'main' }, { steps: ( { win } ) => win.uxConsent.open() } );
+check( 'reopen view main: reopening shows the first screen, not the category settings', ! / is-detail/.test( r.body.querySelectorAll( '.uxc' )[ 0 ].className ) );
 r = await runUi( 'uxs_consent=1.3.7.1731000000.' + stored, withText, { steps: ( { win } ) => win.uxConsent.open() } );
+check( 'reopen view default: reopening shows the category settings', / is-detail/.test( r.body.querySelectorAll( '.uxc' )[ 0 ].className ) );
 const idLine = r.body.all().find( ( n ) => n.textContent === 'Consent ID: ' + stored );
 check( 'records: the consent id is shown in the cookie settings', !! idLine && idLine.hidden === false );
 
@@ -312,8 +315,8 @@ for ( const tpl of [ 'classic', 'cookiebot', 'cookie', 'slim', 'nonsense' ] ) {
 		const links = r.body.querySelectorAll( '.uxc-by' );
 		const a = links[ 0 ];
 		check( `by ${ tpl }: one link to https://ux1.cz/ in a new window with noopener`, links.length === 1 && a.href === 'https://ux1.cz/' && a.target === '_blank' && a.rel === 'noopener', JSON.stringify( links.length ) );
-		check( `by ${ tpl }: aria-label and title are the translated text, the svg is hidden from readers`, a.attrs[ 'aria-label' ] === byBase.t.by && a.title === byBase.t.by && /aria-hidden="true" focusable="false"/.test( a.innerHTML ) );
-		check( `by ${ tpl }: no external request and no text node in the svg (paths only, no font)`, ! /<text|<image|href=/.test( a.innerHTML ) && a.innerHTML.length < 400 );
+		check( `by ${ tpl }: aria-label and title are the translated text`, a.attrs[ 'aria-label' ] === byBase.t.by && a.title === byBase.t.by );
+		check( `by ${ tpl }: no markup or text inside, the word comes from CSS (no svg, no external request)`, ! a.innerHTML && ! ( a.children && a.children.length ) );
 		r = await runUi( '', { ...byBase, tpl } );
 		check( `by ${ tpl }: no link when the server sends no "by" (filter off)`, r.body.querySelectorAll( '.uxc-by' ).length === 0 );
 		r = await runUi( '', { ...byBase, tpl, by: 'javascript:alert(1)' } );
