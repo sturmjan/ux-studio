@@ -148,7 +148,10 @@ r = await runUi( 'uxs_consent=1.3.7.1731000000.' + stored, withText, { steps: ( 
 b = r.calls.beacon;
 check( 'records: withdrawing a granted category is reported as withdraw with the same id', b.length === 1 && b[ 0 ].b.a === 'withdraw' && b[ 0 ].b.id === stored && b[ 0 ].b.c === '0', JSON.stringify( b ) );
 
+r = await runUi( 'uxs_consent=1.3.7.1731000000.' + stored, { ...withText, rv: 'main' }, { steps: ( { win } ) => win.uxConsent.open() } );
+check( 'reopen view main: reopening shows the first screen, not the category settings', ! / is-detail/.test( r.body.querySelectorAll( '.uxc' )[ 0 ].className ) );
 r = await runUi( 'uxs_consent=1.3.7.1731000000.' + stored, withText, { steps: ( { win } ) => win.uxConsent.open() } );
+check( 'reopen view default: reopening shows the category settings', / is-detail/.test( r.body.querySelectorAll( '.uxc' )[ 0 ].className ) );
 const idLine = r.body.all().find( ( n ) => n.textContent === 'Consent ID: ' + stored );
 check( 'records: the consent id is shown in the cookie settings', !! idLine && idLine.hidden === false );
 

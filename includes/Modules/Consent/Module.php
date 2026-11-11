@@ -456,6 +456,7 @@ final class Module extends BaseModule {
 			'layout' => 'bar' === (string) $s->get( 'layout', 'box' ) ? 'bar' : 'box',
 			'pos'    => 'right' === (string) $s->get( 'position', 'left' ) ? 'right' : 'left',
 			'fab'    => (bool) $s->get( 'show_reopen', true ),
+			'rv'     => 'main' === (string) $s->get( 'reopen_view', 'detail' ) ? 'main' : 'detail',
 			'c'      => $categories,
 			't'      => array(
 				'title'    => $this->text( 'title', __( 'Your privacy choices', 'ux-studio' ), array( 'cookie' => __( 'A word about cookies', 'ux-studio' ) ) ),
@@ -644,6 +645,18 @@ final class Module extends BaseModule {
 				'type'    => 'toggle',
 				'label'   => __( 'Show a small button to change the choice later', 'ux-studio' ),
 				'default' => true,
+			),
+			array(
+				'key'     => 'reopen_view',
+				'section' => $display,
+				'type'    => 'select',
+				'label'   => __( 'What opens when the visitor wants to change the choice', 'ux-studio' ),
+				'help'    => __( 'Applies to the small button, the shortcode [uxstudio_cookie_settings] and links to #uxc-open. The banner shows the same first screen as on the first visit; the visitor gets to the categories with Customize.', 'ux-studio' ),
+				'options' => array(
+					'detail' => __( 'The category settings', 'ux-studio' ),
+					'main'   => __( 'The banner as on the first visit', 'ux-studio' ),
+				),
+				'default' => 'detail',
 			),
 			array(
 				'key'     => 'reopen_position',

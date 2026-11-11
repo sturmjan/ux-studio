@@ -756,6 +756,13 @@
 		root.hidden = false;
 		if ( CB ) {
 			setTab( 'main' ); // the switches are on this tab
+		} else if ( cfg.rv === 'main' ) {
+			// Setting "the banner as on the first visit": the first screen, Customize leads on to the categories.
+			setView( false );
+			var h = root.querySelector( '.uxc-main .uxc-h' );
+			if ( h && ! quiet ) {
+				h.focus();
+			}
 		} else {
 			setView( true );
 		}
