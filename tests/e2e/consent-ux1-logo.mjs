@@ -215,7 +215,7 @@ try {
 				const cs = getComputedStyle( a );
 				return { cls: a.className, outline: cs.outlineStyle, w: parseFloat( cs.outlineWidth ), op: cs.opacity };
 			} );
-			check( `${ tag }: Tab after the last button reaches the logo, with a visible focus ring and stronger`, /uxc-by/.test( focused.cls ) && focused.outline !== 'none' && focused.w >= 2 && +focused.op >= 0.45, JSON.stringify( focused ) );
+			check( `${ tag }: Tab after the last button reaches the logo, with a visible focus ring and slightly darker`, /uxc-by/.test( focused.cls ) && focused.outline !== 'none' && focused.w >= 2 && +focused.op >= 0.15 && +focused.op <= 0.25, JSON.stringify( focused ) );
 
 			if ( v.name === 'classic' && size === 'desktop' ) {
 				const [ popup ] = await Promise.all( [ context.waitForEvent( 'page' ), page.locator( '.uxc-by' ).click() ] );

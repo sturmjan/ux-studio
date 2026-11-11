@@ -136,7 +136,7 @@
 	.uxc.uxc-bar:not(.is-detail) .uxc-dlg:has(> .uxc-by) { padding-right: 20px; padding-bottom: 54px; }
 	.uxc.uxc-bar:not(.is-detail) .uxc-by { top: auto; bottom: 10px; transform: none; }
 }
-.uxc .uxc-by:hover, .uxc .uxc-by:focus-visible { opacity: .5; }
+.uxc .uxc-by:hover, .uxc .uxc-by:focus-visible { opacity: .18; }
 .uxc .uxc-by:focus-visible { outline: 3px solid var(--uxc-fg); outline-offset: 3px; }
 @media (forced-colors: active) {
 	.uxc .uxc-by { opacity: 1; }
