@@ -50,5 +50,5 @@
 .uxc.uxc-t-cookie.uxc-o-rect .uxc-main .uxc-btn.uxc-alt { flex: 1 1 auto; }
 .uxc.uxc-t-cookie .uxc-main .uxc-text > .uxc-h { margin: 0 0 12px; font-size: 1.45em; font-weight: 800; line-height: 1.15; }
 
-/* UX1 signature: top right corner of the card, in its padding (the padding is 24 px, the logo 8 + 12). */
+/* UX1 signature: top right corner of the card; the heading keeps room for it (see consent.css). */
 .uxc.uxc-t-cookie:not(.is-detail) .uxc-by { top: 8px; right: max(24px, calc(var(--uxc-cr, 22px) * .9)); }

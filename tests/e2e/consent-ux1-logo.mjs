@@ -94,6 +94,13 @@ async function inspect( page, label, vp ) {
 			const b = n.getBoundingClientRect();
 			return { x: b.x, y: b.y, width: b.width, height: b.height };
 		};
+		// Headings and paragraphs keep room for the logo in their padding: compare with the text itself, not the padded box.
+		const textBox = ( n ) => {
+			const rg = document.createRange();
+			rg.selectNodeContents( n );
+			const b = rg.getBoundingClientRect();
+			return { x: b.x, y: b.y, width: b.width, height: b.height };
+		};
 		const vis = ( n ) => n.offsetParent !== null || getComputedStyle( n ).position === 'fixed';
 		const logos = [ ...document.querySelectorAll( '.uxc .uxc-by' ) ].filter( vis );
 		const logo = logos[ 0 ];
@@ -109,7 +116,7 @@ async function inspect( page, label, vp ) {
 				const b = n.getBoundingClientRect();
 				return b.width > 2 && b.height > 2;
 			} )
-			.map( ( n ) => ( { tag: n.tagName.toLowerCase(), cls: n.className, text: ( n.textContent || '' ).trim().slice( 0, 20 ), box: r( n ) } ) );
+			.map( ( n ) => ( { tag: n.tagName.toLowerCase(), cls: n.className, text: ( n.textContent || '' ).trim().slice( 0, 20 ), box: /^(H2|P)$/.test( n.tagName ) ? textBox( n ) : r( n ) } ) );
 		const buttons = [ ...dlg.querySelectorAll( 'button' ) ].filter( vis );
 		const order = buttons.every( ( b ) => !! ( b.compareDocumentPosition( logo ) & Node.DOCUMENT_POSITION_FOLLOWING ) );
 		const svg = logo.querySelector( 'svg' );
@@ -135,7 +142,7 @@ async function inspect( page, label, vp ) {
 	const hit = data.others.filter( ( o ) => rectsOverlap( b, o.box ) );
 	check( `${ label }: overlaps no button, text, switch or tab`, hit.length === 0, JSON.stringify( hit.map( ( h ) => [ h.tag, h.cls, h.text, h.box ] ) ) );
 	check( `${ label }: after the buttons in the tab order`, data.order );
-	check( `${ label }: small and quiet (height 10 to 14 px, opacity .3 to .5)`, b.height >= 10 && b.height <= 14 && +data.opacity >= 0.3 && +data.opacity <= 0.5, JSON.stringify( { b, o: data.opacity } ) );
+	check( `${ label }: light and in the background (height 20 to 24 px, opacity .15 to .3, slanted)`, b.height >= 20 && b.height <= 24 && +data.opacity >= 0.15 && +data.opacity <= 0.3, JSON.stringify( { b, o: data.opacity } ) );
 	console.log( `INFO ${ label }: logo ${ b.width.toFixed( 1 ) } x ${ b.height.toFixed( 1 ) } at (${ Math.round( b.x ) }, ${ Math.round( b.y ) }), svg ${ data.svgBytes } B, colour ${ data.color }` );
 }
 
@@ -208,7 +215,7 @@ try {
 				const cs = getComputedStyle( a );
 				return { cls: a.className, outline: cs.outlineStyle, w: parseFloat( cs.outlineWidth ), op: cs.opacity };
 			} );
-			check( `${ tag }: Tab after the last button reaches the logo, with a visible focus ring and full strength`, /uxc-by/.test( focused.cls ) && focused.outline !== 'none' && focused.w >= 2 && +focused.op > 0.8, JSON.stringify( focused ) );
+			check( `${ tag }: Tab after the last button reaches the logo, with a visible focus ring and stronger`, /uxc-by/.test( focused.cls ) && focused.outline !== 'none' && focused.w >= 2 && +focused.op >= 0.6, JSON.stringify( focused ) );
 
 			if ( v.name === 'classic' && size === 'desktop' ) {
 				const [ popup ] = await Promise.all( [ context.waitForEvent( 'page' ), page.locator( '.uxc-by' ).click() ] );

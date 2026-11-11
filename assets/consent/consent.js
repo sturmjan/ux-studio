@@ -457,7 +457,7 @@
 		a.rel = 'noopener';
 		a.setAttribute( 'aria-label', T.by || 'UX1' );
 		a.title = T.by || 'UX1';
-		a.innerHTML = '<svg viewBox="0 0 37 14" width="32" height="12" fill="currentColor" aria-hidden="true" focusable="false"><path d="M1.7 0v7.8a4.5 4.5 0 0 0 9 0V0" fill="none" stroke="currentColor" stroke-width="3.4"/><path d="M15 0h4.2L27 14h-4.2zM22.8 0H27l-7.8 14H15zM36.6 0v14h-3.4V4.2L30 5.4V2.4L34.4 0z"/></svg>';
+		a.innerHTML = '<svg viewBox="0 0 37 14" width="58" height="22" fill="currentColor" aria-hidden="true" focusable="false"><path d="M1.7 0v7.8a4.5 4.5 0 0 0 9 0V0" fill="none" stroke="currentColor" stroke-width="3.4"/><path d="M15 0h4.2L27 14h-4.2zM22.8 0H27l-7.8 14H15zM36.6 0v14h-3.4V4.2L30 5.4V2.4L34.4 0z"/></svg>';
 		return a;
 	}
 
