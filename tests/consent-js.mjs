@@ -312,8 +312,8 @@ for ( const tpl of [ 'classic', 'cookiebot', 'cookie', 'slim', 'nonsense' ] ) {
 		const links = r.body.querySelectorAll( '.uxc-by' );
 		const a = links[ 0 ];
 		check( `by ${ tpl }: one link to https://ux1.cz/ in a new window with noopener`, links.length === 1 && a.href === 'https://ux1.cz/' && a.target === '_blank' && a.rel === 'noopener', JSON.stringify( links.length ) );
-		check( `by ${ tpl }: aria-label and title are the translated text, the svg is hidden from readers`, a.attrs[ 'aria-label' ] === byBase.t.by && a.title === byBase.t.by && /aria-hidden="true" focusable="false"/.test( a.innerHTML ) );
-		check( `by ${ tpl }: no external request and no text node in the svg (paths only, no font)`, ! /<text|<image|href=/.test( a.innerHTML ) && a.innerHTML.length < 400 );
+		check( `by ${ tpl }: aria-label and title are the translated text`, a.attrs[ 'aria-label' ] === byBase.t.by && a.title === byBase.t.by );
+		check( `by ${ tpl }: no markup or text inside, the word comes from CSS (no svg, no external request)`, ! a.innerHTML && ! ( a.children && a.children.length ) );
 		r = await runUi( '', { ...byBase, tpl } );
 		check( `by ${ tpl }: no link when the server sends no "by" (filter off)`, r.body.querySelectorAll( '.uxc-by' ).length === 0 );
 		r = await runUi( '', { ...byBase, tpl, by: 'javascript:alert(1)' } );
