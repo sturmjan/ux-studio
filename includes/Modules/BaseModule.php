@@ -1,6 +1,6 @@
 <?php
 /**
- * Base class for all UX Studio modules.
+ * Base class for all UX1 Studio modules.
  *
  * @package UxStudio
  */

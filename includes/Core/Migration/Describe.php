@@ -101,7 +101,7 @@ final class Describe {
 			'separator2'                     => __( 'Separator', 'ux-studio' ),
 			'separator-last'                 => __( 'Separator', 'ux-studio' ),
 			// phpcs:enable
-			'ux-studio'                      => __( 'UX Studio', 'ux-studio' ),
+			'ux-studio'                      => __( 'UX1 Studio', 'ux-studio' ),
 		);
 		if ( function_exists( 'wp_roles' ) ) {
 			$roles = wp_roles();

@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
  * GET  uxstudio/v1/dashboard-widgets/rules     - every known widget with its rule, the roles, the time of the last scan
  * POST uxstudio/v1/dashboard-widgets/rules     - set rules: `items` [{id, hidden?, roles?}], a bulk `action` (hide | show | roles | reset)
  *                                                on `ids`, `replace` (the whole map back, for "undo"), `dismiss_notice`
- *                                                `toggles` {setting key: bool} switches widgets of UX Studio on / off (the rows of GET carry type, type_name, toggle, module, state)
+ *                                                `toggles` {setting key: bool} switches widgets of UX1 Studio on / off (the rows of GET carry type, type_name, toggle, module, state)
  * POST uxstudio/v1/dashboard-widgets/refresh   - ask for the next Dashboard view to rewrite the snapshot (the SPA then loads index.php)
  * DELETE uxstudio/v1/dashboard-widgets/snapshot/{id} - forget a widget that is no longer registered, together with its rule
  */
@@ -293,7 +293,7 @@ final class RestController extends Controller {
 			'last_seen'   => 0,
 			'stale'       => $stale,
 		);
-		// The widgets of UX Studio are always listed (a widget that is switched off is not on the dashboard, but has to be
+		// The widgets of UX1 Studio are always listed (a widget that is switched off is not on the dashboard, but has to be
 		// there to be switched on); they are never "not found".
 		foreach ( WidgetCatalog::entries() as $id => $entry ) {
 			if ( ! isset( $rows[ $id ] ) ) {
@@ -398,7 +398,7 @@ final class RestController extends Controller {
 			return new \WP_Error( 'uxstudio_rules_too_many', __( 'There are too many widget rules.', 'ux-studio' ), array( 'status' => 400 ) );
 		}
 		$this->module->save_rules( $rules );
-		// The switches of the widgets of UX Studio (only the ones that exist).
+		// The switches of the widgets of UX1 Studio (only the ones that exist).
 		$toggles = WidgetCatalog::clean_toggles( $request->get_param( 'toggles' ) );
 		if ( $toggles ) {
 			$this->module->write_option( $toggles );

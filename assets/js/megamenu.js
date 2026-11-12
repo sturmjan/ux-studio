@@ -1,5 +1,5 @@
 /**
- * UX Studio megamenu controller: intercepts the top-level admin menu click
+ * UX1 Studio megamenu controller: intercepts the top-level admin menu click
  * (on any wp-admin page) and opens the quick-nav overlay instead of
  * navigating away. Plain JS, no build step - see Core\Megamenu for markup.
  */
@@ -126,7 +126,7 @@
 		}
 	}
 
-	// Click on the UX Studio top-level admin menu item opens the overlay
+	// Click on the UX1 Studio top-level admin menu item opens the overlay
 	// instead of navigating to the SPA.
 	menuItem.addEventListener( 'click', function ( e ) {
 		e.preventDefault();

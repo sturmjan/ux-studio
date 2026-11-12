@@ -130,7 +130,7 @@ final class CspRerate {
 					array( 'id' => (int) $row['id'] )
 				);
 			} catch ( \Throwable $e ) {
-				error_log( sprintf( 'UX Studio: CSP re-rating skipped row %d: %s', $last, $e->getMessage() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( sprintf( 'UX1 Studio: CSP re-rating skipped row %d: %s', $last, $e->getMessage() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			}
 		}
 		if ( count( $rows ) < self::BATCH ) {

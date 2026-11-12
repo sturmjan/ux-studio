@@ -1,4 +1,4 @@
-/* UX Studio Cookie Consent, template "cookiebot": a wide panel at the bottom centre with tabs and switches. Loaded after consent.css. */
+/* UX1 Studio Cookie Consent, template "cookiebot": a wide panel at the bottom centre with tabs and switches. Loaded after consent.css. */
 .uxc.uxc-t-cookiebot .uxc-dlg {
 	left: 50%; right: auto; bottom: 16px;
 	transform: translateX(-50%);

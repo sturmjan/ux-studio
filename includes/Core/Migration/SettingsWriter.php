@@ -352,8 +352,8 @@ final class SettingsWriter {
 					'detail' => ! $row['write']
 						? $row['to']
 						: sprintf(
-							/* translators: 1: expected value, 2: value found in UX Studio. */
-							__( 'Expected "%1$s", UX Studio has "%2$s".', 'ux-studio' ),
+							/* translators: 1: expected value, 2: value found in UX1 Studio. */
+							__( 'Expected "%1$s", UX1 Studio has "%2$s".', 'ux-studio' ),
 							$row['to'],
 							$row['from']
 						),
@@ -380,7 +380,7 @@ final class SettingsWriter {
 					'staged' => $ok && $row['staged'],
 					'detail' => $ok
 						? ( $row['staged'] ? __( 'The key is prepared encrypted, it takes effect after the switch.', 'ux-studio' ) : __( 'The key is stored encrypted.', 'ux-studio' ) )
-						: __( 'The key is not stored in UX Studio.', 'ux-studio' ),
+						: __( 'The key is not stored in UX1 Studio.', 'ux-studio' ),
 				);
 				continue;
 			}
@@ -407,8 +407,8 @@ final class SettingsWriter {
 				'detail' => $ok
 					? $row['to']
 					: sprintf(
-						/* translators: 1: expected value, 2: value found in UX Studio. */
-						__( 'Expected "%1$s", UX Studio has "%2$s".', 'ux-studio' ),
+						/* translators: 1: expected value, 2: value found in UX1 Studio. */
+						__( 'Expected "%1$s", UX1 Studio has "%2$s".', 'ux-studio' ),
 						$row['to'],
 						$row['from']
 					),

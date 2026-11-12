@@ -1,4 +1,4 @@
-# PARITY.md - Porovnání ux1-wordpress-customizer (legacy) vs UX Studio
+# PARITY.md - Porovnání ux1-wordpress-customizer (legacy) vs UX1 Studio
 
 > Automatizované A/B porovnání funkční parity, migrace dat a chování mezi starým
 > pluginem `ux1-wordpress-customizer` a jeho přepisem `ux-studio`.

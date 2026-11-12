@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  * see CronControl\Module::filter_cron_schedules).
  *
  * HARMLESS: an interval definition does nothing by itself, so it is written directly even when the module is on. An interval
- * that already exists in UX Studio keeps its own value.
+ * that already exists in UX1 Studio keeps its own value.
  *
  * URL EVENTS (PLAN.md 27.10): the events of WP Crontrol on the hook `crontrol_url_cron_job` (args: one array with `url`,
  * `method`, optional `name`; the schedule and the next run are those of the WP-Cron entry) become URL events of the module.
@@ -233,7 +233,7 @@ final class CronSource extends AbstractSource implements Activatable {
 	}
 
 	/**
-	 * Compare an interval with what UX Studio already has.
+	 * Compare an interval with what UX1 Studio already has.
 	 *
 	 * @param array<string, mixed> $item Item.
 	 * @return string `same`, `missing` or `differs`.
@@ -247,7 +247,7 @@ final class CronSource extends AbstractSource implements Activatable {
 	}
 
 	/**
-	 * Compare a URL event with what UX Studio already has.
+	 * Compare a URL event with what UX1 Studio already has.
 	 *
 	 * @param array<string, mixed> $item Item.
 	 * @return string `same` or `missing`.
@@ -287,7 +287,7 @@ final class CronSource extends AbstractSource implements Activatable {
 			case 'differs':
 				return array(
 					'status'  => 'skipped',
-					'message' => __( 'UX Studio already has an interval with this name and a different length, it is kept.', 'ux-studio' ),
+					'message' => __( 'UX1 Studio already has an interval with this name and a different length, it is kept.', 'ux-studio' ),
 				);
 			default:
 				return array( 'status' => 'created' );
@@ -327,13 +327,13 @@ final class CronSource extends AbstractSource implements Activatable {
 			$same = 'same' === $this->url_state( $item );
 			return array(
 				'ok'     => $same,
-				'detail' => $same ? '' : ( '' !== $this->url_problem( $item ) ? $this->url_problem( $item ) : __( 'The event is not in UX Studio.', 'ux-studio' ) ),
+				'detail' => $same ? '' : ( '' !== $this->url_problem( $item ) ? $this->url_problem( $item ) : __( 'The event is not in UX1 Studio.', 'ux-studio' ) ),
 			);
 		}
 		$same = 'same' === $this->state( $item );
 		return array(
 			'ok'     => $same,
-			'detail' => $same ? '' : __( 'The interval is not in UX Studio.', 'ux-studio' ),
+			'detail' => $same ? '' : __( 'The interval is not in UX1 Studio.', 'ux-studio' ),
 		);
 	}
 

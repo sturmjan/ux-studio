@@ -353,7 +353,7 @@ file_put_contents( $mu_dir . '/lint.php', $src );
 $lint = shell_exec( escapeshellarg( PHP_BINARY ) . ' -l ' . escapeshellarg( $mu_dir . '/lint.php' ) . ' 2>&1' );
 @unlink( $mu_dir . '/lint.php' );
 $assert( 'the generated mu-plugin is valid PHP', false !== strpos( (string) $lint, 'No syntax errors' ), (string) $lint );
-$assert( 'the mu-plugin does nothing without a token and when UX Studio is not active', false !== strpos( $src, "empty( \$_COOKIE['uxstudio_preview'] )" ) && false !== strpos( $src, 'if ( ! $active )' ) && false !== strpos( $src, 'is_file( $boot )' ) );
+$assert( 'the mu-plugin does nothing without a token and when UX1 Studio is not active', false !== strpos( $src, "empty( \$_COOKIE['uxstudio_preview'] )" ) && false !== strpos( $src, 'if ( ! $active )' ) && false !== strpos( $src, 'is_file( $boot )' ) );
 
 // A run in the history, migrated, with prepared values.
 History::put( array( 'id' => 'rrun1', 'started' => time() - 60, 'started_at' => '2026-10-21 12:00:00', 'finished' => time() - 30, 'user_id' => 7, 'sources' => array( array( 'id' => 'classic-editor', 'label' => 'Classic Editor', 'status' => 'done', 'written' => 1, 'staged' => 0 ), array( 'id' => 'disable-comments', 'label' => 'Disable Comments', 'status' => 'done', 'written' => 3, 'staged' => 3 ) ), 'errors' => 0, 'snapshot' => true, 'rolled_back' => 0 ) );

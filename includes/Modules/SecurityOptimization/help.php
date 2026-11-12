@@ -231,7 +231,7 @@ return array(
 		'off'    => __( 'Leave it off if the site is a regular target of bots and you do not want your inbox full.', 'ux-studio' ),
 	),
 	'captcha_shield_adaptive'    => array(
-		'does'   => __( 'When an address has had several failed logins recently (the threshold set under "Adaptive mode threshold"), it gets the next harder Shield difficulty for 15 minutes. The Shield is the key-less [[CAPTCHA]] of UX Studio: the browser solves a small puzzle by itself.', 'ux-studio' ),
+		'does'   => __( 'When an address has had several failed logins recently (the threshold set under "Adaptive mode threshold"), it gets the next harder Shield difficulty for 15 minutes. The Shield is the key-less [[CAPTCHA]] of UX1 Studio: the browser solves a small puzzle by itself.', 'ux-studio' ),
 		'effect' => __( 'A normal visitor still gets the easy check. Only addresses that look like an attack must compute longer, so the cost lands on the attacker.', 'ux-studio' ),
 	),
 	'captcha_mode'               => array(

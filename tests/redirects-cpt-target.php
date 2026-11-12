@@ -4,7 +4,7 @@ if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
  * Manual test: Redirects targets on custom post types, anchors, slug changes.
  *
- * Run inside a WordPress install that has UX Studio active (so Settings, DB,
+ * Run inside a WordPress install that has UX1 Studio active (so Settings, DB,
  * ... autoload), loading THIS checkout's Redirects classes:
  *
  *   wp eval-file tests/redirects-cpt-target.php --skip-plugins=wp-mail-smtp

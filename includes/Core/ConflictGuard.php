@@ -1,6 +1,6 @@
 <?php
 /**
- * Prevents UX Studio from running alongside the legacy ux1 plugin.
+ * Prevents UX1 Studio from running alongside the legacy ux1 plugin.
  *
  * @package UxStudio
  */
@@ -17,7 +17,7 @@ final class ConflictGuard {
 	private const LEGACY_PLUGIN = 'ux1-wordpress-customizer/ux1-wordpress-customizer.php';
 
 	/**
-	 * Whether UX Studio may boot (legacy plugin not active).
+	 * Whether UX1 Studio may boot (legacy plugin not active).
 	 */
 	public static function can_boot(): bool {
 		if ( ! function_exists( 'is_plugin_active' ) ) {
@@ -31,12 +31,12 @@ final class ConflictGuard {
 	}
 
 	/**
-	 * Admin notice explaining why UX Studio is dormant.
+	 * Admin notice explaining why UX1 Studio is dormant.
 	 */
 	public static function notice(): void {
 		printf(
 			'<div class="notice notice-info"><p>%s</p></div>',
-			esc_html__( 'UX Studio is completing the takeover from the legacy plugin "UX One - WordPress customizer": it will be deactivated automatically and UX Studio takes over on the next page load.', 'ux-studio' )
+			esc_html__( 'UX1 Studio is completing the takeover from the legacy plugin "UX One - WordPress customizer": it will be deactivated automatically and UX1 Studio takes over on the next page load.', 'ux-studio' )
 		);
 	}
 }

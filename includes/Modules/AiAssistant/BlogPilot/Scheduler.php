@@ -34,14 +34,14 @@ final class Scheduler {
 		if ( ! isset( $schedules['uxstudio_weekly'] ) ) {
 			$schedules['uxstudio_weekly'] = array(
 				'interval' => WEEK_IN_SECONDS,
-				'display'  => __( 'Weekly (UX Studio)', 'ux-studio' ),
+				'display'  => __( 'Weekly (UX1 Studio)', 'ux-studio' ),
 			);
 		}
 
 		if ( ! isset( $schedules['uxstudio_monthly'] ) ) {
 			$schedules['uxstudio_monthly'] = array(
 				'interval' => MONTH_IN_SECONDS,
-				'display'  => __( 'Monthly (UX Studio)', 'ux-studio' ),
+				'display'  => __( 'Monthly (UX1 Studio)', 'ux-studio' ),
 			);
 		}
 

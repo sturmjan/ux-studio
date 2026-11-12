@@ -330,7 +330,7 @@ final class AdminMenuEditorSource extends AbstractAdminSource {
 				}
 			}
 		}
-		// The extra capability is required ON TOP of the capability WordPress asks for, exactly what UX Studio's rule does.
+		// The extra capability is required ON TOP of the capability WordPress asks for, exactly what UX1 Studio's rule does.
 		$cap = preg_replace( '/[^A-Za-z0-9_\-]/', '', (string) ( $item['extra_capability'] ?? '' ) );
 		if ( '' !== $cap ) {
 			$model['item_caps'][ $key ] = $cap;
@@ -341,7 +341,7 @@ final class AdminMenuEditorSource extends AbstractAdminSource {
 	}
 
 	/**
-	 * The precise list of what AME does that UX Studio cannot.
+	 * The precise list of what AME does that UX1 Studio cannot.
 	 *
 	 * @param Mapping             $m       Mapping.
 	 * @param array<string, string[]> $lossy Collected labels per reason.
@@ -349,9 +349,9 @@ final class AdminMenuEditorSource extends AbstractAdminSource {
 	 */
 	private function lossy_lines( Mapping $m, array $lossy, int $missing ): void {
 		$texts = array(
-			'caps'       => __( 'A different required capability (access level) set on the item. UX Studio only adds a requirement on top of the capability WordPress asks for and never changes capabilities: %s.', 'ux-studio' ),
+			'caps'       => __( 'A different required capability (access level) set on the item. UX1 Studio only adds a requirement on top of the capability WordPress asks for and never changes capabilities: %s.', 'ux-studio' ),
 			'users'      => __( 'Access rules for special actors that are not a role or a single user (for example the super admin): %s.', 'ux-studio' ),
-			'grant'      => __( 'The plugin grants a role access to an item that role would not have by itself (UX Studio never gives a role capabilities it lacks): %s.', 'ux-studio' ),
+			'grant'      => __( 'The plugin grants a role access to an item that role would not have by itself (UX1 Studio never gives a role capabilities it lacks): %s.', 'ux-studio' ),
 			'sub_custom' => __( 'Custom items without a usable link (HTML, JavaScript, empty address): %s.', 'ux-studio' ),
 			'colors'     => __( 'Individual colors of menu items: %s.', 'ux-studio' ),
 			'iframe'     => __( 'Items that open a page inside the admin (iframe, embedded page): %s.', 'ux-studio' ),
@@ -363,7 +363,7 @@ final class AdminMenuEditorSource extends AbstractAdminSource {
 				$m->lossy( sprintf( $text, $this->list_text( $lossy[ $key ] ) ) );
 			}
 		}
-		$m->lossy( __( 'Which role sees an item is decided in the plugin by "show for" / "hide for" rules together with the role capabilities; UX Studio shows an item to the roles that remain after the rules are applied, and always to users who can manage options.', 'ux-studio' ) );
+		$m->lossy( __( 'Which role sees an item is decided in the plugin by "show for" / "hide for" rules together with the role capabilities; UX1 Studio shows an item to the roles that remain after the rules are applied, and always to users who can manage options.', 'ux-studio' ) );
 		$m->lossy( __( 'Per-site menus of a multisite network, menu presets and the plugin\'s own tools (menu backup, import and export) are not transferred.', 'ux-studio' ) );
 		if ( $missing > 0 ) {
 			$m->lossy(

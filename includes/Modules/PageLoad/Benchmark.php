@@ -25,7 +25,7 @@ final class Benchmark {
 	/** Cron hook name for the deferred benchmark run. */
 	public const HOOK = 'uxstudio_page_load_benchmark';
 
-	/** Option holding the enabled UX Studio module ids (Core\Modules::OPTION). */
+	/** Option holding the enabled UX1 Studio module ids (Core\Modules::OPTION). */
 	private const MODULES_OPTION = 'uxstudio_active_modules';
 
 	/** More toggled modules than this in one write are logged without a benchmark. */
@@ -53,7 +53,7 @@ final class Benchmark {
 		add_action( 'deactivated_plugin', array( $this, 'on_deactivated' ), 10, 1 );
 		add_action( self::HOOK, array( $this, 'run' ), 10, 1 );
 
-		// UX Studio module toggles (ModuleTracker port): Core\Modules persists the
+		// UX1 Studio module toggles (ModuleTracker port): Core\Modules persists the
 		// enabled-module list in one option, so compare it before/after the write.
 		add_filter( 'pre_update_option_' . self::MODULES_OPTION, array( $this, 'capture_modules_before' ), 1, 2 );
 		add_action( 'update_option_' . self::MODULES_OPTION, array( $this, 'on_modules_changed' ), 10, 2 );
@@ -127,8 +127,8 @@ final class Benchmark {
 		if ( ! empty( $all[ $id ]['name'] ) ) {
 			$name = (string) $all[ $id ]['name'];
 		}
-		/* translators: %s: UX Studio module name */
-		return sprintf( __( 'UX Studio module: %s', 'ux-studio' ), $name );
+		/* translators: %s: UX1 Studio module name */
+		return sprintf( __( 'UX1 Studio module: %s', 'ux-studio' ), $name );
 	}
 
 	/**

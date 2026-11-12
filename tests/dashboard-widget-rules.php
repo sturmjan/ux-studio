@@ -190,7 +190,7 @@ $dirs = array(
 $cp = static fn( string $f ): array => W::classify_path( $f, $dirs );
 $assert( 'source: core', array( 'source' => 'core', 'folder' => '' ) === $cp( 'D:\\xampp\\htdocs\\pobyty\\wp-admin\\includes\\dashboard.php' ) );
 $assert( 'source: a plugin and its folder', array( 'source' => 'plugin', 'folder' => 'wordpress-seo' ) === $cp( 'D:/xampp/htdocs/pobyty/wp-content/plugins/wordpress-seo/admin/x.php' ) );
-$assert( 'source: UX Studio before the plugins folder', array( 'source' => 'uxstudio', 'folder' => '' ) === $cp( 'D:/xampp/htdocs/_uxs-wt-csp/includes/Modules/Forms/DashboardWidget.php' ) );
+$assert( 'source: UX1 Studio before the plugins folder', array( 'source' => 'uxstudio', 'folder' => '' ) === $cp( 'D:/xampp/htdocs/_uxs-wt-csp/includes/Modules/Forms/DashboardWidget.php' ) );
 $assert( 'source: mu-plugin and theme', 'mu' === $cp( 'D:/xampp/htdocs/pobyty/wp-content/mu-plugins/a.php' )['source'] && array( 'source' => 'theme', 'folder' => 'astra' ) === $cp( 'D:/xampp/htdocs/pobyty/wp-content/themes/astra/functions.php' ) );
 $assert( 'source: unknown path and empty path', 'unknown' === $cp( '/elsewhere/x.php' )['source'] && 'unknown' === $cp( '' )['source'] );
 $assert( 'source: a folder that only starts like the plugins folder is not inside it', 'unknown' === $cp( 'D:/xampp/htdocs/pobyty/wp-content/plugins-old/x/a.php' )['source'] );

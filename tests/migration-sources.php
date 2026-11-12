@@ -3,7 +3,7 @@
 if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
  * Standalone test of the migration wizard backend (PLAN.md 26, phase F2): every
- * settings-only source maps its fixture options to the expected UX Studio values,
+ * settings-only source maps its fixture options to the expected UX1 Studio values,
  * a dry run writes nothing, running twice gives the same result, and the snapshot
  * restores exactly. Needs no WordPress and no database:
  *
@@ -813,7 +813,7 @@ $assert( 'staged entries older than the snapshot window are purged', array( 'rol
 $site( array( 'wpextended' ), array(), array( 'wpextended__classic-editor_settings' => array( 'post_types' => array( 'page' ) ), 'wpextended__link-manager_settings' => array( 'disable_arrow' => 1 ), 'uxstudio_link_manager' => array( 'disable_arrow' => 0 ) ) );
 $wp   = SourceRegistry::get( 'wpextended' );
 $plan = $wp->plan();
-$assert( 'wpextended plan: 2 pairs found, 1 new, 1 already in UX Studio (kept)', 2 === $plan['counts']['transfer'] && 1 === $plan['counts']['changed'], json_encode( $plan['counts'] ) );
+$assert( 'wpextended plan: 2 pairs found, 1 new, 1 already in UX1 Studio (kept)', 2 === $plan['counts']['transfer'] && 1 === $plan['counts']['changed'], json_encode( $plan['counts'] ) );
 $assert( 'wpextended snapshot covers Migrator targets', in_array( 'uxstudio_classic_editor', $wp->target_options(), true ) && in_array( 'uxstudio_migrated_from_ux1', $wp->target_options(), true ) );
 $before = $snapshot_options();
 $wp->migrate( array( 'run_id' => 'rwpx' ), true );

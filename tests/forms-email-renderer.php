@@ -5,7 +5,7 @@ if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
  * Test of the e-mail notification renderer (PLAN.md 20.12): logo position, colours, contrast warnings,
  * Outlook-safe markup, sanitizing of the WYSIWYG message (images, links, scripts) and merge-tag escaping.
  *
- * Run inside a WordPress install that has UX Studio active, loading THIS checkout:
+ * Run inside a WordPress install that has UX1 Studio active, loading THIS checkout:
  *
  *   wp eval-file tests/forms-email-renderer.php --skip-plugins=wp-mail-smtp
  *

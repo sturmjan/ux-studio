@@ -130,7 +130,7 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Names of the UX Studio modules that are switched on, id => name (for the owner of a widget).
+	 * Names of the UX1 Studio modules that are switched on, id => name (for the owner of a widget).
 	 *
 	 * @return array<string, string>
 	 */
@@ -305,7 +305,7 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Remove what the rules hide from the dashboard of the current user (and everything but the UX Studio widgets
+	 * Remove what the rules hide from the dashboard of the current user (and everything but the UX1 Studio widgets
 	 * when "hide all" is on).
 	 */
 	public function apply_rules(): void {
@@ -396,7 +396,7 @@ final class Module extends BaseModule {
 		);
 
 		foreach ( WidgetSnapshot::read()['widgets'] as $id => $widget ) {
-			// UX Studio's own widgets have their own switches in this module.
+			// UX1 Studio's own widgets have their own switches in this module.
 			if ( 0 === strpos( (string) $id, 'uxstudio_' ) || in_array( (string) $id, ModuleWidgets::ids(), true ) ) {
 				continue;
 			}

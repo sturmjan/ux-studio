@@ -32,7 +32,7 @@ function providerName( provider: Provider ): string {
 		case 'recaptcha_v3':
 			return __( 'Google reCAPTCHA v3', 'ux-studio' );
 		default:
-			return __( 'UX Studio Shield', 'ux-studio' );
+			return __( 'UX1 Studio Shield', 'ux-studio' );
 	}
 }
 

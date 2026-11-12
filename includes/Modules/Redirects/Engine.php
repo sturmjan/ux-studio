@@ -121,7 +121,7 @@ final class Engine {
 			nocache_headers();
 		}
 
-		add_filter( 'x_redirect_by', static fn (): string => 'UX Studio Redirects' );
+		add_filter( 'x_redirect_by', static fn (): string => 'UX1 Studio Redirects' );
 		wp_redirect( $target, $code ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- admin-defined targets may be on another domain.
 		exit;
 	}

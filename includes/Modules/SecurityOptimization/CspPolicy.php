@@ -339,7 +339,7 @@ final class CspPolicy {
 	}
 
 	/**
-	 * Adds the hashes of UX Studio's own inline scripts - and only when that is safe. A browser ignores
+	 * Adds the hashes of UX1 Studio's own inline scripts - and only when that is safe. A browser ignores
 	 * 'unsafe-inline' as soon as a hash or nonce is in the same directive, so a hash in a lenient policy would block
 	 * every other inline script of the site. Hence: no 'unsafe-inline' in the effective script-src, hashes are added;
 	 * otherwise the policy stays exactly as it was. An explicit script-src-elem is judged on its own.

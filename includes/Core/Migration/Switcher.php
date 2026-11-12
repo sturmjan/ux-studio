@@ -1,6 +1,6 @@
 <?php
 /**
- * The switch: UX Studio takes over from the old plugins, and the way back.
+ * The switch: UX1 Studio takes over from the old plugins, and the way back.
  *
  * @package UxStudio
  */

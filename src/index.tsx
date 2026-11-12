@@ -1,5 +1,5 @@
 /**
- * SPA entry: mounts the app into #ux-studio-root on the UX Studio admin page.
+ * SPA entry: mounts the app into #ux-studio-root on the UX1 Studio admin page.
  */
 import { createRoot } from 'react-dom/client';
 import { QueryClientProvider } from '@tanstack/react-query';

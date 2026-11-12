@@ -88,7 +88,7 @@ final class Abilities {
 
 	/**
 	 * The abilities as plain definitions (slug, label, description, schema, callback, annotations),
-	 * independent of the WordPress Abilities API, so the UX Studio MCP server can expose them on
+	 * independent of the WordPress Abilities API, so the UX1 Studio MCP server can expose them on
 	 * WordPress versions that do not have it (it only arrived in 6.9).
 	 *
 	 * @return array<int, array<string, mixed>>

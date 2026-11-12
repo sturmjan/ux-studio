@@ -301,7 +301,7 @@ final class Module extends BaseModule {
 
 	/**
 	 * WP's own editor (TinyMCE + media buttons) for the WYSIWYG message of the
-	 * e-mail actions, loaded on the UX Studio screen only while this module is on.
+	 * e-mail actions, loaded on the UX1 Studio screen only while this module is on.
 	 */
 	public function enqueue_editor(): void {
 		wp_enqueue_editor();

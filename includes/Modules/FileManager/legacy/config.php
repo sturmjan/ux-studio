@@ -1,6 +1,6 @@
 <?php
 /**
- * Tiny File Manager configuration bridge for UX Studio.
+ * Tiny File Manager configuration bridge for UX1 Studio.
  *
  * This file is automatically loaded by tinyfilemanager.php from __DIR__.
  * All security-relevant variables are overridden here.

@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  *  3. Forced two-factor login only when the importing administrator has a second factor set up.
  *  4. Country blocks only when the importing administrator's IP is on the firewall allowlist; block lists of
  *     IP addresses never keep an entry that includes the importing administrator's IP.
- *  5. Menu lock only when it keeps the administrator able to open UX Studio, Plugins, Users and Settings.
+ *  5. Menu lock only when it keeps the administrator able to open UX1 Studio, Plugins, Users and Settings.
  *  6. Maintenance mode is never switched on by an import unless that was asked for explicitly.
  *  7. Code (custom CSS, scripts) only from an importing user who has `unfiltered_html`.
  *  8. HTTPS redirect and HSTS only when the import itself is made over HTTPS.
@@ -172,7 +172,7 @@ final class ImportRules {
 			case 'admin-customiser':
 				// 5. Menu lock.
 				if ( ! empty( $values['menu_lock_enabled'] ) && empty( $current['menu_lock_enabled'] ) && empty( $ctx['menu_lock_safe'] ) ) {
-					$drop( 'menu_lock_enabled', 'menu_lock', __( 'Skipped: with the menu rules of this site the lock would stop you from opening UX Studio, Plugins, Users or Settings.', 'ux-studio' ) );
+					$drop( 'menu_lock_enabled', 'menu_lock', __( 'Skipped: with the menu rules of this site the lock would stop you from opening UX1 Studio, Plugins, Users or Settings.', 'ux-studio' ) );
 					$note( 'menu_lock', 'menu_lock_enabled', __( 'The menu lock was not turned on, because it would lock the importing administrator out of key screens.', 'ux-studio' ) );
 				}
 				break;

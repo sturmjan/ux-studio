@@ -1,6 +1,6 @@
 <?php
 /**
- * Automated handoff from the legacy ux1 plugin to UX Studio.
+ * Automated handoff from the legacy ux1 plugin to UX1 Studio.
  *
  * On activation: install/upgrade DB + migrate data (while ux1 is still active,
  * so its data is readable), then deactivate ux1 and offer to delete its files.
@@ -37,7 +37,7 @@ final class Handoff {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		// 2) If the legacy plugin is present and active, deactivate it so UX Studio
+		// 2) If the legacy plugin is present and active, deactivate it so UX1 Studio
 		//    can boot. We migrate BEFORE deactivating (not after, as a literal
 		//    reading of the spec would suggest) so a legacy deactivation hook can
 		//    never drop data before it is copied. Module-specific data copies
@@ -120,7 +120,7 @@ final class Handoff {
 		);
 		printf(
 			'<div class="notice notice-success"><p>%s</p><p><a href="%s" class="button button-primary">%s</a> <a href="%s" class="button">%s</a></p></div>',
-			esc_html__( 'UX Studio has taken over from the legacy UX1 plugin and migrated its data. You can now delete the old plugin files - your data stays and keeps migrating as you enable modules.', 'ux-studio' ),
+			esc_html__( 'UX1 Studio has taken over from the legacy UX1 plugin and migrated its data. You can now delete the old plugin files - your data stays and keeps migrating as you enable modules.', 'ux-studio' ),
 			esc_url( $url ),
 			esc_html__( 'Delete old UX1 plugin', 'ux-studio' ),
 			// The migration wizard does not jump in front of this notice: it is offered here instead.

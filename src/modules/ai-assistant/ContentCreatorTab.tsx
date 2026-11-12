@@ -397,7 +397,7 @@ function BulkSeoSection(): JSX.Element {
 				<p className="uxs-form__help">
 					{ status.data.seo_plugin
 						? sprintf_( __( 'Detected SEO plugin: %s - the generated title/description is written directly into its fields.', 'ux-studio' ), status.data.seo_plugin )
-						: __( 'No SEO plugin detected - saved into UX Studio\'s own fields.', 'ux-studio' ) }
+						: __( 'No SEO plugin detected - saved into UX1 Studio\'s own fields.', 'ux-studio' ) }
 				</p>
 			) : null }
 			<p>

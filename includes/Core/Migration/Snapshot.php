@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  * table (`CREATE TABLE ... LIKE` + `INSERT ... SELECT`), recorded in the snapshot.
  * Snapshots live 30 days; a daily cron purges older ones (Bootstrap::purge()).
  *
- * The snapshot never touches the SOURCE plugin's data - only UX Studio's targets.
+ * The snapshot never touches the SOURCE plugin's data - only UX1 Studio's targets.
  */
 final class Snapshot {
 

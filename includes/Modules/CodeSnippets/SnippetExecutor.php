@@ -562,7 +562,7 @@ final class SnippetExecutor {
 					wp_kses_post(
 						sprintf(
 							/* translators: %s: disable safe mode URL */
-							__( 'UX Studio is running in safe mode. Code snippets are disabled. <a href="%s">Disable Safe Mode</a>', 'ux-studio' ),
+							__( 'UX1 Studio is running in safe mode. Code snippets are disabled. <a href="%s">Disable Safe Mode</a>', 'ux-studio' ),
 							esc_url( $disable_url )
 						)
 					)

@@ -1,6 +1,6 @@
 /**
  * Plugin overlaps (PLAN.md 26.5): a foreign plugin that does the same job as an
- * enabled UX Studio module. Three pieces share one query:
+ * enabled UX1 Studio module. Three pieces share one query:
  *  - OverlapPanel    - "Plugin conflicts" panel above the module list;
  *  - OverlapBar      - slim notice on a module's own page;
  *  - OverlapModal    - shown when enabling a module is refused (HTTP 409).
@@ -72,7 +72,7 @@ function rowText( row: OverlapRow ): string {
 	const module = row.feature ? `${ row.module_name } (${ row.feature })` : row.module_name;
 	if ( 'full' === row.group ) {
 		return sprintf(
-			/* translators: 1: plugin name, 2: UX Studio module name. */
+			/* translators: 1: plugin name, 2: UX1 Studio module name. */
 			__( '%1$s does the same job as the module "%2$s". Running both can conflict - deactivate the plugin or switch the module off.', 'ux-studio' ),
 			row.name,
 			module
@@ -80,14 +80,14 @@ function rowText( row: OverlapRow ): string {
 	}
 	if ( 'customiser' === row.group ) {
 		return sprintf(
-			/* translators: 1: plugin name, 2: UX Studio module name. */
+			/* translators: 1: plugin name, 2: UX1 Studio module name. */
 			__( '%1$s covers part of what the module "%2$s" does. Both can run, but check that they do not change the same screens.', 'ux-studio' ),
 			row.name,
 			module
 		);
 	}
 	return sprintf(
-		/* translators: 1: plugin name, 2: UX Studio module name. */
+		/* translators: 1: plugin name, 2: UX1 Studio module name. */
 		__( '%1$s overlaps only partly with the module "%2$s". Both can run side by side; this is for your information.', 'ux-studio' ),
 		row.name,
 		module
@@ -276,7 +276,7 @@ export function OverlapModal( { error, moduleName, busy = false, onClose, onConf
 						  )
 						: sprintf(
 								/* translators: %s: module name. */
-								__( 'The module "%s" does the same job as the plugin below. Two things doing one job conflict with each other, so UX Studio did not enable it. Deactivate the plugin first, then enable the module.', 'ux-studio' ),
+								__( 'The module "%s" does the same job as the plugin below. Two things doing one job conflict with each other, so UX1 Studio did not enable it. Deactivate the plugin first, then enable the module.', 'ux-studio' ),
 								moduleName
 						  ) }
 				</p>

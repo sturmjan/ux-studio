@@ -243,7 +243,7 @@ final class Snippet {
 		$header  = "<?php\n";
 		$header .= "if ( ! defined( 'ABSPATH' ) ) { return; }\n\n";
 		$header .= "/**\n";
-		$header .= " * UX Studio Code Snippet\n";
+		$header .= " * UX1 Studio Code Snippet\n";
 		$header .= " *\n";
 		$header .= ' * @name: ' . $this->name . "\n";
 		$header .= ' * @type: ' . $this->type . "\n";

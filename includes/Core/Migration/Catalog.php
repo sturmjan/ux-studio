@@ -1,6 +1,6 @@
 <?php
 /**
- * Registry of third-party plugins whose job UX Studio modules also do.
+ * Registry of third-party plugins whose job UX1 Studio modules also do.
  *
  * @package UxStudio
  */
@@ -33,7 +33,7 @@ defined( 'ABSPATH' ) || exit;
  *  - `starter_skip` : (partial entries) the onboarding starter pack leaves the `when` settings out while the overlap
  *                      holds, as it does for a full entry, but enabling the module is never refused (the module
  *                      has other jobs; only that one setting would be done twice).
- *  - module `*`      : "any UX Studio module" (WP Extended overlaps with all).
+ *  - module `*`      : "any UX1 Studio module" (WP Extended overlaps with all).
  *
  * Plugins are matched by FOLDER slug: `wpforms-lite` matches
  * `wpforms-lite/wpforms.php` and any other file in that folder.
@@ -43,7 +43,7 @@ final class Catalog {
 	public const TYPE_FULL    = 'full';
 	public const TYPE_PARTIAL = 'partial';
 
-	/** Wildcard module id: the entry overlaps with every UX Studio module. */
+	/** Wildcard module id: the entry overlaps with every UX1 Studio module. */
 	public const ANY_MODULE = '*';
 
 	/** @var array<int, array<string, mixed>>|null */

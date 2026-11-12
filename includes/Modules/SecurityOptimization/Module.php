@@ -870,7 +870,7 @@ final class Module extends BaseModule {
 				'help'    => __( 'Automatic uses keys from the central app when the site is connected, then your own keys, and the key-less Shield when there are none. The Shield needs no account and no keys.', 'ux-studio' ),
 				'options' => array(
 					'auto'         => __( 'Automatic (recommended)', 'ux-studio' ),
-					'shield'       => __( 'UX Studio Shield (no keys)', 'ux-studio' ),
+					'shield'       => __( 'UX1 Studio Shield (no keys)', 'ux-studio' ),
 					'turnstile'    => __( 'Cloudflare Turnstile', 'ux-studio' ),
 					'recaptcha_v2' => __( 'Google reCAPTCHA v2 (checkbox)', 'ux-studio' ),
 					'recaptcha_v3' => __( 'Google reCAPTCHA v3 (score)', 'ux-studio' ),
@@ -3325,7 +3325,7 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * UX Studio's own endpoints that are deliberately public (AI chat, push
+	 * UX1 Studio's own endpoints that are deliberately public (AI chat, push
 	 * subscribe, popup tracking…) declare `permission_callback => __return_true`.
 	 * Honour that for our namespace only, so the lock keeps covering core and
 	 * other plugins without every module having to whitelist itself.

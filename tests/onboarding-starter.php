@@ -227,13 +227,13 @@ $assert( 'head links: the six core callbacks are removed, none of them is below 
 /* ── .htaccess block removal (pure) ── */
 
 $hw_cls = '\UxStudio\Modules\SecurityOptimization\HtaccessWriter';
-$block  = "# BEGIN UX Studio Security\n# The directives (lines) between \"BEGIN UX Studio Security\" and \"END UX Studio Security\" are\n# dynamically generated.\n# END UX Studio Security";
+$block  = "# BEGIN UX1 Studio Security\n# The directives (lines) between \"BEGIN UX1 Studio Security\" and \"END UX1 Studio Security\" are\n# dynamically generated.\n# END UX1 Studio Security";
 $wp     = "# BEGIN WordPress\nRewriteEngine On\n# END WordPress";
 $assert( 'htaccess: an appended empty block is removed completely', $wp . "\n" === $hw_cls::strip_block( $wp . "\n\n" . $block . "\n" ) );
 $assert( 'htaccess: a block in the middle goes with one separating blank line', $wp . "\n\nOptions -Indexes\n" === $hw_cls::strip_block( $wp . "\n\n" . $block . "\n\nOptions -Indexes\n" ) );
 $assert( 'htaccess: a file without the block is returned unchanged', $wp === $hw_cls::strip_block( $wp ) );
 $assert( 'htaccess: a file that held only the block becomes empty', '' === $hw_cls::strip_block( $block . "\n" ) );
-$assert( 'htaccess: an unterminated block is left alone', $wp . "\n# BEGIN UX Studio Security\nx" === $hw_cls::strip_block( $wp . "\n# BEGIN UX Studio Security\nx" ) );
+$assert( 'htaccess: an unterminated block is left alone', $wp . "\n# BEGIN UX1 Studio Security\nx" === $hw_cls::strip_block( $wp . "\n# BEGIN UX1 Studio Security\nx" ) );
 
 /* ── Bot Throttle ── */
 
@@ -378,7 +378,7 @@ $tmp  = $scratch . '/htaccess-test-' . getmypid();
 $orig = "# BEGIN WordPress\nRewriteEngine On\n# END WordPress\n";
 file_put_contents( $tmp, $orig );
 $copy = HtaccessGuard::read_file( $tmp );
-file_put_contents( $tmp, $orig . "\n# BEGIN UX Studio Security\nOptions -Indexes\n# END UX Studio Security\n" );
+file_put_contents( $tmp, $orig . "\n# BEGIN UX1 Studio Security\nOptions -Indexes\n# END UX1 Studio Security\n" );
 $assert( 'rollback: the copy is the original file content', $orig === $copy );
 $assert( 'rollback: restore puts the original bytes back', HtaccessGuard::restore_file( $tmp, $copy ) && $orig === file_get_contents( $tmp ) );
 $assert( 'rollback: a file that did not exist is removed again', HtaccessGuard::restore_file( $tmp, null ) && ! is_file( $tmp ) && null === HtaccessGuard::read_file( $tmp ) );

@@ -6,7 +6,7 @@ if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
  * escaped merge tags, migration of the old success_text and redirect action, the redirect target, who may save the
  * custom script, escaping of that script and sanitizing of the conversion tracking settings.
  *
- * Run inside a WordPress install that has UX Studio active, loading THIS checkout:
+ * Run inside a WordPress install that has UX1 Studio active, loading THIS checkout:
  *
  *   wp eval-file tests/forms-after-submit.php --skip-plugins=wp-mail-smtp
  *

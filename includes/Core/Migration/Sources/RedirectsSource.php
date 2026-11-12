@@ -603,7 +603,7 @@ final class RedirectsSource extends AbstractSource implements Activatable {
 	}
 
 	/**
-	 * Does UX Studio already have exactly this rule (regardless of its on / off state)?
+	 * Does UX1 Studio already have exactly this rule (regardless of its on / off state)?
 	 *
 	 * @param array<string, mixed> $item Normalized rule.
 	 * @return array{status:string,message:string}
@@ -645,7 +645,7 @@ final class RedirectsSource extends AbstractSource implements Activatable {
 			case 'would_update':
 				return array(
 					'status'  => 'skipped',
-					'message' => __( 'A different rule for this address already exists in UX Studio, it is kept.', 'ux-studio' ),
+					'message' => __( 'A different rule for this address already exists in UX1 Studio, it is kept.', 'ux-studio' ),
 				);
 			default:
 				return array(
@@ -685,7 +685,7 @@ final class RedirectsSource extends AbstractSource implements Activatable {
 		if ( 'would_update' === $cmp['status'] ) {
 			return array(
 				'status'  => 'skipped',
-				'message' => __( 'A different rule for this address already exists in UX Studio, it is kept.', 'ux-studio' ),
+				'message' => __( 'A different rule for this address already exists in UX1 Studio, it is kept.', 'ux-studio' ),
 			);
 		}
 		if ( 'would_create' !== $cmp['status'] ) {
@@ -739,8 +739,8 @@ final class RedirectsSource extends AbstractSource implements Activatable {
 		return array(
 			'ok'     => false,
 			'detail' => 'would_update' === $cmp['status']
-				? __( 'UX Studio has a different rule for this address.', 'ux-studio' )
-				: __( 'The rule is not in UX Studio.', 'ux-studio' ),
+				? __( 'UX1 Studio has a different rule for this address.', 'ux-studio' )
+				: __( 'The rule is not in UX1 Studio.', 'ux-studio' ),
 		);
 	}
 

@@ -1,4 +1,4 @@
-# UX Studio Security — blokovat přímý HTTP přístup k souborům tohoto modulu.
+# UX1 Studio Security — blokovat přímý HTTP přístup k souborům tohoto modulu.
 # Tiny File Manager se načítá výhradně přes WordPress (routa /spravce-souboru/),
 # nikdy ne přímým voláním .php souboru. Přímý přístup = neautentizovaný RCE.
 <IfModule mod_authz_core.c>

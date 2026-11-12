@@ -140,7 +140,7 @@ final class Envelope {
 		);
 
 		if ( strlen( $raw ) > self::MAX_BYTES ) {
-			return $fail( 'too_large', __( 'The file is larger than 2 MB, so it is not a settings export of UX Studio.', 'ux-studio' ) );
+			return $fail( 'too_large', __( 'The file is larger than 2 MB, so it is not a settings export of UX1 Studio.', 'ux-studio' ) );
 		}
 		if ( 0 === strpos( $raw, "\xEF\xBB\xBF" ) ) {
 			$raw = substr( $raw, 3 );
@@ -163,7 +163,7 @@ final class Envelope {
 			);
 		}
 		if ( ! is_array( $data ) || array_is_list( $data ) ) {
-			return $fail( 'shape', __( 'The file is JSON, but not a settings export of UX Studio.', 'ux-studio' ) );
+			return $fail( 'shape', __( 'The file is JSON, but not a settings export of UX1 Studio.', 'ux-studio' ) );
 		}
 		return self::validate( $data, $plugin_version );
 	}
@@ -185,7 +185,7 @@ final class Envelope {
 		);
 
 		if ( self::FORMAT !== ( $data['format'] ?? null ) ) {
-			return $fail( 'format', __( 'This is not a settings export of UX Studio (the "format" field is missing or different).', 'ux-studio' ) );
+			return $fail( 'format', __( 'This is not a settings export of UX1 Studio (the "format" field is missing or different).', 'ux-studio' ) );
 		}
 		$version = $data['format_version'] ?? null;
 		if ( ! is_int( $version ) || $version < 1 ) {
@@ -196,7 +196,7 @@ final class Envelope {
 				'too_new',
 				sprintf(
 					/* translators: 1: format version of the file, 2: format version this plugin reads. */
-					__( 'The file uses format version %1$d, but this plugin reads version %2$d at most. Update UX Studio on this site and try again.', 'ux-studio' ),
+					__( 'The file uses format version %1$d, but this plugin reads version %2$d at most. Update UX1 Studio on this site and try again.', 'ux-studio' ),
 					$version,
 					self::VERSION
 				)
@@ -210,19 +210,19 @@ final class Envelope {
 		$clean_modules = array();
 		foreach ( $modules as $id => $module ) {
 			if ( ! is_string( $id ) || 1 !== preg_match( self::MODULE_ID, $id ) || ! is_array( $module ) ) {
-				return $fail( 'module', __( 'The file has a module entry in a shape that UX Studio does not accept.', 'ux-studio' ) );
+				return $fail( 'module', __( 'The file has a module entry in a shape that UX1 Studio does not accept.', 'ux-studio' ) );
 			}
 			$entry = array();
 			if ( array_key_exists( 'enabled', $module ) ) {
 				if ( ! is_bool( $module['enabled'] ) ) {
-					return $fail( 'module', __( 'The file has a module entry in a shape that UX Studio does not accept.', 'ux-studio' ) );
+					return $fail( 'module', __( 'The file has a module entry in a shape that UX1 Studio does not accept.', 'ux-studio' ) );
 				}
 				$entry['enabled'] = $module['enabled'];
 			}
 			foreach ( array( 'settings', 'data' ) as $part ) {
 				if ( array_key_exists( $part, $module ) ) {
 					if ( ! is_array( $module[ $part ] ) || ( array() !== $module[ $part ] && array_is_list( $module[ $part ] ) ) ) {
-						return $fail( 'module', __( 'The file has a module entry in a shape that UX Studio does not accept.', 'ux-studio' ) );
+						return $fail( 'module', __( 'The file has a module entry in a shape that UX1 Studio does not accept.', 'ux-studio' ) );
 					}
 					$entry[ $part ] = $module[ $part ];
 				}
@@ -248,8 +248,8 @@ final class Envelope {
 			$warnings[] = array(
 				'code'    => 'newer_plugin',
 				'message' => sprintf(
-					/* translators: 1: UX Studio version that wrote the file, 2: version on this site. */
-					__( 'The file was written by UX Studio %1$s, this site runs %2$s. Settings that this version does not know are skipped.', 'ux-studio' ),
+					/* translators: 1: UX1 Studio version that wrote the file, 2: version on this site. */
+					__( 'The file was written by UX1 Studio %1$s, this site runs %2$s. Settings that this version does not know are skipped.', 'ux-studio' ),
 					$file_ver,
 					$plugin_version
 				),

@@ -1,5 +1,5 @@
 """Objective parity check: every legacy UX1 settings field id must exist as a
-settings key (or be remapped in Migrator) in the matching UX Studio module."""
+settings key (or be remapped in Migrator) in the matching UX1 Studio module."""
 import os, re, json, glob, sys
 base = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 L = os.path.join(base, 'ux1-wordpress-customizer', 'modules')
@@ -39,4 +39,4 @@ for d in sorted(os.listdir(L)):
         out[d] = (len(lk), miss)
 for d, (n, m) in out.items():
     print(f'{d} ({n}): {", ".join(m)}')
-print(f'\n{len(out)} modules with legacy settings keys missing in UX Studio')
+print(f'\n{len(out)} modules with legacy settings keys missing in UX1 Studio')

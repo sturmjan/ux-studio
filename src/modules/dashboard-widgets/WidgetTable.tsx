@@ -1,6 +1,6 @@
 /**
- * Widgets of the dashboard: ONE table of every widget (WordPress, plugins, UX Studio's own and those of other modules) with
- * filters, a switch to turn the widgets of UX Studio on, the rule that hides a widget or limits it to some roles, a detail
+ * Widgets of the dashboard: ONE table of every widget (WordPress, plugins, UX1 Studio's own and those of other modules) with
+ * filters, a switch to turn the widgets of UX1 Studio on, the rule that hides a widget or limits it to some roles, a detail
  * under each row and a live preview when you point at a widget.
  *
  * Every change is saved at once (a toast confirms it) through uxstudio/v1/dashboard-widgets/rules; the server checks the
@@ -39,7 +39,7 @@ interface WidgetRow {
 	type: WidgetType;
 	/** Plugin, theme or module name. */
 	type_name: string;
-	/** The switch that turns a widget of UX Studio on, or null. */
+	/** The switch that turns a widget of UX1 Studio on, or null. */
 	toggle: { key: string; enabled: boolean } | null;
 	module: { id: string; name: string; active: boolean } | null;
 	/** on | off | module_off | unavailable */
@@ -79,7 +79,7 @@ interface RulesRequest {
 	ids?: string[];
 	roles?: string[];
 	rules?: Rules;
-	/** Switches of the widgets of UX Studio: setting key => on. */
+	/** Switches of the widgets of UX1 Studio: setting key => on. */
 	toggles?: Toggles;
 }
 
@@ -112,9 +112,9 @@ function typeLabel( type: WidgetType ): string {
 		case 'plugin':
 			return __( 'Plugin', 'ux-studio' );
 		case 'own':
-			return __( 'UX Studio widget', 'ux-studio' );
+			return __( 'UX1 Studio widget', 'ux-studio' );
 		default:
-			return __( 'UX Studio module', 'ux-studio' );
+			return __( 'UX1 Studio module', 'ux-studio' );
 	}
 }
 
@@ -542,7 +542,7 @@ export default function WidgetTable( {
 	const busy = forget.isPending;
 	const changed = null !== baseline.current && baseline.current !== fingerprint( rules, toggles );
 	const ids = [ ...selected ];
-	// The switches among the selected rows (only the widgets of UX Studio have one).
+	// The switches among the selected rows (only the widgets of UX1 Studio have one).
 	const switchable = rows.filter( ( w ) => selected.has( w.id ) && w.toggle && 'module_off' !== w.state );
 
 	const toggle = ( id: string ): void =>
@@ -595,12 +595,12 @@ export default function WidgetTable( {
 			{ hideAll ? (
 				<p className="uxs-callout">
 					<Info size={ 16 } aria-hidden />
-					<span>{ __( '"Hide all dashboard widgets" is on, so the rules below do not apply. Only the widgets of UX Studio stay.', 'ux-studio' ) }</span>
+					<span>{ __( '"Hide all dashboard widgets" is on, so the rules below do not apply. Only the widgets of UX1 Studio stay.', 'ux-studio' ) }</span>
 				</p>
 			) : null }
 
 			<p className="uxs-wt__intro">
-				{ __( 'Every widget of the dashboard in one list. Turn the widgets of UX Studio on or off, hide any widget, or show it only to some roles. Point at the eye to see how a widget looks on the dashboard.', 'ux-studio' ) }
+				{ __( 'Every widget of the dashboard in one list. Turn the widgets of UX1 Studio on or off, hide any widget, or show it only to some roles. Point at the eye to see how a widget looks on the dashboard.', 'ux-studio' ) }
 			</p>
 
 			<div className="uxs-wt__toolbar">
@@ -621,8 +621,8 @@ export default function WidgetTable( {
 						<option value="all">{ __( 'All types', 'ux-studio' ) }</option>
 						<option value="wordpress">WordPress</option>
 						<option value="plugin">{ __( 'Plugins and themes', 'ux-studio' ) }</option>
-						<option value="own">{ __( 'UX Studio widgets', 'ux-studio' ) }</option>
-						<option value="module">{ __( 'UX Studio modules', 'ux-studio' ) }</option>
+						<option value="own">{ __( 'UX1 Studio widgets', 'ux-studio' ) }</option>
+						<option value="module">{ __( 'UX1 Studio modules', 'ux-studio' ) }</option>
 					</select>
 				</label>
 				<label>
@@ -891,13 +891,13 @@ export default function WidgetTable( {
 	);
 }
 
-/** Key and label of the "Source" filter: a plugin, a theme or a module by name; WordPress and UX Studio widgets as such. */
+/** Key and label of the "Source" filter: a plugin, a theme or a module by name; WordPress and UX1 Studio widgets as such. */
 function sourceKey( w: WidgetRow ): string {
 	return 'wordpress' === w.type || 'own' === w.type ? w.type : `${ w.type }:${ w.type_name || w.source }`;
 }
 
 function sourceName( w: WidgetRow ): string {
-	return 'wordpress' === w.type ? 'WordPress' : 'own' === w.type ? __( 'UX Studio widgets', 'ux-studio' ) : ownerName( w ) || typeLabel( w.type );
+	return 'wordpress' === w.type ? 'WordPress' : 'own' === w.type ? __( 'UX1 Studio widgets', 'ux-studio' ) : ownerName( w ) || typeLabel( w.type );
 }
 
 /** The detail under a row: what the widget is, what its switch does, where it comes from, what it needs. */

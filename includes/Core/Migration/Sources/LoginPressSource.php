@@ -130,7 +130,7 @@ final class LoginPressSource extends AbstractAdminSource {
 		$custom_css = $this->str( $o, 'loginpress_custom_css' );
 		if ( '' !== $custom_css ) {
 			$m->set( self::MODULE, 'login_custom_css', $custom_css, __( 'Custom CSS of the login page', 'ux-studio' ), $origin . ':loginpress_custom_css' );
-			$lossy[] = __( 'The own CSS of the login screen is copied as it is; UX Studio removes HTML tags from it and cuts it at 50 KB, so check the login screen after the switch.', 'ux-studio' );
+			$lossy[] = __( 'The own CSS of the login screen is copied as it is; UX1 Studio removes HTML tags from it and cuts it at 50 KB, so check the login screen after the switch.', 'ux-studio' );
 		}
 		if ( $count ) {
 			$m->set( self::MODULE, 'login_customization_enabled', true, __( 'Turn on login screen customization', 'ux-studio' ), $origin );
@@ -183,7 +183,7 @@ final class LoginPressSource extends AbstractAdminSource {
 		if ( $behaviour ) {
 			$lossy[] = sprintf(
 				/* translators: %s: list. */
-				__( 'Behaviour settings of the plugin are not transferred (UX Studio keeps the login behaviour in Security Optimization): %s.', 'ux-studio' ),
+				__( 'Behaviour settings of the plugin are not transferred (UX1 Studio keeps the login behaviour in Security Optimization): %s.', 'ux-studio' ),
 				implode( ', ', $behaviour )
 			);
 		}

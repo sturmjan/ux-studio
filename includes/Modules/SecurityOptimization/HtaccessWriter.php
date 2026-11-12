@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class HtaccessWriter {
 
-	public const MARKER      = 'UX Studio Security';
+	public const MARKER      = 'UX1 Studio Security';
 	public const HASH_OPTION = 'uxstudio_security_htaccess_hash';
 
 	/**

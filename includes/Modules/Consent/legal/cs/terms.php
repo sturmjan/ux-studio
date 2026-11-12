@@ -1,6 +1,6 @@
 <?php
 /**
- * Czech terms and conditions template for a consumer online shop (syntax: LegalTemplate). Written for UX Studio, not a
+ * Czech terms and conditions template for a consumer online shop (syntax: LegalTemplate). Written for UX1 Studio, not a
  * copy of any other generator. Czech Civil Code (zákon č. 89/2012 Sb.) and the Consumer Protection Act (zákon č. 634/1992 Sb.).
  *
  * @package UxStudio

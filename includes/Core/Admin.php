@@ -10,7 +10,7 @@ namespace UxStudio\Core;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Registers the single UX Studio admin page and enqueues the SPA bundle
+ * Registers the single UX1 Studio admin page and enqueues the SPA bundle
  * only there (never on other admin screens).
  */
 final class Admin {
@@ -41,8 +41,8 @@ final class Admin {
 	 */
 	public function menu(): void {
 		add_menu_page(
-			__( 'UX Studio', 'ux-studio' ),
-			__( 'UX Studio', 'ux-studio' ),
+			__( 'UX1 Studio', 'ux-studio' ),
+			__( 'UX1 Studio', 'ux-studio' ),
 			'manage_options',
 			self::SLUG,
 			array( $this, 'render' ),

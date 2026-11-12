@@ -194,7 +194,7 @@ final class ActivationGuard {
 	 */
 	public static function module_name( string $module_id ): string {
 		if ( Catalog::ANY_MODULE === $module_id ) {
-			return __( 'UX Studio modules', 'ux-studio' );
+			return __( 'UX1 Studio modules', 'ux-studio' );
 		}
 		if ( class_exists( '\UxStudio\Plugin' ) && isset( \UxStudio\Plugin::instance()->modules ) ) {
 			$meta = \UxStudio\Plugin::instance()->modules->all();
@@ -235,7 +235,7 @@ final class ActivationGuard {
 	/**
 	 * wp-admin notice: plugins that duplicate an enabled module (full matches
 	 * only) plus a one-off line for a plugin that was just activated. Shown
-	 * outside the UX Studio screen - the Modules screen has its own panel.
+	 * outside the UX1 Studio screen - the Modules screen has its own panel.
 	 */
 	public static function render_notice(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -261,12 +261,12 @@ final class ActivationGuard {
 			return;
 		}
 
-		echo '<div class="notice notice-warning"><p><strong>' . esc_html__( 'UX Studio: two plugins doing the same job', 'ux-studio' ) . '</strong></p>';
+		echo '<div class="notice notice-warning"><p><strong>' . esc_html__( 'UX1 Studio: two plugins doing the same job', 'ux-studio' ) . '</strong></p>';
 		foreach ( $fresh as $hit ) {
 			echo '<p>' . esc_html(
 				sprintf(
-					/* translators: 1: plugin name, 2: UX Studio module name. */
-					__( 'Just activated: %1$s overlaps with the UX Studio module "%2$s". Nothing was deactivated - decide which of them you want to keep.', 'ux-studio' ),
+					/* translators: 1: plugin name, 2: UX1 Studio module name. */
+					__( 'Just activated: %1$s overlaps with the UX1 Studio module "%2$s". Nothing was deactivated - decide which of them you want to keep.', 'ux-studio' ),
 					(string) ( $hit['name'] ?? '' ),
 					self::module_name( (string) ( $hit['module'] ?? '' ) )
 				)
@@ -277,8 +277,8 @@ final class ActivationGuard {
 			foreach ( $rows as $row ) {
 				echo '<li>' . esc_html(
 					sprintf(
-						/* translators: 1: plugin name, 2: UX Studio module name. */
-						__( '%1$s is active and the UX Studio module "%2$s" does the same.', 'ux-studio' ),
+						/* translators: 1: plugin name, 2: UX1 Studio module name. */
+						__( '%1$s is active and the UX1 Studio module "%2$s" does the same.', 'ux-studio' ),
 						$row['name'],
 						self::module_name( (string) $row['module'] )
 					)
@@ -289,7 +289,7 @@ final class ActivationGuard {
 			printf(
 				'<p><a href="%s" class="button button-primary">%s</a> <a href="%s" class="button">%s</a></p>',
 				esc_url( admin_url( 'admin.php?page=ux-studio' ) ),
-				esc_html__( 'Open UX Studio modules', 'ux-studio' ),
+				esc_html__( 'Open UX1 Studio modules', 'ux-studio' ),
 				esc_url( $dismiss ),
 				esc_html__( 'Ignore these overlaps', 'ux-studio' )
 			);

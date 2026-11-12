@@ -1,4 +1,4 @@
-# UX Studio
+# UX1 Studio
 
 Modular WordPress admin platform - one consistent React SPA for all site tools.
 Successor to the legacy "UX One - Wordpress customizer" plugin (full rewrite,
@@ -28,7 +28,7 @@ npm run build      # production build into build/
 ## REST API restriction and public routes
 With *Security - Access Control > Restrict REST API to logged-in users* on,
 anonymous requests get `uxstudio_rest_forbidden` (401) for the whole REST API,
-except UX Studio's own public endpoints and the route prefixes in the
+except UX1 Studio's own public endpoints and the route prefixes in the
 `uxstudio_rest_public_routes` filter. `/complianz/v1/` is public by default:
 the Complianz cookie banner calls it as an anonymous visitor (`/banner`,
 `/manage_consent_html`, `/documents`, `/track`, `/store_cookies`), so locking it

@@ -42,7 +42,7 @@ final class UploadGuardQuarantine {
 
 		$htaccess = $path . '/.htaccess';
 		if ( ! file_exists( $htaccess ) ) {
-			file_put_contents( $htaccess, "# UX Studio Security Optimization - quarantine, deny all direct access.\n<IfModule mod_authz_core.c>\n\tRequire all denied\n</IfModule>\n<IfModule !mod_authz_core.c>\n\tOrder deny,allow\n\tDeny from all\n</IfModule>\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
+			file_put_contents( $htaccess, "# UX1 Studio Security Optimization - quarantine, deny all direct access.\n<IfModule mod_authz_core.c>\n\tRequire all denied\n</IfModule>\n<IfModule !mod_authz_core.c>\n\tOrder deny,allow\n\tDeny from all\n</IfModule>\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
 		}
 
 		$index = $path . '/index.php';

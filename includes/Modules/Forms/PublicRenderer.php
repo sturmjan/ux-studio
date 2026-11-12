@@ -1191,7 +1191,7 @@ final class PublicRenderer {
 				form.setAttribute( 'data-uxs-tracked', String( detail.submissionId ) );
 
 				var frozen = Object.freeze( { formId: detail.formId, formTitle: detail.formTitle, submissionId: detail.submissionId } );
-				function safely( fn ) { try { fn(); } catch ( err ) { if ( window.console && console.error ) { console.error( 'UX Studio form tracking:', err ); } } }
+				function safely( fn ) { try { fn(); } catch ( err ) { if ( window.console && console.error ) { console.error( 'UX1 Studio form tracking:', err ); } } }
 
 				safely( function () {
 					form.dispatchEvent( new CustomEvent( 'uxstudio:form-submitted', { bubbles: true, detail: frozen } ) );

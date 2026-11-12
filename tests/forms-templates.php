@@ -4,7 +4,7 @@ if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
  * Test of the Form Builder templates (PLAN.md 20.12) and the multi-step markup of the public renderer.
  *
- * Run inside a WordPress install that has UX Studio active (autoloader, sanitizers), loading THIS checkout:
+ * Run inside a WordPress install that has UX1 Studio active (autoloader, sanitizers), loading THIS checkout:
  *
  *   wp eval-file tests/forms-templates.php --skip-plugins=wp-mail-smtp
  *

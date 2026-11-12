@@ -188,14 +188,14 @@ final class StarterPack {
 			self::simple(
 				'quick-search',
 				__( 'Quick search in the admin bar', 'ux-studio' ),
-				__( 'One magnifier on the right of the admin bar (also Ctrl+K): type to find posts, pages, products, media, users, settings and UX Studio modules and jump straight to them. The command palette of WordPress stays one click away at the bottom of the results.', 'ux-studio' ),
+				__( 'One magnifier on the right of the admin bar (also Ctrl+K): type to find posts, pages, products, media, users, settings and UX1 Studio modules and jump straight to them. The command palette of WordPress stays one click away at the bottom of the results.', 'ux-studio' ),
 				array( 'admin-customiser' ),
 				array( 'admin-customiser' => array( 'quick_search_enabled' => true ) )
 			),
 			self::simple(
 				'wp-menu',
 				__( 'Tidy WordPress menu', 'ux-studio' ),
-				__( 'Sorts the WordPress admin menu into groups, merges Posts, Pages and your own content types into one "Content" item, and adds a link to each UX Studio module you use into the matching place (Tools, Settings, Media, Users, Appearance, Content) with small counts for things that wait for you, such as unread form entries. The main "UX Studio" item stays as it is. You can change every group and link later in Admin Customiser.', 'ux-studio' ),
+				__( 'Sorts the WordPress admin menu into groups, merges Posts, Pages and your own content types into one "Content" item, and adds a link to each UX1 Studio module you use into the matching place (Tools, Settings, Media, Users, Appearance, Content) with small counts for things that wait for you, such as unread form entries. The main "UX1 Studio" item stays as it is. You can change every group and link later in Admin Customiser.', 'ux-studio' ),
 				array( 'admin-customiser' ),
 				array(
 					'admin-customiser' => array(

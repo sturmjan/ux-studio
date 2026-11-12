@@ -45,7 +45,7 @@ final class GtmKit {
 		add_filter(
 			'gtmkit_cmp_display_name',
 			static function ( $name, $slug = '' ) {
-				return self::CMP_SLUG === $slug ? 'UX Studio Cookie Consent' : $name;
+				return self::CMP_SLUG === $slug ? 'UX1 Studio Cookie Consent' : $name;
 			},
 			10,
 			2

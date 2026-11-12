@@ -1,5 +1,5 @@
 <?php
-// UX Studio Security: zabránit přímému (neautentizovanému) přístupu mimo WordPress.
+// UX1 Studio Security: zabránit přímému (neautentizovanému) přístupu mimo WordPress.
 // Tento soubor se načítá výhradně přes UxStudio\Modules\FileManager\Module::loadTinyFileManager()
 // až PO ověření přihlášení a oprávnění uživatele. Přímé volání URL je RCE a je zde blokováno.
 defined('ABSPATH') || exit;

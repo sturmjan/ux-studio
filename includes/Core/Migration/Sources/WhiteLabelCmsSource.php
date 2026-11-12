@@ -130,12 +130,12 @@ final class WhiteLabelCmsSource extends AbstractAdminSource {
 				if ( 'cover' !== $style && '' !== $position && 'center center' !== $position ) {
 					$lossy[] = sprintf(
 						/* translators: %s: CSS position. */
-						__( 'The position of the login background image (%s): UX Studio centres it.', 'ux-studio' ),
+						__( 'The position of the login background image (%s): UX1 Studio centres it.', 'ux-studio' ),
 						$position
 					);
 				}
 				if ( in_array( $repeat, array( 'repeat-x', 'repeat-y' ), true ) ) {
-					$lossy[] = __( 'The login background repeats in one direction only in the plugin; UX Studio repeats it both ways.', 'ux-studio' );
+					$lossy[] = __( 'The login background repeats in one direction only in the plugin; UX1 Studio repeats it both ways.', 'ux-studio' );
 				}
 			} else {
 				$lossy[] = sprintf(
@@ -148,7 +148,7 @@ final class WhiteLabelCmsSource extends AbstractAdminSource {
 		$login_css = $this->str( $o, 'login_custom_css' );
 		if ( '' !== $login_css ) {
 			$m->set( self::MODULE, 'login_custom_css', $login_css, __( 'Custom CSS of the login page', 'ux-studio' ), $origin . ':login_custom_css' );
-			$lossy[] = __( 'The own CSS of the login screen is copied as it is; UX Studio removes HTML tags from it and cuts it at 50 KB, so check the login screen after the switch.', 'ux-studio' );
+			$lossy[] = __( 'The own CSS of the login screen is copied as it is; UX1 Studio removes HTML tags from it and cuts it at 50 KB, so check the login screen after the switch.', 'ux-studio' );
 		}
 		if ( $login ) {
 			$m->set( self::MODULE, 'login_customization_enabled', true, __( 'Turn on login screen customization', 'ux-studio' ), $origin );
@@ -182,14 +182,14 @@ final class WhiteLabelCmsSource extends AbstractAdminSource {
 		/* ── Admin bar, footer, screens ── */
 		if ( $this->on( $o, 'hide_wordpress_logo_and_links' ) ) {
 			$m->set( self::MODULE, 'hide_admin_bar_elements', array( 'wp_logo' ), __( 'Hide admin bar elements', 'ux-studio' ), $origin . ':hide_wordpress_logo_and_links' );
-			$lossy[] = __( 'The option "Hide WordPress logo and links" also removes the WordPress links from the footer and changes the exit icon in the block editor; UX Studio only hides the WordPress logo in the admin bar.', 'ux-studio' );
+			$lossy[] = __( 'The option "Hide WordPress logo and links" also removes the WordPress links from the footer and changes the exit icon in the block editor; UX1 Studio only hides the WordPress logo in the admin bar.', 'ux-studio' );
 		}
 		$bar_logo = $this->str( $o, 'admin_bar_logo' );
 		if ( '' !== $bar_logo ) {
 			$id = $this->attachment_id( $bar_logo );
 			if ( $id > 0 ) {
 				$m->set( self::MODULE, 'admin_bar_logo', $id, __( 'Admin bar logo', 'ux-studio' ), $origin . ':admin_bar_logo' );
-				$lossy[] = __( 'The admin bar logo of the plugin is an extra item with its own link and size; in UX Studio it replaces the WordPress logo icon (the link and the alt text are not transferred).', 'ux-studio' );
+				$lossy[] = __( 'The admin bar logo of the plugin is an extra item with its own link and size; in UX1 Studio it replaces the WordPress logo icon (the link and the alt text are not transferred).', 'ux-studio' );
 			} else {
 				$lossy[] = sprintf(
 					/* translators: %s: file address. */
@@ -210,7 +210,7 @@ final class WhiteLabelCmsSource extends AbstractAdminSource {
 				$lossy[] = __( 'The footer link and the footer image are not transferred.', 'ux-studio' );
 			}
 		} elseif ( $this->on( $o, 'hide_wordpress_logo_and_links' ) ) {
-			$lossy[] = __( 'The plugin empties the admin footer; UX Studio keeps the default footer text when no own text is set.', 'ux-studio' );
+			$lossy[] = __( 'The plugin empties the admin footer; UX1 Studio keeps the default footer text when no own text is set.', 'ux-studio' );
 		}
 		if ( $this->on( $o, 'hide_help_box' ) ) {
 			$m->set( self::MODULE, 'hide_help_tab', true, __( 'Hide "Help" tab', 'ux-studio' ), $origin . ':hide_help_box' );
@@ -222,13 +222,13 @@ final class WhiteLabelCmsSource extends AbstractAdminSource {
 			$m->set( self::MODULE, 'hide_notices_enabled', true, __( 'Hide admin notices', 'ux-studio' ), $origin . ':hide_nag_messages' );
 			$m->set( self::MODULE, 'hide_notices_relocate', true, __( 'Relocate instead of hiding', 'ux-studio' ), $origin . ':hide_nag_messages' );
 			$m->set( self::MODULE, 'global__update_notifications', array( 'core' ), __( 'Suppress update notifications', 'ux-studio' ), $origin . ':hide_nag_messages' );
-			$m->warn( __( 'The plugin only removed the WordPress update notice. UX Studio\'s "hide admin notices" moves every notice of the admin into a tray (nothing is deleted).', 'ux-studio' ) );
+			$m->warn( __( 'The plugin only removed the WordPress update notice. UX1 Studio\'s "hide admin notices" moves every notice of the admin into a tray (nothing is deleted).', 'ux-studio' ) );
 		}
 		if ( $this->on( $o, 'hide_admin_bar_all' ) ) {
 			$roles = array_values( array_diff( $this->role_ids(), array( 'administrator' ) ) );
 			$m->set( 'hide-admin-bar', 'roles', $roles, __( 'Hide the admin bar for roles', 'ux-studio' ), $origin . ':hide_admin_bar_all' );
 			$this->note_extra_module( $m, 'hide-admin-bar', __( 'Hide Admin Bar', 'ux-studio' ) );
-			$lossy[] = __( 'The plugin hides the admin bar for everybody except its own "administrators" (chosen users); UX Studio hides it for all roles except the administrator role.', 'ux-studio' );
+			$lossy[] = __( 'The plugin hides the admin bar for everybody except its own "administrators" (chosen users); UX1 Studio hides it for all roles except the administrator role.', 'ux-studio' );
 		}
 
 		/* ── Dashboard ── */
@@ -307,7 +307,7 @@ final class WhiteLabelCmsSource extends AbstractAdminSource {
 		$admin_css = $this->str( $o, 'settings_custom_css_admin' );
 		if ( '' !== $admin_css ) {
 			$m->set( self::MODULE, 'admin_custom_css', $admin_css, __( 'Custom CSS of the admin area', 'ux-studio' ), $origin . ':settings_custom_css_admin' );
-			$lossy[] = __( 'The own CSS of the admin is copied as it is; UX Studio removes HTML tags from it and cuts it at 50 KB, so check the admin screens after the switch.', 'ux-studio' );
+			$lossy[] = __( 'The own CSS of the admin is copied as it is; UX1 Studio removes HTML tags from it and cuts it at 50 KB, so check the admin screens after the switch.', 'ux-studio' );
 		}
 		$other = array();
 		foreach ( array(
@@ -330,7 +330,7 @@ final class WhiteLabelCmsSource extends AbstractAdminSource {
 		if ( $other ) {
 			$lossy[] = sprintf(
 				/* translators: %s: list of branding settings. */
-				__( 'Branding without a target in UX Studio: %s.', 'ux-studio' ),
+				__( 'Branding without a target in UX1 Studio: %s.', 'ux-studio' ),
 				implode( ', ', array_keys( $other ) )
 			);
 		}
@@ -386,10 +386,10 @@ final class WhiteLabelCmsSource extends AbstractAdminSource {
 			$this->note_extra_module( $m, 'dashboard-widgets', __( 'Dashboard Widgets', 'ux-studio' ) );
 			$m->note( __( 'The welcome panel becomes a box at the top of the dashboard. The text is kept with basic HTML only (scripts and unsafe markup are removed).', 'ux-studio' ) );
 			if ( ! empty( $panel['is_fullwidth'] ) ) {
-				$lossy[] = __( 'The welcome panel was full width in the plugin; in UX Studio it is a normal dashboard box.', 'ux-studio' );
+				$lossy[] = __( 'The welcome panel was full width in the plugin; in UX1 Studio it is a normal dashboard box.', 'ux-studio' );
 			}
 			if ( ! empty( $panel['dismissible'] ) ) {
-				$lossy[] = __( 'The welcome panel could be dismissed in the plugin; in UX Studio it can not.', 'ux-studio' );
+				$lossy[] = __( 'The welcome panel could be dismissed in the plugin; in UX1 Studio it can not.', 'ux-studio' );
 			}
 			$other += count( $html_panels ) - 1;
 		}

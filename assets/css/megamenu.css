@@ -1,5 +1,5 @@
 /**
- * UX Studio megamenu overlay - standalone stylesheet (loaded on every admin
+ * UX1 Studio megamenu overlay - standalone stylesheet (loaded on every admin
  * page, not part of the SPA build). Tokens duplicated from src/style.scss's
  * #ux-studio-root block, since this element lives outside that scope on
  * pages other than the SPA itself. Keep both in sync if the palette changes.

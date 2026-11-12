@@ -1,6 +1,6 @@
 <?php
 /**
- * Registry of UX Studio's own inline scripts, allowed in a strict CSP by hash.
+ * Registry of UX1 Studio's own inline scripts, allowed in a strict CSP by hash.
  *
  * @package UxStudio
  */

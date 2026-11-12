@@ -155,7 +155,7 @@ final class Migrator {
 	 *
 	 * @param bool $dry_run       When true, only log what would happen.
 	 * @param bool $force         Run again although the DONE flag is set (migration wizard; every
-	 *                            step only adds missing values, so this never overwrites UX Studio settings).
+	 *                            step only adds missing values, so this never overwrites UX1 Studio settings).
 	 * @param bool $settings_only Skip the table copies and the activity log import (the wizard
 	 *                            migrates options only; tables belong to a later phase).
 	 * @return string[] Log lines.
@@ -246,7 +246,7 @@ final class Migrator {
 		// 4d) Carry over API keys the operator already filled in on the legacy
 		// plugin, into the encrypted studio secret store, so they don't have to
 		// be re-entered after the switch. Idempotent + never overwrites a key the
-		// operator already set in UX Studio.
+		// operator already set in UX1 Studio.
 		self::migrate_secrets( $log, $dry_run );
 
 		// 5) Files outside DB (snippets dir etc.) - handled by their modules
@@ -260,7 +260,7 @@ final class Migrator {
 	}
 
 	/**
-	 * Legacy option => UX Studio option for the plain copies run() makes in steps
+	 * Legacy option => UX1 Studio option for the plain copies run() makes in steps
 	 * 1 and 2 (module settings blobs and the standalone keys). Read-only data for
 	 * the migration wizard (plan / verify).
 	 *
@@ -520,7 +520,7 @@ final class Migrator {
 
 	/**
 	 * ai-markdown: legacy `pt_<type>` toggles were opt-in (only post + page on
-	 * by default); UX Studio uses an opt-out `excluded_post_types` list, so a
+	 * by default); UX1 Studio uses an opt-out `excluded_post_types` list, so a
 	 * migrated site would expose every public post type in llms.txt. Rebuild
 	 * the exclusion list from the legacy toggles. Also `retention_days` was
 	 * renamed to `log_retention_days`.
@@ -534,7 +534,7 @@ final class Migrator {
 		$option = 'uxstudio_ai_markdown';
 		$value  = get_option( $option, null );
 		if ( ! is_array( $value ) || array_key_exists( 'excluded_post_types', $value ) || ! get_option( 'wpextended__ai-markdown_settings' ) ) {
-			return; // Not migrated, or already configured in UX Studio.
+			return; // Not migrated, or already configured in UX1 Studio.
 		}
 		$excluded = array();
 		foreach ( get_post_types( array( 'public' => true ) ) as $type ) {
@@ -557,7 +557,7 @@ final class Migrator {
 			$value['taxonomies'] = $taxonomies;
 			$log[]               = 'settings ai-markdown: taxonomies = ' . implode( ', ', $taxonomies );
 		}
-		// Legacy kept the bot log 90 days by default (UX Studio's default is 180).
+		// Legacy kept the bot log 90 days by default (UX1 Studio's default is 180).
 		if ( ! array_key_exists( 'log_retention_days', $value ) ) {
 			$value['log_retention_days'] = 90;
 		}
@@ -571,7 +571,7 @@ final class Migrator {
 
 	/**
 	 * Second round of renamed keys / dropped data, found by bin/parity-keys.py.
-	 * Same rules as apply_key_remaps(): never overwrite a value set in UX Studio.
+	 * Same rules as apply_key_remaps(): never overwrite a value set in UX1 Studio.
 	 *
 	 * @param string[] $log     Log lines (by reference).
 	 * @param bool     $dry_run When true, only log what would happen.
@@ -626,7 +626,7 @@ final class Migrator {
 	}
 
 	/**
-	 * opening-hours: legacy printed the JSON-LD always (no switch); UX Studio
+	 * opening-hours: legacy printed the JSON-LD always (no switch); UX1 Studio
 	 * added `schema_enabled` defaulting to off, so migrated sites lost it.
 	 *
 	 * @param string[] $log     Log lines (by reference).
@@ -647,7 +647,7 @@ final class Migrator {
 
 	/**
 	 * review-aggregator: the central profile id lived in a standalone legacy
-	 * option; UX Studio keeps it in the module settings.
+	 * option; UX1 Studio keeps it in the module settings.
 	 *
 	 * @param string[] $log     Log lines (by reference).
 	 * @param bool     $dry_run When true, only log what would happen.
@@ -672,7 +672,7 @@ final class Migrator {
 
 	/**
 	 * google-review-request: legacy stored only the Google Place ID and built
-	 * the review link from it; UX Studio expects the full review URL.
+	 * the review link from it; UX1 Studio expects the full review URL.
 	 *
 	 * @param string[] $log     Log lines (by reference).
 	 * @param bool     $dry_run When true, only log what would happen.
@@ -717,7 +717,7 @@ final class Migrator {
 
 	/**
 	 * third-party-login: legacy had one toggle per provider (google_enabled
-	 * defaulted to ON); UX Studio has a single enabled_providers list that
+	 * defaulted to ON); UX1 Studio has a single enabled_providers list that
 	 * defaults to empty, so a migrated site lost every login button.
 	 *
 	 * @param string[] $log     Log lines (by reference).
@@ -754,7 +754,7 @@ final class Migrator {
 	/**
 	 * Settings keys renamed in the port, plus data the first port dropped.
 	 * Each step only acts when the new key/value is not already present, so it
-	 * never overwrites something the operator set in UX Studio.
+	 * never overwrites something the operator set in UX1 Studio.
 	 *
 	 * @param string[] $log     Log lines (by reference).
 	 * @param bool     $dry_run When true, only log what would happen.

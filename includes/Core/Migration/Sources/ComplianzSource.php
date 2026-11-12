@@ -270,7 +270,7 @@ final class ComplianzSource extends AbstractSource implements Activatable {
 		if ( '' !== $map['other_stats'] ) {
 			$out[] = sprintf(
 				/* translators: %s: name of the analytics tool. */
-				__( 'Complianz inserts the analytics tool "%s" itself. UX Studio cannot insert it, so the measurement stops at the switch unless something else inserts it.', 'ux-studio' ),
+				__( 'Complianz inserts the analytics tool "%s" itself. UX1 Studio cannot insert it, so the measurement stops at the switch unless something else inserts it.', 'ux-studio' ),
 				$map['other_stats']
 			);
 		}

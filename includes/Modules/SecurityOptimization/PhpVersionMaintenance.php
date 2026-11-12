@@ -191,7 +191,7 @@ final class PhpVersionMaintenance {
 				'timeout'             => self::TIMEOUT,
 				'redirection'         => 2,
 				'limit_response_size' => self::MAX_BYTES,
-				'user-agent'          => 'UX Studio PHP version check',
+				'user-agent'          => 'UX1 Studio PHP version check',
 				'headers'             => array( 'Accept' => 'application/json' ),
 			)
 		);

@@ -10,7 +10,7 @@ namespace UxStudio\Core\Migration;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Tables of UX Studio itself (redirects, snippets, e-mail log) and options come back from
+ * Tables of UX1 Studio itself (redirects, snippets, e-mail log) and options come back from
  * the snapshot. Objects in WordPress core tables (folder terms, post and user meta) and files
  * (snippet code) are removed one by one: the migration records every object it CREATED in
  * the mapping table (target type + id), and the rollback walks those rows of the run.

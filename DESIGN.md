@@ -1,4 +1,4 @@
-# UX Studio - Design System
+# UX1 Studio - Design System
 
 Závazná pravidla pro každý modul a každou obrazovku. Porušení = neprojde review/CI.
 

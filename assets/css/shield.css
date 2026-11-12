@@ -1,4 +1,4 @@
-/* Shield of UX Studio: the small "I am not a robot" control (login, forms, comments). Colours are variables on the
+/* Shield of UX1 Studio: the small "I am not a robot" control (login, forms, comments). Colours are variables on the
    widget itself, light by default, dark by the visitor's setting or by data-theme="dark". No external fonts or images. */
 .uxs-shield {
 	--uxs-sh-bg: #fff;

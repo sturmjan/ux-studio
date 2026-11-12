@@ -2,7 +2,7 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: UX Studio 0.16.0\n"
+"Project-Id-Version: UX1 Studio 0.16.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/_uxs-wt-help\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,7 +23,7 @@ msgstr ""
 #: includes/Core/Migration/Describe.php:104
 #: includes/Core/Migration/MenuSimulator.php:39
 #: includes/Modules/AdminCustomiser/QuickSearch/Integrations.php:522
-msgid "UX Studio"
+msgid "UX1 Studio"
 msgstr ""
 
 #. Plugin URI of the plugin
@@ -115,15 +115,15 @@ msgid "You are not allowed to manage this module."
 msgstr ""
 
 #: includes/Core/ConflictGuard.php:39
-msgid "UX Studio is completing the takeover from the legacy plugin \"UX One - WordPress customizer\": it will be deactivated automatically and UX Studio takes over on the next page load."
+msgid "UX1 Studio is completing the takeover from the legacy plugin \"UX One - WordPress customizer\": it will be deactivated automatically and UX1 Studio takes over on the next page load."
 msgstr ""
 
 #: includes/Core/GithubUpdater.php:153
-msgid "UX Studio update refused: the package signature is invalid. The installed version was kept."
+msgid "UX1 Studio update refused: the package signature is invalid. The installed version was kept."
 msgstr ""
 
 #: includes/Core/GithubUpdater.php:186
-msgid "UX Studio update refused: the release has no valid signature file (ux-studio.zip.sig). The installed version was kept."
+msgid "UX1 Studio update refused: the release has no valid signature file (ux-studio.zip.sig). The installed version was kept."
 msgstr ""
 
 #: includes/Core/Glossary.php:71
@@ -387,7 +387,7 @@ msgid "The European data protection law. It says what you may collect about visi
 msgstr ""
 
 #: includes/Core/Handoff.php:123
-msgid "UX Studio has taken over from the legacy UX1 plugin and migrated its data. You can now delete the old plugin files - your data stays and keeps migrating as you enable modules."
+msgid "UX1 Studio has taken over from the legacy UX1 plugin and migrated its data. You can now delete the old plugin files - your data stays and keeps migrating as you enable modules."
 msgstr ""
 
 #: includes/Core/Handoff.php:125
@@ -539,7 +539,7 @@ msgid "Some IP addresses are not valid."
 msgstr ""
 
 #: includes/Core/Megamenu.php:90
-msgid "UX Studio quick navigation"
+msgid "UX1 Studio quick navigation"
 msgstr ""
 
 #: includes/Core/Megamenu.php:95
@@ -680,7 +680,7 @@ msgstr ""
 
 #: includes/Core/Migration/AbstractMetaSource.php:124
 #: includes/Core/Migration/AbstractMetaSource.php:140
-msgid "UX Studio already has a different value here, it is kept."
+msgid "UX1 Studio already has a different value here, it is kept."
 msgstr ""
 
 #: includes/Core/Migration/AbstractMetaSource.php:147
@@ -688,11 +688,11 @@ msgid "Needs a manual check."
 msgstr ""
 
 #: includes/Core/Migration/AbstractMetaSource.php:203
-msgid "UX Studio has a different value here."
+msgid "UX1 Studio has a different value here."
 msgstr ""
 
 #: includes/Core/Migration/AbstractMetaSource.php:204
-msgid "The value is not in UX Studio."
+msgid "The value is not in UX1 Studio."
 msgstr ""
 
 #: includes/Core/Migration/AbstractSource.php:135
@@ -757,10 +757,10 @@ msgstr ""
 msgid "Nothing to compare"
 msgstr ""
 
-#. translators: 1: number of objects found in UX Studio, 2: number of objects in the old plugin.
+#. translators: 1: number of objects found in UX1 Studio, 2: number of objects in the old plugin.
 #: includes/Core/Migration/AbstractSource.php:788
 #, php-format
-msgid "%1$d of %2$d found in UX Studio"
+msgid "%1$d of %2$d found in UX1 Studio"
 msgstr ""
 
 #. translators: %s: comma-separated plugin names.
@@ -777,27 +777,27 @@ msgstr ""
 
 #: includes/Core/Migration/ActivationGuard.php:197
 #: build/530.beda7fac3bbd088df3d7.js:6
-msgid "UX Studio modules"
+msgid "UX1 Studio modules"
 msgstr ""
 
 #: includes/Core/Migration/ActivationGuard.php:264
-msgid "UX Studio: two plugins doing the same job"
+msgid "UX1 Studio: two plugins doing the same job"
 msgstr ""
 
-#. translators: 1: plugin name, 2: UX Studio module name.
+#. translators: 1: plugin name, 2: UX1 Studio module name.
 #: includes/Core/Migration/ActivationGuard.php:269
 #, php-format
-msgid "Just activated: %1$s overlaps with the UX Studio module \"%2$s\". Nothing was deactivated - decide which of them you want to keep."
+msgid "Just activated: %1$s overlaps with the UX1 Studio module \"%2$s\". Nothing was deactivated - decide which of them you want to keep."
 msgstr ""
 
-#. translators: 1: plugin name, 2: UX Studio module name.
+#. translators: 1: plugin name, 2: UX1 Studio module name.
 #: includes/Core/Migration/ActivationGuard.php:281
 #, php-format
-msgid "%1$s is active and the UX Studio module \"%2$s\" does the same."
+msgid "%1$s is active and the UX1 Studio module \"%2$s\" does the same."
 msgstr ""
 
 #: includes/Core/Migration/ActivationGuard.php:292
-msgid "Open UX Studio modules"
+msgid "Open UX1 Studio modules"
 msgstr ""
 
 #: includes/Core/Migration/ActivationGuard.php:294
@@ -1132,11 +1132,11 @@ msgstr ""
 msgid "Module \"%s\" is not available, its settings were not transferred."
 msgstr ""
 
-#. translators: 1: expected value, 2: value found in UX Studio.
+#. translators: 1: expected value, 2: value found in UX1 Studio.
 #: includes/Core/Migration/SettingsWriter.php:356
 #: includes/Core/Migration/SettingsWriter.php:411
 #, php-format
-msgid "Expected \"%1$s\", UX Studio has \"%2$s\"."
+msgid "Expected \"%1$s\", UX1 Studio has \"%2$s\"."
 msgstr ""
 
 #: includes/Core/Migration/SettingsWriter.php:371
@@ -1152,7 +1152,7 @@ msgid "The key is stored encrypted."
 msgstr ""
 
 #: includes/Core/Migration/SettingsWriter.php:383
-msgid "The key is not stored in UX Studio."
+msgid "The key is not stored in UX1 Studio."
 msgstr ""
 
 #. translators: %s: value that the module did not accept.
@@ -1492,7 +1492,7 @@ msgstr ""
 #. translators: %s: screen name.
 #: includes/Core/Migration/Sources/AbstractAdminSource.php:340
 #, php-format
-msgid "The rule that hides \"%s\" was not transferred: the migration never hides UX Studio, Plugins, Users or Settings from administrators, so that nobody locks themselves out."
+msgid "The rule that hides \"%s\" was not transferred: the migration never hides UX1 Studio, Plugins, Users or Settings from administrators, so that nobody locks themselves out."
 msgstr ""
 
 #. translators: %s: screen name.
@@ -1504,19 +1504,19 @@ msgstr ""
 #. translators: %s: screen name.
 #: includes/Core/Migration/Sources/AbstractAdminSource.php:344
 #, php-format
-msgid "The rule that hides \"%s\" from a single user was not transferred: UX Studio, Plugins, Users and Settings are never hidden by rules of users, so that nobody locks themselves out."
+msgid "The rule that hides \"%s\" from a single user was not transferred: UX1 Studio, Plugins, Users and Settings are never hidden by rules of users, so that nobody locks themselves out."
 msgstr ""
 
 #. translators: %s: screen name.
 #: includes/Core/Migration/Sources/AbstractAdminSource.php:346
 #, php-format
-msgid "The required capability on \"%s\" was not transferred: UX Studio, Plugins, Users and Settings never depend on an extra capability, so that nobody locks themselves out."
+msgid "The required capability on \"%s\" was not transferred: UX1 Studio, Plugins, Users and Settings never depend on an extra capability, so that nobody locks themselves out."
 msgstr ""
 
 #. translators: %s: screen name.
 #: includes/Core/Migration/Sources/AbstractAdminSource.php:348
 #, php-format
-msgid "The rule that hides the sub-item \"%s\" was not transferred: UX Studio, Plugins, Users and Settings are never hidden, so that nobody locks themselves out."
+msgid "The rule that hides the sub-item \"%s\" was not transferred: UX1 Studio, Plugins, Users and Settings are never hidden, so that nobody locks themselves out."
 msgstr ""
 
 #: includes/Core/Migration/Sources/AbstractAdminSource.php:374
@@ -1587,7 +1587,7 @@ msgstr ""
 #. translators: %s: screens.
 #: includes/Core/Migration/Sources/AbstractAdminSource.php:400
 #, php-format
-msgid "The plugin blocks these screens for some roles. UX Studio never blocks UX Studio, Plugins, Users and Settings (nobody may be locked out), so they stay reachable by address: %s."
+msgid "The plugin blocks these screens for some roles. UX1 Studio never blocks UX1 Studio, Plugins, Users and Settings (nobody may be locked out), so they stay reachable by address: %s."
 msgstr ""
 
 #: includes/Core/Migration/Sources/AbstractAdminSource.php:405
@@ -1598,11 +1598,11 @@ msgstr ""
 #. translators: %s: menu items.
 #: includes/Core/Migration/Sources/AbstractAdminSource.php:409
 #, php-format
-msgid "The plugin only hid these items without blocking their pages. \"Block access to hidden pages\" is one switch for the whole menu, so in UX Studio they are blocked for the roles that do not see them as well: %s."
+msgid "The plugin only hid these items without blocking their pages. \"Block access to hidden pages\" is one switch for the whole menu, so in UX1 Studio they are blocked for the roles that do not see them as well: %s."
 msgstr ""
 
 #: includes/Core/Migration/Sources/AbstractAdminSource.php:415
-msgid "A page hidden from a role is also refused when its address is typed in (\"Block access to hidden pages\" is turned on). Users who can manage options, the dashboard, profile, UX Studio, Plugins, Users and Settings are never blocked. You will see the setting, with a note that it came from this migration, in UX Studio under Admin Customiser, Sidebar menu, \"Block access to hidden pages\", and you can switch it off there."
+msgid "A page hidden from a role is also refused when its address is typed in (\"Block access to hidden pages\" is turned on). Users who can manage options, the dashboard, profile, UX1 Studio, Plugins, Users and Settings are never blocked. You will see the setting, with a note that it came from this migration, in UX1 Studio under Admin Customiser, Sidebar menu, \"Block access to hidden pages\", and you can switch it off there."
 msgstr ""
 
 #: includes/Core/Migration/Sources/AbstractAdminSource.php:417
@@ -1638,11 +1638,11 @@ msgstr ""
 #. translators: %s: menu items.
 #: includes/Core/Migration/Sources/AbstractAdminSource.php:751
 #, php-format
-msgid "The old plugin and UX Studio disagree about: %s."
+msgid "The old plugin and UX1 Studio disagree about: %s."
 msgstr ""
 
 #: includes/Core/Migration/Sources/AbstractAdminSource.php:768
-msgid "Pages the old plugin blocked are blocked in UX Studio"
+msgid "Pages the old plugin blocked are blocked in UX1 Studio"
 msgstr ""
 
 #. translators: %d: number of menu items.
@@ -1656,11 +1656,11 @@ msgstr[1] ""
 #. translators: %s: menu items with roles.
 #: includes/Core/Migration/Sources/AbstractAdminSource.php:779
 #, php-format
-msgid "Not blocked in UX Studio: %s."
+msgid "Not blocked in UX1 Studio: %s."
 msgstr ""
 
 #: includes/Core/Migration/Sources/AbstractAdminSource.php:802
-msgid "The administrator can still open Plugins, Users, Settings and UX Studio"
+msgid "The administrator can still open Plugins, Users, Settings and UX1 Studio"
 msgstr ""
 
 #. translators: %s: widget ids.
@@ -1716,7 +1716,7 @@ msgstr ""
 #. translators: %s: column types.
 #: includes/Core/Migration/Sources/AdminColumnsSource.php:325
 #, php-format
-msgid "Column types that UX Studio does not have (they are left out): %s. The module offers default columns, custom fields, taxonomies, the ID and the featured image."
+msgid "Column types that UX1 Studio does not have (they are left out): %s. The module offers default columns, custom fields, taxonomies, the ID and the featured image."
 msgstr ""
 
 #. translators: %s: value types.
@@ -1746,7 +1746,7 @@ msgid "Inline editing and bulk editing set on the columns, saved search segments
 msgstr ""
 
 #: includes/Core/Migration/Sources/AdminColumnsSource.php:361
-msgid "Native columns added by other plugins (SEO, shop ...) that you hid in Admin Columns stay visible: UX Studio knows only the WordPress columns."
+msgid "Native columns added by other plugins (SEO, shop ...) that you hid in Admin Columns stay visible: UX1 Studio knows only the WordPress columns."
 msgstr ""
 
 #: includes/Core/Migration/Sources/AdminifySource.php:65
@@ -1818,7 +1818,7 @@ msgid "Hide admin notices"
 msgstr ""
 
 #: includes/Core/Migration/Sources/AdminifySource.php:221
-msgid "Hide notices only for users who are not administrators (UX Studio hides or tucks away notices for everybody)."
+msgid "Hide notices only for users who are not administrators (UX1 Studio hides or tucks away notices for everybody)."
 msgstr ""
 
 #: includes/Core/Migration/Sources/AdminifySource.php:225
@@ -1858,7 +1858,7 @@ msgid "custom list columns (set them up again in Admin Columns)"
 msgstr ""
 
 #: includes/Core/Migration/Sources/AdminifySource.php:250
-msgid "security, performance and redirect settings (UX Studio has its own modules for them, they are not read here)"
+msgid "security, performance and redirect settings (UX1 Studio has its own modules for them, they are not read here)"
 msgstr ""
 
 #. translators: %s: list.
@@ -1887,7 +1887,7 @@ msgid "Sub-menu items hidden for a role that could not be matched to a menu of t
 msgstr ""
 
 #: includes/Core/Migration/Sources/AdminimizeSource.php:191
-msgid "The option for users with several roles (an item is hidden only when every role hides it) is not transferred: UX Studio shows an item when any role of the user may see it."
+msgid "The option for users with several roles (an item is hidden only when every role hides it) is not transferred: UX1 Studio shows an item when any role of the user may see it."
 msgstr ""
 
 #: includes/Core/Migration/Sources/AdminimizeSource.php:213
@@ -1921,13 +1921,13 @@ msgstr ""
 #. translators: 1: setting, 2: roles that lose the feature.
 #: includes/Core/Migration/Sources/AdminimizeSource.php:231
 #, php-format
-msgid "\"%1$s\" is turned on for everybody in UX Studio, the plugin applied it only to some roles. %2$s lose it as well."
+msgid "\"%1$s\" is turned on for everybody in UX1 Studio, the plugin applied it only to some roles. %2$s lose it as well."
 msgstr ""
 
 #. translators: %s: list of items.
 #: includes/Core/Migration/Sources/AdminimizeSource.php:248
 #, php-format
-msgid "Items hidden in the screens of the admin that UX Studio has no setting for (or that the plugin hid only for roles other than administrators): %s."
+msgid "Items hidden in the screens of the admin that UX1 Studio has no setting for (or that the plugin hid only for roles other than administrators): %s."
 msgstr ""
 
 #: includes/Core/Migration/Sources/AdminimizeSource.php:283
@@ -1943,7 +1943,7 @@ msgstr ""
 #. translators: %s: admin bar items.
 #: includes/Core/Migration/Sources/AdminimizeSource.php:292
 #, php-format
-msgid "Admin bar items UX Studio cannot hide, or can hide only for everybody and not for the roles named (the module hides: WordPress logo, updates, customize, comments, new): %s."
+msgid "Admin bar items UX1 Studio cannot hide, or can hide only for everybody and not for the roles named (the module hides: WordPress logo, updates, customize, comments, new): %s."
 msgstr ""
 
 #. translators: %s: role name.
@@ -2041,7 +2041,7 @@ msgstr ""
 
 #: includes/Core/Migration/Sources/AdminMenuEditorSource.php:352
 #, php-format
-msgid "A different required capability (access level) set on the item. UX Studio only adds a requirement on top of the capability WordPress asks for and never changes capabilities: %s."
+msgid "A different required capability (access level) set on the item. UX1 Studio only adds a requirement on top of the capability WordPress asks for and never changes capabilities: %s."
 msgstr ""
 
 #: includes/Core/Migration/Sources/AdminMenuEditorSource.php:353
@@ -2051,7 +2051,7 @@ msgstr ""
 
 #: includes/Core/Migration/Sources/AdminMenuEditorSource.php:354
 #, php-format
-msgid "The plugin grants a role access to an item that role would not have by itself (UX Studio never gives a role capabilities it lacks): %s."
+msgid "The plugin grants a role access to an item that role would not have by itself (UX1 Studio never gives a role capabilities it lacks): %s."
 msgstr ""
 
 #: includes/Core/Migration/Sources/AdminMenuEditorSource.php:355
@@ -2080,7 +2080,7 @@ msgid "Own CSS classes of menu items: %s."
 msgstr ""
 
 #: includes/Core/Migration/Sources/AdminMenuEditorSource.php:366
-msgid "Which role sees an item is decided in the plugin by \"show for\" / \"hide for\" rules together with the role capabilities; UX Studio shows an item to the roles that remain after the rules are applied, and always to users who can manage options."
+msgid "Which role sees an item is decided in the plugin by \"show for\" / \"hide for\" rules together with the role capabilities; UX1 Studio shows an item to the roles that remain after the rules are applied, and always to users who can manage options."
 msgstr ""
 
 #: includes/Core/Migration/Sources/AdminMenuEditorSource.php:367
@@ -2404,8 +2404,8 @@ msgstr ""
 #. translators: %d: number of snippets.
 #: includes/Core/Migration/Sources/CodeSnippetsSource.php:695
 #, php-format
-msgid "%d snippet is used through a shortcode. In UX Studio it is inserted as [uxstudio_snippet id=\"...\"] (the exact shortcode is shown in the snippet list). Shortcodes already written in posts and pages are NOT rewritten, replace them by hand."
-msgid_plural "%d snippets are used through a shortcode. In UX Studio they are inserted as [uxstudio_snippet id=\"...\"] (the exact shortcode is shown in the snippet list). Shortcodes already written in posts and pages are NOT rewritten, replace them by hand."
+msgid "%d snippet is used through a shortcode. In UX1 Studio it is inserted as [uxstudio_snippet id=\"...\"] (the exact shortcode is shown in the snippet list). Shortcodes already written in posts and pages are NOT rewritten, replace them by hand."
+msgid_plural "%d snippets are used through a shortcode. In UX1 Studio they are inserted as [uxstudio_snippet id=\"...\"] (the exact shortcode is shown in the snippet list). Shortcodes already written in posts and pages are NOT rewritten, replace them by hand."
 msgstr[0] ""
 msgstr[1] ""
 
@@ -2445,7 +2445,7 @@ msgstr ""
 
 #: includes/Core/Migration/Sources/CodeSnippetsSource.php:844
 #: includes/Core/Migration/Sources/CodeSnippetsSource.php:872
-msgid "A snippet with this name already exists in UX Studio, it is kept."
+msgid "A snippet with this name already exists in UX1 Studio, it is kept."
 msgstr ""
 
 #: includes/Core/Migration/Sources/CodeSnippetsSource.php:850
@@ -2453,11 +2453,11 @@ msgid "The snippet has no code."
 msgstr ""
 
 #: includes/Core/Migration/Sources/CodeSnippetsSource.php:916
-msgid "The snippet is not in UX Studio."
+msgid "The snippet is not in UX1 Studio."
 msgstr ""
 
 #: includes/Core/Migration/Sources/CodeSnippetsSource.php:922
-msgid "UX Studio has a snippet with this name but different code."
+msgid "UX1 Studio has a snippet with this name but different code."
 msgstr ""
 
 #: includes/Core/Migration/Sources/CodeSnippetsSource.php:928
@@ -2483,7 +2483,7 @@ msgstr ""
 #. translators: %s: name of the analytics tool.
 #: includes/Core/Migration/Sources/ComplianzSource.php:273
 #, php-format
-msgid "Complianz inserts the analytics tool \"%s\" itself. UX Studio cannot insert it, so the measurement stops at the switch unless something else inserts it."
+msgid "Complianz inserts the analytics tool \"%s\" itself. UX1 Studio cannot insert it, so the measurement stops at the switch unless something else inserts it."
 msgstr ""
 
 #: includes/Core/Migration/Sources/ComplianzSource.php:306
@@ -2766,15 +2766,15 @@ msgid "The interval of this event does not exist."
 msgstr ""
 
 #: includes/Core/Migration/Sources/CronSource.php:290
-msgid "UX Studio already has an interval with this name and a different length, it is kept."
+msgid "UX1 Studio already has an interval with this name and a different length, it is kept."
 msgstr ""
 
 #: includes/Core/Migration/Sources/CronSource.php:330
-msgid "The event is not in UX Studio."
+msgid "The event is not in UX1 Studio."
 msgstr ""
 
 #: includes/Core/Migration/Sources/CronSource.php:336
-msgid "The interval is not in UX Studio."
+msgid "The interval is not in UX1 Studio."
 msgstr ""
 
 #: includes/Core/Migration/Sources/DisableCommentsSource.php:45
@@ -3091,7 +3091,7 @@ msgid "A logged e-mail could not be copied."
 msgstr ""
 
 #: includes/Core/Migration/Sources/EmailLogSource.php:307
-msgid "The e-mail is not in the UX Studio log."
+msgid "The e-mail is not in the UX1 Studio log."
 msgstr ""
 
 #: includes/Core/Migration/Sources/ExternalLinksSource.php:51
@@ -3268,7 +3268,7 @@ msgid "Folder icons and the other flags of the plugin (sticky, locked or high pr
 msgstr ""
 
 #: includes/Core/Migration/Sources/FolderSource.php:430
-msgid "Files are not moved on disk, only the folder structure and which file is in which folder are copied. A file that is already in a UX Studio folder stays there."
+msgid "Files are not moved on disk, only the folder structure and which file is in which folder are copied. A file that is already in a UX1 Studio folder stays there."
 msgstr ""
 
 #: includes/Core/Migration/Sources/FolderSource.php:439
@@ -3290,13 +3290,13 @@ msgid "The parent folder could not be created."
 msgstr ""
 
 #: includes/Core/Migration/Sources/FolderSource.php:615
-msgid "The folder is not in UX Studio."
+msgid "The folder is not in UX1 Studio."
 msgstr ""
 
 #. translators: %d: number of files.
 #: includes/Core/Migration/Sources/FolderSource.php:626
 #, php-format
-msgid "%d items are not in any UX Studio folder."
+msgid "%d items are not in any UX1 Studio folder."
 msgstr ""
 
 #: includes/Core/Migration/Sources/HideAdminBarSource.php:41
@@ -3441,7 +3441,7 @@ msgstr ""
 
 #: includes/Core/Migration/Sources/LoginPressSource.php:133
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:151
-msgid "The own CSS of the login screen is copied as it is; UX Studio removes HTML tags from it and cuts it at 50 KB, so check the login screen after the switch."
+msgid "The own CSS of the login screen is copied as it is; UX1 Studio removes HTML tags from it and cuts it at 50 KB, so check the login screen after the switch."
 msgstr ""
 
 #: includes/Core/Migration/Sources/LoginPressSource.php:136
@@ -3568,7 +3568,7 @@ msgstr ""
 #. translators: %s: list.
 #: includes/Core/Migration/Sources/LoginPressSource.php:186
 #, php-format
-msgid "Behaviour settings of the plugin are not transferred (UX Studio keeps the login behaviour in Security Optimization): %s."
+msgid "Behaviour settings of the plugin are not transferred (UX1 Studio keeps the login behaviour in Security Optimization): %s."
 msgstr ""
 
 #: includes/Core/Migration/Sources/LoginPressSource.php:190
@@ -3947,7 +3947,7 @@ msgstr ""
 #. translators: %d: number of menu items.
 #: includes/Core/Migration/Sources/MenuVisibilitySource.php:346
 #, php-format
-msgid "%d menu items are controlled by a PHP expression. UX Studio never runs code from a setting; only logged in / logged out and \"user can <role>\" (joined by &&) are recognized, so these are not transferred."
+msgid "%d menu items are controlled by a PHP expression. UX1 Studio never runs code from a setting; only logged in / logged out and \"user can <role>\" (joined by &&) are recognized, so these are not transferred."
 msgstr ""
 
 #. translators: 1: number of menu items, 2: role.
@@ -4165,7 +4165,7 @@ msgstr ""
 
 #: includes/Core/Migration/Sources/RedirectsSource.php:648
 #: includes/Core/Migration/Sources/RedirectsSource.php:688
-msgid "A different rule for this address already exists in UX Studio, it is kept."
+msgid "A different rule for this address already exists in UX1 Studio, it is kept."
 msgstr ""
 
 #: includes/Core/Migration/Sources/RedirectsSource.php:668
@@ -4187,11 +4187,11 @@ msgid "The rules table does not exist yet."
 msgstr ""
 
 #: includes/Core/Migration/Sources/RedirectsSource.php:742
-msgid "UX Studio has a different rule for this address."
+msgid "UX1 Studio has a different rule for this address."
 msgstr ""
 
 #: includes/Core/Migration/Sources/RedirectsSource.php:743
-msgid "The rule is not in UX Studio."
+msgid "The rule is not in UX1 Studio."
 msgstr ""
 
 #: includes/Core/Migration/Sources/SmtpSource.php:261
@@ -4537,11 +4537,11 @@ msgstr ""
 #. translators: %s: CSS position.
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:133
 #, php-format
-msgid "The position of the login background image (%s): UX Studio centres it."
+msgid "The position of the login background image (%s): UX1 Studio centres it."
 msgstr ""
 
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:138
-msgid "The login background repeats in one direction only in the plugin; UX Studio repeats it both ways."
+msgid "The login background repeats in one direction only in the plugin; UX1 Studio repeats it both ways."
 msgstr ""
 
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:160
@@ -4570,7 +4570,7 @@ msgid "own JavaScript of the login screen"
 msgstr ""
 
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:185
-msgid "The option \"Hide WordPress logo and links\" also removes the WordPress links from the footer and changes the exit icon in the block editor; UX Studio only hides the WordPress logo in the admin bar."
+msgid "The option \"Hide WordPress logo and links\" also removes the WordPress links from the footer and changes the exit icon in the block editor; UX1 Studio only hides the WordPress logo in the admin bar."
 msgstr ""
 
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:191
@@ -4579,7 +4579,7 @@ msgid "Admin bar logo"
 msgstr ""
 
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:192
-msgid "The admin bar logo of the plugin is an extra item with its own link and size; in UX Studio it replaces the WordPress logo icon (the link and the alt text are not transferred)."
+msgid "The admin bar logo of the plugin is an extra item with its own link and size; in UX1 Studio it replaces the WordPress logo icon (the link and the alt text are not transferred)."
 msgstr ""
 
 #. translators: %s: file address.
@@ -4597,7 +4597,7 @@ msgid "The footer link and the footer image are not transferred."
 msgstr ""
 
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:213
-msgid "The plugin empties the admin footer; UX Studio keeps the default footer text when no own text is set."
+msgid "The plugin empties the admin footer; UX1 Studio keeps the default footer text when no own text is set."
 msgstr ""
 
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:224
@@ -4606,11 +4606,11 @@ msgid "Suppress update notifications"
 msgstr ""
 
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:225
-msgid "The plugin only removed the WordPress update notice. UX Studio's \"hide admin notices\" moves every notice of the admin into a tray (nothing is deleted)."
+msgid "The plugin only removed the WordPress update notice. UX1 Studio's \"hide admin notices\" moves every notice of the admin into a tray (nothing is deleted)."
 msgstr ""
 
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:231
-msgid "The plugin hides the admin bar for everybody except its own \"administrators\" (chosen users); UX Studio hides it for all roles except the administrator role."
+msgid "The plugin hides the admin bar for everybody except its own \"administrators\" (chosen users); UX1 Studio hides it for all roles except the administrator role."
 msgstr ""
 
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:242
@@ -4650,7 +4650,7 @@ msgid "Custom CSS of the admin area"
 msgstr ""
 
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:310
-msgid "The own CSS of the admin is copied as it is; UX Studio removes HTML tags from it and cuts it at 50 KB, so check the admin screens after the switch."
+msgid "The own CSS of the admin is copied as it is; UX1 Studio removes HTML tags from it and cuts it at 50 KB, so check the admin screens after the switch."
 msgstr ""
 
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:314
@@ -4692,7 +4692,7 @@ msgstr ""
 #. translators: %s: list of branding settings.
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:333
 #, php-format
-msgid "Branding without a target in UX Studio: %s."
+msgid "Branding without a target in UX1 Studio: %s."
 msgstr ""
 
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:382
@@ -4720,11 +4720,11 @@ msgid "The welcome panel becomes a box at the top of the dashboard. The text is 
 msgstr ""
 
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:389
-msgid "The welcome panel was full width in the plugin; in UX Studio it is a normal dashboard box."
+msgid "The welcome panel was full width in the plugin; in UX1 Studio it is a normal dashboard box."
 msgstr ""
 
 #: includes/Core/Migration/Sources/WhiteLabelCmsSource.php:392
-msgid "The welcome panel could be dismissed in the plugin; in UX Studio it can not."
+msgid "The welcome panel could be dismissed in the plugin; in UX1 Studio it can not."
 msgstr ""
 
 #. translators: %d: number of panels.
@@ -4745,11 +4745,11 @@ msgstr ""
 
 #: includes/Core/Migration/Sources/WpExtendedSource.php:86
 #: includes/Core/Migration/Sources/WpExtendedSource.php:115
-msgid "All UX Studio modules"
+msgid "All UX1 Studio modules"
 msgstr ""
 
 #: includes/Core/Migration/Sources/WpExtendedSource.php:98
-msgid "Settings that already exist in UX Studio are kept - only missing ones are copied. Renamed keys inside the copied settings are fixed up and API keys are carried over into the encrypted store."
+msgid "Settings that already exist in UX1 Studio are kept - only missing ones are copied. Renamed keys inside the copied settings are fixed up and API keys are carried over into the encrypted store."
 msgstr ""
 
 #: includes/Core/Migration/Sources/WpExtendedSource.php:101
@@ -4762,7 +4762,7 @@ msgid "No WP Extended settings were found."
 msgstr ""
 
 #: includes/Core/Migration/Sources/WpExtendedSource.php:108
-msgid "Every setting is already present in UX Studio, so this step probably changes nothing."
+msgid "Every setting is already present in UX1 Studio, so this step probably changes nothing."
 msgstr ""
 
 #. translators: %s: legacy option name.
@@ -4772,7 +4772,7 @@ msgid "Present (from %s)."
 msgstr ""
 
 #: includes/Core/Migration/Sources/WpExtendedSource.php:183
-msgid "Missing in UX Studio."
+msgid "Missing in UX1 Studio."
 msgstr ""
 
 #: includes/Core/Migration/Sources/XmlRpcSource.php:36
@@ -4920,7 +4920,7 @@ msgid "The .htaccess file is not identical to how it was before the switch. Chec
 msgstr ""
 
 #: includes/Core/Modules.php:331
-msgid "UX Studio: some modules failed to start and were turned off for now. The rest of the site keeps running."
+msgid "UX1 Studio: some modules failed to start and were turned off for now. The rest of the site keeps running."
 msgstr ""
 
 #. translators: 1: setting key, 2: plugin names.
@@ -5097,7 +5097,7 @@ msgid "Quick search in the admin bar"
 msgstr ""
 
 #: includes/Core/Onboarding/StarterPack.php:191
-msgid "One magnifier on the right of the admin bar (also Ctrl+K): type to find posts, pages, products, media, users, settings and UX Studio modules and jump straight to them. The command palette of WordPress stays one click away at the bottom of the results."
+msgid "One magnifier on the right of the admin bar (also Ctrl+K): type to find posts, pages, products, media, users, settings and UX1 Studio modules and jump straight to them. The command palette of WordPress stays one click away at the bottom of the results."
 msgstr ""
 
 #: includes/Core/Onboarding/StarterPack.php:197
@@ -5105,7 +5105,7 @@ msgid "Tidy WordPress menu"
 msgstr ""
 
 #: includes/Core/Onboarding/StarterPack.php:198
-msgid "Sorts the WordPress admin menu into groups, merges Posts, Pages and your own content types into one \"Content\" item, and adds a link to each UX Studio module you use into the matching place (Tools, Settings, Media, Users, Appearance, Content) with small counts for things that wait for you, such as unread form entries. The main \"UX Studio\" item stays as it is. You can change every group and link later in Admin Customiser."
+msgid "Sorts the WordPress admin menu into groups, merges Posts, Pages and your own content types into one \"Content\" item, and adds a link to each UX1 Studio module you use into the matching place (Tools, Settings, Media, Users, Appearance, Content) with small counts for things that wait for you, such as unread form entries. The main \"UX1 Studio\" item stays as it is. You can change every group and link later in Admin Customiser."
 msgstr ""
 
 #: includes/Core/Onboarding/StarterPack.php:211
@@ -5438,7 +5438,7 @@ msgstr ""
 
 #: includes/Core/Transfer/Envelope.php:143
 #: build/index.e2f97ac80863bc5a165b.js:33
-msgid "The file is larger than 2 MB, so it is not a settings export of UX Studio."
+msgid "The file is larger than 2 MB, so it is not a settings export of UX1 Studio."
 msgstr ""
 
 #: includes/Core/Transfer/Envelope.php:149
@@ -5458,11 +5458,11 @@ msgid "The file is not valid JSON."
 msgstr ""
 
 #: includes/Core/Transfer/Envelope.php:166
-msgid "The file is JSON, but not a settings export of UX Studio."
+msgid "The file is JSON, but not a settings export of UX1 Studio."
 msgstr ""
 
 #: includes/Core/Transfer/Envelope.php:188
-msgid "This is not a settings export of UX Studio (the \"format\" field is missing or different)."
+msgid "This is not a settings export of UX1 Studio (the \"format\" field is missing or different)."
 msgstr ""
 
 #: includes/Core/Transfer/Envelope.php:192
@@ -5472,7 +5472,7 @@ msgstr ""
 #. translators: 1: format version of the file, 2: format version this plugin reads.
 #: includes/Core/Transfer/Envelope.php:199
 #, php-format
-msgid "The file uses format version %1$d, but this plugin reads version %2$d at most. Update UX Studio on this site and try again."
+msgid "The file uses format version %1$d, but this plugin reads version %2$d at most. Update UX1 Studio on this site and try again."
 msgstr ""
 
 #: includes/Core/Transfer/Envelope.php:207
@@ -5482,17 +5482,17 @@ msgstr ""
 #: includes/Core/Transfer/Envelope.php:213
 #: includes/Core/Transfer/Envelope.php:218
 #: includes/Core/Transfer/Envelope.php:225
-msgid "The file has a module entry in a shape that UX Studio does not accept."
+msgid "The file has a module entry in a shape that UX1 Studio does not accept."
 msgstr ""
 
 #: includes/Core/Transfer/Envelope.php:242
 msgid "The encrypted block of secrets in the file is damaged."
 msgstr ""
 
-#. translators: 1: UX Studio version that wrote the file, 2: version on this site.
+#. translators: 1: UX1 Studio version that wrote the file, 2: version on this site.
 #: includes/Core/Transfer/Envelope.php:252
 #, php-format
-msgid "The file was written by UX Studio %1$s, this site runs %2$s. Settings that this version does not know are skipped."
+msgid "The file was written by UX1 Studio %1$s, this site runs %2$s. Settings that this version does not know are skipped."
 msgstr ""
 
 #: includes/Core/Transfer/Envelope.php:262
@@ -5554,7 +5554,7 @@ msgid "Country blocks are imported only if your IP address is on the firewall al
 msgstr ""
 
 #: includes/Core/Transfer/Importer.php:91
-msgid "The menu lock is turned on only if it keeps UX Studio, Plugins, Users and Settings open for you."
+msgid "The menu lock is turned on only if it keeps UX1 Studio, Plugins, Users and Settings open for you."
 msgstr ""
 
 #: includes/Core/Transfer/Importer.php:92
@@ -5709,7 +5709,7 @@ msgid "Your own user name was left out of the blocked user names."
 msgstr ""
 
 #: includes/Core/Transfer/ImportRules.php:175
-msgid "Skipped: with the menu rules of this site the lock would stop you from opening UX Studio, Plugins, Users or Settings."
+msgid "Skipped: with the menu rules of this site the lock would stop you from opening UX1 Studio, Plugins, Users or Settings."
 msgstr ""
 
 #: includes/Core/Transfer/ImportRules.php:176
@@ -5966,15 +5966,15 @@ msgid "The text contains a forbidden character."
 msgstr ""
 
 #: includes/Core/Ux1Lock.php:86
-msgid "Replaced by UX Studio"
+msgid "Replaced by UX1 Studio"
 msgstr ""
 
 #: includes/Core/Ux1Lock.php:100
-msgid "The legacy plugin \"UX One - WordPress customizer\" was kept deactivated: UX Studio has replaced it, and running both at once would conflict. Its data is preserved - nothing was deleted."
+msgid "The legacy plugin \"UX One - WordPress customizer\" was kept deactivated: UX1 Studio has replaced it, and running both at once would conflict. Its data is preserved - nothing was deleted."
 msgstr ""
 
 #: includes/Modules/ActivityLog/Labels.php:36
-msgid "UX Studio (core)"
+msgid "UX1 Studio (core)"
 msgstr ""
 
 #: includes/Modules/ActivityLog/Labels.php:39
@@ -6256,15 +6256,15 @@ msgid "Migration preview ended"
 msgstr ""
 
 #: includes/Modules/ActivityLog/Labels.php:163
-msgid "Switch to UX Studio started"
+msgid "Switch to UX1 Studio started"
 msgstr ""
 
 #: includes/Modules/ActivityLog/Labels.php:164
-msgid "Switch to UX Studio reverted"
+msgid "Switch to UX1 Studio reverted"
 msgstr ""
 
 #: includes/Modules/ActivityLog/Labels.php:165
-msgid "Switch to UX Studio reverted automatically"
+msgid "Switch to UX1 Studio reverted automatically"
 msgstr ""
 
 #: includes/Modules/ActivityLog/Labels.php:166
@@ -6444,7 +6444,7 @@ msgid "Moves Posts, Pages and your own content types (for example References or 
 msgstr ""
 
 #: includes/Modules/AdminCustomiser/help.php:13
-msgid "The menu is shorter. Editors open \"Content\" and pick posts, pages or another type; the content modules of UX Studio (Top Bar, Popups, Forms and others) are listed there too when the module links are on. The \"Add new\" buttons stay on the lists. WooCommerce products and Elementor templates keep their own menu items."
+msgid "The menu is shorter. Editors open \"Content\" and pick posts, pages or another type; the content modules of UX1 Studio (Top Bar, Popups, Forms and others) are listed there too when the module links are on. The \"Add new\" buttons stay on the lists. WooCommerce products and Elementor templates keep their own menu items."
 msgstr ""
 
 #: includes/Modules/AdminCustomiser/help.php:14
@@ -6452,11 +6452,11 @@ msgid "Turn it off when your editors expect Posts and Pages as separate items."
 msgstr ""
 
 #: includes/Modules/AdminCustomiser/help.php:17
-msgid "Adds a link to each UX Studio module that is switched on into the matching place of the WordPress menu: Tools, Settings, Media, Users, Appearance and Content."
+msgid "Adds a link to each UX1 Studio module that is switched on into the matching place of the WordPress menu: Tools, Settings, Media, Users, Appearance and Content."
 msgstr ""
 
 #: includes/Modules/AdminCustomiser/help.php:18
-msgid "Administrators reach a module in one click without opening UX Studio first. The main \"UX Studio\" item stays as it is, and only administrators see these links."
+msgid "Administrators reach a module in one click without opening UX1 Studio first. The main \"UX1 Studio\" item stays as it is, and only administrators see these links."
 msgstr ""
 
 #: includes/Modules/AdminCustomiser/help.php:19
@@ -7082,7 +7082,7 @@ msgid "Merge content into one \"Content\" item"
 msgstr ""
 
 #: includes/Modules/AdminCustomiser/Module.php:331
-msgid "Add UX Studio modules to the menu"
+msgid "Add UX1 Studio modules to the menu"
 msgstr ""
 
 #: includes/Modules/AdminCustomiser/Module.php:338
@@ -7090,7 +7090,7 @@ msgid "Show counts next to module links"
 msgstr ""
 
 #: includes/Modules/AdminCustomiser/Module.php:350
-msgid "Off: the Menu Organizer only hides menu items, a hidden page still opens when its address is typed in. On: a page that is hidden from a user (limited to other roles, or hidden for everybody) is refused with \"Sorry, you are not allowed to access this page\" for users who cannot manage options. Sub-items follow their parent item, except a sub-item moved to the top level that the user can see. Never blocked: users who can manage options, the dashboard, the profile, UX Studio, Plugins, Users and Settings, AJAX and REST. Needs the menu organizer to be on. Rescue switch: define UXSTUDIO_DISABLE_MENU_LOCK as true in wp-config.php to switch the blocking off for everybody."
+msgid "Off: the Menu Organizer only hides menu items, a hidden page still opens when its address is typed in. On: a page that is hidden from a user (limited to other roles, or hidden for everybody) is refused with \"Sorry, you are not allowed to access this page\" for users who cannot manage options. Sub-items follow their parent item, except a sub-item moved to the top level that the user can see. Never blocked: users who can manage options, the dashboard, the profile, UX1 Studio, Plugins, Users and Settings, AJAX and REST. Needs the menu organizer to be on. Rescue switch: define UXSTUDIO_DISABLE_MENU_LOCK as true in wp-config.php to switch the blocking off for everybody."
 msgstr ""
 
 #: includes/Modules/AdminCustomiser/Module.php:355
@@ -8502,11 +8502,11 @@ msgid "Error creating the post: %s"
 msgstr ""
 
 #: includes/Modules/AiAssistant/BlogPilot/Scheduler.php:37
-msgid "Weekly (UX Studio)"
+msgid "Weekly (UX1 Studio)"
 msgstr ""
 
 #: includes/Modules/AiAssistant/BlogPilot/Scheduler.php:44
-msgid "Monthly (UX Studio)"
+msgid "Monthly (UX1 Studio)"
 msgstr ""
 
 #: includes/Modules/AiAssistant/BlogPilot/Scheduler.php:153
@@ -13234,7 +13234,7 @@ msgstr ""
 #. translators: %s: disable safe mode URL
 #: includes/Modules/CodeSnippets/SnippetExecutor.php:565
 #, php-format
-msgid "UX Studio is running in safe mode. Code snippets are disabled. <a href=\"%s\">Disable Safe Mode</a>"
+msgid "UX1 Studio is running in safe mode. Code snippets are disabled. <a href=\"%s\">Disable Safe Mode</a>"
 msgstr ""
 
 #: includes/Modules/CodeSnippets/SnippetManager.php:208
@@ -13748,7 +13748,7 @@ msgid "Choose at least one document."
 msgstr ""
 
 #: includes/Modules/Consent/Legal.php:614
-msgid "Fill in the details of the controller in UX Studio, Cookie Consent, Legal pages."
+msgid "Fill in the details of the controller in UX1 Studio, Cookie Consent, Legal pages."
 msgstr ""
 
 #: includes/Modules/Consent/Legal.php:769
@@ -15452,7 +15452,7 @@ msgid "People who open the dashboard first read your greeting, for example the n
 msgstr ""
 
 #: includes/Modules/DashboardWidgets/help.php:18
-msgid "Removes every widget of the dashboard and the welcome panel, except the widgets of UX Studio."
+msgid "Removes every widget of the dashboard and the welcome panel, except the widgets of UX1 Studio."
 msgstr ""
 
 #: includes/Modules/DashboardWidgets/help.php:19
@@ -16479,7 +16479,7 @@ msgid "No update check means no automatic theme updates either."
 msgstr ""
 
 #: includes/Modules/DisableAutoUpdates/Module.php:364
-msgid "The update check is turned off in UX Studio."
+msgid "The update check is turned off in UX1 Studio."
 msgstr ""
 
 #: includes/Modules/DnsManager/CaClient.php:84
@@ -18729,7 +18729,7 @@ msgid "Select form"
 msgstr ""
 
 #: includes/Modules/Forms/ElementorWidget.php:99
-msgid "Build and publish the form in the UX Studio → Form Builder screen first, then pick it here."
+msgid "Build and publish the form in the UX1 Studio → Form Builder screen first, then pick it here."
 msgstr ""
 
 #: includes/Modules/Forms/ElementorWidget.php:111
@@ -18897,7 +18897,7 @@ msgid "The site already has its own CAPTCHA keys. Remove them in Security > CAPT
 msgstr ""
 
 #: includes/Modules/Forms/GutenbergBlock.php:44
-msgid "Embed a form built with the UX Studio Form Builder."
+msgid "Embed a form built with the UX1 Studio Form Builder."
 msgstr ""
 
 #: includes/Modules/Forms/InlineScripts.php:29
@@ -20006,7 +20006,7 @@ msgid "Turn on the modules you need"
 msgstr ""
 
 #: includes/Modules/Guide/Module.php:126
-msgid "Turn on the UX Studio modules that fit your workflow."
+msgid "Turn on the UX1 Studio modules that fit your workflow."
 msgstr ""
 
 #: includes/Modules/HideAdminBar/Module.php:52
@@ -22211,10 +22211,10 @@ msgstr ""
 msgid "Peak memory"
 msgstr ""
 
-#. translators: %s: UX Studio module name
+#. translators: %s: UX1 Studio module name
 #: includes/Modules/PageLoad/Benchmark.php:131
 #, php-format
-msgid "UX Studio module: %s"
+msgid "UX1 Studio module: %s"
 msgstr ""
 
 #: includes/Modules/PageLoad/help.php:12
@@ -23540,7 +23540,7 @@ msgid "You can unblock this IP address from the plugin admin screen."
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/BlockedUsernamesNotice.php:116
-msgid "UX Studio security warning:"
+msgid "UX1 Studio security warning:"
 msgstr ""
 
 #. translators: %d: number of user accounts
@@ -24478,7 +24478,7 @@ msgid "Leave it off if the site is a regular target of bots and you do not want 
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/help.php:234
-msgid "When an address has had several failed logins recently (the threshold set under \"Adaptive mode threshold\"), it gets the next harder Shield difficulty for 15 minutes. The Shield is the key-less [[CAPTCHA]] of UX Studio: the browser solves a small puzzle by itself."
+msgid "When an address has had several failed logins recently (the threshold set under \"Adaptive mode threshold\"), it gets the next harder Shield difficulty for 15 minutes. The Shield is the key-less [[CAPTCHA]] of UX1 Studio: the browser solves a small puzzle by itself."
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/help.php:235
@@ -24621,14 +24621,14 @@ msgstr ""
 #: includes/Modules/SecurityOptimization/LoginUrlNotice.php:174
 #, php-format
 msgid ""
-"UX Studio has been updated. The custom login address you set up earlier is in force.\n"
+"UX1 Studio has been updated. The custom login address you set up earlier is in force.\n"
 "\n"
 "Log in here:\n"
 "%1$s\n"
 "\n"
 "The usual address (wp-login.php) does not show the login form. If you already log in this way, nothing changes for you. Save the address in your password manager.\n"
 "\n"
-"If you do not want this, switch it off in UX Studio > Security > Login:\n"
+"If you do not want this, switch it off in UX1 Studio > Security > Login:\n"
 "%2$s\n"
 "\n"
 "If you cannot log in at all, add this line to wp-config.php and the old address works again:\n"
@@ -24652,7 +24652,7 @@ msgid ""
 "\n"
 "The usual address (wp-login.php) no longer shows the login form. Save the new address in your password manager.\n"
 "\n"
-"You can change or switch it off in UX Studio > Security > Login:\n"
+"You can change or switch it off in UX1 Studio > Security > Login:\n"
 "%2$s\n"
 "\n"
 "If you cannot log in at all, add this line to wp-config.php and the old address works again:\n"
@@ -24664,7 +24664,7 @@ msgid "The custom login address of this site is in force."
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/LoginUrlNotice.php:232
-msgid "The custom login address set in UX Studio is in force. The usual wp-login.php does not show the login form. Log in here and save the address:"
+msgid "The custom login address set in UX1 Studio is in force. The usual wp-login.php does not show the login form. Log in here and save the address:"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/LoginUrlNotice.php:234
@@ -25055,7 +25055,7 @@ msgid "Automatic (recommended)"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/Module.php:873
-msgid "UX Studio Shield (no keys)"
+msgid "UX1 Studio Shield (no keys)"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/Module.php:874
@@ -25985,7 +25985,7 @@ msgstr ""
 #. translators: %d: number of findings
 #: includes/Modules/SecurityOptimization/UploadGuardNotifier.php:90
 #, php-format
-msgid "%d suspicious file(s) found on your site. Nothing was moved or deleted - review them in the UX Studio admin and decide per file."
+msgid "%d suspicious file(s) found on your site. Nothing was moved or deleted - review them in the UX1 Studio admin and decide per file."
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/UploadGuardNotifier.php:95
@@ -26155,7 +26155,7 @@ msgid "PHP code in the uploads folder (uploads should only hold media)"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/UploadGuardScope.php:187
-msgid "The file belongs to UX Studio itself."
+msgid "The file belongs to UX1 Studio itself."
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/UploadGuardScope.php:193
@@ -26229,7 +26229,7 @@ msgid ""
 msgstr ""
 
 #: includes/Modules/ServiceRequests/Sync.php:103
-msgid "Every 5 minutes (UX Studio ticket sync)"
+msgid "Every 5 minutes (UX1 Studio ticket sync)"
 msgstr ""
 
 #: includes/Modules/ServiceRequests/Sync.php:248
@@ -26780,7 +26780,7 @@ msgid "[%s] SMTP test e-mail"
 msgstr ""
 
 #: includes/Modules/SmtpEmail/Module.php:1555
-msgid "This is a test e-mail sent from the UX Studio SMTP E-mail module."
+msgid "This is a test e-mail sent from the UX1 Studio SMTP E-mail module."
 msgstr ""
 
 #: includes/Modules/SmtpEmail/Module.php:1564
@@ -27410,7 +27410,7 @@ msgstr ""
 #. translators: %d: interval in hours
 #: includes/Modules/VulnerabilityScanner/Module.php:118
 #, php-format
-msgid "Every %d hours (UX Studio vulnerability scan)"
+msgid "Every %d hours (UX1 Studio vulnerability scan)"
 msgstr ""
 
 #: includes/Modules/VulnerabilityScanner/Module.php:132
@@ -29784,7 +29784,7 @@ msgid "Detected SEO plugin: %s - the generated title/description is written dire
 msgstr ""
 
 #: build/295.875fb70efdc96b58927b.js:1
-msgid "No SEO plugin detected - saved into UX Studio's own fields."
+msgid "No SEO plugin detected - saved into UX1 Studio's own fields."
 msgstr ""
 
 #: build/295.875fb70efdc96b58927b.js:1
@@ -30130,7 +30130,7 @@ msgid "The internal chatbot is disabled in the settings above."
 msgstr ""
 
 #: build/295.875fb70efdc96b58927b.js:1
-msgid "Ask the internal AI assistant about editing content, site settings, or how to use UX Studio."
+msgid "Ask the internal AI assistant about editing content, site settings, or how to use UX1 Studio."
 msgstr ""
 
 #: build/295.875fb70efdc96b58927b.js:1
@@ -30146,7 +30146,7 @@ msgid "MCP Server"
 msgstr ""
 
 #: build/295.875fb70efdc96b58927b.js:1
-msgid "The MCP server is now part of UX Studio itself and no longer depends on this module. Switch it on, create access tokens with their own permissions and copy the client configuration in Settings. The content tools of this module (posts, pages, media, shop, SEO) are offered to MCP clients while the module is enabled."
+msgid "The MCP server is now part of UX1 Studio itself and no longer depends on this module. Switch it on, create access tokens with their own permissions and copy the client configuration in Settings. The content tools of this module (posts, pages, media, shop, SEO) are offered to MCP clients while the module is enabled."
 msgstr ""
 
 #: build/295.875fb70efdc96b58927b.js:1
@@ -31773,13 +31773,13 @@ msgid "Test again"
 msgstr ""
 
 #: build/508.06dd7a663f8bebe1f9fe.js:12
-msgid "Inline scripts of UX Studio"
+msgid "Inline scripts of UX1 Studio"
 msgstr ""
 
 #. translators: %d: number of allowed inline scripts.
 #: build/508.06dd7a663f8bebe1f9fe.js:13
 #, js-format
-msgid "The policy is strict. These %d inline scripts of UX Studio are allowed by their hash. Inline scripts of other plugins and of your theme are not covered and must be handled separately."
+msgid "The policy is strict. These %d inline scripts of UX1 Studio are allowed by their hash. Inline scripts of other plugins and of your theme are not covered and must be handled separately."
 msgstr ""
 
 #. translators: 1: number of scripts, 2: limit.
@@ -31789,7 +31789,7 @@ msgid "%1$d inline scripts exist, only the first %2$d are allowed by hash."
 msgstr ""
 
 #: build/508.06dd7a663f8bebe1f9fe.js:14
-msgid "The policy allows inline scripts ('unsafe-inline'), so UX Studio's own inline scripts run without any extra entry. Hashes are added only to a strict policy without 'unsafe-inline', because a browser ignores 'unsafe-inline' as soon as a hash is present."
+msgid "The policy allows inline scripts ('unsafe-inline'), so UX1 Studio's own inline scripts run without any extra entry. Hashes are added only to a strict policy without 'unsafe-inline', because a browser ignores 'unsafe-inline' as soon as a hash is present."
 msgstr ""
 
 #: build/508.06dd7a663f8bebe1f9fe.js:14
@@ -32037,7 +32037,7 @@ msgstr ""
 
 #: build/508.06dd7a663f8bebe1f9fe.js:22
 #: build/792.e76b3c57f168142448e6.js:2
-msgid "UX Studio Shield"
+msgid "UX1 Studio Shield"
 msgstr ""
 
 #: build/508.06dd7a663f8bebe1f9fe.js:22
@@ -32233,11 +32233,11 @@ msgid "Fourth column"
 msgstr ""
 
 #: build/530.beda7fac3bbd088df3d7.js:3
-msgid "UX Studio widget"
+msgid "UX1 Studio widget"
 msgstr ""
 
 #: build/530.beda7fac3bbd088df3d7.js:3
-msgid "UX Studio module"
+msgid "UX1 Studio module"
 msgstr ""
 
 #. translators: %s: theme name.
@@ -32306,11 +32306,11 @@ msgid "Got it"
 msgstr ""
 
 #: build/530.beda7fac3bbd088df3d7.js:6
-msgid "\"Hide all dashboard widgets\" is on, so the rules below do not apply. Only the widgets of UX Studio stay."
+msgid "\"Hide all dashboard widgets\" is on, so the rules below do not apply. Only the widgets of UX1 Studio stay."
 msgstr ""
 
 #: build/530.beda7fac3bbd088df3d7.js:6
-msgid "Every widget of the dashboard in one list. Turn the widgets of UX Studio on or off, hide any widget, or show it only to some roles. Point at the eye to see how a widget looks on the dashboard."
+msgid "Every widget of the dashboard in one list. Turn the widgets of UX1 Studio on or off, hide any widget, or show it only to some roles. Point at the eye to see how a widget looks on the dashboard."
 msgstr ""
 
 #: build/530.beda7fac3bbd088df3d7.js:6
@@ -32327,7 +32327,7 @@ msgstr ""
 
 #: build/530.beda7fac3bbd088df3d7.js:6
 #: build/530.beda7fac3bbd088df3d7.js:10
-msgid "UX Studio widgets"
+msgid "UX1 Studio widgets"
 msgstr ""
 
 #: build/530.beda7fac3bbd088df3d7.js:6
@@ -33005,7 +33005,7 @@ msgid "Sub-items and advanced rules"
 msgstr ""
 
 #: build/641.f3a3cc9adcc13bf40a4d.js:3
-msgid "Open an item to rename, hide, move or re-order its sub-items, to require a capability, or to show or hide an item for single users (by login). Rules of users and capabilities apply on top of the role limits above. Users who can manage options always keep UX Studio, Plugins, Users and Settings. With \"Block access to hidden pages\" on, hidden sub-items are refused by address too."
+msgid "Open an item to rename, hide, move or re-order its sub-items, to require a capability, or to show or hide an item for single users (by login). Rules of users and capabilities apply on top of the role limits above. Users who can manage options always keep UX1 Studio, Plugins, Users and Settings. With \"Block access to hidden pages\" on, hidden sub-items are refused by address too."
 msgstr ""
 
 #: build/641.f3a3cc9adcc13bf40a4d.js:3
@@ -35052,7 +35052,7 @@ msgid "1 - consent given"
 msgstr ""
 
 #: build/792.e76b3c57f168142448e6.js:9
-msgid "The state is read when the conversion fires from the UX Studio cookie banner, Complianz, CookieYes, Cookiebot, Google Consent Mode (ad_storage) or window.uxstudioConsent.marketing. Without a recognised banner the value above is sent; with 0 Sklik still counts the conversion, only without personalization. Meta Pixel and Google Ads are not affected: they fire only if their tracker is already on the page, which your cookie banner controls."
+msgid "The state is read when the conversion fires from the UX1 Studio cookie banner, Complianz, CookieYes, Cookiebot, Google Consent Mode (ad_storage) or window.uxstudioConsent.marketing. Without a recognised banner the value above is sent; with 0 Sklik still counts the conversion, only without personalization. Meta Pixel and Google Ads are not affected: they fire only if their tracker is already on the page, which your cookie banner controls."
 msgstr ""
 
 #: build/792.e76b3c57f168142448e6.js:9
@@ -35068,7 +35068,7 @@ msgid "Only a user who may add scripts to the site (the unfiltered_html capabili
 msgstr ""
 
 #: build/792.e76b3c57f168142448e6.js:9
-msgid "Runs in the visitor's browser after a counted submit, as the body of a function with one read-only argument: detail = { formId, formTitle, submissionId }. An error in it never affects the thank-you. It is printed as an inline script and eval is not used. With the UX Studio Content Security Policy in strict mode (no 'unsafe-inline') it is allowed automatically through a hash; a policy set by another plugin or the server has to allow it itself."
+msgid "Runs in the visitor's browser after a counted submit, as the body of a function with one read-only argument: detail = { formId, formTitle, submissionId }. An error in it never affects the thank-you. It is printed as an inline script and eval is not used. With the UX1 Studio Content Security Policy in strict mode (no 'unsafe-inline') it is allowed automatically through a hash; a policy set by another plugin or the server has to allow it itself."
 msgstr ""
 
 #: build/792.e76b3c57f168142448e6.js:9
@@ -36408,19 +36408,19 @@ msgstr ""
 msgid "Partial overlap"
 msgstr ""
 
-#. translators: 1: plugin name, 2: UX Studio module name.
+#. translators: 1: plugin name, 2: UX1 Studio module name.
 #: build/index.e2f97ac80863bc5a165b.js:3
 #, js-format
 msgid "%1$s does the same job as the module \"%2$s\". Running both can conflict - deactivate the plugin or switch the module off."
 msgstr ""
 
-#. translators: 1: plugin name, 2: UX Studio module name.
+#. translators: 1: plugin name, 2: UX1 Studio module name.
 #: build/index.e2f97ac80863bc5a165b.js:4
 #, js-format
 msgid "%1$s covers part of what the module \"%2$s\" does. Both can run, but check that they do not change the same screens."
 msgstr ""
 
-#. translators: 1: plugin name, 2: UX Studio module name.
+#. translators: 1: plugin name, 2: UX1 Studio module name.
 #: build/index.e2f97ac80863bc5a165b.js:5
 #, js-format
 msgid "%1$s overlaps only partly with the module \"%2$s\". Both can run side by side; this is for your information."
@@ -36480,7 +36480,7 @@ msgstr ""
 #. translators: %s: module name.
 #: build/index.e2f97ac80863bc5a165b.js:10
 #, js-format
-msgid "The module \"%s\" does the same job as the plugin below. Two things doing one job conflict with each other, so UX Studio did not enable it. Deactivate the plugin first, then enable the module."
+msgid "The module \"%s\" does the same job as the plugin below. Two things doing one job conflict with each other, so UX1 Studio did not enable it. Deactivate the plugin first, then enable the module."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:10
@@ -36513,8 +36513,8 @@ msgstr ""
 #. translators: %d: number of plugins.
 #: build/index.e2f97ac80863bc5a165b.js:11
 #, js-format
-msgid "We found %d plugin that UX Studio can take over, with its settings and data."
-msgid_plural "We found %d plugins that UX Studio can take over, with their settings and data."
+msgid "We found %d plugin that UX1 Studio can take over, with its settings and data."
+msgid_plural "We found %d plugins that UX1 Studio can take over, with their settings and data."
 msgstr[0] ""
 msgstr[1] ""
 
@@ -36880,7 +36880,7 @@ msgid "Setting"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:26
-msgid "Now in UX Studio"
+msgid "Now in UX1 Studio"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:26
@@ -37023,7 +37023,7 @@ msgid "Drop the .json file here, or click to choose it"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:34
-msgid "A settings export of UX Studio, up to 2 MB. Nothing is saved yet: you will see what it would change first."
+msgid "A settings export of UX1 Studio, up to 2 MB. Nothing is saved yet: you will see what it would change first."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:34
@@ -37702,7 +37702,7 @@ msgstr ""
 #. translators: %s: date and time of the run.
 #: build/index.e2f97ac80863bc5a165b.js:50
 #, js-format
-msgid "UX Studio goes back exactly to how it was before the run from %s: settings, and everything the run created. Changes made in these modules since then are lost."
+msgid "UX1 Studio goes back exactly to how it was before the run from %s: settings, and everything the run created. Changes made in these modules since then are lost."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:50
@@ -38077,11 +38077,11 @@ msgid "The safe preview is not available here. Confirm below that you want to sw
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:54
-msgid "Switch to UX Studio"
+msgid "Switch to UX1 Studio"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:54
-msgid "UX Studio modules take over and the old plugins are deactivated. Nothing is deleted, and you can undo it all for 30 days."
+msgid "UX1 Studio modules take over and the old plugins are deactivated. Nothing is deleted, and you can undo it all for 30 days."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:54
@@ -38165,7 +38165,7 @@ msgid "Some things stop working after the switch"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:57
-msgid "The migration plan lists what the old plugin provided and UX Studio cannot take over. Move it by hand first, or confirm that you accept the loss."
+msgid "The migration plan lists what the old plugin provided and UX1 Studio cannot take over. Move it by hand first, or confirm that you accept the loss."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:57
@@ -38181,7 +38181,7 @@ msgid "Switch now"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:57
-msgid "Switch to UX Studio now?"
+msgid "Switch to UX1 Studio now?"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:57
@@ -38201,7 +38201,7 @@ msgid "New login address:"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:58
-msgid "UX Studio has taken over"
+msgid "UX1 Studio has taken over"
 msgstr ""
 
 #. translators: 1: number of deactivated plugins, 2: number of modules switched on.
@@ -38404,7 +38404,7 @@ msgid "Set up your new website"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:65
-msgid "UX Studio can turn on the modules that suit almost every WordPress site and preset them sensibly in a few minutes."
+msgid "UX1 Studio can turn on the modules that suit almost every WordPress site and preset them sensibly in a few minutes."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:65
@@ -38693,7 +38693,7 @@ msgid "Setup steps"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:73
-msgid "The wizard finds plugins on this site whose job a UX Studio module does as well."
+msgid "The wizard finds plugins on this site whose job a UX1 Studio module does as well."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:73
@@ -38713,11 +38713,11 @@ msgid "No old plugin is ever deactivated automatically. You decide at the end, a
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:73
-msgid "Move your settings to UX Studio"
+msgid "Move your settings to UX1 Studio"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:73
-msgid "Copy the settings and data of other plugins (redirects, snippets, folders, mail settings ...) into the matching UX Studio modules, check that nothing got lost and keep the option to go back."
+msgid "Copy the settings and data of other plugins (redirects, snippets, folders, mail settings ...) into the matching UX1 Studio modules, check that nothing got lost and keep the option to go back."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:73
@@ -38728,7 +38728,7 @@ msgstr ""
 msgid "Scan the site"
 msgstr ""
 
-#. translators: 1: UX Studio module name, 2: "12 settings".
+#. translators: 1: UX1 Studio module name, 2: "12 settings".
 #: build/index.e2f97ac80863bc5a165b.js:74
 #, js-format
 msgid "Module: %1$s - %2$s"
@@ -38743,7 +38743,7 @@ msgid "Scanning the site…"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:74
-msgid "Looking for plugins UX Studio can take over from."
+msgid "Looking for plugins UX1 Studio can take over from."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:74
@@ -38759,11 +38759,11 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: build/index.e2f97ac80863bc5a165b.js:75
-msgid "None of the plugins UX Studio can migrate is installed here, and no leftover settings of them were found."
+msgid "None of the plugins UX1 Studio can migrate is installed here, and no leftover settings of them were found."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:75
-msgid "These plugins (or their leftover settings) have a matching UX Studio module."
+msgid "These plugins (or their leftover settings) have a matching UX1 Studio module."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:75
@@ -38789,7 +38789,7 @@ msgstr ""
 msgid "Tick the plugins whose settings should be copied. Inactive plugins can be migrated too. Open \"What moves over\" to see exactly what is and is not transferred. Partial matches can only be ticked once you have opened that list."
 msgstr ""
 
-#. translators: 1: plugin names, 2: UX Studio module name.
+#. translators: 1: plugin names, 2: UX1 Studio module name.
 #: build/index.e2f97ac80863bc5a165b.js:77
 #, js-format
 msgid "%1$s all carry settings for the module \"%2$s\". The one migrated last overwrites the others, so tick only the plugin you actually use."
@@ -38808,11 +38808,11 @@ msgid "Check before writing"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:78
-msgid "This is a trial run: nothing has been written. Below is what each plugin would change in UX Studio."
+msgid "This is a trial run: nothing has been written. Below is what each plugin would change in UX1 Studio."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:78
-msgid "When you start the migration, a snapshot of the current UX Studio settings is saved first. You can restore it for 30 days."
+msgid "When you start the migration, a snapshot of the current UX1 Studio settings is saved first. You can restore it for 30 days."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:78
@@ -38868,7 +38868,7 @@ msgid "Verify the result"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:81
-msgid "The old plugin settings are compared with what is now stored in UX Studio."
+msgid "The old plugin settings are compared with what is now stored in UX1 Studio."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:81
@@ -38913,7 +38913,7 @@ msgid "Continue to the safe preview"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:82
-msgid "The UX Studio settings go back exactly to how they were before the migration, and everything the migration created (rules, snippets, folders, menu fields) is removed. The old plugins are not touched."
+msgid "The UX1 Studio settings go back exactly to how they were before the migration, and everything the migration created (rules, snippets, folders, menu fields) is removed. The old plugins are not touched."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:82
@@ -38921,7 +38921,7 @@ msgid "The migration was undone"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:82
-msgid "UX Studio is back to how it was before. The old plugins were never changed."
+msgid "UX1 Studio is back to how it was before. The old plugins were never changed."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:82
@@ -38931,7 +38931,7 @@ msgstr ""
 #. translators: 1: number of plugins, 2: number of settings written.
 #: build/index.e2f97ac80863bc5a165b.js:83
 #, js-format
-msgid "%1$d plugin(s) processed, %2$d item(s) written to UX Studio."
+msgid "%1$d plugin(s) processed, %2$d item(s) written to UX1 Studio."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:83
@@ -38987,7 +38987,7 @@ msgid "Dark mode"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:84
-msgid "UX Studio navigation"
+msgid "UX1 Studio navigation"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:84

@@ -60,7 +60,7 @@ $item = R::sanitize_item( array( 'text' => '<b>Hi</b>', 'type' => 'ERROR', 'mark
 $assert( 'item: fields cleaned', is_array( $item ) && 'Hi' === $item['text'] && 'error' === $item['type'] && 'abc' === $item['id'] && 'plugins' === $item['screen'] && true === $item['dismissible'] && false === strpos( $item['markup'], '<' ) );
 $assert( 'item: empty text rejected', null === R::sanitize_item( array( 'text' => '  <i></i> ' ) ) );
 $assert( 'item: a non-array is rejected', null === R::sanitize_item( 'x' ) );
-$assert( 'item: PHP version notice of UX Studio is never recorded', null === R::sanitize_item( array( 'text' => 'PHP too old', 'id' => 'uxstudio-php-version-notice' ) ) );
+$assert( 'item: PHP version notice of UX1 Studio is never recorded', null === R::sanitize_item( array( 'text' => 'PHP too old', 'id' => 'uxstudio-php-version-notice' ) ) );
 $assert( 'item: invalid screen dropped', '' === R::sanitize_item( array( 'text' => 'x', 'screen' => 'a/b?c=1' ) )['screen'] );
 
 // --- source ------------------------------------------------------------------------------------------------
@@ -70,7 +70,7 @@ $plugins = array(
 	'wordpress-seo'      => 'Yoast SEO',
 	'woocommerce'        => 'WooCommerce',
 	'my-booking-plugin'  => 'My Booking Plugin',
-	'ux-studio'          => 'UX Studio',
+	'ux-studio'          => 'UX1 Studio',
 );
 $src = static function ( array $raw ) use ( $plugins ): array {
 	$item = R::sanitize_item( $raw + array( 'text' => 'text' ) );
@@ -89,7 +89,7 @@ $assert( 'source: czech core sentence is WordPress', 'wordpress' === $s['slug'] 
 $s = $src( array( 'markup' => 'update-nag', 'text' => 'Some plugin wants your attention.' ) );
 $assert( 'source: update-nag with a foreign text is not core', 'wordpress' !== $s['slug'] );
 $s = $src( array( 'markup' => 'notice', 'id' => 'uxstudio-something', 'text' => 'x' ) );
-$assert( 'source: UX Studio own notice', 'ux-studio' === $s['slug'] && 'UX Studio' === $s['name'] && 'own' === $s['how'] );
+$assert( 'source: UX1 Studio own notice', 'ux-studio' === $s['slug'] && 'UX1 Studio' === $s['name'] && 'own' === $s['how'] );
 $s = $src( array( 'markup' => 'notice', 'plugin' => 'my-booking-plugin/main.php', 'text' => 'x' ) );
 $assert( 'source: data-plugin basename', 'my-booking-plugin' === $s['slug'] && 'data' === $s['how'] );
 $s = $src( array( 'markup' => 'notice', 'plugin' => 'gone_plugin/gone.php', 'text' => 'x' ) );

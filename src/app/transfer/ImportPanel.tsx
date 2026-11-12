@@ -138,7 +138,7 @@ export function ImportPanel( { status }: { status: TransferStatus } ): JSX.Eleme
 			return;
 		}
 		if ( file.size > status.max_bytes ) {
-			setError( __( 'The file is larger than 2 MB, so it is not a settings export of UX Studio.', 'ux-studio' ) );
+			setError( __( 'The file is larger than 2 MB, so it is not a settings export of UX1 Studio.', 'ux-studio' ) );
 			return;
 		}
 		start( await file.text(), file.name );
@@ -246,7 +246,7 @@ export function ImportPanel( { status }: { status: TransferStatus } ): JSX.Eleme
 					>
 						<FileUp size={ 28 } aria-hidden />
 						<strong>{ __( 'Drop the .json file here, or click to choose it', 'ux-studio' ) }</strong>
-						<span className="uxs-tr-muted">{ __( 'A settings export of UX Studio, up to 2 MB. Nothing is saved yet: you will see what it would change first.', 'ux-studio' ) }</span>
+						<span className="uxs-tr-muted">{ __( 'A settings export of UX1 Studio, up to 2 MB. Nothing is saved yet: you will see what it would change first.', 'ux-studio' ) }</span>
 						<input ref={ fileInput } type="file" accept=".json,application/json" onChange={ ( e ) => void readFile( e.target.files?.[ 0 ] ) } />
 					</label>
 					<PasteBox busy={ busy } onUse={ ( text ) => start( text, '' ) } />

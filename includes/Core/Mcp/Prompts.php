@@ -1,6 +1,6 @@
 <?php
 /**
- * MCP prompts of the UX Studio server.
+ * MCP prompts of the UX1 Studio server.
  *
  * @package UxStudio
  */
@@ -23,8 +23,8 @@ final class Prompts {
 		return array(
 			array(
 				'name'        => 'migrate-from-plugins',
-				'title'       => 'Migrate from other plugins to UX Studio',
-				'description' => 'Walks through moving the settings and data of other plugins (SEO, redirects, security, SMTP, ...) into UX Studio: scan, plan, rehearsal, real run, verification, safe preview, switch. Stops for explicit user confirmation before anything is switched on.',
+				'title'       => 'Migrate from other plugins to UX1 Studio',
+				'description' => 'Walks through moving the settings and data of other plugins (SEO, redirects, security, SMTP, ...) into UX1 Studio: scan, plan, rehearsal, real run, verification, safe preview, switch. Stops for explicit user confirmation before anything is switched on.',
 				'arguments'   => array(
 					array(
 						'name'        => 'plugins',
@@ -49,9 +49,9 @@ final class Prompts {
 		}
 		$wanted = trim( (string) ( $arguments['plugins'] ?? '' ) );
 		$text   = <<<'TXT'
-You are migrating this WordPress site from other plugins to UX Studio. Work in this order and report to the user after each step. UX Studio never changes the source plugins' data, a real run only COPIES into a staging area, and nothing goes live before step 8.
+You are migrating this WordPress site from other plugins to UX1 Studio. Work in this order and report to the user after each step. UX1 Studio never changes the source plugins' data, a real run only COPIES into a staging area, and nothing goes live before step 8.
 
-1. Orientation. Call uxstudio-site-overview, then uxstudio-overlaps-list (plugins that do the same job as a UX Studio module) and uxstudio-migration-scan (what can be moved).
+1. Orientation. Call uxstudio-site-overview, then uxstudio-overlaps-list (plugins that do the same job as a UX1 Studio module) and uxstudio-migration-scan (what can be moved).
 2. Choice. Tell the user what you found and ask which sources to move. Do not guess.
 3. Plan. Call uxstudio-migration-plan for the chosen sources and explain, per source, what WILL and what will NOT be transferred. Anything lossy must be said out loud.
 4. Rehearsal. Call uxstudio-migration-run with dry_run=true (the default). Read the result; stop and report on any error.
@@ -67,7 +67,7 @@ TXT;
 			$text .= "\n\nThe user wants to move: " . $wanted . '.';
 		}
 		return array(
-			'description' => 'Step-by-step migration from other plugins to UX Studio.',
+			'description' => 'Step-by-step migration from other plugins to UX1 Studio.',
 			'messages'    => array(
 				array(
 					'role'    => 'user',

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Changed: the product is now called UX1 Studio (display name in the plugin header, admin menu, texts, translations and docs). Identifiers stay as they are: slug and folder `ux-studio`, text domain, `uxstudio_` prefixes, `UxStudio` namespace, REST namespace and GitHub repo.
+
 ## 0.16.2
 
 - Fixed: Forms e-mails (notification and autoresponse) no longer arrive as raw quoted-printable text with a broken subject ("=??Q?..."). The multipart/alternative body was built by hand and handed to wp_mail(), which left PHPMailer with an empty charset and quoted-printable on the whole multipart; the HTML now goes out as a normal text/html body with the plain text as PHPMailer's AltBody, so PHPMailer builds a valid multipart itself.

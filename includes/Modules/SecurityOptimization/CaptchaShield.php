@@ -1,6 +1,6 @@
 <?php
 /**
- * Shield of UX Studio: a key-less proof-of-work CAPTCHA (the protocol and the decisions, no WordPress calls).
+ * Shield of UX1 Studio: a key-less proof-of-work CAPTCHA (the protocol and the decisions, no WordPress calls).
  *
  * @package UxStudio
  */

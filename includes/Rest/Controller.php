@@ -15,7 +15,7 @@ use WP_REST_Response;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * All UX Studio REST controllers extend this. Routes live under uxstudio/v1.
+ * All UX1 Studio REST controllers extend this. Routes live under uxstudio/v1.
  */
 abstract class Controller {
 

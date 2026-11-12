@@ -56,7 +56,7 @@ final class Retention {
 	 */
 	public static function days_for( string $table ): int {
 		/**
-		 * Retention in days for a UX Studio log/stats table. 0 = keep forever.
+		 * Retention in days for a UX1 Studio log/stats table. 0 = keep forever.
 		 *
 		 * @param int    $days  Default retention.
 		 * @param string $table Table name without the WP prefix.

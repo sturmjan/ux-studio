@@ -283,7 +283,7 @@ final class CspRestController extends Controller {
 	}
 
 	/**
-	 * Which of UX Studio's own inline scripts a strict policy allows by hash. Third-party inline scripts are not in it.
+	 * Which of UX1 Studio's own inline scripts a strict policy allows by hash. Third-party inline scripts are not in it.
 	 *
 	 * @return array{strict:bool,total:int,capped:bool,max:int,entries:array<int,array{label:string,hash:string}>}
 	 */

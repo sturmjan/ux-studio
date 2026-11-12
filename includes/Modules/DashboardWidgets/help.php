@@ -15,7 +15,7 @@ return array(
 		'effect' => __( 'People who open the dashboard first read your greeting, for example the name of your company or of the project.', 'ux-studio' ),
 	),
 	'disable_all_widgets'  => array(
-		'does'   => __( 'Removes every widget of the dashboard and the welcome panel, except the widgets of UX Studio.', 'ux-studio' ),
+		'does'   => __( 'Removes every widget of the dashboard and the welcome panel, except the widgets of UX1 Studio.', 'ux-studio' ),
 		'effect' => __( 'The dashboard is almost empty, whatever the table of widgets says. Switch it off to bring the rules of the table back.', 'ux-studio' ),
 	),
 	'widget_disk_usage'    => array(

@@ -178,18 +178,18 @@ final class Preview {
 
 	/**
 	 * Source of the mu-plugin. Tiny and inert: it does nothing without a preview cookie / header,
-	 * and when UX Studio is not active (or its file is gone) it does nothing at all, so a leftover
+	 * and when UX1 Studio is not active (or its file is gone) it does nothing at all, so a leftover
 	 * file can never break a site.
 	 *
-	 * @param string $basename Plugin basename of UX Studio (`folder/ux-studio.php`).
+	 * @param string $basename Plugin basename of UX1 Studio (`folder/ux-studio.php`).
 	 */
 	public static function mu_source( string $basename ): string {
 		$folder = dirname( $basename );
 		return "<?php\n"
 			. "/**\n"
-			. " * Plugin Name: UX Studio Safe Preview\n"
-			. " * Description: Lets one logged-in administrator preview the site without the old plugins during a UX Studio migration. Inert without a signed preview token; removed automatically when the preview ends.\n"
-			. " * Author: UX Studio\n"
+			. " * Plugin Name: UX1 Studio Safe Preview\n"
+			. " * Description: Lets one logged-in administrator preview the site without the old plugins during a UX1 Studio migration. Inert without a signed preview token; removed automatically when the preview ends.\n"
+			. " * Author: UX1 Studio\n"
 			. ' * Version: ' . self::MU_VERSION . "\n"
 			. " */\n\n"
 			. "defined( 'ABSPATH' ) || exit;\n\n"

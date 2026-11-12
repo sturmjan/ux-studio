@@ -322,7 +322,7 @@ final class AdminColumnsSource extends AbstractSource {
 			$m->lossy(
 				sprintf(
 					/* translators: %s: column types. */
-					__( 'Column types that UX Studio does not have (they are left out): %s. The module offers default columns, custom fields, taxonomies, the ID and the featured image.', 'ux-studio' ),
+					__( 'Column types that UX1 Studio does not have (they are left out): %s. The module offers default columns, custom fields, taxonomies, the ID and the featured image.', 'ux-studio' ),
 					implode( ', ', array_keys( $unsupported ) )
 				)
 			);
@@ -358,7 +358,7 @@ final class AdminColumnsSource extends AbstractSource {
 			);
 		}
 		$m->lossy( __( 'Inline editing and bulk editing set on the columns, saved search segments and the column set per user.', 'ux-studio' ) );
-		$m->lossy( __( 'Native columns added by other plugins (SEO, shop ...) that you hid in Admin Columns stay visible: UX Studio knows only the WordPress columns.', 'ux-studio' ) );
+		$m->lossy( __( 'Native columns added by other plugins (SEO, shop ...) that you hid in Admin Columns stay visible: UX1 Studio knows only the WordPress columns.', 'ux-studio' ) );
 		return $m;
 	}
 

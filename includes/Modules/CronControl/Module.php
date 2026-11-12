@@ -49,7 +49,7 @@ final class Module extends BaseModule {
 	private const LATE_THRESHOLD = 300;
 
 	/** Marker used to fence our block in the site .htaccess. */
-	private const HTACCESS_MARKER = 'UX Studio Cron Control';
+	private const HTACCESS_MARKER = 'UX1 Studio Cron Control';
 
 	/** mu-plugin filename that defines DISABLE_WP_CRON. */
 	private const MU_PLUGIN_FILE = 'ux-studio-cron-control.php';
@@ -60,7 +60,7 @@ final class Module extends BaseModule {
 	/**
 	 * Version of the generated mu-plugin. Part of the sync hash, so bumping it
 	 * regenerates an existing mu-plugin on the next boot. v2 = self-guarding
-	 * (only disables WP-Cron while UX Studio + this module are active).
+	 * (only disables WP-Cron while UX1 Studio + this module are active).
 	 */
 	private const MU_PLUGIN_VERSION = 2;
 
@@ -885,15 +885,15 @@ final class Module extends BaseModule {
 			return;
 		}
 
-		// Self-guarding: the constant is only defined while UX Studio is really
+		// Self-guarding: the constant is only defined while UX1 Studio is really
 		// active AND this module is enabled. If the plugin is removed via FTP or
 		// switched off without its cleanup running, the leftover file is inert
 		// and WP-Cron keeps working (fail safe - never "cron dead forever").
 		$content = "<?php\n"
 			. "/**\n"
-			. " * Plugin Name: UX Studio Cron Control\n"
-			. " * Description: Disables WP-Cron - managed by the Cron Control module in UX Studio. Inert unless UX Studio and that module are active.\n"
-			. " * Author: UX Studio\n"
+			. " * Plugin Name: UX1 Studio Cron Control\n"
+			. " * Description: Disables WP-Cron - managed by the Cron Control module in UX1 Studio. Inert unless UX1 Studio and that module are active.\n"
+			. " * Author: UX1 Studio\n"
 			. ' * Version: ' . self::MU_PLUGIN_VERSION . "\n"
 			. " */\n\n"
 			. "defined( 'ABSPATH' ) || exit;\n\n"

@@ -91,7 +91,7 @@ final class PromptBuilder {
 				$rag             = new VectorSearch( $chat_target );
 				$context['rag_results'] = $rag->hybrid_search( $message, 5 );
 			} catch ( \Throwable $e ) {
-				error_log( 'UX Studio AI Assistant RAG (public chat): ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( 'UX1 Studio AI Assistant RAG (public chat): ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			}
 		}
 

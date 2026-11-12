@@ -1,6 +1,6 @@
 <?php
 /**
- * Contract of one migration source (a foreign plugin whose settings move into UX Studio).
+ * Contract of one migration source (a foreign plugin whose settings move into UX1 Studio).
  *
  * @package UxStudio
  */
@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * PLAN.md 26.2. A source only READS the foreign plugin (its options, tables,
- * files) and writes to UX Studio. It never enables the target module and never
+ * files) and writes to UX1 Studio. It never enables the target module and never
  * deactivates the plugin - that is a separate, confirmed step (later phase).
  */
 interface Source {
@@ -26,7 +26,7 @@ interface Source {
 	 */
 	public function plugin_slugs(): array;
 
-	/** Id of the UX Studio module that takes over. */
+	/** Id of the UX1 Studio module that takes over. */
 	public function target_module(): string;
 
 	/** Display name of the plugin. */
@@ -58,7 +58,7 @@ interface Source {
 	public function target_options(): array;
 
 	/**
-	 * UX Studio tables (name WITHOUT the WordPress prefix) the migration may write into. The
+	 * UX1 Studio tables (name WITHOUT the WordPress prefix) the migration may write into. The
 	 * Snapshot copies them before the first write and the rollback restores them.
 	 *
 	 * @return string[]
@@ -83,7 +83,7 @@ interface Source {
 	public function migrate( array $state, bool $dry_run ): array;
 
 	/**
-	 * Compare the source with what is now in UX Studio.
+	 * Compare the source with what is now in UX1 Studio.
 	 *
 	 * @return array<int, array{id:string,label:string,ok:bool,detail:string}>
 	 */

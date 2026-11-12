@@ -1,6 +1,6 @@
 <?php
 /**
- * English cookie policy template (syntax: LegalTemplate). Written for UX Studio, not a copy of any other generator.
+ * English cookie policy template (syntax: LegalTemplate). Written for UX1 Studio, not a copy of any other generator.
  *
  * @package UxStudio
  */

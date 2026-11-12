@@ -328,7 +328,7 @@ final class Module extends BaseModule {
 				'key'     => 'module_links_enabled',
 				'section' => __( 'Sidebar menu', 'ux-studio' ),
 				'type'    => 'toggle',
-				'label'   => __( 'Add UX Studio modules to the menu', 'ux-studio' ),
+				'label'   => __( 'Add UX1 Studio modules to the menu', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
@@ -347,7 +347,7 @@ final class Module extends BaseModule {
 				'section' => __( 'Sidebar menu', 'ux-studio' ),
 				'type'    => 'toggle',
 				'label'   => __( 'Block access to hidden pages', 'ux-studio' ),
-				'help'    => __( 'Off: the Menu Organizer only hides menu items, a hidden page still opens when its address is typed in. On: a page that is hidden from a user (limited to other roles, or hidden for everybody) is refused with "Sorry, you are not allowed to access this page" for users who cannot manage options. Sub-items follow their parent item, except a sub-item moved to the top level that the user can see. Never blocked: users who can manage options, the dashboard, the profile, UX Studio, Plugins, Users and Settings, AJAX and REST. Needs the menu organizer to be on. Rescue switch: define UXSTUDIO_DISABLE_MENU_LOCK as true in wp-config.php to switch the blocking off for everybody.', 'ux-studio' ),
+				'help'    => __( 'Off: the Menu Organizer only hides menu items, a hidden page still opens when its address is typed in. On: a page that is hidden from a user (limited to other roles, or hidden for everybody) is refused with "Sorry, you are not allowed to access this page" for users who cannot manage options. Sub-items follow their parent item, except a sub-item moved to the top level that the user can see. Never blocked: users who can manage options, the dashboard, the profile, UX1 Studio, Plugins, Users and Settings, AJAX and REST. Needs the menu organizer to be on. Rescue switch: define UXSTUDIO_DISABLE_MENU_LOCK as true in wp-config.php to switch the blocking off for everybody.', 'ux-studio' ),
 				'default' => false,
 			),
 			array(

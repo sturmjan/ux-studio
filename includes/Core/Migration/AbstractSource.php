@@ -260,7 +260,7 @@ abstract class AbstractSource implements Source {
 	protected function prepare_data(): void {}
 
 	/**
-	 * Write one object into UX Studio (real run). Must be idempotent: an object that is already
+	 * Write one object into UX1 Studio (real run). Must be idempotent: an object that is already
 	 * there reports `unchanged`, nothing existing is overwritten.
 	 *
 	 * @param array<string, mixed> $item Normalized object (always has `key`).
@@ -285,7 +285,7 @@ abstract class AbstractSource implements Source {
 	}
 
 	/**
-	 * Is one object correctly in UX Studio?
+	 * Is one object correctly in UX1 Studio?
 	 *
 	 * @param array<string, mixed> $item Normalized object.
 	 * @return array{ok:bool,detail:string}
@@ -784,8 +784,8 @@ abstract class AbstractSource implements Source {
 			'ok'     => 0 === $failed,
 			'staged' => 0 === $failed && $waiting > 0,
 			'detail' => sprintf(
-				/* translators: 1: number of objects found in UX Studio, 2: number of objects in the old plugin. */
-				__( '%1$d of %2$d found in UX Studio', 'ux-studio' ),
+				/* translators: 1: number of objects found in UX1 Studio, 2: number of objects in the old plugin. */
+				__( '%1$d of %2$d found in UX1 Studio', 'ux-studio' ),
 				$ok,
 				$ok + $failed
 			),

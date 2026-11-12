@@ -109,7 +109,7 @@ export interface ModuleInfo {
 	how?: string;
 }
 
-/** One overlap between an enabled UX Studio module and an active foreign plugin (GET /overlaps). */
+/** One overlap between an enabled UX1 Studio module and an active foreign plugin (GET /overlaps). */
 export interface OverlapRow {
 	/** `<plugin basename>><module id>` - identifies the pair for ignore/unignore. */
 	key: string;

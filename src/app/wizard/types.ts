@@ -55,7 +55,7 @@ export interface PlanItem {
 	/** Complex values only: label/value rows for the expandable "Show detail". */
 	from_detail?: DetailRow[];
 	to_detail?: DetailRow[];
-	/** The effective value differs from what UX Studio has now. */
+	/** The effective value differs from what UX1 Studio has now. */
 	changed: boolean;
 	/** The key is missing or differs, so a write is needed. */
 	write: boolean;
@@ -68,7 +68,7 @@ export interface PlanItem {
 	option?: string;
 }
 
-/** Per role: the menu items hidden before (old plugin) and after (UX Studio), by display name. */
+/** Per role: the menu items hidden before (old plugin) and after (UX1 Studio), by display name. */
 export interface MenuRoleRow {
 	role: string;
 	label: string;
@@ -228,7 +228,7 @@ export interface SwitchPlan {
 	preview: { available: PreviewAvailability; tested: boolean; fresh: boolean; complete: boolean; counts: SmokeCounts; total: number };
 	kill_switch: string;
 	revert_days: number;
-	/** Checks that report a certain loss (no counterpart in UX Studio); confirmed with override_failures when there is no preview. */
+	/** Checks that report a certain loss (no counterpart in UX1 Studio); confirmed with override_failures when there is no preview. */
 	must_confirm?: number;
 }
 

@@ -129,7 +129,7 @@ namespace {
 	$assert( 'links: content link goes under Posts when there is no hub', 'admin.php?page=ux-studio#/module?id=top-bar' === ( $GLOBALS['added_subs']['edit.php'][0][2] ?? '' ) );
 	$assert( 'links: Settings and Tools links of the modules that are on', 'admin.php?page=ux-studio#/module?id=smtp-email' === ( $GLOBALS['added_subs']['options-general.php'][0][2] ?? '' ) && 'admin.php?page=ux-studio#/module?id=activity-log' === ( $GLOBALS['added_subs']['tools.php'][0][2] ?? '' ) );
 	$assert( 'links: a module that is off has no link', 1 === count( $GLOBALS['added_subs']['options-general.php'] ) );
-	$assert( 'links: UX Studio pages need manage_options', 'manage_options' === $GLOBALS['added_subs']['tools.php'][0][1] );
+	$assert( 'links: UX1 Studio pages need manage_options', 'manage_options' === $GLOBALS['added_subs']['tools.php'][0][1] );
 
 	/* Both. */
 	$GLOBALS['options'] = array();

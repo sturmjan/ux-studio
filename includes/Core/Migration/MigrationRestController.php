@@ -21,7 +21,7 @@ defined( 'ABSPATH' ) || exit;
  *   POST migration/plan      plan of the selected sources (nothing written)
  *   POST migration/run       start (sources[], dry_run) or continue (continue=true) a run
  *   GET  migration/status    state of the current / last run (a reload resumes from it) + what is staged for it
- *   POST migration/verify    compare source and UX Studio
+ *   POST migration/verify    compare source and UX1 Studio
  *   POST migration/rollback  restore the snapshot of a run (run_id)
  *   GET  migration/runs      history
  */
@@ -125,7 +125,7 @@ final class MigrationRestController extends Controller {
 		$this->route( '/migration/revert-switch', 'POST', array( $this, 'revert_switch' ), $run_arg );
 		$this->route( '/migration/probe', 'GET', array( $this, 'probe' ) );
 
-		// F7: the hint on the Modules screen ("we found N plugins UX Studio can take over").
+		// F7: the hint on the Modules screen ("we found N plugins UX1 Studio can take over").
 		$this->route( '/migration/hint', 'GET', array( $this, 'hint' ) );
 		$this->route( '/migration/hint/dismiss', 'POST', array( $this, 'hint_dismiss' ) );
 	}

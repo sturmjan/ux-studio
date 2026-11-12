@@ -73,7 +73,7 @@ final class InlineScripts {
 			}
 		}
 		if ( count( $hashes ) > CspInlineScripts::MAX ) {
-			error_log( sprintf( 'UX Studio CSP: %d forms have a custom script, only the first %d are allowed by hash.', count( $hashes ), CspInlineScripts::MAX ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( sprintf( 'UX1 Studio CSP: %d forms have a custom script, only the first %d are allowed by hash.', count( $hashes ), CspInlineScripts::MAX ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			$hashes = array_slice( $hashes, 0, CspInlineScripts::MAX, true );
 		}
 		$cache = array(

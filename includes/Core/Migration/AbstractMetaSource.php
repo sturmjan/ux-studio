@@ -14,10 +14,10 @@ defined( 'ABSPATH' ) || exit;
  * A subclass collects normalized items:
  *
  *   key (unique, `<prefix>:<object id>`), label, id (post or user id),
- *   meta (UX Studio meta key => value to store), review (create only, never switch on).
+ *   meta (UX1 Studio meta key => value to store), review (create only, never switch on).
  *
  * Rules shared by every meta source:
- *  - Nothing existing is overwritten. If the object already has the UX Studio meta with the
+ *  - Nothing existing is overwritten. If the object already has the UX1 Studio meta with the
  *    same value the item is `unchanged`; with a different value it is `skipped` (kept).
  *  - Behaviour-changing meta (changes_behavior(), the default): with the target module OFF the meta
  *    is written directly (the module does not read it until it is switched on); with the module ON
@@ -121,7 +121,7 @@ abstract class AbstractMetaSource extends AbstractSource implements Activatable 
 			case 'conflict':
 				return array(
 					'status'  => 'skipped',
-					'message' => __( 'UX Studio already has a different value here, it is kept.', 'ux-studio' ),
+					'message' => __( 'UX1 Studio already has a different value here, it is kept.', 'ux-studio' ),
 				);
 			default:
 				return array( 'status' => 'created' );
@@ -137,7 +137,7 @@ abstract class AbstractMetaSource extends AbstractSource implements Activatable 
 		if ( 'conflict' === $state ) {
 			return array(
 				'status'  => 'skipped',
-				'message' => __( 'UX Studio already has a different value here, it is kept.', 'ux-studio' ),
+				'message' => __( 'UX1 Studio already has a different value here, it is kept.', 'ux-studio' ),
 			);
 		}
 		$module = $this->target_module();
@@ -200,8 +200,8 @@ abstract class AbstractMetaSource extends AbstractSource implements Activatable 
 		return array(
 			'ok'     => false,
 			'detail' => 'conflict' === $state
-				? __( 'UX Studio has a different value here.', 'ux-studio' )
-				: __( 'The value is not in UX Studio.', 'ux-studio' ),
+				? __( 'UX1 Studio has a different value here.', 'ux-studio' )
+				: __( 'The value is not in UX1 Studio.', 'ux-studio' ),
 		);
 	}
 

@@ -100,7 +100,7 @@ final class Sync {
 		if ( ! isset( $schedules[ self::CRON_SCHEDULE ] ) ) {
 			$schedules[ self::CRON_SCHEDULE ] = array(
 				'interval' => 300,
-				'display'  => __( 'Every 5 minutes (UX Studio ticket sync)', 'ux-studio' ),
+				'display'  => __( 'Every 5 minutes (UX1 Studio ticket sync)', 'ux-studio' ),
 			);
 		}
 		return $schedules;

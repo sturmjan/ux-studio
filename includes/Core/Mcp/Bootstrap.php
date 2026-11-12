@@ -46,7 +46,7 @@ final class Bootstrap {
 		wp_register_ability_category(
 			self::CATEGORY,
 			array(
-				'label'       => __( 'UX Studio', 'ux-studio' ),
+				'label'       => __( 'UX1 Studio', 'ux-studio' ),
 				'description' => __( 'Modules, settings and migration from other plugins.', 'ux-studio' ),
 			)
 		);

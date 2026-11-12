@@ -114,7 +114,7 @@ $SELF_DIR = rtrim(str_replace('\\', '/', __DIR__), '/') . '/';
 
 function client_ip(): string {
     // Proxy hlavičky jen od důvěryhodné proxy (Cloudflare / nastavené proxy
-    // z configu) - stejně jako UX Studio Core\ClientIp, jinak by IP zámek
+    // z configu) - stejně jako UX1 Studio Core\ClientIp, jinak by IP zámek
     // nesouhlasil s IP, kterou zamkl WP admin.
     global $CFG;
     $remote = isset($_SERVER['REMOTE_ADDR']) ? trim((string) $_SERVER['REMOTE_ADDR']) : '';

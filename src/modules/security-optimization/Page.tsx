@@ -192,7 +192,7 @@ function ShieldInfo(): JSX.Element {
 			<Info size={ 16 } aria-hidden />
 			<div>
 				<p>
-					<strong>{ __( 'UX Studio Shield', 'ux-studio' ) }</strong>
+					<strong>{ __( 'UX1 Studio Shield', 'ux-studio' ) }</strong>
 					{ ' - ' }
 					{ __( 'a CAPTCHA with no account, no keys and no cookies. The browser of the visitor solves a small puzzle by itself (about a fraction of a second on a computer) and nothing leaves your site.', 'ux-studio' ) }
 				</p>

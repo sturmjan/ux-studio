@@ -3,7 +3,7 @@
  * Third-party plugin integrations for Quick Search (WooCommerce, ACF).
  * Ported from the legacy admin-customiser module
  * (includes/quick-search/ThirdPartyIntegrations.php); Fluent Forms was
- * dropped from the port (not in wide use across UX Studio sites) but new
+ * dropped from the port (not in wide use across UX1 Studio sites) but new
  * integrations can be added the same way.
  *
  * @package UxStudio

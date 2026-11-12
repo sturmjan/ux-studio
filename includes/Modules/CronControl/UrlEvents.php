@@ -308,7 +308,7 @@ final class UrlEvents {
 			'method'              => $event['method'],
 			'timeout'             => (int) $event['timeout'],
 			'redirection'         => 3,
-			'user-agent'          => 'UX Studio Cron/' . ( defined( 'UXSTUDIO_VERSION' ) ? UXSTUDIO_VERSION : '1' ) . '; ' . home_url( '/' ),
+			'user-agent'          => 'UX1 Studio Cron/' . ( defined( 'UXSTUDIO_VERSION' ) ? UXSTUDIO_VERSION : '1' ) . '; ' . home_url( '/' ),
 			'limit_response_size' => 1048576,
 		);
 		if ( 'POST' === $event['method'] && '' !== $event['body'] ) {

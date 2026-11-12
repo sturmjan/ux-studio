@@ -416,7 +416,7 @@ final class TwoFactor {
 		if ( null !== $result || ! is_object( $request ) || ! is_user_logged_in() || 0 === $this->forced_user_id() ) {
 			return $result;
 		}
-		// Admin tooling (application passwords, UX Studio MCP tokens) always counts as admin context.
+		// Admin tooling (application passwords, UX1 Studio MCP tokens) always counts as admin context.
 		$mcp     = Auth::context();
 		$context = self::$app_password || ( is_array( $mcp ) && 'ok' === ( $mcp['state'] ?? '' ) ) || $this->admin_context();
 		if ( self::forced_request_allowed( 'rest', strtoupper( (string) $request->get_method() ), (string) $request->get_route(), $context ) ) {

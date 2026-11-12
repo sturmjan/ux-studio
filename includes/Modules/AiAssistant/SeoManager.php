@@ -58,7 +58,7 @@ final class SeoManager {
 	/**
 	 * Saves AI-generated SEO meta onto a post.
 	 *
-	 * Writes into UX Studio's own `_uxstudio_ai_seo_*` keys (always, as an
+	 * Writes into UX1 Studio's own `_uxstudio_ai_seo_*` keys (always, as an
 	 * audit trail / fallback when no SEO plugin is active) AND, when a
 	 * supported SEO plugin is detected, into that plugin's own meta keys -
 	 * otherwise the AI-generated title/description silently never affects

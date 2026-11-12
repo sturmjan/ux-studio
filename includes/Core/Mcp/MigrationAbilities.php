@@ -47,7 +47,7 @@ final class MigrationAbilities {
 			Registry::define(
 				'uxstudio/migration-scan',
 				__( 'Scan for migratable plugins', 'ux-studio' ),
-				'Installed (or leftover) plugins whose settings or data UX Studio can take over, with their state and the target module. First step of a migration.',
+				'Installed (or leftover) plugins whose settings or data UX1 Studio can take over, with their state and the target module. First step of a migration.',
 				$R,
 				array(),
 				array(),
@@ -108,7 +108,7 @@ final class MigrationAbilities {
 			Registry::define(
 				'uxstudio/migration-run',
 				__( 'Run a migration', 'ux-studio' ),
-				'Copy settings and data of the chosen sources into UX Studio (the source plugin is never changed). dry_run defaults to TRUE: nothing is written and the result shows what would happen. A real run needs dry_run=false; it takes a snapshot first and stays staged - nothing is switched on until migration-switch. A long run returns status "running": call again with continue=true until it is done.',
+				'Copy settings and data of the chosen sources into UX1 Studio (the source plugin is never changed). dry_run defaults to TRUE: nothing is written and the result shows what would happen. A real run needs dry_run=false; it takes a snapshot first and stays staged - nothing is switched on until migration-switch. A long run returns status "running": call again with continue=true until it is done.',
 				$M,
 				array(
 					'sources'  => $sources,
@@ -122,7 +122,7 @@ final class MigrationAbilities {
 			Registry::define(
 				'uxstudio/migration-verify',
 				__( 'Verify a migration', 'ux-studio' ),
-				'Compare the source plugin with what UX Studio now holds, per source. Differences are reported, never hidden.',
+				'Compare the source plugin with what UX1 Studio now holds, per source. Differences are reported, never hidden.',
 				$M,
 				array( 'sources' => $sources ),
 				array(),
@@ -132,7 +132,7 @@ final class MigrationAbilities {
 			Registry::define(
 				'uxstudio/migration-preview-start',
 				__( 'Start the safe preview', 'ux-studio' ),
-				'Start the safe preview of a real run: for an admin who opens enter_url the old plugins are off and the UX Studio modules are on, visitors still get the old setup. Then run migration-smoke with mode=preview.',
+				'Start the safe preview of a real run: for an admin who opens enter_url the old plugins are off and the UX1 Studio modules are on, visitors still get the old setup. Then run migration-smoke with mode=preview.',
 				$M,
 				array( 'run_id' => self::RUN_ID ),
 				array( 'run_id' ),
@@ -166,7 +166,7 @@ final class MigrationAbilities {
 			Registry::define(
 				'uxstudio/migration-switch',
 				__( 'Switch a migration on', 'ux-studio' ),
-				'Make the migrated setup live: deactivate the old plugins and enable the UX Studio modules for EVERYBODY. Needs confirm=true - without it nothing happens and the reply lists the consequences, including a change of the login URL (then ack_login=true is needed too). Requires fresh, passing preview tests; override=true (with confirm) accepts failed or unavailable tests at the user\'s own risk. Can be undone for 30 days with migration-revert.',
+				'Make the migrated setup live: deactivate the old plugins and enable the UX1 Studio modules for EVERYBODY. Needs confirm=true - without it nothing happens and the reply lists the consequences, including a change of the login URL (then ack_login=true is needed too). Requires fresh, passing preview tests; override=true (with confirm) accepts failed or unavailable tests at the user\'s own risk. Can be undone for 30 days with migration-revert.',
 				$M,
 				array(
 					'run_id'    => self::RUN_ID,
@@ -196,7 +196,7 @@ final class MigrationAbilities {
 			Registry::define(
 				'uxstudio/migration-rollback',
 				__( 'Roll a migration back', 'ux-studio' ),
-				'Restore the snapshot taken before a real run: the options and tables UX Studio had are put back and the staged data is discarded. A switched-on run is un-switched first. Needs confirm=true.',
+				'Restore the snapshot taken before a real run: the options and tables UX1 Studio had are put back and the staged data is discarded. A switched-on run is un-switched first. Needs confirm=true.',
 				$M,
 				array( 'run_id' => self::RUN_ID ),
 				array( 'run_id' ),
@@ -301,7 +301,7 @@ final class MigrationAbilities {
 		$modules = array_column( (array) ( $plan['modules'] ?? array() ), 'name' );
 		$login   = (array) ( $plan['login'] ?? array() );
 		$parts   = array(
-			'Switching on is NOT done yet. It would deactivate ' . ( $plugins ? implode( ', ', $plugins ) : 'no plugin' ) . ' and enable the UX Studio module(s) ' . ( $modules ? implode( ', ', $modules ) : '(none)' ) . ' for all visitors.',
+			'Switching on is NOT done yet. It would deactivate ' . ( $plugins ? implode( ', ', $plugins ) : 'no plugin' ) . ' and enable the UX1 Studio module(s) ' . ( $modules ? implode( ', ', $modules ) : '(none)' ) . ' for all visitors.',
 		);
 		if ( ! empty( $login['changes'] ) ) {
 			$parts[] = 'The login address CHANGES to ' . ( $login['url'] ?? '' ) . ' (now ' . ( $login['now_url'] ?? '' ) . '). The user must save the new address first; then pass ack_login=true.';
@@ -337,7 +337,7 @@ final class MigrationAbilities {
 	 */
 	public static function rollback_confirmation( array $in ): array {
 		return array(
-			'message' => 'Rolling back is NOT done yet. It would restore the UX Studio options and tables to the snapshot taken before this run, discard the data staged for it and (if it was switched on) undo the switch first, which re-activates the old plugins and may change the login address back. Ask the user, then call again with confirm=true.',
+			'message' => 'Rolling back is NOT done yet. It would restore the UX1 Studio options and tables to the snapshot taken before this run, discard the data staged for it and (if it was switched on) undo the switch first, which re-activates the old plugins and may change the login address back. Ask the user, then call again with confirm=true.',
 			'data'    => array( 'run_id' => (string) $in['run_id'] ),
 		);
 	}

@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * PLAN.md 26.4 / 26.10. This file is `require`d by `wp-content/mu-plugins/uxstudio-preview.php`
  * at the very start of a request, so it may only use what WordPress has loaded at that point
- * (options, hooks, formatting) and nothing of UX Studio except itself. In particular there is
+ * (options, hooks, formatting) and nothing of UX1 Studio except itself. In particular there is
  * no `wp_salt()` (pluggable.php comes later) and no current user: the token is therefore bound
  * to the SESSION of the logged-in cookie instead.
  *
@@ -33,7 +33,7 @@ defined( 'ABSPATH' ) || exit;
  *  - the values staged for the run overlay the module options (secrets, whole-option keys such as the Menu
  *    Organizer config, and post meta too),
  *  - nothing is persisted: WP-Cron is off, scheduling is refused, and every database write that
- *    touches an option, meta or table of UX Studio (or `active_plugins`) is dropped.
+ *    touches an option, meta or table of UX1 Studio (or `active_plugins`) is dropped.
  */
 final class PreviewBoot {
 
@@ -450,7 +450,7 @@ final class PreviewBoot {
 	}
 
 	/**
-	 * Drop write statements that would persist UX Studio state in a preview request.
+	 * Drop write statements that would persist UX1 Studio state in a preview request.
 	 *
 	 * @param mixed $sql Query.
 	 * @return mixed
@@ -469,7 +469,7 @@ final class PreviewBoot {
 	}
 
 	/**
-	 * Does a write statement touch something of UX Studio, or the plugin lists a preview rewrote?
+	 * Does a write statement touch something of UX1 Studio, or the plugin lists a preview rewrote?
 	 *
 	 * @param string $sql Write statement.
 	 */

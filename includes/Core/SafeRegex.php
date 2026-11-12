@@ -79,7 +79,7 @@ final class SafeRegex {
 			if ( ! $lowered && ! self::$ini_warned ) {
 				// Matching goes on under the server default limit: say so once instead of failing silently.
 				self::$ini_warned = true;
-				error_log( 'UX Studio: ini_set(pcre.backtrack_limit) is disabled on this server, admin-written patterns run with the default limit.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( 'UX1 Studio: ini_set(pcre.backtrack_limit) is disabled on this server, admin-written patterns run with the default limit.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			}
 		}
 		try {

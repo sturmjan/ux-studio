@@ -46,11 +46,11 @@ check( 'uxstudioConsent.marketing true: 1', detect( win( { uxstudioConsent: { ma
 check( 'uxstudioConsent.marketing false: 0', detect( win( { uxstudioConsent: { marketing: false } } ) ), 0 );
 check( 'uxstudioConsent with a non-boolean: null', detect( win( { uxstudioConsent: { marketing: 'yes' } } ) ), null );
 
-check( 'UX Studio Cookie Consent allows marketing: 1', detect( win( { uxConsent: { has: ( c ) => c === 'marketing' } } ) ), 1 );
-check( 'UX Studio Cookie Consent refuses marketing: 0', detect( win( { uxConsent: { has: () => false } } ) ), 0 );
-check( 'UX Studio Cookie Consent that throws falls through: null', detect( win( { uxConsent: { has: () => { throw new Error( 'x' ); } } } ) ), null );
+check( 'UX1 Studio Cookie Consent allows marketing: 1', detect( win( { uxConsent: { has: ( c ) => c === 'marketing' } } ) ), 1 );
+check( 'UX1 Studio Cookie Consent refuses marketing: 0', detect( win( { uxConsent: { has: () => false } } ) ), 0 );
+check( 'UX1 Studio Cookie Consent that throws falls through: null', detect( win( { uxConsent: { has: () => { throw new Error( 'x' ); } } } ) ), null );
 check( 'uxConsent without has(): null', detect( win( { uxConsent: {} } ) ), null );
-check( 'order: UX Studio Cookie Consent wins over Consent Mode', detect( win( { uxConsent: { has: () => false }, dataLayer: [ gtag( 'consent', 'update', { ad_storage: 'granted' } ) ] } ) ), 0 );
+check( 'order: UX1 Studio Cookie Consent wins over Consent Mode', detect( win( { uxConsent: { has: () => false }, dataLayer: [ gtag( 'consent', 'update', { ad_storage: 'granted' } ) ] } ) ), 0 );
 check( 'order: Complianz wins over CookieYes', detect( win( { cmplz_has_consent: () => false, getCkyConsent: () => ( { categories: { advertisement: true } } ) } ) ), 0 );
 check( 'order: a broken first probe falls through to the next', detect( win( { cmplz_has_consent: () => { throw new Error( 'x' ); }, Cookiebot: { consent: { marketing: true } } } ) ), 1 );
 check( 'order: Cookiebot wins over Consent Mode', detect( win( { Cookiebot: { consent: { marketing: false } }, dataLayer: [ gtag( 'consent', 'update', { ad_storage: 'granted' } ) ] } ) ), 0 );

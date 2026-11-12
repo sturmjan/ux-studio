@@ -115,7 +115,7 @@ final class HideAdminNotices {
 	 */
 	public function enqueue_assets(): void {
 		if ( ! $this->relocate ) {
-			// The PHP version notice (UX Studio core) is the one notice that is never hidden.
+			// The PHP version notice (UX1 Studio core) is the one notice that is never hidden.
 			// Inline notices (the "New version available" line in the Plugins list, messages in forms and list tables) are
 			// part of their screen and stay visible.
 			wp_add_inline_style( 'wp-admin', 'body.wp-admin .notice:not(#uxstudio-php-version-notice):not(#uxstudio-ca-paused-notice):not(.inline):not(.update-message) { display: none !important; }' );
@@ -187,7 +187,7 @@ final class HideAdminNotices {
 		return false;
 	}
 
-	/** Address of the history page in the UX Studio admin app. */
+	/** Address of the history page in the UX1 Studio admin app. */
 	public static function history_url(): string {
 		return admin_url( 'admin.php?page=ux-studio#/module?id=admin-appearance&feature=admin-customiser&view=notice-history' );
 	}

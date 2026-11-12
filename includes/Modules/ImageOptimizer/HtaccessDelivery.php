@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class HtaccessDelivery {
 
-	private const MARKER    = 'UX Studio Image Optimizer';
+	private const MARKER    = 'UX1 Studio Image Optimizer';
 	private const LOCK      = 'uxstudio_io_htaccess_lock';
 	private const LOCK_TIME = 30;
 
