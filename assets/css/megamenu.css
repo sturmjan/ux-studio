@@ -206,7 +206,7 @@ body.auto-fold .uxstudio-megamenu__panel {
 /* Card grid */
 .uxstudio-megamenu__grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+	grid-template-columns: repeat(4, minmax(0, 1fr));
 	gap: var(--uxs-sp-3);
 }
 

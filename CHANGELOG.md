@@ -1,8 +1,9 @@
 # Changelog
 
-## Unreleased
+## 0.17.0
 
 - Changed: the product is now called UX1 Studio (display name in the plugin header, admin menu, texts, translations and docs). Identifiers stay as they are: slug and folder `ux-studio`, text domain, `uxstudio_` prefixes, `UxStudio` namespace, REST namespace and GitHub repo.
+- Changed: the Cards view of the module launcher now always shows 4 equal columns (was: as many 240 px columns as fit).
 
 ## 0.16.2
 
