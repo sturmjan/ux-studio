@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.16.2
+
+- Fixed: Forms e-mails (notification and autoresponse) no longer arrive as raw quoted-printable text with a broken subject ("=??Q?..."). The multipart/alternative body was built by hand and handed to wp_mail(), which left PHPMailer with an empty charset and quoted-printable on the whole multipart; the HTML now goes out as a normal text/html body with the plain text as PHPMailer's AltBody, so PHPMailer builds a valid multipart itself.
+
 ## 0.16.1
 
 - Added: Cookie Consent setting "What opens when the visitor wants to change the choice" (Display): the category settings (default, as before) or the banner as on the first visit, from which Customize leads on to the categories. Applies to the floating button, the shortcode and links to #uxc-open.

@@ -295,15 +295,18 @@ final class Actions {
 		// own phpmailer_init hook, and if Email Log is enabled it captures
 		// this exact call via its own wp_mail filter - neither needs (or
 		// wants) to be invoked directly here, see PLAN.md 20.2.
-		$boundary = md5( uniqid( '', true ) );
-		$headers  = array(
-			'Content-Type: multipart/alternative; boundary="' . $boundary . '"',
-		);
-		$body  = "--{$boundary}\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n{$text}\r\n\r\n";
-		$body .= "--{$boundary}\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n{$html}\r\n\r\n";
-		$body .= "--{$boundary}--";
+		// The HTML goes out as the normal text/html body and the plain text is set as PHPMailer's
+		// AltBody, so PHPMailer builds the multipart/alternative itself. A hand-built multipart body
+		// passed to wp_mail() came out with an empty charset, quoted-printable on the whole multipart
+		// and a broken subject ("=??Q?...") - the mail showed up as raw "=0A=09" text.
+		$set_alt_body = static function ( $phpmailer ) use ( $text, &$set_alt_body ) {
+			$phpmailer->AltBody = $text;
+			remove_action( 'phpmailer_init', $set_alt_body, 20 );
+		};
+		add_action( 'phpmailer_init', $set_alt_body, 20 );
 
-		$sent = wp_mail( $to, $subject, $body, $headers );
+		$sent = wp_mail( $to, $subject, $html, array( 'Content-Type: text/html; charset=UTF-8' ) );
+		remove_action( 'phpmailer_init', $set_alt_body, 20 );
 
 		self::log(
 			(int) ( $submission['id'] ?? 0 ),
