@@ -37,7 +37,7 @@ final class CoreAbilities {
 			Registry::define(
 				'uxstudio/site-overview',
 				__( 'Site overview', 'ux-studio' ),
-				'Versions of WordPress, PHP and UX Studio, which UX Studio modules are enabled, how many plugin overlaps exist and what the last migration run was. Start here.',
+				'Versions of WordPress, PHP and UX1 Studio, which UX1 Studio modules are enabled, how many plugin overlaps exist and what the last migration run was. Start here.',
 				$R,
 				array(),
 				array(),
@@ -47,7 +47,7 @@ final class CoreAbilities {
 			Registry::define(
 				'uxstudio/modules-list',
 				__( 'List modules', 'ux-studio' ),
-				'All UX Studio modules with id, name, group, enabled state and whether they have settings. Group entries (with children) are tiles that bundle several modules; enable the child modules.',
+				'All UX1 Studio modules with id, name, group, enabled state and whether they have settings. Group entries (with children) are tiles that bundle several modules; enable the child modules.',
 				$R,
 				array(
 					'enabled' => array( 'type' => 'boolean', 'description' => 'Only enabled (true) or only disabled (false) modules.' ),
@@ -71,7 +71,7 @@ final class CoreAbilities {
 			Registry::define(
 				'uxstudio/overlaps-list',
 				__( 'List plugin overlaps', 'ux-studio' ),
-				'Installed plugins that do the same job as an enabled UX Studio module, grouped as full (blocks enabling the module), customiser (needs confirmation), partial (information only) and ignored. migratable=true means the migration tools can move the plugin settings over.',
+				'Installed plugins that do the same job as an enabled UX1 Studio module, grouped as full (blocks enabling the module), customiser (needs confirmation), partial (information only) and ignored. migratable=true means the migration tools can move the plugin settings over.',
 				$R,
 				array(),
 				array(),
@@ -131,7 +131,7 @@ final class CoreAbilities {
 			Registry::define(
 				'uxstudio/module-enable',
 				__( 'Turn on a module', 'ux-studio' ),
-				'Enable a UX Studio module (security-relevant modules need the admin scope). Goes through the plugin-overlap guard: when an active plugin already does the same job the call is refused with code uxstudio_plugin_overlap and the plugins listed in data.plugins - use the migration tools to move them over and deactivate them first. A partial overlap needs confirm_overlap=true.',
+				'Enable a UX1 Studio module (security-relevant modules need the admin scope). Goes through the plugin-overlap guard: when an active plugin already does the same job the call is refused with code uxstudio_plugin_overlap and the plugins listed in data.plugins - use the migration tools to move them over and deactivate them first. A partial overlap needs confirm_overlap=true.',
 				$W,
 				array(
 					'module'          => self::MODULE_ID + array( 'description' => 'Module id.' ),
@@ -144,7 +144,7 @@ final class CoreAbilities {
 			Registry::define(
 				'uxstudio/module-disable',
 				__( 'Disable a module', 'ux-studio' ),
-				'Disable a UX Studio module (security-relevant modules need the admin scope). Its settings stay stored; the module runs its own clean-up (cron events, .htaccess blocks).',
+				'Disable a UX1 Studio module (security-relevant modules need the admin scope). Its settings stay stored; the module runs its own clean-up (cron events, .htaccess blocks).',
 				$W,
 				array( 'module' => self::MODULE_ID + array( 'description' => 'Module id.' ) ),
 				array( 'module' ),
@@ -443,7 +443,7 @@ final class CoreAbilities {
 		if ( $secret_keys && ! $may_secrets ) {
 			throw new McpError(
 				'secret_not_allowed',
-				'These keys look like credentials and cannot be set over MCP with this token: ' . implode( ', ', $secret_keys ) . '. Enter them in the UX Studio admin, or use an admin token with allow_secrets=true.',
+				'These keys look like credentials and cannot be set over MCP with this token: ' . implode( ', ', $secret_keys ) . '. Enter them in the UX1 Studio admin, or use an admin token with allow_secrets=true.',
 				array( 'keys' => $secret_keys )
 			);
 		}

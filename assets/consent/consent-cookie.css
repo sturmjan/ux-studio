@@ -1,4 +1,4 @@
-/* UX Studio Cookie Consent, template "cookie": a light rounded card in the corner with a cookie icon and round buttons. Loaded after consent.css.
+/* UX1 Studio Cookie Consent, template "cookie": a light rounded card in the corner with a cookie icon and round buttons. Loaded after consent.css.
    Reject and accept are the same size and both solid, so declining is as easy and as visible as accepting. */
 .uxc.uxc-t-cookie:not(.is-detail) .uxc-dlg {
 	left: 24px; bottom: 24px; width: min(380px, calc(100% - 48px));

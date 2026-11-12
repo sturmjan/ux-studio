@@ -158,7 +158,7 @@ final class Rules {
 		$id     = is_string( $raw['id'] ?? null ) ? $raw['id'] : '';
 		$plugin = is_string( $raw['plugin'] ?? null ) ? $raw['plugin'] : '';
 		$ckey   = self::client_key( $raw['ckey'] ?? $raw['key'] ?? '' );
-		// The critical PHP version notice of UX Studio is never part of the history.
+		// The critical PHP version notice of UX1 Studio is never part of the history.
 		if ( self::PHP_NOTICE_ID === $id ) {
 			return null;
 		}
@@ -216,11 +216,11 @@ final class Rules {
 			'how'  => '',
 		);
 
-		// UX Studio's own notices.
-		if ( 1 === preg_match( '/(^|[\s_-])(uxstudio|uxs)([\s_-]|$)/i', $hay ) || 1 === preg_match( '/^ux studio\b/i', $title ) ) {
+		// UX1 Studio's own notices.
+		if ( 1 === preg_match( '/(^|[\s_-])(uxstudio|uxs)([\s_-]|$)/i', $hay ) || 1 === preg_match( '/^ux1? studio\b/i', $title ) ) {
 			return array(
 				'slug' => 'ux-studio',
-				'name' => 'UX Studio',
+				'name' => 'UX1 Studio',
 				'how'  => 'own',
 			);
 		}

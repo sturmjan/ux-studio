@@ -31,7 +31,7 @@ defined( 'ABSPATH' ) || exit;
  *    and an OR of "show if the user is <role>" rules becomes one role rule. Every other condition (pages, dates,
  *    WooCommerce, languages ...) and every other use of OR is skipped and counted.
  *  - Menu Items Visibility Control: meta `_menu_item_visibility`, a PHP expression. The plugin runs it with `eval`;
- *    UX Studio never runs code from settings, so only a few simple, fixed forms are recognized by pattern
+ *    UX1 Studio never runs code from settings, so only a few simple, fixed forms are recognized by pattern
  *    (`is_user_logged_in()`, `!is_user_logged_in()`, `current_user_can('role')`, their negation, joined by `&&`),
  *    nothing is executed. Every other expression is skipped.
  */
@@ -343,7 +343,7 @@ final class MenuVisibilitySource extends AbstractMetaSource {
 				$m->lossy(
 					sprintf(
 						/* translators: %d: number of menu items. */
-						__( '%d menu items are controlled by a PHP expression. UX Studio never runs code from a setting; only logged in / logged out and "user can <role>" (joined by &&) are recognized, so these are not transferred.', 'ux-studio' ),
+						__( '%d menu items are controlled by a PHP expression. UX1 Studio never runs code from a setting; only logged in / logged out and "user can <role>" (joined by &&) are recognized, so these are not transferred.', 'ux-studio' ),
 						$n
 					)
 				);

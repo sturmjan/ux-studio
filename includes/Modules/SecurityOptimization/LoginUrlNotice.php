@@ -172,7 +172,7 @@ final class LoginUrlNotice {
 		$body = sprintf(
 			/* translators: 1: new login address, 2: link to the setting. */
 			__(
-				"UX Studio has been updated. The custom login address you set up earlier is in force.\n\nLog in here:\n%1\$s\n\nThe usual address (wp-login.php) does not show the login form. If you already log in this way, nothing changes for you. Save the address in your password manager.\n\nIf you do not want this, switch it off in UX Studio > Security > Login:\n%2\$s\n\nIf you cannot log in at all, add this line to wp-config.php and the old address works again:\ndefine( 'UXSTUDIO_DISABLE_LOGIN_LOCK', true );",
+				"UX1 Studio has been updated. The custom login address you set up earlier is in force.\n\nLog in here:\n%1\$s\n\nThe usual address (wp-login.php) does not show the login form. If you already log in this way, nothing changes for you. Save the address in your password manager.\n\nIf you do not want this, switch it off in UX1 Studio > Security > Login:\n%2\$s\n\nIf you cannot log in at all, add this line to wp-config.php and the old address works again:\ndefine( 'UXSTUDIO_DISABLE_LOGIN_LOCK', true );",
 				'ux-studio'
 			),
 			$url,
@@ -203,7 +203,7 @@ final class LoginUrlNotice {
 		$body = sprintf(
 			/* translators: 1: new login address, 2: link to the setting. */
 			__(
-				"The new login address of your site is active.\n\nLog in here:\n%1\$s\n\nThe usual address (wp-login.php) no longer shows the login form. Save the new address in your password manager.\n\nYou can change or switch it off in UX Studio > Security > Login:\n%2\$s\n\nIf you cannot log in at all, add this line to wp-config.php and the old address works again:\ndefine( 'UXSTUDIO_DISABLE_LOGIN_LOCK', true );",
+				"The new login address of your site is active.\n\nLog in here:\n%1\$s\n\nThe usual address (wp-login.php) no longer shows the login form. Save the new address in your password manager.\n\nYou can change or switch it off in UX1 Studio > Security > Login:\n%2\$s\n\nIf you cannot log in at all, add this line to wp-config.php and the old address works again:\ndefine( 'UXSTUDIO_DISABLE_LOGIN_LOCK', true );",
 				'ux-studio'
 			),
 			$url,
@@ -229,7 +229,7 @@ final class LoginUrlNotice {
 		// `below-h2` keeps WordPress and the Admin Customiser from moving or hiding this one: it must be seen.
 		return '<div id="uxstudio-login-url-notice" class="notice notice-warning below-h2 uxstudio-login-url-notice">'
 			. '<p><strong>' . esc_html__( 'The custom login address of this site is in force.', 'ux-studio' ) . '</strong></p>'
-			. '<p>' . esc_html__( 'The custom login address set in UX Studio is in force. The usual wp-login.php does not show the login form. Log in here and save the address:', 'ux-studio' ) . '</p>'
+			. '<p>' . esc_html__( 'The custom login address set in UX1 Studio is in force. The usual wp-login.php does not show the login form. Log in here and save the address:', 'ux-studio' ) . '</p>'
 			. '<p><code class="uxstudio-login-url-notice__url">' . esc_html( $url ) . '</code> '
 			. '<button type="button" class="button" data-copy="' . esc_attr( $url ) . '" data-done="' . esc_attr__( 'Copied', 'ux-studio' ) . '">' . esc_html__( 'Copy the address', 'ux-studio' ) . '</button></p>'
 			. '<p>' . esc_html__( 'You did not want this? Switch it off in the settings. Nothing was changed automatically.', 'ux-studio' ) . '</p>'

@@ -5,7 +5,7 @@ if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
  * Manual test of the legal pages inside WordPress (PLAN.md 42, F4): wizard data, live rendering from Report::site(),
  * pages, versions and their archive, the terms version stored on a WooCommerce order, REST permissions.
  *
- * Loads the classes of THIS checkout (not the installed plugin), so run it with the installed UX Studio skipped:
+ * Loads the classes of THIS checkout (not the installed plugin), so run it with the installed UX1 Studio skipped:
  *
  *   php wp-cli.phar --path=<site> --skip-plugins=ux-studio,ux-studio-csp,wp-mail-smtp eval-file tests/consent-legal-wp.php </dev/null
  *

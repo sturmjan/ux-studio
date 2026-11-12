@@ -374,7 +374,7 @@ export function InternalChatTab(): JSX.Element {
 
 					{ ! messages.length && ! streamingText && ! greeting ? (
 						<p style={ { opacity: 0.7 } }>
-							{ __( 'Ask the internal AI assistant about editing content, site settings, or how to use UX Studio.', 'ux-studio' ) }
+							{ __( 'Ask the internal AI assistant about editing content, site settings, or how to use UX1 Studio.', 'ux-studio' ) }
 						</p>
 					) : null }
 

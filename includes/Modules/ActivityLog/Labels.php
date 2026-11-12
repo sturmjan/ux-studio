@@ -33,7 +33,7 @@ final class Labels {
 	 */
 	public static function module( string $id ): string {
 		if ( 'core' === $id ) {
-			return __( 'UX Studio (core)', 'ux-studio' );
+			return __( 'UX1 Studio (core)', 'ux-studio' );
 		}
 		if ( 'mcp' === $id ) {
 			return __( 'MCP server', 'ux-studio' );
@@ -160,9 +160,9 @@ final class Labels {
 			'migration_rolled_back'          => __( 'Migration rolled back', 'ux-studio' ),
 			'migration_preview_started'      => __( 'Migration preview started', 'ux-studio' ),
 			'migration_preview_ended'        => __( 'Migration preview ended', 'ux-studio' ),
-			'migration_switch_started'       => __( 'Switch to UX Studio started', 'ux-studio' ),
-			'migration_switch_reverted'      => __( 'Switch to UX Studio reverted', 'ux-studio' ),
-			'migration_switch_auto_reverted' => __( 'Switch to UX Studio reverted automatically', 'ux-studio' ),
+			'migration_switch_started'       => __( 'Switch to UX1 Studio started', 'ux-studio' ),
+			'migration_switch_reverted'      => __( 'Switch to UX1 Studio reverted', 'ux-studio' ),
+			'migration_switch_auto_reverted' => __( 'Switch to UX1 Studio reverted automatically', 'ux-studio' ),
 			'migration_module_enabled'       => __( 'Module turned on by migration', 'ux-studio' ),
 			'starter_reverted'               => __( 'Starter setup reverted', 'ux-studio' ),
 			'token_revoked'                  => __( 'Access token revoked', 'ux-studio' ),

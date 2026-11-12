@@ -1,6 +1,6 @@
 <?php
 /**
- * Dashboard Widgets - one place to switch every UX Studio dashboard widget,
+ * Dashboard Widgets - one place to switch every UX1 Studio dashboard widget,
  * including the ones other modules add.
  *
  * @package UxStudio

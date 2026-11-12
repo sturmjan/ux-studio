@@ -1,7 +1,7 @@
 <?php
 /**
  * English terms and conditions template for a consumer online shop under Czech law (syntax: LegalTemplate). Written for
- * UX Studio, not a copy of any other generator.
+ * UX1 Studio, not a copy of any other generator.
  *
  * @package UxStudio
  */

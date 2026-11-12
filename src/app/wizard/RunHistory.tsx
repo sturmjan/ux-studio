@@ -159,7 +159,7 @@ export function RunHistory( {
 					<p>
 						{ sprintf(
 							/* translators: %s: date and time of the run. */
-							__( 'UX Studio goes back exactly to how it was before the run from %s: settings, and everything the run created. Changes made in these modules since then are lost.', 'ux-studio' ),
+							__( 'UX1 Studio goes back exactly to how it was before the run from %s: settings, and everything the run created. Changes made in these modules since then are lost.', 'ux-studio' ),
 							formatDate( target.started_at )
 						) }
 					</p>

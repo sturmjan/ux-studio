@@ -1,4 +1,4 @@
-# UX Studio - plán kompletního přepisu (nahrazuje ux1-wordpress-customizer)
+# UX1 Studio - plán kompletního přepisu (nahrazuje ux1-wordpress-customizer)
 
 > Stav: NÁVRH k odsouhlasení. Po schválení se z tohoto dokumentu stává závazná roadmapa.
 > Datum: 2026-08-11
@@ -38,7 +38,7 @@ identita od základu, žádný big-bang (rollout modul po modulu, web běží ce
 
 | Prvek                | Hodnota                              |
 |----------------------|--------------------------------------|
-| Název                | **UX Studio**                        |
+| Název                | **UX1 Studio**                        |
 | Slug / složka        | `ux-studio`                          |
 | Hlavní soubor        | `ux-studio.php`                      |
 | Text-domain          | `ux-studio`                          |
@@ -944,7 +944,7 @@ vzor jako `RollbackManager`/existující `Revisions`). Co Destima NEMÁ a
 Elementor ano — to je jádro rozšíření v tomhle plánu: bohatší podmíněná
 logika (AND/OR, operátory, ne jen `pole = hodnota`), šířka pole ve sloupcích,
 řetězené akce po odeslání (ne jen e-mail), webhook, a hlavně **nativní
-Elementor widget** (Destima Elementor vůbec neřeší, UX Studio ho už jako
+Elementor widget** (Destima Elementor vůbec neřeší, UX1 Studio ho už jako
 závislost integruje — `ElementorImport`).
 
 ### 20.1 Analýza Elementor Forms (od čeho se odpichujeme)
@@ -1714,7 +1714,7 @@ nové dělá AI agent sám, modul hlídá, aby výsledek odpovídal SEO pravidl�
 přes sha1 hash (cesta lowercase, bez koncového lomítka, dekódovaná, query seřazená); regexy
 v autoloaded optionu `uxstudio_redirects_state`. Query návštěvníka (utm, gclid) se přenáší.
 301/308 dostane `Cache-Control: max-age=3600` (jinak to prohlížeč cachuje navždy).
-`X-Redirect-By: UX Studio Redirects`. Modul `redirect-404-to-homepage` respektuje
+`X-Redirect-By: UX1 Studio Redirects`. Modul `redirect-404-to-homepage` respektuje
 `Engine::handled()` (410 se nikdy nezmění na redirect na homepage).
 
 **AI (category `redirects`):** `list-rules`, `upsert-rules` (max 500, `dry_run` výchozí true,
@@ -1749,7 +1749,7 @@ Redirection, export CSV, SPA (pravidla + test URL, 404, SEO audit, import/export
 
 **Co se stalo:** noční plný sken (17 714 souborů) označil 189 jako podezřelé a 12 z nich sám
 přesunul do karantény (`uxstudio_security_auto_quarantine` = výchozí `true`). Žádný nebyl
-škodlivý: Predis/Credis (Redis Cache - slovo `eval` v docblocku), 2× Akeeba, 6× UX1, 2× UX Studio
+škodlivý: Predis/Credis (Redis Cache - slovo `eval` v docblocku), 2× Akeeba, 6× UX1, 2× UX1 Studio
 včetně `UploadGuardDetectionEngine.php`. Bez něj padal autoload v `boot()` → fatal na každém
 requestu → 500 celého webu. Soubory vráceny ručně, modul Security vypnutý.
 
@@ -2006,7 +2006,7 @@ wp-admin SPA (src/modules/dns-manager/Page.tsx)
             → api.cloudflare.com/client/v4/zones/{zone_id}/dns_records
 ```
 
-**UX Studio** `includes/Modules/DnsManager/`: `Module.php`, `meta.json`, `CaClient.php`,
+**UX1 Studio** `includes/Modules/DnsManager/`: `Module.php`, `meta.json`, `CaClient.php`,
 `RestController.php`, `Validator.php` (zrcadlo pravidel z CA, jen UX), `LocalLog.php`,
 `DashboardWidget.php` (poslední 3 změny, vzor §20.10). SPA: záložky Záznamy / Historie změn /
 Nastavení (kdo smí upravovat).
@@ -2036,7 +2036,7 @@ na token - bohatě stačí. Výpis záznamů cache v CA 60 s, invalidace po záp
       (cron `flushDue`), denní souhrn a okamžité upozornění při 5+ zamítnutích, historie + vrácení
       + stažení snapshotu v detailu webu. Chybí: obnova celé zóny ze snapshotu (jen stažení BIND,
       import ručně v Cloudflare)
-- [x] F4 UX Studio: modul `DnsManager` - capability `uxstudio_manage_dns`/`view_dns`, `CaClient`,
+- [x] F4 UX1 Studio: modul `DnsManager` - capability `uxstudio_manage_dns`/`view_dns`, `CaClient`,
       REST, lokální log, nastavení „kdo smí upravovat", stav „není aktivní". Ověřeno WP -> CA
       end-to-end na lokále (curl s cookie + nonce, fake Cloudflare): ack, create, validace,
       zámek, 409, revert, `reauth_required` po zestárnutí přihlášení
@@ -2321,7 +2321,7 @@ WPS Hide Login (hrozba vyzamčení), totéž CAPTCHA. Porušovalo to pravidlo �
 
 **Nepřenese se (výběr, přesné texty v plánech).** AME: požadovaná oprávnění (`extra_capability`), pravidla pro jednotlivé uživatele, grant roli bez oprávnění, přejmenování/skrytí/přesun podpoložek, iframe/HTML položky, barvy, multisite. Organizér jen skrývá, stránka zůstává dostupná adresou (plánové varování; od A3 ji volitelně blokuje přepínač „Zablokovat přístup ke skrytým stránkám“, viz 27.6); uživatelům s `manage_options` ukazuje vždy vše. Adminimize: meta boxy, patička/hlavička, vlastní selektory, položky skryté jen jiným rolím. WLCMS: pozadí, hover barvy, vlastní CSS/JS, uvítací panely, RSS, titulek stránky. Adminify: vlastní UI/motiv, horizontální menu, Pro moduly. LoginPress: pozadí, hover, CSS, chování. AC: Pro typy, filtry/řazení/editace, layouty per role.
 
-**Pravidlo proti vyzamčení.** `MenuSimulator::enforce_access`: po mapování se pro roli administrator a aktuálního uživatele simuluje menu; pravidlo, které by skrylo UX Studio, Pluginy, Uživatele nebo Nastavení, se zahodí a hlásí se v plánu (warning + lossy) i při ověření. Smoke `admin_access` otevře ta 4 menu v náhledu i po přepnutí (odmítnutí poznává jen podle chybové obrazovky WP: skutečný web má stejné věty v přeložených JS řetězcích, první verze měla falešné poplachy).
+**Pravidlo proti vyzamčení.** `MenuSimulator::enforce_access`: po mapování se pro roli administrator a aktuálního uživatele simuluje menu; pravidlo, které by skrylo UX1 Studio, Pluginy, Uživatele nebo Nastavení, se zahodí a hlásí se v plánu (warning + lossy) i při ověření. Smoke `admin_access` otevře ta 4 menu v náhledu i po přepnutí (odmítnutí poznává jen podle chybové obrazovky WP: skutečný web má stejné věty v přeložených JS řetězcích, první verze měla falešné poplachy).
 
 **Ověření (menu).** Ověření porovnává per role množinu viditelných položek ze zdroje a z cíle, jen u položek, na které má plugin pravidlo (jiné může skrývat druhý plugin); známé rozdíly se vypíšou, nevysvětlené selžou. Krok Kontrola ukazuje tabulku role: skryto před/po. Průvodce: částečná shoda se dá zaškrtnout až po otevření seznamu „co se nepřenese“ (předvybrání z URL se u ní ignoruje).
 
@@ -2553,7 +2553,7 @@ přidává odmítnutí, nikdy nic nepovolí). Odmítnutí je přesně to, co Wor
   přiřazení, jinak automatický odhad, jinak záložní; dřív to simulátor uměl jen s ručním přiřazením). Uživatel s víc rolemi projde, když jedna role položku smí. **Skrytá nadřazená položka = její vlastní adresa i adresy
   všech jejích podpoložek** (Organizér neumí skrýt jedinou podpoložku, podpoložka je tam, kde je nadřazená), **kromě** podpoložky přesunuté na nejvyšší úroveň (`promoted_subs`), kterou Organizér tomuto uživateli ukazuje.
 - **Co se neblokuje nikdy:** uživatel s `manage_options` (Organizér mu ukazuje vše; `hidden_items` skrývá i správci, ale nezablokuje ho), soubory `index.php` (nástěnka), `profile.php`, `admin-ajax.php`, `admin-post.php`,
-  `async-upload.php`, `options.php`, `load-scripts.php`, `load-styles.php`, REST, cron a WP-CLI (zámek hlídá jen načtení stránek administrace), čtyři chráněné obrazovky (UX Studio, Pluginy, Uživatelé, Nastavení) a
+  `async-upload.php`, `options.php`, `load-scripts.php`, `load-styles.php`, REST, cron a WP-CLI (zámek hlídá jen načtení stránek administrace), čtyři chráněné obrazovky (UX1 Studio, Pluginy, Uživatelé, Nastavení) a
   všechno pod nimi (`MenuSimulator::protected_screens`, stejné pravidlo proti vyzamčení jako při migraci), požadavek bez odpovídající položky menu.
 - **Záchranný přepínač** `define( 'UXSTUDIO_DISABLE_MENU_LOCK', true );` v wp-config.php vypne blokování pro všechny (napsáno v nápovědě nastavení). Záložka Organizér menu upozorňuje, že skrytí samo stránku neblokuje.
 - Pozor: skrytí `edit.php` (Příspěvky) před rolí s právem upravovat příspěvky zablokuje i editaci příspěvků (`post.php`) té role; „skrytá stránka“ je i její editace.
@@ -2576,7 +2576,7 @@ stránkové cache (výsledek závisí na přihlášení / roli, stejně jako dř
   Ověření má novou kontrolu `menu-lock` (každá dvojice položka + role, kterou plugin blokoval, je blokovaná i v cíli, také ze staging konfigurace).
 - *Nav Menu Roles:* `in` / `out` s režimem show / hide přesně, seznam rolí = `role`, „skrýt pro role“ = `not_role` (plugin vyhodnocení otáčí, odhlášený položku vidí), neexistující role (plugin bere i oprávnění) se vynechají a jmenují.
 - *If Menu:* podmínky `user-logged-in` a `user-is-<role>` (show / hide), víc podmínek spojených AND, NEBO z „uživatel je <role>“ = jedno pravidlo rolí; jakékoli jiné NEBO a jiné podmínky (stránky, data, WooCommerce) zůstávají ztrátové a počítají se.
-- *Menu Items Visibility Control:* výraz v PHP plugin spouští přes `eval`, UX Studio ho nikdy nespustí. Jen pevné jednoduché tvary se rozpoznají vzorem (`is_user_logged_in()`, `!is_user_logged_in()`, `current_user_can('<role>')`, negace, spojené `&&`, role musí na webu existovat),
+- *Menu Items Visibility Control:* výraz v PHP plugin spouští přes `eval`, UX1 Studio ho nikdy nespustí. Jen pevné jednoduché tvary se rozpoznají vzorem (`is_user_logged_in()`, `!is_user_logged_in()`, `current_user_can('<role>')`, negace, spojené `&&`, role musí na webu existovat),
   nic se nevykonává; cokoli jiného (oprávnění, `||`, jiné funkce, vložený kód) je ztrátové (PLAN 27.3 C platí). Zdroj porovnává existující pravidlo významem (`meta_state` přes `Rules::same`), takže položka s jiným pravidlem se zachová a nahlásí.
   Staging: při zapnutém modulu čekají meta ve staging oblasti, náhled je překrývá (`get_post_metadata`), rollback maže jen to, co běh zapsal.
 
@@ -3052,7 +3052,7 @@ blokování výčtu uživatelů, CSP Enforce, modul Disable Auto Updates.
 - [x] F4 Napojení na centrální aplikaci (strana pluginu; strana CA se dělá zvlášť v centrani-app)
 - [x] F5 Překlady JS (build `index.dc3d7fb3086a456127fe.js` má svůj JSON v `languages/`)
 - [x] F5 Živé QA na čistém webu (vrajt, Apache, bez WooCommerce, bez proxy): aktivace otevře `#/wizard?mode=new`; použito 17 z 17 položek; `/administrace/` ukáže přihlašovací formulář; potvrzení zavře `wp-login.php` (404) a `wp-admin` přesměruje na novou adresu; skutečné přihlášení touto adresou funguje; selhání e-mailu skončí hláškou; vrácení obnoví moduly, nastavení i `wp-login.php`; krok Centrální aplikace: podepsaný POST přijala lokální CA (podpis i živá výzva prošly, CA ukázala přihlášení)
-- [x] F5 Opravy z QA: bez loga webu se na přihlášení skryje i logo WordPressu (`form_options` = `hide_login_logo`); po vrácení se z `.htaccess` odstraní celý blok `UX Studio Security` včetně komentářů (`HtaccessWriter::strip_block()`, platí i pro `on_disable` a prázdná pravidla)
+- [x] F5 Opravy z QA: bez loga webu se na přihlášení skryje i logo WordPressu (`form_options` = `hide_login_logo`); po vrácení se z `.htaccess` odstraní celý blok `UX1 Studio Security` včetně komentářů (`HtaccessWriter::strip_block()`, platí i pro `on_disable` a prázdná pravidla)
 - [ ] F5 Živé QA: nginx, Cloudflare, WooCommerce
 - [ ] F5 Živě: registrační stránka v CA (čeká na nasazení CA) a produkční `turnstile_provision` v CA
 - [ ] F5 Vydání 0.7.0
@@ -3326,7 +3326,7 @@ Vynucuje server, náhled je ukazuje jako „Bezpečnostní opatření“. Pravid
 4. Blokování zemí jen když je IP importujícího správce na allowlistu firewallu (stávajícím nebo z téhož souboru);
    seznamy IP určené k blokování (`BLOCK_IP_LISTS`, dnes prázdný registr) nikdy neponechají řádek s jeho IP.
 5. Zámek menu (`menu_lock_enabled`) jen když `MenuSimulator::enforce_access()` nad stávající konfigurací menu nic
-   nezahodí (správce zůstane mít UX Studio, Pluginy, Uživatele, Nastavení).
+   nezahodí (správce zůstane mít UX1 Studio, Pluginy, Uživatele, Nastavení).
 6. Režim údržby nikdy nezapne import bez zvláštní zaškrtávací volby.
 7. Kód (pole typu `css`, vlastní CSS údržby, snippety) jen když má importující uživatel `unfiltered_html`.
 8. Přesměrování na HTTPS a HSTS jen když import běží přes HTTPS; CAPTCHA na přihlášení jen když má web vlastní klíče.
@@ -3418,7 +3418,7 @@ když verze přežije zmizelou tabulku, vytvoří se znovu). Jeden řádek na up
 
 ### 31.4 Odhad zdroje (`Rules::guess_source`, vždy jen odhad)
 
-Pořadí: vlastní upozornění UX Studia (třída/id `uxstudio`/`uxs`, titulek „UX Studio…“) → jádro WordPressu (věta
+Pořadí: vlastní upozornění UX Studia (třída/id `uxstudio`/`uxs`, titulek „UX1 Studio…“) → jádro WordPressu (věta
 „WordPress X is available“ česky i anglicky, nebo `update-nag` s textem začínajícím WordPress) → `data-plugin` /
 `data-slug` (adresář pluginu, i když není aktivní) → Freemius `fs-slug-<slug>` → otisky tříd známých pluginů (Elementor
 `e-notice`, UpdraftPlus, Wordfence, Yoast, Rank Math, AIOSEO, WooCommerce, ACF, Jetpack, Akismet, CF7, WPForms,
@@ -3546,7 +3546,7 @@ převedený widget neuvidí, dokud ji správce v tabulce nepřidá. V tabulce se
 - Widget s `last_seen` starším než `scan_at` je „nenalezeno“ (ztlumený řádek, pravidlo zůstává). Smazat jde jen takový záznam
   (i s pravidlem), živý widget by se vrátil (409).
 - Zdroj: `WidgetSnapshot::source()` zjistí soubor callbacku reflexí a `WidgetRules::classify_path()` ho zařadí
-  (jádro, UX Studio, plugin podle složky a názvu z `get_plugins()`, motiv, MU plugin). Všechno mimo jádro a UX Studio se vypisuje
+  (jádro, UX1 Studio, plugin podle složky a názvu z `get_plugins()`, motiv, MU plugin). Všechno mimo jádro a UX1 Studio se vypisuje
   jako „odhad“ (callback může ležet ve sdílené knihovně).
 - Widgety, které z nástěnky odstraní jiné nastavení dřív (Zabezpečení: novinky a stav webu, vypnutý přepínač widgetu jiného modulu),
   se do snímku nedostanou, protože už nejsou registrované. Uvítací panel s vlastní záložkou (`uxstudio_welcome_panel`) se nevypisuje.
@@ -3691,7 +3691,7 @@ aplikuje na konec (`apply`), klíče, výchozí hodnoty a sanitizace se nemění
 
 ## 37. Launcher s ikonami a řádkovým výpisem, Rychlé přidání příspěvku pod Nástěnkou (0.9.2)
 
-Požadavky: (1) v přehledu aktivních modulů (launcher z menu UX Studio) ikony u každé položky jako v seznamu Moduly a přepínač na řádkový výpis,
+Požadavky: (1) v přehledu aktivních modulů (launcher z menu UX1 Studio) ikony u každé položky jako v seznamu Moduly a přepínač na řádkový výpis,
 který se zapamatuje; (2) „Rychlé přidání příspěvku“ dát pod widgety nástěnky.
 
 ### 37.1 Launcher
@@ -3800,7 +3800,7 @@ Facebooku („Scrape Again") a obvykle se na to zapomene.
 
 ### 39.1 Kam to patří: rozšíření modulu Indexing Notice → „Indexování a sdílení"
 
-UX Studio samostatný SEO modul nemá (SEO dělá Rank Math / Yoast). Nejbližší je `indexing-notice`:
+UX1 Studio samostatný SEO modul nemá (SEO dělá Rank Math / Yoast). Nejbližší je `indexing-notice`:
 hlídá, jestli web vidí vyhledávače, a je ve startovacím balíčku průvodce (§29). Rozšíří se o to, jestli
 správně vidí web i sociální sítě a jestli se o změně hned dozví vyhledávače (IndexNow, 39.7).
 
@@ -3930,7 +3930,7 @@ Ruční cesta: řádková akce v seznamu příspěvků a tlačítko v editoru �
 ### 39.8 Fáze
 
 - [x] F0 (3.11. scrape pobytyproseniory.cz s Meta klíči CA = 200 + og pole, `X-App-Usage` 0; Instagram/Threads/WhatsApp a produkční klíče CA NEověřeny) Ručně (curl) ověřit scrape s app tokenem appky CA; zjistit, jestli obnoví i Instagram/Threads/WhatsApp; zapsat limit z `X-App-Usage`; ověřit Meta klíče na produkci CA; projít aktuální kroky založení appky pro návod
-- [x] F1 UX Studio: `indexing-notice` dostane nastavení (karty, `show_if`), přejmenování, `FacebookScraper`, hák, fronta, cron se zpožděním, režim `own` + Ověřit klíče
+- [x] F1 UX1 Studio: `indexing-notice` dostane nastavení (karty, `show_if`), přejmenování, `FacebookScraper`, hák, fronta, cron se zpožděním, režim `own` + Ověřit klíče
 - [x] F1 CA: `?page=social_refresh` (podpis, web podle klíče webu §40.2, kontrola domény, rate limit, Graph API, odpověď po URL, log v CA)
 - [x] F2 Režim `ca` na straně pluginu (klient po vzoru `TurnstileCaProvisioner`) + upozornění bez připojení
 - [x] F2 IndexNow: klíč, `/<klíč>.txt`, odeslání, pravidlo překryvů s Rank Math / Yoast
@@ -4044,11 +4044,11 @@ aplikace** → Hotovo. Nově: Vítejte → **Centrální aplikace** → Doporuč
 
 ### 40.6 Fáze
 
-- [x] F1 UX Studio: přesun kroku CA na začátek `getStarterSteps()`, návrat z CA na krok modulů + nové načtení balíčku, texty
-- [x] F1 UX Studio: test průvodce v prohlížeči (připojit, zrušit, přeskočit, návrat z CA na krok modulů) ověřen 3.11.
-- [x] F1 UX Studio: `uxstudio_site_id`, posílání při připojení a v hlavičce všech podepsaných volání (`TurnstileCaProvisioner`, `CentralClient`, nové volání přes `Core\CentralApp\Gateway`; Content Sync volá CA jen přes připojení)
+- [x] F1 UX1 Studio: přesun kroku CA na začátek `getStarterSteps()`, návrat z CA na krok modulů + nové načtení balíčku, texty
+- [x] F1 UX1 Studio: test průvodce v prohlížeči (připojit, zrušit, přeskočit, návrat z CA na krok modulů) ověřen 3.11.
+- [x] F1 UX1 Studio: `uxstudio_site_id`, posílání při připojení a v hlavičce všech podepsaných volání (`TurnstileCaProvisioner`, `CentralClient`, nové volání přes `Core\CentralApp\Gateway`; Content Sync volá CA jen přes připojení)
 - [x] F1 CA: sloupec `sites.site_uid` + migrace, hledání podle `site_uid` s fallbackem na URL, doplnění UUID starým webům, `connect_site` přijímá `site_id`
-- [x] F2 UX Studio: hlídání změny `home_url()`, `site_moved`, stavy `clone` / `superseded`, upozornění a „Připojit jako nový web"
+- [x] F2 UX1 Studio: hlídání změny `home_url()`, `site_moved`, stavy `clone` / `superseded`, upozornění a „Připojit jako nový web"
 - [x] F2 CA: `?page=site_moved` (výzva na nové adrese, kontrola staré, vzory vývojových domén v Nastavení), `site_url_history`, upozornění Přesunout / Kopie, sekce Historie adres s Vrátit
 - [x] F3 CA (DNS zóna, SSO a audity ručně, viz CA PLAN §38): navazující akce po přesunu (Turnstile doména, monitoring, reset vizuálního snímku, přeplánování auditů)
 - [ ] F4 Test: připojit web na vývojové doméně, zkopírovat DB na jinou doménu → automatický přesun; zkopírovat produkci na staging → upozornění „kopie"; vrácení přesunu
@@ -4059,7 +4059,7 @@ aplikace** → Hotovo. Nově: Vítejte → **Centrální aplikace** → Doporuč
 - P2 Upozornění o automatickém přesunu: jen v CA, nebo i e-mailem / push (PWA)?
 - P3 Má se po přesunu staré (vývojové) adrese v CA nechat záznam jako „vývojová verze webu X" (např. pro monitoring vývoje), nebo ji úplně zapomenout?
 
-### 40.8 Poznámky k provedení (UX Studio, 2026-11-03)
+### 40.8 Poznámky k provedení (UX1 Studio, 2026-11-03)
 
 - Kód je v `includes/Core/CentralApp/`: `SiteIdentity` (id, známá adresa, stav pozastavení, čisté rozhodovací funkce), `Gateway` (podepsané volání s hlavičkou a `site_id`, čtení odpovědí 409 / 410 / 423), `DomainWatch` (porovnání adresy při volání a denní cron, `site_moved`), `PausedNotice` (upozornění a „Připojit jako nový web“), `Bootstrap`. Test `tests/central-app-identity.php`.
 - Stav kopie je v option `uxstudio_ca_clone` jako pole `{state: clone|superseded, url, since}` (podle smlouvy s CA, ne `= 1` jako v 40.4).
@@ -4068,7 +4068,7 @@ aplikace** → Hotovo. Nově: Vítejte → **Centrální aplikace** → Doporuč
 - Odchylka: `ActivityLog` zapisuje události spojení s CA pod modul `content-sync` (`ca_site_moved`, `ca_site_moved_pending`, `ca_site_moved_failed`, `ca_link_paused`, `ca_connect_as_new`).
 - Odchylka: volání s 202 `pending_decision` se opakuje nejvýš 1× za hodinu při běžných voláních a 1× denně z cronu. Známá adresa se mění až po `moved`.
 
-### 39.10 Poznámky k provedení (UX Studio, 2026-11-03)
+### 39.10 Poznámky k provedení (UX1 Studio, 2026-11-03)
 
 - Kód modulu je v `includes/Modules/IndexingNotice/`: `SocialQueue` (fronta, čistá logika), `Eligibility` (co se smí odeslat), `Dispatcher` (hák, cron, `ca` / `own`, Activity Log, meta), `FacebookScraper`, `IndexNow`, `PostActions` (řádková akce, box v editoru), `RestController` (`status`, `verify-keys`), `help.php`. Obrazovka `src/modules/indexing-notice/Page.tsx` (karty z generického schématu + Ověřit klíče, stav připojení k CA, adresa klíče IndexNow). Testy `tests/indexing-queue.php`, `tests/central-app-identity.php`.
 - Hák je `wp_after_insert_post` (ne `save_post`), aby šlo o jedno volání po uložení; příznak noindex se čte až při běhu cronu, protože blokový editor ukládá meta po tomto háku.
@@ -4182,7 +4182,7 @@ Zjištění:
 - Zaznamená cookies (vč. httpOnly z `context.cookies()`), localStorage/sessionStorage,
   síťové požadavky a ID měřicích kódů (GA4, AW, GTM, FB pixel).
 - **Hlásí porušení:** cookie nebo požadavek marketingové služby před souhlasem nebo po odmítnutí.
-- Výsledek jde přes API do pluginu (podepsaný požadavek jako ostatní volání CA ↔ UX Studio).
+- Výsledek jde přes API do pluginu (podepsaný požadavek jako ostatní volání CA ↔ UX1 Studio).
 - Rozvrh: měsíčně + ručně z adminu. Nová neznámá cookie ⇒ upozornění, přehled flotily v CA.
 - Hlavička `X-UX1-Monitor` (viz `reference_monitoring-firewall-vyjimky`), jinak firewall
   jako na autoservisvydra sken zablokuje.
@@ -4597,7 +4597,7 @@ Web je živý a za Cloudflare/openresty; platí pravidla živého serveru (zálo
 2. **Záloha podle pravidel.** Složka `backup/YYYY-MM-DD_HHMM/` lokálně (mimo server) i na serveru **mimo web root**, případně pod web rootem s `.htaccess` `Require all denied` + `Options -Indexes` + prázdným `index.html` (openresty `.htaccess` ignoruje, tam jen mimo web root). Obsah: dump DB (`mysqldump`, utf8mb4), celý `wp-content/plugins/complianz-gdpr` a `wp-content/plugins/ux-studio`, `wp-content/mu-plugins`, `.htaccess`,
    export záznamů souhlasů z Complianzu a export jeho nastavení. `zmeny.txt` s časem, seznamem změn a důvodem.
 3. **Zjistit předem** (na serveru, jen čtení): `cmplz_options` (`compile_statistics`, `gtm_code`, `ua_code`, `consent-mode`, `gtag-basic-consent-mode`, `use_country`), `complianz_options_custom-scripts` (zejména `add_script`), seznam stránek s `cmplz-document`, jak se vkládá GTM kontejner `GTM-M2H8FV7L` (Complianz, GTM Kit, šablona, WP Rocket?), zda je WP Rocket „delay JS“ a které skripty vyjímá.
-4. **Verze pluginu UX Studio** s modulem consent (vydání až po QA celého modulu, samostatná vlna). Na server nasadit stejným postupem jako u UX Studia (release zip, ne ruční kopírování souborů); před tím porovnat serverovou verzi se zálohou.
+4. **Verze pluginu UX1 Studio** s modulem consent (vydání až po QA celého modulu, samostatná vlna). Na server nasadit stejným postupem jako u UX Studia (release zip, ne ruční kopírování souborů); před tím porovnat serverovou verzi se zálohou.
 5. **Průvodce migrací**: sken, plán (přečíst všechna upozornění s uživatelem, zejména blokující), doplnit v modulu IČO, DIČ a pověřence (Právní stránky), běh, ověření.
 6. **GTM kontejner (§42.11).** Pokud ho vkládal Complianz, nejdřív ho přidat jinak (GTM Kit) a až pak přepnout. V kontejneru musí být spouštěče na vlastní událost `uxc_consent` s podmínkou na `uxc_marketing` / `uxc_statistics` pro tagy, které nečtou Consent Mode (Meta Pixel, Sklik, Hotjar), a Consent Mode proměnné
    (`ad_storage`, `analytics_storage`) nastavené podle `consent_mode` (web byl v režimu *advanced*, převezme se). Zkontrolovat v GTM náhledu (Tag Assistant) před i po přepnutí.

@@ -493,7 +493,7 @@ $GLOBALS['uxs_transients'] = array();
 $read = Tokens::create( array( 'label' => 'r', 'scopes' => array( 'read' ), 'days' => 5, 'user_id' => 7 ) );
 $adm  = Tokens::create( array( 'label' => 'a', 'scopes' => array( 'admin' ), 'days' => 5, 'user_id' => 7 ) );
 $c    = Auth::evaluate( $read['token'], Auth::KIND_ENDPOINT, '203.0.113.5' );
-$assert( 'read token authenticates on the UX Studio endpoint', 'ok' === $c['state'] && 7 === $c['user_id'] );
+$assert( 'read token authenticates on the UX1 Studio endpoint', 'ok' === $c['state'] && 7 === $c['user_id'] );
 $c = Auth::evaluate( $read['token'], Auth::KIND_LEGACY, '203.0.113.5' );
 $assert( 'a scoped token is refused on third party routes that know no scopes', 'denied' === $c['state'] && 'scope_route' === $c['code'] );
 $c = Auth::evaluate( $adm['token'], Auth::KIND_LEGACY, '203.0.113.5' );

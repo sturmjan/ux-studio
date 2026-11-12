@@ -2,7 +2,7 @@
   "name": "ux-studio",
   "version": "0.1.0",
   "private": true,
-  "description": "Admin SPA (React + TypeScript) for the UX Studio plugin.",
+  "description": "Admin SPA (React + TypeScript) for the UX1 Studio plugin.",
   "scripts": {
     "start": "wp-scripts start",
     "build": "wp-scripts build",

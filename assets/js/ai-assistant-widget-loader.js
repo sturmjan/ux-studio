@@ -1,5 +1,5 @@
 /**
- * UX Studio AI Assistant - lazy loader for the chat widget.
+ * UX1 Studio AI Assistant - lazy loader for the chat widget.
  *
  * Renders only the floating bubble (styled by a few lines of inline CSS) and
  * pulls in the full widget JS + CSS on the first interaction with it - hover,

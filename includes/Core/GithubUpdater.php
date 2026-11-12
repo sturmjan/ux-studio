@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
  * Optional release signing: CI signs the zip with an Ed25519 key (GitHub
  * secret UXSTUDIO_SIGNING_KEY) and attaches `ux-studio.zip.sig`. When a public
  * key is configured (RELEASE_PUBLIC_KEY below, or the UXSTUDIO_RELEASE_PUBLIC_KEY
- * wp-config constant), every UX Studio package is verified before install and
+ * wp-config constant), every UX1 Studio package is verified before install and
  * refused on a missing/invalid signature. With no key configured, updates
  * behave exactly as before.
  */
@@ -101,7 +101,7 @@ final class GithubUpdater {
 	}
 
 	/**
-	 * upgrader_pre_download: for a UX Studio package, download it ourselves,
+	 * upgrader_pre_download: for a UX1 Studio package, download it ourselves,
 	 * fetch its detached signature and verify it before WordPress unpacks it.
 	 * Returning the local file path makes the upgrader use it as-is; a WP_Error
 	 * aborts the update (the installed version stays untouched).
@@ -150,14 +150,14 @@ final class GithubUpdater {
 			wp_delete_file( $file );
 			return new WP_Error(
 				'uxstudio_bad_signature',
-				__( 'UX Studio update refused: the package signature is invalid. The installed version was kept.', 'ux-studio' )
+				__( 'UX1 Studio update refused: the package signature is invalid. The installed version was kept.', 'ux-studio' )
 			);
 		}
 		return $file;
 	}
 
 	/**
-	 * Whether an upgrader package is a UX Studio release (by the plugin being
+	 * Whether an upgrader package is a UX1 Studio release (by the plugin being
 	 * updated, or by its GitHub URL for installs without hook_extra).
 	 *
 	 * @param string $package    Package URL.
@@ -183,7 +183,7 @@ final class GithubUpdater {
 	private static function fetch_signature( string $package ) {
 		$missing = new WP_Error(
 			'uxstudio_missing_signature',
-			__( 'UX Studio update refused: the release has no valid signature file (ux-studio.zip.sig). The installed version was kept.', 'ux-studio' )
+			__( 'UX1 Studio update refused: the release has no valid signature file (ux-studio.zip.sig). The installed version was kept.', 'ux-studio' )
 		);
 
 		if ( false !== strpos( $package, '/releases/assets/' ) ) {

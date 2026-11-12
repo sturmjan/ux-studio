@@ -154,7 +154,7 @@ final class Server {
 	 */
 	private static function scope_headers( array $result ): array {
 		if ( 403 === $result['status'] ) {
-			return array( 'WWW-Authenticate' => 'Bearer realm="UX Studio MCP", error="insufficient_scope"' );
+			return array( 'WWW-Authenticate' => 'Bearer realm="UX1 Studio MCP", error="insufficient_scope"' );
 		}
 		return array();
 	}
@@ -189,7 +189,7 @@ final class Server {
 		if ( $ctx && 'ok' === $ctx['state'] ) {
 			return null;
 		}
-		$challenge = array( 'WWW-Authenticate' => 'Bearer realm="UX Studio MCP"' );
+		$challenge = array( 'WWW-Authenticate' => 'Bearer realm="UX1 Studio MCP"' );
 		$code      = $ctx['code'] ?? 'missing';
 		switch ( $code ) {
 			case 'rate_limited':

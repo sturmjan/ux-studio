@@ -1,5 +1,5 @@
 /**
- * Small dismissible hint on the Modules screen: "We found N plugins UX Studio can take over - start the wizard".
+ * Small dismissible hint on the Modules screen: "We found N plugins UX1 Studio can take over - start the wizard".
  * Shown while no migration ever ran and the user did not close it (stored per user on the server).
  */
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -57,8 +57,8 @@ export function WizardHint(): JSX.Element | null {
 				{ sprintf(
 					/* translators: %d: number of plugins. */
 					_n(
-						'We found %d plugin that UX Studio can take over, with its settings and data.',
-						'We found %d plugins that UX Studio can take over, with their settings and data.',
+						'We found %d plugin that UX1 Studio can take over, with its settings and data.',
+						'We found %d plugins that UX1 Studio can take over, with their settings and data.',
 						data.count,
 						'ux-studio'
 					),

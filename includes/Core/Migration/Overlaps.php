@@ -1,6 +1,6 @@
 <?php
 /**
- * Detection of overlaps between enabled UX Studio modules and active foreign plugins.
+ * Detection of overlaps between enabled UX1 Studio modules and active foreign plugins.
  *
  * @package UxStudio
  */

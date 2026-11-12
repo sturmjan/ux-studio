@@ -5,7 +5,7 @@
 > žádný z existujících nástrojů — náš `DetectionEngine` v UX1 včetně. Implementační detaily ani kód
 > zde nejsou, ty patří do PLAN.md po odsouhlasení rozsahu.
 >
-> **Umístění:** UX Studio, ne UX1 plugin. UX1 je podle STAV.md zamrzlý (LEGACY, aktivní práce tam
+> **Umístění:** UX1 Studio, ne UX1 plugin. UX1 je podle STAV.md zamrzlý (LEGACY, aktivní práce tam
 > nepatří), slouží jen jako reference pro port. Z jeho modulu `security-optimization/upload-guard`
 > se sem portuje `IntegrityChecker` — viz kap. 3.
 

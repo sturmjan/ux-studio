@@ -10,12 +10,12 @@ defined( 'ABSPATH' ) || exit;
 return array(
 	'content_hub_enabled'           => array(
 		'does'   => __( 'Moves Posts, Pages and your own content types (for example References or Banners) out of the top level of the menu into one "Content" item.', 'ux-studio' ),
-		'effect' => __( 'The menu is shorter. Editors open "Content" and pick posts, pages or another type; the content modules of UX Studio (Top Bar, Popups, Forms and others) are listed there too when the module links are on. The "Add new" buttons stay on the lists. WooCommerce products and Elementor templates keep their own menu items.', 'ux-studio' ),
+		'effect' => __( 'The menu is shorter. Editors open "Content" and pick posts, pages or another type; the content modules of UX1 Studio (Top Bar, Popups, Forms and others) are listed there too when the module links are on. The "Add new" buttons stay on the lists. WooCommerce products and Elementor templates keep their own menu items.', 'ux-studio' ),
 		'off'    => __( 'Turn it off when your editors expect Posts and Pages as separate items.', 'ux-studio' ),
 	),
 	'module_links_enabled'          => array(
-		'does'   => __( 'Adds a link to each UX Studio module that is switched on into the matching place of the WordPress menu: Tools, Settings, Media, Users, Appearance and Content.', 'ux-studio' ),
-		'effect' => __( 'Administrators reach a module in one click without opening UX Studio first. The main "UX Studio" item stays as it is, and only administrators see these links.', 'ux-studio' ),
+		'does'   => __( 'Adds a link to each UX1 Studio module that is switched on into the matching place of the WordPress menu: Tools, Settings, Media, Users, Appearance and Content.', 'ux-studio' ),
+		'effect' => __( 'Administrators reach a module in one click without opening UX1 Studio first. The main "UX1 Studio" item stays as it is, and only administrators see these links.', 'ux-studio' ),
 		'off'    => __( 'Turn it off when you want the WordPress menu to stay exactly as WordPress and your plugins make it.', 'ux-studio' ),
 	),
 	'module_links_badges'           => array(

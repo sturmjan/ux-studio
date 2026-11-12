@@ -1,6 +1,6 @@
 <?php
 /**
- * Global quick-nav overlay: clicking the UX Studio top-level admin menu item
+ * Global quick-nav overlay: clicking the UX1 Studio top-level admin menu item
  * from ANY wp-admin screen opens a categorized panel of active, configurable
  * modules instead of navigating away. Mirrors the legacy plugin's megamenu
  * (admin/assets/js/megamenu.js) - reimplemented framework-free (plain JS/CSS,
@@ -87,11 +87,11 @@ final class Megamenu {
 
 		$base_url = admin_url( 'admin.php?page=ux-studio' );
 		?>
-		<div id="uxstudio-megamenu" class="uxstudio-megamenu" data-view="grid" aria-hidden="true" role="dialog" aria-label="<?php esc_attr_e( 'UX Studio quick navigation', 'ux-studio' ); ?>">
+		<div id="uxstudio-megamenu" class="uxstudio-megamenu" data-view="grid" aria-hidden="true" role="dialog" aria-label="<?php esc_attr_e( 'UX1 Studio quick navigation', 'ux-studio' ); ?>">
 			<div class="uxstudio-megamenu__backdrop"></div>
 			<div class="uxstudio-megamenu__panel">
 				<div class="uxstudio-megamenu__header">
-					<span class="uxstudio-megamenu__title"><?php esc_html_e( 'UX Studio', 'ux-studio' ); ?></span>
+					<span class="uxstudio-megamenu__title"><?php esc_html_e( 'UX1 Studio', 'ux-studio' ); ?></span>
 					<div class="uxstudio-megamenu__views" role="radiogroup" aria-label="<?php esc_attr_e( 'Display', 'ux-studio' ); ?>">
 						<button type="button" class="uxstudio-megamenu__view" role="radio" aria-checked="true" data-view="grid" aria-label="<?php esc_attr_e( 'Cards', 'ux-studio' ); ?>" title="<?php esc_attr_e( 'Cards', 'ux-studio' ); ?>">
 							<?php echo $this->icon( 'layout-grid' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG from launcher-icons.php. ?>

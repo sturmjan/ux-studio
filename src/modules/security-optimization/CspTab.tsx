@@ -335,17 +335,17 @@ function StatusPanel( { status, onProbe, probing }: { status: CspStatus; onProbe
 
 			{ ( status.mode === 'report-only' || status.mode === 'enforce' ) && status.inline && (
 				<>
-					<h4>{ __( 'Inline scripts of UX Studio', 'ux-studio' ) }</h4>
+					<h4>{ __( 'Inline scripts of UX1 Studio', 'ux-studio' ) }</h4>
 					{ ! status.inline.strict ? (
 						<p className="uxs-csp-status__soft">
-							{ __( "The policy allows inline scripts ('unsafe-inline'), so UX Studio's own inline scripts run without any extra entry. Hashes are added only to a strict policy without 'unsafe-inline', because a browser ignores 'unsafe-inline' as soon as a hash is present.", 'ux-studio' ) }
+							{ __( "The policy allows inline scripts ('unsafe-inline'), so UX1 Studio's own inline scripts run without any extra entry. Hashes are added only to a strict policy without 'unsafe-inline', because a browser ignores 'unsafe-inline' as soon as a hash is present.", 'ux-studio' ) }
 						</p>
 					) : (
 						<>
 							<p className="uxs-csp-status__soft">
 								{ sprintf(
 									/* translators: %d: number of allowed inline scripts. */
-									__( 'The policy is strict. These %d inline scripts of UX Studio are allowed by their hash. Inline scripts of other plugins and of your theme are not covered and must be handled separately.', 'ux-studio' ),
+									__( 'The policy is strict. These %d inline scripts of UX1 Studio are allowed by their hash. Inline scripts of other plugins and of your theme are not covered and must be handled separately.', 'ux-studio' ),
 									status.inline.entries.length
 								) }
 							</p>

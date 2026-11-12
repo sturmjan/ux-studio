@@ -1,6 +1,6 @@
 {
  "Something the old plugin provided has no counterpart and stops working after the switch (see the migration plan). Confirm that you want to switch anyway.": "Něco, co zajišťoval původní plugin, nemá v UX Studiu náhradu a po přepnutí přestane fungovat (viz plán migrace). Potvrďte, že chcete přesto přepnout.",
  "Some things stop working after the switch": "Po přepnutí něco přestane fungovat",
- "The migration plan lists what the old plugin provided and UX Studio cannot take over. Move it by hand first, or confirm that you accept the loss.": "Plán migrace uvádí, co zajišťoval původní plugin a UX Studio to převzít neumí. Nejdřív to přeneste ručně, nebo potvrďte, že se ztrátou počítáte.",
+ "The migration plan lists what the old plugin provided and UX1 Studio cannot take over. Move it by hand first, or confirm that you accept the loss.": "Plán migrace uvádí, co zajišťoval původní plugin a UX1 Studio to převzít neumí. Nejdřív to přeneste ručně, nebo potvrďte, že se ztrátou počítáte.",
  "Switch anyway, I accept the loss": "Přesto přepnout, se ztrátou počítám"
 }

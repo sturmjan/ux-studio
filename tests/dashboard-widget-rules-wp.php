@@ -105,7 +105,7 @@ $dashboard_as = static function ( int $uid ): array {
 	return array( 'ids' => $ids, 'welcome' => (bool) has_action( 'welcome_panel', 'wp_welcome_panel' ) );
 };
 
-/** Widgets any user may see (not the admin-only ones of UX Studio). */
+/** Widgets any user may see (not the admin-only ones of UX1 Studio). */
 $not_own = static fn( string $id ): bool => 0 !== strpos( $id, 'uxstudio_' ) && 'claude_panel_dashboard_widget' !== $id;
 
 /** REST call as the current user. */
@@ -177,7 +177,7 @@ try {
 	$plugin_widgets = array_filter( $snap['widgets'], static fn( $w ) => 0 === strpos( (string) $w['source'], 'plugin:' ) );
 	WP_CLI::log( 'INFO plugin widgets: ' . implode( ', ', array_map( static fn( $w ) => $w['id'] . ' <- ' . $w['source'] . ' (' . $w['source_name'] . ')', $plugin_widgets ) ) );
 	$assert( 'a plugin widget is attributed to a plugin and marked as an estimate (when the site has one)', ! $plugin_widgets || ( reset( $plugin_widgets )['guess'] && '' !== reset( $plugin_widgets )['source_name'] ) );
-	$assert( 'widgets of UX Studio itself are attributed to UX Studio (no estimate)', ! $own || ( 'uxstudio' === $snap['widgets'][ reset( $own ) ]['source'] && false === $snap['widgets'][ reset( $own ) ]['guess'] ), $j( $snap['widgets'][ reset( $own ) ] ?? null ) );
+	$assert( 'widgets of UX1 Studio itself are attributed to UX1 Studio (no estimate)', ! $own || ( 'uxstudio' === $snap['widgets'][ reset( $own ) ]['source'] && false === $snap['widgets'][ reset( $own ) ]['guess'] ), $j( $snap['widgets'][ reset( $own ) ] ?? null ) );
 	// Attribution of a callback of another active plugin (the site may have no plugin widget of its own).
 	$foreign = null;
 	foreach ( get_declared_classes() as $class_name ) {
@@ -266,7 +266,7 @@ try {
 	$module->write_option( array( 'disable_all_widgets' => true ) );
 	$all = $dashboard_as( $admin );
 	$core_left = array_filter( $all['ids'], static fn( $id ) => 0 !== strpos( $id, 'uxstudio_' ) && 'claude_panel_dashboard_widget' !== $id );
-	$assert( 'hide all: nothing but UX Studio widgets stays, no welcome panel', array() === $core_left && ! $all['welcome'], $j( $all ) );
+	$assert( 'hide all: nothing but UX1 Studio widgets stays, no welcome panel', array() === $core_left && ! $all['welcome'], $j( $all ) );
 	$module->write_option( array( 'disable_all_widgets' => false ) );
 
 	/* ═══ 3. REST: capabilities and validation ═══ */

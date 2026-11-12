@@ -22,7 +22,7 @@ export interface WizardStep {
 
 function WelcomeStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 	const points: { icon: JSX.Element; text: string }[] = [
-		{ icon: <Radar size={ 18 } aria-hidden />, text: __( 'The wizard finds plugins on this site whose job a UX Studio module does as well.', 'ux-studio' ) },
+		{ icon: <Radar size={ 18 } aria-hidden />, text: __( 'The wizard finds plugins on this site whose job a UX1 Studio module does as well.', 'ux-studio' ) },
 		{ icon: <ShieldCheck size={ 18 } aria-hidden />, text: __( 'It only reads the plugins. Nothing in them changes, and nothing is turned on or deactivated until you confirm the switch.', 'ux-studio' ) },
 		{ icon: <Camera size={ 18 } aria-hidden />, text: __( 'Before the first write it saves a snapshot, so you can undo the whole migration for 30 days.', 'ux-studio' ) },
 		{ icon: <Eye size={ 18 } aria-hidden />, text: __( 'Before the switch you can look at the site without the old plugins in a safe preview that only your browser sees. Visitors keep the old plugins the whole time.', 'ux-studio' ) },
@@ -30,8 +30,8 @@ function WelcomeStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 	];
 	return (
 		<section className="uxs-wiz-panel uxs-wiz-welcome">
-			<StepHead icon={ <Wand2 size={ 26 } aria-hidden /> } title={ __( 'Move your settings to UX Studio', 'ux-studio' ) }>
-				{ __( 'Copy the settings and data of other plugins (redirects, snippets, folders, mail settings ...) into the matching UX Studio modules, check that nothing got lost and keep the option to go back.', 'ux-studio' ) }
+			<StepHead icon={ <Wand2 size={ 26 } aria-hidden /> } title={ __( 'Move your settings to UX1 Studio', 'ux-studio' ) }>
+				{ __( 'Copy the settings and data of other plugins (redirects, snippets, folders, mail settings ...) into the matching UX1 Studio modules, check that nothing got lost and keep the option to go back.', 'ux-studio' ) }
 			</StepHead>
 			<ul className="uxs-wiz-points">
 				{ points.map( ( p ) => (
@@ -68,7 +68,7 @@ function ScanCard( { source, index }: { source: ScanSource; index: number } ): J
 				</div>
 				<p className="uxs-wiz-muted">
 					{ sprintf(
-						/* translators: 1: UX Studio module name, 2: "12 settings". */
+						/* translators: 1: UX1 Studio module name, 2: "12 settings". */
 						__( 'Module: %1$s - %2$s', 'ux-studio' ),
 						source.module_name,
 						sourceSummary( source.summary )
@@ -117,7 +117,7 @@ function ScanStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 					<Radar size={ 34 } />
 				</div>
 				<h2>{ __( 'Scanning the site…', 'ux-studio' ) }</h2>
-				<p className="uxs-wiz-muted">{ __( 'Looking for plugins UX Studio can take over from.', 'ux-studio' ) }</p>
+				<p className="uxs-wiz-muted">{ __( 'Looking for plugins UX1 Studio can take over from.', 'ux-studio' ) }</p>
 			</section>
 		);
 	}
@@ -131,8 +131,8 @@ function ScanStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 				found.length
 			) }>
 				{ 0 === found.length
-					? __( 'None of the plugins UX Studio can migrate is installed here, and no leftover settings of them were found.', 'ux-studio' )
-					: __( 'These plugins (or their leftover settings) have a matching UX Studio module.', 'ux-studio' ) }
+					? __( 'None of the plugins UX1 Studio can migrate is installed here, and no leftover settings of them were found.', 'ux-studio' )
+					: __( 'These plugins (or their leftover settings) have a matching UX1 Studio module.', 'ux-studio' ) }
 			</StepHead>
 			{ found.length > 0 && (
 				<ul className="uxs-wiz-scangrid">
@@ -267,7 +267,7 @@ function SelectStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 			<Warnings
 				warnings={ clashes.map( ( group ) =>
 					sprintf(
-						/* translators: 1: plugin names, 2: UX Studio module name. */
+						/* translators: 1: plugin names, 2: UX1 Studio module name. */
 						__( '%1$s all carry settings for the module "%2$s". The one migrated last overwrites the others, so tick only the plugin you actually use.', 'ux-studio' ),
 						group.map( ( s ) => s.label ).join( ', ' ),
 						group[ 0 ]?.module_name ?? ''
@@ -305,12 +305,12 @@ function CheckStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 	return (
 		<section className="uxs-wiz-panel">
 			<StepHead icon={ <CircleCheck size={ 26 } aria-hidden /> } title={ __( 'Check before writing', 'ux-studio' ) }>
-				{ __( 'This is a trial run: nothing has been written. Below is what each plugin would change in UX Studio.', 'ux-studio' ) }
+				{ __( 'This is a trial run: nothing has been written. Below is what each plugin would change in UX1 Studio.', 'ux-studio' ) }
 			</StepHead>
 
 			<p className="uxs-wiz-banner">
 				<Camera size={ 16 } aria-hidden />
-				{ __( 'When you start the migration, a snapshot of the current UX Studio settings is saved first. You can restore it for 30 days.', 'ux-studio' ) }
+				{ __( 'When you start the migration, a snapshot of the current UX1 Studio settings is saved first. You can restore it for 30 days.', 'ux-studio' ) }
 			</p>
 
 			<ErrorLine text={ ctx.dryError } />
@@ -510,7 +510,7 @@ function VerifyStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 	return (
 		<section className="uxs-wiz-panel">
 			<StepHead icon={ <ShieldCheck size={ 26 } aria-hidden /> } title={ __( 'Verify the result', 'ux-studio' ) }>
-				{ __( 'The old plugin settings are compared with what is now stored in UX Studio.', 'ux-studio' ) }
+				{ __( 'The old plugin settings are compared with what is now stored in UX1 Studio.', 'ux-studio' ) }
 			</StepHead>
 			<ErrorLine text={ ctx.verifyError } />
 			{ ctx.verifyBusy && ! verify && <p className="uxs-wiz-muted">{ __( 'Comparing…', 'ux-studio' ) }</p> }
@@ -591,7 +591,7 @@ function VerifyStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 						setConfirm( false );
 					} }
 				>
-					<p>{ __( 'The UX Studio settings go back exactly to how they were before the migration, and everything the migration created (rules, snippets, folders, menu fields) is removed. The old plugins are not touched.', 'ux-studio' ) }</p>
+					<p>{ __( 'The UX1 Studio settings go back exactly to how they were before the migration, and everything the migration created (rules, snippets, folders, menu fields) is removed. The old plugins are not touched.', 'ux-studio' ) }</p>
 				</UndoMigrationModal>
 			) }
 		</section>
@@ -612,7 +612,7 @@ function DoneStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 					<Undo2 size={ 30 } aria-hidden />
 				</span>
 				<h2>{ __( 'The migration was undone', 'ux-studio' ) }</h2>
-				<p>{ __( 'UX Studio is back to how it was before. The old plugins were never changed.', 'ux-studio' ) }</p>
+				<p>{ __( 'UX1 Studio is back to how it was before. The old plugins were never changed.', 'ux-studio' ) }</p>
 				<div className="uxs-wiz-actions is-center">
 					<button type="button" className="button" onClick={ ctx.restart }>
 						{ __( 'Start over', 'ux-studio' ) }
@@ -640,7 +640,7 @@ function DoneStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 			<p>
 				{ sprintf(
 					/* translators: 1: number of plugins, 2: number of settings written. */
-					__( '%1$d plugin(s) processed, %2$d item(s) written to UX Studio.', 'ux-studio' ),
+					__( '%1$d plugin(s) processed, %2$d item(s) written to UX1 Studio.', 'ux-studio' ),
 					rows.length,
 					written
 				) }

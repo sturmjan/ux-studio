@@ -1,6 +1,6 @@
 <?php
 /**
- * AI Panel — runtime helpers (UX Studio module: ai-panel).
+ * AI Panel — runtime helpers (UX1 Studio module: ai-panel).
  *
  * Originally a standalone plugin, later the "Claude Panel" UX1 module. Now
  * loaded by UxStudio\Modules\AiPanel\Module; lifecycle (activate/deactivate,
@@ -76,7 +76,7 @@ final class Claude_Panel_Bootstrap {
     }
 
     public static function client_ip() {
-        // UX Studio: shared resolver (proxy headers only from Cloudflare /
+        // UX1 Studio: shared resolver (proxy headers only from Cloudflare /
         // configured trusted proxies) instead of the raw REMOTE_ADDR.
         $ip = \UxStudio\Core\ClientIp::get('auto');
         return $ip !== '' ? $ip : '?';
@@ -124,7 +124,7 @@ final class Claude_Panel_Bootstrap {
     }
 
     /**
-     * UX Studio: proxy ranges whose forwarding headers rescue.php may trust
+     * UX1 Studio: proxy ranges whose forwarding headers rescue.php may trust
      * (it runs outside WordPress, so it gets them via config.php). Same set
      * Core\ClientIp uses: Cloudflare edges + configured trusted proxies.
      */
@@ -452,7 +452,7 @@ final class Claude_Panel_Bootstrap {
             'require_https' => (bool) $require_https,
             'label'         => get_bloginfo('name'),
             'created'       => time(),
-            // UX Studio: rescue.php itself refuses (and deletes itself) after
+            // UX1 Studio: rescue.php itself refuses (and deletes itself) after
             // this moment, even if WP-Cron / the plugin never cleans it up.
             'expires_at'    => (int) $expires_at,
             'proxies'       => self::rescue_trusted_proxies(),
@@ -494,7 +494,7 @@ final class Claude_Panel_Bootstrap {
         if ($dir && is_dir($dir) && strpos($dir, 'claude-panel-rescue') !== false) {
             self::rrmdir_safe($dir);
         }
-        // UX Studio: also the default location, in case the option was lost.
+        // UX1 Studio: also the default location, in case the option was lost.
         $up = wp_upload_dir(null, false);
         $default_dir = empty($up['basedir']) ? '' : trailingslashit($up['basedir']) . 'claude-panel-rescue';
         if ($default_dir !== '' && is_dir($default_dir)) {

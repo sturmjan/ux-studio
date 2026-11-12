@@ -61,7 +61,7 @@ final class ElementorWidget extends \Elementor\Widget_Base {
 	}
 
 	public function get_keywords(): array {
-		return array( 'form', 'forms', 'contact', 'ux studio' );
+		return array( 'form', 'forms', 'contact', 'ux studio', 'ux1 studio' );
 	}
 
 	protected function is_dynamic_content(): bool {
@@ -96,7 +96,7 @@ final class ElementorWidget extends \Elementor\Widget_Base {
 			'no_form_notice',
 			array(
 				'type'            => \Elementor\Controls_Manager::RAW_HTML,
-				'raw'             => __( 'Build and publish the form in the UX Studio → Form Builder screen first, then pick it here.', 'ux-studio' ),
+				'raw'             => __( 'Build and publish the form in the UX1 Studio → Form Builder screen first, then pick it here.', 'ux-studio' ),
 				'content_classes' => 'elementor-panel-alert elementor-panel-alert-info',
 			)
 		);

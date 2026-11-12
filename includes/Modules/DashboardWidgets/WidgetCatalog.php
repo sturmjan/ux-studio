@@ -1,6 +1,6 @@
 <?php
 /**
- * Dashboard widgets: the list of the widgets UX Studio itself provides (its own and those of other modules), with the
+ * Dashboard widgets: the list of the widgets UX1 Studio itself provides (its own and those of other modules), with the
  * switch that turns each one on, and the classification of every row of the unified table. Pure functions apart from
  * the translations, no WordPress needed.
  *
@@ -13,11 +13,11 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * One row of the table = one dashboard widget, whoever provides it. The rows come from three places: the snapshot of
- * what the dashboard registers (WordPress, plugins, UX Studio), this catalog (UX Studio widgets, so that a widget
+ * what the dashboard registers (WordPress, plugins, UX1 Studio), this catalog (UX1 Studio widgets, so that a widget
  * that is switched off is still listed and can be switched on) and the stored rules (a rule of an unknown widget).
  *
  * Types: wordpress | plugin (also themes and must-use code: a third party) | own (a widget of this module) |
- * module (a widget of another UX Studio module).
+ * module (a widget of another UX1 Studio module).
  */
 final class WidgetCatalog {
 
@@ -33,7 +33,7 @@ final class WidgetCatalog {
 	public const NEW_INSTALL_HIDDEN_WHEN_SEEN = array( 'wpseo-wincher-dashboard-overview', 'wpseo-dashboard-overview' );
 
 	/**
-	 * Every widget of UX Studio with a switch or an owner. `key` is the setting that turns it on ('' = it follows its module),
+	 * Every widget of UX1 Studio with a switch or an owner. `key` is the setting that turns it on ('' = it follows its module),
 	 * `new_install` the value a new installation starts with, `needs` a condition the site must meet (woocommerce |
 	 * elementor_pro) and `config` a hint that the widget needs keys (ga | pagespeed).
 	 *
@@ -257,7 +257,7 @@ final class WidgetCatalog {
 					break;
 				case 'uxstudio':
 					$row['type']      = self::TYPE_MODULE;
-					$row['type_name'] = 'UX Studio';
+					$row['type_name'] = 'UX1 Studio';
 					break;
 				case 'theme':
 				case 'plugin':

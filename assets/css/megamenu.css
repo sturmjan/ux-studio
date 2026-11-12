@@ -1,5 +1,5 @@
 /**
- * UX Studio megamenu overlay - standalone stylesheet (loaded on every admin
+ * UX1 Studio megamenu overlay - standalone stylesheet (loaded on every admin
  * page, not part of the SPA build). Tokens duplicated from src/style.scss's
  * #ux-studio-root block, since this element lives outside that scope on
  * pages other than the SPA itself. Keep both in sync if the palette changes.
@@ -206,7 +206,7 @@ body.auto-fold .uxstudio-megamenu__panel {
 /* Card grid */
 .uxstudio-megamenu__grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+	grid-template-columns: repeat(4, minmax(0, 1fr));
 	gap: var(--uxs-sp-3);
 }
 

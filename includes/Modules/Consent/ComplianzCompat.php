@@ -69,7 +69,7 @@ final class ComplianzCompat {
 		}
 		$doc = ComplianzMap::doc_for( $type, $region );
 		if ( null === $doc ) {
-			return '<!-- ' . esc_html( 'Complianz document "' . $type . '" is not produced by UX Studio.' ) . ' -->';
+			return '<!-- ' . esc_html( 'Complianz document "' . $type . '" is not produced by UX1 Studio.' ) . ' -->';
 		}
 		return Legal::shortcode( array( 'doc' => $doc ) );
 	}

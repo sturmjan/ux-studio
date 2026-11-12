@@ -218,7 +218,7 @@ final class AdminifySource extends AbstractAdminSource {
 		if ( $this->truthy( $o['hide_notices'] ?? '' ) ) {
 			$m->set( self::MODULE, 'hide_notices_enabled', true, __( 'Hide admin notices', 'ux-studio' ), $origin . ':hide_notices' );
 			if ( $this->truthy( $o['hide_notices_non_admin'] ?? '' ) ) {
-				$lossy[] = __( 'Hide notices only for users who are not administrators (UX Studio hides or tucks away notices for everybody).', 'ux-studio' );
+				$lossy[] = __( 'Hide notices only for users who are not administrators (UX1 Studio hides or tucks away notices for everybody).', 'ux-studio' );
 			}
 		}
 		if ( array_key_exists( 'admin_bar_search', $o ) ) {
@@ -247,7 +247,7 @@ final class AdminifySource extends AbstractAdminSource {
 			$other[] = __( 'custom list columns (set them up again in Admin Columns)', 'ux-studio' );
 		}
 		if ( ! empty( $o['redirect_urls_fields'] ) || ! empty( $o['security_head'] ) || ! empty( $o['heartbeat_api'] ) || ! empty( $o['performance'] ) ) {
-			$other[] = __( 'security, performance and redirect settings (UX Studio has its own modules for them, they are not read here)', 'ux-studio' );
+			$other[] = __( 'security, performance and redirect settings (UX1 Studio has its own modules for them, they are not read here)', 'ux-studio' );
 		}
 		if ( $other ) {
 			$lossy[] = sprintf(

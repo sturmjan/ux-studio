@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  *
  *  - Dashboard widget, top of the main column, red (critical) or yellow (warning), impossible to hide (same
  *    pattern as CspDashboardWidget).
- *  - Admin notice on every admin screen, also on the UX Studio page. While critical it has no close button; the
+ *  - Admin notice on every admin screen, also on the UX1 Studio page. While critical it has no close button; the
  *    only way to silence it is "verified with hosting, hide for 30 days", which is stored together with the PHP
  *    version, so a new version shows it again. The warning level (end of support soon) can also be hidden per user.
  *  - Admin bar node (front end and admin) for administrators, red or yellow, hidden while snoozed.

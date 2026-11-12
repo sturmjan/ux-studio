@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * No rendering, no globals of the admin menu: only the Menu Organizer config array and the role
- * lists, so the migration can compare what a foreign plugin shows to a role with what UX Studio
+ * lists, so the migration can compare what a foreign plugin shows to a role with what UX1 Studio
  * will show (PLAN.md 26.11), and refuse to hide the screens an administrator needs to undo a mistake.
  *
  * Rules copied from `MenuOrganizer::reorganize_admin_menu()`:
@@ -36,7 +36,7 @@ final class MenuSimulator {
 	 */
 	public static function protected_screens(): array {
 		return array(
-			'ux-studio'        => __( 'UX Studio', 'ux-studio' ),
+			'ux-studio'        => __( 'UX1 Studio', 'ux-studio' ),
 			'plugins.php'      => __( 'Plugins', 'ux-studio' ),
 			'users.php'        => __( 'Users', 'ux-studio' ),
 			'options-general.php' => __( 'Settings', 'ux-studio' ),
@@ -619,7 +619,7 @@ final class MenuSimulator {
 	}
 
 	/**
-	 * The lockout rule. A rule that would hide UX Studio, Plugins, Users or Settings from the
+	 * The lockout rule. A rule that would hide UX1 Studio, Plugins, Users or Settings from the
 	 * administrator role or from the current user is dropped from the config. B1: the same for rules
 	 * of single users, required capabilities and hidden sub-items that ARE one of those screens.
 	 *
@@ -717,7 +717,7 @@ final class MenuSimulator {
 	 * Hidden-before / hidden-after lists for the per-role table in the wizard.
 	 *
 	 * @param array<string, string[]> $before Role => keys the old plugin shows.
-	 * @param array<string, string[]> $after  Role => keys UX Studio will show.
+	 * @param array<string, string[]> $after  Role => keys UX1 Studio will show.
 	 * @return array<int, array{role:string,hidden_before:string[],hidden_after:string[]}>
 	 */
 	public static function role_table( array $before, array $after, array $universe ): array {

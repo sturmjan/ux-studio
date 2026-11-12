@@ -1,6 +1,6 @@
 /**
  * MCP tab of the AI Assistant. The MCP server itself (switch, tokens, client setup) moved to the
- * UX Studio core and works without this module: Settings -> MCP server. This tab only points
+ * UX1 Studio core and works without this module: Settings -> MCP server. This tab only points
  * there; the tools of this module (posts, pages, media, shop, SEO) show up on that screen
  * whenever the module is on.
  *
@@ -27,7 +27,7 @@ export function McpTab(): JSX.Element {
 			<h2>{ __( 'MCP Server', 'ux-studio' ) }</h2>
 			<p>
 				{ __(
-					'The MCP server is now part of UX Studio itself and no longer depends on this module. Switch it on, create access tokens with their own permissions and copy the client configuration in Settings. The content tools of this module (posts, pages, media, shop, SEO) are offered to MCP clients while the module is enabled.',
+					'The MCP server is now part of UX1 Studio itself and no longer depends on this module. Switch it on, create access tokens with their own permissions and copy the client configuration in Settings. The content tools of this module (posts, pages, media, shop, SEO) are offered to MCP clients while the module is enabled.',
 					'ux-studio'
 				) }
 			</p>

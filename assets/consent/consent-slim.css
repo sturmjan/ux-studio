@@ -1,4 +1,4 @@
-/* UX Studio Cookie Consent, template "slim": one thin bar across the bottom of the browser. Loaded after consent.css. */
+/* UX1 Studio Cookie Consent, template "slim": one thin bar across the bottom of the browser. Loaded after consent.css. */
 .uxc.uxc-t-slim:not(.is-detail) .uxc-dlg {
 	left: 0; right: 0; bottom: 0; width: auto; max-width: none;
 	padding: 8px 16px; border-radius: 0;

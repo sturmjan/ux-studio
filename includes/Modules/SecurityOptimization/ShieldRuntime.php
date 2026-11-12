@@ -1,6 +1,6 @@
 <?php
 /**
- * Shield of UX Studio on a WordPress site: secret, one-time storage, challenge route, widget and the request check.
+ * Shield of UX1 Studio on a WordPress site: secret, one-time storage, challenge route, widget and the request check.
  *
  * @package UxStudio
  */

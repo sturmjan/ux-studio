@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * HARMLESS (written directly, also when the module is on): folders only organise content in the administration.
  * Idempotent: a folder with the same name under the same parent and post type is reused (its colour and order stay as
- * they are), an item already in a UX Studio folder stays where it is. The post types that got folders are added to the
+ * they are), an item already in a UX1 Studio folder stays where it is. The post types that got folders are added to the
  * post types the module offers folders for.
  *
  * Reading (media AND posts, pages, custom post types where the plugin has them; the module keeps one tree per post type):
@@ -427,7 +427,7 @@ final class FolderSource extends AbstractSource {
 			);
 		}
 		$m->lossy( __( 'Folder icons and the other flags of the plugin (sticky, locked or high priority folders) are not transferred.', 'ux-studio' ) );
-		$m->note( __( 'Files are not moved on disk, only the folder structure and which file is in which folder are copied. A file that is already in a UX Studio folder stays there.', 'ux-studio' ) );
+		$m->note( __( 'Files are not moved on disk, only the folder structure and which file is in which folder are copied. A file that is already in a UX1 Studio folder stays there.', 'ux-studio' ) );
 		return $m;
 	}
 
@@ -474,7 +474,7 @@ final class FolderSource extends AbstractSource {
 	}
 
 	/**
-	 * UX Studio term id for a foreign folder id (created earlier, in this or a previous batch).
+	 * UX1 Studio term id for a foreign folder id (created earlier, in this or a previous batch).
 	 *
 	 * @param string $folder_id Foreign folder id.
 	 */
@@ -488,7 +488,7 @@ final class FolderSource extends AbstractSource {
 	}
 
 	/**
-	 * The existing UX Studio folder with this name under a parent for a post type, or 0.
+	 * The existing UX1 Studio folder with this name under a parent for a post type, or 0.
 	 *
 	 * @param string $name      Folder name.
 	 * @param int    $parent    Parent term id.
@@ -517,7 +517,7 @@ final class FolderSource extends AbstractSource {
 	}
 
 	/**
-	 * Items among `$ids` that are already in some UX Studio folder.
+	 * Items among `$ids` that are already in some UX1 Studio folder.
 	 *
 	 * @param int[] $ids Post ids.
 	 * @return int[]
@@ -612,7 +612,7 @@ final class FolderSource extends AbstractSource {
 		if ( 0 === $term ) {
 			return array(
 				'ok'     => false,
-				'detail' => __( 'The folder is not in UX Studio.', 'ux-studio' ),
+				'detail' => __( 'The folder is not in UX1 Studio.', 'ux-studio' ),
 			);
 		}
 		$ids      = $this->items_of_type( $item );
@@ -623,7 +623,7 @@ final class FolderSource extends AbstractSource {
 				'ok'     => false,
 				'detail' => sprintf(
 					/* translators: %d: number of files. */
-					__( '%d items are not in any UX Studio folder.', 'ux-studio' ),
+					__( '%d items are not in any UX1 Studio folder.', 'ux-studio' ),
 					$missing
 				),
 			);

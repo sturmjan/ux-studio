@@ -2,7 +2,7 @@
 // Test only: never runs over HTTP (the release zip also excludes tests/).
 if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
- * Standalone test of the unified dashboard widget table (PLAN.md 20.12): the catalog of the widgets of UX Studio, the
+ * Standalone test of the unified dashboard widget table (PLAN.md 20.12): the catalog of the widgets of UX1 Studio, the
  * starting state of a new installation, the default-hidden widgets that appear later, the classification of every row
  * (type, owner, switch, state) and the switches the REST layer accepts.
  *
@@ -111,9 +111,9 @@ $assert( 'WooCommerce widget with WooCommerce is on', 'on' === $r['state'] );
 $r = C::decorate( $base( 'uxstudio_csp_widget' ), $values, array( 'security-optimization' => 'Security' ) + $names, $env );
 $assert( 'module widget without a switch follows its module', null === $r['toggle'] && 'on' === $r['state'] && C::TYPE_MODULE === $r['type'] );
 $r = C::decorate( $base( 'uxstudio_something_new', 'uxstudio' ), $values, $names, $env );
-$assert( 'unknown widget of UX Studio is a module widget', C::TYPE_MODULE === $r['type'] && 'UX Studio' === $r['type_name'] );
+$assert( 'unknown widget of UX1 Studio is a module widget', C::TYPE_MODULE === $r['type'] && 'UX1 Studio' === $r['type_name'] );
 $r = C::decorate( array( 'id' => 'uxstudio_notes', 'title' => 'uxstudio_notes', 'source' => 'unknown', 'source_name' => '', 'stale' => true ), $values, $names, $env );
-$assert( 'catalog title replaces a bare id, source becomes UX Studio', 'Notes' === $r['title'] && 'uxstudio' === $r['source'] );
+$assert( 'catalog title replaces a bare id, source becomes UX1 Studio', 'Notes' === $r['title'] && 'uxstudio' === $r['source'] );
 
 echo PHP_EOL . ( $failures ? "$failures FAILED" : 'ALL PASSED' ) . PHP_EOL;
 exit( $failures ? 1 : 0 );

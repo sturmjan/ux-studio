@@ -1,6 +1,6 @@
 <?php
 /**
- * What a source wants to write into UX Studio, plus its honest commentary.
+ * What a source wants to write into UX1 Studio, plus its honest commentary.
  *
  * @package UxStudio
  */

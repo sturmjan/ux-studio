@@ -1,5 +1,5 @@
 /**
- * UX Studio - Push Notifications: visitor opt-in.
+ * UX1 Studio - Push Notifications: visitor opt-in.
  *
  * Registers the push service worker, shows the opt-in prompt (configurable
  * delay / scroll trigger / position / texts / colours) and subscribes the
@@ -45,7 +45,7 @@
 			} )
 			.catch( function ( err ) {
 				if ( window.console ) {
-					window.console.warn( 'UX Studio Push: service worker registration failed', err );
+					window.console.warn( 'UX1 Studio Push: service worker registration failed', err );
 				}
 			} );
 	}
@@ -196,7 +196,7 @@
 			} )
 			.catch( function ( err ) {
 				if ( window.console ) {
-					window.console.warn( 'UX Studio Push: subscribe failed', err );
+					window.console.warn( 'UX1 Studio Push: subscribe failed', err );
 				}
 			} );
 	}

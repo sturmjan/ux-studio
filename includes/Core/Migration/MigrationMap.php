@@ -1,6 +1,6 @@
 <?php
 /**
- * Mapping table `uxstudio_migration_map`: what in the source ended up where in UX Studio.
+ * Mapping table `uxstudio_migration_map`: what in the source ended up where in UX1 Studio.
  *
  * @package UxStudio
  */
@@ -64,7 +64,7 @@ final class MigrationMap {
 	 * @param string $source_plugin Plugin slug.
 	 * @param string $source_key    Identifier of the source object.
 	 * @param string $target_type   `setting`, later `redirect`, `snippet`, ...
-	 * @param string $target_id     Identifier in UX Studio.
+	 * @param string $target_id     Identifier in UX1 Studio.
 	 * @param string $run_id        Run that wrote it.
 	 */
 	public static function put( string $source_plugin, string $source_key, string $target_type, string $target_id, string $run_id ): void {

@@ -1,6 +1,6 @@
 <?php
 /**
- * English privacy policy template (syntax: LegalTemplate). Written for UX Studio, not a copy of any other generator.
+ * English privacy policy template (syntax: LegalTemplate). Written for UX1 Studio, not a copy of any other generator.
  * Structure follows Articles 13 and 14 GDPR.
  *
  * @package UxStudio

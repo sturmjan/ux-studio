@@ -879,7 +879,7 @@ $site( array( 'nav-menu-roles' ), array( 'nav-menu-roles' ) );
 $sql( '/SELECT DISTINCT m\.post_id FROM wp_postmeta m JOIN wp_posts p ON p\.ID = m\.post_id WHERE m\.meta_key = \'_nav_menu_role\'/', static fn() => array( 41, 42 ) );
 foreach ( array( 41, 42 ) as $pid ) { $post( $pid, 'nav_menu_item', 'publish', "Menu $pid" ); }
 $meta( 'post', 41, '_nav_menu_role', 'in' ); $meta( 'post', 42, '_nav_menu_role', 'out' );
-$meta( 'post', 42, '_uxstudio_menu_item_visible', '1' ); // UX Studio already has a different value here.
+$meta( 'post', 42, '_uxstudio_menu_item_visible', '1' ); // UX1 Studio already has a different value here.
 $run = Runner::start( array( 'nav-menu-roles' ), false );
 $r1  = $drive();
 $assert( 'menu visibility (module off): written where free, an existing different value is kept (skipped, reported)', '1' === get_post_meta( 41, '_uxstudio_menu_item_visible', true ) && '1' === get_post_meta( 42, '_uxstudio_menu_item_visible', true ) && 1 === $r1['per_source']['nav-menu-roles']['written'] && false !== strpos( json_encode( $r1['per_source']['nav-menu-roles']['items'] ), 'different value' ), json_encode( $r1['per_source']['nav-menu-roles']['items'] ) );

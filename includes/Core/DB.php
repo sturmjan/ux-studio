@@ -234,7 +234,7 @@ final class DB {
 			}
 		}
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-		error_log( sprintf( 'UX Studio: database upgrade of module %s (%d -> %d) failed, will retry: %s', $module_id, $from, $version, $error ) );
+		error_log( sprintf( 'UX1 Studio: database upgrade of module %s (%d -> %d) failed, will retry: %s', $module_id, $from, $version, $error ) );
 		ActivityLog::log(
 			'core',
 			'db_migration_failed',

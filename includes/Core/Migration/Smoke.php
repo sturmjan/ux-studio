@@ -664,7 +664,7 @@ final class Smoke {
 	}
 
 	/**
-	 * The administrator who runs the migration can still open Plugins, Users, Settings and UX Studio
+	 * The administrator who runs the migration can still open Plugins, Users, Settings and UX1 Studio
 	 * (the lockout guard of the Admin Customiser sources). Preview: the screens are fetched with the admin's
 	 * cookies and the preview header; a screen that is refused there but opened on the current site is a failure.
 	 *

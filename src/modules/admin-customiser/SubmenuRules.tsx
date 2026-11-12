@@ -297,7 +297,7 @@ export function SubmenuRules( {
 			<h3>{ __( 'Sub-items and advanced rules', 'ux-studio' ) }</h3>
 			<p className="uxs-form__help">
 				{ __(
-					'Open an item to rename, hide, move or re-order its sub-items, to require a capability, or to show or hide an item for single users (by login). Rules of users and capabilities apply on top of the role limits above. Users who can manage options always keep UX Studio, Plugins, Users and Settings. With "Block access to hidden pages" on, hidden sub-items are refused by address too.',
+					'Open an item to rename, hide, move or re-order its sub-items, to require a capability, or to show or hide an item for single users (by login). Rules of users and capabilities apply on top of the role limits above. Users who can manage options always keep UX1 Studio, Plugins, Users and Settings. With "Block access to hidden pages" on, hidden sub-items are refused by address too.',
 					'ux-studio'
 				) }
 			</p>

@@ -122,7 +122,7 @@ final class Tester {
 				'redirection'         => 0,
 				'timeout'             => 10,
 				'limit_response_size' => 4096,
-				'user-agent'          => 'UX Studio Redirect Checker',
+				'user-agent'          => 'UX1 Studio Redirect Checker',
 			);
 			if ( Url::is_internal( $url ) ) {
 				// Same loopback rule WP core uses (local dev often has self-signed certs).

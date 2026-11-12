@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
  *    the free plugin has no settings that map.
  *
  * HARMLESS: a log is only written to and read by the admin, so it is copied directly also when the module is on.
- * Idempotent: a mail that is already in the UX Studio log (same time, recipient and subject) is not copied again.
+ * Idempotent: a mail that is already in the UX1 Studio log (same time, recipient and subject) is not copied again.
  * Mails older than the retention period are not copied (the module would delete them at once).
  */
 final class EmailLogSource extends AbstractSource {
@@ -235,7 +235,7 @@ final class EmailLogSource extends AbstractSource {
 	}
 
 	/**
-	 * Id of the UX Studio log row for the same mail, or 0.
+	 * Id of the UX1 Studio log row for the same mail, or 0.
 	 *
 	 * @param array<string, mixed> $item Item.
 	 */
@@ -304,7 +304,7 @@ final class EmailLogSource extends AbstractSource {
 		}
 		return array(
 			'ok'     => false,
-			'detail' => __( 'The e-mail is not in the UX Studio log.', 'ux-studio' ),
+			'detail' => __( 'The e-mail is not in the UX1 Studio log.', 'ux-studio' ),
 		);
 	}
 }

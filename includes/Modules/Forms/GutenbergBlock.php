@@ -41,7 +41,7 @@ final class GutenbergBlock {
 			array(
 				'api_version'     => 2,
 				'title'           => __( 'UX Form', 'ux-studio' ),
-				'description'     => __( 'Embed a form built with the UX Studio Form Builder.', 'ux-studio' ),
+				'description'     => __( 'Embed a form built with the UX1 Studio Form Builder.', 'ux-studio' ),
 				'category'        => 'widgets',
 				'icon'            => 'feedback',
 				'attributes'      => array(
@@ -111,7 +111,7 @@ final class GutenbergBlock {
 	wp.blocks.registerBlockType( 'uxstudio/form', {
 		apiVersion: 2,
 		title: __( 'UX Form', 'ux-studio' ),
-		description: __( 'Embed a form built with the UX Studio Form Builder.', 'ux-studio' ),
+		description: __( 'Embed a form built with the UX1 Studio Form Builder.', 'ux-studio' ),
 		category: 'widgets',
 		icon: 'feedback',
 		attributes: {

@@ -43,7 +43,7 @@ abstract class RestEndpointTool {
 			// its argument list the schema could not refuse unknown input, so there is no tool.
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- debug only.
-				error_log( sprintf( 'UX Studio MCP: tool %s not registered, route %s %s not found.', $config->operation_id, $config->method, '/' . $config->namespace . $config->route ) );
+				error_log( sprintf( 'UX1 Studio MCP: tool %s not registered, route %s %s not found.', $config->operation_id, $config->method, '/' . $config->namespace . $config->route ) );
 			}
 			return;
 		}
@@ -225,7 +225,7 @@ abstract class RestEndpointTool {
 
 	/**
 	 * Protected (`_`-prefixed) post meta a token without `admin` may still write in a wp/v2 `meta`
-	 * object: plain-text SEO fields (Yoast, UX Studio SEO panel). Their values must be strings and
+	 * object: plain-text SEO fields (Yoast, UX1 Studio SEO panel). Their values must be strings and
 	 * go through sanitize_text_field(), so no markup reaches them either.
 	 *
 	 * @var string[]

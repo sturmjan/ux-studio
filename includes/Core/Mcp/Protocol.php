@@ -111,11 +111,11 @@ final class Protocol {
 				'prompts'   => array( 'listChanged' => false ),
 			),
 			'serverInfo'      => array(
-				'name'    => 'UX Studio',
-				'title'   => 'UX Studio for WordPress',
+				'name'    => 'UX1 Studio',
+				'title'   => 'UX1 Studio for WordPress',
 				'version' => defined( 'UXSTUDIO_VERSION' ) ? UXSTUDIO_VERSION : '0',
 			),
-			'instructions'    => 'UX Studio manages modules, settings and migrations from other plugins on this WordPress site. Start with uxstudio-site-overview. Tools you can call depend on the scopes of your token. Destructive tools and the migration switch need confirm=true, which you set only after the user agreed; the prompt migrate-from-plugins describes the whole migration flow. Secrets are never returned.',
+			'instructions'    => 'UX1 Studio manages modules, settings and migrations from other plugins on this WordPress site. Start with uxstudio-site-overview. Tools you can call depend on the scopes of your token. Destructive tools and the migration switch need confirm=true, which you set only after the user agreed; the prompt migrate-from-plugins describes the whole migration flow. Secrets are never returned.',
 		);
 	}
 
@@ -199,7 +199,7 @@ final class Protocol {
 			array(
 				'uri'         => 'uxstudio://modules',
 				'name'        => 'modules',
-				'title'       => 'UX Studio modules',
+				'title'       => 'UX1 Studio modules',
 				'description' => 'All modules with their enabled state.',
 				'mimeType'    => 'application/json',
 			),

@@ -1,7 +1,7 @@
 <?php
 /**
  * Quick Search: an admin-bar search field with cross-content fuzzy search
- * (posts, terms, users, media, UX Studio settings, plus a few third-party
+ * (posts, terms, users, media, UX1 Studio settings, plus a few third-party
  * plugin integrations). This class only renders the admin-bar input and
  * enqueues the frontend widget; the actual search runs behind the REST
  * endpoint in MiscRestController, backed by QuickSearch\Integrations and

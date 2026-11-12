@@ -138,7 +138,7 @@ foreach ( $cases as $case ) {
 
 /* ── Protected screens and exempt files: never blocked, even when a rule says so ── */
 foreach ( array( 'editor', 'shop_manager', 'subscriber' ) as $role ) {
-	$assert( "protected: UX Studio opens for $role (item_roles would hide it)", ! $blocked( $role, 'admin.php', array( 'page' => 'ux-studio' ) ) );
+	$assert( "protected: UX1 Studio opens for $role (item_roles would hide it)", ! $blocked( $role, 'admin.php', array( 'page' => 'ux-studio' ) ) );
 	$assert( "protected: Plugins opens for $role", ! $blocked( $role, 'plugins.php' ) );
 	$assert( "protected: Users opens for $role", ! $blocked( $role, 'users.php' ) );
 	$assert( "protected: Settings opens for $role", ! $blocked( $role, 'options-general.php' ) );

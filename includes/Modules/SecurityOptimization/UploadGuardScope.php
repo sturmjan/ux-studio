@@ -184,7 +184,7 @@ final class UploadGuardScope {
 
 		foreach ( self::dirs()['own'] as $dir ) {
 			if ( self::is_under( $path, $dir ) ) {
-				return __( 'The file belongs to UX Studio itself.', 'ux-studio' );
+				return __( 'The file belongs to UX1 Studio itself.', 'ux-studio' );
 			}
 		}
 

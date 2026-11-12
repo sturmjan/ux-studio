@@ -135,7 +135,7 @@ final class Store {
 		return $out;
 	}
 
-	/** Current time in the site zone, the way the other UX Studio tables store it. */
+	/** Current time in the site zone, the way the other UX1 Studio tables store it. */
 	private static function now(): string {
 		return current_time( 'mysql' );
 	}

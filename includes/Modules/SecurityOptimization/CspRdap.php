@@ -48,7 +48,7 @@ final class CspRdap {
 				'timeout'     => 6,
 				'redirection' => 3,
 				'headers'     => array( 'Accept' => 'application/rdap+json, application/json' ),
-				'user-agent'  => 'UX Studio CSP (WordPress)',
+				'user-agent'  => 'UX1 Studio CSP (WordPress)',
 			)
 		);
 		if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {

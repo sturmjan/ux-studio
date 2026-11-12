@@ -232,7 +232,7 @@ function nameList( names: string[] ): string {
 	return names.length > 3 ? `${ names.slice( 0, 3 ).join( ', ' ) } ${ sprintf( /* translators: %d: how many more. */ __( '+ %d more', 'ux-studio' ), names.length - 3 ) }` : names.join( ', ' );
 }
 
-/** Per role: menu items hidden before (old plugin) and after (UX Studio), compact: roles with nothing hidden share one line. */
+/** Per role: menu items hidden before (old plugin) and after (UX1 Studio), compact: roles with nothing hidden share one line. */
 export function MenuRoleTable( { rows }: { rows: MenuRoleRow[] } ): JSX.Element {
 	const shown = rows.filter( ( row ) => row.before.length > 0 || row.after.length > 0 );
 	const quiet = rows.filter( ( row ) => 0 === row.before.length && 0 === row.after.length );
@@ -336,7 +336,7 @@ export function ChangeTable( { items }: { items: PlanItem[] } ): JSX.Element {
 				<thead>
 					<tr>
 						<th>{ __( 'Setting', 'ux-studio' ) }</th>
-						<th>{ __( 'Now in UX Studio', 'ux-studio' ) }</th>
+						<th>{ __( 'Now in UX1 Studio', 'ux-studio' ) }</th>
 						<th>{ __( 'After migration', 'ux-studio' ) }</th>
 					</tr>
 				</thead>
@@ -344,7 +344,7 @@ export function ChangeTable( { items }: { items: PlanItem[] } ): JSX.Element {
 					{ items.map( ( item ) => (
 						<tr key={ item.target } className={ item.changed ? 'is-changed' : 'is-same' }>
 							<td className="uxs-wiz-changes__label">{ item.label }</td>
-							<td data-col={ __( 'Now in UX Studio', 'ux-studio' ) }>
+							<td data-col={ __( 'Now in UX1 Studio', 'ux-studio' ) }>
 								<ValueCell text={ item.from } rows={ item.from_detail } />
 							</td>
 							<td data-col={ __( 'After migration', 'ux-studio' ) }>

@@ -693,8 +693,8 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 				sprintf(
 					/* translators: %d: number of snippets. */
 					_n(
-						'%d snippet is used through a shortcode. In UX Studio it is inserted as [uxstudio_snippet id="..."] (the exact shortcode is shown in the snippet list). Shortcodes already written in posts and pages are NOT rewritten, replace them by hand.',
-						'%d snippets are used through a shortcode. In UX Studio they are inserted as [uxstudio_snippet id="..."] (the exact shortcode is shown in the snippet list). Shortcodes already written in posts and pages are NOT rewritten, replace them by hand.',
+						'%d snippet is used through a shortcode. In UX1 Studio it is inserted as [uxstudio_snippet id="..."] (the exact shortcode is shown in the snippet list). Shortcodes already written in posts and pages are NOT rewritten, replace them by hand.',
+						'%d snippets are used through a shortcode. In UX1 Studio they are inserted as [uxstudio_snippet id="..."] (the exact shortcode is shown in the snippet list). Shortcodes already written in posts and pages are NOT rewritten, replace them by hand.',
 						$shortcodes,
 						'ux-studio'
 					),
@@ -808,7 +808,7 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 	}
 
 	/**
-	 * The snippet with this title, if UX Studio has one.
+	 * The snippet with this title, if UX1 Studio has one.
 	 *
 	 * @param string $name Title.
 	 */
@@ -841,7 +841,7 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 				? array( 'status' => 'unchanged' )
 				: array(
 					'status'  => 'skipped',
-					'message' => __( 'A snippet with this name already exists in UX Studio, it is kept.', 'ux-studio' ),
+					'message' => __( 'A snippet with this name already exists in UX1 Studio, it is kept.', 'ux-studio' ),
 				);
 		}
 		if ( '' === trim( (string) $item['code'] ) ) {
@@ -869,7 +869,7 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 				? array( 'status' => 'unchanged' )
 				: array(
 					'status'  => 'skipped',
-					'message' => __( 'A snippet with this name already exists in UX Studio, it is kept.', 'ux-studio' ),
+					'message' => __( 'A snippet with this name already exists in UX1 Studio, it is kept.', 'ux-studio' ),
 				);
 		}
 		$res = $this->manager()->createSnippet(
@@ -913,13 +913,13 @@ final class CodeSnippetsSource extends AbstractSource implements Activatable {
 		if ( ! $existing ) {
 			return array(
 				'ok'     => false,
-				'detail' => __( 'The snippet is not in UX Studio.', 'ux-studio' ),
+				'detail' => __( 'The snippet is not in UX1 Studio.', 'ux-studio' ),
 			);
 		}
 		if ( ! $this->same( $existing, $item ) ) {
 			return array(
 				'ok'     => false,
-				'detail' => __( 'UX Studio has a snippet with this name but different code.', 'ux-studio' ),
+				'detail' => __( 'UX1 Studio has a snippet with this name but different code.', 'ux-studio' ),
 			);
 		}
 		if ( $existing->hasIntegrityIssue() ) {

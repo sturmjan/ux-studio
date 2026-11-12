@@ -66,9 +66,9 @@ function esc( s ) {
 
 const header = `msgid ""
 msgstr ""
-"Project-Id-Version: UX Studio\\n"
+"Project-Id-Version: UX1 Studio\\n"
 "Report-Msgid-Bugs-To: \\n"
-"Last-Translator: UX Studio\\n"
+"Last-Translator: UX1 Studio\\n"
 "Language-Team: Czech\\n"
 "Language: cs_CZ\\n"
 "MIME-Version: 1.0\\n"

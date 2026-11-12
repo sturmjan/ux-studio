@@ -5,7 +5,7 @@ if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
  * Manual test of the consent module inside WordPress (PLAN.md 42, F2): the inventory run against the real site, the REST
  * routes and their permissions, the own-rule round trip, the banner config size and the public report.
  *
- * Loads the classes of THIS checkout (not the installed plugin), so run it with the installed UX Studio skipped:
+ * Loads the classes of THIS checkout (not the installed plugin), so run it with the installed UX1 Studio skipped:
  *
  *   php wp-cli.phar --path=<site> --skip-plugins=ux-studio,wp-mail-smtp eval-file tests/consent-wp.php </dev/null
  *

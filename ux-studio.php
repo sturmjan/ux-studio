@@ -1,9 +1,9 @@
 <?php
 /**
- * Plugin Name:       UX Studio
+ * Plugin Name:       UX1 Studio
  * Plugin URI:        https://github.com/sturmjan/ux-studio
  * Description:       Modular WordPress admin platform: one consistent SPA for all site tools.
- * Version:           0.16.2
+ * Version:           0.17.0
  * Requires at least: 6.5
  * Requires PHP:      8.1
  * Author:            UX One
@@ -18,7 +18,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'UXSTUDIO_VERSION', '0.16.2' );
+define( 'UXSTUDIO_VERSION', '0.17.0' );
 // Public Extension API version (contract for add-on plugins: `ux_studio/modules`
 // filter, BaseModule, REST namespace, window.uxStudio.registerPage). An add-on
 // declares a minimum version; on mismatch it is skipped safely.
@@ -58,14 +58,14 @@ register_deactivation_hook(
 	}
 );
 
-// Keep the legacy ux1 plugin deactivated and un-re-activatable now that UX Studio
-// owns this job. Registered unconditionally (even if UX Studio is dormant for one
+// Keep the legacy ux1 plugin deactivated and un-re-activatable now that UX1 Studio
+// owns this job. Registered unconditionally (even if UX1 Studio is dormant for one
 // request below) so the lock always applies.
 \UxStudio\Core\Ux1Lock::register();
 
 // Conflict guard: never run BOTH at once. If ux1 is still active this single
-// request, UX Studio stays dormant; Ux1Lock deactivates ux1 on admin_init, so
-// UX Studio takes over from the next request.
+// request, UX1 Studio stays dormant; Ux1Lock deactivates ux1 on admin_init, so
+// UX1 Studio takes over from the next request.
 if ( ! \UxStudio\Core\ConflictGuard::can_boot() ) {
 	return;
 }

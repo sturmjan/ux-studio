@@ -1,5 +1,5 @@
 /**
- * UX Studio Cookie Consent: the banner, the stored choice and the release of held-back scripts and iframes.
+ * UX1 Studio Cookie Consent: the banner, the stored choice and the release of held-back scripts and iframes.
  *
  * No dependencies, no jQuery. Reads the JSON block #uxc-config (printed by includes/Modules/Consent). Minified to
  * consent.min.js by `npm run build:widget`.

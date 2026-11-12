@@ -256,8 +256,8 @@ export function SwitchStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 
 	return (
 		<section className="uxs-wiz-panel">
-			<StepHead icon={ <ArrowLeftRight size={ 26 } aria-hidden /> } title={ __( 'Switch to UX Studio', 'ux-studio' ) }>
-				{ __( 'UX Studio modules take over and the old plugins are deactivated. Nothing is deleted, and you can undo it all for 30 days.', 'ux-studio' ) }
+			<StepHead icon={ <ArrowLeftRight size={ 26 } aria-hidden /> } title={ __( 'Switch to UX1 Studio', 'ux-studio' ) }>
+				{ __( 'UX1 Studio modules take over and the old plugins are deactivated. Nothing is deleted, and you can undo it all for 30 days.', 'ux-studio' ) }
 			</StepHead>
 			<ErrorLine text={ sw.error } />
 			{ sw.loading && ! plan && <p className="uxs-wiz-muted">{ __( 'Loading…', 'ux-studio' ) }</p> }
@@ -378,7 +378,7 @@ export function SwitchStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 						<ShieldAlert size={ 20 } aria-hidden />
 						<div>
 							<strong>{ __( 'Some things stop working after the switch', 'ux-studio' ) }</strong>
-							<p>{ __( 'The migration plan lists what the old plugin provided and UX Studio cannot take over. Move it by hand first, or confirm that you accept the loss.', 'ux-studio' ) }</p>
+							<p>{ __( 'The migration plan lists what the old plugin provided and UX1 Studio cannot take over. Move it by hand first, or confirm that you accept the loss.', 'ux-studio' ) }</p>
 							<label className="uxs-wiz-checkrow">
 								<input type="checkbox" checked={ flags.override_failures } onChange={ ( e ) => sw.setFlag( 'override_failures', e.target.checked ) } />
 								<span>{ __( 'Switch anyway, I accept the loss', 'ux-studio' ) }</span>
@@ -411,7 +411,7 @@ export function SwitchStep( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 			{ confirm && plan && (
 				<ConfirmModal
 					id="uxs-wiz-switch-title"
-					title={ __( 'Switch to UX Studio now?', 'ux-studio' ) }
+					title={ __( 'Switch to UX1 Studio now?', 'ux-studio' ) }
 					confirmLabel={ sw.switching ? __( 'Switching…', 'ux-studio' ) : __( 'Switch now', 'ux-studio' ) }
 					busy={ sw.switching }
 					error={ sw.switchError }
@@ -456,7 +456,7 @@ export function SwitchedDone( { ctx }: { ctx: WizardCtx } ): JSX.Element {
 
 	return (
 		<section className="uxs-wiz-panel">
-			<StepHead icon={ <span className="uxs-wiz-finish__mini"><DrawnCheck size={ 26 } /></span> } title={ __( 'UX Studio has taken over', 'ux-studio' ) }>
+			<StepHead icon={ <span className="uxs-wiz-finish__mini"><DrawnCheck size={ 26 } /></span> } title={ __( 'UX1 Studio has taken over', 'ux-studio' ) }>
 				{ result &&
 					sprintf(
 						/* translators: 1: number of deactivated plugins, 2: number of modules switched on. */

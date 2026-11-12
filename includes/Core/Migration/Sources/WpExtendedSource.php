@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Settings of every module (`wpextended__<id>_settings` => `uxstudio_<id>`) and the standalone
  * keys. Migrator only ADDS what is missing (add_option), so settings already present
- * in UX Studio are kept. The run uses the settings-only mode (no table copies); the
+ * in UX1 Studio are kept. The run uses the settings-only mode (no table copies); the
  * result is judged by Migrator's own mapping (verify = does every target exist).
  */
 final class WpExtendedSource extends AbstractSource {
@@ -83,7 +83,7 @@ final class WpExtendedSource extends AbstractSource {
 
 	public function detect(): array {
 		$detect                       = parent::detect();
-		$detect['module_name']        = __( 'All UX Studio modules', 'ux-studio' );
+		$detect['module_name']        = __( 'All UX1 Studio modules', 'ux-studio' );
 		$detect['summary']['settings'] = 'absent' === $detect['status'] ? 0 : count( $this->pairs() );
 		$detect['summary']['data']     = array();
 		return $detect;
@@ -95,7 +95,7 @@ final class WpExtendedSource extends AbstractSource {
 		$new   = count( array_filter( $pairs, static fn( array $p ): bool => ! $p['exists'] ) );
 
 		$notes = array(
-			__( 'Settings that already exist in UX Studio are kept - only missing ones are copied. Renamed keys inside the copied settings are fixed up and API keys are carried over into the encrypted store.', 'ux-studio' ),
+			__( 'Settings that already exist in UX1 Studio are kept - only missing ones are copied. Renamed keys inside the copied settings are fixed up and API keys are carried over into the encrypted store.', 'ux-studio' ),
 		);
 		$lossy = array(
 			__( 'Data tables (query log, push segments, activity log and the other module data) are not copied in this step.', 'ux-studio' ),
@@ -105,14 +105,14 @@ final class WpExtendedSource extends AbstractSource {
 			$notes[] = __( 'No WP Extended settings were found.', 'ux-studio' );
 		}
 		if ( $pairs && 0 === $new ) {
-			$notes[] = __( 'Every setting is already present in UX Studio, so this step probably changes nothing.', 'ux-studio' );
+			$notes[] = __( 'Every setting is already present in UX1 Studio, so this step probably changes nothing.', 'ux-studio' );
 		}
 
 		return array(
 			'id'          => $this->id(),
 			'label'       => $this->label(),
 			'module'      => '*',
-			'module_name' => __( 'All UX Studio modules', 'ux-studio' ),
+			'module_name' => __( 'All UX1 Studio modules', 'ux-studio' ),
 			'transfer'    => $rows,
 			'data'        => array(),
 			'options'     => array(),
@@ -180,7 +180,7 @@ final class WpExtendedSource extends AbstractSource {
 						__( 'Present (from %s).', 'ux-studio' ),
 						$p['old']
 					)
-					: __( 'Missing in UX Studio.', 'ux-studio' ),
+					: __( 'Missing in UX1 Studio.', 'ux-studio' ),
 			);
 		}
 		if ( ! $checks ) {

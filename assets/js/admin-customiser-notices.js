@@ -5,7 +5,7 @@
     // A green notice counts as feedback only on a screen that is the RESULT of an action (the address carries the usual
     // result arguments: settings-updated, updated, message, activate, deleted ...). Without them a green notice is a
     // plugin's own message ("WP Rocket is good to go!", offers, tips) and moves into the tray like any other.
-    // The UX Studio PHP version notice is critical and always stays on the page.
+    // The UX1 Studio PHP version notice is critical and always stays on the page.
     var RESULT_ARG = /^(settings-)?updated$|saved|activate|deactivate|delete|trash|message|success|done|import|export|^ids$|locked|skipped|bulk_/i;
     function isResultScreen() {
         // PHP knows the original address (WordPress removes its result arguments from the address bar early).

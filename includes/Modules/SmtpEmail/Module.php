@@ -1552,7 +1552,7 @@ final class Module extends BaseModule {
 			__( '[%s] SMTP test e-mail', 'ux-studio' ),
 			get_bloginfo( 'name' )
 		);
-		$body = __( 'This is a test e-mail sent from the UX Studio SMTP E-mail module.', 'ux-studio' );
+		$body = __( 'This is a test e-mail sent from the UX1 Studio SMTP E-mail module.', 'ux-studio' );
 
 		if ( '' === $mailer ) {
 			return $this->dispatch( $to, $subject, $body, '' ) + array( 'mailer' => '' );

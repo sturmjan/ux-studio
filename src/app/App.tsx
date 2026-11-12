@@ -277,10 +277,10 @@ export function App(): JSX.Element {
 			className={ `uxs-shell${ narrow ? ' is-narrow' : '' }${ ! narrow && folded ? ' is-folded' : '' }${ drawer ? ' is-drawer-open' : '' }` }
 		>
 			{ narrow && drawer ? <div className="uxs-shell__backdrop" aria-hidden="true" onClick={ () => closeDrawer( true ) } /> : null }
-			<nav id="uxs-sidebar" className="uxs-sidebar" aria-label={ __( 'UX Studio navigation', 'ux-studio' ) }>
+			<nav id="uxs-sidebar" className="uxs-sidebar" aria-label={ __( 'UX1 Studio navigation', 'ux-studio' ) }>
 				<div className="uxs-sidebar__top">
 					<span className="uxs-sidebar__brand">
-						<Blocks size={ 20 } /> UX Studio
+						<Blocks size={ 20 } /> UX1 Studio
 					</span>
 					<button
 						type="button"

@@ -123,7 +123,7 @@ final class Module extends BaseModule {
 			array(
 				'id'          => 'modules',
 				'title'       => __( 'Turn on the modules you need', 'ux-studio' ),
-				'description' => __( 'Turn on the UX Studio modules that fit your workflow.', 'ux-studio' ),
+				'description' => __( 'Turn on the UX1 Studio modules that fit your workflow.', 'ux-studio' ),
 			),
 		);
 

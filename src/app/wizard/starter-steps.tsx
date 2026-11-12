@@ -291,7 +291,7 @@ function WelcomeStep( { ctx }: { ctx: StarterCtx } ): JSX.Element {
 	return (
 		<section className="uxs-wiz-panel uxs-wiz-welcome">
 			<StepHead icon={ <Rocket size={ 26 } aria-hidden /> } title={ __( 'Set up your new website', 'ux-studio' ) }>
-				{ __( 'UX Studio can turn on the modules that suit almost every WordPress site and preset them sensibly in a few minutes.', 'ux-studio' ) }
+				{ __( 'UX1 Studio can turn on the modules that suit almost every WordPress site and preset them sensibly in a few minutes.', 'ux-studio' ) }
 			</StepHead>
 
 			{ ctx.loadError && <ErrorLine text={ ctx.loadError } /> }

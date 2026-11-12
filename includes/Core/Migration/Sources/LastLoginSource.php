@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  * When Last Login keeps it in `when_last_login`, WP Last Login in `wp-last-login` (0 = reset at logout, skipped).
  *
  * HARMLESS: showing a time in the users table changes nothing for visitors, so it is written directly
- * even when the module is on. A user who already has a value in UX Studio keeps it (it is never older data).
+ * even when the module is on. A user who already has a value in UX1 Studio keeps it (it is never older data).
  */
 final class LastLoginSource extends AbstractMetaSource {
 

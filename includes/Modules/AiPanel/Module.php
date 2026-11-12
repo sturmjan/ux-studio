@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  * use, so the port is a lift-and-shift: legacy/Panel.php, Runtime.php and
  * rescue.php are carried over byte-for-byte except for user-facing branding
  * text (renamed "Claude Panel" -> "AI Panel" so it isn't tied to one vendor)
- * and small, marked "UX Studio:" hardening (grant-bound session, shared
+ * and small, marked "UX1 Studio:" hardening (grant-bound session, shared
  * client IP resolver, self-expiring rescue endpoint).
  *
  * Kill switch (production): define('UXSTUDIO_DISABLE_AI_PANEL', true) in

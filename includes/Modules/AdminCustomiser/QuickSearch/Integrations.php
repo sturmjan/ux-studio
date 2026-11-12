@@ -483,7 +483,7 @@ final class Integrations {
 	}
 
 	/**
-	 * Search UX Studio's own module list (name/description match).
+	 * Search UX1 Studio's own module list (name/description match).
 	 *
 	 * @param string $search_term Search query.
 	 */
@@ -519,6 +519,6 @@ final class Integrations {
 			);
 		}
 
-		return empty( $group ) ? array() : array( __( 'UX Studio', 'ux-studio' ) => $group );
+		return empty( $group ) ? array() : array( __( 'UX1 Studio', 'ux-studio' ) => $group );
 	}
 }

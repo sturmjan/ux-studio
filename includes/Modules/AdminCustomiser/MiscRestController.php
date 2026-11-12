@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * GET uxstudio/v1/admin-customiser/quick-search?q=... - cross-content fuzzy
- * search (posts/terms/users/media/UX Studio modules + a few third-party
+ * search (posts/terms/users/media/UX1 Studio modules + a few third-party
  * plugin shortcuts). Requires `edit_posts` (not `manage_options`) since
  * editors use quick search too, not just admins.
  */

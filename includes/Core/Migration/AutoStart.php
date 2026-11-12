@@ -1,6 +1,6 @@
 <?php
 /**
- * Offers the migration wizard once, right after UX Studio is activated from the Plugins screen.
+ * Offers the migration wizard once, right after UX1 Studio is activated from the Plugins screen.
  *
  * @package UxStudio
  */

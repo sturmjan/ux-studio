@@ -113,7 +113,7 @@ final class BlockedUsernamesNotice {
 		?>
 		<div class="notice notice-warning is-dismissible" id="uxstudio-blocked-usernames-notice" data-nonce="<?php echo esc_attr( wp_create_nonce( self::NONCE ) ); ?>" data-key="<?php echo esc_attr( $key ); ?>">
 			<p>
-				<strong><?php esc_html_e( 'UX Studio security warning:', 'ux-studio' ); ?></strong>
+				<strong><?php esc_html_e( 'UX1 Studio security warning:', 'ux-studio' ); ?></strong>
 				<?php
 				echo esc_html(
 					sprintf(

@@ -190,7 +190,7 @@ final class Modules {
 			$module->on_enable();
 		} catch ( \Throwable $e ) {
 			// Starting values are a convenience: a failure must never block switching a module on.
-			error_log( 'UX Studio: on_enable failed for ' . $id . ': ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( 'UX1 Studio: on_enable failed for ' . $id . ': ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		}
 	}
 
@@ -206,7 +206,7 @@ final class Modules {
 			$module->on_disable();
 		} catch ( \Throwable $e ) {
 			// A failing cleanup must never block switching a module off.
-			error_log( 'UX Studio: on_disable failed for ' . $id . ': ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( 'UX1 Studio: on_disable failed for ' . $id . ': ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		}
 	}
 
@@ -313,7 +313,7 @@ final class Modules {
 	 */
 	private function record_boot_failure( string $id, \Throwable $e ): void {
 		$message = sprintf( '%s: %s (%s:%d)', get_class( $e ), $e->getMessage(), wp_basename( $e->getFile() ), $e->getLine() );
-		error_log( 'UX Studio: module ' . $id . ' failed to boot and was skipped - ' . $message ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		error_log( 'UX1 Studio: module ' . $id . ' failed to boot and was skipped - ' . $message ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 
 		$this->boot_failures[ $id ] = $message;
 		if ( 1 === count( $this->boot_failures ) ) {
@@ -328,7 +328,7 @@ final class Modules {
 		if ( empty( $this->boot_failures ) || ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
-		echo '<div class="notice notice-error"><p><strong>' . esc_html__( 'UX Studio: some modules failed to start and were turned off for now. The rest of the site keeps running.', 'ux-studio' ) . '</strong></p><ul>';
+		echo '<div class="notice notice-error"><p><strong>' . esc_html__( 'UX1 Studio: some modules failed to start and were turned off for now. The rest of the site keeps running.', 'ux-studio' ) . '</strong></p><ul>';
 		foreach ( $this->boot_failures as $id => $message ) {
 			$name = (string) ( $this->meta[ $id ]['name'] ?? $id );
 			echo '<li><code>' . esc_html( $name ) . '</code> - ' . esc_html( $message ) . '</li>';

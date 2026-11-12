@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  * PLAN.md 26.11. The admin menu of a foreign plugin is described as a small neutral "model" (known
  * slugs, order, renames, hidden items, roles that must not see an item ...); this class turns a model
  * into a Menu Organizer config, applies the lockout rule, and later compares what each role sees
- * according to the foreign plugin with what UX Studio will show.
+ * according to the foreign plugin with what UX1 Studio will show.
  *
  * Model keys (all optional except `tops`):
  *   tops          string[]                     known top-level slugs, in display order
@@ -329,7 +329,7 @@ abstract class AbstractAdminSource extends AbstractSource {
 		}
 		$input['custom_links'] = $links;
 
-		// The lockout rule: never hide UX Studio, Plugins, Users or Settings from whoever runs the migration.
+		// The lockout rule: never hide UX1 Studio, Plugins, Users or Settings from whoever runs the migration.
 		$safe    = MenuSimulator::enforce_access( $input );
 		$input   = $safe['config'];
 		foreach ( $safe['dropped'] as $slug => $why ) {
@@ -337,15 +337,15 @@ abstract class AbstractAdminSource extends AbstractSource {
 			$labels    = MenuSimulator::protected_screens();
 			$texts     = array(
 				/* translators: %s: screen name. */
-				'hidden' => __( 'The rule that hides "%s" was not transferred: the migration never hides UX Studio, Plugins, Users or Settings from administrators, so that nobody locks themselves out.', 'ux-studio' ),
+				'hidden' => __( 'The rule that hides "%s" was not transferred: the migration never hides UX1 Studio, Plugins, Users or Settings from administrators, so that nobody locks themselves out.', 'ux-studio' ),
 				/* translators: %s: screen name. */
 				'roles'  => __( 'The rule that limits "%s" to some roles was not transferred: it would have taken the screen away from the current user.', 'ux-studio' ),
 				/* translators: %s: screen name. */
-				'user'   => __( 'The rule that hides "%s" from a single user was not transferred: UX Studio, Plugins, Users and Settings are never hidden by rules of users, so that nobody locks themselves out.', 'ux-studio' ),
+				'user'   => __( 'The rule that hides "%s" from a single user was not transferred: UX1 Studio, Plugins, Users and Settings are never hidden by rules of users, so that nobody locks themselves out.', 'ux-studio' ),
 				/* translators: %s: screen name. */
-				'cap'    => __( 'The required capability on "%s" was not transferred: UX Studio, Plugins, Users and Settings never depend on an extra capability, so that nobody locks themselves out.', 'ux-studio' ),
+				'cap'    => __( 'The required capability on "%s" was not transferred: UX1 Studio, Plugins, Users and Settings never depend on an extra capability, so that nobody locks themselves out.', 'ux-studio' ),
 				/* translators: %s: screen name. */
-				'sub'    => __( 'The rule that hides the sub-item "%s" was not transferred: UX Studio, Plugins, Users and Settings are never hidden, so that nobody locks themselves out.', 'ux-studio' ),
+				'sub'    => __( 'The rule that hides the sub-item "%s" was not transferred: UX1 Studio, Plugins, Users and Settings are never hidden, so that nobody locks themselves out.', 'ux-studio' ),
 			);
 			$warning   = sprintf( $texts[ $why ] ?? $texts['hidden'], $labels[ $slug ] ?? $slug );
 			$m->warn( $warning );
@@ -391,13 +391,13 @@ abstract class AbstractAdminSource extends AbstractSource {
 		);
 		$m->set( self::MODULE, 'menu_organizer_enabled', true, __( 'Turn on menu organizer', 'ux-studio' ), $origin );
 
-		// Pages the plugin really blocks (not only hides): "Block access to hidden pages" does the same in UX Studio.
+		// Pages the plugin really blocks (not only hides): "Block access to hidden pages" does the same in UX1 Studio.
 		$lock = $this->lock_plan( $model, $clean, $bypass, $origin_of );
 		if ( $lock['open'] ) {
 			$labels   = MenuSimulator::protected_screens();
 			$lossy[] = sprintf(
 				/* translators: %s: screens. */
-				__( 'The plugin blocks these screens for some roles. UX Studio never blocks UX Studio, Plugins, Users and Settings (nobody may be locked out), so they stay reachable by address: %s.', 'ux-studio' ),
+				__( 'The plugin blocks these screens for some roles. UX1 Studio never blocks UX1 Studio, Plugins, Users and Settings (nobody may be locked out), so they stay reachable by address: %s.', 'ux-studio' ),
 				$this->list_text( array_map( static fn( string $s ): string => (string) ( $labels[ $s ] ?? $s ), $lock['open'] ) )
 			);
 		}
@@ -406,13 +406,13 @@ abstract class AbstractAdminSource extends AbstractSource {
 			if ( $lock['stricter'] ) {
 				$text = sprintf(
 					/* translators: %s: menu items. */
-					__( 'The plugin only hid these items without blocking their pages. "Block access to hidden pages" is one switch for the whole menu, so in UX Studio they are blocked for the roles that do not see them as well: %s.', 'ux-studio' ),
+					__( 'The plugin only hid these items without blocking their pages. "Block access to hidden pages" is one switch for the whole menu, so in UX1 Studio they are blocked for the roles that do not see them as well: %s.', 'ux-studio' ),
 					$this->list_text( array_map( fn( string $s ): string => $this->title_of( $model, $s ), $lock['stricter'] ) )
 				);
 				$m->warn( $text );
 				$lossy[] = $text;
 			}
-			$m->note( __( 'A page hidden from a role is also refused when its address is typed in ("Block access to hidden pages" is turned on). Users who can manage options, the dashboard, profile, UX Studio, Plugins, Users and Settings are never blocked. You will see the setting, with a note that it came from this migration, in UX Studio under Admin Customiser, Sidebar menu, "Block access to hidden pages", and you can switch it off there.', 'ux-studio' ) );
+			$m->note( __( 'A page hidden from a role is also refused when its address is typed in ("Block access to hidden pages" is turned on). Users who can manage options, the dashboard, profile, UX1 Studio, Plugins, Users and Settings are never blocked. You will see the setting, with a note that it came from this migration, in UX1 Studio under Admin Customiser, Sidebar menu, "Block access to hidden pages", and you can switch it off there.', 'ux-studio' ) );
 		} else {
 			$m->warn( __( 'The Menu Organizer only hides menu items. A page hidden from a role can still be opened with its address, whereas a plugin that changes capabilities blocks it. If the old plugin protected pages, check that before you switch (the setting "Block access to hidden pages" in Admin Customiser blocks them).', 'ux-studio' ) );
 		}
@@ -476,7 +476,7 @@ abstract class AbstractAdminSource extends AbstractSource {
 	 * @param array<string, mixed> $clean     Cleaned Menu Organizer config the mapping writes.
 	 * @param string[]             $bypass    Roles that can manage options (never blocked).
 	 * @param callable|null        $origin_of display `parent>sub` => original `parent>sub` (sub-items; null = same).
-	 * @return array{on:bool,pairs:array<string,string[]>,stricter:string[],open:string[]} Pairs: slug (or `parent>sub`) => roles the plugin blocks; stricter: items the lock blocks although the plugin only hid them; open: protected screens the plugin blocks but UX Studio never does.
+	 * @return array{on:bool,pairs:array<string,string[]>,stricter:string[],open:string[]} Pairs: slug (or `parent>sub`) => roles the plugin blocks; stricter: items the lock blocks although the plugin only hid them; open: protected screens the plugin blocks but UX1 Studio never does.
 	 */
 	protected function lock_plan( array $model, array $clean, array $bypass, ?callable $origin_of = null ): array {
 		$origin_of = $origin_of ?? static fn( string $key ): string => $key;
@@ -490,7 +490,7 @@ abstract class AbstractAdminSource extends AbstractSource {
 				continue;
 			}
 			if ( isset( MenuSimulator::protected_screens()[ (string) $slug ] ) ) {
-				// UX Studio, Plugins, Users and Settings are never blocked, so nobody can lock themselves out.
+				// UX1 Studio, Plugins, Users and Settings are never blocked, so nobody can lock themselves out.
 				$open[] = (string) $slug;
 				continue;
 			}
@@ -505,7 +505,7 @@ abstract class AbstractAdminSource extends AbstractSource {
 			if ( ! $roles || ! in_array( $key, $ruled_subs, true ) ) {
 				continue;
 			}
-			// Everything under UX Studio, Plugins, Users and Settings is never blocked (the same rule as the lock itself).
+			// Everything under UX1 Studio, Plugins, Users and Settings is never blocked (the same rule as the lock itself).
 			$parent_of = substr( $key, 0, (int) strpos( $key, '>' ) );
 			if ( MenuSimulator::is_protected_key( $key ) || isset( MenuSimulator::protected_screens()[ $parent_of ] ) ) {
 				$open[] = $parent_of;
@@ -625,7 +625,7 @@ abstract class AbstractAdminSource extends AbstractSource {
 	}
 
 	/**
-	 * The config UX Studio will have: stored values with the prepared ones on top.
+	 * The config UX1 Studio will have: stored values with the prepared ones on top.
 	 *
 	 * @return array<string, mixed>
 	 */
@@ -635,7 +635,7 @@ abstract class AbstractAdminSource extends AbstractSource {
 	}
 
 	/**
-	 * Role by role: what the plugin shows versus what UX Studio will show.
+	 * Role by role: what the plugin shows versus what UX1 Studio will show.
 	 *
 	 * @param bool $planned Compare with the config the mapping WOULD write (the plan), not with what is stored now (verify).
 	 * @return array{src:array<string,string[]>,dst:array<string,string[]>,diff:array<string,string[]>,unexplained:array<string,string[]>,universe:string[],ruled:string[]}
@@ -748,7 +748,7 @@ abstract class AbstractAdminSource extends AbstractSource {
 						) )
 					: sprintf(
 						/* translators: %s: menu items. */
-						__( 'The old plugin and UX Studio disagree about: %s.', 'ux-studio' ),
+						__( 'The old plugin and UX1 Studio disagree about: %s.', 'ux-studio' ),
 						$this->list_text( array_map( fn( string $s ): string => $this->title_of( $model, $s ), $unexplained ) )
 					),
 			);
@@ -765,7 +765,7 @@ abstract class AbstractAdminSource extends AbstractSource {
 			}
 			$checks[] = array(
 				'id'     => 'menu-lock',
-				'label'  => __( 'Pages the old plugin blocked are blocked in UX Studio', 'ux-studio' ),
+				'label'  => __( 'Pages the old plugin blocked are blocked in UX1 Studio', 'ux-studio' ),
 				'ok'     => array() === $missing,
 				'staged' => array() === $missing && $this->menu_is_staged(),
 				'detail' => array() === $missing
@@ -776,7 +776,7 @@ abstract class AbstractAdminSource extends AbstractSource {
 					)
 					: sprintf(
 						/* translators: %s: menu items with roles. */
-						__( 'Not blocked in UX Studio: %s.', 'ux-studio' ),
+						__( 'Not blocked in UX1 Studio: %s.', 'ux-studio' ),
 						$this->list_text( $missing )
 					),
 			);
@@ -799,7 +799,7 @@ abstract class AbstractAdminSource extends AbstractSource {
 		return array(
 			array(
 				'id'    => 'admin-access',
-				'label' => __( 'The administrator can still open Plugins, Users, Settings and UX Studio', 'ux-studio' ),
+				'label' => __( 'The administrator can still open Plugins, Users, Settings and UX1 Studio', 'ux-studio' ),
 				'type'  => 'admin_access',
 				'urls'  => MenuSimulator::protected_urls(),
 			),

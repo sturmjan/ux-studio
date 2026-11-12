@@ -88,7 +88,7 @@ final class Importer {
 			__( 'A custom login address is saved in two steps: wp-login.php stays open until you open the new address and confirm it.', 'ux-studio' ),
 			__( 'Two-factor login is turned on only if you have already set it up for your own account.', 'ux-studio' ),
 			__( 'Country blocks are imported only if your IP address is on the firewall allowlist.', 'ux-studio' ),
-			__( 'The menu lock is turned on only if it keeps UX Studio, Plugins, Users and Settings open for you.', 'ux-studio' ),
+			__( 'The menu lock is turned on only if it keeps UX1 Studio, Plugins, Users and Settings open for you.', 'ux-studio' ),
 			__( 'Maintenance mode is never turned on by an import unless you tick the extra box.', 'ux-studio' ),
 			__( 'Code (custom CSS, scripts, snippets) is imported only if you may add scripts to the site (unfiltered_html). Snippets arrive turned off.', 'ux-studio' ),
 			__( 'Redirecting to HTTPS is turned on only when you are on HTTPS now; CAPTCHA only when this site has its own CAPTCHA keys.', 'ux-studio' ),

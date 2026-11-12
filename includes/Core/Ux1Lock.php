@@ -1,6 +1,6 @@
 <?php
 /**
- * Keeps the legacy ux1 plugin deactivated once UX Studio has taken over, and
+ * Keeps the legacy ux1 plugin deactivated once UX1 Studio has taken over, and
  * blocks any attempt to re-activate it (with an explanatory admin notice).
  *
  * @package UxStudio
@@ -12,11 +12,11 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Two plugins doing the same job must never run at once. After the handoff
- * (see Handoff), UX Studio is the owner: this guard undoes any re-activation of
+ * (see Handoff), UX1 Studio is the owner: this guard undoes any re-activation of
  * ux1, disables its "Activate" link, and explains why. ux1's data is left
  * untouched (it has no uninstall hook), so nothing is lost.
  *
- * Registered unconditionally from the bootstrap - even when UX Studio itself is
+ * Registered unconditionally from the bootstrap - even when UX1 Studio itself is
  * dormant for one request (see ConflictGuard) - so the lock always applies.
  */
 final class Ux1Lock {
@@ -66,7 +66,7 @@ final class Ux1Lock {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 		// Silent: ux1's deactivation hook may drop its tables (remove_plugin_data)
-		// before UX Studio modules have lazily copied their data.
+		// before UX1 Studio modules have lazily copied their data.
 		deactivate_plugins( self::LEGACY_PLUGIN, true );
 		// Its activation may have re-scheduled ux1_* cron events; the silent
 		// deactivation skipped ux1's own cleanup, so remove them here.
@@ -83,7 +83,7 @@ final class Ux1Lock {
 	 */
 	public static function disable_activate_link( $actions ): array {
 		unset( $actions['activate'] );
-		$actions['uxstudio_locked'] = '<span style="color:#b32d2e;">' . esc_html__( 'Replaced by UX Studio', 'ux-studio' ) . '</span>';
+		$actions['uxstudio_locked'] = '<span style="color:#b32d2e;">' . esc_html__( 'Replaced by UX1 Studio', 'ux-studio' ) . '</span>';
 		return $actions;
 	}
 
@@ -97,7 +97,7 @@ final class Ux1Lock {
 		delete_transient( self::NOTICE_TRANSIENT );
 		printf(
 			'<div class="notice notice-warning is-dismissible"><p>%s</p></div>',
-			esc_html__( 'The legacy plugin "UX One - WordPress customizer" was kept deactivated: UX Studio has replaced it, and running both at once would conflict. Its data is preserved - nothing was deleted.', 'ux-studio' )
+			esc_html__( 'The legacy plugin "UX One - WordPress customizer" was kept deactivated: UX1 Studio has replaced it, and running both at once would conflict. Its data is preserved - nothing was deleted.', 'ux-studio' )
 		);
 	}
 }

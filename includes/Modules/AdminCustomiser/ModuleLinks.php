@@ -1,11 +1,11 @@
 <?php
 /**
- * Links to UX Studio modules inside the WordPress admin menu, and the "Content" hub.
+ * Links to UX1 Studio modules inside the WordPress admin menu, and the "Content" hub.
  *
  * Two independent switches of the Admin Customiser (both off until the setup wizard or the user turns them on):
  *
  *  - `module_links_enabled`: for every module that is switched on, one sub-item in the native menu that opens the
- *    module page of UX Studio (Tools, Settings, Media, Users, Appearance and the Content hub). The main "UX Studio"
+ *    module page of UX1 Studio (Tools, Settings, Media, Users, Appearance and the Content hub). The main "UX1 Studio"
  *    menu item is not touched.
  *  - `content_hub_enabled`: Posts, Pages and the site's own content types move out of the top level into ONE
  *    top-level "Content" item; the content modules (Top Bar, Popups, Forms...) join them there. Without the hub
@@ -250,7 +250,7 @@ final class ModuleLinks {
 	}
 
 	/**
-	 * Add rows as sub-items. UX Studio pages need the same capability as UX Studio itself.
+	 * Add rows as sub-items. UX1 Studio pages need the same capability as UX1 Studio itself.
 	 *
 	 * @param string                                              $parent Parent menu slug.
 	 * @param array<int, array{id:string,label:string,count:int}> $rows   Rows.

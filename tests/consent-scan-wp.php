@@ -6,7 +6,7 @@ if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
  * what happens to a forged, replayed or oversized push, storage and evaluation, the scan hosts in the inventory queue, the
  * additive keys of Report::site(), and the permissions of the admin routes.
  *
- * Loads the classes of THIS checkout, so run it with the installed UX Studio skipped:
+ * Loads the classes of THIS checkout, so run it with the installed UX1 Studio skipped:
  *
  *   php wp-cli.phar --path=<site> --skip-plugins=ux-studio,ux-studio-csp,wp-mail-smtp eval-file tests/consent-scan-wp.php </dev/null
  *

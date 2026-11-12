@@ -44,7 +44,7 @@ final class Registry {
 	}
 
 	/**
-	 * Is a UX Studio module on?
+	 * Is a UX1 Studio module on?
 	 *
 	 * @param string $module_id Module id.
 	 */

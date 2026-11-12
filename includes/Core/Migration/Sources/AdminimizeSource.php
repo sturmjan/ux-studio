@@ -188,7 +188,7 @@ final class AdminimizeSource extends AbstractAdminSource {
 		if ( $denied || $denied_subs ) {
 			$this->map_menu( $m, $model, 'mw_adminimize:menu', false );
 			if ( ! empty( $o['mw_adminimize_multiple_roles'] ) ) {
-				$m->lossy( __( 'The option for users with several roles (an item is hidden only when every role hides it) is not transferred: UX Studio shows an item when any role of the user may see it.', 'ux-studio' ) );
+				$m->lossy( __( 'The option for users with several roles (an item is hidden only when every role hides it) is not transferred: UX1 Studio shows an item when any role of the user may see it.', 'ux-studio' ) );
 			}
 		}
 
@@ -228,7 +228,7 @@ final class AdminimizeSource extends AbstractAdminSource {
 						$m->warn(
 							sprintf(
 								/* translators: 1: setting, 2: roles that lose the feature. */
-								__( '"%1$s" is turned on for everybody in UX Studio, the plugin applied it only to some roles. %2$s lose it as well.', 'ux-studio' ),
+								__( '"%1$s" is turned on for everybody in UX1 Studio, the plugin applied it only to some roles. %2$s lose it as well.', 'ux-studio' ),
 								$key[1],
 								$this->role_names( $rest )
 							)
@@ -245,7 +245,7 @@ final class AdminimizeSource extends AbstractAdminSource {
 			$m->lossy(
 				sprintf(
 					/* translators: %s: list of items. */
-					__( 'Items hidden in the screens of the admin that UX Studio has no setting for (or that the plugin hid only for roles other than administrators): %s.', 'ux-studio' ),
+					__( 'Items hidden in the screens of the admin that UX1 Studio has no setting for (or that the plugin hid only for roles other than administrators): %s.', 'ux-studio' ),
 					$this->list_text( $unmapped, 10 )
 				)
 			);
@@ -289,7 +289,7 @@ final class AdminimizeSource extends AbstractAdminSource {
 			$m->lossy(
 				sprintf(
 					/* translators: %s: admin bar items. */
-					__( 'Admin bar items UX Studio cannot hide, or can hide only for everybody and not for the roles named (the module hides: WordPress logo, updates, customize, comments, new): %s.', 'ux-studio' ),
+					__( 'Admin bar items UX1 Studio cannot hide, or can hide only for everybody and not for the roles named (the module hides: WordPress logo, updates, customize, comments, new): %s.', 'ux-studio' ),
 					$this->list_text( array_unique( $lost ), 12 )
 				)
 			);

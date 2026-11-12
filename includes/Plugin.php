@@ -80,7 +80,7 @@ final class Plugin {
 		}
 
 		/**
-		 * Fires after UX Studio has booted. Add-on plugins hook here.
+		 * Fires after UX1 Studio has booted. Add-on plugins hook here.
 		 *
 		 * @param Plugin $plugin Plugin instance.
 		 */

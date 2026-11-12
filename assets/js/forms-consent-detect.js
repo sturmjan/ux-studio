@@ -6,12 +6,12 @@
  * loads the same file in Node with stubbed globals. Keep it free of dependencies and of syntax newer than ES5.
  *
  * Returns 1 (marketing allowed), 0 (a consent tool is present and marketing is not allowed, or still undecided) or
- * null (no consent tool recognised). Order: UX Studio Cookie Consent, Complianz, CookieYes, Cookiebot, Google Consent
+ * null (no consent tool recognised). Order: UX1 Studio Cookie Consent, Complianz, CookieYes, Cookiebot, Google Consent
  * Mode (dataLayer), window.uxstudioConsent. The first tool that answers wins; every probe is guarded, so a broken banner script can
  * never stop the form tracking.
  *
  * Verified public APIs:
- *  - UX Studio Cookie Consent (assets/consent/consent.js): window.uxConsent.has( category ); it also fills
+ *  - UX1 Studio Cookie Consent (assets/consent/consent.js): window.uxConsent.has( category ); it also fills
  *    window.uxstudioConsent and sends Consent Mode updates, so the later probes agree with it
  *  - Complianz: cmplz_has_consent( category ) and the cookie cmplz_marketing = allow | deny
  *    https://complianz.io/developers-guide-for-third-party-integrations/

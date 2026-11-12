@@ -33,7 +33,7 @@ defined( 'ABSPATH' ) || exit;
  *  - FluentSMTP (`fluentmail-settings`): default connection = primary, `misc.fallback_connection` = fallback, further
  *    connections are reported; secrets AES-256-CTR with the site's LOGGED_IN_KEY / SALT when `use_encrypt` is on.
  * Gmail / Outlook OAuth tokens are never copied (they belong to the old plugin's app): the client id and secret are
- * transferred and the admin connects again in UX Studio.
+ * transferred and the admin connects again in UX1 Studio.
  */
 final class SmtpSource extends AbstractSource {
 

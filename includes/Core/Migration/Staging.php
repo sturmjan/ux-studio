@@ -14,7 +14,7 @@ use UxStudio\Core\Settings;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The rule (PLAN.md 26.1): a UX Studio module takes over from the foreign plugin only at the
+ * The rule (PLAN.md 26.1): a UX1 Studio module takes over from the foreign plugin only at the
  * switch after the safe preview (F4), never during the copy.
  *
  *  - Target module DISABLED: its settings option has no effect until the module is switched

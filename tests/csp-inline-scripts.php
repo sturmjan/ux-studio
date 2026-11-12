@@ -2,7 +2,7 @@
 // Test only: never runs over HTTP (the release zip also excludes tests/).
 if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
- * Standalone test (no WordPress) of the CSP hash allowance for UX Studio's own inline scripts: hash vector, registry,
+ * Standalone test (no WordPress) of the CSP hash allowance for UX1 Studio's own inline scripts: hash vector, registry,
  * bound, and that the policy builder adds hashes only to a strict script-src.
  *
  *   php tests/csp-inline-scripts.php

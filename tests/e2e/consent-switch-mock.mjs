@@ -54,7 +54,7 @@ await p.getByRole( 'button', { name: /Preview and switch/ } ).click( { timeout: 
 await p.waitForTimeout( 800 );
 // walk forward to the Switch step
 for ( let i = 0; i < 4; i++ ) {
-	if ( await p.getByRole( 'heading', { name: /Switch to UX Studio/ } ).count() ) {
+	if ( await p.getByRole( 'heading', { name: /Switch to UX1 Studio/ } ).count() ) {
 		break;
 	}
 	const next = p.getByRole( 'button', { name: /^(Next|Continue|Skip|Go on|Switch)/ } ).first();
@@ -64,7 +64,7 @@ for ( let i = 0; i < 4; i++ ) {
 	await next.click().catch( () => {} );
 	await p.waitForTimeout( 600 );
 }
-check( 'Switch step reached', await p.getByRole( 'heading', { name: /Switch to UX Studio/ } ).count() > 0 );
+check( 'Switch step reached', await p.getByRole( 'heading', { name: /Switch to UX1 Studio/ } ).count() > 0 );
 await p.waitForTimeout( 800 );
 await p.screenshot( { path: SHOTS + '/uxc-switch-mock.png', fullPage: true } );
 check( 'must_confirm callout rendered', await p.getByText( 'Some things stop working after the switch' ).count() === 1 );

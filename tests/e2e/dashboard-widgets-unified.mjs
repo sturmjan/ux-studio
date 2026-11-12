@@ -89,7 +89,7 @@ await page.fill( '.uxs-wt__search input', '' );
 
 // type labels
 check( 'WordPress row labelled', /WordPress/.test( await rowOf( 'dashboard_right_now' ).innerText() ) );
-check( 'own row labelled', /UX Studio widget|Widget UX Studia/.test( await rowOf( 'uxstudio_tasks' ).innerText() ) );
+check( 'own row labelled', /UX1 Studio widget|Widget UX Studia/.test( await rowOf( 'uxstudio_tasks' ).innerText() ) );
 const formsText = await rowOf( 'uxstudio_forms_widget' ).innerText();
 check( 'module row names its module', /Form/i.test( formsText ) && /module|modul/i.test( formsText ), formsText.replace( /\n/g, ' | ' ) );
 const yoastText = await rowOf( 'wpseo-dashboard-overview' ).innerText();

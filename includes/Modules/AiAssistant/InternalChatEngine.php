@@ -151,11 +151,11 @@ final class InternalChatEngine {
 	 * one is addressed to a logged-in editor/administrator working in wp-admin.
 	 */
 	private function build_persona(): string {
-		return "You are the internal AI assistant built into the UX Studio admin panel.\n"
+		return "You are the internal AI assistant built into the UX1 Studio admin panel.\n"
 			. "You help logged-in editors and administrators of this WordPress site with their work: "
-			. "content editing, site configuration, and how to use UX Studio's own modules.\n"
+			. "content editing, site configuration, and how to use UX1 Studio's own modules.\n"
 			. "Be concise, professional and practical. When relevant, mention which admin screen or "
-			. "UX Studio module the user should use.\n"
+			. "UX1 Studio module the user should use.\n"
 			. "Respond in the same language the user writes in.\n"
 			. ( '' !== ( $extra = trim( wp_strip_all_tags( (string) self::settings()->get( 'chatbot_system_prompt', '' ) ) ) ) ? "\n" . $extra . "\n" : '' );
 	}
@@ -189,7 +189,7 @@ final class InternalChatEngine {
 				. "The following was found via vector search and is highly relevant to the query:\n\n"
 				. $search->format_for_context( $results );
 		} catch ( \Throwable $e ) {
-			error_log( 'UX Studio internal chat RAG: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( 'UX1 Studio internal chat RAG: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			return '';
 		}
 	}
@@ -245,11 +245,11 @@ final class InternalChatEngine {
 	}
 
 	/**
-	 * UX Studio's own "Guide" module (includes/Modules/Guide) exposes a
+	 * UX1 Studio's own "Guide" module (includes/Modules/Guide) exposes a
 	 * getting-started checklist for this site. Ported from the legacy plugin's
 	 * buildGuideContext(), which pulled from that plugin's separate "Návod"
 	 * module/docs - there is no such module here, so this now surfaces
-	 * UX Studio's own setup guide/progress instead, which is the closest
+	 * UX1 Studio's own setup guide/progress instead, which is the closest
 	 * equivalent "how does this admin panel work" context available.
 	 */
 	private function build_guide_context(): string {
@@ -278,7 +278,7 @@ final class InternalChatEngine {
 			$lines[] = sprintf( '- %s %s: %s', $status, $step['title'] ?? '', $step['description'] ?? '' );
 		}
 
-		return "\n\n=== UX STUDIO SETUP GUIDE (for the administrator) ===\n"
+		return "\n\n=== UX1 STUDIO SETUP GUIDE (for the administrator) ===\n"
 			. "This is the site's onboarding checklist. Use it when the admin asks how to set up or configure this site:\n\n"
 			. implode( "\n", $lines );
 	}
