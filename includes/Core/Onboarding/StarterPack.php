@@ -38,7 +38,7 @@ defined( 'ABSPATH' ) || exit;
  *   header_plugins       string[] names of active plugins that send security headers (see HEADER_PLUGINS),
  *   https_ready          bool    the site and home address are https and this very request came over https,
  *   blocked_indexing     array   Indexing & Sharing setting key => names of the plugins that already do that job (IndexNow),
- *   ca_connected         bool    the site is paired with the Central App and the link is not paused (PLAN.md 39.3, 40.1),
+ *   ca_connected         bool    the site is paired with UX1 Network app and the link is not paused (PLAN.md 39.3, 40.1),
  *   captcha_set          bool    a CAPTCHA is already set up: switched on, or keys stored (Turnstile, reCAPTCHA).
  *
  * An item is one tick box in the wizard:
@@ -853,7 +853,7 @@ final class StarterPack {
 		$item = self::simple(
 			'captcha-shield',
 			__( 'CAPTCHA without keys', 'ux-studio' ),
-			__( 'Login, registration, lost password and comments ask the browser of the visitor to solve a small puzzle by itself (a fraction of a second, no account, no keys, no cookies, nothing sent to a third party). A visitor without JavaScript answers a simple sum instead, so nobody is locked out. It stops mass scripted attempts; it does not tell a person from a determined script. Keys from the central app or your own Turnstile keys are used instead as soon as they exist.', 'ux-studio' ),
+			__( 'Login, registration, lost password and comments ask the browser of the visitor to solve a small puzzle by itself (a fraction of a second, no account, no keys, no cookies, nothing sent to a third party). A visitor without JavaScript answers a simple sum instead, so nobody is locked out. It stops mass scripted attempts; it does not tell a person from a determined script. Keys from UX1 Network app or your own Turnstile keys are used instead as soon as they exist.', 'ux-studio' ),
 			array( 'security-optimization' ),
 			array(
 				'security-optimization' => array(
@@ -871,8 +871,8 @@ final class StarterPack {
 	}
 
 	/**
-	 * Indexing & Sharing: the admin warning, IndexNow, and the Facebook preview refresh when the central app is there
-	 * (PLAN.md 39.3). The refresh needs keys of the central app, so it is only offered to a connected site.
+	 * Indexing & Sharing: the admin warning, IndexNow, and the Facebook preview refresh when UX1 Network app is there
+	 * (PLAN.md 39.3). The refresh needs keys of UX1 Network app, so it is only offered to a connected site.
 	 *
 	 * @param array<string, mixed> $env Environment.
 	 * @return array<string, mixed>
@@ -884,7 +884,7 @@ final class StarterPack {
 			$settings['social_refresh_enabled'] = true;
 			$settings['social_key_source']      = 'ca';
 		} else {
-			$warnings[] = array( 'social_needs_ca', __( 'Facebook previews stay off, because the site is not connected to the central app. Connect it, or turn them on later in the module with your own Facebook app.', 'ux-studio' ) );
+			$warnings[] = array( 'social_needs_ca', __( 'Facebook previews stay off, because the site is not connected to UX1 Network app. Connect it, or turn them on later in the module with your own Facebook app.', 'ux-studio' ) );
 		}
 		$others = (array) ( $env['blocked_indexing']['indexnow_enabled'] ?? array() );
 		if ( $others ) {
@@ -902,7 +902,7 @@ final class StarterPack {
 		return self::simple(
 			'indexing-notice',
 			__( 'Indexing and sharing', 'ux-studio' ),
-			__( 'Warns in the admin when the site is hidden from search engines, so a launch is not forgotten. After you change a published page it tells Bing and Seznam about it (IndexNow) and, when the site is connected to the central app, makes Facebook fetch the new preview of the link.', 'ux-studio' ),
+			__( 'Warns in the admin when the site is hidden from search engines, so a launch is not forgotten. After you change a published page it tells Bing and Seznam about it (IndexNow) and, when the site is connected to UX1 Network app, makes Facebook fetch the new preview of the link.', 'ux-studio' ),
 			array( 'indexing-notice' ),
 			$settings ? array( 'indexing-notice' => $settings ) : array(),
 			$warnings

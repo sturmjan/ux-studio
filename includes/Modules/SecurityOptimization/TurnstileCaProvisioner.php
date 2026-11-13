@@ -1,6 +1,6 @@
 <?php
 /**
- * Auto-provisions Cloudflare Turnstile keys via the central app's broker
+ * Auto-provisions Cloudflare Turnstile keys via UX1 Network app's broker
  * endpoint (`?page=turnstile_provision`), for sites already paired with it
  * through Content Sync.
  *
@@ -44,7 +44,7 @@ final class TurnstileCaProvisioner {
 		if ( '' === $central_url || '' === $secret ) {
 			return new WP_Error(
 				'uxstudio_turnstile_ca_not_configured',
-				__( 'The central app URL or the node API key is missing in Content Sync settings.', 'ux-studio' )
+				__( 'UX1 Network app URL or the node API key is missing in Content Sync settings.', 'ux-studio' )
 			);
 		}
 
@@ -92,7 +92,7 @@ final class TurnstileCaProvisioner {
 			$message = (string) ( $decoded['error'] ?? '' );
 			if ( '' === $message ) {
 				/* translators: %d: HTTP status code */
-				$message = sprintf( __( 'Central app returned HTTP %d.', 'ux-studio' ), $code );
+				$message = sprintf( __( 'UX1 Network app returned HTTP %d.', 'ux-studio' ), $code );
 			}
 			return new WP_Error( 'uxstudio_turnstile_ca_http', $message, array( 'status' => $code ) );
 		}
@@ -100,7 +100,7 @@ final class TurnstileCaProvisioner {
 		$site_key   = (string) ( $decoded['site_key'] ?? '' );
 		$secret_key = (string) ( $decoded['secret_key'] ?? '' );
 		if ( '' === $site_key || '' === $secret_key ) {
-			return new WP_Error( 'uxstudio_turnstile_ca_incomplete', __( 'Central app response is missing site_key/secret_key.', 'ux-studio' ) );
+			return new WP_Error( 'uxstudio_turnstile_ca_incomplete', __( 'UX1 Network app response is missing site_key/secret_key.', 'ux-studio' ) );
 		}
 
 		return array(
@@ -110,7 +110,7 @@ final class TurnstileCaProvisioner {
 	}
 
 	/**
-	 * Is this site connected to the central application (its URL and the shared node key are both set)? The same
+	 * Is this site connected to UX1 Network app (its URL and the shared node key are both set)? The same
 	 * credentials the provisioning call signs with, so "connected" means "the call can be made".
 	 */
 	public static function is_connected(): bool {
@@ -119,7 +119,7 @@ final class TurnstileCaProvisioner {
 	}
 
 	/**
-	 * Central app URL + shared node key - same source as CentralClient, this
+	 * UX1 Network app URL + shared node key - same source as CentralClient, this
 	 * module never stores its own copy.
 	 *
 	 * @return array{0:string,1:string}

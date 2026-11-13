@@ -1,7 +1,7 @@
 /**
- * Indexing & Sharing: refresh of the Facebook preview after a change (through the central app or with own keys)
+ * Indexing & Sharing: refresh of the Facebook preview after a change (through UX1 Network app or with own keys)
  * and IndexNow. The settings are the generic cards (schema in the module); this page adds what a form cannot say:
- * whether the central app is connected, a "Verify keys" button, the IndexNow key address.
+ * whether UX1 Network app is connected, a "Verify keys" button, the IndexNow key address.
  * Route: #/module?id=indexing-notice
  */
 import { useState } from 'react';
@@ -48,13 +48,13 @@ function Extras( { draft, status }: { draft: Record< string, Value >; status: St
 			{ social && ! own && status && ! status.central_app.connected && (
 				<p className="uxs-callout" role="note">
 					<TriangleAlert size={ 14 } aria-hidden />{ ' ' }
-					{ __( 'The site is not connected to the central app, so previews are not refreshed. Connect it (the setup wizard or the Content Sync module), or choose your own Facebook app.', 'ux-studio' ) }
+					{ __( 'The site is not connected to UX1 Network app, so previews are not refreshed. Connect it (the setup wizard or the Content Sync module), or choose your own Facebook app.', 'ux-studio' ) }
 				</p>
 			) }
 			{ social && ! own && status?.central_app.paused && (
 				<p className="uxs-callout" role="note">
 					<TriangleAlert size={ 14 } aria-hidden />{ ' ' }
-					{ __( 'The connection to the central app is paused, because this site is a copy or was moved. Nothing is sent.', 'ux-studio' ) }
+					{ __( 'The connection to UX1 Network app is paused, because this site is a copy or was moved. Nothing is sent.', 'ux-studio' ) }
 				</p>
 			) }
 			{ social && own && (

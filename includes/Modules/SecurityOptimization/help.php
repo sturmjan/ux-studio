@@ -19,7 +19,7 @@ return array(
 		'skip' => __( 'A CAPTCHA is already set up (turned on, keys stored or a CAPTCHA plugin active), or the site is behind a reverse proxy that is not Cloudflare: the Shield limits per IP address, and behind such a proxy every visitor looks the same.', 'ux-studio' ),
 	),
 	'captcha_provider'          => array(
-		'does' => __( 'Automatic uses keys from the central app while the site is connected, then your own Turnstile or reCAPTCHA keys, and the key-less Shield when there are none. Anything you choose by hand is used as it is.', 'ux-studio' ),
+		'does' => __( 'Automatic uses keys from UX1 Network app while the site is connected, then your own Turnstile or reCAPTCHA keys, and the key-less Shield when there are none. Anything you choose by hand is used as it is.', 'ux-studio' ),
 		'risk' => __( 'Choosing the Shield on a site that has Turnstile or reCAPTCHA keys drops that check: the Shield is lighter and has no network of other sites behind it. Choosing a provider without its keys switches the CAPTCHA off silently.', 'ux-studio' ),
 		'off'  => __( 'Leave it on Automatic unless you need one specific provider.', 'ux-studio' ),
 		'skip' => __( 'Same as the CAPTCHA switch: a CAPTCHA is already set up, a CAPTCHA plugin is active or the site is behind a reverse proxy that is not Cloudflare.', 'ux-studio' ),

@@ -55,15 +55,15 @@ msgstr ""
 #: includes/Modules/ServiceRequests/CentralClient.php:129
 #: includes/Modules/VulnerabilityScanner/CentralVulnerabilityClient.php:106
 #, php-format
-msgid "Central app returned HTTP %d."
+msgid "UX1 Network app returned HTTP %d."
 msgstr ""
 
 #: includes/Core/Broker.php:92
-msgid "Central app response failed signature verification."
+msgid "UX1 Network app response failed signature verification."
 msgstr ""
 
 #: includes/Core/CentralApp/Gateway.php:70
-msgid "The connection to the central app is paused, because this site is a copy or was moved to another address."
+msgid "The connection to UX1 Network app is paused, because this site is a copy or was moved to another address."
 msgstr ""
 
 #: includes/Core/CentralApp/Gateway.php:144
@@ -72,31 +72,31 @@ msgstr ""
 #: includes/Modules/SecurityOptimization/TurnstileCaProvisioner.php:47
 #: includes/Modules/ServiceRequests/CentralClient.php:76
 #: includes/Modules/VulnerabilityScanner/CentralVulnerabilityClient.php:51
-msgid "The central app URL or the node API key is missing in Content Sync settings."
+msgid "UX1 Network app URL or the node API key is missing in Content Sync settings."
 msgstr ""
 
 #. translators: %s: new address of the site.
 #: includes/Core/CentralApp/PausedNotice.php:42
 #, php-format
-msgid "This site was moved to %s. The connection with the central app is paused."
+msgid "This site was moved to %s. The connection with UX1 Network app is paused."
 msgstr ""
 
 #: includes/Core/CentralApp/PausedNotice.php:45
-msgid "This site was moved to another address. The connection with the central app is paused."
+msgid "This site was moved to another address. The connection with UX1 Network app is paused."
 msgstr ""
 
 #. translators: %s: address of the original site.
 #: includes/Core/CentralApp/PausedNotice.php:50
 #, php-format
-msgid "This site is a copy of the site %s. The connection with the central app is paused."
+msgid "This site is a copy of the site %s. The connection with UX1 Network app is paused."
 msgstr ""
 
 #: includes/Core/CentralApp/PausedNotice.php:53
-msgid "This site is a copy of another site. The connection with the central app is paused."
+msgid "This site is a copy of another site. The connection with UX1 Network app is paused."
 msgstr ""
 
 #: includes/Core/CentralApp/PausedNotice.php:66
-msgid "Nothing is sent to the central app from this site: no monitoring data, no preview refresh, no CAPTCHA keys. If this really is a separate site, connect it as a new one."
+msgid "Nothing is sent to UX1 Network app from this site: no monitoring data, no preview refresh, no CAPTCHA keys. If this really is a separate site, connect it as a new one."
 msgstr ""
 
 #: includes/Core/CentralApp/PausedNotice.php:70
@@ -5043,7 +5043,7 @@ msgid "This site is a copy or was moved, so its connection is paused. Use \"Conn
 msgstr ""
 
 #: includes/Core/Onboarding/CentralApp.php:220
-msgid "The address of the central app must start with https:// (http:// only works for localhost)."
+msgid "The address of UX1 Network app must start with https:// (http:// only works for localhost)."
 msgstr ""
 
 #: includes/Core/Onboarding/CentralApp.php:224
@@ -5051,7 +5051,7 @@ msgid "The Content Sync module is not available."
 msgstr ""
 
 #: includes/Core/Onboarding/CentralApp.php:230
-msgid "This site is set up as a hub and manages other sites. It cannot be connected to the central app as a managed site without breaking that."
+msgid "This site is set up as a hub and manages other sites. It cannot be connected to UX1 Network app as a managed site without breaking that."
 msgstr ""
 
 #. translators: %s: plugin names.
@@ -5070,7 +5070,7 @@ msgstr ""
 
 #: includes/Core/Onboarding/CentralApp.php:343
 #: includes/Modules/Forms/FormsCaptcha.php:140
-msgid "Connect the site to the central app first."
+msgid "Connect the site to UX1 Network app first."
 msgstr ""
 
 #: includes/Core/Onboarding/SharingUpgrade.php:174
@@ -5327,7 +5327,7 @@ msgid "CAPTCHA without keys"
 msgstr ""
 
 #: includes/Core/Onboarding/StarterPack.php:856
-msgid "Login, registration, lost password and comments ask the browser of the visitor to solve a small puzzle by itself (a fraction of a second, no account, no keys, no cookies, nothing sent to a third party). A visitor without JavaScript answers a simple sum instead, so nobody is locked out. It stops mass scripted attempts; it does not tell a person from a determined script. Keys from the central app or your own Turnstile keys are used instead as soon as they exist."
+msgid "Login, registration, lost password and comments ask the browser of the visitor to solve a small puzzle by itself (a fraction of a second, no account, no keys, no cookies, nothing sent to a third party). A visitor without JavaScript answers a simple sum instead, so nobody is locked out. It stops mass scripted attempts; it does not tell a person from a determined script. Keys from UX1 Network app or your own Turnstile keys are used instead as soon as they exist."
 msgstr ""
 
 #: includes/Core/Onboarding/StarterPack.php:867
@@ -5335,7 +5335,7 @@ msgid "The Shield stops mass scripted attempts, not a determined attacker with a
 msgstr ""
 
 #: includes/Core/Onboarding/StarterPack.php:887
-msgid "Facebook previews stay off, because the site is not connected to the central app. Connect it, or turn them on later in the module with your own Facebook app."
+msgid "Facebook previews stay off, because the site is not connected to UX1 Network app. Connect it, or turn them on later in the module with your own Facebook app."
 msgstr ""
 
 #. translators: %s: plugin names.
@@ -5349,7 +5349,7 @@ msgid "Indexing and sharing"
 msgstr ""
 
 #: includes/Core/Onboarding/StarterPack.php:905
-msgid "Warns in the admin when the site is hidden from search engines, so a launch is not forgotten. After you change a published page it tells Bing and Seznam about it (IndexNow) and, when the site is connected to the central app, makes Facebook fetch the new preview of the link."
+msgid "Warns in the admin when the site is hidden from search engines, so a launch is not forgotten. After you change a published page it tells Bing and Seznam about it (IndexNow) and, when the site is connected to UX1 Network app, makes Facebook fetch the new preview of the link."
 msgstr ""
 
 #: includes/Core/Onboarding/StarterPack.php:922
@@ -6991,7 +6991,7 @@ msgid "Plain text/basic HTML shown above the username/password fields."
 msgstr ""
 
 #: includes/Modules/AdminCustomiser/Module.php:227
-msgid "\"Split\" reproduces the login screen of the central app: a full-height media panel (video/image/YouTube) on one side and the form on the other."
+msgid "\"Split\" reproduces the login screen of UX1 Network app: a full-height media panel (video/image/YouTube) on one side and the form on the other."
 msgstr ""
 
 #: includes/Modules/AdminCustomiser/Module.php:229
@@ -6999,7 +6999,7 @@ msgid "Classic (centered form, colors above)"
 msgstr ""
 
 #: includes/Modules/AdminCustomiser/Module.php:230
-msgid "Split (media panel + form, like the central app)"
+msgid "Split (media panel + form, like UX1 Network app)"
 msgstr ""
 
 #: includes/Modules/AdminCustomiser/Module.php:238
@@ -7023,7 +7023,7 @@ msgid "Split layout: image / video poster"
 msgstr ""
 
 #: includes/Modules/AdminCustomiser/Module.php:251
-msgid "Used directly when the media type is \"Static image\", and as the poster/fallback frame for \"Video\" and \"YouTube\". Left empty, \"Video\" falls back to the same background clip used on the login screen of the central app."
+msgid "Used directly when the media type is \"Static image\", and as the poster/fallback frame for \"Video\" and \"YouTube\". Left empty, \"Video\" falls back to the same background clip used on the login screen of UX1 Network app."
 msgstr ""
 
 #: includes/Modules/AdminCustomiser/Module.php:258
@@ -7031,7 +7031,7 @@ msgid "Split layout: video URL (MP4)"
 msgstr ""
 
 #: includes/Modules/AdminCustomiser/Module.php:259
-msgid "Link to an .mp4 file - an external URL or a link copied from the media library. Used only when the media type is \"Video\". Left empty, it loads the same background clip used on the login screen of the central app (not bundled with the plugin, fetched from ux1.cz)."
+msgid "Link to an .mp4 file - an external URL or a link copied from the media library. Used only when the media type is \"Video\". Left empty, it loads the same background clip used on the login screen of UX1 Network app (not bundled with the plugin, fetched from ux1.cz)."
 msgstr ""
 
 #: includes/Modules/AdminCustomiser/Module.php:266
@@ -9795,7 +9795,7 @@ msgid "Get SEO Score"
 msgstr ""
 
 #: includes/Modules/AiAssistant/Mcp/Tools/SeoTools.php:39
-msgid "Analyse a post (or raw content) against the central app SEO checks and return the score, grade and per-check findings."
+msgid "Analyse a post (or raw content) against UX1 Network app SEO checks and return the score, grade and per-check findings."
 msgstr ""
 
 #: includes/Modules/AiAssistant/Mcp/Tools/SeoTools.php:43
@@ -9839,7 +9839,7 @@ msgid "Suggest Internal Links"
 msgstr ""
 
 #: includes/Modules/AiAssistant/Mcp/Tools/SeoTools.php:88
-msgid "Suggest internal links for a post from the client portfolio index in the central app. Empty when the site has no portfolio key there."
+msgid "Suggest internal links for a post from the client portfolio index in UX1 Network app. Empty when the site has no portfolio key there."
 msgstr ""
 
 #: includes/Modules/AiAssistant/Mcp/Tools/SeoTools.php:92
@@ -10629,13 +10629,7 @@ msgstr ""
 
 #: includes/Modules/AiAssistant/SeoAiClient.php:120
 #: includes/Modules/AiAssistant/SeoScoreEditor.php:149
-msgid "The central app is not connected. Connect this site in Content Sync first."
-msgstr ""
-
-#. translators: %d: HTTP status code
-#: includes/Modules/AiAssistant/SeoAiClient.php:158
-#, php-format
-msgid "The central app returned HTTP %d."
+msgid "UX1 Network app is not connected. Connect this site in Content Sync first."
 msgstr ""
 
 #: includes/Modules/AiAssistant/SeoScoreEditor.php:144
@@ -10718,7 +10712,7 @@ msgid "Find suggestions"
 msgstr ""
 
 #: includes/Modules/AiAssistant/SeoScoreEditor.php:162
-msgid "No suggestions. Either the client portfolio is missing in the central app, or no match was found in the content."
+msgid "No suggestions. Either the client portfolio is missing in UX1 Network app, or no match was found in the content."
 msgstr ""
 
 #: includes/Modules/AiAssistant/SeoScorePanel.php:93
@@ -12725,7 +12719,7 @@ msgid "Central report secret"
 msgstr ""
 
 #: includes/Modules/BotThrottle/Module.php:397
-msgid "Set the SAME value on every site managed by your central app to let it recognize a repeat-offender IP across sites, without ever seeing the raw address (only a keyed hash is reported). Leave empty to keep bans local and never report them."
+msgid "Set the SAME value on every site managed by your UX1 Network app to let it recognize a repeat-offender IP across sites, without ever seeing the raw address (only a keyed hash is reported). Leave empty to keep bans local and never report them."
 msgstr ""
 
 #. translators: %s: comma-separated bot names.
@@ -14401,25 +14395,25 @@ msgid "The scan result is not valid."
 msgstr ""
 
 #: includes/Modules/Consent/Scan.php:650
-msgid "This site is not connected to the central app."
+msgid "This site is not connected to UX1 Network app."
 msgstr ""
 
 #: includes/Modules/Consent/Scan.php:659
-msgid "The central app scanned this site a short while ago. Try again later."
+msgid "UX1 Network app scanned this site a short while ago. Try again later."
 msgstr ""
 
 #: includes/Modules/Consent/Scan.php:662
-msgid "The central app does not accept the request now (the site address or the connection needs attention)."
+msgid "UX1 Network app does not accept the request now (the site address or the connection needs attention)."
 msgstr ""
 
 #. translators: %d: HTTP status code
 #: includes/Modules/Consent/Scan.php:666
 #, php-format
-msgid "The central app answered with HTTP %d."
+msgid "UX1 Network app answered with HTTP %d."
 msgstr ""
 
 #: includes/Modules/Consent/Scan.php:673
-msgid "The scan is queued in the central app. The result appears here within a few minutes."
+msgid "The scan is queued in UX1 Network app. The result appears here within a few minutes."
 msgstr ""
 
 #: includes/Modules/Consent/ScanRest.php:82
@@ -14435,15 +14429,15 @@ msgid "Even someone who steals the key cannot control the site from another comp
 msgstr ""
 
 #: includes/Modules/ContentSync/help.php:14
-msgid "If the address of the central app server changes and you do not update the list, synchronization and remote sign-in stop working."
+msgid "If the address of UX1 Network app server changes and you do not update the list, synchronization and remote sign-in stop working."
 msgstr ""
 
 #: includes/Modules/ContentSync/help.php:15
-msgid "Leave it empty only when you cannot learn the address of the central app server. Then the signature is the only protection."
+msgid "Leave it empty only when you cannot learn the address of UX1 Network app server. Then the signature is the only protection."
 msgstr ""
 
 #: includes/Modules/ContentSync/help.php:18
-msgid "Lets the central app install and update plugins and themes on this site and, when needed, add one line (FS_METHOD) to wp-config.php, the file with the site configuration. Before it touches wp-config.php it saves a backup copy outside the public folders."
+msgid "Lets UX1 Network app install and update plugins and themes on this site and, when needed, add one line (FS_METHOD) to wp-config.php, the file with the site configuration. Before it touches wp-config.php it saves a backup copy outside the public folders."
 msgstr ""
 
 #: includes/Modules/ContentSync/help.php:19
@@ -14451,7 +14445,7 @@ msgid "You can roll out and update plugins on many sites from one place, without
 msgstr ""
 
 #: includes/Modules/ContentSync/help.php:20
-msgid "Installing a plugin means running new code on your site. Whoever controls the central app, or steals the key of this site, can install anything, so a leaked key then means full control of the site. Every package has to match its checksum, but that only proves the file was not damaged on the way, not that it is safe. Turn it on only together with the list of allowed addresses."
+msgid "Installing a plugin means running new code on your site. Whoever controls UX1 Network app, or steals the key of this site, can install anything, so a leaked key then means full control of the site. Every package has to match its checksum, but that only proves the file was not damaged on the way, not that it is safe. Turn it on only together with the list of allowed addresses."
 msgstr ""
 
 #: includes/Modules/ContentSync/help.php:21
@@ -14459,7 +14453,7 @@ msgid "Keep it off if you manage plugins on this site yourself. Content synchron
 msgstr ""
 
 #: includes/Modules/ContentSync/help.php:24
-msgid "Posts that arrive from the central app without an author get this user as the author."
+msgid "Posts that arrive from UX1 Network app without an author get this user as the author."
 msgstr ""
 
 #: includes/Modules/ContentSync/help.php:25
@@ -14471,23 +14465,23 @@ msgid "Leave 0 if the synchronized posts always come with their own author."
 msgstr ""
 
 #: includes/Modules/ContentSync/help.php:29
-msgid "Lets operators of the central app sign in to this site without a password as a user with administrator rights. Editors and lower roles can sign in with [[SSO]] either way."
+msgid "Lets operators of UX1 Network app sign in to this site without a password as a user with administrator rights. Editors and lower roles can sign in with [[SSO]] either way."
 msgstr ""
 
 #: includes/Modules/ContentSync/help.php:30
-msgid "The operator opens the administration with one click from the central app and does not need your password."
+msgid "The operator opens the administration with one click from UX1 Network app and does not need your password."
 msgstr ""
 
 #: includes/Modules/ContentSync/help.php:31
-msgid "An administrator can install plugins, which means running any code, and manage all users. With this on, a leaked key of this site or a hacked central app gives full control of the site. A sign-in link works once and for a short time only, but the rights it grants are complete. Turn it on only together with the list of allowed addresses."
+msgid "An administrator can install plugins, which means running any code, and manage all users. With this on, a leaked key of this site or a hacked UX1 Network app gives full control of the site. A sign-in link works once and for a short time only, but the rights it grants are complete. Turn it on only together with the list of allowed addresses."
 msgstr ""
 
 #: includes/Modules/ContentSync/help.php:32
-msgid "Keep it off unless you want the operators of the central app to administer this site."
+msgid "Keep it off unless you want the operators of UX1 Network app to administer this site."
 msgstr ""
 
 #: includes/Modules/ContentSync/help.php:35
-msgid "Decides how an operator from the central app is matched with a user of this site. Automatic matches the e-mail address and creates a user when there is none. Strict signs in only users that already exist. Disabled turns the sign-in from the central app off."
+msgid "Decides how an operator from UX1 Network app is matched with a user of this site. Automatic matches the e-mail address and creates a user when there is none. Strict signs in only users that already exist. Disabled turns the sign-in from UX1 Network app off."
 msgstr ""
 
 #: includes/Modules/ContentSync/help.php:36
@@ -14503,7 +14497,7 @@ msgid "Use strict when you want to approve every person yourself, and disabled w
 msgstr ""
 
 #: includes/Modules/ContentSync/help.php:41
-msgid "When an operator from the central app has no account here, a new user is created for them. An administrator is never created this way."
+msgid "When an operator from UX1 Network app has no account here, a new user is created for them. An administrator is never created this way."
 msgstr ""
 
 #: includes/Modules/ContentSync/help.php:42
@@ -14519,7 +14513,7 @@ msgid "Turn it off to let in only people who already have an account."
 msgstr ""
 
 #: includes/Modules/ContentSync/help.php:47
-msgid "The role given to users that are created automatically at the first sign-in from the central app. Administrator cannot be chosen on purpose."
+msgid "The role given to users that are created automatically at the first sign-in from UX1 Network app. Administrator cannot be chosen on purpose."
 msgstr ""
 
 #: includes/Modules/ContentSync/help.php:48
@@ -14531,7 +14525,7 @@ msgid "Editor can change any content on the site. Choose the lowest role that is
 msgstr ""
 
 #: includes/Modules/ContentSync/help.php:52
-msgid "How many seconds a one-time sign-in link from the central app stays valid. The value is kept between 15 and 300 seconds."
+msgid "How many seconds a one-time sign-in link from UX1 Network app stays valid. The value is kept between 15 and 300 seconds."
 msgstr ""
 
 #: includes/Modules/ContentSync/help.php:53
@@ -14595,11 +14589,11 @@ msgid "The default of 5 is a sensible balance."
 msgstr ""
 
 #: includes/Modules/ContentSync/help.php:76
-msgid "How many sign-in links the central app may create for one operator in an hour."
+msgid "How many sign-in links UX1 Network app may create for one operator in an hour."
 msgstr ""
 
 #: includes/Modules/ContentSync/help.php:77
-msgid "It limits the damage when an operator account of the central app is misused."
+msgid "It limits the damage when an operator account of UX1 Network app is misused."
 msgstr ""
 
 #: includes/Modules/ContentSync/help.php:78
@@ -14704,7 +14698,7 @@ msgid "Allowed hub IP addresses (node)"
 msgstr ""
 
 #: includes/Modules/ContentSync/Module.php:235
-msgid "One IP address per line. When filled in, the node answers only requests from these addresses (the hub / central app server). Leave blank to accept any IP with a valid signature."
+msgid "One IP address per line. When filled in, the node answers only requests from these addresses (the hub / UX1 Network app server). Leave blank to accept any IP with a valid signature."
 msgstr ""
 
 #: includes/Modules/ContentSync/Module.php:241
@@ -14712,7 +14706,7 @@ msgid "Allow package management (node)"
 msgstr ""
 
 #: includes/Modules/ContentSync/Module.php:242
-msgid "Lets the central app install/update plugins and themes and set FS_METHOD in wp-config.php on this site. Off by default. Turn on only together with the allowed IP list above."
+msgid "Lets UX1 Network app install/update plugins and themes and set FS_METHOD in wp-config.php on this site. Off by default. Turn on only together with the allowed IP list above."
 msgstr ""
 
 #: includes/Modules/ContentSync/Module.php:248
@@ -14728,7 +14722,7 @@ msgid "Allow SSO login as administrator"
 msgstr ""
 
 #: includes/Modules/ContentSync/Module.php:256
-msgid "Lets central app operators sign in to accounts with administrator rights (install plugins, manage users). Off by default: an administrator login can install code, so with this on a leaked node key gives full control of the site. Turn on only together with the allowed IP list. Editors and lower roles sign in either way."
+msgid "Lets UX1 Network app operators sign in to accounts with administrator rights (install plugins, manage users). Off by default: an administrator login can install code, so with this on a leaked node key gives full control of the site. Turn on only together with the allowed IP list. Editors and lower roles sign in either way."
 msgstr ""
 
 #: includes/Modules/ContentSync/Module.php:262
@@ -14801,19 +14795,19 @@ msgstr ""
 
 #: includes/Modules/ContentSync/Module.php:320
 #: includes/Modules/ThirdPartyLogin/Module.php:166
-msgid "Central app URL"
+msgid "UX1 Network app URL"
 msgstr ""
 
 #: includes/Modules/ContentSync/Module.php:321
-msgid "Base URL of the central app acting as the broker for connected sites."
+msgid "Base URL of UX1 Network app acting as the broker for connected sites."
 msgstr ""
 
 #: includes/Modules/ContentSync/Module.php:327
-msgid "Central app HMAC secret"
+msgid "UX1 Network app HMAC secret"
 msgstr ""
 
 #: includes/Modules/ContentSync/Module.php:328
-msgid "Shared secret used to sign/verify every request to and from the central app. Stored encrypted. Leave blank to keep the current secret."
+msgid "Shared secret used to sign/verify every request to and from UX1 Network app. Stored encrypted. Leave blank to keep the current secret."
 msgstr ""
 
 #: includes/Modules/ContentSync/Module.php:334
@@ -14987,15 +14981,15 @@ msgid "Local file is not readable."
 msgstr ""
 
 #: includes/Modules/CronControl/help.php:12
-msgid "Chooses what starts the scheduled tasks of the site ([[cron|WP-Cron]]): publishing planned posts, checking for updates, sending e-mails from plugins. Normally WordPress starts them whenever a visitor opens a page. Here you can leave it that way, switch it off completely, switch it off for visitors but keep it for the server itself, let the hosting start it, or let the central app start it."
+msgid "Chooses what starts the scheduled tasks of the site ([[cron|WP-Cron]]): publishing planned posts, checking for updates, sending e-mails from plugins. Normally WordPress starts them whenever a visitor opens a page. Here you can leave it that way, switch it off completely, switch it off for visitors but keep it for the server itself, let the hosting start it, or let UX1 Network app start it."
 msgstr ""
 
 #: includes/Modules/CronControl/help.php:13
-msgid "Starting tasks from the hosting or the central app is more reliable and takes work away from page loads. The module does it by adding a small file to the mu-plugins folder that sets DISABLE_WP_CRON, so wp-config.php stays untouched. In the modes that block outside access, the cron file also gets an access rule in .htaccess. That works on Apache only, on nginx you set the rule up yourself."
+msgid "Starting tasks from the hosting or UX1 Network app is more reliable and takes work away from page loads. The module does it by adding a small file to the mu-plugins folder that sets DISABLE_WP_CRON, so wp-config.php stays untouched. In the modes that block outside access, the cron file also gets an access rule in .htaccess. That works on Apache only, on nginx you set the rule up yourself."
 msgstr ""
 
 #: includes/Modules/CronControl/help.php:14
-msgid "When you turn off the start from page visits and nothing else starts the tasks, they stop for good: planned posts are not published, backups and updates are not run, mail queues stand still. Use the hosting or central app mode only after the hosting cron or the central app really calls the site. The module cannot see whether the hosting cron is set up."
+msgid "When you turn off the start from page visits and nothing else starts the tasks, they stop for good: planned posts are not published, backups and updates are not run, mail queues stand still. Use the hosting or UX1 Network app mode only after the hosting cron or UX1 Network app really calls the site. The module cannot see whether the hosting cron is set up."
 msgstr ""
 
 #: includes/Modules/CronControl/help.php:15
@@ -15003,7 +14997,7 @@ msgid "Leave it at running normally if you do not know what to choose, or if the
 msgstr ""
 
 #: includes/Modules/CronControl/help.php:18
-msgid "In the central app mode these addresses may open the cron file (wp-cron.php) of the site, on top of requests from the server itself. You can list single addresses or whole ranges ([[CIDR]]), one per line."
+msgid "In UX1 Network app mode these addresses may open the cron file (wp-cron.php) of the site, on top of requests from the server itself. You can list single addresses or whole ranges ([[CIDR]]), one per line."
 msgstr ""
 
 #: includes/Modules/CronControl/help.php:19
@@ -15011,7 +15005,7 @@ msgid "Nobody else can start the tasks from outside, so strangers cannot overloa
 msgstr ""
 
 #: includes/Modules/CronControl/help.php:20
-msgid "If the address of the central app server is missing here, the app cannot start the tasks and they stop running."
+msgid "If the address of UX1 Network app server is missing here, the app cannot start the tasks and they stop running."
 msgstr ""
 
 #: includes/Modules/CronControl/help.php:21
@@ -15075,7 +15069,7 @@ msgid "Disable WP-Cron and trigger it from a hosting cron"
 msgstr ""
 
 #: includes/Modules/CronControl/Module.php:177
-msgid "Drive WP-Cron from the central app"
+msgid "Drive WP-Cron from UX1 Network app"
 msgstr ""
 
 #: includes/Modules/CronControl/Module.php:184
@@ -15087,11 +15081,11 @@ msgid "WordPress runs scheduled tasks (wp-cron) on every front-end page load, wh
 msgstr ""
 
 #: includes/Modules/CronControl/Module.php:192
-msgid "Central app IP allowlist (central mode)"
+msgid "UX1 Network app IP allowlist (central mode)"
 msgstr ""
 
 #: includes/Modules/CronControl/Module.php:193
-msgid "Only used in \"central app\" mode. One IP or CIDR per line - these are allowed to reach wp-cron.php in addition to local requests. Leave blank to allow local requests only."
+msgid "Only used in \"UX1 Network app\" mode. One IP or CIDR per line - these are allowed to reach wp-cron.php in addition to local requests. Leave blank to allow local requests only."
 msgstr ""
 
 #: includes/Modules/CronControl/Module.php:199
@@ -15118,24 +15112,24 @@ msgstr ""
 msgid "Cron hook names that must never be reported as unknown - one per line. Supports a trailing \"*\" wildcard, e.g. \"woocommerce_*\"."
 msgstr ""
 
-#. translators: %s: error message from the connection or the central app
+#. translators: %s: error message from the connection or UX1 Network app
 #: includes/Modules/CronControl/Module.php:286
 #, php-format
-msgid "Sending the cron settings to the central app failed: %s"
+msgid "Sending the cron settings to UX1 Network app failed: %s"
 msgstr ""
 
 #. translators: %d: interval in minutes
 #: includes/Modules/CronControl/Module.php:294
 #, php-format
-msgid "The central app runs wp-cron every %d minutes."
+msgid "UX1 Network app runs wp-cron every %d minutes."
 msgstr ""
 
 #: includes/Modules/CronControl/Module.php:297
-msgid "The central app has cron turned off for this site."
+msgid "UX1 Network app has cron turned off for this site."
 msgstr ""
 
 #: includes/Modules/CronControl/Module.php:349
-msgid "The WP-Cron mode is not set to the central app."
+msgid "The WP-Cron mode is not set to UX1 Network app."
 msgstr ""
 
 #: includes/Modules/CronControl/Module.php:381
@@ -15143,7 +15137,7 @@ msgid "Cron Control is not active on this site - WP-Cron already runs normally."
 msgstr ""
 
 #: includes/Modules/CronControl/Module.php:389
-msgid "The central app URL is not set in Content Sync on this site, so the central app mode cannot be used."
+msgid "UX1 Network app URL is not set in Content Sync on this site, so UX1 Network app mode cannot be used."
 msgstr ""
 
 #: includes/Modules/CronControl/Module.php:402
@@ -15151,11 +15145,11 @@ msgid "The Cron Control module could not be loaded."
 msgstr ""
 
 #: includes/Modules/CronControl/Module.php:430
-msgid "WP-Cron is now driven by the central app."
+msgid "WP-Cron is now driven by UX1 Network app."
 msgstr ""
 
 #: includes/Modules/CronControl/Module.php:431
-msgid "The central app no longer drives WP-Cron on this site."
+msgid "UX1 Network app no longer drives WP-Cron on this site."
 msgstr ""
 
 #: includes/Modules/CronControl/Module.php:688
@@ -16483,7 +16477,7 @@ msgid "The update check is turned off in UX1 Studio."
 msgstr ""
 
 #: includes/Modules/DnsManager/CaClient.php:84
-msgid "The central app is not reachable."
+msgid "UX1 Network app is not reachable."
 msgstr ""
 
 #: includes/Modules/DnsManager/DashboardWidget.php:42
@@ -18893,7 +18887,7 @@ msgid "The Security module is not available."
 msgstr ""
 
 #: includes/Modules/Forms/FormsCaptcha.php:144
-msgid "The site already has its own CAPTCHA keys. Remove them in Security > CAPTCHA first if you want keys from the central app."
+msgid "The site already has its own CAPTCHA keys. Remove them in Security > CAPTCHA first if you want keys from UX1 Network app."
 msgstr ""
 
 #: includes/Modules/Forms/GutenbergBlock.php:44
@@ -20393,15 +20387,15 @@ msgstr ""
 
 #: includes/Modules/IndexingNotice/Dispatcher.php:359
 #: build/792.e76b3c57f168142448e6.js:6
-msgid "The site is not connected to the central app."
+msgid "The site is not connected to UX1 Network app."
 msgstr ""
 
 #: includes/Modules/IndexingNotice/Dispatcher.php:378
-msgid "The central app asked to wait (too many requests)."
+msgid "UX1 Network app asked to wait (too many requests)."
 msgstr ""
 
 #: includes/Modules/IndexingNotice/Dispatcher.php:382
-msgid "The central app knows this site under another address and is being told about the move."
+msgid "UX1 Network app knows this site under another address and is being told about the move."
 msgstr ""
 
 #: includes/Modules/IndexingNotice/Dispatcher.php:385
@@ -20409,7 +20403,7 @@ msgid "This site is a copy or was moved, the connection is paused."
 msgstr ""
 
 #: includes/Modules/IndexingNotice/Dispatcher.php:406
-msgid "The central app sent no result for this address."
+msgid "UX1 Network app sent no result for this address."
 msgstr ""
 
 #: includes/Modules/IndexingNotice/Dispatcher.php:437
@@ -20483,19 +20477,19 @@ msgid "Leave it off if the site is not shared on social networks."
 msgstr ""
 
 #: includes/Modules/IndexingNotice/help.php:18
-msgid "Facebook only answers an app that is registered with it. Central app means this site asks the central app to do the refresh with its app, so you fill in nothing. My own Facebook app means this site calls Facebook itself with keys of your app."
+msgid "Facebook only answers an app that is registered with it. UX1 Network app means this site asks UX1 Network app to do the refresh with its app, so you fill in nothing. My own Facebook app means this site calls Facebook itself with keys of your app."
 msgstr ""
 
 #: includes/Modules/IndexingNotice/help.php:19
-msgid "With the central app the site sends only the addresses of changed pages. The secret of the central app never reaches the site. With your own app the limits and the responsibility are yours alone."
+msgid "With UX1 Network app the site sends only the addresses of changed pages. The secret of UX1 Network app never reaches the site. With your own app the limits and the responsibility are yours alone."
 msgstr ""
 
 #: includes/Modules/IndexingNotice/help.php:20
-msgid "The central app option works only when the site is connected to it. Without the connection no preview is refreshed, and the settings show a warning."
+msgid "UX1 Network app option works only when the site is connected to it. Without the connection no preview is refreshed, and the settings show a warning."
 msgstr ""
 
 #: includes/Modules/IndexingNotice/help.php:21
-msgid "Choose your own app if the site is not managed by the central app, or if you want it to be independent of it."
+msgid "Choose your own app if the site is not managed by UX1 Network app, or if you want it to be independent of it."
 msgstr ""
 
 #: includes/Modules/IndexingNotice/help.php:24
@@ -20571,7 +20565,7 @@ msgid "Where the Facebook keys come from"
 msgstr ""
 
 #: includes/Modules/IndexingNotice/Module.php:155
-msgid "Central app (nothing to fill in)"
+msgid "UX1 Network app (nothing to fill in)"
 msgstr ""
 
 #: includes/Modules/IndexingNotice/Module.php:156
@@ -23281,11 +23275,11 @@ msgid "%d rules send visitors to the homepage. Google treats mass homepage redir
 msgstr ""
 
 #: includes/Modules/ReviewAggregator/CentralReviewsClient.php:173
-msgid "Set the central app URL and the node API key in Content Sync first."
+msgid "Set UX1 Network app URL and the node API key in Content Sync first."
 msgstr ""
 
 #: includes/Modules/ReviewAggregator/CentralReviewsClient.php:213
-msgid "The central app has no reviews API secret for this site yet (Google login secret not generated in the site detail)."
+msgid "UX1 Network app has no reviews API secret for this site yet (Google login secret not generated in the site detail)."
 msgstr ""
 
 #: includes/Modules/ReviewAggregator/help.php:12
@@ -23333,7 +23327,7 @@ msgid "Visitors read the rating at a glance."
 msgstr ""
 
 #: includes/Modules/ReviewAggregator/help.php:33
-msgid "Downloads new reviews from the central app on a schedule, without you doing anything."
+msgid "Downloads new reviews from UX1 Network app on a schedule, without you doing anything."
 msgstr ""
 
 #: includes/Modules/ReviewAggregator/help.php:34
@@ -23401,15 +23395,15 @@ msgid "Fetch interval"
 msgstr ""
 
 #: includes/Modules/ReviewAggregator/Module.php:265
-msgid "How often new reviews are pulled from the central app automatically."
+msgid "How often new reviews are pulled from UX1 Network app automatically."
 msgstr ""
 
 #: includes/Modules/ReviewAggregator/Module.php:278
-msgid "Central app profile ID"
+msgid "UX1 Network app profile ID"
 msgstr ""
 
 #: includes/Modules/ReviewAggregator/Module.php:279
-msgid "Numeric ID of the review profile in the central app (Reviews). The profile must belong to this site there."
+msgid "Numeric ID of the review profile in UX1 Network app (Reviews). The profile must belong to this site there."
 msgstr ""
 
 #: includes/Modules/ReviewAggregator/Module.php:285
@@ -23417,7 +23411,7 @@ msgid "Google Maps URL or Place ID"
 msgstr ""
 
 #: includes/Modules/ReviewAggregator/Module.php:286
-msgid "Used by \"Request a full scan\" to find or create the Google profile in the central app."
+msgid "Used by \"Request a full scan\" to find or create the Google profile in UX1 Network app."
 msgstr ""
 
 #: includes/Modules/ReviewAggregator/Module.php:355
@@ -23426,7 +23420,7 @@ msgid "Review not found."
 msgstr ""
 
 #: includes/Modules/ReviewAggregator/Module.php:416
-msgid "Set the central app profile ID first."
+msgid "Set UX1 Network app profile ID first."
 msgstr ""
 
 #: includes/Modules/ReviewAggregator/Module.php:522
@@ -23950,7 +23944,7 @@ msgid "A CAPTCHA is already set up (turned on, keys stored or a CAPTCHA plugin a
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/help.php:22
-msgid "Automatic uses keys from the central app while the site is connected, then your own Turnstile or reCAPTCHA keys, and the key-less Shield when there are none. Anything you choose by hand is used as it is."
+msgid "Automatic uses keys from UX1 Network app while the site is connected, then your own Turnstile or reCAPTCHA keys, and the key-less Shield when there are none. Anything you choose by hand is used as it is."
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/help.php:23
@@ -25047,7 +25041,7 @@ msgid "Adds CAPTCHA verification to login, registration and lost-password forms.
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/Module.php:870
-msgid "Automatic uses keys from the central app when the site is connected, then your own keys, and the key-less Shield when there are none. The Shield needs no account and no keys."
+msgid "Automatic uses keys from UX1 Network app when the site is connected, then your own keys, and the key-less Shield when there are none. The Shield needs no account and no keys."
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/Module.php:872
@@ -25221,7 +25215,7 @@ msgid "Stored encrypted server-side. Leave blank to keep the current key."
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/Module.php:1027
-msgid "Manual: paste site/secret key yourself. Central app: this site (already paired via Content Sync) gets a key automatically from a shared Turnstile widget managed by the central app. Own Cloudflare API token: this site manages its own Turnstile widget directly, using an API token you paste below."
+msgid "Manual: paste site/secret key yourself. UX1 Network app: this site (already paired via Content Sync) gets a key automatically from a shared Turnstile widget managed by UX1 Network app. Own Cloudflare API token: this site manages its own Turnstile widget directly, using an API token you paste below."
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/Module.php:1029
@@ -25229,7 +25223,7 @@ msgid "Manual (paste keys below)"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/Module.php:1030
-msgid "Automatic via central app"
+msgid "Automatic via UX1 Network app"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/Module.php:1031
@@ -25741,7 +25735,7 @@ msgid "Check question: what is %1$d + %2$d?"
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/TurnstileCaProvisioner.php:103
-msgid "Central app response is missing site_key/secret_key."
+msgid "UX1 Network app response is missing site_key/secret_key."
 msgstr ""
 
 #: includes/Modules/SecurityOptimization/TurnstileSelfProvisioner.php:39
@@ -26204,7 +26198,7 @@ msgid "Service request not found."
 msgstr ""
 
 #: includes/Modules/ServiceRequests/Module.php:275
-msgid "This request has not reached the central app yet. Try again once it is submitted."
+msgid "This request has not reached UX1 Network app yet. Try again once it is submitted."
 msgstr ""
 
 #: includes/Modules/ServiceRequests/Module.php:348
@@ -26919,19 +26913,19 @@ msgid "Only users with one of these roles may upload SVG files. Defaults to admi
 msgstr ""
 
 #: includes/Modules/ThirdPartyLogin/help.php:12
-msgid "The address of the central app that talks to Google, Facebook, Apple or Seznam for this site. The site never sees your provider keys, only the answer of the central app."
+msgid "The address of UX1 Network app that talks to Google, Facebook, Apple or Seznam for this site. The site never sees your provider keys, only the answer of UX1 Network app."
 msgstr ""
 
 #: includes/Modules/ThirdPartyLogin/help.php:13
-msgid "Without a working address the login buttons cannot start. Use the address of your own central app, including the https:// part."
+msgid "Without a working address the login buttons cannot start. Use the address of your own UX1 Network app, including the https:// part."
 msgstr ""
 
 #: includes/Modules/ThirdPartyLogin/help.php:14
-msgid "The central app tells the site who is logging in, so enter only an address you own and trust."
+msgid "UX1 Network app tells the site who is logging in, so enter only an address you own and trust."
 msgstr ""
 
 #: includes/Modules/ThirdPartyLogin/help.php:17
-msgid "A shared password between this site and the central app. Both sides use it to sign every login message, so a forged message is recognized and rejected. The central app shows it in the detail of the site under \"Third-party login\"."
+msgid "A shared password between this site and UX1 Network app. Both sides use it to sign every login message, so a forged message is recognized and rejected. UX1 Network app shows it in the detail of the site under \"Third-party login\"."
 msgstr ""
 
 #: includes/Modules/ThirdPartyLogin/help.php:18
@@ -26943,7 +26937,7 @@ msgid "A wrong or old secret makes every third-party login fail. Anyone who lear
 msgstr ""
 
 #: includes/Modules/ThirdPartyLogin/help.php:22
-msgid "Chooses which login buttons appear on the login page. A provider also has to be set up in the central app and enabled there for this site."
+msgid "Chooses which login buttons appear on the login page. A provider also has to be set up in UX1 Network app and enabled there for this site."
 msgstr ""
 
 #: includes/Modules/ThirdPartyLogin/help.php:23
@@ -27015,7 +27009,7 @@ msgid "Write a short invitation in the voice of your site. It is shown only to u
 msgstr ""
 
 #: includes/Modules/ThirdPartyLogin/Module.php:167
-msgid "Base URL of the central app that performs the OAuth handshake, e.g. https://ux1.cz/app/."
+msgid "Base URL of UX1 Network app that performs the OAuth handshake, e.g. https://ux1.cz/app/."
 msgstr ""
 
 #: includes/Modules/ThirdPartyLogin/Module.php:173
@@ -27023,7 +27017,7 @@ msgid "HMAC secret"
 msgstr ""
 
 #: includes/Modules/ThirdPartyLogin/Module.php:174
-msgid "Shared secret from the central app (site detail, \"Third-party login\"). Signs the handshake in both directions. Stored encrypted. Leave blank to keep the current secret."
+msgid "Shared secret from UX1 Network app (site detail, \"Third-party login\"). Signs the handshake in both directions. Stored encrypted. Leave blank to keep the current secret."
 msgstr ""
 
 #: includes/Modules/ThirdPartyLogin/Module.php:180
@@ -27031,7 +27025,7 @@ msgid "Enabled providers"
 msgstr ""
 
 #: includes/Modules/ThirdPartyLogin/Module.php:181
-msgid "A provider also has to be configured centrally and enabled for this site in the central app."
+msgid "A provider also has to be configured centrally and enabled for this site in UX1 Network app."
 msgstr ""
 
 #: includes/Modules/ThirdPartyLogin/Module.php:183
@@ -27356,7 +27350,7 @@ msgid "Select a user to add a default switch option in your admin bar."
 msgstr ""
 
 #: includes/Modules/VulnerabilityScanner/help.php:12
-msgid "The scanner sends the list of your plugins, themes and their versions to the central app. The central app compares it with a database of known security holes (Wordfence Intelligence) and sends back what it found."
+msgid "The scanner sends the list of your plugins, themes and their versions to UX1 Network app. UX1 Network app compares it with a database of known security holes (Wordfence Intelligence) and sends back what it found."
 msgstr ""
 
 #: includes/Modules/VulnerabilityScanner/help.php:13
@@ -27364,7 +27358,7 @@ msgid "You see confirmed vulnerabilities for the exact versions installed here, 
 msgstr ""
 
 #: includes/Modules/VulnerabilityScanner/help.php:14
-msgid "Without it the scanner only knows that a newer version exists on WordPress.org. It cannot tell whether your version has a known hole, so an empty result is not an all-clear. The check also needs the site to be paired with the central app via Content Sync."
+msgid "Without it the scanner only knows that a newer version exists on WordPress.org. It cannot tell whether your version has a known hole, so an empty result is not an all-clear. The check also needs the site to be paired with UX1 Network app via Content Sync."
 msgstr ""
 
 #: includes/Modules/VulnerabilityScanner/help.php:15
@@ -27376,7 +27370,7 @@ msgid "How many hours pass between two automatic scans. They run in the backgrou
 msgstr ""
 
 #: includes/Modules/VulnerabilityScanner/help.php:19
-msgid "A shorter interval finds a newly published hole sooner. A longer one means fewer requests to the central app. Once a day is enough for most sites."
+msgid "A shorter interval finds a newly published hole sooner. A longer one means fewer requests to UX1 Network app. Once a day is enough for most sites."
 msgstr ""
 
 #: includes/Modules/VulnerabilityScanner/help.php:20
@@ -27418,7 +27412,7 @@ msgid "Check against the central vulnerability database"
 msgstr ""
 
 #: includes/Modules/VulnerabilityScanner/Module.php:133
-msgid "Sends the list of installed plugins, themes and their versions to the central app, which matches it against known vulnerabilities and returns the findings. Requires the site to be paired via Content Sync. With this off, only the free WordPress.org outdated-version check runs."
+msgid "Sends the list of installed plugins, themes and their versions to UX1 Network app, which matches it against known vulnerabilities and returns the findings. Requires the site to be paired via Content Sync. With this off, only the free WordPress.org outdated-version check runs."
 msgstr ""
 
 #: includes/Modules/VulnerabilityScanner/Module.php:139
@@ -28243,7 +28237,7 @@ msgid "Denied"
 msgstr ""
 
 #: build/81.6dae77ad39d2d95e9ddf.js:4
-msgid "The central app is not reachable, showing the local copy of the history."
+msgid "UX1 Network app is not reachable, showing the local copy of the history."
 msgstr ""
 
 #: build/81.6dae77ad39d2d95e9ddf.js:4
@@ -28304,7 +28298,7 @@ msgid "The connection to Cloudflare is interrupted. Please contact us."
 msgstr ""
 
 #: build/81.6dae77ad39d2d95e9ddf.js:4
-msgid "The central app is not reachable right now. Try again later."
+msgid "UX1 Network app is not reachable right now. Try again later."
 msgstr ""
 
 #: build/81.6dae77ad39d2d95e9ddf.js:4
@@ -30429,11 +30423,11 @@ msgid "No node API key set yet."
 msgstr ""
 
 #: build/309.335190b4b4a8d6ff84bd.js:1
-msgid "A central-app HMAC secret is set."
+msgid "A UX1 Network app HMAC secret is set."
 msgstr ""
 
 #: build/309.335190b4b4a8d6ff84bd.js:1
-msgid "No central-app HMAC secret set."
+msgid "No UX1 Network app HMAC secret set."
 msgstr ""
 
 #: build/309.335190b4b4a8d6ff84bd.js:1
@@ -31359,7 +31353,7 @@ msgid "Results"
 msgstr ""
 
 #: build/457.bdefa68ab6d3ab084fcc.js:1
-msgid "This site is paired with the central app, so confirmed CVE data is available."
+msgid "This site is paired with UX1 Network app, so confirmed CVE data is available."
 msgstr ""
 
 #: build/457.bdefa68ab6d3ab084fcc.js:1
@@ -33332,14 +33326,14 @@ msgid "Fetch reviews"
 msgstr ""
 
 #: build/718.d8dee91da662a58b8b77.js:1
-msgid "Ask the central app to download the whole history of your Google reviews, not only the latest ones. When it has finished, press \"Fetch reviews\"."
+msgid "Ask UX1 Network app to download the whole history of your Google reviews, not only the latest ones. When it has finished, press \"Fetch reviews\"."
 msgstr ""
 
 #: build/718.d8dee91da662a58b8b77.js:1
 msgid "Request a full scan"
 msgstr ""
 
-#. translators: %d: central app scrape job id
+#. translators: %d: UX1 Network app scrape job id
 #: build/718.d8dee91da662a58b8b77.js:2
 #, js-format
 msgid "Full scan requested (job #%d). Press \"Fetch reviews\" once it has finished."
@@ -33379,11 +33373,11 @@ msgid "Shortcode: [uxstudio_reviews]"
 msgstr ""
 
 #: build/727.6d5bccb138f66ad931c8.js:1
-msgid "The site is not connected to the central app, so previews are not refreshed. Connect it (the setup wizard or the Content Sync module), or choose your own Facebook app."
+msgid "The site is not connected to UX1 Network app, so previews are not refreshed. Connect it (the setup wizard or the Content Sync module), or choose your own Facebook app."
 msgstr ""
 
 #: build/727.6d5bccb138f66ad931c8.js:1
-msgid "The connection to the central app is paused, because this site is a copy or was moved. Nothing is sent."
+msgid "The connection to UX1 Network app is paused, because this site is a copy or was moved. Nothing is sent."
 msgstr ""
 
 #: build/727.6d5bccb138f66ad931c8.js:1
@@ -33552,7 +33546,7 @@ msgid "External hosting cron"
 msgstr ""
 
 #: build/744.16b934e695e287117fb6.js:1
-msgid "Driven by central app"
+msgid "Driven by UX1 Network app"
 msgstr ""
 
 #: build/744.16b934e695e287117fb6.js:1
@@ -33648,7 +33642,7 @@ msgid "Example crontab line:"
 msgstr ""
 
 #: build/744.16b934e695e287117fb6.js:1
-msgid "Sync with the central app"
+msgid "Sync with UX1 Network app"
 msgstr ""
 
 #: build/744.16b934e695e287117fb6.js:1
@@ -33656,15 +33650,15 @@ msgid "Last sent:"
 msgstr ""
 
 #: build/744.16b934e695e287117fb6.js:1
-msgid "The cron settings have not been sent to the central app yet."
+msgid "The cron settings have not been sent to UX1 Network app yet."
 msgstr ""
 
 #: build/744.16b934e695e287117fb6.js:1
-msgid "The central app may not be calling wp-cron.php for this site, so scheduled tasks may not run. Resend the settings."
+msgid "UX1 Network app may not be calling wp-cron.php for this site, so scheduled tasks may not run. Resend the settings."
 msgstr ""
 
 #: build/744.16b934e695e287117fb6.js:1
-msgid "Resend settings to the central app"
+msgid "Resend settings to UX1 Network app"
 msgstr ""
 
 #: build/744.16b934e695e287117fb6.js:1
@@ -34163,7 +34157,7 @@ msgstr ""
 #. translators: %s: provider name.
 #: build/792.e76b3c57f168142448e6.js:4
 #, js-format
-msgid "Using: %s (keys from the central app)"
+msgid "Using: %s (keys from UX1 Network app)"
 msgstr ""
 
 #. translators: %s: provider name.
@@ -34177,7 +34171,7 @@ msgid "The visitor's browser solves a small puzzle by itself: no account, no key
 msgstr ""
 
 #: build/792.e76b3c57f168142448e6.js:5
-msgid "This site is connected to the central app, which can give it Cloudflare Turnstile keys. The same keys then protect the login forms too."
+msgid "This site is connected to UX1 Network app, which can give it Cloudflare Turnstile keys. The same keys then protect the login forms too."
 msgstr ""
 
 #: build/792.e76b3c57f168142448e6.js:5
@@ -34185,26 +34179,26 @@ msgid "Getting keys…"
 msgstr ""
 
 #: build/792.e76b3c57f168142448e6.js:5
-msgid "Get keys from the central app"
+msgid "Get keys from UX1 Network app"
 msgstr ""
 
 #: build/792.e76b3c57f168142448e6.js:5
 msgid "The keys were stored. The form now uses Cloudflare Turnstile."
 msgstr ""
 
-#. translators: %s: error text of the central application.
+#. translators: %s: error text of UX1 Network app.
 #: build/792.e76b3c57f168142448e6.js:6
 #, js-format
 msgid "Getting the keys failed: %s"
 msgstr ""
 
 #: build/792.e76b3c57f168142448e6.js:6
-msgid "The site is not connected to the central app, so the Shield protects this form for now."
+msgid "The site is not connected to UX1 Network app, so the Shield protects this form for now."
 msgstr ""
 
 #: build/792.e76b3c57f168142448e6.js:6
 #: build/index.e2f97ac80863bc5a165b.js:54
-msgid "Connect to the central app"
+msgid "Connect to UX1 Network app"
 msgstr ""
 
 #: build/792.e76b3c57f168142448e6.js:6
@@ -35288,7 +35282,7 @@ msgid "Show CAPTCHA field when placed in this form"
 msgstr ""
 
 #: build/792.e76b3c57f168142448e6.js:9
-msgid "A honeypot field is always active regardless of this setting. The CAPTCHA field works on its own: it uses keys from the central app or your own keys, and the key-less Shield when there are none."
+msgid "A honeypot field is always active regardless of this setting. The CAPTCHA field works on its own: it uses keys from UX1 Network app or your own keys, and the key-less Shield when there are none."
 msgstr ""
 
 #: build/792.e76b3c57f168142448e6.js:9
@@ -35541,7 +35535,7 @@ msgid "No matching activity found."
 msgstr ""
 
 #: build/907.c7fc89770f7469b31ae0.js:1
-msgid "Connect or disconnect a provider for your own account. Sign-in itself is handled by the central app, which posts a signed result back to this site."
+msgid "Connect or disconnect a provider for your own account. Sign-in itself is handled by UX1 Network app, which posts a signed result back to this site."
 msgstr ""
 
 #: build/907.c7fc89770f7469b31ae0.js:1
@@ -35558,7 +35552,7 @@ msgid "Connect"
 msgstr ""
 
 #: build/907.c7fc89770f7469b31ae0.js:1
-msgid "Linking needs a central app URL and an HMAC secret configured in the Settings tab."
+msgid "Linking needs UX1 Network app URL and an HMAC secret configured in the Settings tab."
 msgstr ""
 
 #: build/907.c7fc89770f7469b31ae0.js:1
@@ -36116,11 +36110,11 @@ msgid "Could not load the scan."
 msgstr ""
 
 #: build/954.179d869228684c1a3a4c.js:10
-msgid "A browser of the central app opens your home page and a few more pages three times, each time with a clean profile: without any choice, after \"Accept all\" and after \"Reject all\". It records the cookies, the storage keys and the requests to other hosts. A cookie or a request that needs consent by the catalogue, yet appears without consent or after the visitor rejected, is a violation. The scan runs once a month and on request; a request is queued and takes a few minutes."
+msgid "A browser of UX1 Network app opens your home page and a few more pages three times, each time with a clean profile: without any choice, after \"Accept all\" and after \"Reject all\". It records the cookies, the storage keys and the requests to other hosts. A cookie or a request that needs consent by the catalogue, yet appears without consent or after the visitor rejected, is a violation. The scan runs once a month and on request; a request is queued and takes a few minutes."
 msgstr ""
 
 #: build/954.179d869228684c1a3a4c.js:10
-msgid "Ask the central app for a scan"
+msgid "Ask UX1 Network app for a scan"
 msgstr ""
 
 #. translators: %s: date of the last scan result.
@@ -36140,11 +36134,11 @@ msgid "A scan was requested %s and is waiting."
 msgstr ""
 
 #: build/954.179d869228684c1a3a4c.js:11
-msgid "This site is not connected to the central app, so it cannot be scanned."
+msgid "This site is not connected to UX1 Network app, so it cannot be scanned."
 msgstr ""
 
 #: build/954.179d869228684c1a3a4c.js:11
-msgid "The connection to the central app is paused."
+msgid "The connection to UX1 Network app is paused."
 msgstr ""
 
 #. translators: %d: number of violations.
@@ -36727,7 +36721,7 @@ msgid "Connections and identity of this site, ids that mean something only in th
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:19
-msgid "The Central app connection: key, address, HMAC secret, allowed addresses, report secret."
+msgid "UX1 Network app connection: key, address, HMAC secret, allowed addresses, report secret."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:19
@@ -37378,7 +37372,7 @@ msgid "Write access"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:41
-msgid "Enable and disable modules, change ordinary module settings, manage redirects. Settings that decide where credentials or data are sent (mail server, central app, AI provider, recipients) or that guard the site (login address, firewall, 2FA, CSP) need Admin. Includes Read."
+msgid "Enable and disable modules, change ordinary module settings, manage redirects. Settings that decide where credentials or data are sent (mail server, UX1 Network app, AI provider, recipients) or that guard the site (login address, firewall, 2FA, CSP) need Admin. Includes Read."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:41
@@ -37731,15 +37725,15 @@ msgid "Step %1$d: %2$s"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:52
-msgid "The central app did not give this site CAPTCHA keys. The CAPTCHA is not enforced, so logging in works as before. You can add the keys by hand in Security > CAPTCHA."
+msgid "UX1 Network app did not give this site CAPTCHA keys. The CAPTCHA is not enforced, so logging in works as before. You can add the keys by hand in Security > CAPTCHA."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:52
-msgid "CAPTCHA with keys from the central app"
+msgid "CAPTCHA with keys from UX1 Network app"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:52
-msgid "Adds a Cloudflare Turnstile check to the login, registration and lost password forms. The central app gives the site its keys, so you paste nothing. If the keys do not arrive, the check is not enforced and nobody is locked out."
+msgid "Adds a Cloudflare Turnstile check to the login, registration and lost password forms. UX1 Network app gives the site its keys, so you paste nothing. If the keys do not arrive, the check is not enforced and nobody is locked out."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:52
@@ -37747,7 +37741,7 @@ msgid "The Security module is off. Switch it on to use the CAPTCHA."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:52
-msgid "The CAPTCHA is on with keys from the central app."
+msgid "The CAPTCHA is on with keys from UX1 Network app."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:52
@@ -37759,7 +37753,7 @@ msgid "Sign in or create an account"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:52
-msgid "You land in the central app, log in or sign up and confirm the connection."
+msgid "You land in UX1 Network app, log in or sign up and confirm the connection."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:52
@@ -37767,7 +37761,7 @@ msgid "Done, the site is watched"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:52
-msgid "You come back here and the central app starts keeping an eye on the site."
+msgid "You come back here and UX1 Network app starts keeping an eye on the site."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:52
@@ -37776,15 +37770,15 @@ msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:52
 #: build/index.e2f97ac80863bc5a165b.js:73
-msgid "Central app"
+msgid "UX1 Network app"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:52
-msgid "One place to watch over all your websites. Connect this one and the central app keeps an eye on it for you: whether it runs, whether it is safe and fast, and whether anything is about to expire."
+msgid "One place to watch over all your websites. Connect this one and UX1 Network app keeps an eye on it for you: whether it runs, whether it is safe and fast, and whether anything is about to expire."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:52
-msgid "The connection was completed in the central app."
+msgid "The connection was completed in UX1 Network app."
 msgstr ""
 
 #. translators: %s: date and time.
@@ -37794,15 +37788,15 @@ msgid "It last contacted the site on %s."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:53
-msgid "The connection was cancelled in the central app. Nothing is connected. You can try again."
+msgid "The connection was cancelled in UX1 Network app. Nothing is connected. You can try again."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:53
-msgid "The central app has contacted the site. The connection looks complete."
+msgid "UX1 Network app has contacted the site. The connection looks complete."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:53
-msgid "The central app has not confirmed the connection yet. Try again if you did not finish it there."
+msgid "UX1 Network app has not confirmed the connection yet. Try again if you did not finish it there."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:53
@@ -37862,7 +37856,7 @@ msgid "Shared protection"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:53
-msgid "Ban an IP address, a range or a whole country once and it is blocked on every connected site. The central app also gives the site its CAPTCHA keys, so you set nothing up by hand."
+msgid "Ban an IP address, a range or a whole country once and it is blocked on every connected site. UX1 Network app also gives the site its CAPTCHA keys, so you set nothing up by hand."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:53
@@ -37886,15 +37880,15 @@ msgid "What changes on your site"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:53
-msgid "This turns on Content Sync as a managed site and creates a secret key for it. Administrator sign-in and package installation from the central app stay off."
+msgid "This turns on Content Sync as a managed site and creates a secret key for it. Administrator sign-in and package installation from UX1 Network app stay off."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:53
-msgid "The central app can then read the state of the site and work with its posts, pages and media. It cannot sign in as an administrator or install plugins."
+msgid "UX1 Network app can then read the state of the site and work with its posts, pages and media. It cannot sign in as an administrator or install plugins."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:53
-msgid "The site must be reachable from the internet: the central app checks it while connecting."
+msgid "The site must be reachable from the internet: UX1 Network app checks it while connecting."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:53
@@ -37902,7 +37896,7 @@ msgid "This site runs on your computer"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:53
-msgid "A central app on the internet cannot reach it, so the connection will fail, unless the central app runs on your computer too."
+msgid "UX1 Network app on the internet cannot reach it, so the connection will fail, unless UX1 Network app runs on your computer too."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:53
@@ -37910,11 +37904,11 @@ msgid "Questions"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:53
-msgid "What can the central app do on my site?"
+msgid "What can UX1 Network app do on my site?"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:53
-msgid "It reads the state of the site and works with posts, pages and media through requests signed with the secret key. Signing in as an administrator and installing packages from the central app are turned off."
+msgid "It reads the state of the site and works with posts, pages and media through requests signed with the secret key. Signing in as an administrator and installing packages from UX1 Network app are turned off."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:53
@@ -37922,7 +37916,7 @@ msgid "How do I disconnect the site?"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:53
-msgid "Turn off the Content Sync module and the central app can no longer reach the site. You can also remove the site from the list of websites in the central app."
+msgid "Turn off the Content Sync module and UX1 Network app can no longer reach the site. You can also remove the site from the list of websites in UX1 Network app."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:53
@@ -37934,7 +37928,7 @@ msgid "Yes. Skip this step now and connect later in the Content Sync module."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:53
-msgid "Address of the central app"
+msgid "Address of UX1 Network app"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:53
@@ -37948,11 +37942,11 @@ msgstr ""
 #. translators: %s: error detail.
 #: build/index.e2f97ac80863bc5a165b.js:54
 #, js-format
-msgid "The site did not answer its own signed test request (%s). The central app will probably not be able to confirm the connection either."
+msgid "The site did not answer its own signed test request (%s). UX1 Network app will probably not be able to confirm the connection either."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:54
-msgid "The administration address differs from the site address, so the central app cannot send you back here. Come back to this wizard by hand when you finish."
+msgid "The administration address differs from the site address, so UX1 Network app cannot send you back here. Come back to this wizard by hand when you finish."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:54
@@ -38491,7 +38485,7 @@ msgid "You cancelled the connection. You can finish it later in the Content Sync
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:69
-msgid "The site is connected to the central app. The recommended modules below use it where they can."
+msgid "The site is connected to UX1 Network app. The recommended modules below use it where they can."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:69
@@ -38614,7 +38608,7 @@ msgid "Everything was undone"
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:71
-msgid "The modules and settings are back the way they were before. If you connected the site to the central app, remove it there as well."
+msgid "The modules and settings are back the way they were before. If you connected the site to UX1 Network app, remove it there as well."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:71
@@ -38657,11 +38651,11 @@ msgid "The custom login address is confirmed and wp-login.php is closed."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:73
-msgid "The site is prepared for the central app (Content Sync as a managed site)."
+msgid "The site is prepared for UX1 Network app (Content Sync as a managed site)."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:73
-msgid "The site is not connected to the central app. You can do it later in the Content Sync module."
+msgid "The site is not connected to UX1 Network app. You can do it later in the Content Sync module."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:73
@@ -38681,7 +38675,7 @@ msgid "The modules this wizard turned on are turned off again and the settings i
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:73
-msgid "A custom login address goes back as well, so wp-login.php works again. A connection already made in the central app is not removed there."
+msgid "A custom login address goes back as well, so wp-login.php works again. A connection already made in UX1 Network app is not removed there."
 msgstr ""
 
 #: build/index.e2f97ac80863bc5a165b.js:73

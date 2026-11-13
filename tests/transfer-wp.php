@@ -259,7 +259,7 @@ try {
 	$assert( 'wrong types are rejected per key with a message', isset( $by_id['hide-admin-bar'] ) && 'roles' === ( $by_id['hide-admin-bar']['rejected'][0]['key'] ?? '' ) && '' !== $by_id['hide-admin-bar']['rejected'][0]['message'] );
 	$assert( 'unknown keys are listed and ignored', in_array( 'unknown_key', $by_id['hide-admin-bar']['unknown'], true ) && in_array( 'uxstudio_wizard_done', $by_id['hide-admin-bar']['unknown'], true ) );
 	$assert( 'keys of the never list are refused even when the file has them', 3 === count( array_intersect( array_column( $by_id['content-sync']['non_portable'], 'key' ), array( 'node_api_key', 'central_app_url', 'hmac_secret' ) ) ) );
-	$assert( 'the hostile Central App values never reach the diff', false === strpos( json_encode( $by_id['content-sync']['changes'] ), 'HOSTILE' ) && false === strpos( json_encode( $by_id['content-sync']['changes'] ), 'evil.example' ) );
+	$assert( 'the hostile UX1 Network app values never reach the diff', false === strpos( json_encode( $by_id['content-sync']['changes'] ), 'HOSTILE' ) && false === strpos( json_encode( $by_id['content-sync']['changes'] ), 'evil.example' ) );
 	$assert( 'an unknown module is skipped with a note', ! $by_id['no-such-module']['known'] && '' !== $by_id['no-such-module']['blocked'] && ! $by_id['no-such-module']['selectable'] );
 	$assert( 'a wrong colour and a toggle given as text are rejected', 2 === count( $by_id['admin-customiser']['rejected'] ) );
 	$res = $importer->apply( $hostile, '', Importer::options( array( 'modules' => array( 'no-such-module' ) ) ) );

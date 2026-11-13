@@ -68,7 +68,7 @@ final class Report {
 			'cookies'              => $cookies,
 			'unclassified'         => array_values( array_map( static fn( array $q ): string => (string) $q['host'], $state['queue'] ) ),
 			'open_cookie_database' => OpenCookieDb::meta(),
-			// F3: what the scan of the Central App really saw (0 / empty before the first scan). Additive: the keys above are the F2 contract.
+			// F3: what the scan of UX1 Network app really saw (0 / empty before the first scan). Additive: the keys above are the F2 contract.
 			'scan_at'              => Scan::report_cookies()['scanned_at'],
 			'scan_cookies'         => Scan::report_cookies()['cookies'],
 		);

@@ -10,7 +10,7 @@ namespace UxStudio\Core;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Port of the Central app's `core/Totp.php` (SHA1, 30 s step, 6 digits, base32 secret as every
+ * Port of UX1 Network app's `core/Totp.php` (SHA1, 30 s step, 6 digits, base32 secret as every
  * authenticator app expects it - RFC 4648, no padding). Pure functions, no WordPress calls, so the
  * RFC 6238 Appendix B vectors can be tested without a site.
  */

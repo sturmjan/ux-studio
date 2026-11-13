@@ -57,7 +57,7 @@ php bin/merge-json-translations.php
 ## Many new strings from dictionaries (post-audit packages)
 
 When the new strings come as `{ "English": "Czech" }` dictionaries (`docs/i18n/cs-pkg-*.json`), use the helpers in
-`.build/` instead of translating by hand. The terminology rules (color, e-mail, allowlist/blocklist, central app,
+`.build/` instead of translating by hand. The terminology rules (color, e-mail, allowlist/blocklist, UX1 Network app,
 turn on/off) live in `.build/term_rules.py`; a dictionary written before a rule still matches the new msgids.
 
 ```

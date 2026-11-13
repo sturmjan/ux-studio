@@ -1,7 +1,7 @@
 /**
  * Inspector of the CAPTCHA field: which provider the field really uses, where its keys come from, and what the
  * administrator can do about it. The order is decided on the server (Forms FormsCaptcha, SecurityOptimization
- * CaptchaResolver): keys from the central application, then the site's own keys, then the key-less Shield. No secret
+ * CaptchaResolver): keys from UX1 Network app, then the site's own keys, then the key-less Shield. No secret
  * ever reaches this screen.
  */
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -48,7 +48,7 @@ export function captchaStatusLine( status: CaptchaStatus ): string {
 	if ( 'ca' === status.source ) {
 		return sprintf(
 			/* translators: %s: provider name. */
-			__( 'Using: %s (keys from the central app)', 'ux-studio' ),
+			__( 'Using: %s (keys from UX1 Network app)', 'ux-studio' ),
 			providerName( status.provider )
 		);
 	}
@@ -94,10 +94,10 @@ export default function CaptchaInspector(): JSX.Element {
 			{ s.can_provision && ! s.has_keys && (
 				<>
 					<p className="uxs-form__help">
-						{ __( 'This site is connected to the central app, which can give it Cloudflare Turnstile keys. The same keys then protect the login forms too.', 'ux-studio' ) }
+						{ __( 'This site is connected to UX1 Network app, which can give it Cloudflare Turnstile keys. The same keys then protect the login forms too.', 'ux-studio' ) }
 					</p>
 					<button type="button" className="button" disabled={ provision.isPending } onClick={ () => provision.mutate() }>
-						{ provision.isPending ? __( 'Getting keys…', 'ux-studio' ) : __( 'Get keys from the central app', 'ux-studio' ) }
+						{ provision.isPending ? __( 'Getting keys…', 'ux-studio' ) : __( 'Get keys from UX1 Network app', 'ux-studio' ) }
 					</button>
 				</>
 			) }
@@ -111,7 +111,7 @@ export default function CaptchaInspector(): JSX.Element {
 				<p className="uxs-form__help" role="alert" style={ { display: 'flex', gap: 'var(--uxs-sp-2)', alignItems: 'center', color: 'var(--uxs-danger)' } }>
 					<CircleAlert size={ 16 } aria-hidden />
 					{ sprintf(
-						/* translators: %s: error text of the central application. */
+						/* translators: %s: error text of UX1 Network app. */
 						__( 'Getting the keys failed: %s', 'ux-studio' ),
 						error
 					) }
@@ -121,10 +121,10 @@ export default function CaptchaInspector(): JSX.Element {
 			{ ! s.connected && (
 				<p className="uxs-form__help">
 					{ 'shield' === s.provider
-						? __( 'The site is not connected to the central app, so the Shield protects this form for now.', 'ux-studio' )
-						: __( 'The site is not connected to the central app.', 'ux-studio' ) }{ ' ' }
+						? __( 'The site is not connected to UX1 Network app, so the Shield protects this form for now.', 'ux-studio' )
+						: __( 'The site is not connected to UX1 Network app.', 'ux-studio' ) }{ ' ' }
 					<button type="button" className="button-link" onClick={ () => navigate( 'wizard', { mode: 'new', step: 'ca' } ) }>
-						{ __( 'Connect to the central app', 'ux-studio' ) }
+						{ __( 'Connect to UX1 Network app', 'ux-studio' ) }
 					</button>
 				</p>
 			) }

@@ -146,7 +146,7 @@ final class SeoScoreEditor {
 					'metaTitle'     => __( 'SEO title', 'ux-studio' ),
 					'metaDesc'      => __( 'SEO description', 'ux-studio' ),
 					'analyzing'     => __( 'Analyzing…', 'ux-studio' ),
-					'notConfigured' => __( 'The central app is not connected. Connect this site in Content Sync first.', 'ux-studio' ),
+					'notConfigured' => __( 'UX1 Network app is not connected. Connect this site in Content Sync first.', 'ux-studio' ),
 					'error'         => __( 'The analysis failed.', 'ux-studio' ),
 					'topicResearch' => __( 'Keyword suggestions', 'ux-studio' ),
 					'researching'   => __( 'Searching…', 'ux-studio' ),
@@ -159,7 +159,7 @@ final class SeoScoreEditor {
 					'schemaCopied'    => __( 'Copied!', 'ux-studio' ),
 					'linkSuggestions' => __( 'Internal links', 'ux-studio' ),
 					'linkSuggestionsFind' => __( 'Find suggestions', 'ux-studio' ),
-					'linkSuggestionsEmpty' => __( 'No suggestions. Either the client portfolio is missing in the central app, or no match was found in the content.', 'ux-studio' ),
+					'linkSuggestionsEmpty' => __( 'No suggestions. Either the client portfolio is missing in UX1 Network app, or no match was found in the content.', 'ux-studio' ),
 				),
 			)
 		);

@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
  * Two questions, both answered without touching WordPress so they are tested as tables:
  *
  *  - resolve(): where the keys come from. The order is the same for the login forms (provider `auto`) and for the
- *    CAPTCHA field of the Forms module: keys from the central application (only while the site is connected), then
+ *    CAPTCHA field of the Forms module: keys from UX1 Network app (only while the site is connected), then
  *    the site's own keys, then the key-less Shield.
  *  - provider(): the CAPTCHA that the Security module uses for its forms, from the `captcha_provider` setting.
  */
@@ -29,9 +29,9 @@ final class CaptchaResolver {
 	/**
 	 * Where the keys come from.
 	 *
-	 * @param bool $connected The site is connected to the central application (URL and node key present).
-	 * @param bool $ca_keys   A key pair that came from the central application is stored.
-	 * @param bool $own_keys  A key pair that the administrator brought is stored (stale keys of the central application
+	 * @param bool $connected The site is connected to UX1 Network app (URL and node key present).
+	 * @param bool $ca_keys   A key pair that came from UX1 Network app is stored.
+	 * @param bool $own_keys  A key pair that the administrator brought is stored (stale keys of UX1 Network app
 	 *                        count too once the connection is gone: they still work, so nothing is switched off silently).
 	 * @return string ca | own | shield
 	 */
@@ -50,7 +50,7 @@ final class CaptchaResolver {
 	 *
 	 * @param bool   $has_keys   Site key and secret key are both stored.
 	 * @param string $key_source `captcha_key_source`: manual | ca | self_api.
-	 * @param bool   $connected  The site is connected to the central application.
+	 * @param bool   $connected  The site is connected to UX1 Network app.
 	 * @return array{ca_keys:bool,own_keys:bool}
 	 */
 	public static function key_flags( bool $has_keys, string $key_source, bool $connected ): array {
@@ -80,7 +80,7 @@ final class CaptchaResolver {
 	 *
 	 * @param string $setting      Value from setting().
 	 * @param string $own_provider Type of the site's own keys (`captcha_own_provider`), used when the setting is `auto`.
-	 * @param bool   $connected    Connected to the central application.
+	 * @param bool   $connected    Connected to UX1 Network app.
 	 * @param bool   $ca_keys      See resolve().
 	 * @param bool   $own_keys     See resolve().
 	 * @return array{provider:string,source:string} provider: turnstile | recaptcha_v2 | recaptcha_v3 | shield
@@ -102,7 +102,7 @@ final class CaptchaResolver {
 		$own    = in_array( $own_provider, self::KEY_PROVIDERS, true ) ? $own_provider : 'turnstile';
 		$source = self::resolve( $connected, $ca_keys, $own_keys );
 		return array(
-			// The central application only hands out Turnstile keys.
+			// UX1 Network app only hands out Turnstile keys.
 			'provider' => self::SOURCE_CA === $source ? 'turnstile' : ( self::SOURCE_OWN === $source ? $own : 'shield' ),
 			'source'   => $source,
 		);
@@ -114,7 +114,7 @@ final class CaptchaResolver {
 	 *
 	 * @param string $own_provider Type of the site's own keys (see provider()).
 	 * @param string $setting      The Security `captcha_provider` setting (a key based choice names the type of own keys).
-	 * @param bool   $connected    Connected to the central application.
+	 * @param bool   $connected    Connected to UX1 Network app.
 	 * @param bool   $ca_keys      See resolve().
 	 * @param bool   $own_keys     See resolve().
 	 * @return array{provider:string,source:string}

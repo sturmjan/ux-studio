@@ -1,6 +1,6 @@
 <?php
 /**
- * Client for the central app's public reviews API.
+ * Client for UX1 Network app's public reviews API.
  *
  * @package UxStudio
  */
@@ -67,7 +67,7 @@ final class CentralReviewsClient {
 	}
 
 	/**
-	 * Queue a deep Google Maps scan on the central app (`request_scrape`).
+	 * Queue a deep Google Maps scan on UX1 Network app (`request_scrape`).
 	 * The CA finds or creates the review profile for this site from the Place
 	 * ID / Maps URL and enqueues a full scrape job for the NAS scraper.
 	 * At least one of $external_id / $maps_url must be non-empty.
@@ -170,7 +170,7 @@ final class CentralReviewsClient {
 		if ( '' === $central_url || '' === $node_key ) {
 			return new WP_Error(
 				'uxstudio_reviews_not_configured',
-				__( 'Set the central app URL and the node API key in Content Sync first.', 'ux-studio' ),
+				__( 'Set UX1 Network app URL and the node API key in Content Sync first.', 'ux-studio' ),
 				array( 'status' => 424 )
 			);
 		}
@@ -210,7 +210,7 @@ final class CentralReviewsClient {
 		if ( '' === $secret ) {
 			return new WP_Error(
 				'uxstudio_reviews_no_secret',
-				__( 'The central app has no reviews API secret for this site yet (Google login secret not generated in the site detail).', 'ux-studio' ),
+				__( 'UX1 Network app has no reviews API secret for this site yet (Google login secret not generated in the site detail).', 'ux-studio' ),
 				array( 'status' => 424 )
 			);
 		}
@@ -226,7 +226,7 @@ final class CentralReviewsClient {
 		$message = (string) ( $decoded['error'] ?? '' );
 		if ( '' === $message ) {
 			/* translators: %d: HTTP status code */
-			$message = sprintf( __( 'Central app returned HTTP %d.', 'ux-studio' ), $code );
+			$message = sprintf( __( 'UX1 Network app returned HTTP %d.', 'ux-studio' ), $code );
 		}
 		return new WP_Error( 'uxstudio_reviews_http', $message, array( 'status' => $code ) );
 	}

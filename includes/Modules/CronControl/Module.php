@@ -26,7 +26,7 @@ defined( 'ABSPATH' ) || exit;
  * 2. WP-Cron run-mode control (ported from the legacy cron-control module):
  *    a `mode` setting decides whether WP-Cron runs normally, is fully disabled,
  *    is restricted to local requests, is left for an external hosting cron, or
- *    is driven by the central app. Disabling is implemented the safe way the
+ *    is driven by UX1 Network app. Disabling is implemented the safe way the
  *    legacy module used - an mu-plugin that defines DISABLE_WP_CRON - and an
  *    optional .htaccess block controls who may reach wp-cron.php. Neither
  *    wp-config.php nor any core file is ever edited, and a non-writable
@@ -36,9 +36,9 @@ defined( 'ABSPATH' ) || exit;
  * 3. A cron watcher (see Watcher.php) that grades scheduled hooks against a
  *    whitelist and can optionally auto-remove suspicious ones.
  *
- * 4. Central app sync for the central_app mode, both directions: entering /
- *    saving / leaving the mode pushes {enabled} to the central app (see
- *    CentralCronClient), and the central app can set the mode through the
+ * 4. UX1 Network app sync for the central_app mode, both directions: entering /
+ *    saving / leaving the mode pushes {enabled} to UX1 Network app (see
+ *    CentralCronClient), and UX1 Network app can set the mode through the
  *    Content Sync node route `cron-control` (apply_central_command()).
  */
 final class Module extends BaseModule {
@@ -77,17 +77,17 @@ final class Module extends BaseModule {
 	private const MODES = array( 'none', 'block_all', 'local_only', 'external', 'central_app' );
 
 	/**
-	 * Last result of pushing the cron config to the central app (migrated
+	 * Last result of pushing the cron config to UX1 Network app (migrated
 	 * from legacy ux1_cron_control_remote_result).
 	 */
 	private const REMOTE_RESULT_OPTION = 'uxstudio_cron_control_remote_result';
 
-	/** How often the central app should call wp-cron.php (legacy value). */
+	/** How often UX1 Network app should call wp-cron.php (legacy value). */
 	private const CENTRAL_INTERVAL_MINUTES = 5;
 
 	/**
-	 * Set while a mode change requested BY the central app is being applied,
-	 * so it is not pushed straight back to the central app (loop guard).
+	 * Set while a mode change requested BY UX1 Network app is being applied,
+	 * so it is not pushed straight back to UX1 Network app (loop guard).
 	 */
 	private static bool $applying_central_command = false;
 
@@ -130,7 +130,7 @@ final class Module extends BaseModule {
 	 * Settings (the chosen mode) are kept.
 	 */
 	public function on_disable(): void {
-		// WP-Cron goes back to normal here, so tell the central app to stop
+		// WP-Cron goes back to normal here, so tell UX1 Network app to stop
 		// calling wp-cron.php (legacy parity). A failure is only recorded.
 		if ( 'central_app' === $this->get_mode() ) {
 			$this->push_to_central( false );
@@ -174,7 +174,7 @@ final class Module extends BaseModule {
 			'block_all'   => __( 'Disable completely (even locally)', 'ux-studio' ),
 			'local_only'  => __( 'Disable publicly, allow local requests only', 'ux-studio' ),
 			'external'    => __( 'Disable WP-Cron and trigger it from a hosting cron', 'ux-studio' ),
-			'central_app' => __( 'Drive WP-Cron from the central app', 'ux-studio' ),
+			'central_app' => __( 'Drive WP-Cron from UX1 Network app', 'ux-studio' ),
 		);
 
 		return array(
@@ -189,8 +189,8 @@ final class Module extends BaseModule {
 			array(
 				'key'     => 'central_allowed_ips',
 				'type'    => 'textarea',
-				'label'   => __( 'Central app IP allowlist (central mode)', 'ux-studio' ),
-				'help'    => __( 'Only used in "central app" mode. One IP or CIDR per line - these are allowed to reach wp-cron.php in addition to local requests. Leave blank to allow local requests only.', 'ux-studio' ),
+				'label'   => __( 'UX1 Network app IP allowlist (central mode)', 'ux-studio' ),
+				'help'    => __( 'Only used in "UX1 Network app" mode. One IP or CIDR per line - these are allowed to reach wp-cron.php in addition to local requests. Leave blank to allow local requests only.', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
@@ -233,9 +233,9 @@ final class Module extends BaseModule {
 		$this->sync_filesystem( true );
 		$this->ensure_watch_scheduled();
 
-		// Keep the central app in step: start its wp-cron calls in central mode
+		// Keep UX1 Network app in step: start its wp-cron calls in central mode
 		// (re-sent on every save, as legacy), stop them when leaving it. Not when
-		// the change came from the central app itself.
+		// the change came from UX1 Network app itself.
 		if ( ! self::$applying_central_command ) {
 			$new_mode = $this->get_mode();
 			if ( 'central_app' === $new_mode ) {
@@ -249,7 +249,7 @@ final class Module extends BaseModule {
 	}
 
 	/* ------------------------------------------------------------------ *
-	 * Central app sync (both directions)
+	 * UX1 Network app sync (both directions)
 	 * ------------------------------------------------------------------ */
 
 	/**
@@ -261,7 +261,7 @@ final class Module extends BaseModule {
 
 	/**
 	 * Mu-plugin, `.htaccess` block and watch event in line with the settings the switch wrote (no push to
-	 * the central app: that is the admin's decision in the module).
+	 * UX1 Network app: that is the admin's decision in the module).
 	 */
 	public function after_migration_switch(): void {
 		parent::after_migration_switch();
@@ -271,9 +271,9 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Push the cron config to the central app and record the outcome.
+	 * Push the cron config to UX1 Network app and record the outcome.
 	 *
-	 * @param bool $enabled Whether the central app should run wp-cron.php.
+	 * @param bool $enabled Whether UX1 Network app should run wp-cron.php.
 	 * @return array<string, mixed> The stored result (see remote_result()).
 	 */
 	private function push_to_central( bool $enabled ): array {
@@ -282,8 +282,8 @@ final class Module extends BaseModule {
 		if ( is_wp_error( $response ) ) {
 			$ok      = false;
 			$message = sprintf(
-				/* translators: %s: error message from the connection or the central app */
-				__( 'Sending the cron settings to the central app failed: %s', 'ux-studio' ),
+				/* translators: %s: error message from the connection or UX1 Network app */
+				__( 'Sending the cron settings to UX1 Network app failed: %s', 'ux-studio' ),
 				$response->get_error_message()
 			);
 		} else {
@@ -291,10 +291,10 @@ final class Module extends BaseModule {
 			$message = $enabled
 				? sprintf(
 					/* translators: %d: interval in minutes */
-					__( 'The central app runs wp-cron every %d minutes.', 'ux-studio' ),
+					__( 'UX1 Network app runs wp-cron every %d minutes.', 'ux-studio' ),
 					(int) ( $response['cron_interval_minutes'] ?? self::CENTRAL_INTERVAL_MINUTES )
 				)
-				: __( 'The central app has cron turned off for this site.', 'ux-studio' );
+				: __( 'UX1 Network app has cron turned off for this site.', 'ux-studio' );
 		}
 
 		$result = array(
@@ -318,7 +318,7 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Last central-app push result, or null when none has happened yet.
+	 * Last UX1 Network app push result, or null when none has happened yet.
 	 *
 	 * @return array{ok:bool, enabled:bool|null, message:string, tested_at:string, timestamp:int}|null
 	 */
@@ -338,7 +338,7 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * "Resend settings to the central app" button.
+	 * "Resend settings to UX1 Network app" button.
 	 *
 	 * @return array{success:bool, message:string, result:array|null}
 	 */
@@ -346,7 +346,7 @@ final class Module extends BaseModule {
 		if ( 'central_app' !== $this->get_mode() ) {
 			return array(
 				'success' => false,
-				'message' => __( 'The WP-Cron mode is not set to the central app.', 'ux-studio' ),
+				'message' => __( 'The WP-Cron mode is not set to UX1 Network app.', 'ux-studio' ),
 				'result'  => $this->remote_result(),
 			);
 		}
@@ -361,13 +361,13 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Apply a mode change requested by the central app (node route
+	 * Apply a mode change requested by UX1 Network app (node route
 	 * POST content-sync/node/cron-control, body {enabled: bool}). Enabling
 	 * switches this module on if needed and sets mode=central_app; disabling
 	 * drops central_app back to "none" (any other mode is left alone). Never
-	 * pushed back to the central app.
+	 * pushed back to UX1 Network app.
 	 *
-	 * @param bool $enabled Whether the central app takes over WP-Cron.
+	 * @param bool $enabled Whether UX1 Network app takes over WP-Cron.
 	 * @return array{success:bool, mode:string, message:string}
 	 */
 	public static function apply_central_command( bool $enabled ): array {
@@ -386,7 +386,7 @@ final class Module extends BaseModule {
 			return array(
 				'success' => false,
 				'mode'    => 'none',
-				'message' => __( 'The central app URL is not set in Content Sync on this site, so the central app mode cannot be used.', 'ux-studio' ),
+				'message' => __( 'UX1 Network app URL is not set in Content Sync on this site, so UX1 Network app mode cannot be used.', 'ux-studio' ),
 			);
 		}
 
@@ -427,8 +427,8 @@ final class Module extends BaseModule {
 			'success' => true,
 			'mode'    => $this->get_mode(),
 			'message' => $enabled
-				? __( 'WP-Cron is now driven by the central app.', 'ux-studio' )
-				: __( 'The central app no longer drives WP-Cron on this site.', 'ux-studio' ),
+				? __( 'WP-Cron is now driven by UX1 Network app.', 'ux-studio' )
+				: __( 'UX1 Network app no longer drives WP-Cron on this site.', 'ux-studio' ),
 		);
 	}
 
@@ -478,7 +478,7 @@ final class Module extends BaseModule {
 			'cron_url'            => site_url( 'wp-cron.php' ) . '?doing_wp_cron',
 			// Convenience command for the "external"/hosting cron mode.
 			'external_cron_cmd'   => sprintf( '*/5 * * * * wget -q -O - "%s" >/dev/null 2>&1', site_url( 'wp-cron.php' ) . '?doing_wp_cron' ),
-			// Last push of the cron config to the central app (central mode).
+			// Last push of the cron config to UX1 Network app (central mode).
 			'remote_result'       => $this->remote_result(),
 			// Allowlist entries that are not a valid IP/CIDR and were left out of .htaccess.
 			'invalid_allowed_ips' => self::parse_allowed_ips( (string) $this->settings->get( 'central_allowed_ips', '' ) )['invalid'],
@@ -791,7 +791,7 @@ final class Module extends BaseModule {
 
 	/**
 	 * Effective, validated run mode. central_app downgrades to none when the
-	 * central app is not configured.
+	 * UX1 Network app is not configured.
 	 */
 	private function get_mode(): string {
 		$mode = (string) $this->settings->get( 'mode', 'none' );
@@ -805,7 +805,7 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Whether the central app broker (content-sync) is configured with a URL.
+	 * Whether UX1 Network app broker (content-sync) is configured with a URL.
 	 */
 	private function central_app_active(): bool {
 		$content_sync = new Settings( 'uxstudio_content_sync' );

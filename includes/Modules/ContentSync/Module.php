@@ -37,7 +37,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Module extends BaseModule {
 
-	/** Central-app broker secret (unchanged contract). */
+	/** UX1 Network app broker secret (unchanged contract). */
 	public const SECRET_HMAC = 'uxstudio_secret_content_sync_hmac';
 
 	/** This node's shared HMAC key for the hub<->node channel. */
@@ -60,7 +60,7 @@ final class Module extends BaseModule {
 		if ( 'node' === (string) $this->settings->get( 'mode', 'hub' ) ) {
 			( new SsoRedeemer() )->register();
 
-			// The hub / Central App are not logged-in users. Let the node routes
+			// The hub / UX1 Network app are not logged-in users. Let the node routes
 			// through the "REST API for logged-in users only" lock; every one of
 			// them still requires a valid HMAC signature (permission_callback).
 			add_filter(
@@ -232,14 +232,14 @@ final class Module extends BaseModule {
 				'key'     => 'node_allowed_ips',
 				'type'    => 'textarea',
 				'label'   => __( 'Allowed hub IP addresses (node)', 'ux-studio' ),
-				'help'    => __( 'One IP address per line. When filled in, the node answers only requests from these addresses (the hub / central app server). Leave blank to accept any IP with a valid signature.', 'ux-studio' ),
+				'help'    => __( 'One IP address per line. When filled in, the node answers only requests from these addresses (the hub / UX1 Network app server). Leave blank to accept any IP with a valid signature.', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
 				'key'     => 'node_allow_packages',
 				'type'    => 'toggle',
 				'label'   => __( 'Allow package management (node)', 'ux-studio' ),
-				'help'    => __( 'Lets the central app install/update plugins and themes and set FS_METHOD in wp-config.php on this site. Off by default. Turn on only together with the allowed IP list above.', 'ux-studio' ),
+				'help'    => __( 'Lets UX1 Network app install/update plugins and themes and set FS_METHOD in wp-config.php on this site. Off by default. Turn on only together with the allowed IP list above.', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
@@ -253,7 +253,7 @@ final class Module extends BaseModule {
 				'key'     => 'sso_allow_admin',
 				'type'    => 'toggle',
 				'label'   => __( 'Allow SSO login as administrator', 'ux-studio' ),
-				'help'    => __( 'Lets central app operators sign in to accounts with administrator rights (install plugins, manage users). Off by default: an administrator login can install code, so with this on a leaked node key gives full control of the site. Turn on only together with the allowed IP list. Editors and lower roles sign in either way.', 'ux-studio' ),
+				'help'    => __( 'Lets UX1 Network app operators sign in to accounts with administrator rights (install plugins, manage users). Off by default: an administrator login can install code, so with this on a leaked node key gives full control of the site. Turn on only together with the allowed IP list. Editors and lower roles sign in either way.', 'ux-studio' ),
 				'default' => false,
 			),
 			array(
@@ -317,15 +317,15 @@ final class Module extends BaseModule {
 			array(
 				'key'     => 'central_app_url',
 				'type'    => 'text',
-				'label'   => __( 'Central app URL', 'ux-studio' ),
-				'help'    => __( 'Base URL of the central app acting as the broker for connected sites.', 'ux-studio' ),
+				'label'   => __( 'UX1 Network app URL', 'ux-studio' ),
+				'help'    => __( 'Base URL of UX1 Network app acting as the broker for connected sites.', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
 				'key'     => 'hmac_secret',
 				'type'    => 'text',
-				'label'   => __( 'Central app HMAC secret', 'ux-studio' ),
-				'help'    => __( 'Shared secret used to sign/verify every request to and from the central app. Stored encrypted. Leave blank to keep the current secret.', 'ux-studio' ),
+				'label'   => __( 'UX1 Network app HMAC secret', 'ux-studio' ),
+				'help'    => __( 'Shared secret used to sign/verify every request to and from UX1 Network app. Stored encrypted. Leave blank to keep the current secret.', 'ux-studio' ),
 				'default' => '',
 			),
 			array(

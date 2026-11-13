@@ -1,7 +1,7 @@
 <?php
 /**
  * Third-Party Login module - sign in via Google/Facebook/Apple/Seznam through
- * the central app as an OAuth proxy.
+ * UX1 Network app as an OAuth proxy.
  *
  * @package UxStudio
  */
@@ -17,11 +17,11 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Narrower re-implementation of the legacy third-party-login module: OAuth
- * credentials live in the central app, not here. This module renders the
+ * credentials live in UX1 Network app, not here. This module renders the
  * login buttons that kick off the flow and exposes the public REST callback
- * the central app redirects back to.
+ * UX1 Network app redirects back to.
  *
- * HANDSHAKE PROTOCOL. The central app implements exactly one third-party-login
+ * HANDSHAKE PROTOCOL. UX1 Network app implements exactly one third-party-login
  * protocol (`BaseAuthController`), and this module speaks it:
  *
  *   1. WP -> CA   GET {CA}/?page={provider}_auth&action=init
@@ -43,7 +43,7 @@ defined( 'ABSPATH' ) || exit;
  *  - LINK/UNLINK self-service: a logged-in user connects/disconnects a provider
  *    identity, stored as user meta, via authenticated REST routes.
  *
- * The HMAC secret shared with the central app is never stored in the plain
+ * The HMAC secret shared with UX1 Network app is never stored in the plain
  * settings option; it goes through Security::store_secret() and is never echoed
  * back via REST (only a boolean "has_hmac_secret" is exposed).
  */
@@ -63,7 +63,7 @@ final class Module extends BaseModule {
 	/** How long a started handshake may stay unfinished (seconds). */
 	public const NONCE_TTL = 900;
 
-	/** Replay window the central app is allowed to sign within (seconds). */
+	/** Replay window UX1 Network app is allowed to sign within (seconds). */
 	public const MAX_AGE = 300;
 
 	/**
@@ -163,22 +163,22 @@ final class Module extends BaseModule {
 			array(
 				'key'     => 'central_app_url',
 				'type'    => 'text',
-				'label'   => __( 'Central app URL', 'ux-studio' ),
-				'help'    => __( 'Base URL of the central app that performs the OAuth handshake, e.g. https://ux1.cz/app/.', 'ux-studio' ),
+				'label'   => __( 'UX1 Network app URL', 'ux-studio' ),
+				'help'    => __( 'Base URL of UX1 Network app that performs the OAuth handshake, e.g. https://ux1.cz/app/.', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
 				'key'     => 'hmac_secret',
 				'type'    => 'text',
 				'label'   => __( 'HMAC secret', 'ux-studio' ),
-				'help'    => __( 'Shared secret from the central app (site detail, "Third-party login"). Signs the handshake in both directions. Stored encrypted. Leave blank to keep the current secret.', 'ux-studio' ),
+				'help'    => __( 'Shared secret from UX1 Network app (site detail, "Third-party login"). Signs the handshake in both directions. Stored encrypted. Leave blank to keep the current secret.', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
 				'key'     => 'enabled_providers',
 				'type'    => 'multiselect',
 				'label'   => __( 'Enabled providers', 'ux-studio' ),
-				'help'    => __( 'A provider also has to be configured centrally and enabled for this site in the central app.', 'ux-studio' ),
+				'help'    => __( 'A provider also has to be configured centrally and enabled for this site in UX1 Network app.', 'ux-studio' ),
 				'options' => array(
 					'google'   => __( 'Google', 'ux-studio' ),
 					'facebook' => __( 'Facebook', 'ux-studio' ),
@@ -267,7 +267,7 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Configured central app base URL (may be empty).
+	 * Configured UX1 Network app base URL (may be empty).
 	 */
 	public function central_app_url(): string {
 		return (string) $this->settings->get( 'central_app_url', '' );
@@ -373,7 +373,7 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Query parameter the central app puts the provider subject id in.
+	 * Query parameter UX1 Network app puts the provider subject id in.
 	 *
 	 * @param string $provider Provider id.
 	 */
@@ -396,14 +396,14 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Public REST endpoint the central app redirects back to.
+	 * Public REST endpoint UX1 Network app redirects back to.
 	 */
 	public function callback_url(): string {
 		return rest_url( 'uxstudio/v1/third-party-login/callback' );
 	}
 
 	// ---------------------------------------------------------------------
-	//  Handshake signing - must stay byte-identical to the central app's
+	//  Handshake signing - must stay byte-identical to UX1 Network app's
 	//  signer, otherwise every request is rejected as a bad signature.
 	// ---------------------------------------------------------------------
 
@@ -475,15 +475,15 @@ final class Module extends BaseModule {
 			exit;
 		}
 
-		wp_redirect( $url ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- the central app is an external, admin-configured host.
+		wp_redirect( $url ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- UX1 Network app is an external, admin-configured host.
 		exit;
 	}
 
 	/**
-	 * Build (and arm) a signed central-app handshake URL.
+	 * Build (and arm) a signed UX1 Network app handshake URL.
 	 *
 	 * Side effect: stores the single-use nonce, so call this only when the
-	 * user is actually being sent to the central app. Returns '' when the
+	 * user is actually being sent to UX1 Network app. Returns '' when the
 	 * module is not configured or `link` is requested without a user.
 	 *
 	 * @param string $provider Provider id (assumed to be enabled).
@@ -587,7 +587,7 @@ final class Module extends BaseModule {
 	/**
 	 * Set (or, with a past expiry, clear) the browser-binding cookie.
 	 * SameSite=Lax: still sent on the top-level GET redirect back from the
-	 * central app, never on cross-site subrequests.
+	 * UX1 Network app, never on cross-site subrequests.
 	 *
 	 * @param string $nonce   Handshake nonce.
 	 * @param string $value   Random value ('' to clear).

@@ -13,7 +13,7 @@ use WP_Error;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The site calls the shared IndexNow endpoint directly (no Central App). The key is 32 random hex characters made
+ * The site calls the shared IndexNow endpoint directly (no UX1 Network app). The key is 32 random hex characters made
  * the first time the feature is on and kept in an option without autoload. It is NOT a secret: the protocol needs
  * it to be readable at `/<key>.txt`, which this class serves from `template_redirect` (no file in the site root,
  * so it works without write access and survives a domain move, the key stays valid for the new host).

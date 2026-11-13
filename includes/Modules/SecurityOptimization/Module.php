@@ -867,7 +867,7 @@ final class Module extends BaseModule {
 				'section' => __( 'CAPTCHA', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'CAPTCHA provider', 'ux-studio' ),
-				'help'    => __( 'Automatic uses keys from the central app when the site is connected, then your own keys, and the key-less Shield when there are none. The Shield needs no account and no keys.', 'ux-studio' ),
+				'help'    => __( 'Automatic uses keys from UX1 Network app when the site is connected, then your own keys, and the key-less Shield when there are none. The Shield needs no account and no keys.', 'ux-studio' ),
 				'options' => array(
 					'auto'         => __( 'Automatic (recommended)', 'ux-studio' ),
 					'shield'       => __( 'UX1 Studio Shield (no keys)', 'ux-studio' ),
@@ -1024,10 +1024,10 @@ final class Module extends BaseModule {
 				'section' => __( 'CAPTCHA', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'Key source', 'ux-studio' ),
-				'help'    => __( 'Manual: paste site/secret key yourself. Central app: this site (already paired via Content Sync) gets a key automatically from a shared Turnstile widget managed by the central app. Own Cloudflare API token: this site manages its own Turnstile widget directly, using an API token you paste below.', 'ux-studio' ),
+				'help'    => __( 'Manual: paste site/secret key yourself. UX1 Network app: this site (already paired via Content Sync) gets a key automatically from a shared Turnstile widget managed by UX1 Network app. Own Cloudflare API token: this site manages its own Turnstile widget directly, using an API token you paste below.', 'ux-studio' ),
 				'options' => array(
 					'manual'   => __( 'Manual (paste keys below)', 'ux-studio' ),
-					'ca'       => __( 'Automatic via central app', 'ux-studio' ),
+					'ca'       => __( 'Automatic via UX1 Network app', 'ux-studio' ),
 					'self_api' => __( 'Automatic via own Cloudflare API token', 'ux-studio' ),
 				),
 				'default' => 'manual',
@@ -3219,7 +3219,7 @@ final class Module extends BaseModule {
 	 *
 	 * Some endpoints have to stay reachable by anonymous clients even with the
 	 * REST API locked down, because they ARE the way a visitor becomes logged
-	 * in - the third-party-login callback the central app redirects back to is
+	 * in - the third-party-login callback UX1 Network app redirects back to is
 	 * the canonical case. Such routes carry their own proof (HMAC signature,
 	 * single-use nonce), so the login requirement adds nothing there but breaks
 	 * the flow.

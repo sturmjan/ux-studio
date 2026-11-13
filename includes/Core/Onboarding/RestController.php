@@ -20,9 +20,9 @@ defined( 'ABSPATH' ) || exit;
  *   POST onboarding/starter/apply     items[], overrides{}, confirmed[]  (snapshot first, login address last and pending)
  *   POST onboarding/starter/revert    put the snapshot back
  *   POST onboarding/login-url/confirm force?  step B: close wp-login.php, send the e-mail
- *   POST onboarding/ca/prepare        url?, step?  node mode + key, returns the POST form for the Central App (CentralApp)
- *   GET  onboarding/ca/status                 connection state, last call of the Central App, CAPTCHA state
- *   POST onboarding/ca/captcha        enabled CAPTCHA keys from the Central App on / off
+ *   POST onboarding/ca/prepare        url?, step?  node mode + key, returns the POST form for UX1 Network app (CentralApp)
+ *   GET  onboarding/ca/status                 connection state, last call of UX1 Network app, CAPTCHA state
+ *   POST onboarding/ca/captcha        enabled CAPTCHA keys from UX1 Network app on / off
  *
  * Item ids are checked against a fixed whitelist (StarterPack::ids()); values are cleaned by the modules' own schemas.
  */
@@ -103,7 +103,7 @@ final class RestController extends Controller {
 	}
 
 	/**
-	 * The Central App connection on the live module registry.
+	 * UX1 Network app connection on the live module registry.
 	 */
 	private function central_app(): CentralApp {
 		return new CentralApp( Plugin::instance()->modules );

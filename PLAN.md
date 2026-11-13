@@ -405,7 +405,7 @@ Toto běží uvnitř flow 15.0 (po deaktivaci ux1, před tím než cokoli data s
 - [x] `smtp-email` - doplněn Gmail OAuth2 transport (`GmailClient`: auth URL/exchange/refresh/send_raw + multipart přílohy; connect/disconnect přes admin_init redirect s nonce+state, klíče přes Security), From/Force-From volby (wp_mail_from filtry prio 999), resend posledního e-mailu + logování Brevo/Gmail sendů. HOTOVO 2026-09-04 (fleet agent): php -l + build clean, boot 200. Neověřeno: reálný Gmail OAuth round-trip (chybí Google Cloud creds).
 - [x] `image-optimizer` - doplněn AVIF (GD/Imagick feature-detect, na tomto XAMPP GD AVIF=Y), WebP/AVIF delivery přes `uploads/.htaccess` marker blok (insert_with_markers, realpath guard, Vary: Accept), auto-optimalizace při uploadu (wp_generate_attachment_metadata), scanner nepoužitých obrázků (read-only + recoverable trash) - SPA tab Unused Images + status panel. HOTOVO 2026-09-04 (fleet agent): php -l + build clean, boot 200. Neověřeno: reálný AVIF encode/delivery přes Apache.
 - [x] `security-optimization` - doplněn CSP builder s módy off/report-only/enforce (zjištěno: dřív se neposílala ŽÁDNÁ CSP hlavička; presety + custom allowlist, report-uri na existující sink, jen na frontendu - wp-admin chráněn proti self-lockoutu), Upload Guard UI (enable/notify/email v samostatném sub-formu), hardening toggly (block_user_enumeration, disable_file_editing/DISALLOW_FILE_EDIT, protect_login + rozšířeno xmlrpc/wp-version/security-headers). HOTOVO 2026-09-04 (fleet agent): php -l + build clean, boot 200. Pozn.: na Hostingeru CSP stejně přepisuje LiteSpeed (viz reference), enforce je implementován korektně pro hostingy, kde projde.
-- [x] `third-party-login` - doplněno role gating (fail-closed: prázdný allow-list = nikdo), opt-in auto-create s konfigurovatelnou rolí (admin nikdy nepřiřaditelný), link/unlink self-service (user meta + HMAC-signed state token, 600s, cap `read`, jen current user). Navíc opraven account-takeover: neznámé identity se už neváží na existující účet přes shodu e-mailu. HOTOVO 2026-09-04 (fleet agent): php -l + build clean, boot 200. Neověřeno: reálný OAuth callback z centrální app.
+- [x] `third-party-login` - doplněno role gating (fail-closed: prázdný allow-list = nikdo), opt-in auto-create s konfigurovatelnou rolí (admin nikdy nepřiřaditelný), link/unlink self-service (user meta + HMAC-signed state token, 600s, cap `read`, jen current user). Navíc opraven account-takeover: neznámé identity se už neváží na existující účet přes shodu e-mailu. HOTOVO 2026-09-04 (fleet agent): php -l + build clean, boot 200. Neověřeno: reálný OAuth callback z UX1 Network app.
 - [x] `email-log` - doplněno ukládání těla/hlaviček/příloh (capture přes `wp_mail` filtr prio 999 → pending řádek, pak wp_mail_succeeded/failed překlopí stav; DB v2: +source/+message/+headers/+attachments), detekce zdroje (backtrace → plugin/theme, toggle), resend (wp_mail; přílohy jen názvy). SPA: source sloupec + detail modal (hlavičky/přílohy/sandboxed body iframe) + resend. HOTOVO+OVĚŘENO 2026-09-04 (fleet agent): build/lint clean, boot 200, DB v2 sloupce ověřeny.
 - [x] `folder-manager` - doplněno rename složky (unikátní slug, kontrola duplicit), reparent (guard proti cyklu/self-parent přes ancestor walk), bulk-move příloh (per-item edit_post capability, skip nevalidních). REST PUT/move/items-move, SPA inline rename + move-under select (bez descendantů) + bulk panel. HOTOVO 2026-09-04 (fleet agent): php -l + build clean, boot 200. Neověřeno funkčně: reálné taxonomy operace na běžícím webu.
 - [x] `admin-columns` - doplněn `FieldRenderer` s 9 typy (text/number/boolean/date/image/url/email/color/post) + per-column selektor „render meta value as" a data-source (meta/taxonomy/post_id/thumbnail). Vše escapováno, zpětně kompatibilní (chybějící field_type → text). SPA: druhý select v Type buňce jen pro meta zdroj. HOTOVO 2026-09-04 (fleet agent): php -l + build clean, boot 200. Neověřeno funkčně: render na reálných list tables.
@@ -441,10 +441,10 @@ Zbývající skutečná ❌ v matici (po srovnání se skutečností):
 
 ---
 
-## 15. Přihlášení přes Seznam účet + srovnání handshake s centrální aplikací (2026-09-10)
+## 15. Přihlášení přes Seznam účet + srovnání handshake s UX1 Network app (2026-09-10)
 
 Zadání bylo přidat Seznam účet jako čtvrtého providera. Při čtení modulu se ukázalo, že
-`third-party-login` ve studiu mluvil **jiným protokolem, než centrální aplikace umí** —
+`third-party-login` ve studiu mluvil **jiným protokolem, než UX1 Network app umí** —
 posílal `?site=&return_to=&provider=&mode=` na kořen CA, bez podpisu, a čekal zpátky POST
 JSON. V CA takový endpoint neexistuje (`BaseAuthController` má jen podepsaný
 `?page={provider}_auth&action=init`). Nefungoval tedy ani Google; Seznam by ten rozpor
@@ -482,7 +482,7 @@ e-mail — bere se pole `email`. Frontend (`src/`) se neměnil, takže rebuild J
 ## 16. Modul Service Requests jako klient centrálního ticket systému (2026-09-10)
 
 Modul přestal být vlastníkem dat. Zdrojem pravdy je od F2 tabulka `tickets`
-v centrální aplikaci; lokální řádek zůstává jen proto, aby klient viděl svoje
+v UX1 Network app; lokální řádek zůstává jen proto, aby klient viděl svoje
 požadavky i ve chvíli, kdy je centrála nedostupná. Číslo, stav a celá
 konverzace se zrcadlí odtamtud. Zadání a fáze F1–F7 jsou v `PLAN.md` centrály,
 sekce „Ticket systém (helpdesk) v centrále".
@@ -742,7 +742,7 @@ názvy). Ikona `sparkles` doplněna do `src/app/moduleIcons.tsx`.
 Cíl: admin nemusí ručně zakládat Turnstile widget v Cloudflare dashboardu a
 kopírovat site_key/secret_key do nastavení - `captcha_key_source` (schema
 pole v `Module.php`) přepíná mezi `manual` (dnešní chování), `ca`
-(automaticky přes Centrální aplikaci, sdílený fleet-wide widget) a
+(automaticky přes UX1 Network app, sdílený fleet-wide widget) a
 `self_api` (automaticky přes vlastní Cloudflare API token, vlastní widget).
 Ověřování Turnstile tokenu při loginu zůstává vždy přímo tento web →
 Cloudflare - CA/vlastní token se volá jen jednou při uložení nastavení
@@ -1850,7 +1850,7 @@ je jen minimum. Při cronu á 5 min by hloubkový běh po 40 souborech trval př
       (Windows, pomalé čtení ~87 souborů/8 s): hloubkový běh při cronu á 5 min 377 → 170 dávek
       (~14 h čistého času, tj. 3-4 noci); na Linuxovém hostingu výrazně rychleji.
 - [ ] **Centrální řízení z CA (návrh, neimplementováno):** Cron Control už má režim „řízeno
-      centrální aplikací" (CA volá wp-cron.php). CA zná, které weby sdílí server (např. ns318721),
+      UX1 Network app" (CA volá wp-cron.php). CA zná, které weby sdílí server (např. ns318721),
       a mohla by plné skeny celé flotily řadit tak, aby na jednom serveru běžel vždy jen jeden web.
       Potřeba: v CA fronta skenů po serverech + endpoint v UX Studiu „spusť/pokračuj v dávce" s
       podpisem (`Core\Broker` HMAC), web pak vlastní noční slot nepoužije. Jednotlivý web tohle sám
@@ -2381,7 +2381,7 @@ přibudou testy a živé ověření na pobyty. Větev `feature/module-gaps-a` na
 
 ### 27.1 Vlna A
 
-- [x] A1 Zabezpečení: dvoufázové ověření TOTP (vzor z Centrální aplikace), prodlužované blokace
+- [x] A1 Zabezpečení: dvoufázové ověření TOTP (vzor z UX1 Network app), prodlužované blokace
       po opakovaných pokusech, vlastní e-mail pro upozornění, CAPTCHA pro komentáře a formuláře
       WooCommerce + vzhled widgetu; migrace: IP seznamy z Limit Login / Loginizer do Firewallu
       (hotovo 22. 10. 2026 lokálně, poznámky v 27.4; komentáře a pokladnu WooCommerce na pobyty
@@ -3049,9 +3049,9 @@ blokování výčtu uživatelů, CSP Enforce, modul Disable Auto Updates.
 - [x] F1 Překlady nových řetězců PHP (cs_CZ)
 - [x] F2 Kontrola verze PHP (kritická zranitelnost / konec podpory; popis v 29.5; průvodce ji čte z `GET uxstudio/v1/security/php-version`)
 - [x] F3 UI průvodce: režim `#/wizard?mode=new`, výběr položek, přednastavení slovy, potvrzení přihlašovací adresy, vrácení změn
-- [x] F4 Napojení na centrální aplikaci (strana pluginu; strana CA se dělá zvlášť v centrani-app)
+- [x] F4 Napojení na UX1 Network app (strana pluginu; strana CA se dělá zvlášť v centrani-app)
 - [x] F5 Překlady JS (build `index.dc3d7fb3086a456127fe.js` má svůj JSON v `languages/`)
-- [x] F5 Živé QA na čistém webu (vrajt, Apache, bez WooCommerce, bez proxy): aktivace otevře `#/wizard?mode=new`; použito 17 z 17 položek; `/administrace/` ukáže přihlašovací formulář; potvrzení zavře `wp-login.php` (404) a `wp-admin` přesměruje na novou adresu; skutečné přihlášení touto adresou funguje; selhání e-mailu skončí hláškou; vrácení obnoví moduly, nastavení i `wp-login.php`; krok Centrální aplikace: podepsaný POST přijala lokální CA (podpis i živá výzva prošly, CA ukázala přihlášení)
+- [x] F5 Živé QA na čistém webu (vrajt, Apache, bez WooCommerce, bez proxy): aktivace otevře `#/wizard?mode=new`; použito 17 z 17 položek; `/administrace/` ukáže přihlašovací formulář; potvrzení zavře `wp-login.php` (404) a `wp-admin` přesměruje na novou adresu; skutečné přihlášení touto adresou funguje; selhání e-mailu skončí hláškou; vrácení obnoví moduly, nastavení i `wp-login.php`; krok UX1 Network app: podepsaný POST přijala lokální CA (podpis i živá výzva prošly, CA ukázala přihlášení)
 - [x] F5 Opravy z QA: bez loga webu se na přihlášení skryje i logo WordPressu (`form_options` = `hide_login_logo`); po vrácení se z `.htaccess` odstraní celý blok `UX1 Studio Security` včetně komentářů (`HtaccessWriter::strip_block()`, platí i pro `on_disable` a prázdná pravidla)
 - [ ] F5 Živé QA: nginx, Cloudflare, WooCommerce
 - [ ] F5 Živě: registrační stránka v CA (čeká na nasazení CA) a produkční `turnstile_provision` v CA
@@ -3119,7 +3119,7 @@ větev, kterou vestavěná tabulka nezná jako starou. Zcela novou větev (8.6 p
 ještě není zapnuté; čte vestavěnou tabulku a dříve stažená data). Cron, widget, upozornění a e-mail jsou jen se zapnutým
 modulem, vypnutí modulu cron zruší.
 
-**Centrální aplikace.** `SecurityApiController::inventory()` (`?page=security_api&action=inventory`, podpis HMAC) čte z těla
+**UX1 Network app.** `SecurityApiController::inventory()` (`?page=security_api&action=inventory`, podpis HMAC) čte z těla
 POST pole `php_version` a z něj číselný začátek ukládá do `sites.php_version`. Plugin ho do 0.6.0 neposílal, teď ho
 `CentralVulnerabilityClient::report()` přidává (`PHP_VERSION` beze změny) spolu s novým doplňkovým polem
 `php_check: {level, reason}` (starší CA ho ignoruje). Odesílá se při každém ručním i plánovaném skenu zranitelností.
@@ -3128,7 +3128,7 @@ POST pole `php_version` a z něj číselný začátek ukládá do `sites.php_ver
 distribucí, vzdálená data zvyšující / snižující / neplatná, snooze, plán e-mailů). Živě na pobyty (XAMPP PHP 8.4.19):
 critical `outdated` se dvěma CVE, `refresh()` proti php.net uloží 8.2 až 8.5, REST 200.
 
-### 29.6 Napojení na centrální aplikaci (F4, strana pluginu)
+### 29.6 Napojení na UX1 Network app (F4, strana pluginu)
 
 Třída `Core\Onboarding\CentralApp`, REST `onboarding/ca/prepare` (POST), `onboarding/ca/status` (GET), `onboarding/ca/captcha` (POST).
 
@@ -3163,8 +3163,8 @@ Třída `Core\Onboarding\CentralApp`, REST `onboarding/ca/prepare` (POST), `onbo
   modulu Zabezpečení už ne.
 - [x] Startovací balíček: e-mailový log (14 dní), poslední přihlášení a přehled CSP (jen `audit`, vzorek 20 %) jsou
   zaškrtnuté. Přehled CSP se vynechá (`csp_set`), pokud je režim CSP už zapnutý; nikdy se nesníží report-only ani enforce.
-- [x] Krok Centrální aplikace v průvodci je prezentace (`src/app/wizard/ca-step.tsx`): devět karet, každá odpovídá
-  funkci v kódu centrální aplikace (viz zpráva k vydání), box "Co se na webu změní", otázky, přilepená lišta dole s
+- [x] Krok UX1 Network app v průvodci je prezentace (`src/app/wizard/ca-step.tsx`): devět karet, každá odpovídá
+  funkci v kódu UX1 Network app (viz zpráva k vydání), box "Co se na webu změní", otázky, přilepená lišta dole s
   "Připojit" a "Přeskočit". Protokol připojení se nezměnil.
 - [x] Poslední krok průvodce: animace odznaku, odstup boxů, ikony modulů v odkazech.
 - [x] Sdílené rozvržení formulářů: varianty `uxs-form--stacked` a `uxs-form--inline`, řádek `uxs-form__line` a container
@@ -3446,7 +3446,7 @@ zápisů), `POST admin-notices/dismiss`, `GET admin-notices` (stav, typ, zdroj, 
 - [ ] Později: zachytit i upozornění, která přijdou po 2,2 s od načtení (druhá dávka), a česky popsat „Zavřeno přes“ v CSV
 - [ ] Později: stránka pro uživatele s nižším oprávněním než správce (teď jen správci)
 
-## 32. Štít UX Studia - CAPTCHA bez klíčů a CAPTCHA formulářů přes centrální aplikaci (0.8.3)
+## 32. Štít UX Studia - CAPTCHA bez klíčů a CAPTCHA formulářů přes UX1 Network app (0.8.3)
 
 Kód: `SecurityOptimization/CaptchaShield.php` (protokol, čisté funkce), `CaptchaResolver.php` (pořadí poskytovatelů),
 `ShieldRuntime.php` (tajný klíč, jednorázové úložiště, REST, widget), `CaptchaVerifier.php` (config místo Module),
@@ -3469,7 +3469,7 @@ Odpověď JS chybí -> jen potom se zkouší napsaný součet (`uxstudio_shield_
 
 `auto`: klíče z CA (jen při připojení, `node_api_key` + `central_app_url`) > vlastní klíče > Štít. Klíče z CA po ztrátě spojení platí dál jako vlastní. Formuláře: totéž vždy, bez ohledu na `captcha_enabled`. Výchozí `captcha_provider`: `auto` jen když volba modulu nemá žádné `captcha_*`, jinak `turnstile` (stávající weby se nemění). Klíče jedním úložištěm (`Module::store_captcha_keys`, `Security::store_secret`); tlačítko nikdy nepřepíše vlastní klíče.
 
-### 32.4 Centrální aplikace (jen čteno, beze změny)
+### 32.4 UX1 Network app (jen čteno, beze změny)
 
 `TurnstileProvisionController` vydává JEDEN sdílený `managed` widget pro celou flotilu; web se přidá do seznamu domén podle autentizovaného `site_url`. Stejný pár klíčů je proto použitelný pro přihlášení i formuláře (stejná doména, hostname se ověřuje u Cloudflare), změna není nutná. Pozor: limit 5 registrací/hod/web; nezná `action`, takže Turnstile nerozliší přihlášení a formulář. Volitelně pro CA: endpoint `action=status` bez registrace a samostatný widget/akci pro formuláře, pokud bude potřeba statistika zvlášť.
 
@@ -3780,7 +3780,7 @@ auditu v zadaných modulech; zadání každého je u jeho zadavatele, sem patř�
 - [x] Chyby z balíčku A: Bot Throttle `verify_rdns` se používá (podvržený robot je obecný crawler, pravý projde, bez odpovědi DNS se nepotrestá), `blacklist_ua` dostane přísný plán, Third-Party Login kontroluje roli před vytvořením účtu. Testy: `tests/bot-throttle-detector.php`, `tests/third-party-login-role.php`.
 - [x] Nalezená chyba balíčku D: klíče `'does  '` s mezerami v 13 souborech `help.php` (nápověda se nezobrazovala); opraveno, test pokrytí to hlídá.
 - [x] Překlady: `docs/i18n/cs-pkg-*.json` aplikovány (1 869 nových záznamů), názvy modulů z `meta.json` jsou jen v `.po` (soubor `languages/ux-studio-meta.php` neexistuje a nebyl zaveden), pomocné nástroje `languages/.build/po-apply-dict.py`, `po-set.py`, `po-prune.py`, `term_rules.py` (viz `languages/README.md`).
-- [x] Terminologie EN: color, e-mail, allowlist/blocklist, central app, turn on/off (cca 330 řetězců); CZ: motiv, smazat, e-mail. Bez pomlček ve zdrojových řetězcích.
+- [x] Terminologie EN: color, e-mail, allowlist/blocklist, UX1 Network app, turn on/off (cca 330 řetězců); CZ: motiv, smazat, e-mail. Bez pomlček ve zdrojových řetězcích.
 - [x] Smazáno 343 nepoužívaných JSON překladů s md5 v názvu (aplikace čte jen `ux-studio-cs_CZ-ux-studio-app.json`), `bin/merge-json-translations.php` zapisuje jen ten soubor, md5 soubory jsou v `.gitignore`.
 - [x] Baseline nápovědy je prázdný (`{}`); test pokrytí vyjímá barvy a seznamy `hidden_metaboxes_<role>` v kartě s popisem.
 
@@ -3823,11 +3823,11 @@ Stejný vzor jako `captcha_key_source` v Security (§32.3). Nastavení modulu, k
 | `social_fb_app_secret` | secret (`Security::store_secret`, šifrovaně, prázdné = ponechat) | prázdné | `show_if` `social_key_source` = `own` |
 | `social_linkedin_link` | toggle „Ukazovat odkaz na LinkedIn Post Inspector" | zapnuto | při zapnutí |
 
-**Volba `ca` (Centrální aplikace):** web pošle CA jen seznam změněných URL, Facebook volá CA svou Meta
+**Volba `ca` (UX1 Network app):** web pošle CA jen seznam změněných URL, Facebook volá CA svou Meta
 appkou (`app_settings.meta_app_id` / `meta_app_secret`). App Secret z CA nikdy neodejde: kdyby ho CA
 rozdávala, jeden napadený web = uniklý secret celé flotily. Kanál `node_api_key` + `central_app_url`
 z Content Sync, HMAC jako `TurnstileCaProvisioner`. Bez připojení k CA ukáže karta upozornění
-„Web není připojený k Centrální aplikaci, náhledy se neobnovují. Připojte ho, nebo zvolte vlastní klíče."
+„Web není připojený k UX1 Network app, náhledy se neobnovují. Připojte ho, nebo zvolte vlastní klíče."
 (žádná tichá nefunkčnost).
 
 **Volba `own` (vlastní klíče):** web volá Facebook sám, CA se nepoužije, ani když je připojená.
@@ -3838,7 +3838,7 @@ odpověď 200 = platné), výsledek hned pod polem.
 **Vysvětlení v nastavení** (`group_help` + `SettingHelp`, texty vlastní):
 - Co to dělá: „Když uložíte změnu publikované stránky, Facebook za pár minut stáhne nový titulek, popis
   a obrázek. Bez toho může při sdílení odkazu ukazovat starý náhled ještě týdny."
-- U `ca`: „Klíče spravuje Centrální aplikace, nic nevyplňujete. Web posílá jen adresy změněných stránek."
+- U `ca`: „Klíče spravuje UX1 Network app, nic nevyplňujete. Web posílá jen adresy změněných stránek."
 - U `own`: krátký návod: developers.facebook.com → Moje aplikace → Vytvořit aplikaci → Nastavení →
   Základní → zkopírovat ID aplikace a Tajný klíč aplikace. Schválení aplikace (App Review) není potřeba.
   Tajný klíč se uloží šifrovaně a už se nezobrazí. (Přesné názvy kroků ověřit v F0, Meta je mění.)
@@ -3948,7 +3948,7 @@ Ruční cesta: řádková akce v seznamu příspěvků a tlačítko v editoru �
 
 ## 40. CA na začátku průvodce a stálý klíč webu, který přežije změnu domény (2026-11-03, NÁVRH)
 
-Požadavek: (1) krok Centrální aplikace je dnes v průvodci nového webu předposlední, má jít na začátek;
+Požadavek: (1) krok UX1 Network app je dnes v průvodci nového webu předposlední, má jít na začátek;
 (2) web spárovaný s CA na vývojové doméně má zůstat spárovaný i po přesunu na produkční doménu. CA jen
 sama aktualizuje URL a změnu zaznamená.
 
@@ -3961,7 +3961,7 @@ monitoringu, auditů a recenzí.
 ### 40.1 Pořadí kroků průvodce
 
 Dnes (`getStarterSteps()`): Vítejte → Doporučené moduly → Použít → (Přihlašovací adresa) → **Centrální
-aplikace** → Hotovo. Nově: Vítejte → **Centrální aplikace** → Doporučené moduly → Použít →
+aplikace** → Hotovo. Nově: Vítejte → **UX1 Network app** → Doporučené moduly → Použít →
 (Přihlašovací adresa) → Hotovo.
 
 - Proč: balíček pak ví, že je web připojený (`ca_connected`), takže rovnou nastaví CAPTCHA klíče z CA
@@ -4025,7 +4025,7 @@ aplikace** → Hotovo. Nově: Vítejte → **Centrální aplikace** → Doporuč
 - Když CA rozhodne „kopie" (nebo ji tak označí operátor), odpoví webu na nové adrese stavem `clone`.
   Web uloží `uxstudio_ca_clone = 1`, **přestane volat CA** (žádné náhledy, Turnstile provisioning, servisní
   požadavky pod cizí identitou) a v administraci ukáže upozornění: „Tento web je kopie webu X. Propojení
-  s Centrální aplikací je pozastavené." s tlačítkem **Připojit jako nový web** (vygeneruje nové
+  s UX1 Network app je pozastavené." s tlačítkem **Připojit jako nový web** (vygeneruje nové
   `uxstudio_site_id` + nový `node_api_key` a spustí běžné připojení).
 - Volání ze staré adresy po přesunu (vývojová kopie, která dál běží) CA odmítne stavem `superseded`;
   web ukáže totéž upozornění („Tento web byl přesunut na Y").
@@ -4508,7 +4508,7 @@ jsou obalené `__()` a česky v `docs/i18n/cs-consent-f4.json`. Do prohlížeče
 Ověřeno v 42.17: záložka Sken se vykreslí bez chyb (běh proti NASu ne).
 
 Větev `feature/consent-scan` (z `feature/consent-module`), nepushnuto. Verze pluginu nezvýšena, změna je v CHANGELOG pod „Unreleased“. Překlady negenerovány, české
-řetězce jsou v `docs/i18n/cs-consent-f3.json`. Protějšek v Centrální aplikaci (CA) je v jejím `PLAN.md` §39 (rozvrh, kroky, nasazení na NAS); **kontrakt je popsán na obou místech a musí zůstat shodný**.
+řetězce jsou v `docs/i18n/cs-consent-f3.json`. Protějšek v UX1 Network app (CA) je v jejím `PLAN.md` §39 (rozvrh, kroky, nasazení na NAS); **kontrakt je popsán na obou místech a musí zůstat shodný**.
 
 - **Rozdělení práce (a proč):** NAS jen **zaznamenává** (prohlížeč, čistý kontext, tři běhy), CA **řídí** (rozvrh, kroky, předání, upozornění, přehled flotily), plugin **vyhodnocuje**. Vyhodnocení je v pluginu,
   protože katalog (`Cookies::match`, `Services::classify`, `CspServices`, OCD) a pravidla majitele žijí tady: nový katalog nebo ručně zařazený host platí při dalším skenu hned a CA nepotřebuje kopii katalogu.
@@ -4536,7 +4536,7 @@ Větev `feature/consent-scan` (z `feature/consent-module`), nepushnuto. Verze pl
   (název, doména, kategorie, služba, účel, doba, `party`, kde se viděla); **klíče z F2 se nezměnily**. Pozor: `scan_cookies` je to, co **sken viděl**, na rozdíl od `cookies`, což je to, co katalog o službách **ví**.
 - **Úložiště:** jedna volba `uxstudio_consent_scan` (bez autoload): poslední sanitizovaný výsledek, jeho vyhodnocení (včetně klíčů pro porovnání s příštím skenem), čas přijetí a čas žádosti. Typicky pár kB až desítky kB. Volba se při odinstalaci nemaže (konvence modulu, viz F5).
   Aktivita se zapisuje do `ActivityLog` (`consent` / `scan_received`).
-- **Admin:** záložka „Sken“ (`Scan.tsx`): tlačítko „Požádat centrální aplikaci o sken“ (zakázané bez propojení), stav propojení, souhrn (porušení, cookies, neznámé cookies, lišta), tabulka tří běhů (cookies, požadavky, zda se dal běh posoudit
+- **Admin:** záložka „Sken“ (`Scan.tsx`): tlačítko „Požádat UX1 Network app o sken“ (zakázané bez propojení), stav propojení, souhrn (porušení, cookies, neznámé cookies, lišta), tabulka tří běhů (cookies, požadavky, zda se dal běh posoudit
   a proč ne), porušení, neznámé cookies, všechny nalezené cookies. REST `GET uxstudio/v1/consent/scan`, `POST uxstudio/v1/consent/scan/request` (`manage_options`, zápis přes `Controller::route` s limitem).
 - **Ověřeno:** `php -l`, `tests/consent-scan.php` (36 případů: sanitizace, porušení bez souhlasu a po odmítnutí, co porušení není, neposouditelné běhy, advanced Consent Mode, novost, fronta inventury), `tests/consent-scan-wp.php`
   (WP-CLI proti lokálnímu pobyty, 23 případů: podpis, starý čas, opakovaný nonce, nesprávný klíč, plán, přijetí výsledku, oprávnění admin routam, `Inventory::facts`, `Report::site`; po sobě uklidí volby a klíč),

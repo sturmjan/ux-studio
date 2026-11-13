@@ -65,7 +65,7 @@ const SCOPES: { id: Scope; label: string; help: string }[] = [
 	{
 		id: 'write',
 		label: __( 'Write access', 'ux-studio' ),
-		help: __( 'Enable and disable modules, change ordinary module settings, manage redirects. Settings that decide where credentials or data are sent (mail server, central app, AI provider, recipients) or that guard the site (login address, firewall, 2FA, CSP) need Admin. Includes Read.', 'ux-studio' ),
+		help: __( 'Enable and disable modules, change ordinary module settings, manage redirects. Settings that decide where credentials or data are sent (mail server, UX1 Network app, AI provider, recipients) or that guard the site (login address, firewall, 2FA, CSP) need Admin. Includes Read.', 'ux-studio' ),
 	},
 	{
 		id: 'migration',

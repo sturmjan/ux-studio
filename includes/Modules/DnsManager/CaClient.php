@@ -1,6 +1,6 @@
 <?php
 /**
- * Signed HTTP client for the central app's DNS broker (`?page=dns_manage`).
+ * Signed HTTP client for UX1 Network app's DNS broker (`?page=dns_manage`).
  *
  * @package UxStudio
  */
@@ -19,8 +19,8 @@ defined( 'ABSPATH' ) || exit;
  * Same hub<->node credentials and signature as TurnstileCaProvisioner /
  * ServiceRequests\CentralClient (METHOD \n URL \n TS \n NONCE \n sha256(body)).
  *
- * The Cloudflare token lives ONLY in the central app. This site never sees it,
- * and never tells the central app which zone to touch: the zone is derived
+ * The Cloudflare token lives ONLY in UX1 Network app. This site never sees it,
+ * and never tells UX1 Network app which zone to touch: the zone is derived
  * there from the signed `site_url`.
  */
 final class CaClient {
@@ -44,7 +44,7 @@ final class CaClient {
 		if ( '' === $central_url || '' === $secret ) {
 			return new WP_Error(
 				'not_configured',
-				__( 'The central app URL or the node API key is missing in Content Sync settings.', 'ux-studio' ),
+				__( 'UX1 Network app URL or the node API key is missing in Content Sync settings.', 'ux-studio' ),
 				array( 'status' => 424 )
 			);
 		}
@@ -81,7 +81,7 @@ final class CaClient {
 
 		$response = wp_remote_request( $url, $args );
 		if ( is_wp_error( $response ) ) {
-			return new WP_Error( 'ca_unreachable', __( 'The central app is not reachable.', 'ux-studio' ), array( 'status' => 502 ) );
+			return new WP_Error( 'ca_unreachable', __( 'UX1 Network app is not reachable.', 'ux-studio' ), array( 'status' => 502 ) );
 		}
 
 		$code    = (int) wp_remote_retrieve_response_code( $response );
@@ -92,7 +92,7 @@ final class CaClient {
 			$message = (string) ( $decoded['error'] ?? '' );
 			if ( '' === $message ) {
 				/* translators: %d: HTTP status code */
-				$message = sprintf( __( 'Central app returned HTTP %d.', 'ux-studio' ), $code );
+				$message = sprintf( __( 'UX1 Network app returned HTTP %d.', 'ux-studio' ), $code );
 			}
 			$ca_code = (string) ( $decoded['code'] ?? '' );
 			return new WP_Error(

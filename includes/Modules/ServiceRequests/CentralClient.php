@@ -1,6 +1,6 @@
 <?php
 /**
- * Signed HTTP client for the central app's ticket API.
+ * Signed HTTP client for UX1 Network app's ticket API.
  *
  * @package UxStudio
  */
@@ -18,20 +18,20 @@ use WP_Error;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Talks to `?page=ticket_api` on the central app.
+ * Talks to `?page=ticket_api` on UX1 Network app.
  *
  * Deliberately reuses the EXISTING hub<->node credentials and signature
  * scheme rather than introducing a third channel:
  *   - secret: the node_api_key (ContentSyncModule::SECRET_NODE_KEY), the same
- *     shared key the central app already uses to call this site,
+ *     shared key UX1 Network app already uses to call this site,
  *   - signature: HmacAuth::sign(), i.e.
  *     METHOD \n URL \n TIMESTAMP \n NONCE \n sha256(body).
  *
- * The central app verifies with HmacAuth::signWithNonce() and burns the
+ * UX1 Network app verifies with HmacAuth::signWithNonce() and burns the
  * signature in its `hmac_nonces` table, so a captured request cannot be
  * replayed. Nothing here needs new pairing or a new key in settings.
  *
- * The URL that gets signed must be byte-identical to what the central app
+ * The URL that gets signed must be byte-identical to what UX1 Network app
  * reconstructs from its own $_SERVER['REQUEST_URI'] - that is why the query
  * string is built once, into a string, and both signed and sent as-is.
  */
@@ -48,7 +48,7 @@ final class CentralClient {
 	}
 
 	/**
-	 * Base URL of the central app, or '' when unset.
+	 * Base URL of UX1 Network app, or '' when unset.
 	 */
 	public static function central_url(): string {
 		return self::credentials()[0];
@@ -73,7 +73,7 @@ final class CentralClient {
 		if ( '' === $central_url || '' === $secret ) {
 			return new WP_Error(
 				'uxstudio_tickets_not_configured',
-				__( 'The central app URL or the node API key is missing in Content Sync settings.', 'ux-studio' ),
+				__( 'UX1 Network app URL or the node API key is missing in Content Sync settings.', 'ux-studio' ),
 				array( 'status' => 424 )
 			);
 		}
@@ -126,7 +126,7 @@ final class CentralClient {
 			$message = (string) ( $decoded['error'] ?? '' );
 			if ( '' === $message ) {
 				/* translators: %d: HTTP status code */
-				$message = sprintf( __( 'Central app returned HTTP %d.', 'ux-studio' ), $code );
+				$message = sprintf( __( 'UX1 Network app returned HTTP %d.', 'ux-studio' ), $code );
 			}
 			// 4xx other than 429 is a permanent problem with THIS request
 			// (bad payload, unknown site, wrong key). Retrying it on a timer
@@ -152,7 +152,7 @@ final class CentralClient {
 	 * php://input is empty on the receiving end. Same convention as the
 	 * opposite direction (SyncClient::upload_file()).
 	 *
-	 * @param string $external_id Local request id as known to the central app.
+	 * @param string $external_id Local request id as known to UX1 Network app.
 	 * @param string $path        Absolute path of the file to send.
 	 * @param string $filename    Name to show in the ticket.
 	 * @return array<string, mixed>|WP_Error
@@ -230,11 +230,11 @@ final class CentralClient {
 	}
 
 	/**
-	 * Central app URL + shared node key.
+	 * UX1 Network app URL + shared node key.
 	 *
 	 * Both live in the content-sync module's settings; this module never
 	 * stores its own copy, so there is exactly one place to repoint when a
-	 * site moves to another central app.
+	 * site moves to another UX1 Network app.
 	 *
 	 * @return array{0:string,1:string}
 	 */

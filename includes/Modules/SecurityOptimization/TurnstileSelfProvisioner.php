@@ -2,7 +2,7 @@
 /**
  * Auto-provisions Cloudflare Turnstile keys directly against Cloudflare's
  * API, using an API token the site owner pastes in (captcha_cf_api_token) -
- * for sites that are NOT paired with the central app.
+ * for sites that are NOT paired with UX1 Network app.
  *
  * @package UxStudio
  */
@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Mirrors centrani-app's core/CloudflareTurnstileClient.php, but manages a
  * widget scoped to THIS site's own domain only, under the site owner's own
- * Cloudflare account - no shared widget, no central app involved.
+ * Cloudflare account - no shared widget, no UX1 Network app involved.
  *
  * Cloudflare never returns `secret` outside widget creation/rotation - GET
  * and PATCH responses omit it - so the secret is stored locally (encrypted)

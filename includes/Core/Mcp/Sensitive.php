@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * A token with the `write` scope may change ordinary settings, but not the ones that can be turned into a
  * way to steal what is stored: change the SMTP host and the stored password is sent to the new host, change
- * the central app address and the HMAC-signed traffic goes elsewhere. Those keys (and the ones that switch
+ * UX1 Network app address and the HMAC-signed traffic goes elsewhere. Those keys (and the ones that switch
  * security off) need the `admin` scope. A few non-secret values are also hidden from `read` tokens because
  * knowing them weakens the protection they give (the secret login address, allowlists of bypass IPs).
  *
@@ -25,7 +25,7 @@ final class Sensitive {
 	/**
 	 * Module id => keys only an `admin` token may write over MCP.
 	 *
-	 * Outgoing destinations of stored credentials or data (mail transports and regions, central app, AI providers,
+	 * Outgoing destinations of stored credentials or data (mail transports and regions, UX1 Network app, AI providers,
 	 * notification recipients), switches of security features and bypass lists.
 	 *
 	 * @var array<string, string[]>

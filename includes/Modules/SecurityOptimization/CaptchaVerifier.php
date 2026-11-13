@@ -51,7 +51,7 @@ final class CaptchaVerifier {
 	}
 
 	/**
-	 * Config of the CAPTCHA field in the Forms module: keys of the central application while the site is connected,
+	 * Config of the CAPTCHA field in the Forms module: keys of UX1 Network app while the site is connected,
 	 * then the site's own keys, then the Shield. Independent of `captcha_enabled`.
 	 *
 	 * @return array{provider:string,source:string,site_key:string,secret:string,theme:string,size:string,v3_threshold:float}

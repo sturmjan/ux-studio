@@ -99,7 +99,7 @@ function ReviewsTab(): JSX.Element {
 					className="button"
 					disabled={ requestScrape.isPending }
 					onClick={ () => requestScrape.mutate() }
-					title={ __( 'Ask the central app to download the whole history of your Google reviews, not only the latest ones. When it has finished, press "Fetch reviews".', 'ux-studio' ) }
+					title={ __( 'Ask UX1 Network app to download the whole history of your Google reviews, not only the latest ones. When it has finished, press "Fetch reviews".', 'ux-studio' ) }
 				>
 					{ requestScrape.isPending ? <LoaderCircle size={ 14 } /> : <ScanSearch size={ 14 } /> } { __( 'Request a full scan', 'ux-studio' ) }
 				</button>
@@ -110,7 +110,7 @@ function ReviewsTab(): JSX.Element {
 					<p>
 						<span className="uxs-badge is-success">
 							{ sprintf(
-								/* translators: %d: central app scrape job id */
+								/* translators: %d: UX1 Network app scrape job id */
 								__( 'Full scan requested (job #%d). Press "Fetch reviews" once it has finished.', 'ux-studio' ),
 								requestScrape.data.job_id
 							) }

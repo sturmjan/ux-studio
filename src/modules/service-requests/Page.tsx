@@ -34,7 +34,7 @@ interface ServiceRequest {
 	environment: Record< string, string >;
 	attachment_id: number;
 	/**
-	 * Everything below mirrors the central app. Since F2 the central app owns
+	 * Everything below mirrors UX1 Network app. Since F2 UX1 Network app owns
 	 * the request - `status` above is only a coarse local copy, so anything
 	 * shown to the client comes from `central_status`.
 	 */
@@ -249,7 +249,7 @@ function NewRequestForm(): JSX.Element {
 	);
 }
 
-/** One request with its conversation, as mirrored from the central app. */
+/** One request with its conversation, as mirrored from UX1 Network app. */
 function RequestDetail( { item, onClose }: { item: ServiceRequest; onClose: () => void } ): JSX.Element {
 	const [ body, setBody ] = useState( '' );
 
@@ -365,7 +365,7 @@ function RequestsTable(): JSX.Element {
 	const { data, isLoading } = useQuery( {
 		queryKey: [ 'service-requests', 'items' ],
 		queryFn: () => api< ServiceRequest[] >( 'service-requests/items' ),
-		// The status and the conversation live in the central app, so the list
+		// The status and the conversation live in UX1 Network app, so the list
 		// goes stale on its own schedule, not on ours.
 		refetchInterval: 60000,
 	} );

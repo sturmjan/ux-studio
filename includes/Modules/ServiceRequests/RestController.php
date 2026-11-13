@@ -21,9 +21,9 @@ defined( 'ABSPATH' ) || exit;
  * POST   uxstudio/v1/service-requests/items/{id}/reply       - client reply into the central thread
  * POST   uxstudio/v1/service-requests/items/{id}/resync      - force a push/pull for this request
  *
- * Since F2 the central app owns a request: `status` here is a local mirror and
+ * Since F2 UX1 Network app owns a request: `status` here is a local mirror and
  * the value the UI shows is `central_status`. The `/status` route is kept so
- * pre-F2 rows that never reached the central app can still be closed locally.
+ * pre-F2 rows that never reached UX1 Network app can still be closed locally.
  */
 final class RestController extends Controller {
 

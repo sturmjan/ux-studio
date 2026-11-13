@@ -30,7 +30,7 @@ return array(
 		'effect' => __( 'Visitors read the rating at a glance.', 'ux-studio' ),
 	),
 	'auto_fetch' => array(
-		'does'   => __( 'Downloads new reviews from the central app on a schedule, without you doing anything.', 'ux-studio' ),
+		'does'   => __( 'Downloads new reviews from UX1 Network app on a schedule, without you doing anything.', 'ux-studio' ),
 		'effect' => __( 'The list on your site stays current.', 'ux-studio' ),
 		'risk'   => __( 'Without it new reviews appear only when you press the button to load them.', 'ux-studio' ),
 		'off'    => __( 'Turn it off to freeze the reviews on the site as they are now.', 'ux-studio' ),

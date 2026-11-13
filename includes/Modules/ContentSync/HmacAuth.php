@@ -172,7 +172,7 @@ final class HmacAuth {
 
 	/**
 	 * Optional IP allowlist, checked before any signature work. REMOTE_ADDR on
-	 * purpose (as legacy): forwarded headers are spoofable and the hub/central
+	 * purpose (as legacy): forwarded headers are spoofable and the hub/UX1 Network
 	 * app calls the node directly.
 	 *
 	 * @return bool|WP_Error true = allowlisted (trusted) IP, false = no

@@ -1,7 +1,7 @@
 <?php
 /**
  * DNS Management module - clients edit their DNS records in wp-admin without
- * ever getting Cloudflare access. All work happens in the central app (PLAN 24).
+ * ever getting Cloudflare access. All work happens in UX1 Network app (PLAN 24).
  *
  * @package UxStudio
  */
@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * This class only wires hooks, capabilities and settings. Validation, locks,
- * rate limit, the authoritative log and e-mails live in the central app; the
+ * rate limit, the authoritative log and e-mails live in UX1 Network app; the
  * Cloudflare token never reaches this site.
  */
 final class Module extends BaseModule {

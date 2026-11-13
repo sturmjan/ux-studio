@@ -779,7 +779,7 @@
 	color: #fff;
 }
 
-/* -- New site wizard (PLAN.md 29): environment, PHP card, recommended modules, Central App -- */
+/* -- New site wizard (PLAN.md 29): environment, PHP card, recommended modules, UX1 Network app -- */
 .uxs-wiz-env {
 	display: grid;
 	gap: var(--uxs-sp-2);
@@ -867,7 +867,7 @@
 	.uxs-wiz-prow { grid-template-columns: 24px minmax(0, 1fr); .uxs-wiz-bar { grid-column: 1 / -1; } }
 }
 
-/* -- Central application step: presentation + the toolbar that sticks to the bottom edge of the screen -- */
+/* -- UX1 Network app step: presentation + the toolbar that sticks to the bottom edge of the screen -- */
 .uxs-wiz-ca {
 	.uxs-wiz-ca__h { margin: var(--uxs-sp-6) 0 var(--uxs-sp-3); font-size: var(--uxs-fs-m); }
 }

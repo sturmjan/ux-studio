@@ -1,6 +1,6 @@
 <?php
 /**
- * Stable identity of the site towards the Central App (PLAN.md 40.2) and the state of that link.
+ * Stable identity of the site towards UX1 Network app (PLAN.md 40.2) and the state of that link.
  *
  * @package UxStudio
  */
@@ -11,11 +11,11 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * `uxstudio_site_id` is a UUID v4 made once (lazily, the first time something needs it) and kept in the database,
- * so it travels with the database to a new domain. It is NOT a secret: it only tells the Central App WHICH site
- * calls; the signature with `node_api_key` is what proves it. Every signed call to the Central App carries it in
+ * so it travels with the database to a new domain. It is NOT a secret: it only tells UX1 Network app WHICH site
+ * calls; the signature with `node_api_key` is what proves it. Every signed call to UX1 Network app carries it in
  * the header `X-UxStudio-Site-Id` and in the body field `site_id`.
  *
- * Also here: the address the Central App last knew (`uxstudio_ca_known_url`, the domain watch compares it with
+ * Also here: the address UX1 Network app last knew (`uxstudio_ca_known_url`, the domain watch compares it with
  * home_url()) and the paused state of a copy or a moved site (`uxstudio_ca_clone`). The pure helpers (uuid,
  * address comparison, the move decision, the response classification) need no WordPress and are covered by
  * tests/central-app-identity.php.
@@ -25,7 +25,7 @@ final class SiteIdentity {
 	/** Option: the site id (UUID v4), no autoload. */
 	public const ID_OPTION = 'uxstudio_site_id';
 
-	/** Option: address the Central App knows the site under (no autoload). */
+	/** Option: address UX1 Network app knows the site under (no autoload). */
 	public const KNOWN_URL_OPTION = 'uxstudio_ca_known_url';
 
 	/** Option: array{state:string,url:string,since:int} when the link is paused, no autoload. */
@@ -99,7 +99,7 @@ final class SiteIdentity {
 	}
 
 	/**
-	 * What a Central App answer means for the link, whatever the call was.
+	 * What UX1 Network app answer means for the link, whatever the call was.
 	 *
 	 * @param int                  $code    HTTP status.
 	 * @param array<string, mixed> $decoded Decoded JSON body.
@@ -166,7 +166,7 @@ final class SiteIdentity {
 	}
 
 	/**
-	 * Headers every signed call to the Central App adds.
+	 * Headers every signed call to UX1 Network app adds.
 	 *
 	 * @return array<string, string>
 	 */
@@ -186,14 +186,14 @@ final class SiteIdentity {
 	}
 
 	/**
-	 * Address the Central App knows the site under ('' = not recorded yet).
+	 * Address UX1 Network app knows the site under ('' = not recorded yet).
 	 */
 	public static function known_url(): string {
 		return (string) get_option( self::KNOWN_URL_OPTION, '' );
 	}
 
 	/**
-	 * Remember the address the Central App knows the site under.
+	 * Remember the address UX1 Network app knows the site under.
 	 *
 	 * @param string $url Address.
 	 */
@@ -219,7 +219,7 @@ final class SiteIdentity {
 	}
 
 	/**
-	 * Is the link to the Central App paused (this site is a copy, or was moved away)?
+	 * Is the link to UX1 Network app paused (this site is a copy, or was moved away)?
 	 */
 	public static function is_paused(): bool {
 		return null !== self::paused();

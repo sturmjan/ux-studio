@@ -1,7 +1,7 @@
 <?php
 /**
  * REST proxy for the live SEO score panel: forwards editor content to the
- * central app's SeoAnalyzer via SeoAiClient and returns the score as-is.
+ * UX1 Network app's SeoAnalyzer via SeoAiClient and returns the score as-is.
  *
  * @package UxStudio
  */
@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
  * POST uxstudio/v1/ai-assistant/seo/score
  *
  * Debounced from the editor (Gutenberg/Elementor sidebar); idempotent, no
- * side effects here — persistence stays on the central app side (seo_scores),
+ * side effects here — persistence stays on UX1 Network app side (seo_scores),
  * keyed by (site_id, remote_post_id) once the post is saved there via
  * content-sync, same as today's AI-drafted meta_title/meta_desc.
  */

@@ -16,11 +16,11 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Reuses the content-sync hub<->node channel in the OPPOSITE direction: this
- * node signs a request to the central app (analogous to how the hub signs
+ * node signs a request to UX1 Network app (analogous to how the hub signs
  * requests to this node in SyncClient). The channel is symmetric — same
- * secret (node_api_key, = the central app's `sites.api_key` for this site),
+ * secret (node_api_key, = UX1 Network app's `sites.api_key` for this site),
  * same HmacAuth::sign() algorithm — so no new secret or pairing flow is
- * needed. The central app's base URL reuses the existing
+ * needed. UX1 Network app's base URL reuses the existing
  * content-sync `central_app_url` setting.
  */
 final class SeoAiClient {
@@ -44,7 +44,7 @@ final class SeoAiClient {
 
 	/**
 	 * SEO analyze — mirrors core\Seo\SeoAnalyzer::analyze()'s input/output
-	 * contract on the central app.
+	 * contract on UX1 Network app.
 	 *
 	 * @param array<string, string> $fields title, content, meta_title, meta_desc, focus_keyword, slug.
 	 * @return array<string, mixed> {success,score,grade,checks,serp_preview,computed_at} or {success:false,error}.
@@ -66,7 +66,7 @@ final class SeoAiClient {
 	/**
 	 * Topic research (AI-only — see centrani-app's core/Seo/TopicResearch.php):
 	 * related/LSI keywords + subtopics for a seed keyword, no real search
-	 * volume/difficulty. Cached 30 days on the central app side.
+	 * volume/difficulty. Cached 30 days on UX1 Network app side.
 	 *
 	 * @return array<string, mixed> {success,seed_keyword,related_keywords,subtopics,cached} or {success:false,error}.
 	 */
@@ -92,7 +92,7 @@ final class SeoAiClient {
 
 	/**
 	 * Cross-site internal link suggestions within the site's client portfolio
-	 * (empty when `sites.portfolio_key` isn't set on the central app — safe
+	 * (empty when `sites.portfolio_key` isn't set on UX1 Network app — safe
 	 * default, no suggestions across unrelated clients' sites).
 	 *
 	 * @return array<string, mixed> {success,suggestions:array} or {success:false,error}.
@@ -117,7 +117,7 @@ final class SeoAiClient {
 		if ( ! $this->is_configured() ) {
 			return array(
 				'success' => false,
-				'error'   => __( 'The central app is not connected. Connect this site in Content Sync first.', 'ux-studio' ),
+				'error'   => __( 'UX1 Network app is not connected. Connect this site in Content Sync first.', 'ux-studio' ),
 			);
 		}
 
@@ -155,7 +155,7 @@ final class SeoAiClient {
 				'success' => false,
 				'error'   => is_array( $data ) && isset( $data['error'] )
 					? (string) $data['error']
-					: sprintf( /* translators: %d: HTTP status code */ __( 'The central app returned HTTP %d.', 'ux-studio' ), $code ),
+					: sprintf( /* translators: %d: HTTP status code */ __( 'UX1 Network app returned HTTP %d.', 'ux-studio' ), $code ),
 			);
 		}
 

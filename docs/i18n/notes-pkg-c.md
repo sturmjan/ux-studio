@@ -42,7 +42,7 @@ Also added (not in the baseline): admin-customiser admin_bar_logo and sidebar_wi
 
 - `src/app/Overlaps.tsx` is not mine: the expanded conflict panel is still the old long list (it is shown only after "Show"). If F wants a more compact list, the change belongs there.
 - Action labels in the activity log cover about 45 common codes; other codes (for example `gmail_connect`) fall back to a readable form ("Gmail connect"). New module owners can extend `Modules/ActivityLog/Labels.php`. The log's module filter now lists only modules present in the log.
-- The English wording "Centrální aplikace" was replaced by "central app" in four Admin Customiser strings (old Czech translations in the .po no longer match, the new ones are in cs-pkg-c.json). Code comments in Login.php still say "Centrální aplikace" (harmless).
+- The English wording "UX1 Network app" was replaced by "UX1 Network app" in four Admin Customiser strings (old Czech translations in the .po no longer match, the new ones are in cs-pkg-c.json). Code comments in Login.php still say "UX1 Network app" (harmless).
 - The other group descriptions (Duplicate, Email, Export, Redirect tools, Reviews, Updates) still say "switched on separately"; I changed only my own groups to "turned on" (terminology Turn on / Turn off).
 - Not covered by browser QA (the local site runs another worktree): the module list layout, color field and global settings should be checked once after the merge.
 - Guide, IndexingNotice, PostIdDisplay, PostTypeOrder, PostTypeSwitcher, QuickAddPost, MenuIcons, MenuVisibility, HideAdminBar, AdminColumns: no missing help in the audit CSV (all OK), no change needed beyond the TypeScript fix in `src/modules/admin-columns/Page.tsx` (swap of two rows no longer yields `undefined`).

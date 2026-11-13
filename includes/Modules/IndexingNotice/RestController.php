@@ -15,7 +15,7 @@ use WP_REST_Request;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * GET  uxstudio/v1/indexing-notice/status       what the settings screen needs to explain: the Central App link,
+ * GET  uxstudio/v1/indexing-notice/status       what the settings screen needs to explain: UX1 Network app link,
  *                                               whether an own secret is stored, IndexNow (key address, other senders)
  * POST uxstudio/v1/indexing-notice/verify-keys  app_id?, app_secret?  check Facebook keys (what was typed, else the stored ones)
  *

@@ -123,6 +123,6 @@ společném chunku - žádná duplikace knihoven.
 - **Chat pro návštěvníky mluví jazykem z nastavení "Chat language"**, ne jazykem webu ani uživatele. Texty chatu pocházejí z `AiAssistant\ChatLocale`:
   `__()` uvnitř `ChatLocale::run( $lang, ... )` odpovídá z `.mo` pluginu pro jazyk chatu; veřejné REST trasy chatu a předání člověku se obalují
   `ChatLocale::wrap()`, takže i chybové zprávy odpovídají jazyku widgetu.
-- **Překlady**: zdrojové řetězce jsou anglicky s jednotnou terminologií (color, e-mail, allowlist/blocklist, central app, turn on/off; bez pomlček
+- **Překlady**: zdrojové řetězce jsou anglicky s jednotnou terminologií (color, e-mail, allowlist/blocklist, UX1 Network app, turn on/off; bez pomlček
   jako interpunkce). Čeština: motiv, smazat, e-mail. Pravidla: `languages/.build/term_rules.py`, postup: `languages/README.md`.
 - **Skupina**: export nastavení je jednou, v hlavičce skupiny; zpět vede jedna šipka (drobečková navigace "<- skupina", u funkce skupiny se šipka v nadpisu skryje).

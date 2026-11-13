@@ -299,7 +299,7 @@ integrity všech webů v síti. Jedna obrazovka odpovídající na otázku:
 Kdyby to existovalo 18. 9., přišel by e-mail ten den odpoledne místo objevu o tři dny později —
 a web by nestihl rozdávat malware návštěvníkům.
 
-Modul musí fungovat i bez centrální aplikace; ta je nadstavba, ne podmínka.
+Modul musí fungovat i bez UX1 Network app; ta je nadstavba, ne podmínka.
 
 ---
 

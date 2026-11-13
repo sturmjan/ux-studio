@@ -8,7 +8,7 @@
 - Email Log: the source column reads "Plugin: Disable Emails" instead of "plugin: disable-emails", the raw "Pending" status is now "Unconfirmed" with an explanation, and the tabs of SMTP Email ("Delivery log") and Email Log ("Messages") have distinct names.
 - Email Health: explains what the test proves and what it does not.
 - Rollback Manager: explains the risk and asks for confirmation before it replaces files.
-- Vulnerability Scanner: the description now names the real data source (Wordfence Intelligence through the central app) instead of WPScan.
+- Vulnerability Scanner: the description now names the real data source (Wordfence Intelligence through UX1 Network app) instead of WPScan.
 - Debug Mode and User Switching: "How it works" text on the module page.
 - SMTP Email: the Gmail "no connected account" error is translatable.
 

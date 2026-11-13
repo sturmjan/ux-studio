@@ -1,7 +1,7 @@
 /**
  * Steps of the new-site wizard (`#/wizard?mode=new`, PLAN.md 29.4 F3 and F4): welcome with the detected
  * environment and the PHP version, the recommended modules, applying them, the custom login address, the
- * Central App connection and the finish with "Undo everything".
+ * UX1 Network app connection and the finish with "Undo everything".
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -539,7 +539,7 @@ function ModulesStep( { ctx }: { ctx: StarterCtx } ): JSX.Element {
 			) }
 			{ 'done' === hashParam( 'ca' ) && '1' !== hashParam( 'ux1_connect_cancelled' ) && data.detections.ca_connected && (
 				<p className="uxs-wiz-banner is-ok" role="status">
-					<CircleCheck size={ 16 } aria-hidden /> { __( 'The site is connected to the central app. The recommended modules below use it where they can.', 'ux-studio' ) }
+					<CircleCheck size={ 16 } aria-hidden /> { __( 'The site is connected to UX1 Network app. The recommended modules below use it where they can.', 'ux-studio' ) }
 				</p>
 			) }
 
@@ -838,7 +838,7 @@ function DoneStep( { ctx }: { ctx: StarterCtx } ): JSX.Element {
 					<Undo2 size={ 30 } aria-hidden />
 				</span>
 				<h2>{ __( 'Everything was undone', 'ux-studio' ) }</h2>
-				<p>{ __( 'The modules and settings are back the way they were before. If you connected the site to the central app, remove it there as well.', 'ux-studio' ) }</p>
+				<p>{ __( 'The modules and settings are back the way they were before. If you connected the site to UX1 Network app, remove it there as well.', 'ux-studio' ) }</p>
 				<div className="uxs-wiz-actions is-center">
 					<button type="button" className="button" onClick={ () => ctx.goTo( 'welcome' ) }>
 						{ __( 'Start over', 'ux-studio' ) }
@@ -898,8 +898,8 @@ function DoneStep( { ctx }: { ctx: StarterCtx } ): JSX.Element {
 					{ ctx.loginConfirmed && <li>{ __( 'The custom login address is confirmed and wp-login.php is closed.', 'ux-studio' ) }</li> }
 					<li>
 						{ ca.data?.ready
-							? __( 'The site is prepared for the central app (Content Sync as a managed site).', 'ux-studio' )
-							: __( 'The site is not connected to the central app. You can do it later in the Content Sync module.', 'ux-studio' ) }
+							? __( 'The site is prepared for UX1 Network app (Content Sync as a managed site).', 'ux-studio' )
+							: __( 'The site is not connected to UX1 Network app. You can do it later in the Content Sync module.', 'ux-studio' ) }
 					</li>
 					{ skipped.map( ( r ) => (
 						<li key={ r.id }>
@@ -946,7 +946,7 @@ function DoneStep( { ctx }: { ctx: StarterCtx } ): JSX.Element {
 					} }
 				>
 					<p>{ __( 'The modules this wizard turned on are turned off again and the settings it changed go back to their earlier values. Modules that were on before stay on.', 'ux-studio' ) }</p>
-					<p>{ __( 'A custom login address goes back as well, so wp-login.php works again. A connection already made in the central app is not removed there.', 'ux-studio' ) }</p>
+					<p>{ __( 'A custom login address goes back as well, so wp-login.php works again. A connection already made in UX1 Network app is not removed there.', 'ux-studio' ) }</p>
 				</ConfirmModal>
 			) }
 		</section>
@@ -954,13 +954,13 @@ function DoneStep( { ctx }: { ctx: StarterCtx } ): JSX.Element {
 }
 
 /**
- * Ordered steps. The central app comes right after the welcome (PLAN.md 40.1), so the starter pack already knows
+ * Ordered steps. UX1 Network app comes right after the welcome (PLAN.md 40.1), so the starter pack already knows
  * whether the site is connected. The login address step exists only when the pack sets one (decided by the shell).
  */
 export function getStarterSteps( withLogin: boolean ): StarterStep[] {
 	const steps: StarterStep[] = [
 		{ id: 'welcome', title: __( 'Welcome', 'ux-studio' ), render: ( ctx ) => <WelcomeStep ctx={ ctx } /> },
-		{ id: 'ca', title: __( 'Central app', 'ux-studio' ), render: ( ctx ) => <CaStep ctx={ ctx } /> },
+		{ id: 'ca', title: __( 'UX1 Network app', 'ux-studio' ), render: ( ctx ) => <CaStep ctx={ ctx } /> },
 		{ id: 'modules', title: __( 'Recommended modules', 'ux-studio' ), render: ( ctx ) => <ModulesStep ctx={ ctx } /> },
 		{ id: 'apply', title: __( 'Apply', 'ux-studio' ), render: ( ctx ) => <ApplyStep ctx={ ctx } /> },
 	];

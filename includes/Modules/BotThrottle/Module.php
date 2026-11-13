@@ -394,7 +394,7 @@ final class Module extends BaseModule {
 				'key'     => 'central_report_secret',
 				'type'    => 'text',
 				'label'   => __( 'Central report secret', 'ux-studio' ),
-				'help'    => __( 'Set the SAME value on every site managed by your central app to let it recognize a repeat-offender IP across sites, without ever seeing the raw address (only a keyed hash is reported). Leave empty to keep bans local and never report them.', 'ux-studio' ),
+				'help'    => __( 'Set the SAME value on every site managed by your UX1 Network app to let it recognize a repeat-offender IP across sites, without ever seeing the raw address (only a keyed hash is reported). Leave empty to keep bans local and never report them.', 'ux-studio' ),
 				'default' => '',
 			),
 		);

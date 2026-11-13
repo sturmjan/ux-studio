@@ -80,7 +80,7 @@ final class RestController extends Controller {
 		$this->route( '/forms/(?P<id>\d+)/ai-generate', 'POST', array( $this, 'ai_generate' ), $this->id_arg(), $cap );
 		// Can the generator run here (module on, API key set)? Reads settings only, never calls the AI.
 		$this->route( '/forms/ai-status', 'GET', array( $this, 'ai_status' ), array(), $cap );
-		// Which CAPTCHA the field uses (FormsCaptcha) and the button that fetches keys from the central application.
+		// Which CAPTCHA the field uses (FormsCaptcha) and the button that fetches keys from UX1 Network app.
 		// Provisioning writes the site-wide CAPTCHA keys of the Security module, so it needs manage_options.
 		$this->route( '/forms/captcha/status', 'GET', array( $this, 'captcha_status' ), array(), $cap );
 		$this->route( '/forms/captcha/provision', 'POST', array( $this, 'captcha_provision' ), array(), 'manage_options' );
@@ -236,8 +236,8 @@ final class RestController extends Controller {
 	}
 
 	/**
-	 * POST forms/captcha/provision: keys for this site from the central application. The error text of the central
-	 * application is passed on as it is; no secret ever leaves in a response.
+	 * POST forms/captcha/provision: keys for this site from UX1 Network app. The error text of UX1 Network
+	 * app is passed on as it is; no secret ever leaves in a response.
 	 *
 	 * @return WP_REST_Response|WP_Error
 	 */

@@ -9,17 +9,17 @@ defined( 'ABSPATH' ) || exit;
 
 return array(
 	'central_app_url'     => array(
-		'does'   => __( 'The address of the central app that talks to Google, Facebook, Apple or Seznam for this site. The site never sees your provider keys, only the answer of the central app.', 'ux-studio' ),
-		'effect' => __( 'Without a working address the login buttons cannot start. Use the address of your own central app, including the https:// part.', 'ux-studio' ),
-		'risk'   => __( 'The central app tells the site who is logging in, so enter only an address you own and trust.', 'ux-studio' ),
+		'does'   => __( 'The address of UX1 Network app that talks to Google, Facebook, Apple or Seznam for this site. The site never sees your provider keys, only the answer of UX1 Network app.', 'ux-studio' ),
+		'effect' => __( 'Without a working address the login buttons cannot start. Use the address of your own UX1 Network app, including the https:// part.', 'ux-studio' ),
+		'risk'   => __( 'UX1 Network app tells the site who is logging in, so enter only an address you own and trust.', 'ux-studio' ),
 	),
 	'hmac_secret'         => array(
-		'does'   => __( 'A shared password between this site and the central app. Both sides use it to sign every login message, so a forged message is recognized and rejected. The central app shows it in the detail of the site under "Third-party login".', 'ux-studio' ),
+		'does'   => __( 'A shared password between this site and UX1 Network app. Both sides use it to sign every login message, so a forged message is recognized and rejected. UX1 Network app shows it in the detail of the site under "Third-party login".', 'ux-studio' ),
 		'effect' => __( 'The secret is stored encrypted and never shown again. Leave the field empty to keep the current one; fill it only to replace it.', 'ux-studio' ),
 		'risk'   => __( 'A wrong or old secret makes every third-party login fail. Anyone who learns the secret could forge a login, so never paste it anywhere else.', 'ux-studio' ),
 	),
 	'enabled_providers'   => array(
-		'does'   => __( 'Chooses which login buttons appear on the login page. A provider also has to be set up in the central app and enabled there for this site.', 'ux-studio' ),
+		'does'   => __( 'Chooses which login buttons appear on the login page. A provider also has to be set up in UX1 Network app and enabled there for this site.', 'ux-studio' ),
 		'effect' => __( 'Visitors with an account at the chosen provider can sign in with one click instead of a password.', 'ux-studio' ),
 		'off'    => __( 'Leave a provider unticked when you do not want people to use it. A button for a provider that is not set up centrally only leads to an error.', 'ux-studio' ),
 	),
