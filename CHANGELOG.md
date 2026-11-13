@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.17.1 - 2026-11-13
 
 - Changed: the central application is now called UX1 Network app in every text shown to the user (module screens, setup wizard, help, notices, module descriptions, translations and docs). The name is not declined and has no article in English. Identifiers stay as they are: class names, namespaces, option keys, REST routes, hooks and URLs.
 
