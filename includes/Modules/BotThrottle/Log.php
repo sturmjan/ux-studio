@@ -126,7 +126,7 @@ final class Log {
 	}
 
 	/**
-	 * Reportable bans for the central app's pull (cursor-based, ascending).
+	 * Reportable bans for UX1 Network app's pull (cursor-based, ascending).
 	 * Only rows with a `report_hash` qualify - bans recorded before a fleet
 	 * secret was configured stay local forever, never reported retroactively.
 	 *

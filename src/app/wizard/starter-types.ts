@@ -55,7 +55,7 @@ export interface StarterItem {
 }
 
 export interface Detections {
-	/** The site is paired with the central app (PLAN.md 40.1), so the pack can use it. */
+	/** The site is paired with UX1 Network app (PLAN.md 40.1), so the pack can use it. */
 	ca_connected: boolean;
 	woocommerce: boolean;
 	cloudflare: boolean;

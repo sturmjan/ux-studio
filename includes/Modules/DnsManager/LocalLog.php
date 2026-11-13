@@ -2,8 +2,8 @@
 /**
  * Local copy of the DNS change log (display only, no IP).
  *
- * The source of truth is the central app. This table is a fallback for when
- * the central app does not answer and feeds the dashboard widget.
+ * The source of truth is UX1 Network app. This table is a fallback for when
+ * UX1 Network app does not answer and feeds the dashboard widget.
  *
  * @package UxStudio
  */

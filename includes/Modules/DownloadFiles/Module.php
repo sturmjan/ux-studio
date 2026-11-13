@@ -1037,7 +1037,7 @@ final class Module extends BaseModule {
 			}
 		}
 
-		// Post association also lists files the legacy plugin (or the central
+		// Post association also lists files the legacy plugin (or UX1 Network
 		// app via content-sync) stored per post outside the media library.
 		if ( empty( $ids ) && '' === $category && $post_id > 0 && $this->can_view_post( $post_id ) ) {
 			$out = array_merge( $out, $this->legacy_files_for_post( $post_id ) );

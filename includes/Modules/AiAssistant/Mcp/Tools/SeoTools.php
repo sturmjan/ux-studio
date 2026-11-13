@@ -1,6 +1,6 @@
 <?php
 /**
- * MCP tools nad SEO mostem do centrální aplikace (RankMath Content AI
+ * MCP tools nad SEO mostem do UX1 Network app (RankMath Content AI
  * parita, PLAN.md §17.5, F5 "RankBot"). Díky nim může AI agent pracovat se
  * skóre, topic researchem, schema markupem i návrhy odkazů stejně jako
  * člověk v editorovém panelu.
@@ -36,7 +36,7 @@ class SeoTools extends RestEndpointTool {
 		$this->register_ability(
 			'seo-score',
 			__( 'Get SEO Score', 'ux-studio' ),
-			__( 'Analyse a post (or raw content) against the central app SEO checks and return the score, grade and per-check findings.', 'ux-studio' ),
+			__( 'Analyse a post (or raw content) against UX1 Network app SEO checks and return the score, grade and per-check findings.', 'ux-studio' ),
 			array(
 				'post_id'       => array(
 					'type'        => 'integer',
@@ -85,7 +85,7 @@ class SeoTools extends RestEndpointTool {
 		$this->register_ability(
 			'seo-link-suggestions',
 			__( 'Suggest Internal Links', 'ux-studio' ),
-			__( 'Suggest internal links for a post from the client portfolio index in the central app. Empty when the site has no portfolio key there.', 'ux-studio' ),
+			__( 'Suggest internal links for a post from the client portfolio index in UX1 Network app. Empty when the site has no portfolio key there.', 'ux-studio' ),
 			array(
 				'post_id' => array(
 					'type'        => 'integer',

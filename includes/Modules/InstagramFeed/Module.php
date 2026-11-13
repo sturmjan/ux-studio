@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  * every Meta call through a central "broker" app (it stored no Meta
  * credentials on the site). This rewrite is deliberately STANDALONE: it talks
  * to the Instagram Graph API directly, so it has no runtime dependency on the
- * Content Sync broker or a central application. The Instagram app secret and
+ * Content Sync broker or UX1 Network app. The Instagram app secret and
  * the long-lived access token are stored encrypted via UxStudio\Core\Security
  * and never leave the server (only has_* booleans are exposed over REST).
  *

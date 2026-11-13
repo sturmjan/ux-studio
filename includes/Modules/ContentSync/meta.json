@@ -1,7 +1,7 @@
 {
 	"id": "content-sync",
 	"name": "Content Sync",
-	"description": "Central broker connection to the central app: registered sites, SSO tokens and a synchronization log.",
+	"description": "Central broker connection to UX1 Network app: registered sites, SSO tokens and a synchronization log.",
 	"group": "developer",
 	"icon": "refresh-cw",
 	"settings": true

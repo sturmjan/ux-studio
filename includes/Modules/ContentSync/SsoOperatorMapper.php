@@ -1,6 +1,6 @@
 <?php
 /**
- * Maps a central-app operator onto a local WP user (node side).
+ * Maps a UX1 Network app operator onto a local WP user (node side).
  *
  * @package UxStudio
  */

@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  * DELETE uxstudio/v1/cron-control/events    - unschedule one event
  * GET    uxstudio/v1/cron-control/watch     - last watcher result
  * POST   uxstudio/v1/cron-control/watch     - run the watcher now
- * POST   uxstudio/v1/cron-control/central/resync - re-send cron config to the central app
+ * POST   uxstudio/v1/cron-control/central/resync - re-send cron config to UX1 Network app
  * GET    uxstudio/v1/cron-control/url-events        - events that call a URL (with the last result)
  * POST   uxstudio/v1/cron-control/url-events        - create or change one (body `id` to change)
  * DELETE uxstudio/v1/cron-control/url-events        - delete one (`id`)
@@ -294,7 +294,7 @@ final class RestController extends Controller {
 	}
 
 	/**
-	 * Re-send the cron config to the central app (central mode only).
+	 * Re-send the cron config to UX1 Network app (central mode only).
 	 *
 	 * @param WP_REST_Request $request Request.
 	 */

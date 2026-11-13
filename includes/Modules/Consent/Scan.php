@@ -1,6 +1,6 @@
 <?php
 /**
- * Dynamic scan of cookies and scripts (PLAN.md 42.4, phase F3): receives what the Central App's browser saw on this site and
+ * Dynamic scan of cookies and scripts (PLAN.md 42.4, phase F3): receives what UX1 Network app's browser saw on this site and
  * works out what it means.
  *
  * @package UxStudio
@@ -16,10 +16,10 @@ use WP_Error;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Division of work (PLAN.md 42.15): the Central App (a real browser on the NAS) only RECORDS what happens on the pages in three
+ * Division of work (PLAN.md 42.15): UX1 Network app (a real browser on the NAS) only RECORDS what happens on the pages in three
  * runs (no consent, after "Accept all", after "Reject all") and sends the raw facts here. This class SANITIZES them, and the
  * classification happens here, because the catalogue of cookies and services lives in this plugin (`Cookies::match()`,
- * `Services::classify()`, `CspServices`), so a newer catalogue or a rule of the owner applies at once and the Central App needs
+ * `Services::classify()`, `CspServices`), so a newer catalogue or a rule of the owner applies at once and UX1 Network app needs
  * no copy of the catalogue.
  *
  * A violation is a cookie or a request to a tracking host that appears
@@ -38,7 +38,7 @@ final class Scan {
 	/** Order matters: it is the order of the runs and of the tables. */
 	public const SCENARIOS = array( 'none', 'accept', 'reject' );
 
-	/** Caps per scenario. The Central App keeps to the same ones; anything above is cut here as well. */
+	/** Caps per scenario. UX1 Network app keeps to the same ones; anything above is cut here as well. */
 	public const MAX_COOKIES  = 150;
 	public const MAX_STORAGE  = 150;
 	public const MAX_REQUESTS = 400;
@@ -111,7 +111,7 @@ final class Scan {
 	}
 
 	/**
-	 * Take what the Central App sent and keep only the known fields, with known types and bounded sizes. The result is the only
+	 * Take what UX1 Network app sent and keep only the known fields, with known types and bounded sizes. The result is the only
 	 * form that is ever stored, evaluated or shown.
 	 *
 	 * @param mixed $raw Decoded body of the push.
@@ -458,7 +458,7 @@ final class Scan {
 	}
 
 	/**
-	 * What the Central App needs before it scans: the pages to open.
+	 * What UX1 Network app needs before it scans: the pages to open.
 	 *
 	 * @return array{ok:bool, consent:bool, urls:list<string>, banner:string, mode:string}
 	 */
@@ -488,7 +488,7 @@ final class Scan {
 	 * Take a pushed scan result: sanitize, evaluate, store, report back.
 	 *
 	 * @param mixed $body Decoded JSON body (`scan_id`, `result`).
-	 * @return array<string, mixed>|WP_Error The reply for the Central App: `ok`, `summary`, a short `violations` list, `unknown_cookies` names.
+	 * @return array<string, mixed>|WP_Error The reply for UX1 Network app: `ok`, `summary`, a short `violations` list, `unknown_cookies` names.
 	 */
 	public static function receive( $body ) {
 		$body = is_array( $body ) ? $body : array();
@@ -529,7 +529,7 @@ final class Scan {
 		);
 		ActivityLog::log( 'consent', 'scan_received', 'setting', 0, $eval['summary'] );
 
-		// The Central App keeps the counts and a short list for its fleet overview and the notification; the full
+		// UX1 Network app keeps the counts and a short list for its fleet overview and the notification; the full
 		// evaluation stays in this plugin.
 		return array(
 			'ok'              => true,
@@ -640,14 +640,14 @@ final class Scan {
 	}
 
 	/**
-	 * Ask the Central App to scan this site. The Central App queues it and the cron there runs it within minutes (a scan takes
+	 * Ask UX1 Network app to scan this site. UX1 Network app queues it and the cron there runs it within minutes (a scan takes
 	 * three runs of a browser, too long to wait for in a request), then pushes the result to `receive()`.
 	 *
 	 * @return array{queued:bool, message:string}|WP_Error
 	 */
 	public static function request_scan() {
 		if ( ! Gateway::is_paired() ) {
-			return new WP_Error( 'uxstudio_consent_scan_unpaired', __( 'This site is not connected to the central app.', 'ux-studio' ), array( 'status' => 424 ) );
+			return new WP_Error( 'uxstudio_consent_scan_unpaired', __( 'This site is not connected to UX1 Network app.', 'ux-studio' ), array( 'status' => 424 ) );
 		}
 		$result = Gateway::post( 'consent_scan_api', array( 'site_url' => home_url( '/' ), 'reason' => 'manual' ), array( 'action' => 'request' ) );
 		if ( $result instanceof WP_Error ) {
@@ -656,21 +656,21 @@ final class Scan {
 		$code = (int) $result['code'];
 		$body = (array) $result['body'];
 		if ( 429 === $code ) {
-			return new WP_Error( 'uxstudio_consent_scan_wait', __( 'The central app scanned this site a short while ago. Try again later.', 'ux-studio' ), array( 'status' => 429 ) );
+			return new WP_Error( 'uxstudio_consent_scan_wait', __( 'UX1 Network app scanned this site a short while ago. Try again later.', 'ux-studio' ), array( 'status' => 429 ) );
 		}
 		if ( 409 === $code || 410 === $code || 423 === $code ) {
-			return new WP_Error( 'uxstudio_consent_scan_link', __( 'The central app does not accept the request now (the site address or the connection needs attention).', 'ux-studio' ), array( 'status' => 409 ) );
+			return new WP_Error( 'uxstudio_consent_scan_link', __( 'UX1 Network app does not accept the request now (the site address or the connection needs attention).', 'ux-studio' ), array( 'status' => 409 ) );
 		}
 		if ( ( 200 !== $code && 202 !== $code ) || empty( $body['queued'] ) ) {
 			/* translators: %d: HTTP status code */
-			return new WP_Error( 'uxstudio_consent_scan_failed', sprintf( __( 'The central app answered with HTTP %d.', 'ux-studio' ), $code ), array( 'status' => 502 ) );
+			return new WP_Error( 'uxstudio_consent_scan_failed', sprintf( __( 'UX1 Network app answered with HTTP %d.', 'ux-studio' ), $code ), array( 'status' => 502 ) );
 		}
 		$stored              = self::stored();
 		$stored['requested'] = time();
 		update_option( self::OPTION, $stored, false );
 		return array(
 			'queued'  => true,
-			'message' => __( 'The scan is queued in the central app. The result appears here within a few minutes.', 'ux-studio' ),
+			'message' => __( 'The scan is queued in UX1 Network app. The result appears here within a few minutes.', 'ux-studio' ),
 		);
 	}
 }

@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  * Independent of the Security module's CAPTCHA switch (`captcha_enabled` decides about the login forms only). The
  * provider of a form is worked out from what the site has, in this order:
  *
- *   1. Cloudflare Turnstile keys from the central application, while the site is connected,
+ *   1. Cloudflare Turnstile keys from UX1 Network app, while the site is connected,
  *   2. the site's own keys (Turnstile or reCAPTCHA), stored in the Security options,
  *   3. the key-less Shield.
  *
@@ -80,7 +80,7 @@ final class FormsCaptcha {
 			'has_keys'      => $state['has_keys'],
 			'keys_from_ca'  => $state['ca_keys'],
 			// Own keys are never overwritten behind the administrator's back: only an empty store, or a pair that
-			// came from the central application itself (a refresh), can be provisioned.
+			// came from UX1 Network app itself (a refresh), can be provisioned.
 			'can_provision' => $state['connected'] && ( ! $state['has_keys'] || $state['ca_keys'] ),
 		);
 	}
@@ -127,9 +127,9 @@ final class FormsCaptcha {
 	}
 
 	/**
-	 * Fetch Turnstile keys for this site from the central application and store them where the login forms look too.
+	 * Fetch Turnstile keys for this site from UX1 Network app and store them where the login forms look too.
 	 *
-	 * @return array<string,mixed>|WP_Error The new status, or the error with the text the central application gave.
+	 * @return array<string,mixed>|WP_Error The new status, or the error with the text UX1 Network app gave.
 	 */
 	public static function provision() {
 		$module = self::security();
@@ -137,11 +137,11 @@ final class FormsCaptcha {
 			return new WP_Error( 'uxstudio_forms_captcha_no_security', __( 'The Security module is not available.', 'ux-studio' ), array( 'status' => 409 ) );
 		}
 		if ( ! TurnstileCaProvisioner::is_connected() ) {
-			return new WP_Error( 'uxstudio_forms_captcha_not_connected', __( 'Connect the site to the central app first.', 'ux-studio' ), array( 'status' => 409 ) );
+			return new WP_Error( 'uxstudio_forms_captcha_not_connected', __( 'Connect the site to UX1 Network app first.', 'ux-studio' ), array( 'status' => 409 ) );
 		}
 		$status = self::status();
 		if ( $status['has_keys'] && ! $status['keys_from_ca'] ) {
-			return new WP_Error( 'uxstudio_forms_captcha_own_keys', __( 'The site already has its own CAPTCHA keys. Remove them in Security > CAPTCHA first if you want keys from the central app.', 'ux-studio' ), array( 'status' => 409 ) );
+			return new WP_Error( 'uxstudio_forms_captcha_own_keys', __( 'The site already has its own CAPTCHA keys. Remove them in Security > CAPTCHA first if you want keys from UX1 Network app.', 'ux-studio' ), array( 'status' => 409 ) );
 		}
 
 		$keys = TurnstileCaProvisioner::provision( $module );

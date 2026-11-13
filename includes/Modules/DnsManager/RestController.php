@@ -21,11 +21,11 @@ defined( 'ABSPATH' ) || exit;
  * POST   uxstudio/v1/dns/records              - create {record}
  * POST   uxstudio/v1/dns/records/{id}         - update {record, modified_on}
  * DELETE uxstudio/v1/dns/records/{id}         - delete {modified_on}
- * GET    uxstudio/v1/dns/log                  - change history (from the central app)
+ * GET    uxstudio/v1/dns/log                  - change history (from UX1 Network app)
  * POST   uxstudio/v1/dns/revert               - revert a logged change {log_id}
  * POST   uxstudio/v1/dns/ack                  - user acknowledged the risks (first entry)
  *
- * Everything is a thin pass-through to the central app, which is authoritative
+ * Everything is a thin pass-through to UX1 Network app, which is authoritative
  * for validation, locks, rate limit and the log. There are deliberately NO AI
  * abilities for writing DNS (a wrong MX silently loses mail).
  *
@@ -159,7 +159,7 @@ final class RestController extends Controller {
 	}
 
 	/**
-	 * History from the central app (authoritative); local copy only when it is down.
+	 * History from UX1 Network app (authoritative); local copy only when it is down.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 */
@@ -242,7 +242,7 @@ final class RestController extends Controller {
 	}
 
 	/**
-	 * Only whitelisted record fields go to the central app.
+	 * Only whitelisted record fields go to UX1 Network app.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return array<string, mixed>

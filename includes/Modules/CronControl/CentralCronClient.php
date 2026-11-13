@@ -1,6 +1,6 @@
 <?php
 /**
- * Signed client for the central app's cron config endpoint
+ * Signed client for UX1 Network app's cron config endpoint
  * (`?page=site_config&action=set_cron`).
  *
  * @package UxStudio
@@ -15,7 +15,7 @@ use WP_Error;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Tells the central app to start/stop calling this site's wp-cron.php.
+ * Tells UX1 Network app to start/stop calling this site's wp-cron.php.
  *
  * Contract (centrani-app SiteConfigController::setCron(), unchanged from the
  * legacy cron-control module):
@@ -36,9 +36,9 @@ final class CentralCronClient {
 	private const TIMEOUT = 15;
 
 	/**
-	 * Push the cron config for this site to the central app.
+	 * Push the cron config for this site to UX1 Network app.
 	 *
-	 * @param bool $enabled          Whether the central app should run wp-cron.php.
+	 * @param bool $enabled          Whether UX1 Network app should run wp-cron.php.
 	 * @param int  $interval_minutes How often (minutes).
 	 * @return array<string, mixed>|WP_Error Decoded CA response, or an error.
 	 */
@@ -49,7 +49,7 @@ final class CentralCronClient {
 		if ( '' === $central_url || '' === $secret ) {
 			return new WP_Error(
 				'uxstudio_cron_not_configured',
-				__( 'The central app URL or the node API key is missing in Content Sync settings.', 'ux-studio' ),
+				__( 'UX1 Network app URL or the node API key is missing in Content Sync settings.', 'ux-studio' ),
 				array( 'status' => 424 )
 			);
 		}
@@ -76,7 +76,7 @@ final class CentralCronClient {
 			$message = (string) ( $decoded['error'] ?? '' );
 			if ( '' === $message ) {
 				/* translators: %d: HTTP status code */
-				$message = sprintf( __( 'Central app returned HTTP %d.', 'ux-studio' ), $code );
+				$message = sprintf( __( 'UX1 Network app returned HTTP %d.', 'ux-studio' ), $code );
 			}
 			return new WP_Error( 'uxstudio_cron_ca_error', $message, array( 'status' => $code ) );
 		}

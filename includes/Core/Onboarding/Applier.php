@@ -627,7 +627,7 @@ final class Applier {
 	}
 
 	/**
-	 * Snapshot for something other than the item list (the Central App connection), same store, same revert.
+	 * Snapshot for something other than the item list (UX1 Network app connection), same store, same revert.
 	 *
 	 * @param string[] $modules       Module ids that are about to change.
 	 * @param string[] $extra_options Further option names (secrets and markers) the change touches.

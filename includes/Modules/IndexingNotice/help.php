@@ -15,10 +15,10 @@ return array(
 		'off'    => __( 'Leave it off if the site is not shared on social networks.', 'ux-studio' ),
 	),
 	'social_key_source'      => array(
-		'does'   => __( 'Facebook only answers an app that is registered with it. Central app means this site asks the central app to do the refresh with its app, so you fill in nothing. My own Facebook app means this site calls Facebook itself with keys of your app.', 'ux-studio' ),
-		'effect' => __( 'With the central app the site sends only the addresses of changed pages. The secret of the central app never reaches the site. With your own app the limits and the responsibility are yours alone.', 'ux-studio' ),
-		'risk'   => __( 'The central app option works only when the site is connected to it. Without the connection no preview is refreshed, and the settings show a warning.', 'ux-studio' ),
-		'off'    => __( 'Choose your own app if the site is not managed by the central app, or if you want it to be independent of it.', 'ux-studio' ),
+		'does'   => __( 'Facebook only answers an app that is registered with it. UX1 Network app means this site asks UX1 Network app to do the refresh with its app, so you fill in nothing. My own Facebook app means this site calls Facebook itself with keys of your app.', 'ux-studio' ),
+		'effect' => __( 'With UX1 Network app the site sends only the addresses of changed pages. The secret of UX1 Network app never reaches the site. With your own app the limits and the responsibility are yours alone.', 'ux-studio' ),
+		'risk'   => __( 'UX1 Network app option works only when the site is connected to it. Without the connection no preview is refreshed, and the settings show a warning.', 'ux-studio' ),
+		'off'    => __( 'Choose your own app if the site is not managed by UX1 Network app, or if you want it to be independent of it.', 'ux-studio' ),
 	),
 	'social_fb_app_id'       => array(
 		'does'   => __( 'The number of your Facebook app. Open developers.facebook.com, go to My Apps and create an app (type Other or Business is fine). Then open Settings, Basic and copy the App ID. Menu names there change from time to time. Your app does not need to be reviewed by Facebook.', 'ux-studio' ),

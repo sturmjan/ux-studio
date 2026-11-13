@@ -1,6 +1,6 @@
 /**
  * The wizard for a new site (`#/wizard?mode=new`, PLAN.md 29): recommended modules, applying them, the custom
- * login address and the Central App connection. The steps are in starter-steps.tsx; the server work is driven
+ * login address and UX1 Network app connection. The steps are in starter-steps.tsx; the server work is driven
  * from here, one item per request, so a problem in one item never stops the others.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -109,7 +109,7 @@ export function StarterWizard(): JSX.Element {
 		await starter.refetch();
 	}, [ starter ] );
 
-	// Back from the central app: the connection changed what the pack offers, so read it again (PLAN.md 40.1).
+	// Back from UX1 Network app: the connection changed what the pack offers, so read it again (PLAN.md 40.1).
 	// Declared after `reload`: its dependency list is read during render.
 	const returnedFromCa = useRef( 'done' === hashParam( 'ca' ) );
 	useEffect( () => {

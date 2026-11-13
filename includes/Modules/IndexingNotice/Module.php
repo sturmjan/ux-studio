@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  *
  *  - the admin bar warning while "Discourage search engines from indexing this site" is on (ported from the
  *    legacy module, unchanged and independent of the options below),
- *  - after a published post is saved, Facebook is asked to fetch its preview again (through the Central App, or with
+ *  - after a published post is saved, Facebook is asked to fetch its preview again (through UX1 Network app, or with
  *    own keys) and IndexNow tells Bing, Seznam and others that it changed (PLAN.md 39).
  *
  * The id stays `indexing-notice`, so the enabled state, exported settings and the starter pack item keep working.
@@ -152,7 +152,7 @@ final class Module extends BaseModule {
 				'type'    => 'select',
 				'label'   => __( 'Where the Facebook keys come from', 'ux-studio' ),
 				'options' => array(
-					'ca'  => __( 'Central app (nothing to fill in)', 'ux-studio' ),
+					'ca'  => __( 'UX1 Network app (nothing to fill in)', 'ux-studio' ),
 					'own' => __( 'My own Facebook app', 'ux-studio' ),
 				),
 				'default' => 'ca',

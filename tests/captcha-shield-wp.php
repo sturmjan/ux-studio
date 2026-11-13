@@ -5,7 +5,7 @@ if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
  * The key-less Shield CAPTCHA inside a real WordPress (the local pobyty): the public challenge route and its rate
  * limit, the REST allow-list, the answer check and the one-time store, the widget in the login forms, the typed
  * question fallback, the CAPTCHA field of the Forms module (Shield, replay, tampering, independence of the Security
- * switch) and the keys from the central application (mocked HTTP) landing in the shared store.
+ * switch) and the keys from UX1 Network app (mocked HTTP) landing in the shared store.
  *
  * Nothing stays behind: the settings of the site are overridden through a filter (never saved), the options the
  * provisioning test writes are put back byte for byte, the temporary form, its submissions, the used-answer rows and
@@ -359,7 +359,7 @@ try {
 	$override( array( 'captcha_enabled' => false, 'captcha_provider' => 'auto', 'captcha_shield_level' => 'easy', 'captcha_shield_min_time' => 0, 'captcha_shield_adaptive' => false ) );
 	$st = FormsCaptcha::status();
 	$assert( 'no keys: the field uses the Shield, whatever the Security CAPTCHA switch says (it is off here)', 'shield' === $st['provider'] && 'shield' === $st['source'] && ! $st['has_keys'] );
-	$assert( 'not connected to the central application in this test', false === $st['connected'] && false === $st['can_provision'] );
+	$assert( 'not connected to UX1 Network app in this test', false === $st['connected'] && false === $st['can_provision'] );
 
 	$form = $forms->create_form(
 		array(
@@ -423,9 +423,9 @@ try {
 	$assert( 'and accepted a moment later', ! is_wp_error( $post( $fid, $fa4 ) ) );
 	$clean_guard();
 
-	/* ── 6. Keys from the central application land in the shared store ── */
+	/* ── 6. Keys from UX1 Network app land in the shared store ── */
 
-	WP_CLI::log( '== keys from the central application (HTTP mocked) ==' );
+	WP_CLI::log( '== keys from UX1 Network app (HTTP mocked) ==' );
 	$restore();
 	$cs  = $security->captcha_state();
 	$raw = static function ( string $name ) use ( $wpdb ): ?string {
@@ -477,7 +477,7 @@ try {
 
 		add_filter( 'pre_http_request', $mock_fail, 10, 3 );
 		$r = FormsCaptcha::provision();
-		$assert( 'a refusal of the central application: its own text is passed on, nothing is stored', is_wp_error( $r ) && false !== strpos( $r->get_error_message(), 'Limit 5 registrations per hour exceeded.' ) && $raw( 'uxstudio_secret_security_optimization_captcha_secret_key' ) === $backup['uxstudio_secret_security_optimization_captcha_secret_key'][0] );
+		$assert( 'a refusal of UX1 Network app: its own text is passed on, nothing is stored', is_wp_error( $r ) && false !== strpos( $r->get_error_message(), 'Limit 5 registrations per hour exceeded.' ) && $raw( 'uxstudio_secret_security_optimization_captcha_secret_key' ) === $backup['uxstudio_secret_security_optimization_captcha_secret_key'][0] );
 		remove_filter( 'pre_http_request', $mock_fail, 10 );
 
 		add_filter( 'pre_http_request', $mock, 10, 3 );
@@ -486,7 +486,7 @@ try {
 		$res = rest_do_request( new WP_REST_Request( 'POST', '/uxstudio/v1/forms/captcha/provision' ) );
 		$json = wp_json_encode( $res->get_data() );
 		$assert( 'POST forms/captcha/provision as an administrator answers 200', 200 === $res->get_status(), (string) $res->get_status() . ' ' . $json );
-		$assert( 'the response says Turnstile from the central application', 'turnstile' === ( $res->get_data()['data']['provider'] ?? '' ) && 'ca' === ( $res->get_data()['data']['source'] ?? '' ) );
+		$assert( 'the response says Turnstile from UX1 Network app', 'turnstile' === ( $res->get_data()['data']['provider'] ?? '' ) && 'ca' === ( $res->get_data()['data']['source'] ?? '' ) );
 		$assert( 'no secret and no key in any response', false === strpos( $json, '0xQASECRETKEY' ) && false === strpos( $json, '0xQASITEKEY' ) );
 		$assert( 'the secret is stored encrypted, not as plain text', null !== $raw( 'uxstudio_secret_security_optimization_captcha_secret_key' ) && false === strpos( (string) $raw( 'uxstudio_secret_security_optimization_captcha_secret_key' ), '0xQASECRETKEY' ) && '0xQASECRETKEY' === Security::get_secret( 'uxstudio_secret_security_optimization_captcha_secret_key' ) );
 		$assert( 'the site key and the source are in the Security options (the one shared store)', '0xQASITEKEY' === get_option( 'uxstudio_security_optimization' )['captcha_site_key'] && 'ca' === get_option( 'uxstudio_security_optimization' )['captcha_key_source'] );
@@ -496,7 +496,7 @@ try {
 		$security->flush_captcha_cache();
 		$cfg = CaptchaVerifier::forms_config( $security );
 		$assert( 'the Forms config is now Turnstile, source ca', 'turnstile' === $cfg['provider'] && 'ca' === $cfg['source'] && '0xQASITEKEY' === $cfg['site_key'] );
-		$assert( 'the SAME keys serve the login forms (no second provisioning): auto resolves to Turnstile from the central application', 'turnstile' === CaptchaVerifier::config( $security )['provider'] && 'ca' === CaptchaVerifier::config( $security )['source'] );
+		$assert( 'the SAME keys serve the login forms (no second provisioning): auto resolves to Turnstile from UX1 Network app', 'turnstile' === CaptchaVerifier::config( $security )['provider'] && 'ca' === CaptchaVerifier::config( $security )['source'] );
 		$html = FormsCaptcha::render( $fid );
 		$assert( 'the form field now draws the Turnstile widget with the site key', false !== strpos( $html, 'class="cf-turnstile"' ) && false !== strpos( $html, '0xQASITEKEY' ) && false === strpos( $html, '0xQASECRETKEY' ) );
 		$_POST = array( 'cf-turnstile-response' => 'good-token' );
@@ -510,10 +510,10 @@ try {
 		$_POST = array();
 		$assert( 'no token: refused', is_wp_error( $rest->submit( $req ) ) );
 
-		$assert( 'a second click on the button (keys came from the central application) is allowed: a refresh', true === FormsCaptcha::status()['can_provision'] );
+		$assert( 'a second click on the button (keys came from UX1 Network app) is allowed: a refresh', true === FormsCaptcha::status()['can_provision'] );
 		$calls = array();
 		$r     = FormsCaptcha::provision();
-		$assert( 'and calls the central application again', ! is_wp_error( $r ) && 1 === count( $calls ) );
+		$assert( 'and calls UX1 Network app again', ! is_wp_error( $r ) && 1 === count( $calls ) );
 
 		// Own keys must never be overwritten by the button.
 		$security->store_captcha_keys( '0xOWNSITE', '0xOWNSECRET', 'manual' );
@@ -521,10 +521,10 @@ try {
 		$assert( 'own keys: the field uses them and the button is not offered', 'own' === $st['source'] && false === $st['can_provision'] );
 		$calls = array();
 		$r     = FormsCaptcha::provision();
-		$assert( 'provisioning refuses to overwrite own keys and does not call the central application', is_wp_error( $r ) && 'uxstudio_forms_captcha_own_keys' === $r->get_error_code() && 0 === count( $calls ) );
+		$assert( 'provisioning refuses to overwrite own keys and does not call UX1 Network app', is_wp_error( $r ) && 'uxstudio_forms_captcha_own_keys' === $r->get_error_code() && 0 === count( $calls ) );
 		$assert( 'own keys are still there', '0xOWNSITE' === get_option( 'uxstudio_security_optimization' )['captcha_site_key'] && '0xOWNSECRET' === Security::get_secret( 'uxstudio_secret_security_optimization_captcha_secret_key' ) );
 
-		// Not connected any more: keys from the central application keep working as own keys.
+		// Not connected any more: keys from UX1 Network app keep working as own keys.
 		$security->store_captcha_keys( '0xQASITEKEY', '0xQASECRETKEY', 'ca' );
 		remove_filter( 'pre_option_uxstudio_content_sync', $f_ca );
 		remove_filter( 'pre_option_uxstudio_secret_content_sync_node_key', $f_nk );

@@ -34,7 +34,7 @@ final class SocialQueue {
 	/** Tries of one step before it is dropped. */
 	public const MAX_ATTEMPTS = 3;
 
-	/** Addresses per run through the Central App (its own limit is 50). */
+	/** Addresses per run through UX1 Network app (its own limit is 50). */
 	public const BATCH_CA = 50;
 
 	/** Addresses per run with own keys (one Graph API call each, inside one request). */

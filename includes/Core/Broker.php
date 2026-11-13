@@ -1,6 +1,6 @@
 <?php
 /**
- * Shared HMAC-signed HTTP client for talking to the central app.
+ * Shared HMAC-signed HTTP client for talking to UX1 Network app.
  *
  * @package UxStudio
  */
@@ -12,7 +12,7 @@ use WP_Error;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Every module that talks to the central app (content-sync's own config
+ * Every module that talks to UX1 Network app (content-sync's own config
  * consumers: instagram-feed, review-aggregator) routes the actual signed
  * HTTP call through here. The HMAC secret and URL always come from the
  * content-sync module's settings - this class never reads or stores them
@@ -22,17 +22,17 @@ defined( 'ABSPATH' ) || exit;
  * hash_hmac('sha256', ...) + hash_equals() verification, a 300s timestamp
  * window and a transient-based anti-replay guard - applied here to both the
  * outbound request (signed with our secret) and the inbound response
- * (verified against the central app's signature).
+ * (verified against UX1 Network app's signature).
  */
 final class Broker {
 
 	private const MAX_AGE = 300; // seconds.
 
 	/**
-	 * POST a signed JSON payload to the central app and verify the signed
+	 * POST a signed JSON payload to UX1 Network app and verify the signed
 	 * JSON response.
 	 *
-	 * @param string $central_app_url Base URL of the central app (content-sync's central_app_url setting).
+	 * @param string $central_app_url Base URL of UX1 Network app (content-sync's central_app_url setting).
 	 * @param string $hmac_secret     Shared secret (content-sync's decrypted hmac_secret).
 	 * @param string $endpoint        Path appended to the base URL, e.g. '/api/instagram/sync'.
 	 * @param array  $payload         Request payload (module-specific).
@@ -77,7 +77,7 @@ final class Broker {
 				'uxstudio_broker_error',
 				sprintf(
 					/* translators: %d: HTTP status code */
-					__( 'Central app returned HTTP %d.', 'ux-studio' ),
+					__( 'UX1 Network app returned HTTP %d.', 'ux-studio' ),
 					$code
 				),
 				array( 'status' => 502 )
@@ -89,7 +89,7 @@ final class Broker {
 		$resp_timestamp  = absint( wp_remote_retrieve_header( $response, 'x-uxstudio-timestamp' ) );
 		$generic_error   = new WP_Error(
 			'uxstudio_broker_invalid_response',
-			__( 'Central app response failed signature verification.', 'ux-studio' ),
+			__( 'UX1 Network app response failed signature verification.', 'ux-studio' ),
 			array( 'status' => 502 )
 		);
 

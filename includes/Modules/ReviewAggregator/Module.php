@@ -21,7 +21,7 @@ defined( 'ABSPATH' ) || exit;
  * Ported/redesigned from the legacy review-aggregator module (free+pro
  * merged) as a group-C module with its own SPA screen. Unlike the legacy
  * module there is no local scraping (Google/Facebook/Mapy.cz scrapers) and
- * no API keys on this site - reviews are scraped and stored by the central
+ * no API keys on this site - reviews are scraped and stored by UX1 Network
  * app and pulled from its public reviews API (`?page=reviews_api`, see
  * CentralReviewsClient for the auth scheme), using the Content Sync
  * central_app_url + node_api_key.
@@ -35,10 +35,10 @@ final class Module extends BaseModule {
 	/** Cron hook for the "Auto-fetch new reviews" setting (recurrence = `fetch_interval`). */
 	public const CRON_FETCH = 'uxstudio_review_aggregator_fetch';
 
-	/** Option holding the central app's ETag of the last complete fetch. */
+	/** Option holding UX1 Network app's ETag of the last complete fetch. */
 	private const ETAG_OPTION = 'uxstudio_review_aggregator_etag';
 
-	/** Reviews per page requested from the central app. */
+	/** Reviews per page requested from UX1 Network app. */
 	private const PAGE_SIZE = 100;
 
 	/** Safety cap on pages per fetch. */
@@ -71,7 +71,7 @@ final class Module extends BaseModule {
 		add_filter( 'cron_schedules', array( $this, 'add_cron_schedules' ) );
 
 		// Cheap when nothing changed: the first page is requested with the
-		// last ETag and the central app answers 304. Like legacy, the event
+		// last ETag and UX1 Network app answers 304. Like legacy, the event
 		// is only scheduled once there is something to fetch (a profile id)
 		// and is rescheduled whenever the configured interval changes.
 		add_action( self::CRON_FETCH, array( $this, 'cron_fetch' ) );
@@ -262,7 +262,7 @@ final class Module extends BaseModule {
 				'show_if' => array( 'key' => 'auto_fetch', 'truthy' => true ),
 				'type'    => 'select',
 				'label'   => __( 'Fetch interval', 'ux-studio' ),
-				'help'    => __( 'How often new reviews are pulled from the central app automatically.', 'ux-studio' ),
+				'help'    => __( 'How often new reviews are pulled from UX1 Network app automatically.', 'ux-studio' ),
 				'options' => array(
 					'1h'     => __( 'Every hour', 'ux-studio' ),
 					'6h'     => __( 'Every 6 hours', 'ux-studio' ),
@@ -275,15 +275,15 @@ final class Module extends BaseModule {
 			array(
 				'key'     => 'central_profile_id',
 				'type'    => 'text',
-				'label'   => __( 'Central app profile ID', 'ux-studio' ),
-				'help'    => __( 'Numeric ID of the review profile in the central app (Reviews). The profile must belong to this site there.', 'ux-studio' ),
+				'label'   => __( 'UX1 Network app profile ID', 'ux-studio' ),
+				'help'    => __( 'Numeric ID of the review profile in UX1 Network app (Reviews). The profile must belong to this site there.', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
 				'key'     => 'google_url',
 				'type'    => 'text',
 				'label'   => __( 'Google Maps URL or Place ID', 'ux-studio' ),
-				'help'    => __( 'Used by "Request a full scan" to find or create the Google profile in the central app.', 'ux-studio' ),
+				'help'    => __( 'Used by "Request a full scan" to find or create the Google profile in UX1 Network app.', 'ux-studio' ),
 				'default' => '',
 			),
 		);
@@ -402,8 +402,8 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Pull the stored reviews of the configured profile from the central
-	 * app's reviews API (paged) and upsert them locally.
+	 * Pull the stored reviews of the configured profile from UX1 Network
+	 * app\'s reviews API (paged) and upsert them locally.
 	 *
 	 * @param bool $use_etag Send the last ETag so an unchanged profile costs a
 	 *                       single 304 (auto-fetch). Manual fetches always
@@ -413,7 +413,7 @@ final class Module extends BaseModule {
 	public function fetch( bool $use_etag = false ) {
 		$profile_id = absint( $this->settings->get( 'central_profile_id', '' ) );
 		if ( $profile_id <= 0 ) {
-			return new WP_Error( 'uxstudio_reviews_no_profile', __( 'Set the central app profile ID first.', 'ux-studio' ), array( 'status' => 424 ) );
+			return new WP_Error( 'uxstudio_reviews_no_profile', __( 'Set UX1 Network app profile ID first.', 'ux-studio' ), array( 'status' => 424 ) );
 		}
 
 		$items = array();
@@ -456,15 +456,15 @@ final class Module extends BaseModule {
 
 			$source      = sanitize_text_field( (string) $item['source'] );
 			$external_id = sanitize_text_field( (string) ( $item['external_id'] ?? '' ) );
-			// Central app Review rows use author_name / review_text.
+			// UX1 Network app Review rows use author_name / review_text.
 			$author      = sanitize_text_field( (string) ( $item['author_name'] ?? $item['author'] ?? '' ) );
 			$raw_text    = $item['review_text'] ?? $item['text'] ?? null;
 			$text        = null !== $raw_text ? sanitize_textarea_field( (string) $raw_text ) : '';
 			$review_date = ! empty( $item['review_date'] ) ? gmdate( 'Y-m-d H:i:s', strtotime( (string) $item['review_date'] ) ?: time() ) : '';
 
 			// Stable dedup key: prefer external_id from the source (same
-			// approach as the central app's own Review model), fall back to
-			// a content hash when the central app doesn't provide one so repeated
+			// approach as UX1 Network app's own Review model), fall back to
+			// a content hash when UX1 Network app doesn't provide one so repeated
 			// fetches of the same review never insert a duplicate row.
 			$dedup_hash = sha1(
 				$source . '|' . ( '' !== $external_id ? 'ext:' . $external_id : 'sig:' . $author . '|' . $review_date . '|' . $text )
@@ -508,7 +508,7 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Ask the central app to queue a deep (full-history) Google scan of this
+	 * Ask UX1 Network app to queue a deep (full-history) Google scan of this
 	 * site's place on the NAS scraper (legacy "Vyžádat hloubkový sken").
 	 * The CA finds or creates the profile from the Place ID / Maps URL; its
 	 * id is stored as `central_profile_id` when none is configured yet.

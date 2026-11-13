@@ -1,6 +1,6 @@
 <?php
 /**
- * Node-side health/monitoring endpoints polled by the Central App.
+ * Node-side health/monitoring endpoints polled by UX1 Network app.
  *
  * @package UxStudio
  */
@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  * Read-only reporting endpoints ported from the legacy NodeController
  * (`/updates`, `/php-errors`, `/pagespeed`, `/email-health`, `/security-monitor`,
  * `/vulnerabilities`, `/guide`, `/service-requests`). Response shapes are kept
- * identical to the legacy plugin because the Central App parses them as-is;
+ * identical to the legacy plugin because UX1 Network app parses them as-is;
  * where the Studio stores the underlying data differently (security findings,
  * vulnerability scan, service requests) the data is mapped back to the legacy
  * shape here.
@@ -30,7 +30,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class NodeHealth {
 
-	/** Legacy transient the Central App's PageSpeed sync used to fill. */
+	/** Legacy transient UX1 Network app's PageSpeed sync used to fill. */
 	private const PAGESPEED_TRANSIENT = 'ux1_pagespeed_data';
 
 	/** Legacy guide option (pre-Studio installs). */
@@ -233,7 +233,7 @@ final class NodeHealth {
 	}
 
 	/**
-	 * Cached PageSpeed measurement (the Central App measures and pushes it to
+	 * Cached PageSpeed measurement (UX1 Network app measures and pushes it to
 	 * the legacy `ux1_pagespeed_data` transient; the Studio's dashboard widget
 	 * keeps its own cache, so on a pure-Studio site this is `available:false`).
 	 *
@@ -592,7 +592,7 @@ final class NodeHealth {
 	}
 
 	/**
-	 * Service requests in the legacy list shape the Central App mirrors
+	 * Service requests in the legacy list shape UX1 Network app mirrors
 	 * (`subject`, `user_name`, `status` new|in_progress|completed|rejected, ...).
 	 *
 	 * @param WP_REST_Request $request Request (`status` filter, legacy values).

@@ -1,6 +1,6 @@
 <?php
 /**
- * Central App link wiring in the plugin core (PLAN.md 40).
+ * UX1 Network app link wiring in the plugin core (PLAN.md 40).
  *
  * @package UxStudio
  */

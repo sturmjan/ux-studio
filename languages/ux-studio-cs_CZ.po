@@ -49,12 +49,12 @@ msgstr "Synchronizace obsahu není nakonfigurována."
 #: includes/Modules/ServiceRequests/CentralClient.php:129
 #: includes/Modules/VulnerabilityScanner/CentralVulnerabilityClient.php:106
 #, php-format
-msgid "Central app returned HTTP %d."
-msgstr "Centrální aplikace vrátila HTTP %d."
+msgid "UX1 Network app returned HTTP %d."
+msgstr "UX1 Network app vrátila HTTP %d."
 
 #: includes/Core/Broker.php:92
-msgid "Central app response failed signature verification."
-msgstr "Ověření podpisu odpovědi centrální aplikace se nezdařilo."
+msgid "UX1 Network app response failed signature verification."
+msgstr "Ověření podpisu odpovědi UX1 Network app se nezdařilo."
 
 #: includes/Core/Rest.php:85
 #: includes/Core/Rest.php:106
@@ -2146,16 +2146,16 @@ msgstr "Úryvek byl úspěšně smazán"
 
 #: includes/Modules/ContentSync/Module.php:320
 #: includes/Modules/ThirdPartyLogin/Module.php:166
-msgid "Central app URL"
-msgstr "URL centrální aplikace"
+msgid "UX1 Network app URL"
+msgstr "URL UX1 Network app"
 
 #: includes/Modules/ThirdPartyLogin/Module.php:173
 msgid "HMAC secret"
 msgstr "Tajný klíč HMAC"
 
 #: includes/Modules/ContentSync/Module.php:328
-msgid "Shared secret used to sign/verify every request to and from the central app. Stored encrypted. Leave blank to keep the current secret."
-msgstr "Sdílený tajný klíč používaný k podepisování/ověřování každého požadavku do a z centrální aplikace. Uloženo šifrovaně. Ponechte prázdné pro zachování stávajícího klíče."
+msgid "Shared secret used to sign/verify every request to and from UX1 Network app. Stored encrypted. Leave blank to keep the current secret."
+msgstr "Sdílený tajný klíč používaný k podepisování/ověřování každého požadavku do a z UX1 Network app. Uloženo šifrovaně. Ponechte prázdné pro zachování stávajícího klíče."
 
 #: includes/Modules/CronControl/Module.php:688
 #: includes/Modules/CronControl/Module.php:714
@@ -4187,8 +4187,8 @@ msgid "Auto-fetch new reviews"
 msgstr "Automaticky načítat nové recenze"
 
 #: includes/Modules/ReviewAggregator/Module.php:278
-msgid "Central app profile ID"
-msgstr "ID profilu v centrální aplikaci"
+msgid "UX1 Network app profile ID"
+msgstr "ID profilu v UX1 Network app"
 
 #: includes/Modules/ReviewAggregator/Module.php:355
 #: includes/Modules/ReviewAggregator/Module.php:582
@@ -5507,8 +5507,8 @@ msgid "Max token issues per operator / hour"
 msgstr "Max. vydaných tokenů na operátora / hodinu"
 
 #: includes/Modules/ContentSync/Module.php:327
-msgid "Central app HMAC secret"
-msgstr "HMAC klíč centrální aplikace"
+msgid "UX1 Network app HMAC secret"
+msgstr "HMAC klíč UX1 Network app"
 
 #: includes/Modules/ContentSync/NodeController.php:859
 msgid "Could not delete the post."
@@ -5569,8 +5569,8 @@ msgid "Disable WP-Cron and trigger it from a hosting cron"
 msgstr "Vypnout WP-Cron a spouštět jej z hostingového cronu"
 
 #: includes/Modules/CronControl/Module.php:177
-msgid "Drive WP-Cron from the central app"
-msgstr "Řídit WP-Cron z centrální aplikace"
+msgid "Drive WP-Cron from UX1 Network app"
+msgstr "Řídit WP-Cron z UX1 Network app"
 
 #: includes/Modules/CronControl/Module.php:184
 msgid "WP-Cron mode"
@@ -5581,12 +5581,12 @@ msgid "WordPress runs scheduled tasks (wp-cron) on every front-end page load, wh
 msgstr "WordPress spouští naplánované úlohy (wp-cron) při každém načtení stránky na frontendu, což je nespolehlivé a zatěžuje web. Toto chování zde můžete změnit. Vypnutí probíhá přes mu-plugin, který definuje DISABLE_WP_CRON - soubor wp-config.php se nikdy neupravuje."
 
 #: includes/Modules/CronControl/Module.php:192
-msgid "Central app IP allowlist (central mode)"
-msgstr "Seznam povolených IP centrální aplikace (režim centrální aplikace)"
+msgid "UX1 Network app IP allowlist (central mode)"
+msgstr "Seznam povolených IP UX1 Network app (režim UX1 Network app)"
 
 #: includes/Modules/CronControl/Module.php:193
-msgid "Only used in \"central app\" mode. One IP or CIDR per line - these are allowed to reach wp-cron.php in addition to local requests. Leave blank to allow local requests only."
-msgstr "Používá se pouze v režimu \"centrální aplikace\". Jedna IP nebo CIDR na řádek - těmto je povolen přístup k wp-cron.php navíc k lokálním požadavkům. Ponechte prázdné pro povolení pouze lokálních požadavků."
+msgid "Only used in \"UX1 Network app\" mode. One IP or CIDR per line - these are allowed to reach wp-cron.php in addition to local requests. Leave blank to allow local requests only."
+msgstr "Používá se pouze v režimu \"UX1 Network app\". Jedna IP nebo CIDR na řádek - těmto je povolen přístup k wp-cron.php navíc k lokálním požadavkům. Ponechte prázdné pro povolení pouze lokálních požadavků."
 
 #: includes/Modules/CronControl/Module.php:199
 msgid "Watch scheduled tasks"
@@ -6673,8 +6673,8 @@ msgstr "(bez textu, jen hodnocení)"
 #: includes/Modules/SecurityOptimization/TurnstileCaProvisioner.php:47
 #: includes/Modules/ServiceRequests/CentralClient.php:76
 #: includes/Modules/VulnerabilityScanner/CentralVulnerabilityClient.php:51
-msgid "The central app URL or the node API key is missing in Content Sync settings."
-msgstr "V nastavení Synchronizace obsahu chybí URL centrální aplikace nebo API klíč uzlu."
+msgid "UX1 Network app URL or the node API key is missing in Content Sync settings."
+msgstr "V nastavení Synchronizace obsahu chybí URL UX1 Network app nebo API klíč uzlu."
 
 #: includes/Modules/ServiceRequests/CentralClient.php:167
 msgid "Ticket sync is not configured."
@@ -6689,8 +6689,8 @@ msgid "Attachment upload failed."
 msgstr "Nahrání přílohy selhalo."
 
 #: includes/Modules/ServiceRequests/Module.php:275
-msgid "This request has not reached the central app yet. Try again once it is submitted."
-msgstr "Tento požadavek zatím nedorazil do centrální aplikace. Zkuste to znovu, až bude odeslán."
+msgid "This request has not reached UX1 Network app yet. Try again once it is submitted."
+msgstr "Tento požadavek zatím nedorazil do UX1 Network app. Zkuste to znovu, až bude odeslán."
 
 #: includes/Modules/ServiceRequests/Sync.php:103
 msgid "Every 5 minutes (UX1 Studio ticket sync)"
@@ -6713,16 +6713,16 @@ msgid "Browser"
 msgstr "Prohlížeč"
 
 #: includes/Modules/ThirdPartyLogin/Module.php:167
-msgid "Base URL of the central app that performs the OAuth handshake, e.g. https://ux1.cz/app/."
-msgstr "Základní URL centrální aplikace, která provádí OAuth handshake, např. https://ux1.cz/app/."
+msgid "Base URL of UX1 Network app that performs the OAuth handshake, e.g. https://ux1.cz/app/."
+msgstr "Základní URL UX1 Network app, která provádí OAuth handshake, např. https://ux1.cz/app/."
 
 #: includes/Modules/ThirdPartyLogin/Module.php:174
-msgid "Shared secret from the central app (site detail, \"Third-party login\"). Signs the handshake in both directions. Stored encrypted. Leave blank to keep the current secret."
-msgstr "Sdílené tajemství z centrální aplikace (detail webu, „Přihlášení přes třetí strany“). Podepisuje handshake v obou směrech. Uloženo šifrovaně. Ponechte prázdné pro zachování stávajícího tajemství."
+msgid "Shared secret from UX1 Network app (site detail, \"Third-party login\"). Signs the handshake in both directions. Stored encrypted. Leave blank to keep the current secret."
+msgstr "Sdílené tajemství z UX1 Network app (detail webu, „Přihlášení přes třetí strany“). Podepisuje handshake v obou směrech. Uloženo šifrovaně. Ponechte prázdné pro zachování stávajícího tajemství."
 
 #: includes/Modules/ThirdPartyLogin/Module.php:181
-msgid "A provider also has to be configured centrally and enabled for this site in the central app."
-msgstr "Poskytovatel musí být také nakonfigurován centrálně a povolen pro tento web v centrální aplikaci."
+msgid "A provider also has to be configured centrally and enabled for this site in UX1 Network app."
+msgstr "Poskytovatel musí být také nakonfigurován centrálně a povolen pro tento web v UX1 Network app."
 
 #: includes/Modules/ThirdPartyLogin/Module.php:186
 #: includes/Modules/ThirdPartyLogin/Module.php:394
@@ -6830,16 +6830,16 @@ msgid "Login screen layout"
 msgstr "Rozvržení přihlašovací obrazovky"
 
 #: includes/Modules/AdminCustomiser/Module.php:226
-msgid "\"Split\" reproduces the Centrální aplikace login screen: a full-height media panel (video/image/YouTube) on one side and the form on the other."
-msgstr "„Rozdělené“ napodobuje přihlašovací obrazovku Centrální aplikace: na jedné straně mediální panel přes celou výšku (video/obrázek/YouTube), na druhé formulář."
+msgid "\"Split\" reproduces the UX1 Network app login screen: a full-height media panel (video/image/YouTube) on one side and the form on the other."
+msgstr "„Rozdělené“ napodobuje přihlašovací obrazovku UX1 Network app: na jedné straně mediální panel přes celou výšku (video/obrázek/YouTube), na druhé formulář."
 
 #: includes/Modules/AdminCustomiser/Module.php:229
 msgid "Classic (centered form, colors above)"
 msgstr "Klasické (formulář uprostřed, barvy výše)"
 
 #: includes/Modules/AdminCustomiser/Module.php:229
-msgid "Split (media panel + form, like Centrální aplikace)"
-msgstr "Rozdělené (mediální panel + formulář, jako Centrální aplikace)"
+msgid "Split (media panel + form, like UX1 Network app)"
+msgstr "Rozdělené (mediální panel + formulář, jako UX1 Network app)"
 
 #: includes/Modules/AdminCustomiser/Module.php:238
 msgid "Split layout: media panel type"
@@ -6862,16 +6862,16 @@ msgid "Split layout: image / video poster"
 msgstr "Rozdělené rozvržení: obrázek / náhled videa"
 
 #: includes/Modules/AdminCustomiser/Module.php:250
-msgid "Used directly when the media type is \"Static image\", and as the poster/fallback frame for \"Video\" and \"YouTube\". Left empty, \"Video\" falls back to the same background clip used on the Centrální aplikace login screen."
-msgstr "Použije se přímo, když je typ média „Statický obrázek“, a jako náhledový/záložní snímek pro „Video“ a „YouTube“. Pokud zůstane prázdné, „Video“ použije stejný klip na pozadí jako přihlašovací obrazovka Centrální aplikace."
+msgid "Used directly when the media type is \"Static image\", and as the poster/fallback frame for \"Video\" and \"YouTube\". Left empty, \"Video\" falls back to the same background clip used on the UX1 Network app login screen."
+msgstr "Použije se přímo, když je typ média „Statický obrázek“, a jako náhledový/záložní snímek pro „Video“ a „YouTube“. Pokud zůstane prázdné, „Video“ použije stejný klip na pozadí jako přihlašovací obrazovka UX1 Network app."
 
 #: includes/Modules/AdminCustomiser/Module.php:258
 msgid "Split layout: video URL (MP4)"
 msgstr "Rozdělené rozvržení: URL videa (MP4)"
 
 #: includes/Modules/AdminCustomiser/Module.php:258
-msgid "Link to an .mp4 file - an external URL or a link copied from the media library. Used only when the media type is \"Video\". Left empty, it loads the same background clip used on the Centrální aplikace login screen (not bundled with the plugin, fetched from ux1.cz)."
-msgstr "Odkaz na soubor .mp4 - externí URL nebo odkaz zkopírovaný z knihovny médií. Použije se jen při typu média „Video“. Pokud zůstane prázdné, načte se stejný klip na pozadí jako na přihlašovací obrazovce Centrální aplikace (není součástí pluginu, stahuje se z ux1.cz)."
+msgid "Link to an .mp4 file - an external URL or a link copied from the media library. Used only when the media type is \"Video\". Left empty, it loads the same background clip used on the UX1 Network app login screen (not bundled with the plugin, fetched from ux1.cz)."
+msgstr "Odkaz na soubor .mp4 - externí URL nebo odkaz zkopírovaný z knihovny médií. Použije se jen při typu média „Video“. Pokud zůstane prázdné, načte se stejný klip na pozadí jako na přihlašovací obrazovce UX1 Network app (není součástí pluginu, stahuje se z ux1.cz)."
 
 #: includes/Modules/AdminCustomiser/Module.php:266
 msgid "Split layout: YouTube URL or video ID"
@@ -6938,8 +6938,8 @@ msgid "Get SEO Score"
 msgstr "Získat SEO skóre"
 
 #: includes/Modules/AiAssistant/Mcp/Tools/SeoTools.php:39
-msgid "Analyse a post (or raw content) against the central app SEO checks and return the score, grade and per-check findings."
-msgstr "Analyzuje příspěvek (nebo surový obsah) pomocí SEO kontrol centrální aplikace a vrátí skóre, známku a zjištění jednotlivých kontrol."
+msgid "Analyse a post (or raw content) against UX1 Network app SEO checks and return the score, grade and per-check findings."
+msgstr "Analyzuje příspěvek (nebo surový obsah) pomocí SEO kontrol UX1 Network app a vrátí skóre, známku a zjištění jednotlivých kontrol."
 
 #: includes/Modules/AiAssistant/Mcp/Tools/SeoTools.php:43
 msgid "Post ID to analyse. Omit when passing raw content."
@@ -6982,8 +6982,8 @@ msgid "Suggest Internal Links"
 msgstr "Navrhnout interní odkazy"
 
 #: includes/Modules/AiAssistant/Mcp/Tools/SeoTools.php:88
-msgid "Suggest internal links for a post from the client portfolio index in the central app. Empty when the site has no portfolio key there."
-msgstr "Navrhne interní odkazy pro příspěvek z indexu klientského portfolia v centrální aplikaci. Prázdné, pokud web nemá v centrální aplikaci klíč portfolia."
+msgid "Suggest internal links for a post from the client portfolio index in UX1 Network app. Empty when the site has no portfolio key there."
+msgstr "Navrhne interní odkazy pro příspěvek z indexu klientského portfolia v UX1 Network app. Prázdné, pokud web nemá v UX1 Network app klíč portfolia."
 
 #: includes/Modules/AiAssistant/Mcp/Tools/SeoTools.php:92
 msgid "Post ID to suggest links for."
@@ -7195,14 +7195,14 @@ msgid "This URL is not allowed (internal address or non-standard port)."
 msgstr "Tato URL není povolena (interní adresa nebo nestandardní port)."
 
 #: includes/Modules/AiAssistant/SeoAiClient.php:120
-msgid "Centrální aplikace není propojená (chybí central_app_url nebo node_api_key v nastavení Content Sync)."
-msgstr "Centrální aplikace není propojená (chybí central_app_url nebo node_api_key v nastavení Content Sync)."
+msgid "UX1 Network app není propojená (chybí central_app_url nebo node_api_key v nastavení Content Sync)."
+msgstr "UX1 Network app není propojená (chybí central_app_url nebo node_api_key v nastavení Content Sync)."
 
 #. translators: %d: HTTP status code
 #: includes/Modules/AiAssistant/SeoAiClient.php:158
 #, php-format
-msgid "Centrální aplikace vrátila HTTP %d."
-msgstr "Centrální aplikace vrátila HTTP %d."
+msgid "UX1 Network app vrátila HTTP %d."
+msgstr "UX1 Network app vrátila HTTP %d."
 
 #: includes/Modules/AiAssistant/SeoScoreEditor.php:144
 msgid "SEO skóre"
@@ -7225,8 +7225,8 @@ msgid "Analyzuji…"
 msgstr "Analyzuji…"
 
 #: includes/Modules/AiAssistant/SeoScoreEditor.php:149
-msgid "Centrální aplikace není propojená (Content Sync → node_api_key / central_app_url)."
-msgstr "Centrální aplikace není propojená (Content Sync → node_api_key / central_app_url)."
+msgid "UX1 Network app není propojená (Content Sync → node_api_key / central_app_url)."
+msgstr "UX1 Network app není propojená (Content Sync → node_api_key / central_app_url)."
 
 #: includes/Modules/AiAssistant/SeoScoreEditor.php:150
 msgid "Analýza selhala."
@@ -7277,8 +7277,8 @@ msgid "Najít návrhy"
 msgstr "Najít návrhy"
 
 #: includes/Modules/AiAssistant/SeoScoreEditor.php:162
-msgid "Žádné návrhy — buď chybí portfolio klienta v centrální aplikaci, nebo se v obsahu nenašla shoda."
-msgstr "Žádné návrhy - buď chybí portfolio klienta v centrální aplikaci, nebo se v obsahu nenašla shoda."
+msgid "Žádné návrhy — buď chybí portfolio klienta v UX1 Network app, nebo se v obsahu nenašla shoda."
+msgstr "Žádné návrhy - buď chybí portfolio klienta v UX1 Network app, nebo se v obsahu nenašla shoda."
 
 #: includes/Modules/AiAssistant/SeoScorePanel.php:93
 msgid "SEO analýza selhala."
@@ -7357,8 +7357,8 @@ msgid "Central report secret"
 msgstr "Tajemství pro centrální reporting"
 
 #: includes/Modules/BotThrottle/Module.php:397
-msgid "Set the SAME value on every site managed by your central app to let it recognize a repeat-offender IP across sites, without ever seeing the raw address (only a keyed hash is reported). Leave empty to keep bans local and never report them."
-msgstr "Nastavte STEJNOU hodnotu na všech webech spravovaných vaší centrální aplikací, aby mohla rozpoznat opakovaně útočící IP napříč weby, aniž by kdy viděla samotnou adresu (reportuje se jen hash s klíčem). Ponechte prázdné, pokud mají blokace zůstat lokální a nikdy se nereportovat."
+msgid "Set the SAME value on every site managed by your UX1 Network app to let it recognize a repeat-offender IP across sites, without ever seeing the raw address (only a keyed hash is reported). Leave empty to keep bans local and never report them."
+msgstr "Nastavte STEJNOU hodnotu na všech webech spravovaných vaší UX1 Network app, aby mohla rozpoznat opakovaně útočící IP napříč weby, aniž by kdy viděla samotnou adresu (reportuje se jen hash s klíčem). Ponechte prázdné, pokud mají blokace zůstat lokální a nikdy se nereportovat."
 
 #: includes/Modules/CodeSnippets/SnippetManager.php:384
 msgid "DISALLOW_FILE_MODS is set in wp-config.php, so code snippets cannot be created, edited, enabled or deleted. Enabled snippets keep running."
@@ -8025,20 +8025,20 @@ msgid "Delivery/click events older than this are deleted daily. 0 = keep forever
 msgstr "Události doručení/kliknutí starší než tato doba se denně mažou. 0 = uchovávat navždy."
 
 #: includes/Modules/ReviewAggregator/CentralReviewsClient.php:173
-msgid "Set the central app URL and the node API key in Content Sync first."
-msgstr "Nejdříve nastavte URL centrální aplikace a API klíč uzlu v Synchronizaci obsahu."
+msgid "Set UX1 Network app URL and the node API key in Content Sync first."
+msgstr "Nejdříve nastavte URL UX1 Network app a API klíč uzlu v Synchronizaci obsahu."
 
 #: includes/Modules/ReviewAggregator/CentralReviewsClient.php:213
-msgid "The central app has no reviews API secret for this site yet (Google login secret not generated in the site detail)."
-msgstr "Centrální aplikace zatím nemá pro tento web tajemství API recenzí (v detailu webu nebylo vygenerováno tajemství pro Google přihlášení)."
+msgid "UX1 Network app has no reviews API secret for this site yet (Google login secret not generated in the site detail)."
+msgstr "UX1 Network app zatím nemá pro tento web tajemství API recenzí (v detailu webu nebylo vygenerováno tajemství pro Google přihlášení)."
 
 #: includes/Modules/ReviewAggregator/Module.php:279
-msgid "Numeric ID of the review profile in the central app (Reviews). The profile must belong to this site there."
-msgstr "Číselné ID profilu recenzí v centrální aplikaci (Recenze). Profil tam musí patřit tomuto webu."
+msgid "Numeric ID of the review profile in UX1 Network app (Reviews). The profile must belong to this site there."
+msgstr "Číselné ID profilu recenzí v UX1 Network app (Recenze). Profil tam musí patřit tomuto webu."
 
 #: includes/Modules/ReviewAggregator/Module.php:416
-msgid "Set the central app profile ID first."
-msgstr "Nejdříve nastavte ID profilu v centrální aplikaci."
+msgid "Set UX1 Network app profile ID first."
+msgstr "Nejdříve nastavte ID profilu v UX1 Network app."
 
 #: includes/Modules/RollbackManager/RestController.php:178
 msgid "DISALLOW_FILE_MODS is set in wp-config.php, so plugins and themes cannot be rolled back."
@@ -8176,16 +8176,16 @@ msgid "Key source"
 msgstr "Zdroj klíčů"
 
 #: includes/Modules/SecurityOptimization/Module.php:1027
-msgid "Manual: paste site/secret key yourself. Central app: this site (already paired via Content Sync) gets a key automatically from a shared Turnstile widget managed by the central app. Own Cloudflare API token: this site manages its own Turnstile widget directly, using an API token you paste below."
-msgstr "Ručně: site/secret key vložíte sami. Centrální aplikace: tento web (už spárovaný přes Synchronizaci obsahu) dostane klíč automaticky ze sdíleného widgetu Turnstile spravovaného centrální aplikací. Vlastní Cloudflare API token: tento web spravuje vlastní widget Turnstile přímo pomocí API tokenu, který vložíte níže."
+msgid "Manual: paste site/secret key yourself. UX1 Network app: this site (already paired via Content Sync) gets a key automatically from a shared Turnstile widget managed by UX1 Network app. Own Cloudflare API token: this site manages its own Turnstile widget directly, using an API token you paste below."
+msgstr "Ručně: site/secret key vložíte sami. UX1 Network app: tento web (už spárovaný přes Synchronizaci obsahu) dostane klíč automaticky ze sdíleného widgetu Turnstile spravovaného UX1 Network app. Vlastní Cloudflare API token: tento web spravuje vlastní widget Turnstile přímo pomocí API tokenu, který vložíte níže."
 
 #: includes/Modules/SecurityOptimization/Module.php:1029
 msgid "Manual (paste keys below)"
 msgstr "Ručně (vložte klíče níže)"
 
 #: includes/Modules/SecurityOptimization/Module.php:1030
-msgid "Automatic via central app"
-msgstr "Automaticky přes centrální aplikaci"
+msgid "Automatic via UX1 Network app"
+msgstr "Automaticky přes UX1 Network app"
 
 #: includes/Modules/SecurityOptimization/Module.php:1031
 msgid "Automatic via own Cloudflare API token"
@@ -8208,8 +8208,8 @@ msgid "Scope it to Account > Turnstile > Edit only, nothing else. Stored encrypt
 msgstr "Omezte jej jen na Account > Turnstile > Edit, nic jiného. Na serveru uložen šifrovaně. Ponechte prázdné pro zachování stávajícího tokenu."
 
 #: includes/Modules/SecurityOptimization/TurnstileCaProvisioner.php:103
-msgid "Central app response is missing site_key/secret_key."
-msgstr "V odpovědi centrální aplikace chybí site_key/secret_key."
+msgid "UX1 Network app response is missing site_key/secret_key."
+msgstr "V odpovědi UX1 Network app chybí site_key/secret_key."
 
 #: includes/Modules/SecurityOptimization/TurnstileSelfProvisioner.php:39
 msgid "Cloudflare API token or account ID is missing."
@@ -8262,8 +8262,8 @@ msgid "Check against the central vulnerability database"
 msgstr "Kontrolovat proti centrální databázi zranitelností"
 
 #: includes/Modules/VulnerabilityScanner/Module.php:133
-msgid "Sends the list of installed plugins, themes and their versions to the central app, which matches it against known vulnerabilities and returns the findings. Requires the site to be paired via Content Sync. With this off, only the free WordPress.org outdated-version check runs."
-msgstr "Odešle seznam nainstalovaných pluginů, motivů a jejich verzí do centrální aplikace, která jej porovná se známými zranitelnostmi a vrátí zjištění. Vyžaduje, aby byl web spárován přes Synchronizaci obsahu. Když je vypnuto, běží jen bezplatná kontrola zastaralých verzí z WordPress.org."
+msgid "Sends the list of installed plugins, themes and their versions to UX1 Network app, which matches it against known vulnerabilities and returns the findings. Requires the site to be paired via Content Sync. With this off, only the free WordPress.org outdated-version check runs."
+msgstr "Odešle seznam nainstalovaných pluginů, motivů a jejich verzí do UX1 Network app, která jej porovná se známými zranitelnostmi a vrátí zjištění. Vyžaduje, aby byl web spárován přes Synchronizaci obsahu. Když je vypnuto, běží jen bezplatná kontrola zastaralých verzí z WordPress.org."
 
 #: includes/Modules/VulnerabilityScanner/Module.php:263
 msgid "The central vulnerability database is not available."
@@ -9624,8 +9624,8 @@ msgid "External hosting cron"
 msgstr "Externí cron hostingu"
 
 #: build/744.16b934e695e287117fb6.js:1
-msgid "Driven by central app"
-msgstr "Řízeno centrální aplikací"
+msgid "Driven by UX1 Network app"
+msgstr "Řízeno UX1 Network app"
 
 #: build/892.990058c03e152a30de27.js:1
 msgid "DISABLE_WP_CRON"
@@ -11321,12 +11321,12 @@ msgid "No node API key set yet."
 msgstr "API klíč uzlu zatím není nastaven."
 
 #: build/309.335190b4b4a8d6ff84bd.js:1
-msgid "A central-app HMAC secret is set."
-msgstr "HMAC tajemství centrální aplikace je nastaveno."
+msgid "A UX1 Network app HMAC secret is set."
+msgstr "HMAC tajemství UX1 Network app je nastaveno."
 
 #: build/309.335190b4b4a8d6ff84bd.js:1
-msgid "No central-app HMAC secret set."
-msgstr "HMAC tajemství centrální aplikace není nastaveno."
+msgid "No UX1 Network app HMAC secret set."
+msgstr "HMAC tajemství UX1 Network app není nastaveno."
 
 #: build/475.f47aea29f04da9f1b077.js:1
 #: build/792.e76b3c57f168142448e6.js:1
@@ -12253,8 +12253,8 @@ msgid "Results"
 msgstr "Výsledky"
 
 #: build/457.bdefa68ab6d3ab084fcc.js:1
-msgid "This site is paired with the central app, so confirmed CVE data is available."
-msgstr "Tento web je spárován s centrální aplikací, takže jsou k dispozici data o potvrzených CVE."
+msgid "This site is paired with UX1 Network app, so confirmed CVE data is available."
+msgstr "Tento web je spárován s UX1 Network app, takže jsou k dispozici data o potvrzených CVE."
 
 #: build/474.c97ac8869836c90418ad.js:1
 msgid "Triaged"
@@ -13180,8 +13180,8 @@ msgid "Snippets"
 msgstr "Úryvky"
 
 #: build/907.c7fc89770f7469b31ae0.js:1
-msgid "Connect or disconnect a provider for your own account. Sign-in itself is handled by the central app, which posts a signed result back to this site."
-msgstr "Připojte nebo odpojte poskytovatele pro svůj vlastní účet. Samotné přihlášení zajišťuje centrální aplikace, která na tento web pošle podepsaný výsledek."
+msgid "Connect or disconnect a provider for your own account. Sign-in itself is handled by UX1 Network app, which posts a signed result back to this site."
+msgstr "Připojte nebo odpojte poskytovatele pro svůj vlastní účet. Samotné přihlášení zajišťuje UX1 Network app, která na tento web pošle podepsaný výsledek."
 
 #: build/907.c7fc89770f7469b31ae0.js:1
 msgid "Your role is not in the allowed list, so linking is disabled."
@@ -13197,8 +13197,8 @@ msgid "Connect"
 msgstr "Připojit"
 
 #: build/907.c7fc89770f7469b31ae0.js:1
-msgid "Linking needs a central app URL and an HMAC secret configured in the Settings tab."
-msgstr "Propojení vyžaduje URL centrální aplikace a HMAC tajemství nastavené na kartě Nastavení."
+msgid "Linking needs UX1 Network app URL and an HMAC secret configured in the Settings tab."
+msgstr "Propojení vyžaduje URL UX1 Network app a HMAC tajemství nastavené na kartě Nastavení."
 
 #: includes/Modules/AdminCustomiser/ModuleLinks.php:100
 #: build/907.c7fc89770f7469b31ae0.js:1
@@ -14697,8 +14697,8 @@ msgid "Allowed hub IP addresses (node)"
 msgstr "Povolené IP adresy hubu (uzel)"
 
 #: includes/Modules/ContentSync/Module.php:235
-msgid "One IP address per line. When filled in, the node answers only requests from these addresses (the hub / central app server). Leave blank to accept any IP with a valid signature."
-msgstr "Jedna IP adresa na řádek. Pokud je vyplněno, uzel odpovídá pouze na požadavky z těchto adres (hub / server centrální aplikace). Ponechte prázdné, aby se přijímala jakákoli IP s platným podpisem."
+msgid "One IP address per line. When filled in, the node answers only requests from these addresses (the hub / UX1 Network app server). Leave blank to accept any IP with a valid signature."
+msgstr "Jedna IP adresa na řádek. Pokud je vyplněno, uzel odpovídá pouze na požadavky z těchto adres (hub / server UX1 Network app). Ponechte prázdné, aby se přijímala jakákoli IP s platným podpisem."
 
 #: includes/Modules/ContentSync/NodeController.php:344
 msgid "File is too large (max 20 MB)."
@@ -16503,16 +16503,16 @@ msgid "Code hidden off-screen behind hundreds of spaces"
 msgstr "Kód schovaný mimo obrazovku za stovkami mezer"
 
 #: includes/Modules/ContentSync/Module.php:242
-msgid "Lets the central app install/update plugins and themes and set FS_METHOD in wp-config.php on this site. Off by default. Turn on only together with the allowed IP list above."
-msgstr "Umožní centrální aplikaci instalovat a aktualizovat pluginy a motivy a nastavit FS_METHOD ve wp-config.php tohoto webu. Ve výchozím stavu vypnuto. Zapínejte jen spolu se seznamem povolených IP adres výše."
+msgid "Lets UX1 Network app install/update plugins and themes and set FS_METHOD in wp-config.php on this site. Off by default. Turn on only together with the allowed IP list above."
+msgstr "Umožní UX1 Network app instalovat a aktualizovat pluginy a motivy a nastavit FS_METHOD ve wp-config.php tohoto webu. Ve výchozím stavu vypnuto. Zapínejte jen spolu se seznamem povolených IP adres výše."
 
 #: includes/Modules/ContentSync/Module.php:255
 msgid "Allow SSO login as administrator"
 msgstr "Povolit SSO přihlášení jako administrátor"
 
 #: includes/Modules/ContentSync/Module.php:256
-msgid "Lets central app operators sign in to accounts with administrator rights (install plugins, manage users). Off by default: an administrator login can install code, so with this on a leaked node key gives full control of the site. Turn on only together with the allowed IP list. Editors and lower roles sign in either way."
-msgstr "Umožní operátorům centrální aplikace přihlásit se k účtům s právy administrátora (instalace pluginů, správa uživatelů). Ve výchozím stavu vypnuto: přihlášení administrátora může instalovat kód, takže při zapnutí dává uniklý klíč uzlu plnou kontrolu nad webem. Zapínejte jen spolu se seznamem povolených IP adres. Editoři a nižší role se přihlásí tak jako tak."
+msgid "Lets UX1 Network app operators sign in to accounts with administrator rights (install plugins, manage users). Off by default: an administrator login can install code, so with this on a leaked node key gives full control of the site. Turn on only together with the allowed IP list. Editors and lower roles sign in either way."
+msgstr "Umožní operátorům UX1 Network app přihlásit se k účtům s právy administrátora (instalace pluginů, správa uživatelů). Ve výchozím stavu vypnuto: přihlášení administrátora může instalovat kód, takže při zapnutí dává uniklý klíč uzlu plnou kontrolu nad webem. Zapínejte jen spolu se seznamem povolených IP adres. Editoři a nižší role se přihlásí tak jako tak."
 
 #: includes/Modules/SecurityOptimization/Module.php:1296
 msgid "Checks new uploads and runs a scheduled night scan of uploads, plugins and themes. It only reports - files are never moved or deleted automatically. Plugin files identical to the official WordPress.org version count as clean. Turning this off stops all scanning (existing findings are kept). CSP violation reporting is unaffected."
@@ -16553,8 +16553,8 @@ msgid "New uploads are checked right away; uploads, plugins and themes are scann
 msgstr "Nově nahrané soubory se kontrolují hned; uploady, pluginy a motivy se skenují v noci podle plánu níže, po malých dávkách, které se při vytíženém serveru pozastaví. Skener pouze hlásí: nic se nepřesune ani nesmaže, dokud soubor sami nedáte do karantény."
 
 #: includes/Modules/DnsManager/CaClient.php:84
-msgid "The central app is not reachable."
-msgstr "Centrální aplikace není dostupná."
+msgid "UX1 Network app is not reachable."
+msgstr "UX1 Network app není dostupná."
 
 #: includes/Modules/DashboardWidgets/WidgetCatalog.php:79
 #: includes/Modules/DnsManager/DashboardWidget.php:30
@@ -16871,8 +16871,8 @@ msgid "Denied"
 msgstr "Zamítnuto"
 
 #: build/81.6dae77ad39d2d95e9ddf.js:4
-msgid "The central app is not reachable, showing the local copy of the history."
-msgstr "Centrální aplikace neodpovídá, zobrazuje se místní kopie historie."
+msgid "UX1 Network app is not reachable, showing the local copy of the history."
+msgstr "UX1 Network app neodpovídá, zobrazuje se místní kopie historie."
 
 #: build/81.6dae77ad39d2d95e9ddf.js:4
 msgid "All users"
@@ -16926,8 +16926,8 @@ msgid "The connection to Cloudflare is interrupted. Please contact us."
 msgstr "Spojení s Cloudflare je přerušeno. Kontaktujte nás prosím."
 
 #: build/81.6dae77ad39d2d95e9ddf.js:4
-msgid "The central app is not reachable right now. Try again later."
-msgstr "Centrální aplikace teď neodpovídá. Zkuste to později."
+msgid "UX1 Network app is not reachable right now. Try again later."
+msgstr "UX1 Network app teď neodpovídá. Zkuste to později."
 
 #: build/81.6dae77ad39d2d95e9ddf.js:4
 msgid "DNS management is not active for this site."
@@ -16960,8 +16960,8 @@ msgid "New uploads and the nightly scan of uploads, plugins and themes are check
 msgstr "Nově nahrané soubory a noční sken uploads, pluginů a motivů se kontrolují na podstrčený kód. Skener pouze hlásí: nic se nepřesune ani nesmaže, dokud soubor sami nepošlete do karantény."
 
 #. Restored (module meta.json / not seen by make-pot)
-msgid "Lets the central app install/update plugins and themes and set FS_METHOD in wp-config.php on this site. Off by default: with it on, a leaked node key means code execution. Turn on only together with the allowed IP list above."
-msgstr "Umožní centrální aplikaci instalovat a aktualizovat pluginy a motivy a nastavit FS_METHOD ve wp-config.php tohoto webu. Ve výchozím stavu vypnuto: při zapnutí znamená únik klíče uzlu možnost spustit kód. Zapínejte jen spolu se seznamem povolených IP adres výše."
+msgid "Lets UX1 Network app install/update plugins and themes and set FS_METHOD in wp-config.php on this site. Off by default: with it on, a leaked node key means code execution. Turn on only together with the allowed IP list above."
+msgstr "Umožní UX1 Network app instalovat a aktualizovat pluginy a motivy a nastavit FS_METHOD ve wp-config.php tohoto webu. Ve výchozím stavu vypnuto: při zapnutí znamená únik klíče uzlu možnost spustit kód. Zapínejte jen spolu se seznamem povolených IP adres výše."
 
 #. Restored (module meta.json / not seen by make-pot)
 msgid "Folder was created but could not be reloaded."
@@ -17084,8 +17084,8 @@ msgstr "Spouští úryvky PHP, HTML, CSS nebo JS v hlavičce nebo patičce webu.
 
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
-msgid "Central broker connection to the central app: registered sites, SSO tokens and a synchronization log."
-msgstr "Centrální propojení s centrální aplikací: registrované weby, SSO tokeny a log synchronizace."
+msgid "Central broker connection to UX1 Network app: registered sites, SSO tokens and a synchronization log."
+msgstr "Centrální propojení s UX1 Network app: registrované weby, SSO tokeny a log synchronizace."
 
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
@@ -17427,8 +17427,8 @@ msgstr "Povolí vybraným rolím nahrávat SVG soubory do knihovny médií, při
 
 #. Restored (module meta.json / not seen by make-pot)
 #. Module description from meta.json
-msgid "Sign in via Google, Facebook, Apple or Seznam through the central app as an OAuth proxy."
-msgstr "Přihlášení přes Google, Facebook, Apple nebo Seznam s centrální aplikací jako OAuth proxy."
+msgid "Sign in via Google, Facebook, Apple or Seznam through UX1 Network app as an OAuth proxy."
+msgstr "Přihlášení přes Google, Facebook, Apple nebo Seznam s UX1 Network app jako OAuth proxy."
 
 #. Restored (module meta.json / not seen by make-pot)
 #. Module name from meta.json
@@ -17491,8 +17491,8 @@ msgid "Bring back the classic post editor and the classic widgets screen instead
 msgstr "Návrat klasického editoru příspěvků a klasické obrazovky widgetů místo blokového editoru. Každou část lze zapnout zvlášť."
 
 #: includes/Modules/DnsManager
-msgid "Edit the DNS records of this domain via the central app (the Cloudflare token never reaches this site). Every change is validated, logged and e-mailed to the administrators."
-msgstr "Úprava DNS záznamů této domény přes centrální aplikaci (Cloudflare token se k tomuto webu nikdy nedostane). Každá změna se ověří, zapíše do logu a správcům přijde e-mail."
+msgid "Edit the DNS records of this domain via UX1 Network app (the Cloudflare token never reaches this site). Every change is validated, logged and e-mailed to the administrators."
+msgstr "Úprava DNS záznamů této domény přes UX1 Network app (Cloudflare token se k tomuto webu nikdy nedostane). Každá změna se ověří, zapíše do logu a správcům přijde e-mail."
 
 #: includes/Modules/DashboardWidgets/ExtraWidgets.php:69
 #: includes/Modules/DashboardWidgets/WidgetCatalog.php:71
@@ -17681,36 +17681,36 @@ msgid "The \"enabled\" field must be a boolean."
 msgstr "Pole „enabled“ musí být true nebo false."
 
 #: includes/Modules/CronControl/Module.php:286
-msgid "Sending the cron settings to the central app failed: %s"
-msgstr "Odeslání nastavení cronu do centrální aplikace selhalo: %s"
+msgid "Sending the cron settings to UX1 Network app failed: %s"
+msgstr "Odeslání nastavení cronu do UX1 Network app selhalo: %s"
 
 #: includes/Modules/CronControl/Module.php:294
-msgid "The central app runs wp-cron every %d minutes."
-msgstr "Centrální aplikace spouští wp-cron každých %d minut."
+msgid "UX1 Network app runs wp-cron every %d minutes."
+msgstr "UX1 Network app spouští wp-cron každých %d minut."
 
 #: includes/Modules/CronControl/Module.php:349
-msgid "The WP-Cron mode is not set to the central app."
-msgstr "Režim WP-Cronu není nastavený na centrální aplikaci."
+msgid "The WP-Cron mode is not set to UX1 Network app."
+msgstr "Režim WP-Cronu není nastavený na UX1 Network app."
 
 #: includes/Modules/CronControl/Module.php:381
 msgid "Cron Control is not active on this site - WP-Cron already runs normally."
 msgstr "Řízení cronu na tomto webu není aktivní - WP-Cron už běží normálně."
 
 #: includes/Modules/CronControl/Module.php:389
-msgid "The central app URL is not set in Content Sync on this site, so the central app mode cannot be used."
-msgstr "Na tomto webu není v Synchronizaci obsahu nastavená URL centrální aplikace, režim centrální aplikace proto nejde použít."
+msgid "UX1 Network app URL is not set in Content Sync on this site, so UX1 Network app mode cannot be used."
+msgstr "Na tomto webu není v Synchronizaci obsahu nastavená URL UX1 Network app, režim UX1 Network app proto nejde použít."
 
 #: includes/Modules/CronControl/Module.php:402
 msgid "The Cron Control module could not be loaded."
 msgstr "Modul Řízení cronu se nepodařilo načíst."
 
 #: includes/Modules/CronControl/Module.php:430
-msgid "WP-Cron is now driven by the central app."
-msgstr "WP-Cron teď řídí centrální aplikace."
+msgid "WP-Cron is now driven by UX1 Network app."
+msgstr "WP-Cron teď řídí UX1 Network app."
 
 #: includes/Modules/CronControl/Module.php:431
-msgid "The central app no longer drives WP-Cron on this site."
-msgstr "Centrální aplikace už na tomto webu WP-Cron neřídí."
+msgid "UX1 Network app no longer drives WP-Cron on this site."
+msgstr "UX1 Network app už na tomto webu WP-Cron neřídí."
 
 #: includes/Modules/OpeningHours/Module.php:143
 msgid "Additional pages for JSON-LD (page IDs)"
@@ -17741,16 +17741,16 @@ msgid "Fetch interval"
 msgstr "Interval stahování"
 
 #: includes/Modules/ReviewAggregator/Module.php:265
-msgid "How often new reviews are pulled from the central app automatically."
-msgstr "Jak často se nové recenze automaticky stahují z centrální aplikace."
+msgid "How often new reviews are pulled from UX1 Network app automatically."
+msgstr "Jak často se nové recenze automaticky stahují z UX1 Network app."
 
 #: includes/Modules/ReviewAggregator/Module.php:285
 msgid "Google Maps URL or Place ID"
 msgstr "URL Google Map nebo Place ID"
 
 #: includes/Modules/ReviewAggregator/Module.php:285
-msgid "Used by \"Request deep scan\" to find or create the Google profile in the central app."
-msgstr "Používá tlačítko „Vyžádat hloubkový sken“ k nalezení nebo založení Google profilu v centrální aplikaci."
+msgid "Used by \"Request deep scan\" to find or create the Google profile in UX1 Network app."
+msgstr "Používá tlačítko „Vyžádat hloubkový sken“ k nalezení nebo založení Google profilu v UX1 Network app."
 
 #: includes/Modules/ReviewAggregator/Module.php:522
 msgid "Set the Google Maps URL or Place ID first."
@@ -17987,28 +17987,28 @@ msgid "IP address"
 msgstr "IP adresa"
 
 #: build/744.16b934e695e287117fb6.js:1
-msgid "Sync with the central app"
-msgstr "Synchronizace s centrální aplikací"
+msgid "Sync with UX1 Network app"
+msgstr "Synchronizace s UX1 Network app"
 
 #: build/744.16b934e695e287117fb6.js:1
 msgid "Last sent:"
 msgstr "Naposledy odesláno:"
 
 #: build/744.16b934e695e287117fb6.js:1
-msgid "The cron settings have not been sent to the central app yet."
-msgstr "Nastavení cronu zatím nebylo do centrální aplikace odesláno."
+msgid "The cron settings have not been sent to UX1 Network app yet."
+msgstr "Nastavení cronu zatím nebylo do UX1 Network app odesláno."
 
 #: build/744.16b934e695e287117fb6.js:1
-msgid "The central app may not be calling wp-cron.php for this site, so scheduled tasks may not run. Resend the settings."
-msgstr "Centrální aplikace možná pro tento web nevolá wp-cron.php, takže naplánované úlohy nemusí běžet. Odešlete nastavení znovu."
+msgid "UX1 Network app may not be calling wp-cron.php for this site, so scheduled tasks may not run. Resend the settings."
+msgstr "UX1 Network app možná pro tento web nevolá wp-cron.php, takže naplánované úlohy nemusí běžet. Odešlete nastavení znovu."
 
 #: build/744.16b934e695e287117fb6.js:1
-msgid "Resend settings to the central app"
-msgstr "Znovu odeslat nastavení do centrální aplikace"
+msgid "Resend settings to UX1 Network app"
+msgstr "Znovu odeslat nastavení do UX1 Network app"
 
 #: build/718.a9681cd50375300d760c.js:1
-msgid "Queue a full-history Google scan on the central app (NAS scraper). Fetch reviews once the scan has finished."
-msgstr "Zařadí v centrální aplikaci sken celé historie Google recenzí (scraper na NAS). Po dokončení skenu recenze stáhněte."
+msgid "Queue a full-history Google scan on UX1 Network app (NAS scraper). Fetch reviews once the scan has finished."
+msgstr "Zařadí v UX1 Network app sken celé historie Google recenzí (scraper na NAS). Po dokončení skenu recenze stáhněte."
 
 #: build/718.a9681cd50375300d760c.js:1
 msgid "Request deep scan (NAS)"
@@ -19838,8 +19838,8 @@ msgstr "%d cron událostí spouští PHP kód zadaný ve WP Crontrol. Modul je v
 
 #. translators: %d: number of events.
 #: includes/Core/Migration/Sources/CronSource.php:109
-msgid "%d cron events call a URL on a schedule. The module cannot create them; set up the call at your hosting or in the central app instead."
-msgstr "%d cron událostí volá podle plánu adresu URL. Modul je vytvořit neumí, nastavte volání u hostingu nebo v centrální aplikaci."
+msgid "%d cron events call a URL on a schedule. The module cannot create them; set up the call at your hosting or in UX1 Network app instead."
+msgstr "%d cron událostí volá podle plánu adresu URL. Modul je vytvořit neumí, nastavte volání u hostingu nebo v UX1 Network app."
 
 #. translators: %d: number of hooks.
 #: includes/Core/Migration/Sources/CronSource.php:169
@@ -24996,8 +24996,8 @@ msgid "Warning: $atts holds text typed by whoever can write the shortcode into a
 msgstr "Upozornění: $atts obsahuje text, který zadal každý, kdo smí shortcode vložit do příspěvku (autoři, přispěvatelé). Nikdy ho nepředávejte do eval(), include, SQL, příkazů shellu ani do neescapovaného výstupu; každou hodnotu nejdřív ověřte a escapujte."
 
 #: build/index.e2f97ac80863bc5a165b.js:41
-msgid "Enable and disable modules, change ordinary module settings, manage redirects. Settings that decide where credentials or data are sent (mail server, central app, AI provider, recipients) or that guard the site (login address, firewall, 2FA, CSP) need Admin. Includes Read."
-msgstr "Zapínat a vypínat moduly, měnit běžná nastavení modulů, spravovat přesměrování. Nastavení, která určují, kam se posílají přihlašovací údaje nebo data (poštovní server, centrální aplikace, poskytovatel AI, příjemci), nebo která chrání web (adresa přihlášení, firewall, 2FA, CSP), vyžadují Admin. Zahrnuje Čtení."
+msgid "Enable and disable modules, change ordinary module settings, manage redirects. Settings that decide where credentials or data are sent (mail server, UX1 Network app, AI provider, recipients) or that guard the site (login address, firewall, 2FA, CSP) need Admin. Includes Read."
+msgstr "Zapínat a vypínat moduly, měnit běžná nastavení modulů, spravovat přesměrování. Nastavení, která určují, kam se posílají přihlašovací údaje nebo data (poštovní server, UX1 Network app, poskytovatel AI, příjemci), nebo která chrání web (adresa přihlášení, firewall, 2FA, CSP), vyžadují Admin. Zahrnuje Čtení."
 
 #: build/index.e2f97ac80863bc5a165b.js:41
 msgid "Everything above, and the only scope that may set credentials and security-relevant settings, and see the hidden values (login address, allowlists). Also accepted by third party MCP adapters."
@@ -25790,12 +25790,12 @@ msgstr "Modul Zabezpečení je vypnutý. Pro použití CAPTCHA ho zapněte."
 
 #: build/index.523987b487aefc323953.js:50
 #: build/index.523987b487aefc323953.js:71
-msgid "Central application"
-msgstr "Centrální aplikace"
+msgid "UX1 Network app"
+msgstr "UX1 Network app"
 
 #: build/index.dc3d7fb3086a456127fe.js:50
-msgid "Connect the site to the UX1 central application: one place for all your websites, with monitoring of availability, updates and security."
-msgstr "Připojte web k centrální aplikaci UX1: jedno místo pro všechny vaše weby s hlídáním dostupnosti, aktualizací a zabezpečení."
+msgid "Connect the site to the UX1 UX1 Network app: one place for all your websites, with monitoring of availability, updates and security."
+msgstr "Připojte web k UX1 Network app UX1: jedno místo pro všechny vaše weby s hlídáním dostupnosti, aktualizací a zabezpečení."
 
 #. translators: %s: date and time.
 #: build/index.e2f97ac80863bc5a165b.js:53
@@ -25803,8 +25803,8 @@ msgid "It last contacted the site on %s."
 msgstr "Naposledy se webu ozvala %s."
 
 #: build/index.dc3d7fb3086a456127fe.js:51
-msgid "You are taken to the central application, where you log in or create an account. Then you confirm the connection and come back here."
-msgstr "Přesměrujeme vás do centrální aplikace, kde se přihlásíte nebo si založíte účet. Pak propojení potvrdíte a vrátíte se sem."
+msgid "You are taken to UX1 Network app, where you log in or create an account. Then you confirm the connection and come back here."
+msgstr "Přesměrujeme vás do UX1 Network app, kde se přihlásíte nebo si založíte účet. Pak propojení potvrdíte a vrátíte se sem."
 
 #: build/index.e2f97ac80863bc5a165b.js:53
 msgid "This site runs on your computer"
@@ -29451,7 +29451,7 @@ msgstr "Získávám klíče…"
 msgid "The keys were stored. The form now uses Cloudflare Turnstile."
 msgstr "Klíče jsou uložené. Formulář teď používá Cloudflare Turnstile."
 
-#. translators: %s: error text of the central application.
+#. translators: %s: error text of UX1 Network app.
 #: build/792.e76b3c57f168142448e6.js:6
 msgid "Getting the keys failed: %s"
 msgstr "Získání klíčů selhalo: %s"
@@ -30454,12 +30454,12 @@ msgid "Application Passwords are turned off: new ones cannot be created. If an M
 msgstr "Application Passwords jsou vypnuté: nová hesla aplikací nejdou vytvořit. Pokud je potřebuje MCP nebo REST klient, vypněte volbu „%1$s“ v Zabezpečení > %2$s."
 
 #: includes/Core/Onboarding/CentralApp.php:220
-msgid "The address of the central app must start with https:// (http:// only works for localhost)."
-msgstr "Adresa centrální aplikace musí začínat https:// (http:// funguje jen pro localhost)."
+msgid "The address of UX1 Network app must start with https:// (http:// only works for localhost)."
+msgstr "Adresa UX1 Network app musí začínat https:// (http:// funguje jen pro localhost)."
 
 #: includes/Core/Onboarding/CentralApp.php:230
-msgid "This site is set up as a hub and manages other sites. It cannot be connected to the central app as a managed site without breaking that."
-msgstr "Tento web je nastavený jako centrála a spravuje jiné weby. Nelze ho připojit k centrální aplikaci jako spravovaný web, aniž by se to rozbilo."
+msgid "This site is set up as a hub and manages other sites. It cannot be connected to UX1 Network app as a managed site without breaking that."
+msgstr "Tento web je nastavený jako centrála a spravuje jiné weby. Nelze ho připojit k UX1 Network app jako spravovaný web, aniž by se to rozbilo."
 
 #. translators: %s: plugin names.
 #: includes/Core/Onboarding/CentralApp.php:245
@@ -30476,8 +30476,8 @@ msgstr "Modul Zabezpečení je vypnutý, takže není co zapnout u CAPTCHA."
 
 #: includes/Core/Onboarding/CentralApp.php:343
 #: includes/Modules/Forms/FormsCaptcha.php:140
-msgid "Connect the site to the central app first."
-msgstr "Nejdřív připojte web k centrální aplikaci."
+msgid "Connect the site to UX1 Network app first."
+msgstr "Nejdřív připojte web k UX1 Network app."
 
 #: includes/Core/Onboarding/StarterPack.php:311
 msgid "Sends the site e-mail through your mail server. Needs the server and login details, so it is only turned on here and you fill them in afterwards."
@@ -30506,8 +30506,8 @@ msgid "Turns off comments, the file editor, XML-RPC and RSS feeds (feed addresse
 msgstr "Vypne komentáře, editor souborů a XML-RPC i RSS kanály (adresy kanálů odpovídají 403, odkazy na kanály zmizí z hlavičky stránky), skryje verzi WordPressu, pošle bezpečnostní hlavičky a hlavičku Permissions-Policy (vypnutá kamera, mikrofon, poloha, platby a USB), přesměruje http:// na https://, když web už na https běží (kontroluje se po uložení, nekonečné přesměrování se vrátí), zablokuje v .htaccess wp-config.php (i jeho záložní kopie), readme.html, license.txt a wp-config-sample.php, vypne výpis obsahu adresářů, zastaví ?author=N a veřejný seznam uživatelů v REST API (přihlášení uživatelé ho dál mají; sitemapa uživatelů ve WordPressu se nemění), nahradí jména uživatelů v adresách stránek autorů kódem (staré adresy /author/jmeno/ pak dávají 404), omezí pokusy o přihlášení, zablokuje IP, která zkusí vyhrazené jméno jako admin, schová, která část neúspěšného přihlášení byla špatně, a vypne Application Passwords (nová nejdou vytvořit; pokud je potřebuje MCP nebo REST klient, vypněte „Zpevnit přihlašovací stránku“ v Zabezpečení > Přihlášení), zpomalí Heartbeat, ponechá 10 revizí, odstraní skript emoji a smaže nepoužívané výchozí motivy, které WordPress přinesl sám (Twenty*, nikdy ručně nainstalovaný, nejnovější zůstane jako záloha). Záměrně vypnuto, zapněte ručně, až budete jistí: přesměrování na kanonickou URL a HSTS (prohlížeč si HSTS pamatuje rok). Co která volba dělá, co se může pokazit a kdy ji vypnout, najdete po otevření „Co se nastaví“."
 
 #: includes/Core/Onboarding/StarterPack.php:856
-msgid "Login, registration, lost password and comments ask the browser of the visitor to solve a small puzzle by itself (a fraction of a second, no account, no keys, no cookies, nothing sent to a third party). A visitor without JavaScript answers a simple sum instead, so nobody is locked out. It stops mass scripted attempts; it does not tell a person from a determined script. Keys from the central app or your own Turnstile keys are used instead as soon as they exist."
-msgstr "Přihlášení, registrace, obnova hesla a komentáře nechají prohlížeč návštěvníka vyřešit malou úlohu samy (zlomek vteřiny, bez účtu, bez klíčů, bez cookies, nic se neposílá třetí straně). Návštěvník bez JavaScriptu odpoví na jednoduchý součet, takže se nikdo nezamkne. Zastaví hromadné automatické pokusy, ale nepozná člověka od vytrvalého skriptu. Jakmile existují klíče z centrální aplikace nebo vaše vlastní klíče Turnstile, použijí se místo toho."
+msgid "Login, registration, lost password and comments ask the browser of the visitor to solve a small puzzle by itself (a fraction of a second, no account, no keys, no cookies, nothing sent to a third party). A visitor without JavaScript answers a simple sum instead, so nobody is locked out. It stops mass scripted attempts; it does not tell a person from a determined script. Keys from UX1 Network app or your own Turnstile keys are used instead as soon as they exist."
+msgstr "Přihlášení, registrace, obnova hesla a komentáře nechají prohlížeč návštěvníka vyřešit malou úlohu samy (zlomek vteřiny, bez účtu, bez klíčů, bez cookies, nic se neposílá třetí straně). Návštěvník bez JavaScriptu odpoví na jednoduchý součet, takže se nikdo nezamkne. Zastaví hromadné automatické pokusy, ale nepozná člověka od vytrvalého skriptu. Jakmile existují klíče z UX1 Network app nebo vaše vlastní klíče Turnstile, použijí se místo toho."
 
 #: includes/Core/Onboarding/StarterPack.php:932
 msgid "Site logo on the login page: used (Admin Customiser > Login page > Login screen logo). To remove it, clear that logo there or turn off \"Enable login screen customization\"."
@@ -31016,20 +31016,16 @@ msgid "For each role, the boxes on the edit screens that stay hidden. The list i
 msgstr "U každé role vyber boxy na obrazovkách úprav, které zůstanou skryté. Seznam se plní podle obrazovek úprav, které otevřeš: otevři obrazovku úprav daného typu obsahu jednou a uvidíš i boxy, které přidávají pluginy. Box Publikovat skrýt nejde. Uživatel s více rolemi má box skrytý, jen když ho skrývá každá z jeho rolí."
 
 #: includes/Modules/AdminCustomiser/Module.php:227
-msgid "\"Split\" reproduces the login screen of the central app: a full-height media panel (video/image/YouTube) on one side and the form on the other."
-msgstr "„Rozdělené“ napodobuje přihlašovací obrazovku centrální aplikace: na jedné straně mediální panel přes celou výšku (video/obrázek/YouTube), na druhé formulář."
-
-#: includes/Modules/AdminCustomiser/Module.php:230
-msgid "Split (media panel + form, like the central app)"
-msgstr "Rozdělené (mediální panel + formulář, jako v centrální aplikaci)"
+msgid "\"Split\" reproduces the login screen of UX1 Network app: a full-height media panel (video/image/YouTube) on one side and the form on the other."
+msgstr "„Rozdělené“ napodobuje přihlašovací obrazovku UX1 Network app: na jedné straně mediální panel přes celou výšku (video/obrázek/YouTube), na druhé formulář."
 
 #: includes/Modules/AdminCustomiser/Module.php:251
-msgid "Used directly when the media type is \"Static image\", and as the poster/fallback frame for \"Video\" and \"YouTube\". Left empty, \"Video\" falls back to the same background clip used on the login screen of the central app."
-msgstr "Použije se přímo, když je typ média „Statický obrázek“, a jako úvodní snímek či záloha pro „Video“ a „YouTube“. Když zůstane prázdné, „Video“ přehraje stejný klip na pozadí jako přihlašovací obrazovka centrální aplikace."
+msgid "Used directly when the media type is \"Static image\", and as the poster/fallback frame for \"Video\" and \"YouTube\". Left empty, \"Video\" falls back to the same background clip used on the login screen of UX1 Network app."
+msgstr "Použije se přímo, když je typ média „Statický obrázek“, a jako úvodní snímek či záloha pro „Video“ a „YouTube“. Když zůstane prázdné, „Video“ přehraje stejný klip na pozadí jako přihlašovací obrazovka UX1 Network app."
 
 #: includes/Modules/AdminCustomiser/Module.php:259
-msgid "Link to an .mp4 file - an external URL or a link copied from the media library. Used only when the media type is \"Video\". Left empty, it loads the same background clip used on the login screen of the central app (not bundled with the plugin, fetched from ux1.cz)."
-msgstr "Odkaz na soubor .mp4: externí adresa nebo odkaz zkopírovaný z knihovny médií. Použije se jen u typu média „Video“. Když zůstane prázdný, načte se stejný klip na pozadí jako na přihlašovací obrazovce centrální aplikace (není součástí pluginu, stahuje se z ux1.cz)."
+msgid "Link to an .mp4 file - an external URL or a link copied from the media library. Used only when the media type is \"Video\". Left empty, it loads the same background clip used on the login screen of UX1 Network app (not bundled with the plugin, fetched from ux1.cz)."
+msgstr "Odkaz na soubor .mp4: externí adresa nebo odkaz zkopírovaný z knihovny médií. Použije se jen u typu média „Video“. Když zůstane prázdný, načte se stejný klip na pozadí jako na přihlašovací obrazovce UX1 Network app (není součástí pluginu, stahuje se z ux1.cz)."
 
 #: includes/Modules/AdminCustomiser/SettingsLayout.php:62
 msgid "Turn off small parts of the admin screens that you do not use."
@@ -31890,13 +31886,8 @@ msgstr "Odpověď na e-mail"
 
 #: includes/Modules/AiAssistant/SeoAiClient.php:120
 #: includes/Modules/AiAssistant/SeoScoreEditor.php:149
-msgid "The central app is not connected. Connect this site in Content Sync first."
-msgstr "Centrální aplikace není propojená. Nejdřív tento web propojte v Synchronizaci obsahu."
-
-#. translators: %d: HTTP status code
-#: includes/Modules/AiAssistant/SeoAiClient.php:158
-msgid "The central app returned HTTP %d."
-msgstr "Centrální aplikace vrátila HTTP %d."
+msgid "UX1 Network app is not connected. Connect this site in Content Sync first."
+msgstr "UX1 Network app není propojená. Nejdřív tento web propojte v Synchronizaci obsahu."
 
 #: includes/Modules/AiAssistant/SeoScoreEditor.php:144
 msgid "SEO score"
@@ -31943,8 +31934,8 @@ msgid "Find suggestions"
 msgstr "Najít návrhy"
 
 #: includes/Modules/AiAssistant/SeoScoreEditor.php:162
-msgid "No suggestions. Either the client portfolio is missing in the central app, or no match was found in the content."
-msgstr "Žádné návrhy. Buď v centrální aplikaci chybí portfolio klienta, nebo se v obsahu nenašla shoda."
+msgid "No suggestions. Either the client portfolio is missing in UX1 Network app, or no match was found in the content."
+msgstr "Žádné návrhy. Buď v UX1 Network app chybí portfolio klienta, nebo se v obsahu nenašla shoda."
 
 #: includes/Modules/AiAssistant/SeoScorePanel.php:93
 msgid "The SEO analysis failed."
@@ -33154,32 +33145,32 @@ msgid "Even someone who steals the key cannot control the site from another comp
 msgstr "I ten, kdo klíč ukradne, nemůže web ovládat z jiného počítače."
 
 #: includes/Modules/ContentSync/help.php:14
-msgid "If the address of the central app server changes and you do not update the list, synchronization and remote sign-in stop working."
-msgstr "Pokud se adresa serveru centrální aplikace změní a seznam neaktualizuješ, synchronizace i vzdálené přihlášení přestanou fungovat."
+msgid "If the address of UX1 Network app server changes and you do not update the list, synchronization and remote sign-in stop working."
+msgstr "Pokud se adresa serveru UX1 Network app změní a seznam neaktualizuješ, synchronizace i vzdálené přihlášení přestanou fungovat."
 
 #: includes/Modules/ContentSync/help.php:15
-msgid "Leave it empty only when you cannot learn the address of the central app server. Then the signature is the only protection."
-msgstr "Nech prázdné, jen když nezjistíš adresu serveru centrální aplikace. Pak je jedinou ochranou podpis."
+msgid "Leave it empty only when you cannot learn the address of UX1 Network app server. Then the signature is the only protection."
+msgstr "Nech prázdné, jen když nezjistíš adresu serveru UX1 Network app. Pak je jedinou ochranou podpis."
 
 #: includes/Modules/ContentSync/help.php:18
-msgid "Lets the central app install and update plugins and themes on this site and, when needed, add one line (FS_METHOD) to wp-config.php, the file with the site configuration. Before it touches wp-config.php it saves a backup copy outside the public folders."
-msgstr "Centrální aplikace smí na tomto webu instalovat a aktualizovat pluginy a motivy a v případě potřeby přidat do wp-config.php, souboru s nastavením webu, jeden řádek (FS_METHOD). Než wp-config.php změní, uloží záložní kopii mimo veřejné složky."
+msgid "Lets UX1 Network app install and update plugins and themes on this site and, when needed, add one line (FS_METHOD) to wp-config.php, the file with the site configuration. Before it touches wp-config.php it saves a backup copy outside the public folders."
+msgstr "UX1 Network app smí na tomto webu instalovat a aktualizovat pluginy a motivy a v případě potřeby přidat do wp-config.php, souboru s nastavením webu, jeden řádek (FS_METHOD). Než wp-config.php změní, uloží záložní kopii mimo veřejné složky."
 
 #: includes/Modules/ContentSync/help.php:19
 msgid "You can roll out and update plugins on many sites from one place, without logging in to each of them."
 msgstr "Pluginy můžeš nasazovat a aktualizovat na mnoha webech z jednoho místa, bez přihlašování do každého zvlášť."
 
 #: includes/Modules/ContentSync/help.php:20
-msgid "Installing a plugin means running new code on your site. Whoever controls the central app, or steals the key of this site, can install anything, so a leaked key then means full control of the site. Every package has to match its checksum, but that only proves the file was not damaged on the way, not that it is safe. Turn it on only together with the list of allowed addresses."
-msgstr "Instalace pluginu znamená spuštění nového kódu na tvém webu. Kdo ovládá centrální aplikaci nebo ukradne klíč tohoto webu, může nainstalovat cokoli, takže uniklý klíč pak znamená plnou kontrolu nad webem. Každý balíček musí odpovídat kontrolnímu součtu, ale to dokazuje jen to, že se soubor cestou nepoškodil, ne že je bezpečný. Zapni to jen spolu se seznamem povolených adres."
+msgid "Installing a plugin means running new code on your site. Whoever controls UX1 Network app, or steals the key of this site, can install anything, so a leaked key then means full control of the site. Every package has to match its checksum, but that only proves the file was not damaged on the way, not that it is safe. Turn it on only together with the list of allowed addresses."
+msgstr "Instalace pluginu znamená spuštění nového kódu na tvém webu. Kdo ovládá UX1 Network app nebo ukradne klíč tohoto webu, může nainstalovat cokoli, takže uniklý klíč pak znamená plnou kontrolu nad webem. Každý balíček musí odpovídat kontrolnímu součtu, ale to dokazuje jen to, že se soubor cestou nepoškodil, ne že je bezpečný. Zapni to jen spolu se seznamem povolených adres."
 
 #: includes/Modules/ContentSync/help.php:21
 msgid "Keep it off if you manage plugins on this site yourself. Content synchronization works without it."
 msgstr "Nech vypnuté, pokud pluginy na tomto webu spravuješ sám. Synchronizace obsahu funguje i bez toho."
 
 #: includes/Modules/ContentSync/help.php:24
-msgid "Posts that arrive from the central app without an author get this user as the author."
-msgstr "Příspěvky, které přijdou z centrální aplikace bez autora, dostanou jako autora tohoto uživatele."
+msgid "Posts that arrive from UX1 Network app without an author get this user as the author."
+msgstr "Příspěvky, které přijdou z UX1 Network app bez autora, dostanou jako autora tohoto uživatele."
 
 #: includes/Modules/ContentSync/help.php:25
 msgid "Synchronized posts do not end up without an author. With 0 WordPress picks the author itself."
@@ -33190,24 +33181,24 @@ msgid "Leave 0 if the synchronized posts always come with their own author."
 msgstr "Nech 0, pokud synchronizované příspěvky vždy přicházejí s vlastním autorem."
 
 #: includes/Modules/ContentSync/help.php:29
-msgid "Lets operators of the central app sign in to this site without a password as a user with administrator rights. Editors and lower roles can sign in with [[SSO]] either way."
-msgstr "Operátoři centrální aplikace se mohou k tomuto webu přihlásit bez hesla jako uživatel s právy administrátora. Redaktoři a nižší role se přes [[SSO]] přihlásí tak jako tak."
+msgid "Lets operators of UX1 Network app sign in to this site without a password as a user with administrator rights. Editors and lower roles can sign in with [[SSO]] either way."
+msgstr "Operátoři UX1 Network app se mohou k tomuto webu přihlásit bez hesla jako uživatel s právy administrátora. Redaktoři a nižší role se přes [[SSO]] přihlásí tak jako tak."
 
 #: includes/Modules/ContentSync/help.php:30
-msgid "The operator opens the administration with one click from the central app and does not need your password."
-msgstr "Operátor otevře administraci jedním kliknutím z centrální aplikace a nepotřebuje tvoje heslo."
+msgid "The operator opens the administration with one click from UX1 Network app and does not need your password."
+msgstr "Operátor otevře administraci jedním kliknutím z UX1 Network app a nepotřebuje tvoje heslo."
 
 #: includes/Modules/ContentSync/help.php:31
-msgid "An administrator can install plugins, which means running any code, and manage all users. With this on, a leaked key of this site or a hacked central app gives full control of the site. A sign-in link works once and for a short time only, but the rights it grants are complete. Turn it on only together with the list of allowed addresses."
-msgstr "Administrátor může instalovat pluginy, tedy spouštět libovolný kód, a spravovat všechny uživatele. Při zapnutí dává uniklý klíč tohoto webu nebo napadená centrální aplikace plnou kontrolu nad webem. Přihlašovací odkaz funguje jen jednou a krátkou dobu, ale práva, která dává, jsou úplná. Zapni to jen spolu se seznamem povolených adres."
+msgid "An administrator can install plugins, which means running any code, and manage all users. With this on, a leaked key of this site or a hacked UX1 Network app gives full control of the site. A sign-in link works once and for a short time only, but the rights it grants are complete. Turn it on only together with the list of allowed addresses."
+msgstr "Administrátor může instalovat pluginy, tedy spouštět libovolný kód, a spravovat všechny uživatele. Při zapnutí dává uniklý klíč tohoto webu nebo napadená UX1 Network app plnou kontrolu nad webem. Přihlašovací odkaz funguje jen jednou a krátkou dobu, ale práva, která dává, jsou úplná. Zapni to jen spolu se seznamem povolených adres."
 
 #: includes/Modules/ContentSync/help.php:32
-msgid "Keep it off unless you want the operators of the central app to administer this site."
-msgstr "Nech vypnuté, pokud nechceš, aby tento web spravovali operátoři centrální aplikace."
+msgid "Keep it off unless you want the operators of UX1 Network app to administer this site."
+msgstr "Nech vypnuté, pokud nechceš, aby tento web spravovali operátoři UX1 Network app."
 
 #: includes/Modules/ContentSync/help.php:35
-msgid "Decides how an operator from the central app is matched with a user of this site. Automatic matches the e-mail address and creates a user when there is none. Strict signs in only users that already exist. Disabled turns the sign-in from the central app off."
-msgstr "Určuje, jak se operátor z centrální aplikace přiřadí k uživateli tohoto webu. Automaticky páruje podle e-mailové adresy a když uživatel chybí, vytvoří ho. Přísně přihlásí jen už existující uživatele. Zakázáno přihlašování z centrální aplikace vypne."
+msgid "Decides how an operator from UX1 Network app is matched with a user of this site. Automatic matches the e-mail address and creates a user when there is none. Strict signs in only users that already exist. Disabled turns the sign-in from UX1 Network app off."
+msgstr "Určuje, jak se operátor z UX1 Network app přiřadí k uživateli tohoto webu. Automaticky páruje podle e-mailové adresy a když uživatel chybí, vytvoří ho. Přísně přihlásí jen už existující uživatele. Zakázáno přihlašování z UX1 Network app vypne."
 
 #: includes/Modules/ContentSync/help.php:36
 msgid "With the automatic setting a new operator gets an account on the first visit. With the strict one nobody new gets in without you creating the account first."
@@ -33222,8 +33213,8 @@ msgid "Use strict when you want to approve every person yourself, and disabled w
 msgstr "Přísný režim použij, když chceš každého člověka schvalovat sám, a zakázaný, když web nemá být přes [[SSO]] dostupný vůbec."
 
 #: includes/Modules/ContentSync/help.php:41
-msgid "When an operator from the central app has no account here, a new user is created for them. An administrator is never created this way."
-msgstr "Když operátor z centrální aplikace tady nemá účet, vytvoří se mu nový uživatel. Administrátor se tímto způsobem nikdy nevytvoří."
+msgid "When an operator from UX1 Network app has no account here, a new user is created for them. An administrator is never created this way."
+msgstr "Když operátor z UX1 Network app tady nemá účet, vytvoří se mu nový uživatel. Administrátor se tímto způsobem nikdy nevytvoří."
 
 #: includes/Modules/ContentSync/help.php:42
 msgid "The operator can sign in on the first try. New accounts appear in your list of users with the role chosen below."
@@ -33238,8 +33229,8 @@ msgid "Turn it off to let in only people who already have an account."
 msgstr "Vypni, aby se dovnitř dostali jen lidé, kteří už účet mají."
 
 #: includes/Modules/ContentSync/help.php:47
-msgid "The role given to users that are created automatically at the first sign-in from the central app. Administrator cannot be chosen on purpose."
-msgstr "Role, kterou dostanou uživatelé vytvoření automaticky při prvním přihlášení z centrální aplikace. Administrátora záměrně vybrat nejde."
+msgid "The role given to users that are created automatically at the first sign-in from UX1 Network app. Administrator cannot be chosen on purpose."
+msgstr "Role, kterou dostanou uživatelé vytvoření automaticky při prvním přihlášení z UX1 Network app. Administrátora záměrně vybrat nejde."
 
 #: includes/Modules/ContentSync/help.php:48
 msgid "It sets what such a user may do. An editor can edit all content, an author only their own posts, a contributor can only write drafts."
@@ -33250,8 +33241,8 @@ msgid "Editor can change any content on the site. Choose the lowest role that is
 msgstr "Editor může změnit jakýkoli obsah na webu. Vyber nejnižší roli, která stačí."
 
 #: includes/Modules/ContentSync/help.php:52
-msgid "How many seconds a one-time sign-in link from the central app stays valid. The value is kept between 15 and 300 seconds."
-msgstr "Kolik sekund zůstane jednorázový přihlašovací odkaz z centrální aplikace platný. Hodnota se drží mezi 15 a 300 sekundami."
+msgid "How many seconds a one-time sign-in link from UX1 Network app stays valid. The value is kept between 15 and 300 seconds."
+msgstr "Kolik sekund zůstane jednorázový přihlašovací odkaz z UX1 Network app platný. Hodnota se drží mezi 15 a 300 sekundami."
 
 #: includes/Modules/ContentSync/help.php:53
 msgid "A short time makes a stolen link useless almost at once. The link can be used only once anyway."
@@ -33314,12 +33305,12 @@ msgid "The default of 5 is a sensible balance."
 msgstr "Výchozích 5 je rozumná rovnováha."
 
 #: includes/Modules/ContentSync/help.php:76
-msgid "How many sign-in links the central app may create for one operator in an hour."
-msgstr "Kolik přihlašovacích odkazů smí centrální aplikace vytvořit pro jednoho operátora za hodinu."
+msgid "How many sign-in links UX1 Network app may create for one operator in an hour."
+msgstr "Kolik přihlašovacích odkazů smí UX1 Network app vytvořit pro jednoho operátora za hodinu."
 
 #: includes/Modules/ContentSync/help.php:77
-msgid "It limits the damage when an operator account of the central app is misused."
-msgstr "Omezuje škodu, když se zneužije operátorský účet centrální aplikace."
+msgid "It limits the damage when an operator account of UX1 Network app is misused."
+msgstr "Omezuje škodu, když se zneužije operátorský účet UX1 Network app."
 
 #: includes/Modules/ContentSync/help.php:78
 msgid "Too low a number blocks an operator who opens many sites in a short time."
@@ -33338,36 +33329,36 @@ msgid "Auto (map by e-mail, provision if missing)"
 msgstr "Auto (mapovat podle e-mailu, vytvořit, pokud chybí)"
 
 #: includes/Modules/ContentSync/Module.php:321
-msgid "Base URL of the central app acting as the broker for connected sites."
-msgstr "Základní URL centrální aplikace, která funguje jako broker pro připojené weby."
+msgid "Base URL of UX1 Network app acting as the broker for connected sites."
+msgstr "Základní URL UX1 Network app, která funguje jako broker pro připojené weby."
 
 #: includes/Modules/CronControl/help.php:12
-msgid "Chooses what starts the scheduled tasks of the site ([[cron|WP-Cron]]): publishing planned posts, checking for updates, sending e-mails from plugins. Normally WordPress starts them whenever a visitor opens a page. Here you can leave it that way, switch it off completely, switch it off for visitors but keep it for the server itself, let the hosting start it, or let the central app start it."
-msgstr "Určuje, co spouští naplánované úlohy webu ([[cron|WP-Cron]]): zveřejnění naplánovaných příspěvků, kontrolu aktualizací, odesílání e-mailů z pluginů. WordPress je normálně spustí pokaždé, když návštěvník otevře stránku. Tady to můžeš nechat tak, úplně vypnout, vypnout pro návštěvníky a nechat jen pro samotný server, nechat spouštět hosting, nebo nechat spouštět centrální aplikaci."
+msgid "Chooses what starts the scheduled tasks of the site ([[cron|WP-Cron]]): publishing planned posts, checking for updates, sending e-mails from plugins. Normally WordPress starts them whenever a visitor opens a page. Here you can leave it that way, switch it off completely, switch it off for visitors but keep it for the server itself, let the hosting start it, or let UX1 Network app start it."
+msgstr "Určuje, co spouští naplánované úlohy webu ([[cron|WP-Cron]]): zveřejnění naplánovaných příspěvků, kontrolu aktualizací, odesílání e-mailů z pluginů. WordPress je normálně spustí pokaždé, když návštěvník otevře stránku. Tady to můžeš nechat tak, úplně vypnout, vypnout pro návštěvníky a nechat jen pro samotný server, nechat spouštět hosting, nebo nechat spouštět UX1 Network app."
 
 #: includes/Modules/CronControl/help.php:13
-msgid "Starting tasks from the hosting or the central app is more reliable and takes work away from page loads. The module does it by adding a small file to the mu-plugins folder that sets DISABLE_WP_CRON, so wp-config.php stays untouched. In the modes that block outside access, the cron file also gets an access rule in .htaccess. That works on Apache only, on nginx you set the rule up yourself."
-msgstr "Spouštění úloh hostingem nebo centrální aplikací je spolehlivější a ubírá práci načítání stránek. Modul to dělá tak, že do složky mu-plugins přidá malý soubor, který nastaví DISABLE_WP_CRON, takže wp-config.php zůstane nedotčený. V režimech, které blokují přístup zvenčí, dostane cronový soubor také pravidlo v .htaccess. To funguje jen na Apache, na nginx si pravidlo nastavíš sám."
+msgid "Starting tasks from the hosting or UX1 Network app is more reliable and takes work away from page loads. The module does it by adding a small file to the mu-plugins folder that sets DISABLE_WP_CRON, so wp-config.php stays untouched. In the modes that block outside access, the cron file also gets an access rule in .htaccess. That works on Apache only, on nginx you set the rule up yourself."
+msgstr "Spouštění úloh hostingem nebo UX1 Network app je spolehlivější a ubírá práci načítání stránek. Modul to dělá tak, že do složky mu-plugins přidá malý soubor, který nastaví DISABLE_WP_CRON, takže wp-config.php zůstane nedotčený. V režimech, které blokují přístup zvenčí, dostane cronový soubor také pravidlo v .htaccess. To funguje jen na Apache, na nginx si pravidlo nastavíš sám."
 
 #: includes/Modules/CronControl/help.php:14
-msgid "When you turn off the start from page visits and nothing else starts the tasks, they stop for good: planned posts are not published, backups and updates are not run, mail queues stand still. Use the hosting or central app mode only after the hosting cron or the central app really calls the site. The module cannot see whether the hosting cron is set up."
-msgstr "Když vypneš spouštění při návštěvě stránek a nic jiného úlohy nespouští, přestanou běžet úplně: naplánované příspěvky se nezveřejní, nespustí se zálohy ani aktualizace a fronty pošty stojí. Režim hostingu nebo centrální aplikace použij až ve chvíli, kdy cron hostingu nebo centrální aplikace web opravdu volá. Modul nevidí, jestli je cron hostingu nastavený."
+msgid "When you turn off the start from page visits and nothing else starts the tasks, they stop for good: planned posts are not published, backups and updates are not run, mail queues stand still. Use the hosting or UX1 Network app mode only after the hosting cron or UX1 Network app really calls the site. The module cannot see whether the hosting cron is set up."
+msgstr "Když vypneš spouštění při návštěvě stránek a nic jiného úlohy nespouští, přestanou běžet úplně: naplánované příspěvky se nezveřejní, nespustí se zálohy ani aktualizace a fronty pošty stojí. Režim hostingu nebo UX1 Network app použij až ve chvíli, kdy cron hostingu nebo UX1 Network app web opravdu volá. Modul nevidí, jestli je cron hostingu nastavený."
 
 #: includes/Modules/CronControl/help.php:15
 msgid "Leave it at running normally if you do not know what to choose, or if the site has little traffic and nothing time-critical."
 msgstr "Nech běžný chod, pokud nevíš, co zvolit, nebo pokud má web malou návštěvnost a nic časově kritického."
 
 #: includes/Modules/CronControl/help.php:18
-msgid "In the central app mode these addresses may open the cron file (wp-cron.php) of the site, on top of requests from the server itself. You can list single addresses or whole ranges ([[CIDR]]), one per line."
-msgstr "V režimu centrální aplikace smí tyto adresy otevřít cronový soubor webu (wp-cron.php), navíc k požadavkům ze samotného serveru. Můžeš vypsat jednotlivé adresy i celé rozsahy ([[CIDR]]), jednu na řádek."
+msgid "In UX1 Network app mode these addresses may open the cron file (wp-cron.php) of the site, on top of requests from the server itself. You can list single addresses or whole ranges ([[CIDR]]), one per line."
+msgstr "V režimu UX1 Network app smí tyto adresy otevřít cronový soubor webu (wp-cron.php), navíc k požadavkům ze samotného serveru. Můžeš vypsat jednotlivé adresy i celé rozsahy ([[CIDR]]), jednu na řádek."
 
 #: includes/Modules/CronControl/help.php:19
 msgid "Nobody else can start the tasks from outside, so strangers cannot overload the site through the cron file."
 msgstr "Nikdo jiný nemůže úlohy zvenčí spouštět, takže cizí lidé nemohou web přetížit přes cronový soubor."
 
 #: includes/Modules/CronControl/help.php:20
-msgid "If the address of the central app server is missing here, the app cannot start the tasks and they stop running."
-msgstr "Pokud tu adresa serveru centrální aplikace chybí, aplikace nemůže úlohy spouštět a přestanou běžet."
+msgid "If the address of UX1 Network app server is missing here, the app cannot start the tasks and they stop running."
+msgstr "Pokud tu adresa serveru UX1 Network app chybí, aplikace nemůže úlohy spouštět a přestanou běžet."
 
 #: includes/Modules/CronControl/help.php:21
 msgid "Leave it empty to allow only the server itself."
@@ -33418,8 +33409,8 @@ msgid "Custom hook allowlist"
 msgstr "Vlastní seznam povolených hooků"
 
 #: includes/Modules/CronControl/Module.php:297
-msgid "The central app has cron turned off for this site."
-msgstr "Centrální aplikace má pro tento web cron vypnutý."
+msgid "UX1 Network app has cron turned off for this site."
+msgstr "UX1 Network app má pro tento web cron vypnutý."
 
 #: includes/Modules/CronControl/Module.php:1172
 msgid "Twice a day"
@@ -34414,8 +34405,8 @@ msgid "Select a form"
 msgstr "Vyberte formulář"
 
 #: includes/Modules/Forms/FormsCaptcha.php:144
-msgid "The site already has its own CAPTCHA keys. Remove them in Security > CAPTCHA first if you want keys from the central app."
-msgstr "Web už má vlastní klíče CAPTCHA. Chcete-li klíče z centrální aplikace, nejdřív je odstraňte v Zabezpečení > CAPTCHA."
+msgid "The site already has its own CAPTCHA keys. Remove them in Security > CAPTCHA first if you want keys from UX1 Network app."
+msgstr "Web už má vlastní klíče CAPTCHA. Chcete-li klíče z UX1 Network app, nejdřív je odstraňte v Zabezpečení > CAPTCHA."
 
 #: includes/Modules/GoogleReviewRequest/help.php:12
 msgid "The subject line of the e-mail that asks the customer for a review."
@@ -35384,8 +35375,8 @@ msgid "Visitors read the rating at a glance."
 msgstr "Návštěvníci přečtou hodnocení jedním pohledem."
 
 #: includes/Modules/ReviewAggregator/help.php:33
-msgid "Downloads new reviews from the central app on a schedule, without you doing anything."
-msgstr "Stahuje nové recenze z centrální aplikace podle rozvrhu, aniž bys cokoli dělal."
+msgid "Downloads new reviews from UX1 Network app on a schedule, without you doing anything."
+msgstr "Stahuje nové recenze z UX1 Network app podle rozvrhu, aniž bys cokoli dělal."
 
 #: includes/Modules/ReviewAggregator/help.php:34
 msgid "The list on your site stays current."
@@ -35400,8 +35391,8 @@ msgid "Turn it off to freeze the reviews on the site as they are now."
 msgstr "Vypni, pokud chceš recenze na webu zmrazit v dnešním stavu."
 
 #: includes/Modules/ReviewAggregator/Module.php:286
-msgid "Used by \"Request a full scan\" to find or create the Google profile in the central app."
-msgstr "Používá se při „Vyžádat úplný sken“ k nalezení nebo vytvoření profilu Google v centrální aplikaci."
+msgid "Used by \"Request a full scan\" to find or create the Google profile in UX1 Network app."
+msgstr "Používá se při „Vyžádat úplný sken“ k nalezení nebo vytvoření profilu Google v UX1 Network app."
 
 #: includes/Modules/SecurityOptimization/CspDashboardWidget.php:174
 msgid "CSP is turned off by UXSTUDIO_CSP_DISABLE in wp-config.php - no header is sent."
@@ -35412,8 +35403,8 @@ msgid "A CAPTCHA is already set up (turned on, keys stored or a CAPTCHA plugin a
 msgstr "CAPTCHA už je nastavená (zapnutá, uložené klíče nebo aktivní plugin s CAPTCHA), nebo je web za reverzní proxy, která není Cloudflare: Štít omezuje podle IP adresy a za takovou proxy vypadá každý návštěvník stejně."
 
 #: includes/Modules/SecurityOptimization/help.php:22
-msgid "Automatic uses keys from the central app while the site is connected, then your own Turnstile or reCAPTCHA keys, and the key-less Shield when there are none. Anything you choose by hand is used as it is."
-msgstr "Automaticky použije klíče z centrální aplikace, dokud je web připojený, potom vaše vlastní klíče Turnstile nebo reCAPTCHA, a když žádné nejsou, Štít bez klíčů. Co zvolíte ručně, použije se tak, jak to je."
+msgid "Automatic uses keys from UX1 Network app while the site is connected, then your own Turnstile or reCAPTCHA keys, and the key-less Shield when there are none. Anything you choose by hand is used as it is."
+msgstr "Automaticky použije klíče z UX1 Network app, dokud je web připojený, potom vaše vlastní klíče Turnstile nebo reCAPTCHA, a když žádné nejsou, Štít bez klíčů. Co zvolíte ručně, použije se tak, jak to je."
 
 #: includes/Modules/SecurityOptimization/help.php:34
 msgid "After the set number of wrong passwords (3 by default) the visitor's IP address is locked out for the lockout time (30 minutes by default, longer after repeated lockouts)."
@@ -35708,8 +35699,8 @@ msgid "Behind a reverse proxy"
 msgstr "Za reverzní proxy"
 
 #: includes/Modules/SecurityOptimization/Module.php:870
-msgid "Automatic uses keys from the central app when the site is connected, then your own keys, and the key-less Shield when there are none. The Shield needs no account and no keys."
-msgstr "Automaticky použije klíče z centrální aplikace, když je web připojený, potom vaše vlastní klíče, a když žádné nejsou, Štít bez klíčů. Štít nepotřebuje účet ani klíče."
+msgid "Automatic uses keys from UX1 Network app when the site is connected, then your own keys, and the key-less Shield when there are none. The Shield needs no account and no keys."
+msgstr "Automaticky použije klíče z UX1 Network app, když je web připojený, potom vaše vlastní klíče, a když žádné nejsou, Štít bez klíčů. Štít nepotřebuje účet ani klíče."
 
 #: includes/Modules/SecurityOptimization/Module.php:872
 msgid "Automatic (recommended)"
@@ -36087,20 +36078,20 @@ msgid "Switch the module off if you do not need SVG files."
 msgstr "Modul vypni, pokud soubory SVG nepotřebuješ."
 
 #: includes/Modules/ThirdPartyLogin/help.php:12
-msgid "The address of the central app that talks to Google, Facebook, Apple or Seznam for this site. The site never sees your provider keys, only the answer of the central app."
-msgstr "Adresa centrální aplikace, která za tento web komunikuje s Googlem, Facebookem, Applem nebo Seznamem. Web tvoje klíče k poskytovatelům nikdy nevidí, jen odpověď centrální aplikace."
+msgid "The address of UX1 Network app that talks to Google, Facebook, Apple or Seznam for this site. The site never sees your provider keys, only the answer of UX1 Network app."
+msgstr "Adresa UX1 Network app, která za tento web komunikuje s Googlem, Facebookem, Applem nebo Seznamem. Web tvoje klíče k poskytovatelům nikdy nevidí, jen odpověď UX1 Network app."
 
 #: includes/Modules/ThirdPartyLogin/help.php:13
-msgid "Without a working address the login buttons cannot start. Use the address of your own central app, including the https:// part."
-msgstr "Bez funkční adresy se přihlašovací tlačítka nespustí. Použij adresu své vlastní centrální aplikace včetně části https://."
+msgid "Without a working address the login buttons cannot start. Use the address of your own UX1 Network app, including the https:// part."
+msgstr "Bez funkční adresy se přihlašovací tlačítka nespustí. Použij adresu své vlastní UX1 Network app včetně části https://."
 
 #: includes/Modules/ThirdPartyLogin/help.php:14
-msgid "The central app tells the site who is logging in, so enter only an address you own and trust."
-msgstr "Centrální aplikace webu sděluje, kdo se právě přihlašuje, takže zadej jen adresu, kterou vlastníš a které věříš."
+msgid "UX1 Network app tells the site who is logging in, so enter only an address you own and trust."
+msgstr "UX1 Network app webu sděluje, kdo se právě přihlašuje, takže zadej jen adresu, kterou vlastníš a které věříš."
 
 #: includes/Modules/ThirdPartyLogin/help.php:17
-msgid "A shared password between this site and the central app. Both sides use it to sign every login message, so a forged message is recognized and rejected. The central app shows it in the detail of the site under \"Third-party login\"."
-msgstr "Sdílené heslo mezi tímto webem a centrální aplikací. Obě strany jím podepisují každou přihlašovací zprávu, takže podvržená zpráva se pozná a odmítne. Centrální aplikace ho ukazuje v detailu webu v části „Přihlášení třetí stranou“."
+msgid "A shared password between this site and UX1 Network app. Both sides use it to sign every login message, so a forged message is recognized and rejected. UX1 Network app shows it in the detail of the site under \"Third-party login\"."
+msgstr "Sdílené heslo mezi tímto webem a UX1 Network app. Obě strany jím podepisují každou přihlašovací zprávu, takže podvržená zpráva se pozná a odmítne. UX1 Network app ho ukazuje v detailu webu v části „Přihlášení třetí stranou“."
 
 #: includes/Modules/ThirdPartyLogin/help.php:18
 msgid "The secret is stored encrypted and never shown again. Leave the field empty to keep the current one; fill it only to replace it."
@@ -36111,8 +36102,8 @@ msgid "A wrong or old secret makes every third-party login fail. Anyone who lear
 msgstr "Špatný nebo starý klíč způsobí, že každé přihlášení třetí stranou selže. Kdo klíč zjistí, mohl by přihlášení podvrhnout, proto ho nikam jinam nevkládej."
 
 #: includes/Modules/ThirdPartyLogin/help.php:22
-msgid "Chooses which login buttons appear on the login page. A provider also has to be set up in the central app and enabled there for this site."
-msgstr "Vybírá, která přihlašovací tlačítka se zobrazí na přihlašovací stránce. Poskytovatel musí být navíc nastavený v centrální aplikaci a tam zapnutý pro tento web."
+msgid "Chooses which login buttons appear on the login page. A provider also has to be set up in UX1 Network app and enabled there for this site."
+msgstr "Vybírá, která přihlašovací tlačítka se zobrazí na přihlašovací stránce. Poskytovatel musí být navíc nastavený v UX1 Network app a tam zapnutý pro tento web."
 
 #: includes/Modules/ThirdPartyLogin/help.php:23
 msgid "Visitors with an account at the chosen provider can sign in with one click instead of a password."
@@ -36248,16 +36239,16 @@ msgid "Write the format with letters: d day, m month, Y year, H hour, i minute. 
 msgstr "Formát zapiš písmeny: d den, m měsíc, Y rok, H hodina, i minuta. Například „d. m. Y H:i“ ukáže 24. 10. 2026 14:35."
 
 #: includes/Modules/VulnerabilityScanner/help.php:12
-msgid "The scanner sends the list of your plugins, themes and their versions to the central app. The central app compares it with a database of known security holes (Wordfence Intelligence) and sends back what it found."
-msgstr "Skener pošle seznam tvých pluginů, motivů a jejich verzí do centrální aplikace. Ta ho porovná s databází známých bezpečnostních děr (Wordfence Intelligence) a pošle zpět, co našla."
+msgid "The scanner sends the list of your plugins, themes and their versions to UX1 Network app. UX1 Network app compares it with a database of known security holes (Wordfence Intelligence) and sends back what it found."
+msgstr "Skener pošle seznam tvých pluginů, motivů a jejich verzí do UX1 Network app. Ta ho porovná s databází známých bezpečnostních děr (Wordfence Intelligence) a pošle zpět, co našla."
 
 #: includes/Modules/VulnerabilityScanner/help.php:13
 msgid "You see confirmed vulnerabilities for the exact versions installed here, not just \"a newer version exists\". Only names and versions leave the site, no content and no visitor data."
 msgstr "Uvidíš potvrzené zranitelnosti přesně pro verze nainstalované tady, ne jen informaci, že existuje novější verze. Z webu odcházejí jen názvy a verze, žádný obsah ani data návštěvníků."
 
 #: includes/Modules/VulnerabilityScanner/help.php:14
-msgid "Without it the scanner only knows that a newer version exists on WordPress.org. It cannot tell whether your version has a known hole, so an empty result is not an all-clear. The check also needs the site to be paired with the central app via Content Sync."
-msgstr "Bez toho skener ví jen to, že na WordPress.org existuje novější verze. Nepozná, jestli má tvoje verze známou díru, takže prázdný výsledek neznamená, že je vše v pořádku. Kontrola také vyžaduje, aby byl web spárovaný s centrální aplikací přes Content Sync."
+msgid "Without it the scanner only knows that a newer version exists on WordPress.org. It cannot tell whether your version has a known hole, so an empty result is not an all-clear. The check also needs the site to be paired with UX1 Network app via Content Sync."
+msgstr "Bez toho skener ví jen to, že na WordPress.org existuje novější verze. Nepozná, jestli má tvoje verze známou díru, takže prázdný výsledek neznamená, že je vše v pořádku. Kontrola také vyžaduje, aby byl web spárovaný s UX1 Network app přes Content Sync."
 
 #: includes/Modules/VulnerabilityScanner/help.php:15
 msgid "Turn it off only when the site must not tell anyone which plugins it runs."
@@ -36268,8 +36259,8 @@ msgid "How many hours pass between two automatic scans. They run in the backgrou
 msgstr "Kolik hodin uplyne mezi dvěma automatickými kontrolami. Běží na pozadí přes [[cron|WP-Cron]], který se spouští, když někdo web navštíví."
 
 #: includes/Modules/VulnerabilityScanner/help.php:19
-msgid "A shorter interval finds a newly published hole sooner. A longer one means fewer requests to the central app. Once a day is enough for most sites."
-msgstr "Kratší interval najde nově zveřejněnou díru dřív. Delší znamená méně dotazů na centrální aplikaci. Pro většinu webů stačí jednou denně."
+msgid "A shorter interval finds a newly published hole sooner. A longer one means fewer requests to UX1 Network app. Once a day is enough for most sites."
+msgstr "Kratší interval najde nově zveřejněnou díru dřív. Delší znamená méně dotazů na UX1 Network app. Pro většinu webů stačí jednou denně."
 
 #: includes/Modules/VulnerabilityScanner/help.php:20
 msgid "On a site with almost no visits the scan can run later than set, because WP-Cron waits for a visitor."
@@ -36869,14 +36860,14 @@ msgid "Choose a category"
 msgstr "Vyberte kategorii"
 
 #: build/718.d8dee91da662a58b8b77.js:1
-msgid "Ask the central app to download the whole history of your Google reviews, not only the latest ones. When it has finished, press \"Fetch reviews\"."
-msgstr "Požádá centrální aplikaci, aby stáhla celou historii vašich recenzí z Googlu, nejen ty nejnovější. Až skončí, stiskni „Načíst recenze“."
+msgid "Ask UX1 Network app to download the whole history of your Google reviews, not only the latest ones. When it has finished, press \"Fetch reviews\"."
+msgstr "Požádá UX1 Network app, aby stáhla celou historii vašich recenzí z Googlu, nejen ty nejnovější. Až skončí, stiskni „Načíst recenze“."
 
 #: build/718.d8dee91da662a58b8b77.js:1
 msgid "Request a full scan"
 msgstr "Vyžádat úplný sken"
 
-#. translators: %d: central app scrape job id
+#. translators: %d: UX1 Network app scrape job id
 #: build/718.d8dee91da662a58b8b77.js:2
 msgid "Full scan requested (job #%d). Press \"Fetch reviews\" once it has finished."
 msgstr "Úplný sken je objednaný (úloha č. %d). Až skončí, stiskni „Načíst recenze“."
@@ -37002,30 +36993,30 @@ msgstr "Název formuláře. Je pro tebe v seznamu, návštěvníci ho neuvidí, 
 
 #. translators: %s: provider name.
 #: build/792.e76b3c57f168142448e6.js:4
-msgid "Using: %s (keys from the central app)"
-msgstr "Používá: %s (klíče z centrální aplikace)"
+msgid "Using: %s (keys from UX1 Network app)"
+msgstr "Používá: %s (klíče z UX1 Network app)"
 
 #: build/792.e76b3c57f168142448e6.js:5
-msgid "This site is connected to the central app, which can give it Cloudflare Turnstile keys. The same keys then protect the login forms too."
-msgstr "Web je připojený k centrální aplikaci, která mu může dát klíče Cloudflare Turnstile. Stejné klíče pak chrání i přihlašovací formuláře."
+msgid "This site is connected to UX1 Network app, which can give it Cloudflare Turnstile keys. The same keys then protect the login forms too."
+msgstr "Web je připojený k UX1 Network app, která mu může dát klíče Cloudflare Turnstile. Stejné klíče pak chrání i přihlašovací formuláře."
 
 #: build/792.e76b3c57f168142448e6.js:5
-msgid "Get keys from the central app"
-msgstr "Získat klíče z centrální aplikace"
+msgid "Get keys from UX1 Network app"
+msgstr "Získat klíče z UX1 Network app"
 
 #: build/792.e76b3c57f168142448e6.js:6
-msgid "The site is not connected to the central app, so the Shield protects this form for now."
-msgstr "Web není připojený k centrální aplikaci, takže tento formulář zatím chrání Štít."
+msgid "The site is not connected to UX1 Network app, so the Shield protects this form for now."
+msgstr "Web není připojený k UX1 Network app, takže tento formulář zatím chrání Štít."
 
 #: includes/Modules/IndexingNotice/Dispatcher.php:359
 #: build/792.e76b3c57f168142448e6.js:6
-msgid "The site is not connected to the central app."
-msgstr "Web není připojený k centrální aplikaci."
+msgid "The site is not connected to UX1 Network app."
+msgstr "Web není připojený k UX1 Network app."
 
 #: build/792.e76b3c57f168142448e6.js:6
 #: build/index.e2f97ac80863bc5a165b.js:54
-msgid "Connect to the central app"
-msgstr "Připojit k centrální aplikaci"
+msgid "Connect to UX1 Network app"
+msgstr "Připojit k UX1 Network app"
 
 #: build/792.e76b3c57f168142448e6.js:6
 msgid "The title and an optional short line shown for this step of a multi-step form."
@@ -37128,8 +37119,8 @@ msgid "A note for you and your team. It is never shown to visitors."
 msgstr "Poznámka pro tebe a tvůj tým. Návštěvníkům se nikdy nezobrazí."
 
 #: build/792.e76b3c57f168142448e6.js:9
-msgid "A honeypot field is always active regardless of this setting. The CAPTCHA field works on its own: it uses keys from the central app or your own keys, and the key-less Shield when there are none."
-msgstr "Honeypot (neviditelné pole proti robotům) je zapnutý vždy, bez ohledu na toto nastavení. Pole CAPTCHA funguje samo: použije klíče z centrální aplikace nebo vaše vlastní klíče, a když žádné nejsou, Štít bez klíčů."
+msgid "A honeypot field is always active regardless of this setting. The CAPTCHA field works on its own: it uses keys from UX1 Network app or your own keys, and the key-less Shield when there are none."
+msgstr "Honeypot (neviditelné pole proti robotům) je zapnutý vždy, bez ohledu na toto nastavení. Pole CAPTCHA funguje samo: použije klíče z UX1 Network app nebo vaše vlastní klíče, a když žádné nejsou, Štít bez klíčů."
 
 #: build/831.3b1b8e1e4007675d5c85.js:1
 msgid "The sender address (From e-mail) must be a verified sender or belong to a verified domain in Brevo."
@@ -37227,8 +37218,8 @@ msgid "Modules turned on or off"
 msgstr "Zapnuté a vypnuté moduly"
 
 #: build/index.e2f97ac80863bc5a165b.js:19
-msgid "The Central app connection: key, address, HMAC secret, allowed addresses, report secret."
-msgstr "Připojení k Centrální aplikaci: klíč, adresa, tajemství HMAC, povolené adresy, tajemství hlášení."
+msgid "UX1 Network app connection: key, address, HMAC secret, allowed addresses, report secret."
+msgstr "Připojení k UX1 Network app: klíč, adresa, tajemství HMAC, povolené adresy, tajemství hlášení."
 
 #: build/index.e2f97ac80863bc5a165b.js:25
 msgid "The module is already on, so this is only prepared: the objects are created turned off and start working at the switch, after the safe preview."
@@ -37288,98 +37279,93 @@ msgid "The run is turned on, so the switch is undone first: the old plugins are 
 msgstr "Běh je přepnutý, proto se nejdřív vrátí přepnutí: staré pluginy se znovu aktivují a moduly, které přepnutí zapnulo, se vypnou."
 
 #: build/index.e2f97ac80863bc5a165b.js:52
-msgid "The central app did not give this site CAPTCHA keys. The CAPTCHA is not enforced, so logging in works as before. You can add the keys by hand in Security > CAPTCHA."
-msgstr "Centrální aplikace webu nedala klíče CAPTCHA. CAPTCHA se nevynucuje, takže přihlášení funguje jako dřív. Klíče můžete doplnit ručně v Zabezpečení > CAPTCHA."
+msgid "UX1 Network app did not give this site CAPTCHA keys. The CAPTCHA is not enforced, so logging in works as before. You can add the keys by hand in Security > CAPTCHA."
+msgstr "UX1 Network app webu nedala klíče CAPTCHA. CAPTCHA se nevynucuje, takže přihlášení funguje jako dřív. Klíče můžete doplnit ručně v Zabezpečení > CAPTCHA."
 
 #: build/index.e2f97ac80863bc5a165b.js:52
-msgid "CAPTCHA with keys from the central app"
-msgstr "CAPTCHA s klíči z centrální aplikace"
+msgid "CAPTCHA with keys from UX1 Network app"
+msgstr "CAPTCHA s klíči z UX1 Network app"
 
 #: build/index.e2f97ac80863bc5a165b.js:52
-msgid "Adds a Cloudflare Turnstile check to the login, registration and lost password forms. The central app gives the site its keys, so you paste nothing. If the keys do not arrive, the check is not enforced and nobody is locked out."
-msgstr "Přidá kontrolu Cloudflare Turnstile k formulářům přihlášení, registrace a zapomenutého hesla. Klíče webu dá centrální aplikace, takže nic nevkládáte. Když klíče nedorazí, kontrola se nevynucuje a nikdo se nezamkne venku."
+msgid "Adds a Cloudflare Turnstile check to the login, registration and lost password forms. UX1 Network app gives the site its keys, so you paste nothing. If the keys do not arrive, the check is not enforced and nobody is locked out."
+msgstr "Přidá kontrolu Cloudflare Turnstile k formulářům přihlášení, registrace a zapomenutého hesla. Klíče webu dá UX1 Network app, takže nic nevkládáte. Když klíče nedorazí, kontrola se nevynucuje a nikdo se nezamkne venku."
 
 #: build/index.e2f97ac80863bc5a165b.js:52
-msgid "The CAPTCHA is on with keys from the central app."
-msgstr "CAPTCHA je zapnutá s klíči z centrální aplikace."
+msgid "The CAPTCHA is on with keys from UX1 Network app."
+msgstr "CAPTCHA je zapnutá s klíči z UX1 Network app."
 
 #: build/index.e2f97ac80863bc5a165b.js:52
-msgid "You land in the central app, log in or sign up and confirm the connection."
-msgstr "Přejdete do centrální aplikace, přihlásíte se nebo zaregistrujete a připojení potvrdíte."
+msgid "You land in UX1 Network app, log in or sign up and confirm the connection."
+msgstr "Přejdete do UX1 Network app, přihlásíte se nebo zaregistrujete a připojení potvrdíte."
 
 #: build/index.e2f97ac80863bc5a165b.js:52
-msgid "You come back here and the central app starts keeping an eye on the site."
-msgstr "Vrátíte se sem a centrální aplikace začne web hlídat."
+msgid "You come back here and UX1 Network app starts keeping an eye on the site."
+msgstr "Vrátíte se sem a UX1 Network app začne web hlídat."
 
 #: build/index.e2f97ac80863bc5a165b.js:52
-#: build/index.e2f97ac80863bc5a165b.js:73
-msgid "Central app"
-msgstr "Centrální aplikace"
+msgid "One place to watch over all your websites. Connect this one and UX1 Network app keeps an eye on it for you: whether it runs, whether it is safe and fast, and whether anything is about to expire."
+msgstr "Jedno místo, odkud dohlédnete na všechny své weby. Připojte tento a UX1 Network app ho za vás hlídá: jestli běží, jestli je bezpečný a rychlý a jestli něco brzy nevyprší."
 
 #: build/index.e2f97ac80863bc5a165b.js:52
-msgid "One place to watch over all your websites. Connect this one and the central app keeps an eye on it for you: whether it runs, whether it is safe and fast, and whether anything is about to expire."
-msgstr "Jedno místo, odkud dohlédnete na všechny své weby. Připojte tento a centrální aplikace ho za vás hlídá: jestli běží, jestli je bezpečný a rychlý a jestli něco brzy nevyprší."
-
-#: build/index.e2f97ac80863bc5a165b.js:52
-msgid "The connection was completed in the central app."
-msgstr "Propojení bylo dokončeno v centrální aplikaci."
+msgid "The connection was completed in UX1 Network app."
+msgstr "Propojení bylo dokončeno v UX1 Network app."
 
 #: build/index.e2f97ac80863bc5a165b.js:53
-msgid "The connection was cancelled in the central app. Nothing is connected. You can try again."
-msgstr "Propojení bylo v centrální aplikaci zrušeno. Nic není propojeno. Můžete to zkusit znovu."
+msgid "The connection was cancelled in UX1 Network app. Nothing is connected. You can try again."
+msgstr "Propojení bylo v UX1 Network app zrušeno. Nic není propojeno. Můžete to zkusit znovu."
 
 #: build/index.e2f97ac80863bc5a165b.js:53
-msgid "The central app has contacted the site. The connection looks complete."
-msgstr "Centrální aplikace se webu ozvala. Propojení vypadá dokončené."
+msgid "UX1 Network app has contacted the site. The connection looks complete."
+msgstr "UX1 Network app se webu ozvala. Propojení vypadá dokončené."
 
 #: build/index.e2f97ac80863bc5a165b.js:53
-msgid "The central app has not confirmed the connection yet. Try again if you did not finish it there."
-msgstr "Centrální aplikace propojení zatím nepotvrdila. Zkuste to znovu, pokud jste ho tam nedokončili."
+msgid "UX1 Network app has not confirmed the connection yet. Try again if you did not finish it there."
+msgstr "UX1 Network app propojení zatím nepotvrdila. Zkuste to znovu, pokud jste ho tam nedokončili."
 
 #: build/index.e2f97ac80863bc5a165b.js:53
-msgid "Ban an IP address, a range or a whole country once and it is blocked on every connected site. The central app also gives the site its CAPTCHA keys, so you set nothing up by hand."
-msgstr "Zakažte IP adresu, rozsah nebo celou zemi jednou a platí to na všech připojených webech. Centrální aplikace webu také dá klíče pro CAPTCHA, takže nic nenastavujete ručně."
+msgid "Ban an IP address, a range or a whole country once and it is blocked on every connected site. UX1 Network app also gives the site its CAPTCHA keys, so you set nothing up by hand."
+msgstr "Zakažte IP adresu, rozsah nebo celou zemi jednou a platí to na všech připojených webech. UX1 Network app webu také dá klíče pro CAPTCHA, takže nic nenastavujete ručně."
 
 #: build/index.e2f97ac80863bc5a165b.js:53
-msgid "This turns on Content Sync as a managed site and creates a secret key for it. Administrator sign-in and package installation from the central app stay off."
-msgstr "Tím se zapne Synchronizace obsahu jako spravovaný web a vytvoří se pro něj tajný klíč. Přihlášení správce a instalace balíčků z centrální aplikace zůstávají vypnuté."
+msgid "This turns on Content Sync as a managed site and creates a secret key for it. Administrator sign-in and package installation from UX1 Network app stay off."
+msgstr "Tím se zapne Synchronizace obsahu jako spravovaný web a vytvoří se pro něj tajný klíč. Přihlášení správce a instalace balíčků z UX1 Network app zůstávají vypnuté."
 
 #: build/index.e2f97ac80863bc5a165b.js:53
-msgid "The central app can then read the state of the site and work with its posts, pages and media. It cannot sign in as an administrator or install plugins."
-msgstr "Centrální aplikace pak může číst stav webu a pracovat s jeho příspěvky, stránkami a médii. Nemůže se přihlásit jako správce ani instalovat pluginy."
+msgid "UX1 Network app can then read the state of the site and work with its posts, pages and media. It cannot sign in as an administrator or install plugins."
+msgstr "UX1 Network app pak může číst stav webu a pracovat s jeho příspěvky, stránkami a médii. Nemůže se přihlásit jako správce ani instalovat pluginy."
 
 #: build/index.e2f97ac80863bc5a165b.js:53
-msgid "The site must be reachable from the internet: the central app checks it while connecting."
-msgstr "Web musí být dostupný z internetu: centrální aplikace to při propojování ověřuje."
+msgid "The site must be reachable from the internet: UX1 Network app checks it while connecting."
+msgstr "Web musí být dostupný z internetu: UX1 Network app to při propojování ověřuje."
 
 #: build/index.e2f97ac80863bc5a165b.js:53
-msgid "A central app on the internet cannot reach it, so the connection will fail, unless the central app runs on your computer too."
-msgstr "Centrální aplikace na internetu se k němu nedostane, takže propojení selže, pokud centrální aplikace neběží také na vašem počítači."
+msgid "UX1 Network app on the internet cannot reach it, so the connection will fail, unless UX1 Network app runs on your computer too."
+msgstr "UX1 Network app na internetu se k němu nedostane, takže propojení selže, pokud UX1 Network app neběží také na vašem počítači."
 
 #: build/index.e2f97ac80863bc5a165b.js:53
-msgid "What can the central app do on my site?"
-msgstr "Co smí centrální aplikace na mém webu?"
+msgid "What can UX1 Network app do on my site?"
+msgstr "Co smí UX1 Network app na mém webu?"
 
 #: build/index.e2f97ac80863bc5a165b.js:53
-msgid "It reads the state of the site and works with posts, pages and media through requests signed with the secret key. Signing in as an administrator and installing packages from the central app are turned off."
-msgstr "Čte stav webu a pracuje s příspěvky, stránkami a médii pomocí požadavků podepsaných tajným klíčem. Přihlášení jako správce a instalace balíčků z centrální aplikace zůstávají vypnuté."
+msgid "It reads the state of the site and works with posts, pages and media through requests signed with the secret key. Signing in as an administrator and installing packages from UX1 Network app are turned off."
+msgstr "Čte stav webu a pracuje s příspěvky, stránkami a médii pomocí požadavků podepsaných tajným klíčem. Přihlášení jako správce a instalace balíčků z UX1 Network app zůstávají vypnuté."
 
 #: build/index.e2f97ac80863bc5a165b.js:53
-msgid "Turn off the Content Sync module and the central app can no longer reach the site. You can also remove the site from the list of websites in the central app."
-msgstr "Vypněte modul Synchronizace obsahu a centrální aplikace se k webu už nedostane. Web můžete také odebrat ze seznamu webů v centrální aplikaci."
+msgid "Turn off the Content Sync module and UX1 Network app can no longer reach the site. You can also remove the site from the list of websites in UX1 Network app."
+msgstr "Vypněte modul Synchronizace obsahu a UX1 Network app se k webu už nedostane. Web můžete také odebrat ze seznamu webů v UX1 Network app."
 
 #: build/index.e2f97ac80863bc5a165b.js:53
-msgid "Address of the central app"
-msgstr "Adresa centrální aplikace"
+msgid "Address of UX1 Network app"
+msgstr "Adresa UX1 Network app"
 
 #. translators: %s: error detail.
 #: build/index.e2f97ac80863bc5a165b.js:54
-msgid "The site did not answer its own signed test request (%s). The central app will probably not be able to confirm the connection either."
-msgstr "Web neodpověděl na vlastní podepsaný zkušební požadavek (%s). Centrální aplikace pravděpodobně také nebude moct propojení potvrdit."
+msgid "The site did not answer its own signed test request (%s). UX1 Network app will probably not be able to confirm the connection either."
+msgstr "Web neodpověděl na vlastní podepsaný zkušební požadavek (%s). UX1 Network app pravděpodobně také nebude moct propojení potvrdit."
 
 #: build/index.e2f97ac80863bc5a165b.js:54
-msgid "The administration address differs from the site address, so the central app cannot send you back here. Come back to this wizard by hand when you finish."
-msgstr "Adresa administrace se liší od adresy webu, takže vás centrální aplikace nemůže poslat zpět sem. Po dokončení se do průvodce vraťte ručně."
+msgid "The administration address differs from the site address, so UX1 Network app cannot send you back here. Come back to this wizard by hand when you finish."
+msgstr "Adresa administrace se liší od adresy webu, takže vás UX1 Network app nemůže poslat zpět sem. Po dokončení se do průvodce vraťte ručně."
 
 #: build/index.e2f97ac80863bc5a165b.js:54
 msgid "Turned off in the preview"
@@ -37434,24 +37420,24 @@ msgid "The module is just turned on with its default settings."
 msgstr "Modul se jen zapne s výchozím nastavením."
 
 #: build/index.e2f97ac80863bc5a165b.js:71
-msgid "The modules and settings are back the way they were before. If you connected the site to the central app, remove it there as well."
-msgstr "Moduly i nastavení jsou zpět tak, jak byly. Pokud jste web připojili k centrální aplikaci, odeberte ho i tam."
+msgid "The modules and settings are back the way they were before. If you connected the site to UX1 Network app, remove it there as well."
+msgstr "Moduly i nastavení jsou zpět tak, jak byly. Pokud jste web připojili k UX1 Network app, odeberte ho i tam."
 
 #: build/index.e2f97ac80863bc5a165b.js:73
-msgid "The site is prepared for the central app (Content Sync as a managed site)."
-msgstr "Web je připravený pro centrální aplikaci (Synchronizace obsahu jako spravovaný web)."
+msgid "The site is prepared for UX1 Network app (Content Sync as a managed site)."
+msgstr "Web je připravený pro UX1 Network app (Synchronizace obsahu jako spravovaný web)."
 
 #: build/index.e2f97ac80863bc5a165b.js:73
-msgid "The site is not connected to the central app. You can do it later in the Content Sync module."
-msgstr "Web není připojený k centrální aplikaci. Můžete to udělat později v modulu Synchronizace obsahu."
+msgid "The site is not connected to UX1 Network app. You can do it later in the Content Sync module."
+msgstr "Web není připojený k UX1 Network app. Můžete to udělat později v modulu Synchronizace obsahu."
 
 #: build/index.e2f97ac80863bc5a165b.js:73
 msgid "The modules this wizard turned on are turned off again and the settings it changed go back to their earlier values. Modules that were on before stay on."
 msgstr "Moduly, které tento průvodce zapnul, se znovu vypnou a nastavení, která změnil, se vrátí na dřívější hodnoty. Moduly, které byly zapnuté už předtím, zůstanou zapnuté."
 
 #: build/index.e2f97ac80863bc5a165b.js:73
-msgid "A custom login address goes back as well, so wp-login.php works again. A connection already made in the central app is not removed there."
-msgstr "Vrátí se i vlastní přihlašovací adresa, takže wp-login.php zase funguje. Propojení, které už vzniklo v centrální aplikaci, se tam neodebere."
+msgid "A custom login address goes back as well, so wp-login.php works again. A connection already made in UX1 Network app is not removed there."
+msgstr "Vrátí se i vlastní přihlašovací adresa, takže wp-login.php zase funguje. Propojení, které už vzniklo v UX1 Network app, se tam neodebere."
 
 #: build/index.e2f97ac80863bc5a165b.js:73
 msgid "It only reads the plugins. Nothing in them changes, and nothing is turned on or deactivated until you confirm the switch."
@@ -37558,8 +37544,8 @@ msgid "SEO-safe redirects with a 404 log, and an optional catch-all that sends e
 msgstr "SEO-bezpečná přesměrování s logem chyb 404 a volitelné přesměrování všech chyb 404 na hlavní stránku. Každou část lze zapnout zvlášť."
 
 #: includes/Modules/ReviewAggregator/meta.json:1
-msgid "Aggregate Google, Facebook and Mapy.cz reviews through the central app, with no local scraping and no API keys on this site."
-msgstr "Sdružuje recenze z Googlu, Facebooku a Mapy.cz přes centrální aplikaci, bez vlastního stahování a bez API klíčů na tomto webu."
+msgid "Aggregate Google, Facebook and Mapy.cz reviews through UX1 Network app, with no local scraping and no API keys on this site."
+msgstr "Sdružuje recenze z Googlu, Facebooku a Mapy.cz přes UX1 Network app, bez vlastního stahování a bez API klíčů na tomto webu."
 
 #: includes/Modules/ReviewsGroup/meta.json:1
 msgid "Show reviews collected from Google, Mapy.cz and other platforms, and ask customers for a Google review. Each part can be turned on separately."
@@ -37578,8 +37564,8 @@ msgid "Users who can edit users get a Switch to link in the user list and on pro
 msgstr "Uživatelé, kteří smějí upravovat uživatele, dostanou v seznamu uživatelů a v profilech odkaz Přepnout na. Po přepnutí tě web bere jako onoho uživatele, dokud se nepřepneš zpět, takže vše, co uděláš, se uloží pod jeho účtem. Přepnout se můžeš jen na účty, které smíš upravovat. Odhlášením se přepnutí ukončí."
 
 #: includes/Modules/VulnerabilityScanner/meta.json:1
-msgid "Check installed plugins, themes and WordPress core for outdated versions using WordPress.org, plus confirmed vulnerabilities matched against the exact installed versions. The vulnerability data (Wordfence Intelligence) comes from the central app, so the site must be paired with it."
-msgstr "Zkontroluje nainstalované pluginy, motivy a jádro WordPressu na zastaralé verze přes WordPress.org a navíc na potvrzené zranitelnosti porovnané s přesně nainstalovanými verzemi. Data o zranitelnostech (Wordfence Intelligence) pochází z centrální aplikace, proto musí být web s ní spárovaný."
+msgid "Check installed plugins, themes and WordPress core for outdated versions using WordPress.org, plus confirmed vulnerabilities matched against the exact installed versions. The vulnerability data (Wordfence Intelligence) comes from UX1 Network app, so the site must be paired with it."
+msgstr "Zkontroluje nainstalované pluginy, motivy a jádro WordPressu na zastaralé verze přes WordPress.org a navíc na potvrzené zranitelnosti porovnané s přesně nainstalovanými verzemi. Data o zranitelnostech (Wordfence Intelligence) pochází z UX1 Network app, proto musí být web s ní spárovaný."
 
 #: build/31.8e3c032c26d9cb6ff039.js:1
 msgid "Whether your server can create the [[WebP]] format."
@@ -37748,30 +37734,30 @@ msgid "Nothing is deleted and you can undo the switch for 30 days."
 msgstr "Nic se nemaže a přepnutí můžete 30 dní vrátit zpět."
 
 #: includes/Core/CentralApp/Gateway.php:70
-msgid "The connection to the central app is paused, because this site is a copy or was moved to another address."
-msgstr "Propojení s Centrální aplikací je pozastavené, protože tento web je kopie nebo byl přesunut na jinou adresu."
+msgid "The connection to UX1 Network app is paused, because this site is a copy or was moved to another address."
+msgstr "Propojení s UX1 Network app je pozastavené, protože tento web je kopie nebo byl přesunut na jinou adresu."
 
 #. translators: %s: new address of the site.
 #: includes/Core/CentralApp/PausedNotice.php:42
-msgid "This site was moved to %s. The connection with the central app is paused."
-msgstr "Tento web byl přesunut na adresu %s. Propojení s Centrální aplikací je pozastavené."
+msgid "This site was moved to %s. The connection with UX1 Network app is paused."
+msgstr "Tento web byl přesunut na adresu %s. Propojení s UX1 Network app je pozastavené."
 
 #: includes/Core/CentralApp/PausedNotice.php:45
-msgid "This site was moved to another address. The connection with the central app is paused."
-msgstr "Tento web byl přesunut na jinou adresu. Propojení s Centrální aplikací je pozastavené."
+msgid "This site was moved to another address. The connection with UX1 Network app is paused."
+msgstr "Tento web byl přesunut na jinou adresu. Propojení s UX1 Network app je pozastavené."
 
 #. translators: %s: address of the original site.
 #: includes/Core/CentralApp/PausedNotice.php:50
-msgid "This site is a copy of the site %s. The connection with the central app is paused."
-msgstr "Tento web je kopie webu %s. Propojení s Centrální aplikací je pozastavené."
+msgid "This site is a copy of the site %s. The connection with UX1 Network app is paused."
+msgstr "Tento web je kopie webu %s. Propojení s UX1 Network app je pozastavené."
 
 #: includes/Core/CentralApp/PausedNotice.php:53
-msgid "This site is a copy of another site. The connection with the central app is paused."
-msgstr "Tento web je kopie jiného webu. Propojení s Centrální aplikací je pozastavené."
+msgid "This site is a copy of another site. The connection with UX1 Network app is paused."
+msgstr "Tento web je kopie jiného webu. Propojení s UX1 Network app je pozastavené."
 
 #: includes/Core/CentralApp/PausedNotice.php:66
-msgid "Nothing is sent to the central app from this site: no monitoring data, no preview refresh, no CAPTCHA keys. If this really is a separate site, connect it as a new one."
-msgstr "Z tohoto webu se do Centrální aplikace nic neodesílá: ani data z monitoringu, ani obnovení náhledů, ani klíče CAPTCHA. Pokud je to opravdu samostatný web, připojte ho jako nový."
+msgid "Nothing is sent to UX1 Network app from this site: no monitoring data, no preview refresh, no CAPTCHA keys. If this really is a separate site, connect it as a new one."
+msgstr "Z tohoto webu se do UX1 Network app nic neodesílá: ani data z monitoringu, ani obnovení náhledů, ani klíče CAPTCHA. Pokud je to opravdu samostatný web, připojte ho jako nový."
 
 #: includes/Core/CentralApp/PausedNotice.php:70
 msgid "Connect as a new site"
@@ -37796,8 +37782,8 @@ msgid "After you change a published page, Facebook fetches its new preview and B
 msgstr "Po změně zveřejněné stránky si Facebook stáhne její nový náhled a Bing se Seznamem se o změně dozvědí. Obojí můžete v nastavení vypnout."
 
 #: includes/Core/Onboarding/StarterPack.php:887
-msgid "Facebook previews stay off, because the site is not connected to the central app. Connect it, or turn them on later in the module with your own Facebook app."
-msgstr "Náhledy na Facebooku zůstávají vypnuté, protože web není připojený k Centrální aplikaci. Připojte ho, nebo je později zapněte v modulu s vlastní aplikací na Facebooku."
+msgid "Facebook previews stay off, because the site is not connected to UX1 Network app. Connect it, or turn them on later in the module with your own Facebook app."
+msgstr "Náhledy na Facebooku zůstávají vypnuté, protože web není připojený k UX1 Network app. Připojte ho, nebo je později zapněte v modulu s vlastní aplikací na Facebooku."
 
 #. translators: %s: plugin names.
 #: includes/Core/Onboarding/StarterPack.php:895
@@ -37809,24 +37795,24 @@ msgid "Indexing and sharing"
 msgstr "Indexování a sdílení"
 
 #: includes/Core/Onboarding/StarterPack.php:905
-msgid "Warns in the admin when the site is hidden from search engines, so a launch is not forgotten. After you change a published page it tells Bing and Seznam about it (IndexNow) and, when the site is connected to the central app, makes Facebook fetch the new preview of the link."
-msgstr "Upozorní v administraci, že je web skrytý před vyhledávači, aby se na spuštění nezapomnělo. Po změně zveřejněné stránky o tom dá vědět Bingu a Seznamu (IndexNow) a pokud je web připojený k Centrální aplikaci, přiměje Facebook stáhnout nový náhled odkazu."
+msgid "Warns in the admin when the site is hidden from search engines, so a launch is not forgotten. After you change a published page it tells Bing and Seznam about it (IndexNow) and, when the site is connected to UX1 Network app, makes Facebook fetch the new preview of the link."
+msgstr "Upozorní v administraci, že je web skrytý před vyhledávači, aby se na spuštění nezapomnělo. Po změně zveřejněné stránky o tom dá vědět Bingu a Seznamu (IndexNow) a pokud je web připojený k UX1 Network app, přiměje Facebook stáhnout nový náhled odkazu."
 
 #: includes/Modules/IndexingNotice/Dispatcher.php:378
-msgid "The central app asked to wait (too many requests)."
-msgstr "Centrální aplikace požádala o počkání (příliš mnoho požadavků)."
+msgid "UX1 Network app asked to wait (too many requests)."
+msgstr "UX1 Network app požádala o počkání (příliš mnoho požadavků)."
 
 #: includes/Modules/IndexingNotice/Dispatcher.php:382
-msgid "The central app knows this site under another address and is being told about the move."
-msgstr "Centrální aplikace zná tento web pod jinou adresou a právě se jí oznamuje přesun."
+msgid "UX1 Network app knows this site under another address and is being told about the move."
+msgstr "UX1 Network app zná tento web pod jinou adresou a právě se jí oznamuje přesun."
 
 #: includes/Modules/IndexingNotice/Dispatcher.php:385
 msgid "This site is a copy or was moved, the connection is paused."
 msgstr "Tento web je kopie nebo byl přesunut, propojení je pozastavené."
 
 #: includes/Modules/IndexingNotice/Dispatcher.php:406
-msgid "The central app sent no result for this address."
-msgstr "Centrální aplikace k této adrese neposlala žádný výsledek."
+msgid "UX1 Network app sent no result for this address."
+msgstr "UX1 Network app k této adrese neposlala žádný výsledek."
 
 #: includes/Modules/IndexingNotice/Dispatcher.php:437
 msgid "The Facebook app ID or app secret is missing."
@@ -37898,20 +37884,20 @@ msgid "Leave it off if the site is not shared on social networks."
 msgstr "Nechte vypnuté, pokud se web na sociálních sítích nesdílí."
 
 #: includes/Modules/IndexingNotice/help.php:18
-msgid "Facebook only answers an app that is registered with it. Central app means this site asks the central app to do the refresh with its app, so you fill in nothing. My own Facebook app means this site calls Facebook itself with keys of your app."
-msgstr "Facebook odpovídá jen aplikaci, která je u něj registrovaná. Centrální aplikace znamená, že obnovení za tento web provede Centrální aplikace svou aplikací, takže nic nevyplňujete. Moje vlastní aplikace na Facebooku znamená, že web volá Facebook sám s klíči vaší aplikace."
+msgid "Facebook only answers an app that is registered with it. UX1 Network app means this site asks UX1 Network app to do the refresh with its app, so you fill in nothing. My own Facebook app means this site calls Facebook itself with keys of your app."
+msgstr "Facebook odpovídá jen aplikaci, která je u něj registrovaná. UX1 Network app znamená, že obnovení za tento web provede UX1 Network app svou aplikací, takže nic nevyplňujete. Moje vlastní aplikace na Facebooku znamená, že web volá Facebook sám s klíči vaší aplikace."
 
 #: includes/Modules/IndexingNotice/help.php:19
-msgid "With the central app the site sends only the addresses of changed pages. The secret of the central app never reaches the site. With your own app the limits and the responsibility are yours alone."
-msgstr "U Centrální aplikace web posílá jen adresy změněných stránek. Tajný klíč Centrální aplikace se k webu nikdy nedostane. U vlastní aplikace jsou limity i odpovědnost jen vaše."
+msgid "With UX1 Network app the site sends only the addresses of changed pages. The secret of UX1 Network app never reaches the site. With your own app the limits and the responsibility are yours alone."
+msgstr "U UX1 Network app web posílá jen adresy změněných stránek. Tajný klíč UX1 Network app se k webu nikdy nedostane. U vlastní aplikace jsou limity i odpovědnost jen vaše."
 
 #: includes/Modules/IndexingNotice/help.php:20
-msgid "The central app option works only when the site is connected to it. Without the connection no preview is refreshed, and the settings show a warning."
-msgstr "Volba Centrální aplikace funguje jen tehdy, když je web k ní připojený. Bez připojení se žádný náhled neobnoví a v nastavení se ukáže upozornění."
+msgid "UX1 Network app option works only when the site is connected to it. Without the connection no preview is refreshed, and the settings show a warning."
+msgstr "Volba UX1 Network app funguje jen tehdy, když je web k ní připojený. Bez připojení se žádný náhled neobnoví a v nastavení se ukáže upozornění."
 
 #: includes/Modules/IndexingNotice/help.php:21
-msgid "Choose your own app if the site is not managed by the central app, or if you want it to be independent of it."
-msgstr "Vlastní aplikaci zvolte, pokud web Centrální aplikace nespravuje nebo když chcete být na ní nezávislí."
+msgid "Choose your own app if the site is not managed by UX1 Network app, or if you want it to be independent of it."
+msgstr "Vlastní aplikaci zvolte, pokud web UX1 Network app nespravuje nebo když chcete být na ní nezávislí."
 
 #: includes/Modules/IndexingNotice/help.php:24
 msgid "The number of your Facebook app. Open developers.facebook.com, go to My Apps and create an app (type Other or Business is fine). Then open Settings, Basic and copy the App ID. Menu names there change from time to time. Your app does not need to be reviewed by Facebook."
@@ -37986,8 +37972,8 @@ msgid "Where the Facebook keys come from"
 msgstr "Odkud jsou klíče k Facebooku"
 
 #: includes/Modules/IndexingNotice/Module.php:155
-msgid "Central app (nothing to fill in)"
-msgstr "Centrální aplikace (nic se nevyplňuje)"
+msgid "UX1 Network app (nothing to fill in)"
+msgstr "UX1 Network app (nic se nevyplňuje)"
 
 #: includes/Modules/IndexingNotice/Module.php:156
 msgid "My own Facebook app"
@@ -38077,12 +38063,12 @@ msgid "Nothing was sent (both options are off)."
 msgstr "Nic se neodeslalo (obě volby jsou vypnuté)."
 
 #: build/727.6d5bccb138f66ad931c8.js:1
-msgid "The site is not connected to the central app, so previews are not refreshed. Connect it (the setup wizard or the Content Sync module), or choose your own Facebook app."
-msgstr "Web není připojený k Centrální aplikaci, proto se náhledy neobnovují. Připojte ho (průvodce nastavením nebo modul Synchronizace obsahu), nebo zvolte vlastní aplikaci na Facebooku."
+msgid "The site is not connected to UX1 Network app, so previews are not refreshed. Connect it (the setup wizard or the Content Sync module), or choose your own Facebook app."
+msgstr "Web není připojený k UX1 Network app, proto se náhledy neobnovují. Připojte ho (průvodce nastavením nebo modul Synchronizace obsahu), nebo zvolte vlastní aplikaci na Facebooku."
 
 #: build/727.6d5bccb138f66ad931c8.js:1
-msgid "The connection to the central app is paused, because this site is a copy or was moved. Nothing is sent."
-msgstr "Propojení s Centrální aplikací je pozastavené, protože tento web je kopie nebo byl přesunut. Nic se neodesílá."
+msgid "The connection to UX1 Network app is paused, because this site is a copy or was moved. Nothing is sent."
+msgstr "Propojení s UX1 Network app je pozastavené, protože tento web je kopie nebo byl přesunut. Nic se neodesílá."
 
 #: build/727.6d5bccb138f66ad931c8.js:1
 msgid "Verify keys"
@@ -38118,8 +38104,8 @@ msgid "You cancelled the connection. You can finish it later in the Content Sync
 msgstr "Připojení jste zrušili. Můžete ho dokončit později v modulu Synchronizace obsahu."
 
 #: build/index.e2f97ac80863bc5a165b.js:69
-msgid "The site is connected to the central app. The recommended modules below use it where they can."
-msgstr "Web je připojený k Centrální aplikaci. Doporučené moduly níže ji využijí všude, kde to jde."
+msgid "The site is connected to UX1 Network app. The recommended modules below use it where they can."
+msgstr "Web je připojený k UX1 Network app. Doporučené moduly níže ji využijí všude, kde to jde."
 
 #: build/744.16b934e695e287117fb6.js:1
 msgid "Invalid IP allowlist entries were ignored"
@@ -39219,25 +39205,25 @@ msgid "The scan result is not valid."
 msgstr "Výsledek skenu není platný."
 
 #: includes/Modules/Consent/Scan.php:650
-msgid "This site is not connected to the central app."
-msgstr "Tento web není propojen s centrální aplikací."
+msgid "This site is not connected to UX1 Network app."
+msgstr "Tento web není propojen s UX1 Network app."
 
 #: includes/Modules/Consent/Scan.php:659
-msgid "The central app scanned this site a short while ago. Try again later."
-msgstr "Centrální aplikace tento web skenovala nedávno. Zkuste to později."
+msgid "UX1 Network app scanned this site a short while ago. Try again later."
+msgstr "UX1 Network app tento web skenovala nedávno. Zkuste to později."
 
 #: includes/Modules/Consent/Scan.php:662
-msgid "The central app does not accept the request now (the site address or the connection needs attention)."
-msgstr "Centrální aplikace teď žádost nepřijme (adresa webu nebo propojení vyžaduje pozornost)."
+msgid "UX1 Network app does not accept the request now (the site address or the connection needs attention)."
+msgstr "UX1 Network app teď žádost nepřijme (adresa webu nebo propojení vyžaduje pozornost)."
 
 #. translators: %d: HTTP status code
 #: includes/Modules/Consent/Scan.php:666
-msgid "The central app answered with HTTP %d."
-msgstr "Centrální aplikace odpověděla chybou HTTP %d."
+msgid "UX1 Network app answered with HTTP %d."
+msgstr "UX1 Network app odpověděla chybou HTTP %d."
 
 #: includes/Modules/Consent/Scan.php:673
-msgid "The scan is queued in the central app. The result appears here within a few minutes."
-msgstr "Sken je zařazen v centrální aplikaci. Výsledek se zde objeví během několika minut."
+msgid "The scan is queued in UX1 Network app. The result appears here within a few minutes."
+msgstr "Sken je zařazen v UX1 Network app. Výsledek se zde objeví během několika minut."
 
 #: includes/Modules/Consent/ScanRest.php:82
 msgid "The scan result is too large."
@@ -39724,12 +39710,12 @@ msgid "Could not load the scan."
 msgstr "Sken se nepodařilo načíst."
 
 #: build/954.179d869228684c1a3a4c.js:10
-msgid "A browser of the central app opens your home page and a few more pages three times, each time with a clean profile: without any choice, after \"Accept all\" and after \"Reject all\". It records the cookies, the storage keys and the requests to other hosts. A cookie or a request that needs consent by the catalogue, yet appears without consent or after the visitor rejected, is a violation. The scan runs once a month and on request; a request is queued and takes a few minutes."
-msgstr "Prohlížeč centrální aplikace třikrát otevře úvodní stránku a pár dalších stránek, pokaždé s čistým profilem: bez jakékoli volby, po „Přijmout vše\" a po „Odmítnout vše\". Zaznamená cookies, klíče úložiště a požadavky na jiné hostitele. Cookie nebo požadavek, který podle katalogu vyžaduje souhlas, a přesto vznikne bez souhlasu nebo po odmítnutí návštěvníka, je porušení. Sken běží jednou měsíčně a na požádání; žádost se zařadí do fronty a vyřídí se za pár minut."
+msgid "A browser of UX1 Network app opens your home page and a few more pages three times, each time with a clean profile: without any choice, after \"Accept all\" and after \"Reject all\". It records the cookies, the storage keys and the requests to other hosts. A cookie or a request that needs consent by the catalogue, yet appears without consent or after the visitor rejected, is a violation. The scan runs once a month and on request; a request is queued and takes a few minutes."
+msgstr "Prohlížeč UX1 Network app třikrát otevře úvodní stránku a pár dalších stránek, pokaždé s čistým profilem: bez jakékoli volby, po „Přijmout vše\" a po „Odmítnout vše\". Zaznamená cookies, klíče úložiště a požadavky na jiné hostitele. Cookie nebo požadavek, který podle katalogu vyžaduje souhlas, a přesto vznikne bez souhlasu nebo po odmítnutí návštěvníka, je porušení. Sken běží jednou měsíčně a na požádání; žádost se zařadí do fronty a vyřídí se za pár minut."
 
 #: build/954.179d869228684c1a3a4c.js:10
-msgid "Ask the central app for a scan"
-msgstr "Požádat centrální aplikaci o sken"
+msgid "Ask UX1 Network app for a scan"
+msgstr "Požádat UX1 Network app o sken"
 
 #. translators: %s: date of the last scan result.
 #: build/954.179d869228684c1a3a4c.js:11
@@ -39746,12 +39732,12 @@ msgid "A scan was requested %s and is waiting."
 msgstr "Sken byl vyžádán %s a čeká na vyřízení."
 
 #: build/954.179d869228684c1a3a4c.js:11
-msgid "This site is not connected to the central app, so it cannot be scanned."
-msgstr "Tento web není propojen s centrální aplikací, nelze ho tedy skenovat."
+msgid "This site is not connected to UX1 Network app, so it cannot be scanned."
+msgstr "Tento web není propojen s UX1 Network app, nelze ho tedy skenovat."
 
 #: build/954.179d869228684c1a3a4c.js:11
-msgid "The connection to the central app is paused."
-msgstr "Propojení s centrální aplikací je pozastaveno."
+msgid "The connection to UX1 Network app is paused."
+msgstr "Propojení s UX1 Network app je pozastaveno."
 
 #. translators: %d: number of violations.
 #: build/954.179d869228684c1a3a4c.js:11

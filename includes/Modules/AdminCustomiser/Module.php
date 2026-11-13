@@ -224,10 +224,10 @@ final class Module extends BaseModule {
 				'section' => __( 'Login page', 'ux-studio' ),
 				'type'    => 'select',
 				'label'   => __( 'Login screen layout', 'ux-studio' ),
-				'help'    => __( '"Split" reproduces the login screen of the central app: a full-height media panel (video/image/YouTube) on one side and the form on the other.', 'ux-studio' ),
+				'help'    => __( '"Split" reproduces the login screen of UX1 Network app: a full-height media panel (video/image/YouTube) on one side and the form on the other.', 'ux-studio' ),
 				'options' => array(
 					'classic' => __( 'Classic (centered form, colors above)', 'ux-studio' ),
-					'split'   => __( 'Split (media panel + form, like the central app)', 'ux-studio' ),
+					'split'   => __( 'Split (media panel + form, like UX1 Network app)', 'ux-studio' ),
 				),
 				'default' => Login::DEFAULT_STYLE,
 			),
@@ -248,7 +248,7 @@ final class Module extends BaseModule {
 				'section' => __( 'Login page', 'ux-studio' ),
 				'type'    => 'media',
 				'label'   => __( 'Split layout: image / video poster', 'ux-studio' ),
-				'help'    => __( 'Used directly when the media type is "Static image", and as the poster/fallback frame for "Video" and "YouTube". Left empty, "Video" falls back to the same background clip used on the login screen of the central app.', 'ux-studio' ),
+				'help'    => __( 'Used directly when the media type is "Static image", and as the poster/fallback frame for "Video" and "YouTube". Left empty, "Video" falls back to the same background clip used on the login screen of UX1 Network app.', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
@@ -256,7 +256,7 @@ final class Module extends BaseModule {
 				'section' => __( 'Login page', 'ux-studio' ),
 				'type'    => 'text',
 				'label'   => __( 'Split layout: video URL (MP4)', 'ux-studio' ),
-				'help'    => __( 'Link to an .mp4 file - an external URL or a link copied from the media library. Used only when the media type is "Video". Left empty, it loads the same background clip used on the login screen of the central app (not bundled with the plugin, fetched from ux1.cz).', 'ux-studio' ),
+				'help'    => __( 'Link to an .mp4 file - an external URL or a link copied from the media library. Used only when the media type is "Video". Left empty, it loads the same background clip used on the login screen of UX1 Network app (not bundled with the plugin, fetched from ux1.cz).', 'ux-studio' ),
 				'default' => '',
 			),
 			array(

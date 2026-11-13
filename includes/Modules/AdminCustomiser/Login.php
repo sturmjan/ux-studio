@@ -3,7 +3,7 @@
  * Login screen customisation: custom logo/colors (restored from the legacy
  * admin-customiser module) plus an optional "split" layout - a full-height
  * media panel (video / image / YouTube) on one side and the form on the
- * other, matching the Centrální aplikace login screen.
+ * other, matching the UX1 Network app login screen.
  *
  * @package UxStudio
  */
@@ -18,7 +18,7 @@ final class Login {
 
 	/**
 	 * Split layout, "no media configured" default: the same background clip
-	 * used on the Centrální aplikace login screen. Loaded from ux1.cz rather
+	 * used on the UX1 Network app login screen. Loaded from ux1.cz rather
 	 * than bundled with the plugin - it's a shadcnspace demo asset, not
 	 * licensed for redistribution, so it can only be linked to, not shipped.
 	 */
@@ -516,7 +516,7 @@ final class Login {
 	 * CSS alone can't reach: the "lost password" link moves next to the
 	 * remember-me checkbox, and "back to site"/"privacy policy" are merged
 	 * into one small footer row below the submit button - matching the
-	 * Centrální aplikace login layout.
+	 * UX1 Network app login layout.
 	 */
 	public function print_footer_script(): void {
 		$js = '';

@@ -154,7 +154,7 @@ final class CoreAbilities {
 			Registry::define(
 				'uxstudio/module-settings-update',
 				__( 'Update module settings', 'ux-studio' ),
-				'Change settings of a module through its own save path (validated against its schema, with its side effects such as .htaccess rewrites). Only keys from module-settings-get are accepted; others are refused. Keys that look like credentials are refused unless the token has the admin scope and allow_secrets=true. Settings that decide where stored credentials or data are sent (SMTP host and regions, central app address, AI provider, notification recipients) or that guard the site (login address, firewall, 2FA, CSP, bypass lists) need the admin scope; the refusal lists them. Use dry_run=true to see what would change.',
+				'Change settings of a module through its own save path (validated against its schema, with its side effects such as .htaccess rewrites). Only keys from module-settings-get are accepted; others are refused. Keys that look like credentials are refused unless the token has the admin scope and allow_secrets=true. Settings that decide where stored credentials or data are sent (SMTP host and regions, UX1 Network app address, AI provider, notification recipients) or that guard the site (login address, firewall, 2FA, CSP, bypass lists) need the admin scope; the refusal lists them. Use dry_run=true to see what would change.',
 				$W,
 				array(
 					'module'        => self::MODULE_ID + array( 'description' => 'Module id.' ),

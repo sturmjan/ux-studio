@@ -102,7 +102,7 @@ function categoryLabel( category: string ): string {
 	}
 }
 
-/** Tab of the Cookie Consent page: what a real browser of the central app saw on the site, and what breaks the visitor's choice. */
+/** Tab of the Cookie Consent page: what a real browser of UX1 Network app saw on the site, and what breaks the visitor's choice. */
 export default function Scan(): JSX.Element {
 	const scan = useQuery( { queryKey: KEY, queryFn: () => api< ScanData >( '/consent/scan' ) } );
 	const request = useMutation( {
@@ -127,13 +127,13 @@ export default function Scan(): JSX.Element {
 		<div className="uxs-form" style={ { maxWidth: 'none' } }>
 			<p className="uxs-form__help">
 				{ __(
-					'A browser of the central app opens your home page and a few more pages three times, each time with a clean profile: without any choice, after "Accept all" and after "Reject all". It records the cookies, the storage keys and the requests to other hosts. A cookie or a request that needs consent by the catalogue, yet appears without consent or after the visitor rejected, is a violation. The scan runs once a month and on request; a request is queued and takes a few minutes.',
+					'A browser of UX1 Network app opens your home page and a few more pages three times, each time with a clean profile: without any choice, after "Accept all" and after "Reject all". It records the cookies, the storage keys and the requests to other hosts. A cookie or a request that needs consent by the catalogue, yet appears without consent or after the visitor rejected, is a violation. The scan runs once a month and on request; a request is queued and takes a few minutes.',
 					'ux-studio'
 				) }
 			</p>
 			<div className="uxs-actions">
 				<button type="button" className="button button-primary" disabled={ request.isPending || ! data.active } onClick={ () => request.mutate() }>
-					{ request.isPending ? <LoaderCircle size={ 14 } /> : <RefreshCw size={ 14 } /> } { __( 'Ask the central app for a scan', 'ux-studio' ) }
+					{ request.isPending ? <LoaderCircle size={ 14 } /> : <RefreshCw size={ 14 } /> } { __( 'Ask UX1 Network app for a scan', 'ux-studio' ) }
 				</button>
 				<span className="uxs-form__help">
 					{ data.received_at
@@ -146,8 +146,8 @@ export default function Scan(): JSX.Element {
 					{ data.requested_at > data.received_at ? ' ' + sprintf( /* translators: %s: date of the request. */ __( 'A scan was requested %s and is waiting.', 'ux-studio' ), formatDate( data.requested_at ) ) : '' }
 				</span>
 			</div>
-			{ ! data.paired && <p className="uxs-badge is-danger">{ __( 'This site is not connected to the central app, so it cannot be scanned.', 'ux-studio' ) }</p> }
-			{ data.paired && ! data.active && <p className="uxs-badge is-danger">{ __( 'The connection to the central app is paused.', 'ux-studio' ) }</p> }
+			{ ! data.paired && <p className="uxs-badge is-danger">{ __( 'This site is not connected to UX1 Network app, so it cannot be scanned.', 'ux-studio' ) }</p> }
+			{ data.paired && ! data.active && <p className="uxs-badge is-danger">{ __( 'The connection to UX1 Network app is paused.', 'ux-studio' ) }</p> }
 			{ request.isError && <p className="uxs-badge is-danger">{ ( request.error as Error ).message }</p> }
 			{ request.isSuccess && <p className="uxs-badge is-success">{ request.data.message }</p> }
 

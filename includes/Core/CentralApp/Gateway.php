@@ -1,6 +1,6 @@
 <?php
 /**
- * Signed calls from the plugin to the Central App, in one place (PLAN.md 39, 40).
+ * Signed calls from the plugin to UX1 Network app, in one place (PLAN.md 39, 40).
  *
  * @package UxStudio
  */
@@ -17,14 +17,14 @@ use WP_Error;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Same channel as ServiceRequests\CentralClient and SecurityOptimization\TurnstileCaProvisioner: the Central App
+ * Same channel as ServiceRequests\CentralClient and SecurityOptimization\TurnstileCaProvisioner: UX1 Network app
  * URL and the shared `node_api_key` from the Content Sync settings, HmacAuth::sign() over
  * METHOD \n URL \n TIMESTAMP \n NONCE \n sha256(body). What this class adds, and what the two older clients call
  * too (`guard()`, `headers()`, `inspect()`):
  *
  *  - the stable site id in the header `X-UxStudio-Site-Id` and in the body field `site_id`,
  *  - the paused state: a copy of a site, or a site that was moved away, makes NO call,
- *  - the domain watch: when home_url() no longer matches the address the Central App knows, `site_moved` goes
+ *  - the domain watch: when home_url() no longer matches the address UX1 Network app knows, `site_moved` goes
  *    first (DomainWatch),
  *  - the central reading of the answers 409 `url_mismatch`, 410 `superseded` and 423 `clone`.
  */
@@ -33,7 +33,7 @@ final class Gateway {
 	private const TIMEOUT = 20;
 
 	/**
-	 * Central App URL + shared node key.
+	 * UX1 Network app URL + shared node key.
 	 *
 	 * @return array{0:string,1:string}
 	 */
@@ -67,7 +67,7 @@ final class Gateway {
 	public static function paused_error(): WP_Error {
 		return new WP_Error(
 			'uxstudio_ca_paused',
-			__( 'The connection to the central app is paused, because this site is a copy or was moved to another address.', 'ux-studio' ),
+			__( 'The connection to UX1 Network app is paused, because this site is a copy or was moved to another address.', 'ux-studio' ),
 			array( 'status' => 424 )
 		);
 	}
@@ -100,10 +100,10 @@ final class Gateway {
 	}
 
 	/**
-	 * Central App address of a page with the query string built once (the signed text has to be byte identical
-	 * to what the Central App sees in REQUEST_URI).
+	 * UX1 Network app address of a page with the query string built once (the signed text has to be byte identical
+	 * to what UX1 Network app sees in REQUEST_URI).
 	 *
-	 * @param string               $central_url Central App base address.
+	 * @param string               $central_url UX1 Network app base address.
 	 * @param string               $page        `?page=` value.
 	 * @param array<string, mixed> $query       Further query parameters.
 	 */
@@ -112,9 +112,9 @@ final class Gateway {
 	}
 
 	/**
-	 * Guarded, signed JSON POST to a page of the Central App.
+	 * Guarded, signed JSON POST to a page of UX1 Network app.
 	 *
-	 * @param string               $page  `?page=` value (also the HMAC scope on the Central App side).
+	 * @param string               $page  `?page=` value (also the HMAC scope on UX1 Network app side).
 	 * @param array<string, mixed> $body  Body (the site id is added).
 	 * @param array<string, mixed> $query Further query parameters.
 	 * @return array{code:int,body:array<string,mixed>}|WP_Error
@@ -141,7 +141,7 @@ final class Gateway {
 		if ( '' === $central_url || '' === $secret ) {
 			return new WP_Error(
 				'uxstudio_ca_not_configured',
-				__( 'The central app URL or the node API key is missing in Content Sync settings.', 'ux-studio' ),
+				__( 'UX1 Network app URL or the node API key is missing in Content Sync settings.', 'ux-studio' ),
 				array( 'status' => 424 )
 			);
 		}
@@ -185,7 +185,7 @@ final class Gateway {
 	}
 
 	/**
-	 * Read an answer of the Central App for what it says about the link: a copy (423), a site that was moved away
+	 * Read an answer of UX1 Network app for what it says about the link: a copy (423), a site that was moved away
 	 * (410) pauses it, a different address on file (409) sends `site_moved`.
 	 *
 	 * @param int                  $code    HTTP status.

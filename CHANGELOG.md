@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.17.1 - 2026-11-13
+
+- Changed: the central application is now called UX1 Network app in every text shown to the user (module screens, setup wizard, help, notices, module descriptions, translations and docs). The name is not declined and has no article in English. Identifiers stay as they are: class names, namespaces, option keys, REST routes, hooks and URLs.
+
 ## 0.17.0
 
 - Changed: the product is now called UX1 Studio (display name in the plugin header, admin menu, texts, translations and docs). Identifiers stay as they are: slug and folder `ux-studio`, text domain, `uxstudio_` prefixes, `UxStudio` namespace, REST namespace and GitHub repo.
@@ -41,9 +45,9 @@
 - Fixed: the Cookie Consent public routes (`consent/region`, `consent/cookies`) are now on the public REST list, so the region check also works when REST is limited to logged-in users. A Google tag script with a GA4 id is listed as Google Analytics and with an Ads id as Google Ads; `analytics.google.com` is classified by the catalogue, not by the google.com embed rule.
 - Added: consent records in the Cookie Consent module (PLAN section 42, phase F5), the proof of consent under GDPR article 7. Every answer to the banner is saved with a random anonymous consent ID (also kept in the `uxs_consent` cookie and shown in the cookie settings of the banner), the time, the consent version, the categories allowed, the kind of answer (accept all, reject all, own choice, withdrawal) and the page path. No IP address, no browser details, no query string. Records are kept for 3 years by default (30 to 3650 days, deleted daily). The module page has a "Consent records" tab with an overview, a look-up by consent ID and a CSV export; the dashboard shows the share of answers. The banner script grows by about 0.4 kB gzip.
 - Added: legal pages in the Cookie Consent module (PLAN section 42, phase F4). A new tab "Legal pages" has a short wizard for the controller (name, company number, address, contacts, data protection officer, supervisory authority, purposes of processing with their legal basis and retention, recipients) and makes the cookie policy, the privacy policy and, for a shop, the consumer terms and conditions as normal WordPress pages. A page holds the shortcode `[uxstudio_legal doc="cookies|privacy|terms"]` and is filled live: the list of cookies and services comes from the same report as the banner, recipients and transfers outside the EEA are pre-filled from the services found on the site, and delivery and payment methods are read from WooCommerce. Czech and English texts (by the site language), written for this plugin. Every change of the text makes a new numbered version with the date it came into force; earlier versions stay in a history in the admin and under the text on the page. The privacy page, the cookie page and the terms page are set as the WordPress privacy page, the link of the banner and the WooCommerce terms page where nothing is set yet. The terms version (number, date, fingerprint) is stored in the meta of each new WooCommerce order and shown on the order screen. `[uxstudio_cookie_table]` prints just the tables of cookies. The texts are templates, not legal advice: have a lawyer check them.
-- Added: Cookie Consent, phase F3, the dynamic scan. The central app opens your home page and a few more pages in a real browser three times with a clean profile (without consent, after "Accept all", after "Reject all") and sends the plugin what it saw: cookies (never their values), storage keys and requests to other hosts, each with the moment it appeared. The plugin judges it with its own catalogue: a cookie or a request to a tracking host that needs consent but appears without consent or after the visitor rejected is a violation (unknown cookies are never violations, they wait to be classified; with Consent Mode advanced the Google pings before consent are not counted). New tab Scan on the module page with the result, the violations, the unknown cookies and a button to ask the central app for a scan; unknown hosts of the scan join the queue of the Services and cookies tab; `Report::site()` gets `scan_at` and `scan_cookies`. Two new signed routes for the central app (`content-sync/node/consent/scan-plan` and `scan-result`) and two admin routes (`consent/scan`, `consent/scan/request`).
+- Added: Cookie Consent, phase F3, the dynamic scan. UX1 Network app opens your home page and a few more pages in a real browser three times with a clean profile (without consent, after "Accept all", after "Reject all") and sends the plugin what it saw: cookies (never their values), storage keys and requests to other hosts, each with the moment it appeared. The plugin judges it with its own catalogue: a cookie or a request to a tracking host that needs consent but appears without consent or after the visitor rejected is a violation (unknown cookies are never violations, they wait to be classified; with Consent Mode advanced the Google pings before consent are not counted). New tab Scan on the module page with the result, the violations, the unknown cookies and a button to ask UX1 Network app for a scan; unknown hosts of the scan join the queue of the Services and cookies tab; `Report::site()` gets `scan_at` and `scan_cookies`. Two new signed routes for UX1 Network app (`content-sync/node/consent/scan-plan` and `scan-result`) and two admin routes (`consent/scan`, `consent/scan/request`).
 - Added: migration from Complianz (free and premium) in the migration wizard (PLAN section 42.16, Cookie Consent phase F6). The plan lists what moves (consent mode, expiry, blocking, banner texts, colours and position, own blocking rules from the Script Center, company details for the legal pages, a Google Analytics ID for Pixel & Tag Manager) and what does not (Do Not Track, soft cookie wall, custom CSS, logo and animation, own cookie descriptions, scripts added in the Script Center, other legal documents). Pages that hold `[cmplz-document]`, `[cmplz-manage-consent]`, `[cmplz-cookies]` or the Complianz document block are rewritten at the switch to `[uxstudio_legal]`, `[uxstudio_cookie_settings]` and `[uxstudio_cookie_table]`: the page, its address and its slug stay, the original content is kept (post meta and a WordPress revision) and written back when the switch is undone. While Complianz is off, its shortcodes and block still work in content the migration did not touch. Visitors who already chose in Complianz are not asked again (the old `cmplz_*` cookies are read once, only for the same policy number). Things that would silently stop when Complianz goes (scripts from the Script Center, a Google Tag Manager container or another analytics tool that only Complianz inserts) show as a failing test of the safe preview, so the switch needs an explicit confirmation. New smoke test "one banner, converted legal pages render".
-- Added: `window.uxConsent.acceptAll()`, `rejectAll()` and `set( { preferences, statistics, marketing } )` for automation (the dynamic scan of the central app uses them). They do exactly what the buttons do: cookie, consent record and `uxc_consent` event.
+- Added: `window.uxConsent.acceptAll()`, `rejectAll()` and `set( { preferences, statistics, marketing } )` for automation (the dynamic scan of UX1 Network app uses them). They do exactly what the buttons do: cookie, consent record and `uxc_consent` event.
 
 ## 0.14.3
 
@@ -82,12 +86,12 @@ Security release: fixes found by a security review of the REST lock, the MCP tok
 
 ## 0.14.0
 
-- Added: Indexing Notice is now "Indexing & Sharing". After you save a change to a published post, page or product, Facebook fetches the new title, description and image of the link about two minutes later (only the saved post, every public content type). The Facebook keys come from the central app, or you enter your own App ID and App Secret (the fields show only with that choice, with a "Verify keys" button; the secret is stored encrypted and never exported).
+- Added: Indexing Notice is now "Indexing & Sharing". After you save a change to a published post, page or product, Facebook fetches the new title, description and image of the link about two minutes later (only the saved post, every public content type). The Facebook keys come from UX1 Network app, or you enter your own App ID and App Secret (the fields show only with that choice, with a "Verify keys" button; the secret is stored encrypted and never exported).
 - Added: IndexNow in the same module tells Bing, Seznam and other search engines about the changed page right away. The key is served at `/<key>.txt` without a file in the site root. It stays off while Rank Math, Yoast or the IndexNow plugin already send IndexNow.
 - Added: nothing is sent from a site hidden from search engines, in maintenance mode, for password protected or noindex posts, or from a copy of a site. A refresh button in the post row and in the editor, plus a link to the LinkedIn Post Inspector (LinkedIn has no API for this).
-- Added: the central app step of the new-site wizard comes right after Welcome, so the recommended modules already use the connection. Coming back from the central app (also after cancelling) continues on the module step.
-- Added: a stable site id. The connection with the central app survives moving the site to another domain: the site reports the new address and the central app updates it by itself and keeps the history. A copy of a site (staging made from production) is recognised, its connection pauses with a notice and a "Connect as a new site" button; a paused site asks once a day and resumes when the central app takes it back.
-- Changed: sites already connected to the central app get Indexing & Sharing switched on once after the update, with a notice. A module switched off on the Modules screen from now on stays off.
+- Added: UX1 Network app step of the new-site wizard comes right after Welcome, so the recommended modules already use the connection. Coming back from UX1 Network app (also after cancelling) continues on the module step.
+- Added: a stable site id. The connection with UX1 Network app survives moving the site to another domain: the site reports the new address and UX1 Network app updates it by itself and keeps the history. A copy of a site (staging made from production) is recognised, its connection pauses with a notice and a "Connect as a new site" button; a paused site asks once a day and resumes when UX1 Network app takes it back.
+- Changed: sites already connected to UX1 Network app get Indexing & Sharing switched on once after the update, with a notice. A module switched off on the Modules screen from now on stays off.
 
 ## 0.13.0
 
@@ -159,7 +163,7 @@ cleaner and more consistent admin UI, and fixes found by the audit.
   instead of internal identifiers (actions without a user show "System"); the log filters list only values that really occur.
 - Fixed: Email Log shows "Plugin: Disable Emails" instead of "plugin: disable-emails" and an "Unconfirmed" status with an
   explanation instead of the raw "Pending"; the tabs of SMTP E-mail and E-mail Log have distinct names.
-- Fixed: Vulnerability Scanner names its real data source (Wordfence Intelligence through the central app).
+- Fixed: Vulnerability Scanner names its real data source (Wordfence Intelligence through UX1 Network app).
 - Fixed: Post Gallery lightbox buttons (Close, Previous, Next) are translated; the Gmail "no connected account" error
   of SMTP E-mail is translatable; the Czech plural of "Note" has all forms.
 
@@ -187,7 +191,7 @@ cleaner and more consistent admin UI, and fixes found by the audit.
 
 ### Terminology and translations
 
-- Changed: one wording in English: color, e-mail, allowlist and blocklist, central app, turn on and turn off (about 330
+- Changed: one wording in English: color, e-mail, allowlist and blocklist, UX1 Network app, turn on and turn off (about 330
   source strings). No dashes in user-facing source strings; options such as "Select a form" no longer have decorations.
 - Changed: the Czech translation covers every string of the code (1,869 new entries); themes are "motiv", deleting is
   "smazat", e-mail is spelled with a hyphen.
@@ -346,10 +350,10 @@ cleaner and more consistent admin UI, and fixes found by the audit.
   the login, registration, lost password, gate and WooCommerce account forms show a simple signed sum instead, so nobody is
   locked out. It stops mass scripted attempts; it does not tell a person from a determined script.
 - Added - Provider "Automatic" (default for a fresh install; a site that already stores CAPTCHA settings keeps Turnstile):
-  keys from the central application while connected, then own keys, then the Shield. New setting "Type of your own keys".
-- Added - The CAPTCHA field of the Forms module no longer depends on the Security CAPTCHA switch: central application keys,
-  then own keys, then the Shield. The field inspector shows what is used and offers "Get keys from the central
-  application" (`POST forms/captcha/provision`); the keys go into the same store as the login CAPTCHA keys. A form with a
+  keys from UX1 Network app while connected, then own keys, then the Shield. New setting "Type of your own keys".
+- Added - The CAPTCHA field of the Forms module no longer depends on the Security CAPTCHA switch: UX1 Network app keys,
+  then own keys, then the Shield. The field inspector shows what is used and offers "Get keys from UX1 Network
+  app" (`POST forms/captcha/provision`); the keys go into the same store as the login CAPTCHA keys. A form with a
   CAPTCHA field now always protects (before, it did nothing without the switch and keys).
 - Added - Starter pack item "CAPTCHA without keys" (login, registration, lost password, comments when the pack leaves them
   on). Left out when a CAPTCHA is already set up, a CAPTCHA plugin is active or the site is behind a non-Cloudflare proxy.
@@ -417,7 +421,7 @@ cleaner and more consistent admin UI, and fixes found by the audit.
   Modules screen, search, "Select all", a badge for modules that are off), choose what goes in (on/off state of the
   modules, module content, secret values) and download a JSON file or copy it. Every module's header has an "Export this
   setting" link that opens the export with that module ticked. The file only holds settings declared by each module's
-  schema; the Central App connection, licence and OAuth tokens, CAPTCHA keys of a host name, ids of pages, posts and
+  schema; UX1 Network app connection, licence and OAuth tokens, CAPTCHA keys of a host name, ids of pages, posts and
   users, wizard markers, caches, logs and database versions never travel (the file lists the fields to fill in again).
   Secret values (API keys, passwords) are off by default; when you turn them on they are encrypted with a passphrase of
   at least 12 characters (libsodium, argon2id; the option is off with an explanation on a server without the sodium
@@ -547,7 +551,7 @@ cleaner and more consistent admin UI, and fixes found by the audit.
 - Changed - Starter pack: the e-mail log (14 days), the last login of users and the Content Security Policy inventory
   (audit only, 20 percent sample, never enforces) are now ticked by default. The CSP item is left out when a CSP mode is
   already set, so report-only or enforce is never downgraded.
-- Changed - Wizard step "Central application" is now a short presentation of what the central application does (nine
+- Changed - Wizard step "UX1 Network app" is now a short presentation of what UX1 Network app does (nine
   cards, how it works, what changes on the site, questions) with a toolbar fixed to the bottom of the screen holding
   "Connect" and a clear "Skip".
 - Fixed - Wizard last step: the success badge now animates in, the summary and module boxes are apart, and the module
@@ -590,14 +594,14 @@ cleaner and more consistent admin UI, and fixes found by the audit.
   backport fixes). One e-mail when the site first turns critical, then at most weekly. The bundled table is refreshed
   daily from php.net (short timeout, size limit, validated; it can only make the verdict stricter, and the last good data
   is kept on a failure). The result is also shown in Security > Site hardening and in the wizard, and the exact PHP
-  version and the verdict are sent to the central app with the software inventory.
+  version and the verdict are sent to UX1 Network app with the software inventory.
 - New - Overlap rules: AI Markdown against the llms.txt of Yoast, Rank Math and All in One SEO (a full overlap only when
   their llms.txt is switched on) and Image optimization against EWWW, Smush, ShortPixel, Imagify, Converter for Media,
   Optimole (and LiteSpeed Cache or Jetpack when their image optimization is on).
-- New - Connect the site to the Central App from the wizard (one-click connect): switches Content Sync to node mode,
+- New - Connect the site to UX1 Network app from the wizard (one-click connect): switches Content Sync to node mode,
   keeps or creates the node key, checks that the site answers the signed ping and posts the signed connect form to the
-  Central App (key in the POST only, never logged). Optional CAPTCHA with Turnstile keys from the Central App (off by
-  default). Administrator sign-in and package installation from the Central App stay off.
+  UX1 Network app (key in the POST only, never logged). Optional CAPTCHA with Turnstile keys from UX1 Network app (off by
+  default). Administrator sign-in and package installation from UX1 Network app stay off.
 - Fixed - Undoing the starter pack (or switching Security off) now removes the whole `UX Studio Security` block from
   .htaccess, including the empty marker lines WordPress leaves behind.
 
@@ -841,12 +845,12 @@ cleaner and more consistent admin UI, and fixes found by the audit.
   custom patterns and skipped paths.
 - New - AI Markdown: /ai-sitemap.md, scheduled regeneration, taxonomies in
   llms.txt, AI-bot-only access log with search and stats.
-- New - Cron Control sends the central-app mode to the central app and shows
-  the result; the central app can switch the mode back (new node route).
+- New - Cron Control sends the UX1 Network app mode to UX1 Network app and shows
+  the result; UX1 Network app can switch the mode back (new node route).
 - New - Code snippets "everywhere" for CSS/JS/HTML, opening-hours JSON-LD on
   extra pages, popup cache compatibility and stats retention, review fetch
   interval and deep scan request.
-- New - DNS Management module (needs the central app with DNS support).
+- New - DNS Management module (needs UX1 Network app with DNS support).
 - Fix - Migration from UX1 (runs once on update, never overwrites values set in
   UX Studio): social login providers, AI Markdown post types/taxonomies/log
   retention (migrated sites exposed every post type in llms.txt), CSP mode,

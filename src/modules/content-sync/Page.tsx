@@ -597,13 +597,13 @@ function SecretsNote(): JSX.Element {
 				: __( 'No node API key set yet.', 'ux-studio' ) }
 			{ ' ' }
 			{ draft.has_hmac_secret
-				? __( 'A central-app HMAC secret is set.', 'ux-studio' )
-				: __( 'No central-app HMAC secret set.', 'ux-studio' ) }
+				? __( 'A UX1 Network app HMAC secret is set.', 'ux-studio' )
+				: __( 'No UX1 Network app HMAC secret set.', 'ux-studio' ) }
 		</p>
 	);
 }
 
-/** Role of this site plus how it connects (as a node, to the central app). */
+/** Role of this site plus how it connects (as a node, to UX1 Network app). */
 const isConnectionKey = withKeys( 'mode', 'node_', 'central_app_url', 'hmac_secret' );
 
 export default function Page(): JSX.Element {

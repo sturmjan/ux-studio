@@ -14,7 +14,7 @@ use WP_REST_Response;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Runs on the node. The hub (or central app) calls these over the same HMAC
+ * Runs on the node. The hub (or UX1 Network app) calls these over the same HMAC
  * channel as the other node endpoints. issue() mints a short-lived single-use
  * token that the operator's browser later redeems via SsoRedeemer.
  * All routes live under uxstudio/v1/content-sync/node/sso.

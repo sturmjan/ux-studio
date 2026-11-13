@@ -1,6 +1,6 @@
 <?php
 /**
- * REST routes of the dynamic scan: two signed routes for the Central App and two admin routes for the module page.
+ * REST routes of the dynamic scan: two signed routes for UX1 Network app and two admin routes for the module page.
  *
  * @package UxStudio
  */
@@ -16,19 +16,19 @@ use WP_REST_Response;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Signed (HMAC with the shared node key, the same check as every other Central App call, see NodeController::verify):
+ * Signed (HMAC with the shared node key, the same check as every other UX1 Network app call, see NodeController::verify):
  *   GET  uxstudio/v1/content-sync/node/consent/scan-plan    - pages the scan should open
  *   POST uxstudio/v1/content-sync/node/consent/scan-result  - {scan_id, result}; answers with the summary of the evaluation
  *
  * Admin (manage_options):
  *   GET  uxstudio/v1/consent/scan                           - last scan, its evaluation and the state of the link
- *   POST uxstudio/v1/consent/scan/request                   - ask the Central App for a scan
+ *   POST uxstudio/v1/consent/scan/request                   - ask UX1 Network app for a scan
  */
 final class ScanRest extends Controller {
 
 	private const NODE = '/content-sync/node/consent';
 
-	/** Largest body the signed push may have, in bytes. The Central App stays far below (about 150 kB at most). */
+	/** Largest body the signed push may have, in bytes. UX1 Network app stays far below (about 150 kB at most). */
 	private const MAX_BODY = 600000;
 
 	/** Registered on `rest_api_init`. */

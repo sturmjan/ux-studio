@@ -2,7 +2,7 @@
 // Test only: never runs over HTTP (the release zip also excludes tests/).
 if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
- * Standalone test (no WordPress) of the dynamic scan (PLAN.md 42, phase F3): sanitizing of what the Central App pushes,
+ * Standalone test (no WordPress) of the dynamic scan (PLAN.md 42, phase F3): sanitizing of what UX1 Network app pushes,
  * the evaluation (violations without consent and after a rejection, unknown cookies, what is NOT a violation), the
  * newness against the previous scan, and the hosts handed to the inventory queue.
  *

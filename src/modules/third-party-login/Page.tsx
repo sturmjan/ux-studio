@@ -61,7 +61,7 @@ function AccountsTab(): JSX.Element {
 		<div className="uxs-form">
 			<p>
 				{ __(
-					'Connect or disconnect a provider for your own account. Sign-in itself is handled by the central app, which posts a signed result back to this site.',
+					'Connect or disconnect a provider for your own account. Sign-in itself is handled by UX1 Network app, which posts a signed result back to this site.',
 					'ux-studio'
 				) }
 			</p>
@@ -109,7 +109,7 @@ function AccountsTab(): JSX.Element {
 			{ ! canLink && rows.length > 0 && (
 				<p className="uxs-form__help">
 					{ __(
-						'Linking needs a central app URL and an HMAC secret configured in the Settings tab.',
+						'Linking needs UX1 Network app URL and an HMAC secret configured in the Settings tab.',
 						'ux-studio'
 					) }
 				</p>

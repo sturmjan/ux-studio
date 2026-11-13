@@ -18,14 +18,14 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Routes:
- *  - GET  uxstudio/v1/third-party-login/callback  (PUBLIC) - the central app
+ *  - GET  uxstudio/v1/third-party-login/callback  (PUBLIC) - UX1 Network app
  *      redirects the browser here with the signed OAuth result, for both
  *      `login` and `link` modes. Responds with a redirect, not JSON: the
  *      visitor's browser is what lands on this URL.
  *  - GET  uxstudio/v1/third-party-login/identities (cap: read) - the current
  *      user's linked providers.
  *  - POST uxstudio/v1/third-party-login/link/{provider}   (cap: read) - start a
- *      link handshake for the CURRENT user; returns the central-app redirect.
+ *      link handshake for the CURRENT user; returns the UX1 Network app redirect.
  *  - POST uxstudio/v1/third-party-login/unlink/{provider} (cap: read) -
  *      disconnect a provider from the CURRENT user.
  *
@@ -107,7 +107,7 @@ final class RestController extends Controller {
 
 	/**
 	 * Start a link handshake for the current user: returns the signed
-	 * central-app URL, which carries a single-use nonce bound to this user and
+	 * UX1 Network app URL, which carries a single-use nonce bound to this user and
 	 * provider.
 	 *
 	 * @param WP_REST_Request $request Request.
@@ -164,7 +164,7 @@ final class RestController extends Controller {
 	}
 
 	/**
-	 * Verify the signed callback from the central app and either log the user in
+	 * Verify the signed callback from UX1 Network app and either log the user in
 	 * (mode=login) or link the provider identity to the initiating user
 	 * (mode=link).
 	 *
@@ -201,7 +201,7 @@ final class RestController extends Controller {
 			return $this->fail( 'invalid' );
 		}
 
-		// Verify over exactly the fields the central app signed - the REST stack
+		// Verify over exactly the fields UX1 Network app signed - the REST stack
 		// may add its own (`rest_route` with plain permalinks), and those were
 		// never part of the signature.
 		$signed = array(
@@ -345,7 +345,7 @@ final class RestController extends Controller {
 	 * @param string $email_raw        Verified email (validated).
 	 * @param string $sub              Provider subject id.
 	 * @param int    $expected_user_id User id recorded when the handshake started.
-	 * @param int    $received_user_id User id echoed back by the central app.
+	 * @param int    $received_user_id User id echoed back by UX1 Network app.
 	 * @return void Always terminates with a redirect.
 	 */
 	private function handle_link( string $provider, string $email_raw, string $sub, int $expected_user_id, int $received_user_id ) {
@@ -386,7 +386,7 @@ final class RestController extends Controller {
 	/**
 	 * Which provider does this callback belong to? Prefers the explicit
 	 * `provider` parameter, falls back to whichever `{provider}_sub` is present
-	 * (the central app's Google flow predates the explicit parameter).
+	 * (UX1 Network app's Google flow predates the explicit parameter).
 	 *
 	 * @param array $params Query parameters.
 	 */

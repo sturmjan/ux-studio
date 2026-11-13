@@ -20,8 +20,8 @@ defined( 'ABSPATH' ) || exit;
 /**
  * One WP-Cron single event (`CRON_HOOK`) 120 seconds after the first save in a burst takes everything that is due:
  * a save puts only the address of the saved post in the queue (SocialQueue, deduplicated), the run checks the facts
- * again (a post that became noindex in the meantime is left out, Eligibility), asks Facebook (through the Central
- * App or with own keys) and IndexNow, writes the outcome to the Activity Log and to the post meta, and puts a step
+ * again (a post that became noindex in the meantime is left out, Eligibility), asks Facebook (through UX1 Network
+ * app or with own keys) and IndexNow, writes the outcome to the Activity Log and to the post meta, and puts a step
  * that failed for a reason that passes (rate limit, network) back for a later try.
  *
  * The manual path (row action, meta box) uses the same code through refresh_now(), at once and without the queue.
@@ -328,7 +328,7 @@ final class Dispatcher {
 	}
 
 	/**
-	 * Facebook, through the Central App or with own keys.
+	 * Facebook, through UX1 Network app or with own keys.
 	 *
 	 * @param array<string, string> $urls Queue key => address.
 	 * @return array<string, array{outcome:string|int,report:array<string,mixed>}>
@@ -340,7 +340,7 @@ final class Dispatcher {
 	}
 
 	/**
-	 * Mode `ca`: one batch to the Central App.
+	 * Mode `ca`: one batch to UX1 Network app.
 	 *
 	 * @param array<string, string> $urls Queue key => address.
 	 * @return array<string, array{outcome:string|int,report:array<string,mixed>}>
@@ -356,7 +356,7 @@ final class Dispatcher {
 			);
 		};
 		if ( ! Gateway::is_paired() ) {
-			return $all( 'drop', array( 'status' => 'failed', 'error' => __( 'The site is not connected to the central app.', 'ux-studio' ) ) );
+			return $all( 'drop', array( 'status' => 'failed', 'error' => __( 'The site is not connected to UX1 Network app.', 'ux-studio' ) ) );
 		}
 		$result = Gateway::post(
 			'social_refresh',
@@ -375,11 +375,11 @@ final class Dispatcher {
 		$code = $result['code'];
 		$body = $result['body'];
 		if ( 429 === $code ) {
-			return $all( max( 60, (int) ( $body['retry_after'] ?? 600 ) ), array( 'status' => 'retry', 'error' => __( 'The central app asked to wait (too many requests).', 'ux-studio' ) ) );
+			return $all( max( 60, (int) ( $body['retry_after'] ?? 600 ) ), array( 'status' => 'retry', 'error' => __( 'UX1 Network app asked to wait (too many requests).', 'ux-studio' ) ) );
 		}
 		if ( 409 === $code ) {
-			// The address was reported to the Central App (Gateway::inspect); try again shortly.
-			return $all( 300, array( 'status' => 'retry', 'error' => __( 'The central app knows this site under another address and is being told about the move.', 'ux-studio' ) ) );
+			// The address was reported to UX1 Network app (Gateway::inspect); try again shortly.
+			return $all( 300, array( 'status' => 'retry', 'error' => __( 'UX1 Network app knows this site under another address and is being told about the move.', 'ux-studio' ) ) );
 		}
 		if ( 410 === $code || 423 === $code ) {
 			return $all( 'drop', array( 'status' => 'failed', 'error' => __( 'This site is a copy or was moved, the connection is paused.', 'ux-studio' ) ) );
@@ -387,7 +387,7 @@ final class Dispatcher {
 		if ( 200 !== $code || ! isset( $body['results'] ) || ! is_array( $body['results'] ) ) {
 			$permanent = $code >= 400 && $code < 500;
 			/* translators: %d: HTTP status code */
-			$error = sprintf( __( 'Central app returned HTTP %d.', 'ux-studio' ), $code );
+			$error = sprintf( __( 'UX1 Network app returned HTTP %d.', 'ux-studio' ), $code );
 			return $all( $permanent ? 'drop' : 600, array( 'status' => $permanent ? 'failed' : 'retry', 'error' => $error ) );
 		}
 
@@ -403,7 +403,7 @@ final class Dispatcher {
 			if ( null === $row ) {
 				$out[ $key ] = array(
 					'outcome' => 600,
-					'report'  => array( 'status' => 'retry', 'error' => __( 'The central app sent no result for this address.', 'ux-studio' ) ),
+					'report'  => array( 'status' => 'retry', 'error' => __( 'UX1 Network app sent no result for this address.', 'ux-studio' ) ),
 				);
 			} elseif ( ! empty( $row['ok'] ) ) {
 				$out[ $key ] = array(

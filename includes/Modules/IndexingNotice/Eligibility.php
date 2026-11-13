@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
  *   password     bool  the post is protected by a password,
  *   noindex      bool  the post says noindex (Rank Math, Yoast meta),
  *   maintenance  bool  the maintenance or coming soon page is shown to visitors,
- *   paused       bool  the site is a copy or was moved away (Central App link paused).
+ *   paused       bool  the site is a copy or was moved away (UX1 Network app link paused).
  */
 final class Eligibility {
 

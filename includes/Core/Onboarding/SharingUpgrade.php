@@ -1,6 +1,6 @@
 <?php
 /**
- * One-time switch-on of Indexing & Sharing for sites that are already connected to the Central App (PLAN.md 39.3).
+ * One-time switch-on of Indexing & Sharing for sites that are already connected to UX1 Network app (PLAN.md 39.3).
  *
  * @package UxStudio
  */
@@ -16,7 +16,7 @@ use UxStudio\Plugin;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Decision O2: a site that was set up before this release and is already paired with the Central App gets the
+ * Decision O2: a site that was set up before this release and is already paired with UX1 Network app gets the
  * module `indexing-notice` switched on (through the activation guard, never directly), `social_refresh_enabled`
  * with `social_key_source = ca`, and IndexNow, once, on the first administration request of an administrator
  * after the update. A site that is not connected is left alone: it never gets the Facebook refresh without keys,
@@ -44,7 +44,7 @@ final class SharingUpgrade {
 	/**
 	 * What to do, from three facts.
 	 *
-	 * @param bool $connected     Paired with the Central App and not paused.
+	 * @param bool $connected     Paired with UX1 Network app and not paused.
 	 * @param bool $enabled       The module is on.
 	 * @param bool $user_disabled The administrator switched it off on the Modules screen.
 	 * @return string `skip` (nothing) | `configure` (module on already: set the options) | `enable` (switch it on, then set the options)

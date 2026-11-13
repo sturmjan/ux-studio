@@ -3,7 +3,7 @@
 if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
  * Standalone test of the stable site id, the paused state, the domain watch and the way signed calls to the
- * Central App carry the site id (PLAN.md 40). Needs no WordPress and no database:
+ * UX1 Network app carry the site id (PLAN.md 40). Needs no WordPress and no database:
  *
  *   php tests/central-app-identity.php
  *
@@ -232,7 +232,7 @@ $res = Gateway::post( 'social_refresh', array( 'urls' => array() ) );
 $pages = array_map( static fn( $r ) => $r['url'], $GLOBALS['uxs_requests'] );
 $assert( 'site_moved goes first, then the call itself', array( 'https://app.example.test/?page=site_moved', 'https://app.example.test/?page=social_refresh' ) === $pages );
 
-/* ── 409 url_mismatch on a normal call sends site_moved with the address the Central App knows ── */
+/* ── 409 url_mismatch on a normal call sends site_moved with the address UX1 Network app knows ── */
 
 $reset();
 SiteIdentity::set_known_url( 'https://dev.example.test/' );

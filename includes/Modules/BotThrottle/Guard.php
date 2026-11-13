@@ -214,7 +214,7 @@ final class Guard {
 	}
 
 	/**
-	 * Keyed hash of the current client IP for the central app to correlate a
+	 * Keyed hash of the current client IP for UX1 Network app to correlate a
 	 * repeat-offender IP across every site in the fleet - unlike hash_ip()
 	 * (salted with this site's own wp_salt(), so the same real IP hashes
 	 * differently per site), this uses a secret shared across the whole

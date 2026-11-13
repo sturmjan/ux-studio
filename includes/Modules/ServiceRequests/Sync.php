@@ -13,12 +13,12 @@ use WP_Error;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The site is NOT the owner of a service request any more - the central app is.
+ * The site is NOT the owner of a service request any more - UX1 Network app is.
  * Locally we keep a row so the client can see their own requests in wp-admin
- * even when the central app is unreachable, but the number, the status and the
- * conversation all come from the central app.
+ * even when UX1 Network app is unreachable, but the number, the status and the
+ * conversation all come from UX1 Network app.
  *
- * WHY A QUEUE AND NOT A PLAIN HTTP CALL: the central app can be down, slow, or
+ * WHY A QUEUE AND NOT A PLAIN HTTP CALL: UX1 Network app can be down, slow, or
  * behind an expired certificate exactly at the moment a client hits "send".
  * Losing the request then would be the worst possible failure - the client
  * believes it was reported and nobody ever sees it. So every write is recorded
@@ -40,7 +40,7 @@ final class Sync {
 	 *
 	 * The local column stays only so that v1 rows and the status filter keep
 	 * working. What the client is actually shown is `central_status`, because
-	 * the central app owns it - eight states collapse into three here, and
+	 * UX1 Network app owns it - eight states collapse into three here, and
 	 * collapsing is lossy, so it must never be the value anyone reads back.
 	 */
 	private const LOCAL_STATUS = array(
@@ -135,7 +135,7 @@ final class Sync {
 	// ══════════════════════════════════════════════════════════════════
 
 	/**
-	 * Push requests that have not reached the central app yet.
+	 * Push requests that have not reached UX1 Network app yet.
 	 *
 	 * @param int $limit Max rows per pass.
 	 * @return int Successfully pushed.
@@ -172,7 +172,7 @@ final class Sync {
 	}
 
 	/**
-	 * Push a single request. Returns true when the central app accepted it.
+	 * Push a single request. Returns true when UX1 Network app accepted it.
 	 *
 	 * @param array $row Local request row.
 	 */
@@ -204,7 +204,7 @@ final class Sync {
 
 		// The attachment goes as a separate signed upload - putting file bytes
 		// in the JSON body would base64-inflate them by a third and blow past
-		// the central app's body limits on anything bigger than a screenshot.
+		// UX1 Network app's body limits on anything bigger than a screenshot.
 		$attachment_id = (int) ( $row['attachment_id'] ?? 0 );
 		if ( $attachment_id > 0 ) {
 			$path = get_attached_file( $attachment_id );
@@ -217,7 +217,7 @@ final class Sync {
 				if ( $upload instanceof WP_Error ) {
 					// The ticket itself is through; a failed attachment must
 					// not push the whole row back into the retry queue, or the
-					// central app would keep receiving duplicate creates.
+					// UX1 Network app would keep receiving duplicate creates.
 					ActivityLog::log( 'service-requests', 'attachment_failed', 'service_request', (int) $row['id'], array( 'error' => $upload->get_error_message() ) );
 				}
 			}
@@ -349,7 +349,7 @@ final class Sync {
 	// ══════════════════════════════════════════════════════════════════
 
 	/**
-	 * Refresh status and conversation of requests already in the central app.
+	 * Refresh status and conversation of requests already in UX1 Network app.
 	 *
 	 * Only requests that are not finished are refreshed - a closed ticket does
 	 * not change any more and re-fetching all of them forever would turn a
@@ -385,7 +385,7 @@ final class Sync {
 	}
 
 	/**
-	 * Refresh one request from the central app.
+	 * Refresh one request from UX1 Network app.
 	 *
 	 * @param int $request_id Local request id.
 	 */
@@ -479,9 +479,9 @@ final class Sync {
 	// ══════════════════════════════════════════════════════════════════
 
 	/**
-	 * Key that identifies this request in the central app. Stable and derived
+	 * Key that identifies this request in UX1 Network app. Stable and derived
 	 * from the local row id, which is what makes every retry idempotent -
-	 * the central app upserts on (site, external_id).
+	 * UX1 Network app upserts on (site, external_id).
 	 *
 	 * @param int $request_id Local row id.
 	 */
@@ -543,10 +543,10 @@ final class Sync {
 	}
 
 	/**
-	 * Store what the central app said about a freshly created ticket.
+	 * Store what UX1 Network app said about a freshly created ticket.
 	 *
 	 * @param int   $request_id Local row id.
-	 * @param array $ticket     Ticket payload from the central app.
+	 * @param array $ticket     Ticket payload from UX1 Network app.
 	 */
 	private static function store_central_state( int $request_id, array $ticket ): void {
 		global $wpdb;

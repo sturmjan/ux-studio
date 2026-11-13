@@ -29,7 +29,7 @@ final class Module extends BaseModule {
 
 	/**
 	 * Accepted from the submit form; anything else falls back to the default.
-	 * Deliberately narrower than the central app's own list - `incident` is an
+	 * Deliberately narrower than UX1 Network app's own list - `incident` is an
 	 * operator's classification, not something a client picks.
 	 */
 	private const TYPES      = array( 'bug', 'change', 'question', 'task' );
@@ -236,7 +236,7 @@ final class Module extends BaseModule {
 		$this->notify_new_request( $item );
 
 		// Best-effort immediate push so the usual case feels instant. When the
-		// central app is unreachable the row simply stays `pending` and the
+		// UX1 Network app is unreachable the row simply stays `pending` and the
 		// 5-minute cron retries it - the request is never lost, which is the
 		// entire reason the local row exists.
 		if ( CentralClient::is_configured() ) {
@@ -257,7 +257,7 @@ final class Module extends BaseModule {
 	 * Add a client reply to the conversation.
 	 *
 	 * The message is queued and pushed; it is never kept as a local thread row,
-	 * because the thread is a mirror of the central app. Two copies of the same
+	 * because the thread is a mirror of UX1 Network app. Two copies of the same
 	 * text would drift the moment either side edited or deleted anything.
 	 *
 	 * @param int    $id   Local request id.
@@ -272,7 +272,7 @@ final class Module extends BaseModule {
 		if ( (int) $item['central_ticket_id'] <= 0 ) {
 			return new WP_Error(
 				'uxstudio_not_synced',
-				__( 'This request has not reached the central app yet. Try again once it is submitted.', 'ux-studio' ),
+				__( 'This request has not reached UX1 Network app yet. Try again once it is submitted.', 'ux-studio' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -312,7 +312,7 @@ final class Module extends BaseModule {
 		if ( (int) $item['central_ticket_id'] > 0 ) {
 			Sync::pull_one( $id );
 		} else {
-			// A human pressing the button means the cause (wrong key, central
+			// A human pressing the button means the cause (wrong key, UX1 Network
 			// app down) has just been dealt with, so the backoff must not keep
 			// the row waiting - the attempt counter is reset.
 			$wpdb->query(
@@ -440,7 +440,7 @@ final class Module extends BaseModule {
 			'priority'          => (string) ( $row['priority'] ?? 'normal' ),
 			'environment'       => is_array( $environment ) ? $environment : array(),
 			'attachment_id'     => (int) $row['attachment_id'],
-			// Everything below is the central app's answer, mirrored here.
+			// Everything below is UX1 Network app's answer, mirrored here.
 			'central_ticket_id' => (int) ( $row['central_ticket_id'] ?? 0 ),
 			'central_number'    => (string) ( $row['central_number'] ?? '' ),
 			'central_status'    => (string) ( $row['central_status'] ?? '' ),

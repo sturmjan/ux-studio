@@ -193,7 +193,7 @@ foreach ( $table as $row ) {
 	$assert( sprintf( 'connected=%d ca_keys=%d own_keys=%d => %s', $row[0], $row[1], $row[2], $row[3] ), $row[3] === R::resolve( $row[0], $row[1], $row[2] ) );
 }
 $flags = R::key_flags( true, 'ca', true );
-$assert( 'keys from the central application while connected: ca keys, not own keys', true === $flags['ca_keys'] && false === $flags['own_keys'] );
+$assert( 'keys from UX1 Network app while connected: ca keys, not own keys', true === $flags['ca_keys'] && false === $flags['own_keys'] );
 $flags = R::key_flags( true, 'ca', false );
 $assert( 'the same keys after the connection is gone still work: they count as own keys, nothing switches off silently', true === $flags['ca_keys'] && true === $flags['own_keys'] && 'own' === R::resolve( false, $flags['ca_keys'], $flags['own_keys'] ) );
 $flags = R::key_flags( true, 'manual', true );
@@ -206,7 +206,7 @@ $assert( 'setting: a site that already stores CAPTCHA settings keeps Turnstile',
 $assert( 'setting: a stored value wins', 'recaptcha_v3' === R::setting( 'recaptcha_v3', true ) && 'shield' === R::setting( 'shield', false ) && 'auto' === R::setting( 'auto', true ) );
 $assert( 'setting: junk falls back like unset', 'auto' === R::setting( 'nope', false ) && 'turnstile' === R::setting( 7, true ) );
 
-$assert( 'auto + connected + CA keys => Turnstile from the central application', array( 'provider' => 'turnstile', 'source' => 'ca' ) === R::provider( 'auto', 'recaptcha_v2', true, true, false ) );
+$assert( 'auto + connected + CA keys => Turnstile from UX1 Network app', array( 'provider' => 'turnstile', 'source' => 'ca' ) === R::provider( 'auto', 'recaptcha_v2', true, true, false ) );
 $assert( 'auto + own keys of type reCAPTCHA v2 => reCAPTCHA v2', array( 'provider' => 'recaptcha_v2', 'source' => 'own' ) === R::provider( 'auto', 'recaptcha_v2', false, false, true ) );
 $assert( 'auto + no keys => the Shield', array( 'provider' => 'shield', 'source' => 'shield' ) === R::provider( 'auto', 'turnstile', true, false, false ) );
 $assert( 'shield chosen by hand stays the Shield even with keys', 'shield' === R::provider( 'shield', 'turnstile', true, true, true )['provider'] );

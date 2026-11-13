@@ -179,7 +179,7 @@ $assert( 'export types: text and choices are strings', '3' === Planner::typed( 3
 /* ── Registry of what never travels ── */
 
 $content_sync = NonPortable::classify( 'content-sync', $schema );
-$assert( 'Central App key, URL and HMAC are never portable', in_array( 'node_api_key', array_keys( $content_sync['manual'] ), true ) && in_array( 'central_app_url', array_keys( $content_sync['manual'] ), true ) );
+$assert( 'UX1 Network app key, URL and HMAC are never portable', in_array( 'node_api_key', array_keys( $content_sync['manual'] ), true ) && in_array( 'central_app_url', array_keys( $content_sync['manual'] ), true ) );
 foreach ( array( 'node_api_key', 'central_app_url', 'hmac_secret', 'node_allowed_ips', 'mode', 'node_default_author' ) as $key ) {
 	$assert( "content-sync.$key is on the never list", ! NonPortable::is_portable( 'content-sync', array( 'key' => $key, 'type' => 'text' ) ) );
 }

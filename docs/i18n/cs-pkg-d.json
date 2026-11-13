@@ -179,7 +179,7 @@
   "The pictures are loaded from the platform, so the visitor browser contacts it. Turn it off if you want to avoid that.": "Obrázky se načítají z platformy, takže se na ni napojí prohlížeč návštěvníka. Vypni, pokud se tomu chceš vyhnout.",
   "Shows the star rating of each review.": "Zobrazí hodnocení hvězdičkami u každé recenze.",
   "Visitors read the rating at a glance.": "Návštěvníci přečtou hodnocení jedním pohledem.",
-  "Downloads new reviews from the central app on a schedule, without you doing anything.": "Stahuje nové recenze z centrální aplikace podle rozvrhu, aniž bys cokoli dělal.",
+  "Downloads new reviews from UX1 Network app on a schedule, without you doing anything.": "Stahuje nové recenze z UX1 Network app podle rozvrhu, aniž bys cokoli dělal.",
   "The list on your site stays current.": "Seznam na webu zůstává aktuální.",
   "Without it new reviews appear only when you press the button to load them.": "Bez toho se nové recenze objeví jen po stisku tlačítka pro načtení.",
   "Turn it off to freeze the reviews on the site as they are now.": "Vypni, pokud chceš recenze na webu zmrazit v dnešním stavu.",
@@ -316,8 +316,8 @@
   "The longest text the visitor may send. Longer answers are refused.": "Nejdelší text, který smí návštěvník odeslat. Delší odpovědi se odmítnou.",
   "The title and an optional short line shown for this step of a multi-step form.": "Nadpis a volitelný krátký řádek zobrazený u tohoto kroku vícekrokového formuláře.",
   "A live check sends a real request to your site. \"As a specific visitor\" tests rules that depend on login, role, referrer or cookie.": "Živá kontrola pošle na váš web skutečný požadavek. „Jako konkrétní návštěvník“ vyzkouší pravidla, která závisí na přihlášení, roli, odkazující stránce nebo cookie.",
-  "Aggregate Google, Facebook and Mapy.cz reviews through the central app, with no local scraping and no API keys on this site.": "Sdružuje recenze z Googlu, Facebooku a Mapy.cz přes centrální aplikaci, bez vlastního stahování a bez API klíčů na tomto webu.",
-  "Ask the central app to download the whole history of your Google reviews, not only the latest ones. When it has finished, press \"Fetch reviews\".": "Požádá centrální aplikaci, aby stáhla celou historii vašich recenzí z Googlu, nejen ty nejnovější. Až skončí, stiskni „Načíst recenze“.",
+  "Aggregate Google, Facebook and Mapy.cz reviews through UX1 Network app, with no local scraping and no API keys on this site.": "Sdružuje recenze z Googlu, Facebooku a Mapy.cz přes UX1 Network app, bez vlastního stahování a bez API klíčů na tomto webu.",
+  "Ask UX1 Network app to download the whole history of your Google reviews, not only the latest ones. When it has finished, press \"Fetch reviews\".": "Požádá UX1 Network app, aby stáhla celou historii vašich recenzí z Googlu, nejen ty nejnovější. Až skončí, stiskni „Načíst recenze“.",
   "Before you can connect Instagram:": "Než Instagram propojíš:",
   "Button address (URL)": "Adresa tlačítka (URL)",
   "Button background colour": "Barva pozadí tlačítka",
@@ -337,6 +337,6 @@
   "Show the bar from this date and time (time of the site). Leave empty to show it immediately.": "Zobrazí proužek od tohoto data a času (podle času webu). Prázdné pole ho zobrazí hned.",
   "Test options": "Možnosti zkoušky",
   "The app ID of your Instagram app. You find it in the Meta App Dashboard, in the section \"API setup with Instagram login\".": "ID vaší aplikace Instagram. Najdeš ho v Meta App Dashboard, v sekci „API setup with Instagram login“.",
-  "Used by \"Request a full scan\" to find or create the Google profile in the central app.": "Používá se při „Vyžádat úplný sken“ k nalezení nebo vytvoření profilu Google v centrální aplikaci.",
+  "Used by \"Request a full scan\" to find or create the Google profile in UX1 Network app.": "Používá se při „Vyžádat úplný sken“ k nalezení nebo vytvoření profilu Google v UX1 Network app.",
   "Where the button leads. Type # to only close the popup.": "Kam tlačítko vede. Zadej #, aby okno jen zavřelo."
 }

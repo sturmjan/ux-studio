@@ -35,7 +35,7 @@ final class NodeController {
 	private const NS   = 'uxstudio/v1';
 	private const BASE = '/content-sync/node';
 
-	/** Option: unix time of the last signed ping from the hub / central app. */
+	/** Option: unix time of the last signed ping from the hub / UX1 Network app. */
 	public const LAST_PING_OPTION = 'uxstudio_node_last_ping';
 
 	/**
@@ -167,7 +167,7 @@ final class NodeController {
 			'permission_callback' => $verify,
 		) );
 
-		// Central app switches its WP-Cron takeover on/off (CA ApiClient::setCronControl).
+		// UX1 Network app switches its WP-Cron takeover on/off (CA ApiClient::setCronControl).
 		register_rest_route( self::NS, self::BASE . '/cron-control', array(
 			'methods'             => 'POST',
 			'callback'            => array( $this, 'set_cron_control' ),
@@ -205,7 +205,7 @@ final class NodeController {
 			'permission_callback' => $verify,
 		) );
 
-		// Health monitoring polled by the Central App.
+		// Health monitoring polled by UX1 Network app.
 		$health = new NodeHealth();
 		$health_routes = array(
 			'/updates'          => 'updates',
@@ -529,7 +529,7 @@ final class NodeController {
 	}
 
 	/**
-	 * Body {enabled: bool}: true = the central app takes over WP-Cron (Cron
+	 * Body {enabled: bool}: true = UX1 Network app takes over WP-Cron (Cron
 	 * Control mode central_app, module switched on if needed), false = give it
 	 * back. Logic lives in the Cron Control module.
 	 *
@@ -549,7 +549,7 @@ final class NodeController {
 
 	/**
 	 * Cursor-based pull of this site's reportable Bot Throttle bans (keyed-hash
-	 * IP, no raw address) for the central app's fleet-wide correlation feed.
+	 * IP, no raw address) for UX1 Network app's fleet-wide correlation feed.
 	 * Rows recorded before a fleet secret was configured (`report_hash` null)
 	 * are permanently excluded - see `BotThrottle\Guard::report_hash()`.
 	 *
@@ -590,7 +590,7 @@ final class NodeController {
 	 * @param WP_REST_Request $request Request.
 	 */
 	public function ping( WP_REST_Request $request ): WP_REST_Response {
-		// When the central app last called (the onboarding wizard shows it). The site's own self-check does not count.
+		// When UX1 Network app last called (the onboarding wizard shows it). The site's own self-check does not count.
 		if ( '' === (string) $request->get_header( 'X-UXS-Selfcheck' ) ) {
 			update_option( self::LAST_PING_OPTION, time(), false );
 		}
@@ -619,7 +619,7 @@ final class NodeController {
 			array(
 				'ok'         => true,
 				'site'       => home_url( '/' ),
-				// What the Central App checks during `site_moved` (PLAN.md 40.3): who answers on this address.
+				// What UX1 Network app checks during `site_moved` (PLAN.md 40.3): who answers on this address.
 				'site_id'    => SiteIdentity::site_id(),
 				'home_url'   => home_url( '/' ),
 				'acf_active' => AcfBridge::is_active(),
@@ -1178,7 +1178,7 @@ final class NodeController {
 			AcfBridge::apply( $post_id, $data['acf'] );
 		}
 
-		// SEO fields, when the hub sends them (e.g. the central app's AI
+		// SEO fields, when the hub sends them (e.g. UX1 Network app's AI
 		// Agent / AI Rewriter drafts) - reuses the same storage +
 		// SEO-plugin-detection as the local AI Assistant Content Creator,
 		// so an AI-drafted meta title/description isn't silently dropped

@@ -542,7 +542,7 @@ final class PublicRenderer {
 	}
 
 	/**
-	 * The CAPTCHA field: Turnstile with keys from the central application, the site's own keys, or the key-less
+	 * The CAPTCHA field: Turnstile with keys from UX1 Network app, the site's own keys, or the key-less
 	 * Shield (FormsCaptcha::render()). The token it produces is checked in RestController::submit().
 	 */
 	private function render_captcha(): string {

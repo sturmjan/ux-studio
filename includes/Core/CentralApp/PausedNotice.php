@@ -13,7 +13,7 @@ use UxStudio\Plugin;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * While the link is paused the plugin makes no call to the Central App. The notice says why and offers the one way
+ * While the link is paused the plugin makes no call to UX1 Network app. The notice says why and offers the one way
  * out: "Connect as a new site" (new site id, new key, then the normal connect step of the wizard).
  */
 final class PausedNotice {
@@ -39,18 +39,18 @@ final class PausedNotice {
 			return '' !== $url
 				? sprintf(
 					/* translators: %s: new address of the site. */
-					__( 'This site was moved to %s. The connection with the central app is paused.', 'ux-studio' ),
+					__( 'This site was moved to %s. The connection with UX1 Network app is paused.', 'ux-studio' ),
 					$url
 				)
-				: __( 'This site was moved to another address. The connection with the central app is paused.', 'ux-studio' );
+				: __( 'This site was moved to another address. The connection with UX1 Network app is paused.', 'ux-studio' );
 		}
 		return '' !== $url
 			? sprintf(
 				/* translators: %s: address of the original site. */
-				__( 'This site is a copy of the site %s. The connection with the central app is paused.', 'ux-studio' ),
+				__( 'This site is a copy of the site %s. The connection with UX1 Network app is paused.', 'ux-studio' ),
 				$url
 			)
-			: __( 'This site is a copy of another site. The connection with the central app is paused.', 'ux-studio' );
+			: __( 'This site is a copy of another site. The connection with UX1 Network app is paused.', 'ux-studio' );
 	}
 
 	/**
@@ -63,7 +63,7 @@ final class PausedNotice {
 		}
 		$action = wp_nonce_url( admin_url( 'admin-post.php?action=' . self::ACTION ), self::ACTION );
 		echo '<div id="uxstudio-ca-paused-notice" class="notice notice-warning"><p><strong>' . esc_html( self::message( $paused ) ) . '</strong></p>';
-		echo '<p>' . esc_html__( 'Nothing is sent to the central app from this site: no monitoring data, no preview refresh, no CAPTCHA keys. If this really is a separate site, connect it as a new one.', 'ux-studio' ) . '</p>';
+		echo '<p>' . esc_html__( 'Nothing is sent to UX1 Network app from this site: no monitoring data, no preview refresh, no CAPTCHA keys. If this really is a separate site, connect it as a new one.', 'ux-studio' ) . '</p>';
 		printf(
 			'<p><a href="%s" class="button button-primary">%s</a></p></div>',
 			esc_url( $action ),

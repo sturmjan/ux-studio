@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
  * Export is a WHITELIST by the settings schema of each module (never a dump of the option), and this class
  * removes from that whitelist everything that belongs to ONE site:
  *
- *  - connections and identity of the site (Central App key / URL / HMAC, allowed IPs of the Central App,
+ *  - connections and identity of the site (UX1 Network app key / URL / HMAC, allowed IPs of UX1 Network app,
  *    reCAPTCHA / Turnstile keys bound to a host name),
  *  - ids that mean something only in this database (pages, posts, users, terms),
  *  - anything that looks like a credential and is not a registered portable secret (the generic
@@ -36,7 +36,7 @@ final class NonPortable {
 	 * @var array<string, string[]>
 	 */
 	public const KEYS = array(
-		// Central App connection: the key, address and HMAC secret identify THIS site to the hub.
+		// UX1 Network app connection: the key, address and HMAC secret identify THIS site to the hub.
 		'content-sync'          => array( 'mode', 'node_api_key', 'central_app_url', 'hmac_secret', 'node_allowed_ips', 'node_default_author' ),
 		'third-party-login'     => array( 'central_app_url', 'hmac_secret' ),
 		'bot-throttle'          => array( 'central_report_secret' ),

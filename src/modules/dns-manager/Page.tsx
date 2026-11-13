@@ -127,7 +127,7 @@ function shortName( name: string, zone: string ): string {
 	return zone && name.endsWith( `.${ zone }` ) ? name.slice( 0, -( zone.length + 1 ) ) : name;
 }
 
-/** Mirror of the central app's rule (UX only, the central app decides). */
+/** Mirror of UX1 Network app's rule (UX only, UX1 Network app decides). */
 function proxyForbidden( type: string, name: string, content: string ): boolean {
 	if ( ! [ 'A', 'AAAA', 'CNAME' ].includes( type ) ) {
 		return true;
@@ -166,7 +166,7 @@ function isPrivateV4( ip: string ): boolean {
 	return a === 10 || a === 127 || a === 0 || ( a === 172 && b >= 16 && b <= 31 ) || ( a === 192 && b === 168 ) || ( a === 169 && b === 254 ) || a >= 224;
 }
 
-/** Light UX validation; returns a message or ''. The central app validates for real. */
+/** Light UX validation; returns a message or ''. UX1 Network app validates for real. */
 function validateDraft( d: Draft ): string {
 	if ( d.name.includes( '*' ) ) {
 		return __( 'Wildcard records (*) are not supported yet.', 'ux-studio' );
@@ -857,7 +857,7 @@ function HistoryTab( { status, zone }: { status: DnsStatus; zone: string } ): JS
 		<>
 			{ log.data?.source === 'local' && (
 				<div className="uxs-notice is-wide">
-					{ __( 'The central app is not reachable, showing the local copy of the history.', 'ux-studio' ) }
+					{ __( 'UX1 Network app is not reachable, showing the local copy of the history.', 'ux-studio' ) }
 				</div>
 			) }
 			<div className="uxs-dns-toolbar">
@@ -973,7 +973,7 @@ export default function Page(): JSX.Element {
 	const zone = s?.zone ?? '';
 	const inactiveText: Record<string, string> = {
 		broken: __( 'The connection to Cloudflare is interrupted. Please contact us.', 'ux-studio' ),
-		ca_unreachable: __( 'The central app is not reachable right now. Try again later.', 'ux-studio' ),
+		ca_unreachable: __( 'UX1 Network app is not reachable right now. Try again later.', 'ux-studio' ),
 		not_configured: __( 'DNS management is not active for this site.', 'ux-studio' ),
 	};
 

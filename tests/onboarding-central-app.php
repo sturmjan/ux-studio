@@ -2,7 +2,7 @@
 // Test only: never runs over HTTP (the release zip also excludes tests/).
 if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
- * Standalone test of the pure parts of the Central App connection (PLAN.md 29, phase F4): the address check,
+ * Standalone test of the pure parts of UX1 Network app connection (PLAN.md 29, phase F4): the address check,
  * the signature (against a value computed independently with Python's hmac), the origin check and the form fields.
  * Needs no WordPress and no database:
  *
@@ -73,10 +73,10 @@ $assert( 'junk is not an origin', ! CentralApp::same_origin( 'javascript:alert(1
 /* ── Form ── */
 
 $form = CentralApp::connect_form( 'https://app.ux1.cz/', 'https://example.com', 'Můj web', $key, 'https://example.com/wp-admin/admin.php?page=ux-studio#/wizard?mode=new&step=ca&ca=done', 1790000000 );
-$assert( 'form posts to the connect page of the Central App', 'https://app.ux1.cz/?page=connect_site' === $form['action'] );
+$assert( 'form posts to the connect page of UX1 Network app', 'https://app.ux1.cz/?page=connect_site' === $form['action'] );
 $assert( 'form has exactly the fields of the protocol', array( 'site_url', 'site_name', 'api_key', 'timestamp', 'site_type', 'return_url', 'signature' ) === array_keys( $form['fields'] ) );
 $assert( 'form site_type is wordpress, key is at least 32 characters, timestamp is a string of digits', 'wordpress' === $form['fields']['site_type'] && strlen( $form['fields']['api_key'] ) >= 32 && '1790000000' === $form['fields']['timestamp'] );
-$assert( 'form signature verifies the way the Central App checks it', hash_equals( hash_hmac( 'sha256', 'https://example.com|Můj web|1790000000|wordpress', $key ), $form['fields']['signature'] ) );
+$assert( 'form signature verifies the way UX1 Network app checks it', hash_equals( hash_hmac( 'sha256', 'https://example.com|Můj web|1790000000|wordpress', $key ), $form['fields']['signature'] ) );
 
 $sid  = '3f2c6a1e-8b4d-4c1a-9e57-2d6b0a9c1f34';
 $form = CentralApp::connect_form( 'https://app.ux1.cz/', 'https://example.com', 'Můj web', $key, '', 1790000000, $sid );

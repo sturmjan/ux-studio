@@ -1,6 +1,6 @@
 <?php
 /**
- * Watches the address of the site and tells the Central App when it changes (PLAN.md 40.3).
+ * Watches the address of the site and tells UX1 Network app when it changes (PLAN.md 40.3).
  *
  * @package UxStudio
  */
@@ -13,11 +13,11 @@ use WP_Error;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The Central App finds a site by its id, not by the address, so a moved site only has to say where it lives now:
+ * UX1 Network app finds a site by its id, not by the address, so a moved site only has to say where it lives now:
  * the signed `?page=site_moved` with `{site_id, old_url, new_url}`. Run from Gateway::guard() before every call
- * to the Central App (at most once an hour while it fails or waits for a decision) and from a daily cron.
+ * to UX1 Network app (at most once an hour while it fails or waits for a decision) and from a daily cron.
  *
- * Answers: `moved` (the Central App changed its record: the new address is stored here and logged), 202
+ * Answers: `moved` (UX1 Network app changed its record: the new address is stored here and logged), 202
  * `pending_decision` (both addresses answer, a person decides there: nothing changes here, the next run asks
  * again), `clone` (this site is a copy: the link is paused).
  */
@@ -40,7 +40,7 @@ final class DomainWatch {
 	}
 
 	/**
-	 * Schedule the daily check once the site is paired with the Central App.
+	 * Schedule the daily check once the site is paired with UX1 Network app.
 	 */
 	public static function schedule(): void {
 		if ( Gateway::is_paired() && ! wp_next_scheduled( self::CRON_HOOK ) ) {
@@ -67,7 +67,7 @@ final class DomainWatch {
 	}
 
 	/**
-	 * A paused link asks once a day whether it still is paused. Without this a site the Central App took back
+	 * A paused link asks once a day whether it still is paused. Without this a site UX1 Network app took back
 	 * (operator chose "Move" or "Revert" after the pause) would stay paused for good, and the only way out,
 	 * "Connect as a new site", would create a second record for the same site.
 	 *
@@ -142,7 +142,7 @@ final class DomainWatch {
 	/**
 	 * Send `site_moved`.
 	 *
-	 * @param string $old_url Address the Central App knows.
+	 * @param string $old_url Address UX1 Network app knows.
 	 * @param string $new_url Address now.
 	 * @param bool   $force   Ignore the hourly throttle.
 	 * @return string See check().

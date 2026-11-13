@@ -261,7 +261,7 @@ function UsageTab(): JSX.Element {
 
 const TAB_IDS = TABS.map( ( t ) => t.id );
 
-/** Allows a deep link like `#/module?id=ai-assistant&tab=content` (e.g. from the central app's site view) to open directly on a specific tab instead of always defaulting to Settings. */
+/** Allows a deep link like `#/module?id=ai-assistant&tab=content` (e.g. from UX1 Network app's site view) to open directly on a specific tab instead of always defaulting to Settings. */
 function initialTab(): TabId {
 	const requested = hashParam( 'tab' );
 	return requested && ( TAB_IDS as string[] ).includes( requested ) ? ( requested as TabId ) : 'settings';

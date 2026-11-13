@@ -2,7 +2,7 @@
 // Test only: never runs over HTTP (the release zip also excludes tests/).
 if ( PHP_SAPI !== 'cli' && ! defined( 'WP_CLI' ) ) { exit; }
 /**
- * Manual test of the dynamic scan inside WordPress (PLAN.md 42, phase F3): the signed routes of the Central App (plan, result),
+ * Manual test of the dynamic scan inside WordPress (PLAN.md 42, phase F3): the signed routes of UX1 Network app (plan, result),
  * what happens to a forged, replayed or oversized push, storage and evaluation, the scan hosts in the inventory queue, the
  * additive keys of Report::site(), and the permissions of the admin routes.
  *
@@ -58,7 +58,7 @@ $module->boot();
 $GLOBALS['wp_rest_server'] = null;
 rest_get_server();
 
-/** A call signed like the Central App's ApiClient (HMAC with nonce over method, url, timestamp, nonce, sha256 of the body). */
+/** A call signed like UX1 Network app's ApiClient (HMAC with nonce over method, url, timestamp, nonce, sha256 of the body). */
 $signed = static function ( string $method, string $route, string $body = '', ?string $key = null, ?int $ts = null, ?string $nonce = null ) use ( $secret ) {
 	$path                  = '/wp-json' . $route;
 	$_SERVER['HTTP_HOST']  = 'ca-test.local';
@@ -131,7 +131,7 @@ try {
 	$assert( 'a correctly signed push is accepted and answers with a summary', 200 === $r->get_status() && ! empty( $d['summary'] ), (string) $r->get_status() . ' ' . wp_json_encode( $d ) );
 	$assert( 'summary: one tracking cookie and two violations (cookie and host), one unknown cookie', 1 === ( $d['summary']['unknown_cookies'] ?? -1 ) && 2 === ( $d['summary']['violations'] ?? -1 ), wp_json_encode( $d['summary'] ?? null ) );
 	$stored = get_option( Scan::OPTION );
-	$assert( 'the result is stored (sanitized, no autoload) with the Central App scan id', 42 === ( $stored['scan_id'] ?? 0 ) && isset( $stored['scan']['scenarios']['none'] ) );
+	$assert( 'the result is stored (sanitized, no autoload) with UX1 Network app scan id', 42 === ( $stored['scan_id'] ?? 0 ) && isset( $stored['scan']['scenarios']['none'] ) );
 	$assert( 'the unjudged rejection run is marked', 'banner_not_found' === ( $stored['evaluation']['scenarios']['reject']['note'] ?? '' ) );
 	$rep = $signed( 'POST', $route, $body, null, time(), $n );
 	$assert( 'the same nonce cannot be replayed', 401 === $rep->get_status(), (string) $rep->get_status() );
@@ -164,7 +164,7 @@ try {
 	$d = $r->get_data()['data'] ?? array();
 	$assert( 'admin: scan payload with violations, unknown cookies, scenarios and the link state', 200 === $r->get_status() && 2 === count( $d['violations'] ?? array() ) && 1 === count( $d['unknown_cookies'] ?? array() ) && isset( $d['paired'], $d['scenarios']['none'] ) );
 	$r = rest_do_request( new WP_REST_Request( 'POST', '/uxstudio/v1/consent/scan/request' ) );
-	$assert( 'admin: a request without the connection to the central app says so (424), it does not pretend', 424 === $r->get_status() || 200 === $r->get_status(), (string) $r->get_status() );
+	$assert( 'admin: a request without the connection to UX1 Network app says so (424), it does not pretend', 424 === $r->get_status() || 200 === $r->get_status(), (string) $r->get_status() );
 } finally {
 	foreach ( $had as $option => $value ) {
 		if ( null === $value ) {

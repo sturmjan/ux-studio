@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Ported 1:1 from the legacy NodeController `packages/*` endpoints used by the
- * Central App to distribute plugins and themes (including this plugin).
+ * UX1 Network app to distribute plugins and themes (including this plugin).
  *
  * HIGH RISK: `install` runs WP_Upgrader with a package fetched from a
  * hub-supplied URL, and `configure_fs_method` edits wp-config.php. Both are
