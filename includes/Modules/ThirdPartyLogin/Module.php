@@ -93,7 +93,9 @@ final class Module extends BaseModule {
 	 */
 	public function boot(): void {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
-		add_action( 'login_form', array( $this, 'render_login_buttons' ) );
+		// Above the form, under the "Welcome back" heading of the login customiser (that one is a login_message
+		// filter at priority 10), like the social buttons of UX1 Network app's own login screen.
+		add_filter( 'login_message', array( $this, 'add_login_buttons' ), 20 );
 		add_action( 'template_redirect', array( $this, 'maybe_start_handshake' ) );
 		add_action( 'login_init', array( $this, 'maybe_start_handshake' ) );
 		add_filter( 'uxstudio_rest_public_routes', array( $this, 'allow_public_callback_route' ) );
@@ -693,31 +695,61 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Renders "Sign in with ..." buttons on the login form for every enabled
-	 * provider.
+	 * login_message filter: add the provider buttons and a divider ("or sign in") above the login form.
+	 *
+	 * @param mixed $message Message WordPress and earlier filters have built so far.
+	 * @return mixed
 	 */
-	public function render_login_buttons(): void {
+	public function add_login_buttons( $message ) {
+		$message = is_string( $message ) ? $message : '';
+
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- reading the screen WordPress is showing, nothing is changed.
+		$action = isset( $_REQUEST['action'] ) ? sanitize_key( wp_unslash( $_REQUEST['action'] ) ) : 'login';
+		$mail   = isset( $_GET['checkemail'] );
+		// phpcs:enable
+		if ( ! self::is_login_screen( $action, $mail ) ) {
+			return $message;
+		}
+
+		return $message . $this->login_buttons_html();
+	}
+
+	/**
+	 * Is this the plain sign-in screen? Not the lost-password, reset, registration or "check your e-mail" ones:
+	 * a provider button has no business there.
+	 *
+	 * @param string $action `action` the login page was asked for ('login' when none).
+	 * @param bool   $check_email The "check your e-mail" confirmation is shown.
+	 */
+	public static function is_login_screen( string $action, bool $check_email ): bool {
+		return ( '' === $action || 'login' === $action ) && ! $check_email;
+	}
+
+	/**
+	 * The buttons for every enabled provider and the divider under them, with their CSS. '' when the module
+	 * is not configured or no provider is on.
+	 */
+	public function login_buttons_html(): string {
 		if ( '' === $this->central_app_url() || ! $this->has_secret() ) {
-			return;
+			return '';
 		}
 		$enabled = $this->enabled_providers();
 		if ( empty( $enabled ) ) {
-			return;
+			return '';
 		}
 
 		$labels = $this->provider_labels();
 
-		// The CSS is printed here, next to the buttons, so it exists only where they do (the login customiser
-		// prints its own inline <style> the same way, so this adds nothing a strict CSP would not already need).
-		echo '<style id="uxstudio-tpl-login">' . self::button_css() . '</style>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- constant string.
-		echo '<div class="uxstudio-tpl">';
+		// The CSS travels with the buttons, so it exists only where they do (the login customiser prints its
+		// own inline <style> the same way, so this adds nothing a strict CSP would not already need).
+		$html = '<style id="uxstudio-tpl-login">' . self::button_css() . '</style><div class="uxstudio-tpl"><div class="uxstudio-tpl__grid">';
 		foreach ( self::PROVIDERS as $provider ) {
 			if ( ! in_array( $provider, $enabled, true ) ) {
 				continue;
 			}
 
 			$label = (string) ( $labels[ $provider ] ?? $provider );
-			echo self::button_html( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside.
+			$html .= self::button_html(
 				$provider,
 				$label,
 				sprintf(
@@ -728,7 +760,9 @@ final class Module extends BaseModule {
 				$this->login_start_url( $provider )
 			);
 		}
-		echo '</div>';
+		$html .= '</div><div class="uxstudio-tpl__or" role="separator"><span>' . esc_html__( 'or sign in', 'ux-studio' ) . '</span></div></div>';
+
+		return $html;
 	}
 
 	/**
@@ -777,12 +811,15 @@ final class Module extends BaseModule {
 	 * `.button` rules and a login customiser cannot turn them back into the default blue.
 	 */
 	public static function button_css(): string {
-		return '.login .uxstudio-tpl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:4px 0 20px;clear:both}'
+		return '.login .uxstudio-tpl{margin:20px 0 0;clear:both}'
+			. '.login .uxstudio-tpl__grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}'
+			. '.login .uxstudio-tpl__or{display:flex;align-items:center;gap:12px;margin:24px 0 20px;font-size:12px;line-height:1;color:rgba(0,0,0,.5)}'
+			. '.login .uxstudio-tpl__or::before,.login .uxstudio-tpl__or::after{content:"";flex:1;border-top:1px solid rgba(0,0,0,.12)}'
+			. '@media (max-width:360px){.login .uxstudio-tpl__grid{grid-template-columns:minmax(0,1fr)}}'
 			. '.login .uxstudio-tpl .uxstudio-tpl__btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;box-sizing:border-box;height:44px;min-width:0;padding:0 14px;border:1px solid rgba(0,0,0,.15);border-radius:10px;background:#fff;color:#111827;font-size:14px;font-weight:500;line-height:1;text-decoration:none;box-shadow:none;transition:background-color .15s,border-color .15s}'
 			. '.login .uxstudio-tpl .uxstudio-tpl__btn:hover{background:rgba(17,24,39,.04);border-color:rgba(0,0,0,.25);color:#111827}'
 			. '.login .uxstudio-tpl .uxstudio-tpl__btn:focus-visible{outline:none;border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.25)}'
-			. '.login .uxstudio-tpl .uxstudio-tpl__icon{flex:none;width:16px;height:16px}'
-			. '@media (max-width:360px){.login .uxstudio-tpl{grid-template-columns:minmax(0,1fr)}}';
+			. '.login .uxstudio-tpl .uxstudio-tpl__icon{flex:none;width:16px;height:16px}';
 	}
 
 	/**

@@ -39015,3 +39015,7 @@ msgstr ""
 #: includes/Core/CentralApp/LoginSecret.php:112
 msgid "UX1 Network app has no login secret for this site yet. Open the site detail there, section \"Third-party login\", and enable a provider."
 msgstr ""
+
+#: includes/Modules/ThirdPartyLogin/Module.php:742
+msgid "or sign in"
+msgstr ""

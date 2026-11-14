@@ -40572,3 +40572,7 @@ msgstr "Web ještě není připojen k UX1 Network app (v Synchronizaci obsahu ch
 #: includes/Core/CentralApp/LoginSecret.php:112
 msgid "UX1 Network app has no login secret for this site yet. Open the site detail there, section \"Third-party login\", and enable a provider."
 msgstr "UX1 Network app pro tento web zatím nemá přihlašovací tajemství. Otevřete tam detail webu, sekci „Přihlášení přes třetí strany“, a zapněte poskytovatele."
+
+#: includes/Modules/ThirdPartyLogin/Module.php:742
+msgid "or sign in"
+msgstr "nebo se přihlaste"
