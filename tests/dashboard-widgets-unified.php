@@ -48,7 +48,7 @@ foreach ( $off as $key ) {
 $assert( 'new install: every switch is decided', count( $start['toggles'] ) === count( $on ) + count( $off ), (string) count( $start['toggles'] ) );
 $hidden = array_keys( $start['rules'] );
 sort( $hidden );
-$want = array( 'dashboard_primary', 'dashboard_site_health', 'dashboard_welcome', 'uxstudio_notes' );
+$want = array( 'dashboard_activity', 'dashboard_primary', 'dashboard_right_now', 'dashboard_site_health', 'dashboard_welcome', 'uxstudio_notes' );
 $assert( 'new install: hidden at once', $hidden === $want, $j( $hidden ) );
 $assert( 'new install: hidden for everybody', ! array_filter( $start['rules'], static fn( $r ) => ! $r['hidden'] || $r['roles'] ) );
 $assert( 'new install: Yoast is pending, not in the rules', $start['pending'] === array( 'wpseo-wincher-dashboard-overview', 'wpseo-dashboard-overview' ) && ! isset( $start['rules']['wpseo-dashboard-overview'] ) );

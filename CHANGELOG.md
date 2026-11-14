@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Changed: Dashboard Widgets on a new installation (including the module switched on by the setup wizard) now also hides the WordPress widgets Activity and At a Glance. Hidden at once, for everybody: Activity, At a Glance, Site Health Status, Welcome, WordPress Events and News (and the UX1 Studio Notes widget, as before). A site that already has settings for the module is not touched; the widgets can be shown again in the module's table.
+
 ## 0.17.4 - 2026-11-14
 
 - Changed: the Third-Party Login buttons now sit above the login form, under the "Welcome back" heading, with a divider ("or sign in") between them and the fields, like the login screen of UX1 Network app. They show only on the plain sign-in screen (not on lost password, reset, registration or the "check your e-mail" page). They are added through the `login_message` filter instead of `login_form`.

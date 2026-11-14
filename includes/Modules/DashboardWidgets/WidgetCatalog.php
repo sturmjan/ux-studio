@@ -27,7 +27,7 @@ final class WidgetCatalog {
 	public const TYPE_MODULE    = 'module';
 
 	/** Hidden for everybody on a new installation, at once (these widgets exist on every site). */
-	public const NEW_INSTALL_HIDDEN = array( 'uxstudio_notes', 'dashboard_site_health', 'dashboard_welcome', 'dashboard_primary' );
+	public const NEW_INSTALL_HIDDEN = array( 'uxstudio_notes', 'dashboard_activity', 'dashboard_right_now', 'dashboard_site_health', 'dashboard_welcome', 'dashboard_primary' );
 
 	/** Hidden on a new installation as soon as the widget first shows up (the plugin may be installed later). */
 	public const NEW_INSTALL_HIDDEN_WHEN_SEEN = array( 'wpseo-wincher-dashboard-overview', 'wpseo-dashboard-overview' );
