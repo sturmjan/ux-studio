@@ -544,6 +544,9 @@ final class Module extends BaseModule {
 		}
 		$ptm = (array) get_option( 'uxstudio_pixel_tag_manager', array() );
 		$out = array();
+		if ( '' !== (string) ( $ptm['google_tag_manager'] ?? '' ) ) {
+			$out['Google Tag Manager'] = 'statistics';
+		}
 		$ga  = strtoupper( (string) ( $ptm['google_analytics'] ?? '' ) );
 		if ( '' !== $ga ) {
 			$out[ 0 === strpos( $ga, 'AW-' ) ? 'Google Ads' : 'Google Analytics' ] = 0 === strpos( $ga, 'AW-' ) ? 'marketing' : 'statistics';
