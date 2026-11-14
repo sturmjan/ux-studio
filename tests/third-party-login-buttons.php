@@ -59,5 +59,16 @@ $css = Module::button_css();
 check( 'two columns, 44 px high, 10 px radius (as the Split login inputs)', false !== strpos( $css, 'repeat(2,minmax(0,1fr))' ) && false !== strpos( $css, 'height:44px' ) && false !== strpos( $css, 'border-radius:10px' ) );
 check( 'styles are scoped to the login screen', 0 === strpos( $css, '.login ' ) );
 check( 'braces balance', substr_count( $css, '{' ) === substr_count( $css, '}' ) );
+check( 'the divider has a line on each side of the text', false !== strpos( $css, '.uxstudio-tpl__or::before' ) && false !== strpos( $css, '.uxstudio-tpl__or::after' ) );
+
+// Where the buttons may appear: the plain sign-in screen only.
+check( 'sign-in screen (no action) shows them', Module::is_login_screen( '', false ) && Module::is_login_screen( 'login', false ) );
+check( 'lost password, reset and registration do not', ! Module::is_login_screen( 'lostpassword', false ) && ! Module::is_login_screen( 'rp', false ) && ! Module::is_login_screen( 'register', false ) && ! Module::is_login_screen( 'resetpass', false ) );
+check( 'the "check your e-mail" confirmation does not', ! Module::is_login_screen( 'login', true ) );
+
+// The buttons are a login_message filter (above the form), run after the login customiser's heading (priority 10).
+$src = (string) file_get_contents( __DIR__ . '/../includes/Modules/ThirdPartyLogin/Module.php' );
+check( 'hooked on login_message at priority 20 (after the Welcome back heading)', false !== strpos( $src, "add_filter( 'login_message', array( \$this, 'add_login_buttons' ), 20 )" ) );
+check( 'no longer hooked inside the form (login_form)', false === strpos( $src, "add_action( 'login_form'" ) );
 
 exit( $fail > 0 ? 1 : 0 );

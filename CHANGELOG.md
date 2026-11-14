@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.17.4 - 2026-11-14
+
+- Changed: the Third-Party Login buttons now sit above the login form, under the "Welcome back" heading, with a divider ("or sign in") between them and the fields, like the login screen of UX1 Network app. They show only on the plain sign-in screen (not on lost password, reset, registration or the "check your e-mail" page). They are added through the `login_message` filter instead of `login_form`.
+- Added: Czech translation of the divider.
+
 ## 0.17.3 - 2026-11-14
 
 - Changed: the Third-Party Login buttons on the login screen look like those of UX1 Network app: two columns, white with a thin border, the logo of Google, Facebook, Apple or Seznam and just the name (the full "Sign in with ..." stays as the accessible name). They follow the 44 px / 10 px rounding of the Split login layout and no longer turn blue under the WordPress button styles.
