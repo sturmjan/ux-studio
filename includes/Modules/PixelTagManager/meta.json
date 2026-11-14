@@ -1,7 +1,7 @@
 {
 	"id": "pixel-tag-manager",
 	"name": "Pixel & Tag Manager",
-	"description": "Add tracking pixels and tags for Google Analytics, Facebook Pixel and Pinterest to the site head.",
+	"description": "Add tracking pixels and tags for Google Tag Manager, Google Analytics, Facebook Pixel and Pinterest to the site head.",
 	"group": "developer",
 	"icon": "activity",
 	"settings": true

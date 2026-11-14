@@ -8,6 +8,12 @@
 defined( 'ABSPATH' ) || exit;
 
 return array(
+	'google_tag_manager' => array(
+		'does'   => __( 'Your Google Tag Manager container ID (it starts with GTM-). The container script is added to the head of every page and a noscript fallback right after the opening body tag.', 'ux-studio' ),
+		'effect' => __( 'All tags you set up in Tag Manager (analytics, ads, conversions) start working on the site without touching the code again.', 'ux-studio' ),
+		'risk'   => __( 'A container can fire any tag, so it needs consent under the cookie rules and a mention in your privacy policy. Do not enter the same container here and in another plugin (for example GTM Kit), and do not put the same Google Analytics ID in both Tag Manager and the field below, visits would be counted twice.', 'ux-studio' ),
+		'off'    => __( 'Leave it empty when you do not use Google Tag Manager.', 'ux-studio' ),
+	),
 	'google_analytics' => array(
 		'does'   => __( 'Your Google Analytics measurement ID (it starts with G-). The tracking script is added to every page of the site.', 'ux-studio' ),
 		'effect' => __( 'You see visits, sources and behaviour in your Google Analytics account.', 'ux-studio' ),

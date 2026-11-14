@@ -13,7 +13,7 @@ use UxStudio\Modules\Consent\Gate;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Outputs Google Analytics, Facebook Pixel and Pinterest tracking snippets.
+ * Outputs Google Tag Manager, Google Analytics, Facebook Pixel and Pinterest tracking snippets.
  * Every ID is strictly validated against a format regex before being echoed
  * into the page head (stored-XSS protection). Ported from the legacy module.
  *
@@ -29,9 +29,10 @@ final class Module extends BaseModule {
 	 * @var array<string, string>
 	 */
 	private const VALIDATION_RULES = array(
-		'google_analytics' => '/^(G|UA|GT|AW)-[A-Za-z0-9-]+$/',
-		'facebook_pixel'   => '/^[0-9]{5,20}$/',
-		'pinterest_tag'    => '/^[0-9]{5,20}$/',
+		'google_tag_manager' => '/^GTM-[A-Z0-9]{4,12}$/',
+		'google_analytics'   => '/^(G|UA|GT|AW)-[A-Za-z0-9-]+$/',
+		'facebook_pixel'     => '/^[0-9]{5,20}$/',
+		'pinterest_tag'      => '/^[0-9]{5,20}$/',
 	);
 
 	/**
@@ -39,6 +40,7 @@ final class Module extends BaseModule {
 	 */
 	public function boot(): void {
 		add_action( 'wp_head', array( $this, 'render_tracking_scripts' ) );
+		add_action( 'wp_body_open', array( $this, 'render_gtm_noscript' ) );
 	}
 
 	/**
@@ -58,9 +60,51 @@ final class Module extends BaseModule {
 	 * Output all configured, valid tracking scripts.
 	 */
 	public function render_tracking_scripts(): void {
+		$this->render_google_tag_manager( strtoupper( trim( (string) $this->settings->get( 'google_tag_manager', '' ) ) ) );
 		$this->render_google_analytics( (string) $this->settings->get( 'google_analytics', '' ) );
 		$this->render_facebook_pixel( (string) $this->settings->get( 'facebook_pixel', '' ) );
 		$this->render_pinterest_tag( (string) $this->settings->get( 'pinterest_tag', '' ) );
+	}
+
+	/**
+	 * Render the Google Tag Manager container snippet (head part).
+	 *
+	 * A container is a Google tag that reads Consent Mode, so in advanced mode it loads at once. Otherwise it is held
+	 * back until the visitor allows statistics or marketing, since the container can fire tags of both kinds.
+	 *
+	 * @param string $container_id Container ID, e.g. GTM-XXXXXXX.
+	 */
+	private function render_google_tag_manager( string $container_id ): void {
+		if ( ! $this->is_valid_tracking_id( $container_id, 'google_tag_manager' ) ) {
+			return;
+		}
+		$gate = Gate::attrs( 'statistics marketing', true );
+		?>
+		<script<?php echo $gate; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed attributes from Gate. ?>>
+			( function ( w, d, s, l, i ) {
+				w[ l ] = w[ l ] || [];
+				w[ l ].push( { 'gtm.start': new Date().getTime(), event: 'gtm.js' } );
+				var f = d.getElementsByTagName( s )[ 0 ], j = d.createElement( s ), dl = 'dataLayer' !== l ? '&l=' + l : '';
+				j.async = true;
+				j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+				f.parentNode.insertBefore( j, f );
+			} )( window, document, 'script', 'dataLayer', <?php echo wp_json_encode( $container_id ); ?> );
+		</script>
+		<?php
+	}
+
+	/**
+	 * Render the Google Tag Manager noscript iframe right after the opening body tag.
+	 * Left out when the consent banner runs: without JavaScript there is no way to ask for consent.
+	 */
+	public function render_gtm_noscript(): void {
+		$container_id = strtoupper( trim( (string) $this->settings->get( 'google_tag_manager', '' ) ) );
+		if ( ! $this->is_valid_tracking_id( $container_id, 'google_tag_manager' ) || Gate::active() ) {
+			return;
+		}
+		?>
+		<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=<?php echo esc_attr( $container_id ); ?>" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+		<?php
 	}
 
 	/**
@@ -169,6 +213,13 @@ final class Module extends BaseModule {
 	 */
 	public function settings_schema(): array {
 		return array(
+			array(
+				'key'     => 'google_tag_manager',
+				'type'    => 'text',
+				'label'   => __( 'Google Tag Manager', 'ux-studio' ),
+				'help'    => __( 'Enter a Google Tag Manager container ID, e.g. GTM-XXXXXXX.', 'ux-studio' ),
+				'default' => '',
+			),
 			array(
 				'key'     => 'google_analytics',
 				'type'    => 'text',
