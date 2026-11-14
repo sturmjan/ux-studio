@@ -27009,7 +27009,7 @@ msgid "Write a short invitation in the voice of your site. It is shown only to u
 msgstr ""
 
 #: includes/Modules/ThirdPartyLogin/Module.php:167
-msgid "Base URL of UX1 Network app that performs the OAuth handshake, e.g. https://ux1.cz/app/."
+msgid "Leave blank to use the UX1 Network app this site is connected to (Content Sync). Fill in only to use a different one, e.g. https://ux1.cz/app/."
 msgstr ""
 
 #: includes/Modules/ThirdPartyLogin/Module.php:173
@@ -27017,7 +27017,7 @@ msgid "HMAC secret"
 msgstr ""
 
 #: includes/Modules/ThirdPartyLogin/Module.php:174
-msgid "Shared secret from UX1 Network app (site detail, \"Third-party login\"). Signs the handshake in both directions. Stored encrypted. Leave blank to keep the current secret."
+msgid "Not needed on a site connected to UX1 Network app: the secret is fetched from there automatically. Fill in only for a site that is not connected (site detail in UX1 Network app, \"Third-party login\"). Stored encrypted. Leave blank to keep the current secret."
 msgstr ""
 
 #: includes/Modules/ThirdPartyLogin/Module.php:180
@@ -39006,4 +39006,12 @@ msgstr ""
 
 #: includes/Modules/PostGallery/assets/js/post-gallery-admin.js:27
 msgid "Add to gallery"
+msgstr ""
+
+#: includes/Core/CentralApp/LoginSecret.php:73
+msgid "The site is not connected to UX1 Network app yet (URL or node API key is missing in Content Sync)."
+msgstr ""
+
+#: includes/Core/CentralApp/LoginSecret.php:112
+msgid "UX1 Network app has no login secret for this site yet. Open the site detail there, section \"Third-party login\", and enable a provider."
 msgstr ""
