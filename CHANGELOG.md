@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.18.0 - 2026-11-14
+
+- Added: Pixel & Tag Manager takes a Google Tag Manager container ID (`GTM-XXXXXXX`). The container script goes into the head, the noscript iframe right after the opening body tag (through `wp_body_open`). With the Cookie Consent module on, the container is held back until the visitor allows statistics or marketing (in advanced Consent Mode it loads at once, as a Google tag), and the noscript iframe is left out. The consent module lists it as a statistics service.
+- Added: Czech translation of the new field and its help, `tests/pixel-gtm.php`.
+
 ## 0.17.4 - 2026-11-14
 
 - Changed: the Third-Party Login buttons now sit above the login form, under the "Welcome back" heading, with a divider ("or sign in") between them and the fields, like the login screen of UX1 Network app. They show only on the plain sign-in screen (not on lost password, reset, registration or the "check your e-mail" page). They are added through the `login_message` filter instead of `login_form`.
