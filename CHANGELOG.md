@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.18.1 - 2026-11-14
+
+- Changed: Dashboard Widgets on a new installation (including the module switched on by the setup wizard) now also hides the WordPress widgets Activity and At a Glance. Hidden at once, for everybody: Activity, At a Glance, Site Health Status, Welcome, WordPress Events and News. The UX1 Studio Notes widget now starts switched off (it used to be on and hidden at once). A site that already has settings for the module is not touched; the widgets can be shown again in the module's table. The setup wizard card for this module says what it does now.
+
 ## 0.18.0 - 2026-11-14
 
 - Added: Pixel & Tag Manager takes a Google Tag Manager container ID (`GTM-XXXXXXX`). The container script goes into the head, the noscript iframe right after the opening body tag (through `wp_body_open`). With the Cookie Consent module on, the container is held back until the visitor allows statistics or marketing (in advanced Consent Mode it loads at once, as a Google tag), and the noscript iframe is left out. The consent module lists it as a statistics service.

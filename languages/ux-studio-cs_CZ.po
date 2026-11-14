@@ -25311,8 +25311,8 @@ msgid "Useful dashboard widgets"
 msgstr "Užitečné widgety na nástěnce"
 
 #: includes/Core/Onboarding/StarterPack.php:1051
-msgid "Adds a notes widget and a recent activity widget to the dashboard."
-msgstr "Přidá na nástěnku widget s poznámkami a widget s poslední aktivitou."
+msgid "Adds a recent activity widget to the dashboard and hides the WordPress ones (Activity, At a Glance, Site Health, Welcome, Events and News)."
+msgstr "Přidá na nástěnku widget s poslední aktivitou a skryje ty z WordPressu (Aktivita, Aktuální přehled, Stav webu, Vítejte, Akce a novinky)."
 
 #: includes/Core/Onboarding/StarterPack.php:1059
 msgid "The PageSpeed widget needs a Google API key, so it stays off. Add the key in the module settings and switch it on."

@@ -38,7 +38,7 @@ const dashIds = async () => page.$$eval( '#dashboard-widgets .postbox', ( els ) 
 // --- The real dashboard with the starting state -----------------------------------------------------------------------
 await page.goto( `${ BASE }/wp-admin/index.php` );
 let ids = await dashIds();
-check( 'dashboard: starting state hides site health, events, notes', ! ids.includes( 'dashboard_site_health' ) && ! ids.includes( 'dashboard_primary' ) && ! ids.includes( 'uxstudio_notes' ), ids.join() );
+check( 'dashboard: starting state hides site health and events, notes are off', ! ids.includes( 'dashboard_site_health' ) && ! ids.includes( 'dashboard_primary' ) && ! ids.includes( 'uxstudio_notes' ), ids.join() );
 check( 'dashboard: welcome panel hidden', 0 === ( await page.$$( '#welcome-panel' ) ).length );
 check( 'dashboard: Yoast widget hidden on first sight', ! ids.includes( 'wpseo-dashboard-overview' ), ids.join() );
 check( 'dashboard: other widgets stay', ids.includes( 'dashboard_right_now' ) && ids.includes( 'uxstudio_tasks' ) && ids.includes( 'uxstudio_recent_media' ) && ids.includes( 'uxstudio_user_activity' ), ids.join() );

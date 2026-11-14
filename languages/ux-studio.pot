@@ -5385,7 +5385,7 @@ msgid "Useful dashboard widgets"
 msgstr ""
 
 #: includes/Core/Onboarding/StarterPack.php:1051
-msgid "Adds a notes widget and a recent activity widget to the dashboard."
+msgid "Adds a recent activity widget to the dashboard and hides the WordPress ones (Activity, At a Glance, Site Health, Welcome, Events and News)."
 msgstr ""
 
 #: includes/Core/Onboarding/StarterPack.php:1059

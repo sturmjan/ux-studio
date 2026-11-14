@@ -1048,11 +1048,10 @@ final class StarterPack {
 		return self::simple(
 			'dashboard-widgets',
 			__( 'Useful dashboard widgets', 'ux-studio' ),
-			__( 'Adds a notes widget and a recent activity widget to the dashboard.', 'ux-studio' ),
+			__( 'Adds a recent activity widget to the dashboard and hides the WordPress ones (Activity, At a Glance, Site Health, Welcome, Events and News).', 'ux-studio' ),
 			array( 'dashboard-widgets' ),
 			array(
 				'dashboard-widgets' => array(
-					'widget_notes'         => true,
 					'widget_user_activity' => true,
 				),
 			),
