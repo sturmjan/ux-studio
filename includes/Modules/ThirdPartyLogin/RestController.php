@@ -8,7 +8,6 @@
 namespace UxStudio\Modules\ThirdPartyLogin;
 
 use UxStudio\Core\ActivityLog;
-use UxStudio\Core\Security;
 use UxStudio\Rest\Controller;
 use WP_Error;
 use WP_REST_Request;
@@ -177,7 +176,9 @@ final class RestController extends Controller {
 	 * @return void Always terminates with a redirect.
 	 */
 	public function callback( WP_REST_Request $request ) {
-		$secret = Security::get_secret( Module::SECRET_HMAC );
+		// The cached copy: the handshake that led here refreshed it moments ago, and a forged callback must
+		// not be able to make the site call UX1 Network app.
+		$secret = $this->module->login_secret();
 		if ( '' === $secret || '' === $this->module->central_app_url() ) {
 			return $this->fail( 'config' );
 		}

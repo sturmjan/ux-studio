@@ -8,6 +8,8 @@
 
 namespace UxStudio\Modules\ThirdPartyLogin;
 
+use UxStudio\Core\CentralApp\Gateway;
+use UxStudio\Core\CentralApp\LoginSecret;
 use UxStudio\Core\ClientIp;
 use UxStudio\Core\Security;
 use UxStudio\Modules\BaseModule;
@@ -43,9 +45,15 @@ defined( 'ABSPATH' ) || exit;
  *  - LINK/UNLINK self-service: a logged-in user connects/disconnects a provider
  *    identity, stored as user meta, via authenticated REST routes.
  *
- * The HMAC secret shared with UX1 Network app is never stored in the plain
- * settings option; it goes through Security::store_secret() and is never echoed
- * back via REST (only a boolean "has_hmac_secret" is exposed).
+ * The HMAC secret shared with UX1 Network app is UX1 Network app's own
+ * (`sites.google_login_secret`). A site paired through the onboarding wizard
+ * fetches it from there (Core\CentralApp\LoginSecret, signed with the node key),
+ * so nothing has to be typed in and a "regenerate" on the UX1 Network app side
+ * can't leave a stale copy behind. The URL and secret fields below remain only
+ * as an override for a site that is not paired (or uses another UX1 Network app).
+ * Whatever is typed in never sits in the plain settings option; it goes through
+ * Security::store_secret() and is never echoed back via REST (only a boolean
+ * "has_hmac_secret" is exposed).
  */
 final class Module extends BaseModule {
 
@@ -164,14 +172,14 @@ final class Module extends BaseModule {
 				'key'     => 'central_app_url',
 				'type'    => 'text',
 				'label'   => __( 'UX1 Network app URL', 'ux-studio' ),
-				'help'    => __( 'Base URL of UX1 Network app that performs the OAuth handshake, e.g. https://ux1.cz/app/.', 'ux-studio' ),
+				'help'    => __( 'Leave blank to use the UX1 Network app this site is connected to (Content Sync). Fill in only to use a different one, e.g. https://ux1.cz/app/.', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
 				'key'     => 'hmac_secret',
 				'type'    => 'text',
 				'label'   => __( 'HMAC secret', 'ux-studio' ),
-				'help'    => __( 'Shared secret from UX1 Network app (site detail, "Third-party login"). Signs the handshake in both directions. Stored encrypted. Leave blank to keep the current secret.', 'ux-studio' ),
+				'help'    => __( 'Not needed on a site connected to UX1 Network app: the secret is fetched from there automatically. Fill in only for a site that is not connected (site detail in UX1 Network app, "Third-party login"). Stored encrypted. Leave blank to keep the current secret.', 'ux-studio' ),
 				'default' => '',
 			),
 			array(
@@ -267,17 +275,59 @@ final class Module extends BaseModule {
 	}
 
 	/**
-	 * Configured UX1 Network app base URL (may be empty).
+	 * UX1 Network app base URL: the one typed into this module, otherwise the one the site is connected to
+	 * (Content Sync). May be empty.
 	 */
 	public function central_app_url(): string {
-		return (string) $this->settings->get( 'central_app_url', '' );
+		$own = trim( (string) $this->settings->get( 'central_app_url', '' ) );
+		if ( '' !== $own ) {
+			return $own;
+		}
+		list( $paired_url ) = Gateway::credentials();
+		return trim( $paired_url );
 	}
 
 	/**
-	 * Whether the shared HMAC secret is configured.
+	 * Does the secret come from UX1 Network app this site is connected to? Yes when the site is paired and
+	 * this module does not point at a different UX1 Network app than the pairing does.
+	 */
+	public function uses_central_secret(): bool {
+		if ( ! Gateway::is_active() ) {
+			return false;
+		}
+		$own = trim( (string) $this->settings->get( 'central_app_url', '' ) );
+		if ( '' === $own ) {
+			return true;
+		}
+		list( $paired_url ) = Gateway::credentials();
+		return untrailingslashit( strtolower( $own ) ) === untrailingslashit( strtolower( trim( $paired_url ) ) );
+	}
+
+	/**
+	 * The secret that signs the handshake.
+	 *
+	 * A connected site takes it from UX1 Network app (the source of truth; a typed-in copy would go stale
+	 * after a "regenerate" there) and falls back to a typed-in one only when UX1 Network app cannot be asked.
+	 * A site that is not connected uses the typed-in one.
+	 *
+	 * @param bool $refresh Ask UX1 Network app again instead of using the cached copy.
+	 * @return string '' when there is no secret.
+	 */
+	public function login_secret( bool $refresh = false ): string {
+		if ( $this->uses_central_secret() ) {
+			$secret = LoginSecret::get( $refresh );
+			if ( is_string( $secret ) && '' !== $secret ) {
+				return $secret;
+			}
+		}
+		return Security::get_secret( self::SECRET_HMAC );
+	}
+
+	/**
+	 * Whether a secret is available, without a request: a typed-in one, or a connected site that can fetch it.
 	 */
 	public function has_secret(): bool {
-		return '' !== Security::get_secret( self::SECRET_HMAC );
+		return '' !== Security::get_secret( self::SECRET_HMAC ) || $this->uses_central_secret();
 	}
 
 	/**
@@ -491,15 +541,17 @@ final class Module extends BaseModule {
 	 * @param int    $user_id  Initiating user for 'link' mode.
 	 */
 	public function handshake_url( string $provider, string $mode, int $user_id = 0 ): string {
-		$app_url = $this->central_app_url();
-		$secret  = Security::get_secret( self::SECRET_HMAC );
-		if ( '' === $app_url || '' === $secret ) {
-			return '';
-		}
 		if ( ! in_array( $mode, array( 'login', 'link' ), true ) ) {
 			return '';
 		}
 		if ( 'link' === $mode && $user_id <= 0 ) {
+			return '';
+		}
+		$app_url = $this->central_app_url();
+		// Fresh from UX1 Network app on every start: the browser is about to leave for there, and a secret
+		// regenerated in the meantime would end the visit on its error page. Starts are rate limited per IP.
+		$secret = '' === $app_url ? '' : $this->login_secret( true );
+		if ( '' === $app_url || '' === $secret ) {
 			return '';
 		}
 
