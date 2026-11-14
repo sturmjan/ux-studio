@@ -6713,12 +6713,12 @@ msgid "Browser"
 msgstr "Prohlížeč"
 
 #: includes/Modules/ThirdPartyLogin/Module.php:167
-msgid "Base URL of UX1 Network app that performs the OAuth handshake, e.g. https://ux1.cz/app/."
-msgstr "Základní URL UX1 Network app, která provádí OAuth handshake, např. https://ux1.cz/app/."
+msgid "Leave blank to use the UX1 Network app this site is connected to (Content Sync). Fill in only to use a different one, e.g. https://ux1.cz/app/."
+msgstr "Ponechte prázdné, použije se UX1 Network app, ke které je web připojen (Synchronizace obsahu). Vyplňte jen pro jinou, např. https://ux1.cz/app/."
 
 #: includes/Modules/ThirdPartyLogin/Module.php:174
-msgid "Shared secret from UX1 Network app (site detail, \"Third-party login\"). Signs the handshake in both directions. Stored encrypted. Leave blank to keep the current secret."
-msgstr "Sdílené tajemství z UX1 Network app (detail webu, „Přihlášení přes třetí strany“). Podepisuje handshake v obou směrech. Uloženo šifrovaně. Ponechte prázdné pro zachování stávajícího tajemství."
+msgid "Not needed on a site connected to UX1 Network app: the secret is fetched from there automatically. Fill in only for a site that is not connected (site detail in UX1 Network app, \"Third-party login\"). Stored encrypted. Leave blank to keep the current secret."
+msgstr "Na webu připojeném k UX1 Network app není potřeba: tajemství se odtud stáhne samo. Vyplňte jen u webu, který připojený není (detail webu v UX1 Network app, „Přihlášení přes třetí strany“). Uloženo šifrovaně. Ponechte prázdné pro zachování stávajícího tajemství."
 
 #: includes/Modules/ThirdPartyLogin/Module.php:181
 msgid "A provider also has to be configured centrally and enabled for this site in UX1 Network app."
@@ -40564,3 +40564,11 @@ msgstr "Nastavení kategorií"
 #: includes/Modules/Consent/Module.php:657
 msgid "The banner as on the first visit"
 msgstr "Lišta jako při první návštěvě"
+
+#: includes/Core/CentralApp/LoginSecret.php:73
+msgid "The site is not connected to UX1 Network app yet (URL or node API key is missing in Content Sync)."
+msgstr "Web ještě není připojen k UX1 Network app (v Synchronizaci obsahu chybí URL nebo API klíč uzlu)."
+
+#: includes/Core/CentralApp/LoginSecret.php:112
+msgid "UX1 Network app has no login secret for this site yet. Open the site detail there, section \"Third-party login\", and enable a provider."
+msgstr "UX1 Network app pro tento web zatím nemá přihlašovací tajemství. Otevřete tam detail webu, sekci „Přihlášení přes třetí strany“, a zapněte poskytovatele."

@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.17.2 - 2026-11-14
 
 - Fixed: Third-Party Login (Google, Seznam, ...) works on a site connected to UX1 Network app without typing anything in. The setup wizard stores only the node key, so the module's own "HMAC secret" stayed empty and no login buttons appeared. The module now fetches the secret from UX1 Network app (`site_config&action=google_secret`, signed with the node key, cached encrypted) and takes the UX1 Network app URL from Content Sync. A "regenerate" in UX1 Network app can no longer leave a stale copy: the secret is fetched fresh on every login start. The two fields in the module stay only as an override for a site that is not connected, or one that uses another UX1 Network app. "Allowed roles" is unchanged (empty still blocks everybody).
 - Added: `Core\CentralApp\LoginSecret` (the shared fetch), `tests/login-secret.php`.
