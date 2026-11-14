@@ -707,25 +707,82 @@ final class Module extends BaseModule {
 
 		$labels = $this->provider_labels();
 
-		echo '<p class="uxstudio-third-party-login" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">';
+		// The CSS is printed here, next to the buttons, so it exists only where they do (the login customiser
+		// prints its own inline <style> the same way, so this adds nothing a strict CSP would not already need).
+		echo '<style id="uxstudio-tpl-login">' . self::button_css() . '</style>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- constant string.
+		echo '<div class="uxstudio-tpl">';
 		foreach ( self::PROVIDERS as $provider ) {
 			if ( ! in_array( $provider, $enabled, true ) ) {
 				continue;
 			}
 
-			printf(
-				'<a class="button button-secondary" style="width:100%%;text-align:center;" href="%1$s">%2$s</a>',
-				esc_url( $this->login_start_url( $provider ) ),
-				esc_html(
-					sprintf(
-						/* translators: %s = provider name */
-						__( 'Sign in with %s', 'ux-studio' ),
-						$labels[ $provider ] ?? $provider
-					)
-				)
+			$label = (string) ( $labels[ $provider ] ?? $provider );
+			echo self::button_html( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside.
+				$provider,
+				$label,
+				sprintf(
+					/* translators: %s = provider name */
+					__( 'Sign in with %s', 'ux-studio' ),
+					$label
+				),
+				$this->login_start_url( $provider )
 			);
 		}
-		echo '</p>';
+		echo '</div>';
+	}
+
+	/**
+	 * One login button: the provider's logo and name, in the style of UX1 Network app's own login screen.
+	 * The visible text is just the provider; the full "Sign in with ..." sentence is the accessible name.
+	 *
+	 * @param string $provider Provider id.
+	 * @param string $label    Visible provider name.
+	 * @param string $aria     Accessible name ("Sign in with Google").
+	 * @param string $url      Where the button leads.
+	 */
+	public static function button_html( string $provider, string $label, string $aria, string $url ): string {
+		return sprintf(
+			'<a class="uxstudio-tpl__btn uxstudio-tpl__btn--%1$s" href="%2$s" aria-label="%3$s">%4$s<span>%5$s</span></a>',
+			esc_attr( sanitize_key( $provider ) ),
+			esc_url( $url ),
+			esc_attr( $aria ),
+			self::provider_icon( $provider ),
+			esc_html( $label )
+		);
+	}
+
+	/**
+	 * The provider's logo as inline SVG (constant markup, brand colours; no request, nothing to cache).
+	 *
+	 * @param string $provider Provider id.
+	 */
+	public static function provider_icon( string $provider ): string {
+		$open = '<svg class="uxstudio-tpl__icon" width="16" height="16" aria-hidden="true" focusable="false"';
+		switch ( $provider ) {
+			case 'google':
+				return $open . ' viewBox="0 0 28 28" fill="none"><path d="M27.9851 14.2618C27.9851 13.1146 27.8899 12.2775 27.6837 11.4094H14.2788V16.5871H22.1472C21.9886 17.8738 21.132 19.8116 19.2283 21.1137L19.2016 21.287L23.44 24.4956L23.7336 24.5242C26.4304 22.0904 27.9851 18.5093 27.9851 14.2618Z" fill="#4285F4"/><path d="M14.279 27.904C18.1338 27.904 21.37 26.6637 23.7338 24.5245L19.2285 21.114C18.0228 21.9356 16.4047 22.5092 14.279 22.5092C10.5034 22.5092 7.29894 20.0754 6.15663 16.7114L5.9892 16.7253L1.58205 20.0583L1.52441 20.2149C3.87224 24.7725 8.69486 27.904 14.279 27.904Z" fill="#34A853"/><path d="M6.15656 16.7113C5.85516 15.8432 5.68072 14.913 5.68072 13.9519C5.68072 12.9907 5.85516 12.0606 6.14071 11.1925L6.13272 11.0076L1.67035 7.62109L1.52435 7.68896C0.556704 9.58024 0.00146484 11.7041 0.00146484 13.9519C0.00146484 16.1997 0.556704 18.3234 1.52435 20.2147L6.15656 16.7113Z" fill="#FBBC05"/><path d="M14.279 5.3947C16.9599 5.3947 18.7683 6.52635 19.7995 7.47204L23.8289 3.6275C21.3542 1.37969 18.1338 0 14.279 0C8.69485 0 3.87223 3.1314 1.52441 7.68899L6.14077 11.1925C7.29893 7.82856 10.5034 5.3947 14.279 5.3947Z" fill="#EB4335"/></svg>';
+			case 'facebook':
+				return $open . ' viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>';
+			case 'apple':
+				return $open . ' viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.08zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>';
+			case 'seznam':
+				return $open . ' viewBox="0 0 24 24"><rect width="24" height="24" rx="5" fill="#CC0000"/><path fill="#fff" d="M12.2 18.4c-2.5 0-4.3-1-5-2.9l2.5-1c.4 1 1.3 1.6 2.5 1.6 1.1 0 1.8-.4 1.8-1.1 0-.6-.5-.9-1.6-1.2l-1.8-.4c-2-.5-3-1.5-3-3.2 0-2 1.8-3.4 4.4-3.4 2.3 0 4 1 4.6 2.7l-2.4 1c-.4-.9-1.2-1.4-2.2-1.4-1 0-1.6.4-1.6 1 0 .5.4.8 1.4 1l1.8.5c2.1.5 3.2 1.5 3.2 3.2 0 2.2-1.9 3.6-4.6 3.6z"/></svg>';
+		}
+		return '';
+	}
+
+	/**
+	 * Styles of the buttons: two columns, white with a thin border, like UX1 Network app's login screen, and
+	 * the same 10 px radius and 44 px height as the inputs of the Split login layout. Written so the WordPress
+	 * `.button` rules and a login customiser cannot turn them back into the default blue.
+	 */
+	public static function button_css(): string {
+		return '.login .uxstudio-tpl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:4px 0 20px;clear:both}'
+			. '.login .uxstudio-tpl .uxstudio-tpl__btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;box-sizing:border-box;height:44px;min-width:0;padding:0 14px;border:1px solid rgba(0,0,0,.15);border-radius:10px;background:#fff;color:#111827;font-size:14px;font-weight:500;line-height:1;text-decoration:none;box-shadow:none;transition:background-color .15s,border-color .15s}'
+			. '.login .uxstudio-tpl .uxstudio-tpl__btn:hover{background:rgba(17,24,39,.04);border-color:rgba(0,0,0,.25);color:#111827}'
+			. '.login .uxstudio-tpl .uxstudio-tpl__btn:focus-visible{outline:none;border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.25)}'
+			. '.login .uxstudio-tpl .uxstudio-tpl__icon{flex:none;width:16px;height:16px}'
+			. '@media (max-width:360px){.login .uxstudio-tpl{grid-template-columns:minmax(0,1fr)}}';
 	}
 
 	/**
