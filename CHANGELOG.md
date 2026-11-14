@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Changed: Dashboard Widgets on a new installation (including the module switched on by the setup wizard) now also hides the WordPress widgets Activity and At a Glance. Hidden at once, for everybody: Activity, At a Glance, Site Health Status, Welcome, WordPress Events and News (and the UX1 Studio Notes widget, as before). A site that already has settings for the module is not touched; the widgets can be shown again in the module's table.
+- Changed: Dashboard Widgets on a new installation (including the module switched on by the setup wizard) now also hides the WordPress widgets Activity and At a Glance. Hidden at once, for everybody: Activity, At a Glance, Site Health Status, Welcome, WordPress Events and News. The UX1 Studio Notes widget now starts switched off (it used to be on and hidden at once). A site that already has settings for the module is not touched; the widgets can be shown again in the module's table. The setup wizard card for this module says what it does now.
 
 ## 0.17.4 - 2026-11-14
 

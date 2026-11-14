@@ -37,8 +37,8 @@ $j = static fn( $v ): string => (string) json_encode( $v );
 
 // --- The starting state of a new installation (the owner's wish) ------------------------------------------------------
 $start = C::new_install();
-$on    = array( 'widget_recent_media', 'widget_tasks', 'widget_notes', 'widget_user_activity', 'widget_service_requests', 'widget_blocked_users', 'widget_forms', 'widget_bot_throttle', 'widget_dns_manager', 'widget_ai_panel' );
-$off   = array( 'widget_disk_usage', 'widget_recent_posts', 'widget_pagespeed', 'widget_recent_forms', 'widget_analytics', 'widget_recent_orders', 'widget_top_products' );
+$on    = array( 'widget_recent_media', 'widget_tasks', 'widget_user_activity', 'widget_service_requests', 'widget_blocked_users', 'widget_forms', 'widget_bot_throttle', 'widget_dns_manager', 'widget_ai_panel' );
+$off   = array( 'widget_notes', 'widget_disk_usage', 'widget_recent_posts', 'widget_pagespeed', 'widget_recent_forms', 'widget_analytics', 'widget_recent_orders', 'widget_top_products' );
 foreach ( $on as $key ) {
 	$assert( "new install: $key on", true === ( $start['toggles'][ $key ] ?? null ) );
 }
@@ -48,12 +48,13 @@ foreach ( $off as $key ) {
 $assert( 'new install: every switch is decided', count( $start['toggles'] ) === count( $on ) + count( $off ), (string) count( $start['toggles'] ) );
 $hidden = array_keys( $start['rules'] );
 sort( $hidden );
-$want = array( 'dashboard_activity', 'dashboard_primary', 'dashboard_right_now', 'dashboard_site_health', 'dashboard_welcome', 'uxstudio_notes' );
+$want = array( 'dashboard_activity', 'dashboard_primary', 'dashboard_right_now', 'dashboard_site_health', 'dashboard_welcome' );
 $assert( 'new install: hidden at once', $hidden === $want, $j( $hidden ) );
 $assert( 'new install: hidden for everybody', ! array_filter( $start['rules'], static fn( $r ) => ! $r['hidden'] || $r['roles'] ) );
 $assert( 'new install: Yoast is pending, not in the rules', $start['pending'] === array( 'wpseo-wincher-dashboard-overview', 'wpseo-dashboard-overview' ) && ! isset( $start['rules']['wpseo-dashboard-overview'] ) );
 $assert( 'new install: the rules survive sanitising', W::sanitize( $start['rules'], null ) === $start['rules'], $j( W::sanitize( $start['rules'], null ) ) );
-$assert( 'notes are on and hidden at once', true === $start['toggles']['widget_notes'] && ( $start['rules']['uxstudio_notes']['hidden'] ?? false ) );
+$assert( 'notes are off and need no hiding rule', false === $start['toggles']['widget_notes'] && ! isset( $start['rules']['uxstudio_notes'] ) );
+$assert( 'the five WordPress widgets are hidden: Activity, At a Glance, Site Health, Welcome, Events and News', array() === array_diff( array( 'dashboard_activity', 'dashboard_right_now', 'dashboard_site_health', 'dashboard_welcome', 'dashboard_primary' ), array_keys( $start['rules'] ) ) );
 
 // --- Widgets that appear later ----------------------------------------------------------------------------------------
 $hit = C::pending_hits( $start['pending'], array( 'dashboard_right_now', 'wpseo-dashboard-overview' ), $start['rules'] );

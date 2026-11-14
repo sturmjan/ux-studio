@@ -27,7 +27,7 @@ final class WidgetCatalog {
 	public const TYPE_MODULE    = 'module';
 
 	/** Hidden for everybody on a new installation, at once (these widgets exist on every site). */
-	public const NEW_INSTALL_HIDDEN = array( 'uxstudio_notes', 'dashboard_activity', 'dashboard_right_now', 'dashboard_site_health', 'dashboard_welcome', 'dashboard_primary' );
+	public const NEW_INSTALL_HIDDEN = array( 'dashboard_activity', 'dashboard_right_now', 'dashboard_site_health', 'dashboard_welcome', 'dashboard_primary' );
 
 	/** Hidden on a new installation as soon as the widget first shows up (the plugin may be installed later). */
 	public const NEW_INSTALL_HIDDEN_WHEN_SEEN = array( 'wpseo-wincher-dashboard-overview', 'wpseo-dashboard-overview' );
@@ -67,7 +67,7 @@ final class WidgetCatalog {
 			'uxstudio_recent_posts'                 => $own( 'widget_recent_posts', __( 'Recent posts', 'ux-studio' ), __( 'The 5 most recently published posts.', 'ux-studio' ), false ),
 			'uxstudio_recent_media'                 => $own( 'widget_recent_media', __( 'Recent media', 'ux-studio' ), __( 'A gallery of the most recently uploaded images.', 'ux-studio' ), true ),
 			'uxstudio_tasks'                        => $own( 'widget_tasks', __( 'Tasks', 'ux-studio' ), __( 'A to-do list: add, tick off and delete tasks.', 'ux-studio' ), true ),
-			'uxstudio_notes'                        => $own( 'widget_notes', __( 'Notes', 'ux-studio' ), __( 'A notepad, saved while you type.', 'ux-studio' ), true ),
+			'uxstudio_notes'                        => $own( 'widget_notes', __( 'Notes', 'ux-studio' ), __( 'A notepad, saved while you type.', 'ux-studio' ), false ),
 			'uxstudio_pagespeed'                    => $own( 'widget_pagespeed', __( 'PageSpeed Insights', 'ux-studio' ), __( 'The performance score of the home page from Google PageSpeed.', 'ux-studio' ), false, '', 'pagespeed' ),
 			'uxstudio_user_activity'                => $own( 'widget_user_activity', __( 'Recent user activity', 'ux-studio' ), __( 'The last 15 actions from the activity log.', 'ux-studio' ), true ),
 			'uxstudio_recent_forms'                 => $own( 'widget_recent_forms', __( 'Recent form submissions (Elementor)', 'ux-studio' ), __( 'The last 10 form submissions of Elementor Pro.', 'ux-studio' ), false, 'elementor_pro' ),
