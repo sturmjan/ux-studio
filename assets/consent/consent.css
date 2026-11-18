@@ -117,17 +117,18 @@
 .uxc-ph .uxc-btn { flex: none; width: auto; }
 .uxc-open { cursor: pointer; }
 
-/* UX1 signature (PLAN 42.23): light and quiet, in a corner of the dialog; the headings keep room for it on the right. */
+/* UX1 signature (PLAN 42.23): the logo of ux1.cz (orange bolt that draws itself once + heavy UX1), quiet in a corner of the dialog; the headings keep room for it on the right. */
 .uxc .uxc-by {
-	position: absolute; top: 13px; right: 25px; display: flex; align-items: center;
-	color: inherit; opacity: .1; text-decoration: none;
-	font: italic 900 32px/1 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-	letter-spacing: .02em;
-	-webkit-text-stroke: .7px currentColor; /* heavier than the bold of fonts without a black weight (Segoe UI) */
+	position: absolute; top: 13px; right: 25px; display: flex; align-items: center; gap: 4px;
+	color: inherit; text-decoration: none;
+	font: 800 27px/1 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	letter-spacing: -.03em;
 }
-.uxc .uxc-by { align-items: baseline; }
-.uxc .uxc-by::before { content: "by"; margin-right: .22em; font-size: .5em; font-weight: 600; -webkit-text-stroke: 0; }
-.uxc .uxc-by::after { content: "UX1"; }
+.uxc .uxc-by::after { content: "UX1"; opacity: .55; }
+.uxc .uxc-bolt { width: 1.28em; height: 1.28em; margin-left: -4px; overflow: visible; flex: none; pointer-events: none; }
+.uxc .uxc-bolt path { fill: none; stroke: #ff5b2e; stroke-width: 1.7; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; stroke-dasharray: 1; stroke-dashoffset: 1; animation: uxc-bolt 1.5s cubic-bezier(.5, 0, .2, 1) .35s forwards; }
+@keyframes uxc-bolt { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { .uxc .uxc-bolt path { animation: none; stroke-dashoffset: 0; } }
 .uxc .uxc-dlg:has(> .uxc-by) .uxc-h { padding-right: 124px; }
 /* Classic bar: the buttons sit at the right end of the row, so the signature gets its own column (under the row on a phone). */
 .uxc.uxc-bar:not(.is-detail) .uxc-dlg:has(> .uxc-by) { padding-right: 140px; }
@@ -136,10 +137,11 @@
 	.uxc.uxc-bar:not(.is-detail) .uxc-dlg:has(> .uxc-by) { padding-right: 20px; padding-bottom: 54px; }
 	.uxc.uxc-bar:not(.is-detail) .uxc-by { top: auto; bottom: 10px; transform: none; }
 }
-.uxc .uxc-by:hover, .uxc .uxc-by:focus-visible { opacity: .18; }
+.uxc .uxc-by:hover::after, .uxc .uxc-by:focus-visible::after { opacity: .9; }
 .uxc .uxc-by:focus-visible { outline: 3px solid var(--uxc-fg); outline-offset: 3px; }
 @media (forced-colors: active) {
-	.uxc .uxc-by { opacity: 1; }
+	.uxc .uxc-by::after { opacity: 1; }
+	.uxc .uxc-bolt path { stroke: CanvasText; }
 }
 @media (max-width: 480px) {
 	.uxc-box .uxc-dlg { bottom: 8px; width: calc(100% - 16px); }

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.18.2 - 2026-11-18
+
+- Changed: the UX1 signature in the Cookie Consent banner now matches the logo on ux1.cz: an orange lightning bolt that draws itself once when the banner appears, followed by the heavy UX1 wordmark (the old grey italic "by UX1" is gone). It still sits in the same corner of every template, stays a single link with an accessible name, respects `prefers-reduced-motion` and forced colours, and can be switched off with `uxstudio_consent_show_branding`.
+
 ## 0.18.1 - 2026-11-14
 
 - Changed: Dashboard Widgets on a new installation (including the module switched on by the setup wizard) now also hides the WordPress widgets Activity and At a Glance. Hidden at once, for everybody: Activity, At a Glance, Site Health Status, Welcome, WordPress Events and News. The UX1 Studio Notes widget now starts switched off (it used to be on and hidden at once). A site that already has settings for the module is not touched; the widgets can be shown again in the module's table. The setup wizard card for this module says what it does now.
