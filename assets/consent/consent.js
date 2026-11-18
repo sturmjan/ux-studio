@@ -457,8 +457,10 @@
 		a.rel = 'noopener';
 		a.setAttribute( 'aria-label', T.by || 'UX1' );
 		a.title = T.by || 'UX1';
-		// The visible word comes from CSS (::after, system font): it is a logotype, so it is not text a contrast check
-		// should judge, and the link is named by aria-label.
+		// The orange lightning bolt is an inline SVG that draws itself once (same as the logo on ux1.cz); the word comes
+		// from CSS (::after, system font): it is a logotype, so it is not text a contrast check should judge, and the
+		// link is named by aria-label.
+		a.innerHTML = '<svg class="uxc-bolt" viewBox="0 0 24 24" aria-hidden="true"><path pathLength="1" d="M13 2 3.5 14H11l-1 8 9.5-12H13z"/></svg>';
 		return a;
 	}
 
