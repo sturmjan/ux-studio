@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.18.4 - 2026-11-18
+
+- Changed: the UX1 logo in the Cookie Consent banner is much quieter again, as the original signature was: smaller (24 px) and faint (14 % opacity, 30 % on hover or focus), still white on a dark banner and grey on a light one. Full contrast in forced-colours mode.
+
 ## 0.18.3 - 2026-11-18
 
 - Changed: the UX1 logo in the Cookie Consent banner is now monochrome and follows the banner background: white on a dark banner, light grey on a light one (computed from the banner background colour; browsers without relative colour support use the text colour). The bolt still draws itself once.
