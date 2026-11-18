@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.18.3 - 2026-11-18
+
+- Changed: the UX1 logo in the Cookie Consent banner is now monochrome and follows the banner background: white on a dark banner, light grey on a light one (computed from the banner background colour; browsers without relative colour support use the text colour). The bolt still draws itself once.
+
 ## 0.18.2 - 2026-11-18
 
 - Changed: the UX1 signature in the Cookie Consent banner now matches the logo on ux1.cz: an orange lightning bolt that draws itself once when the banner appears, followed by the heavy UX1 wordmark (the old grey italic "by UX1" is gone). It still sits in the same corner of every template, stays a single link with an accessible name, respects `prefers-reduced-motion` and forced colours, and can be switched off with `uxstudio_consent_show_branding`.
