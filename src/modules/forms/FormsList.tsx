@@ -4,10 +4,11 @@
 import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Archive, Copy, Inbox, LoaderCircle, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Copy, Inbox, LoaderCircle, Plus, Trash2, X } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
 import { navigate } from '../../app/route';
 import TemplateGallery from './TemplateGallery';
+import ArchiveTab from './ArchiveTab';
 import type { FormListItem } from './types';
 import { formatDate } from '../../app/date';
 
@@ -40,6 +41,8 @@ function ShortcodeBadge( { id }: { id: number } ): JSX.Element {
 
 export default function FormsList( { onOpen }: { onOpen: ( id: number ) => void } ): JSX.Element {
 	const [ newTitle, setNewTitle ] = useState( '' );
+	const [ creating, setCreating ] = useState( false );
+	const [ archiveForm, setArchiveForm ] = useState< number | undefined >();
 
 	const query = useQuery( {
 		queryKey: [ 'forms', 'list' ],
@@ -60,6 +63,9 @@ export default function FormsList( { onOpen }: { onOpen: ( id: number ) => void 
 		onSuccess: () => void queryClient.invalidateQueries( { queryKey: [ 'forms', 'list' ] } ),
 	} );
 
+	// With no form yet the creation panel is open from the start; otherwise it hides behind the "New form" button.
+	const showCreate = creating || ( query.isSuccess && query.data.length === 0 );
+
 	return (
 		<>
 			<header className="uxs-pagehead">
@@ -74,14 +80,13 @@ export default function FormsList( { onOpen }: { onOpen: ( id: number ) => void 
 					</button>{ ' ' }
 					{ __( 'Form Builder', 'ux-studio' ) }
 				</h1>
-				<button
-					type="button"
-					className="button"
-					onClick={ () => navigate( 'module', { id: 'forms', tab: 'archive' } ) }
-				>
-					<Archive size={ 14 } /> { __( 'Submission archive', 'ux-studio' ) }
+				<button type="button" className="button button-primary" onClick={ () => setCreating( ( v ) => ! v ) } aria-expanded={ showCreate }>
+					{ showCreate ? <X size={ 14 } /> : <Plus size={ 14 } /> } { showCreate ? __( 'Close', 'ux-studio' ) : __( 'New form', 'ux-studio' ) }
 				</button>
 			</header>
+
+			{ showCreate ? (
+				<>
 
 			<div className="uxs-form uxs-form--inline" style={ { marginBottom: 'var(--uxs-sp-5)' } }>
 				<div className="uxs-form__row">
@@ -112,6 +117,9 @@ export default function FormsList( { onOpen }: { onOpen: ( id: number ) => void 
 					onOpen( id );
 				} }
 			/>
+
+				</>
+			) : null }
 
 			{ query.isLoading ? (
 				<div className="uxs-loading">
@@ -149,8 +157,11 @@ export default function FormsList( { onOpen }: { onOpen: ( id: number ) => void 
 									<button
 										type="button"
 										className="button-link"
-										onClick={ () => navigate( 'module', { id: 'forms', formId: form.id, tab: 'archive' } ) }
-										title={ __( 'Open archive for this form', 'ux-studio' ) }
+										onClick={ () => {
+											setArchiveForm( form.id );
+											document.getElementById( 'uxs-forms-submissions' )?.scrollIntoView( { behavior: 'smooth', block: 'start' } );
+										} }
+										title={ __( 'Show submissions of this form', 'ux-studio' ) }
 									>
 										<Inbox size={ 12 } />{ ' ' }
 										{ form.unread > 0
@@ -183,6 +194,9 @@ export default function FormsList( { onOpen }: { onOpen: ( id: number ) => void 
 					</tbody>
 				</table></div>
 			) }
+
+			<h2 id="uxs-forms-submissions" style={ { marginTop: 'var(--uxs-sp-6)' } }>{ __( 'Submitted data', 'ux-studio' ) }</h2>
+			<ArchiveTab key={ archiveForm ?? 'all' } initialFormId={ archiveForm } />
 		</>
 	);
 }

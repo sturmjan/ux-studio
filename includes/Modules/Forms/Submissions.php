@@ -606,7 +606,7 @@ final class Submissions {
 		global $wpdb;
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT id, form_id, form_title, values_json, status, created_at FROM {$wpdb->prefix}uxstudio_form_submissions WHERE status != 'trash' ORDER BY created_at DESC LIMIT %d",
+				"SELECT id, form_id, form_title, values_json, fields_snapshot_json, status, created_at FROM {$wpdb->prefix}uxstudio_form_submissions WHERE status != 'trash' ORDER BY created_at DESC LIMIT %d",
 				max( 1, $limit )
 			),
 			ARRAY_A
