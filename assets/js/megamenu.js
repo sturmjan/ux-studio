@@ -13,9 +13,14 @@
 		return value === 'list' ? 'list' : 'grid';
 	}
 
+	/** Lower-case, diacritics-free text so "zabezpeceni" finds "Zabezpečení". */
+	function fold( text ) {
+		return String( text ).toLowerCase().normalize( 'NFD' ).replace( /[̀-ͯ]/g, '' );
+	}
+
 	// Pure helper exported for tests/launcher-view.mjs (Node); no effect in the browser.
 	if ( typeof module !== 'undefined' && module.exports ) {
-		module.exports = { normalizeView: normalizeView, VIEW_KEY: VIEW_KEY };
+		module.exports = { normalizeView: normalizeView, fold: fold, VIEW_KEY: VIEW_KEY };
 	}
 
 	var megamenu = typeof document !== 'undefined' ? document.getElementById( 'uxstudio-megamenu' ) : null;
@@ -85,6 +90,70 @@
 		} );
 	} );
 
+	// Search: filters cards by name + description, hides empty groups/categories.
+	var searchInput = megamenu.querySelector( '.uxstudio-megamenu__search' );
+	var emptyNote = megamenu.querySelector( '.uxstudio-megamenu__empty' );
+	var categories = megamenu.querySelectorAll( '.uxstudio-megamenu__category' );
+
+	function setHidden( el, hide ) {
+		el.classList.toggle( 'is-filtered', hide );
+	}
+
+	function applySearch() {
+		var needle = fold( searchInput.value.trim() );
+		var anyVisible = false;
+
+		Array.prototype.forEach.call( categories, function ( cat ) {
+			var catVisible = false;
+
+			Array.prototype.forEach.call( cat.querySelectorAll( '.uxstudio-megamenu__subgroup' ), function ( sub ) {
+				var head = sub.querySelector( '.uxstudio-megamenu__subgroup-head' );
+				var headMatch = '' === needle || fold( head.textContent ).indexOf( needle ) !== -1;
+				var childVisible = false;
+				Array.prototype.forEach.call( sub.querySelectorAll( '.uxstudio-megamenu__card' ), function ( card ) {
+					var show = headMatch || fold( card.textContent ).indexOf( needle ) !== -1;
+					setHidden( card, ! show );
+					childVisible = childVisible || show;
+				} );
+				setHidden( sub, ! childVisible );
+				catVisible = catVisible || childVisible;
+			} );
+
+			Array.prototype.forEach.call( cat.querySelectorAll( '.uxstudio-megamenu__grid > .uxstudio-megamenu__card' ), function ( card ) {
+				var show = '' === needle || fold( card.textContent ).indexOf( needle ) !== -1;
+				setHidden( card, ! show );
+				catVisible = catVisible || show;
+			} );
+
+			setHidden( cat, ! catVisible );
+			anyVisible = anyVisible || catVisible;
+		} );
+
+		if ( emptyNote ) {
+			emptyNote.hidden = anyVisible;
+		}
+	}
+
+	if ( searchInput ) {
+		searchInput.addEventListener( 'input', applySearch );
+		searchInput.addEventListener( 'keydown', function ( e ) {
+			if ( e.key === 'Enter' ) {
+				var first = megamenu.querySelector( '.uxstudio-megamenu__card:not(.is-filtered)' );
+				var parentHidden = first && first.closest( '.is-filtered' );
+				if ( first && ! parentHidden ) {
+					e.preventDefault();
+					window.location.href = first.href;
+				}
+			} else if ( e.key === 'Escape' && searchInput.value !== '' ) {
+				// First Esc clears the query, a second one closes the overlay.
+				e.preventDefault();
+				e.stopPropagation();
+				searchInput.value = '';
+				applySearch();
+			}
+		} );
+	}
+
 	var backdrop = megamenu.querySelector( '.uxstudio-megamenu__backdrop' );
 	var closeBtn = megamenu.querySelector( '.uxstudio-megamenu__close' );
 	var panel = megamenu.querySelector( '.uxstudio-megamenu__panel' );
@@ -101,7 +170,7 @@
 	function open() {
 		megamenu.setAttribute( 'aria-hidden', 'false' );
 		document.body.classList.add( 'uxstudio-megamenu-open' );
-		closeBtn.focus();
+		( searchInput || closeBtn ).focus();
 		var parentLi = menuItem.closest( 'li' );
 		if ( parentLi ) {
 			parentLi.classList.add( 'uxstudio-megamenu-trigger--active' );
@@ -111,6 +180,10 @@
 	function close() {
 		megamenu.setAttribute( 'aria-hidden', 'true' );
 		document.body.classList.remove( 'uxstudio-megamenu-open' );
+		if ( searchInput && searchInput.value !== '' ) {
+			searchInput.value = '';
+			applySearch();
+		}
 		var parentLi = menuItem.closest( 'li' );
 		if ( parentLi ) {
 			parentLi.classList.remove( 'uxstudio-megamenu-trigger--active' );

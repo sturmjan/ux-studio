@@ -499,3 +499,50 @@ body.auto-fold .uxstudio-megamenu__panel {
 #uxstudio-megamenu[data-view="list"] .uxstudio-megamenu__card-desc {
 	max-width: 100%;
 }
+
+/* ---- Search (same field as the module list in the app) ---- */
+.uxstudio-megamenu__search {
+	flex: 0 1 320px;
+	min-width: 160px;
+	margin-left: auto;
+	box-sizing: border-box;
+	height: 46px;
+	padding: 0 var(--uxs-sp-4);
+	border: 1px solid var(--uxs-border);
+	border-radius: var(--uxs-radius-s);
+	background: var(--uxs-surface);
+	color: var(--uxs-text);
+	font-size: var(--uxs-fs);
+	line-height: 20px;
+	box-shadow: none;
+}
+
+.uxstudio-megamenu__search:focus {
+	outline: none;
+	border-color: var(--uxs-brand);
+	box-shadow: 0 0 0 3px var(--uxs-brand-soft);
+}
+
+.uxstudio-megamenu__search + .uxstudio-megamenu__views {
+	margin-left: 0;
+}
+
+#uxstudio-megamenu .is-filtered {
+	display: none !important;
+}
+
+.uxstudio-megamenu__empty {
+	color: var(--uxs-text-soft);
+}
+
+.uxstudio-megamenu__empty[hidden] {
+	display: none;
+}
+
+@media screen and (max-width: 782px) {
+	.uxstudio-megamenu__search {
+		order: 10;
+		flex: 1 1 100%;
+		margin-left: 0;
+	}
+}

@@ -92,6 +92,7 @@ final class Megamenu {
 			<div class="uxstudio-megamenu__panel">
 				<div class="uxstudio-megamenu__header">
 					<span class="uxstudio-megamenu__title"><?php esc_html_e( 'UX1 Studio', 'ux-studio' ); ?></span>
+					<input type="search" class="uxstudio-megamenu__search" placeholder="<?php esc_attr_e( 'Search modules…', 'ux-studio' ); ?>" aria-label="<?php esc_attr_e( 'Search modules', 'ux-studio' ); ?>" autocomplete="off" spellcheck="false" />
 					<div class="uxstudio-megamenu__views" role="radiogroup" aria-label="<?php esc_attr_e( 'Display', 'ux-studio' ); ?>">
 						<button type="button" class="uxstudio-megamenu__view" role="radio" aria-checked="true" data-view="grid" aria-label="<?php esc_attr_e( 'Cards', 'ux-studio' ); ?>" title="<?php esc_attr_e( 'Cards', 'ux-studio' ); ?>">
 							<?php echo $this->icon( 'layout-grid' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG from launcher-icons.php. ?>
@@ -138,6 +139,7 @@ final class Megamenu {
 							</div>
 						</div>
 					<?php endforeach; ?>
+					<p class="uxstudio-megamenu__empty" hidden><?php esc_html_e( 'No module matches the search.', 'ux-studio' ); ?></p>
 				</div>
 			</div>
 		</div>
