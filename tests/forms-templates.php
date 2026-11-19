@@ -128,7 +128,7 @@ foreach ( Templates::all() as $id => $tpl ) {
 			$email_field = $field;
 		}
 	}
-	$to_admin = array_filter( $actions, static fn( $a ) => 'email' === $a['type'] && '' === $a['to'] );
+	$to_admin = array_filter( $actions, static fn( $a ) => 'email' === $a['type'] && (string) get_option( 'admin_email' ) === $a['to'] );
 	$to_user  = array_filter( $actions, static fn( $a ) => 'email' === $a['type'] && '{email}' === $a['to'] );
 	$assert( "$id: notifies the site administrator", 1 === count( $to_admin ) );
 	$needs_confirmation = null !== $email_field && empty( $email_field['conditions'] );

@@ -254,7 +254,7 @@ final class Templates {
 	private static function admin_mail( string $subject ): array {
 		return array(
 			'type'          => 'email',
-			'to'            => '',
+			'to'            => (string) get_option( 'admin_email' ),
 			'subject'       => $subject,
 			'message'       => '<p>' . __( 'A new submission arrived on {submission_date}.', 'ux-studio' ) . '</p>',
 			'template'      => 'branded',

@@ -305,7 +305,20 @@ final class Actions {
 		};
 		add_action( 'phpmailer_init', $set_alt_body, 20 );
 
-		$sent = wp_mail( $to, $subject, $html, array( 'Content-Type: text/html; charset=UTF-8' ) );
+		$headers = array( 'Content-Type: text/html; charset=UTF-8' );
+
+		// Sender chosen on the action. Without it WordPress sends as "WordPress <wordpress@domain>".
+		$from_email = sanitize_email( (string) ( $action['from_email'] ?? '' ) );
+		if ( is_email( $from_email ) ) {
+			$from_name = trim( (string) preg_replace( '/[\r\n"<>]+/', ' ', EmailTemplateRenderer::merge_tags( (string) ( $action['from_name'] ?? '' ), $context ) ) );
+			$headers[] = ( '' !== $from_name ? 'From: "' . $from_name . '" <' . $from_email . '>' : 'From: ' . $from_email );
+		}
+		$reply_to = trim( EmailTemplateRenderer::merge_tags( (string) ( $action['reply_to'] ?? '' ), $context ) );
+		if ( '' !== $reply_to && is_email( $reply_to ) ) {
+			$headers[] = 'Reply-To: ' . $reply_to;
+		}
+
+		$sent = wp_mail( $to, $subject, $html, $headers );
 		remove_action( 'phpmailer_init', $set_alt_body, 20 );
 
 		self::log(

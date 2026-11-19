@@ -873,6 +873,10 @@ final class Module extends BaseModule {
 			'type'          => 'email',
 			'to'            => sanitize_text_field( (string) ( $action['to'] ?? '' ) ),
 			'subject'       => sanitize_text_field( (string) ( $action['subject'] ?? '' ) ),
+			// Sender: '' = whatever WordPress / the SMTP module sends from. Reply-To may be a merge tag such as {email}.
+			'from_name'     => sanitize_text_field( (string) ( $action['from_name'] ?? '' ) ),
+			'from_email'    => sanitize_email( (string) ( $action['from_email'] ?? '' ) ),
+			'reply_to'      => sanitize_text_field( (string) ( $action['reply_to'] ?? '' ) ),
 			// WYSIWYG (TinyMCE) message: explicit allowlist incl. images and links, see EmailTemplateRenderer::sanitize_message().
 			'message'       => EmailTemplateRenderer::sanitize_message( (string) ( $action['message'] ?? '' ) ),
 			'template'      => $is_custom || EmailTemplateRenderer::is_valid_template( $template ) ? $template : 'branded',

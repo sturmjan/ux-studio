@@ -40622,3 +40622,35 @@ msgstr "Odeslaná data"
 #: build/792.26c2afd916ab7cc4c458.js:2
 msgid "Show submissions of this form"
 msgstr "Zobrazit odeslání tohoto formuláře"
+
+#: build/792.82644c77986bc2d63a4e.js:8
+msgid "Sender name"
+msgstr "Jméno odesílatele"
+
+#: build/792.82644c77986bc2d63a4e.js:8
+msgid "e.g. Vrajt"
+msgstr "např. Vrajt"
+
+#: build/792.82644c77986bc2d63a4e.js:8
+msgid "Sender e-mail"
+msgstr "E-mail odesílatele"
+
+#: build/792.82644c77986bc2d63a4e.js:8
+msgid "e.g. web@vrajt.cz"
+msgstr "např. web@vrajt.cz"
+
+#: build/792.82644c77986bc2d63a4e.js:8
+msgid "Leave both empty to send as WordPress does by default (\"WordPress <wordpress@your-domain>\"). Use an address on your own domain, otherwise the message may land in spam (SPF/DKIM). With the SMTP module on, the mail server may override it."
+msgstr "Nechte obě pole prázdná a e-mail odejde tak, jak ho posílá WordPress (\"WordPress <wordpress@vase-domena>\"). Použijte adresu na vlastní doméně, jinak může zpráva skončit ve spamu (SPF/DKIM). Při zapnutém modulu SMTP ji může přepsat poštovní server."
+
+#: build/792.82644c77986bc2d63a4e.js:8
+msgid "Reply to"
+msgstr "Odpovědět na"
+
+#: build/792.82644c77986bc2d63a4e.js:8
+msgid "e.g. {email}"
+msgstr "např. {email}"
+
+#: build/792.82644c77986bc2d63a4e.js:8
+msgid "Where a reply goes. Use {email} to answer the visitor directly. Supports merge tags."
+msgstr "Kam půjde odpověď. Pomocí {email} odpovíte přímo návštěvníkovi. Podporuje slučovací značky."

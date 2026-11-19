@@ -12,6 +12,7 @@ declare global {
 			restUrl: string;
 			nonce: string;
 			version: string;
+			adminEmail?: string;
 			apiVersion: number;
 			locale: string;
 			/** Definitions behind the [[term]] markers of help texts (Core\Glossary), in the user's language. */

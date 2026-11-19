@@ -109,6 +109,7 @@ final class Admin {
 				'restUrl'    => esc_url_raw( rest_url( 'uxstudio/v1' ) ),
 				'nonce'      => wp_create_nonce( 'wp_rest' ),
 				'version'    => UXSTUDIO_VERSION,
+				'adminEmail' => (string) get_option( 'admin_email' ),
 				'apiVersion' => UXSTUDIO_API_VERSION,
 				'locale'     => get_user_locale(),
 				// Definitions behind the [[term]] markers of the help texts (docs/help-texts.md), in the user's language.
