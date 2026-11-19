@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.19.1 - 2026-11-19
+
+- Added: the e-mail action of Form Builder has Sender name, Sender e-mail and Reply to (merge tags such as {email} work in Reply to and the sender name). Left empty, the mail goes out as before, from WordPress / the SMTP module.
+- Changed: "Send to" of a new e-mail action and of the notification in the ready-made templates is preset to the site administrator e-mail instead of an empty field. Existing actions are not touched; their empty field shows the administrator e-mail as a hint.
+
 ## 0.19.0 - 2026-11-19
 
 - Changed: Form Builder opens on what you use most. The list of forms is on top, the ready-made templates and the new-form field hide behind the "New form" button (they are open from the start while there is no form yet). Under the list there is a "Submitted data" table with what each visitor filled in (up to three fields per row), filters by form, status, date range and full text, CSV export and the detail with the action log. A click on the number of submissions of a form filters the table to that form. The separate "Submission archive" button is gone.
