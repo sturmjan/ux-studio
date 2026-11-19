@@ -10,7 +10,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Download, LoaderCircle, Mail, Paperclip, RotateCcw, Search, Trash2, X } from 'lucide-react';
 import { api, queryClient } from '../../app/api';
-import { FILE_LIKE_TYPES, type ActionLogEntry, type SubmissionDetail, type SubmissionFile, type SubmissionListItem, type SubmissionStatus } from './types';
+import { FILE_LIKE_TYPES, type ActionLogEntry, type FormListItem, type SubmissionDetail, type SubmissionFile, type SubmissionListItem, type SubmissionStatus } from './types';
 import { formatDate } from '../../app/date';
 
 const PAGE_SIZE = 20;
@@ -30,6 +30,25 @@ interface Envelope {
 function summaryLine( row: SubmissionListItem ): string {
 	const first = Object.values( row.values ).find( ( v ) => typeof v === 'string' && v.trim() !== '' );
 	return typeof first === 'string' ? first : __( '(no text fields)', 'ux-studio' );
+}
+
+/** Up to three "label: value" pairs of what the visitor filled in, so the list shows the data itself, not just one value. */
+function submittedPairs( row: SubmissionListItem ): { label: string; value: string }[] {
+	const pairs: { label: string; value: string }[] = [];
+	for ( const [ key, meta ] of Object.entries( row.fields_snapshot ?? {} ) ) {
+		if ( FILE_LIKE_TYPES.includes( meta.type ) ) {
+			continue;
+		}
+		const raw = row.values[ key ];
+		const value = Array.isArray( raw ) ? raw.join( ', ' ) : raw === true ? __( 'Yes', 'ux-studio' ) : raw === false ? '' : String( raw ?? '' );
+		if ( value.trim() !== '' ) {
+			pairs.push( { label: meta.label, value: value.length > 80 ? `${ value.slice( 0, 80 ) }…` : value } );
+		}
+		if ( pairs.length === 3 ) {
+			break;
+		}
+	}
+	return pairs;
 }
 
 function DetailModal( { id, onClose }: { id: number; onClose: () => void } ): JSX.Element {
@@ -172,11 +191,22 @@ function DetailModal( { id, onClose }: { id: number; onClose: () => void } ): JS
 	);
 }
 
-export default function ArchiveTab( { formId, formTitle, initialStatus }: { formId?: number; formTitle?: string; initialStatus?: string } ): JSX.Element {
+export default function ArchiveTab( { formId: fixedFormId, formTitle, initialStatus, initialFormId }: { formId?: number; formTitle?: string; initialStatus?: string; initialFormId?: number } ): JSX.Element {
 	const [ page, setPage ] = useState( 0 );
 	const [ q, setQ ] = useState( '' );
 	const [ status, setStatus ] = useState< string >( initialStatus ?? '' );
 	const [ detailId, setDetailId ] = useState< number | null >( null );
+	const [ formSel, setFormSel ] = useState< string >( initialFormId ? String( initialFormId ) : '' );
+	const [ from, setFrom ] = useState( '' );
+	const [ to, setTo ] = useState( '' );
+
+	// The form filter only exists in the cross-form view; inside one form's builder the form is fixed.
+	const formId = fixedFormId ?? ( formSel ? Number( formSel ) : undefined );
+	const formsQuery = useQuery( {
+		queryKey: [ 'forms', 'list' ],
+		queryFn: () => api< FormListItem[] >( 'forms' ),
+		enabled: ! fixedFormId,
+	} );
 
 	const params = new URLSearchParams();
 	params.set( 'page', String( page + 1 ) );
@@ -190,9 +220,15 @@ export default function ArchiveTab( { formId, formTitle, initialStatus }: { form
 	if ( q ) {
 		params.set( 'q', q );
 	}
+	if ( from ) {
+		params.set( 'from', from );
+	}
+	if ( to ) {
+		params.set( 'to', to );
+	}
 
 	const query = useQuery( {
-		queryKey: [ 'forms', 'submissions', formId ?? 'all', page, status, q ],
+		queryKey: [ 'forms', 'submissions', formId ?? 'all', page, status, q, from, to ],
 		queryFn: async (): Promise< Envelope > => {
 			const boot = window.uxStudioBoot;
 			const res = await fetch( `${ boot.restUrl }/forms/submissions?${ params.toString() }`, {
@@ -242,6 +278,23 @@ export default function ArchiveTab( { formId, formTitle, initialStatus }: { form
 						style={ { paddingLeft: 28 } }
 					/>
 				</div>
+				{ ! fixedFormId ? (
+					<select
+						value={ formSel }
+						aria-label={ __( 'Form', 'ux-studio' ) }
+						onChange={ ( e ) => {
+							setFormSel( e.target.value );
+							setPage( 0 );
+						} }
+					>
+						<option value="">{ __( 'All forms', 'ux-studio' ) }</option>
+						{ ( formsQuery.data ?? [] ).map( ( f ) => (
+							<option key={ f.id } value={ f.id }>
+								{ f.title || __( '(untitled)', 'ux-studio' ) }
+							</option>
+						) ) }
+					</select>
+				) : null }
 				<select
 					value={ status }
 					onChange={ ( e ) => {
@@ -256,6 +309,14 @@ export default function ArchiveTab( { formId, formTitle, initialStatus }: { form
 						</option>
 					) ) }
 				</select>
+				<label className="uxs-form__help" style={ { display: 'inline-flex', alignItems: 'center', gap: 4 } }>
+					{ __( 'From', 'ux-studio' ) }
+					<input type="date" value={ from } onChange={ ( e ) => { setFrom( e.target.value ); setPage( 0 ); } } />
+				</label>
+				<label className="uxs-form__help" style={ { display: 'inline-flex', alignItems: 'center', gap: 4 } }>
+					{ __( 'To', 'ux-studio' ) }
+					<input type="date" value={ to } onChange={ ( e ) => { setTo( e.target.value ); setPage( 0 ); } } />
+				</label>
 				<button type="button" className="button" onClick={ exportCsv }>
 					<Download size={ 14 } /> { __( 'Export CSV', 'ux-studio' ) }
 				</button>
@@ -272,8 +333,8 @@ export default function ArchiveTab( { formId, formTitle, initialStatus }: { form
 					<div className="uxs-table-wrap"><table className="uxs-table">
 						<thead>
 							<tr>
-								{ ! formId ? <th>{ __( 'Form', 'ux-studio' ) }</th> : null }
-								<th>{ __( 'Summary', 'ux-studio' ) }</th>
+								{ ! fixedFormId ? <th>{ __( 'Form', 'ux-studio' ) }</th> : null }
+								<th>{ __( 'Submitted data', 'ux-studio' ) }</th>
 								<th>{ __( 'Status', 'ux-studio' ) }</th>
 								<th>{ __( 'Submitted', 'ux-studio' ) }</th>
 								<th></th>
@@ -282,10 +343,16 @@ export default function ArchiveTab( { formId, formTitle, initialStatus }: { form
 						<tbody>
 							{ query.data.items.map( ( row ) => (
 								<tr key={ row.id } className={ row.status === 'unread' ? 'is-invalid' : '' }>
-									{ ! formId ? <td>{ row.form_title }</td> : null }
+									{ ! fixedFormId ? <td>{ row.form_title }</td> : null }
 									<td>
-										<button type="button" className="button-link" onClick={ () => setDetailId( row.id ) }>
-											{ summaryLine( row ) }
+										<button type="button" className="button-link" style={ { textAlign: 'left' } } onClick={ () => setDetailId( row.id ) }>
+											{ submittedPairs( row ).length === 0
+												? summaryLine( row )
+												: submittedPairs( row ).map( ( pair, i ) => (
+														<span key={ i } style={ { display: 'block' } }>
+															<span className="uxs-form__help">{ pair.label }:</span> { pair.value }
+														</span>
+												  ) ) }
 										</button>
 									</td>
 									<td>

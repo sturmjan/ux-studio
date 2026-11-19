@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.19.0 - 2026-11-19
+
+- Changed: Form Builder opens on what you use most. The list of forms is on top, the ready-made templates and the new-form field hide behind the "New form" button (they are open from the start while there is no form yet). Under the list there is a "Submitted data" table with what each visitor filled in (up to three fields per row), filters by form, status, date range and full text, CSV export and the detail with the action log. A click on the number of submissions of a form filters the table to that form. The separate "Submission archive" button is gone.
+- Changed: the Form Builder dashboard widget (Dashboard Widgets module, "Dashboard widget: form submissions") shows the last 15 submissions with the fields the visitor filled in and an unread marker, and lets you filter them by form.
+- Added: the quick navigation overlay (UX1 Studio menu item) has a search field, like the module list in the app. It filters cards by name and description without regard to diacritics and hides empty groups. Enter opens the first match, Esc clears the query first and closes the overlay second.
+
 ## 0.18.5 - 2026-11-19
 
 - Fixed: in the vertical admin menu (Admin Customiser, Menu Organizer) an expanded submenu no longer spills out of the sidebar; it keeps the width of its parent item. The stray black pointer arrow WordPress draws on the right edge of the current menu item is hidden, as it clashed with the expand chevron.

@@ -40604,3 +40604,21 @@ msgstr "Kontejner může spouštět jakoukoli značku, proto vyžaduje souhlas p
 #: includes/Modules/PixelTagManager/help.php
 msgid "Leave it empty when you do not use Google Tag Manager."
 msgstr "Nechte prázdné, pokud Google Tag Manager nepoužíváte."
+
+#: includes/Modules/Forms/DashboardWidget.php:59
+#: build/792.26c2afd916ab7cc4c458.js:1
+msgid "All forms"
+msgstr "Všechny formuláře"
+
+#: includes/Modules/Forms/DashboardWidget.php:117
+msgid "Open submissions"
+msgstr "Otevřít odeslání"
+
+#: build/792.26c2afd916ab7cc4c458.js:1
+#: build/792.26c2afd916ab7cc4c458.js:3
+msgid "Submitted data"
+msgstr "Odeslaná data"
+
+#: build/792.26c2afd916ab7cc4c458.js:2
+msgid "Show submissions of this form"
+msgstr "Zobrazit odeslání tohoto formuláře"
