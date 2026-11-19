@@ -28,13 +28,17 @@ const POST_STATUSES: { id: PostStatus; label: string }[] = [
 function emptyEmailAction(): EmailAction {
 	return {
 		type: 'email',
-		to: '',
+		// Preset to the site admin e-mail, so it is visible (and editable) where the notification goes.
+		to: window.uxStudioBoot.adminEmail ?? '',
 		subject: '',
 		message: '',
 		template: 'branded',
 		include_table: true,
 		cta_text: '',
 		cta_url: '',
+		from_name: '',
+		from_email: '',
+		reply_to: '',
 		custom_html: '',
 		logo_id: 0,
 		logo_url: '',

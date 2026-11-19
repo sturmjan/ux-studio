@@ -91,6 +91,11 @@ export interface EmailAction {
 	type: 'email';
 	to: string;
 	subject: string;
+	/** Sender name / address; '' = the WordPress (or SMTP module) default. */
+	from_name: string;
+	from_email: string;
+	/** Reply-To address, may be a merge tag such as {email}. */
+	reply_to: string;
 	message: string;
 	template: EmailTemplate;
 	include_table: boolean;

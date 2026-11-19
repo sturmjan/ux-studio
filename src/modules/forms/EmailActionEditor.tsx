@@ -193,7 +193,7 @@ export default function EmailActionEditor( {
 							<input
 								type="text"
 								value={ action.to }
-								placeholder={ __( 'admin_email or {email}', 'ux-studio' ) }
+								placeholder={ window.uxStudioBoot.adminEmail || __( 'admin_email or {email}', 'ux-studio' ) }
 								onChange={ ( e ) => onChange( { to: e.target.value } ) }
 							/>
 							<p className="uxs-form__help">{ __( 'Leave empty to use the site admin e-mail. Supports merge tags, e.g. {email}.', 'ux-studio' ) }</p>
@@ -203,6 +203,38 @@ export default function EmailActionEditor( {
 							<label>{ __( 'Subject', 'ux-studio' ) }</label>
 							<input ref={ subject } type="text" value={ action.subject } onChange={ ( e ) => onChange( { subject: e.target.value } ) } />
 							<MergeTagSelect fields={ fields } label={ __( 'Insert a merge tag into the subject', 'ux-studio' ) } onPick={ insertIntoSubject } />
+						</div>
+
+						<div className="uxs-form__row">
+							<label>{ __( 'Sender name', 'ux-studio' ) }</label>
+							<input
+								type="text"
+								value={ action.from_name ?? '' }
+								placeholder={ __( 'e.g. Vrajt', 'ux-studio' ) }
+								onChange={ ( e ) => onChange( { from_name: e.target.value } ) }
+							/>
+						</div>
+
+						<div className="uxs-form__row">
+							<label>{ __( 'Sender e-mail', 'ux-studio' ) }</label>
+							<input
+								type="email"
+								value={ action.from_email ?? '' }
+								placeholder={ __( 'e.g. web@vrajt.cz', 'ux-studio' ) }
+								onChange={ ( e ) => onChange( { from_email: e.target.value } ) }
+							/>
+							<p className="uxs-form__help">{ __( 'Leave both empty to send as WordPress does by default ("WordPress <wordpress@your-domain>"). Use an address on your own domain, otherwise the message may land in spam (SPF/DKIM). With the SMTP module on, the mail server may override it.', 'ux-studio' ) }</p>
+						</div>
+
+						<div className="uxs-form__row">
+							<label>{ __( 'Reply to', 'ux-studio' ) }</label>
+							<input
+								type="text"
+								value={ action.reply_to ?? '' }
+								placeholder={ __( 'e.g. {email}', 'ux-studio' ) }
+								onChange={ ( e ) => onChange( { reply_to: e.target.value } ) }
+							/>
+							<p className="uxs-form__help">{ __( 'Where a reply goes. Use {email} to answer the visitor directly. Supports merge tags.', 'ux-studio' ) }</p>
 						</div>
 
 						<div className="uxs-form__row">
