@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.18.5 - 2026-11-19
+
+- Fixed: in the vertical admin menu (Admin Customiser, Menu Organizer) an expanded submenu no longer spills out of the sidebar; it keeps the width of its parent item. The stray black pointer arrow WordPress draws on the right edge of the current menu item is hidden, as it clashed with the expand chevron.
+
 ## 0.18.4 - 2026-11-18
 
 - Changed: the UX1 logo in the Cookie Consent banner is much quieter again, as the original signature was: smaller (24 px) and faint (14 % opacity, 30 % on hover or focus), still white on a dark banner and grey on a light one. Full contrast in forced-colours mode.

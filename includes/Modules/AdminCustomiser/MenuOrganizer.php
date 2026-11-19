@@ -1624,6 +1624,19 @@ final class MenuOrganizer {
 			#adminmenu li.menu-top.uxs-amo-has-vexpand > a.menu-top::after { display: none !important; content: none !important; border: 0 !important; }
 			#adminmenu li.menu-top.uxs-amo-has-vexpand > a.menu-top { padding-right: 30px !important; }
 			.folded #adminmenu .uxs-amo-vexpand { display: none !important; }
+			/* The inline-expanded submenu must stay inside the sidebar: core gives .wp-submenu a fixed min-width
+			   and the Admin theme width option adds its own, so clamp it to the width of its parent item. */
+			html body.wp-admin:not(.folded) #adminmenu li.menu-top:is(.uxs-amo-open, .wp-has-current-submenu, .wp-menu-open) > .wp-submenu {
+				box-sizing: border-box !important; width: 100% !important; min-width: 0 !important; max-width: 100% !important;
+				margin-left: 0 !important; margin-right: 0 !important; overflow: hidden !important;
+			}
+			html body.wp-admin:not(.folded) #adminmenu li.menu-top:is(.uxs-amo-open, .wp-has-current-submenu, .wp-menu-open) > .wp-submenu a {
+				box-sizing: border-box !important; max-width: 100% !important; overflow-wrap: anywhere;
+			}
+			/* Core's pointer triangle (points from the sidebar into the content) clashes with the chevron toggle
+			   and shows up as a stray black arrow on the right edge of the current item. */
+			html body.wp-admin:not(.folded) ul#adminmenu a.wp-has-current-submenu::after,
+			html body.wp-admin:not(.folded) ul#adminmenu > li.current > a.current::after { display: none !important; content: none !important; border: 0 !important; }
 		</style>
 		<script>
 		(function () {
