@@ -40654,3 +40654,7 @@ msgstr "např. {email}"
 #: build/792.82644c77986bc2d63a4e.js:8
 msgid "Where a reply goes. Use {email} to answer the visitor directly. Supports merge tags."
 msgstr "Kam půjde odpověď. Pomocí {email} odpovíte přímo návštěvníkovi. Podporuje slučovací značky."
+
+#: includes/Modules/Consent/Module.php:784
+msgid "A card with a close cross and the categories as rows with switches."
+msgstr "Karta s křížkem pro zavření a kategoriemi jako řádky s přepínači."
