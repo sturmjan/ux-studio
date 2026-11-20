@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.20.0 - 2026-11-20
+
+- Added: a new Cookie Consent template "Categories" (accordion). One light card in the corner with a centred heading and a close cross, the categories as grey rows with a switch (necessary ones marked "Always on") and a chevron that opens the description and the services, equal "Accept all" and "Reject all" buttons side by side and "Save settings" under them, the policy link at the bottom. Its own indigo and slate palette is used until you set your own colours. The close cross declines when nothing has been chosen yet.
+
 ## 0.19.1 - 2026-11-19
 
 - Added: the e-mail action of Form Builder has Sender name, Sender e-mail and Reply to (merge tags such as {email} work in Reply to and the sender name). Left empty, the mail goes out as before, from WordPress / the SMTP module.

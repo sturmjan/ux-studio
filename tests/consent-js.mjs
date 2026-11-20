@@ -233,7 +233,7 @@ r = await runUi( '', { ...pv, preview: 'ph' }, { sandbox: true } );
 check( 'preview: placeholder view builds no banner', r.body.querySelectorAll( '.uxc' ).length === 0 && r.body.querySelectorAll( '.uxc-fab' ).length === 0 );
 
 // ---------- banner templates (PLAN 42.20): same buttons, same functions, only the structure differs ----------
-for ( const tpl of [ 'classic', 'cookiebot', 'cookie', 'slim', 'nonsense' ] ) {
+for ( const tpl of [ 'classic', 'cookiebot', 'cookie', 'slim', 'accordion', 'nonsense' ] ) {
 	const tcfg = { ...withText, tpl, t: { ...withText.t, tab_c: 'Consent', tab_d: 'Details', tab_a: 'About cookies', tabs: 'Sections', about: 'About text' } };
 	const cls = ( x ) => x.body.querySelectorAll( '.uxc' )[ 0 ].className;
 	const name = tpl === 'nonsense' ? 'unknown template (falls back to classic)' : tpl;
@@ -244,7 +244,9 @@ for ( const tpl of [ 'classic', 'cookiebot', 'cookie', 'slim', 'nonsense' ] ) {
 	const rej = dlgButtons.find( ( x ) => x.textContent === TX.reject );
 	const acc = dlgButtons.find( ( x ) => x.textContent === TX.accept );
 	check( 'tpl ' + name + ': reject and accept are in the first layer with the same weight', !! rej && !! acc && ! rej.className.includes( 'uxc-alt' ) && ! acc.className.includes( 'uxc-alt' ), dlgButtons.map( ( x ) => x.className ).join( '|' ) );
-	if ( root !== 'cookiebot' ) {
+	if ( root === 'accordion' ) {
+		check( 'tpl accordion: four rows on the one layer, three switches (necessary has none), close cross and no second layer', r.body.querySelectorAll( '.uxc-row' ).length === 4 && r.body.querySelectorAll( '.uxc-tg input' ).length === 3 && r.body.querySelectorAll( '.uxc-x' ).length === 1 && r.body.querySelectorAll( '.uxc-detail' ).length === 0, '' );
+	} else if ( root !== 'cookiebot' ) {
 		check( 'tpl ' + name + ': there is a customize button that is not the quiet-less accept', dlgButtons.some( ( x ) => x.textContent === 'Customize' ) );
 	} else {
 		const tabs = r.body.querySelectorAll( 'button' ).filter( ( x ) => x.attrs.role === 'tab' );
@@ -261,7 +263,7 @@ for ( const tpl of [ 'classic', 'cookiebot', 'cookie', 'slim', 'nonsense' ] ) {
 	check( 'tpl ' + name + ': reject all records reject_all with bits 0', b.length === 1 && b[ 0 ].b.a === 'reject_all' && b[ 0 ].b.c === '0' && /uxs_consent=1\.3\.0\./.test( r.doc.cookie ), JSON.stringify( b ) );
 	r = await runUi( '', tcfg, {
 		steps: ( { body, button } ) => {
-			if ( root !== 'cookiebot' ) { button( 'Customize' ).click(); }
+			if ( root !== 'cookiebot' && root !== 'accordion' ) { button( 'Customize' ).click(); }
 			body.querySelectorAll( 'input' ).filter( ( i ) => ! i.disabled )[ 1 ].checked = true;
 			button( TX.save ).click();
 		},
@@ -272,7 +274,7 @@ for ( const tpl of [ 'classic', 'cookiebot', 'cookie', 'slim', 'nonsense' ] ) {
 	b = r.calls.beacon;
 	check( 'tpl ' + name + ': reopening and rejecting is a withdraw', b.length === 1 && b[ 0 ].b.a === 'withdraw' && b[ 0 ].b.id === stored, JSON.stringify( b ) );
 	r = await runUi( '', { ...tcfg, preview: 'detail' }, { sandbox: true } );
-	check( 'tpl ' + name + ': preview detail view works and nothing is stored', r.body.querySelectorAll( '.uxc-detail' )[ 0 ].hidden === false && r.calls.beacon.length === 0 );
+	check( 'tpl ' + name + ': preview detail view works and nothing is stored', ( root === 'accordion' ? r.body.querySelectorAll( '.uxc-row' ).length === 4 && r.body.querySelectorAll( '.uxc' )[ 0 ].hidden === false : r.body.querySelectorAll( '.uxc-detail' )[ 0 ].hidden === false ) && r.calls.beacon.length === 0 );
 }
 
 // ---------- options of one template (PLAN 42.22): cfg.o ----------
@@ -310,7 +312,7 @@ for ( const tpl of [ 'classic', 'cookiebot', 'cookie', 'slim', 'nonsense' ] ) {
 // UX1 signature link (PLAN 42.23): in every template, once, a link to a new window with an accessible name; none without cfg.by.
 {
 	const byBase = { t: { by: 'Cookie banner by UX1 (opens in a new window)' } };
-	for ( const tpl of [ 'classic', 'cookiebot', 'cookie', 'slim' ] ) {
+	for ( const tpl of [ 'classic', 'cookiebot', 'cookie', 'slim', 'accordion' ] ) {
 		r = await runUi( '', { ...byBase, tpl, by: 'https://ux1.cz/' } );
 		const links = r.body.querySelectorAll( '.uxc-by' );
 		const a = links[ 0 ];

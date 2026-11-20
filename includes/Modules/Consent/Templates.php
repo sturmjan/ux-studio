@@ -11,7 +11,8 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * The look of the banner is a template (PLAN 42.20): classic (box or bar, the original look), cookiebot (wide panel with tabs and
- * switches), cookie (light rounded card with round buttons), slim (one thin bar). The behaviour is the same in all of them.
+ * switches), cookie (light rounded card with round buttons), slim (one thin bar), accordion (one card, categories as
+ * rows with a switch and an expandable description). The behaviour is the same in all of them.
  */
 final class Templates {
 
@@ -24,7 +25,15 @@ final class Templates {
 		return $show ? self::BY_URL : '';
 	}
 
-	public const ALL = array( 'classic', 'cookiebot', 'cookie', 'slim' );
+	public const ALL = array( 'classic', 'cookiebot', 'cookie', 'slim', 'accordion' );
+
+	/** Own palette of a template that is used where the site owner has not changed the colour (setting still at the global default). */
+	public const PALETTE = array(
+		'accordion' => array(
+			'color_text'   => '#27364b',
+			'color_accent' => '#2f2d7e',
+		),
+	);
 
 	/** Colour settings: key => array( CSS variable, the default of the stylesheet ). */
 	public const COLOURS = array(
@@ -64,6 +73,8 @@ final class Templates {
 			$value = strtolower( (string) ( $values[ $key ] ?? '' ) );
 			if ( '' !== $value && $value !== $pair[1] ) {
 				$css .= $pair[0] . ':' . $value . ';';
+			} elseif ( '' !== $value && isset( self::PALETTE[ self::normalize( $template ) ][ $key ] ) ) {
+				$css .= $pair[0] . ':' . self::PALETTE[ self::normalize( $template ) ][ $key ] . ';';
 			}
 		}
 		return $css;

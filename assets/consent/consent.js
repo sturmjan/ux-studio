@@ -13,7 +13,8 @@
  * the `uxc_consent` event included): .acceptAll(), .rejectAll(), .set( { preferences, statistics, marketing } ); event `uxstudio:consent` on document;
  * window.uxstudioConsent = { preferences, statistics, marketing } (read by the Forms conversion tracking).
  *
- * Templates (cfg.tpl, PLAN 42.20): classic (default), cookiebot (tabs + switches), cookie (light card, round buttons), slim (thin bar).
+ * Templates (cfg.tpl, PLAN 42.20): classic (default), cookiebot (tabs + switches), cookie (light card, round buttons), slim (thin bar),
+ * accordion (one card: close button, categories as rows with a switch and an expandable description, three buttons).
  * One script, one behaviour: a template only changes which elements build() makes and the class it puts on the root; its style is
  * consent-<tpl>.css, loaded on top of consent.css by the page (classic lives in consent.css itself).
  *
@@ -41,8 +42,9 @@
 	var BIT = { preferences: 1, statistics: 2, marketing: 4 };
 	var T = cfg.t || {};
 	var PV = !! cfg.preview;
-	var TPL = [ 'cookiebot', 'cookie', 'slim' ].indexOf( cfg.tpl ) < 0 ? 'classic' : cfg.tpl;
+	var TPL = [ 'cookiebot', 'cookie', 'slim', 'accordion' ].indexOf( cfg.tpl ) < 0 ? 'classic' : cfg.tpl;
 	var CB = TPL === 'cookiebot';
+	var AC = TPL === 'accordion'; // one layer only: no separate settings dialog, no overlay
 	var quiet = PV; // no focus change while the admin is typing in the form next to the preview
 
 	var state = null; // { preferences, statistics, marketing } booleans once the visitor decided
@@ -413,6 +415,9 @@
 	}
 
 	function setView( detail ) {
+		if ( AC ) {
+			return; // everything is on the card already
+		}
 		if ( CB ) {
 			setTab( detail ? 'detail' : 'main' );
 			return;
@@ -444,6 +449,11 @@
 	// A small cookie with a bite and crumbs (own drawing); follows the text colour.
 	function icon( size ) {
 		return '<svg viewBox="0 0 24 24" width="' + size + '" height="' + size + '" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"/><path d="M8.5 8.5v.01M16 15.5v.01M12 12v.01M11 17v.01M7 14v.01"/></svg>';
+	}
+
+	// Close cross and chevron of the accordion template (own drawings, follow the text colour).
+	function glyph( path, size ) {
+		return '<svg viewBox="0 0 24 24" width="' + size + '" height="' + size + '" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + path + '"/></svg>';
 	}
 
 	// The word UX1 in the system font (no web font, no request): a quiet signature link, off only through the PHP filter.
@@ -478,6 +488,42 @@
 			open( fab );
 		} );
 		doc.body.appendChild( fab );
+	}
+
+	// The "Services" disclosure of a category (null when there is nothing to show): used by every template.
+	function serviceBlock( c ) {
+		var list = c.s || [];
+		if ( c.id !== 'necessary' || list.length ) {
+			var det = el( 'details', 'uxc-svc' );
+			det.appendChild( el( 'summary', '', T.services + ' (' + list.length + ')' ) );
+			if ( list.length ) {
+				var ul = el( 'ul' );
+				var items = {};
+				list.forEach( function ( s ) {
+					items[ s ] = el( 'li', '', s );
+					ul.appendChild( items[ s ] );
+				} );
+				det.appendChild( ul );
+				// The cookies of the services come on first opening, so the page itself stays small.
+				det.addEventListener( 'toggle', function () {
+					if ( ! det.open || det._ck ) {
+						return;
+					}
+					det._ck = 1;
+					loadCookies().then( function ( data ) {
+						list.forEach( function ( s ) {
+							if ( data[ s ] ) {
+								fillService( items[ s ], data[ s ] );
+							}
+						} );
+					} );
+				} );
+			} else {
+				det.appendChild( el( 'p', 'uxc-d', T.none ) );
+			}
+			return det;
+		}
+		return null;
 	}
 
 	function build() {
@@ -555,15 +601,38 @@
 			head.appendChild( ic );
 			head.appendChild( title );
 			text.appendChild( head );
+		} else if ( AC ) {
+			// Heading in the middle, a close cross at the right: before a decision it declines (same as "Reject all").
+			var top = el( 'div', 'uxc-top' );
+			var x = el( 'button', 'uxc-x' );
+			x.type = 'button';
+			x.setAttribute( 'aria-label', T.close );
+			x.title = T.close;
+			x.innerHTML = glyph( 'M6 6l12 12M18 6 6 18', 20 );
+			x.addEventListener( 'click', function () {
+				if ( state || implicit ) {
+					hide();
+				} else {
+					none();
+				}
+			} );
+			top.appendChild( title );
+			top.appendChild( x );
+			text.appendChild( top );
 		} else {
 			text.appendChild( title );
 		}
 		text.appendChild( msg );
+		var links = AC ? el( 'div', 'uxc-links' ) : null; // accordion: the policy link sits under the buttons
 		if ( cfg.policy && /^(https?:\/\/|\/)/i.test( cfg.policy ) && ! ( TPL === 'slim' && O.link === false ) ) {
 			var link = el( 'a', 'uxc-a', T.policy );
 			link.href = cfg.policy;
-			msg.appendChild( doc.createTextNode( ' ' ) );
-			msg.appendChild( link );
+			if ( links ) {
+				links.appendChild( link );
+			} else {
+				msg.appendChild( doc.createTextNode( ' ' ) );
+				msg.appendChild( link );
+			}
 		}
 		// The buttons and their order depend on the template: r reject, a accept, s customize (opens the detail),
 		// v allow the selection made with the switches. Reject and accept always get the same size and weight.
@@ -580,11 +649,64 @@
 			v: [ T.save, 'uxc-alt', saveSel ],
 		};
 		var actions = el( 'div', 'uxc-actions' );
-		( { cookiebot: 'rva', slim: 'rsa', cookie: 'sra' }[ TPL ] || 'ras' ).split( '' ).forEach( function ( k ) {
+		( { cookiebot: 'rva', slim: 'rsa', cookie: 'sra', accordion: 'arv' }[ TPL ] || 'ras' ).split( '' ).forEach( function ( k ) {
 			actions.appendChild( button( defs[ k ][ 0 ], defs[ k ][ 1 ], defs[ k ][ 2 ] ) );
 		} );
 		main.appendChild( text );
-		if ( CB ) {
+		if ( AC ) {
+			// Categories as rows: name, switch (or "Always on") and a chevron that opens the description and the services.
+			var rows = el( 'div', 'uxc-rows' );
+			cfg.c.forEach( function ( c ) {
+				var row = el( 'div', 'uxc-row' );
+				var head = el( 'div', 'uxc-rh' );
+				var panel = el( 'div', 'uxc-rp' );
+				panel.id = 'uxc-rp-' + c.id;
+				panel.hidden = true;
+				var flip = function () {
+					var on = panel.hidden;
+					panel.hidden = ! on;
+					chev.setAttribute( 'aria-expanded', on );
+				};
+				var name = el( 'span', 'uxc-n', c.n );
+				name.addEventListener( 'click', flip );
+				head.appendChild( name );
+				if ( c.id === 'necessary' ) {
+					head.appendChild( el( 'span', 'uxc-on', T.always ) );
+				} else {
+					var tg = el( 'label', 'uxc-tg' );
+					var input = el( 'input' );
+					input.type = 'checkbox';
+					input.setAttribute( 'role', 'switch' );
+					input.setAttribute( 'aria-label', c.n );
+					input.checked = !! ( state && state[ c.id ] );
+					boxes[ c.id ] = input;
+					tg.appendChild( input );
+					tg.appendChild( el( 'span', 'uxc-tk' ) );
+					head.appendChild( tg );
+				}
+				var chev = el( 'button', 'uxc-ch' );
+				chev.type = 'button';
+				chev.setAttribute( 'aria-expanded', 'false' );
+				chev.setAttribute( 'aria-controls', panel.id );
+				chev.setAttribute( 'aria-label', c.n );
+				chev.innerHTML = glyph( 'm6 9 6 6 6-6', 18 );
+				chev.addEventListener( 'click', flip );
+				head.appendChild( chev );
+				panel.appendChild( el( 'p', 'uxc-d', c.d ) );
+				var det = serviceBlock( c );
+				if ( det ) {
+					panel.appendChild( det );
+				}
+				row.appendChild( head );
+				row.appendChild( panel );
+				rows.appendChild( row );
+			} );
+			main.appendChild( rows );
+			main.appendChild( actions );
+			if ( links ) {
+				main.appendChild( links );
+			}
+		} else if ( CB ) {
 			var row = el( 'div', 'uxc-swr' );
 			cfg.c.forEach( function ( c ) {
 				row.appendChild( sw( c ) );
@@ -597,53 +719,28 @@
 		// Second layer: the categories with the services in use (and a switch each, except in the tabs template).
 		var detail = el( 'div', 'uxc-detail' );
 		detail.hidden = true;
-		if ( ! CB ) {
+		if ( ! CB && ! AC ) {
 			var h = el( 'h2', 'uxc-h', T.settings );
 			h.id = 'uxc-t2';
 			h.tabIndex = -1;
 			detail.appendChild( h );
 		}
-		cfg.c.forEach( function ( c ) {
+		( AC ? [] : cfg.c ).forEach( function ( c ) {
 			var row2 = el( 'div', 'uxc-cat' );
 			row2.appendChild( sw( c, CB ) );
 			row2.appendChild( el( 'p', 'uxc-d', c.d ) );
-			var list = c.s || [];
-			if ( c.id !== 'necessary' || list.length ) {
-				var det = el( 'details', 'uxc-svc' );
-				det.appendChild( el( 'summary', '', T.services + ' (' + list.length + ')' ) );
-				if ( list.length ) {
-					var ul = el( 'ul' );
-					var items = {};
-					list.forEach( function ( s ) {
-						items[ s ] = el( 'li', '', s );
-						ul.appendChild( items[ s ] );
-					} );
-					det.appendChild( ul );
-					// The cookies of the services come on first opening, so the page itself stays small.
-					det.addEventListener( 'toggle', function () {
-						if ( ! det.open || det._ck ) {
-							return;
-						}
-						det._ck = 1;
-						loadCookies().then( function ( data ) {
-							list.forEach( function ( s ) {
-								if ( data[ s ] ) {
-									fillService( items[ s ], data[ s ] );
-								}
-							} );
-						} );
-					} );
-				} else {
-					det.appendChild( el( 'p', 'uxc-d', T.none ) );
-				}
+			var det = serviceBlock( c );
+			if ( det ) {
 				row2.appendChild( det );
 			}
 			detail.appendChild( row2 );
 		} );
 		root._id = el( 'p', 'uxc-d' );
 		root._id.hidden = true;
-		detail.appendChild( root._id );
-		if ( ! CB ) {
+		( AC ? main : detail ).appendChild( root._id );
+		if ( AC ) {
+			dlg.appendChild( main ); // a single layer: the empty second one is not added
+		} else if ( ! CB ) {
 			var dActions = el( 'div', 'uxc-actions' );
 			dActions.appendChild( button( T.reject, 'uxc-no', none ) );
 			dActions.appendChild( button( T.accept, 'uxc-yes', all ) );
@@ -702,7 +799,8 @@
 		if ( ! CB ) {
 			var by2 = brand();
 			if ( by2 ) {
-				dlg.appendChild( by2 );
+				// Accordion: in the row of links under the buttons (the corner is taken by the close cross).
+				( links || dlg ).appendChild( by2 );
 			}
 		}
 		root.appendChild( dlg );
@@ -758,6 +856,11 @@
 		root.hidden = false;
 		if ( CB ) {
 			setTab( 'main' ); // the switches are on this tab
+		} else if ( AC ) {
+			var t = root.querySelector( '.uxc-h' );
+			if ( t && ! quiet ) {
+				t.focus();
+			}
 		} else if ( cfg.rv === 'main' ) {
 			// Setting "the banner as on the first visit": the first screen, Customize leads on to the categories.
 			setView( false );

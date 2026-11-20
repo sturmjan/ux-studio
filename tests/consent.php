@@ -321,15 +321,17 @@ $assert( 'evaluate: necessary decision leaves the queue and is not a consent ser
 $assert( 'rule_for_host: parent domain rule covers a subdomain, a path rule does not', null !== Services::rule_for_host( 'a.b.example.org', Services::parse_rules( 'example.org marketing' ) ) && null === Services::rule_for_host( 'example.org', Services::parse_rules( 'example.org/ads marketing' ) ) );
 
 // ---------- banner templates (PLAN 42.20) ----------
-$assert( 'templates: the four known ones, classic first', array( 'classic', 'cookiebot', 'cookie', 'slim' ) === Templates::ALL );
+$assert( 'templates: the five known ones, classic first', array( 'classic', 'cookiebot', 'cookie', 'slim', 'accordion' ) === Templates::ALL );
 $assert( 'templates: an unknown or empty value is classic', 'classic' === Templates::normalize( 'nonsense' ) && 'classic' === Templates::normalize( '' ) && 'classic' === Templates::normalize( 'SLIM' ) && 'slim' === Templates::normalize( 'slim' ) );
 $assert( 'templates: classic loads no extra style, the others load consent-<name>.min.css only', '' === Templates::style_file( 'classic', '.min' ) && 'consent-slim.min.css' === Templates::style_file( 'slim', '.min' ) && 'consent-cookie.css' === Templates::style_file( 'cookie', '' ) && '' === Templates::style_file( 'x/../y', '.min' ) );
-foreach ( array( 'cookiebot', 'cookie', 'slim' ) as $t ) {
+foreach ( array( 'cookiebot', 'cookie', 'slim', 'accordion' ) as $t ) {
 	$f = Templates::style_file( $t, '.min' );
 	$assert( "templates: $t has its style file built", is_file( $root . '/assets/consent/' . $f ) && is_file( $root . '/assets/consent/consent-' . $t . '.css' ) );
 }
 $def = array( 'color_bg' => '#ffffff', 'color_text' => '#1d2327', 'color_accent' => '#1d4ed8', 'color_accent_text' => '#ffffff' );
 $assert( 'templates: default colours add nothing in classic, cookiebot and slim (existing sites do not change)', '' === Templates::variables( 'classic', $def ) && '' === Templates::variables( 'cookiebot', $def ) && '' === Templates::variables( 'slim', $def ) );
+$assert( 'templates: the accordion card brings its own palette while the colours are at the global default', '--uxc-fg:#27364b;--uxc-ac:#2f2d7e;' === Templates::variables( 'accordion', $def ) );
+$assert( 'templates: a colour the owner changed wins over the accordion palette', '--uxc-ac:#ff0000;--uxc-fg:#27364b;' === Templates::variables( 'accordion', array( 'color_accent' => '#ff0000' ) + $def ) || '--uxc-fg:#27364b;--uxc-ac:#ff0000;' === Templates::variables( 'accordion', array( 'color_accent' => '#ff0000' ) + $def ) );
 $assert( 'templates: own colours are emitted in every template', '--uxc-bg:#112233;' === Templates::variables( 'classic', array( 'color_bg' => '#112233' ) + $def ) );
 $assert( 'templates: the cookie card is light by default (no colour overrides, like the other templates)', '' === Templates::variables( 'cookie', $def ) );
 $assert( 'templates: own colours are emitted in the cookie card too', '--uxc-bg:#111111;--uxc-fg:#eeeeee;' === Templates::variables( 'cookie', array( 'color_bg' => '#111111', 'color_text' => '#eeeeee' ) + $def ) );

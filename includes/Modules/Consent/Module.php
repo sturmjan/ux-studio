@@ -459,7 +459,11 @@ final class Module extends BaseModule {
 			'rv'     => 'main' === (string) $s->get( 'reopen_view', 'detail' ) ? 'main' : 'detail',
 			'c'      => $categories,
 			't'      => array(
-				'title'    => $this->text( 'title', __( 'Your privacy choices', 'ux-studio' ), array( 'cookie' => __( 'A word about cookies', 'ux-studio' ) ) ),
+				'title'    => $this->text( 'title', __( 'Your privacy choices', 'ux-studio' ), array(
+						'cookie'    => __( 'A word about cookies', 'ux-studio' ),
+						'accordion' => __( 'Cookie settings', 'ux-studio' ),
+					)
+				),
 				'msg'      => $this->text(
 					'message',
 					__( 'We use cookies so this site works and, if you agree, to measure visits and show relevant offers. Choose what you allow. You can change your decision at any time.', 'ux-studio' ),
@@ -468,7 +472,7 @@ final class Module extends BaseModule {
 				'accept'   => $this->text( 'btn_accept', __( 'Accept all', 'ux-studio' ), array( 'cookie' => __( 'Sure', 'ux-studio' ) ) ),
 				'reject'   => $this->text( 'btn_reject', __( 'Reject all', 'ux-studio' ), array( 'cookie' => __( 'No thanks', 'ux-studio' ) ) ),
 				'settings' => (string) $s->get( 'btn_settings', __( 'Customize', 'ux-studio' ) ),
-				'save'     => (string) $s->get( 'btn_save', __( 'Save choices', 'ux-studio' ) ),
+				'save'     => $this->text( 'btn_save', __( 'Save choices', 'ux-studio' ), array( 'accordion' => __( 'Save settings', 'ux-studio' ) ) ),
 				'close'    => __( 'Close', 'ux-studio' ),
 				'always'   => __( 'Always on', 'ux-studio' ),
 				'services' => __( 'Services', 'ux-studio' ),
@@ -763,18 +767,21 @@ final class Module extends BaseModule {
 					'cookiebot' => __( 'Tabs', 'ux-studio' ),
 					'cookie'    => __( 'Card', 'ux-studio' ),
 					'slim'      => __( 'Slim bar', 'ux-studio' ),
+					'accordion' => __( 'Categories', 'ux-studio' ),
 				),
 				'images'       => array(
 					'classic'   => UXSTUDIO_URL . 'assets/consent/templates/classic.svg',
 					'cookiebot' => UXSTUDIO_URL . 'assets/consent/templates/cookiebot.svg',
 					'cookie'    => UXSTUDIO_URL . 'assets/consent/templates/cookie.svg',
 					'slim'      => UXSTUDIO_URL . 'assets/consent/templates/slim.svg',
+					'accordion' => UXSTUDIO_URL . 'assets/consent/templates/accordion.svg',
 				),
 				'descriptions' => array(
 					'classic'   => __( 'A box in a corner or a bar across the bottom.', 'ux-studio' ),
 					'cookiebot' => __( 'A wide panel with tabs and switches.', 'ux-studio' ),
 					'cookie'    => __( 'A light card with round buttons.', 'ux-studio' ),
 					'slim'      => __( 'One thin bar across the page.', 'ux-studio' ),
+					'accordion' => __( 'A card with a close cross and the categories as rows with switches.', 'ux-studio' ),
 				),
 				'default'      => 'classic',
 			),
