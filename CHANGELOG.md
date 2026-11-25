@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.20.1 - 2026-11-25
+
+- Fixed: the text of a consent field (Form Builder, "Acceptance" and "Checkbox") accepts a link, so you can write e.g. `I agree with the <a href="/gdpr">GDPR policy</a>`. Until now the tags were stripped when saving. Only links (http, https, mailto) and basic emphasis (strong, em, br) are kept; any other HTML is removed.
+
 ## 0.20.0 - 2026-11-20
 
 - Added: a new Cookie Consent template "Categories" (accordion). One light card in the corner with a centred heading and a close cross, the categories as grey rows with a switch (necessary ones marked "Always on") and a chevron that opens the description and the services, equal "Accept all" and "Reject all" buttons side by side and "Save settings" under them, the policy link at the bottom. Its own indigo and slate palette is used until you set your own colours. The close cross declines when nothing has been chosen yet.

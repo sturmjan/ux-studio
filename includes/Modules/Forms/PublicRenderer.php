@@ -356,6 +356,11 @@ final class PublicRenderer {
 		return (string) ob_get_clean();
 	}
 
+	/** Consent text with a safe inline-HTML subset (links to GDPR policy etc.). */
+	private function consent_html( string $text ): string {
+		return wp_kses( $text, Fields::consent_allowed_html(), array( 'http', 'https', 'mailto' ) );
+	}
+
 	/**
 	 * @param bool   $inline_star True when the required star must sit in the control's own text (its label is not drawn).
 	 * @param string $group_label Id of the element that names a radio / checkbox group.
@@ -435,13 +440,13 @@ final class PublicRenderer {
 					esc_attr( $uid ),
 					$name,
 					$required,
-					esc_html( $placeholder ),
+					$this->consent_html( $placeholder ),
 					$star // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				);
 
 			case 'acceptance':
 				$terms = (string) ( $field['terms_url'] ?? '' );
-				$text  = esc_html( $placeholder ?: $field['label'] );
+				$text  = '' !== $placeholder ? $this->consent_html( $placeholder ) : esc_html( (string) $field['label'] );
 				if ( '' !== $terms ) {
 					$text = sprintf(
 						/* translators: %s: link to terms/policy, already HTML. */

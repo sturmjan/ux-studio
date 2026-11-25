@@ -134,7 +134,9 @@ final class Fields {
 			'key'           => $key,
 			'type'          => $type,
 			'label'         => sanitize_text_field( (string) ( $field['label'] ?? '' ) ),
-			'placeholder'   => sanitize_text_field( (string) ( $field['placeholder'] ?? '' ) ),
+			'placeholder'   => in_array( $type, array( 'checkbox', 'acceptance' ), true )
+				? self::sanitize_consent_html( (string) ( $field['placeholder'] ?? '' ) )
+				: sanitize_text_field( (string) ( $field['placeholder'] ?? '' ) ),
 			'required'      => ! $is_layout && ! empty( $field['required'] ),
 			'css_class'     => self::sanitize_css_class( (string) ( $field['css_class'] ?? '' ) ),
 			'default_value' => sanitize_text_field( (string) ( $field['default_value'] ?? '' ) ),
@@ -211,6 +213,32 @@ final class Fields {
 			}
 		}
 		return $closest;
+	}
+
+	/**
+	 * Allowed inline HTML for consent text (checkbox / acceptance): links
+	 * (e.g. to the GDPR policy) and basic emphasis only.
+	 *
+	 * @return array<string, array<string, bool>>
+	 */
+	public static function consent_allowed_html(): array {
+		return array(
+			'a'      => array(
+				'href'   => true,
+				'target' => true,
+				'rel'    => true,
+				'title'  => true,
+			),
+			'strong' => array(),
+			'b'      => array(),
+			'em'     => array(),
+			'i'      => array(),
+			'br'     => array(),
+		);
+	}
+
+	public static function sanitize_consent_html( string $html ): string {
+		return trim( wp_kses( $html, self::consent_allowed_html(), array( 'http', 'https', 'mailto' ) ) );
 	}
 
 	private static function sanitize_css_class( string $class ): string {
