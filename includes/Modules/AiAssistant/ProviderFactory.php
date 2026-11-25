@@ -10,6 +10,7 @@ namespace UxStudio\Modules\AiAssistant;
 use UxStudio\Core\Security;
 use UxStudio\Core\Settings;
 use UxStudio\Modules\AiAssistant\Providers\AiProviderInterface;
+use UxStudio\Modules\AiAssistant\Providers\ClaudeCodeBridgeProvider;
 use UxStudio\Modules\AiAssistant\Providers\ClaudeProvider;
 use UxStudio\Modules\AiAssistant\Providers\DeepSeekProvider;
 use UxStudio\Modules\AiAssistant\Providers\OpenAiProvider;
@@ -54,6 +55,13 @@ final class ProviderFactory {
 			case 'deepseek':
 				return new DeepSeekProvider( Security::get_secret( self::secret_option( 'deepseek' ) ) );
 
+			case 'claude_code':
+				return new ClaudeCodeBridgeProvider(
+					Security::get_secret( self::secret_option( 'claude_code' ) ),
+					(string) self::settings()->get( 'claude_code_url', '' ),
+					(string) self::settings()->get( 'claude_code_workdir', '' )
+				);
+
 			default:
 				throw new \RuntimeException( "Unknown AI provider: {$provider_id}" );
 		}
@@ -75,6 +83,10 @@ final class ProviderFactory {
 			'deepseek' => array(
 				'label'  => 'DeepSeek',
 				'models' => ( new DeepSeekProvider( '' ) )->get_models(),
+			),
+			'claude_code' => array(
+				'label'  => 'Claude Code Bridge (local PC)',
+				'models' => ( new ClaudeCodeBridgeProvider( '', '' ) )->get_models(),
 			),
 		);
 	}
