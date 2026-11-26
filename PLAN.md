@@ -4816,12 +4816,13 @@ Cíl: každý uživatel Centrální aplikace (CA) si vygeneruje vlastní AI chat
 ### 45.6 Fáze
 
 **F0 Dohoda a ochranná síť**
-- [ ] Potvrdit rozhodnutí z 45.2 (repo, jmenný prostor, `bot_id`, minimální verze PHP; CA používá 8.2+, ověřit minimum pluginu).
-- [ ] Charakterizační testy dnešního chování (chat, RAG, handoff, limity) v `tests/`.
-- [ ] Uložit Edge smoke test (widget, karty, FAQ, handoff) do `tests/e2e/` jako opakovatelný skript bez tajemství.
+- [x] Potvrdit rozhodnutí z 45.2 (repo, jmenný prostor, `bot_id`, minimální verze PHP): hotovo 2026-11-26, jádro cílí na PHP 8.1 (minimum pluginu, CA má 8.2+).
+- [x] Charakterizační test RAG: `tests/ai-rag-characterization.php` (chunking, záložní embedding, prokázaná chyba IDF z 45.5). Chat a handoff kryje e2e smoke test.
+- [ ] Charakterizační testy limitů (`UsageLimiter`) a skládání promptu (`PromptBuilder`).
+- [x] Edge smoke test `tests/e2e/ai-chat-smoke.mjs` (odpověď, karty, handoff celý kruh; konfigurace z proměnných prostředí, bez tajemství); 2026-11-26 prošlo 9/9.
 
 **F1 Čistá část jádra**
-- [ ] Založit repo `ux1-ai-core`, autoloader bez Composeru, CI s PHPUnit.
+- [x] Repo `sturmjan/ux1-ai-core` (privátní, lokálně `D:\xampp\htdocs\.komponenty\ux1-ai-core`): autoloader bez Composeru, vlastní testovací runner, strážce čistoty `tests/purity.php` (shodí build při volání WordPressu nebo CA), CI na PHP 8.1-8.4 zelené; 2026-11-26.
 - [ ] Přesunout providery (se streamem, embedem a odhadem tokenů) za rozhraní `HttpClient`.
 - [ ] Přesunout chunking, embeddingy, `VectorSearch`; opravit body z 45.5 (IDF, filtr modelu, jeden chunker).
 - [ ] Plugin přepnout na jádro, chování beze změny, testy zelené.
