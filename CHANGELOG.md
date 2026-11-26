@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.21.1 - 2026-11-26
+
+- Fixed: AI Assistant inquiries inbox - the table no longer overflows the content area: date and type share a column, name, e-mail and phone are grouped as Contact, the page shows its path (full URL on hover) and the row actions are icons. "Contact" is translated to Czech.
+
 ## 0.21.0 - 2026-11-26
 
 - Fixed: AI Assistant - a product re-vectorization queue whose next batch was lost (two overlapping WP-Cron runs) now resumes by itself in the next admin or cron request instead of staying stuck.

@@ -53,6 +53,16 @@ function typeLabel( type: string ): string {
 	return 'contact' === type ? __( 'Contact', 'ux-studio' ) : type;
 }
 
+/** Short form of the page URL for the table: path and query, the full URL stays in the link title. */
+function pagePath( url: string ): string {
+	try {
+		const u = new URL( url );
+		return ( u.pathname + u.search ) || '/';
+	} catch {
+		return url;
+	}
+}
+
 export function InquiriesTab(): JSX.Element {
 	const [ page, setPage ] = useState( 1 );
 	const [ type, setType ] = useState( '' );
@@ -176,10 +186,7 @@ export function InquiriesTab(): JSX.Element {
 									/>
 								</th>
 								<th>{ __( 'Date', 'ux-studio' ) }</th>
-								<th>{ __( 'Type', 'ux-studio' ) }</th>
-								<th>{ __( 'Name', 'ux-studio' ) }</th>
-								<th>{ __( 'E-mail', 'ux-studio' ) }</th>
-								<th>{ __( 'Phone', 'ux-studio' ) }</th>
+								<th>{ __( 'Contact', 'ux-studio' ) }</th>
 								<th>{ __( 'Message', 'ux-studio' ) }</th>
 								<th>{ __( 'Page', 'ux-studio' ) }</th>
 								<th>{ __( 'Status', 'ux-studio' ) }</th>
@@ -192,16 +199,22 @@ export function InquiriesTab(): JSX.Element {
 									<td>
 										<input type="checkbox" checked={ selected.includes( i.id ) } onChange={ () => toggle( i.id ) } aria-label={ __( 'Select inquiry', 'ux-studio' ) } />
 									</td>
-									<td>{ formatDate( i.created_at ) }</td>
-									<td>{ typeLabel( i.type ) }</td>
-									<td>{ i.name || '—' }</td>
-									<td>{ i.email ? <a href={ `mailto:${ i.email }` }>{ i.email }</a> : '—' }</td>
-									<td>{ i.phone ? <a href={ `tel:${ i.phone.replace( /[^+\d]/g, '' ) }` }>{ i.phone }</a> : '—' }</td>
-									<td style={ { whiteSpace: 'pre-wrap', maxWidth: 360 } }>{ i.message || '—' }</td>
-									<td>
+									{ /* Date and type share a column, and so do the contact details: ten columns did not fit the content area. */ }
+									<td style={ { whiteSpace: 'nowrap' } }>
+										{ formatDate( i.created_at ) }
+										<div className="description">{ typeLabel( i.type ) }</div>
+									</td>
+									<td style={ { minWidth: 160 } }>
+										{ i.name ? <strong>{ i.name }</strong> : null }
+										{ i.email ? <div><a href={ `mailto:${ i.email }` } style={ { wordBreak: 'break-all' } }>{ i.email }</a></div> : null }
+										{ i.phone ? <div><a href={ `tel:${ i.phone.replace( /[^+\d]/g, '' ) }` } style={ { whiteSpace: 'nowrap' } }>{ i.phone }</a></div> : null }
+										{ ! i.name && ! i.email && ! i.phone ? '—' : null }
+									</td>
+									<td style={ { whiteSpace: 'pre-wrap', minWidth: 180, maxWidth: 320 } }>{ i.message || '—' }</td>
+									<td style={ { maxWidth: 160 } }>
 										{ /^https?:\/\//i.test( i.page_url ) ? (
-											<a href={ i.page_url } target="_blank" rel="noopener noreferrer">
-												{ i.page_url }
+											<a href={ i.page_url } target="_blank" rel="noopener noreferrer" title={ i.page_url } style={ { wordBreak: 'break-all' } }>
+												{ pagePath( i.page_url ) }
 											</a>
 										) : (
 											i.page_url || '—'
@@ -212,12 +225,11 @@ export function InquiriesTab(): JSX.Element {
 											{ 'new' === i.status ? __( 'New', 'ux-studio' ) : __( 'Handled', 'ux-studio' ) }
 										</span>
 										{ null !== i.conversation_id && (
-											<>
-												{ ' ' }
+											<div>
 												<button type="button" className="button-link" onClick={ () => setConversationId( i.conversation_id ) }>
 													{ __( 'Conversation', 'ux-studio' ) } #{ i.conversation_id }
 												</button>
-											</>
+											</div>
 										) }
 									</td>
 									<td style={ { whiteSpace: 'nowrap' } }>
@@ -225,15 +237,18 @@ export function InquiriesTab(): JSX.Element {
 											type="button"
 											className="button-link"
 											disabled={ busy }
+											aria-label={ 'new' === i.status ? __( 'Mark handled', 'ux-studio' ) : __( 'Mark new', 'ux-studio' ) }
+											title={ 'new' === i.status ? __( 'Mark handled', 'ux-studio' ) : __( 'Mark new', 'ux-studio' ) }
 											onClick={ () => setOne.mutate( { id: i.id, status: 'new' === i.status ? 'handled' : 'new' } ) }
 										>
-											{ 'new' === i.status ? __( 'Mark handled', 'ux-studio' ) : __( 'Mark new', 'ux-studio' ) }
+											{ 'new' === i.status ? <Check size={ 16 } /> : <RotateCcw size={ 16 } /> }
 										</button>
 										{ ' ' }
 										<button
 											type="button"
 											className="button-link"
 											aria-label={ __( 'Delete inquiry', 'ux-studio' ) }
+											title={ __( 'Delete inquiry', 'ux-studio' ) }
 											disabled={ busy }
 											onClick={ () => {
 												if ( window.confirm( __( 'Delete this inquiry?', 'ux-studio' ) ) ) {
@@ -249,7 +264,7 @@ export function InquiriesTab(): JSX.Element {
 							) ) }
 							{ ! items.length ? (
 								<tr>
-									<td colSpan={ 10 }>{ __( 'No inquiries yet.', 'ux-studio' ) }</td>
+									<td colSpan={ 7 }>{ __( 'No inquiries yet.', 'ux-studio' ) }</td>
 								</tr>
 							) : null }
 						</tbody>
