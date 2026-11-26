@@ -151,10 +151,13 @@ abstract class OpenAiCompatibleProvider implements TextProvider {
 
 	public function chat_with_tools( array $messages, string $model, array $tools = array(), array $options = array() ): array {
 		$body = array(
-			'model'                          => $model,
-			$this->token_param_key( $model ) => $options['max_tokens'] ?? 4096,
-			'messages'                       => $this->with_system( $messages, $options ),
+			'model'    => $model,
+			'messages' => $this->with_system( $messages, $options ),
 		);
+		// Additive option (CA): omit_max_tokens leaves the limit to the API instead of the 4096 default.
+		if ( empty( $options['omit_max_tokens'] ) ) {
+			$body[ $this->token_param_key( $model ) ] = $options['max_tokens'] ?? 4096;
+		}
 		if ( ! empty( $tools ) ) {
 			$body['tools'] = array_map(
 				static fn ( array $tool ): array => array(
@@ -167,14 +170,22 @@ abstract class OpenAiCompatibleProvider implements TextProvider {
 				),
 				$tools
 			);
+			// Additive option (CA): force_tool = name of the function the model must call.
+			if ( ! empty( $options['force_tool'] ) ) {
+				$body['tool_choice'] = array(
+					'type'     => 'function',
+					'function' => array( 'name' => (string) $options['force_tool'] ),
+				);
+			}
 		}
 
-		$response = $this->post( $body );
+		$response = $this->post( $body, (int) ( $options['timeout'] ?? self::TIMEOUT ) );
 		$data     = $response->json();
 		$choice   = $data['choices'][0] ?? null;
 		if ( ! $choice ) {
-			$error_msg = $data['error']['message'] ?? $response->body;
-			throw new \RuntimeException( $this->error_name() . " API: {$error_msg}" );
+			$api_message = isset( $data['error']['message'] ) && is_string( $data['error']['message'] ) ? $data['error']['message'] : null;
+			$error_msg   = $api_message ?? $response->body;
+			throw new ProviderException( $this->error_name() . " API: {$error_msg}", $response->status, $api_message );
 		}
 
 		$result = array(
@@ -252,11 +263,11 @@ abstract class OpenAiCompatibleProvider implements TextProvider {
 	}
 
 	/** @param array<string, mixed> $body */
-	private function post( array $body ): HttpResponse {
+	private function post( array $body, int $timeout = self::TIMEOUT ): HttpResponse {
 		try {
-			return $this->http->request( 'POST', $this->api_url(), $this->headers(), Json::encode( $body ), self::TIMEOUT );
+			return $this->http->request( 'POST', $this->api_url(), $this->headers(), Json::encode( $body ), $timeout );
 		} catch ( HttpException $e ) {
-			throw new \RuntimeException( $e->getMessage(), 0, $e );
+			throw new ProviderException( $e->getMessage(), 0, null, $e );
 		}
 	}
 }

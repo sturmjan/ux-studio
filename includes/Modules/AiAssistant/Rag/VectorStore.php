@@ -1,11 +1,13 @@
 <?php
 /**
- * Vector storage and cosine-similarity search over uxstudio_ai_assistant_vectors.
+ * Vector storage over uxstudio_ai_assistant_vectors (the $wpdb side of the core VectorStore port).
  *
  * @package UxStudio
  */
 
 namespace UxStudio\Modules\AiAssistant\Rag;
+
+use Ux1\AiCore\Rag\VectorStore as VectorStorePort;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -15,8 +17,11 @@ defined( 'ABSPATH' ) || exit;
  * inserted once per target (see TrainingSourceManager), so duplicating a
  * source across both chats costs no extra embedding API calls. Search always
  * filters by chat_target so the public chat never sees internal-only vectors.
+ *
+ * This is the $wpdb implementation of the core's Ux1\AiCore\Rag\VectorStore port: scoring lives in the core
+ * (VectorSearch); this class only reads and writes rows, and always filters candidates by embedding_model.
  */
-final class VectorStore {
+final class VectorStore implements VectorStorePort {
 
 	public const TARGET_PUBLIC   = 'public';
 	public const TARGET_INTERNAL = 'internal';
@@ -125,65 +130,58 @@ final class VectorStore {
 	}
 
 	/**
-	 * Cosine-similarity nearest-neighbour search within one chat_target.
+	 * Core port: candidate vectors of one chat_target made by ONE embedding model, in batches (vectors of
+	 * different models are not comparable, so they are never returned together).
 	 *
-	 * @param array<int, float> $query_vector Query embedding.
-	 * @return array<int, array{id:int,chunk_text:string,similarity:float,source_type:string,source_id:?int,metadata:?array<string,mixed>}>
+	 * @return \Generator<int, array<int, array{id:int,chunk_text:string,vector:array<int,float>,source_type:string,source_id:?int,metadata:?array<string,mixed>}>>
 	 */
-	public function search( string $chat_target, array $query_vector, int $limit = 5, ?string $source_type = null ): array {
+	public function candidate_batches( string $target, string $embedding_model, ?string $source_type, int $batch_size ): iterable {
 		global $wpdb;
 
-		$chat_target = self::normalize_target( $chat_target );
-		$where       = $wpdb->prepare( ' WHERE chat_target = %s', $chat_target );
+		$where = $wpdb->prepare( ' WHERE chat_target = %s AND embedding_model = %s', self::normalize_target( $target ), $embedding_model );
 		if ( null !== $source_type ) {
 			$where .= $wpdb->prepare( ' AND source_type = %s', $source_type );
 		}
 
-		$batch_size = 200;
+		$batch_size = max( 1, $batch_size );
 		$offset     = 0;
-		$results    = array();
 
 		while ( true ) {
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $where built exclusively from $wpdb->prepare() fragments above.
 			$rows = $wpdb->get_results(
-				"SELECT id, source_type, source_id, chunk_text, vector, metadata FROM {$this->table}{$where} LIMIT {$batch_size} OFFSET {$offset}",
+				"SELECT id, source_type, source_id, chunk_text, vector, metadata FROM {$this->table}{$where} ORDER BY id LIMIT {$batch_size} OFFSET {$offset}",
 				ARRAY_A
 			);
 
 			if ( empty( $rows ) ) {
-				break;
+				return;
 			}
 
+			$batch = array();
 			foreach ( $rows as $row ) {
-				$stored_vector = json_decode( (string) $row['vector'], true );
-				if ( ! is_array( $stored_vector ) || empty( $stored_vector ) ) {
+				$vector = json_decode( (string) $row['vector'], true );
+				if ( ! is_array( $vector ) || empty( $vector ) ) {
 					continue;
 				}
-
-				$similarity = $this->cosine_similarity( $query_vector, $stored_vector );
-				if ( $similarity < 0.1 ) {
-					continue;
-				}
-
-				$results[] = array(
+				$batch[] = array(
 					'id'          => (int) $row['id'],
 					'chunk_text'  => $row['chunk_text'],
-					'similarity'  => $similarity,
+					'vector'      => $vector,
 					'source_type' => $row['source_type'],
 					'source_id'   => $row['source_id'] ? (int) $row['source_id'] : null,
 					'metadata'    => $row['metadata'] ? json_decode( (string) $row['metadata'], true ) : null,
 				);
 			}
 
+			if ( ! empty( $batch ) ) {
+				yield $batch;
+			}
+
 			$offset += $batch_size;
 			if ( count( $rows ) < $batch_size ) {
-				break;
+				return;
 			}
 		}
-
-		usort( $results, static fn( array $a, array $b ): int => $b['similarity'] <=> $a['similarity'] );
-
-		return array_slice( $results, 0, $limit );
 	}
 
 	/**
@@ -231,38 +229,6 @@ final class VectorStore {
 	}
 
 	/**
-	 * Cosine similarity between two equal-length vectors (0.0 on mismatch).
-	 *
-	 * @param array<int, float> $a First vector.
-	 * @param array<int, float> $b Second vector.
-	 */
-	public function cosine_similarity( array $a, array $b ): float {
-		$len = count( $a );
-		if ( $len !== count( $b ) || 0 === $len ) {
-			return 0.0;
-		}
-
-		$dot = 0.0;
-		$na  = 0.0;
-		$nb  = 0.0;
-
-		for ( $i = 0; $i < $len; $i++ ) {
-			$dot += $a[ $i ] * $b[ $i ];
-			$na  += $a[ $i ] * $a[ $i ];
-			$nb  += $b[ $i ] * $b[ $i ];
-		}
-
-		$na = sqrt( $na );
-		$nb = sqrt( $nb );
-
-		if ( 0.0 === $na || 0.0 === $nb ) {
-			return 0.0;
-		}
-
-		return $dot / ( $na * $nb );
-	}
-
-	/**
 	 * Aggregate stats for the RAG admin UI.
 	 *
 	 * @return array<string, mixed>
@@ -299,16 +265,76 @@ final class VectorStore {
 	}
 
 	/**
-	 * Whether any vectors exist for the given chat_target.
+	 * Whether the chat_target has any vector made by the given embedding model.
 	 */
-	public function has_vectors_for_target( string $chat_target ): bool {
+	public function has_vectors( string $target, string $embedding_model ): bool {
 		global $wpdb;
 
 		$count = (int) $wpdb->get_var(
-			$wpdb->prepare( "SELECT COUNT(*) FROM {$this->table} WHERE chat_target = %s", self::normalize_target( $chat_target ) )
+			$wpdb->prepare( "SELECT COUNT(*) FROM {$this->table} WHERE chat_target = %s AND embedding_model = %s LIMIT 1", self::normalize_target( $target ), $embedding_model )
 		);
 
 		return $count > 0;
+	}
+
+	/**
+	 * Number of vectors stored with any of the given embedding model ids.
+	 *
+	 * @param array<int, string> $models Model ids.
+	 */
+	public function count_by_models( array $models ): int {
+		global $wpdb;
+
+		if ( empty( $models ) ) {
+			return 0;
+		}
+
+		$placeholders = implode( ', ', array_fill( 0, count( $models ), '%s' ) );
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- placeholders only, values bound by prepare().
+		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$this->table} WHERE embedding_model IN ({$placeholders})", $models ) );
+	}
+
+	/**
+	 * Rows (id, chunk_text) stored with any of the given embedding model ids, for re-embedding.
+	 *
+	 * @param array<int, string> $models Model ids.
+	 * @return array<int, array{id:int,chunk_text:string}>
+	 */
+	public function rows_by_models( array $models, int $limit ): array {
+		global $wpdb;
+
+		if ( empty( $models ) ) {
+			return array();
+		}
+
+		$placeholders = implode( ', ', array_fill( 0, count( $models ), '%s' ) );
+		$args         = array_merge( $models, array( max( 1, $limit ) ) );
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- placeholders only, values bound by prepare().
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT id, chunk_text FROM {$this->table} WHERE embedding_model IN ({$placeholders}) ORDER BY id LIMIT %d", $args ), ARRAY_A );
+
+		return array_map( static fn( array $r ): array => array( 'id' => (int) $r['id'], 'chunk_text' => (string) $r['chunk_text'] ), (array) $rows );
+	}
+
+	/**
+	 * Replace the vector (and its model id) of one stored chunk.
+	 *
+	 * @param array<int, float> $vector Embedding vector.
+	 */
+	public function update_vector( int $id, array $vector, string $embedding_model ): void {
+		global $wpdb;
+
+		$wpdb->update(
+			$this->table,
+			array(
+				'vector'          => wp_json_encode( $vector ),
+				'embedding_model' => $embedding_model,
+			),
+			array( 'id' => $id ),
+			array( '%s', '%s' ),
+			array( '%d' )
+		);
 	}
 
 	/**

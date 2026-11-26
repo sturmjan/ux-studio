@@ -169,13 +169,21 @@ final class ClaudeProvider implements TextProvider {
 				),
 				$tools
 			);
+			// Additive option (CA): force_tool = name of the tool the model must use.
+			if ( ! empty( $options['force_tool'] ) ) {
+				$body['tool_choice'] = array(
+					'type' => 'tool',
+					'name' => (string) $options['force_tool'],
+				);
+			}
 		}
 
-		$response = $this->post( $body );
+		$response = $this->post( $body, (int) ( $options['timeout'] ?? self::TIMEOUT ) );
 		$data     = $response->json();
 		if ( ! isset( $data['content'] ) ) {
-			$error_msg = $data['error']['message'] ?? $response->body;
-			throw new \RuntimeException( "Claude API: {$error_msg}" );
+			$api_message = isset( $data['error']['message'] ) && is_string( $data['error']['message'] ) ? $data['error']['message'] : null;
+			$error_msg   = $api_message ?? $response->body;
+			throw new ProviderException( "Claude API: {$error_msg}", $response->status, $api_message );
 		}
 
 		$result = array(
@@ -247,11 +255,11 @@ final class ClaudeProvider implements TextProvider {
 	}
 
 	/** @param array<string, mixed> $body */
-	private function post( array $body ): \Ux1\AiCore\Http\HttpResponse {
+	private function post( array $body, int $timeout = self::TIMEOUT ): \Ux1\AiCore\Http\HttpResponse {
 		try {
-			return $this->http->request( 'POST', self::API_URL, $this->headers(), Json::encode( $body ), self::TIMEOUT );
+			return $this->http->request( 'POST', self::API_URL, $this->headers(), Json::encode( $body ), $timeout );
 		} catch ( HttpException $e ) {
-			throw new \RuntimeException( $e->getMessage(), 0, $e );
+			throw new ProviderException( $e->getMessage(), 0, null, $e );
 		}
 	}
 }

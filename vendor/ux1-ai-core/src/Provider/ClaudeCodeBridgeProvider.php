@@ -33,7 +33,10 @@ final class ClaudeCodeBridgeProvider implements TextProvider {
 		private readonly string $token,
 		private readonly string $base_url,
 		private readonly HttpClient $http,
-		private readonly string $workdir = ''
+		private readonly string $workdir = '',
+		private readonly int $max_turns = self::MAX_TURNS,
+		private readonly ?int $auth_ttl = null,
+		private readonly int $timeout = self::TIMEOUT
 	) {}
 
 	public function get_id(): string {
@@ -112,10 +115,126 @@ final class ClaudeCodeBridgeProvider implements TextProvider {
 	 * @param array<int, array<string, mixed>> $messages Conversation.
 	 */
 	private function request( array $messages, string $system ): string {
-		if ( '' === $this->token || '' === $this->base_url ) {
-			throw new \RuntimeException( 'Claude Code Bridge: URL or token is not configured.' );
+		$this->assert_configured();
+
+		$body = $this->build_body( $this->with_system_prefix( $messages, $system ), array() );
+
+		$response = $this->send( $body );
+		$parsed   = $response->json();
+		if ( 202 === $response->status ) {
+			throw new BridgeException( 'Claude Code Bridge: waiting for approval in the bridge panel.', 'approval', 202, null, '', 0, $this->approve_url( $parsed ) );
+		}
+		if ( ! $response->is_success() || empty( $parsed['success'] ) ) {
+			$detail = (string) ( $parsed['error'] ?? ( 'HTTP ' . $response->status ) );
+			throw new BridgeException( 'Claude Code Bridge: HTTP ' . $response->status . ': ' . $detail, 'http', $response->status, isset( $parsed['error'] ) ? (string) $parsed['error'] : null );
 		}
 
+		$content = trim( (string) ( $parsed['content'] ?? '' ) );
+		if ( '' === $content ) {
+			throw new BridgeException( 'Claude Code Bridge: empty answer.', 'empty', $response->status );
+		}
+		return $content;
+	}
+
+	/**
+	 * Full bridge turn with everything the bridge reports (the agent runs its own tools, so there is no tool loop
+	 * on the host side). Unlike generate_content()/stream_chat() the answer is returned untrimmed, the HTTP status is
+	 * mapped to a BridgeException with structured detail, and the bridge's own token count is returned when present.
+	 *
+	 * @param array<int, array<string, mixed>>                                                    $messages Conversation, sent as given.
+	 * @param array{system?:string,workdir?:string,session_id?:string,user_id?:int,max_turns?:int} $options
+	 * @return array{content:string,tokens:?int,tool_calls:array<int,array{name:string,args:mixed,result:mixed}>,session_id:string}
+	 * @throws BridgeException
+	 */
+	public function chat( array $messages, array $options = array() ): array {
+		$this->assert_configured();
+
+		$body     = $this->build_body( $this->with_system_prefix( $messages, (string) ( $options['system'] ?? '' ) ), $options );
+		$response = $this->send( $body );
+		$parsed   = $response->json();
+		$status   = $response->status;
+
+		$error      = isset( $parsed['error'] ) && is_scalar( $parsed['error'] ) ? (string) $parsed['error'] : null;
+		$error_code = (string) ( $parsed['code'] ?? '' );
+		$retry      = (int) ( $parsed['retry_after'] ?? 0 );
+
+		// Status codes are resolved BEFORE the success check: any 2xx counts as success, so a 202 (waiting for
+		// approval) would otherwise fall through to a misleading "empty answer".
+		if ( 202 === $status ) {
+			throw new BridgeException( 'Claude Code Bridge: waiting for approval in the bridge panel.', 'approval', 202, $error, $error_code, 0, $this->approve_url( $parsed ) );
+		}
+		$reasons = array(
+			429 => 'rate_limit',
+			403 => 'forbidden',
+			503 => 'unavailable',
+			401 => 'unauthorized',
+		);
+		if ( isset( $reasons[ $status ] ) ) {
+			throw new BridgeException( 'Claude Code Bridge: HTTP ' . $status . ': ' . ( $error ?? ( 'HTTP ' . $status ) ), $reasons[ $status ], $status, $error, $error_code, 429 === $status ? $retry : 0 );
+		}
+		if ( ! $response->is_success() ) {
+			throw new BridgeException( 'Claude Code Bridge: HTTP ' . $status . ': ' . ( $error ?? ( 'HTTP ' . $status ) ), 'http', $status, $error, $error_code );
+		}
+
+		$content = (string) ( $parsed['content'] ?? '' );
+		if ( '' === $content ) {
+			throw new BridgeException( 'Claude Code Bridge: empty answer.', 'empty', $status );
+		}
+
+		$tool_calls = array();
+		foreach ( (array) ( $parsed['tool_calls'] ?? array() ) as $call ) {
+			if ( ! is_array( $call ) ) {
+				continue;
+			}
+			$tool_calls[] = array(
+				'name'   => (string) ( $call['name'] ?? '' ),
+				'args'   => $call['args'] ?? array(),
+				'result' => $call['result'] ?? null,
+			);
+		}
+
+		return array(
+			'content'    => $content,
+			'tokens'     => isset( $parsed['tokens'] ) ? (int) $parsed['tokens'] : null,
+			'tool_calls' => $tool_calls,
+			'session_id' => (string) ( $parsed['session_id'] ?? '' ),
+		);
+	}
+
+	/**
+	 * Pings GET /api/ping and returns what the bridge reports. HTTP statuses are NOT exceptions here (the host
+	 * decides what 401 etc. means), only an unreachable bridge is.
+	 *
+	 * @return array{status:int,body:string,version:string,approval_status:string}
+	 * @throws BridgeException With reason "transport" or "config".
+	 */
+	public function ping(): array {
+		$this->assert_configured();
+		try {
+			$response = $this->http->request( 'GET', rtrim( $this->base_url, '/' ) . '/api/ping', array( 'Authorization' => 'Bearer ' . $this->token ), null, self::PING_TIMEOUT );
+		} catch ( HttpException $e ) {
+			throw new BridgeException( 'Claude Code Bridge: ' . $e->getMessage(), 'transport', 0, null, '', 0, '', $e );
+		}
+		$data = $response->json();
+		return array(
+			'status'          => $response->status,
+			'body'            => $response->body,
+			'version'         => (string) ( $data['version'] ?? '?' ),
+			'approval_status' => (string) ( $data['approval_status'] ?? 'unknown' ),
+		);
+	}
+
+	private function assert_configured(): void {
+		if ( '' === $this->token || '' === $this->base_url ) {
+			throw new BridgeException( 'Claude Code Bridge: URL or token is not configured.', 'config' );
+		}
+	}
+
+	/**
+	 * @param array<int, array<string, mixed>> $messages
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function with_system_prefix( array $messages, string $system ): array {
 		$messages = array_values( $messages );
 		if ( '' !== $system ) {
 			$prefix = "[System instructions - follow them strictly]\n" . $system . "\n[End of system instructions]\n\n";
@@ -125,17 +244,41 @@ final class ClaudeCodeBridgeProvider implements TextProvider {
 				array_unshift( $messages, array( 'role' => 'user', 'content' => $prefix . 'Continue.' ) );
 			}
 		}
+		return $messages;
+	}
 
+	/**
+	 * @param array<int, array<string, mixed>> $messages
+	 * @param array<string, mixed>             $options  workdir / session_id / user_id / max_turns override the defaults.
+	 * @return array<string, mixed>
+	 */
+	private function build_body( array $messages, array $options ): array {
 		$body = array(
 			'messages'  => $messages,
-			'max_turns' => self::MAX_TURNS,
+			'max_turns' => ! empty( $options['max_turns'] ) ? (int) $options['max_turns'] : $this->max_turns,
 		);
+		if ( null !== $this->auth_ttl ) {
+			$body['auth_ttl'] = $this->auth_ttl;
+		}
 		if ( '' !== $this->workdir ) {
 			$body['workdir'] = $this->workdir;
 		}
+		if ( ! empty( $options['workdir'] ) ) {
+			$body['workdir'] = (string) $options['workdir'];
+		}
+		if ( ! empty( $options['session_id'] ) ) {
+			$body['session_id'] = (string) $options['session_id'];
+		}
+		if ( ! empty( $options['user_id'] ) && (int) $options['user_id'] > 0 ) {
+			$body['user_id'] = (int) $options['user_id'];
+		}
+		return $body;
+	}
 
+	/** @param array<string, mixed> $body */
+	private function send( array $body ): \Ux1\AiCore\Http\HttpResponse {
 		try {
-			$response = $this->http->request(
+			return $this->http->request(
 				'POST',
 				rtrim( $this->base_url, '/' ) . '/api/chat',
 				array(
@@ -143,25 +286,16 @@ final class ClaudeCodeBridgeProvider implements TextProvider {
 					'Authorization' => 'Bearer ' . $this->token,
 				),
 				Json::encode( $body ),
-				self::TIMEOUT
+				$this->timeout
 			);
 		} catch ( HttpException $e ) {
-			throw new \RuntimeException( 'Claude Code Bridge: ' . $e->getMessage(), 0, $e );
+			throw new BridgeException( 'Claude Code Bridge: ' . $e->getMessage(), 'transport', 0, null, '', 0, '', $e );
 		}
+	}
 
-		$parsed = $response->json();
-		if ( 202 === $response->status ) {
-			throw new \RuntimeException( 'Claude Code Bridge: waiting for approval in the bridge panel.' );
-		}
-		if ( ! $response->is_success() || empty( $parsed['success'] ) ) {
-			$detail = (string) ( $parsed['error'] ?? ( 'HTTP ' . $response->status ) );
-			throw new \RuntimeException( 'Claude Code Bridge: HTTP ' . $response->status . ': ' . $detail );
-		}
-
-		$content = trim( (string) ( $parsed['content'] ?? '' ) );
-		if ( '' === $content ) {
-			throw new \RuntimeException( 'Claude Code Bridge: empty answer.' );
-		}
-		return $content;
+	/** @param array<string, mixed> $parsed */
+	private function approve_url( array $parsed ): string {
+		$url = trim( (string) ( $parsed['approve_url'] ?? '' ) );
+		return '' !== $url ? $url : rtrim( $this->base_url, '/' ) . '/ui';
 	}
 }
